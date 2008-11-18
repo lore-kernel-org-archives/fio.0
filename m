@@ -1,39 +1,112 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from wf-out-1314.google.com ([209.85.200.173]:6417 "EHLO
-	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751373AbYKXWMS (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 24 Nov 2008 17:12:18 -0500
-Received: by wf-out-1314.google.com with SMTP id 27so2456426wfd.4
-        for <fio@vger.kernel.org>; Mon, 24 Nov 2008 14:12:17 -0800 (PST)
-Message-ID: <e2a756a20811241412s4dcc391bq65a5e82f839e3ea5@mail.gmail.com>
-Date: Mon, 24 Nov 2008 14:12:17 -0800
-From: "Daniel Buggie" <danielabuggie@gmail.com>
-Subject: Extra Latency fields with terse output
+Received: from pasmtpb.tele.dk ([80.160.77.98]:59612 "EHLO pasmtpB.tele.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750766AbYKRSKV (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 18 Nov 2008 13:10:21 -0500
+Date: Tue, 18 Nov 2008 19:08:34 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: fio 1.22 segfaults when pressing ctrl-c
+Message-ID: <20081118180833.GE26308@kernel.dk>
+References: <4922DE15.9080009@seanodes.com> <20081118175833.GC26308@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20081118175833.GC26308@kernel.dk>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Erwan Velu <erwan@seanodes.com>
+Cc: fio@vger.kernel.org
 
-I'm not sure if this is a bug or a documentation glitch, but I'm
-getting an extra 11 values when using terse output.  Based on the sum
-of the numbers it appears that it is generating data for both usec and
-msec as opposed to the expected "<=2, 4, ..., 1000, >=2000" break down
-detailed in the man page.  Unfortunately this also means I don't know
-what the values of the fields are...
+On Tue, Nov 18 2008, Jens Axboe wrote:
+> On Tue, Nov 18 2008, Erwan Velu wrote:
+> > I'm running fio with the surface scan example, and it just segfault and 
+> > generate a core if I'm pressing CTRL-C during the test.
+> > 
+> > [root@max5 examples]# fio surface-scan
+> > write-phase: (g=0): rw=write, bs=64K-64K/64K-64K, ioengine=sync, iodepth=1
+> > verify-phase: (g=1): rw=read, bs=64K-64K/64K-64K, ioengine=sync, iodepth=1
+> > Starting 2 threads
+> > **** I'm pressing CTRL-C ****
+> > fio: terminating on signal 2
+> > Quit (core dumped)
+> > [root@max5 examples]#
+> > 
+> > 
+> > Then same from gdb:
+> > 
+> > [root@max5 examples]# gdb --args fio surface-scan
+> > GNU gdb Red Hat Linux (6.5-25.el5_1.1rh)
+> > Copyright (C) 2006 Free Software Foundation, Inc.
+> > GDB is free software, covered by the GNU General Public License, and you are
+> > welcome to change it and/or distribute copies of it under certain 
+> > conditions.
+> > Type "show copying" to see the conditions.
+> > There is absolutely no warranty for GDB.  Type "show warranty" for details.
+> > This GDB was configured as "x86_64-redhat-linux-gnu"...Using host 
+> > libthread_db library "/lib64/libthread_db.so.1".
+> > 
+> > (gdb) run
+> > Starting program: /usr/bin/fio surface-scan
+> > [Thread debugging using libthread_db enabled]
+> > [New Thread 46912498286832 (LWP 2158)]
+> > write-phase: (g=0): rw=write, bs=64K-64K/64K-64K, ioengine=sync, iodepth=1
+> > verify-phase: (g=1): rw=read, bs=64K-64K/64K-64K, ioengine=sync, iodepth=1
+> > Starting 2 threads
+> > [New Thread 1084229952 (LWP 2161)]
+> > Jobs: 1 (f=1): [WP] [-.-% done] [     0/ 57822 kb/s] [eta 00m:00s]
+> > 
+> > **** I'm pressing CTRL-C ****
+> > 
+> > Program received signal SIGINT, Interrupt.
+> > [Switching to Thread 46912498286832 (LWP 2158)]
+> > 0x0000003c23495511 in nanosleep () from /lib64/libc.so.6
+> > (gdb) bt
+> > #0  0x0000003c23495511 in nanosleep () from /lib64/libc.so.6
+> > #1  0x0000003c234c8554 in usleep () from /lib64/libc.so.6
+> > #2  0x0000000000408448 in main (argc=<value optimized out>, argv=<value 
+> > optimized out>) at fio.c:1394
+> > (gdb)
+> 
+> Can you recreate with the -O2 removed in the Makefile? That'll get us
+> some better debug information. You probably also want to inspect the
+> thread that crashed, you are looking at the main process and that just
+> mainly sleeps and does status dumps every few seconds.
 
-The output was generated with:
+OK nevermind, it's because of that main thread getting its own SIGQUIT
+and not handling it. The below should fix it, I'll release a new version
+soon.
 
-"fio --name="write-64-8-2" --ioengine=libaio --file=$DEVICE --direct=1
---bs=8k --numjobs=64 --iodepth=1 --size=4096m --group_reporting
---minimal"
-1xSSD-write-64-8-2;0;0;0;0;0;0;0;0.000000;0.000000;0;0;0.000000;0.000000;0;0;0.000000%;0.000000;0.000000;8388608;331811;25888;6;11639;92.527601;27.001639;1;20834;1484.959225;253.256387;0;13254;1.528887%;5073.016621;172.144842;0.341511%;1.632573%;1202192;0;449;100.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.01%;0.09%;0.01%;0.01%;0.03%;0.06%;0.08%;0.51%;4.57%;78.44%;5.03%;3.41%;5.11%;2.67%;0.01%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%
+diff --git a/fio.c b/fio.c
+index 08011c9..2aa8b40 100644
+--- a/fio.c
++++ b/fio.c
+@@ -116,6 +116,13 @@ static void sig_alrm(int fio_unused sig)
+ 	}
+ }
+ 
++/*
++ * Happens on thread runs with ctrl-c, ignore our own SIGQUIT
++ */
++static void sig_quit(int sig)
++{
++}
++
+ static void sig_int(int sig)
+ {
+ 	if (threads) {
+@@ -154,6 +161,11 @@ static void set_sig_handlers(void)
+ 	act.sa_handler = sig_ill;
+ 	act.sa_flags = SA_RESTART;
+ 	sigaction(SIGILL, &act, NULL);
++
++	memset(&act, 0, sizeof(act));
++	act.sa_handler = sig_quit;
++	act.sa_flags = SA_RESTART;
++	sigaction(SIGQUIT, &act, NULL);
+ }
+ 
+ static inline int should_check_rate(struct thread_data *td)
 
-In this case the last 22 fields sum to 100.04%, the 0.04% being a
-reasonable rounding error.  I seem to be consistently getting these
-results on any RHEL5 system using the Fio RPM from Dag or compiled
-from source.
+-- 
+Jens Axboe
 
-Daniel
