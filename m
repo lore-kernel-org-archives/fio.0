@@ -1,71 +1,92 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from host-181-75-169-83.static.internet-fr.net ([83.169.75.181]:58508
-	"EHLO seanodes.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751585AbYKRPat (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 18 Nov 2008 10:30:49 -0500
-Message-ID: <4922DE15.9080009@seanodes.com>
-Date: Tue, 18 Nov 2008 16:24:05 +0100
-From: Erwan Velu <erwan@seanodes.com>
+Received: from pasmtpa.tele.dk ([80.160.77.114]:58914 "EHLO pasmtpA.tele.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752909AbYKSPVx (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 19 Nov 2008 10:21:53 -0500
+Date: Wed, 19 Nov 2008 16:20:04 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: Passing argument to both write_bw_log & write_lat_log leads to segfault
+Message-ID: <20081119152004.GP26308@kernel.dk>
+References: <4923F729.1030200@seanodes.com> <20081119112829.GA26308@kernel.dk> <49242C63.2040005@seanodes.com> <20081119151534.GO26308@kernel.dk>
 MIME-Version: 1.0
-Subject: fio 1.22 segfaults when pressing ctrl-c
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20081119151534.GO26308@kernel.dk>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Erwan Velu <erwan@seanodes.com>
+Cc: fio@vger.kernel.org
 
-I'm running fio with the surface scan example, and it just segfault and 
-generate a core if I'm pressing CTRL-C during the test.
+On Wed, Nov 19 2008, Jens Axboe wrote:
+> On Wed, Nov 19 2008, Erwan Velu wrote:
+> > Jens Axboe wrote:
+> > 
+> > [....]
+> > >Wow, you are handy at finding old bugs that nobody has hit :-). The
+> > >below should fix it.
+> > >  
+> > Hehe :p
+> > >Generally, fio always wants a '=' to assign a value to a parameter. But
+> > >of course the parser should not crash...
+> > >  
+> > Ok. It that configuration correct ?
+> > 
+> > [global]
+> > bsrange=64k-128k,64k-128k
+> > direct=1
+> > ioengine=libaio
+> > iodepth=64
+> > zonesize=256m
+> > zoneskip=2g
+> > 
+> > [/dev/sdb]
+> > rw=read
+> > write_bw_log=read-bw
+> > write_lat_log=read-lat
+> > 
+> > [/dev/sdb]
+> > stonewall
+> > rw=write
+> > write_bw_log=write-bw
+> > write_lat_log=write-lat
+> > 
+> > If yes, I have a problem because I only have files called : sdb_clat.log 
+> > & sdb_slat.log
+> 
+> They don't accept a parameter. I can rectify that, I guess sometimes
+> you'd like that (especially for big jobs). The log should contain
+> entries from both, with a direction field.
+> 
+> Let me double check tonight and make sure it doesn't truncate the log or
+> anything like that, I don't think I've ever used the log like this. It
+> should just append.
 
-[root@max5 examples]# fio surface-scan
-write-phase: (g=0): rw=write, bs=64K-64K/64K-64K, ioengine=sync, iodepth=1
-verify-phase: (g=1): rw=read, bs=64K-64K/64K-64K, ioengine=sync, iodepth=1
-Starting 2 threads
-**** I'm pressing CTRL-C ****
-fio: terminating on signal 2
-Quit (core dumped)
-[root@max5 examples]#
+OK, it truncates. This will help. I'll have it accept file names as well
+later today.
 
-
-Then same from gdb:
-
-[root@max5 examples]# gdb --args fio surface-scan
-GNU gdb Red Hat Linux (6.5-25.el5_1.1rh)
-Copyright (C) 2006 Free Software Foundation, Inc.
-GDB is free software, covered by the GNU General Public License, and you are
-welcome to change it and/or distribute copies of it under certain 
-conditions.
-Type "show copying" to see the conditions.
-There is absolutely no warranty for GDB.  Type "show warranty" for details.
-This GDB was configured as "x86_64-redhat-linux-gnu"...Using host 
-libthread_db library "/lib64/libthread_db.so.1".
-
-(gdb) run
-Starting program: /usr/bin/fio surface-scan
-[Thread debugging using libthread_db enabled]
-[New Thread 46912498286832 (LWP 2158)]
-write-phase: (g=0): rw=write, bs=64K-64K/64K-64K, ioengine=sync, iodepth=1
-verify-phase: (g=1): rw=read, bs=64K-64K/64K-64K, ioengine=sync, iodepth=1
-Starting 2 threads
-[New Thread 1084229952 (LWP 2161)]
-Jobs: 1 (f=1): [WP] [-.-% done] [     0/ 57822 kb/s] [eta 00m:00s]
-
-**** I'm pressing CTRL-C ****
-
-Program received signal SIGINT, Interrupt.
-[Switching to Thread 46912498286832 (LWP 2158)]
-0x0000003c23495511 in nanosleep () from /lib64/libc.so.6
-(gdb) bt
-#0  0x0000003c23495511 in nanosleep () from /lib64/libc.so.6
-#1  0x0000003c234c8554 in usleep () from /lib64/libc.so.6
-#2  0x0000000000408448 in main (argc=<value optimized out>, argv=<value 
-optimized out>) at fio.c:1394
-(gdb)
+diff --git a/log.c b/log.c
+index 5c468ad..ab457c7 100644
+--- a/log.c
++++ b/log.c
+@@ -388,7 +388,7 @@ static int init_iolog_write(struct thread_data *td)
+ 	FILE *f;
+ 	unsigned int i;
+ 
+-	f = fopen(td->o.write_iolog_file, "w+");
++	f = fopen(td->o.write_iolog_file, "a");
+ 	if (!f) {
+ 		perror("fopen write iolog");
+ 		return 1;
+@@ -455,7 +455,7 @@ void __finish_log(struct io_log *log, const char *name)
+ 	unsigned int i;
+ 	FILE *f;
+ 
+-	f = fopen(name, "w");
++	f = fopen(name, "a");
+ 	if (!f) {
+ 		perror("fopen log");
+ 		return;
 
 -- 
-Erwan Velu
-Pre-Sales Engineer
-Seanodes
-http://www.seanodes.com
-+33 (0)1 41 22 13 83
+Jens Axboe
 
