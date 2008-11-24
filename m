@@ -1,68 +1,39 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from host-181-75-169-83.static.internet-fr.net ([83.169.75.181]:54706
-	"EHLO seanodes.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752861AbYKSNPN (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 19 Nov 2008 08:15:13 -0500
-Message-ID: <4924115E.6040701@seanodes.com>
-Date: Wed, 19 Nov 2008 14:15:10 +0100
-From: Erwan Velu <erwan@seanodes.com>
+Received: from wf-out-1314.google.com ([209.85.200.173]:6417 "EHLO
+	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751373AbYKXWMS (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 24 Nov 2008 17:12:18 -0500
+Received: by wf-out-1314.google.com with SMTP id 27so2456426wfd.4
+        for <fio@vger.kernel.org>; Mon, 24 Nov 2008 14:12:17 -0800 (PST)
+Message-ID: <e2a756a20811241412s4dcc391bq65a5e82f839e3ea5@mail.gmail.com>
+Date: Mon, 24 Nov 2008 14:12:17 -0800
+From: "Daniel Buggie" <danielabuggie@gmail.com>
+Subject: Extra Latency fields with terse output
 MIME-Version: 1.0
-Subject: Help required to understand fio output
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Here come a typical output I have using fio. I added some line numbers 
-as an helper.
+I'm not sure if this is a bug or a documentation glitch, but I'm
+getting an extra 11 values when using terse output.  Based on the sum
+of the numbers it appears that it is generating data for both usec and
+msec as opposed to the expected "<=2, 4, ..., 1000, >=2000" break down
+detailed in the man page.  Unfortunately this also means I don't know
+what the values of the fields are...
 
-01: /dev/mydisk: (groupid=1, jobs=1): err= 0: pid=7433
-02:  write: io=79,112MiB, bw=72,774KiB/s, iops=740, runt=1139888msec
-03:    slat (usec): min=9, max=572, avg=21.22, stdev= 7.03
-04:    clat (msec): min=2, max=668, avg=86.43, stdev=24.47
-05:    bw (KiB/s) : min=    0, max=80749, per=100.06%, avg=72815.92, 
-stdev=2318.78
-06:  cpu          : usr=0.93%, sys=1.35%, ctx=722885, majf=0, minf=10031
-07:  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, 
- >=64=100.0%
-08:     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, 
- >=64=0.0%
-09:     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.1%, 
- >=64=0.0%
-10:     issued r/w: total=0/843855, short=0/0
-11:
-12:     lat (msec): 4=0.01%, 10=0.03%, 20=0.38%, 50=6.53%, 100=64.24%
-13:     lat (msec): 250=28.79%, 500=0.01%, 750=0.01%
+The output was generated with:
 
+"fio --name="write-64-8-2" --ioengine=libaio --file=$DEVICE --direct=1
+--bs=8k --numjobs=64 --iodepth=1 --size=4096m --group_reporting
+--minimal"
+1xSSD-write-64-8-2;0;0;0;0;0;0;0;0.000000;0.000000;0;0;0.000000;0.000000;0;0;0.000000%;0.000000;0.000000;8388608;331811;25888;6;11639;92.527601;27.001639;1;20834;1484.959225;253.256387;0;13254;1.528887%;5073.016621;172.144842;0.341511%;1.632573%;1202192;0;449;100.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.01%;0.09%;0.01%;0.01%;0.03%;0.06%;0.08%;0.51%;4.57%;78.44%;5.03%;3.41%;5.11%;2.67%;0.01%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%
 
-I have some questions about the output.
+In this case the last 22 fields sum to 100.04%, the 0.04% being a
+reasonable rounding error.  I seem to be consistently getting these
+results on any RHEL5 system using the Fio RPM from Dag or compiled
+from source.
 
-About Latencies:
-Line 4, clat is reported to be at 86ms as average but line 12 is is 
-written that 100=64 250=29
-What's the meaning of "100=" ? Does it means "there were 64% of IOs 
-completed between 100 & 249 ms ?"
-If yes,  that's pretty surprising that while having 95% of my IOs that 
-are completed in more than 100ms, the average is reported as 86.
-If "100=" means "IO between 50 and 99ms", thus output become pretty 
-confusing.
-
-About IO depths:
-In my config file I had set a depth to 64. Line 07 reports that 100% of 
-my IOs where >=64... cool but is it also said that 0.6% were spent on <=64K
-Sounds to be a rounding effect but does this really means that some IOs 
-where sent with a short depth ?
-And then, how should I understan lines 8 & 9 that reports that 100% of 
-IOs were completed with a depth=4... What happened ?
-
-Hope this questions aren't too stupid ;o)
-Thanks,
-
--- 
-Erwan Velu
-Pre-Sales Engineer
-Seanodes
-http://www.seanodes.com
-+33 (0)1 41 22 13 83
-
+Daniel
