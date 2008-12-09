@@ -1,33 +1,50 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mxe1.gs.com ([204.4.187.100]:12089 "EHLO mxecd01.gs.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752412AbYLASuu convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 1 Dec 2008 13:50:50 -0500
-From: "Baur, Eric" <Eric.Baur@gs.com>
-Content-class: urn:content-classes:message
+Received: from brick.kernel.dk ([93.163.65.50]:24653 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750949AbYLIIBc (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 9 Dec 2008 03:01:32 -0500
+Date: Tue, 9 Dec 2008 09:01:19 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: Inconsency between cli output and gnuplot
+Message-ID: <20081209080118.GQ23742@kernel.dk>
+References: <49243E53.10309@seanodes.com> <20081209074645.GP23742@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: terse output for IO latencies
-Date: Mon, 1 Dec 2008 13:45:46 -0500
-Message-ID: <4DCBAA39733E8048992FB7737126041910FFD998@gsmbnbp23es.firmwide.corp.gs.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20081209074645.GP23742@kernel.dk>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Erwan Velu <erwan@seanodes.com>
+Cc: fio@vger.kernel.org
 
-In the HOWTO for fio, the terse output for IO latencies is described as:
+On Tue, Dec 09 2008, Jens Axboe wrote:
+> > slat cli reports values that doesn't match at all what is viewable from 
+> > gnuplot output. Averagage is said to be 16 on the cli whereas the 
+> > gnuplot trace shows 20 at min.
+> > Max is said to be 145 for slat but displayed at 60 on the gnuplot.
+> > Slat is also said to be usec on the cli but shown as msec on the y axis 
+> > of the gnuplot.
+> > 
+> > Complete archive showing that could be downloaded at 
+> > http://konilope.linuxeries.org/tmp/localr.tar.bz2
+> > 
+> > It seems that units may vary from the cli output regarding the range of 
+> > results. I have some case where clat is shown in usec instead of msec. 
+> > Maybe that what confuse the gnuplot output.
+> > Like in :
+> >  write: io=32,003MiB, bw=124MiB/s, iops=1,294, runt=263681msec
+> >    slat (usec): min=12, max=71, avg=15.43, stdev= 2.72
+> >    clat (usec): min=663, max=1,537K, avg=49431.63, stdev=108787.82
+> >    bw (KiB/s) : min=    0, max=171311, per=99.91%, avg=127152.93, 
+> > stdev=21619.46
+> 
+> I'll take a look at this.
 
-"IO latencies: <=2, 4, 10, 20, 50, 100, 250, 500, 750, 1000, >=2000"
+It's weird, must be some gnuplot oddity. The data points are definitely
+there and the range of the y-axis reflects this as well, however it
+seems to be missing in the output. I've tried increasing the resolution,
+but it doesn't change this fact.
 
-Output from certain test runs have been observed to have more than 11
-values for IO latencies, For example:
+-- 
+Jens Axboe
 
-0.01%, 0.00%, 0.01%, 0.01%, 0.06%, 0.73%, 35.42%, 7.19%, 3.03%, 0.52%,
-2.79%, 13.67%, 32.84%, 2.86%, 0.84%, 0.02%, 0.01%, 0.00%, 0.00%, 0.00%,
-0.00%, 0.00%
-
-What are the proper labels for this output?
-
-Thanks,
-Eric
