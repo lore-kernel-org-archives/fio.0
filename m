@@ -1,52 +1,102 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from host-181-75-169-83.static.internet-fr.net ([83.169.75.181]:34699
-	"EHLO seanodes.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751284AbYKSQ1E (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 19 Nov 2008 11:27:04 -0500
-Message-ID: <49243E53.10309@seanodes.com>
-Date: Wed, 19 Nov 2008 17:26:59 +0100
-From: Erwan Velu <erwan@seanodes.com>
+Received: from brick.kernel.dk ([93.163.65.50]:24657 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751140AbYLIIDR (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 9 Dec 2008 03:03:17 -0500
+Date: Tue, 9 Dec 2008 09:03:03 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: terse output for IO latencies
+Message-ID: <20081209080303.GR23742@kernel.dk>
+References: <4DCBAA39733E8048992FB7737126041910FFD998@gsmbnbp23es.firmwide.corp.gs.com> <e2a756a20812021537j315f4f4ev95b7fa5c4d32ddcf@mail.gmail.com> <4DCBAA39733E8048992FB7737126041910FFD9BE@gsmbnbp23es.firmwide.corp.gs.com>
 MIME-Version: 1.0
-Subject: Inconsency between cli output and gnuplot
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4DCBAA39733E8048992FB7737126041910FFD9BE@gsmbnbp23es.firmwide.corp.gs.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "Baur, Eric" <Eric.Baur@gs.com>
+Cc: Daniel Buggie <danielabuggie@gmail.com>, fio@vger.kernel.org
 
-My 1.23 fio ouput display :
 
-  read : io=32,003MiB, bw=131MiB/s, iops=1,362, runt=250326msec
-    slat (usec): min=13, max=145, avg=16.69, stdev= 3.39
-    clat (msec): min=31, max=129, avg=46.94, stdev= 7.24
+Anyone care to send a proposed fix for this? Even a pseudo patch of
+HOWTO addition would be appreciated, then I can take care of the rest.
 
-clat output of gnuplot reports units in msec. The clat gnuplot output 
-show a msec label on the y axis but trace some usec.
 
-slat cli reports values that doesn't match at all what is viewable from 
-gnuplot output. Averagage is said to be 16 on the cli whereas the 
-gnuplot trace shows 20 at min.
-Max is said to be 145 for slat but displayed at 60 on the gnuplot.
-Slat is also said to be usec on the cli but shown as msec on the y axis 
-of the gnuplot.
-
-Complete archive showing that could be downloaded at 
-http://konilope.linuxeries.org/tmp/localr.tar.bz2
-
-It seems that units may vary from the cli output regarding the range of 
-results. I have some case where clat is shown in usec instead of msec. 
-Maybe that what confuse the gnuplot output.
-Like in :
-  write: io=32,003MiB, bw=124MiB/s, iops=1,294, runt=263681msec
-    slat (usec): min=12, max=71, avg=15.43, stdev= 2.72
-    clat (usec): min=663, max=1,537K, avg=49431.63, stdev=108787.82
-    bw (KiB/s) : min=    0, max=171311, per=99.91%, avg=127152.93, 
-stdev=21619.46
+On Wed, Dec 03 2008, Baur, Eric wrote:
+> In my haste, I overlooked the character preceding "sec" when reading the
+> source. Nonetheless, it seems preferable to maintain consistency in
+> reporting of latency stats in <=us rather than jumping to <=ms after
+> 1000us.
+> 
+> Thanks for clarifying.
+> 
+> -Eric
+> 
+> -----Original Message-----
+> From: Daniel Buggie [mailto:danielabuggie@gmail.com] 
+> Sent: Tuesday, December 02, 2008 6:37 PM
+> To: Baur, Eric
+> Cc: fio@vger.kernel.org
+> Subject: Re: terse output for IO latencies
+> 
+> On Mon, Dec 1, 2008 at 11:45 AM, Baur, Eric <Eric.Baur@gs.com> wrote:
+> > In the HOWTO for fio, the terse output for IO latencies is described
+> as:
+> >
+> > "IO latencies: <=2, 4, 10, 20, 50, 100, 250, 500, 750, 1000, >=2000"
+> >
+> > Output from certain test runs have been observed to have more than 11
+> > values for IO latencies, For example:
+> >
+> > 0.01%, 0.00%, 0.01%, 0.01%, 0.06%, 0.73%, 35.42%, 7.19%, 3.03%, 0.52%,
+> > 2.79%, 13.67%, 32.84%, 2.86%, 0.84%, 0.02%, 0.01%, 0.00%, 0.00%,
+> 0.00%,
+> > 0.00%, 0.00%
+> >
+> > What are the proper labels for this output?
+> >
+> > Thanks,
+> > Eric
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe fio" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >
+> 
+> I had a similar question last week (not sure if the message got eaten
+> by the server or by the holiday here in the states).  From what my
+> very rusty C skills and the source tell me, it appears the terse
+> output gives the same values as the regular output.  The only
+> difference being that the terse output cannot skip the brackets that
+> have no hits.  So I believe the values can be derived from this block
+> of code from the source:
+> 
+> static void show_lat_u(double *io_u_lat_u)
+> {
+>         const char *ranges[] = { "2=", "4=", "10=", "20=", "50=",
+> "100=",
+>                                  "250=", "500=", "750=", "1000=", };
+> 
+>         show_lat(io_u_lat_u, FIO_IO_U_LAT_U_NR, ranges, "usec");
+> }
+> 
+> static void show_lat_m(double *io_u_lat_m)
+> {
+>         const char *ranges[] = { "2=", "4=", "10=", "20=", "50=",
+> "100=",
+>                                  "250=", "500=", "750=", "1000=",
+> "2000=",
+>                                  ">=2000=", };
+> 
+> In which case, the documentation should probably be updated to reflect
+> that. Can anyone familiar with the code confirm this?
+> 
+> Daniel
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
-Erwan Velu
-Pre-Sales Engineer
-Seanodes
-http://www.seanodes.com
-+33 (0)1 41 22 13 83
+Jens Axboe
 
