@@ -1,58 +1,90 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from brick.kernel.dk ([93.163.65.50]:13148 "EHLO kernel.dk"
+Received: from brick.kernel.dk ([93.163.65.50]:17473 "EHLO kernel.dk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751987AbYLIHq7 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 9 Dec 2008 02:46:59 -0500
-Date: Tue, 9 Dec 2008 08:46:46 +0100
+	id S1751720AbZBSUP0 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 19 Feb 2009 15:15:26 -0500
+Date: Thu, 19 Feb 2009 21:12:59 +0100
 From: Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: Inconsency between cli output and gnuplot
-Message-ID: <20081209074645.GP23742@kernel.dk>
-References: <49243E53.10309@seanodes.com>
+Subject: Re: Disabling verify when norandommap is given
+Message-ID: <20090219201259.GM29783@kernel.dk>
+References: <66dfd3fe0902181512o5a88da43waaf09834bd6d37ac@mail.gmail.com> <20090219074712.GD30821@kernel.dk> <66dfd3fe0902191010l64a2d915o973c0a3b486e0143@mail.gmail.com> <20090219182611.GG29783@kernel.dk> <66dfd3fe0902191156y694184c4mbf7b7837410d72ac@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <49243E53.10309@seanodes.com>
+In-Reply-To: <66dfd3fe0902191156y694184c4mbf7b7837410d72ac@mail.gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Erwan Velu <erwan@seanodes.com>
+To: Radha Ramachandran <radha@google.com>
 Cc: fio@vger.kernel.org
 
-On Wed, Nov 19 2008, Erwan Velu wrote:
-> My 1.23 fio ouput display :
-> 
->  read : io=32,003MiB, bw=131MiB/s, iops=1,362, runt=250326msec
->    slat (usec): min=13, max=145, avg=16.69, stdev= 3.39
->    clat (msec): min=31, max=129, avg=46.94, stdev= 7.24
-> 
-> clat output of gnuplot reports units in msec. The clat gnuplot output 
-> show a msec label on the y axis but trace some usec.
+On Thu, Feb 19 2009, Radha Ramachandran wrote:
+> Yes, this works for me.
+> Thanks for looking into this.
 
-The fio_generate_plots doesn't take the usec vs msec into account, it's
-basically hard wired. If someone wants to improve the script for better
-reporting I'd be happy to take it, it's mainly considered an example of
-how to do the reporting quickly.
+Thanks for testing, I'll double check and test myself tomorrow and then
+integrate.
 
-> slat cli reports values that doesn't match at all what is viewable from 
-> gnuplot output. Averagage is said to be 16 on the cli whereas the 
-> gnuplot trace shows 20 at min.
-> Max is said to be 145 for slat but displayed at 60 on the gnuplot.
-> Slat is also said to be usec on the cli but shown as msec on the y axis 
-> of the gnuplot.
-> 
-> Complete archive showing that could be downloaded at 
-> http://konilope.linuxeries.org/tmp/localr.tar.bz2
-> 
-> It seems that units may vary from the cli output regarding the range of 
-> results. I have some case where clat is shown in usec instead of msec. 
-> Maybe that what confuse the gnuplot output.
-> Like in :
->  write: io=32,003MiB, bw=124MiB/s, iops=1,294, runt=263681msec
->    slat (usec): min=12, max=71, avg=15.43, stdev= 2.72
->    clat (usec): min=663, max=1,537K, avg=49431.63, stdev=108787.82
->    bw (KiB/s) : min=    0, max=171311, per=99.91%, avg=127152.93, 
-> stdev=21619.46
 
-I'll take a look at this.
+> -radha
+> 
+> On Thu, Feb 19, 2009 at 10:26 AM, Jens Axboe <jens.axboe@oracle.com> wrote:
+> > On Thu, Feb 19 2009, Radha Ramachandran wrote:
+> >> Yes, that makes sense for a randwrite operation.
+> >> But is it acceptable to allow norandommap with verify for
+> >> read/randomread only operations with no writes involved. The case Iam
+> >> specifically interested in is doing sequential writes followed by
+> >> sequential reads (with verify) and then randomaccess reads (with
+> >> verify). For a small enough block size on a large enough drive the
+> >> norandommap takes up too much memory.
+> >
+> > The memory usage is indeed problematic, that is why the option exists.
+> > I'd be very happy to slim that down...
+> >
+> > What you suggest will work, but only for fixed size blocks. Once you
+> > have varying block sizes, a given random minimum block offset may be
+> > inside a verify block, not at the start of it.
+> >
+> > So I guess the 'norandommap disables verify' can be relaxed to
+> > 'norandommap disables verify IFF non-fixed block sizes are used'. I'm
+> > assuming that would work for you? Please try the below patch. If
+> > succesful, I'll augment it with an updated HOWTO description.
+> >
+> > diff --git a/init.c b/init.c
+> > index 95c282a..001e5c4 100644
+> > --- a/init.c
+> > +++ b/init.c
+> > @@ -206,6 +206,13 @@ static int setup_rate(struct thread_data *td)
+> >        return 0;
+> >  }
+> >
+> > +static int fixed_block_size(struct thread_options *o)
+> > +{
+> > +       return o->min_bs[DDIR_READ] == o->max_bs[DDIR_READ] &&
+> > +               o->min_bs[DDIR_WRITE] == o->max_bs[DDIR_WRITE] &&
+> > +               o->min_bs[DDIR_READ] == o->min_bs[DDIR_WRITE];
+> > +}
+> > +
+> >  /*
+> >  * Lazy way of fixing up options that depend on each other. We could also
+> >  * define option callback handlers, but this is easier.
+> > @@ -269,8 +276,10 @@ static int fixup_options(struct thread_data *td)
+> >        if (!o->file_size_high)
+> >                o->file_size_high = o->file_size_low;
+> >
+> > -       if (o->norandommap && o->verify != VERIFY_NONE) {
+> > -               log_err("fio: norandommap given, verify disabled\n");
+> > +       if (o->norandommap && o->verify != VERIFY_NONE
+> > +           && !fixed_block_size(o))  {
+> > +               log_err("fio: norandommap given for variable block sizes, "
+> > +                       "verify disabled\n");
+> >                o->verify = VERIFY_NONE;
+> >        }
+> >        if (o->bs_unaligned && (o->odirect || td->io_ops->flags & FIO_RAWIO))
+> >
+> > --
+> > Jens Axboe
+> >
+> >
 
 -- 
 Jens Axboe
