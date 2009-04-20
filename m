@@ -1,51 +1,48 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-fx0-f158.google.com ([209.85.220.158]:38923 "EHLO
-	mail-fx0-f158.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758154AbZDUShH convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 21 Apr 2009 14:37:07 -0400
-Received: by fxm2 with SMTP id 2so2680964fxm.37
-        for <fio@vger.kernel.org>; Tue, 21 Apr 2009 11:37:04 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <ed038eb20904191816u4994898fyeaaad97a9d6147ad@mail.gmail.com>
-References: <m2eiw1fys9.fsf@gmail.com>
-	 <ed038eb20904191816u4994898fyeaaad97a9d6147ad@mail.gmail.com>
-Date: Tue, 21 Apr 2009 20:37:04 +0200
-Message-ID: <38b2ab8a0904211137v3369b1cdxf80ee66658284719@mail.gmail.com>
+Received: from brick.kernel.dk ([93.163.65.50]:52267 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751823AbZDTGpP (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 20 Apr 2009 02:45:15 -0400
+Date: Mon, 20 Apr 2009 08:45:14 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
 Subject: Re: question about fork_main()
-From: Francis Moreau <francis.moro@gmail.com>
+Message-ID: <20090420064514.GR4593@kernel.dk>
+References: <m2eiw1fys9.fsf@gmail.com> <ed038eb20904191816u4994898fyeaaad97a9d6147ad@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <ed038eb20904191816u4994898fyeaaad97a9d6147ad@mail.gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: Carl Henrik Lunde <chlunde@ping.uio.no>
-Cc: fio@vger.kernel.org
+Cc: Francis Moreau <francis.moro@gmail.com>, fio@vger.kernel.org
 
-On Mon, Apr 20, 2009 at 3:16 AM, Carl Henrik Lunde <chlunde@ping.uio.no> wr=
-ote:
+On Mon, Apr 20 2009, Carl Henrik Lunde wrote:
 > On Thu, Apr 9, 2009 at 20:49, Francis Moreau <francis.moro@gmail.com> wro=
 te:
->> hello,
->>
->> I just took a look to fio source code (great tool BTW), and I'm
->> wondering about the fork_main() comment:
->>
->> /*
->> =EF=BF=BD* We cannot pass the td data into a forked process, so attach t=
-he td
->> =EF=BF=BD* and pass it to the thread worker.
->> =EF=BF=BD*/
->>
->> Since after a fork(2) the child inherits the attached shared memory
->> segments from its parent, I don't see the point of this comment.
->>
->> Could anybody enlight me ?
->
+> > hello,
+> >
+> > I just took a look to fio source code (great tool BTW), and I'm
+> > wondering about the fork_main() comment:
+> >
+> > /*
+> > =EF=BF=BD* We cannot pass the td data into a forked process, so attach =
+the td
+> > =EF=BF=BD* and pass it to the thread worker.
+> > =EF=BF=BD*/
+> >
+> > Since after a fork(2) the child inherits the attached shared memory
+> > segments from its parent, I don't see the point of this comment.
+> >
+> > Could anybody enlight me ?
+>=20
 > I think your observation is correct, this is not necessary, shmat in
 > the child can be avoided.
->
 
-Should I send a patch ?
+Yes, I'm not quite sure why it does that anymore, it's been that way
+since 2004/5 when fio got moved to its own repo...
 
-thanks
 --=20
-Francis
+Jens Axboe
+
