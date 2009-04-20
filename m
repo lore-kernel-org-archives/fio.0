@@ -1,43 +1,39 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from brick.kernel.dk ([93.163.65.50]:44581 "EHLO kernel.dk"
+Received: from brick.kernel.dk ([93.163.65.50]:38731 "EHLO kernel.dk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751001AbZDTIM2 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 20 Apr 2009 04:12:28 -0400
-Date: Mon, 20 Apr 2009 10:12:27 +0200
+	id S1752532AbZDTHAB (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 20 Apr 2009 03:00:01 -0400
+Date: Mon, 20 Apr 2009 08:59:31 +0200
 From: Jens Axboe <jens.axboe@oracle.com>
 Subject: Re: Bug in stats, KB/s vs. KiB/s?
-Message-ID: <20090420081227.GU4593@kernel.dk>
-References: <ed038eb20904190607l1f3dde9bi9e595f3b6bdefec6@mail.gmail.com> <20090420065220.GS4593@kernel.dk> <20090420065931.GT4593@kernel.dk>
+Message-ID: <20090420065931.GT4593@kernel.dk>
+References: <ed038eb20904190607l1f3dde9bi9e595f3b6bdefec6@mail.gmail.com> <20090420065220.GS4593@kernel.dk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20090420065931.GT4593@kernel.dk>
+In-Reply-To: <20090420065220.GS4593@kernel.dk>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: Carl Henrik Lunde <chlunde@ping.uio.no>
 Cc: fio@vger.kernel.org
 
 On Mon, Apr 20 2009, Jens Axboe wrote:
-> On Mon, Apr 20 2009, Jens Axboe wrote:
-> > On Sun, Apr 19 2009, Carl Henrik Lunde wrote:
-> > > Hi!  I think there's a bug in the stats report:
-> > > 
-> > > When I specify rate=8192 I got 8388 KiB/s in the report, which happens
-> > > to be 8192*1.024.
-> > > 
-> > > I believe the problem is that bytes / ms is used as KiB/s.  I'm not
-> > > sure what the correct value of "base" should be (1000 vs. 1024), but
-> > > it doesn't affect the result.  I haven't reviewed all the reporting,
-> > > but at least I *think* these three are wrong.
+> On Sun, Apr 19 2009, Carl Henrik Lunde wrote:
+> > Hi!  I think there's a bug in the stats report:
 > > 
-> > Hmm, it actually seems like the reporting is correct, but that the rate
-> > throttling is off by 1024/1000. So the fix is likely there somewhere,
-> > I'll take a look.
+> > When I specify rate=8192 I got 8388 KiB/s in the report, which happens
+> > to be 8192*1.024.
+> > 
+> > I believe the problem is that bytes / ms is used as KiB/s.  I'm not
+> > sure what the correct value of "base" should be (1000 vs. 1024), but
+> > it doesn't affect the result.  I haven't reviewed all the reporting,
+> > but at least I *think* these three are wrong.
 > 
-> Hmm nope, I think you are right, it's the reporting. Looking further...
+> Hmm, it actually seems like the reporting is correct, but that the rate
+> throttling is off by 1024/1000. So the fix is likely there somewhere,
+> I'll take a look.
 
-I hope it works alright now, can you check? I checked in a patch based
-on your patch, as far as I can tell, it's fine now.
+Hmm nope, I think you are right, it's the reporting. Looking further...
 
 -- 
 Jens Axboe
