@@ -1,27 +1,44 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g5t0009.atlanta.hp.com ([15.192.0.46]:18011 "EHLO
-	g5t0009.atlanta.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752702AbZCJToa convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 10 Mar 2009 15:44:30 -0400
-Received: from G6W0640.americas.hpqcorp.net (g6w0640.atlanta.hp.com [16.230.34.76])
-	(using TLSv1 with cipher RC4-MD5 (128/128 bits))
-	(No client certificate requested)
-	by g5t0009.atlanta.hp.com (Postfix) with ESMTPS id 560B030370
-	for <fio@vger.kernel.org>; Tue, 10 Mar 2009 19:44:29 +0000 (UTC)
-From: "Jenkins, Lee" <Lee.Jenkins@hp.com>
-Date: Tue, 10 Mar 2009 19:43:47 +0000
-Subject: I/O alignment
-Message-ID: <4C6CAE54C846144981BCE6F26B203FFA1CB3F68AE8@GVW1098EXB.americas.hpqcorp.net>
-References: <499e38d2.fWWZqp8SkMl4HRX/%jens.axboe@oracle.com>
-In-Reply-To: <499e38d2.fWWZqp8SkMl4HRX/%jens.axboe@oracle.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Received: from brick.kernel.dk ([93.163.65.50]:44581 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751001AbZDTIM2 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 20 Apr 2009 04:12:28 -0400
+Date: Mon, 20 Apr 2009 10:12:27 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: Bug in stats, KB/s vs. KiB/s?
+Message-ID: <20090420081227.GU4593@kernel.dk>
+References: <ed038eb20904190607l1f3dde9bi9e595f3b6bdefec6@mail.gmail.com> <20090420065220.GS4593@kernel.dk> <20090420065931.GT4593@kernel.dk>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20090420065931.GT4593@kernel.dk>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Carl Henrik Lunde <chlunde@ping.uio.no>
+Cc: fio@vger.kernel.org
 
-Is there a way to control the alignment of I/O offsets? The HOWTO shows bsrange= and bs_unaligned=, but these seem to be related to the size of the I/O, not the offset.
+On Mon, Apr 20 2009, Jens Axboe wrote:
+> On Mon, Apr 20 2009, Jens Axboe wrote:
+> > On Sun, Apr 19 2009, Carl Henrik Lunde wrote:
+> > > Hi!  I think there's a bug in the stats report:
+> > > 
+> > > When I specify rate=8192 I got 8388 KiB/s in the report, which happens
+> > > to be 8192*1.024.
+> > > 
+> > > I believe the problem is that bytes / ms is used as KiB/s.  I'm not
+> > > sure what the correct value of "base" should be (1000 vs. 1024), but
+> > > it doesn't affect the result.  I haven't reviewed all the reporting,
+> > > but at least I *think* these three are wrong.
+> > 
+> > Hmm, it actually seems like the reporting is correct, but that the rate
+> > throttling is off by 1024/1000. So the fix is likely there somewhere,
+> > I'll take a look.
+> 
+> Hmm nope, I think you are right, it's the reporting. Looking further...
 
-In our lab testing it appears from blktrace dumps that I/Os are boundary-aligned based on the size of the I/O. For example, in a test of 64KB Random Reads all the I/O addresses were multiples of 64KB (128 sectors). This alignment has a profound impact on I/O performance for certain disk array configurations. Ideally we'd like to be able to control the alignment to match our customers' run-time environment.
+I hope it works alright now, can you check? I checked in a patch based
+on your patch, as far as I can tell, it's fine now.
+
+-- 
+Jens Axboe
+
