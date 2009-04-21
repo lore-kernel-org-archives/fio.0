@@ -1,33 +1,42 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from brick.kernel.dk ([93.163.65.50]:46426 "EHLO kernel.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752612AbZDVNW6 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 22 Apr 2009 09:22:58 -0400
-Date: Wed, 22 Apr 2009 15:22:57 +0200
-From: Jens Axboe <jens.axboe@oracle.com>
-Subject: request for job files
-Message-ID: <20090422132257.GR4593@kernel.dk>
+Received: from mail-fx0-f158.google.com ([209.85.220.158]:47506 "EHLO
+	mail-fx0-f158.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750743AbZDUTNt (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 21 Apr 2009 15:13:49 -0400
+Received: by fxm2 with SMTP id 2so2698120fxm.37
+        for <fio@vger.kernel.org>; Tue, 21 Apr 2009 12:13:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <20090421190113.GN4593@kernel.dk>
+References: <m2eiw1fys9.fsf@gmail.com>
+	 <ed038eb20904191816u4994898fyeaaad97a9d6147ad@mail.gmail.com>
+	 <38b2ab8a0904211137v3369b1cdxf80ee66658284719@mail.gmail.com>
+	 <20090421190113.GN4593@kernel.dk>
+Date: Tue, 21 Apr 2009 21:13:47 +0200
+Message-ID: <38b2ab8a0904211213y18196b82w4384200b0c6ab8dd@mail.gmail.com>
+Subject: Re: question about fork_main()
+From: Francis Moreau <francis.moro@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: Carl Henrik Lunde <chlunde@ping.uio.no>, fio@vger.kernel.org
 
-Hi,
+Hello Jens
 
-The sample job files shipped with fio are (generally) pretty weak, and
-I'd really love for the selection to be better. In my experience, that
-is the first place you look when trying out something like fio. It
-really helps you getting a (previously) unknown job format going
-quickly.
+On Tue, Apr 21, 2009 at 9:01 PM, Jens Axboe <jens.axboe@oracle.com> wrote:
+> On Tue, Apr 21 2009, Francis Moreau wrote:
+>> On Mon, Apr 20, 2009 at 3:16 AM, Carl Henrik Lunde <chlunde@ping.uio.no> wrote:
+>> > I think your observation is correct, this is not necessary, shmat in
+>> > the child can be avoided.
+>>
+>> Should I send a patch ?
+>
+> Sure, provided you do testing of it as well ;-)
+>
 
-So if any of you have "interesting" job files that you use for testing
-or performance analysis, please do send them to me so I can include them
-with fio.
+OK, I'll do that (probably at the end of the week).
 
-Thanks!
-
+thanks
 -- 
-Jens Axboe
-
+Francis
