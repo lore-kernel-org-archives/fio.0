@@ -1,72 +1,269 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from brick.kernel.dk ([93.163.65.50]:42739 "EHLO kernel.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751112AbZDVRge (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 22 Apr 2009 13:36:34 -0400
-Date: Wed, 22 Apr 2009 19:36:33 +0200
-From: Jens Axboe <jens.axboe@oracle.com>
+Return-Path: <girish.satihal@yahoo.com>
+Message-ID: <432595.84652.qm@web63805.mail.re1.yahoo.com>
+Date: Wed, 22 Apr 2009 09:58:32 -0700 (PDT)
+From: Girish Satihal <girish.satihal@yahoo.com>
 Subject: Re: request for job files
-Message-ID: <20090422173632.GY4593@kernel.dk>
-References: <20090422132257.GR4593@kernel.dk> <432595.84652.qm@web63805.mail.re1.yahoo.com>
+In-Reply-To: <20090422132257.GR4593@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+Content-Type: multipart/mixed; boundary="0-373209039-1240419512=:84652"
+To: fio@vger.kernel.org, Jens Axboe <jens.axboe@oracle.com>
+List-ID: <fio@vger.kernel.org>
+
+
+--0-373209039-1240419512=:84652
+Content-Type: multipart/alternative; boundary="0-1977443062-1240419512=:84652"
+
+--0-1977443062-1240419512=:84652
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <432595.84652.qm@web63805.mail.re1.yahoo.com>
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Girish Satihal <girish.satihal@yahoo.com>
-Cc: fio@vger.kernel.org
 
-On Wed, Apr 22 2009, Girish Satihal wrote:
-> Hi Jens,
-> Here is one job files which we regularly use as a Standard_Workload
-> for our fio testing.
+Hi Jens,
+Here is one job files which we regularly use as a Standard_Workload for our=
+ fio testing.
+=A0
+Thanks,
+=A0Girish
 
-Thanks. If you could attach a few words to describe the job file as
-well, it'll be more useful. Just something like "used to test xxx" or
-"give the device a good thrashing", or whatever is appropriate for the
-job file in question.
+--- On Wed, 4/22/09, Jens Axboe <jens.axboe@oracle.com> wrote:
 
-> =EF=BF=BD
-> Thanks,
-> =EF=BF=BDGirish
->=20
-> --- On Wed, 4/22/09, Jens Axboe <jens.axboe@oracle.com> wrote:
->=20
-> From: Jens Axboe <jens.axboe@oracle.com>
-> Subject: request for job files
-> To: fio@vger.kernel.org
-> Date: Wednesday, April 22, 2009, 6:52 PM
->=20
-> Hi,
->=20
-> The sample job files shipped with fio are (generally) pretty weak, and
-> I'd really love for the selection to be better. In my experience, that
-> is the first place you look when trying out something like fio. It
-> really helps you getting a (previously) unknown job format going
-> quickly.
->=20
-> So if any of you have "interesting" job files that you use for
-> testing
-> or performance analysis, please do send them to me so I can include them
-> with fio.
->=20
-> Thanks!
->=20
-> --=20
-> Jens Axboe
->=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe fio" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->=20
->=20
->=20
->      =20
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: request for job files
+To: fio@vger.kernel.org
+Date: Wednesday, April 22, 2009, 6:52 PM
 
+Hi,
+
+The sample job files shipped with fio are (generally) pretty weak, and
+I'd really love for the selection to be better. In my experience, that
+is the first place you look when trying out something like fio. It
+really helps you getting a (previously) unknown job format going
+quickly.
+
+So if any of you have "interesting" job files that you use for
+testing
+or performance analysis, please do send them to me so I can include them
+with fio.
+
+Thanks!
 
 --=20
 Jens Axboe
+
+--
+To unsubscribe from this list: send the line "unsubscribe fio" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+=0A=0A=0A      
+--0-1977443062-1240419512=:84652
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<table cellspacing=3D"0" cellpadding=3D"0" border=3D"0" ><tr><td valign=3D"=
+top" style=3D"font: inherit;"><DIV>Hi Jens,</DIV>
+<DIV>Here is one job files which we regularly use as a Standard_Workload fo=
+r our fio testing.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thanks,</DIV>
+<DIV>&nbsp;Girish<BR><BR>--- On <B>Wed, 4/22/09, Jens Axboe <I>&lt;jens.axb=
+oe@oracle.com&gt;</I></B> wrote:<BR></DIV>
+<BLOCKQUOTE style=3D"PADDING-LEFT: 5px; MARGIN-LEFT: 5px; BORDER-LEFT: rgb(=
+16,16,255) 2px solid">From: Jens Axboe &lt;jens.axboe@oracle.com&gt;<BR>Sub=
+ject: request for job files<BR>To: fio@vger.kernel.org<BR>Date: Wednesday, =
+April 22, 2009, 6:52 PM<BR><BR><PRE>Hi,
+
+The sample job files shipped with fio are (generally) pretty weak, and
+I'd really love for the selection to be better. In my experience, that
+is the first place you look when trying out something like fio. It
+really helps you getting a (previously) unknown job format going
+quickly.
+
+So if any of you have "interesting" job files that you use for
+testing
+or performance analysis, please do send them to me so I can include them
+with fio.
+
+Thanks!
+
+--=20
+Jens Axboe
+
+--
+To unsubscribe from this list: send the line "unsubscribe fio" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+</PRE></BLOCKQUOTE></td></tr></table><br>=0A=0A      
+--0-1977443062-1240419512=:84652--
+
+--0-373209039-1240419512=:84652
+Content-Type: application/octet-stream; name="StandardWorkload.fio"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="StandardWorkload.fio"
+
+W2dsb2JhbF0KOyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCjsgbnVtYmVyIG9mIHRlc3QgdGFy
+Z2V0cwpucmZpbGVzPTEKOyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCjsgdGhpcyBpcyB0aGUg
+dGVzdCB0YXJnZXQKZmlsZW5hbWU9L2Rldi9jY2lzcy9jMWQwCjsgLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLQo7IGFsZ29yaXRobSBmb3Igc2VsZWN0aW5nIHRlc3QgdGFyZ2V0
+cyAoaWYgbXVsdGlwbGUpCmZpbGVfc2VydmljZV90eXBlPXJvdW5kcm9iaW4K
+OyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tCjsgc2VsZWN0IHRoZSBJL08gZW5naW5lCmlvZW5n
+aW5lPWxpYmFpbwo7IGlvZW5naW5lPXBvc2l4YWlvCjsgaW9lbmdpbmU9c29s
+YXJpc2Fpbwo7IC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KOyB1c2Ugbm9uLWJ1ZmZlcmVkIEkv
+TwpkaXJlY3Q9MQo7IC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KdGltZV9iYXNlZAoKOyAtLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tCjsKOyBzZXQgdXAgUmFuZG9tIHRlc3QgcGFyYW1ldGVycwo7
+CjsgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLQpbZ2xvYmFsXQpydW50aW1lPTYwCnJhbXBfdGlt
+ZT0xMApydz1yYW5kcncKCltnbG9iYWxdCmJzPTRrCltnbG9iYWxdCnJ3bWl4
+cmVhZD0xMDAKWzRLQl9SYW5kb21fUmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9
+MQpbNEtCX1JhbmRvbV9SZWFkXQpzdG9uZXdhbGwKaW9kZXB0aD0yCls0S0Jf
+UmFuZG9tX1JlYWRdCnN0b25ld2FsbAppb2RlcHRoPTQKWzRLQl9SYW5kb21f
+UmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9OApbNEtCX1JhbmRvbV9SZWFkXQpz
+dG9uZXdhbGwKaW9kZXB0aD0xNgpbNEtCX1JhbmRvbV9SZWFkXQpzdG9uZXdh
+bGwKaW9kZXB0aD0zMgpbNEtCX1JhbmRvbV9SZWFkXQpzdG9uZXdhbGwKaW9k
+ZXB0aD02NApbNEtCX1JhbmRvbV9SZWFkXQpzdG9uZXdhbGwKaW9kZXB0aD0x
+MjgKWzRLQl9SYW5kb21fUmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9MjU2Cltn
+bG9iYWxdCnJ3bWl4cmVhZD0wCls0S0JfUmFuZG9tX1dyaXRlXQpzdG9uZXdh
+bGwKaW9kZXB0aD0xCls0S0JfUmFuZG9tX1dyaXRlXQpzdG9uZXdhbGwKaW9k
+ZXB0aD0yCls0S0JfUmFuZG9tX1dyaXRlXQpzdG9uZXdhbGwKaW9kZXB0aD00
+Cls0S0JfUmFuZG9tX1dyaXRlXQpzdG9uZXdhbGwKaW9kZXB0aD04Cls0S0Jf
+UmFuZG9tX1dyaXRlXQpzdG9uZXdhbGwKaW9kZXB0aD0xNgpbNEtCX1JhbmRv
+bV9Xcml0ZV0Kc3RvbmV3YWxsCmlvZGVwdGg9MzIKWzRLQl9SYW5kb21fV3Jp
+dGVdCnN0b25ld2FsbAppb2RlcHRoPTY0Cls0S0JfUmFuZG9tX1dyaXRlXQpz
+dG9uZXdhbGwKaW9kZXB0aD0xMjgKWzRLQl9SYW5kb21fV3JpdGVdCnN0b25l
+d2FsbAppb2RlcHRoPTI1NgpbSWRsZV0Kc3RvbmV3YWxsCnJ3bWl4cmVhZD0x
+MDAKYnM9NjRrCnJhdGU9MQpbZ2xvYmFsXQpyd21peHJlYWQ9NjcKcmFtcF90
+aW1lPTYwCls0S0JfT0xUUF0Kc3RvbmV3YWxsCmlvZGVwdGg9MQpbNEtCX09M
+VFBdCnN0b25ld2FsbAppb2RlcHRoPTIKWzRLQl9PTFRQXQpzdG9uZXdhbGwK
+aW9kZXB0aD00Cls0S0JfT0xUUF0Kc3RvbmV3YWxsCmlvZGVwdGg9OApbNEtC
+X09MVFBdCnN0b25ld2FsbAppb2RlcHRoPTE2Cls0S0JfT0xUUF0Kc3RvbmV3
+YWxsCmlvZGVwdGg9MzIKWzRLQl9PTFRQXQpzdG9uZXdhbGwKaW9kZXB0aD02
+NApbNEtCX09MVFBdCnN0b25ld2FsbAppb2RlcHRoPTEyOApbNEtCX09MVFBd
+CnN0b25ld2FsbAppb2RlcHRoPTI1NgpbSWRsZV0Kc3RvbmV3YWxsCnJ3bWl4
+cmVhZD0xMDAKYnM9NjRrCnJhdGU9MQpbZ2xvYmFsXQpicz04awpbZ2xvYmFs
+XQpyd21peHJlYWQ9MTAwCls4S0JfUmFuZG9tX1JlYWRdCnN0b25ld2FsbApp
+b2RlcHRoPTEKWzhLQl9SYW5kb21fUmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9
+MgpbOEtCX1JhbmRvbV9SZWFkXQpzdG9uZXdhbGwKaW9kZXB0aD00Cls4S0Jf
+UmFuZG9tX1JlYWRdCnN0b25ld2FsbAppb2RlcHRoPTgKWzhLQl9SYW5kb21f
+UmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9MTYKWzhLQl9SYW5kb21fUmVhZF0K
+c3RvbmV3YWxsCmlvZGVwdGg9MzIKWzhLQl9SYW5kb21fUmVhZF0Kc3RvbmV3
+YWxsCmlvZGVwdGg9NjQKWzhLQl9SYW5kb21fUmVhZF0Kc3RvbmV3YWxsCmlv
+ZGVwdGg9MTI4Cls4S0JfUmFuZG9tX1JlYWRdCnN0b25ld2FsbAppb2RlcHRo
+PTI1NgpbZ2xvYmFsXQpyd21peHJlYWQ9MApbOEtCX1JhbmRvbV9Xcml0ZV0K
+c3RvbmV3YWxsCmlvZGVwdGg9MQpbOEtCX1JhbmRvbV9Xcml0ZV0Kc3RvbmV3
+YWxsCmlvZGVwdGg9MgpbOEtCX1JhbmRvbV9Xcml0ZV0Kc3RvbmV3YWxsCmlv
+ZGVwdGg9NApbOEtCX1JhbmRvbV9Xcml0ZV0Kc3RvbmV3YWxsCmlvZGVwdGg9
+OApbOEtCX1JhbmRvbV9Xcml0ZV0Kc3RvbmV3YWxsCmlvZGVwdGg9MTYKWzhL
+Ql9SYW5kb21fV3JpdGVdCnN0b25ld2FsbAppb2RlcHRoPTMyCls4S0JfUmFu
+ZG9tX1dyaXRlXQpzdG9uZXdhbGwKaW9kZXB0aD02NApbOEtCX1JhbmRvbV9X
+cml0ZV0Kc3RvbmV3YWxsCmlvZGVwdGg9MTI4Cls4S0JfUmFuZG9tX1dyaXRl
+XQpzdG9uZXdhbGwKaW9kZXB0aD0yNTYKW0lkbGVdCnN0b25ld2FsbApyd21p
+eHJlYWQ9MTAwCmJzPTY0awpyYXRlPTEKW2dsb2JhbF0KcndtaXhyZWFkPTY3
+CnJhbXBfdGltZT02MApbOEtCX09MVFBdCnN0b25ld2FsbAppb2RlcHRoPTEK
+WzhLQl9PTFRQXQpzdG9uZXdhbGwKaW9kZXB0aD0yCls4S0JfT0xUUF0Kc3Rv
+bmV3YWxsCmlvZGVwdGg9NApbOEtCX09MVFBdCnN0b25ld2FsbAppb2RlcHRo
+PTgKWzhLQl9PTFRQXQpzdG9uZXdhbGwKaW9kZXB0aD0xNgpbOEtCX09MVFBd
+CnN0b25ld2FsbAppb2RlcHRoPTMyCls4S0JfT0xUUF0Kc3RvbmV3YWxsCmlv
+ZGVwdGg9NjQKWzhLQl9PTFRQXQpzdG9uZXdhbGwKaW9kZXB0aD0xMjgKWzhL
+Ql9PTFRQXQpzdG9uZXdhbGwKaW9kZXB0aD0yNTYKW0lkbGVdCnN0b25ld2Fs
+bApyd21peHJlYWQ9MTAwCmJzPTY0awpyYXRlPTEKW2dsb2JhbF0KYnM9NjRr
+CltnbG9iYWxdCnJ3bWl4cmVhZD0xMDAKWzY0S0JfUmFuZG9tX1JlYWRdCnN0
+b25ld2FsbAppb2RlcHRoPTEKWzY0S0JfUmFuZG9tX1JlYWRdCnN0b25ld2Fs
+bAppb2RlcHRoPTIKWzY0S0JfUmFuZG9tX1JlYWRdCnN0b25ld2FsbAppb2Rl
+cHRoPTQKWzY0S0JfUmFuZG9tX1JlYWRdCnN0b25ld2FsbAppb2RlcHRoPTgK
+WzY0S0JfUmFuZG9tX1JlYWRdCnN0b25ld2FsbAppb2RlcHRoPTE2Cls2NEtC
+X1JhbmRvbV9SZWFkXQpzdG9uZXdhbGwKaW9kZXB0aD0zMgpbNjRLQl9SYW5k
+b21fUmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9NjQKWzY0S0JfUmFuZG9tX1Jl
+YWRdCnN0b25ld2FsbAppb2RlcHRoPTEyOApbNjRLQl9SYW5kb21fUmVhZF0K
+c3RvbmV3YWxsCmlvZGVwdGg9MjU2CltnbG9iYWxdCnJ3bWl4cmVhZD0wCls2
+NEtCX1JhbmRvbV9Xcml0ZV0Kc3RvbmV3YWxsCmlvZGVwdGg9MQpbNjRLQl9S
+YW5kb21fV3JpdGVdCnN0b25ld2FsbAppb2RlcHRoPTIKWzY0S0JfUmFuZG9t
+X1dyaXRlXQpzdG9uZXdhbGwKaW9kZXB0aD00Cls2NEtCX1JhbmRvbV9Xcml0
+ZV0Kc3RvbmV3YWxsCmlvZGVwdGg9OApbNjRLQl9SYW5kb21fV3JpdGVdCnN0
+b25ld2FsbAppb2RlcHRoPTE2Cls2NEtCX1JhbmRvbV9Xcml0ZV0Kc3RvbmV3
+YWxsCmlvZGVwdGg9MzIKWzY0S0JfUmFuZG9tX1dyaXRlXQpzdG9uZXdhbGwK
+aW9kZXB0aD02NApbNjRLQl9SYW5kb21fV3JpdGVdCnN0b25ld2FsbAppb2Rl
+cHRoPTEyOApbNjRLQl9SYW5kb21fV3JpdGVdCnN0b25ld2FsbAppb2RlcHRo
+PTI1NgpbSWRsZV0Kc3RvbmV3YWxsCnJ3bWl4cmVhZD0xMDAKYnM9NjRrCnJh
+dGU9MQo7IC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0KOwo7IHNldCB1cCBTZXF1ZW50aWFsIHRl
+c3QgcGFyYW1ldGVycwo7CjsgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpbZ2xvYmFsXQpydW50
+aW1lPTMwCjsgcmFtcF90aW1lPTUKCltnbG9iYWxdCmJzPTUxMgpbZ2xvYmFs
+XQpydz1yZWFkCls1MTJCX01heElPX1JlYWRdCnN0b25ld2FsbAppb2RlcHRo
+PTEKWzUxMkJfTWF4SU9fUmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9MgpbNTEy
+Ql9NYXhJT19SZWFkXQpzdG9uZXdhbGwKaW9kZXB0aD00Cls1MTJCX01heElP
+X1JlYWRdCnN0b25ld2FsbAppb2RlcHRoPTgKWzUxMkJfTWF4SU9fUmVhZF0K
+c3RvbmV3YWxsCmlvZGVwdGg9MTYKWzUxMkJfTWF4SU9fUmVhZF0Kc3RvbmV3
+YWxsCmlvZGVwdGg9MzIKWzUxMkJfTWF4SU9fUmVhZF0Kc3RvbmV3YWxsCmlv
+ZGVwdGg9NjQKW2dsb2JhbF0Kcnc9d3JpdGUKWzUxMkJfTWF4SU9fV3JpdGVd
+CnN0b25ld2FsbAppb2RlcHRoPTEKWzUxMkJfTWF4SU9fV3JpdGVdCnN0b25l
+d2FsbAppb2RlcHRoPTIKWzUxMkJfTWF4SU9fV3JpdGVdCnN0b25ld2FsbApp
+b2RlcHRoPTQKWzUxMkJfTWF4SU9fV3JpdGVdCnN0b25ld2FsbAppb2RlcHRo
+PTgKWzUxMkJfTWF4SU9fV3JpdGVdCnN0b25ld2FsbAppb2RlcHRoPTE2Cls1
+MTJCX01heElPX1dyaXRlXQpzdG9uZXdhbGwKaW9kZXB0aD0zMgpbNTEyQl9N
+YXhJT19Xcml0ZV0Kc3RvbmV3YWxsCmlvZGVwdGg9NjQKW0lkbGVdCnN0b25l
+d2FsbApyd21peHJlYWQ9MTAwCmJzPTY0awpyYXRlPTEKW2dsb2JhbF0KYnM9
+NEsKW2dsb2JhbF0Kcnc9cmVhZApbNEtCX1NlcXVlbnRpYWxfUmVhZF0Kc3Rv
+bmV3YWxsCmlvZGVwdGg9MQpbNEtCX1NlcXVlbnRpYWxfUmVhZF0Kc3RvbmV3
+YWxsCmlvZGVwdGg9MgpbNEtCX1NlcXVlbnRpYWxfUmVhZF0Kc3RvbmV3YWxs
+CmlvZGVwdGg9NApbNEtCX1NlcXVlbnRpYWxfUmVhZF0Kc3RvbmV3YWxsCmlv
+ZGVwdGg9OApbNEtCX1NlcXVlbnRpYWxfUmVhZF0Kc3RvbmV3YWxsCmlvZGVw
+dGg9MTYKWzRLQl9TZXF1ZW50aWFsX1JlYWRdCnN0b25ld2FsbAppb2RlcHRo
+PTMyCls0S0JfU2VxdWVudGlhbF9SZWFkXQpzdG9uZXdhbGwKaW9kZXB0aD02
+NApbZ2xvYmFsXQpydz13cml0ZQpbNEtCX1NlcXVlbnRpYWxfV3JpdGVdCnN0
+b25ld2FsbAppb2RlcHRoPTEKWzRLQl9TZXF1ZW50aWFsX1dyaXRlXQpzdG9u
+ZXdhbGwKaW9kZXB0aD0yCls0S0JfU2VxdWVudGlhbF9Xcml0ZV0Kc3RvbmV3
+YWxsCmlvZGVwdGg9NApbNEtCX1NlcXVlbnRpYWxfV3JpdGVdCnN0b25ld2Fs
+bAppb2RlcHRoPTgKWzRLQl9TZXF1ZW50aWFsX1dyaXRlXQpzdG9uZXdhbGwK
+aW9kZXB0aD0xNgpbNEtCX1NlcXVlbnRpYWxfV3JpdGVdCnN0b25ld2FsbApp
+b2RlcHRoPTMyCls0S0JfU2VxdWVudGlhbF9Xcml0ZV0Kc3RvbmV3YWxsCmlv
+ZGVwdGg9NjQKW0lkbGVdCnN0b25ld2FsbApyd21peHJlYWQ9MTAwCmJzPTY0
+awpyYXRlPTEKW2dsb2JhbF0KYnM9NjRLCltnbG9iYWxdCnJ3PXJlYWQKWzY0
+S0JfU2VxdWVudGlhbF9SZWFkXQpzdG9uZXdhbGwKaW9kZXB0aD0xCls2NEtC
+X1NlcXVlbnRpYWxfUmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9MgpbNjRLQl9T
+ZXF1ZW50aWFsX1JlYWRdCnN0b25ld2FsbAppb2RlcHRoPTQKWzY0S0JfU2Vx
+dWVudGlhbF9SZWFkXQpzdG9uZXdhbGwKaW9kZXB0aD04Cls2NEtCX1NlcXVl
+bnRpYWxfUmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9MTYKWzY0S0JfU2VxdWVu
+dGlhbF9SZWFkXQpzdG9uZXdhbGwKaW9kZXB0aD0zMgpbNjRLQl9TZXF1ZW50
+aWFsX1JlYWRdCnN0b25ld2FsbAppb2RlcHRoPTY0CltnbG9iYWxdCnJ3PXdy
+aXRlCls2NEtCX1NlcXVlbnRpYWxfV3JpdGVdCnN0b25ld2FsbAppb2RlcHRo
+PTEKWzY0S0JfU2VxdWVudGlhbF9Xcml0ZV0Kc3RvbmV3YWxsCmlvZGVwdGg9
+MgpbNjRLQl9TZXF1ZW50aWFsX1dyaXRlXQpzdG9uZXdhbGwKaW9kZXB0aD00
+Cls2NEtCX1NlcXVlbnRpYWxfV3JpdGVdCnN0b25ld2FsbAppb2RlcHRoPTgK
+WzY0S0JfU2VxdWVudGlhbF9Xcml0ZV0Kc3RvbmV3YWxsCmlvZGVwdGg9MTYK
+WzY0S0JfU2VxdWVudGlhbF9Xcml0ZV0Kc3RvbmV3YWxsCmlvZGVwdGg9MzIK
+WzY0S0JfU2VxdWVudGlhbF9Xcml0ZV0Kc3RvbmV3YWxsCmlvZGVwdGg9NjQK
+W0lkbGVdCnN0b25ld2FsbApyd21peHJlYWQ9MTAwCmJzPTY0awpyYXRlPTEK
+W2dsb2JhbF0KYnM9NTEySwpbZ2xvYmFsXQpydz1yZWFkCls1MTJLQl9TZXF1
+ZW50aWFsX1JlYWRdCnN0b25ld2FsbAppb2RlcHRoPTEKWzUxMktCX1NlcXVl
+bnRpYWxfUmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9MgpbNTEyS0JfU2VxdWVu
+dGlhbF9SZWFkXQpzdG9uZXdhbGwKaW9kZXB0aD00Cls1MTJLQl9TZXF1ZW50
+aWFsX1JlYWRdCnN0b25ld2FsbAppb2RlcHRoPTgKWzUxMktCX1NlcXVlbnRp
+YWxfUmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9MTYKWzUxMktCX1NlcXVlbnRp
+YWxfUmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9MzIKWzUxMktCX1NlcXVlbnRp
+YWxfUmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9NjQKW2dsb2JhbF0Kcnc9d3Jp
+dGUKWzUxMktCX1NlcXVlbnRpYWxfV3JpdGVdCnN0b25ld2FsbAppb2RlcHRo
+PTEKWzUxMktCX1NlcXVlbnRpYWxfV3JpdGVdCnN0b25ld2FsbAppb2RlcHRo
+PTIKWzUxMktCX1NlcXVlbnRpYWxfV3JpdGVdCnN0b25ld2FsbAppb2RlcHRo
+PTQKWzUxMktCX1NlcXVlbnRpYWxfV3JpdGVdCnN0b25ld2FsbAppb2RlcHRo
+PTgKWzUxMktCX1NlcXVlbnRpYWxfV3JpdGVdCnN0b25ld2FsbAppb2RlcHRo
+PTE2Cls1MTJLQl9TZXF1ZW50aWFsX1dyaXRlXQpzdG9uZXdhbGwKaW9kZXB0
+aD0zMgpbNTEyS0JfU2VxdWVudGlhbF9Xcml0ZV0Kc3RvbmV3YWxsCmlvZGVw
+dGg9NjQKW0lkbGVdCnN0b25ld2FsbApyd21peHJlYWQ9MTAwCmJzPTY0awpy
+YXRlPTEKW2dsb2JhbF0KYnM9MU0KW2dsb2JhbF0Kcnc9cmVhZApbMU1CX1Nl
+cXVlbnRpYWxfUmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9MQpbMU1CX1NlcXVl
+bnRpYWxfUmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9MgpbMU1CX1NlcXVlbnRp
+YWxfUmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9NApbMU1CX1NlcXVlbnRpYWxf
+UmVhZF0Kc3RvbmV3YWxsCmlvZGVwdGg9OApbMU1CX1NlcXVlbnRpYWxfUmVh
+ZF0Kc3RvbmV3YWxsCmlvZGVwdGg9MTYKWzFNQl9TZXF1ZW50aWFsX1JlYWRd
+CnN0b25ld2FsbAppb2RlcHRoPTMyClsxTUJfU2VxdWVudGlhbF9SZWFkXQpz
+dG9uZXdhbGwKaW9kZXB0aD02NAo=
+
+--0-373209039-1240419512=:84652--
+
 
