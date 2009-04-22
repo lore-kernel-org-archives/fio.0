@@ -1,192 +1,72 @@
-Return-Path: <worleys@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <20090422132257.GR4593@kernel.dk>
-References: <20090422132257.GR4593@kernel.dk>
-Date: Wed, 22 Apr 2009 14:32:50 -0600
-Message-ID: <f3177b9e0904221332w887ef28l7e25959fb24892c8@mail.gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from brick.kernel.dk ([93.163.65.50]:42739 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751112AbZDVRge (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 22 Apr 2009 13:36:34 -0400
+Date: Wed, 22 Apr 2009 19:36:33 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
 Subject: Re: request for job files
-From: Chris Worley <worleys@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-To: Jens Axboe <jens.axboe@oracle.com>
+Message-ID: <20090422173632.GY4593@kernel.dk>
+References: <20090422132257.GR4593@kernel.dk> <432595.84652.qm@web63805.mail.re1.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <432595.84652.qm@web63805.mail.re1.yahoo.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Girish Satihal <girish.satihal@yahoo.com>
 Cc: fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
 
-On Wed, Apr 22, 2009 at 7:22 AM, Jens Axboe <jens.axboe@oracle.com> wrote:
+On Wed, Apr 22 2009, Girish Satihal wrote:
+> Hi Jens,
+> Here is one job files which we regularly use as a Standard_Workload
+> for our fio testing.
+
+Thanks. If you could attach a few words to describe the job file as
+well, it'll be more useful. Just something like "used to test xxx" or
+"give the device a good thrashing", or whatever is appropriate for the
+job file in question.
+
+> =EF=BF=BD
+> Thanks,
+> =EF=BF=BDGirish
+>=20
+> --- On Wed, 4/22/09, Jens Axboe <jens.axboe@oracle.com> wrote:
+>=20
+> From: Jens Axboe <jens.axboe@oracle.com>
+> Subject: request for job files
+> To: fio@vger.kernel.org
+> Date: Wednesday, April 22, 2009, 6:52 PM
+>=20
 > Hi,
->
+>=20
 > The sample job files shipped with fio are (generally) pretty weak, and
 > I'd really love for the selection to be better. In my experience, that
 > is the first place you look when trying out something like fio. It
 > really helps you getting a (previously) unknown job format going
 > quickly.
->
-> So if any of you have "interesting" job files that you use for testing
+>=20
+> So if any of you have "interesting" job files that you use for
+> testing
 > or performance analysis, please do send them to me so I can include them
 > with fio.
+>=20
+> Thanks!
+>=20
+> --=20
+> Jens Axboe
+>=20
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>=20
+>=20
+>=20
+>      =20
 
-Jens,
 
-I normally use scripts to run I/O benchmarks, and pretty much use fio
-exclusively.
-
-Hopefully, in sharing the scripts, you can see usage, and feeback
-anything I may be doing wrong.
-
-In one incarnation, I put all the devices to be tested on the script's
-command line, then concatenate a fio-ready list of these devices along
-with a sum of 10% of all the disks with:
-
-    filesize=0
-    fiolist=""
-    for i in $*
-    do fiolist=$fiolist" --filename="$i
-       t=`basename $i`
-       let filesize=$filesize+`cat /proc/partitions | grep $t  | awk
-'{ printf "%d\n", $3*1024/10 }'`
-    done
-
-Rather than a "job file", In this case I do everything on the command
-line for power of 2 block sizes from 1MB down to 512B:
-
-  for i in 1m 512k 256k 128k 64k 32k 16k 8k 4k 2k 1k 512
-  do
-    for k in 0 25 50 75 100
-    do
-      fio  --rw=randrw --bs=$i --rwmixread=$k --numjobs=32
---iodepth=64 --sync=0 --direct=1 --randrepeat=0 --softrandommap=1 \
-              --ioengine=libaio $fiolist --name=test --loops=10000
---size=$filesize  --runtime=$runtime
-    done
-  done
-
-So the above "fiolist" is going to look like "--filename=/dev/sda
---filename=/dev/sdb", and the "filesize" is going to be the sum of 10%
-of each disks size.  I only use this with disks of the same size, and
-assume that fio will exercise 10% of each disk.  That assumption seems
-to pan out in the resulting data, but I've never traced the code to
-verify that this is what it will do.
-
-Then I moved to a process-pinning strategy that has some number of
-pinned fio threads running per disk.  I still calculate the
-"filesize", but just uses 10% of one disk, and assume they are all the
-same.   Much of the affinity settings have to do with specific bus-CPU
-affinity, but for a simple example, lets say I just round-robin the
-files on the command line to the available processors, and create
-arrays "files" and "pl" consisting of block devices and processor
-numbers:
-
-totproc=`cat /proc/cpuinfo | grep processor | wc -l`
-p=0
-for i in $*
-do
-    files[$p]="filename="$i
-    pl[$p]=$p
-    let p=$p+1
-    if [ $p -eq $totproc ]
-    then break
-    fi
-done
-let totproc=$p-1
-
-Then generate "job files" and run fio with:
-
-  for i in 1m 512k 256k 128k 64k 32k 16k 8k 4k 2k 1k 512
-  do
-    for k in 0 25 50 75 100
-    do  echo "" >fio-rand-script.$$
-      for p in `seq 0 $totproc`
-      do
-         echo -e
-"[cpu${p}]\ncpus_allowed=${pl[$p]}\nnumjobs=$jobsperproc\n${files[$p]}\ngroup_reporting\nbs=$i
-\nrw=randrw\nrwmixread=$k \nsoftrandommap=1\nruntime=$runtime
-\nsync=0\ndirect=1\niodepth=64\nioengine=libaio\nloops=10000\nexitall\nsize=$filesi
-e \n" >>fio-rand-script.$$
-      done
-      fio fio-rand-script.$$
-    done
-  done
-
-The scripts look like:
-
-# cat fio-rand-script.8625
-[cpu0]
-cpus_allowed=0
-numjobs=8
- filename=/dev/sda
-group_reporting
-bs=4k
-rw=randrw
-rwmixread=0
-softrandommap=1
-runtime=600
-sync=0
-direct=1
-iodepth=64
-ioengine=libaio
-loops=10000
-exitall
-size=16091503001
-
-[cpu1]
-cpus_allowed=1
-numjobs=8
- filename=/dev/sdb
-group_reporting
-bs=4k
-rw=randrw
-rwmixread=0
-softrandommap=1
-runtime=600
-sync=0
-direct=1
-iodepth=64
-ioengine=libaio
-loops=10000
-exitall
-size=16091503001
-
-[cpu2]
-cpus_allowed=2
-numjobs=8
- filename=/dev/sdc
-group_reporting
-bs=4k
-rw=randrw
-rwmixread=0
-softrandommap=1
-runtime=600
-sync=0
-direct=1
-iodepth=64
-ioengine=libaio
-loops=10000
-exitall
-size=16091503001
-
-[cpu3]
-cpus_allowed=3
-numjobs=8
- filename=/dev/sdd
-group_reporting
-bs=4k
-rw=randrw
-rwmixread=0
-softrandommap=1
-runtime=600
-sync=0
-direct=1
-iodepth=64
-ioengine=libaio
-loops=10000
-exitall
-size=16091503001
-
-I would sure rather do that on the command line and not create a file,
-but the groups never worked out for me on the command line... hints
-would be appreciated.
-
-Thanks,
-
-Chris
+--=20
+Jens Axboe
 
