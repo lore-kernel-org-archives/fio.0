@@ -1,90 +1,34 @@
-Return-Path: <gurudas.pai@oracle.com>
-Message-ID: <49F14771.6040004@oracle.com>
-Date: Fri, 24 Apr 2009 10:30:33 +0530
-From: Gurudas Pai <gurudas.pai@oracle.com>
-MIME-Version: 1.0
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from brick.kernel.dk ([93.163.65.50]:40293 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758992AbZDWSeg (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 23 Apr 2009 14:34:36 -0400
+Date: Thu, 23 Apr 2009 20:34:35 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
 Subject: Re: request for job files
-References: <20090422132257.GR4593@kernel.dk>
-In-Reply-To: <20090422132257.GR4593@kernel.dk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Jens Axboe <jens.axboe@oracle.com>
+Message-ID: <20090423183435.GK4593@kernel.dk>
+References: <20090422132257.GR4593@kernel.dk> <f3177b9e0904221332w887ef28l7e25959fb24892c8@mail.gmail.com> <20090423055044.GI4593@kernel.dk> <f3177b9e0904230848g57b546bco735131128ce0a786@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f3177b9e0904230848g57b546bco735131128ce0a786@mail.gmail.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Chris Worley <worleys@gmail.com>
 Cc: fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
 
-> The sample job files shipped with fio are (generally) pretty weak, and
-> I'd really love for the selection to be better. 
+On Thu, Apr 23 2009, Chris Worley wrote:
+> Jens,
+> 
+> Thanks for the tips!
+> 
+> One other question, in the first case where I use only one group with
+> multiple file names, where I'm summing 10% of the disks sizes, is fio
+> going to evenly distribute that size among the disks/files?  That
+> seems to be the case, but I'm not sure.
 
-Hi,
+Yes, it'll distribute evenly. Also see the file_service_type option.
 
-Please see if following jobfile is useful. This was used to uncover 2 
-kernel bugs with mainline kernel.
-
-
-# this jobfile was used to uncover 2 mainline kernel bugs.
-#OOPS IN BIO_GET_NR_VECS+0X0/0X30, http://lkml.org/lkml/2007/7/31/580
-#fix bad unlock_page() in error case, http://lkml.org/lkml/2007/7/20/168
-
-[global]
-bs=8k
-iodepth=1024
-iodepth_batch=60
-randrepeat=1
-size=1m
-#Use any ext3 for <directory>
-directory=<directory>
-numjobs=20
-[job1]
-ioengine=sync
-bs=1k
-direct=1
-rw=randread
-filename=file1:file2
-[job2]
-ioengine=libaio
-rw=randwrite
-direct=1
-filename=file1:file2
-[job3]
-bs=1k
-ioengine=posixaio
-rw=randwrite
-direct=1
-filename=file1:file2
-[job4]
-ioengine=splice
-direct=1
-rw=randwrite
-filename=file1:file2
-[job5]
-bs=1k
-ioengine=sync
-rw=randread
-filename=file1:file2
-[job7]
-ioengine=libaio
-rw=randwrite
-filename=file1:file2
-[job8]
-ioengine=posixaio
-rw=randwrite
-filename=file1:file2
-[job9]
-ioengine=splice
-rw=randwrite
-filename=file1:file2
-[job10]
-ioengine=mmap
-rw=randwrite
-bs=1k
-filename=file1:file2
-[job11]
-ioengine=mmap
-rw=randwrite
-direct=1
-filename=file1:file2
-
-
-Thanks,
--Guru
+-- 
+Jens Axboe
 
