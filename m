@@ -1,77 +1,90 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-fx0-f158.google.com ([209.85.220.158]:59086 "EHLO
-	mail-fx0-f158.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757847AbZDSNHd (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 19 Apr 2009 09:07:33 -0400
-Received: by fxm2 with SMTP id 2so1535418fxm.37
-        for <fio@vger.kernel.org>; Sun, 19 Apr 2009 06:07:31 -0700 (PDT)
+Return-Path: <gurudas.pai@oracle.com>
+Message-ID: <49F14771.6040004@oracle.com>
+Date: Fri, 24 Apr 2009 10:30:33 +0530
+From: Gurudas Pai <gurudas.pai@oracle.com>
 MIME-Version: 1.0
-Date: Sun, 19 Apr 2009 15:07:31 +0200
-Message-ID: <ed038eb20904190607l1f3dde9bi9e595f3b6bdefec6@mail.gmail.com>
-Subject: Bug in stats, KB/s vs. KiB/s?
-From: Carl Henrik Lunde <chlunde@ping.uio.no>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: request for job files
+References: <20090422132257.GR4593@kernel.dk>
+In-Reply-To: <20090422132257.GR4593@kernel.dk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Hi!  I think there's a bug in the stats report:
+> The sample job files shipped with fio are (generally) pretty weak, and
+> I'd really love for the selection to be better. 
 
-When I specify rate=8192 I got 8388 KiB/s in the report, which happens
-to be 8192*1.024.
+Hi,
 
-I believe the problem is that bytes / ms is used as KiB/s.  I'm not
-sure what the correct value of "base" should be (1000 vs. 1024), but
-it doesn't affect the result.  I haven't reviewed all the reporting,
-but at least I *think* these three are wrong.
-
-diff --git a/stat.c b/stat.c
-index 5fecbd0..9fd0255 100644
---- a/stat.c
-+++ b/stat.c
-@@ -199,10 +199,10 @@ static void show_ddir_status(struct
-group_run_stats *rs, struct thread_stat *ts,
-        if (!ts->runtime[ddir])
-                return;
-
--       bw = ts->io_bytes[ddir] / ts->runtime[ddir];
-+       bw = (1000 * ts->io_bytes[ddir]) / ts->runtime[ddir];
-        iops = (1000 * ts->total_io_u[ddir]) / ts->runtime[ddir];
--       io_p = num2str(ts->io_bytes[ddir] >> 10, 6, 1000, 1);
--       bw_p = num2str(bw, 6, 1000, 1);
-+       io_p = num2str(ts->io_bytes[ddir] >> 10, 6, 1024, 1);
-+       bw_p = num2str(bw >> 10, 6, 1024, 1);
-        iops_p = num2str(iops, 6, 1, 0);
-
-        log_info("  %s: io=%siB, bw=%siB/s, iops=%s, runt=%6lumsec\n",
-@@ -623,8 +623,9 @@ void show_run_stats(void)
-
-                        bw = 0;
-                        if (ts->runtime[j])
--                               bw = ts->io_bytes[j]
--                                       / (unsigned long long) ts->runtime[j];
-+                               bw = (1000 * ts->io_bytes[j])
-+                                       / (unsigned long long) ts->runtime[j]
-+                                       / 1024;
-                        if (bw < rs->min_bw[j])
-                                rs->min_bw[j] = bw;
-                        if (bw > rs->max_bw[j])
-@@ -750,7 +751,7 @@ void add_bw_sample(struct thread_data *td, enum
-fio_ddir ddir,
-        if (spent < td->o.bw_avg_time)
-                return;
-
--       rate = (td->this_io_bytes[ddir] - ts->stat_io_bytes[ddir]) / spent;
-+       rate = (td->this_io_bytes[ddir] - ts->stat_io_bytes[ddir]) *
-1000 / spent / 1024;
-        add_stat_sample(&ts->bw_stat[ddir], rate);
-
-        if (ts->bw_log)
+Please see if following jobfile is useful. This was used to uncover 2 
+kernel bugs with mainline kernel.
 
 
+# this jobfile was used to uncover 2 mainline kernel bugs.
+#OOPS IN BIO_GET_NR_VECS+0X0/0X30, http://lkml.org/lkml/2007/7/31/580
+#fix bad unlock_page() in error case, http://lkml.org/lkml/2007/7/20/168
+
+[global]
+bs=8k
+iodepth=1024
+iodepth_batch=60
+randrepeat=1
+size=1m
+#Use any ext3 for <directory>
+directory=<directory>
+numjobs=20
+[job1]
+ioengine=sync
+bs=1k
+direct=1
+rw=randread
+filename=file1:file2
+[job2]
+ioengine=libaio
+rw=randwrite
+direct=1
+filename=file1:file2
+[job3]
+bs=1k
+ioengine=posixaio
+rw=randwrite
+direct=1
+filename=file1:file2
+[job4]
+ioengine=splice
+direct=1
+rw=randwrite
+filename=file1:file2
+[job5]
+bs=1k
+ioengine=sync
+rw=randread
+filename=file1:file2
+[job7]
+ioengine=libaio
+rw=randwrite
+filename=file1:file2
+[job8]
+ioengine=posixaio
+rw=randwrite
+filename=file1:file2
+[job9]
+ioengine=splice
+rw=randwrite
+filename=file1:file2
+[job10]
+ioengine=mmap
+rw=randwrite
+bs=1k
+filename=file1:file2
+[job11]
+ioengine=mmap
+rw=randwrite
+direct=1
+filename=file1:file2
 
 
--- 
-mvh
-Carl Henrik
+Thanks,
+-Guru
+
