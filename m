@@ -1,54 +1,40 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from fk-out-0910.google.com ([209.85.128.190]:16360 "EHLO
-	fk-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751211AbZDTBHU (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 19 Apr 2009 21:07:20 -0400
-Received: by fk-out-0910.google.com with SMTP id 18so791018fkq.5
-        for <fio@vger.kernel.org>; Sun, 19 Apr 2009 18:07:18 -0700 (PDT)
+Received: from brick.kernel.dk ([93.163.65.50]:51362 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753520AbZD0GD5 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 27 Apr 2009 02:03:57 -0400
+Date: Mon, 27 Apr 2009 08:03:57 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: What's the right way to measure latency?
+Message-ID: <20090427060356.GV4593@kernel.dk>
+References: <f3177b9e0904260644v578c4eb9m35c64ccf7b883479@mail.gmail.com> <530FE590-63A6-4EEE-81EF-1BE87EC6A707@omner.org>
 MIME-Version: 1.0
-Date: Mon, 20 Apr 2009 03:07:18 +0200
-Message-ID: <ed038eb20904191807h6ff3427dn83684a723c95e13c@mail.gmail.com>
-Subject: [bug] Crash with multiple file names
-From: Carl Henrik Lunde <chlunde@ping.uio.no>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <530FE590-63A6-4EEE-81EF-1BE87EC6A707@omner.org>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Joshua Aune <luken@omner.org>
+Cc: Chris Worley <worleys@gmail.com>, fio@vger.kernel.org
 
-Hi!  fio crashed with this configuration.  I notice there are a
-multiple variables counting the number of files, so I don't know which
-one to use.  nr_files *seems* safe?
+On Sun, Apr 26 2009, Joshua Aune wrote:
+>
+> On Apr 26, 2009, at 7:44 AM, Chris Worley wrote:
+>
+>> The results show two latency numbers: clat and slat... what are these?
+>
+> slat is not there for the sync engines but exists for libaio, submit  
+> latency.  clat sounds like completion latency.
 
-diff --git a/filesetup.c b/filesetup.c
-index af23191..eb8774a 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -685,8 +685,8 @@ int add_file(struct thread_data *td, const char *fname)
+It's in the HOWTO :-)
 
-        f->fd = -1;
-
--       if (td->files_size <= td->files_index) {
--               int new_size = td->o.nr_files;
-+       if (td->files_size <= td->o.nr_files) {
-+               int new_size = td->o.nr_files + 1;
-
-                dprint(FD_FILE, "resize file array to %d files\n", new_size);
-
-
-Test config:
-
-[global]
-directory=/media/ext4
-
-[a]
-filename=large-001:large-002:large-003:large-004:large-005:large-006
-bs=1M
-rw=read
-
-
-x86_64, fio 1.25.1
+Basically slat is the time it too to enter the kernel and submit the IO
+(submission latency) and clat is the time it took from submission to the
+IO completed (completion latency). With the sync engines you cannot
+separate the two, since when the submission syscall completes the IO has
+also completed. Hence they have only clat numbers, where the async
+engine has the ability to measure both.
 
 -- 
-mvh
-Carl Henrik
+Jens Axboe
+
