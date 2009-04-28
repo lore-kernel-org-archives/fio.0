@@ -1,43 +1,55 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.45.13]:42235 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753278AbZD1Vjx (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 28 Apr 2009 17:39:53 -0400
-Received: from wpaz33.hot.corp.google.com (wpaz33.hot.corp.google.com [172.24.198.97])
-	by smtp-out.google.com with ESMTP id n3SLdpPS005307
-	for <fio@vger.kernel.org>; Tue, 28 Apr 2009 14:39:52 -0700
-Received: from yx-out-2324.google.com (yxm8.prod.google.com [10.190.4.8])
-	by wpaz33.hot.corp.google.com with ESMTP id n3SLdLLH024476
-	for <fio@vger.kernel.org>; Tue, 28 Apr 2009 14:39:50 -0700
-Received: by yx-out-2324.google.com with SMTP id 8so451322yxm.29
-        for <fio@vger.kernel.org>; Tue, 28 Apr 2009 14:39:50 -0700 (PDT)
+Received: from brick.kernel.dk ([93.163.65.50]:43866 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752209AbZD1Fvm (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 28 Apr 2009 01:51:42 -0400
+Date: Tue, 28 Apr 2009 07:51:42 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: Populating the io_u before the I/O
+Message-ID: <20090428055142.GG4593@kernel.dk>
+References: <66dfd3fe0904271558s6b8c3faamdc6ebb7f8fb95054@mail.gmail.com>
 MIME-Version: 1.0
-Date: Tue, 28 Apr 2009 14:39:50 -0700
-Message-ID: <66dfd3fe0904281439v72b661e5n1319025c8a9f8e6@mail.gmail.com>
-Subject: Fix name of the slat log file
-From: Radha Ramachandran <radha@google.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <66dfd3fe0904271558s6b8c3faamdc6ebb7f8fb95054@mail.gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Radha Ramachandran <radha@google.com>
+Cc: fio@vger.kernel.org
 
-Fix the name of the latency log file:
-Currently the slat and clat logs go to the same clat log file when the
-latency log file is specified.
+On Mon, Apr 27 2009, Radha Ramachandran wrote:
+> Hi,
+> I was seeing some performance drop during the read verification phase
+> of a test, and from the code in io_u.c in get_io_u function, we
+> prepare/populate the buffer in the io_u structure based on the verify
+> patterns/options.
+> This makes sense when we are doing writes, but I dont understand why
+> we do this for the read phase when this data is going to be
+> overwritten anyways(and in case of truncated reads, we do modify the
+> buf_len).
+> So based on that I changed the code to populate the buffer(io_u->buf)
+> only if its a write with verify enabled.
+> This works for my tests, but I do not know if there was a reason why
+> this was populated for reads as well to begin with.
+> My change:
+> 
+>  diff -up io_u.c.orig io_u.c
+> --- io_u.c.orig 2009-04-27 15:42:11.213724000 -0700
+> +++ io_u.c      2009-04-27 15:51:34.881647000 -0700
+> @@ -838,7 +838,7 @@ struct io_u *get_io_u(struct thread_data
+> 
+>                 f->last_pos = io_u->offset + io_u->buflen;
+> 
+> -               if (td->o.verify != VERIFY_NONE)
+> +               if (td->o.verify != VERIFY_NONE && io_u->ddir == DDIR_WRITE)
+>                         populate_verify_io_u(td, io_u);
+>                 else if (td->o.refill_buffers && io_u->ddir == DDIR_WRITE)
+>                         io_u_fill_buffer(td, io_u, io_u->xfer_buflen);
 
-diff -up fio.c.orig fio.c
---- fio.c.orig  2009-04-28 14:37:50.049570000 -0700
-+++ fio.c       2009-04-28 14:38:17.306291000 -0700
-@@ -1086,7 +1086,7 @@ static void *thread_main(void *data)
-        if (td->ts.slat_log) {
-                if (td->o.lat_log_file) {
-                        finish_log_named(td, td->ts.slat_log,
--                                               td->o.lat_log_file, "clat");
-+                                               td->o.lat_log_file, "slat");
-                } else
-                        finish_log(td, td->ts.slat_log, "slat");
-        }
+Most likely to scrub the contents, but a memset() would have sufficed
+there. Still pretty pointless, I see no reason why we can't apply your
+patch (done).
 
-thanks
--radha
+-- 
+Jens Axboe
+
