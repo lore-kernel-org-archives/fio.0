@@ -1,35 +1,51 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-fx0-f158.google.com ([209.85.220.158]:59061 "EHLO
-	mail-fx0-f158.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932720AbZDIStX (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 9 Apr 2009 14:49:23 -0400
-Received: by fxm2 with SMTP id 2so728778fxm.37
-        for <fio@vger.kernel.org>; Thu, 09 Apr 2009 11:49:21 -0700 (PDT)
-Subject: question about fork_main()
-From: Francis Moreau <francis.moro@gmail.com>
-Date: Thu, 09 Apr 2009 20:49:10 +0200
-Message-ID: <m2eiw1fys9.fsf@gmail.com>
+Received: from brick.kernel.dk ([93.163.65.50]:43473 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751580AbZD2FYE (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 29 Apr 2009 01:24:04 -0400
+Date: Wed, 29 Apr 2009 07:24:03 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: Fix name of the slat log file
+Message-ID: <20090429052403.GP4593@kernel.dk>
+References: <66dfd3fe0904281439v72b661e5n1319025c8a9f8e6@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <66dfd3fe0904281439v72b661e5n1319025c8a9f8e6@mail.gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Radha Ramachandran <radha@google.com>
+Cc: fio@vger.kernel.org
 
-hello,
+On Tue, Apr 28 2009, Radha Ramachandran wrote:
+> Fix the name of the latency log file:
+> Currently the slat and clat logs go to the same clat log file when the
+> latency log file is specified.
 
-I just took a look to fio source code (great tool BTW), and I'm
-wondering about the fork_main() comment:
+Bad copy'n paste error... Applied, thanks!
 
-/*
- * We cannot pass the td data into a forked process, so attach the td
- * and pass it to the thread worker.
- */
 
-Since after a fork(2) the child inherits the attached shared memory
-segments from its parent, I don't see the point of this comment.
+> 
+> diff -up fio.c.orig fio.c
+> --- fio.c.orig  2009-04-28 14:37:50.049570000 -0700
+> +++ fio.c       2009-04-28 14:38:17.306291000 -0700
+> @@ -1086,7 +1086,7 @@ static void *thread_main(void *data)
+>         if (td->ts.slat_log) {
+>                 if (td->o.lat_log_file) {
+>                         finish_log_named(td, td->ts.slat_log,
+> -                                               td->o.lat_log_file, "clat");
+> +                                               td->o.lat_log_file, "slat");
+>                 } else
+>                         finish_log(td, td->ts.slat_log, "slat");
+>         }
+> 
+> thanks
+> -radha
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Could anybody enlight me ?
-
-thanks.
 -- 
-Francis
+Jens Axboe
+
