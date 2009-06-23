@@ -1,84 +1,96 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.33.17]:39958 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751382AbZFOXSf (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 15 Jun 2009 19:18:35 -0400
-Received: from wpaz33.hot.corp.google.com (wpaz33.hot.corp.google.com [172.24.198.97])
-	by smtp-out.google.com with ESMTP id n5FNIa1b016529
-	for <fio@vger.kernel.org>; Tue, 16 Jun 2009 00:18:36 +0100
-Received: from qw-out-2122.google.com (qwd5.prod.google.com [10.241.193.197])
-	by wpaz33.hot.corp.google.com with ESMTP id n5FNIYNW022950
-	for <fio@vger.kernel.org>; Mon, 15 Jun 2009 16:18:34 -0700
-Received: by qw-out-2122.google.com with SMTP id 5so2578104qwd.53
-        for <fio@vger.kernel.org>; Mon, 15 Jun 2009 16:18:34 -0700 (PDT)
+Received: from brick.kernel.dk ([93.163.65.50]:52610 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752961AbZFWKy2 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 23 Jun 2009 06:54:28 -0400
+Date: Tue, 23 Jun 2009 12:54:30 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: unexpected results from simple test?
+Message-ID: <20090623105430.GW31415@kernel.dk>
+References: <1245667272.2704.41.camel@localhost.localdomain> <20090622105104.GC31415@kernel.dk> <1245680446.2704.61.camel@localhost.localdomain> <20090622175728.GK31415@kernel.dk> <1245751330.2715.8.camel@localhost.localdomain>
 MIME-Version: 1.0
-Date: Mon, 15 Jun 2009 16:18:33 -0700
-Message-ID: <66dfd3fe0906151618r472be916ubfb771d714cc851f@mail.gmail.com>
-Subject: Alter the order of checking time exceeded vs getting an io_u
-From: Radha Ramachandran <radha@google.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1245751330.2715.8.camel@localhost.localdomain>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Richard Kennedy <richard@rsk.demon.co.uk>
+Cc: fio@vger.kernel.org
 
-Hi,
-I was hitting a case where fio would loop for ever even though the
-runtime was exceeded if it had difficulty getting the io_u struct, so
-I suggest this change to the code so it wld not loop forever:
+On Tue, Jun 23 2009, Richard Kennedy wrote:
+> On Mon, 2009-06-22 at 19:57 +0200, Jens Axboe wrote:
+> > On Mon, Jun 22 2009, Richard Kennedy wrote:
+> > > 
+> > > > In any case, please try and download a new fresh version and see if that
+> > > > makes it any better.
+> > > > 
+> > > > There was also a recent linux kernel futex problem that fio triggered,
+> > > > so it could also be a kernel issue. Again, knowing what the two other
+> > > > jobs are doing would help.
+> > > > 
+> > > Hi Jens,
+> > > 
+> > > 'strace -f' running on a freshly built fio 1.28
+> > > 
+> > > It runs somewhat slowly but I just get lots of reads & writes like these
+> > > 
+> > > [pid  6597] gettimeofday({1245679454, 899777}, NULL) = 0
+> > > [pid  6597] lseek(8, 419278848, SEEK_SET) = 419278848
+> > > [pid  6597] gettimeofday({1245679454, 899917}, NULL) = 0
+> > > [pid  6597] gettimeofday({1245679454, 899988}, NULL) = 0
+> > > [pid  6597] gettimeofday({1245679454, 900059}, NULL) = 0
+> > > [pid  6597] write(8, "+\265bB\305\243g+\214\313\313\377\20H\237\356\266
+> > > \326X\335<\37\317K\207\317,/\335J\206\267\33"..., 4096) = 4096
+> > > [pid  6597] gettimeofday({1245679454, 900244}, NULL) = 0
+> > > [pid  6597] lseek(8, 419282944, SEEK_SET) = 419282944
+> > > [pid  6597] gettimeofday({1245679454, 900391}, NULL) = 0
+> > > [pid  6597] gettimeofday({1245679454, 900463}, NULL) = 0
+> > > [pid  6597] gettimeofday({1245679454, 900534}, NULL) = 0
+> > > [pid  6597] read(8, "+\265bB\305\243g+\214\313\313\377\20H\237\356\266
+> > > \326X\335<\37\317K\207\317,/\335J\206\267\33"..., 4096) = 4096
+> > > [pid  6597] gettimeofday({1245679454, 900705}, NULL) = 0
+> > > [pid  6597] lseek(8, 419287040, SEEK_SET) = 419287040
+> > > [pid  6597] gettimeofday({1245679454, 900845}, NULL) = 0
+> > > [pid  6597] gettimeofday({1245679454, 900914}, NULL) = 0
+> > > [pid  6597] gettimeofday({1245679454, 900985}, NULL) = 0
+> > > [pid  6597] write(8, "+\265bB\305\243g+\214\313\313\377\20H\237\356\266
+> > > \326X\335<\37\317K\207\317,/\335J\206\267\33"..., 4096) = 4096
+> > > [pid  6597] gettimeofday({1245679454, 901171}, NULL) = 0
+> > > [pid  6597] lseek(8, 419291136, SEEK_SET) = 419291136
+> > > [pid  6597] gettimeofday({1245679454, 901309}, NULL) = 0
+> > > [pid  6597] gettimeofday({1245679454, 901379}, NULL) = 0
+> > > [pid  6597] gettimeofday({1245679454, 901460}, NULL) = 0
+> > > [pid  6597] read(8, "+\265bB\305\243g+\214\313\313\377\20H\237\356\266
+> > > \326X\335<\37\317K\207\317,/\335J\206\267\33"..., 4096) = 4096
+> > > 
+> > > 
+> > > where pid 6597 is job f1
+> > > 
+> > > I'll rebuild my kernel from the latest git, and check that.
+> > 
+> > So it's still running, perhaps the eta is just off. Is write back
+> > caching disabled on that drive?
+> > 
+> 
+> It seems better on the latest git kernel, the time for the complete test
+> is now 1m30.
+> Although the eta times do seem strange. As fio starts up I see extremely
+> large eta's flash up , i.e. some huge number of days, but I haven't
+> managed to capture one yet, and it says it's finished long before it
+> actually stops.
+> 
+> Yes, strangely the write_cache is disabled on sda, but enabled on sdb.
+> 
+> I'll turn it on and see if there's any difference.
 
->git diff
-diff --git a/fio.c b/fio.c
-index bb26062..4927f1c 100644
---- a/fio.c
-+++ b/fio.c
-@@ -442,18 +442,17 @@ static void do_verify(struct thread_data *td)
-        while (!td->terminate) {
-                int ret2, full;
+So at this point I'm not sure exactly what you see as the problem. If
+write caching is disabled, a read/write mix or randwrite is going to be
+really slow. 90 seconds is ~4MB/sec, that sounds very plausible.
 
--               io_u = __get_io_u(td);
--               if (!io_u)
--                       break;
--
-                update_tv_cache(td);
+The eta may not be too good, probably because initially you are just
+offloading to page cache. Once you start hitting platter, speeds will
+plummet.
 
-                if (runtime_exceeded(td, &td->tv_cache)) {
--                       put_io_u(td, io_u);
-                        td->terminate = 1;
-                        break;
-                }
+-- 
+Jens Axboe
 
-+               io_u = __get_io_u(td);
-+               if (!io_u)
-+                       break;
-+
-                if (get_next_verify(td, io_u)) {
-                        put_io_u(td, io_u);
-                        break;
-@@ -580,18 +579,17 @@ static void do_io(struct thread_data *td)
-                if (td->terminate)
-                        break;
-
--               io_u = get_io_u(td);
--               if (!io_u)
--                       break;
--
-                update_tv_cache(td);
-
-                if (runtime_exceeded(td, &td->tv_cache)) {
--                       put_io_u(td, io_u);
-                        td->terminate = 1;
-                        break;
-                }
-
-+               io_u = get_io_u(td);
-+               if (!io_u)
-+                       break;
-+
-                /*
-                 * Add verification end_io handler, if asked to verify
-                 * a previously written file.
-
-
-thanks
--radha
