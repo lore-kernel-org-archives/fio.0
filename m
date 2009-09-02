@@ -1,207 +1,145 @@
-Return-Path: <Alan.Brunelle@hp.com>
-Subject: Bug in fio: infinite loop when using two volumes crafted from one  MD?
-From: "Alan D. Brunelle" <Alan.Brunelle@hp.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 11 Sep 2009 11:59:49 -0400
-Message-Id: <1252684789.5814.29.camel@cail>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-To: fio@vger.kernel.org
-Cc: Jens Axboe <jens.axboe@oracle.com>
-List-ID: <fio@vger.kernel.org>
-
-I have a somewhat complex (but practical) situation I'm trying to
-measure (looking at Goyal's io-controller patches). 
-
-o  24-disk MD RAID10 set (/dev/md0)
-
-o  12 linear LV volumes crafted from /dev/md0
-
-o  Ext3 FS created on each LV volume
-
-o  16GiB test file created on each FS
-
-# du -s -h /mnt/lv[01]/data.bin
-33G     /mnt/lv0/data.bin
-33G     /mnt/lv1/data.bin
-
-When I execute the following job file (only using 2 of the 12 files/FS):
-
-[global]
-rw=3Drw
-rwmixread=3D80
-randrepeat=3D1
-size=3D32g
-direct=3D0
-ioengine=3Dlibaio
-iodepth=3D32
-iodepth_low=3D32
-iodepth_batch=3D32
-iodepth_batch_complete=3D6
-overwrite=3D0
-bs=3D4k
-runtime=3D30
-
-[lv0]
-filename=3D/mnt/lv0/data.bin
-
-[test]
-filename=3D/mnt/lv1/data.bin
-
-the I/O portion of the run completes, but whilst attempting to display
-the Disk stats it hangs whilst outputting:
-
-...
-Run status group 0 (all jobs):
-   READ: io=3D3,602MB, aggrb=3D120MB/s, minb=3D61,754KB/s, maxb=3D64,135KB/=
-s,
-mint=3D30002msec, maxt=3D30005msec
-  WRITE: io=3D903MB, aggrb=3D30,813KB/s, minb=3D15,537KB/s, maxb=3D16,016KB=
-/s,
-mint=3D30002msec, maxt=3D30005msec
-
-Disk stats (read/write):
-
-<<<hangs...>>>
-
-Breaking in (via gdb) yields:
-(gdb) where
-#0  0x0000000000428bb4 in aggregate_slaves_stats
-(masterdu=3D0x7f21bbf511e8)
-    at diskutil.c:458
-#1  0x000000000042905c in show_disk_util () at diskutil.c:528
-#2  0x00000000004121bb in show_run_stats () at stat.c:663
-#3  0x000000000040acad in main (argc=3D2, argv=3D0x7fff6b83bba8) at
-fio.c:1654
-
-setting a break at:
-
-454                     ios[0] +=3D dus->ios[0];
-
-and using 'cont' & "print *slavedu" yields:
-
-(gdb) print *slavedu
-$3 =3D {list =3D {next =3D 0x28000156a7, prev =3D 0x1571500006e19}, slaveli=
-st =3D
-{
-    next =3D 0x7f21bbf513f8, prev =3D 0x7f21bbf513f8}, 
-  name =3D 0x74b4 <Address 0x74b4 out of bounds>, 
-  sysfs_root =3D 0x4aaa6cce <Address 0x4aaa6cce out of bounds>, 
-  path =3D "\030=EF=BF=BD\r\000\000\000\000\000\000\020i=EF=BF=BD!\177\000\=
-000\000\000\000
-\000\000\000\000\000=EF=BF=BDZ=EF=BF=BDZ\000\000\000\000\024\000\000\000=EF=
-=BE=AD=EF=BF=BDdm-1\000\000
-\000\000=EF=BF=BDZ=EF=BF=BDZ", '\0' <repeats 12 times>, "=EF=BF=BD\001\000\=
-000=EF=BE=AD=EF=BF=BD=EF=BF=BDG=EF=BF=BD!\177\000
-\000=EF=BF=BDG=EF=BF=BD!\177\000\000=EF=BF=BDG=EF=BF=BD!\177\000\000=EF=BF=
-=BDG=EF=BF=BD!\177\000\000=EF=BF=BDI=EF=BF=BD!\177\000\000=EF=BF=BDW
-\203k=EF=BF=BD\177\000\000/sys/block/dm-1/slaves/../../md0/stat", '\0' <rep=
-eats
-98 times>, major =3D 0, minor =3D 0, 
-  dus =3D {ios =3D {0, 0}, merges =3D {0, 0}, sectors =3D {0, 0}, ticks =3D=
- {0,
-0}, 
-    io_ticks =3D 0, time_in_queue =3D 0}, last_dus =3D {ios =3D {0, 0}, mer=
-ges =3D
-{0, 
-      0}, sectors =3D {0, 0}, ticks =3D {0, 0}, io_ticks =3D 0, time_in_que=
-ue
-=3D 0}, 
-  slaves =3D {next =3D 0x0, prev =3D 0x0}, msec =3D 9, time =3D {tv_sec =3D=
- 0, 
-    tv_usec =3D 0}, lock =3D 0x0, users =3D 0}
-(gdb) cont
-Continuing.
-
-Breakpoint 1, aggregate_slaves_stats (masterdu=3D0x7f21bbf511e8)
-    at diskutil.c:454
-454                     ios[0] +=3D dus->ios[0];
-(gdb) print *slavedu
-$4 =3D {list =3D {next =3D 0x7f21bbf515e8, prev =3D 0x7f21bbf511e8}, slavel=
-ist =3D
-{
-    next =3D 0x7f21bbf54780, prev =3D 0x7f21bbf54780}, 
-  name =3D 0x7f21bbf515c8 "md0", 
-  sysfs_root =3D 0x7fff6b8357f0 "/sys/block/dm-1/slaves/../../md0", 
-  path =3D "/sys/block/dm-0/slaves/../../md0/stat", '\0' <repeats 218
-times>, 
-  major =3D 9, minor =3D 0, dus =3D {ios =3D {0, 0}, merges =3D {0, 0}, sec=
-tors =3D
-{0, 
-      0}, ticks =3D {0, 0}, io_ticks =3D 0, time_in_queue =3D 0}, last_dus =
-=3D
-{ios =3D {
-      567924, 118793}, merges =3D {0, 0}, sectors =3D {71929094, 950344},
-ticks =3D {
-      0, 0}, io_ticks =3D 0, time_in_queue =3D 0}, slaves =3D {
-    next =3D 0x7f21bbf515f8, prev =3D 0x7f21bbf543f8}, msec =3D 0, time =3D=
- {
-    tv_sec =3D 1252682928, tv_usec =3D 935566}, lock =3D 0x7f21bc973000, us=
-ers
-=3D 0}
-(gdb) cont
-Continuing.
-
-Breakpoint 1, aggregate_slaves_stats (masterdu=3D0x7f21bbf511e8)
-    at diskutil.c:454
-454                     ios[0] +=3D dus->ios[0];
-(gdb) print *slavedu
-$5 =3D {list =3D {next =3D 0x28000156a7, prev =3D 0x1571500006e19}, slaveli=
-st =3D
-{
-    next =3D 0x7f21bbf513f8, prev =3D 0x7f21bbf513f8}, 
-  name =3D 0x74b4 <Address 0x74b4 out of bounds>, 
-  sysfs_root =3D 0x4aaa6cce <Address 0x4aaa6cce out of bounds>, 
-  path =3D "\030=EF=BF=BD\r\000\000\000\000\000\000\020i=EF=BF=BD!\177\000\=
-000\000\000\000
-\000\000\000\000\000=EF=BF=BDZ=EF=BF=BDZ\000\000\000\000\024\000\000\000=EF=
-=BE=AD=EF=BF=BDdm-1\000\000
-\000\000=EF=BF=BDZ=EF=BF=BDZ", '\0' <repeats 12 times>, "=EF=BF=BD\001\000\=
-000=EF=BE=AD=EF=BF=BD=EF=BF=BDG=EF=BF=BD!\177\000
-\000=EF=BF=BDG=EF=BF=BD!\177\000\000=EF=BF=BDG=EF=BF=BD!\177\000\000=EF=BF=
-=BDG=EF=BF=BD!\177\000\000=EF=BF=BDI=EF=BF=BD!\177\000\000=EF=BF=BDW
-\203k=EF=BF=BD\177\000\000/sys/block/dm-1/slaves/../../md0/stat", '\0' <rep=
-eats
-98 times>, major =3D 0, minor =3D 0, 
-  dus =3D {ios =3D {0, 0}, merges =3D {0, 0}, sectors =3D {0, 0}, ticks =3D=
- {0,
-0}, 
-    io_ticks =3D 0, time_in_queue =3D 0}, last_dus =3D {ios =3D {0, 0}, mer=
-ges =3D
-{0, 
-      0}, sectors =3D {0, 0}, ticks =3D {0, 0}, io_ticks =3D 0, time_in_que=
-ue
-=3D 0}, 
-  slaves =3D {next =3D 0x0, prev =3D 0x0}, msec =3D 9, time =3D {tv_sec =3D=
- 0, 
-    tv_usec =3D 0}, lock =3D 0x0, users =3D 0}
-
-and then it seems to be bouncing between these two "things". 
-
-Now using a totally separate disk & FS & data file:
-
-# du -s -h /mnt/lv0/data.bin /mnt/test/data.bin 
-33G     /mnt/lv0/data.bin
-33G     /mnt/test/data.bin
-
-(/mnt/test is *not* constructed from the MD device) 
-
-and changing the job file to look like:
-
-[test]
-filename=3D/mnt/test/data.bin
-
-(Removing the /dev/vg/lv1 file)
-
-It runs to completion correctly.
-
-It seems to me that there may be some error in the logic dealing with
-finding the underlying devices for different mount points/files the come
-to the same underlying device (/dev/md0, in this case?)? 
-
-Alan
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from brick.kernel.dk ([93.163.65.50]:55732 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752102AbZIBIaT (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 2 Sep 2009 04:30:19 -0400
+Date: Wed, 2 Sep 2009 10:30:21 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: FIO for MIPS
+Message-ID: <20090902083020.GN12579@kernel.dk>
+References: <7efa8a7d0908311900o2f0bfbb8t52a8b518782e2bdc@mail.gmail.com> <20090901053838.GK12579@kernel.dk> <7efa8a7d0909011643r5c86384uedb6c8ef0e1c33ab@mail.gmail.com> <20090902063114.GK12579@kernel.dk> <7efa8a7d0909020124j4be78b7au33774be150f09c7c@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7efa8a7d0909020124j4be78b7au33774be150f09c7c@mail.gmail.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Learner Study <learner.study@gmail.com>
+Cc: fio@vger.kernel.org
 
 
+I mean that the one of the big problems with posixaio in Linux is that
+it screws up the internal io context IO tracking in the kernel because
+it uses a bunch of unrelated threads to actually do the IO. If CLONE_IO
+had been used as clone() flag, they would at least share a context and
+things would work a lot better.
+
+libaio doesn't have this issue, but it requires O_DIRECT to be async (it
+doesn't work with buffered IO).
 
 
+On Wed, Sep 02 2009, Learner Study wrote:
+> Hi Jens:
+> 
+> Do you mean using CLONE_IO with posixaio would be better than O_DIRECT with
+> posixaio?
+> 
+> Thanks!
+> 
+> On Tue, Sep 1, 2009 at 11:31 PM, Jens Axboe <jens.axboe@oracle.com> wrote:
+> 
+> > Hi,
+> >
+> > Yes, if you can live with O_DIRECT, libaio performs a lot better than
+> > posixaio. Nobody should use posixaio in their apps if they care just a
+> > bit about performance, it just doesn't work very well. Using CLONE_IO
+> > would help, but even with that it's still pretty suboptimal.
+> >
+> >
+> > On Tue, Sep 01 2009, Learner Study wrote:
+> > > Hi Jens:
+> > >
+> > > Thanks - it works well.
+> > >
+> > > I'm using FIO with posixaio ioengine and performance is pretty bad. I'm
+> > > trying to get libaio to work  in my MIPS environment. Based on my tests
+> > in
+> > > previous x86 env, I had seen libaio to give better performance with FIO
+> > as
+> > > compared to posixaio.
+> > >
+> > > Again, thanks for your prompt help.
+> > >
+> > > On Mon, Aug 31, 2009 at 10:38 PM, Jens Axboe <jens.axboe@oracle.com>
+> > wrote:
+> > >
+> > > > On Mon, Aug 31 2009, Learner Study wrote:
+> > > > > Hello:
+> > > > >
+> > > > > I checked README for FIO and apparently it isn't yet supported on
+> > MIPS64
+> > > > > platform yet (atleast until version 1.30)
+> > > > > Does someone have a patch I could use to do this? Any other ideas...
+> > > >
+> > > > I just checked in the below patch. I haven't checked the memory
+> > ordering
+> > > > defines yet, not sure if any of the mips cpus are weaker ordered. I'll
+> > > > check that later, this should at least get you started.
+> > > >
+> > > > commit c28b912f77c3dafbdcdcf4def2c8c1f9c127100c
+> > > > Author: Jens Axboe <jens.axboe@oracle.com>
+> > > > Date:   Tue Sep 1 07:23:57 2009 +0200
+> > > >
+> > > >    MIPS support
+> > > >
+> > > >    Signed-off-by: Jens Axboe <jens.axboe@oracle.com>
+> > > >
+> > > > diff --git a/arch/arch-mips.h b/arch/arch-mips.h
+> > > > new file mode 100644
+> > > > index 0000000..759d3a9
+> > > > --- /dev/null
+> > > > +++ b/arch/arch-mips.h
+> > > > @@ -0,0 +1,25 @@
+> > > > +#ifndef ARCH_MIPS64_H
+> > > > +#define ARCH_MIPS64_H
+> > > > +
+> > > > +#define ARCH   (arch_mips)
+> > > > +
+> > > > +#ifndef __NR_ioprio_set
+> > > > +#define __NR_ioprio_set                314
+> > > > +#define __NR_ioprio_get                315
+> > > > +#endif
+> > > > +
+> > > > +#ifndef __NR_fadvise64
+> > > > +#define __NR_fadvise64         215
+> > > > +#endif
+> > > > +
+> > > > +#ifndef __NR_sys_splice
+> > > > +#define __NR_sys_splice                263
+> > > > +#define __NR_sys_tee           265
+> > > > +#define __NR_sys_vmsplice      266
+> > > > +#endif
+> > > > +
+> > > > +#define read_barrier()         __asm__ __volatile__("": : :"memory")
+> > > > +#define write_barrier()                __asm__ __volatile__("": :
+> > > > :"memory")
+> > > > +#define nop                    __asm__ __volatile__("": : :"memory")
+> > > > +
+> > > > +#endif
+> > > > diff --git a/arch/arch.h b/arch/arch.h
+> > > > index 28c6632..87db222 100644
+> > > > --- a/arch/arch.h
+> > > > +++ b/arch/arch.h
+> > > > @@ -31,6 +31,8 @@ enum {
+> > > >  #include "arch-sparc64.h"
+> > > >  #elif defined(__arm__)
+> > > >  #include "arch-arm.h"
+> > > > +#elif defined(__mips__) || defined(__mips64__)
+> > > > +#include "arch-mips.h"
+> > > >  #else
+> > > >  #error "Unsupported arch"
+> > > >  #endif
+> > > >
+> > > > --
+> > > > Jens Axboe
+> > > >
+> > > >
+> >
+> > --
+> > Jens Axboe
+> >
+> >
+
+-- 
+Jens Axboe
 
