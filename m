@@ -1,27 +1,42 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pz0-f186.google.com ([209.85.222.186]:50312 "EHLO
-	mail-pz0-f186.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753422AbZIDSrb (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 4 Sep 2009 14:47:31 -0400
-Received: by pzk16 with SMTP id 16so1025757pzk.18
-        for <fio@vger.kernel.org>; Fri, 04 Sep 2009 11:47:33 -0700 (PDT)
+Received: from brick.kernel.dk ([93.163.65.50]:37999 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751923AbZIKUXE (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 11 Sep 2009 16:23:04 -0400
+Date: Fri, 11 Sep 2009 22:23:06 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: Bug in fio: infinite loop when using two volumes crafted from  one  MD?
+Message-ID: <20090911202306.GR14984@kernel.dk>
+References: <1252684789.5814.29.camel@cail> <20090911163539.GK14984@kernel.dk> <1252695820.5814.31.camel@cail> <20090911193411.GO14984@kernel.dk> <1252700200.5814.32.camel@cail>
 MIME-Version: 1.0
-Date: Fri, 4 Sep 2009 12:40:17 -0600
-Message-ID: <f3177b9e0909041140nb792fdav610cec98f69c2836@mail.gmail.com>
-Subject: Proper use of "--verify" switch
-From: Chris Worley <worleys@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1252700200.5814.32.camel@cail>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "Alan D. Brunelle" <Alan.Brunelle@hp.com>
+Cc: fio@vger.kernel.org
 
-Are there example uses, specifically for mixed read/write cases?
+On Fri, Sep 11 2009, Alan D. Brunelle wrote:
+> On Fri, 2009-09-11 at 21:34 +0200, Jens Axboe wrote:
+> > On Fri, Sep 11 2009, Alan D. Brunelle wrote:
+> > > Well, the attached patch appears to fix the problem: When looking to add
+> > > an underlying device we first check to see if its in the list of current
+> > > devices. If so, we skip this add. 
+> > > 
+> > > As I know next to nothing about the innards of fio, I'd be a little
+> > > leery of taking this in, but at least it allows me to proceed! :-)
+> > 
+> > OK, so it's probably corrupting the list on a double insert. Your check
+> > is likely fine, even if there are alternative ways we could fix this.
+> > I'll add it for now, thanks for debugging this Alan!
+> > 
+> 
+> It worked fine w/ my full test (all 12 LVM2/DM volumes being accessed on
+> the same underlying MD RAID10 array). So that's goodness...
 
-I've found I can do sequential writes followed by sequential reads w/o
-issue, but have errors in other cases.
+Great, thanks for re-testing!
 
-Just some usage hints would be nice.
+-- 
+Jens Axboe
 
-Thanks,
-
-Chris
