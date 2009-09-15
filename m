@@ -1,34 +1,44 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-fx0-f217.google.com ([209.85.220.217]:44268 "EHLO
-	mail-fx0-f217.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751718AbZIOSDZ (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 15 Sep 2009 14:03:25 -0400
-Received: by fxm17 with SMTP id 17so1761180fxm.37
-        for <fio@vger.kernel.org>; Tue, 15 Sep 2009 11:03:28 -0700 (PDT)
-Message-ID: <4AAFD6EC.2080701@nowhere.dk>
-Date: Tue, 15 Sep 2009 20:03:24 +0200
-From: Allan Willems Joergensen <allan@nowhere.dk>
-MIME-Version: 1.0
+Received: from brick.kernel.dk ([93.163.65.50]:50834 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754238AbZIORyd (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 15 Sep 2009 13:54:33 -0400
+Date: Tue, 15 Sep 2009 19:54:36 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
 Subject: Re: Compile error on IA64
-References: <4AAFB3FB.5080404@nowhere.dk> <20090915175435.GO23126@kernel.dk>
-In-Reply-To: <20090915175435.GO23126@kernel.dk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20090915175435.GO23126@kernel.dk>
+References: <4AAFB3FB.5080404@nowhere.dk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4AAFB3FB.5080404@nowhere.dk>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jens Axboe <jens.axboe@oracle.com>
+To: Allan Willems Joergensen <allan@nowhere.dk>
 Cc: fio@vger.kernel.org
 
-On 2009-09-15 19:54, Jens Axboe wrote:
+On Tue, Sep 15 2009, Allan Willems Joergensen wrote:
+> Hi,
+>
+> I'm trying to compile fio on a Linux/IA64 machine; it fails.
 
->> I'm trying to compile fio on a Linux/IA64 machine; it fails.
-> Apparently I'm good at that typo, the below should get you going.
+Apparently I'm good at that typo, the below should get you going.
 
-It worked wonders, thank you.
 
-mvh
+diff --git a/arch/arch-ia64.h b/arch/arch-ia64.h
+index 2f92684..a8bb23a 100644
+--- a/arch/arch-ia64.h
++++ b/arch/arch-ia64.h
+@@ -20,7 +20,7 @@
+ 
+ #define nop		asm volatile ("hint @pause" ::: "memory");
+ #define read_barrier()	asm volatile ("mf" ::: "memory")
+-#define writebarrier()	asm volatile ("mf" ::: "memory")
++#define write_barrier()	asm volatile ("mf" ::: "memory")
+ 
+ #define ia64_popcnt(x)							\
+ ({									\
+
 -- 
-Med venlig hilsen / Best regards
-Allan Willems Joergensen
+Jens Axboe
 
-"The weak die, the strong survive" - Toq
