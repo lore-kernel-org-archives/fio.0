@@ -1,49 +1,48 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from brick.kernel.dk ([93.163.65.50]:41726 "EHLO kernel.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759969AbZJGUCF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 7 Oct 2009 16:02:05 -0400
-Date: Wed, 7 Oct 2009 22:01:28 +0200
-From: Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: "Fix wrong clock source in mutex" broke fio for me
-Message-ID: <20091007200128.GK8703@kernel.dk>
-References: <ada1vlfqan3.fsf@cisco.com>
+Received: from sj-iport-1.cisco.com ([171.71.176.70]:16744 "EHLO
+	sj-iport-1.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752370AbZJGTPS (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 7 Oct 2009 15:15:18 -0400
+From: Roland Dreier <rdreier@cisco.com>
+Subject: "Fix wrong clock source in mutex" broke fio for me
+Date: Tue, 06 Oct 2009 23:56:25 -0700
+Message-ID: <ada1vlfqan3.fsf@cisco.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ada1vlfqan3.fsf@cisco.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Roland Dreier <rdreier@cisco.com>
-Cc: fio@vger.kernel.org
+To: Jens Axboe <jens.axboe@oracle.com>, fio@vger.kernel.org
 
-On Tue, Oct 06 2009, Roland Dreier wrote:
-> With the latest fio git tree, I get:
-> 
->     fio: job startup hung? exiting.
-> 
-> on startup, and it looks like the latest commit, 69a852f5 ("Fix wrong
-> clock source in mutex") breaks things for me (Ubuntu 9.10 beta).  My
-> system seems to use CLOCK_REALTIME for pthread_cond_timedwait() by
-> default.
+With the latest fio git tree, I get:
 
-Woops, how did I miss that?
+    fio: job startup hung? exiting.
 
-> The cleanest solution seems to be to explicitly set which clock to use
-> in pthread_cond_timedwait() via pthread_condattr_setclock() when
-> initializing the condition variable, although I'm not sure how portable
-> this is away from modern Linux (ie do all platforms that fio cares about
-> have pthread_condattr_setclock()?).
+on startup, and it looks like the latest commit, 69a852f5 ("Fix wrong
+clock source in mutex") breaks things for me (Ubuntu 9.10 beta).  My
+system seems to use CLOCK_REALTIME for pthread_cond_timedwait() by
+default.
 
-I did a quick check, and at least newer revisions have it. Hmm I'm a bit
-torn on this, perhaps the safer option is just to revert the bad commit.
+The cleanest solution seems to be to explicitly set which clock to use
+in pthread_cond_timedwait() via pthread_condattr_setclock() when
+initializing the condition variable, although I'm not sure how portable
+this is away from modern Linux (ie do all platforms that fio cares about
+have pthread_condattr_setclock()?).
 
-OK, what I'll do is apply this and then we can worry about older
-platforms later. I usually try and test FreeBSD and Solaris
-occasionally, to ensure that full releases at least work.
+Signed-off-by: Roland Dreier <rolandd@cisco.com>
+---
+ mutex.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-Thanks for reporting and fixing this, Roland!
-
--- 
-Jens Axboe
+diff --git a/mutex.c b/mutex.c
+index 9f0f094..34b3324 100644
+--- a/mutex.c
++++ b/mutex.c
+@@ -72,6 +72,7 @@ struct fio_mutex *fio_mutex_init(int value)
+ 
+ 	pthread_condattr_init(&cond);
+ 	pthread_condattr_setpshared(&cond, mflag);
++	pthread_condattr_setclock(&cond, CLOCK_MONOTONIC);
+ 	pthread_cond_init(&mutex->cond, &cond);
+ 
+ 	ret = pthread_mutex_init(&mutex->lock, &attr);
 
