@@ -1,53 +1,42 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail.oss.co.nz ([202.37.225.46]:48673 "EHLO mail.oss.co.nz"
+Received: from brick.kernel.dk ([93.163.65.50]:37415 "EHLO kernel.dk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750840AbZJWDmT (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 22 Oct 2009 23:42:19 -0400
-Received: from localhost (mail.oss.co.nz [127.0.0.1])
-	by mail.oss.co.nz (Postfix) with ESMTP id 5224D208091
-	for <fio@vger.kernel.org>; Fri, 23 Oct 2009 16:12:11 +1300 (NZDT)
-Received: from mail.oss.co.nz ([127.0.0.1])
-	by localhost (sunburn.oss.co.nz [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id G57Tkho66nNT for <fio@vger.kernel.org>;
-	Fri, 23 Oct 2009 16:12:08 +1300 (NZDT)
-Received: from zimbra.oss.co.nz (unknown [192.168.213.216])
-	by mail.oss.co.nz (Postfix) with ESMTP id B878220808F
-	for <fio@vger.kernel.org>; Fri, 23 Oct 2009 16:12:08 +1300 (NZDT)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by zimbra.oss.co.nz (Postfix) with ESMTP id BE584338058
-	for <fio@vger.kernel.org>; Fri, 23 Oct 2009 16:12:07 +1300 (NZDT)
-Received: from zimbra.oss.co.nz ([127.0.0.1])
-	by localhost (zimbra.oss.co.nz [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id T2RiC2wagCaE for <fio@vger.kernel.org>;
-	Fri, 23 Oct 2009 16:12:07 +1300 (NZDT)
-Received: from zimbra.oss.co.nz (zimbra.oss.co.nz [192.168.213.216])
-	by zimbra.oss.co.nz (Postfix) with ESMTP id 8875E278004
-	for <fio@vger.kernel.org>; Fri, 23 Oct 2009 16:12:07 +1300 (NZDT)
-Date: Fri, 23 Oct 2009 16:12:07 +1300 (NZDT)
-From: Glen Ogilvie <gogilvie@oss.co.nz>
-Message-ID: <364891921.82961256267527287.JavaMail.root@zimbra.oss.co.nz>
-Subject: Re: Bug in fio: infinite loop when using two volumes crafted from  one MD?
+	id S1752240AbZJOFPs (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 15 Oct 2009 01:15:48 -0400
+Date: Thu, 15 Oct 2009 07:15:11 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: [PATCH] Fix bug in bssplit parsing
+Message-ID: <20091015051511.GY9228@kernel.dk>
+References: <7ce25bc50910141515y3f43f6c1xdb903594377a51c0@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7ce25bc50910141515y3f43f6c1xdb903594377a51c0@mail.gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Kenneth Waters <kwaters@google.com>
+Cc: fio@vger.kernel.org
 
-Hi,
+On Wed, Oct 14 2009, Kenneth Waters wrote:
+> Fio,
+> 
+> I found a bug is bssplit parsing in bssplit_ddir() when trying to use
+> FIO on an ARM platform.  It looks like str_to_decimal() takes a "void
+> *" as its fourth argument, which it passes to get_multi_bytes(), which
+> is passes to fio_get_kb_base(), which casts it to a "struct
+> thread_data *".  bssplit_ddir() is passing in "struct thread_data **",
+> which I think is causing fio_get_kb_base() to go paw around in the
+> stack; I believe the different stack layouts between ARM and x86 is
+> causing me to see this problem.  The first change that introduces this
+> bug seems to be d6978a3242daad9cb7b0710b724f19225d1ed7e2.
 
-Which release is this bug fixed in?  We experienced this bug as well.
+Woops indeed, good catch! I have applied your patch. Thanks a lot.
 
-Also, We have a problem where running fio on a DRBD device seems to cause
-a complete system lockup sometimes.   Any ideas?
+> I apologize if this patch is in the wrong format.
 
-Regards
+It was line wrapped, but not a big deal to correct for a one-liner
+patch.
+
 -- 
-Glen Ogilvie
-Open Systems Specialists
-Level 1, 162 Grafton Road
-http://www.oss.co.nz/
+Jens Axboe
 
-Ph: +64 9 984 3000
-Mobile: +64 21 684 146
-GPG Key: ACED9C17
