@@ -1,48 +1,29 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from sj-iport-1.cisco.com ([171.71.176.70]:16744 "EHLO
-	sj-iport-1.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752370AbZJGTPS (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 7 Oct 2009 15:15:18 -0400
-From: Roland Dreier <rdreier@cisco.com>
-Subject: "Fix wrong clock source in mutex" broke fio for me
-Date: Tue, 06 Oct 2009 23:56:25 -0700
-Message-ID: <ada1vlfqan3.fsf@cisco.com>
+Received: from brick.kernel.dk ([93.163.65.50]:56042 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756304AbZJ0TPa (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 27 Oct 2009 15:15:30 -0400
+Date: Tue, 27 Oct 2009 20:15:34 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: Patch to write patterns > 4 bytes
+Message-ID: <20091027191533.GO10727@kernel.dk>
+References: <66dfd3fe0910261710n62740f75y6946ebd00b2f9ab6@mail.gmail.com> <20091027075516.GR10727@kernel.dk> <66dfd3fe0910271119k77a0e35dydca50c7a0af49b15@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <66dfd3fe0910271119k77a0e35dydca50c7a0af49b15@mail.gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jens Axboe <jens.axboe@oracle.com>, fio@vger.kernel.org
+To: Radha Ramachandran <radha@google.com>
+Cc: fio@vger.kernel.org
 
-With the latest fio git tree, I get:
+On Tue, Oct 27 2009, Radha Ramachandran wrote:
+> Hi Jens,
+> Here is the git diff file.
+> Also I fixed the fio.1 man page.
 
-    fio: job startup hung? exiting.
+Thanks, applied!
 
-on startup, and it looks like the latest commit, 69a852f5 ("Fix wrong
-clock source in mutex") breaks things for me (Ubuntu 9.10 beta).  My
-system seems to use CLOCK_REALTIME for pthread_cond_timedwait() by
-default.
-
-The cleanest solution seems to be to explicitly set which clock to use
-in pthread_cond_timedwait() via pthread_condattr_setclock() when
-initializing the condition variable, although I'm not sure how portable
-this is away from modern Linux (ie do all platforms that fio cares about
-have pthread_condattr_setclock()?).
-
-Signed-off-by: Roland Dreier <rolandd@cisco.com>
----
- mutex.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/mutex.c b/mutex.c
-index 9f0f094..34b3324 100644
---- a/mutex.c
-+++ b/mutex.c
-@@ -72,6 +72,7 @@ struct fio_mutex *fio_mutex_init(int value)
- 
- 	pthread_condattr_init(&cond);
- 	pthread_condattr_setpshared(&cond, mflag);
-+	pthread_condattr_setclock(&cond, CLOCK_MONOTONIC);
- 	pthread_cond_init(&mutex->cond, &cond);
- 
- 	ret = pthread_mutex_init(&mutex->lock, &attr);
+-- 
+Jens Axboe
 
