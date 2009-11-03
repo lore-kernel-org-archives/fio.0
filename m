@@ -1,59 +1,59 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.45.13]:20211 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762019AbZJNWQr (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 14 Oct 2009 18:16:47 -0400
-Received: from spaceape10.eur.corp.google.com (spaceape10.eur.corp.google.com [172.28.16.144])
-	by smtp-out.google.com with ESMTP id n9EMFdPC017916
-	for <fio@vger.kernel.org>; Wed, 14 Oct 2009 15:15:40 -0700
-Received: from gxk26 (gxk26.prod.google.com [10.202.11.26])
-	by spaceape10.eur.corp.google.com with ESMTP id n9EMF4vG032507
-	for <fio@vger.kernel.org>; Wed, 14 Oct 2009 15:15:37 -0700
-Received: by gxk26 with SMTP id 26so283464gxk.11
-        for <fio@vger.kernel.org>; Wed, 14 Oct 2009 15:15:36 -0700 (PDT)
+Received: from [95.166.99.235] ([95.166.99.235]:38541 "EHLO kernel.dk"
+	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1750751AbZKCUwM (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 3 Nov 2009 15:52:12 -0500
+Date: Tue, 3 Nov 2009 21:52:17 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: fio-1.34.1, what we are doing with it and some patches we use.
+Message-ID: <20091103205216.GP8742@kernel.dk>
+References: <321292794.59661256869305878.JavaMail.root@zimbra.oss.co.nz> <336580134.59771256869521664.JavaMail.root@zimbra.oss.co.nz> <20091031070123.GW10727@kernel.dk>
 MIME-Version: 1.0
-Date: Wed, 14 Oct 2009 15:15:36 -0700
-Message-ID: <7ce25bc50910141515y3f43f6c1xdb903594377a51c0@mail.gmail.com>
-Subject: [PATCH] Fix bug in bssplit parsing
-From: Kenneth Waters <kwaters@google.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20091031070123.GW10727@kernel.dk>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Glen Ogilvie <gogilvie@oss.co.nz>
+Cc: fio@vger.kernel.org, Michael O'Sullivan <michael.osullivan@auckland.ac.nz>
 
-Fio,
+On Sat, Oct 31 2009, Jens Axboe wrote:
+> On Fri, Oct 30 2009, Glen Ogilvie wrote:
+> > Dear Jens Axboe and the FIO mailing list.
+> > 
+> > I have been working with Mike O'Sullivan, a senior lecturer at the
+> > University of Auckland, New Zealand. He has been adapting fio 1.34.1
+> > to work with iolog files and also to be able to read a "wait" command
+> > to allow the iolog file to specify a wait (in millisecs) before the
+> > next io. Mike's not completely confident that his changes are correct
+> > in the overall fio picture, but they are working with the iolog files
+> > we are using. What we did:
+> > 
+> > 1) We incorporated wait into iolog file reading; 2) We made some
+> > modifications so that read_iolog worked.
+> > 
+> > We have attached a patch for fio-1.34.1.tar.bz2 along with some
+> > demonstration fio config files and iolog files.
+> > 
+> > We are doing this so we can use an open source SPC-1 emulator to
+> > generate SPC-1 like workloads and then run them in fio.
+> > 
+> > Hope some of this work is useful.   Feed back is welcome, we are not
+> > experts in FIO and SPC-1, so this may have problems.
+> 
+> Interesting! I think the patch you attached is reversed, you want to
+> diff old tree -> new tree. Otherwise the patch looks nice and simple,
+> one of the hunks look like a generic bug fix for leaking memory and
+> probably should be applied first as it isn't really part of this
+> "feature".
+> 
+> Another thing to keep in mind is the format of the iolog file. Did you
+> check whether the old versions just ignore the 'wait' line? If yes, we
+> can keep the format. Otherwise we probably need to bump it.
 
-I found a bug is bssplit parsing in bssplit_ddir() when trying to use
-FIO on an ARM platform.  It looks like str_to_decimal() takes a "void
-*" as its fourth argument, which it passes to get_multi_bytes(), which
-is passes to fio_get_kb_base(), which casts it to a "struct
-thread_data *".  bssplit_ddir() is passing in "struct thread_data **",
-which I think is causing fio_get_kb_base() to go paw around in the
-stack; I believe the different stack layouts between ARM and x86 is
-causing me to see this problem.  The first change that introduces this
-bug seems to be d6978a3242daad9cb7b0710b724f19225d1ed7e2.
+I fixed up the style and committed it, thanks a lot for contributing
+this!
 
-Kenneth Waters
-
-I apologize if this patch is in the wrong format.
-
----
- options.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/options.c b/options.c
-index 549775c..b5abd74 100644
---- a/options.c
-+++ b/options.c
-@@ -82,7 +82,7 @@ static int bssplit_ddir(struct thread_data *td, int
-ddir, char *str)
- 		} else
- 			perc = -1;
-
--		if (str_to_decimal(fname, &val, 1, &td)) {
-+		if (str_to_decimal(fname, &val, 1, td)) {
- 			log_err("fio: bssplit conversion failed\n");
- 			free(td->o.bssplit);
- 			return 1;
 -- 
-1.6.5
+Jens Axboe
+
