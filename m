@@ -1,46 +1,51 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from vbox10706.hkn.net ([213.9.107.6]:45727 "EHLO vbox10706.hkn.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755320AbZKSKIg (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 19 Nov 2009 05:08:36 -0500
-Received: from localhost (localhost [127.0.0.1])
-	by vbox10706.hkn.net (Postfix) with ESMTP id AC6E3187E9D8
-	for <fio@vger.kernel.org>; Thu, 19 Nov 2009 10:39:32 +0100 (CET)
-Received: from vbox10706.hkn.net ([127.0.0.1])
-	by localhost (vbox10706.hkn.net [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FRAwf1ycofNs for <fio@vger.kernel.org>;
-	Thu, 19 Nov 2009 10:39:32 +0100 (CET)
-Received: from webmail.s-itc.de (localhost [127.0.0.1])
-	by vbox10706.hkn.net (Postfix) with ESMTP id 89907187E9D7
-	for <fio@vger.kernel.org>; Thu, 19 Nov 2009 10:39:32 +0100 (CET)
-Message-ID: <58349.194.113.141.20.1258623572.squirrel@webmail.s-itc.de>
-Date: Thu, 19 Nov 2009 10:39:32 +0100 (CET)
-Subject: Fio on solaris
-From: "Tom" <4711@gnurz.de>
+Return-Path: <radha@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <20091103204704.GO8742@kernel.dk>
+References: <66dfd3fe0911031240o786976ewfca457239e1b9048@mail.gmail.com>
+	 <20091103204240.GN8742@kernel.dk> <20091103204704.GO8742@kernel.dk>
+Date: Tue, 3 Nov 2009 13:43:35 -0800
+Message-ID: <66dfd3fe0911031343j28762e13i5dafdc8c9de50b00@mail.gmail.com>
+Subject: Re: Fix race condition when using asynch verify
+From: Radha Ramachandran <radha@google.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Hello!
+Looks good.
+Thanks
+-radha
 
-I've a problem to make that fio for solaris:
-
-> gmake -f Makefile.solaris
-gcc -o gettime.o -c -Wall -O2 -g -D_GNU_SOURCE -D_LARGEFILE_SOURCE
--D_FILE_OFFSET_BITS=64 -DFIO_INC_DEBUG gettime.c
-In file included from gettime.c:11:
-hash.h:27:2: #error Define GOLDEN_RATIO_PRIME for your wordsize.
-In file included from gettime.c:11:
-hash.h: In function `hash_long':
-hash.h:51: error: `GOLDEN_RATIO_PRIME' undeclared (first use in this
-function)
-hash.h:51: error: (Each undeclared identifier is reported only once
-hash.h:51: error: for each function it appears in.)
-hash.h:55: error: `__WORDSIZE' undeclared (first use in this function)
-gmake: *** [gettime.o] Error 1
-
-I've no idea what that means, any help?
+On Tue, Nov 3, 2009 at 12:47 PM, Jens Axboe <jens.axboe@oracle.com> wrote:
+> On Tue, Nov 03 2009, Jens Axboe wrote:
+>> On Tue, Nov 03 2009, Radha Ramachandran wrote:
+>> > Hi,
+>> > I discovered the race condition when using asynch verify with libaio e=
+ngine.
+>> > The code assumes that because the td->cur_depth value is not 0 that
+>> > there is still I/O pending and issues io_getevents when the I/O was
+>> > actually being verified by the asynchronous verify thread. This causes
+>> > the code to hang.
+>> >
+>> > I have attached a patch along to fix this issue.
+>>
+>> Thanks for the fix, that is indeed a race. I'll merge your patch, but
+>> change the io_u->in_cur_depth to be a IO_U_F_ flag.
+>
+> This is what I commited:
+>
+> http://git.kernel.dk/?p=3Dfio.git;a=3Dcommit;h=3D0c41214ff4e6f31f8df64aac=
+37be7853aada6f1f
+>
+> Please double check, thanks!
+>
+> --
+> Jens Axboe
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
 
