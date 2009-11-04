@@ -1,38 +1,94 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from [95.166.99.235] ([95.166.99.235]:46250 "EHLO kernel.dk"
-	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
-	id S1750826AbZKDHfV (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 4 Nov 2009 02:35:21 -0500
-Date: Wed, 4 Nov 2009 08:35:26 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: Add extra_buff_count flag
-Message-ID: <20091104073525.GQ8742@kernel.dk>
-References: <66dfd3fe0911031633s5bef0621g99b4164c2dd174d9@mail.gmail.com>
+Return-Path: <radha@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <66dfd3fe0911031633s5bef0621g99b4164c2dd174d9@mail.gmail.com>
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Radha Ramachandran <radha@google.com>
-Cc: fio@vger.kernel.org
+Date: Tue, 3 Nov 2009 16:33:03 -0800
+Message-ID: <66dfd3fe0911031633s5bef0621g99b4164c2dd174d9@mail.gmail.com>
+Subject: Add extra_buff_count flag
+From: Radha Ramachandran <radha@google.com>
+Content-Type: multipart/mixed; boundary=001636ed6834f4ed43047780c0dc
+To: Jens Axboe <jens.axboe@oracle.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-On Tue, Nov 03 2009, Radha Ramachandran wrote:
-> Hi,
-> I was trying to use the async_verify option. Looks like if we use this
-> option for synchronous I/O, then it really doesnt do anything as after
-> every I/O is completed, we still need the asynchronous verify thread
-> to complete the verification and release the io_u so the main thread
-> can allocate this io_u for the next I/O. So to remove this bottle neck
-> I added a new option extra_buff_count. This takes an integer and the
-> code will allocate that many more extra io_us. This way when the main
-> thread has completed the I/O it will have extra io_u and buffers to
-> issue more I/Os while the asynchronous verify threads do their job.
-> This can be used with both synchronous and libaio contexts.
+--001636ed6834f4ed43047780c0dc
+Content-Type: text/plain; charset=ISO-8859-1
 
-Does iodepth=x not work for that? If not, I suggest we fix that instead
-of adding a new parameter for it.
+Hi,
+I was trying to use the async_verify option. Looks like if we use this
+option for synchronous I/O, then it really doesnt do anything as after
+every I/O is completed, we still need the asynchronous verify thread
+to complete the verification and release the io_u so the main thread
+can allocate this io_u for the next I/O. So to remove this bottle neck
+I added a new option extra_buff_count. This takes an integer and the
+code will allocate that many more extra io_us. This way when the main
+thread has completed the I/O it will have extra io_u and buffers to
+issue more I/Os while the asynchronous verify threads do their job.
+This can be used with both synchronous and libaio contexts.
+Thanks
+-radha
 
--- 
-Jens Axboe
+--001636ed6834f4ed43047780c0dc
+Content-Type: text/x-diff; charset=US-ASCII; name="extra_buff_count.patch"
+Content-Disposition: attachment; filename="extra_buff_count.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_g1lcsks90
+
+ZGlmZiAtLWdpdCBhL0hPV1RPIGIvSE9XVE8KaW5kZXggY2RkNjQ3My4uNzFlZmQxMCAxMDA2NDQK
+LS0tIGEvSE9XVE8KKysrIGIvSE9XVE8KQEAgLTg3Miw3ICs4NzIsMTIgQEAgdmVyaWZ5X2FzeW5j
+PWludAlGaW8gd2lsbCBub3JtYWxseSB2ZXJpZnkgSU8gaW5saW5lIGZyb20gdGhlIHN1Ym1pdHRp
+bmcKIHZlcmlmeV9hc3luY19jcHVzPXN0cglUZWxsIGZpbyB0byBzZXQgdGhlIGdpdmVuIENQVSBh
+ZmZpbml0eSBvbiB0aGUKIAkJYXN5bmMgSU8gdmVyaWZpY2F0aW9uIHRocmVhZHMuIFNlZSBjcHVz
+X2FsbG93ZWQgZm9yIHRoZQogCQlmb3JtYXQgdXNlZC4KLQkJCisKK2V4dHJhX2J1ZmZfY291bnQ9
+aW50CUFsbG9jYXRlIGV4dHJhIEkvTyBidWZmZXJzIHRvIGNvbnRpbnVlIGlzc3VpbmcKKwkJSU8g
+dG8gdGhlIGZpbGUvZGV2aWNlLiBUaGlzIGNhbiBiZSB1c2VkIHRvIGtlZXAgdGhlIGRldmljZQor
+CQlidXN5IHdpdGggSS9PcyB3aGlsZSB0aGUgZGF0YSB2ZXJpZmljYXRpb24gaXMgYmVpbmcKKwkJ
+ZG9uZSBhc3luY2hyb25vdXNseS4KKwogc3RvbmV3YWxsCVdhaXQgZm9yIHByZWNlZWRpbmcgam9i
+cyBpbiB0aGUgam9iIGZpbGUgdG8gZXhpdCwgYmVmb3JlCiAJCXN0YXJ0aW5nIHRoaXMgb25lLiBD
+YW4gYmUgdXNlZCB0byBpbnNlcnQgc2VyaWFsaXphdGlvbgogCQlwb2ludHMgaW4gdGhlIGpvYiBm
+aWxlLiBBIHN0b25lIHdhbGwgYWxzbyBpbXBsaWVzIHN0YXJ0aW5nCmRpZmYgLS1naXQgYS9maW8u
+MSBiL2Zpby4xCmluZGV4IDQ0NDVkMGEuLjhiZWU5OWQgMTAwNjQ0Ci0tLSBhL2Zpby4xCisrKyBi
+L2Zpby4xCkBAIC02MjcsNiArNjI3LDExIEBAIGFsbG93cyB0aGVtIHRvIGhhdmUgSU8gaW4gZmxp
+Z2h0IHdoaWxlIHZlcmlmaWVzIGFyZSBydW5uaW5nLgogVGVsbCBmaW8gdG8gc2V0IHRoZSBnaXZl
+biBDUFUgYWZmaW5pdHkgb24gdGhlIGFzeW5jIElPIHZlcmlmaWNhdGlvbiB0aHJlYWRzLgogU2Vl
+IFxmQmNwdXNfYWxsb3dlZFxmUCBmb3IgdGhlIGZvcm1hdCB1c2VkLgogLlRQCisuQkkgZXh0cmFf
+YnVmZl9jb3VudCBcZlI9XGZQaW50CitBbGxvY2F0ZSBleHRyYSBJL08gYnVmZmVycyB0byBjb250
+aW51ZSBpc3N1aW5nIElPIHRvIHRoZSBmaWxlL2RldmljZS4KK1RoaXMgY2FuIGJlIHVzZWQgdG8g
+a2VlcCB0aGUgZGV2aWNlIGJ1c3kgd2l0aCBJL09zIHdoaWxlIHRoZSBkYXRhIHZlcmlmaWNhdGlv
+bgoraXMgYmVpbmcgZG9uZSBhc3luY2hyb25vdXNseS4KKy5UUAogLkIgc3RvbmV3YWxsCiBXYWl0
+IGZvciBwcmVjZWVkaW5nIGpvYnMgaW4gdGhlIGpvYiBmaWxlIHRvIGV4aXQgYmVmb3JlIHN0YXJ0
+aW5nIHRoaXMgb25lLgogXGZCc3RvbmV3YWxsXGZSIGltcGxpZXMgXGZCbmV3X2dyb3VwXGZSLgpk
+aWZmIC0tZ2l0IGEvZmlvLmMgYi9maW8uYwppbmRleCA4ZjhiYjU2Li5mZjhkMGU3IDEwMDY0NAot
+LS0gYS9maW8uYworKysgYi9maW8uYwpAQCAtNTM0LDcgKzUzNCw4IEBAIHN5bmNfZG9uZToKIAkJ
+ICogaWYgd2UgY2FuIHF1ZXVlIG1vcmUsIGRvIHNvLiBidXQgY2hlY2sgaWYgdGhlcmUgYXJlCiAJ
+CSAqIGNvbXBsZXRlZCBpb191J3MgZmlyc3QuCiAJCSAqLwotCQlmdWxsID0gcXVldWVfZnVsbCh0
+ZCkgfHwgcmV0ID09IEZJT19RX0JVU1k7CisJCWZ1bGwgPSBxdWV1ZV9mdWxsKHRkKSB8fCByZXQg
+PT0gRklPX1FfQlVTWSB8fAorCQkJdGQtPmN1cl9kZXB0aCA9PSB0ZC0+by5pb2RlcHRoOwogCQlp
+ZiAoZnVsbCB8fCAhdGQtPm8uaW9kZXB0aF9iYXRjaF9jb21wbGV0ZSkgewogCQkJbWluX2V2ZW50
+cyA9IHRkLT5vLmlvZGVwdGhfYmF0Y2hfY29tcGxldGU7CiAJCQlpZiAoZnVsbCAmJiAhbWluX2V2
+ZW50cykKQEAgLTY4Niw3ICs2ODcsOCBAQCBzeW5jX2RvbmU6CiAJCS8qCiAJCSAqIFNlZSBpZiB3
+ZSBuZWVkIHRvIGNvbXBsZXRlIHNvbWUgY29tbWFuZHMKIAkJICovCi0JCWZ1bGwgPSBxdWV1ZV9m
+dWxsKHRkKSB8fCByZXQgPT0gRklPX1FfQlVTWTsKKwkJZnVsbCA9IHF1ZXVlX2Z1bGwodGQpIHx8
+IHJldCA9PSBGSU9fUV9CVVNZIHx8CisJCQl0ZC0+Y3VyX2RlcHRoID09IHRkLT5vLmlvZGVwdGg7
+CiAJCWlmIChmdWxsIHx8ICF0ZC0+by5pb2RlcHRoX2JhdGNoX2NvbXBsZXRlKSB7CiAJCQltaW5f
+ZXZ0cyA9IHRkLT5vLmlvZGVwdGhfYmF0Y2hfY29tcGxldGU7CiAJCQlpZiAoZnVsbCAmJiAhbWlu
+X2V2dHMpCkBAIC03ODcsNyArNzg5LDcgQEAgc3RhdGljIGludCBpbml0X2lvX3Uoc3RydWN0IHRo
+cmVhZF9kYXRhICp0ZCkKIAlpbnQgY2xfYWxpZ24sIGksIG1heF91bml0czsKIAljaGFyICpwOwog
+Ci0JbWF4X3VuaXRzID0gdGQtPm8uaW9kZXB0aDsKKwltYXhfdW5pdHMgPSB0ZC0+by5pb2RlcHRo
+ICsgdGQtPm8uZXh0cmFfYnVmZl9jb3VudDsKIAltYXhfYnMgPSBtYXgodGQtPm8ubWF4X2JzW0RE
+SVJfUkVBRF0sIHRkLT5vLm1heF9ic1tERElSX1dSSVRFXSk7CiAJdGQtPm9yaWdfYnVmZmVyX3Np
+emUgPSAodW5zaWduZWQgbG9uZyBsb25nKSBtYXhfYnMKIAkJCQkJKiAodW5zaWduZWQgbG9uZyBs
+b25nKSBtYXhfdW5pdHM7CmRpZmYgLS1naXQgYS9maW8uaCBiL2Zpby5oCmluZGV4IGU0ZWQ3NmYu
+LjgzM2EwM2IgMTAwNjQ0Ci0tLSBhL2Zpby5oCisrKyBiL2Zpby5oCkBAIC0xODEsNiArMTgxLDcg
+QEAgc3RydWN0IHRocmVhZF9vcHRpb25zIHsKIAl1bnNpZ25lZCBpbnQgdmVyaWZ5X3BhdHRlcm5f
+Ynl0ZXM7CiAJdW5zaWduZWQgaW50IHZlcmlmeV9mYXRhbDsKIAl1bnNpZ25lZCBpbnQgdmVyaWZ5
+X2FzeW5jOworCXVuc2lnbmVkIGludCBleHRyYV9idWZmX2NvdW50OwogCXVuc2lnbmVkIGludCB1
+c2VfdGhyZWFkOwogCXVuc2lnbmVkIGludCB1bmxpbms7CiAJdW5zaWduZWQgaW50IGRvX2Rpc2tf
+dXRpbDsKZGlmZiAtLWdpdCBhL29wdGlvbnMuYyBiL29wdGlvbnMuYwppbmRleCA1Yjg4MjU1Li43
+MWYyNmZiIDEwMDY0NAotLS0gYS9vcHRpb25zLmMKKysrIGIvb3B0aW9ucy5jCkBAIC0xMzM3LDYg
+KzEzMzcsMTMgQEAgc3RhdGljIHN0cnVjdCBmaW9fb3B0aW9uIG9wdGlvbnNbXSA9IHsKIAl9LAog
+I2VuZGlmCiAJeworCQkubmFtZQk9ICJleHRyYV9idWZmX2NvdW50IiwKKwkJLnR5cGUJPSBGSU9f
+T1BUX0lOVCwKKwkJLm9mZjEJPSB0ZF92YXJfb2Zmc2V0KGV4dHJhX2J1ZmZfY291bnQpLAorCQku
+ZGVmCT0gIjAiLAorCQkuaGVscAk9ICJOdW1iZXIgb2YgZXh0cmEgYnVmZmVycyB0byBhbGxvY2F0
+ZSIsCisJfSwKKwl7CiAJCS5uYW1lCT0gIndyaXRlX2lvbG9nIiwKIAkJLnR5cGUJPSBGSU9fT1BU
+X1NUUl9TVE9SRSwKIAkJLm9mZjEJPSB0ZF92YXJfb2Zmc2V0KHdyaXRlX2lvbG9nX2ZpbGUpLAo=
+--001636ed6834f4ed43047780c0dc--
+
 
