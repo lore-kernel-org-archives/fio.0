@@ -1,62 +1,30 @@
-Return-Path: <radha@google.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from [95.166.99.235] ([95.166.99.235]:55332 "EHLO kernel.dk"
+	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1753538AbZKEHcN (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 5 Nov 2009 02:32:13 -0500
+Date: Thu, 5 Nov 2009 08:32:17 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: Add extra_buff_count flag
+Message-ID: <20091105073217.GT8742@kernel.dk>
+References: <20091104073525.GQ8742@kernel.dk> <66dfd3fe0911040912s377b8b0eqb81fa3cad3db2d2f@mail.gmail.com> <20091104172932.GD8742@kernel.dk> <66dfd3fe0911040939w7629a514l393e3a6360430b54@mail.gmail.com> <20091104174123.GG8742@kernel.dk> <20091104192230.GI8742@kernel.dk> <66dfd3fe0911041131qcd032dem89f3cdfada112989@mail.gmail.com> <20091104193622.GJ8742@kernel.dk> <20091104200158.GK8742@kernel.dk> <66dfd3fe0911041450k7935aaa5ia4cf253f6d4d066@mail.gmail.com>
 MIME-Version: 1.0
-Date: Tue, 3 Nov 2009 12:40:40 -0800
-Message-ID: <66dfd3fe0911031240o786976ewfca457239e1b9048@mail.gmail.com>
-Subject: Fix race condition when using asynch verify
-From: Radha Ramachandran <radha@google.com>
-Content-Type: multipart/mixed; boundary=001636ed6834df3baf04777d8164
-To: Jens Axboe <jens.axboe@oracle.com>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <66dfd3fe0911041450k7935aaa5ia4cf253f6d4d066@mail.gmail.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Radha Ramachandran <radha@google.com>
+Cc: fio@vger.kernel.org
 
---001636ed6834df3baf04777d8164
-Content-Type: text/plain; charset=ISO-8859-1
+On Wed, Nov 04 2009, Radha Ramachandran wrote:
+> Hi,
+> This is the patch to fix the race condition when
+> iodepth_batch_complete and verify_async are used. The fix prevents the
+> code from waiting for more I/Os than were actually submitted.
 
-Hi,
-I discovered the race condition when using asynch verify with libaio engine.
-The code assumes that because the td->cur_depth value is not 0 that
-there is still I/O pending and issues io_getevents when the I/O was
-actually being verified by the asynchronous verify thread. This causes
-the code to hang.
+Ah thanks. So it wasn't quite a race, just a bug. I will apply it asap.
 
-I have attached a patch along to fix this issue.
-thanks
--radha
-
---001636ed6834df3baf04777d8164
-Content-Type: text/x-diff; charset=US-ASCII; name="verify_async.patch"
-Content-Disposition: attachment; filename="verify_async.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_g1l4jclx0
-
-ZGlmZiAtLWdpdCBhL2lvX3UuYyBiL2lvX3UuYwppbmRleCBkYTlkOTUwLi45MjY4YjYyIDEwMDY0
-NAotLS0gYS9pb191LmMKKysrIGIvaW9fdS5jCkBAIC00MjEsOSArNDIxLDEwIEBAIHZvaWQgcHV0
-X2lvX3Uoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGlvX3UgKmlvX3UpCiAJCXB1dF9m
-aWxlX2xvZyh0ZCwgaW9fdS0+ZmlsZSk7CiAKIAlpb191LT5maWxlID0gTlVMTDsKKwlpZiAoaW9f
-dS0+aW5fY3VyX2RlcHRoKQorCQl0ZC0+Y3VyX2RlcHRoLS07CiAJZmxpc3RfZGVsX2luaXQoJmlv
-X3UtPmxpc3QpOwogCWZsaXN0X2FkZCgmaW9fdS0+bGlzdCwgJnRkLT5pb191X2ZyZWVsaXN0KTsK
-LQl0ZC0+Y3VyX2RlcHRoLS07CiAJdGRfaW9fdV91bmxvY2sodGQpOwogCXRkX2lvX3VfZnJlZV9u
-b3RpZnkodGQpOwogfQpAQCAtNDQ3LDEwICs0NDgsMTAgQEAgdm9pZCByZXF1ZXVlX2lvX3Uoc3Ry
-dWN0IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGlvX3UgKippb191KQogCQl0ZC0+aW9faXNzdWVz
-W19faW9fdS0+ZGRpcl0tLTsKIAogCV9faW9fdS0+ZmxhZ3MgJj0gfklPX1VfRl9GTElHSFQ7Ci0K
-KwlpZiAoX19pb191LT5pbl9jdXJfZGVwdGgpCisJCXRkLT5jdXJfZGVwdGgtLTsKIAlmbGlzdF9k
-ZWwoJl9faW9fdS0+bGlzdCk7CiAJZmxpc3RfYWRkX3RhaWwoJl9faW9fdS0+bGlzdCwgJnRkLT5p
-b191X3JlcXVldWVzKTsKLQl0ZC0+Y3VyX2RlcHRoLS07CiAJdGRfaW9fdV91bmxvY2sodGQpOwog
-CSppb191ID0gTlVMTDsKIH0KQEAgLTg2Nyw2ICs4NjgsNyBAQCBhZ2FpbjoKIAkJZmxpc3RfZGVs
-KCZpb191LT5saXN0KTsKIAkJZmxpc3RfYWRkKCZpb191LT5saXN0LCAmdGQtPmlvX3VfYnVzeWxp
-c3QpOwogCQl0ZC0+Y3VyX2RlcHRoKys7CisJCWlvX3UtPmluX2N1cl9kZXB0aCA9IDE7CiAJfQog
-CiAJdGRfaW9fdV91bmxvY2sodGQpOwpkaWZmIC0tZ2l0IGEvaW9lbmdpbmUuaCBiL2lvZW5naW5l
-LmgKaW5kZXggM2RmMDk0NC4uNGY2NWRmYiAxMDA2NDQKLS0tIGEvaW9lbmdpbmUuaAorKysgYi9p
-b2VuZ2luZS5oCkBAIC03Miw2ICs3Miw3IEBAIHN0cnVjdCBpb191IHsKIAkgKiBDYWxsYmFjayBm
-b3IgaW8gY29tcGxldGlvbgogCSAqLwogCWludCAoKmVuZF9pbykoc3RydWN0IHRocmVhZF9kYXRh
-ICosIHN0cnVjdCBpb191ICopOworCWludCBpbl9jdXJfZGVwdGg7CiB9OwogCiAvKgpkaWZmIC0t
-Z2l0IGEvdmVyaWZ5LmMgYi92ZXJpZnkuYwppbmRleCBmYWE1Njg0Li42MTliYjc4IDEwMDY0NAot
-LS0gYS92ZXJpZnkuYworKysgYi92ZXJpZnkuYwpAQCAtNDM3LDYgKzQzNywxMCBAQCBpbnQgdmVy
-aWZ5X2lvX3VfYXN5bmMoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGlvX3UgKmlvX3Up
-CiAJaW9fdS0+ZmlsZSA9IE5VTEw7CiAKIAlwdGhyZWFkX211dGV4X2xvY2soJnRkLT5pb191X2xv
-Y2spOworCWlmIChpb191LT5pbl9jdXJfZGVwdGgpIHsKKwkJdGQtPmN1cl9kZXB0aC0tOworCQlp
-b191LT5pbl9jdXJfZGVwdGggPSAwOworCX0KIAlmbGlzdF9kZWwoJmlvX3UtPmxpc3QpOwogCWZs
-aXN0X2FkZF90YWlsKCZpb191LT5saXN0LCAmdGQtPnZlcmlmeV9saXN0KTsKIAlwdGhyZWFkX211
-dGV4X3VubG9jaygmdGQtPmlvX3VfbG9jayk7Cg==
---001636ed6834df3baf04777d8164--
-
+-- 
+Jens Axboe
 
