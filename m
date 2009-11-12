@@ -1,29 +1,43 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from [95.166.99.235] ([95.166.99.235]:43610 "EHLO kernel.dk"
-	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
-	id S1751081AbZKLIFu (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 12 Nov 2009 03:05:50 -0500
-Date: Thu, 12 Nov 2009 09:05:55 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: Log bad veify header location
-Message-ID: <20091112080555.GX8742@kernel.dk>
-References: <66dfd3fe0911111648u17b94ff1sd95fd9e040fca947@mail.gmail.com>
+Received: from smtp-out.google.com ([216.239.33.17]:37929 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754449AbZKLAsk (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 11 Nov 2009 19:48:40 -0500
+Received: from zps19.corp.google.com (zps19.corp.google.com [172.25.146.19])
+	by smtp-out.google.com with ESMTP id nAC0mibD006296
+	for <fio@vger.kernel.org>; Thu, 12 Nov 2009 00:48:45 GMT
+Received: from pwj8 (pwj8.prod.google.com [10.241.219.72])
+	by zps19.corp.google.com with ESMTP id nAC0laHa003730
+	for <fio@vger.kernel.org>; Wed, 11 Nov 2009 16:48:42 -0800
+Received: by pwj8 with SMTP id 8so1102828pwj.33
+        for <fio@vger.kernel.org>; Wed, 11 Nov 2009 16:48:42 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <66dfd3fe0911111648u17b94ff1sd95fd9e040fca947@mail.gmail.com>
+Date: Wed, 11 Nov 2009 16:48:42 -0800
+Message-ID: <66dfd3fe0911111648u17b94ff1sd95fd9e040fca947@mail.gmail.com>
+Subject: Log bad veify header location
+From: Radha Ramachandran <radha@google.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Radha Ramachandran <radha@google.com>
-Cc: fio@vger.kernel.org
+To: Jens Axboe <jens.axboe@oracle.com>, fio@vger.kernel.org
 
-On Wed, Nov 11 2009, Radha Ramachandran wrote:
-> Hi,
-> Can we please add the bad verify header location when the header
-> MAGIC_NUMBER does not match.
+Hi,
+Can we please add the bad verify header location when the header
+MAGIC_NUMBER does not match.
+Thanks
+-radha
 
-Committed, thanks.
+diff --git a/verify.c b/verify.c
+index 84e888b..52e1289 100644
+--- a/verify.c
++++ b/verify.c
+@@ -478,7 +478,8 @@ int verify_io_u(struct thread_data *td, struct io_u *io_u)
+                hdr = p;
 
--- 
-Jens Axboe
-
+                if (hdr->fio_magic != FIO_HDR_MAGIC) {
+-                       log_err("Bad verify header %x\n", hdr->fio_magic);
++                       log_err("Bad verify header %x at %llu\n",
+hdr->fio_magic,
++                               io_u->offset + hdr_num * hdr->len);
+                        return EILSEQ;
+                }
