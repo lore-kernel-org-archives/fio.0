@@ -1,94 +1,118 @@
-Return-Path: <radha@google.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from 0122700014.0.fullrate.dk ([95.166.99.235]:40321 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752124AbZLWHyv (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 23 Dec 2009 02:54:51 -0500
+Date: Wed, 23 Dec 2009 08:54:50 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: fio jobs die with sigsegv if --filesize=1tb
+Message-ID: <20091223075450.GA4489@kernel.dk>
+References: <e3e1c3ff0912222315s4d7fd27dr952343ca90b6fb71@mail.gmail.com> <20091223073539.GY4489@kernel.dk> <20091223074110.GZ4489@kernel.dk>
 MIME-Version: 1.0
-Date: Tue, 3 Nov 2009 16:33:03 -0800
-Message-ID: <66dfd3fe0911031633s5bef0621g99b4164c2dd174d9@mail.gmail.com>
-Subject: Add extra_buff_count flag
-From: Radha Ramachandran <radha@google.com>
-Content-Type: multipart/mixed; boundary=001636ed6834f4ed43047780c0dc
-To: Jens Axboe <jens.axboe@oracle.com>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20091223074110.GZ4489@kernel.dk>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Case van Rij <case.vanrij@gmail.com>
+Cc: fio@vger.kernel.org
 
---001636ed6834f4ed43047780c0dc
-Content-Type: text/plain; charset=ISO-8859-1
+On Wed, Dec 23 2009, Jens Axboe wrote:
+> On Wed, Dec 23 2009, Jens Axboe wrote:
+> > On Tue, Dec 22 2009, Case van Rij wrote:
+> > > fairly basic random write test over nfs, 1 job, directio enabled,
+> > > pre-existing 1TB file results in SIGSEGV,
+> > > 
+> > > tested on: CentOS 5.4 x86_64,  2.6.18-164.6.1.el5 kernel, fio from
+> > > git, last change: Tue, 22 Dec 2009 08:06:43 +0000
+> > > 
+> > > fio --name=rndwrs --ioengine=libaio --iodepth=4 --rw=randwrite
+> > > --bs=32k --direct=1 --size=1tb --numjobs=1 --filename=/mnt/nfs/1tb.vdb
+> > > random-writers: (g=0): rw=randwrite, bs=32K-32K/32K-32K,
+> > > ioengine=libaio, iodepth=4
+> > > Starting 1 process
+> > > fio: pid=24153, got signal=11
+> > > 
+> > > Run status group 0 (all jobs):
+> > > fio: file hash not empty on exit
+> > > 
+> > > strace:
+> > > [pid 23961] open("/sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size",
+> > > O_RDONLY) = 8
+> > > [pid 23961] read(8, "64\n", 32)         = 3
+> > > [pid 23961] close(8)                    = 0
+> > > [pid 23961] getpriority(PRIO_PROCESS, 0) = 20
+> > > [pid 23961] setpriority(PRIO_PROCESS, 0, 0) = 0
+> > > [pid 23961] getpriority(PRIO_PROCESS, 0) = 20
+> > > [pid 23961] io_setup(4, {47657422389248}) = 0
+> > > [pid 23961] getrusage(RUSAGE_SELF, {ru_utime={0, 1999}, ru_stime={0,
+> > > 0}, ...}) = 0
+> > > [pid 23961] open("/mnt/nfs/1tb.vdb", O_RDWR|O_CREAT|O_DIRECT, 0600) = 8
+> > > [pid 23961] fadvise64(8, 0, 1, POSIX_FADV_DONTNEED) = 0
+> > > [pid 23961] fadvise64(8, 0, 1, POSIX_FADV_RANDOM) = 0
+> > > [pid 23961] --- SIGSEGV (Segmentation fault) @ 0 (0) ---
+> > > 
+> > > but no core file, since reap_threads cleans up after the sigsegv (?)
+> > > 
+> > > with debug=all:
+> > > io       26954 invalidate cache /mnt/nfs/1tb.vdb: 0/1
+> > > file     26954 goodf=1, badf=2, ff=31
+> > > file     26954 get_next_file_rr: 0x2abe73d38028
+> > > file     26954 get_next_file: 0x2abe73d38028 [/mnt/nfs/1tb.vdb]
+> > > file     26954 get file /mnt/nfs/1tb.vdb, ref=1
+> > > random   26954 off rand 1425201762
+> > > random   26954 free: b=12242389915983151104, idx=536870912, bit=0
+> > > fio: pid=26954, got signal=11
+> > > process  26952 pid=26954: runstate 4 -> 9
+> > > process  26952 terminate group_id=-1
+> > > process  26952 setting terminate on random-writers/26954
+> > > diskutil    26952 update io ticks
+> > > 
+> > > the same test works if I replace --filesize=1tb with --filesize=1gb
+> > > (but makes for a far less interesting test).
+> > 
+> > Looks like math overflow. Can you double check that ulimit -c is set
+> > reasonably high (I usually just do ulimit -c1000000000), then remove the
+> > -O2 from the fio makefile and recompile, then trigger the problem. That
+> > should give you a clean core dump, invoke gdb with fio and that core
+> > file so we can see exactly where it bombs.
+> 
+> I think it's a simple parser problem. Try 'size=1t' instead.
 
-Hi,
-I was trying to use the async_verify option. Looks like if we use this
-option for synchronous I/O, then it really doesnt do anything as after
-every I/O is completed, we still need the asynchronous verify thread
-to complete the verification and release the io_u so the main thread
-can allocate this io_u for the next I/O. So to remove this bottle neck
-I added a new option extra_buff_count. This takes an integer and the
-code will allocate that many more extra io_us. This way when the main
-thread has completed the I/O it will have extra io_u and buffers to
-issue more I/Os while the asynchronous verify threads do their job.
-This can be used with both synchronous and libaio contexts.
-Thanks
--radha
+This should fix it, then both "1t" and "1tb" works (or upper case). The
+segfault is a separate issue, apparently fio doesn't like 1 byte IO jobs
+:-)
 
---001636ed6834f4ed43047780c0dc
-Content-Type: text/x-diff; charset=US-ASCII; name="extra_buff_count.patch"
-Content-Disposition: attachment; filename="extra_buff_count.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_g1lcsks90
+I'll fix that separately, for now I've committed the below.
 
-ZGlmZiAtLWdpdCBhL0hPV1RPIGIvSE9XVE8KaW5kZXggY2RkNjQ3My4uNzFlZmQxMCAxMDA2NDQK
-LS0tIGEvSE9XVE8KKysrIGIvSE9XVE8KQEAgLTg3Miw3ICs4NzIsMTIgQEAgdmVyaWZ5X2FzeW5j
-PWludAlGaW8gd2lsbCBub3JtYWxseSB2ZXJpZnkgSU8gaW5saW5lIGZyb20gdGhlIHN1Ym1pdHRp
-bmcKIHZlcmlmeV9hc3luY19jcHVzPXN0cglUZWxsIGZpbyB0byBzZXQgdGhlIGdpdmVuIENQVSBh
-ZmZpbml0eSBvbiB0aGUKIAkJYXN5bmMgSU8gdmVyaWZpY2F0aW9uIHRocmVhZHMuIFNlZSBjcHVz
-X2FsbG93ZWQgZm9yIHRoZQogCQlmb3JtYXQgdXNlZC4KLQkJCisKK2V4dHJhX2J1ZmZfY291bnQ9
-aW50CUFsbG9jYXRlIGV4dHJhIEkvTyBidWZmZXJzIHRvIGNvbnRpbnVlIGlzc3VpbmcKKwkJSU8g
-dG8gdGhlIGZpbGUvZGV2aWNlLiBUaGlzIGNhbiBiZSB1c2VkIHRvIGtlZXAgdGhlIGRldmljZQor
-CQlidXN5IHdpdGggSS9PcyB3aGlsZSB0aGUgZGF0YSB2ZXJpZmljYXRpb24gaXMgYmVpbmcKKwkJ
-ZG9uZSBhc3luY2hyb25vdXNseS4KKwogc3RvbmV3YWxsCVdhaXQgZm9yIHByZWNlZWRpbmcgam9i
-cyBpbiB0aGUgam9iIGZpbGUgdG8gZXhpdCwgYmVmb3JlCiAJCXN0YXJ0aW5nIHRoaXMgb25lLiBD
-YW4gYmUgdXNlZCB0byBpbnNlcnQgc2VyaWFsaXphdGlvbgogCQlwb2ludHMgaW4gdGhlIGpvYiBm
-aWxlLiBBIHN0b25lIHdhbGwgYWxzbyBpbXBsaWVzIHN0YXJ0aW5nCmRpZmYgLS1naXQgYS9maW8u
-MSBiL2Zpby4xCmluZGV4IDQ0NDVkMGEuLjhiZWU5OWQgMTAwNjQ0Ci0tLSBhL2Zpby4xCisrKyBi
-L2Zpby4xCkBAIC02MjcsNiArNjI3LDExIEBAIGFsbG93cyB0aGVtIHRvIGhhdmUgSU8gaW4gZmxp
-Z2h0IHdoaWxlIHZlcmlmaWVzIGFyZSBydW5uaW5nLgogVGVsbCBmaW8gdG8gc2V0IHRoZSBnaXZl
-biBDUFUgYWZmaW5pdHkgb24gdGhlIGFzeW5jIElPIHZlcmlmaWNhdGlvbiB0aHJlYWRzLgogU2Vl
-IFxmQmNwdXNfYWxsb3dlZFxmUCBmb3IgdGhlIGZvcm1hdCB1c2VkLgogLlRQCisuQkkgZXh0cmFf
-YnVmZl9jb3VudCBcZlI9XGZQaW50CitBbGxvY2F0ZSBleHRyYSBJL08gYnVmZmVycyB0byBjb250
-aW51ZSBpc3N1aW5nIElPIHRvIHRoZSBmaWxlL2RldmljZS4KK1RoaXMgY2FuIGJlIHVzZWQgdG8g
-a2VlcCB0aGUgZGV2aWNlIGJ1c3kgd2l0aCBJL09zIHdoaWxlIHRoZSBkYXRhIHZlcmlmaWNhdGlv
-bgoraXMgYmVpbmcgZG9uZSBhc3luY2hyb25vdXNseS4KKy5UUAogLkIgc3RvbmV3YWxsCiBXYWl0
-IGZvciBwcmVjZWVkaW5nIGpvYnMgaW4gdGhlIGpvYiBmaWxlIHRvIGV4aXQgYmVmb3JlIHN0YXJ0
-aW5nIHRoaXMgb25lLgogXGZCc3RvbmV3YWxsXGZSIGltcGxpZXMgXGZCbmV3X2dyb3VwXGZSLgpk
-aWZmIC0tZ2l0IGEvZmlvLmMgYi9maW8uYwppbmRleCA4ZjhiYjU2Li5mZjhkMGU3IDEwMDY0NAot
-LS0gYS9maW8uYworKysgYi9maW8uYwpAQCAtNTM0LDcgKzUzNCw4IEBAIHN5bmNfZG9uZToKIAkJ
-ICogaWYgd2UgY2FuIHF1ZXVlIG1vcmUsIGRvIHNvLiBidXQgY2hlY2sgaWYgdGhlcmUgYXJlCiAJ
-CSAqIGNvbXBsZXRlZCBpb191J3MgZmlyc3QuCiAJCSAqLwotCQlmdWxsID0gcXVldWVfZnVsbCh0
-ZCkgfHwgcmV0ID09IEZJT19RX0JVU1k7CisJCWZ1bGwgPSBxdWV1ZV9mdWxsKHRkKSB8fCByZXQg
-PT0gRklPX1FfQlVTWSB8fAorCQkJdGQtPmN1cl9kZXB0aCA9PSB0ZC0+by5pb2RlcHRoOwogCQlp
-ZiAoZnVsbCB8fCAhdGQtPm8uaW9kZXB0aF9iYXRjaF9jb21wbGV0ZSkgewogCQkJbWluX2V2ZW50
-cyA9IHRkLT5vLmlvZGVwdGhfYmF0Y2hfY29tcGxldGU7CiAJCQlpZiAoZnVsbCAmJiAhbWluX2V2
-ZW50cykKQEAgLTY4Niw3ICs2ODcsOCBAQCBzeW5jX2RvbmU6CiAJCS8qCiAJCSAqIFNlZSBpZiB3
-ZSBuZWVkIHRvIGNvbXBsZXRlIHNvbWUgY29tbWFuZHMKIAkJICovCi0JCWZ1bGwgPSBxdWV1ZV9m
-dWxsKHRkKSB8fCByZXQgPT0gRklPX1FfQlVTWTsKKwkJZnVsbCA9IHF1ZXVlX2Z1bGwodGQpIHx8
-IHJldCA9PSBGSU9fUV9CVVNZIHx8CisJCQl0ZC0+Y3VyX2RlcHRoID09IHRkLT5vLmlvZGVwdGg7
-CiAJCWlmIChmdWxsIHx8ICF0ZC0+by5pb2RlcHRoX2JhdGNoX2NvbXBsZXRlKSB7CiAJCQltaW5f
-ZXZ0cyA9IHRkLT5vLmlvZGVwdGhfYmF0Y2hfY29tcGxldGU7CiAJCQlpZiAoZnVsbCAmJiAhbWlu
-X2V2dHMpCkBAIC03ODcsNyArNzg5LDcgQEAgc3RhdGljIGludCBpbml0X2lvX3Uoc3RydWN0IHRo
-cmVhZF9kYXRhICp0ZCkKIAlpbnQgY2xfYWxpZ24sIGksIG1heF91bml0czsKIAljaGFyICpwOwog
-Ci0JbWF4X3VuaXRzID0gdGQtPm8uaW9kZXB0aDsKKwltYXhfdW5pdHMgPSB0ZC0+by5pb2RlcHRo
-ICsgdGQtPm8uZXh0cmFfYnVmZl9jb3VudDsKIAltYXhfYnMgPSBtYXgodGQtPm8ubWF4X2JzW0RE
-SVJfUkVBRF0sIHRkLT5vLm1heF9ic1tERElSX1dSSVRFXSk7CiAJdGQtPm9yaWdfYnVmZmVyX3Np
-emUgPSAodW5zaWduZWQgbG9uZyBsb25nKSBtYXhfYnMKIAkJCQkJKiAodW5zaWduZWQgbG9uZyBs
-b25nKSBtYXhfdW5pdHM7CmRpZmYgLS1naXQgYS9maW8uaCBiL2Zpby5oCmluZGV4IGU0ZWQ3NmYu
-LjgzM2EwM2IgMTAwNjQ0Ci0tLSBhL2Zpby5oCisrKyBiL2Zpby5oCkBAIC0xODEsNiArMTgxLDcg
-QEAgc3RydWN0IHRocmVhZF9vcHRpb25zIHsKIAl1bnNpZ25lZCBpbnQgdmVyaWZ5X3BhdHRlcm5f
-Ynl0ZXM7CiAJdW5zaWduZWQgaW50IHZlcmlmeV9mYXRhbDsKIAl1bnNpZ25lZCBpbnQgdmVyaWZ5
-X2FzeW5jOworCXVuc2lnbmVkIGludCBleHRyYV9idWZmX2NvdW50OwogCXVuc2lnbmVkIGludCB1
-c2VfdGhyZWFkOwogCXVuc2lnbmVkIGludCB1bmxpbms7CiAJdW5zaWduZWQgaW50IGRvX2Rpc2tf
-dXRpbDsKZGlmZiAtLWdpdCBhL29wdGlvbnMuYyBiL29wdGlvbnMuYwppbmRleCA1Yjg4MjU1Li43
-MWYyNmZiIDEwMDY0NAotLS0gYS9vcHRpb25zLmMKKysrIGIvb3B0aW9ucy5jCkBAIC0xMzM3LDYg
-KzEzMzcsMTMgQEAgc3RhdGljIHN0cnVjdCBmaW9fb3B0aW9uIG9wdGlvbnNbXSA9IHsKIAl9LAog
-I2VuZGlmCiAJeworCQkubmFtZQk9ICJleHRyYV9idWZmX2NvdW50IiwKKwkJLnR5cGUJPSBGSU9f
-T1BUX0lOVCwKKwkJLm9mZjEJPSB0ZF92YXJfb2Zmc2V0KGV4dHJhX2J1ZmZfY291bnQpLAorCQku
-ZGVmCT0gIjAiLAorCQkuaGVscAk9ICJOdW1iZXIgb2YgZXh0cmEgYnVmZmVycyB0byBhbGxvY2F0
-ZSIsCisJfSwKKwl7CiAJCS5uYW1lCT0gIndyaXRlX2lvbG9nIiwKIAkJLnR5cGUJPSBGSU9fT1BU
-X1NUUl9TVE9SRSwKIAkJLm9mZjEJPSB0ZF92YXJfb2Zmc2V0KHdyaXRlX2lvbG9nX2ZpbGUpLAo=
---001636ed6834f4ed43047780c0dc--
+diff --git a/parse.c b/parse.c
+index 7821861..a55e52b 100644
+--- a/parse.c
++++ b/parse.c
+@@ -162,9 +162,19 @@ int str_to_decimal(const char *str, long long *val, int kilo, void *data)
+ 	if (*val == LONG_MAX && errno == ERANGE)
+ 		return 1;
+ 
+-	if (kilo)
+-		*val *= get_mult_bytes(str[len - 1], data);
+-	else
++	if (kilo) {
++		const char *p;
++		/*
++		 * if the last char is 'b' or 'B', the user likely used
++		 * "1gb" instead of just "1g". If the second to last is also
++		 * a letter, adjust.
++		 */
++		p = str + len - 1;
++		if ((*p == 'b' || *p == 'B') && isalpha(*(p - 1)))
++			--p;
++
++		*val *= get_mult_bytes(*p, data);
++	} else
+ 		*val *= get_mult_time(str[len - 1]);
+ 
+ 	return 0;
 
+-- 
+Jens Axboe
 
