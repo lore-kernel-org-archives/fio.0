@@ -1,91 +1,66 @@
-Return-Path: <radha@google.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-iw0-f171.google.com ([209.85.223.171]:65301 "EHLO
+	mail-iw0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751952AbZLXSql (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 24 Dec 2009 13:46:41 -0500
+Received: by iwn1 with SMTP id 1so5910638iwn.33
+        for <fio@vger.kernel.org>; Thu, 24 Dec 2009 10:46:39 -0800 (PST)
 MIME-Version: 1.0
-Date: Wed, 9 Dec 2009 11:32:32 -0800
-Message-ID: <66dfd3fe0912091132o7f7164d0r5af02cfe8f63f8e1@mail.gmail.com>
-Subject: rate option doesnt work with libaio engine
-From: Radha Ramachandran <radha@google.com>
-Content-Type: multipart/mixed; boundary=001636ed67827e42ce047a50c073
-To: Jens Axboe <jens.axboe@oracle.com>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
-
---001636ed67827e42ce047a50c073
+Date: Thu, 24 Dec 2009 10:46:39 -0800
+Message-ID: <e2a756a20912241046s45d9348eob541e1c57cc0c5d7@mail.gmail.com>
+Subject: Question regarding --section option
+From: Daniel Buggie <danielabuggie@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Hi,
-The rate option currently doesnt work when used with libaio engine.
-The math currently, calculates the time t2 (when the I/O completed) -
-t1 (when the io_u unit was created) as the time it takes for the I/O
-and the bandwidth for the rate calculation is calculated from that.
-This math will work correctly for sync engine as there is only one io
-in progress at a time, but for libaio engine, when there are multiple
-I/Os queued, the same time (as in from t1 to t2) could be attributed
-to other I/Os as well so the actual bandwidth is actually higher.
-I have a patch, but this is more brute force where I take the total
-bytes read/written divided by the time since I/Os started to calculate
-the bandwidth and decide on the time that needs to be spent sleeping
-(if any).This is a little more heavy weight than the previous math. I
-think there are probably simpler/cleaner solutions than this but this
-is the current patch I have for it.
-Thanks
--radha
+I'm not totally sure if this is a user-error thing or a bug, but it
+appears the --section command is broken.  Using 1.36 and the
+surface-scan example job (included below), I get the following output:
 
---001636ed67827e42ce047a50c073
-Content-Type: application/octet-stream; name=rate_patch
-Content-Disposition: attachment; filename=rate_patch
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_g30hxjjx0
+# fio --showcmd surface-scan
+fio --thread=1 --bs=64k --direct=1 --ioengine=sync --verify=meta
+--verify_pattern=0xaa555aa5 --verify_interval=512 --name=write-phase
+--rw=write --fill_device=1 --do_verify=0 --filename=datafile.tmp
+--name=verify-phase --stonewall --create_serialize=0 --rw=read
+--do_verify=1 --filename=datafile.tmp
 
-ZGlmZiAtLWdpdCBhL2Zpby5oIGIvZmlvLmgKaW5kZXggM2IyZGQ2ZS4uMTE5ZGMwOSAxMDA2NDQK
-LS0tIGEvZmlvLmgKKysrIGIvZmlvLmgKQEAgLTM1OSw3ICszNTksNyBAQCBzdHJ1Y3QgdGhyZWFk
-X2RhdGEgewogCS8qCiAJICogUmF0ZSBzdGF0ZQogCSAqLwotCXVuc2lnbmVkIGxvbmcgcmF0ZV91
-c2VjX2N5Y2xlWzJdOworCXVuc2lnbmVkIGxvbmcgcmF0ZV9uc2VjX2N5Y2xlWzJdOwogCWxvbmcg
-cmF0ZV9wZW5kaW5nX3VzbGVlcFsyXTsKIAl1bnNpZ25lZCBsb25nIHJhdGVfYnl0ZXNbMl07CiAJ
-dW5zaWduZWQgbG9uZyByYXRlX2Jsb2Nrc1syXTsKZGlmZiAtLWdpdCBhL2luaXQuYyBiL2luaXQu
-YwppbmRleCA2YWU3OGJlLi5iOWRlZTE5IDEwMDY0NAotLS0gYS9pbml0LmMKKysrIGIvaW5pdC5j
-CkBAIC0yMDUsMjEgKzIwNSwxOSBAQCBzdGF0aWMgdm9pZCBwdXRfam9iKHN0cnVjdCB0aHJlYWRf
-ZGF0YSAqdGQpCiBzdGF0aWMgaW50IF9fc2V0dXBfcmF0ZShzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRk
-LCBlbnVtIGZpb19kZGlyIGRkaXIpCiB7CiAJdW5zaWduZWQgaW50IGJzID0gdGQtPm8ubWluX2Jz
-W2RkaXJdOwotCXVuc2lnbmVkIGxvbmcgbG9uZyByYXRlOwotCXVuc2lnbmVkIGxvbmcgaW9zX3Bl
-cl9tc2VjOworCXVuc2lnbmVkIGxvbmcgbG9uZyBieXRlc19wZXJfc2VjOwogCi0JaWYgKHRkLT5v
-LnJhdGVbZGRpcl0pIHsKLQkJcmF0ZSA9IHRkLT5vLnJhdGVbZGRpcl07Ci0JCWlvc19wZXJfbXNl
-YyA9IChyYXRlICogMTAwMExMKSAvIGJzOwotCX0gZWxzZQotCQlpb3NfcGVyX21zZWMgPSB0ZC0+
-by5yYXRlX2lvcHNbZGRpcl0gKiAxMDAwVUw7CisJaWYgKHRkLT5vLnJhdGVbZGRpcl0pCisJCWJ5
-dGVzX3Blcl9zZWMgPSB0ZC0+by5yYXRlW2RkaXJdOworCWVsc2UKKwkJYnl0ZXNfcGVyX3NlYyA9
-IHRkLT5vLnJhdGVfaW9wc1tkZGlyXSAqIGJzOwogCi0JaWYgKCFpb3NfcGVyX21zZWMpIHsKKwlp
-ZiAoIWJ5dGVzX3Blcl9zZWMpIHsKIAkJbG9nX2VycigicmF0ZSBsb3dlciB0aGFuIHN1cHBvcnRl
-ZFxuIik7CiAJCXJldHVybiAtMTsKIAl9CiAKLQl0ZC0+cmF0ZV91c2VjX2N5Y2xlW2RkaXJdID0g
-MTAwMDAwMDAwMFVMTCAvIGlvc19wZXJfbXNlYzsKKwl0ZC0+cmF0ZV9uc2VjX2N5Y2xlW2RkaXJd
-ID0gMTAwMDAwMDAwMFVMTCAvIGJ5dGVzX3Blcl9zZWM7CiAJdGQtPnJhdGVfcGVuZGluZ191c2xl
-ZXBbZGRpcl0gPSAwOwogCXJldHVybiAwOwogfQpkaWZmIC0tZ2l0IGEvaW9fdS5jIGIvaW9fdS5j
-CmluZGV4IDRiZTk1OGQuLjE4NDVkM2IgMTAwNjQ0Ci0tLSBhL2lvX3UuYworKysgYi9pb191LmMK
-QEAgLTk4NCw2ICs5ODQsNyBAQCBzdGF0aWMgdm9pZCBpb19jb21wbGV0ZWQoc3RydWN0IHRocmVh
-ZF9kYXRhICp0ZCwgc3RydWN0IGlvX3UgKmlvX3UsCiAJaWYgKCFpb191LT5lcnJvcikgewogCQl1
-bnNpZ25lZCBpbnQgYnl0ZXMgPSBpb191LT5idWZsZW4gLSBpb191LT5yZXNpZDsKIAkJY29uc3Qg
-ZW51bSBmaW9fZGRpciBpZHggPSBpb191LT5kZGlyOworCQljb25zdCBlbnVtIGZpb19kZGlyIG9k
-eCA9IGlvX3UtPmRkaXIgXiAxOwogCQlpbnQgcmV0OwogCiAJCXRkLT5pb19ibG9ja3NbaWR4XSsr
-OwpAQCAtOTkyLDE1ICs5OTMsMTAgQEAgc3RhdGljIHZvaWQgaW9fY29tcGxldGVkKHN0cnVjdCB0
-aHJlYWRfZGF0YSAqdGQsIHN0cnVjdCBpb191ICppb191LAogCiAJCWlmIChyYW1wX3RpbWVfb3Zl
-cih0ZCkpIHsKIAkJCXVuc2lnbmVkIGxvbmcgdW5pbml0aWFsaXplZF92YXIobHVzZWMpOwotCQkJ
-dW5zaWduZWQgbG9uZyB1bmluaXRpYWxpemVkX3ZhcihydXNlYyk7CiAKIAkJCWlmICghdGQtPm8u
-ZGlzYWJsZV9jbGF0IHx8ICF0ZC0+by5kaXNhYmxlX2J3KQogCQkJCWx1c2VjID0gdXRpbWVfc2lu
-Y2UoJmlvX3UtPmlzc3VlX3RpbWUsCiAJCQkJCQkJJmljZC0+dGltZSk7Ci0JCQlpZiAoX19zaG91
-bGRfY2hlY2tfcmF0ZSh0ZCwgaWR4KSB8fAotCQkJICAgIF9fc2hvdWxkX2NoZWNrX3JhdGUodGQs
-IGlkeCBeIDEpKQotCQkJCXJ1c2VjID0gdXRpbWVfc2luY2UoJmlvX3UtPnN0YXJ0X3RpbWUsCi0J
-CQkJCQkJJmljZC0+dGltZSk7CiAKIAkJCWlmICghdGQtPm8uZGlzYWJsZV9jbGF0KSB7CiAJCQkJ
-YWRkX2NsYXRfc2FtcGxlKHRkLCBpZHgsIGx1c2VjLCBieXRlcyk7CkBAIC0xMDA5LDExICsxMDA1
-LDE2IEBAIHN0YXRpYyB2b2lkIGlvX2NvbXBsZXRlZChzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBz
-dHJ1Y3QgaW9fdSAqaW9fdSwKIAkJCWlmICghdGQtPm8uZGlzYWJsZV9idykKIAkJCQlhZGRfYndf
-c2FtcGxlKHRkLCBpZHgsIGJ5dGVzLCAmaWNkLT50aW1lKTsKIAkJCWlmIChfX3Nob3VsZF9jaGVj
-a19yYXRlKHRkLCBpZHgpKSB7Ci0JCQkJdGQtPnJhdGVfcGVuZGluZ191c2xlZXBbaWR4XSArPQot
-CQkJCQkobG9uZykgdGQtPnJhdGVfdXNlY19jeWNsZVtpZHhdIC0gcnVzZWM7CisJCQkJdGQtPnJh
-dGVfcGVuZGluZ191c2xlZXBbaWR4XSA9CisJCQkJCSgodGQtPnRoaXNfaW9fYnl0ZXNbaWR4XSAq
-CisJCQkJCSAgdGQtPnJhdGVfbnNlY19jeWNsZVtpZHhdKSAvIDEwMDAgLQorCQkJCQkgdXRpbWVf
-c2luY2Vfbm93KCZ0ZC0+c3RhcnQpKTsKIAkJCX0KIAkJCWlmIChfX3Nob3VsZF9jaGVja19yYXRl
-KHRkLCBpZHggXiAxKSkKLQkJCQl0ZC0+cmF0ZV9wZW5kaW5nX3VzbGVlcFtpZHggXiAxXSAtPSBy
-dXNlYzsKKwkJCQl0ZC0+cmF0ZV9wZW5kaW5nX3VzbGVlcFtvZHhdID0KKwkJCQkJKCh0ZC0+dGhp
-c19pb19ieXRlc1tvZHhdICoKKwkJCQkJICB0ZC0+cmF0ZV9uc2VjX2N5Y2xlW29keF0pIC8gMTAw
-MCAtCisJCQkJCSB1dGltZV9zaW5jZV9ub3coJnRkLT5zdGFydCkpOwogCQl9CiAKIAkJaWYgKHRk
-X3dyaXRlKHRkKSAmJiBpZHggPT0gRERJUl9XUklURSAmJgo=
---001636ed67827e42ce047a50c073--
+# fio --showcmd surface-scan --section 'write-phase'
+fio --thread=1 --bs=64k --direct=1 --ioengine=sync --verify=meta
+--verify_pattern=0xaa555aa5 --verify_interval=512
+
+Basically, it's only getting the global bits of the jobfile.  So am I
+doing something wrong to identify the section or is this a bug?  There
+does not seem to be a check to see if the specified section exists so
+that might be something to add.  I've tried moving the order around,
+different quotations, etc. but haven't had any luck.
 
 
+; writes 512 byte verification blocks until the disk is full,
+; then verifies written data
+[global]
+thread=1
+bs=64k
+direct=1
+ioengine=sync
+verify=meta
+verify_pattern=0xaa555aa5
+verify_interval=512
+
+[write-phase]
+filename=datafile.tmp   ; or use a full disk, for example /dev/sda
+rw=write
+fill_device=1
+do_verify=0
+
+[verify-phase]
+stonewall
+create_serialize=0
+filename=datafile.tmp
+rw=read
+do_verify=1
+
+
+Regards,
+Daniel
