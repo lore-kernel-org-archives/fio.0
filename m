@@ -1,42 +1,99 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-px0-f182.google.com ([209.85.216.182]:49468 "EHLO
-	mail-px0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750956Ab0A3EzN (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 29 Jan 2010 23:55:13 -0500
-Received: by pxi12 with SMTP id 12so2309898pxi.33
-        for <fio@vger.kernel.org>; Fri, 29 Jan 2010 20:55:11 -0800 (PST)
+Return-Path: <whalajam@yahoo.com>
+Message-ID: <525972.64557.qm@web55004.mail.re4.yahoo.com>
+Date: Wed, 20 Jan 2010 15:57:11 -0800 (PST)
+From: john smith <whalajam@yahoo.com>
+Subject: Re: io scheduler merges control
+In-Reply-To: <1264004335.2767.7.camel@cail>
 MIME-Version: 1.0
-Date: Fri, 29 Jan 2010 21:55:11 -0700
-Message-ID: <f3177b9e1001292055v5a1ba090ne0e7e1c78db2b819@mail.gmail.com>
-Subject: Is --rwmixread not interpreted correctly from the command line?
-From: Chris Worley <worleys@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+To: Jens Axboe <jens.axboe@oracle.com>, "Alan D. Brunelle" <Alan.Brunelle@hp.com>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-What am I doing wrong in this incantation?
+Alan,
 
-I was under the impression that everything preceding the first
-"--name" was like a "globals" section in a command file, yet, no
-matter what number follows "--rwmixread" in the following incantation,
-it allways does a 50/50 mix:
+Your patch worked, didn't see any other problems, thanks.
 
-fio  --rw=randrw --bs=8k --rwmixread=0 --iodepth=256
---output=/tmp/fio.out.txt --group_reporting --sync=0 --direct=1
---randrepeat=0 --softrandommap=1 --ioengine=libaio --loops=10000
---runtime=60 \
-  --name=test0 --filename=/dev/sda --numjobs=2 --size=16091503001 \
-  --name=test1 --filename=/dev/sdb --numjobs=2 --size=16091503001 \
-  --name=test2 --filename=/dev/sdc --numjobs=2 --size=16091503001 \
-  --name=test3 --filename=/dev/sdd --numjobs=2 --size=16091503001 \
-  --name=test4 --filename=/dev/sde --numjobs=2 --size=16091503001 \
-  --name=test5 --filename=/dev/sdf --numjobs=2 --size=16091503001 \
-  --name=test6 --filename=/dev/sdg --numjobs=2 --size=16091503001 \
-  --name=test7 --filename=/dev/sdh --numjobs=2 --size=16091503001
+If you get a chance, I'd like to understand why/how the block device driver speed influences the number of merges,
 
-How do I get the --rwmixread to work up-front?
+thanks,
+John
 
-Thanks,
+--- On Wed, 1/20/10, Alan D. Brunelle <Alan.Brunelle@hp.com> wrote:
 
-Chris
+> From: Alan D. Brunelle <Alan.Brunelle@hp.com>
+> Subject: Re: io scheduler merges control
+> To: "Jens Axboe" <jens.axboe@oracle.com>
+> Cc: "john smith" <whalajam@yahoo.com>, fio@vger.kernel.org
+> Date: Wednesday, January 20, 2010, 8:18 AM
+> On Mon, 2010-01-11 at 14:54 +0100,
+> Jens Axboe wrote:
+> > On Tue, Jan 05 2010, Alan D. Brunelle wrote:
+> > > On Mon, 2010-01-04 at 17:53 -0800, john smith
+> wrote:
+> > > > Alan,
+> > > > 
+> > > > I've tried 'echo "1">
+> /sys/block/<dsf>/queue/nomerges' but
+> > > > fio/sequential-reads merges still occur and
+> apparently they are only
+> > > > the simple ones that can't be disabled.
+> > > > 
+> > > > 1) What can I change in the kernel to
+> disable ALL the merges
+> > > > (including the simple ones)?
+> > > > (I tried setting
+> iosched_cfq.ops.elevator_merge_fn,
+> > > > elevator_merged_fn, elevator_merge_req_fn,
+> elevator_allow_merge_fn = 0
+> > > > but still fio reported merges)
+> > > 
+> > > Unfortunately, the "simple" ones were left in
+> precisely because they
+> > > were (a) easy to do, and (b) were expected to
+> happen often enough to
+> > > keep them in. Jens may be able to comment
+> further.
+> > 
+> > Right, they are both cheap and easy so they were kept.
+> The goal with the
+> > nomerges switch was to save CPU, so it'll still do
+> cheap merges. I don't
+> > think there's a use for disabling merges completely
+> outside of device
+> > testing and benchmarking, it's not a real world
+> problem. That said, I do
+> > occasionally hack that up as well for testing
+> purposes. Perhaps we could
+> > tweak nomerges to accept a '2' value as well,
+> indicating that we don't
+> > want any merges at all.
+> > 
+> 
+> John (& Jens) - 
+> 
+> Please find attached a patch that does this - new
+> documentation
+> for /sys/block/*/queue/nomerges:
+> 
+> +This enables the user to disable the lookup logic involved
+> with IO
+> +merging requests in the block layer. By default (0) all
+> merges are
+> +enabled. When set to 1 only simple one-hit merges will be
+> tried. When
+> +set to 2 no merge algorithms will be tried (including
+> one-hit or more
+> +complex tree/hash lookups).
+> 
+> John: let me know if this does what you'd think - then I'll
+> go post to
+> LKML.
+> 
+> Regards,
+> Alan
+> 
+
+
+      
+
