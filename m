@@ -1,48 +1,48 @@
-Return-Path: <bart.vanassche@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from 0122700014.0.fullrate.dk ([95.166.99.235]:53064 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751690Ab0BFWgV (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 6 Feb 2010 17:36:21 -0500
+Date: Sat, 6 Feb 2010 23:36:19 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: FIO bug
+Message-ID: <20100206223619.GQ1025@kernel.dk>
+References: <SNT103-W60447568C188F46ABEC5CEFF540@phx.gbl>
 MIME-Version: 1.0
-Sender: bart.vanassche@gmail.com
-Date: Tue, 2 Feb 2010 08:38:16 +0100
-Message-ID: <e2e108261002012338j62fd1983x7f4a0122d3fd97a4@mail.gmail.com>
-Subject: Writing to /dev/null with fio
-From: Bart Van Assche <bvanassche@acm.org>
-Content-Type: text/plain; charset=ISO-8859-1
-To: Jens Axboe <jens.axboe@oracle.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <SNT103-W60447568C188F46ABEC5CEFF540@phx.gbl>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "H. Tolley" <h_tolley@hotmail.com>
 Cc: fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
 
-Hello Jens,
+On Fri, Feb 05 2010, H. Tolley wrote:
+>=20
+> The function static void get_file_system_type(struct fio_file *f)=EF=BF=
+=BD=EF=BF=BD
+> (in file filesetup.c) has a call to lstat(..) which if given a
+> symbolic link will give information about the link instead of
+> information about the target of the link.=EF=BF=BD In Solaris it is very
+> common that the disk device nodes in /dev/dsk/ are symbolic links to
+> files in /devices/... and so the call to lstat(..) will not properly
+> identify a file as a block device instead of a normal file.=EF=BF=BD=20
+>=20
+> A call to stat(..) on a filename that represents a block device will
+> not return the proper size on Solaris.=EF=BF=BD Combined with the
+> above-mentioned mis-identification of a link to a block device as a
+> normal file, the function file_size(..) is invoked rather than a call
+> to bdev_size(..) and fio will not run properly.
+>=20
+> Fix: Can the call to lstat(..) in get_file_system_type(..) be replaced
+> by a call to stat(..)?
+>=20
+> This happens on Open Solaris v10 x86_64.
 
-I noticed that writing with fio to /dev/null takes much more time (220
-times more for the test below) than with dd. Did I specify the correct
-arguments to fio ? If so, is this known behavior of fio ?
+That does look like a bug, that stat should return info about the real
+device and not a potential link. I have committed a fix for that now.
 
-$ dd if=/dev/zero of=/dev/null bs=1M count=1024
-1024+0 records in
-1024+0 records out
-1073741824 bytes (1.1 GB) copied, 0.121485 s, 8.8 GB/s
-
-$ fio --bs=1M --size=1G --buffered=1 --rw=write --verify=0
---name=dev-null /dev/null
-dev-null: (g=0): rw=write, bs=1M-1M/1M-1M, ioengine=sync, iodepth=1
-Starting 1 process
-Jobs: 1 (f=1): [W] [100.0% done] [0K/0K /s] [0/0 iops] [eta 00m:00s]
-dev-null: (groupid=0, jobs=1): err= 0: pid=15859
-  write: io=1,024MB, bw=39,214KB/s, iops=38, runt= 26740msec
-    clat (usec): min=547, max=1,708K, avg=25927.47, stdev=124258.62
-    bw (KB/s) : min= 1167, max=732000, per=125.95%, avg=49387.11,
-stdev=119413.97
-  cpu          : usr=0.01%, sys=4.72%, ctx=780, majf=0, minf=138
-  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued r/w: total=0/1024, short=0/0
-     lat (usec): 750=47.95%, 1000=39.26%
-     lat (msec): 2=4.10%, 4=0.49%, 10=0.88%, 20=0.10%, 100=0.29%
-     lat (msec): 250=3.12%, 500=2.34%, 750=0.68%, 1000=0.49%, 2000=0.29%
-
-Run status group 0 (all jobs):
-  WRITE: io=1,024MB, aggrb=39,213KB/s, minb=40,154KB/s,
-maxb=40,154KB/s, mint=26740msec, maxt=26740msec
-
-Bart.
+--=20
+Jens Axboe
 
