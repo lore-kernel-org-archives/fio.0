@@ -1,46 +1,46 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from snt0-omc1-s26.snt0.hotmail.com ([65.55.90.37]:31491 "EHLO
-	snt0-omc1-s26.snt0.hotmail.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S933355Ab0BEXkO convert rfc822-to-8bit
-	(ORCPT <rfc822;fio@vger.kernel.org>); Fri, 5 Feb 2010 18:40:14 -0500
-Message-ID: <SNT103-W60447568C188F46ABEC5CEFF540@phx.gbl>
-From: "H. Tolley" <h_tolley@hotmail.com>
-Subject: FIO bug
-Date: Fri, 5 Feb 2010 16:30:41 -0700
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Received: from 0122700014.0.fullrate.dk ([95.166.99.235]:47121 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753536Ab0BJKIS (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 10 Feb 2010 05:08:18 -0500
+Date: Wed, 10 Feb 2010 11:08:17 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: Integrate SPC-1 with fio, version 2 ready for options
+Message-ID: <20100210100817.GC1025@kernel.dk>
+References: <4B72792C.5030709@auckland.ac.nz>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4B72792C.5030709@auckland.ac.nz>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Michael O'Sullivan <michael.osullivan@auckland.ac.nz>
+Cc: fio@vger.kernel.org, "Daniel, Steve" <Steve.Daniel@netapp.com>, Glen Ogilvie <gogilvie@oss.co.nz>
 
+On Wed, Feb 10 2010, Michael O'Sullivan wrote:
+> Hi everyone,
+>
+> Sorry for 2 posts in one day. I have edited my code since the last post  
+> to make it easy to add options once I get some direction about using the  
+> options and creating a parameter file. I have attached the patch. All  
+> the configurable options are now set in set_spc1_options, which can be  
+> modified to read a parameter file.
 
-The function static void get_file_system_type(struct fio_file *f)=EF=BF=BD=
-=EF=BF=BD (in file filesetup.c)
-has a call to lstat(..) which if given a symbolic link will give informatio=
-n about the link=20
-instead of information about the target of the link.=EF=BF=BD In Solaris it=
- is very common that the=20
-disk device nodes in /dev/dsk/ are symbolic links to files in /devices/... =
-and so the call=20
-to lstat(..) will not properly identify a file as a block device instead of=
- a normal file.=EF=BF=BD=20
+Never apologize for posting too often! :-)
 
-A call to stat(..) on a filename that represents a block device will not re=
-turn the proper=20
-size on Solaris.=EF=BF=BD Combined with the above-mentioned mis-identificat=
-ion of a link to a=20
-block device as a normal file, the function file_size(..) is invoked rather=
- than a call
-to bdev_size(..) and fio will not run properly.
+This is very interesting, I'll take a gander at it soonish, I'd like to
+get SPC-1 integrated. Some quick thoughts before I get a closer look:
 
-Fix: Can the call to lstat(..) in get_file_system_type(..) be replaced by a=
- call to stat(..)?
+- Fio has the --profile switch, which was meant for things like this.
+  It's not very expanded yet, but it could be. I think that is the way
+  to go. Then you probably want to add some --profile=foo specific
+  options, for setting options that only apply to that profile type.
+  That would be SPC-1 specific options.
 
-This happens on Open Solaris v10 x86_64.
+- It would be a lot nicer if the IO generator was integrated, so you
+  would not have to go through the iolog to store and retrieve work
+  items.
 
-Hal Tolley
- 		 	   		 =20
-_________________________________________________________________
-Your E-mail and More On-the-Go. Get Windows Live Hotmail Free.
-http://clk.atdmt.com/GBL/go/201469229/direct/01/
+-- 
+Jens Axboe
+
