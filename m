@@ -1,84 +1,36 @@
-Return-Path: <ladros@gmail.com>
-MIME-Version: 1.0
-Sender: ladros@gmail.com
-In-Reply-To: <20100210082956.GB1025@kernel.dk>
-References: <98a233181002092255vcdd88f8x19345f098300e97a@mail.gmail.com>
-	 <20100210082956.GB1025@kernel.dk>
-Date: Thu, 11 Feb 2010 01:16:40 -0700
-Message-ID: <98a233181002110016x3e3deb08re026401439ceb462@mail.gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from 0122700014.0.fullrate.dk ([95.166.99.235]:53401 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751331Ab0BJI36 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 10 Feb 2010 03:29:58 -0500
+Date: Wed, 10 Feb 2010 09:29:56 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
 Subject: Re: Patch to fix FreeBSD support
-From: Josh Aune <luken@omner.org>
-Content-Type: multipart/mixed; boundary=000feaf00f774646cf047f4ec5eb
-To: Jens Axboe <jens.axboe@oracle.com>
+Message-ID: <20100210082956.GB1025@kernel.dk>
+References: <98a233181002092255vcdd88f8x19345f098300e97a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <98a233181002092255vcdd88f8x19345f098300e97a@mail.gmail.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Josh Aune <luken@omner.org>
 Cc: fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
 
---000feaf00f774646cf047f4ec5eb
-Content-Type: text/plain; charset=ISO-8859-1
+On Tue, Feb 09 2010, Josh Aune wrote:
+> Hi,
+> 
+> Attached is a patch against fio-1.36 that fixes a few build issues on
+> FreeBSD.  Tested with FreeBSD 8 and Linux Fedora 6.
 
-On Wed, Feb 10, 2010 at 1:29 AM, Jens Axboe <jens.axboe@oracle.com> wrote:
->
-> Thanks, but I've moved things along a bit since, can you please check
-> current -git for me instead? If you don't use git,
+Thanks, but I've moved things along a bit since, can you please check
+current -git for me instead? If you don't use git, you can just
+download:
 
-Not very well, but see the attached for some additional changes.
+http://brick.kernel.dk/snaps/fio-git-latest.tar.gz
 
-Josh
+and use that instead.
 
---000feaf00f774646cf047f4ec5eb
-Content-Type: application/octet-stream; 
-	name="0001-Fix-dep-calculation-in-Makefile.FreeBSD-to-ignore-ot.patch"
-Content-Disposition: attachment; 
-	filename="0001-Fix-dep-calculation-in-Makefile.FreeBSD-to-ignore-ot.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_g5j9yqbn0
-
-RnJvbSBlMTZhY2RmZTJiYTJlZGU2ZTA1NTI1ZDkzYjhiZDI2NGI2Y2E0NGE0IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBKb3NodWEgQXVuZSA8bHVrZW5AZnVzaW9uaW8uY29tPgpEYXRl
-OiBUaHUsIDExIEZlYiAyMDEwIDAwOjU5OjE4IC0wNzAwClN1YmplY3Q6IFtQQVRDSF0gKiBGaXgg
-ZGVwIGNhbGN1bGF0aW9uIGluIE1ha2VmaWxlLkZyZWVCU0QgdG8gaWdub3JlIG90aGVyIG9zIHNw
-ZWNpZmljCiAgIGhlYWRlciBmaWxlcywgYXZvaWQgYmxvd2luZyB1cCBvbiBpbmNsdWRlcyBpbiBv
-cy1zb2xhcmlzLmgKICogTWFyayBGcmVlQlNEIGFzIG5vdCBzdXBwb3J0aW5nIGZkYXRhc3luYygp
-CiAqIEFkZCBkb2N1bWVudGF0aW9uIG5vdGUgYWJvdXQgRnJlZUJTRCBub3Qgc3VwcG9ydGluZyBm
-c3luY2RhdGE9CiAqIEFkZCB3YXJuaW5nIGlmIGZzeW5jZGF0YT0gaXMgdXNlZCBvbiBvcyB0aGF0
-IGRvZXNuJ3Qgc3VwcG9ydCwgZmFsbAogICBiYWNrIHRvIGZzeW5jKCkKCi0tLQogSE9XVE8gICAg
-ICAgICAgICB8ICAgIDIgKysKIE1ha2VmaWxlLkZyZWVCU0QgfCAgICAzICsrLQogaW5pdC5jICAg
-ICAgICAgICB8ICAgMTEgKysrKysrKysrKysKIG9zL29zLWZyZWVic2QuaCAgfCAgICAxIC0KIDQg
-ZmlsZXMgY2hhbmdlZCwgMTUgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKCmRpZmYgLS1n
-aXQgYS9IT1dUTyBiL0hPV1RPCmluZGV4IDkxYTFlYzMuLmRiYWVlNzYgMTAwNjQ0Ci0tLSBhL0hP
-V1RPCisrKyBiL0hPV1RPCkBAIC01NjgsNiArNTY4LDggQEAgZnN5bmM9aW50CUlmIHdyaXRpbmcg
-dG8gYSBmaWxlLCBpc3N1ZSBhIHN5bmMgb2YgdGhlIGRpcnR5IGRhdGEKIAogZnN5bmNkYXRhPWlu
-dAlMaWtlIGZzeW5jPSBidXQgdXNlcyBmZGF0YXN5bmMoKSB0byBvbmx5IHN5bmMgZGF0YSBhbmQg
-bm90CiAJCW1ldGFkYXRhIGJsb2Nrcy4KKwkJSW4gRnJlZUJTRCB0aGVyZSBpcyBubyBmZGF0YXN5
-bmMoKSwgdGhpcyBmYWxscyBiYWNrIHRvIAorCQl1c2luZyBmc3luYygpCiAKIG92ZXJ3cml0ZT1i
-b29sCUlmIHRydWUsIHdyaXRlcyB0byBhIGZpbGUgd2lsbCBhbHdheXMgb3ZlcndyaXRlIGV4aXN0
-aW5nCiAJCWRhdGEuIElmIHRoZSBmaWxlIGRvZXNuJ3QgYWxyZWFkeSBleGlzdCwgaXQgd2lsbCBi
-ZQpkaWZmIC0tZ2l0IGEvTWFrZWZpbGUuRnJlZUJTRCBiL01ha2VmaWxlLkZyZWVCU0QKaW5kZXgg
-OTQ3YmI4NS4uYjQ5OTg5MyAxMDA2NDQKLS0tIGEvTWFrZWZpbGUuRnJlZUJTRAorKysgYi9NYWtl
-ZmlsZS5GcmVlQlNECkBAIC0zMCw3ICszMCw4IEBAIFNPVVJDRSA9IGV0YS5jIGZpbGVoYXNoLmMg
-ZmlsZXNldHVwLmMgZmlvLmMgZ2V0dGltZS5jIGluaXQuYyBpb2VuZ2luZXMuYyBcCiAJIGlvX3Uu
-YyBsb2cuYyBtZW1vcnkuYyBtdXRleC5jIG9wdGlvbnMuYyBwYXJzZS5jIHJidHJlZS5jIHNtYWxs
-b2MuYyBcCiAJIHN0YXQuYyBwYXJzZS5jIGNyYy8qLmMgZW5naW5lcy9jcHUuYyBlbmdpbmVzL21t
-YXAuYyBcCiAJIGVuZ2luZXMvcG9zaXhhaW8uYyBlbmdpbmVzL3N5bmMuYyBlbmdpbmVzL251bGwu
-YyBlbmdpbmVzL25ldC5jIFwKLQkgKi5oICovKi5oCisJICouaCBhcmNoLyouaCBjb21waWxlci8q
-LmggY3JjLyouaCBsaWIvKi5oIFwKKwkgb3MvaW5kaXJlY3QuaCBvcy9rY29tcGF0Lmggb3Mvb3Mt
-ZnJlZWJzZC5oIG9zL29zLmggb3Mvc3lzbGV0LmgKIAogaWZuZXEgKCQoZmluZHN0cmluZyAkKE1B
-S0VGTEFHUykscykscykKIGlmbmRlZiBWCmRpZmYgLS1naXQgYS9pbml0LmMgYi9pbml0LmMKaW5k
-ZXggYjVjZWQ4OC4uYWY4Mzc1NyAxMDA2NDQKLS0tIGEvaW5pdC5jCisrKyBiL2luaXQuYwpAQCAt
-MzgyLDYgKzM4MiwxNyBAQCBzdGF0aWMgaW50IGZpeHVwX29wdGlvbnMoc3RydWN0IHRocmVhZF9k
-YXRhICp0ZCkKIAkJCQkgIiB0aGF0IGlzbid0IHNlZWthYmxlLiBQcmUtcmVhZCBkaXNhYmxlZC5c
-biIpOwogCX0KIAorI2lmbmRlZiBGSU9fSEFWRV9GREFUQVNZTkMKKwlpZiAodGQtPm8uZmRhdGFz
-eW5jX2Jsb2NrcykgeworCQlsb2dfaW5mbygiZmlvOiB0aGlzIHBsYXRmb3JtIGRvZXMgbm90IHN1
-cHBvcnQgZmRhdGFzeW5jKCkiCisJCQkgIiBmYWxsaW5nIGJhY2sgdG8gdXNpbmcgZnN5bmMoKS4g
-IFVzZSB0aGUgJ2ZzeW5jJyIKKwkJCSAiIG9wdGlvbiBpbnN0ZWFkIG9mICdmZGF0YXN5bmMnIHRv
-IGdldCByaWQgb2YiCisJCQkgIiB0aGlzIHdhcm5pbmdcbiIpOworCQl0ZC0+by5mc3luY19ibG9j
-a3MgPSB0ZC0+by5mZGF0YXN5bmNfYmxvY2tzOworCQl0ZC0+by5mZGF0YXN5bmNfYmxvY2tzID0g
-MDsKKwl9CisjZW5kaWYKKwogCXJldHVybiAwOwogfQogCmRpZmYgLS1naXQgYS9vcy9vcy1mcmVl
-YnNkLmggYi9vcy9vcy1mcmVlYnNkLmgKaW5kZXggMDYyYzQ0Yy4uOGQ5NjVhYSAxMDA2NDQKLS0t
-IGEvb3Mvb3MtZnJlZWJzZC5oCisrKyBiL29zL29zLWZyZWVic2QuaApAQCAtOCw3ICs4LDYgQEAK
-ICNkZWZpbmUgRklPX0hBVkVfT0RJUkVDVAogI2RlZmluZSBGSU9fVVNFX0dFTkVSSUNfQkRFVl9T
-SVpFCiAjZGVmaW5lIEZJT19VU0VfR0VORVJJQ19SQU5ECi0jZGVmaW5lIEZJT19IQVZFX0ZEQVRB
-U1lOQwogCiAjZGVmaW5lIE9TX01BUF9BTk9OCQlNQVBfQU5PTgogCi0tIAoxLjYuNC4zCgo=
---000feaf00f774646cf047f4ec5eb--
-
+-- 
+Jens Axboe
 
