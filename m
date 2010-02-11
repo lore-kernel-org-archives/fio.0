@@ -1,35 +1,33 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from web80807.mail.mud.yahoo.com ([209.191.72.111]:23932 "HELO
-	web80807.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751378Ab0BHWD6 (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 8 Feb 2010 17:03:58 -0500
-Message-ID: <600237.15205.qm@web80807.mail.mud.yahoo.com>
-Date: Mon, 8 Feb 2010 13:57:16 -0800 (PST)
-From: charles zhuang <cjiazhuang@yahoo.com>
-Subject: libaio ioengine cause initiator crash
+Received: from 0122700014.0.fullrate.dk ([95.166.99.235]:56132 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750857Ab0BKKTZ (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 11 Feb 2010 05:19:25 -0500
+Date: Thu, 11 Feb 2010 11:19:24 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: Patch to fix FreeBSD support
+Message-ID: <20100211101924.GM1025@kernel.dk>
+References: <98a233181002092255vcdd88f8x19345f098300e97a@mail.gmail.com> <20100210082956.GB1025@kernel.dk> <98a233181002110016x3e3deb08re026401439ceb462@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <98a233181002110016x3e3deb08re026401439ceb462@mail.gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Josh Aune <luken@omner.org>
+Cc: fio@vger.kernel.org
 
-Hi,
-I am using fio libaio ioengine to benchmark on stgt iser target stack (http://stgt.sourceforge.net/). I found out that using bs size at 2k and under (2k, 1k, 512) keeps causing the iser initiator crash at different places. The initiator kernel stack dump at various places, with some of them has aio_* call involved. Most of the oops message looks like:
-Oops: 0000 [1] SMP
-last sysfs file: /block/sdb/stat
-...
+On Thu, Feb 11 2010, Josh Aune wrote:
+> On Wed, Feb 10, 2010 at 1:29 AM, Jens Axboe <jens.axboe@oracle.com> wrote:
+> >
+> > Thanks, but I've moved things along a bit since, can you please check
+> > current -git for me instead? If you don't use git,
+> 
+> Not very well, but see the attached for some additional changes.
 
-The easiest way I can produce this problem is after the initiator log in to iser stack, run following command from initiator (where /dev/sdb is the exported disk from target):
-> fio --rw=read --bs=2k --numjobs=32 --iodepth=64 --sync=0 --direct=1 --randrepeat=0 --group_reporting --ioengine=libaio --filename=/dev/sdb --name=test --loops=100 --size=524288000 --runtime=30 --softrandommap=1
+Thanks, I've applied it. I plan on doing a 1.37 version fairly soon,
+preferably before going on vacation next week.
 
-If I change "--bw=2k" to "--bs=4k" and over, it runs fine.
+-- 
+Jens Axboe
 
-Initially I am only looking at the iser target (stgt) side. But now I suspect it's something to do with the initiator page coherency size, which I believe is 4k. 
-
-Jens and other,  can you provide some insights for this? Thanks for any help.
-
-Thanks,
-Charles
-
-
-      
