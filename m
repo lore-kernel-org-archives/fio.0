@@ -1,53 +1,58 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:2556 "EHLO mx1.redhat.com"
+Received: from 0122700014.0.fullrate.dk ([95.166.99.235]:36812 "EHLO kernel.dk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757815Ab0CaRTg (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 31 Mar 2010 13:19:36 -0400
-Received: from int-mx03.intmail.prod.int.phx2.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o2VHJWuE012290
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <fio@vger.kernel.org>; Wed, 31 Mar 2010 13:19:34 -0400
-Received: from machine.usersys.redhat.com (dhcp-100-19-106.bos.redhat.com [10.16.19.106])
-	by int-mx03.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o2VHJVJZ004838
-	for <fio@vger.kernel.org>; Wed, 31 Mar 2010 13:19:32 -0400
-Date: Wed, 31 Mar 2010 13:19:31 -0400
-From: Vivek Goyal <vgoyal@redhat.com>
-Subject: [PATCH] Do not delete cgroups upon completion of fio job
-Message-ID: <20100331171931.GH14011@redhat.com>
+	id S1750851Ab0DNINg (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 14 Apr 2010 04:13:36 -0400
+Date: Wed, 14 Apr 2010 10:13:35 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: [PATCH] add link to new list archives
+Message-ID: <20100414081334.GJ27497@kernel.dk>
+References: <alpine.BSF.2.00.1004132318040.77984@anduin.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <alpine.BSF.2.00.1004132318040.77984@anduin.net>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Erik Inge =?iso-8859-1?Q?Bols=F8?= <knan-fio@anduin.net>
+Cc: fio@vger.kernel.org
 
-Currently upon fio job completion, we delete the cgroups. But in the
-process we also loose important debugging information presetn in cgroup
-files. For example time information in blkio.time, sector information in
-blkio.sectors and how many a times a group was dequeued blkio.dequeue.
-Leaving the cgroups as it is, allows one to go and inspect those files
-after the fio job is complete.
 
-Secondly, cgroups might have already been created by user before fio job
-started. In that case it is not very right to delete cgroups after job
-completion.
+Thanks, didn't know one existed.
 
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
----
- cgroup.c |    1 -
- 1 file changed, 1 deletion(-)
 
-Index: fio/cgroup.c
-===================================================================
---- fio.orig/cgroup.c	2010-03-31 13:29:49.000000000 -0400
-+++ fio/cgroup.c	2010-03-31 13:31:55.788002620 -0400
-@@ -65,7 +65,6 @@ void cgroup_kill(struct flist_head *clis
- 
- 	flist_for_each_safe(n, tmp, clist) {
- 		cm = flist_entry(n, struct cgroup_member, list);
--		rmdir(cm->root);
- 		flist_del(&cm->list);
- 		sfree(cm->root);
- 		sfree(cm);
+On Tue, Apr 13 2010, Erik Inge Bols=EF=BF=BD wrote:
+> Signed-off-by: Erik Inge Bols=EF=BF=BD <knan-fio@anduin.net>
+> ---
+>  README |    7 +++++--
+>  1 files changed, 5 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/README b/README
+> index e64853e..f2438ba 100644
+> --- a/README
+> +++ b/README
+> @@ -48,8 +48,11 @@ majordomo@vger.kernel.org with
+> =20
+>  subscribe fio
+> =20
+> -in the body of the email. There is no archive for the new list yet,
+> -archives for the old list can be found here:
+> +in the body of the email. Archives can be found here:
+> +
+> +http://www.spinics.net/lists/fio/
+> +
+> +and archives for the old list can be found here:
+> =20
+>  http://maillist.kernel.dk/fio-devel/
+> =20
+> --=20
+> 1.6.3.3
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
+--=20
+Jens Axboe
 
