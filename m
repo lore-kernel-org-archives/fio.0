@@ -1,33 +1,42 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-yw0-f198.google.com ([209.85.211.198]:41447 "EHLO
-	mail-yw0-f198.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752335Ab0EPPub (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 16 May 2010 11:50:31 -0400
-Received: by ywh36 with SMTP id 36so1993492ywh.4
-        for <fio@vger.kernel.org>; Sun, 16 May 2010 08:50:31 -0700 (PDT)
+Received: from mail-gx0-f217.google.com ([209.85.217.217]:63378 "EHLO
+	mail-gx0-f217.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752555Ab0EPOyP (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sun, 16 May 2010 10:54:15 -0400
+Received: by gxk9 with SMTP id 9so2703832gxk.8
+        for <fio@vger.kernel.org>; Sun, 16 May 2010 07:54:14 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <AANLkTikDsv9H0S_fE9JkAJOn6dxIW_wnMmiIq13hidL7@mail.gmail.com>
-References: <AANLkTikDsv9H0S_fE9JkAJOn6dxIW_wnMmiIq13hidL7@mail.gmail.com>
-Date: Sun, 16 May 2010 17:50:30 +0200
-Message-ID: <AANLkTilwHeA9olwqW5PFcvotNxuCqfoN5_iyUe6PokFh@mail.gmail.com>
-Subject: Re: replay blktrace to different device
+Date: Sun, 16 May 2010 16:54:13 +0200
+Message-ID: <AANLkTikDsv9H0S_fE9JkAJOn6dxIW_wnMmiIq13hidL7@mail.gmail.com>
+Subject: replay blktrace to different device
 From: =?ISO-8859-1?Q?Sebastian_F=E4rber?= <faerber@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-> I'm running fio like this:
-> # fio --name=replay --filename=/dev/sdc --read_iolog=trace_input_fio
-> and it aborts with
-> fio: filesetup.c:855: get_file: Assertion `fio_file_open(f)' failed.
+Hi,
 
-I captured another trace, this time for /dev/sdc, tried again using it
-as input to read_iolog
-and got the same error message.
-So it looks like there is a general problem with "read_iolog" in fio 1.38?
-I can supply the "--debug=all" logfile if needed.
+i discovered that fio is able to replay captured blktrace patterns and
+just tried it ... without luck.
+It seems that fio can only replay the blktrace to the device that the
+trace was captured on?
 
-Thanks!
+I did a blktrace on one of my servers which uses /dev/md1 as its main
+device and tried replaying
+the patterns on another server where i prepared a spare device (/dev/sdc).
+
+I'm running fio like this:
+# fio --name=replay --filename=/dev/sdc --read_iolog=trace_input_fio
+and it aborts with
+fio: filesetup.c:855: get_file: Assertion `fio_file_open(f)' failed.
+
+I also enabled --debug=all and noticed that while parsing the blktrace
+fio adds /dev/md1 to it's list of devices.
+The system i'm running fio on also has a /dev/md1 but this is my
+root-device and i don't want fio to run the r/w benchmark
+there.
+Is this a bug or would it be possible to modify fio so "--filename"
+overrides the device in captured trace?
 
 - Sebastian
