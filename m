@@ -1,24 +1,32 @@
-Date: Wed, 2 Jun 2010 08:23:41 +0200
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from 0122700014.0.fullrate.dk ([95.166.99.235]:59608 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751367Ab0FWMtf (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 23 Jun 2010 08:49:35 -0400
+Message-ID: <4C2202DF.30004@fusionio.com>
+Date: Wed, 23 Jun 2010 14:49:35 +0200
 From: Jens Axboe <jaxboe@fusionio.com>
-Subject: Re: remove unnecessary bash-ism.
-Message-ID: <20100602062341.GK3564@kernel.dk>
-References: <20100528110051.5A59571A43@kuma.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20100528110051.5A59571A43@kuma.localdomain>
+Subject: Re: --latency-log
+References: <20100623044026.DB65571923@kuma.localdomain>
+In-Reply-To: <20100623044026.DB65571923@kuma.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
 To: YAMAMOTO Takashi <yamamoto@valinux.co.jp>
 Cc: fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
 
-On Fri, May 28 2010, YAMAMOTO Takashi wrote:
+On 2010-06-23 06:40, YAMAMOTO Takashi wrote:
 > hi,
 > 
-> the following patch removes unnecesary dependency on bash.
+> the --latency-log option merely sets the write_lat_log global variable,
+> which doesn't seem to be used at all.
 
-Applied, thanks.
+So question is how to handle that... The equivalent bw option logs
+aggregate bandwidth. Either we drop it, or we make td->o.write_lat_log
+inherit this setting.
 
 -- 
 Jens Axboe
-
 
