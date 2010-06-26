@@ -1,46 +1,38 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail.valinux.co.jp ([210.128.90.3]:37606 "EHLO
-	mail.valinux.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751006Ab0FWChz (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 22 Jun 2010 22:37:55 -0400
-Subject: fix 1000 vs kb_base confusion in show_run_stats.
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Message-Id: <20100623023753.92DB271923@kuma.localdomain>
-Date: Wed, 23 Jun 2010 11:37:53 +0900 (JST)
-From: yamamoto@valinux.co.jp (YAMAMOTO Takashi)
+Received: from 0122700014.0.fullrate.dk ([95.166.99.235]:41915 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753187Ab0FZUvM (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 26 Jun 2010 16:51:12 -0400
+Message-ID: <4C26683D.8010006@fusionio.com>
+Date: Sat, 26 Jun 2010 22:51:09 +0200
+From: Jens Axboe <jaxboe@fusionio.com>
+MIME-Version: 1.0
+Subject: Re: [PATCH] gracefully handle full /tmp file system
+References: <20100625152419.GA29790@w-gedwards.lhn.com>
+In-Reply-To: <20100625152419.GA29790@w-gedwards.lhn.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Greg Edwards <greg.edwards@hp.com>
+Cc: fio@vger.kernel.org
 
-hi,
+On 25/06/10 17.24, Greg Edwards wrote:
+> If /tmp happens to be full, fio gives you a very unhelpful error:
+> 
+> # ./fio rand-write-256k-q256.job
+> Bus error
+> 
+> Use posix_fallocate() to gracefully handle this condition.
+> 
+> Signed-off-by: Greg Edwards <greg.edwards@hp.com>
 
-please apply the following patch.
+Thanks, that looks sane. As far as I remember, if the fs
+doesn't do fallocate, then glibc will zero fill it. If
+that is the case, then it should be safe.
 
-YAMAMOTO Takashi
+I will apply it.
 
+-- 
+Jens Axboe
 
-Signed-off-by: YAMAMOTO Takashi <yamamoto@valinux.co.jp>
-
-commit 6225a65ed63f82ae30258d3e0d45e179a645ca05
-Author: YAMAMOTO Takashi <yamamoto@valinux.co.jp>
-Date:   Wed Jun 23 11:36:01 2010 +0900
-
-    fix 1000 vs kb_base confusion in show_run_stats.
-
-diff --git a/stat.c b/stat.c
-index 9d1f66a..143325a 100644
---- a/stat.c
-+++ b/stat.c
-@@ -635,9 +635,9 @@ void show_run_stats(void)
- 		max_run[1] = rs->max_run[1];
- 
- 		if (rs->max_run[0])
--			rs->agg[0] = (rs->io_kb[0] * 1000) / max_run[0];
-+			rs->agg[0] = (rs->io_kb[0] * rs->kb_base) / max_run[0];
- 		if (rs->max_run[1])
--			rs->agg[1] = (rs->io_kb[1] * 1000) / max_run[1];
-+			rs->agg[1] = (rs->io_kb[1] * rs->kb_base) / max_run[1];
- 	}
- 
- 	/*
