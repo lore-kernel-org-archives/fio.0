@@ -1,41 +1,34 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail.valinux.co.jp ([210.128.90.3]:60170 "EHLO
-	mail.valinux.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754050Ab0FIGZB (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 9 Jun 2010 02:25:01 -0400
-Subject: missing include
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Message-Id: <20100609062459.B135A71A54@kuma.localdomain>
-Date: Wed,  9 Jun 2010 15:24:59 +0900 (JST)
-From: yamamoto@valinux.co.jp (YAMAMOTO Takashi)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <vgoyal@redhat.com>
+MIME-Version: 1.0
+From: Vivek Goyal <vgoyal@redhat.com>
+Date: Wed, 30 Jun 2010 07:37:55 -0600
+Subject: Re: Have we changed number of fields in fio --minimal output
+Message-ID: <20100630133755.GC6229@redhat.com>
+References: <20100629193247.GA3819@redhat.com>
+ <4C2AF2EC.1090806@fusionio.com> <4C2AF382.7000708@fusionio.com>
+ <4C2AF5DF.8050705@fusionio.com> <20100630125940.GA6229@redhat.com>
+ <4C2B43AA.2080708@fusionio.com> <4C2B4565.1070402@fusionio.com>
+In-Reply-To: <4C2B4565.1070402@fusionio.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+To: Jens Axboe <JAxboe@fusionio.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-hi,
+On Wed, Jun 30, 2010 at 03:23:49PM +0200, Jens Axboe wrote:
 
-please incorporate the following trivial patch.
+[..]
+> http://git.kernel.dk/?p=3Dfio.git;a=3Dcommit;h=3D525c2bfabdb7e0093a8775a0=
+9ad3e772d962760e
+>=20
+> It's new prefixed with version 2, and I updated the documentation
+> and man page as well on both the new format and the version field.
+>=20
+> Oh, and you were right about the 8 extra fields of course, it's 4
+> added fields but it's per data direction.
 
-YAMAMOTO Takashi
+Thanks. /me goes to update my scripts.
 
-Signed-off-by: YAMAMOTO Takashi <yamamoto@valinux.co.jp>
+Vivek
 
-commit 0d8b33274c738784c26d842d66c41ee5e7ddc0a3
-Author: YAMAMOTO Takashi <yamamoto@valinux.co.jp>
-Date:   Wed Jun 9 15:23:07 2010 +0900
-
-    include libgen.h for basename.
-
-diff --git a/filesetup.c b/filesetup.c
-index ec5d781..9cc4872 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -3,6 +3,7 @@
- #include <string.h>
- #include <assert.h>
- #include <dirent.h>
-+#include <libgen.h>
- #include <sys/stat.h>
- #include <sys/mman.h>
- #include <sys/types.h>
