@@ -1,79 +1,158 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from 0122700014.0.fullrate.dk ([95.166.99.235]:46744 "EHLO kernel.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752605Ab0GNGdm (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 14 Jul 2010 02:33:42 -0400
-Message-ID: <4C3D5A43.6020005@fusionio.com>
-Date: Wed, 14 Jul 2010 08:33:39 +0200
-From: Jens Axboe <jaxboe@fusionio.com>
+Received: from smtp-out.google.com ([216.239.44.51]:33768 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751042Ab0GNANH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 13 Jul 2010 20:13:07 -0400
+Received: from kpbe14.cbf.corp.google.com (kpbe14.cbf.corp.google.com [172.25.105.78])
+	by smtp-out.google.com with ESMTP id o6E0D50E031564
+	for <fio@vger.kernel.org>; Tue, 13 Jul 2010 17:13:05 -0700
+Received: from pvc7 (pvc7.prod.google.com [10.241.209.135])
+	by kpbe14.cbf.corp.google.com with ESMTP id o6E0D4wu013226
+	for <fio@vger.kernel.org>; Tue, 13 Jul 2010 17:13:04 -0700
+Received: by pvc7 with SMTP id 7so2491676pvc.19
+        for <fio@vger.kernel.org>; Tue, 13 Jul 2010 17:13:03 -0700 (PDT)
 MIME-Version: 1.0
-Subject: Re: Patch to re-use already filled up pattern in io buffers
-References: <AANLkTinGG7P6hY4ltETjYGkQVV51VfiiqBPRzM0SSzhu@mail.gmail.com>
-In-Reply-To: <AANLkTinGG7P6hY4ltETjYGkQVV51VfiiqBPRzM0SSzhu@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Date: Tue, 13 Jul 2010 17:13:03 -0700
+Message-ID: <AANLkTinGG7P6hY4ltETjYGkQVV51VfiiqBPRzM0SSzhu@mail.gmail.com>
+Subject: Patch to re-use already filled up pattern in io buffers
+From: Radha Ramachandran <radha@google.com>
+Content-Type: multipart/mixed; boundary=000e0cd2df4c72fbd2048b4dd92b
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Radha Ramachandran <radha@google.com>
-Cc: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On 07/14/2010 02:13 AM, Radha Ramachandran wrote:
-> Hi Jens,
-> I made changes to fio so we wld re-use the already populated io_u
-> buffer (when there is a non-random pattern) during writes. That way
-> only the header will be re-calculated for every I/O. This way the
-> buffer wld get populated in the beginning and as long as the
-> subsequent ios using the same io_u structure are writes and have same
-> or less block size, it wld get re-used. If any of the subsequent i/o
-> is a read or has a block size greater than the pre-filled one, then
-> the buffer is invalidated and will be re-filled at the next write.
-> 
-> Reason for this risky change: (Performance)
-> I tested this change on a tmpfs(with no swap backing), with the
-> following config file:
-> [sscan_write]
-> filename=/mytmpfs/datafile.tmp
-> rw=write
-> bs=64k
-> size=3G
-> ioengine=libaio
-> iodepth=1024
-> iodepth_low=512
-> runtime=10800
-> bwavgtime=5000
-> thread=1
-> do_verify=0
-> verify=meta
-> verify_pattern=0x55aaa55a
-> verify_interval=4k
-> continue_on_error=1
-> 
-> fio-1-41-6 gave 306MB/s and the new change had a performance of 1546MB/s
-> 
-> Side effects/Risks:
-> There is a risk with this fix, that if the buffer gets corrupted then
-> the subsequent writes will also be corrupt. I think for both
-> sequential writes and random writes (with verify, where the I/O log is
-> replayed) we shld be able to find the first I/O that started with the
-> corruption and if the buffer is getting corrupted, there are other
-> issues here.
-> 
-> Testing:
-> I have tested this fix with sequential write(verify)/random read write
-> mix combination(with verify).
-> 
-> I think I have taken care of most of the case, but please let me know
-> if there is anything I have missed. I have attached the patch along
-> with this email. I think the performance improvement outweighs the
-> risk associated with the fix. But I will let you decide if you wld
-> like to pick it up.
+--000e0cd2df4c72fbd2048b4dd92b
+Content-Type: text/plain; charset=ISO-8859-1
 
-I will pick this up, the fill time is the reason for some of the
-other hoops we jump through to try and avoid that when possible.
-I don't think the risk of memory corruption is something we need
-to consider. That could just as easily happen after the data
-has been read anyway, both cases would result in a verify error.
+Hi Jens,
+I made changes to fio so we wld re-use the already populated io_u
+buffer (when there is a non-random pattern) during writes. That way
+only the header will be re-calculated for every I/O. This way the
+buffer wld get populated in the beginning and as long as the
+subsequent ios using the same io_u structure are writes and have same
+or less block size, it wld get re-used. If any of the subsequent i/o
+is a read or has a block size greater than the pre-filled one, then
+the buffer is invalidated and will be re-filled at the next write.
 
--- 
-Jens Axboe
+Reason for this risky change: (Performance)
+I tested this change on a tmpfs(with no swap backing), with the
+following config file:
+[sscan_write]
+filename=/mytmpfs/datafile.tmp
+rw=write
+bs=64k
+size=3G
+ioengine=libaio
+iodepth=1024
+iodepth_low=512
+runtime=10800
+bwavgtime=5000
+thread=1
+do_verify=0
+verify=meta
+verify_pattern=0x55aaa55a
+verify_interval=4k
+continue_on_error=1
+
+fio-1-41-6 gave 306MB/s and the new change had a performance of 1546MB/s
+
+Side effects/Risks:
+There is a risk with this fix, that if the buffer gets corrupted then
+the subsequent writes will also be corrupt. I think for both
+sequential writes and random writes (with verify, where the I/O log is
+replayed) we shld be able to find the first I/O that started with the
+corruption and if the buffer is getting corrupted, there are other
+issues here.
+
+Testing:
+I have tested this fix with sequential write(verify)/random read write
+mix combination(with verify).
+
+I think I have taken care of most of the case, but please let me know
+if there is anything I have missed. I have attached the patch along
+with this email. I think the performance improvement outweighs the
+risk associated with the fix. But I will let you decide if you wld
+like to pick it up.
+
+thanks
+-radha
+
+--000e0cd2df4c72fbd2048b4dd92b
+Content-Type: text/x-diff; charset=US-ASCII; name="fill_buff.patch"
+Content-Disposition: attachment; filename="fill_buff.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_gblezjbh0
+
+ZGlmZiAtLWdpdCBhL2Zpby5jIGIvZmlvLmMKaW5kZXggMmRhYjY0ZS4uODk2Zjc5NyAxMDA2NDQK
+LS0tIGEvZmlvLmMKKysrIGIvZmlvLmMKQEAgLTgzMSw2ICs4MzEsMTMgQEAgc3RhdGljIGludCBp
+bml0X2lvX3Uoc3RydWN0IHRocmVhZF9kYXRhICp0ZCkKIAogCQkJaWYgKHRkX3dyaXRlKHRkKSAm
+JiAhdGQtPm8ucmVmaWxsX2J1ZmZlcnMpCiAJCQkJaW9fdV9maWxsX2J1ZmZlcih0ZCwgaW9fdSwg
+bWF4X2JzKTsKKwkJCWVsc2UgaWYgKHRkX3dyaXRlKHRkKSAmJiB0ZC0+by52ZXJpZnlfcGF0dGVy
+bl9ieXRlcykgeworCQkJCS8qCisJCQkJICogRmlsbCB0aGUgYnVmZmVyIHdpdGggdGhlIHBhdHRl
+cm4gaWYgd2UgYXJlCisJCQkJICogZ29pbmcgdG8gYmUgZG9pbmcgd3JpdGVzLgorCQkJCSAqLwor
+CQkJCWZpbGxfcGF0dGVybih0ZCwgaW9fdS0+YnVmLCBtYXhfYnMsIGlvX3UpOworCQkJfQogCQl9
+CiAKIAkJaW9fdS0+aW5kZXggPSBpOwpkaWZmIC0tZ2l0IGEvaW9fdS5jIGIvaW9fdS5jCmluZGV4
+IGIyYjcyMzAuLmRjNDQ3M2IgMTAwNjQ0Ci0tLSBhL2lvX3UuYworKysgYi9pb191LmMKQEAgLTk4
+Myw2ICs5ODMsMTQgQEAgc3RydWN0IGlvX3UgKmdldF9pb191KHN0cnVjdCB0aHJlYWRfZGF0YSAq
+dGQpCiAJCQlwb3B1bGF0ZV92ZXJpZnlfaW9fdSh0ZCwgaW9fdSk7CiAJCWVsc2UgaWYgKHRkLT5v
+LnJlZmlsbF9idWZmZXJzICYmIGlvX3UtPmRkaXIgPT0gRERJUl9XUklURSkKIAkJCWlvX3VfZmls
+bF9idWZmZXIodGQsIGlvX3UsIGlvX3UtPnhmZXJfYnVmbGVuKTsKKwkJZWxzZSBpZiAoaW9fdS0+
+ZGRpciA9PSBERElSX1JFQUQpIHsKKwkJCS8qCisJCQkgKiBSZXNldCB0aGUgYnVmX2ZpbGxlZCBw
+YXJhbWV0ZXJzIHNvIG5leHQgdGltZSBpZiB0aGUKKwkJCSAqIGJ1ZmZlciBpcyB1c2VkIGZvciB3
+cml0ZXMgaXQgaXMgcmVmaWxsZWQuCisJCQkgKi8KKwkJCWlvX3UtPmJ1Zl9maWxsZWQgPSAwOwor
+CQkJaW9fdS0+YnVmX2ZpbGxlZF9sZW4gPSAwOworCQl9CiAJfQogCiAJLyoKZGlmZiAtLWdpdCBh
+L2lvZW5naW5lLmggYi9pb2VuZ2luZS5oCmluZGV4IDkxZGQ0MjkuLmI1OTliNjEgMTAwNjQ0Ci0t
+LSBhL2lvZW5naW5lLmgKKysrIGIvaW9lbmdpbmUuaApAQCAtNDMsNiArNDMsMTMgQEAgc3RydWN0
+IGlvX3UgewogCXVuc2lnbmVkIGxvbmcgbG9uZyBvZmZzZXQ7CiAKIAkvKgorCSAqIFBhcmFtZXRl
+cnMgcmVsYXRlZCB0byBwcmUtZmlsbGVkIGJ1ZmZlcnMgYW5kCisJICogdGhlaXIgc2l6ZSB0byBo
+YW5kbGUgdmFyaWFibGUgYmxvY2sgc2l6ZXMuCisJICovCisJaW50IGJ1Zl9maWxsZWQ7CisJdW5z
+aWduZWQgbG9uZyBidWZfZmlsbGVkX2xlbjsKKworCS8qCiAJICogSU8gZW5naW5lIHN0YXRlLCBt
+YXkgYmUgZGlmZmVyZW50IGZyb20gYWJvdmUgd2hlbiB3ZSBnZXQKIAkgKiBwYXJ0aWFsIHRyYW5z
+ZmVycyAvIHJlc2lkdWFsIGRhdGEgY291bnRzCiAJICovCmRpZmYgLS1naXQgYS92ZXJpZnkuYyBi
+L3ZlcmlmeS5jCmluZGV4IDI2NWJkNTUuLjczYzEyNjIgMTAwNjQ0Ci0tLSBhL3ZlcmlmeS5jCisr
+KyBiL3ZlcmlmeS5jCkBAIC0yMiw3ICsyMiw3IEBACiAjaW5jbHVkZSAiY3JjL3NoYTUxMi5oIgog
+I2luY2x1ZGUgImNyYy9zaGExLmgiCiAKLXN0YXRpYyB2b2lkIGZpbGxfcGF0dGVybihzdHJ1Y3Qg
+dGhyZWFkX2RhdGEgKnRkLCB2b2lkICpwLCB1bnNpZ25lZCBpbnQgbGVuKQordm9pZCBmaWxsX3Bh
+dHRlcm4oc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgdm9pZCAqcCwgdW5zaWduZWQgaW50IGxlbiwg
+c3RydWN0IGlvX3UgKmlvX3UpCiB7CiAJc3dpdGNoICh0ZC0+by52ZXJpZnlfcGF0dGVybl9ieXRl
+cykgewogCWNhc2UgMDoKQEAgLTMwLDEzICszMCwyNCBAQCBzdGF0aWMgdm9pZCBmaWxsX3BhdHRl
+cm4oc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgdm9pZCAqcCwgdW5zaWduZWQgaW50IGxlbikKIAkJ
+ZmlsbF9yYW5kb21fYnVmKHAsIGxlbik7CiAJCWJyZWFrOwogCWNhc2UgMToKKwkJaWYgKGlvX3Ut
+PmJ1Zl9maWxsZWQgJiYgaW9fdS0+YnVmX2ZpbGxlZF9sZW4gPj0gbGVuKSB7CisJCQlkcHJpbnQo
+RkRfVkVSSUZZLCAidXNpbmcgYWxyZWFkeSBmaWxsZWQgdmVyaWZ5IHBhdHRlcm4gYj0wIGxlbj0l
+dVxuIiwgbGVuKTsKKwkJCXJldHVybjsKKwkJfQogCQlkcHJpbnQoRkRfVkVSSUZZLCAiZmlsbCB2
+ZXJpZnkgcGF0dGVybiBiPTAgbGVuPSV1XG4iLCBsZW4pOwogCQltZW1zZXQocCwgdGQtPm8udmVy
+aWZ5X3BhdHRlcm5bMF0sIGxlbik7CisJCWlvX3UtPmJ1Zl9maWxsZWQgPSAxOworCQlpb191LT5i
+dWZfZmlsbGVkX2xlbiA9IGxlbjsKIAkJYnJlYWs7CiAJZGVmYXVsdDogewogCQl1bnNpZ25lZCBp
+bnQgaSA9IDAsIHNpemUgPSAwOwogCQl1bnNpZ25lZCBjaGFyICpiID0gcDsKIAorCQlpZiAoaW9f
+dS0+YnVmX2ZpbGxlZCAmJiBpb191LT5idWZfZmlsbGVkX2xlbiA+PSBsZW4pIHsKKwkJCWRwcmlu
+dChGRF9WRVJJRlksICJ1c2luZyBhbHJlYWR5IGZpbGxlZCB2ZXJpZnkgcGF0dGVybiBiPSVkIGxl
+bj0ldVxuIiwKKwkJCQkJdGQtPm8udmVyaWZ5X3BhdHRlcm5fYnl0ZXMsIGxlbik7CisJCQlyZXR1
+cm47CisJCX0KIAkJZHByaW50KEZEX1ZFUklGWSwgImZpbGwgdmVyaWZ5IHBhdHRlcm4gYj0lZCBs
+ZW49JXVcbiIsCiAJCQkJCXRkLT5vLnZlcmlmeV9wYXR0ZXJuX2J5dGVzLCBsZW4pOwogCkBAIC00
+Nyw2ICs1OCw4IEBAIHN0YXRpYyB2b2lkIGZpbGxfcGF0dGVybihzdHJ1Y3QgdGhyZWFkX2RhdGEg
+KnRkLCB2b2lkICpwLCB1bnNpZ25lZCBpbnQgbGVuKQogCQkJbWVtY3B5KGIraSwgdGQtPm8udmVy
+aWZ5X3BhdHRlcm4sIHNpemUpOwogCQkJaSArPSBzaXplOwogCQl9CisJCWlvX3UtPmJ1Zl9maWxs
+ZWQgPSAxOworCQlpb191LT5idWZfZmlsbGVkX2xlbiA9IGxlbjsKIAkJYnJlYWs7CiAJCX0KIAl9
+CkBAIC02NzUsNyArNjg4LDcgQEAgdm9pZCBwb3B1bGF0ZV92ZXJpZnlfaW9fdShzdHJ1Y3QgdGhy
+ZWFkX2RhdGEgKnRkLCBzdHJ1Y3QgaW9fdSAqaW9fdSkKIAlpZiAodGQtPm8udmVyaWZ5ID09IFZF
+UklGWV9OVUxMKQogCQlyZXR1cm47CiAKLQlmaWxsX3BhdHRlcm4odGQsIHAsIGlvX3UtPmJ1Zmxl
+bik7CisJZmlsbF9wYXR0ZXJuKHRkLCBwLCBpb191LT5idWZsZW4sIGlvX3UpOwogCiAJaGRyX2lu
+YyA9IGlvX3UtPmJ1ZmxlbjsKIAlpZiAodGQtPm8udmVyaWZ5X2ludGVydmFsKQpkaWZmIC0tZ2l0
+IGEvdmVyaWZ5LmggYi92ZXJpZnkuaAppbmRleCBhNGE4Y2ZlLi4yOWM0YjQ2IDEwMDY0NAotLS0g
+YS92ZXJpZnkuaAorKysgYi92ZXJpZnkuaApAQCAtNjksNiArNjksNyBAQCBleHRlcm4gdm9pZCBw
+b3B1bGF0ZV92ZXJpZnlfaW9fdShzdHJ1Y3QgdGhyZWFkX2RhdGEgKiwgc3RydWN0IGlvX3UgKik7
+CiBleHRlcm4gaW50IF9fbXVzdF9jaGVjayBnZXRfbmV4dF92ZXJpZnkoc3RydWN0IHRocmVhZF9k
+YXRhICp0ZCwgc3RydWN0IGlvX3UgKik7CiBleHRlcm4gaW50IF9fbXVzdF9jaGVjayB2ZXJpZnlf
+aW9fdShzdHJ1Y3QgdGhyZWFkX2RhdGEgKiwgc3RydWN0IGlvX3UgKik7CiBleHRlcm4gaW50IHZl
+cmlmeV9pb191X2FzeW5jKHN0cnVjdCB0aHJlYWRfZGF0YSAqLCBzdHJ1Y3QgaW9fdSAqKTsKK2V4
+dGVybiB2b2lkIGZpbGxfcGF0dGVybihzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCB2b2lkICpwLCB1
+bnNpZ25lZCBpbnQgbGVuLCBzdHJ1Y3QgaW9fdSAqaW9fdSk7CiAKIC8qCiAgKiBBc3luYyB2ZXJp
+Znkgb2ZmbG9hZAo=
+--000e0cd2df4c72fbd2048b4dd92b--
+--:
+To unsubscribe from this list: send the line "unsubscribe fio" in
+the body of a message to majordomo@vger.kernel.org: 
+More majordomo info at  http: //vger.kernel.org/majordomo-info.html
+
 
