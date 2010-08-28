@@ -1,73 +1,33 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from jester.euphonynet.be ([212.87.96.13]:37950 "EHLO
-	mailpush2.euphonynet.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757233Ab0HAPbV (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 1 Aug 2010 11:31:21 -0400
-From: Bart Van Assche <bvanassche@acm.org>
-Subject: [PATCH] Reduce thread stack size
-Date: Sun, 1 Aug 2010 17:01:06 +0200
+Received: from 0122700014.0.fullrate.dk ([95.166.99.235]:44384 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751748Ab0H1Gxh (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 28 Aug 2010 02:53:37 -0400
+Message-ID: <4C78B273.6000707@fusionio.com>
+Date: Sat, 28 Aug 2010 08:53:39 +0200
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
+Subject: Re: using ioengine=sg
+References: <AANLkTimTvSmj-1L80KAyVf7uv9d+vDENsMj-_bFDqRBR@mail.gmail.com>	<4C776359.70403@fusionio.com>	<AANLkTikN0M5eVXOAi9APqeS2Q7tiuYPacMsWiO0FnAWC@mail.gmail.com>	<4C77EE22.6020009@fusionio.com> <AANLkTi=JxBLiV4L1B_RHW9yK1jna_JHu7iton+0h-P_d@mail.gmail.com>
+In-Reply-To: <AANLkTi=JxBLiV4L1B_RHW9yK1jna_JHu7iton+0h-P_d@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <201008011701.06711.bvanassche@acm.org>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org, Jens Axboe <jaxboe@fusionio.com>
+To: Chuck Tuffli <ctuffli@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-This patch reduces the stack size required by fio threads and hence allows
-to run fio with 200 or more threads on systems with a moderate amount of
-virtual memory.
+On 08/27/2010 11:37 PM, Chuck Tuffli wrote:
+> On Fri, Aug 27, 2010 at 9:56 AM, Jens Axboe <jaxboe@fusionio.com>
+> ...
+>> Works for me, exact same job file. Can you do an sg_inq /dev/sg2?
+> 
+> Ugh, inquiries failed to that device but not others. Something went
+> wrong with the LLDD, but a reboot cleared everything up. BTW, the
+> patch really helped with the performance I'm seeing. Thanks again!
 
-Signed-off-by: Bart Van Assche <bart.vanassche@gmail.com>
+Great, I was starting to worry there was more than one bug there :-)
 
-diff --git a/fio.c b/fio.c
-index 896f797..6ab0f4a 100644
---- a/fio.c
-+++ b/fio.c
-@@ -1380,9 +1380,13 @@ static void *gtod_thread_main(void *data)
- 
- static int fio_start_gtod_thread(void)
- {
-+	pthread_attr_t attr;
- 	int ret;
- 
--	ret = pthread_create(&gtod_thread, NULL, gtod_thread_main, NULL);
-+	pthread_attr_init(&attr);
-+	pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
-+	ret = pthread_create(&gtod_thread, &attr, gtod_thread_main, NULL);
-+	pthread_attr_destroy(&attr);
- 	if (ret) {
- 		log_err("Can't create gtod thread: %s\n", strerror(ret));
- 		return 1;
-diff --git a/verify.c b/verify.c
-index 42ea462..7957bd4 100644
---- a/verify.c
-+++ b/verify.c
-@@ -886,12 +886,16 @@ done:
- int verify_async_init(struct thread_data *td)
- {
- 	int i, ret;
-+	pthread_attr_t attr;
-+
-+	pthread_attr_init(&attr);
-+	pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
- 
- 	td->verify_thread_exit = 0;
- 
- 	td->verify_threads = malloc(sizeof(pthread_t) * td->o.verify_async);
- 	for (i = 0; i < td->o.verify_async; i++) {
--		ret = pthread_create(&td->verify_threads[i], NULL,
-+		ret = pthread_create(&td->verify_threads[i], &attr,
- 					verify_async_thread, td);
- 		if (ret) {
- 			log_err("fio: async verify creation failed: %s\n",
-@@ -907,6 +911,8 @@ int verify_async_init(struct thread_data *td)
- 		td->nr_verify_threads++;
- 	}
- 
-+	pthread_attr_destroy(&attr);
-+
- 	if (i != td->o.verify_async) {
- 		log_err("fio: only %d verify threads started, exiting\n", i);
- 		td->verify_thread_exit = 1;
+-- 
+Jens Axboe
+
