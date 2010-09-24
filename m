@@ -1,88 +1,293 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx2-int.auckland.ac.nz ([130.216.12.41]:25754 "EHLO
-	mx2-int.auckland.ac.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752519Ab0I3DKB (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 29 Sep 2010 23:10:01 -0400
-Received: by yxp4 with SMTP id 4so482998yxp.19
-        for <fio@vger.kernel.org>; Wed, 29 Sep 2010 19:57:59 -0700 (PDT)
+Received: from 0122700014.0.fullrate.dk ([95.166.99.235]:34408 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750835Ab0IXIJw (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 24 Sep 2010 04:09:52 -0400
+Message-ID: <4C9C5CB6.7000200@fusionio.com>
+Date: Fri, 24 Sep 2010 10:09:26 +0200
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-Date: Thu, 30 Sep 2010 15:57:59 +1300
-Message-ID: <AANLkTinEQRcw8ZD6_fYZxodaRiOYda6uYLEf6aenKrXq@mail.gmail.com>
-Subject: possible fio bug, file not found in hash, cannot open file
-From: DongJin Lee <dongjin.lee@auckland.ac.nz>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: fio causes segfault after particular of random writes
+References: <4C9B4A53.1080302@uni-rostock.de> <4C9C4BC4.9020503@fusionio.com>
+In-Reply-To: <4C9C4BC4.9020503@fusionio.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Nikolaus Jeremic <nikolaus.jeremic@uni-rostock.de>
+Cc: fio@vger.kernel.org
 
-Hi all.
+On 2010-09-24 08:57, Jens Axboe wrote:
+> On 2010-09-23 14:38, Nikolaus Jeremic wrote:
+>>  Hello,
+>>
+>> I am using  fio for benchmarking of SSDs and noticed that fio causes a
+>> segfault after writing about 260000 MB with block size of 4069 bytes
+>> at random in one job. Writing the same or just bigger amount of data
+>> sequentially in 1 MB blocks works well. The situation is reproducible
+>> with several fio versions, i.e. 1.34, 1.41, 1.43, 1.43.2 as of
+>> 09/16/2010.
+> 
+> That's not good. To help me with this, please do:
+> 
+> - Edit the Makefile in fio, remove the -O2 in there.
+> - make clean && make
+> - Run ulimit -c10000000000 or something large like that
+> - Now reproduce the problem. Fio will segfault again, and produce
+>   a core file.
+> - compress the fio executable and core file and send them to me.
 
-System: ubuntu 10.04 x32 and x64
+One idea is that the logs grow way too large with your job descriptions.
+You could try this patch, it'll prevent the log from overflowing. It
+will also slow down the workload, a real fix would need to flush the log
+out-of-line.
 
-I'm trying to use xtreemfs (distributed file system), which I got it
-successfully mounted (it uses fusermount, current version I have is
-2.8.1),
-so I can write, read, (including gnome drap drog, etc) and do some
-file benchmarks using dbench (testing windows file server) to that
-mounted directory, without any problems.
-Also, I've used iozone benchmark without a problem, so it appears that
-the filesystem works fine.
+But give it a spin.
 
-However, when I tried to run fio (including the latest version
-1.44-rc1), I keep getting an 'Invalid argument error', I have no idea
-because this does not happen on other file systems, (e.g., nfs, etc)
-I think the error occurs somewhere getting the file information..
+diff --git a/fio.c b/fio.c
+index d20fc24..1306acf 100644
+--- a/fio.c
++++ b/fio.c
+@@ -1188,34 +1188,14 @@ static void *thread_main(void *data)
+ 	td->ts.io_bytes[1] = td->io_bytes[1];
+ 
+ 	fio_mutex_down(writeout_mutex);
+-	if (td->ts.bw_log) {
+-		if (td->o.bw_log_file) {
+-			finish_log_named(td, td->ts.bw_log,
+-						td->o.bw_log_file, "bw");
+-		} else
+-			finish_log(td, td->ts.bw_log, "bw");
+-	}
+-	if (td->ts.lat_log) {
+-		if (td->o.lat_log_file) {
+-			finish_log_named(td, td->ts.lat_log,
+-						td->o.lat_log_file, "lat");
+-		} else
+-			finish_log(td, td->ts.lat_log, "lat");
+-	}
+-	if (td->ts.slat_log) {
+-		if (td->o.lat_log_file) {
+-			finish_log_named(td, td->ts.slat_log,
+-						td->o.lat_log_file, "slat");
+-		} else
+-			finish_log(td, td->ts.slat_log, "slat");
+-	}
+-	if (td->ts.clat_log) {
+-		if (td->o.lat_log_file) {
+-			finish_log_named(td, td->ts.clat_log,
+-						td->o.lat_log_file, "clat");
+-		} else
+-			finish_log(td, td->ts.clat_log, "clat");
+-	}
++	if (td->ts.bw_log)
++		finish_log(td->ts.bw_log);
++	if (td->ts.lat_log)
++		finish_log(td->ts.lat_log);
++	if (td->ts.slat_log)
++		finish_log(td->ts.slat_log);
++	if (td->ts.clat_log)
++		finish_log(td->ts.clat_log);
+ 	fio_mutex_up(writeout_mutex);
+ 	if (td->o.exec_postrun)
+ 		exec_string(td->o.exec_postrun);
+@@ -1680,8 +1660,8 @@ int main(int argc, char *argv[])
+ 		return 0;
+ 
+ 	if (write_bw_log) {
+-		setup_log(&agg_io_log[DDIR_READ]);
+-		setup_log(&agg_io_log[DDIR_WRITE]);
++		__setup_log(&agg_io_log[DDIR_READ], "agg-read_bw.log");
++		__setup_log(&agg_io_log[DDIR_WRITE], "agg-write_bw.log");
+ 	}
+ 
+ 	startup_mutex = fio_mutex_init(0);
+@@ -1699,9 +1679,8 @@ int main(int argc, char *argv[])
+ 	if (!fio_abort) {
+ 		show_run_stats();
+ 		if (write_bw_log) {
+-			__finish_log(agg_io_log[DDIR_READ], "agg-read_bw.log");
+-			__finish_log(agg_io_log[DDIR_WRITE],
+-					"agg-write_bw.log");
++			finish_log(agg_io_log[DDIR_READ]);
++			finish_log(agg_io_log[DDIR_WRITE]);
+ 		}
+ 	}
+ 
+diff --git a/init.c b/init.c
+index fe4dbf2..f13d3e4 100644
+--- a/init.c
++++ b/init.c
+@@ -578,12 +578,25 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num)
+ 		goto err;
+ 
+ 	if (td->o.write_lat_log) {
+-		setup_log(&td->ts.lat_log);
+-		setup_log(&td->ts.slat_log);
+-		setup_log(&td->ts.clat_log);
++		if (td->o.lat_log_file)
++			setup_log_named(&td->ts.lat_log, td->o.lat_log_file, "lat");
++		else
++			setup_log(td, &td->ts.lat_log, "lat");
++		if (td->o.lat_log_file)
++			setup_log_named(&td->ts.slat_log, td->o.lat_log_file, "slat");
++		else
++			setup_log(td, &td->ts.slat_log, "slat");
++		if (td->o.lat_log_file)
++			setup_log_named(&td->ts.clat_log, td->o.lat_log_file, "clat");
++		else
++			setup_log(td, &td->ts.clat_log, "clat");
++	}
++	if (td->o.write_bw_log) {
++		if (td->o.bw_log_file)
++			setup_log_named(&td->ts.bw_log, td->o.bw_log_file, "bw");
++		else
++			setup_log(td, &td->ts.bw_log, "bw");
+ 	}
+-	if (td->o.write_bw_log)
+-		setup_log(&td->ts.bw_log);
+ 
+ 	if (!td->o.name)
+ 		td->o.name = strdup(jobname);
+diff --git a/iolog.h b/iolog.h
+index c35ce1e..2b2aa66 100644
+--- a/iolog.h
++++ b/iolog.h
+@@ -30,6 +30,8 @@ struct io_log {
+ 	unsigned long nr_samples;
+ 	unsigned long max_samples;
+ 	struct io_sample *log;
++	char *log_name;
++	unsigned int max_log_mb;
+ };
+ 
+ enum {
+@@ -95,10 +97,11 @@ extern void show_run_stats(void);
+ extern void init_disk_util(struct thread_data *);
+ extern void update_rusage_stat(struct thread_data *);
+ extern void update_io_ticks(void);
+-extern void setup_log(struct io_log **);
+-extern void finish_log(struct thread_data *, struct io_log *, const char *);
+-extern void finish_log_named(struct thread_data *, struct io_log *, const char *, const char *);
+-extern void __finish_log(struct io_log *, const char *);
++extern void __setup_log(struct io_log **, const char *);
++extern void setup_log(struct thread_data *, struct io_log **, const char *);
++extern void setup_log_named(struct io_log **, const char *, const char *);
++extern void finish_log(struct io_log *);
++extern void flush_log(struct io_log *);
+ extern struct io_log *agg_io_log[2];
+ extern int write_bw_log;
+ extern void add_agg_sample(unsigned long, enum fio_ddir, unsigned int);
+diff --git a/log.c b/log.c
+index 266dc06..22d2524 100644
+--- a/log.c
++++ b/log.c
+@@ -491,22 +491,39 @@ int init_iolog(struct thread_data *td)
+ 	return ret;
+ }
+ 
+-void setup_log(struct io_log **log)
++void __setup_log(struct io_log **log, const char *name)
+ {
+ 	struct io_log *l = malloc(sizeof(*l));
+ 
+ 	l->nr_samples = 0;
+ 	l->max_samples = 1024;
+ 	l->log = malloc(l->max_samples * sizeof(struct io_sample));
++	l->log_name = strdup(name);
++	l->max_log_mb = 10;
+ 	*log = l;
+ }
+ 
+-void __finish_log(struct io_log *log, const char *name)
++void setup_log_named(struct io_log **log, const char *prefix,
++		     const char *postfix)
++{
++	char file_name[256], *p;
++
++	snprintf(file_name, 200, "%s_%s.log", prefix, postfix);
++	p = basename(file_name);
++	__setup_log(log, p);
++}
++
++void setup_log(struct thread_data *td, struct io_log **log, const char *name)
++{
++	setup_log_named(log, td->o.name, name);
++}
++
++void flush_log(struct io_log *log)
+ {
+ 	unsigned int i;
+ 	FILE *f;
+ 
+-	f = fopen(name, "a");
++	f = fopen(log->log_name, "a");
+ 	if (!f) {
+ 		perror("fopen log");
+ 		return;
+@@ -520,21 +537,13 @@ void __finish_log(struct io_log *log, const char *name)
+ 	}
+ 
+ 	fclose(f);
+-	free(log->log);
+-	free(log);
+-}
+-
+-void finish_log_named(struct thread_data *td, struct io_log *log,
+-		       const char *prefix, const char *postfix)
+-{
+-	char file_name[256], *p;
+-
+-	snprintf(file_name, 200, "%s_%s.log", prefix, postfix);
+-	p = basename(file_name);
+-	__finish_log(log, p);
++	log->nr_samples = 0;
+ }
+ 
+-void finish_log(struct thread_data *td, struct io_log *log, const char *name)
++void finish_log(struct io_log *log)
+ {
+-	finish_log_named(td, log, td->o.name, name);
++	flush_log(log);
++	free(log->log);
++	free(log->log_name);
++	free(log);
+ }
+diff --git a/stat.c b/stat.c
+index b5ff010..02a8ad9 100644
+--- a/stat.c
++++ b/stat.c
+@@ -730,13 +730,24 @@ static void __add_log_sample(struct io_log *iolog, unsigned long val,
+ 			     enum fio_ddir ddir, unsigned int bs,
+ 			     unsigned long time)
+ {
+-	const int nr_samples = iolog->nr_samples;
++	int nr_samples = iolog->nr_samples;
+ 
+ 	if (iolog->nr_samples == iolog->max_samples) {
+-		int new_size = sizeof(struct io_sample) * iolog->max_samples*2;
+-
+-		iolog->log = realloc(iolog->log, new_size);
+-		iolog->max_samples <<= 1;
++		int new_size;
++
++		new_size = sizeof(struct io_sample) * iolog->max_samples * 2;
++
++		/*
++		 * If it fits, increase log size and add entry. If not, flush
++		 * log
++		 */
++		if (new_size <= (iolog->max_log_mb * 1024 * 1024UL)) {
++			iolog->log = realloc(iolog->log, new_size);
++			iolog->max_samples <<= 1;
++		} else {
++			flush_log(iolog);
++			nr_samples = iolog->nr_samples;
++		}
+ 	}
+ 
+ 	iolog->log[nr_samples].val = val;
 
-randread: (g=0): rw=randread, bs=4K-4K/4K-4K, ioengine=sync, iodepth=1
-Starting 1 process
-fio: pid=12627, err=22/file:filesetup.c:493,
-func=open(/media/xtreemfs/afile), error=Invalid argument
+-- 
+Jens Axboe
 
-
-So I've ran the --debug=all , and it appears that files are not found
-in 'hash' ?
-
-Starting 1 process
-file     12611 setup files
-file     12611 get file size for 0x7ff9030be148/0/0x7ff9030be228
-diskutil 12611 /media/xtreemfs/afile belongs to maj/min 0/27
-process  12611 pid=0: runstate 0 -> 1
-process  12611 will fork
-mutex    12611 wait on startup_mutex
-process  12612 jobs pid=12612 started
-process  12612 pid=12612: runstate 1 -> 2
-mutex    12612 up startup_mutex
-mutex    12612 wait on td->mutex
-mutex    12611 done waiting on startup_mutex
-process  12611 pid=12612: runstate 2 -> 4
-mutex    12612 done waiting on td->mutex
-mem      12612 malloc 8191 0x1cb3730
-mem      12612 io_u alloc 0x1cb21c0, index 0
-mem      12612 io_u 0x1cb21c0, mem 0x1cb4000
-file     12612 trying file /media/xtreemfs/afile 10
-file     12612 fd open /media/xtreemfs/afile
-file     12612 file not found in hash /media/xtreemfs/afile
-file     12612 get file /media/xtreemfs/afile, ref=0
-io       12612 invalidate cache /media/xtreemfs/afile: 0/2097152
-file     12612 fd close /media/xtreemfs/afile
-file     12612 error 1 on open of /media/xtreemfs/afile
-file     12612 get_next_file_rr: (nil)
-fio: pid=12612, got signal=11
-process  12611 pid=12612: runstate 4 -> 9
-process  12611 terminate group_id=-1
-process  12611 setting terminate on randread/12612
-diskutil 12611 update io ticks
-
-
-[global]
-bs=4k
-iodepth=1
-direct=1
-runtime=10
-size=2M
-filename=/media/xtreemfs/afile
-
-
-I appreciate any suggestions on this. Thanks in advance :)
-
-Regards
