@@ -1,187 +1,102 @@
-Return-Path: <bart.vanassche@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from 0122700014.0.fullrate.dk ([95.166.99.235]:56156 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751660Ab0KHND5 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 8 Nov 2010 08:03:57 -0500
+Message-ID: <4CD7F53E.1050201@fusionio.com>
+Date: Mon, 08 Nov 2010 14:03:58 +0100
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-From: Bart Van Assche <bvanassche@acm.org>
-Sender: "bart.vanassche@gmail.com" <bart.vanassche@gmail.com>
-Date: Tue, 9 Nov 2010 04:53:41 -0700
 Subject: Re: RFC: Data pattern buffer filling race condition fix
-Message-ID: <AANLkTinSscynOzVHfNO_fFMyuqgaaEN0tJTK6GHpj=54@mail.gmail.com>
-References: <201011061035.18709.bvanassche@acm.org>
- <4CD690DF.6090807@fusionio.com>
- <AANLkTimVcMvOH55xZvTFHxbZHesTXoyi=Y3bRqnALLTS@mail.gmail.com>
- <4CD7F53E.1050201@fusionio.com>
-In-Reply-To: <4CD7F53E.1050201@fusionio.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-To: Jens Axboe <JAxboe@fusionio.com>
+References: <201011061035.18709.bvanassche@acm.org> <4CD690DF.6090807@fusionio.com> <AANLkTimVcMvOH55xZvTFHxbZHesTXoyi=Y3bRqnALLTS@mail.gmail.com>
+In-Reply-To: <AANLkTimVcMvOH55xZvTFHxbZHesTXoyi=Y3bRqnALLTS@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Bart Van Assche <bvanassche@acm.org>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Radha Ramachandran <radha@google.com>
-List-ID: <fio@vger.kernel.org>
 
-On Mon, Nov 8, 2010 at 2:03 PM, Jens Axboe <jaxboe@fusionio.com> wrote:
->
-> On 2010-11-07 13:58, Bart Van Assche wrote:
-> > On Sun, Nov 7, 2010 at 12:43 PM, Jens Axboe <jaxboe@fusionio.com> wrote=
-:
-> >>
-> >> On 2010-11-06 10:35, Bart Van Assche wrote:
-> >>> On multicore non-x86 CPUs fio has been observed to frequently reports=
- false
-> >>> data verification failures with I/O engine libaio and I/O depths abov=
-e one.
-> >>> This is because of a race condition in the function fill_pattern(). T=
-he code
-> >>> in that function only works correct if all CPUs of a multicore system
-> >>> observe store instructions in the order they were issued. That is the=
- case for
-> >>> multicore x86 systems but not for all other CPU families, such as e.g=
-. the
-> >>> POWER CPU family.
-> >>>
-> >>> [ ... ]
->
-> Forgive me, but I'm still a little confused. This second write_barrier()
-> is now protecting against the order of the fill and the length
-> assignment. IOW, if you see the new length, you are guaranteed to also
-> see the new content. This means that the first memory barrier should be
-> a read_barrier().
->
-> And ditto for the other case.
->
-> Can you verify whether that works as expected and send an updated patch?
+On 2010-11-07 13:58, Bart Van Assche wrote:
+> On Sun, Nov 7, 2010 at 12:43 PM, Jens Axboe <jaxboe@fusionio.com> wrote:
+>>
+>> On 2010-11-06 10:35, Bart Van Assche wrote:
+>>> On multicore non-x86 CPUs fio has been observed to frequently reports false
+>>> data verification failures with I/O engine libaio and I/O depths above one.
+>>> This is because of a race condition in the function fill_pattern(). The code
+>>> in that function only works correct if all CPUs of a multicore system
+>>> observe store instructions in the order they were issued. That is the case for
+>>> multicore x86 systems but not for all other CPU families, such as e.g. the
+>>> POWER CPU family.
+>>>
+>>> As far as I can see this bug was introduced via commit
+>>> cbe8d7561cf6d81d741d87eb7940db2a111d2144 (July 14, 2010).
+>>>
+>>> I'm posting this patch as an RFC since the fix is GCC-specific.
+>>
+>> ppc is notorious for its weaker memory ordering. I do have a ppc test
+>> box, but haven't used it in a while. But it used to find bugs
+>> immediately for race conditions, that x86 would never trigger. So since
+>> you are pin pointing that particular commit, you are convinced that this
+>> bug manifests itself due to bad ordering between the filled buffer and
+>> the fill length?
+> 
+> I haven't done a full bisect, but fio version 1.41.6 (Jul 9, 2010) + a
+> backport of the PowerPC version of get_cpu_clock() (commit
+> 5f39d8f797fcf01bd94b89ef7ed2bdb76deb2601 from August 10, 2010) was working
+> fine. And it is easy to see how reordered writes will cause commit
+> cbe8d7561cf6d81d741d87eb7940db2a111d2144 to make fio behave incorrectly.
+> 
+>>> diff --git a/verify.c b/verify.c
+>>> index ea1a911..3826198 100644
+>>> --- a/verify.c
+>>> +++ b/verify.c
+>>> @@ -31,18 +31,27 @@ void fill_pattern(struct thread_data *td, void *p, unsigned int len, struct io_u
+>>>               fill_random_buf(p, len);
+>>>               break;
+>>>       case 1:
+>>> +#ifdef __GNUC__
+>>> +             __sync_synchronize();
+>>> +#endif
+>>
+>> You should be able to use the fio included write_barrier() and
+>> read_barrier(), which are hooked to the architectures. Then you don't
+>> need to use GNUC additions.
+> 
+> This patch also works for me on PowerPC:
+> 
+> Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+> 
+> diff --git a/verify.c b/verify.c
+> index ea1a911..c5b2fbe 100644
+> --- a/verify.c
+> +++ b/verify.c
+> @@ -31,18 +31,21 @@ void fill_pattern(struct thread_data *td, void *p,
+> unsigned int len, struct io_u
+>  		fill_random_buf(p, len);
+>  		break;
+>  	case 1:
+> +		write_barrier();
+>  		if (io_u->buf_filled_len >= len) {
+>  			dprint(FD_VERIFY, "using already filled verify pattern b=0 len=%u\n", len);
+>  			return;
+>  		}
+>  		dprint(FD_VERIFY, "fill verify pattern b=0 len=%u\n", len);
+>  		memset(p, td->o.verify_pattern[0], len);
+> +		write_barrier();
+>  		io_u->buf_filled_len = len;
+>  		break;
 
-Hello Jens,
+Forgive me, but I'm still a little confused. This second write_barrier()
+is now protecting against the order of the fill and the length
+assignment. IOW, if you see the new length, you are guaranteed to also
+see the new content. This means that the first memory barrier should be
+a read_barrier().
 
-I'm afraid that I will have to do more testing and that I'll have to
-make sure that I understand the entire fio code base before I can
-develop and send a new patch - something I do not have the time for
-now unfortunately. I ran into this issue on 32-bit 2.6.34.7 kernel
-while running a test on a local ext3 filesystem, something I will have
-to analyze further before I can proceed:
+And ditto for the other case.
 
-$ valgrind ./fio --ioengine=3Dlibaio --overwrite=3D1 --verify=3Dmd5
---iodepth=3D10 --direct=3D1 --loops=3D10 --size=3D1MB --name=3Dtest --threa=
-d
---numjobs=3D10 --group_reporting
-=3D=3D13318=3D=3D Memcheck, a memory error detector
-=3D=3D13318=3D=3D Copyright (C) 2002-2010, and GNU GPL'd, by Julian Seward =
-et al.
-=3D=3D13318=3D=3D Using Valgrind-3.7.0.SVN and LibVEX; rerun with -h for co=
-pyright info
-=3D=3D13318=3D=3D Command: ./fio --ioengine=3Dlibaio --overwrite=3D1 --veri=
-fy=3Dmd5
---iodepth=3D10 --direct=3D1 --loops=3D10 --size=3D1MB --name=3Dtest --threa=
-d
---numjobs=3D10 --group_reporting
-=3D=3D13318=3D=3D
-test: (g=3D0): rw=3Dread, bs=3D4K-4K/4K-4K, ioengine=3Dlibaio, iodepth=3D10
-...
-test: (g=3D0): rw=3Dread, bs=3D4K-4K/4K-4K, ioengine=3Dlibaio, iodepth=3D10
-Starting 10 threads
-verify: bad magic header 0, wanted f00baaef at file test.9.0 offset 0, leng=
-th 0
-verify: bad magic header 0, wanted f00baaef at file test.2.0 offset 0, leng=
-th 0
-verify: bad magic header 0, wanted f00baaef at file test.3.0 offset 0, leng=
-th 0
-verify: bad magic header 0, wanted f00baaef at file test.3.0 offset
-4096, length 0
-verify: bad magic header 0, wanted f00baaef at file test.8.0 offset 0, leng=
-th 0
-verify: bad magic header 0, wanted f00baaef at file test.8.0 offset
-4096, length 0
-verify: bad magic header 0, wanted f00baaef at file test.2.0 offset
-4096, length 0
-verify: bad magic header 0, wanted f00baaef at file test.1.0 offset 0, leng=
-th 0
-verify: bad magic header 0, wanted f00baaef at file test.1.0 offset
-4096, length 0
-verify: bad magic header 0, wanted f00baaef at file test.6.0 offset 0, leng=
-th 0
-verify: bad magic header 0, wanted f00baaef at file test.6.0 offset
-4096, length 0
-verify: bad magic header 0, wanted f00baaef at file test.5.0 offset 0, leng=
-th 0
-verify: bad magic header 0, wanted f00baaef at file test.5.0 offset
-4096, length 0
-verify: bad magic header 0, wanted f00baaef at file test.4.0 offset 0, leng=
-th 0
-verify: bad magic header 0, wanted f00baaef at file test.4.0 offset
-4096, length 0
-verify: bad magic header 0, wanted f00baaef at file test.7.0 offset 0, leng=
-th 0
-verify: bad magic header 0, wanted f00baaef at file test.7.0 offset
-4096, length 0
-verify: bad magic header 0, wanted f00baaef at file test.10.0 offset 0, len=
-gth 0
-verify: bad magic header 0, wanted f00baaef at file test.10.0 offset
-4096, length 0
-verify: bad magic header 0, wanted f00baaef at file test.9.0 offset
-4096, length 0
-fio: pid=3D13318, err=3D84/file:io_u.c:1346, func=3Dio_u_queued_complete,
-error=3DInvalid or incomplete multibyte or wide character
-fio: pid=3D13318, err=3D84/file:io_u.c:1346, func=3Dio_u_queued_complete,
-error=3DInvalid or incomplete multibyte or wide character
-fio: pid=3D13318, err=3D84/file:io_u.c:1346, func=3Dio_u_queued_complete,
-error=3DInvalid or incomplete multibyte or wide character
-fio: pid=3D13318, err=3D84/file:io_u.c:1346, func=3Dio_u_queued_complete,
-error=3DInvalid or incomplete multibyte or wide character
-fio: pid=3D13318, err=3D84/file:io_u.c:1346, func=3Dio_u_queued_complete,
-error=3DInvalid or incomplete multibyte or wide character
-fio: pid=3D13318, err=3D84/file:io_u.c:1346, func=3Dio_u_queued_complete,
-error=3DInvalid or incomplete multibyte or wide character
-fio: pid=3D13318, err=3D84/file:io_u.c:1346, func=3Dio_u_queued_complete,
-error=3DInvalid or incomplete multibyte or wide character
-fio: pid=3D13318, err=3D84/file:io_u.c:1346, func=3Dio_u_queued_complete,
-error=3DInvalid or incomplete multibyte or wide character
-fio: pid=3D13318, err=3D84/file:io_u.c:1346, func=3Dio_u_queued_complete,
-error=3DInvalid or incomplete multibyte or wide character
-fio: pid=3D13318, err=3D84/file:io_u.c:1346, func=3Dio_u_queued_complete,
-error=3DInvalid or incomplete multibyte or wide character
+Can you verify whether that works as expected and send an updated patch?
 
-test: (groupid=3D0, jobs=3D10): err=3D84 (file:io_u.c:1346,
-func=3Dio_u_queued_complete, error=3DInvalid or incomplete multibyte or
-wide character): pid=3D13318
-  read : io=3D81920 B, bw=3D576901 B/s, iops=3D704 , runt=3D   142msec
-    slat (usec): min=3D26 , max=3D6642 , avg=3D40.86, stdev=3D21.59
-    clat (msec): min=3D1 , max=3D99 , avg=3D41.51, stdev=3D 6.25
-     lat (msec): min=3D1 , max=3D100 , avg=3D41.56, stdev=3D 6.25
-  cpu          : usr=3D73.15%, sys=3D20.23%, ctx=3D598, majf=3D0, minf=3D14=
-05
-  IO depths    : 1=3D10.0%, 2=3D20.0%, 4=3D40.0%, 8=3D30.0%, 16=3D0.0%, 32=
-=3D0.0%, >=3D64=3D0.0%
-     submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
-=3D0.0%, >=3D64=3D0.0%
-     complete  : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
-=3D0.0%, >=3D64=3D0.0%
-     issued r/w/d: total=3D100/0/0, short=3D0/0/0
-
-     lat (msec): 2=3D1.00%, 4=3D3.00%, 10=3D1.00%, 50=3D6.00%, 100=3D9.00%
-
-Run status group 0 (all jobs):
-   READ: io=3D80KB, aggrb=3D563KB/s, minb=3D576KB/s, maxb=3D576KB/s,
-mint=3D142msec, maxt=3D142msec
-
-Disk stats (read/write):
-  sda: ios=3D0/0, merge=3D0/0, ticks=3D0/0, in_queue=3D0, util=3D-nan%
-=3D=3D13318=3D=3D
-=3D=3D13318=3D=3D HEAP SUMMARY:
-=3D=3D13318=3D=3D     in use at exit: 18,102 bytes in 114 blocks
-=3D=3D13318=3D=3D   total heap usage: 370 allocs, 256 frees, 849,743 bytes =
-allocated
-=3D=3D13318=3D=3D
-=3D=3D13318=3D=3D LEAK SUMMARY:
-=3D=3D13318=3D=3D    definitely lost: 2,401 bytes in 40 blocks
-=3D=3D13318=3D=3D    indirectly lost: 15,680 bytes in 70 blocks
-=3D=3D13318=3D=3D      possibly lost: 0 bytes in 0 blocks
-=3D=3D13318=3D=3D    still reachable: 21 bytes in 4 blocks
-=3D=3D13318=3D=3D         suppressed: 0 bytes in 0 blocks
-=3D=3D13318=3D=3D Rerun with --leak-check=3Dfull to see details of leaked m=
-emory
-=3D=3D13318=3D=3D
-=3D=3D13318=3D=3D For counts of detected and suppressed errors, rerun with:=
- -v
-=3D=3D13318=3D=3D ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 5 fr=
-om 5)
-
-Bart.
+-- 
+Jens Axboe
 
