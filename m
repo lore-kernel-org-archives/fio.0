@@ -1,53 +1,77 @@
-Return-Path: <dongjin.lee@auckland.ac.nz>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from 0122700014.0.fullrate.dk ([95.166.99.235]:46566 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751265Ab0KINQX (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 9 Nov 2010 08:16:23 -0500
+Message-ID: <4CD949A5.4070606@fusionio.com>
+Date: Tue, 09 Nov 2010 14:16:21 +0100
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-From: DongJin Lee <dongjin.lee@auckland.ac.nz>
-Date: Mon, 4 Oct 2010 20:30:17 -0600
-Subject: seq vs random, disk performance when all of the io_u->offset=0
-Message-ID: <AANLkTikPvYsdO24CAA1xTijG2CbYZCgyPGhU3=o3eU_d@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: Jens Axboe <JAxboe@fusionio.com>
-List-ID: <fio@vger.kernel.org>
+Subject: Re: RFC: Data pattern buffer filling race condition fix
+References: <201011061035.18709.bvanassche@acm.org> <4CD690DF.6090807@fusionio.com> <AANLkTimVcMvOH55xZvTFHxbZHesTXoyi=Y3bRqnALLTS@mail.gmail.com> <4CD7F53E.1050201@fusionio.com> <AANLkTinSscynOzVHfNO_fFMyuqgaaEN0tJTK6GHpj=54@mail.gmail.com>
+In-Reply-To: <AANLkTinSscynOzVHfNO_fFMyuqgaaEN0tJTK6GHpj=54@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Bart Van Assche <bvanassche@acm.org>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Radha Ramachandran <radha@google.com>
 
-Hi.
+On 2010-11-09 12:53, Bart Van Assche wrote:
+> On Mon, Nov 8, 2010 at 2:03 PM, Jens Axboe <jaxboe@fusionio.com> wrote:
+>>
+>> On 2010-11-07 13:58, Bart Van Assche wrote:
+>>> On Sun, Nov 7, 2010 at 12:43 PM, Jens Axboe <jaxboe@fusionio.com> wrote:
+>>>>
+>>>> On 2010-11-06 10:35, Bart Van Assche wrote:
+>>>>> On multicore non-x86 CPUs fio has been observed to frequently reports false
+>>>>> data verification failures with I/O engine libaio and I/O depths above one.
+>>>>> This is because of a race condition in the function fill_pattern(). The code
+>>>>> in that function only works correct if all CPUs of a multicore system
+>>>>> observe store instructions in the order they were issued. That is the case for
+>>>>> multicore x86 systems but not for all other CPU families, such as e.g. the
+>>>>> POWER CPU family.
+>>>>>
+>>>>> [ ... ]
+>>
+>> Forgive me, but I'm still a little confused. This second write_barrier()
+>> is now protecting against the order of the fill and the length
+>> assignment. IOW, if you see the new length, you are guaranteed to also
+>> see the new content. This means that the first memory barrier should be
+>> a read_barrier().
+>>
+>> And ditto for the other case.
+>>
+>> Can you verify whether that works as expected and send an updated patch?
+> 
+> Hello Jens,
+> 
+> I'm afraid that I will have to do more testing and that I'll have to
+> make sure that I understand the entire fio code base before I can
+> develop and send a new patch - something I do not have the time for
+> now unfortunately. I ran into this issue on 32-bit 2.6.34.7 kernel
+> while running a test on a local ext3 filesystem, something I will have
+> to analyze further before I can proceed:
+> 
+> $ valgrind ./fio --ioengine=libaio --overwrite=1 --verify=md5
+> --iodepth=10 --direct=1 --loops=10 --size=1MB --name=test --thread
+> --numjobs=10 --group_reporting
+> ==13318== Memcheck, a memory error detector
+> ==13318== Copyright (C) 2002-2010, and GNU GPL'd, by Julian Seward et al.
+> ==13318== Using Valgrind-3.7.0.SVN and LibVEX; rerun with -h for copyright info
+> ==13318== Command: ./fio --ioengine=libaio --overwrite=1 --verify=md5
+> --iodepth=10 --direct=1 --loops=10 --size=1MB --name=test --thread
+> --numjobs=10 --group_reporting
+> ==13318==
+> test: (g=0): rw=read, bs=4K-4K/4K-4K, ioengine=libaio, iodepth=10
+> ...
+> test: (g=0): rw=read, bs=4K-4K/4K-4K, ioengine=libaio, iodepth=10
 
-I have a question about the disk performance/response time, needing
-some helps :). Thanks in advance.
+This looks pretty straight forward - the file is created, but not filled
+with a verifiable pattern. You want to run the workload with rw=write
+at least once first, then you can use a read-only verify workload later
+if you want.
 
-For the sequential case, the offset increments accordingly to the
-buflen, i.e., every 4096 (4k fixed block).
-I run this test, and I get expectedly high iops and low ms, i.e., 6x
-HDDs disks (HW RAID), the seq-write, I get 850MB/s+, 2.4ms (libaio,
-500 depth, direct=3D1, counting the clat).
-and for rand-write, I get 7MB/s, 287ms. So far so good.
-
-As I want to know about basic io depth RTT, and what I don't
-understand is that, if I forcedly just change the io_u->offset to a
-constant fixed number, e.g., 0 in fill_io_u function, so as to
-observed what-should-be the lowest ms.
-instead, it returns much higher ms, i.e., 140MB/s, 14ms. I'd expect
-the result to be lower than 2.4ms as the offset is not moving at all,
-thus making the disk doing virtually no head movements. Why?
-One further test I did was to simply forcedly alternate the offset to
-0 and 4096 every time, in this, I get about about double, to 280MB/s
-and 7ms.
-
-I've confirmed the same behavior with other disks and SSDs, it just
-returns much lower ms for the sequential. The change of IO depths
-(100, 500, 1000, etc) just scales the results.
-SSD:
-seq-write=3D230MB/s, 8.6ms,   rand-write=3D84MB/s, 23ms
-offset0 =3D 104MB/s, 19ms,   offset-alternate=3D150MB/s, 13ms.  Again, no
-methods beat the seq-write..any reasons?
-
-I could assume that this is due to the internal disk device's
-controller ability to predict some offsets, maybe optimized for the
-sequential ?
-Or I could just be missing out how the series of io flights are
-calculated for the clat time?
-
-
-Thanks
+-- 
+Jens Axboe
 
