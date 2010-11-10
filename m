@@ -1,80 +1,74 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from vserver01.sebastiankayser.de ([85.88.7.146]:33095 "EHLO
-	vserver01.sebastiankayser.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754673Ab0KISoH (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 9 Nov 2010 13:44:07 -0500
-Date: Tue, 9 Nov 2010 19:28:01 +0100
-From: Sebastian Kayser <sebastian@skayser.de>
-Subject: IOPS higher than expected on randwrite, direct=1 tests
-Message-ID: <20101109182801.GP15588@sebastiankayser.de>
+Received: from mx2.fusionio.com ([64.244.102.31]:36560 "EHLO mx2.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755816Ab0KJOPd (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 10 Nov 2010 09:15:33 -0500
+Message-ID: <4CDAA901.4060802@fusionio.com>
+Date: Wed, 10 Nov 2010 15:15:29 +0100
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
+Subject: Re: fio and multithreading
+References: <AANLkTin+_h4qUpwWw_0-ANwpbfPaMueW+9JcnXJ3TkGD@mail.gmail.com>
+In-Reply-To: <AANLkTin+_h4qUpwWw_0-ANwpbfPaMueW+9JcnXJ3TkGD@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Bart Van Assche <bvanassche@acm.org>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Greetings,
+On 2010-11-09 18:39, Bart Van Assche wrote:
+> On Tue, Nov 9, 2010 at 2:16 PM, Jens Axboe <jaxboe@fusionio.com <mailto:jaxboe@fusionio.com>> wrote:
+> 
+>     [ ... ]
+> 
+>     This looks pretty straightforward - the file is created, but not filled
+>     with a verifiable pattern. You want to run the workload with rw=write
+>     at least once first, then you can use a read-only verify workload later
+>     if you want.
+> 
+> 
+> Hello Jens,
+> 
+> Sorry for the confusion. Something else I came across is the global
+> variable last_tv in gettime.c. As far as I can see this variable is
+> shared over all fio threads and multiple threads can update this
+> variable simultaneously ? I was surprised to see that the variable
+> last_tv is updated non-atomically and without being protected by any
+> kind of lock. Shouldn't such behavior be documented ?
 
-running fio 1.41 randwrite, direct=1 tests on Ubuntu against an
-iSCSI-connected disk reports IOPS figures higher than I would expect, so
-now I am trying to understand what's going on. Any pointers or
-enlightenment appreciated, e.g. where's a caching effect that I am
-currently missing (and if there's one, how can I deactivate it)?
+That is correct, and yes it looks unfortunate. The update really should
+be atomic for this to be safe.
 
-Setup:
-* iSCSI storage exports a 10GB LUN which sits on a single 7.2K SATA disk [1]
-  Storage system write-cache is disabled (write-through)
-* Client: Ubuntu 8.04 (kernel 2.6.24-28) w/ open-iscsi, 512MB RAM
-* LUN mkfs.ext3'd and mounted on /mnt
-* fio is configured to operate in O_DIRECT, O_SYNC mode
-* Random write IOPS expected: <80
-* Random write IOPS observed: ~300 (confirmed in multiple runs)
+> And if my analysis is correct, the variable thread_data.runstate is
+> also shared over threads. Will the code that reads that variable work
+> correctly on a multiprocessor system that allows write reordering ?
+> Or, in other words, have any assumptions been made about values
+> written by a worker thread being available to the main thread as soon
+> as the main thread notices that the thread state has been updated ?
 
-root@ubuntu-804-x64:~# df -h /mnt
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/sdb1             9.7G  151M  9.1G   2% /mnt
+Also a correct assumption. I think that should be fixed up by always
+using td_set_runstate() and introducing an equiv td_get_runstate() to
+ensure that it's properly flushed and seen. The volatile is not enough
+for this.
 
-root@ubuntu-804-x64:~# cat patterns.fio 
-[global]
-size=9g
-runtime=120
-direct=1
-sync=1
+> Something else I noticed is that the function print_thread_status() is
+> invoked from a SIGALRM signal handler, and that print_thread_status()
+> invokes e.g. printf(). I'm afraid that that's not entirely
+> POSIX-compliant: the POSIX specs define a limitative list of functions
+> that may be invoked from signal handlers, and printf() is not included
+> in that list. That list can be found e.g. here:
+> <http://www.opengroup.org/onlinepubs/009695399/functions/xsh_chap02_04.html#tag_02_04>http://www.opengroup.org/onlinepubs/9699919799/functions/V2_chap02.html.
+> I'm not sure though what the consequences are of invoking functions
+> that are not async-signal-safe from a signal handler.
 
-[mnt-randwrite]
-directory=/mnt
-rw=randwrite
+I was not aware of that contraint. To be honest, I'm not aware of any
+problems that this has caused on any of the platforms supported. The
+risk of this causing any issues is minute, and the worst that could
+happen is that the ETA output that is generated on the ALRM could be
+garbled somewhat. At least that seems to be the worst side effect of
+printf() being interrupted.
 
-root@ubuntu-804-x64:~# ./fio --section=mnt-randwrite patterns.fio 
-mnt-randwrite: (g=0): rw=randwrite, bs=4K-4K/4K-4K, ioengine=sync, iodepth=1
-Starting 1 process
-mnt-randwrite: Laying out IO file(s) (1 file(s) / 9216MB)
-Jobs: 1 (f=1): [w] [100.0% done] [0K/1243K /s] [0/303 iops] [eta 00m:00s]
-mnt-randwrite: (groupid=0, jobs=1): err= 0: pid=9398
-  write: io=126796KB, bw=1057KB/s, iops=264, runt=120010msec
-    clat (usec): min=486, max=332821, avg=3782.24, stdev=5744.57
-    bw (KB/s) : min=  187, max= 1641, per=100.27%, avg=1058.85, stdev=260.24
-  cpu          : usr=0.02%, sys=0.19%, ctx=33866, majf=0, minf=241
-  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued r/w: total=0/31699, short=0/0
-     lat (usec): 500=0.35%, 750=11.91%, 1000=1.97%
-     lat (msec): 2=4.43%, 4=66.01%, 10=9.15%, 20=4.74%, 50=1.36%
-     lat (msec): 100=0.06%, 250=0.02%, 500=0.01%
+-- 
+Jens Axboe
 
-Run status group 0 (all jobs):
-  WRITE: io=126796KB, aggrb=1056KB/s, minb=1081KB/s, maxb=1081KB/s, mint=120010msec, maxt=120010msec
-
-Disk stats (read/write):
-  sdb: ios=2091/31879, merge=0/33, ticks=30360/118040, in_queue=143320, util=99.30%
-
-
-Unfortunately, this system as well as all the other Ubuntu systems which
-I currently have access to are virtual machines, so I can't simply
-compare the findings to a simple local disk.
-
-Sebastian
-
-[1] http://www.hitachigst.com/internal-drives/desktop/deskstar/deskstar-7k2000
