@@ -1,73 +1,54 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from vserver01.sebastiankayser.de ([85.88.7.146]:50739 "EHLO
-	vserver01.sebastiankayser.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754728Ab0K3S1l (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 30 Nov 2010 13:27:41 -0500
-Date: Tue, 30 Nov 2010 19:17:25 +0100
-From: Sebastian Kayser <sebastian@skayser.de>
-Subject: [PATCH] Add additional references to binary packages
-Message-ID: <20101130181725.GA5823@sebastiankayser.de>
+Return-Path: <jmoyer@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Disposition: inline
+From: Jeff Moyer <jmoyer@redhat.com>
+Date: Mon, 15 Nov 2010 06:36:23 -0700
+Subject: Re: IOPS higher than expected on randwrite, direct=1 tests
+Message-ID: <x4962vyr9ns.fsf@segfault.boston.devel.redhat.com>
+References: <20101109182801.GP15588@sebastiankayser.de>
+	<AANLkTikCz7-myG8JCkG+W44AKbg8DSqFcYUHLLOr_3wu@mail.gmail.com>
+	<20101110082223.GB14261@sebastiankayser.de>
+	<20101111162222.GO28050@sebastiankayser.de>
+	<AANLkTi=hTTmURQ8q9SJgDrPGx80F+Gjn6E1EBdLkoVwz@mail.gmail.com>
+	<20101112134359.GR28050@sebastiankayser.de>
+	<AANLkTik5=tSj9h-O8O5Bub8J86rRiyYrTx7mmX5asgqC@mail.gmail.com>
+	<4CDEEEE5.5060305@fusionio.com>
+In-Reply-To: <4CDEEEE5.5060305@fusionio.com> (Jens Axboe's message of "Sat,
+ 13	Nov 2010 21:02:45 +0100")
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Jens Axboe <JAxboe@fusionio.com>
+Cc: Shawn Lewis <shawnlewis@google.com>, Sebastian Kayser <sebastian@skayser.de>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-This adds a couple of references to binary fio packages for Linux distros as
-well as for Solaris.
----
- README |   25 ++++++++++++++++++++++---
- 1 files changed, 22 insertions(+), 3 deletions(-)
+Jens Axboe <jaxboe@fusionio.com> writes:
 
-diff --git a/README b/README
-index f67a02b..0f91c66 100644
---- a/README
-+++ b/README
-@@ -23,18 +23,37 @@ well. You can download them here:
-=20
- http://brick.kernel.dk/snaps/
-=20
--Pascal Bleser <guru@unixtech.be> has fio RPMs in his repository for
--SUSE variants, you can find them here:
-=20
-+Binary packages
-+---------------
-+
-+Debian:
-+Starting with Debian "Squeeze", fio packages are part of the official
-+Debian repository. http://packages.debian.org/search?keywords=3Dfio
-+
-+Ubuntu:
-+Starting with Ubuntu 10.04 LTS (aka "Lucid Lynx"), fio packages are part
-+of the Ubuntu "universe" repository.
-+http://packages.ubuntu.com/search?keywords=3Dfio
-+
-+SUSE:
-+Pascal Bleser <guru@unixtech.be> has fio RPMs in his repository for SUSE
-+variants, you can find them here:
- http://linux01.gwdg.de/~pbleser/rpm-navigation.php?cat=3DSystem/fio
-=20
-+Red Hat, CentOS & Co:
- Dag Wie=C3=ABrs has RPMs for Red Hat related distros, find them here:
--
- http://dag.wieers.com/rpm/packages/fio/
-=20
-+Mandriva:
- Mandriva has integrated fio into their package repository, so installing
- on that distro should be as easy as typing 'urpmi fio'.
-=20
-+Solaris:
-+Packages for Solaris are available from OpenCSW. Install their pkgutil
-+tool (http://www.opencsw.org/get-it/pkgutil/) and then install fio via
-+'pkgutil -i fio'.
-+
-=20
- Mailing list
- ------------
---=20
-1.4.4.4
+>>> I wonder how many times I saw someone - including myself - fire up
+>>> bonnie++ or iozone with a rather small test file compared to the full
+>>> disk size ... Thanks very much everyone! This was an (overdue) eye
+>>> opener.
+>> In addition, testing with a file is dependent on the state of the file
+>> system. For example, if you're using a 100GB file and there's not enough
+>> contiguous free space to lay it out in one chunk you could have regions =
+on
+>> different parts of the disk. Further, even there is enough space, that s=
+pace
+>> could be near the inner or outer diameter which would also affect
+>> performance.
+>>=20
+>> There is a way to get a file address to lba map (which would give you so=
+me
+>> insight into how a file is laid out). I think there's a syscall. Jens sh=
+ould
+>> know.
+>
+> Yep, you can use FIBMAP/FIEMAP to walk the extents of the file and get a
+> full map of how it's laid out on disk. Not sure if there are tools
+> that'll do this for you, if not is pretty trivial to write.
 
+man 8 filefrag; it's part of e2fsprogs.  I'm sure xfs has its own
+utility to do this, too.
 
-Sebastian
+Cheers,
+Jeff
+
