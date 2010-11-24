@@ -1,30 +1,28 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:64814 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757698Ab0KRT6p (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 18 Nov 2010 14:58:45 -0500
-Received: by gwj17 with SMTP id 17so2131525gwj.19
-        for <fio@vger.kernel.org>; Thu, 18 Nov 2010 11:58:45 -0800 (PST)
+Received: from mx2.fusionio.com ([64.244.102.31]:52745 "EHLO mx2.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754240Ab0KXM1w (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 24 Nov 2010 07:27:52 -0500
+Message-ID: <4CED04C4.8050705@fusionio.com>
+Date: Wed, 24 Nov 2010 13:27:48 +0100
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-From: Dan Le <wb.danle@gmail.com>
-Date: Thu, 18 Nov 2010 14:58:24 -0500
-Message-ID: <AANLkTimn=cJXQN-=wC4v8AeMEYGXUUfrM5nvVMzLkwEY@mail.gmail.com>
-Subject: How to flush the writing cache before a test with read
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH] Makefile.solaris: install man pages
+References: <20101124121611.GI28050@sebastiankayser.de>
+In-Reply-To: <20101124121611.GI28050@sebastiankayser.de>
+Content-Type: text/plain; charset="ISO-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Sebastian Kayser <sebastian@skayser.de>
+Cc: fio@vger.kernel.org
 
-Greetings,
+On 2010-11-24 13:16, Sebastian Kayser wrote:
+> this patch brings Makefile.solaris in sync with the other Makefiles:
+> also install man pages on Solaris.
 
-FIO needs to write data files in order to read them. Without disabling
-the write-cache of the disk, I was wondering if there's a way to flush
-these data cache to disk right before FIO starts to read these files.
+Thanks, applied.
 
-I don't want to run every second "sync && echo 3 >
-/proc/sys/vm/drop_caches" at the same time with FIO because of its
-incurred overheads. Please help.
+-- 
+Jens Axboe
 
-Thanks,
-
-Dan
