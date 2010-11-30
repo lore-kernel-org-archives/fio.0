@@ -1,40 +1,28 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from vserver01.sebastiankayser.de ([85.88.7.146]:41481 "EHLO
-	vserver01.sebastiankayser.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754425Ab0KXMZy (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 24 Nov 2010 07:25:54 -0500
-Date: Wed, 24 Nov 2010 13:16:11 +0100
-From: Sebastian Kayser <sebastian@skayser.de>
-Subject: [PATCH] Makefile.solaris: install man pages
-Message-ID: <20101124121611.GI28050@sebastiankayser.de>
+Received: from mx2.fusionio.com ([64.244.102.31]:58022 "EHLO mx2.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752052Ab0K3Tts (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 30 Nov 2010 14:49:48 -0500
+Message-ID: <4CF55557.7070500@fusionio.com>
+Date: Tue, 30 Nov 2010 20:49:43 +0100
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
+Subject: Re: [PATCH] Add additional references to binary packages
+References: <20101130181725.GA5823@sebastiankayser.de>
+In-Reply-To: <20101130181725.GA5823@sebastiankayser.de>
+Content-Type: text/plain; charset="ISO-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Sebastian Kayser <sebastian@skayser.de>
+Cc: fio@vger.kernel.org
 
-Hi,
+On 2010-11-30 19:17, Sebastian Kayser wrote:
+> This adds a couple of references to binary fio packages for Linux distros as
+> well as for Solaris.
 
-this patch brings Makefile.solaris in sync with the other Makefiles:
-also install man pages on Solaris.
+Thanks Sebastian, applied.
 
----
- Makefile.solaris |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
-
-diff --git a/Makefile.solaris b/Makefile.solaris
-index d48453b..76b2ed5 100644
---- a/Makefile.solaris
-+++ b/Makefile.solaris
-@@ -51,3 +51,6 @@ cscope:
- install: $(PROGS) $(SCRIPTS)
- 	$(INSTALL) -m755 -d $(DESTDIR)$(bindir)
- 	$(INSTALL) $(PROGS) $(SCRIPTS) $(DESTDIR)$(bindir)
-+	$(INSTALL) -m 755 -d $(DESTDIR)$(mandir)/man1
-+	$(INSTALL) -m 644 fio.1 $(DESTDIR)$(mandir)/man1
-+	$(INSTALL) -m 644 fio_generate_plots.1 $(DESTDIR)$(mandir)/man1
 -- 
-1.7.3
+Jens Axboe
 
-Sebastian
