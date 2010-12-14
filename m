@@ -1,73 +1,39 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from vserver01.sebastiankayser.de ([85.88.7.146]:59216 "EHLO
-	vserver01.sebastiankayser.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752990Ab0LAVsx (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 1 Dec 2010 16:48:53 -0500
-Date: Wed, 1 Dec 2010 22:38:31 +0100
-From: Sebastian Kayser <sebastian@skayser.de>
-Subject: iodepth and synchronous ioengines ("pitfall")
-Message-ID: <20101201213831.GU28050@sebastiankayser.de>
+Received: from mx1.fusionio.com ([64.244.102.30]:52976 "EHLO mx1.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755822Ab0LNHdJ (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 14 Dec 2010 02:33:09 -0500
+Message-ID: <4D071DB3.9060207@fusionio.com>
+Date: Tue, 14 Dec 2010 08:33:07 +0100
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="7AUc2qLy4jB3hD7Z"
-Content-Disposition: inline
+Subject: Re: resend [PATCH] fix ramp_in
+References: <4D068908.8030205@dangyankee.net>
+In-Reply-To: <4D068908.8030205@dangyankee.net>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Steven Pratt <steve@dangyankee.net>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
+On 2010-12-13 21:58, Steven Pratt wrote:
+> Let's try this again without the mangling.
 
---7AUc2qLy4jB3hD7Z
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
+Actually this one is also badly mangled :-)
 
-Hi,
+> There are a couple of problems with the relatively new ramp_in feature
+> of fio.  First, the estimated time
+> to completion did not correctly take it into account and bounces around.
+> Second and more importantly,
+> the runtime was including ramp in time in throughput calculations even
+> though the IO done during that
+> time was ignored, thus making throughput metrics incorrect. This patch
+> fixes both.
 
-I just stumbled into a glaring pitfall when playing with iodepth=X for
-the first time. Was using ioengine=sync (default), increased iodepth > 1
-and wondered briefly why my results didn't change. Thinking about it,
-this made perfect sense and the "IO depths" distribution in the result
-summary even pointed me to it.
+Thanks, I hand applied it. You could also remove runtime[] in
+fio.c:thread_main() since it's now unused, I did that.
 
-Nevertheless, it might help others to avoid this alltogether if the man
-page paragraph on iodepth would include a small heads up / reference to
-ioengines. Example patch attached, not quite sure about the wording for
-the verify_async aspect.
-
-Sebastian
-
---7AUc2qLy4jB3hD7Z
-Content-Type: message/rfc822
-Content-Disposition: inline
-
-From: Sebastian Kayser <sebastian@skayser.de>
-Date: Wed, 1 Dec 2010 22:28:47 +0100
-Subject: [PATCH] fio.1: Add ioengines heads up to the iodepth section
-
----
- fio.1 |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
-
-diff --git a/fio.1 b/fio.1
-index b0276c4..ab147f2 100644
---- a/fio.1
-+++ b/fio.1
-@@ -379,7 +379,9 @@ Loads an external I/O engine object file.  Append the engine filename as
- .RE
- .TP
- .BI iodepth \fR=\fPint
--Number of I/O units to keep in flight against the file.  Default: 1.
-+Number of I/O units to keep in flight against the file. Note that increasing
-+iodepth beyond 1 will not affect synchronous ioengines (except for small
-+degress when verify_async is in use).  Default: 1.
- .TP
- .BI iodepth_batch \fR=\fPint
- Number of I/Os to submit at once.  Default: \fBiodepth\fR.
 -- 
-1.4.4.4
-
---7AUc2qLy4jB3hD7Z--
---:
-To unsubscribe from this list: send the line "unsubscribe fio" in
-the body of a message to majordomo@vger.kernel.org: 
-More majordomo info at  http: //vger.kernel.org/majordomo-info.html
-
+Jens Axboe
 
