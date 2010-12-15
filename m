@@ -1,82 +1,43 @@
-Return-Path: <bruce@cran.org.uk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mx2.fusionio.com ([64.244.102.31]:32809 "EHLO mx2.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752193Ab0LOP3a (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 15 Dec 2010 10:29:30 -0500
+Message-ID: <4D08DED3.6000202@fusionio.com>
+Date: Wed, 15 Dec 2010 16:29:23 +0100
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-From: Bruce Cran <bruce@cran.org.uk>
-Date: Wed, 15 Dec 2010 09:37:54 -0700
 Subject: Re: [patch] Use C99 standard integer types
-Message-ID: <20101215163754.00000c0e@unknown>
-References: <20101215150924.00003add@unknown>	<4D08DED3.6000202@fusionio.com>
-In-Reply-To: <4D08DED3.6000202@fusionio.com>
-Content-Language: en-US
-Content-Type: multipart/mixed; boundary="_002_2010121516375400000c0eunknown_"
-To: Jens Axboe <JAxboe@fusionio.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+References: <20101215150924.00003add@unknown>
+In-Reply-To: <20101215150924.00003add@unknown>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Bruce Cran <bruce@cran.org.uk>
+Cc: fio@vger.kernel.org
 
---_002_2010121516375400000c0eunknown_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+On 2010-12-15 16:09, Bruce Cran wrote:
+> Since most compilers now have a copy of the C99 inttypes.h header
+> available, [u]intX_t types should be preferred over compiler-specific
+> types such as __u32 etc. Using the standard types allows clang to build
+> fio.
+> 
+> I've attached a patch which updates blktrace_api.h, blktrace.c and
+> os/binject.h .
 
-On Wed, 15 Dec 2010 16:29:23 +0100
-Jens Axboe <jaxboe@fusionio.com> wrote:
+Really blktrace_api.h should just go away, since it's an OS interface
+and should be exposed as such. We've traditionally always used __uxx
+types in those interfaces. You should not be picking that up on FreeBSD
+:-)
 
-> Really blktrace_api.h should just go away, since it's an OS interface
-> and should be exposed as such. We've traditionally always used __uxx
-> types in those interfaces. You should not be picking that up on
-> FreeBSD :-)
+> The patch also updates Makefile.FreeBSD to use the -pthread flag
+> since it's preferred over -lpthread .
 
-It looks like blktrace_api.h is being parsed through the depend rule
-in Makefile.[FreeBSD|NetBSD|mac] due to the headers being listed in
-$(SOURCE) - gcc just ignores missing <> headers while clang generates an
-error as it builds the dependency list. Since headers which are
-included within source files will be listed as a dependency anyway, I
-think they can be removed from $(SOURCE).
+Thanks, I can make that change. In the future, it would be nice if you
+would separate different changes into different patches. Any time you
+need to write 'the patch also...' it's a hint that it should be split!
 
---=20
-Bruce Cran=
-
---_002_2010121516375400000c0eunknown_
-Content-Type: application/octet-stream; name="Makefile.diff"
-Content-Description: Makefile.diff
-Content-Disposition: attachment; filename="Makefile.diff"; size=1995;
-	creation-date="Wed, 15 Dec 2010 09:38:01 GMT";
-	modification-date="Wed, 15 Dec 2010 09:38:01 GMT"
-Content-Transfer-Encoding: base64
-
-ZGlmZiAtLWdpdCBhL01ha2VmaWxlLkZyZWVCU0QgYi9NYWtlZmlsZS5GcmVlQlNEDQppbmRleCA5
-Mzc4YjE5Li4wMmZmOTVkIDEwMDY0NA0KLS0tIGEvTWFrZWZpbGUuRnJlZUJTRA0KKysrIGIvTWFr
-ZWZpbGUuRnJlZUJTRA0KQEAgLTMzLDkgKzMzLDcgQEAgT0JKUyArPSBlbmdpbmVzL25ldC5vDQog
-U09VUkNFID0gZXRhLmMgZmlsZWhhc2guYyBmaWxlc2V0dXAuYyBmaW8uYyBnZXR0aW1lLmMgaW5p
-dC5jIGlvZW5naW5lcy5jIFwNCiAJIGlvX3UuYyBsb2cuYyBtZW1vcnkuYyBtdXRleC5jIG9wdGlv
-bnMuYyBwYXJzZS5jIHJidHJlZS5jIHNtYWxsb2MuYyBcDQogCSBzdGF0LmMgcGFyc2UuYyBjcmMv
-Ki5jIGVuZ2luZXMvY3B1LmMgZW5naW5lcy9tbWFwLmMgXA0KLQkgZW5naW5lcy9wb3NpeGFpby5j
-IGVuZ2luZXMvc3luYy5jIGVuZ2luZXMvbnVsbC5jIGVuZ2luZXMvbmV0LmMgXA0KLQkgKi5oIGFy
-Y2gvKi5oIGNvbXBpbGVyLyouaCBjcmMvKi5oIGxpYi8qLmggXA0KLQkgb3MvaW5kaXJlY3QuaCBv
-cy9rY29tcGF0Lmggb3Mvb3MtZnJlZWJzZC5oIG9zL29zLmggb3Mvc3lzbGV0LmgNCisJIGVuZ2lu
-ZXMvcG9zaXhhaW8uYyBlbmdpbmVzL3N5bmMuYyBlbmdpbmVzL251bGwuYyBlbmdpbmVzL25ldC5j
-DQogDQogaWZuZXEgKCQoZmluZHN0cmluZyAkKE1BS0VGTEFHUykscykscykNCiBpZm5kZWYgVg0K
-ZGlmZiAtLWdpdCBhL01ha2VmaWxlLk5ldEJTRCBiL01ha2VmaWxlLk5ldEJTRA0KaW5kZXggOTM3
-OGIxOS4uMDJmZjk1ZCAxMDA2NDQNCi0tLSBhL01ha2VmaWxlLk5ldEJTRA0KKysrIGIvTWFrZWZp
-bGUuTmV0QlNEDQpAQCAtMzMsOSArMzMsNyBAQCBPQkpTICs9IGVuZ2luZXMvbmV0Lm8NCiBTT1VS
-Q0UgPSBldGEuYyBmaWxlaGFzaC5jIGZpbGVzZXR1cC5jIGZpby5jIGdldHRpbWUuYyBpbml0LmMg
-aW9lbmdpbmVzLmMgXA0KIAkgaW9fdS5jIGxvZy5jIG1lbW9yeS5jIG11dGV4LmMgb3B0aW9ucy5j
-IHBhcnNlLmMgcmJ0cmVlLmMgc21hbGxvYy5jIFwNCiAJIHN0YXQuYyBwYXJzZS5jIGNyYy8qLmMg
-ZW5naW5lcy9jcHUuYyBlbmdpbmVzL21tYXAuYyBcDQotCSBlbmdpbmVzL3Bvc2l4YWlvLmMgZW5n
-aW5lcy9zeW5jLmMgZW5naW5lcy9udWxsLmMgZW5naW5lcy9uZXQuYyBcDQotCSAqLmggYXJjaC8q
-LmggY29tcGlsZXIvKi5oIGNyYy8qLmggbGliLyouaCBcDQotCSBvcy9pbmRpcmVjdC5oIG9zL2tj
-b21wYXQuaCBvcy9vcy1mcmVlYnNkLmggb3Mvb3MuaCBvcy9zeXNsZXQuaA0KKwkgZW5naW5lcy9w
-b3NpeGFpby5jIGVuZ2luZXMvc3luYy5jIGVuZ2luZXMvbnVsbC5jIGVuZ2luZXMvbmV0LmMNCiAN
-CiBpZm5lcSAoJChmaW5kc3RyaW5nICQoTUFLRUZMQUdTKSxzKSxzKQ0KIGlmbmRlZiBWDQpkaWZm
-IC0tZ2l0IGEvTWFrZWZpbGUubWFjIGIvTWFrZWZpbGUubWFjDQppbmRleCAyNWM3ZmRlLi4zZWIy
-MGJlIDEwMDY0NA0KLS0tIGEvTWFrZWZpbGUubWFjDQorKysgYi9NYWtlZmlsZS5tYWMNCkBAIC0z
-Myw4ICszMyw3IEBAIE9CSlMgKz0gZW5naW5lcy9uZXQubw0KIFNPVVJDRSA9IGV0YS5jIGZpbGVo
-YXNoLmMgZmlsZXNldHVwLmMgZmlvLmMgZ2V0dGltZS5jIGluaXQuYyBpb2VuZ2luZXMuYyBcDQog
-CSBpb191LmMgbG9nLmMgbWVtb3J5LmMgbXV0ZXguYyBvcHRpb25zLmMgcGFyc2UuYyByYnRyZWUu
-YyBzbWFsbG9jLmMgXA0KIAkgc3RhdC5jIHBhcnNlLmMgY3JjLyouYyBlbmdpbmVzL2NwdS5jIGVu
-Z2luZXMvbW1hcC5jIFwNCi0JIGVuZ2luZXMvcG9zaXhhaW8uYyBlbmdpbmVzL3N5bmMuYyBlbmdp
-bmVzL251bGwuYyBlbmdpbmVzL25ldC5jIFwNCi0JICouaCAqLyouaA0KKwkgZW5naW5lcy9wb3Np
-eGFpby5jIGVuZ2luZXMvc3luYy5jIGVuZ2luZXMvbnVsbC5jIGVuZ2luZXMvbmV0LmMNCiANCiBp
-Zm5lcSAoJChmaW5kc3RyaW5nICQoTUFLRUZMQUdTKSxzKSxzKQ0KIGlmbmRlZiBWDQo=
-
---_002_2010121516375400000c0eunknown_--
-
+-- 
+Jens Axboe
 
