@@ -1,39 +1,328 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from blade3.isti.cnr.it ([194.119.192.19]:49704 "EHLO
-	BLADE3.ISTI.CNR.IT" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751192Ab1ABENF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 1 Jan 2011 23:13:05 -0500
-Received: from SCRIPT-SPFWL-DAEMON.mx.isti.cnr.it by mx.isti.cnr.it
- (PMDF V6.5-x5 #31825) id <01NW4WZX22SWNG6FAQ@mx.isti.cnr.it> for
- fio@vger.kernel.org; Sun, 02 Jan 2011 05:12:00 +0100 (MET)
-Received: from conversionlocal.isti.cnr.it by mx.isti.cnr.it
- (PMDF V6.5-x5 #31825) id <01NW4WZWCTV4NG6FAP@mx.isti.cnr.it> for
- fio@vger.kernel.org; Sun, 02 Jan 2011 05:11:58 +0100 (MET)
-Received: from [10.0.0.61]
- (dynamic-adsl-78-12-75-177.clienti.tiscali.it [78.12.75.177])
- by mx.isti.cnr.it (PMDF V6.5-x5 #31826)
- with ESMTPSA id <01NW4WZUVRI0NV288K@mx.isti.cnr.it> for fio@vger.kernel.org;
- Sun, 02 Jan 2011 05:11:56 +0100 (MET)
-Date: Sun, 02 Jan 2011 05:12:09 +0100
+Return-Path: <spelic@shiftmail.org>
+MIME-Version: 1.0
 From: Spelic <spelic@shiftmail.org>
-Subject: Suggestion on size= and test length
-Message-id: <4D1FFB19.7020202@shiftmail.org>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Date: Wed, 5 Jan 2011 04:45:48 -0700
+Subject: Re: Again on IOPS higher than expected in randwrite 4k
+Message-ID: <4D2459EC.1030308@shiftmail.org>
+References: <4D1FFB1B.1010000@shiftmail.org> <4D21AD7D.7090707@fusionio.com>
+ <4D21B281.8040501@shiftmail.org> <4D21D8BE.1000403@fusionio.com>
+In-Reply-To: <4D21D8BE.1000403@fusionio.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+To: Jens Axboe <JAxboe@fusionio.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Dear fio developers,
+On 01/03/2011 03:10 PM, Jens Axboe wrote:
+> On 2011-01-03 12:26, Spelic wrote:
+>
+>> On 01/03/2011 12:05 PM, Jens Axboe wrote:
+>>
+>>> On 2011-01-02 05:12, Spelic wrote:
+>>>
+>> Oh I see.
+>> But if I add fsync=3D1 I still get 300 IOPS per disk, or even 500 on
+>> very short seeks, so again I'd say these disks are cheating.  Do you
+>> agree?
+>>
+> Did you verify that the fsync gets turned into a flush with eg blktrace?
+> If it indeed is, then yes your number seems too high for that disk. With
+> a SYNC_CACHE after each write, not even NCQ should be helping you (since
+> each request will effectively be sync).
+>
 
-Thanks for the very good application, but may I suggest that the size= 
-option controls only the size of the files used for the test (in 
-particular random r/w tests), while there should be another option 
-totaltransfer= which controls how long is the test? And/or a walltime= 
-option to make the test length time based... even better!
+I'm not sure... I'm no expert of blktrace... can you have a look?
+I am pasting part of the output below here.
+(kernel 2.6.36.2)
 
-Currently we either are hit by short seeks (size= small) or have to wait 
-for impossibly long tests uselessly (size= large).
+I was issuing FIO to a lvm linear volume over a md raid10, with 20
+threads doing 4K random writes in an 80MB file direct=3D1 and sync=3D1, I a=
+m
+seeing about 450 IOPS per drive.
+I captured one drive here.
+There are many requests with "S", sync, but the S never reaches the "D"
+driver. Does that mean there are no flushes?
+I thought that DM linear and MD and raid10 in kernel 2.6.36.2 were
+passing barriers to the layer below, so I thought that would work, or
+anyway that the OS would work around that with some other technique so
+to provide a reliable fsync (which is very important for data
+consistency, isn't it).
+
+Filesystem is ext4 mounted with defaults and it did not say nobarrier:
+dmesg
+[141306.496251] EXT4-fs (dm-2): mounted filesystem with ordered data
+mode. Opts: (null)
+cat /proc/mounts
+/dev/mapper/datavg1-try2 /mnt/tmp2 ext4
+rw,relatime,barrier=3D1,stripe=3D512,data=3Dordered 0 0
+
+Another problem is: how come I see [swapper] operating... I had
+specified direct=3D1 in fio!
+[random-write]
+rw=3Drandwrite
+rwmixcycle=3D1    #old settings...
+rwmixread=3D50   #ignored in randwrite
+numjobs=3D20
+blocksize=3D4k
+size=3D80m
+directory=3D/mnt/tmp2/fio-data
+direct=3D1
+fsync=3D1
+;iodepth=3D100   #this is commented out
+end_fsync=3D1
+
+
+
+blktrace --> blkparse:
+
+  66,144  5     5009     5.256475644     0  D   W 20323192 + 8 [swapper]
+  66,144  7     3180     5.256676923  6134  U   N [fio] 17
+  66,144  5     5010     5.256681988   701  A  WS 33072392 + 8 <-
+(66,145) 33070344
+  66,144  5     5011     5.256682210   701  Q  WS 33072392 + 8 [md14_raid10=
+]
+  66,144  5     5012     5.256682992   701  G  WS 33072392 + 8 [md14_raid10=
+]
+  66,144  5     5013     5.256683642   701  I   W 33072392 + 8 [md14_raid10=
+]
+  66,144  5     5014     5.256685095   701  U   N [md14_raid10] 18
+  66,144  5     5015     5.256927083  6129  U   N [fio] 18
+  66,144  7     3181     5.256933947   701  U   N [md14_raid10] 18
+  66,144  5     5016     5.257087648     0  C   W 19603416 + 8 [0]
+  66,144  5     5017     5.257092870     0  D   W 21862904 + 8 [swapper]
+  66,144  5     5018     5.257238735  6116  U   N [fio] 17
+  66,144  7     3182     5.257243081   701  A  WS 19605560 + 8 <-
+(66,145) 19603512
+  66,144  7     3183     5.257243235   701  Q  WS 19605560 + 8 [md14_raid10=
+]
+  66,144  7     3184     5.257243779   701  G  WS 19605560 + 8 [md14_raid10=
+]
+  66,144  7     3185     5.257244203   701  I   W 19605560 + 8 [md14_raid10=
+]
+  66,144  7     3186     5.257245545   701  U   N [md14_raid10] 18
+  66,144  5     5019     5.257546967  6118  U   N [fio] 18
+  66,144  7     3187     5.257552944   701  U   N [md14_raid10] 18
+  66,144  5     5020     5.257663684     0  C   W 20323192 + 8 [0]
+  66,144  5     5021     5.257668596     0  D   W 22581240 + 8 [swapper]
+  66,144  7     3188     5.257816612  6117  U   N [fio] 17
+  66,144  5     5022     5.257823723   701  U   N [md14_raid10] 17
+  66,144  5     5023     5.258130728  6129  U   N [fio] 17
+  66,144  7     3189     5.258137688   701  U   N [md14_raid10] 17
+  66,144  5     5024     5.258242581     0  C   W 21862904 + 8 [0]
+  66,144  5     5025     5.258247884     0  D   W 23433784 + 8 [swapper]
+  66,144  5     5026     5.258398322  6119  U   N [fio] 16
+  66,144  7     3190     5.258402511   701  A  WS 21913520 + 8 <-
+(66,145) 21911472
+  66,144  7     3191     5.258402650   701  Q  WS 21913520 + 8 [md14_raid10=
+]
+  66,144  7     3192     5.258403128   701  G  WS 21913520 + 8 [md14_raid10=
+]
+  66,144  7     3193     5.258403567   701  I   W 21913520 + 8 [md14_raid10=
+]
+  66,144  7     3194     5.258404755   701  U   N [md14_raid10] 17
+  66,144  5     5027     5.258653030  6118  U   N [fio] 17
+  66,144  7     3195     5.258657124   701  A  WS 21150720 + 8 <-
+(66,145) 21148672
+  66,144  7     3196     5.258657262   701  Q  WS 21150720 + 8 [md14_raid10=
+]
+  66,144  7     3197     5.258657659   701  G  WS 21150720 + 8 [md14_raid10=
+]
+  66,144  7     3198     5.258658017   701  I   W 21150720 + 8 [md14_raid10=
+]
+  66,144  7     3199     5.258659238   701  U   N [md14_raid10] 18
+  66,144  5     5028     5.258769609     0  C   W 22581240 + 8 [0]
+  66,144  5     5029     5.258775005     0  D   W 24115736 + 8 [swapper]
+  66,144  7     3200     5.258927319  6120  U   N [fio] 17
+  66,144  5     5030     5.258932228   701  A  WS 22591840 + 8 <-
+(66,145) 22589792
+  66,144  5     5031     5.258932562   701  Q  WS 22591840 + 8 [md14_raid10=
+]
+  66,144  5     5032     5.258933374   701  G  WS 22591840 + 8 [md14_raid10=
+]
+  66,144  5     5033     5.258933985   701  I   W 22591840 + 8 [md14_raid10=
+]
+  66,144  5     5034     5.258935275   701  U   N [md14_raid10] 18
+  66,144  5     5035     5.259234667  6117  U   N [fio] 18
+  66,144  7     3201     5.259241744   701  U   N [md14_raid10] 18
+  66,144  5     5036     5.259377131     0  C   W 23433784 + 8 [0]
+  66,144  5     5037     5.259382301     0  D   W 24833912 + 8 [swapper]
+  66,144  5     5038     5.259536908  6121  U   N [fio] 17
+  66,144  7     3202     5.259541161   701  A  WS 23405256 + 8 <-
+(66,145) 23403208
+  66,144  7     3203     5.259541335   701  Q  WS 23405256 + 8 [md14_raid10=
+]
+  66,144  7     3204     5.259541945   701  G  WS 23405256 + 8 [md14_raid10=
+]
+  66,144  7     3205     5.259542385   701  I   W 23405256 + 8 [md14_raid10=
+]
+  66,144  7     3206     5.259543684   701  U   N [md14_raid10] 18
+  66,144  5     5039     5.259788494  6129  U   N [fio] 18
+  66,144  7     3207     5.259794434   701  U   N [md14_raid10] 18
+  66,144  5     5040     5.259858786     0  C   W 24115736 + 8 [0]
+  66,144  5     5041     5.259863634     0  D   W 25651296 + 8 [swapper]
+  66,144  7     3208     5.260001478  6122  U   N [fio] 17
+  66,144  5     5042     5.260008880   701  U   N [md14_raid10] 17
+  66,144  5     5043     5.260339045  6117  U   N [fio] 17
+  66,144  7     3209     5.260346008   701  U   N [md14_raid10] 17
+  66,144  5     5044     5.260485907     0  C   W 24833912 + 8 [0]
+  66,144  5     5045     5.260490978     0  D   W 26391696 + 8 [swapper]
+  66,144  5     5046     5.260643566  6123  U   N [fio] 16
+  66,144  7     3210     5.260647837   701  A  WS 24809912 + 8 <-
+(66,145) 24807864
+  66,144  7     3211     5.260648008   701  Q  WS 24809912 + 8 [md14_raid10=
+]
+  66,144  7     3212     5.260648565   701  G  WS 24809912 + 8 [md14_raid10=
+]
+  66,144  7     3213     5.260648914   701  I   W 24809912 + 8 [md14_raid10=
+]
+  66,144  7     3214     5.260650315   701  U   N [md14_raid10] 17
+  66,144  5     5047     5.260905234  6129  U   N [fio] 17
+  66,144  7     3215     5.260910790   701  U   N [md14_raid10] 17
+  66,144  5     5048     5.260967679     0  C   W 25651296 + 8 [0]
+  66,144  5     5049     5.260973084     0  D   W 27054336 + 8 [swapper]
+  66,144  7     3216     5.261122944  6124  U   N [fio] 16
+  66,144  5     5050     5.261127859   701  A  WS 25649792 + 8 <-
+(66,145) 25647744
+  66,144  5     5051     5.261128084   701  Q  WS 25649792 + 8 [md14_raid10=
+]
+  66,144  5     5052     5.261128845   701  G  WS 25649792 + 8 [md14_raid10=
+]
+  66,144  5     5053     5.261129450   701  I   W 25649792 + 8 [md14_raid10=
+]
+  66,144  5     5054     5.261131041   701  U   N [md14_raid10] 17
+  66,144  5     5055     5.261409090  6122  U   N [fio] 17
+  66,144  7     3217     5.261413722   701  A  WS 24147272 + 8 <-
+(66,145) 24145224
+  66,144  7     3218     5.261414176   701  Q  WS 24147272 + 8 [md14_raid10=
+]
+  66,144  7     3219     5.261415006   701  G  WS 24147272 + 8 [md14_raid10=
+]
+  66,144  7     3220     5.261415614   701  I   W 24147272 + 8 [md14_raid10=
+]
+  66,144  7     3221     5.261417027   701  U   N [md14_raid10] 18
+  66,144  5     5056     5.261520670     0  C   W 26391696 + 8 [0]
+  66,144  5     5057     5.261525858     0  D   W 27879824 + 8 [swapper]
+  66,144  5     5058     5.261678537  6125  U   N [fio] 17
+  66,144  7     3222     5.261682847   701  A  WS 26366992 + 8 <-
+(66,145) 26364944
+  66,144  7     3223     5.261683021   701  Q  WS 26366992 + 8 [md14_raid10=
+]
+  66,144  7     3224     5.261683451   701  G  WS 26366992 + 8 [md14_raid10=
+]
+  66,144  7     3225     5.261683818   701  I   W 26366992 + 8 [md14_raid10=
+]
+  66,144  7     3226     5.261685265   701  U   N [md14_raid10] 18
+  66,144  5     5059     5.261922669  6117  U   N [fio] 18
+  66,144  7     3227     5.261926032   701  A  WS 20358736 + 8 <-
+(66,145) 20356688
+  66,144  7     3228     5.261926140   701  Q  WS 20358736 + 8 [md14_raid10=
+]
+  66,144  7     3229     5.261926489   701  G  WS 20358736 + 8 [md14_raid10=
+]
+  66,144  7     3230     5.261926748   701  I   W 20358736 + 8 [md14_raid10=
+]
+  66,144  7     3231     5.261927696   701  U   N [md14_raid10] 19
+  66,144  5     5060     5.262033970     0  C   W 27054336 + 8 [0]
+  66,144  5     5061     5.262038854     0  D   W 28595752 + 8 [swapper]
+  66,144  7     3232     5.262194327  6126  U   N [fio] 18
+  66,144  5     5062     5.262202033   701  U   N [md14_raid10] 18
+  66,144  5     5063     5.262461921  6129  U   N [fio] 18
+  66,144  7     3233     5.262469612   701  U   N [md14_raid10] 18
+  66,144  5     5064     5.262623725     0  C   W 27879824 + 8 [0]
+  66,144  5     5065     5.262628847     0  D   W 30164048 + 8 [swapper]
+  66,144  5     5066     5.262829611  6127  U   N [fio] 17
+  66,144  7     3234     5.262834041   701  A  WS 27938424 + 8 <-
+(66,145) 27936376
+  66,144  7     3235     5.262834192   701  Q  WS 27938424 + 8 [md14_raid10=
+]
+  66,144  7     3236     5.262834883   701  G  WS 27938424 + 8 [md14_raid10=
+]
+  66,144  7     3237     5.262835340   701  I   W 27938424 + 8 [md14_raid10=
+]
+  66,144  7     3238     5.262836673   701  U   N [md14_raid10] 18
+  66,144  5     5067     5.263133683  6126  U   N [fio] 18
+  66,144  7     3239     5.263137858   701  A  WS 27061872 + 8 <-
+(66,145) 27059824
+  66,144  7     3240     5.263137999   701  Q  WS 27061872 + 8 [md14_raid10=
+]
+  66,144  7     3241     5.263138426   701  G  WS 27061872 + 8 [md14_raid10=
+]
+  66,144  7     3242     5.263138826   701  I   W 27061872 + 8 [md14_raid10=
+]
+  66,144  7     3243     5.263139975   701  U   N [md14_raid10] 19
+  66,144  5     5068     5.263253802     0  C   W 28595752 + 8 [0]
+  66,144  5     5069     5.263259327     0  D   W 30872560 + 8 [swapper]
+  66,144  7     3244     5.263456187  6128  U   N [fio] 18
+  66,144  5     5070     5.263461225   701  A  WS 28609536 + 8 <-
+(66,145) 28607488
+  66,144  5     5071     5.263461496   701  Q  WS 28609536 + 8 [md14_raid10=
+]
+  66,144  5     5072     5.263462308   701  G  WS 28609536 + 8 [md14_raid10=
+]
+  66,144  5     5073     5.263462876   701  I   W 28609536 + 8 [md14_raid10=
+]
+  66,144  5     5074     5.263464227   701  U   N [md14_raid10] 19
+  66,144  5     5075     5.263610357  6129  U   N [fio] 19
+  66,144  7     3245     5.263617058   701  U   N [md14_raid10] 19
+  66,144  5     5076     5.263726740     0  C   W 30164048 + 8 [0]
+  66,144  5     5077     5.263731763     0  D   W 31648664 + 8 [swapper]
+  66,144  5     5078     5.263910048  6130  U   N [fio] 18
+  66,144  7     3246     5.263916821   701  U   N [md14_raid10] 18
+  66,144  5     5079     5.264179263  6129  U   N [fio] 18
+  66,144  7     3247     5.264185501   701  U   N [md14_raid10] 18
+  66,144  5     5080     5.264291934     0  C   W 30872560 + 8 [0]
+  66,144  5     5081     5.264296909     0  D   W 32393312 + 8 [swapper]
+  66,144  7     3248     5.264396840  6131  U   N [fio] 17
+  66,144  5     5082     5.264404167   701  U   N [md14_raid10] 17
+  66,144  5     5083     5.264712968  6130  U   N [fio] 17
+  66,144  7     3249     5.264719768   701  U   N [md14_raid10] 17
+  66,144  5     5084     5.264821254     0  C   W 31648664 + 8 [0]
+  66,144  5     5085     5.264826506     0  D   W 33072392 + 8 [swapper]
+  66,144  5     5086     5.265026755  6132  U   N [fio] 16
+  66,144  7     3250     5.265032611   701  U   N [md14_raid10] 16
+  66,144  5     5087     5.265294126  6129  U   N [fio] 16
+  66,144  7     3251     5.265299691   701  U   N [md14_raid10] 16
+  66,144  5     5088     5.265406558     0  C   W 32393312 + 8 [0]
+  66,144  5     5089     5.265411617     0  D   W 18769952 + 8 [swapper]
+  66,144  7     3252     5.265569929  6133  U   N [fio] 15
+  66,144  5     5090     5.265577207   701  U   N [md14_raid10] 15
+  66,144  5     5091     5.265923350  6131  U   N [fio] 15
+  66,144  7     3253     5.265930496   701  U   N [md14_raid10] 15
+  66,144  5     5092     5.266041020     0  C   W 33072392 + 8 [0]
+  66,144  5     5093     5.266046233     0  D   W 19605560 + 8 [swapper]
+  66,144  5     5094     5.266200776  6134  U   N [fio] 14
+  66,144  7     3254     5.266206557   701  U   N [md14_raid10] 14
+  66,144  5     5095     5.266454790  6130  U   N [fio] 14
+  66,144  7     3255     5.266459012   701  A  WS 30133304 + 8 <-
+(66,145) 30131256
+  66,144  7     3256     5.266459253   701  Q  WS 30133304 + 8 [md14_raid10=
+]
+  66,144  7     3257     5.266459930   701  G  WS 30133304 + 8 [md14_raid10=
+]
+  66,144  7     3258     5.266460309   701  I   W 30133304 + 8 [md14_raid10=
+]
+  66,144  7     3259     5.266461473   701  U   N [md14_raid10] 15
+  66,144  5     5096     5.266572863     0  C   W 18769952 + 8 [0]
+  66,144  5     5097     5.266578124     0  D   W 20358736 + 8 [swapper]
+  66,144  7     3260     5.266732219  6115  U   N [fio] 14
+  66,144  5     5098     5.266737163   701  A  WS 18758136 + 8 <-
+(66,145) 18756088
+  66,144  5     5099     5.266737386   701  Q  WS 18758136 + 8 [md14_raid10=
+]
+  66,144  5     5100     5.266738168   701  G  WS 18758136 + 8 [md14_raid10=
+]
+  66,144  5     5101     5.266738776   701  I   W 18758136 + 8 [md14_raid10=
+]
+  66,144  5     5102     5.266740268   701  U   N [md14_raid10] 15
+  66,144  5     5103     5.266997433  6132  U   N [fio] 15
+  66,144  7     3261     5.267004469   701  U   N [md14_raid10] 15
+  66,144  5     5104     5.267107097     0  C   W 19605560 + 8 [0]
+  66,144  5     5105     5.267112123     0  D   W 21150720 + 8 [swapper]
+  66,144  5     5106     5.267261824  6116  U   N [fio] 14
+  66,144  7     3262     5.267267689   701  U   N [md14_raid10] 14
+  66,144  5     5107     5.267565634  6133  U   N [fio] 14
 
 Thank you
+
+
