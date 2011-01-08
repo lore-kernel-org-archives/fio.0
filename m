@@ -1,46 +1,33 @@
-Message-ID: <4D2D5D76.10008@fusionio.com>
-Date: Wed, 12 Jan 2011 08:51:18 +0100
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mx2.fusionio.com ([64.244.102.31]:39554 "EHLO mx2.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750965Ab1AHT1A (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 8 Jan 2011 14:27:00 -0500
+Message-ID: <4D28BA78.60807@fusionio.com>
+Date: Sat, 8 Jan 2011 20:26:48 +0100
 From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-Subject: Re: fio make
-References: <20110112050003.3FF6837A2F5@kernel.dk> <CB423058-1F05-4521-8488-DB9C8A84FAE3@cscs.ch>
-In-Reply-To: <CB423058-1F05-4521-8488-DB9C8A84FAE3@cscs.ch>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH] Document that write_iolog is unsafe for concurrent jobs
+References: <1294312426-3121-1-git-send-email-stefanha@linux.vnet.ibm.com>
+In-Reply-To: <1294312426-3121-1-git-send-email-stefanha@linux.vnet.ibm.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
-To: "N. Harake" <hussein@cscs.ch>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Cc: fio@vger.kernel.org
 
-On 2011-01-12 08:45, N. Harake wrote:
+On 2011-01-06 12:13, Stefan Hajnoczi wrote:
+> The write_iolog parameter should not be used in the global section since
+> each job will independently write to the same file.  The output will be
+> interspersed and the file will be corrupt.
 > 
-> I am getting this error while running the make, any ideas would be appreciated 
-> 
-> user@server:~/fio-1.41> make
->     CC gettime.o
->     CC fio.o
->     CC ioengines.o
->     CC init.o
->     CC stat.o
->     CC log.o
->     CC time.o
->     CC filesetup.o
->     CC eta.o
->     CC verify.o
->     CC memory.o
->     CC io_u.o
->     CC parse.o
->     CC mutex.o
->     CC options.o
-> options.c:1143: error: 'SYNC_FILE_RANGE_WAIT_BEFORE' undeclared here (not in a function)
-> options.c:1148: error: 'SYNC_FILE_RANGE_WRITE' undeclared here (not in a function)
-> options.c:1154: error: 'SYNC_FILE_RANGE_WAIT_AFTER' undeclared here (not in a function)
-> make: *** [options.o] Error 1
+> Document that each job should write to its own iolog file.  This will
+> save users time when trying out the iolog feature for the first time.
 
-Please update to the latest released version, 1.44.3. If it happens
-there as well, I need to know more about your build environment (distro,
-version, etc).
+Thanks, I added this and also updated the man page.
+
 
 -- 
 Jens Axboe
-
 
