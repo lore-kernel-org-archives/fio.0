@@ -1,28 +1,29 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:34818 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754565Ab1ABOh0 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 2 Jan 2011 09:37:26 -0500
-Received: by gyb11 with SMTP id 11so4957080gyb.19
-        for <fio@vger.kernel.org>; Sun, 02 Jan 2011 06:37:26 -0800 (PST)
+Received: from mx2.fusionio.com ([64.244.102.31]:39611 "EHLO mx2.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751385Ab1AHTv0 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 8 Jan 2011 14:51:26 -0500
+Message-ID: <4D28C03A.90707@fusionio.com>
+Date: Sat, 8 Jan 2011 20:51:22 +0100
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-From: Dan Le <wb.danle@gmail.com>
-Date: Sun, 2 Jan 2011 09:37:11 -0500
-Message-ID: <AANLkTim2bn_eg3ZyVkOyni4by2X6VjFB31hj0RzVsXE6@mail.gmail.com>
-Subject: What is random write of FIO?
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH] setgid first, setuid second
+References: <1294433885-12177-1-git-send-email-stefanha@linux.vnet.ibm.com>
+In-Reply-To: <1294433885-12177-1-git-send-email-stefanha@linux.vnet.ibm.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Cc: fio@vger.kernel.org
 
-Hi there,
+On 2011-01-07 21:58, Stefan Hajnoczi wrote:
+> Setting a new effective gid requires privileges.  We must set the gid
+> while we potentially still have superuser privileges.  Otherwise
+> setgid(2) fails because we've already changed to an unprivileged uid.
 
-I understand that FIO performs sequential writes of small files by
-just sequentially flushing them into the file system. But for random
-writes of either small or large files, how can FIO randomly write
-those files into the file system? I am confused because the manual
-does not clearly explain this feature.
+Thanks, applied!
 
-Sorry for this newbie question. You answer will be appreciated.
+-- 
+Jens Axboe
 
--- Dan
