@@ -1,53 +1,43 @@
-Return-Path: <bruce@cran.org.uk>
+Message-ID: <4D41DFA4.4000708@fusionio.com>
+Date: Thu, 27 Jan 2011 22:12:04 +0100
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-From: Bruce Cran <bruce@cran.org.uk>
-Date: Thu, 27 Jan 2011 15:06:06 -0700
 Subject: Re: Recent changes
-Message-ID: <20110127220606.000076a4@unknown>
-References: <20110125050003.F378B37A302@kernel.dk>
-	<4D41DEEA.8040608@austin.ibm.com>
+References: <20110125050003.F378B37A302@kernel.dk> <4D41DEEA.8040608@austin.ibm.com>
 In-Reply-To: <4D41DEEA.8040608@austin.ibm.com>
-Content-Language: en-US
-Content-Type: multipart/mixed; boundary="_002_20110127220606000076a4unknown_"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 To: Steven Pratt <slpratt@austin.ibm.com>
-Cc: Jens Axboe <JAxboe@fusionio.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
---_002_20110127220606000076a4unknown_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, 27 Jan 2011 15:08:58 -0600
-Steven Pratt <slpratt@austin.ibm.com> wrote:
-
+On 2011-01-27 22:08, Steven Pratt wrote:
+> On 01/24/2011 11:00 PM, Jens Axboe wrote:
+>> The following changes since commit b8d42b234f70ce2927e9ef1279aff42d62779cfd:
+>>
+>>   Fio 1.50-rc4 (2011-01-20 10:17:35 -0700)
+>>
+>> are available in the git repository at:
+>>   git://git.kernel.dk/fio.git master
+>>
+>> Bruce Cran (1):
+>>       Unify makefiles
+>>
+>> Jens Axboe (3):
+>>       Ensure that we exit with non-zero status on IO engine load failure
+>>       mmap: catch invalid msync() errors early
+>>       Remove flist_sort(), it's no longer used
+>>
+>>  Makefile         |   53 ++++++++++++++++----
+> 
 > Jens, the nested else ifeq statements in the main Makfile blow up on
 > make versions prior to 3.81.  SLES10 still has 3.80.  Not a big deal
-> for me, but I work with some folks for which this is over their
-> heads.  Any chance we could revert back to a more compatible syntax?
+> for me, but I work with some folks for which this is over their heads.
+> Any chance we could revert back to a more compatible syntax?
 
-Confirmed with make 3.75 on FreeBSD. The attached patch should fix it.
+Oops, thanks for letting me know. I'll revert that one for now.
 
---=20
-Bruce Cran
-
---_002_20110127220606000076a4unknown_
-Content-Type: application/x-gzip; name="fio_Makefile.diff.gz"
-Content-Description: fio_Makefile.diff.gz
-Content-Disposition: attachment; filename="fio_Makefile.diff.gz"; size=545;
-	creation-date="Thu, 27 Jan 2011 15:06:21 GMT";
-	modification-date="Thu, 27 Jan 2011 15:06:21 GMT"
-Content-Transfer-Encoding: base64
-
-H4sICAjsQU0CAGZpb19NYWtlZmlsZS5kaWZmAMWU32/aMBDHn8lfcQ99AIXwa2xjD5NKIaBIaaia
-VeukSVFILsGrZ2e2K9h/vwsFQkXoVmlSX5zL3fnu83UuTlmWgePkzEDcvY4fMGMcYXkwLSZS3ECa
-vR8NR586nd5H7PX7CP1e78NwaDmOc7TPsm37eO/lJTiDQXswApse74ZADpbhL2heNO+C8bXbaoPP
-xOOmZUGjgSJnAnV3ycQPTEwngUJJqkMuw+QSRbLqJBYA+N5VCPZncHhhVgrjlKyU06IMLTGTZdJk
-5o/nT2kq/S3inyyxHOQaTwjCR7EIW5aNgg7DsuvDZclwcXc7ccuSGcsk8XG27GqjNBb0skJeoNJk
-acljxUprL6mQmm0IjFzfj6XuMilSKWvUSqOUvUChS4eWyQOardKbm0rrNIrc+y9uEHqLIIyiM5Jn
-CvEqnFaizyQ8l72TeCLsBfwt8+s+R4DmOdpp/I3Ixt59hVUTrB2SPdpuXHI0sjARlyJ/HWzKXyQ+
-nQN/fDt3o5nnu+F2LIoiOTsP01itmajE1cf/x5mn/IAgyh7ti2ZGVwz9RUzkMPk2/+oF7X3jVkX0
-j+nHgAesNe2Qa/33YXjq9QdHlZLKEwUAAA==
-
---_002_20110127220606000076a4unknown_--
+-- 
+Jens Axboe
 
 
