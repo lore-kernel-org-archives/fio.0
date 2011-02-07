@@ -1,53 +1,77 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mxout3.marklogic.com ([216.243.76.15]:54947 "EHLO
-	Exchg-FE02.marklogic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754399Ab1BXTNa convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Thu, 24 Feb 2011 14:13:30 -0500
-From: Hsiao Su <Hsiao.Su@marklogic.com>
-Date: Thu, 24 Feb 2011 11:13:28 -0800
-Subject: using blktrace, blkparse, and fio
-Message-ID: <E9E9B636B25C054B8E6B9131614B925A039043FE@EXCHG-BE.marklogic.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Received: from mx1.fusionio.com ([64.244.102.30]:50519 "EHLO mx1.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754523Ab1BGVIO (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 7 Feb 2011 16:08:14 -0500
+Message-ID: <4D505F39.9000500@fusionio.com>
+Date: Mon, 7 Feb 2011 22:08:09 +0100
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
+Subject: Re: test definition help needed
+References: <4D4C51B2.1090700@austin.ibm.com> <4D4F0C09.2010601@fusionio.com> <4D505B6C.8090905@austin.ibm.com>
+In-Reply-To: <4D505B6C.8090905@austin.ibm.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Steven Pratt <slpratt@austin.ibm.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
+On 2011-02-07 21:51, Steven Pratt wrote:
+> On 02/06/2011 03:00 PM, Jens Axboe wrote:
+>> On 2011-02-04 20:21, Steven Pratt wrote:
+>>> I am trying to create a job file that randomly select a file form an imported list and reads the entire file sequentially. Them moves to the next file. I also want multiple jobs(processe) running the same workload. I have this:
+>>>
+>>> [global]
+>>> bs=4k
+>>> time_based=1
+>>> runtime=15m
+>>> iodepth=4
+>>> rw=read
+>>> ioengine=libaio
+>>> time_based=1
+>>> ramp_time=600s
+>>> norandommap
+>>>
+>>> [job1]
+>>> opendir=/${FIO_MOUNT}/session1/small_file1
+>>> file_service_type=sequential
+>>> numjobs=8
+>>>
+>>>
+>>>
+>>> I used file_service_type=sequential because tought without it it would
+>>> only do a single read (block) from the file before switching to a
+>>> different file, which is not what I want. The issue with this test as
+>>> written is it seems like all the fio processes choose files in the
+>>> same order so I get way more cache hits than I want. I want this to be
+>>> more of a random file selection, but with reading whole file.  Any
+>>> advice?
+>> file_service_type=random:<largenum>
+>>
+>> should do what you need, I think. If you ensure that <largenum> is
+>> sufficiently large that the file will always be finished before you run
+>> out, then that should work.
+> Had thought of that, but seemed kind of hackish.  Any way gave it a
 
-Hi,
+It is sort-of hackish. I guess it would be cleaner to add a separate
+file_service_type define for that.
 
-I'm trying to use these 3 tools to capture the IO workload of an applicatio=
-n.=EF=BF=BD This application uses several different IO libraries.=EF=BF=BD =
-However, I'm not sure if I'm doing this right, so I've been trying to do th=
-is on a much smaller scale.=EF=BF=BD For this small scale test, my workload=
- is simply to use the cp command to copy a large file onto the same filesys=
-tem, then use blktrace/blkparse/fio to replay that.
+> shot and it kind of worked.  It seemed to randomly select a file to
+> operate on, however fio eventually went into a tight spin loop and
+> never exited. Traced that back to get_next_file_rand where apparently
+> if you ever access every file you will never exit(get stuck in  "if
+> (fio_file_done(f))  continue;" forever).  So now I have 2 problems.
+> One is this infinite loop which is obviously not good. The second
+> (which may help solve the first) is that I want to randomly reuse
+> files. I don't want a perfect no reuse case, and I can't find any way
+> to get that to happen. If reuse were possible, this loop would not be
+> a problem.  I guess for now I can just remove the continue and it will
+> do what I want and not loop.  Thoughts on a better solution?
 
-Some questions:
+I'll look into that tomorrow, sounds like a bug that has been there
+since that service type was introduced.
 
-1) Is using blkparse necessary?=EF=BF=BD I've actually found that you can s=
-kip blkparse, and simply use the output of blktrace and input it into fio.=
-=EF=BF=BD The result is that the replay is much much longer.=EF=BF=BD My cp=
- command took only 1.5 minutes, but if I skip blkparse, the replay via fio =
-would take almost an hour.
-
-2) Because of #1, I suspect that blkparse is a must.=EF=BF=BD So I've inclu=
-ded the blkparse step.=EF=BF=BD But when I replay it via fio on the same de=
-vice, it took about 4-5 minutes.=EF=BF=BD Does this sound about right?=EF=
-=BF=BD Should I expect the fio replay to be 3-4 times longer than the origi=
-nal workload?=EF=BF=BD I was expecting that their time should be the same.
-
-3) I'm seeing so possible file system corruption now.=EF=BF=BD When I remov=
-e a file, I get an Input/Output Error.=EF=BF=BD Is this possibly due to wha=
-t I had done in #1 and #2?=EF=BF=BD In general, when using fio, what steps =
-should I take to prevent a file system corruption?
-
-
----
-Hsiao "Shao" Su
-MarkLogic
-Senior Performance Engineer
-650 287 2545 (W)
+-- 
+Jens Axboe
 
