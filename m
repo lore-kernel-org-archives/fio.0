@@ -1,49 +1,30 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-forward2.uio.no ([129.240.10.71]:34635 "EHLO
-	mail-forward2.uio.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750727Ab1BKJEQ convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Fri, 11 Feb 2011 04:04:16 -0500
-Received: from exim by mail-out2.uio.no with local-bsmtp (Exim 4.72)
-	(envelope-from <jarle@bjorgeengen.net>)
-	id 1PnoM1-0002Bs-Tj
-	for fio@vger.kernel.org; Fri, 11 Feb 2011 09:27:49 +0100
-Received: from mail-mx5.uio.no ([129.240.10.46])
-	by mail-out2.uio.no with esmtp (Exim 4.72)
-	(envelope-from <jarle@bjorgeengen.net>)
-	id 1PnoM1-0002Bp-Si
-	for fio@vger.kernel.org; Fri, 11 Feb 2011 09:27:49 +0100
-Received: from rubeus.uio.no ([129.240.203.69])
-	by mail-mx5.uio.no with esmtpsa (TLSv1:AES128-SHA:128)
-	user jb (Exim 4.72)
-	(envelope-from <jarle@bjorgeengen.net>)
-	id 1PnoM1-0001Ey-G1
-	for fio@vger.kernel.org; Fri, 11 Feb 2011 09:27:49 +0100
-Message-Id: <3DEFDA95-E1BA-4C79-BE8E-9AF8EC84603E@bjorgeengen.net>
-From: =?ISO-8859-1?Q?Jarle_Bj=F8rgeengen?= <jarle@bjorgeengen.net>
-Content-Type: text/plain; charset="iso-8859-1"; format="flowed"; delsp="yes"
-Content-Transfer-Encoding: quoted-printable
-Mime-Version: 1.0 (Apple Message framework v936)
-Subject: SPC-1 profile
-Date: Fri, 11 Feb 2011 09:27:49 +0100
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:57916 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751074Ab1BIPYI (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 9 Feb 2011 10:24:08 -0500
+Received: by wyb28 with SMTP id 28so287403wyb.19
+        for <fio@vger.kernel.org>; Wed, 09 Feb 2011 07:24:07 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <AANLkTikE1=RGwdi85tqFfFw6g7=KyzBAXURDiKhevc_P@mail.gmail.com>
+References: <AANLkTimVOrLR+MJDhg5Q=vfLvNKbfP4H6i3iJNjxPgpe@mail.gmail.com>
+	<AANLkTikE1=RGwdi85tqFfFw6g7=KyzBAXURDiKhevc_P@mail.gmail.com>
+Date: Wed, 9 Feb 2011 15:24:06 +0000
+Message-ID: <AANLkTim47WLLX9SmiMkBE+gK8cv7BEJRVNSYZt0Y9jp9@mail.gmail.com>
+Subject: Re: FIO is CPU bound on small block sizes
+From: "Bike & Snow" <bikeandsnow@googlemail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hello,
+Thanks Chris & Jens.
 
-I read [1] with great interest. However, I can't find anything =20
-indicating such functionality in the latest versions of fio. Just =20
-wondering if there is any expectations that this will be included in =20
-the foreseeable future?
+Sounds really obviously now - just run multiple threads of FIO.
 
-[1] http://www.spinics.net/lists/fio/msg00241.html
+This is what I get now on 512B block size:
+203,216 IOPs
 
---=20
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Best regards                                       .~.
-Jarle Bj=EF=BF=BDrgeengen                                  /V\
-Mob: +47 9155 7978                                // \\
-http://www.uio.no/sok?person=3Djb                  /(   )\
-while(<>){if(s/^(.*\?)$/42 !/){print "$1 $_"}}    ^`~'^
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+That is using 8 threads and an IOdepth of 32.
 
+The RAID array is now being stressed and not the CPU.
