@@ -1,71 +1,53 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:41628 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753294Ab1BHKa4 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 8 Feb 2011 05:30:56 -0500
-Received: by wwa36 with SMTP id 36so5854092wwa.1
-        for <fio@vger.kernel.org>; Tue, 08 Feb 2011 02:30:55 -0800 (PST)
+Received: from mx1.fusionio.com ([64.244.102.30]:43179 "EHLO mx1.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753876Ab1B1NHr (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 28 Feb 2011 08:07:47 -0500
+Message-ID: <4D6B9E21.70705@fusionio.com>
+Date: Mon, 28 Feb 2011 08:07:45 -0500
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-Date: Tue, 8 Feb 2011 10:30:55 +0000
-Message-ID: <AANLkTimVOrLR+MJDhg5Q=vfLvNKbfP4H6i3iJNjxPgpe@mail.gmail.com>
-Subject: FIO is CPU bound on small block sizes
-From: "Bike & Snow" <bikeandsnow@googlemail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: uneven IOPS among HD
+References: <932143.86482.qm@web161913.mail.bf1.yahoo.com>	<4D616775.8050908@fusionio.com> <AANLkTi=nLVRq6=AFvhsoWX_ThjHrxaqkw=kcyLUQrr13@mail.gmail.com>
+In-Reply-To: <AANLkTi=nLVRq6=AFvhsoWX_ThjHrxaqkw=kcyLUQrr13@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Josh Aune <luken@omner.org>
+Cc: , john smith <whalajam@yahoo.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hello
+On 2011-02-26 15:31, Josh Aune wrote:
+> On Sunday, February 20, 2011, Jens Axboe <jaxboe@fusionio.com> wrote:
+>> On 2011-02-17 03:14, john smith wrote:
+>>> I have a couple of questions:
+>>>
+>>> 1) if it is normal (and if so, why) that while running a number of identical jobs (e.g 4), each bound to a different CPU (cpu_allowed=i) and each performing sequential (bs=512) reads on (e.g. 4) different HD, fio reports IOPS numbers that are highly unbalanced among HD with one HD reporting more than 7x of the IOPS of the minimum IOPS HD.
+>>> Different runs may show most of the IOPS on a different HD, so it's not that one HD is faster.
+>>>
+>>> Here are some possibly interesting parameters:
+>>>
+>>> ioengine=libaio
+>>> iodepth=32
+>>> direct=1
+>>
+>> There should be very little variance between runs, and between jobs.
+>> Each are separate threads/processes, so most of the variance you will
+>> see will be due to system "artifacts". So I'd suggest you look there. If
+>> you don't pin to specific CPUs, do you see smaller or larger
+>> differences?
+>>
+>> Are you doing random or sequential IO? Could also be timing differences
+>> in submission and dispatch from the IO scheduler.
+> 
+> Is hyper threading enabled?  Could be running some of the jobs on the
+> same CPU core.
+> 
+> Does it track to different sockets?
 
-I am trying to measure IOPs on a RAID system using FIO.
+No, the replay doesn't factor in CPU placement of the apps submitting
+IO.
 
-I've been using FIO for a while and I'm pretty familiar with it.
+-- 
+Jens Axboe
 
-However, I have found for small blocksizes, the benchmark is CPU bound
-as it only works on a single CPU core.
-
-Here's what I mean. All these are sequential read results.
-
-Iometer results:
-512B	181,317
-1K		166,232
-2K		133,753
-4K		109,498
-8K		 78,276
-16K		 51,638
-
-FIO results:
-512B	 97,494
-1K		100,034
-2K		 98,615
-4K		 93,859
-8K		 83,064
-16K		 69,623
-
-I can see when observing the output from "top" that the "fio" thread
-is at 99% for the smaller block sizes.
-So it appears to be CPU bound for small block sizes - 512B to 4K.
-From 8K onwards FIO is actually faster than Iometer.
-
-Software:
-Linux 2.6.36.3
-FIO 1.50
-Iometer 1.1.0
-
-Hardware:
-Intel Xeon X3450 @ 2.67GHz
-Hardware RAID6 array
-
-FIO command used:
-fio -name iops -rw=read -bs=512 -runtime=180 -iodepth 4 -filename
-/dev/storage/iometer -ioengine libaio -direct=1
-
-As you can see I'm testing the block device directly without using a
-file system.
-
-I have tried different iodepth values but it makes no difference.
-
-Any ideas on how I can measure the IOPs of the RAID device when using
-small block sizes?
-
-I really want to use FIO as I can script it.
