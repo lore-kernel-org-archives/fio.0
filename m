@@ -1,40 +1,62 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx2.fusionio.com ([64.244.102.31]:52056 "EHLO mx2.fusionio.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757577Ab1COUzu (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 15 Mar 2011 16:55:50 -0400
-Message-ID: <4D7FD24F.1020307@fusionio.com>
-Date: Tue, 15 Mar 2011 21:55:43 +0100
-From: Jens Axboe <jaxboe@fusionio.com>
+Return-Path: <hussein@cscs.ch>
 MIME-Version: 1.0
-Subject: Re: memory caching
-References: <C9A519EC.108B4%hussein@cscs.ch>,<4D7FCBDE.2080206@fusionio.com> <8512BC127909424EB483ED236E6AC3C003D6E6@MBX20.d.ethz.ch>
-In-Reply-To: <8512BC127909424EB483ED236E6AC3C003D6E6@MBX20.d.ethz.ch>
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "N. Harake" <hussein@cscs.ch>
+From: "N. Harake" <hussein@cscs.ch>
+Date: Tue, 15 Mar 2011 14:54:06 -0600
+Subject: RE: memory caching
+Message-ID: <8512BC127909424EB483ED236E6AC3C003D6F4@MBX20.d.ethz.ch>
+References: <C9A519EC.108B4%hussein@cscs.ch>,<4D7FCBDE.2080206@fusionio.com>
+In-Reply-To: <4D7FCBDE.2080206@fusionio.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+To: Jens Axboe <JAxboe@fusionio.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-On 2011-03-15 21:46, N. Harake wrote:
-> 
-> Thanks for your reply, indeed my interest to get the max iops but on a
-> filesystem not a raw device, I understand the penalty but that would
-> be more realstic for production systems. I will try these changes and
-> keep you updated .
 
-It's always a good idea to do the raw block device test first, that'll
-at least give you an idea of the best possible result. On a file system,
-you'll get the best results with O_DIRECT if the file has been
-pre-allocated first. Otherwise you end up punting to buffered IO for
-filling new blocks.
+Things improved but maybe too much :), I was expecting a 100K IOPS not more
 
-So that would mean adding --overwrite=1. And get rid of the O_SYNC. If
-your workload will utilize lots of processes or threads, use what you
-already have with a high numjobs. But an libaio with fewer threads and
-higher depth will get you better performance.
+server1:~ # fio --name=3Djob --directory=3D/lvm --size=3D1G --filesize=3D1G=
+ --iodepth=3D128 --iodepth_batch_complete=3D8 --iodepth_batch_submit=3D8 --=
+ioengine=3Dlibaio --direct=3D1 --numjobs=3D64 --bs=3D 4096 --rw=3Drandwrite=
+ --group_reporting
+Jobs: 50 (f=3D50): [wwwwww_wwwwwww_wwwwwwwwww_wwwwwwwwwww_www_www_ww_www___=
+ww_w__w_w] [98.3% done] [0K/570.8M /s] [0 /143K iops] [eta 00m:02s]
 
--- 
-Jens Axboe
+  write: io=3D65536MB, bw=3D584771KB/s, iops=3D146192 , runt=3D114761msec
+
+H. Harake
+
+________________________________________
+From: Jens Axboe [jaxboe@fusionio.com]
+Sent: Tuesday, March 15, 2011 9:28 PM
+To: N. Harake
+Cc: fio@vger.kernel.org
+Subject: Re: memory caching
+
+On 2011-03-15 13:36, N. Harake wrote:
+>
+> I noticed when I am using --sync=3D1, IOPS go down to 15K and throughput =
+to
+> 53MB (That=B9s horrible for the HW I am using), removing --sync I got 150=
+K
+> IOPS and almost 800MB, which make more sense. What does --sync does, and
+> hope what I am doing should be enough to avoid any kind of memory caching=
+..
+>
+> Regards
+> H. N. Harake
+>
+> fio --name=3Djob --directory=3D/lvm --size=3D1G --iodepth=3D1 --sync=3D1
+> --filesize=3D1G --direct=3D1 --numjobs=3D64 --bs=3D4096 --rw=3Drandwrite
+> --group_reporting
+
+If your goal is to maximize iops for testing, use the raw block device.
+Use direct=3D1, and ioengine=3Dlibaio. Set depth large, ala:
+
+--iodepth=3D128 --iodepth_batch_complete=3D8 --iodepth_batch_submit=3D8
+
+
+--
+Jens Axboe=
 
