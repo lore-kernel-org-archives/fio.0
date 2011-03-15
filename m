@@ -1,75 +1,34 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g5t0009.atlanta.hp.com ([15.192.0.46]:44717 "EHLO
-	g5t0009.atlanta.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753837Ab1BQUQi (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 17 Feb 2011 15:16:38 -0500
-Received: from g5t0029.atlanta.hp.com (g5t0029.atlanta.hp.com [16.228.8.141])
-	by g5t0009.atlanta.hp.com (Postfix) with ESMTP id 9656230418
-	for <fio@vger.kernel.org>; Thu, 17 Feb 2011 20:16:37 +0000 (UTC)
-Received: from beardog.cce.hp.com (beardog.cce.hp.com [16.84.84.24])
-	by g5t0029.atlanta.hp.com (Postfix) with ESMTP id 71CDA20031
-	for <fio@vger.kernel.org>; Thu, 17 Feb 2011 20:16:37 +0000 (UTC)
-Received: from beardog.cce.hp.com (beardog.cce.hp.com [127.0.0.1])
-	by beardog.cce.hp.com (8.13.8/8.13.8) with ESMTP id p1HKGbJA011709
-	for <fio@vger.kernel.org>; Thu, 17 Feb 2011 14:16:37 -0600
-Received: (from mikem@localhost)
-	by beardog.cce.hp.com (8.13.8/8.13.8/Submit) id p1HKGap4011708
-	for fio@vger.kernel.org; Thu, 17 Feb 2011 14:16:36 -0600
-Date: Thu, 17 Feb 2011 14:16:36 -0600
-From: Mike Miller <mike.miller@hp.com>
-Subject: fio Makefile bug
-Message-ID: <20110217201636.GA11681@beardog.cce.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Received: from mx2.fusionio.com ([64.244.102.31]:52065 "EHLO mx2.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758566Ab1COU45 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 15 Mar 2011 16:56:57 -0400
+Message-ID: <4D7FD295.6020006@fusionio.com>
+Date: Tue, 15 Mar 2011 21:56:53 +0100
+From: Jens Axboe <jaxboe@fusionio.com>
+MIME-Version: 1.0
+Subject: Re: memory caching
+References: <C9A519EC.108B4%hussein@cscs.ch>,<4D7FCBDE.2080206@fusionio.com> <8512BC127909424EB483ED236E6AC3C003D6F4@MBX20.d.ethz.ch>
+In-Reply-To: <8512BC127909424EB483ED236E6AC3C003D6F4@MBX20.d.ethz.ch>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "N. Harake" <hussein@cscs.ch>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-I ran across this when trying to run make on fio v1.50.
+On 2011-03-15 21:54, N. Harake wrote:
+> 
+> Things improved but maybe too much :), I was expecting a 100K IOPS not more
+> 
+> server1:~ # fio --name=job --directory=/lvm --size=1G --filesize=1G --iodepth=128 --iodepth_batch_complete=8 --iodepth_batch_submit=8 --ioengine=libaio --direct=1 --numjobs=64 --bs= 4096 --rw=randwrite --group_reporting
+> Jobs: 50 (f=50): [wwwwww_wwwwwww_wwwwwwwwww_wwwwwwwwwww_www_www_ww_www___ww_w__w_w] [98.3% done] [0K/570.8M /s] [0 /143K iops] [eta 00m:02s]
+> 
+>   write: io=65536MB, bw=584771KB/s, iops=146192 , runt=114761msec
 
-spike:/tmp/fio-1.50 # make
-Makefile:25: Extraneous text after `else' directive
-Makefile:30: Extraneous text after `else' directive
-Makefile:30: *** only one `else' per conditional.  Stop.
+If you use numjobs=64, you probably don't want 128 for io depth. Not
+very realistic, and you'll likely end up running slower than you could.
 
-OS info:
+-- 
+Jens Axboe
 
-spike:/tmp/fio-1.50 # cat /etc/issue
-
-Welcome to SUSE Linux Enterprise Server 10 SP4 RC2 (x86_64) - Kernel \r
-(\l).
-
-spike:/tmp/fio-1.50 # uname -a
-Linux spike 2.6.16.60-0.81.1-smp #1 SMP Tue Feb 8 06:02:54 UTC 2011 x86_64
-x86_64 x86_64 GNU/Linux
-
-The offendinding lines:
-else ifeq ($(UNAME), SunOS)
-  SOURCE += fifo.c lib/strsep.c helpers.c solaris.c engines/posixaio.c \
-                engines/solarisaio.c
-  LIBS   += -lpthread -ldl -laio -lrt -lnsl -lsocket
-  CPPFLAGS += -D__EXTENSIONS__
-else ifeq ($(UNAME), FreeBSD)
-  SOURCE += helpers.c engines/posixaio.c
-  LIBS   += -lpthread -lrt
-  CFLAGS += -rdynamic
-else ifeq ($(UNAME), NetBSD)
-  SOURCE += helpers.c engines/posixaio.c
-  LIBS   += -lpthread -lrt
-  CFLAGS += -rdynamic
-else ifeq ($(UNAME), AIX)
-  SOURCE += fifo.c helpers.c lib/getopt_long.c engines/posixaio.c
-  LIBS   += -lpthread -ldl -lrt
-  CFLAGS += -rdynamic
-  CPPFLAGS += -D_LARGE_FILES -D__ppc__
-else ifeq ($(UNAME), Darwin)
-  SOURCE += helpers.c engines/posixaio.c
-  LIBS   += -lpthread -ldl
-else ifneq (,$(findstring CYGWIN,$(UNAME)))
-  SOURCE += engines/windowsaio.c
-  LIBS   += -lpthread -lrt
-
-To workaround it I simply deleted those lines.
-
--- mikem
