@@ -1,9 +1,9 @@
 Return-Path: <hussein@cscs.ch>
 MIME-Version: 1.0
 From: "N. Harake" <hussein@cscs.ch>
-Date: Tue, 15 Mar 2011 14:54:06 -0600
+Date: Tue, 15 Mar 2011 14:46:14 -0600
 Subject: RE: memory caching
-Message-ID: <8512BC127909424EB483ED236E6AC3C003D6F4@MBX20.d.ethz.ch>
+Message-ID: <8512BC127909424EB483ED236E6AC3C003D6E6@MBX20.d.ethz.ch>
 References: <C9A519EC.108B4%hussein@cscs.ch>,<4D7FCBDE.2080206@fusionio.com>
 In-Reply-To: <4D7FCBDE.2080206@fusionio.com>
 Content-Language: en-US
@@ -14,18 +14,13 @@ Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
 
-Things improved but maybe too much :), I was expecting a 100K IOPS not more
+Thanks for your reply, indeed my interest to get the max iops but on a file=
+system not a raw device,=20
+I understand the penalty but that would be more realstic for production sys=
+tems. I will try these changes and keep you updated .
 
-server1:~ # fio --name=3Djob --directory=3D/lvm --size=3D1G --filesize=3D1G=
- --iodepth=3D128 --iodepth_batch_complete=3D8 --iodepth_batch_submit=3D8 --=
-ioengine=3Dlibaio --direct=3D1 --numjobs=3D64 --bs=3D 4096 --rw=3Drandwrite=
- --group_reporting
-Jobs: 50 (f=3D50): [wwwwww_wwwwwww_wwwwwwwwww_wwwwwwwwwww_www_www_ww_www___=
-ww_w__w_w] [98.3% done] [0K/570.8M /s] [0 /143K iops] [eta 00m:02s]
-
-  write: io=3D65536MB, bw=3D584771KB/s, iops=3D146192 , runt=3D114761msec
-
-H. Harake
+All the best
+H. N. Harake
 
 ________________________________________
 From: Jens Axboe [jaxboe@fusionio.com]
