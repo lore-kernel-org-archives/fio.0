@@ -1,26 +1,24 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:45255 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751146Ab1CUPhS (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 21 Mar 2011 11:37:18 -0400
-Received: by ewy4 with SMTP id 4so1549768ewy.19
-        for <fio@vger.kernel.org>; Mon, 21 Mar 2011 08:37:17 -0700 (PDT)
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:37309 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751259Ab1CUPA2 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 21 Mar 2011 11:00:28 -0400
+Received: by eyx24 with SMTP id 24so1533337eyx.19
+        for <fio@vger.kernel.org>; Mon, 21 Mar 2011 08:00:26 -0700 (PDT)
 From: =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@gmail.com>
 Subject: [PATCH] Fix linking of fio executable.
-Date: Mon, 21 Mar 2011 16:36:20 +0100
-Message-Id: <1300721780-17201-1-git-send-email-flameeyes@gmail.com>
+Date: Mon, 21 Mar 2011 15:59:49 +0100
+Message-Id: <1300719589-7779-1-git-send-email-flameeyes@gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@gmail.com>, "Robin H. Johnson" <robbat2@gentoo.org>
+Cc: =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@gmail.com>
 
 First of all make sure that $(LDFLAGS) are used during linking so that the
 user can set the linker's flags.
 
 Then also make sure that libraries are listed after the objects, so that
 GNU ld's --as-needed option will not cause fio linking to fail.
-
-Cc: Robin H. Johnson <robbat2@gentoo.org>
 ---
  Makefile |    4 ++--
  1 files changed, 2 insertions(+), 2 deletions(-)
