@@ -1,30 +1,31 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx1.fusionio.com ([64.244.102.30]:48665 "EHLO mx1.fusionio.com"
+Received: from muon.cran.org.uk ([93.89.92.64]:57173 "EHLO muon.cran.org.uk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753831Ab1DGOsc (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 7 Apr 2011 10:48:32 -0400
-Received: from mail1.int.fusionio.com (mail1.int.fusionio.com [10.101.1.21]) by mx1.fusionio.com with ESMTP id 1cW3za5rSyQ4Vvlu for <fio@vger.kernel.org>; Thu, 07 Apr 2011 08:48:31 -0600 (MDT)
-Message-ID: <4D9DCEBF.4060300@fusionio.com>
-Date: Thu, 7 Apr 2011 16:48:31 +0200
-From: Jens Axboe <jaxboe@fusionio.com>
-MIME-Version: 1.0
-Subject: git.kernel.dk
-Content-Type: text/plain; charset="ISO-8859-1"
+	id S1751087Ab1DGMql (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 7 Apr 2011 08:46:41 -0400
+Received: from muon.cran.org.uk (localhost [127.0.0.1])
+	by muon.cran.org.uk (Postfix) with ESMTP id B04D2E617C
+	for <fio@vger.kernel.org>; Thu,  7 Apr 2011 13:40:20 +0100 (BST)
+Received: from unknown (188-222-18-231.zone13.bethere.co.uk [188.222.18.231])
+	(using TLSv1 with cipher DHE-RSA-AES128-SHA (128/128 bits))
+	(No client certificate requested)
+	by muon.cran.org.uk (Postfix) with ESMTPSA id 78C50E6178
+	for <fio@vger.kernel.org>; Thu,  7 Apr 2011 13:40:20 +0100 (BST)
+Date: Thu, 7 Apr 2011 13:40:21 +0100
+From: Bruce Cran <bruce@cran.org.uk>
+Subject: Can't access git repository
+Message-ID: <20110407134021.000062f7@unknown>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
 Hi,
 
-As you may have noticed, git.kernel.dk lost its internet
-link. I am currently traveling, so I can't fix it until
-on sunday.
-
-In the mean time, you can use this mirror:
-
-git://git.kernel.org/pub/scm/linux/kernel/git/axboe/fio.git
+I've not been able to access the code via git.kernel.dk for a
+while - is git.kernel.dk offline?
 
 -- 
-Jens Axboe
-
+Bruce Cran
