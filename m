@@ -1,44 +1,59 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:37309 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751259Ab1CUPA2 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 21 Mar 2011 11:00:28 -0400
-Received: by eyx24 with SMTP id 24so1533337eyx.19
-        for <fio@vger.kernel.org>; Mon, 21 Mar 2011 08:00:26 -0700 (PDT)
-From: =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@gmail.com>
-Subject: [PATCH] Fix linking of fio executable.
-Date: Mon, 21 Mar 2011 15:59:49 +0100
-Message-Id: <1300719589-7779-1-git-send-email-flameeyes@gmail.com>
+Received: from mx2.fusionio.com ([64.244.102.31]:55650 "EHLO mx2.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758797Ab1DYSvs (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 25 Apr 2011 14:51:48 -0400
+Message-ID: <4DB5C2BE.6030809@fusionio.com>
+Date: Mon, 25 Apr 2011 20:51:42 +0200
+From: Jens Axboe <jaxboe@fusionio.com>
+MIME-Version: 1.0
+Subject: Re: [BUG] [PATCH] Undefined symbols: "_posix_memalign" on Mac OS   X
+References: <BANLkTiktKRjW235qUUFAMES88BbQXNc5cw@mail.gmail.com> <20110423110636.00004ef3@unknown> <4DB55E3C.1040305@fusionio.com>
+In-Reply-To: <4DB55E3C.1040305@fusionio.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@gmail.com>
+To: Bruce Cran <bruce@cran.org.uk>
+Cc: Filip Sneppe <filip.sneppe@gmail.com>, fio@vger.kernel.org
 
-First of all make sure that $(LDFLAGS) are used during linking so that the
-user can set the linker's flags.
+On 2011-04-25 13:42, Jens Axboe wrote:
+> On 2011-04-23 12:06, Bruce Cran wrote:
+>> On Sat, 23 Apr 2011 05:57:26 +0200
+>> Filip Sneppe <filip.sneppe@gmail.com> wrote:
+>>  
+>>> (I am not subscribed to this list, nor am I a Unix developer).
+>>>
+>>> I wanted to give fio a try on my OS X 10.5.8 machine, but
+>>> this is the error I received when compiling:
+>>>
+>>>     CC helpers.o
+>>>     CC engines/posixaio.o
+>>>     DEP depend
+>>>     CC fio
+>>> Undefined symbols:
+>>>   "_posix_memalign", referenced from:
+>>>       _thread_main in fio.o
+>>> ld: symbol(s) not found
+>>> collect2: ld returned 1 exit status
+>>> make: *** [fio] Error 1
+>>>
+>>> After some googling, I learned that OS X doesn't
+>>> provide _posix_memalign, and that apparently it's not
+>>> needed on this platform. I "fixed" my compile problem with the
+>>> attached patch. You may find it useful to write a better fix for this.
+>>
+>> I think Apple have added it in 10.6, but obviously fio needs to run on
+>> older versions too.
+> 
+> Solaris has a helper, too. Does 10.6 have memalign or another
+> alternative function?
 
-Then also make sure that libraries are listed after the objects, so that
-GNU ld's --as-needed option will not cause fio linking to fail.
----
- Makefile |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+We only use it for io_u allocations outside of places where we do have
+posix_memalign() support. I just added a simpler malloc() wrapper that
+aligns for that purpose, so we don't use posix_memalign() in the core
+code anymore.
 
-diff --git a/Makefile b/Makefile
-index 07e011e..1d81562 100644
---- a/Makefile
-+++ b/Makefile
-@@ -70,9 +70,9 @@ mandir = $(prefix)/man
- 
- .c.o:
- 	$(QUIET_CC)$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $<
--	
-+
- fio: $(OBJS)
--	$(QUIET_CC)$(CC) $(CFLAGS) -o $@ $(LIBS) $(OBJS)
-+	$(QUIET_CC)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
- 
- depend:
- 	$(QUIET_DEP)$(CC) -MM $(CFLAGS) $(CPPFLAGS) $(SOURCE) 1> .depend
 -- 
-1.7.4.1
+Jens Axboe
 
