@@ -1,67 +1,89 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mtagate7.uk.ibm.com ([194.196.100.167]:33712 "EHLO
-	mtagate7.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933664Ab1ETOmo (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 20 May 2011 10:42:44 -0400
-Received: from d06nrmr1507.portsmouth.uk.ibm.com (d06nrmr1507.portsmouth.uk.ibm.com [9.149.38.233])
-	by mtagate7.uk.ibm.com (8.13.1/8.13.1) with ESMTP id p4KEggU7002822
-	for <fio@vger.kernel.org>; Fri, 20 May 2011 14:42:42 GMT
-Received: from d06av01.portsmouth.uk.ibm.com (d06av01.portsmouth.uk.ibm.com [9.149.37.212])
-	by d06nrmr1507.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id p4KEgg0a2302014
-	for <fio@vger.kernel.org>; Fri, 20 May 2011 15:42:42 +0100
-Received: from d06av01.portsmouth.uk.ibm.com (loopback [127.0.0.1])
-	by d06av01.portsmouth.uk.ibm.com (8.14.4/8.13.1/NCO v10.0 AVout) with ESMTP id p4KEgflb029614
-	for <fio@vger.kernel.org>; Fri, 20 May 2011 08:42:41 -0600
-Received: from d12mc302.megacenter.de.ibm.com (d12mc302.megacenter.de.ibm.com [9.149.170.82])
-	by d06av01.portsmouth.uk.ibm.com (8.14.4/8.13.1/NCO v10.0 AVin) with ESMTP id p4KEgfWc029536
-	for <fio@vger.kernel.org>; Fri, 20 May 2011 08:42:41 -0600
-Subject: fadvise and small random reads
-Message-ID: <OFEB35B0EC.DA0CC6A8-ONC1257896.004DEE8A-C1257896.0050CE26@ch.ibm.com>
-From: Animesh K Trivedi1 <ATR@zurich.ibm.com>
-Date: Fri, 20 May 2011 16:42:36 +0200
+Received: from mx2.fusionio.com ([66.114.96.31]:52045 "EHLO mx2.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755870Ab1EMTbJ (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 13 May 2011 15:31:09 -0400
+Message-ID: <4DCD8436.6080906@fusionio.com>
+Date: Fri, 13 May 2011 21:19:18 +0200
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Subject: Re: reading tmpfs with splice ioengine
+References: <BANLkTimcc9d-kfsgSqfsbSS=ffG5OMK_jA@mail.gmail.com>
+In-Reply-To: <BANLkTimcc9d-kfsgSqfsbSS=ffG5OMK_jA@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Vasilis Liaskovitis <vliaskov@gmail.com>
+Cc: fio@vger.kernel.org
 
+On 2011-05-13 18:07, Vasilis Liaskovitis wrote:
+> Hi,
+> 
+> I am trying to use the splice ioengine to read/write from/to tmpfs (/dev/shm).
+> 
+> Writing works fine e.g. with the following fio config:
+> [sw]
+> rw=write
+> size=1g
+> directory=/dev/shm
+> iodepth=32
+> direct=0
+> blocksize=512k
+> numjobs=1
+> nrfiles=1
+> ioengine=splice
+> loops=1
+> group_reporting
+> create_on_open=1
+> create_serialize=0
+> 
+> But reading the same file afterwards with the splice ioengine fails:
+> [sw]
+> rw=read
+> size=1g
+> directory=/dev/shm
+> iodepth=32
+> direct=0
+> blocksize=512k
+> numjobs=1
+> nrfiles=1
+> ioengine=splice
+> loops=1
+> group_reporting
+> 
+> root@server1:~/fio# ./fio  /root/fior_splice.fio
+> sw: (g=0): rw=read, bs=512K-512K/512K-512K, ioengine=splice, iodepth=32
+> fio 1.53
+> Starting 1 process
+> fio: pid=17504, err=22/file:filesetup.c:502,
+> func=open(/dev/shm/sw.1.0), error=Invalid argument
+> Run status group 0 (all jobs):
+> 
+> Is something misconfigured in the fio read config?
+> The --debug=all output is:
 
-Hi all,
+It's a bug in fio. We used to set O_DIRECT just in case vmsplice could
+map into user address space, which is why it fails (/dev/shm/ does not
+do O_DIRECT). There's actually a way to set this correctly now, the
+below patch will work for you.
 
-I'm running the random read test on a 64MB file with 4K block size. The
-file is small enough to fit in the buffer cache of the system (8 GB DRAM).
-But default fadvise calls to OS pass two flags (POSIX_FADV_DONTNEED, and
-POSIX_FADV_RANDOM). With these two settings OS does not try to cache any
-reads and they all go to the disk. I get ~280 IOPS with 99% disk
-utilization. And that is fine. But even when I turn fadvise_hint=0, it
-shows the similar behaviour. Upon further investigation I noticed that
-irrespective of settings, POSIX_FADV_DONTNEED is always passed to OS
-(filesetup.c, line 361). Should not it also be restricted when
---fadvise_hint is set to zero ?
+I'll commit it now.
 
-If I don't pass any hint to OS, then after stabilizing whole  file is
-cached in the buffer and IOPS reaches upto 700+K (which I was expecting for
-small file sizes). Here is the snipped sample output :
+diff --git a/engines/splice.c b/engines/splice.c
+index be16cbb..aa00234 100644
+--- a/engines/splice.c
++++ b/engines/splice.c
+@@ -284,7 +284,7 @@ static int fio_spliceio_init(struct thread_data *td)
+ 	 * buffers. Just set ->odirect to force that.
+ 	 */
+ 	if (td_read(td))
+-		td->o.odirect = 1;
++		td->o.mem_align = 1;
+ 
+ 	td->io_ops->data = sd;
+ 	return 0;
 
-fio --fadvise_hint=0 --ioengine=psync --direct=0 --rw=randread --bs=4K
---size=64M --numjob=1 --runtime=60 --time_based --group_reporting
---name=file
-file: (g=0): rw=randread, bs=4K-4K/4K-4K, ioengine=psync, iodepth=1
-fio 1.54
-Starting 1 process
-Jobs: 1 (f=1): [r] [100.0% done] [3043M/0K /s] [761K/0  iops] [eta 00m:00s]
-file: (groupid=0, jobs=1): err= 0: pid=3820
-  read : io=121156MB, bw=2019.3MB/s, iops=516931 , runt= 60000msec
-......
-Disk stats (read/write):
-  sda: ios=7742/82, merge=0/4060, ticks=34608/9112, in_queue=43712,
-util=32.27%
-
-Am I missing something ?
-
-cheers,
---
-Animesh
-
-PS ~  I am not on the list so please cc me in the reply.
+-- 
+Jens Axboe
 
