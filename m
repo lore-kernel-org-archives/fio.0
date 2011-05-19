@@ -1,101 +1,140 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:44058 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754395Ab1EMQHq (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 13 May 2011 12:07:46 -0400
-Received: by gyd10 with SMTP id 10so928122gyd.19
-        for <fio@vger.kernel.org>; Fri, 13 May 2011 09:07:46 -0700 (PDT)
+Received: from n1c.bullet.cnmail.cnb.yahoo.com ([202.43.217.65]:40499 "HELO
+	n1c.bullet.cnmail.cnb.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1755536Ab1ESCBU convert rfc822-to-8bit
+	(ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 18 May 2011 22:01:20 -0400
+Message-ID: <306004.16881.qm@web15804.mail.cnb.yahoo.com>
+Date: Thu, 19 May 2011 09:55:24 +0800 (CST)
+From: ren yufei <renyufei83@yahoo.com.cn>
+Reply-To: ren yufei <renyufei83@yahoo.com.cn>
+Subject: comparision sync io
 MIME-Version: 1.0
-Date: Fri, 13 May 2011 18:07:45 +0200
-Message-ID: <BANLkTimcc9d-kfsgSqfsbSS=ffG5OMK_jA@mail.gmail.com>
-Subject: reading tmpfs with splice ioengine
-From: Vasilis Liaskovitis <vliaskov@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
 Hi,
 
-I am trying to use the splice ioengine to read/write from/to tmpfs (/dev/shm).
+I have tested fio with sync engine and my simple io app based on read in th=
+e same environment. fio is more efficient in the same testbed. I check the =
+fio sync logic, but I didn't get the reason. Could anyone explain for me? H=
+ow could fio utilize cpu to get better bandwidth?
 
-Writing works fine e.g. with the following fio config:
-[sw]
-rw=write
-size=1g
-directory=/dev/shm
-iodepth=32
-direct=0
-blocksize=512k
-numjobs=1
-nrfiles=1
-ioengine=splice
-loops=1
-group_reporting
-create_on_open=1
-create_serialize=0
 
-But reading the same file afterwards with the splice ioengine fails:
-[sw]
-rw=read
-size=1g
-directory=/dev/shm
-iodepth=32
-direct=0
-blocksize=512k
-numjobs=1
-nrfiles=1
-ioengine=splice
-loops=1
-group_reporting
+bandwidth result
+--
+fio:=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=
+=BD 805.26 MBytes/sec: aggrb=3D824579KB/s=20
+my app: 555.00 MBytes/sec
 
-root@server1:~/fio# ./fio  /root/fior_splice.fio
-sw: (g=0): rw=read, bs=512K-512K/512K-512K, ioengine=splice, iodepth=32
-fio 1.53
+cpu usage
+--
+fio: 39%
+my app: 26%
+
+
+my app logic
+--
+thread 1:
+
+bufsiz =3D 1MB
+
+
+open(O_RDONLY)
+
+while ( (cl =3D read(fd, buf, bufsiz)) > 0)
+=EF=BF=BD=EF=BF=BD=EF=BF=BD totallen +=3D cl;
+
+thread 2:
+calculate the bandwidth every few seconds.
+
+
+fio
+--
+
+1) jobfile
+
+[global]
+ioengine=3Dsync
+direct=3D0
+bs=3D1M
+rw=3Dread
+directory=3D/data/fio
+ioscheduler=3Ddeadline
+time_based
+runtime=3D60
+
+[job]
+filename=3Dreadhg
+size=3D100g
+iodepth=3D16
+
+2) test result
+
+job: (g=3D0): rw=3Dread, bs=3D1M-1M/1M-1M, ioengine=3Dsync, iodepth=3D16
+fio 1.54
 Starting 1 process
-fio: pid=17504, err=22/file:filesetup.c:502,
-func=open(/dev/shm/sw.1.0), error=Invalid argument
+Jobs: 1 (f=3D1): [R] [100.0% done] [777.1M/0K /s] [759 /0=EF=BF=BD iops] [e=
+ta=20
+
+00m:00s]
+job: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D15733
+=EF=BF=BD read : io=3D48316MB, bw=3D824579KB/s, iops=3D805 , runt=3D 60001m=
+sec
+=EF=BF=BD=EF=BF=BD=EF=BF=BD clat (usec): min=3D826 , max=3D38326 , avg=3D12=
+38.18, stdev=3D294.26
+=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD lat (usec): min=3D826 , max=3D38327 , =
+avg=3D1238.47, stdev=3D294.25
+=EF=BF=BD=EF=BF=BD=EF=BF=BD bw (KB/s) : min=3D731136, max=3D976896, per=3D1=
+00.14%, avg=3D825702.05,=20
+
+stdev=3D51012.43
+=EF=BF=BD cpu=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=
+=BD=EF=BF=BD=EF=BF=BD : usr=3D0.43%, sys=3D43.70%, ctx=3D102003, majf=3D0, =
+minf=3D280
+=EF=BF=BD IO depths=EF=BF=BD=EF=BF=BD=EF=BF=BD : 1=3D100.0%, 2=3D0.0%, 4=3D=
+0.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%,=20
+
+>=3D64=3D0.0%
+=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD submit=EF=BF=BD=EF=BF=BD=EF=BF=BD : 0=
+=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=3D0.0%,=20
+
+>=3D64=3D0.0%
+=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD complete=EF=BF=BD : 0=3D0.0%, 4=3D100.=
+0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=3D0.0%,=20
+
+>=3D64=3D0.0%
+=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD issued r/w/d: total=3D48316/0/0, short=
+=3D0/0/0
+=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD lat (usec): 1000=3D3.90%
+=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD lat (msec): 2=3D95.95%, 4=3D0.06%, 10=
+=3D0.09%, 20=3D0.01%, 50=3D0.01%
+
 Run status group 0 (all jobs):
+=EF=BF=BD=EF=BF=BD READ: io=3D48316MB, aggrb=3D824579KB/s, minb=3D844369KB/=
+s, maxb=3D844369KB/s,=20
 
-Is something misconfigured in the fio read config?
-The --debug=all output is:
+mint=3D60001msec, maxt=3D60001msec
 
-Starting 1 process
-file     17517 setup files
-file     17517 get file size for 0x7f2f87451028/0/0x7f2f87451108
-diskutil 17517 /dev/shm/sw.1.0 belongs to maj/min 0/17
-process  17517 pid=0: runstate 0 -> 1
-process  17517 will fork
-mutex    17517 wait on startup_mutex
-process  17519 jobs pid=17519 started
-process  17519 pid=17519: runstate 1 -> 2
-mutex    17519 up startup_mutex
-mutex    17519 wait on td->mutex
-mutex    17517 done waiting on startup_mutex
-process  17517 pid=17519: runstate 2 -> 4
-mutex    17519 done waiting on td->mutex
-mem      17519 Alloc 16777216 for buffers
-[...]
-file     17519 trying file /dev/shm/sw.1.0 10
-file     17519 fd open /dev/shm/sw.1.0
-file     17519 file not found in hash /dev/shm/sw.1.0
-file     17519 get file /dev/shm/sw.1.0, ref=0
-io       17519 invalidate cache /dev/shm/sw.1.0: 0/1073741824
-file     17519 fd close /dev/shm/sw.1.0
-file     17519 error 1 on open of /dev/shm/sw.1.0
-file     17519 get_next_file_rr: (nil)
-fio: pid=17519, got signal=11
-process  17517 pid=17519: runstate 4 -> 9
-process  17517 terminate group_id=-1
-process  17517 setting terminate on sw/17519
-diskutil 17517 update io ticks
+Disk stats (read/write):
+=EF=BF=BD sdb: ios=3D193022/22, merge=3D0/11, ticks=3D67943/112, in_queue=
+=3D81657,=20
+
+util=3D80.52%
 
 
-Other fio ioengines (sync, vsync) work fine for both reading/writing
-on tmpfs. Also, other splice tests can do both reads and writes to
-tmpfs (e.g. splice-cp).
 
-This happens with current fio-master or fio-1.38-1 (debian package)
-thanks for any comments,
+notes
+--
+each time before i do the test, the cache is cleaned.
+# sync; echo 3 > /proc/sys/vm/drop_caches
 
-- Vasilis
+
+Thanks.
+
+Yufei
+
+
