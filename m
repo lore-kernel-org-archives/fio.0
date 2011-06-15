@@ -1,56 +1,121 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx2.fusionio.com ([66.114.96.31]:34586 "EHLO mx2.fusionio.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758757Ab1FAKqR (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 1 Jun 2011 06:46:17 -0400
-Message-ID: <4DE61875.4070501@fusionio.com>
-Date: Wed, 1 Jun 2011 12:46:13 +0200
-From: Jens Axboe <jaxboe@fusionio.com>
+Return-Path: <egouriou@google.com>
 MIME-Version: 1.0
-Subject: Re: Unaligned AIO/DIO
-References: <4DE531D0.40600@arvin.dk>
-In-Reply-To: <4DE531D0.40600@arvin.dk>
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Troels Arvin <troels@arvin.dk>
-Cc: fio@vger.kernel.org
+In-Reply-To: <4DF7BD7D.3040708@kernel.dk>
+References: <1308080427-31011-1-git-send-email-egouriou@google.com>
+	<4DF7BD7D.3040708@kernel.dk>
+Date: Tue, 14 Jun 2011 18:08:18 -0700
+Message-ID: <BANLkTikwoK4uwO79Lyxrt_cy152ZRDcXyQO5SuOS7ijdaKz_sQ@mail.gmail.com>
+Subject: Re: [PATCH] Add fallocate_keep_size option and functionality
+From: Eric Gouriou <egouriou@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org, Nauman Rafique <nauman@google.com>, Daniel Ehrenberg <dehrenberg@google.com>
+List-ID: <fio@vger.kernel.org>
 
-On 2011-05-31 20:22, Troels Arvin wrote:
-> Hello,
-> 
-> Running fio 1.55 on RHEL 6.1 x86_64 with a multipath FC storage backend on an EXT4 file system.
-> 
-> Some minutes after starting fio, I see the following in syslog:
-> kernel: EXT4-fs (dm-28): Unaligned AIO/DIO on inode 4063238 by fio; performance will be poor.
-> 
-> Should I be worried? Is there something wrong with my storage layout?
-> Or am I using fio in strange way?
-> 
-> My job file:
-> 
-> [changed-from-iometer-file-access-server]
-> bssplit=512/10:1k/5:2k/5:4k/60:8k/2:16k/4:32k/4:64k/10
-> rw=randrw
-> rwmixread=70
-> direct=1
-> size=10g
-> ioengine=libaio
-> iodepth=256
-> write_bw_log
-> write_lat_log
-> numjobs=6
+Hi Jens,
 
-Do you have the RHEL6.1 kernel sources handy? That message is not in the
-upstream kernel. Unaligned could be memory, or it could be offset/size.
-In general O_DIRECT does not work for unaligned IO. Perhaps it's
-referring to writes that aren't stripe aligned, but that seems fairly
-expected and something dm should handle.
+On Tue, Jun 14, 2011 at 12:58 PM, Jens Axboe <axboe@kernel.dk> wrote:
+> On 2011-06-14 21:40, Eric Gouriou wrote:
+>> Linux offers fallocate() and the FALLOC_FL_KEEP_SIZE option as
+>> an alternative to posix_fallocate(). When FALLOC_FL_KEEP_SIZE is
+>> specified for an falloc request going beyond the end of the file,
+>> the requested blocks get preallocated without changing the apparent
+>> size of the file. This is is a commonly recommended use of fallocate()
+>> for workloads performing append writes.
+>>
+>> On systems where FALLOC_FL_KEEP_SIZE is available (i.e., Linux at this
+>> time), this patch add a fallocate_keep_size option, which is off by
+>> default. When *both* the options fallocate and fallocate_keep_size are
+>> set, then fallocate() will be used with FALLOC_FL_KEEP_SIZE set,
+>> instead of the default posix_fallocate().
+>>
+>> Signed-off-by: Eric Gouriou <egouriou@google.com>
+>> ---
+>> I tried to follow the existing style and practices. I am wondering
+>> whether introducing 'fallocate_keep_size' is the best way, or whether
+>> I should have changed the existing 'fallocate' option from a boolean
+>> option to a string option. Let me know what you think.
+>
+> Perhaps we could use just the one option, and have 0/1 retain they
+> meaning and add "keep" or something as the new variant.
 
-So to render an opinion on this, I'd need to see a copy of the file that
-prints that message :-)
+Certainly. Please check my assumptions: the suggestion is to change
+"fallocate" to use FIO_OPT_STR with .posval values of "0", "1",
+and "keep".
 
--- 
-Jens Axboe
+If so, do you suggest that all options should be presented to all platforms=
+,
+or have "keep" only show up when FIO_HAVE_LINUX_FALLOCATE is present?
+- if I always have "keep" available, what do you suggest we do when
+ FIO_HAVE_LINUX_FALLOCATE is not defined? Fail in a verify_xxx()
+ callback?
+- if we only have "keep" available on when FIO_HAVE_LINUX_FALLOCATE
+  is defined, then other platforms have, in effect, a boolean flag which do=
+es
+  not behave as the other boolean flags when given invalid values.
+
+There is nothing major here, I'm mostly looking for stylistic/idiom prefere=
+nces.
+
+> Other than that, just one comment:
+>
+>> diff --git a/helpers.c b/helpers.c
+>> index 377dd02..0da2fd7 100644
+>> --- a/helpers.c
+>> +++ b/helpers.c
+>> @@ -14,6 +14,11 @@ int __weak posix_fallocate(int fd, off_t offset, off_=
+t len)
+>> =C2=A0{
+>> =C2=A0 =C2=A0 =C2=A0 return 0;
+>> =C2=A0}
+>> +
+>> +int __weak fallocate(int fd, int mode, off_t offset, off_t len)
+>> +{
+>> + =C2=A0 =C2=A0 return 0;
+>> +}
+>> =C2=A0#endif
+>
+> Say we have posix_fallocate() and not fallocate(), have it call
+> posix_fallocate()?
+
+Thanks for highlighting this part of the code. While adding this, I was uns=
+ure
+about whether it was at all useful. Currently the only use of the linux-spe=
+cific
+fallocate() is with the FALLOC_FL_KEEP_SIZE flag, Since this flag is define=
+d
+in the same header file that defines fallocate(), I'm not really
+seeing the point
+of the weak definition. I mostly followed what had been done for
+posix_fallocate().
+
+I'm unclear whether there is a point in shimming fallocate() calls towards
+posix_fallocate(). Currently the only use of fallocate() has
+significant semantic
+differences compared to what posix_fallocate() offers. Would we want to war=
+n
+users if the shimming is ever used? (if so, what's the custom?)
+
+The shimming would also involve writing to errno as posix_fallocate() follo=
+ws
+the more recent POSIX convention of returning error values directly while
+fallocate() follows the Unix tradition of returning 0/-1 and error values i=
+n
+errno.
+
+I'm open to add such logic. I'd appreciate further feedback regarding its
+appropriateness and the wisdom of even defining this weak version.
+
+ Thanks - Eric
+
+>
+> --
+> Jens Axboe
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =C2=A0http://vger.kernel.org/majordomo-info.html
+>
 
