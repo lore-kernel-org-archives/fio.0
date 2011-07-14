@@ -1,67 +1,52 @@
-Return-Path: <dehrenberg@google.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mx2.fusionio.com ([66.114.96.31]:60694 "EHLO mx2.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753711Ab1GNHTC (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 14 Jul 2011 03:19:02 -0400
+Message-ID: <4E1E9861.7080008@fusionio.com>
+Date: Thu, 14 Jul 2011 09:18:57 +0200
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-From: Dan Ehrenberg <dehrenberg@google.com>
-Date: Wed, 20 Jul 2011 15:11:19 -0600
-Subject: [PATCH 2/2] Libaio engine support for iodepth_batch_complete=0
-Message-ID: <1311196279-7373-2-git-send-email-dehrenberg@google.com>
-References: <1311196279-7373-1-git-send-email-dehrenberg@google.com>
-In-Reply-To: <1311196279-7373-1-git-send-email-dehrenberg@google.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <JAxboe@fusionio.com>
-Cc: Dan Ehrenberg <dehrenberg@google.com>
-List-ID: <fio@vger.kernel.org>
+Subject: Re: Calling Linux io_getevents without blocking
+References: <CAAK6Zt2ZJnHEAbNhHpXCiOzBGVfeVhA3yto-8OPTGz-KKZW+Sg@mail.gmail.com>
+In-Reply-To: <CAAK6Zt2ZJnHEAbNhHpXCiOzBGVfeVhA3yto-8OPTGz-KKZW+Sg@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Daniel Ehrenberg <dehrenberg@google.com>
+Cc: fio@vger.kernel.org
 
-Previously, even if iodepth_batch_complete=3D0, the libaio engine
-passed in non-zero values for the min_nr value for io_getevents.
-This patch makes min_nr always 0 if iodepth_batch_complete =3D=3D 0,
-and if multiple events are required at a higher level, then
-we poll io_getevents multiple times for the events.
+On 2011-07-14 04:49, Daniel Ehrenberg wrote:
+> Hi,
+> 
+> I'm trying to recreate a workload which would call the io_getevents
+> function in Linux libaio without blocking, spinning until the result
+> comes up. There are two ways to make io_getevents return immediately
+> if there are no results: pass in a timeout of 0, or pass min_nr=0. (Of
+> course, this non-blocking way of invoking io_getevents wouldn't be
+> used by the cleanup routines, only during the main loop). I can't
+> figure out what the proper way to do this is. I don't see an option
+> that would allow this. I thought iodepth_batch_complete=0 would make
+> the min_nr be 0, but it seems that the minimum number in practice is
+> 1, as lines 555-556 establish. It looks like if
+> iodepth_batch_complete=0, then full might be false and min_nr might
+> not be set to 1, but this often isn't the case in my testing. I don't
+> see how to set a different timeout from the default, which seems to be
+> NULL.
+> 
+> Am I missing something? What would be the proper way of allowing this
+> setting in a way that doesn't break other engines? One way I hacked up
+> is to make a new boolean option which sets min_events to 0 right after
+> line 556 if enabled (and similarly for the do_io main loop). Is there
+> a better way to do it? Otherwise, would you accept a patch that
+> implements this?
 
-Signed-off-by: Dan Ehrenberg <dehrenberg@google.com>
----
- engines/libaio.c |   22 +++++++++-------------
- 1 files changed, 9 insertions(+), 13 deletions(-)
+I'd be fine with allowing the nonblocking/spinning variant if set
+explicitly. My only worry is people doing this by accident. But if
+iodepth_batch_complete was explicitly set to 0, then we should honor
+that. So I'll happily take a patch to modify that.
 
-diff --git a/engines/libaio.c b/engines/libaio.c
-index 439cd24..c837ab6 100644
---- a/engines/libaio.c
-+++ b/engines/libaio.c
-@@ -62,22 +62,18 @@ static int fio_libaio_getevents(struct thread_data *td,=
- unsigned int min,
- 				unsigned int max, struct timespec *t)
- {
- 	struct libaio_data *ld =3D td->io_ops->data;
--	int r;
-+	unsigned actual_min =3D td->o.iodepth_batch_complete =3D=3D 0 ? 0 : min;
-+	int r, events =3D 0;
-=20
- 	do {
--		r =3D io_getevents(ld->aio_ctx, min, max, ld->aio_events, t);
--		if (r >=3D (int) min)
--			break;
--		else if (r =3D=3D -EAGAIN) {
-+		r =3D io_getevents(ld->aio_ctx, actual_min, max, ld->aio_events + events=
-, t);
-+		if (r >=3D 0)
-+			events +=3D r;
-+		else if (r =3D=3D -EAGAIN)
- 			usleep(100);
--			continue;
--		} else if (r =3D=3D -EINTR)
--			continue;
--		else if (r !=3D 0)
--			break;
--	} while (1);
-+	} while (events < min);
-=20
--	return r;
-+	return r < 0 ? r : events;
- }
-=20
- static int fio_libaio_queue(struct thread_data *td, struct io_u *io_u)
---=20
-1.7.3.1
-
+-- 
+Jens Axboe
 
