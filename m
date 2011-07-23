@@ -1,35 +1,28 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx1.fusionio.com ([66.114.96.30]:55156 "EHLO mx1.fusionio.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753300Ab1GWTFz (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 23 Jul 2011 15:05:55 -0400
-Message-ID: <4E2B1B8F.5020202@fusionio.com>
-Date: Sat, 23 Jul 2011 21:05:51 +0200
-From: Jens Axboe <jaxboe@fusionio.com>
+Return-Path: <dengberg@evernote.com>
 MIME-Version: 1.0
+From: Dave Engberg <dengberg@evernote.com>
+Date: Sat, 23 Jul 2011 13:04:24 -0600
 Subject: Re: bsrange doesn't accept separate read,write values
-References: <4E2B18C5.3090602@evernote.com> <4E2B1A16.20509@fusionio.com> <4E2B1B38.5060909@evernote.com>
-In-Reply-To: <4E2B1B38.5060909@evernote.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Dave Engberg <dengberg@evernote.com>
+Message-ID: <4E2B1B38.5060909@evernote.com>
+References: <4E2B18C5.3090602@evernote.com> <4E2B1A16.20509@fusionio.com>
+In-Reply-To: <4E2B1A16.20509@fusionio.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+To: Jens Axboe <JAxboe@fusionio.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-On 2011-07-23 21:04, Dave Engberg wrote:
-> 
-> Yes, it appears to work for me. E.g. if I use this:
-> bsrange=512-23k,1k-42k
-> 
-> Then fio emits this at start-up:
-> job1: (g=0): rw=randrw, bs=512-23K/1K-42K, ioengine=sync, iodepth=1
 
-That's great. Perhaps you could look into simplifying the bssrange
-option next, then :-)
+Yes, it appears to work for me. E.g. if I use this:
+bsrange=3D512-23k,1k-42k
 
-I'll apply this one, thanks.
+Then fio emits this at start-up:
+job1: (g=3D0): rw=3Drandrw, bs=3D512-23K/1K-42K, ioengine=3Dsync, iodepth=
+=3D1
 
--- 
-Jens Axboe
+
+On 7/23/11 11:59 AM, Jens Axboe wrote:
+> Does this actually work, do you get the ranges set correctly? bssplit=20
+> has a separate parse handler for the range.=20
 
