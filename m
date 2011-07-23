@@ -1,51 +1,63 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.44.51]:63054 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754222Ab1FJTGQ (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 10 Jun 2011 15:06:16 -0400
-Received: from hpaq3.eem.corp.google.com (hpaq3.eem.corp.google.com [172.25.149.3])
-	by smtp-out.google.com with ESMTP id p5AJ6Em2013151
-	for <fio@vger.kernel.org>; Fri, 10 Jun 2011 12:06:15 -0700
-Received: from gxk22 (gxk22.prod.google.com [10.202.11.22])
-	by hpaq3.eem.corp.google.com with ESMTP id p5AJ5IFa003711
-	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <fio@vger.kernel.org>; Fri, 10 Jun 2011 12:06:13 -0700
-Received: by gxk22 with SMTP id 22so2297174gxk.30
-        for <fio@vger.kernel.org>; Fri, 10 Jun 2011 12:06:13 -0700 (PDT)
+Received: from mx1.fusionio.com ([66.114.96.30]:35016 "EHLO mx1.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751720Ab1GWLnO (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 23 Jul 2011 07:43:14 -0400
+Message-ID: <4E2AB3CE.6030700@fusionio.com>
+Date: Sat, 23 Jul 2011 13:43:10 +0200
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-From: Steven Lang <tirea@google.com>
-Date: Fri, 10 Jun 2011 12:05:53 -0700
-Message-ID: <BANLkTi=LKqCz1Pg0w3Pk8i2OzgHcQFat4A@mail.gmail.com>
-Subject: Asynch IO and fill_device
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: fio: when not using a job file, timeouts are not applied
+References: <CAAZKuFauk_dFsN-H5-r5+PjTL2F1ay1bzkGyYWpY0WVhHAW2uw@mail.gmail.com> <CANWz5fg4i5Wj9B2-719H19=7TRJty5SDrZZ=2GQv8YiKPzkWqg@mail.gmail.com> <CAAZKuFY+iZvtS8MpVBA6rYfsk-wwKqL6HZ66wGCjqXcyZXHkcg@mail.gmail.com> <CANWz5fi-=P5J=Op5o7-pr+3UMh+CLQMsnctem8hhOG2RnHuiLA@mail.gmail.com> <CAAZKuFYWPYhgpOTBGvETE+WGO9Cd+pHEr=4YJF07GHP1UZTy8g@mail.gmail.com> <CANWz5fg+a0O1tTk=FPpgR4dDGHZxaSnBP0W03FeNUFGccMMGKA@mail.gmail.com> <CAAZKuFY=QEXqSD0uHYY0u8E4uiJf2xKWbQAsKde3DWcd6jOhpw@mail.gmail.com> <CANWz5fg0RmLJVvfUevz7owHzasYtiNrMyFajgmnF6_QUOk44-A@mail.gmail.com> <CAAZKuFZ2WdK8YkLuo9ayyHe4=pv8+F7Tm1-cBO=JiQtuW5tLtA@mail.gmail.com>
+In-Reply-To: <CAAZKuFZ2WdK8YkLuo9ayyHe4=pv8+F7Tm1-cBO=JiQtuW5tLtA@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: jaxboe@fusionio.com, fio@vger.kernel.org
+To: Daniel Farina <daniel@heroku.com>
+Cc: Chris Worley <worleys@gmail.com>, fio@vger.kernel.org
 
-I found an interesting combination of using fill_device when the
-iodepth is greater than 1.  All outstanding IO causes an ENOSPC error,
-but only the first is treated specially.  The remainder come through
-and cause an error exit condition when the IO queue is being cleared.
-So it is impossible to use deep IO with fill device.
+On 2011-07-19 02:21, Daniel Farina wrote:
+> On Mon, Jul 18, 2011 at 5:19 PM, Chris Worley <worleys@gmail.com> wrote:
+>> Do you mean to be using --timeout or --runtime?
+> 
+> --timeout.  It's pretty clear the semantics using a job file and those
+> without a job file are not the same, or are you not able to reproduce
+> this?
 
-This patch should fix the issue.
+Sorry for the late reply, I'm on vacation. This should fix it.
 
+diff --git a/init.c b/init.c
+index 85bd0f7..98e10f7 100644
+--- a/init.c
++++ b/init.c
+@@ -47,7 +47,6 @@ int warnings_fatal = 0;
+ int write_bw_log = 0;
+ int read_only = 0;
+ 
+-static int def_timeout;
+ static int write_lat_log;
+ 
+ static int prev_group_jobs;
+@@ -951,8 +950,6 @@ static int fill_def_thread(void)
+ 	 * fill default options
+ 	 */
+ 	fio_fill_default_options(&def_thread);
+-
+-	def_thread.o.timeout = def_timeout;
+ 	return 0;
+ }
+ 
+@@ -1160,7 +1157,7 @@ static int parse_cmd_line(int argc, char *argv[])
+ 			smalloc_pool_size = atoi(optarg);
+ 			break;
+ 		case 't':
+-			def_timeout = atoi(optarg);
++			def_thread.o.timeout = atoi(optarg);
+ 			break;
+ 		case 'l':
+ 			write_lat_log = 1;
 
-diff --git a/fio.c b/fio.c
-index 34956e9..5ea1a2c 100644
---- a/fio.c
-+++ b/fio.c
-@@ -760,8 +760,11 @@ sync_done:
-                struct fio_file *f;
+-- 
+Jens Axboe
 
-                i = td->cur_depth;
--               if (i)
-+               if (i) {
-                        ret = io_u_queued_complete(td, i, NULL);
-+                       if (td->o.fill_device && td->error == ENOSPC)
-+                               td->error = 0;
-+               }
-
-                if (should_fsync(td) && td->o.end_fsync) {
-                        td_set_runstate(td, TD_FSYNCING);
---
