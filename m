@@ -1,54 +1,35 @@
-Return-Path: <bruce@cran.org.uk>
-Message-ID: <4E33D245.6060301@cran.org.uk>
-Date: Sat, 30 Jul 2011 10:43:33 +0100
-From: Bruce Cran <bruce@cran.org.uk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from [95.166.99.235] ([95.166.99.235]:45476 "EHLO kernel.dk"
+	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1752715Ab1G3HTH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 30 Jul 2011 03:19:07 -0400
+Message-ID: <4E33B066.5030805@kernel.dk>
+Date: Sat, 30 Jul 2011 09:19:02 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Subject: [PATCH] Use pthread_self instead of thr_self on BSD
-Content-Type: multipart/mixed;
- boundary="------------000002040100040905010006"
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
-
-This is a multi-part message in MIME format.
---------------000002040100040905010006
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH] stats: Fix computation of standard deviation
+References: <1311978223-15603-1-git-send-email-yjhong@google.com>
+In-Reply-To: <1311978223-15603-1-git-send-email-yjhong@google.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Yu-ju Hong <yjhong@google.com>
+Cc: fio@vger.kernel.org, Nauman Rafique <nauman@google.com>, Eric Gouriou <egouriou@google.com>
 
-The attached patch uses pthread_self to get the thread ID instead of the 
-non-POSIX thr_self This fixes a compiler warning on FreeBSD.
+On 2011-07-30 00:23, Yu-ju Hong wrote:
+> Fix the computation of standard deviation for a group
+> of jobs. Please see the below link for the
+> approximation formula used.
+> <http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
+> 
+> The formula was originally presented here:
+> <ftp://reports.stanford.edu/pub/cstr/reports/cs/tr/79/773/
+> CS-TR-79-773.pdf>
+
+This is great! I completely forgot about that hack. It's one of those
+things you make a note of to fix up, then forget all about it. Applied.
 
 -- 
-Bruce Cran
-
---------------000002040100040905010006
-Content-Type: text/plain;
- name="fio.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="fio.diff"
-
-ZGlmZiAtLWdpdCBhL29zL29zLWZyZWVic2QuaCBiL29zL29zLWZyZWVic2QuaA0KaW5kZXgg
-ZmFkMDUxZi4uOWRhNzkyZSAxMDA2NDQNCi0tLSBhL29zL29zLWZyZWVic2QuaA0KKysrIGIv
-b3Mvb3MtZnJlZWJzZC5oDQpAQCAtMiw2ICsyLDcgQEANCiAjZGVmaW5lIEZJT19PU19GUkVF
-QlNEX0gNCg0KICNpbmNsdWRlIDxlcnJuby5oPg0KKyNpbmNsdWRlIDxwdGhyZWFkLmg+DQog
-I2luY2x1ZGUgPHN5cy9zeXNjdGwuaD4NCiAjaW5jbHVkZSA8c3lzL2Rpc2suaD4NCg0KQEAg
-LTU0LDEwICs1NSw3IEBAIHN0YXRpYyBpbmxpbmUgdW5zaWduZWQgbG9uZyBsb25nIG9zX3Bo
-eXNfbWVtKHZvaWQpDQoNCiBzdGF0aWMgaW5saW5lIGludCBnZXR0aWQodm9pZCkNCiB7DQot
-ICAgICAgIGxvbmcgbHdwaWQ7DQotDQotICAgICAgIHRocl9zZWxmKCZsd3BpZCk7DQotICAg
-ICAgIHJldHVybiAoaW50KSBsd3BpZDsNCisgICAgICAgcmV0dXJuIChpbnQpIHB0aHJlYWRf
-c2VsZigpOw0KIH0NCg0KICNpZmRlZiBNQURWX0ZSRUUNCmRpZmYgLS1naXQgYS9vcy9vcy1u
-ZXRic2QuaCBiL29zL29zLW5ldGJzZC5oDQppbmRleCA3ZjVmNDg0Li5jNGE5MjNmIDEwMDY0
-NA0KLS0tIGEvb3Mvb3MtbmV0YnNkLmgNCisrKyBiL29zL29zLW5ldGJzZC5oDQpAQCAtMiw2
-ICsyLDcgQEANCiAjZGVmaW5lIEZJT19PU19ORVRCU0RfSA0KDQogI2luY2x1ZGUgPGVycm5v
-Lmg+DQorI2luY2x1ZGUgPHB0aHJlYWQuaD4NCiAjaW5jbHVkZSA8c3lzL3BhcmFtLmg+DQog
-LyogWFhYIGhhY2sgdG8gYXZvaWQgY29uZmlsY3RzIGJldHdlZW4gcmJ0cmVlLmggYW5kIDxz
-eXMvcmIuaD4gKi8NCiAjZGVmaW5lICAgICAgICByYl9ub2RlIF9yYl9ub2RlDQpAQCAtNDgs
-MTAgKzQ5LDcgQEAgc3RhdGljIGlubGluZSB1bnNpZ25lZCBsb25nIGxvbmcgb3NfcGh5c19t
-ZW0odm9pZCkNCg0KIHN0YXRpYyBpbmxpbmUgaW50IGdldHRpZCh2b2lkKQ0KIHsNCi0gICAg
-ICAgbG9uZyBsd3BpZDsNCi0NCi0gICAgICAgdGhyX3NlbGYoJmx3cGlkKTsNCi0gICAgICAg
-cmV0dXJuIChpbnQpIGx3cGlkOw0KKyAgICAgICByZXR1cm4gKGludCkgcHRocmVhZF9zZWxm
-KCk7DQogfQ0KDQogI2lmZGVmIE1BRFZfRlJFRQ==
---------------000002040100040905010006--
-
+Jens Axboe
 
