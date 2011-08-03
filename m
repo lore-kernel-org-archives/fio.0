@@ -1,45 +1,44 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from exprod7og127.obsmtp.com ([64.18.2.210]:59291 "HELO
-	exprod7og127.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1756985Ab1HaSB4 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 31 Aug 2011 14:01:56 -0400
-Received: by mail-yi0-f47.google.com with SMTP id 28so827431yia.20
-        for <fio@vger.kernel.org>; Wed, 31 Aug 2011 11:01:55 -0700 (PDT)
+Received: from [95.166.99.235] ([95.166.99.235]:44759 "EHLO kernel.dk"
+	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1753872Ab1HCKe7 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 3 Aug 2011 06:34:59 -0400
+Message-ID: <4E392453.9080905@kernel.dk>
+Date: Wed, 03 Aug 2011 12:34:59 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-From: Brian Fallik <bfallik@bamboom.com>
-Date: Wed, 31 Aug 2011 13:53:23 -0400
-Message-ID: <CAOYTo+2Xh=JuLi1rx_LGjfEHheRhp2RE=tT-RZ8arT7ULYziTA@mail.gmail.com>
-Subject: fio file test patterns
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: Measuring IOPS (solved, I think)
+References: <201107291737.40463.Martin@lichtvoll.de> <201108022328.52415.Martin@lichtvoll.de> <4E38F5F1.6010502@kernel.dk> (sfid-20110803_105124_014639_B1B8D621) <201108031103.05502.Martin@lichtvoll.de>
+In-Reply-To: <201108031103.05502.Martin@lichtvoll.de>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Martin Steigerwald <Martin@lichtvoll.de>
+Cc: fio@vger.kernel.org
 
-Hi,
+On 2011-08-03 11:03, Martin Steigerwald wrote:
+>> Perhaps the name isn't that great? I'll gladly put in an alias for that
+>> option, "wait_for_previous" or "barrier" or something like that. Fence?
+> 
+> wait_before? But then "wait_for_previous" might be the clearest 
+> description. "wait_before" would make sense with an "wait_after" that 
+> waits after the job for its completion. But two options for basically the 
+> same thing might complicate matters even more.
 
-Apologies if this is documented somewhere else but I couldn't find it
-in the fio man page, example job files, or list archives.
+Yes, I'm not going to add another option where only the placement of it
+would make a difference. I'll add wait_for_previous.
 
-I'm exploring fio as a testing tool and it seems very well suited for
-my needs.  I'm currently running experiments with N sequential writers
-all writing at 200k.  The jobs file is very simple:
-    [global]
-    size=10m
-    directory=.
+> So "wait_for_previous" or maybe "finish_previous_first" or just 
+> "finish_previous" would be fine with me.
+> 
+> But then this doesn´t imply that fio does a cache flush. But that could be 
+> documented in the manpage with an additional hint on this option. I will 
+> think about it and possibly provide a patch.
 
-    [foo1]
-    rw=write
-    rate=200k
+Not really impacted by that, those are controlled on a job by job basis
+anyway.
 
-    [foo2]
-    ...
-fio creates various foo* files as part of its test but they all seem
-to contain the same content.  I would have expected fio to generate
-random data in each file to avoid potential optimizations like
-deduplication.   Am I missing the flag to generate random test
-patterns or is this behavior intentional?
+-- 
+Jens Axboe
 
-I'm currently using fio 1.57.
-
-Thanks,
-brian
