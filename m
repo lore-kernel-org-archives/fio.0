@@ -1,85 +1,71 @@
-Return-Path: <Martin@lichtvoll.de>
-From: Martin Steigerwald <Martin@lichtvoll.de>
-Subject: Re: Measuring IOPS
-Date: Thu, 4 Aug 2011 10:51:15 +0200
-References: <201107291737.40463.Martin@lichtvoll.de> <201108032242.16778.Martin@lichtvoll.de> <201108032250.30096.Martin@lichtvoll.de> (sfid-20110803_225042_182315_A1EC7ADB)
-In-Reply-To: <201108032250.30096.Martin@lichtvoll.de>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mx2.fusionio.com ([66.114.96.31]:43580 "EHLO mx2.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751216Ab1HDHut (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 4 Aug 2011 03:50:49 -0400
+Message-ID: <4E3A4F55.3050003@fusionio.com>
+Date: Thu, 4 Aug 2011 09:50:45 +0200
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <201108041051.16366.Martin@lichtvoll.de>
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+Subject: Re: Measuring IOPS
+References: <201107291737.40463.Martin@lichtvoll.de> <201108032131.36188.Martin@lichtvoll.de> <x494o1yfdov.fsf@segfault.boston.devel.redhat.com> (sfid-20110803_222903_776209_B9762BAA) <201108032233.52591.Martin@lichtvoll.de>
+In-Reply-To: <201108032233.52591.Martin@lichtvoll.de>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Martin Steigerwald <Martin@lichtvoll.de>
+Cc: Jeff Moyer <jmoyer@redhat.com>, fio@vger.kernel.org
 
-Am Mittwoch, 3. August 2011 schrieb Martin Steigerwald:
-> Am Mittwoch, 3. August 2011 schrieb Martin Steigerwald:
-> > Am Mittwoch, 3. August 2011 schrieben Sie:
-> > > Martin Steigerwald <Martin@lichtvoll.de> writes:
-> [...]
->=20
-> > Does using iodepth > 1 need ioengine=3Dlibaio? Let=B4s see the manpage:
-> >        iodepth=3Dint
-> >       =20
-> >               Number  of I/O units to keep in flight against the
-> >               file. Note that increasing iodepth beyond  1  will
-> >               not affect synchronous ioengines (except for small
-> >               degress when verify_async is in use).  Even  async
-> >               engines  my  impose  OS  restrictions  causing the
-> >               desired depth not to be achieved.  This may happen
-> >               on   Linux  when  using  libaio  and  not  setting
-> >               direct=3D1, since buffered IO is not async  on  that
-> >               OS.  Keep  an  eye on the IO depth distribution in
-> >               the fio output to verify that the  achieved  depth
-> >               is as expected. Default: 1.
-> >=20
-> > Okay, yes, it does. I start getting a hang on it. Its a bit puzzling
-> > to have two concepts of synchronous I/O around:
-> >=20
-> > 1) synchronous system call interfaces aka fio I/O engine
-> >=20
-> > 2) synchronous I/O requests aka O_SYNC
->=20
-> But isn=B4t this a case for iodepth=3D1 if buffered I/O on Linux is
-> synchronous? I bet most regular applications except some databases use
-> buffered I/O.
+On 2011-08-03 22:33, Martin Steigerwald wrote:
+> Am Mittwoch, 3. August 2011 schrieb Jeff Moyer:
+>> Martin Steigerwald <Martin@lichtvoll.de> writes:
+>>> - ioengine=libaio
+>>> - direct=1
+>>> - and then due to direct I/O alignment requirement: bsrange=2k-16k
+>>>
+>>> So I now also fully understand that ioengine=sync just refers to the
+>>> synchronous nature of the system calls used, not on whether the I/Os
+>>> are issued synchronously via sync=1 or by circumventing the page
+>>> cache via direct=1
+>>>
+>>> Attached are results that bring down IOPS on read drastically! I
+>>> first let sequentiell.job write out the complete 2 gb with random
+>>> data and then ran the iops.job.
+>>
+>> If you want to measure the maximum iops, then you should consider
+>> driving iodepths > 1.  Assuming you are testing a sata ssd, try using a
+>> depth of 64 (twice the NCQ depth).
+> 
+> Yes, I thought about that too, but then also read about the 
+> "recommendation" to use an iodepth of one in a post here:
+> 
+> http://www.spinics.net/lists/fio/msg00502.html
+> 
+> What will be used in regular workloads - say Linux desktop on an SSD here? 
+> I would bet that Linux uses what it can get? What about server workloads 
+> like mail processing on SAS disks or fileserver on SATA disks and such 
+> like?
+> 
+> 
+> Twice of
+> 
+> merkaba:~> hdparm -I /dev/sda | grep -i queue
+>         Queue depth: 32
+>            *    Native Command Queueing (NCQ)
+> 
+> ?
+> 
+> Why twice?
 
-Thanks a lot for your answers, Jens, Jeff, DongJin.
+Twice is a good rule of thumb, since it allows both the drive some
+freedom for scheduling to reduce rotational latencies, but it also
+allows the OS to work on a larger range of requests. This is beneficial
+mostly for merging of sequential requests, but also for scheduling
+purposes.
 
-Now what about the above one?
+So at least depth + a_few, 2*depth is a good default.
 
-In what cases is iodepth > 1 relevant, when Linux buffered I/O is=20
-synchronous? For mutiple threads or processes?
-
-One process / thread can only submit one I/O at a time with synchronous=20
-system call I/O, but the function returns when the stuff is in the page=20
-cache. So first why can=B4t Linux use iodepth > 1 when there is lots of stu=
-ff=20
-in the page cache to be written out? That should help the single process=20
-case.
-
-On the mutiple process/threadsa case Linux gets several I/O requests from=20
-mutiple processes/threads and thus iodepth > 1 does make sense?
-
-Maybe it helps getting clear where in the stack iodepth is located at, is=20
-it
-
-process / thread
-systemcall
-pagecache
-blocklayer
-iodepth
-device driver
-device
-
-? If so, why can=B4t Linux  not make use of iodepth > 1 with synchronous=20
-system call I/O? Or is it further up on the system call level? But then=20
-what sense would it make there, when using system calls that are=20
-asynchronous already?
-(Is that ordering above correct at all?)
-
-=2D-=20
-Martin 'Helios' Steigerwald - http://www.Lichtvoll.de
-GPG: 03B0 0D6C 0040 0710 4AFA  B82F 991B EAAC A599 84C7
+-- 
+Jens Axboe
 
