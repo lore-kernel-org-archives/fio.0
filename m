@@ -1,47 +1,45 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from jester.euphonynet.be ([212.87.96.13]:46779 "EHLO
-	mailpush2.euphonynet.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751117Ab1HMNZZ (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 13 Aug 2011 09:25:25 -0400
-From: Bart Van Assche <bvanassche@acm.org>
-Subject: [PATCH] RDMA engine: Change wording of HOWTO section
-Date: Sat, 13 Aug 2011 15:25:16 +0200
+Received: from mondschein.lichtvoll.de ([194.150.191.11]:55247 "EHLO
+	mail.lichtvoll.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753845Ab1HEURV (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 5 Aug 2011 16:17:21 -0400
+From: Martin Steigerwald <Martin@lichtvoll.de>
+Subject: Re: [PATCH] fio_generate_plots with setable resolution
+Date: Fri, 5 Aug 2011 22:17:19 +0200
+References: <201108051633.47905.Martin@lichtvoll.de> <4E3C2D1F.2000200@fusionio.com> (sfid-20110805_221405_659321_39745C02)
+In-Reply-To: <4E3C2D1F.2000200@fusionio.com>
 MIME-Version: 1.0
 Content-Type: Text/Plain;
-  charset="us-ascii"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <201108131525.16410.bvanassche@acm.org>
+Message-Id: <201108052217.19690.Martin@lichtvoll.de>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Ren Yufei <renyufei83@yahoo.com.cn>
+To: Jens Axboe <jaxboe@fusionio.com>
+Cc: fio@vger.kernel.org
 
-Change "iWarp" into "iWARP" ("iWarp" is the name of a supercomputer) and
-"engines" into "protocols".
+Am Freitag, 5. August 2011 schrieb Jens Axboe:
+> On 2011-08-05 16:33, Martin Steigerwald wrote:
+> > Hi!
+> > 
+> > Use
+> > 
+> > fio_generate_plots somename 1600 1200
+> > 
+> > or something like that.
+> > 
+> > Just quit and dirty ATM. On interest I can make up a patch for
+> > inclusion in fio package *after* I finished my article ;).
+> > 
+> > Fonts tend to get small on hi resolutions. It seems gnuplot takes
+> > them as pixel not points/dots (related to some dots per inch).
+> 
+> Thanks, applied with usage print updated (and 1024x768 default res, the
+> old 800x600 is pretty small).
 
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Cc: Ren Yufei <renyufei83@yahoo.com.cn>
----
- HOWTO |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+Thanks, needs a manpage update as well. Lets see maybe next week. 
 
-diff --git a/HOWTO b/HOWTO
-index 3b60f58..72a29a9 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -570,9 +570,9 @@ ioengine=str	Defines how the job issues io to the file. The following
- 				for more info on GUASI.
- 
- 			rdma    The RDMA I/O engine  supports  both  RDMA
--				memory semantic(RDMA_WRITE/RDMA_READ) and
--				channel semantic(Send/Recv) in InfiniBand, RoCE
--				and iWarp environment.
-+				memory semantics (RDMA_WRITE/RDMA_READ) and
-+				channel semantics (Send/Recv) for the
-+				InfiniBand, RoCE and iWARP protocols.
- 
- 			external Prefix to specify loading an external
- 				IO engine object file. Append the engine
+Ciao,
 -- 
-1.7.3.4
-
+Martin 'Helios' Steigerwald - http://www.Lichtvoll.de
+GPG: 03B0 0D6C 0040 0710 4AFA  B82F 991B EAAC A599 84C7
