@@ -1,30 +1,33 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from [95.166.99.235] ([95.166.99.235]:45225 "EHLO kernel.dk"
-	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
-	id S1750823Ab1HHHH6 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 8 Aug 2011 03:07:58 -0400
-Message-ID: <4E3F8B4F.7000406@kernel.dk>
-Date: Mon, 08 Aug 2011 09:07:59 +0200
-From: Jens Axboe <axboe@kernel.dk>
-MIME-Version: 1.0
-Subject: Re: [PATCH] Fix a typo in fio.1
-References: <1312786744-11648-1-git-send-email-gaoyang.zyh@taobao.com>
-In-Reply-To: <1312786744-11648-1-git-send-email-gaoyang.zyh@taobao.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Zhu Yanhai <zhu.yanhai@gmail.com>
+Return-Path: <zhu.yanhai@gmail.com>
+From: Zhu Yanhai <zhu.yanhai@gmail.com>
+Subject: [PATCH] Fix a typo in fio.1
+Date: Mon,  8 Aug 2011 14:59:04 +0800
+Message-Id: <1312786744-11648-1-git-send-email-gaoyang.zyh@taobao.com>
+To: axboe@kernel.dk
 Cc: fio@vger.kernel.org, Zhu Yanhai <gaoyang.zyh@taobao.com>
+List-ID: <fio@vger.kernel.org>
 
-On 2011-08-08 08:59, Zhu Yanhai wrote:
-> softrandommap requires an bool argument actually.
+softrandommap requires an bool argument actually.
 
-Indeed it does, good catch. Same bug in the HOWTO, fixed that one up
-too.
+Signed-off-by: Zhu Yanhai <gaoyang.zyh@taobao.com>
+---
+ fio.1 |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Thanks.
-
+diff --git a/fio.1 b/fio.1
+index 21ccda5..4fcd511 100644
+--- a/fio.1
++++ b/fio.1
+@@ -512,7 +512,7 @@ Normally \fBfio\fR will cover every block of the file when doing random I/O. If
+ this parameter is given, a new offset will be chosen without looking at past
+ I/O history.  This parameter is mutually exclusive with \fBverify\fR.
+ .TP
+-.B softrandommap
++.BI softrandommap \fR=\fPbool
+ See \fBnorandommap\fR. If fio runs with the random block map enabled and it
+ fails to allocate the map, if this option is set it will continue without a
+ random block map. As coverage will not be as complete as with random maps, this
 -- 
-Jens Axboe
+1.7.4.4
+
 
