@@ -1,69 +1,233 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx2.fusionio.com ([66.114.96.31]:54113 "EHLO mx2.fusionio.com"
+Received: from serv132.fzu.cz ([147.231.26.132]:11368 "EHLO serv132.fzu.cz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751303Ab1HOI35 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 15 Aug 2011 04:29:57 -0400
-Message-ID: <4E48D901.6030603@fusionio.com>
-Date: Mon, 15 Aug 2011 10:29:53 +0200
-From: Jens Axboe <jaxboe@fusionio.com>
+	id S1752359Ab1HLOyi (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 12 Aug 2011 10:54:38 -0400
+Message-ID: <4E453BE0.5060708@cesnet.cz>
+Date: Fri, 12 Aug 2011 16:42:40 +0200
+From: Jiri Horky <jiri.horky@cesnet.cz>
 MIME-Version: 1.0
-Subject: Re: fio memory allocation problems
-References: <4E453BE0.5060708@cesnet.cz>
-In-Reply-To: <4E453BE0.5060708@cesnet.cz>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Subject: fio memory allocation problems
+Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha1; boundary="------------ms010500090604000704090400"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jiri Horky <jiri.horky@cesnet.cz>
-Cc: fio@vger.kernel.org, 'Jan Furman' <Jan.Furman@cesnet.cz>, =?UTF-8?B?UGV0ZXIgVmVyxI1pbcOhaw==?= <peter.vercimak@cesnet.cz>
+To: fio@vger.kernel.org
+Cc: 'Jan Furman' <Jan.Furman@cesnet.cz>, =?UTF-8?B?UGV0ZXIgVmVyxI1pbcOhaw==?= <peter.vercimak@cesnet.cz>
 
-On 2011-08-12 16:42, Jiri Horky wrote:
-> Hi,
-> 
-> I think I found a bug. If the device (file) used in fio has "wrong" size, and is used with "wrong" block size, the fio fails to allocate memory for randommap.
-> Following conditions must be true, considering just one thread for simplicity:
-> 
->  1) number of blocks on the device are too big to fill in the default's pool
->  2) number of blocks on the device must be "right", so the size of newly allocated pool by smalloc.c:add_pool is exactly as big as requested size (there are some roundings in place, so not every size triggers this error)
-> 
-> When this is true, function smalloc.c:__smalloc_pool fails to use the newly created (exactly big enough) pool, because of this line:
-> 
->                 idx = find_next_zero(pool->bitmap[i], last_idx);
-> 
-> which always returns non-zero value (the minimum returned value is last_idx +1), and so in our case the idx is 1 even though, the block number 0 is free. As the direct consequence, the function doesn't find enough free space in the given pool and returns NULL pointer. This leads to another try to allocate enough memory in smalloc.c:smalloc_real function, and so on...
-> 
-> The behavior could be reprocuded using both stable 1.57 and git version of the tool. The values that triggers the error are:
-> init_random_map - real_file_size: 21999995584512, o.rw_min_bs: 4096, blocks: 5371092672, num_maps: 83923323, alloc size: 671386584
-> 
-> whereas this block device is fine:
-> init_random_map - real_file_size: 19999995985920, o.rw_min_bs: 4096, blocks: 4882811520, num_maps: 76293930, alloc size: 610351440
-> 
-> the configuration file used:
-> 
-> [global]
-> description=CESNET_test
-> [cesnet]
-> filename=/dev/sdd
-> rw=randread
-> size=10000g
-> ioengine=libaio
-> iodepth=4
-> bs=4k
-> runtime=10m
-> time_based
-> numjobs=1
-> #norandommap
-> group_reporting
-> 
-> 
-> I am not sure I fully understand all the logic in smalloc.c so I am afraid I would break something with a trivial patch.
-> 
-> Let me know, if you need more information
+This is a cryptographically signed message in MIME format.
 
-That does indeed look like a bug in smalloc, bummer. I'll try and take a
-look at it, if you do have a test patch you are using, please send it
-along.
+--------------ms010500090604000704090400
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jens Axboe
+Hi,
+
+I think I found a bug. If the device (file) used in fio has "wrong"=20
+size, and is used with "wrong" block size, the fio fails to allocate=20
+memory for randommap.
+Following conditions must be true, considering just one thread for=20
+simplicity:
+
+  1) number of blocks on the device are too big to fill in the default's =
+
+pool
+  2) number of blocks on the device must be "right", so the size of=20
+newly allocated pool by smalloc.c:add_pool is exactly as big as=20
+requested size (there are some roundings in place, so not every size=20
+triggers this error)
+
+When this is true, function smalloc.c:__smalloc_pool fails to use the=20
+newly created (exactly big enough) pool, because of this line:
+
+                 idx =3D find_next_zero(pool->bitmap[i], last_idx);
+
+which always returns non-zero value (the minimum returned value is=20
+last_idx +1), and so in our case the idx is 1 even though, the block=20
+number 0 is free. As the direct consequence, the function doesn't find=20
+enough free space in the given pool and returns NULL pointer. This leads =
+
+to another try to allocate enough memory in smalloc.c:smalloc_real=20
+function, and so on...
+
+The behavior could be reprocuded using both stable 1.57 and git version=20
+of the tool. The values that triggers the error are:
+init_random_map - real_file_size: 21999995584512, o.rw_min_bs: 4096,=20
+blocks: 5371092672, num_maps: 83923323, alloc size: 671386584
+
+whereas this block device is fine:
+init_random_map - real_file_size: 19999995985920, o.rw_min_bs: 4096,=20
+blocks: 4882811520, num_maps: 76293930, alloc size: 610351440
+
+the configuration file used:
+
+[global]
+description=3DCESNET_test
+[cesnet]
+filename=3D/dev/sdd
+rw=3Drandread
+size=3D10000g
+ioengine=3Dlibaio
+iodepth=3D4
+bs=3D4k
+runtime=3D10m
+time_based
+numjobs=3D1
+#norandommap
+group_reporting
+
+
+I am not sure I fully understand all the logic in smalloc.c so I am=20
+afraid I would break something with a trivial patch.
+
+Let me know, if you need more information
+
+Best Regards
+Jiri Horky
+
+
+
+
+
+
+--------------ms010500090604000704090400
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIXsjCC
+BGYwggNOoAMCAQICEFEmCpMc4n+cw6VfeeByroIwDQYJKoZIhvcNAQEFBQAwgZMxCzAJBgNV
+BAYTAlVTMQswCQYDVQQIEwJVVDEXMBUGA1UEBxMOU2FsdCBMYWtlIENpdHkxHjAcBgNVBAoT
+FVRoZSBVU0VSVFJVU1QgTmV0d29yazEhMB8GA1UECxMYaHR0cDovL3d3dy51c2VydHJ1c3Qu
+Y29tMRswGQYDVQQDExJVVE4gLSBEQVRBQ29ycCBTR0MwHhcNMDUwNjA3MDgwOTEwWhcNMTkw
+NjI0MTkwNjMwWjBvMQswCQYDVQQGEwJTRTEUMBIGA1UEChMLQWRkVHJ1c3QgQUIxJjAkBgNV
+BAsTHUFkZFRydXN0IEV4dGVybmFsIFRUUCBOZXR3b3JrMSIwIAYDVQQDExlBZGRUcnVzdCBF
+eHRlcm5hbCBDQSBSb290MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAt/caM+by
+AAQtOeBOW+0fvGwPzbX6I7bO3psRM5ekKUx9k5+9SryT7QMa44/P5W1QWtaXKZRagLBJetsu
+lf24yr83OC0ePpFBrXBWx/BPP+gynnTKyJBU6cZfD3idmkA8Dqxhql4Uj56HoWpQ3NeaTq8F
+s6ZxlJxxs1BgCscTnTgHhgKo6ahpJhiQq0ywTyOrOk+E2N/On+Fpb7vXQtdrROTHre5tQV9y
+WnEIN7N5ZaRZoJQ39wAvDcKSctrQOHLbFKhFxF0qfbe01sTurM0TRLfJK91DACX6Yblpalgj
+EbenM49WdVn1zSnXRrcKK2W200JvFbK4e/vv6V1T1TRaJwIDAQABo4HYMIHVMB8GA1UdIwQY
+MBaAFFMy0bPPf/rg8aBdhU6S0p5FHbRPMB0GA1UdDgQWBBStvZh6NLQm9/rEJlTvA73gJMtU
+GjAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUwAwEB/zARBglghkgBhvhCAQEEBAMCAQIw
+IAYDVR0lBBkwFwYKKwYBBAGCNwoDAwYJYIZIAYb4QgQBMD0GA1UdHwQ2MDQwMqAwoC6GLGh0
+dHA6Ly9jcmwudXNlcnRydXN0LmNvbS9VVE4tREFUQUNvcnBTR0MuY3JsMA0GCSqGSIb3DQEB
+BQUAA4IBAQDG7lMXaBSyUSIekFgNlP298XDlhi3DNjGPVEhG5y0IN7xsCmDhDq1RNOASk+m+
+uKu4JrTplj0oj65kB/7gAezF45HrGKDxdX7bCuafkduvrnXfI5Fo3RcAWkv/ZGxw6wEa0JDZ
+x6bWbfYT5P+1ydIeKsuxJUMmeNkwm04NHr5p79/q/i2zzPmw3bUUypHUsrWl+wEZo0d5n52M
+lYc0+B84kto2phH6a+tr6dxFeBU5BtdNQeQhyNwvh9G3v0hgdaViyyTeO2GgKSCmvsVsnMTp
+Cmki75E6+iav0VtBpzri+DgHQqvBW/jObboPBD8yNKzcBCjXcDAUJgbE5JuY1c94MIIEijCC
+A3KgAwIBAgIQJ/TqEfR6hsRunbtuqRcHBzANBgkqhkiG9w0BAQUFADBvMQswCQYDVQQGEwJT
+RTEUMBIGA1UEChMLQWRkVHJ1c3QgQUIxJjAkBgNVBAsTHUFkZFRydXN0IEV4dGVybmFsIFRU
+UCBOZXR3b3JrMSIwIAYDVQQDExlBZGRUcnVzdCBFeHRlcm5hbCBDQSBSb290MB4XDTA1MDYw
+NzA4MDkxMFoXDTIwMDUzMDEwNDgzOFowga4xCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJVVDEX
+MBUGA1UEBxMOU2FsdCBMYWtlIENpdHkxHjAcBgNVBAoTFVRoZSBVU0VSVFJVU1QgTmV0d29y
+azEhMB8GA1UECxMYaHR0cDovL3d3dy51c2VydHJ1c3QuY29tMTYwNAYDVQQDEy1VVE4tVVNF
+UkZpcnN0LUNsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgRW1haWwwggEiMA0GCSqGSIb3DQEB
+AQUAA4IBDwAwggEKAoIBAQCyOYWk8n2rQTtiRjeuzcFgdbw5ZflKGkeiucxIzGqY1U01Gbmk
+QuXOSeKKLx580jEHx060g2SdLinVomTEhb2FUTV5pE5okHsceqSSqBfymBXyk8zJpDKVuwxP
+ML2YoAuL5W4bokb6eLyib6tZXqUvz8rabaov66yhs2qqty5nNYt54R5piOLmRs2gpeq+C852
+OnoOm+r82idbPXMfIuZIYcZM82mxqC4bttQxICy8goqOpA6l14lD/BZarx1x1xFZ2rqHDa/6
+8+HC8KTFZ4zW1lQ63gqkugN3s2XI/R7TdGKqGMpokx6hhX71R2XL+E1XKHTSNP8wtu72YjAU
+jCzrAgMBAAGjgeEwgd4wHwYDVR0jBBgwFoAUrb2YejS0Jvf6xCZU7wO94CTLVBowHQYDVR0O
+BBYEFImCZ33EnSZwAEu0UEh83j2uBG59MA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTAD
+AQH/MHsGA1UdHwR0MHIwOKA2oDSGMmh0dHA6Ly9jcmwuY29tb2RvY2EuY29tL0FkZFRydXN0
+RXh0ZXJuYWxDQVJvb3QuY3JsMDagNKAyhjBodHRwOi8vY3JsLmNvbW9kby5uZXQvQWRkVHJ1
+c3RFeHRlcm5hbENBUm9vdC5jcmwwDQYJKoZIhvcNAQEFBQADggEBABnYiRFvKKymAKLnh8Gb
+kAPbfqES/R7z4vABqZRUQmuaCcSgbdeQkgQDZnlDcfz4b6/bdkXiNxo93eRZBHisHPSDRvN6
+z1uEci3lRsG6GBEp88tJeYc8um0FnaRtaE+tchQ2qLmx/b/Pf/CkapQ1UI/PgW1Vsd1ZMErf
+baCcZB9JfO82u/TjafT4OY9arUuFOrcO7dPPDUSi+wS/5C9wjiX7WlQGs9DEvG2N+3MyLOmb
+hCQt1n+RemgCUB8OP03pzPW7Z+jcHC47/E7N/gKO46gTCqUmRGXpEPJNUqeu3D7KazJcQWz+
+9V2g6v/R+puGWG09lkfl/i6VBMIAzI6h8rswggTaMIIDwqADAgECAhBd/1Dq/g9TRoifgEGP
+50LIMA0GCSqGSIb3DQEBBQUAMIGuMQswCQYDVQQGEwJVUzELMAkGA1UECBMCVVQxFzAVBgNV
+BAcTDlNhbHQgTGFrZSBDaXR5MR4wHAYDVQQKExVUaGUgVVNFUlRSVVNUIE5ldHdvcmsxITAf
+BgNVBAsTGGh0dHA6Ly93d3cudXNlcnRydXN0LmNvbTE2MDQGA1UEAxMtVVROLVVTRVJGaXJz
+dC1DbGllbnQgQXV0aGVudGljYXRpb24gYW5kIEVtYWlsMB4XDTA5MDUxODAwMDAwMFoXDTI4
+MTIzMTIzNTk1OVowRDELMAkGA1UEBhMCTkwxDzANBgNVBAoTBlRFUkVOQTEkMCIGA1UEAxMb
+VEVSRU5BIGVTY2llbmNlIFBlcnNvbmFsIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB
+CgKCAQEAxLwlfc3vWQSrdCcptmOK78Q1cKFGCK9uUJsbcXiXAoXANf+QGBFm+jM5FJ6kEvc9
+7gUsgef3LS42eEMOObZ/enTDy1U/L7PLwzdq4ZUDIxuzIpgTg1gwX6w8kUXTbQsuy9GRYbLK
+cfrCiQx7CdaSv6OBFxFVIN83gZ8eJgkd0hcZQ8uLmSV0QVvmMirQp1Pc0iGNzZHPe2z0yf7Q
+5dIGaxphQhuAkQfcFEknOwqKsuI7aQiEy4GZ17oUH9h+kmO99i0x+pVOzTYNme8Ruq1K+6jE
+eLl8Wj7I9QgywKkFx4waKI8wuhej8bniB6e4+1W/n2Ja1RQPCLQTmdISeVrw/QIDAQABo4IB
+WzCCAVcwHwYDVR0jBBgwFoAUiYJnfcSdJnAAS7RQSHzePa4Ebn0wHQYDVR0OBBYEFMiJc5mn
+XVEWU0VUfKPCOXzL16qBMA4GA1UdDwEB/wQEAwIBBjASBgNVHRMBAf8ECDAGAQH/AgEAMCYG
+A1UdIAQfMB0wDQYLKwYBBAGyMQECAh0wDAYKKoZIhvdMBQICBTBYBgNVHR8EUTBPME2gS6BJ
+hkdodHRwOi8vY3JsLnVzZXJ0cnVzdC5jb20vVVROLVVTRVJGaXJzdC1DbGllbnRBdXRoZW50
+aWNhdGlvbmFuZEVtYWlsLmNybDBvBggrBgEFBQcBAQRjMGEwOAYIKwYBBQUHMAKGLGh0dHA6
+Ly9jcnQudXNlcnRydXN0LmNvbS9VVE5BQUFDbGllbnRfQ0EuY3J0MCUGCCsGAQUFBzABhhlo
+dHRwOi8vb2NzcC51c2VydHJ1c3QuY29tMA0GCSqGSIb3DQEBBQUAA4IBAQAIF6Qc+RVrsBlh
+b6BI43ok70FVmqBQcNgj1VOGSmeO6NpWFhgsGxghibqYJO5WNOMXhia9IVrUGZNK6mF0TbbE
+hI1H7souZW02k5ix4pJmiOJOe3XHXkRpIdwSajD8YYD+D/Cd0tx+ruXCU00LcINhVkX7Pd9y
+9gJCdeuIiphXYPWfonJJsXo+QWc1w1UrDQc16MYr1bqHeYB055I2vUaBei4p4mq+4RcTNXwW
+pCUzL2HuzslS4EDb0745Ws/PTBTlf8VDV4tNuVqOwg8GTd7ISZ2Bc7rkP5ilkzxZTtubNd/+
+Tb9Voelkw0V8rI98R9E68U512ZBnQOixL54XL1w1MIIE6jCCA9KgAwIBAgIQOhkExlgrlDBI
+rXauLbctajANBgkqhkiG9w0BAQUFADBEMQswCQYDVQQGEwJOTDEPMA0GA1UEChMGVEVSRU5B
+MSQwIgYDVQQDExtURVJFTkEgZVNjaWVuY2UgUGVyc29uYWwgQ0EwHhcNMTEwNjA4MDAwMDAw
+WhcNMTIwNzA3MjM1OTU5WjB6MRMwEQYKCZImiZPyLGQBGRYDb3JnMRYwFAYKCZImiZPyLGQB
+GRYGdGVyZW5hMRMwEQYKCZImiZPyLGQBGRYDdGNzMQswCQYDVQQGEwJDWjEPMA0GA1UEChMG
+Q0VTTkVUMRgwFgYDVQQDEw9KaXJpIEhvcmt5IDM1NzAwggEiMA0GCSqGSIb3DQEBAQUAA4IB
+DwAwggEKAoIBAQDLFeAtUK2Re8qxCvEtMyMKDCKYhu9e9TxSuAjgL1ifAdpcFshlA949pGLo
+ZATdYvJtgmUZ1WQd38VUFDia0i2mwu8DyDzGdo3a/zc2FW5ic2xsS4jmESKCLkmjf2DTQxV8
+RHIw9rqMimhubnvwmaCKDvoGLwuqwwNkdXUa/PmaLo+252LPlK0Ft325pO2xSYaOXIC6ssAs
+M1AD1PaGN3QRfjB3liP3blOpeKd7zJoXz6Aywd553dmg2It0Qacilv4Gn+nYcht7FaliOICa
+0qixcFxx9pxD2etMC475NJcNqRDe70CaGPlyLr0tSHkcPWjsuoRdYEifGhHROCg0zZjVAgMB
+AAGjggGgMIIBnDAfBgNVHSMEGDAWgBTIiXOZp11RFlNFVHyjwjl8y9eqgTAdBgNVHQ4EFgQU
+ioOz8ezQ7T74Io5DNvk1Zbz72cYwDgYDVR0PAQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwHQYD
+VR0lBBYwFAYIKwYBBQUHAwQGCCsGAQUFBwMCMCYGA1UdIAQfMB0wDQYLKwYBBAGyMQECAh0w
+DAYKKoZIhvdMBQICBTBHBgNVHR8EQDA+MDygOqA4hjZodHRwOi8vY3JsLnRjcy50ZXJlbmEu
+b3JnL1RFUkVOQWVTY2llbmNlUGVyc29uYWxDQS5jcmwwegYIKwYBBQUHAQEEbjBsMEIGCCsG
+AQUFBzAChjZodHRwOi8vY3J0LnRjcy50ZXJlbmEub3JnL1RFUkVOQWVTY2llbmNlUGVyc29u
+YWxDQS5jcnQwJgYIKwYBBQUHMAGGGmh0dHA6Ly9vY3NwLnRjcy50ZXJlbmEub3JnMDAGA1Ud
+EQQpMCeBD2hvcmt5QGNlc25ldC5jeoEUamlyaS5ob3JreUBjZXNuZXQuY3owDQYJKoZIhvcN
+AQEFBQADggEBACeDvPBzQ5M5dvmb6JBEIyLrLpsXziSHzYEnOvng+wQ+DdZpEqh4bIJyi/6s
+r8QS48wKe/UV5N73KSQu5dSlzARuzj9J8f4b/5vu0GvPcyzFABk/bKAIqH96GBgAjJTECLbS
+hYJbxnkFrq6gsgTcPNagQpGoazyYzDaTd3YEt2JUzbkuzQLFtyU+h7UcF9hEhamkpTkOi2/x
+QpApCzT7TM9b1AzCVsb9ag5+WtYABcbvuBbiF1dx7Y01PhcQsKOWGn6Osv+cF1zWQ39U0O5t
+88LPLwaEseIm3fFiH+crodZkEKTUyEZkm0vz7+PIXxKbsAPEV9yfZhq2j1o7DKb9MBMwggTq
+MIID0qADAgECAhA6GQTGWCuUMEitdq4tty1qMA0GCSqGSIb3DQEBBQUAMEQxCzAJBgNVBAYT
+Ak5MMQ8wDQYDVQQKEwZURVJFTkExJDAiBgNVBAMTG1RFUkVOQSBlU2NpZW5jZSBQZXJzb25h
+bCBDQTAeFw0xMTA2MDgwMDAwMDBaFw0xMjA3MDcyMzU5NTlaMHoxEzARBgoJkiaJk/IsZAEZ
+FgNvcmcxFjAUBgoJkiaJk/IsZAEZFgZ0ZXJlbmExEzARBgoJkiaJk/IsZAEZFgN0Y3MxCzAJ
+BgNVBAYTAkNaMQ8wDQYDVQQKEwZDRVNORVQxGDAWBgNVBAMTD0ppcmkgSG9ya3kgMzU3MDCC
+ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMsV4C1QrZF7yrEK8S0zIwoMIpiG7171
+PFK4COAvWJ8B2lwWyGUD3j2kYuhkBN1i8m2CZRnVZB3fxVQUOJrSLabC7wPIPMZ2jdr/NzYV
+bmJzbGxLiOYRIoIuSaN/YNNDFXxEcjD2uoyKaG5ue/CZoIoO+gYvC6rDA2R1dRr8+Zouj7bn
+Ys+UrQW3fbmk7bFJho5cgLqywCwzUAPU9oY3dBF+MHeWI/duU6l4p3vMmhfPoDLB3nnd2aDY
+i3RBpyKW/gaf6dhyG3sVqWI4gJrSqLFwXHH2nEPZ60wLjvk0lw2pEN7vQJoY+XIuvS1IeRw9
+aOy6hF1gSJ8aEdE4KDTNmNUCAwEAAaOCAaAwggGcMB8GA1UdIwQYMBaAFMiJc5mnXVEWU0VU
+fKPCOXzL16qBMB0GA1UdDgQWBBSKg7Px7NDtPvgijkM2+TVlvPvZxjAOBgNVHQ8BAf8EBAMC
+BaAwDAYDVR0TAQH/BAIwADAdBgNVHSUEFjAUBggrBgEFBQcDBAYIKwYBBQUHAwIwJgYDVR0g
+BB8wHTANBgsrBgEEAbIxAQICHTAMBgoqhkiG90wFAgIFMEcGA1UdHwRAMD4wPKA6oDiGNmh0
+dHA6Ly9jcmwudGNzLnRlcmVuYS5vcmcvVEVSRU5BZVNjaWVuY2VQZXJzb25hbENBLmNybDB6
+BggrBgEFBQcBAQRuMGwwQgYIKwYBBQUHMAKGNmh0dHA6Ly9jcnQudGNzLnRlcmVuYS5vcmcv
+VEVSRU5BZVNjaWVuY2VQZXJzb25hbENBLmNydDAmBggrBgEFBQcwAYYaaHR0cDovL29jc3Au
+dGNzLnRlcmVuYS5vcmcwMAYDVR0RBCkwJ4EPaG9ya3lAY2VzbmV0LmN6gRRqaXJpLmhvcmt5
+QGNlc25ldC5jejANBgkqhkiG9w0BAQUFAAOCAQEAJ4O88HNDkzl2+ZvokEQjIusumxfOJIfN
+gSc6+eD7BD4N1mkSqHhsgnKL/qyvxBLjzAp79RXk3vcpJC7l1KXMBG7OP0nx/hv/m+7Qa89z
+LMUAGT9soAiof3oYGACMlMQIttKFglvGeQWurqCyBNw81qBCkahrPJjMNpN3dgS3YlTNuS7N
+AsW3JT6HtRwX2ESFqaSlOQ6Lb/FCkCkLNPtMz1vUDMJWxv1qDn5a1gAFxu+4FuIXV3HtjTU+
+FxCwo5Yafo6y/5wXXNZDf1TQ7m3zws8vBoSx4ibd8WIf5yuh1mQQpNTIRmSbS/Pv48hfEpuw
+A8RX3J9mGraPWjsMpv0wEzGCAxUwggMRAgEBMFgwRDELMAkGA1UEBhMCTkwxDzANBgNVBAoT
+BlRFUkVOQTEkMCIGA1UEAxMbVEVSRU5BIGVTY2llbmNlIFBlcnNvbmFsIENBAhA6GQTGWCuU
+MEitdq4tty1qMAkGBSsOAwIaBQCgggGSMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJ
+KoZIhvcNAQkFMQ8XDTExMDgxMjE0NDI0MFowIwYJKoZIhvcNAQkEMRYEFE/alVN8LHRB7eDQ
+q2cjAN4CGvT6MF8GCSqGSIb3DQEJDzFSMFAwCwYJYIZIAWUDBAECMAoGCCqGSIb3DQMHMA4G
+CCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDBn
+BgkrBgEEAYI3EAQxWjBYMEQxCzAJBgNVBAYTAk5MMQ8wDQYDVQQKEwZURVJFTkExJDAiBgNV
+BAMTG1RFUkVOQSBlU2NpZW5jZSBQZXJzb25hbCBDQQIQOhkExlgrlDBIrXauLbctajBpBgsq
+hkiG9w0BCRACCzFaoFgwRDELMAkGA1UEBhMCTkwxDzANBgNVBAoTBlRFUkVOQTEkMCIGA1UE
+AxMbVEVSRU5BIGVTY2llbmNlIFBlcnNvbmFsIENBAhA6GQTGWCuUMEitdq4tty1qMA0GCSqG
+SIb3DQEBAQUABIIBAIcsFat4Istj9n6OD/MQc75epmK2+eptx4LYR2iJ112n0v0TxBCVgcau
++PUusqmTf/jWg4kkSkhSyGL9iZktRLrR5vAfPc9Qu6Mmf0HUi+ZCf9vNNDTAXkW2KcT/EOP+
+Z7ZTcINkavfAiDETbcgCdA9g08EbYo5IQ9eKtz0330l1fZABqQEywNGIhiVrMEhBK+5wsTvK
+qZf90hyibNimbfxpnRGvgZV65t0Vlhqlv4iF6IAa0ey2y3fxvuL94YEhjWFo+Ek4gQ2wcY1w
+Eu3KrvhH+8qiuzNX/p1RhLvqq8CWRQuTLNHG2i5AYJe4UPGLYVTjd+47Z26K+31F7k/VEA4A
+AAAAAAA=
+--------------ms010500090604000704090400--
+--:
+To unsubscribe from this list: send the line "unsubscribe fio" in
+the body of a message to majordomo@vger.kernel.org: 
+More majordomo info at  http: //vger.kernel.org/majordomo-info.html
+
 
