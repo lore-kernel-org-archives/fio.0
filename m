@@ -1,60 +1,28 @@
-Return-Path: <zhu.yanhai@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mx2.fusionio.com ([66.114.96.31]:53903 "EHLO mx2.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752504Ab1HOHQK (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 15 Aug 2011 03:16:10 -0400
+Message-ID: <4E48C7B6.80108@fusionio.com>
+Date: Mon, 15 Aug 2011 09:16:06 +0200
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-From: Zhu Yanhai <zhu.yanhai@gmail.com>
-Date: Mon, 15 Aug 2011 01:15:07 -0600
-Subject: Re: [PATCH] stats: Add a function to report completion latency  percentiles
-Message-ID: 
- <CAC8teKWCc1L_VfimnTXQkGaYtsL+BraKCTqfk+2S-see8T=UdQ@mail.gmail.com>
-References: <1313175153-5355-1-git-send-email-yjhong@google.com>
- <4E45AF96.4070606@kernel.dk>
- <CAC8teKW=oXw5LSsH_4rVdOtCkunoSEDo-jS_FUbVgFgjnrzzjw@mail.gmail.com>
- <4E48C2C1.60307@kernel.dk> <4E48C3D9.4020000@fusionio.com>
-In-Reply-To: <4E48C3D9.4020000@fusionio.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-To: Jens Axboe <JAxboe@fusionio.com>
-Cc: Yu-ju Hong <yjhong@google.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Nauman Rafique <nauman@google.com>, Eric Gouriou <egouriou@google.com>, Yu-Ju Hong <yuju.hong@gmail.com>
-List-ID: <fio@vger.kernel.org>
+Subject: Re: [PATCH] stats: Add a function to report completion latency percentiles
+References: <1313175153-5355-1-git-send-email-yjhong@google.com> <4E45AF96.4070606@kernel.dk> <CAC8teKW=oXw5LSsH_4rVdOtCkunoSEDo-jS_FUbVgFgjnrzzjw@mail.gmail.com> <4E48C2C1.60307@kernel.dk> <4E48C3D9.4020000@fusionio.com> <CAC8teKWCc1L_VfimnTXQkGaYtsL+BraKCTqfk+2S-see8T=UdQ@mail.gmail.com>
+In-Reply-To: <CAC8teKWCc1L_VfimnTXQkGaYtsL+BraKCTqfk+2S-see8T=UdQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Zhu Yanhai <zhu.yanhai@gmail.com>
+Cc: Yu-ju Hong <yjhong@google.com>, fio@vger.kernel.org, Nauman Rafique <nauman@google.com>, Eric Gouriou <egouriou@google.com>, Yu-Ju Hong <yuju.hong@gmail.com>
 
-WWVzLCBpdCB3b3Jrcy4gVGhlIGlvcHMgbnVtYmVyIGlzIGNvcnJlY3Qgbm93Lg0KDQoyMDExLzgv
-MTUgSmVucyBBeGJvZSA8amF4Ym9lQGZ1c2lvbmlvLmNvbT46DQo+IE9uIDIwMTEtMDgtMTUgMDg6
-NTQsIEplbnMgQXhib2Ugd3JvdGU6DQo+PiBPbiAyMDExLTA4LTE1IDA1OjU2LCBaaHUgWWFuaGFp
-IHdyb3RlOg0KPj4+IEhpLA0KPj4+IFRoaXMgY29tbWl0IGJyZWFrcyB0aGUgY2FsY3VsYXRpb24g
-b2YgaW9wcy4NCj4+PiBCZWZvcmUgdGhpcyBjb21taXQsIHRoZSBpb3BzIGZyb20gZ3JvdXBfcmVw
-b3J0IGlzIDE0NjcsIHNlZSBiZWxvdzoNCj4+Pg0KPj4+IGNoZW55dW5AdGVzdDAyMzA1Ny5zcWEu
-Y200IGZpb10kIHN1ZG8gLi9maW8gfi9pb3Rlc3QvcmVhZGRldg0KPj4+IHRocmVhZDE2OiAoZz0w
-KTogcnc9cmFuZHJlYWQsIGJzPTRLLTRLLzRLLTRLLCBpb2VuZ2luZT1zeW5jLCBpb2RlcHRoPTEN
-Cj4+PiAuLi4NCj4+PiB0aHJlYWQxNjogKGc9MCk6IHJ3PXJhbmRyZWFkLCBicz00Sy00Sy80Sy00
-SywgaW9lbmdpbmU9c3luYywgaW9kZXB0aD0xDQo+Pj4gZmlvIDEuNTcNCj4+PiBTdGFydGluZyAx
-MCB0aHJlYWRzDQo+Pj4gSm9iczogMTAgKGY9MTApOiBbcnJycnJycnJycl0gWzEwMC4wJSBkb25l
-XSBbNTkyOUsvMEsgL3NdIFsxNDQ3IC8wDQo+Pj4gaW9wc10gW2V0YSAwMG06MDBzXQ0KPj4+IHRo
-cmVhZDE2OiAoZ3JvdXBpZD0wLCBqb2JzPTEwKTogZXJyPSAwOiBwaWQ9MTk1MzgNCj4+PiDCoCBy
-ZWFkIDogaW89MTc2MjEyS0IsIGJ3PTU4NzEuNktCL3MsIGlvcHM9MTQ2NyAsIHJ1bnQ9IDMwMDEx
-bXNlYw0KPj4+IFtjdXQgaGVyZV0NCj4+Pg0KPj4+DQo+Pj4gQWZ0ZXIgdGhpcyBjb21taXQsIHRo
-ZSByZXBvcnRlZCBpb3BzIGlzIDI2Niwgd2hpY2ggaXMgb25seSBvbmUgdGhyZWFkJ3Mgb3V0cHV0
-LA0KPj4+IG5vdCBncm91cF9yZXBvcnRpbmcsIHNlZSBiZWxvdzoNCj4+Pg0KPj4+IFtjaGVueXVu
-QHRlc3QwMjMwNTcuc3FhLmNtNCBmaW9dJCBzdWRvIC4vZmlvIH4vaW90ZXN0L3JlYWRkZXYNCj4+
-PiB0aHJlYWQxNjogKGc9MCk6IHJ3PXJhbmRyZWFkLCBicz00Sy00Sy80Sy00SywgaW9lbmdpbmU9
-c3luYywgaW9kZXB0aD0xDQo+Pj4gLi4uDQo+Pj4gdGhyZWFkMTY6IChnPTApOiBydz1yYW5kcmVh
-ZCwgYnM9NEstNEsvNEstNEssIGlvZW5naW5lPXN5bmMsIGlvZGVwdGg9MQ0KPj4+IGZpbyAxLjU3
-DQo+Pj4gU3RhcnRpbmcgMTAgdGhyZWFkcw0KPj4+IEpvYnM6IDEwIChmPTEwKTogW3JycnJycnJy
-cnJdIFsxMDAuMCUgZG9uZV0gWzYwMzNLLzBLIC9zXSBbMTQ3MyAvMA0KPj4+IGlvcHNdIFtldGEg
-MDBtOjAwc10NCj4+PiB0aHJlYWQxNjogKGdyb3VwaWQ9MCwgam9icz0xMCk6IGVycj0gMDogcGlk
-PTE5NjkyDQo+Pj4gwqAgcmVhZCA6IGlvPTM1MTcyMEtCLCBidz0xMDY1LjdLQi9zLCBpb3BzPTI2
-NiAsIHJ1bnQ9MzMwMDQ2bXNlYw0KPj4+IFtjdXQgaGVyZV0NCj4+DQo+PiBUaGUgcGF0Y2ggZG9l
-cyBpbmRlZWQgYXBwZWFyIHRvIGhhdmUgYnJva2VuIG91dHB1dCBmb3IgbW9yZSB0aGFuIDENCj4+
-IHRocmVhZCBpbiBnZW5lcmFsLCBldmVuIHdpdGhvdXQgZ3JvdXBfcmVwb3J0aW5nIHRoaW5ncyBh
-cmUgbm90IHJpZ2h0LiBJdA0KPj4gYWxzbyBjcmFzaGVzIGhlcmUgZm9yIG1lIG5vdzoNCj4NCj4g
-Wmh1LCBkb2VzIHRoaXMgd29yayBmb3IgeW91Pw0KPg0KPiBkaWZmIC0tZ2l0IGEvZmlvLmggYi9m
-aW8uaA0KPiBpbmRleCA2NzY2MzUxLi5jNzQxMTYyIDEwMDY0NA0KPiAtLS0gYS9maW8uaA0KPiAr
-KysgYi9maW8uaA0KPiBAQCAtMjE3LDcgKzIxNyw3IEBAIHN0cnVjdCB0aHJlYWRfc3RhdCB7DQo+
-IMKgIMKgIMKgIMKgdW5zaWduZWQgaW50IGlvX3VfY29tcGxldGVbRklPX0lPX1VfTUFQX05SXTsN
-Cj4gwqAgwqAgwqAgwqB1bnNpZ25lZCBpbnQgaW9fdV9sYXRfdVtGSU9fSU9fVV9MQVRfVV9OUl07
-DQo+IMKgIMKgIMKgIMKgdW5zaWduZWQgaW50IGlvX3VfbGF0X21bRklPX0lPX1VfTEFUX01fTlJd
-Ow0KPiAtIMKgIMKgIMKgIHVuc2lnbmVkIGludCBpb191X3BsYXQgWzJdW0ZJT19JT19VX1BMQVRf
-TlJdOw0KPiArIMKgIMKgIMKgIHVuc2lnbmVkIGludCBpb191X3BsYXRbM11bRklPX0lPX1VfUExB
-VF9OUl07DQo+IMKgIMKgIMKgIMKgdW5zaWduZWQgbG9uZyB0b3RhbF9pb191WzNdOw0KPiDCoCDC
-oCDCoCDCoHVuc2lnbmVkIGxvbmcgc2hvcnRfaW9fdVszXTsNCj4gwqAgwqAgwqAgwqB1bnNpZ25l
-ZCBsb25nIHRvdGFsX3N1Ym1pdDsNCj4NCj4gLS0NCj4gSmVucyBBeGJvZQ0KPg0KPg0K
+On 2011-08-15 09:15, Zhu Yanhai wrote:
+> Yes, it works. The iops number is correct now.
+
+Good, it works for me too. I have committed that fix. Thanks for
+reporting! And testing.
+
+-- 
+Jens Axboe
 
