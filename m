@@ -1,76 +1,32 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from jester.euphonynet.be ([212.87.96.13]:60723 "EHLO
-	mailpush2.euphonynet.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755831Ab1HFSjI (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 6 Aug 2011 14:39:08 -0400
-From: Bart Van Assche <bvanassche@acm.org>
-Subject: [PATCH 3/3] RDMA I/O engine: Fix compiler warnings
-Date: Sat, 6 Aug 2011 20:22:11 +0200
+Received: from mx1.fusionio.com ([66.114.96.30]:51146 "EHLO mx1.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753020Ab1HONRF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 15 Aug 2011 09:17:05 -0400
+Message-ID: <4E491C4C.2070409@fusionio.com>
+Date: Mon, 15 Aug 2011 15:17:00 +0200
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
+Subject: Re: fio memory allocation problems
+References: <4E453BE0.5060708@cesnet.cz> <4E48D901.6030603@fusionio.com> <4E48DF73.10700@cesnet.cz>
+In-Reply-To: <4E48DF73.10700@cesnet.cz>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <201108062022.11121.bvanassche@acm.org>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Jens Axboe <jaxboe@fusionio.com>, Ren Yufei <renyufei83@yahoo.com.cn>
+To: Jiri Horky <jiri.horky@cesnet.cz>
+Cc: fio@vger.kernel.org, 'Jan Furman' <Jan.Furman@cesnet.cz>, =?UTF-8?B?UGV0ZXIgVmVyxI1pbcOhaw==?= <peter.vercimak@cesnet.cz>
 
-Fix 32-bit mode compiler warnings and a warning about an unused variable.
+On 2011-08-15 10:57, Jiri Horky wrote:
+> Hi Jens,
+> 
+> the patch is attached. It resolves the issue but I would not bet it
+> works in all scenarios.
 
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Cc: Jens Axboe <jaxboe@fusionio.com>
-Cc: Ren Yufei <renyufei83@yahoo.com.cn>
+I think it's OK. Just to be on the safe side, I ran it through my stest
+app that I had saved from when I did smalloc, and it passes. I think the
++1 dates back to when the pools had a header.
 
----
- engines/rdma.c |   11 +++++++----
- 1 files changed, 7 insertions(+), 4 deletions(-)
-
-diff --git a/engines/rdma.c b/engines/rdma.c
-index fa94865..54fd194 100644
---- a/engines/rdma.c
-+++ b/engines/rdma.c
-@@ -205,7 +205,7 @@ static int cq_event_handler(struct thread_data *td, enum ibv_wc_opcode opcode)
- 				}
- 			}
- 			if (i == rd->io_u_flight_nr)
--				log_err("fio: recv wr %ld not found\n",
-+				log_err("fio: recv wr %" PRId64 " not found\n",
- 					wc.wr_id);
- 			else {
- 				/* put the last one into middle of the list */
-@@ -234,7 +234,7 @@ static int cq_event_handler(struct thread_data *td, enum ibv_wc_opcode opcode)
- 				}
- 			}
- 			if (i == rd->io_u_flight_nr)
--				log_err("fio: send wr %ld not found\n",
-+				log_err("fio: send wr %" PRId64 " not found\n",
- 					wc.wr_id);
- 			else {
- 				/* put the last one into middle of the list */
-@@ -587,8 +587,10 @@ static int fio_rdmaio_send(struct thread_data *td, struct io_u **io_us,
- {
- 	struct rdmaio_data *rd = td->io_ops->data;
- 	struct ibv_send_wr *bad_wr;
-+#if 0
- 	enum ibv_wc_opcode comp_opcode;
- 	comp_opcode = IBV_WC_RDMA_WRITE;
-+#endif
- 	int i, index;
- 	struct rdma_io_u_data *r_io_u_d;
- 
-@@ -1018,8 +1020,9 @@ static int fio_rdmaio_init(struct thread_data *td)
- 	/* soft limit */
- 	if ((rl.rlim_cur != RLIM_INFINITY)
- 	    && (rl.rlim_cur < td->orig_buffer_size)) {
--		log_err("fio: soft RLIMIT_MEMLOCK is: %ld\n", rl.rlim_cur);
--		log_err("fio: total block size is:    %ld\n",
-+		log_err("fio: soft RLIMIT_MEMLOCK is: %" PRId64 "\n",
-+			rl.rlim_cur);
-+		log_err("fio: total block size is:    %zd\n",
- 			td->orig_buffer_size);
- 		/* try to set larger RLIMIT_MEMLOCK */
- 		rl.rlim_cur = rl.rlim_max;
 -- 
-1.7.3.4
+Jens Axboe
 
