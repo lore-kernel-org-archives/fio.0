@@ -1,42 +1,69 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from 87-104-106-3-dynamic-customer.profibernet.dk ([87.104.106.3]:47001
-	"EHLO kernel.dk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753503Ab1ICD2q (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 2 Sep 2011 23:28:46 -0400
-Message-ID: <4E619EE9.5030508@kernel.dk>
-Date: Fri, 02 Sep 2011 21:28:41 -0600
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <Antonio.Jose.Rodrigues.Neto@netapp.com>
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01CC69E8.FBE0B96A"
 Subject: Re: Bad performance when reads and writes on same LUN
-References: <116197A0179A3D4A95B135E5F0341FC11041B4DA@SACMVEXC2-PRD.hq.netapp.com>
-In-Reply-To: <116197A0179A3D4A95B135E5F0341FC11041B4DA@SACMVEXC2-PRD.hq.netapp.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
+Date: Fri, 2 Sep 2011 20:24:26 -0700
+Message-ID: <116197A0179A3D4A95B135E5F0341FC11041B4DA@SACMVEXC2-PRD.hq.netapp.com>
+From: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
+To: axboe@kernel.dk
 Cc: zhu.yanhai@gmail.com, "Rettl, Matthias" <Matthias.Rettl@netapp.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-On 2011-09-02 21:24, Neto, Antonio Jose Rodrigues wrote:
-> Thanks Jens, but why when we run READS only (not mixed) we don't have performance issues? (We run with direct=0)?
+This is a multi-part message in MIME format.
 
-Let me repeat: please don't top post! Etiquette on most open source
-lists are to bottom post, like you can see other people are doind.
+------_=_NextPart_001_01CC69E8.FBE0B96A
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
 
-Apparently you don't have performance problems with buffered reads since
-you don't need a large queue depth to get good performance on reads
-alone.
+VGhhbmtzIEplbnMsIGJ1dCB3aHkgd2hlbiB3ZSBydW4gUkVBRFMgb25seSAobm90IG1peGVkKSB3
+ZSBkb24ndCBoYXZlIHBlcmZvcm1hbmNlIGlzc3Vlcz8gKFdlIHJ1biB3aXRoIGRpcmVjdD0wKT8N
+Cg0KLS0tLS0gT3JpZ2luYWwgTWVzc2FnZSAtLS0tLQ0KRnJvbTogSmVucyBBeGJvZSA8YXhib2VA
+a2VybmVsLmRrPg0KVG86IE5ldG8sIEFudG9uaW8gSm9zZSBSb2RyaWd1ZXMNCkNjOiB6aHUueWFu
+aGFpQGdtYWlsLmNvbSA8emh1LnlhbmhhaUBnbWFpbC5jb20+OyBSZXR0bCwgTWF0dGhpYXM7IGZp
+b0B2Z2VyLmtlcm5lbC5vcmcgPGZpb0B2Z2VyLmtlcm5lbC5vcmc+DQpTZW50OiBGcmkgU2VwIDAy
+IDIwOjA5OjI2IDIwMTENClN1YmplY3Q6IFJlOiBCYWQgcGVyZm9ybWFuY2Ugd2hlbiByZWFkcyBh
+bmQgd3JpdGVzIG9uIHNhbWUgTFVODQoNCk9uIDIwMTEtMDktMDIgMjE6MDYsIE5ldG8sIEFudG9u
+aW8gSm9zZSBSb2RyaWd1ZXMgd3JvdGU6DQo+IFRoZSBxdWVzdGlvbiB0aGF0IEkgaGF2ZSBpczoN
+Cj4gDQo+ICJCdWZmZXJlZCBhaW8gd2lsbCBmYWxsIGJhY2sgdG8gc3luYyBpbywgYW5kIGl0J3Mg
+a25vd24gdGhhdCBtaXhpbmciDQo+IA0KPiBXaHkgZGlkIGJ1ZmZlcmVkIGFpbyB3aWxsIGZhbGwg
+YmFjayB0byBzeW5jIGlvPw0KDQpQbGVhc2UgZG9uJ3QgdG9wIHBvc3QsIHJlcGx5IGJlbmVhdCB0
+aGUgb3JpZ2luYWwgdGV4dC4NCg0KQnVmZmVyZWQgYWlvIHdpbGwgZGVnZW5lcmF0ZSB0byBub3Jt
+YWwgc3luYyBJTywgYmVjYXVzZSB0aGUga2VybmVsIGRvZXMNCm5vdCBzdXBwb3J0IGFzeW5jIGJ1
+ZmZlcmVkIGlvLg0KDQotLSANCkplbnMgQXhib2UNCg0K
 
-Since you seem a little lost, let me suggest that you start by
-diagnosing the raw read vs write performance of the device. Get rid of
-the file system, use filename=/dev/XXX directly to access that device.
-Beware that it will eat the data that is currently on the device. Once
-you get an idea for what the device can actually do, then you can start
-to consider what impact the file system has on that (if any, I looked at
-your job file, and each job would use separate files. so you should not
-have any buffered vs direct unhappiness going on).
+------_=_NextPart_001_01CC69E8.FBE0B96A
+Content-Type: text/html;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
 
+PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDMuMi8vRU4iPg0KPEhUTUw+
+DQo8SEVBRD4NCjxNRVRBIEhUVFAtRVFVSVY9IkNvbnRlbnQtVHlwZSIgQ09OVEVOVD0idGV4dC9o
+dG1sOyBjaGFyc2V0PXV0Zi04Ij4NCjxNRVRBIE5BTUU9IkdlbmVyYXRvciIgQ09OVEVOVD0iTVMg
+RXhjaGFuZ2UgU2VydmVyIHZlcnNpb24gNi41Ljc2NTYuMCI+DQo8VElUTEU+UmU6IEJhZCBwZXJm
+b3JtYW5jZSB3aGVuIHJlYWRzIGFuZCB3cml0ZXMgb24gc2FtZSBMVU48L1RJVExFPg0KPC9IRUFE
+Pg0KPEJPRFk+DQo8IS0tIENvbnZlcnRlZCBmcm9tIHRleHQvcGxhaW4gZm9ybWF0IC0tPg0KDQo8
+UD48Rk9OVCBTSVpFPTI+VGhhbmtzIEplbnMsIGJ1dCB3aHkgd2hlbiB3ZSBydW4gUkVBRFMgb25s
+eSAobm90IG1peGVkKSB3ZSBkb24ndCBoYXZlIHBlcmZvcm1hbmNlIGlzc3Vlcz8gKFdlIHJ1biB3
+aXRoIGRpcmVjdD0wKT88QlI+DQo8QlI+DQotLS0tLSBPcmlnaW5hbCBNZXNzYWdlIC0tLS0tPEJS
+Pg0KRnJvbTogSmVucyBBeGJvZSAmbHQ7YXhib2VAa2VybmVsLmRrJmd0OzxCUj4NClRvOiBOZXRv
+LCBBbnRvbmlvIEpvc2UgUm9kcmlndWVzPEJSPg0KQ2M6IHpodS55YW5oYWlAZ21haWwuY29tICZs
+dDt6aHUueWFuaGFpQGdtYWlsLmNvbSZndDs7IFJldHRsLCBNYXR0aGlhczsgZmlvQHZnZXIua2Vy
+bmVsLm9yZyAmbHQ7ZmlvQHZnZXIua2VybmVsLm9yZyZndDs8QlI+DQpTZW50OiBGcmkgU2VwIDAy
+IDIwOjA5OjI2IDIwMTE8QlI+DQpTdWJqZWN0OiBSZTogQmFkIHBlcmZvcm1hbmNlIHdoZW4gcmVh
+ZHMgYW5kIHdyaXRlcyBvbiBzYW1lIExVTjxCUj4NCjxCUj4NCk9uIDIwMTEtMDktMDIgMjE6MDYs
+IE5ldG8sIEFudG9uaW8gSm9zZSBSb2RyaWd1ZXMgd3JvdGU6PEJSPg0KJmd0OyBUaGUgcXVlc3Rp
+b24gdGhhdCBJIGhhdmUgaXM6PEJSPg0KJmd0OzxCUj4NCiZndDsgJnF1b3Q7QnVmZmVyZWQgYWlv
+IHdpbGwgZmFsbCBiYWNrIHRvIHN5bmMgaW8sIGFuZCBpdCdzIGtub3duIHRoYXQgbWl4aW5nJnF1
+b3Q7PEJSPg0KJmd0OzxCUj4NCiZndDsgV2h5IGRpZCBidWZmZXJlZCBhaW8gd2lsbCBmYWxsIGJh
+Y2sgdG8gc3luYyBpbz88QlI+DQo8QlI+DQpQbGVhc2UgZG9uJ3QgdG9wIHBvc3QsIHJlcGx5IGJl
+bmVhdCB0aGUgb3JpZ2luYWwgdGV4dC48QlI+DQo8QlI+DQpCdWZmZXJlZCBhaW8gd2lsbCBkZWdl
+bmVyYXRlIHRvIG5vcm1hbCBzeW5jIElPLCBiZWNhdXNlIHRoZSBrZXJuZWwgZG9lczxCUj4NCm5v
+dCBzdXBwb3J0IGFzeW5jIGJ1ZmZlcmVkIGlvLjxCUj4NCjxCUj4NCi0tPEJSPg0KSmVucyBBeGJv
+ZTxCUj4NCjxCUj4NCjwvRk9OVD4NCjwvUD4NCg0KPC9CT0RZPg0KPC9IVE1MPg==
 
--- 
-Jens Axboe
+------_=_NextPart_001_01CC69E8.FBE0B96A--
+
 
