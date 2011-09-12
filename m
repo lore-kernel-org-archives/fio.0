@@ -1,141 +1,151 @@
-Return-Path: <tai@rakugaki.org>
-MIME-Version: 1.0
-In-Reply-To: <4E69D04E.3090705@kernel.dk>
-References: <4E69A048.6050509@rakugaki.org> <4E69D04E.3090705@kernel.dk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from www7149u.sakura.ne.jp ([59.106.184.187]:54251 "EHLO
+	i.rakugaki.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751413Ab1ILFdD (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 12 Sep 2011 01:33:03 -0400
+Received: from [10.253.0.10] (KD125053235206.ppp-bb.dion.ne.jp [125.53.235.206])
+	by i.rakugaki.org (Postfix) with ESMTPSA id 87A2D202FB
+	for <fio@vger.kernel.org>; Mon, 12 Sep 2011 14:32:59 +0900 (JST)
+Message-ID: <4E6D98DB.7020106@rakugaki.org>
+Date: Mon, 12 Sep 2011 14:30:03 +0900
 From: Taisuke Yamada <tai@rakugaki.org>
-Date: Thu, 15 Sep 2011 15:23:46 +0900
-Message-ID: <CAM8qCPLxw2zSS1tQudnurDSMZcugrc_Cf=9MLfK2D_RphmMn9A@mail.gmail.com>
-Subject: Re: [PATCH 1/2] Added replay_rebase option to run multi-threaded log
+MIME-Version: 1.0
+Subject: [PATCH 1/2] Added replay_rebase option to run multi-threaded log
  replay on different disk sectors.
-Content-Type: multipart/mixed; boundary=bcaec520f0237cd19904acf4ecf9
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Content-Type: multipart/mixed;
+ boundary="------------080804000607020501000605"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
---bcaec520f0237cd19904acf4ecf9
-Content-Type: text/plain; charset=ISO-8859-1
+This is a multi-part message in MIME format.
+--------------080804000607020501000605
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
->> [snip], I added "replay_rebase" option to shift offset of IO request for
->> each thread.
+> But since I also wanted to have each thread accessing different
+> parts of the disk to increase a load, but still following the
+> access pattern of the original, I added "replay_rebase" option to
+> shift offset of IO request for each thread.
 >
-> Thanks, I can see this being handy. I can apply this, but I would much
-> prefer if you resend it with the proper updates to HOWTO and fio.1
-> adding the new option. Otherwise nobody is going to learn about it.
+>> Thanks, I can see this being handy. I can apply this, but I would
+>> much prefer if you resend it with the proper updates to HOWTO and
+>> fio.1 adding the new option. Otherwise nobody is going to learn about it.
 
-Just in case you have missed (I had to break In-Reply-To chain as git
-format-patch did not respect it). I'm re-posting updated patch with docs.
-Please apply #1 and #2 if it seems acceptable.
-
-I believe #2 patch is also worth adding to fio, but not sure if I should make
-it optional feature (/w doc) or not. By wraparounding offset address, it'll
-probably make benchmark result look better than actual for rotational disk
-drives. OTOH, it's better than failing to run just because trace-generating
-device was larger than replaying device.
+Yes, you're right.
+Here's an updated patch with documentation.
 
 Best Regards,
 
---bcaec520f0237cd19904acf4ecf9
-Content-Type: text/x-patch; charset=US-ASCII; 
-	name="0001-Added-replay_rebase-option-to-run-multi-threaded-log.patch"
-Content-Disposition: attachment; 
-	filename="0001-Added-replay_rebase-option-to-run-multi-threaded-log.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_gslcbgj40
+Signed-off-by: Taisuke Yamada <tai@rakugaki.org>
+---
+ HOWTO     |    9 +++++++++
+ fio.1     |    9 +++++++++
+ fio.h     |    1 +
+ log.c     |    2 +-
+ options.c |    8 ++++++++
+ 5 files changed, 28 insertions(+), 1 deletions(-)
 
-RnJvbSA2ZjQ3YmVmNTQ3ZmI0Y2M3NDgwYjQ0ZjZlZDgzMmEyZTVhM2I0MTUwIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBUYWlzdWtlIFlhbWFkYSA8dGFpQHJha3VnYWtpLm9yZz4KRGF0
-ZTogVGh1LCA4IFNlcCAyMDExIDIxOjMyOjAxICswOTAwClN1YmplY3Q6IFtQQVRDSCAxLzJdIEFk
-ZGVkIHJlcGxheV9yZWJhc2Ugb3B0aW9uIHRvIHJ1biBtdWx0aS10aHJlYWRlZCBsb2cKIHJlcGxh
-eSBvbiBkaWZmZXJlbnQgZGlzayBzZWN0b3JzLgoKLS0tCiBIT1dUTyAgICAgfCAgICA5ICsrKysr
-KysrKwogZmlvLjEgICAgIHwgICAgOSArKysrKysrKysKIGZpby5oICAgICB8ICAgIDEgKwogbG9n
-LmMgICAgIHwgICAgMiArLQogb3B0aW9ucy5jIHwgICAgOCArKysrKysrKwogNSBmaWxlcyBjaGFu
-Z2VkLCAyOCBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL0hPV1RP
-IGIvSE9XVE8KaW5kZXggNzI0YjYwNC4uMTMyZGM0YSAxMDA2NDQKLS0tIGEvSE9XVE8KKysrIGIv
-SE9XVE8KQEAgLTEwNzgsNiArMTA3OCwxNSBAQCByZXBsYXlfcmVkaXJlY3Q9c3RyIFdoaWxlIHJl
-cGxheWluZyBJL08gcGF0dGVybnMgdXNpbmcgcmVhZF9pb2xvZyB0aGUKIAkJaW5kZXBlbmRlbnQg
-ZmlvIGludm9jYXRpb25zLiAgVW5mb3J0dWFudGVseSB0aGlzIGFsc28gYnJlYWtzCiAJCXRoZSBz
-dHJpY3QgdGltZSBvcmRlcmluZyBiZXR3ZWVuIG11bHRpcGxlIGRldmljZSBhY2Nlc3Nlcy4KIAor
-cmVwbGF5X3JlYmFzZT1pbnQgV2hpbGUgcmVwbGF5aW5nIEkvTyBwYXR0ZXJucyB1c2luZyByZWFk
-X2lvbG9nLCB0aGUKKwkJZGVmYXVsdCBiZWhhdmlvciBpcyB0byByZXBsYXkgdGhlIGxvZyBhcy1p
-cywgZXZlbiB3aGVuCisJCW11bHRpcGxlIHRocmVhZHMgYXJlIHJlcGxheWluZyB0aGUgc2FtZSBs
-b2cuIFRoaXMgbWVhbnMKKwkJYWxsIHRocmVhZHMgYXJlIGFjY2Vzc2luZyB0aGUgc2FtZSBzZWN0
-b3Igb24gdGhlIGRldmljZS4KKwkJQnkgc3BlY2lmeWluZyB0aGlzIG9wdGlvbiwgZWFjaCB0aHJl
-YWQgd2lsbCBiZSBhY2Nlc3NpbmcKKwkJZGlmZmVyZW50IHNlY3RvciBieSBhZGRpbmcgZXh0cmEg
-cmViYXNlIG9mZnNldC4gT2Zmc2V0IGlzCisJCXNpbXBseSBnaXZlbiBieSAicmVwbGF5X3JlYmFz
-ZSAqIGludGVybmFsIHRocmVhZCBudW1iZXIiLAorCQlzbyBJTyBhY2Nlc3MgcGF0dGVybiBpdHNl
-bGYgaXMgcHJlc2VydmVkLgorCiB3cml0ZV9id19sb2c9c3RyIElmIGdpdmVuLCB3cml0ZSBhIGJh
-bmR3aWR0aCBsb2cgb2YgdGhlIGpvYnMgaW4gdGhpcyBqb2IKIAkJZmlsZS4gQ2FuIGJlIHVzZWQg
-dG8gc3RvcmUgZGF0YSBvZiB0aGUgYmFuZHdpZHRoIG9mIHRoZQogCQlqb2JzIGluIHRoZWlyIGxp
-ZmV0aW1lLiBUaGUgaW5jbHVkZWQgZmlvX2dlbmVyYXRlX3Bsb3RzCmRpZmYgLS1naXQgYS9maW8u
-MSBiL2Zpby4xCmluZGV4IDdlYjIwNDkuLjA1N2RmNWMgMTAwNjQ0Ci0tLSBhL2Zpby4xCisrKyBi
-L2Zpby4xCkBAIC04MjYsNiArODI2LDE1IEBAIGlzIHRvIHJlcGxheSB0aGUgSU9QUyBvbnRvIHRo
-ZSBtYWpvci9taW5vciBkZXZpY2UgdGhhdCBlYWNoIElPUCB3YXMgcmVjb3JkZWQKIGZyb20uICBT
-ZXR0aW5nIFxmQnJlcGxheV9yZWRpcmVjdFxmUiBjYXVzZXMgYWxsIElPUFMgdG8gYmUgcmVwbGF5
-ZWQgb250byB0aGUKIHNpbmdsZSBzcGVjaWZpZWQgZGV2aWNlIHJlZ2FyZGxlc3Mgb2YgdGhlIGRl
-dmljZSBpdCB3YXMgcmVjb3JkZWQgZnJvbS4KIC5UUAorLkJJIHJlcGxheV9yZWJhc2UgXGZSPVxm
-UGludAorV2hpbGUgcmVwbGF5aW5nIEkvTyBwYXR0ZXJucyB1c2luZyByZWFkX2lvbG9nLCB0aGUg
-ZGVmYXVsdCBiZWhhdmlvcgoraXMgdG8gcmVwbGF5IHRoZSBsb2cgYXMtaXMsIGV2ZW4gd2hlbiBt
-dWx0aXBsZSB0aHJlYWRzIGFyZSByZXBsYXlpbmcKK3RoZSBzYW1lIGxvZy4gVGhpcyBtZWFucyBh
-bGwgdGhyZWFkcyBhcmUgYWNjZXNzaW5nIHRoZSBzYW1lIHNlY3Rvcgorb24gdGhlIGRldmljZS4g
-Qnkgc3BlY2lmeWluZyB0aGlzIG9wdGlvbiwgZWFjaCB0aHJlYWQgd2lsbCBiZSBhY2Nlc3NpbmcK
-K2RpZmZlcmVudCBzZWN0b3IgYnkgYWRkaW5nIGV4dHJhIHJlYmFzZSBvZmZzZXQuIE9mZnNldCBp
-cyBzaW1wbHkgZ2l2ZW4KK2J5ICJyZXBsYXlfcmViYXNlICogaW50ZXJuYWwgdGhyZWFkIG51bWJl
-ciIsIHNvIElPIGFjY2VzcyBwYXR0ZXJuIGl0c2VsZgoraXMgcHJlc2VydmVkLgorLlRQCiAuQiB3
-cml0ZV9id19sb2cgXGZSPVxmUHN0cgogSWYgZ2l2ZW4sIHdyaXRlIGEgYmFuZHdpZHRoIGxvZyBv
-ZiB0aGUgam9icyBpbiB0aGlzIGpvYiBmaWxlLiBDYW4gYmUgdXNlZCB0bwogc3RvcmUgZGF0YSBv
-ZiB0aGUgYmFuZHdpZHRoIG9mIHRoZSBqb2JzIGluIHRoZWlyIGxpZmV0aW1lLiBUaGUgaW5jbHVk
-ZWQKZGlmZiAtLWdpdCBhL2Zpby5oIGIvZmlvLmgKaW5kZXggZTkzZThmMy4uZTQzYjU3YiAxMDA2
-NDQKLS0tIGEvZmlvLmgKKysrIGIvZmlvLmgKQEAgLTM1OCw2ICszNTgsNyBAQCBzdHJ1Y3QgdGhy
-ZWFkX29wdGlvbnMgewogCXVuc2lnbmVkIGludCBndG9kX29mZmxvYWQ7CiAJZW51bSBmaW9fY3Mg
-Y2xvY2tzb3VyY2U7CiAJdW5zaWduZWQgaW50IG5vX3N0YWxsOworCXVuc2lnbmVkIGludCByZXBs
-YXlfcmViYXNlOwogCXVuc2lnbmVkIGludCB0cmltX3BlcmNlbnRhZ2U7CiAJdW5zaWduZWQgaW50
-IHRyaW1fYmF0Y2g7CiAJdW5zaWduZWQgaW50IHRyaW1femVybzsKZGlmZiAtLWdpdCBhL2xvZy5j
-IGIvbG9nLmMKaW5kZXggZjk2Mjg2NC4uNTdmYzBmNCAxMDA2NDQKLS0tIGEvbG9nLmMKKysrIGIv
-bG9nLmMKQEAgLTEyOSw3ICsxMjksNyBAQCBpbnQgcmVhZF9pb2xvZ19nZXQoc3RydWN0IHRocmVh
-ZF9kYXRhICp0ZCwgc3RydWN0IGlvX3UgKmlvX3UpCiAKIAkJaW9fdS0+ZGRpciA9IGlwby0+ZGRp
-cjsKIAkJaWYgKGlwby0+ZGRpciAhPSBERElSX1dBSVQpIHsKLQkJCWlvX3UtPm9mZnNldCA9IGlw
-by0+b2Zmc2V0OworCQkJaW9fdS0+b2Zmc2V0ID0gaXBvLT5vZmZzZXQgKyB0ZC0+by5yZXBsYXlf
-cmViYXNlICogdGQtPnRocmVhZF9udW1iZXI7CiAJCQlpb191LT5idWZsZW4gPSBpcG8tPmxlbjsK
-IAkJCWlvX3UtPmZpbGUgPSB0ZC0+ZmlsZXNbaXBvLT5maWxlbm9dOwogCQkJZ2V0X2ZpbGUoaW9f
-dS0+ZmlsZSk7CmRpZmYgLS1naXQgYS9vcHRpb25zLmMgYi9vcHRpb25zLmMKaW5kZXggNzRjMjRk
-MC4uYWJhMTRiMSAxMDA2NDQKLS0tIGEvb3B0aW9ucy5jCisrKyBiL29wdGlvbnMuYwpAQCAtMTY1
-NCw2ICsxNjU0LDE0IEBAIHN0YXRpYyBzdHJ1Y3QgZmlvX29wdGlvbiBvcHRpb25zW0ZJT19NQVhf
-T1BUU10gPSB7CiAJCS5oZWxwCT0gIlJlcGxheSBhbGwgSS9PIG9udG8gdGhpcyBkZXZpY2UsIHJl
-Z2FyZGxlc3Mgb2YgdHJhY2UgZGV2aWNlIiwKIAl9LAogCXsKKwkJLm5hbWUJPSAicmVwbGF5X3Jl
-YmFzZSIsCisJCS50eXBlCT0gRklPX09QVF9JTlQsCisJCS5vZmYxCT0gdGRfdmFyX29mZnNldChy
-ZXBsYXlfcmViYXNlKSwKKwkJLmRlZgk9ICIwIiwKKwkJLnBhcmVudAk9ICJyZWFkX2lvbG9nIiwK
-KwkJLmhlbHAJPSAiQXBwbHkgZ2l2ZW4gb2Zmc2V0IGZvciBJTyByZXBsYXkuIE1haW5seSBmb3Ig
-cGFyYWxsZWwgcmVwbGF5LiIsCisJfSwKKwl7CiAJCS5uYW1lCT0gImV4ZWNfcHJlcnVuIiwKIAkJ
-LnR5cGUJPSBGSU9fT1BUX1NUUl9TVE9SRSwKIAkJLm9mZjEJPSB0ZF92YXJfb2Zmc2V0KGV4ZWNf
-cHJlcnVuKSwKLS0gCjEuNy41LjQKCg==
---bcaec520f0237cd19904acf4ecf9
-Content-Type: text/x-patch; charset=US-ASCII; 
-	name="0002-Added-wraparound-IO-support-for-replay-on-smaller-of.patch"
-Content-Disposition: attachment; 
-	filename="0002-Added-wraparound-IO-support-for-replay-on-smaller-of.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_gslcbv7u1
 
-RnJvbSBjOGU2MWM2ZWFjMTk4ZTk3YjgyOGNkYjQwNDQxZjg1NWUzOGRhYWYyIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBUYWlzdWtlIFlhbWFkYSA8dGFpQHJha3VnYWtpLm9yZz4KRGF0
-ZTogVGh1LCA4IFNlcCAyMDExIDIyOjI4OjQzICswOTAwClN1YmplY3Q6IFtQQVRDSCAyLzJdIEFk
-ZGVkIHdyYXBhcm91bmQgSU8gc3VwcG9ydCBmb3IgcmVwbGF5IG9uCiBzbWFsbGVyL29mZnNldHRl
-ZCBkZXZpY2UuCgotLS0KIGxvZy5jIHwgICAgMyArKysKIDEgZmlsZXMgY2hhbmdlZCwgMyBpbnNl
-cnRpb25zKCspLCAwIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2xvZy5jIGIvbG9nLmMKaW5k
-ZXggNTdmYzBmNC4uYTYzNmI3ZSAxMDA2NDQKLS0tIGEvbG9nLmMKKysrIGIvbG9nLmMKQEAgLTg3
-LDYgKzg3LDcgQEAgc3RhdGljIGludCBpcG9fc3BlY2lhbChzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRk
-LCBzdHJ1Y3QgaW9fcGllY2UgKmlwbykKIAogCXN3aXRjaCAoaXBvLT5maWxlX2FjdGlvbikgewog
-CWNhc2UgRklPX0xPR19PUEVOX0ZJTEU6CisJCXJldCA9IHRkX2lvX2dldF9maWxlX3NpemUodGQs
-IGYpOyAvKiBmb3Igd3JhcGFyb3VuZCByZXBsYXkgKi8KIAkJcmV0ID0gdGRfaW9fb3Blbl9maWxl
-KHRkLCBmKTsKIAkJaWYgKCFyZXQpCiAJCQlicmVhazsKQEAgLTEzMiw2ICsxMzMsOCBAQCBpbnQg
-cmVhZF9pb2xvZ19nZXQoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGlvX3UgKmlvX3Up
-CiAJCQlpb191LT5vZmZzZXQgPSBpcG8tPm9mZnNldCArIHRkLT5vLnJlcGxheV9yZWJhc2UgKiB0
-ZC0+dGhyZWFkX251bWJlcjsKIAkJCWlvX3UtPmJ1ZmxlbiA9IGlwby0+bGVuOwogCQkJaW9fdS0+
-ZmlsZSA9IHRkLT5maWxlc1tpcG8tPmZpbGVub107CisJCQlpZiAoaW9fdS0+ZmlsZS0+cmVhbF9m
-aWxlX3NpemUgPiAwKQorCQkJCWlvX3UtPm9mZnNldCAlPSBpb191LT5maWxlLT5yZWFsX2ZpbGVf
-c2l6ZTsKIAkJCWdldF9maWxlKGlvX3UtPmZpbGUpOwogCQkJZHByaW50KEZEX0lPLCAiaW9sb2c6
-IGdldCAlbGx1LyVsdS8lc1xuIiwgaW9fdS0+b2Zmc2V0LAogCQkJCQkJaW9fdS0+YnVmbGVuLCBp
-b191LT5maWxlLT5maWxlX25hbWUpOwotLSAKMS43LjUuNAoK
---bcaec520f0237cd19904acf4ecf9--
+
+--------------080804000607020501000605
+Content-Type: text/x-patch;
+ name="0001-Added-replay_rebase-option-to-run-multi-threaded-log.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename*0="0001-Added-replay_rebase-option-to-run-multi-threaded-log.pa";
+ filename*1="tch"
+
+diff --git a/HOWTO b/HOWTO
+index 724b604..132dc4a 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -1078,6 +1078,15 @@ replay_redirect=str While replaying I/O patterns using read_iolog the
+ 		independent fio invocations.  Unfortuantely this also breaks
+ 		the strict time ordering between multiple device accesses.
+ 
++replay_rebase=int While replaying I/O patterns using read_iolog, the
++		default behavior is to replay the log as-is, even when
++		multiple threads are replaying the same log. This means
++		all threads are accessing the same sector on the device.
++		By specifying this option, each thread will be accessing
++		different sector by adding extra rebase offset. Offset is
++		simply given by "replay_rebase * internal thread number",
++		so IO access pattern itself is preserved.
++
+ write_bw_log=str If given, write a bandwidth log of the jobs in this job
+ 		file. Can be used to store data of the bandwidth of the
+ 		jobs in their lifetime. The included fio_generate_plots
+diff --git a/fio.1 b/fio.1
+index ffc97c9..702e4e3 100644
+--- a/fio.1
++++ b/fio.1
+@@ -823,6 +823,15 @@ is to replay the IOPS onto the major/minor device that each IOP was recorded
+ from.  Setting \fBreplay_redirect\fR causes all IOPS to be replayed onto the
+ single specified device regardless of the device it was recorded from.
+ .TP
++.BI replay_rebase \fR=\fPint
++While replaying I/O patterns using read_iolog, the default behavior
++is to replay the log as-is, even when multiple threads are replaying
++the same log. This means all threads are accessing the same sector
++on the device. By specifying this option, each thread will be accessing
++different sector by adding extra rebase offset. Offset is simply given
++by "replay_rebase * internal thread number", so IO access pattern itself
++is preserved.
++.TP
+ .B write_bw_log \fR=\fPstr
+ If given, write a bandwidth log of the jobs in this job file. Can be used to
+ store data of the bandwidth of the jobs in their lifetime. The included
+diff --git a/fio.h b/fio.h
+index 6eb270d..b28e0ae 100644
+--- a/fio.h
++++ b/fio.h
+@@ -358,6 +358,7 @@ struct thread_options {
+ 	unsigned int gtod_offload;
+ 	enum fio_cs clocksource;
+ 	unsigned int no_stall;
++	unsigned int replay_rebase;
+ 	unsigned int trim_percentage;
+ 	unsigned int trim_batch;
+ 	unsigned int trim_zero;
+diff --git a/log.c b/log.c
+index f962864..57fc0f4 100644
+--- a/log.c
++++ b/log.c
+@@ -129,7 +129,7 @@ int read_iolog_get(struct thread_data *td, struct io_u *io_u)
+ 
+ 		io_u->ddir = ipo->ddir;
+ 		if (ipo->ddir != DDIR_WAIT) {
+-			io_u->offset = ipo->offset;
++			io_u->offset = ipo->offset + td->o.replay_rebase * td->thread_number;
+ 			io_u->buflen = ipo->len;
+ 			io_u->file = td->files[ipo->fileno];
+ 			get_file(io_u->file);
+diff --git a/options.c b/options.c
+index 74c24d0..aba14b1 100644
+--- a/options.c
++++ b/options.c
+@@ -1654,6 +1654,14 @@ static struct fio_option options[FIO_MAX_OPTS] = {
+ 		.help	= "Replay all I/O onto this device, regardless of trace device",
+ 	},
+ 	{
++		.name	= "replay_rebase",
++		.type	= FIO_OPT_INT,
++		.off1	= td_var_offset(replay_rebase),
++		.def	= "0",
++		.parent	= "read_iolog",
++		.help	= "Apply given offset for IO replay. Mainly for parallel replay.",
++	},
++	{
+ 		.name	= "exec_prerun",
+ 		.type	= FIO_OPT_STR_STORE,
+ 		.off1	= td_var_offset(exec_prerun),
+
+
+--------------080804000607020501000605--
+--:
+To unsubscribe from this list: send the line "unsubscribe fio" in
+the body of a message to majordomo@vger.kernel.org: 
+More majordomo info at  http: //vger.kernel.org/majordomo-info.html
 
 
