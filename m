@@ -1,45 +1,39 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from 87-104-106-3-dynamic-customer.profibernet.dk ([87.104.106.3]:42218
+Received: from 87-104-106-3-dynamic-customer.profibernet.dk ([87.104.106.3]:54260
 	"EHLO kernel.dk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932452Ab1IAQGs (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 1 Sep 2011 12:06:48 -0400
-Message-ID: <4E5FAD90.80405@kernel.dk>
-Date: Thu, 01 Sep 2011 10:06:40 -0600
+	with ESMTP id S1753596Ab1IMILH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 13 Sep 2011 04:11:07 -0400
+Message-ID: <4E6F1019.4050106@kernel.dk>
+Date: Tue, 13 Sep 2011 10:11:05 +0200
 From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Subject: Re: fio file test patterns
-References: <CAOYTo+2Xh=JuLi1rx_LGjfEHheRhp2RE=tT-RZ8arT7ULYziTA@mail.gmail.com> <x49ippd5t7y.fsf@segfault.boston.devel.redhat.com> <4E5E91D9.4000702@fusionio.com> <CAOYTo+3JyNsxMf+UO5C3N=rrtkGR999XM9Guo5-0TXFqSuUr+Q@mail.gmail.com> <4E5EA5DF.5040609@fusionio.com> <4E5EA9D0.10109@kernel.dk> <CAOYTo+2pBwxmX-nhf6MP=Szvm3EoEFjGWapqbtC5JVSQskS4hQ@mail.gmail.com>
-In-Reply-To: <CAOYTo+2pBwxmX-nhf6MP=Szvm3EoEFjGWapqbtC5JVSQskS4hQ@mail.gmail.com>
+Subject: Re: runtime option not working similar for all devices
+References: <CAKa9NmvPyvyrdbpYaHoo20yu5Gbsq1m_GYzUen2viOUZkJdQHQ@mail.gmail.com> <4E6DC4C1.2050804@kernel.dk> <CAKa9Nmsi_QxSZyD14AH6wrNQ5sqGe_K2m4Efy7ZaHTu2ryGMtQ@mail.gmail.com> <CAKTuRrGKODdJ9dnsfPjK82-===RYr-Js1aM5U6rOC2823n3LYw@mail.gmail.com>
+In-Reply-To: <CAKTuRrGKODdJ9dnsfPjK82-===RYr-Js1aM5U6rOC2823n3LYw@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Brian Fallik <bfallik@bamboom.com>
-Cc: Jeff Moyer <jmoyer@redhat.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Josh Aune <luken@omner.org>
+Cc: Vikram Seth <seth.vik@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 2011-09-01 08:18, Brian Fallik wrote:
-> Perhaps I should describe what I'm seeing.  I have two terminals open.
->  In one, I launch:
->   $ watch "ls -l foo* | head -n 20"
-> In the other terminal I kick off fio.  fio first spits out the "Laying
-> out" messages, one per job.  Immediately the full 4MB files appear in
-> the directory listing.  *Then* fio starts writing to the files, as
-> indicated by the fio output.  The size of each file never changes
-> during the test.
+On 2011-09-13 10:04, Josh Aune wrote:
 > 
-> I wasn't expecting the full 4Mb files to be created before the
-> sequential writes.  I expected to not see any files initially, and
-> then a file for each job growing at a rate of 200Kbs throughout the
-> test until reaching the 4MB limit.
+>>
+>> [global]
+>> description=Standard Performance test
+>> runtime=43200
+>> direct=1
+>> filename=/dev/sdc
+>> numjobs=20
+>> group_reporting
 > 
-> Perhaps I'm just configuring fio incorrectly?
+> Add time_based and it will run for the full duration specified by runtime.
 
-That you see them there does not mean they are actually written. Fio
-will use truncate to setup the files, but only actually fill them with
-data if you are going to be reading them (or requested overwrite).
-
-BTW, please don't top-post. Reply beneath the original text, like a
-normal flow of conversation.
+Yes. With the job given, once fio has done 128kb randreads to any block
+on the total size of sdc, it will exit otherwise. If you only give
+runtime=xx, then it's just a cap, it wont extend your runtime beyond the
+size of the job.
 
 -- 
 Jens Axboe
