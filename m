@@ -1,10 +1,10 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from 87-104-106-3-dynamic-customer.profibernet.dk ([87.104.106.3]:48808
+Received: from 87-104-106-3-dynamic-customer.profibernet.dk ([87.104.106.3]:48796
 	"EHLO kernel.dk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933264Ab1IOLOg (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 15 Sep 2011 07:14:36 -0400
-Message-ID: <4E71DE1B.4010800@kernel.dk>
-Date: Thu, 15 Sep 2011 13:14:35 +0200
+	with ESMTP id S933075Ab1IOLKV (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 15 Sep 2011 07:10:21 -0400
+Message-ID: <4E71DD1C.1060708@kernel.dk>
+Date: Thu, 15 Sep 2011 13:10:20 +0200
 From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
 Subject: Re: [PATCH 1/2] Added replay_rebase option to run multi-threaded
@@ -29,16 +29,16 @@ On 2011-09-15 08:23, Taisuke Yamada wrote:
 > Just in case you have missed (I had to break In-Reply-To chain as git
 > format-patch did not respect it). I'm re-posting updated patch with docs.
 > Please apply #1 and #2 if it seems acceptable.
+> 
+> I believe #2 patch is also worth adding to fio, but not sure if I should make
+> it optional feature (/w doc) or not. By wraparounding offset address, it'll
+> probably make benchmark result look better than actual for rotational disk
+> drives. OTOH, it's better than failing to run just because trace-generating
+> device was larger than replaying device.
 
-On patch 1, I don't know, it seems a bit weird to me. The fact that the
-option offset is multiplied by the job number makes sense for ease of
-handling job files (since you can just do numjobs=X and be done with
-it), but logically it's odd since you have to know that they are
-numbered sequentially and do the math to see where it ends up on the
-disk.
-
-What is the intended use case for this? I'd much rather see the offset
-be absolute, at the cost of a bit more complex job file.
+I worry about the 2nd patch, it's a bit of a hack. You could make it an
+option and turn it on unconditionally for replay_rebase, or at least
+make it conditional on that.
 
 -- 
 Jens Axboe
