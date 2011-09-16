@@ -1,52 +1,35 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qy0-f174.google.com ([209.85.216.174]:63143 "EHLO
-	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756097Ab1INJxv convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 14 Sep 2011 05:53:51 -0400
-Received: by qyk30 with SMTP id 30so3662754qyk.19
-        for <fio@vger.kernel.org>; Wed, 14 Sep 2011 02:53:50 -0700 (PDT)
+Received: from 87-104-106-3-dynamic-customer.profibernet.dk ([87.104.106.3]:52199
+	"EHLO kernel.dk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751428Ab1IPHF1 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 16 Sep 2011 03:05:27 -0400
+Message-ID: <4E72F536.1010005@kernel.dk>
+Date: Fri, 16 Sep 2011 09:05:26 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <CADson1wk9astwdroeAtPXb4A3+yrAcDcCXaEPvEGJPhM4TBfqQ@mail.gmail.com>
-References: <CADson1wk9astwdroeAtPXb4A3+yrAcDcCXaEPvEGJPhM4TBfqQ@mail.gmail.com>
-Date: Wed, 14 Sep 2011 17:53:50 +0800
-Message-ID: <CADson1wi5=W-WDbDGy1j2T4FZD_2yoGGzOG8Af7GKKppiY7Lrg@mail.gmail.com>
-Subject: memory leak bug? when do write with verify
-From: Zhang Taile <zhangtl@gmail.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: FIO with direct, non-buffered IO on Mac OS X
+References: <655B558C-ADC2-4D96-A31F-5F847B047AEC@schihei.de>
+In-Reply-To: <655B558C-ADC2-4D96-A31F-5F847B047AEC@schihei.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Heiko Joerg Schick <info@schihei.de>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-HI
-When I do RandWrite with verify, fio will use a lot of memory. The fio
-will increase memory about 10MB in every second. And, the system will
-become very slow, after fio start to use swap partition.
+On 2011-09-16 08:55, Heiko Joerg Schick wrote:
+> Hello Jens,
+> 
+> is there a way to execute FIO with direct, non-buffered IO on Mac OS
+> X. It seems that the --direct and/or --buffered parameter only works
+> in combination with the -ioengine=libaio parameter?
 
-For example,=EF=BF=BD if use fio with following configuration,
-[rand-write]
-rw=3Drandwrite
-numjobs=3D32
-loops=3D10
-thread=3D1
-filename=3D/dev/sdb
-verify=3Dmd5
-verify_interval=3D4k
+(CC'ing in the fio list)
 
-after=EF=BF=BD minutes, top will Like this :
-=EF=BF=BDPID USER=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD PR=EF=BF=BD =
-NI=EF=BF=BD VIRT=EF=BF=BD RES=EF=BF=BD SHR S %CPU %MEM=EF=BF=BD=EF=BF=BD=EF=
-=BF=BD TIME+=EF=BF=BD COMMAND
-=EF=BF=BD3749 root=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 15=EF=BF=BD=
-=EF=BF=BD 0 2672m 1.5g 304m S 169.4 40.4=EF=BF=BD=EF=BF=BD 4:10.04 fio
+direct=1 isn't tied to libaio in any way, and OSX should support it. Not
+quite sure how unbuffered IO is done on OSX, perhaps others can chime in
+here. On some operating systems, it's only supported on specific device
+types or certain file systems.
 
+-- 
+Jens Axboe
 
-If remove the verify from the configuration, there will be no the
-memory problem.
-
-I guess it is a memory leak problem?
-
-
-Thanks!
---
-Taile
