@@ -1,40 +1,37 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from 87-104-106-3-dynamic-customer.profibernet.dk ([87.104.106.3]:32774
+Received: from 87-104-106-3-dynamic-customer.profibernet.dk ([87.104.106.3]:59626
 	"EHLO kernel.dk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751389Ab1JGHNA (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 7 Oct 2011 03:13:00 -0400
-Received: from [192.168.0.33] (nelson.home.kernel.dk [192.168.0.33])
-	by kernel.dk (Postfix) with ESMTPA id 0408D5658C
-	for <fio@vger.kernel.org>; Fri,  7 Oct 2011 09:12:59 +0200 (CEST)
-Message-ID: <4E8EA67B.1040404@kernel.dk>
-Date: Fri, 07 Oct 2011 09:12:59 +0200
+	with ESMTP id S932659Ab1JEIvD (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 5 Oct 2011 04:51:03 -0400
+Message-ID: <4E8C1A77.6080606@kernel.dk>
+Date: Wed, 05 Oct 2011 10:51:03 +0200
 From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Subject: web page
+Subject: Re: fio version to package?
+References: <201110051049.42373.ms@teamix.de>
+In-Reply-To: <201110051049.42373.ms@teamix.de>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Martin Steigerwald <ms@teamix.de>
+Cc: fio@vger.kernel.org
 
-Hi,
+On 2011-10-05 10:49, Martin Steigerwald wrote:
+> Hi Jens!
+> 
+> I looked upgrading my fio debian package from 1.57 to a newer version.
+> 
+> Whats the right version to use?
+> 
+> I see 1.59 and 1.99 both dated 5 Oct 2011. Which one is the latest stable 
+> version?
 
-I often hear from users of fio (and especially new potential users) that
-they would like to have a web page that has the documentation and
-explanation of what it does, links to where to download it, examples,
-etc.  For nowthe freshmeat page has been that resource, but it is
-lacking in several of these areas.
+1.59 is the latest stable version. 1.99 is a tagged snapshot of the
+client-server branch, which has the network functionality. It'll be 2.0
+eventually.
 
-I'm not really a web guy myself, and I definitely don't have the skills
-to write something that doesn't look like a basic 1994 web page.
-
-If you have a bit of web savvy and would like to help out with this,
-please do send me a note. I'd be more than happy to provide tech help to
-make this a smooth process. The page would be hosted at
-http://fio.kernel.dk.
-
-I'm thinking something pretty basic, with menu items on the left and
-content in the middle/right. Nothing fancy.
+So for now go with 1.59.
 
 -- 
 Jens Axboe
