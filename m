@@ -1,38 +1,49 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from 87-104-106-3-dynamic-customer.profibernet.dk ([87.104.106.3]:59626
-	"EHLO kernel.dk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932659Ab1JEIvD (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 5 Oct 2011 04:51:03 -0400
-Message-ID: <4E8C1A77.6080606@kernel.dk>
-Date: Wed, 05 Oct 2011 10:51:03 +0200
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <ms@teamix.de>
+From: Martin Steigerwald <ms@teamix.de>
+Subject: fio version to package?
+Date: Wed, 5 Oct 2011 10:49:30 +0200
 MIME-Version: 1.0
-Subject: Re: fio version to package?
-References: <201110051049.42373.ms@teamix.de>
-In-Reply-To: <201110051049.42373.ms@teamix.de>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed;
+  boundary="nextPart1637157.JHuihxKocR";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Martin Steigerwald <ms@teamix.de>
-Cc: fio@vger.kernel.org
+Message-Id: <201110051049.42373.ms@teamix.de>
+To: fio@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-On 2011-10-05 10:49, Martin Steigerwald wrote:
-> Hi Jens!
-> 
-> I looked upgrading my fio debian package from 1.57 to a newer version.
-> 
-> Whats the right version to use?
-> 
-> I see 1.59 and 1.99 both dated 5 Oct 2011. Which one is the latest stable 
-> version?
+--nextPart1637157.JHuihxKocR
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-1.59 is the latest stable version. 1.99 is a tagged snapshot of the
-client-server branch, which has the network functionality. It'll be 2.0
-eventually.
+Hi Jens!
 
-So for now go with 1.59.
+I looked upgrading my fio debian package from 1.57 to a newer version.
 
--- 
-Jens Axboe
+Whats the right version to use?
+
+I see 1.59 and 1.99 both dated 5 Oct 2011. Which one is the latest stable=20
+version?
+
+Thanks,
+=2D-=20
+Martin Steigerwald - teamix GmbH - http://www.teamix.de
+gpg: 19E3 8D42 896F D004 08AC A0CA 1E10 C593 0399 AE90
+
+--nextPart1637157.JHuihxKocR
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAk6MGhsACgkQHhDFkwOZrpAHLACfR15dNL19T3fJFmSaK/oIXnVt
+iDYAoILD90raCCArCTy52U7uIgt5NrsJ
+=nHVF
+-----END PGP SIGNATURE-----
+
+--nextPart1637157.JHuihxKocR--
+
 
