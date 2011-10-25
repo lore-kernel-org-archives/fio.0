@@ -1,40 +1,41 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mondschein.lichtvoll.de ([194.150.191.11]:59936 "EHLO
-	mail.lichtvoll.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751858Ab1JOJoI (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 15 Oct 2011 05:44:08 -0400
-Received: from merkaba.localnet (ppp-93-104-153-178.dynamic.mnet-online.de [93.104.153.178])
-	by mail.lichtvoll.de (Postfix) with ESMTPSA id F1EBFFB
-	for <fio@vger.kernel.org>; Sat, 15 Oct 2011 11:44:05 +0200 (CEST)
-From: Martin Steigerwald <Martin@lichtvoll.de>
-Subject: engines like rdma engine that require additional dependencies
-Date: Sat, 15 Oct 2011 11:44:05 +0200
+Received: from brick.kernel.dk ([87.104.106.3]:56879 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752307Ab1JYUjX (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 25 Oct 2011 16:39:23 -0400
+Message-ID: <4EA71E75.40108@kernel.dk>
+Date: Tue, 25 Oct 2011 22:39:17 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Subject: Re: [PATCH] Add code for verify_dump option
+References: <CAAUT-yPmmiUVeKDXLCKzUxL8uyYHgAT_8buF3Oor_rpy7QqBaw@mail.gmail.com>
+In-Reply-To: <CAAUT-yPmmiUVeKDXLCKzUxL8uyYHgAT_8buF3Oor_rpy7QqBaw@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <201110151144.06000.Martin@lichtvoll.de>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Steven Lang <tirea@google.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi Jens!
+On 2011-10-25 22:33, Steven Lang wrote:
+> The verify_dump option is defined and documented, but does nothing.
+> This one-liner enables the option.
+> 
+> One thing I wanted to open a small discussion on is the default
+> behavior.  When the verify dump behavior was added, it was something
+> new, so it seems more sensible to disable it by default to keep the
+> old behavior; and had it been in for less time I might have been
+> tempted to include that in the patch.  However, even ignoring the
+> change in behavior, it seems odd and possibly surprising/unexpected to
+> someone who does not have experience with fio to have it suddenly spit
+> out extra files; all the other options to write files
+> (write_iolog/write_bw_log/write_lat_log) only write anything if
+> requested.  Is there a good argument to why this option would be
+> enabled by default?
 
-I discussed with my package sponsor about whether to build rdma engine for 
-fio 1.59 debian package or not. We decided to do it and see how it builds 
-on all architectures.
+Thanks, applied. You are right, it probably should have been off by
+default, and in fact probably should be even now.
 
-But on installing fio now also two additional libs get installed and one of 
-them creates a user named "rdma".
-
-I wonder whether it would be feasible or good to have engines that require 
-external dependencies as modules that could be packaged separately.
-
-Might not matter much as long as its only the rdma engine tough.
-
-What do you think?
-
-Thanks,
 -- 
-Martin 'Helios' Steigerwald - http://www.Lichtvoll.de
-GPG: 03B0 0D6C 0040 0710 4AFA  B82F 991B EAAC A599 84C7
+Jens Axboe
+
