@@ -1,49 +1,46 @@
-Return-Path: <ms@teamix.de>
-From: Martin Steigerwald <ms@teamix.de>
-Subject: fio version to package?
-Date: Wed, 5 Oct 2011 10:49:30 +0200
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from brick.kernel.dk ([87.104.106.3]:55420 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750698Ab1J1Geb (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 28 Oct 2011 02:34:31 -0400
+Message-ID: <4EAA4CF7.8030009@kernel.dk>
+Date: Fri, 28 Oct 2011 08:34:31 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1637157.JHuihxKocR";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Subject: Re: [PATCH] Cleanup option keyword/environment substitution
+References: <CAAUT-yNorwr8cyuzpDuV9GW_n2yeuMvtTE_mgMkONMgSZLvZrg@mail.gmail.com>
+In-Reply-To: <CAAUT-yNorwr8cyuzpDuV9GW_n2yeuMvtTE_mgMkONMgSZLvZrg@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <201110051049.42373.ms@teamix.de>
-To: fio@vger.kernel.org
-Cc: Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Steven Lang <tirea@google.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
---nextPart1637157.JHuihxKocR
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+On 2011-10-28 02:17, Steven Lang wrote:
+> Right now the substitution for options seems quite fragile.  Among the
+> issues...
 
-Hi Jens!
+That's definitely true, it was a quick hack that never got the 2nd round
+of look over it should have had. So thanks for doing this!
 
-I looked upgrading my fio debian package from 1.57 to a newer version.
+> - If bc had an error and returned no output, it caused a NULL reference
+> - Multiple variable substitutions (For example $ncpus * $pagesize)
+> caused an error as it tried to run bc after the first, with the second
+> still text
+> - Memory leak for every keyword substituted
+> - Multiplication caused shell wildcard expansion (*) of the current
+> directory when passing the input to bc
+> - Shell escape sequences would be parsed on the command line when bc is called
+> - Potential buffer overrun due to unchecked lengths on the input line
+> 
+> So I did a little cleanup to get rid of the issues.  This patch also
+> moves the environment variable substitution to run before the keyword
+> substitution, so an environment variable can now indirectly perform a
+> keyword substitution.
 
-Whats the right version to use?
+Thanks, applied to both master and stable-1.x.
 
-I see 1.59 and 1.99 both dated 5 Oct 2011. Which one is the latest stable=20
-version?
-
-Thanks,
-=2D-=20
-Martin Steigerwald - teamix GmbH - http://www.teamix.de
-gpg: 19E3 8D42 896F D004 08AC A0CA 1E10 C593 0399 AE90
-
---nextPart1637157.JHuihxKocR
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAk6MGhsACgkQHhDFkwOZrpAHLACfR15dNL19T3fJFmSaK/oIXnVt
-iDYAoILD90raCCArCTy52U7uIgt5NrsJ
-=nHVF
------END PGP SIGNATURE-----
-
---nextPart1637157.JHuihxKocR--
-
+-- 
+Jens Axboe
 
