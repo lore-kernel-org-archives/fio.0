@@ -1,32 +1,30 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:46270 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754010Ab1KXTOf (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 24 Nov 2011 14:14:35 -0500
-Message-ID: <4ECE979A.5030709@kernel.dk>
-Date: Thu, 24 Nov 2011 20:14:34 +0100
-From: Jens Axboe <axboe@kernel.dk>
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:50585 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756481Ab1KVP0g convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Tue, 22 Nov 2011 10:26:36 -0500
+Received: by ywt32 with SMTP id 32so271377ywt.19
+        for <fio@vger.kernel.org>; Tue, 22 Nov 2011 07:26:35 -0800 (PST)
 MIME-Version: 1.0
-Subject: Re: Fwd: FIO used for SSD performance evaluation
-References: <CAB-428=JJi2LOej9q8mmmK7gxDOkuX=OkupHM16eBkMf==Mo2g@mail.gmail.com> <CAB-428nFJO+PkqY5qFpjtDr1Cs_RjBYa5jcNqzJMv6m71NzStg@mail.gmail.com>
-In-Reply-To: <CAB-428nFJO+PkqY5qFpjtDr1Cs_RjBYa5jcNqzJMv6m71NzStg@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <CAB-428=JJi2LOej9q8mmmK7gxDOkuX=OkupHM16eBkMf==Mo2g@mail.gmail.com>
+References: <CAB-428=JJi2LOej9q8mmmK7gxDOkuX=OkupHM16eBkMf==Mo2g@mail.gmail.com>
+From: Alireza Haghdoost <haghdoost@gmail.com>
+Date: Tue, 22 Nov 2011 09:25:54 -0600
+Message-ID: <CAB-428nFJO+PkqY5qFpjtDr1Cs_RjBYa5jcNqzJMv6m71NzStg@mail.gmail.com>
+Subject: Fwd: FIO used for SSD performance evaluation
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Alireza Haghdoost <haghdoost@gmail.com>
-Cc: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On 2011-11-22 16:25, Alireza Haghdoost wrote:
-> Hi
-> 
-> I found this blog post very interesting, Hope you guys in FIO mailing
-> list find it usefull:
-> 
-> http://storagetuning.wordpress.com/2011/11/07/sssi-performance-test-specification/
+Hi
 
-Thanks, always interesting to see how it's being used!
+I found this blog post very=EF=BF=BDinteresting, Hope you guys in FIO maili=
+ng
+list find it usefull:
 
--- 
-Jens Axboe
+http://storagetuning.wordpress.com/2011/11/07/sssi-performance-test-specifi=
+cation/
 
+Alireza
