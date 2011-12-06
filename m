@@ -1,89 +1,62 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:38139 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752355Ab1LPUkh (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 16 Dec 2011 15:40:37 -0500
-Received: by yenm11 with SMTP id m11so2518255yen.19
-        for <fio@vger.kernel.org>; Fri, 16 Dec 2011 12:40:37 -0800 (PST)
+Return-Path: <neependra.khare@gmail.com>
 MIME-Version: 1.0
-From: Yufei Ren <renyufei83@gmail.com>
-Date: Fri, 16 Dec 2011 15:40:16 -0500
-Message-ID: <CAG5pYQeVKT=90W0U3GEcC58TXPHNvjp=GoyfmV7SiO6KWeeoDg@mail.gmail.com>
-Subject: [PATCH] fix net engine client read server write bug
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: "Yufei Ren(Y!)" <renyufei83@yahoo.com.cn>
+In-Reply-To: <CAMZBPnffUuf33yRf_KO6SwS=WkC=hYAWyGA799d+1c=VPoY7cA@mail.gmail.com>
+References: <CAMZBPnffUuf33yRf_KO6SwS=WkC=hYAWyGA799d+1c=VPoY7cA@mail.gmail.com>
+Date: Tue, 6 Dec 2011 15:54:42 +0530
+Message-ID: <CAMZBPne8+AimrVYfL30jjfJE22DJX0xNyv8cJunbrqW6sw2xVQ@mail.gmail.com>
+Subject: Generating the controlled workload with fio
+From: Neependra Khare <neependra.khare@gmail.com>
+Content-Type: multipart/alternative; boundary=f46d0434c070f0aa8804b369d777
+To: axboe@kernel.dk
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The net engine was updated with specific 'listen' parameter which used
-for identifying whether it is a tcp server, instead of previous
-'rw=read' side must be the server. This let fio support bi-direction
-net io test. fio_netio_open_file() has to follow this
-principle. Otherwise, the following tcp client 'rw=read' and tcp
-server 'rw=write' case doesn't work.
+--f46d0434c070f0aa8804b369d777
+Content-Type: text/plain; charset=UTF-8
 
-[global]
-ioengine=net
-port=8888
-protocol=tcp
-bs=4k
-size=10g
+Hi Jens,
 
-[server]
-listen
-rw=write
+I was trying to send the mail to the mailing list (fio@vger.kernel.org) but
+it is getting failed.
+So I am sending my query directly to you.
 
-[client]
-hostname=localhost
-startdelay=1
-rw=read
+I would like to generate the controlled workload with "fio".
 
-BTW, examples/netio needs 'listen' and 'hostname' adjusted.
+For this I would like to say that generate some % of same IO pattern which
+was generated earlier.
+Lets say initially I did some IO on the disk and with the second iteration
+I want 80% similar IO
+pattern of  the first iteration.
 
----
- engines/net.c  |    3 ++-
- examples/netio |    3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+With "randrepeat" I can generate 100% similar IO pattern across  different
+iteration but I am looking
+for a way by which I can specify a specific % of similar IO pattern.
 
-diff --git a/engines/net.c b/engines/net.c
-index 3401039..6748a3e 100644
---- a/engines/net.c
-+++ b/engines/net.c
-@@ -496,8 +496,9 @@ static int fio_netio_accept(struct thread_data
-*td, struct fio_file *f)
- static int fio_netio_open_file(struct thread_data *td, struct fio_file *f)
- {
- 	int ret;
-+	struct netio_options *o = td->eo;
+Thanks and Regards,
+Neependra
+www.neependra.net
 
--	if (td_read(td))
-+	if (o->listen)
- 		ret = fio_netio_accept(td, f);
- 	else
- 		ret = fio_netio_connect(td, f);
-diff --git a/examples/netio b/examples/netio
-index bd44adb..3b1a7cd 100644
---- a/examples/netio
-+++ b/examples/netio
-@@ -2,7 +2,6 @@
- [global]
- ioengine=net
- #Use hostname=/tmp.fio.sock for local unix domain sockets
--hostname=localhost
- port=8888
- #Use =udp for UDP, =unix for local unix domain socket
- protocol=tcp
-@@ -12,8 +11,10 @@ size=10g
- #verify=md5
+--f46d0434c070f0aa8804b369d777
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
- [receiver]
-+listen
- rw=read
+Hi Jens,=C2=A0<div><br></div><div>I was trying to send the mail to the mail=
+ing list (<a href=3D"mailto:fio@vger.kernel.org">fio@vger.kernel.org</a>) b=
+ut it is getting failed.</div><div>So I am sending my query directly to you=
+.</div>
+<div><br><div>I would like to generate the controlled workload with &quot;f=
+io&quot;.</div><div><br></div><div>For this I would like to say that genera=
+te some % of same IO pattern which was generated earlier.</div><div>Lets sa=
+y initially I did some IO on the disk and with the second iteration I want =
+80% similar IO</div>
+<div>pattern of =C2=A0the first iteration.</div><div><br></div><div>With &q=
+uot;randrepeat&quot; I can generate 100% similar IO pattern across =C2=A0di=
+fferent iteration but I am looking</div><div>for a way by which I can speci=
+fy a specific % of similar IO pattern.</div>
+<div><br></div><div>Thanks and Regards,</div><div>Neependra=C2=A0</div><div=
+><a href=3D"http://www.neependra.net">www.neependra.net</a></div>
+</div>
 
- [sender]
-+hostname=localhost
- startdelay=1
- rw=write
--- 
-1.7.2.3
+--f46d0434c070f0aa8804b369d777--
+
+
