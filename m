@@ -1,62 +1,27 @@
-Return-Path: <neependra.khare@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mx1.fusionio.com ([66.114.96.30]:35417 "EHLO mx1.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751089Ab2ABNxF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 2 Jan 2012 08:53:05 -0500
+Message-ID: <4F01B217.2000303@fusionio.com>
+Date: Mon, 2 Jan 2012 14:33:11 +0100
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-In-Reply-To: <CAMZBPnffUuf33yRf_KO6SwS=WkC=hYAWyGA799d+1c=VPoY7cA@mail.gmail.com>
-References: <CAMZBPnffUuf33yRf_KO6SwS=WkC=hYAWyGA799d+1c=VPoY7cA@mail.gmail.com>
-Date: Tue, 6 Dec 2011 15:54:42 +0530
-Message-ID: <CAMZBPne8+AimrVYfL30jjfJE22DJX0xNyv8cJunbrqW6sw2xVQ@mail.gmail.com>
-Subject: Generating the controlled workload with fio
-From: Neependra Khare <neependra.khare@gmail.com>
-Content-Type: multipart/alternative; boundary=f46d0434c070f0aa8804b369d777
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Subject: Re: [PATCH] Fix a typo
+References: <1325326596-19908-1-git-send-email-gaoyang.zyh@taobao.com>
+In-Reply-To: <1325326596-19908-1-git-send-email-gaoyang.zyh@taobao.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Zhu Yanhai <zhu.yanhai@gmail.com>
+Cc: fio@vger.kernel.org, Zhu Yanhai <gaoyang.zyh@taobao.com>
 
---f46d0434c070f0aa8804b369d777
-Content-Type: text/plain; charset=UTF-8
+On 2011-12-31 11:16, Zhu Yanhai wrote:
+> The man page line of 'fadvise_hit' is exactly opposite to its true meaning.
 
-Hi Jens,
+That is worded a bit strange. Thanks, applied.
 
-I was trying to send the mail to the mailing list (fio@vger.kernel.org) but
-it is getting failed.
-So I am sending my query directly to you.
-
-I would like to generate the controlled workload with "fio".
-
-For this I would like to say that generate some % of same IO pattern which
-was generated earlier.
-Lets say initially I did some IO on the disk and with the second iteration
-I want 80% similar IO
-pattern of  the first iteration.
-
-With "randrepeat" I can generate 100% similar IO pattern across  different
-iteration but I am looking
-for a way by which I can specify a specific % of similar IO pattern.
-
-Thanks and Regards,
-Neependra
-www.neependra.net
-
---f46d0434c070f0aa8804b369d777
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-Hi Jens,=C2=A0<div><br></div><div>I was trying to send the mail to the mail=
-ing list (<a href=3D"mailto:fio@vger.kernel.org">fio@vger.kernel.org</a>) b=
-ut it is getting failed.</div><div>So I am sending my query directly to you=
-.</div>
-<div><br><div>I would like to generate the controlled workload with &quot;f=
-io&quot;.</div><div><br></div><div>For this I would like to say that genera=
-te some % of same IO pattern which was generated earlier.</div><div>Lets sa=
-y initially I did some IO on the disk and with the second iteration I want =
-80% similar IO</div>
-<div>pattern of =C2=A0the first iteration.</div><div><br></div><div>With &q=
-uot;randrepeat&quot; I can generate 100% similar IO pattern across =C2=A0di=
-fferent iteration but I am looking</div><div>for a way by which I can speci=
-fy a specific % of similar IO pattern.</div>
-<div><br></div><div>Thanks and Regards,</div><div>Neependra=C2=A0</div><div=
-><a href=3D"http://www.neependra.net">www.neependra.net</a></div>
-</div>
-
---f46d0434c070f0aa8804b369d777--
-
+-- 
+Jens Axboe
 
