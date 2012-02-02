@@ -1,48 +1,31 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:60946 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752235Ab2BXPm7 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 24 Feb 2012 10:42:59 -0500
-Message-ID: <4F47B001.5070308@kernel.dk>
-Date: Fri, 24 Feb 2012 16:42:57 +0100
-From: Jens Axboe <axboe@kernel.dk>
+Received: from mx1.fusionio.com ([66.114.96.30]:35086 "EHLO mx1.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933030Ab2BBTUU (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 2 Feb 2012 14:20:20 -0500
+Message-ID: <4F2AE1F0.9080005@fusionio.com>
+Date: Thu, 2 Feb 2012 20:20:16 +0100
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-Subject: gfio branch
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH] Optimize pattern filling by limiting small calls to memcpy.
+References: <CAAUT-yOCgVD61WtQB4CtY86zzYFCBfN4G=F=QCd4kvqFb4zx+Q@mail.gmail.com> <4F2A4DE7.7020409@fusionio.com> <CAAUT-yMkot3gGYA13bwbakmMArsHYnF_bYOFNzW9sHDL2Eg+rA@mail.gmail.com>
+In-Reply-To: <CAAUT-yMkot3gGYA13bwbakmMArsHYnF_bYOFNzW9sHDL2Eg+rA@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: Stephen Cameron <stephenmcameron@gmail.com>
+To: Steven Lang <tirea@google.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi everyone,
+On 2012-02-02 20:11, Steven Lang wrote:
+> No, that's actually all of it; it's really that simple.  It just takes
+> the pattern buffer, and replicates it until it it is at least half
+> full, which during verification drastically reduces the number of
+> calls to memcpy() for short multibyte patterns.
 
-Stephen has been working on getting a gtk2 GUI frontend for fio going.
-It's still in pretty basic shape, but I have committed the code in case
-others are interested in this (or want to help out, even). It sits in
-the gfio branch, once we get a bit further I'll pull it into the default
-branch. It doesn't build gfio by default, only the cli fio. To build
-gfio, you'll have to do:
-
-$ make gfio
-
-and ensure that you have gtk2 development libraries installed.
-
-Right now it requires you to manually run a
-
-$ ./fio --server
-
-in a separate xterm to launch the backend, and provide a fio job file
-that you want to run. The end goal is having the ability to
-import/export job files, and having the various options nicely presented
-in a suitable format in the GUI itself. There will be a basic layout for
-quick testing, and an advanced layout with everything there. There will
-be graphical reprentations of end results and ETA, and a way to save
-those.
-
-At least that's the plan, going forward. Feel free to pitch in, with
-either ideas or patches. It's very much all up in the air at the moment,
-now's a great time and chance to contribute!
+Ah gotcha, I see what you mean now, what I missed was the assignment of
+td->o.verify_pattern_bytes _after_ the extra fill on option init. Looks
+good! I'll apply it.
 
 -- 
 Jens Axboe
