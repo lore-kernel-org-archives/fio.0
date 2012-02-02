@@ -1,53 +1,32 @@
-Return-Path: <dehrenberg@google.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mx2.fusionio.com ([66.114.96.31]:49838 "EHLO mx2.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932137Ab2BBTQO (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 2 Feb 2012 14:16:14 -0500
+Message-ID: <4F2AE0FB.3020201@fusionio.com>
+Date: Thu, 2 Feb 2012 20:16:11 +0100
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-In-Reply-To: <1330548842-31981-1-git-send-email-dehrenberg@google.com>
-References: <1330548842-31981-1-git-send-email-dehrenberg@google.com>
-Date: Wed, 29 Feb 2012 13:22:43 -0800
-Message-ID: <CAAK6Zt3fiTZpmkK6tyMVOAWAdL4FZgOTAa7SE2U6d80-tRanxg@mail.gmail.com>
-Subject: Re: [PATCH] fallocate: enable fallocate options on Linux
-From: Daniel Ehrenberg <dehrenberg@google.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-To: fio@vger.kernel.org, axboe@kernel.dk
-Cc: nauman@google.com, egouriou@google.com, tirea@google.com, Dan Ehrenberg <dehrenberg@google.com>
-List-ID: <fio@vger.kernel.org>
+Subject: Re: A commented out optimization...
+References: <CAAUT-yNTJGUircBV+P3CD3FuozBfTfwLgLwu+JpsED4dTMnNKA@mail.gmail.com> <4F28F62E.4060708@fusionio.com> <CAAUT-yOWxvf9z+9vEe-8Cj4VDpnPwyubc+HGa1ghVA0P36hr3A@mail.gmail.com> <4F2A4345.5050007@fusionio.com> <CAAUT-yO3JUwe_61XiKrxhQ2cD4NJOg+4k7ttxj_1D+wXY9P=gQ@mail.gmail.com>
+In-Reply-To: <CAAUT-yO3JUwe_61XiKrxhQ2cD4NJOg+4k7ttxj_1D+wXY9P=gQ@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Steven Lang <tirea@google.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi,
+On 2012-02-02 20:13, Steven Lang wrote:
+> The only thing I can think is maybe there was some sort of other issue
+> where perhaps a DMA IO was happening before the memory write,
+> unrelated to any of the code there, but the write barrier just
+> happened to fix it.  But even that seems like it would be a bit of a
+> stretch to imagine it actually being a problem.
 
-I'd just like to clarify: I'm not sure if the patch I just sent is
-exactly what we'd want. Maybe it is correct to set FIO_HAVE_FALLOCATE
-on some Linux systems which aren't at least glibc version 2.8. I don't
-know much about the history of these features, and if any fio users
-are using an older system where they do still want fallocate
-capabilities, I'd appreciate input here.
+I was thinking that could've been the issue as well, but in that case it
+would be a kernel (or driver) bug in that it didn't flush.
 
-Thanks,
-Dan
-
-On Wed, Feb 29, 2012 at 12:54 PM, Dan Ehrenberg <dehrenberg@google.com> wro=
-te:
-> Simple bug fix to ensure that fallocate-related options are
-> once again enabled on Linux systems with the right headers present.
-> A previous patch gated the FIO_HAVE_LINUX_FALLOCATE flag on
-> header versions but failed to enable FIO_HAVE_FALLOCATE in this
-> case.
-> ---
-> =A0os/os-linux.h | =A0 =A01 +
-> =A01 files changed, 1 insertions(+), 0 deletions(-)
->
-> diff --git a/os/os-linux.h b/os/os-linux.h
-> index 3bf6bd9..b911753 100644
-> --- a/os/os-linux.h
-> +++ b/os/os-linux.h
-> @@ -51,6 +51,7 @@
-> =A0* missing
-> =A0*/
-> =A0#if __GLIBC__ >=3D 2 && __GLIBC_MINOR__ >=3D 8
-> +#define FIO_HAVE_FALLOCATE
-> =A0#define FIO_HAVE_LINUX_FALLOCATE
-> =A0#endif
->
-> --
-> 1.7.7.3
->
+-- 
+Jens Axboe
 
