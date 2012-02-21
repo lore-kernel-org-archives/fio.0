@@ -1,108 +1,49 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qy0-f174.google.com ([209.85.216.174]:62141 "EHLO
-	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755782Ab2BGC6v (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 6 Feb 2012 21:58:51 -0500
-Received: by qcqw6 with SMTP id w6so3805001qcq.19
-        for <fio@vger.kernel.org>; Mon, 06 Feb 2012 18:58:50 -0800 (PST)
+Received: from xyratex197.xyratex.com ([194.131.166.197]:29378 "EHLO
+	XY01EX21.xy01.xyratex.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752945Ab2BUUcp convert rfc822-to-8bit
+	(ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 21 Feb 2012 15:32:45 -0500
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-From: Steven Lang <tirea@google.com>
-Date: Mon, 6 Feb 2012 18:58:30 -0800
-Message-ID: <CAAUT-yMQ5MpMCT0JBvSgeD73aTfyNuekATtJ4XsPjka5_ZX_1w@mail.gmail.com>
-Subject: [PATCH] Enable completion latency stat collection on verify
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Subject: zone skipping and graphing  question
+Date: Tue, 21 Feb 2012 12:32:41 -0800
+Message-ID: <0FEAAA2D70C89D49A62173478A6C4A5D02CFB39E@XYUS-EX22.xyus.xyratex.com>
+From: "Roger Sibert" <Roger_Sibert@us.xyratex.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-A patch last year
-(http://git.kernel.dk/?p=fio.git;a=commit;f=io_u.c;h=c8eeb9df1f52f28567a5937e141decc6a26ec30b)
-changed the behavior of verify loads so they stopped printing
-completion latency stats.  (A verify load in this case includes both
-rw=*write with verify and do_verify=1 and rw=*read with verify.)
+Hello Everyone,
 
-Is there any particular reason that an io_u which is going to be
-verified shouldn't have its latency statistics recorded?
+I was going through the documentation to try and chase down a specific use =
+case for a performance tool.=EF=BF=BD Historically speaking when you deal w=
+ith a disk that has spindles etc ... the performance drops off as you get f=
+urther out the disk.=20
 
-This patch re-enables the clat recording.
+In looking at the disk/zone profile provided with the fio source we use a z=
+one size of 256m and then a zoneskip of 2G.=EF=BF=BD If I read the man page=
+ correctly that could be taken to mean we aren't actually testing on the 2G=
+ boundaries but rather 256M+2G=3D2.25G+256M+2G=3D4.5G etc ... =EF=BF=BD=EF=
+=BF=BDSo any help in clarifying this would be great.=EF=BF=BD=20
 
-An example demonstrating the issue here:
+No matter how you look at or interpret that if you try and compare the resu=
+lts and graph them against an increasing iodepth or block size you tend to =
+find that the time of the run changes which makes doing an apples to apples=
+ comparison rather difficult.=EF=BF=BD To get around that the runtime optio=
+n looks like what you would want to run, well that and time_based.=EF=BF=BD=
+=20
 
-$ ./fio --name=test --size=1m --bs=4k --verify=meta --rw=write
-test: (g=0): rw=write, bs=4K-4K/4K-4K, ioengine=sync, iodepth=1
-fio 2.0.2
-Starting 1 process
-test: Laying out IO file(s) (1 file(s) / 1MB)
+What I am trying to understand or figure out is if there is a way to define=
+ the following behavior using the currently available options (fio 2.0)
+Starting at boundary W spend X# of seconds exercising a Y size zone =EF=BF=
+=BDthen skip to the next boundary and do it all over again.=EF=BF=BD=20
 
-test: (groupid=0, jobs=1): err= 0: pid=27535
-  read : io=1024.0KB, bw=1000.0MB/s, iops=256000 , runt=     1msec
-    clat percentiles (usec):
-     |  1.00th=[    0],  5.00th=[    0], 10.00th=[    0], 20.00th=[    0],
-     | 30.00th=[    0], 40.00th=[    0], 50.00th=[    0], 60.00th=[    0],
-     | 70.00th=[    0], 80.00th=[    0], 90.00th=[    0], 95.00th=[    0],
-     | 99.00th=[    0], 99.50th=[    0], 99.90th=[    0]
-  write: io=1024.0KB, bw=341333KB/s, iops=85333 , runt=     3msec
-    clat (usec): min=2 , max=13 , avg= 3.30, stdev= 0.78
-     lat (usec): min=2 , max=14 , avg= 3.52, stdev= 0.84
-    clat percentiles (usec):
-     |  1.00th=[    2],  5.00th=[    3], 10.00th=[    3], 20.00th=[    3],
-     | 30.00th=[    3], 40.00th=[    3], 50.00th=[    3], 60.00th=[    3],
-     | 70.00th=[    3], 80.00th=[    4], 90.00th=[    4], 95.00th=[    4],
-     | 99.00th=[    4], 99.50th=[    4], 99.90th=[   13]
-    lat (usec) : 4=35.55%, 10=14.26%, 20=0.20%
-  cpu          : usr=0.00%, sys=0.00%, ctx=0, majf=0, minf=46
-  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued    : total=r=256/w=256/d=0, short=r=0/w=0/d=0
+Ideally that gives you graphs you can map against each other and have a rel=
+atively good chance of the total run lengths (time) being the same.
 
-Run status group 0 (all jobs):
-   READ: io=1024KB, aggrb=1000.0MB/s, minb=1024.0MB/s,
-maxb=1024.0MB/s, mint=1msec, maxt=1msec
-  WRITE: io=1024KB, aggrb=341333KB/s, minb=349525KB/s,
-maxb=349525KB/s, mint=3msec, maxt=3msec
+Thanks,
+Roger
 
-Note that no clat line is reported for reads and no clat percentiles
-are listed.  If a read-only load is then executed, it has the same
-thing.
-
-$ ./fio --name=test --size=1m --bs=4k --verify=meta --rw=read
-test: (g=0): rw=read, bs=4K-4K/4K-4K, ioengine=sync, iodepth=1
-fio 2.0.2
-Starting 1 process
-
-test: (groupid=0, jobs=1): err= 0: pid=31694
-  read : io=1024.0KB, bw=13653KB/s, iops=3413 , runt=    75msec
-    clat percentiles (usec):
-     |  1.00th=[    0],  5.00th=[    0], 10.00th=[    0], 20.00th=[    0],
-     | 30.00th=[    0], 40.00th=[    0], 50.00th=[    0], 60.00th=[    0],
-     | 70.00th=[    0], 80.00th=[    0], 90.00th=[    0], 95.00th=[    0],
-     | 99.00th=[    0], 99.50th=[    0], 99.90th=[    0]
-  cpu          : usr=0.00%, sys=0.00%, ctx=15, majf=0, minf=36
-  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued    : total=r=256/w=0/d=0, short=r=0/w=0/d=0
-
-Run status group 0 (all jobs):
-   READ: io=1024KB, aggrb=13653KB/s, minb=13981KB/s, maxb=13981KB/s,
-mint=75msec, maxt=75msec
-
-
----
-diff --git a/io_u.c b/io_u.c
-index 54f8685..6ceca45 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -1369,7 +1369,8 @@ static void io_completed(struct thread_data *td,
-struct io_u *io_u,
- 			}
- 		}
-
--		if (ramp_time_over(td) && td->runstate == TD_RUNNING) {
-+		if (ramp_time_over(td) && (td->runstate == TD_RUNNING ||
-+					   td->runstate == TD_VERIFYING)) {
- 			account_io_completion(td, io_u, icd, idx, bytes);
-
- 			if (__should_check_rate(td, idx)) {
----
