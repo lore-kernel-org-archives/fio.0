@@ -1,29 +1,40 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:45949 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755531Ab2BVKuf (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 22 Feb 2012 05:50:35 -0500
-Message-ID: <4F44C81C.6050300@kernel.dk>
-Date: Wed, 22 Feb 2012 11:49:00 +0100
-From: Jens Axboe <axboe@kernel.dk>
+Received: from mail-yw0-f74.google.com ([209.85.213.74]:37724 "EHLO
+	mail-yw0-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753407Ab2BVCb3 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 21 Feb 2012 21:31:29 -0500
+Received: by yhgm50 with SMTP id m50so919215yhg.1
+        for <fio@vger.kernel.org>; Tue, 21 Feb 2012 18:31:28 -0800 (PST)
 MIME-Version: 1.0
-Subject: Re: [PATCH] flow: Fixing uninitialized variable
-References: <1329877886-1930-1-git-send-email-dehrenberg@google.com>
-In-Reply-To: <1329877886-1930-1-git-send-email-dehrenberg@google.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Dan Ehrenberg <dehrenberg@google.com>
+Subject: [PATCH] flow: Fixing uninitialized variable
+Date: Tue, 21 Feb 2012 18:31:26 -0800
+Message-Id: <1329877886-1930-1-git-send-email-dehrenberg@google.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Dan Ehrenberg <dehrenberg@google.com>
-Cc: fio@vger.kernel.org, nauman@google.com, egouriou@google.com, tirea@google.com
+To: fio@vger.kernel.org
+Cc: nauman@google.com, egouriou@google.com, tirea@google.com, Dan Ehrenberg <dehrenberg@google.com>
 
-On 02/22/2012 03:31 AM, Dan Ehrenberg wrote:
-> In the flow initialization code path, there was an uninitialized
-> variable that led to memory corruption in certain cases. This
-> patch should initialize the variable properly.
+In the flow initialization code path, there was an uninitialized
+variable that led to memory corruption in certain cases. This
+patch should initialize the variable properly.
+---
+ flow.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Thanks, I wonder how I missed that. Applied.
-
+diff --git a/flow.c b/flow.c
+index e5c4a40..bf5eeec 100644
+--- a/flow.c
++++ b/flow.c
+@@ -36,7 +36,7 @@ int flow_threshold_exceeded(struct thread_data *td)
+ 
+ static struct fio_flow *flow_get(unsigned int id)
+ {
+-	struct fio_flow *flow;
++	struct fio_flow *flow = NULL;
+ 	struct flist_head *n;
+ 
+ 	fio_mutex_down(flow_lock);
 -- 
-Jens Axboe
+1.7.7.3
 
