@@ -1,26 +1,28 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx1.fusionio.com ([66.114.96.30]:35417 "EHLO mx1.fusionio.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751089Ab2ABNxF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 2 Jan 2012 08:53:05 -0500
-Message-ID: <4F01B217.2000303@fusionio.com>
-Date: Mon, 2 Jan 2012 14:33:11 +0100
-From: Jens Axboe <jaxboe@fusionio.com>
+Received: from merlin.infradead.org ([205.233.59.134]:45949 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755531Ab2BVKuf (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 22 Feb 2012 05:50:35 -0500
+Message-ID: <4F44C81C.6050300@kernel.dk>
+Date: Wed, 22 Feb 2012 11:49:00 +0100
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Subject: Re: [PATCH] Fix a typo
-References: <1325326596-19908-1-git-send-email-gaoyang.zyh@taobao.com>
-In-Reply-To: <1325326596-19908-1-git-send-email-gaoyang.zyh@taobao.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+Subject: Re: [PATCH] flow: Fixing uninitialized variable
+References: <1329877886-1930-1-git-send-email-dehrenberg@google.com>
+In-Reply-To: <1329877886-1930-1-git-send-email-dehrenberg@google.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Zhu Yanhai <zhu.yanhai@gmail.com>
-Cc: fio@vger.kernel.org, Zhu Yanhai <gaoyang.zyh@taobao.com>
+To: Dan Ehrenberg <dehrenberg@google.com>
+Cc: fio@vger.kernel.org, nauman@google.com, egouriou@google.com, tirea@google.com
 
-On 2011-12-31 11:16, Zhu Yanhai wrote:
-> The man page line of 'fadvise_hit' is exactly opposite to its true meaning.
+On 02/22/2012 03:31 AM, Dan Ehrenberg wrote:
+> In the flow initialization code path, there was an uninitialized
+> variable that led to memory corruption in certain cases. This
+> patch should initialize the variable properly.
 
-That is worded a bit strange. Thanks, applied.
+Thanks, I wonder how I missed that. Applied.
 
 -- 
 Jens Axboe
