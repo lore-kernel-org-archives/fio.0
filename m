@@ -1,63 +1,40 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:56976 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758233Ab2CANCp (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 1 Mar 2012 08:02:45 -0500
-Message-ID: <4F4F736C.1030508@kernel.dk>
-Date: Thu, 01 Mar 2012 14:02:36 +0100
-From: Jens Axboe <axboe@kernel.dk>
+Received: from moutng.kundenserver.de ([212.227.126.171]:63980 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758825Ab2CAKJU (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 1 Mar 2012 05:09:20 -0500
+From: =?iso-8859-1?Q?Stefan_H=FCbner?= <shu@wwwgroup.de>
+Subject: verify seems not to take place on iSCSI-Target writing
+Date: Thu, 1 Mar 2012 10:09:21 +0000
+Message-ID: <DIIE.00000F160002E4D3@192.168.0.5>
 MIME-Version: 1.0
-Subject: Re: verify seems not to take place on iSCSI-Target writing
-References: <DIIE.00000F160002E4D3@192.168.0.5>
-In-Reply-To: <DIIE.00000F160002E4D3@192.168.0.5>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+ charset="utf-8"
+Content-Transfer-Encoding: base64
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: =?UTF-8?B?U3RlZmFuIEjDvGJuZXI=?= <shu@wwwgroup.de>
-Cc: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On 03/01/2012 11:09 AM, Stefan Hübner wrote:
-> Hi List,
-> 
-> I'm using this FIO-job to stress-test iSCSI-Targets:
-> 
-> [global]
-> disable_lat=1
-> disable_clat=1
-> disable_slat=1
-> clat_percentiles=0
-> time_based
-> runtime=${SECONDS}
-> nice=10
-> prio=5
-> ioengine=libaio
-> iodepth=16
-> direct=1
-> iomem_align=4M
-> verify=crc32c-intel
-> verify_async=2
-> do_verify=1
-> verify_dump=1
-> [iSCSI]
-> rw=randwrite
-> bsrange=4k-4M
-> filename=${ISCSI_DEVICE}
-> 
-> ISCSI_DEVICE=/dev/sdX
-> SECONDS=some value how long it should take
-> 
-> When running this job I cannot see the verification taking place.  I.e. network thruput to the target (writing) is happening at around 115MB/s, but thruput from the target (reading/verifying) doesn't exceed 2,7MB/s.
-> 
-> Am I doing something wrong, here?
+SGkgTGlzdCwNCg0KSSdtIHVzaW5nIHRoaXMgRklPLWpvYiB0byBzdHJlc3MtdGVzdCBpU0NTSS1U
+YXJnZXRzOg0KDQpbZ2xvYmFsXQ0KZGlzYWJsZV9sYXQ9MQ0KZGlzYWJsZV9jbGF0PTENCmRpc2Fi
+bGVfc2xhdD0xDQpjbGF0X3BlcmNlbnRpbGVzPTANCnRpbWVfYmFzZWQNCnJ1bnRpbWU9JHtTRUNP
+TkRTfQ0KbmljZT0xMA0KcHJpbz01DQppb2VuZ2luZT1saWJhaW8NCmlvZGVwdGg9MTYNCmRpcmVj
+dD0xDQppb21lbV9hbGlnbj00TQ0KdmVyaWZ5PWNyYzMyYy1pbnRlbA0KdmVyaWZ5X2FzeW5jPTIN
+CmRvX3ZlcmlmeT0xDQp2ZXJpZnlfZHVtcD0xDQpbaVNDU0ldDQpydz1yYW5kd3JpdGUNCmJzcmFu
+Z2U9NGstNE0NCmZpbGVuYW1lPSR7SVNDU0lfREVWSUNFfQ0KDQpJU0NTSV9ERVZJQ0U9L2Rldi9z
+ZFgNClNFQ09ORFM9c29tZSB2YWx1ZSBob3cgbG9uZyBpdCBzaG91bGQgdGFrZQ0KDQpXaGVuIHJ1
+bm5pbmcgdGhpcyBqb2IgSSBjYW5ub3Qgc2VlIHRoZSB2ZXJpZmljYXRpb24gdGFraW5nIHBsYWNl
+LiAgSS5lLiBuZXR3b3JrIHRocnVwdXQgdG8gdGhlIHRhcmdldCAod3JpdGluZykgaXMgaGFwcGVu
+aW5nIGF0IGFyb3VuZCAxMTVNQi9zLCBidXQgdGhydXB1dCBmcm9tIHRoZSB0YXJnZXQgKHJlYWRp
+bmcvdmVyaWZ5aW5nKSBkb2Vzbid0IGV4Y2VlZCAyLDdNQi9zLg0KDQpBbSBJIGRvaW5nIHNvbWV0
+aGluZyB3cm9uZywgaGVyZT8NCg0KTWl0IGZyZXVuZGxpY2hlbiBHcsO8w59lbg0KU3RlZmFuIEjD
+vGJuZXIsDQpPRUNFIC0gb3Blbi1lIGNlcnRpZmllZCBlbmdpbmVlcg0KeHRpdmF0ZSBTZXJ2aWNl
+LVRlYW0NCg0KV1dXZ3JvdXAgR2JSDQpNaWNoYWVsIFPDpG5nZXIsIEplbnMgV2FsdGVyLCBKw7Zy
+ZyBXZWnDn21hbnRlbA0KWmllZ2VsaMO8dHRlbndlZyA0DQoNCjk4NjkzIElsbWVuYXUNCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18NClRlbGVmb246ICAgMDgwMCBYVElWQVRFDQooMDgwMCA5ODQ4MjgzLCBncmF0aXMgYXVzIGRl
+dXRzY2hlbSBGZXN0LSB1bmQgTW9iaWxuZXR6KQ0KDQpUZWxlZm9uOiAgICs0OSAoMCkzNjc3IDQ2
+IDk5IDQ0MA0KRmF4OiAgICAgICArNDkgKDApMzY3NyA0NiA5OSA0NDkNCmVNYWlsOiAgICAgc2h1
+QHh0aXZhdGUuZGU=
 
-Does the fio job transition to the verify phase? You can see that in the
-[] listing, a V would be the verify. When the job exits, it also shows
-you both how many bytes were read and written. The read could should be
-the verified part.
-
-So please post the output of the job so we can take a closer look.
-
--- 
-Jens Axboe
 
