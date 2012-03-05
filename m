@@ -1,83 +1,59 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:49414 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756737Ab2CEKjy (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 5 Mar 2012 05:39:54 -0500
-Message-ID: <4F5497E9.7040406@kernel.dk>
-Date: Mon, 05 Mar 2012 11:39:37 +0100
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <shu@xtivate.de>
+From: =?iso-8859-1?Q?Stefan_H=FCbner?= <shu@xtivate.de>
+Subject: Re-4: verify seems not to take place on iSCSI-Target writing
+Date: Mon, 5 Mar 2012 09:11:23 +0000
+Message-ID: <DIIE.00000F9B0002E780@192.168.0.5>
 MIME-Version: 1.0
-Subject: Re: Re-4: verify seems not to take place on iSCSI-Target writing
-References: <DIIE.00000F9B0002E780@192.168.0.5>
-In-Reply-To: <DIIE.00000F9B0002E780@192.168.0.5>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: =?UTF-8?B?U3RlZmFuIEjDvGJuZXI=?= <shu@xtivate.de>
+Content-Type: text/plain;
+ charset="UTF-8"
+Content-Transfer-Encoding: base64
+To: axboe@kernel.dk
 Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-On 03/05/2012 10:11 AM, Stefan Hübner wrote:
-> -------- Original Message --------
-> Subject: Re: Re-2: verify seems not to take place on iSCSI-Target writing (02-Mrz-2012 19:46)
-> From:    Jens Axboe <axboe@kernel.dk>
-> To:      shu@xtivate.de
-> 
->> On 2012-03-02 18:06, Stefan Hübner wrote:
->>> Dear Jens,
->>>
->>> this is the output.  I added some supplementary details in the hope it's 
->>> useful ...
->>>
->>> UltraBitch ~ # ISCSI_DEVICE=/dev/sdb SECONDS=$((20*3600)) fio iscsi-stress.
->>> fio 
->>> iSCSI: (g=0): rw=randwrite, bs=4K-4M/4K-4M, ioengine=libaio, iodepth=16
->>> fio 2.0.3
->>> Starting 1 process
->>> Jobs: 1 (f=1): [w] [17.3% done] [0K/113.2M /s] [0 /71  iops] [eta 03d:23h:
->>> 28m:21s]
->>> iSCSI: (groupid=0, jobs=1): err= 0: pid=18184
->>>   write: io=7740.2GB, bw=112723KB/s, iops=63 , runt=72000222msec
->>>     bw (KB/s)  : min= 3669, max=593424, per=100.00%, avg=113561.25, stdev=
->>> 26868.27
->>>   cpu          : usr=4.18%, sys=1.28%, ctx=4760480, majf=0, minf=106912
->>>   IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=100.0%, 32=0.0%, >=64=0.
->>> 0%
->>>      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=
->>> 0.0%
->>>      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.1%, 32=0.0%, 64=0.0%, >=64=
->>> 0.0%
->>>      issued    : total=r=0/w=4560578/d=0, short=r=0/w=0/d=0
->>>
->>> Run status group 0 (all jobs):
->>>   WRITE: io=7740.2GB, aggrb=112723KB/s, minb=115428KB/s, maxb=115428KB/s, 
->>> mint=72000222msec, maxt=72000222msec
->>
->> No reads happened - quick guess, you had the timeout hit before the
->> write phase has finished. Hence it'll exit, and don't do verifies.
->>
->> The reads you saw in the stats must be from other processes. Fio didn't
->> do any.
->>
->> -- 
->> Jens Axboe
->>
-> Hi Jens,
-> 
-> then I don't quite understand what sense "verify_async" makes.  I
-> thought it'd do the verifies "in parallel".
-> 
-> Any hint's how to get a timebased torture-test with verify working?
+LS0tLS0tLS0gT3JpZ2luYWwgTWVzc2FnZSAtLS0tLS0tLQ0KU3ViamVjdDogUmU6IFJlLTI6IHZl
+cmlmeSBzZWVtcyBub3QgdG8gdGFrZSBwbGFjZSBvbiBpU0NTSS1UYXJnZXQgd3JpdGluZyAoMDIt
+TXJ6LTIwMTIgMTk6NDYpDQpGcm9tOiAgICBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+DQpU
+bzogICAgICBzaHVAeHRpdmF0ZS5kZQ0KDQo+IE9uIDIwMTItMDMtMDIgMTg6MDYsIFN0ZWZhbiBI
+w7xibmVyIHdyb3RlOg0KPiA+IERlYXIgSmVucywNCj4gPiANCj4gPiB0aGlzIGlzIHRoZSBvdXRw
+dXQuICBJIGFkZGVkIHNvbWUgc3VwcGxlbWVudGFyeSBkZXRhaWxzIGluIHRoZSBob3BlIGl0J3Mg
+DQo+ID4gdXNlZnVsIC4uLg0KPiA+IA0KPiA+IFVsdHJhQml0Y2ggfiAjIElTQ1NJX0RFVklDRT0v
+ZGV2L3NkYiBTRUNPTkRTPSQoKDIwKjM2MDApKSBmaW8gaXNjc2ktc3RyZXNzLg0KPiA+IGZpbyAN
+Cj4gPiBpU0NTSTogKGc9MCk6IHJ3PXJhbmR3cml0ZSwgYnM9NEstNE0vNEstNE0sIGlvZW5naW5l
+PWxpYmFpbywgaW9kZXB0aD0xNg0KPiA+IGZpbyAyLjAuMw0KPiA+IFN0YXJ0aW5nIDEgcHJvY2Vz
+cw0KPiA+IEpvYnM6IDEgKGY9MSk6IFt3XSBbMTcuMyUgZG9uZV0gWzBLLzExMy4yTSAvc10gWzAg
+LzcxICBpb3BzXSBbZXRhIDAzZDoyM2g6DQo+ID4gMjhtOjIxc10NCj4gPiBpU0NTSTogKGdyb3Vw
+aWQ9MCwgam9icz0xKTogZXJyPSAwOiBwaWQ9MTgxODQNCj4gPiAgIHdyaXRlOiBpbz03NzQwLjJH
+QiwgYnc9MTEyNzIzS0IvcywgaW9wcz02MyAsIHJ1bnQ9NzIwMDAyMjJtc2VjDQo+ID4gICAgIGJ3
+IChLQi9zKSAgOiBtaW49IDM2NjksIG1heD01OTM0MjQsIHBlcj0xMDAuMDAlLCBhdmc9MTEzNTYx
+LjI1LCBzdGRldj0NCj4gPiAyNjg2OC4yNw0KPiA+ICAgY3B1ICAgICAgICAgIDogdXNyPTQuMTgl
+LCBzeXM9MS4yOCUsIGN0eD00NzYwNDgwLCBtYWpmPTAsIG1pbmY9MTA2OTEyDQo+ID4gICBJTyBk
+ZXB0aHMgICAgOiAxPTAuMSUsIDI9MC4xJSwgND0wLjElLCA4PTAuMSUsIDE2PTEwMC4wJSwgMzI9
+MC4wJSwgPj02ND0wLg0KPiA+IDAlDQo+ID4gICAgICBzdWJtaXQgICAgOiAwPTAuMCUsIDQ9MTAw
+LjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsIDY0PTAuMCUsID49NjQ9DQo+ID4gMC4wJQ0K
+PiA+ICAgICAgY29tcGxldGUgIDogMD0wLjAlLCA0PTEwMC4wJSwgOD0wLjAlLCAxNj0wLjElLCAz
+Mj0wLjAlLCA2ND0wLjAlLCA+PTY0PQ0KPiA+IDAuMCUNCj4gPiAgICAgIGlzc3VlZCAgICA6IHRv
+dGFsPXI9MC93PTQ1NjA1NzgvZD0wLCBzaG9ydD1yPTAvdz0wL2Q9MA0KPiA+IA0KPiA+IFJ1biBz
+dGF0dXMgZ3JvdXAgMCAoYWxsIGpvYnMpOg0KPiA+ICAgV1JJVEU6IGlvPTc3NDAuMkdCLCBhZ2dy
+Yj0xMTI3MjNLQi9zLCBtaW5iPTExNTQyOEtCL3MsIG1heGI9MTE1NDI4S0IvcywgDQo+ID4gbWlu
+dD03MjAwMDIyMm1zZWMsIG1heHQ9NzIwMDAyMjJtc2VjDQo+IA0KPiBObyByZWFkcyBoYXBwZW5l
+ZCAtIHF1aWNrIGd1ZXNzLCB5b3UgaGFkIHRoZSB0aW1lb3V0IGhpdCBiZWZvcmUgdGhlDQo+IHdy
+aXRlIHBoYXNlIGhhcyBmaW5pc2hlZC4gSGVuY2UgaXQnbGwgZXhpdCwgYW5kIGRvbid0IGRvIHZl
+cmlmaWVzLg0KPiANCj4gVGhlIHJlYWRzIHlvdSBzYXcgaW4gdGhlIHN0YXRzIG11c3QgYmUgZnJv
+bSBvdGhlciBwcm9jZXNzZXMuIEZpbyBkaWRuJ3QNCj4gZG8gYW55Lg0KPiANCj4gLS0gDQo+IEpl
+bnMgQXhib2UNCj4gDQpIaSBKZW5zLA0KDQp0aGVuIEkgZG9uJ3QgcXVpdGUgdW5kZXJzdGFuZCB3
+aGF0IHNlbnNlICJ2ZXJpZnlfYXN5bmMiIG1ha2VzLiAgSSB0aG91Z2h0IGl0J2QgZG8gdGhlIHZl
+cmlmaWVzICJpbiBwYXJhbGxlbCIuDQoNCkFueSBoaW50J3MgaG93IHRvIGdldCBhIHRpbWViYXNl
+ZCB0b3J0dXJlLXRlc3Qgd2l0aCB2ZXJpZnkgd29ya2luZz8NCg0KTWl0IGZyZXVuZGxpY2hlbiBH
+csO8w59lbg0KU3RlZmFuIEjDvGJuZXIsDQpPRUNFIC0gb3Blbi1lIGNlcnRpZmllZCBlbmdpbmVl
+cg0KeHRpdmF0ZSBTZXJ2aWNlLVRlYW0NCg0KV1dXZ3JvdXAgR2JSDQpNaWNoYWVsIFPDpG5nZXIs
+IEplbnMgV2FsdGVyLCBKw7ZyZyBXZWnDn21hbnRlbA0KWmllZ2VsaMO8dHRlbndlZyA0DQoNCjk4
+NjkzIElsbWVuYXUNCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX18NClRlbGVmb246ICAgMDgwMCBYVElWQVRFDQooMDgwMCA5ODQ4
+MjgzLCBncmF0aXMgYXVzIGRldXRzY2hlbSBGZXN0LSB1bmQgTW9iaWxuZXR6KQ0KDQpUZWxlZm9u
+OiAgICs0OSAoMCkzNjc3IDQ2IDk5IDQ0MA0KRmF4OiAgICAgICArNDkgKDApMzY3NyA0NiA5OSA0
+NDkNCmVNYWlsOiAgICAgc2h1QHh0aXZhdGUuZGUNCg0KDQoNCg0KVG86IGF4Ym9lQGtlcm5lbC5k
+aw0KQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmcNCg==
 
-You didn't add a specific backlog for the verify threads. Granted that's
-a bit confusing... But you want to tell fio how far behind the verify
-threads are running. So if you set verify_backlog=32 for instance, it
-will be 32 ios behind the writer. That will give you a job that
-continually randomly writes and verifies as it goes, the kind of torture
-I think you are looking for.
 
-verify_async=2 just tells fio to allocate 2 threads for doing verifies.
-
--- 
-Jens Axboe
 
