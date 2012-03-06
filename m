@@ -1,168 +1,93 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from serv132.fzu.cz ([147.231.26.132]:27267 "EHLO serv132.fzu.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932184Ab2CYWBA (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 25 Mar 2012 18:01:00 -0400
-Received: from [172.31.1.100] (ip-62-24-86-17.net.upcbroadband.cz [62.24.86.17])
-	by freja.fzu.cz (Postfix) with ESMTPSA id 9CC8B3DA82
-	for <fio@vger.kernel.org>; Mon, 26 Mar 2012 00:00:57 +0200 (CEST)
-Message-ID: <4F6F9581.9010207@cesnet.cz>
-Date: Mon, 26 Mar 2012 00:00:33 +0200
-From: Jiri Horky <jiri.horky@cesnet.cz>
-MIME-Version: 1.0
-Subject: distrubuted iops measuring
-Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha1; boundary="------------ms000806020602010501000001"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <devlists@wefi.net>
+Message-ID: <1331030795.2415.25.camel@werner-t410>
+Subject: Announce: Linux I/O stack diagram (was: Re: Linux I/O stack design
+ question)
+From: Werner Fischer <devlists@wefi.net>
+Date: Tue, 06 Mar 2012 11:46:35 +0100
+In-Reply-To: <201109271606.58334.ms@teamix.de>
+References: <1314880418.11001.6.camel@werner-t410>
+	 <4E68B77D.10400@kernel.dk> <1315809396.2164.6.camel@werner-t410>
+	 <201109271606.58334.ms@teamix.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+To: Martin Steigerwald <ms@teamix.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Jeff Moyer <jmoyer@redhat.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Christoph Hellwig <hch@infradead.org>, Florian Haas <f.g.haas@gmx.net>
+List-ID: <fio@vger.kernel.org>
 
-This is a cryptographically signed message in MIME format.
+Hi all,
 
---------------ms000806020602010501000001
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+some months ago I asked several questions regarding the design of the
+Linux I/O stack. Thank you all for your feedback you gave.
+* We have now drawn the Linux I/O Stack diagram with Inkscape, to have 
+  it in svg format and nicer pdf/png's.
+* We have licensed it under CC-BY-SA 3.0, so everybody can use and
+  alter it when necessary
+* I have also included some feedback I got from James Bottomley and 
+  Hannes Reinecke at LinuxCon Europe in Prague
+* Here is the link to the first published version (version 0.1):
+  http://www.thomas-krenn.com/en/oss/linux-io-stack-diagram.html
 
-Hi,
+Can you take a look at it and send us feedback in case there are some
+errors left in the diagram?
 
-I would like to measure IOPS on a distributed file system from several=20
-hosts in parallel.
-I am a bit lost in what options I should use. I would like to have each=20
-host in a cluster accessing its own file to not stress metadata and/or=20
-locking infrastructure. I thought that on all clients, I should run just:=
+Best regards,
+Werner
 
+On Die, 2011-09-27 at 16:06 +0200, Martin Steigerwald wrote:
+> Hi Werner!
+> 
+> Am Montag, 12. September 2011 schrieb Werner Fischer:
+> > On Don, 2011-09-08 at 14:39 +0200, Jens Axboe wrote:
+> > > On 2011-09-05 16:01, Werner Fischer wrote:
+> > > > On Don, 2011-09-01 at 15:13 -0600, Jens Axboe wrote:
+> > > >> [...]
+> > > >> I mean that every device should plug in at the same place. There are
+> > > >> definite up and down sides to plugging in at the stacking level and
+> > > >> bypassing the IO scheduler. So you have to weight the pros and cons
+> > > >> before doing that. We need to fix this. Drivers doing that lose out on
+> > > >> other features in the name of a bit more performance, that's just not
+> > > >> acceptable.
+> > > > 
+> > > > I have updated the diagram according to all of your hints:
+> > > > http://www.thomas-krenn.com/de/wikiDE/images/0/07/Linux-IO-Stack.png
+> > > > 
+> > > > I had also some off-list discussion with Florian Haas, who convinced me
+> > > > that the file systems are below of the page cache. I hope this is now
+> > > > correct.
+> > > 
+> > > Not sure I'd agree with that, I'd place the page cache between the fs
+> > > and the storage layer.
+> > 
+> > After some further off-list feedback from Christoph Hellwig I did some
+> > updates on the block diagram, including moving the page cache from above
+> > the fs layer to next to the fs layer (Christoph told me that the page
+> > cache is a helper function for the file systems).
+> > I also added SCSI mid layer, SCSI low layer, libata and so on:
+> > http://www.thomas-krenn.com/de/wikiDE/images/0/07/Linux-IO-Stack.png
+> > 
+> > I'm looking forward to further feedback.
+> 
+> Not that I would like to use it, but where would dmraid sit? I think it would 
+> be a bit nearer to the SCSI low layer...
+> 
+> I am not quite used to the placement of the page cache, but if its merely a 
+> helper function for filesystems... Regarding performance measurements it makes 
+> a lot of difference. I think the current diagram hides the impact of using 
+> pagecache or not using it a bit. So maybe at least coloring it differently 
+> would give it a bit more visual weight.
+> 
+> Aside from that I find this very detailed and I learned quite a bit from just 
+> looking at it.
+> 
+> Can you make that image available as SVG too?
+> 
+> Thanks,
 
-fio --server
-
-And from an admin node something like
-
-fio --client server1 job.desc.1 --client server2 job.desc.2 --client=20
-server3 job.desc.3...., where job.desc.X is specific to the client=20
-(different filename).
-
-But it seems like each host executes each job file, which is not what I=20
-would like...
-I bet there is a way how to accomplish this. Could you please point me=20
-to the right direction?
-
-Thank you
-Jiri Horky
-
-
---------------ms000806020602010501000001
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIISxDCC
-BGYwggNOoAMCAQICEFEmCpMc4n+cw6VfeeByroIwDQYJKoZIhvcNAQEFBQAwgZMxCzAJBgNV
-BAYTAlVTMQswCQYDVQQIEwJVVDEXMBUGA1UEBxMOU2FsdCBMYWtlIENpdHkxHjAcBgNVBAoT
-FVRoZSBVU0VSVFJVU1QgTmV0d29yazEhMB8GA1UECxMYaHR0cDovL3d3dy51c2VydHJ1c3Qu
-Y29tMRswGQYDVQQDExJVVE4gLSBEQVRBQ29ycCBTR0MwHhcNMDUwNjA3MDgwOTEwWhcNMTkw
-NjI0MTkwNjMwWjBvMQswCQYDVQQGEwJTRTEUMBIGA1UEChMLQWRkVHJ1c3QgQUIxJjAkBgNV
-BAsTHUFkZFRydXN0IEV4dGVybmFsIFRUUCBOZXR3b3JrMSIwIAYDVQQDExlBZGRUcnVzdCBF
-eHRlcm5hbCBDQSBSb290MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAt/caM+by
-AAQtOeBOW+0fvGwPzbX6I7bO3psRM5ekKUx9k5+9SryT7QMa44/P5W1QWtaXKZRagLBJetsu
-lf24yr83OC0ePpFBrXBWx/BPP+gynnTKyJBU6cZfD3idmkA8Dqxhql4Uj56HoWpQ3NeaTq8F
-s6ZxlJxxs1BgCscTnTgHhgKo6ahpJhiQq0ywTyOrOk+E2N/On+Fpb7vXQtdrROTHre5tQV9y
-WnEIN7N5ZaRZoJQ39wAvDcKSctrQOHLbFKhFxF0qfbe01sTurM0TRLfJK91DACX6Yblpalgj
-EbenM49WdVn1zSnXRrcKK2W200JvFbK4e/vv6V1T1TRaJwIDAQABo4HYMIHVMB8GA1UdIwQY
-MBaAFFMy0bPPf/rg8aBdhU6S0p5FHbRPMB0GA1UdDgQWBBStvZh6NLQm9/rEJlTvA73gJMtU
-GjAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUwAwEB/zARBglghkgBhvhCAQEEBAMCAQIw
-IAYDVR0lBBkwFwYKKwYBBAGCNwoDAwYJYIZIAYb4QgQBMD0GA1UdHwQ2MDQwMqAwoC6GLGh0
-dHA6Ly9jcmwudXNlcnRydXN0LmNvbS9VVE4tREFUQUNvcnBTR0MuY3JsMA0GCSqGSIb3DQEB
-BQUAA4IBAQDG7lMXaBSyUSIekFgNlP298XDlhi3DNjGPVEhG5y0IN7xsCmDhDq1RNOASk+m+
-uKu4JrTplj0oj65kB/7gAezF45HrGKDxdX7bCuafkduvrnXfI5Fo3RcAWkv/ZGxw6wEa0JDZ
-x6bWbfYT5P+1ydIeKsuxJUMmeNkwm04NHr5p79/q/i2zzPmw3bUUypHUsrWl+wEZo0d5n52M
-lYc0+B84kto2phH6a+tr6dxFeBU5BtdNQeQhyNwvh9G3v0hgdaViyyTeO2GgKSCmvsVsnMTp
-Cmki75E6+iav0VtBpzri+DgHQqvBW/jObboPBD8yNKzcBCjXcDAUJgbE5JuY1c94MIIEijCC
-A3KgAwIBAgIQJ/TqEfR6hsRunbtuqRcHBzANBgkqhkiG9w0BAQUFADBvMQswCQYDVQQGEwJT
-RTEUMBIGA1UEChMLQWRkVHJ1c3QgQUIxJjAkBgNVBAsTHUFkZFRydXN0IEV4dGVybmFsIFRU
-UCBOZXR3b3JrMSIwIAYDVQQDExlBZGRUcnVzdCBFeHRlcm5hbCBDQSBSb290MB4XDTA1MDYw
-NzA4MDkxMFoXDTIwMDUzMDEwNDgzOFowga4xCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJVVDEX
-MBUGA1UEBxMOU2FsdCBMYWtlIENpdHkxHjAcBgNVBAoTFVRoZSBVU0VSVFJVU1QgTmV0d29y
-azEhMB8GA1UECxMYaHR0cDovL3d3dy51c2VydHJ1c3QuY29tMTYwNAYDVQQDEy1VVE4tVVNF
-UkZpcnN0LUNsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgRW1haWwwggEiMA0GCSqGSIb3DQEB
-AQUAA4IBDwAwggEKAoIBAQCyOYWk8n2rQTtiRjeuzcFgdbw5ZflKGkeiucxIzGqY1U01Gbmk
-QuXOSeKKLx580jEHx060g2SdLinVomTEhb2FUTV5pE5okHsceqSSqBfymBXyk8zJpDKVuwxP
-ML2YoAuL5W4bokb6eLyib6tZXqUvz8rabaov66yhs2qqty5nNYt54R5piOLmRs2gpeq+C852
-OnoOm+r82idbPXMfIuZIYcZM82mxqC4bttQxICy8goqOpA6l14lD/BZarx1x1xFZ2rqHDa/6
-8+HC8KTFZ4zW1lQ63gqkugN3s2XI/R7TdGKqGMpokx6hhX71R2XL+E1XKHTSNP8wtu72YjAU
-jCzrAgMBAAGjgeEwgd4wHwYDVR0jBBgwFoAUrb2YejS0Jvf6xCZU7wO94CTLVBowHQYDVR0O
-BBYEFImCZ33EnSZwAEu0UEh83j2uBG59MA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTAD
-AQH/MHsGA1UdHwR0MHIwOKA2oDSGMmh0dHA6Ly9jcmwuY29tb2RvY2EuY29tL0FkZFRydXN0
-RXh0ZXJuYWxDQVJvb3QuY3JsMDagNKAyhjBodHRwOi8vY3JsLmNvbW9kby5uZXQvQWRkVHJ1
-c3RFeHRlcm5hbENBUm9vdC5jcmwwDQYJKoZIhvcNAQEFBQADggEBABnYiRFvKKymAKLnh8Gb
-kAPbfqES/R7z4vABqZRUQmuaCcSgbdeQkgQDZnlDcfz4b6/bdkXiNxo93eRZBHisHPSDRvN6
-z1uEci3lRsG6GBEp88tJeYc8um0FnaRtaE+tchQ2qLmx/b/Pf/CkapQ1UI/PgW1Vsd1ZMErf
-baCcZB9JfO82u/TjafT4OY9arUuFOrcO7dPPDUSi+wS/5C9wjiX7WlQGs9DEvG2N+3MyLOmb
-hCQt1n+RemgCUB8OP03pzPW7Z+jcHC47/E7N/gKO46gTCqUmRGXpEPJNUqeu3D7KazJcQWz+
-9V2g6v/R+puGWG09lkfl/i6VBMIAzI6h8rswggTaMIIDwqADAgECAhBd/1Dq/g9TRoifgEGP
-50LIMA0GCSqGSIb3DQEBBQUAMIGuMQswCQYDVQQGEwJVUzELMAkGA1UECBMCVVQxFzAVBgNV
-BAcTDlNhbHQgTGFrZSBDaXR5MR4wHAYDVQQKExVUaGUgVVNFUlRSVVNUIE5ldHdvcmsxITAf
-BgNVBAsTGGh0dHA6Ly93d3cudXNlcnRydXN0LmNvbTE2MDQGA1UEAxMtVVROLVVTRVJGaXJz
-dC1DbGllbnQgQXV0aGVudGljYXRpb24gYW5kIEVtYWlsMB4XDTA5MDUxODAwMDAwMFoXDTI4
-MTIzMTIzNTk1OVowRDELMAkGA1UEBhMCTkwxDzANBgNVBAoTBlRFUkVOQTEkMCIGA1UEAxMb
-VEVSRU5BIGVTY2llbmNlIFBlcnNvbmFsIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB
-CgKCAQEAxLwlfc3vWQSrdCcptmOK78Q1cKFGCK9uUJsbcXiXAoXANf+QGBFm+jM5FJ6kEvc9
-7gUsgef3LS42eEMOObZ/enTDy1U/L7PLwzdq4ZUDIxuzIpgTg1gwX6w8kUXTbQsuy9GRYbLK
-cfrCiQx7CdaSv6OBFxFVIN83gZ8eJgkd0hcZQ8uLmSV0QVvmMirQp1Pc0iGNzZHPe2z0yf7Q
-5dIGaxphQhuAkQfcFEknOwqKsuI7aQiEy4GZ17oUH9h+kmO99i0x+pVOzTYNme8Ruq1K+6jE
-eLl8Wj7I9QgywKkFx4waKI8wuhej8bniB6e4+1W/n2Ja1RQPCLQTmdISeVrw/QIDAQABo4IB
-WzCCAVcwHwYDVR0jBBgwFoAUiYJnfcSdJnAAS7RQSHzePa4Ebn0wHQYDVR0OBBYEFMiJc5mn
-XVEWU0VUfKPCOXzL16qBMA4GA1UdDwEB/wQEAwIBBjASBgNVHRMBAf8ECDAGAQH/AgEAMCYG
-A1UdIAQfMB0wDQYLKwYBBAGyMQECAh0wDAYKKoZIhvdMBQICBTBYBgNVHR8EUTBPME2gS6BJ
-hkdodHRwOi8vY3JsLnVzZXJ0cnVzdC5jb20vVVROLVVTRVJGaXJzdC1DbGllbnRBdXRoZW50
-aWNhdGlvbmFuZEVtYWlsLmNybDBvBggrBgEFBQcBAQRjMGEwOAYIKwYBBQUHMAKGLGh0dHA6
-Ly9jcnQudXNlcnRydXN0LmNvbS9VVE5BQUFDbGllbnRfQ0EuY3J0MCUGCCsGAQUFBzABhhlo
-dHRwOi8vb2NzcC51c2VydHJ1c3QuY29tMA0GCSqGSIb3DQEBBQUAA4IBAQAIF6Qc+RVrsBlh
-b6BI43ok70FVmqBQcNgj1VOGSmeO6NpWFhgsGxghibqYJO5WNOMXhia9IVrUGZNK6mF0TbbE
-hI1H7souZW02k5ix4pJmiOJOe3XHXkRpIdwSajD8YYD+D/Cd0tx+ruXCU00LcINhVkX7Pd9y
-9gJCdeuIiphXYPWfonJJsXo+QWc1w1UrDQc16MYr1bqHeYB055I2vUaBei4p4mq+4RcTNXwW
-pCUzL2HuzslS4EDb0745Ws/PTBTlf8VDV4tNuVqOwg8GTd7ISZ2Bc7rkP5ilkzxZTtubNd/+
-Tb9Voelkw0V8rI98R9E68U512ZBnQOixL54XL1w1MIIE6jCCA9KgAwIBAgIQOhkExlgrlDBI
-rXauLbctajANBgkqhkiG9w0BAQUFADBEMQswCQYDVQQGEwJOTDEPMA0GA1UEChMGVEVSRU5B
-MSQwIgYDVQQDExtURVJFTkEgZVNjaWVuY2UgUGVyc29uYWwgQ0EwHhcNMTEwNjA4MDAwMDAw
-WhcNMTIwNzA3MjM1OTU5WjB6MRMwEQYKCZImiZPyLGQBGRYDb3JnMRYwFAYKCZImiZPyLGQB
-GRYGdGVyZW5hMRMwEQYKCZImiZPyLGQBGRYDdGNzMQswCQYDVQQGEwJDWjEPMA0GA1UEChMG
-Q0VTTkVUMRgwFgYDVQQDEw9KaXJpIEhvcmt5IDM1NzAwggEiMA0GCSqGSIb3DQEBAQUAA4IB
-DwAwggEKAoIBAQDLFeAtUK2Re8qxCvEtMyMKDCKYhu9e9TxSuAjgL1ifAdpcFshlA949pGLo
-ZATdYvJtgmUZ1WQd38VUFDia0i2mwu8DyDzGdo3a/zc2FW5ic2xsS4jmESKCLkmjf2DTQxV8
-RHIw9rqMimhubnvwmaCKDvoGLwuqwwNkdXUa/PmaLo+252LPlK0Ft325pO2xSYaOXIC6ssAs
-M1AD1PaGN3QRfjB3liP3blOpeKd7zJoXz6Aywd553dmg2It0Qacilv4Gn+nYcht7FaliOICa
-0qixcFxx9pxD2etMC475NJcNqRDe70CaGPlyLr0tSHkcPWjsuoRdYEifGhHROCg0zZjVAgMB
-AAGjggGgMIIBnDAfBgNVHSMEGDAWgBTIiXOZp11RFlNFVHyjwjl8y9eqgTAdBgNVHQ4EFgQU
-ioOz8ezQ7T74Io5DNvk1Zbz72cYwDgYDVR0PAQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwHQYD
-VR0lBBYwFAYIKwYBBQUHAwQGCCsGAQUFBwMCMCYGA1UdIAQfMB0wDQYLKwYBBAGyMQECAh0w
-DAYKKoZIhvdMBQICBTBHBgNVHR8EQDA+MDygOqA4hjZodHRwOi8vY3JsLnRjcy50ZXJlbmEu
-b3JnL1RFUkVOQWVTY2llbmNlUGVyc29uYWxDQS5jcmwwegYIKwYBBQUHAQEEbjBsMEIGCCsG
-AQUFBzAChjZodHRwOi8vY3J0LnRjcy50ZXJlbmEub3JnL1RFUkVOQWVTY2llbmNlUGVyc29u
-YWxDQS5jcnQwJgYIKwYBBQUHMAGGGmh0dHA6Ly9vY3NwLnRjcy50ZXJlbmEub3JnMDAGA1Ud
-EQQpMCeBD2hvcmt5QGNlc25ldC5jeoEUamlyaS5ob3JreUBjZXNuZXQuY3owDQYJKoZIhvcN
-AQEFBQADggEBACeDvPBzQ5M5dvmb6JBEIyLrLpsXziSHzYEnOvng+wQ+DdZpEqh4bIJyi/6s
-r8QS48wKe/UV5N73KSQu5dSlzARuzj9J8f4b/5vu0GvPcyzFABk/bKAIqH96GBgAjJTECLbS
-hYJbxnkFrq6gsgTcPNagQpGoazyYzDaTd3YEt2JUzbkuzQLFtyU+h7UcF9hEhamkpTkOi2/x
-QpApCzT7TM9b1AzCVsb9ag5+WtYABcbvuBbiF1dx7Y01PhcQsKOWGn6Osv+cF1zWQ39U0O5t
-88LPLwaEseIm3fFiH+crodZkEKTUyEZkm0vz7+PIXxKbsAPEV9yfZhq2j1o7DKb9MBMxggMV
-MIIDEQIBATBYMEQxCzAJBgNVBAYTAk5MMQ8wDQYDVQQKEwZURVJFTkExJDAiBgNVBAMTG1RF
-UkVOQSBlU2NpZW5jZSBQZXJzb25hbCBDQQIQOhkExlgrlDBIrXauLbctajAJBgUrDgMCGgUA
-oIIBkjAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xMjAzMjUy
-MjAwMzNaMCMGCSqGSIb3DQEJBDEWBBSKhvr2XnMzQHC7rmJjSuyfUcyKUDBfBgkqhkiG9w0B
-CQ8xUjBQMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZI
-hvcNAwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgwZwYJKwYBBAGCNxAEMVowWDBEMQsw
-CQYDVQQGEwJOTDEPMA0GA1UEChMGVEVSRU5BMSQwIgYDVQQDExtURVJFTkEgZVNjaWVuY2Ug
-UGVyc29uYWwgQ0ECEDoZBMZYK5QwSK12ri23LWowaQYLKoZIhvcNAQkQAgsxWqBYMEQxCzAJ
-BgNVBAYTAk5MMQ8wDQYDVQQKEwZURVJFTkExJDAiBgNVBAMTG1RFUkVOQSBlU2NpZW5jZSBQ
-ZXJzb25hbCBDQQIQOhkExlgrlDBIrXauLbctajANBgkqhkiG9w0BAQEFAASCAQAGeGnuLotP
-mmtRSuY4wulr+yoWVQEi+LobFj4sVGyAg4gipeEycngFstzdaOuPaIonGOsDUpYbS4DndbHI
-gNtYM55lg3JMgxvevWoFcaHKcYK8CTa4X15pmjCrf0v527f9aD5KvADLxXl13JTtvRS5e2FX
-y+tFpQg8lD3Fi2QKoAJCVh6BgHvVMXreEaZb1WbXtZv7w1mconHabxj9ghnsXPzlPw9F/FbU
-crV7mpIQ8eMJx2tKxhJEZUKT39tMPBqUlAFF6VriwWWUE8s9jfQaAHQqcb2ySGqsJEatd2Cr
-jGDBmvvg+GiVtUKHvKtLKMW9uenD2leqi3v1FVfyhr7/AAAAAAAA
---------------ms000806020602010501000001--
---:
-To unsubscribe from this list: send the line "unsubscribe fio" in
-the body of a message to majordomo@vger.kernel.org: 
-More majordomo info at  http: //vger.kernel.org/majordomo-info.html
+-- 
+: Werner Fischer
+: Technology Specialist
+: Thomas-Krenn.AG | The server-experts
+: http://www.thomas-krenn.com | http://www.thomas-krenn.com/wiki
 
 
