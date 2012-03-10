@@ -1,66 +1,111 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:59162 "EHLO
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:57871 "EHLO
 	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755262Ab2CWAr5 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 22 Mar 2012 20:47:57 -0400
-Received: by vcqp1 with SMTP id p1so2484319vcq.19
-        for <fio@vger.kernel.org>; Thu, 22 Mar 2012 17:47:56 -0700 (PDT)
+	with ESMTP id S1750826Ab2CJRcQ convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Sat, 10 Mar 2012 12:32:16 -0500
+Received: by vcqp1 with SMTP id p1so2601447vcq.19
+        for <fio@vger.kernel.org>; Sat, 10 Mar 2012 09:32:15 -0800 (PST)
 MIME-Version: 1.0
-Date: Thu, 22 Mar 2012 17:47:55 -0700
-Message-ID: <CAKa9NmutL+L4GyYreo5_9wvCG8vASLJs=M1b+xThcL5xdYcK0w@mail.gmail.com>
-Subject: fio terse output issue
+In-Reply-To: <CAKa9Nmvh537k6+6iKUX7gRukk0jA=a6h2OgGoSzHZJ0=kFm+5A@mail.gmail.com>
+References: <CAKa9NmsJFzHbiSKfG3aJX4xqsj4M7Y_tL=CwUPhpnrxLbLHLnw@mail.gmail.com>
+	<CAKXScpVXmq9OSu2QMKFc8TZw-W2KSNRb9psprGXDoyDkRKm0zA@mail.gmail.com>
+	<CAKa9Nmvh537k6+6iKUX7gRukk0jA=a6h2OgGoSzHZJ0=kFm+5A@mail.gmail.com>
+Date: Sat, 10 Mar 2012 09:32:15 -0800
+Message-ID: <CAKa9Nmvbx+pfHB2LhnHgpW+NPs_Pd_56LDioZnCF_KoAveGMng@mail.gmail.com>
+Subject: Re: Repro blocks/offsets in multiple runs
 From: Vikram Seth <seth.vik@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Daniel Buggie <danielabuggie@gmail.com>
+Cc: fio@vger.kernel.org
 
-Hi Jens,
+Actually, I do see corruption in pattern file [ see line 2 ].
 
-I have seen that using 2.05 version of fio the terse output formatting
-has an issue when there is a text description given in the test file.
-There is no newline separating the description and the next job stats.
-I have pasted the text at the end of this mail with description as
-"Standard Performance test".
+"/root/fbtest/fiotestfile write 4209246208 262144
+/root/fiotestfile write 9908fio version 2 iolog
+/root/fiotestfile add
+/root/fiotestfile open
+/root/fiotestfile write 1064566784 262144 "
 
-I tried following patch and it seemed to work. Do you think it is fine
-and if you can fix the issue ?
+So two questions:
 
-diff --git a/stat.c b/stat.c
-index fa9af7c..e72148b 100644
---- a/stat.c
-+++ b/stat.c
-@@ -786,7 +786,7 @@ static void show_thread_status_terse_v3(struct
-thread_stat *ts,
+1) How do I specify iolog file per job ?
 
-        /* Additional output if description is set */
-        if (strlen(ts->description))
--               log_info(";%s", ts->description);
-+               log_info(";%s\n", ts->description);
- }
+2) How does the replay test file look like ? Is the one below fine
+[based on original file in my previous mail] ?
 
- static void show_thread_status_terse(struct thread_stat *ts,
+[global]
+description=3DStandard Performance test
+direct=3D1
+size=3D10g
+filename=3D/root/fbtest/fiotestfile
+numjobs=3D20
+group_reporting
+
+[randwrite_256]
+stonewall
+read_iolog=3Dfio_pattern
 
 Thanks,
 
-Vikram.
+Vikram
 
----- Here's an example of the output ----
-
-3;2.0.5;seqread_4;0;0;15288;7811;1907;2004;0;0;0.000000;0.000000;105;493150;9648.958399;32194.535776;1.00%=115;5.00%=119;10.00%=125;20.00%=145;30.00%=161;40.00%=243;50.00%=394;60.00%=1384;70.00%=1928;80.00%=4896
-;90.00%=23680;95.00%=51968;99.00%=154624;99.50%=193536;99.90%=407552;0%=0;0%=0;0%=0;0%=0;0%=0;106;493151;9649.247253;32194.550405;27;737;4.706345%;359.000000;152.666025;0;0;0;0;0;0;0.000000;0.000000;0;0;0.000000
-;0.000000;1.00%=0;5.00%=0;10.00%=0;20.00%=0;30.00%=0;40.00%=0;50.00%=0;60.00%=0;70.00%=0;80.00%=0;90.00%=0;95.00%=0;99.00%=0;99.50%=0;99.90%=0;0%=0;0%=0;0%=0;0%=0;0%=0;0;0;0.000000;0.000000;0;0;0.000000%;0.00000
-0;0.000000;0.027473%;0.152348%;4362;0;674;100.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;40.74%;12.61%;2.38%;1.15%;16.90%;5.73%;5.81%;3.09%;5.49%;3.90%;1.86%;0.34%;0.00%;0.00%;0.00%;0.0
-0%;sda;23780;28049;266;2247;1041324;452100;1493388;61.45%
-;Standard Performance
-test3;2.0.5;seqread_8;1;0;20160;10250;1251;2014;0;0;0.000000;0.000000;126;395894;10020.626587;23838.754095;1.00%=139;5.00%=177;10.00%=262;20.00%=572;30.00%=1128;40.00%=1784;50.00%=2512;60.0
-0%=3760;70.00%=9664;80.00%=16320;90.00%=21888;95.00%=32640;99.00%=103936;99.50%=193536;99.90%=284672;0%=0;0%=0;0%=0;0%=0;0%=0;126;395895;10021.059127;23838.769654;191;796;5.023146%;502.766667;78.667584;0;0;0;0;0
-;0;0.000000;0.000000;0;0;0.000000;0.000000;1.00%=0;5.00%=0;10.00%=0;20.00%=0;30.00%=0;40.00%=0;50.00%=0;60.00%=0;70.00%=0;80.00%=0;90.00%=0;95.00%=0;99.00%=0;99.50%=0;99.90%=0;0%=0;0%=0;0%=0;0%=0;0%=0;0;0;0.0000
-00;0.000000;0;0;0.000000%;0.000000;0.000000;0.064603%;0.154053%;3975;0;698;100.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;8.45%;9.72%;5.24%;4.44%;15.52%;17.74%;9.40%;17.18%;9.68%;1.59%;
-0.83%;0.20%;0.00%;0.00%;0.00%;0.00%;sda;23780;28049;266;2247;1041324;452100;1493388;61.45%
-;Standard Performance
-test3;2.0.5;seqread_16;2;0;20160;10285;627;2007;0;0;0.000000;0.000000;186;165737;14257.924603;16248.496462;1.00%=286;5.00%=414;10.00%=732;20.00%=1512;30.00%=5024;40.00%=8896;50.00%=11328;60
-.00%=13632;70.00%=17280;80.00%=21120;90.00%=29312;95.00%=40192;99.00%=92672;99.50%=116224;99.90%=140288;0%=0;0%=0;0%=0;0%=0;0%=0;186;165738;14258.525397;16248.474350;462;521;5.013275%;503.533333;15.589508;0;0;0;
-0;0;0;0.000000;0.000000;0;0;0.000000;0.000000;1.00%=0;5.00%=0;10.00%=0;20.00%=0;30.00%=0;40.00%=0;50.00%=0;60.00%=0;70.00%=0;80.00%=0;90.00%=0;95.00%=0;99.00%=0;99.50%=0;99.90%=0;0%=0;0%=0;0%=0;0%=0;0%=0;0;0;0.0
-00000;0.000000;0;0;0.000000%;0.000000;0.000000;0.084818%;0.127226%;2832;0;734;100.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.71%;6.03%;3.49%;3.49%;10.56%;3.89%;16.75%;30.63%;21.67%;2.
-06%;0.71%;0.00%;0.00%;0.00%;0.00%;0.00%;sda;23780;28049;266;2247;1041324;452100;1493388;61.45%
+On Sat, Mar 10, 2012 at 9:20 AM, Vikram Seth <seth.vik@gmail.com> wrote:
+> How do I specify a separate file for each job ?
+>
+> I have following simple test file [ see numjobs=3D20]. Will the logging
+> work without corruption ?
+>
+> [global]
+> description=3DStandard Performance test
+> runtime=3D30
+> direct=3D1
+> size=3D10g
+> filename=3D/root/fiotestfile
+> numjobs=3D20
+> group_reporting
+>
+> [randwrite_256]
+> stonewall
+> rw=3Drandwrite
+> bs=3D256k
+> write_iolog=3Dfio_pattern
+>
+> Vikram
+>
+> On Fri, Mar 9, 2012 at 11:29 PM, Daniel Buggie <danielabuggie@gmail.com> =
+wrote:
+>> I haven't tried them myself, but perhaps the write_iolog and
+>> read_iolog options would work for you in this case?
+>>
+>> =EF=BF=BDwrite_iolog=3Dstr
+>> =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BDWri=
+te the issued I/O patterns to the specified file.
+>> Specify a separate file for each job, otherwise the iologs will be
+>> interspersed and the =EF=BF=BDfile =EF=BF=BDmay =EF=BF=BDbe corrupt.
+>>
+>> =EF=BF=BD =EF=BF=BD =EF=BF=BD read_iolog=3Dstr
+>> =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BDRep=
+lay the I/O patterns contained in the specified file
+>> generated by write_iolog, or may be a blktrace binary file.
+>>
+>> Daniel
+>>
+>> On Fri, Mar 9, 2012 at 2:23 PM, Vikram Seth <seth.vik@gmail.com> wrote:
+>>> Hi,
+>>>
+>>> I am looking for an option that enables fio to use same set of
+>>> blocks/offsets across multiple runs of the test.
+>>> This will be useful if I want am trying to fix a perf issue and want
+>>> to rerun the test to verify the patch. For such cases an exact repro
+>>> of the i/o pattern is important.
+>>>
+>>> Thanks,
+>>> Vikram.
+>>> --
+>>> To unsubscribe from this list: send the line "unsubscribe fio" in
+>>> the body of a message to majordomo@vger.kernel.org
+>>> More majordomo info at =EF=BF=BDhttp://vger.kernel.org/majordomo-info.h=
+tml
