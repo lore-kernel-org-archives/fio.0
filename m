@@ -1,34 +1,40 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vb0-f46.google.com ([209.85.212.46]:65451 "EHLO
-	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752621Ab2CaAGQ (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 30 Mar 2012 20:06:16 -0400
-Received: by vbbff1 with SMTP id ff1so732222vbb.19
-        for <fio@vger.kernel.org>; Fri, 30 Mar 2012 17:06:15 -0700 (PDT)
+Received: from mail.yuiop.co.uk ([89.145.97.74]:50318 "EHLO mail.yuiop.co.uk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753882Ab2CLQjt (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 12 Mar 2012 12:39:49 -0400
+Message-ID: <4F5E22F9.1040208@anonymous.org.uk>
+Date: Mon, 12 Mar 2012 16:23:21 +0000
+From: John Robinson <john.robinson@anonymous.org.uk>
 MIME-Version: 1.0
-Date: Fri, 30 Mar 2012 17:06:15 -0700
-Message-ID: <CAKa9NmtSnSj=mOx7E7rwBpHW1xPThd+K0RnsGXcDA8QX2qgkJw@mail.gmail.com>
-Subject: Verify with mixed read/write
-From: Vikram Seth <seth.vik@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: Striping does not increase performance.
+References: <CAKFseUN8-Rb1x5j-JM+q3CLEXnFO0ieAmBG_5tVcxu4NAz0ojA@mail.gmail.com> <20120312125720.GL4558@voyageur.mas.nom.fr> <CAKFseUO5CVHBLhcY19DWzqhf-Ebrn7c-=iwxANuRcqwTV0PyBg@mail.gmail.com> <20120312135847.GM4558@voyageur.mas.nom.fr> <4F5E0963.6080708@cesnet.cz>
+In-Reply-To: <4F5E0963.6080708@cesnet.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Jiri Horky <jiri.horky@cesnet.cz>
+Cc: Erwan MAS <erwan@mas.nom.fr>, Caspar Smit <c.smit@truebit.nl>, linux-raid@vger.kernel.org, fio@vger.kernel.org
 
-Hi,
+On 12/03/2012 14:34, Jiri Horky wrote:
+> Hi,
+>
+> as for alignment, please also check md metadata format version (-e
+> switch of mdadm). The version that ensures alignment is 1.0, which
+> places the metadata information to the back of the drive.
 
-Does the verify option work with mixed read/write case, like rw or randrw  ?
+As far as I can tell from looking at the source, ever since the 1.x 
+metadata types were introduced (with mdadm 2.0, in August 2005):
 
-It's not clear from the help text (pasted below).
+* the data offset on 1.1 and 1.2 arrays has always been 4K-aligned,
+* the superblock offset for 1.0 arrays has always been 4K-aligned,
+* the bitmap offset for all 1.x arrays has always been 4K-aligned.
 
-                This option can be used for repeated burn-in tests of a
-                system to make sure that the written data is also
-                correctly read back. If the data direction given is
-                a read or random read, fio will assume that it should
-                verify a previously written file. If the data direction
-                includes any form of write, the verify will be of the
-                newly written data.
+As of mdadm 3.1.2 (March 2010), the data offset for new 1.1 and 1.2 
+arrays is always 1MB (2048 sectors), so they're also 1M-aligned.
 
-Thanks,
+Cheers,
 
-Vikram.
+John.
+
