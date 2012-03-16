@@ -1,96 +1,129 @@
-Return-Path: <shu@xtivate.de>
-From: =?iso-8859-1?Q?Stefan_H=FCbner?= <shu@xtivate.de>
-Subject: Re-2: verify seems not to take place on iSCSI-Target writing
-Date: Fri, 2 Mar 2012 17:06:54 +0000
-Message-ID: <DIIE.00000BAC0002E649@192.168.0.5>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:53490 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752707Ab2CPRvz (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 16 Mar 2012 13:51:55 -0400
+Message-ID: <4F637DB7.20701@kernel.dk>
+Date: Fri, 16 Mar 2012 18:51:51 +0100
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset="UTF-8"
-Content-Transfer-Encoding: base64
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Subject: Re: [PATCH] time_based: Avoid restarting main I/O loop
+References: <1331867567-25371-1-git-send-email-dehrenberg@google.com> <4F6310F4.8000000@kernel.dk> <CAAK6Zt0+fs8P1Xvw_PQHUKGRowF9RhvgxwqhRXTYSrQCfC==xw@mail.gmail.com>
+In-Reply-To: <CAAK6Zt0+fs8P1Xvw_PQHUKGRowF9RhvgxwqhRXTYSrQCfC==xw@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Daniel Ehrenberg <dehrenberg@google.com>
+Cc: fio@vger.kernel.org, nauman@google.com, egouriou@google.com, tirea@google.com
 
-RGVhciBKZW5zLA0KDQp0aGlzIGlzIHRoZSBvdXRwdXQuICBJIGFkZGVkIHNvbWUgc3VwcGxlbWVu
-dGFyeSBkZXRhaWxzIGluIHRoZSBob3BlIGl0J3MgdXNlZnVsIC4uLg0KDQpVbHRyYUJpdGNoIH4g
-IyBJU0NTSV9ERVZJQ0U9L2Rldi9zZGIgU0VDT05EUz0kKCgyMCozNjAwKSkgZmlvIGlzY3NpLXN0
-cmVzcy5maW8gDQppU0NTSTogKGc9MCk6IHJ3PXJhbmR3cml0ZSwgYnM9NEstNE0vNEstNE0sIGlv
-ZW5naW5lPWxpYmFpbywgaW9kZXB0aD0xNg0KZmlvIDIuMC4zDQpTdGFydGluZyAxIHByb2Nlc3MN
-CkpvYnM6IDEgKGY9MSk6IFt3XSBbMTcuMyUgZG9uZV0gWzBLLzExMy4yTSAvc10gWzAgLzcxICBp
-b3BzXSBbZXRhIDAzZDoyM2g6MjhtOjIxc10NCmlTQ1NJOiAoZ3JvdXBpZD0wLCBqb2JzPTEpOiBl
-cnI9IDA6IHBpZD0xODE4NA0KICB3cml0ZTogaW89Nzc0MC4yR0IsIGJ3PTExMjcyM0tCL3MsIGlv
-cHM9NjMgLCBydW50PTcyMDAwMjIybXNlYw0KICAgIGJ3IChLQi9zKSAgOiBtaW49IDM2NjksIG1h
-eD01OTM0MjQsIHBlcj0xMDAuMDAlLCBhdmc9MTEzNTYxLjI1LCBzdGRldj0yNjg2OC4yNw0KICBj
-cHUgICAgICAgICAgOiB1c3I9NC4xOCUsIHN5cz0xLjI4JSwgY3R4PTQ3NjA0ODAsIG1hamY9MCwg
-bWluZj0xMDY5MTINCiAgSU8gZGVwdGhzICAgIDogMT0wLjElLCAyPTAuMSUsIDQ9MC4xJSwgOD0w
-LjElLCAxNj0xMDAuMCUsIDMyPTAuMCUsID49NjQ9MC4wJQ0KICAgICBzdWJtaXQgICAgOiAwPTAu
-MCUsIDQ9MTAwLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsIDY0PTAuMCUsID49NjQ9MC4w
-JQ0KICAgICBjb21wbGV0ZSAgOiAwPTAuMCUsIDQ9MTAwLjAlLCA4PTAuMCUsIDE2PTAuMSUsIDMy
-PTAuMCUsIDY0PTAuMCUsID49NjQ9MC4wJQ0KICAgICBpc3N1ZWQgICAgOiB0b3RhbD1yPTAvdz00
-NTYwNTc4L2Q9MCwgc2hvcnQ9cj0wL3c9MC9kPTANCg0KUnVuIHN0YXR1cyBncm91cCAwIChhbGwg
-am9icyk6DQogIFdSSVRFOiBpbz03NzQwLjJHQiwgYWdncmI9MTEyNzIzS0IvcywgbWluYj0xMTU0
-MjhLQi9zLCBtYXhiPTExNTQyOEtCL3MsIG1pbnQ9NzIwMDAyMjJtc2VjLCBtYXh0PTcyMDAwMjIy
-bXNlYw0KDQpEaXNrIHN0YXRzIChyZWFkL3dyaXRlKToNCiAgc2RiOiBpb3M9ODAvMTgxNTMyMTgs
-IG1lcmdlPTAvMCwgdGlja3M9NjAvMTU2NDEyMjY0LCBpbl9xdWV1ZT0xNTY0MTUwODAsIHV0aWw9
-MTAwLjAwJQ0KVWx0cmFCaXRjaCB+ICMgbHNzY3NpIA0KWzA6MDowOjBdICAgIGRpc2sgICAgQVRB
-ICAgICAgR0IwMTYwRUFQUlIgICAgICBIUEcyICAvZGV2L3NkYSANClszOjA6MDowXSAgICBjZC9k
-dmQgIFRTU1Rjb3JwIENERFZEVyBTTi1TMDgzRiAgU0IwMSAgL2Rldi9zcjAgDQpbMTk6MDowOjBd
-ICAgZGlzayAgICBTQ1NUX0JJTyBXZ0FkYm9HRkhSVnlkcW9RICAyMDAgIC9kZXYvc2RiDQpVbHRy
-YUJpdGNoIH4gIyBpc2NzaWFkbSAtbSBzZXNzaW9uIC1QIDMNCmlTQ1NJIFRyYW5zcG9ydCBDbGFz
-cyB2ZXJzaW9uIDIuMC04NzANCnZlcnNpb24gMi4wLTg3MQ0KVGFyZ2V0OiBpcW4uMjAxMi0wMjpk
-c3MtaGgtcHJpLnRhcmdldDANCiAgICAgICAgQ3VycmVudCBQb3J0YWw6IDE5Mi4xNjguNC4yMzE6
-MzI2MCwxDQogICAgICAgIFBlcnNpc3RlbnQgUG9ydGFsOiAxOTIuMTY4LjQuMjMxOjMyNjAsMQ0K
-ICAgICAgICAgICAgICAgICoqKioqKioqKioNCiAgICAgICAgICAgICAgICBJbnRlcmZhY2U6DQog
-ICAgICAgICAgICAgICAgKioqKioqKioqKg0KICAgICAgICAgICAgICAgIElmYWNlIE5hbWU6IGRl
-ZmF1bHQNCiAgICAgICAgICAgICAgICBJZmFjZSBUcmFuc3BvcnQ6IHRjcA0KICAgICAgICAgICAg
-ICAgIElmYWNlIEluaXRpYXRvcm5hbWU6IGlxbi4yMDExLTEyLmRlLnd3d2dyb3VwLmludGVybi5V
-bHRyYUJpdGNoOm9wZW5pc2NzaS02Zjk3MTRjMTU0N2ExMjZjMTRiMTcyMWIzMTBkYWYxMQ0KICAg
-ICAgICAgICAgICAgIElmYWNlIElQYWRkcmVzczogMTkyLjE2OC40LjENCiAgICAgICAgICAgICAg
-ICBJZmFjZSBIV2FkZHJlc3M6IChudWxsKQ0KICAgICAgICAgICAgICAgIElmYWNlIE5ldGRldjog
-KG51bGwpDQogICAgICAgICAgICAgICAgU0lEOiAxMw0KICAgICAgICAgICAgICAgIGlTQ1NJIENv
-bm5lY3Rpb24gU3RhdGU6IExPR0dFRCBJTg0KICAgICAgICAgICAgICAgIGlTQ1NJIFNlc3Npb24g
-U3RhdGU6IExPR0dFRF9JTg0KICAgICAgICAgICAgICAgIEludGVybmFsIGlzY3NpZCBTZXNzaW9u
-IFN0YXRlOiBOTyBDSEFOR0UNCiAgICAgICAgICAgICAgICAqKioqKioqKioqKioqKioqKioqKioq
-KioNCiAgICAgICAgICAgICAgICBOZWdvdGlhdGVkIGlTQ1NJIHBhcmFtczoNCiAgICAgICAgICAg
-ICAgICAqKioqKioqKioqKioqKioqKioqKioqKioNCiAgICAgICAgICAgICAgICBIZWFkZXJEaWdl
-c3Q6IE5vbmUNCiAgICAgICAgICAgICAgICBEYXRhRGlnZXN0OiBOb25lDQogICAgICAgICAgICAg
-ICAgTWF4UmVjdkRhdGFTZWdtZW50TGVuZ3RoOiAyNjIxNDQNCiAgICAgICAgICAgICAgICBNYXhY
-bWl0RGF0YVNlZ21lbnRMZW5ndGg6IDgxOTINCiAgICAgICAgICAgICAgICBGaXJzdEJ1cnN0TGVu
-Z3RoOiA2NTUzNg0KICAgICAgICAgICAgICAgIE1heEJ1cnN0TGVuZ3RoOiAyNjIxNDQNCiAgICAg
-ICAgICAgICAgICBJbW1lZGlhdGVEYXRhOiBObw0KICAgICAgICAgICAgICAgIEluaXRpYWxSMlQ6
-IFllcw0KICAgICAgICAgICAgICAgIE1heE91dHN0YW5kaW5nUjJUOiAxDQogICAgICAgICAgICAg
-ICAgKioqKioqKioqKioqKioqKioqKioqKioqDQogICAgICAgICAgICAgICAgQXR0YWNoZWQgU0NT
-SSBkZXZpY2VzOg0KICAgICAgICAgICAgICAgICoqKioqKioqKioqKioqKioqKioqKioqKg0KICAg
-ICAgICAgICAgICAgIEhvc3QgTnVtYmVyOiAxOSBTdGF0ZTogcnVubmluZw0KICAgICAgICAgICAg
-ICAgIHNjc2kxOSBDaGFubmVsIDAwIElkIDAgTHVuOiAwDQogICAgICAgICAgICAgICAgICAgICAg
-ICBBdHRhY2hlZCBzY3NpIGRpc2sgc2RiICAgICAgICAgIFN0YXRlOiBydW5uaW5nDQoNCkNoZWVy
-cywNClN0ZWZhbg0KDQotLS0tLS0tLSBPcmlnaW5hbCBNZXNzYWdlIC0tLS0tLS0tDQpTdWJqZWN0
-OiBSZTogdmVyaWZ5IHNlZW1zIG5vdCB0byB0YWtlIHBsYWNlIG9uIGlTQ1NJLVRhcmdldCB3cml0
-aW5nICgwMS1NcnotMjAxMiAxNDowMikNCkZyb206ICAgIEplbnMgQXhib2UgPGF4Ym9lQGtlcm5l
-bC5kaz4NClRvOiAgICAgIHNodUB3d3dncm91cC5kZQ0KDQo+IE9uIDAzLzAxLzIwMTIgMTE6MDkg
-QU0sIFN0ZWZhbiBIw7xibmVyIHdyb3RlOg0KPiA+IEhpIExpc3QsDQo+ID4gDQo+ID4gSSdtIHVz
-aW5nIHRoaXMgRklPLWpvYiB0byBzdHJlc3MtdGVzdCBpU0NTSS1UYXJnZXRzOg0KPiA+IA0KPiA+
-IFtnbG9iYWxdDQo+ID4gZGlzYWJsZV9sYXQ9MQ0KPiA+IGRpc2FibGVfY2xhdD0xDQo+ID4gZGlz
-YWJsZV9zbGF0PTENCj4gPiBjbGF0X3BlcmNlbnRpbGVzPTANCj4gPiB0aW1lX2Jhc2VkDQo+ID4g
-cnVudGltZT0ke1NFQ09ORFN9DQo+ID4gbmljZT0xMA0KPiA+IHByaW89NQ0KPiA+IGlvZW5naW5l
-PWxpYmFpbw0KPiA+IGlvZGVwdGg9MTYNCj4gPiBkaXJlY3Q9MQ0KPiA+IGlvbWVtX2FsaWduPTRN
-DQo+ID4gdmVyaWZ5PWNyYzMyYy1pbnRlbA0KPiA+IHZlcmlmeV9hc3luYz0yDQo+ID4gZG9fdmVy
-aWZ5PTENCj4gPiB2ZXJpZnlfZHVtcD0xDQo+ID4gW2lTQ1NJXQ0KPiA+IHJ3PXJhbmR3cml0ZQ0K
-PiA+IGJzcmFuZ2U9NGstNE0NCj4gPiBmaWxlbmFtZT0ke0lTQ1NJX0RFVklDRX0NCj4gPiANCj4g
-PiBJU0NTSV9ERVZJQ0U9L2Rldi9zZFgNCj4gPiBTRUNPTkRTPXNvbWUgdmFsdWUgaG93IGxvbmcg
-aXQgc2hvdWxkIHRha2UNCj4gPiANCj4gPiBXaGVuIHJ1bm5pbmcgdGhpcyBqb2IgSSBjYW5ub3Qg
-c2VlIHRoZSB2ZXJpZmljYXRpb24gdGFraW5nIHBsYWNlLiAgSS5lLiANCj4gPiBuZXR3b3JrIHRo
-cnVwdXQgdG8gdGhlIHRhcmdldCAod3JpdGluZykgaXMgaGFwcGVuaW5nIGF0IGFyb3VuZCAxMTVN
-Qi9zLCBidXQgDQo+ID4gdGhydXB1dCBmcm9tIHRoZSB0YXJnZXQgKHJlYWRpbmcvdmVyaWZ5aW5n
-KSBkb2Vzbid0IGV4Y2VlZCAyLDdNQi9zLg0KPiA+IA0KPiA+IEFtIEkgZG9pbmcgc29tZXRoaW5n
-IHdyb25nLCBoZXJlPw0KPiANCj4gRG9lcyB0aGUgZmlvIGpvYiB0cmFuc2l0aW9uIHRvIHRoZSB2
-ZXJpZnkgcGhhc2U/IFlvdSBjYW4gc2VlIHRoYXQgaW4gdGhlDQo+IFtdIGxpc3RpbmcsIGEgViB3
-b3VsZCBiZSB0aGUgdmVyaWZ5LiBXaGVuIHRoZSBqb2IgZXhpdHMsIGl0IGFsc28gc2hvd3MNCj4g
-eW91IGJvdGggaG93IG1hbnkgYnl0ZXMgd2VyZSByZWFkIGFuZCB3cml0dGVuLiBUaGUgcmVhZCBj
-b3VsZCBzaG91bGQgYmUNCj4gdGhlIHZlcmlmaWVkIHBhcnQuDQo+IA0KPiBTbyBwbGVhc2UgcG9z
-dCB0aGUgb3V0cHV0IG9mIHRoZSBqb2Igc28gd2UgY2FuIHRha2UgYSBjbG9zZXIgbG9vay4NCj4g
-DQo+IC0tIA0KPiBKZW5zIEF4Ym9lDQo+IA0KDQoNClRvOiBheGJvZUBrZXJuZWwuZGsNCkNjOiBm
-aW9Admdlci5rZXJuZWwub3JnDQo=
+On 2012-03-16 18:46, Daniel Ehrenberg wrote:
+> On Fri, Mar 16, 2012 at 3:07 AM, Jens Axboe <axboe@kernel.dk> wrote:
+>> On 03/16/2012 04:12 AM, Dan Ehrenberg wrote:
+>>> Previously, when fio had written a volume of I/O equal to the size
+>>> argument, it restarted the main do_io loop.
+>>>
+>>> This patch allows time_based tests to be run for longer than one
+>>> cycle in the do_io main loop. This has a couple of advantages:
+>>>  * The random number generator is not reset on each iteration
+>>>    of the loop, so running longer will reach different locations.
+>>>  * There is not a throughput-reducing point where all operations
+>>>    must be reaped before new operations are submitted.
+>>>
+>>> The implementation consists of two minor changes:
+>>>  * In the do_io loop, a time_based test will not exit the loop for
+>>>    reading or writing too much data.
+>>>  * When reading or writing sequentially, the operations wrap around
+>>>    to the beginning after reading the end within the
+>>>    get_next_seq_block function.
+>>
+>> This looks good, but one question - does it really behave with random
+>> IO, when the random map is enabled? I set write_iolog and looked at the
+>> patterns. From the beginning:
+>>
+>> foo.1.0 add
+>> foo.1.0 open
+>> foo.1.0 read 8093696 4096
+>> foo.1.0 read 99356672 4096
+>> foo.1.0 read 113164288 4096
+>> [...]
+>> foo.1.0 close
+>> foo.1.0 open
+>> foo.1.0 read 8093696 4096
+>> foo.1.0 read 99356672 4096
+>> foo.1.0 read 113164288 4096
+>> [...]
+>>
+>> etc. So it's definitely repeating the same sequence there. We don't want
+>> to close/open the file for this case either, how does the below
+>> look/work for you? It's your patch, and an update in
+>> get_next_rand_block() to handle this case too.
+>>
+>> diff --git a/backend.c b/backend.c
+>> index 7343286..1d9b0a2 100644
+>> --- a/backend.c
+>> +++ b/backend.c
+>> @@ -555,7 +555,8 @@ static void do_io(struct thread_data *td)
+>>                td_set_runstate(td, TD_RUNNING);
+>>
+>>        while ((td->o.read_iolog_file && !flist_empty(&td->io_log_list)) ||
+>> -               (!flist_empty(&td->trim_list)) || !io_bytes_exceeded(td)) {
+>> +               (!flist_empty(&td->trim_list)) || !io_bytes_exceeded(td) ||
+>> +               td->o.time_based) {
+>>                struct timeval comp_time;
+>>                unsigned long bytes_done[2] = { 0, 0 };
+>>                int min_evts = 0;
+>> diff --git a/io_u.c b/io_u.c
+>> index 20794c3..3bda0e6 100644
+>> --- a/io_u.c
+>> +++ b/io_u.c
+>> @@ -238,13 +238,18 @@ ret:
+>>  static int get_next_rand_block(struct thread_data *td, struct fio_file *f,
+>>                               enum fio_ddir ddir, unsigned long long *b)
+>>  {
+>> -       if (get_next_rand_offset(td, f, ddir, b)) {
+>> -               dprint(FD_IO, "%s: rand offset failed, last=%llu, size=%llu\n",
+>> -                               f->file_name, f->last_pos, f->real_file_size);
+>> -               return 1;
+>> +       if (!get_next_rand_offset(td, f, ddir, b))
+>> +               return 0;
+>> +
+>> +       if (td->o.time_based) {
+>> +               fio_file_reset(f);
+>> +               if (!get_next_rand_offset(td, f, ddir, b))
+>> +                       return 0;
+>>        }
+>>
+>> -       return 0;
+>> +       dprint(FD_IO, "%s: rand offset failed, last=%llu, size=%llu\n",
+>> +                       f->file_name, f->last_pos, f->real_file_size);
+>> +       return 1;
+>>  }
+>>
+>>  static int get_next_seq_block(struct thread_data *td, struct fio_file *f,
+>> @@ -252,6 +257,9 @@ static int get_next_seq_block(struct thread_data *td, struct fio_file *f,
+>>  {
+>>        assert(ddir_rw(ddir));
+>>
+>> +       if (f->last_pos >= f->io_size && td->o.time_based)
+>> +               f->last_pos = f->last_pos - f->io_size;
+>> +
+>>        if (f->last_pos < f->real_file_size) {
+>>                unsigned long long pos;
+>>
+>>
+>>
+>> --
+>> Jens Axboe
+>>
+> 
+> Thanks for the correction, Jens. I only tested my code with
+> norandommap, forgetting about the default case. Your modified patch
+> seems to fix the issue in a nice simple way. I would be happy to see
+> this new patch committed.
 
+Thanks for confirming, I will commit the above variant.
 
+-- 
+Jens Axboe
 
