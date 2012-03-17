@@ -1,65 +1,43 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:63553 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752769Ab2CMU6G (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 13 Mar 2012 16:58:06 -0400
-Received: by vcqp1 with SMTP id p1so1065430vcq.19
-        for <fio@vger.kernel.org>; Tue, 13 Mar 2012 13:58:05 -0700 (PDT)
+Received: from merlin.infradead.org ([205.233.59.134]:33331 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932219Ab2CQMTc (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 17 Mar 2012 08:19:32 -0400
+Message-ID: <4F648150.7000705@kernel.dk>
+Date: Sat, 17 Mar 2012 13:19:28 +0100
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-From: Yufei Ren <renyufei83@gmail.com>
-Date: Tue, 13 Mar 2012 16:57:45 -0400
-Message-ID: <CAG5pYQf466pFdb8dGwpQxqx64Tre+JgV-qh-emY+BT0dh3m8uA@mail.gmail.com>
-Subject: [PATCH] rdma engine graceful teardown
+Subject: Re: Parsing FIO output
+References: <4F63BA21.1090600@gmail.com>
+In-Reply-To: <4F63BA21.1090600@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Hoppetauet <hoppetauet@gmail.com>
+Cc: fio@vger.kernel.org
 
-For rdma ioengine's one side operation, RDMA_WRITE or RDMA_READ,
-server side gets a message from client side that the task is finished.
-In previous version, the server simply exit() in td_io_commit() which
-causes segmentation fault in thread mode or process hanging in process
-mode. This patch achieves graceful tear down by setting up `td->done`
-as UDP engine did.
+On 2012-03-16 23:09, Hoppetauet wrote:
+> Hello!
+> 
+> I'm in the process of benchmarking a cloud, and have written scripts 
+> that capture FIO output from X runs (using the --minimal option).
+> 
+> I run 4 different tests, for seq read/write and random read/write. I've 
+> found that the write output is in field $25 and the read output is in 
+> $6, but I'm struggling with min, max and stddev of the latency (clat). 
+> Also, I've read that it changes from usec to msec where it's convenient. 
+> Any tips as to getting out the values in msec always?
 
----
-diff --git a/engines/rdma.c b/engines/rdma.c
-index 54fd194..79d72d2 100644
---- a/engines/rdma.c
-+++ b/engines/rdma.c
-@@ -674,7 +674,8 @@ static int fio_rdmaio_recv(struct thread_data *td, struct io
-_u **io_us,
- 		rdma_poll_wait(td, IBV_WC_RECV);
+The format is actually described. See the HOWTO included with fio,
+section 7.0, terse output. The minimal format output _always_ includes
+latencies in both msec and usec ranges. So if you just want the msec
+ranges, you only look at those fields.
 
- 		dprint(FD_IO, "fio: recv FINISH message\n");
--		exit(0);
-+		td->done = 1;
-+		return 0;
- 	}
+But I'd recommend looking at the HOWTO. The actual output is from
+stat.c:show_thread_status_terse_v3(), so you can verify by looking at
+the actual output code as well.
 
- 	return i;
-diff --git a/ioengines.c b/ioengines.c
-index 4c609f2..e1605c4 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -208,6 +208,16 @@ int td_io_getevents(struct thread_data *td, unsigned int mi
-n, unsigned int max,
- {
- 	int r = 0;
+-- 
+Jens Axboe
 
-+	/*
-+	 * For ioengine=rdma one side operation RDMA_WRITE or RDMA_READ,
-+	 * server side gets a message from the client
-+	 * side that the task is finished, and
-+	 * td->done is set to 1 after td_io_commit(). In this case,
-+	 * there is no need to reap complete event in server side.
-+	 */
-+	if (td->done)
-+		return 0;
-+
- 	if (min > 0 && td->io_ops->commit) {
- 		r = td->io_ops->commit(td);
- 		if (r < 0)
-
---
-1.7.1
