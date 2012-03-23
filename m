@@ -1,43 +1,37 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:36988 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759672Ab2C2RKJ (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 29 Mar 2012 13:10:09 -0400
-Received: by bkcik5 with SMTP id ik5so2195899bkc.19
-        for <fio@vger.kernel.org>; Thu, 29 Mar 2012 10:10:08 -0700 (PDT)
+Received: from casper.infradead.org ([85.118.1.10]:52197 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751864Ab2CWHEe (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 23 Mar 2012 03:04:34 -0400
+Message-ID: <4F6C204B.6060301@kernel.dk>
+Date: Fri, 23 Mar 2012 08:03:39 +0100
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Date: Thu, 29 Mar 2012 10:10:07 -0700
-Message-ID: <CAKAYmM+szZDvUmba3T-sCm8EB-QQhE0xQBsiePCJ7LqNGCA2BQ@mail.gmail.com>
-Subject: odd result with iodepth
-From: Chuck Tuffli <ctuffli@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: commandline option to print format of --minimal output
+References: <CAPLs8y8Qb4yrPijEaVTukQvPmKDs08wTXVCr4MEYFmBKUrpVSA@mail.gmail.com>
+In-Reply-To: <CAPLs8y8Qb4yrPijEaVTukQvPmKDs08wTXVCr4MEYFmBKUrpVSA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Lucian Adrian Grijincu <lucian.grijincu@gmail.com>
+Cc: fio@vger.kernel.org
 
-I've been testing disk performance using fio, and am seeing results I
-can't explain. This may not necessarily be a problem with fio, or
-perhaps I'm not using the some of the parameters correctly. The
-testing uses the latest fio.git on a RHEL system running a 2.6.32
-kernel.
+On 03/21/2012 12:04 AM, Lucian Adrian Grijincu wrote:
+> Hi,
+> 
+> Do you think adding a --print-minimal-format commandline option to
+> print something like:
+> 
+> terse-version;fio-version;jobname;groupid;error;read-total-io-kb;read-bw-kb-s;read-iops;read-runtime-msec;read-slat-min;read-slat-max
+> ... etc.
+> 
+> would be useful?
 
-The fio test is:
+I think it'd be very useful, I like to have as much as the help at-hand
+instead of having to go elsewhere to find it. That's why fio has
+--cmdhelp and those helpers.
 
-fio --name=global --ioengine=libaio --rw=read --bs=512 --size=500m
---iodepth=32 --direct=1 --filename=/dev/sdb --name=job1
+-- 
+Jens Axboe
 
-The IOPs reported in this case appears to correlate with an external analyzer.
-
-If I change the iodepth to 64, fio reports double the IOPs reported in
-the previous case, but the performance measured by the analyzer is the
-same as in the iodepth=32 case (i.e. half what fio reports). I tried
-the iodepth=64 case with another disk performance tool, and it is
-reporting the same results as the external analyzer.
-
-Interestingly, using iodepth=32 and adding a second job (--name=job2)
-seems to have the same effect as iodepth=64 (reported performance is
-2x compared to the external analyzer).
-
-Am I doing something obviously wrong? What else can/should I check? TIA
-
----chuck
