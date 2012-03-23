@@ -1,35 +1,30 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:51082 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752835Ab2CTXEs convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 20 Mar 2012 19:04:48 -0400
-Received: by bkcik5 with SMTP id ik5so454581bkc.19
-        for <fio@vger.kernel.org>; Tue, 20 Mar 2012 16:04:47 -0700 (PDT)
+Received: from merlin.infradead.org ([205.233.59.134]:39053 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759253Ab2CWSXC (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 23 Mar 2012 14:23:02 -0400
+Message-ID: <4F6CBF82.4010808@kernel.dk>
+Date: Fri, 23 Mar 2012 19:22:58 +0100
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-From: Lucian Adrian Grijincu <lucian.grijincu@gmail.com>
-Date: Tue, 20 Mar 2012 16:04:16 -0700
-Message-ID: <CAPLs8y8Qb4yrPijEaVTukQvPmKDs08wTXVCr4MEYFmBKUrpVSA@mail.gmail.com>
-Subject: commandline option to print format of --minimal output
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Subject: Re: fio terse output issue
+References: <CAKa9NmutL+L4GyYreo5_9wvCG8vASLJs=M1b+xThcL5xdYcK0w@mail.gmail.com> <4F6C2010.1070409@kernel.dk> <CAAUT-yMabveTyN=yuL8bUWGZpJGqw9EwHigAgqb1V8q-gLAALg@mail.gmail.com>
+In-Reply-To: <CAAUT-yMabveTyN=yuL8bUWGZpJGqw9EwHigAgqb1V8q-gLAALg@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Steven Lang <tirea@google.com>
+Cc: fio@vger.kernel.org
 
-Hi,
+On 2012-03-23 17:07, Steven Lang wrote:
+> Wouldn't it be better to just move the final log_info("\n"); to the
+> end of the function?  With that patch, it would print the normal line,
+> then a new line with just ";description" on it.
 
-Do you think adding a --print-minimal-format commandline option to
-print something like:
-
-terse-version;fio-version;jobname;groupid;error;read-total-io-kb;read-bw-kb-s;read-iops;read-runtime-msec;read-slat-min;read-slat-max
-... etc.
-
-would be useful?
-
-How do you guys extract info from the ';'-separated string? Do you
-say: I know the position of 'read-iops' is 8 and I'll just extract the
-8-th field?
+Yes good point, when I looked at the v2 output, I realized this too.
+I'll fix that up. Thanks.
 
 -- 
- .
-..: Lucian
+Jens Axboe
+
