@@ -1,68 +1,48 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-fa0-f74.google.com ([209.85.161.74]:62705 "EHLO
-	mail-fa0-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030260Ab2CPDMx (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 15 Mar 2012 23:12:53 -0400
-Received: by faaa19 with SMTP id a19so165922faa.1
-        for <fio@vger.kernel.org>; Thu, 15 Mar 2012 20:12:51 -0700 (PDT)
-From: Dan Ehrenberg <dehrenberg@google.com>
-Subject: [PATCH] time_based: Avoid restarting main I/O loop
-Date: Thu, 15 Mar 2012 20:12:47 -0700
-Message-Id: <1331867567-25371-1-git-send-email-dehrenberg@google.com>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:36869 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932175Ab2C3PlV convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Fri, 30 Mar 2012 11:41:21 -0400
+Received: by wejx9 with SMTP id x9so443488wej.19
+        for <fio@vger.kernel.org>; Fri, 30 Mar 2012 08:41:20 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <x497gy3w97v.fsf@segfault.boston.devel.redhat.com>
+References: <CAKAYmM+szZDvUmba3T-sCm8EB-QQhE0xQBsiePCJ7LqNGCA2BQ@mail.gmail.com>
+	<CANWz5fhJWZzg21aXRbHiNwTBMOiTEqDmGYHD0iTybQPTWTaw8w@mail.gmail.com>
+	<CAKAYmM+a8Dsz0+_SgNchhW_ESto=zycq-_e_we7=LoZ9aPM9EQ@mail.gmail.com>
+	<x497gy3w97v.fsf@segfault.boston.devel.redhat.com>
+Date: Fri, 30 Mar 2012 08:41:20 -0700
+Message-ID: <CAKAYmMLUn8eHLW9zo=3137ViA57y04e7VvKCDbptZ7J-PBp=FQ@mail.gmail.com>
+Subject: Re: odd result with iodepth
+From: Chuck Tuffli <ctuffli@gmail.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: nauman@google.com, egouriou@google.com, tirea@google.com, Dan Ehrenberg <dehrenberg@google.com>
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: fio@vger.kernel.org
 
-Previously, when fio had written a volume of I/O equal to the size
-argument, it restarted the main do_io loop.
+On Thu, Mar 29, 2012 at 11:30 AM, Jeff Moyer <jmoyer@redhat.com> wrote:
+> Chuck Tuffli <ctuffli@gmail.com> writes:
+>
+>> On Thu, Mar 29, 2012 at 10:14 AM, Chris Worley <worleys@gmail.com> wrote:
+>>> Sequential merging? =EF=BF=BDTry "randread" instead.
+>>
+>> Great suggestion. Doing some additional analysis, it does appear that
+>> IO's are probably getting merged as I see individual IO requests on
+>> the wire of 2-4KB.
+>>
+>> Googling around this area seems to suggest this kernel behavior isn't
+>> something I can disable. So if I honest to goodness *only* want 512B
+>> IO, is ioengine=3Dsg the best route?
+>
+> Try setting /sys/block/sdX/queue/nomerges to 2. =EF=BF=BDThat should comp=
+letely
+> disable merging.
 
-This patch allows time_based tests to be run for longer than one
-cycle in the do_io main loop. This has a couple of advantages:
- * The random number generator is not reset on each iteration
-   of the loop, so running longer will reach different locations.
- * There is not a throughput-reducing point where all operations
-   must be reaped before new operations are submitted.
+Jeff -
 
-The implementation consists of two minor changes:
- * In the do_io loop, a time_based test will not exit the loop for
-   reading or writing too much data.
- * When reading or writing sequentially, the operations wrap around
-   to the beginning after reading the end within the
-   get_next_seq_block function.
----
- backend.c |    3 ++-
- io_u.c    |    3 +++
- 2 files changed, 5 insertions(+), 1 deletions(-)
+I upgrade to a 3.0 series kernel and set nomerges to 2 and now all the
+tools agree on the IOPs number. Thanks!
 
-diff --git a/backend.c b/backend.c
-index 7343286..1d9b0a2 100644
---- a/backend.c
-+++ b/backend.c
-@@ -555,7 +555,8 @@ static void do_io(struct thread_data *td)
- 		td_set_runstate(td, TD_RUNNING);
- 
- 	while ((td->o.read_iolog_file && !flist_empty(&td->io_log_list)) ||
--		(!flist_empty(&td->trim_list)) || !io_bytes_exceeded(td)) {
-+		(!flist_empty(&td->trim_list)) || !io_bytes_exceeded(td) ||
-+		td->o.time_based) {
- 		struct timeval comp_time;
- 		unsigned long bytes_done[2] = { 0, 0 };
- 		int min_evts = 0;
-diff --git a/io_u.c b/io_u.c
-index 20794c3..a3ea43d 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -252,6 +252,9 @@ static int get_next_seq_block(struct thread_data *td, struct fio_file *f,
- {
- 	assert(ddir_rw(ddir));
- 
-+       if (f->last_pos >= f->io_size && td->o.time_based)
-+               f->last_pos = f->last_pos - f->io_size;
-+
- 	if (f->last_pos < f->real_file_size) {
- 		unsigned long long pos;
- 
--- 
-1.7.7.3
-
+---chuck
