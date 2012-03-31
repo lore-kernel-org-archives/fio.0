@@ -1,73 +1,39 @@
-Return-Path: <dkukawka@suse.de>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:55551 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751888Ab2CaX3z (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 31 Mar 2012 19:29:55 -0400
+Message-ID: <4F779366.5000008@kernel.dk>
+Date: Sat, 31 Mar 2012 16:29:42 -0700
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-From: Danny Kukawka <dkukawka@suse.de>
-Date: Thu, 5 Apr 2012 22:29:50 -0600
-Subject: Re: Recent changes
-Message-ID: <4F7E713E.7030300@suse.de>
-References: <20120406040004.1BF99484001@kernel.dk>
-In-Reply-To: <20120406040004.1BF99484001@kernel.dk>
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="------------enig57BA52A679D75CEC828A5C70"
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: Jens Axboe <JAxboe@fusionio.com>
-List-ID: <fio@vger.kernel.org>
+Subject: Re: Verify with mixed read/write
+References: <CAKa9NmtSnSj=mOx7E7rwBpHW1xPThd+K0RnsGXcDA8QX2qgkJw@mail.gmail.com>
+In-Reply-To: <CAKa9NmtSnSj=mOx7E7rwBpHW1xPThd+K0RnsGXcDA8QX2qgkJw@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Vikram Seth <seth.vik@gmail.com>
+Cc: fio@vger.kernel.org
 
---------------enig57BA52A679D75CEC828A5C70
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+On 2012-03-30 17:06, Vikram Seth wrote:
+> Hi,
+> 
+> Does the verify option work with mixed read/write case, like rw or randrw  ?
+> 
+> It's not clear from the help text (pasted below).
+> 
+>                 This option can be used for repeated burn-in tests of a
+>                 system to make sure that the written data is also
+>                 correctly read back. If the data direction given is
+>                 a read or random read, fio will assume that it should
+>                 verify a previously written file. If the data direction
+>                 includes any form of write, the verify will be of the
+>                 newly written data.
 
-Am 06.04.2012 06:00, schrieb Jens Axboe:
-> The following changes since commit 885ac623a4f154007efa49266bb381bcbc60=
-f1e6:
->=20
->   iolog: remove assert in io_u overlap (2012-04-04 14:11:58 -0600)
->=20
-> are available in the git repository at:
->   git://git.kernel.dk/fio.git master
->=20
-> Jens Axboe (1):
->       group reporting: fix bad values of min/max
+It does, yes.
 
-Should this fix also the minb/maxb and mint/maxt ? If so, it doesn't
-work for me.
-
-fio --name=3Dfio1-write-4m-rbd --direct=3D1 --size=3D50g --group_reportin=
-g
---bs=3D4m --rw=3Dwrite --iodepth=3D128 --ioengine=3Dlibaio --filename=3D/=
-dev/rbd0
-
-still prints:
-
-READ: io=3D65260MB, aggrb=3D111334KB/s, minb=3D114006KB/s, maxb=3D114006K=
-B/s,
-mint=3D600232msec, maxt=3D600232msec
-
-Danny
---=20
-Danny Kukawka
- SUSE LINUX Products GmbH
-  Maxfeldstrasse 5, D-90409 Nuremberg, Germany
-  GF: Jeff Hawn,Jennifer Guild,Felix Imend=F6rffer,HRB16746 (AG N=FCrnber=
-g)
-
-
---------------enig57BA52A679D75CEC828A5C70
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
-
-iJwEAQECAAYFAk9+cUgACgkQ9DHLX79LmTLvggP+IiXRZRZw8HpOQ933hAjTKTwh
-SYkbSGOMzBNj2d3BDgWlXxkTvZZiXRkNlFIin+NO6/+d6b51J1qVsmvJM78Tibi7
-QgFVyVTrRGTtywARNziYnWzUlMxdYDPE9AQMdTNVtITDVP/Kj6Eja8MgwBYw7GK2
-6ePCh+YWDwZ3r9IeMTQ=
-=2mUu
------END PGP SIGNATURE-----
-
---------------enig57BA52A679D75CEC828A5C70--
-
+-- 
+Jens Axboe
 
