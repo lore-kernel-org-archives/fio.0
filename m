@@ -1,32 +1,53 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vb0-f46.google.com ([209.85.212.46]:33695 "EHLO
-	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752930Ab2DRPlX (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 18 Apr 2012 11:41:23 -0400
-Received: by vbbff1 with SMTP id ff1so5042053vbb.19
-        for <fio@vger.kernel.org>; Wed, 18 Apr 2012 08:41:22 -0700 (PDT)
+Received: from casper.infradead.org ([85.118.1.10]:52969 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755501Ab2DEWBO (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 5 Apr 2012 18:01:14 -0400
+Message-ID: <4F7E1621.3070009@kernel.dk>
+Date: Thu, 05 Apr 2012 16:01:05 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Date: Wed, 18 Apr 2012 08:41:22 -0700
-Message-ID: <CAKa9NmtX=2jQGDGaesyLQtrpdHbPExZ6Dq4ikKOSt35NtbrBYw@mail.gmail.com>
-Subject: fio memory usage
-From: Vikram Seth <seth.vik@gmail.com>
+Subject: Re: Usage of group reporting
+References: <CBA33231.13A4%lucian@fb.com>
+In-Reply-To: <CBA33231.13A4%lucian@fb.com>
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Lucian Grijincu <lucian@fb.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi Jens,
+On 2012-04-05 12:29, Lucian Grijincu wrote:
+> 
+> On 4/5/12 7:42 AM, "Jens Axboe" <axboe@kernel.dk> wrote:
+>> Most people don't use the group reporting
+> 
+> 
+> Why do you say that?
+> 
+> For example I'm trying to find those parameters (direct-io, fadvise,
+> number of threads, libaio/mmap/sync, etc.) that give an overall "best
+> performance" (whatever that means) on a simulated workload.
+> 
+> I'm using group reporting, because I want numbers for the entire system,
+> not for an individual thread.
+> 
+> Am I using "fio" wrong or is "fio" mostly used for other kinds of
+> benchmarking?
 
-What's the max memory used per job (per device) for fio? Is there a
-rule of thumb for min memory needed for fio?
-Like, if I am running N #threads with numjobs on M #devices in the
-system, then I'd like to know if I have enough memory before I start
-the test rather than I wait for it to crashes days later.
+I think there's a confusion of termininology here, it's my fault. So
+when I said group reporting, I meant the group status reporting. The
+part that shows up at the end of the reporting:
 
-Also, in case fio finds that it is running out of memory while
-running, then does it generate an OOM kind of message in the output
-file that can be used to track the reason for a crashed test.
+Run status group 0 (all jobs):
+   READ: io=2369KB, aggrb=1024KB/s, minb=1024KB/s, maxb=1024KB/s, mint=2313msec, maxt=2313msec
 
-Thanks,
+This is what you control with the new_group, forcing fio to group
+multiple jobs together for reporting.
 
-Vikram.
+You are probably referring to group_reporting, which is used quite
+extensively. That is not the one I meant :-)
+
+-- 
+Jens Axboe
+
