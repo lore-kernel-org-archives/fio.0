@@ -1,42 +1,78 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:44998 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756050Ab2DKUDj (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 11 Apr 2012 16:03:39 -0400
-Message-ID: <4F85E399.3030603@kernel.dk>
-Date: Wed, 11 Apr 2012 22:03:37 +0200
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <sureshdrajan@gmail.com>
 MIME-Version: 1.0
+In-Reply-To: <4F7E35F2.5010701@kernel.dk>
+References: <CAN8qX8YZoZ2TtcqU0QOTEguHoqsYQRuMoFvRsT3JTJc9Uba19w@mail.gmail.com>
+	<4F7E35F2.5010701@kernel.dk>
+Date: Thu, 5 Apr 2012 17:28:19 -0700
+Message-ID: <CAN8qX8ZnCCZz3cBbhocdTwXgBqsL=JV=QYFD_OSj4nmEFVUZMQ@mail.gmail.com>
 Subject: Re: query on verify_dump option
-References: <CAN8qX8YZoZ2TtcqU0QOTEguHoqsYQRuMoFvRsT3JTJc9Uba19w@mail.gmail.com> <4F7E35F2.5010701@kernel.dk> <CAN8qX8ZnCCZz3cBbhocdTwXgBqsL=JV=QYFD_OSj4nmEFVUZMQ@mail.gmail.com>
-In-Reply-To: <CAN8qX8ZnCCZz3cBbhocdTwXgBqsL=JV=QYFD_OSj4nmEFVUZMQ@mail.gmail.com>
+From: Suresh Dhanarajan <sureshdrajan@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Suresh Dhanarajan <sureshdrajan@gmail.com>
+To: Jens Axboe <axboe@kernel.dk>
 Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-On 2012-04-06 02:28, Suresh Dhanarajan wrote:
-> Hi,
-> 
-> I am looking for this files in the same location where my fio is and i
-> dont see the two files that you refereed.
+Hi,
 
-Hmm, you really should, if you have verify_dump=1 set. The pattern
-verify is the odd one out, all the other checksum verifiers use shared
-code for this. I'll take a look at this and see if I can reproduce it.
+I am looking for this files in the same location where my fio is and i
+dont see the two files that you refereed.
 
-> We have option to give pattern during verify only.
-> What i mentioned is during Write and reads there is no option to
-> provide the patterns.
+We have option to give pattern during verify only.
+What i mentioned is during Write and reads there is no option to
+provide the patterns.
 
-Ahh, good point. You could just set do_verify=0 for a write workload,
-where you define verify_pattern and verify=meta. That should write with
-just that pattern. Does that help?
+thanks,
+Suresh.D
 
-Not sure what you mean for the reads...
-
--- 
-Jens Axboe
+On Thu, Apr 5, 2012 at 5:16 PM, Jens Axboe <axboe@kernel.dk> wrote:
+> On 2012-04-05 17:20, Suresh Dhanarajan wrote:
+>> Hi,
+>>
+>> I am trying data integration cases with verify_pattern option.
+>> I am not seeing any dump file generated for the mismatch.
+>> Here are the steps i followed,
+>> Started fio and waited till 30 % writes done the disk and issued a dd
+>> write on the same disc for the first 512 bytes with pattern zero.
+>> then waited till verify gets completed.
+>> I can see the error's in the output log file but not the dump file.
+>>
+>> Here is my job file.
+>>
+>> [global]
+>> size=10g
+>> direct=1
+>> filename=/dev/sdc
+>> verify_pattern=0x01010101
+>> verify=meta
+>> bs=64k
+>> group_reporting
+>>
+>> [write-phase]
+>> rw=write
+>> do_verify=0
+>>
+>> [verify-phase]
+>> stonewall
+>> rw=read
+>> do_verify=1
+>> continue_on_error=all
+>> verify_dump=1
+>> ~
+>>
+>>
+>>
+>> Let me know if i am missing something over here.
+>
+> You don't get the .received and .expected files?
+>
+>> 2)Also i have one query like verify_pattern option is it possible to
+>> provide known pattern for write and reads this will be very useful in
+>> DI verification test cases
+>
+> Not sure I understand this one. You are already providing the pattern
+> you want. What am I missing?
+>
+> --
+> Jens Axboe
+>
 
