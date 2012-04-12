@@ -1,38 +1,59 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:37321 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754707Ab2DTOmh (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 20 Apr 2012 10:42:37 -0400
-Received: by wibhq7 with SMTP id hq7so776224wib.1
-        for <fio@vger.kernel.org>; Fri, 20 Apr 2012 07:42:36 -0700 (PDT)
+Received: from moutng.kundenserver.de ([212.227.17.8]:60651 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757755Ab2DLQcR convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Thu, 12 Apr 2012 12:32:17 -0400
+From: shu@wwwgroup.de
+Subject: Re-2: Quote of the day
+Date: Thu, 12 Apr 2012 16:32:21 +0000
+Message-ID: <DIIE.000004CC00030A6C@192.168.0.5>
 MIME-Version: 1.0
-Date: Fri, 20 Apr 2012 09:42:36 -0500
-Message-ID: <CAE9DZUSnWRuC+Be__-nAQhjP=C__XLtYfiF5UOU4=tYa3tKAnw@mail.gmail.com>
-Subject: problems writing from windows
-From: Dallas Clement <dallas.a.clement@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-I'm having a bit of usage trouble on Windows 2008 Server R2.  I'm able
-to execute a sequential read test just fine, but sequential writes are
-not working.  There aren't any actual writes happening.  fio doesn't
-return any errors, it just doesn't report any write activity to the
-screen.
+++
 
-Here are the contents of my config file:
+/Stefan
 
-[rw]
-rw=write
-ioengine=windowsaio
-direct=1
-iodepth=256
-blocksize=256K
-filename=\\.\PhysicalDrive1
+-------- Original Message --------
+Subject: Re: Quote of the day (12-Apr-2012 17:58)
+From:    Daniel Ehrenberg <dehrenberg@google.com>
+To:      shu@wwwgroup.de
 
-Anyone have some ideas for me?  Is there some kind of write protect
-active by default in Windows?  I've never seen anything like this in
-Linux.
+> Thanks for your great work on fio, Jens!
+>=20
+> On Thu, Apr 12, 2012 at 12:31 AM, Jens Axboe <axboe@kernel.dk> wrote:
+> > Hi,
+> >
+> > Thought I'd share this one with you, it's from Linus:
+> >
+> > ----
+> >
+> > [...] get Jens' FIO code. It does things right, including writing
+> > actual pseudo-random contents, which shows if the disk does some
+> > "de-duplication" (aka "optimize for benchmarks):
+> >
+> > http://freecode.com/projects/fio
+> >
+> > Anything else is suspect - forget about bonnie or other traditional
+> > tools.
+> >
+> > ----
+> >
+> > --
+> > Jens Axboe
+> >
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe fio" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at =EF=BF=BDhttp://vger.kernel.org/majordomo-info.h=
+tml
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Thanks
+
