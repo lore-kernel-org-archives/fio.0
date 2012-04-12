@@ -1,58 +1,42 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:50905 "EHLO
-	mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1755916Ab2DEUXr convert rfc822-to-8bit
-	(ORCPT <rfc822;fio@vger.kernel.org>); Thu, 5 Apr 2012 16:23:47 -0400
-Received: from pps.filterd (m0004060 [127.0.0.1])
-	by mx0b-00082601.pphosted.com (8.14.4/8.14.4) with SMTP id q35KIPtv002803
-	for <fio@vger.kernel.org>; Thu, 5 Apr 2012 13:23:46 -0700
-Received: from mail.thefacebook.com (corpout1.snc1.tfbnw.net [66.220.144.38])
-	by mx0b-00082601.pphosted.com with ESMTP id 141hmkr2kd-1
-	(version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=NOT)
-	for <fio@vger.kernel.org>; Thu, 05 Apr 2012 13:23:46 -0700
-From: Lucian Grijincu <lucian@fb.com>
-Subject: difference between "bandwidth (KB/s)" and "Bw (KB/s) mean"
-Date: Thu, 5 Apr 2012 20:23:44 +0000
-Message-ID: <CBA34831.13C5%lucian@fb.com>
-In-Reply-To: <CBA3410B.13C2%lucian@fb.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <210CD586C6A35C459F4CAB4F99A30BE8@fb.com>
-Content-Transfer-Encoding: 8BIT
+Received: from merlin.infradead.org ([205.233.59.134]:46172 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754239Ab2DLRcr (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 12 Apr 2012 13:32:47 -0400
+Message-ID: <4F8711B6.90906@kernel.dk>
+Date: Thu, 12 Apr 2012 19:32:38 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
+Subject: Re: Status
+References: <4F86842E.4040201@kernel.dk> (sfid-20120412_094401_288068_F62C76AD) <201204121716.39727.Martin@lichtvoll.de>
+In-Reply-To: <201204121716.39727.Martin@lichtvoll.de>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Martin Steigerwald <Martin@lichtvoll.de>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-I was expecting these two to be the same value.
+On 2012-04-12 17:16, Martin Steigerwald wrote:
+> Am Donnerstag, 12. April 2012 schrieb Jens Axboe:
+>> Hi,
+>=20
+> Hi!
+>=20
+>> In case you didn't notice, fio-2.0.7 was tagged yesterday. After
+>> tagging 2.0.7, I pulled in a few changes from the gfio branch
+>> that you might like to know about.
+>=20
+> Regarding packaging fio.
+>=20
+> Do you think fio 2.0.7 is stable enough for packaging?
+>=20
+> If so, I=EF=BF=BDd schedule updating the Debian package to it.
+>=20
+> Initially you recommended to stick with 1.x.
 
-You give this example in the HOWTO:
-  write: io=    32MB, bw=   666KB/s, iops=89 , runt= 50320msec
-    slat (msec): min=    0, max=  136, avg= 0.03, stdev= 1.92
-    clat (msec): min=    0, max=  631, avg=48.50, stdev=86.82
-    bw  (KB/s) : min=    0, max= 1196, per=51.00%, avg=664.02, stdev=681.68
+Yes, you can package 2.x now, it's stable.
 
-There's a small difference between them: 666KB/s vs 664.02KB/s
-
-
-bw=     Average bandwidth rate
-
-     bw=Bandwidth. Same names as the xlat stats, but also includes
-        an approximate percentage of total aggregate bandwidth
-        this thread received in this group. This last value is
-
-     slat=Submission latency (avg being the average, stdev being the
-        standard deviation).
-
-From these descriptions I'd guess they are supposed to be the same value.
-
-
-
-From tests I can see big differences between them (at least with
-group_reporting):
-- bandwidth (KB/s) - increases with number of threads and plateaus
-- Bw (KB/s) mean   - decreases with number of threads and plateaus
-
---
-Lucian
+--=20
+Jens Axboe
 
