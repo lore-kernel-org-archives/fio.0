@@ -1,97 +1,102 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:57656 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752796Ab2DNOrM (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 14 Apr 2012 10:47:12 -0400
-Message-ID: <4F898DEC.2000807@kernel.dk>
-Date: Sat, 14 Apr 2012 16:47:08 +0200
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <dkukawka@suse.de>
+Message-ID: <4F891D18.5020202@suse.de>
+Date: Sat, 14 Apr 2012 08:45:44 +0200
+From: Danny Kukawka <dkukawka@suse.de>
 MIME-Version: 1.0
 Subject: Re: Recent changes
-References: <20120406040004.1BF99484001@kernel.dk> <4F7E713E.7030300@suse.de> <4F7EF043.9000305@kernel.dk> <4F7F2A75.6030508@suse.de> <4F7F2B97.7000703@kernel.dk> <4F891D18.5020202@suse.de>
-In-Reply-To: <4F891D18.5020202@suse.de>
+References: <20120406040004.1BF99484001@kernel.dk> <4F7E713E.7030300@suse.de> <4F7EF043.9000305@kernel.dk> <4F7F2A75.6030508@suse.de> <4F7F2B97.7000703@kernel.dk>
+In-Reply-To: <4F7F2B97.7000703@kernel.dk>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig16CABA25A5B840028E92121C"
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
+
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig16CABA25A5B840028E92121C
 Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Danny Kukawka <dkukawka@suse.de>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Transfer-Encoding: quoted-printable
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
-
-On 2012-04-14 08:45, Danny Kukawka wrote:
-> Am 06.04.2012 19:44, schrieb Jens Axboe:
->> On 2012-04-06 11:40, Danny Kukawka wrote:
->>> Am 06.04.2012 15:31, schrieb Jens Axboe:
->>>> On 2012-04-05 22:29, Danny Kukawka wrote:
->>>>> Am 06.04.2012 06:00, schrieb Jens Axboe:
->>>>>> The following changes since commit 885ac623a4f154007efa49266bb381bcbc60f1e6:
->>>>>>
->>>>>>   iolog: remove assert in io_u overlap (2012-04-04 14:11:58 -0600)
->>>>>>
->>>>>> are available in the git repository at:
->>>>>>   git://git.kernel.dk/fio.git master
->>>>>>
->>>>>> Jens Axboe (1):
->>>>>>       group reporting: fix bad values of min/max
+Am 06.04.2012 19:44, schrieb Jens Axboe:
+> On 2012-04-06 11:40, Danny Kukawka wrote:
+>> Am 06.04.2012 15:31, schrieb Jens Axboe:
+>>> On 2012-04-05 22:29, Danny Kukawka wrote:
+>>>> Am 06.04.2012 06:00, schrieb Jens Axboe:
+>>>>> The following changes since commit 885ac623a4f154007efa49266bb381bc=
+bc60f1e6:
 >>>>>
->>>>> Should this fix also the minb/maxb and mint/maxt ? If so, it doesn't
->>>>> work for me.
+>>>>>   iolog: remove assert in io_u overlap (2012-04-04 14:11:58 -0600)
 >>>>>
->>>>> fio --name=fio1-write-4m-rbd --direct=1 --size=50g --group_reporting
->>>>> --bs=4m --rw=write --iodepth=128 --ioengine=libaio --filename=/dev/rbd0
+>>>>> are available in the git repository at:
+>>>>>   git://git.kernel.dk/fio.git master
 >>>>>
->>>>> still prints:
->>>>>
->>>>> READ: io=65260MB, aggrb=111334KB/s, minb=114006KB/s, maxb=114006KB/s,
->>>>> mint=600232msec, maxt=600232msec
+>>>>> Jens Axboe (1):
+>>>>>       group reporting: fix bad values of min/max
 >>>>
->>>> Since that's still off by 1.024, are you absolutely sure you are running
->>>> the right version of fio?
->>
->>> I used git snapshot with latest commit
->>> ddb754dbb54a8174080f753c85ff56a7ffca3957, but I can recheck if needed.
->>
->> Yes, please re-check, it should not be happening and I don't see it
->> here.
->>
-> 
-> I checked again with 8423bd1106a0 and I still see the same problem:
-> 
-> fio --name=fio1-write-4m-rbd --direct=1 --size=50g --group_reporting
->     --bs=4m --rw=write --iodepth=128 --ioengine=libaio
->     --filename=$TEST_TARGET --output=$DIR/fio1-write-4m-rbd
-> 
-> Run status group 0 (all jobs):
->   WRITE: io=51200MB, aggrb=20080KB/s, minb=20080KB/s, maxb=20080KB/s,
-> mint=2610946msec, maxt=2610946msec
+>>>> Should this fix also the minb/maxb and mint/maxt ? If so, it doesn't=
 
-I'm confused on what you think is an issue? From the above, fio
-transferred 51200MB, which is 52428800KB. The runtime was 2610.946s,
-which gives us a throughput of 20080.38KB/sec. Which is what fio
-reports. aggrb/minb/maxb are identical, which was the original bug.
+>>>> work for me.
+>>>>
+>>>> fio --name=3Dfio1-write-4m-rbd --direct=3D1 --size=3D50g --group_rep=
+orting
+>>>> --bs=3D4m --rw=3Dwrite --iodepth=3D128 --ioengine=3Dlibaio --filenam=
+e=3D/dev/rbd0
+>>>>
+>>>> still prints:
+>>>>
+>>>> READ: io=3D65260MB, aggrb=3D111334KB/s, minb=3D114006KB/s, maxb=3D11=
+4006KB/s,
+>>>> mint=3D600232msec, maxt=3D600232msec
+>>>
+>>> Since that's still off by 1.024, are you absolutely sure you are runn=
+ing
+>>> the right version of fio?
+>=20
+>> I used git snapshot with latest commit
+>> ddb754dbb54a8174080f753c85ff56a7ffca3957, but I can recheck if needed.=
 
-What am I missing?
+>=20
+> Yes, please re-check, it should not be happening and I don't see it
+> here.
+>=20
 
-- -- 
-Jens Axboe
+I checked again with 8423bd1106a0 and I still see the same problem:
+
+fio --name=3Dfio1-write-4m-rbd --direct=3D1 --size=3D50g --group_reportin=
+g
+    --bs=3D4m --rw=3Dwrite --iodepth=3D128 --ioengine=3Dlibaio
+    --filename=3D$TEST_TARGET --output=3D$DIR/fio1-write-4m-rbd
+
+Run status group 0 (all jobs):
+  WRITE: io=3D51200MB, aggrb=3D20080KB/s, minb=3D20080KB/s, maxb=3D20080K=
+B/s,
+mint=3D2610946msec, maxt=3D2610946msec
+
+Danny
+--=20
+Danny Kukawka
+ SUSE LINUX Products GmbH
+  Maxfeldstrasse 5, D-90409 Nuremberg, Germany
+  GF: Jeff Hawn,Jennifer Guild,Felix Imend=F6rffer,HRB16746 (AG N=FCrnber=
+g)
+
+
+--------------enig16CABA25A5B840028E92121C
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+Version: GnuPG v2.0.18 (GNU/Linux)
 
-iQIcBAEBCAAGBQJPiY3oAAoJEPfTWPspceCm7TIP/jCGLv0L6Th7T4FosTrCC0bm
-U9jUDWkNo+b4n+87FLTmX6rxXenNN/NbGYJHaCE8A+FnWyDLihhEAslMD9mqn7OA
-66EWir/HrbzikQ6mF9fMPDWCLLNKVV+eVORmrN3Ne6y6d3luH5RiMFKOfWmdbhv2
-cHhVpDx5hfGF+tvRcPy/NIOkl7gNszOqF2ili9wP+aTokp+2jF7rVK9pw7KfA9jG
-IPrt2oC6hIr6+6v8xekZRgEH61R/Gsq6T0Tf0dJtEMMNhcspEpXZbKCf1xV8+22W
-HmYsjVJysIPEn0KCnPzE+DtDEF/rInbYvlTuOcJS1ugMt/AGOWtQm9OprIQTQsc+
-T0lMQ4lVEzxmcvy3dMs2pnTL0pdWOAVfNXGopVpd1jV0jI1uBvsZyW2sBpiVn7nA
-10GB6Y97Cm+ap9oaP+nnxRgLjmHrDpbgSFnRt6CFUnD+6xp2iV8Bo7qA06e0ABwT
-IFpeHW57OhhR+zIMqNqsldvsuuPB8PKWxvi0eH7YBuDKk/XoD91Im9iYJRxjbvBQ
-xN7hpjeWFQap4OLPERKDoTYBcJ4NdYaM9UdXPsmazc4T28K2tmxtzcIrkalj1Ryn
-d6B0FoQRWZlPYk3c7NbDKcz49llC08zdptNffMP2g8fKzgGxzTY/oAgiET6JqK/o
-dSMKbZgMjfK2iNGUjLR9
-=Mpll
+iJwEAQECAAYFAk+JHR4ACgkQ9DHLX79LmTKc9QQAqzOeTgXBdgWWxm3yx+vUCOF3
+Jy1RSTQtOv7oqKs9A8Mm0NhcnKMq/IR9HpaZHXToR3Zww+H2dJ50KAbcIx+atdqH
+zD1pVsZ3450SsB/YmikcV3PQtvMPf9rQdpXChNHVO47bq8igsA8Fu98tjW2+PmDB
+OkS+78gx8YgnDwQWIR0=
+=sYZs
 -----END PGP SIGNATURE-----
+
+--------------enig16CABA25A5B840028E92121C--
+
+
