@@ -1,171 +1,78 @@
-Return-Path: <Roger_Sibert@xyratex.com>
-Content-class: urn:content-classes:message
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:56197 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751251Ab2DRHX5 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 18 Apr 2012 03:23:57 -0400
+Message-ID: <4F8E6BFD.10408@kernel.dk>
+Date: Wed, 18 Apr 2012 09:23:41 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Subject: RE: segfault runninng fio against 2048 jobs
-Date: Wed, 18 Apr 2012 02:02:26 -0700
-Message-ID: <0FEAAA2D70C89D49A62173478A6C4A5D029F9F8F@XYUS-EX22.xyus.xyratex.com>
-References: <0FEAAA2D70C89D49A62173478A6C4A5D02DECC2A@XYUS-EX22.xyus.xyratex.com> <4F8E6BFD.10408@kernel.dk>
-From: "Roger Sibert" <Roger_Sibert@xyratex.com>
-To: Jens Axboe <axboe@kernel.dk>
+Subject: Re: segfault runninng fio against 2048 jobs
+References: <0FEAAA2D70C89D49A62173478A6C4A5D02DECC2A@XYUS-EX22.xyus.xyratex.com>
+In-Reply-To: <0FEAAA2D70C89D49A62173478A6C4A5D02DECC2A@XYUS-EX22.xyus.xyratex.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Roger Sibert <Roger_Sibert@xyratex.com>
 Cc: fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
-<HTML>
-<HEAD>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
-charset=3Diso-8859-1">
-<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version =
-6.5.7654.12">
-<TITLE>RE: segfault runninng fio against 2048 jobs</TITLE>
-</HEAD>
-<BODY>
-<!-- Converted from text/plain format -->
+On 04/17/2012 11:05 PM, Roger Sibert wrote:
+> Hello Everyone,
+> 
+> I am using a 2.0x variant ran across a couple of things, one of which
+> looks to be as designed and the other was a segfault in fio.
+> 
+> My original job file had 4800 entries which exceeds the max limit.
+> (error: maximum number of jobs (2048) reached)  The question I have
+> here , is there a reason the limit can't be raised to handle larger
+> job files?
 
-<P><FONT SIZE=3D2>Hello Jens,<BR>
-<BR>
-I will take a look at the job since it wasn't anything earth shattering =
-and provide that back to the list.&nbsp; To cover that set of tests I =
-will do a fresh git and compile that and test it against that so its =
-easy to verify what version it is that's being used.&nbsp;<BR>
-<BR>
-Once the crash is looked at I will take a look at going with a larger =
-job size.<BR>
-<BR>
-Thanks,<BR>
-Roger<BR>
-<BR>
-<BR>
------Original Message-----<BR>
-From: Jens Axboe [<A =
-HREF=3D"mailto:axboe@kernel.dk">mailto:axboe@kernel.dk</A>]<BR>
-Sent: Wed 4/18/2012 3:23 AM<BR>
-To: Roger Sibert<BR>
-Cc: fio@vger.kernel.org<BR>
-Subject: Re: segfault runninng fio against 2048 jobs<BR>
-<BR>
-On 04/17/2012 11:05 PM, Roger Sibert wrote:<BR>
-&gt; Hello Everyone,<BR>
-&gt;<BR>
-&gt; I am using a 2.0x variant ran across a couple of things, one of =
-which<BR>
-&gt; looks to be as designed and the other was a segfault in fio.<BR>
-&gt;<BR>
-&gt; My original job file had 4800 entries which exceeds the max =
-limit.<BR>
-&gt; (error: maximum number of jobs (2048) reached)&nbsp; The question I =
-have<BR>
-&gt; here , is there a reason the limit can't be raised to handle =
-larger<BR>
-&gt; job files?<BR>
-<BR>
-There's no inherent limit in fio that causes this, it was done to =
-avoid<BR>
-errors on platforms where shared memory segments were more limited. =
-A<BR>
-check now reveals that thread_data is around 15KB, which means that =
-the<BR>
-segment is around 30MB in total. You should be safe to bump the<BR>
-<BR>
-#define =
-REAL_MAX_JOBS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
- 2048<BR>
-<BR>
-in fio.h to something bigger. In fact I should just make it bigger, =
-we<BR>
-scale it down these days if we see errors.<BR>
-<BR>
-&gt; Reducing the job file to the max re-running it jumped straight to =
-the initial print screen and then to a segfault. (Segmentation fault =
-(core dumped))<BR>
-&gt;<BR>
-&gt; Doing a quick look gave me<BR>
-&gt;<BR>
-&gt; [root@localhost std-testing]# gdb fio core.9582<BR>
-&gt; GNU gdb (GDB) CentOS (7.0.1-42.el5.centos)<BR>
-&gt; Copyright (C) 2009 Free Software Foundation, Inc.<BR>
-&gt; License GPLv3+: GNU GPL version 3 or later &lt;<A =
-HREF=3D"http://gnu.org/licenses/gpl.html">http://gnu.org/licenses/gpl.htm=
-l</A>&gt;<BR>
-&gt; This is free software: you are free to change and redistribute =
-it.<BR>
-&gt; There is NO WARRANTY, to the extent permitted by law.&nbsp; Type =
-&quot;show copying&quot;<BR>
-&gt; and &quot;show warranty&quot; for details.<BR>
-&gt; This GDB was configured as &quot;x86_64-redhat-linux-gnu&quot;.<BR>
-&gt; For bug reporting instructions, please see:<BR>
-&gt; &lt;<A =
-HREF=3D"http://www.gnu.org/software/gdb/bugs/">http://www.gnu.org/softwar=
-e/gdb/bugs/</A>&gt;...<BR>
-&gt; Reading symbols from /root/fio-test/std-testing/fio...done.<BR>
-&gt; [New Thread 9583]<BR>
-&gt; [New Thread 9582]<BR>
-&gt;<BR>
-&gt; warning: no loadable sections found in added symbol-file =
-system-supplied DSO at 0x7fff213fd000<BR>
-&gt; Core was generated by `./fio --output=3D1.log 1.inp'.<BR>
-&gt; Program terminated with signal 11, Segmentation fault.<BR>
-&gt; #0&nbsp; 0x00000000004167b0 in display_thread_status =
-(je=3D&lt;value optimized out&gt;) at eta.c:416<BR>
-&gt; 416&nbsp;&nbsp;&nbsp;&nbsp; eta.c: No such file or directory.<BR>
-&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; in eta.c<BR>
-&gt; (gdb) quit<BR>
-&gt;<BR>
-&gt; I reduced the job count down to about 33 and re-started the run =
-which I am waiting to finish so I can re-compile fio with whatever extra =
-flags and to whatever code level are requested.&nbsp; Currently file =
-gives me:<BR>
-&gt; fio: ELF 64-bit LSB executable, AMD x86-64, version 1 (GNU/Linux), =
-for GNU/Linux 2.6.15, statically linked, not stripped<BR>
-&gt; Which is running on a CentOS box<BR>
-&gt; Linux localhost.localdomain 2.6.18-308.1.1.el5 #1 SMP Wed Mar 7 =
-04:16:51 EST 2012 x86_64 x86_64 x86_64 GNU/Linux<BR>
-<BR>
-There's not enough information here to help you out, I'm afraid. =
-What<BR>
-fio version are you running? What job did you run that caused this<BR>
-failure?<BR>
-<BR>
---<BR>
-Jens Axboe<BR>
-<BR>
-<BR>
-</FONT>
-</P>
+There's no inherent limit in fio that causes this, it was done to avoid
+errors on platforms where shared memory segments were more limited. A
+check now reveals that thread_data is around 15KB, which means that the
+segment is around 30MB in total. You should be safe to bump the
 
-</BODY>
-</HTML>
-<pre>____________________________________________________________________=
-__
-This email may contain privileged or confidential information, which shou=
-ld only be used for the purpose for which it was sent by Xyratex. No furt=
-her rights or licenses are granted to use such information. If you are no=
-t the intended recipient of this message, please notify the sender by ret=
-urn and delete it. You may not use, copy, disclose or rely on the informa=
-tion contained in it.
- =
+#define REAL_MAX_JOBS           2048
 
-Internet email is susceptible to data corruption, interception and unauth=
-orised amendment for which Xyratex does not accept liability. While we ha=
-ve taken reasonable precautions to ensure that this email is free of viru=
-ses, Xyratex does not accept liability for the presence of any computer v=
-iruses in this email, nor for any losses caused as a result of viruses.
- =
+in fio.h to something bigger. In fact I should just make it bigger, we
+scale it down these days if we see errors.
 
-Xyratex Technology Limited (03134912), Registered in England & Wales, Reg=
-istered Office, Langstone Road, Havant, Hampshire, PO9 1SA.
- =
+> Reducing the job file to the max re-running it jumped straight to the initial print screen and then to a segfault. (Segmentation fault (core dumped))
+> 
+> Doing a quick look gave me 
+> 
+> [root@localhost std-testing]# gdb fio core.9582
+> GNU gdb (GDB) CentOS (7.0.1-42.el5.centos)
+> Copyright (C) 2009 Free Software Foundation, Inc.
+> License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+> This is free software: you are free to change and redistribute it.
+> There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+> and "show warranty" for details.
+> This GDB was configured as "x86_64-redhat-linux-gnu".
+> For bug reporting instructions, please see:
+> <http://www.gnu.org/software/gdb/bugs/>...
+> Reading symbols from /root/fio-test/std-testing/fio...done.
+> [New Thread 9583]
+> [New Thread 9582]
+> 
+> warning: no loadable sections found in added symbol-file system-supplied DSO at 0x7fff213fd000
+> Core was generated by `./fio --output=1.log 1.inp'.
+> Program terminated with signal 11, Segmentation fault.
+> #0  0x00000000004167b0 in display_thread_status (je=<value optimized out>) at eta.c:416
+> 416     eta.c: No such file or directory.
+>         in eta.c
+> (gdb) quit
+> 
+> I reduced the job count down to about 33 and re-started the run which I am waiting to finish so I can re-compile fio with whatever extra flags and to whatever code level are requested.  Currently file gives me:
+> fio: ELF 64-bit LSB executable, AMD x86-64, version 1 (GNU/Linux), for GNU/Linux 2.6.15, statically linked, not stripped
+> Which is running on a CentOS box
+> Linux localhost.localdomain 2.6.18-308.1.1.el5 #1 SMP Wed Mar 7 04:16:51 EST 2012 x86_64 x86_64 x86_64 GNU/Linux
 
-The Xyratex group of companies also includes, Xyratex Ltd, registered in =
-Bermuda, Xyratex International Inc, registered in California, Xyratex (Ma=
-laysia) Sdn Bhd registered in Malaysia, Xyratex Technology (Wuxi) Co Ltd =
-registered in The People's Republic of China and Xyratex Japan Limited re=
-gistered in Japan.
-______________________________________________________________________
- =
+There's not enough information here to help you out, I'm afraid. What
+fio version are you running? What job did you run that caused this
+failure?
 
-=0D
+-- 
+Jens Axboe
 
