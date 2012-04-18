@@ -5,81 +5,14 @@ Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 Subject: RE: segfault runninng fio against 2048 jobs
-Date: Wed, 18 Apr 2012 11:16:03 -0700
-Message-ID: <0FEAAA2D70C89D49A62173478A6C4A5D02DECCC6@XYUS-EX22.xyus.xyratex.com>
-In-Reply-To: <0FEAAA2D70C89D49A62173478A6C4A5D02DECCB6@XYUS-EX22.xyus.xyratex.com>
-References: <0FEAAA2D70C89D49A62173478A6C4A5D02DECC2A@XYUS-EX22.xyus.xyratex.com> <4F8E6BFD.10408@kernel.dk> <0FEAAA2D70C89D49A62173478A6C4A5D02DECCB6@XYUS-EX22.xyus.xyratex.com>
+Date: Wed, 18 Apr 2012 10:27:18 -0700
+Message-ID: <0FEAAA2D70C89D49A62173478A6C4A5D02DECCB6@XYUS-EX22.xyus.xyratex.com>
+In-Reply-To: <4F8E6BFD.10408@kernel.dk>
+References: <0FEAAA2D70C89D49A62173478A6C4A5D02DECC2A@XYUS-EX22.xyus.xyratex.com> <4F8E6BFD.10408@kernel.dk>
 From: "Roger Sibert" <Roger_Sibert@xyratex.com>
-To: Roger Sibert <Roger_Sibert@xyratex.com>, Jens Axboe <axboe@kernel.dk>
+To: Jens Axboe <axboe@kernel.dk>
 Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
-
-Hello Jens,
-
-Not sure if this is a red herring or not.
-
-I did a quick check using valgrind with its memcheck on the 1 job sample
-and noted that there appears to be a small memory leak which gets
-noticeably worse when you run against a larger job configuration.
-
-All the leaks appear to be the same originating line of code so just a
-snippet of the valgrind output is included below.
-
-1 job configuration file
-=3D=3D19277=3D=3D 168 bytes in 1 blocks are definitely lost in loss =
-record 9 of
-10
-=3D=3D19277=3D=3D    at 0x4A0610C: malloc (vg_replace_malloc.c:195)
-=3D=3D19277=3D=3D    by 0x408A44: load_ioengine (ioengines.c:148)
-=3D=3D19277=3D=3D    by 0x409BE2: ioengine_load (init.c:694)
-=3D=3D19277=3D=3D    by 0x409F79: add_job (init.c:765)
-=3D=3D19277=3D=3D    by 0x40BD26: parse_jobs_ini (init.c:1135)
-=3D=3D19277=3D=3D    by 0x40C059: parse_options (init.c:1602)
-=3D=3D19277=3D=3D    by 0x4082F3: main (fio.c:104)
-=3D=3D19277=3D=3D
-.
-.
-=3D=3D19277=3D=3D
-=3D=3D19277=3D=3D LEAK SUMMARY:
-=3D=3D19277=3D=3D    definitely lost: 211 bytes in 6 blocks
-=3D=3D19277=3D=3D    indirectly lost: 0 bytes in 0 blocks
-=3D=3D19277=3D=3D      possibly lost: 272 bytes in 1 blocks
-=3D=3D19277=3D=3D    still reachable: 12 bytes in 3 blocks
-=3D=3D19277=3D=3D         suppressed: 0 bytes in 0 blocks
-=3D=3D19277=3D=3D Reachable blocks (those to which a pointer was found) =
-are not
-shown.
-=3D=3D19277=3D=3D To see them, rerun with: --leak-check=3Dfull
---show-reachable=3Dyes
-
-
-2048 job configuration file.
-=3D=3D19365=3D=3D 50,618,216 (311,144 direct, 50,307,072 indirect) bytes =
-in
-2,047 blocks are definitely lost in loss record 22 of 22
-=3D=3D19365=3D=3D    at 0x4A0610C: malloc (vg_replace_malloc.c:195)
-=3D=3D19365=3D=3D    by 0x42DA03: setup_log (iolog.c:499)
-=3D=3D19365=3D=3D    by 0x40A9DD: add_job (init.c:846)
-=3D=3D19365=3D=3D    by 0x40BD26: parse_jobs_ini (init.c:1135)
-=3D=3D19365=3D=3D    by 0x40C059: parse_options (init.c:1602)
-=3D=3D19365=3D=3D    by 0x4082F3: main (fio.c:104)
-=3D=3D19365=3D=3D
-=3D=3D19365=3D=3D LEAK SUMMARY:
-=3D=3D19365=3D=3D    definitely lost: 1,843,954 bytes in 22,523 blocks
-=3D=3D19365=3D=3D    indirectly lost: 201,154,560 bytes in 8,185 blocks
-=3D=3D19365=3D=3D      possibly lost: 73,728 bytes in 3 blocks
-=3D=3D19365=3D=3D    still reachable: 580 bytes in 4 blocks
-=3D=3D19365=3D=3D         suppressed: 0 bytes in 0 blocks
-
-Thanks,
-Roger
------Original Message-----
-From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
-Behalf Of Roger Sibert
-Sent: Wednesday, April 18, 2012 1:27 PM
-To: Jens Axboe
-Cc: fio@vger.kernel.org
-Subject: RE: segfault runninng fio against 2048 jobs
 
 Heres hoping Outlook doesn't inject html into the message again.
 
@@ -194,10 +127,6 @@ failure?
 --=20
 Jens Axboe
 
---
-To unsubscribe from this list: send the line "unsubscribe fio" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
 ______________________________________________________________________
 This email may contain privileged or confidential information, which shou=
 ld only be used for the purpose for which it was sent by Xyratex. No furt=
