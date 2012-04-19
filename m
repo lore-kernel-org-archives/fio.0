@@ -1,40 +1,33 @@
-Return-Path: <tm@tao.ma>
-From: Tao Ma <tm@tao.ma>
-Subject: [PATCH] fio: Add to cgroup if parameter "cgroup" is enabled.
-Date: Thu, 26 Apr 2012 17:24:25 +0800
-Message-Id: <1335432265-5519-1-git-send-email-tm@tao.ma>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:41882 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751459Ab2DSHbv (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 19 Apr 2012 03:31:51 -0400
+Received: by lbom4 with SMTP id m4so2872325lbo.19
+        for <fio@vger.kernel.org>; Thu, 19 Apr 2012 00:31:50 -0700 (PDT)
+Message-ID: <4F8FBF66.9050109@gmail.com>
+Date: Thu, 19 Apr 2012 09:31:50 +0200
+From: Hoppetauet <hoppetauet@gmail.com>
+MIME-Version: 1.0
+Subject: High standard deviation
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: axboe@kernel.dk
-List-ID: <fio@vger.kernel.org>
 
-From: Tao Ma <boyu.mt@taobao.com>
+Hello
 
-Currently, we only add the tasks to cgroup if cgroup_weight is set by
-the user. But if we want to test other blkcg parameters like block
-throttle, the fio tasks isn't added to the corresponding cgroup and
-it doesn't make sense.
+Can someone give some insight as to why the standard deviation for 
+completion latencies is so high?
 
-So add the task to the corresponding cgroup if the cgroup name is given.
+I have a completion latency avg of 0.21ms, while the st dev is 12.33ms. 
+Is it because of some really high numbers here and there?
 
-Signed-off-by: Tao Ma <boyu.mt@taobao.com>
----
- backend.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Also, can someone tell me where the total latency is located in this 
+--minimal output
 
-diff --git a/backend.c b/backend.c
-index f4bc553..e1dc0ac 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1055,7 +1055,7 @@ static void *thread_main(void *data)
- 		}
- 	}
- 
--	if (td->o.cgroup_weight && cgroup_setup(td, cgroup_list, &cgroup_mnt))
-+	if (td->o.cgroup && cgroup_setup(td, cgroup_list, &cgroup_mnt))
- 		goto err;
- 
- 	errno = 0;
--- 
-1.7.9.GIT
+work;0;0;8388608;55741;154103;0;0;0.000000;0.000000;1;1323005;69.848293;1088.205315;0;60512;104.688135%;56986.986348;4117.299600;0;0;0;0;0;0.000000;0.000000;0;0;0.000000;0.000000;0;0;0.000000%;0.000000;0.000000;1.109655%;3.491194%;32878;0;33;100.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.0%;53.89%;44.49%;0.05%;0.01%;0.01%;0.01%;0.00%;0.01%;0.00%;0.01%;0.01%;0.84%;0.72%;0.01%;0.01%;0.01%;0.00%;0.01%;0.00%;0.00%;0.01%;0.00%
 
+Thanks
 
