@@ -1,55 +1,65 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:53942 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751021Ab2DJJEX (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 10 Apr 2012 05:04:23 -0400
-Received: by vcqp1 with SMTP id p1so2365214vcq.19
-        for <fio@vger.kernel.org>; Tue, 10 Apr 2012 02:04:23 -0700 (PDT)
+Received: from merlin.infradead.org ([205.233.59.134]:37734 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752308Ab2DSHrD (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 19 Apr 2012 03:47:03 -0400
+Message-ID: <4F8FC2E5.1000207@kernel.dk>
+Date: Thu, 19 Apr 2012 09:46:45 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Date: Tue, 10 Apr 2012 14:34:23 +0530
-Message-ID: <CAMZBPnepbgTSTfW5JA2UYZ=NxXi_==tSVeWKXF_KCYD=FTs2sQ@mail.gmail.com>
-Subject: Running FIO on Windows on given partition or raw device
-From: Neependra Khare <neependra.khare@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: Issue with verify and Mix read/writes
+References: <CAN8qX8busH4Nu=0BuAYxeMOJSp+PC_z5JK3LPLaGAzb3Wy_Oug@mail.gmail.com>
+In-Reply-To: <CAN8qX8busH4Nu=0BuAYxeMOJSp+PC_z5JK3LPLaGAzb3Wy_Oug@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Suresh Dhanarajan <sureshdrajan@gmail.com>
+Cc: fio@vger.kernel.org
 
-Hi,
+On 04/19/2012 12:14 AM, Suresh Dhanarajan wrote:
+> Hi Jens,
+> 
+> I am using the verify option with mix read and write case.
+> When verify option is I am seeing that the results are not reflecting
+> the actual percentage given in the jobfile.
+> When i don't use verify option the results are exactly as per the
+> percentage given in the jobfile.
+> 
+> Please fin the result for various cases with and without verify option,
+> 
+> withverify sequential :-
+> Total IO (KB), bandwidth (KB/sec), IOPS, runtime (msec)
+> 2988;2436;594;1256
+> 10240;6565;1603;1597
+> ===================
+> wthoutverify sequential :-
+> Total IO (KB), bandwidth (KB/sec), IOPS, runtime (msec)
+> 3124;2460;600;1300
+> 7116;5605;1368;1300
+> ===================
+> 
+> random with verify
+> Total IO (KB), bandwidth (KB/sec), IOPS, runtime (msec)
+> 3088;431;105;7322
+> 10240;1363;332;7693
+> ===============
+> 
+> random without verify
+> Total IO (KB), bandwidth (KB/sec), IOPS, runtime (msec)
+> 3076;430;105;7311
+> 7164;1003;244;7311
+> 
+> I used 70% read and 30% write option.
+> Is it that when verify is used the mix percentage wont be honored?
+> I had mentioned size has 10mb but when verify is used even that is not
+> getting honored.
+> Is there a way to make this case to honor the percentage set in the job file?
 
-I want to run FIO on a given partition on Windows.  To do this I use
-the "mountvol" command and get the volume names and
-their mount points and then use them for "filename" option with FIO
+The reads that are done to verify a written block are not accounted in
+the read/write mix ratio. So that is why you see more reads than you
+asked for.
 
-For example for "E:\" get following from "mountvol" command.
+-- 
+Jens Axboe
 
-    \\?\Volume{1277e70d-79a7-11e1-9fed-f04da2ef6fc9}\
-        E:\
-
-Then I run following commands:-
-
-$ fio.exe   --name=baseline --rw=randwrite --direct=1 --size=1g
---iodepth=32 --blocksize=4096 --ioengine=windowsaio
---filename=\\.\Volume{1277e70d-79a7-11e1-9fed-f04da2ef6fc9}
---name=hddBaseline --stonewall
-
-$ fio.exe   --name=baseline --rw=randwrite --direct=1 --size=1g
---iodepth=32 --blocksize=4096 --ioengine=windowsaio  --filename=E:\
---name=hddBaseline --stonewall
-
-$ fio.exe   --name=baseline --rw=randwrite --direct=1 --size=1g
---iodepth=32 --blocksize=4096 --ioengine=windowsaio
---filename=E:\filename --name=hddBaseline --stonewall
-
-In all these cases I do not see any IO happening on "E" drive using
-"perfmon". All the IO happens on the root drive("C").
-
-On Linux I can use "/dev/sda" , "/dev/sda1" etc.
-
-I was expecting same on Windows.
-Any help or pointers would be great.
-
---
-Regards,
-Neependra
-www.neependra.net
