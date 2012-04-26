@@ -1,34 +1,40 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:60971 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755670Ab2DZKPN (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 26 Apr 2012 06:15:13 -0400
-Message-ID: <4F992021.7070805@kernel.dk>
-Date: Thu, 26 Apr 2012 12:14:57 +0200
-From: Jens Axboe <axboe@kernel.dk>
-MIME-Version: 1.0
-Subject: Re: [PATCH] fio: Add to cgroup if parameter "cgroup" is enabled.
-References: <1335432265-5519-1-git-send-email-tm@tao.ma>
-In-Reply-To: <1335432265-5519-1-git-send-email-tm@tao.ma>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Tao Ma <tm@tao.ma>
-Cc: fio@vger.kernel.org
+Return-Path: <tm@tao.ma>
+From: Tao Ma <tm@tao.ma>
+Subject: [PATCH] fio: Add to cgroup if parameter "cgroup" is enabled.
+Date: Thu, 26 Apr 2012 17:24:25 +0800
+Message-Id: <1335432265-5519-1-git-send-email-tm@tao.ma>
+To: fio@vger.kernel.org
+Cc: axboe@kernel.dk
+List-ID: <fio@vger.kernel.org>
 
-On 04/26/2012 11:24 AM, Tao Ma wrote:
-> From: Tao Ma <boyu.mt@taobao.com>
-> 
-> Currently, we only add the tasks to cgroup if cgroup_weight is set by
-> the user. But if we want to test other blkcg parameters like block
-> throttle, the fio tasks isn't added to the corresponding cgroup and
-> it doesn't make sense.
-> 
-> So add the task to the corresponding cgroup if the cgroup name is given.
+From: Tao Ma <boyu.mt@taobao.com>
 
-Thanks, applied.
+Currently, we only add the tasks to cgroup if cgroup_weight is set by
+the user. But if we want to test other blkcg parameters like block
+throttle, the fio tasks isn't added to the corresponding cgroup and
+it doesn't make sense.
 
+So add the task to the corresponding cgroup if the cgroup name is given.
+
+Signed-off-by: Tao Ma <boyu.mt@taobao.com>
+---
+ backend.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/backend.c b/backend.c
+index f4bc553..e1dc0ac 100644
+--- a/backend.c
++++ b/backend.c
+@@ -1055,7 +1055,7 @@ static void *thread_main(void *data)
+ 		}
+ 	}
+ 
+-	if (td->o.cgroup_weight && cgroup_setup(td, cgroup_list, &cgroup_mnt))
++	if (td->o.cgroup && cgroup_setup(td, cgroup_list, &cgroup_mnt))
+ 		goto err;
+ 
+ 	errno = 0;
 -- 
-Jens Axboe
+1.7.9.GIT
+
 
