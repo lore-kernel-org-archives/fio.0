@@ -1,45 +1,112 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:44664 "EHLO
-	mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1755638Ab2DES32 convert rfc822-to-8bit
-	(ORCPT <rfc822;fio@vger.kernel.org>); Thu, 5 Apr 2012 14:29:28 -0400
-Received: from pps.filterd (m0004060 [127.0.0.1])
-	by mx0b-00082601.pphosted.com (8.14.4/8.14.4) with SMTP id q35ITCPq017800
-	for <fio@vger.kernel.org>; Thu, 5 Apr 2012 11:29:28 -0700
-Received: from mail.thefacebook.com (corpout1.snc1.tfbnw.net [66.220.144.38])
-	by mx0b-00082601.pphosted.com with ESMTP id 141g5b829e-1
-	(version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=NOT)
-	for <fio@vger.kernel.org>; Thu, 05 Apr 2012 11:29:28 -0700
-From: Lucian Grijincu <lucian@fb.com>
-Subject: Usage of group reporting
-Date: Thu, 5 Apr 2012 18:29:23 +0000
-Message-ID: <CBA33231.13A4%lucian@fb.com>
-In-Reply-To: <4F7DAF3D.2050000@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <CB4ADE87252965448D8419DD0AE4F1D9@fb.com>
-Content-Transfer-Encoding: 8BIT
+Return-Path: <sureshdrajan@gmail.com>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <4F9101C0.100@kernel.dk>
+References: <CAN8qX8bPefV2J1xtNVBZ36sEKE-Vg-te+_Kj__hDoJGEzLzW=A@mail.gmail.com>
+	<4F899663.8050406@kernel.dk>
+	<4F8997E9.6090206@kernel.dk>
+	<CAN8qX8bNZ4VPFP1a09DdJSaVa2D0MZ0vqLqHF-S4hbdHwuJZcw@mail.gmail.com>
+	<4F8D0E1A.2020004@kernel.dk>
+	<CAN8qX8ZJXpKibjFfyG9ZBG=eXNwWtdm5X9FyRduKvCcyQx7RwA@mail.gmail.com>
+	<4F8FA704.30006@kernel.dk>
+	<CAN8qX8baRKJrLRQ3p--NBMH9hA+G5om6R9hRQEr2ZXwbDc3Hwg@mail.gmail.com>
+	<4F9101C0.100@kernel.dk>
+Date: Sat, 28 Apr 2012 12:09:14 -0700
+Message-ID: <CAN8qX8a4=a4hBkuB54MGV3_+=+wrPVae6oN6Hh=H-ZQt+0ewyA@mail.gmail.com>
+Subject: Re: Running fio with offset Increment option
+From: Suresh Dhanarajan <sureshdrajan@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
+
+Hi Jens,
+
+I verified the offsets by using the write_io_log switch.
+when i use offset increment without patch the offset are incremented
+and not reset to zero after stone wall.
+when i use with patch the offset resets to zero after stone wall.
+I hope you are testing with the patch.
+If it is so this what the behavior iam  also seeing.
+
+Thanks,
+Suresh
 
 
-On 4/5/12 7:42 AM, "Jens Axboe" <axboe@kernel.dk> wrote:
-> Most people don't use the group reporting
-
-
-Why do you say that?
-
-For example I'm trying to find those parameters (direct-io, fadvise,
-number of threads, libaio/mmap/sync, etc.) that give an overall "best
-performance" (whatever that means) on a simulated workload.
-
-I'm using group reporting, because I want numbers for the entire system,
-not for an individual thread.
-
-Am I using "fio" wrong or is "fio" mostly used for other kinds of
-benchmarking?
---
-Lucian
+On Thu, Apr 19, 2012 at 11:27 PM, Jens Axboe <axboe@kernel.dk> wrote:
+> On 04/19/2012 09:32 PM, Suresh Dhanarajan wrote:
+>> Hi Jens,
+>>
+>> I tested with and without stonewall.
+>> with stonewall the offset is reset to zero for a newjob.
+>> But without stonewall the offset is not reseting zero.
+>
+> How are you verifying that this is the case? I added a debug printf
+> here, and ran the below job:
+>
+> ---
+>
+> [global]
+> numjobs=3D4
+> offset_increment=3D100m
+> filename=3Dfoo
+> ioengine=3Dnull
+> size=3D100g
+> rw=3Drandread
+> rate=3D500m
+>
+> [null]
+>
+> [null-a]
+>
+> [null-b]
+> stonewall
+>
+> [null-c]
+>
+> [null-d]
+> stonewall
+>
+> [null-e]
+>
+> ---
+>
+> Which should give us 4 jobs, then 4 more jobs at continuing offsets,
+> then null-b at 0 again, null-c at 4*100MB and up, null-d at zero and
+> null-e identical to null-c.
+>
+> job1: file foo offset 0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 <- null
+> job2: file foo offset 104857600
+> job3: file foo offset 209715200
+> job4: file foo offset 314572800
+> job5: file foo offset 419430400 =A0 =A0 =A0 =A0 <- null-a
+> job6: file foo offset 524288000
+> job7: file foo offset 629145600
+> job8: file foo offset 734003200
+> job9: file foo offset 0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 <- null-b
+> job10: file foo offset 104857600
+> job11: file foo offset 209715200
+> job12: file foo offset 314572800
+> job13: file foo offset 419430400 =A0 =A0 =A0 =A0<- null-c
+> job14: file foo offset 524288000
+> job15: file foo offset 629145600
+> job16: file foo offset 734003200
+> job17: file foo offset 0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0<- null-d
+> job18: file foo offset 104857600
+> job19: file foo offset 209715200
+> job20: file foo offset 314572800
+> job21: file foo offset 419430400 =A0 =A0 =A0 =A0<- null-e
+> job22: file foo offset 524288000
+> job23: file foo offset 629145600
+> job24: file foo offset 734003200
+>
+> So it looks like it's working here, at least offset is being calculated
+> and set correctly. Hence my question on why it isn't working for you. If
+> you are looking at the actual IO offsets generated, then it's possible
+> there is a bug somewhere. That bug should, however, also affect the
+> original patch since this is just changing how we generate them upfront.
+>
+> --
+> Jens Axboe
+>
 
