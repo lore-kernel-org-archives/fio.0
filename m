@@ -1,38 +1,41 @@
-Return-Path: <ms@teamix.de>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:50760 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754067Ab2EBMAd (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 2 May 2012 08:00:33 -0400
+Message-ID: <4FA121C5.8090002@kernel.dk>
+Date: Wed, 02 May 2012 14:00:05 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-From: Martin Steigerwald <ms@teamix.de>
-Date: Mon, 7 May 2012 08:18:24 -0600
-Subject: [PATCH 1/3] Fix spelling error in manpage.
-Message-ID: 
- <5df008af9a2c71c1b680c554a7c8c0ab6041b9f7.1336399881.git.ms@teamix.de>
-References: <1336400306-12173-1-git-send-email-ms@teamix.de>
-In-Reply-To: <1336400306-12173-1-git-send-email-ms@teamix.de>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: Jens Axboe <JAxboe@fusionio.com>, Martin Steigerwald <ms@teamix.de>
-List-ID: <fio@vger.kernel.org>
+Subject: Re: rwmixcycle - deprecated?
+References: <0FEAAA2D70C89D49A62173478A6C4A5D02DED1C8@XYUS-EX22.xyus.xyratex.com>
+In-Reply-To: <0FEAAA2D70C89D49A62173478A6C4A5D02DED1C8@XYUS-EX22.xyus.xyratex.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Roger Sibert <Roger_Sibert@xyratex.com>
+Cc: fio@vger.kernel.org
 
----
- fio.1 |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 05/01/2012 04:42 PM, Roger Sibert wrote:
+> Hello Everyone,
+> 
+> Just a sanity check with a twist of question, snippet from log file.
+> 
+> Option rwmixcycle is deprecated
+> test-1: (g=0): rw=randrw, bs=1M-1M/1M-1M, ioengine=libaio, iodepth=32
+> 2.0.7
+> Starting 1 process
+> 
+> Just how deprecated is rwmixcycle and if it's truly gone do we need to
+> update the man page to reflect that fact?
+> 
+> The question with if its deprecated what is the value it's using, I'm
+> guessing the default that's listed.
 
-diff --git a/fio.1 b/fio.1
-index 7997526..4e626b0 100644
---- a/fio.1
-+++ b/fio.1
-@@ -70,7 +70,7 @@ Set the internal smalloc pool size to \fIkb\fP kilobytes.
- All fio parser warnings are fatal, causing fio to exit with an error.
- .TP
- .BI \-\-max\-jobs \fR=3D\fPnr
--Set the maximum allowed number of jobs (threads/processes) to suport.
-+Set the maximum allowed number of jobs (threads/processes) to support.
- .TP
- .BI \-\-server \fR=3D\fPargs
- Start a backend server, with \fIargs\fP specifying what to listen to. See =
-client/server section.
---=20
-1.7.10
+Yes, it's totally deprecated, it has no effect. I've killed it from the
+man page, thanks for letting me know.
 
+-- 
+Jens Axboe
 
