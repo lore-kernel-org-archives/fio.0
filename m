@@ -1,42 +1,38 @@
-Return-Path: <ms@teamix.de>
-From: Martin Steigerwald <ms@teamix.de>
-Subject: Re: [PATCH] Fix manpage errors
-Date: Wed, 9 May 2012 13:40:32 +0200
-References: <1336400306-12173-1-git-send-email-ms@teamix.de> <4FA7E52B.5080604@kernel.dk>
-In-Reply-To: <4FA7E52B.5080604@kernel.dk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from casper.infradead.org ([85.118.1.10]:59671 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756862Ab2EGPH7 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 7 May 2012 11:07:59 -0400
+Message-ID: <4FA7E52B.5080604@kernel.dk>
+Date: Mon, 07 May 2012 17:07:23 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <201205091340.33215.ms@teamix.de>
-To: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] Fix manpage errors
+References: <1336400306-12173-1-git-send-email-ms@teamix.de>
+In-Reply-To: <1336400306-12173-1-git-send-email-ms@teamix.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Martin Steigerwald <ms@teamix.de>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
 
-Am Montag, 7. Mai 2012 schrieb Jens Axboe:
-> On 05/07/2012 04:18 PM, Martin Steigerwald wrote:
-> > Hi Jens!
-> >=20
-> > On updating Debian package to 2.0.7 lintian -IE again found some manpage
-> > errors.
-> >=20
-> > I prepared patches to fix them.
-> >=20
-> > No hurry with an upstream release as I included patches into my
-> > packaging.
-> >=20
-> > This is my first time using git send-mail, so please forgive any
-> > mistakes I may have made.
->=20
-> Thanks, applied 1-3!
+On 05/07/2012 04:18 PM, Martin Steigerwald wrote:
+> Hi Jens!
+> 
+> On updating Debian package to 2.0.7 lintian -IE again found some manpage
+> errors.
+> 
+> I prepared patches to fix them.
+> 
+> No hurry with an upstream release as I included patches into my
+> packaging.
+> 
+> This is my first time using git send-mail, so please forgive any
+> mistakes I may have made.
 
-Thanks, dunno, why the patch mails send via git-send-email didn=B4t appear =
-on=20
-the list as well.
+Thanks, applied 1-3!
 
-Lets see whether this mail does.
-
-=2D-=20
-Martin Steigerwald - teamix GmbH - http://www.teamix.de
-gpg: 19E3 8D42 896F D004 08AC A0CA 1E10 C593 0399 AE90
+-- 
+Jens Axboe
 
