@@ -1,67 +1,49 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx1.fusionio.com ([66.114.96.30]:49535 "EHLO mx1.fusionio.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751547Ab2EJCDD (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 9 May 2012 22:03:03 -0400
-Received: from mail1.int.fusionio.com (mail1.int.fusionio.com [10.101.1.21]) by mx1.fusionio.com with ESMTP id h9ai0gbh926pY7f1 (version=TLSv1 cipher=AES128-SHA bits=128 verify=NO) for <fio@vger.kernel.org>; Wed, 09 May 2012 19:48:34 -0600 (MDT)
-Message-ID: <4FAB1E71.3030304@fusionio.com>
-Date: Wed, 9 May 2012 19:48:33 -0600
-From: Rusty Weber <RWeber@fusionio.com>
+Received: from merlin.infradead.org ([205.233.59.134]:48651 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753142Ab2EHGvL (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 8 May 2012 02:51:11 -0400
+Message-ID: <4FA8C238.2020408@kernel.dk>
+Date: Tue, 08 May 2012 08:50:32 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Subject: commdand line output
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Subject: Re: Creating random/sequential mix
+References: <8C39003C166535489D52AF2C9D8C58BC1A32FFED@NTXBOIMBX04.micron.com>
+In-Reply-To: <8C39003C166535489D52AF2C9D8C58BC1A32FFED@NTXBOIMBX04.micron.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "Bill Hooper (whooper)" <whooper@micron.com>
+Cc: fio <fio@vger.kernel.org>
 
-Command line output is spuradic while running because fio replaces the 
-last line while updating the status of the process instead of replacing 
-the update string.
-EXAMPLE:
-consider the update string as following
+On 05/03/2012 08:26 PM, Bill Hooper (whooper) wrote:
+> I have a request to collect data with a 75%/25% random/sequential mix.
+> I am having a difficult time figuring out how to get fio to do this.
+> Any suggestions would be appreciated.
 
-Jobs: 1 (f=1): [m] [61.9% done] [112.8M/123.6M /s] [123 /125  iops] [eta 
-00m:08s]
+That's a good question. There's really no easy way to do that. For
+random IO, you can do a number of sequential blocks for each random
+offset generated. But that doesn't give you very fine control of the
+percentages. For sequential IO, you can skip X bytes for every
+sequential block read/written. That's really the flexibility that fio
+has now.
 
-however, if the command prompt's line buffer size is smaller than the 
-length of the update string, the update string gets separated into 2 lines:
+Outside of that, you could perhaps use the flow option to have two
+synchronized jobs with the given weights. But that would throttle one of
+them, so not ideal if you just want a 75/25 random/sequential running at
+full speed.
 
-Jobs: 1 (f=1): [m] [61.9% done] [112.8M/123.6M /s] [123 /125  iops]
-  [eta 00m:08s]
+I don't think your situation is unique, it would be nice to be able to
+support a mixed workload like that. One thing I've wanted before (but
+never implemented) is somewhat related - the option to specify the size
+of the hot part of the data set. For instance, operate on the full
+device, but consider region X or size X the hot part which we'll read
+repeatedly. Would be useful for testing caching.
 
-which means that on the next update string you write, after removing the 
-current line, you will end up with
-
-Jobs: 1 (f=1): [m] [61.9% done] [112.8M/123.6M /s] [123 /125  iops]
-Jobs: 1 (f=1): [m] [65.2% done] [112.8M/123.6M /s] [129 /150  iops]
-  [eta 00m:08s]
-
-on the console output....  I thought this was a feature and was using it 
-to my advantage until I started receiving low throughput values which 
-started making my status update strings smaller than the line buffer 
-size resulting in a single line of output.  In order to fix, you need to 
-remove a status update string with the equivalent length of the last 
-string written using \b.
-example
-status update="I am an update"
-to remove you send "\b\b\b\b\b\b\b\b\b\b\b\b\b\b" to stdout
-
-I would also like to make a feature request of a verbose option that 
-disables the replacement of output as described above as the output 
-information can be extremely useful in certain cases; in my case I would 
-like very high resolution output of the instantaneous throughput and not 
-a summary at the end.
-
-
-
-Environment: windows
-version:fio-2.0.7-9g5c3f
-
+Let me think about how we can best do what you want, and I'll get back
+to you.
 
 -- 
-Russell Weber
+Jens Axboe
 
-
-Confidentiality Notice: This e-mail message, its contents and any attachments to it are confidential to the intended recipient, and may contain information that is privileged and/or exempt from disclosure under applicable law. If you are not the intended recipient, please immediately notify the sender and destroy the original e-mail message and any attachments (and any copies that may have been made) from your system or otherwise. Any unauthorized use, copying, disclosure or distribution of this information is strictly prohibited.  Email addresses that end with a ?-c? identify the sender as a Fusion-io contractor.
