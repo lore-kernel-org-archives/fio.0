@@ -1,65 +1,103 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-out1.uio.no ([129.240.10.57]:53972 "EHLO mail-out1.uio.no"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760529Ab2EPTg2 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 16 May 2012 15:36:28 -0400
-Received: from mail-mx3.uio.no ([129.240.10.44])
-	by mail-out1.uio.no with esmtp (Exim 4.75)
-	(envelope-from <jarle.bjorgeengen@usit.uio.no>)
-	id 1SUjmf-00042o-J3
-	for fio@vger.kernel.org; Wed, 16 May 2012 21:21:17 +0200
-Received: from 7.123.45.31.customer.cdi.no ([31.45.123.7] helo=heritage.uio.no)
-	by mail-mx3.uio.no with esmtpsa (TLSv1:AES256-SHA:256)
-	user jb (Exim 4.76)
-	(envelope-from <jarle.bjorgeengen@usit.uio.no>)
-	id 1SUjme-0006uc-UE
-	for fio@vger.kernel.org; Wed, 16 May 2012 21:21:17 +0200
-Message-ID: <4FB3FE27.3030302@usit.uio.no>
-Date: Wed, 16 May 2012 21:21:11 +0200
-From: =?ISO-8859-1?Q?Jarle_Bj=F8rgeengen?= 
-	<jarle.bjorgeengen@usit.uio.no>
-MIME-Version: 1.0
-Subject: blktrace with fio replay for benchmarking vendor offerings
-Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
+Received: from casper.infradead.org ([85.118.1.10]:46297 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759025Ab2EIXtw convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Wed, 9 May 2012 19:49:52 -0400
+References: <4FA0FB19.6010506@thomas-krenn.com> <4FA10E08.70009@fusionio.com> <4FA11FC5.4030202@thomas-krenn.com> <4FA120C2.6080205@kernel.dk> <4FA12358.7010204@thomas-krenn.com> <4FA123A3.5030801@kernel.dk> <4FA1249D.6000104@thomas-krenn.com> <4FA1255F.9020301@kernel.dk> <4FA127C7.9040401@thomas-krenn.com> <CAKa9NmuiOhT1+9ze2242w3pYVGLAH4Gbry2sq5vz9hW135TL3g@mail.gmail.com> <4FAAD964.2020504@kernel.dk> <CAKa9NmuazZ8L4GWg=F5yuayLLx2vbSNco6WApg+MjNORaD6eBg@mail.gmail.com>
+In-Reply-To: <CAKa9NmuazZ8L4GWg=F5yuayLLx2vbSNco6WApg+MjNORaD6eBg@mail.gmail.com>
+Mime-Version: 1.0 (1.0)
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <D94C674D-68F3-4D62-BDC7-63C23809048D@kernel.dk>
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: Tell fio to only lay out files
+Date: Thu, 10 May 2012 01:49:48 +0200
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Vikram Seth <seth.vik@gmail.com>
+Cc: =?utf-8?Q?Georg_Sch=C3=B6nberger?= <gschoenberger@thomas-krenn.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hello,
+On 10/05/2012, at 00.10, Vikram Seth <seth.vik@gmail.com> wrote:
 
-I'm involved in the purchasing process of block storage systems, and=20
-research viable benchmarking strategies for specifying and verifying=20
-performance requirements.
+> On Wed, May 9, 2012 at 1:53 PM, Jens Axboe <axboe@kernel.dk> wrote:
+>> On 2012-05-09 22:52, Vikram Seth wrote:
+>>> On Wed, May 2, 2012 at 5:25 AM, Georg Schönberger
+>>> <gschoenberger@thomas-krenn.com> wrote:
+>>>> Am 2012-05-02 14:15, schrieb Jens Axboe:
+>>>>> On 05/02/2012 02:12 PM, Georg Schönberger wrote:
+>>>>>> Same error after a clean compilation.
+>>>>>> $ fio --version
+>>>>>> fio-2.0.7-13-g3b7f
+>>>>>> $ fio --create_only --name=test-read-4k-4G-1-jobs --directory=./tests
+>>>>>> --rw=read --size=10M --bs=4k --numjobs=4
+>>>>>> max value out of range: 4 (1 max)
+>>>>>> max value out of range: 4 (1 max)
+>>>>> Please don't top post, reply beneath what you are replying to.
+>>>>> 
+>>>>> Parser looks confused, because you forgot to add the value for the
+>>>>> create_only option. If you use --create_only=1 instead, it should work.
+>>>>> 
+>>>>> I wonder why that isn't caught in the command line variant, if you put
+>>>>> it in a job file it does catch it:
+>>>>> 
+>>>>> axboe@nelson:/home/axboe/git/fio $ ./fio seq-null
+>>>>> Option create_only requires an argument
+>>>>> fio: failed parsing create_only
+>>>>> fio: job global dropped
+>>>>> 
+>>>>> I'll take a look at that separately.
+>>>>> 
+>>>> That works now:
+>>>> $ fio --create_only=1 --name=test --directory=./tests --rw=read
+>>>> --size=10M --bs=4k --numjobs=4
+>>>> test: (g=0): rw=read, bs=4K-4K/4K-4K, ioengine=sync, iodepth=1
+>>>> ...
+>>>> test: (g=0): rw=read, bs=4K-4K/4K-4K, ioengine=sync, iodepth=1
+>>>> fio-2.0.7-13-g3b7f
+>>>> Starting 4 processes
+>>>> test: Laying out IO file(s) (1 file(s) / 10MB)
+>>>> test: Laying out IO file(s) (1 file(s) / 10MB)
+>>>> test: Laying out IO file(s) (1 file(s) / 10MB)
+>>>> test: Laying out IO file(s) (1 file(s) / 10MB)
+>>>> 
+>>>> 
+>>>> Run status group 0 (all jobs):
+>>>> $ ls tests/
+>>>> test.1.0  test.2.0  test.3.0  test.4.0
+>>>> 
+>>>> Nice!
+>>>> Thanks, Georg
+>>>> 
+>>>> P.S.: Sorry for top posting
+>>>> 
+>>>> 
+>>>> --
+>>>> To unsubscribe from this list: send the line "unsubscribe fio" in
+>>>> the body of a message to majordomo@vger.kernel.org
+>>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>> 
+>>> Hi Jens,
+>>> 
+>>> Does this mean that if we create the files with appropriate names and
+>>> size before starting fio, then fio will not lay them out explicitly?
+>>> Just confirming .. this will be very useful (reduce runtime) when
+>>> performing tests on large filesystems.
+>> 
+>> It does, yes, or you can just use this create_only option for the same
+>> effect.
+>> 
+>> Fio uses repeatable file names, it always has.
+>> 
+>> --
+>> Jens Axboe
+>> 
+> 
+> I guess my question was is that if I created the files using some
+> other method other than create_only option, will this still work ?
+> Will fio look for needed files and skip layout step if they already
+> exist?
 
-Ideally I would like to capture our traces of our current daily=20
-production workload  with blktrace, attach the traces to the tender and=20
-require the configuration to be able to run 2x that kind of workload.=20
-During acceptance I would like to hook enough hardware to saturate the=20
-system with the same workload, and measure that the requirement has been=20
-met.
+Yes, fio doesn't care. If the files are already there and of the right size, it will skip the layout phase completely.
 
-I'm interested in comments about the practical viability of such=20
-approach if anyone have similar experiences.
+Jens
 
-Some open questions:
-
-How safe is it to run blktrace on critical production environment? What=20
-precautions should be made?
-
-Given that the current system consists of 3 HP EVA800 with X number of=20
-LUNS about 50 hosts, and the new system likely is a single system with 5=20
-new servers running at at full speed, how much value will the benchmark=20
-provide compared to "real world" ? Should I create equally many luns and=20
-distribute load across the 5 machines?
-
-Is it best to scale the workload to 2X replaying all traces=20
-simultanously with one fio-trace-replay/lun, and then dublicate alle=20
-replays so that each lun serves two fio-replays rather than one, and=20
-then 3 and so on.
-
-Any thoughts or comments are very much appreciated.
-
-Best regards
-Jarle Bj=EF=BF=BDrgeengen
-University of Oslo / USIT
