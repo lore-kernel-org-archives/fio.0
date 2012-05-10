@@ -1,59 +1,55 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:49305 "EHLO
+Received: from casper.infradead.org ([85.118.1.10]:55829 "EHLO
 	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754392Ab2EBMNJ (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 2 May 2012 08:13:09 -0400
-Message-ID: <4FA124B9.8050505@kernel.dk>
-Date: Wed, 02 May 2012 14:12:41 +0200
+	with ESMTP id S1755716Ab2EJN1h (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 10 May 2012 09:27:37 -0400
+Message-ID: <4FABC243.2050708@kernel.dk>
+Date: Thu, 10 May 2012 15:27:31 +0200
 From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Subject: Re: Running fio with offset Increment option
-References: <CAN8qX8bPefV2J1xtNVBZ36sEKE-Vg-te+_Kj__hDoJGEzLzW=A@mail.gmail.com> <4F899663.8050406@kernel.dk> <4F8997E9.6090206@kernel.dk> <CAN8qX8bNZ4VPFP1a09DdJSaVa2D0MZ0vqLqHF-S4hbdHwuJZcw@mail.gmail.com> <4F8D0E1A.2020004@kernel.dk> <CAN8qX8ZJXpKibjFfyG9ZBG=eXNwWtdm5X9FyRduKvCcyQx7RwA@mail.gmail.com> <4F8FA704.30006@kernel.dk> <CAN8qX8baRKJrLRQ3p--NBMH9hA+G5om6R9hRQEr2ZXwbDc3Hwg@mail.gmail.com> <4F9101C0.100@kernel.dk> <CAN8qX8a4=a4hBkuB54MGV3_+=+wrPVae6oN6Hh=H-ZQt+0ewyA@mail.gmail.com>
-In-Reply-To: <CAN8qX8a4=a4hBkuB54MGV3_+=+wrPVae6oN6Hh=H-ZQt+0ewyA@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: Re: Floating point exception in client/server mode
+References: <201205091337.26414.ms@teamix.de>
+In-Reply-To: <201205091337.26414.ms@teamix.de>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Suresh Dhanarajan <sureshdrajan@gmail.com>
+To: Martin Steigerwald <ms@teamix.de>
 Cc: fio@vger.kernel.org
 
-On 04/28/2012 09:09 PM, Suresh Dhanarajan wrote:
-> Hi Jens,
-> 
-> I verified the offsets by using the write_io_log switch.
-> when i use offset increment without patch the offset are incremented
-> and not reset to zero after stone wall.
-> when i use with patch the offset resets to zero after stone wall.
-> I hope you are testing with the patch.
-> If it is so this what the behavior iam  also seeing.
+On 05/09/2012 01:37 PM, Martin Steigerwald wrote:
+> Hi Jens, hi everyone,
+>=20
+> Client is 32-bit Debian Wheezy with my 2.0.7 fio package and server is 64=
+-bit=20
+> Debian Wheezy with 2.0.7 fio package.
+>=20
+>=20
+> ms@mango:~/Zeit> cat /proc/version
+> Linux version 3.2.0-2-686-pae (Debian 3.2.15-1) (debian-
+> kernel@lists.debian.org) (gcc version 4.6.3 (Debian 4.6.3-3) ) #1 SMP Sun=
+ Apr=20
+> 15 17:56:31 UTC 2012
+>=20
+>=20
+> ms@mango:~/Zeit> vim randreadwrite.job
+> ms@mango:~/Zeit> fio --client=3Dfrisbie randreadwrite.job=20
+> hostname=3Dfrisbie, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64, fio=3D2.0.7
+> <frisbie> zuf=EF=BF=BDlliglesen: (g=3D0): rw=3Drandread, bs=3D4K-4K/4K-4K=
+, ioengine=3Dsync,=20
+> iodepth=3D1
+> <frisbie> zuf=EF=BF=BDlligschreiben: (g=3D0): rw=3Drandwrite, bs=3D4K-4K/=
+4K-4K,=20
+> ioengine=3Dsync, iodepth=3D1
+> <frisbie> Starting 2 processes
+> <frisbie> =3D2): [] [100.0% done] [613K/650K /s] [149 /158  iops] [eta 00=
+m:00s]
+> zuf=EF=BF=BDlliglesen: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D8090
+> zsh: floating point exception  fio --client=3Dfrisbie randreadwrite.job
 
-I'm puzzled. Did a full test here now, with the patch. Simple job:
+Not reproducing here. Can you enable core dumps and see where it divides
+by zero?
 
-[global]
-ioengine=null
-bs=1k
-size=10m
-offset_increment=1m
-numjobs=2
-write_iolog=log
-
-[job1]
-rw=read
-
-[job2]
-stonewall
-rw=read
-
-using both the write_iolog and --debug=io, I verified that job1 has two
-files, one starts at 0M the next at 1M. job2 has two files, one starts
-at 0M the next at 1M. If I remove the stonewall, job1 has 0M/1M and job
-has 2M/3M.
-
-That certainly looks like it's working to me. I think you need to check
-and double check that you are indeed using a patched version. And note
-that write_iolog will _append_ to an existing log file. Perhaps you are
-looking at an earlier entry set?
-
--- 
+--=20
 Jens Axboe
 
