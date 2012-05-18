@@ -1,46 +1,40 @@
-Return-Path: <ms@teamix.de>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:54365 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762581Ab2ERKAM (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 18 May 2012 06:00:12 -0400
+Message-ID: <4FB61D94.2050909@kernel.dk>
+Date: Fri, 18 May 2012 11:59:48 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-From: Martin Steigerwald <ms@teamix.de>
-Date: Mon, 7 May 2012 08:18:25 -0600
-Subject: [PATCH 2/3] Fix manpage error warning: macro `hostname'' not
- defined.
-Message-ID: 
- <b3065c97eb6fe0d0349d86a8d1bb64887164fc87.1336399881.git.ms@teamix.de>
-References: 
- <5df008af9a2c71c1b680c554a7c8c0ab6041b9f7.1336399881.git.ms@teamix.de>
-In-Reply-To: 
- <5df008af9a2c71c1b680c554a7c8c0ab6041b9f7.1336399881.git.ms@teamix.de>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: Jens Axboe <JAxboe@fusionio.com>, Martin Steigerwald <ms@teamix.de>
-List-ID: <fio@vger.kernel.org>
+Subject: Re: blocking shutdown?
+References: <CAMJ=ptCSGPwF+QWLw27XePB9kbJ-PxjtOtvJ3UbmzAqaZsYrGQ@mail.gmail.com> <CAMJ=ptBgv_YKz9zQOnsyMzXbLO=pUusNY9YEWJzqQWgr_TvRyw@mail.gmail.com>
+In-Reply-To: <CAMJ=ptBgv_YKz9zQOnsyMzXbLO=pUusNY9YEWJzqQWgr_TvRyw@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: George Pang <xilvar@gmail.com>
+Cc: fio@vger.kernel.org
 
-Fix manpage error warning: macro `hostname'' not defined by using
-different line wrapping.
----
- fio.1 |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+On 05/17/2012 10:50 AM, George Pang wrote:
+> I've been configuring a server for a colocation recently using ubuntu
+> 12.04 desktop (the server dist dislikes my only keyboard) and I
+> noticed that if I am running an fio test and I initiate a shutdown the
+> shutdown kills off everything as usual, but fio appears to keep
+> running and block shutdown. (from either the desktop ui or with
+> "shutdown now")
+> 
+> Thus on a remote server any user with privileges to run fio could
+> accidentally, or maliciously prevent system shutdown from completing,
+> effectively taking a server out of service until physical access was
+> achieved.
 
-diff --git a/fio.1 b/fio.1
-index 4e626b0..23650ce 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1318,8 +1318,8 @@ To start the server, you would do:
-=20
- on that machine, where args defines what fio listens to. The arguments
- are of the form 'type:hostname or IP:port'. 'type' is either 'ip' (or ip4)
--for TCP/IP v4, 'ip6' for TCP/IP v6, or 'sock' for a local unix domain sock=
-et.
--'hostname' is either a hostname or IP address, and 'port' is the port to
-+for TCP/IP v4, 'ip6' for TCP/IP v6, or 'sock' for a local unix domain
-+socket. 'hostname' is either a hostname or IP address, and 'port' is the p=
-ort to
- listen to (only valid for TCP/IP, not a local socket). Some examples:
-=20
- 1) fio --server
---=20
-1.7.10
+Sounds like the distro is buggy, then. Fio is nothing special. It'll
+terminate on a signal, if sent TERM for instance. The only way that fio
+would feasibly not die on shutdown would be if it's stuck
+uninterruptibly in the kernel, due to an oops/crash or a bug.
 
+-- 
+Jens Axboe
 
