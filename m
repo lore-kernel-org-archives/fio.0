@@ -1,65 +1,85 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx2.fusionio.com ([66.114.96.31]:58513 "EHLO mx2.fusionio.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751729Ab2FHNDR (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 8 Jun 2012 09:03:17 -0400
-Message-ID: <4FD1F462.4070404@fusionio.com>
-Date: Fri, 8 Jun 2012 14:47:30 +0200
-From: Jens Axboe <jaxboe@fusionio.com>
+Received: from mail.thomas-krenn.com ([217.7.54.186]:38742 "EHLO
+	mail.thomas-krenn.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759373Ab2FAKGq (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 1 Jun 2012 06:06:46 -0400
+Received: from iris.tks.local (iris.tks.local [192.168.10.63])
+	by mail.thomas-krenn.com (Postfix) with ESMTP id 434879F67F
+	for <fio@vger.kernel.org>; Fri,  1 Jun 2012 12:06:44 +0200 (CEST)
+Received: from localhost (ate.tks.local [192.168.10.78])
+	by iris.tks.local (Postfix) with ESMTP id E5851405BA
+	for <fio@vger.kernel.org>; Fri,  1 Jun 2012 12:06:43 +0200 (CEST)
+Received: from mail.thomas-krenn.com ([127.0.0.1])
+	by localhost (ate.TKS.local [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id jcWb-B8QbepX for <fio@vger.kernel.org>;
+	Fri,  1 Jun 2012 12:06:34 +0200 (CEST)
+Received: from [10.0.0.4] (88-117-51-253.adsl.highway.telekom.at [88.117.51.253])
+	by mail.thomas-krenn.com (Postfix) with ESMTPSA
+	for <fio@vger.kernel.org>; Fri,  1 Jun 2012 12:06:34 +0200 (CEST)
+Message-ID: <4FC8942A.6090805@thomas-krenn.com>
+Date: Fri, 01 Jun 2012 12:06:34 +0200
+From: =?ISO-8859-15?Q?Georg_Sch=F6nberger?= 
+	<gschoenberger@thomas-krenn.com>
 MIME-Version: 1.0
-Subject: Re: Error running Fio SSD example
-References: <4FC8942A.6090805@thomas-krenn.com>
-In-Reply-To: <4FC8942A.6090805@thomas-krenn.com>
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
+Subject: Error running Fio SSD example
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: =?ISO-8859-15?Q?Georg_Sch=F6nberger?= <gschoenberger@thomas-krenn.com>
-Cc: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On 06/01/2012 12:06 PM, Georg Sch=EF=BF=BDnberger wrote:
-> Hello again,
->=20
-> I am having some troubles with running the fio example "ssd-test". I
-> changed the global section to decrease the size:
-> [global]
-> bs=3D4k
-> ioengine=3Dlibaio
-> iodepth=3D4
-> size=3D100M
-> direct=3D1
-> runtime=3D60
-> filename=3Dssd.test.file
->=20
-> If I am running Fio I get the following error:
-> ----------------------------------------
-> fio.git/examples$ fio ssd-test
-> seq-read: (g=3D0): rw=3Dread, bs=3D4K-4K/4K-4K, ioengine=3Dlibaio, iodept=
-h=3D4
-> rand-read: (g=3D1): rw=3Drandread, bs=3D4K-4K/4K-4K, ioengine=3Dlibaio, i=
-odepth=3D4
-> seq-write: (g=3D2): rw=3Dwrite, bs=3D4K-4K/4K-4K, ioengine=3Dlibaio, iode=
-pth=3D4
-> rand-write: (g=3D3): rw=3Drandwrite, bs=3D4K-4K/4K-4K, ioengine=3Dlibaio,=
- iodepth=3D4
-> fio-2.0.8
-> Starting 4 processes
-> fio: pid=3D17997, err=3D22/file:filesetup.c:529, func=3Dopen(ssd.test.fil=
-e),
-> error=3DInvalid argument
-> fio: pid=3D17998, err=3D22/file:filesetup.c:529, func=3Dopen(ssd.test.fil=
-e),
-> error=3DInvalid argument
-> fio: pid=3D17999, err=3D22/file:filesetup.c:529, func=3Dopen(ssd.test.fil=
-e),
-> error=3DInvalid argument
-> fio: pid=3D18000, err=3D22/file:filesetup.c:529, func=3Dopen(ssd.test.fil=
-e),
-> error=3DInvalid argument
+Hello again,
 
-Looks like the file system hosting the test file does not support
-O_DIRECT.
+I am having some troubles with running the fio example "ssd-test". I
+changed the global section to decrease the size:
+[global]
+bs=4k
+ioengine=libaio
+iodepth=4
+size=100M
+direct=1
+runtime=60
+filename=ssd.test.file
 
---=20
-Jens Axboe
+If I am running Fio I get the following error:
+----------------------------------------
+fio.git/examples$ fio ssd-test
+seq-read: (g=0): rw=read, bs=4K-4K/4K-4K, ioengine=libaio, iodepth=4
+rand-read: (g=1): rw=randread, bs=4K-4K/4K-4K, ioengine=libaio, iodepth=4
+seq-write: (g=2): rw=write, bs=4K-4K/4K-4K, ioengine=libaio, iodepth=4
+rand-write: (g=3): rw=randwrite, bs=4K-4K/4K-4K, ioengine=libaio, iodepth=4
+fio-2.0.8
+Starting 4 processes
+fio: pid=17997, err=22/file:filesetup.c:529, func=open(ssd.test.file),
+error=Invalid argument
+fio: pid=17998, err=22/file:filesetup.c:529, func=open(ssd.test.file),
+error=Invalid argument
+fio: pid=17999, err=22/file:filesetup.c:529, func=open(ssd.test.file),
+error=Invalid argument
+fio: pid=18000, err=22/file:filesetup.c:529, func=open(ssd.test.file),
+error=Invalid argument
 
+
+Run status group 0 (all jobs):
+
+Run status group 1 (all jobs):
+
+Run status group 2 (all jobs):
+
+Run status group 3 (all jobs):
+----------------------------------------
+My test setup is:
+-Fio
+  fio.git$ fio --version
+  fio-2.0.8
+-libaio1
+  0.3.109-2ubuntu1
+-OS
+  Distributor ID:    Ubuntu
+  Description:    Ubuntu 12.04 LTS
+  Release:    12.04
+  Codename:    precise
+
+-Georg
+
+ 
