@@ -1,21 +1,21 @@
 Return-Path: <gschoenberger@thomas-krenn.com>
 MIME-Version: 1.0
 From: =?iso-8859-15?Q?Georg_Sch=F6nberger?= <gschoenberger@thomas-krenn.com>
-Date: Mon, 11 Jun 2012 01:04:00 -0600
+Date: Mon, 11 Jun 2012 01:00:59 -0600
 Subject: Re: Error running Fio SSD example
-Message-ID: <4FD59860.8070505@thomas-krenn.com>
+Message-ID: <4FD597AB.7060007@thomas-krenn.com>
 References: <4FC8942A.6090805@thomas-krenn.com>
  <4FD1F462.4070404@fusionio.com> <4FD23443.6020705@thomas-krenn.com>
  <4FD24807.8080700@fusionio.com>
 In-Reply-To: <4FD24807.8080700@fusionio.com>
 Content-Language: en-US
 Content-Type: multipart/alternative;
-	boundary="_000_4FD598608070505thomaskrenncom_"
+	boundary="_000_4FD597AB7060007thomaskrenncom_"
 To: Jens Axboe <JAxboe@fusionio.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
---_000_4FD598608070505thomaskrenncom_
+--_000_4FD597AB7060007thomaskrenncom_
 Content-Type: text/plain; charset="iso-8859-15"
 Content-Transfer-Encoding: quoted-printable
 
@@ -101,23 +101,28 @@ h cases where O_DIRECT simply isn't supported. Can you try this patch, see =
 if it complains as it should?
 
 The patch has already been commited (also from Jens):
+
 diff --git a/filesetup.c b/filesetup.c
 index a1ad026..b1f73f7 100644
 --- a/filesetup.c
 +++ b/filesetup.c
 @@ -526,6 +526,11 @@ open_again:
 
-         snprintf(buf, sizeof(buf) - 1, "open(%s)", f->file_name);
+                snprintf(buf, sizeof(buf) - 1, "open(%s)", f->file_name);
 
-+        if (__e =3D=3D EINVAL && (flags & OS_O_DIRECT)) {
-+            log_err("fio: looks like your file system does not " \
-+                "support direct=3D1/buffered=3D0\n");
-+        }
++               if (__e =3D=3D EINVAL && (flags & OS_O_DIRECT)) {
++                       log_err("fio: looks like your file system does not =
+" \
++                               "support direct=3D1/buffered=3D0\n");
++               }
 +
-         td_verror(td, __e, buf);
-     }
+                td_verror(td, __e, buf);
+        }
 
---_000_4FD598608070505thomaskrenncom_
+
+
+
+--_000_4FD597AB7060007thomaskrenncom_
 Content-Type: text/html; charset="iso-8859-15"
 Content-Transfer-Encoding: quoted-printable
 
@@ -201,37 +206,39 @@ running it, and output of the 'mount' command.
     </blockquote>
     Here is the solution to my problem (answered from Jens Axboe):<br>
     <i>ecryptfs does not support O_DIRECT IO. So that was the
-      explanation for the problem.</i><br>
+      explanation for
+      the problem.</i><br>
     <br>
     Also a patch so that FIO gives some further information now:<br>
     <i>Sure, I think it'd be a good idea if fio also complains that this
-      is the likely explanation. Fio does this if the first IO errors,
-      but it doesn't catch cases where O_DIRECT simply isn't supported.
+      is the
+      likely explanation. Fio does this if the first IO errors, but it
+      doesn't
+      catch cases where O_DIRECT simply isn't supported.
       Can you try this patch, see if it complains as it should?</i><br>
     <br>
     The patch has already been commited (also from Jens):<br>
-    diff --git a/filesetup.c b/filesetup.c<br>
-    index a1ad026..b1f73f7 100644<br>
-    --- a/filesetup.c<br>
-    +++ b/filesetup.c<br>
-    @@ -526,6 +526,11 @@ open_again:<br>
-    =A0<br>
-    =A0=A0=A0=A0 =A0=A0=A0 snprintf(buf, sizeof(buf) - 1, "open(%s)",
-    f-&gt;file_name);<br>
-    =A0<br>
-    +=A0=A0=A0 =A0=A0=A0 if (__e =3D=3D EINVAL &amp;&amp; (flags &amp; OS_O=
-_DIRECT)) {<br>
-    +=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 log_err("fio: looks like your file syste=
-m does not " \<br>
-    +=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 "support direct=3D1/buffered=
-=3D0\n");<br>
-    +=A0=A0=A0 =A0=A0=A0 }<br>
-    +<br>
-    =A0=A0=A0=A0 =A0=A0=A0 td_verror(td, __e, buf);<br>
-    =A0=A0=A0=A0 }<br>
+    <pre wrap=3D"">diff --git a/filesetup.c b/filesetup.c
+index a1ad026..b1f73f7 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -526,6 +526,11 @@ open_again:
+=20
+ 		snprintf(buf, sizeof(buf) - 1, "open(%s)", f-&gt;file_name);
+=20
++		if (__e =3D=3D EINVAL &amp;&amp; (flags &amp; OS_O_DIRECT)) {
++			log_err("fio: looks like your file system does not " \
++				"support direct=3D1/buffered=3D0\n");
++		}
++
+ 		td_verror(td, __e, buf);
+ 	}</pre>
+    <br>
+    <br>
+    <br>
   </body>
 </html>
 
---_000_4FD598608070505thomaskrenncom_--
+--_000_4FD597AB7060007thomaskrenncom_--
 
 
