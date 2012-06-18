@@ -1,80 +1,58 @@
-Return-Path: <ms@teamix.de>
-From: Martin Steigerwald <ms@teamix.de>
-Subject: fio 2.0.8 fails to build on mipsel
-Date: Tue, 26 Jun 2012 12:45:30 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Return-Path: <carl.strickland@intel.com>
+From: "Strickland, Carl" <carl.strickland@intel.com>
+Subject: RE: FIO r/w to 2 disks
+Date: Mon, 18 Jun 2012 15:48:39 +0000
+Message-ID: <4E57E183169EA04186759995F13BDC6234F474DC@FMSMSX103.amr.corp.intel.com>
+References: <4E57E183169EA04186759995F13BDC621A18A7C7@FMSMSX103.amr.corp.intel.com>
+ <4FD998CE.3030705@kernel.dk>
+ <4E57E183169EA04186759995F13BDC6234F46FA9@FMSMSX103.amr.corp.intel.com>
+ <4FDADB0C.5040308@kernel.dk>
+In-Reply-To: <4FDADB0C.5040308@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-Message-Id: <201206261245.30704.ms@teamix.de>
-To: fio@vger.kernel.org, Sven Hoexter <sven@timegate.de>, Jens Axboe <axboe@kernel.dk>
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-Hi Jens!
-
-Sven and I are currently trying to get fio 2.0.8 into Debian in time for Wh=
-eezy:
+Thanks Jens, I will look into it!
 
 
-Building fails on mipsel due to=B9:
+Cheers,
+Carl Strickland
 
-    CC crc/sha256.o
-    CC crc/sha512.o
-    CC engines/cpu.o
-    CC engines/mmap.o
-    CC engines/sync.o
-    CC engines/null.o
-    CC engines/net.o
-    CC memalign.o
-    CC server.o
-server.c: In function 'handle_probe_cmd':
-server.c:411:15: error: 'arch_mips' undeclared (first use in this function)
-server.c:411:15: note: each undeclared identifier is reported only once for=
- each function it appears in
-make[1]: *** [server.o] Error 1
-make[1]: Leaving directory `/build/buildd-fio_2.0.8-1-mipsel-9VXitB/fio-2.0=
-=2E8'
-make: *** [build-stamp] Error 2
+-----Original Message-----
+From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Behal=
+f Of Jens Axboe
+Sent: Thursday, June 14, 2012 11:50 PM
+To: Strickland, Carl
+Cc: fio@vger.kernel.org
+Subject: Re: FIO r/w to 2 disks
 
+On 06/15/2012 01:41 AM, Strickland, Carl wrote:
+> Hi Jens,
+>=20
+> The test I'm interested in performing would require (I believe) FIO to=20
+> read from one device and write to another in a specified ratio. This=20
+> is different from the rwmix feature in FIO, as I can specify only a=20
+> single device where the reads and writes will take place.
+>=20
+> Assuming that I could achieve the same read/write ratio with two FIO=20
+> instances (one reading from one device and the other writing to a=20
+> different device) as I get using a single FIO instance and rwmix, is=20
+> there a reason--in terms of how reads and writes would be=20
+> performed--that would prevent a valid comparison between the two?
 
-This happens in server.c:
+Maybe the flow options would help you? Set up two jobs in a single file, on=
+e reader and one writer. Set up the flow parameters to get your desired spl=
+it. See HOWTO, and/or examples/flow to get an idea for how to use that.
 
- 397 static int handle_probe_cmd(struct fio_net_cmd *cmd)
- 398 {
- 399         struct cmd_probe_pdu probe;
- 400=20
- 401         dprint(FD_NET, "server: sending probe reply\n");
- 402=20
- 403         memset(&probe, 0, sizeof(probe));
- 404         gethostname((char *) probe.hostname, sizeof(probe.hostname));
- 405 #ifdef FIO_BIG_ENDIAN
- 406         probe.bigendian =3D 1;
- 407 #endif
- 408         strncpy((char *) probe.fio_version, fio_version_string, sizeof=
-(probe.fio_version));
- 409=20
- 410         probe.os        =3D FIO_OS;
- 411         probe.arch      =3D FIO_ARCH;
- 412=20
- 413         probe.bpp       =3D sizeof(void *);
- 414=20
- 415         return fio_net_send_cmd(server_fd, FIO_NET_CMD_PROBE, &probe, =
-sizeof(probe), cmd->tag);
- 416 }
+--
+Jens Axboe
 
-
-
-=46IO_ARCH is defined to (arch_mips) in arch/arch-mips.h - any idea what
-might be going on here?
-
-
-I'd like to include some patch to have it build on mipsel as well.
-
-
-[1] https://buildd.debian.org/status/package.php?p=3Dfio&suite=3Dsid
-
-Thanks,
-=2D-=20
-Martin Steigerwald - teamix GmbH - http://www.teamix.de
-gpg: 19E3 8D42 896F D004 08AC A0CA 1E10 C593 0399 AE90
+--
+To unsubscribe from this list: send the line "unsubscribe fio" in the body =
+of a message to majordomo@vger.kernel.org More majordomo info at  http://vg=
+er.kernel.org/majordomo-info.html
 
