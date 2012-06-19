@@ -1,33 +1,47 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.186]:65220 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755580Ab2FTLvS (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 20 Jun 2012 07:51:18 -0400
-From: =?iso-8859-1?Q?Stefan_H=FCbner?= <shu@xtivate.de>
-Subject: gentoo netio example problems
-Date: Wed, 20 Jun 2012 11:51:14 +0000
-Message-ID: <DIIE.000011D8000344D1@192.168.0.5>
-MIME-Version: 1.0
-Content-Type: text/plain;
- charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from pbit-mailserver.permabit.com ([204.246.225.83]:59763 "EHLO
+	pbit-mailserver.permabit.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751111Ab2FSXMl convert rfc822-to-8bit
+	(ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 19 Jun 2012 19:12:41 -0400
+Received: from overpriced.permabit.com (overpriced.permabit.com [10.95.208.58])
+	by pbit-mailserver.permabit.com (Postfix) with ESMTPSA id 716DE148E11A
+	for <fio@vger.kernel.org>; Tue, 19 Jun 2012 19:05:21 -0400 (EDT)
+From: Erik Lattimore <elatt@permabit.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Subject: Race condition in fio atexit code
+Date: Tue, 19 Jun 2012 19:05:20 -0400
+Message-Id: <998AA462-26EC-421F-B005-B4B6C936A233@permabit.com>
+Mime-Version: 1.0 (Apple Message framework v1278)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-RGVhciBsaXN0LA0KDQpJIGp1c3QgdHJpZWQgdGhlIGZpbyBleGFtcGxlIGZvciBuZXR3b3JrIHRl
-c3Rpbmc6IHJlbW92ZWQgdGhlIHJlY2VpdmVyLWpvYiBmcm9tIHRoZSBzZW5kZXIgbWFjaGluZSwg
-cmVtb3ZlZCB0aGUgc2VuZGVyLWpvYiBmcm9tIHRoZSByZWNlaXZlciBtYWNoaW5lLiAgSXQgd29y
-a3Mgd2VsbCwgYnV0IHN0b3BwaW5nIGJvdGggam9icyB3aXRoIENUUkwtQyByZXN1bHRzIGluIGJv
-dGggb3V0cHV0dGluZyAiZmlvOiB0ZXJtaW5hdGluZyBvbiBzaWduYWwgMTUiIGZvcmV2ZXIuICBN
-YXkgdGhpcyBiZSBhIGJ1Zz8NCg0KVmVyc2lvbjogMi4wLjMNCg0KTWl0IGZyZXVuZGxpY2hlbiBH
-csO8w59lbg0KU3RlZmFuIEjDvGJuZXIsDQpPRUNFIC0gb3Blbi1lIGNlcnRpZmllZCBlbmdpbmVl
-cg0KeHRpdmF0ZSBTZXJ2aWNlLVRlYW0NCg0KV1dXZ3JvdXAgR2JSDQpNaWNoYWVsIFPDpG5nZXIs
-IEplbnMgV2FsdGVyLCBKw7ZyZyBXZWnDn21hbnRlbA0KWmllZ2VsaMO8dHRlbndlZyA0DQoNCjk4
-NjkzIElsbWVuYXUNCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18NClRlbGVmb246ICAgMDgwMCBYVElWQVRFDQooMDgwMCA5ODQ4
-MjgzLCBncmF0aXMgYXVzIGRldXRzY2hlbSBGZXN0LSB1bmQgTW9iaWxuZXR6KQ0KDQpUZWxlZm9u
-OiAgICs0OSAoMCkzNjc3IDQ2IDk5IDQ0MA0KRmF4OiAgICAgICArNDkgKDApMzY3NyA0NiA5OSA0
-NDkNCmVNYWlsOiAgICAgc2h1QHh0aXZhdGUuZGU=
+Lately it seems like we've been hitting this more frequently, so I figured I'd file a bug.  Fio starts up a thread running the function disk_thread_main, which periodically calls update_io_ticks, which calls update_io_tick_disk on each entry in a circular linked list. The function disk_thread_main returns when the global variable "threads" is set to null, but it's only checked a couple of times in the loop.
 
+The main thread runs the test and exits, and has registered an atexit handler free_shm. This routine sets "threads" to null and frees up storage, including the storage where the linked list used by update_io_ticks is stored.
 
+Occasionally, somehow, update_io_tick_disk winds up getting called with a null pointer and crashing. The problem may be exacerbated when memory is tight. Here's the backtrace of the core dump:
+
+Program terminated with signal 11, Segmentation fault.
+#0  update_io_tick_disk (du=<optimized out>) at diskutil.c:80
+80              if (!du->users)
+(gdb) t apply all bt
+
+Thread 2 (Thread 0x7faab680b700 (LWP 23148)):
+#0  0x00007faab58df377 in shmdt () from /lib64/libc.so.6
+#1  0x000000000040b98d in free_shm () at init.c:231
+#2  0x00007faab583b7f5 in __run_exit_handlers () from /lib64/libc.so.6
+#3  0x00007faab583b845 in exit () from /lib64/libc.so.6
+#4  0x00007faab5824c3d in __libc_start_main () from /lib64/libc.so.6
+#5  0x0000000000408ed9 in _start ()
+
+Thread 1 (Thread 0x7faab32dd700 (LWP 23149)):
+#0  update_io_tick_disk (du=<optimized out>) at diskutil.c:80
+#1  update_io_ticks () at diskutil.c:114
+#2  0x000000000043b303 in disk_thread_main (data=<optimized out>) at backend.c:1589
+#3  0x00007faab61907b6 in start_thread () from /lib64/libpthread.so.0
+#4  0x00007faab58dd9cd in clone () from /lib64/libc.so.6
+#5  0x0000000000000000 in ?? ()
+(gdb) q
