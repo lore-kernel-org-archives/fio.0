@@ -1,44 +1,80 @@
-Return-Path: <sven@timegate.de>
-Date: Tue, 26 Jun 2012 22:13:36 +0200
-From: Sven Hoexter <sven@timegate.de>
-Subject: Re: fio 2.0.8 fails to build on mipsel
-Message-ID: <20120626201336.GC3429@marvin>
-References: <201206261245.30704.ms@teamix.de>
+Return-Path: <ms@teamix.de>
+From: Martin Steigerwald <ms@teamix.de>
+Subject: fio 2.0.8 fails to build on mipsel
+Date: Tue, 26 Jun 2012 12:45:30 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <201206261245.30704.ms@teamix.de>
-To: Martin Steigerwald <ms@teamix.de>
-Cc: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Message-Id: <201206261245.30704.ms@teamix.de>
+To: fio@vger.kernel.org, Sven Hoexter <sven@timegate.de>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-On Tue, Jun 26, 2012 at 12:45:30PM +0200, Martin Steigerwald wrote:
+Hi Jens!
 
-Hi,
-
-> Building fails on mipsel due to=EF=BF=BD:
-
->     CC server.o
-> server.c: In function 'handle_probe_cmd':
-> server.c:411:15: error: 'arch_mips' undeclared (first use in this functio=
-n)
-> server.c:411:15: note: each undeclared identifier is reported only once f=
-or each function it appears in
-> make[1]: *** [server.o] Error 1
-> make[1]: Leaving directory `/build/buildd-fio_2.0.8-1-mipsel-9VXitB/fio-2=
-.0.8'
-> make: *** [build-stamp] Error 2
+Sven and I are currently trying to get fio 2.0.8 into Debian in time for Wh=
+eezy:
 
 
-Adding arch_mips to the enum list at the top of arch/arch.h fixes the
-build issue, but I've no idea if that's the correct fix, regarding endianess
-issue etc. Tested on mipsel only, though the build failure happens
-on mips and mipsel.
+Building fails on mipsel due to=B9:
 
-Sven
---=20
-And I don't know much, but I do know this:
-With a golden heart comes a rebel fist.
-     [ Streetlight Manifesto - Here's To Life ]
+    CC crc/sha256.o
+    CC crc/sha512.o
+    CC engines/cpu.o
+    CC engines/mmap.o
+    CC engines/sync.o
+    CC engines/null.o
+    CC engines/net.o
+    CC memalign.o
+    CC server.o
+server.c: In function 'handle_probe_cmd':
+server.c:411:15: error: 'arch_mips' undeclared (first use in this function)
+server.c:411:15: note: each undeclared identifier is reported only once for=
+ each function it appears in
+make[1]: *** [server.o] Error 1
+make[1]: Leaving directory `/build/buildd-fio_2.0.8-1-mipsel-9VXitB/fio-2.0=
+=2E8'
+make: *** [build-stamp] Error 2
+
+
+This happens in server.c:
+
+ 397 static int handle_probe_cmd(struct fio_net_cmd *cmd)
+ 398 {
+ 399         struct cmd_probe_pdu probe;
+ 400=20
+ 401         dprint(FD_NET, "server: sending probe reply\n");
+ 402=20
+ 403         memset(&probe, 0, sizeof(probe));
+ 404         gethostname((char *) probe.hostname, sizeof(probe.hostname));
+ 405 #ifdef FIO_BIG_ENDIAN
+ 406         probe.bigendian =3D 1;
+ 407 #endif
+ 408         strncpy((char *) probe.fio_version, fio_version_string, sizeof=
+(probe.fio_version));
+ 409=20
+ 410         probe.os        =3D FIO_OS;
+ 411         probe.arch      =3D FIO_ARCH;
+ 412=20
+ 413         probe.bpp       =3D sizeof(void *);
+ 414=20
+ 415         return fio_net_send_cmd(server_fd, FIO_NET_CMD_PROBE, &probe, =
+sizeof(probe), cmd->tag);
+ 416 }
+
+
+
+=46IO_ARCH is defined to (arch_mips) in arch/arch-mips.h - any idea what
+might be going on here?
+
+
+I'd like to include some patch to have it build on mipsel as well.
+
+
+[1] https://buildd.debian.org/status/package.php?p=3Dfio&suite=3Dsid
+
+Thanks,
+=2D-=20
+Martin Steigerwald - teamix GmbH - http://www.teamix.de
+gpg: 19E3 8D42 896F D004 08AC A0CA 1E10 C593 0399 AE90
 
