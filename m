@@ -1,76 +1,84 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:60521 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751156Ab2GaTQC (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 31 Jul 2012 15:16:02 -0400
-Message-ID: <50182EEF.8040904@kernel.dk>
-Date: Tue, 31 Jul 2012 21:15:59 +0200
-From: Jens Axboe <axboe@kernel.dk>
+Received: from nougat.ucs.ed.ac.uk ([129.215.13.205]:39280 "EHLO
+	nougat.ucs.ed.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755756Ab2GQQCu (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 17 Jul 2012 12:02:50 -0400
+Received: from lmtp1.ucs.ed.ac.uk (lmtp1.ucs.ed.ac.uk [129.215.149.64])
+	by nougat.ucs.ed.ac.uk (8.13.8/8.13.4) with ESMTP id q6HFJHT0020597
+	for <fio@vger.kernel.org>; Tue, 17 Jul 2012 16:19:22 +0100 (BST)
+Received: from [129.215.183.3] (pcw3047.see.ed.ac.uk [129.215.183.3])
+	(authenticated user=mrichar1 mech=PLAIN bits=0)
+	by lmtp1.ucs.ed.ac.uk (8.13.8/8.13.7) with ESMTP id q6HFJHnM008682
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <fio@vger.kernel.org>; Tue, 17 Jul 2012 16:19:17 +0100 (BST)
+Message-ID: <50058274.2070006@ed.ac.uk>
+Date: Tue, 17 Jul 2012 16:19:16 +0100
+From: Matthew Richardson <m.richardson@ed.ac.uk>
 MIME-Version: 1.0
-Subject: Re: Filenames on 'server' jobs to shared filesystems
-References: <50058274.2070006@ed.ac.uk>
-In-Reply-To: <50058274.2070006@ed.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: Filenames on 'server' jobs to shared filesystems
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigE53A1B8E3AD1D5ED359C3112"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Matthew Richardson <m.richardson@ed.ac.uk>
-Cc: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigE53A1B8E3AD1D5ED359C3112
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-On 2012-07-17 17:19, Matthew Richardson wrote:
-> I'm currently using fio to simulate user reads and writes to a NAS
-> service, and am testing the performance of different shared filesystems
-> (NFS, Samba, Glusterfs etc).
-> 
-> In order to properly load the box I'm using a pool of clients to connect
-> to the fs (fio --server) and then launching the same job on multiple
-> clients. (fio --client=a --client=b job.fio)
-> 
-> The resulting jobs on the different servers all seem to use the same
-> file - the filename seems to be <name>.<thread>.<fileno> - in this case
-> 'job.1.0':
-> 
-> [global]
-> directory=/mnt/gluster
-> rw=randrw
-> size=10M
-> ioengine=libaio
-> 
-> [job]
-> 
-> 
-> Is there any way to have the server include some personal identifier
-> (such as hostname) in the filename so that there isn't this conflict?
+I'm currently using fio to simulate user reads and writes to a NAS
+service, and am testing the performance of different shared filesystems
+(NFS, Samba, Glusterfs etc).
 
-That's not a bad idea, to have the backend prefix with it's hostname or
-similar. Let me know if you want to test (or create!) such a patch, I'd
-be happy to help.
+In order to properly load the box I'm using a pool of clients to connect
+to the fs (fio --server) and then launching the same job on multiple
+clients. (fio --client=3Da --client=3Db job.fio)
 
-Sorry about the late response - that goes to all the emails on this
-list. I've been away on business and then vacation, so it's been a while
-and I'm trying to catch up.
+The resulting jobs on the different servers all seem to use the same
+file - the filename seems to be <name>.<thread>.<fileno> - in this case
+'job.1.0':
 
-- -- 
-Jens Axboe
+[global]
+directory=3D/mnt/gluster
+rw=3Drandrw
+size=3D10M
+ioengine=3Dlibaio
+
+[job]
+
+
+Is there any way to have the server include some personal identifier
+(such as hostname) in the filename so that there isn't this conflict?
+
+Thanks,
+
+Matthew
+
+--=20
+The University of Edinburgh is a charitable body, registered in
+Scotland, with registration number SC005336.
+
+
+
+--------------enigE53A1B8E3AD1D5ED359C3112
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iQIcBAEBCAAGBQJQGC7rAAoJEPfTWPspceCm5cYQAMqHqMYzEMNT6xEUBUHvuRON
-ZlOhAqHP191vWLDTGvbSmkDZEerd5uQULbVhWDtvdgrnfivtjv91NhQnN9D4RY7P
-YNQfLXyPUHkYnc4271XqFxNnwCwQ0nNklGL3nUsGHdlHxK2nrDAsFxkMoPUkNZP+
-pAS2Gpg3Enz9O0sBmeIFQpTv478RKwD8tgHEQKn/ZusRKo5XlJNBfjOJhP/oEfny
-l3C7s1rhfHCsnIVL1M/AWdA+1tp8+h+byxOz49IIGa/fif0P+eCgihuU/UohDsFE
-sNe2jBoXfXvW3zHYA8nUzL9vjZjLQFKgTBWldM1nuxz2SMA66O40K0BZ6x1hIOaJ
-fJafWhflPNBSJBxuvwLBzGv4hsfwp0ABBCZG0uz2brLUFog3Yr+qqRJAy6yIWjmK
-Ha3jaPV3sVD1cjV+xaNLdLv2QsEIAo3gghZyIFskuW+NuNkH9icgwo+i5Owl+4ER
-v6c4ydcPtdJFguotOG6D4kgfl358pLfwSWTzKK3P7uve3xuAjxKdMVjgLE92/MCn
-pxvOmws0hn5m3+thmodbi8ipKsHvALl+IYidWKdWAEqVz0LUGRjrZWxHxA5dX/+l
-vHJjmnUvk2rI+Tzakuli9PZap7r4uieC1IfHm4gdOJKrGHztBH4yVjz9V+zsEjF/
-Uwm1vfkoiwwbhkVAMxYf
-=3u9j
+iEYEARECAAYFAlAFgnUACgkQRWpi1WYCQdJqhgCfQtU/yywry1NKglxD59LiAesK
+PrsAn1TrAVGT5PzFQVoV3PsL/mw12n6H
+=g4RQ
 -----END PGP SIGNATURE-----
+
+--------------enigE53A1B8E3AD1D5ED359C3112--
+--:
+To unsubscribe from this list: send the line "unsubscribe fio" in
+the body of a message to majordomo@vger.kernel.org: 
+More majordomo info at  http: //vger.kernel.org/majordomo-info.html
+
+
