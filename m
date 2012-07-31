@@ -1,61 +1,67 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:60515 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752549Ab2GaTGi (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 31 Jul 2012 15:06:38 -0400
-Message-ID: <50182CBA.4060602@kernel.dk>
-Date: Tue, 31 Jul 2012 21:06:34 +0200
-From: Jens Axboe <axboe@kernel.dk>
+Received: from mail4.conversis.de ([213.203.219.181]:55667 "EHLO
+	mail4.conversis.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752271Ab2GaUAa (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 31 Jul 2012 16:00:30 -0400
+Received: from nexus.conversis.de (p5DCF7C28.dip.t-dialin.net [93.207.124.40])
+	by mail4.conversis.de (Postfix) with ESMTP id D9CE7242004C
+	for <fio@vger.kernel.org>; Tue, 31 Jul 2012 21:37:24 +0200 (CEST)
+Message-ID: <501833F3.8030204@conversis.de>
+Date: Tue, 31 Jul 2012 21:37:23 +0200
+From: Dennis Jacobfeuerborn <dennisml@conversis.de>
 MIME-Version: 1.0
-Subject: Re: Race condition in fio atexit code
-References: <998AA462-26EC-421F-B005-B4B6C936A233@permabit.com>
-In-Reply-To: <998AA462-26EC-421F-B005-B4B6C936A233@permabit.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Puzzling SSD performance
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Erik Lattimore <elatt@permabit.com>
-Cc: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On 2012-06-20 01:05, Erik Lattimore wrote:
-> Lately it seems like we've been hitting this more frequently, so I figured I'd file a bug.  Fio starts up a thread running the function disk_thread_main, which periodically calls update_io_ticks, which calls update_io_tick_disk on each entry in a circular linked list. The function disk_thread_main returns when the global variable "threads" is set to null, but it's only checked a couple of times in the loop.
-> 
-> The main thread runs the test and exits, and has registered an atexit handler free_shm. This routine sets "threads" to null and frees up storage, including the storage where the linked list used by update_io_ticks is stored.
-> 
-> Occasionally, somehow, update_io_tick_disk winds up getting called with a null pointer and crashing. The problem may be exacerbated when memory is tight. Here's the backtrace of the core dump:
-> 
-> Program terminated with signal 11, Segmentation fault.
-> #0  update_io_tick_disk (du=<optimized out>) at diskutil.c:80
-> 80              if (!du->users)
-> (gdb) t apply all bt
-> 
-> Thread 2 (Thread 0x7faab680b700 (LWP 23148)):
-> #0  0x00007faab58df377 in shmdt () from /lib64/libc.so.6
-> #1  0x000000000040b98d in free_shm () at init.c:231
-> #2  0x00007faab583b7f5 in __run_exit_handlers () from /lib64/libc.so.6
-> #3  0x00007faab583b845 in exit () from /lib64/libc.so.6
-> #4  0x00007faab5824c3d in __libc_start_main () from /lib64/libc.so.6
-> #5  0x0000000000408ed9 in _start ()
-> 
-> Thread 1 (Thread 0x7faab32dd700 (LWP 23149)):
-> #0  update_io_tick_disk (du=<optimized out>) at diskutil.c:80
-> #1  update_io_ticks () at diskutil.c:114
-> #2  0x000000000043b303 in disk_thread_main (data=<optimized out>) at backend.c:1589
-> #3  0x00007faab61907b6 in start_thread () from /lib64/libpthread.so.0
-> #4  0x00007faab58dd9cd in clone () from /lib64/libc.so.6
-> #5  0x0000000000000000 in ?? ()
-> (gdb) q--
+Hi,
+I've been trying to benchmark a new System and currently have trouble
+understanding the numbers I'm seeing.
 
-This is clearly a race in how the disk util thread is shut down and the
-structures freed. I'll take a look at a fix. It would be useful if you
-told me how you are hitting this most easily, as I don't recall seeing
-it. Would make me more confident in a fix.
+The System is equipped with an LSI 9266-8i dual-core controller with 1G
+cache. This controller is configured with two logical drives: one 4 sas
+disk raid5 and one 3 Intel 320 SSD disk raid5.
 
-Also, are you sure it's threads == NULL, and not the du's themselves
-being freed? They are in separate storage. It might be a good idea to
-have diskutil.c:free_disk_util() signal and wait for the disk util
-thread to shutdown before going further.
+Initial fio benchmarking with the folling config:
 
--- 
-Jens Axboe
+[randwrite]
+rw=randwrite
+direct=1
+filename=/dev/vg_test/lv_benchmark
+numjobs=1
+group_reporting
+bs=4k
+runtime=300
 
+led to these results for the two volumes:
+
+sas: write: io=141368KB, bw=482529 B/s, iops=117 , runt=300004msec
+ssd: write: io=2799.5MB, bw=9555.5KB/s, iops=2388 , runt=300001msec
+(notice that I set the caching policy to writethrough for both logical drives)
+
+Next I create a KVM virtual machine with MongoDB on the system and created
+a small system drive and one sas and one ssd drive for the data and used
+them for the virtual machine.
+
+When I now run an looped inserts on the database I can get 23.000 inserts
+with the sas disks but only 3000 inserts with the ssd disks?
+What is really puzzling is that the IOPS numbers monitored look really strange.
+In the sas case I see around 100 iops which seems a little low but the
+inserted record is about 250 bytes in size so this might be explained by
+MongoDB submitting multiple records with one IOP?
+
+But when I use the SSD raid5 instead I see 3000 iops on the hosts (and in
+the guest). I have no explanation for this.
+
+Why would the number of iops be so different especially in the guest that
+cannot even see the difference because the disk is only presented as an
+abstrakt virtio disk to it?
+
+Does anyone have an idea why the SSD disks perform so dramatically worse
+than the SAS disks?
+
+Regards,
+  Dennis
