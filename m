@@ -1,80 +1,76 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from exprod7og109.obsmtp.com ([64.18.2.171]:40281 "HELO
-	exprod7og109.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S933478Ab2GLU5P (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 12 Jul 2012 16:57:15 -0400
-Received: by obbup19 with SMTP id up19so3924182obb.12
-        for <fio@vger.kernel.org>; Thu, 12 Jul 2012 13:57:13 -0700 (PDT)
+Received: from merlin.infradead.org ([205.233.59.134]:60521 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751156Ab2GaTQC (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 31 Jul 2012 15:16:02 -0400
+Message-ID: <50182EEF.8040904@kernel.dk>
+Date: Tue, 31 Jul 2012 21:15:59 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Date: Thu, 12 Jul 2012 16:51:38 -0400
-Message-ID: <CAPWDiB2yMrTVbAGiPKN_B4mLU=sL7W1_9Xw7OVM2Or7TDJGXPA@mail.gmail.com>
-Subject: fio with fallocate fails with ENOSYS
-From: Kevin Castiglia <kcastiglia@aereo.com>
+Subject: Re: Filenames on 'server' jobs to shared filesystems
+References: <50058274.2070006@ed.ac.uk>
+In-Reply-To: <50058274.2070006@ed.ac.uk>
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Matthew Richardson <m.richardson@ed.ac.uk>
+Cc: fio@vger.kernel.org
 
-Hello,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
 
-fio with fallocate fails with ENOSYS, but I'm unable to reproduce this
-failure outside of fio. The following command:
-    fio --rw=write --fallocate=keep --filename=hello --size=1G
---runtime=10 --time_based --name=test
-reports an error (if there is no file named 'hello' in my current
-working directory).
+On 2012-07-17 17:19, Matthew Richardson wrote:
+> I'm currently using fio to simulate user reads and writes to a NAS
+> service, and am testing the performance of different shared filesystems
+> (NFS, Samba, Glusterfs etc).
+> 
+> In order to properly load the box I'm using a pool of clients to connect
+> to the fs (fio --server) and then launching the same job on multiple
+> clients. (fio --client=a --client=b job.fio)
+> 
+> The resulting jobs on the different servers all seem to use the same
+> file - the filename seems to be <name>.<thread>.<fileno> - in this case
+> 'job.1.0':
+> 
+> [global]
+> directory=/mnt/gluster
+> rw=randrw
+> size=10M
+> ioengine=libaio
+> 
+> [job]
+> 
+> 
+> Is there any way to have the server include some personal identifier
+> (such as hostname) in the filename so that there isn't this conflict?
 
-Within the output I see: err=38 (file:filesetup.c:98, func=fallocate,
-error=Function not implemented)
+That's not a bad idea, to have the backend prefix with it's hostname or
+similar. Let me know if you want to test (or create!) such a patch, I'd
+be happy to help.
 
-The following C program prints 0 (if there is no file named testing in
-my current working directory):
+Sorry about the late response - that goes to all the emails on this
+list. I've been away on business and then vacation, so it's been a while
+and I'm trying to catch up.
 
-#include <linux/falloc.h>
-#include <stdio.h>
-#include <errno.h>
+- -- 
+Jens Axboe
 
-int main() {
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-    int f = open("testing", "O_CREAT", "0644");
-    int r = fallocate(f, 01, 0, 1073741824);
-    printf("%d\n", r);
-
-}
-
-Why is the fio command above failing with ENOSYS when this test
-program runs without errors?
-
-Also,
-
-    $ strace fallocate -n -l 1G test
-    ...
-    fallocate(3, 01, 0, 1073741824)         = 0
-    ...
-
-the fallocate system call seems to work.
-
-I'm using Fedora 16 , fio 2.07, and an ext4 filesystem
-
-    $ fio --version
-    fio 2.0.7
-
-    $ uname -r
-    3.1.0-7.fc16.x86_64
-
-    $ mount
-    ...
-    /dev/mapper/vg_kcastiglia-lv_home on /home type ext4
-(rw,relatime,seclabel,user_xattr,acl,barrier=1,data=ordered)
-    ...
-
-    $ ldd --version
-    ldd (GNU libc) 2.14.90
-    ...
-
-    $ gcc --version
-    gcc (GCC) 4.6.3 20120306 (Red Hat 4.6.3-2)
-    ...
-
-Thanks for your help,
-  Kevin Castiglia
+iQIcBAEBCAAGBQJQGC7rAAoJEPfTWPspceCm5cYQAMqHqMYzEMNT6xEUBUHvuRON
+ZlOhAqHP191vWLDTGvbSmkDZEerd5uQULbVhWDtvdgrnfivtjv91NhQnN9D4RY7P
+YNQfLXyPUHkYnc4271XqFxNnwCwQ0nNklGL3nUsGHdlHxK2nrDAsFxkMoPUkNZP+
+pAS2Gpg3Enz9O0sBmeIFQpTv478RKwD8tgHEQKn/ZusRKo5XlJNBfjOJhP/oEfny
+l3C7s1rhfHCsnIVL1M/AWdA+1tp8+h+byxOz49IIGa/fif0P+eCgihuU/UohDsFE
+sNe2jBoXfXvW3zHYA8nUzL9vjZjLQFKgTBWldM1nuxz2SMA66O40K0BZ6x1hIOaJ
+fJafWhflPNBSJBxuvwLBzGv4hsfwp0ABBCZG0uz2brLUFog3Yr+qqRJAy6yIWjmK
+Ha3jaPV3sVD1cjV+xaNLdLv2QsEIAo3gghZyIFskuW+NuNkH9icgwo+i5Owl+4ER
+v6c4ydcPtdJFguotOG6D4kgfl358pLfwSWTzKK3P7uve3xuAjxKdMVjgLE92/MCn
+pxvOmws0hn5m3+thmodbi8ipKsHvALl+IYidWKdWAEqVz0LUGRjrZWxHxA5dX/+l
+vHJjmnUvk2rI+Tzakuli9PZap7r4uieC1IfHm4gdOJKrGHztBH4yVjz9V+zsEjF/
+Uwm1vfkoiwwbhkVAMxYf
+=3u9j
+-----END PGP SIGNATURE-----
