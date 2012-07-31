@@ -1,67 +1,57 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail4.conversis.de ([213.203.219.181]:55667 "EHLO
-	mail4.conversis.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752271Ab2GaUAa (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 31 Jul 2012 16:00:30 -0400
-Received: from nexus.conversis.de (p5DCF7C28.dip.t-dialin.net [93.207.124.40])
-	by mail4.conversis.de (Postfix) with ESMTP id D9CE7242004C
-	for <fio@vger.kernel.org>; Tue, 31 Jul 2012 21:37:24 +0200 (CEST)
-Message-ID: <501833F3.8030204@conversis.de>
-Date: Tue, 31 Jul 2012 21:37:23 +0200
-From: Dennis Jacobfeuerborn <dennisml@conversis.de>
+Received: from casper.infradead.org ([85.118.1.10]:58072 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756205Ab2GaSug (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 31 Jul 2012 14:50:36 -0400
+Message-ID: <501828F9.2060100@kernel.dk>
+Date: Tue, 31 Jul 2012 20:50:33 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Subject: Puzzling SSD performance
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: Client - Server(s?)
+References: <201207021912.q62JCqDV26291886@zion.americas.sgi.com>
+In-Reply-To: <201207021912.q62JCqDV26291886@zion.americas.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Scott Emery <emery@sgi.com>
+Cc: fio@vger.kernel.org
 
-Hi,
-I've been trying to benchmark a new System and currently have trouble
-understanding the numbers I'm seeing.
+On 2012-07-02 21:12, Scott Emery wrote:
+> Hullo Jens,
+> 	I have enjoyed using fio, I find it to be easy to set up and
+> run. 
 
-The System is equipped with an LSI 9266-8i dual-core controller with 1G
-cache. This controller is configured with two logical drives: one 4 sas
-disk raid5 and one 3 Intel 320 SSD disk raid5.
+Thanks!
 
-Initial fio benchmarking with the folling config:
+> 	I have a question about the direction of client/server, which
+> revolves around a situation I would like to benchmark.  I deal with
+> a couple of clustered filesystems and would like to get aggregate
+> performance values based on I/O from multiple filesystem clients.
+> To that end I would like to drive a test from a single "location" to
+> multiple filesystem clients. 
+> 
+> 	My understanding (?) of fio client/server semantics is that
+> one client drives no more than one server.  With this understanding
+> I would set up a fio server on each filesystem client that I want  to
+> test and then run fio clients from my test location in parallel to
+> each fio server/filesystem client.  I would then aggregate the
+> statistics by hand.   This is certainly a huge step up from scripting
+> something myself by hand. 
+> 
+> 	It would be convenient if I could have one client/set of clients
+> work together to drive the fio servers and aggregate the statistics
+> for me.  Is this where fio is going?
 
-[randwrite]
-rw=randwrite
-direct=1
-filename=/dev/vg_test/lv_benchmark
-numjobs=1
-group_reporting
-bs=4k
-runtime=300
+Yes, this is where fio is going, and in fact that should already work.
+One fio client can drive multiple servers, you just give it the
+hostnames. There's some non-intuitive ways around how it sends the same
+config file and not one per server, but that's mainly parsing stuff.
+It doesn't have anything to do with how fio functions, so it could
+easily be changed.
 
-led to these results for the two volumes:
+Fio will also collect and sum the results, if you ask it to.
 
-sas: write: io=141368KB, bw=482529 B/s, iops=117 , runt=300004msec
-ssd: write: io=2799.5MB, bw=9555.5KB/s, iops=2388 , runt=300001msec
-(notice that I set the caching policy to writethrough for both logical drives)
+-- 
+Jens Axboe
 
-Next I create a KVM virtual machine with MongoDB on the system and created
-a small system drive and one sas and one ssd drive for the data and used
-them for the virtual machine.
-
-When I now run an looped inserts on the database I can get 23.000 inserts
-with the sas disks but only 3000 inserts with the ssd disks?
-What is really puzzling is that the IOPS numbers monitored look really strange.
-In the sas case I see around 100 iops which seems a little low but the
-inserted record is about 250 bytes in size so this might be explained by
-MongoDB submitting multiple records with one IOP?
-
-But when I use the SSD raid5 instead I see 3000 iops on the hosts (and in
-the guest). I have no explanation for this.
-
-Why would the number of iops be so different especially in the guest that
-cannot even see the difference because the disk is only presented as an
-abstrakt virtio disk to it?
-
-Does anyone have an idea why the SSD disks perform so dramatically worse
-than the SAS disks?
-
-Regards,
-  Dennis
