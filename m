@@ -1,76 +1,71 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:59535 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751834Ab2HSMjv (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 19 Aug 2012 08:39:51 -0400
-Received: by bkwj10 with SMTP id j10so1651094bkw.19
-        for <fio@vger.kernel.org>; Sun, 19 Aug 2012 05:39:49 -0700 (PDT)
+Received: from casper.infradead.org ([85.118.1.10]:37880 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754664Ab2HAHlL (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 1 Aug 2012 03:41:11 -0400
+Message-ID: <5018DD90.5040700@kernel.dk>
+Date: Wed, 01 Aug 2012 09:41:04 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Date: Sun, 19 Aug 2012 22:39:49 +1000
-Message-ID: <CAHaS=Qz0FBWFh1o4avw5wTapGFTO8-argLW38mrdXHWLJ0-Ygg@mail.gmail.com>
-Subject: Rate problems (Windows)
-From: Greg Sullivan <greg.sullivan@sullivang.net>
+Subject: Re: Race condition in fio atexit code
+References: <998AA462-26EC-421F-B005-B4B6C936A233@permabit.com> <50182CBA.4060602@kernel.dk> <50182E43.5030309@kernel.dk>
+In-Reply-To: <50182E43.5030309@kernel.dk>
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Erik Lattimore <elatt@permabit.com>
+Cc: fio@vger.kernel.org
 
-I'm finding that the throughput is varying wildly during a run - more
-than I think is probably normal. It happens regardless of whether I
-limit by data rate or io rate, although I think it's worse when I
-limit by io.
+On 07/31/2012 09:13 PM, Jens Axboe wrote:
+> On 2012-07-31 21:06, Jens Axboe wrote:
+>> On 2012-06-20 01:05, Erik Lattimore wrote:
+>>> Lately it seems like we've been hitting this more frequently, so I figured I'd file a bug.  Fio starts up a thread running the function disk_thread_main, which periodically calls update_io_ticks, which calls update_io_tick_disk on each entry in a circular linked list. The function disk_thread_main returns when the global variable "threads" is set to null, but it's only checked a couple of times in the loop.
+>>>
+>>> The main thread runs the test and exits, and has registered an atexit handler free_shm. This routine sets "threads" to null and frees up storage, including the storage where the linked list used by update_io_ticks is stored.
+>>>
+>>> Occasionally, somehow, update_io_tick_disk winds up getting called with a null pointer and crashing. The problem may be exacerbated when memory is tight. Here's the backtrace of the core dump:
+>>>
+>>> Program terminated with signal 11, Segmentation fault.
+>>> #0  update_io_tick_disk (du=<optimized out>) at diskutil.c:80
+>>> 80              if (!du->users)
+>>> (gdb) t apply all bt
+>>>
+>>> Thread 2 (Thread 0x7faab680b700 (LWP 23148)):
+>>> #0  0x00007faab58df377 in shmdt () from /lib64/libc.so.6
+>>> #1  0x000000000040b98d in free_shm () at init.c:231
+>>> #2  0x00007faab583b7f5 in __run_exit_handlers () from /lib64/libc.so.6
+>>> #3  0x00007faab583b845 in exit () from /lib64/libc.so.6
+>>> #4  0x00007faab5824c3d in __libc_start_main () from /lib64/libc.so.6
+>>> #5  0x0000000000408ed9 in _start ()
+>>>
+>>> Thread 1 (Thread 0x7faab32dd700 (LWP 23149)):
+>>> #0  update_io_tick_disk (du=<optimized out>) at diskutil.c:80
+>>> #1  update_io_ticks () at diskutil.c:114
+>>> #2  0x000000000043b303 in disk_thread_main (data=<optimized out>) at backend.c:1589
+>>> #3  0x00007faab61907b6 in start_thread () from /lib64/libpthread.so.0
+>>> #4  0x00007faab58dd9cd in clone () from /lib64/libc.so.6
+>>> #5  0x0000000000000000 in ?? ()
+>>> (gdb) q--
+>>
+>> This is clearly a race in how the disk util thread is shut down and the
+>> structures freed. I'll take a look at a fix. It would be useful if you
+>> told me how you are hitting this most easily, as I don't recall seeing
+>> it. Would make me more confident in a fix.
+>>
+>> Also, are you sure it's threads == NULL, and not the du's themselves
+>> being freed? They are in separate storage. It might be a good idea to
+>> have diskutil.c:free_disk_util() signal and wait for the disk util
+>> thread to shutdown before going further.
+> 
+> Can you reproduce with this patch?
 
-Here is a test job followed by the output. The io rate fluctuated
-wildly - I watched it in the Windows Performance Monitor. The io rate
-should be extremely easy to maintain. The "CR=80" looks suspicious -
-why is there an 80 there when I requested 40?
+I've checked in a different fix, doing proper locking around the du list
+and ensuring that the disk util thread has exited before freeing the
+structures.
 
-BEGIN>>>
-[streams]
-sync=1
-direct=1
-bs=4k
-thread
-size=10M
-nrfiles=1
-rate_iops=40
-rw=read
-END>>>
+http://git.kernel.dk/?p=fio.git;a=commit;h=feb418556a236aa041a625b083d6b99e55d23d74
 
-BEGIN>>>
-D:\>fio test.ini
-streams: (g=0): rw=read, bs=4K-4K/4K-4K, ioengine=windowsaio, iodepth=1
-fio-2.0.8-19-g9576
-Starting 1 thread
-Jobs: 1 (f=1), CR=80/0 IOPS: [R] [100.0% done] [160K/0K /s] [40 /0
-iops] [eta 00m:00s]
-streams: (groupid=0, jobs=1): err= 0: pid=4888: Sun Aug 19 22:32:01 2012
-  read : io=10240KB, bw=163898 B/s, iops=40 , runt= 63977msec
-    slat (usec): min=13 , max=106 , avg=23.81, stdev= 7.43
-    clat (usec): min=214 , max=26940 , avg=688.03, stdev=1920.57
-     lat (usec): min=248 , max=26986 , avg=711.84, stdev=1921.02
-    clat percentiles (usec):
-     |  1.00th=[  239],  5.00th=[  262], 10.00th=[  266], 20.00th=[  270],
-     | 30.00th=[  274], 40.00th=[  278], 50.00th=[  282], 60.00th=[  286],
-     | 70.00th=[  290], 80.00th=[  302], 90.00th=[  354], 95.00th=[ 4960],
-     | 99.00th=[ 5088], 99.50th=[18048], 99.90th=[19328], 99.95th=[19328],
-     | 99.99th=[27008]
-    bw (KB/s)  : min=    3, max=  961, per=100.00%, avg=218.90, stdev=207.65
-    lat (usec) : 250=1.80%, 500=89.80%, 750=2.23%
-    lat (msec) : 10=5.39%, 20=0.74%, 50=0.04%
-  cpu          : usr=0.00%, sys=0.00%, ctx=0, majf=0, minf=0
-  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued    : total=r=2560/w=0/d=0, short=r=0/w=0/d=0
+-- 
+Jens Axboe
 
-Run status group 0 (all jobs):
-   READ: io=10240KB, aggrb=160KB/s, minb=160KB/s, maxb=160KB/s,
-mint=63977msec, maxt=63977msec
-
-D:\>
-END>>>
-
-Windows 7 32-bit.
-
-Greg.
