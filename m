@@ -1,64 +1,56 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.8]:52896 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751497Ab2HMKrS (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 13 Aug 2012 06:47:18 -0400
-From: =?iso-8859-1?Q?Stefan_H=FCbner?= <shu@xtivate.de>
-Subject: Problems replaying fio-jobs
-Date: Mon, 13 Aug 2012 10:47:20 +0000
-Message-ID: <DIIE.0000019200037368@192.168.0.5>
+Received: from mail.thomas-krenn.com ([217.7.54.186]:38260 "EHLO
+	mail.thomas-krenn.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751902Ab2HAF1B convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Wed, 1 Aug 2012 01:27:01 -0400
+Date: Wed, 1 Aug 2012 07:26:56 +0200 (CEST)
+From: Georg =?utf-8?Q?Sch=C3=B6nberger?= 
+	<gschoenberger@thomas-krenn.com>
+Message-ID: <927703077.137143.1343798816636.JavaMail.root@thomas-krenn.com>
+In-Reply-To: <5018286D.5070000@kernel.dk>
+Subject: Re: Problem using --offset: fix call to fadvise64
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
 
-SGkgTGlzdCwNCg0KSSdtIHRyeWluZyB0byBnZXQgbnVtYmVycyBmb3IgTFNJJ3MgQ2FjaGVDYWRl
-Mi4wIGZlYXR1cmUgaW4gYmxvY2sgbW9kZS4gIEkgZG8gcmVjb3JkIGEgZmlvIHJ1biB3aXRoIHRo
-aXMgam9iLWZpbGU6DQoNClVsdHJhQml0Y2ggQ0MtdGVzdGluZyAjIGNhdCBjYy1jcmVhdGUuZmlv
-IA0KW2dsb2JhbF0NCmRpc2FibGVfbGF0PTENCmRpc2FibGVfY2xhdD0xDQpkaXNhYmxlX3NsYXQ9
-MQ0KY2xhdF9wZXJjZW50aWxlcz0wDQpzaXplPSR7U0laRX1HDQpuaWNlPTEwDQpwcmlvPTUNCmlv
-ZW5naW5lPWxpYmFpbw0KaW9kZXB0aD0xNg0KZGlyZWN0PTENCmlvbWVtX2FsaWduPTRNDQp2ZXJp
-Znk9Y3JjMzJjLWludGVsDQp2ZXJpZnlfYXN5bmM9Mg0KZG9fdmVyaWZ5PTENCnZlcmlmeV9kdW1w
-PTENCltpU0NTSV0NCnJ3PXJhbmR3cml0ZQ0KYnNyYW5nZT00ay00TQ0KZmlsZW5hbWU9JHtJU0NT
-SV9ERVZJQ0V9DQp3cml0ZV9pb2xvZz1pb2xvZ18ke1NJWkV9LmxvZw0Kd3JpdGVfYndfbG9nPWNy
-ZWF0b3JfJHtTSVpFfQ0KDQpUaGUgdmFyaWFibGVzIFNJWkUgYXJlIHByb3Blcmx5IHNldCBJU0NT
-SS1ERVZJQ0UuICBmaW8gcmVjb3JkcyBhIF9idy5sb2cgYW5kIGFuIGlvbG9nLmxvZyBhcyBvbmUg
-d291bGQgdGhpbmsuICBCVVQ6IGl0IGRvZXMgbmV2ZXIgdmVyaWZ5IHdyaXR0ZW4gZGF0YSAtIGlz
-IHRoYXQgaW50ZW5kZWQ/DQoNCkknbSB0cnlpbmcgdG8gcmVwbGF5IHRoaXMgdGVzdCBhZnRlciBl
-bmFibGluZyBDQzIgd2l0aCB0aGlzIGpvYmZpbGU6DQoNClVsdHJhQml0Y2ggQ0MtdGVzdGluZyAj
-IGNhdCBjYy10ZXN0LmZpbyANCltnbG9iYWxdDQpkaXNhYmxlX2xhdD0xDQpkaXNhYmxlX2NsYXQ9
-MQ0KZGlzYWJsZV9zbGF0PTENCmNsYXRfcGVyY2VudGlsZXM9MA0KI3NpemU9JHtTSVpFfQ0Kbmlj
-ZT0xMA0KcHJpbz01DQppb2VuZ2luZT1saWJhaW8NCmlvZGVwdGg9MTYNCmRpcmVjdD0xDQppb21l
-bV9hbGlnbj00TQ0KdmVyaWZ5PWNyYzMyYy1pbnRlbA0KdmVyaWZ5X2FzeW5jPTINCmRvX3Zlcmlm
-eT0xDQojdmVyaWZ5X2R1bXA9MQ0KW2lTQ1NJXQ0KcmVhZF9pb2xvZz1pb2xvZ18ke1NJWkV9Lmxv
-Zw0KcmVwbGF5X25vX3N0YWxsPTENCnJlcGxheV9yZWRpcmVjdD0ke0lTQ1NJX0RFVklDRX0NCndy
-aXRlX2J3X2xvZz10ZXN0b3JfJHtSVU59XyR7U0laRX0NCg0KQnV0IHRob3NlIHRlc3RzIGZhaWwg
-d2l0aCB0aGUgZm9sbG93aW5nIGVycm9yIGFuZCBJIGRvIG5vdCB1bmRlcnN0YW5kIHRoZSByZWFz
-b24uDQoNCmlTQ1NJOiAoZz0wKTogcnc9cmVhZCwgYnM9NEstNEsvNEstNEssIGlvZW5naW5lPWxp
-YmFpbywgaW9kZXB0aD0xNg0KZmlvIDIuMC4zDQpTdGFydGluZyAxIHByb2Nlc3MNCmZpbzogaW9l
-bmdpbmVzLmM6MzcxOiB0ZF9pb19vcGVuX2ZpbGU6IEFzc2VydGlvbiBgIWZpb19maWxlX29wZW4o
-ZiknIGZhaWxlZC4NCmZpbzogcGlkPTU0MjAsIGdvdCBzaWduYWw9Ng0KDQppU0NTSTogKGdyb3Vw
-aWQ9MCwgam9icz0xKTogZXJyPSAwOiBwaWQ9NTQyMA0KICBjcHUgICAgICAgICAgOiB1c3I9MC4w
-MCUsIHN5cz0wLjAwJSwgY3R4PTAsIG1hamY9MCwgbWluZj0wDQogIElPIGRlcHRocyAgICA6IDE9
-MC4xJSwgMj0wLjElLCA0PTAuMSUsIDg9MC4xJSwgMTY9MTAwLjAlLCAzMj0wLjAlLCA+PTY0PTAu
-MCUNCiAgICAgc3VibWl0ICAgIDogMD0wLjAlLCA0PTEwMC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAz
-Mj0wLjAlLCA2ND0wLjAlLCA+PTY0PTAuMCUNCiAgICAgY29tcGxldGUgIDogMD0wLjAlLCA0PTEw
-MC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCA2ND0wLjAlLCA+PTY0PTAuMCUNCiAgICAg
-aXNzdWVkICAgIDogdG90YWw9cj0wL3c9MTUxNjAyL2Q9MCwgc2hvcnQ9cj0wL3c9MC9kPTANCg0K
-UnVuIHN0YXR1cyBncm91cCAwIChhbGwgam9icyk6DQpmaW86IGZpbGUgaGFzaCBub3QgZW1wdHkg
-b24gZXhpdA0KDQpXaGF0IG1pZ2h0IGJlIHRoZSBwcm9ibGVtLCBob3cgY2FuIEkgZ2V0IGEgZmV3
-IGZpZ3VyZXM/DQoNClAuUy46IHRoZSBhcnJheSBpcyBhdHRhY2hlZCB2aWEgaVNDU0ksIHdpdGgg
-YSBwcm9wZXIgTVBJTyBzZXR1cC4NCg0KTWl0IGZyZXVuZGxpY2hlbiBHcsO8w59lbg0KU3RlZmFu
-IEjDvGJuZXIsDQpPRUNFIC0gb3Blbi1lIGNlcnRpZmllZCBlbmdpbmVlcg0KeHRpdmF0ZSBTZXJ2
-aWNlLVRlYW0NCg0KV1dXZ3JvdXAgR2JSDQpNaWNoYWVsIFPDpG5nZXIsIEplbnMgV2FsdGVyLCBK
-w7ZyZyBXZWnDn21hbnRlbA0KWmllZ2VsaMO8dHRlbndlZyA0DQoNCjk4NjkzIElsbWVuYXUNCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18NClRlbGVmb246ICAgMDgwMCBYVElWQVRFDQooMDgwMCA5ODQ4MjgzLCBncmF0aXMgYXVz
-IGRldXRzY2hlbSBGZXN0LSB1bmQgTW9iaWxuZXR6KQ0KDQpUZWxlZm9uOiAgICs0OSAoMCkzNjc3
-IDQ2IDk5IDQ0MA0KRmF4OiAgICAgICArNDkgKDApMzY3NyA0NiA5OSA0NDkNCmVNYWlsOiAgICAg
-c2h1QHh0aXZhdGUuZGUNCg==
+----- Original Message -----
+> From: "Jens Axboe" <axboe@kernel.dk>
+> To: "Georg Schönberger" <gschoenberger@thomas-krenn.com>
+> Cc: fio@vger.kernel.org
+> Sent: Tuesday, 31 July, 2012 8:48:13 PM
+> Subject: Re: Problem using --offset: fix call to fadvise64
+> 
+> On 2012-07-20 12:30, Georg Schönberger wrote:
+> > I have now figured out the problem: when testing with a whole
+> > partition "/dev/sdb1" and specifying an offset you have also to
+> > specify a size via "--size". I thought that if I am using an offset
+> > with a partition Fio would carry out the test starting at the
+> > offset
+> > until the end of the partition. But this is not the case, you have
+> > to
+> > explicitly give the rest of partition's size starting from the
+> > offset.
+> > This was my fault, Fio is doing everything correctly.
+> 
+> We could improve and have fio get the partition size in this case.
+> The
+> problem is that if it's a block device, it'll get the full size. A
+> bit
+> counter intuitive.
+> 
+> --
+> Jens Axboe
+> 
+>
+
+Maybe we could solve it by having "--size" as a mandatory argument if "--offset" is given.
+In my opinion as a first solution that would be the easiest way.
+
+-Georg
+
 
 
