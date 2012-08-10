@@ -1,28 +1,57 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:33403 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751686Ab2HPDel (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 15 Aug 2012 23:34:41 -0400
-Received: by bkwj10 with SMTP id j10so759894bkw.19
-        for <fio@vger.kernel.org>; Wed, 15 Aug 2012 20:34:39 -0700 (PDT)
+Received: from mail-vb0-f46.google.com ([209.85.212.46]:61051 "EHLO
+	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758122Ab2HJOQs (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 10 Aug 2012 10:16:48 -0400
+Received: by vbbff1 with SMTP id ff1so1158012vbb.19
+        for <fio@vger.kernel.org>; Fri, 10 Aug 2012 07:16:47 -0700 (PDT)
 MIME-Version: 1.0
-Date: Thu, 16 Aug 2012 13:34:39 +1000
-Message-ID: <CAHaS=QxT7Prz4jw8b5rZ-D3gTmejFp3D6ZA6DxcigHpEcVAJbw@mail.gmail.com>
-Subject: Test files being created twice as large as requested (Win7)
-From: Greg Sullivan <greg.sullivan@sullivang.net>
+Date: Fri, 10 Aug 2012 15:16:47 +0100
+Message-ID: <CAAyzu8gsSK+1n26FfKmAqJtBjbrMTufFMNo4f5D1U2J9B8Cp0w@mail.gmail.com>
+Subject: verify with norandommap
+From: Gary Foster <gpfwestie@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-fio seems to be creating test files that are twice as large as
-requested. The following config creates a file that is 209,715,200
-bytes in size:
+Hi all.
 
-[read]
-size=100M
-rw=read
+I've been running some random IO tests where I want to verify the data
+was written correctly.
 
-Environment: Windows 7 32-bit, fio 2.0.8
+I have set norandommap=1 as I was running out of memory, but the man
+page indicates
+the data will not be verified
 
-Greg.
+--- cut ---
+       norandommap
+              Normally  fio  will  cover every block of the file when
+doing random I/O. If this parameter is given, a new offset will be
+              chosen without looking at past I/O history.  This
+parameter is mutually exclusive with verify.
+-- cut ----
+
+However, the output to stdio seems to indicate it is verifying (see
+the 'V' below) - but is it really verifying
+anything ? and if so, whats the difference between the verify with
+norandommap being set to 0 ?
+
+-- cut ---
+fio 2.0.7
+Starting 13 processes
+bs: 13 (f=13): [wVwwwwwwwwwww] [0.0% done] [3695K/3679K /s] [902 /898
+iops] [eta 84d:23h:10m:19s]
+-- cut --
+
+Here's my job file
+
+[global]
+blocksize=4K
+readwrite=randwr
+ioengine=libaio
+verify=crc32c
+verify_backlog=10
+iodepth=1
+direct=1
+norandommap=1
