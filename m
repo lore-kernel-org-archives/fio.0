@@ -1,40 +1,30 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:43449 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752869Ab2HQMd5 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 17 Aug 2012 08:33:57 -0400
-Received: by bkwj10 with SMTP id j10so1260424bkw.19
-        for <fio@vger.kernel.org>; Fri, 17 Aug 2012 05:33:55 -0700 (PDT)
+Received: from muon.cran.org.uk ([93.89.92.64]:33858 "EHLO muon.cran.org.uk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751602Ab2HQM0l (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 17 Aug 2012 08:26:41 -0400
+Message-ID: <502E387D.9030901@cran.org.uk>
+Date: Fri, 17 Aug 2012 13:26:37 +0100
+From: Bruce Cran <bruce@cran.org.uk>
 MIME-Version: 1.0
-In-Reply-To: <502E387D.9030901@cran.org.uk>
-References: <CAHaS=QxT7Prz4jw8b5rZ-D3gTmejFp3D6ZA6DxcigHpEcVAJbw@mail.gmail.com>
-	<502E387D.9030901@cran.org.uk>
-Date: Fri, 17 Aug 2012 22:33:55 +1000
-Message-ID: <CAHaS=QyJhnce=qnexyaW0Sp0+Aht9sZzLTGDF36FTyvNezauXg@mail.gmail.com>
 Subject: Re: Test files being created twice as large as requested (Win7)
-From: Greg Sullivan <greg.sullivan@sullivang.net>
-Content-Type: text/plain; charset=ISO-8859-1
+References: <CAHaS=QxT7Prz4jw8b5rZ-D3gTmejFp3D6ZA6DxcigHpEcVAJbw@mail.gmail.com>
+In-Reply-To: <CAHaS=QxT7Prz4jw8b5rZ-D3gTmejFp3D6ZA6DxcigHpEcVAJbw@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Bruce Cran <bruce@cran.org.uk>
+To: Greg Sullivan <greg.sullivan@sullivang.net>
 Cc: fio@vger.kernel.org
 
-On 17/08/2012, Bruce Cran <bruce@cran.org.uk> wrote:> On 16/08/2012
-04:34, Greg Sullivan wrote:
->> fio seems to be creating test files that are twice as large as
->> requested.
->
-> The problem is that posix_fallocate isn't resetting the file pointer, so
-> writes start at the end of the file.
-> I'll look over the Windows code to make sure there aren't any similar
-> problems and create a new build.
->
-> --
-> Bruce Cran
->
+On 16/08/2012 04:34, Greg Sullivan wrote:
+> fio seems to be creating test files that are twice as large as
+> requested.
 
-My config contains only one job, and it is a read, not a write. The
-only writing that should occur is the initial lay down of the test
-file.
+The problem is that posix_fallocate isn't resetting the file pointer, so 
+writes start at the end of the file.
+I'll look over the Windows code to make sure there aren't any similar 
+problems and create a new build.
 
-Greg.
+-- 
+Bruce Cran
