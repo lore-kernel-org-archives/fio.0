@@ -1,30 +1,51 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from muon.cran.org.uk ([93.89.92.64]:15618 "EHLO muon.cran.org.uk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757148Ab2HULxU (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 21 Aug 2012 07:53:20 -0400
-Message-ID: <503376AD.5020602@cran.org.uk>
-Date: Tue, 21 Aug 2012 12:53:17 +0100
-From: Bruce Cran <bruce@cran.org.uk>
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:64048 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754697Ab2HULrU (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 21 Aug 2012 07:47:20 -0400
+Received: by bkwj10 with SMTP id j10so2153633bkw.19
+        for <fio@vger.kernel.org>; Tue, 21 Aug 2012 04:47:18 -0700 (PDT)
 MIME-Version: 1.0
-Subject: Re: Rate problems (Windows)
-References: <CAHaS=Qz0FBWFh1o4avw5wTapGFTO8-argLW38mrdXHWLJ0-Ygg@mail.gmail.com> <CAHaS=QxJeWf-YvKkLktR45W2g-dRhEcXgM=7napOxb8ct7pKEg@mail.gmail.com> <503230E9.2000406@kernel.dk> <CAHaS=QzK4xhuu4vgqOQfNtLaVJE6kbsHtCj1A-BCCTFs=0eTYA@mail.gmail.com> <503373F4.80000@cran.org.uk> <CAHaS=Qz74ZHJCkFc4r-syfBM5q+nbzNZS9UYedr5E1nFbZwLcQ@mail.gmail.com>
 In-Reply-To: <CAHaS=Qz74ZHJCkFc4r-syfBM5q+nbzNZS9UYedr5E1nFbZwLcQ@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <CAHaS=Qz0FBWFh1o4avw5wTapGFTO8-argLW38mrdXHWLJ0-Ygg@mail.gmail.com>
+	<CAHaS=QxJeWf-YvKkLktR45W2g-dRhEcXgM=7napOxb8ct7pKEg@mail.gmail.com>
+	<503230E9.2000406@kernel.dk>
+	<CAHaS=QzK4xhuu4vgqOQfNtLaVJE6kbsHtCj1A-BCCTFs=0eTYA@mail.gmail.com>
+	<503373F4.80000@cran.org.uk>
+	<CAHaS=Qz74ZHJCkFc4r-syfBM5q+nbzNZS9UYedr5E1nFbZwLcQ@mail.gmail.com>
+Date: Tue, 21 Aug 2012 21:47:18 +1000
+Message-ID: <CAHaS=QwKwz==WkRGvSHYWQggUG6N9FJfgWf3E1UMBpB-SuPw8A@mail.gmail.com>
+Subject: Re: Rate problems (Windows)
+From: Greg Sullivan <greg.sullivan@sullivang.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Greg Sullivan <greg.sullivan@sullivang.net>
+To: Bruce Cran <bruce@cran.org.uk>
 Cc: fio@vger.kernel.org
 
-On 21/08/2012 12:44, Greg Sullivan wrote:
+On 21 August 2012 21:44, Greg Sullivan <greg.sullivan@sullivang.net> wrote:
+> On 21 August 2012 21:41, Bruce Cran <bruce@cran.org.uk> wrote:
+>> On 21/08/2012 12:35, Greg Sullivan wrote:
+>>>
+>>> I have now done a basic test of the rate functionality on Ubuntu, and
+>>> it seems to be working fine. I am more confident now that there is
+>>> indeed a problem when running fio on Windows.
+>>
+>>
+>> Are you running the test on a new filesystem on a separate disk, or in a
+>> directory on a disk that's got lots of other files on it?
+>>
+>> --
+>> Bruce Cran
+>
 > A dedicated disk. It has some files on it, but not much. There are no
 > other processes accessing the disk.  Are you not able to reproduce the
 > problem?
+>
+> Thanks,
+> Greg.
 
-I saw the problem last week on an old installation of Server 2008 R2 on 
-a disk that was over 40% fragmented and had other traffic to it but now, 
-on Windows 8 the IOPS stay between 39 and 40.
+(just btw, after sending my initial problem report, I lowered the io
+rate even further - down to 10 iops. Same problem)
 
--- 
-Bruce
+Greg.
