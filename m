@@ -1,97 +1,48 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:48968 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753614Ab2HaPPg (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 31 Aug 2012 11:15:36 -0400
-Received: by pbbrr13 with SMTP id rr13so4999323pbb.19
-        for <fio@vger.kernel.org>; Fri, 31 Aug 2012 08:15:35 -0700 (PDT)
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:55017 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754350Ab2HUMja (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 21 Aug 2012 08:39:30 -0400
+Received: by bkwj10 with SMTP id j10so2169256bkw.19
+        for <fio@vger.kernel.org>; Tue, 21 Aug 2012 05:39:29 -0700 (PDT)
 MIME-Version: 1.0
-Date: Fri, 31 Aug 2012 23:15:35 +0800
-Message-ID: <CADu=CFpi4SSsCYVefXqZkECbw7JNhLs92TJT2Q_fd-k8E+_BGw@mail.gmail.com>
-Subject: [PATCH] fio:modify a deprecated parameter(change timeout to runtime)
-From: liang xie <xieliang007@gmail.com>
+In-Reply-To: <503376AD.5020602@cran.org.uk>
+References: <CAHaS=Qz0FBWFh1o4avw5wTapGFTO8-argLW38mrdXHWLJ0-Ygg@mail.gmail.com>
+	<CAHaS=QxJeWf-YvKkLktR45W2g-dRhEcXgM=7napOxb8ct7pKEg@mail.gmail.com>
+	<503230E9.2000406@kernel.dk>
+	<CAHaS=QzK4xhuu4vgqOQfNtLaVJE6kbsHtCj1A-BCCTFs=0eTYA@mail.gmail.com>
+	<503373F4.80000@cran.org.uk>
+	<CAHaS=Qz74ZHJCkFc4r-syfBM5q+nbzNZS9UYedr5E1nFbZwLcQ@mail.gmail.com>
+	<503376AD.5020602@cran.org.uk>
+Date: Tue, 21 Aug 2012 22:39:28 +1000
+Message-ID: <CAHaS=QwPXBMn=enaT+0xRpG_vCywz4jc6HuJCmP6wA-A2LiBTg@mail.gmail.com>
+Subject: Re: Rate problems (Windows)
+From: Greg Sullivan <greg.sullivan@sullivang.net>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: jaxboe@fusionio.com
+To: Bruce Cran <bruce@cran.org.uk>
+Cc: fio@vger.kernel.org
 
-since "timeout" had been deprecated long long ago, we should replace
-to "runtime" both in code and docs
+On 21 August 2012 21:53, Bruce Cran <bruce@cran.org.uk> wrote:
+> On 21/08/2012 12:44, Greg Sullivan wrote:
+>>
+>> A dedicated disk. It has some files on it, but not much. There are no
+>> other processes accessing the disk.  Are you not able to reproduce the
+>> problem?
+>
+>
+> I saw the problem last week on an old installation of Server 2008 R2 on a
+> disk that was over 40% fragmented and had other traffic to it but now, on
+> Windows 8 the IOPS stay between 39 and 40.
+>
+> --
+> Bruce
 
-Signed-off-by: Liang Xie <xieliang@xiaomi.com>
----
- README |   12 ++++++------
- fio.1  |    4 ++--
- init.c |    2 +-
- 3 files changed, 9 insertions(+), 9 deletions(-)
+It's working sometimes for me. However, sometimes it fails miserably.
+For example, I just ran a job with a target rate of 50 iops, and the
+output was on zero iops for ages (maybe about 20 seconds), and then it
+briefly flashed up 1118 iops.  It might be working better in buffered
+mode than it is in direct mode. (not 100% sure yet)
 
-diff --git a/README b/README
-index 8bce835..7589e2f 100644
---- a/README
-+++ b/README
-@@ -121,7 +121,7 @@ Command line
- $ fio
- 	--debug			Enable some debugging options (see below)
- 	--output		Write output to file
--	--timeout		Runtime in seconds
-+	--runtime		Runtime in seconds
- 	--latency-log		Generate per-job latency logs
- 	--bandwidth-log		Generate per-job bandwidth logs
- 	--minimal		Minimal (terse) output
-@@ -138,8 +138,8 @@ $ fio
- 				May be "always", "never" or "auto"
- 	--section=name		Only run specified section in job file.
- 				Multiple sections can be specified.
--	--alloc-size=kb	Set smalloc pool to this size in kb (def 1024)
--	--warnings-fatal Fio parser warnings are fatal
-+	--alloc-size=kb		Set smalloc pool to this size in kb (def 1024)
-+	--warnings-fatal	 Fio parser warnings are fatal
- 	--max-jobs		Maximum number of threads/processes to support
- 	--server=args		Start backend server. See Client/Server section.
- 	--client=host		Connect to specified backend.
-@@ -161,11 +161,11 @@ options in fio. Currently the options are:
-
- 	process		Dump info related to processes
- 	file		Dump info related to file actions
--	io			Dump info related to IO queuing
--	mem			Dump info related to memory allocations
-+	io		Dump info related to IO queuing
-+	mem		Dump info related to memory allocations
- 	blktrace	Dump info related to blktrace setup
- 	verify		Dump info related to IO verification
--	all			Enable all debug options
-+	all		Enable all debug options
- 	random		Dump info related to random offset generation
- 	parse		Dump info related to option matching and parsing
- 	diskutil	Dump info related to disk utilization updates
-diff --git a/fio.1 b/fio.1
-index 5b61e43..086cf9d 100644
---- a/fio.1
-+++ b/fio.1
-@@ -20,8 +20,8 @@ list all available tracing options.
- .BI \-\-output \fR=\fPfilename
- Write output to \fIfilename\fR.
- .TP
--.BI \-\-timeout \fR=\fPtimeout
--Limit run time to \fItimeout\fR seconds.
-+.BI \-\-runtime \fR=\fPruntime
-+Limit run time to \fIruntime\fR seconds.
- .TP
- .B \-\-latency\-log
- Generate per-job latency logs.
-diff --git a/init.c b/init.c
-index 824828c..9f597a9 100644
---- a/init.c
-+++ b/init.c
-@@ -1185,7 +1185,7 @@ static void usage(const char *name)
- 		"\t\t\tprocess,file,io,mem,blktrace,verify,random,parse,\n"
- 		"\t\t\tdiskutil,job,mutex,profile,time,net\n");
- 	printf("  --output\t\tWrite output to file\n");
--	printf("  --timeout\t\tRuntime in seconds\n");
-+	printf("  --runtime\t\tRuntime in seconds\n");
- 	printf("  --latency-log\t\tGenerate per-job latency logs\n");
- 	printf("  --bandwidth-log\tGenerate per-job bandwidth logs\n");
- 	printf("  --minimal\t\tMinimal (terse) output\n");
--- 
-1.7.9.6 (Apple Git-31.1)
+Greg.
