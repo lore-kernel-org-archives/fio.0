@@ -1,65 +1,90 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from exprod7og114.obsmtp.com ([64.18.2.215]:51571 "HELO
-	exprod7og114.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1756487Ab2HNO5u (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 14 Aug 2012 10:57:50 -0400
-Received: by obqv19 with SMTP id v19so1630638obq.6
-        for <fio@vger.kernel.org>; Tue, 14 Aug 2012 07:57:48 -0700 (PDT)
+Received: from mx1.fusionio.com ([66.114.96.30]:42417 "EHLO mx1.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753980Ab2HaPLN (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 31 Aug 2012 11:11:13 -0400
+Message-ID: <5040D40E.10601@fusionio.com>
+Date: Fri, 31 Aug 2012 08:11:10 -0700
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-Date: Tue, 14 Aug 2012 10:57:48 -0400
-Message-ID: <CAPWDiB259S=kM0MGNMhu2=6cS5A7dkG0eFHb+oarRCHwrCZCpg@mail.gmail.com>
-Subject: simultaneous reads on different files is much slower than
- simultaneous writes
-From: Kevin Castiglia <kcastiglia@aereo.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH] fio: fix a doc bug(change timeout to runtime)
+References: <CADu=CFo_okoQP7MDK01VgLXDKR1wDodSm39UCTLw_x+OXbj96A@mail.gmail.com>
+In-Reply-To: <CADu=CFo_okoQP7MDK01VgLXDKR1wDodSm39UCTLw_x+OXbj96A@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: liang xie <xieliang007@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hello fio mailing list,
+On 2012-08-31 02:35, liang xie wrote:
+> From 686c70cc5aacdc5623e4d71e566bbfef7a6abacd Mon Sep 17 00:00:00 2001
+> From: xieliang <xieliang@xiaomi.com>
+> Date: Fri, 31 Aug 2012 17:19:57 +0800
+> Subject: [PATCH 1/1] fio:fix a doc bug(change timeout to runtime)
 
-I'm observing fio results that I can't explain. On the server under
-test, fio can write 100 files with a sustained aggregate throughput of
-~700MB/s, but can't come close to approaching that speed for reading
-100 files (~55MB/s). The performance drop seems to be related to the
-number of files being read since as I increase the number of files,
-the performance gets worse.
+Your patch lacks an explanatory changelog message.
 
-The server under test has 24 CPU cores, 48GB of memory, and is running
-CentOS 6.0. The disk hardware under test is a RAID 6 array with 12
-disks and a Dell H800 (sda). This device is partitioned with ext4
-using the default settings.
+> diff --git a/README b/README
+> index 8bce835..d19af4b 100644
+> --- a/README
+> +++ b/README
+> @@ -121,7 +121,7 @@ Command line
+>  $ fio
+>  	--debug			Enable some debugging options (see below)
+>  	--output		Write output to file
+> -	--timeout		Runtime in seconds
+> +	--runtime		Runtime in seconds
 
-Increasing the readahead (using blockdev) improved the read throughput
-significantly. For instance, increasing the readahead from 128KB to 1M
-improved the read throughput to ~145MB/s, but is still significantly
-slower than writes.
+They are functionally equivelant.
 
-I can't explain why there is such a huge disparity between the read
-and write throughput. This anomaly doesn't happen on the OS drive of
-the test machine or on my laptop.
+> @@ -138,8 +138,8 @@ $ fio
+>  				May be "always", "never" or "auto"
+>  	--section=name		Only run specified section in job file.
+>  				Multiple sections can be specified.
+> -	--alloc-size=kb	Set smalloc pool to this size in kb (def 1024)
+> -	--warnings-fatal Fio parser warnings are fatal
+> +	--alloc-size=kb		Set smalloc pool to this size in kb (def 1024)
+> +	--warnings-fatal 	Fio parser warnings are fatal
+>  	--max-jobs		Maximum number of threads/processes to support
+>  	--server=args		Start backend server. See Client/Server section.
+>  	--client=host		Connect to specified backend.
+> @@ -161,11 +161,11 @@ options in fio. Currently the options are:
+> 
+>  	process		Dump info related to processes
+>  	file		Dump info related to file actions
+> -	io			Dump info related to IO queuing
+> -	mem			Dump info related to memory allocations
+> +	io		Dump info related to IO queuing
+> +	mem		Dump info related to memory allocations
+>  	blktrace	Dump info related to blktrace setup
+>  	verify		Dump info related to IO verification
+> -	all			Enable all debug options
+> +	all		Enable all debug options
+>  	random		Dump info related to random offset generation
+>  	parse		Dump info related to option matching and parsing
+>  	diskutil	Dump info related to disk utilization updates
 
-Any help on this would be appreciated as I've looked around quite a
-bit and haven't found another instance of reads being an order of
-magnitude slower than writes.
+Applied these.
 
+> diff --git a/fio.1 b/fio.1
+> index 5b61e43..086cf9d 100644
+> --- a/fio.1
+> +++ b/fio.1
+> @@ -20,8 +20,8 @@ list all available tracing options.
+>  .BI \-\-output \fR=\fPfilename
+>  Write output to \fIfilename\fR.
+>  .TP
+> -.BI \-\-timeout \fR=\fPtimeout
+> -Limit run time to \fItimeout\fR seconds.
+> +.BI \-\-runtime \fR=\fPruntime
+> +Limit run time to \fIruntime\fR seconds.
+>  .TP
+>  .B \-\-latency\-log
+>  Generate per-job latency logs.
 
-The command I used for testing aggregate read throughput:
-fio --name=test --rw=read --nrfiles=100 --filesize=1G --size=100G
+Also equivalant. But it would not hurt to mention both.
 
-# uname -r
-2.6.32-71.el6.x86_64
+-- 
+Jens Axboe
 
-# fdisk -l
-...
-Disk /dev/sda: 30000.3 GB, 30000346562560 bytes
-255 heads, 63 sectors/track, 3647334 cylinders
-Units = cylinders of 16065 * 512 = 8225280 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 512 bytes
-...
-
-I've experienced this issue with both fio-2.0.7 and fio-2.0.8-14-g521d
-
-Thanks for your help,
-  Kevin Castiglia
