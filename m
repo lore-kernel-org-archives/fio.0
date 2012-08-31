@@ -1,29 +1,28 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:35659 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752218Ab2HNGYT (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 14 Aug 2012 02:24:19 -0400
-Received: by obbuo13 with SMTP id uo13so73991obb.19
-        for <fio@vger.kernel.org>; Mon, 13 Aug 2012 23:24:19 -0700 (PDT)
+Received: from mx1.fusionio.com ([66.114.96.30]:43606 "EHLO mx1.fusionio.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753666Ab2HaPXE (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 31 Aug 2012 11:23:04 -0400
+Message-ID: <5040D6D5.4010703@fusionio.com>
+Date: Fri, 31 Aug 2012 08:23:01 -0700
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-Date: Tue, 14 Aug 2012 16:24:18 +1000
-Message-ID: <CAHaS=Qz8_g=0RqV53G_PuSM7Apvbbn3ksuF5MvkFUo7vme40Fw@mail.gmail.com>
-Subject: How to do strict synchronous i/o on Windows?
-From: Greg Sullivan <greg.sullivan@sullivang.net>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH] fio:modify a deprecated parameter(change timeout to runtime)
+References: <CADu=CFpi4SSsCYVefXqZkECbw7JNhLs92TJT2Q_fd-k8E+_BGw@mail.gmail.com>
+In-Reply-To: <CADu=CFpi4SSsCYVefXqZkECbw7JNhLs92TJT2Q_fd-k8E+_BGw@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: liang xie <xieliang007@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-I need to simulate strict synchronous, round robin i/o to a group of
-files. I am on Windows 7 32-bit.
-fio is very nearly working, except that even with a queue depth of 1,
-it is still resulting in a disk queue that is > 1, because the
-"iodepth" parameter is not global - it is per thread. (correct?)
+On 2012-08-31 08:15, liang xie wrote:
+> since "timeout" had been deprecated long long ago, we should replace
+> to "runtime" both in code and docs
 
-I've tried using the "sync" engine, however that doesn't work at all -
-just spews out errors.
+Better, applied :-)
 
-Any assistance much appreciated.
+-- 
+Jens Axboe
 
-Greg.
