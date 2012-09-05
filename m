@@ -1,137 +1,69 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx2.netapp.com ([216.240.18.37]:28471 "EHLO mx2.netapp.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759909Ab2IEXJW convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 5 Sep 2012 19:09:22 -0400
-From: "Neto, Antonio Jose Rodrigues" 
-	<Antonio.Jose.Rodrigues.Neto@netapp.com>
-Subject: RE: Using fio to mimicking Oracle workload pattern
-Date: Wed, 5 Sep 2012 23:08:55 +0000
-Message-ID: <843E15216120C047928F6879B0E2D9240D6AA7BF@SACEXCMBX02-PRD.hq.netapp.com>
-References: <843E15216120C047928F6879B0E2D9240D6A24B4@SACEXCMBX02-PRD.hq.netapp.com>
- <CACiQ3FCCawYyN5LDfMRjbGgTt7UXrfiAkmK_1FwyCkBkK8nTGA@mail.gmail.com>
- <843E15216120C047928F6879B0E2D9240D6AA60D@SACEXCMBX02-PRD.hq.netapp.com>
- <CACiQ3FD3XShOuJPHmbPyTC_90=nq5N7p6J_fYNhZ+WXTVYC4ow@mail.gmail.com>
-In-Reply-To: <CACiQ3FD3XShOuJPHmbPyTC_90=nq5N7p6J_fYNhZ+WXTVYC4ow@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:44036 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759780Ab2IEW4R convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Wed, 5 Sep 2012 18:56:17 -0400
+Received: by obbuo13 with SMTP id uo13so1358571obb.19
+        for <fio@vger.kernel.org>; Wed, 05 Sep 2012 15:56:17 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <843E15216120C047928F6879B0E2D9240D6AA60D@SACEXCMBX02-PRD.hq.netapp.com>
+References: <843E15216120C047928F6879B0E2D9240D6A24B4@SACEXCMBX02-PRD.hq.netapp.com>
+ <CACiQ3FCCawYyN5LDfMRjbGgTt7UXrfiAkmK_1FwyCkBkK8nTGA@mail.gmail.com> <843E15216120C047928F6879B0E2D9240D6AA60D@SACEXCMBX02-PRD.hq.netapp.com>
+From: Kyle Hailey <kyle.hailey@delphix.com>
+Date: Wed, 5 Sep 2012 15:55:56 -0700
+Message-ID: <CACiQ3FD3XShOuJPHmbPyTC_90=nq5N7p6J_fYNhZ+WXTVYC4ow@mail.gmail.com>
+Subject: Re: Using fio to mimicking Oracle workload pattern
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Kyle Hailey <kyle.hailey@delphix.com>
+To: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi Kyle
-
-This is neto from Brazil
-
-How are you?
-
-Thanks for your email. I know very well SLOB (Kevin Closson). At this time, I don't SLOB because I cannot specify a working set on it. That won't work for me.
-
-I saw your script and I really liked. I just need a simple example how did you configure fio for the following scenarios:
-
-How did you configure "users" ? Threads?
-
-Why are you doing psync and not libaio (to simulate async IO)?
-
-Could you please do me a favor?
-
-Could you please double check if I have the right configuration for the following files?
-
-My doubt are:
-
-1) In the Oracle performance characterization, what is the "correct" ioengine on linux? How many iodepth? I am assuming 1 job only (8K Random Read)
-2) What is the correct for 1M sequential? libaio as well? And iodepth?
-3) 1-128K redo writes, assuming that I need to use sync=1 right? And the iodepth? Direct 1 or not?
-
-If you could help me with that, I really appreciate.
-
-Thank you very much
-
-neto
-
-[8Krandomread]
-directory=/oradata/fio
-nrfiles=50
-openfiles=10
-size=100g
-bs=8k
-ioengine=libaio
-iodepth=32
-rw=randr
-direct=1
-numjobs=1
-
-[1Msequentialread]
-directory=/oradata/fio
-nrfiles=50
-openfiles=10
-size=100g
-bs=1M
-ioengine=libaio
-iodepth=4
-rw=randr
-direct=1
-numjobs=1
-
-
-[1-128Ksequentialwrite]
-directory=/redolog/fio
-filename=redo01.log
-size=1g
-ioengine=libaio
-iodepth=4
-rw=write
-fsync=1
-bssplit=512/60:4k/40
-direct=1
-numjobs=1
-
------Original Message-----
-From: Kyle Hailey [mailto:kyle.hailey@delphix.com] 
-Sent: Wednesday, September 05, 2012 6:56 PM
-To: Neto, Antonio Jose Rodrigues
-Cc: fio@vger.kernel.org
-Subject: Re: Using fio to mimicking Oracle workload pattern
-
-My suggestion for pounding Oracle I/O is to use SLOB - Silly Little Oracle Benchmark.
-For an example of dNFS testing with SLOB see http://dboptimizer.com/2012/07/16/nfs-versus-dnfs/
-SLOB will bang on random reads and redo writes. It's not setup for sequential reads.
+My suggestion for pounding Oracle I/O is to use SLOB - Silly Little
+Oracle Benchmark.
+For an example of dNFS testing with SLOB see
+http://dboptimizer.com/2012/07/16/nfs-versus-dnfs/
+SLOB will bang on random reads and redo writes. It's not setup for
+sequential reads.
 
 For the fio scripts, I/O for sequential writes is set at certain sizes
-- 1K, 8K, 128K. A set of tests is run with each block size. Each set of tests runs up 1, 4, 16 uses as if there were 1, 4,16 databases. The write job file use SYNC and DIRECT (except on ZFS where direct isn't
+- 1K, 8K, 128K. A set of tests is run with each block size. Each set
+of tests runs up 1, 4, 16 uses as if there were 1, 4,16 databases. The
+write job file use SYNC and DIRECT (except on ZFS where direct isn't
 supported)
 
-Example job file ( the job files are generated by a script called fio.sh which iterates though different combinations)
+Example job file ( the job files are generated by a script called
+fio.sh which iterates though different combinations)
 
 [global]
-size=8192m
-filename=/dev/rdsk/c4t3d0p0:/dev/rdsk/c4t4d0p0
-directory=/
-direct=1
-runtime=5
-randrepeat=0
-end_fsync=1
-group_reporting=1
-ioengine=psync
-fadvise_hint=0
-time_based=1
+size=3D8192m
+filename=3D/dev/rdsk/c4t3d0p0:/dev/rdsk/c4t4d0p0
+directory=3D/
+direct=3D1
+runtime=3D5
+randrepeat=3D0
+end_fsync=3D1
+group_reporting=3D1
+ioengine=3Dpsync
+fadvise_hint=3D0
+time_based=3D1
 [job1]
-rw=write
-bs=0008k
-numjobs=1
-offset=0
-sync=1
+rw=3Dwrite
+bs=3D0008k
+numjobs=3D1
+offset=3D0
+sync=3D1
 
 >>How can I split the block size for I/O?
-I haven't tried this. Looks like you are doing this already. I change block sizes by running different tests at different sizes.
+I haven't tried this. Looks like you are doing this already. I change
+block sizes by running different tests at different sizes.
 
 >>How can I create different size of files?
 Why would you want too do that? Why not just test all the same file size?
 
-On Wed, Sep 5, 2012 at 3:42 PM, Neto, Antonio Jose Rodrigues <Antonio.Jose.Rodrigues.Neto@netapp.com> wrote:
+On Wed, Sep 5, 2012 at 3:42 PM, Neto, Antonio Jose Rodrigues
+<Antonio.Jose.Rodrigues.Neto@netapp.com> wrote:
 >
 > Hi Kyle
 >
@@ -149,14 +81,14 @@ On Wed, Sep 5, 2012 at 3:42 PM, Neto, Antonio Jose Rodrigues <Antonio.Jose.Rodri
 >
 >
 >
-> Yes I am trying to reproduce Oracle I/O patterns because I need to 
-> tests different storage controllers here and I don't like to use ORION 
-> for that. (Orion doesn't support DIRECT_IO for NFS or mounted 
-> filesystem)
+> Yes I am trying to reproduce Oracle I/O patterns because I need to tests =
+different storage controllers here and I don=EF=BF=BDt like to use ORION fo=
+r that. (Orion doesn=EF=BF=BDt support DIRECT_IO for NFS or mounted filesys=
+tem)
 >
 >
 >
-> Anyway...
+> Anyway=EF=BF=BD
 >
 >
 >
@@ -203,25 +135,28 @@ On Wed, Sep 5, 2012 at 3:42 PM, Neto, Antonio Jose Rodrigues <Antonio.Jose.Rodri
 >
 >
 >
-> Why are you trying to reproduce the I/O patterns of Oracle? Is it to test the performance of the back end storage for Oracle? If so what criteria are you using to judge the performance.
+> Why are you trying to reproduce the I/O patterns of Oracle? Is it to test=
+ the performance of the back end storage for Oracle? If so what criteria ar=
+e you using to judge the performance.
 >
 >
 >
-> I've been using fio to test the back end storage for Oracle. I've been 
-> interested in the limits of the 3 main axis of Oracle I/O (and less in 
-> the mix of the three)
+> I've been using fio to test the back end storage for Oracle. I've been in=
+terested in the limits of the 3 main axis of Oracle I/O (and less in the mi=
+x of the three)
 >
 >  8k random read  (index access etc)
->  1M sequential read (full table scans etc)  1-128K sequential write 
-> (redo writes)
+>  1M sequential read (full table scans etc)
+>  1-128K sequential write (redo writes)
 >
 > The other types of I/O are
 >
-> 8k random write which is done by DBWR but users don't typically wait 
-> for these I/Os ldirect path write by users but this isn't a typical 
-> operation more ET
+> 8k random write which is done by DBWR but users don't typically wait for =
+these I/Os
+> ldirect path write by users but this isn't a typical operation more ET
 >
-> I put together tests to test the main 3 types of I/Os each isolated (ie not mixed at the same time). The tests are on github at:
+> I put together tests to test the main 3 types of I/Os each isolated (ie n=
+ot mixed at the same time). The tests are on github at:
 >
 > https://github.com/khailey/fio_scripts
 >
@@ -231,7 +166,9 @@ On Wed, Sep 5, 2012 at 3:42 PM, Neto, Antonio Jose Rodrigues <Antonio.Jose.Rodri
 >
 >
 >
-> The tests are run by a shell script that runs fio in an array of tests. There is a script to parse the data and summarize it as well as an R script to graph the data.
+> The tests are run by a shell script that runs fio in an array of tests. T=
+here is a script to parse the data and summarize it as well as an R script =
+to graph the data.
 >
 >
 >
@@ -245,7 +182,8 @@ On Wed, Sep 5, 2012 at 3:42 PM, Neto, Antonio Jose Rodrigues <Antonio.Jose.Rodri
 >
 >
 >
-> On Sun, Sep 2, 2012 at 7:50 AM, Neto, Antonio Jose Rodrigues <Antonio.Jose.Rodrigues.Neto@netapp.com> wrote:
+> On Sun, Sep 2, 2012 at 7:50 AM, Neto, Antonio Jose Rodrigues <Antonio.Jos=
+e.Rodrigues.Neto@netapp.com> wrote:
 >
 > Hi All,
 >
@@ -256,59 +194,67 @@ On Wed, Sep 5, 2012 at 3:42 PM, Neto, Antonio Jose Rodrigues <Antonio.Jose.Rodri
 > How are you?
 >
 >
-> I want to simulate some Oracle workload pattern using fio. I would like to do the following:
+> I want to simulate some Oracle workload pattern using fio. I would like t=
+o do the following:
 >
 >
-> Archive LOGS: I would like to create x number of different file sizes. I have tried the following, but I am not sure if this is right about filesize option.
+> Archive LOGS: I would like to create x number of different file sizes. I =
+have tried the following, but I am not sure if this is right about filesize=
+ option.
 >
-> directory=/archive
-> size=10g
-> ioengine=libaio
-> nrfiles=5
-> iodepth=4
-> rw=write
-> filesize=500m
-> direct=1
-> threads=4
-> numjobs=1
+> directory=3D/archive
+> size=3D10g
+> ioengine=3Dlibaio
+> nrfiles=3D5
+> iodepth=3D4
+> rw=3Dwrite
+> filesize=3D500m
+> direct=3D1
+> threads=3D4
+> numjobs=3D1
 >
-> Redo LOGS:  I have tried the following: sync I/O and block split (to simulate partial writes) - 60% 512 bytes and 40% 4096.
+> Redo LOGS:  I have tried the following: sync I/O and block split (to simu=
+late partial writes) - 60% 512 bytes and 40% 4096.
 >
-> directory=/redo
-> size=1g
-> ioengine=libaio
-> nrfiles=5
-> iodepth=4
-> sync=1
-> rw=write
-> filesize=500m
-> bssplit=512/60:4k/40
-> direct=1
-> numjobs=1
+> directory=3D/redo
+> size=3D1g
+> ioengine=3Dlibaio
+> nrfiles=3D5
+> iodepth=3D4
+> sync=3D1
+> rw=3Dwrite
+> filesize=3D500m
+> bssplit=3D512/60:4k/40
+> direct=3D1
+> numjobs=3D1
 >
-> FULL Table Scan: I have tried creating 3 files and read from them (randomly). I used ba=4096 to have block aligned and 1MB of block size (to simulate db_scattered_read).
+> FULL Table Scan: I have tried creating 3 files and read from them (random=
+ly). I used ba=3D4096 to have block aligned and 1MB of block size (to simul=
+ate db_scattered_read).
 >
 > [tablescan]
-> directory=/u109/oradata/fio
-> nrfiles=3
-> openfiles=3
-> file_service_type=roundrobin
-> size=1g
-> iodepth=32
-> ba=4k
-> bs=1M
-> rw=randread
-> numjobs=2
+> directory=3D/u109/oradata/fio
+> nrfiles=3D3
+> openfiles=3D3
+> file_service_type=3Droundrobin
+> size=3D1g
+> iodepth=3D32
+> ba=3D4k
+> bs=3D1M
+> rw=3Drandread
+> numjobs=3D2
 >
 >
-> Could you please help to check if the above files are correct? If they are, how can I double check if everything is working as expected (on fio output)?
+> Could you please help to check if the above files are correct? If they ar=
+e, how can I double check if everything is working as expected (on fio outp=
+ut)?
 >
 > Thank you very much
 >
 > neto--
-> To unsubscribe from this list: send the line "unsubscribe fio" in the 
-> body of a message to majordomo@vger.kernel.org More majordomo info at  
-> http://vger.kernel.org/majordomo-info.html
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 >
 >
 >
