@@ -1,47 +1,43 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:56369 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751182Ab2HHSaL (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 8 Aug 2012 14:30:11 -0400
-Received: by obbuo13 with SMTP id uo13so1474030obb.19
-        for <fio@vger.kernel.org>; Wed, 08 Aug 2012 11:30:10 -0700 (PDT)
+Received: from moutng.kundenserver.de ([212.227.126.186]:51849 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757887Ab2IRKal (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 18 Sep 2012 06:30:41 -0400
+From: =?iso-8859-1?Q?Stefan_H=FCbner?= <shu@wwwgroup.de>
+Subject: Windows & netio problems/bugreport
+Date: Tue, 18 Sep 2012 10:30:47 +0000
+Message-ID: <DIIE.000011B400039534@192.168.0.5>
 MIME-Version: 1.0
-From: Kyle Hailey <kyle.hailey@delphix.com>
-Date: Wed, 8 Aug 2012 11:29:50 -0700
-Message-ID: <CACiQ3FDXKEV0VVjrxaUH9U4CkXhHmVrz_d0eW6QyHKE2HHwacw@mail.gmail.com>
-Subject: raw device size used by fio
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+ charset="utf-8"
+Content-Transfer-Encoding: base64
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-I was running a number of tests with raw devices and no size set (but
-did use offsets).
-In the case where a raw device is specified  but no size, what
-happens? does fio have a way to figure out the size of the raw device?
+SGVsbG8gQnJ1Y2UsDQoNCkkganVzdCBub3RpY2VkIGEgbWFqb3IgYnVnIGluIGZpbyBmb3Igd2lu
+ZG93cyAocHJvdmVuIG9uIFc3IGFuZCBXU1MgMjAwOFIyKS4gIEl0IHNlZW1zIHRoZSBuZXRpby10
+ZXN0aW5nIGRvZXNuJ3Qgd29yayBhdCBhbGwgYS50Lm0sIGV2ZW4gd2l0aCBlbGV2YXRlZCBwcml2
+aWxlZ2VzLg0KDQpDOlxQcm9ncmFtIEZpbGVzXGZpb1xleGFtcGxlcz4uLlxmaW8uZXhlIG5ldGlv
+DQpyZWNlaXZlcjogKGc9MCk6IHJ3PXJlYWQsIGJzPTRLLTRLLzRLLTRLLCBpb2VuZ2luZT1uZXQs
+IGlvZGVwdGg9MQ0Kc2VuZGVyOiAoZz0wKTogcnc9d3JpdGUsIGJzPTRLLTRLLzRLLTRLLCBpb2Vu
+Z2luZT1uZXQsIGlvZGVwdGg9MQ0KZmlvLTIuMC45DQpTdGFydGluZyAyIHRocmVhZHMNCmZpbzog
+cGlkPTI2NDQsIGVycj0xL2ZpbGU6ZW5naW5lcy9uZXQuYzo2MzEsIGZ1bmM9c29ja2V0LCBlcnJv
+cj1ObyBlcnJvcg0KSm9iczogMSAoZj0wKTogW1hXXSBbMC4wJSBkb25lXSBbMEsvMEsgL3NdIFsw
+IC8wICBpb3BzXSBbZXRhIDQ5NzEwZDowNmg6MTltOjIyc10NCkM6XFByb2dyYW0gRmlsZXNcZmlv
+XGV4YW1wbGVzPg0KDQpUaGlzIGhhcHBlbmVkIHdoZW4gdGVzdGluZyB0aGUgZXhhbXBsZSAibmV0
+aW8iIHRhc2tmaWxlLiAgSSd2ZSB3cml0dGVuIG93biB0YXNrZmlsZXMgd2hlcmUgSSBnZXQgdGhl
+IHNhbWUgZXJyb3IuDQoNCmNvcnJlc3BvbmRpbmcgY29kZToNCnN0YXRpYyBpbnQgZmlvX25ldGlv
+X3NldHVwX2xpc3Rlbl9pbmV0KHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsIHNob3J0IHBvcnQpDQp7
+DQogICAgICAgIHN0cnVjdCBuZXRpb19kYXRhICpuZCA9IHRkLT5pb19vcHMtPmRhdGE7DQogICAg
+ICAgIHN0cnVjdCBuZXRpb19vcHRpb25zICpvID0gdGQtPmVvOw0KICAgICAgICBpbnQgZmQsIG9w
+dCwgdHlwZTsNCg0KICAgICAgICBpZiAoby0+cHJvdG8gPT0gRklPX1RZUEVfVENQKQ0KICAgICAg
+ICAgICAgICAgIHR5cGUgPSBTT0NLX1NUUkVBTTsNCiAgICAgICAgZWxzZQ0KICAgICAgICAgICAg
+ICAgIHR5cGUgPSBTT0NLX0RHUkFNOw0KDQotLT4gICAgIGZkID0gc29ja2V0KEFGX0lORVQsIHR5
+cGUsIDApOw0KICAgICAgICBpZiAoZmQgPCAwKSB7DQogICAgICAgICAgICAgICAgdGRfdmVycm9y
+KHRkLCBlcnJubywgInNvY2tldCIpOw0KICAgICAgICAgICAgICAgIHJldHVybiAxOw0KICAgICAg
+ICB9DQpbLi4uXQ0KDQpNYXkgdGhpcyBtZWFuIHRoZSAic29ja2V0KCkiIGZ1bmN0aW9uIG5lZWRz
+IHRvIGJlIHVzZWQgZGlmZmVyZW50bHkgaW4gV2luZG93cz8gIENhbiB5b3UgcHV0IGEgIkZpeEl0
+IiBvbiB5b3VyIFRvRG8tTGlzdCBmb3IgdGhpcz8NCg0KYWxsIHRoZSBiZXN0LA0KU3RlZmFuDQo=
 
-What is the usage of the size parameter when there are multiple raw devices.
-For example if I have multiple raw devices
 
-      filename=/dev/rdsk/c4t3d0p0:/dev/rdsk/c4t4d0p0
-
-and a set size
-
-     size=8000m
-
-will it treat the 8000m as the total size of the two devices or is the
-8000m the size of each?
-If it's the total, then I guess fio can't work with multiple raw
-devices of different sizes?
-
-Thanks
-
-
--- 
-- Kyle
-
-O: +1.415.341.3430
-F: +1.650.494.1676
-275 Middlefield Road, Suite 50
-Menlo Park, CA 94025
-http://www.delphix.com
