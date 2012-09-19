@@ -1,35 +1,51 @@
-Return-Path: <rjevskiy@gmail.com>
-Sender: Dmitry Monakhov <rjevskiy@gmail.com>
-From: Dmitry Monakhov <dmonakhov@openvz.org>
-Subject: [PATCH] backend: fix data direction flow check
-Date: Tue, 25 Sep 2012 14:00:24 +0400
-Message-Id: <1348567224-22570-1-git-send-email-dmonakhov@openvz.org>
-To: fio@vger.kernel.org
-Cc: axboe@kernel.dk, Dmitry Monakhov <dmonakhov@openvz.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:58212 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750851Ab2ISTkf (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 19 Sep 2012 15:40:35 -0400
+Message-ID: <505A1FAE.10704@kernel.dk>
+Date: Wed, 19 Sep 2012 21:40:30 +0200
+From: Jens Axboe <axboe@kernel.dk>
+MIME-Version: 1.0
+Subject: Re: [PATCH 0/4] ioengine: File based ioengines
+References: <1348082576-10528-1-git-send-email-dmonakhov@openvz.org>
+In-Reply-To: <1348082576-10528-1-git-send-email-dmonakhov@openvz.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Dmitry Monakhov <dmonakhov@openvz.org>
+Cc: linux-ext4@vger.kernel.org, fio@vger.kernel.org
 
-This patch fix regression caused SIGSEGV in case of writeonly 
-or readonly mode.
+On 2012-09-19 21:22, Dmitry Monakhov wrote:
+> Fio is very cool tool for generating various io patterns.
+> And I use it as a base io-loader for xfsstress framework
+> 
+> I've prepared two file-based ioengines which allow to generate
+> interesting io patterns. 'falloc' is more generic and may be useful
+> for many cases, other 'e4defrag' is more specific but still
+> usfull. It would be nice to have this engines in-tree if possible.
+> 
+> TOC:
+>  # fixes for external engines
+>  export file_lookup_open
+>  ioengine: allow several external ioengines
+>  # file based ioengines
+>  ioengine: Add fallocate ioengine
+>  ioengine: Add e4defrag ioengine
 
-Signed-off-by: Dmitry Monakhov <dmonakhov@openvz.org>
----
- backend.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+This looks nifty, especially the fallocate engine. I've added the
+patchset, thanks a lot.
 
-diff --git a/backend.c b/backend.c
-index 88623be..c31d22a 100644
---- a/backend.c
-+++ b/backend.c
-@@ -812,7 +812,7 @@ static int init_io_u(struct thread_data *td)
- 	td->orig_buffer_size = (unsigned long long) max_bs
- 					* (unsigned long long) max_units;
- 
--	if ((td->io_ops->flags & FIO_NOIO) || !td_rw(td))
-+	if ((td->io_ops->flags & FIO_NOIO) || !(td_read(td) || td_write(td)))
- 		data_xfer = 0;
- 
- 	if (td->o.mem_type == MEM_SHMHUGE || td->o.mem_type == MEM_MMAPHUGE) {
+Care to send a bit more careful documentation on both of them? The
+commit message for fallocate is good, something like that in the HOWTO
+would be useful. Bonus points for updating the man page, too! And
+e4defrag seems largely undocumented. Some comments in the sample files
+(which are great to have, btw) would be nice too.
+
+Will also want wiring up on options.c, the ioengine part, now that they
+are in tree.
+
 -- 
-1.7.7.6
-
+Jens Axboe
 
