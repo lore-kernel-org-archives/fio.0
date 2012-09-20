@@ -1,35 +1,37 @@
-Return-Path: <rjevskiy@gmail.com>
-Sender: Dmitry Monakhov <rjevskiy@gmail.com>
-From: Dmitry Monakhov <dmonakhov@openvz.org>
-Subject: [PATCH 1/2] falloc: fix return value from queue
-Date: Thu, 20 Sep 2012 15:37:16 +0400
-Message-Id: <1348141037-16303-1-git-send-email-dmonakhov@openvz.org>
-To: fio@vger.kernel.org
-Cc: axboe@kernel.dk, Dmitry Monakhov <dmonakhov@openvz.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:52988 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754004Ab2ITLtQ (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 20 Sep 2012 07:49:16 -0400
+Message-ID: <505B02A5.6030108@kernel.dk>
+Date: Thu, 20 Sep 2012 13:48:53 +0200
+From: Jens Axboe <axboe@kernel.dk>
+MIME-Version: 1.0
+Subject: Re: [PATCH 2/2] update documentation for falloc and e4defrag engines
+References: <1348141037-16303-1-git-send-email-dmonakhov@openvz.org> <1348141037-16303-2-git-send-email-dmonakhov@openvz.org>
+In-Reply-To: <1348141037-16303-2-git-send-email-dmonakhov@openvz.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Dmitry Monakhov <dmonakhov@openvz.org>
+Cc: fio@vger.kernel.org
 
-Fix mistypo which causes internal assertation failure, this engine
-will always return FIO_Q_COMPLETED
+On 09/20/2012 01:37 PM, Dmitry Monakhov wrote:
+> Signed-off-by: Dmitry Monakhov <dmonakhov@openvz.org>
+> ---
+>  HOWTO              |   20 ++++++++++-
+>  examples/e4defrag  |   49 +++++++++++++++++------------
+>  examples/e4defrag2 |   88 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  examples/falloc    |   54 ++++++++++++++++++++++++++++++++
+>  fio.1              |   29 +++++++++++++++++
+>  5 files changed, 218 insertions(+), 22 deletions(-)
+>  create mode 100644 examples/e4defrag2
+>  create mode 100644 examples/falloc
 
-Signed-off-by: Dmitry Monakhov <dmonakhov@openvz.org>
----
- engines/falloc.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+Excellent, thanks! I've applied this one, as well as the 1/2 fix for the
+falloc engine.
 
-diff --git a/engines/falloc.c b/engines/falloc.c
-index cbb30cb..4977d9e 100644
---- a/engines/falloc.c
-+++ b/engines/falloc.c
-@@ -91,8 +91,6 @@ static int fio_fallocate_queue(struct thread_data *td, struct io_u *io_u)
- 		if (io_u->error)
- 			td_verror(td, io_u->error, "xfer");
- 	}
--	if (io_u->ddir == DDIR_TRIM && !ret)
--		return io_u->xfer_buflen;
- 
- 	if (io_u->file && ret == 0 && ddir_rw(io_u->ddir))
- 		io_u->file->file_pos = io_u->offset + ret;
 -- 
-1.7.7.6
-
+Jens Axboe
 
