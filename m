@@ -1,300 +1,102 @@
-Return-Path: <rjevskiy@gmail.com>
-Sender: Dmitry Monakhov <rjevskiy@gmail.com>
-From: Dmitry Monakhov <dmonakhov@openvz.org>
-Subject: [PATCH 4/4] engine: add e4defrag engine
-Date: Wed, 19 Sep 2012 23:22:56 +0400
-Message-Id: <1348082576-10528-5-git-send-email-dmonakhov@openvz.org>
-In-Reply-To: <1348082576-10528-1-git-send-email-dmonakhov@openvz.org>
-References: <1348082576-10528-1-git-send-email-dmonakhov@openvz.org>
-To: linux-ext4@vger.kernel.org, fio@vger.kernel.org
-Cc: axboe@kernel.dk, Dmitry Monakhov <dmonakhov@openvz.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:44189 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754005Ab2IUNHJ (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 21 Sep 2012 09:07:09 -0400
+Message-ID: <505C6664.7070907@kernel.dk>
+Date: Fri, 21 Sep 2012 15:06:44 +0200
+From: Jens Axboe <axboe@kernel.dk>
+MIME-Version: 1.0
+Subject: Re: fio 2.0.9 fails: shmget: No space left on device
+References: <505C54AE.9010701@vpseer.com> <505C5A6A.5020904@kernel.dk> <505C5EB8.5010701@vpseer.com> <505C5F9C.30404@kernel.dk> <505C6557.1070003@vpseer.com>
+In-Reply-To: <505C6557.1070003@vpseer.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Konstantin Boyandin <konstantin@vpseer.com>
+Cc: fio@vger.kernel.org
 
-IO engine that does regular EXT4_IOC_MOVE_EXT ioctls to simulate
-defragment activity
+On 09/21/2012 03:02 PM, Konstantin Boyandin wrote:
+> Hello Jens,
+> 
+> On 09/21/2012 07:37 PM, Jens Axboe wrote:
+>> On 09/21/2012 02:34 PM, Konstantin Boyandin wrote:
+>>> Hello Jens,
+>>>
+>>> On 09/21/2012 07:15 PM, Jens Axboe wrote:
+>>>> On 09/21/2012 01:51 PM, Konstantin Boyandin wrote:
+>>>>> Hello,
+>>>>>
+>>>>> When trying to run the command line
+>>>>>
+>>>>> fio --bs=4k --size=128m --direct=1 --runtime=10 --rw=randread
+>>>>> --numjobs=32 --group_reporting --time_based --name=128m
+>>>>>
+>>>>> I see only this:
+>>>>>
+>>>>> shmget: No space left on device
+>>>>> error: failed to setup shm segment
+>>>>
+>>>> Hmmm. Can you send me the output of:
+>>>>
+>>>> $ grep . /proc/sys/kernel/shm*
+>>>
+>>> /proc/sys/kernel/shmall:2097152
+>>> /proc/sys/kernel/shmmax:33554432
+>>> /proc/sys/kernel/shmmni:4096
+>>> /proc/sys/kernel/shm_rmid_forced:0
+>>>
+>>>> $ ipcs -l
+>>>
+>>> ------ Shared Memory Limits --------
+>>> max number of segments = 4096
+>>> max seg size (kbytes) = 32768
+>>> max total shared memory (kbytes) = 8388608
+>>> min seg size (bytes) = 1
+>>>
+>>> ------ Semaphore Limits --------
+>>> max number of arrays = 128
+>>> max semaphores per array = 250
+>>> max semaphores system wide = 32000
+>>> max ops per semop call = 32
+>>> semaphore max value = 32767
+>>>
+>>> ------ Messages: Limits --------
+>>> max queues system wide = 6365
+>>> max size of message (bytes) = 8192
+>>> default max size of queue (bytes) = 16384
+>>>
+>>>> $ ipcs -m
+>>>
+>>> ------ Shared Memory Segments --------
+>>> key        shmid      owner      perms      bytes      nattch     status
+>>>
+>>> The VM wasn't restarted after the fio failed run.
+>>>
+>>> fio was run by root user.
+>>
+>> Oh, try with this please.
+>>
+>> diff --git a/init.c b/init.c
+>> index da1f472..b3215f5 100644
+>> --- a/init.c
+>> +++ b/init.c
+>> @@ -254,7 +254,7 @@ static int setup_thread_area(void)
+>>  		shm_id = shmget(0, size, IPC_CREAT | 0600);
+>>  		if (shm_id != -1)
+>>  			break;
+>> -		if (errno != EINVAL && errno != ENOMEM) {
+>> +		if (errno != EINVAL && errno != ENOMEM && errno != ENOSPC) {
+>>  			perror("shmget");
+>>  			break;
+>>  		}
+> 
+> The patch worked fine, thank you!
+> fio works now as expected.
 
-Signed-off-by: Dmitry Monakhov <dmonakhov@openvz.org>
----
- Makefile           |    2 +-
- engines/e4defrag.c |  215 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- examples/e4defrag  |   32 ++++++++
- 3 files changed, 248 insertions(+), 1 deletions(-)
- create mode 100644 engines/e4defrag.c
- create mode 100644 examples/e4defrag
+Excellent. Thanks for the report, fix has been committed.
 
-diff --git a/Makefile b/Makefile
-index a047079..7972508 100644
---- a/Makefile
-+++ b/Makefile
-@@ -21,7 +21,7 @@ ifeq ($(UNAME), Linux)
- 		engines/libaio.c engines/posixaio.c engines/sg.c \
- 		engines/splice.c engines/syslet-rw.c engines/guasi.c \
- 		engines/binject.c engines/rdma.c profiles/tiobench.c \
--		engines/fusion-aw.c engines/falloc.c
-+		engines/fusion-aw.c engines/falloc.c engines/e4defrag.c
-   LIBS += -lpthread -ldl -lrt -laio
-   LDFLAGS += -rdynamic
- endif
-diff --git a/engines/e4defrag.c b/engines/e4defrag.c
-new file mode 100644
-index 0000000..5affaa0
---- /dev/null
-+++ b/engines/e4defrag.c
-@@ -0,0 +1,215 @@
-+/*
-+ * ioe_e4defrag:  ioengine for git://git.kernel.dk/fio.git
-+ *
-+ * IO engine that does regular EXT4_IOC_MOVE_EXT ioctls to simulate
-+ * defragment activity
-+ *
-+ */
-+
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <sys/uio.h>
-+#include <errno.h>
-+#include <assert.h>
-+#include <fcntl.h>
-+
-+#include "../fio.h"
-+
-+#ifndef EXT4_IOC_MOVE_EXT
-+#define EXT4_IOC_MOVE_EXT               _IOWR('f', 15, struct move_extent)
-+struct move_extent {
-+	__u32 reserved;         /* should be zero */
-+	__u32 donor_fd;         /* donor file descriptor */
-+	__u64 orig_start;       /* logical start offset in block for orig */
-+	__u64 donor_start;      /* logical start offset in block for donor */
-+	__u64 len;              /* block length to be moved */
-+	__u64 moved_len;        /* moved block length */
-+};
-+#endif
-+
-+struct e4defrag_data {
-+	int donor_fd;
-+	int bsz;
-+};
-+
-+struct e4defrag_options {
-+	struct thread_data *td;
-+	unsigned int inplace;
-+	char * donor_name;
-+};
-+
-+static struct fio_option options[] = {
-+	{
-+		.name	= "donorname",
-+		.type	= FIO_OPT_STR_STORE,
-+		.off1	= offsetof(struct e4defrag_options, donor_name),
-+		.help	= "File used as a block donor",
-+	},
-+	{
-+		.name	= "inplace",
-+		.type	= FIO_OPT_INT,
-+		.off1	= offsetof(struct e4defrag_options, inplace),
-+		.minval	= 0,
-+		.maxval	= 1,
-+		.help	= "Alloc and free space inside defrag event",
-+	},
-+	{
-+		.name	= NULL,
-+	},
-+};
-+
-+static int fio_e4defrag_init(struct thread_data *td)
-+{
-+	int r, len = 0;
-+	struct e4defrag_options *o = td->eo;
-+	struct e4defrag_data *ed;
-+	struct stat stub;
-+	char donor_name[PATH_MAX];
-+
-+	if (!strlen(o->donor_name)) {
-+		log_err("'donorname' options required\n");
-+		return 1;
-+	}
-+
-+	ed = malloc(sizeof(*ed));
-+	if (!ed) {
-+		td_verror(td, -ENOMEM, "io_queue_init");
-+		return 1;
-+	}
-+	memset(ed, 0 ,sizeof(*ed));
-+
-+	if (td->o.directory)
-+		len = sprintf(donor_name, "%s/", td->o.directory);
-+	sprintf(donor_name + len, "%s", o->donor_name);
-+
-+	ed->donor_fd = open(donor_name, O_CREAT|O_WRONLY, 0644);
-+	if (ed->donor_fd < 0) {
-+		td_verror(td, ed->donor_fd, "io_queue_init");
-+		log_err("Can't open donor file %s err:%d", ed->donor_fd);
-+		free(ed);
-+		return 1;
-+	}
-+
-+	if (!o->inplace) {
-+		long long len = td->o.file_size_high - td->o.start_offset;
-+		r = fallocate(ed->donor_fd, 0, td->o.start_offset, len);
-+		if (r)
-+			goto err;
-+	}
-+	r = fstat(ed->donor_fd, &stub);
-+	if (r)
-+		goto err;
-+
-+	ed->bsz = stub.st_blksize;
-+	td->io_ops->data = ed;
-+	return 0;
-+err:
-+	td_verror(td, errno, "io_queue_init");
-+	close(ed->donor_fd);
-+	free(ed);
-+	return 1;
-+}
-+
-+static void fio_e4defrag_cleanup(struct thread_data *td)
-+{
-+	struct e4defrag_data *ed = td->io_ops->data;
-+	if (ed) {
-+		if (ed->donor_fd >= 0)
-+			close(ed->donor_fd);
-+		free(ed);
-+	}
-+}
-+
-+
-+static int fio_e4defrag_queue(struct thread_data *td, struct io_u *io_u)
-+{
-+
-+	int ret;
-+	unsigned long long len;
-+	struct move_extent me;
-+	struct fio_file *f = io_u->file;
-+	struct e4defrag_data *ed = td->io_ops->data;
-+	struct e4defrag_options *o = td->eo;
-+
-+	fio_ro_check(td, io_u);
-+
-+	/* Theoretically defragmentation should not change data, but it
-+	 * changes data layout. So this function handle only DDIR_WRITE
-+	 * in order to satisfy strict read only access pattern
-+	 */
-+	if (io_u->ddir != DDIR_WRITE) {
-+		io_u->error = errno;
-+		return FIO_Q_COMPLETED;
-+	}
-+
-+	if (o->inplace) {
-+		ret = fallocate(ed->donor_fd, 0, io_u->offset, io_u->xfer_buflen);
-+		if (ret) {
-+			io_u->error = errno;
-+			goto out;
-+		}
-+	}
-+
-+	memset(&me, 0, sizeof(me));
-+	me.donor_fd = ed->donor_fd;
-+	me.orig_start = io_u->offset / ed->bsz;
-+	me.donor_start = me.orig_start;
-+	len = (io_u->offset + io_u->xfer_buflen + ed->bsz -1);
-+	me.len = len / ed->bsz - me.orig_start;
-+
-+	ret = ioctl(f->fd, EXT4_IOC_MOVE_EXT, &me);
-+	len = me.moved_len * ed->bsz;
-+
-+	if (io_u->file && len >= 0 && ddir_rw(io_u->ddir))
-+		io_u->file->file_pos = io_u->offset + len;
-+
-+	if (len > io_u->xfer_buflen)
-+		len = io_u->xfer_buflen;
-+
-+	if (len != io_u->xfer_buflen) {
-+		io_u->resid = io_u->xfer_buflen - len;
-+		io_u->error = 0;
-+	}
-+	if (ret)
-+		io_u->error = errno;
-+	
-+	if (o->inplace) {
-+		ret = ftruncate(ed->donor_fd, 0);
-+		if (ret)
-+			io_u->error = errno;
-+	}
-+out:
-+	if (io_u->error)
-+		td_verror(td, errno, "xfer");
-+
-+
-+	return FIO_Q_COMPLETED;
-+}
-+
-+static struct ioengine_ops ioengine = {
-+	.name			= "e4defrag",
-+	.version		= FIO_IOOPS_VERSION,
-+	.init			= fio_e4defrag_init,
-+	.queue			= fio_e4defrag_queue,
-+	.open_file		= generic_open_file,
-+	.close_file		= generic_close_file,
-+	.get_file_size		= generic_get_file_size,
-+	.flags			= FIO_SYNCIO,
-+	.cleanup		= fio_e4defrag_cleanup,
-+	.options		= options,
-+	.option_struct_size	= sizeof(struct e4defrag_options),
-+
-+};
-+
-+static void fio_init fio_syncio_register(void)
-+{
-+	register_ioengine(&ioengine);
-+}
-+
-+static void fio_exit fio_syncio_unregister(void)
-+{
-+	unregister_ioengine(&ioengine);
-+}
-diff --git a/examples/e4defrag b/examples/e4defrag
-new file mode 100644
-index 0000000..d392149
---- /dev/null
-+++ b/examples/e4defrag
-@@ -0,0 +1,32 @@
-+[global]
-+
-+direct=0
-+buffered=0
-+directory=/scratch
-+
-+nrfiles=1
-+
-+filesize=4G
-+fadvise_hint=0
-+
-+group_reporting
-+
-+[defrag-fuzzer-8k]
-+ioengine=e4defrag
-+iodepth=1
-+size=1G
-+bs=8k
-+donorname=file.def
-+filename=file
-+inplace=0
-+rw=randwrite
-+numjobs=1
-+
-+[random-aio-32k]
-+ioengine=libaio
-+iodepth=128
-+bs=32k
-+size=4G
-+filename=file
-+rw=randwrite
-+numjobs=1
 -- 
-1.7.7.6
-
+Jens Axboe
 
