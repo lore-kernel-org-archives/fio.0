@@ -1,66 +1,240 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:38244 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756015Ab2JCIbV (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 3 Oct 2012 04:31:21 -0400
-Message-ID: <506BEF3D.9020508@kernel.dk>
-Date: Wed, 03 Oct 2012 09:54:37 +0200
-From: Jens Axboe <axboe@kernel.dk>
+Received: from mail.thomas-krenn.com ([217.7.54.186]:33183 "EHLO
+	mail.thomas-krenn.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754461Ab2JCHKj (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 3 Oct 2012 03:10:39 -0400
+Received: from iris.tks.local (iris.tks.local [192.168.10.63])
+	by mail.thomas-krenn.com (Postfix) with ESMTP id 79DECC22A5
+	for <fio@vger.kernel.org>; Wed,  3 Oct 2012 09:02:05 +0200 (CEST)
+Received: from zimbra.thomas-krenn.com (hercules.tks.local [192.168.110.28])
+	by iris.tks.local (Postfix) with ESMTP id 20BDF3FD86
+	for <fio@vger.kernel.org>; Wed,  3 Oct 2012 09:02:05 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+	by zimbra.thomas-krenn.com (Postfix) with ESMTP id 177E86FC13C
+	for <fio@vger.kernel.org>; Wed,  3 Oct 2012 09:02:05 +0200 (CEST)
+Date: Wed, 3 Oct 2012 09:02:04 +0200 (CEST)
+From: Georg =?utf-8?Q?Sch=C3=B6nberger?= 
+	<gschoenberger@thomas-krenn.com>
+Message-ID: <865760996.213912.1349247724514.JavaMail.root@thomas-krenn.com>
+In-Reply-To: <1873496499.213815.1349247144505.JavaMail.root@thomas-krenn.com>
+Subject: IO depth reported by Fio/blktrace/iowatcher
 MIME-Version: 1.0
-Subject: Re: IO depth reported by Fio/blktrace/iowatcher
-References: <865760996.213912.1349247724514.JavaMail.root@thomas-krenn.com> <506BED4F.2010802@kernel.dk>
-In-Reply-To: <506BED4F.2010802@kernel.dk>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_213910_1796269093.1349247724513"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: =?UTF-8?B?R2VvcmcgU2Now7ZuYmVyZ2Vy?= <gschoenberger@thomas-krenn.com>
-Cc: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On 2012-10-03 09:46, Jens Axboe wrote:
-> On 2012-10-03 09:02, Georg Schönberger wrote:
->> Good Morning,
->>
->> I have a short question about the used io depth reported by Fio/blktrace/iowatcher:
->> If I am starting a test:
->> # blktrace -d /dev/sde -o hdd &
->> # fio --rw=read --name=wd --bs=1024k --direct=1 --filename=/dev/sde --offset=0 --runtime=300 --ioengine=libaio --iodepth=4
->> [...]
->>   IO depths    : 1=0.1%, 2=0.1%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
->>      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
->>      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
->> [...]
->> As seen above Fio is reporting 100% io depth 4. In contrast to that blktrace and iowatcher (cf. attached figure) revealing the following io depths (9 and 7):
->> # blkparse hdd.blktrace.8
->> [...]
->> CPU8 (hdd):
->>  Reads Queued:        9072,     4644MiB	 Writes Queued:           0,        0KiB
->>  Read Dispatches:     9070,     4643MiB	 Write Dispatches:        0,        0KiB
->>  Reads Requeued:         0		 Writes Requeued:         0
->>  Reads Completed:     9072,     4644MiB	 Writes Completed:        0,        0KiB
->>  Read Merges:            0,        0KiB	 Write Merges:            0,        0KiB
->>  Read depth:             9
->> [...]
->> # iowatcher -t hdd.blktrace.8 -o wd.svg
->> (showing an io depth of 7)
->>
->> Where is this divergence concerning the io depths coming from? A short explanation would be great =)
-> 
-> You are using a relatively large block size (1024k) and that is why.
-> That will be broken into 512kb chunks usually, effectively almost
-> doubling the queue depth seen on the device side.
-> 
-> Fio reports the queue depth the way it sees it, on the submitting
-> application side. That may or may not be identical to what the device
-> sees. It could be higher, if the scheduler is throttling fio. Or it
-> could be lower, as in this case.
+------=_Part_213910_1796269093.1349247724513
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-BTW, this is also visible if you look at the blkparse output:
+Good Morning,
 
-Reads Queued:        9072,     4644MiB
+I have a short question about the used io depth reported by Fio/blktrace/iowatcher:
+If I am starting a test:
+# blktrace -d /dev/sde -o hdd &
+# fio --rw=read --name=wd --bs=1024k --direct=1 --filename=/dev/sde --offset=0 --runtime=300 --ioengine=libaio --iodepth=4
+[...]
+  IO depths    : 1=0.1%, 2=0.1%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+[...]
+As seen above Fio is reporting 100% io depth 4. In contrast to that blktrace and iowatcher (cf. attached figure) revealing the following io depths (9 and 7):
+# blkparse hdd.blktrace.8
+[...]
+CPU8 (hdd):
+ Reads Queued:        9072,     4644MiB	 Writes Queued:           0,        0KiB
+ Read Dispatches:     9070,     4643MiB	 Write Dispatches:        0,        0KiB
+ Reads Requeued:         0		 Writes Requeued:         0
+ Reads Completed:     9072,     4644MiB	 Writes Completed:        0,        0KiB
+ Read Merges:            0,        0KiB	 Write Merges:            0,        0KiB
+ Read depth:             9
+[...]
+# iowatcher -t hdd.blktrace.8 -o wd.svg
+(showing an io depth of 7)
 
-which gives you an average read IO size of ~524KB.
+Where is this divergence concerning the io depths coming from? A short explanation would be great =)
 
--- 
-Jens Axboe
+Best regards, Georg
+
+------=_Part_213910_1796269093.1349247724513
+Content-Type: image/png; name=wd-iowatcher.png
+Content-Disposition: attachment; filename=wd-iowatcher.png
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgoAAAANSUhEUgAAA0QAAAE+CAYAAACtP9CgAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A
+/wD/oL2nkwAAAAlwSFlzAAAN1wAADdcBQiibeAAAAAd0SU1FB9wKAwY4FhbrtKMAACAASURBVHhe
+7d17cFTl/cfxzyYxEEQSNIQYKJFLFJWLIHfCRUS8YLygQ0BbKVoUW+y0zigdBOlvpG20tip2qi1a
+FC2SivHCrSIiSBWCaCBiAIOIAZFLQCFCCCR7fn8sCSzZnJNkd8/Z7Hm/ZjInnPN9nt2Vdeb58Jzz
+PB7DMAwBAAAAgAvFWBUAAAAAQLQiEAEAAABwLQIRAAAAANciEAEA4BIbN26Ux+PRz3/+c6tSAHAN
+AhEAIKANGzZo4sSJ6tSpkxISEtSqVSv16NFDDz30kL799lur5lHp+PHj8ng8fj/NmjVTmzZt1KdP
+H917771avny5vF6vVVdhsX37dnk8Ho0bN86qFABwCoEIAODHMAxNnTpVffv21csvv6yUlBTdcccd
+uvnmm1VeXq4nn3xSF198sRYuXGjVVdSKj4/Xfffdp/vuu0933XWXhg8frvLycs2ZM0fXXnutBg8e
+rB07dlh1AwCIAHFWBQAAd3nsscf0xBNPqF27dnrjjTfUv39/v+tz587V5MmTNW7cOL333nu66qqr
+6ugpeiUkJOj555+vdX7btm369a9/reXLl2vkyJHasGGDzj///AA9AAAiBTNEAIAaO3fu1GOPPab4
++HgtXbq0VhiSpIkTJ+qZZ55RVVWV7r//fr/bwxYvXiyPx6Pf//73tdpJUlJSkrp06RLw2tq1a3Xb
+bbepbdu2io+PV1pamn76059q69atfnV2vEZjXXLJJVqyZIkGDx6sr7/+Wk888UStmvq+hzOf9ykq
+KtJNN92k888/X+eee66GDh2qDz74wK8+JydHGRkZkqTc3Fy/2/peffVVnW3Xrl264447lJycrISE
+BPXt21dLly6tVQcA0Y5ABACoMXfuXFVWVmrs2LHq0aNHnXWTJk1Senq6tm3bptWrV9dZV19z5sxR
+Zmam1qxZo9GjR+vBBx/UkCFD9Prrr6tPnz7Kz8+36sKSHa8hSXFxcfq///s/SdL8+fP9rjXmPXz1
+1VcaNGiQfvzxR/3qV7/S+PHjtWHDBl1zzTV66623auqysrL05JNPSpIGDBigV155peZn8ODBfn3u
+2rVLffv21bZt2zR27FiNHj1aBQUFysrK0po1awQArmIAAHDKiBEjDEnGq6++alVq3HPPPYYk47HH
+Hqs5t2jRIkOSMXPmzIBtEhMTjc6dO/udKyoqMs455xzj2muvNY4dO+Z3bdOmTUbLli2NHj161Jyz
+4zXqUl5ebkgyEhMTTesqKiqM+Ph4Q5KxZ88ewzAa/h4KCgoMSYYkY+rUqX71n332mREXF2ckJycb
+R48erTlfXFxsSDKys7ONQM7sc8aMGYbX66259sorrxiSjKysrIBtASBaMUMEAKjx3XffSZLS09Mt
+Kk/X7Nmzx6LS3N///nedPHlS06ZN09GjR1VaWlrzk5aWpquvvlqFhYX65ptvrLqqkx2vcab4+Hi1
+adNGknTgwAFJjX8PSUlJmj59ut+5Xr166c4771RpaakWLVqkhurQoYMeffRReTyemnN33nmnEhMT
+tX79epOWABB9WFQBAFDLmQNlq5pgl5heu3atJGnYsGGmdXv27KlXUAvEjtc4m2EYkk7/d2rse+jV
+q5datmxZq27IkCF6+eWXVVBQoOzs7FrXzfTq1Utxcf5DAI/Ho/bt26u4uLiOVgAQnQhEAIAaqamp
+2rJli0pKSmo9d3K26pmMdu3amdZZOXjwoCTpnXfeUUJCQp11l112WZ3XrNjxGmeqqKhQaWmpJNXM
+FDX2PbRt2zZgXfX5w4cPB7xuJikpKeD5uLg4VVVVBbwGANGKQAQAqJGZmakPPvhA7777rsaPH19n
+ndfr1YoVK2raVIuJ8d2JXVlZWavNyZMndfToUSUnJ/udT0xMlOQLY3379q3V7mx2vEaw1qxZoxMn
+TqhDhw5KTU2V1Pj3sG/fPtPz1f0CABqHZ4gAADUmTpyouLg4LViwQEVFRXXWzZ07Vzt37tQll1zi
+dwtY69atJflWMTtbQUFBwBAzYMAASdKCBQtqXQvEjtcIRmVlpWbOnCnJ91xOtca+h4KCAv3444+1
+zlevBterV6+ac7GxsZLELA8ANACBCABQo2PHjpo+fboqKip0ww036LPPPqtVM3/+fE2ZMkUJCQma
+N29ezYyNJHXv3l3NmzfX22+/rb1799acP3z4sB588MFafUnSlClTFBcXp2effVYrV66sdf3HH39U
+bm5uzZ/teI3G+vLLLzV69Gh9/PHH6ty5sx566KGaa419Dz/88INmzZrld66goEDz589XcnKysrKy
+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
+------=_Part_213910_1796269093.1349247724513--
+--:
+To unsubscribe from this list: send the line "unsubscribe fio" in
+the body of a message to majordomo@vger.kernel.org: 
+More majordomo info at  http: //vger.kernel.org/majordomo-info.html
+
 
