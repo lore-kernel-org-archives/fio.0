@@ -1,41 +1,59 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:36170 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751554Ab2JDWcC (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 4 Oct 2012 18:32:02 -0400
-Received: by mail-wg0-f44.google.com with SMTP id dr13so908068wgb.1
-        for <fio@vger.kernel.org>; Thu, 04 Oct 2012 15:32:01 -0700 (PDT)
+Received: from casper.infradead.org ([85.118.1.10]:38443 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751713Ab2JCIlu (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 3 Oct 2012 04:41:50 -0400
+Message-ID: <506BED4F.2010802@kernel.dk>
+Date: Wed, 03 Oct 2012 09:46:23 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Date: Thu, 4 Oct 2012 17:32:01 -0500
-Message-ID: <CAOAYhmASWTiFvV7QR2jvJt1QBkfOxA6+B+vXWUBbQq+m7p=x-w@mail.gmail.com>
-Subject: FIO 2.0.9 Windows - Job IOPS limitation
-From: Keith Orsak <orsak.keith@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: IO depth reported by Fio/blktrace/iowatcher
+References: <865760996.213912.1349247724514.JavaMail.root@thomas-krenn.com>
+In-Reply-To: <865760996.213912.1349247724514.JavaMail.root@thomas-krenn.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: =?UTF-8?B?R2VvcmcgU2Now7ZuYmVyZ2Vy?= <gschoenberger@thomas-krenn.com>
+Cc: fio@vger.kernel.org
 
-OS: Windows 2008 R2 Enterprise Edition
-CPU: Intel X5660 2.8GHz (6-core)
-Memory: 24GB
-Device Under Test: 350GB SLC PCIe 2.0 x8
+On 2012-10-03 09:02, Georg Schönberger wrote:
+> Good Morning,
+> 
+> I have a short question about the used io depth reported by Fio/blktrace/iowatcher:
+> If I am starting a test:
+> # blktrace -d /dev/sde -o hdd &
+> # fio --rw=read --name=wd --bs=1024k --direct=1 --filename=/dev/sde --offset=0 --runtime=300 --ioengine=libaio --iodepth=4
+> [...]
+>   IO depths    : 1=0.1%, 2=0.1%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+>      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+> [...]
+> As seen above Fio is reporting 100% io depth 4. In contrast to that blktrace and iowatcher (cf. attached figure) revealing the following io depths (9 and 7):
+> # blkparse hdd.blktrace.8
+> [...]
+> CPU8 (hdd):
+>  Reads Queued:        9072,     4644MiB	 Writes Queued:           0,        0KiB
+>  Read Dispatches:     9070,     4643MiB	 Write Dispatches:        0,        0KiB
+>  Reads Requeued:         0		 Writes Requeued:         0
+>  Reads Completed:     9072,     4644MiB	 Writes Completed:        0,        0KiB
+>  Read Merges:            0,        0KiB	 Write Merges:            0,        0KiB
+>  Read depth:             9
+> [...]
+> # iowatcher -t hdd.blktrace.8 -o wd.svg
+> (showing an io depth of 7)
+> 
+> Where is this divergence concerning the io depths coming from? A short explanation would be great =)
 
-I seem to be running into a Job IOPS limitation in Windows.  When I
-run a deep queue (iodepth=66 for example) the IOPS seem to be pegged
-out around 200K.  If I split the iodepth between two jobs I can get
-around 250K IOPS with the device I am testing which is what I would
-expect to see.  Here is the command that I am currently using:
+You are using a relatively large block size (1024k) and that is why.
+That will be broken into 512kb chunks usually, effectively almost
+doubling the queue depth seen on the device side.
 
- fio --filename=\\.\PHYSICALDRIVE1 --ioengine=windowsaio --direct=1
---rw=randrw --bs=4K --rwmixread=70 --iodepth=66 --randrepeat=0
---norandommap --name=test --runtime=1000000 --time_based
---group_reporting
+Fio reports the queue depth the way it sees it, on the submitting
+application side. That may or may not be identical to what the device
+sees. It could be higher, if the scheduler is throttling fio. Or it
+could be lower, as in this case.
 
-When I ran two jobs I simply added the numjobs=2 attribute in and
-reduced iodepth to 33.
+-- 
+Jens Axboe
 
-This is probably more of an enhancement request than an actual issue
-but having to split the queue between two jobs makes it difficult to
-get datapoints on even numbered queues beyond a certain point.
-
--Keith
