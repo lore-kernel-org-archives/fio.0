@@ -1,131 +1,59 @@
-Return-Path: <lakshmipriya.teekeyan@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from casper.infradead.org ([85.118.1.10]:51333 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754950Ab2JEJjM (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 5 Oct 2012 05:39:12 -0400
+Message-ID: <506EAAB5.6060002@kernel.dk>
+Date: Fri, 05 Oct 2012 11:39:01 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-From: Lakshmipriya Teekeyan <lakshmipriya.teekeyan@gmail.com>
-Date: Mon, 22 Oct 2012 14:06:01 -0600
-Subject: Re: Errors while running FIO
-Message-ID: 
- <CANcZX_QD4OAQqYUUuLyo+YNrHRZah=2o9S7=dXYH62zuUkhvUg@mail.gmail.com>
-References: 
- <CANcZX_TT=1tV_ZBL-7Efi_zKG6t6AHgu8Whfs97dyDXj2htgNw@mail.gmail.com>
-	<5082E328.30500@fusionio.com>
-In-Reply-To: <5082E328.30500@fusionio.com>
-Content-Language: en-US
-Content-Type: multipart/alternative;
-	boundary="_000_CANcZXQD4OAQqYUUuLyoYNrHRZah2o9S7dXYH62zuUkhvUgmailgmai_"
-To: Jens Axboe <JAxboe@fusionio.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Subject: Re: FIO 2.0.9 Windows - Job IOPS limitation
+References: <CAOAYhmASWTiFvV7QR2jvJt1QBkfOxA6+B+vXWUBbQq+m7p=x-w@mail.gmail.com>
+In-Reply-To: <CAOAYhmASWTiFvV7QR2jvJt1QBkfOxA6+B+vXWUBbQq+m7p=x-w@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Keith Orsak <orsak.keith@gmail.com>
+Cc: fio@vger.kernel.org
 
---_000_CANcZXQD4OAQqYUUuLyoYNrHRZah2o9S7dXYH62zuUkhvUgmailgmai_
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+On 2012-10-05 00:32, Keith Orsak wrote:
+> OS: Windows 2008 R2 Enterprise Edition
+> CPU: Intel X5660 2.8GHz (6-core)
+> Memory: 24GB
+> Device Under Test: 350GB SLC PCIe 2.0 x8
+> 
+> I seem to be running into a Job IOPS limitation in Windows.  When I
+> run a deep queue (iodepth=66 for example) the IOPS seem to be pegged
+> out around 200K.  If I split the iodepth between two jobs I can get
+> around 250K IOPS with the device I am testing which is what I would
+> expect to see.  Here is the command that I am currently using:
+> 
+>  fio --filename=\\.\PHYSICALDRIVE1 --ioengine=windowsaio --direct=1
+> --rw=randrw --bs=4K --rwmixread=70 --iodepth=66 --randrepeat=0
+> --norandommap --name=test --runtime=1000000 --time_based
+> --group_reporting
+> 
+> When I ran two jobs I simply added the numjobs=2 attribute in and
+> reduced iodepth to 33.
+> 
+> This is probably more of an enhancement request than an actual issue
+> but having to split the queue between two jobs makes it difficult to
+> get datapoints on even numbered queues beyond a certain point.
 
-Jens,
+Depending on how expensive the issue path is on Windows, it's not
+unusual to require more than 1 thread/process to drive that number of
+IOPS. In other words, this isn't necessarily a problem or limitation of
+fio. I'd need to see some profiles to make an educated guess on that.
+But it's a universal problem, not something limited to Windows or fio.
 
-  I am running fio on a windows share.
-The version is fio-2.0.9.
+You might be able to squeeze some more IOPS out of a single process by
+reducing the tracking that fio does. If you set --gtod_reduce=1 then fio
+wont do as much time keeping. On the down side, you don't get good
+latency statistics. You can also increase the completion batch count to
+reduce the number of times you have to reap events, by playing with the
+--iodepth_batch_completion setting.
 
-A small subset of job file is given below:
-
-[exawritedir2]
-rw=3Dwrite
-ioengine=3Dsync
-bs=3D16k
-size=3D20g
-nrfiles=3D20
-scramble_buffers=3D1
-overwrite=3D0
-verify=3Dsha1
-directory=3DW:/Write2
-thread
-stonewall
-
-Thanks,
-Lakshmi
-On Sat, Oct 20, 2012 at 10:45 AM, Jens Axboe <jaxboe@fusionio.com<mailto:ja=
-xboe@fusionio.com>> wrote:
-On 2012-10-20 01:51, Lakshmipriya Teekeyan wrote:
-> Hello Jens,
->
->   I am a newbie in FIO. I was running FIO to create 3 dirs with 20 files =
-each of 1GB size.
->
-> I am getting the following errors:
->
-> fio: pid=3D5808, err=3D22/file:engines/sync.c:62, func=3Dxfer, error=3DIn=
-valid argument
->
-> fio: pid=3D7976, err=3D22/file:filesetup.c:534, func=3Dopen(W:/Write2/exa=
-writedir2.2.0
-> ), error=3DInvalid argument
->
-> fio: pid=3D5668, err=3D22/file:filesetup.c:534, func=3Dopen(W:/Write1/exa=
-writedir1.1.0
-> ), error=3DInvalid argument
->
->
-> Can you please take a look and let me know what went wrong?
-
-Some problem with O_DIRECT? You should include the fio version and job
-file when writing a report, and also CC fio@vger.kernel.org<mailto:fio@vger=
-.kernel.org>. See the
-REPORTING-BUGS file included with fio.
-
---
+-- 
 Jens Axboe
-
-
-
---_000_CANcZXQD4OAQqYUUuLyoYNrHRZah2o9S7dXYH62zuUkhvUgmailgmai_
-Content-Type: text/html; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<div>Jens, </div><div>=A0</div><div>=A0 I am running fio on a windows share=
-. </div><div>The version is fio-2.0.9. </div><div>=A0</div><div>A small sub=
-set of job file is given below:</div><div>=A0</div><div>[exawritedir2]<br>r=
-w=3Dwrite <br>
-ioengine=3Dsync<br>bs=3D16k<br>size=3D20g<br>nrfiles=3D20<br>scramble_buffe=
-rs=3D1<br>overwrite=3D0<br>verify=3Dsha1<br>directory=3DW:/Write2<br>thread=
-<br>stonewall</div><div>=A0</div><div>Thanks,</div><div>Lakshmi<br></div><d=
-iv class=3D"gmail_quote">
-On Sat, Oct 20, 2012 at 10:45 AM, Jens Axboe <span dir=3D"ltr">&lt;<a href=
-=3D"mailto:jaxboe@fusionio.com" target=3D"_blank">jaxboe@fusionio.com</a>&g=
-t;</span> wrote:<br><blockquote style=3D"margin:0px 0px 0px 0.8ex;padding-l=
-eft:1ex;border-left-color:rgb(204,204,204);border-left-width:1px;border-lef=
-t-style:solid" class=3D"gmail_quote">
-<div class=3D"HOEnZb"><div class=3D"h5">On 2012-10-20 01:51, Lakshmipriya T=
-eekeyan wrote:<br>
-&gt; Hello Jens,<br>
-&gt;<br>
-&gt; =A0 I am a newbie in FIO. I was running FIO to create 3 dirs with 20 f=
-iles each of 1GB size.<br>
-&gt;<br>
-&gt; I am getting the following errors:<br>
-&gt;<br>
-&gt; fio: pid=3D5808, err=3D22/file:engines/sync.c:62, func=3Dxfer, error=
-=3DInvalid argument<br>
-&gt;<br>
-&gt; fio: pid=3D7976, err=3D22/file:filesetup.c:534, func=3Dopen(W:/Write2/=
-exawritedir2.2.0<br>
-&gt; ), error=3DInvalid argument<br>
-&gt;<br>
-&gt; fio: pid=3D5668, err=3D22/file:filesetup.c:534, func=3Dopen(W:/Write1/=
-exawritedir1.1.0<br>
-&gt; ), error=3DInvalid argument<br>
-&gt;<br>
-&gt;<br>
-&gt; Can you please take a look and let me know what went wrong?<br>
-<br>
-</div></div>Some problem with O_DIRECT? You should include the fio version =
-and job<br>
-file when writing a report, and also CC <a href=3D"mailto:fio@vger.kernel.o=
-rg">fio@vger.kernel.org</a>. See the<br>
-REPORTING-BUGS file included with fio.<br>
-<span class=3D"HOEnZb"><font color=3D"#888888"><br>
---<br>
-Jens Axboe<br>
-<br>
-</font></span></blockquote></div><br>
-
---_000_CANcZXQD4OAQqYUUuLyoYNrHRZah2o9S7dXYH62zuUkhvUgmailgmai_--
-
 
