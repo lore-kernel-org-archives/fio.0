@@ -1,65 +1,32 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from exprod5og112.obsmtp.com ([64.18.0.24]:38937 "EHLO
-	exprod5og112.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756036Ab2JTDTs (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 19 Oct 2012 23:19:48 -0400
-Received: by mail-vc0-f198.google.com with SMTP id d16so1787207vcd.1
-        for <fio@vger.kernel.org>; Fri, 19 Oct 2012 20:19:47 -0700 (PDT)
-From: Yufei Ren <yufei.ren@stonybrook.edu>
-Subject: [PATCH 1/4] cpuio engine cpuload bug fix
-Date: Fri, 19 Oct 2012 23:11:49 -0400
-Message-Id: <1350702712-5168-2-git-send-email-yufei.ren@stonybrook.edu>
-In-Reply-To: <1350702712-5168-1-git-send-email-yufei.ren@stonybrook.edu>
-References: <1350702712-5168-1-git-send-email-yufei.ren@stonybrook.edu>
+Received: from casper.infradead.org ([85.118.1.10]:43591 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756404Ab2JJOTd (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 10 Oct 2012 10:19:33 -0400
+Message-ID: <507583EC.3070808@kernel.dk>
+Date: Wed, 10 Oct 2012 08:19:24 -0600
+From: Jens Axboe <axboe@kernel.dk>
+MIME-Version: 1.0
+Subject: Re: FIO 2.0.9 for Windows Server 2008 RC1 SP2 reports extreme latencies
+References: <C8CA972100601A41AE302914E9CE194655F89024@NTXBOIMBX03.micron.com> <50605FEF.5020103@cran.org.uk> <C8CA972100601A41AE302914E9CE194655F9BAB5@NTXBOIMBX03.micron.com> <50632E0D.4090003@cran.org.uk> <506693F8.3010903@kernel.dk> <5066FBC0.5040508@cran.org.uk> <DD67A461-16D4-496A-BA7C-4F91F07A0B5D@kernel.dk> <C8CA972100601A41AE302914E9CE194655F9DEF4@NTXBOIMBX03.micron.com> <507548FE.9010106@cran.org.uk> <507550DB.2000301@cran.org.uk> <50758306.7020807@kernel.dk> <507583A1.9030308@cran.org.uk>
+In-Reply-To: <507583A1.9030308@cran.org.uk>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Yufei Ren <renyufei83@gmail.com>
+To: Bruce Cran <bruce@cran.org.uk>
+Cc: "Jeffrey McVay (jmcvay)" <jmcvay@micron.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Yufei Ren <renyufei83@gmail.com>
+On 2012-10-10 08:18, Bruce Cran wrote:
+> On 10/10/2012 15:15, Jens Axboe wrote:
+>> So where is this bug exactly? Is Windows reaping events from the head of
+>> this list, and thus starving indefinitely potentially?
+> 
+> Yes - both windowsaio and posixaio read from the head of the list.
 
-Current cpu ioengine always bruns out 100 percent cpu cycles
-no matter what the cpuload value is. Since no data is transferred
-with cpuio, bytes_done would be ZERO. Consequently, think_time
-is omitted and loops keeps running.
+Gotcha, I did check windowsaio after sending the email. Patch is in, so
+all should be well.
 
-A cpuio example is added as well.
----
- engines/cpu.c  |    5 +++++
- examples/cpuio |    8 ++++++++
- 2 files changed, 13 insertions(+), 0 deletions(-)
- create mode 100644 examples/cpuio
-
-diff --git a/engines/cpu.c b/engines/cpu.c
-index 8bc9fd5..322dfde 100644
---- a/engines/cpu.c
-+++ b/engines/cpu.c
-@@ -10,6 +10,11 @@
- static int fio_cpuio_queue(struct thread_data *td, struct io_u fio_unused *io_u)
- {
- 	usec_spin(td->o.cpucycle);
-+
-+	if (io_u->buflen == 0)
-+		io_u->buflen = 1;
-+	io_u->resid = 0;
-+
- 	return FIO_Q_COMPLETED;
- }
- 
-diff --git a/examples/cpuio b/examples/cpuio
-new file mode 100644
-index 0000000..577e072
---- /dev/null
-+++ b/examples/cpuio
-@@ -0,0 +1,8 @@
-+[global]
-+ioengine=cpuio
-+time_based
-+runtime=10
-+
-+[burn50percent]
-+cpuload=50
-+
 -- 
-1.7.2.3
+Jens Axboe
 
