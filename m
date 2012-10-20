@@ -1,80 +1,52 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:52080 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933487Ab2JKA20 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 10 Oct 2012 20:28:26 -0400
-Received: from 87-104-106-3-dynamic-customer.profibernet.dk ([87.104.106.3] helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.76 #1 (Red Hat Linux))
-	id 1TM6dV-0001kU-3b
-	for fio@vger.kernel.org; Thu, 11 Oct 2012 00:28:25 +0000
-Received: from [10.64.87.188] (70-90-212-91-saltlake.hfc.comcastbusiness.net [70.90.212.91])
-	by kernel.dk (Postfix) with ESMTPA id 1A16A561AB
-	for <fio@vger.kernel.org>; Thu, 11 Oct 2012 02:27:53 +0200 (CEST)
-Message-ID: <50761288.8070703@kernel.dk>
-Date: Wed, 10 Oct 2012 18:27:52 -0600
-From: Jens Axboe <axboe@kernel.dk>
-MIME-Version: 1.0
-Subject: Fio 2.0.10
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Received: from exprod5og107.obsmtp.com ([64.18.0.184]:46208 "EHLO
+	exprod5og107.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755899Ab2JTDSP (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 19 Oct 2012 23:18:15 -0400
+Received: by mail-vc0-f198.google.com with SMTP id d16so1786062vcd.1
+        for <fio@vger.kernel.org>; Fri, 19 Oct 2012 20:18:14 -0700 (PDT)
+From: Yufei Ren <yufei.ren@stonybrook.edu>
+Subject: [PATCH 0/4] FIO libnuma integration and 3 patches
+Date: Fri, 19 Oct 2012 23:11:48 -0400
+Message-Id: <1350702712-5168-1-git-send-email-yufei.ren@stonybrook.edu>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
+Cc: Yufei Ren <renyufei83@gmail.com>
 
-Hi,
+From: Yufei Ren <renyufei83@gmail.com>
 
-I have tagged and released version 2.0.10 today. There are a few new
-interesting features that I'd like to highlight:
+Three patches and a numa integration is present as follows.
 
-- Fio now supports a third output format, json. The other two are normal
-  output, or terse output. The terse output has traditionally been used
-  for automated runs, where scripts collect and present the results to
-  humans. But the csv based terse format was impossible to read as a
-  human, and it was fragile whenever changes needed to be made. The JSON
-  format is both easily parseable and humanly readable, and new items
-  can be added without breaking existing scripts. I'd encourage most
-  people that currently use the minimal/terse output to switch to the
-  json output. You can select this output by adding:
+Yufei Ren (4):
+  Current cpu ioengine always bruns out 100 percent cpu cycles     no
+    matter what the cpuload value is. Since no data is transferred    
+    with cpuio, bytes_done would be ZERO. Consequently, think_time    
+    is omitted and loops keeps running.
+  If `thread' option is enabled, resource usage should be thread    
+    based instead of process based. For the following job,
+  rdma ioengine improvement
+  Two new options, numa_cpu_nodes and numa_mem_policy, are created    
+    for a fine-grained job level numa control. Please refer HOWTO and  
+      README for detailed description.     A example job,
+    examples/numa, is added as well.
 
-        --output-format=json
-
-  to your fio script. The format should be self-explanatory. Thanks to
-  Shaohua Li for this nice addition.
-
-- Fio now supports trim as a primary directive, similar to reads and
-  writes. This means you can do rw=randtrim, for instance, to run random
-  trims on a device. Currently this only works on raw block devices.
-  Again, thanks to Shaohua Li for adding this code.
-
-- There was a nasty bug with windowsaio and posixaio that had
-  synthetically long latencies. Issue was that the two engines always
-  completed from the front of the IO busy list, however new entries were
-  not added at the tail. Hence completed IO could be sitting at the end
-  of the list for a long time, depending on the IO reaping options being
-  set. Credit goes to Bruce Cran for finding this bug.
-
-- Not one, but three new IO engines:
-
-        - e4defrag. Engine that moves extents on an ext4 file system for
-          write events. Thanks to Dmitry Monakhov, and for also adding
-          sample job files showing how to use it.
-
-        - falloc. Engine that exercises fallocate on read/write/trim
-          operations. Dmitry added this one as well, again with nice
-          sample job files.
-
-        - Fusion-io atomic IO engine. Engine that is able to exercise
-          atomic writes on Fusion-io ioDrives. Thanks to Santhosh
-          Koundinya for doing this work.
-
-Various other little fixes and improvements that I either forgot or
-didn't find notable enough to highlight. I'm excited to have both new
-and repeat contributors to fio.  I haven't done the math on all previous
-releases, but it looks like this release is the first one where I
-haven't done the majority of the commits. Out of 50 commits, 25 of them
-are mine, and 2 of them are just merges. Good stuff! Thanks a lot, and
-do keep the improvements/features/fixes coming.
+ HOWTO          |   18 +++++++
+ README         |   14 ++++--
+ backend.c      |   45 ++++++++++++++++++-
+ engines/cpu.c  |    5 ++
+ engines/rdma.c |   28 ++++++++---
+ examples/cpuio |    8 +++
+ examples/numa  |   21 +++++++++
+ fio.1          |   22 +++++++++
+ fio.h          |   18 +++++++
+ options.c      |  138 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ os/os-linux.h  |    5 ++
+ stat.c         |    4 ++
+ 12 files changed, 313 insertions(+), 13 deletions(-)
+ create mode 100644 examples/cpuio
+ create mode 100644 examples/numa
 
 -- 
-Jens Axboe
+1.7.2.3
 
