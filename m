@@ -1,41 +1,37 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:56801 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755725Ab2JVRLY (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 22 Oct 2012 13:11:24 -0400
-Message-ID: <50857E1C.9090009@kernel.dk>
-Date: Mon, 22 Oct 2012 19:10:52 +0200
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <yufei.ren@stonybrook.edu>
 MIME-Version: 1.0
+In-Reply-To: <5084FDFE.20208@kernel.dk>
+References: <1350702712-5168-1-git-send-email-yufei.ren@stonybrook.edu>
+ <1350702712-5168-3-git-send-email-yufei.ren@stonybrook.edu> <5084FDFE.20208@kernel.dk>
+From: Yufei Ren <yufei.ren@stonybrook.edu>
+Date: Mon, 22 Oct 2012 12:33:02 -0400
+Message-ID: <CAG5pYQdz1TxMDVTaBmL0iOhztRdQL9Y4jQMNinXGwqXqh_6_dQ@mail.gmail.com>
 Subject: Re: [PATCH 2/4] thread cpu resource statistics bug fix
-References: <1350702712-5168-1-git-send-email-yufei.ren@stonybrook.edu> <1350702712-5168-3-git-send-email-yufei.ren@stonybrook.edu> <5084FDFE.20208@kernel.dk> <CAG5pYQdz1TxMDVTaBmL0iOhztRdQL9Y4jQMNinXGwqXqh_6_dQ@mail.gmail.com>
-In-Reply-To: <CAG5pYQdz1TxMDVTaBmL0iOhztRdQL9Y4jQMNinXGwqXqh_6_dQ@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Yufei Ren <yufei.ren@stonybrook.edu>
+To: Jens Axboe <axboe@kernel.dk>
 Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-On 2012-10-22 18:33, Yufei Ren wrote:
-> Hi Jens,
-> 
->>
->> I applied this, but I wonder if we should not just make this dependent
->> on
->>
->> #ifdef RUSAGE_THREAD
->> ...
->> #endif
->>
->> instead?
->>
-> 
-> Yes, that would more clear. Should I send you another patch instead of this?
+Hi Jens,
 
-Since it's already applied, please send one off the current -git tree
-(so incremental to the previous).
+>
+> I applied this, but I wonder if we should not just make this dependent
+> on
+>
+> #ifdef RUSAGE_THREAD
+> ...
+> #endif
+>
+> instead?
+>
 
--- 
-Jens Axboe
+Yes, that would more clear. Should I send you another patch instead of this?
+
+Thanks
+
+Yufei
+
+> --
+> Jens Axboe
+>
 
