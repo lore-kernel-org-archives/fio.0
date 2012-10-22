@@ -1,30 +1,34 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from muon.cran.org.uk ([93.89.92.64]:21012 "EHLO muon.cran.org.uk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754241Ab2JJM2A convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 10 Oct 2012 08:28:00 -0400
-Message-ID: <507569CF.2010108@cran.org.uk>
-Date: Wed, 10 Oct 2012 13:27:59 +0100
-From: Bruce Cran <bruce@cran.org.uk>
+Received: from casper.infradead.org ([85.118.1.10]:48746 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751403Ab2JVIEM (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 22 Oct 2012 04:04:12 -0400
+Message-ID: <5084FDD7.6000200@kernel.dk>
+Date: Mon, 22 Oct 2012 10:03:35 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Subject: Re: Windows & netio problems/bugreport
-References: <DIIE.000011B400039534@192.168.0.5>
-In-Reply-To: <DIIE.000011B400039534@192.168.0.5>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH 1/4] cpuio engine cpuload bug fix
+References: <1350702712-5168-1-git-send-email-yufei.ren@stonybrook.edu> <1350702712-5168-2-git-send-email-yufei.ren@stonybrook.edu>
+In-Reply-To: <1350702712-5168-2-git-send-email-yufei.ren@stonybrook.edu>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: =?UTF-8?B?U3RlZmFuIEjDvGJuZXI=?= <shu@wwwgroup.de>
-Cc: fio@vger.kernel.org
+To: Yufei Ren <yufei.ren@stonybrook.edu>
+Cc: fio@vger.kernel.org, Yufei Ren <renyufei83@gmail.com>
 
-On 18/09/2012 11:30, Stefan Hübner wrote:
-> I just noticed a major bug in fio for windows (proven on W7 and WSS 2008R2).  It seems the netio-testing doesn't work at all a.t.m, even with elevated privileges.
+On 2012-10-20 05:11, Yufei Ren wrote:
+> From: Yufei Ren <renyufei83@gmail.com>
+> 
+> Current cpu ioengine always bruns out 100 percent cpu cycles
+> no matter what the cpuload value is. Since no data is transferred
+> with cpuio, bytes_done would be ZERO. Consequently, think_time
+> is omitted and loops keeps running.
+> 
+> A cpuio example is added as well.
 
-There were a few problems, which I'll fix for 2.0.10:
-
-There was no call to WSAStartup().
-inet_aton() wasn't implemented.
-There was a NULL dereference bug in poll().
+Applied, thanks!
 
 -- 
-Bruce Cran
+Jens Axboe
+
