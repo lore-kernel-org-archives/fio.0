@@ -1,34 +1,71 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:62435 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752204Ab2JAIkY (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 1 Oct 2012 04:40:24 -0400
-Received: by pbbrr4 with SMTP id rr4so7465918pbb.19
-        for <fio@vger.kernel.org>; Mon, 01 Oct 2012 01:40:24 -0700 (PDT)
+Received: from casper.infradead.org ([85.118.1.10]:55719 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933488Ab2JXGaA (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 24 Oct 2012 02:30:00 -0400
+Message-ID: <50878AE4.7090900@kernel.dk>
+Date: Wed, 24 Oct 2012 08:29:56 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Date: Mon, 1 Oct 2012 14:10:24 +0530
-Message-ID: <CA+oXfEHeas9UfK=6p-B3ugqUxxFFNFjepAX3jF_=yXHZcOYf3A@mail.gmail.com>
-Subject: How to create multiple files with FIO?
-From: Ashish Barot <barotashish@gmail.com>
+Subject: Re: [PATCH] Replace FIO_HAVE_RUSAGE_THREAD with RUSAGE_THREAD
+References: <1350955778-27682-1-git-send-email-yufei.ren@stonybrook.edu>
+In-Reply-To: <1350955778-27682-1-git-send-email-yufei.ren@stonybrook.edu>
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Yufei Ren <yufei.ren@stonybrook.edu>
+Cc: fio@vger.kernel.org, Yufei Ren <renyufei83@gmail.com>
 
- Hi All,
+On 2012-10-23 03:29, Yufei Ren wrote:
+> From: Yufei Ren <renyufei83@gmail.com>
+> 
+> RUSAGE_THREAD is a more clear macro to enable getrusage() thread support.
+> ---
+>  os/os-linux.h |    5 -----
+>  stat.c        |    2 +-
+>  2 files changed, 1 insertions(+), 6 deletions(-)
+> 
+> diff --git a/os/os-linux.h b/os/os-linux.h
+> index 2b35f34..9b7ff29 100644
+> --- a/os/os-linux.h
+> +++ b/os/os-linux.h
+> @@ -14,7 +14,6 @@
+>  #include <linux/unistd.h>
+>  #include <linux/raw.h>
+>  #include <linux/major.h>
+> -#include <linux/version.h>
+>  #include <endian.h>
+>  
+>  #include "indirect.h"
+> @@ -63,10 +62,6 @@
+>  #define FIO_HAVE_FALLOC_ENG
+>  #endif
+>  
+> -#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
+> -#define FIO_HAVE_RUSAGE_THREAD
+> -#endif
+> -
+>  #ifdef SYNC_FILE_RANGE_WAIT_BEFORE
+>  #define FIO_HAVE_SYNC_FILE_RANGE
+>  #endif
+> diff --git a/stat.c b/stat.c
+> index af6e1f2..522901a 100644
+> --- a/stat.c
+> +++ b/stat.c
+> @@ -16,7 +16,7 @@ void update_rusage_stat(struct thread_data *td)
+>  {
+>  	struct thread_stat *ts = &td->ts;
+>  
+> -#ifdef FIO_HAVE_RUSAGE_THREAD
+> +#ifdef RUSAGE_THREAD
+>  	getrusage(RUSAGE_THREAD, &td->ru_end);
+>  #else
+>  	getrusage(RUSAGE_SELF, &td->ru_end);
+> 
 
-I am new to this tool, could anyone please guide me for following things.
+Thanks, applied!
 
-[1] How can I create thousands of files and directories? Can I do
-these two task  with one job only?
+-- 
+Jens Axboe
 
-[2] How can I create fragmented I/O?
-
-[3] Can we check data integrity with FIO?
-
-
-
- Thanks in advance.
-
- Best Regards,
- Ashish Barot.
