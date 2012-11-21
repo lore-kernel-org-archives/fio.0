@@ -1,51 +1,34 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from nihrelayxway4.hub.nih.gov ([128.231.90.98]:41826 "EHLO
-	nihrelayxway4.hub.nih.gov" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755714Ab2K3Sui (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 30 Nov 2012 13:50:38 -0500
-Received: from [130.14.8.205] (ncbipc8205.be-md.ncbi.nlm.nih.gov
- [130.14.8.205])	by mail2.ncbi.nlm.nih.gov (Postfix) with ESMTP id 01E5F28C002
-	for <fio@vger.kernel.org>; Fri, 30 Nov 2012 13:50:36 -0500 (EST)
-Message-ID: <50B8FFFC.7000602@benslade.com>
-Date: Fri, 30 Nov 2012 13:50:36 -0500
-From: buysell08 <buysell08@benslade.com>
+Received: from casper.infradead.org ([85.118.1.10]:45637 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752815Ab2KUJpy (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 21 Nov 2012 04:45:54 -0500
+Message-ID: <50ACA291.4000000@kernel.dk>
+Date: Wed, 21 Nov 2012 10:44:49 +0100
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Subject: Getting 'stat64 already defined' type errors when trying to "make"
- fio on RedHat/Centos 6.3 (linux kernel 2.6.18-308)
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: io_u error using offsets
+References: <46391624.39675.1353347182440.JavaMail.root@thomas-krenn.com>
+In-Reply-To: <46391624.39675.1353347182440.JavaMail.root@thomas-krenn.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: =?UTF-8?B?R2VvcmcgU2Now7ZuYmVyZ2Vy?= <gschoenberger@thomas-krenn.com>
+Cc: fio@vger.kernel.org
 
-I'm getting 'stat64 already defined' type errors when trying to "make" fio on RedHat/Centos 6.3 (linux kernel 2.6.18-308).
+On 2012-11-19 18:46, Georg Schönberger wrote:
+> Hello,
+> 
+> I am trying to divide a 4TB hard disk into 128 equal parts. Therefore I divide the disk size (in Bytes) with 128 - this is my increment size. Then I start several fio job rounds with the offset increasing every round by the increment. Unfortunately I get an error for the first offset not equal to 0.
+> I suppose this is an issue with the offsets not being correctly aligned.
+> Here is my call to fio:
+> $ sudo /usr/local/bin/fio --rw=randrw --name=wd --offset=31256148672 --direct=1 --bs=64k --filename=/dev/sdi --rwmixread=100 --numjobs=1 --ioengine=libaio --runtime=60 --iodepth=16 --size=31256148672 --group_reporting --debug=all
 
-I couldn't find anything in the www.spinics.net/lists/fio mailing list archives about it.  Has anybody else seen a problem like this?
+You get the error because 31256148672 isn't a multiple of 512b (which
+I'm assuming is your sector size), hence the IO will be unaligned.
+Direct IO cannot be unaligned, that's why you get an EINVAL from the OS.
 
-> make
-DEP .depend
-CC gettime.o
-: Assembler messages:
-:354: Error: symbol `fstatat64' is already defined
-:388: Error: symbol `fstat64' is already defined
-:418: Error: symbol `lstat64' is already defined
-:448: Error: symbol `stat64' is already defined
-:1704: Error: symbol `pread64' is already defined
-make: *** [gettime.o] Error 1
+-- 
+Jens Axboe
 
-
-Here's backgound version info from gcc:
-
-> gcc -v
-Reading specs from /usr/lib64/gcc-4.4.2/gcc/x86_64-unknown-linux-gnu/4.4.2/specs
-Target: x86_64-unknown-linux-gnu
-Configured with: ./configure --prefix=/usr/local/gcc/4.4.2 --enable-threads --enable-shared --enable-languages=c,c++ --disable-multilib --with-mpfr=/usr/local/gcc/4.4.2
---libdir=/usr/lib64/gcc-4.4.2 --with-include=/usr/local/gcc/4.4.2/include --with-gxx-include-dir=/usr/local/gcc/4.4.2/include/g++-v3
-Thread model: posix
-gcc version 4.4.2 (GCC)
-
-> uname -r
-2.6.18-308.8.1.el5
-
-Thanks in advance
-Ben
