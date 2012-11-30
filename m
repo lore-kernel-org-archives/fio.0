@@ -1,52 +1,46 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from exprod5og107.obsmtp.com ([64.18.0.184]:46208 "EHLO
-	exprod5og107.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755899Ab2JTDSP (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 19 Oct 2012 23:18:15 -0400
-Received: by mail-vc0-f198.google.com with SMTP id d16so1786062vcd.1
-        for <fio@vger.kernel.org>; Fri, 19 Oct 2012 20:18:14 -0700 (PDT)
-From: Yufei Ren <yufei.ren@stonybrook.edu>
-Subject: [PATCH 0/4] FIO libnuma integration and 3 patches
-Date: Fri, 19 Oct 2012 23:11:48 -0400
-Message-Id: <1350702712-5168-1-git-send-email-yufei.ren@stonybrook.edu>
+Received: from merlin.infradead.org ([205.233.59.134]:60656 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1769021Ab2K3TRl (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 30 Nov 2012 14:17:41 -0500
+Message-ID: <50B90653.2030808@kernel.dk>
+Date: Fri, 30 Nov 2012 20:17:39 +0100
+From: Jens Axboe <axboe@kernel.dk>
+MIME-Version: 1.0
+Subject: Re: Getting 'stat64 already defined' type errors when trying to "make"
+ fio on RedHat/Centos 6.3 (linux kernel 2.6.18-308)
+References: <50B8FFFC.7000602@benslade.com>
+In-Reply-To: <50B8FFFC.7000602@benslade.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Yufei Ren <renyufei83@gmail.com>
+To: buysell08 <buysell08@benslade.com>
+Cc: fio@vger.kernel.org
 
-From: Yufei Ren <renyufei83@gmail.com>
+On 2012-11-30 19:50, buysell08 wrote:
+> I'm getting 'stat64 already defined' type errors when trying to "make" fio on RedHat/Centos 6.3 (linux kernel 2.6.18-308).
+> 
+> I couldn't find anything in the www.spinics.net/lists/fio mailing list archives about it.  Has anybody else seen a problem like this?
+> 
+>> make
+> DEP .depend
+> CC gettime.o
+> : Assembler messages:
+> :354: Error: symbol `fstatat64' is already defined
+> :388: Error: symbol `fstat64' is already defined
+> :418: Error: symbol `lstat64' is already defined
+> :448: Error: symbol `stat64' is already defined
+> :1704: Error: symbol `pread64' is already defined
+> make: *** [gettime.o] Error 1
 
-Three patches and a numa integration is present as follows.
+Never seen that before. From what I can tell on similar problems on
+google, it's an issue with your glibc causing double definitions when
+programs are compiled with _FILE_OFFSET_BITS= such as fio is.
 
-Yufei Ren (4):
-  Current cpu ioengine always bruns out 100 percent cpu cycles     no
-    matter what the cpuload value is. Since no data is transferred    
-    with cpuio, bytes_done would be ZERO. Consequently, think_time    
-    is omitted and loops keeps running.
-  If `thread' option is enabled, resource usage should be thread    
-    based instead of process based. For the following job,
-  rdma ioengine improvement
-  Two new options, numa_cpu_nodes and numa_mem_policy, are created    
-    for a fine-grained job level numa control. Please refer HOWTO and  
-      README for detailed description.     A example job,
-    examples/numa, is added as well.
-
- HOWTO          |   18 +++++++
- README         |   14 ++++--
- backend.c      |   45 ++++++++++++++++++-
- engines/cpu.c  |    5 ++
- engines/rdma.c |   28 ++++++++---
- examples/cpuio |    8 +++
- examples/numa  |   21 +++++++++
- fio.1          |   22 +++++++++
- fio.h          |   18 +++++++
- options.c      |  138 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- os/os-linux.h  |    5 ++
- stat.c         |    4 ++
- 12 files changed, 313 insertions(+), 13 deletions(-)
- create mode 100644 examples/cpuio
- create mode 100644 examples/numa
+If you can give me access to your system, I can probably add a
+work-around for you.
 
 -- 
-1.7.2.3
+Jens Axboe
 
