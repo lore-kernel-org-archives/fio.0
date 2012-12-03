@@ -1,48 +1,37 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from nat-pool-12-rdu.redhat.com ([66.187.233.206]:49069 "EHLO
-	devel4.s390.bos.redhat.com" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1755140Ab2L3WjS (ORCPT
-	<rfc822;fio@vger.kernel.org>); Sun, 30 Dec 2012 17:39:18 -0500
-From: =?UTF-8?q?Dan=20Hor=C3=A1k?= <dan@danny.cz>
-Subject: [PATCH] implement get_cpu_clock() for s390/s390x
-Date: Sun, 30 Dec 2012 17:03:36 -0500
-Message-Id: <1356905016-48651-1-git-send-email-dan@danny.cz>
+Received: from merlin.infradead.org ([205.233.59.134]:57490 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751512Ab2LCSdq (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 3 Dec 2012 13:33:46 -0500
+Message-ID: <50BCF086.8040105@kernel.dk>
+Date: Mon, 03 Dec 2012 19:33:42 +0100
+From: Jens Axboe <axboe@kernel.dk>
+MIME-Version: 1.0
+Subject: Re: I/O is issued twice at scsi level
+References: <CAPDOW77bBKw7dm1e+jHdN+PXMnAddEzQOxnL6nPY25nZU2FCfQ@mail.gmail.com> <1582502590.159531.1354372015482.JavaMail.root@thomas-krenn.com> <CAPDOW77s0v6mrEr_DMUm1O4dBrFmD6aMbuDwj-Wsq6TiHU2Ysw@mail.gmail.com> <CAPDOW74vcyU6fj5xfL8rtbX1bRRXRv6KH0musfVEoq-GFm+aVQ@mail.gmail.com> <50BCAC6C.6010009@kernel.dk> <CANvN+e=iv05VXis+QzYScYE=ietfXhetq-KxZ8etBEi0igU9Fw@mail.gmail.com> <CAPDOW77MYSa8goV12f4A+RusQSgnP0hcw5GBD-a6D+VztkGmPw@mail.gmail.com>
+In-Reply-To: <CAPDOW77MYSa8goV12f4A+RusQSgnP0hcw5GBD-a6D+VztkGmPw@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: =?UTF-8?q?Dan=20Hor=C3=A1k?= <dan@danny.cz>
+To: Hiroyuki Yamada <mogwaing@gmail.com>
+Cc: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>, =?ISO-8859-1?Q?Georg_Sch?= =?ISO-8859-1?Q?=F6nberger?= <gschoenberger@thomas-krenn.com>, fio@vger.kernel.org
 
----
- arch/arch-s390.h |   18 ++++++++++++++++++
- 1 files changed, 18 insertions(+), 0 deletions(-)
+On 2012-12-03 18:09, Hiroyuki Yamada wrote:
+> Sorry for update.
+> I figured it out.
+> It's from ext3's indirect block mapping.
+> There is one mapping block in each 1024 blocks,
+> so accessing a large file randomly has high chance of accessing the
+> mapping block and the requested block.
+> 
+> Ext4 has different and more efficient addressing called extent (tree), and
+> we can avoid the issue.
 
-diff --git a/arch/arch-s390.h b/arch/arch-s390.h
-index fe51791..bcd9163 100644
---- a/arch/arch-s390.h
-+++ b/arch/arch-s390.h
-@@ -22,4 +22,22 @@
- #define read_barrier()	asm volatile("bcr 15,0" : : : "memory")
- #define write_barrier()	asm volatile("bcr 15,0" : : : "memory")
- 
-+static inline unsigned long long get_cpu_clock(void)
-+{
-+	unsigned long long clk;
-+
-+	__asm__ __volatile__("stck %0" : "=Q" (clk) : : "cc");
-+	return clk;
-+}
-+
-+#define ARCH_HAVE_INIT
-+extern int tsc_reliable;
-+static inline int arch_init(char *envp[])
-+{
-+	tsc_reliable = 1;
-+	return 0;
-+}
-+
-+#define ARCH_HAVE_CPU_CLOCK
-+
- #endif
+Ah, yes that makes sense. I thought we were talking about extra writes,
+but it seems I misread the log since it clearly states FROM_DEVICE
+transfers.
+
 -- 
-1.7.7.6
+Jens Axboe
 
