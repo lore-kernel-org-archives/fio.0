@@ -1,42 +1,30 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:56323 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751058Ab2LLI1o (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 12 Dec 2012 03:27:44 -0500
-Message-ID: <50C83FEA.5020306@kernel.dk>
-Date: Wed, 12 Dec 2012 09:27:22 +0100
-From: Jens Axboe <axboe@kernel.dk>
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:44501 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753723Ab2LLBXJ (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 11 Dec 2012 20:23:09 -0500
+Received: by mail-pb0-f46.google.com with SMTP id wy7so78535pbc.19
+        for <fio@vger.kernel.org>; Tue, 11 Dec 2012 17:23:08 -0800 (PST)
+Message-ID: <50C7DC7A.5000806@aeoncomputing.com>
+Date: Tue, 11 Dec 2012 17:23:06 -0800
+From: Jeff Johnson <jeff.johnson@aeoncomputing.com>
 MIME-Version: 1.0
-Subject: Re: Can fio be compiled as a static binary?
-References: <50C7DC7A.5000806@aeoncomputing.com>
-In-Reply-To: <50C7DC7A.5000806@aeoncomputing.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Can fio be compiled as a static binary?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jeff Johnson <jeff.johnson@aeoncomputing.com>
-Cc: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On 2012-12-12 02:23, Jeff Johnson wrote:
-> Greetings,
-> 
-> Is there a way to compile fio as a static binary? I have to use it on
-> different Linux machines from time to time and I'd like to not alter
-> the OS image by installing libaio-devel, etc. In some cases I am not
-> able to make any changes to the installed OS image.
-> 
-> I performed a git checkout of fio and I wanted to ask if there was an
-> existing/known method to derive a static fio binary from the existing
-> source tree before I make any modifications or attempts on my own.
+Greetings,
 
-There should be nothing preventing a static link of fio, provided that
-you have the proper libs installed on the machine where you build and
-link it. Should be doable with:
+Is there a way to compile fio as a static binary? I have to use it on 
+different Linux machines from time to time and I'd like to not alter the 
+OS image by installing libaio-devel, etc. In some cases I am not able to 
+make any changes to the installed OS image.
 
-$ EXTFLAGS="-static" make
+I performed a git checkout of fio and I wanted to ask if there was an 
+existing/known method to derive a static fio binary from the existing 
+source tree before I make any modifications or attempts on my own.
 
-I have never tried it, though...
-
--- 
-Jens Axboe
-
+Thanks!
