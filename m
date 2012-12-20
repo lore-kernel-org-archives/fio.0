@@ -1,81 +1,112 @@
-Return-Path: <sbradshaw@micron.com>
-From: "Sam Bradshaw (sbradshaw)" <sbradshaw@micron.com>
-Subject: RE: [PATCH] gettime: minimize integer division
-Date: Thu, 20 Dec 2012 18:58:07 +0000
-Message-ID: <80B89753B40C5141A3E2D53FE7A2A8A930039E23@NTXBOIMBX02.micron.com>
-References: <50D26157.5020802@micron.com> <50D2C8FD.2070901@kernel.dk>
- <50D3487E.7000402@micron.com> <50D352D7.2090901@kernel.dk>
-In-Reply-To: <50D352D7.2090901@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from 173-166-109-252-newengland.hfc.comcastbusiness.net ([173.166.109.252]:38871
+	"EHLO bombadil.infradead.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751948Ab2LTSDH (ORCPT
+	<rfc822;fio@vger.kernel.org>); Thu, 20 Dec 2012 13:03:07 -0500
+Message-ID: <50D352D7.2090901@kernel.dk>
+Date: Thu, 20 Dec 2012 19:03:03 +0100
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Subject: Re: [PATCH] gettime: minimize integer division
+References: <50D26157.5020802@micron.com> <50D2C8FD.2070901@kernel.dk> <50D3487E.7000402@micron.com>
+In-Reply-To: <50D3487E.7000402@micron.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Sam Bradshaw <sbradshaw@micron.com>
+Cc: fio@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
-a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBP
-ZiBKZW5zDQo+IEF4Ym9lDQo+IFNlbnQ6IFRodXJzZGF5LCBEZWNlbWJlciAyMCwgMjAxMiAxMDow
-MyBBTQ0KPiBUbzogU2FtIEJyYWRzaGF3IChzYnJhZHNoYXcpDQo+IENjOiBmaW9Admdlci5rZXJu
-ZWwub3JnDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0hdIGdldHRpbWU6IG1pbmltaXplIGludGVnZXIg
-ZGl2aXNpb24NCj4gDQo+IE9uIDIwMTItMTItMjAgMTg6MTgsIFNhbSBCcmFkc2hhdyB3cm90ZToN
-Cj4gPiBPbiAxMi8yMC8yMDEyIDEyOjE0IEFNLCBKZW5zIEF4Ym9lIHdyb3RlOg0KPiA+DQo+ID4+
-IE9uIDIwMTItMTItMjAgMDE6NTIsIFNhbSBCcmFkc2hhdyB3cm90ZToNCj4gPj4+DQo+ID4+PiBU
-aGlzIHBhdGNoIGdlbmVyYWxseSBjb252ZXJ0cyBhIGRpdmlzaW9uIHRvIGEgc3VidHJhY3Rpb24g
-aW4gZmlvX2dldHRpbWUoKS4NCj4gPj4+DQo+ID4+PiBTaG93cyB+MSUgYmV0dGVyIGlvcHMgd2l0
-aCBzeW50aGV0aWMgYmVuY2htYXJraW5nIGF0IHJvdWdobHkgdGhlIHNhbWUgY3B1DQo+ID4+PiB0
-aW1lIHNwZW50IGluIGZpb19nZXR0aW1lKCkuDQo+ID4+Pg0KPiA+Pj4gU2lnbmVkLW9mZi1ieTog
-U2FtIEJyYWRzaGF3IDxzYnJhZHNoYXdAbWljcm9uLmNvbT4NCj4gPj4+DQo+ID4+PiBkaWZmIC0t
-Z2l0IGEvZ2V0dGltZS5jIGIvZ2V0dGltZS5jDQo+ID4+PiBpbmRleCAyNDhmMTQ2Li5lMmE2MjQx
-IDEwMDY0NA0KPiA+Pj4gLS0tIGEvZ2V0dGltZS5jDQo+ID4+PiArKysgYi9nZXR0aW1lLmMNCj4g
-Pj4+IEBAIC0xNjMsMTcgKzE2MywyMyBAQCB2b2lkIGZpb19nZXR0aW1lKHN0cnVjdCB0aW1ldmFs
-ICp0cCwgdm9pZCBmaW9fdW51c2VkDQo+ICpjYWxsZXIpDQo+ID4+PiAgCQl9DQo+ID4+PiAgI2lm
-ZGVmIEFSQ0hfSEFWRV9DUFVfQ0xPQ0sNCj4gPj4+ICAJY2FzZSBDU19DUFVDTE9DSzogew0KPiA+
-Pj4gLQkJdW5zaWduZWQgbG9uZyBsb25nIHVzZWNzLCB0Ow0KPiA+Pj4gKwkJdW5zaWduZWQgbG9u
-ZyBsb25nIHVzZWNzLCB0LCBkZWx0YSA9IDA7DQo+ID4+Pg0KPiA+Pj4gIAkJdCA9IGdldF9jcHVf
-Y2xvY2soKTsNCj4gPj4+ICAJCWlmICh0diAmJiB0IDwgdHYtPmxhc3RfY3ljbGVzKSB7DQo+ID4+
-PiAgCQkJZHByaW50KEZEX1RJTUUsICJDUFUgY2xvY2sgZ29pbmcgYmFjayBpbiB0aW1lXG4iKTsN
-Cj4gPj4+ICAJCQl0ID0gdHYtPmxhc3RfY3ljbGVzOw0KPiA+Pj4gLQkJfSBlbHNlIGlmICh0dikN
-Cj4gPj4+ICsJCX0gZWxzZSBpZiAodHYpIHsNCj4gPj4+ICsJCQlpZiAodHYtPmxhc3RfdHZfdmFs
-aWQpDQo+ID4+PiArCQkJCWRlbHRhID0gdCAtIHR2LT5sYXN0X2N5Y2xlczsNCj4gPj4+ICAJCQl0
-di0+bGFzdF9jeWNsZXMgPSB0Ow0KPiA+Pj4gKwkJfQ0KPiA+Pj4NCj4gPj4+ICAJCXVzZWNzID0g
-dCAvIGN5Y2xlc19wZXJfdXNlYzsNCj4gPj4+IC0JCXRwLT50dl9zZWMgPSB1c2VjcyAvIDEwMDAw
-MDA7DQo+ID4+PiArCQlpZiAoZGVsdGEgPiAxMDAwMDAwKQ0KPiA+Pj4gKwkJCXRwLT50dl9zZWMg
-PSB0di0+bGFzdF90di50dl9zZWM7DQo+ID4+PiArCQllbHNlDQo+ID4+PiArCQkJdHAtPnR2X3Nl
-YyA9IHVzZWNzIC8gMTAwMDAwMDsNCj4gPj4NCj4gPj4gU2hvdWxkbid0IHRoYXQgYmUgZGVsdGEg
-PCAxMDAwMDAwPyBXaGF0IGFtIEkgbWlzc2luZz8gSWYgdGhlIGRpZmYgaXMNCj4gPj4gbW9yZSB0
-aGFuIDFNIHVzZWNzLCB0aGVuIGRvIHRoZSBkaXZpc2lvbi4gSWYgbm90LCB3ZSBjYW4gcmV1c2Ug
-dGhlDQo+ID4+IHNlY29uZHMgZnJvbSB0aGUgbGFzdCBvbmUuDQo+ID4+DQo+ID4NCj4gPg0KPiA+
-DQo+ID4gWWVzLCBteSBiYWQuICBDb3JyZWN0IHBhdGNoIGJlbG93Lg0KPiA+DQo+ID4gZGlmZiAt
-LWdpdCBhL2dldHRpbWUuYyBiL2dldHRpbWUuYw0KPiA+IGluZGV4IDAzNWQyNzUuLjg5ZjNlMjcg
-MTAwNjQ0DQo+ID4gLS0tIGEvZ2V0dGltZS5jDQo+ID4gKysrIGIvZ2V0dGltZS5jDQo+ID4gQEAg
-LTE2OCwxNyArMTY4LDIzIEBAIHZvaWQgZmlvX2dldHRpbWUoc3RydWN0IHRpbWV2YWwgKnRwLCB2
-b2lkDQo+ID4gZmlvX3VudXNlZCAqY2FsbGVyKQ0KPiA+ICAJCX0NCj4gPiAgI2lmZGVmIEFSQ0hf
-SEFWRV9DUFVfQ0xPQ0sNCj4gPiAgCWNhc2UgQ1NfQ1BVQ0xPQ0s6IHsNCj4gPiAtCQl1bnNpZ25l
-ZCBsb25nIGxvbmcgdXNlY3MsIHQ7DQo+ID4gKwkJdW5zaWduZWQgbG9uZyBsb25nIHVzZWNzLCB0
-LCBkZWx0YSA9IDA7DQo+ID4NCj4gPiAgCQl0ID0gZ2V0X2NwdV9jbG9jaygpOw0KPiA+ICAJCWlm
-ICh0diAmJiB0IDwgdHYtPmxhc3RfY3ljbGVzKSB7DQo+ID4gIAkJCWRwcmludChGRF9USU1FLCAi
-Q1BVIGNsb2NrIGdvaW5nIGJhY2sgaW4gdGltZVxuIik7DQo+ID4gIAkJCXQgPSB0di0+bGFzdF9j
-eWNsZXM7DQo+ID4gLQkJfSBlbHNlIGlmICh0dikNCj4gPiArCQl9IGVsc2UgaWYgKHR2KSB7DQo+
-ID4gKwkJCWlmICh0di0+bGFzdF90dl92YWxpZCkNCj4gPiArCQkJCWRlbHRhID0gdCAtIHR2LT5s
-YXN0X2N5Y2xlczsNCj4gPiAgCQkJdHYtPmxhc3RfY3ljbGVzID0gdDsNCj4gPiArCQl9DQo+ID4N
-Cj4gPiAgCQl1c2VjcyA9IHQgLyBjeWNsZXNfcGVyX3VzZWM7DQo+ID4gLQkJdHAtPnR2X3NlYyA9
-IHVzZWNzIC8gMTAwMDAwMDsNCj4gPiArCQlpZiAoZGVsdGEgJiYgZGVsdGEgPCAxMDAwMDAwKQ0K
-PiA+ICsJCQl0cC0+dHZfc2VjID0gdHYtPmxhc3RfdHYudHZfc2VjOw0KPiA+ICsJCWVsc2UNCj4g
-PiArCQkJdHAtPnR2X3NlYyA9IHVzZWNzIC8gMTAwMDAwMDsNCj4gPiAgCQl0cC0+dHZfdXNlYyA9
-IHVzZWNzICUgMTAwMDAwMDsNCj4gPiAgCQlicmVhazsNCj4gPiAgCQl9DQo+IA0KPiBJIHdhcyB0
-aGlua2luZyBhYm91dCB0aGlzLi4uIElzIGl0IGFjdHVhbGx5IGd1YXJlbnRlZWQgdG8gd29yay4g
-SWYNCj4gdHYtPmxhc3RfdHYudHZfdXNlYyBpcyBlZyA5MDAsMDAwLCB5b3UnZCBvbmx5IG5lZWQg
-YSAxMDBrIHVzZWMgZGlmZiB0bw0KPiBuZWVkIHRvIHdyYXAsIG5vdCAxMDAway4gQW5kIHNpbmNl
-IHRoaXMgaXMgYWJvdXQgYXZvaWRpbmcgY29zdGx5IGRpdnMsDQo+IHNpbmNlIHdlIGtub3cgdGhl
-IG51bWJlciBvZiBjeWNsZXMgbGFzdCB0aW1lLCBpdCBtaWdodCBtYWtlIG1vcmUgc2Vuc2UNCj4g
-dG8ganVzdCBkbyB0aGUgc2luZ2xlIGRpdiB0byBnbyBmcm9tIGN5Y2xlcyB0byB1c2VjcywgdGhl
-biBhZGQgdGhhdCB0bw0KPiB0aGUgdHYtPmxhc3RfdHYuDQoNCkdvb2QgcG9pbnQuICBUaGlzIHBh
-dGNoIGlzIGZ1bmRhbWVudGFsbHkgYnJva2VuIGFzIGlzLiAgSXQgY291bGQgcGVyaGFwcw0KYmUg
-Zml4ZWQgdXAgd2l0aCBzb21lIGFkZGl0aW9uYWwgcmVjb25jaWxpYXRpb24gYnV0IHRoYXQgd291
-bGQgYWRkIG1vcmUNCmFyaXRobWV0aWMgb3BlcmF0aW9ucyBhbmQgbWF5IHF1aWNrbHkgYXBwcm9h
-Y2ggdGhlIGRpdiBsYXRlbmN5IGFuZCANCmNvbmZvdW5kIHRoZSBicmFuY2hpbmcgbG9naWMuICBJ
-J2xsIHRoaW5rIGFib3V0IGl0IHNvbWUgbW9yZSBhbmQgdHJ5IG91dCANCnlvdXIgc3VnZ2VzdGlv
-bi4NCg0KLVNhbQ0K
+On 2012-12-20 18:18, Sam Bradshaw wrote:
+> On 12/20/2012 12:14 AM, Jens Axboe wrote:
+> 
+>> On 2012-12-20 01:52, Sam Bradshaw wrote:
+>>>
+>>> This patch generally converts a division to a subtraction in fio_gettime().
+>>>
+>>> Shows ~1% better iops with synthetic benchmarking at roughly the same cpu 
+>>> time spent in fio_gettime().
+>>>
+>>> Signed-off-by: Sam Bradshaw <sbradshaw@micron.com>
+>>>
+>>> diff --git a/gettime.c b/gettime.c
+>>> index 248f146..e2a6241 100644
+>>> --- a/gettime.c
+>>> +++ b/gettime.c
+>>> @@ -163,17 +163,23 @@ void fio_gettime(struct timeval *tp, void fio_unused *caller)
+>>>  		}
+>>>  #ifdef ARCH_HAVE_CPU_CLOCK
+>>>  	case CS_CPUCLOCK: {
+>>> -		unsigned long long usecs, t;
+>>> +		unsigned long long usecs, t, delta = 0;
+>>>
+>>>  		t = get_cpu_clock();
+>>>  		if (tv && t < tv->last_cycles) {
+>>>  			dprint(FD_TIME, "CPU clock going back in time\n");
+>>>  			t = tv->last_cycles;
+>>> -		} else if (tv)
+>>> +		} else if (tv) {
+>>> +			if (tv->last_tv_valid)
+>>> +				delta = t - tv->last_cycles;
+>>>  			tv->last_cycles = t;
+>>> +		}
+>>>
+>>>  		usecs = t / cycles_per_usec;
+>>> -		tp->tv_sec = usecs / 1000000;
+>>> +		if (delta > 1000000)
+>>> +			tp->tv_sec = tv->last_tv.tv_sec;
+>>> +		else
+>>> +			tp->tv_sec = usecs / 1000000;
+>>
+>> Shouldn't that be delta < 1000000? What am I missing? If the diff is
+>> more than 1M usecs, then do the division. If not, we can reuse the
+>> seconds from the last one.
+>>
+> 
+> 
+> 
+> Yes, my bad.  Correct patch below.
+> 
+> diff --git a/gettime.c b/gettime.c
+> index 035d275..89f3e27 100644
+> --- a/gettime.c
+> +++ b/gettime.c
+> @@ -168,17 +168,23 @@ void fio_gettime(struct timeval *tp, void
+> fio_unused *caller)
+>  		}
+>  #ifdef ARCH_HAVE_CPU_CLOCK
+>  	case CS_CPUCLOCK: {
+> -		unsigned long long usecs, t;
+> +		unsigned long long usecs, t, delta = 0;
+> 
+>  		t = get_cpu_clock();
+>  		if (tv && t < tv->last_cycles) {
+>  			dprint(FD_TIME, "CPU clock going back in time\n");
+>  			t = tv->last_cycles;
+> -		} else if (tv)
+> +		} else if (tv) {
+> +			if (tv->last_tv_valid)
+> +				delta = t - tv->last_cycles;
+>  			tv->last_cycles = t;
+> +		}
+> 
+>  		usecs = t / cycles_per_usec;
+> -		tp->tv_sec = usecs / 1000000;
+> +		if (delta && delta < 1000000)
+> +			tp->tv_sec = tv->last_tv.tv_sec;
+> +		else
+> +			tp->tv_sec = usecs / 1000000;
+>  		tp->tv_usec = usecs % 1000000;
+>  		break;
+>  		}
+
+I was thinking about this... Is it actually guarenteed to work. If
+tv->last_tv.tv_usec is eg 900,000, you'd only need a 100k usec diff to
+need to wrap, not 1000k. And since this is about avoiding costly divs,
+since we know the number of cycles last time, it might make more sense
+to just do the single div to go from cycles to usecs, then add that to
+the tv->last_tv.
+
+-- 
+Jens Axboe
 
