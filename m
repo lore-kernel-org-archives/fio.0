@@ -1,66 +1,57 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from pbit-mailserver.permabit.com ([66.202.84.83]:49088 "EHLO
-	pbit-mailserver.permabit.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751580Ab3A2BsW (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 28 Jan 2013 20:48:22 -0500
-From: Ken Raeburn <raeburn@permabit.com>
-Subject: [PATCH] Fix crash with absurdly but not impossibly deeply nested device stacks.
-References: <6eham0rdc3.fsf@just-testing.permabit.com>
-Date: Mon, 28 Jan 2013 20:48:21 -0500
-In-Reply-To: <6eham0rdc3.fsf@just-testing.permabit.com> (Ken Raeburn's message
-	of "Mon, 28 Jan 2013 20:24:12 -0500")
-Message-ID: <6ea9rsrc7u.fsf@just-testing.permabit.com>
+Received: from 173-166-109-252-newengland.hfc.comcastbusiness.net ([173.166.109.252]:52047
+	"EHLO bombadil.infradead.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752056Ab3AAJ5R (ORCPT
+	<rfc822;fio@vger.kernel.org>); Tue, 1 Jan 2013 04:57:17 -0500
+Message-ID: <50E2B2F4.2010508@kernel.dk>
+Date: Tue, 01 Jan 2013 10:57:08 +0100
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain
+Subject: Re: [PATCH] implement get_cpu_clock() for s390/s390x
+References: <1356905016-48651-1-git-send-email-dan@danny.cz>
+In-Reply-To: <1356905016-48651-1-git-send-email-dan@danny.cz>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: =?ISO-8859-1?Q?Dan_Hor=E1k?= <dan@danny.cz>
+Cc: fio@vger.kernel.org
 
-diskutil.c: Check for overflow in disk_util.path.
-diskutil.h: Expand disk_util.path to PATH_MAX.
----
- diskutil.c |    8 +++++++-
- diskutil.h |    2 +-
- 2 files changed, 8 insertions(+), 2 deletions(-)
+On 2012-12-30 23:03, Dan Hor=EF=BF=BDk wrote:
+> ---
+>  arch/arch-s390.h |   18 ++++++++++++++++++
+>  1 files changed, 18 insertions(+), 0 deletions(-)
+>=20
+> diff --git a/arch/arch-s390.h b/arch/arch-s390.h
+> index fe51791..bcd9163 100644
+> --- a/arch/arch-s390.h
+> +++ b/arch/arch-s390.h
+> @@ -22,4 +22,22 @@
+>  #define read_barrier()	asm volatile("bcr 15,0" : : : "memory")
+>  #define write_barrier()	asm volatile("bcr 15,0" : : : "memory")
+> =20
+> +static inline unsigned long long get_cpu_clock(void)
+> +{
+> +	unsigned long long clk;
+> +
+> +	__asm__ __volatile__("stck %0" : "=3DQ" (clk) : : "cc");
+> +	return clk;
+> +}
+> +
+> +#define ARCH_HAVE_INIT
+> +extern int tsc_reliable;
+> +static inline int arch_init(char *envp[])
+> +{
+> +	tsc_reliable =3D 1;
+> +	return 0;
+> +}
+> +
+> +#define ARCH_HAVE_CPU_CLOCK
+> +
+>  #endif
 
-diff --git a/diskutil.c b/diskutil.c
-index fbc4268..22dc58f 100644
---- a/diskutil.c
-+++ b/diskutil.c
-@@ -276,13 +276,19 @@ static struct disk_util *disk_util_add(struct thread_data *td, int majdev,
- {
- 	struct disk_util *du, *__du;
- 	struct flist_head *entry;
-+	int l;
- 
- 	dprint(FD_DISKUTIL, "add maj/min %d/%d: %s\n", majdev, mindev, path);
- 
- 	du = smalloc(sizeof(*du));
- 	memset(du, 0, sizeof(*du));
- 	INIT_FLIST_HEAD(&du->list);
--	sprintf(du->path, "%s/stat", path);
-+	l = snprintf(du->path, sizeof(du->path), "%s/stat", path);
-+	if (l < 0 || l >= sizeof(du->path)) {
-+		log_err("constructed path \"%.100s[...]/stat\" larger than buffer (%zu bytes)\n",
-+			path, sizeof(du->path) - 1);
-+		exit(1);
-+	}
- 	strncpy((char *) du->dus.name, basename(path), FIO_DU_NAME_SZ);
- 	du->sysfs_root = path;
- 	du->major = majdev;
-diff --git a/diskutil.h b/diskutil.h
-index b89aacc..ddd6471 100644
---- a/diskutil.h
-+++ b/diskutil.h
-@@ -42,7 +42,7 @@ struct disk_util {
- 
- 	char *name;
- 	char *sysfs_root;
--	char path[256];
-+	char path[PATH_MAX];
- 	int major, minor;
- 
- 	struct disk_util_stat dus;
--- 
-1.7.9.5
+Thanks, Dan! Applied.
+
+--=20
+Jens Axboe
 
