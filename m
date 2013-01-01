@@ -1,108 +1,44 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx2.netapp.com ([216.240.18.37]:18698 "EHLO mx2.netapp.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751586Ab3A2X3E convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 29 Jan 2013 18:29:04 -0500
-Received: from vmwexceht05-prd.hq.netapp.com (exchsmtp.hq.netapp.com [10.106.77.35])
-	by smtp2.corp.netapp.com (8.13.1/8.13.1/NTAP-1.6) with ESMTP id r0TNT2vO028095
-	for <fio@vger.kernel.org>; Tue, 29 Jan 2013 15:29:02 -0800 (PST)
-From: "Neto, Antonio Jose Rodrigues" 
-	<Antonio.Jose.Rodrigues.Neto@netapp.com>
-Subject: Compiling fio on Windows
-Date: Tue, 29 Jan 2013 23:29:01 +0000
-Message-ID: <843E15216120C047928F6879B0E2D9240F6D40FE@SACEXCMBX02-PRD.hq.netapp.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Received: from merlin.infradead.org ([205.233.59.134]:54486 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752058Ab3AAKAs (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 1 Jan 2013 05:00:48 -0500
+Message-ID: <50E2B3CC.5030709@kernel.dk>
+Date: Tue, 01 Jan 2013 11:00:44 +0100
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
+Subject: Re: fio-2.0.12.2 doesn't build with ARCH_HAVE_CPU_CLOCK not defined
+References: <1356905511.3343.24.camel@eagle.danny.cz>
+In-Reply-To: <1356905511.3343.24.camel@eagle.danny.cz>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: =?UTF-8?B?RGFuIEhvcsOhaw==?= <dan@danny.cz>
+Cc: fio@vger.kernel.org
 
-Hi All,
+On 2012-12-30 23:11, Dan Horák wrote:
+> Hi,
+> 
+> fio stopped to build on architectures that don't define
+> ARCH_HAVE_CPU_CLOCK like s390/s390x (fixed in a patch I've already
+> sent :-))
+> 
+> cc -o gettime.o -c -std=gnu99 -Wwrite-strings -Wall -O3 -g -O2 -g -pipe
+> -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector
+> --param=ssp-buffer-size=4 -m31 -march=z9-109 -mtune=z10
+> -DFIO_VERSION='"fio-2.0.12.2"' -D_GNU_SOURCE -D_LARGEFILE_SOURCE
+> -D_FILE_OFFSET_BITS=64 -D_FORTIFY_SOURCE=2 -DFIO_INC_DEBUG gettime.c 
+> gettime.c: In function 'fio_clock_init':
+> gettime.c:317:6: error: 'tsc_reliable' undeclared (first use in this function)
+> gettime.c:317:6: note: each undeclared identifier is reported only once for each function it appears in
+> make: *** [gettime.o] Error 1
+> 
+> seems commit fa80feae51 added the tsc_reliable variable
 
-This is neto from Brazil
+Fixed, tsc_reliable should be globally available (and not under the
+ARCH_HAVE_CPU_CLOCK ifdef). Thanks for the report.
 
-How are you?
+-- 
+Jens Axboe
 
-How do I compile fio on Windows? I've installed Cygwin (with MinGW packages) but I've got an error after to compile. 
-
-Just create a simple C code "hello World" and it compiles. 
-
-Trying with Cygwin (I installed x86_64-w64-mingw32-gcc.exe packages)
-
-$ make
-Makefile:21: config-host.mak: No such file or directory
-FIO_VERSION = fio-2.0.13
-Running configure for you...
-Forcing known good options on Windows
-    DEP .depend
-    CC gettime.o
-    CC fio.o
-    CC ioengines.o
-    CC init.o
-    CC stat.o
-    CC log.o
-    CC time.o
-    CC filesetup.o
-    CC eta.o
-    CC verify.o
-    CC memory.o
-    CC io_u.o
-    CC parse.o
-    CC mutex.o
-    CC options.o
-    CC rbtree.o
-    CC smalloc.o
-    CC filehash.o
-    CC profile.o
-    CC debug.o
-    CC lib/rand.o
-    CC lib/num2str.o
-    CC lib/ieee754.o
-    CC crc/crc64.o
-    CC crc/md5.o
-    CC crc/sha256.o
-    CC crc/crc32c-intel.o
-    CC crc/crc32.o
-    CC crc/crc32c.o
-    CC crc/sha1.o
-    CC crc/crc7.o
-    CC crc/sha512.o
-    CC crc/crc16.o
-    CC engines/cpu.o
-    CC engines/sync.o
-    CC engines/null.o
-    CC engines/net.o
-    CC memalign.o
-    CC server.o
-    CC client.o
-    CC iolog.o
-    CC backend.o
-    CC libfio.o
-    CC flow.o
-    CC json.o
-    CC lib/zipf.o
-    CC lib/axmap.o
-    CC lib/lfsr.o
-    CC gettime-thread.o
-    CC helpers.o
-    CC lib/flist_sort.o
-    CC lib/hweight.o
-    CC lib/getrusage.o
-    CC engines/windowsaio.o
-    CC lib/strsep.o
-    CC lib/getopt_long.o
-    CC lib/inet_aton.o
-    CC os/windows/posix.o
-    CC fio
-
-When I try to execute fio, I've got an error:
-
-"The application was unable to start correctly (0xc000007b). Click OK to close the application" that means bad image.
-
-Does anyone have a step by step installation how to compile to help me?
-
-Thank you very much
-
-neto
