@@ -1,29 +1,45 @@
-Return-Path: <majianpeng@gmail.com>
+Return-Path: <ntolia@maginatics.com>
 MIME-Version: 1.0
-From: majianpeng <majianpeng@gmail.com>
-Date: Thu, 10 Jan 2013 04:36:19 -0700
-Subject: [PATCH] Add a check avoid segfault.
-Message-ID: <201301101936131638895@gmail.com>
-Reply-To: majianpeng <majianpeng@gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
-To: Jens Axboe <JAxboe@fusionio.com>
-Cc: fio <fio@vger.kernel.org>
+In-Reply-To: <50EC7B02.7040901@kernel.dk>
+References: <CA+6NFoBAhy8jR8jg8_MqDH8WP_e+Y2BVFxCysKo2Nqhkj8cmZw@mail.gmail.com>
+ <50EC7B02.7040901@kernel.dk>
+From: Niraj Tolia <ntolia@maginatics.com>
+Date: Tue, 8 Jan 2013 21:32:22 -0800
+Message-ID: <CA+6NFoDJfD10ZtEVCkDpETVOWJZYpD_SwmiEHH-F0p5tndKYJw@mail.gmail.com>
+Subject: Re: Segfault on OS X
+Content-Type: text/plain; charset=ISO-8859-1
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-SWYgbmV3X3NpemUgd2FzIHplcm8gb3IgcmVhbGxvYyBmYWlsZWQsIGl0IHdvdWxkIGJlIHNlZ21l
-bnQgZmF1bHQuDQpTbyBhZGQgYSBjaGVjay4NCg0KU2lnbmVkLW9mZi1ieTogSmlhbnBlbmcgTWEg
-PG1hamlhbnBlbmdAZ21haWwuY29tPg0KLS0tDQogZmlsZXNldHVwLmMgfCAgICA1ICsrKystDQog
-MSBmaWxlIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQ0KDQpkaWZmIC0t
-Z2l0IGEvZmlsZXNldHVwLmMgYi9maWxlc2V0dXAuYw0KaW5kZXggYjFjYTkyMS4uMzI0ZTlhNiAx
-MDA2NDQNCi0tLSBhL2ZpbGVzZXR1cC5jDQorKysgYi9maWxlc2V0dXAuYw0KQEAgLTEwNzcsOCAr
-MTA3NywxMSBAQCBpbnQgYWRkX2ZpbGUoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgY29uc3QgY2hh
-ciAqZm5hbWUpDQogCQlpbnQgbmV3X3NpemUgPSB0ZC0+by5ucl9maWxlcyArIDE7DQogDQogCQlk
-cHJpbnQoRkRfRklMRSwgInJlc2l6ZSBmaWxlIGFycmF5IHRvICVkIGZpbGVzXG4iLCBuZXdfc2l6
-ZSk7DQotDQogCQl0ZC0+ZmlsZXMgPSByZWFsbG9jKHRkLT5maWxlcywgbmV3X3NpemUgKiBzaXpl
-b2YoZikpOw0KKwkJaWYgKHRkLT5maWxlcyA9PSBOVUxMKSB7DQorCQkJbG9nX2VycigiZmlvOiBy
-ZWFsbG9jIE9PTVxuIik7DQorCQkJYXNzZXJ0KDApOw0KKwkJfQ0KIAkJdGQtPmZpbGVzX3NpemUg
-PSBuZXdfc2l6ZTsNCiAJfQ0KIAl0ZC0+ZmlsZXNbY3VyX2ZpbGVzXSA9IGY7DQotLSANCjEuNy45
-LjUNCg==
+On Tue, Jan 8, 2013 at 12:01 PM, Jens Axboe <axboe@kernel.dk> wrote:
+> On Tue, Jan 08 2013, Niraj Tolia wrote:
+>> I am running fio (HEAD:a28b019) on OS X (10.8.2) and just ran into a
+>> segfault after more than an hour of running the benchmark. Will dig
+>> into this more but wanted to check if someone else had run into this.
+>> I did manage to get a core though. There were three threads running
+>> with two sitting in __semwait_signal () (via usleep) and the third
+>> was:
+>>
+>> [Switching to thread 3 (core thread 2)]
+>> 0x000000010fcf7910 in thread_main (data=0x1105fe000) at backend.c:510
+>> 510            if (break_on_this_error(td, io_u->ddir, &ret))
+>> (gdb) where
+>> #0  0x000000010fcf7910 in thread_main (data=0x1105fe000) at backend.c:510
+>> #1  0x00007fff885d1742 in _pthread_start ()
+>> #2  0x00007fff885be181 in thread_start ()
+>>
+>> It seems like io_u is null here.
+>
+> My first thought was "impossible", but looking at the code, we do
+> clear io_u on requeue events. So that dereference below the
+> main switch is a bug. The below should fix it, I've committed it.
+>
+
+Thanks for the really quick turn-around. I picked up the patch and ran
+it for a while without any failures. Will definitely report back if
+something else comes up.
+
+Cheers,
+Niraj
 
