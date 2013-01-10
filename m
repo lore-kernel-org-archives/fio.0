@@ -1,30 +1,29 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx2.fusionio.com ([66.114.96.31]:56997 "EHLO mx2.fusionio.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754362Ab3AJMTA (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 10 Jan 2013 07:19:00 -0500
-Message-ID: <50EEB1B0.9050007@fusionio.com>
-Date: Thu, 10 Jan 2013 13:18:56 +0100
-From: Jens Axboe <jaxboe@fusionio.com>
+Return-Path: <majianpeng@gmail.com>
 MIME-Version: 1.0
-Subject: Re: [PATCH] Add a check avoid segfault.
-References: <201301101936131638895@gmail.com>
-In-Reply-To: <201301101936131638895@gmail.com>
-Content-Type: text/plain; charset="GB2312"
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: majianpeng <majianpeng@gmail.com>
+From: majianpeng <majianpeng@gmail.com>
+Date: Thu, 10 Jan 2013 04:36:19 -0700
+Subject: [PATCH] Add a check avoid segfault.
+Message-ID: <201301101936131638895@gmail.com>
+Reply-To: majianpeng <majianpeng@gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
+To: Jens Axboe <JAxboe@fusionio.com>
 Cc: fio <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-On 2013-01-10 12:36, majianpeng wrote:
-> If new_size was zero or realloc failed, it would be segment fault.
-> So add a check.
-
-It's a drop in the bucket, fio basically does not alloc failure
-checking. It'd be nice to improve on that, but you'd need a lot more
-than the below to get near fixing that.
-
--- 
-Jens Axboe
+SWYgbmV3X3NpemUgd2FzIHplcm8gb3IgcmVhbGxvYyBmYWlsZWQsIGl0IHdvdWxkIGJlIHNlZ21l
+bnQgZmF1bHQuDQpTbyBhZGQgYSBjaGVjay4NCg0KU2lnbmVkLW9mZi1ieTogSmlhbnBlbmcgTWEg
+PG1hamlhbnBlbmdAZ21haWwuY29tPg0KLS0tDQogZmlsZXNldHVwLmMgfCAgICA1ICsrKystDQog
+MSBmaWxlIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQ0KDQpkaWZmIC0t
+Z2l0IGEvZmlsZXNldHVwLmMgYi9maWxlc2V0dXAuYw0KaW5kZXggYjFjYTkyMS4uMzI0ZTlhNiAx
+MDA2NDQNCi0tLSBhL2ZpbGVzZXR1cC5jDQorKysgYi9maWxlc2V0dXAuYw0KQEAgLTEwNzcsOCAr
+MTA3NywxMSBAQCBpbnQgYWRkX2ZpbGUoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgY29uc3QgY2hh
+ciAqZm5hbWUpDQogCQlpbnQgbmV3X3NpemUgPSB0ZC0+by5ucl9maWxlcyArIDE7DQogDQogCQlk
+cHJpbnQoRkRfRklMRSwgInJlc2l6ZSBmaWxlIGFycmF5IHRvICVkIGZpbGVzXG4iLCBuZXdfc2l6
+ZSk7DQotDQogCQl0ZC0+ZmlsZXMgPSByZWFsbG9jKHRkLT5maWxlcywgbmV3X3NpemUgKiBzaXpl
+b2YoZikpOw0KKwkJaWYgKHRkLT5maWxlcyA9PSBOVUxMKSB7DQorCQkJbG9nX2VycigiZmlvOiBy
+ZWFsbG9jIE9PTVxuIik7DQorCQkJYXNzZXJ0KDApOw0KKwkJfQ0KIAkJdGQtPmZpbGVzX3NpemUg
+PSBuZXdfc2l6ZTsNCiAJfQ0KIAl0ZC0+ZmlsZXNbY3VyX2ZpbGVzXSA9IGY7DQotLSANCjEuNy45
+LjUNCg==
 
