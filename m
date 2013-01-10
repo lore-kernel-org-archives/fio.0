@@ -1,48 +1,184 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from 173-166-109-252-newengland.hfc.comcastbusiness.net ([173.166.109.252]:40740
-	"EHLO bombadil.infradead.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753739Ab3AKJKN (ORCPT
-	<rfc822;fio@vger.kernel.org>); Fri, 11 Jan 2013 04:10:13 -0500
-Date: Fri, 11 Jan 2013 10:10:10 +0100
-From: Jens Axboe <axboe@kernel.dk>
+Received: from mail-ob0-f171.google.com ([209.85.214.171]:61458 "EHLO
+	mail-ob0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753500Ab3AJVJs (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 10 Jan 2013 16:09:48 -0500
+Received: by mail-ob0-f171.google.com with SMTP id dn14so1070754obc.30
+        for <fio@vger.kernel.org>; Thu, 10 Jan 2013 13:09:47 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <CABYizFKetDGfE_fOARgbehmJo_uDTqy32bMTQTDVyny-Nk5riQ@mail.gmail.com>
+References: <CABYizFKetDGfE_fOARgbehmJo_uDTqy32bMTQTDVyny-Nk5riQ@mail.gmail.com>
+Date: Thu, 10 Jan 2013 14:09:47 -0700
+Message-ID: <CANWz5fhzJ03ADojUSrQNAFx621BOHU2GftUNDJyrv-DAqo5Ysg@mail.gmail.com>
 Subject: Re: fio is being killed by the oom-killer after fio verify runs for
  some time ~13 hours
-Message-ID: <20130111091010.GA32674@kernel.dk>
-References: <CABYizFKetDGfE_fOARgbehmJo_uDTqy32bMTQTDVyny-Nk5riQ@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CABYizFKetDGfE_fOARgbehmJo_uDTqy32bMTQTDVyny-Nk5riQ@mail.gmail.com>
+From: Chris Worley <worleys@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: brian arb <brianjamesarb@gmail.com>
 Cc: fio@vger.kernel.org
 
-On Thu, Jan 10 2013, brian arb wrote:
+Try norandommap ... that gives me an issue sometimes if I don't have
+enough memory.
+
+On Thu, Jan 10, 2013 at 1:57 PM, brian arb <brianjamesarb@gmail.com> wrote:
 > Seems fio is being killed by the oom-killer after fio verify runs for
 > some time ~13 hours. What parameters can I tweak or how can I run my
 > test differently so the test will be completed with out interruption?
-
-You are probably running into OOM issues since each completed write will
-log some meta data to help verify that later. The easiest fix for you
-would be to verify continously, setting a backlog of how old data can
-get before being verified. See verify_backlog and verify_async for that.
-
-You should also upgrade your fio. Fio uses a random map for tracking
-what has been written. It's static memory, so it wont cause your OOM
-during runtime, but it will gobble up some memory when you start. If you
-upgrade to 2.0.13 and use random_distribution=lfsr, then that memory
-consumption will go away.
-
-There's room for a bit of improvement on fio for verification. Since IO
-buffer contents and offsets etc are fully randomized with specific
-seeding, it is possible to verify what has been written without storing
-this meta data. Basically verify can just re-create the contents for
-verification, instead of storing a checksum of it. That will cost some
-CPU, but it will get you more predictable (and much lower) memory
-consumption numbers. I will look into that. But as a starter, the above
-suggestions should help you out.
-
--- 
-Jens Axboe
-
+>
+> Any help is appericated
+>
+> My System has 16GB of memory, 12 x 3TB Drives and one 60GB SSD
+>
+> Disk information
+> cat /sys/bus/scsi/devices/*/model | sort | uniq -c
+>      12 Hitachi HUA72303
+>       1 KINGSTON SVP200S
+>
+> fio --version
+> fio 1.50
+>
+> uname -a
+> Linux myhostname 2.6.39-t4.el5 #1 SMP Tue Jan 31 13:18:29 PST 2012
+> x86_64 x86_64 x86_64 GNU/Linux
+>
+>
+> the script:
+> #!/bin/bash
+> set -e
+>
+> IO_DEPTH=1
+> BLOCK_SIZE=4096
+> IO_ENGINE=libaio
+> READ_WRITE=write
+> DIRECT=1
+> VERIFY=crc32c-intel
+> BUFFERED=0
+> VERIFY_FATAL=1
+>
+> /usr/bin/fio \
+>         --minimal \
+>         --readwrite=${READ_WRITE} \
+>         --blocksize=${BLOCK_SIZE} \
+>         --ioengine=${IO_ENGINE} \
+>         --direct=${DIRECT} \
+>         --buffered=${BUFFERED} \
+>         --iodepth=${IO_DEPTH} \
+>         --verify=${VERIFY} \
+>         --verify_fatal=${VERIFY_FATAL} \
+>         --name=verify_sdj \
+>         --new_group \
+>         --filename=/dev/sdj \
+>         --ioengine=${IO_ENGINE} \
+>         --direct=${DIRECT} \
+>         --buffered=${BUFFERED} \
+>         --iodepth=${IO_DEPTH} \
+>         --verify=${VERIFY} \
+>         --verify_fatal=${VERIFY_FATAL} \
+>         --name=verify_sdm \
+>         --new_group \
+>         --filename=/dev/sdm \
+>         --ioengine=${IO_ENGINE} \
+>         --direct=${DIRECT} \
+>         --buffered=${BUFFERED} \
+>         --iodepth=${IO_DEPTH} \
+>         --verify=${VERIFY} \
+>         --verify_fatal=${VERIFY_FATAL} \
+>         --name=verify_sdd \
+>         --new_group \
+>         --filename=/dev/sdd \
+>         --ioengine=${IO_ENGINE} \
+>         --direct=${DIRECT} \
+>         --buffered=${BUFFERED} \
+>         --iodepth=${IO_DEPTH} \
+>         --verify=${VERIFY} \
+>         --verify_fatal=${VERIFY_FATAL} \
+>         --name=verify_sde \
+>         --new_group \
+>         --filename=/dev/sde \
+>         --ioengine=${IO_ENGINE} \
+>         --direct=${DIRECT} \
+>         --buffered=${BUFFERED} \
+>         --iodepth=${IO_DEPTH} \
+>         --verify=${VERIFY} \
+>         --verify_fatal=${VERIFY_FATAL} \
+>         --name=verify_sdf \
+>         --new_group \
+>         --filename=/dev/sdf \
+>         --ioengine=${IO_ENGINE} \
+>         --direct=${DIRECT} \
+>         --buffered=${BUFFERED} \
+>         --iodepth=${IO_DEPTH} \
+>         --verify=${VERIFY} \
+>         --verify_fatal=${VERIFY_FATAL} \
+>         --name=verify_sdg \
+>         --new_group \
+>         --filename=/dev/sdg \
+>         --ioengine=${IO_ENGINE} \
+>         --direct=${DIRECT} \
+>         --buffered=${BUFFERED} \
+>         --iodepth=${IO_DEPTH} \
+>         --verify=${VERIFY} \
+>         --verify_fatal=${VERIFY_FATAL} \
+>         --name=verify_sda \
+>         --new_group \
+>         --filename=/dev/sda \
+>         --ioengine=${IO_ENGINE} \
+>         --direct=${DIRECT} \
+>         --buffered=${BUFFERED} \
+>         --iodepth=${IO_DEPTH} \
+>         --verify=${VERIFY} \
+>         --verify_fatal=${VERIFY_FATAL} \
+>         --name=verify_sdb \
+>         --new_group \
+>         --filename=/dev/sdb \
+>         --ioengine=${IO_ENGINE} \
+>         --direct=${DIRECT} \
+>         --buffered=${BUFFERED} \
+>         --iodepth=${IO_DEPTH} \
+>         --verify=${VERIFY} \
+>         --verify_fatal=${VERIFY_FATAL} \
+>         --name=verify_sdc \
+>         --new_group \
+>         --filename=/dev/sdc \
+>         --ioengine=${IO_ENGINE} \
+>         --direct=${DIRECT} \
+>         --buffered=${BUFFERED} \
+>         --iodepth=${IO_DEPTH} \
+>         --verify=${VERIFY} \
+>         --verify_fatal=${VERIFY_FATAL} \
+>         --name=verify_sdl \
+>         --new_group \
+>         --filename=/dev/sdl \
+>         --ioengine=${IO_ENGINE} \
+>         --direct=${DIRECT} \
+>         --buffered=${BUFFERED} \
+>         --iodepth=${IO_DEPTH} \
+>         --verify=${VERIFY} \
+>         --verify_fatal=${VERIFY_FATAL} \
+>         --name=verify_sdk \
+>         --new_group \
+>         --filename=/dev/sdk \
+>         --ioengine=${IO_ENGINE} \
+>         --direct=${DIRECT} \
+>         --buffered=${BUFFERED} \
+>         --iodepth=${IO_DEPTH} \
+>         --verify=${VERIFY} \
+>         --verify_fatal=${VERIFY_FATAL} \
+>         --name=verify_sdh \
+>         --new_group \
+>         --filename=/dev/sdh \
+>         --ioengine=${IO_ENGINE} \
+>         --direct=${DIRECT} \
+>         --buffered=${BUFFERED} \
+>         --iodepth=${IO_DEPTH} \
+>         --verify=${VERIFY} \
+>         --verify_fatal=${VERIFY_FATAL} \
+>         --name=verify_sdi \
+>         --new_group \
+>         --filename=/dev/sdi
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
