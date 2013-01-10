@@ -1,27 +1,26 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx2.fusionio.com ([66.114.96.31]:56988 "EHLO mx2.fusionio.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753513Ab3AJMS1 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 10 Jan 2013 07:18:27 -0500
-Message-ID: <50EEB190.4020900@fusionio.com>
-Date: Thu, 10 Jan 2013 13:18:24 +0100
-From: Jens Axboe <jaxboe@fusionio.com>
+Return-Path: <majianpeng@gmail.com>
 MIME-Version: 1.0
-Subject: Re: [PATCH] Remove repeated --readonly options in documentation.
-References: <201301101945248079437@gmail.com>
-In-Reply-To: <201301101945248079437@gmail.com>
-Content-Type: text/plain; charset="GB2312"
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: majianpeng <majianpeng@gmail.com>
+From: majianpeng <majianpeng@gmail.com>
+Date: Thu, 10 Jan 2013 04:45:28 -0700
+Subject: [PATCH] Remove repeated --readonly options in documentation.
+Message-ID: <201301101945248079437@gmail.com>
+Reply-To: majianpeng <majianpeng@gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
+To: Jens Axboe <JAxboe@fusionio.com>
 Cc: fio <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-On 2013-01-10 12:45, majianpeng wrote:
-> Signed-off-by: Jianpeng Ma <majianpeng@gmail.com>
-
-Thanks, applied.
-
--- 
-Jens Axboe
+U2lnbmVkLW9mZi1ieTogSmlhbnBlbmcgTWEgPG1hamlhbnBlbmdAZ21haWwuY29tPg0KLS0tDQog
+ZmlvLjEgfCAgICAzIC0tLQ0KIDEgZmlsZSBjaGFuZ2VkLCAzIGRlbGV0aW9ucygtKQ0KDQpkaWZm
+IC0tZ2l0IGEvZmlvLjEgYi9maW8uMQ0KaW5kZXggMjJjMzJmZC4uNWI2NWUwNyAxMDA2NDQNCi0t
+LSBhL2Zpby4xDQorKysgYi9maW8uMQ0KQEAgLTUwLDkgKzUwLDYgQEAgTGlzdCBhbGwgY29tbWFu
+ZHMgZGVmaW5lZCBieSBcZklpb2VuZ2luZVxmUiwgb3IgcHJpbnQgaGVscCBmb3IgXGZJY29tbWFu
+ZFxmUiBkZWYNCiAuQkkgXC1cLXNob3djbWQgXGZSPVxmUGpvYmZpbGUNCiBDb252ZXJ0IFxmSWpv
+YmZpbGVcZlIgdG8gYSBzZXQgb2YgY29tbWFuZC1saW5lIG9wdGlvbnMuDQogLlRQDQotLkIgXC1c
+LXJlYWRvbmx5DQotRW5hYmxlIHJlYWQtb25seSBzYWZldHkgY2hlY2tzLg0KLS5UUA0KIC5CSSBc
+LVwtZXRhIFxmUj1cZlB3aGVuDQogU3BlY2lmaWVzIHdoZW4gcmVhbC10aW1lIEVUQSBlc3RpbWF0
+ZSBzaG91bGQgYmUgcHJpbnRlZC4gIFxmSXdoZW5cZlIgbWF5DQogYmUgb25lIG9mIGBhbHdheXMn
+LCBgbmV2ZXInIG9yIGBhdXRvJy4NCi0tIA0KMS43LjkuNQ0K
 
