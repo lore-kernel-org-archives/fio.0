@@ -1,52 +1,38 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:54347 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751624Ab3AJS6N (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 10 Jan 2013 13:58:13 -0500
-Received: from 87-104-106-3-dynamic-customer.profibernet.dk ([87.104.106.3] helo=kernel.dk)
-	by merlin.infradead.org with esmtpsa (Exim 4.76 #1 (Red Hat Linux))
-	id 1TtNKO-0004qR-W5
-	for fio@vger.kernel.org; Thu, 10 Jan 2013 18:58:13 +0000
-Received: from localhost (localhost [127.0.0.1])
-	by kernel.dk (Postfix) with ESMTP id 5E08F56325
-	for <fio@vger.kernel.org>; Thu, 10 Jan 2013 19:58:11 +0100 (CET)
-Date: Thu, 10 Jan 2013 19:58:11 +0100
-From: Jens Axboe <axboe@kernel.dk>
-Subject: fio heads up
-Message-ID: <20130110185811.GA14170@kernel.dk>
+Received: from server505a.appriver.com ([98.129.35.4]:3507 "EHLO
+	server505.appriver.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753639Ab3AJTOv convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Thu, 10 Jan 2013 14:14:51 -0500
+From: Carl Zwanzig <cpz@coraid.com>
+Date: Thu, 10 Jan 2013 13:14:33 -0600
+Subject: RE: problems writing on windows
+Message-ID: <27A430545AF420468AEE097737EE633A0C47E3D4D9@MBX29.exg5.exghost.com>
+References: <27A430545AF420468AEE097737EE633A0C47E3D471@MBX29.exg5.exghost.com>
+ <50EF080D.2020405@cran.org.uk>
+In-Reply-To: <50EF080D.2020405@cran.org.uk>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Bruce Cran <bruce@cran.org.uk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi,
+> From: Bruce Cran [mailto:bruce@cran.org.uk]
+> Sent: Thursday, January 10, 2013 10:27 AM
+> I suspect the problem is that Windows blocks writes to areas of a raw
+> disk which contain volumes.
 
-After 2.0.13 was tagged yesterday, I pulled the configure branch into
-the master branch. The configure branch attempts to get rid of the
-special casing and weak helper lib by instead doing a "typical"
-configure compile and runtime test before building fio. I did NOT use
-autogen/conf (I think it's crap), I just rolled my own based on what
-qemu also has.
+Almost. (z slaps head, should have checked this)
 
-Basically what this means is that you must run ./configure before
-building fio. Fio will do this automatically, if it hasn't already been
-run, when make is invoked.
+In Server Manager/Disk Management, Windows had the disks marked "offline". Setting the disk online, which makes it appear there as "not initialized", allows writing. Funny that you can read from an offline disk w/o error.
 
-Not only does this get rid of the guessing we currently have to do, it
-also gets rid of the need to use EXTRA_ for cflags/libs. For instance,
-it will automatically build the RDMA engine or use the libnuma support,
-if it's available at build time. Much easier.
+(Also, just setting the disk online with diskpart does not do it, had to use the GUI. Not going to investigate that at the moment.)
 
-If you use git to update, please do a make clean after pulling in
-everything!
+Is there any convenient way for fio to check that status and report an error?
 
-And please do report any issues you found, either configure not working
-right or mis-detections (failure to find foo, or finding foo when it's
-not really there). Windows build is currently broken, but apart from
-that, I think it should work mostly everywhere.
+Thanks,
 
--- 
-Jens Axboe
+z!
 
