@@ -1,50 +1,52 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from smtpout1-ctsd.core.ignum.cz ([62.109.128.47]:54970 "EHLO
-	smtpout1-ctsd.core.ignum.cz" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755140Ab2L3Whi (ORCPT
-	<rfc822;fio@vger.kernel.org>); Sun, 30 Dec 2012 17:37:38 -0500
-Received: from freza3.core.ignum.cz (freza3.core.ignum.cz [217.31.49.154])
-	by smtpout1.core.ignum.cz (Postfix) with ESMTP id EDFCD22405
-	for <fio@vger.kernel.org>; Sun, 30 Dec 2012 23:31:17 +0100 (CET)
-Received: from freza3.core.ignum.cz (localhost [127.0.0.1])
-	by freza3.core.ignum.cz (Postfix) with ESMTP id A4389B3A6
-	for <fio@vger.kernel.org>; Sun, 30 Dec 2012 23:11:51 +0100 (CET)
-Received: from [192.168.160.10] (72.155.broadband6.iol.cz [88.101.155.72])
-	(Authenticated sender: dan@danny.cz)
-	by freza3.core.ignum.cz (Postfix) with ESMTPA id 759E9ACAA
-	for <fio@vger.kernel.org>; Sun, 30 Dec 2012 23:11:51 +0100 (CET)
-Message-ID: <1356905511.3343.24.camel@eagle.danny.cz>
-Subject: fio-2.0.12.2 doesn't build with ARCH_HAVE_CPU_CLOCK not defined
-From: Dan =?ISO-8859-1?Q?Hor=E1k?= <dan@danny.cz>
-Date: Sun, 30 Dec 2012 23:11:51 +0100
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0
+Received: from merlin.infradead.org ([205.233.59.134]:54347 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751624Ab3AJS6N (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 10 Jan 2013 13:58:13 -0500
+Received: from 87-104-106-3-dynamic-customer.profibernet.dk ([87.104.106.3] helo=kernel.dk)
+	by merlin.infradead.org with esmtpsa (Exim 4.76 #1 (Red Hat Linux))
+	id 1TtNKO-0004qR-W5
+	for fio@vger.kernel.org; Thu, 10 Jan 2013 18:58:13 +0000
+Received: from localhost (localhost [127.0.0.1])
+	by kernel.dk (Postfix) with ESMTP id 5E08F56325
+	for <fio@vger.kernel.org>; Thu, 10 Jan 2013 19:58:11 +0100 (CET)
+Date: Thu, 10 Jan 2013 19:58:11 +0100
+From: Jens Axboe <axboe@kernel.dk>
+Subject: fio heads up
+Message-ID: <20130110185811.GA14170@kernel.dk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
 Hi,
 
-fio stopped to build on architectures that don't define
-ARCH_HAVE_CPU_CLOCK like s390/s390x (fixed in a patch I've already
-sent :-))
+After 2.0.13 was tagged yesterday, I pulled the configure branch into
+the master branch. The configure branch attempts to get rid of the
+special casing and weak helper lib by instead doing a "typical"
+configure compile and runtime test before building fio. I did NOT use
+autogen/conf (I think it's crap), I just rolled my own based on what
+qemu also has.
 
-cc -o gettime.o -c -std=gnu99 -Wwrite-strings -Wall -O3 -g -O2 -g -pipe
--Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector
---param=ssp-buffer-size=4 -m31 -march=z9-109 -mtune=z10
--DFIO_VERSION='"fio-2.0.12.2"' -D_GNU_SOURCE -D_LARGEFILE_SOURCE
--D_FILE_OFFSET_BITS=64 -D_FORTIFY_SOURCE=2 -DFIO_INC_DEBUG gettime.c 
-gettime.c: In function 'fio_clock_init':
-gettime.c:317:6: error: 'tsc_reliable' undeclared (first use in this function)
-gettime.c:317:6: note: each undeclared identifier is reported only once for each function it appears in
-make: *** [gettime.o] Error 1
+Basically what this means is that you must run ./configure before
+building fio. Fio will do this automatically, if it hasn't already been
+run, when make is invoked.
 
-seems commit fa80feae51 added the tsc_reliable variable
+Not only does this get rid of the guessing we currently have to do, it
+also gets rid of the need to use EXTRA_ for cflags/libs. For instance,
+it will automatically build the RDMA engine or use the libnuma support,
+if it's available at build time. Much easier.
 
+If you use git to update, please do a make clean after pulling in
+everything!
 
-	Thanks
+And please do report any issues you found, either configure not working
+right or mis-detections (failure to find foo, or finding foo when it's
+not really there). Windows build is currently broken, but apart from
+that, I think it should work mostly everywhere.
 
-		Dan
-
+-- 
+Jens Axboe
 
