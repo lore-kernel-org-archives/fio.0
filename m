@@ -1,28 +1,28 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx1.fusionio.com ([66.114.96.30]:54662 "EHLO mx1.fusionio.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753513Ab3AJMSU (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 10 Jan 2013 07:18:20 -0500
-Message-ID: <50EEB187.9000906@fusionio.com>
-Date: Thu, 10 Jan 2013 13:18:15 +0100
-From: Jens Axboe <jaxboe@fusionio.com>
+Return-Path: <majianpeng@gmail.com>
 MIME-Version: 1.0
-Subject: Re: [PATCH] fix  an overflowing.
-References: <201301101937119708856@gmail.com>
-In-Reply-To: <201301101937119708856@gmail.com>
-Content-Type: text/plain; charset="GB2312"
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: majianpeng <majianpeng@gmail.com>
+From: majianpeng <majianpeng@gmail.com>
+Date: Thu, 10 Jan 2013 04:37:17 -0700
+Subject: [PATCH] fix  an overflowing.
+Message-ID: <201301101937119708856@gmail.com>
+Reply-To: majianpeng <majianpeng@gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
+To: Jens Axboe <JAxboe@fusionio.com>
 Cc: fio <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-On 2013-01-10 12:37, majianpeng wrote:
-> Because nr_files and new_size are not same types.It can cause new_size
-> less than zero.Then realloc will be failed.
-
-Thanks, applied.
-
--- 
-Jens Axboe
+QmVjYXVzZSBucl9maWxlcyBhbmQgbmV3X3NpemUgYXJlIG5vdCBzYW1lIHR5cGVzLkl0IGNhbiBj
+YXVzZSBuZXdfc2l6ZQ0KbGVzcyB0aGFuIHplcm8uVGhlbiByZWFsbG9jIHdpbGwgYmUgZmFpbGVk
+Lg0KDQpTaWduZWQtb2ZmLWJ5OiBKaWFucGVuZyBNYSA8bWFqaWFucGVuZ0BnbWFpbC5jb20+DQot
+LS0NCiBmaWxlc2V0dXAuYyB8ICAgIDIgKy0NCiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24o
+KyksIDEgZGVsZXRpb24oLSkNCg0KZGlmZiAtLWdpdCBhL2ZpbGVzZXR1cC5jIGIvZmlsZXNldHVw
+LmMNCmluZGV4IDMyNGU5YTYuLmM1NWZmM2YgMTAwNjQ0DQotLS0gYS9maWxlc2V0dXAuYw0KKysr
+IGIvZmlsZXNldHVwLmMNCkBAIC0xMDc0LDcgKzEwNzQsNyBAQCBpbnQgYWRkX2ZpbGUoc3RydWN0
+IHRocmVhZF9kYXRhICp0ZCwgY29uc3QgY2hhciAqZm5hbWUpDQogCWZpb19maWxlX3Jlc2V0KGYp
+Ow0KIA0KIAlpZiAodGQtPmZpbGVzX3NpemUgPD0gdGQtPmZpbGVzX2luZGV4KSB7DQotCQlpbnQg
+bmV3X3NpemUgPSB0ZC0+by5ucl9maWxlcyArIDE7DQorCQl1bnNpZ25lZCBpbnQgbmV3X3NpemUg
+PSB0ZC0+by5ucl9maWxlcyArIDE7DQogDQogCQlkcHJpbnQoRkRfRklMRSwgInJlc2l6ZSBmaWxl
+IGFycmF5IHRvICVkIGZpbGVzXG4iLCBuZXdfc2l6ZSk7DQogCQl0ZC0+ZmlsZXMgPSByZWFsbG9j
+KHRkLT5maWxlcywgbmV3X3NpemUgKiBzaXplb2YoZikpOw0KLS0gDQoxLjcuOS41DQo=
 
