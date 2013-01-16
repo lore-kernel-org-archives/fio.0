@@ -1,42 +1,36 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vc0-f169.google.com ([209.85.220.169]:54400 "EHLO
-	mail-vc0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756040Ab3AaDNF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 30 Jan 2013 22:13:05 -0500
-Received: by mail-vc0-f169.google.com with SMTP id n10so1507270vcn.0
-        for <fio@vger.kernel.org>; Wed, 30 Jan 2013 19:13:04 -0800 (PST)
+Received: from server506a.appriver.com ([50.56.144.13]:54073 "EHLO
+	server506.appriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757340Ab3APVkZ convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Wed, 16 Jan 2013 16:40:25 -0500
+From: Carl Zwanzig <cpz@coraid.com>
+Subject: RE: Multi-thread vs. Single-thread job config
+Date: Wed, 16 Jan 2013 21:36:45 +0000
+Message-ID: <A7A1D348E34E024BBC74480FB93A2EABD77E@DAGN05A-E6.exg6.exghost.com>
+References: <CAB-428kduvROVr6oqVYsBaZAEA0WqUddLiB=yNiJNTw_TdYM0g@mail.gmail.com>
+ <CAB-428k3dw2TLm_5-7ELzdffCNpHb02ZSzsK73=GD-YVkOgWWA@mail.gmail.com>
+ <CF1923A4-1E21-476D-AF9E-AC12920DD274@joshcarter.com>
+In-Reply-To: <CF1923A4-1E21-476D-AF9E-AC12920DD274@joshcarter.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-From: Alireza Haghdoost <haghdoost@gmail.com>
-Date: Wed, 30 Jan 2013 21:04:39 -0600
-Message-ID: <CAB-428m_-uqpVaeg7yLO=0SosHtVh-QhWMFsrp0KDc4msKjWtQ@mail.gmail.com>
-Subject: Tune IO stack to get max IOPS out of AIO
-Content-Type: text/plain; charset=ISO-8859-1
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: linux-aio@kvack.org, fio@vger.kernel.org
+To: Josh Carter <public@joshcarter.com>, Alireza Haghdoost <haghdoost@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hello
+> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
+> Behalf Of Josh Carter
 
-I am trying to tune Linux IO stack to maximize application IOPS. I was
-wondering if there is any other parameter that I am missing to tune up
-?
+> I believe the effect you're seeing is that multiple threads will make the
+> IO look more random at the block device. Your configuration uses
+> sequential writes, but with numjobs=4 you'll have each job writing at a
+> different place in the device. 
 
-Right now I am using a raw block device to write sequential AIO
-requests with FIO and set :
-1. max possible value for libaio completion queue,
-2. max possible value for IO scheduler queue size
-(/sys/block/sda/queue/nr_requests)
-3. max possible value for generic device driver queue depth
-(/sys/block/sda/device/queue_depth)
-4. noop IO scheduler
-6. disable IO merge ( echo 2 > /sys/block/sda/queueu/nomerge )
+I concur. Multiple jobs aimed at the same device will make the workload partially random.
 
-Note that the device (/dev/sda) is attached to the server over the
-network. Therefore, generic device driver will send IOs to Fiber
-Channel network driver (Qlogic qla2xxx).
+BTW, I omit the directory option and put the full path on the filename option. Gives clarity and seems more predictable (i.e. filename=/dev/sdh).	I think directory is only useful if you're doing multiple files on a filesystem.  (I also spawn separate fio instances instead of using numjobs.)
 
-Please kindly advise how can I push more IO per second ?
+z!
 
-
-Thanks
-Alireza
