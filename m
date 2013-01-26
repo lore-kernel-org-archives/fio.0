@@ -1,21 +1,42 @@
-Return-Path: <majianpeng@gmail.com>
+Return-Path: <stefanha@gmail.com>
 MIME-Version: 1.0
-From: majianpeng <majianpeng@gmail.com>
-Date: Thu, 10 Jan 2013 05:08:41 -0700
-Subject: The relation about size/filesize/nrfiles
-Message-ID: <2013011020083650949610@gmail.com>
-Reply-To: majianpeng <majianpeng@gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
-To: Jens Axboe <JAxboe@fusionio.com>
-Cc: fio <fio@vger.kernel.org>
+In-Reply-To: <20130126162818.GF15635@kernel.dk>
+References: <20130125114236.GA26765@stefanha-thinkpad.redhat.com>
+	<20130126162818.GF15635@kernel.dk>
+Date: Sat, 26 Jan 2013 17:51:50 +0100
+Message-ID: <CAJSP0QURHyhFGc3ZVo=TM16_VUY-pRqNMTOJcNwNGUoJCdoi0Q@mail.gmail.com>
+Subject: Re: Why does 'direct' influence 'fsync'?
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org, Asias He <asias@redhat.com>
 List-ID: <fio@vger.kernel.org>
 
-SGkgYWxsLA0KCUkgd2FudGVkIHRvIHRlc3Qgc29tZSBmaWxlcy5CdXQgaSB3YW50ZWQgdG8gdXNl
-IHNpemUgcmF0aGVyIHRoYW4gbnJmaWxlcy5UaGUgam9iIGZpbGUgaXM6DQpbZ2xvYmFsXQ0Kcnc9
-d3JpdGUNCmRpcmVjdG9yeT0vbWVkaWENCmJzPTY0aw0Kc2l6ZT01MDBNDQoNCltqMV0NCmZpbGVz
-aXplPTI1NmsNCg0KQnV0IGZpbyBvbmx5IGNyZWF0ZWQgb25lIGZpbGUuSWYgaSB1c2VkIG5yZmls
-ZXMsdGhlIHNpemUgaXMgaWdub3JlZC4NClNvIGhvdyB0byB3cml0ZSB3aGljaCBjYW4gZG8gd2hh
-dCBpIHdhbnRlZD8NCg0KDQpKaWFucGVuZw0KVGhhbmtzIQ0K
+On Sat, Jan 26, 2013 at 5:28 PM, Jens Axboe <axboe@kernel.dk> wrote:
+> On Fri, Jan 25 2013, Stefan Hajnoczi wrote:
+>> Is there a way to flush the disk write cache when O_DIRECT is in use?
+>>
+>> It seems that direct=1 causes the fsync setting to be ignored.  Asias
+>> writes:
+>>
+>> > The O_DIRECT do affect the flush behaviour. e.g
+>> >
+>> > guest$ fio --fsync=100 --direct=1
+>> > No virtio_blk_handle_flush is observed on host side every 100 IOs
+>> >
+>> > guest$ fio --fsync=100 --direct=0
+>> > virtio_blk_handle_flush is observed on host side every 100 IOs
+>>
+>> Am I missing a reason for this behavior?  To me it seems weird since you
+>> could already use --fsync=0 --direct=1 if you want to guarantee that
+>> fsync is not called.  I don't see a need to override the fsync setting.
+>
+> You are right, fio should not be double guessing options like that. If
+> you ask for fsync, you should get fsync.
+>
+> Does the below work for you?
+
+Yes, thanks!
+
+Tested-by: Stefan Hajnoczi <stefanha@redhat.com>
 
