@@ -1,37 +1,41 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from pbit-mailserver.permabit.com ([66.202.84.83]:37749 "EHLO
-	pbit-mailserver.permabit.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751580Ab3A2Bbn (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 28 Jan 2013 20:31:43 -0500
-From: Ken Raeburn <raeburn@permabit.com>
-Subject: path name lengths
-Date: Mon, 28 Jan 2013 20:24:12 -0500
-Message-ID: <6eham0rdc3.fsf@just-testing.permabit.com>
+Received: from merlin.infradead.org ([205.233.59.134]:46824 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750990Ab3A0Pjb (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sun, 27 Jan 2013 10:39:31 -0500
+Date: Sun, 27 Jan 2013 08:39:25 -0700
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: asking for an example job file
+Message-ID: <20130127153925.GO15635@kernel.dk>
+References: <CAJdxx76y1m6NG9_D86XXY4xz2mJc4guP1Qa_DCqNQNamNPxK7w@mail.gmail.com>
+ <50F3CB5F.8070507@kernel.dk>
+ <CAJdxx75-H7LOQ3Kf13U6h7TskpvCKuwL4pbkG16PzHinYwHRsw@mail.gmail.com>
+ <CAJdxx77Yq=Df4eS-iQVfFNXzjBusF3zG+ZLhLnGQVuVHhdkA=g@mail.gmail.com>
+ <CAJdxx74Tu3LHhJ9LUOTg=K3NfiwY6iD9mrDS=_3EXcqEKNaENg@mail.gmail.com>
+ <CAN2qFaotYBVvJyvac0L8EUJAiJAbnYjFtmXgPNCe2ey6P_ZHFA@mail.gmail.com>
+ <CAJdxx77U9ULtqV3sSGzwX0Pi7pZeyP1avuVzxkLm-pLhS1vncQ@mail.gmail.com>
+ <CAHaS=QwrKy7ZmmzZ2UCEx1qUT8GNJ9u+TwTw2Pe4nU030gyOAw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHaS=QwrKy7ZmmzZ2UCEx1qUT8GNJ9u+TwTw2Pe4nU030gyOAw@mail.gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Greg Sullivan <greg.sullivan@sullivang.net>
+Cc: fio <fio@vger.kernel.org>
 
-I was trying to set up a somewhat perverse test to look at the cost of
-using LVMs on Linux, by stacking them many levels deep. When I ran fio,
-it crashed before exiting, reporting memory corruption.
+On Thu, Jan 24 2013, Greg Sullivan wrote:
+> (resending in plain text - sigh)
+> 
+> I tried to use the "rate" functionality on Windows some time ago, and
+> it was extremely erratic. As I recall, the Windows maintainer couldn't
+> reproduce the behaviour I was observing, and since the work I was
+> doing was not critical, I gave up. (yes - I know - boo hiss! :) :)
 
-I've found a couple issues still present in today's git sources:
+It might have something to do with some of the timing functions on
+Windows, which are way too coarse to be used for rate limiting. If you
+have the job file that you used handy, I can try and take a look at it.
 
-The path array in struct disk_util is only 256 bytes long, and there's
-no check to avoid overflowing it, so if the string you try to put into
-it is
-"/sys/block/dm-47/slaves/../../dm-46/slaves/../../dm-45/slaves/../.."
-(you get the idea), you can easily scribble past the end of the array,
-and the containing disk_util structure.
+-- 
+Jens Axboe
 
-I'll have a patch for this shortly.
-
-In find_add_disk_slaves, where the code uses readlink on entries found
-in the "slaves" subdirectory and appends to the previous directory name,
-there is no check for exceeding the size of the automatic character
-arrays. Since those arrays are 4KB I'm not having any problems with
-them, but it might be good to add checks there.
-
-Ken
