@@ -1,74 +1,54 @@
-Return-Path: <Antonio.Jose.Rodrigues.Neto@netapp.com>
-From: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from 173-166-109-252-newengland.hfc.comcastbusiness.net ([173.166.109.252]:47780
+	"EHLO bombadil.infradead.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756103Ab3A2NC5 (ORCPT
+	<rfc822;fio@vger.kernel.org>); Tue, 29 Jan 2013 08:02:57 -0500
+Date: Tue, 29 Jan 2013 14:02:12 +0100
+From: Jens Axboe <axboe@kernel.dk>
 Subject: Re: Group reporting with latency and IOPS
-Date: Tue, 29 Jan 2013 13:41:26 +0000
-Message-ID: <843E15216120C047928F6879B0E2D9240F6D243A@SACEXCMBX02-PRD.hq.netapp.com>
-In-Reply-To: <20130129130212.GB8800@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <60CD9AFF310CF24F8C1BA8641A3C5BEA@tahoe.netapp.com>
-Content-Transfer-Encoding: quoted-printable
+Message-ID: <20130129130212.GB8800@kernel.dk>
+References: <843E15216120C047928F6879B0E2D9240F6D006F@SACEXCMBX02-PRD.hq.netapp.com>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <843E15216120C047928F6879B0E2D9240F6D006F@SACEXCMBX02-PRD.hq.netapp.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
 
+On Mon, Jan 28 2013, Neto, Antonio Jose Rodrigues wrote:
+> Hi All,
+> 
+> This is neto from Brazil
+> 
+> How are you?
+> 
+> I just need a help to make sure I understood correctly the report (see below --Output). 
+> 
+> Trying to generate 80% Read and 20% Write - 8KB block size
+> 
+> Reads
+> IOPS: 15330
+> Latency: (clat) 628usecs - 0.628ms
 
+Correct. Well 629 really, if rounded properly.
 
-On 1/29/13 8:02 AM, "Jens Axboe" <axboe@kernel.dk> wrote:
+> Writes
+> IOPS: 3827
+> Latency: (clat) 577usecs - 0.577ms
 
->On Mon, Jan 28 2013, Neto, Antonio Jose Rodrigues wrote:
->> Hi All,
->>=20
->> This is neto from Brazil
->>=20
->> How are you?
->>=20
->> I just need a help to make sure I understood correctly the report (see
->>below --Output).=20
->>=20
->> Trying to generate 80% Read and 20% Write - 8KB block size
->>=20
->> Reads
->> IOPS: 15330
->> Latency: (clat) 628usecs - 0.628ms
->
->Correct. Well 629 really, if rounded properly.
->
->> Writes
->> IOPS: 3827
->> Latency: (clat) 577usecs - 0.577ms
->
->Correct too.
->
->> Am I doing the correct analysis?
->
->Yep.
->
->> One question is: Is it possible to have global IOPS and latency?
->
->You mean for both read and write combined? Fio does not report that, but
->for IOPS you could just add them. For latency, the larger of the two.
->
->--=20
->Jens Axboe
->
+Correct too.
 
-Hi Jens
+> Am I doing the correct analysis?
 
-This is neto from Brazil
+Yep.
 
-How are you?
+> One question is: Is it possible to have global IOPS and latency?
 
-Thank you so much for your answer.
+You mean for both read and write combined? Fio does not report that, but
+for IOPS you could just add them. For latency, the larger of the two.
 
-How can I have a combined IOPS reported?
-
-Thank you
-
-neto
-
-
->
-
+-- 
+Jens Axboe
 
