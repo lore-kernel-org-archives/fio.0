@@ -1,42 +1,37 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:58926 "EHLO
-	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751339Ab3AaNop (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 31 Jan 2013 08:44:45 -0500
-Received: by mail-ee0-f46.google.com with SMTP id e49so1470580eek.19
-        for <fio@vger.kernel.org>; Thu, 31 Jan 2013 05:44:44 -0800 (PST)
+Received: from pbit-mailserver.permabit.com ([66.202.84.83]:37749 "EHLO
+	pbit-mailserver.permabit.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751580Ab3A2Bbn (ORCPT
+	<rfc822;fio@vger.kernel.org>); Mon, 28 Jan 2013 20:31:43 -0500
+From: Ken Raeburn <raeburn@permabit.com>
+Subject: path name lengths
+Date: Mon, 28 Jan 2013 20:24:12 -0500
+Message-ID: <6eham0rdc3.fsf@just-testing.permabit.com>
 MIME-Version: 1.0
-From: Gavin Martin <gavin_martin@xyratex.com>
-Date: Thu, 31 Jan 2013 13:44:24 +0000
-Message-ID: <CANUChTxynLg7p5kK1vex9965qvYxyFagzk8QAtbh-2-=_Mdxhg@mail.gmail.com>
-Subject: Output logs and keep command line display
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hi,
+I was trying to set up a somewhat perverse test to look at the cost of
+using LVMs on Linux, by stacking them many levels deep. When I ran fio,
+it crashed before exiting, reporting memory corruption.
 
-Not sure if I am missing a special argument somewhere, but I like the
-command line display we get from Fio when it runs showing the type of
-workload and job descriptions and percentage complete, etc.  Is it
-possible to get the outputs that you get when using the --minimal
-argument (in JSON, CSV formats) whilst still keeping the command line
-display.
+I've found a couple issues still present in today's git sources:
 
-Having this would make it similar to Iometer, not in a graphical
-sense, but in a way that you can see exactly what is occurring (and if
-it has halted or crashed) whilst still having logs that could be
-charted or plotted into reports.  Especially useful for extended test
-runs (over several hours!)
+The path array in struct disk_util is only 256 bytes long, and there's
+no check to avoid overflowing it, so if the string you try to put into
+it is
+"/sys/block/dm-47/slaves/../../dm-46/slaves/../../dm-45/slaves/../.."
+(you get the idea), you can easily scribble past the end of the array,
+and the containing disk_util structure.
 
-Thanks,
-Gavin
+I'll have a patch for this shortly.
 
--- 
+In find_add_disk_slaves, where the code uses readlink on entries found
+in the "slaves" subdirectory and appends to the previous directory name,
+there is no check for exceeding the size of the automatic character
+arrays. Since those arrays are 4KB I'm not having any problems with
+them, but it might be good to add checks there.
 
-
-------------------------------
-For additional information including the registered office and the treatment of Xyratex confidential information please visit www.xyratex.com
-
-------------------------------
+Ken
