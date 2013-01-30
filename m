@@ -1,28 +1,40 @@
-Return-Path: <majianpeng@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from 173-166-109-252-newengland.hfc.comcastbusiness.net ([173.166.109.252]:56035
+	"EHLO bombadil.infradead.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755878Ab3A3VtJ (ORCPT
+	<rfc822;fio@vger.kernel.org>); Wed, 30 Jan 2013 16:49:09 -0500
+Date: Wed, 30 Jan 2013 22:48:23 +0100
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] Fix bugs in [v]snprintf usage.
+Message-ID: <20130130214823.GT8800@kernel.dk>
+References: <6eham0rdc3.fsf@just-testing.permabit.com>
+ <6ea9rsrc7u.fsf@just-testing.permabit.com>
+ <20130129091712.GD30188@kernel.dk>
+ <6e622fr967.fsf@just-testing.permabit.com>
+ <20130129211501.GK8800@kernel.dk>
+ <6e1ud3r699.fsf@just-testing.permabit.com>
+ <20130130115851.GX8800@kernel.dk>
+ <6esj5ipdn1.fsf_-_@just-testing.permabit.com>
 MIME-Version: 1.0
-From: majianpeng <majianpeng@gmail.com>
-Date: Thu, 10 Jan 2013 04:37:17 -0700
-Subject: [PATCH] fix  an overflowing.
-Message-ID: <201301101937119708856@gmail.com>
-Reply-To: majianpeng <majianpeng@gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
-To: Jens Axboe <JAxboe@fusionio.com>
-Cc: fio <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6esj5ipdn1.fsf_-_@just-testing.permabit.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Ken Raeburn <raeburn@permabit.com>
+Cc: fio@vger.kernel.org
 
-QmVjYXVzZSBucl9maWxlcyBhbmQgbmV3X3NpemUgYXJlIG5vdCBzYW1lIHR5cGVzLkl0IGNhbiBj
-YXVzZSBuZXdfc2l6ZQ0KbGVzcyB0aGFuIHplcm8uVGhlbiByZWFsbG9jIHdpbGwgYmUgZmFpbGVk
-Lg0KDQpTaWduZWQtb2ZmLWJ5OiBKaWFucGVuZyBNYSA8bWFqaWFucGVuZ0BnbWFpbC5jb20+DQot
-LS0NCiBmaWxlc2V0dXAuYyB8ICAgIDIgKy0NCiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24o
-KyksIDEgZGVsZXRpb24oLSkNCg0KZGlmZiAtLWdpdCBhL2ZpbGVzZXR1cC5jIGIvZmlsZXNldHVw
-LmMNCmluZGV4IDMyNGU5YTYuLmM1NWZmM2YgMTAwNjQ0DQotLS0gYS9maWxlc2V0dXAuYw0KKysr
-IGIvZmlsZXNldHVwLmMNCkBAIC0xMDc0LDcgKzEwNzQsNyBAQCBpbnQgYWRkX2ZpbGUoc3RydWN0
-IHRocmVhZF9kYXRhICp0ZCwgY29uc3QgY2hhciAqZm5hbWUpDQogCWZpb19maWxlX3Jlc2V0KGYp
-Ow0KIA0KIAlpZiAodGQtPmZpbGVzX3NpemUgPD0gdGQtPmZpbGVzX2luZGV4KSB7DQotCQlpbnQg
-bmV3X3NpemUgPSB0ZC0+by5ucl9maWxlcyArIDE7DQorCQl1bnNpZ25lZCBpbnQgbmV3X3NpemUg
-PSB0ZC0+by5ucl9maWxlcyArIDE7DQogDQogCQlkcHJpbnQoRkRfRklMRSwgInJlc2l6ZSBmaWxl
-IGFycmF5IHRvICVkIGZpbGVzXG4iLCBuZXdfc2l6ZSk7DQogCQl0ZC0+ZmlsZXMgPSByZWFsbG9j
-KHRkLT5maWxlcywgbmV3X3NpemUgKiBzaXplb2YoZikpOw0KLS0gDQoxLjcuOS41DQo=
+On Wed, Jan 30 2013, Ken Raeburn wrote:
+> 
+> When calling snprintf, supply the full buffer size instead of
+> (usually) one byte less.
+> 
+> When using the returned length from vsnprintf for logging, don't write
+> more than the actual buffer size (minus one for the trailing \0), in
+> case the formatted string was truncated.
+
+Thanks Ken, applied.
+
+-- 
+Jens Axboe
 
