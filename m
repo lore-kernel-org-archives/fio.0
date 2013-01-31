@@ -1,35 +1,71 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vc0-f170.google.com ([209.85.220.170]:53839 "EHLO
-	mail-vc0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753785Ab3AKTYT (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 11 Jan 2013 14:24:19 -0500
-Received: by mail-vc0-f170.google.com with SMTP id fl11so1795706vcb.15
-        for <fio@vger.kernel.org>; Fri, 11 Jan 2013 11:24:19 -0800 (PST)
+Received: from merlin.infradead.org ([205.233.59.134]:55443 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752016Ab3AaLDX (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 31 Jan 2013 06:03:23 -0500
+Date: Thu, 31 Jan 2013 12:02:35 +0100
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: Tune IO stack to get max IOPS out of AIO
+Message-ID: <20130131110235.GF8800@kernel.dk>
+References: <CAB-428m_-uqpVaeg7yLO=0SosHtVh-QhWMFsrp0KDc4msKjWtQ@mail.gmail.com>
 MIME-Version: 1.0
-Date: Fri, 11 Jan 2013 11:24:18 -0800
-Message-ID: <CAJdxx76y1m6NG9_D86XXY4xz2mJc4guP1Qa_DCqNQNamNPxK7w@mail.gmail.com>
-Subject: asking for an example job file
-From: Hong Jiang <hong@maginatics.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAB-428m_-uqpVaeg7yLO=0SosHtVh-QhWMFsrp0KDc4msKjWtQ@mail.gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+To: Alireza Haghdoost <haghdoost@gmail.com>
+Cc: linux-aio@kvack.org, fio@vger.kernel.org
 
-Hi there,
+On Wed, Jan 30 2013, Alireza Haghdoost wrote:
+> Hello
+> 
+> I am trying to tune Linux IO stack to maximize application IOPS. I was
+> wondering if there is any other parameter that I am missing to tune up
+> ?
+> 
+> Right now I am using a raw block device to write sequential AIO
+> requests with FIO and set :
+> 1. max possible value for libaio completion queue,
+> 2. max possible value for IO scheduler queue size
+> (/sys/block/sda/queue/nr_requests)
+> 3. max possible value for generic device driver queue depth
+> (/sys/block/sda/device/queue_depth)
+> 4. noop IO scheduler
+> 6. disable IO merge ( echo 2 > /sys/block/sda/queueu/nomerge )
+> 
+> Note that the device (/dev/sda) is attached to the server over the
+> network. Therefore, generic device driver will send IOs to Fiber
+> Channel network driver (Qlogic qla2xxx).
+> 
+> Please kindly advise how can I push more IO per second ?
 
-I am pretty new to this tool, and currently evaluating it on both
-linux and windows platforms.  Would appreciate if someone shows me an
-example of job file that can test this scenario:
+It's hard to answer this kind of question, since there are many things
+that can be optimized. You really need a good understanding of the full
+stack (app to device) and profiles/ideas on where the bottlenecks are.
+On the fio side, you can relatively easily set batch parameters for
+submitting and completing io - these are the iodepth_batch_submit= and
+iodepth_batch_complete= settings. That will make fio submit and complete
+multiple IOs at once, thus reducing the system overhead in doing that.
+Now, whether that has an actual impact on your performance (or is even a
+realistic thing to do, I'm assuming you are using fio to model what your
+application would do), that's another question.
 
-I have a share that's created out of the "cloud", on windows client
-side it's mounted as a new drive, on linux it's mounted to a
-directory.  I would like to run some file op tests against the share.
+Your suggestions should help reduce the overhead too, though increasing
+the queue depth beyond the existing 256 will usually not yield much of a
+benefit. The basic hash merging is also very cheap, so unless you truly
+only have random IO, it might be worth keeping.
 
-I tried to use the example job file that came with the package -
-1mbs_clients, modifying the "directory" parameter setting in the file,
-but I am not sure it's really running against the share, as the result
-looks exact the same when I ran the test on 2 different shares.
+You can also experiment with completion locations, that's the
+rq_affinity setting in the same queue/ directory. A value of 1 will
+migrate completions to/near the group that submitted the IO, a value of
+2 will migrate it to the specific CPU. What makes sense depends on the
+load of the CPU, and how costly the completion is...
 
-Thanks in advance for your help!
+Most good settings will have to be experimentally deduced. But the
+better idea you have of where the problems are, the more you can
+logically eliminate or prefer some settings.
 
-Hong
+-- 
+Jens Axboe
+
