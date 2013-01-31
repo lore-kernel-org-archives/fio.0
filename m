@@ -1,29 +1,42 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.130]:58012 "EHLO
-	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751408Ab3AaJgx convert rfc822-to-8bit
-	(ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 31 Jan 2013 04:36:53 -0500
-From: "Hearns, John" <john.hearns@mclaren.com>
-Subject: RE: Tune IO stack to get max IOPS out of AIO
-Date: Thu, 31 Jan 2013 09:30:21 +0000
-Message-ID: <2791E54A864A8C4482B3F5F80EC59DF00C64CA@MGL-PWEXCH01.mgl.tagmclarengroup.com>
-References: <CAB-428m_-uqpVaeg7yLO=0SosHtVh-QhWMFsrp0KDc4msKjWtQ@mail.gmail.com>
-In-Reply-To: <CAB-428m_-uqpVaeg7yLO=0SosHtVh-QhWMFsrp0KDc4msKjWtQ@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Received: from mail-vc0-f169.google.com ([209.85.220.169]:54400 "EHLO
+	mail-vc0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756040Ab3AaDNF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 30 Jan 2013 22:13:05 -0500
+Received: by mail-vc0-f169.google.com with SMTP id n10so1507270vcn.0
+        for <fio@vger.kernel.org>; Wed, 30 Jan 2013 19:13:04 -0800 (PST)
 MIME-Version: 1.0
+From: Alireza Haghdoost <haghdoost@gmail.com>
+Date: Wed, 30 Jan 2013 21:04:39 -0600
+Message-ID: <CAB-428m_-uqpVaeg7yLO=0SosHtVh-QhWMFsrp0KDc4msKjWtQ@mail.gmail.com>
+Subject: Tune IO stack to get max IOPS out of AIO
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Alireza Haghdoost <haghdoost@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: linux-aio@kvack.org, fio@vger.kernel.org
 
+Hello
+
+I am trying to tune Linux IO stack to maximize application IOPS. I was
+wondering if there is any other parameter that I am missing to tune up
+?
+
+Right now I am using a raw block device to write sequential AIO
+requests with FIO and set :
+1. max possible value for libaio completion queue,
+2. max possible value for IO scheduler queue size
+(/sys/block/sda/queue/nr_requests)
+3. max possible value for generic device driver queue depth
+(/sys/block/sda/device/queue_depth)
+4. noop IO scheduler
+6. disable IO merge ( echo 2 > /sys/block/sda/queueu/nomerge )
+
+Note that the device (/dev/sda) is attached to the server over the
+network. Therefore, generic device driver will send IOs to Fiber
+Channel network driver (Qlogic qla2xxx).
 
 Please kindly advise how can I push more IO per second ?
 
 
-Maybe get some solid state drives?
-Or one of the solid state storage arrays which attach via the PCI express bus,
-like violin Memory etc. ?
-
-The contents of this email are confidential and for the exclusive use of the intended recipient.  If you receive this email in error you should not copy it, retransmit it, use it or disclose its contents but should return it to the sender immediately and delete your copy.
+Thanks
+Alireza
