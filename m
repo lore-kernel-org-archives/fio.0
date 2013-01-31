@@ -1,51 +1,42 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:42094 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750921Ab3AaODL (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 31 Jan 2013 09:03:11 -0500
-Date: Thu, 31 Jan 2013 15:02:23 +0100
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: Output logs and keep command line display
-Message-ID: <20130131140223.GI8800@kernel.dk>
-References: <CANUChTxynLg7p5kK1vex9965qvYxyFagzk8QAtbh-2-=_Mdxhg@mail.gmail.com>
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:58926 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751339Ab3AaNop (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 31 Jan 2013 08:44:45 -0500
+Received: by mail-ee0-f46.google.com with SMTP id e49so1470580eek.19
+        for <fio@vger.kernel.org>; Thu, 31 Jan 2013 05:44:44 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CANUChTxynLg7p5kK1vex9965qvYxyFagzk8QAtbh-2-=_Mdxhg@mail.gmail.com>
+From: Gavin Martin <gavin_martin@xyratex.com>
+Date: Thu, 31 Jan 2013 13:44:24 +0000
+Message-ID: <CANUChTxynLg7p5kK1vex9965qvYxyFagzk8QAtbh-2-=_Mdxhg@mail.gmail.com>
+Subject: Output logs and keep command line display
+Content-Type: text/plain; charset=US-ASCII
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Gavin Martin <gavin_martin@xyratex.com>
-Cc: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On Thu, Jan 31 2013, Gavin Martin wrote:
-> Hi,
-> 
-> Not sure if I am missing a special argument somewhere, but I like the
-> command line display we get from Fio when it runs showing the type of
-> workload and job descriptions and percentage complete, etc.  Is it
-> possible to get the outputs that you get when using the --minimal
-> argument (in JSON, CSV formats) whilst still keeping the command line
-> display.
-> 
-> Having this would make it similar to Iometer, not in a graphical
-> sense, but in a way that you can see exactly what is occurring (and if
-> it has halted or crashed) whilst still having logs that could be
-> charted or plotted into reports.  Especially useful for extended test
-> runs (over several hours!)
+Hi,
 
---eta=always
+Not sure if I am missing a special argument somewhere, but I like the
+command line display we get from Fio when it runs showing the type of
+workload and job descriptions and percentage complete, etc.  Is it
+possible to get the outputs that you get when using the --minimal
+argument (in JSON, CSV formats) whilst still keeping the command line
+display.
 
-should do the trick for you, if I understand your request correctly. I
-suppose for that to be useful, you want to redirect the csv/json output
-to a file as well?
+Having this would make it similar to Iometer, not in a graphical
+sense, but in a way that you can see exactly what is occurring (and if
+it has halted or crashed) whilst still having logs that could be
+charted or plotted into reports.  Especially useful for extended test
+runs (over several hours!)
 
-Might be useful to have the behaviour of:
-
---output-format=type [file]
-
-where if 'file' is given, then output goes to that file in the specified
-format, and fio still uses stdout for the ETA output.
+Thanks,
+Gavin
 
 -- 
-Jens Axboe
 
+
+------------------------------
+For additional information including the registered office and the treatment of Xyratex confidential information please visit www.xyratex.com
+
+------------------------------
