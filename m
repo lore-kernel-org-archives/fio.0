@@ -1,19 +1,19 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx12.netapp.com ([216.240.18.77]:43367 "EHLO mx12.netapp.com"
+Received: from mx1.netapp.com ([216.240.18.38]:26446 "EHLO mx1.netapp.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757465Ab3BFVPK convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 6 Feb 2013 16:15:10 -0500
-Received: from vmwexceht02-prd.hq.netapp.com (vmwexceht02-prd.hq.netapp.com [10.106.76.240])
-	by smtp2.corp.netapp.com (8.13.1/8.13.1/NTAP-1.6) with ESMTP id r16LF9lj027003
-	for <fio@vger.kernel.org>; Wed, 6 Feb 2013 13:15:09 -0800 (PST)
+	id S1751886Ab3BACiS convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Thu, 31 Jan 2013 21:38:18 -0500
+Received: from vmwexceht05-prd.hq.netapp.com (exchsmtp.hq.netapp.com [10.106.77.35])
+	by smtp2.corp.netapp.com (8.13.1/8.13.1/NTAP-1.6) with ESMTP id r112cHYu009917
+	for <fio@vger.kernel.org>; Thu, 31 Jan 2013 18:38:17 -0800 (PST)
 From: "Neto, Antonio Jose Rodrigues" 
 	<Antonio.Jose.Rodrigues.Neto@netapp.com>
-Subject: Running fio on Windows 64 bits with offset, zonesize and zoneskip
- and fio stops to respond
-Date: Wed, 6 Feb 2013 21:15:08 +0000
-Message-ID: <843E15216120C047928F6879B0E2D9240F6F05E5@SACEXCMBX02-PRD.hq.netapp.com>
+Subject: Procedure how to compile fio on Windows 64 bits
+Date: Fri, 1 Feb 2013 02:38:17 +0000
+Message-ID: <843E15216120C047928F6879B0E2D9240F6DD99C@SACEXCMBX02-PRD.hq.netapp.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
+Content-ID: <7A4D2CB98BD7814A9A2A39E00A09F050@tahoe.netapp.com>
 Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
@@ -26,134 +26,20 @@ This is neto from Brazil
 
 How are you?
 
-Running fio on Windows 64 bits with offset, zonesize and zoneskip and fio stops to respond
+I have been working on this for the last couple days. I haven't found a
+complete procedure and I've created one.
 
--- Random.sh - to generate config.fio file
+Here you have the procedure how to compile fio on Windows 64 bits
 
-cat > config.fio << EOF
-[global]
-bs=8k
-ioengine=windowsaio
-size=1024g
-iodepth=3
-numjobs=2
-direct=1
-runtime=30
-file_service_type=random
-rw=randrw
-rwmixread=80
-rwmixwrite=20
-thread
-unified_rw_reporting=1
-group_reporting=1
-randrepeat=0
-norandommap=1
-EOF
-loops=1
-OFFSET=0
-USERS=0016
-MEGABYTES=8192
-while [[ $loops -le 8 ]] ; do 
-JOBNUMBER=$loops
-loops=$(expr $loops + 1)
-OFFSET=`echo $(( $RANDOM % 134217728000 * 1024))`
-cat >> config.fio << EOF
+https://communities.netapp.com/community/netapp-blogs/databases/blog/2013/0
+1/31/compiling-fio-flexible-io-tester-on-windows-64-bits
 
-[PhysicalDrive$JOBNUMBER]
-filename=\\\\.\PhysicalDrive$JOBNUMBER
-size=125g
-offset=$OFFSET
-zonesize=`echo $((RANDOM%1000001+200000000))`
-zoneskip=`echo $((RANDOM%2000001+500000000))`
-EOF
-done
-
--- config.fio
-[global]
-bs=8k
-ioengine=windowsaio
-size=1024g
-iodepth=3
-numjobs=2
-direct=1
-runtime=30
-file_service_type=random
-rw=randrw
-rwmixread=80
-rwmixwrite=20
-thread
-unified_rw_reporting=1
-group_reporting=1
-randrepeat=0
-norandommap=1
-
-[PhysicalDrive1]
-filename=\\.\PhysicalDrive1
-size=125g
-offset=14062592
-zonesize=200003129
-zoneskip=500017345
-
-[PhysicalDrive2]
-filename=\\.\PhysicalDrive2
-size=125g
-offset=11035648
-zonesize=200020109
-zoneskip=500027097
-
-[PhysicalDrive3]
-filename=\\.\PhysicalDrive3
-size=125g
-offset=29750272
-zonesize=200001897
-zoneskip=500026993
-
-[PhysicalDrive4]
-filename=\\.\PhysicalDrive4
-size=125g
-offset=20156416
-zonesize=200015008
-zoneskip=500013464
-
-[PhysicalDrive5]
-filename=\\.\PhysicalDrive5
-size=125g
-offset=27099136
-zonesize=200002460
-zoneskip=500027452
-
-[PhysicalDrive6]
-filename=\\.\PhysicalDrive6
-size=125g
-offset=32296960
-zonesize=200001144
-zoneskip=500002836
-
-[PhysicalDrive7]
-filename=\\.\PhysicalDrive7
-size=125g
-offset=7057408
-zonesize=200013388
-zoneskip=500027799
-
-[PhysicalDrive8]
-filename=\\.\PhysicalDrive8
-size=125g
-offset=21437440
-zonesize=200011927
-zoneskip=500019535
-
-
-When I run, I've got a pop-up message on windows - fio.exe has stopped working ...
-
-NOTE: If I remove zoneskip and zonesize- everything works.
-
-Could you please help me understand what am I doing wrong?
+I have tested on Windows 2008R2 and everything worked perfect.
 
 Thank you very much
 
+All the best
+
 neto
-
-
-
+NetApp - I love this company!
 
