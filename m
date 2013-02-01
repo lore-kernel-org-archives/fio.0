@@ -1,231 +1,42 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from hermes.informatik.uni-rostock.de ([139.30.5.210]:36602 "EHLO
-	hermes.informatik.uni-rostock.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932579Ab3BNT5b (ORCPT
-	<rfc822;fio@vger.kernel.org>); Thu, 14 Feb 2013 14:57:31 -0500
-Received: from ekas.informatik.uni-rostock.de (ekas [139.30.1.211])
-	by hermes.informatik.uni-rostock.de (8.14.3+Sun/8.12.4/poprelay-1.0) with ESMTP id r1EJb8NG023115
-	for <fio@vger.kernel.org>; Thu, 14 Feb 2013 20:37:09 +0100 (CET)
-Received: from [139.30.96.67] (nj-desktop.informatik.uni-rostock.de [139.30.96.67])
-	by ekas.informatik.uni-rostock.de (8.14.4+Sun/8.9.1/fin2.2) with ESMTP id r1EJb84C018013
-	for <fio@vger.kernel.org>; Thu, 14 Feb 2013 20:37:08 +0100 (MET)
-Message-ID: <511D3CDE.6070302@informatik.uni-rostock.de>
-Date: Thu, 14 Feb 2013 20:37:02 +0100
-From: Nikolaus Jeremic <jeremic@informatik.uni-rostock.de>
+Received: from merlin.infradead.org ([205.233.59.134]:37804 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751752Ab3BAABn (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 31 Jan 2013 19:01:43 -0500
+Date: Fri, 1 Feb 2013 01:00:55 +0100
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: use of rwmixread option
+Message-ID: <20130201000055.GG25524@kernel.dk>
+References: <A7A1D348E34E024BBC74480FB93A2EAB010719@DAGN05A-E6.exg6.exghost.com>
 MIME-Version: 1.0
-Subject: All I/O patterns are replayed to one file with fio 2.0.13
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <A7A1D348E34E024BBC74480FB93A2EAB010719@DAGN05A-E6.exg6.exghost.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Carl Zwanzig <cpz@coraid.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi,
+On Thu, Jan 31 2013, Carl Zwanzig wrote:
+> Hi,
+> 
+> Am I correct that rwmixread/rwmixwrite are completely ignored unless
+> readwrite=rw or =randrw? Experiments suggest yes but I can't find
+> where this is handled in the code. (The HowTo file is silent on this.)
 
-I've tried to replay I/Os from a textual iolog file to a couple of files 
-using fio 2.0.13 on Linux. However, all I/Os were performed to the last 
-opened file, which is '/mnt/ssd5/rand-write.1.0_1_2' in this example . 
-My jobfile and iolog files contain the following:
+That is correct, see io_u.c:get_rw_ddir(). The mix is only used if the
+data direciton is read-write. For pure read, always reads, for pure
+writes, always writes.
 
-############### job file #########
-[global]
-name=replay_filetraces
-description=Replay file traces
-ioengine=libaio
-iodepth=6
-direct=1
-continue_on_error=1
+> *Is there a description somewhere on how options are processed?
+> Tracking the option definition in options.c to its use has eluded me.
 
-[replay]
-numjobs=1
-read_iolog=file_io_patterns
-unlink=0
-############## EOF #########
-
-
-############## iolog file #########
-fio version 2 iolog
-/mnt/ssd0/rand-write.1.0_0_0 add
-/mnt/ssd1/rand-write.1.0_0_1 add
-/mnt/ssd2/rand-write.1.0_0_2 add
-/mnt/ssd3/rand-write.1.0_1_0 add
-/mnt/ssd4/rand-write.1.0_1_1 add
-/mnt/ssd5/rand-write.1.0_1_2 add
-/mnt/ssd0/rand-write.1.0_0_0 open
-/mnt/ssd1/rand-write.1.0_0_1 open
-/mnt/ssd2/rand-write.1.0_0_2 open
-/mnt/ssd3/rand-write.1.0_1_0 open
-/mnt/ssd4/rand-write.1.0_1_1 open
-/mnt/ssd5/rand-write.1.0_1_2 open
-/mnt/ssd0/rand-write.1.0_0_0 write 0 65536
-/mnt/ssd1/rand-write.1.0_0_1 write 0 65536
-/mnt/ssd2/rand-write.1.0_0_2 write 0 65536
-/mnt/ssd3/rand-write.1.0_1_0 write 0 65536
-/mnt/ssd4/rand-write.1.0_1_1 write 0 65536
-/mnt/ssd5/rand-write.1.0_1_2 write 0 65536
-/mnt/ssd0/rand-write.1.0_0_0 write 65536 65536
-/mnt/ssd1/rand-write.1.0_0_1 write 65536 65536
-/mnt/ssd2/rand-write.1.0_0_2 write 65536 65536
-/mnt/ssd3/rand-write.1.0_1_0 write 65536 65536
-/mnt/ssd4/rand-write.1.0_1_1 write 65536 65536
-/mnt/ssd5/rand-write.1.0_1_2 write 65536 65536
-/mnt/ssd0/rand-write.1.0_0_0 close
-/mnt/ssd1/rand-write.1.0_0_1 close
-/mnt/ssd2/rand-write.1.0_0_2 close
-/mnt/ssd3/rand-write.1.0_1_0 close
-/mnt/ssd4/rand-write.1.0_1_1 close
-/mnt/ssd5/rand-write.1.0_1_2 close
-############## EOF #########
-
-I've turned on debugging and added some extra printf in read_iolog2() 
-within iolog.c.
-
-############## begin of debug excerpt  ########
-file     24594 add file /mnt/ssd0/rand-write.1.0_0_0
-file     24594 resize file array to 2 files
-file     24594 file 0x7fbe03f53090 "/mnt/ssd0/rand-write.1.0_0_0" added at 0
-file     24594 add file /mnt/ssd1/rand-write.1.0_0_1
-file     24594 file 0x7fbe03f53230 "/mnt/ssd1/rand-write.1.0_0_1" added at 1
-file     24594 add file /mnt/ssd2/rand-write.1.0_0_2
-file     24594 resize file array to 4 files
-file     24594 file 0x7fbe03f533d0 "/mnt/ssd2/rand-write.1.0_0_2" added at 2
-file     24594 add file /mnt/ssd3/rand-write.1.0_1_0
-file     24594 file 0x7fbe03f53570 "/mnt/ssd3/rand-write.1.0_1_0" added at 3
-file     24594 add file /mnt/ssd4/rand-write.1.0_1_1
-file     24594 resize file array to 6 files
-file     24594 file 0x7fbe03f53710 "/mnt/ssd4/rand-write.1.0_1_1" added at 4
-file     24594 add file /mnt/ssd5/rand-write.1.0_1_2
-file     24594 file 0x7fbe03f538b0 "/mnt/ssd5/rand-write.1.0_1_2" added at 5
-io       24594 read_iolog2: Making note of file. 
-offset=7310584035475809390 bytes=811544671 fileno=0 file_action=1 
-fname=/mnt/ssd0/rand-write.1.0_0_0 act=open
-io       24594 read_iolog2: Making note of file. 
-offset=7310584035475809390 bytes=811544671 fileno=1 file_action=1 
-fname=/mnt/ssd1/rand-write.1.0_0_1 act=open
-io       24594 read_iolog2: Making note of file. 
-offset=7310584035475809390 bytes=811544671 fileno=2 file_action=1 
-fname=/mnt/ssd2/rand-write.1.0_0_2 act=open
-io       24594 read_iolog2: Making note of file. 
-offset=7310584035475809390 bytes=811544671 fileno=3 file_action=1 
-fname=/mnt/ssd3/rand-write.1.0_1_0 act=open
-io       24594 read_iolog2: Making note of file. 
-offset=7310584035475809390 bytes=811544671 fileno=4 file_action=1 
-fname=/mnt/ssd4/rand-write.1.0_1_1 act=open
-io       24594 read_iolog2: Making note of file. 
-offset=7310584035475809390 bytes=811544671 fileno=5 file_action=1 
-fname=/mnt/ssd5/rand-write.1.0_1_2 act=open
-io       24594 read_iolog2: Making note of file. offset=0 bytes=65536 
-fileno=5 file_action=1 fname=/mnt/ssd0/rand-write.1.0_0_0 act=write
-io       24594 read_iolog2: Making note of file. offset=0 bytes=65536 
-fileno=5 file_action=1 fname=/mnt/ssd1/rand-write.1.0_0_1 act=write
-io       24594 read_iolog2: Making note of file. offset=0 bytes=65536 
-fileno=5 file_action=1 fname=/mnt/ssd2/rand-write.1.0_0_2 act=write
-io       24594 read_iolog2: Making note of file. offset=0 bytes=65536 
-fileno=5 file_action=1 fname=/mnt/ssd3/rand-write.1.0_1_0 act=write
-io       24594 read_iolog2: Making note of file. offset=0 bytes=65536 
-fileno=5 file_action=1 fname=/mnt/ssd4/rand-write.1.0_1_1 act=write
-io       24594 read_iolog2: Making note of file. offset=0 bytes=65536 
-fileno=5 file_action=1 fname=/mnt/ssd5/rand-write.1.0_1_2 act=write
-io       24594 read_iolog2: Making note of file. offset=65536 
-bytes=65536 fileno=5 file_action=1 fname=/mnt/ssd0/rand-write.1.0_0_0 
-act=write
-io       24594 read_iolog2: Making note of file. offset=65536 
-bytes=65536 fileno=5 file_action=1 fname=/mnt/ssd1/rand-write.1.0_0_1 
-act=write
-io       24594 read_iolog2: Making note of file. offset=65536 
-bytes=65536 fileno=5 file_action=1 fname=/mnt/ssd2/rand-write.1.0_0_2 
-act=write
-io       24594 read_iolog2: Making note of file. offset=65536 
-bytes=65536 fileno=5 file_action=1 fname=/mnt/ssd3/rand-write.1.0_1_0 
-act=write
-io       24594 read_iolog2: Making note of file. offset=65536 
-bytes=65536 fileno=5 file_action=1 fname=/mnt/ssd4/rand-write.1.0_1_1 
-act=write
-io       24594 read_iolog2: Making note of file. offset=65536 
-bytes=65536 fileno=5 file_action=1 fname=/mnt/ssd5/rand-write.1.0_1_2 
-act=write
-io       24594 read_iolog2: Making note of file. offset=65536 
-bytes=65536 fileno=0 file_action=2 fname=/mnt/ssd0/rand-write.1.0_0_0 
-act=close
-io       24594 read_iolog2: Making note of file. offset=65536 
-bytes=65536 fileno=1 file_action=2 fname=/mnt/ssd1/rand-write.1.0_0_1 
-act=close
-io       24594 read_iolog2: Making note of file. offset=65536 
-bytes=65536 fileno=2 file_action=2 fname=/mnt/ssd2/rand-write.1.0_0_2 
-act=close
-io       24594 read_iolog2: Making note of file. offset=65536 
-bytes=65536 fileno=3 file_action=2 fname=/mnt/ssd3/rand-write.1.0_1_0 
-act=close
-io       24594 read_iolog2: Making note of file. offset=65536 
-bytes=65536 fileno=4 file_action=2 fname=/mnt/ssd4/rand-write.1.0_1_1 
-act=close
-io       24594 read_iolog2: Making note of file. offset=65536 
-bytes=65536 fileno=5 file_action=2 fname=/mnt/ssd5/rand-write.1.0_1_2 
-act=close
-############## end of debug excerpt  ########
-
-Taking a look to the debugging output shows that on write action the 
-'fileno' variable is always set to 5 regardless of the file that should 
-be written. However, for open and close we have a different fileno value 
-for each file. Taking a look into the source code of read_iolog2() 
-reveals why: In case of actions 'open' or 'close', 'fileno' is looked up 
-through 'get_fileno(td, fname)', but for 'write', 'read' and the other 4 
-argument actions 'fileno' is not looked up. When I add a 'fileno = 
-get_fileno(td, fname);' at the end of the '(r == 4)' branch, I/Os are 
-replayed to the designated files.
-
-########## excerpt from read_iolog2() within iolog.c ######
-                 if (r == 4) {
-                         /*
-                          * Check action first
-                          */
-                         if (!strcmp(act, "wait"))
-                                 rw = DDIR_WAIT;
-                         else if (!strcmp(act, "read"))
-                                 rw = DDIR_READ;
-                         else if (!strcmp(act, "write"))
-                                 rw = DDIR_WRITE;
-                         else if (!strcmp(act, "sync"))
-                                 rw = DDIR_SYNC;
-                         else if (!strcmp(act, "datasync"))
-                                 rw = DDIR_DATASYNC;
-                         else if (!strcmp(act, "trim"))
-                                 rw = DDIR_TRIM;
-                         else {
-                                 log_err("fio: bad iolog file action: %s\n",
-act);
-                                 continue;
-                         }
-                 } else if (r == 2) {
-                         rw = DDIR_INVAL;
-                         if (!strcmp(act, "add")) {
-                                 td->o.nr_files++;
-                                 fileno = add_file(td, fname);
-                                 file_action = FIO_LOG_ADD_FILE;
-                                 continue;
-                         } else if (!strcmp(act, "open")) {
-                                 fileno = get_fileno(td, fname);
-                                 file_action = FIO_LOG_OPEN_FILE;
-                         } else if (!strcmp(act, "close")) {
-                                 fileno = get_fileno(td, fname);
-                                 file_action = FIO_LOG_CLOSE_FILE;
-                         } else {
-                                 log_err("fio: bad iolog file action: %s\n",
-act);
-                                 continue;
-                         }
-                 } else {
-                         log_err("bad iolog2: %s", p);
-                         continue;
-                 }
-########## end ######
-
-Best regards,
-Nikolaus
+So the options.c bits only ensure that the options are set. That is
+td->o.rwmix[]. The options ensure that mixread + mixwrite == 100%. The
+actual handling is in the function mentioned above, plus it interacts
+with an IO issue counter. Essentially the mix is IOPS based, with
+randomness for direction chosen.
 
 -- 
-Dipl.-Inf. Nikolaus Jeremic          nikolaus.jeremic@uni-rostock.de
-Universitaet Rostock                 Tel:  (+49) 381 / 498 - 7635
-Albert-Einstein-Str. 22	             Fax:  (+49) 381 / 498 - 7482
-18059 Rostock, Germany               wwwava.informatik.uni-rostock.de
+Jens Axboe
 
