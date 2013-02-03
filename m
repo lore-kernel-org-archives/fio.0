@@ -1,54 +1,62 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wg0-f45.google.com ([74.125.82.45]:56941 "EHLO
-	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757839Ab3BKQNu convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 11 Feb 2013 11:13:50 -0500
-Received: by mail-wg0-f45.google.com with SMTP id dq12so4895533wgb.12
-        for <fio@vger.kernel.org>; Mon, 11 Feb 2013 08:13:49 -0800 (PST)
+Return-Path: <greg.sullivan@sullivang.net>
 MIME-Version: 1.0
-In-Reply-To: <CACTzACVkfEmHrCTJExxOpPqD7tZLMbmW7n3pJza-g87sZaaK1g@mail.gmail.com>
-References: <CACTzACVkfEmHrCTJExxOpPqD7tZLMbmW7n3pJza-g87sZaaK1g@mail.gmail.com>
-Date: Mon, 11 Feb 2013 11:13:42 -0500
-Message-ID: <CACTzACUwtE+aoHy72dAvgcx8zby5DYwYZzhoJfOyTCj5ABCGgg@mail.gmail.com>
-Subject: problem FIO compiling for Android
-From: David N <android.wm.edu@gmail.com>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <20130127153925.GO15635@kernel.dk>
+References: <CAJdxx76y1m6NG9_D86XXY4xz2mJc4guP1Qa_DCqNQNamNPxK7w@mail.gmail.com>
+	<50F3CB5F.8070507@kernel.dk>
+	<CAJdxx75-H7LOQ3Kf13U6h7TskpvCKuwL4pbkG16PzHinYwHRsw@mail.gmail.com>
+	<CAJdxx77Yq=Df4eS-iQVfFNXzjBusF3zG+ZLhLnGQVuVHhdkA=g@mail.gmail.com>
+	<CAJdxx74Tu3LHhJ9LUOTg=K3NfiwY6iD9mrDS=_3EXcqEKNaENg@mail.gmail.com>
+	<CAN2qFaotYBVvJyvac0L8EUJAiJAbnYjFtmXgPNCe2ey6P_ZHFA@mail.gmail.com>
+	<CAJdxx77U9ULtqV3sSGzwX0Pi7pZeyP1avuVzxkLm-pLhS1vncQ@mail.gmail.com>
+	<CAHaS=QwrKy7ZmmzZ2UCEx1qUT8GNJ9u+TwTw2Pe4nU030gyOAw@mail.gmail.com>
+	<20130127153925.GO15635@kernel.dk>
+Date: Sun, 3 Feb 2013 17:56:39 +1100
+Message-ID: <CAHaS=Qw=MdDAwqsSKZdrgKF070KZmjCBh49n2L-xson-P94unw@mail.gmail.com>
+Subject: Re: asking for an example job file
+From: Greg Sullivan <greg.sullivan@sullivang.net>
+Content-Type: text/plain; charset=ISO-8859-1
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Hello Everyone,
+On 28 January 2013 02:39, Jens Axboe <axboe@kernel.dk> wrote:
+>
+> On Thu, Jan 24 2013, Greg Sullivan wrote:
+> > (resending in plain text - sigh)
+> >
+> > I tried to use the "rate" functionality on Windows some time ago, and
+> > it was extremely erratic. As I recall, the Windows maintainer couldn't
+> > reproduce the behaviour I was observing, and since the work I was
+> > doing was not critical, I gave up. (yes - I know - boo hiss! :) :)
+>
+> It might have something to do with some of the timing functions on
+> Windows, which are way too coarse to be used for rate limiting. If you
+> have the job file that you used handy, I can try and take a look at it.
+>
+> --
 
-I've been trying to compile FIO for Android but keep getting error
-bellow. Can anybody give me any guidance please?
+Thanks Jens - here it is:
+<read.ini>
+[read]
+bs=128K
+direct=1
+size=100M
 
-I very much appreciate!
+rate=1M
+rw=read
+<end read.ini>
 
-David
+Running against a 7200rpm SATA drive. It is very erratic, and locks up
+completely. However, if I up the rate to, say, 10MB/s, it works much
+better. Also, this is bizarre - it seems to work much better when I
+have my browser (Chrome) open! If I close down all the chrome.exe
+processes, it then locks up, but only if the rate is low (1MByte/s).
+I'll try to create some disk activity using another application and
+re-test!
 
+System:
+Dell E6500 Latitude laptop, Win7 32-bit, 4GB memory, 7200rpm internal
+SATA drive.
 
-david@david-HP-ubuntu:~/development/android/external/fio-2.0.13$ make
-UNAME=3DAndroid CROSS_COMPILE=3D$CCOMPILER
-    CC init.o
-init.c: In function =EF=BF=BDfree_shm=EF=BF=BD:
-init.c:224:18: error: storage size of =EF=BF=BDsbuf=EF=BF=BD isn=EF=BF=BDt =
-known
-init.c:233:3: warning: implicit declaration of function =EF=BF=BDshmdt=EF=
-=BF=BD
-[-Wimplicit-function-declaration]
-init.c:234:3: warning: implicit declaration of function =EF=BF=BDshmctl=EF=
-=BF=BD
-[-Wimplicit-function-declaration]
-init.c:224:18: warning: unused variable =EF=BF=BDsbuf=EF=BF=BD [-Wunused-va=
-riable]
-init.c: In function =EF=BF=BDsetup_thread_area=EF=BF=BD:
-init.c:263:3: warning: implicit declaration of function =EF=BF=BDshmget=EF=
-=BF=BD
-[-Wimplicit-function-declaration]
-init.c:277:2: warning: implicit declaration of function =EF=BF=BDshmat=EF=
-=BF=BD
-[-Wimplicit-function-declaration]
-init.c:277:10: warning: assignment makes pointer from integer without
-a cast [enabled by default]
-make: *** [init.o] Error 1
+Greg.
+
