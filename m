@@ -1,46 +1,28 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wg0-f54.google.com ([74.125.82.54]:64646 "EHLO
-	mail-wg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751355Ab3BYFsM (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 25 Feb 2013 00:48:12 -0500
-Received: by mail-wg0-f54.google.com with SMTP id fm10so2050557wgb.33
-        for <fio@vger.kernel.org>; Sun, 24 Feb 2013 21:48:11 -0800 (PST)
+Received: from 173-166-109-252-newengland.hfc.comcastbusiness.net ([173.166.109.252]:60056
+	"EHLO bombadil.infradead.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751788Ab3BRIEV (ORCPT
+	<rfc822;fio@vger.kernel.org>); Mon, 18 Feb 2013 03:04:21 -0500
+Date: Mon, 18 Feb 2013 09:02:54 +0100
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] configure: missing Android config options
+Message-ID: <20130218080254.GA6003@kernel.dk>
+References: <5121AB54.5090507@cse.unsw.edu.au>
 MIME-Version: 1.0
-Date: Mon, 25 Feb 2013 00:48:10 -0500
-Message-ID: <CACTzACXjqA8U8rX8_Da-7-HE-chhf=Y7251Km8Qkm+z=9Aqh4g@mail.gmail.com>
-Subject: FIO process priority issue
-From: David N <android.wm.edu@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5121AB54.5090507@cse.unsw.edu.au>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Aaron Carroll <aaronc@cse.unsw.edu.au>
+Cc: fio@vger.kernel.org
 
-Hi,
+On Mon, Feb 18 2013, Aaron Carroll wrote:
+> We need this for the run-time endianness check to pass.  Add supported
+> clock monotonic while we're at it.
 
-I'm trying to run a reader process and writer process and give higher
-priority to the reader.
-I ran into an issue below. Am I missing something?
+Thanks Aaron, applied.
 
-Thanks in advance for your inputs!
-David
+-- 
+Jens Axboe
 
-root@android:/sdcard/tmp # fio random-readwrite2-test.fio
-Bad option <prioclass=2>
-fio: job random-write dropped
-
-1|root@android:/sdcard/tmp # cat random-readwrite2-test.fio
-; parallel random read and write with read priority
-
-[global]
-size=128m
-bs=4k
-directory=/sdcard/tmp/test
-randrepeat=1
-
-[random-write]
-rw=randwrite
-prioclass=2
-
-[random-read]
-rw=randread
-prioclass=1
