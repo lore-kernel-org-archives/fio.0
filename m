@@ -1,30 +1,87 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from 173-166-109-252-newengland.hfc.comcastbusiness.net ([173.166.109.252]:46952
-	"EHLO bombadil.infradead.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756831Ab3CGLgh (ORCPT
-	<rfc822;fio@vger.kernel.org>); Thu, 7 Mar 2013 06:36:37 -0500
-Date: Thu, 7 Mar 2013 12:36:17 +0100
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: reporting two fio bug fix when ramp_time / rate_iops options is
+Received: from mailout2.samsung.com ([203.254.224.25]:11332 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753509Ab3CGBJA (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 6 Mar 2013 20:09:00 -0500
+Received: from epcpsbgr4.samsung.com
+ (u144.gpu120.samsung.co.kr [203.254.230.144])
+ by mailout2.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0MJ9002I6N6ZLVE0@mailout2.samsung.com> for fio@vger.kernel.org;
+ Thu, 07 Mar 2013 10:08:59 +0900 (KST)
+Date: Thu, 07 Mar 2013 01:08:59 +0000 (GMT)
+From: SEOKYOUNG KO <seokyoung.ko@samsung.com>
+Subject: reporting two fio bug fix when ramp_time / rate_iops options is
  specified
-Message-ID: <20130307113617.GK1059@kernel.dk>
-References: <11224344.275311362618539121.JavaMail.weblogic@epv6ml11>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <11224344.275311362618539121.JavaMail.weblogic@epv6ml11>
+Reply-to: seokyoung.ko@samsung.com
+MIME-version: 1.0
+Content-transfer-encoding: base64
+Content-type: text/plain; charset=utf-8
+MIME-version: 1.0
+Message-id: <11224344.275311362618539121.JavaMail.weblogic@epv6ml11>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: SEOKYOUNG KO <seokyoung.ko@samsung.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On Thu, Mar 07 2013, SEOKYOUNG KO wrote:
-> hi.
-> we detected two problems related to logging latencies.
-> then we have analyzed the problems and fixed some fio codes.
+aGkuDQp3ZSBkZXRlY3RlZCB0d28gcHJvYmxlbXMgcmVsYXRlZCB0byBsb2dnaW5nIGxhdGVuY2ll
+cy4NCnRoZW4gd2UgaGF2ZSBhbmFseXplZCB0aGUgcHJvYmxlbXMgYW5kIGZpeGVkIHNvbWUgZmlv
+IGNvZGVzLg0KDQoNCigwKSB0ZXN0IGNvbmRpdGlvbg0KLSBrZXJuZWwgMy4wLjANCi0gZmlvIDIu
+MC4xMw0KLSBmaW8gLS1maWxlbmFtZT0vZGV2L3NkYjEgLS1pb2VuZ2luZT1saWJhaW8gLS1kaXJl
+Y3Q9MSAtLW5vcmFuZG9tbWFwIC0tcmFuZHJlcGVhdD0wIC0tdGltZV9iYXNlZCAtLXJ1bnRpbWU9
+JFJVTlRJTUUgLS1ibG9ja3NpemU9NGsgLS1ydz1yYW5kcncNCiAgICAtLXJ3bWl4d3JpdGU9NjYg
+LS1pb2RlcHRoPTggLS1vdmVyd3JpdGU9MSAtLXJlZmlsbF9idWZmZXJzDQotIGFkZGl0aW9uYWwg
+cGFyYW1ldGVyOiAtcmFtcF90aW1lPSRSQU1QX1RJTUUgLyAtcmF0ZV9pb3BzPTc1JSBvZiBhdmcu
+aW9wcy4NCi0gdGVzdCBvbiBhIGxhdGVzdCBTU0QNCg0KDQooMSkgLXJhbXBfdGltZSBvcHRpb24N
+CuKWoCBQcm9ibGVtIFN0YXRlbWVudCANCiAgLSBXaGVuIOKAk3JhbXBfdGltZSBvcHRpb24gaXMg
+c3BlY2lmaWVkLCBpdCBpcyByZXBvcnRlZCB0aGF0IGxhdGVuY3kgZGlzdHJpYnV0aW9uICh4eC54
+eCUgbGF0ZW5jaWVzKSBpcyBuZWdhdGl2ZWx5IGFmZmVjdGVkIChoaWdoZXIgV1JJVEUgbGF0ZW5j
+eSBmb3IgbWl4ZWQgNjY6MzMgUi9XKQ0KDQrilqAgQW5hbHlzaXMgUmVzdWx0IDEgLSBDb21wYXJp
+c29uIEV4cGVyaW1lbnQNCiAgLSB3L28g4oCTcmFtcF90aW1lLCBGSU8gZ2VuZXJhdGVzIHVuaWZv
+cm1seSBtaXhlZCBSL1cgd29ya2xvYWQsIGFzIGV4cGVjdGVkIA0KICAtIHcvIOKAk3JhbXBfdGlt
+ZSAsIEZJTyBzaG93cyBhYm5vcm1hbCBiZWhhdmlvciBvZiBnZW5lcmF0aW5nIGJ1cnN0IFdSSVRF
+IHdvcmtsb2Fkcywgd2hlbiBpdCBnZXRzIG91dCBvZuKAmHJhbXBpbmctdXAgc3RhZ2XigJkgDQog
+IC0gQmVjYXVzZSBvZiB0aGUgV1JJVEUgYnVyc3QsIEZJTyBsb2dzIGdldCBjb250YW1pbmF0ZWQg
+YnkgbG90cyBvZiBsb25nLWxhdGVuY3kgc2FtcGxlcyA9PT4gRmFsc2UgcmVwb3J0IG9mIHdvcnNl
+IGxhdGVuY3kgZGlzdHJpYnV0aW9uDQoNCuKWoCBBbmFseXNpcyBSZXN1bHQgMiAtIENvZGUgaW5z
+cGVjdGlvbg0KICAtIHdoZW4gLXJhbXBfdGltZSBvcHRpb24gaXMgc3BlY2lmaWVkLCBmaW8gY2Fs
+bCByZXNldF9hbGxfc3RhdHMoKSBhZnRlciBmaW8gcnVuIGZvciB0aGUgcmFtcF90aW1lLg0KICAt
+IGJ1dCB0aGVyZSBpcyBhIGJ1ZyB0aGF0IHRkLT5yd21peF9pc3N1ZXMgaXMgbm90IHJlc2V0IGlu
+IHJlc2V0X2FsbF9zdGF0cygpDQogIC0gd2hlbiBmaW8gcGVyZm9ybSByd21peCB3b3JrbG9hZCwg
+ZmlvIGNvbXBhcmUgdGQtPmlvX2lzc3VlcyB0byB0ZC0+cndtaXhfaXNzdWVzIGluIG9yZGVyIHRv
+IHNlbGVjdCB0aGUgbmV4dCBpbyBkaXJlY3Rpb24uDQogIC0gaWYgdGQtPnJ3bWl4X2lzc3VlcyBp
+cyBub3QgcmVzZXQgKG9yaWdpbmFsIGNvZGUpLCBmaW8gd2lsbCBydW4gdGhlIHdvcmtsb2FkIG9m
+IHNhbWUgaW8gZGlyZWN0aW9uIHVudGlsIHRkLT5pb19pc3N1ZXMgPCB0ZC0+cndtaXhfaXNzdWVz
+IGFmdGVyIHJhbXBfdGltZSBpcyBlbmQuDQoNCuKWoCBQYXRjaA0KLS0tIGZpby0yLjAuMTNfb3Jp
+Zy9saWJmaW8uYyAyMDEzLTAzLTA0IDExOjAxOjU5LjAxMjQxOTIyNSArMDkwMCANCisrKyBmaW8t
+Mi4wLjEzX2ZpeGVkL2xpYmZpby5jIDIwMTMtMDMtMDQgMTE6MDM6NDYuMDQ4NDIyNjMwICswOTAw
+IA0KQEAgLTExNiw2ICsxMTYsNyBAQCANCiAgIHRkLT5pb19pc3N1ZXNbaV0gPSAwOyANCiAgIHRk
+LT50cy50b3RhbF9pb191W2ldID0gMDsgDQogICB0ZC0+dHMucnVudGltZVtpXSA9IDA7IA0KKyAg
+dGQtPnJ3bWl4X2lzc3VlcyA9IDA7IA0KICB9IA0KICANCiAgZmlvX2dldHRpbWUoJnR2LCBOVUxM
+KTsgDQoNCg0KDQooMikgLXJhdGVfaW9wcyBvcHRpb24NCuKWoCBQcm9ibGVtIFN0YXRlbWVudCAN
+CiAgLSBXaGVuIOKAk3JhdGVfaW9wcyBvcHRpb24gaXMgc3BlY2lmaWVkLCBpdCBpcyByZXBvcnRl
+ZCB0aGF0IGxhdGVuY3kgZGlzdHJpYnV0aW9uIGlzIG5lZ2F0aXZlbHkgYWZmZWN0ZWQgKGhpZ2hl
+ciBXUklURSBsYXRlbmN5IGZvciBtaXhlZCA2NjozMyBSL1cpIA0KDQrilqAgQW5hbHlzaXMgUmVz
+dWx0IDEgLSBDb21wYXJpc29uIEV4cGVyaW1lbnQgDQogIC0gV2UgaGF2ZSBjb21wYXJlZCB0aGUg
+bG9nZ2luZyByZXBvcnQgZnJvbSBGSU8gYWdhaW5zdCB0aGUgcmVwb3J0IGZyb20gQkxLVFJBQ0Ug
+DQogICAgPT4gT2JzZXJ2YXRpb24gOiBGSU8gZmFsc2VseSByZXBvcnRlZCBtdWNoIGhpZ2hlciBJ
+L08gbGF0ZW5jeSB0aGFuIEJMQ0tUUkFDRQ0KDQrilqAgQW5hbHlzaXMgUmVzdWx0IDIg4oCTIEZJ
+TyBjb2RlIGluc3BlY3Rpb24gDQogIC0gd2hlbiAtcmF0ZV9pb3BzIGlzIHNwZWNpZmllZCwgRklP
+IHBlcmlvZGljYWxseSBjYWxscyB1c2xlZXAoKSB0byBsaW1pdCBJT1BTIA0KICAtIEJlZm9yZSB1
+c2xlZXAoKSwgRklPIGFsd2F5cyB3YWl0IHVudGlsIHRoZSBjb21wbGV0aW9uIG9mIGFsbCBwZW5k
+aW5nIEkvTyANCiAgLSBGb3IgYWxsIEkvTyBjb21wbGV0aW9ucywgRklPIHNob3dzIGVycm9uZW91
+cyBiZWhhdmlvciBvZiBsb2dnaW5nIHRoZWlyIGxhdGVuY3ksIHdpdGggdGhhdCBvZiB0aGUgbG9u
+Z2VzdCBsYXRlbmN5IElPIHNhbXBsZSAgDQogIC0gdy8gUUQ9OC8gbWl4ZWQgUjpXPTMzOjY2LCB1
+cCB0byA3IHNhbXBsZXMgbWF5IGdldCBmYWxzZSBsYXRlbmN5IGxvZyB3aGVuIHdhaXRpbmcgYWxs
+IEkvTyBjb21wbGV0aW9ucyANCiAgICA9PiBGYWxzZSByZXBvcnQgb2YgbGF0ZW5jeSBkaXN0cmli
+dXRpb24gDQoNCuKWoCBQYXRjaCANCi0tLSBmaW8tMi4wLjEzX29yaWcvaW9fdS5jIDIwMTMtMDMt
+MDQgMTE6MDE6NTkuMDA4NDE5MjUxICswOTAwIA0KKysrIGZpby0yLjAuMTNfZml4ZWQvaW9fdS5j
+IDIwMTMtMDMtMDQgMTE6MDU6MzIuODI4NDI2MDMyICswOTAwIA0KQEAgLTQ1NywxMCArNDU3LDEw
+IEBAIA0KICAgKiBpbydzIHRoYXQgaGF2ZSBiZWVuIGFjdHVhbGx5IHN1Ym1pdHRlZCB0byBhbiBh
+c3luYyBlbmdpbmUsIA0KICAgKiBhbmQgY3VyX2RlcHRoIGlzIG1lYW5pbmdsZXNzIGZvciBzeW5j
+IGVuZ2luZXMuIA0KICAgKi8gDQotIGlmICh0ZC0+aW9fdV9pbl9mbGlnaHQpIHsgDQorIHdoaWxl
+ICh0ZC0+aW9fdV9pbl9mbGlnaHQpIHsgDQogICBpbnQgZmlvX3VudXNlZCByZXQ7IA0KICANCi0g
+IHJldCA9IGlvX3VfcXVldWVkX2NvbXBsZXRlKHRkLCB0ZC0+aW9fdV9pbl9mbGlnaHQsIE5VTEwp
+OyANCisgIHJldCA9IGlvX3VfcXVldWVkX2NvbXBsZXRlKHRkLCAxLCBOVUxMKTsgDQogIH0gDQog
+DQogIGZpb19nZXR0aW1lKCZ0LCBOVUxMKTsg
 
-Thanks for the detailed analysis (and fixes!), I have applied both patches.
-
--- 
-Jens Axboe
 
