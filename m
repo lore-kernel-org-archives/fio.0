@@ -1,73 +1,62 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from averel.grnet-hq.admin.grnet.gr ([195.251.29.3]:47710 "EHLO
-	averel.grnet-hq.admin.grnet.gr" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1758462Ab3CINAa (ORCPT
-	<rfc822;fio@vger.kernel.org>); Sat, 9 Mar 2013 08:00:30 -0500
-Received: from localhost.localdomain (unknown [195.251.29.103])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	(Authenticated sender: apyrgio@admin.grnet.gr)
-	by smtps.admin.grnet.gr (Postfix) with ESMTPSA id 6424318059
-	for <fio@vger.kernel.org>; Sat,  9 Mar 2013 15:00:27 +0200 (EET)
-From: Alex Pyrgiotis <apyrgio@grnet.gr>
-Subject: [PATCH] Fix spin related bug
-Date: Sat,  9 Mar 2013 15:00:43 +0200
-Message-Id: <1362834043-6735-2-git-send-email-apyrgio@grnet.gr>
-In-Reply-To: <1362834043-6735-1-git-send-email-apyrgio@grnet.gr>
-References: <1362834043-6735-1-git-send-email-apyrgio@grnet.gr>
+Received: from merlin.infradead.org ([205.233.59.134]:53300 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932292Ab3CGLiE (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 7 Mar 2013 06:38:04 -0500
+Date: Thu, 7 Mar 2013 12:37:43 +0100
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: fio-2.0.14 crashes with "Assertion failed: (data->fail_ok),
+ function axmap_set_fn, file lib/axmap.c, line 233."
+Message-ID: <20130307113743.GL1059@kernel.dk>
+References: <1404460263.20130306190819@serebryakov.spb.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1404460263.20130306190819@serebryakov.spb.ru>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Lev Serebryakov <lev@serebryakov.spb.ru>
+Cc: fio@vger.kernel.org
 
-On the previous patch on cycle detection, we would incremet spin value
-when:
+On Wed, Mar 06 2013, Lev Serebryakov wrote:
+> Hello, Fio.
+> 
+>   FreeBSD 9.1-STABLE, dual-core machine with 6GiB of physical RAM, job
+>  file with 8 jobs with filesize=1G-2G (attached).
+> 
+>    fio --latency-log --bandwidth-log torrent-like.fio
+> 
+>  crashes after file layout:
+> 
+> file-1: (g=0): rw=randrw, bs=64-64/128K-128K/128K-128K, ioengine=psync, iodepth=1
+> file-2: (g=0): rw=randrw, bs=64-64/128K-128K/128K-128K, ioengine=psync, iodepth=1
+> file-3: (g=0): rw=randrw, bs=64-64/128K-128K/128K-128K, ioengine=psync, iodepth=1
+> file-4: (g=0): rw=randrw, bs=64-64/128K-128K/128K-128K, ioengine=psync, iodepth=1
+> file-5: (g=0): rw=randrw, bs=64-64/128K-128K/128K-128K, ioengine=psync, iodepth=1
+> file-6: (g=0): rw=randrw, bs=64-64/128K-128K/128K-128K, ioengine=psync, iodepth=1
+> file-7: (g=0): rw=randrw, bs=64-64/128K-128K/128K-128K, ioengine=psync, iodepth=1
+> file-8: (g=0): rw=randrw, bs=64-64/128K-128K/128K-128K, ioengine=psync, iodepth=1
+> fio-2.0.14
+> Starting 8 threads
+> file-1: Laying out IO file(s) (1 file(s) / 1910MB)
+> file-2: Laying out IO file(s) (1 file(s) / 1910MB)
+> file-3: Laying out IO file(s) (1 file(s) / 1910MB)
+> file-4: Laying out IO file(s) (1 file(s) / 1910MB)
+> file-5: Laying out IO file(s) (1 file(s) / 1910MB)
+> file-6: Laying out IO file(s) (1 file(s) / 1910MB)
+> file-7: Laying out IO file(s) (1 file(s) / 1910MB)
+> file-8: Laying out IO file(s) (1 file(s) / 1910MB)
+> Assertion failed: (data->fail_ok), function axmap_set_fn, file lib/axmap.c, line 233.
 
-    num_vals % cycle_length == 0
+I've noticed that you used bs= and gave a range, that wont work. Fio
+should fail to parse that, but alas, it does not and you get this:
 
-which would evaluate always to true for the first iteration since we
-start with num_vals = 0. Only one corner-case is affected by this bug
-and this patch should fix it.
+        file-8: (g=0): rw=randrw, bs=64-64/128K-128K/128K-128K, ioengine=psync, iodepth=1
 
-Signed-off-by: Alex Pyrgiotis <apyrgio@grnet.gr>
+which is 64b reads, 128K writes, 128K trims. I will look into why this
+doesn't fail to parse, but in the mean time, you want to use
+bsrange=64k-128k which will do what you intend it to.
 
-diff --git a/lib/lfsr.c b/lib/lfsr.c
-index a835404..4c15c62 100644
---- a/lib/lfsr.c
-+++ b/lib/lfsr.c
-@@ -108,22 +108,28 @@ static inline void __lfsr_next(struct fio_lfsr *fl, unsigned int spin)
- 	}
- }
- 
-+/*
-+ * lfsr_next does the following:
-+ *
-+ * a. Return if the number of max values has been exceeded.
-+ * b. Check if the next iteration(s) produce a cycle (due to spin) and add "1"
-+ *    where necessary.
-+ * c. Calculate the next value and return.
-+ */
- int lfsr_next(struct fio_lfsr *fl, uint64_t *off, uint64_t last)
- {
- 	int repeat;
- 	unsigned int spin;
- 
-+	if (fl->num_vals++ > fl->max_val)
-+		return 1;
-+
- 	repeat = fl->num_vals % fl->cycle_length;
- 	if (repeat == 0)
- 		spin = fl->spin + 1;
- 	else
- 		spin = fl->spin;
- 
--	if (fl->num_vals > fl->max_val)
--		return 1;
--
--	fl->num_vals++;
--
- 	do {
- 		__lfsr_next(fl, spin);
- 	} while (fl->last_val > fl->max_val);
 -- 
-1.8.1.4
+Jens Axboe
 
