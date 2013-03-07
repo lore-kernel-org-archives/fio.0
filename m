@@ -1,47 +1,30 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:48530 "EHLO
-	tone.orchestra.cse.unsw.EDU.AU" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751950Ab3COGqg (ORCPT
-	<rfc822;fio@vger.kernel.org>); Fri, 15 Mar 2013 02:46:36 -0400
-Received: From
-	[10.13.1.8] ([203.143.161.65] == vampire.ertos.nicta.com.au) (auth-user aaronc) (cse-authentic-sender aaronc)
-	(for <fio@vger.kernel.org>) By tone With Smtp ;
-	Fri, 15 Mar 2013 17:46:33 +1100 
-From: Aaron Carroll <aaronc@cse.unsw.edu.au>
-Date: Fri, 15 Mar 2013 17:45:38 +1100
-Message-ID: <5142C392.5050302@cse.unsw.edu.au>
+Received: from 173-166-109-252-newengland.hfc.comcastbusiness.net ([173.166.109.252]:46952
+	"EHLO bombadil.infradead.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756831Ab3CGLgh (ORCPT
+	<rfc822;fio@vger.kernel.org>); Thu, 7 Mar 2013 06:36:37 -0500
+Date: Thu, 7 Mar 2013 12:36:17 +0100
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: reporting two fio bug fix when ramp_time / rate_iops options is
+ specified
+Message-ID: <20130307113617.GK1059@kernel.dk>
+References: <11224344.275311362618539121.JavaMail.weblogic@epv6ml11>
 MIME-Version: 1.0
-Subject: Build error in Android/x86
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11224344.275311362618539121.JavaMail.weblogic@epv6ml11>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: SEOKYOUNG KO <seokyoung.ko@samsung.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-I'm trying to build FIO with an Android/x86 cross compiler:
+On Thu, Mar 07 2013, SEOKYOUNG KO wrote:
+> hi.
+> we detected two problems related to logging latencies.
+> then we have analyzed the problems and fixed some fio codes.
 
-  make CROSS_COMPILE=~/dev/android-toolchains-r8c/x86-4.6/bin/i686-linux-android-
+Thanks for the detailed analysis (and fixes!), I have applied both patches.
 
-but get the following error:
-
-   arch/arch-x86-common.h:9:2: error: inconsistent operand constraints in an 'asm'
-
-which is complaining about this function:
-
-   static inline void do_cpuid(unsigned int *eax, unsigned int *ebx,
-                   unsigned int *ecx, unsigned int *edx)
-   {
-       asm volatile("cpuid"
-           : "=a" (*eax), "=b" (*ebx), "=c" (*ecx), "=d" (*edx)
-           : "0" (*eax), "2" (*ecx)
-           : "memory");
-   }
-
-Unfortunately I don't do x86 ASM.  I'm wondering if this is a genuine error, or 
-if something has broken in the cross compile.
-
-
-
-Cheers,
-     -- Aaron
+-- 
+Jens Axboe
 
