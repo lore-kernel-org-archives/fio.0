@@ -1,23 +1,18 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from averel.grnet-hq.admin.grnet.gr ([195.251.29.3]:29327 "EHLO
+Received: from averel.grnet-hq.admin.grnet.gr ([195.251.29.3]:21403 "EHLO
 	averel.grnet-hq.admin.grnet.gr" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1759867Ab3CHS3w (ORCPT
-	<rfc822;fio@vger.kernel.org>); Fri, 8 Mar 2013 13:29:52 -0500
-Received: from localhost.admin.grnet.gr (conf-205.admin.grnet.gr [195.251.28.205])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	(Authenticated sender: apyrgio@admin.grnet.gr)
-	by smtps.admin.grnet.gr (Postfix) with ESMTPSA id A25861805A
-	for <fio@vger.kernel.org>; Fri,  8 Mar 2013 20:29:48 +0200 (EET)
+	by vger.kernel.org with ESMTP id S1757097Ab3CHMwO (ORCPT
+	<rfc822;fio@vger.kernel.org>); Fri, 8 Mar 2013 07:52:14 -0500
 From: Alex Pyrgiotis <apyrgio@grnet.gr>
 Subject: [PATCH 2/2] Add a simple test for LFSR generator
-Date: Fri,  8 Mar 2013 20:30:03 +0200
-Message-Id: <1362767403-2001-3-git-send-email-apyrgio@grnet.gr>
-In-Reply-To: <1362767403-2001-1-git-send-email-apyrgio@grnet.gr>
-References: <1362767403-2001-1-git-send-email-apyrgio@grnet.gr>
+Date: Fri,  8 Mar 2013 14:37:04 +0200
+Message-Id: <1362746224-5162-3-git-send-email-apyrgio@grnet.gr>
+In-Reply-To: <1362746224-5162-1-git-send-email-apyrgio@grnet.gr>
+References: <1362746224-5162-1-git-send-email-apyrgio@grnet.gr>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
+Cc: synnefo-devel@googlegroups.com
 
 Adds a simple test suite to check the speed of the LFSR
 generator and verify its results. Just run:
