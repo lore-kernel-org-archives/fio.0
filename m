@@ -1,142 +1,35 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:42447 "EHLO
-	tone.orchestra.cse.unsw.EDU.AU" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751945Ab3CNF6P (ORCPT
-	<rfc822;fio@vger.kernel.org>); Thu, 14 Mar 2013 01:58:15 -0400
-Received: From
-	localhost.localdomain ([203.143.161.65] == vampire.ertos.nicta.com.au) (auth-user aaronc) (cse-authentic-sender aaronc)
-	(for <fio@vger.kernel.org>) By tone With Smtp ;
-	Thu, 14 Mar 2013 16:58:12 +1100 
-From: Aaron Carroll <aaronc@cse.unsw.edu.au>
-Date: Thu, 14 Mar 2013 16:57:38 +1100
-Subject: [PATCH 1/4] Propagate target OS from configure to Makefile
-Message-Id: <1363240661-4499-2-git-send-email-aaronc@cse.unsw.edu.au>
-In-Reply-To: <1363240661-4499-1-git-send-email-aaronc@cse.unsw.edu.au>
-References: <1363240661-4499-1-git-send-email-aaronc@cse.unsw.edu.au>
+Received: from merlin.infradead.org ([205.233.59.134]:52298 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752331Ab3CJTRC (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sun, 10 Mar 2013 15:17:02 -0400
+Date: Sun, 10 Mar 2013 20:16:34 +0100
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] Fix spin related bug
+Message-ID: <20130310191634.GI14525@kernel.dk>
+References: <1362834043-6735-1-git-send-email-apyrgio@grnet.gr>
+ <1362834043-6735-2-git-send-email-apyrgio@grnet.gr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1362834043-6735-2-git-send-email-apyrgio@grnet.gr>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Alex Pyrgiotis <apyrgio@grnet.gr>
+Cc: fio@vger.kernel.org
 
-Propagate target OS from configure to Makefile (CONFIG_TARGET_OS) to avoid
-duplicating the check in Makefile.  Also allow CROSS_COMPILE for the toolchain
-prefix, which is common (e.g. Linux).
+On Sat, Mar 09 2013, Alex Pyrgiotis wrote:
+> On the previous patch on cycle detection, we would incremet spin value
+> when:
+> 
+>     num_vals % cycle_length == 0
+> 
+> which would evaluate always to true for the first iteration since we
+> start with num_vals = 0. Only one corner-case is affected by this bug
+> and this patch should fix it.
 
-Signed-off-by: Aaron Carroll <aaronc@cse.unsw.edu.au>
----
- Makefile  |   21 ++++++++++-----------
- configure |   12 +++++++-----
- 2 files changed, 17 insertions(+), 16 deletions(-)
+Thanks Alex, applied.
 
-diff --git a/Makefile b/Makefile
-index 7a17555..ea96a89 100644
---- a/Makefile
-+++ b/Makefile
-@@ -5,7 +5,6 @@ CFLAGS	= -std=gnu99 -Wwrite-strings -Wall $(OPTFLAGS)
- LIBS	= -lm $(EXTLIBS)
- PROGS	= fio
- SCRIPTS = fio_generate_plots
--UNAME  := $(shell uname)
- 
- ifneq ($(wildcard config-host.mak),)
- all:
-@@ -80,42 +79,42 @@ ifndef CONFIG_INET_ATON
-   SOURCE += lib/inet_aton.c
- endif
- 
--ifeq ($(UNAME), Linux)
-+ifeq ($(CONFIG_TARGET_OS), Linux)
-   SOURCE += diskutil.c fifo.c blktrace.c cgroup.c trim.c engines/sg.c \
- 		engines/binject.c profiles/tiobench.c
-   LIBS += -lpthread -ldl
-   LDFLAGS += -rdynamic
- endif
--ifeq ($(UNAME), Android)
-+ifeq ($(CONFIG_TARGET_OS), Android)
-   SOURCE += diskutil.c fifo.c blktrace.c trim.c profiles/tiobench.c
-   LIBS += -ldl
-   LDFLAGS += -rdynamic
- endif
--ifeq ($(UNAME), SunOS)
-+ifeq ($(CONFIG_TARGET_OS), SunOS)
-   LIBS	 += -lpthread -ldl
-   CPPFLAGS += -D__EXTENSIONS__
- endif
--ifeq ($(UNAME), FreeBSD)
-+ifeq ($(CONFIG_TARGET_OS), FreeBSD)
-   LIBS	 += -lpthread -lrt
-   LDFLAGS += -rdynamic
- endif
--ifeq ($(UNAME), NetBSD)
-+ifeq ($(CONFIG_TARGET_OS), NetBSD)
-   LIBS	 += -lpthread -lrt
-   LDFLAGS += -rdynamic
- endif
--ifeq ($(UNAME), AIX)
-+ifeq ($(CONFIG_TARGET_OS), AIX)
-   LIBS	 += -lpthread -ldl -lrt
-   CPPFLAGS += -D_LARGE_FILES -D__ppc__
-   LDFLAGS += -L/opt/freeware/lib -Wl,-blibpath:/opt/freeware/lib:/usr/lib:/lib -Wl,-bmaxdata:0x80000000
- endif
--ifeq ($(UNAME), HP-UX)
-+ifeq ($(CONFIG_TARGET_OS), HP-UX)
-   LIBS   += -lpthread -ldl -lrt
-   CFLAGS += -D_LARGEFILE64_SOURCE -D_XOPEN_SOURCE_EXTENDED
- endif
--ifeq ($(UNAME), Darwin)
-+ifeq ($(CONFIG_TARGET_OS), Darwin)
-   LIBS	 += -lpthread -ldl
- endif
--ifneq (,$(findstring CYGWIN,$(UNAME)))
-+ifneq (,$(findstring CYGWIN,$(CONFIG_TARGET_OS)))
-   SOURCE := $(filter-out engines/mmap.c,$(SOURCE))
-   SOURCE += os/windows/posix.c
-   LIBS	 += -lpthread -lpsapi -lws2_32
-@@ -169,7 +168,7 @@ INSTALL = install
- prefix = /usr/local
- bindir = $(prefix)/bin
- 
--ifeq ($(UNAME), Darwin)
-+ifeq ($(CONFIG_TARGET_OS), Darwin)
- mandir = /usr/share/man
- else
- mandir = $(prefix)/man
-diff --git a/configure b/configure
-index d364971..1fa9b63 100755
---- a/configure
-+++ b/configure
-@@ -126,6 +126,7 @@ output_sym() {
- targetos=""
- cpu=""
- 
-+cross_prefix=${cross_prefix-${CROSS_COMPILE}}
- cc="${CC-${cross_prefix}gcc}"
- 
- show_help="no"
-@@ -173,6 +174,12 @@ else
-   targetos=`uname -s`
- fi
- 
-+echo "# Automatically generated by configure - do not modify" > $config_host_mak
-+printf "# Configured with:" >> $config_host_mak
-+printf " '%s'" "$0" "$@" >> $config_host_mak
-+echo >> $config_host_mak
-+echo "CONFIG_TARGET_OS=$targetos" >> $config_host_mak
-+
- # Some host OSes need non-standard checks for which CPU to use.
- # Note that these checks are broken for cross-compilation: if you're
- # cross-compiling to one of these OSes then you'll need to specify
-@@ -929,11 +936,6 @@ echo "RLIMIT_MEMLOCK                $rlimit_memlock"
- 
- #############################################################################
- 
--echo "# Automatically generated by configure - do not modify" > $config_host_mak
--printf "# Configured with:" >> $config_host_mak
--printf " '%s'" "$0" "$@" >> $config_host_mak
--echo >> $config_host_mak
--
- if test "$wordsize" = "64" ; then
-   output_sym "CONFIG_64BIT"
- elif test "$wordsize" = "32" ; then
 -- 
-1.7.0.4
+Jens Axboe
 
