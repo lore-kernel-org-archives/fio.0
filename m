@@ -1,86 +1,79 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wi0-f180.google.com ([209.85.212.180]:63886 "EHLO
-	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757425Ab3CDOTb (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 4 Mar 2013 09:19:31 -0500
-Received: by mail-wi0-f180.google.com with SMTP id hi8so2089675wib.7
-        for <fio@vger.kernel.org>; Mon, 04 Mar 2013 06:19:30 -0800 (PST)
+Received: from merlin.infradead.org ([205.233.59.134]:50475 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932203Ab3CLMRD (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 12 Mar 2013 08:17:03 -0400
+Date: Tue, 12 Mar 2013 13:16:29 +0100
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] Make test for gnuplot work with empty strings.
+Message-ID: <20130312121629.GO25165@kernel.dk>
+References: <201303111622.57044.ms@teamix.de>
 MIME-Version: 1.0
-From: Gavin Martin <gavin_martin@xyratex.com>
-Date: Mon, 4 Mar 2013 14:19:09 +0000
-Message-ID: <CANUChTxj5=ZXXkJkkRs-mFoWH7mX+DXjE+5KwYtuUFY3hvXqhw@mail.gmail.com>
-Subject: Seq Write with holes
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <201303111622.57044.ms@teamix.de>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Martin Steigerwald <ms@teamix.de>
+Cc: fio@vger.kernel.org, 700580@bugs.debian.org
 
-Hi,
+On Mon, Mar 11 2013, Martin Steigerwald wrote:
+> When I launch fio_generate_plots on a system where gnuplot is not install=
+ed I
+> get this error :
+>=20
+> $ fio_generate_plots test
+> Making bw logs
+> /usr/bin/fio_generate_plots: 42: /usr/bin/fio_generate_plots: -: not found
+>=20
+> That's because the test checking whether gnuplot is installed is failing
+> because of an empty variable :
+> GNUPLOT=3D$(which gnuplot)
+> if [ ! -x $GNUPLOT ]; then
+>         echo You need gnuplot installed to generate graphs
+>         exit 1
+> fi
+>=20
+> Indeed the command "test -x" is exiting with code 0.
+>=20
+> To correct this we should enclose the variable with quotes :
+> if [ ! -x "$GNUPLOT" ]; then
+>=20
+> Then the script is going into the test properly :
+> $ fio_generate_plots test
+> You need gnuplot installed to generate graphs
+>=20
+> I copied problem description by Herv=EF=BF=BD from the Debian bug report =
+below.
+>=20
+> Fixes:
+> Bug#700580: /usr/bin/fio_generate_plots: -: not found
+> http://bugs.debian.org/700580
+>=20
+> Reported-By: Herv=EF=BF=BD Werner <hwerner@score-md.com>
+> Tested-By: Herv=EF=BF=BD Werner <hwerner@score-md.com>
+> Tested-By: Martin Steigerwald <ms@teamix.de>
+> ---
+>  fio_generate_plots |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/fio_generate_plots b/fio_generate_plots
+> index 4285415..5e2febd 100755
+> --- a/fio_generate_plots
+> +++ b/fio_generate_plots
+> @@ -8,7 +8,7 @@ if [ "$1"x =3D "x" ]; then
+>  fi
+> =20
+>  GNUPLOT=3D$(which gnuplot)
+> -if [ ! -x $GNUPLOT ]; then
+> +if [ ! -x "$GNUPLOT" ]; then
+>  	echo You need gnuplot installed to generate graphs
+>  	exit 1
+>  fi
 
-I'm trying to setup a job file that tests interleaved data, so in
-theory writing 256K blocks with a gap of 256K in between, the end
-results is that I would like to write extra data into the gaps and
-make sure it is not corrupting neighbouring areas.
+Thanks, obviously correct :-)
 
-But I'm having a problem with the first part.
+--=20
+Jens Axboe
 
-Here is the jobfile:-
-
-[global]
-ioengine=libaio
-direct=1
-filename=/dev/sdb
-verify=meta
-verify_backlog=1
-verify_dump=1
-verify_fatal=1
-stonewall
-
-[Job 2]
-name=SeqWrite256K
-description=Sequential Write with 1M Bands (256K)
-rw=write:1M
-bs=256K
-do_verify=0
-verify_pattern=0x33333333
-size=1G
-
-[Job 4]
-name=SeqVerify256K
-description=Sequential Read/Verify from Sequential Write (256K)
-rw=read:1M
-bs=256K
-do_verify=1
-verify_pattern=0x33333333
-size=1G
-
-There seems to be a bug (or maybe by design) when using the 'size='
-variable.  It seems to count the gaps (1M) within the size of 1G, but
-only on the write, the reads seems to report the IO transferred as 1G
-
-Here is the status of the runs:-
-
-Run status group 0 (all jobs):
-  WRITE: io=209920KB, aggrb=34039KB/s, minb=34039KB/s, maxb=34039KB/s,
-mint=6167msec, maxt=6167msec
-
-Run status group 1 (all jobs):
-   READ: io=1025.0MB, aggrb=36759KB/s, minb=36759KB/s, maxb=36759KB/s,
-mint=28553msec, maxt=28553msec
-
-And you can see the Write IO is a lot lower than the Read IO, even
-though I have asked it to cover the same disk space.
-
-It could be that this is by design and it is my jobfile that is not
-setup correctly, has anybody tried something like this before?
-
-Thanks,
-Gavin Martin
-
--- 
-
-
-------------------------------
-For additional information including the registered office and the treatment of Xyratex confidential information please visit www.xyratex.com
-
-------------------------------
