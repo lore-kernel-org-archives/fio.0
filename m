@@ -1,52 +1,161 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:42627 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932997Ab3CMPAE (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 13 Mar 2013 11:00:04 -0400
-Date: Wed, 13 Mar 2013 15:59:30 +0100
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH/RFC] Improve cross-compile support
-Message-ID: <20130313145930.GJ25165@kernel.dk>
-References: <CAKCZDgn5ds9-Fmn6pLW4Y7eCpeJr2C5gks1jKgCK3J-wNtXoeQ@mail.gmail.com>
+Received: from mail-vc0-f169.google.com ([209.85.220.169]:44948 "EHLO
+	mail-vc0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755705Ab3CMCk3 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 12 Mar 2013 22:40:29 -0400
+Received: by mail-vc0-f169.google.com with SMTP id n10so279008vcn.14
+        for <fio@vger.kernel.org>; Tue, 12 Mar 2013 19:40:28 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAKCZDgn5ds9-Fmn6pLW4Y7eCpeJr2C5gks1jKgCK3J-wNtXoeQ@mail.gmail.com>
+Date: Wed, 13 Mar 2013 13:40:28 +1100
+Message-ID: <CAKCZDgn5ds9-Fmn6pLW4Y7eCpeJr2C5gks1jKgCK3J-wNtXoeQ@mail.gmail.com>
+Subject: [PATCH/RFC] Improve cross-compile support
+From: Aaron Carroll <aaronc@cse.unsw.edu.au>
+Content-Type: multipart/mixed; boundary=047d7bb04ce637805404d7c55494
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Aaron Carroll <aaronc@cse.unsw.edu.au>
-Cc: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On Wed, Mar 13 2013, Aaron Carroll wrote:
-> A first attempt at making cross-compile viable is attached.
-> 
-> Specifically we:
->  - Propagate the target OS from configure to Makefile so we dont need uname
->  - Allow CROSS_COMPILE for toolchain prefix, which is common (e.g. Linux)
->  - Allow wordsize and bigendian to be set statically.  These are
-> usually determined by executing a test program, which obviously
-> doesn't work for cross compiles.
->  - Make the Android config dynamic (but set wordsize/bigendian)
-> 
-> Now the wordsize/bigendian handling is not ideal but I can't think of
-> a better approach right now.
-> 
-> Also I've changed the #includes in the socklet_t check.  sys/socket.h
-> appears to be the right thing, but please check.
-> 
-> Compile tested on Linux/i386 native, Linux/i386 to Android cross
-> compile, and OS X native.
+--047d7bb04ce637805404d7c55494
+Content-Type: text/plain; charset=ISO-8859-1
 
-Looks OK to me, I can test on other platforms too. But it does not apply
-against current -git:
+A first attempt at making cross-compile viable is attached.
 
-patching file Makefile
-patching file configure
-Hunk #3 FAILED at 235.
-1 out of 9 hunks FAILED -- saving rejects to file configure.rej
+Specifically we:
+ - Propagate the target OS from configure to Makefile so we dont need uname
+ - Allow CROSS_COMPILE for toolchain prefix, which is common (e.g. Linux)
+ - Allow wordsize and bigendian to be set statically.  These are
+usually determined by executing a test program, which obviously
+doesn't work for cross compiles.
+ - Make the Android config dynamic (but set wordsize/bigendian)
 
-Can you update and resend? Thanks!
+Now the wordsize/bigendian handling is not ideal but I can't think of
+a better approach right now.
 
--- 
-Jens Axboe
+Also I've changed the #includes in the socklet_t check.  sys/socket.h
+appears to be the right thing, but please check.
+
+Compile tested on Linux/i386 native, Linux/i386 to Android cross
+compile, and OS X native.
+
+
+  -- Aaron
+
+--047d7bb04ce637805404d7c55494
+Content-Type: application/octet-stream; 
+	name="0001-Improve-cross-compile-support.patch"
+Content-Disposition: attachment; 
+	filename="0001-Improve-cross-compile-support.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_he7vqqsz0
+
+RnJvbSBmNzliNjZmYjg5NzM5YmE4YjgzNDU4NGZmYTIzZWY0MDc5MDc0NjgzIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBBYXJvbiBDYXJyb2xsIDxhYXJvbmNAY3NlLnVuc3cuZWR1LmF1
+PgpEYXRlOiBXZWQsIDEzIE1hciAyMDEzIDEzOjI0OjEyICsxMTAwClN1YmplY3Q6IFtQQVRDSF0g
+SW1wcm92ZSBjcm9zcy1jb21waWxlIHN1cHBvcnQKCiAtIFByb3BhZ2F0ZSB0aGUgdGFyZ2V0IE9T
+IGZyb20gY29uZmlndXJlIHRvIE1ha2VmaWxlIHNvIHdlIGRvbnQgbmVlZCB1bmFtZQogLSBBbGxv
+dyBDUk9TU19DT01QSUxFIGZvciB0b29sY2hhaW4gcHJlZml4LCB3aGljaCBpcyBjb21tb24gKGUu
+Zy4gTGludXgpCiAtIEFsbG93IHdvcmRzaXplIGFuZCBiaWdlbmRpYW4gdG8gYmUgc2V0IHN0YXRp
+Y2FsbHkuICBUaGVzZSBhcmUgdXN1YWxseQogICBkZXRlcm1pbmVkIGJ5IGV4ZWN1dGluZyBhIHRl
+c3QgcHJvZ3JhbSwgd2hpY2ggb2J2aW91c2x5IGRvZXNuJ3Qgd29yayBmb3IKICAgY3Jvc3MgY29t
+cGlsZXMuCiAtIE1ha2UgdGhlIEFuZHJvaWQgY29uZmlnIGR5bmFtaWMgKGJ1dCBzZXQgd29yZHNp
+emUvYmlnZW5kaWFuKQoKU2lnbmVkLW9mZi1ieTogQWFyb24gQ2Fycm9sbCA8YWFyb25jQGNzZS51
+bnN3LmVkdS5hdT4KLS0tCiBNYWtlZmlsZSAgfCAgIDIxICsrKysrKysrKystLS0tLS0tLS0tLQog
+Y29uZmlndXJlIHwgICA0OSArKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tCiAyIGZpbGVzIGNoYW5nZWQsIDM1IGluc2VydGlvbnMoKyksIDM1IGRlbGV0aW9u
+cygtKQoKZGlmZiAtLWdpdCBhL01ha2VmaWxlIGIvTWFrZWZpbGUKaW5kZXggN2ExNzU1NS4uZWE5
+NmE4OSAxMDA2NDQKLS0tIGEvTWFrZWZpbGUKKysrIGIvTWFrZWZpbGUKQEAgLTUsNyArNSw2IEBA
+IENGTEFHUwk9IC1zdGQ9Z251OTkgLVd3cml0ZS1zdHJpbmdzIC1XYWxsICQoT1BURkxBR1MpCiBM
+SUJTCT0gLWxtICQoRVhUTElCUykKIFBST0dTCT0gZmlvCiBTQ1JJUFRTID0gZmlvX2dlbmVyYXRl
+X3Bsb3RzCi1VTkFNRSAgOj0gJChzaGVsbCB1bmFtZSkKIAogaWZuZXEgKCQod2lsZGNhcmQgY29u
+ZmlnLWhvc3QubWFrKSwpCiBhbGw6CkBAIC04MCw0MiArNzksNDIgQEAgaWZuZGVmIENPTkZJR19J
+TkVUX0FUT04KICAgU09VUkNFICs9IGxpYi9pbmV0X2F0b24uYwogZW5kaWYKIAotaWZlcSAoJChV
+TkFNRSksIExpbnV4KQoraWZlcSAoJChDT05GSUdfVEFSR0VUX09TKSwgTGludXgpCiAgIFNPVVJD
+RSArPSBkaXNrdXRpbC5jIGZpZm8uYyBibGt0cmFjZS5jIGNncm91cC5jIHRyaW0uYyBlbmdpbmVz
+L3NnLmMgXAogCQllbmdpbmVzL2JpbmplY3QuYyBwcm9maWxlcy90aW9iZW5jaC5jCiAgIExJQlMg
+Kz0gLWxwdGhyZWFkIC1sZGwKICAgTERGTEFHUyArPSAtcmR5bmFtaWMKIGVuZGlmCi1pZmVxICgk
+KFVOQU1FKSwgQW5kcm9pZCkKK2lmZXEgKCQoQ09ORklHX1RBUkdFVF9PUyksIEFuZHJvaWQpCiAg
+IFNPVVJDRSArPSBkaXNrdXRpbC5jIGZpZm8uYyBibGt0cmFjZS5jIHRyaW0uYyBwcm9maWxlcy90
+aW9iZW5jaC5jCiAgIExJQlMgKz0gLWxkbAogICBMREZMQUdTICs9IC1yZHluYW1pYwogZW5kaWYK
+LWlmZXEgKCQoVU5BTUUpLCBTdW5PUykKK2lmZXEgKCQoQ09ORklHX1RBUkdFVF9PUyksIFN1bk9T
+KQogICBMSUJTCSArPSAtbHB0aHJlYWQgLWxkbAogICBDUFBGTEFHUyArPSAtRF9fRVhURU5TSU9O
+U19fCiBlbmRpZgotaWZlcSAoJChVTkFNRSksIEZyZWVCU0QpCitpZmVxICgkKENPTkZJR19UQVJH
+RVRfT1MpLCBGcmVlQlNEKQogICBMSUJTCSArPSAtbHB0aHJlYWQgLWxydAogICBMREZMQUdTICs9
+IC1yZHluYW1pYwogZW5kaWYKLWlmZXEgKCQoVU5BTUUpLCBOZXRCU0QpCitpZmVxICgkKENPTkZJ
+R19UQVJHRVRfT1MpLCBOZXRCU0QpCiAgIExJQlMJICs9IC1scHRocmVhZCAtbHJ0CiAgIExERkxB
+R1MgKz0gLXJkeW5hbWljCiBlbmRpZgotaWZlcSAoJChVTkFNRSksIEFJWCkKK2lmZXEgKCQoQ09O
+RklHX1RBUkdFVF9PUyksIEFJWCkKICAgTElCUwkgKz0gLWxwdGhyZWFkIC1sZGwgLWxydAogICBD
+UFBGTEFHUyArPSAtRF9MQVJHRV9GSUxFUyAtRF9fcHBjX18KICAgTERGTEFHUyArPSAtTC9vcHQv
+ZnJlZXdhcmUvbGliIC1XbCwtYmxpYnBhdGg6L29wdC9mcmVld2FyZS9saWI6L3Vzci9saWI6L2xp
+YiAtV2wsLWJtYXhkYXRhOjB4ODAwMDAwMDAKIGVuZGlmCi1pZmVxICgkKFVOQU1FKSwgSFAtVVgp
+CitpZmVxICgkKENPTkZJR19UQVJHRVRfT1MpLCBIUC1VWCkKICAgTElCUyAgICs9IC1scHRocmVh
+ZCAtbGRsIC1scnQKICAgQ0ZMQUdTICs9IC1EX0xBUkdFRklMRTY0X1NPVVJDRSAtRF9YT1BFTl9T
+T1VSQ0VfRVhURU5ERUQKIGVuZGlmCi1pZmVxICgkKFVOQU1FKSwgRGFyd2luKQoraWZlcSAoJChD
+T05GSUdfVEFSR0VUX09TKSwgRGFyd2luKQogICBMSUJTCSArPSAtbHB0aHJlYWQgLWxkbAogZW5k
+aWYKLWlmbmVxICgsJChmaW5kc3RyaW5nIENZR1dJTiwkKFVOQU1FKSkpCitpZm5lcSAoLCQoZmlu
+ZHN0cmluZyBDWUdXSU4sJChDT05GSUdfVEFSR0VUX09TKSkpCiAgIFNPVVJDRSA6PSAkKGZpbHRl
+ci1vdXQgZW5naW5lcy9tbWFwLmMsJChTT1VSQ0UpKQogICBTT1VSQ0UgKz0gb3Mvd2luZG93cy9w
+b3NpeC5jCiAgIExJQlMJICs9IC1scHRocmVhZCAtbHBzYXBpIC1sd3MyXzMyCkBAIC0xNjksNyAr
+MTY4LDcgQEAgSU5TVEFMTCA9IGluc3RhbGwKIHByZWZpeCA9IC91c3IvbG9jYWwKIGJpbmRpciA9
+ICQocHJlZml4KS9iaW4KIAotaWZlcSAoJChVTkFNRSksIERhcndpbikKK2lmZXEgKCQoQ09ORklH
+X1RBUkdFVF9PUyksIERhcndpbikKIG1hbmRpciA9IC91c3Ivc2hhcmUvbWFuCiBlbHNlCiBtYW5k
+aXIgPSAkKHByZWZpeCkvbWFuCmRpZmYgLS1naXQgYS9jb25maWd1cmUgYi9jb25maWd1cmUKaW5k
+ZXggZDFmMjc3ZC4uMTNjYzNlNyAxMDA3NTUKLS0tIGEvY29uZmlndXJlCisrKyBiL2NvbmZpZ3Vy
+ZQpAQCAtMTI2LDYgKzEyNiw3IEBAIG91dHB1dF9zeW0oKSB7CiB0YXJnZXRvcz0iIgogY3B1PSIi
+CiAKK2Nyb3NzX3ByZWZpeD0ke2Nyb3NzX3ByZWZpeC0ke0NST1NTX0NPTVBJTEV9fQogY2M9IiR7
+Q0MtJHtjcm9zc19wcmVmaXh9Z2NjfSIKIAogc2hvd19oZWxwPSJubyIKQEAgLTE3Myw2ICsxNzQs
+MTMgQEAgZWxzZQogICB0YXJnZXRvcz1gdW5hbWUgLXNgCiBmaQogCitlY2hvICIjIEF1dG9tYXRp
+Y2FsbHkgZ2VuZXJhdGVkIGJ5IGNvbmZpZ3VyZSAtIGRvIG5vdCBtb2RpZnkiID4gJGNvbmZpZ19o
+b3N0X21haworcHJpbnRmICIjIENvbmZpZ3VyZWQgd2l0aDoiID4+ICRjb25maWdfaG9zdF9tYWsK
+K3ByaW50ZiAiICclcyciICIkMCIgIiRAIiA+PiAkY29uZmlnX2hvc3RfbWFrCitlY2hvID4+ICRj
+b25maWdfaG9zdF9tYWsKKworZWNobyAiQ09ORklHX1RBUkdFVF9PUz0kdGFyZ2V0b3MiID4+ICRj
+b25maWdfaG9zdF9tYWsKKwogIyBTb21lIGhvc3QgT1NlcyBuZWVkIG5vbi1zdGFuZGFyZCBjaGVj
+a3MgZm9yIHdoaWNoIENQVSB0byB1c2UuCiAjIE5vdGUgdGhhdCB0aGVzZSBjaGVja3MgYXJlIGJy
+b2tlbiBmb3IgY3Jvc3MtY29tcGlsYXRpb246IGlmIHlvdSdyZQogIyBjcm9zcy1jb21waWxpbmcg
+dG8gb25lIG9mIHRoZXNlIE9TZXMgdGhlbiB5b3UnbGwgbmVlZCB0byBzcGVjaWZ5CkBAIC0yMjcs
+MTUgKzIzNSwxMCBAQCBDWUdXSU4qKQogICBleGl0IDAKICAgOzsKIEFuZHJvaWQpCi0gIG91dHB1
+dF9zeW0gIkNPTkZJR18zMkJJVCIKLSAgb3V0cHV0X3N5bSAiQ09ORklHX0xJVFRMRV9FTkRJQU4i
+Ci0gIG91dHB1dF9zeW0gIkNPTkZJR19TT0NLTEVOX1QiCi0gIG91dHB1dF9zeW0gIkNPTkZJR19H
+RVRUSU1FT0ZEQVkiCi0gIG91dHB1dF9zeW0gIkNPTkZJR19DTE9DS19HRVRUSU1FIgotICBvdXRw
+dXRfc3ltICJDT05GSUdfQ0xPQ0tfTU9OT1RPTklDIgotICBlY2hvICJDQz0kY2MiID4+ICRjb25m
+aWdfaG9zdF9tYWsKLSAgZWNobyAiRVhURkxBR1M9JENGTEFHUyAtaW5jbHVkZSBjb25maWctaG9z
+dC5oIC1ERklPX05PX0hBVkVfU0hNX0ggLURfR05VX1NPVVJDRSIgPj4gJGNvbmZpZ19ob3N0X21h
+awotICBleGl0IDAKKyAgIyBBbmRyb2lkIGlzIGFsd2F5cyBjcm9zcy1jb21waWxlLCBzbyBmb3Jj
+ZSBrbm93biBDUFUgZmVhdHVyZXMKKyAgd29yZHNpemU9IjMyIgorICBiaWdlbmRpYW49Im5vIgor
+ICA7OwogZXNhYwogCiBpZiB0ZXN0ICEgLXogIiRjcHUiIDsgdGhlbgpAQCAtMzE3LDggKzMyMCw5
+IEBAIGNjPSIke0NDLSR7Y3Jvc3NfcHJlZml4fWdjY30iCiAKICMjIyMjIyMjIyMjIyMjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIwogIyBjaGVjayBlbmRpYW5uZXNzCi1iaWdlbmRpYW49Im5v
+IgotY2F0ID4gJFRNUEMgPDxFT0YKK2lmIHRlc3QgLXogIiRiaWdlbmRpYW4iIDsgdGhlbgorICBi
+aWdlbmRpYW49Im5vIgorICBjYXQgPiAkVE1QQyA8PEVPRgogI2luY2x1ZGUgPGludHR5cGVzLmg+
+CiBpbnQgbWFpbih2b2lkKQogewpAQCAtMzI2LDggKzMzMCw5IEBAIGludCBtYWluKHZvaWQpCiAg
+IHJldHVybiAoKigodWludDhfdCopKCZpKSkpID09IDB4Njc7CiB9CiBFT0YKLWlmIGNvbXBpbGVf
+cHJvZyAiIiAiIiAiZW5kaWFuIjsgdGhlbgotICAkVE1QRSAmJiBiaWdlbmRpYW49InllcyIKKyAg
+aWYgY29tcGlsZV9wcm9nICIiICIiICJlbmRpYW4iOyB0aGVuCisgICAgJFRNUEUgJiYgYmlnZW5k
+aWFuPSJ5ZXMiCisgIGZpCiBmaQogCiAKQEAgLTMzOSw4ICszNDQsOSBAQCBlY2hvCiAKICMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIwogIyBjaGVjayBmb3Igd29yZHNp
+emUKLXdvcmRzaXplPSIwIgotY2F0ID4gJFRNUEMgPDxFT0YKK2lmIHRlc3QgLXogIiR3b3Jkc2l6
+ZSIgOyB0aGVuCisgIHdvcmRzaXplPSIwIgorICBjYXQgPiAkVE1QQyA8PEVPRgogI2luY2x1ZGUg
+PHN0ZGlvLmg+CiBpbnQgbWFpbih2b2lkKQogewpAQCAtMzQ5LDggKzM1NSw5IEBAIGludCBtYWlu
+KHZvaWQpCiAgIHJldHVybiAwOwogfQogRU9GCi1pZiBjb21waWxlX3Byb2cgIiIgIiIgIndvcmRz
+aXplIjsgdGhlbgotICB3b3Jkc2l6ZT1gJFRNUEVgCisgIGlmIGNvbXBpbGVfcHJvZyAiIiAiIiAi
+d29yZHNpemUiOyB0aGVuCisgICAgd29yZHNpemU9YCRUTVBFYAorICBmaQogZmkKIGVjaG8gIldv
+cmRzaXplICAgICAgICAgICAgICAgICAgICAgICR3b3Jkc2l6ZSIKIApAQCAtODI5LDggKzgzNiw3
+IEBAIGVjaG8gImluZXRfYXRvbiAgICAgICAgICAgICAgICAgICAgICRpbmV0X2F0b24iCiAjIHNv
+Y2tsZW5fdCBwcm9iZQogc29ja2xlbl90PSJubyIKIGNhdCA+ICRUTVBDIDw8IEVPRgotI2luY2x1
+ZGUgPHN0cmluZy5oPgotI2luY2x1ZGUgPG5ldGluZXQvaW4uaD4KKyNpbmNsdWRlIDxzeXMvc29j
+a2V0Lmg+CiBpbnQgbWFpbihpbnQgYXJnYywgY2hhciAqKmFyZ3YpCiB7CiAgIHNvY2tsZW5fdCBs
+ZW4gPSAwOwpAQCAtOTI5LDExICs5MzUsNiBAQCBlY2hvICJSTElNSVRfTUVNTE9DSyAgICAgICAg
+ICAgICAgICAkcmxpbWl0X21lbWxvY2siCiAKICMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjCiAKLWVjaG8g
+IiMgQXV0b21hdGljYWxseSBnZW5lcmF0ZWQgYnkgY29uZmlndXJlIC0gZG8gbm90IG1vZGlmeSIg
+PiAkY29uZmlnX2hvc3RfbWFrCi1wcmludGYgIiMgQ29uZmlndXJlZCB3aXRoOiIgPj4gJGNvbmZp
+Z19ob3N0X21hawotcHJpbnRmICIgJyVzJyIgIiQwIiAiJEAiID4+ICRjb25maWdfaG9zdF9tYWsK
+LWVjaG8gPj4gJGNvbmZpZ19ob3N0X21hawotCiBpZiB0ZXN0ICIkd29yZHNpemUiID0gIjY0IiA7
+IHRoZW4KICAgb3V0cHV0X3N5bSAiQ09ORklHXzY0QklUIgogZWxpZiB0ZXN0ICIkd29yZHNpemUi
+ID0gIjMyIiA7IHRoZW4KLS0gCjEuNy4wLjQKCg==
+--047d7bb04ce637805404d7c55494--
+--:
+To unsubscribe from this list: send the line "unsubscribe fio" in
+the body of a message to majordomo@vger.kernel.org: 
+More majordomo info at  http: //vger.kernel.org/majordomo-info.html
+
 
