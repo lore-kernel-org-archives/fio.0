@@ -1,32 +1,37 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from onlyone.friendlyhosting.spb.ru ([46.4.40.135]:35458 "EHLO
-	onlyone.friendlyhosting.spb.ru" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757481Ab3CFPVM (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 6 Mar 2013 10:21:12 -0500
-Received: from lion.home.serebryakov.spb.ru (unknown [IPv6:2001:470:923f:1:9421:367:9d7d:512b])
-	(Authenticated sender: lev@serebryakov.spb.ru)
-	by onlyone.friendlyhosting.spb.ru (Postfix) with ESMTPA id 773824AC58
-	for <fio@vger.kernel.org>; Wed,  6 Mar 2013 19:12:06 +0400 (MSK)
-Date: Wed, 6 Mar 2013 19:12:04 +0400
-From: Lev Serebryakov <lev@serebryakov.spb.ru>
-Message-ID: <809551062.20130306191204@serebryakov.spb.ru>
-Subject: How to layout sparce files before run? Why all files for all jobs have same size?
+Return-Path: <aaronc@cse.unsw.edu.au>
+From: Aaron Carroll <aaronc@cse.unsw.edu.au>
+Date: Thu, 14 Mar 2013 11:09:48 +1100
+Message-ID: <5141154C.20206@cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH/RFC] Improve cross-compile support
+References: <CAKCZDgn5ds9-Fmn6pLW4Y7eCpeJr2C5gks1jKgCK3J-wNtXoeQ@mail.gmail.com> <20130313145930.GJ25165@kernel.dk>
+In-Reply-To: <20130313145930.GJ25165@kernel.dk>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Hello, Fio.
+On 14/03/13 1:59 AM, Jens Axboe wrote:
+> On Wed, Mar 13 2013, Aaron Carroll wrote:
+>> A first attempt at making cross-compile viable is attached.
+>> [..]
+> 
+> Looks OK to me, I can test on other platforms too. But it does not apply
+> against current -git:
+> 
+> patching file Makefile
+> patching file configure
+> Hunk #3 FAILED at 235.
+> 1 out of 9 hunks FAILED -- saving rejects to file configure.rej
+> 
+> Can you update and resend? Thanks!
 
-  How could I tell fio to don't write anything but last byte into
- files used for jobs? I need to test random write to sparse files with
- read only from written parts (like dumb torrent clients does).
+I've made more progress with this, so I'll send a new/updated series
+through soon.
 
-  And why when I have N jobs with "filesize=2G-4G" all filesizes for
- all jobs are equal?
 
--- 
-// Black Lion AKA Lev Serebryakov <lev@serebryakov.spb.ru>
+Thanks,
+  -- Aaron
+
 
