@@ -1,31 +1,104 @@
-Return-Path: <aaronc@cse.unsw.edu.au>
-From: Aaron Carroll <aaronc@cse.unsw.edu.au>
-Date: Thu, 14 Mar 2013 12:47:44 +1100
-Message-ID: <51412C40.3080105@cse.unsw.edu.au>
+Return-Path: <olegmatcovsky@gmail.com>
 MIME-Version: 1.0
-Subject: Re: android support patch [review request]
-References: <CAExtNyEmoPjbwG6J8ic7_KExTqHzo1rWwsUagQpxZA90U36juw@mail.gmail.com>
-In-Reply-To: <CAExtNyEmoPjbwG6J8ic7_KExTqHzo1rWwsUagQpxZA90U36juw@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-To: Oleg Matcovsky <olegmatcovsky@gmail.com>
-Cc: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Date: Wed, 13 Mar 2013 18:13:58 -0700
+Message-ID: <CAExtNyEmoPjbwG6J8ic7_KExTqHzo1rWwsUagQpxZA90U36juw@mail.gmail.com>
+Subject: android support patch [review request]
+From: Oleg Matcovsky <olegmatcovsky@gmail.com>
+Content-Type: multipart/mixed; boundary=089e016354c6bf806104d7d83c9d
+To: fio@vger.kernel.org
+Cc: Aaron Carroll <aaronc@cse.unsw.edu.au>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-On 14/03/13 12:13 PM, Oleg Matcovsky wrote:
-> Please provide feedback for patch: enables Android fio build as part of
-> AOSP.
-> 
-> I have tested compilation on ICS based tree:
->  - fio top of tree under mydroid/external/fio
->  - apply patch
->  - add "fio" to PRODUCT_PACKAGES
->  - rebuild
+--089e016354c6bf806104d7d83c9d
+Content-Type: multipart/alternative; boundary=089e016354c6bf805f04d7d83c9b
 
-Is it possible to have the Android build system invoke make?  That would
-be nicer from a maintenance perspective.
+--089e016354c6bf805f04d7d83c9b
+Content-Type: text/plain; charset=ISO-8859-1
 
+Please provide feedback for patch: enables Android fio build as part of
+AOSP.
 
-  -- Aaron
+I have tested compilation on ICS based tree:
+ - fio top of tree under mydroid/external/fio
+ - apply patch
+ - add "fio" to PRODUCT_PACKAGES
+ - rebuild
+
+thanks,
+ Oleg
+
+--089e016354c6bf805f04d7d83c9b
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Please provide feedback for patch: enables Android fio build as part of AOS=
+P.<br><br>I have tested compilation on ICS based tree:<br>=A0- fio top of t=
+ree under mydroid/external/fio<br>=A0- apply patch<br>=A0- add &quot;fio&qu=
+ot; to PRODUCT_PACKAGES<br>
+
+=A0- rebuild <br><br>thanks,<br>=A0Oleg<br><br><br><br><br><br>
+
+--089e016354c6bf805f04d7d83c9b--
+
+--089e016354c6bf806104d7d83c9d
+Content-Type: application/octet-stream; 
+	name="0001-Support-of-Android-platform.patch"
+Content-Disposition: attachment; 
+	filename="0001-Support-of-Android-platform.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_he94y3oh0
+
+RnJvbSBmZTBjYjhlMTEyNDljM2JiYjk2ODIyYjlmZDY2OTA5OGNmZDMwNWZiIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBPbGVnIE1hdGNvdnNjaGkgPG9sZWdtYXRjb3Zza3lAZ21haWwu
+Y29tPgpEYXRlOiBXZWQsIDEzIE1hciAyMDEzIDE2OjEzOjA1IC0wNzAwClN1YmplY3Q6IFtQQVRD
+SF0gU3VwcG9ydCBvZiBBbmRyb2lkIHBsYXRmb3JtLgoKU2lnbmVkLW9mZi1ieTogT2xlZyBNYXRj
+b3ZzY2hpIDxvbGVnbWF0Y292c2t5QGdtYWlsLmNvbT4KLS0tCiBBbmRyb2lkLm1rICAgICAgIHwg
+ICA0NCArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwogY29uZmln
+LWFuZHJvaWQuaCB8ICAgMTkgKysrKysrKysrKysrKysrKysrKwogMiBmaWxlcyBjaGFuZ2VkLCA2
+MyBpbnNlcnRpb25zKCspLCAwIGRlbGV0aW9ucygtKQogY3JlYXRlIG1vZGUgMTAwNjQ0IEFuZHJv
+aWQubWsKIGNyZWF0ZSBtb2RlIDEwMDY0NCBjb25maWctYW5kcm9pZC5oCgpkaWZmIC0tZ2l0IGEv
+QW5kcm9pZC5tayBiL0FuZHJvaWQubWsKbmV3IGZpbGUgbW9kZSAxMDA2NDQKaW5kZXggMDAwMDAw
+MC4uMzY0MmIxNgotLS0gL2Rldi9udWxsCisrKyBiL0FuZHJvaWQubWsKQEAgLTAsMCArMSw0NCBA
+QAorIyBDb3B5cmlnaHQgKEMpIDIwMTIgVGhlIEFuZHJvaWQgT3BlbiBTb3VyY2UgUHJvamVjdAor
+IworIyBMaWNlbnNlZCB1bmRlciB0aGUgQXBhY2hlIExpY2Vuc2UsIFZlcnNpb24gMi4wICh0aGUg
+IkxpY2Vuc2UiKTsKKyMgeW91IG1heSBub3QgdXNlIHRoaXMgZmlsZSBleGNlcHQgaW4gY29tcGxp
+YW5jZSB3aXRoIHRoZSBMaWNlbnNlLgorIyBZb3UgbWF5IG9idGFpbiBhIGNvcHkgb2YgdGhlIExp
+Y2Vuc2UgYXQKKyMKKyMgICAgICBodHRwOi8vd3d3LmFwYWNoZS5vcmcvbGljZW5zZXMvTElDRU5T
+RS0yLjAKKyMKKyMgVW5sZXNzIHJlcXVpcmVkIGJ5IGFwcGxpY2FibGUgbGF3IG9yIGFncmVlZCB0
+byBpbiB3cml0aW5nLCBzb2Z0d2FyZQorIyBkaXN0cmlidXRlZCB1bmRlciB0aGUgTGljZW5zZSBp
+cyBkaXN0cmlidXRlZCBvbiBhbiAiQVMgSVMiIEJBU0lTLAorIyBXSVRIT1VUIFdBUlJBTlRJRVMg
+T1IgQ09ORElUSU9OUyBPRiBBTlkgS0lORCwgZWl0aGVyIGV4cHJlc3Mgb3IgaW1wbGllZC4KKyMg
+U2VlIHRoZSBMaWNlbnNlIGZvciB0aGUgc3BlY2lmaWMgbGFuZ3VhZ2UgZ292ZXJuaW5nIHBlcm1p
+c3Npb25zIGFuZAorIyBsaW1pdGF0aW9ucyB1bmRlciB0aGUgTGljZW5zZS4KKworTE9DQUxfUEFU
+SCA6PSAkKGNhbGwgbXktZGlyKQoraW5jbHVkZSAkKENMRUFSX1ZBUlMpCisKKyNnZW5lcmF0ZSB2
+ZXJzaW9uIGZpbGUKKyQoc2hlbGwgY2QgJChMT0NBTF9QQVRIKTsgLi9GSU8tVkVSU0lPTi1HRU4g
+KQorLWluY2x1ZGUgJChMT0NBTF9QQVRIKS9GSU8tVkVSU0lPTi1GSUxFCisKK0xPQ0FMX1NSQ19G
+SUxFUyA6PSBnZXR0aW1lLmMgZmlvLmMgaW9lbmdpbmVzLmMgaW5pdC5jIHN0YXQuYyBsb2cuYyB0
+aW1lLmMgZmlsZXNldHVwLmMgXAorCQlldGEuYyB2ZXJpZnkuYyBtZW1vcnkuYyBpb191LmMgcGFy
+c2UuYyBtdXRleC5jIG9wdGlvbnMuYyBcCisJCXJidHJlZS5jIHNtYWxsb2MuYyBmaWxlaGFzaC5j
+IHByb2ZpbGUuYyBkZWJ1Zy5jIGxpYi9yYW5kLmMgXAorCQlsaWIvbnVtMnN0ci5jIGxpYi9pZWVl
+NzU0LmMgJChjYWxsIGFsbC1jLWZpbGVzLXVuZGVyLCBjcmMpIGVuZ2luZXMvY3B1LmMgXAorCQll
+bmdpbmVzL21tYXAuYyBlbmdpbmVzL3N5bmMuYyBlbmdpbmVzL251bGwuYyBlbmdpbmVzL25ldC5j
+IFwKKwkJbWVtYWxpZ24uYyBzZXJ2ZXIuYyBjbGllbnQuYyBpb2xvZy5jIGJhY2tlbmQuYyBsaWJm
+aW8uYyBmbG93LmMgXAorCQlqc29uLmMgbGliL3ppcGYuYyBsaWIvYXhtYXAuYyBsaWIvbGZzci5j
+IGdldHRpbWUtdGhyZWFkLmMgXAorCQloZWxwZXJzLmMgbGliL2ZsaXN0X3NvcnQuYyBsaWIvaHdl
+aWdodC5jIGxpYi9nZXRydXNhZ2UuYyBcCisJCWlkbGV0aW1lLmMKK0xPQ0FMX1NSQ19GSUxFUyAr
+PSBkaXNrdXRpbC5jIGZpZm8uYyBibGt0cmFjZS5jIHRyaW0uYyBwcm9maWxlcy90aW9iZW5jaC5j
+CitMT0NBTF9DX0lOQ0xVREVTICs9IGJpb25pYy9saWJjL2luY2x1ZGUgJChMT0NBTF9QQVRIKS8K
+KworTE9DQUxfQ0ZMQUdTICs9IC1pbmNsdWRlIGNvbmZpZy1hbmRyb2lkLmggLURGSU9fVkVSU0lP
+Tj0nIiQoRklPX1ZFUlNJT04pIicKKyQoSU5GTyBAZWNobyAkTE9DQUxfSU5DTFVERVMpCisKKwor
+TE9DQUxfU0hBUkVEX0xJQlJBUklFUyArPSBsaWJkbAorCitMT0NBTF9NT0RVTEVfVEFHUyA6PSBv
+cHRpb25hbAorTE9DQUxfTU9EVUxFIDo9IGZpbworCitpbmNsdWRlICQoQlVJTERfRVhFQ1VUQUJM
+RSkKKwpkaWZmIC0tZ2l0IGEvY29uZmlnLWFuZHJvaWQuaCBiL2NvbmZpZy1hbmRyb2lkLmgKbmV3
+IGZpbGUgbW9kZSAxMDA2NDQKaW5kZXggMDAwMDAwMC4uYTA2MzljMgotLS0gL2Rldi9udWxsCisr
+KyBiL2NvbmZpZy1hbmRyb2lkLmgKQEAgLTAsMCArMSwxOSBAQAorLyoKKyAqIEFuZHJvaWQgY29u
+ZmlnIGZpbGUKKyAqLworI2RlZmluZSBDT05GSUdfMzJCSVQKKyNkZWZpbmUgQ09ORklHX0xJVFRM
+RV9FTkRJQU4KKyNkZWZpbmUgQ09ORklHX1NPQ0tMRU5fVAorI2RlZmluZSBDT05GSUdfR0VUVElN
+RU9GREFZCisjZGVmaW5lIENPTkZJR19DTE9DS19HRVRUSU1FCisjZGVmaW5lIENPTkZJR19DTE9D
+S19NT05PVE9OSUMKKyNkZWZpbmUgQ09ORklHX1NUUlNFUAorCisjZGVmaW5lIF9HTlVfU09VUkNF
+CisjZGVmaW5lIEJJVFNfUEVSX0xPTkcgMzIKKyNkZWZpbmUgX0xBUkdFRklMRV9TT1VSQ0UKKyNk
+ZWZpbmUgX0ZJTEVfT0ZGU0VUX0JJVFMgNjQKKyNkZWZpbmUgX0ZPUlRJRllfU09VUkNFIDIKKyNk
+ZWZpbmUgRklPX0lOQ19ERUJVRworCisKLS0gCjEuNy40LjEKCg==
+--089e016354c6bf806104d7d83c9d--
 
 
