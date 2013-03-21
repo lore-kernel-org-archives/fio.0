@@ -1,87 +1,93 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailout2.samsung.com ([203.254.224.25]:11332 "EHLO
-	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753509Ab3CGBJA (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 6 Mar 2013 20:09:00 -0500
-Received: from epcpsbgr4.samsung.com
- (u144.gpu120.samsung.co.kr [203.254.230.144])
- by mailout2.samsung.com (Oracle Communications Messaging Server 7u4-24.01
- (7.0.4.24.0) 64bit (built Nov 17 2011))
- with ESMTP id <0MJ9002I6N6ZLVE0@mailout2.samsung.com> for fio@vger.kernel.org;
- Thu, 07 Mar 2013 10:08:59 +0900 (KST)
-Date: Thu, 07 Mar 2013 01:08:59 +0000 (GMT)
-From: SEOKYOUNG KO <seokyoung.ko@samsung.com>
-Subject: reporting two fio bug fix when ramp_time / rate_iops options is
- specified
-Reply-to: seokyoung.ko@samsung.com
-MIME-version: 1.0
-Content-transfer-encoding: base64
-Content-type: text/plain; charset=utf-8
-MIME-version: 1.0
-Message-id: <11224344.275311362618539121.JavaMail.weblogic@epv6ml11>
+Received: from hop-nat-141.emc.com ([168.159.213.141]:33520 "EHLO
+	mexforward.lss.emc.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1757443Ab3CUL0F convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Thu, 21 Mar 2013 07:26:05 -0400
+Received: from hop04-l1d11-si01.isus.emc.com (HOP04-L1D11-SI01.isus.emc.com [10.254.111.54])
+	by mexforward.lss.emc.com (Switch-3.4.3/Switch-3.4.3) with ESMTP id r2LBPxfR018134
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <fio@vger.kernel.org>; Thu, 21 Mar 2013 07:26:02 -0400
+Received: from mailhub.lss.emc.com (mailhubhoprd04.lss.emc.com [10.254.222.226]) by hop04-l1d11-si01.isus.emc.com (RSA Interceptor) for <fio@vger.kernel.org>; Thu, 21 Mar 2013 07:25:50 -0400
+Received: from mxhub25.corp.emc.com (mxhub25.corp.emc.com [10.254.110.181])
+	by mailhub.lss.emc.com (Switch-3.4.3/Switch-3.4.3) with ESMTP id r2LBPoc5020810
+	for <fio@vger.kernel.org>; Thu, 21 Mar 2013 07:25:50 -0400
+From: "Ruvinsky, Konstantin" <Konstantin.Ruvinsky@emc.com>
+Date: Thu, 21 Mar 2013 07:25:48 -0400
+Subject: data integrity in stress tests
+Message-ID: <EEF9E3C12F20174DA289A981D6CCA6C83244B1D850@MX44A.corp.emc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-aGkuDQp3ZSBkZXRlY3RlZCB0d28gcHJvYmxlbXMgcmVsYXRlZCB0byBsb2dnaW5nIGxhdGVuY2ll
-cy4NCnRoZW4gd2UgaGF2ZSBhbmFseXplZCB0aGUgcHJvYmxlbXMgYW5kIGZpeGVkIHNvbWUgZmlv
-IGNvZGVzLg0KDQoNCigwKSB0ZXN0IGNvbmRpdGlvbg0KLSBrZXJuZWwgMy4wLjANCi0gZmlvIDIu
-MC4xMw0KLSBmaW8gLS1maWxlbmFtZT0vZGV2L3NkYjEgLS1pb2VuZ2luZT1saWJhaW8gLS1kaXJl
-Y3Q9MSAtLW5vcmFuZG9tbWFwIC0tcmFuZHJlcGVhdD0wIC0tdGltZV9iYXNlZCAtLXJ1bnRpbWU9
-JFJVTlRJTUUgLS1ibG9ja3NpemU9NGsgLS1ydz1yYW5kcncNCiAgICAtLXJ3bWl4d3JpdGU9NjYg
-LS1pb2RlcHRoPTggLS1vdmVyd3JpdGU9MSAtLXJlZmlsbF9idWZmZXJzDQotIGFkZGl0aW9uYWwg
-cGFyYW1ldGVyOiAtcmFtcF90aW1lPSRSQU1QX1RJTUUgLyAtcmF0ZV9pb3BzPTc1JSBvZiBhdmcu
-aW9wcy4NCi0gdGVzdCBvbiBhIGxhdGVzdCBTU0QNCg0KDQooMSkgLXJhbXBfdGltZSBvcHRpb24N
-CuKWoCBQcm9ibGVtIFN0YXRlbWVudCANCiAgLSBXaGVuIOKAk3JhbXBfdGltZSBvcHRpb24gaXMg
-c3BlY2lmaWVkLCBpdCBpcyByZXBvcnRlZCB0aGF0IGxhdGVuY3kgZGlzdHJpYnV0aW9uICh4eC54
-eCUgbGF0ZW5jaWVzKSBpcyBuZWdhdGl2ZWx5IGFmZmVjdGVkIChoaWdoZXIgV1JJVEUgbGF0ZW5j
-eSBmb3IgbWl4ZWQgNjY6MzMgUi9XKQ0KDQrilqAgQW5hbHlzaXMgUmVzdWx0IDEgLSBDb21wYXJp
-c29uIEV4cGVyaW1lbnQNCiAgLSB3L28g4oCTcmFtcF90aW1lLCBGSU8gZ2VuZXJhdGVzIHVuaWZv
-cm1seSBtaXhlZCBSL1cgd29ya2xvYWQsIGFzIGV4cGVjdGVkIA0KICAtIHcvIOKAk3JhbXBfdGlt
-ZSAsIEZJTyBzaG93cyBhYm5vcm1hbCBiZWhhdmlvciBvZiBnZW5lcmF0aW5nIGJ1cnN0IFdSSVRF
-IHdvcmtsb2Fkcywgd2hlbiBpdCBnZXRzIG91dCBvZuKAmHJhbXBpbmctdXAgc3RhZ2XigJkgDQog
-IC0gQmVjYXVzZSBvZiB0aGUgV1JJVEUgYnVyc3QsIEZJTyBsb2dzIGdldCBjb250YW1pbmF0ZWQg
-YnkgbG90cyBvZiBsb25nLWxhdGVuY3kgc2FtcGxlcyA9PT4gRmFsc2UgcmVwb3J0IG9mIHdvcnNl
-IGxhdGVuY3kgZGlzdHJpYnV0aW9uDQoNCuKWoCBBbmFseXNpcyBSZXN1bHQgMiAtIENvZGUgaW5z
-cGVjdGlvbg0KICAtIHdoZW4gLXJhbXBfdGltZSBvcHRpb24gaXMgc3BlY2lmaWVkLCBmaW8gY2Fs
-bCByZXNldF9hbGxfc3RhdHMoKSBhZnRlciBmaW8gcnVuIGZvciB0aGUgcmFtcF90aW1lLg0KICAt
-IGJ1dCB0aGVyZSBpcyBhIGJ1ZyB0aGF0IHRkLT5yd21peF9pc3N1ZXMgaXMgbm90IHJlc2V0IGlu
-IHJlc2V0X2FsbF9zdGF0cygpDQogIC0gd2hlbiBmaW8gcGVyZm9ybSByd21peCB3b3JrbG9hZCwg
-ZmlvIGNvbXBhcmUgdGQtPmlvX2lzc3VlcyB0byB0ZC0+cndtaXhfaXNzdWVzIGluIG9yZGVyIHRv
-IHNlbGVjdCB0aGUgbmV4dCBpbyBkaXJlY3Rpb24uDQogIC0gaWYgdGQtPnJ3bWl4X2lzc3VlcyBp
-cyBub3QgcmVzZXQgKG9yaWdpbmFsIGNvZGUpLCBmaW8gd2lsbCBydW4gdGhlIHdvcmtsb2FkIG9m
-IHNhbWUgaW8gZGlyZWN0aW9uIHVudGlsIHRkLT5pb19pc3N1ZXMgPCB0ZC0+cndtaXhfaXNzdWVz
-IGFmdGVyIHJhbXBfdGltZSBpcyBlbmQuDQoNCuKWoCBQYXRjaA0KLS0tIGZpby0yLjAuMTNfb3Jp
-Zy9saWJmaW8uYyAyMDEzLTAzLTA0IDExOjAxOjU5LjAxMjQxOTIyNSArMDkwMCANCisrKyBmaW8t
-Mi4wLjEzX2ZpeGVkL2xpYmZpby5jIDIwMTMtMDMtMDQgMTE6MDM6NDYuMDQ4NDIyNjMwICswOTAw
-IA0KQEAgLTExNiw2ICsxMTYsNyBAQCANCiAgIHRkLT5pb19pc3N1ZXNbaV0gPSAwOyANCiAgIHRk
-LT50cy50b3RhbF9pb191W2ldID0gMDsgDQogICB0ZC0+dHMucnVudGltZVtpXSA9IDA7IA0KKyAg
-dGQtPnJ3bWl4X2lzc3VlcyA9IDA7IA0KICB9IA0KICANCiAgZmlvX2dldHRpbWUoJnR2LCBOVUxM
-KTsgDQoNCg0KDQooMikgLXJhdGVfaW9wcyBvcHRpb24NCuKWoCBQcm9ibGVtIFN0YXRlbWVudCAN
-CiAgLSBXaGVuIOKAk3JhdGVfaW9wcyBvcHRpb24gaXMgc3BlY2lmaWVkLCBpdCBpcyByZXBvcnRl
-ZCB0aGF0IGxhdGVuY3kgZGlzdHJpYnV0aW9uIGlzIG5lZ2F0aXZlbHkgYWZmZWN0ZWQgKGhpZ2hl
-ciBXUklURSBsYXRlbmN5IGZvciBtaXhlZCA2NjozMyBSL1cpIA0KDQrilqAgQW5hbHlzaXMgUmVz
-dWx0IDEgLSBDb21wYXJpc29uIEV4cGVyaW1lbnQgDQogIC0gV2UgaGF2ZSBjb21wYXJlZCB0aGUg
-bG9nZ2luZyByZXBvcnQgZnJvbSBGSU8gYWdhaW5zdCB0aGUgcmVwb3J0IGZyb20gQkxLVFJBQ0Ug
-DQogICAgPT4gT2JzZXJ2YXRpb24gOiBGSU8gZmFsc2VseSByZXBvcnRlZCBtdWNoIGhpZ2hlciBJ
-L08gbGF0ZW5jeSB0aGFuIEJMQ0tUUkFDRQ0KDQrilqAgQW5hbHlzaXMgUmVzdWx0IDIg4oCTIEZJ
-TyBjb2RlIGluc3BlY3Rpb24gDQogIC0gd2hlbiAtcmF0ZV9pb3BzIGlzIHNwZWNpZmllZCwgRklP
-IHBlcmlvZGljYWxseSBjYWxscyB1c2xlZXAoKSB0byBsaW1pdCBJT1BTIA0KICAtIEJlZm9yZSB1
-c2xlZXAoKSwgRklPIGFsd2F5cyB3YWl0IHVudGlsIHRoZSBjb21wbGV0aW9uIG9mIGFsbCBwZW5k
-aW5nIEkvTyANCiAgLSBGb3IgYWxsIEkvTyBjb21wbGV0aW9ucywgRklPIHNob3dzIGVycm9uZW91
-cyBiZWhhdmlvciBvZiBsb2dnaW5nIHRoZWlyIGxhdGVuY3ksIHdpdGggdGhhdCBvZiB0aGUgbG9u
-Z2VzdCBsYXRlbmN5IElPIHNhbXBsZSAgDQogIC0gdy8gUUQ9OC8gbWl4ZWQgUjpXPTMzOjY2LCB1
-cCB0byA3IHNhbXBsZXMgbWF5IGdldCBmYWxzZSBsYXRlbmN5IGxvZyB3aGVuIHdhaXRpbmcgYWxs
-IEkvTyBjb21wbGV0aW9ucyANCiAgICA9PiBGYWxzZSByZXBvcnQgb2YgbGF0ZW5jeSBkaXN0cmli
-dXRpb24gDQoNCuKWoCBQYXRjaCANCi0tLSBmaW8tMi4wLjEzX29yaWcvaW9fdS5jIDIwMTMtMDMt
-MDQgMTE6MDE6NTkuMDA4NDE5MjUxICswOTAwIA0KKysrIGZpby0yLjAuMTNfZml4ZWQvaW9fdS5j
-IDIwMTMtMDMtMDQgMTE6MDU6MzIuODI4NDI2MDMyICswOTAwIA0KQEAgLTQ1NywxMCArNDU3LDEw
-IEBAIA0KICAgKiBpbydzIHRoYXQgaGF2ZSBiZWVuIGFjdHVhbGx5IHN1Ym1pdHRlZCB0byBhbiBh
-c3luYyBlbmdpbmUsIA0KICAgKiBhbmQgY3VyX2RlcHRoIGlzIG1lYW5pbmdsZXNzIGZvciBzeW5j
-IGVuZ2luZXMuIA0KICAgKi8gDQotIGlmICh0ZC0+aW9fdV9pbl9mbGlnaHQpIHsgDQorIHdoaWxl
-ICh0ZC0+aW9fdV9pbl9mbGlnaHQpIHsgDQogICBpbnQgZmlvX3VudXNlZCByZXQ7IA0KICANCi0g
-IHJldCA9IGlvX3VfcXVldWVkX2NvbXBsZXRlKHRkLCB0ZC0+aW9fdV9pbl9mbGlnaHQsIE5VTEwp
-OyANCisgIHJldCA9IGlvX3VfcXVldWVkX2NvbXBsZXRlKHRkLCAxLCBOVUxMKTsgDQogIH0gDQog
-DQogIGZpb19nZXR0aW1lKCZ0LCBOVUxMKTsg
+Hi fio forum,
 
+Could you please address the following query:
+
+I was wondering about the correct way to perform a data integrity check whi=
+le using a high stress scenario,
+Scenario 1: File system, =EF=BF=BDCould the following command be used for d=
+ata integrity check of IO on device with FS:
+
+fio --name=3Ddedup --ioengine=3Dlibaio --rw=3Drandwrite --bs=3D16k --numjob=
+s=3D64 --thread=EF=BF=BD=EF=BF=BD --direct=3D1=EF=BF=BD --write_iolog=3DC -=
+-size=3D400m --directory=3D/mnt --do_verify=3D1 --verify=3Dmd5
+
+I got the message that "Multiple writers may overwrite blocks that belong t=
+o other jobs. This can cause verification failures."
+
+In the fio man pages is written:=20
+filename=3Dstr=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD Fio normally ma=
+kes up a filename based on the job name,
+=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=
+=BF=BD=EF=BF=BD=EF=BF=BD thread number, and file number. If you want to sha=
+re
+=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=
+=BF=BD=EF=BF=BD=EF=BF=BD files between threads in a job or several jobs, sp=
+ecify
+=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=
+=BF=BD=EF=BF=BD=EF=BF=BD a filename for each of them to override the default
+
+Actually, fio creates 64 files and according to man pages every thread is w=
+riting to its file. Since -iodepth=3D1 (default) why should there be a prob=
+lem with multiple writers even in the case of async ioengine?
+If this is not correct, can someone suggest a data integrity check command =
+in multithreaded fio run for devices with FS?
+
+Scenario 2: RAW device, Could the flag --lockfile=3Dreadwrite in the follow=
+ing fio command solve the problem of "Multiple writers may overwrite blocks=
+ that belong to other jobs":
+
+fio --name=3Ddedup --ioengine=3Dposixaio --rw=3Drandwrite --lockfile=3Dread=
+write --bs=3D32k --numjobs=3D64 --thread --size=3D100m --verify=3Dmd5 --do_=
+verify=3D1 --direct=3D1 --filename=3D/dev/hdiskpower2 --verify_fatal=3D1 --=
+invalidate=3D0
+
+In the fio man pages is written:=20
+Lockfile=3Dreadwrite=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD Read-writ=
+e locking on the file. Many
+=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=
+=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=
+=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=
+=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD readers may access the file at the
+=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=
+=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=
+=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=
+=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD same time, but writes get exclusive
+=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=
+=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=
+=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=
+=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD access.
+Taking into account that that iodepth=3D1 and only one thread can write in =
+a given time, one can suppose that it solves the problem of blocks overwrit=
+e since it looks similar to one threaded writer, isn't it?=20
+If this is not correct, can someone explain why and suggest a data integrit=
+y check command in multithreaded fio run for raw devices?
+
+
+Thank you
+Konstantin Ruvinsky
 
