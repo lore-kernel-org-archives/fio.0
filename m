@@ -1,47 +1,46 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:46767 "EHLO
-	note.orchestra.cse.unsw.EDU.AU" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755265Ab3BRER1 (ORCPT
-	<rfc822;fio@vger.kernel.org>); Sun, 17 Feb 2013 23:17:27 -0500
-Received: From
-	[192.168.1.100] ([124.168.163.25] == 124-168-163-25.dyn.iinet.net.au) (auth-user aaronc) (cse-authentic-sender aaronc)
-	(for <fio@vger.kernel.org>) By note With Smtp ;
-	Mon, 18 Feb 2013 15:17:24 +1100 
-From: Aaron Carroll <aaronc@cse.unsw.edu.au>
-Date: Mon, 18 Feb 2013 15:17:24 +1100
-Message-ID: <5121AB54.5090507@cse.unsw.edu.au>
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:53708 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753800Ab3CUCxz (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 20 Mar 2013 22:53:55 -0400
+Received: by mail-wi0-f175.google.com with SMTP id c10so701695wiw.2
+        for <fio@vger.kernel.org>; Wed, 20 Mar 2013 19:53:54 -0700 (PDT)
 MIME-Version: 1.0
-Subject: [PATCH] configure: missing Android config options
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <CAHUxXBCZLAEHqvwZ2Cb0M=KwCOt6W+2WijwAk=tPK-HVKWtg0Q@mail.gmail.com>
+References: <CAHUxXBCZLAEHqvwZ2Cb0M=KwCOt6W+2WijwAk=tPK-HVKWtg0Q@mail.gmail.com>
+From: Shengkai Zhu <geniusjash@gmail.com>
+Date: Thu, 21 Mar 2013 10:53:34 +0800
+Message-ID: <CAHUxXBCwa55Y+ZE37NJ1BQrhVh+P42r8hq2D8u0YLu53MnEbPw@mail.gmail.com>
+Subject: [Bug?] 3Gb and 6Gb mixed measurement
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
+Cc: geniusjash@gmail.com
 
-We need this for the run-time endianness check to pass.  Add supported
-clock monotonic while we're at it.
+ Hi all,
 
----
- configure |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+      OS: RHEL 6.3; Kernel: 2.6.32-279.el6.x86_64
+      4 x 6Gb/s SSD: 2 on 3Gb/s SATA, 2 on 6Gb/STA
+      fio-2.0.14
 
-diff --git a/configure b/configure
-index 8267e1c..caaf30e 100755
---- a/configure
-+++ b/configure
-@@ -227,9 +227,11 @@ CYGWIN*)
-   ;;
- Android)
-   output_sym "CONFIG_32BIT"
-+  output_sym "CONFIG_LITTLE_ENDIAN"
-   output_sym "CONFIG_SOCKLEN_T"
-   output_sym "CONFIG_GETTIMEOFDAY"
-   output_sym "CONFIG_CLOCK_GETTIME"
-+  output_sym "CONFIG_CLOCK_MONOTONIC"
-   echo "CC=$cc" >> $config_host_mak
-   echo "EXTFLAGS=$CFLAGS -include config-host.h -DFIO_NO_HAVE_SHM_H
--D_GNU_SOURCE" >> $config_host_mak
-   exit 0
--- 
-1.7.0.4
+      fio --name=rand --filename=/dev/sda:/dev/sdb:/dev/sdc:/dev/sdd
+ --ioengine=libaio --direct=1 --runtime=60 --blocksize=4K --rw=randread
+ --iodepth=8 --numjobs=128 --group_reporting
 
+      I have this unreasonable performance while testing with 3Gb SATA and
+ 6Gb SATA together. 6Gb drive seems degraded to 3Gb perf when tested them
+ mixed. And the performance is normal while I measured 6Gb and 3Gb in two
+ seperate fio command lines concurrently.
+
+ Run                   r/w mix         rand/seq     iops
+2 x 6Gb SSD      100% read       RAND     158000
+2 x 3Gb SSD      100% read       RAND     100000
+4 SSD 1 fio         100% read       RAND     205000
+4 SSD con 2 fio   100% read       RAND    260000
+
+    Not sure whether this is a bug in fio...
+
+ --
+Regards,
+Jash Zhu
