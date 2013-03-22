@@ -1,69 +1,28 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from postman.teamix.net ([194.150.191.120]:50416 "EHLO
-	rproxy.teamix.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753149Ab3CKPbH convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 11 Mar 2013 11:31:07 -0400
-Subject: [PATCH] Make test for gnuplot work with empty strings.
-From: Martin Steigerwald <ms@teamix.de>
-Date: Mon, 11 Mar 2013 16:22:56 +0100
+Received: from merlin.infradead.org ([205.233.59.134]:48047 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753876Ab3CVNQP (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 22 Mar 2013 09:16:15 -0400
+Date: Fri, 22 Mar 2013 07:15:29 -0600
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] mutex: fix the expression for checking the mutext magic.
+Message-ID: <20130322131529.GA25978@kernel.dk>
+References: <514BF694.2090004@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <201303111622.57044.ms@teamix.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <514BF694.2090004@gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org, 700580@bugs.debian.org
+To: majianpeng <majianpeng@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-When I launch fio_generate_plots on a system where gnuplot is not installed I
-get this error :
+On Fri, Mar 22 2013, majianpeng wrote:
+> Signed-off-by: Jianpeng Ma <majianpeng@gmail.com>
 
-$ fio_generate_plots test
-Making bw logs
-/usr/bin/fio_generate_plots: 42: /usr/bin/fio_generate_plots: -: not found
+Hah, that might work a little better! Thanks, I'll have to play the
+jet lag card on that change. That, and copy-pasting.
 
-That's because the test checking whether gnuplot is installed is failing
-because of an empty variable :
-GNUPLOT=$(which gnuplot)
-if [ ! -x $GNUPLOT ]; then
-        echo You need gnuplot installed to generate graphs
-        exit 1
-fi
-
-Indeed the command "test -x" is exiting with code 0.
-
-To correct this we should enclose the variable with quotes :
-if [ ! -x "$GNUPLOT" ]; then
-
-Then the script is going into the test properly :
-$ fio_generate_plots test
-You need gnuplot installed to generate graphs
-
-I copied problem description by Hervé from the Debian bug report below.
-
-Fixes:
-Bug#700580: /usr/bin/fio_generate_plots: -: not found
-http://bugs.debian.org/700580
-
-Reported-By: Hervé Werner <hwerner@score-md.com>
-Tested-By: Hervé Werner <hwerner@score-md.com>
-Tested-By: Martin Steigerwald <ms@teamix.de>
----
- fio_generate_plots |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/fio_generate_plots b/fio_generate_plots
-index 4285415..5e2febd 100755
---- a/fio_generate_plots
-+++ b/fio_generate_plots
-@@ -8,7 +8,7 @@ if [ "$1"x = "x" ]; then
- fi
- 
- GNUPLOT=$(which gnuplot)
--if [ ! -x $GNUPLOT ]; then
-+if [ ! -x "$GNUPLOT" ]; then
- 	echo You need gnuplot installed to generate graphs
- 	exit 1
- fi
 -- 
-1.7.10.4
+Jens Axboe
 
