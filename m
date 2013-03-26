@@ -1,204 +1,67 @@
-Return-Path: <greg.freemyer@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <20130326211558.GE19488@kernel.dk>
-References: <CAGpXXZ+CSFx7tnWjgUibNEgth_9kM4qTP_ptW+kTFeDCfoC08w@mail.gmail.com>
- <20130326211558.GE19488@kernel.dk>
-From: Greg Freemyer <greg.freemyer@gmail.com>
-Date: Tue, 26 Mar 2013 18:00:52 -0400
-Message-ID: <CAGpXXZJ+c5FY33ZXw4OE9foto3EyCZsS6t+ZWBP80yZwwwA_3Q@mail.gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from 173-166-109-252-newengland.hfc.comcastbusiness.net ([173.166.109.252]:37416
+	"EHLO bombadil.infradead.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751957Ab3CZVQB (ORCPT
+	<rfc822;fio@vger.kernel.org>); Tue, 26 Mar 2013 17:16:01 -0400
+Date: Tue, 26 Mar 2013 15:15:58 -0600
+From: Jens Axboe <axboe@kernel.dk>
 Subject: Re: FIO 2.0.14 - getting a compile error on opensuse
-Content-Type: multipart/mixed; boundary=001a11c22990e9584304d8db0f8d
-To: Jens Axboe <axboe@kernel.dk>
+Message-ID: <20130326211558.GE19488@kernel.dk>
+References: <CAGpXXZ+CSFx7tnWjgUibNEgth_9kM4qTP_ptW+kTFeDCfoC08w@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAGpXXZ+CSFx7tnWjgUibNEgth_9kM4qTP_ptW+kTFeDCfoC08w@mail.gmail.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Greg Freemyer <greg.freemyer@gmail.com>
 Cc: fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
 
---001a11c22990e9584304d8db0f8d
-Content-Type: text/plain; charset=ISO-8859-1
+On Mon, Mar 25 2013, Greg Freemyer wrote:
+> All,
+> 
+> fio v2.0.13 compiled fine on opensuse.
+> 
+> fio v2.0.14 is failing on opensuse (multiple releases including 12.3
+> and factory).  I assume because of the new configure logic.
+> 
+> A full build log is at:
+> https://build.opensuse.org/package/live_build_log?arch=x86_64&package=fio&project=home%3Agregfreemyer%3Abranches%3Abenchmark&repository=openSUSE_Factory
+> 
+> But this is the basic error which happens on the first gcc call.
+> 
+> [   48s] gcc -o gettime.o -std=gnu99 -Wwrite-strings -Wall
+> -fomit-frame-pointer -fmessage-length=0 -grecord-gcc-switches -O2
+> -Wall -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables
+> -fasynchronous-unwind-tables -DBITS_PER_LONG=32
+> -DFIO_VERSION='"fio-2.0.14"' -D_LARGEFILE_SOURCE
+> -D_FILE_OFFSET_BITS=64 -D_FORTIFY_SOURCE=2 -DFIO_INC_DEBUG -c
+> gettime.c
+> [   48s] In file included from os/os.h:28:0,
+> [   48s]                  from fio.h:24,
+> [   48s]                  from gettime.c:10:
+> [   48s] os/os-linux.h: In function 'fio_cpuset_init':
+> [   48s] os/os-linux.h:67:2: warning: implicit declaration of function
+> 'CPU_ZERO' [-Wimplicit-function-declaration]
+> [   48s] In file included from os/os.h:60:0,
+> [   48s]                  from fio.h:24,
+> [   48s]                  from gettime.c:10:
+> [   48s] os/../lib/strsep.h: At top level:
+> [   48s] os/../lib/strsep.h:4:7: error: expected identifier or '('
+> before '__extension__'
+> [   48s] os/../lib/strsep.h:4:7: error: expected identifier or '('
+> before ')' token
+> [   48s] In file included from fio.h:32:0,
+> [   48s]                  from gettime.c:10:
+> [   48s] helpers.h:11:36: error: unknown type name 'off64_t'
+> [   48s] helpers.h:11:52: error: unknown type name 'off64_t'
+> [   48s] make: *** [gettime.o] Error 1
+> [   48s] error: Bad exit status from /var/tmp/rpm-tmp.QKC5od (%build)
 
-On Tue, Mar 26, 2013 at 5:15 PM, Jens Axboe <axboe@kernel.dk> wrote:
-> On Mon, Mar 25 2013, Greg Freemyer wrote:
->> All,
->>
->> fio v2.0.13 compiled fine on opensuse.
->>
->> fio v2.0.14 is failing on opensuse (multiple releases including 12.3
->> and factory).  I assume because of the new configure logic.
->>
->> A full build log is at:
->> https://build.opensuse.org/package/live_build_log?arch=x86_64&package=fio&project=home%3Agregfreemyer%3Abranches%3Abenchmark&repository=openSUSE_Factory
->>
->> But this is the basic error which happens on the first gcc call.
->>
->> [   48s] gcc -o gettime.o -std=gnu99 -Wwrite-strings -Wall
->> -fomit-frame-pointer -fmessage-length=0 -grecord-gcc-switches -O2
->> -Wall -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables
->> -fasynchronous-unwind-tables -DBITS_PER_LONG=32
->> -DFIO_VERSION='"fio-2.0.14"' -D_LARGEFILE_SOURCE
->> -D_FILE_OFFSET_BITS=64 -D_FORTIFY_SOURCE=2 -DFIO_INC_DEBUG -c
->> gettime.c
->> [   48s] In file included from os/os.h:28:0,
->> [   48s]                  from fio.h:24,
->> [   48s]                  from gettime.c:10:
->> [   48s] os/os-linux.h: In function 'fio_cpuset_init':
->> [   48s] os/os-linux.h:67:2: warning: implicit declaration of function
->> 'CPU_ZERO' [-Wimplicit-function-declaration]
->> [   48s] In file included from os/os.h:60:0,
->> [   48s]                  from fio.h:24,
->> [   48s]                  from gettime.c:10:
->> [   48s] os/../lib/strsep.h: At top level:
->> [   48s] os/../lib/strsep.h:4:7: error: expected identifier or '('
->> before '__extension__'
->> [   48s] os/../lib/strsep.h:4:7: error: expected identifier or '('
->> before ')' token
->> [   48s] In file included from fio.h:32:0,
->> [   48s]                  from gettime.c:10:
->> [   48s] helpers.h:11:36: error: unknown type name 'off64_t'
->> [   48s] helpers.h:11:52: error: unknown type name 'off64_t'
->> [   48s] make: *** [gettime.o] Error 1
->> [   48s] error: Bad exit status from /var/tmp/rpm-tmp.QKC5od (%build)
->
-> Odd. Could you send me the config.log output? I don't have an opensuse
-> install, unfortunately. If you have one that is reachable from the
-> outside, send me a private reply and perhaps I could investigate myself.
->
-> --
-> Jens Axboe
->
+Odd. Could you send me the config.log output? I don't have an opensuse
+install, unfortunately. If you have one that is reachable from the
+outside, send me a private reply and perhaps I could investigate myself.
 
-Jens,
-
-I'm building within a chroot environment with a minimal set of
-packages installed.  It could easily be that I just need to install
-some more header files, etc.  Note, that all opensuse packages shipped
-as part of the distro all built inside a chroot environment and I'm
-using the standard distro tools to do this.
-
-The only "buildrequires" commands I'm using are:
-
-BuildRequires:  gcc
-BuildRequires:  libaio-devel
-BuildRequires:  make
-
-fio 2.0.13 builds fine with the same specfile and buildrequires lines.
-
-I attached config.log
-
-Greg
-
---001a11c22990e9584304d8db0f8d
-Content-Type: application/octet-stream; name="config.log"
-Content-Disposition: attachment; filename="config.log"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_herltc6x0
-
-IyBGSU8gY29uZmlndXJlIGxvZyBNb24gTWFyIDI1IDE4OjA0OjU4IFVUQyAyMDEzCiMgQ29uZmln
-dXJlZCB3aXRoOiAnLi9jb25maWd1cmUnCiMKZ2NjIC1EX0dOVV9TT1VSQ0UgLWMgLW8gL3RtcC9m
-aW8tY29uZi0yNjcyLTIyNjc4LTI5MTc0Lm8gL3RtcC9maW8tY29uZi0yOTc3MC0yMjY3OC0yOTAz
-OS5jCi90bXAvZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkwMzkuYzoyOjI6IGVycm9yOiAjZXJyb3Ig
-X19BTkRST0lEX18gbm90IGRlZmluZWQKZ2NjIC1EX0dOVV9TT1VSQ0UgLWMgLW8gL3RtcC9maW8t
-Y29uZi0yNjcyLTIyNjc4LTI5MTc0Lm8gL3RtcC9maW8tY29uZi0yOTc3MC0yMjY3OC0yOTAzOS5j
-CmdjYyAtRF9HTlVfU09VUkNFIC1jIC1vIC90bXAvZmlvLWNvbmYtMjY3Mi0yMjY3OC0yOTE3NC5v
-IC90bXAvZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkwMzkuYwpDb21waWxpbmcgdGVzdCBjYXNlIGVu
-ZGlhbgpnY2MgLURfR05VX1NPVVJDRSAtbyAvdG1wL2Zpby1jb25mLTI1NDkzLTIyNjc4LTI5MTc4
-LmV4ZSAvdG1wL2Zpby1jb25mLTI5NzcwLTIyNjc4LTI5MDM5LmMKQ29tcGlsaW5nIHRlc3QgY2Fz
-ZSB3b3Jkc2l6ZQpnY2MgLURfR05VX1NPVVJDRSAtbyAvdG1wL2Zpby1jb25mLTI1NDkzLTIyNjc4
-LTI5MTc4LmV4ZSAvdG1wL2Zpby1jb25mLTI5NzcwLTIyNjc4LTI5MDM5LmMKQ29tcGlsaW5nIHRl
-c3QgY2FzZSBsaWJhaW8KZ2NjIC1EX0dOVV9TT1VSQ0UgLW8gL3RtcC9maW8tY29uZi0yNTQ5My0y
-MjY3OC0yOTE3OC5leGUgL3RtcC9maW8tY29uZi0yOTc3MC0yMjY3OC0yOTAzOS5jIC1sYWlvCkNv
-bXBpbGluZyB0ZXN0IGNhc2UgcG9zaXhhaW8KZ2NjIC1EX0dOVV9TT1VSQ0UgLW8gL3RtcC9maW8t
-Y29uZi0yNTQ5My0yMjY3OC0yOTE3OC5leGUgL3RtcC9maW8tY29uZi0yOTc3MC0yMjY3OC0yOTAz
-OS5jCi90bXAvY2NDYjZvbjQubzogSW4gZnVuY3Rpb24gYG1haW4nOgpmaW8tY29uZi0yOTc3MC0y
-MjY3OC0yOTAzOS5jOigudGV4dCsweDE0KTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgYWlvX3Jl
-YWQnCmNvbGxlY3QyOiBlcnJvcjogbGQgcmV0dXJuZWQgMSBleGl0IHN0YXR1cwpDb21waWxpbmcg
-dGVzdCBjYXNlIHBvc2l4YWlvCmdjYyAtRF9HTlVfU09VUkNFIC1vIC90bXAvZmlvLWNvbmYtMjU0
-OTMtMjI2NzgtMjkxNzguZXhlIC90bXAvZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkwMzkuYyAtbHJ0
-CkNvbXBpbGluZyB0ZXN0IGNhc2UgcG9zaXhfYWlvX2ZzeW5jCmdjYyAtRF9HTlVfU09VUkNFIC1v
-IC90bXAvZmlvLWNvbmYtMjU0OTMtMjI2NzgtMjkxNzguZXhlIC90bXAvZmlvLWNvbmYtMjk3NzAt
-MjI2NzgtMjkwMzkuYyAtbHJ0IC1sYWlvCkNvbXBpbGluZyB0ZXN0IGNhc2Ugc29sYXJpc2Fpbwpn
-Y2MgLURfR05VX1NPVVJDRSAtbyAvdG1wL2Zpby1jb25mLTI1NDkzLTIyNjc4LTI5MTc4LmV4ZSAv
-dG1wL2Zpby1jb25mLTI5NzcwLTIyNjc4LTI5MDM5LmMgLWxhaW8KL3RtcC9maW8tY29uZi0yOTc3
-MC0yMjY3OC0yOTAzOS5jOjI6MjQ6IGZhdGFsIGVycm9yOiBzeXMvYXN5bmNoLmg6IE5vIHN1Y2gg
-ZmlsZSBvciBkaXJlY3RvcnkKY29tcGlsYXRpb24gdGVybWluYXRlZC4KQ29tcGlsaW5nIHRlc3Qg
-Y2FzZSBfX3N5bmNfZmV0Y2hfYW5kX2FkZCgpCmdjYyAtRF9HTlVfU09VUkNFIC1vIC90bXAvZmlv
-LWNvbmYtMjU0OTMtMjI2NzgtMjkxNzguZXhlIC90bXAvZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkw
-MzkuYwpDb21waWxpbmcgdGVzdCBjYXNlIGxpYnZlcmJzCmdjYyAtRF9HTlVfU09VUkNFIC1vIC90
-bXAvZmlvLWNvbmYtMjU0OTMtMjI2NzgtMjkxNzguZXhlIC90bXAvZmlvLWNvbmYtMjk3NzAtMjI2
-NzgtMjkwMzkuYyAtbGlidmVyYnMKL3RtcC9maW8tY29uZi0yOTc3MC0yMjY3OC0yOTAzOS5jOjI6
-Mjk6IGZhdGFsIGVycm9yOiBpbmZpbmliYW5kL2FyY2guaDogTm8gc3VjaCBmaWxlIG9yIGRpcmVj
-dG9yeQpjb21waWxhdGlvbiB0ZXJtaW5hdGVkLgpDb21waWxpbmcgdGVzdCBjYXNlIHJkbWEKZ2Nj
-IC1EX0dOVV9TT1VSQ0UgLW8gL3RtcC9maW8tY29uZi0yNTQ5My0yMjY3OC0yOTE3OC5leGUgL3Rt
-cC9maW8tY29uZi0yOTc3MC0yMjY3OC0yOTAzOS5jIC1scmRtYWNtCi90bXAvZmlvLWNvbmYtMjk3
-NzAtMjI2NzgtMjkwMzkuYzoyOjI3OiBmYXRhbCBlcnJvcjogcmRtYS9yZG1hX2NtYS5oOiBObyBz
-dWNoIGZpbGUgb3IgZGlyZWN0b3J5CmNvbXBpbGF0aW9uIHRlcm1pbmF0ZWQuCkNvbXBpbGluZyB0
-ZXN0IGNhc2UgbGludXhfZmFsbG9jYXRlCmdjYyAtRF9HTlVfU09VUkNFIC1vIC90bXAvZmlvLWNv
-bmYtMjU0OTMtMjI2NzgtMjkxNzguZXhlIC90bXAvZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkwMzku
-YwpDb21waWxpbmcgdGVzdCBjYXNlIHBvc2l4X2ZhZHZpc2UKZ2NjIC1EX0dOVV9TT1VSQ0UgLW8g
-L3RtcC9maW8tY29uZi0yNTQ5My0yMjY3OC0yOTE3OC5leGUgL3RtcC9maW8tY29uZi0yOTc3MC0y
-MjY3OC0yOTAzOS5jCkNvbXBpbGluZyB0ZXN0IGNhc2UgcG9zaXhfZmFsbG9jYXRlCmdjYyAtRF9H
-TlVfU09VUkNFIC1vIC90bXAvZmlvLWNvbmYtMjU0OTMtMjI2NzgtMjkxNzguZXhlIC90bXAvZmlv
-LWNvbmYtMjk3NzAtMjI2NzgtMjkwMzkuYwpDb21waWxpbmcgdGVzdCBjYXNlIHNjaGVkX3NldGFm
-ZmluaXR5KCwsKQpnY2MgLURfR05VX1NPVVJDRSAtbyAvdG1wL2Zpby1jb25mLTI1NDkzLTIyNjc4
-LTI5MTc4LmV4ZSAvdG1wL2Zpby1jb25mLTI5NzcwLTIyNjc4LTI5MDM5LmMKQ29tcGlsaW5nIHRl
-c3QgY2FzZSBjbG9ja19nZXR0aW1lCmdjYyAtRF9HTlVfU09VUkNFIC1vIC90bXAvZmlvLWNvbmYt
-MjU0OTMtMjI2NzgtMjkxNzguZXhlIC90bXAvZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkwMzkuYwpD
-b21waWxpbmcgdGVzdCBjYXNlIGNsb2NrIG1vbm90b25pYwpnY2MgLURfR05VX1NPVVJDRSAtbyAv
-dG1wL2Zpby1jb25mLTI1NDkzLTIyNjc4LTI5MTc4LmV4ZSAvdG1wL2Zpby1jb25mLTI5NzcwLTIy
-Njc4LTI5MDM5LmMgLWxydCAtbGFpbwpDb21waWxpbmcgdGVzdCBjYXNlIGNsb2NrIG1vbm90b25p
-YyBwcmVjaXNlCmdjYyAtRF9HTlVfU09VUkNFIC1vIC90bXAvZmlvLWNvbmYtMjU0OTMtMjI2Nzgt
-MjkxNzguZXhlIC90bXAvZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkwMzkuYyAtbHJ0IC1sYWlvCi90
-bXAvZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkwMzkuYzogSW4gZnVuY3Rpb24gJ21haW4nOgovdG1w
-L2Zpby1jb25mLTI5NzcwLTIyNjc4LTI5MDM5LmM6NToyNDogZXJyb3I6ICdDTE9DS19NT05PVE9O
-SUNfUFJFQ0lTRScgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pCi90bXAv
-ZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkwMzkuYzo1OjI0OiBub3RlOiBlYWNoIHVuZGVjbGFyZWQg
-aWRlbnRpZmllciBpcyByZXBvcnRlZCBvbmx5IG9uY2UgZm9yIGVhY2ggZnVuY3Rpb24gaXQgYXBw
-ZWFycyBpbgpDb21waWxpbmcgdGVzdCBjYXNlIGdldHRpbWVvZmRheQpnY2MgLURfR05VX1NPVVJD
-RSAtbyAvdG1wL2Zpby1jb25mLTI1NDkzLTIyNjc4LTI5MTc4LmV4ZSAvdG1wL2Zpby1jb25mLTI5
-NzcwLTIyNjc4LTI5MDM5LmMKQ29tcGlsaW5nIHRlc3QgY2FzZSBmZGF0YXN5bmMKZ2NjIC1EX0dO
-VV9TT1VSQ0UgLW8gL3RtcC9maW8tY29uZi0yNTQ5My0yMjY3OC0yOTE3OC5leGUgL3RtcC9maW8t
-Y29uZi0yOTc3MC0yMjY3OC0yOTAzOS5jCkNvbXBpbGluZyB0ZXN0IGNhc2Ugc3luY19maWxlX3Jh
-bmdlCmdjYyAtRF9HTlVfU09VUkNFIC1vIC90bXAvZmlvLWNvbmYtMjU0OTMtMjI2NzgtMjkxNzgu
-ZXhlIC90bXAvZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkwMzkuYwpDb21waWxpbmcgdGVzdCBjYXNl
-IGV4dDQgbW92ZSBleHRlbnQKZ2NjIC1EX0dOVV9TT1VSQ0UgLW8gL3RtcC9maW8tY29uZi0yNTQ5
-My0yMjY3OC0yOTE3OC5leGUgL3RtcC9maW8tY29uZi0yOTc3MC0yMjY3OC0yOTAzOS5jCi90bXAv
-ZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkwMzkuYzogSW4gZnVuY3Rpb24gJ21haW4nOgovdG1wL2Zp
-by1jb25mLTI5NzcwLTIyNjc4LTI5MDM5LmM6NToyMjogZXJyb3I6IHN0b3JhZ2Ugc2l6ZSBvZiAn
-bWUnIGlzbid0IGtub3duCi90bXAvZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkwMzkuYzo2OjE5OiBl
-cnJvcjogJ0VYVDRfSU9DX01PVkVfRVhUJyB1bmRlY2xhcmVkIChmaXJzdCB1c2UgaW4gdGhpcyBm
-dW5jdGlvbikKL3RtcC9maW8tY29uZi0yOTc3MC0yMjY3OC0yOTAzOS5jOjY6MTk6IG5vdGU6IGVh
-Y2ggdW5kZWNsYXJlZCBpZGVudGlmaWVyIGlzIHJlcG9ydGVkIG9ubHkgb25jZSBmb3IgZWFjaCBm
-dW5jdGlvbiBpdCBhcHBlYXJzIGluCkNvbXBpbGluZyB0ZXN0IGNhc2UgbGludXggc3BsaWNlCmdj
-YyAtRF9HTlVfU09VUkNFIC1vIC90bXAvZmlvLWNvbmYtMjU0OTMtMjI2NzgtMjkxNzguZXhlIC90
-bXAvZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkwMzkuYwpDb21waWxpbmcgdGVzdCBjYXNlIGd1YXNp
-CmdjYyAtRF9HTlVfU09VUkNFIC1vIC90bXAvZmlvLWNvbmYtMjU0OTMtMjI2NzgtMjkxNzguZXhl
-IC90bXAvZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkwMzkuYwovdG1wL2Zpby1jb25mLTI5NzcwLTIy
-Njc4LTI5MDM5LmM6MToxOTogZmF0YWwgZXJyb3I6IGd1YXNpLmg6IE5vIHN1Y2ggZmlsZSBvciBk
-aXJlY3RvcnkKY29tcGlsYXRpb24gdGVybWluYXRlZC4KQ29tcGlsaW5nIHRlc3QgY2FzZSBmdXNp
-b24tYXcKZ2NjIC1EX0dOVV9TT1VSQ0UgLW8gL3RtcC9maW8tY29uZi0yNTQ5My0yMjY3OC0yOTE3
-OC5leGUgL3RtcC9maW8tY29uZi0yOTc3MC0yMjY3OC0yOTAzOS5jIC1ML3Vzci9saWIvZmlvIC1s
-bnZtLXByaW1pdGl2ZXMKL3RtcC9maW8tY29uZi0yOTc3MC0yMjY3OC0yOTAzOS5jOjE6MzI6IGZh
-dGFsIGVycm9yOiBudm0vdmVjdG9yZWRfd3JpdGUuaDogTm8gc3VjaCBmaWxlIG9yIGRpcmVjdG9y
-eQpjb21waWxhdGlvbiB0ZXJtaW5hdGVkLgpDb21waWxpbmcgdGVzdCBjYXNlIGxpYm51bWEKZ2Nj
-IC1EX0dOVV9TT1VSQ0UgLW8gL3RtcC9maW8tY29uZi0yNTQ5My0yMjY3OC0yOTE3OC5leGUgL3Rt
-cC9maW8tY29uZi0yOTc3MC0yMjY3OC0yOTAzOS5jIC1sbnVtYQovdG1wL2Zpby1jb25mLTI5Nzcw
-LTIyNjc4LTI5MDM5LmM6MToxODogZmF0YWwgZXJyb3I6IG51bWEuaDogTm8gc3VjaCBmaWxlIG9y
-IGRpcmVjdG9yeQpjb21waWxhdGlvbiB0ZXJtaW5hdGVkLgpDb21waWxpbmcgdGVzdCBjYXNlIHN0
-cnNlcApnY2MgLURfR05VX1NPVVJDRSAtbyAvdG1wL2Zpby1jb25mLTI1NDkzLTIyNjc4LTI5MTc4
-LmV4ZSAvdG1wL2Zpby1jb25mLTI5NzcwLTIyNjc4LTI5MDM5LmMKQ29tcGlsaW5nIHRlc3QgY2Fz
-ZSBnZXRvcHRfbG9uZ19vbmx5CmdjYyAtRF9HTlVfU09VUkNFIC1vIC90bXAvZmlvLWNvbmYtMjU0
-OTMtMjI2NzgtMjkxNzguZXhlIC90bXAvZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkwMzkuYwpDb21w
-aWxpbmcgdGVzdCBjYXNlIGluZXRfYXRvbgpnY2MgLURfR05VX1NPVVJDRSAtbyAvdG1wL2Zpby1j
-b25mLTI1NDkzLTIyNjc4LTI5MTc4LmV4ZSAvdG1wL2Zpby1jb25mLTI5NzcwLTIyNjc4LTI5MDM5
-LmMKQ29tcGlsaW5nIHRlc3QgY2FzZSBzb2NrbGVuX3QKZ2NjIC1EX0dOVV9TT1VSQ0UgLW8gL3Rt
-cC9maW8tY29uZi0yNTQ5My0yMjY3OC0yOTE3OC5leGUgL3RtcC9maW8tY29uZi0yOTc3MC0yMjY3
-OC0yOTAzOS5jCkNvbXBpbGluZyB0ZXN0IGNhc2UgX190aHJlYWQKZ2NjIC1EX0dOVV9TT1VSQ0Ug
-LW8gL3RtcC9maW8tY29uZi0yNTQ5My0yMjY3OC0yOTE3OC5leGUgL3RtcC9maW8tY29uZi0yOTc3
-MC0yMjY3OC0yOTAzOS5jCkNvbXBpbGluZyB0ZXN0IGNhc2UgUlVTQUdFX1RIUkVBRApnY2MgLURf
-R05VX1NPVVJDRSAtbyAvdG1wL2Zpby1jb25mLTI1NDkzLTIyNjc4LTI5MTc4LmV4ZSAvdG1wL2Zp
-by1jb25mLTI5NzcwLTIyNjc4LTI5MDM5LmMKQ29tcGlsaW5nIHRlc3QgY2FzZSBTQ0hFRF9JRExF
-CmdjYyAtRF9HTlVfU09VUkNFIC1vIC90bXAvZmlvLWNvbmYtMjU0OTMtMjI2NzgtMjkxNzguZXhl
-IC90bXAvZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkwMzkuYwpDb21waWxpbmcgdGVzdCBjYXNlIFRD
-UF9OT0RFTEFZCmdjYyAtRF9HTlVfU09VUkNFIC1vIC90bXAvZmlvLWNvbmYtMjU0OTMtMjI2Nzgt
-MjkxNzguZXhlIC90bXAvZmlvLWNvbmYtMjk3NzAtMjI2NzgtMjkwMzkuYwoK
---001a11c22990e9584304d8db0f8d--
-
+-- 
+Jens Axboe
 
