@@ -1,47 +1,54 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vc0-f178.google.com ([209.85.220.178]:38033 "EHLO
-	mail-vc0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751675Ab3DLDxH (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 11 Apr 2013 23:53:07 -0400
-Received: by mail-vc0-f178.google.com with SMTP id hv10so1871983vcb.37
-        for <fio@vger.kernel.org>; Thu, 11 Apr 2013 20:53:06 -0700 (PDT)
+Received: from na3sys010aog108.obsmtp.com ([74.125.245.84]:60881 "EHLO
+	na3sys010aog108.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1761503Ab3DCGKX (ORCPT
+	<rfc822;fio@vger.kernel.org>); Wed, 3 Apr 2013 02:10:23 -0400
+From: Ritchie Babaylan <Ritchie.Babaylan@bitmicro.com>
+Subject: RE: Thread vs Worker Question
+Date: Wed, 3 Apr 2013 06:10:19 +0000
+Message-ID: <9E26C6259ACF1842A4815F929194EDD36692E663@phex01.corp.bitmicro.com>
+References: <02f3eb14c814cc7ac953bd1177dbc70b@milestoneintelligence.com>,<9E26C6259ACF1842A4815F929194EDD36692E2EA@phex01.corp.bitmicro.com>
+ <843E15216120C047928F6879B0E2D92424BA4992@SACEXCMBX02-PRD.hq.netapp.com>
+In-Reply-To: <843E15216120C047928F6879B0E2D92424BA4992@SACEXCMBX02-PRD.hq.netapp.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Date: Fri, 12 Apr 2013 13:53:06 +1000
-Message-ID: <CAKCZDg=H1ry20d8sxcHaod3=Z0SfJDzj0Z4sDo2aSvnMAk=R8A@mail.gmail.com>
-Subject: [PATCH] fix warning on 32-bit systems
-From: Aaron Carroll <xaaronc@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: "'Neto, Antonio Jose Rodrigues'" <Antonio.Jose.Rodrigues.Neto@netapp.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Casting a uint64_t to a pointer emits a warning on 32 bit systems.
-This patch fixes the warning, but seems a bit suspicious. Should the
-type of 'tag' be uintptr_t ?
-
---
-
-diff --git a/server.c b/server.c
-index 9537c96..3c52083 100644
---- a/server.c
-+++ b/server.c
-@@ -293,7 +293,7 @@ struct fio_net_cmd *fio_net_recv_cmd(int sk)
-
- static void add_reply(uint64_t tag, struct flist_head *list)
- {
--       struct fio_net_cmd_reply *reply = (struct fio_net_cmd_reply *) tag;
-+       struct fio_net_cmd_reply *reply = (struct fio_net_cmd_reply *)
-(uintptr_t)tag;
-
-        flist_add_tail(&reply->list, list);
- }
-@@ -313,7 +313,7 @@ static uint64_t alloc_reply(uint64_t tag, uint16_t opcode)
-
- static void free_reply(uint64_t tag)
- {
--       struct fio_net_cmd_reply *reply = (struct fio_net_cmd_reply *) tag;
-+       struct fio_net_cmd_reply *reply = (struct fio_net_cmd_reply *)
-(uintptr_t)tag;
-
-        free(reply);
- }
+SGkgTmV0bywNCg0KSSBhbSBvay4NCg0KSGVyZSBhcmUgdGhlIGRldGFpbHMuDQoNCklPTWV0ZXIg
+KHZlcnNpb24gLSAyMDA2LjA3LjI3KToNClFEZXB0aCA9IDI1Ng0KV29ya2VyID0gMQ0KQmxvY2sg
+U2l6ZSA9IDUxMkIgYW5kIDRLQg0KUnVudGltZSA9IDEgbWludXRlDQpBY2Nlc3MgPSBTZXFSZCwg
+UmFuUmQsIFNlcVdyLCBhbmQgUmFuV3INCk9TIFBsYXRmb3JtID0gV2luZG93cyAyMDA4IFIyIEVu
+dGVycHJpc2UgU2VydmVyIDY0LWJpdA0KDQoNCkZJTyAodmVyc2lvbiAtIDIuMC4xNCk6DQpJT0Rl
+cHRoID0gMjU2DQpUaHJlYWQgPSAxDQpCbG9jayBTaXplID0gNTEyQiBhbmQgNEtCDQpSdW50aW1l
+ID0gMSBtaW51dGUNCkFjY2VzcyA9IFNlcVJkLCBSYW5SZCwgU2VxV3IsIGFuZCBSYW5Xcg0KT1Mg
+UGxhdGZvcm0gPSBXaW5kb3dzIDIwMDggUjIgRW50ZXJwcmlzZSBTZXJ2ZXIgNjQtYml0DQoNCg0K
+QnV0IEkgYW0gY3VycmVudGx5IHJ1bm5pbmcgYSB0ZXN0IHRvIHZhbGlkYXRlIHRoZSBwcmV2aW91
+cyByZXN1bHRzLg0KDQoNCsKgDQpUaGFua3MsDQrCoA0KUml0Y2hpZSBCYWJheWxhbg0KQWR2YW5j
+ZSBDT1JFIEVuZ2luZWVyaW5nDQpCaVRNSUNSTyBOZXR3b3JrcywgSW5jLg0KDQoNCi0tLS0tT3Jp
+Z2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBOZXRvLCBBbnRvbmlvIEpvc2UgUm9kcmlndWVzIFtt
+YWlsdG86QW50b25pby5Kb3NlLlJvZHJpZ3Vlcy5OZXRvQG5ldGFwcC5jb21dIA0KU2VudDogV2Vk
+bmVzZGF5LCBBcHJpbCAwMywgMjAxMyA2OjQzIEFNDQpUbzogUml0Y2hpZSBCYWJheWxhbjsgZmlv
+QHZnZXIua2VybmVsLm9yZw0KU3ViamVjdDogUkU6IFRocmVhZCB2cyBXb3JrZXIgUXVlc3Rpb24N
+Cg0KSGkgUml0Y2hpZQ0KDQpUaGlzIGlzIG5ldG8gZnJvbSBCcmF6aWwNCg0KSG93IGFyZSB5b3U/
+DQoNCkpvYnMgb24gRklPIGlzIHNpbWlsYXIgdG8gd29ya2VycyBvbiBJT21ldGVyLg0KDQpDb3Vs
+ZCB5b3UgcGxlYXNlIG1vcmUgZGV0YWlscyBhYm91dCBqb2JzIGFuZCBudW1iZXJzPw0KDQpBbGwg
+dGhlIGJlc3QNCg0KbmV0bw0KTmV0QXBwIC0gSSBsb3ZlIHRoaXMgY29tcGFueSENCl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18NCkZyb206IGZpby1vd25lckB2Z2VyLmtl
+cm5lbC5vcmcgW2Zpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIG9uIGJlaGFsZiBvZiBSaXRjaGll
+IEJhYmF5bGFuIFtSaXRjaGllLkJhYmF5bGFuQGJpdG1pY3JvLmNvbV0NClNlbnQ6IFR1ZXNkYXks
+IEFwcmlsIDAyLCAyMDEzIDY6MzggUE0NClRvOiBmaW9Admdlci5rZXJuZWwub3JnDQpTdWJqZWN0
+OiBUaHJlYWQgdnMgV29ya2VyIFF1ZXN0aW9uDQoNCkkgYW0gdXNpbmcgYm90aCBJT01ldGVyIGFu
+ZCBGSU8gaW4gb25lIG9mIG91ciB0ZXN0IHNldHVwIGhlcmUgYnV0IHRoZSByZXN1bHRzIEkgZ290
+IG9uIElPUFMgYXJlIGRpZmZlcmVudCBmb3IgdGhlIHR3byB0b29scy4gSSB1c2UgdGhlIHNhbWUg
+ZGVwdGgsIGFjY2VzcyBzcGVjaWZpY2F0aW9uIGFuZCB0aGUgbWl4dHVyZSBiZXR3ZWVuIHJlYWQg
+YW5kIHdyaXRlLiBXaGF0IEkgc2VlIGlzIHRoZSBkaWZmZXJlbmNlIGJldHdlZW4gdXNpbmcgdGhy
+ZWFkIGluIGZpbyBhbmQgd29ya2VyIGluIGlvbWV0ZXI/DQoNCkNhbiBhbnlvbmUgcG9pbnQgbWUg
+dGhlIGRpZmZlcmVuY2UgYmV0d2VlbiB0aHJlYWQgYW5kIHdvcmtlcj8NCk7vv73vv73vv73vv73v
+v71y77+977+9ee+/ve+/ve+/vWLvv71Y77+977+9x6d277+9Xu+/vSneunsubu+/vSvvv73vv73v
+v73vv73vv73vv73vv70X77+977+93Kh977+977+977+9xqB677+9Jmo6K3bvv73vv73vv70N77+9
+77+977+977+9elor77+977+9K3pm77+977+977+9aO+/ve+/ve+/vX7vv73vv73vv73vv71p77+9
+77+977+9eu+/vR7vv71377+977+977+9P++/ve+/ve+/ve+/vSbvv70p36IbZg0K
