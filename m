@@ -1,42 +1,33 @@
-Return-Path: <msmucr@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <20130404184104.GE9683@kernel.dk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from server506f.appriver.com ([50.56.144.36]:51155 "EHLO
+	server506.appriver.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1764420Ab3DDTH7 convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Thu, 4 Apr 2013 15:07:59 -0400
+From: Carl Zwanzig <cpz@coraid.com>
+Subject: RE: How to re-use default sequential filenames?
+Date: Thu, 4 Apr 2013 19:02:55 +0000
+Message-ID: <A7A1D348E34E024BBC74480FB93A2EAB023D8F@DAGN05A-E6.exg6.exghost.com>
 References: <515DAA33.4000009@warnerbros.com>
-	<20130404181946.GD9683@kernel.dk>
-	<20130404184104.GE9683@kernel.dk>
-Date: Fri, 5 Apr 2013 01:59:38 +0200
-Message-ID: <CAHBo9gmJHgZAjQ=rjeNpzrV7boLS6+2VcxtZRnkad7y_hwp=Dw@mail.gmail.com>
-Subject: Re: How to re-use default sequential filenames?
-From: =?UTF-8?Q?Michal_=C5=A0mucr?= <msmucr@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Alan Hagge <Alan.Hagge@warnerbros.com>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+ <CAN2qFapd8shvoG+eJSa5TRv-jzW-Cms-PKJM+PcxUGeXnwGBJw@mail.gmail.com>
+In-Reply-To: <CAN2qFapd8shvoG+eJSa5TRv-jzW-Cms-PKJM+PcxUGeXnwGBJw@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Matt Hayward <matt.hayward@delphix.com>, Alan Hagge <Alan.Hagge@warnerbros.com>
+Cc: fio <fio@vger.kernel.org>
 
-Hello to all,
-this is actually great thread. I discovered wonderful fio before two
-days during seeking for tool, which allows me to simulate typical
-workload with DPX files playback and recording (one file per frame).
-I'm playing with it today and slowly getting into options. By
-coincidence, i subscribed to this list to ask almost same question as
-Alan and found this first thread.. :-)
-Reusing of generated frames (file sequences) between write and read
-jobs is also important for me and is exactly thing, what i thought
-about. I will try to test patch by Jens.
+> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
+> Behalf Of Matt Hayward
 
-One small thing, sorry for slight derail of thread topic, which come
-to my mind was option for kind of automatic set of blocksize during
-read to match length of each pre-generated file within sequence, which
-fio got from directory using opendir directive. Idea behind this come
-from common behaviour of VFX applications, which issue read io for
-whole frame size. So application use stat() output to get actual file
-size before reading of each frame. If I have same filesize per frame
-it is easy to adjust blocksize before benchmark, but if i want to test
-read performance of sequence with compressed frames or simulate
-mixture of different resolutions, this will be handy.
+> It seems possible that doing this for 20000 files might create a
+> problem with the length of the parameter...
 
-Thank you and especially Jens for creation of fio (first day with it
-is mindblowing :)
+Seems to me also that multiple servers would be in order. You'd need something pretty beefy to swing that many processes and open files.  Which OS and file system are you using? The original email mentions posixaid, and assuming linux, I've had better throughput with linux's libaio. Also beware of one process forking that many subprocesses. Not saying that it can't be done, but I'd probably distribute that kind of load over at least 10 initiators, and maybe more.
 
-Michal Smucr
+Have you done any back-of-the-envelope calculations for where the bottlenecks might be? A 10g connection at best moves only about 1.2gB/sec (including overhead), which divided by 20k streams gives only about 60kB/sec per stream (have I got that right?) and again, that doesn't account for any overhead.  Likewise, a single 3.5" rotating drive generally won't deliver more than about 150 random write IOPS with write cache enabled, and 2/3 to 1/2 that with the cache disabled. Even with large sequential blocks at the user level, with that many streams into a file system, it can take the appearance of almost pure random access.
+
+z!
 
