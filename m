@@ -1,117 +1,68 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from office2.cesnet.cz ([195.113.144.244]:50826 "EHLO
-	office2.cesnet.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752063Ab3DJGqY (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 10 Apr 2013 02:46:24 -0400
-Received: from [195.113.219.213] (eduroam-213.cesnet.cz [195.113.219.213])
-	by office2.cesnet.cz (Postfix) with ESMTPSA id 407D52CDE066
-	for <fio@vger.kernel.org>; Wed, 10 Apr 2013 08:38:02 +0200 (CEST)
-Message-ID: <516508C4.6040804@cesnet.cz>
-Date: Wed, 10 Apr 2013 08:37:56 +0200
-From: Jiri Horky <jiri.horky@cesnet.cz>
+Received: from merlin.infradead.org ([205.233.59.134]:59593 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760402Ab3DINaY (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 9 Apr 2013 09:30:24 -0400
+Received: from kernel.dk ([54.225.238.116])
+	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1UPYcy-0002jv-9f
+	for fio@vger.kernel.org; Tue, 09 Apr 2013 13:30:24 +0000
+Received: from localhost (87-104-106-3-dynamic-customer.profibernet.dk [87.104.106.3])
+	by kernel.dk (Postfix) with ESMTPA id 9773F20551
+	for <fio@vger.kernel.org>; Tue,  9 Apr 2013 13:30:23 +0000 (UTC)
+Date: Tue, 9 Apr 2013 15:30:06 +0200
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Fio 2.0.15 tagged
+Message-ID: <20130409133006.GF12244@kernel.dk>
 MIME-Version: 1.0
-Subject: Re: Recent changes (gfio)
-References: <20130410040002.998E920551@kernel.dk>
-In-Reply-To: <20130410040002.998E920551@kernel.dk>
-Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha1; boundary="------------ms030804040305030106010701"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+Hi,
 
---------------ms030804040305030106010701
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+As you may have noticed in the automated daily commit mailing, version
+2.0.15 of fio was tagged yesterday. In no particular order, the changes
+and new features are:
 
-Hi Jens,
+- Various fixes to Android, both on the build front (better integration
+  and cross-build support) and adding IO priority support as well. This
+  from Aaron Carroll.
 
-On 04/10/2013 06:00 AM, Jens Axboe wrote:
->   git://git.kernel.dk/fio.git gfio
-I think the instruction should say "branch gfio" ( -b gfio), since only=20
-"git clone git://git.kernel.dk/fio.git gfio" will get normal fio=20
-sources. Maybe this was obvious to others but it took me some time to=20
-realize that it is under the same git tree (i.e. not "gfio.git"), but on =
+- The newly introduced LFSR support was overhauled, switching to a
+  galois based one which is more suitable. From Alex Pyrgiotis.
 
-a different branch.
+- A new --eta-newline command line parameter was added. This is mostly
+  useful for long running jobs, where you want a new line in there every
+  x amount of time. Gives you a visual clue on how the job rates change
+  over time, for the cases where you don't really want or need full
+  logging.
 
-Cheers
-Jiri Horky
+- Addition of a --parse-only command line option. Checks the validity of
+  a job, without actually running it.
 
+- A few fixes for Solaris/SunOS, fixing the net engine nodelay pickup
+  and man page installation.
 
---------------ms030804040305030106010701
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
+- A fix for a bug where fio would re-run a job section.
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJzTCC
-BNowggPCoAMCAQICEF3/UOr+D1NGiJ+AQY/nQsgwDQYJKoZIhvcNAQEFBQAwga4xCzAJBgNV
-BAYTAlVTMQswCQYDVQQIEwJVVDEXMBUGA1UEBxMOU2FsdCBMYWtlIENpdHkxHjAcBgNVBAoT
-FVRoZSBVU0VSVFJVU1QgTmV0d29yazEhMB8GA1UECxMYaHR0cDovL3d3dy51c2VydHJ1c3Qu
-Y29tMTYwNAYDVQQDEy1VVE4tVVNFUkZpcnN0LUNsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQg
-RW1haWwwHhcNMDkwNTE4MDAwMDAwWhcNMjgxMjMxMjM1OTU5WjBEMQswCQYDVQQGEwJOTDEP
-MA0GA1UEChMGVEVSRU5BMSQwIgYDVQQDExtURVJFTkEgZVNjaWVuY2UgUGVyc29uYWwgQ0Ew
-ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDEvCV9ze9ZBKt0Jym2Y4rvxDVwoUYI
-r25QmxtxeJcChcA1/5AYEWb6MzkUnqQS9z3uBSyB5/ctLjZ4Qw45tn96dMPLVT8vs8vDN2rh
-lQMjG7MimBODWDBfrDyRRdNtCy7L0ZFhsspx+sKJDHsJ1pK/o4EXEVUg3zeBnx4mCR3SFxlD
-y4uZJXRBW+YyKtCnU9zSIY3Nkc97bPTJ/tDl0gZrGmFCG4CRB9wUSSc7Coqy4jtpCITLgZnX
-uhQf2H6SY732LTH6lU7NNg2Z7xG6rUr7qMR4uXxaPsj1CDLAqQXHjBoojzC6F6PxueIHp7j7
-Vb+fYlrVFA8ItBOZ0hJ5WvD9AgMBAAGjggFbMIIBVzAfBgNVHSMEGDAWgBSJgmd9xJ0mcABL
-tFBIfN49rgRufTAdBgNVHQ4EFgQUyIlzmaddURZTRVR8o8I5fMvXqoEwDgYDVR0PAQH/BAQD
-AgEGMBIGA1UdEwEB/wQIMAYBAf8CAQAwJgYDVR0gBB8wHTANBgsrBgEEAbIxAQICHTAMBgoq
-hkiG90wFAgIFMFgGA1UdHwRRME8wTaBLoEmGR2h0dHA6Ly9jcmwudXNlcnRydXN0LmNvbS9V
-VE4tVVNFUkZpcnN0LUNsaWVudEF1dGhlbnRpY2F0aW9uYW5kRW1haWwuY3JsMG8GCCsGAQUF
-BwEBBGMwYTA4BggrBgEFBQcwAoYsaHR0cDovL2NydC51c2VydHJ1c3QuY29tL1VUTkFBQUNs
-aWVudF9DQS5jcnQwJQYIKwYBBQUHMAGGGWh0dHA6Ly9vY3NwLnVzZXJ0cnVzdC5jb20wDQYJ
-KoZIhvcNAQEFBQADggEBAAgXpBz5FWuwGWFvoEjjeiTvQVWaoFBw2CPVU4ZKZ47o2lYWGCwb
-GCGJupgk7lY04xeGJr0hWtQZk0rqYXRNtsSEjUfuyi5lbTaTmLHikmaI4k57dcdeRGkh3BJq
-MPxhgP4P8J3S3H6u5cJTTQtwg2FWRfs933L2AkJ164iKmFdg9Z+ickmxej5BZzXDVSsNBzXo
-xivVuod5gHTnkja9RoF6Liniar7hFxM1fBakJTMvYe7OyVLgQNvTvjlaz89MFOV/xUNXi025
-Wo7CDwZN3shJnYFzuuQ/mKWTPFlO25s13/5Nv1Wh6WTDRXysj3xH0TrxTnXZkGdA6LEvnhcv
-XDUwggTrMIID06ADAgECAhEApf39CtUIjwuN5j5HTKY3rTANBgkqhkiG9w0BAQUFADBEMQsw
-CQYDVQQGEwJOTDEPMA0GA1UEChMGVEVSRU5BMSQwIgYDVQQDExtURVJFTkEgZVNjaWVuY2Ug
-UGVyc29uYWwgQ0EwHhcNMTIwNzA4MDAwMDAwWhcNMTMwODA3MjM1OTU5WjB6MRMwEQYKCZIm
-iZPyLGQBGRYDb3JnMRYwFAYKCZImiZPyLGQBGRYGdGVyZW5hMRMwEQYKCZImiZPyLGQBGRYD
-dGNzMQswCQYDVQQGEwJDWjEPMA0GA1UEChMGQ0VTTkVUMRgwFgYDVQQDEw9KaXJpIEhvcmt5
-IDM1NzAwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCg8wMmAhMj1XlnTCodY9oX
-dNX7yl46jJBsDDEYQ6En2V9sW+5jTu76OQQDHqiMtiPTQCyAXxzgjpwOZvHGLdJ2mqTCno0I
-HYPz06saTkVT6BFunkcWtk+00Yx1j+VYVrvXydXYOKQRWkPYqUwHMzgujw7yu40jsVDNkPMF
-YBUrQGbdt8u3JMRe4oinhqbQ1pkr9hWlpbry/z7qaHU/kc9eAXri/rnX3dxu7KZ9J0uXDCv0
-H5bWxr55V8ljbQd2QhVhK7qvt8lSvteO9gnkXF9TTNuqXSxd87qFJfDRHCoTGt4YueFR0Wco
-5sJjrsC7sgO1uo16CEGm7eitOFQsLR9ZAgMBAAGjggGgMIIBnDAfBgNVHSMEGDAWgBTIiXOZ
-p11RFlNFVHyjwjl8y9eqgTAdBgNVHQ4EFgQUkbmrZa257WAMwQ2skZS6GZEBDsQwDgYDVR0P
-AQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwHQYDVR0lBBYwFAYIKwYBBQUHAwQGCCsGAQUFBwMC
-MCYGA1UdIAQfMB0wDQYLKwYBBAGyMQECAh0wDAYKKoZIhvdMBQICBTBHBgNVHR8EQDA+MDyg
-OqA4hjZodHRwOi8vY3JsLnRjcy50ZXJlbmEub3JnL1RFUkVOQWVTY2llbmNlUGVyc29uYWxD
-QS5jcmwwegYIKwYBBQUHAQEEbjBsMEIGCCsGAQUFBzAChjZodHRwOi8vY3J0LnRjcy50ZXJl
-bmEub3JnL1RFUkVOQWVTY2llbmNlUGVyc29uYWxDQS5jcnQwJgYIKwYBBQUHMAGGGmh0dHA6
-Ly9vY3NwLnRjcy50ZXJlbmEub3JnMDAGA1UdEQQpMCeBD2hvcmt5QGNlc25ldC5jeoEUamly
-aS5ob3JreUBjZXNuZXQuY3owDQYJKoZIhvcNAQEFBQADggEBAHu0bZ0NLpzNMr273/FCoIPe
-GG620A1kwk/aM/FCAgb648z3Q/vQgAvJnQh3ryhE7YaIyXRwVcV0POeFSRWdbSTuxUywfd3k
-udVxnfP5A8BKtIVMsFd404RB8n0Imwjrbyd7eJEUA+FKFK+OphVDPBjg5s+4MVK+nT5ews8V
-vOswa9DCfdhxRkbwBDAhZUkekDuxNR+VXHSo6ADYOCg3+3kg4vwCcYV93t+UPfkAXN6IhPb/
-QJGahilFSjHb4x7dfDWAQtBmbBCSlDpycLoqWjFMEOMIwyOsog7PE1sHlwokZbtz6e60Xdph
-iwYxpUxj4bhwDGpP8sD9ki9REoYThlsxggMlMIIDIQIBATBZMEQxCzAJBgNVBAYTAk5MMQ8w
-DQYDVQQKEwZURVJFTkExJDAiBgNVBAMTG1RFUkVOQSBlU2NpZW5jZSBQZXJzb25hbCBDQQIR
-AKX9/QrVCI8LjeY+R0ymN60wCQYFKw4DAhoFAKCCAaEwGAYJKoZIhvcNAQkDMQsGCSqGSIb3
-DQEHATAcBgkqhkiG9w0BCQUxDxcNMTMwNDEwMDYzNzU2WjAjBgkqhkiG9w0BCQQxFgQU3T0C
-1szhoiOQJ0H3S80qmH4WGAkwaAYJKwYBBAGCNxAEMVswWTBEMQswCQYDVQQGEwJOTDEPMA0G
-A1UEChMGVEVSRU5BMSQwIgYDVQQDExtURVJFTkEgZVNjaWVuY2UgUGVyc29uYWwgQ0ECEQCl
-/f0K1QiPC43mPkdMpjetMGoGCyqGSIb3DQEJEAILMVugWTBEMQswCQYDVQQGEwJOTDEPMA0G
-A1UEChMGVEVSRU5BMSQwIgYDVQQDExtURVJFTkEgZVNjaWVuY2UgUGVyc29uYWwgQ0ECEQCl
-/f0K1QiPC43mPkdMpjetMGwGCSqGSIb3DQEJDzFfMF0wCwYJYIZIAWUDBAEqMAsGCWCGSAFl
-AwQBAjAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYFKw4D
-AgcwDQYIKoZIhvcNAwICASgwDQYJKoZIhvcNAQEBBQAEggEAU6kfRWORiAHxSBwm/VdNS6rx
-CrKfYJp6e5Dglh4BDL1Ru/Cd4HlHgrMrUNKKguQhmNH38AzjZU5P7BIXMJGCEJeaEgCIElnk
-GA1Gbuu5HOd1qCMmDbB5QKUuT4UXsZl7KkFmHy7cAvHHMo4X4E8MxujLwmd5WT+cGSwiY1F7
-vRXFRMsdYMBSuCEm/QD/2Kl/TUMtK4VzeVIsTz58fVydK8kRnxrwZtFytX1fqBLAitCV/lbt
-Zy1LlGXVWJt3Y/GY5kltz5gHTJ/XwEfl46gDEFERnZT3U/Hsdwg0gLGW5X0r2pe1ji4QXpku
-FlWrgcP8wkTLlCQ5/N43q8Hb6vsWbgAAAAAAAA==
---------------ms030804040305030106010701--
---:
-To unsubscribe from this list: send the line "unsubscribe fio" in
-the body of a message to majordomo@vger.kernel.org: 
-More majordomo info at  http: //vger.kernel.org/majordomo-info.html
+- Rework of the shared file locking, should work better now.
 
+- A bug in the random map where the minimum and maximum block sizes
+  differed by more than a factor 64.
+
+- Fix for a bug that could cause skewed latencies if rate_iops= was
+  used. From SEOKYOUNG KO.
+
+- Fix bandwidth output being all zeroes with the json output format
+  selected.
+
+- CPU clock fixes, notably for powerpc.
+
+All users of 2.x should upgrade.
+
+-- 
+Jens Axboe
 
