@@ -1,61 +1,43 @@
-Return-Path: <dpf@google.com>
-From: peter chang <dpf@google.com>
-Subject: [PATCH] fix memory allocation in the cases we may need to align
-Date: Wed, 24 Apr 2013 14:55:45 -0700
-Message-Id: <1366840545-11768-1-git-send-email-dpf@google.com>
-To: axboe@kernel.dk
-Cc: gwendal@google.com, fio@vger.kernel.org, peter chang <dpf@google.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:47603 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750803Ab3DJHIO (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 10 Apr 2013 03:08:14 -0400
+Date: Wed, 10 Apr 2013 09:07:53 +0200
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: Recent changes (gfio)
+Message-ID: <20130410070753.GT12244@kernel.dk>
+References: <20130410040002.998E920551@kernel.dk>
+ <516508C4.6040804@cesnet.cz>
+ <20130410070007.GS12244@kernel.dk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20130410070007.GS12244@kernel.dk>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Jiri Horky <jiri.horky@cesnet.cz>
+Cc: fio@vger.kernel.org
 
-when using the sg backend we crash w/ a SEGV in fio_sgio_getevents()
-because of memory corruption from the IO. when we allocate the td's
-backing store there's a possible post-allocation adjustment to page
-align the buffers. however, the extra memory that this alignment may
-need is not taken into account when allocating the buffer.
+On Wed, Apr 10 2013, Jens Axboe wrote:
+> On Wed, Apr 10 2013, Jiri Horky wrote:
+> > Hi Jens,
+> > 
+> > On 04/10/2013 06:00 AM, Jens Axboe wrote:
+> > >  git://git.kernel.dk/fio.git gfio
+> > I think the instruction should say "branch gfio" ( -b gfio), since only "git
+> > clone git://git.kernel.dk/fio.git gfio" will get normal fio sources. Maybe
+> > this was obvious to others but it took me some time to realize that it is
+> > under the same git tree (i.e. not "gfio.git"), but on a different branch.
+> 
+> Good point, it's not super clear as-is. I will update it! Thanks for
+> letting me know.
 
-Tested:
-  - the problematic fio file looks like
-  fdha347:~# cat foo.fio
-  [global]
-  bs=64k
-  thread
-  rw=read
-  size=100g
-  time_based=1
-  runtime=60
-  iodepth=1
+Just checked the script, and that particular line comes out of git
+request-pull. Not terribly useful...
 
-  [sdc]
-  ioengine=sg
-  filename=/dev/sg2
-  numjobs=1
+I'll augment the script.
 
-Signed-off-by: peter chang <dpf@google.com>
----
- backend.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/backend.c b/backend.c
-index 1c4484b..f48b43d 100644
---- a/backend.c
-+++ b/backend.c
-@@ -910,6 +910,15 @@ static int init_io_u(struct thread_data *td)
- 	if ((td->io_ops->flags & FIO_NOIO) || !(td_read(td) || td_write(td)))
- 		data_xfer = 0;
- 
-+	/*
-+	 * if we may later need to do address alignment, then add any
-+	 * possible adjustment here so that we don't cause a buffer
-+	 * overflow later. this adjustment may be too much if we get
-+	 * lucky and the allocator gives us an aligned address.
-+	 */
-+	if (td->o.odirect || td->o.mem_align || (td->io_ops->flags & FIO_RAWIO))
-+		td->orig_buffer_size += page_mask + td->o.mem_align;
-+
- 	if (td->o.mem_type == MEM_SHMHUGE || td->o.mem_type == MEM_MMAPHUGE) {
- 		unsigned long bs;
- 
 -- 
-1.8.2.1
-
+Jens Axboe
 
