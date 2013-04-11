@@ -1,60 +1,26 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:27099 "EHLO mga02.intel.com"
+Received: from mga01.intel.com ([192.55.52.88]:35636 "EHLO mga01.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754434Ab3DLBUV convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Thu, 11 Apr 2013 21:20:21 -0400
+	id S1161317Ab3DKR5j convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Thu, 11 Apr 2013 13:57:39 -0400
 From: "Krishnamurthy, Anush" <anush.krishnamurthy@intel.com>
-Subject: Re: Make FIO for Android
-Date: Fri, 12 Apr 2013 01:20:19 +0000
-Message-ID: <F36FEB27-8751-4321-8E58-661924945DCE@intel.com>
-References: <428EE8BD-3617-404A-8661-792573E308D5@intel.com>,<CAKCZDgnM85AcwD6Ss5YWNjXwY-OE7QFQh22nFdEFHkta_N0hRA@mail.gmail.com>
-In-Reply-To: <CAKCZDgnM85AcwD6Ss5YWNjXwY-OE7QFQh22nFdEFHkta_N0hRA@mail.gmail.com>
+Subject: Make FIO for Android
+Date: Thu, 11 Apr 2013 17:57:37 +0000
+Message-ID: <428EE8BD-3617-404A-8661-792573E308D5@intel.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
+Content-ID: <D07EA445A4C67E4E8FBDA2F46F96E774@intel.com>
 Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Aaron Carroll <xaaronc@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Thanks Aaron. I will give this a go. I also wanted to know if you ever tried compiling this in the native source. I mean the whole android source.
-
-Regards
-Anush Krishnamurthy
-
-
-On Apr 11, 2013, at 6:17 PM, "Aaron Carroll" <xaaronc@gmail.com<mailto:xaaronc@gmail.com>> wrote:
-
-Hi Anush,
-
-On 12 April 2013 03:57, Krishnamurthy, Anush <anush.krishnamurthy@intel.com<mailto:anush.krishnamurthy@intel.com>> wrote:
 I would like to make FIO for Android source. I tried Aaron's post and ran into problems. I also tried making a Android.mk and got into undeclared values for __NR_shm*
 
 When I make here is what i get..
 
 akrish9@akrish9-ws:~/setup/fio [master] $ make V=1 UNAME=Android cross_prefix=~/android-ndk-r8e/toolchains/x86-4.6/prebuilt/linux-x86_64/bin/i686-linux-android-
-
-This is not the problem here, but the preferred way to invoke cross compiles is now:
-  make CROSS_COMPILE=/path/to/bin/i686-linux-android-
-Uname is deprecated.
-
-Now, the issue is that you can't run the Android toolchains directly out of the NDK, because the lib paths are wrong.  What you need to do is build a standalone toolchain with ./build/tools/make-standalone-toolchain.sh from the NDK root dir. The script has a bunch of args to specify the versions and archs.  That will generate a tar of a standalone toolchain: untar is somewhere and point CROSS_COMPILE to there, and it should build.
-
-Except that if you're targeting x86, it doesn't, due to a previously reported issue with some inline asm:
-  arch/arch-x86-common.h:9:2: error: inconsistent operand constraints in an 'asm'
-
-I'm not sure what's going on there, but I don't speak x86 asm.
-
-
-
-Cheers,
-   -- Aaron
-
-
-
-
-
 Makefile:12: config-host.mak: No such file or directory
 Running configure for you...
 compile test failed
@@ -82,9 +48,4 @@ Anush Krishnamurthy
 
 
 
-
---
-To unsubscribe from this list: send the line "unsubscribe fio" in
-the body of a message to majordomo@vger.kernel.org<mailto:majordomo@vger.kernel.org>
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
