@@ -1,95 +1,58 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mga14.intel.com ([143.182.124.37]:43808 "EHLO mga14.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760877Ab3D3WEd convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 30 Apr 2013 18:04:33 -0400
-From: "Akers, Jason B" <jason.b.akers@intel.com>
-Subject: android ashmem patch [review request]
-Date: Tue, 30 Apr 2013 22:04:14 +0000
-Message-ID: <372C7AE269BA5E4D92B1082F530ED4B85069DFC9@ORSMSX110.amr.corp.intel.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Received: from merlin.infradead.org ([205.233.59.134]:54202 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752743Ab3DKLTQ (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 11 Apr 2013 07:19:16 -0400
+Date: Thu, 11 Apr 2013 13:18:53 +0200
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: How to re-use default sequential filenames?
+Message-ID: <20130411111853.GX12244@kernel.dk>
+References: <515DAA33.4000009@warnerbros.com>
+ <20130404181946.GD9683@kernel.dk>
+ <20130404184104.GE9683@kernel.dk>
+ <20130405083902.GL9683@kernel.dk>
+ <CAHBo9gn2t6khrMGBsL4omOmiFoGZzfRCOmS9KfLRmRjPa4F-3w@mail.gmail.com>
+ <20130408111745.GC12244@kernel.dk>
+ <5165A592.1030502@warnerbros.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5165A592.1030502@warnerbros.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "'fio@vger.kernel.org'" <fio@vger.kernel.org>
+To: Alan Hagge <Alan.Hagge@warnerbros.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-I wrapped the ashmem calls with the existing shm* function definitions. It's a little ugly, but makes for an easy patch touching only os/os-android.h.
+On Wed, Apr 10 2013, Alan Hagge wrote:
+> On 04/08/2013 04:17 AM, Jens Axboe wrote:
+> >On Mon, Apr 08 2013, Michal Šmucr wrote:
+> >>2013/4/5 Jens Axboe<axboe@kernel.dk>:
+> >>>and then 'write' and 'read' job would be sharing those files. Let me
+> >>>know if it works for you.
+> >>Thank you for patch Jens.
+> >>Re-using files working for me and i also like that string format
+> >>specification. Compiled with last git and tested on Mac OS X and
+> >>Centos 5.
+> >>I played with fio and sequence tests, it already helps me to get
+> >>figures much closer to real world utilization. I always struggled with
+> >>generic synthetic benchmarks as it usually don't work with sequences.
+> >>So i can roughly set IO sizes, modes, but for example can't simulate
+> >>performance differences caused by different file allocation between
+> >>one huge file (with few extents due to filesystem internal
+> >>optimization) and thousands of files.
+> >>Great!
+> >Thanks for testing and confirming that it both works and that the
+> >semantics make sense. I tagged 2.0.15 this morning and kept a few
+> >pending features/fixes in a 'next' branch, all have been pulled into the
+> >master branch. So the filename_format option is now in current -git,
+> >though it did not make 2.0.15 final.
+> I too was able to compile the git version and try a test this morning and it
+> looks to be working just fine.  This will help us immensely.  Thanks for the
+> quick response and flexible solution!
 
-Tested on both arm and x86 android phones.
+Excellent, glad it works for you, Alan.
 
-Jason Akers
-
-
---- a/os/os-android.h	2013-04-30 14:30:05.014461848 -0700
-+++ b/os/os-android.h	2013-04-30 14:24:49.442213734 -0700
-@@ -57,24 +57,65 @@
- #include <linux/shm.h>
- #define SHM_HUGETLB    04000
- 
-+#include <stdio.h>
-+#include <linux/ashmem.h>
-+#include <sys/mman.h>
-+
-+#define ASHMEM_DEVICE	"/dev/ashmem"
-+
- static inline int shmctl (int __shmid, int __cmd, struct shmid_ds *__buf)
- {
--	return syscall(__NR_shmctl, __shmid, __cmd, __buf);
-+	int ret=0;
-+	if (__cmd == IPC_RMID)
-+	{
-+		int length = ioctl(__shmid, ASHMEM_GET_SIZE, NULL);
-+		struct ashmem_pin pin = {0 , length};
-+		ret = ioctl(__shmid, ASHMEM_UNPIN, &pin);
-+		close(__shmid);
-+	}
-+	return ret;
- }
- 
- static inline int shmget (key_t __key, size_t __size, int __shmflg)
- {
--	return syscall(__NR_shmget, __key, __size, __shmflg);
-+	int fd,ret;
-+	char key[11];
-+	
-+	fd = open(ASHMEM_DEVICE, O_RDWR);
-+	if (fd < 0)
-+		return fd;
-+
-+	sprintf(key,"%d",__key);
-+	ret = ioctl(fd, ASHMEM_SET_NAME, key);
-+	if (ret < 0)
-+		goto error;
-+
-+	ret = ioctl(fd, ASHMEM_SET_SIZE, __size);
-+	if (ret < 0)
-+		goto error;
-+
-+	return fd;
-+	
-+error:
-+	close(fd);
-+	return ret;
- }
- 
- static inline void *shmat (int __shmid, const void *__shmaddr, int __shmflg)
- {
--	return (void *)syscall(__NR_shmat, __shmid, __shmaddr, __shmflg);
-+	size_t *ptr, size = ioctl(__shmid, ASHMEM_GET_SIZE, NULL);
-+	ptr = mmap(NULL, size + sizeof(size_t), PROT_READ | PROT_WRITE, MAP_SHARED, __shmid, 0);
-+	*ptr = size;    //save size at beginning of buffer, for use with munmap
-+	return &ptr[1];
- }
- 
- static inline int shmdt (const void *__shmaddr)
- {
--	return syscall(__NR_shmctl, __shmaddr);
-+	size_t *ptr, size;
-+	ptr = (size_t *)__shmaddr;
-+	ptr--;
-+	size = *ptr;    //find mmap size which we stored at the beginning of the buffer
-+	return munmap((void *)ptr, size + sizeof(size_t));
- }
+-- 
+Jens Axboe
 
