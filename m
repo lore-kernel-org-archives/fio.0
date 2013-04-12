@@ -1,103 +1,130 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ye0-f174.google.com ([209.85.213.174]:63305 "EHLO
-	mail-ye0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752773Ab3DLKzg (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 12 Apr 2013 06:55:36 -0400
-Received: by mail-ye0-f174.google.com with SMTP id l2so372382yen.33
-        for <fio@vger.kernel.org>; Fri, 12 Apr 2013 03:55:36 -0700 (PDT)
-In-Reply-To: <CANUChTygO-6HnaDU+eufAAtJoGCn9J0UgcEd16+7dgeOXa-92Q@mail.gmail.com>
+Received: from 173-166-109-252-newengland.hfc.comcastbusiness.net ([173.166.109.252]:37513
+	"EHLO bombadil.infradead.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752796Ab3DLJqz (ORCPT
+	<rfc822;fio@vger.kernel.org>); Fri, 12 Apr 2013 05:46:55 -0400
+Date: Fri, 12 Apr 2013 11:46:30 +0200
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: Unable to Configure latest build
+Message-ID: <20130412094630.GO12244@kernel.dk>
 References: <CANUChTygO-6HnaDU+eufAAtJoGCn9J0UgcEd16+7dgeOXa-92Q@mail.gmail.com>
+ <20130412081324.GL12244@kernel.dk>
+ <CANUChTysujbj-TQR3MK8_CErA68sVP=H9-+3TXri4S4v5Zs9ZA@mail.gmail.com>
+ <20130412084236.GM12244@kernel.dk>
+ <CANUChTzQ8yhoyD5v8ZetpqDe_9TWmskeR=wi_o4nYHLSUb8Puw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Subject: Re: Unable to Configure latest build
-From: Greg Freemyer <greg.freemyer@gmail.com>
-Date: Fri, 12 Apr 2013 06:55:42 -0400
-Message-ID: <53b87397-46b4-49d7-bbb6-8637d83c1bb6@email.android.com>
+In-Reply-To: <CANUChTzQ8yhoyD5v8ZetpqDe_9TWmskeR=wi_o4nYHLSUb8Puw@mail.gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Gavin Martin <gavin_martin@xyratex.com>, fio@vger.kernel.org
+To: Gavin Martin <gavin_martin@xyratex.com>
+Cc: fio@vger.kernel.org
 
+On Fri, Apr 12 2013, Gavin Martin wrote:
+> On 12 April 2013 09:42, Jens Axboe <axboe@kernel.dk> wrote:
+> > On Fri, Apr 12 2013, Gavin Martin wrote:
+> >> On 12 April 2013 09:13, Jens Axboe <axboe@kernel.dk> wrote:
+> >> > On Fri, Apr 12 2013, Gavin Martin wrote:
+> >> >> Hi Jens,
+> >> >>
+> >> >> I grabbed the 2.0.15 when it came out and it configured and compiled
+> >> >> fine, but the latest one from today (12/04) displays errors when
+> >> >> trying to configure.
+> >> >>
+> >> >> I'm not doing anything different to what I was doing for the previous
+> >> >> builds.  Just running ./configure, below is the output from
+> >> >> config.log;
+> >> >>
+> >> >> # FIO configure log Fri Apr 12 08:25:30 BST 2013
+> >> >> # Configured with: './configure'
+> >> >> #
+> >> >> gcc -D_GNU_SOURCE -include config-host.h -c -o
+> >> >> /tmp/fio-conf-9434-20722-5490.o /tmp/fio-conf-27676-20722-14401.c
+> >> >> /tmp/fio-conf-27676-20722-14401.c:2:2: error: #error __ANDROID__ not defined
+> >> >> gcc -D_GNU_SOURCE -include config-host.h -c -o
+> >> >> /tmp/fio-conf-9434-20722-5490.o /tmp/fio-conf-27676-20722-14401.c
+> >> >> gcc -D_GNU_SOURCE -include config-host.h -c -o
+> >> >> /tmp/fio-conf-9434-20722-5490.o /tmp/fio-conf-27676-20722-14401.c
+> >> >> /tmp/fio-conf-27676-20722-14401.c:2:2: error: #error __i386__ not defined
+> >> >> gcc -D_GNU_SOURCE -include config-host.h -c -o
+> >> >> /tmp/fio-conf-9434-20722-5490.o /tmp/fio-conf-27676-20722-14401.c
+> >> >> Compiling test case cross
+> >> >> gcc -D_GNU_SOURCE -include config-host.h -o
+> >> >> /tmp/fio-conf-3040-20722-23652.exe /tmp/fio-conf-27676-20722-14401.c
+> >> >> Compiling test case endian
+> >> >> gcc -D_GNU_SOURCE -include config-host.h -o
+> >> >> /tmp/fio-conf-3040-20722-23652.exe /tmp/fio-conf-27676-20722-14401.c
+> >> >> Compiling test case wordsize
+> >> >> gcc -D_GNU_SOURCE -include config-host.h -DWORDSIZE=32 -o
+> >> >> /tmp/fio-conf-3040-20722-23652.exe /tmp/fio-conf-27676-20722-14401.c
+> >> >> /tmp/fio-conf-27676-20722-14401.c: In function āmainā:
+> >> >> /tmp/fio-conf-27676-20722-14401.c:5: error: size of array ātype nameā
+> >> >> is negative
+> >> >> Compiling test case wordsize
+> >> >> gcc -D_GNU_SOURCE -include config-host.h -DWORDSIZE=64 -o
+> >> >> /tmp/fio-conf-3040-20722-23652.exe /tmp/fio-conf-27676-20722-14401.c
+> >> >> Compiling test case zlib
+> >> >> gcc -D_GNU_SOURCE -include config-host.h -o
+> >> >> /tmp/fio-conf-3040-20722-23652.exe /tmp/fio-conf-27676-20722-14401.c
+> >> >> -lz
+> >> >> /tmp/fio-conf-27676-20722-14401.c:1:18: error: zlib.h: No such file or directory
+> >> >> /tmp/fio-conf-27676-20722-14401.c: In function āmainā:
+> >> >> /tmp/fio-conf-27676-20722-14401.c:4: error: āz_streamā undeclared
+> >> >> (first use in this function)
+> >> >> /tmp/fio-conf-27676-20722-14401.c:4: error: (Each undeclared
+> >> >> identifier is reported only once
+> >> >> /tmp/fio-conf-27676-20722-14401.c:4: error: for each function it appears in.)
+> >> >> /tmp/fio-conf-27676-20722-14401.c:4: error: expected ā;ā before āstreamā
+> >> >> /tmp/fio-conf-27676-20722-14401.c:5: error: āstreamā undeclared (first
+> >> >> use in this function)
+> >> >> /tmp/fio-conf-27676-20722-14401.c:5: error: āZ_OKā undeclared (first
+> >> >> use in this function)
+> >> >>
+> >> >> This is on a SLES11 SP1 x86_64 machine, I don't know enough to see if
+> >> >> I am doing something wrong, but it has worked on previous builds.
+> >> >
+> >> > You need the zlib devel libraries installed, configure should have told
+> >> > you that. Ala:
+> >> >
+> >> > ERROR
+> >> > ERROR: User requested feature zlib
+> >> > ERROR: configure was not able to find it
+> >> > ERROR
+> >> > Configure failed, check config.log and/or the above output
+> >> >
+> >> > Not sure what that package is called on SLES, but probably zlib-devel.
+> >> >
+> >> > --
+> >> > Jens Axboe
+> >> >
+> >>
+> >> Thanks, this must be a new requirement as I have never needed it for
+> >> previous builds.
+> >
+> > It is a new requirement. It's because I merged the gfio base into the
+> > master branch, and gfio client/server uses compression for bigger
+> > transmissions. It could be made optional, but zlib-devel should be
+> > available on all platforms (I think). A decision will be made regarding
+> > that before 2.0.16 (or 2.1, I think it'l be).
+> >
+> > --
+> > Jens Axboe
+> >
+> 
+> It seems that on Sles 11 SP1 it is not included as standard, zlib is
+> installed, but not zlib-devel.  Doing a few google searches and it
+> seems to be present in the SDK, I'll have a go at downloading that to
+> see if it is part of that package.
 
+The package should be a standard part of any develop part of a distro.
+Not sure how SLES is done (I used to know :-), but I'd be surprised if
+it wasn't directly available.
 
-Gavin Martin <gavin_martin@xyratex.com> wrote:
+But sounds like it would be a good idea to turn zlib into a soft
+requirement.
 
->Hi Jens,
->
->I grabbed the 2.0.15 when it came out and it configured and compiled
->fine, but the latest one from today (12/04) displays errors when
->trying to configure.
->
->I'm not doing anything different to what I was doing for the previous
->builds.  Just running ./configure, below is the output from
->config.log;
->
-># FIO configure log Fri Apr 12 08:25:30 BST 2013
-># Configured with: './configure'
->#
->gcc -D_GNU_SOURCE -include config-host.h -c -o
->/tmp/fio-conf-9434-20722-5490.o /tmp/fio-conf-27676-20722-14401.c
->/tmp/fio-conf-27676-20722-14401.c:2:2: error: #error __ANDROID__ not
->defined
->gcc -D_GNU_SOURCE -include config-host.h -c -o
->/tmp/fio-conf-9434-20722-5490.o /tmp/fio-conf-27676-20722-14401.c
->gcc -D_GNU_SOURCE -include config-host.h -c -o
->/tmp/fio-conf-9434-20722-5490.o /tmp/fio-conf-27676-20722-14401.c
->/tmp/fio-conf-27676-20722-14401.c:2:2: error: #error __i386__ not
->defined
->gcc -D_GNU_SOURCE -include config-host.h -c -o
->/tmp/fio-conf-9434-20722-5490.o /tmp/fio-conf-27676-20722-14401.c
->Compiling test case cross
->gcc -D_GNU_SOURCE -include config-host.h -o
->/tmp/fio-conf-3040-20722-23652.exe /tmp/fio-conf-27676-20722-14401.c
->Compiling test case endian
->gcc -D_GNU_SOURCE -include config-host.h -o
->/tmp/fio-conf-3040-20722-23652.exe /tmp/fio-conf-27676-20722-14401.c
->Compiling test case wordsize
->gcc -D_GNU_SOURCE -include config-host.h -DWORDSIZE=32 -o
->/tmp/fio-conf-3040-20722-23652.exe /tmp/fio-conf-27676-20722-14401.c
->/tmp/fio-conf-27676-20722-14401.c: In function âmainâ:
->/tmp/fio-conf-27676-20722-14401.c:5: error: size of array âtype nameâ
->is negative
->Compiling test case wordsize
->gcc -D_GNU_SOURCE -include config-host.h -DWORDSIZE=64 -o
->/tmp/fio-conf-3040-20722-23652.exe /tmp/fio-conf-27676-20722-14401.c
->Compiling test case zlib
->gcc -D_GNU_SOURCE -include config-host.h -o
->/tmp/fio-conf-3040-20722-23652.exe /tmp/fio-conf-27676-20722-14401.c
->-lz
->/tmp/fio-conf-27676-20722-14401.c:1:18: error: zlib.h: No such file or
->directory
->/tmp/fio-conf-27676-20722-14401.c: In function âmainâ:
->/tmp/fio-conf-27676-20722-14401.c:4: error: âz_streamâ undeclared
->(first use in this function)
->/tmp/fio-conf-27676-20722-14401.c:4: error: (Each undeclared
->identifier is reported only once
->/tmp/fio-conf-27676-20722-14401.c:4: error: for each function it
->appears in.)
->/tmp/fio-conf-27676-20722-14401.c:4: error: expected â;â before
->âstreamâ
->/tmp/fio-conf-27676-20722-14401.c:5: error: âstreamâ undeclared (first
->use in this function)
->/tmp/fio-conf-27676-20722-14401.c:5: error: âZ_OKâ undeclared (first
->use in this function)
->
->This is on a SLES11 SP1 x86_64 machine, I don't know enough to see if
->I am doing something wrong, but it has worked on previous builds.
->
->Thanks,
->Gavin
-
-Gavin,
-
-I have commit rights to the opensuse fio package in the benchmark repo.
-
-V2.0.15 is already there.  There should be a sles rpm you can just install.
-
-Do the fio builds from the opensuse benchmark repo not work for you?
-
-Why are you self compiling?
-
-Greg
 -- 
-Sent from my Android phone with K-9 Mail. Please excuse my brevity.
+Jens Axboe
+
