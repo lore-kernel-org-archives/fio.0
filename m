@@ -1,47 +1,65 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vc0-f170.google.com ([209.85.220.170]:38857 "EHLO
-	mail-vc0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752769Ab3D0B7o (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 26 Apr 2013 21:59:44 -0400
-Received: by mail-vc0-f170.google.com with SMTP id hv10so4373195vcb.29
-        for <fio@vger.kernel.org>; Fri, 26 Apr 2013 18:59:43 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <372C7AE269BA5E4D92B1082F530ED4B85069CD30@ORSMSX110.amr.corp.intel.com>
-References: <372C7AE269BA5E4D92B1082F530ED4B85069CD30@ORSMSX110.amr.corp.intel.com>
-Date: Sat, 27 Apr 2013 11:59:43 +1000
-Message-ID: <CAKCZDgmFea+X0euVng1Fg3kEBrmmxc0SbjCk3W=n+HGa0NVJJQ@mail.gmail.com>
+Received: from 173-166-109-252-newengland.hfc.comcastbusiness.net ([173.166.109.252]:35267
+	"EHLO bombadil.infradead.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756698Ab3DZUme (ORCPT
+	<rfc822;fio@vger.kernel.org>); Fri, 26 Apr 2013 16:42:34 -0400
+Date: Fri, 26 Apr 2013 14:42:32 -0600
+From: Jens Axboe <axboe@kernel.dk>
 Subject: Re: syscall problem on Android x86
-From: Aaron Carroll <xaaronc@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Message-ID: <20130426204232.GG9563@kernel.dk>
+References: <372C7AE269BA5E4D92B1082F530ED4B85069CD30@ORSMSX110.amr.corp.intel.com>
+ <20130426181732.GZ9563@kernel.dk>
+ <372C7AE269BA5E4D92B1082F530ED4B85069CFEB@ORSMSX110.amr.corp.intel.com>
+ <20130426200429.GE9563@kernel.dk>
+ <372C7AE269BA5E4D92B1082F530ED4B85069D109@ORSMSX110.amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <372C7AE269BA5E4D92B1082F530ED4B85069D109@ORSMSX110.amr.corp.intel.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: "Akers, Jason B" <jason.b.akers@intel.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 27 April 2013 03:43, Akers, Jason B <jason.b.akers@intel.com> wrote:
-> Fio hangs when run on the Android x86 emulator.
->
-> Tracking through, I found that the last call made is shmget() (in init.c - setup_thread_area()).
-> I believe that the hang is related to the fio syscall implementation for x86.
->
-> os-android.h defines shmget as: syscall(__NR_shmget, __key, __size, __shmflg);
->
-> In arch-x86.h __NR_shmget is defined to 29. This was added on April 11th (a415b2cc).
->
-> Looking deeper, I see that syscall 29 is actually mapped to pause(). (see SYSCALLS.TXT in bionic/libc) I confirmed that sys_pause() was being called by using a kernel breakpoint. This explains why fio hangs.
+On Fri, Apr 26 2013, Akers, Jason B wrote:
+> Unfortunately android x86 doesn't have a syscall number for the shm*
+> functions. They are not exposed by x86 bionic libc. So there's nothing
+> to fill in for a/b/c/d.
+> 
+> The only way I see to get syscall numbers is to patch x86 android libc
+> and recompile. This should work for me today but, since the syscall
+> numbers are not standardized, it will not work for anyone with an
+> unmodified libc.
+> 
+> So I propose something like:
+> 
+> #ifndef __NR_shmget
+> #if defined(__ANDROID__)
+> #error "__NR_shmget not defined. See bionic libc SYSCALLS.TXT for more information."
+> #else
+> #define __NR_shmget		 29
+> #define __NR_shmat		 30
+> #define __NR_shmctl		 31
+> #define __NR_shmdt		 67
+> #endif
+> #endif
+> 
+> This will "break the build" for unmodified x86 android platforms, but
+> I think that's better than compiling and not working.
 
-You are right, I added the 64bit syscall number.
+The syscall has nothing to do with the libc installed. The libc headers
+might not DEFINE the numbers. As long as the syscall is wired up in the
+given kernel (which I'm assuming it is, but I really know nothing about
+android), then that is enough.
 
-> Now the question is: What to do about it?
+> The other (probably better long-term) option is to use ashmem for
+> allocating shared memory on android.
 
- * Either junk the __NR_shm* definitions, or move them to x86-64 for
-future 64bit Android compatibility
- * The shm* functions need different definitions for x86-32, because
-there are no shm* syscalls. They appear to be multiplexed over an IPC
-syscall.
+I'll gladly take patches :-)
 
-As Jens said this has nothing to do with Android per se, only that its
-libc does not implement shm*() so we have to do it ourselves.
+Please stop top-posting, btw, it goes against the normal net etiquette
+on this forum (and most others in the open source world).
 
+-- 
+Jens Axboe
 
-  -- Aaron
