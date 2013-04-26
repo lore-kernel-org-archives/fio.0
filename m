@@ -1,31 +1,53 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:38420 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752078Ab3DZNmS (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 26 Apr 2013 09:42:18 -0400
-Date: Fri, 26 Apr 2013 07:42:16 -0600
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: Random IO pattern ratios
-Message-ID: <20130426134216.GO9563@kernel.dk>
-References: <CAEzQZ4AEx5ioBUMR2HieVe9eoi2iwu-mFdEPdTkuPci55jBqHQ@mail.gmail.com>
- <20130426034452.GN9563@kernel.dk>
- <CAJBj3vcw+AcrR-ka-tp6+CrR=TVaav9OvRSjbm-rwFeaGHDFng@mail.gmail.com>
+Return-Path: <brian@careydrive.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <CAJBj3vcw+AcrR-ka-tp6+CrR=TVaav9OvRSjbm-rwFeaGHDFng@mail.gmail.com>
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
+References: <CAEzQZ4AEx5ioBUMR2HieVe9eoi2iwu-mFdEPdTkuPci55jBqHQ@mail.gmail.com>
+	<20130426034452.GN9563@kernel.dk>
+	<CAJBj3vcw+AcrR-ka-tp6+CrR=TVaav9OvRSjbm-rwFeaGHDFng@mail.gmail.com>
+Date: Fri, 26 Apr 2013 07:49:41 -0400
+Message-ID: <CAEzQZ4CVTCSMs5gOfXqc0N1tTQD27xn0pg__HLWW1n_5Vi4USQ@mail.gmail.com>
+Subject: Re: Random IO pattern ratios
+From: Brian Carey <brian@careydrive.com>
+Content-Type: multipart/alternative; boundary=047d7b3a973469a6e004db422137
 To: John Williams <jwilliams4200@gmail.com>
-Cc: Brian Carey <brian@careydrive.com>, fio@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-On Thu, Apr 25 2013, John Williams wrote:
+--047d7b3a973469a6e004db422137
+Content-Type: text/plain; charset=ISO-8859-1
+
+Thanks for the confirmation Jens.  I was expecting that behavior and my
+test results appear to back it up but was just double checking.
+
+I second John's comment that having the option to configure would be nice
+although this way is close enough for my current needs.
+
+On Fri, Apr 26, 2013 at 12:32 AM, John Williams <jwilliams4200@gmail.com>wrote:
+
 > Are there any plans to add %random / %sequential capability to fio?
-> 
+>
 > That is the only feature IOMeter has that I miss in fio.
+>
 
-Sure, that'd be pretty easy to add. Let me take a look this morning.
+--047d7b3a973469a6e004db422137
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jens Axboe
+<div>Thanks for the confirmation Jens. =A0I was expecting that behavior and=
+ my test results appear to back it up but was just double checking.<br></di=
+v><div><br></div><div>I second John&#39;s comment that having the option to=
+ configure would be nice although this way is close enough for my current n=
+eeds.</div>
+<br><div class=3D"gmail_quote">On Fri, Apr 26, 2013 at 12:32 AM, John Willi=
+ams <span dir=3D"ltr">&lt;<a href=3D"mailto:jwilliams4200@gmail.com" target=
+=3D"_blank">jwilliams4200@gmail.com</a>&gt;</span> wrote:<br><blockquote cl=
+ass=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;p=
+adding-left:1ex">
+Are there any plans to add %random / %sequential capability to fio?<br>
+<br>
+That is the only feature IOMeter has that I miss in fio.<br>
+</blockquote></div><br>
+
+--047d7b3a973469a6e004db422137--
+
 
