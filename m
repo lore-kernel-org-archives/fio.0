@@ -1,94 +1,95 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wi0-f182.google.com ([209.85.212.182]:35810 "EHLO
-	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753844Ab3DLHkn convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Fri, 12 Apr 2013 03:40:43 -0400
-Received: by mail-wi0-f182.google.com with SMTP id hi18so1290447wib.3
-        for <fio@vger.kernel.org>; Fri, 12 Apr 2013 00:40:42 -0700 (PDT)
+Received: from mga14.intel.com ([143.182.124.37]:43808 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760877Ab3D3WEd convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Tue, 30 Apr 2013 18:04:33 -0400
+From: "Akers, Jason B" <jason.b.akers@intel.com>
+Subject: android ashmem patch [review request]
+Date: Tue, 30 Apr 2013 22:04:14 +0000
+Message-ID: <372C7AE269BA5E4D92B1082F530ED4B85069DFC9@ORSMSX110.amr.corp.intel.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-From: Gavin Martin <gavin_martin@xyratex.com>
-Date: Fri, 12 Apr 2013 08:40:22 +0100
-Message-ID: <CANUChTygO-6HnaDU+eufAAtJoGCn9J0UgcEd16+7dgeOXa-92Q@mail.gmail.com>
-Subject: Unable to Configure latest build
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "'fio@vger.kernel.org'" <fio@vger.kernel.org>
 
-Hi Jens,
+I wrapped the ashmem calls with the existing shm* function definitions. It's a little ugly, but makes for an easy patch touching only os/os-android.h.
 
-I grabbed the 2.0.15 when it came out and it configured and compiled
-fine, but the latest one from today (12/04) displays errors when
-trying to configure.
+Tested on both arm and x86 android phones.
 
-I'm not doing anything different to what I was doing for the previous
-builds.  Just running ./configure, below is the output from
-config.log;
-
-# FIO configure log Fri Apr 12 08:25:30 BST 2013
-# Configured with: './configure'
-#
-gcc -D_GNU_SOURCE -include config-host.h -c -o
-/tmp/fio-conf-9434-20722-5490.o /tmp/fio-conf-27676-20722-14401.c
-/tmp/fio-conf-27676-20722-14401.c:2:2: error: #error __ANDROID__ not defined
-gcc -D_GNU_SOURCE -include config-host.h -c -o
-/tmp/fio-conf-9434-20722-5490.o /tmp/fio-conf-27676-20722-14401.c
-gcc -D_GNU_SOURCE -include config-host.h -c -o
-/tmp/fio-conf-9434-20722-5490.o /tmp/fio-conf-27676-20722-14401.c
-/tmp/fio-conf-27676-20722-14401.c:2:2: error: #error __i386__ not defined
-gcc -D_GNU_SOURCE -include config-host.h -c -o
-/tmp/fio-conf-9434-20722-5490.o /tmp/fio-conf-27676-20722-14401.c
-Compiling test case cross
-gcc -D_GNU_SOURCE -include config-host.h -o
-/tmp/fio-conf-3040-20722-23652.exe /tmp/fio-conf-27676-20722-14401.c
-Compiling test case endian
-gcc -D_GNU_SOURCE -include config-host.h -o
-/tmp/fio-conf-3040-20722-23652.exe /tmp/fio-conf-27676-20722-14401.c
-Compiling test case wordsize
-gcc -D_GNU_SOURCE -include config-host.h -DWORDSIZE=3D32 -o
-/tmp/fio-conf-3040-20722-23652.exe /tmp/fio-conf-27676-20722-14401.c
-/tmp/fio-conf-27676-20722-14401.c: In function =EF=BF=BDmain=EF=BF=BD:
-/tmp/fio-conf-27676-20722-14401.c:5: error: size of array =EF=BF=BDtype nam=
-e=EF=BF=BD
-is negative
-Compiling test case wordsize
-gcc -D_GNU_SOURCE -include config-host.h -DWORDSIZE=3D64 -o
-/tmp/fio-conf-3040-20722-23652.exe /tmp/fio-conf-27676-20722-14401.c
-Compiling test case zlib
-gcc -D_GNU_SOURCE -include config-host.h -o
-/tmp/fio-conf-3040-20722-23652.exe /tmp/fio-conf-27676-20722-14401.c
--lz
-/tmp/fio-conf-27676-20722-14401.c:1:18: error: zlib.h: No such file or dire=
-ctory
-/tmp/fio-conf-27676-20722-14401.c: In function =EF=BF=BDmain=EF=BF=BD:
-/tmp/fio-conf-27676-20722-14401.c:4: error: =EF=BF=BDz_stream=EF=BF=BD unde=
-clared
-(first use in this function)
-/tmp/fio-conf-27676-20722-14401.c:4: error: (Each undeclared
-identifier is reported only once
-/tmp/fio-conf-27676-20722-14401.c:4: error: for each function it appears in=
-.)
-/tmp/fio-conf-27676-20722-14401.c:4: error: expected =EF=BF=BD;=EF=BF=BD be=
-fore =EF=BF=BDstream=EF=BF=BD
-/tmp/fio-conf-27676-20722-14401.c:5: error: =EF=BF=BDstream=EF=BF=BD undecl=
-ared (first
-use in this function)
-/tmp/fio-conf-27676-20722-14401.c:5: error: =EF=BF=BDZ_OK=EF=BF=BD undeclar=
-ed (first
-use in this function)
-
-This is on a SLES11 SP1 x86_64 machine, I don't know enough to see if
-I am doing something wrong, but it has worked on previous builds.
-
-Thanks,
-Gavin
-
---=20
+Jason Akers
 
 
-------------------------------
-For additional information including the registered office and the treatmen=
-t of Xyratex confidential information please visit www.xyratex.com
+--- a/os/os-android.h	2013-04-30 14:30:05.014461848 -0700
++++ b/os/os-android.h	2013-04-30 14:24:49.442213734 -0700
+@@ -57,24 +57,65 @@
+ #include <linux/shm.h>
+ #define SHM_HUGETLB    04000
+ 
++#include <stdio.h>
++#include <linux/ashmem.h>
++#include <sys/mman.h>
++
++#define ASHMEM_DEVICE	"/dev/ashmem"
++
+ static inline int shmctl (int __shmid, int __cmd, struct shmid_ds *__buf)
+ {
+-	return syscall(__NR_shmctl, __shmid, __cmd, __buf);
++	int ret=0;
++	if (__cmd == IPC_RMID)
++	{
++		int length = ioctl(__shmid, ASHMEM_GET_SIZE, NULL);
++		struct ashmem_pin pin = {0 , length};
++		ret = ioctl(__shmid, ASHMEM_UNPIN, &pin);
++		close(__shmid);
++	}
++	return ret;
+ }
+ 
+ static inline int shmget (key_t __key, size_t __size, int __shmflg)
+ {
+-	return syscall(__NR_shmget, __key, __size, __shmflg);
++	int fd,ret;
++	char key[11];
++	
++	fd = open(ASHMEM_DEVICE, O_RDWR);
++	if (fd < 0)
++		return fd;
++
++	sprintf(key,"%d",__key);
++	ret = ioctl(fd, ASHMEM_SET_NAME, key);
++	if (ret < 0)
++		goto error;
++
++	ret = ioctl(fd, ASHMEM_SET_SIZE, __size);
++	if (ret < 0)
++		goto error;
++
++	return fd;
++	
++error:
++	close(fd);
++	return ret;
+ }
+ 
+ static inline void *shmat (int __shmid, const void *__shmaddr, int __shmflg)
+ {
+-	return (void *)syscall(__NR_shmat, __shmid, __shmaddr, __shmflg);
++	size_t *ptr, size = ioctl(__shmid, ASHMEM_GET_SIZE, NULL);
++	ptr = mmap(NULL, size + sizeof(size_t), PROT_READ | PROT_WRITE, MAP_SHARED, __shmid, 0);
++	*ptr = size;    //save size at beginning of buffer, for use with munmap
++	return &ptr[1];
+ }
+ 
+ static inline int shmdt (const void *__shmaddr)
+ {
+-	return syscall(__NR_shmctl, __shmaddr);
++	size_t *ptr, size;
++	ptr = (size_t *)__shmaddr;
++	ptr--;
++	size = *ptr;    //find mmap size which we stored at the beginning of the buffer
++	return munmap((void *)ptr, size + sizeof(size_t));
+ }
 
-------------------------------
