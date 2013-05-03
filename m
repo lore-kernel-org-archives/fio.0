@@ -1,48 +1,66 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:35070 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755001Ab3E0JiJ (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 27 May 2013 05:38:09 -0400
-Received: by mail-ob0-f174.google.com with SMTP id wd20so1486809obb.19
-        for <fio@vger.kernel.org>; Mon, 27 May 2013 02:38:09 -0700 (PDT)
-MIME-Version: 1.0
-Date: Mon, 27 May 2013 15:08:09 +0530
-Message-ID: <CAJqT0ix50Pr0+DEVVStAZxiAa6Xx=SGRwQQX9QXa0Jdu13HG2A@mail.gmail.com>
-Subject: Any Delay Introduced by FIO between submission of Two IOs?
-From: sampath rapaka <sampath.rapaka@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Return-Path: <michel.jansens@ulb.ac.be>
+Subject: Re: random read generates zero filled file
+Mime-Version: 1.0 (Apple Message framework v1084)
+Content-Type: text/plain; charset=iso-8859-1
+From: Michel Jansens <michel.jansens@ulb.ac.be>
+In-Reply-To: <20130503173826.GX7800@kernel.dk>
+Date: Fri, 3 May 2013 21:44:17 +0200
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <D77F4C54-E7D9-4A46-AD8D-F900F4B3A272@ulb.ac.be>
+References: <82C5A0D6-2960-41B7-89B6-1D8C72D011C0@ulb.ac.be> <20130503100839.GI7800@kernel.dk> <20130503173826.GX7800@kernel.dk>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-hi
+Hi again Jens,
 
-i have run couple of fio runs. i am running this over raid1 device. i
-have captured blktrace for each run. I was going through the
-blktraces. what i have observed is there instances where there is
-commit happening to disk at say time stamp X. I was expecting a new IO
-to be submitted at X+1 time stamp. but i see next IO is submitted at
-time stamp Y.
+It really works great, thanks
 
-Y-X is more than 1. Is there any delay introduced from FIO between two
-fios. or what could be the probable reasons to see such delay? let me
-know if my understanding is wrong.
 
-Below is the excerpt from blktrace:
+Michel
 
-21378   8,32   3     9162     0.116015463     0  C  WS 574576152 + 8 [0]
- 21379   8,16   3    10690     0.116020386     0  C  WS 574576152 + 8 [0]
- 21380   9,0    0        1     0.120074779  8797  Q  WS 131300520 + 8 [fitness]
 
-from lines 21379(C) to 21380(Q) there is lots of delay for submission of new IO.
+Le 3 mai 2013 =E0 19:38, Jens Axboe a =E9crit :
 
-So i was thinking in lines of any delay from FIO between submissions
-of IO or they submit IO as soon as it is available.
+> On Fri, May 03 2013, Jens Axboe wrote:
+>> On Fri, May 03 2013, Michel Jansens wrote:
+>>> Hi,
+>>>=20
+>>> I'm trying out FIO, and rand a random read job with a 12GB file.  It
+>>> seems that the "Laying out IO file(s) " process generates a
+>>> zero-filled file. This means that when compression is activated (on
+>>> ZFS), no reads actually happens.
+>>>=20
+>>> I tried adding a "buffer_compress_percentage=3D10" section to tell
+>>> generated data should compress from only "10%" but this seems to =
+apply
+>>> only to actual benchmark job, not the 'laying out file's.
+>>>=20
+>>> Am I missing something?
+>>=20
+>> No, it currently just fills zeroes. It's trivial to make it honor the
+>> usual buffer fill logic, though. With the below patch, it'll do what =
+fio
+>> otherwise would have done to IO buffers during the benchmark run.
+>=20
+> Since the followups didn't make it here, the below exposed a bug in =
+the
+> compression logic where it would loop infinitely if compress_chunk
+> wasn't set too.
+>=20
+> So we got a new feature, and a fix for an older bug as well. Commit is
+> here:
+>=20
+> =
+http://git.kernel.dk/?p=3Dfio.git;a=3Dcommit;h=3Dcc86c395fd9dd2002ec1edc09=
+67b7c9453debdfb
+>=20
+> --=20
+> Jens Axboe
+>=20
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Question 2:
-I have also observed larger delays in Q-D values. which is more than D-C value.
 
-What could be the possible reasons for this behavior ?
-
-regards
-sampath
