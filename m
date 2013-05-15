@@ -1,29 +1,55 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mxin.ulb.ac.be ([164.15.128.112]:45219 "EHLO mxin.ulb.ac.be"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755368Ab3ECJKH convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Fri, 3 May 2013 05:10:07 -0400
-From: Michel Jansens <michel.jansens@ulb.ac.be>
+Received: from 173-166-109-252-newengland.hfc.comcastbusiness.net ([173.166.109.252]:53697
+	"EHLO bombadil.infradead.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932543Ab3EONYG (ORCPT
+	<rfc822;fio@vger.kernel.org>); Wed, 15 May 2013 09:24:06 -0400
+Received: from kernel.dk ([54.225.238.116])
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1Ucbgb-00078q-M1
+	for fio@vger.kernel.org; Wed, 15 May 2013 13:24:05 +0000
+Received: from localhost (87-104-106-3-dynamic-customer.profibernet.dk [87.104.106.3])
+	by kernel.dk (Postfix) with ESMTPA id 5A74F20671
+	for <fio@vger.kernel.org>; Wed, 15 May 2013 13:24:02 +0000 (UTC)
+Date: Wed, 15 May 2013 15:24:04 +0200
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Fio 2.1 has been tagged
+Message-ID: <20130515132404.GB4728@kernel.dk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Subject: random read generates zero filled file 
-Message-Id: <82C5A0D6-2960-41B7-89B6-1D8C72D011C0@ulb.ac.be>
-Date: Fri, 3 May 2013 10:58:39 +0200
-Mime-Version: 1.0 (Mac OS X Mail 6.3 \(1503\))
+Content-Disposition: inline
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
 Hi,
 
-I'm trying out FIO, and rand a random read job with a 12GB file.
-It seems that the "Laying out IO file(s) " process generates a zero-filled file. This means that when compression is activated (on ZFS), no reads actually happens.
+I tagged version 2.1 of fio this morning. The slight jump in versions
+(from 2.0.x to 2.1) is meant to signify that the experimental gfio gtk
+frontend has now been merged into the main branch. Other changes:
 
-I tried adding a "buffer_compress_percentage=10" section to tell generated data should compress from only "10%" but this seems to apply only to actual benchmark job, not the 'laying out file's.
+- Support for specifying the randomness of a random workload. Instead of
+  having an on/off switch for random vs sequential, add a
+  percentage_random= option that allows you to have a workload that is
+  eg 80% random and 20% sequential by setting percentage_random=80.
 
-Am I missing something?
+- Make initial file fill honor the compression settings for compressible
+  IO buffers. Also caught a bug in that logic, where it could hang if
+  compress_chunk wasn't also set.
 
-Thanks
+- gfio frontend. It should work fine for running various job files, on
+  the local machine or on a remote machine (it supports sockets or
+  tcp/ip v4/v6). There's very limited and not-very-tested support for
+  editing existing job files. Still some work to be done here.
 
-Michel
+- Fixes of the log_*() functions, we now catch incorrectly used format
+  specifiers just like we would with eg printf().
+
+- Better Android integration
+
+- Various other little fixes, tweaks, and even features.
+
+Go forth and update, test, and report any anomalies!
+
+-- 
+Jens Axboe
 
