@@ -1,59 +1,41 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ob0-f173.google.com ([209.85.214.173]:57874 "EHLO
-	mail-ob0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932495Ab3DYOry (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 25 Apr 2013 10:47:54 -0400
-Received: by mail-ob0-f173.google.com with SMTP id xn12so2584310obc.18
-        for <fio@vger.kernel.org>; Thu, 25 Apr 2013 07:47:53 -0700 (PDT)
+Received: from merlin.infradead.org ([205.233.59.134]:48700 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965080Ab3E2Iq4 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 29 May 2013 04:46:56 -0400
+Date: Wed, 29 May 2013 10:46:23 +0200
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: FIO 2.1 iops logging problem
+Message-ID: <20130529084623.GO22724@kernel.dk>
+References: <C8CA972100601A41AE302914E9CE194680367B7E@NTXBOIMBX03.micron.com>
 MIME-Version: 1.0
-Date: Thu, 25 Apr 2013 10:47:53 -0400
-Message-ID: <CAEzQZ4AEx5ioBUMR2HieVe9eoi2iwu-mFdEPdTkuPci55jBqHQ@mail.gmail.com>
-Subject: Random IO pattern ratios
-From: Brian Carey <brian@careydrive.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <C8CA972100601A41AE302914E9CE194680367B7E@NTXBOIMBX03.micron.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "Jeffrey McVay (jmcvay)" <jmcvay@micron.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hello all,
+On Tue, May 28 2013, Jeffrey McVay (jmcvay) wrote:
+> Hi Jens,
+> 
+> I cannot seem to get the write_iops_log working with FIO 2.1.
+> 
+> I found that write_bw_log now requires write_bw_log=<text> to work.
+> However that does not seem to work on the iops logging. Any idea what
+> I am doing wrong?
 
-I'm fairly new to fio and am trying to vary the ratio of sequential to
-random IO per job.  I'm not sure if I'm reading the section of the
-HowTo on mixed IO types right or not .  I'm trying to have the first
-job do 100% sequential access, the 2nd do 50% sequential/50% random,
-and the 3rd do 100% random.  Below is the section of the How To that
-I'm referring to as well as a snip of my config.
+Looks like a merge error between fio and gfio, I have fixed it up now. I
+will be doing a 2.1.1 shortly, since it's not the only one that has
+cropped up.
 
-For the mixed io types, the default is to split them 50/50.
-For certain types of io the result may still be skewed a bit,
-since the speed may be different. It is possible to specify
-a number of IO's to do before getting a new offset, this is
-one by appending a ':<nr>' to the end of the string given.
-For a random read, it would look like 'rw=randread:8' for
-passing in an offset modifier with a value of 8. If the
-suffix is used with a sequential IO pattern, then the value
-specified will be added to the generated offset for each IO.
-For instance, using rw=write:4k will skip 4k for every
-write. It turns sequential IO into sequential IO with holes.
-See the 'rw_sequencer' option.
+This is the patch:
 
-[4k 70/30% R/W - 100% seq]
-bs=4k
-rw=rw
-rwmixread=70
-rwmixwrite=30
-stonewall
+http://git.kernel.dk/?p=fio.git;a=commit;h=577c83bd488cf3e92d4ccffd39659248bce8ccd3
 
-[4k 70/30% R/W - 50% seq]
-bs=4k
-rw=randrw:2
-rwmixread=70
-rwmixwrite=30
-stonewall
+It has been committed.
 
-[4k 70/30% R/W - 0% seq]
-bs=4k
-rw=randrw
-rwmixread=70
-rwmixwrite=30
-stonewall
+-- 
+Jens Axboe
+
