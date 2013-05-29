@@ -1,111 +1,543 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ie0-f182.google.com ([209.85.223.182]:48199 "EHLO
-	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753981Ab3EXXh0 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 24 May 2013 19:37:26 -0400
-Received: by mail-ie0-f182.google.com with SMTP id a14so13818545iee.41
-        for <fio@vger.kernel.org>; Fri, 24 May 2013 16:37:26 -0700 (PDT)
-MIME-Version: 1.0
-Date: Fri, 24 May 2013 17:37:25 -0600
-Message-ID: <CAJLXCZRk37OM3bUwvXZBd5bRxRvBDVG9-ye2nZfgQqc565N_jA@mail.gmail.com>
-Subject: Understanding ioengine=net output
-From: Andrew Davidoff <davidoff@qedmf.net>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from merlin.infradead.org ([205.233.59.134]:45541 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750955Ab3E2EAF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 29 May 2013 00:00:05 -0400
+Received: from kernel.dk ([54.225.238.116])
+	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1UhXYT-0004Bl-1A
+	for fio@vger.kernel.org; Wed, 29 May 2013 04:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <jaxboe@fusionio.com>
+Message-Id: <20130529040002.5E1EE20A61@kernel.dk>
+Date: Wed, 29 May 2013 04:00:02 +0000 (UTC)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hi,
+The following changes since commit 6e5c4b8e46c95ca75e30e1110a0d24b2df9c47e9:
 
-I have read the README, HOWTO, and what I could find on the net, and I
-still have some questions about interpreting ioengine=net output,
-namely regarding latency.
+  Catch NULL td->o.ioengine (2013-05-27 09:50:31 +0200)
 
-The documentation says that if pingpong is used:
+are available in the git repository at:
+  git://git.kernel.dk/fio.git master
 
-"The submission and completion latencies then measure local time spent
-sending or receiving, and the completion latency measures how long it
-took for the other end to receive and send back."
+Jens Axboe (2):
+      Replace list based free/busy/requeue list with FIFO + ring
+      Bump IO engine version number
 
-But I'm having trouble parsing what that actually means. Can you
-clarify? I am further confused by the output as I see no mention of
-slat. Here's the output from the sending side:
+ Makefile           |    2 +-
+ backend.c          |   52 +++++++++++++++++++----------------
+ engines/posixaio.c |    8 +++---
+ fio.h              |    7 +++--
+ io_u.c             |   20 ++++++-------
+ io_u_queue.c       |   43 +++++++++++++++++++++++++++++
+ io_u_queue.h       |   75 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ ioengine.h         |   55 +++++++++++++++++++------------------
+ verify.c           |    7 ++---
+ 9 files changed, 195 insertions(+), 74 deletions(-)
+ create mode 100644 io_u_queue.c
+ create mode 100644 io_u_queue.h
 
-netwrite: (g=0): rw=write, bs=4K-4K/4K-4K/4K-4K, ioengine=net, iodepth=1
-fio-2.1
-Starting 1 process
-Jobs: 1 (f=1): [W] [100.0% done] [0Kbit/84864Kbit/0Kbit /s] [0/2652/0
-iops] [eta 00m:00s]
-netwrite: (groupid=0, jobs=1): err= 0: pid=840: Fri May 24 23:02:21 2013
-  write: io=131072KB, bw=85486Kbit/s, iops=2680, runt= 12266msec
-    clat (usec): min=8, max=1185, avg=365.37, stdev=170.37
-     lat (usec): min=10, max=1188, avg=368.28, stdev=170.27
-    clat percentiles (usec):
-     |  1.00th=[   10],  5.00th=[  123], 10.00th=[  127], 20.00th=[  251],
-     | 30.00th=[  258], 40.00th=[  262], 50.00th=[  386], 60.00th=[  390],
-     | 70.00th=[  402], 80.00th=[  516], 90.00th=[  540], 95.00th=[  652],
-     | 99.00th=[  788], 99.50th=[  804], 99.90th=[ 1020], 99.95th=[ 1048],
-     | 99.99th=[ 1064]
-    bw (Kbit/s): min=82816, max=90944, per=100.00%, avg=85538.67, stdev=1763.95
-    lat (usec) : 10=0.55%, 20=0.92%, 50=0.09%, 100=0.09%, 250=16.66%
-    lat (usec) : 500=52.62%, 750=26.02%, 1000=2.64%
-    lat (msec) : 2=0.10%
-  cpu          : usr=0.98%, sys=5.54%, ctx=92847, majf=0, minf=492
-  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.3%, 4=99.7%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued    : total=r=0/w=32873/d=0, short=r=0/w=105/d=0
+---
 
-Run status group 0 (all jobs):
-  WRITE: io=131072KB, aggrb=85480Kbit/s, minb=85480Kbit/s,
-maxb=85480Kbit/s, mint=12266msec, maxt=12266msec
+Diff of recent changes:
 
-
-And here's the out put from the receiver:
-
-netread: (g=0): rw=read, bs=4K-4K/4K-4K/4K-4K, ioengine=net, iodepth=1
-fio-2.1
-Starting 1 process
-fio: waiting for connection
-Jobs: 1 (f=1): [R] [100.0% done] [84896Kbit/0Kbit/0Kbit /s] [2653/0/0
-iops] [eta 00m:00s]
-netread: (groupid=0, jobs=1): err= 0: pid=11854: Fri May 24 23:02:21 2013
-  read : io=131072KB, bw=85271Kbit/s, iops=2757, runt= 12297msec
-    clat (usec): min=2, max=3240, avg=359.82, stdev=169.78
-     lat (usec): min=3, max=3241, avg=360.80, stdev=169.78
-    clat percentiles (usec):
-     |  1.00th=[    8],  5.00th=[  126], 10.00th=[  131], 20.00th=[  255],
-     | 30.00th=[  258], 40.00th=[  262], 50.00th=[  386], 60.00th=[  390],
-     | 70.00th=[  394], 80.00th=[  524], 90.00th=[  532], 95.00th=[  652],
-     | 99.00th=[  788], 99.50th=[  796], 99.90th=[  932], 99.95th=[ 1048],
-     | 99.99th=[ 1112]
-    bw (Kbit/s): min=    0, max=85952, per=100.00%, avg=81922.56, stdev=17087.41
-    lat (usec) : 4=0.64%, 10=0.86%, 20=0.26%, 50=0.03%, 100=0.01%
-    lat (usec) : 250=14.39%, 500=54.62%, 750=23.48%, 1000=2.25%
-    lat (msec) : 2=0.08%, 4=0.01%
-  cpu          : usr=0.65%, sys=4.47%, ctx=92832, majf=0, minf=32
-  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=3.3%, 4=96.7%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued    : total=r=33915/w=0/d=0, short=r=1147/w=0/d=0
-
-Run status group 0 (all jobs):
-   READ: io=131072KB, aggrb=85264Kbit/s, minb=85264Kbit/s,
-maxb=85264Kbit/s, mint=12297msec, maxt=12297msec
-
-
-So, a few questions about the latency numbers presented, since the
-labels aren't matching up with the documentation:
-* What is clat?
-* What is lat?
-
-Also, a more general question: is fio doing sync or async network I/O?
-
-If it helps, both machines in this test are Ubuntu 10.04 with all
-official updates, and I built fio from source.
-
-I may also have some questions regarding test results with pingpong
-vs. not, but understanding this output will determine that.
-
-Thanks!
-Andy
+diff --git a/Makefile b/Makefile
+index d78be34..57f3f82 100644
+--- a/Makefile
++++ b/Makefile
+@@ -33,7 +33,7 @@ SOURCE := gettime.c ioengines.c init.c stat.c log.c time.c filesetup.c \
+ 		cconv.c lib/prio_tree.c json.c lib/zipf.c lib/axmap.c \
+ 		lib/lfsr.c gettime-thread.c helpers.c lib/flist_sort.c \
+ 		lib/hweight.c lib/getrusage.c idletime.c td_error.c \
+-		profiles/tiobench.c profiles/act.c
++		profiles/tiobench.c profiles/act.c io_u_queue.c
+ 
+ ifdef CONFIG_64BIT_LLP64
+   CFLAGS += -DBITS_PER_LONG=32
+diff --git a/backend.c b/backend.c
+index 8787cce..8d16fe2 100644
+--- a/backend.c
++++ b/backend.c
+@@ -238,8 +238,6 @@ static int check_min_rate(struct thread_data *td, struct timeval *now,
+  */
+ static void cleanup_pending_aio(struct thread_data *td)
+ {
+-	struct flist_head *entry, *n;
+-	struct io_u *io_u;
+ 	int r;
+ 
+ 	/*
+@@ -253,18 +251,11 @@ static void cleanup_pending_aio(struct thread_data *td)
+ 	 * now cancel remaining active events
+ 	 */
+ 	if (td->io_ops->cancel) {
+-		flist_for_each_safe(entry, n, &td->io_u_busylist) {
+-			io_u = flist_entry(entry, struct io_u, list);
++		struct io_u *io_u;
++		int i;
+ 
+-			/*
+-			 * if the io_u isn't in flight, then that generally
+-			 * means someone leaked an io_u. complain but fix
+-			 * it up, so we don't stall here.
+-			 */
+-			if ((io_u->flags & IO_U_F_FLIGHT) == 0) {
+-				log_err("fio: non-busy IO on busy list\n");
+-				put_io_u(td, io_u);
+-			} else {
++		io_u_qiter(&td->io_u_all, io_u, i) {
++			if (io_u->flags & IO_U_F_FLIGHT) {
+ 				r = td->io_ops->cancel(td, io_u);
+ 				if (!r)
+ 					put_io_u(td, io_u);
+@@ -878,13 +869,9 @@ sync_done:
+ 
+ static void cleanup_io_u(struct thread_data *td)
+ {
+-	struct flist_head *entry, *n;
+ 	struct io_u *io_u;
+ 
+-	flist_for_each_safe(entry, n, &td->io_u_freelist) {
+-		io_u = flist_entry(entry, struct io_u, list);
+-
+-		flist_del(&io_u->list);
++	while ((io_u = io_u_qpop(&td->io_u_freelist)) != NULL) {
+ 
+ 		if (td->io_ops->io_u_free)
+ 			td->io_ops->io_u_free(td, io_u);
+@@ -893,6 +880,10 @@ static void cleanup_io_u(struct thread_data *td)
+ 	}
+ 
+ 	free_io_mem(td);
++
++	io_u_rexit(&td->io_u_requeues);
++	io_u_qexit(&td->io_u_freelist);
++	io_u_qexit(&td->io_u_all);
+ }
+ 
+ static int init_io_u(struct thread_data *td)
+@@ -900,7 +891,7 @@ static int init_io_u(struct thread_data *td)
+ 	struct io_u *io_u;
+ 	unsigned int max_bs, min_write;
+ 	int cl_align, i, max_units;
+-	int data_xfer = 1;
++	int data_xfer = 1, err;
+ 	char *p;
+ 
+ 	max_units = td->o.iodepth;
+@@ -912,6 +903,16 @@ static int init_io_u(struct thread_data *td)
+ 	if ((td->io_ops->flags & FIO_NOIO) || !(td_read(td) || td_write(td)))
+ 		data_xfer = 0;
+ 
++	err = 0;
++	err += io_u_rinit(&td->io_u_requeues, td->o.iodepth);
++	err += io_u_qinit(&td->io_u_freelist, td->o.iodepth);
++	err += io_u_qinit(&td->io_u_all, td->o.iodepth);
++
++	if (err) {
++		log_err("fio: failed setting up IO queues\n");
++		return 1;
++	}
++
+ 	/*
+ 	 * if we may later need to do address alignment, then add any
+ 	 * possible adjustment here so that we don't cause a buffer
+@@ -958,7 +959,7 @@ static int init_io_u(struct thread_data *td)
+ 
+ 		io_u = ptr;
+ 		memset(io_u, 0, sizeof(*io_u));
+-		INIT_FLIST_HEAD(&io_u->list);
++		INIT_FLIST_HEAD(&io_u->verify_list);
+ 		dprint(FD_MEM, "io_u alloc %p, index %u\n", io_u, i);
+ 
+ 		if (data_xfer) {
+@@ -978,7 +979,13 @@ static int init_io_u(struct thread_data *td)
+ 
+ 		io_u->index = i;
+ 		io_u->flags = IO_U_F_FREE;
+-		flist_add(&io_u->list, &td->io_u_freelist);
++		io_u_qpush(&td->io_u_freelist, io_u);
++
++		/*
++		 * io_u never leaves this stack, used for iteration of all
++		 * io_u buffers.
++		 */
++		io_u_qpush(&td->io_u_all, io_u);
+ 
+ 		if (td->io_ops->io_u_init) {
+ 			int ret = td->io_ops->io_u_init(td, io_u);
+@@ -1121,9 +1128,6 @@ static void *thread_main(void *data)
+ 	if (is_backend)
+ 		fio_server_send_start(td);
+ 
+-	INIT_FLIST_HEAD(&td->io_u_freelist);
+-	INIT_FLIST_HEAD(&td->io_u_busylist);
+-	INIT_FLIST_HEAD(&td->io_u_requeues);
+ 	INIT_FLIST_HEAD(&td->io_log_list);
+ 	INIT_FLIST_HEAD(&td->io_hist_list);
+ 	INIT_FLIST_HEAD(&td->verify_list);
+diff --git a/engines/posixaio.c b/engines/posixaio.c
+index 1858e52..a2b5387 100644
+--- a/engines/posixaio.c
++++ b/engines/posixaio.c
+@@ -95,11 +95,12 @@ static int fio_posixaio_getevents(struct thread_data *td, unsigned int min,
+ {
+ 	struct posixaio_data *pd = td->io_ops->data;
+ 	os_aiocb_t *suspend_list[SUSPEND_ENTRIES];
+-	struct flist_head *entry;
+ 	struct timespec start;
+ 	int have_timeout = 0;
+ 	int suspend_entries;
++	struct io_u *io_u;
+ 	unsigned int r;
++	int i;
+ 
+ 	if (t && !fill_timespec(&start))
+ 		have_timeout = 1;
+@@ -110,11 +111,10 @@ static int fio_posixaio_getevents(struct thread_data *td, unsigned int min,
+ restart:
+ 	memset(suspend_list, 0, sizeof(*suspend_list));
+ 	suspend_entries = 0;
+-	flist_for_each(entry, &td->io_u_busylist) {
+-		struct io_u *io_u = flist_entry(entry, struct io_u, list);
++	io_u_qiter(&td->io_u_all, io_u, i) {
+ 		int err;
+ 
+-		if (io_u->seen)
++		if (io_u->seen || !(io_u->flags & IO_U_F_FLIGHT))
+ 			continue;
+ 
+ 		err = aio_error(&io_u->aiocb);
+diff --git a/fio.h b/fio.h
+index 965d7d9..8c67fcc 100644
+--- a/fio.h
++++ b/fio.h
+@@ -39,6 +39,7 @@
+ #include "server.h"
+ #include "stat.h"
+ #include "flow.h"
++#include "io_u_queue.h"
+ 
+ #ifdef CONFIG_SOLARISAIO
+ #include <sys/asynch.h>
+@@ -193,9 +194,9 @@ struct thread_data {
+ 	/*
+ 	 * List of free and busy io_u's
+ 	 */
+-	struct flist_head io_u_freelist;
+-	struct flist_head io_u_busylist;
+-	struct flist_head io_u_requeues;
++	struct io_u_ring io_u_requeues;
++	struct io_u_queue io_u_freelist;
++	struct io_u_queue io_u_all;
+ 	pthread_mutex_t io_u_lock;
+ 	pthread_cond_t free_cond;
+ 
+diff --git a/io_u.c b/io_u.c
+index 645a680..11672cf 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -676,8 +676,7 @@ void put_io_u(struct thread_data *td, struct io_u *io_u)
+ 
+ 	if (io_u->flags & IO_U_F_IN_CUR_DEPTH)
+ 		td->cur_depth--;
+-	flist_del_init(&io_u->list);
+-	flist_add(&io_u->list, &td->io_u_freelist);
++	io_u_qpush(&td->io_u_freelist, io_u);
+ 	td_io_u_unlock(td);
+ 	td_io_u_free_notify(td);
+ }
+@@ -704,8 +703,8 @@ void requeue_io_u(struct thread_data *td, struct io_u **io_u)
+ 	__io_u->flags &= ~IO_U_F_FLIGHT;
+ 	if (__io_u->flags & IO_U_F_IN_CUR_DEPTH)
+ 		td->cur_depth--;
+-	flist_del(&__io_u->list);
+-	flist_add_tail(&__io_u->list, &td->io_u_requeues);
++
++	io_u_rpush(&td->io_u_requeues, __io_u);
+ 	td_io_u_unlock(td);
+ 	*io_u = NULL;
+ }
+@@ -1107,16 +1106,17 @@ static int set_io_u_file(struct thread_data *td, struct io_u *io_u)
+ 
+ struct io_u *__get_io_u(struct thread_data *td)
+ {
+-	struct io_u *io_u = NULL;
++	struct io_u *io_u;
+ 
+ 	td_io_u_lock(td);
+ 
+ again:
+-	if (!flist_empty(&td->io_u_requeues))
+-		io_u = flist_entry(td->io_u_requeues.next, struct io_u, list);
+-	else if (!queue_full(td)) {
+-		io_u = flist_entry(td->io_u_freelist.next, struct io_u, list);
++	if (!io_u_rempty(&td->io_u_requeues))
++		io_u = io_u_rpop(&td->io_u_requeues);
++	else if (!io_u_qempty(&td->io_u_freelist))
++		io_u = io_u_qpop(&td->io_u_freelist);
+ 
++	if (io_u) {
+ 		io_u->buflen = 0;
+ 		io_u->resid = 0;
+ 		io_u->file = NULL;
+@@ -1131,8 +1131,6 @@ again:
+ 
+ 		io_u->error = 0;
+ 		io_u->acct_ddir = -1;
+-		flist_del(&io_u->list);
+-		flist_add_tail(&io_u->list, &td->io_u_busylist);
+ 		td->cur_depth++;
+ 		io_u->flags |= IO_U_F_IN_CUR_DEPTH;
+ 	} else if (td->o.verify_async) {
+diff --git a/io_u_queue.c b/io_u_queue.c
+new file mode 100644
+index 0000000..5734e9c
+--- /dev/null
++++ b/io_u_queue.c
+@@ -0,0 +1,43 @@
++#include <stdlib.h>
++#include "io_u_queue.h"
++
++int io_u_qinit(struct io_u_queue *q, unsigned int nr)
++{
++	q->io_us = calloc(sizeof(struct io_u *), nr);
++	if (!q->io_us)
++		return 1;
++
++	q->nr = 0;
++	return 0;
++}
++
++void io_u_qexit(struct io_u_queue *q)
++{
++	free(q->io_us);
++}
++
++int io_u_rinit(struct io_u_ring *ring, unsigned int nr)
++{
++	ring->max = nr + 1;
++	if (ring->max & (ring->max - 1)) {
++		ring->max--;
++		ring->max |= ring->max >> 1;
++		ring->max |= ring->max >> 2;
++		ring->max |= ring->max >> 4;
++		ring->max |= ring->max >> 8;
++		ring->max |= ring->max >> 16;
++		ring->max++;
++	}
++
++	ring->ring = calloc(sizeof(struct io_u *), ring->max);
++	if (!ring->ring)
++		return 1;
++
++	ring->head = ring->tail = 0;
++	return 0;
++}
++
++void io_u_rexit(struct io_u_ring *ring)
++{
++	free(ring->ring);
++}
+diff --git a/io_u_queue.h b/io_u_queue.h
+new file mode 100644
+index 0000000..4f6e8e6
+--- /dev/null
++++ b/io_u_queue.h
+@@ -0,0 +1,75 @@
++#ifndef FIO_IO_U_QUEUE
++#define FIO_IO_U_QUEUE
++
++#include <assert.h>
++
++struct io_u;
++
++struct io_u_queue {
++	struct io_u **io_us;
++	unsigned int nr;
++};
++
++static inline struct io_u *io_u_qpop(struct io_u_queue *q)
++{
++	if (q->nr)
++		return q->io_us[--q->nr];
++
++	return NULL;
++}
++
++static inline void io_u_qpush(struct io_u_queue *q, struct io_u *io_u)
++{
++	q->io_us[q->nr++] = io_u;
++}
++
++static inline int io_u_qempty(struct io_u_queue *q)
++{
++	return !q->nr;
++}
++
++#define io_u_qiter(q, io_u, i)	\
++	for (i = 0, io_u = (q)->io_us[0]; i < (q)->nr; i++, io_u = (q)->io_us[i])
++
++int io_u_qinit(struct io_u_queue *q, unsigned int nr);
++void io_u_qexit(struct io_u_queue *q);
++
++struct io_u_ring {
++	unsigned int head;
++	unsigned int tail;
++	unsigned int max;
++	struct io_u **ring;
++};
++
++int io_u_rinit(struct io_u_ring *ring, unsigned int nr);
++void io_u_rexit(struct io_u_ring *ring);
++
++static inline void io_u_rpush(struct io_u_ring *r, struct io_u *io_u)
++{
++	if (r->head + 1 != r->tail) {
++		r->ring[r->head] = io_u;
++		r->head = (r->head + 1) & (r->max - 1);
++		return;
++	}
++
++	assert(0);
++}
++
++static inline struct io_u *io_u_rpop(struct io_u_ring *r)
++{
++	if (r->head != r->tail) {
++		struct io_u *io_u = r->ring[r->tail];
++
++		r->tail = (r->tail + 1) & (r->max - 1);
++		return io_u;
++	}
++
++	return NULL;
++}
++
++static inline int io_u_rempty(struct io_u_ring *ring)
++{
++	return ring->head == ring->tail;
++}
++
++#endif
+diff --git a/ioengine.h b/ioengine.h
+index 0be905f..31662eb 100644
+--- a/ioengine.h
++++ b/ioengine.h
+@@ -15,7 +15,7 @@
+ #include <guasi.h>
+ #endif
+ 
+-#define FIO_IOOPS_VERSION	15
++#define FIO_IOOPS_VERSION	16
+ 
+ enum {
+ 	IO_U_F_FREE		= 1 << 0,
+@@ -32,30 +32,6 @@ enum {
+  * The io unit
+  */
+ struct io_u {
+-	union {
+-#ifdef CONFIG_LIBAIO
+-		struct iocb iocb;
+-#endif
+-#ifdef CONFIG_POSIXAIO
+-		os_aiocb_t aiocb;
+-#endif
+-#ifdef FIO_HAVE_SGIO
+-		struct sg_io_hdr hdr;
+-#endif
+-#ifdef CONFIG_GUASI
+-		guasi_req_t greq;
+-#endif
+-#ifdef CONFIG_SOLARISAIO
+-		aio_result_t resultp;
+-#endif
+-#ifdef FIO_HAVE_BINJECT
+-		struct b_user_cmd buc;
+-#endif
+-#ifdef CONFIG_RDMA
+-		struct ibv_mr *mr;
+-#endif
+-		void *mmap_data;
+-	};
+ 	struct timeval start_time;
+ 	struct timeval issue_time;
+ 
+@@ -94,6 +70,31 @@ struct io_u {
+ 	 */
+ 	unsigned long buf_filled_len;
+ 
++	union {
++#ifdef CONFIG_LIBAIO
++		struct iocb iocb;
++#endif
++#ifdef CONFIG_POSIXAIO
++		os_aiocb_t aiocb;
++#endif
++#ifdef FIO_HAVE_SGIO
++		struct sg_io_hdr hdr;
++#endif
++#ifdef CONFIG_GUASI
++		guasi_req_t greq;
++#endif
++#ifdef CONFIG_SOLARISAIO
++		aio_result_t resultp;
++#endif
++#ifdef FIO_HAVE_BINJECT
++		struct b_user_cmd buc;
++#endif
++#ifdef CONFIG_RDMA
++		struct ibv_mr *mr;
++#endif
++		void *mmap_data;
++	};
++
+ 	unsigned int resid;
+ 	unsigned int error;
+ 
+@@ -106,7 +107,7 @@ struct io_u {
+ 		void *engine_data;
+ 	};
+ 
+-	struct flist_head list;
++	struct flist_head verify_list;
+ 
+ 	/*
+ 	 * Callback for io completion
+@@ -187,7 +188,7 @@ extern int fio_show_ioengine_help(const char *engine);
+ /*
+  * io unit handling
+  */
+-#define queue_full(td)	flist_empty(&(td)->io_u_freelist)
++#define queue_full(td)	io_u_qempty(&(td)->io_u_freelist)
+ extern struct io_u *__get_io_u(struct thread_data *);
+ extern struct io_u *get_io_u(struct thread_data *);
+ extern void put_io_u(struct thread_data *, struct io_u *);
+diff --git a/verify.c b/verify.c
+index 787cc37..b3cd402 100644
+--- a/verify.c
++++ b/verify.c
+@@ -595,8 +595,7 @@ int verify_io_u_async(struct thread_data *td, struct io_u *io_u)
+ 		td->cur_depth--;
+ 		io_u->flags &= ~IO_U_F_IN_CUR_DEPTH;
+ 	}
+-	flist_del(&io_u->list);
+-	flist_add_tail(&io_u->list, &td->verify_list);
++	flist_add_tail(&io_u->verify_list, &td->verify_list);
+ 	io_u->flags |= IO_U_F_FREE_DEF;
+ 	pthread_mutex_unlock(&td->io_u_lock);
+ 
+@@ -1052,8 +1051,8 @@ static void *verify_async_thread(void *data)
+ 			continue;
+ 
+ 		while (!flist_empty(&list)) {
+-			io_u = flist_entry(list.next, struct io_u, list);
+-			flist_del_init(&io_u->list);
++			io_u = flist_entry(list.next, struct io_u, verify_list);
++			flist_del(&io_u->verify_list);
+ 
+ 			ret = verify_io_u(td, io_u);
+ 			put_io_u(td, io_u);
