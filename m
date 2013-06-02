@@ -1,37 +1,43 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pb0-f44.google.com ([209.85.160.44]:60471 "EHLO
-	mail-pb0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752388Ab3F3Uqw (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 30 Jun 2013 16:46:52 -0400
-Received: by mail-pb0-f44.google.com with SMTP id uo1so4051052pbc.31
-        for <fio@vger.kernel.org>; Sun, 30 Jun 2013 13:46:52 -0700 (PDT)
+Received: from merlin.infradead.org ([205.233.59.134]:42955 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751981Ab3FBMUu (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sun, 2 Jun 2013 08:20:50 -0400
+Date: Sun, 2 Jun 2013 14:20:07 +0200
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: Question on --buffer_compress_percentage
+Message-ID: <20130602122007.GQ26106@kernel.dk>
+References: <CAF+0mvnU7GMsKrbArcECaD5Z0YtLxA6GtghQjOJtOxZHb=cxjQ@mail.gmail.com>
+ <20130527082147.GC29680@kernel.dk>
+ <CAF+0mv=Lw7GF6PyYBw9LGAf5LGmM85WZVrWv3Ba=6O2bQ6zU3Q@mail.gmail.com>
 MIME-Version: 1.0
-Date: Sun, 30 Jun 2013 16:46:52 -0400
-Message-ID: <CAJLXCZSLQ_GcM=v_nn8xKY+4+bBJC5DSqX9cDf58V5Diwm5MQQ@mail.gmail.com>
-Subject: Understanding bandwidth results
-From: Andrew Davidoff <davidoff@qedmf.net>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAF+0mv=Lw7GF6PyYBw9LGAf5LGmM85WZVrWv3Ba=6O2bQ6zU3Q@mail.gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Matthew Eaton <m.eaton82@gmail.com>
+Cc: fio@vger.kernel.org
 
-Hi,
+On Sat, Jun 01 2013, Matthew Eaton wrote:
+> Hi Jens,
+> 
+> Thank you for your explanation.  I have another question in regards to
+> buffer_compress_percentage if you don't mind.
+> 
+> If I were to call fio with "--refill_buffers
+> --buffer_compress_percentage=0", would this be the same as setting
+> only "--refill_buffers"?
 
-In fio output, I see two values for bandwidth that I'd expect to be
-the same, but that are different. For example, in the results from a
-sync randread fileio test:
+Yes, those would be equivalant as the default is to use fully randomized
+data contents.
 
-read : io=182811KB, bw=18279KB/s, iops=18279, runt= 10001msec
-...
-    bw (KB  /s): min=  966, max=21410, per=99.59%, avg=18204.94, stdev=5773.57
+> Also, if I were to call fio with "--refill_buffers
+> --buffer_compress_percentage=100", would this be the same as setting
+> "--zero_buffers"?
 
+Yes.
 
-I realize they are close, but why are the values for bw= and avg= not
-the same? I want to make sure I understand if these are not actually
-reporting on the same statistic.
+-- 
+Jens Axboe
 
-Also, why is per= not 100%, if this job was run with only a single
-thread in a single group?
-
-Thanks.
-Andy
