@@ -1,57 +1,33 @@
-Return-Path: <m.eaton82@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from keetweej.vanheusden.com ([80.101.105.103]:49257 "EHLO
+	keetweej.vanheusden.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756602Ab3FMMjq (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 13 Jun 2013 08:39:46 -0400
+Received: from belle.intranet.vanheusden.com (unknown [192.168.64.100])
+	by keetweej.vanheusden.com (Postfix) with ESMTP id 35276160CB6
+	for <fio@vger.kernel.org>; Thu, 13 Jun 2013 14:33:08 +0200 (CEST)
+Date: Thu, 13 Jun 2013 14:33:08 +0200
+From: folkert <folkert@vanheusden.com>
+Subject: fio & iozone3
+Message-ID: <20130613123307.GP19349@belle.intranet.vanheusden.com>
 MIME-Version: 1.0
-In-Reply-To: <20130527082147.GC29680@kernel.dk>
-References: <CAF+0mvnU7GMsKrbArcECaD5Z0YtLxA6GtghQjOJtOxZHb=cxjQ@mail.gmail.com>
-	<20130527082147.GC29680@kernel.dk>
-Date: Sat, 1 Jun 2013 19:11:20 -0700
-Message-ID: <CAF+0mv=Lw7GF6PyYBw9LGAf5LGmM85WZVrWv3Ba=6O2bQ6zU3Q@mail.gmail.com>
-Subject: Re: Question on --buffer_compress_percentage
-From: Matthew Eaton <m.eaton82@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Hi Jens,
+Hi,
 
-Thank you for your explanation.  I have another question in regards to
-buffer_compress_percentage if you don't mind.
+How do fio and iozone3 compare?
+They both are for testing performance, right? So is fio more accurate?
+Or more targeted at Linux?
 
-If I were to call fio with "--refill_buffers
---buffer_compress_percentage=0", would this be the same as setting
-only "--refill_buffers"?
 
-Also, if I were to call fio with "--refill_buffers
---buffer_compress_percentage=100", would this be the same as setting
-"--zero_buffers"?
+Regards,
 
-Thanks again for your help!
+Folkert van Heusden
 
-On Mon, May 27, 2013 at 1:21 AM, Jens Axboe <axboe@kernel.dk> wrote:
-> On Fri, May 24 2013, Matthew Eaton wrote:
->> Hello fio group,
->>
->> Can anyone tell me if --buffer_compress_percentage fills the buffer
->> with random data and reuses that data or if it refills with random
->> data for each submit?  If you want the latter behavior should you
->> combine with --refill_buffers?
->
-> That is actually explained in the man page / HOWTO:
->
-> buffer_compress_percentage=int  If this is set, then fio will attempt to
->                 provide IO buffer content (on WRITEs) that compress to
->                 the specified level. Fio does this by providing a mix of
->                 random data and zeroes. Note that this is per block size
->                 unit, for file/disk wide compression level that matches
->                 this setting, you'll also want to set refill_buffers.
->
-> So the answer to your question is yes. Fio will reuse IO buffers, unless
-> --refill_buffers is set. If you do not set refill_buffers with
-> buffer_compress_percentage, then you will have identically compressible
-> blocks written. And that would only give you the per-block compression
-> ratio specified, on a broader scale it would compress more.
->
-> --
-> Jens Axboe
->
-
+-- 
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
