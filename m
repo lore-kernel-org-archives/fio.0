@@ -1,38 +1,37 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from server506e.appriver.com ([50.56.144.35]:51501 "EHLO
-	server506.appriver.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752270Ab3FZWgq convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 26 Jun 2013 18:36:46 -0400
-Received: from [10.242.229.139] (HELO smtp.exg6.exghost.com)
-  by server506.appriver.com (CommuniGate Pro SMTP 6.0.2)
-  with ESMTPS id 94926132 for fio@vger.kernel.org; Wed, 26 Jun 2013 17:31:42 -0500
-From: Carl Zwanzig <cpz@coraid.com>
-Subject: Generating almost-sequential traffic
-Date: Wed, 26 Jun 2013 22:31:40 +0000
-Message-ID: <A7A1D348E34E024BBC74480FB93A2EAB039C63@DAGN05A-E6.exg6.exghost.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Received: from merlin.infradead.org ([205.233.59.134]:41450 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751746Ab3FYIB4 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 25 Jun 2013 04:01:56 -0400
+Date: Tue, 25 Jun 2013 10:01:52 +0200
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: The problem of blocks overwriting by multiple writers for raw
+ devices
+Message-ID: <20130625080152.GB13354@kernel.dk>
+References: <EEF9E3C12F20174DA289A981D6CCA6C832466199B3@MX44A.corp.emc.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <EEF9E3C12F20174DA289A981D6CCA6C832466199B3@MX44A.corp.emc.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: "Ruvinsky, Konstantin" <Konstantin.Ruvinsky@emc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi,
+On Fri, Jun 21 2013, Ruvinsky, Konstantin wrote:
+> Hi Jens,
+> 
+> Question/suggestion (I am almost sure that it was already discussed
+> here, but maybe ...):
+> 
+> Why not to divide a raw device size for multithreaded write by number
+> of threads and let every thread to write on a separate chunk (as you
+> do for FS - every thread writes to a separate file)? This will solves
+> the problem of blocks overwriting by multiple writers.
 
-I need to test some devices with "almost-sequential" data traffic. This would have anywhere from 10 to 50 I/Os in order then either drop one from the sequence "1 2 3 (no 4) 5 6" or transpose two adjacent ones "1 2 (4 3) 5 6". This could be done with an iolog, but that seems both wasteful (huge files, 131k lines/MB) and slow (for reading and processing the files). To properly test, I need to move something like 3-4 Tb in 8k blocks.
+You can do that manually, using zones for instance. Fio tries not to
+guess what you are trying to do. It'll just do what you ask it to.
 
-It's also inelegant :). 
-
-It looks like a drop sequence can be done with something like:
-	blocksize=64k
-	rw=write:8k
-but I'm at a loss for how to do transposition.  Could be a hack into the get-next-block code in io_u.c, but I don't see how to actually implement that.
-
-Any ideas (or is an iolog the best way)?
-
-Thanks,
-
-z!
-Carl Zwanzig
+-- 
+Jens Axboe
 
