@@ -1,75 +1,67 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mxi1.enovance.com ([94.143.114.217]:45877 "EHLO
-	mxi1.enovance.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750729Ab3FZGtc (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 26 Jun 2013 02:49:32 -0400
-Date: Wed, 26 Jun 2013 08:49:24 +0200
+Received: from mga03.intel.com ([143.182.124.21]:34219 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751195Ab3FZCGF convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Tue, 25 Jun 2013 22:06:05 -0400
+From: "Ni, Xun" <xun.ni@intel.com>
 Subject: RE: Pull Request for Adding 2 new tools around fio
-Message-ID: <4iqagr791xr9ry64wpg1xfkw.1372229364519@email.android.com>
-From: Erwan Velu <erwan@enovance.com>
+Date: Wed, 26 Jun 2013 02:06:01 +0000
+Message-ID: <91E2D863603AD4478F101CE81E76E45D017C5072@SHSMSX103.ccr.corp.intel.com>
+References: <51C9CFA8.6080703@enovance.com>
+In-Reply-To: <51C9CFA8.6080703@enovance.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "Ni, Xun" <xun.ni@intel.com>
+To: Erwan Velu <erwan@enovance.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-QmVmb3JlIHdoYXQgc29ycnkgPyBEbyB5b3UgaGF2ZSB0aGUgc2FtZSBuZWVkcyBhcyBtZSA/IERv
-ZXMgdGhpcyB0b29sIHNvbHZlcyB0aGVtID8KCkVyd2FuCgoiTmksIFh1biIgPHh1bi5uaUBpbnRl
-bC5jb20+IGEgw6ljcml0wqA6Cgo+SGVsbG8sIEVyd2FuOgo+Cj4gICBHb29kIHRvIGhlYXIgdGhp
-cywgeW91ciB3b3JrIGlzIGV4YWN0bHkgd2hhdCBJIHBsYW4gdG8gZG8gYmVmb3JlLgo+Cj5UaGFu
-a3MsCj5YdW4KPgo+LS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0KPkZyb206IGZpby1vd25lckB2
-Z2VyLmtlcm5lbC5vcmcgW21haWx0bzpmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnXSBPbiBCZWhh
-bGYgT2YgRXJ3YW4gVmVsdQo+U2VudDogV2VkbmVzZGF5LCBKdW5lIDI2LCAyMDEzIDE6MTMgQU0K
-PlRvOiBmaW9Admdlci5rZXJuZWwub3JnCj5TdWJqZWN0OiBQdWxsIFJlcXVlc3QgZm9yIEFkZGlu
-ZyAyIG5ldyB0b29scyBhcm91bmQgZmlvCj4KPkhleSBKZW5zLAo+Cj5JJ20gYmVlbiB1c2luZyBm
-aW8gZm9yIHllYXJzIGFuZCB0aGF0J3MgYSB3b25kZXJmdWwgdG9vbC4gU2luY2UgSSdtIHdvcmtp
-bmcgYXQgZU5vdmFuY2UsIEknbSBmYWNpbmcgc2l0dWF0aW9ucyB3aGVyZSBJIHNoYWxsIGNvbXBh
-cmUgc2VydmVycyBhbmQgZGlza3MgaW4gYSBjbHVzdGVyaXplZCBlbnZpcm9ubmVtZW50Lgo+Cj5J
-biBteSBsYXN0IGNhc2UsIEkgaGFkIDYgc2VydmVycyB3aXRoIDMzIGRpc2tzIGVhY2ggbGVhZGlu
-ZyB0byBhIHNlcmlvdXMgcHJvYmxlbS4gSG93IGNhbiBJIHRlc3QgYW5kIHZpc3VhbGl6ZSBwZXJm
-b3JtYW5jZXMgaW4gdmFyaW91cyBpbyBwYXR0ZXJuIDoKPi0gcmVhZCwgd3JpdGUsIHJhbmRyZWFk
-LCByYW5kd3JpdGUKPi0gNGssIDEyOGssIDFtIGJsb2NrIHNpemUKPi0gb25lIGRpc2sgYWZ0ZXIg
-dGhlIG90aGVyICh0byBlc3RpbWF0ZSB0aGUgcGVyZm9ybWFuY2Ugb2YgZWFjaCBkaXNrIGhlbHBp
-bmcgdHJhY2tpbmcgdGhlIHdlYWtzKQo+LSBhbGwgdGhlIGRpc2tzIGF0IHRoZSBzYW1lIHRpbWUg
-KHRvIGVzdGltYXRlIHRoZSBhYmlsaXR5IG9mIHRoZSBob3N0IHRvIG1hbmFnZSBhbGwgZGlza3Mg
-YXQgdGhlIHNhbWUgdGltZSkKPgo+VG8gaGVscCBzZXR0aW5nIHVwIHRoaXMgYmVuY2htYXJrLCBJ
-J3ZlIGJlZW4gZG9pbmcgdHdvIHRvb2xzIDoKPi0gZ2VuZmlvIHRvIGdlbmVyYXRlIHRoZSBmaW8g
-c2NyaXB0IGZpbGVzIERldGFpbHMgb2YgaXRzIGJlaGF2aW9yICYgb3B0aW9ucyBjYW4gYmUgZm91
-bmQgaW4gdGhlIGNvbW1pdCBpdHNlbGYgKGFsc28gYXZhaWxhYmxlIHdpdGggdGhlIC1oZWxwIG9w
-dGlvbikgQSBzaW5nbGUgY29tbWFuZCBsaWtlICdnZW5maW8gLWQgc2RiLHNkYyxzZGQsc2RlIC1h
-IC1iIDRrLDEyOGssMW0gLXIgMTAwJyBnZW5lcmF0ZXMgYSBzaW5nbGUgZmlvIGZpbGUgdGhhdCB3
-aWxsIHJ1bnMgNjAgdGVzdHMgb24gNCBkaXNrcyBkdXJpbmcgMTAwIHNlY29uZHMgZWFjaC4gVGhh
-dCBkb2VzIGF2b2lkIGh1bWFuIG1pc3Rha2UgYW5kIGVhc2UgcmVwcm9kdWN0YWJpbGl0eQo+Cj5o
-dHRwczovL2dpdGh1Yi5jb20vZW5vdmFuY2UvZmlvL2NvbW1pdC9jYTBlZGU1OGMxY2ExMDQ2OWQ5
-OTM3MTEwYzNmYWEzMGNlODhjYTFmCj4KPi0gZmlvMmdudXBsb3QgdHVybnMgdGhlIG91dHB1dCBs
-b2cgZnJvbSBmaW8gaW50byBnbnVwbG90IHRyYWNlcyBJdCBkb2VzIGhlbHAgdHJhY2luZyBtYW55
-IGxvZyBmaWxlcyBpbiBhIGZyaWVuZGx5IHdheSBieSB1c2luZyAzRCBncmFwaHMgKHRvIGF2b2lk
-IDJEIG92ZXJsYXBwaW5nKSBvciBnZW5lcmF0ZXMgc2V2ZXJhbCBoaXN0b2dyYW1zIHRvIGNvbXBh
-cmUgbWluL21heC9hdmcvc3RkZGV2IG9mIHNvbWUgc2VsZWN0ZWQgb3V0cHV0ZmlsZS4gSWYgb3V0
-cHV0ZmlsZXMgYXJlIHdlbGwgbmFtZWQgKGxpa2UgaWYgeW91IHVzZSBnZW5maW8pIHlvdSBjYW4g
-dXNlIHJlZ2V4cCB0byBzZWxlY3QgdGhlIGZpbGVzIHlvdSB3YW50IHRvIGdyYXBoLgo+WW91IGNh
-biBzbyBzZWxlY3QgbG9ncyBieSB0aGUgaW8gcGF0dGVybiwgdGhlIG5hbWUgb2YgZGlzaywgZXRj
-Li4uCj5Nb3JlIGRldGFpbHMgaW4gdGhlIGNvbW1pdCBvciBpbiB0aGUgLS1oZWxwIG9wdGlvbgo+
-aHR0cHM6Ly9naXRodWIuY29tL2Vub3ZhbmNlL2Zpby9jb21taXQvMWZhNGM2NDM2YjMxYjcxYWIy
-YmIzNzNhNTAzM2E2MmJjYTQ3YmNlMAo+Cj5JJ3ZlIGJlZW4gdXBsb2FkaW5nIHNvbWUgc2FtcGxl
-IG91dHB1dCBoZXJlIDogCj5odHRwOi8vd3d3LmZsaWNrci5jb20vcGhvdG9zL2VubmFlbC9zZXRz
-LzcyMTU3NjM0MjQ5MDI3MTIyLwo+Cj5JbiBhIGZyYWN0aW9uIG9mIHNlY29uZHMsIHlvdSBhcmUg
-YWJsZSB0byB2aXN1YWxpemUgdGhlIGdsb2JhbCBwZXJmb3JtYW5jZXMgd2l0aCB0aGUgM0QgZ3Jh
-cGggYW5kIGNvbXBhcmVkIHZhbHVlcyBiZXR3ZWVucyBydW5zIGJ5IHVzaW5nIHRoZSBoaXN0b2dy
-YW1zLiBPbiBhIHJlYWwgNiBzZXJ2ZXJzLCAxOTcgZGlza3MgKDMzIGVhY2gpLCBpdCBoZWxwZWQg
-YXQgZGV0ZWN0aW5nIHRoZSB3ZWFrIGRldmljZXMgdmVyeSBxdWlja2x5Lgo+Cj5JIGhvcGUgdGhp
-cyB3b3JrIHdpbGwgaGF2ZSBzb21lIGludGVyZXN0IGZvciB0aGUgZmlvIHByb2plY3Qgb3IgbWF5
-YmUgc29tZSBvdGhlciB1c2Vycy4KPgo+VGhpcyB0d28gdG9vbHMgYXJlIGF2YWlsYWJsZSBvbiBt
-eSAndG9vbHMnIGJyYW5jaCBvZiBteSBnaXRodWIgcmVwb3NpdG9yeS4gSXQncyBvbiB0b3AgdGhl
-IGN1cnJlbnQgbWFzdGVyIHNvIHZlcnkgZWFzeSB0byBtZXJnZS4gQm90aCB0b29scyBhcmUgc3Bs
-aXR0ZWQgaW4gdHdvIGNvbW1pdHMuCj4KPmh0dHBzOi8vZ2l0aHViLmNvbS9lbm92YW5jZS9maW8v
-dHJlZS90b29scwo+Cj5TaW5jZXJseSwKPkVyd2FuIFZlbHUKPi0tCj5UbyB1bnN1YnNjcmliZSBm
-cm9tIHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgZmlvIiBpbiB0aGUgYm9k
-eSBvZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21vQHZnZXIua2VybmVsLm9yZyBNb3JlIG1ham9yZG9t
-byBpbmZvIGF0ICBodHRwOi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwKPi0t
-Cj5UbyB1bnN1YnNjcmliZSBmcm9tIHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3Jp
-YmUgZmlvIiBpbgo+dGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2VyLmtlcm5l
-bC5vcmcKPk1vcmUgbWFqb3Jkb21vIGluZm8gYXQgIGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFq
-b3Jkb21vLWluZm8uaHRtbAo=
+Hello, Erwan:
 
+   Good to hear this, your work is exactly what I plan to do before.
+
+Thanks,
+Xun
+
+-----Original Message-----
+From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Behalf Of Erwan Velu
+Sent: Wednesday, June 26, 2013 1:13 AM
+To: fio@vger.kernel.org
+Subject: Pull Request for Adding 2 new tools around fio
+
+Hey Jens,
+
+I'm been using fio for years and that's a wonderful tool. Since I'm working at eNovance, I'm facing situations where I shall compare servers and disks in a clusterized environnement.
+
+In my last case, I had 6 servers with 33 disks each leading to a serious problem. How can I test and visualize performances in various io pattern :
+- read, write, randread, randwrite
+- 4k, 128k, 1m block size
+- one disk after the other (to estimate the performance of each disk helping tracking the weaks)
+- all the disks at the same time (to estimate the ability of the host to manage all disks at the same time)
+
+To help setting up this benchmark, I've been doing two tools :
+- genfio to generate the fio script files Details of its behavior & options can be found in the commit itself (also available with the -help option) A single command like 'genfio -d sdb,sdc,sdd,sde -a -b 4k,128k,1m -r 100' generates a single fio file that will runs 60 tests on 4 disks during 100 seconds each. That does avoid human mistake and ease reproductability
+
+https://github.com/enovance/fio/commit/ca0ede58c1ca10469d9937110c3faa30ce88ca1f
+
+- fio2gnuplot turns the output log from fio into gnuplot traces It does help tracing many log files in a friendly way by using 3D graphs (to avoid 2D overlapping) or generates several histograms to compare min/max/avg/stddev of some selected outputfile. If outputfiles are well named (like if you use genfio) you can use regexp to select the files you want to graph.
+You can so select logs by the io pattern, the name of disk, etc...
+More details in the commit or in the --help option
+https://github.com/enovance/fio/commit/1fa4c6436b31b71ab2bb373a5033a62bca47bce0
+
+I've been uploading some sample output here : 
+http://www.flickr.com/photos/ennael/sets/72157634249027122/
+
+In a fraction of seconds, you are able to visualize the global performances with the 3D graph and compared values betweens runs by using the histograms. On a real 6 servers, 197 disks (33 each), it helped at detecting the weak devices very quickly.
+
+I hope this work will have some interest for the fio project or maybe some other users.
+
+This two tools are available on my 'tools' branch of my github repository. It's on top the current master so very easy to merge. Both tools are splitted in two commits.
+
+https://github.com/enovance/fio/tree/tools
+
+Sincerly,
+Erwan Velu
+--
+To unsubscribe from this list: send the line "unsubscribe fio" in the body of a message to majordomo@vger.kernel.org More majordomo info at  http://vger.kernel.org/majordomo-info.html
