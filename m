@@ -1,39 +1,33 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:52272 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754444Ab3F1OI7 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 28 Jun 2013 10:08:59 -0400
-Date: Fri, 28 Jun 2013 16:08:56 +0200
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: Make threads access the same files?
-Message-ID: <20130628140856.GO24293@kernel.dk>
-References: <CAJLXCZTeqg6DTeRcMK0asRoZ7EShD8Od+Y05R-Tgi7OEcS2Fuw@mail.gmail.com>
+Received: from mail-ie0-f175.google.com ([209.85.223.175]:53785 "EHLO
+	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753886Ab3F0SSK (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 27 Jun 2013 14:18:10 -0400
+Received: by mail-ie0-f175.google.com with SMTP id a13so2064278iee.6
+        for <fio@vger.kernel.org>; Thu, 27 Jun 2013 11:18:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJLXCZTeqg6DTeRcMK0asRoZ7EShD8Od+Y05R-Tgi7OEcS2Fuw@mail.gmail.com>
+Date: Thu, 27 Jun 2013 14:18:09 -0400
+Message-ID: <CAJLXCZTeqg6DTeRcMK0asRoZ7EShD8Od+Y05R-Tgi7OEcS2Fuw@mail.gmail.com>
+Subject: Make threads access the same files?
+From: Andrew Davidoff <davidoff@qedmf.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Andrew Davidoff <davidoff@qedmf.net>
-Cc: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On Thu, Jun 27 2013, Andrew Davidoff wrote:
-> Hi,
-> 
-> If I understand fio's threaded operation, mrfiles are generated for
-> each thread (jobs=N), and each thread operates on its own files. Is
-> there a way to tell fio to spawn multiple threads, but for each to
-> access a single set of files?
-> 
-> So:
-> 
-> nrfiles=2048
-> jobs=12
-> 
-> Would produce 12 threads working against the same 2048 files.
+Hi,
 
-See the 'filename_format' option.
+If I understand fio's threaded operation, mrfiles are generated for
+each thread (jobs=N), and each thread operates on its own files. Is
+there a way to tell fio to spawn multiple threads, but for each to
+access a single set of files?
 
--- 
-Jens Axboe
+So:
 
+nrfiles=2048
+jobs=12
+
+Would produce 12 threads working against the same 2048 files.
+
+Thanks.
+Andy
