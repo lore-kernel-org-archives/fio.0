@@ -1,57 +1,54 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx4.framestore.com ([193.203.83.5]:47523 "EHLO
-	mx4.framestore.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752586Ab3GBPkH (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 2 Jul 2013 11:40:07 -0400
-Received: from vm-zimbra.ldn.framestore.com ([172.16.73.68] helo=zimbra.framestore.com)
-	by mx4.framestore.com with esmtp (Exim 4.72)
-	(envelope-from <james.vanns@framestore.com>)
-	id 1Uu2gS-0005BJ-Ji
-	for fio@vger.kernel.org; Tue, 02 Jul 2013 16:40:05 +0100
-Received: from mailbox1.framestore.com (mailbox1.framestore.com [172.16.73.65])
-	by zimbra.framestore.com (Postfix) with ESMTP id C82EF1E50003
-	for <fio@vger.kernel.org>; Tue,  2 Jul 2013 16:38:47 +0100 (BST)
-Date: Tue, 2 Jul 2013 16:34:34 +0100 (BST)
-From: James Vanns <james.vanns@framestore.com>
-Reply-To: james.vanns@framestore.com
-Message-ID: <335085150.31083401.1372779274187.JavaMail.root@framestore.com>
-In-Reply-To: <27943043.31081549.1372778944376.JavaMail.root@framestore.com>
-Subject: Prevention of full device?
+Received: from na3sys009aog103.obsmtp.com ([74.125.149.71]:47889 "EHLO
+	na3sys009aog103.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1761065Ab3GSSaX (ORCPT
+	<rfc822;fio@vger.kernel.org>); Fri, 19 Jul 2013 14:30:23 -0400
+Received: by mail-oa0-f48.google.com with SMTP id f4so6429432oah.7
+        for <fio@vger.kernel.org>; Fri, 19 Jul 2013 11:30:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Shawn Bohrer <sbohrer@rgmadvisors.com>
+Subject: [PATCH 5/5] net: close socket on error
+Date: Fri, 19 Jul 2013 13:24:10 -0500
+Message-Id: <1374258250-9801-5-git-send-email-sbohrer@rgmadvisors.com>
+In-Reply-To: <1374258250-9801-1-git-send-email-sbohrer@rgmadvisors.com>
+References: <1374258250-9801-1-git-send-email-sbohrer@rgmadvisors.com>
+Content-Type: text/plain; charset=US-ASCII
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
+Cc: tomk@rgmadvisors.com, Shawn Bohrer <sbohrer@rgmadvisors.com>
 
-Hi. In attempting to get a single job to create files before allowing further jobs to perform I/O on them, I cannot
-see how to restrict the sum total of all the files on the device. I wish to create n files ranging in size from i-j
-with a cap of m in total (so the sum of n does not exceed m). For example;
+Signed-off-by: Shawn Bohrer <sbohrer@rgmadvisors.com>
+---
+ engines/net.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-[file-generator]
-numjobs=1
-create_only=1
-create_on_open=0
-time_based=0
-fill_fs=0
-fill_device=0
-filesize=4k-20m
-size=512m
-nrfiles=256
-fallocate=posix
-fadvise_hint=1
-filename_format=\$filenum.dat
-directory=/tmp/fio
+diff --git a/engines/net.c b/engines/net.c
+index 5bd98df..0c90e1c 100644
+--- a/engines/net.c
++++ b/engines/net.c
+@@ -862,11 +862,13 @@ static int fio_netio_setup_listen_inet(struct thread_data *td, short port)
+ 	opt = 1;
+ 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (void *) &opt, sizeof(opt)) < 0) {
+ 		td_verror(td, errno, "setsockopt");
++		close(fd);
+ 		return 1;
+ 	}
+ #ifdef SO_REUSEPORT
+ 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, (void *) &opt, sizeof(opt)) < 0) {
+ 		td_verror(td, errno, "setsockopt");
++		close(fd);
+ 		return 1;
+ 	}
+ #endif
+-- 
+1.7.7.6
 
-I'd expect the above to create 256 files ranging from 4k to 20m and a 'du -sh' on /tmp/fio to result in
-512m. However, it always seems to fill the device! How can I stop this?
-
-Cheers,
-
-Jim
 
 -- 
-Jim Vanns
-Senior Software Developer
-Framestore
 
+---------------------------------------------------------------
+This email, along with any attachments, is confidential. If you 
+believe you received this message in error, please contact the 
+sender immediately and delete all copies of the message.  
+Thank you.
