@@ -1,47 +1,38 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mxi1.enovance.com ([94.143.114.217]:36673 "EHLO
+Received: from mxi1.enovance.com ([94.143.114.217]:13775 "EHLO
 	mxi1.enovance.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755101Ab3GVH22 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 22 Jul 2013 03:28:28 -0400
+	with ESMTP id S1754542Ab3GUKCF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sun, 21 Jul 2013 06:02:05 -0400
 Received: from zimbra.enovance.com (94-143-114-250.enovance.net [94.143.114.250])
-	by mxi1.enovance.com (Postfix) with ESMTP id D90A212767
-	for <fio@vger.kernel.org>; Mon, 22 Jul 2013 09:28:26 +0200 (CEST)
+	by mxi1.enovance.com (Postfix) with ESMTP id ED97E12713
+	for <fio@vger.kernel.org>; Sun, 21 Jul 2013 12:02:02 +0200 (CEST)
 Received: from localhost (mail-1 [127.0.0.1])
-	by zimbra.enovance.com (Postfix) with ESMTP id D53F65ADE943
-	for <fio@vger.kernel.org>; Mon, 22 Jul 2013 09:28:26 +0200 (CEST)
+	by zimbra.enovance.com (Postfix) with ESMTP id E95B15B3D41D
+	for <fio@vger.kernel.org>; Sun, 21 Jul 2013 12:02:02 +0200 (CEST)
 Received: from zimbra.enovance.com ([127.0.0.1])
 	by localhost (zimbra.enovance.com [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LXy4hTpXaUWe for <fio@vger.kernel.org>;
-	Mon, 22 Jul 2013 09:28:26 +0200 (CEST)
+	with ESMTP id JU3CZ5k3mpJC for <fio@vger.kernel.org>;
+	Sun, 21 Jul 2013 12:02:02 +0200 (CEST)
 Received: from localhost (mail-1 [127.0.0.1])
-	by zimbra.enovance.com (Postfix) with ESMTP id 4E17B6E4607
-	for <fio@vger.kernel.org>; Mon, 22 Jul 2013 09:28:26 +0200 (CEST)
+	by zimbra.enovance.com (Postfix) with ESMTP id 85981780EAE
+	for <fio@vger.kernel.org>; Sun, 21 Jul 2013 12:02:02 +0200 (CEST)
 Received: from zimbra.enovance.com ([127.0.0.1])
 	by localhost (zimbra.enovance.com [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id sl9vO6dD2Ndq for <fio@vger.kernel.org>;
-	Mon, 22 Jul 2013 09:28:25 +0200 (CEST)
+	with ESMTP id WKMRwHquaDYZ for <fio@vger.kernel.org>;
+	Sun, 21 Jul 2013 12:02:01 +0200 (CEST)
 Received: from localhost.localdomain (lns-bzn-48f-62-147-157-222.adsl.proxad.net [62.147.157.222])
-	by zimbra.enovance.com (Postfix) with ESMTPSA id A2E875A8DC04
-	for <fio@vger.kernel.org>; Mon, 22 Jul 2013 09:28:25 +0200 (CEST)
-Message-ID: <51ECDF18.5000607@enovance.com>
-Date: Mon, 22 Jul 2013 09:28:24 +0200
+	by zimbra.enovance.com (Postfix) with ESMTPSA id CE290780EAD
+	for <fio@vger.kernel.org>; Sun, 21 Jul 2013 12:02:01 +0200 (CEST)
+Message-ID: <51EBB199.80505@enovance.com>
+Date: Sun, 21 Jul 2013 12:02:01 +0200
 From: Erwan Velu <erwan@enovance.com>
 MIME-Version: 1.0
-Subject: Re: [Pull-Request] : Updating genfio & fio2gnuplot
-References: <51EBB199.80505@enovance.com>
-In-Reply-To: <51EBB199.80505@enovance.com>
+Subject: [Pull-Request] : Updating genfio & fio2gnuplot
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-
-I'm sorry, the former request was malformed :/
-Exactly the same content, but branches are now at the right place.
-Sorry for the noise.
-
-Erwan,
-
 
 The following changes since commit 4a93dec2a85f4a979421638fde2877268c470ab1:
 
@@ -49,7 +40,7 @@ The following changes since commit 4a93dec2a85f4a979421638fde2877268c470ab1:
 
 are available in the git repository at:
 
-   git@github.com:enovance/fio.git tools
+   tools
 
 for you to fetch changes up to be34415aad27dc416fcd9eff076fb97cc78ebd9f:
 
@@ -208,3 +199,7 @@ index 2d0d30a..efc7ac2 100644
   #set data style lines
   set key top left reverse
   set xlabel "Time (Seconds)"
+warn: No branch of tools is at:
+warn:   be34415: fio2gnuplot: Fixing Yaxis rendering for 2D plots
+warn: Are you sure you pushed 'HEAD' there?
+
