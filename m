@@ -1,128 +1,210 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mxi1.enovance.com ([94.143.114.217]:61284 "EHLO
+Received: from mxi1.enovance.com ([94.143.114.217]:36673 "EHLO
 	mxi1.enovance.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756027Ab3GVRqv (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 22 Jul 2013 13:46:51 -0400
+	with ESMTP id S1755101Ab3GVH22 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 22 Jul 2013 03:28:28 -0400
 Received: from zimbra.enovance.com (94-143-114-250.enovance.net [94.143.114.250])
-	by mxi1.enovance.com (Postfix) with ESMTP id 0DDB4380BE
-	for <fio@vger.kernel.org>; Mon, 22 Jul 2013 19:46:49 +0200 (CEST)
+	by mxi1.enovance.com (Postfix) with ESMTP id D90A212767
+	for <fio@vger.kernel.org>; Mon, 22 Jul 2013 09:28:26 +0200 (CEST)
 Received: from localhost (mail-1 [127.0.0.1])
-	by zimbra.enovance.com (Postfix) with ESMTP id 085D3126CC0F
-	for <fio@vger.kernel.org>; Mon, 22 Jul 2013 19:46:49 +0200 (CEST)
+	by zimbra.enovance.com (Postfix) with ESMTP id D53F65ADE943
+	for <fio@vger.kernel.org>; Mon, 22 Jul 2013 09:28:26 +0200 (CEST)
 Received: from zimbra.enovance.com ([127.0.0.1])
 	by localhost (zimbra.enovance.com [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id PKRdDdLKjSbm for <fio@vger.kernel.org>;
-	Mon, 22 Jul 2013 19:46:43 +0200 (CEST)
+	with ESMTP id LXy4hTpXaUWe for <fio@vger.kernel.org>;
+	Mon, 22 Jul 2013 09:28:26 +0200 (CEST)
 Received: from localhost (mail-1 [127.0.0.1])
-	by zimbra.enovance.com (Postfix) with ESMTP id 54C313C81421
-	for <fio@vger.kernel.org>; Mon, 22 Jul 2013 19:46:43 +0200 (CEST)
+	by zimbra.enovance.com (Postfix) with ESMTP id 4E17B6E4607
+	for <fio@vger.kernel.org>; Mon, 22 Jul 2013 09:28:26 +0200 (CEST)
 Received: from zimbra.enovance.com ([127.0.0.1])
 	by localhost (zimbra.enovance.com [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id PDgdLXLHK1D6 for <fio@vger.kernel.org>;
-	Mon, 22 Jul 2013 19:46:37 +0200 (CEST)
+	with ESMTP id sl9vO6dD2Ndq for <fio@vger.kernel.org>;
+	Mon, 22 Jul 2013 09:28:25 +0200 (CEST)
 Received: from localhost.localdomain (lns-bzn-48f-62-147-157-222.adsl.proxad.net [62.147.157.222])
-	by zimbra.enovance.com (Postfix) with ESMTPSA id 7A5E7126CC0F
-	for <fio@vger.kernel.org>; Mon, 22 Jul 2013 19:46:37 +0200 (CEST)
-Message-ID: <51ED6FFC.2070309@enovance.com>
-Date: Mon, 22 Jul 2013 19:46:36 +0200
+	by zimbra.enovance.com (Postfix) with ESMTPSA id A2E875A8DC04
+	for <fio@vger.kernel.org>; Mon, 22 Jul 2013 09:28:25 +0200 (CEST)
+Message-ID: <51ECDF18.5000607@enovance.com>
+Date: Mon, 22 Jul 2013 09:28:24 +0200
 From: Erwan Velu <erwan@enovance.com>
 MIME-Version: 1.0
-Subject: [Pull Request] Fixing coherency in fio2gnuplot
+Subject: Re: [Pull-Request] : Updating genfio & fio2gnuplot
+References: <51EBB199.80505@enovance.com>
+In-Reply-To: <51EBB199.80505@enovance.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hello,
-Sorry to make many pull request in a row but I just discover a serious 
-problem when plotting multiple traces at the same time. It was in fact 
-shortening the plots & rendering to the smallest trace file.
+I'm sorry, the former request was malformed :/
+Exactly the same content, but branches are now at the right place.
+Sorry for the noise.
 
-This bug is pretty boring and this patch series does fix it.
-The branch is on top the current master, shall be easy to merge ;o)
+Erwan,
 
-Thanks,
-Erwan
 
---------
+The following changes since commit 4a93dec2a85f4a979421638fde2877268c470ab1:
 
-The following changes since commit 21356fee2727b71ef72b39414955c5e7e98f97c1:
-
-   net: Add UDP multicast example job file (2013-07-22 09:04:38 -0600)
+   net: close socket on error (2013-07-20 20:41:23 -0600)
 
 are available in the git repository at:
 
-   git@github.com:enovance/fio.git fix_coherency
+   git@github.com:enovance/fio.git tools
 
-for you to fetch changes up to d7e30e61f2c1d9c6101cc6896009750aae2e2bcf:
+for you to fetch changes up to be34415aad27dc416fcd9eff076fb97cc78ebd9f:
 
-   fio2gnuplot: Don't plot fake data (2013-07-22 19:39:24 +0200)
+   fio2gnuplot: Fixing Yaxis rendering for 2D plots (2013-07-21 11:58:49 
++0200)
 
 ----------------------------------------------------------------
-Erwan Velu (3):
-       fio2gnuplot: Keep original filename in temp. files
-       fio2gnuplot: Don't truncate fio log files
-       fio2gnuplot: Don't plot fake data
+Erwan Velu (7):
+       genfio: Splitting gen_template in 2 parts
+       genfio: Adding exec_{pre|post}run support
+       genfio: Don't use cat EOF for small prints
+       genfio: Use dynamic default values in help
+       tools: Adding gitignore
+       genfio: Protecting parse_cmdline from spaces
+       fio2gnuplot: Fixing Yaxis rendering for 2D plots
 
-  tools/plot/fio2gnuplot.py | 20 ++++++++++++++++----
-  1 file changed, 16 insertions(+), 4 deletions(-)
+  tools/.gitignore       |  1 +
+  tools/genfio           | 51 
++++++++++++++++++++++++++++++----------------------
+  tools/plot/graph2D.gpm |  2 +-
+  3 files changed, 31 insertions(+), 23 deletions(-)
+  create mode 100644 tools/.gitignore
 
-diff --git a/tools/plot/fio2gnuplot.py b/tools/plot/fio2gnuplot.py
-index ef32ee0..03ef0dd 100755
---- a/tools/plot/fio2gnuplot.py
-+++ b/tools/plot/fio2gnuplot.py
-@@ -91,17 +91,26 @@ def compute_temp_file(fio_data_file,disk_perf):
-          files.append(open(file))
-          pos = len(files) - 1
-          tmp_filename = "gnuplot_temp_file.%d" % pos
--        temp_outfile.append(open(tmp_filename,'w'))
-+        gnuplot_file=open(tmp_filename,'w')
-+        temp_outfile.append(gnuplot_file)
-+        gnuplot_file.write("#Temporary file based on file %s\n" % file)
-          disk_perf.append([])
+diff --git a/tools/.gitignore b/tools/.gitignore
+new file mode 100644
+index 0000000..b25c15b
+--- /dev/null
++++ b/tools/.gitignore
+@@ -0,0 +1 @@
++*~
+diff --git a/tools/genfio b/tools/genfio
+index 6d3220d..bbf8833 100755
+--- a/tools/genfio
++++ b/tools/genfio
+@@ -50,21 +50,23 @@ show_help() {
+                      one test after anoter but all disks at the same time
+                      Enabled by default
+  -D iodepth            : Run with the specified iodepth
+-                    Default is 32
++                    Default is $IODEPTH
+  -d disk1[,disk2,disk3,..]    : Run the tests on the selected disks
+                      Separated each disk with a comma
+                      Disk name shall be "sdxx", /dev/ shall NOT be used 
+here
+  -r seconds            : Time in seconds per benchmark
+                      0 means till the end of the device
+-                    Default is 300 seconds
++                    Default is $RUNTIME seconds
+  -b blocksize[,blocksize1, ...]  : The blocksizes to test under fio 
+format (4k, 1m, ...)
+                      Separated each blocksize with a comma
+-                    Default is 4k
++                    Default is $BLOCK_SIZE
+  -m mode1,[mode2,mode3, ...]     : Define the fio IO profile to use 
+like read, write, randread, randwrite
+-                    Default is "write,randwrite,read,randread"
++                    Default is "$MODES"
+  -x prefix            : Add a prefix to the fio filename
+                      Useful to let a context associated with the file
+                      If the prefix features a / (slash), prefix will be 
+considered as a directory
++-A cmd_to_run            : System command to run after each job 
+(exec_postrun in fio)
++-B cmd_to_run            : System command to run before each job 
+(exec_prerun in fio)
 
-      shall_break = False
-      while True:
-          current_line=[]
-+        nb_empty_files=0
-+        nb_files=len(files)
-          for file in files:
-              s=file.readline().replace(',',' ').split()
-              if not s:
-+                nb_empty_files+=1
-+                s="-1, 0, 0, 0'".replace(',',' ').split()
-+
-+            if (nb_empty_files == nb_files):
-                  shall_break=True
-                  break;
-+
-              current_line.append(s);
+  Example:
 
-          if shall_break == True:
-@@ -117,14 +126,17 @@ def compute_temp_file(fio_data_file,disk_perf):
+@@ -89,28 +91,26 @@ Estimated Time = 6000 seconds : 1 hour 40 minutes
+  EOF
+  }
 
-              # We ignore the first 500msec as it doesn't seems to be 
-part of the real benchmark
-              # Time < 500 usually reports BW=0 breaking the min computing
--            if ((int(time)) > 500):
-+            if (((int(time)) > 500) or (int(time)==-1)):
-                  disk_perf[index].append(int(perf))
--                perfs.append(perf)
-+                perfs.append("%s %s"% (time, perf))
-                  index = index + 1
+-gen_template() {
+-cat >$TEMPLATE << EOF
+-[global]
+-ioengine=libaio
+-iodepth=$IODEPTH
+-invalidate=1
+-ramp_time=5
+-EOF
++finish_template() {
++echo "iodepth=$IODEPTH" >> $TEMPLATE
 
-          # If we reach this point, it means that all the traces are 
-coherent
-          for p in enumerate(perfs):
--            temp_outfile[p[0]].write("%s %.2f %s\n" % (p[0], 
-float(float(time)/1000), p[1]))
-+            perf_time,perf = p[1].split()
-+            if (perf_time != "-1"):
-+                temp_outfile[p[0]].write("%s %.2f %s\n" % (p[0], 
-float(float(perf_time)/1000), perf))
-+
+  if [ "$RUNTIME" != "0" ]; then
+-cat >>$TEMPLATE << EOF
+-runtime=$RUNTIME
+-time_based
+-EOF
++    echo "runtime=$RUNTIME" >> $TEMPLATE
++    echo "time_based" >> $TEMPLATE
+  fi
 
-      for file in files:
-          file.close()
+  if [ "$CACHED_IO" = "FALSE" ]; then
+-cat >>$TEMPLATE << EOF
+-direct=1
+-EOF
++    echo "direct=1" >> $TEMPLATE
+  fi
++}
 
++gen_template() {
++cat >$TEMPLATE << EOF
++[global]
++ioengine=libaio
++invalidate=1
++ramp_time=5
++EOF
+  }
+
+  gen_seq_suite() {
+@@ -185,7 +185,7 @@ esac
+  }
+
+  parse_cmdline() {
+-while getopts "hacpsd:b:r:m:x:D:" opt; do
++while getopts "hacpsd:b:r:m:x:D:A:B:" opt; do
+    case $opt in
+      h)
+      show_help
+@@ -235,6 +235,12 @@ while getopts "hacpsd:b:r:m:x:D:" opt; do
+      a)
+      SEQ=2
+        ;;
++    B)
++    echo "exec_prerun=$OPTARG" >> $TEMPLATE
++      ;;
++    A)
++    echo "exec_postrun=$OPTARG" >> $TEMPLATE
++      ;;
+      \?)
+        echo "Invalid option: -$OPTARG" >&2
+        ;;
+@@ -303,9 +309,10 @@ done
+
+
+  ########## MAIN
+-parse_cmdline $@
+-check_mode_order
+  gen_template
++parse_cmdline "$@"
++finish_template
++check_mode_order
+
+  echo "Generating $OUTFILE"
+  cp -f $TEMPLATE $OUTFILE
+diff --git a/tools/plot/graph2D.gpm b/tools/plot/graph2D.gpm
+index 2d0d30a..efc7ac2 100644
+--- a/tools/plot/graph2D.gpm
++++ b/tools/plot/graph2D.gpm
+@@ -8,7 +8,7 @@ set output '$3.png'
+
+  #Preparing Axes
+  #set logscale x
+-set ytics axis out
++set ytics axis out auto
+  #set data style lines
+  set key top left reverse
+  set xlabel "Time (Seconds)"
