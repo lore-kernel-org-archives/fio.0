@@ -1,58 +1,35 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-lb0-f180.google.com ([209.85.217.180]:53363 "EHLO
-	mail-lb0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751189Ab3GXUWL (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 24 Jul 2013 16:22:11 -0400
-Received: by mail-lb0-f180.google.com with SMTP id t13so862640lbd.11
-        for <fio@vger.kernel.org>; Wed, 24 Jul 2013 13:22:09 -0700 (PDT)
+Received: from merlin.infradead.org ([205.233.59.134]:58671 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751135Ab3GWC4t (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 22 Jul 2013 22:56:49 -0400
+Date: Mon, 22 Jul 2013 20:56:47 -0600
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [Pull Request] Various fixes reported by Clang
+Message-ID: <20130723025647.GA29296@kernel.dk>
+References: <51EDAAA7.4070103@enovance.com>
 MIME-Version: 1.0
-Date: Wed, 24 Jul 2013 13:22:09 -0700
-Message-ID: <CAF+0mvm8_89BhXRcs46d-AzyGunuVy3E32dcYi=kGThQkhAgfg@mail.gmail.com>
-Subject: Weird trim test results
-From: Matthew Eaton <m.eaton82@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <51EDAAA7.4070103@enovance.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Erwan Velu <erwan@enovance.com>
+Cc: fio@vger.kernel.org
 
-Hi guys,
+On Mon, Jul 22 2013, Erwan Velu wrote:
+> Hey,
+> 
+> I had the curiosity to check how fio was considered by clang.
+> The "--analyze" option of clang is something levering interesting bugs.
+> 
+> In fact, there is many false positive but some were real.
+> I've been pushing a branch featuring the associated fixes. That's almost
+> nothing but I cannot close my eyes on it ;o)
 
-I'm using this simple trim test on a raw SSD but getting very low
-performance.  Bandwidth seems to be tied to the block size.  Am I
-doing something wrong?
+Thanks, all three look good. Thanks for wading through the false
+positives to find the gold :-)
 
-[trim]
-rw=randtrim
-bs=4k
-ioengine=sync
-filename=/dev/sdb
-runtime=30
+-- 
+Jens Axboe
 
-trim: (g=0): rw=randtrim, bs=4K-4K/4K-4K/4K-4K, ioengine=sync, iodepth=1
-fio-2.1
-Starting 1 process
-Jobs: 1 (f=1): [d] [100.0% done] [0KB/0KB/400KB /s] [0/0/100 iops] [eta 00m:00s]
-trim: (groupid=0, jobs=1): err= 0: pid=4616: Wed Jul 24 12:54:10 2013
-  trim: io=11996KB, bw=409408B/s, iops=99, runt= 30004msec
-    clat (usec): min=4597, max=20401, avg=9999.91, stdev=431.52
-     lat (usec): min=4597, max=20401, avg=10000.15, stdev=431.53
-    clat percentiles (usec):
-     |  1.00th=[ 8768],  5.00th=[ 9920], 10.00th=[10048], 20.00th=[10048],
-     | 30.00th=[10048], 40.00th=[10048], 50.00th=[10048], 60.00th=[10048],
-     | 70.00th=[10048], 80.00th=[10048], 90.00th=[10048], 95.00th=[10048],
-     | 99.00th=[11328], 99.50th=[11328], 99.90th=[14912], 99.95th=[20096],
-     | 99.99th=[20352]
-    bw (KB  /s): min=  385, max=  401, per=100.00%, avg=399.76, stdev= 1.99
-    lat (msec) : 10=84.06%, 20=15.87%, 50=0.07%
-  cpu          : usr=0.11%, sys=0.12%, ctx=2999, majf=0, minf=24
-  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued    : total=r=0/w=0/d=2999, short=r=0/w=0/d=0
-
-Run status group 0 (all jobs):
-   TRIM: io=11996KB, aggrb=399KB/s, minb=399KB/s, maxb=399KB/s,
-mint=30004msec, maxt=30004msec
-
-Disk stats (read/write):
-  sdb: ios=84/2988, merge=0/0, ticks=4/29832, in_queue=29840, util=99.47%
