@@ -1,60 +1,55 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:43064 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755970Ab3GYQpW (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 25 Jul 2013 12:45:22 -0400
-Date: Thu, 25 Jul 2013 10:45:18 -0600
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: Helping to model this workload
-Message-ID: <20130725164518.GG29296@kernel.dk>
-References: <CE142CC7.127F5%Antonio.Jose.Rodrigues.Neto@netapp.com>
- <CE142D08.127FB%Antonio.Jose.Rodrigues.Neto@netapp.com>
+Received: from mx2.netapp.com ([216.240.18.37]:47380 "EHLO mx2.netapp.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932543Ab3GWQwx convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Tue, 23 Jul 2013 12:52:53 -0400
+From: "Neto, Antonio Jose Rodrigues" 
+	<Antonio.Jose.Rodrigues.Neto@netapp.com>
+Subject: Helping to model this workload
+Date: Tue, 23 Jul 2013 16:52:43 +0000
+Message-ID: <CE142D08.127FB%Antonio.Jose.Rodrigues.Neto@netapp.com>
+In-Reply-To: <CE142CC7.127F5%Antonio.Jose.Rodrigues.Neto@netapp.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-ID: <F16B2C12ECE38C4C946588331213C5FF@hq.netapp.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CE142D08.127FB%Antonio.Jose.Rodrigues.Neto@netapp.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On Tue, Jul 23 2013, Neto, Antonio Jose Rodrigues wrote:
-> Hi All
-> 
-> This is neto from Brazil
-> 
-> How are you?
-> 
-> I need to model the following workload:
-> 
-> Sequential Read % 35.0
-> Sequential Write % 5.0
-> Random Read % 50.0
-> Random Write % 10.0
-> Random Read Working Set(GB) 1000.0
-> Random Write Working Set(GB) 1000.0
-> Sequential Read Size(KB) 64KB
-> Sequential Write Size(KB) 64KB
-> Random Read Size(KB) 8KB
-> Random Write Size(KB) 8KB
+Hi All
 
-So that's 85% reads and 15% writes, first part:
+This is neto from Brazil
 
-rw=randrw
-rwmixread=85
+How are you?
 
-and then you have 50/85 reads random and 35/85 reads sequential. That's
-roughly 59% reads random. On the writes, you have 10/15 random and 5/15
-sequential. That's roughly 67% writes random:
+I need to model the following workload:
 
-percentage_random=59,67
+Sequential Read % 35.0
+Sequential Write % 5.0
+Random Read % 50.0
+Random Write % 10.0
+Random Read Working Set(GB) 1000.0
+Random Write Working Set(GB) 1000.0
+Sequential Read Size(KB) 64KB
+Sequential Write Size(KB) 64KB
+Random Read Size(KB) 8KB
+Random Write Size(KB) 8KB
 
-The latter I just added support for, before it only support a single
-setting for reads and writes.
+For the random workload =EF=BF=BD I thought to use 16 jobs with 2 outstandi=
+ng IOs.
+For sequential workload, I cannot use more than one job (because this will
+become random) and I need to use 64 outstanding
+ Ios.
 
-Fio does not support splitting block sizes on a random/sequential basis.
-You will have to improvise there.
+My biggest doubt is: how to distribute the percentage in the job file?
 
--- 
-Jens Axboe
+Does anyone have any example to share?
+
+Thank you very much
+
+All the best
+
+neto
 
