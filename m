@@ -1,31 +1,129 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:39833 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755884Ab3GYOfH (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 25 Jul 2013 10:35:07 -0400
-Message-ID: <51F13781.8000502@kernel.dk>
-Date: Thu, 25 Jul 2013 08:34:41 -0600
-From: Jens Axboe <axboe@kernel.dk>
-MIME-Version: 1.0
+Return-Path: <hanpt@linux.vnet.ibm.com>
+Date: Wed, 24 Jul 2013 14:21:01 +0800
+From: Han Pingtian <hanpt@linux.vnet.ibm.com>
 Subject: Re: segmentation fault on power system
-References: <20130723101359.GC2152@localhost.localdomain> <51EE5997.6070804@enovance.com> <51EE9E1C.3040708@kernel.dk> <20130724021019.GA2615@localhost.localdomain> <20130724062101.GB2615@localhost.localdomain>
-In-Reply-To: <20130724062101.GB2615@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Han Pingtian <hanpt@linux.vnet.ibm.com>
+Message-ID: <20130724062101.GB2615@localhost.localdomain>
+References: <20130723101359.GC2152@localhost.localdomain>
+ <51EE5997.6070804@enovance.com>
+ <51EE9E1C.3040708@kernel.dk>
+ <20130724021019.GA2615@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20130724021019.GA2615@localhost.localdomain>
+To: Jens Axboe <axboe@kernel.dk>
 Cc: Erwan Velu <erwan@enovance.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-On 07/24/2013 12:21 AM, Han Pingtian wrote:
-> I think I have found what's wrong. After 'make distclean' then 'make',
-> the problem of segfault has gone. There were some object files 
-> compiled on another machine. The recompilation fixed it. But looks like
-> the ATBU call dosen't work on power7 system.
+I think I have found what's wrong. After 'make distclean' then 'make',
+the problem of segfault has gone. There were some object files 
+compiled on another machine. The recompilation fixed it. But looks like
+the ATBU call dosen't work on power7 system.
 
-So the recompilation fixed the segfault, but not the illegal instruction
-due to ATBU?
+On Wed, Jul 24, 2013 at 10:10:19AM +0800, Han Pingtian wrote:
+> On Tue, Jul 23, 2013 at 09:15:40AM -0600, Jens Axboe wrote:
+> > On 07/23/2013 04:23 AM, Erwan Velu wrote:
+> > > On 23/07/2013 12:13, Han Pingtian wrote:
+> > >> Hey there,
+> > >>
+> > >> When trying to run fio on one of our power system, segmentation fault
+> > >>
+> > > Can you give us the kind of cpu you are using ? (/proc/cpuinfo)
+> > > I'm not used with PPC but maybe your processor doesn't support ATBU call
+> > > on mfspr.
+> > 
+> > That is definitely the problem, so CPU info would help. In the mean
+> > time, you can use clocksource=clock_gettime to get rid of the illegal
+> > instruction.
+> 
+> This is the contents of /proc/cpuinfo:
+> 
+> processor       : 0
+> cpu             : POWER7 (architected), altivec supported
+> clock           : 3550.000000MHz
+> revision        : 2.3 (pvr 003f 0203)
+> 
+> processor       : 1
+> cpu             : POWER7 (architected), altivec supported
+> clock           : 3550.000000MHz
+> revision        : 2.3 (pvr 003f 0203)
+> 
+> processor       : 2
+> cpu             : POWER7 (architected), altivec supported
+> clock           : 3550.000000MHz
+> revision        : 2.3 (pvr 003f 0203)
+> 
+> processor       : 3
+> cpu             : POWER7 (architected), altivec supported
+> clock           : 3550.000000MHz
+> revision        : 2.3 (pvr 003f 0203)
+> 
+> timebase        : 512000000
+> platform        : pSeries
+> model           : IBM,8231-E2C
+> machine         : CHRP IBM,8231-E2C
+> 
+> But 'clocksource=clock_gettime' doesn't fix the fault. I can also get
+> the same two cores. 
+> 
+> If I changed the code like this:
+> 
+> ================================================================================
+> diff --git a/arch/arch-ppc.h b/arch/arch-ppc.h
+> index 65e6b74..30c315c 100644
+> --- a/arch/arch-ppc.h
+> +++ b/arch/arch-ppc.h
+> @@ -67,15 +67,15 @@ static inline unsigned long long get_cpu_clock(void)
+>         unsigned long long ret;
+> 
+>         do {
+> -               if (arch_flags & ARCH_FLAG_1) {
+> -                       tbu0 = mfspr(SPRN_ATBU);
+> -                       tbl = mfspr(SPRN_ATBL);
+> -                       tbu1 = mfspr(SPRN_ATBU);
+> -               } else {
+> +               //if (arch_flags & ARCH_FLAG_1) {
+> +               //      tbu0 = mfspr(SPRN_ATBU);
+> +               //      tbl = mfspr(SPRN_ATBL);
+> +               //      tbu1 = mfspr(SPRN_ATBU);
+> +               //} else {
+>                         tbu0 = mfspr(SPRN_TBRU);
+>                         tbl = mfspr(SPRN_TBRL);
+>                         tbu1 = mfspr(SPRN_TBRU);
+> -               }
+> +               //}
+>         } while (tbu0 != tbu1);
+> 
+>         ret = (((unsigned long long)tbu0) << 32) | tbl;
+> ================================================================================
+> 
+> then only one core dumpped which has this backtrace:
+> 
+> ================================================================================
+> Core was generated by `./fio/fio --debug=parse fio-jobs/randomw.fio '.
+> Program terminated with signal 11, Segmentation fault.
+> #0  0x000000001006288c in init_disk_util (td=0xfff9a730000) at diskutil.c:481
+> 481             if (!td->o.do_disk_util ||
+> (gdb) bt
+> #0  0x000000001006288c in init_disk_util (td=0xfff9a730000) at diskutil.c:481
+> #1  0x0000000010050d30 in run_threads () at backend.c:1691
+> #2  0x000000001005159c in fio_backend () at backend.c:1911
+> #3  0x00000000100669a4 in main (argc=<value optimized out>, argv=0xfffd20c9ec8, envp=<value optimized out>)
+>     at fio.c:50
+> (gdb) p td
+> $1 = (struct thread_data *) 0xfff9a730000
+> (gdb) p threads
+> $2 = (struct thread_data *) 0xfff9a730000
+> (gdb) p td->io_ops
+> $3 = (struct ioengine_ops *) 0x0
+> (gdb) p threads->io_ops
+> $4 = (struct ioengine_ops *) 0x1000e262720
+> (gdb)
+> ================================================================================
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
--- 
-Jens Axboe
 
