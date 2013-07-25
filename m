@@ -1,121 +1,70 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from na3sys009aog117.obsmtp.com ([74.125.149.242]:53522 "EHLO
-	na3sys009aog117.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752645Ab3GSSYb (ORCPT
-	<rfc822;fio@vger.kernel.org>); Fri, 19 Jul 2013 14:24:31 -0400
-Received: by mail-ob0-f170.google.com with SMTP id ef5so5822181obb.1
-        for <fio@vger.kernel.org>; Fri, 19 Jul 2013 11:24:31 -0700 (PDT)
+Received: from merlin.infradead.org ([205.233.59.134]:47459 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756212Ab3GYTUM (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 25 Jul 2013 15:20:12 -0400
+Message-ID: <51F17A57.3040609@kernel.dk>
+Date: Thu, 25 Jul 2013 13:19:51 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-From: Shawn Bohrer <sbohrer@rgmadvisors.com>
-Subject: [PATCH 3/5] net: Add option to set outgoing multicast TTL
-Date: Fri, 19 Jul 2013 13:24:08 -0500
-Message-Id: <1374258250-9801-3-git-send-email-sbohrer@rgmadvisors.com>
-In-Reply-To: <1374258250-9801-1-git-send-email-sbohrer@rgmadvisors.com>
-References: <1374258250-9801-1-git-send-email-sbohrer@rgmadvisors.com>
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: Weird trim test results
+References: <CAF+0mvm8_89BhXRcs46d-AzyGunuVy3E32dcYi=kGThQkhAgfg@mail.gmail.com> <51F137D4.7000609@kernel.dk> <CAF+0mvnzF80RA8m2L9kZjrmT5OkuxYSwhGWOf+YXjOXv3RLCJA@mail.gmail.com> <51F16BCD.1000202@kernel.dk> <CAF+0mvkodcOjZ2yigxFSiq+Hjc7c5FYOOCP=j+ZthW-hCKzT+w@mail.gmail.com>
+In-Reply-To: <CAF+0mvkodcOjZ2yigxFSiq+Hjc7c5FYOOCP=j+ZthW-hCKzT+w@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: tomk@rgmadvisors.com, Shawn Bohrer <sbohrer@rgmadvisors.com>
+To: Matthew Eaton <m.eaton82@gmail.com>
+Cc: fio@vger.kernel.org
 
-Signed-off-by: Shawn Bohrer <sbohrer@rgmadvisors.com>
----
- HOWTO         |    4 ++++
- engines/net.c |   22 +++++++++++++++++++++-
- fio.1         |    3 +++
- 3 files changed, 28 insertions(+), 1 deletions(-)
+On 07/25/2013 01:19 PM, Matthew Eaton wrote:
+> On Thu, Jul 25, 2013 at 11:17 AM, Jens Axboe <axboe@kernel.dk> wrote:
+>> Please don't top post...
+>>
+>> On 07/25/2013 11:27 AM, Matthew Eaton wrote:
+>>> Hi Jens,
+>>>
+>>> I'm running Ubuntu 12.04.2, my kernel is:
+>>>
+>>> Linux matt-work 3.5.0-36-generic #57~precise1-Ubuntu SMP Thu Jun 20
+>>> 18:21:09 UTC 2013 x86_64 x86_64 x86_64 GNU/Linux
+>>>
+>>> Here is the output I got from blktrace / blkparse:
+>>>
+>>> Total (sdb):
+>>>  Reads Queued:         166,      664KiB     Writes Queued:
+>>> 3001,    12004KiB
+>>>  Read Dispatches:      166,      664KiB     Write Dispatches:
+>>> 3001,    12004KiB
+>>>  Reads Requeued:         0         Writes Requeued:         0
+>>>  Reads Completed:      166,      664KiB     Writes Completed:
+>>> 3001,     1500KiB
+>>>  Read Merges:            0,        0KiB     Write Merges:
+>>> 0,        0KiB
+>>>  PC Reads Queued:        0,        0KiB     PC Writes Queued:
+>>> 0,        0KiB
+>>>  PC Read Disp.:         22,        3KiB     PC Write Disp.:
+>>> 0,        0KiB
+>>>  PC Reads Req.:          0         PC Writes Req.:          0
+>>>  PC Reads Compl.:       10         PC Writes Compl.:        0
+>>>  IO unplugs:           166             Timer unplugs:           0
+>>
+>> That looks fine, it might just be coincidence that you are capped at
+>> ~100 IOPS. I don't think it's that unlikely that the this is the limit
+>> for you, your device might have a fixed overhead associated with a trim
+>> request. I'd have to look closer at your system to see if that's the
+>> case or not.
+>>
+>> --
+>> Jens Axboe
+>>
+> 
+> Sorry, I'm kind of new to mailing lists.  I'll test some different
+> drive / system configurations next.  Thanks for your help!
 
-diff --git a/HOWTO b/HOWTO
-index 38eafdd..a2de470 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1448,6 +1448,10 @@ that defines them is selected.
- [net] interface=str  The IP address of the network interface used to send or
- 		receive UDP multicast
- 
-+[netsplice] ttl=int
-+[net] ttl=int	Time-to-live value for outgoing UDP multicast packets.
-+		Default: 1
-+
- [netsplice] nodelay=bool
- [net] nodelay=bool	Set TCP_NODELAY on TCP connections.
- 
-diff --git a/engines/net.c b/engines/net.c
-index 645285d..257ab8f 100644
---- a/engines/net.c
-+++ b/engines/net.c
-@@ -37,6 +37,7 @@ struct netio_options {
- 	unsigned int listen;
- 	unsigned int pingpong;
- 	unsigned int nodelay;
-+	unsigned int ttl;
- 	char * interface;
- };
- 
-@@ -139,6 +140,17 @@ static struct fio_option options[] = {
- 		.group	= FIO_OPT_G_NETIO,
- 	},
- 	{
-+		.name	= "ttl",
-+		.lname	= "net engine multicast ttl",
-+		.type	= FIO_OPT_INT,
-+		.off1	= offsetof(struct netio_options, ttl),
-+		.def    = "1",
-+		.minval	= 0,
-+		.help	= "Time-to-live value for outgoing UDP multicast packets",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_NETIO,
-+	},
-+	{
- 		.name	= NULL,
- 	},
- };
-@@ -542,7 +554,10 @@ static int fio_netio_connect(struct thread_data *td, struct fio_file *f)
- #endif
- 
- 	if (o->proto == FIO_TYPE_UDP) {
--		if (o->interface && fio_netio_is_multicast(td->o.filename)) {
-+		if (!fio_netio_is_multicast(td->o.filename))
-+			return 0;
-+
-+		if (o->interface) {
- 			struct in_addr interface_addr;
- 			if (inet_aton(o->interface, &interface_addr) == 0) {
- 				log_err("fio: interface not valid interface IP\n");
-@@ -555,6 +570,11 @@ static int fio_netio_connect(struct thread_data *td, struct fio_file *f)
- 				return 1;
- 			}
- 		}
-+		if (setsockopt(f->fd, IPPROTO_IP, IP_MULTICAST_TTL, &o->ttl, sizeof(o->ttl)) < 0) {
-+			td_verror(td, errno, "setsockopt IP_MULTICAST_TTL");
-+			close(f->fd);
-+			return 1;
-+		}
- 		return 0;
- 	} else if (o->proto == FIO_TYPE_TCP) {
- 		socklen_t len = sizeof(nd->addr);
-diff --git a/fio.1 b/fio.1
-index ca8a5ca..62f7bb6 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1225,6 +1225,9 @@ The TCP or UDP port to bind to or connect to.
- The IP address of the network interface used to send or receive UDP multicast
- packets.
- .TP
-+.BI (net,netsplice)ttl \fR=\fPint
-+Time-to-live value for outgoing UDP multicast packets. Default: 1
-+.TP
- .BI (net,netsplice)nodelay \fR=\fPbool
- Set TCP_NODELAY on TCP connections.
- .TP
--- 
-1.7.7.6
-
+I think that would be useful, will certainly help in pin pointing what
+the limiting component is here.
 
 -- 
+Jens Axboe
 
----------------------------------------------------------------
-This email, along with any attachments, is confidential. If you 
-believe you received this message in error, please contact the 
-sender immediately and delete all copies of the message.  
-Thank you.
