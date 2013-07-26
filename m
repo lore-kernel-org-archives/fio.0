@@ -1,54 +1,87 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from na3sys009aog103.obsmtp.com ([74.125.149.71]:47889 "EHLO
-	na3sys009aog103.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1761065Ab3GSSaX (ORCPT
-	<rfc822;fio@vger.kernel.org>); Fri, 19 Jul 2013 14:30:23 -0400
-Received: by mail-oa0-f48.google.com with SMTP id f4so6429432oah.7
-        for <fio@vger.kernel.org>; Fri, 19 Jul 2013 11:30:21 -0700 (PDT)
+Return-Path: <Antonio.Jose.Rodrigues.Neto@netapp.com>
+From: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
+Subject: Re: Helping to model this workload
+Date: Fri, 26 Jul 2013 14:39:20 +0000
+Message-ID: <CE1801F9.12F3C%Antonio.Jose.Rodrigues.Neto@netapp.com>
+In-Reply-To: <CE180174.12F37%Antonio.Jose.Rodrigues.Neto@netapp.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <F7DE713AA3411C42B9B36B98637DABD6@hq.netapp.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-From: Shawn Bohrer <sbohrer@rgmadvisors.com>
-Subject: [PATCH 5/5] net: close socket on error
-Date: Fri, 19 Jul 2013 13:24:10 -0500
-Message-Id: <1374258250-9801-5-git-send-email-sbohrer@rgmadvisors.com>
-In-Reply-To: <1374258250-9801-1-git-send-email-sbohrer@rgmadvisors.com>
-References: <1374258250-9801-1-git-send-email-sbohrer@rgmadvisors.com>
-Content-Type: text/plain; charset=US-ASCII
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: tomk@rgmadvisors.com, Shawn Bohrer <sbohrer@rgmadvisors.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Signed-off-by: Shawn Bohrer <sbohrer@rgmadvisors.com>
----
- engines/net.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+>>>>>
+>>>>>Would be nice if we could specify?
+>>>>> Iodepth for sequential and random
+>>>>
+>>>> That would be easy enough to add.
+>>>>
+>>>>> Numjobs for sequential and random (for example: I would like to have
+>>>>>16
+>>>>> jobs doing random and 1 job only doing sequential)
+>>>>
+>>>> That's pretty easy to do manually by just having the two sections in
+>>>>the
+>>>> job file.
+>>>>
+>>>> --=20
+>>>> Jens Axboe
+>>>>
+>>>> --
+>>>=20
+>>> Something like this? Do you have an example? I am confused with 2
+>>>sections
+>>> and the percentage of the distribution of sequential and random plus
+>>>the
+>>> difference of block size
+>>
+>>For multiple sections, you put the shared items in a [global] section.
+>>That section applies to any job in the file. That also gives you a
+>>better overview of the shared and distinct properties of each job.
+>>
+>>--=20
+>>Jens Axboe
+>>
+>>--
+>>To unsubscribe from this list: send the line "unsubscribe fio" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+>Let me try
+>
 
-diff --git a/engines/net.c b/engines/net.c
-index 5bd98df..0c90e1c 100644
---- a/engines/net.c
-+++ b/engines/net.c
-@@ -862,11 +862,13 @@ static int fio_netio_setup_listen_inet(struct thread_data *td, short port)
- 	opt = 1;
- 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (void *) &opt, sizeof(opt)) < 0) {
- 		td_verror(td, errno, "setsockopt");
-+		close(fd);
- 		return 1;
- 	}
- #ifdef SO_REUSEPORT
- 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, (void *) &opt, sizeof(opt)) < 0) {
- 		td_verror(td, errno, "setsockopt");
-+		close(fd);
- 		return 1;
- 	}
- #endif
--- 
-1.7.7.6
+
+This one? How about the reporting? I would love to have a unified
+reporting by section like:
+
+Random XYZ IOPS and x latency
+Sequential ABC IOPS and y latency
 
 
--- 
+[global]
+bs=3D64k,4k
+bs_is_seq_rand=3D1
+ioengine=3Dlibaio
+direct=3D1
+runtime=3D2400
+size=3D2000g
+filename=3D\\.\PhysicalDrive9:\\.\PhysicalDrive10
+rw=3Drandrw
+rwmixread=3D85
+percentage_random=3D59,67
+thread
+unified_rw_reporting=3D1
+group_reporting=3D1
 
----------------------------------------------------------------
-This email, along with any attachments, is confidential. If you 
-believe you received this message in error, please contact the 
-sender immediately and delete all copies of the message.  
-Thank you.
+[random]
+iodepth=3D2
+numjobs=3D64
+
+[sequential]
+iodepth=3D1
+numjobs=3D1
+
+
