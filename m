@@ -1,60 +1,74 @@
-Return-Path: <grundler@google.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:33232 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753288Ab3G2JYT (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 29 Jul 2013 05:24:19 -0400
+Received: by mail-wi0-f174.google.com with SMTP id j17so2215477wiw.1
+        for <fio@vger.kernel.org>; Mon, 29 Jul 2013 02:24:17 -0700 (PDT)
 MIME-Version: 1.0
-Date: Wed, 31 Jul 2013 13:32:38 -0700
-Message-ID: <CANEJEGsMAS3uYtQx04bq8mPcdnhtXaVwg=vS=TgcY97d2kQeqw@mail.gmail.com>
-Subject: FIO and Storage Data Integrity testing
-From: Grant Grundler <grundler@google.com>
-Content-Type: text/plain; charset=UTF-8
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Juan Casse <jcasse@google.com>, FIO_list <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+From: Gavin Martin <gavin_martin@xyratex.com>
+Date: Mon, 29 Jul 2013 10:23:57 +0100
+Message-ID: <CANUChTzeeq2c9kjZAsfLH2JFx+ruWMnA7XnsWsCUdzg58OQm+A@mail.gmail.com>
+Subject: bs_is_seq_rand starts new offset for sequential for every random io
+Content-Type: text/plain; charset=US-ASCII
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Hi Jens!
+Hi Jens,
 
-My summer intern (Juan Casse) is working on a data integrity/retention
-test and has the first prototype running. (Juan might follow up with a
-gerrit code review for the first cut)
+Playing with the new feature you have added, bs_is_seq_rand along with
+rwmixread and percentage_random has allowed me to specify sequential
+writes and random reads in one job, but I have noticed that the random
+reads sets a new offset for the sequential part of the workload.
+For example;
 
-The goals of this data integrity test:
-o GPL implementation I can give to storage vendors as part of HW Qual test
-o verify data written to storage is available and correct
-o log writes (save a map) so we can repeatedly verify writes at a
-later date (weeks or months later)
-o provide some "bread crumbs" for debugging when data is NOT correct.
-   (Not available typically will result in reported errors)
-o work on any block storage device (ie no knowledge of specific device
-geometry or flash vs magnetic vs optical or removable vs built-in -
-some 'workloads' might be geared for specific types of storage)
+Seq Write LBA 1
+Seq Write LBA 2
+Seq Write LBA 3
+Rnd Read LBA 10
+Seq Write LBA 11
+Seq Write LBA 12
+etc.
 
-o specify workload the same way fio does (multi-threaded, async,
-random vs seq, read vs write mix, etc)
-o collect same performance statistics that fio does (latency
-histograms in particular)
-o be done in < 6 weeks by a full time intern. :)
+Would it be possible to get the sequential workload to continue from
+where it left off?
 
-It seems like he should be doing something with fio.  I saw this query
-in the Fio mailing list archive but didn't see a response:
-   http://www.spinics.net/lists/fio/msg01933.html
+So for example in the above sequence it would go:
 
-Since these are destructive tests, I expect the primary target
-"audience" is anyone working on Storage HW or wants to confirm Storage
-HW is operating correctly before deploying $$$ worth of HW.
+Seq Write LBA 1
+Seq Write LBA 2
+Seq Write LBA 3
+Rnd Read LBA 10
+Seq Write LBA 4
+Seq Write LBA 5
+etc.
 
-Questions:
-1) You know anyone else developing data integrity/retention testing with fio?
+Jobfile below for those interested;
 
-2) Other good open source data integrity test I should know about?
-Both Juan and I looked and didn't find anything better than
-"badblocks". As a first exercise, Juan has written an autotest for
-badblocks on ChromeOS:
-   https://gerrit.chromium.org/gerrit/#/c/61786/
+; Large Sequential Writes (1MB) with Small Random Reads (4KB)
+[global]
+direct=1
+ioengine=libaio
+filename=/dev/sdb
+runtime=30s
+ramp_time=10s
+bs_is_seq_rand=1
 
-3) You have a preference on how this might be implemented if (a) we
-used code from OR (b) integrated this functionality into fio?
+[1MB Writes, 4K Reads]
+rw=randrw
+bs=1M,4K
+iodepth=4
+rwmixread=1
+percentage_random=100,0
 
-(2) is probably a longer answer - refactor vs integrate is a good
-first answer for now. :)
+Thanks,
+Gavin
 
-thanks,
-grant
+-- 
 
+
+------------------------------
+For additional information including the registered office and the treatment of Xyratex confidential information please visit www.xyratex.com
+
+------------------------------
