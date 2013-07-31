@@ -1,102 +1,60 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:34750 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753445Ab3GaVXu (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 31 Jul 2013 17:23:50 -0400
-Message-ID: <51F98044.1080105@kernel.dk>
-Date: Wed, 31 Jul 2013 15:23:16 -0600
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <grundler@google.com>
 MIME-Version: 1.0
-Subject: Re: FIO and Storage Data Integrity testing
-References: <CANEJEGsMAS3uYtQx04bq8mPcdnhtXaVwg=vS=TgcY97d2kQeqw@mail.gmail.com>
-In-Reply-To: <CANEJEGsMAS3uYtQx04bq8mPcdnhtXaVwg=vS=TgcY97d2kQeqw@mail.gmail.com>
+Date: Wed, 31 Jul 2013 13:32:38 -0700
+Message-ID: <CANEJEGsMAS3uYtQx04bq8mPcdnhtXaVwg=vS=TgcY97d2kQeqw@mail.gmail.com>
+Subject: FIO and Storage Data Integrity testing
+From: Grant Grundler <grundler@google.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Grant Grundler <grundler@google.com>
-Cc: jcasse@google.com, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Juan Casse <jcasse@google.com>, FIO_list <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-On 07/31/2013 02:32 PM, Grant Grundler wrote:
-> Hi Jens!
-> 
-> My summer intern (Juan Casse) is working on a data integrity/retention
-> test and has the first prototype running. (Juan might follow up with a
-> gerrit code review for the first cut)
-> 
-> The goals of this data integrity test:
-> o GPL implementation I can give to storage vendors as part of HW Qual test
-> o verify data written to storage is available and correct
+Hi Jens!
 
-Both of these fio already satisfies.
+My summer intern (Juan Casse) is working on a data integrity/retention
+test and has the first prototype running. (Juan might follow up with a
+gerrit code review for the first cut)
 
-> o log writes (save a map) so we can repeatedly verify writes at a
-> later date (weeks or months later)
+The goals of this data integrity test:
+o GPL implementation I can give to storage vendors as part of HW Qual test
+o verify data written to storage is available and correct
+o log writes (save a map) so we can repeatedly verify writes at a
+later date (weeks or months later)
+o provide some "bread crumbs" for debugging when data is NOT correct.
+   (Not available typically will result in reported errors)
+o work on any block storage device (ie no knowledge of specific device
+geometry or flash vs magnetic vs optical or removable vs built-in -
+some 'workloads' might be geared for specific types of storage)
 
-One approach that I have started favoring is instead providing coverage
-through the use of an lfsr. This negates the need for dedicated tracking
-map or log. Fio supports this through random_generator=lfsr. The one
-thing that does not YET work is lfsr and multiple block sizes. Should be
-doable through layered use of multiple lfsrs. Something for your intern
-to tackle?
+o specify workload the same way fio does (multi-threaded, async,
+random vs seq, read vs write mix, etc)
+o collect same performance statistics that fio does (latency
+histograms in particular)
+o be done in < 6 weeks by a full time intern. :)
 
-> o provide some "bread crumbs" for debugging when data is NOT correct.
->    (Not available typically will result in reported errors)
+It seems like he should be doing something with fio.  I saw this query
+in the Fio mailing list archive but didn't see a response:
+   http://www.spinics.net/lists/fio/msg01933.html
 
-So lets say that one of the fio verify modes was augmented to include a
-time stamp (say the meta mode, or could even be added to all the verify
-modes), that could be part of the bread crumbs and aid in judging
-retention of the data.
+Since these are destructive tests, I expect the primary target
+"audience" is anyone working on Storage HW or wants to confirm Storage
+HW is operating correctly before deploying $$$ worth of HW.
 
-> o work on any block storage device (ie no knowledge of specific device
-> geometry or flash vs magnetic vs optical or removable vs built-in -
-> some 'workloads' might be geared for specific types of storage)
+Questions:
+1) You know anyone else developing data integrity/retention testing with fio?
 
-Certainly
+2) Other good open source data integrity test I should know about?
+Both Juan and I looked and didn't find anything better than
+"badblocks". As a first exercise, Juan has written an autotest for
+badblocks on ChromeOS:
+   https://gerrit.chromium.org/gerrit/#/c/61786/
 
-> o specify workload the same way fio does (multi-threaded, async,
-> random vs seq, read vs write mix, etc)
-> o collect same performance statistics that fio does (latency
-> histograms in particular)
-> o be done in < 6 weeks by a full time intern. :)
+3) You have a preference on how this might be implemented if (a) we
+used code from OR (b) integrated this functionality into fio?
 
-Depends on the quality of the intern :-)
+(2) is probably a longer answer - refactor vs integrate is a good
+first answer for now. :)
 
-> It seems like he should be doing something with fio.  I saw this query
-> in the Fio mailing list archive but didn't see a response:
->    http://www.spinics.net/lists/fio/msg01933.html
-> 
-> Since these are destructive tests, I expect the primary target
-> "audience" is anyone working on Storage HW or wants to confirm Storage
-> HW is operating correctly before deploying $$$ worth of HW.
-> 
-> Questions:
-> 1) You know anyone else developing data integrity/retention testing with fio?
-
-I know of lots of people/companies using it for data integrity testing
-(I even work for one of them), but not data retention. So I think that
-would be a very interesting feature to add.
-
-> 2) Other good open source data integrity test I should know about?
-> Both Juan and I looked and didn't find anything better than
-> "badblocks". As a first exercise, Juan has written an autotest for
-> badblocks on ChromeOS:
->    https://gerrit.chromium.org/gerrit/#/c/61786/
-
-No idea, sorry.
-
-> 3) You have a preference on how this might be implemented if (a) we
-> used code from OR (b) integrated this functionality into fio?
-
-I think the the data retention aspect should be integrated into the
-verify modes. The fio verification modes checksum both the stored
-header, as well as the actual contents. There might be additional
-tracking required on the side for retention, to be able to pass some
-interesting info on where we seem to fall off a cliff.
-
-I'll be happy to work with you guys on this, both on the initial design
-phase and the final integration into fio.
-
--- 
-Jens Axboe
+thanks,
+grant
 
