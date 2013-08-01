@@ -1,33 +1,45 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:48167 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752050Ab3HARaR (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 1 Aug 2013 13:30:17 -0400
-Message-ID: <51FA9B05.5040009@kernel.dk>
-Date: Thu, 01 Aug 2013 11:29:41 -0600
-From: Jens Axboe <axboe@kernel.dk>
+Received: from mxi1.enovance.com ([94.143.114.217]:21305 "EHLO
+	mxi1.enovance.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752039Ab3HAKJd (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 1 Aug 2013 06:09:33 -0400
+Received: from zimbra.enovance.com (94-143-114-250.enovance.net [94.143.114.250])
+	by mxi1.enovance.com (Postfix) with ESMTP id C6FEC381AE
+	for <fio@vger.kernel.org>; Thu,  1 Aug 2013 12:09:31 +0200 (CEST)
+Received: from localhost (mail-1 [127.0.0.1])
+	by zimbra.enovance.com (Postfix) with ESMTP id C2FCE744C4D
+	for <fio@vger.kernel.org>; Thu,  1 Aug 2013 12:09:31 +0200 (CEST)
+Received: from zimbra.enovance.com ([127.0.0.1])
+	by localhost (zimbra.enovance.com [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id gJ8GYE3gDL5f for <fio@vger.kernel.org>;
+	Thu,  1 Aug 2013 12:09:31 +0200 (CEST)
+Received: from localhost (mail-1 [127.0.0.1])
+	by zimbra.enovance.com (Postfix) with ESMTP id 843DA5D29407
+	for <fio@vger.kernel.org>; Thu,  1 Aug 2013 12:09:31 +0200 (CEST)
+Received: from zimbra.enovance.com ([127.0.0.1])
+	by localhost (zimbra.enovance.com [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id lJWbIegWfOS7 for <fio@vger.kernel.org>;
+	Thu,  1 Aug 2013 12:09:31 +0200 (CEST)
+Received: from localhost.localdomain (unknown [185.23.92.11])
+	by zimbra.enovance.com (Postfix) with ESMTPSA id 417945A8DC52
+	for <fio@vger.kernel.org>; Thu,  1 Aug 2013 12:09:31 +0200 (CEST)
+Message-ID: <51FA33DA.70402@enovance.com>
+Date: Thu, 01 Aug 2013 12:09:30 +0200
+From: Erwan Velu <erwan@enovance.com>
 MIME-Version: 1.0
-Subject: Re: Empty block size in iops log files
-References: <51FA33DA.70402@enovance.com>
-In-Reply-To: <51FA33DA.70402@enovance.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Empty block size in iops log files
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Erwan Velu <erwan@enovance.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 08/01/2013 04:09 AM, Erwan Velu wrote:
-> Hi,
-> 
-> When running fio and ask it to log bandwidth and iops into log file, I
-> discovered that the last column of the bandwidth log file is populated
-> with the block size while the iops remains to 0.
-> 
-> Is it an expected behavior ? If not, I can have a look for a patch
+Hi,
 
-You should investigate :-)
+When running fio and ask it to log bandwidth and iops into log file, I 
+discovered that the last column of the bandwidth log file is populated 
+with the block size while the iops remains to 0.
 
--- 
-Jens Axboe
+Is it an expected behavior ? If not, I can have a look for a patch
 
+Cheers,
