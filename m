@@ -1,60 +1,606 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail.thomas-krenn.com ([217.7.54.186]:53200 "EHLO
-	mail.thomas-krenn.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752292Ab3HVJqz convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Thu, 22 Aug 2013 05:46:55 -0400
-Received: from iris.tks.local (iris.tks.local [192.168.10.63])
-	by mail.thomas-krenn.com (Postfix) with ESMTP id 97217A2C24
-	for <fio@vger.kernel.org>; Thu, 22 Aug 2013 11:37:59 +0200 (CEST)
-Received: from zimbra.thomas-krenn.com (hercules.tks.local [192.168.110.28])
-	by iris.tks.local (Postfix) with ESMTP id 4593F3FDD1
-	for <fio@vger.kernel.org>; Thu, 22 Aug 2013 11:37:59 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-	by zimbra.thomas-krenn.com (Postfix) with ESMTP id 4190E1A84009
-	for <fio@vger.kernel.org>; Thu, 22 Aug 2013 11:37:59 +0200 (CEST)
-Received: from zimbra.thomas-krenn.com ([127.0.0.1])
-	by localhost (zimbra.thomas-krenn.com [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JCJIoP5grLMe for <fio@vger.kernel.org>;
-	Thu, 22 Aug 2013 11:37:55 +0200 (CEST)
-Received: from zimbra.thomas-krenn.com (zimbra.thomas-krenn.com [127.0.1.1])
-	by zimbra.thomas-krenn.com (Postfix) with ESMTP id 7FB961A84006
-	for <fio@vger.kernel.org>; Thu, 22 Aug 2013 11:37:55 +0200 (CEST)
-Date: Thu, 22 Aug 2013 11:37:55 +0200 (CEST)
-From: Georg =?utf-8?Q?Sch=C3=B6nberger?= 
-	<gschoenberger@thomas-krenn.com>
-Message-ID: <1314394180.368686.1377164275463.JavaMail.root@thomas-krenn.com>
-In-Reply-To: <112541105.368381.1377163637545.JavaMail.root@thomas-krenn.com>
-Subject: write_iops_log/write_bw_log command line parameter bug
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Received: from mail-pd0-f180.google.com ([209.85.192.180]:35637 "EHLO
+	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932071Ab3HAVzx (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 1 Aug 2013 17:55:53 -0400
+Received: by mail-pd0-f180.google.com with SMTP id 15so2458898pdi.39
+        for <fio@vger.kernel.org>; Thu, 01 Aug 2013 14:55:52 -0700 (PDT)
+Message-ID: <1375394018.30810.46.camel@espiritosanto.int.convergent.io>
+Subject: Re: Memorized block verification headers.
+From: Daniel Stodden <daniel@convergent.io>
+Date: Thu, 01 Aug 2013 14:53:38 -0700
+In-Reply-To: <1375393883.30810.44.camel@espiritosanto.int.convergent.io>
+References: <1375393883.30810.44.camel@espiritosanto.int.convergent.io>
+Content-Type: multipart/mixed; boundary="=-4piGKEGTYSMQuH/1pLiK"
+Mime-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi Jens,
 
-it seems that the command line options "write_iops_log" and "write_bw_log" don't work as they are described in the man page:
-"If no filename is given with this option, the default filename of "jobname_type.log" is used."
+--=-4piGKEGTYSMQuH/1pLiK
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 
-Unfortunately the files/filenames are not created automatically by fio:
-# fio --name=test --direct=1 --refill_buffers --filesize=1G --bs=8k --rw=randread --ioengine=libaio --runtime=60 --write_iops_log --write_bw_log
-[...]
-# ls
-lost+found  test.1.0  --write_bw_log_iops.log
+On Thu, 2013-08-01 at 14:51 -0700, Daniel Stodden wrote:
+> Hi.
+> 
+> Worrying about stale data reads, i.e. no internal corruption, but
+> storage reading back data which was confirmed as rewritten.
 
-If I specify the filenames everything is fine:
-# rm ./--write_bw_log_iops.log
-# fio --name=test --direct=1 --refill_buffers --filesize=1G --bs=8k --rw=randread --ioengine=libaio --runtime=60 --write_iops_log=rr-iops --write_bw_log=rr-bw
-[...]
-# ls
-lost+found  rr-bw_bw.log  rr-iops_iops.log  test.1.0
+Patch goes below.
 
-I am using fio version fio-2.1.2-13-g3e10.
+Thanks,
+Daniel
 
-Best regards, Georg
---
-: Georg Schönberger
-: Research & Development Executive
-: Thomas-Krenn.AG | The server-experts
-: http://www.thomas-krenn.com | http://www.thomas-krenn.com/wiki
+
+
+--=-4piGKEGTYSMQuH/1pLiK
+Content-Disposition: attachment; filename="backlog-verify.diff"
+Content-Type: text/x-patch; name="backlog-verify.diff"; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+From de3bf96a0ce6981fcd24f7a2d83285f86af5d1d5 Mon Sep 17 00:00:00 2001
+From: Daniel Stodden <daniel@convergent.io>
+Date: Tue, 30 Jul 2013 12:53:05 -0700
+Subject: [PATCH] back-log verification hashes
+
+Save block hashes in memory. Saved iop state already exists in fio,
+the backlog parameter is tuning the maximum number of writes saved to
+an memory list, before verification consumes it again.
+
+We link a hash vector (io_u->verify) into every generated write
+request struct. While filling verification blocks, the vector grows
+according to block size. After write completion, request logging
+transfers the block into the respective verification queue entry
+(ipo->verify). Later, read I/O generated by verification transfers
+ipo->verify back to the io_u verification handler.
+
+Signed-off-by: Daniel Stodden <daniel@convergent.io>
+
+---
+ ioengine.h |    1 +
+ iolog.c    |    1 +
+ iolog.h    |    1 +
+ verify.c   |  174 +++++++++++++++++++++++++++++++++++++++++++++++-------------
+ verify.h   |   11 ++++
+ 5 files changed, 150 insertions(+), 38 deletions(-)
+
+Index: fio.git/ioengine.h
+===================================================================
+--- fio.git.orig/ioengine.h	2013-07-30 14:56:54.000000000 -0700
++++ fio.git/ioengine.h	2013-08-01 11:53:27.000000000 -0700
+@@ -82,6 +82,7 @@
+ 		unsigned int index;
+ 		unsigned int seen;
+ 		void *engine_data;
++		union verify_mem *verify;
+ 	};
+ 
+ 	unsigned int flags;
+Index: fio.git/iolog.c
+===================================================================
+--- fio.git.orig/iolog.c	2013-07-30 14:56:54.000000000 -0700
++++ fio.git/iolog.c	2013-08-01 11:53:27.000000000 -0700
+@@ -189,6 +189,7 @@
+ 	ipo->file = io_u->file;
+ 	ipo->offset = io_u->offset;
+ 	ipo->len = io_u->buflen;
++	ipo->verify = io_u->verify;
+ 
+ 	if (io_u_should_trim(td, io_u)) {
+ 		flist_add_tail(&ipo->trim_list, &td->trim_list);
+Index: fio.git/iolog.h
+===================================================================
+--- fio.git.orig/iolog.h	2013-07-30 14:56:54.000000000 -0700
++++ fio.git/iolog.h	2013-08-01 11:53:27.000000000 -0700
+@@ -72,6 +72,7 @@
+ 		unsigned long delay;
+ 		unsigned int file_action;
+ 	};
++	union verify_mem *verify;
+ };
+ 
+ /*
+Index: fio.git/verify.c
+===================================================================
+--- fio.git.orig/verify.c	2013-07-30 20:02:21.608642342 -0700
++++ fio.git/verify.c	2013-08-01 13:23:53.751980582 -0700
+@@ -95,6 +95,7 @@
+ 
+ 	hdr_inc = get_hdr_inc(td, io_u);
+ 	header_num = 0;
++	io_u->verify = NULL;
+ 	for (; p < io_u->buf + io_u->buflen; p += hdr_inc) {
+ 		hdr = p;
+ 		populate_hdr(td, io_u, hdr, header_num, hdr_inc);
+@@ -203,6 +204,7 @@
+ 	 * Output, only valid in case of error
+ 	 */
+ 	const char *name;
++	void *saved_crc;
+ 	void *good_crc;
+ 	void *bad_crc;
+ 	unsigned int crc_len;
+@@ -291,9 +293,12 @@
+ 			vc->name, vc->io_u->file->file_name, offset, hdr->len);
+ 
+ 	if (vc->good_crc && vc->bad_crc) {
+-		log_err("       Expected CRC: ");
++		if (vc->saved_crc)
++			log_err("       Saved CRC: ");
++		hexdump(vc->saved_crc, vc->crc_len);
++		log_err("       Written CRC: ");
+ 		hexdump(vc->good_crc, vc->crc_len);
+-		log_err("       Received CRC: ");
++		log_err("       Read CRC: ");
+ 		hexdump(vc->bad_crc, vc->crc_len);
+ 	}
+ 
+@@ -387,7 +392,7 @@
+ static int verify_io_u_sha512(struct verify_header *hdr, struct vcont *vc)
+ {
+ 	void *p = io_u_verify_off(hdr, vc);
+-	struct vhdr_sha512 *vh = hdr_priv(hdr);
++	struct vhdr_sha512 *vh = hdr_priv(hdr), *vm;
+ 	uint8_t sha512[128];
+ 	struct fio_sha512_ctx sha512_ctx = {
+ 		.buf = sha512,
+@@ -398,10 +403,14 @@
+ 	fio_sha512_init(&sha512_ctx);
+ 	fio_sha512_update(&sha512_ctx, p, hdr->len - hdr_size(hdr));
+ 
+-	if (!memcmp(vh->sha512, sha512_ctx.buf, sizeof(sha512)))
++	vm = &vc->io_u->verify->sha512[vc->hdr_num];
++
++	if (!memcmp(vh->sha512, sha512_ctx.buf, sizeof(sha512)) &&
++	    !memcmp(vm->sha512, sha512_ctx.buf, sizeof(sha512)))
+ 		return 0;
+ 
+ 	vc->name = "sha512";
++	vc->saved_crc = vm->sha512;
+ 	vc->good_crc = vh->sha512;
+ 	vc->bad_crc = sha512_ctx.buf;
+ 	vc->crc_len = sizeof(vh->sha512);
+@@ -412,7 +421,7 @@
+ static int verify_io_u_sha256(struct verify_header *hdr, struct vcont *vc)
+ {
+ 	void *p = io_u_verify_off(hdr, vc);
+-	struct vhdr_sha256 *vh = hdr_priv(hdr);
++	struct vhdr_sha256 *vh = hdr_priv(hdr), *vm;
+ 	uint8_t sha256[64];
+ 	struct fio_sha256_ctx sha256_ctx = {
+ 		.buf = sha256,
+@@ -423,10 +432,14 @@
+ 	fio_sha256_init(&sha256_ctx);
+ 	fio_sha256_update(&sha256_ctx, p, hdr->len - hdr_size(hdr));
+ 
+-	if (!memcmp(vh->sha256, sha256_ctx.buf, sizeof(sha256)))
++	vm = &vc->io_u->verify->sha256[vc->hdr_num];
++
++	if (!memcmp(vh->sha256, sha256_ctx.buf, sizeof(sha256)) &&
++	    !memcmp(vm->sha256, sha256_ctx.buf, sizeof(sha256)))
+ 		return 0;
+ 
+ 	vc->name = "sha256";
++	vc->saved_crc = vm->sha256;
+ 	vc->good_crc = vh->sha256;
+ 	vc->bad_crc = sha256_ctx.buf;
+ 	vc->crc_len = sizeof(vh->sha256);
+@@ -437,7 +450,7 @@
+ static int verify_io_u_sha1(struct verify_header *hdr, struct vcont *vc)
+ {
+ 	void *p = io_u_verify_off(hdr, vc);
+-	struct vhdr_sha1 *vh = hdr_priv(hdr);
++	struct vhdr_sha1 *vh = hdr_priv(hdr), *vm;
+ 	uint32_t sha1[5];
+ 	struct fio_sha1_ctx sha1_ctx = {
+ 		.H = sha1,
+@@ -448,10 +461,16 @@
+ 	fio_sha1_init(&sha1_ctx);
+ 	fio_sha1_update(&sha1_ctx, p, hdr->len - hdr_size(hdr));
+ 
+-	if (!memcmp(vh->sha1, sha1_ctx.H, sizeof(sha1)))
++	vm = &vc->io_u->verify->sha1[vc->hdr_num];
++
++	hexdump(vh->sha1, sizeof(sha1));
++
++	if (!memcmp(vh->sha1, sha1_ctx.H, sizeof(sha1)) &&
++	    !memcmp(vm->sha1, sha1_ctx.H, sizeof(sha1)))
+ 		return 0;
+ 
+ 	vc->name = "sha1";
++	vc->saved_crc = vm->sha1;
+ 	vc->good_crc = vh->sha1;
+ 	vc->bad_crc = sha1_ctx.H;
+ 	vc->crc_len = sizeof(vh->sha1);
+@@ -462,17 +481,20 @@
+ static int verify_io_u_crc7(struct verify_header *hdr, struct vcont *vc)
+ {
+ 	void *p = io_u_verify_off(hdr, vc);
+-	struct vhdr_crc7 *vh = hdr_priv(hdr);
++	struct vhdr_crc7 *vh = hdr_priv(hdr), *vm;
+ 	unsigned char c;
+ 
+ 	dprint(FD_VERIFY, "crc7 verify io_u %p, len %u\n", vc->io_u, hdr->len);
+ 
+ 	c = fio_crc7(p, hdr->len - hdr_size(hdr));
+ 
+-	if (c == vh->crc7)
++	vm = &vc->io_u->verify->crc7[vc->hdr_num];
++
++	if (c == vh->crc7 && c == vm->crc7)
+ 		return 0;
+ 
+ 	vc->name = "crc7";
++	vc->saved_crc = &vm->crc7;
+ 	vc->good_crc = &vh->crc7;
+ 	vc->bad_crc = &c;
+ 	vc->crc_len = 1;
+@@ -483,17 +505,20 @@
+ static int verify_io_u_crc16(struct verify_header *hdr, struct vcont *vc)
+ {
+ 	void *p = io_u_verify_off(hdr, vc);
+-	struct vhdr_crc16 *vh = hdr_priv(hdr);
++	struct vhdr_crc16 *vh = hdr_priv(hdr), *vm;
+ 	unsigned short c;
+ 
+ 	dprint(FD_VERIFY, "crc16 verify io_u %p, len %u\n", vc->io_u, hdr->len);
+ 
+ 	c = fio_crc16(p, hdr->len - hdr_size(hdr));
+ 
+-	if (c == vh->crc16)
++	vm = &vc->io_u->verify->crc16[vc->hdr_num];
++
++	if (c == vh->crc16 && c == vm->crc16)
+ 		return 0;
+ 
+ 	vc->name = "crc16";
++	vc->saved_crc = &vm->crc16;
+ 	vc->good_crc = &vh->crc16;
+ 	vc->bad_crc = &c;
+ 	vc->crc_len = 2;
+@@ -504,17 +529,20 @@
+ static int verify_io_u_crc64(struct verify_header *hdr, struct vcont *vc)
+ {
+ 	void *p = io_u_verify_off(hdr, vc);
+-	struct vhdr_crc64 *vh = hdr_priv(hdr);
++	struct vhdr_crc64 *vh = hdr_priv(hdr), *vm;
+ 	unsigned long long c;
+ 
+ 	dprint(FD_VERIFY, "crc64 verify io_u %p, len %u\n", vc->io_u, hdr->len);
+ 
+ 	c = fio_crc64(p, hdr->len - hdr_size(hdr));
+ 
+-	if (c == vh->crc64)
++	vm = &vc->io_u->verify->crc64[vc->hdr_num];
++
++	if (c == vh->crc64 && c == vm->crc64)
+ 		return 0;
+ 
+ 	vc->name = "crc64";
++	vc->saved_crc = &vm->crc64;
+ 	vc->good_crc = &vh->crc64;
+ 	vc->bad_crc = &c;
+ 	vc->crc_len = 8;
+@@ -525,17 +553,20 @@
+ static int verify_io_u_crc32(struct verify_header *hdr, struct vcont *vc)
+ {
+ 	void *p = io_u_verify_off(hdr, vc);
+-	struct vhdr_crc32 *vh = hdr_priv(hdr);
++	struct vhdr_crc32 *vh = hdr_priv(hdr), *vm;
+ 	uint32_t c;
+ 
+ 	dprint(FD_VERIFY, "crc32 verify io_u %p, len %u\n", vc->io_u, hdr->len);
+ 
+ 	c = fio_crc32(p, hdr->len - hdr_size(hdr));
+ 
+-	if (c == vh->crc32)
++	vm = &vc->io_u->verify->crc32[vc->hdr_num];
++
++	if (c == vh->crc32 && c == vm->crc32)
+ 		return 0;
+ 
+ 	vc->name = "crc32";
++	vc->saved_crc = &vm->crc32;
+ 	vc->good_crc = &vh->crc32;
+ 	vc->bad_crc = &c;
+ 	vc->crc_len = 4;
+@@ -546,17 +577,20 @@
+ static int verify_io_u_crc32c(struct verify_header *hdr, struct vcont *vc)
+ {
+ 	void *p = io_u_verify_off(hdr, vc);
+-	struct vhdr_crc32 *vh = hdr_priv(hdr);
++	struct vhdr_crc32 *vh = hdr_priv(hdr), *vm;
+ 	uint32_t c;
+ 
+ 	dprint(FD_VERIFY, "crc32c verify io_u %p, len %u\n", vc->io_u, hdr->len);
+ 
+ 	c = fio_crc32c(p, hdr->len - hdr_size(hdr));
+ 
+-	if (c == vh->crc32)
++	vm = &vc->io_u->verify->crc32[vc->hdr_num];
++
++	if (c == vh->crc32 && c == vm->crc32)
+ 		return 0;
+ 
+ 	vc->name = "crc32c";
++	vc->saved_crc = &vm->crc32;
+ 	vc->good_crc = &vh->crc32;
+ 	vc->bad_crc = &c;
+ 	vc->crc_len = 4;
+@@ -567,7 +601,7 @@
+ static int verify_io_u_md5(struct verify_header *hdr, struct vcont *vc)
+ {
+ 	void *p = io_u_verify_off(hdr, vc);
+-	struct vhdr_md5 *vh = hdr_priv(hdr);
++	struct vhdr_md5 *vh = hdr_priv(hdr), *vm;
+ 	uint32_t hash[MD5_HASH_WORDS];
+ 	struct fio_md5_ctx md5_ctx = {
+ 		.hash = hash,
+@@ -578,10 +612,14 @@
+ 	fio_md5_init(&md5_ctx);
+ 	fio_md5_update(&md5_ctx, p, hdr->len - hdr_size(hdr));
+ 
+-	if (!memcmp(vh->md5_digest, md5_ctx.hash, sizeof(hash)))
++	vm = &vc->io_u->verify->md5[vc->hdr_num];
++
++	if (!memcmp(vh->md5_digest, md5_ctx.hash, sizeof(hash)) &&
++	    !memcmp(vm->md5_digest, md5_ctx.hash, sizeof(hash)))
+ 		return 0;
+ 
+ 	vc->name = "md5";
++	vc->saved_crc = &vm->md5_digest;
+ 	vc->good_crc = vh->md5_digest;
+ 	vc->bad_crc = md5_ctx.hash;
+ 	vc->crc_len = sizeof(hash);
+@@ -747,6 +785,9 @@
+ 			log_err("Bad verify type %u\n", hdr->verify_type);
+ 			ret = EINVAL;
+ 		}
++
++		free(io_u->verify);
++		io_u->verify = NULL;
+ 	}
+ 
+ done:
+@@ -771,7 +812,27 @@
+ 	vh->offset = io_u->offset + header_num * td->o.verify_interval;
+ }
+ 
+-static void fill_sha512(struct verify_header *hdr, void *p, unsigned int len)
++static void
++fill_vmem_hash(struct vcont *vc, void *src, size_t len)
++{
++	union verify_mem *vmem;
++	size_t size;
++	void *dst;
++
++	vmem = vc->io_u->verify;
++	size = len * (vc->hdr_num + 1);
++	vmem = realloc(vmem, size);
++
++	vc->io_u->verify = vmem;
++
++	dst  = vmem;
++	dst += vc->hdr_num * len;
++
++	memcpy(dst, src, len);
++}
++
++static void fill_sha512(struct verify_header *hdr, void *p, unsigned int len,
++			struct vcont *vc)
+ {
+ 	struct vhdr_sha512 *vh = hdr_priv(hdr);
+ 	struct fio_sha512_ctx sha512_ctx = {
+@@ -780,9 +841,12 @@
+ 
+ 	fio_sha512_init(&sha512_ctx);
+ 	fio_sha512_update(&sha512_ctx, p, len);
++
++	fill_vmem_hash(vc, vh->sha512, sizeof(vh->sha512));
+ }
+ 
+-static void fill_sha256(struct verify_header *hdr, void *p, unsigned int len)
++static void fill_sha256(struct verify_header *hdr, void *p, unsigned int len,
++			struct vcont *vc)
+ {
+ 	struct vhdr_sha256 *vh = hdr_priv(hdr);
+ 	struct fio_sha256_ctx sha256_ctx = {
+@@ -791,9 +855,12 @@
+ 
+ 	fio_sha256_init(&sha256_ctx);
+ 	fio_sha256_update(&sha256_ctx, p, len);
++
++	fill_vmem_hash(vc, vh->sha256, sizeof(vh->sha256));
+ }
+ 
+-static void fill_sha1(struct verify_header *hdr, void *p, unsigned int len)
++static void fill_sha1(struct verify_header *hdr, void *p, unsigned int len,
++		      struct vcont *vc)
+ {
+ 	struct vhdr_sha1 *vh = hdr_priv(hdr);
+ 	struct fio_sha1_ctx sha1_ctx = {
+@@ -802,44 +869,63 @@
+ 
+ 	fio_sha1_init(&sha1_ctx);
+ 	fio_sha1_update(&sha1_ctx, p, len);
++
++	fill_vmem_hash(vc, vh->sha1, sizeof(vh->sha1));
+ }
+ 
+-static void fill_crc7(struct verify_header *hdr, void *p, unsigned int len)
++static void fill_crc7(struct verify_header *hdr, void *p, unsigned int len,
++		      struct vcont *vc)
+ {
+ 	struct vhdr_crc7 *vh = hdr_priv(hdr);
+ 
+ 	vh->crc7 = fio_crc7(p, len);
++
++	fill_vmem_hash(vc, &vh->crc7, sizeof(vh->crc7));
+ }
+ 
+-static void fill_crc16(struct verify_header *hdr, void *p, unsigned int len)
++static void fill_crc16(struct verify_header *hdr, void *p, unsigned int len,
++		       struct vcont *vc)
+ {
+ 	struct vhdr_crc16 *vh = hdr_priv(hdr);
+ 
+ 	vh->crc16 = fio_crc16(p, len);
++
++	fill_vmem_hash(vc, &vh->crc16, sizeof(vh->crc16));
+ }
+ 
+-static void fill_crc32(struct verify_header *hdr, void *p, unsigned int len)
++static void fill_crc32(struct verify_header *hdr, void *p, unsigned int len,
++			struct vcont *vc)
+ {
+ 	struct vhdr_crc32 *vh = hdr_priv(hdr);
+ 
+ 	vh->crc32 = fio_crc32(p, len);
++
++	fill_vmem_hash(vc, &vh->crc32, sizeof(vh->crc32));
+ }
+ 
+-static void fill_crc32c(struct verify_header *hdr, void *p, unsigned int len)
++static void fill_crc32c(struct verify_header *hdr, void *p, unsigned int len,
++			struct vcont *vc)
+ {
+ 	struct vhdr_crc32 *vh = hdr_priv(hdr);
+ 
+ 	vh->crc32 = fio_crc32c(p, len);
++
++	fill_vmem_hash(vc, &vh->crc32, sizeof(vh->crc32));
+ }
+ 
+-static void fill_crc64(struct verify_header *hdr, void *p, unsigned int len)
++static void fill_crc64(struct verify_header *hdr, void *p, unsigned int len,
++		       struct vcont *vc)
+ {
+ 	struct vhdr_crc64 *vh = hdr_priv(hdr);
+ 
+ 	vh->crc64 = fio_crc64(p, len);
++
++	fill_vmem_hash(vc, &vh->crc64, sizeof(vh->crc64));
+ }
+ 
+-static void fill_md5(struct verify_header *hdr, void *p, unsigned int len)
++static void fill_md5(struct verify_header *hdr,
++		     void *p, unsigned int len,
++		     struct vcont *vc)
+ {
+ 	struct vhdr_md5 *vh = hdr_priv(hdr);
+ 	struct fio_md5_ctx md5_ctx = {
+@@ -848,12 +934,18 @@
+ 
+ 	fio_md5_init(&md5_ctx);
+ 	fio_md5_update(&md5_ctx, p, len);
++
++	fill_vmem_hash(vc, vh->md5_digest, sizeof(vh->md5_digest));
+ }
+ 
+ static void populate_hdr(struct thread_data *td, struct io_u *io_u,
+ 			 struct verify_header *hdr, unsigned int header_num,
+ 			 unsigned int header_len)
+ {
++	struct vcont vc = {
++		.io_u = io_u,
++		.hdr_num = header_num,
++	};
+ 	unsigned int data_len;
+ 	void *data, *p;
+ 
+@@ -872,43 +964,43 @@
+ 	case VERIFY_MD5:
+ 		dprint(FD_VERIFY, "fill md5 io_u %p, len %u\n",
+ 						io_u, hdr->len);
+-		fill_md5(hdr, data, data_len);
++		fill_md5(hdr, data, data_len, &vc);
+ 		break;
+ 	case VERIFY_CRC64:
+ 		dprint(FD_VERIFY, "fill crc64 io_u %p, len %u\n",
+ 						io_u, hdr->len);
+-		fill_crc64(hdr, data, data_len);
++		fill_crc64(hdr, data, data_len, &vc);
+ 		break;
+ 	case VERIFY_CRC32C:
+ 	case VERIFY_CRC32C_INTEL:
+ 		dprint(FD_VERIFY, "fill crc32c io_u %p, len %u\n",
+ 						io_u, hdr->len);
+-		fill_crc32c(hdr, data, data_len);
++		fill_crc32c(hdr, data, data_len, &vc);
+ 		break;
+ 	case VERIFY_CRC32:
+ 		dprint(FD_VERIFY, "fill crc32 io_u %p, len %u\n",
+ 						io_u, hdr->len);
+-		fill_crc32(hdr, data, data_len);
++		fill_crc32(hdr, data, data_len, &vc);
+ 		break;
+ 	case VERIFY_CRC16:
+ 		dprint(FD_VERIFY, "fill crc16 io_u %p, len %u\n",
+ 						io_u, hdr->len);
+-		fill_crc16(hdr, data, data_len);
++		fill_crc16(hdr, data, data_len, &vc);
+ 		break;
+ 	case VERIFY_CRC7:
+ 		dprint(FD_VERIFY, "fill crc7 io_u %p, len %u\n",
+ 						io_u, hdr->len);
+-		fill_crc7(hdr, data, data_len);
++		fill_crc7(hdr, data, data_len, &vc);
+ 		break;
+ 	case VERIFY_SHA256:
+ 		dprint(FD_VERIFY, "fill sha256 io_u %p, len %u\n",
+ 						io_u, hdr->len);
+-		fill_sha256(hdr, data, data_len);
++		fill_sha256(hdr, data, data_len, &vc);
+ 		break;
+ 	case VERIFY_SHA512:
+ 		dprint(FD_VERIFY, "fill sha512 io_u %p, len %u\n",
+ 						io_u, hdr->len);
+-		fill_sha512(hdr, data, data_len);
++		fill_sha512(hdr, data, data_len, &vc);
+ 		break;
+ 	case VERIFY_META:
+ 		dprint(FD_VERIFY, "fill meta io_u %p, len %u\n",
+@@ -918,7 +1010,7 @@
+ 	case VERIFY_SHA1:
+ 		dprint(FD_VERIFY, "fill sha1 io_u %p, len %u\n",
+ 						io_u, hdr->len);
+-		fill_sha1(hdr, data, data_len);
++		fill_sha1(hdr, data, data_len, &vc);
+ 		break;
+ 	case VERIFY_PATTERN:
+ 		/* nothing to do here */
+@@ -974,6 +1066,7 @@
+ 		io_u->buflen = ipo->len;
+ 		io_u->file = ipo->file;
+ 		io_u->flags |= IO_U_F_VER_LIST;
++		io_u->verify = ipo->verify;
+ 
+ 		if (ipo->flags & IP_F_TRIMMED)
+ 			io_u->flags |= IO_U_F_TRIMMED;
+Index: fio.git/verify.h
+===================================================================
+--- fio.git.orig/verify.h	2013-07-30 14:56:54.000000000 -0700
++++ fio.git/verify.h	2013-08-01 11:53:27.000000000 -0700
+@@ -67,6 +67,17 @@
+ 	unsigned long time_usec;
+ };
+ 
++union verify_mem {
++	struct vhdr_md5 md5[0];
++	struct vhdr_sha512 sha512[0];
++	struct vhdr_sha256 sha256[0];
++	struct vhdr_sha1 sha1[0];
++	struct vhdr_crc64 crc64[0];
++	struct vhdr_crc32 crc32[0];
++	struct vhdr_crc16 crc16[0];
++	struct vhdr_crc7 crc7[0];
++};
++
+ /*
+  * Verify helpers
+  */
+
+--=-4piGKEGTYSMQuH/1pLiK--
+
