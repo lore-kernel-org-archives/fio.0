@@ -1,286 +1,387 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mxi1.enovance.com ([94.143.114.217]:3592 "EHLO
+Received: from mxi1.enovance.com ([94.143.114.217]:20126 "EHLO
 	mxi1.enovance.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755349Ab3HEUrK (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 5 Aug 2013 16:47:10 -0400
+	with ESMTP id S1752412Ab3HBOvd (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 2 Aug 2013 10:51:33 -0400
 Received: from zimbra.enovance.com (94-143-114-250.enovance.net [94.143.114.250])
-	by mxi1.enovance.com (Postfix) with ESMTP id 841D93809F
-	for <fio@vger.kernel.org>; Mon,  5 Aug 2013 22:47:08 +0200 (CEST)
+	by mxi1.enovance.com (Postfix) with ESMTP id 4C7863829B
+	for <fio@vger.kernel.org>; Fri,  2 Aug 2013 16:51:31 +0200 (CEST)
 Received: from localhost (mail-1 [127.0.0.1])
-	by zimbra.enovance.com (Postfix) with ESMTP id 8216D59F1468
-	for <fio@vger.kernel.org>; Mon,  5 Aug 2013 22:47:08 +0200 (CEST)
+	by zimbra.enovance.com (Postfix) with ESMTP id 495467BB08A
+	for <fio@vger.kernel.org>; Fri,  2 Aug 2013 16:51:31 +0200 (CEST)
 Received: from zimbra.enovance.com ([127.0.0.1])
 	by localhost (zimbra.enovance.com [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8IMuw1DkaiiS for <fio@vger.kernel.org>;
-	Mon,  5 Aug 2013 22:47:07 +0200 (CEST)
+	with ESMTP id NuNrPKTLyl4U for <fio@vger.kernel.org>;
+	Fri,  2 Aug 2013 16:51:30 +0200 (CEST)
 Received: from localhost (mail-1 [127.0.0.1])
-	by zimbra.enovance.com (Postfix) with ESMTP id 9E77C6E45FE
-	for <fio@vger.kernel.org>; Mon,  5 Aug 2013 22:47:07 +0200 (CEST)
+	by zimbra.enovance.com (Postfix) with ESMTP id 741A817BC2B
+	for <fio@vger.kernel.org>; Fri,  2 Aug 2013 16:51:30 +0200 (CEST)
 Received: from zimbra.enovance.com ([127.0.0.1])
 	by localhost (zimbra.enovance.com [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id PZw_PVduTvLu for <fio@vger.kernel.org>;
-	Mon,  5 Aug 2013 22:47:06 +0200 (CEST)
-Received: from [192.168.1.107] (lns-bzn-48f-62-147-157-222.adsl.proxad.net [62.147.157.222])
-	by zimbra.enovance.com (Postfix) with ESMTPSA id E4B125B41008
-	for <fio@vger.kernel.org>; Mon,  5 Aug 2013 22:47:05 +0200 (CEST)
-Date: Mon, 05 Aug 2013 22:47:04 +0200
-Subject: Re: [Pull Request] fio2gnuplot and iolog fixes
-Message-ID: <98i6myoaejg175jnwaaiiapr.1375735624165@email.android.com>
+	with ESMTP id k768Eo3vVl4Y for <fio@vger.kernel.org>;
+	Fri,  2 Aug 2013 16:51:29 +0200 (CEST)
+Received: from localhost.localdomain (lns-bzn-48f-62-147-157-222.adsl.proxad.net [62.147.157.222])
+	by zimbra.enovance.com (Postfix) with ESMTPSA id E57D95A8DC45
+	for <fio@vger.kernel.org>; Fri,  2 Aug 2013 16:51:28 +0200 (CEST)
+Message-ID: <51FBC770.5000008@enovance.com>
+Date: Fri, 02 Aug 2013 16:51:28 +0200
 From: Erwan Velu <erwan@enovance.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
+Subject: [Pull Requests] fio2gnuplot and iolog fixes
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org " <fio@vger.kernel.org>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-RGVhciBKZW5zLApDYW4gd2UgbWFrZSB0aGlzIHB1bGwgZG9uZSBiZWZvcmUgMi4xMiA/IEl0IHdv
-dWxkIGJlIGxvdmVseSB0byBnZXQgdGhvc2UgcGF0Y2hlcyBvbmJvYXJkLiAKQ2hlZXJzLApFcndh
-bgoKRXJ3YW4gVmVsdSA8ZXJ3YW5AZW5vdmFuY2UuY29tPiBhIMOpY3JpdMKgOgoKPkRlYXIgSmVu
-cywKPgo+UGxlYXNlIGZpbmQgYmVsb3cgbXkgbGF0ZXN0IHdvcmtzIGZvciBmaW8uCj5JIGRvIGhh
-dmUgc29tZSBmaW8yZ251cGxvdCBmaXhlcyBhbmQgb25lIGlzIHZlcnkgaW1wb3J0YW50IGFzIHNv
-bWUgZGF0YSAKPndlcmUgbWl4ZWQgbGVhZGluZyB0byB3ZWlyZC9zdHVwaWQgcGxvdHRpbmcgYXJ0
-ZWZhY3RzIGxpa2UgbG9vcHMuLi4uCj4KPkFzaWRlIHRoaXMsIEkndmUgYmVlbiBmaXhpbmcgdGhl
-IGVtcHR5IGZpZWxkIHdoZW4gbG9nZ2luZyBJT3MuCj4KPlRoZSBmb2xsb3dpbmcgY2hhbmdlcyBz
-aW5jZSBjb21taXQgNDI4YjRmNmJhNjgxZGJiNDBjOGUyMjEzZDBjNmFlOGY4MDQ5ZGNkNToKPgo+
-ICAgZmlvMmdudXBsb3Q6IEFkZGluZyBmaWxlbmFtZSBhcyB0aXRsZSBmb3IgMkQgZ3JhcGhzICgy
-MDEzLTA3LTMxIAo+MTI6MzI6NDAgKzAyMDApCj4KPmFyZSBhdmFpbGFibGUgaW4gdGhlIGdpdCBy
-ZXBvc2l0b3J5IGF0Ogo+Cj4gICBnaXRAZ2l0aHViLmNvbTplbm92YW5jZS9maW8uZ2l0IGVyd2Fu
-L2ZpeGVzCj4KPmZvciB5b3UgdG8gZmV0Y2ggY2hhbmdlcyB1cCB0byBhYWI1OTU0Yjk4YTI3NWNh
-MWNmMjlkNTMzOWNkYzMxOWQ5ZjRjZmRhOgo+Cj4gICBpb2xvZzogTG9nZ2luZyBibG9ja3NpemUg
-aW4gSU9QUyB0cmFjZXMgKDIwMTMtMDgtMDIgMTY6Mzk6NDAgKzAyMDApCj4KPi0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KPkVy
-d2FuIFZlbHUgKDgpOgo+ICAgICAgIGZpbzJnbnVwbG90OiBGaXhpbmcgdHlwbyB3aGVuIGluc2Vy
-dGluZyBmYWtlIGRhdGEKPiAgICAgICBmaW8yZ251cGxvdDogUHJpbnQgbGluZSBpZiBpbnQoKSBj
-b252ZXJzaW9uIGZhaWxzCj4gICAgICAgZmlvMmdudXBsb3Q6IEFkZGluZyB0aW1lIHNlbGVjdGlv
-biBvcHRpb25zCj4gICAgICAgZmlvMmducGxvdDogUmVuYW1pbmcgZmlsZSB2YXJpYWJsZSB0byBt
-eWZpbGUKPiAgICAgICBmaW8yZ251cGxvdDogRml4aW5nIHBsb3R0aW5nIGlzc3VlcyBvbiBzaG9y
-dGVuIGZpbGVzCj4gICAgICAgZmlvMmdudXBsb3Q6IFBsb3R0aW5nIGF2ZXJhZ2UgdmFsdWUgZm9y
-IGNvbXBhcmUgZ3JhcGhzCj4gICAgICAgZmlvMmdudXBsb3Q6IERpc3BsYXkgYXZlcmFnZSB2YWx1
-ZSBpbiBsYWJlbAo+ICAgICAgIGlvbG9nOiBMb2dnaW5nIGJsb2Nrc2l6ZSBpbiBJT1BTIHRyYWNl
-cwo+Cj4gIGlvX3UuYyAgICAgICAgICAgICAgICAgICAgfCAgMiArLQo+ICBpb2xvZy5oICAgICAg
-ICAgICAgICAgICAgIHwgIDMgKystCj4gIHN0YXQuYyAgICAgICAgICAgICAgICAgICAgfCAgNCAr
-Ky0tCj4gIHRvb2xzL3Bsb3QvZmlvMmdudXBsb3QucHkgfCA3OSAKPisrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0KPiAgdG9vbHMvcGxvdC9ncmFwaDJELmdwbSAgICB8ICA2ICsrKy0tLQo+ICB0b29scy9w
-bG90L21hdGguZ3BtICAgICAgIHwgIDIgKy0KPiAgNiBmaWxlcyBjaGFuZ2VkLCA2MCBpbnNlcnRp
-b25zKCspLCAzNiBkZWxldGlvbnMoLSkKPgo+ZGlmZiAtLWdpdCBhL2lvX3UuYyBiL2lvX3UuYwo+
-aW5kZXggNjUzN2M5MC4uYTM1YWFmZCAxMDA2NDQKPi0tLSBhL2lvX3UuYwo+KysrIGIvaW9fdS5j
-Cj5AQCAtMTQxMiw3ICsxNDEyLDcgQEAgc3RhdGljIHZvaWQgYWNjb3VudF9pb19jb21wbGV0aW9u
-KHN0cnVjdCAKPnRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGlvX3UgKmlvX3UsCj4gICAgICBpZiAo
-IXRkLT5vLmRpc2FibGVfYncpCj4gICAgICAgICAgYWRkX2J3X3NhbXBsZSh0ZCwgaWR4LCBieXRl
-cywgJmljZC0+dGltZSk7Cj4KPi0gICAgYWRkX2lvcHNfc2FtcGxlKHRkLCBpZHgsICZpY2QtPnRp
-bWUpOwo+KyAgICBhZGRfaW9wc19zYW1wbGUodGQsIGlkeCwgYnl0ZXMsICZpY2QtPnRpbWUpOwo+
-ICB9Cj4KPiAgc3RhdGljIGxvbmcgbG9uZyB1c2VjX2Zvcl9pbyhzdHJ1Y3QgdGhyZWFkX2RhdGEg
-KnRkLCBlbnVtIGZpb19kZGlyIGRkaXIpCj5kaWZmIC0tZ2l0IGEvaW9sb2cuaCBiL2lvbG9nLmgK
-PmluZGV4IDcwOTkwOTcuLjhmZWRjMTkgMTAwNjQ0Cj4tLS0gYS9pb2xvZy5oCj4rKysgYi9pb2xv
-Zy5oCj5AQCAtMTE4LDcgKzExOCw4IEBAIGV4dGVybiB2b2lkIGFkZF9zbGF0X3NhbXBsZShzdHJ1
-Y3QgdGhyZWFkX2RhdGEgKiwgCj5lbnVtIGZpb19kZGlyLCB1bnNpZ25lZCBsb25nLAo+ICAgICAg
-ICAgICAgICAgICAgdW5zaWduZWQgaW50KTsKPiAgZXh0ZXJuIHZvaWQgYWRkX2J3X3NhbXBsZShz
-dHJ1Y3QgdGhyZWFkX2RhdGEgKiwgZW51bSBmaW9fZGRpciwgCj51bnNpZ25lZCBpbnQsCj4gICAg
-ICAgICAgICAgICAgICBzdHJ1Y3QgdGltZXZhbCAqKTsKPi1leHRlcm4gdm9pZCBhZGRfaW9wc19z
-YW1wbGUoc3RydWN0IHRocmVhZF9kYXRhICosIGVudW0gZmlvX2RkaXIsIHN0cnVjdCAKPnRpbWV2
-YWwgKik7Cj4rZXh0ZXJuIHZvaWQgYWRkX2lvcHNfc2FtcGxlKHN0cnVjdCB0aHJlYWRfZGF0YSAq
-LCBlbnVtIGZpb19kZGlyLCAKPnVuc2lnbmVkIGludCwKPisgICAgICAgICAgICAgICAgc3RydWN0
-IHRpbWV2YWwgKik7Cj4gIGV4dGVybiB2b2lkIGluaXRfZGlza191dGlsKHN0cnVjdCB0aHJlYWRf
-ZGF0YSAqKTsKPiAgZXh0ZXJuIHZvaWQgdXBkYXRlX3J1c2FnZV9zdGF0KHN0cnVjdCB0aHJlYWRf
-ZGF0YSAqKTsKPiAgZXh0ZXJuIHZvaWQgc2V0dXBfbG9nKHN0cnVjdCBpb19sb2cgKiosIHVuc2ln
-bmVkIGxvbmcsIGludCk7Cj5kaWZmIC0tZ2l0IGEvc3RhdC5jIGIvc3RhdC5jCj5pbmRleCA0NDJj
-YWEwLi4xMGQ5ZWZlIDEwMDY0NAo+LS0tIGEvc3RhdC5jCj4rKysgYi9zdGF0LmMKPkBAIC0xNjkx
-LDcgKzE2OTEsNyBAQCB2b2lkIGFkZF9id19zYW1wbGUoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwg
-ZW51bSAKPmZpb19kZGlyIGRkaXIsIHVuc2lnbmVkIGludCBicywKPiAgICAgIGZpb19nZXR0aW1l
-KCZ0ZC0+Yndfc2FtcGxlX3RpbWUsIE5VTEwpOwo+ICB9Cj4KPi12b2lkIGFkZF9pb3BzX3NhbXBs
-ZShzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBlbnVtIGZpb19kZGlyIGRkaXIsCj4rdm9pZCBhZGRf
-aW9wc19zYW1wbGUoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgZW51bSBmaW9fZGRpciBkZGlyLCAK
-PnVuc2lnbmVkIGludCBicywKPiAgICAgICAgICAgICAgIHN0cnVjdCB0aW1ldmFsICp0KQo+ICB7
-Cj4gICAgICBzdHJ1Y3QgdGhyZWFkX3N0YXQgKnRzID0gJnRkLT50czsKPkBAIC0xNzE4LDcgKzE3
-MTgsNyBAQCB2b2lkIGFkZF9pb3BzX3NhbXBsZShzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBlbnVt
-IAo+ZmlvX2RkaXIgZGRpciwKPiAgICAgICAgICBhZGRfc3RhdF9zYW1wbGUoJnRzLT5pb3BzX3N0
-YXRbZGRpcl0sIGlvcHMpOwo+Cj4gICAgICAgICAgaWYgKHRkLT5pb3BzX2xvZykKPi0gICAgICAg
-ICAgICBhZGRfbG9nX3NhbXBsZSh0ZCwgdGQtPmlvcHNfbG9nLCBpb3BzLCBkZGlyLCAwKTsKPisg
-ICAgICAgICAgICBhZGRfbG9nX3NhbXBsZSh0ZCwgdGQtPmlvcHNfbG9nLCBpb3BzLCBkZGlyLCBi
-cyk7Cj4KPiAgICAgICAgICB0ZC0+c3RhdF9pb19ibG9ja3NbZGRpcl0gPSB0ZC0+dGhpc19pb19i
-bG9ja3NbZGRpcl07Cj4gICAgICB9Cj5kaWZmIC0tZ2l0IGEvdG9vbHMvcGxvdC9maW8yZ251cGxv
-dC5weSBiL3Rvb2xzL3Bsb3QvZmlvMmdudXBsb3QucHkKPmluZGV4IDgwMGMzMzQuLjY0YjQxYzEg
-MTAwNzU1Cj4tLS0gYS90b29scy9wbG90L2ZpbzJnbnVwbG90LnB5Cj4rKysgYi90b29scy9wbG90
-L2ZpbzJnbnVwbG90LnB5Cj5AQCAtNTYsOCArNTYsOCBAQCBzZXQgeXRpY3MgYXhpcyBvdXQgYXV0
-bwo+ICBzZXQga2V5IHRvcCBsZWZ0IHJldmVyc2UKPiAgc2V0IHhsYWJlbCAiVGltZSAoU2Vjb25k
-cykiCj4gIHNldCB5bGFiZWwgJyVzJwo+LXNldCB4cmFuZ2UgWzA6XQo+ICBzZXQgeXJhbmdlIFsw
-Ol0KPitzZXQgc3R5bGUgbGluZSAxIGx0IDEgbHcgMyBwdCAzIGxpbmVjb2xvciByZ2IgImdyZWVu
-Igo+ICAnJyclICh0aXRsZSxtb2RlKSkKPiAgICAgICAgICBjb21wYXJlLmNsb3NlKCkKPiAgICAg
-ICAgICAjQ29weWluZyB0aGUgY29tbW9uIGZpbGUgZm9yIGFsbCBraW5kIG9mIGdyYXBoIChyYXcv
-c21vb3RoL3RyZW5kKQo+QEAgLTc2LDYgKzc2LDEzIEBAIHNldCB5cmFuZ2UgWzA6XQo+ICBjb21w
-YXJlX3RyZW5kPW9wZW4oZ251cGxvdF9vdXRwdXRfZGlyK2NvbXBhcmVfdHJlbmRfZmlsZW5hbWUr
-Ii5nbnVwbG90IiwnYScpCj4gICAgICAgICAgY29tcGFyZV90cmVuZC53cml0ZSgic2V0IG91dHB1
-dCAnJXMucG5nJ1xuIiAlIAo+Y29tcGFyZV90cmVuZF9maWxlbmFtZSkKPgo+KyAgICAgICAgIyBM
-ZXQncyBwbG90IHRoZSBhdmVyYWdlIHZhbHVlIGZvciBhbGwgdGhlIHRyYWNlcwo+KyAgICAgICAg
-Z2xvYmFsX2Rpc2tfcGVyZiA9IHN1bShkaXNrX3BlcmYsIFtdKQo+KyAgICAgICAgZ2xvYmFsX2F2
-ZyAgPSBhdmVyYWdlKGdsb2JhbF9kaXNrX3BlcmYpCj4rICAgICAgICBjb21wYXJlX3Jhdy53cml0
-ZSgicGxvdCAlcyB3IGwgbHMgMSB0aSAnR2xvYmFsIGF2ZXJhZ2UgdmFsdWUgCj4oJS4yZiknIiAl
-IChnbG9iYWxfYXZnLGdsb2JhbF9hdmcpKTsKPisgICAgICAgIGNvbXBhcmVfc21vb3RoLndyaXRl
-KCJwbG90ICVzIHcgbCBscyAxIHRpICdHbG9iYWwgYXZlcmFnZSB2YWx1ZSAKPiglLjJmKSciICUg
-KGdsb2JhbF9hdmcsZ2xvYmFsX2F2ZykpOwo+KyAgICAgICAgY29tcGFyZV90cmVuZC53cml0ZSgi
-cGxvdCAlcyB3IGwgbHMgMSB0aSAnR2xvYmFsIGF2ZXJhZ2UgdmFsdWUgCj4oJS4yZiknIiAlIChn
-bG9iYWxfYXZnLGdsb2JhbF9hdmcpKTsKPisKPiAgICAgICAgICBwb3M9MAo+ICAgICAgICAgICMg
-TGV0J3MgY3JlYXRlIGEgdGVtcG9yYXJ5IGZpbGUgZm9yIGVhY2ggc2VsZWN0ZWQgZmlvIGZpbGUK
-PiAgICAgICAgICBmb3IgZmlsZSBpbiBmaW9fZGF0YV9maWxlOgo+QEAgLTg0LDE0ICs5MSw5IEBA
-IHNldCB5cmFuZ2UgWzA6XQo+ICAgICAgICAgICMgUGxvdHRpbmcgY29tcGFyaW5nIGdyYXBocyBk
-b2Vzbid0IGhhdmUgYSBtZWFuaW5nIHVubGVzcyBpZiAKPnRoZXJlIGlzIGF0IGxlYXN0IDIgdHJh
-Y2VzCj4gICAgICAgICAgaWYgbGVuKGZpb19kYXRhX2ZpbGUpID4gMToKPiAgICAgICAgICAgICAg
-IyBBZGRpbmcgdGhlIHBsb3QgaW5zdHJ1Y3Rpb24gZm9yIGVhY2gga2luZCBvZiBjb21wYXJpbmcg
-Cj5ncmFwaHMKPi0gICAgICAgICAgICBpZiBwb3MgPT0wIDoKPi0gICAgICAgICAgICAgICAgY29t
-cGFyZV9yYXcud3JpdGUoInBsb3QgJyVzJyB1c2luZyAyOjMgd2l0aCBsaW5lc3BvaW50cyAKPnRp
-dGxlICclcyciICUgKHRtcF9maWxlbmFtZSxmaW9fZGF0YV9maWxlW3Bvc10pKQo+LSAgICAgICAg
-ICAgICAgICBjb21wYXJlX3Ntb290aC53cml0ZSgicGxvdCAnJXMnIHVzaW5nIDI6MyBzbW9vdGgg
-Cj5jc3BsaW5lcyB0aXRsZSAnJXMnIiAlICh0bXBfZmlsZW5hbWUsZmlvX2RhdGFfZmlsZVtwb3Nd
-KSkKPi0gICAgICAgICAgICAgICAgY29tcGFyZV90cmVuZC53cml0ZSgicGxvdCAnJXMnIHVzaW5n
-IDI6MyBzbW9vdGggYmV6aWVyIAo+dGl0bGUgJyVzJyIgJSAodG1wX2ZpbGVuYW1lLGZpb19kYXRh
-X2ZpbGVbcG9zXSkpCj4tICAgICAgICAgICAgZWxzZToKPi0gICAgICAgICAgICAgICAgY29tcGFy
-ZV9yYXcud3JpdGUoIixcXFxuJyVzJyB1c2luZyAyOjMgd2l0aCBsaW5lc3BvaW50cyAKPnRpdGxl
-ICclcyciICUgKHRtcF9maWxlbmFtZSxmaW9fZGF0YV9maWxlW3Bvc10pKQo+LSAgICAgICAgICAg
-ICAgICBjb21wYXJlX3Ntb290aC53cml0ZSgiLFxcXG4nJXMnIHVzaW5nIDI6MyBzbW9vdGggCj5j
-c3BsaW5lcyB0aXRsZSAnJXMnIiAlICh0bXBfZmlsZW5hbWUsZmlvX2RhdGFfZmlsZVtwb3NdKSkK
-Pi0gICAgICAgICAgICAgICAgY29tcGFyZV90cmVuZC53cml0ZSgiLFxcXG4nJXMnIHVzaW5nIDI6
-MyBzbW9vdGggYmV6aWVyIAo+dGl0bGUgJyVzJyIgJSAodG1wX2ZpbGVuYW1lLGZpb19kYXRhX2Zp
-bGVbcG9zXSkpCj4rICAgICAgICAgICAgY29tcGFyZV9yYXcud3JpdGUoIixcXFxuJyVzJyB1c2lu
-ZyAyOjMgd2l0aCBsaW5lc3BvaW50cyAKPnRpdGxlICclcyciICUgKHRtcF9maWxlbmFtZSxmaW9f
-ZGF0YV9maWxlW3Bvc10pKQo+KyAgICAgICAgICAgIGNvbXBhcmVfc21vb3RoLndyaXRlKCIsXFxc
-biclcycgdXNpbmcgMjozIHNtb290aCBjc3BsaW5lcyAKPnRpdGxlICclcyciICUgKHRtcF9maWxl
-bmFtZSxmaW9fZGF0YV9maWxlW3Bvc10pKQo+KyAgICAgICAgICAgIGNvbXBhcmVfdHJlbmQud3Jp
-dGUoIixcXFxuJyVzJyB1c2luZyAyOjMgc21vb3RoIGJlemllciAKPnRpdGxlICclcyciICUgKHRt
-cF9maWxlbmFtZSxmaW9fZGF0YV9maWxlW3Bvc10pKQo+Cj4gICAgICAgICAgcG5nX2ZpbGU9Zmls
-ZS5yZXBsYWNlKCcubG9nJywnJykKPiAgICAgICAgICAgICAgICAgIHJhd19maWxlbmFtZSA9ICIl
-cy0yRHJhdyIgJSAocG5nX2ZpbGUpCj5AQCAtMTM5LDggKzE0MSwxMSBAQCBkZWYgY29tcHV0ZV9h
-Z2dyZWdhdGVkX2ZpbGUoZmlvX2RhdGFfZmlsZSwgCj5nbnVwbG90X291dHB1dF9maWxlbmFtZSwg
-Z251cGxvdF9vdXRwCj4KPiAgZGVmIGF2ZXJhZ2Uocyk6IHJldHVybiBzdW0ocykgKiAxLjAgLyBs
-ZW4ocykKPgo+LWRlZiBjb21wdXRlX3RlbXBfZmlsZShmaW9fZGF0YV9maWxlLGRpc2tfcGVyZixn
-bnVwbG90X291dHB1dF9kaXIpOgo+LSAgICBwcmludCAiUHJvY2Vzc2luZyBkYXRhIGZpbGUgMS8y
-Igo+K2RlZiBjb21wdXRlX3RlbXBfZmlsZShmaW9fZGF0YV9maWxlLGRpc2tfcGVyZixnbnVwbG90
-X291dHB1dF9kaXIsIAo+bWluX3RpbWUsIG1heF90aW1lKToKPisgICAgZW5kX3RpbWU9bWF4X3Rp
-bWUKPisgICAgaWYgZW5kX3RpbWUgPT0gLTE6Cj4rICAgICAgICBlbmRfdGltZT0iaW5maW5pdGUi
-Cj4rICAgIHByaW50ICJQcm9jZXNzaW5nIGRhdGEgZmlsZSAxLzIgd2l0aCAlczx0aW1lPCVzIiAl
-IChtaW5fdGltZSxlbmRfdGltZSkKPiAgICAgIGZpbGVzPVtdCj4gICAgICB0ZW1wX291dGZpbGU9
-W10KPiAgICAgIGJsa19zaXplPTAKPkBAIC0xNTgsMTEgKzE2MywxMSBAQCBkZWYgCj5jb21wdXRl
-X3RlbXBfZmlsZShmaW9fZGF0YV9maWxlLGRpc2tfcGVyZixnbnVwbG90X291dHB1dF9kaXIpOgo+
-ICAgICAgICAgIGN1cnJlbnRfbGluZT1bXQo+ICAgICAgICAgIG5iX2VtcHR5X2ZpbGVzPTAKPiAg
-ICAgICAgICBuYl9maWxlcz1sZW4oZmlsZXMpCj4tICAgICAgICBmb3IgZmlsZSBpbiBmaWxlczoK
-Pi0gICAgICAgICAgICBzPWZpbGUucmVhZGxpbmUoKS5yZXBsYWNlKCcsJywnICcpLnNwbGl0KCkK
-PisgICAgICAgIGZvciBteWZpbGUgaW4gZmlsZXM6Cj4rICAgICAgICAgICAgcz1teWZpbGUucmVh
-ZGxpbmUoKS5yZXBsYWNlKCcsJywnICcpLnNwbGl0KCkKPiAgICAgICAgICAgICAgaWYgbm90IHM6
-Cj4gICAgICAgICAgICAgICAgICBuYl9lbXB0eV9maWxlcys9MQo+LSAgICAgICAgICAgICAgICBz
-PSItMSwgMCwgMCwgMCciLnJlcGxhY2UoJywnLCcgJykuc3BsaXQoKQo+KyAgICAgICAgICAgICAg
-ICBzPSItMSwgMCwgMCwgMCIucmVwbGFjZSgnLCcsJyAnKS5zcGxpdCgpCj4KPiAgICAgICAgICAg
-ICAgaWYgKG5iX2VtcHR5X2ZpbGVzID09IG5iX2ZpbGVzKToKPiAgICAgICAgICAgICAgICAgIHNo
-YWxsX2JyZWFrPVRydWUKPkBAIC0xNzQsMjUgKzE3OSwzNSBAQCBkZWYgCj5jb21wdXRlX3RlbXBf
-ZmlsZShmaW9fZGF0YV9maWxlLGRpc2tfcGVyZixnbnVwbG90X291dHB1dF9kaXIpOgo+ICAgICAg
-ICAgICAgICBicmVhawo+Cj4gICAgICAgICAgbGFzdF90aW1lID0gLTEKPi0gICAgICAgIGluZGV4
-PTAKPisgICAgICAgIGluZGV4PS0xCj4gICAgICAgICAgcGVyZnM9W10KPi0gICAgICAgIGZvciBs
-aW5lIGluIGN1cnJlbnRfbGluZToKPi0gICAgICAgICAgICB0aW1lLCBwZXJmLCB4LCBibG9ja19z
-aXplID0gbGluZQo+KyAgICAgICAgZm9yIGxpbmUgaW4gZW51bWVyYXRlKGN1cnJlbnRfbGluZSk6
-Cj4rICAgICAgICAgICAgIyBJbmRleCB3aWxsIGJlIHVzZWQgdG8gcmVtZW1iZXIgd2hhdCBmaWxl
-IHdhcyBmZWF0dXJpbmcgCj53aGF0IHZhbHVlCj4rICAgICAgICAgICAgaW5kZXg9aW5kZXgrMQo+
-Kwo+KyAgICAgICAgICAgIHRpbWUsIHBlcmYsIHgsIGJsb2NrX3NpemUgPSBsaW5lWzFdCj4gICAg
-ICAgICAgICAgIGlmIChibGtfc2l6ZSA9PSAwKToKPi0gICAgICAgICAgICAgICAgYmxrX3NpemU9
-aW50KGJsb2NrX3NpemUpCj4rICAgICAgICAgICAgICAgIHRyeToKPisgICAgICAgICAgICAgICAg
-ICAgIGJsa19zaXplPWludChibG9ja19zaXplKQo+KyAgICAgICAgICAgICAgICBleGNlcHQ6Cj4r
-ICAgICAgICAgICAgICAgICAgICBwcmludCAiRXJyb3Igd2hpbGUgcmVhZGluZyB0aGUgZm9sbG93
-aW5nIGxpbmUgOiIKPisgICAgICAgICAgICAgICAgICAgIHByaW50IGxpbmUKPisgICAgICAgICAg
-ICAgICAgICAgIHN5cy5leGl0KDEpOwo+Cj4gICAgICAgICAgICAgICMgV2UgaWdub3JlIHRoZSBm
-aXJzdCA1MDBtc2VjIGFzIGl0IGRvZXNuJ3Qgc2VlbXMgdG8gYmUgCj5wYXJ0IG9mIHRoZSByZWFs
-IGJlbmNobWFyawo+ICAgICAgICAgICAgICAjIFRpbWUgPCA1MDAgdXN1YWxseSByZXBvcnRzIEJX
-PTAgYnJlYWtpbmcgdGhlIG1pbiBjb21wdXRpbmcKPi0gICAgICAgICAgICBpZiAoKChpbnQodGlt
-ZSkpID4gNTAwKSBvciAoaW50KHRpbWUpPT0tMSkpOgo+LSAgICAgICAgICAgICAgICBkaXNrX3Bl
-cmZbaW5kZXhdLmFwcGVuZChpbnQocGVyZikpCj4tICAgICAgICAgICAgICAgIHBlcmZzLmFwcGVu
-ZCgiJXMgJXMiJSAodGltZSwgcGVyZikpCj4tICAgICAgICAgICAgICAgIGluZGV4ID0gaW5kZXgg
-KyAxCj4rICAgICAgICAgICAgaWYgKG1pbl90aW1lID09IDApOgo+KyAgICAgICAgICAgICAgICBt
-aW5fdGltZT09MC41Cj4rCj4rICAgICAgICAgICAgIyBUaGVuIHdlIGVzdGltYXRlIGlmIHRoZSBk
-YXRhIHdlIGdvdCBpcyBwYXJ0IG9mIHRoZSB0aW1lIAo+cmFuZ2Ugd2Ugd2FudCB0byBwbG90Cj4r
-ICAgICAgICAgICAgaWYgKChmbG9hdCh0aW1lKT4oZmxvYXQobWluX3RpbWUpKjEwMDApKSBhbmQg
-KChpbnQodGltZSkgPCAKPihpbnQobWF4X3RpbWUpKjEwMDApKSBvciBtYXhfdGltZT09LTEpKToK
-PisgICAgICAgICAgICAgICAgICAgIGRpc2tfcGVyZltpbmRleF0uYXBwZW5kKGludChwZXJmKSkK
-PisgICAgICAgICAgICAgICAgICAgIHBlcmZzLmFwcGVuZCgiJWQgJXMgJXMiJSAoaW5kZXgsIHRp
-bWUsIHBlcmYpKQo+Cj4gICAgICAgICAgIyBJZiB3ZSByZWFjaCB0aGlzIHBvaW50LCBpdCBtZWFu
-cyB0aGF0IGFsbCB0aGUgdHJhY2VzIGFyZSAKPmNvaGVyZW50Cj4gICAgICAgICAgZm9yIHAgaW4g
-ZW51bWVyYXRlKHBlcmZzKToKPi0gICAgICAgICAgICBwZXJmX3RpbWUscGVyZiA9IHBbMV0uc3Bs
-aXQoKQo+LSAgICAgICAgICAgIGlmIChwZXJmX3RpbWUgIT0gIi0xIik6Cj4tICAgICAgICAgICAg
-ICAgIHRlbXBfb3V0ZmlsZVtwWzBdXS53cml0ZSgiJXMgJS4yZiAlc1xuIiAlIChwWzBdLCAKPmZs
-b2F0KGZsb2F0KHBlcmZfdGltZSkvMTAwMCksIHBlcmYpKQo+KyAgICAgICAgICAgIGluZGV4LCBw
-ZXJmX3RpbWUscGVyZiA9IHBbMV0uc3BsaXQoKQo+KyAgICAgICAgICAgIHRlbXBfb3V0ZmlsZVtp
-bnQoaW5kZXgpXS53cml0ZSgiJXMgJS4yZiAlc1xuIiAlIChpbmRleCwgCj5mbG9hdChmbG9hdChw
-ZXJmX3RpbWUpLzEwMDApLCBwZXJmKSkKPgo+Cj4gICAgICBmb3IgZmlsZSBpbiBmaWxlczoKPkBA
-IC0zMjgsNyArMzQzLDcgQEAgZGVmIHJlbmRlcl9nbnVwbG90KGZpb19kYXRhX2ZpbGUsIGdudXBs
-b3Rfb3V0cHV0X2Rpcik6Cj4gICAgICAgICAgc3lzLmV4aXQoMSk7Cj4KPiAgZGVmIHByaW50X2hl
-bHAoKToKPi0gICAgcHJpbnQgJ2ZpbzJnbnVwbG90LnB5IC1naGJpb2QgLXQgPHRpdGxlPiAtbyA8
-b3V0cHV0ZmlsZT4gLXAgCj48cGF0dGVybj4gLUcgPHR5cGU+Jwo+KyAgICBwcmludCAnZmlvMmdu
-dXBsb3QucHkgLWdoYmlvZCAtdCA8dGl0bGU+IC1vIDxvdXRwdXRmaWxlPiAtcCAKPjxwYXR0ZXJu
-PiAtRyA8dHlwZT4gLW0gPHRpbWU+IC1NIDx0aW1lPicKPiAgICAgIHByaW50Cj4gICAgICBwcmlu
-dCAnLWggLS1oZWxwICAgICAgICAgICAgICAgICAgICAgICAgICAgOiBQcmludCB0aGlzIGhlbHAn
-Cj4gICAgICBwcmludCAnLXAgPHBhdHRlcm4+IG9yIC0tcGF0dGVybiA8cGF0dGVybj4gOiBBIHBh
-dHRlcm4gaW4gcmVnZXhwIAo+dG8gc2VsZWN0IGZpbyBpbnB1dCBmaWxlcycKPkBAIC0zNDMsNiAr
-MzU4LDggQEAgZGVmIHByaW50X2hlbHAoKToKPiAgICAgIHByaW50ICctRyAgICAgICAgb3IgLS1H
-bG9iYWwgPHR5cGU+ICAgICA6IFNlYXJjaCBmb3IgPHR5cGU+IGluIAo+Lmdsb2JhbCBmaWxlcyBt
-YXRjaCBieSBhIHBhdHRlcm4nCj4gICAgICBwcmludCAnICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgLSBBdmFpbGFibGUgdHlwZXMgCj5hcmUgOiBtaW4sIG1heCwgYXZnLCBz
-dGRkZXYnCj4gICAgICBwcmludCAnICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgLSBUaGUgLmdsb2JhbCAKPmV4dGVuc2lvbiBpcyBhZGRlZCBhdXRvbWF0aWNhbGx5IHRvIHRo
-ZSBwYXR0ZXJuJwo+KyAgICBwcmludCAnLW0gICAgICAgICAgIG9yIC0tbWluX3RpbWUgPHRpbWU+
-ICAgOiBPbmx5IGNvbnNpZGVyIGRhdGEgCj5zdGFydGluZyBmcm9tIDx0aW1lPiBzZWNvbmRzIChk
-ZWZhdWx0IGlzIDApJwo+KyAgICBwcmludCAnLU0gICAgICAgICAgIG9yIC0tbWF4X3RpbWUgPHRp
-bWU+ICAgOiBPbmx5IGNvbnNpZGVyIGRhdGEgCj5lbmRpbmcgYmVmb3JlIDx0aW1lPiBzZWNvbmRz
-IChkZWZhdWx0IGlzIC0xIGFrYSBub2xpbWl0KScKPgo+ICBkZWYgbWFpbihhcmd2KToKPiAgICAg
-IG1vZGU9J3Vua25vd24nCj5AQCAtMzU2LDYgKzM3Myw4IEBAIGRlZiBtYWluKGFyZ3YpOgo+ICAg
-ICAgcnVuX2dudXBsb3Q9RmFsc2UKPiAgICAgIHBhcnNlX2dsb2JhbD1GYWxzZQo+ICAgICAgZ2xv
-YmFsX3NlYXJjaD0nJwo+KyAgICBtaW5fdGltZT0wCj4rICAgIG1heF90aW1lPS0xCj4KPiAgICAg
-IGlmIG5vdCBvcy5wYXRoLmlzZmlsZShncG1fZGlyKydtYXRoLmdwbScpOgo+ICAgICAgICAgIGdw
-bV9kaXI9Ii91c3IvbG9jYWwvc2hhcmUvZmlvLyIKPkBAIC0zNjQsNyArMzgzLDcgQEAgZGVmIG1h
-aW4oYXJndik6Cj4gICAgICAgICAgICAgIHN5cy5leGl0KDMpCj4KPiAgICAgIHRyeToKPi0gICAg
-ICAgIG9wdHMsIGFyZ3MgPSBnZXRvcHQuZ2V0b3B0KGFyZ3ZbMTpdLCJnaGJpbzpkOnQ6cDpHOiIp
-Cj4rICAgICAgICBvcHRzLCBhcmdzID0gZ2V0b3B0LmdldG9wdChhcmd2WzE6XSwiZ2hiaW86ZDp0
-OnA6RzptOk06IikKPiAgICAgIGV4Y2VwdCBnZXRvcHQuR2V0b3B0RXJyb3I6Cj4gICAgICAgcHJp
-bnRfaGVscCgpCj4gICAgICAgICAgIHN5cy5leGl0KDIpCj5AQCAtMzg4LDYgKzQwNywxMCBAQCBk
-ZWYgbWFpbihhcmd2KToKPiAgICAgICAgICBvcy5tYWtlZGlycyhnbnVwbG90X291dHB1dF9kaXIp
-Cj4gICAgICAgIGVsaWYgb3B0IGluICgiLXQiLCAiLS10aXRsZSIpOgo+ICAgICAgICAgICB0aXRs
-ZT1hcmcKPisgICAgICBlbGlmIG9wdCBpbiAoIi1tIiwgIi0tbWluX3RpbWUiKToKPisgICAgIG1p
-bl90aW1lPWFyZwo+KyAgICAgIGVsaWYgb3B0IGluICgiLU0iLCAiLS1tYXhfdGltZSIpOgo+KyAg
-ICAgbWF4X3RpbWU9YXJnCj4gICAgICAgIGVsaWYgb3B0IGluICgiLWciLCAiLS1nbnVwbG90Iik6
-Cj4gICAgICAgcnVuX2dudXBsb3Q9VHJ1ZQo+ICAgICAgICBlbGlmIG9wdCBpbiAoIi1HIiwgIi0t
-R2xvYmFsIik6Cj5AQCAtNDM5LDcgKzQ2Miw3IEBAIGRlZiBtYWluKGFyZ3YpOgo+ICAgICAgaWYg
-cGFyc2VfZ2xvYmFsPT1UcnVlOgo+ICAgICAgcGFyc2VfZ2xvYmFsX2ZpbGVzKGZpb19kYXRhX2Zp
-bGUsIGdsb2JhbF9zZWFyY2gpCj4gICAgICBlbHNlOgo+LSAgYmxrX3NpemU9Y29tcHV0ZV90ZW1w
-X2ZpbGUoZmlvX2RhdGFfZmlsZSxkaXNrX3BlcmYsZ251cGxvdF9vdXRwdXRfZGlyKQo+KyAKPiAg
-YmxrX3NpemU9Y29tcHV0ZV90ZW1wX2ZpbGUoZmlvX2RhdGFfZmlsZSxkaXNrX3BlcmYsZ251cGxv
-dF9vdXRwdXRfZGlyLG1pbl90aW1lLG1heF90aW1lKQo+ICAgICAgICAgIHRpdGxlPSIlcyBAIEJs
-b2Nrc2l6ZSA9ICVkSyIgJSAodGl0bGUsYmxrX3NpemUvMTAyNCkKPiAgICAgICAgICBjb21wdXRl
-X2FnZ3JlZ2F0ZWRfZmlsZShmaW9fZGF0YV9maWxlLCAKPmdudXBsb3Rfb3V0cHV0X2ZpbGVuYW1l
-LCBnbnVwbG90X291dHB1dF9kaXIpCj4gIGNvbXB1dGVfbWF0aChmaW9fZGF0YV9maWxlLHRpdGxl
-LGdudXBsb3Rfb3V0cHV0X2ZpbGVuYW1lLGdudXBsb3Rfb3V0cHV0X2Rpcixtb2RlLGRpc2tfcGVy
-ZixncG1fZGlyKQo+ZGlmZiAtLWdpdCBhL3Rvb2xzL3Bsb3QvZ3JhcGgyRC5ncG0gYi90b29scy9w
-bG90L2dyYXBoMkQuZ3BtCj5pbmRleCBlZmM3YWMyLi41Y2Q2ZmYzIDEwMDY0NAo+LS0tIGEvdG9v
-bHMvcGxvdC9ncmFwaDJELmdwbQo+KysrIGIvdG9vbHMvcGxvdC9ncmFwaDJELmdwbQo+QEAgLTIy
-LDEzICsyMiwxMyBAQCBzZXQgeXJhbmdlIFswOl0KPiAgc2V0IHN0eWxlIGxpbmUgMTAwIGx0IDcg
-bHcgMC41Cj4gIHNldCBzdHlsZSBsaW5lIDEgbHQgMSBsdyAzIHB0IDMgbGluZWNvbG9yIHJnYiAi
-Z3JlZW4iCj4KPi1wbG90ICckMScgdXNpbmcgMjozIHdpdGggbGluZXNwb2ludHMgdGl0bGUgJyQy
-JywgJDcgdyBsIGxzIDEgdGkgJ0dsb2JhbCAKPmF2ZXJhZ2UgdmFsdWUnCj4rcGxvdCAnJDEnIHVz
-aW5nIDI6MyB3aXRoIGxpbmVzcG9pbnRzIHRpdGxlICckMicsICQ3IHcgbCBscyAxIHRpICdHbG9i
-YWwgCj5hdmVyYWdlIHZhbHVlICgkNyknCj4KPiAgc2V0IG91dHB1dCAnJDUucG5nJwo+LXBsb3Qg
-JyQxJyB1c2luZyAyOjMgc21vb3RoIGNzcGxpbmVzIHRpdGxlICckMicsICQ3IHcgbCBscyAxIHRp
-ICdHbG9iYWwgCj5hdmVyYWdlIHZhbHVlJwo+K3Bsb3QgJyQxJyB1c2luZyAyOjMgc21vb3RoIGNz
-cGxpbmVzIHRpdGxlICckMicsICQ3IHcgbCBscyAxIHRpICdHbG9iYWwgCj5hdmVyYWdlIHZhbHVl
-ICgkNyknCj4KPiAgc2V0IG91dHB1dCAnJDYucG5nJwo+LXBsb3QgJyQxJyB1c2luZyAyOjMgc21v
-b3RoIGJlemllciB0aXRsZSAnJDInLCAkNyB3IGwgbHMgMSB0aSAnR2xvYmFsIAo+YXZlcmFnZSB2
-YWx1ZScKPitwbG90ICckMScgdXNpbmcgMjozIHNtb290aCBiZXppZXIgdGl0bGUgJyQyJywgJDcg
-dyBsIGxzIDEgdGkgJ0dsb2JhbCAKPmF2ZXJhZ2UgdmFsdWUgKCQ3KScKPgo+ICAjcGF1c2UgLTEK
-PiAgI1RoZSBFbmQKPmRpZmYgLS1naXQgYS90b29scy9wbG90L21hdGguZ3BtIGIvdG9vbHMvcGxv
-dC9tYXRoLmdwbQo+aW5kZXggODFlMDNkYS4uYTAxZjVhMCAxMDA2NDQKPi0tLSBhL3Rvb2xzL3Bs
-b3QvbWF0aC5ncG0KPisrKyBiL3Rvb2xzL3Bsb3QvbWF0aC5ncG0KPkBAIC0yMiw0ICsyMiw0IEBA
-IHNldCB4dGljcyBheGlzIG91dAo+ICBzZXQgeHRpYyByb3RhdGUgYnkgNDUgc2NhbGUgMCBmb250
-ICIsOCIgYXV0b2p1c3RpZnkKPiAgc2V0IHh0aWNzIG9mZnNldCAwLC0xIGJvcmRlciAtNSwxLDUK
-PiAgc2V0IHN0eWxlIGxpbmUgMSBsdCAxIGx3IDMgcHQgMyBsaW5lY29sb3IgcmdiICJncmVlbiIK
-Pi1wbG90ICckMScgdXNpbmcgMjp4dGljKDEpIHRpIGNvbCwgJDUgdyBsIGxzIDEgdGkgJ0dsb2Jh
-bCBhdmVyYWdlIHZhbHVlJwo+K3Bsb3QgJyQxJyB1c2luZyAyOnh0aWMoMSkgdGkgY29sLCAkNSB3
-IGwgbHMgMSB0aSAnR2xvYmFsIGF2ZXJhZ2UgdmFsdWUgCj4oJDUpJwo+Cj4tLQo+VG8gdW5zdWJz
-Y3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhlIGxpbmUgInVuc3Vic2NyaWJlIGZpbyIgaW4K
-PnRoZSBib2R5IG9mIGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnCj5Nb3Jl
-IG1ham9yZG9tbyBpbmZvIGF0ICBodHRwOi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZv
-Lmh0bWwK
+Dear Jens,
+
+Please find below my latest works for fio.
+I do have some fio2gnuplot fixes and one is very important as some data 
+were mixed leading to weird/stupid plotting artefacts like loops....
+
+Aside this, I've been fixing the empty field when logging IOs.
+
+The following changes since commit 428b4f6ba681dbb40c8e2213d0c6ae8f8049dcd5:
+
+   fio2gnuplot: Adding filename as title for 2D graphs (2013-07-31 
+12:32:40 +0200)
+
+are available in the git repository at:
+
+   git@github.com:enovance/fio.git erwan/fixes
+
+for you to fetch changes up to aab5954b98a275ca1cf29d5339cdc319d9f4cfda:
+
+   iolog: Logging blocksize in IOPS traces (2013-08-02 16:39:40 +0200)
+
+----------------------------------------------------------------
+Erwan Velu (8):
+       fio2gnuplot: Fixing typo when inserting fake data
+       fio2gnuplot: Print line if int() conversion fails
+       fio2gnuplot: Adding time selection options
+       fio2gnplot: Renaming file variable to myfile
+       fio2gnuplot: Fixing plotting issues on shorten files
+       fio2gnuplot: Plotting average value for compare graphs
+       fio2gnuplot: Display average value in label
+       iolog: Logging blocksize in IOPS traces
+
+  io_u.c                    |  2 +-
+  iolog.h                   |  3 ++-
+  stat.c                    |  4 ++--
+  tools/plot/fio2gnuplot.py | 79 
++++++++++++++++++++++++++++++++++++++++++++++++++++----------------------------
+  tools/plot/graph2D.gpm    |  6 +++---
+  tools/plot/math.gpm       |  2 +-
+  6 files changed, 60 insertions(+), 36 deletions(-)
+
+diff --git a/io_u.c b/io_u.c
+index 6537c90..a35aafd 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -1412,7 +1412,7 @@ static void account_io_completion(struct 
+thread_data *td, struct io_u *io_u,
+      if (!td->o.disable_bw)
+          add_bw_sample(td, idx, bytes, &icd->time);
+
+-    add_iops_sample(td, idx, &icd->time);
++    add_iops_sample(td, idx, bytes, &icd->time);
+  }
+
+  static long long usec_for_io(struct thread_data *td, enum fio_ddir ddir)
+diff --git a/iolog.h b/iolog.h
+index 7099097..8fedc19 100644
+--- a/iolog.h
++++ b/iolog.h
+@@ -118,7 +118,8 @@ extern void add_slat_sample(struct thread_data *, 
+enum fio_ddir, unsigned long,
+                  unsigned int);
+  extern void add_bw_sample(struct thread_data *, enum fio_ddir, 
+unsigned int,
+                  struct timeval *);
+-extern void add_iops_sample(struct thread_data *, enum fio_ddir, struct 
+timeval *);
++extern void add_iops_sample(struct thread_data *, enum fio_ddir, 
+unsigned int,
++                struct timeval *);
+  extern void init_disk_util(struct thread_data *);
+  extern void update_rusage_stat(struct thread_data *);
+  extern void setup_log(struct io_log **, unsigned long, int);
+diff --git a/stat.c b/stat.c
+index 442caa0..10d9efe 100644
+--- a/stat.c
++++ b/stat.c
+@@ -1691,7 +1691,7 @@ void add_bw_sample(struct thread_data *td, enum 
+fio_ddir ddir, unsigned int bs,
+      fio_gettime(&td->bw_sample_time, NULL);
+  }
+
+-void add_iops_sample(struct thread_data *td, enum fio_ddir ddir,
++void add_iops_sample(struct thread_data *td, enum fio_ddir ddir, 
+unsigned int bs,
+               struct timeval *t)
+  {
+      struct thread_stat *ts = &td->ts;
+@@ -1718,7 +1718,7 @@ void add_iops_sample(struct thread_data *td, enum 
+fio_ddir ddir,
+          add_stat_sample(&ts->iops_stat[ddir], iops);
+
+          if (td->iops_log)
+-            add_log_sample(td, td->iops_log, iops, ddir, 0);
++            add_log_sample(td, td->iops_log, iops, ddir, bs);
+
+          td->stat_io_blocks[ddir] = td->this_io_blocks[ddir];
+      }
+diff --git a/tools/plot/fio2gnuplot.py b/tools/plot/fio2gnuplot.py
+index 800c334..64b41c1 100755
+--- a/tools/plot/fio2gnuplot.py
++++ b/tools/plot/fio2gnuplot.py
+@@ -56,8 +56,8 @@ set ytics axis out auto
+  set key top left reverse
+  set xlabel "Time (Seconds)"
+  set ylabel '%s'
+-set xrange [0:]
+  set yrange [0:]
++set style line 1 lt 1 lw 3 pt 3 linecolor rgb "green"
+  '''% (title,mode))
+          compare.close()
+          #Copying the common file for all kind of graph (raw/smooth/trend)
+@@ -76,6 +76,13 @@ set yrange [0:]
+  compare_trend=open(gnuplot_output_dir+compare_trend_filename+".gnuplot",'a')
+          compare_trend.write("set output '%s.png'\n" % 
+compare_trend_filename)
+
++        # Let's plot the average value for all the traces
++        global_disk_perf = sum(disk_perf, [])
++        global_avg  = average(global_disk_perf)
++        compare_raw.write("plot %s w l ls 1 ti 'Global average value 
+(%.2f)'" % (global_avg,global_avg));
++        compare_smooth.write("plot %s w l ls 1 ti 'Global average value 
+(%.2f)'" % (global_avg,global_avg));
++        compare_trend.write("plot %s w l ls 1 ti 'Global average value 
+(%.2f)'" % (global_avg,global_avg));
++
+          pos=0
+          # Let's create a temporary file for each selected fio file
+          for file in fio_data_file:
+@@ -84,14 +91,9 @@ set yrange [0:]
+          # Plotting comparing graphs doesn't have a meaning unless if 
+there is at least 2 traces
+          if len(fio_data_file) > 1:
+              # Adding the plot instruction for each kind of comparing 
+graphs
+-            if pos ==0 :
+-                compare_raw.write("plot '%s' using 2:3 with linespoints 
+title '%s'" % (tmp_filename,fio_data_file[pos]))
+-                compare_smooth.write("plot '%s' using 2:3 smooth 
+csplines title '%s'" % (tmp_filename,fio_data_file[pos]))
+-                compare_trend.write("plot '%s' using 2:3 smooth bezier 
+title '%s'" % (tmp_filename,fio_data_file[pos]))
+-            else:
+-                compare_raw.write(",\\\n'%s' using 2:3 with linespoints 
+title '%s'" % (tmp_filename,fio_data_file[pos]))
+-                compare_smooth.write(",\\\n'%s' using 2:3 smooth 
+csplines title '%s'" % (tmp_filename,fio_data_file[pos]))
+-                compare_trend.write(",\\\n'%s' using 2:3 smooth bezier 
+title '%s'" % (tmp_filename,fio_data_file[pos]))
++            compare_raw.write(",\\\n'%s' using 2:3 with linespoints 
+title '%s'" % (tmp_filename,fio_data_file[pos]))
++            compare_smooth.write(",\\\n'%s' using 2:3 smooth csplines 
+title '%s'" % (tmp_filename,fio_data_file[pos]))
++            compare_trend.write(",\\\n'%s' using 2:3 smooth bezier 
+title '%s'" % (tmp_filename,fio_data_file[pos]))
+
+          png_file=file.replace('.log','')
+                  raw_filename = "%s-2Draw" % (png_file)
+@@ -139,8 +141,11 @@ def compute_aggregated_file(fio_data_file, 
+gnuplot_output_filename, gnuplot_outp
+
+  def average(s): return sum(s) * 1.0 / len(s)
+
+-def compute_temp_file(fio_data_file,disk_perf,gnuplot_output_dir):
+-    print "Processing data file 1/2"
++def compute_temp_file(fio_data_file,disk_perf,gnuplot_output_dir, 
+min_time, max_time):
++    end_time=max_time
++    if end_time == -1:
++        end_time="infinite"
++    print "Processing data file 1/2 with %s<time<%s" % (min_time,end_time)
+      files=[]
+      temp_outfile=[]
+      blk_size=0
+@@ -158,11 +163,11 @@ def 
+compute_temp_file(fio_data_file,disk_perf,gnuplot_output_dir):
+          current_line=[]
+          nb_empty_files=0
+          nb_files=len(files)
+-        for file in files:
+-            s=file.readline().replace(',',' ').split()
++        for myfile in files:
++            s=myfile.readline().replace(',',' ').split()
+              if not s:
+                  nb_empty_files+=1
+-                s="-1, 0, 0, 0'".replace(',',' ').split()
++                s="-1, 0, 0, 0".replace(',',' ').split()
+
+              if (nb_empty_files == nb_files):
+                  shall_break=True
+@@ -174,25 +179,35 @@ def 
+compute_temp_file(fio_data_file,disk_perf,gnuplot_output_dir):
+              break
+
+          last_time = -1
+-        index=0
++        index=-1
+          perfs=[]
+-        for line in current_line:
+-            time, perf, x, block_size = line
++        for line in enumerate(current_line):
++            # Index will be used to remember what file was featuring 
+what value
++            index=index+1
++
++            time, perf, x, block_size = line[1]
+              if (blk_size == 0):
+-                blk_size=int(block_size)
++                try:
++                    blk_size=int(block_size)
++                except:
++                    print "Error while reading the following line :"
++                    print line
++                    sys.exit(1);
+
+              # We ignore the first 500msec as it doesn't seems to be 
+part of the real benchmark
+              # Time < 500 usually reports BW=0 breaking the min computing
+-            if (((int(time)) > 500) or (int(time)==-1)):
+-                disk_perf[index].append(int(perf))
+-                perfs.append("%s %s"% (time, perf))
+-                index = index + 1
++            if (min_time == 0):
++                min_time==0.5
++
++            # Then we estimate if the data we got is part of the time 
+range we want to plot
++            if ((float(time)>(float(min_time)*1000)) and ((int(time) < 
+(int(max_time)*1000)) or max_time==-1)):
++                    disk_perf[index].append(int(perf))
++                    perfs.append("%d %s %s"% (index, time, perf))
+
+          # If we reach this point, it means that all the traces are 
+coherent
+          for p in enumerate(perfs):
+-            perf_time,perf = p[1].split()
+-            if (perf_time != "-1"):
+-                temp_outfile[p[0]].write("%s %.2f %s\n" % (p[0], 
+float(float(perf_time)/1000), perf))
++            index, perf_time,perf = p[1].split()
++            temp_outfile[int(index)].write("%s %.2f %s\n" % (index, 
+float(float(perf_time)/1000), perf))
+
+
+      for file in files:
+@@ -328,7 +343,7 @@ def render_gnuplot(fio_data_file, gnuplot_output_dir):
+          sys.exit(1);
+
+  def print_help():
+-    print 'fio2gnuplot.py -ghbiod -t <title> -o <outputfile> -p 
+<pattern> -G <type>'
++    print 'fio2gnuplot.py -ghbiod -t <title> -o <outputfile> -p 
+<pattern> -G <type> -m <time> -M <time>'
+      print
+      print '-h --help                           : Print this help'
+      print '-p <pattern> or --pattern <pattern> : A pattern in regexp 
+to select fio input files'
+@@ -343,6 +358,8 @@ def print_help():
+      print '-G        or --Global <type>     : Search for <type> in 
+.global files match by a pattern'
+      print '                                       - Available types 
+are : min, max, avg, stddev'
+      print '                                       - The .global 
+extension is added automatically to the pattern'
++    print '-m           or --min_time <time>   : Only consider data 
+starting from <time> seconds (default is 0)'
++    print '-M           or --max_time <time>   : Only consider data 
+ending before <time> seconds (default is -1 aka nolimit)'
+
+  def main(argv):
+      mode='unknown'
+@@ -356,6 +373,8 @@ def main(argv):
+      run_gnuplot=False
+      parse_global=False
+      global_search=''
++    min_time=0
++    max_time=-1
+
+      if not os.path.isfile(gpm_dir+'math.gpm'):
+          gpm_dir="/usr/local/share/fio/"
+@@ -364,7 +383,7 @@ def main(argv):
+              sys.exit(3)
+
+      try:
+-        opts, args = getopt.getopt(argv[1:],"ghbio:d:t:p:G:")
++        opts, args = getopt.getopt(argv[1:],"ghbio:d:t:p:G:m:M:")
+      except getopt.GetoptError:
+       print_help()
+           sys.exit(2)
+@@ -388,6 +407,10 @@ def main(argv):
+          os.makedirs(gnuplot_output_dir)
+        elif opt in ("-t", "--title"):
+           title=arg
++      elif opt in ("-m", "--min_time"):
++     min_time=arg
++      elif opt in ("-M", "--max_time"):
++     max_time=arg
+        elif opt in ("-g", "--gnuplot"):
+       run_gnuplot=True
+        elif opt in ("-G", "--Global"):
+@@ -439,7 +462,7 @@ def main(argv):
+      if parse_global==True:
+      parse_global_files(fio_data_file, global_search)
+      else:
+-  blk_size=compute_temp_file(fio_data_file,disk_perf,gnuplot_output_dir)
++ 
+  blk_size=compute_temp_file(fio_data_file,disk_perf,gnuplot_output_dir,min_time,max_time)
+          title="%s @ Blocksize = %dK" % (title,blk_size/1024)
+          compute_aggregated_file(fio_data_file, 
+gnuplot_output_filename, gnuplot_output_dir)
+  compute_math(fio_data_file,title,gnuplot_output_filename,gnuplot_output_dir,mode,disk_perf,gpm_dir)
+diff --git a/tools/plot/graph2D.gpm b/tools/plot/graph2D.gpm
+index efc7ac2..5cd6ff3 100644
+--- a/tools/plot/graph2D.gpm
++++ b/tools/plot/graph2D.gpm
+@@ -22,13 +22,13 @@ set yrange [0:]
+  set style line 100 lt 7 lw 0.5
+  set style line 1 lt 1 lw 3 pt 3 linecolor rgb "green"
+
+-plot '$1' using 2:3 with linespoints title '$2', $7 w l ls 1 ti 'Global 
+average value'
++plot '$1' using 2:3 with linespoints title '$2', $7 w l ls 1 ti 'Global 
+average value ($7)'
+
+  set output '$5.png'
+-plot '$1' using 2:3 smooth csplines title '$2', $7 w l ls 1 ti 'Global 
+average value'
++plot '$1' using 2:3 smooth csplines title '$2', $7 w l ls 1 ti 'Global 
+average value ($7)'
+
+  set output '$6.png'
+-plot '$1' using 2:3 smooth bezier title '$2', $7 w l ls 1 ti 'Global 
+average value'
++plot '$1' using 2:3 smooth bezier title '$2', $7 w l ls 1 ti 'Global 
+average value ($7)'
+
+  #pause -1
+  #The End
+diff --git a/tools/plot/math.gpm b/tools/plot/math.gpm
+index 81e03da..a01f5a0 100644
+--- a/tools/plot/math.gpm
++++ b/tools/plot/math.gpm
+@@ -22,4 +22,4 @@ set xtics axis out
+  set xtic rotate by 45 scale 0 font ",8" autojustify
+  set xtics offset 0,-1 border -5,1,5
+  set style line 1 lt 1 lw 3 pt 3 linecolor rgb "green"
+-plot '$1' using 2:xtic(1) ti col, $5 w l ls 1 ti 'Global average value'
++plot '$1' using 2:xtic(1) ti col, $5 w l ls 1 ti 'Global average value 
+($5)'
 
