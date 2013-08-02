@@ -1,23 +1,47 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qe0-f42.google.com ([209.85.128.42]:52095 "EHLO
-	mail-qe0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751522Ab3H0XPF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 27 Aug 2013 19:15:05 -0400
-Received: by mail-qe0-f42.google.com with SMTP id w7so3031702qeb.15
-        for <fio@vger.kernel.org>; Tue, 27 Aug 2013 16:15:04 -0700 (PDT)
+Return-Path: <grundler@google.com>
 MIME-Version: 1.0
-Date: Wed, 28 Aug 2013 00:15:04 +0100
-Message-ID: <CA+BkS8NTwrsKpDnPqzcEBZRtOeK8xtOT0ZqeemPH36bTXOdP8w@mail.gmail.com>
-Subject: filling buffers with data from block device
-From: Alket Memushaj <amemushaj@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <CAPet_23bQMEwb32ZEXdG6jGYYMxY_9tOPZG2-JQX=-AAm+O+AA@mail.gmail.com>
+References: <CANEJEGsMAS3uYtQx04bq8mPcdnhtXaVwg=vS=TgcY97d2kQeqw@mail.gmail.com>
+	<51F98044.1080105@kernel.dk>
+	<CANEJEGvQZXa4NhsjZcawQ+Z6MTOgzfJEX+t1WY2yX_+R-qC3Og@mail.gmail.com>
+	<20130801022535.GF24569@kernel.dk>
+	<CAPet_23bQMEwb32ZEXdG6jGYYMxY_9tOPZG2-JQX=-AAm+O+AA@mail.gmail.com>
+Date: Fri, 2 Aug 2013 14:39:09 -0700
+Message-ID: <CANEJEGtmipSvqai7ux0K9ibMbGBNN3VNxGicided3q3pQE6EPQ@mail.gmail.com>
+Subject: Re: FIO and Storage Data Integrity testing
+From: Grant Grundler <grundler@google.com>
+Content-Type: text/plain; charset=UTF-8
+To: Juan Casse <jcasse@google.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-is it possible to have fio fill the I/O buffers with data from a block
-device? when testing systems with both deduplication and compression
-enabled, it would be easier to fill the buffers with existing data.
+On Fri, Aug 2, 2013 at 2:21 PM, Juan Casse <jcasse@google.com> wrote:
+...
+> Grant, if fio currently has lfsr and the breadcrumbs and can do writes
+> with do_verify=0 and reads with do_verify=1, it seems to me that fio
+> already satisfies our requirements for data integrity testing,
 
-thanks,
-alket
+That's almost true. :)
+
+> contingent on Jens' answers to my questions above. Also, wouldn't
+> these features be sufficient for data retention testing as well?
+
+Yes, they will be once you implement them. E.g. numberio is not a
+generation number. Given the LFSR seed, one could determine the
+generation number. So perhaps add the LSFR seed value to the data
+structure so that gets written with each test run many many times too.
+Later, when we validate the drive, we can determine generation number
+and confirm the value is correct that was read from media. All of this
+needs to be implemented.
+
+Carefully re-read Jen's replies. Some of his answers are "speculative"
+(e.g. "could do this" vs "does this").
+
+> If you write do_verify=0 and then 3 months later read do_verify=1,
+> wouldn't that be enough?
+
+Correct - That's the goal. It's not reality yet. :)
+
+cheers,
+grant
+
