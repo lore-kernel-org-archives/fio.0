@@ -1,27 +1,28 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-we0-f182.google.com ([74.125.82.182]:60990 "EHLO
-	mail-we0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756806Ab3HFXT2 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 6 Aug 2013 19:19:28 -0400
-Received: by mail-we0-f182.google.com with SMTP id u55so950255wes.13
-        for <fio@vger.kernel.org>; Tue, 06 Aug 2013 16:19:26 -0700 (PDT)
+Received: from merlin.infradead.org ([205.233.59.134]:45668 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754498Ab3HEVtR (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 5 Aug 2013 17:49:17 -0400
+Message-ID: <52001DB2.3090206@kernel.dk>
+Date: Mon, 05 Aug 2013 15:48:34 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Reply-To: jiahua@gmail.com
-Date: Tue, 6 Aug 2013 16:19:26 -0700
-Message-ID: <CA+S_sg4sVwquhtxLpmjQQXiNOBya+6vF0mSbyWZG_Q1YtbPPCA@mail.gmail.com>
-Subject: How to control the number of random I/O's acrossing the whole file/device?
-From: Jiahua <jiahua@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [Pull Request] fio2gnuplot and iolog fixes
+References: <98i6myoaejg175jnwaaiiapr.1375735624165@email.android.com>
+In-Reply-To: <98i6myoaejg175jnwaaiiapr.1375735624165@email.android.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Erwan Velu <erwan@enovance.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi all,
+On 08/05/2013 02:47 PM, Erwan Velu wrote:
+> Dear Jens,
+> Can we make this pull done before 2.12 ? It would be lovely to get those patches onboard.
 
-What I want is to touch a file/device randomly but up to a given
-number of times. I tried the "size=" option but it also limits the
-file size. Is there a way to do that instead of time_based, which is
-approximate to my requirement?
+Done!
 
-Thanks,
-Jiahua
+-- 
+Jens Axboe
+
