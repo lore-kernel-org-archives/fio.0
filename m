@@ -1,73 +1,48 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail.thomas-krenn.com ([217.7.54.186]:36402 "EHLO
-	mail.thomas-krenn.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756031Ab3H3LxP (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 30 Aug 2013 07:53:15 -0400
-Received: from iris.tks.local (iris.tks.local [192.168.10.63])
-	by mail.thomas-krenn.com (Postfix) with ESMTP id A126AA31F9
-	for <fio@vger.kernel.org>; Fri, 30 Aug 2013 13:53:14 +0200 (CEST)
-Received: from zimbra.thomas-krenn.com (hercules.tks.local [192.168.110.28])
-	by iris.tks.local (Postfix) with ESMTP id 4D8893FAC5
-	for <fio@vger.kernel.org>; Fri, 30 Aug 2013 13:53:14 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-	by zimbra.thomas-krenn.com (Postfix) with ESMTP id 49C2A1A84008
-	for <fio@vger.kernel.org>; Fri, 30 Aug 2013 13:53:14 +0200 (CEST)
-Received: from zimbra.thomas-krenn.com ([127.0.0.1])
-	by localhost (zimbra.thomas-krenn.com [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EqhXGq6Wfq9X for <fio@vger.kernel.org>;
-	Fri, 30 Aug 2013 13:53:09 +0200 (CEST)
-Received: from zimbra.thomas-krenn.com (zimbra.thomas-krenn.com [127.0.1.1])
-	by zimbra.thomas-krenn.com (Postfix) with ESMTP id A00861A84007
-	for <fio@vger.kernel.org>; Fri, 30 Aug 2013 13:53:09 +0200 (CEST)
-Date: Fri, 30 Aug 2013 13:53:09 +0200 (CEST)
-From: Georg =?utf-8?Q?Sch=C3=B6nberger?= 
-	<gschoenberger@thomas-krenn.com>
-Message-ID: <795872394.588090.1377863589568.JavaMail.root@thomas-krenn.com>
-In-Reply-To: <609024196.540203.1377760973880.JavaMail.root@thomas-krenn.com>
-Subject: Running Fio under AIX 7
+Return-Path: <ms@teamix.de>
+Date: Mon, 5 Aug 2013 17:32:05 +0200 (CEST)
+From: Martin Steigerwald <ms@teamix.de>
+Message-ID: <1586247085.844473.1375716725436.JavaMail.zimbra@teamix.de>
+In-Reply-To: <20130805152808.GV24569@kernel.dk>
+References: <201303111622.57044.ms@teamix.de> <20130312121629.GO25165@kernel.dk> <232124889.843394.1375713642725.JavaMail.zimbra@teamix.de> <51FFBB4C.4000405@enovance.com> <1365523126.843871.1375715269832.JavaMail.zimbra@teamix.de> <20130805152808.GV24569@kernel.dk>
+Subject: Re: [PATCH] Make test for gnuplot work with empty strings.
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Erwan Velu <erwan@enovance.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Hi fio users,
+----- Urspr=C3=BCngliche Mail -----
+> On Mon, Aug 05 2013, Martin Steigerwald wrote:
+> > Dropped bug report from Cc.
+> >=20
+> > ----- Urspr=C3=BCngliche Mail -----
+> > > On 05/08/2013 16:40, Martin Steigerwald wrote:
+> > > > Still it doesn't seem you applied it as of
+> > > > 428b4f6ba681dbb40c8e2213d0c6ae8f8049dcd5ESC of
+> > > > git://git.kernel.dk/fio.git Fixing locally in Debian package now.
+> > > > Thaqnks,
+> > >=20
+> > > Jens,
+> > >=20
+> > > I've been putting this patch to my erwan/fixes branch I asked about
+> > > merging.
+> > >=20
+> > > That's commit 4e074cd1ad6a804ae646d52523e2dda69bbcabba assigned to
+> > > "Author: Martin Steigerwald "<ms@teamix.de>
+> >=20
+> > Thanks, Erwan.
+> >=20
+> > Jens, any plans for a fio 2.12 release?
+>=20
+> Yes, will be there soon. I just need to fully verify some recent
+> changes, then it can be tagged and "shipped". Sometime this week.
 
-I am trying to run Fio under AIX 7 - according to the documentation there shouldn't be any problem with it.
-For now I am getting the following error, do you have any idea what's the problem here (filesystem jfs/jfs2)?
+Well if it comes before someone responds to RFS, I just update the RFS once=
+ again. :)
 
-Thanks for you help, Georg
- 
-/tmp/fio-2.1.2/fio-2.1.2# fio --rw=write --name=test --size=10M
-test: (g=0): rw=write, bs=4K-4K/4K-4K/4K-4K, ioengine=sync, iodepth=1
-fio-2.1.2
-Starting 1 process
-test: Laying out IO file(s) (1 file(s) / 10MB)
-fio: posix_fallocate fails: Invalid argument
-fio: pid=0, err=22/file:filesetup.c:412, func=invalidate_cache, error=Invalid argument
- 
-Run status group 0 (all jobs):
- 
-With ''--debug'' on:
-...
-time     17105066 inv_cycles_per_usec=32768
-mutex    17105066 wait on startup_mutex
-mutex    17105066 done waiting on startup_mutex
-Starting 1 process
-file     17105066 setup files
-process  17105066 pid=0: runstate 0 -> 4
-file     17105066 get file size for b0002028/0/b0002148
-test: Laying out IO file(s) (1 file(s) / 10MB)
-file     17105066 layout unlink test.1.0
-file     17105066 open file test.1.0, flags 101
-file     17105066 posix_fallocate file test.1.0 size 10485760
-fio: posix_fallocate fails: Invalid argument
-io       17105066 invalidate cache test.1.0: 0/10485760
-process  17105066 pid=0: runstate 4 -> 0
-fio: pid=0, err=22/file:filesetup.c:412, func=invalidate_cache, error=Invalid argument
-process  17105066 pid=0: runstate 0 -> 10
-  
-
-
+Ciao,
+--=20
+Martin Steigerwald - teamix GmbH - http://www.teamix.de
+gpg: 19E3 8D42 896F D004 08AC A0CA 1E10 C593 0399 AE90
 
