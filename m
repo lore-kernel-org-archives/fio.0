@@ -1,174 +1,321 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:41274 "EHLO
+Received: from merlin.infradead.org ([205.233.59.134]:50570 "EHLO
 	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751996Ab3HACZh (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 31 Jul 2013 22:25:37 -0400
-Date: Wed, 31 Jul 2013 20:25:35 -0600
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: FIO and Storage Data Integrity testing
-Message-ID: <20130801022535.GF24569@kernel.dk>
-References: <CANEJEGsMAS3uYtQx04bq8mPcdnhtXaVwg=vS=TgcY97d2kQeqw@mail.gmail.com>
- <51F98044.1080105@kernel.dk>
- <CANEJEGvQZXa4NhsjZcawQ+Z6MTOgzfJEX+t1WY2yX_+R-qC3Og@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CANEJEGvQZXa4NhsjZcawQ+Z6MTOgzfJEX+t1WY2yX_+R-qC3Og@mail.gmail.com>
+	with ESMTP id S1750782Ab3HFEAH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 6 Aug 2013 00:00:07 -0400
+Received: from kernel.dk ([54.225.238.116])
+	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1V6YRJ-0000kW-Vs
+	for fio@vger.kernel.org; Tue, 06 Aug 2013 04:00:06 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <jaxboe@fusionio.com>
+Message-Id: <20130806040002.0647A20C44@kernel.dk>
+Date: Tue,  6 Aug 2013 04:00:01 +0000 (UTC)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Grant Grundler <grundler@google.com>
-Cc: Juan Casse <jcasse@google.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-On Wed, Jul 31 2013, Grant Grundler wrote:
-> On Wed, Jul 31, 2013 at 2:23 PM, Jens Axboe <axboe@kernel.dk> wrote:
-> ...
-> >> o log writes (save a map) so we can repeatedly verify writes at a
-> >> later date (weeks or months later)
-> >
-> > One approach that I have started favoring is instead providing coverage
-> > through the use of an lfsr.
-> 
-> "Log File Structured <something>?" Expand that and I can better assess
-> if I think this is a good idea or not.
+The following changes since commit 428b4f6ba681dbb40c8e2213d0c6ae8f8049dcd5:
 
-Linear feedback shift registers. Basically a way to generate a "random"
-sequence of numbers that are guarenteed not to repeat until the cycle is
-repeated. Then you never have to do on-the-side tracking to avoid
-overlaps or overwrites.
+  fio2gnuplot: Adding filename as title for 2D graphs (2013-07-31 12:32:40 +0200)
 
-For verify, you simple re-set the seed to the value when the sequence
-started to hit all of the same blocks again. Or variations around that
-theme, if you only want some of them.
+are available in the git repository at:
+  git://git.kernel.dk/fio.git master
 
-> I'm not too picky about the implementation that meets the requirement.
-> I understand maps or sparse maps can get very awkward to handle for
-> devices with more than a few billion blocks. ("Can plz haz 4k blox?"
-> :)
+Erwan Velu (8):
+      fio2gnuplot: Fixing typo when inserting fake data
+      fio2gnuplot: Print line if int() conversion fails
+      fio2gnuplot: Adding time selection options
+      fio2gnplot: Renaming file variable to myfile
+      fio2gnuplot: Fixing plotting issues on shorten files
+      fio2gnuplot: Plotting average value for compare graphs
+      fio2gnuplot: Display average value in label
+      iolog: Logging blocksize in IOPS traces
 
-Indeed, fio has the "axmap" to track it otherwise, which gets very close
-to 1 bit per block without having the pathological behavior when the map
-gets near full.
+Martin Steigerwald (1):
+      Make test for gnuplot work with empty strings.
 
-> 
-> > This negates the need for dedicated tracking
-> > map or log. Fio supports this through random_generator=lfsr. The one
-> > thing that does not YET work is lfsr and multiple block sizes. Should be
-> > doable through layered use of multiple lfsrs. Something for your intern
-> > to tackle?
-> 
-> Yes. That would be fair game.
+ io_u.c                    |    2 +-
+ iolog.h                   |    3 +-
+ stat.c                    |    4 +-
+ tools/fio_generate_plots  |    2 +-
+ tools/plot/fio2gnuplot.py |   79 +++++++++++++++++++++++++++++----------------
+ tools/plot/graph2D.gpm    |    6 ++--
+ tools/plot/math.gpm       |    2 +-
+ 7 files changed, 61 insertions(+), 37 deletions(-)
 
-Excellent! 
+---
 
-> >> o provide some "bread crumbs" for debugging when data is NOT correct.
-> >>    (Not available typically will result in reported errors)
-> >
-> > So lets say that one of the fio verify modes was augmented to include a
-> > time stamp (say the meta mode, or could even be added to all the verify
-> > modes), that could be part of the bread crumbs and aid in judging
-> > retention of the data.
-> 
-> I want four pieces of data for bread crumbs:
-> o timestamp
+Diff of recent changes:
 
-Don't have that, trivial to add.
-
-> o LBA written (e.g. if it's a partition, that means the offset into
-> the partition)
-
-Got it.
-
-> o magic number for that test run (think of it as a GUID - verifies the
-> block was written by fio)
-
-Got it, but it's a fio generic magic. We could add a specific magic as
-well, would be trivial.
-
-> o generation number in the case that we rewrite an LBA - so we can
-> detect stale data
-
-Don't have that, trivial to add.
-
-> I haven't checked if fio provides all four of those.
-> 
-> BTW, to eventually support adding "trim/discard command" testing into
-> the mix, we would need to know when a block is explicitly unmapped and
-> should be all zeros if we attempt to read it.
-
-This possibly again could be done without on-the-side tracking, if we
-used a separate lfsr to generate the read/write/trim part. This would
-keep the memory foot print down. Fio does support trim already.
-
-> >> o be done in < 6 weeks by a full time intern. :)
-> >
-> > Depends on the quality of the intern :-)
-> 
-> Juan is capable enough. He's also extremely persistent. So I think
-> yes, he can get this done.
-
-Excellent!
-
-> >> Questions:
-> >> 1) You know anyone else developing data integrity/retention testing with fio?
-> >
-> > I know of lots of people/companies using it for data integrity testing
-> > (I even work for one of them), but not data retention. So I think that
-> > would be a very interesting feature to add.
-> 
-> Good. thanks!
-> 
-> My review a few months ago of fio docs didn't give me the impression
-> the data integrity checking was providing enough bread crumbs for good
-> debugging or able to detect stale data. But my memory isn't very good
-> and I could be wrong or just out of date.
-
-Depends on your use case. Fio checksums the verify header separate. If
-that is good, we can check the actual data. If that is not good, we can
-recreate the original content and compare with what is on disk. That
-gives you a pretty good idea of what was destroyed and how. But it does
-not have the required bits for real retention testing, like timestamp
-and/or sequence. That could be added to the verify_header structure, or
-it could be a specific part of eg the meta verify. The latter has the
-offset written already, for instance.
-
-> >> 3) You have a preference on how this might be implemented if (a) we
-> >> used code from OR (b) integrated this functionality into fio?
-> >
-> > I think the the data retention aspect should be integrated into the
-> > verify modes. The fio verification modes checksum both the stored
-> > header, as well as the actual contents. There might be additional
-> > tracking required on the side for retention, to be able to pass some
-> > interesting info on where we seem to fall off a cliff.
-> 
-> Ok. Let me clarify the requirement for data retention: I wanted
-> "verify" to be an option to the "read" workload mix. So not
-> necessarily all data that gets written will get verified "during" the
-> write workload. The reason is performance statistics need to be as
-> consistent as possible without "verify" in a mixed read/write
-> workload.
-
-Fio already supports that. Simply do the write workload with
-do_verify=0, then do a similar read workload with do_verify=1 and the
-same verify checksum etc settings.
-
-> To verify everything that was written or trimmed, we can invoke fio
-> again (think autotest invoking fio twice per test run) to check for
-> retention. And then invoke fio many more times while the device is
-> getting baked in a thermal chamber.
-
-Trim verification can be done if the device supports persistent and
-guaranteed zero return on a completed trim. trim_verify_zero. If that
-isn't set, trimmed regions are simply ignored for a verify.
-
-> > I'll be happy to work with you guys on this, both on the initial
-> > design phase and the final integration into fio.
-> 
-> Awesome - thank you!
-> 
-> Design phase?! :) This is design phase. :)
-
-Agree :-)
-
--- 
-Jens Axboe
-
+diff --git a/io_u.c b/io_u.c
+index 6537c90..a35aafd 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -1412,7 +1412,7 @@ static void account_io_completion(struct thread_data *td, struct io_u *io_u,
+ 	if (!td->o.disable_bw)
+ 		add_bw_sample(td, idx, bytes, &icd->time);
+ 
+-	add_iops_sample(td, idx, &icd->time);
++	add_iops_sample(td, idx, bytes, &icd->time);
+ }
+ 
+ static long long usec_for_io(struct thread_data *td, enum fio_ddir ddir)
+diff --git a/iolog.h b/iolog.h
+index 7099097..8fedc19 100644
+--- a/iolog.h
++++ b/iolog.h
+@@ -118,7 +118,8 @@ extern void add_slat_sample(struct thread_data *, enum fio_ddir, unsigned long,
+ 				unsigned int);
+ extern void add_bw_sample(struct thread_data *, enum fio_ddir, unsigned int,
+ 				struct timeval *);
+-extern void add_iops_sample(struct thread_data *, enum fio_ddir, struct timeval *);
++extern void add_iops_sample(struct thread_data *, enum fio_ddir, unsigned int,
++				struct timeval *);
+ extern void init_disk_util(struct thread_data *);
+ extern void update_rusage_stat(struct thread_data *);
+ extern void setup_log(struct io_log **, unsigned long, int);
+diff --git a/stat.c b/stat.c
+index 442caa0..10d9efe 100644
+--- a/stat.c
++++ b/stat.c
+@@ -1691,7 +1691,7 @@ void add_bw_sample(struct thread_data *td, enum fio_ddir ddir, unsigned int bs,
+ 	fio_gettime(&td->bw_sample_time, NULL);
+ }
+ 
+-void add_iops_sample(struct thread_data *td, enum fio_ddir ddir,
++void add_iops_sample(struct thread_data *td, enum fio_ddir ddir, unsigned int bs,
+ 		     struct timeval *t)
+ {
+ 	struct thread_stat *ts = &td->ts;
+@@ -1718,7 +1718,7 @@ void add_iops_sample(struct thread_data *td, enum fio_ddir ddir,
+ 		add_stat_sample(&ts->iops_stat[ddir], iops);
+ 
+ 		if (td->iops_log)
+-			add_log_sample(td, td->iops_log, iops, ddir, 0);
++			add_log_sample(td, td->iops_log, iops, ddir, bs);
+ 
+ 		td->stat_io_blocks[ddir] = td->this_io_blocks[ddir];
+ 	}
+diff --git a/tools/fio_generate_plots b/tools/fio_generate_plots
+index f65a326..51c0643 100755
+--- a/tools/fio_generate_plots
++++ b/tools/fio_generate_plots
+@@ -22,7 +22,7 @@ if [ -z "$1" ]; then
+ fi
+ 
+ GNUPLOT=$(which gnuplot)
+-if [ ! -x $GNUPLOT ]
++if [ ! -x "$GNUPLOT" ]
+ then
+ 	echo You need gnuplot installed to generate graphs
+ 	exit 1
+diff --git a/tools/plot/fio2gnuplot.py b/tools/plot/fio2gnuplot.py
+index 800c334..64b41c1 100755
+--- a/tools/plot/fio2gnuplot.py
++++ b/tools/plot/fio2gnuplot.py
+@@ -56,8 +56,8 @@ set ytics axis out auto
+ set key top left reverse
+ set xlabel "Time (Seconds)"
+ set ylabel '%s'
+-set xrange [0:]
+ set yrange [0:]
++set style line 1 lt 1 lw 3 pt 3 linecolor rgb "green"
+ '''% (title,mode))
+ 		compare.close()
+ 		#Copying the common file for all kind of graph (raw/smooth/trend)
+@@ -76,6 +76,13 @@ set yrange [0:]
+ 		compare_trend=open(gnuplot_output_dir+compare_trend_filename+".gnuplot",'a')
+ 		compare_trend.write("set output '%s.png'\n" % compare_trend_filename)
+ 
++		# Let's plot the average value for all the traces
++		global_disk_perf = sum(disk_perf, [])
++		global_avg  = average(global_disk_perf)
++		compare_raw.write("plot %s w l ls 1 ti 'Global average value (%.2f)'" % (global_avg,global_avg));
++		compare_smooth.write("plot %s w l ls 1 ti 'Global average value (%.2f)'" % (global_avg,global_avg));
++		compare_trend.write("plot %s w l ls 1 ti 'Global average value (%.2f)'" % (global_avg,global_avg));
++
+         pos=0
+         # Let's create a temporary file for each selected fio file
+         for file in fio_data_file:
+@@ -84,14 +91,9 @@ set yrange [0:]
+ 		# Plotting comparing graphs doesn't have a meaning unless if there is at least 2 traces
+ 		if len(fio_data_file) > 1:
+ 			# Adding the plot instruction for each kind of comparing graphs
+-			if pos ==0 :
+-				compare_raw.write("plot '%s' using 2:3 with linespoints title '%s'" % (tmp_filename,fio_data_file[pos]))
+-				compare_smooth.write("plot '%s' using 2:3 smooth csplines title '%s'" % (tmp_filename,fio_data_file[pos]))
+-				compare_trend.write("plot '%s' using 2:3 smooth bezier title '%s'" % (tmp_filename,fio_data_file[pos]))
+-			else:
+-				compare_raw.write(",\\\n'%s' using 2:3 with linespoints title '%s'" % (tmp_filename,fio_data_file[pos]))
+-				compare_smooth.write(",\\\n'%s' using 2:3 smooth csplines title '%s'" % (tmp_filename,fio_data_file[pos]))
+-				compare_trend.write(",\\\n'%s' using 2:3 smooth bezier title '%s'" % (tmp_filename,fio_data_file[pos]))
++			compare_raw.write(",\\\n'%s' using 2:3 with linespoints title '%s'" % (tmp_filename,fio_data_file[pos]))
++			compare_smooth.write(",\\\n'%s' using 2:3 smooth csplines title '%s'" % (tmp_filename,fio_data_file[pos]))
++			compare_trend.write(",\\\n'%s' using 2:3 smooth bezier title '%s'" % (tmp_filename,fio_data_file[pos]))
+ 
+ 		png_file=file.replace('.log','')
+                 raw_filename = "%s-2Draw" % (png_file)
+@@ -139,8 +141,11 @@ def compute_aggregated_file(fio_data_file, gnuplot_output_filename, gnuplot_outp
+ 
+ def average(s): return sum(s) * 1.0 / len(s)
+ 
+-def compute_temp_file(fio_data_file,disk_perf,gnuplot_output_dir):
+-	print "Processing data file 1/2"
++def compute_temp_file(fio_data_file,disk_perf,gnuplot_output_dir, min_time, max_time):
++	end_time=max_time
++	if end_time == -1:
++		end_time="infinite"
++	print "Processing data file 1/2 with %s<time<%s" % (min_time,end_time)
+ 	files=[]
+ 	temp_outfile=[]
+ 	blk_size=0
+@@ -158,11 +163,11 @@ def compute_temp_file(fio_data_file,disk_perf,gnuplot_output_dir):
+ 		current_line=[]
+ 		nb_empty_files=0
+ 		nb_files=len(files)
+-		for file in files:
+-			s=file.readline().replace(',',' ').split()
++		for myfile in files:
++			s=myfile.readline().replace(',',' ').split()
+ 			if not s:
+ 				nb_empty_files+=1
+-				s="-1, 0, 0, 0'".replace(',',' ').split()
++				s="-1, 0, 0, 0".replace(',',' ').split()
+ 
+ 			if (nb_empty_files == nb_files):
+ 				shall_break=True
+@@ -174,25 +179,35 @@ def compute_temp_file(fio_data_file,disk_perf,gnuplot_output_dir):
+ 			break
+ 
+ 		last_time = -1
+-		index=0
++		index=-1
+ 		perfs=[]
+-		for line in current_line:
+-			time, perf, x, block_size = line
++		for line in enumerate(current_line):
++			# Index will be used to remember what file was featuring what value
++			index=index+1
++
++			time, perf, x, block_size = line[1]
+ 			if (blk_size == 0):
+-				blk_size=int(block_size)
++				try:
++					blk_size=int(block_size)
++				except:
++					print "Error while reading the following line :"
++					print line
++					sys.exit(1);
+ 
+ 			# We ignore the first 500msec as it doesn't seems to be part of the real benchmark
+ 			# Time < 500 usually reports BW=0 breaking the min computing
+-			if (((int(time)) > 500) or (int(time)==-1)):
+-				disk_perf[index].append(int(perf))
+-				perfs.append("%s %s"% (time, perf))
+-				index = index + 1
++			if (min_time == 0):
++				min_time==0.5
++
++			# Then we estimate if the data we got is part of the time range we want to plot
++			if ((float(time)>(float(min_time)*1000)) and ((int(time) < (int(max_time)*1000)) or max_time==-1)):
++					disk_perf[index].append(int(perf))
++					perfs.append("%d %s %s"% (index, time, perf))
+ 
+ 		# If we reach this point, it means that all the traces are coherent
+ 		for p in enumerate(perfs):
+-			perf_time,perf = p[1].split()
+-			if (perf_time != "-1"):
+-				temp_outfile[p[0]].write("%s %.2f %s\n" % (p[0], float(float(perf_time)/1000), perf))
++			index, perf_time,perf = p[1].split()
++			temp_outfile[int(index)].write("%s %.2f %s\n" % (index, float(float(perf_time)/1000), perf))
+ 
+ 
+ 	for file in files:
+@@ -328,7 +343,7 @@ def render_gnuplot(fio_data_file, gnuplot_output_dir):
+ 		sys.exit(1);
+ 
+ def print_help():
+-    print 'fio2gnuplot.py -ghbiod -t <title> -o <outputfile> -p <pattern> -G <type>'
++    print 'fio2gnuplot.py -ghbiod -t <title> -o <outputfile> -p <pattern> -G <type> -m <time> -M <time>'
+     print
+     print '-h --help                           : Print this help'
+     print '-p <pattern> or --pattern <pattern> : A pattern in regexp to select fio input files'
+@@ -343,6 +358,8 @@ def print_help():
+     print '-G		or --Global <type>     : Search for <type> in .global files match by a pattern'
+     print '                                       - Available types are : min, max, avg, stddev'
+     print '                                       - The .global extension is added automatically to the pattern'
++    print '-m           or --min_time <time>   : Only consider data starting from <time> seconds (default is 0)'
++    print '-M           or --max_time <time>   : Only consider data ending before <time> seconds (default is -1 aka nolimit)'
+ 
+ def main(argv):
+     mode='unknown'
+@@ -356,6 +373,8 @@ def main(argv):
+     run_gnuplot=False
+     parse_global=False
+     global_search=''
++    min_time=0
++    max_time=-1
+ 
+     if not os.path.isfile(gpm_dir+'math.gpm'):
+ 	    gpm_dir="/usr/local/share/fio/"
+@@ -364,7 +383,7 @@ def main(argv):
+ 		    sys.exit(3)
+ 
+     try:
+-	    opts, args = getopt.getopt(argv[1:],"ghbio:d:t:p:G:")
++	    opts, args = getopt.getopt(argv[1:],"ghbio:d:t:p:G:m:M:")
+     except getopt.GetoptError:
+ 	 print_help()
+          sys.exit(2)
+@@ -388,6 +407,10 @@ def main(argv):
+ 		os.makedirs(gnuplot_output_dir)
+       elif opt in ("-t", "--title"):
+          title=arg
++      elif opt in ("-m", "--min_time"):
++	 min_time=arg
++      elif opt in ("-M", "--max_time"):
++	 max_time=arg
+       elif opt in ("-g", "--gnuplot"):
+ 	 run_gnuplot=True
+       elif opt in ("-G", "--Global"):
+@@ -439,7 +462,7 @@ def main(argv):
+     if parse_global==True:
+ 	parse_global_files(fio_data_file, global_search)
+     else:
+-    	blk_size=compute_temp_file(fio_data_file,disk_perf,gnuplot_output_dir)
++    	blk_size=compute_temp_file(fio_data_file,disk_perf,gnuplot_output_dir,min_time,max_time)
+     	title="%s @ Blocksize = %dK" % (title,blk_size/1024)
+     	compute_aggregated_file(fio_data_file, gnuplot_output_filename, gnuplot_output_dir)
+     	compute_math(fio_data_file,title,gnuplot_output_filename,gnuplot_output_dir,mode,disk_perf,gpm_dir)
+diff --git a/tools/plot/graph2D.gpm b/tools/plot/graph2D.gpm
+index efc7ac2..5cd6ff3 100644
+--- a/tools/plot/graph2D.gpm
++++ b/tools/plot/graph2D.gpm
+@@ -22,13 +22,13 @@ set yrange [0:]
+ set style line 100 lt 7 lw 0.5
+ set style line 1 lt 1 lw 3 pt 3 linecolor rgb "green"
+ 
+-plot '$1' using 2:3 with linespoints title '$2', $7 w l ls 1 ti 'Global average value'
++plot '$1' using 2:3 with linespoints title '$2', $7 w l ls 1 ti 'Global average value ($7)'
+ 
+ set output '$5.png'
+-plot '$1' using 2:3 smooth csplines title '$2', $7 w l ls 1 ti 'Global average value'
++plot '$1' using 2:3 smooth csplines title '$2', $7 w l ls 1 ti 'Global average value ($7)'
+ 
+ set output '$6.png'
+-plot '$1' using 2:3 smooth bezier title '$2', $7 w l ls 1 ti 'Global average value'
++plot '$1' using 2:3 smooth bezier title '$2', $7 w l ls 1 ti 'Global average value ($7)'
+ 
+ #pause -1
+ #The End
+diff --git a/tools/plot/math.gpm b/tools/plot/math.gpm
+index 81e03da..a01f5a0 100644
+--- a/tools/plot/math.gpm
++++ b/tools/plot/math.gpm
+@@ -22,4 +22,4 @@ set xtics axis out
+ set xtic rotate by 45 scale 0 font ",8" autojustify
+ set xtics offset 0,-1 border -5,1,5
+ set style line 1 lt 1 lw 3 pt 3 linecolor rgb "green"
+-plot '$1' using 2:xtic(1) ti col, $5 w l ls 1 ti 'Global average value'
++plot '$1' using 2:xtic(1) ti col, $5 w l ls 1 ti 'Global average value ($5)'
