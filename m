@@ -1,18 +1,23 @@
-Return-Path: <dennisml@conversis.de>
-Message-ID: <520171C0.2090400@conversis.de>
-Date: Tue, 06 Aug 2013 23:59:28 +0200
-From: Dennis Jacobfeuerborn <dennisml@conversis.de>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:37620 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754939Ab3HFQ0H (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 6 Aug 2013 12:26:07 -0400
+Message-ID: <52012370.8090803@kernel.dk>
+Date: Tue, 06 Aug 2013 10:25:20 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
 Subject: Re: 2.1.2 released
 References: <52011D0F.5060308@kernel.dk> <52012346.9040609@enovance.com>
 In-Reply-To: <52012346.9040609@enovance.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
 To: Erwan Velu <erwan@enovance.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 06.08.2013 18:24, Erwan Velu wrote:
+On 08/06/2013 10:24 AM, Erwan Velu wrote:
 > On 06/08/2013 17:58, Jens Axboe wrote:
 >> Hi Folks,
 >>
@@ -34,17 +39,15 @@ On 06.08.2013 18:24, Erwan Velu wrote:
 >>
 > I'd like to add also the genfio tool which is very useful to describe
 > complex and repetitive fio's jobs.
->
+
+Indeed, I completely forgot about that one. Sorry about that.
+
 > I'm also adding an url where people can see the kind of graphing
 > fio2gnuplot does :
 > http://www.flickr.com/photos/ennael/sets/72157634249027122/
 
-How does the fio2gnuplot tool work? There is no man page or example 
-invocation that explains how to generate the plots. I tried "fio2gnuplot 
---iops" but that only dumps the usage options without any hint of what 
-is wrong with that call.
+Great, always a good thing to have samples to point people at.
 
-Regards,
-   Dennis
-
+-- 
+Jens Axboe
 
