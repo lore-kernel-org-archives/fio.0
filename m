@@ -1,97 +1,36 @@
-Return-Path: <jcasse@chromium.org>
-From: Juan Casse <jcasse@chromium.org>
-Subject: [PATCH 2/2] Adds check for rand_seed during verify phase.
-Date: Mon, 26 Aug 2013 14:22:42 -0700
-Message-Id: <1377552162-31741-2-git-send-email-jcasse@chromium.org>
-In-Reply-To: <1377552162-31741-1-git-send-email-jcasse@chromium.org>
-References: <1377552162-31741-1-git-send-email-jcasse@chromium.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Grant Grundler <grundler@chromium.org>, fio@vger.kernel.org, Juan Casse <jcasse@chromium.org>
+Return-Path: <erwan@enovance.com>
+Message-ID: <520291AB.2000702@enovance.com>
+Date: Wed, 07 Aug 2013 20:27:55 +0200
+From: Erwan Velu <erwan@enovance.com>
+MIME-Version: 1.0
+Subject: Re: 2.1.2 released
+References: <52011D0F.5060308@kernel.dk> <52012346.9040609@enovance.com> <520171C0.2090400@conversis.de> <52020BFD.3080504@enovance.com> <52022BFB.2070100@conversis.de> <52023CF1.7050902@enovance.com> <5202797E.20602@conversis.de>
+In-Reply-To: <5202797E.20602@conversis.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Dennis Jacobfeuerborn <dennisml@conversis.de>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-Improve data integrity checking and detect stale blocks from previous
-runs.
+On 07/08/2013 18:44, Dennis Jacobfeuerborn wrote:
+>    I attached the iops logs used and the Gnuplot is version 4.6.1 on 
+> Fedora 18 (Package name "gnuplot-4.6.1-4.fc18.x86_64").
 
-Signed-off-by: Juan Casse <jcasse@chromium.org>
-Reviewed-by: Grant Grundler <grundler@chromium.org>
----
- verify.c | 45 ++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 36 insertions(+), 9 deletions(-)
+In fact, your logs are pretty surprising for me.
+Can anyone, maybe jens, could explains why the time is getting backward 
+in test4k_iops.log ?
+It goes from 500 to 4500 and restart to 500 to 4500 and one more time.
+My plotting considers that time is only getting forward never backward.
 
-diff --git a/verify.c b/verify.c
-index 83c5735..deabf76 100644
---- a/verify.c
-+++ b/verify.c
-@@ -648,18 +648,17 @@ static int verify_header(struct io_u *io_u, struct verify_header *hdr)
- 	uint32_t crc;
- 
- 	if (hdr->magic != FIO_HDR_MAGIC)
--		return 0;
--	if (hdr->len > io_u->buflen) {
--		log_err("fio: verify header exceeds buffer length (%u > %lu)\n", hdr->len, io_u->buflen);
--		return 0;
--	}
-+		return 1;
-+	if (hdr->len > io_u->buflen)
-+		return 2;
-+	if (hdr->rand_seed != io_u->rand_seed)
-+		return 3;
- 
- 	crc = fio_crc32c(p, offsetof(struct verify_header, crc32));
- 	if (crc == hdr->crc32)
--		return 1;
--
-+		return 0;
- 	log_err("fio: verify header crc %x, calculated %x\n", hdr->crc32, crc);
--	return 0;
-+	return 4;
- }
- 
- int verify_io_u(struct thread_data *td, struct io_u *io_u)
-@@ -696,13 +695,41 @@ int verify_io_u(struct thread_data *td, struct io_u *io_u)
- 			memswp(p, p + td->o.verify_offset, header_size);
- 		hdr = p;
- 
--		if (!verify_header(io_u, hdr)) {
-+		ret = verify_header(io_u, hdr);
-+		switch (ret) {
-+		case 0:
-+			break;
-+		case 1:
- 			log_err("verify: bad magic header %x, wanted %x at "
- 				"file %s offset %llu, length %u\n",
- 				hdr->magic, FIO_HDR_MAGIC,
- 				io_u->file->file_name,
- 				io_u->offset + hdr_num * hdr->len, hdr->len);
- 			return EILSEQ;
-+			break;
-+		case 2:
-+			log_err("fio: verify header exceeds buffer length (%u "
-+				"> %lu)\n", hdr->len, io_u->buflen);
-+			return EILSEQ;
-+			break;
-+		case 3:
-+			log_err("verify: bad header rand_seed %"PRIu64
-+				", wanted %"PRIu64" at file %s offset %llu, "
-+				"length %u\n",
-+				hdr->rand_seed, io_u->rand_seed,
-+				io_u->file->file_name,
-+				io_u->offset + hdr_num * hdr->len, hdr->len);
-+			return EILSEQ;
-+			break;
-+		case 4:
-+			return EILSEQ;
-+			break;
-+		default:
-+			log_err("verify: unknown header error at file %s "
-+			"offset %llu, length %u\n",
-+			io_u->file->file_name,
-+			io_u->offset + hdr_num * hdr->len, hdr->len);
-+			return EILSEQ;
- 		}
- 
- 		if (td->o.verify != VERIFY_NONE)
--- 
-1.7.12.4
+[...]
+> I just tested this and for me it works as advertized. Thanks!
 
+Glad it works !
+
+[...]
+> Doing it this way would allow fio2gnuplot to be invoked like 
+> "fio2gnuplot -c/--config file.fiograph" so no complex command line 
+> arguments would be necessary and the user could easily customize which 
+> graphs are generated.
+Interesting approach, I'll think about it.
 
