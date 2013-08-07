@@ -1,82 +1,60 @@
-Return-Path: <erwan@enovance.com>
-Message-ID: <52020BFD.3080504@enovance.com>
-Date: Wed, 07 Aug 2013 10:57:33 +0200
-From: Erwan Velu <erwan@enovance.com>
-MIME-Version: 1.0
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:48204 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756402Ab3HGBGh (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 6 Aug 2013 21:06:37 -0400
+Date: Tue, 6 Aug 2013 19:06:31 -0600
+From: Jens Axboe <axboe@kernel.dk>
 Subject: Re: 2.1.2 released
-References: <52011D0F.5060308@kernel.dk> <52012346.9040609@enovance.com> <520171C0.2090400@conversis.de>
+Message-ID: <20130807010631.GA4604@kernel.dk>
+References: <52011D0F.5060308@kernel.dk>
+ <52012346.9040609@enovance.com>
+ <520171C0.2090400@conversis.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <520171C0.2090400@conversis.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
 To: Dennis Jacobfeuerborn <dennisml@conversis.de>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+Cc: Erwan Velu <erwan@enovance.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 06/08/2013 23:59, Dennis Jacobfeuerborn wrote:
-> [..]
-> How does the fio2gnuplot tool work? There is no man page or example 
-> invocation that explains how to generate the plots. I tried 
-> "fio2gnuplot --iops" but that only dumps the usage options without any 
-> hint of what is wrong with that call.
-Dear Dennis,
+On Tue, Aug 06 2013, Dennis Jacobfeuerborn wrote:
+> On 06.08.2013 18:24, Erwan Velu wrote:
+> >On 06/08/2013 17:58, Jens Axboe wrote:
+> >>Hi Folks,
+> >>
+> >>I tagged the release of 2.1.2 this morning. The basic changes since
+> >>2.1.1 are:
+> >>
+> >>- The big graphing rework from Erwan.
+> >>- A fix for a potential verification failure, courtesy of Josef Bacik.
+> >>- Support for randomness of reads and writes independently.
+> >>- Support for setting block sizes (or ranges) for random of sequential
+> >>   IO.
+> >>- Support for multicast network IO in the net ioengine, from Shawn
+> >>   Bohrer.
+> >>- RDMA io engine should now compile and work again, was broken with the
+> >>   recent rewrites. From Yufei Ren.
+> >>
+> >>65 commits in total, of which I only did 8 of them. I believe that is a
+> >>new record! Thanks a lot for your contributions, keep them coming.
+> >>
+> >I'd like to add also the genfio tool which is very useful to describe
+> >complex and repetitive fio's jobs.
+> >
+> >I'm also adding an url where people can see the kind of graphing
+> >fio2gnuplot does :
+> >http://www.flickr.com/photos/ennael/sets/72157634249027122/
+> 
+> How does the fio2gnuplot tool work? There is no man page or example
+> invocation that explains how to generate the plots. I tried "fio2gnuplot
+> --iops" but that only dumps the usage options without any hint of what is
+> wrong with that call.
 
-I'm sorry the inline help of fio2gnuplot isn't sufficient yet to get 
-understood easily, I'll work on fixing this.
+Erwan, care to provide some documentation with the tool? That's the
+first place I would look, too.
 
-Anyway, here come how it works :
-
-While running fio jobs, you are producing a set of log files located in 
-a directory. When considering a good amount of logs, logs file are 
-usually having different filename to remember what log match a 
-particular run. i.e genfio does works this way ;o)
-
-Then, when you want to plot some fio's output, you have to call 
-fio2gnuplot with a 'pattern' (-p) option.
-The pattern is a kind of regexp that allow you to choose what file you 
-want to plot. Mostly, I do use the '*' for this purpose.
-
-Let's say you have four files named like :
-host1-read-4k_iops.log
-host2-read-4k_iops.log
-host3-read-4k_iops.log
-host1-write-4k_iops.log
-
-If you want to plot all the traces related to the reading you'll do :
-fio2gnuplot -p 'host*-read-4k_iops.log'
-
-Note the single quote to avoid the shell interpreting the star (*), it's 
-up to fio2gnuplot to handle this.
-
-Then, if you want to generate the rendering, you can use the '-g' flag 
-to request the plotting (maybe this could be a default option).
-
-Then, you can choose in which dir you want plot all this stuff, let's 
-use the '-d' option. fio2gnuplot generates a _lot_ of traces, so that's 
-a recommanded option.
-
-So a typical cmdline would be :
-
-fio2gnuplot -p 'host*-read-4k_iops.log' -g -d read-4k
-
-About the --iops output you choose, it's just a predefined pattern that 
-match all the "iops" files from the current directory. In fact, I didn't 
-used them a lot .... a you spotted two nice bugs I shoudn't have commit.
-
-First, it does print the help while the cmdline wasn't correct. It 
-should have told you something was wrong on the cmdline.
-
-Then, the --iops wasn't properly managed and as a result didn't got 
-supported... .What a shame... Please make a try with '-i' on this 
-version of the tool.
-
-To fix this two bugs, I've been pushing two fixes in my dev tree that 
-I'll ask to merge a little bit later.
-If you want to test them, that's available here : 
-https://github.com/enovance/fio/commits/erwan/next
-
-I do agree that I should had a man page and much more example.
-Thanks for testing my work & reporting.
-
-Cheers,
-Erwan,
+-- 
+Jens Axboe
 
