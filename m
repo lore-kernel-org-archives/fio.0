@@ -1,74 +1,111 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx11.netapp.com ([216.240.18.76]:37696 "EHLO mx11.netapp.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757153Ab3HLQjl convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 12 Aug 2013 12:39:41 -0400
-From: "Neto, Antonio Jose Rodrigues" 
-	<Antonio.Jose.Rodrigues.Neto@netapp.com>
-Subject: Just to make sure about my config file is ok
-Date: Mon, 12 Aug 2013 16:39:39 +0000
-Message-ID: <CE2E880B.15066%Antonio.Jose.Rodrigues.Neto@netapp.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <008BEDF76A667F40A2D4BD62EFAA1081@hq.netapp.com>
-Content-Transfer-Encoding: 8BIT
+Received: from merlin.infradead.org ([205.233.59.134]:45379 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030485Ab3HIS5v (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 9 Aug 2013 14:57:51 -0400
+Date: Fri, 9 Aug 2013 12:57:48 -0600
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: fio verify will actually punch a hole in a file
+Message-ID: <20130809185748.GB6629@kernel.dk>
+References: <x49y58a3eus.fsf@segfault.boston.devel.redhat.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <x49y58a3eus.fsf@segfault.boston.devel.redhat.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: fio@vger.kernel.org
 
-Hi All,
+On Fri, Aug 09 2013, Jeff Moyer wrote:
+> Hi, Jens, all,
+> 
+> Our QE team noticed fio failures on recent kernels.  I simplified the
+> job file to the following:
+> 
+> [global]
+> name=fio-mmap
+> rw=write
+> bs=4K
+> direct=1
+> end_fsync=1
+> verify=crc32
+> 
+> [file3]
+> size=100M
+> ioengine=mmap
+> mem=malloc
+> direct=1
+> 
+> After fio completes (and returns verify errors), the file is completely
+> full of zeroes.
+> 
+> Here is what the verify logic is doing:
+> 
+> static void do_verify(struct thread_data *td, uint64_t verify_bytes)
+> {
+> ...
+>         /*
+>          * sync io first and invalidate cache, to make sure we really
+>          * read from disk.
+>          */
+>         for_each_file(td, f, i) {
+>                 if (!fio_file_open(f))
+>                         continue;
+>                 if (fio_io_sync(td, f))
+>                         break;
+>                 if (file_invalidate_cache(td, f)) <--------
+>                         break;
+>         }
+> 
+> That invalidate cache call looks like so:
+> 
+> static int __file_invalidate_cache(struct thread_data *td, struct fio_file *f,
+>                                    unsigned long long off,
+>                                    unsigned long long len)
+> {
+> ...
+>         /*
+>          * FIXME: add blockdev flushing too
+>          */
+>         if (f->mmap_ptr) {
+>                 ret = posix_madvise(f->mmap_ptr, f->mmap_sz, POSIX_MADV_DONTNEED);
+> #ifdef FIO_MADV_FREE
+>                 (void) posix_madvise(f->mmap_ptr, f->mmap_sz, FIO_MADV_FREE); <-------
+> #endif
+> 
+> FIO_MADV_FREE can be defined as MADV_REMOVE, which will actually punch a
+> hole in the file (a hole the size of the entire file, btw).  Of course,
+> unallocated blocks are returned as zeroes by the file system, so that
+> explains that!
+> 
+> Jens, I'm sure you can take it from here.  ;-)  If you want to see the
+> strace logs I've collected, or any other information, let me know.
 
-This is neto from Brazil
+Hah, yeah that's not great. The below should ensure that we only do this
+for blockdevices, though I haven't checked whether it's even needed
+there. At least it removes the problem with doing it on files and
+punching holes. Are we mapping MADV_FREE to trim yet? :-)
 
-How are you?
-
-Could anyone please help me to double check if my config file below is
-correct to match the following workload pattern.
-
-Sequential Read 35%
-Sequential Write 5%
-Sequential Block size 64KB
-
-Random Read 50%
-Random Write 10%
-Random Block size 4KB
-
-Working set 2TB
+Alternatively, it should just be killed. I don't want it punching holes,
+nor trimming.
 
 
-[global]
-bs=64k,4k
-bs_is_seq_rand=1
-ioengine=libaio
-direct=1
-runtime=14400
-size=2000g
-filename=/dev/mapper/360a980004175786a7a24444159626561:/dev/mapper/360a9800
-0417578574c2b44415a364e77:/dev/mapper/360a98000417578574c2b44415a364f30:/de
-v/mapper/360a98000417578574c2b44415a364e75:/dev/mapper/360a980004175786a7a2
-4444159626567:/dev/mapper/360a980004175786a7a24444159626565:/dev/mapper/360
-a980004175786a7a24444159626563:/dev/mapper/360a98000417578574c2b44415a364e7
-9
-rw=randrw
-rwmixread=85
-percentage_random=59,67
-thread
-unified_rw_reporting=1
-group_reporting=1
-norandommap=1
+diff --git a/filesetup.c b/filesetup.c
+index 6427f3e..7d3a061 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -388,7 +388,8 @@ static int __file_invalidate_cache(struct thread_data *td, struct fio_file *f,
+ 	if (f->mmap_ptr) {
+ 		ret = posix_madvise(f->mmap_ptr, f->mmap_sz, POSIX_MADV_DONTNEED);
+ #ifdef FIO_MADV_FREE
+-		(void) posix_madvise(f->mmap_ptr, f->mmap_sz, FIO_MADV_FREE);
++		if (f->filetype == FIO_TYPE_BD)
++			(void) posix_madvise(f->mmap_ptr, f->mmap_sz, FIO_MADV_FREE);
+ #endif
+ 	} else if (f->filetype == FIO_TYPE_FILE) {
+ 		ret = posix_fadvise(f->fd, off, len, POSIX_FADV_DONTNEED);
 
-[random]
-iodepth=2
-numjobs=32
-
-[sequential]
-iodepth=8
-numjobs=1
-
-Thank you very much
-
-All the best
-
-neto
+-- 
+Jens Axboe
 
