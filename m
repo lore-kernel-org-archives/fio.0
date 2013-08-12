@@ -1,97 +1,74 @@
-Return-Path: <jcasse@chromium.org>
-From: Juan Casse <jcasse@chromium.org>
-Subject: [PATCH 2/2] Adds check for rand_seed during verify phase.
-Date: Thu, 29 Aug 2013 10:33:18 -0700
-Message-Id: <1377797598-9855-2-git-send-email-jcasse@chromium.org>
-In-Reply-To: <1377797598-9855-1-git-send-email-jcasse@chromium.org>
-References: <1377797598-9855-1-git-send-email-jcasse@chromium.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Grant Grundler <grundler@chromium.org>, fio@vger.kernel.org, Juan Casse <jcasse@chromium.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mx11.netapp.com ([216.240.18.76]:37696 "EHLO mx11.netapp.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757153Ab3HLQjl convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Mon, 12 Aug 2013 12:39:41 -0400
+From: "Neto, Antonio Jose Rodrigues" 
+	<Antonio.Jose.Rodrigues.Neto@netapp.com>
+Subject: Just to make sure about my config file is ok
+Date: Mon, 12 Aug 2013 16:39:39 +0000
+Message-ID: <CE2E880B.15066%Antonio.Jose.Rodrigues.Neto@netapp.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <008BEDF76A667F40A2D4BD62EFAA1081@hq.netapp.com>
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Improve data integrity checking and detect stale blocks from previous
-runs.
+Hi All,
 
-Signed-off-by: Juan Casse <jcasse@chromium.org>
-Reviewed-by: Grant Grundler <grundler@chromium.org>
----
- verify.c | 45 ++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 36 insertions(+), 9 deletions(-)
+This is neto from Brazil
 
-diff --git a/verify.c b/verify.c
-index 83c5735..deabf76 100644
---- a/verify.c
-+++ b/verify.c
-@@ -648,18 +648,17 @@ static int verify_header(struct io_u *io_u, struct verify_header *hdr)
- 	uint32_t crc;
- 
- 	if (hdr->magic != FIO_HDR_MAGIC)
--		return 0;
--	if (hdr->len > io_u->buflen) {
--		log_err("fio: verify header exceeds buffer length (%u > %lu)\n", hdr->len, io_u->buflen);
--		return 0;
--	}
-+		return 1;
-+	if (hdr->len > io_u->buflen)
-+		return 2;
-+	if (hdr->rand_seed != io_u->rand_seed)
-+		return 3;
- 
- 	crc = fio_crc32c(p, offsetof(struct verify_header, crc32));
- 	if (crc == hdr->crc32)
--		return 1;
--
-+		return 0;
- 	log_err("fio: verify header crc %x, calculated %x\n", hdr->crc32, crc);
--	return 0;
-+	return 4;
- }
- 
- int verify_io_u(struct thread_data *td, struct io_u *io_u)
-@@ -696,13 +695,41 @@ int verify_io_u(struct thread_data *td, struct io_u *io_u)
- 			memswp(p, p + td->o.verify_offset, header_size);
- 		hdr = p;
- 
--		if (!verify_header(io_u, hdr)) {
-+		ret = verify_header(io_u, hdr);
-+		switch (ret) {
-+		case 0:
-+			break;
-+		case 1:
- 			log_err("verify: bad magic header %x, wanted %x at "
- 				"file %s offset %llu, length %u\n",
- 				hdr->magic, FIO_HDR_MAGIC,
- 				io_u->file->file_name,
- 				io_u->offset + hdr_num * hdr->len, hdr->len);
- 			return EILSEQ;
-+			break;
-+		case 2:
-+			log_err("fio: verify header exceeds buffer length (%u "
-+				"> %lu)\n", hdr->len, io_u->buflen);
-+			return EILSEQ;
-+			break;
-+		case 3:
-+			log_err("verify: bad header rand_seed %"PRIu64
-+				", wanted %"PRIu64" at file %s offset %llu, "
-+				"length %u\n",
-+				hdr->rand_seed, io_u->rand_seed,
-+				io_u->file->file_name,
-+				io_u->offset + hdr_num * hdr->len, hdr->len);
-+			return EILSEQ;
-+			break;
-+		case 4:
-+			return EILSEQ;
-+			break;
-+		default:
-+			log_err("verify: unknown header error at file %s "
-+			"offset %llu, length %u\n",
-+			io_u->file->file_name,
-+			io_u->offset + hdr_num * hdr->len, hdr->len);
-+			return EILSEQ;
- 		}
- 
- 		if (td->o.verify != VERIFY_NONE)
--- 
-1.7.12.4
+How are you?
 
+Could anyone please help me to double check if my config file below is
+correct to match the following workload pattern.
+
+Sequential Read 35%
+Sequential Write 5%
+Sequential Block size 64KB
+
+Random Read 50%
+Random Write 10%
+Random Block size 4KB
+
+Working set 2TB
+
+
+[global]
+bs=64k,4k
+bs_is_seq_rand=1
+ioengine=libaio
+direct=1
+runtime=14400
+size=2000g
+filename=/dev/mapper/360a980004175786a7a24444159626561:/dev/mapper/360a9800
+0417578574c2b44415a364e77:/dev/mapper/360a98000417578574c2b44415a364f30:/de
+v/mapper/360a98000417578574c2b44415a364e75:/dev/mapper/360a980004175786a7a2
+4444159626567:/dev/mapper/360a980004175786a7a24444159626565:/dev/mapper/360
+a980004175786a7a24444159626563:/dev/mapper/360a98000417578574c2b44415a364e7
+9
+rw=randrw
+rwmixread=85
+percentage_random=59,67
+thread
+unified_rw_reporting=1
+group_reporting=1
+norandommap=1
+
+[random]
+iodepth=2
+numjobs=32
+
+[sequential]
+iodepth=8
+numjobs=1
+
+Thank you very much
+
+All the best
+
+neto
 
