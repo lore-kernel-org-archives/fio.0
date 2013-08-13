@@ -1,41 +1,29 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vb0-f54.google.com ([209.85.212.54]:44690 "EHLO
-	mail-vb0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751684Ab3HSXLv (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 19 Aug 2013 19:11:51 -0400
-Received: by mail-vb0-f54.google.com with SMTP id q14so3771317vbe.27
-        for <fio@vger.kernel.org>; Mon, 19 Aug 2013 16:11:51 -0700 (PDT)
+Date: Tue, 13 Aug 2013 08:41:58 -0600
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: How to control the number of random I/O's acrossing the whole
+ file/device?
+Message-ID: <20130813144158.GH25668@kernel.dk>
+References: <CA+S_sg4sVwquhtxLpmjQQXiNOBya+6vF0mSbyWZG_Q1YtbPPCA@mail.gmail.com>
+ <CA+S_sg4ROD-+qdBKz9VMwMcOn4OrpOTBh9sF=gQEbfT54HZCXw@mail.gmail.com>
+ <52040589.2050803@kernel.dk>
+ <CA+S_sg79AHmGPHZC9A4=z=1i7LjXuxQh2mY5FcCdiKE_JqVURg@mail.gmail.com>
+ <20130809185145.GA6629@kernel.dk>
+ <CA+S_sg5i9d1E30sigK_O0E_nfsyiPf2s7Bkq3HLtQg3iYQqV0A@mail.gmail.com>
 MIME-Version: 1.0
-Date: Mon, 19 Aug 2013 16:11:50 -0700
-Message-ID: <CAPet_21dehFMKwU25L+ho1uRWOO6w_p7LqxxyJe5gQ5a9G0M5A@mail.gmail.com>
-Subject: Using LFSR
-From: Juan Casse <jcasse@chromium.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+S_sg5i9d1E30sigK_O0E_nfsyiPf2s7Bkq3HLtQg3iYQqV0A@mail.gmail.com>
+To: Jiahua <jiahua@gmail.com>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+On Mon, Aug 12 2013, Jiahua wrote:
+> It works. Thank you very much!
 
-How is LFSR used?
+It's included in the current -git versions of fio, so will be part of
+2.1.3 final.
 
-When running the job file:
+-- 
+Jens Axboe
 
-[global]
-readwrite=randwrite
-size=64k
-bs=8192
-random_generator=lfsr
-[test_job]
 
-fio returns:
-
-"fio: failed allocating random map. If running a large number of jobs,
-try the 'norandommap' option or set 'softrandommap'. Or give a larger
---alloc-size to fio."
-
-I tried the recommendations in the message above to no avail. I also
-tried other combinations of size, bs, and readwrite.
-
-Thank you,
-Juan
