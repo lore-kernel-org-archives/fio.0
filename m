@@ -1,35 +1,46 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from na3sys010aog102.obsmtp.com ([74.125.245.72]:53017 "EHLO
-	na3sys010aog102.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751178Ab3HPFoQ convert rfc822-to-8bit
-	(ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 16 Aug 2013 01:44:16 -0400
-From: Ritchie Babaylan <Ritchie.Babaylan@bitmicro.com>
-Subject: FIO-2.1.2 Windows Binaries Availability
-Date: Fri, 16 Aug 2013 05:38:43 +0000
-Message-ID: <9E26C6259ACF1842A4815F929194EDD36FEDD88A@phex01.corp.bitmicro.com>
-References: <CA+8ZFnhapBuTo0U9Loyg=zrGHxf2GGJN2=LTu2Sw0oJWKHNicA@mail.gmail.com>
-	<20130813144311.GI25668@kernel.dk>
- <CA+8ZFnhH9Dg7-nsH52KALp1RaREVy51AKkd0_d_m2WPiv4AesA@mail.gmail.com>
-In-Reply-To: <CA+8ZFnhH9Dg7-nsH52KALp1RaREVy51AKkd0_d_m2WPiv4AesA@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Received: from merlin.infradead.org ([205.233.59.134]:59716 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753177Ab3HVRKC (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 22 Aug 2013 13:10:02 -0400
+Message-ID: <521645E5.8010509@kernel.dk>
+Date: Thu, 22 Aug 2013 11:09:57 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
+Subject: Re: write_iops_log/write_bw_log command line parameter bug
+References: <1314394180.368686.1377164275463.JavaMail.root@thomas-krenn.com>
+In-Reply-To: <1314394180.368686.1377164275463.JavaMail.root@thomas-krenn.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: =?UTF-8?B?R2VvcmcgU2Now7ZuYmVyZ2Vy?= <gschoenberger@thomas-krenn.com>
+Cc: fio@vger.kernel.org
 
-Hi,
+On 08/22/2013 03:37 AM, Georg Schönberger wrote:
+> Hi Jens,
+> 
+> it seems that the command line options "write_iops_log" and "write_bw_log" don't work as they are described in the man page:
+> "If no filename is given with this option, the default filename of "jobname_type.log" is used."
+> 
+> Unfortunately the files/filenames are not created automatically by fio:
+> # fio --name=test --direct=1 --refill_buffers --filesize=1G --bs=8k --rw=randread --ioengine=libaio --runtime=60 --write_iops_log --write_bw_log
+> [...]
+> # ls
+> lost+found  test.1.0  --write_bw_log_iops.log
+> 
+> If I specify the filenames everything is fine:
+> # rm ./--write_bw_log_iops.log
+> # fio --name=test --direct=1 --refill_buffers --filesize=1G --bs=8k --rw=randread --ioengine=libaio --runtime=60 --write_iops_log=rr-iops --write_bw_log=rr-bw
+> [...]
+> # ls
+> lost+found  rr-bw_bw.log  rr-iops_iops.log  test.1.0
+> 
+> I am using fio version fio-2.1.2-13-g3e10.
 
-I'd like to know if someone already made a Windows binaries for x32 and x64=
- platform for FIO-2.1.2. I check http://www.bluestop.org/fio/, they don't h=
-ave yet.
+Don't think there's an easy way to fix this, outside of requiring some
+name being set. Arguably that should probably be the way that it functions.
 
-=EF=BF=BD
-Thanks,
-=EF=BF=BD
-Ritchie Babaylan
-Advance CORE Engineering
-BiTMICRO Networks, Inc.
+-- 
+Jens Axboe
 
