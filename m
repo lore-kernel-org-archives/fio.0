@@ -1,40 +1,59 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from na3sys010aog110.obsmtp.com ([74.125.245.88]:48582 "EHLO
-	na3sys010aog110.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751178Ab3HPFok convert rfc822-to-8bit
-	(ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 16 Aug 2013 01:44:40 -0400
-From: Ritchie Babaylan <Ritchie.Babaylan@bitmicro.com>
-Subject: Encountered Mix Access R/W Problem
-Date: Fri, 16 Aug 2013 05:44:37 +0000
-Message-ID: <9E26C6259ACF1842A4815F929194EDD36FEDD89F@phex01.corp.bitmicro.com>
-References: <CA+8ZFnhapBuTo0U9Loyg=zrGHxf2GGJN2=LTu2Sw0oJWKHNicA@mail.gmail.com>
-	<20130813144311.GI25668@kernel.dk>
- <CA+8ZFnhH9Dg7-nsH52KALp1RaREVy51AKkd0_d_m2WPiv4AesA@mail.gmail.com>
-In-Reply-To: <CA+8ZFnhH9Dg7-nsH52KALp1RaREVy51AKkd0_d_m2WPiv4AesA@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <jcasse@google.com>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <5215B983.6090306@enovance.com>
+References: <CAPet_20pVqmeXS2YeB9dXnwwira3=RTqS1r4MLvxDNJuRuEHsA@mail.gmail.com>
+	<5215B983.6090306@enovance.com>
+Date: Thu, 22 Aug 2013 09:48:55 -0700
+Message-ID: <CAPet_215++pkVjqjXuVswbRG7kjmhcwOQF206C6ZhTnLW=yzWQ@mail.gmail.com>
+Subject: Re: Data Integrity Test with fio
+From: Juan Casse <jcasse@google.com>
+Content-Type: text/plain; charset=ISO-8859-1
+To: Erwan Velu <erwan@enovance.com>
+Cc: Juan Casse <jcasse@chromium.org>, Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, grundler@chromium.org
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+Hi Erwan:
 
-I use FIO-2.1.1 in one of my system running a simple workload with the foll=
-owing details.
-	64KB; 60% Sequential 60% Read; 1-Depth / 1-Job
-	64KB; 30% Sequential 60% Read; 1-Depth / 1-Job
+Thank you for the prompt reply. I apologize for my lengthy previous email.
 
-The result of the metrics for Read/Write access are zero as reflected on th=
-e command line in Windows 7 32-bit. I'd like to seek help why I am getting =
-a zero metrics on Read/Write access.
+On Thu, Aug 22, 2013 at 12:10 AM, Erwan Velu <erwan@enovance.com> wrote:
+>
+> On 22/08/2013 00:02, Juan Casse wrote:
+>>
+>> Hi Jens:
+>>
+>> I wanted to let you know what we intend to do in advance in case you
+>> can foresee any problems or have any preferences.
+>>
+>> We would like fio to test for data integrity/retention as follows.
+>
+> Does this sample fio job isn't what you are looking at ?
+>
+> http://git.kernel.dk/?p=fio.git;a=blob;f=examples/surface-scan.fio;h=dc3373a2ea48f495cdc03ccf4dc2e1ed23e3e434;hb=HEAD
+>
 
-=EF=BF=BD
-Thanks,
-=EF=BF=BD
-Ritchie Babaylan
-Advance CORE Engineering
-BiTMICRO Networks, Inc.
+The sample job is fine. We want to improve the data integrity check to
+detect types of failures.
+
+We want fio to check for stale data. We would like to add a generation
+number, which counts the number of times the same block has been
+written.
+
+So here is what Grant and I are currently considering doing; a bit
+different from what I proposed in my previous email.
+
+- Add a separate LFSR, one for reads and one for writes
+- Add a check for numberio_w; numberio_w is a global count of writes
+that fio currently keeps track of, but can serve the same purpose as
+the generation number.
+- During the verification phase, we simply run the LFSR forward
+(without actually writing) and fill a numberio_w table with the last
+computed numberio_w for each block, then read each block back and
+compare against the computed numberio_w.
+
+Thank you,
+Juan
+
+>
+> Erwan,
 
