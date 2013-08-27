@@ -1,30 +1,37 @@
-Return-Path: <erwan@enovance.com>
-Message-ID: <521DA341.3050707@enovance.com>
-Date: Wed, 28 Aug 2013 09:14:09 +0200
-From: Erwan Velu <erwan@enovance.com>
+Return-Path: <grundler@google.com>
 MIME-Version: 1.0
+Sender: grundler@google.com
+In-Reply-To: <521CDB91.40207@kernel.dk>
+References: <1377552162-31741-1-git-send-email-jcasse@chromium.org>
+	<1377552162-31741-2-git-send-email-jcasse@chromium.org>
+	<CANEJEGuKzZeLfCoNX12Pp_4_Uj8iHjLX221c+qpYzgpWYgA-Pg@mail.gmail.com>
+	<521CDB91.40207@kernel.dk>
+Date: Tue, 27 Aug 2013 10:25:34 -0700
+Message-ID: <CANEJEGsDcnk51B=1ALR8vVQm+-nu2n8XmR9+wuc57GK-M8WR6Q@mail.gmail.com>
 Subject: Re: [PATCH 2/2] Adds check for rand_seed during verify phase.
-References: <1377552162-31741-1-git-send-email-jcasse@chromium.org> <1377552162-31741-2-git-send-email-jcasse@chromium.org> <CANEJEGuKzZeLfCoNX12Pp_4_Uj8iHjLX221c+qpYzgpWYgA-Pg@mail.gmail.com>
-In-Reply-To: <CANEJEGuKzZeLfCoNX12Pp_4_Uj8iHjLX221c+qpYzgpWYgA-Pg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Grant Grundler <grundler@chromium.org>
-Cc: Juan Casse <jcasse@chromium.org>, Jens Axboe <axboe@kernel.dk>, FIO_list <fio@vger.kernel.org>
+From: Grant Grundler <grundler@chromium.org>
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Grant Grundler <grundler@chromium.org>, Juan Casse <jcasse@chromium.org>, FIO_list <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 27/08/2013 00:11, Grant Grundler wrote:
-> Jens, et al,
->
-> In general I'm ok with this patch...just one issue I'd like to get an
-> opinion on...
->
-I don't have the skill to make a technical review of it.
+On Tue, Aug 27, 2013 at 10:02 AM, Jens Axboe <axboe@kernel.dk> wrote:
+...
+> Right now fio will return EILSEQ for any verification failure. If you
+> time out, then no, you should not get that. If we do more fine grained
+> errors for verify failures, then we would have to get creative on what
+> to use. And not sure I'm a huge fan of that.
 
-At least, I'm a great fan of well detailed commits.
-At my taste, I do like when a commit does explain what was the problem 
-and what is the solution.
+I'm not a fan of that either since it's "open ended". Using EILSEQ is
+probably fine.
 
-A single line for such commit seems a little bit light for me.
+> If you do get a
+> verification failure, though, at least the runtime log should tell you
+> EXACTLY what it was.
 
-Cheers,
+Ah ok - I didn't think of that and the test can look there to
+disambiguate the return code.
+
+thanks!
+grant
 
