@@ -5,8 +5,8 @@ References: <1377552162-31741-1-git-send-email-jcasse@chromium.org>
 	<521CDBC2.8050705@kernel.dk>
 	<CANEJEGvXJBaE8PU47-ZgHwmyKs8eUo9-Bg7yDPL8iZH-SoxfCw@mail.gmail.com>
 	<CAPet_22fniTug7ET_DqsqBj0jxGSK8qT6VOFs0Qk6ROuBfNLzQ@mail.gmail.com>
-Date: Tue, 27 Aug 2013 13:48:30 -0700
-Message-ID: <CAPet_2066MJSpz_Z1y=4E+cR2k-f4Jqv679dPo-QWQ7N3pnPyg@mail.gmail.com>
+Date: Tue, 27 Aug 2013 11:44:47 -0700
+Message-ID: <CAPet_23RONHC4X1BvLkgJsdqxrCQzJqHPi1ZAQ06r9VdTVR9+w@mail.gmail.com>
 Subject: Re: [PATCH 1/2] Adds check for numberio during verify phase.
 From: Juan Casse <jcasse@google.com>
 Content-Type: text/plain; charset=ISO-8859-1
@@ -14,21 +14,41 @@ To: Grant Grundler <grundler@chromium.org>
 Cc: Jens Axboe <axboe@kernel.dk>, Juan Casse <jcasse@chromium.org>, FIO_list <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-Hi Jens:
+Jens,
 
-Update on sync IO:
+I found an fio bug or am i not understanding how it works?
 
-I ran the code (with my changes) using asynchronous engine libaio with
-mixed read/write and found no problems. So, yes, I can eliminate the
-restriction of synchronous io.
+I just ran the latest fio version without my changes and it failed
+with different block sizes for read and writes.
 
-This makes sense since I'm not changing the behavior of fio besides
-checking numberio.
+fio --version
+=========
+fio-2.1.2-13-g3e10
 
-To summarize my change:
-When the data_integrity_check option is selected, fio will:
-1. not reset the numberio after each iteration
-2. check numberio during the verify phase
+error message
+============
+fio: bad verify type: 0
+fio: verify.c:930: populate_hdr: Assertion `0' failed.
+fio: pid=18551, got signal=6
+
+job file
+=====
+readwrite=rw
+randrepeat=1
+size=64k
+bs=4k,8k
+ioengine=sync
+direct=1
+buffered=0
+rwmixread=50
+rwmixwrite=50
+norandommap
+loops=1
+verify=meta
+verify_pattern=0xffffffffffffffff
+verify_dump=1
+continue_on_error=verify
+
 
 On Tue, Aug 27, 2013 at 10:50 AM, Juan Casse <jcasse@google.com> wrote:
 > Jens,
