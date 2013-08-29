@@ -5,17 +5,23 @@ References: <CAOtMX2if0xLLNngOm4uGgWcrze_61M+jCmHcv0pgNisYsWr_Dg@mail.gmail.com>
 	<51F683EC.4090402@kernel.dk>
 	<CAOtMX2ji_t2MOA_9akkyAkXd=R6sO7V1nWiBfesLFJ5SPg+fdw@mail.gmail.com>
 	<51F696E7.1070206@kernel.dk>
-Date: Thu, 29 Aug 2013 16:24:00 -0600
-Message-ID: <CAOtMX2jHhdsemMUHdhqHVK1ndcudvo9fTQcXAUp1X-20DEdUbQ@mail.gmail.com>
+Date: Thu, 29 Aug 2013 16:23:05 -0600
+Message-ID: <CAOtMX2gHij_MPmGWfBQUR_Xed0=NoVOcy8cOJR9YeLisz-mwag@mail.gmail.com>
 Subject: Re: --minimal does not work in client/server mode
 From: asomers@gmail.com
-Content-Type: multipart/alternative; boundary=001a11c2bbb0124bdd04e51d9041
+Content-Type: multipart/alternative; boundary=047d7b5dbfc0c1f14504e51d8c21
 To: Jens Axboe <axboe@kernel.dk>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
---001a11c2bbb0124bdd04e51d9041
+--047d7b5dbfc0c1f14504e51d8c21
 Content-Type: text/plain; charset=ISO-8859-1
+
+Try this new set of patches.  These get json output working in
+client/server mode.
+
+https://gist.github.com/asomers/6105396
+
 
 On Mon, Jul 29, 2013 at 10:23 AM, Jens Axboe <axboe@kernel.dk> wrote:
 
@@ -50,24 +56,23 @@ On Mon, Jul 29, 2013 at 10:23 AM, Jens Axboe <axboe@kernel.dk> wrote:
 > --
 > Jens Axboe
 >
-> Try this new set of patches.  These get json output working in
-client/server mode.
+>
 
-https://gist.github.com/asomers/6105396
-
---001a11c2bbb0124bdd04e51d9041
+--047d7b5dbfc0c1f14504e51d8c21
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-<div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><br><div class=3D"gmail=
-_quote">On Mon, Jul 29, 2013 at 10:23 AM, Jens Axboe <span dir=3D"ltr">&lt;=
-<a href=3D"mailto:axboe@kernel.dk" target=3D"_blank">axboe@kernel.dk</a>&gt=
-;</span> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-=
-left:1px solid rgb(204,204,204);padding-left:1ex"><div class=3D"im">On 07/2=
-9/2013 10:00 AM, <a href=3D"mailto:asomers@gmail.com">asomers@gmail.com</a>=
- wrote:<br>
-
+<div dir=3D"ltr">Try this new set of patches.=A0 These get json output work=
+ing in client/server mode.<br><br><a href=3D"https://gist.github.com/asomer=
+s/6105396">https://gist.github.com/asomers/6105396</a><br></div><div class=
+=3D"gmail_extra">
+<br><br><div class=3D"gmail_quote">On Mon, Jul 29, 2013 at 10:23 AM, Jens A=
+xboe <span dir=3D"ltr">&lt;<a href=3D"mailto:axboe@kernel.dk" target=3D"_bl=
+ank">axboe@kernel.dk</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_qu=
+ote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex=
+">
+<div class=3D"im">On 07/29/2013 10:00 AM, <a href=3D"mailto:asomers@gmail.c=
+om">asomers@gmail.com</a> wrote:<br>
 &gt; I found a few more things that need to be suppressed in terse mode.<br=
 >
 &gt; The updated patch is here. =A0In addition to working with JSON output,=
@@ -99,16 +104,13 @@ void show_thread_status_all()<br>
 <br>
 which should work for all. If you could check and fix the json bit too,<br>
 bonus points, and I&#39;ll test and commit it. Thanks!<br>
-<span class=3D""><font color=3D"#888888"><br>
+<span class=3D"HOEnZb"><font color=3D"#888888"><br>
 <br>
 --<br>
 Jens Axboe<br>
-<br></font></span></blockquote><div>Try this new set of patches.=A0 These g=
-et json output working in client/server mode.<br><br><a href=3D"https://gis=
-t.github.com/asomers/6105396" target=3D"_blank">https://gist.github.com/aso=
-mers/6105396</a> <br>
-</div></div><br></div></div>
+<br>
+</font></span></blockquote></div><br></div>
 
---001a11c2bbb0124bdd04e51d9041--
+--047d7b5dbfc0c1f14504e51d8c21--
 
 
