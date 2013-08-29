@@ -1,75 +1,97 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-lb0-f170.google.com ([209.85.217.170]:47043 "EHLO
-	mail-lb0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753926Ab3H1Ssb (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 28 Aug 2013 14:48:31 -0400
-Received: by mail-lb0-f170.google.com with SMTP id r12so4269124lbi.29
-        for <fio@vger.kernel.org>; Wed, 28 Aug 2013 11:48:30 -0700 (PDT)
-MIME-Version: 1.0
-Date: Wed, 28 Aug 2013 14:48:30 -0400
-Message-ID: <CABFR9T2djdvEh9t7Jk_ouE9vN7+=z56kp5Z-NkKSytBybC6nkA@mail.gmail.com>
-Subject: question on log file command behavior change
-From: Roger Sibert <roger_sibert@xyratex.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: FIO <fio@vger.kernel.org>
+Return-Path: <jcasse@chromium.org>
+From: Juan Casse <jcasse@chromium.org>
+Subject: [PATCH 2/2] Adds check for rand_seed during verify phase.
+Date: Thu, 29 Aug 2013 10:33:18 -0700
+Message-Id: <1377797598-9855-2-git-send-email-jcasse@chromium.org>
+In-Reply-To: <1377797598-9855-1-git-send-email-jcasse@chromium.org>
+References: <1377797598-9855-1-git-send-email-jcasse@chromium.org>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Grant Grundler <grundler@chromium.org>, fio@vger.kernel.org, Juan Casse <jcasse@chromium.org>
+List-ID: <fio@vger.kernel.org>
 
-Hello Everyone,
+Improve data integrity checking and detect stale blocks from previous
+runs.
 
-It's been a stretch since I last did something that required logging
-logging, that would be going from 2.0 to the latest git clone from
-today.
+Signed-off-by: Juan Casse <jcasse@chromium.org>
+Reviewed-by: Grant Grundler <grundler@chromium.org>
+---
+ verify.c | 45 ++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 36 insertions(+), 9 deletions(-)
 
-When I tried to use my older fio configuration files with the new fio
-it barked about not specifying the write_bw_log name.  The 2.0.x
-version used the name from the job so you could have the options
-turned on in [global].
+diff --git a/verify.c b/verify.c
+index 83c5735..deabf76 100644
+--- a/verify.c
++++ b/verify.c
+@@ -648,18 +648,17 @@ static int verify_header(struct io_u *io_u, struct verify_header *hdr)
+ 	uint32_t crc;
+ 
+ 	if (hdr->magic != FIO_HDR_MAGIC)
+-		return 0;
+-	if (hdr->len > io_u->buflen) {
+-		log_err("fio: verify header exceeds buffer length (%u > %lu)\n", hdr->len, io_u->buflen);
+-		return 0;
+-	}
++		return 1;
++	if (hdr->len > io_u->buflen)
++		return 2;
++	if (hdr->rand_seed != io_u->rand_seed)
++		return 3;
+ 
+ 	crc = fio_crc32c(p, offsetof(struct verify_header, crc32));
+ 	if (crc == hdr->crc32)
+-		return 1;
+-
++		return 0;
+ 	log_err("fio: verify header crc %x, calculated %x\n", hdr->crc32, crc);
+-	return 0;
++	return 4;
+ }
+ 
+ int verify_io_u(struct thread_data *td, struct io_u *io_u)
+@@ -696,13 +695,41 @@ int verify_io_u(struct thread_data *td, struct io_u *io_u)
+ 			memswp(p, p + td->o.verify_offset, header_size);
+ 		hdr = p;
+ 
+-		if (!verify_header(io_u, hdr)) {
++		ret = verify_header(io_u, hdr);
++		switch (ret) {
++		case 0:
++			break;
++		case 1:
+ 			log_err("verify: bad magic header %x, wanted %x at "
+ 				"file %s offset %llu, length %u\n",
+ 				hdr->magic, FIO_HDR_MAGIC,
+ 				io_u->file->file_name,
+ 				io_u->offset + hdr_num * hdr->len, hdr->len);
+ 			return EILSEQ;
++			break;
++		case 2:
++			log_err("fio: verify header exceeds buffer length (%u "
++				"> %lu)\n", hdr->len, io_u->buflen);
++			return EILSEQ;
++			break;
++		case 3:
++			log_err("verify: bad header rand_seed %"PRIu64
++				", wanted %"PRIu64" at file %s offset %llu, "
++				"length %u\n",
++				hdr->rand_seed, io_u->rand_seed,
++				io_u->file->file_name,
++				io_u->offset + hdr_num * hdr->len, hdr->len);
++			return EILSEQ;
++			break;
++		case 4:
++			return EILSEQ;
++			break;
++		default:
++			log_err("verify: unknown header error at file %s "
++			"offset %llu, length %u\n",
++			io_u->file->file_name,
++			io_u->offset + hdr_num * hdr->len, hdr->len);
++			return EILSEQ;
+ 		}
+ 
+ 		if (td->o.verify != VERIFY_NONE)
+-- 
+1.7.12.4
 
-Is the change in behavior where you now have to specify the name of
-the log (thus requiring it to be in each job) intentional?
 
-fio 2.0.x config
-[global]
-direct=1
-ioengine=libaio
-zonesize=256m
-zoneskip=768m
-randrepeat=1
-write_bw_log
-write_lat_log
-;
-[sda-iodepth1-write-bs1k-1]
-stonewall
-filename=/dev/sda
-iodepth=1
-rw=write
-bs=1k
-runtime=45s
-time_based
-ramp_time=15s
-
-fio 2.1.x git from today
-[global]
-direct=1
-ioengine=libaio
-zonesize=256m
-zoneskip=768m
-randrepeat=1
-;
-[sdc-iodepth8-write-bs128k-1]
-stonewall
-filename=/dev/sdc
-iodepth=8
-rw=write
-bs=128k
-runtime=45s
-time_based
-ramp_time=15s
-write_bw_log=sdc-iodepth8-write-bs128k-1
-write_lat_log=sdc-iodepth8-write-bs128k-1
-write_iops_log=sdc-iodepth8-write-bs128k-1
-
-
-Thanks,
-Roger
