@@ -5,20 +5,20 @@ References: <CAOtMX2if0xLLNngOm4uGgWcrze_61M+jCmHcv0pgNisYsWr_Dg@mail.gmail.com>
 	<51F683EC.4090402@kernel.dk>
 	<CAOtMX2ji_t2MOA_9akkyAkXd=R6sO7V1nWiBfesLFJ5SPg+fdw@mail.gmail.com>
 	<51F696E7.1070206@kernel.dk>
-Date: Thu, 29 Aug 2013 16:26:02 -0600
-Message-ID: <CAOtMX2h6mtRVQWCX2DCwoLxxcXUKWAGA8-gBfM3gu96QNKFmAA@mail.gmail.com>
+Date: Thu, 29 Aug 2013 16:24:00 -0600
+Message-ID: <CAOtMX2jHhdsemMUHdhqHVK1ndcudvo9fTQcXAUp1X-20DEdUbQ@mail.gmail.com>
 Subject: Re: --minimal does not work in client/server mode
 From: asomers@gmail.com
-Content-Type: multipart/alternative; boundary=047d7b5dbfc04d76b304e51d97b3
+Content-Type: multipart/alternative; boundary=001a11c2bbb0124bdd04e51d9041
 To: Jens Axboe <axboe@kernel.dk>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
---047d7b5dbfc04d76b304e51d97b3
+--001a11c2bbb0124bdd04e51d9041
 Content-Type: text/plain; charset=ISO-8859-1
 
 On Mon, Jul 29, 2013 at 10:23 AM, Jens Axboe <axboe@kernel.dk> wrote:
->
+
 > On 07/29/2013 10:00 AM, asomers@gmail.com wrote:
 > > I found a few more things that need to be suppressed in terse mode.
 > > The updated patch is here.  In addition to working with JSON output,
@@ -50,46 +50,65 @@ On Mon, Jul 29, 2013 at 10:23 AM, Jens Axboe <axboe@kernel.dk> wrote:
 > --
 > Jens Axboe
 >
-
-Try this new set of patches.  They get json output working in client/server
-mode. This is my third attempt to send them; your server keeps rejecting
-gmail's HTML.  Sorry for the overposts.
+> Try this new set of patches.  These get json output working in
+client/server mode.
 
 https://gist.github.com/asomers/6105396
 
---047d7b5dbfc04d76b304e51d97b3
+--001a11c2bbb0124bdd04e51d9041
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-<div dir=3D"ltr"><br><br><br>On Mon, Jul 29, 2013 at 10:23 AM, Jens Axboe &=
-lt;<a href=3D"mailto:axboe@kernel.dk">axboe@kernel.dk</a>&gt; wrote:<br>&gt=
-;<br>&gt; On 07/29/2013 10:00 AM, <a href=3D"mailto:asomers@gmail.com">asom=
-ers@gmail.com</a> wrote:<br>
-&gt; &gt; I found a few more things that need to be suppressed in terse mod=
-e.<br>&gt; &gt; The updated patch is here. =A0In addition to working with J=
-SON output,<br>&gt; &gt; we also need to check that the patch doesn&#39;t b=
-reak disk statistics. =A0I<br>
-&gt; &gt; haven&#39;t tried using those at all yet.<br>&gt; &gt;<br>&gt; &g=
-t; <a href=3D"https://gist.github.com/asomers/6105396">https://gist.github.=
-com/asomers/6105396</a><br>&gt;<br>&gt; I would suggest making a show_threa=
-d_status_all() that does something ala:<br>
-&gt;<br>&gt; void show_thread_status_all()<br>&gt; {<br>&gt; =A0 =A0if (is_=
-backend)<br>&gt; =A0 =A0 =A0 =A0fio_server_send_ts(ts, rs);<br>&gt; =A0 =A0=
-else if (output_format =3D=3D FIO_OUTPUT_TERSE)<br>&gt; =A0 =A0 =A0 =A0show=
-_thread_status_terse(ts, rs);<br>
-&gt; =A0 =A0else if (output_format =3D=3D FIO_OUTPUT_JSON) {<br>&gt; =A0 =
-=A0 =A0 =A0struct json_object *tmp =3D show_thread_status_json(ts, rs);<br>=
-&gt;<br>&gt; =A0 =A0 =A0 =A0json_array_add_value_object(array, tmp);<br>&gt=
-; =A0 =A0} else<br>&gt; =A0 =A0 =A0 =A0show_thread_status(ts, rs);<br>
-&gt; }<br>&gt;<br>&gt; which should work for all. If you could check and fi=
-x the json bit too,<br>&gt; bonus points, and I&#39;ll test and commit it. =
-Thanks!<br>&gt;<br>&gt;<br>&gt; --<br>&gt; Jens Axboe<br>&gt;<br><br>Try th=
-is new set of patches. =A0They get json output working in client/server mod=
-e. This is my third attempt to send them; your server keeps rejecting gmail=
-&#39;s HTML. =A0Sorry for the overposts.<br>
-<br><a href=3D"https://gist.github.com/asomers/6105396">https://gist.github=
-.com/asomers/6105396</a></div>
+<div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><br><div class=3D"gmail=
+_quote">On Mon, Jul 29, 2013 at 10:23 AM, Jens Axboe <span dir=3D"ltr">&lt;=
+<a href=3D"mailto:axboe@kernel.dk" target=3D"_blank">axboe@kernel.dk</a>&gt=
+;</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-=
+left:1px solid rgb(204,204,204);padding-left:1ex"><div class=3D"im">On 07/2=
+9/2013 10:00 AM, <a href=3D"mailto:asomers@gmail.com">asomers@gmail.com</a>=
+ wrote:<br>
 
---047d7b5dbfc04d76b304e51d97b3--
+&gt; I found a few more things that need to be suppressed in terse mode.<br=
+>
+&gt; The updated patch is here. =A0In addition to working with JSON output,=
+<br>
+&gt; we also need to check that the patch doesn&#39;t break disk statistics=
+. =A0I<br>
+&gt; haven&#39;t tried using those at all yet.<br>
+&gt;<br>
+&gt; <a href=3D"https://gist.github.com/asomers/6105396" target=3D"_blank">=
+https://gist.github.com/asomers/6105396</a><br>
+<br>
+</div>I would suggest making a show_thread_status_all() that does something=
+ ala:<br>
+<br>
+void show_thread_status_all()<br>
+{<br>
+=A0 =A0if (is_backend)<br>
+=A0 =A0 =A0 =A0fio_server_send_ts(ts, rs);<br>
+=A0 =A0else if (output_format =3D=3D FIO_OUTPUT_TERSE)<br>
+=A0 =A0 =A0 =A0show_thread_status_terse(ts, rs);<br>
+=A0 =A0else if (output_format =3D=3D FIO_OUTPUT_JSON) {<br>
+=A0 =A0 =A0 =A0struct json_object *tmp =3D show_thread_status_json(ts, rs);=
+<br>
+<br>
+=A0 =A0 =A0 =A0json_array_add_value_object(array, tmp);<br>
+=A0 =A0} else<br>
+=A0 =A0 =A0 =A0show_thread_status(ts, rs);<br>
+}<br>
+<br>
+which should work for all. If you could check and fix the json bit too,<br>
+bonus points, and I&#39;ll test and commit it. Thanks!<br>
+<span class=3D""><font color=3D"#888888"><br>
+<br>
+--<br>
+Jens Axboe<br>
+<br></font></span></blockquote><div>Try this new set of patches.=A0 These g=
+et json output working in client/server mode.<br><br><a href=3D"https://gis=
+t.github.com/asomers/6105396" target=3D"_blank">https://gist.github.com/aso=
+mers/6105396</a> <br>
+</div></div><br></div></div>
+
+--001a11c2bbb0124bdd04e51d9041--
 
 
