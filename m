@@ -1,51 +1,40 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-oa0-f46.google.com ([209.85.219.46]:50228 "EHLO
-	mail-oa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753087Ab3HFVwD (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 6 Aug 2013 17:52:03 -0400
-Received: by mail-oa0-f46.google.com with SMTP id l10so1944466oag.33
-        for <fio@vger.kernel.org>; Tue, 06 Aug 2013 14:52:02 -0700 (PDT)
+Received: from merlin.infradead.org ([205.233.59.134]:42455 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756699Ab3H3QLi (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 30 Aug 2013 12:11:38 -0400
+Message-ID: <5220C427.9030806@kernel.dk>
+Date: Fri, 30 Aug 2013 10:11:19 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Date: Tue, 6 Aug 2013 15:52:02 -0600
-Message-ID: <CAGRFgs1hbS8pT01+w50-iF3sj3b1gCCrf-zSpP0CGhnQ-utgrA@mail.gmail.com>
-Subject: Server mode problems with 2.1.1
-From: George Smith <glsmith555@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: Running Fio under AIX 7
+References: <795872394.588090.1377863589568.JavaMail.root@thomas-krenn.com>
+In-Reply-To: <795872394.588090.1377863589568.JavaMail.root@thomas-krenn.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: =?UTF-8?B?R2VvcmcgU2Now7ZuYmVyZ2Vy?= <gschoenberger@thomas-krenn.com>
+Cc: fio@vger.kernel.org
 
-Hello,
+On 08/30/2013 05:53 AM, Georg Schönberger wrote:
+> Hi fio users,
+> 
+> I am trying to run Fio under AIX 7 - according to the documentation there shouldn't be any problem with it.
+> For now I am getting the following error, do you have any idea what's the problem here (filesystem jfs/jfs2)?
 
-I have been using FIO (2.0.15) server mode successfully on Linux
-(CentOS 6) and Windows (2012) for perhaps the last 6 months.
+Odd, so it's posix_fadvise() getting EINVAL. Most likely reason for that
+is that fio is not picking up the right values for it.
 
-Today I built the new (as of a few days ago) FIO 2.1.1 on Linux, and
-everything seems fine there including server mode (Linux -> Linux).
+It finds them here, on this platform:
 
-On Windows (package downloaded from bluestop), however, server mode
-does not seem to work anymore.  To be clear, I'm running
+AIX aixbuild 3 5 00C1DC964C00
 
-fio --client <ip> job
+Does it need some other magic on AIX 7 to find them? You can bypass the
+error by setting invalidate_cache=0, but it would be great if you could
+dig around a bit in /usr/include and see what is up. Alternatively, if I
+can log into the machine, I can definitely fix it up.
 
-from Linux, to an
+-- 
+Jens Axboe
 
-fio --server
-
-instance running on Win2012.  The client connect hangs, and the server
-on the Windows box spews the following:
-
-fork is not implemented
-waitpid is not implemented
-fio: waitpid: Function not implemented
-waitpid is not implemented
-<repeat of the previous errors until the client or server is killed>
-
-I haven't really debugged this too much, was just wondering if I'm
-missing something major (being relatively new to FIO and this list).
-I'm assuming server mode is still supposed to work in these newer
-releases much the same way that the 2.0.15 I'm using does?
-
-Thanks,
-
---gls
