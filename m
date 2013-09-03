@@ -1,102 +1,43 @@
-Return-Path: <jcasse@chromium.org>
-From: Juan Casse <jcasse@chromium.org>
-Subject: [PATCH] Adds check for rand_seed during verify phase.
-Date: Tue, 17 Sep 2013 14:06:14 -0700
-Message-Id: <1379451974-16100-3-git-send-email-jcasse@chromium.org>
-In-Reply-To: <1379451974-16100-1-git-send-email-jcasse@chromium.org>
-References: <1379451974-16100-1-git-send-email-jcasse@chromium.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Grant Grundler <grundler@chromium.org>, fio@vger.kernel.org, Juan Casse <jcasse@chromium.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:43685 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760947Ab3ICWiz (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 3 Sep 2013 18:38:55 -0400
+Date: Tue, 3 Sep 2013 16:38:52 -0600
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH 2/2] Adds check for rand_seed during verify phase.
+Message-ID: <20130903223852.GD31170@kernel.dk>
+References: <1377552162-31741-1-git-send-email-jcasse@chromium.org>
+ <1377552162-31741-2-git-send-email-jcasse@chromium.org>
+ <CANEJEGuKzZeLfCoNX12Pp_4_Uj8iHjLX221c+qpYzgpWYgA-Pg@mail.gmail.com>
+ <521DA341.3050707@enovance.com>
+ <20130831043119.GU21481@kernel.dk>
+ <52244E75.5070405@enovance.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52244E75.5070405@enovance.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Erwan Velu <erwan@enovance.com>
+Cc: Grant Grundler <grundler@chromium.org>, Juan Casse <jcasse@chromium.org>, FIO_list <fio@vger.kernel.org>
 
-Improve data integrity checking of header (meta) data.
-verify_header() will now return an additional error:
-"verify: bad header rand seed ..."
-The addition of the check of rand_seed helps detect stale data from
-previous fio runs.
-This patch also disambiguates the different data mismatches by returning
-different error codes from verify_header().
+On Mon, Sep 02 2013, Erwan Velu wrote:
+> On 31/08/2013 06:31, Jens Axboe wrote:
+> >[...]
+> >Agree. A good commit message describes the need for the change. It needs
+> >to justify its own inclusion, so to speak. Basically it answers the key
+> >question of why this change is needed.
+> >
+> 
+> I don't know how you play with fio, but on my project I'm working on, that's
+> a good reason to refuse a patch even if the code is correct :o)
 
-Signed-off-by: Juan Casse <jcasse@chromium.org>
-Reviewed-by: Grant Grundler <grundler@chromium.org>
----
- verify.c | 45 ++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 36 insertions(+), 9 deletions(-)
+I tend to be (too) nice and provide the missing commit log, especially
+if it's for a feature and needs a description. But I have been known to
+push back as well and just ask for a description. Usually has not been a
+problem.
 
-diff --git a/verify.c b/verify.c
-index 9e88d61..957613c 100644
---- a/verify.c
-+++ b/verify.c
-@@ -644,18 +644,17 @@ static int verify_header(struct io_u *io_u, struct verify_header *hdr)
- 	uint32_t crc;
- 
- 	if (hdr->magic != FIO_HDR_MAGIC)
--		return 0;
--	if (hdr->len > io_u->buflen) {
--		log_err("fio: verify header exceeds buffer length (%u > %lu)\n", hdr->len, io_u->buflen);
--		return 0;
--	}
-+		return 1;
-+	if (hdr->len > io_u->buflen)
-+		return 2;
-+	if (hdr->rand_seed != io_u->rand_seed)
-+		return 3;
- 
- 	crc = fio_crc32c(p, offsetof(struct verify_header, crc32));
- 	if (crc == hdr->crc32)
--		return 1;
--
-+		return 0;
- 	log_err("fio: verify header crc %x, calculated %x\n", hdr->crc32, crc);
--	return 0;
-+	return 4;
- }
- 
- int verify_io_u(struct thread_data *td, struct io_u *io_u)
-@@ -692,13 +691,41 @@ int verify_io_u(struct thread_data *td, struct io_u *io_u)
- 			memswp(p, p + td->o.verify_offset, header_size);
- 		hdr = p;
- 
--		if (!verify_header(io_u, hdr)) {
-+		ret = verify_header(io_u, hdr);
-+		switch (ret) {
-+		case 0:
-+			break;
-+		case 1:
- 			log_err("verify: bad magic header %x, wanted %x at "
- 				"file %s offset %llu, length %u\n",
- 				hdr->magic, FIO_HDR_MAGIC,
- 				io_u->file->file_name,
- 				io_u->offset + hdr_num * hdr->len, hdr->len);
- 			return EILSEQ;
-+			break;
-+		case 2:
-+			log_err("fio: verify header exceeds buffer length (%u "
-+				"> %lu)\n", hdr->len, io_u->buflen);
-+			return EILSEQ;
-+			break;
-+		case 3:
-+			log_err("verify: bad header rand_seed %"PRIu64
-+				", wanted %"PRIu64" at file %s offset %llu, "
-+				"length %u\n",
-+				hdr->rand_seed, io_u->rand_seed,
-+				io_u->file->file_name,
-+				io_u->offset + hdr_num * hdr->len, hdr->len);
-+			return EILSEQ;
-+			break;
-+		case 4:
-+			return EILSEQ;
-+			break;
-+		default:
-+			log_err("verify: unknown header error at file %s "
-+			"offset %llu, length %u\n",
-+			io_u->file->file_name,
-+			io_u->offset + hdr_num * hdr->len, hdr->len);
-+			return EILSEQ;
- 		}
- 
- 		if (td->o.verify != VERIFY_NONE)
 -- 
-1.7.12.4
-
+Jens Axboe
 
