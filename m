@@ -1,59 +1,126 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailuogwhop.emc.com ([168.159.213.141]:33482 "EHLO
-	mailuogwhop.emc.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750830Ab3IXNQr convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 24 Sep 2013 09:16:47 -0400
-Received: from maildlpprd03.lss.emc.com (maildlpprd03.lss.emc.com [10.253.24.35])
-	by mailuogwprd04.lss.emc.com (Sentrion-MTA-4.3.0/Sentrion-MTA-4.3.0) with ESMTP id r8ODGjeV003638
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <fio@vger.kernel.org>; Tue, 24 Sep 2013 09:16:46 -0400
-Received: from mailusrhubprd04.lss.emc.com (mailusrhubprd04.lss.emc.com [10.253.24.22]) by maildlpprd03.lss.emc.com (RSA Interceptor) for <fio@vger.kernel.org>; Tue, 24 Sep 2013 09:16:35 -0400
-Received: from mxhub36.corp.emc.com (mxhub36.corp.emc.com [10.254.93.84])
-	by mailusrhubprd04.lss.emc.com (Sentrion-MTA-4.3.0/Sentrion-MTA-4.3.0) with ESMTP id r8ODGYZL027454
-	(version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=FAIL)
-	for <fio@vger.kernel.org>; Tue, 24 Sep 2013 09:16:35 -0400
-From: "Ruvinsky, Konstantin" <Konstantin.Ruvinsky@emc.com>
-Date: Tue, 24 Sep 2013 09:16:32 -0400
-Subject: data integrity test using job file
-Message-ID: <EEF9E3C12F20174DA289A981D6CCA6C8324A3CC645@MX44A.corp.emc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Return-Path: <jcasse@chromium.org>
+From: Juan Casse <jcasse@chromium.org>
+Subject: [PATCH 1/2] Adds check for numberio during verify phase.
+Date: Tue,  3 Sep 2013 18:15:25 -0700
+Message-Id: <1378257326-5280-1-git-send-email-jcasse@chromium.org>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Grant Grundler <grundler@chromium.org>, fio@vger.kernel.org, Juan Casse <jcasse@chromium.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+Currently, fio checks the block offset number in a block's header during
+the verify phase.
+We add a check for the io number (numberio) to detect stale blocks. This
+check is performed only on workloads that write data, as those workloads
+know what numberio was written to the blocks.
+This is separate from the verify_only option. The verify_only does a dry-run
+of the specified workload and then verifies once at the lst iteration. The
+implementation of verify_only will be submitted in a separate patch.
 
-Running the following job file at the beginning for write (fio -section=write fio-job.txt) and then for verify (fio -section=read fio-job.txt) I got correct results:
-were created 4 files kuku.1.0, kuku.2.0, kuku.3.0, kuku.4.0 by write and read verified them.
-Is there any possibility to accomplish write at the beginning and then verify process without -section parameter in a command line?
-I hoped that stonewall parameter allows to do this. But if I run "fio  fio-job.txt" eight files are created (additional files kuku.5.0 etc.) and read checks them with data corruption error.
+Signed-off-by: Juan Casse <jcasse@chromium.org>
+Reviewed-by: Grant Grundler <grundler@chromium.org>
+---
+ ioengine.h |  1 +
+ iolog.c    |  1 +
+ iolog.h    |  1 +
+ libfio.c   |  1 -
+ verify.c   | 14 +++++++++++++-
+ 5 files changed, 16 insertions(+), 2 deletions(-)
 
-[global]
-bs=32k
-ioengine=windowsaio
-numjobs=4
-thread
-direct=1
-size=100m
-directory=e:\
-random_generator=lfsr
-randrepeat=1
-filename_format=kuku.$jobnum.$filenum
-group_reporting
-verify=md5
+diff --git a/ioengine.h b/ioengine.h
+index 31662eb..812febd 100644
+--- a/ioengine.h
++++ b/ioengine.h
+@@ -50,6 +50,7 @@ struct io_u {
+ 	 */
+ 	unsigned long buflen;
+ 	unsigned long long offset;
++	unsigned short numberio;
+ 	void *buf;
+ 
+ 	/*
+diff --git a/iolog.c b/iolog.c
+index 9bcf0d8..6459d3b 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -188,6 +188,7 @@ void log_io_piece(struct thread_data *td, struct io_u *io_u)
+ 	ipo->file = io_u->file;
+ 	ipo->offset = io_u->offset;
+ 	ipo->len = io_u->buflen;
++	ipo->numberio = io_u->numberio;
+ 
+ 	if (io_u_should_trim(td, io_u)) {
+ 		flist_add_tail(&ipo->trim_list, &td->trim_list);
+diff --git a/iolog.h b/iolog.h
+index 8fedc19..94e0fc1 100644
+--- a/iolog.h
++++ b/iolog.h
+@@ -78,6 +78,7 @@ struct io_piece {
+ 		struct fio_file *file;
+ 	};
+ 	unsigned long long offset;
++	unsigned short numberio;
+ 	unsigned long len;
+ 	unsigned int flags;
+ 	enum fio_ddir ddir;
+diff --git a/libfio.c b/libfio.c
+index c26d6a3..6e290f4 100644
+--- a/libfio.c
++++ b/libfio.c
+@@ -83,7 +83,6 @@ static void reset_io_counters(struct thread_data *td)
+ 		td->this_io_blocks[ddir] = 0;
+ 		td->rate_bytes[ddir] = 0;
+ 		td->rate_blocks[ddir] = 0;
+-		td->io_issues[ddir] = 0;
+ 	}
+ 	td->zone_bytes = 0;
+ 
+diff --git a/verify.c b/verify.c
+index 9e88d61..70880f4 100644
+--- a/verify.c
++++ b/verify.c
+@@ -369,6 +369,15 @@ static int verify_io_u_meta(struct verify_header *hdr, struct vcont *vc)
+ 	if (td->o.verify_pattern_bytes)
+ 		ret |= verify_io_u_pattern(hdr, vc);
+ 
++	/*
++	 * For read-only workloads, the program cannot be certain of the
++	 * last numberio written to a block. Checking of numberio will be done
++	 * only for wrokloads that write data.
++	 */
++	if (td_write(td) || td_rw(td))
++		if (vh->numberio != io_u->numberio)
++			ret = EILSEQ;
++
+ 	if (!ret)
+ 		return 0;
+ 
+@@ -768,7 +777,7 @@ static void fill_meta(struct verify_header *hdr, struct thread_data *td,
+ 	vh->time_sec = io_u->start_time.tv_sec;
+ 	vh->time_usec = io_u->start_time.tv_usec;
+ 
+-	vh->numberio = td->io_issues[DDIR_WRITE];
++	vh->numberio = io_u->numberio;
+ 
+ 	vh->offset = io_u->offset + header_num * td->o.verify_interval;
+ }
+@@ -942,6 +951,8 @@ void populate_verify_io_u(struct thread_data *td, struct io_u *io_u)
+ 	if (td->o.verify == VERIFY_NULL)
+ 		return;
+ 
++	io_u->numberio = td->io_issues[io_u->ddir];
++
+ 	fill_pattern_headers(td, io_u, 0, 0);
+ }
+ 
+@@ -974,6 +985,7 @@ int get_next_verify(struct thread_data *td, struct io_u *io_u)
+ 
+ 		io_u->offset = ipo->offset;
+ 		io_u->buflen = ipo->len;
++		io_u->numberio = ipo->numberio;
+ 		io_u->file = ipo->file;
+ 		io_u->flags |= IO_U_F_VER_LIST;
+ 
+-- 
+1.7.12.4
 
-[write]
-rw=randwrite
-do_verify=0
 
-[read]
-stonewall
-rw=randread
-do_verify=1
-verify_fatal=1
-
-Thanks
-Konstantin
