@@ -1,27 +1,57 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:37154 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761482Ab3IDUMr (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 4 Sep 2013 16:12:47 -0400
-Message-ID: <5227943B.2020905@kernel.dk>
-Date: Wed, 04 Sep 2013 14:12:43 -0600
-From: Jens Axboe <axboe@kernel.dk>
-MIME-Version: 1.0
-Subject: Re: [PATCH] Remove duplicate LDFLAGS on -o lines
-References: <1378324827-10970-1-git-send-email-grundler@chromium.org>
-In-Reply-To: <1378324827-10970-1-git-send-email-grundler@chromium.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Grant Grundler <grundler@chromium.org>
-Cc: Juan Casse <jcasse@chromium.org>, fio@vger.kernel.org
+Return-Path: <grundler@chromium.org>
+From: Grant Grundler <grundler@chromium.org>
+Subject: [PATCH] Remove duplicate LDFLAGS on -o lines
+Date: Wed,  4 Sep 2013 13:00:27 -0700
+Message-Id: <1378324827-10970-1-git-send-email-grundler@chromium.org>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Juan Casse <jcasse@chromium.org>, fio@vger.kernel.org, Grant Grundler <grundler@chromium.org>
+List-ID: <fio@vger.kernel.org>
 
-On 09/04/2013 02:00 PM, Grant Grundler wrote:
-> Only need to list LDFLAGS once on each line. :)
+Only need to list LDFLAGS once on each line. :)
 
-Applied!
+Signed-off-by: Grant Grundler <grundler@chromium.org>
+---
+ Makefile | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
+diff --git a/Makefile b/Makefile
+index eb0e892..7c0e798 100644
+--- a/Makefile
++++ b/Makefile
+@@ -246,25 +246,25 @@ printing.o: printing.c printing.h
+ 	$(QUIET_CC)$(CC) $(CFLAGS) $(GTK_CFLAGS) $(CPPFLAGS) -c printing.c
+ 
+ t/stest: $(T_SMALLOC_OBJS)
+-	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(T_SMALLOC_OBJS) $(LIBS) $(LDFLAGS)
++	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(T_SMALLOC_OBJS) $(LIBS)
+ 
+ t/ieee754: $(T_IEEE_OBJS)
+-	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(T_IEEE_OBJS) $(LIBS) $(LDFLAGS)
++	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(T_IEEE_OBJS) $(LIBS)
+ 
+ fio: $(FIO_OBJS)
+-	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(FIO_OBJS) $(LIBS) $(LDFLAGS)
++	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(FIO_OBJS) $(LIBS)
+ 
+ gfio: $(GFIO_OBJS)
+-	$(QUIET_LINK)$(CC) $(LIBS) -o gfio $(GFIO_OBJS) $(LIBS) $(GTK_LDFLAGS)
++	$(QUIET_LINK)$(CC) $(LDFLAGS) -o gfio $(GFIO_OBJS) $(LIBS) $(GTK_LDFLAGS)
+ 
+ t/genzipf: $(T_ZIPF_OBJS)
+-	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(T_ZIPF_OBJS) $(LIBS) $(LDFLAGS)
++	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(T_ZIPF_OBJS) $(LIBS)
+ 
+ t/axmap: $(T_AXMAP_OBJS)
+-	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(T_AXMAP_OBJS) $(LIBS) $(LDFLAGS)
++	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(T_AXMAP_OBJS) $(LIBS)
+ 
+ t/lfsr-test: $(T_LFSR_TEST_OBJS)
+-	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(T_LFSR_TEST_OBJS) $(LIBS) $(LDFLAGS)
++	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(T_LFSR_TEST_OBJS) $(LIBS)
+ 
+ clean: FORCE
+ 	-rm -f .depend $(FIO_OBJS) $(GFIO_OBJS) $(OBJS) $(T_OBJS) $(PROGS) $(T_PROGS) core.* core gfio FIO-VERSION-FILE *.d config-host.mak config-host.h
 -- 
-Jens Axboe
+1.8.4
+
 
