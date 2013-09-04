@@ -1,57 +1,97 @@
-Return-Path: <jcasse@google.com>
-MIME-Version: 1.0
-Date: Wed, 18 Sep 2013 09:48:56 -0700
-Message-ID: <CAPet_23oDq3Xa=tBJbEYPSKDx292DiA2s2-dhFcEmFMJGhPmcg@mail.gmail.com>
-Subject: Testing
-From: Juan Casse <jcasse@google.com>
-Content-Type: multipart/mixed; boundary=047d7b86c5ca9e0b1c04e6ab364b
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: Grant Grundler <grundler@chromium.org>
+Return-Path: <jcasse@chromium.org>
+From: Juan Casse <jcasse@chromium.org>
+Subject: [PATCH 2/2] Adds check for rand_seed during verify phase.
+Date: Tue,  3 Sep 2013 18:15:26 -0700
+Message-Id: <1378257326-5280-2-git-send-email-jcasse@chromium.org>
+In-Reply-To: <1378257326-5280-1-git-send-email-jcasse@chromium.org>
+References: <1378257326-5280-1-git-send-email-jcasse@chromium.org>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Grant Grundler <grundler@chromium.org>, fio@vger.kernel.org, Juan Casse <jcasse@chromium.org>
 List-ID: <fio@vger.kernel.org>
 
---047d7b86c5ca9e0b1c04e6ab364b
-Content-Type: text/plain; charset=ISO-8859-1
+Improve data integrity checking and detect stale blocks from previous
+runs.
 
-Hi Jens:
+Signed-off-by: Juan Casse <jcasse@chromium.org>
+Reviewed-by: Grant Grundler <grundler@chromium.org>
+---
+ verify.c | 45 ++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 36 insertions(+), 9 deletions(-)
 
-Attached is the test script that I have been using to test my changes.
-Do you have some other tests that I could use?
-
-Regards,
-Juan
-
---047d7b86c5ca9e0b1c04e6ab364b
-Content-Type: application/x-sh; name="jcasse_test.sh"
-Content-Disposition: attachment; filename="jcasse_test.sh"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_hlqsbvd10
-
-IyEvYmluL2Jhc2gKCkxPR0ZJTEU9amNhc3NlX2xvZwpKT0JGSUxFPWpjYXNzZS5maW8KCldPUktM
-T0FEUz0oInJlYWQiICJyYW5kcmVhZCIgIndyaXRlIiAicmFuZHdyaXRlIiAicnciICJyYW5kcnci
-KQojSU9FTkdJTkVTPSgicHN5bmMiICJ2c3luYyIgInBzeW5jdiIgIm1tYXAiICJzcGxpY2UiICJz
-eXNsZXQtcnciICJndWFzaSIpCklPRU5HSU5FUz0oInN5bmMiICJsaWJhaW8iKQpSQU5ET01NQVA9
-KCIiICJub3JhbmRvbW1hcCIpClJBTkRPTUdFTj0oInRhdXN3b3J0aGUiICJsZnNyIikKSU9ESVJF
-Q1Q9KCJkaXJlY3Q9MCIgImRpcmVjdD0xIikKSU9ERVBUSD0oImlvZGVwdGg9MSIgImlvZGVwdGg9
-MiIpCgplY2hvIFdvcmtsb2FkcyB0aGF0IGZhaWxlZCB2ZXJpZmljYXRpb246ID4gJExPR0ZJTEUK
-CmZvciB3b3JrbG9hZCBpbiAiJHtXT1JLTE9BRFNbQF19IgpkbwoKICAgIGZvciBpb2VuZ2luZSBp
-biAiJHtJT0VOR0lORVNbQF19IgogICAgZG8KCiAgICAgICAgZm9yIHJhbmRvbWdlbiBpbiAiJHtS
-QU5ET01HRU5bQF19IgogICAgICAgIGRvCgogICAgICAgICAgICBmb3IgcmFuZG9tbWFwIGluICIk
-e1JBTkRPTU1BUFtAXX0iCiAgICAgICAgICAgIGRvCgogICAgICAgICAgICAgICAgZm9yIGlvZGly
-ZWN0IGluICIke0lPRElSRUNUW0BdfSIKICAgICAgICAgICAgICAgIGRvCgogICAgICAgICAgICAg
-ICAgICAgIGZvciBpb2RlcHRoIGluICIke0lPREVQVEhbQF19IgogICAgICAgICAgICAgICAgICAg
-IGRvCgojIENyZWF0ZSBqb2IgZmlsZQpjYXQgPiAkSk9CRklMRSA8PCBFbmQtb2Ytam9iCltnbG9i
-YWxdCmZpbGVuYW1lPWpjYXNzZV9kYXRhCnNpemU9MW0KYnM9NGsKbG9vcHM9MgpyYW5kcmVwZWF0
-PTEKdmVyaWZ5PW1ldGEKdmVyaWZ5X3BhdHRlcm49MHhmZmZmZmZmZmZmZmZmZmZmCnZlcmlmeV9k
-dW1wPTAKY29udGludWVfb25fZXJyb3I9dmVyaWZ5CgpbamNhc3NlX2pvYl0KcmVhZHdyaXRlPSR7
-d29ya2xvYWR9CiR7aW9kaXJlY3R9CiR7aW9kZXB0aH0KaW9lbmdpbmU9JHtpb2VuZ2luZX0KcmFu
-ZG9tX2dlbmVyYXRvcj0ke3JhbmRvbWdlbn0KJHtyYW5kb21tYXB9CkVuZC1vZi1qb2IKCiMgUnVu
-IGZpbwplcnI9ImAuL2ZpbyAkSk9CRklMRSB8IGdyZXAgZXJyb3JzIHwgY3V0IC1jMjRgIgplcnI9
-ImAuL2ZpbyAkSk9CRklMRSAtLXZlcmlmeW9ubHkgfCBncmVwIGVycm9ycyB8IGN1dCAtYzI0YCIK
-CiMgTG9nIHdvcmtsb2FkcyB0aGF0IGZhaWxlZCB2ZXJpZmljYXRpb24KaWYgWyAkZXJyICE9IDAg
-XQp0aGVuCmNhdCA+PiAkTE9HRklMRSA8PCBFT0YKJHt3b3JrbG9hZH0gXAoke2lvZGlyZWN0fSBc
-CiR7aW9kZXB0aH0gXAoke2lvZW5naW5lfSBcCiR7cmFuZG9tZ2VufSBcCiR7cmFuZG9tbWFwfQpF
-T0YKZmkKCiAgICAgICAgICAgICAgICAgICAgZG9uZQoKICAgICAgICAgICAgICAgIGRvbmUKCiAg
-ICAgICAgICAgIGRvbmUKCiAgICAgICAgZG9uZQoKICAgIGRvbmUKCmRvbmUK
---047d7b86c5ca9e0b1c04e6ab364b--
+diff --git a/verify.c b/verify.c
+index 70880f4..62814b9 100644
+--- a/verify.c
++++ b/verify.c
+@@ -653,18 +653,17 @@ static int verify_header(struct io_u *io_u, struct verify_header *hdr)
+ 	uint32_t crc;
+ 
+ 	if (hdr->magic != FIO_HDR_MAGIC)
+-		return 0;
+-	if (hdr->len > io_u->buflen) {
+-		log_err("fio: verify header exceeds buffer length (%u > %lu)\n", hdr->len, io_u->buflen);
+-		return 0;
+-	}
++		return 1;
++	if (hdr->len > io_u->buflen)
++		return 2;
++	if (hdr->rand_seed != io_u->rand_seed)
++		return 3;
+ 
+ 	crc = fio_crc32c(p, offsetof(struct verify_header, crc32));
+ 	if (crc == hdr->crc32)
+-		return 1;
+-
++		return 0;
+ 	log_err("fio: verify header crc %x, calculated %x\n", hdr->crc32, crc);
+-	return 0;
++	return 4;
+ }
+ 
+ int verify_io_u(struct thread_data *td, struct io_u *io_u)
+@@ -701,13 +700,41 @@ int verify_io_u(struct thread_data *td, struct io_u *io_u)
+ 			memswp(p, p + td->o.verify_offset, header_size);
+ 		hdr = p;
+ 
+-		if (!verify_header(io_u, hdr)) {
++		ret = verify_header(io_u, hdr);
++		switch (ret) {
++		case 0:
++			break;
++		case 1:
+ 			log_err("verify: bad magic header %x, wanted %x at "
+ 				"file %s offset %llu, length %u\n",
+ 				hdr->magic, FIO_HDR_MAGIC,
+ 				io_u->file->file_name,
+ 				io_u->offset + hdr_num * hdr->len, hdr->len);
+ 			return EILSEQ;
++			break;
++		case 2:
++			log_err("fio: verify header exceeds buffer length (%u "
++				"> %lu)\n", hdr->len, io_u->buflen);
++			return EILSEQ;
++			break;
++		case 3:
++			log_err("verify: bad header rand_seed %"PRIu64
++				", wanted %"PRIu64" at file %s offset %llu, "
++				"length %u\n",
++				hdr->rand_seed, io_u->rand_seed,
++				io_u->file->file_name,
++				io_u->offset + hdr_num * hdr->len, hdr->len);
++			return EILSEQ;
++			break;
++		case 4:
++			return EILSEQ;
++			break;
++		default:
++			log_err("verify: unknown header error at file %s "
++			"offset %llu, length %u\n",
++			io_u->file->file_name,
++			io_u->offset + hdr_num * hdr->len, hdr->len);
++			return EILSEQ;
+ 		}
+ 
+ 		if (td->o.verify != VERIFY_NONE)
+-- 
+1.7.12.4
 
 
