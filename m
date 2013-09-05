@@ -1,100 +1,114 @@
-Return-Path: <jcasse@chromium.org>
-From: Juan Casse <jcasse@chromium.org>
-Subject: [PATCH] Adds check for rand_seed during verify phase.
-Date: Thu,  5 Sep 2013 20:11:42 -0700
-Message-Id: <1378437102-10989-1-git-send-email-jcasse@chromium.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Grant Grundler <grundler@chromium.org>, fio@vger.kernel.org, Juan Casse <jcasse@chromium.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-ie0-f177.google.com ([209.85.223.177]:37931 "EHLO
+	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752582Ab3IEXM4 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 5 Sep 2013 19:12:56 -0400
+Received: by mail-ie0-f177.google.com with SMTP id e14so5168294iej.22
+        for <fio@vger.kernel.org>; Thu, 05 Sep 2013 16:12:55 -0700 (PDT)
+MIME-Version: 1.0
+Date: Thu, 5 Sep 2013 16:12:55 -0700
+Message-ID: <CANEJEGs8PRprCWAa_a_kMPqJNCZ8zKRDvab0yy+M6SKMdkqk7g@mail.gmail.com>
+Subject: bug in fio file offset tracking
+From: Grant Grundler <grundler@chromium.org>
+Content-Type: multipart/mixed; boundary=20cf3010ec25e6d79e04e5ab0f40
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: FIO_list <fio@vger.kernel.org>
+Cc: Juan Casse <jcasse@chromium.org>
 
-Improve data integrity checking of header (meta) data.
-verify_header() will now return an additional error:
-"verify: bad header rand seed ..."
-The addition of the check of rand_seed helps detect stale data from
-previous fio runs.
-This patch also disambiguates the different data mismatches by returning
-different error codes from verify_header().
+--20cf3010ec25e6d79e04e5ab0f40
+Content-Type: text/plain; charset=UTF-8
 
-Signed-off-by: Juan Casse <jcasse@chromium.org>
-Reviewed-by: Grant Grundler <grundler@chromium.org>
----
- verify.c | 45 ++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 36 insertions(+), 9 deletions(-)
+Juan found a bug in fio verify. On the second iteration of verifying a
+file, the position tracking is broken. In the strace output below, the
+second lseek is missing after re-opening the test file to verify a
+second time.
 
-diff --git a/verify.c b/verify.c
-index 9e88d61..957613c 100644
---- a/verify.c
-+++ b/verify.c
-@@ -644,18 +644,17 @@ static int verify_header(struct io_u *io_u, struct verify_header *hdr)
- 	uint32_t crc;
- 
- 	if (hdr->magic != FIO_HDR_MAGIC)
--		return 0;
--	if (hdr->len > io_u->buflen) {
--		log_err("fio: verify header exceeds buffer length (%u > %lu)\n", hdr->len, io_u->buflen);
--		return 0;
--	}
-+		return 1;
-+	if (hdr->len > io_u->buflen)
-+		return 2;
-+	if (hdr->rand_seed != io_u->rand_seed)
-+		return 3;
- 
- 	crc = fio_crc32c(p, offsetof(struct verify_header, crc32));
- 	if (crc == hdr->crc32)
--		return 1;
--
-+		return 0;
- 	log_err("fio: verify header crc %x, calculated %x\n", hdr->crc32, crc);
--	return 0;
-+	return 4;
- }
- 
- int verify_io_u(struct thread_data *td, struct io_u *io_u)
-@@ -692,13 +691,41 @@ int verify_io_u(struct thread_data *td, struct io_u *io_u)
- 			memswp(p, p + td->o.verify_offset, header_size);
- 		hdr = p;
- 
--		if (!verify_header(io_u, hdr)) {
-+		ret = verify_header(io_u, hdr);
-+		switch (ret) {
-+		case 0:
-+			break;
-+		case 1:
- 			log_err("verify: bad magic header %x, wanted %x at "
- 				"file %s offset %llu, length %u\n",
- 				hdr->magic, FIO_HDR_MAGIC,
- 				io_u->file->file_name,
- 				io_u->offset + hdr_num * hdr->len, hdr->len);
- 			return EILSEQ;
-+			break;
-+		case 2:
-+			log_err("fio: verify header exceeds buffer length (%u "
-+				"> %lu)\n", hdr->len, io_u->buflen);
-+			return EILSEQ;
-+			break;
-+		case 3:
-+			log_err("verify: bad header rand_seed %"PRIu64
-+				", wanted %"PRIu64" at file %s offset %llu, "
-+				"length %u\n",
-+				hdr->rand_seed, io_u->rand_seed,
-+				io_u->file->file_name,
-+				io_u->offset + hdr_num * hdr->len, hdr->len);
-+			return EILSEQ;
-+			break;
-+		case 4:
-+			return EILSEQ;
-+			break;
-+		default:
-+			log_err("verify: unknown header error at file %s "
-+			"offset %llu, length %u\n",
-+			io_u->file->file_name,
-+			io_u->offset + hdr_num * hdr->len, hdr->len);
-+			return EILSEQ;
- 		}
- 
- 		if (td->o.verify != VERIFY_NONE)
--- 
-1.7.12.4
+I suspect the problem is fio is tracking it's position in the file but
+didn't clear that position tracking after closing (or opening) the
+file. And since fio thinks it's at the right position, no lseek is
+issued. Just a guess.
+
+job files attached. Very small test file gets created (64KB).
+
+cheers,
+grant
+
+./fio example/juan_write.fio
+...
+strace -f -e lseek,read,close,open ./fio examples/juan_verify.fio
+...
+[pid 21828] open("juan_write_file", O_RDONLY) = 3
+[pid 21828] lseek(3, 57344, SEEK_SET)   = 57344
+[pid 21828] read(3, "\312\254\n\0\0
+\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0\340\0\0\0\0\0\0"...,
+8192) = 8192
+[pid 21828] lseek(3, 0, SEEK_SET)       = 0
+[pid 21828] read(3, "\312\254\n\0\0
+\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0\0\0\0\0\0\0\0"...,
+8192) = 8192
+[pid 21828] read(3, "\312\254\n\0\0
+\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0 \0\0\0\0\0\0"...,
+8192) = 8192
+[pid 21828] read(3, "\312\254\n\0\0
+\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0@\0\0\0\0\0\0"...,
+8192) = 8192
+[pid 21828] read(3, "\312\254\n\0\0
+\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0`\0\0\0\0\0\0"...,
+8192) = 8192
+[pid 21828] read(3, "\312\254\n\0\0
+\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0\200\0\0\0\0\0\0"...,
+8192) = 8192
+[pid 21828] read(3, "\312\254\n\0\0
+\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0\240\0\0\0\0\0\0"...,
+8192) = 8192
+[pid 21828] read(3, "\312\254\n\0\0
+\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0\300\0\0\0\0\0\0"...,
+8192) = 8192
+[pid 21828] close(3)                    = 0
+[pid 21828] open("juan_write_file", O_RDONLY) = 3
+[pid 21828] read(3, "\312\254\n\0\0
+\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0\0\0\0\0\0\0\0"...,
+8192) = 8192
+meta: verify failed at file juan_write_file offset 57344, length 8192
+[pid 21828] open("juan_write_file.57344.received",
+O_WRONLY|O_CREAT|O_TRUNC, 0644) = 4
+[pid 21828] close(4)                    = 0
+       received data dumped as juan_write_file.57344.received
+[pid 21828] open("juan_write_file.57344.expected",
+O_WRONLY|O_CREAT|O_TRUNC, 0644) = 4
+[pid 21828] close(4)                    = 0
+       expected data dumped as juan_write_file.57344.expected
+[pid 21828] lseek(3, 0, SEEK_SET)       = 0
+[pid 21828] read(3, "\312\254\n\0\0
+\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0\0\0\0\0\0\0\0"...,
+8192) = 8192
+[pid 21828] read(3,  <unfinished ...>
+
+--20cf3010ec25e6d79e04e5ab0f40
+Content-Type: application/octet-stream; name="juan_write.fio"
+Content-Disposition: attachment; filename="juan_write.fio"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_hl8l7olf0
+
+W2p1YW5fd3JpdGVdCnJlYWR3cml0ZT1yYW5kd3JpdGUKcmFuZHJlcGVhdD0xCnNpemU9NjRrCmJz
+PThrCmlvZW5naW5lPXN5bmMKZmlsZW5hbWU9anVhbl93cml0ZV9maWxlCm5vcmFuZG9tbWFwCmxv
+b3BzPTIKdmVyaWZ5PW1ldGEKdmVyaWZ5X3BhdHRlcm49MHhmZmZmZmZmZmZmZmZmZmZmCnZlcmlm
+eV9kdW1wPTEKY29udGludWVfb25fZXJyb3I9dmVyaWZ5CnJhbmRvbV9nZW5lcmF0b3I9bGZzcgo=
+--20cf3010ec25e6d79e04e5ab0f40
+Content-Type: application/octet-stream; name="juan_verify.fio"
+Content-Disposition: attachment; filename="juan_verify.fio"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_hl8l7xkg1
+
+W2p1YW5fdmVyaWZ5XQpyZWFkd3JpdGU9cmFuZHJlYWQKcmFuZHJlcGVhdD0xCnNpemU9NjRrCmJz
+PThrCmlvZW5naW5lPXN5bmMKbm9yYW5kb21tYXAKZmlsZW5hbWU9anVhbl93cml0ZV9maWxlCmxv
+b3BzPTIKdmVyaWZ5PW1ldGEKdmVyaWZ5X3BhdHRlcm49MHhmZmZmZmZmZmZmZmZmZmZmCnZlcmlm
+eV9kdW1wPTEKY29udGludWVfb25fZXJyb3I9dmVyaWZ5CnJhbmRvbV9nZW5lcmF0b3I9bGZzcgo=
+--20cf3010ec25e6d79e04e5ab0f40--
+--:
+To unsubscribe from this list: send the line "unsubscribe fio" in
+the body of a message to majordomo@vger.kernel.org: 
+More majordomo info at  http: //vger.kernel.org/majordomo-info.html
 
 
