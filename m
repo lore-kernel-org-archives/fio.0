@@ -1,24 +1,46 @@
-Return-Path: <dave@twin.jikos.cz>
-Date: Mon, 9 Sep 2013 15:06:30 +0200
-From: David Sterba <dave@jikos.cz>
-Subject: Re: fio --showcmd fails if directory= does not exist
-Message-ID: <20130909130630.GD9122@twin.jikos.cz>
-Reply-To: dave@jikos.cz
-References: <20130906123812.GB9122@twin.jikos.cz>
- <5229FC39.50905@kernel.dk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:45856 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753785Ab3IFQBF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 6 Sep 2013 12:01:05 -0400
+Message-ID: <5229FC39.50905@kernel.dk>
+Date: Fri, 06 Sep 2013 10:00:57 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5229FC39.50905@kernel.dk>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: dave@jikos.cz, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Subject: Re: fio --showcmd fails if directory= does not exist
+References: <20130906123812.GB9122@twin.jikos.cz>
+In-Reply-To: <20130906123812.GB9122@twin.jikos.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: dave@jikos.cz
+Cc: fio@vger.kernel.org
 
-On Fri, Sep 06, 2013 at 10:00:57AM -0600, Jens Axboe wrote:
-> That's definitely a bug, the callbacks should not verify anything if we
-> are only in dump or parse only mode. I've committed a fix.
+On 09/06/2013 06:38 AM, David Sterba wrote:
+> Hi,
+> 
+> I'm using "fio --showcmd file.job" to convert a script to plain
+> commandline arguments and this fails if the directory specified in job
+> file does not exist. While this has to be an error if the job is being
+> executed, it should not be in context of --showcmd.
+> 
+> To reproduce:
+> $ cat job.fio
+> [global]
+> directory=/x
+> 
+> $ fio --showcmd job.fio
+> fio: /x is not a directory
+> fio: failed parsing directory=/x
+> fio: job global dropped
+> 
+> Expected output:
+> fio --directory=/x
 
-Thanks, I've verified that all my .fio scripts are converted fine.
+That's definitely a bug, the callbacks should not verify anything if we
+are only in dump or parse only mode. I've committed a fix.
 
-david
+-- 
+Jens Axboe
 
