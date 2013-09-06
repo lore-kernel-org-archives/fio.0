@@ -1,71 +1,100 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail.uni-ulm.de ([134.60.1.11]:56825 "EHLO mail.uni-ulm.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751948Ab3IRO6n (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 18 Sep 2013 10:58:43 -0400
-Received: from wattwurm.rz.uni-ulm.de (wattwurm.rz.uni-ulm.de [134.60.2.82])
-	(authenticated bits=0)
-	by mail.uni-ulm.de (8.14.6/8.14.2) with ESMTP id r8IEwZMH023870
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES128-SHA bits=128 verify=NOT)
-	for <fio@vger.kernel.org>; Wed, 18 Sep 2013 16:58:41 +0200 (CEST)
-Date: Wed, 18 Sep 2013 16:58:30 +0200
-From: Juergen Salk <juergen.salk@uni-ulm.de>
-Subject: Amount of data read with mixed workload sequential/random with
- percentage_random set
-Message-ID: <20130918145830.GA24714@wattwurm.rz.uni-ulm.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Return-Path: <jcasse@chromium.org>
+From: Juan Casse <jcasse@chromium.org>
+Subject: [PATCH] Adds check for rand_seed during verify phase.
+Date: Thu,  5 Sep 2013 20:11:42 -0700
+Message-Id: <1378437102-10989-1-git-send-email-jcasse@chromium.org>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Grant Grundler <grundler@chromium.org>, fio@vger.kernel.org, Juan Casse <jcasse@chromium.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+Improve data integrity checking of header (meta) data.
+verify_header() will now return an additional error:
+"verify: bad header rand seed ..."
+The addition of the check of rand_seed helps detect stale data from
+previous fio runs.
+This patch also disambiguates the different data mismatches by returning
+different error codes from verify_header().
 
-given the following job file ...
+Signed-off-by: Juan Casse <jcasse@chromium.org>
+Reviewed-by: Grant Grundler <grundler@chromium.org>
+---
+ verify.c | 45 ++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 36 insertions(+), 9 deletions(-)
 
---- snip ---
-
-[global]
-ioengine=sync
-direct=0
-# Block sizes for I/O units: 25% 19k, 15% 177k, 60% 350k 
-bssplit=19k/25:177k/15:350k/60
-# Use mixed workload: 30% random IO, 70% sequential IO
-percentage_random=30
-size=${SIZE}
-numjobs=${NUMJOBS}
-runtime=${RUNTIME}
-directory=${DIRECTORY}
-
-[application]
-# Define of I/O pattern: Random read. 
-rw=randread
-
---- snip ---
-
-This is run with the following command: 
-
-$ RUNTIME=0 NUMJOBS=4 SIZE=4096m DIRECTORY=/work/testsoft fio jobfile.fio >fio.out 2>&1
-
-I have noticed from the output file, that this results in different 
-amounts of data read by the individual processes:
-
-$ grep io= fio.out
-read : io=5847.5MB, bw=149458KB/s, iops=627, runt= 40063msec
-read : io=4096.2MB, bw=140358KB/s, iops=595, runt= 29884msec
-read : io=4096.3MB, bw=140889KB/s, iops=596, runt= 29772msec
-read : io=5246.4MB, bw=134821KB/s, iops=560, runt= 39847msec
- READ: io=19286MB, aggrb=492947KB/s, minb=134820KB/s, maxb=149458KB/s, mint=29772msec, maxt=40063msec 
-
-I have expected that every individual process will read 
-its 4096 MB and then stop further reading. Or am I missing 
-something?
-
-Thanks in advance.
-
-Best regards,
-
-Juergen
+diff --git a/verify.c b/verify.c
+index 9e88d61..957613c 100644
+--- a/verify.c
++++ b/verify.c
+@@ -644,18 +644,17 @@ static int verify_header(struct io_u *io_u, struct verify_header *hdr)
+ 	uint32_t crc;
+ 
+ 	if (hdr->magic != FIO_HDR_MAGIC)
+-		return 0;
+-	if (hdr->len > io_u->buflen) {
+-		log_err("fio: verify header exceeds buffer length (%u > %lu)\n", hdr->len, io_u->buflen);
+-		return 0;
+-	}
++		return 1;
++	if (hdr->len > io_u->buflen)
++		return 2;
++	if (hdr->rand_seed != io_u->rand_seed)
++		return 3;
+ 
+ 	crc = fio_crc32c(p, offsetof(struct verify_header, crc32));
+ 	if (crc == hdr->crc32)
+-		return 1;
+-
++		return 0;
+ 	log_err("fio: verify header crc %x, calculated %x\n", hdr->crc32, crc);
+-	return 0;
++	return 4;
+ }
+ 
+ int verify_io_u(struct thread_data *td, struct io_u *io_u)
+@@ -692,13 +691,41 @@ int verify_io_u(struct thread_data *td, struct io_u *io_u)
+ 			memswp(p, p + td->o.verify_offset, header_size);
+ 		hdr = p;
+ 
+-		if (!verify_header(io_u, hdr)) {
++		ret = verify_header(io_u, hdr);
++		switch (ret) {
++		case 0:
++			break;
++		case 1:
+ 			log_err("verify: bad magic header %x, wanted %x at "
+ 				"file %s offset %llu, length %u\n",
+ 				hdr->magic, FIO_HDR_MAGIC,
+ 				io_u->file->file_name,
+ 				io_u->offset + hdr_num * hdr->len, hdr->len);
+ 			return EILSEQ;
++			break;
++		case 2:
++			log_err("fio: verify header exceeds buffer length (%u "
++				"> %lu)\n", hdr->len, io_u->buflen);
++			return EILSEQ;
++			break;
++		case 3:
++			log_err("verify: bad header rand_seed %"PRIu64
++				", wanted %"PRIu64" at file %s offset %llu, "
++				"length %u\n",
++				hdr->rand_seed, io_u->rand_seed,
++				io_u->file->file_name,
++				io_u->offset + hdr_num * hdr->len, hdr->len);
++			return EILSEQ;
++			break;
++		case 4:
++			return EILSEQ;
++			break;
++		default:
++			log_err("verify: unknown header error at file %s "
++			"offset %llu, length %u\n",
++			io_u->file->file_name,
++			io_u->offset + hdr_num * hdr->len, hdr->len);
++			return EILSEQ;
+ 		}
+ 
+ 		if (td->o.verify != VERIFY_NONE)
+-- 
+1.7.12.4
 
 
