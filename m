@@ -1,126 +1,51 @@
-Return-Path: <jcasse@chromium.org>
-From: Juan Casse <jcasse@chromium.org>
-Subject: [PATCH 1/2] Adds check for numberio during verify phase.
-Date: Tue,  3 Sep 2013 18:10:29 -0700
-Message-Id: <1378257030-4652-1-git-send-email-jcasse@chromium.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Grant Grundler <grundler@chromium.org>, fio@vger.kernel.org, Juan Casse <jcasse@chromium.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:59550 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751097Ab3IHBcH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 7 Sep 2013 21:32:07 -0400
+Date: Sat, 7 Sep 2013 19:32:03 -0600
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] Adds verify_only option.
+Message-ID: <20130908013203.GJ31170@kernel.dk>
+References: <1378437152-11128-1-git-send-email-jcasse@chromium.org>
+ <5229EACA.7090009@kernel.dk>
+ <CAPet_21-oPZ2bEQw_Uwq2GdM4T5HNUcN2eqTPifqRpCSEE-_cA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAPet_21-oPZ2bEQw_Uwq2GdM4T5HNUcN2eqTPifqRpCSEE-_cA@mail.gmail.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Juan Casse <jcasse@google.com>
+Cc: Juan Casse <jcasse@chromium.org>, Grant Grundler <grundler@chromium.org>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Currently, fio checks the block offset number in a block's header during
-the verify phase.
-We add a check for the io number (numberio) to detect stale blocks. This
-check is performed only on workloads that write data, as those workloads
-know what numberio was written to the blocks.
-This is separate from the verify_only option. The verify_only does a dry-run
-of the specified workload and then verifies once at the lst iteration. The
-implementation of verify_only will be submitted in a separate patch.
+On Fri, Sep 06 2013, Juan Casse wrote:
+> On Fri, Sep 6, 2013 at 7:46 AM, Jens Axboe <axboe@kernel.dk> wrote:
+> ...
+> > Please take a look at how this is done for the experimental_verify. The
+> > writes are skipped much sooner and generically, there's no need to
+> > enforce any sort of specific IO engine or verify type.
+> 
+> From your reply I understood that you want to skip do_io() all
+> together and call a function that will somehow replicate the workload
+> and compute the numberio for each block. Is that what you meant?
 
-Signed-off-by: Juan Casse <jcasse@chromium.org>
-Reviewed-by: Grant Grundler <grundler@chromium.org>
----
- ioengine.h |  1 +
- iolog.c    |  1 +
- iolog.h    |  1 +
- libfio.c   |  1 -
- verify.c   | 14 +++++++++++++-
- 5 files changed, 16 insertions(+), 2 deletions(-)
+Yes, you want the logic to be in the realm of do_verify(). See the
+experimental verify. It basically rewinds the various random/lfsr dials
+and replays, skips writes, etc.
 
-diff --git a/ioengine.h b/ioengine.h
-index 31662eb..812febd 100644
---- a/ioengine.h
-+++ b/ioengine.h
-@@ -50,6 +50,7 @@ struct io_u {
- 	 */
- 	unsigned long buflen;
- 	unsigned long long offset;
-+	unsigned short numberio;
- 	void *buf;
- 
- 	/*
-diff --git a/iolog.c b/iolog.c
-index 9bcf0d8..6459d3b 100644
---- a/iolog.c
-+++ b/iolog.c
-@@ -188,6 +188,7 @@ void log_io_piece(struct thread_data *td, struct io_u *io_u)
- 	ipo->file = io_u->file;
- 	ipo->offset = io_u->offset;
- 	ipo->len = io_u->buflen;
-+	ipo->numberio = io_u->numberio;
- 
- 	if (io_u_should_trim(td, io_u)) {
- 		flist_add_tail(&ipo->trim_list, &td->trim_list);
-diff --git a/iolog.h b/iolog.h
-index 8fedc19..94e0fc1 100644
---- a/iolog.h
-+++ b/iolog.h
-@@ -78,6 +78,7 @@ struct io_piece {
- 		struct fio_file *file;
- 	};
- 	unsigned long long offset;
-+	unsigned short numberio;
- 	unsigned long len;
- 	unsigned int flags;
- 	enum fio_ddir ddir;
-diff --git a/libfio.c b/libfio.c
-index c26d6a3..6e290f4 100644
---- a/libfio.c
-+++ b/libfio.c
-@@ -83,7 +83,6 @@ static void reset_io_counters(struct thread_data *td)
- 		td->this_io_blocks[ddir] = 0;
- 		td->rate_bytes[ddir] = 0;
- 		td->rate_blocks[ddir] = 0;
--		td->io_issues[ddir] = 0;
- 	}
- 	td->zone_bytes = 0;
- 
-diff --git a/verify.c b/verify.c
-index 9e88d61..70880f4 100644
---- a/verify.c
-+++ b/verify.c
-@@ -369,6 +369,15 @@ static int verify_io_u_meta(struct verify_header *hdr, struct vcont *vc)
- 	if (td->o.verify_pattern_bytes)
- 		ret |= verify_io_u_pattern(hdr, vc);
- 
-+	/*
-+	 * For read-only workloads, the program cannot be certain of the
-+	 * last numberio written to a block. Checking of numberio will be done
-+	 * only for wrokloads that write data.
-+	 */
-+	if (td_write(td) || td_rw(td))
-+		if (vh->numberio != io_u->numberio)
-+			ret = EILSEQ;
-+
- 	if (!ret)
- 		return 0;
- 
-@@ -768,7 +777,7 @@ static void fill_meta(struct verify_header *hdr, struct thread_data *td,
- 	vh->time_sec = io_u->start_time.tv_sec;
- 	vh->time_usec = io_u->start_time.tv_usec;
- 
--	vh->numberio = td->io_issues[DDIR_WRITE];
-+	vh->numberio = io_u->numberio;
- 
- 	vh->offset = io_u->offset + header_num * td->o.verify_interval;
- }
-@@ -942,6 +951,8 @@ void populate_verify_io_u(struct thread_data *td, struct io_u *io_u)
- 	if (td->o.verify == VERIFY_NULL)
- 		return;
- 
-+	io_u->numberio = td->io_issues[io_u->ddir];
-+
- 	fill_pattern_headers(td, io_u, 0, 0);
- }
- 
-@@ -974,6 +985,7 @@ int get_next_verify(struct thread_data *td, struct io_u *io_u)
- 
- 		io_u->offset = ipo->offset;
- 		io_u->buflen = ipo->len;
-+		io_u->numberio = ipo->numberio;
- 		io_u->file = ipo->file;
- 		io_u->flags |= IO_U_F_VER_LIST;
- 
+> My patch uses do_io() to initialize the vhdr_meta data structures. I
+> can try to replicate that in do_verify() instead, but that seems more
+> fragile.
+
+Honestly, at this point, not sure what change you are trying to
+accomplish there... But if you send your suggested change, I'll take a
+look and comment.
+
+If not, please step back a bit and explain to me exactly which logic you
+are looking for. I think that will help both of us and will get us to a
+better place on the implementation and changes.
+
 -- 
-1.7.12.4
-
+Jens Axboe
 
