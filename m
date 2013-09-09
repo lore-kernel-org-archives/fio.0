@@ -1,36 +1,24 @@
-Return-Path: <ms@teamix.de>
-Date: Tue, 24 Sep 2013 09:59:35 +0200 (CEST)
-From: Martin Steigerwald <ms@teamix.de>
-Message-ID: <1416283628.111018.1380009575092.JavaMail.zimbra@teamix.de>
-In-Reply-To: <500349838.110961.1380009378087.JavaMail.zimbra@teamix.de>
-Subject: new fio release?
+Return-Path: <dave@twin.jikos.cz>
+Date: Mon, 9 Sep 2013 15:06:30 +0200
+From: David Sterba <dave@jikos.cz>
+Subject: Re: fio --showcmd fails if directory= does not exist
+Message-ID: <20130909130630.GD9122@twin.jikos.cz>
+Reply-To: dave@jikos.cz
+References: <20130906123812.GB9122@twin.jikos.cz>
+ <5229FC39.50905@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-To: fio@vger.kernel.org
-Cc: Jens Axboe <axboe@kernel.dk>, Georg =?utf-8?Q?Sch=C3=B6nberger?= <gschoenberger@thomas-krenn.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5229FC39.50905@kernel.dk>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: dave@jikos.cz, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-Hi Jens!
+On Fri, Sep 06, 2013 at 10:00:57AM -0600, Jens Axboe wrote:
+> That's definitely a bug, the callbacks should not verify anything if we
+> are only in dump or parse only mode. I've committed a fix.
 
-Georg is currently packaging fio 2.1.2 for Ubuntu Precise, while I did 2.1.1 for Debian a while ago.
+Thanks, I've verified that all my .fio scripts are converted fine.
 
-I already started packaging 2.1.2 for Debian as well and I think I was almost finished with it but I had:
-
-ms@mango:~/lokal/Debian/fio> lintian -IE fio_2.1.2-1_amd64.changes
-W: fio: script-with-language-extension usr/bin/fio2gnuplot.py
-W: fio: binary-without-manpage usr/bin/fio2gnuplot.py
-W: fio: binary-without-manpage usr/bin/genfio
-
-which as I looked are all fixed upstream already.
-
-Since it is difficult to rename a upstream file in debian packaging without repacking upstream tarball, I'd rather build next package from a fio release with these issues fixed.
-
-
-Can you do a fio 2.1.3 release?
-
-Thanks,
--- 
-Martin Steigerwald - teamix GmbH - http://www.teamix.de
-gpg: 19E3 8D42 896F D004 08AC A0CA 1E10 C593 0399 AE90
+david
 
