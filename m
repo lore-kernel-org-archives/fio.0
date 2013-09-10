@@ -1,114 +1,92 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ie0-f177.google.com ([209.85.223.177]:37931 "EHLO
-	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752582Ab3IEXM4 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 5 Sep 2013 19:12:56 -0400
-Received: by mail-ie0-f177.google.com with SMTP id e14so5168294iej.22
-        for <fio@vger.kernel.org>; Thu, 05 Sep 2013 16:12:55 -0700 (PDT)
+Received: from legacy.ddn.com ([64.47.133.206]:7637 "EHLO legacy.ddn.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752091Ab3IJX3B convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Tue, 10 Sep 2013 19:29:01 -0400
+From: Keith Pine <kpine@ddn.com>
+Subject: segfaults/error with ioengine=sg
+Date: Tue, 10 Sep 2013 23:23:55 +0000
+Message-ID: <F391FB4F21BEC943926789308B8035907DD18BD0@LAX-EX-MB3.datadirect.datadirectnet.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Date: Thu, 5 Sep 2013 16:12:55 -0700
-Message-ID: <CANEJEGs8PRprCWAa_a_kMPqJNCZ8zKRDvab0yy+M6SKMdkqk7g@mail.gmail.com>
-Subject: bug in fio file offset tracking
-From: Grant Grundler <grundler@chromium.org>
-Content-Type: multipart/mixed; boundary=20cf3010ec25e6d79e04e5ab0f40
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: FIO_list <fio@vger.kernel.org>
-Cc: Juan Casse <jcasse@chromium.org>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
---20cf3010ec25e6d79e04e5ab0f40
-Content-Type: text/plain; charset=UTF-8
+Hi,
 
-Juan found a bug in fio verify. On the second iteration of verifying a
-file, the position tracking is broken. In the strace output below, the
-second lseek is missing after re-opening the test file to verify a
-second time.
+I've encountered a segfault and error when trying to use the sg ioengine with iodepth > 1. These crashes occur with both the packaged Centos6 version (2.0.13) and one from git I built yesterday.  Perhaps iodepth is not supported with the sg ioengine? I am trying to use an sg device for asynchronous io, and setting a higher iodepth in order to increase throughput.
 
-I suspect the problem is fio is tracking it's position in the file but
-didn't clear that position tracking after closing (or opening) the
-file. And since fio thinks it's at the right position, no lseek is
-issued. Just a guess.
+First, output of sg_inq of drive being tested:
 
-job files attached. Very small test file gets created (64KB).
+# sg_inq /dev/sg6
+standard INQUIRY:
+  PQual=0  Device_type=0  RMB=0  version=0x05  [SPC-3]
+  [AERC=0]  [TrmTsk=0]  NormACA=0  HiSUP=0  Resp_data_format=2
+  SCCS=0  ACC=0  TPGS=0  3PC=0  Protect=0  [BQue=0]
+  EncServ=0  MultiP=1 (VS=0)  [MChngr=0]  [ACKREQQ=0]  Addr16=0
+  [RelAdr=0]  WBus16=0  Sync=0  Linked=0  [TranDis=0]  CmdQue=1
+  [SPI: Clocking=0x0  QAS=0  IUS=0]
+    length=164 (0xa4)   Peripheral device type: disk
+ Vendor identification: ATA
+ Product identification: Hitachi HDS72303
+ Product revision level: AA10
+ Unit serial number:       MK0371YVGT69GK
 
-cheers,
-grant
+Here is the job file:
 
-./fio example/juan_write.fio
-...
-strace -f -e lseek,read,close,open ./fio examples/juan_verify.fio
-...
-[pid 21828] open("juan_write_file", O_RDONLY) = 3
-[pid 21828] lseek(3, 57344, SEEK_SET)   = 57344
-[pid 21828] read(3, "\312\254\n\0\0
-\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0\340\0\0\0\0\0\0"...,
-8192) = 8192
-[pid 21828] lseek(3, 0, SEEK_SET)       = 0
-[pid 21828] read(3, "\312\254\n\0\0
-\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0\0\0\0\0\0\0\0"...,
-8192) = 8192
-[pid 21828] read(3, "\312\254\n\0\0
-\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0 \0\0\0\0\0\0"...,
-8192) = 8192
-[pid 21828] read(3, "\312\254\n\0\0
-\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0@\0\0\0\0\0\0"...,
-8192) = 8192
-[pid 21828] read(3, "\312\254\n\0\0
-\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0`\0\0\0\0\0\0"...,
-8192) = 8192
-[pid 21828] read(3, "\312\254\n\0\0
-\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0\200\0\0\0\0\0\0"...,
-8192) = 8192
-[pid 21828] read(3, "\312\254\n\0\0
-\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0\240\0\0\0\0\0\0"...,
-8192) = 8192
-[pid 21828] read(3, "\312\254\n\0\0
-\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0\300\0\0\0\0\0\0"...,
-8192) = 8192
-[pid 21828] close(3)                    = 0
-[pid 21828] open("juan_write_file", O_RDONLY) = 3
-[pid 21828] read(3, "\312\254\n\0\0
-\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0\0\0\0\0\0\0\0"...,
-8192) = 8192
-meta: verify failed at file juan_write_file offset 57344, length 8192
-[pid 21828] open("juan_write_file.57344.received",
-O_WRONLY|O_CREAT|O_TRUNC, 0644) = 4
-[pid 21828] close(4)                    = 0
-       received data dumped as juan_write_file.57344.received
-[pid 21828] open("juan_write_file.57344.expected",
-O_WRONLY|O_CREAT|O_TRUNC, 0644) = 4
-[pid 21828] close(4)                    = 0
-       expected data dumped as juan_write_file.57344.expected
-[pid 21828] lseek(3, 0, SEEK_SET)       = 0
-[pid 21828] read(3, "\312\254\n\0\0
-\0\0\0\0\0\0\0\0\0\0\226\300`\316\377\377\377\377\0\0\0\0\0\0\0\0"...,
-8192) = 8192
-[pid 21828] read(3,  <unfinished ...>
+[global]
+filename=/dev/sg6
+size=10g
+thread=1
+ioengine=sg
+iodepth=64
 
---20cf3010ec25e6d79e04e5ab0f40
-Content-Type: application/octet-stream; name="juan_write.fio"
-Content-Disposition: attachment; filename="juan_write.fio"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_hl8l7olf0
+[write-phase]
+bs=1M
+rw=write
 
-W2p1YW5fd3JpdGVdCnJlYWR3cml0ZT1yYW5kd3JpdGUKcmFuZHJlcGVhdD0xCnNpemU9NjRrCmJz
-PThrCmlvZW5naW5lPXN5bmMKZmlsZW5hbWU9anVhbl93cml0ZV9maWxlCm5vcmFuZG9tbWFwCmxv
-b3BzPTIKdmVyaWZ5PW1ldGEKdmVyaWZ5X3BhdHRlcm49MHhmZmZmZmZmZmZmZmZmZmZmCnZlcmlm
-eV9kdW1wPTEKY29udGludWVfb25fZXJyb3I9dmVyaWZ5CnJhbmRvbV9nZW5lcmF0b3I9bGZzcgo=
---20cf3010ec25e6d79e04e5ab0f40
-Content-Type: application/octet-stream; name="juan_verify.fio"
-Content-Disposition: attachment; filename="juan_verify.fio"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_hl8l7xkg1
+Program output:
 
-W2p1YW5fdmVyaWZ5XQpyZWFkd3JpdGU9cmFuZHJlYWQKcmFuZHJlcGVhdD0xCnNpemU9NjRrCmJz
-PThrCmlvZW5naW5lPXN5bmMKbm9yYW5kb21tYXAKZmlsZW5hbWU9anVhbl93cml0ZV9maWxlCmxv
-b3BzPTIKdmVyaWZ5PW1ldGEKdmVyaWZ5X3BhdHRlcm49MHhmZmZmZmZmZmZmZmZmZmZmCnZlcmlm
-eV9kdW1wPTEKY29udGludWVfb25fZXJyb3I9dmVyaWZ5CnJhbmRvbV9nZW5lcmF0b3I9bGZzcgo=
---20cf3010ec25e6d79e04e5ab0f40--
---:
-To unsubscribe from this list: send the line "unsubscribe fio" in
-the body of a message to majordomo@vger.kernel.org: 
-More majordomo info at  http: //vger.kernel.org/majordomo-info.html
+write-phase: (g=0): rw=write, bs=1M-1M/1M-1M/1M-1M, ioengine=sg, iodepth=64
+fio-2.1.2-21-gf7133
+Starting 1 thread
+Segmentation fault (core dumped)
 
+And stack trace:
 
+Program terminated with signal 11, Segmentation fault.
+#0  dprint_io_u (td=0x7fb452426000, io_u=0x0, icd=0x7fb451a22d00) at ioengine.h:214
+214     ioengine.h: No such file or directory.
+        in ioengine.h
+Missing separate debuginfos, use: debuginfo-install glibc-2.12-1.80.el6_3.7.x86_64 libaio-0.3.107-10.el6.x86_64 zlib-1.2.3-27.el6.x86_64
+(gdb) where
+#0  dprint_io_u (td=0x7fb452426000, io_u=0x0, icd=0x7fb451a22d00) at ioengine.h:214
+#1  io_completed (td=0x7fb452426000, io_u=0x0, icd=0x7fb451a22d00) at io_u.c:1436
+#2  0x0000000000426030 in ios_completed (td=0x7fb452426000, min_evts=<value optimized out>, bytes=0x0) at io_u.c:1551
+#3  io_u_queued_complete (td=0x7fb452426000, min_evts=<value optimized out>, bytes=0x0) at io_u.c:1611
+#4  0x00000000004421b2 in cleanup_pending_aio (data=0x7fb452426000) at backend.c:267
+#5  do_io (data=0x7fb452426000) at backend.c:859
+#6  thread_main (data=0x7fb452426000) at backend.c:1314
+#7  0x00007fb4559e8851 in start_thread () from /lib64/libpthread.so.0
+#8  0x00007fb45553211d in clone () from /lib64/libc.so.6
+
+When the 'thread' option is disabled, fio fails with an error instead of a crash:
+
+write-phase: (g=0): rw=write, bs=1M-1M/1M-1M/1M-1M, ioengine=sg, iodepth=64
+fio-2.1.2-21-gf7133
+Starting 1 process
+fio: pid=5701, got signal=11
+
+write-phase: (groupid=0, jobs=1): err=33 (file:engines/sg.c:260, func=xfer, error=Numerical argument out of domain): pid=5701: Tue Sep 10 15:45:28 201
+    lat (msec) : 50=5.88%, 100=5.88%
+  cpu          : usr=0.00%, sys=0.00%, ctx=0, majf=0, minf=0
+  IO depths    : 1=5.9%, 2=11.8%, 4=23.5%, 8=47.1%, 16=11.8%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=94.7%, 8=0.0%, 16=5.3%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued    : total=r=0/w=17/d=0, short=r=0/w=0/d=0
+
+Run status group 0 (all jobs):
+fio: file hash not empty on exit
