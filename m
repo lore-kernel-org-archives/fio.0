@@ -1,27 +1,55 @@
-Return-Path: <erwan@enovance.com>
-Message-ID: <52244E75.5070405@enovance.com>
-Date: Mon, 02 Sep 2013 10:38:13 +0200
-From: Erwan Velu <erwan@enovance.com>
+Return-Path: <brianclam@gmail.com>
 MIME-Version: 1.0
-Subject: Re: [PATCH 2/2] Adds check for rand_seed during verify phase.
-References: <1377552162-31741-1-git-send-email-jcasse@chromium.org> <1377552162-31741-2-git-send-email-jcasse@chromium.org> <CANEJEGuKzZeLfCoNX12Pp_4_Uj8iHjLX221c+qpYzgpWYgA-Pg@mail.gmail.com> <521DA341.3050707@enovance.com> <20130831043119.GU21481@kernel.dk>
-In-Reply-To: <20130831043119.GU21481@kernel.dk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Grant Grundler <grundler@chromium.org>, Juan Casse <jcasse@chromium.org>, FIO_list <fio@vger.kernel.org>
+In-Reply-To: <522F899D.4090605@enovance.com>
+References: <522F3BD4.80400@enovance.com> <522F639E.6020907@kernel.dk>
+ <CAAAK+WUuorByrFOnf=ii-XMQahd7LLOfXORoKGueAOzo1qC9Fw@mail.gmail.com>
+ <CAAAK+WWAqrZYgT9nHc8aGV6MfmG=haShUrxT6zfe9uMNS6+apw@mail.gmail.com> <522F899D.4090605@enovance.com>
+From: "Brian L." <brianclam@gmail.com>
+Date: Tue, 10 Sep 2013 15:04:41 -0700
+Message-ID: <CAAAK+WVT47MLYgYCjA9meOPcoNpwgnmWJ94PGuS-EkGFvhy4aw@mail.gmail.com>
+Subject: Re: A blog article presenting my work on FIO
+Content-Type: text/plain; charset=ISO-8859-1
+To: Erwan Velu <erwan@enovance.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 31/08/2013 06:31, Jens Axboe wrote:
-> [...]
-> Agree. A good commit message describes the need for the change. It needs
-> to justify its own inclusion, so to speak. Basically it answers the key
-> question of why this change is needed.
+On Tue, Sep 10, 2013 at 2:05 PM, Erwan Velu <erwan@enovance.com> wrote:
+> On 10/09/2013 22:53, Brian L. wrote:
+>>
+>> Nice work Erwan.
+>>
+>> I am doing something similar to what you are doing, using FIO + perl
+>> (to parse the data) + gnuplot.
+>>
+>> I am testing drives from multiple vendors and graphing the following
+>> attributes over different blocksize + io queue depth + different read /
+>> write pattern and % distribution:
+>>
+>> o iops
+>> o bandwidth
+>> o latency (max and avg)
+>>
+>> As an example, I am overlaying multiple drives for each attribute
+>> (y-axis) at fixed io queue depth over different block size (x-axis).
+>>
+>> I will look at your work.
+>>
+>>
+> Feel free to play with it !
 >
+> That would be lovely to see people using it or extending its capabilities.
+> I'm sure many are doing this stuff on their own. It would be nice to share
+> this work to get a very good tool that works for many.
 
-I don't know how you play with fio, but on my project I'm working on, 
-that's a good reason to refuse a patch even if the code is correct :o)
+Definitely, I will see what I can contribute as I am very new at fio,
+just using a couple of weeks ago.  Let see how that goes - it will be
+really first open source project.  :)
 
-Cheers,
-Erwan
+I wish I knew your project sooner.  I think I would have save quite a
+bit of effort.  At this pt, I think I am locked in my path because of
+deadline.
+
+>
+> Cheers,
+> Erwan
 
