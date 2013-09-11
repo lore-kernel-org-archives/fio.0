@@ -1,128 +1,55 @@
-Return-Path: <jcasse@chromium.org>
-From: Juan Casse <jcasse@chromium.org>
-Subject: [PATCH] Adds check for numberio during verify phase.
-Date: Tue, 17 Sep 2013 14:06:12 -0700
-Message-Id: <1379451974-16100-1-git-send-email-jcasse@chromium.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Grant Grundler <grundler@chromium.org>, fio@vger.kernel.org, Juan Casse <jcasse@chromium.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-la0-f43.google.com ([209.85.215.43]:57989 "EHLO
+	mail-la0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754078Ab3IKSpL convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Wed, 11 Sep 2013 14:45:11 -0400
+Received: by mail-la0-f43.google.com with SMTP id ep20so7700649lab.2
+        for <fio@vger.kernel.org>; Wed, 11 Sep 2013 11:45:10 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <5230B215.5060205@enovance.com>
+References: <CABFR9T2g8oBJNNLjUXqvy4k8rdCuq=N_Hrjzd5up6jC0QYN-+g@mail.gmail.com>
+	<5230B215.5060205@enovance.com>
+Date: Wed, 11 Sep 2013 14:45:09 -0400
+Message-ID: <CABFR9T2YLDJ8p9nQfY6Puob4yxoTPcKYHhHKULo+8khHjnW_tg@mail.gmail.com>
+Subject: Re: genfio - feature request(s) and "bug" report
+From: Roger Sibert <roger_sibert@xyratex.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Erwan Velu <erwan@enovance.com>
+Cc: FIO <fio@vger.kernel.org>
 
-Currently, fio checks the block offset number in a block's header during
-the verify phase.
-We add a check for the io number (numberio) to detect stale blocks. This
-check is performed only on workloads that write data, as those workloads
-know what numberio was written to each block.
-td->io_issues[ddir] = 0; was removed so that numberio does not get reset
-at each iteration; we want numberio to keep incrementing to reflect
-how many times the same data was written.
+Most of my work is in Linux but my problem so much isnt the OS as it
+is dealing with a comma.  I guess the use case would be having the
+file name stored in a csv, the commas would require some sort of
+encapsulation or escape sequence.
 
-Signed-off-by: Juan Casse <jcasse@chromium.org>
-Reviewed-by: Grant Grundler <grundler@chromium.org>
-
-Fixed typo.
----
- ioengine.h |  1 +
- iolog.c    |  1 +
- iolog.h    |  1 +
- libfio.c   |  1 -
- verify.c   | 14 +++++++++++++-
- 5 files changed, 16 insertions(+), 2 deletions(-)
-
-diff --git a/ioengine.h b/ioengine.h
-index 31662eb..812febd 100644
---- a/ioengine.h
-+++ b/ioengine.h
-@@ -50,6 +50,7 @@ struct io_u {
- 	 */
- 	unsigned long buflen;
- 	unsigned long long offset;
-+	unsigned short numberio;
- 	void *buf;
- 
- 	/*
-diff --git a/iolog.c b/iolog.c
-index 9bcf0d8..6459d3b 100644
---- a/iolog.c
-+++ b/iolog.c
-@@ -188,6 +188,7 @@ void log_io_piece(struct thread_data *td, struct io_u *io_u)
- 	ipo->file = io_u->file;
- 	ipo->offset = io_u->offset;
- 	ipo->len = io_u->buflen;
-+	ipo->numberio = io_u->numberio;
- 
- 	if (io_u_should_trim(td, io_u)) {
- 		flist_add_tail(&ipo->trim_list, &td->trim_list);
-diff --git a/iolog.h b/iolog.h
-index 8fedc19..94e0fc1 100644
---- a/iolog.h
-+++ b/iolog.h
-@@ -78,6 +78,7 @@ struct io_piece {
- 		struct fio_file *file;
- 	};
- 	unsigned long long offset;
-+	unsigned short numberio;
- 	unsigned long len;
- 	unsigned int flags;
- 	enum fio_ddir ddir;
-diff --git a/libfio.c b/libfio.c
-index c26d6a3..6e290f4 100644
---- a/libfio.c
-+++ b/libfio.c
-@@ -83,7 +83,6 @@ static void reset_io_counters(struct thread_data *td)
- 		td->this_io_blocks[ddir] = 0;
- 		td->rate_bytes[ddir] = 0;
- 		td->rate_blocks[ddir] = 0;
--		td->io_issues[ddir] = 0;
- 	}
- 	td->zone_bytes = 0;
- 
-diff --git a/verify.c b/verify.c
-index 9e88d61..63def12 100644
---- a/verify.c
-+++ b/verify.c
-@@ -369,6 +369,15 @@ static int verify_io_u_meta(struct verify_header *hdr, struct vcont *vc)
- 	if (td->o.verify_pattern_bytes)
- 		ret |= verify_io_u_pattern(hdr, vc);
- 
-+	/*
-+	 * For read-only workloads, the program cannot be certain of the
-+	 * last numberio written to a block. Checking of numberio will be done
-+	 * only for workloads that write data.
-+	 */
-+	if (td_write(td) || td_rw(td))
-+		if (vh->numberio != io_u->numberio)
-+			ret = EILSEQ;
-+
- 	if (!ret)
- 		return 0;
- 
-@@ -768,7 +777,7 @@ static void fill_meta(struct verify_header *hdr, struct thread_data *td,
- 	vh->time_sec = io_u->start_time.tv_sec;
- 	vh->time_usec = io_u->start_time.tv_usec;
- 
--	vh->numberio = td->io_issues[DDIR_WRITE];
-+	vh->numberio = io_u->numberio;
- 
- 	vh->offset = io_u->offset + header_num * td->o.verify_interval;
- }
-@@ -942,6 +951,8 @@ void populate_verify_io_u(struct thread_data *td, struct io_u *io_u)
- 	if (td->o.verify == VERIFY_NULL)
- 		return;
- 
-+	io_u->numberio = td->io_issues[io_u->ddir];
-+
- 	fill_pattern_headers(td, io_u, 0, 0);
- }
- 
-@@ -974,6 +985,7 @@ int get_next_verify(struct thread_data *td, struct io_u *io_u)
- 
- 		io_u->offset = ipo->offset;
- 		io_u->buflen = ipo->len;
-+		io_u->numberio = ipo->numberio;
- 		io_u->file = ipo->file;
- 		io_u->flags |= IO_U_F_VER_LIST;
- 
--- 
-1.7.12.4
+Thanks,
+Roger
 
 
+
+On Wed, Sep 11, 2013 at 2:10 PM, Erwan Velu <erwan@enovance.com> wrote:
+> Le 11/09/2013 16:18, Roger Sibert a =EF=BF=BDcrit :
+>> From an earlier thread the logging feature I was using was adjusted to
+>> better support/handle genfio so I was looking at that and had a small
+>> set of feature requests for it along with a minor bug fix for the next
+>> time someones updated the file.
+> Thanks for considering improving my tool :)
+>>
+>> Feature Request:  Add a flag to enable/disable gathering of latency
+>> logs and add the ability to gather latency logs.
+> I'll look at it.
+>>
+>> Feature Request:  Add a flag or modify the code to not use "," in the
+>> filename.  Perhaps use "_" instead?
+> What is the really problem with "," ? Is that badly supported on your os ?
+> If so which one ?
+>>
+>> The bug really is just a misspelling, anoter vs another
+>>
+> I'll have a look thanks.
+>
+> Thanks for your time,
+> Erwan
