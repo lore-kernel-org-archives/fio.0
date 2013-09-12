@@ -1,68 +1,76 @@
-Return-Path: <jcasse@google.com>
-MIME-Version: 1.0
-Sender: jcasse@google.com
-Date: Wed, 18 Sep 2013 09:45:15 -0700
-Message-ID: <CAPet_20LSJeXweWcRaEuh+8s0HK=zRo+BRkotN4Lh2-z2aG_hw@mail.gmail.com>
-Subject: Testing
-From: Juan Casse <jcasse@chromium.org>
-Content-Type: multipart/mixed; boundary=047d7b6dcb7c73f72e04e6ab298d
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: Grant Grundler <grundler@chromium.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:34980 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750876Ab3ILEAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 12 Sep 2013 00:00:09 -0400
+Received: from kernel.dk ([54.225.238.116])
+	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1VJy4e-00029A-6I
+	for fio@vger.kernel.org; Thu, 12 Sep 2013 04:00:08 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <jaxboe@fusionio.com>
+Message-Id: <20130912040001.C9DB221155@kernel.dk>
+Date: Thu, 12 Sep 2013 04:00:01 +0000 (UTC)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
---047d7b6dcb7c73f72e04e6ab298d
-Content-Type: multipart/alternative; boundary=047d7b6dcb7c73f72504e6ab298b
+The following changes since commit f713350f74dbeb333ff1ad2790cb60381ceaf463:
 
---047d7b6dcb7c73f72504e6ab298b
-Content-Type: text/plain; charset=ISO-8859-1
+  Fix broken requeue of io_us (2013-09-09 15:16:28 -0600)
 
-Hi Jens:
+are available in the git repository at:
+  git://git.kernel.dk/fio.git master
 
-Attached is the test script that I have been using to test my changes. Do
-you have some other tests that I could use?
+Jens Axboe (1):
+      debug: ensure that __dprint() is also logged over the network
 
-Regards,
-Juan
+ debug.c |    4 ++--
+ log.c   |    2 ++
+ log.h   |    1 -
+ 3 files changed, 4 insertions(+), 3 deletions(-)
 
---047d7b6dcb7c73f72504e6ab298b
-Content-Type: text/html; charset=ISO-8859-1
+---
 
-<div dir="ltr">Hi Jens:<div><br></div><div>Attached is the test script that I have been using to test my changes. Do you have some other tests that I could use?</div><div><br></div><div>Regards,</div><div>Juan</div></div>
+Diff of recent changes:
 
---047d7b6dcb7c73f72504e6ab298b--
-
---047d7b6dcb7c73f72e04e6ab298d
-Content-Type: application/x-sh; name="jcasse_test.sh"
-Content-Disposition: attachment; filename="jcasse_test.sh"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_hlqs60oq0
-
-IyEvYmluL2Jhc2gKCkxPR0ZJTEU9amNhc3NlX2xvZwpKT0JGSUxFPWpjYXNzZS5maW8KCldPUktM
-T0FEUz0oInJlYWQiICJyYW5kcmVhZCIgIndyaXRlIiAicmFuZHdyaXRlIiAicnciICJyYW5kcnci
-KQojSU9FTkdJTkVTPSgicHN5bmMiICJ2c3luYyIgInBzeW5jdiIgIm1tYXAiICJzcGxpY2UiICJz
-eXNsZXQtcnciICJndWFzaSIpCklPRU5HSU5FUz0oInN5bmMiICJsaWJhaW8iKQpSQU5ET01NQVA9
-KCIiICJub3JhbmRvbW1hcCIpClJBTkRPTUdFTj0oInRhdXN3b3J0aGUiICJsZnNyIikKSU9ESVJF
-Q1Q9KCJkaXJlY3Q9MCIgImRpcmVjdD0xIikKSU9ERVBUSD0oImlvZGVwdGg9MSIgImlvZGVwdGg9
-MiIpCgplY2hvIFdvcmtsb2FkcyB0aGF0IGZhaWxlZCB2ZXJpZmljYXRpb246ID4gJExPR0ZJTEUK
-CmZvciB3b3JrbG9hZCBpbiAiJHtXT1JLTE9BRFNbQF19IgpkbwoKICAgIGZvciBpb2VuZ2luZSBp
-biAiJHtJT0VOR0lORVNbQF19IgogICAgZG8KCiAgICAgICAgZm9yIHJhbmRvbWdlbiBpbiAiJHtS
-QU5ET01HRU5bQF19IgogICAgICAgIGRvCgogICAgICAgICAgICBmb3IgcmFuZG9tbWFwIGluICIk
-e1JBTkRPTU1BUFtAXX0iCiAgICAgICAgICAgIGRvCgogICAgICAgICAgICAgICAgZm9yIGlvZGly
-ZWN0IGluICIke0lPRElSRUNUW0BdfSIKICAgICAgICAgICAgICAgIGRvCgogICAgICAgICAgICAg
-ICAgICAgIGZvciBpb2RlcHRoIGluICIke0lPREVQVEhbQF19IgogICAgICAgICAgICAgICAgICAg
-IGRvCgojIENyZWF0ZSBqb2IgZmlsZQpjYXQgPiAkSk9CRklMRSA8PCBFbmQtb2Ytam9iCltnbG9i
-YWxdCmZpbGVuYW1lPWpjYXNzZV9kYXRhCnNpemU9MW0KYnM9NGsKbG9vcHM9MgpyYW5kcmVwZWF0
-PTEKdmVyaWZ5PW1ldGEKdmVyaWZ5X3BhdHRlcm49MHhmZmZmZmZmZmZmZmZmZmZmCnZlcmlmeV9k
-dW1wPTAKY29udGludWVfb25fZXJyb3I9dmVyaWZ5CgpbamNhc3NlX2pvYl0KcmVhZHdyaXRlPSR7
-d29ya2xvYWR9CiR7aW9kaXJlY3R9CiR7aW9kZXB0aH0KaW9lbmdpbmU9JHtpb2VuZ2luZX0KcmFu
-ZG9tX2dlbmVyYXRvcj0ke3JhbmRvbWdlbn0KJHtyYW5kb21tYXB9CkVuZC1vZi1qb2IKCiMgUnVu
-IGZpbwplcnI9ImAuL2ZpbyAkSk9CRklMRSB8IGdyZXAgZXJyb3JzIHwgY3V0IC1jMjRgIgplcnI9
-ImAuL2ZpbyAkSk9CRklMRSAtLXZlcmlmeW9ubHkgfCBncmVwIGVycm9ycyB8IGN1dCAtYzI0YCIK
-CiMgTG9nIHdvcmtsb2FkcyB0aGF0IGZhaWxlZCB2ZXJpZmljYXRpb24KaWYgWyAkZXJyICE9IDAg
-XQp0aGVuCmNhdCA+PiAkTE9HRklMRSA8PCBFT0YKJHt3b3JrbG9hZH0gXAoke2lvZGlyZWN0fSBc
-CiR7aW9kZXB0aH0gXAoke2lvZW5naW5lfSBcCiR7cmFuZG9tZ2VufSBcCiR7cmFuZG9tbWFwfQpF
-T0YKZmkKCiAgICAgICAgICAgICAgICAgICAgZG9uZQoKICAgICAgICAgICAgICAgIGRvbmUKCiAg
-ICAgICAgICAgIGRvbmUKCiAgICAgICAgZG9uZQoKICAgIGRvbmUKCmRvbmUK
---047d7b6dcb7c73f72e04e6ab298d--
-
-
+diff --git a/debug.c b/debug.c
+index 5e98063..013cd53 100644
+--- a/debug.c
++++ b/debug.c
+@@ -16,8 +16,8 @@ void __dprint(int type, const char *str, ...)
+ 	    && pid != *fio_debug_jobp)
+ 		return;
+ 
+-	log_local("%-8s ", debug_levels[type].name);
+-	log_local("%-5u ", (int) pid);
++	log_info("%-8s ", debug_levels[type].name);
++	log_info("%-5u ", (int) pid);
+ 
+ 	va_start(args, str);
+ 	log_valist(str, args);
+diff --git a/log.c b/log.c
+index 4822c33..a05a7ec 100644
+--- a/log.c
++++ b/log.c
+@@ -14,6 +14,8 @@ int log_valist(const char *str, va_list args)
+ 	len = vsnprintf(buffer, sizeof(buffer), str, args);
+ 	len = min(len, sizeof(buffer) - 1);
+ 
++	if (is_backend)
++		len = fio_server_text_output(FIO_LOG_INFO, buffer, len);
+ 	if (log_syslog)
+ 		syslog(LOG_INFO, "%s", buffer);
+ 	else
+diff --git a/log.h b/log.h
+index a885be7..e509313 100644
+--- a/log.h
++++ b/log.h
+@@ -9,7 +9,6 @@ extern FILE *f_err;
+ 
+ extern int log_err(const char *format, ...) __attribute__ ((__format__ (__printf__, 1, 2)));
+ extern int log_info(const char *format, ...) __attribute__ ((__format__ (__printf__, 1, 2)));
+-extern int log_local(const char *format, ...) __attribute__ ((__format__ (__printf__, 1, 2)));
+ extern int log_valist(const char *str, va_list);
+ extern int log_local_buf(const char *buf, size_t);
+ extern int log_info_flush(void);
