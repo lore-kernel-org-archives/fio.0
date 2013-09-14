@@ -1,102 +1,271 @@
-Return-Path: <jcasse@google.com>
-MIME-Version: 1.0
-Sender: jcasse@google.com
-In-Reply-To: <EEF9E3C12F20174DA289A981D6CCA6C8324A3CBF95@MX44A.corp.emc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mailuogwhop.emc.com ([168.159.213.141]:38038 "EHLO
+	mailuogwhop.emc.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752043Ab3INF6H convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Sat, 14 Sep 2013 01:58:07 -0400
+From: "Ruvinsky, Konstantin" <Konstantin.Ruvinsky@emc.com>
+Date: Sat, 14 Sep 2013 01:33:56 -0400
+Subject: RE: [PATCH V2] Adds verify_only option.
+Message-ID: <EEF9E3C12F20174DA289A981D6CCA6C8324A3CBF94@MX44A.corp.emc.com>
 References: <1379102838-10185-1-git-send-email-jcasse@chromium.org>
-	<EEF9E3C12F20174DA289A981D6CCA6C8324A3CBF95@MX44A.corp.emc.com>
-Date: Mon, 16 Sep 2013 07:52:51 -0700
-Message-ID: <CAPet_23DaVAWzUZ4zpW9XCa54FAF=_zbhdSXh7dM4KjkRR7HWw@mail.gmail.com>
-Subject: Re: [PATCH V2] Adds verify_only option.
-From: Juan Casse <jcasse@chromium.org>
-Content-Type: multipart/mixed; boundary=089e0112d006c54d9b04e6815b1f
-To: "Ruvinsky, Konstantin" <Konstantin.Ruvinsky@emc.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Grant Grundler <grundler@chromium.org>, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+In-Reply-To: <1379102838-10185-1-git-send-email-jcasse@chromium.org>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Juan Casse <jcasse@chromium.org>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
---089e0112d006c54d9b04e6815b1f
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hi Juan,
 
-Hi Konstantin,
+Two questions:
+1. How fio knows where is the last block (where to stop verification run)? Please let me know if I understand it correctly: because lfsr runs without duplicated blocks then number of iterations is device_size/block_size.
+2. You wrote: "The verify_only option performs only verification (reads performed in do_verify()) and no read or write workload". But for verification, even if you made dry run till the end, you need to read. I don't follow.
 
-I use the same code already in fio for stopping. The do_dry_run() uses
-the same while-do construct as in do_io().
-After the do_dry_run() completes, the do_verify() will verify the io
-units that where logged using log_io_piece().
+Regards
+Konstantin
 
-On a related subject:
-I found an unexpected behavior with the current version (2.1.2) of fio
-when specifying an iodepth > 1 (with a random workload and libaio io
-engine and the default random generator and not using a random map).
-An example job that produces the behavior is attached.
-When a job like that is run, do_io() will perform extra io in the
-amount of the extra io that was allowed to accumulate in the queue. In
-other words, if iodepth=3D2, fio will do 1 extra io.
-I will send a different patch for this.
+-----Original Message-----
+From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Behalf Of Juan Casse
+Sent: Friday, September 13, 2013 11:07 PM
+To: Jens Axboe
+Cc: Grant Grundler; fio@vger.kernel.org; Juan Casse
+Subject: [PATCH V2] Adds verify_only option.
 
-Regards,
-Juan
+The verify_only option performs only verification (reads performed in do_verify()) and no read or write workload. The goal is to verify previously written meta data quickly and be able to detect stale data.
+Without this option, fio does not detect stale data from previous fio runs---only data corruption of "misplaced" data.
 
-On Fri, Sep 13, 2013 at 10:53 PM, Ruvinsky, Konstantin
-<Konstantin.Ruvinsky@emc.com> wrote:
-> Hi Juan,
->
-> I removed the second question - understood what you meant.
->
-> Regards
-> Konstantin
->
-> -----Original Message-----
-> From: Ruvinsky, Konstantin
-> Sent: Saturday, September 14, 2013 8:34 AM
-> To: 'Juan Casse'; 'fio@vger.kernel.org'
-> Subject: RE: [PATCH V2] Adds verify_only option.
->
-> Hi Juan,
->
-> Two questions:
-> 1. How fio knows where is the last block (where to stop verification run)=
-? Please let me know if I understand it correctly: because lfsr runs withou=
-t duplicated blocks then number of iterations is device_size/block_size.
-> 2. You wrote: "The verify_only option performs only verification (reads p=
-erformed in do_verify()) and no read or write workload". But for verificati=
-on, even if you made dry run till the end, you need to read. I don't follow=
-.
->
-> Regards
-> Konstantin
->
-> -----Original Message-----
-> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Beh=
-alf Of Juan Casse
-> Sent: Friday, September 13, 2013 11:07 PM
-> To: Jens Axboe
-> Cc: Grant Grundler; fio@vger.kernel.org; Juan Casse
-> Subject: [PATCH V2] Adds verify_only option.
->
-> The verify_only option performs only verification (reads performed in do_=
-verify()) and no read or write workload. The goal is to verify previously w=
-ritten meta data quickly and be able to detect stale data.
-> Without this option, fio does not detect stale data from previous fio run=
-s---only data corruption of "misplaced" data.
->
-> This option replays the specified write workload sequence in order to com=
-pute the "generation number" (using numberio field) for each block header t=
-hat was written in a previous fio run. The numberio field is used to detect=
- stale data. do_verify() checks numberio only in the last iteration, after =
-the correct numberio for each block has been computed.
+This option replays the specified write workload sequence in order to compute the "generation number" (using numberio field) for each block header that was written in a previous fio run. The numberio field is used to detect stale data. do_verify() checks numberio only in the last iteration, after the correct numberio for each block has been computed.
+---
+ HOWTO            |  8 ++++++-
+ README           |  2 ++
+ backend.c        | 64 +++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ init.c           | 17 +++++++++++++++
+ options.c        |  9 ++++++++
+ thread_options.h |  2 ++
+ verify.c         |  8 +++++--
+ 7 files changed, 106 insertions(+), 4 deletions(-)
 
---089e0112d006c54d9b04e6815b1f
-Content-Type: application/octet-stream; name="jcasse_job.fio"
-Content-Disposition: attachment; filename="jcasse_job.fio"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_hlnsyk1s0
+diff --git a/HOWTO b/HOWTO
+index 005dac2..ac35342 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -1039,6 +1039,10 @@ loops=int	Run the specified number of iterations of this job. Used
+ 		to repeat the same workload a given number of times. Defaults
+ 		to 1.
+ 
++verify_only	Check for stale data written to storage in a previous fio run.
++		The workload used must match the one used in the previous run.
++		This works for workloads that write data.
++
+ do_verify=bool	Run the verify phase after a write phase. Only makes sense if
+ 		verify is set. Defaults to 1.
+ 
+@@ -1077,7 +1081,9 @@ verify=str	If writing to a file, fio can verify the file contents
+ 
+ 			meta	Write extra information about each io
+ 				(timestamp, block number etc.). The block
+-				number is verified. See also verify_pattern.
++				number is verified. The io sequence number is
++				verified for workloads that write data.
++				See also verify_pattern.
+ 
+ 			null	Only pretend to verify. Useful for testing
+ 				internals with ioengine=null, not for much diff --git a/README b/README index 15a0731..7942069 100644
+--- a/README
++++ b/README
+@@ -141,6 +141,8 @@ $ fio
+ 	--latency-log		Generate per-job latency logs
+ 	--bandwidth-log		Generate per-job bandwidth logs
+ 	--minimal		Minimal (terse) output
++	--verifyonly		Skip workload io and only verify data
++				(includes stale data check)
+ 	--output-format=type	Output format (terse,json,normal)
+ 	--terse-version=type	Terse version output format (default 3, or 2 or 4).
+ 	--version		Print version info and exit
+diff --git a/backend.c b/backend.c
+index b9c1c12..39c2ba7 100644
+--- a/backend.c
++++ b/backend.c
+@@ -1104,6 +1104,65 @@ static int exec_string(struct thread_options *o, const char *string, const char  }
+ 
+ /*
++ * Dry run to compute correct state of numberio for verification.
++ */
++static uint64_t do_dry_run(struct thread_data *td) {
++	uint64_t bytes_done[DDIR_RWDIR_CNT] = { 0, 0, 0 };
++	unsigned int i;
++	int ret = 0;
++
++	if (in_ramp_time(td))
++		td_set_runstate(td, TD_RAMP);
++	else
++		td_set_runstate(td, TD_RUNNING);
++
++	while ((td->o.read_iolog_file && !flist_empty(&td->io_log_list)) ||
++		(!flist_empty(&td->trim_list)) || !io_bytes_exceeded(td) ||
++		td->o.time_based) {
++		struct io_u *io_u;
++		enum fio_ddir ddir;
++
++		if (td->terminate || td->done)
++			break;
++
++		if (flow_threshold_exceeded(td))
++			continue;
++
++		io_u = get_io_u(td);
++		if (!io_u)
++			break;
++
++		ddir = io_u->ddir;
++
++		/*
++		 * Substitute for td_io_queue(); avoids any io
++		 */
++		io_u->flags |= IO_U_F_FLIGHT;
++		io_u->error = 0;
++		io_u->resid = 0;
++		if (ddir_rw(acct_ddir(io_u)))
++			td->io_issues[acct_ddir(io_u)]++;
++		if (ddir_rw(io_u->ddir)) {
++			io_u_mark_depth(td, 1);
++			td->ts.total_io_u[io_u->ddir]++;
++		}
++
++		ret = io_u_sync_complete(td, io_u, bytes_done);
++
++		if (!ddir_rw_sum(bytes_done) && !(td->io_ops->flags & FIO_NOIO))
++			continue;
++	}
++
++	if (td->o.fill_device && td->error == ENOSPC) {
++		td->error = 0;
++		td->terminate = 1;
++	}
++
++	return bytes_done[DDIR_WRITE] + bytes_done[DDIR_TRIM]; }
++
++/*
+  * Entry point for the thread based jobs. The process based jobs end up
+  * here as well, after a little setup.
+  */
+@@ -1311,7 +1370,10 @@ static void *thread_main(void *data)
+ 
+ 		prune_io_piece_log(td);
+ 
+-		verify_bytes = do_io(td);
++		if (td->o.verify_only && (td_write(td) || td_rw(td)))
++			verify_bytes = do_dry_run(td);
++		else
++			verify_bytes = do_io(td);
+ 
+ 		clear_state = 1;
+ 
+diff --git a/init.c b/init.c
+index 1afc341..34d1f14 100644
+--- a/init.c
++++ b/init.c
+@@ -60,6 +60,8 @@ int write_bw_log = 0;
+ int read_only = 0;
+ int status_interval = 0;
+ 
++int verify_only = 0;
++
+ static int write_lat_log;
+ 
+ static int prev_group_jobs;
+@@ -139,6 +141,11 @@ static struct option l_opts[FIO_NR_OPTIONS] = {
+ 		.val		= 'r' | FIO_CLIENT_FLAG,
+ 	},
+ 	{
++		.name		= (char *) "verifyonly",
++		.has_arg	= no_argument,
++		.val		= 'y' | FIO_CLIENT_FLAG,
++	},
++	{
+ 		.name		= (char *) "eta",
+ 		.has_arg	= required_argument,
+ 		.val		= 'e' | FIO_CLIENT_FLAG,
+@@ -928,6 +935,13 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
+ 	int numjobs, file_alloced;
+ 	struct thread_options *o = &td->o;
+ 
++	/* 
++	 * Ensure job option verify_only is set when provided as a
++	 * command-line argument.
++	 */
++	if (verify_only)
++		o->verify_only = 1;
++
+ 	/*
+ 	 * the def_thread is just for options, it's not a real job
+ 	 */
+@@ -1661,6 +1675,9 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ 		case 'r':
+ 			read_only = 1;
+ 			break;
++		case 'y':
++			verify_only = 1;
++			break;
+ 		case 'v':
+ 			if (!cur_client) {
+ 				log_info("%s\n", fio_version_string); diff --git a/options.c b/options.c index caf89d3..e6b9ec9 100644
+--- a/options.c
++++ b/options.c
+@@ -1935,6 +1935,15 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.group	= FIO_OPT_G_RUNTIME,
+ 	},
+ 	{
++		.name	= "verify_only",
++		.lname	= "Verify only",
++		.type	= FIO_OPT_STR_SET,
++		.off1	= td_var_offset(verify_only),
++		.help	= "Verifies previously written data is still valid",
++		.category = FIO_OPT_C_GENERAL,
++		.group	= FIO_OPT_G_RUNTIME,
++	},
++	{
+ 		.name	= "ramp_time",
+ 		.lname	= "Ramp time",
+ 		.type	= FIO_OPT_STR_VAL_TIME,
+diff --git a/thread_options.h b/thread_options.h index 3f345c5..c9660b4 100644
+--- a/thread_options.h
++++ b/thread_options.h
+@@ -107,6 +107,8 @@ struct thread_options {
+ 	unsigned int fsync_on_close;
+ 	unsigned int bs_is_seq_rand;
+ 
++	unsigned int verify_only;
++
+ 	unsigned int random_distribution;
+ 
+ 	fio_fp64_t zipf_theta;
+diff --git a/verify.c b/verify.c
+index 63def12..9343ab9 100644
+--- a/verify.c
++++ b/verify.c
+@@ -373,10 +373,14 @@ static int verify_io_u_meta(struct verify_header *hdr, struct vcont *vc)
+ 	 * For read-only workloads, the program cannot be certain of the
+ 	 * last numberio written to a block. Checking of numberio will be done
+ 	 * only for workloads that write data.
++	 * For verify_only, numberio will be checked in the last iteration when
++	 * the correct state of numberio, that would have been written to each
++	 * block in a previous run of fio, has been reached.
+ 	 */
+ 	if (td_write(td) || td_rw(td))
+-		if (vh->numberio != io_u->numberio)
+-			ret = EILSEQ;
++		if (!td->o.verify_only || td->o.loops == 0)
++			if (vh->numberio != io_u->numberio)
++				ret = EILSEQ;
+ 
+ 	if (!ret)
+ 		return 0;
+--
+1.7.12.4
 
-W2dsb2JhbF0KZmlsZW5hbWU9amNhc3NlX2RhdGEKc2l6ZT0yNGsKYnM9OGsKbG9vcHM9MQpyYW5k
-cmVwZWF0PTEKdmVyaWZ5PW1ldGEKdmVyaWZ5X3BhdHRlcm49MHhmZmZmZmZmZmZmZmZmZmZmCnZl
-cmlmeV9kdW1wPTAKY29udGludWVfb25fZXJyb3I9dmVyaWZ5CgpbamNhc3NlX2pvYl0KcmVhZHdy
-aXRlPXJhbmR3cml0ZQppb2RlcHRoPTIKaW9lbmdpbmU9bGliYWlvCnJhbmRvbV9nZW5lcmF0b3I9
-dGF1c3dvcnRoZQpub3JhbmRvbW1hcAo=
---089e0112d006c54d9b04e6815b1f--
-
+--
+To unsubscribe from this list: send the line "unsubscribe fio" in the body of a message to majordomo@vger.kernel.org More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
