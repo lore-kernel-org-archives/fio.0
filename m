@@ -1,49 +1,103 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:58648 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750951Ab3IPTQK (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 16 Sep 2013 15:16:10 -0400
-Message-ID: <523758EC.8070502@kernel.dk>
-Date: Mon, 16 Sep 2013 13:15:56 -0600
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <grundler@google.com>
 MIME-Version: 1.0
-Subject: Re: [PATCH] Add condition to stop issuing io in do_io().
-References: <1379348530-2920-1-git-send-email-jcasse@chromium.org>
+Sender: grundler@google.com
 In-Reply-To: <1379348530-2920-1-git-send-email-jcasse@chromium.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
+References: <1379348530-2920-1-git-send-email-jcasse@chromium.org>
+Date: Mon, 16 Sep 2013 09:38:37 -0700
+Message-ID: <CANEJEGuQj6w9k98QH5-0C4gNzHW4okZFpcTwqYU7LfksZtUS5g@mail.gmail.com>
+Subject: Re: [PATCH] Add condition to stop issuing io in do_io().
+From: Grant Grundler <grundler@chromium.org>
+Content-Type: text/plain; charset=UTF-8
 To: Juan Casse <jcasse@chromium.org>
-Cc: Grant Grundler <grundler@chromium.org>, fio@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>, Grant Grundler <grundler@chromium.org>, FIO_list <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-On 09/16/2013 10:22 AM, Juan Casse wrote:
+On Mon, Sep 16, 2013 at 9:22 AM, Juan Casse <jcasse@chromium.org> wrote:
 > Problem:
 > When specifying iodepth > 1 while doing random async io
 > without a random map (and using the default random generator), the
 > main while loop in do_io() will issue extra io in the amount of io
 > allowed to accumulate in the queue. For example, a job with size=24k
 > and bs=8k will perform 4 io instead of the expected 3.
-> 
+>
 > Reason:
 > The above behavior occurs because the while loop in do_io()
 > will continue until the amount of "completed io" >= size, but io
 > in the queue are not accounted for because they have not been
 > completed by io_u_queued_complete().
-> 
+>
 > Exceptions:
 > The above behavior does not manifest itself when:
-> 	using random_generator=lfsr bacause lfsr knows when to stop
-> 	generating, and get_io_u() inside the while loop returns NULL,
-> 	breaking out of the loop.
-> 	using random map because random map ensures that all blocks
-> 	are hit, and after they are all hit, no more are generated.
-> 
+>         using random_generator=lfsr bacause lfsr knows when to stop
+>         generating, and get_io_u() inside the while loop returns NULL,
+>         breaking out of the loop.
+>         using random map because random map ensures that all blocks
+>         are hit, and after they are all hit, no more are generated.
+>
 > Proposed Solution:
 > Stop while loop based on bytes issued instead of bytes completed.
 
-Looks good, applied.
+(before Jen's complains about it. :)
 
--- 
-Jens Axboe
+Signed-off-by: Juan Casse <jcasse@chromium.org> (he's standing next to me :)
+Reviewed-by: Grant Grundler <grundler@chromium.org>
+
+Good Catch! :)
+
+thanks,
+grant
+
+> ---
+>  backend.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+>
+> diff --git a/backend.c b/backend.c
+> index b9c1c12..180a487 100644
+> --- a/backend.c
+> +++ b/backend.c
+> @@ -642,6 +642,7 @@ static uint64_t do_io(struct thread_data *td)
+>         uint64_t bytes_done[DDIR_RWDIR_CNT] = { 0, 0, 0 };
+>         unsigned int i;
+>         int ret = 0;
+> +       uint64_t bytes_issued = 0;
+>
+>         if (in_ramp_time(td))
+>                 td_set_runstate(td, TD_RAMP);
+> @@ -675,6 +676,9 @@ static uint64_t do_io(struct thread_data *td)
+>                 if (flow_threshold_exceeded(td))
+>                         continue;
+>
+> +               if (bytes_issued >= (uint64_t) td->o.size)
+> +                       break;
+> +
+>                 io_u = get_io_u(td);
+>                 if (!io_u)
+>                         break;
+> @@ -708,6 +712,7 @@ static uint64_t do_io(struct thread_data *td)
+>                                 int bytes = io_u->xfer_buflen - io_u->resid;
+>                                 struct fio_file *f = io_u->file;
+>
+> +                               bytes_issued += bytes;
+>                                 /*
+>                                  * zero read, fail
+>                                  */
+> @@ -738,6 +743,7 @@ sync_done:
+>                                 ret = io_u_sync_complete(td, io_u, bytes_done);
+>                                 if (ret < 0)
+>                                         break;
+> +                               bytes_issued += io_u->xfer_buflen;
+>                         }
+>                         break;
+>                 case FIO_Q_QUEUED:
+> @@ -748,6 +754,7 @@ sync_done:
+>                          */
+>                         if (td->io_ops->commit == NULL)
+>                                 io_u_queued(td, io_u);
+> +                       bytes_issued += io_u->xfer_buflen;
+>                         break;
+>                 case FIO_Q_BUSY:
+>                         requeue_io_u(td, &io_u);
+> --
+> 1.7.12.4
+>
 
