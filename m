@@ -1,92 +1,113 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-lb0-f172.google.com ([209.85.217.172]:41337 "EHLO
-	mail-lb0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755827Ab3INBEd (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 13 Sep 2013 21:04:33 -0400
-Received: by mail-lb0-f172.google.com with SMTP id x18so2619145lbi.17
-        for <fio@vger.kernel.org>; Fri, 13 Sep 2013 18:04:31 -0700 (PDT)
+Return-Path: <jcasse@google.com>
 MIME-Version: 1.0
-From: "Brian L." <brianclam@gmail.com>
-Date: Fri, 13 Sep 2013 18:04:11 -0700
-Message-ID: <CAAAK+WVk9ch4PNrfUb8LHwp800T-qTXbH7tr_Tj9GvZh8a0J1A@mail.gmail.com>
-Subject: output mutating on me
+Sender: jcasse@google.com
+In-Reply-To: <CAPet_23DaVAWzUZ4zpW9XCa54FAF=_zbhdSXh7dM4KjkRR7HWw@mail.gmail.com>
+References: <1379102838-10185-1-git-send-email-jcasse@chromium.org>
+	<EEF9E3C12F20174DA289A981D6CCA6C8324A3CBF95@MX44A.corp.emc.com>
+	<CAPet_23DaVAWzUZ4zpW9XCa54FAF=_zbhdSXh7dM4KjkRR7HWw@mail.gmail.com>
+Date: Mon, 16 Sep 2013 08:40:14 -0700
+Message-ID: <CAPet_215v=q4tsMCYWSdtvgYMfPMtT987gVS+7QLeeWuxN43MQ@mail.gmail.com>
+Subject: Re: [PATCH V2] Adds verify_only option.
+From: Juan Casse <jcasse@chromium.org>
 Content-Type: text/plain; charset=ISO-8859-1
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Transfer-Encoding: quoted-printable
+To: "Ruvinsky, Konstantin" <Konstantin.Ruvinsky@emc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Grant Grundler <grundler@chromium.org>, Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-Just want to seek some advice as this is driving me crazy and I have a
-deadline fast approaching so I am not sure if I can completely change
-course at this point.
+The fio job example attached to the previous email has
+size=3D24k
+bs=3D8k
+readwrite=3Dwrite
 
-So here's the situation - it looks like different run of fio is giving
-me different output.  The outputs are mutating (reproducible) on me so
-it broken my parser and more importantly, my data because I depend on
-"Completion latency" ('clat') for my calculation.  Ugh.  Maybe if I
-use '--minimal' during the run, it might be better but I am too commit
-to change at this point.
+You would expect fio to perform 3 writes, but instead it performs 4.
+This is because the first io is kept in the queue and not counted as
+completed io. The while-do construct in do_io() keeps going until
+completed io >=3D size.
 
-Note below: the 'clat (usec): min=...' line is missing from the first run.
+This behavior does not manifest itself when random_generator=3Dlfsr
+because lfsr knows when to stop generating numbers, and when trying to
+obtain the next io inside the while loop, get_io_u(td) returns NULL
+and breaks out of the loop.
 
-Here's are run examples:
+The behavior does not manifest itself either when norandommap is not
+specified, that is, we use a random map, which ensures that all blocks
+are hit. Once all the blocks are hit, no more io are issued and the
+while loop stops.
 
+The tests that I have run using ioengine=3Dsync do not accumulate io in
+the queue even though iodepth=3D2.
 
-(1st run example)
-===
- {mydisk}- {myrw}- {myiodepth}- {myblocksize}
-/dev/sdb-randrw-32-1024K
-===
-mytest: (g=0): rw=randrw, bs=1M-1M/1M-1M/1M-1M, ioengine=libaio, iodepth=32
-fio-2.1
-Starting 1 process
+Regards,
+Juan
 
-mytest: (groupid=0, jobs=1): err= 0: pid=24678: Thu Sep 12 18:24:13 2013
-  read : io=1058.0MB, bw=169095KB/s, iops=165, runt=  6407msec
-    slat (usec): min=83, max=327, avg=122.89, stdev=12.20 <-- (### My
-comment ###) - What happened to 'clat' and 'lat' after this line?  See
-2nd run example where the lines are there.
-    clat percentiles (usec):
-     |  1.00th=[    0],  5.00th=[    0], 10.00th=[    0], 20.00th=[    0],
+On Mon, Sep 16, 2013 at 7:52 AM, Juan Casse <jcasse@chromium.org> wrote:
+> Hi Konstantin,
+>
+> I use the same code already in fio for stopping. The do_dry_run() uses
+> the same while-do construct as in do_io().
+> After the do_dry_run() completes, the do_verify() will verify the io
+> units that where logged using log_io_piece().
+>
+> On a related subject:
+> I found an unexpected behavior with the current version (2.1.2) of fio
+> when specifying an iodepth > 1 (with a random workload and libaio io
+> engine and the default random generator and not using a random map).
+> An example job that produces the behavior is attached.
+> When a job like that is run, do_io() will perform extra io in the
+> amount of the extra io that was allowed to accumulate in the queue. In
+> other words, if iodepth=3D2, fio will do 1 extra io.
+> I will send a different patch for this.
+>
+> Regards,
+> Juan
+>
+> On Fri, Sep 13, 2013 at 10:53 PM, Ruvinsky, Konstantin
+> <Konstantin.Ruvinsky@emc.com> wrote:
+>> Hi Juan,
+>>
+>> I removed the second question - understood what you meant.
+>>
+>> Regards
+>> Konstantin
+>>
+>> -----Original Message-----
+>> From: Ruvinsky, Konstantin
+>> Sent: Saturday, September 14, 2013 8:34 AM
+>> To: 'Juan Casse'; 'fio@vger.kernel.org'
+>> Subject: RE: [PATCH V2] Adds verify_only option.
+>>
+>> Hi Juan,
+>>
+>> Two questions:
+>> 1. How fio knows where is the last block (where to stop verification run=
+)? Please let me know if I understand it correctly: because lfsr runs witho=
+ut duplicated blocks then number of iterations is device_size/block_size.
+>> 2. You wrote: "The verify_only option performs only verification (reads =
+performed in do_verify()) and no read or write workload". But for verificat=
+ion, even if you made dry run till the end, you need to read. I don't follo=
+w.
+>>
+>> Regards
+>> Konstantin
+>>
+>> -----Original Message-----
+>> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Be=
+half Of Juan Casse
+>> Sent: Friday, September 13, 2013 11:07 PM
+>> To: Jens Axboe
+>> Cc: Grant Grundler; fio@vger.kernel.org; Juan Casse
+>> Subject: [PATCH V2] Adds verify_only option.
+>>
+>> The verify_only option performs only verification (reads performed in do=
+_verify()) and no read or write workload. The goal is to verify previously =
+written meta data quickly and be able to detect stale data.
+>> Without this option, fio does not detect stale data from previous fio ru=
+ns---only data corruption of "misplaced" data.
+>>
+>> This option replays the specified write workload sequence in order to co=
+mpute the "generation number" (using numberio field) for each block header =
+that was written in a previous fio run. The numberio field is used to detec=
+t stale data. do_verify() checks numberio only in the last iteration, after=
+ the correct numberio for each block has been computed.
 
-
-(2nd run example)
-===
- {mydisk}- {myrw}- {myiodepth}- {myblocksize}
-/dev/sdb-randrw-32-64K
-===
-mytest: (g=0): rw=randrw, bs=64K-64K/64K-64K/64K-64K, ioengine=libaio,
-iodepth=32
-fio-2.1
-Starting 1 process
-
-mytest: (groupid=0, jobs=1): err= 0: pid=24344: Thu Sep 12 18:19:41 2013
-  read : io=1308.9MB, bw=76522KB/s, iops=1194, runt= 17515msec
-    slat (usec): min=10, max=205, avg=13.91, stdev= 2.69
-    clat (usec): min=867, max=31655, avg=14835.72, stdev=3382.80 <--
-(### My comment ###) - This line is missing from above
-     lat (usec): min=887, max=31671, avg=14849.32, stdev=3382.55 <--
-(### My comment ###) - This line is missing from above
-    clat percentiles (usec):
-     |  1.00th=[ 8384],  5.00th=[ 9664], 10.00th=[10560], 20.00th=[11712],
-
-
-Keeping everything constant, the different is different on higher
-blocksize - this is reproducible.  Any suggestion / advice here?
-
-
-Here's my fio template - I am looping thru different values for $myrw,
-$mydisk, $myblocksize:
-
-[mytest]
-rw=${myrw}
-filename=${mydisk}
-size=2G
-iodepth=${myiodepth}
-bs=${myblocksize}
-ioengine=libaio
-ramp_time=10s
-direct=1
-end_fsync=0
-invalidate=1
-
-Brian L.
