@@ -1,47 +1,128 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mxi1.enovance.com ([94.143.114.217]:12406 "EHLO
-	mxi1.enovance.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751872Ab3IJPdn (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 10 Sep 2013 11:33:43 -0400
-Received: from zimbra.enovance.com (94-143-114-250.enovance.net [94.143.114.250])
-	by mxi1.enovance.com (Postfix) with ESMTP id CA8E812719
-	for <fio@vger.kernel.org>; Tue, 10 Sep 2013 17:33:41 +0200 (CEST)
-Received: from localhost (mail-1 [127.0.0.1])
-	by zimbra.enovance.com (Postfix) with ESMTP id C84FB492C837
-	for <fio@vger.kernel.org>; Tue, 10 Sep 2013 17:33:41 +0200 (CEST)
-Received: from zimbra.enovance.com ([127.0.0.1])
-	by localhost (zimbra.enovance.com [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IX6SZzCHMmzC for <fio@vger.kernel.org>;
-	Tue, 10 Sep 2013 17:33:41 +0200 (CEST)
-Received: from localhost (mail-1 [127.0.0.1])
-	by zimbra.enovance.com (Postfix) with ESMTP id 897F4497CC61
-	for <fio@vger.kernel.org>; Tue, 10 Sep 2013 17:33:41 +0200 (CEST)
-Received: from zimbra.enovance.com ([127.0.0.1])
-	by localhost (zimbra.enovance.com [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id GeABbjikg7d5 for <fio@vger.kernel.org>;
-	Tue, 10 Sep 2013 17:33:41 +0200 (CEST)
-Received: from localhost.localdomain (94-143-112-83.enovance.net [94.143.112.83])
-	by zimbra.enovance.com (Postfix) with ESMTPSA id 3C2B2492C837
-	for <fio@vger.kernel.org>; Tue, 10 Sep 2013 17:33:41 +0200 (CEST)
-Message-ID: <522F3BD4.80400@enovance.com>
-Date: Tue, 10 Sep 2013 17:33:40 +0200
-From: Erwan Velu <erwan@enovance.com>
-MIME-Version: 1.0
-Subject: A blog article presenting my work on FIO
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Return-Path: <jcasse@chromium.org>
+From: Juan Casse <jcasse@chromium.org>
+Subject: [PATCH] Adds check for numberio during verify phase.
+Date: Tue, 17 Sep 2013 14:06:12 -0700
+Message-Id: <1379451974-16100-1-git-send-email-jcasse@chromium.org>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Grant Grundler <grundler@chromium.org>, fio@vger.kernel.org, Juan Casse <jcasse@chromium.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi all,
+Currently, fio checks the block offset number in a block's header during
+the verify phase.
+We add a check for the io number (numberio) to detect stale blocks. This
+check is performed only on workloads that write data, as those workloads
+know what numberio was written to each block.
+td->io_issues[ddir] = 0; was removed so that numberio does not get reset
+at each iteration; we want numberio to keep incrementing to reflect
+how many times the same data was written.
 
-I've just publish a blog article where I do present my work around fio 
-(fio2gnuplot & genfio).
+Signed-off-by: Juan Casse <jcasse@chromium.org>
+Reviewed-by: Grant Grundler <grundler@chromium.org>
 
-Hope it will help at making fio more popular.
+Fixed typo.
+---
+ ioengine.h |  1 +
+ iolog.c    |  1 +
+ iolog.h    |  1 +
+ libfio.c   |  1 -
+ verify.c   | 14 +++++++++++++-
+ 5 files changed, 16 insertions(+), 2 deletions(-)
 
-http://techs.enovance.com/6110/adding-new-3rd-party-tools-in-fio
+diff --git a/ioengine.h b/ioengine.h
+index 31662eb..812febd 100644
+--- a/ioengine.h
++++ b/ioengine.h
+@@ -50,6 +50,7 @@ struct io_u {
+ 	 */
+ 	unsigned long buflen;
+ 	unsigned long long offset;
++	unsigned short numberio;
+ 	void *buf;
+ 
+ 	/*
+diff --git a/iolog.c b/iolog.c
+index 9bcf0d8..6459d3b 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -188,6 +188,7 @@ void log_io_piece(struct thread_data *td, struct io_u *io_u)
+ 	ipo->file = io_u->file;
+ 	ipo->offset = io_u->offset;
+ 	ipo->len = io_u->buflen;
++	ipo->numberio = io_u->numberio;
+ 
+ 	if (io_u_should_trim(td, io_u)) {
+ 		flist_add_tail(&ipo->trim_list, &td->trim_list);
+diff --git a/iolog.h b/iolog.h
+index 8fedc19..94e0fc1 100644
+--- a/iolog.h
++++ b/iolog.h
+@@ -78,6 +78,7 @@ struct io_piece {
+ 		struct fio_file *file;
+ 	};
+ 	unsigned long long offset;
++	unsigned short numberio;
+ 	unsigned long len;
+ 	unsigned int flags;
+ 	enum fio_ddir ddir;
+diff --git a/libfio.c b/libfio.c
+index c26d6a3..6e290f4 100644
+--- a/libfio.c
++++ b/libfio.c
+@@ -83,7 +83,6 @@ static void reset_io_counters(struct thread_data *td)
+ 		td->this_io_blocks[ddir] = 0;
+ 		td->rate_bytes[ddir] = 0;
+ 		td->rate_blocks[ddir] = 0;
+-		td->io_issues[ddir] = 0;
+ 	}
+ 	td->zone_bytes = 0;
+ 
+diff --git a/verify.c b/verify.c
+index 9e88d61..63def12 100644
+--- a/verify.c
++++ b/verify.c
+@@ -369,6 +369,15 @@ static int verify_io_u_meta(struct verify_header *hdr, struct vcont *vc)
+ 	if (td->o.verify_pattern_bytes)
+ 		ret |= verify_io_u_pattern(hdr, vc);
+ 
++	/*
++	 * For read-only workloads, the program cannot be certain of the
++	 * last numberio written to a block. Checking of numberio will be done
++	 * only for workloads that write data.
++	 */
++	if (td_write(td) || td_rw(td))
++		if (vh->numberio != io_u->numberio)
++			ret = EILSEQ;
++
+ 	if (!ret)
+ 		return 0;
+ 
+@@ -768,7 +777,7 @@ static void fill_meta(struct verify_header *hdr, struct thread_data *td,
+ 	vh->time_sec = io_u->start_time.tv_sec;
+ 	vh->time_usec = io_u->start_time.tv_usec;
+ 
+-	vh->numberio = td->io_issues[DDIR_WRITE];
++	vh->numberio = io_u->numberio;
+ 
+ 	vh->offset = io_u->offset + header_num * td->o.verify_interval;
+ }
+@@ -942,6 +951,8 @@ void populate_verify_io_u(struct thread_data *td, struct io_u *io_u)
+ 	if (td->o.verify == VERIFY_NULL)
+ 		return;
+ 
++	io_u->numberio = td->io_issues[io_u->ddir];
++
+ 	fill_pattern_headers(td, io_u, 0, 0);
+ }
+ 
+@@ -974,6 +985,7 @@ int get_next_verify(struct thread_data *td, struct io_u *io_u)
+ 
+ 		io_u->offset = ipo->offset;
+ 		io_u->buflen = ipo->len;
++		io_u->numberio = ipo->numberio;
+ 		io_u->file = ipo->file;
+ 		io_u->flags |= IO_U_F_VER_LIST;
+ 
+-- 
+1.7.12.4
 
-Enjoy,
-Erwan
+
