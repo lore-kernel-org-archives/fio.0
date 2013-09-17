@@ -1,259 +1,65 @@
-Return-Path: <jcasse@chromium.org>
-From: Juan Casse <jcasse@chromium.org>
-Subject: [PATCH V2] Adds verify_only option.
-Date: Fri, 13 Sep 2013 13:07:18 -0700
-Message-Id: <1379102838-10185-1-git-send-email-jcasse@chromium.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail.thomas-krenn.com ([217.7.54.186]:46917 "EHLO
+	mail.thomas-krenn.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751863Ab3IQJ7S convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Tue, 17 Sep 2013 05:59:18 -0400
+Date: Tue, 17 Sep 2013 11:59:12 +0200 (CEST)
+From: Georg =?utf-8?Q?Sch=C3=B6nberger?= 
+	<gschoenberger@thomas-krenn.com>
+Message-ID: <1592394383.1141089.1379411952545.JavaMail.root@thomas-krenn.com>
+In-Reply-To: <5220C427.9030806@kernel.dk>
+Subject: Re: Running Fio under AIX 7
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
 To: Jens Axboe <axboe@kernel.dk>
-Cc: Grant Grundler <grundler@chromium.org>, fio@vger.kernel.org, Juan Casse <jcasse@chromium.org>
-List-ID: <fio@vger.kernel.org>
+Cc: fio@vger.kernel.org
 
-The verify_only option performs only verification (reads performed
-in do_verify()) and no read or write workload. The goal is to verify
-previously written meta data quickly and be able to detect stale data.
-Without this option, fio does not detect stale data from previous
-fio runs---only data corruption of "misplaced" data.
+Hi Jens,
 
-This option replays the specified write workload sequence in order to
-compute the "generation number" (using numberio field) for each block
-header that was written in a previous fio run. The numberio field is
-used to detect stale data. do_verify() checks numberio only in the
-last iteration, after the correct numberio for each block has been
-computed.
----
- HOWTO            |  8 ++++++-
- README           |  2 ++
- backend.c        | 64 +++++++++++++++++++++++++++++++++++++++++++++++++++++++-
- init.c           | 17 +++++++++++++++
- options.c        |  9 ++++++++
- thread_options.h |  2 ++
- verify.c         |  8 +++++--
- 7 files changed, 106 insertions(+), 4 deletions(-)
+----- Original Message -----
+> From: "Jens Axboe" <axboe@kernel.dk>
+> To: "Georg Schönberger" <gschoenberger@thomas-krenn.com>
+> Cc: fio@vger.kernel.org
+> Sent: Friday, 30 August, 2013 6:11:19 PM
+> Subject: Re: Running Fio under AIX 7
+> 
+> On 08/30/2013 05:53 AM, Georg Schönberger wrote:
+> > Hi fio users,
+> > 
+> > I am trying to run Fio under AIX 7 - according to the documentation
+> > there shouldn't be any problem with it.
+> > For now I am getting the following error, do you have any idea
+> > what's the problem here (filesystem jfs/jfs2)?
+> 
+> Odd, so it's posix_fadvise() getting EINVAL. Most likely reason for
+> that
+> is that fio is not picking up the right values for it.
+> 
+> It finds them here, on this platform:
+> 
+> AIX aixbuild 3 5 00C1DC964C00
+> 
+> Does it need some other magic on AIX 7 to find them? You can bypass
+> the
+> error by setting invalidate_cache=0, but it would be great if you
+> could
+> dig around a bit in /usr/include and see what is up. Alternatively,
+> if I
+> can log into the machine, I can definitely fix it up.
 
-diff --git a/HOWTO b/HOWTO
-index 005dac2..ac35342 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1039,6 +1039,10 @@ loops=int	Run the specified number of iterations of this job. Used
- 		to repeat the same workload a given number of times. Defaults
- 		to 1.
- 
-+verify_only	Check for stale data written to storage in a previous fio run.
-+		The workload used must match the one used in the previous run.
-+		This works for workloads that write data.
-+
- do_verify=bool	Run the verify phase after a write phase. Only makes sense if
- 		verify is set. Defaults to 1.
- 
-@@ -1077,7 +1081,9 @@ verify=str	If writing to a file, fio can verify the file contents
- 
- 			meta	Write extra information about each io
- 				(timestamp, block number etc.). The block
--				number is verified. See also verify_pattern.
-+				number is verified. The io sequence number is
-+				verified for workloads that write data.
-+				See also verify_pattern.
- 
- 			null	Only pretend to verify. Useful for testing
- 				internals with ioengine=null, not for much
-diff --git a/README b/README
-index 15a0731..7942069 100644
---- a/README
-+++ b/README
-@@ -141,6 +141,8 @@ $ fio
- 	--latency-log		Generate per-job latency logs
- 	--bandwidth-log		Generate per-job bandwidth logs
- 	--minimal		Minimal (terse) output
-+	--verifyonly		Skip workload io and only verify data
-+				(includes stale data check)
- 	--output-format=type	Output format (terse,json,normal)
- 	--terse-version=type	Terse version output format (default 3, or 2 or 4).
- 	--version		Print version info and exit
-diff --git a/backend.c b/backend.c
-index b9c1c12..39c2ba7 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1104,6 +1104,65 @@ static int exec_string(struct thread_options *o, const char *string, const char
- }
- 
- /*
-+ * Dry run to compute correct state of numberio for verification.
-+ */
-+static uint64_t do_dry_run(struct thread_data *td)
-+{
-+	uint64_t bytes_done[DDIR_RWDIR_CNT] = { 0, 0, 0 };
-+	unsigned int i;
-+	int ret = 0;
-+
-+	if (in_ramp_time(td))
-+		td_set_runstate(td, TD_RAMP);
-+	else
-+		td_set_runstate(td, TD_RUNNING);
-+
-+	while ((td->o.read_iolog_file && !flist_empty(&td->io_log_list)) ||
-+		(!flist_empty(&td->trim_list)) || !io_bytes_exceeded(td) ||
-+		td->o.time_based) {
-+		struct io_u *io_u;
-+		enum fio_ddir ddir;
-+
-+		if (td->terminate || td->done)
-+			break;
-+
-+		if (flow_threshold_exceeded(td))
-+			continue;
-+
-+		io_u = get_io_u(td);
-+		if (!io_u)
-+			break;
-+
-+		ddir = io_u->ddir;
-+
-+		/*
-+		 * Substitute for td_io_queue(); avoids any io
-+		 */
-+		io_u->flags |= IO_U_F_FLIGHT;
-+		io_u->error = 0;
-+		io_u->resid = 0;
-+		if (ddir_rw(acct_ddir(io_u)))
-+			td->io_issues[acct_ddir(io_u)]++;
-+		if (ddir_rw(io_u->ddir)) {
-+			io_u_mark_depth(td, 1);
-+			td->ts.total_io_u[io_u->ddir]++;
-+		}
-+
-+		ret = io_u_sync_complete(td, io_u, bytes_done);
-+
-+		if (!ddir_rw_sum(bytes_done) && !(td->io_ops->flags & FIO_NOIO))
-+			continue;
-+	}
-+
-+	if (td->o.fill_device && td->error == ENOSPC) {
-+		td->error = 0;
-+		td->terminate = 1;
-+	}
-+
-+	return bytes_done[DDIR_WRITE] + bytes_done[DDIR_TRIM];
-+}
-+
-+/*
-  * Entry point for the thread based jobs. The process based jobs end up
-  * here as well, after a little setup.
-  */
-@@ -1311,7 +1370,10 @@ static void *thread_main(void *data)
- 
- 		prune_io_piece_log(td);
- 
--		verify_bytes = do_io(td);
-+		if (td->o.verify_only && (td_write(td) || td_rw(td)))
-+			verify_bytes = do_dry_run(td);
-+		else
-+			verify_bytes = do_io(td);
- 
- 		clear_state = 1;
- 
-diff --git a/init.c b/init.c
-index 1afc341..34d1f14 100644
---- a/init.c
-+++ b/init.c
-@@ -60,6 +60,8 @@ int write_bw_log = 0;
- int read_only = 0;
- int status_interval = 0;
- 
-+int verify_only = 0;
-+
- static int write_lat_log;
- 
- static int prev_group_jobs;
-@@ -139,6 +141,11 @@ static struct option l_opts[FIO_NR_OPTIONS] = {
- 		.val		= 'r' | FIO_CLIENT_FLAG,
- 	},
- 	{
-+		.name		= (char *) "verifyonly",
-+		.has_arg	= no_argument,
-+		.val		= 'y' | FIO_CLIENT_FLAG,
-+	},
-+	{
- 		.name		= (char *) "eta",
- 		.has_arg	= required_argument,
- 		.val		= 'e' | FIO_CLIENT_FLAG,
-@@ -928,6 +935,13 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
- 	int numjobs, file_alloced;
- 	struct thread_options *o = &td->o;
- 
-+	/* 
-+	 * Ensure job option verify_only is set when provided as a
-+	 * command-line argument.
-+	 */
-+	if (verify_only)
-+		o->verify_only = 1;
-+
- 	/*
- 	 * the def_thread is just for options, it's not a real job
- 	 */
-@@ -1661,6 +1675,9 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 		case 'r':
- 			read_only = 1;
- 			break;
-+		case 'y':
-+			verify_only = 1;
-+			break;
- 		case 'v':
- 			if (!cur_client) {
- 				log_info("%s\n", fio_version_string);
-diff --git a/options.c b/options.c
-index caf89d3..e6b9ec9 100644
---- a/options.c
-+++ b/options.c
-@@ -1935,6 +1935,15 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.group	= FIO_OPT_G_RUNTIME,
- 	},
- 	{
-+		.name	= "verify_only",
-+		.lname	= "Verify only",
-+		.type	= FIO_OPT_STR_SET,
-+		.off1	= td_var_offset(verify_only),
-+		.help	= "Verifies previously written data is still valid",
-+		.category = FIO_OPT_C_GENERAL,
-+		.group	= FIO_OPT_G_RUNTIME,
-+	},
-+	{
- 		.name	= "ramp_time",
- 		.lname	= "Ramp time",
- 		.type	= FIO_OPT_STR_VAL_TIME,
-diff --git a/thread_options.h b/thread_options.h
-index 3f345c5..c9660b4 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -107,6 +107,8 @@ struct thread_options {
- 	unsigned int fsync_on_close;
- 	unsigned int bs_is_seq_rand;
- 
-+	unsigned int verify_only;
-+
- 	unsigned int random_distribution;
- 
- 	fio_fp64_t zipf_theta;
-diff --git a/verify.c b/verify.c
-index 63def12..9343ab9 100644
---- a/verify.c
-+++ b/verify.c
-@@ -373,10 +373,14 @@ static int verify_io_u_meta(struct verify_header *hdr, struct vcont *vc)
- 	 * For read-only workloads, the program cannot be certain of the
- 	 * last numberio written to a block. Checking of numberio will be done
- 	 * only for workloads that write data.
-+	 * For verify_only, numberio will be checked in the last iteration when
-+	 * the correct state of numberio, that would have been written to each
-+	 * block in a previous run of fio, has been reached.
- 	 */
- 	if (td_write(td) || td_rw(td))
--		if (vh->numberio != io_u->numberio)
--			ret = EILSEQ;
-+		if (!td->o.verify_only || td->o.loops == 0)
-+			if (vh->numberio != io_u->numberio)
-+				ret = EILSEQ;
- 
- 	if (!ret)
- 		return 0;
--- 
-1.7.12.4
+Setting invalidate=0 did not fix the error. Or do I have to set it an other option?
 
+# fio --rw=write --name=test --size=10M --invalidate=0
+test: (g=0): rw=write, bs=4K-4K/4K-4K/4K-4K, ioengine=sync, iodepth=1
+fio-2.1.2
+Starting 1 process
+test: Laying out IO file(s) (1 file(s) / 10MB)
+fio: posix_fallocate fails: Invalid argument
+fio: pid=0, err=22/file:filesetup.c:412, func=invalidate_cache, error=Invalid argument
 
+What did you mean with digging around in /usr/include? I expect you mean to look at posix_fadvise, but what information do you exactly need?
+
+Thanks a lot, Georg
