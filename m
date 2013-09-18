@@ -1,54 +1,57 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mxi1.enovance.com ([94.143.114.217]:46309 "EHLO
-	mxi1.enovance.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760431Ab3ICTen (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 3 Sep 2013 15:34:43 -0400
-Received: from zimbra.enovance.com (94-143-114-250.enovance.net [94.143.114.250])
-	by mxi1.enovance.com (Postfix) with ESMTP id D7E6612002
-	for <fio@vger.kernel.org>; Tue,  3 Sep 2013 21:34:39 +0200 (CEST)
-Received: from localhost (mail-1 [127.0.0.1])
-	by zimbra.enovance.com (Postfix) with ESMTP id D576A6E45DF
-	for <fio@vger.kernel.org>; Tue,  3 Sep 2013 21:34:39 +0200 (CEST)
-Received: from zimbra.enovance.com ([127.0.0.1])
-	by localhost (zimbra.enovance.com [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id eAmRU9yIDtaH for <fio@vger.kernel.org>;
-	Tue,  3 Sep 2013 21:34:39 +0200 (CEST)
-Received: from localhost (mail-1 [127.0.0.1])
-	by zimbra.enovance.com (Postfix) with ESMTP id 8A4B2492C837
-	for <fio@vger.kernel.org>; Tue,  3 Sep 2013 21:34:39 +0200 (CEST)
-Received: from zimbra.enovance.com ([127.0.0.1])
-	by localhost (zimbra.enovance.com [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id wqXlK4hSTYoi for <fio@vger.kernel.org>;
-	Tue,  3 Sep 2013 21:34:39 +0200 (CEST)
-Received: from localhost.localdomain (lns-bzn-48f-62-147-157-222.adsl.proxad.net [62.147.157.222])
-	by zimbra.enovance.com (Postfix) with ESMTPSA id 360E65A8DC5B
-	for <fio@vger.kernel.org>; Tue,  3 Sep 2013 21:34:39 +0200 (CEST)
-Message-ID: <522639CE.2030705@enovance.com>
-Date: Tue, 03 Sep 2013 21:34:38 +0200
-From: Erwan Velu <erwan@enovance.com>
+Return-Path: <jcasse@google.com>
 MIME-Version: 1.0
-Subject: How to loop a timebased job
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Date: Wed, 18 Sep 2013 09:48:56 -0700
+Message-ID: <CAPet_23oDq3Xa=tBJbEYPSKDx292DiA2s2-dhFcEmFMJGhPmcg@mail.gmail.com>
+Subject: Testing
+From: Juan Casse <jcasse@google.com>
+Content-Type: multipart/mixed; boundary=047d7b86c5ca9e0b1c04e6ab364b
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: Grant Grundler <grundler@chromium.org>
+List-ID: <fio@vger.kernel.org>
 
-Hey,
+--047d7b86c5ca9e0b1c04e6ab364b
+Content-Type: text/plain; charset=ISO-8859-1
 
-I'm on the IRC channel trying to help someone that needs to do the 
-following :
+Hi Jens:
 
-doing IOs for x seconds
-sleeping for y seconds
-and looping this z times
+Attached is the test script that I have been using to test my changes.
+Do you have some other tests that I could use?
 
-While trying to setup this, I faced that loops and timebased seems 
-exclusive options.
-Am I wrong on this point ?
+Regards,
+Juan
 
-If not, would it be possible not to let them exclusive or add a new 
-option to handle this case?
+--047d7b86c5ca9e0b1c04e6ab364b
+Content-Type: application/x-sh; name="jcasse_test.sh"
+Content-Disposition: attachment; filename="jcasse_test.sh"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_hlqsbvd10
 
-Cheers,
-Erwan
+IyEvYmluL2Jhc2gKCkxPR0ZJTEU9amNhc3NlX2xvZwpKT0JGSUxFPWpjYXNzZS5maW8KCldPUktM
+T0FEUz0oInJlYWQiICJyYW5kcmVhZCIgIndyaXRlIiAicmFuZHdyaXRlIiAicnciICJyYW5kcnci
+KQojSU9FTkdJTkVTPSgicHN5bmMiICJ2c3luYyIgInBzeW5jdiIgIm1tYXAiICJzcGxpY2UiICJz
+eXNsZXQtcnciICJndWFzaSIpCklPRU5HSU5FUz0oInN5bmMiICJsaWJhaW8iKQpSQU5ET01NQVA9
+KCIiICJub3JhbmRvbW1hcCIpClJBTkRPTUdFTj0oInRhdXN3b3J0aGUiICJsZnNyIikKSU9ESVJF
+Q1Q9KCJkaXJlY3Q9MCIgImRpcmVjdD0xIikKSU9ERVBUSD0oImlvZGVwdGg9MSIgImlvZGVwdGg9
+MiIpCgplY2hvIFdvcmtsb2FkcyB0aGF0IGZhaWxlZCB2ZXJpZmljYXRpb246ID4gJExPR0ZJTEUK
+CmZvciB3b3JrbG9hZCBpbiAiJHtXT1JLTE9BRFNbQF19IgpkbwoKICAgIGZvciBpb2VuZ2luZSBp
+biAiJHtJT0VOR0lORVNbQF19IgogICAgZG8KCiAgICAgICAgZm9yIHJhbmRvbWdlbiBpbiAiJHtS
+QU5ET01HRU5bQF19IgogICAgICAgIGRvCgogICAgICAgICAgICBmb3IgcmFuZG9tbWFwIGluICIk
+e1JBTkRPTU1BUFtAXX0iCiAgICAgICAgICAgIGRvCgogICAgICAgICAgICAgICAgZm9yIGlvZGly
+ZWN0IGluICIke0lPRElSRUNUW0BdfSIKICAgICAgICAgICAgICAgIGRvCgogICAgICAgICAgICAg
+ICAgICAgIGZvciBpb2RlcHRoIGluICIke0lPREVQVEhbQF19IgogICAgICAgICAgICAgICAgICAg
+IGRvCgojIENyZWF0ZSBqb2IgZmlsZQpjYXQgPiAkSk9CRklMRSA8PCBFbmQtb2Ytam9iCltnbG9i
+YWxdCmZpbGVuYW1lPWpjYXNzZV9kYXRhCnNpemU9MW0KYnM9NGsKbG9vcHM9MgpyYW5kcmVwZWF0
+PTEKdmVyaWZ5PW1ldGEKdmVyaWZ5X3BhdHRlcm49MHhmZmZmZmZmZmZmZmZmZmZmCnZlcmlmeV9k
+dW1wPTAKY29udGludWVfb25fZXJyb3I9dmVyaWZ5CgpbamNhc3NlX2pvYl0KcmVhZHdyaXRlPSR7
+d29ya2xvYWR9CiR7aW9kaXJlY3R9CiR7aW9kZXB0aH0KaW9lbmdpbmU9JHtpb2VuZ2luZX0KcmFu
+ZG9tX2dlbmVyYXRvcj0ke3JhbmRvbWdlbn0KJHtyYW5kb21tYXB9CkVuZC1vZi1qb2IKCiMgUnVu
+IGZpbwplcnI9ImAuL2ZpbyAkSk9CRklMRSB8IGdyZXAgZXJyb3JzIHwgY3V0IC1jMjRgIgplcnI9
+ImAuL2ZpbyAkSk9CRklMRSAtLXZlcmlmeW9ubHkgfCBncmVwIGVycm9ycyB8IGN1dCAtYzI0YCIK
+CiMgTG9nIHdvcmtsb2FkcyB0aGF0IGZhaWxlZCB2ZXJpZmljYXRpb24KaWYgWyAkZXJyICE9IDAg
+XQp0aGVuCmNhdCA+PiAkTE9HRklMRSA8PCBFT0YKJHt3b3JrbG9hZH0gXAoke2lvZGlyZWN0fSBc
+CiR7aW9kZXB0aH0gXAoke2lvZW5naW5lfSBcCiR7cmFuZG9tZ2VufSBcCiR7cmFuZG9tbWFwfQpF
+T0YKZmkKCiAgICAgICAgICAgICAgICAgICAgZG9uZQoKICAgICAgICAgICAgICAgIGRvbmUKCiAg
+ICAgICAgICAgIGRvbmUKCiAgICAgICAgZG9uZQoKICAgIGRvbmUKCmRvbmUK
+--047d7b86c5ca9e0b1c04e6ab364b--
+
+
