@@ -1,65 +1,39 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail.thomas-krenn.com ([217.7.54.186]:46917 "EHLO
-	mail.thomas-krenn.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751863Ab3IQJ7S convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 17 Sep 2013 05:59:18 -0400
-Date: Tue, 17 Sep 2013 11:59:12 +0200 (CEST)
-From: Georg =?utf-8?Q?Sch=C3=B6nberger?= 
-	<gschoenberger@thomas-krenn.com>
-Message-ID: <1592394383.1141089.1379411952545.JavaMail.root@thomas-krenn.com>
-In-Reply-To: <5220C427.9030806@kernel.dk>
-Subject: Re: Running Fio under AIX 7
+Received: from merlin.infradead.org ([205.233.59.134]:34221 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752509Ab3ITPUo (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 20 Sep 2013 11:20:44 -0400
+Message-ID: <523C67B7.50909@kernel.dk>
+Date: Fri, 20 Sep 2013 09:20:23 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH] Fixes bug: stale LAST_POS(f) is not being reset.
+References: <1379624876-27770-1-git-send-email-jcasse@chromium.org>
+In-Reply-To: <1379624876-27770-1-git-send-email-jcasse@chromium.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org
+To: Juan Casse <jcasse@chromium.org>
+Cc: Grant Grundler <grundler@chromium.org>, fio@vger.kernel.org
 
-Hi Jens,
-
------ Original Message -----
-> From: "Jens Axboe" <axboe@kernel.dk>
-> To: "Georg Schönberger" <gschoenberger@thomas-krenn.com>
-> Cc: fio@vger.kernel.org
-> Sent: Friday, 30 August, 2013 6:11:19 PM
-> Subject: Re: Running Fio under AIX 7
+On 09/19/2013 03:07 PM, Juan Casse wrote:
+> Problem:
+> When running fio with ioengine=sync, LAST_POS(f) state is not
+> reset after the file is closed. This causes workloads with
+> readwrite=randread and loops > 1 to fail verification if the
+> state of LAST_POS(f) at the beginning of the next loop is the
+> same as the io_u->offset. If that is the case, lseek in not
+> invoked, but the file position is at 0 and not at io_u->offset.
 > 
-> On 08/30/2013 05:53 AM, Georg Schönberger wrote:
-> > Hi fio users,
-> > 
-> > I am trying to run Fio under AIX 7 - according to the documentation
-> > there shouldn't be any problem with it.
-> > For now I am getting the following error, do you have any idea
-> > what's the problem here (filesystem jfs/jfs2)?
-> 
-> Odd, so it's posix_fadvise() getting EINVAL. Most likely reason for
-> that
-> is that fio is not picking up the right values for it.
-> 
-> It finds them here, on this platform:
-> 
-> AIX aixbuild 3 5 00C1DC964C00
-> 
-> Does it need some other magic on AIX 7 to find them? You can bypass
-> the
-> error by setting invalidate_cache=0, but it would be great if you
-> could
-> dig around a bit in /usr/include and see what is up. Alternatively,
-> if I
-> can log into the machine, I can definitely fix it up.
+> Proposed Solution:
+> Other ioengines, such as binject and fusion-aw, set f->engine_data
+> to 0 when closing the file. The sync ioengin uses f->engine_data to
+> store the LAST_POS(f) state. The proposed solution is to set
+> f->engine_data = 0 when closing a file in generic_close_file().
 
-Setting invalidate=0 did not fix the error. Or do I have to set it an other option?
+Thanks, good catch and fix. Applied.
 
-# fio --rw=write --name=test --size=10M --invalidate=0
-test: (g=0): rw=write, bs=4K-4K/4K-4K/4K-4K, ioengine=sync, iodepth=1
-fio-2.1.2
-Starting 1 process
-test: Laying out IO file(s) (1 file(s) / 10MB)
-fio: posix_fallocate fails: Invalid argument
-fio: pid=0, err=22/file:filesetup.c:412, func=invalidate_cache, error=Invalid argument
+-- 
+Jens Axboe
 
-What did you mean with digging around in /usr/include? I expect you mean to look at posix_fadvise, but what information do you exactly need?
-
-Thanks a lot, Georg
