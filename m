@@ -1,86 +1,72 @@
-Return-Path: <jcasse@chromium.org>
-From: Juan Casse <jcasse@chromium.org>
-Subject: [PATCH] Add condition to stop issuing io in do_io().
-Date: Mon, 16 Sep 2013 09:22:10 -0700
-Message-Id: <1379348530-2920-1-git-send-email-jcasse@chromium.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Grant Grundler <grundler@chromium.org>, fio@vger.kernel.org, Juan Casse <jcasse@chromium.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mailuogwhop.emc.com ([168.159.213.141]:28606 "EHLO
+	mailuogwhop.emc.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751301Ab3IXNtZ convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Tue, 24 Sep 2013 09:49:25 -0400
+Received: from maildlpprd04.lss.emc.com (maildlpprd04.lss.emc.com [10.253.24.36])
+	by mailuogwprd04.lss.emc.com (Sentrion-MTA-4.3.0/Sentrion-MTA-4.3.0) with ESMTP id r8ODnO6Y020394
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <fio@vger.kernel.org>; Tue, 24 Sep 2013 09:49:24 -0400
+Received: from mailusrhubprd54.lss.emc.com (mailusrhubprd54.lss.emc.com [10.106.48.19]) by maildlpprd04.lss.emc.com (RSA Interceptor) for <fio@vger.kernel.org>; Tue, 24 Sep 2013 06:49:13 -0700
+Received: from mxhub20.corp.emc.com (mxhub20.corp.emc.com [10.254.93.49])
+	by mailusrhubprd54.lss.emc.com (Sentrion-MTA-4.3.0/Sentrion-MTA-4.3.0) with ESMTP id r8ODnC50024980
+	(version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=FAIL)
+	for <fio@vger.kernel.org>; Tue, 24 Sep 2013 09:49:13 -0400
+From: "Ruvinsky, Konstantin" <Konstantin.Ruvinsky@emc.com>
+Date: Tue, 24 Sep 2013 09:49:11 -0400
+Subject: RE: data integrity test using job file
+Message-ID: <EEF9E3C12F20174DA289A981D6CCA6C8324A3CC64D@MX44A.corp.emc.com>
+References: <EEF9E3C12F20174DA289A981D6CCA6C8324A3CC645@MX44A.corp.emc.com>
+In-Reply-To: <EEF9E3C12F20174DA289A981D6CCA6C8324A3CC645@MX44A.corp.emc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Problem:
-When specifying iodepth > 1 while doing random async io
-without a random map (and using the default random generator), the
-main while loop in do_io() will issue extra io in the amount of io
-allowed to accumulate in the queue. For example, a job with size=24k
-and bs=8k will perform 4 io instead of the expected 3.
+Such behavior of stonewall parameter (see mail below) looks like a bug since anticipated behavior (see man pages) is "Wait for preceding jobs in the job file to exit, before starting this one".
 
-Reason:
-The above behavior occurs because the while loop in do_io()
-will continue until the amount of "completed io" >= size, but io
-in the queue are not accounted for because they have not been
-completed by io_u_queued_complete().
+-----Original Message-----
+From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Behalf Of Ruvinsky, Konstantin
+Sent: Tuesday, September 24, 2013 4:17 PM
+To: fio@vger.kernel.org
+Subject: data integrity test using job file
 
-Exceptions:
-The above behavior does not manifest itself when:
-	using random_generator=lfsr bacause lfsr knows when to stop
-	generating, and get_io_u() inside the while loop returns NULL,
-	breaking out of the loop.
-	using random map because random map ensures that all blocks
-	are hit, and after they are all hit, no more are generated.
+Hi,
 
-Proposed Solution:
-Stop while loop based on bytes issued instead of bytes completed.
----
- backend.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+Running the following job file at the beginning for write (fio -section=write fio-job.txt) and then for verify (fio -section=read fio-job.txt) I got correct results:
+were created 4 files kuku.1.0, kuku.2.0, kuku.3.0, kuku.4.0 by write and read verified them.
+Is there any possibility to accomplish write at the beginning and then verify process without -section parameter in a command line?
+I hoped that stonewall parameter allows to do this. But if I run "fio  fio-job.txt" eight files are created (additional files kuku.5.0 etc.) and read checks them with data corruption error.
 
-diff --git a/backend.c b/backend.c
-index b9c1c12..180a487 100644
---- a/backend.c
-+++ b/backend.c
-@@ -642,6 +642,7 @@ static uint64_t do_io(struct thread_data *td)
- 	uint64_t bytes_done[DDIR_RWDIR_CNT] = { 0, 0, 0 };
- 	unsigned int i;
- 	int ret = 0;
-+	uint64_t bytes_issued = 0;
- 
- 	if (in_ramp_time(td))
- 		td_set_runstate(td, TD_RAMP);
-@@ -675,6 +676,9 @@ static uint64_t do_io(struct thread_data *td)
- 		if (flow_threshold_exceeded(td))
- 			continue;
- 
-+		if (bytes_issued >= (uint64_t) td->o.size)
-+			break;
-+
- 		io_u = get_io_u(td);
- 		if (!io_u)
- 			break;
-@@ -708,6 +712,7 @@ static uint64_t do_io(struct thread_data *td)
- 				int bytes = io_u->xfer_buflen - io_u->resid;
- 				struct fio_file *f = io_u->file;
- 
-+				bytes_issued += bytes;
- 				/*
- 				 * zero read, fail
- 				 */
-@@ -738,6 +743,7 @@ sync_done:
- 				ret = io_u_sync_complete(td, io_u, bytes_done);
- 				if (ret < 0)
- 					break;
-+				bytes_issued += io_u->xfer_buflen;
- 			}
- 			break;
- 		case FIO_Q_QUEUED:
-@@ -748,6 +754,7 @@ sync_done:
- 			 */
- 			if (td->io_ops->commit == NULL)
- 				io_u_queued(td, io_u);
-+			bytes_issued += io_u->xfer_buflen;
- 			break;
- 		case FIO_Q_BUSY:
- 			requeue_io_u(td, &io_u);
--- 
-1.7.12.4
+[global]
+bs=32k
+ioengine=windowsaio
+numjobs=4
+thread
+direct=1
+size=100m
+directory=e:\
+random_generator=lfsr
+randrepeat=1
+filename_format=kuku.$jobnum.$filenum
+group_reporting
+verify=md5
 
+[write]
+rw=randwrite
+do_verify=0
+
+[read]
+stonewall
+rw=randread
+do_verify=1
+verify_fatal=1
+
+Thanks
+Konstantin
+--
+To unsubscribe from this list: send the line "unsubscribe fio" in the body of a message to majordomo@vger.kernel.org More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
