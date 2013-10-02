@@ -1,38 +1,31 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:49771 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754747Ab3JDPuO (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 4 Oct 2013 11:50:14 -0400
-Message-ID: <524EE386.2050800@kernel.dk>
-Date: Fri, 04 Oct 2013 09:49:26 -0600
-From: Jens Axboe <axboe@kernel.dk>
-MIME-Version: 1.0
+Return-Path: <sits@sucs.org>
+Date: Wed, 2 Oct 2013 15:18:39 +0100
+From: Sitsofe Wheeler <sitsofe@yahoo.com>
 Subject: Re: [PULL REQUEST] Man page updates
+Message-ID: <20131002141838.GA13247@sucs.org>
 References: <1380661774.14931.YahooMailNeo@web124903.mail.ne1.yahoo.com>
-In-Reply-To: <1380661774.14931.YahooMailNeo@web124903.mail.ne1.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@yahoo.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+ <EEF9E3C12F20174DA289A981D6CCA6C8324A5C8515@MX44A.corp.emc.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <EEF9E3C12F20174DA289A981D6CCA6C8324A5C8515@MX44A.corp.emc.com>
+To: "Ruvinsky, Konstantin" <Konstantin.Ruvinsky@emc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "Jens Axboe (axboe@kernel.dk) (axboe@kernel.dk)" <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-On 10/01/2013 03:09 PM, Sitsofe Wheeler wrote:
-> Hi,
-> 
-> This branch updates the man page to better match recent versions of fio.
-> 
-> The following changes since commit de8f6de97438d5664cd8765e60102b9109a273e2:
-> 
->   Fix misspellings using 'codespell' tool (2013-09-27 08:28:55 -0600)
-> 
-> are available in the git repository at:
-> 
->   https://github.com/sitsofe/fio.git manpage
+Hi Konstantin,
 
-I've pulled this in, thanks. If you could double check Konstantins stuff
-too, that'd be great.
+On Wed, Oct 02, 2013 at 01:48:25AM -0400, Ruvinsky, Konstantin wrote:
+> 
+> If you correct the man pages, please remove the second redundant definition of write_bw_log:
+> 
+> write_bw_log=str If given, write an IOPS log of the jobs in this job
+>       		file. See write_bw_log.
+
+I can't see where that is in
+http://git.kernel.dk/?p=fio.git;a=blob_plain;f=fio.1;hb=HEAD - are you
+sure you're looking at HEAD?
 
 -- 
-Jens Axboe
+Sitsofe | http://sucs.org/~sits/
 
