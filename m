@@ -1,43 +1,47 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail.uni-ulm.de ([134.60.1.11]:60837 "EHLO mail.uni-ulm.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754917Ab3JCVJJ (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 3 Oct 2013 17:09:09 -0400
-Received: from highx.de (p5B2F800F.dip0.t-ipconnect.de [91.47.128.15])
-	(authenticated bits=0)
-	by mail.uni-ulm.de (8.14.6/8.14.2) with ESMTP id r93KiREO002086
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES128-SHA bits=128 verify=NOT)
-	for <fio@vger.kernel.org>; Thu, 3 Oct 2013 22:44:31 +0200 (MEST)
-Date: Thu, 3 Oct 2013 22:42:06 +0200
-From: Juergen Salk <juergen.salk@gmx.de>
-Subject: Re: precondition ssd drives w/ fio
-Message-ID: <20131003204206.GA28048@highx.de>
-References: <CAAAK+WW66DdYt2JEG+2K42vWzczn38xtnh5WK-1x97zFbdkyqg@mail.gmail.com>
+Received: from smtprelay0187.hostedemail.com ([216.40.44.187]:37508 "EHLO
+	smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1754548Ab3JCUGA (ORCPT
+	<rfc822;fio@vger.kernel.org>); Thu, 3 Oct 2013 16:06:00 -0400
+Message-ID: <524DCE29.3050808@nellans.org>
+Date: Thu, 03 Oct 2013 15:06:01 -0500
+From: David Nellans <david@nellans.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: precondition ssd drives w/ fio
+References: <CAAAK+WW66DdYt2JEG+2K42vWzczn38xtnh5WK-1x97zFbdkyqg@mail.gmail.com>
 In-Reply-To: <CAAAK+WW66DdYt2JEG+2K42vWzczn38xtnh5WK-1x97zFbdkyqg@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Brian L." <brianclam@gmail.com>
+To: "Brian L." <brianclam@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-* Brian L. <brianclam@gmail.com> [131003 12:31]:
 
+
+On 10/03/2013 02:31 PM, Brian L. wrote:
 > For benchmarking SSD drives, I was told that we should precondition
 > our drives to get more accurate real world reading.
->=20
+>
 > I was wondering if anyone is using fio itself to precondition ssd
 > drives or use a different script to populate random data on the
 > drives?
+>
+> Thanks in advance.
+>
+> Brian L.
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
-Yes I did. The fio source tarball comes with a number of sample
-job files including `ssd-steadystate.fio=EF=BF=BD, which might be
-useful for preconditioning of ssd devices.=20
 
-Regards,
+fio is flexible enough that it can precondition with just about any 
+shape of traffic you're willing to craft a job for.  but what traffic
+you believe is representative of your real world use case
+is entirely up to you and can have dramatic affect on the garbage 
+collection efficiency of the drive.
 
-Juergen
-
---=20
-GPG A997BA7A | 87FC DA31 5F00 C885 0DC3  E28F BD0D 4B33 A997 BA7A
+google "ssd preconditioning" and many of the flash manufacturers have
+whitepapers on how/why you might choose to precondition your drives
+before doing any benchmarking.
