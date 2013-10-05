@@ -1,57 +1,57 @@
-Return-Path: <honkiko@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:58676 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750988Ab3JEAv6 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 4 Oct 2013 20:51:58 -0400
+Date: Fri, 4 Oct 2013 18:51:56 -0600
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PULL REQUEST] Man page and HOWTO updates
+Message-ID: <20131005005156.GG5434@kernel.dk>
+References: <1380925258.67340.YahooMailNeo@web124901.mail.ne1.yahoo.com>
 MIME-Version: 1.0
-From: Hong Zhiguo <honkiko@gmail.com>
-Subject: [PATCH] fix crash: free of wrong pointer in bssplit_ddir
-Date: Tue, 8 Oct 2013 15:02:25 +0800
-Message-ID: <1381215745-15813-1-git-send-email-zhiguohong@tencent.com>
-Content-Type: text/plain
-To: fio@vger.kernel.org
-Cc: axboe@kernel.dk, jaxboe@fusionio.com, Hong Zhiguo <zhiguohong@tencent.com>
-List-ID: <fio@vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <1380925258.67340.YahooMailNeo@web124901.mail.ne1.yahoo.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@yahoo.com>
+Cc: "\"fio@vger.kernel.org\"" <fio@vger.kernel.org>, "\"Ruvinsky, Konstantin\"" <Konstantin.Ruvinsky@emc.com>
 
-From: Hong Zhiguo <zhiguohong@tencent.com>
+On Fri, Oct 04 2013, Sitsofe Wheeler wrote:
+> Hi,
+>=20
+> (this includes=EF=BF=BDKonstantin's fixes)
+>=20
+> The following changes since commit cecbfd478e880f4645ff8a3bc2d87335d9e3f4=
+b9:
+>=20
+> =EF=BF=BD man page: Fix typos (2013-10-04 22:56:49 +0100)
+>=20
+> are available in the git repository at:
+>=20
+> =EF=BF=BD https://github.com/sitsofe/fio.git help
+>=20
+> for you to fetch changes up to 3bb0a7b0fda9945973f799ab253c70d3cb0e5c8b:
+>=20
+> =EF=BF=BD howto: Fix redundant entries (2013-10-04 23:09:42 +0100)
+>=20
+> ----------------------------------------------------------------
+> Sitsofe Wheeler (4):
+> =EF=BF=BD =EF=BF=BD =EF=BF=BD man page: manpagify things that look like s=
+yscalls.
+> =EF=BF=BD =EF=BF=BD =EF=BF=BD man page: fix broken formatting before OUTP=
+UT section
+> =EF=BF=BD =EF=BF=BD =EF=BF=BD man page: Bump up release date
+> =EF=BF=BD =EF=BF=BD =EF=BF=BD howto: Fix redundant entries
+>=20
+> =EF=BF=BDHOWTO | =EF=BF=BD6 ------
+> =EF=BF=BDfio.1 | 65 ++++++++++++++++++++++++++++++++---------------------=
+------------
+> =EF=BF=BD2 files changed, 32 insertions(+), 39 deletions(-)
 
-I got SIGABRT when I passed "bssplit=4k/10:64k/50:/40" to fio.
-It should be "bssplit=4k/10:64k/50:32k/40" but I missed "32k" in
-my typing. The bug turns out to be another typo just like mine:)
+Thanks, pulled!
 
-*** glibc detected *** /viki/lkml/fio/fio: free(): invalid pointer:
-0x000000000071fd30 ***
-======= Backtrace: =========
-/lib/libc.so.6(+0x78bb6)[0x7ffff700cbb6]
-/lib/libc.so.6(cfree+0x73)[0x7ffff7013483]
-/viki/lkml/fio/fio[0x42c108]
-/viki/lkml/fio/fio[0x42c475]
-/viki/lkml/fio/fio[0x429194]
-/viki/lkml/fio/fio[0x42a888]
-/viki/lkml/fio/fio(parse_option+0x101)[0x42ac47]
-/viki/lkml/fio/fio(fio_options_parse+0x95)[0x42e5b3]
-/viki/lkml/fio/fio(parse_jobs_ini+0x3ae)[0x4103ae]
-/viki/lkml/fio/fio(parse_options+0x112)[0x41198a]
-/viki/lkml/fio/fio(main+0x3b)[0x460f5b]
-/lib/libc.so.6(__libc_start_main+0xfd)[0x7ffff6fb2c4d]
-/viki/lkml/fio/fio[0x40a7c9]
-
-Signed-off-by: Hong Zhiguo <zhiguohong@tencent.com>
-Tested-by: Hong Zhiguo <zhiguohong@tencent.com>
----
- options.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/options.c b/options.c
-index a064764..4b91f52 100644
---- a/options.c
-+++ b/options.c
-@@ -104,7 +104,7 @@ static int bssplit_ddir(struct thread_options *o, int ddir, char *str)
- 
- 		if (str_to_decimal(fname, &val, 1, o)) {
- 			log_err("fio: bssplit conversion failed\n");
--			free(o->bssplit);
-+			free(bssplit);
- 			return 1;
- 		}
- 
--- 
-1.7.0.4
-
+--=20
+Jens Axboe
 
