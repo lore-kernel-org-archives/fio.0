@@ -1,30 +1,63 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vc0-f170.google.com ([209.85.220.170]:65215 "EHLO
-	mail-vc0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753077Ab3JMCeG (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 12 Oct 2013 22:34:06 -0400
-Received: by mail-vc0-f170.google.com with SMTP id lc6so3939027vcb.15
-        for <fio@vger.kernel.org>; Sat, 12 Oct 2013 19:34:05 -0700 (PDT)
+Return-Path: <axboe@kernel.dk>
 MIME-Version: 1.0
-Date: Sat, 12 Oct 2013 19:34:05 -0700
-Message-ID: <CAF+0mv=YQqGT4=-_Zm+Smzw7aduVFrq4FxEgOz7fFuHG6Xn6+g@mail.gmail.com>
-Subject: Using fio to test SSD (SNIA)
-From: Matthew Eaton <m.eaton82@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <52541B2E.70806@kernel.dk>
+Date: Tue, 8 Oct 2013 08:48:14 -0600
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] fix crash: free of wrong pointer in bssplit_ddir
+References: <1381215745-15813-1-git-send-email-zhiguohong@tencent.com>
+In-Reply-To: <1381215745-15813-1-git-send-email-zhiguohong@tencent.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+To: Hong Zhiguo <honkiko@gmail.com>, fio@vger.kernel.org
+Cc: jaxboe@fusionio.com, Hong Zhiguo <zhiguohong@tencent.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi guys,
+On 10/08/2013 01:02 AM, Hong Zhiguo wrote:
+> From: Hong Zhiguo <zhiguohong@tencent.com>
+> 
+> I got SIGABRT when I passed "bssplit=4k/10:64k/50:/40" to fio.
+> It should be "bssplit=4k/10:64k/50:32k/40" but I missed "32k" in
+> my typing. The bug turns out to be another typo just like mine:)
+> 
+> *** glibc detected *** /viki/lkml/fio/fio: free(): invalid pointer:
+> 0x000000000071fd30 ***
+> ======= Backtrace: =========
+> /lib/libc.so.6(+0x78bb6)[0x7ffff700cbb6]
+> /lib/libc.so.6(cfree+0x73)[0x7ffff7013483]
+> /viki/lkml/fio/fio[0x42c108]
+> /viki/lkml/fio/fio[0x42c475]
+> /viki/lkml/fio/fio[0x429194]
+> /viki/lkml/fio/fio[0x42a888]
+> /viki/lkml/fio/fio(parse_option+0x101)[0x42ac47]
+> /viki/lkml/fio/fio(fio_options_parse+0x95)[0x42e5b3]
+> /viki/lkml/fio/fio(parse_jobs_ini+0x3ae)[0x4103ae]
+> /viki/lkml/fio/fio(parse_options+0x112)[0x41198a]
+> /viki/lkml/fio/fio(main+0x3b)[0x460f5b]
+> /lib/libc.so.6(__libc_start_main+0xfd)[0x7ffff6fb2c4d]
+> /viki/lkml/fio/fio[0x40a7c9]
+> 
+> Signed-off-by: Hong Zhiguo <zhiguohong@tencent.com>
+> Tested-by: Hong Zhiguo <zhiguohong@tencent.com>
+> ---
+>  options.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/options.c b/options.c
+> index a064764..4b91f52 100644
+> --- a/options.c
+> +++ b/options.c
+> @@ -104,7 +104,7 @@ static int bssplit_ddir(struct thread_options *o, int ddir, char *str)
+>  
+>  		if (str_to_decimal(fname, &val, 1, o)) {
+>  			log_err("fio: bssplit conversion failed\n");
+> -			free(o->bssplit);
+> +			free(bssplit);
+>  			return 1;
+>  		}
 
-I'm using fio apply an enterprise SNIA test on a single SATA SSD but
-one thing that confuses me is how to choose the number of threads and
-oio per thread. What settings would you guys recommend?
+Nice catch! Thanks, applied.
 
-I'm currently using 16 threads and 64 oio per thread so total oio is
-1024. Is that overkill?
+-- 
+Jens Axboe
 
-Also, I've been wondering since an SSD has a queue depth of 32, where
-are the oios >32 stored?
 
-Thank you for any insight here.
