@@ -1,28 +1,49 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-lb0-f176.google.com ([209.85.217.176]:49170 "EHLO
-	mail-lb0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754787Ab3JJRIg (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 10 Oct 2013 13:08:36 -0400
-Received: by mail-lb0-f176.google.com with SMTP id y6so2344803lbh.21
-        for <fio@vger.kernel.org>; Thu, 10 Oct 2013 10:08:34 -0700 (PDT)
-MIME-Version: 1.0
-From: "Brian L." <brianclam@gmail.com>
-Date: Thu, 10 Oct 2013 10:08:13 -0700
-Message-ID: <CAAAK+WXw_-gAJL9u9Bibvz=4aHVH2YYvgQRi2sMvekY6xDRR4A@mail.gmail.com>
-Subject: IO scheduler
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from mail-pb0-f53.google.com ([209.85.160.53]:35636 "EHLO
+	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756179Ab3JHXZ1 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 8 Oct 2013 19:25:27 -0400
+Received: by mail-pb0-f53.google.com with SMTP id up15so19115pbc.26
+        for <fio@vger.kernel.org>; Tue, 08 Oct 2013 16:25:26 -0700 (PDT)
+From: Akinobu Mita <akinobu.mita@gmail.com>
+Subject: [PATCH] fix way of setting ioengine specific parameter
+Date: Wed,  9 Oct 2013 08:25:11 +0900
+Message-Id: <1381274711-4263-1-git-send-email-akinobu.mita@gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
+Cc: Akinobu Mita <akinobu.mita@gmail.com>
 
-Hi there,
+When I tried to specify userspace_reap parameter which is libaio
+ioengine specific, it caused segfault because thread_data.o.description
+was unexpectedly set to 1.
 
-I was wondering if you guys use NOOP IO scheduler when you are running fio?
+The problem is in a way of setting ioengine specific parameter which
+doesn't correctly set the value at corresponding offset in thread_data.eo,
+but it unexpectedly sets the value in the same offset in thread_data.o
+instead.
 
-I use the CFQ IO scheduler but I do put the OS into init 1 and run fio
-process one at a time so that I can get accurate readings.
+This fixes it by providing a correct pointer when setting the ioengine
+specific parameters.
 
-I was wondering what are people practice and experience in the real world.
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+---
+ options.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
-Brian L.
+diff --git a/options.c b/options.c
+index 4b91f52..f26ff77 100644
+--- a/options.c
++++ b/options.c
+@@ -3603,7 +3603,7 @@ int fio_cmd_option_parse(struct thread_data *td, const char *opt, char *val)
+ int fio_cmd_ioengine_option_parse(struct thread_data *td, const char *opt,
+ 				char *val)
+ {
+-	return parse_cmd_option(opt, val, td->io_ops->options, td);
++	return parse_cmd_option(opt, val, td->io_ops->options, td->eo);
+ }
+ 
+ void fio_fill_default_options(struct thread_data *td)
+-- 
+1.8.3.1
+
