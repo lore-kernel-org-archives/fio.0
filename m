@@ -1,49 +1,34 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from nm5-vm0.bullet.mail.bf1.yahoo.com ([98.139.213.150]:41775 "EHLO
-	nm5-vm0.bullet.mail.bf1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751348Ab3JDWVA convert rfc822-to-8bit
-	(ORCPT <rfc822;fio@vger.kernel.org>); Fri, 4 Oct 2013 18:21:00 -0400
-Message-ID: <1380925258.67340.YahooMailNeo@web124901.mail.ne1.yahoo.com>
-Date: Fri, 4 Oct 2013 15:20:58 -0700 (PDT)
-From: Sitsofe Wheeler <sitsofe@yahoo.com>
-Reply-To: Sitsofe Wheeler <sitsofe@yahoo.com>
-Subject: [PULL REQUEST] Man page and HOWTO updates
+Received: from mxi1.enovance.com ([94.143.114.217]:46111 "EHLO
+	mxi1.enovance.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754127Ab3JIR6b convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Wed, 9 Oct 2013 13:58:31 -0400
+Message-ID: <52559946.8090502@enovance.com>
+Date: Wed, 09 Oct 2013 19:58:30 +0200
+From: Erwan Velu <erwan@enovance.com>
 MIME-Version: 1.0
+Subject: Re: genfio manpage
+References: <2431754.aruuGy1EGr@merkaba>
+In-Reply-To: <2431754.aruuGy1EGr@merkaba>
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "\"fio@vger.kernel.org\"" <fio@vger.kernel.org>
-Cc: "\"Ruvinsky, Konstantin\"" <Konstantin.Ruvinsky@emc.com>
+To: Martin Steigerwald <Martin@lichtvoll.de>
+Cc: fio@vger.kernel.org
 
-Hi,
-
-(this includes=EF=BF=BDKonstantin's fixes)
-
-The following changes since commit cecbfd478e880f4645ff8a3bc2d87335d9e3f4b9:
-
-=EF=BF=BD man page: Fix typos (2013-10-04 22:56:49 +0100)
-
-are available in the git repository at:
-
-=EF=BF=BD https://github.com/sitsofe/fio.git help
-
-for you to fetch changes up to 3bb0a7b0fda9945973f799ab253c70d3cb0e5c8b:
-
-=EF=BF=BD howto: Fix redundant entries (2013-10-04 23:09:42 +0100)
-
-----------------------------------------------------------------
-Sitsofe Wheeler (4):
-=EF=BF=BD =EF=BF=BD =EF=BF=BD man page: manpagify things that look like sys=
-calls.
-=EF=BF=BD =EF=BF=BD =EF=BF=BD man page: fix broken formatting before OUTPUT=
- section
-=EF=BF=BD =EF=BF=BD =EF=BF=BD man page: Bump up release date
-=EF=BF=BD =EF=BF=BD =EF=BF=BD howto: Fix redundant entries
-
-=EF=BF=BDHOWTO | =EF=BF=BD6 ------
-=EF=BF=BDfio.1 | 65 ++++++++++++++++++++++++++++++++-----------------------=
-----------
-=EF=BF=BD2 files changed, 32 insertions(+), 39 deletions(-)
-=EF=BF=BD
-Sitsofe
+Le 09/10/2013 18:21, Martin Steigerwald a =EF=BF=BDcrit :
+> Hi Erwan!
+>
+> fio 2.1.3 has a manpage about fio2gnuplut.
+>
+> But a genfio manpage is still missing. Care to provide one?
+>
+> If its ready for fio 2.1.4, I can provide a Debian package without any li=
+ntian=20
+> warnings :), but if its not.
+>
+> I could help next week, if I manage to take the time.
+>
+> Thanks,
+I have to take some time to make it....
