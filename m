@@ -1,64 +1,38 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from e28smtp02.in.ibm.com ([122.248.162.2]:34269 "EHLO
-	e28smtp02.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752076Ab3JJGbO (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 10 Oct 2013 02:31:14 -0400
-Received: from /spool/local
-	by e28smtp02.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <fio@vger.kernel.org> from <sarithavn@in.ibm.com>;
-	Thu, 10 Oct 2013 12:01:11 +0530
-Received: from d28relay05.in.ibm.com (d28relay05.in.ibm.com [9.184.220.62])
-	by d28dlp02.in.ibm.com (Postfix) with ESMTP id AA56D3940058
-	for <fio@vger.kernel.org>; Thu, 10 Oct 2013 12:00:50 +0530 (IST)
-Received: from d28av06.in.ibm.com (d28av06.in.ibm.com [9.184.220.48])
-	by d28relay05.in.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id r9A6V6hJ47513824
-	for <fio@vger.kernel.org>; Thu, 10 Oct 2013 12:01:06 +0530
-Received: from d28av06.in.ibm.com (localhost [127.0.0.1])
-	by d28av06.in.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id r9A6V8Mn027147
-	for <fio@vger.kernel.org>; Thu, 10 Oct 2013 12:01:08 +0530
-Received: from d23ml178.in.ibm.com (d23ml178.in.ibm.com [9.182.8.68])
-	by d28av06.in.ibm.com (8.14.4/8.14.4/NCO v10.0 AVin) with ESMTP id r9A6V8tO027140
-	for <fio@vger.kernel.org>; Thu, 10 Oct 2013 12:01:08 +0530
-Subject: Re: segmentation fault on power system
-Message-ID: <OFC504DD8C.6281DAA5-ON65257C00.00230F83-65257C00.0023BABE@in.ibm.com>
-From: Saritha Vinod <sarithavn@in.ibm.com>
-Date: Thu, 10 Oct 2013 12:00:15 +0530
+Received: from smtprelay0132.hostedemail.com ([216.40.44.132]:37610 "EHLO
+	smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1757552Ab3JJVSG (ORCPT
+	<rfc822;fio@vger.kernel.org>); Thu, 10 Oct 2013 17:18:06 -0400
+Message-ID: <52571992.3020607@nellans.org>
+Date: Thu, 10 Oct 2013 16:18:10 -0500
+From: David Nellans <david@nellans.org>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Subject: Re: IO scheduler
+References: <CAAAK+WXw_-gAJL9u9Bibvz=4aHVH2YYvgQRi2sMvekY6xDRR4A@mail.gmail.com> <52571453.4050101@nellans.org> <5257158A.2050707@enovance.com>
+In-Reply-To: <5257158A.2050707@enovance.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Erwan Velu <erwan@enovance.com>
+Cc: "Brian L." <brianclam@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
 
-Hi Jens,
+> That's a little bit extreme but it insures the same OS & environment to
+> be used over & over making all my tests much more comparable over time.
+>
+Thats a really good point - I guess I should also be a little more 
+specific about how we achieved tight reproducibility.
 
->> Yes. If we set unlimit core dump, fio will generate a core with
->> backtrace like this one:
->>
->> #0  mfspr (envp=<value optimized out>) at arch/arch-ppc.h:55
->> 55              asm volatile("mfspr %0,%1": "=r" (val) : "K" (reg));
->> Missing separate debuginfos, use: debuginfo-install
-glibc-2.12-1.107.el6.ppc64 libaio-0.3.107-10.el6.ppc64
->> (gdb) bt
->> #0  mfspr (envp=<value optimized out>) at arch/arch-ppc.h:55
->> #1  get_cpu_clock (envp=<value optimized out>) at arch/arch-ppc.h:71
->> #2  atb_child (envp=<value optimized out>) at arch/arch-ppc.h:88
->> #3  atb_clocktest (envp=<value optimized out>) at arch/arch-ppc.h:98
->> #4  arch_init (envp=<value optimized out>) at arch/arch-ppc.h:116
->> #5  initialize_fio (envp=<value optimized out>) at libfio.c:248
->> #6  0x0000000010067294 in main (argc=<value optimized out>, argv=<value
-optimized out>,
->>     envp=<value optimized out>) at fio.c:33
->>
->>
->> Apologize for late to reply.
+We used dedicated machines with identical components, a fixed point 
+within an OS distribution, a known bios revision/settings, and disabled 
+any/all frequency/power scaling.  So while we ran the machines without 
+any special tricks, the machine configurations and OS were very 
+extremely locked down and identical except for a hostname.
 
-> Alright, I'll have PPC default to the normal clock until we can improve
-> and detect this properly.
+Anytime we changed anything within the cluster configuration we 
+quantified the change before rolling it out cluster wide since on more 
+than one occasion we discovered even things like bios revisions would 
+substantially affect PCIe based testing.
 
-Is there a new rpm for fio available with this fix?
-With fio version fio-2.1.2, I am still getting the core dump.
-
-Thanks,
-Saritha
 
