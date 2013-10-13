@@ -1,43 +1,54 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from nm40-vm8.bullet.mail.bf1.yahoo.com ([72.30.239.216]:31203 "EHLO
-	nm40-vm8.bullet.mail.bf1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751360Ab3JAVQB convert rfc822-to-8bit
-	(ORCPT <rfc822;fio@vger.kernel.org>); Tue, 1 Oct 2013 17:16:01 -0400
-Message-ID: <1380661774.14931.YahooMailNeo@web124903.mail.ne1.yahoo.com>
-Date: Tue, 1 Oct 2013 14:09:34 -0700 (PDT)
-From: Sitsofe Wheeler <sitsofe@yahoo.com>
-Reply-To: Sitsofe Wheeler <sitsofe@yahoo.com>
-Subject: [PULL REQUEST] Man page updates
+Received: from mail.thomas-krenn.com ([217.7.54.186]:42490 "EHLO
+	mail.thomas-krenn.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753781Ab3JMHDi (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sun, 13 Oct 2013 03:03:38 -0400
+Date: Sun, 13 Oct 2013 09:03:30 +0200 (CEST)
+From: Georg =?utf-8?Q?Sch=C3=B6nberger?= 
+	<gschoenberger@thomas-krenn.com>
+Message-ID: <664855650.83197.1381647810495.JavaMail.root@thomas-krenn.com>
+In-Reply-To: <CAF+0mv=YQqGT4=-_Zm+Smzw7aduVFrq4FxEgOz7fFuHG6Xn6+g@mail.gmail.com>
+Subject: Re: Using fio to test SSD (SNIA)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Matthew Eaton <m.eaton82@gmail.com>
+Cc: fio@vger.kernel.org
 
-Hi,
+Hi Matthew,
 
-This branch updates the man page to better match recent versions of fio.
+----- Original Message -----
+> From: "Matthew Eaton" <m.eaton82@gmail.com>
+> To: fio@vger.kernel.org
+> Sent: Sunday, 13 October, 2013 4:34:05 AM
+> Subject: Using fio to test SSD (SNIA)
+> 
+> Hi guys,
+> 
+> I'm using fio apply an enterprise SNIA test on a single SATA SSD but
+> one thing that confuses me is how to choose the number of threads and
+> oio per thread. What settings would you guys recommend?
+> 
+> I'm currently using 16 threads and 64 oio per thread so total oio is
+> 1024. Is that overkill?
+> 
+> Also, I've been wondering since an SSD has a queue depth of 32, where
+> are the oios >32 stored?
+> 
+> Thank you for any insight here.
 
-The following changes since commit de8f6de97438d5664cd8765e60102b9109a273e2:
+I have written a Performance Test Tool using Fio implementing the complete Solid State Storage Performance Test Specification Enterprise v1.0 (http://www.snia.org/sites/default/files/SSS_PTS_Enterprise_v1.0.pdf).
+The tool is Open Source, if you are interested in it. You can find it at http://git.thomas-krenn.com/TKperf_v1.git/
+I am also preparing an Ubuntu package that is nearly finished. It will be on our Ubuntu Repo shortly.
 
-=EF=BF=BD Fix misspellings using 'codespell' tool (2013-09-27 08:28:55 -060=
-0)
+Concerning jobs and outstanding IOs I am mostly using 2 jobs and 16 outstanding IOs. 
+A limiting factor IMO are the IO scheduler and the driver dispatch queues. You have to keep in mind the the number of outstanding IOs at the application side can be different from that on the device side. Thats why Fio is also reporting the IO depths statistics:
+[...]
+  IO depths    : 1=0.1%, 2=0.1%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
 
-are available in the git repository at:
-
-=EF=BF=BD https://github.com/sitsofe/fio.git manpage
-
-for you to fetch changes up to fa769d44024be720f5775ea361d55b91e2fcc14e:
-
-=EF=BF=BD Update man page (2013-09-30 11:54:10 +0100)
-
-----------------------------------------------------------------
-Sitsofe Wheeler (2):
-=EF=BF=BD =EF=BF=BD =EF=BF=BD Update man page
-=EF=BF=BD =EF=BF=BD =EF=BF=BD Update man page
-
-=EF=BF=BDfio.1 | 55 ++++++++++++++++++++++++++++++++++++++++++++++++++++---
-=EF=BF=BD1 file changed, 52 insertions(+), 3 deletions(-)
-=EF=BF=BD
-Sitsofe
+There you can inspect which IO depths fio used effectively.
+Best Regards, Georg
