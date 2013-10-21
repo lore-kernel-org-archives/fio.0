@@ -1,56 +1,68 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from smtp-o-1.desy.de ([131.169.56.154]:46139 "EHLO smtp-o-1.desy.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751727Ab3JWKxo (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 23 Oct 2013 06:53:44 -0400
-Received: from smtp-map-1.desy.de (smtp-map-1.desy.de [131.169.56.66])
-	by smtp-o-1.desy.de (DESY-O-1) with ESMTP id C75EB2808DB
-	for <fio@vger.kernel.org>; Wed, 23 Oct 2013 12:45:44 +0200 (CEST)
-Received: from ZITSWEEP3.win.desy.de (zitsweep3.win.desy.de [131.169.97.97])
-	by smtp-map-1.desy.de (DESY_MAP_1) with ESMTP id A4B2B13E85
-	for <fio@vger.kernel.org>; Wed, 23 Oct 2013 12:45:44 +0200 (MEST)
-Received: from smtp-intra-1.desy.de (lb-40-26.desy.de) by ZITSWEEP3.win.desy.de
- (Clearswift SMTPRS 5.4.1) with ESMTP id <Taef1c22f1183a961611b60@ZITSWEEP3.win.desy.de> for <fio@vger.kernel.org>;
- Wed, 23 Oct 2013 12:45:44 +0200
-Received: from zimbratest.desy.de (zimbratest.desy.de [131.169.72.254])
-	by smtp-intra-1.desy.de (DESY-INTRA-1) with ESMTP id 651683E902
-	for <fio@vger.kernel.org>; Wed, 23 Oct 2013 12:45:44 +0200 (MEST)
-Date: Wed, 23 Oct 2013 12:45:44 +0200 (CEST)
-From: "Mkrtchyan, Tigran" <tigran.mkrtchyan@desy.de>
-Message-ID: <590651218.789538.1382525144344.JavaMail.zimbra@desy.de>
-In-Reply-To: <207015768.789438.1382524904131.JavaMail.zimbra@desy.de>
-Subject: sequential workload
+Received: from merlin.infradead.org ([205.233.59.134]:37485 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751509Ab3JURA7 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 21 Oct 2013 13:00:59 -0400
+Date: Mon, 21 Oct 2013 11:00:57 -0600
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: running FIO w/ 2 parallel processes on the same disk
+Message-ID: <20131021170057.GB32366@kernel.dk>
+References: <CAAAK+WU-XC-aqAU4iCPLnKLLgAwtKmXMe2NKzGjFRvL34PcsjQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAAAK+WU-XC-aqAU4iCPLnKLLgAwtKmXMe2NKzGjFRvL34PcsjQ@mail.gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "Brian L." <brianclam@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
+On Thu, Oct 17 2013, Brian L. wrote:
+> Hello there,
+> 
+> I would like to simulate the following workload - 2 process total that
+> is contenting for read / write IO on the same disk:
+> 
+> 1 process is doing a sequential writes
+> 1 process is down random reads
+> 
+> This is my FIO job file:
+> 
+> ## job file start ##
+> 
+> [global]
+> filename=${mydisk}
+> size=5G
+> iodepth=${myiodepth}
+> bs=${myblocksize}
+> ioengine=libaio
+> ramp_time=10s
+> norandommap=1
+> randrepeat=0
+> refill_buffers
+> group_reporting=1
+> direct=1
+> end_fsync=0
+> invalidate=1
+> nice=0
+> prio=0
+> prioclass=1
+> 
+> [process_1_seq_write]
+> rw=write
+> write_bw_log=process_1_seq_write.${mydisksub}
+> 
+> [process_2_rand_read]
+> rw=randread
+> write_bw_log=process_2_rand_read.${mydiskzub}
+> 
+> ## job file end ##
+> 
+> I have ran it and it looks right but just want to check with someone
+> else to valid that it is correct.
 
+Job file does what you describe, so you should be good.
 
-Hi,
+-- 
+Jens Axboe
 
-I need to simulate a workload of generating sequence
-of files - some thing like creating photos.
-
-where is my config:
-[global]
-create_on_open=1
-unlink=1
-filesize=70m
-size=7000m
-
-[pilatus-sec-write]
-rw=write
-openfiles=1
-nrfiles=100
-stonewall
-
-
-I will expect that a combination of create_on_open and openfiles
-will create one file at the time, nevertheless all files get
-created at the same time.
-
-Thanks in advance, 
-   Tigran.
