@@ -1,53 +1,89 @@
-Return-Path: <Martin@lichtvoll.de>
-From: Martin Steigerwald <Martin@lichtvoll.de>
-Subject: Re: new fio release?
-Date: Wed, 09 Oct 2013 13:02:30 +0200
-Message-ID: <1475150.01GODAz1Il@merkaba>
-In-Reply-To: <5241A4AF.7030504@kernel.dk>
-References: <1416283628.111018.1380009575092.JavaMail.zimbra@teamix.de> <5241A4AF.7030504@kernel.dk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:41445 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750977Ab3JWIzH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 23 Oct 2013 04:55:07 -0400
+Date: Wed, 23 Oct 2013 09:54:49 +0100
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: Amount of data read with mixed workload sequential/random with
+ percentage_random set
+Message-ID: <20131023085449.GV14598@kernel.dk>
+References: <20130918145830.GA24714@wattwurm.rz.uni-ulm.de>
+ <20130924195508.GB13483@highx.de>
+ <52434212.6050404@kernel.dk>
+ <20130925205817.GD20577@highx.de>
+ <52434F2D.1030801@kernel.dk>
+ <20131010054713.GA32463@highx.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Georg =?ISO-8859-1?Q?Sch=F6nberger?= <gschoenberger@thomas-krenn.com>
-List-ID: <fio@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20131010054713.GA32463@highx.de>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Juergen Salk <juergen.salk@uni-ulm.de>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi Jens, Georg, everyone,
-
-Am Dienstag, 24. September 2013, 08:41:51 schrieb Jens Axboe:
-> On 09/24/2013 01:59 AM, Martin Steigerwald wrote:
-> > Hi Jens!
-> > 
-> > Georg is currently packaging fio 2.1.2 for Ubuntu Precise, while I did
-> > 2.1.1 for Debian a while ago.
-> > 
-> > I already started packaging 2.1.2 for Debian as well and I think I was
-> > almost finished with it but I had:
-> > 
-> > ms@mango:~/lokal/Debian/fio> lintian -IE fio_2.1.2-1_amd64.changes
-> > W: fio: script-with-language-extension usr/bin/fio2gnuplot.py
-> > W: fio: binary-without-manpage usr/bin/fio2gnuplot.py
-> > W: fio: binary-without-manpage usr/bin/genfio
-> > 
-> > which as I looked are all fixed upstream already.
-> > 
-> > Since it is difficult to rename a upstream file in debian packaging
-> > without repacking upstream tarball, I'd rather build next package from a
-> > fio release with these issues fixed.
-> > 
-> > 
-> > Can you do a fio 2.1.3 release?
+On Thu, Oct 10 2013, Juergen Salk wrote:
+> * Jens Axboe <axboe@kernel.dk> [130925 15:01]:
 > 
-> Yeah, it's about that time anyway, and the short list of changes between
-> 2.1.2 to now seems to indicate a decent point to do a new release.
+> > >>> --- snip ---
+> > >>> [global]
+> > >>> ioengine=sync
+> > >>> direct=0
+> > >>> bssplit=19k/25:177k/15:350k/60
+> > >>> size=100m
+> > >>> numjobs=4
+> > >>> directory=/tmp
+> > >>>
+> > >>> [work]
+> > >>> rw=randread
+> > >>> --- snip ---
+> > >>>
+> > >>> $ fio jobfile.fio >fio.out
+> > >>> $ grep io= fio.out
+> > >>>   read : io=199968KB, bw=4892.6KB/s, iops=27, runt= 40872msec
+> > >>>   read : io=200062KB, bw=5083.5KB/s, iops=28, runt= 39359msec
+> > >>>   read : io=200156KB, bw=4989.1KB/s, iops=27, runt= 40112msec
+> > >>>   read : io=199940KB, bw=4492.4KB/s, iops=24, runt= 44507msec
+> > >>>    READ: io=800126KB, aggrb=17977KB/s, minb=4492KB/s, maxb=5083KB/s, mint=39359msec, maxt=44507msec
+> > >>>
+> > >>> [...]
+> > >>>
+> > >>> I am probably missing something obvious, but why does the job file 
+> > >>> above result in 200 MB read by every process?
+> > >>
+> > >> It should not, that's definitely a bug. I'm guessing it's triggered by
+> > >> the strange block sizes being used. Can you see if adding:
+> > >>
+> > >> random_generator=lfsr
+> > >>
+> > >> helps?
+> > > 
+> > > Thanks for your response, Jens. Yes it does. It's a bit confusing
+> > > though, as the man page says "LFSR only works with single block
+> > > sizes, not with workloads that use multiple block sizes. If used
+> > > with such a workload, fio may read or write some blocks multiple
+> > > times." Shouldn't this be read as "Don't use LFSR with mixed
+> > > block sizes."?
+> > 
+> > That is correct, my suspicion is just that the current logic around when
+> > to decide to run another loop is wrong. Right now we just look to see if
+> > the remainder is smaller than the max block size, but that doesn't mean
+> > that we necessarily have that big of a free chunk available. I suspect
+> > you are hitting this because of the odd block sizes.
+> > 
+> > > I am sorry to keep on harping on the matter, but I am planning to
+> > > use fio for simulating file sizes where total runtime will
+> > > become a serious issue. And these simulations will definitely
+> > > involve strange mixed block sizes ...
+> > 
+> > No worries, it's definitely a bug. Checking for a fix right now...
+> 
+> Just out of curiosity: Is there any news on that issue? 
 
-I made a 2.1.3 fio package last week. Sven Hoexter already reviewed and 
-uploaded it, so it is available in Debian Unstable.
+I got it mostly fixed, but it gets quite complicated. Traveling this
+week, will hopefully have some time to wrap it up.
 
-I will consider a backport once this one enters testing.
-
-Thanks,
 -- 
-Martin 'Helios' Steigerwald - http://www.Lichtvoll.de
-GPG: 03B0 0D6C 0040 0710 4AFA  B82F 991B EAAC A599 84C7
+Jens Axboe
 
