@@ -1,49 +1,74 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pb0-f53.google.com ([209.85.160.53]:35636 "EHLO
-	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756179Ab3JHXZ1 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 8 Oct 2013 19:25:27 -0400
-Received: by mail-pb0-f53.google.com with SMTP id up15so19115pbc.26
-        for <fio@vger.kernel.org>; Tue, 08 Oct 2013 16:25:26 -0700 (PDT)
-From: Akinobu Mita <akinobu.mita@gmail.com>
-Subject: [PATCH] fix way of setting ioengine specific parameter
-Date: Wed,  9 Oct 2013 08:25:11 +0900
-Message-Id: <1381274711-4263-1-git-send-email-akinobu.mita@gmail.com>
+Received: from mail-la0-f44.google.com ([209.85.215.44]:53885 "EHLO
+	mail-la0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753611Ab3JXBQ7 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 23 Oct 2013 21:16:59 -0400
+Received: by mail-la0-f44.google.com with SMTP id ep20so1329399lab.17
+        for <fio@vger.kernel.org>; Wed, 23 Oct 2013 18:16:58 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <x49ob6fyl5b.fsf@segfault.boston.devel.redhat.com>
+References: <590651218.789538.1382525144344.JavaMail.zimbra@desy.de> <x49ob6fyl5b.fsf@segfault.boston.devel.redhat.com>
+From: "Brian L." <brianclam@gmail.com>
+Date: Wed, 23 Oct 2013 18:16:37 -0700
+Message-ID: <CAAAK+WXN9JS8fvMhA1qBvscRzT+FWifcMrdDp034LEGLp835Qw@mail.gmail.com>
+Subject: Re: sequential workload
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Akinobu Mita <akinobu.mita@gmail.com>
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: "Mkrtchyan, Tigran" <tigran.mkrtchyan@desy.de>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-When I tried to specify userspace_reap parameter which is libaio
-ioengine specific, it caused segfault because thread_data.o.description
-was unexpectedly set to 1.
+Brian L.
 
-The problem is in a way of setting ioengine specific parameter which
-doesn't correctly set the value at corresponding offset in thread_data.eo,
-but it unexpectedly sets the value in the same offset in thread_data.o
-instead.
 
-This fixes it by providing a correct pointer when setting the ioengine
-specific parameters.
+On Wed, Oct 23, 2013 at 10:03 AM, Jeff Moyer <jmoyer@redhat.com> wrote:
+> "Mkrtchyan, Tigran" <tigran.mkrtchyan@desy.de> writes:
+>
+>> Hi,
+>>
+>> I need to simulate a workload of generating sequence
+>> of files - some thing like creating photos.
+>>
+>> where is my config:
+>> [global]
+>> create_on_open=1
+>> unlink=1
+>> filesize=70m
+>> size=7000m
+>>
+>> [pilatus-sec-write]
+>> rw=write
+>> openfiles=1
+>> nrfiles=100
+>> stonewall
+>>
+>>
+>> I will expect that a combination of create_on_open and openfiles
+>> will create one file at the time, nevertheless all files get
+>> created at the same time.
+>
+> Try adding file_service_type=sequential to your job file.
+>
+> Cheers,
+> Jeff
+> --
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
----
- options.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+if you can't find a soln, try a for loop and create sections like these??:
 
-diff --git a/options.c b/options.c
-index 4b91f52..f26ff77 100644
---- a/options.c
-+++ b/options.c
-@@ -3603,7 +3603,7 @@ int fio_cmd_option_parse(struct thread_data *td, const char *opt, char *val)
- int fio_cmd_ioengine_option_parse(struct thread_data *td, const char *opt,
- 				char *val)
- {
--	return parse_cmd_option(opt, val, td->io_ops->options, td);
-+	return parse_cmd_option(opt, val, td->io_ops->options, td->eo);
- }
- 
- void fio_fill_default_options(struct thread_data *td)
--- 
-1.8.3.1
+[pilatus-sec-write_1]
+rw=write
+openfiles=1
+nrfiles=1
+stonewall
 
+[pilatus-sec-write_2]
+rw=write
+openfiles=1
+nrfiles=1
+stonewall
+
+[pilatus-sec-write_3]
+rw=write
+openfiles=1
+nrfiles=1
+stonewall
