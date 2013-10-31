@@ -1,82 +1,47 @@
-Return-Path: <juergen.salk@uni-ulm.de>
-Date: Thu, 10 Oct 2013 07:47:13 +0200
-From: Juergen Salk <juergen.salk@uni-ulm.de>
-Subject: Re: Amount of data read with mixed workload sequential/random with
- percentage_random set
-Message-ID: <20131010054713.GA32463@highx.de>
-References: <20130918145830.GA24714@wattwurm.rz.uni-ulm.de>
- <20130924195508.GB13483@highx.de>
- <52434212.6050404@kernel.dk>
- <20130925205817.GD20577@highx.de>
- <52434F2D.1030801@kernel.dk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:47733 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751189Ab3JaQzU (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 31 Oct 2013 12:55:20 -0400
+Date: Thu, 31 Oct 2013 10:55:18 -0600
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: Bug in x86_64 do_cpuid()
+Message-ID: <20131031165518.GI29372@kernel.dk>
+References: <52711104.3020604@cran.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <52434F2D.1030801@kernel.dk>
-To: Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <52711104.3020604@cran.org.uk>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Bruce Cran <bruce@cran.org.uk>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
 
-* Jens Axboe <axboe@kernel.dk> [130925 15:01]:
-
-> >>> --- snip ---
-> >>> [global]
-> >>> ioengine=sync
-> >>> direct=0
-> >>> bssplit=19k/25:177k/15:350k/60
-> >>> size=100m
-> >>> numjobs=4
-> >>> directory=/tmp
-> >>>
-> >>> [work]
-> >>> rw=randread
-> >>> --- snip ---
-> >>>
-> >>> $ fio jobfile.fio >fio.out
-> >>> $ grep io= fio.out
-> >>>   read : io=199968KB, bw=4892.6KB/s, iops=27, runt= 40872msec
-> >>>   read : io=200062KB, bw=5083.5KB/s, iops=28, runt= 39359msec
-> >>>   read : io=200156KB, bw=4989.1KB/s, iops=27, runt= 40112msec
-> >>>   read : io=199940KB, bw=4492.4KB/s, iops=24, runt= 44507msec
-> >>>    READ: io=800126KB, aggrb=17977KB/s, minb=4492KB/s, maxb=5083KB/s, mint=39359msec, maxt=44507msec
-> >>>
-> >>> [...]
-> >>>
-> >>> I am probably missing something obvious, but why does the job file 
-> >>> above result in 200 MB read by every process?
-> >>
-> >> It should not, that's definitely a bug. I'm guessing it's triggered by
-> >> the strange block sizes being used. Can you see if adding:
-> >>
-> >> random_generator=lfsr
-> >>
-> >> helps?
-> > 
-> > Thanks for your response, Jens. Yes it does. It's a bit confusing
-> > though, as the man page says "LFSR only works with single block
-> > sizes, not with workloads that use multiple block sizes. If used
-> > with such a workload, fio may read or write some blocks multiple
-> > times." Shouldn't this be read as "Don't use LFSR with mixed
-> > block sizes."?
+On Wed, Oct 30 2013, Bruce Cran wrote:
+> It seems there's a bug in the x86_64 version of do_cpuid() that causes fio
+> to segfault when built with clang at lower optimization levels:
 > 
-> That is correct, my suspicion is just that the current logic around when
-> to decide to run another loop is wrong. Right now we just look to see if
-> the remainder is smaller than the max block size, but that doesn't mean
-> that we necessarily have that big of a free chunk available. I suspect
-> you are hitting this because of the odd block sizes.
+> static inline void do_cpuid(unsigned int *eax, unsigned int *ebx,
+>                 unsigned int *ecx, unsigned int *edx)
+> {
+>     asm volatile("cpuid"
+>         : "=a" (*eax), "=b" (*ebx), "=r" (*ecx), "=d" (*edx)
+>         : "0" (*eax), "2" (*ecx)
+>         : "memory");
+> }
 > 
-> > I am sorry to keep on harping on the matter, but I am planning to
-> > use fio for simulating file sizes where total runtime will
-> > become a serious issue. And these simulations will definitely
-> > involve strange mixed block sizes ...
+> via Tijl Coosemans:
 > 
-> No worries, it's definitely a bug. Checking for a fix right now...
+> Should be: "=c" (*ecx)
+> 
+> But you can also use the '+' modifier and remove the input operands:
+> 
+> : "+a" (*eax), "=b" (*ebx), "+c" (*ecx), "=d" (*edx)
+> :
+> : "memory"
 
-Just out of curiosity: Is there any news on that issue? 
++a/+c doesn't work, but =c will do the trick.
 
-Regards,
-
-Juergen
-
-
+-- 
+Jens Axboe
 
