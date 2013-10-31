@@ -1,27 +1,35 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-lb0-f179.google.com ([209.85.217.179]:37489 "EHLO
-	mail-lb0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754587Ab3JCTbX (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 3 Oct 2013 15:31:23 -0400
-Received: by mail-lb0-f179.google.com with SMTP id x18so2472298lbi.10
-        for <fio@vger.kernel.org>; Thu, 03 Oct 2013 12:31:22 -0700 (PDT)
+Received: from merlin.infradead.org ([205.233.59.134]:47795 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751911Ab3JaQ7J (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 31 Oct 2013 12:59:09 -0400
+Date: Thu, 31 Oct 2013 10:59:04 -0600
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] Add json output for client/server mode.
+Message-ID: <20131031165904.GJ29372@kernel.dk>
+References: <1383141780-20242-1-git-send-email-castor.fu@egocast.org>
 MIME-Version: 1.0
-From: "Brian L." <brianclam@gmail.com>
-Date: Thu, 3 Oct 2013 12:31:02 -0700
-Message-ID: <CAAAK+WW66DdYt2JEG+2K42vWzczn38xtnh5WK-1x97zFbdkyqg@mail.gmail.com>
-Subject: precondition ssd drives w/ fio
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1383141780-20242-1-git-send-email-castor.fu@egocast.org>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: castor.fu@egocast.org
+Cc: fio@vger.kernel.org, Castor Fu <castor@alumni.caltech.edu>
 
-For benchmarking SSD drives, I was told that we should precondition
-our drives to get more accurate real world reading.
+On Wed, Oct 30 2013, castor.fu@egocast.org wrote:
+> From: Castor Fu <castor@alumni.caltech.edu>
+> 
+> In client/server mode, this adds support for json mode.  Each job's
+> details are gradually accumulated and upon completion the client
+> dumps the full json tree.  The tree is annotated with the server
+> host and port.  Also tweak configure script to allow explicitly
+> disabling libnuma.
 
-I was wondering if anyone is using fio itself to precondition ssd
-drives or use a different script to populate random data on the
-drives?
+Thanks, this is good stuff! I have applied it, but split it into two
+patches. You really shouldn't bundle unrelated changes together.
 
-Thanks in advance.
 
-Brian L.
+-- 
+Jens Axboe
+
