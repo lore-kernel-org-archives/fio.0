@@ -1,36 +1,59 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vc0-f175.google.com ([209.85.220.175]:36703 "EHLO
-	mail-vc0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751010Ab3KGUmk (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 7 Nov 2013 15:42:40 -0500
-Received: by mail-vc0-f175.google.com with SMTP id ht10so764194vcb.20
-        for <fio@vger.kernel.org>; Thu, 07 Nov 2013 12:42:39 -0800 (PST)
+Received: from mail-la0-f47.google.com ([209.85.215.47]:53318 "EHLO
+	mail-la0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751788Ab3KSVcx (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 19 Nov 2013 16:32:53 -0500
+Received: by mail-la0-f47.google.com with SMTP id ep20so6537960lab.20
+        for <fio@vger.kernel.org>; Tue, 19 Nov 2013 13:32:52 -0800 (PST)
 MIME-Version: 1.0
-Date: Thu, 7 Nov 2013 15:42:39 -0500
-Message-ID: <CAHPXfP7PFPwAK=CbPYkL_XU5UfjCjvOyf0atdD0fL6e3BF6c3g@mail.gmail.com>
-Subject: Latency log, add filename to record
-From: chris meyers <chris.meyers.fsu@gmail.com>
+Date: Tue, 19 Nov 2013 15:32:51 -0600
+Message-ID: <CAEyTGCdhjZPXXbAmSdTarRMrR382AEWifMpg6d3gBwaPgCPLFw@mail.gmail.com>
+Subject: FIO: Read_iolog replay doesn't start
+From: Lakshmi <sendtold@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-https://github.com/axboe/fio/pull/3
-The above patch modifies the CSV latency log (write_lat_log options)
-by appending the filename to which the record is related. Said
-differently, the filename to which the I/O was issued to. When I first
-set out to add this feature I had indended to create a new log file in
-order to distrubt the latency log file format as little as possible.
-This, however, was not easily doable given the structure of the fio
-code. Now, in order to still provide this feature while maintaining
-the legacy latency file format I propose two options.
-(1) A configuration options as an extention to write_lat_log. For example:
-write_lat_log=mylogfile:with_filename
-(2) As a seperate configuration option that modifies the write_lat_log
-format. For example:
-write_lat_log_with_filename=bool
+I ran the below job file and did a write_iolog to a .log file as shown below.
 
-This email is to start a discussion and solicit feedback on the
-proposed feature as well as the cooresponding configuration trigger.
+[Replay_Trace_Test]
+rw=randread
+ioengine=sync
+bs=4k
+iodepth=8
+numjobs=1
+filename=/dev/sda3:
+runtime=600
+write_iolog=/root/Trace_Logs/Write_Log1.log
 
--Chris
+The Write_Log1.log file looks something like this.
+
+fio version 2 iolog
+/dev/sda3 add
+dev/sda3 open
+/dev/sda3 read 23366979584 4096
+/dev/sda3 read 286808244224 4096
+/dev/sda3 read 326671769600 4096
+/dev/sda3 read 182096228352 4096
+/dev/sda3 read 155711512576 4096
+/dev/sda3 read 325488222208 4096
+/dev/sda3 read 147413901312 4096
+/dev/sda3 read 136963395584 4096
+/dev/sda3 read 353723068416 4096
+
+When I try to replay this log using Read_iolog command in FIO , the
+replay doesnt start and gets stuck at ,
+
+Replay: (g=0): rw=read, bs=4K-4K/4K-4K/4K-4K, ioengine=sync, iodepth=1
+fio-2.1.1
+Starting 1 process
+
+
+FIO version-2.1.2
+
+I am just stuck since the console doesn't report any errors in this
+case.Any pointers that would help , greatly appreciated.
+
+Thanks,
+lakshmi
