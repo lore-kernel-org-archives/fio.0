@@ -1,94 +1,60 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from muon.cran.org.uk ([93.89.92.64]:46760 "EHLO muon.cran.org.uk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753144Ab3KHNLa (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 8 Nov 2013 08:11:30 -0500
-Received: from muon.cran.org.uk (localhost [127.0.0.1])
-	by muon.cran.org.uk (Postfix) with ESMTP id CBB7EE6E41
-	for <fio@vger.kernel.org>; Fri,  8 Nov 2013 13:11:28 +0000 (GMT)
-Received: from [192.168.2.50] (unknown [93.89.81.205])
-	(using TLSv1 with cipher DHE-RSA-CAMELLIA256-SHA (256/256 bits))
-	(No client certificate requested)
-	by muon.cran.org.uk (Postfix) with ESMTPSA id A68C2E6E40
-	for <fio@vger.kernel.org>; Fri,  8 Nov 2013 13:11:28 +0000 (GMT)
-Message-ID: <527CE300.8010300@cran.org.uk>
-Date: Fri, 08 Nov 2013 13:11:28 +0000
-From: Bruce Cran <bruce@cran.org.uk>
+Received: from merlin.infradead.org ([205.233.59.134]:36786 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752587Ab3KVDoo (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 21 Nov 2013 22:44:44 -0500
+Date: Thu, 21 Nov 2013 20:44:42 -0700
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: Latency log, add filename to record
+Message-ID: <20131122034442.GH28819@kernel.dk>
+References: <CAHPXfP7PFPwAK=CbPYkL_XU5UfjCjvOyf0atdD0fL6e3BF6c3g@mail.gmail.com>
+ <20131116181944.GD8179@kernel.dk>
+ <20131122033602.GG28819@kernel.dk>
 MIME-Version: 1.0
-Subject: Warnings from gcc 4.9 (on FreeBSD)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20131122033602.GG28819@kernel.dk>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: chris meyers <chris.meyers.fsu@gmail.com>
+Cc: fio@vger.kernel.org
 
-Building using gcc 4.9 (on FreeBSD 11-CURRENT) generates a few warnings 
-about undefined behaviour:
+On Thu, Nov 21 2013, Jens Axboe wrote:
+> On Sat, Nov 16 2013, Jens Axboe wrote:
+> > On Thu, Nov 07 2013, chris meyers wrote:
+> > > https://github.com/axboe/fio/pull/3
+> > > The above patch modifies the CSV latency log (write_lat_log options)
+> > > by appending the filename to which the record is related. Said
+> > > differently, the filename to which the I/O was issued to. When I first
+> > > set out to add this feature I had indended to create a new log file in
+> > > order to distrubt the latency log file format as little as possible.
+> > > This, however, was not easily doable given the structure of the fio
+> > > code. Now, in order to still provide this feature while maintaining
+> > > the legacy latency file format I propose two options.
+> > > (1) A configuration options as an extention to write_lat_log. For example:
+> > > write_lat_log=mylogfile:with_filename
+> > > (2) As a seperate configuration option that modifies the write_lat_log
+> > > format. For example:
+> > > write_lat_log_with_filename=bool
+> > > 
+> > > This email is to start a discussion and solicit feedback on the
+> > > proposed feature as well as the cooresponding configuration trigger.
+> > 
+> > Chris, sorry for being late on this! I'll get to this on Monday and give
+> > you some constructive criticism.
+> 
+> OK, finally got to it. One problem with adding to the log structure is
+> that it grows in size. And we already have a problem with it eating too
+> much memory. But I actually have a few ideas on how to 'compress' it, so
+> lets not worry too much about that.
+> 
+> Lets add a new option to include the name. write_lat_log_with_filename
+> sounds like a reasonable choice.
 
-     CC cconv.o
-In file included from thread_options.h:5:0,
-                  from cconv.c:3:
-cconv.c: In function 'convert_thread_options_to_cpu':
-os/os.h:197:16: warning: iteration 2u invokes undefined behavior 
-[-Waggressive-loop-optimizations]
-   __le32_to_cpu(*__val);   \
-                 ^
-os/os.h:176:28: note: in definition of macro '__le32_to_cpu'
-  #define __le32_to_cpu(x)  (x)
-                             ^
-cconv.c:78:17: note: in expansion of macro 'le32_to_cpu'
-    o->rwmix[i] = le32_to_cpu(top->rwmix[i]);
-                  ^
-cconv.c:63:2: note: containing loop
-   for (i = 0; i < DDIR_RWDIR_CNT; i++) {
-   ^
-In file included from thread_options.h:5:0,
-                  from cconv.c:3:
-cconv.c: In function 'convert_thread_options_to_net':
-os/os.h:209:16: warning: iteration 2u invokes undefined behavior 
-[-Waggressive-loop-optimizations]
-   __cpu_to_le32(*__val);   \
-                 ^
-os/os.h:179:28: note: in definition of macro '__cpu_to_le32'
-  #define __cpu_to_le32(x)  (x)
-                             ^
-cconv.c:372:19: note: in expansion of macro 'cpu_to_le32'
-    top->rwmix[i] = cpu_to_le32(o->rwmix[i]);
-                    ^
-cconv.c:352:2: note: containing loop
-   for (i = 0; i < DDIR_RWDIR_CNT; i++) {
-   ^
-In file included from thread_options.h:5:0,
-                  from cconv.c:3:
-cconv.c: In function 'fio_test_cconv':
-os/os.h:209:16: warning: iteration 2u invokes undefined behavior 
-[-Waggressive-loop-optimizations]
-   __cpu_to_le32(*__val);   \
-                 ^
-os/os.h:179:28: note: in definition of macro '__cpu_to_le32'
-  #define __cpu_to_le32(x)  (x)
-                             ^
-cconv.c:372:19: note: in expansion of macro 'cpu_to_le32'
-    top->rwmix[i] = cpu_to_le32(o->rwmix[i]);
-                    ^
-cconv.c:352:2: note: containing loop
-   for (i = 0; i < DDIR_RWDIR_CNT; i++) {
-   ^
-In file included from thread_options.h:5:0,
-                  from cconv.c:3:
-os/os.h:197:16: warning: iteration 2u invokes undefined behavior 
-[-Waggressive-loop-optimizations]
-   __le32_to_cpu(*__val);   \
-                 ^
-os/os.h:176:28: note: in definition of macro '__le32_to_cpu'
-  #define __le32_to_cpu(x)  (x)
-                             ^
-cconv.c:78:17: note: in expansion of macro 'le32_to_cpu'
-    o->rwmix[i] = le32_to_cpu(top->rwmix[i]);
-                  ^
-cconv.c:63:2: note: containing loop
-   for (i = 0; i < DDIR_RWDIR_CNT; i++) {
-   ^
+Also, another thing to consider is that the log is potentially
+transmitted across the network, that's what happens for client/server
+fio... You want to consider how best to handle that.
 
 -- 
-Bruce Cran
+Jens Axboe
+
