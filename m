@@ -1,85 +1,90 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from silver.sucs.swan.ac.uk ([137.44.10.1]:45177 "EHLO
-	silver.sucs.swan.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752692Ab3KZHEP convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 26 Nov 2013 02:04:15 -0500
-Received: from sits by silver.sucs.swan.ac.uk with local (Exim 4.80)
-	(envelope-from <sits@sucs.org>)
-	id 1VlCIY-0001U6-3d
-	for fio@vger.kernel.org; Tue, 26 Nov 2013 06:39:02 +0000
-Date: Tue, 26 Nov 2013 06:39:02 +0000
-From: Sitsofe Wheeler <sitsofe@yahoo.com>
-Subject: --server broken on Windows (2.1.1 and 2.0.14)
-Message-ID: <20131126063901.GA4631@sucs.org>
-Reply-To: Sitsofe Wheeler <sitsofe@yahoo.com>
+Received: from smtprelay0125.hostedemail.com ([216.40.44.125]:52703 "EHLO
+	smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753959Ab3K0WLd (ORCPT
+	<rfc822;fio@vger.kernel.org>); Wed, 27 Nov 2013 17:11:33 -0500
+Message-ID: <52966E21.6020607@nellans.org>
+Date: Wed, 27 Nov 2013 16:11:45 -0600
+From: David Nellans <david@nellans.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: fio results show sequential reads and writes better for network
+ block device than local block device?
+References: <1384903429.33093.YahooMailNeo@web120804.mail.ne1.yahoo.com> <1384903569.45715.YahooMailNeo@web120806.mail.ne1.yahoo.com> <528BF8BD.4080208@nellans.org> <1384913761.82415.YahooMailNeo@web120803.mail.ne1.yahoo.com>
+In-Reply-To: <1384913761.82415.YahooMailNeo@web120803.mail.ne1.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: "K.R Kishore" <krkishore@yahoo.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi,
+Yes 3.0Gb/s means that you're only getting 1/2 the throughput from that 
+particular drive as it should be able to give you - if they're not 
+recognized as 6Gb ports then something in the bios might need to be 
+swizzled, upgraded, something...
 
-The problem with waitpid when trying to connect to an fio in server mode
-as mentioned in http://www.spinics.net/lists/fio/msg02319.html from
-August still seems to be here with the prebuilt 2.1.1 Windows binaries
-on=EF=BF=BDhttp://www.bluestop.org/fio/ . Additionally the Windows client s=
-eems
-to be unable to read job files when connecting to the server:
+You say you ran random tests as well already - does the same result hold 
+for random as sequential?  The NBD still gives you higher throughput 
+than the native device?  while you certainly could have a really high 
+latency SAS/SATA controller it seems unlikely that nbd could
+both do a network round trip + get through the userspace ndb-client in
+a lower latency than the local controller.
 
-example.fio:
-[global]
-bs=3D256k
-direct=3D1
-filename=3Dtmp
-#fsync=3D1
-ioengine=3Dwindowsaio
-iodepth=3D8
-stonewall
-thread
-verify=3Dcrc32c-intel
-size=3D50M
-[sequentialwrite]
-do_verify=3D0
-rw=3Dwrite
+doing synchronous q-depth one, I/O's of a small block (512) will give 
+you a good picture on the minimum latency you can get from the local 
+controller versus the ndb based disk to try and sort out the latency issue.
 
-PS C:\Users> & 'C:\Program Files\fio\fio.exe' --server
-fio: server listening on 0.0.0.0,8765
-fork is not implemented
-waitpid is not implemented
-fio: waitpid: Function not implemented
-waitpid is not implemented
 
-PS C:\Users> & 'C:\Program Files\fio\fio.exe' --client=3D127.0.0.1 .\exampl=
-e.fio
-writev is not implemented
-fio: failed reading job file .\example.fio
+On 11/19/2013 08:16 PM, K.R Kishore wrote:
+>
+>
+> David
+> Thanks for the response..
+>
+>
+>
+>> 278MB/s read bandwidth to a locally attached samsung 840 pro on 1M
+>> sequential reads is very low unless you have it accidentally plugged
+>> into a SATA 3Gb/s port instead of a 6Gb/s.  I'd sort out why you're not
+>> seeing 500 MB+ on this as starting point for your investigation.
+>
+> I thought this was a good catch..so I tried
+> hdparm -I /dev/sdb|egrep -i "Model|speed" and I get the same on both machines..
+>
+>
+> [root@lab-sj1-141 uc]# hdparm -I /dev/sdb|egrep -i "Model|speed"
+>      Model Number:       Samsung SSD 840 PRO Series
+>             *    Gen1 signaling speed (1.5Gb/s)
+>             *    Gen2 signaling speed (3.0Gb/s)
+> [root@lab-sj1-141 uc]#
+>
+> Does this imply they are running @3.0Gb/s with a peak rate of 300MB/s?
+> I am using Dell Precision workstation T3600 and according to the specs it has 6G SAS ports which is where these drives are connected. I am not sure if this needs to be enabled some way. I rebooted and went through BIOS setting and did not see anything in the drives/storage sections.
+>
+> I ran the test on both machines and both got ~279MB/s for sequential reads. This does not explain why fio gives a higher number when one of the drives is exported over the network?!
+>
+>> Also, Sequential performance probably isn't what you want to look at for
+>> a long latency block device (as opposed to without the network in the
+>> way) as io merging could become the dominant factor for performance even
+>> when using large block sizes to start.
+>
+> Your point noted. I ran all combinations of tests (read,write,readwrite,randread,randwrite,randrw) and did so with 1M and 512. I was looking for some consistency and trying to quantify the effect of latency on performance.
+>
+>
+>> your latency data from the runs looks funny too - with the NBD latency
+>> being lower than the locally attached on writes, but not for reads.
+>> that would seem to indicate there is some buffering going on in the
+>> system that you're not aware of that is making your results noisy (and
+>> confusing)
+>
+>
+> I agree that the latency number is confusing. I am trying to understand how fio is measuring the latency for a NBD and maybe that will help sort this out.
+>
+> thx,
+> Kishore
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
-The older 2.0.14 binary also has client issues on Windows:
-=EF=BF=BD
-C:\Users>fio.exe --minimal example.fio
-3;fio2.0.14;sequentialwrite;0;0;0;0;0;0;0;0;0.000000;0.000000;0;0;0.000000;=
-0.000000;1.000000%=3D0;5.000000%=3D0;10.000000%=3D0;20.000000%=3D0;30.00000=
-0%=3D0;40.000000%=3D0;50.000000%=3D0;60.000000%=3D0;70.000000%=3D0;80.00000=
-0%=3D0;90.000000%=3D0;95.000000%=3D0;99.000000%=3D0;99.500000%=3D0;99.90000=
-0%=3D0;99.950000%=3D0;99.990000%=3D0;0%=3D0;0%=3D0;0%=3D0;0;0;0.000000;0.00=
-0000;0;0;0.000000%;0.000000;0.000000;51200;302958;1183;169;76;1140;128.3050=
-00;122.535943;259;6770;5736.430000;678.286887;1.000000%=3D1064;5.000000%=3D=
-5600;10.000000%=3D5664;20.000000%=3D5664;30.000000%=3D5728;40.000000%=3D572=
-8;50.000000%=3D5792;60.000000%=3D5856;70.000000%=3D5856;80.000000%=3D5920;9=
-0.000000%=3D6048;95.000000%=3D6112;99.000000%=3D6752;99.500000%=3D6752;99.9=
-00000%=3D6752;99.950000%=3D6752;99.990000%=3D6752;0%=3D0;0%=3D0;0%=3D0;361;=
-6985;5864.735000;688.096080;0;0;0.000000%;0.000000;0.000000;0.000000%;0.000=
-000%;0;0;0;0.5%;1.0%;2.0%;96.5%;0.0%;0.0%;0.0%;0.00%;0.00%;0.00%;0.00%;0.00=
-%;0.00%;0.00%;0.50%;0.00%;0.00%;0.50%;1.50%;97.50%;0.00%;0.00%;0.00%;0.00%;=
-0.00%;0.00%;0.00%;0.00%;0.00%
-
-C:\Users>fio.exe --client=3D127.0.0.1 example.fio
-fio: failed reading job file example.fio
-
-Does anyone have any ideas?
-
---=20
-Sitsofe
