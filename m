@@ -1,23 +1,41 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ie0-f169.google.com ([209.85.223.169]:43219 "EHLO
-	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751170Ab3KNBtU (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 13 Nov 2013 20:49:20 -0500
-Received: by mail-ie0-f169.google.com with SMTP id tp5so1881300ieb.28
-        for <fio@vger.kernel.org>; Wed, 13 Nov 2013 17:49:19 -0800 (PST)
+Received: from merlin.infradead.org ([205.233.59.134]:36929 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750938Ab3LTSOJ (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 20 Dec 2013 13:14:09 -0500
+Date: Fri, 20 Dec 2013 11:14:02 -0700
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: ***** Regarding source code of fio ********
+Message-ID: <20131220181402.GW30200@kernel.dk>
+References: <46A6A5BAC1E78D489E00C35CED46F73C051C299AC4@APJ1XCHEVSPIN31.SYMC.SYMANTEC.COM>
 MIME-Version: 1.0
-Date: Thu, 14 Nov 2013 09:49:19 +0800
-Message-ID: <CA+8ZFnh+CqzzqsMh=FQw_5pgiiOCQo58eDA4u02iUb7zv1mmcQ@mail.gmail.com>
-Subject: What does "ddir" mean?
-From: "xan.peng" <xanpeng@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <46A6A5BAC1E78D489E00C35CED46F73C051C299AC4@APJ1XCHEVSPIN31.SYMC.SYMANTEC.COM>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Vinayak Sarate <Vinayak_Sarate@symantec.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "aaronc@cse.unsw.edu.au" <aaronc@cse.unsw.edu.au>, "jens.axboe@oracle.com" <jens.axboe@oracle.com>
 
-Hi all,
+On Fri, Dec 20 2013, Vinayak Sarate wrote:
+> Hello All,
+> 
+> I was referring http://linux.die.net/man/1/fio  link for more info. on fio.
+> It is really gr8 & nice one.
+> 
+> Could you please anyone provide a link for source code for fio.
+> I want to rebuilt & use  it on linux , AIX , SunOS, HPUX box.
+> 
+> I will be very thankful for your co-operation.. :)
 
-When reading the code, I found DDIR_* and TD_DDIR_* in fio/io_ddir.h.
-Though I figured it out they are related with "rw" option, I'm still
-confused what does "DDIR" mean? DIR=directory? Then what's the first
-'D'?
+The source code is here:
+
+git://git.kernel.dk/fio
+
+or grab the latest tar ball from here:
+
+http://brick.kernel.dk/snaps/fio-git-latest.tar.gz
+
+-- 
+Jens Axboe
+
