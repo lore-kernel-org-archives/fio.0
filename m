@@ -1,65 +1,31 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-lb0-f175.google.com ([209.85.217.175]:44432 "EHLO
-	mail-lb0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755318Ab3LDBHz (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 3 Dec 2013 20:07:55 -0500
-Received: by mail-lb0-f175.google.com with SMTP id x18so8971148lbi.6
-        for <fio@vger.kernel.org>; Tue, 03 Dec 2013 17:07:53 -0800 (PST)
+Received: from muon.cran.org.uk ([93.89.92.64]:61856 "EHLO muon.cran.org.uk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754564Ab3L1CMR (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 27 Dec 2013 21:12:17 -0500
+Message-ID: <52BE337F.10106@cran.org.uk>
+Date: Fri, 27 Dec 2013 19:12:15 -0700
+From: Bruce Cran <bruce@cran.org.uk>
 MIME-Version: 1.0
-Date: Tue, 3 Dec 2013 19:07:53 -0600
-Message-ID: <CAEyTGCf84MXq1mcrxL03JmECB5EUC3etE+AW8bcSWapPK1v3XQ@mail.gmail.com>
-Subject: Blktrace replay in FIO runs only 1 Job when numjobs>1
-From: Lakshmi <sendtold@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: fio 2.1.4 intermittently crashes on windows
+References: <0C4FACE8A034424CB177F7934C49B4ED080FE9AF@WAL-MBS04.global.avidww.com>
+In-Reply-To: <0C4FACE8A034424CB177F7934C49B4ED080FE9AF@WAL-MBS04.global.avidww.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Todd Dworshak <todd.dworshak@avid.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi,
+On 12/27/2013 6:42 PM, Todd Dworshak wrote:
+> I am having trouble with fio intermittently crashing on Windows 7.
+>
+> Version is fio 2.1.4 64 bit, downloaded from Windows build site.
+>
+> Has anyone else seen this?  If I give it fewer files in the job description, it seems to be less prone to crashing.  Since it crashes in pthreads, it looks like this may be some kind of threading bug.
 
- My FIO job File looks like this
-[ssd]
-rw=randread
-bs=4k
-iodepth=8
-numjobs=8
-group_reporting=1
-ioengine=sync
-filename=/dev/sdb
-runtime=120
+I'll try to replicate the problem here, but in the meantime it would be 
+useful if you could try running fio under the Cygwin build of gdb to 
+capture a stack trace in fio.exe.
 
-I ran this job and while this job was running I ran a  Blktrace and
-parsed it to a .bin file.
-
-The actual FIO run showed the results of all 8 jobs as below,
-
-ssd: (g=0): rw=randread, bs=4K-4K/4K-4K/4K-4K, ioengine=sync, iodepth=8
-fio-2.1.4
-Starting 8 processes
-
-ssd: (groupid=0, jobs=8): err= 0: pid=9198: Tue Dec  3 18:40:41 2013
-  read : io=2545.1MB, bw=21725KB/s, iops=5431, runt=120002msec
-....................
-
-However when I replay the .bin trace using read_iolog, the result
-shows only 1 job's results as below,
-
-Replay: (g=0): rw=read, bs=4K-4K/4K-4K/4K-4K, ioengine=sync, iodepth=1
-fio-2.1.4
-Starting 1 process
-
-Replay: (groupid=0, jobs=1): err= 0: pid=12065: Tue Dec  3 18:56:00 2013
-  read : io=39792MB, bw=111409KB/s, iops=1740, runt=365742msec
-
-Any reason for why this is happening?
-Am I missing something here?
-
-These are my blktrace and parse commands I use
-blktrace -w 130 -d /dev/sdb -a read -b 4096 -o 4K_RR_Trace
-blkparse -i ./*.blktrace.0 -d ./bp.bin -o bp.txt -w 0:130
-
-
-Any pointers appreciated...
-
-
-Thanks
+-- 
+Bruce
