@@ -1,58 +1,32 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vc0-f169.google.com ([209.85.220.169]:45712 "EHLO
-	mail-vc0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750769AbaAYCHF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 24 Jan 2014 21:07:05 -0500
-Received: by mail-vc0-f169.google.com with SMTP id hq11so2328892vcb.28
-        for <fio@vger.kernel.org>; Fri, 24 Jan 2014 18:07:03 -0800 (PST)
+Received: from smtprelay0218.hostedemail.com ([216.40.44.218]:35563 "EHLO
+	smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751773AbaACDhQ (ORCPT
+	<rfc822;fio@vger.kernel.org>); Thu, 2 Jan 2014 22:37:16 -0500
+Message-ID: <52C6306C.8000704@nellans.org>
+Date: Thu, 02 Jan 2014 21:37:16 -0600
+From: David Nellans <david@nellans.org>
 MIME-Version: 1.0
-Date: Fri, 24 Jan 2014 18:07:03 -0800
-Message-ID: <CAOpYm_W685AkEuFnNZX-m0Jfq+B+crzQv5oEF_Hbvq3XbABhaQ@mail.gmail.com>
-Subject: A bug in combining fsrange and verify
-From: Wallence Lu <wallencelu@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: very unstable IOPS in the same test on the same machine
+References: <266864ba.12fb3.1435264174a.Coremail.tech8891@163.com> <52C58868.4050800@nellans.org> <12ab081a.346f.14356185dd9.Coremail.tech8891@163.com>
+In-Reply-To: <12ab081a.346f.14356185dd9.Coremail.tech8891@163.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: tech8891 <tech8891@163.com>
+Cc: fio@vger.kernel.org
 
-Hi,
+On 01/02/2014 09:14 PM, tech8891 wrote:
+> Thanks for your answer， Nellans!   I think 31k IOPS should be because the RAID card cache.   Seems we have 394MB cache in this controller, which is enough hold the 2 * 128M data.
 
-I've hit a bug in using the combination of bsrange and verify.
-Basically I want to do a random write test with a variable block size,
-and then verify the content after the write. But for some reason, the
-verify phase fails consistently.
-
-Linux distribution:
-Ubuntu 12.04.2 LTS, Linux version 3.5.0-23-generic
-$ fio --version
-fio 1.59
-
-Conf file:
-[global]
-thread=1
-ioengine=libaio
-buffered=0
-direct=1
-runtime=5400
-write_iolog=./w_iolog2
-
-[rand-write]
-bsrange=512-32K
-filename=disk.raw
-iodepth=1280
-size=256M
-verify=meta
-verify_pattern=0x33
-rw=randwrite
-
-The output complains as the following:
-Jobs: 1 (f=1): [V] [50.5% done] [0K/0K/0K /s] [0 /0 /0  iops] [eta
-01m:40s]     verify: bad magic header 0, wanted acca at file
-/home/maohua/test-clone/softwareCache/qemu/iscsi_sdd2/disk.raw offset
-1179648, length 0
-fio: pid=6118, err=84/file:io_u.c:1477, func=io_u_queued_complete,
-error=Invalid or incomplete multibyte or wide character
-
-rand-write: (groupid=0, jobs=1): err=84 (file:io_u.c:1477,
-func=io_u_queued_complete, error=Invalid or incomplete multibyte or
-wide character): pid=6118: Fri Jan 24 17:40:16 201
+While I'm not a megaraid expert it looks like you're using 4 seagate 10k 
+rpm drives with a 3ms random read time (looked up specs from seagat) 
+drives in a raid 10 with a stripe size of 64KB.  Raid 10
+performance affects aside, you essentially have a raid-0 of two drives. 
+At absolute best, each of your drives might be able to do 333 IOPS at a 
+small random I/O size. 100% raid-0 efficiency would give you 666 IOPS 
+peak.  So getting 400 IOPS with random block sizes within a 1.2G range 
+(where the disk heads don't have to move much thus speeding up seek 
+time), seems very reasonable.  Nothing seems obviously wrong to me with 
+the performance you're seeing.
