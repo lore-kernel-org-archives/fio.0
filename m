@@ -1,140 +1,56 @@
-Return-Path: <grundler@google.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from dkim1.fusionio.com ([66.114.96.53]:43280 "EHLO
+	dkim1.fusionio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750750AbaAPVI0 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 16 Jan 2014 16:08:26 -0500
+Received: from mx2.fusionio.com (unknown [10.101.1.160])
+	by dkim1.fusionio.com (Postfix) with ESMTP id E2A817C06B0
+	for <fio@vger.kernel.org>; Thu, 16 Jan 2014 14:01:34 -0700 (MST)
+Message-ID: <52D84861.3010804@fusionio.com>
+Date: Thu, 16 Jan 2014 14:00:17 -0700
+From: Jens Axboe <jaxboe@fusionio.com>
 MIME-Version: 1.0
-Sender: grundler@google.com
-In-Reply-To: <1379451974-16100-1-git-send-email-jcasse@chromium.org>
-References: <1379451974-16100-1-git-send-email-jcasse@chromium.org>
-Date: Fri, 24 Jan 2014 10:34:00 -0800
-Message-ID: <CANEJEGt0OQCGi_7u68+m-7Rth2ykbaYJt+K17krd_YQCf=f96Q@mail.gmail.com>
-Subject: Re: [PATCH] Adds check for numberio during verify phase.
-From: Grant Grundler <grundler@chromium.org>
-Content-Type: text/plain; charset=UTF-8
-To: Juan Casse <jcasse@chromium.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Grant Grundler <grundler@chromium.org>, FIO_list <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Subject: Re: Recent changes (master)
+References: <20140111050002.05C7E231C8@kernel.dk> <CALKLVu+yF1smDDX__NbszKpCrfNTHStArMBWD6j8HL5hwZ0q0Q@mail.gmail.com>
+In-Reply-To: <CALKLVu+yF1smDDX__NbszKpCrfNTHStArMBWD6j8HL5hwZ0q0Q@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Castor Fu <castor@egocast.org>
+Cc: fio@vger.kernel.org
 
-Jens, Ping?
-You think you can still integrate the three patches from Juan?
+On 01/16/2014 01:07 PM, Castor Fu wrote:
+> 
+> 
+> 
+> On Fri, Jan 10, 2014 at 9:00 PM, Jens Axboe <jaxboe@fusionio.com
+> <mailto:jaxboe@fusionio.com>> wrote:
+> 
+> 
+> 
+>     Jens Axboe (1):
+>           Add option to manually seed the random generators
+> 
+> 
+> Hi Jens:  Have you seen the work on counter-based random number
+> generators?  They might be applicable here.
+> 
+> The basic idea is that if you encrypt the value of a a counter, you can
+> get usefully random
+> bits. You can do something like use some of the bits for thread number,
+> file number, etc.
+> and be able to generate the expected state without cycling through the RNG.
 
-thanks!
-grant
+I know about these, you end up using some of the same techniques on data
+reliability on flash as well. But I don't think it applies very well
+here, as fio isn't really interested in fast-forwarding to a specific
+sequence. The above change is just meant to be able to specifically seed
+the random generator so you can control the sequence. You don't care
+about the specific sequence at all, just whether or not it's different
+with seed X vs seed Y, and that seed X will always generate the same
+sequence.
 
-On Tue, Sep 17, 2013 at 2:06 PM, Juan Casse <jcasse@chromium.org> wrote:
-> Currently, fio checks the block offset number in a block's header during
-> the verify phase.
-> We add a check for the io number (numberio) to detect stale blocks. This
-> check is performed only on workloads that write data, as those workloads
-> know what numberio was written to each block.
-> td->io_issues[ddir] = 0; was removed so that numberio does not get reset
-> at each iteration; we want numberio to keep incrementing to reflect
-> how many times the same data was written.
->
-> Signed-off-by: Juan Casse <jcasse@chromium.org>
-> Reviewed-by: Grant Grundler <grundler@chromium.org>
->
-> Fixed typo.
-> ---
->  ioengine.h |  1 +
->  iolog.c    |  1 +
->  iolog.h    |  1 +
->  libfio.c   |  1 -
->  verify.c   | 14 +++++++++++++-
->  5 files changed, 16 insertions(+), 2 deletions(-)
->
-> diff --git a/ioengine.h b/ioengine.h
-> index 31662eb..812febd 100644
-> --- a/ioengine.h
-> +++ b/ioengine.h
-> @@ -50,6 +50,7 @@ struct io_u {
->          */
->         unsigned long buflen;
->         unsigned long long offset;
-> +       unsigned short numberio;
->         void *buf;
->
->         /*
-> diff --git a/iolog.c b/iolog.c
-> index 9bcf0d8..6459d3b 100644
-> --- a/iolog.c
-> +++ b/iolog.c
-> @@ -188,6 +188,7 @@ void log_io_piece(struct thread_data *td, struct io_u *io_u)
->         ipo->file = io_u->file;
->         ipo->offset = io_u->offset;
->         ipo->len = io_u->buflen;
-> +       ipo->numberio = io_u->numberio;
->
->         if (io_u_should_trim(td, io_u)) {
->                 flist_add_tail(&ipo->trim_list, &td->trim_list);
-> diff --git a/iolog.h b/iolog.h
-> index 8fedc19..94e0fc1 100644
-> --- a/iolog.h
-> +++ b/iolog.h
-> @@ -78,6 +78,7 @@ struct io_piece {
->                 struct fio_file *file;
->         };
->         unsigned long long offset;
-> +       unsigned short numberio;
->         unsigned long len;
->         unsigned int flags;
->         enum fio_ddir ddir;
-> diff --git a/libfio.c b/libfio.c
-> index c26d6a3..6e290f4 100644
-> --- a/libfio.c
-> +++ b/libfio.c
-> @@ -83,7 +83,6 @@ static void reset_io_counters(struct thread_data *td)
->                 td->this_io_blocks[ddir] = 0;
->                 td->rate_bytes[ddir] = 0;
->                 td->rate_blocks[ddir] = 0;
-> -               td->io_issues[ddir] = 0;
->         }
->         td->zone_bytes = 0;
->
-> diff --git a/verify.c b/verify.c
-> index 9e88d61..63def12 100644
-> --- a/verify.c
-> +++ b/verify.c
-> @@ -369,6 +369,15 @@ static int verify_io_u_meta(struct verify_header *hdr, struct vcont *vc)
->         if (td->o.verify_pattern_bytes)
->                 ret |= verify_io_u_pattern(hdr, vc);
->
-> +       /*
-> +        * For read-only workloads, the program cannot be certain of the
-> +        * last numberio written to a block. Checking of numberio will be done
-> +        * only for workloads that write data.
-> +        */
-> +       if (td_write(td) || td_rw(td))
-> +               if (vh->numberio != io_u->numberio)
-> +                       ret = EILSEQ;
-> +
->         if (!ret)
->                 return 0;
->
-> @@ -768,7 +777,7 @@ static void fill_meta(struct verify_header *hdr, struct thread_data *td,
->         vh->time_sec = io_u->start_time.tv_sec;
->         vh->time_usec = io_u->start_time.tv_usec;
->
-> -       vh->numberio = td->io_issues[DDIR_WRITE];
-> +       vh->numberio = io_u->numberio;
->
->         vh->offset = io_u->offset + header_num * td->o.verify_interval;
->  }
-> @@ -942,6 +951,8 @@ void populate_verify_io_u(struct thread_data *td, struct io_u *io_u)
->         if (td->o.verify == VERIFY_NULL)
->                 return;
->
-> +       io_u->numberio = td->io_issues[io_u->ddir];
-> +
->         fill_pattern_headers(td, io_u, 0, 0);
->  }
->
-> @@ -974,6 +985,7 @@ int get_next_verify(struct thread_data *td, struct io_u *io_u)
->
->                 io_u->offset = ipo->offset;
->                 io_u->buflen = ipo->len;
-> +               io_u->numberio = ipo->numberio;
->                 io_u->file = ipo->file;
->                 io_u->flags |= IO_U_F_VER_LIST;
->
-> --
-> 1.7.12.4
->
+-- 
+Jens Axboe
 
