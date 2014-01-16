@@ -1,66 +1,84 @@
-Return-Path: <castor@egocast.org>
-MIME-Version: 1.0
-In-Reply-To: <20140111050002.05C7E231C8@kernel.dk>
-References: <20140111050002.05C7E231C8@kernel.dk>
-Date: Thu, 16 Jan 2014 12:07:19 -0800
-Message-ID: <CALKLVu+yF1smDDX__NbszKpCrfNTHStArMBWD6j8HL5hwZ0q0Q@mail.gmail.com>
-Subject: Re: Recent changes (master)
-From: Castor Fu <castor@egocast.org>
-Content-Type: multipart/alternative; boundary="f46d0421a6390ca23804f01bf95a"
-To: Jens Axboe <jaxboe@fusionio.com>
-Cc: fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:57207 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751265AbaAPEzL (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 15 Jan 2014 23:55:11 -0500
+Received: from kernel.dk ([54.225.238.116])
+	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1W3eyz-0004ru-GM
+	for fio@vger.kernel.org; Thu, 16 Jan 2014 04:55:09 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <jaxboe@fusionio.com>
+Message-Id: <20140116050002.C6EFD231CE@kernel.dk>
+Date: Thu, 16 Jan 2014 06:00:02 +0100 (CET)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
---f46d0421a6390ca23804f01bf95a
-Content-Type: text/plain; charset="ISO-8859-1"
+The following changes since commit ce35b1ece06ce27ebff111e47c2a6610c311a92b:
 
-On Fri, Jan 10, 2014 at 9:00 PM, Jens Axboe <jaxboe@fusionio.com> wrote:
+  Add option for specifically setting buffer contents (2014-01-14 15:35:58 -0700)
 
->
->
-> Jens Axboe (1):
->       Add option to manually seed the random generators
->
+are available in the git repository at:
+  git://git.kernel.dk/fio.git master
 
-Hi Jens:  Have you seen the work on counter-based random number generators?
- They might be applicable here.
+Jens Axboe (1):
+      server: convert buffer pattern settings across client/server
 
-The basic idea is that if you encrypt the value of a a counter, you can get
-usefully random
-bits. You can do something like use some of the bits for thread number,
-file number, etc.
-and be able to generate the expected state without cycling through the RNG.
+ cconv.c  |    4 ++++
+ server.h |    2 +-
+ 2 files changed, 5 insertions(+), 1 deletions(-)
 
-See for example:
+---
 
-http://www.deshawresearch.com/resources_random123.html
+Diff of recent changes:
 
---f46d0421a6390ca23804f01bf95a
-Content-Type: text/html; charset="ISO-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
-1"><div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><br><div class=3D"gm=
-ail_quote">On Fri, Jan 10, 2014 at 9:00 PM, Jens Axboe <span dir=3D"ltr">&l=
-t;<a href=3D"mailto:jaxboe@fusionio.com" target=3D"_blank">jaxboe@fusionio.=
-com</a>&gt;</span> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-=
-left-width:1px;border-left-color:rgb(204,204,204);border-left-style:solid;p=
-adding-left:1ex"><br>
-<br>
-Jens Axboe (1):<br>
-&nbsp; &nbsp; &nbsp; Add option to manually seed the random generators<br><=
-/blockquote><div><br></div><div>Hi Jens: &nbsp;Have you seen the work on co=
-unter-based random number generators? &nbsp;They might be applicable here.<=
-/div><div><br></div>
-<div>The basic idea is that if you encrypt the value of a a counter, you ca=
-n get usefully random</div><div>bits. You can do something like use some of=
- the bits for thread number, file number, etc.<br></div><div>and be able to=
- generate the expected state without cycling through the RNG.</div>
-<div><br></div><div>See for example:</div><div><br></div><div><a href=3D"ht=
-tp://www.deshawresearch.com/resources_random123.html">http://www.deshawrese=
-arch.com/resources_random123.html</a><br></div></div></div></div>
-
---f46d0421a6390ca23804f01bf95a--
-
-
+diff --git a/cconv.c b/cconv.c
+index 3a6880a..3f41ae4 100644
+--- a/cconv.c
++++ b/cconv.c
+@@ -107,6 +107,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
+ 	o->verify_offset = le32_to_cpu(top->verify_offset);
+ 
+ 	memcpy(o->verify_pattern, top->verify_pattern, MAX_PATTERN_SIZE);
++	memcpy(o->buffer_pattern, top->buffer_pattern, MAX_PATTERN_SIZE);
+ 
+ 	o->verify_pattern_bytes = le32_to_cpu(top->verify_pattern_bytes);
+ 	o->verify_fatal = le32_to_cpu(top->verify_fatal);
+@@ -174,6 +175,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
+ 	o->zero_buffers = le32_to_cpu(top->zero_buffers);
+ 	o->refill_buffers = le32_to_cpu(top->refill_buffers);
+ 	o->scramble_buffers = le32_to_cpu(top->scramble_buffers);
++	o->buffer_pattern_bytes = le32_to_cpu(top->buffer_pattern_bytes);
+ 	o->time_based = le32_to_cpu(top->time_based);
+ 	o->disable_lat = le32_to_cpu(top->disable_lat);
+ 	o->disable_clat = le32_to_cpu(top->disable_clat);
+@@ -327,6 +329,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
+ 	top->zero_buffers = cpu_to_le32(o->zero_buffers);
+ 	top->refill_buffers = cpu_to_le32(o->refill_buffers);
+ 	top->scramble_buffers = cpu_to_le32(o->scramble_buffers);
++	top->buffer_pattern_bytes = cpu_to_le32(o->buffer_pattern_bytes);
+ 	top->time_based = cpu_to_le32(o->time_based);
+ 	top->disable_lat = cpu_to_le32(o->disable_lat);
+ 	top->disable_clat = cpu_to_le32(o->disable_clat);
+@@ -389,6 +392,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
+ 	}
+ 
+ 	memcpy(top->verify_pattern, o->verify_pattern, MAX_PATTERN_SIZE);
++	memcpy(top->buffer_pattern, o->buffer_pattern, MAX_PATTERN_SIZE);
+ 
+ 	top->size = __cpu_to_le64(o->size);
+ 	top->verify_backlog = __cpu_to_le64(o->verify_backlog);
+diff --git a/server.h b/server.h
+index 0416fd7..57e15d7 100644
+--- a/server.h
++++ b/server.h
+@@ -38,7 +38,7 @@ struct fio_net_cmd_reply {
+ };
+ 
+ enum {
+-	FIO_SERVER_VER			= 29,
++	FIO_SERVER_VER			= 30,
+ 
+ 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
+ 
