@@ -1,31 +1,140 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:47860 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752484AbaAXS65 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 24 Jan 2014 13:58:57 -0500
-Date: Fri, 24 Jan 2014 10:58:55 -0800
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH] Adds check for numberio during verify phase.
-Message-ID: <20140124185855.GF7483@kernel.dk>
-References: <1379451974-16100-1-git-send-email-jcasse@chromium.org>
- <CANEJEGt0OQCGi_7u68+m-7Rth2ykbaYJt+K17krd_YQCf=f96Q@mail.gmail.com>
+Return-Path: <grundler@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CANEJEGt0OQCGi_7u68+m-7Rth2ykbaYJt+K17krd_YQCf=f96Q@mail.gmail.com>
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Grant Grundler <grundler@chromium.org>
-Cc: Juan Casse <jcasse@chromium.org>, FIO_list <fio@vger.kernel.org>
+Sender: grundler@google.com
+In-Reply-To: <1379451974-16100-1-git-send-email-jcasse@chromium.org>
+References: <1379451974-16100-1-git-send-email-jcasse@chromium.org>
+Date: Fri, 24 Jan 2014 10:34:00 -0800
+Message-ID: <CANEJEGt0OQCGi_7u68+m-7Rth2ykbaYJt+K17krd_YQCf=f96Q@mail.gmail.com>
+Subject: Re: [PATCH] Adds check for numberio during verify phase.
+From: Grant Grundler <grundler@chromium.org>
+Content-Type: text/plain; charset=UTF-8
+To: Juan Casse <jcasse@chromium.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Grant Grundler <grundler@chromium.org>, FIO_list <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-On Fri, Jan 24 2014, Grant Grundler wrote:
-> Jens, Ping?
-> You think you can still integrate the three patches from Juan?
+Jens, Ping?
+You think you can still integrate the three patches from Juan?
 
-I think that would be manageable. But really a new feature (or feature
-modification) like this should be accompanies by a job file example for
-it. Care to provide one?
+thanks!
+grant
 
--- 
-Jens Axboe
+On Tue, Sep 17, 2013 at 2:06 PM, Juan Casse <jcasse@chromium.org> wrote:
+> Currently, fio checks the block offset number in a block's header during
+> the verify phase.
+> We add a check for the io number (numberio) to detect stale blocks. This
+> check is performed only on workloads that write data, as those workloads
+> know what numberio was written to each block.
+> td->io_issues[ddir] = 0; was removed so that numberio does not get reset
+> at each iteration; we want numberio to keep incrementing to reflect
+> how many times the same data was written.
+>
+> Signed-off-by: Juan Casse <jcasse@chromium.org>
+> Reviewed-by: Grant Grundler <grundler@chromium.org>
+>
+> Fixed typo.
+> ---
+>  ioengine.h |  1 +
+>  iolog.c    |  1 +
+>  iolog.h    |  1 +
+>  libfio.c   |  1 -
+>  verify.c   | 14 +++++++++++++-
+>  5 files changed, 16 insertions(+), 2 deletions(-)
+>
+> diff --git a/ioengine.h b/ioengine.h
+> index 31662eb..812febd 100644
+> --- a/ioengine.h
+> +++ b/ioengine.h
+> @@ -50,6 +50,7 @@ struct io_u {
+>          */
+>         unsigned long buflen;
+>         unsigned long long offset;
+> +       unsigned short numberio;
+>         void *buf;
+>
+>         /*
+> diff --git a/iolog.c b/iolog.c
+> index 9bcf0d8..6459d3b 100644
+> --- a/iolog.c
+> +++ b/iolog.c
+> @@ -188,6 +188,7 @@ void log_io_piece(struct thread_data *td, struct io_u *io_u)
+>         ipo->file = io_u->file;
+>         ipo->offset = io_u->offset;
+>         ipo->len = io_u->buflen;
+> +       ipo->numberio = io_u->numberio;
+>
+>         if (io_u_should_trim(td, io_u)) {
+>                 flist_add_tail(&ipo->trim_list, &td->trim_list);
+> diff --git a/iolog.h b/iolog.h
+> index 8fedc19..94e0fc1 100644
+> --- a/iolog.h
+> +++ b/iolog.h
+> @@ -78,6 +78,7 @@ struct io_piece {
+>                 struct fio_file *file;
+>         };
+>         unsigned long long offset;
+> +       unsigned short numberio;
+>         unsigned long len;
+>         unsigned int flags;
+>         enum fio_ddir ddir;
+> diff --git a/libfio.c b/libfio.c
+> index c26d6a3..6e290f4 100644
+> --- a/libfio.c
+> +++ b/libfio.c
+> @@ -83,7 +83,6 @@ static void reset_io_counters(struct thread_data *td)
+>                 td->this_io_blocks[ddir] = 0;
+>                 td->rate_bytes[ddir] = 0;
+>                 td->rate_blocks[ddir] = 0;
+> -               td->io_issues[ddir] = 0;
+>         }
+>         td->zone_bytes = 0;
+>
+> diff --git a/verify.c b/verify.c
+> index 9e88d61..63def12 100644
+> --- a/verify.c
+> +++ b/verify.c
+> @@ -369,6 +369,15 @@ static int verify_io_u_meta(struct verify_header *hdr, struct vcont *vc)
+>         if (td->o.verify_pattern_bytes)
+>                 ret |= verify_io_u_pattern(hdr, vc);
+>
+> +       /*
+> +        * For read-only workloads, the program cannot be certain of the
+> +        * last numberio written to a block. Checking of numberio will be done
+> +        * only for workloads that write data.
+> +        */
+> +       if (td_write(td) || td_rw(td))
+> +               if (vh->numberio != io_u->numberio)
+> +                       ret = EILSEQ;
+> +
+>         if (!ret)
+>                 return 0;
+>
+> @@ -768,7 +777,7 @@ static void fill_meta(struct verify_header *hdr, struct thread_data *td,
+>         vh->time_sec = io_u->start_time.tv_sec;
+>         vh->time_usec = io_u->start_time.tv_usec;
+>
+> -       vh->numberio = td->io_issues[DDIR_WRITE];
+> +       vh->numberio = io_u->numberio;
+>
+>         vh->offset = io_u->offset + header_num * td->o.verify_interval;
+>  }
+> @@ -942,6 +951,8 @@ void populate_verify_io_u(struct thread_data *td, struct io_u *io_u)
+>         if (td->o.verify == VERIFY_NULL)
+>                 return;
+>
+> +       io_u->numberio = td->io_issues[io_u->ddir];
+> +
+>         fill_pattern_headers(td, io_u, 0, 0);
+>  }
+>
+> @@ -974,6 +985,7 @@ int get_next_verify(struct thread_data *td, struct io_u *io_u)
+>
+>                 io_u->offset = ipo->offset;
+>                 io_u->buflen = ipo->len;
+> +               io_u->numberio = ipo->numberio;
+>                 io_u->file = ipo->file;
+>                 io_u->flags |= IO_U_F_VER_LIST;
+>
+> --
+> 1.7.12.4
+>
 
