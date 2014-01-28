@@ -1,36 +1,35 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from m13-37.163.com ([220.181.13.37]:37326 "EHLO m13-37.163.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750740AbaABKOD (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 2 Jan 2014 05:14:03 -0500
-Date: Thu, 2 Jan 2014 17:58:47 +0800 (CST)
-From: tech8891 <tech8891@163.com>
-Subject: very unstable IOPS in the same test on the same machine
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <grundler@google.com>
 MIME-Version: 1.0
-Message-ID: <266864ba.12fb3.1435264174a.Coremail.tech8891@163.com>
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Sender: grundler@google.com
+In-Reply-To: <20140128221748.GE25989@kernel.dk>
+References: <1390942940-6886-1-git-send-email-grundler@chromium.org>
+	<20140128213014.GC31710@kernel.dk>
+	<CANEJEGvZ3xnkg+D8RwVcvHfTKtVCcm_YP_geskOZTC0UNBnGOA@mail.gmail.com>
+	<20140128220349.GD25989@kernel.dk>
+	<CANEJEGurTpsgV5gUv1758dvE7UtP2zqNP6aLe4S69Ezo4i5yVA@mail.gmail.com>
+	<20140128221748.GE25989@kernel.dk>
+Date: Tue, 28 Jan 2014 14:23:10 -0800
+Message-ID: <CANEJEGsANrvTBF1pqEXQzoWj3HdqmdcygFG=Sh4H+ZUK0NsWmQ@mail.gmail.com>
+Subject: Re: [PATCH] fio: consolidate rand_seed to uint64_t
+From: Grant Grundler <grundler@chromium.org>
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Grant Grundler <grundler@chromium.org>, FIO List <fio@vger.kernel.org>, Puthikorn Voravootivat <puthik@chromium.org>, Gwendal Grignou <gwendal@chromium.org>
+List-ID: <fio@vger.kernel.org>
 
-SGkgLArCoCBQbGVhc2UgbGV0IG1lIGtub3cgaWYgdGhpcyBpcyBub3QgYSByaWdodCBwbGFjZSB0
-byBhc2sgdGhpcyBxdWVzdGlvbi4gwqBUaGlzIGlzIHRoZSBmaXJzdCB0aW1lIEkgdXNlIG1haWwg
-bGlzdC7CoArCoMKgClByb2JsZW0gc3VtbWFyeToKwqBUaGUgSU9QUyBpcyB2ZXJ5IHVuc3RhYmxl
-IHNpbmNlIEkgY2hhbmdlZCB0aGUgbnVtYmVyIG9mIMKgam9icyBmcm9tIDIgdG8gNC4gwqBldmVu
-IEkgY2hhbmdlZCBpdCBiYWNrLCDCoHRoZSBJT1BTIHBlcmZvcm1hbmNlIGFsc28gY2FuJ3QgcmV0
-dXJuIGJhY2suwqAKIyBjYXQgMS5maW8KW2dsb2JhbF0Kcnc9cmFuZHJlYWQKc2l6ZT0xMjhtCgpb
-am9iMV0KCltqb2IyXQoKd2hlbiBJIHJ1biBmaW8gMS5maW8sIMKgdGhlIGlvcHMgaXMgYXJvdW5k
-IDMxay4gwqBhbmQgdGhlbiBJIGFkZCB0aGUgZm9sbG93aW5nIDIgZW50cmllczoKW2pvYjNdCgpb
-am9iNF0KClRoZSBJT1BTIGRyb3BwZWQgdG8gYXJvdW5kIDFrLsKgCgpFdmVuIEkgcmVtb3ZlIHRo
-ZXNlIDIgam9icywgwqB0aGUgSU9QUyBzdGlsbCBiZSBhcm91bmQgMWsuIMKgCgpPbmx5IGlmIMKg
-SSByZW1vdmVkIGFsbCB0aGUgam9ibi5uLjAgZmlsZXMsIMKgYW5kIHJlLXJ1biB3aXRoIDIgam9i
-cyBzZXR0aW5nLCDCoHRoZSBJT1BTIGNhbiBiZSAzMWsgYWdhaW4uCgpNeSBFbnY6CiMgZmlvIC0t
-dmVyc2lvbgpmaW8tMi4xLjQKIyBjYXQgL2V0Yy9yZWRoYXQtcmVsZWFzZcKgClJlZCBIYXQgRW50
-ZXJwcmlzZSBMaW51eCBTZXJ2ZXIgcmVsZWFzZSA2LjMgKFNhbnRpYWdvKSDCoCDCoCDCoAojIGNh
-dCAvc3lzL2Jsb2NrL3NkYS9xdWV1ZS9zY2hlZHVsZXIgwqAgLy8gSSB0cmllZCBib3RoIGNmcS9k
-ZWFkbGluZSwgbm8gZGlmZmVyZW5jZQpub29wIGFudGljaXBhdG9yeSBbZGVhZGxpbmVdIGNmccKg
-CgojIGJhc2ggYmxraW5mby5zaCDCoC9kZXYvc2RhwqAKVmVuZG9yIMKgIMKgIDogTFNJIMKgIMKg
-wqAKTW9kZWwgwqAgwqAgwqA6IE1SOTI2MC04aSDCoCDCoCDCoMKgCk5yX3JlcXVlc3QgOiAxMjgK
-cm90YXRpb25hbCA6IDEKClRoYW5rIHlvdSB2ZXJ5IG11Y2ggZm9yIHlvdXIgdGltZQoKemhpZmFu
+On Tue, Jan 28, 2014 at 2:17 PM, Jens Axboe <axboe@kernel.dk> wrote:
+...
+> It's because the parser is using non uintxx_t types, so you can't really
+> please it here. There's __cpu_to_le64() to avoid this crap. But ideally,
+> the parser just needs changing so that anything that is now unsigned int
+> is uint32_t and unsigned long long needs to be uint64_t.
+
+Got it.
+
+> If you look at your committed patch, I made those changes for you.
+
+Thanks! LGTM.
+
+cheers
+grant
 
