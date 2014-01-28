@@ -1,67 +1,44 @@
-Return-Path: <grundler@chromium.org>
+Return-Path: <grundler@google.com>
+MIME-Version: 1.0
+Sender: grundler@google.com
+In-Reply-To: <20140128213014.GC31710@kernel.dk>
+References: <1390942940-6886-1-git-send-email-grundler@chromium.org>
+	<20140128213014.GC31710@kernel.dk>
+Date: Tue, 28 Jan 2014 13:52:46 -0800
+Message-ID: <CANEJEGvZ3xnkg+D8RwVcvHfTKtVCcm_YP_geskOZTC0UNBnGOA@mail.gmail.com>
+Subject: Re: [PATCH] fio: consolidate rand_seed to uint64_t
 From: Grant Grundler <grundler@chromium.org>
-Subject: [PATCH V2] fio: consolidate rand_seed to uint64_t
-Date: Tue, 28 Jan 2014 14:03:02 -0800
-Message-Id: <1390946582-29170-1-git-send-email-grundler@chromium.org>
+Content-Type: text/plain; charset=UTF-8
 To: Jens Axboe <axboe@kernel.dk>
-Cc: FIO List <fio@vger.kernel.org>, Puthikorn Voravootivat <puthik@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Grant Grundler <grundler@chromium.org>
+Cc: Grant Grundler <grundler@chromium.org>, FIO List <fio@vger.kernel.org>, Puthikorn Voravootivat <puthik@chromium.org>, Gwendal Grignou <gwendal@chromium.org>
 List-ID: <fio@vger.kernel.org>
 
-csscope showed rand_seed was defined 4 times - each a different type.
-While they are used differently, the places where they overlap
-should reference the same type. This patch makes three of them the same
-as suggested by Jens Axboe.
+On Tue, Jan 28, 2014 at 1:30 PM, Jens Axboe <axboe@kernel.dk> wrote:
+> On Tue, Jan 28 2014, Grant Grundler wrote:
+>> csscope showed rand_seed was defined 4 times - each a different type.
+>> While they are used differently, the places where they overlap
+>> should reference the same type. This patch makes three of them the same
+>> as suggested by Jens Axboe.
+>
+> Time for public shaming, as you did not even compile this patch!
 
-Signed-off-by: Grant Grundler <grundler@chromium.org>
----
-Compiled and lightly tested on x86 this time. :)
-Sorry for being so lazy.
+No, I didn't. :)  I told you I didn't test it.
 
- cconv.c          | 2 +-
- ioengine.h       | 2 +-
- thread_options.h | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+> I'll let you figure out the issue :-)
 
-diff --git a/cconv.c b/cconv.c
-index 3f41ae4..c4941ba 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -119,7 +119,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
- 	o->do_disk_util = le32_to_cpu(top->do_disk_util);
- 	o->override_sync = le32_to_cpu(top->override_sync);
- 	o->rand_repeatable = le32_to_cpu(top->rand_repeatable);
--	o->rand_seed = le32_to_cpu(top->rand_seed);
-+	o->rand_seed = le64_to_cpu(top->rand_seed);
- 	o->use_os_rand = le32_to_cpu(top->use_os_rand);
- 	o->log_avg_msec = le32_to_cpu(top->log_avg_msec);
- 	o->norandommap = le32_to_cpu(top->norandommap);
-diff --git a/ioengine.h b/ioengine.h
-index 949af91..0756bc7 100644
---- a/ioengine.h
-+++ b/ioengine.h
-@@ -56,7 +56,7 @@ struct io_u {
- 	/*
- 	 * Initial seed for generating the buffer contents
- 	 */
--	unsigned long rand_seed;
-+	uint64_t rand_seed;
- 
- 	/*
- 	 * IO engine state, may be different from above when we get
-diff --git a/thread_options.h b/thread_options.h
-index 2f807cd..59ddd7e 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -324,7 +324,7 @@ struct thread_options_pack {
- 	uint32_t do_disk_util;
- 	uint32_t override_sync;
- 	uint32_t rand_repeatable;
--	uint32_t rand_seed;
-+	uint64_t rand_seed;
- 	uint32_t use_os_rand;
- 	uint32_t log_avg_msec;
- 	uint32_t norandommap;
--- 
-1.8.5.3
+Oh man...harsh master :P
 
+-       o->rand_seed = le32_to_cpu(top->rand_seed);
++       o->rand_seed = le64_to_cpu(top->rand_seed);
+
+I saw this when reviewing the code but didn't realize "top" was the
+packed version that got changed.
+
+Resending V2
+
+Compiled and lightly tested on x86, not ARM where I'm doing most of my
+testing these days. :)
+
+cheers,
+grant
 
