@@ -1,50 +1,42 @@
-Return-Path: <grundler@chromium.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-oa0-f46.google.com ([209.85.219.46]:53455 "EHLO
+	mail-oa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754817AbaA1SMF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 28 Jan 2014 13:12:05 -0500
+Received: by mail-oa0-f46.google.com with SMTP id n16so825990oag.19
+        for <fio@vger.kernel.org>; Tue, 28 Jan 2014 10:12:04 -0800 (PST)
+MIME-Version: 1.0
+Date: Tue, 28 Jan 2014 10:12:03 -0800
+Message-ID: <CANEJEGvtM3pyc_FqoLOe9X=EfcQLTtSUGokCAsyQ1fmFMhGcLw@mail.gmail.com>
+Subject: rand_seed check failures with 2.1.4+ verify patches
 From: Grant Grundler <grundler@chromium.org>
-Subject: [PATCH] fio: consolidate rand_seed to uint64_t
-Date: Tue, 28 Jan 2014 13:02:20 -0800
-Message-Id: <1390942940-6886-1-git-send-email-grundler@chromium.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: FIO List <fio@vger.kernel.org>, Puthikorn Voravootivat <puthik@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Grant Grundler <grundler@chromium.org>
-List-ID: <fio@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: FIO_list <fio@vger.kernel.org>
+Cc: Puthikorn Voravootivat <puthik@chromium.org>
 
-csscope showed rand_seed was defined 4 times - each a different type.
-While they are used differently, the places where they overlap
-should reference the same type. This patch makes three of them the same
-as suggested by Jens Axboe.
+We've seen failures in rand_seed checking that go away when specifying
+"verify_pattern=" parameter.
 
-Signed-off-by: Grant Grundler <grundler@chromium.org>
----
- ioengine.h       | 2 +-
- thread_options.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Jen's noted the same thing (I think) in a different thread with this job file:
+[global]
+filename=fio.ver
+loops=10
+verify=crc32
 
-diff --git a/ioengine.h b/ioengine.h
-index 949af91..0756bc7 100644
---- a/ioengine.h
-+++ b/ioengine.h
-@@ -56,7 +56,7 @@ struct io_u {
- 	/*
- 	 * Initial seed for generating the buffer contents
- 	 */
--	unsigned long rand_seed;
-+	uint64_t rand_seed;
- 
- 	/*
- 	 * IO engine state, may be different from above when we get
-diff --git a/thread_options.h b/thread_options.h
-index 2f807cd..59ddd7e 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -324,7 +324,7 @@ struct thread_options_pack {
- 	uint32_t do_disk_util;
- 	uint32_t override_sync;
- 	uint32_t rand_repeatable;
--	uint32_t rand_seed;
-+	uint64_t rand_seed;
- 	uint32_t use_os_rand;
- 	uint32_t log_avg_msec;
- 	uint32_t norandommap;
--- 
-1.8.5.3
+[random-rw]
+size=31457280
+rw=randrw
 
 
+Puthik (CC'd) thinks he knows what the bug is in rand_seed checking
+and I'll help review the fix once it's ready (should be available
+later today or tomorrow).
+
+Puthik will open a new bug in the chromium.org issue tracker. In the
+mean time, some notes on the bug are here:
+    https://code.google.com/p/chromium/issues/detail?id=337651
+
+cheers,
+grant
