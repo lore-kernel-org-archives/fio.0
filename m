@@ -1,256 +1,89 @@
-Return-Path: <grundler@google.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:60349 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755162AbaA1R0M (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 28 Jan 2014 12:26:12 -0500
+Date: Tue, 28 Jan 2014 10:26:09 -0700
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: A bug in combining fsrange and verify
+Message-ID: <20140128172609.GL20264@kernel.dk>
+References: <CAOpYm_W685AkEuFnNZX-m0Jfq+B+crzQv5oEF_Hbvq3XbABhaQ@mail.gmail.com>
+ <20140127192215.GF2782@kernel.dk>
+ <CAOpYm_WNfhkyFRofHg6aUfm_nxL7oX8gCc++wNFMproqP1rVeA@mail.gmail.com>
+ <20140127224603.GM2782@kernel.dk>
+ <20140127230339.GN2782@kernel.dk>
+ <CANEJEGspxdmAAhRCS7hiQeeFAOmSg9+ZwnZ_wcROji-9zE9tAg@mail.gmail.com>
+ <20140127233116.GO2782@kernel.dk>
+ <CANEJEGsfPUTzV4iwkYCDY1xwagW8uW+nimBzLOLDt2uzZHPGYg@mail.gmail.com>
 MIME-Version: 1.0
-Sender: grundler@google.com
-In-Reply-To: <1379451974-16100-2-git-send-email-jcasse@chromium.org>
-References: <1379451974-16100-1-git-send-email-jcasse@chromium.org>
-	<1379451974-16100-2-git-send-email-jcasse@chromium.org>
-Date: Fri, 24 Jan 2014 10:34:40 -0800
-Message-ID: <CANEJEGvaxHk+MsdMxq_933zfWRbCSUwYpCQjzZob4gTg6Nvr4w@mail.gmail.com>
-Subject: Re: [PATCH V3] Adds verify_only option
-From: Grant Grundler <grundler@chromium.org>
-Content-Type: text/plain; charset=UTF-8
-To: Juan Casse <jcasse@chromium.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Grant Grundler <grundler@chromium.org>, FIO_list <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CANEJEGsfPUTzV4iwkYCDY1xwagW8uW+nimBzLOLDt2uzZHPGYg@mail.gmail.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Grant Grundler <grundler@chromium.org>
+Cc: Wallence Lu <wallencelu@gmail.com>, FIO_list <fio@vger.kernel.org>
 
-Jens, Ping?
-Still able to integrate this patch?
+On Mon, Jan 27 2014, Grant Grundler wrote:
+> On Mon, Jan 27, 2014 at 3:31 PM, Jens Axboe <axboe@kernel.dk> wrote:
+> ...
+> >> > Works for me with the 2.1.4 release. It's actually broken in current
+> >> > -git, due to the numberio patches..
+> >>
+> >> You mean all of the "verify_only" support patches or specifically this patch:
+> >>
+> >> commit da0a7bd224bb9331f27bb4b20394dd5c8fa3acb0
+> >> Author: Juan Casse <jcasse@chromium.org>
+> >> Date:   Tue Sep 17 14:06:12 2013 -0700
+> >>
+> >>     Adds check for numberio during verify phase.
+> >>
+> >> I can take a look at this tomorrow... let me see if I have the job
+> >> file in another email.
+> >
+> > It looks like it's actually catching the issue, when I take a closer
+> > look.
+> 
+> OH. Got it. :)  Good. Had me worried for a moment.
 
-thanks,
-grant
+But another bug has been uncovered. If you run this:
 
-On Tue, Sep 17, 2013 at 2:06 PM, Juan Casse <jcasse@chromium.org> wrote:
-> When this option is set, a dry run (no actual io is performed) of the
-> workload will be done in order to compute the numberio for each block
-> header without overwriting the data on disk. Then, do_verify() will be
-> effectively verifying data that was written in a previous fio run.
-> In the case that "loops" is set to more than 1, do_verify() will delay
-> the verification of numberio to the last iteration when the same
-> numberio state that would have been written to disk in a previous
-> fio run has been reached.
->
-> Signed-off-by: Juan Casse <jcasse@chromium.org>
-> Reviewed-by: Grant Grundler <grundler@chromium.org>
-> ---
-> This patch depends on "[PATCH] Adds check for numberio during verify phase"
-> sent on September 5, 2013.
->
->  HOWTO            | 11 ++++++++++-
->  README           |  2 ++
->  backend.c        | 43 ++++++++++++++++++++++++++++++++++++++++++-
->  init.c           | 17 +++++++++++++++++
->  options.c        |  9 +++++++++
->  thread_options.h |  2 ++
->  verify.c         |  8 ++++++--
->  7 files changed, 88 insertions(+), 4 deletions(-)
->
-> diff --git a/HOWTO b/HOWTO
-> index 005dac2..a3ca770 100644
-> --- a/HOWTO
-> +++ b/HOWTO
-> @@ -1039,6 +1039,13 @@ loops=int        Run the specified number of iterations of this job. Used
->                 to repeat the same workload a given number of times. Defaults
->                 to 1.
->
-> +verify_only    Do not perform specified workload---only verify data still
-> +               matches previous invocation of this workload. This option
-> +               allows one to check data multiple times at a later date
-> +               without overwriting it. This option makes sense only for
-> +               workloads that write data, and does not support workloads
-> +               with the time_based option set.
-> +
->  do_verify=bool Run the verify phase after a write phase. Only makes sense if
->                 verify is set. Defaults to 1.
->
-> @@ -1077,7 +1084,9 @@ verify=str        If writing to a file, fio can verify the file contents
->
->                         meta    Write extra information about each io
->                                 (timestamp, block number etc.). The block
-> -                               number is verified. See also verify_pattern.
-> +                               number is verified. The io sequence number is
-> +                               verified for workloads that write data.
-> +                               See also verify_pattern.
->
->                         null    Only pretend to verify. Useful for testing
->                                 internals with ioengine=null, not for much
-> diff --git a/README b/README
-> index 15a0731..7942069 100644
-> --- a/README
-> +++ b/README
-> @@ -141,6 +141,8 @@ $ fio
->         --latency-log           Generate per-job latency logs
->         --bandwidth-log         Generate per-job bandwidth logs
->         --minimal               Minimal (terse) output
-> +       --verifyonly            Skip workload io and only verify data
-> +                               (includes stale data check)
->         --output-format=type    Output format (terse,json,normal)
->         --terse-version=type    Terse version output format (default 3, or 2 or 4).
->         --version               Print version info and exit
-> diff --git a/backend.c b/backend.c
-> index b9c1c12..c74c001 100644
-> --- a/backend.c
-> +++ b/backend.c
-> @@ -1104,6 +1104,44 @@ static int exec_string(struct thread_options *o, const char *string, const char
->  }
->
->  /*
-> + * Dry run to compute correct state of numberio for verification.
-> + */
-> +static uint64_t do_dry_run(struct thread_data *td)
-> +{
-> +       uint64_t bytes_done[DDIR_RWDIR_CNT] = { 0, 0, 0 };
-> +
-> +       td_set_runstate(td, TD_RUNNING);
-> +
-> +       while ((td->o.read_iolog_file && !flist_empty(&td->io_log_list)) ||
-> +               (!flist_empty(&td->trim_list)) || !io_bytes_exceeded(td)) {
-> +               struct io_u *io_u;
-> +               int ret;
-> +
-> +               if (td->terminate || td->done)
-> +                       break;
-> +
-> +               io_u = get_io_u(td);
-> +               if (!io_u)
-> +                       break;
-> +
-> +               io_u->flags |= IO_U_F_FLIGHT;
-> +               io_u->error = 0;
-> +               io_u->resid = 0;
-> +               if (ddir_rw(acct_ddir(io_u)))
-> +                       td->io_issues[acct_ddir(io_u)]++;
-> +               if (ddir_rw(io_u->ddir)) {
-> +                       io_u_mark_depth(td, 1);
-> +                       td->ts.total_io_u[io_u->ddir]++;
-> +               }
-> +
-> +               ret = io_u_sync_complete(td, io_u, bytes_done);
-> +               (void) ret;
-> +       }
-> +
-> +       return bytes_done[DDIR_WRITE] + bytes_done[DDIR_TRIM];
-> +}
-> +
-> +/*
->   * Entry point for the thread based jobs. The process based jobs end up
->   * here as well, after a little setup.
->   */
-> @@ -1311,7 +1349,10 @@ static void *thread_main(void *data)
->
->                 prune_io_piece_log(td);
->
-> -               verify_bytes = do_io(td);
-> +               if (td->o.verify_only && (td_write(td) || td_rw(td)))
-> +                       verify_bytes = do_dry_run(td);
-> +               else
-> +                       verify_bytes = do_io(td);
->
->                 clear_state = 1;
->
-> diff --git a/init.c b/init.c
-> index 1afc341..34d1f14 100644
-> --- a/init.c
-> +++ b/init.c
-> @@ -60,6 +60,8 @@ int write_bw_log = 0;
->  int read_only = 0;
->  int status_interval = 0;
->
-> +int verify_only = 0;
-> +
->  static int write_lat_log;
->
->  static int prev_group_jobs;
-> @@ -139,6 +141,11 @@ static struct option l_opts[FIO_NR_OPTIONS] = {
->                 .val            = 'r' | FIO_CLIENT_FLAG,
->         },
->         {
-> +               .name           = (char *) "verifyonly",
-> +               .has_arg        = no_argument,
-> +               .val            = 'y' | FIO_CLIENT_FLAG,
-> +       },
-> +       {
->                 .name           = (char *) "eta",
->                 .has_arg        = required_argument,
->                 .val            = 'e' | FIO_CLIENT_FLAG,
-> @@ -928,6 +935,13 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
->         int numjobs, file_alloced;
->         struct thread_options *o = &td->o;
->
-> +       /*
-> +        * Ensure job option verify_only is set when provided as a
-> +        * command-line argument.
-> +        */
-> +       if (verify_only)
-> +               o->verify_only = 1;
-> +
->         /*
->          * the def_thread is just for options, it's not a real job
->          */
-> @@ -1661,6 +1675,9 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
->                 case 'r':
->                         read_only = 1;
->                         break;
-> +               case 'y':
-> +                       verify_only = 1;
-> +                       break;
->                 case 'v':
->                         if (!cur_client) {
->                                 log_info("%s\n", fio_version_string);
-> diff --git a/options.c b/options.c
-> index caf89d3..e6b9ec9 100644
-> --- a/options.c
-> +++ b/options.c
-> @@ -1935,6 +1935,15 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
->                 .group  = FIO_OPT_G_RUNTIME,
->         },
->         {
-> +               .name   = "verify_only",
-> +               .lname  = "Verify only",
-> +               .type   = FIO_OPT_STR_SET,
-> +               .off1   = td_var_offset(verify_only),
-> +               .help   = "Verifies previously written data is still valid",
-> +               .category = FIO_OPT_C_GENERAL,
-> +               .group  = FIO_OPT_G_RUNTIME,
-> +       },
-> +       {
->                 .name   = "ramp_time",
->                 .lname  = "Ramp time",
->                 .type   = FIO_OPT_STR_VAL_TIME,
-> diff --git a/thread_options.h b/thread_options.h
-> index 3f345c5..c9660b4 100644
-> --- a/thread_options.h
-> +++ b/thread_options.h
-> @@ -107,6 +107,8 @@ struct thread_options {
->         unsigned int fsync_on_close;
->         unsigned int bs_is_seq_rand;
->
-> +       unsigned int verify_only;
-> +
->         unsigned int random_distribution;
->
->         fio_fp64_t zipf_theta;
-> diff --git a/verify.c b/verify.c
-> index 63def12..9343ab9 100644
-> --- a/verify.c
-> +++ b/verify.c
-> @@ -373,10 +373,14 @@ static int verify_io_u_meta(struct verify_header *hdr, struct vcont *vc)
->          * For read-only workloads, the program cannot be certain of the
->          * last numberio written to a block. Checking of numberio will be done
->          * only for workloads that write data.
-> +        * For verify_only, numberio will be checked in the last iteration when
-> +        * the correct state of numberio, that would have been written to each
-> +        * block in a previous run of fio, has been reached.
->          */
->         if (td_write(td) || td_rw(td))
-> -               if (vh->numberio != io_u->numberio)
-> -                       ret = EILSEQ;
-> +               if (!td->o.verify_only || td->o.loops == 0)
-> +                       if (vh->numberio != io_u->numberio)
-> +                               ret = EILSEQ;
->
->         if (!ret)
->                 return 0;
-> --
-> 1.7.12.4
->
+[global]
+filename=fio.ver
+loops=10
+verify=crc32
+
+[random-rw]
+size=31457280
+rw=randrw
+
+fio will complain about unmatched seeds in later iterations...
+
+
+> BTW, it looks like there is also a bug in "random_pattern_fill"
+> support. When specifying verify_pattern the problem went away.  See
+> this bug:
+>     https://code.google.com/p/chromium/issues/detail?id=337651
+> 
+> my workaround is here:
+>     https://chromium-review.googlesource.com/#/c/183813/
+> 
+> (should probably start a new thread for that)
+
+Please do :-)
+
+> 
+> > I'm afraid there might be overlapping ranges for bsrange=.
+> 
+> I can reproduce with fio-2.1.2 + verify_only patches (output below).
+> It's always a 512 byte long corruption which in fact would suggest
+> "off-by-one" overlapping ranges.
+
+Note that the print is actually wrong. It's verifying in extents of 512,
+but does verify the whole thing. But yes, there's a bug there, but the
+length print is not correct.
+
+
+-- 
+Jens Axboe
 
