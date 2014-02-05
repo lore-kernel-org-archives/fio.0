@@ -1,143 +1,84 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from e06smtp15.uk.ibm.com ([195.75.94.111]:57942 "EHLO
-	e06smtp15.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753771AbaBSPMx (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 19 Feb 2014 10:12:53 -0500
-Received: from /spool/local
-	by e06smtp15.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <fio@vger.kernel.org> from <ehrhardt@linux.vnet.ibm.com>;
-	Wed, 19 Feb 2014 15:12:52 -0000
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-	by d06dlp02.portsmouth.uk.ibm.com (Postfix) with ESMTP id 119BE219005F
-	for <fio@vger.kernel.org>; Wed, 19 Feb 2014 15:12:47 +0000 (GMT)
-Received: from d06av12.portsmouth.uk.ibm.com (d06av12.portsmouth.uk.ibm.com [9.149.37.247])
-	by b06cxnps3074.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id s1JFCbfe2425178
-	for <fio@vger.kernel.org>; Wed, 19 Feb 2014 15:12:37 GMT
-Received: from d06av12.portsmouth.uk.ibm.com (localhost [127.0.0.1])
-	by d06av12.portsmouth.uk.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id s1JFCnh1005872
-	for <fio@vger.kernel.org>; Wed, 19 Feb 2014 08:12:49 -0700
-Message-ID: <5304C9F0.1060302@linux.vnet.ibm.com>
-Date: Wed, 19 Feb 2014 16:12:48 +0100
-From: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+Return-Path: <axboe@kernel.dk>
+Date: Wed, 5 Feb 2014 14:38:10 -0700
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] fix rand_seed mismatches in verify phase
+Message-ID: <20140205213810.GD20626@kernel.dk>
+References: <1391463077-14292-1-git-send-email-puthik@chromium.org>
+ <CANEJEGuTmYm2k1M3BUmoxCVD99wCTyLjyRrT9HS=MMFBStrA5A@mail.gmail.com>
+ <CANCcNXcmQNNcgFthc+JENyz3noH8HY2JsLjNG7ZBk5_soZGf_g@mail.gmail.com>
+ <20140205182718.GG27534@kernel.dk>
+ <CANEJEGsdxoLrJ7o22tVtCw1s8XwHeDJ7znwSYsFR6BvM7pQrPw@mail.gmail.com>
+ <20140205193006.GH27534@kernel.dk>
+ <CANEJEGtx5stx0FzorE1YJNhqaypRK79spv2x_oQtmUsuiLp=Ag@mail.gmail.com>
 MIME-Version: 1.0
-Subject: [patch 6/9] fio: allow to combine terse output with any selected
- output type
-References: <20140219143639.168501090@linux.vnet.ibm.com>
-In-Reply-To: <20140219143639.168501090@linux.vnet.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: oberpar@linux.vnet.ibm.com, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CANEJEGtx5stx0FzorE1YJNhqaypRK79spv2x_oQtmUsuiLp=Ag@mail.gmail.com>
+To: Grant Grundler <grundler@chromium.org>
+Cc: Puthikorn Voravootivat <puthik@chromium.org>, FIO List <fio@vger.kernel.org>, Gwendal Grignou <gwendal@chromium.org>
+List-ID: <fio@vger.kernel.org>
 
-From: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+On Wed, Feb 05 2014, Grant Grundler wrote:
+> On Wed, Feb 5, 2014 at 11:30 AM, Jens Axboe <axboe@kernel.dk> wrote:
+> ...
+> > The below should take care of it. Juan's fix didn't account for verify
+> > exceeding size=.
+> 
+> Ah...Juan didn't test with that option and Puthikorn did.
+> 
+> > diff --git a/backend.c b/backend.c
+> > index bf9d066e012a..3ac72e771cb9 100644
+> > --- a/backend.c
+> > +++ b/backend.c
+> > @@ -642,7 +642,7 @@ static uint64_t do_io(struct thread_data *td)
+> >         uint64_t bytes_done[DDIR_RWDIR_CNT] = { 0, 0, 0 };
+> >         unsigned int i;
+> >         int ret = 0;
+> > -       uint64_t bytes_issued = 0;
+> > +       uint64_t total_bytes, bytes_issued = 0;
+> >
+> >         if (in_ramp_time(td))
+> >                 td_set_runstate(td, TD_RAMP);
+> > @@ -651,6 +651,10 @@ static uint64_t do_io(struct thread_data *td)
+> >
+> >         lat_target_init(td);
+> >
+> > +       total_bytes = td->o.size;
+> > +       if (td->o.verify != VERIFY_NONE && td_write(td))
+> > +               total_bytes += td->o.size;
+> > +
+> 
+> The amount of verify IO depends on what percentage is write traffic.
+> Is each thread strictly reader or writer?
 
-This patch adds the option --append-terse to be able to request a 
-combination
-of any given selected output format AND terse output based on the same data.
+It does indeed. Note I updated this to depend on verify_backlog as well,
+since that is the important bit. Each thread can have any mix of
+read/write/trim.
 
-This will help all users that want to parse the terse data for further use,
-but need to look into the logs every now and then which then should be
-readable.
+> I didn't think so or we wouldn't need "td->this_io_bytes[]" for
+> DDIR_WRITE, DDIR_READ, and DDIR_TRIM at the same time.
+> 
+> >         while ((td->o.read_iolog_file && !flist_empty(&td->io_log_list)) ||
+> >                 (!flist_empty(&td->trim_list)) || !io_bytes_exceeded(td) ||
+> 
+> I've gotten a bit hung up on what io_bytes_exceeded() uses (
+> td->this_io_bytes[]), bytes_done[], and bytes_issued. Seems like we
+> have three different mechanisms to do essentially the same thing. Can
+> I rip two of them out and just count "issued IO" for WRITE/READ/TRIM?
 
-Signed-off-by: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
----
+this_io_bytes[] is per loop.
+> 
+> "io_bytes_exceeded()" is the only place I would expect this logic to
+> live in this loop. Having additional "break" in the middle of the loop
+> implies we've broken the original design.
 
-[diffstat]
-  fio.1  |   10 +++++++---
-  fio.h  |    1 +
-  init.c |    9 +++++++++
-  stat.c |   10 ++++++++++
-  4 files changed, 27 insertions(+), 3 deletions(-)
+The fix is a bit of a hack, but the original commit was a hack too. It
+would be a lot better to track this explicitly. For now it's just an
+upper cap, normally we expect other conditions to terminate it.
 
-[diff]
+So I'd welcome a cleanup in this area for sure.
 
---- a/fio.1
-+++ b/fio.1
-@@ -32,6 +32,9 @@ Generate per-job bandwidth logs.
-  .B \-\-minimal
-  Print statistics in a terse, semicolon-delimited format.
-  .TP
-+.B \-\-append-terse
-+Print statistics in selected mode AND terse, semicolon-delimited format.
-+.TP
-  .B \-\-version
-  Display version information and exit.
-  .TP
-@@ -1578,9 +1581,10 @@ It is also possible to get fio to dump t
-  running, without terminating the job. To do that, send fio the \fBUSR1\fR
-  signal.
-  .SH TERSE OUTPUT
--If the \fB\-\-minimal\fR option is given, the results will be printed in a
--semicolon-delimited format suitable for scripted use - a job description
--(if provided) follows on a new line.  Note that the first
-+If the \fB\-\-minimal\fR / \fB\-\-append-terse\fR options are given, the
-+results will be printed/appended in a semicolon-delimited format 
-suitable for
-+scripted use.
-+A job description (if provided) follows on a new line.  Note that the first
-  number in the line is the version number. If the output has to be changed
-  for some reason, this number will be incremented by 1 to signify that
-  change.  The fields are:
---- a/fio.h
-+++ b/fio.h
-@@ -373,6 +373,7 @@ extern unsigned int stat_number;
-  extern int shm_id;
-  extern int groupid;
-  extern int output_format;
-+extern int append_terse_output;
-  extern int temp_stall_ts;
-  extern uintptr_t page_mask, page_size;
-  extern int read_only;
---- a/init.c
-+++ b/init.c
-@@ -43,6 +43,7 @@ struct thread_data *threads = NULL;
-   int exitall_on_terminate = 0;
-  int output_format = FIO_OUTPUT_NORMAL;
-+int append_terse_output = 0;
-  int eta_print = FIO_ETA_AUTO;
-  int eta_new_line = 0;
-  FILE *f_out = NULL;
-@@ -109,6 +110,11 @@ static struct option l_opts[FIO_NR_OPTIO
-  		.val		= 'F' | FIO_CLIENT_FLAG,
-  	},
-  	{
-+		.name		= (char *) "append-terse",
-+		.has_arg	= optional_argument,
-+		.val		= 'f',
-+	},
-+	{
-  		.name		= (char *) "version",
-  		.has_arg	= no_argument,
-  		.val		= 'v' | FIO_CLIENT_FLAG,
-@@ -1716,6 +1722,9 @@ int parse_cmd_line(int argc, char *argv[
-  			else
-  				output_format = FIO_OUTPUT_NORMAL;
-  			break;
-+		case 'f':
-+			append_terse_output = 1;
-+			break;
-  		case 'h':
-  			if (!cur_client) {
-  				usage(argv[0]);
---- a/stat.c
-+++ b/stat.c
-@@ -1386,6 +1386,16 @@ static void __show_run_stats(void)
-  		show_idle_prof_stats(FIO_OUTPUT_NORMAL, NULL);
-  	}
-  +	if ( !(output_format == FIO_OUTPUT_TERSE) && append_terse_output) {
-+		log_info("\nAdditional Terse Output:\n");
-+
-+		for (i = 0; i < nr_ts; i++) {
-+			ts = &threadstats[i];
-+			rs = &runstats[ts->groupid];
-+			show_thread_status_terse(ts, rs);
-+		}
-+	}
-+
-  	log_info_flush();
-  	free(runstats);
-  	free(threadstats);
+-- 
+Jens Axboe
 
 
