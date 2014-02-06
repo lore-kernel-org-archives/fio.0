@@ -1,41 +1,33 @@
-Return-Path: <m.eaton82@gmail.com>
+Return-Path: <axboe@kernel.dk>
+Received: from localhost (66.29.187.49.static.utbb.net. [66.29.187.49])
+        by mx.google.com with ESMTPSA id vn10sm6058468pbc.21.2014.02.06.11.21.36
+        for <fio@vger.kernel.org>
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Thu, 06 Feb 2014 11:21:37 -0800 (PST)
+Date: Thu, 6 Feb 2014 12:21:35 -0700
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Fio 2.1.5 release upcoming
+Message-ID: <20140206192135.GB3950@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <20140206192135.GB3950@kernel.dk>
-References: <20140206192135.GB3950@kernel.dk>
-Date: Sat, 8 Feb 2014 11:52:05 -0800
-Message-ID: <CAF+0mvnBvLVqijP+Atbh9SEjt0p6-e3hy4Q3QRMtb+swp72bTQ@mail.gmail.com>
-Subject: Re: Fio 2.1.5 release upcoming
-From: Matthew Eaton <m.eaton82@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+To: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-On Thu, Feb 6, 2014 at 11:21 AM, Jens Axboe <axboe@kernel.dk> wrote:
-> Hi,
->
-> I've been late on this release, originally wanted it out around
-> Christmas. But various issues here and there prevented that. However, I
-> now think we are getting pretty close. It'd be great if folks running on
-> non-linux systems could compile and ensure that everything is in working
-> order, because otherwise I'm going to assume that it is...
->
-> Similarly, if you know of bugs (particularly regressions from previous
-> releases), speak up now so we can get them fixed before 2.1.5 is cut.
->
-> I'll wait until Monday to tag the release.
->
-> --
-> Jens Axboe
->
+Hi,
 
-Hi Jens,
+I've been late on this release, originally wanted it out around
+Christmas. But various issues here and there prevented that. However, I
+now think we are getting pretty close. It'd be great if folks running on
+non-linux systems could compile and ensure that everything is in working
+order, because otherwise I'm going to assume that it is...
 
-I was messing around with the openfiles flag in one of my job files
-last week but was unable to get it to work.  Fio would keep defaulting
-to opening all files set by nrfiles, but I'm not sure if I was doing
-something wrong.  This was with fio 2.1.4 on linux.  Can you check on
-this?
+Similarly, if you know of bugs (particularly regressions from previous
+releases), speak up now so we can get them fixed before 2.1.5 is cut.
 
-Matt
+I'll wait until Monday to tag the release.
+
+-- 
+Jens Axboe
+
 
