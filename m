@@ -1,49 +1,68 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ve0-f181.google.com ([209.85.128.181]:55930 "EHLO
-	mail-ve0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752635AbaBYRV4 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 25 Feb 2014 12:21:56 -0500
-Received: by mail-ve0-f181.google.com with SMTP id jw12so772454veb.40
-        for <fio@vger.kernel.org>; Tue, 25 Feb 2014 09:21:55 -0800 (PST)
-MIME-Version: 1.0
-From: puvi <r.puvichakravarthy@gmail.com>
-Date: Tue, 25 Feb 2014 22:51:35 +0530
-Message-ID: <CAMYQYmqi-Re5oU9JSX1sm=E5f=ucrwRuf1BRmdo5y+JkhEouhw@mail.gmail.com>
-Subject: Understanding cpu% in fio
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from merlin.infradead.org ([205.233.59.134]:53323 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750984AbaBKNAE (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 11 Feb 2014 08:00:04 -0500
+Received: from kernel.dk ([54.225.238.116] helo=strynoevaenget.dk)
+	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1WDCwW-0001hJ-3Z
+	for fio@vger.kernel.org; Tue, 11 Feb 2014 13:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20140211130003.22E4B4322D@strynoevaenget.dk>
+Date: Tue, 11 Feb 2014 06:00:03 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hi All,
+The following changes since commit 782744ef60b7ed47a529d30b9f8e0c528c436fdb:
 
-  Could you kindly help me understand the cpu% reported in FIO output.
+  crc: add option to list possible crc types (2014-02-07 20:54:39 -0700)
 
-  I'm using a dat file with the following global parameters.
+are available in the git repository at:
 
-[global]
-buffered=1
-bs=128k
-iodepth=16
-numjobs=1
-group_reporting=1
-size=2000m
-rw=read
-runtime=180
-time_based
+  git://git.kernel.dk/fio.git master
 
-  and in the result I get something like this
+for you to fetch changes up to ea66e04fe1a803f6a9ddf31cb999641d4396d67c:
 
-  cpu          : usr=0.08%, sys=98.63%, ctx=46607, majf=0, minf=768
+  Fix issue with td->mutex being used-after-free (2014-02-10 13:57:09 -0700)
 
-  and I monitor the system level utilization using vmstat and they
-point to different values ( lesser values).
+----------------------------------------------------------------
+Jens Axboe (1):
+      Fix issue with td->mutex being used-after-free
 
-  Looking at the code I see that fio does cpu% as cpu_time( from
-rusage) / total elapsed time. In the above case I have 128 jobfiles
-running. Does fio add the cpu_time of all threads and then divide by
-elapsed time ( ~180s) ? Kindly correct me if I'm wrong.
+ backend.c |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-Thanks.
+---
 
-~Puvi
+Diff of recent changes:
+
+diff --git a/backend.c b/backend.c
+index 501c59a..a607134 100644
+--- a/backend.c
++++ b/backend.c
+@@ -1236,13 +1236,6 @@ static void *thread_main(void *data)
+ 	dprint(FD_MUTEX, "done waiting on td->mutex\n");
+ 
+ 	/*
+-	 * the ->mutex mutex is now no longer used, close it to avoid
+-	 * eating a file descriptor
+-	 */
+-	fio_mutex_remove(td->mutex);
+-	td->mutex = NULL;
+-
+-	/*
+ 	 * A new gid requires privilege, so we need to do this before setting
+ 	 * the uid.
+ 	 */
+@@ -1521,6 +1514,9 @@ err:
+ 	fio_mutex_remove(td->rusage_sem);
+ 	td->rusage_sem = NULL;
+ 
++	fio_mutex_remove(td->mutex);
++	td->mutex = NULL;
++
+ 	td_set_runstate(td, TD_EXITED);
+ 	return (void *) (uintptr_t) td->error;
+ }
