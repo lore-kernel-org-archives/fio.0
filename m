@@ -1,36 +1,24 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailout09.t-online.de ([194.25.134.84]:56400 "EHLO
-	mailout09.t-online.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751284AbaBLPM3 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 12 Feb 2014 10:12:29 -0500
-From: "Daniel Gollub" <daniel.gollub@t-online.de>
-Subject: [PATCH 0/2] Make fio.h a bit more C++ safe
-Date: Wed, 12 Feb 2014 15:51:53 +0100
-Message-Id: <1392216715-9539-1-git-send-email-d.gollub@telekom.de>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <52FB9695.3030807@kernel.dk>
+Date: Wed, 12 Feb 2014 08:43:17 -0700
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Daniel Gollub <d.gollub@telekom.de>
+Subject: Re: New build warnings on Windows
+References: <52FAB6D5.5070903@cran.org.uk> <20140212044938.GA11527@kernel.dk> <52FB9577.6050500@cran.org.uk>
+In-Reply-To: <52FB9577.6050500@cran.org.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Bruce Cran <bruce@cran.org.uk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Following patches allow to include fio.h for a C++ based
-(external) ioengine to be compiled with g++.
+On 02/12/2014 08:38 AM, Bruce Cran wrote:
+> On 2/11/2014 9:49 PM, Jens Axboe wrote:
+>> Does the below fix it up?
+>
+> Yup, that fixes it.
 
-(Preparing two fio engines: one internal for CEPH RBD
-another external for CEPH FileStore)
-
-Daniel Gollub (2):
-  Make file.h C++ safe by casting fio_file_flags
-  Make parse.h C++ safe by avoiding "or" keyword
-
- file.h    |    4 ++--
- options.c |    6 +++---
- parse.c   |    4 ++--
- parse.h   |    2 +-
- 4 files changed, 8 insertions(+), 8 deletions(-)
+Applied!
 
 -- 
-1.7.10.4
+Jens Axboe
 
