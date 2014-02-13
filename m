@@ -1,79 +1,43 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from e06smtp18.uk.ibm.com ([195.75.94.114]:51115 "EHLO
-	e06smtp18.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754375AbaBTNU4 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 20 Feb 2014 08:20:56 -0500
-Received: from /spool/local
-	by e06smtp18.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <fio@vger.kernel.org> from <ehrhardt@linux.vnet.ibm.com>;
-	Thu, 20 Feb 2014 13:20:54 -0000
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-	by d06dlp02.portsmouth.uk.ibm.com (Postfix) with ESMTP id F25402190061
-	for <fio@vger.kernel.org>; Thu, 20 Feb 2014 13:20:48 +0000 (GMT)
-Received: from d06av05.portsmouth.uk.ibm.com (d06av05.portsmouth.uk.ibm.com [9.149.37.229])
-	by b06cxnps3074.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id s1KDKdEB1049070
-	for <fio@vger.kernel.org>; Thu, 20 Feb 2014 13:20:39 GMT
-Received: from d06av05.portsmouth.uk.ibm.com (localhost [127.0.0.1])
-	by d06av05.portsmouth.uk.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id s1KDKoQo015404
-	for <fio@vger.kernel.org>; Thu, 20 Feb 2014 06:20:51 -0700
-Message-Id: <20140220132050.305734025@linux.vnet.ibm.com>
-Date: Thu, 20 Feb 2014 14:19:59 +0100
-From: ehrhardt@linux.vnet.ibm.com
-Subject: [patch 1/9] fio: fix job clone mem leak
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: oberpar@linux.vnet.ibm.com, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+Return-Path: <daniel.gollub@t-online.de>
+Date: Thu, 13 Feb 2014 07:25:00 +0100
+From: Daniel Gollub <daniel.gollub@t-online.de>
+Subject: Re: [PATCH 2/2] engines/null: allow build as external C++ ioengine
+Message-ID: <20140213072500.792e7a92@marvin>
+In-Reply-To: <52FC465A.4060009@kernel.dk>
+References: <1392232426-16152-1-git-send-email-d.gollub@telekom.de>
+	<1392232426-16152-2-git-send-email-d.gollub@telekom.de>
+	<52FC465A.4060009@kernel.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org, Daniel Gollub <d.gollub@telekom.de>
+List-ID: <fio@vger.kernel.org>
 
-*Resend with hopefully non mangled patches*
-References: <20140220131958.965092001@linux.vnet.ibm.com>
-Content-Disposition: inline; filename=fio-fix-cloneleak.diff
+On Wed, 12 Feb 2014 21:13:14 -0700, Jens Axboe wrote:
+> On 2014-02-12 12:13, Daniel Gollub wrote:
+> > In first place to have a simple test candidate for external
+> > ioengines using get_ioengine() method for retriving the
+> > io_engine struct.
+> >
+> > Can be compiled with:
+> >
+> > g++ -O2 -g -shared -rdynamic -fPIC -o null.so null.c
+> > -DFIO_EXTERNAL_ENGINE
+> 
+> I'm assuming this is just an example of how you'd build your external 
+> engine? Look OK to me with that in mind.
+> 
 
-From: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+Yes it is. I although thought about integrating the build (of the null
+C++/external variant) as kind of a build/compile test (not by default)
+so we can spot changes on fio.h (or headers which are included by fio.h)
+which break builds for external C++ based ioengines.
 
-In the loop to create clones at the bottom of add_job the function get_new_job
-clones the thread_data, just to occaisonally get the allocated pointers for
-filename and files overwritten a few lines later.
+Something like ./configure --example-external-ioengines which
+would also build skeleton_external (plain C) and cpp_null.so (if g++ is
+available).
 
-The dup files also duplicates the name strings so the references to these are
-lost by the setting to null.
-
-This patch fixes takes care of that and frees the memory before discarding the
-pointers (found via valgrind).
-
-Signed-off-by: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
----
-
-[diffstat]
- init.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
-
-[diff]
-
---- a/init.c
-+++ b/init.c
-@@ -1118,10 +1118,21 @@ static int add_job(struct thread_data *t
- 		td_new->o.new_group = 0;
- 
- 		if (file_alloced) {
--			td_new->o.filename = NULL;
- 			td_new->files_index = 0;
- 			td_new->files_size = 0;
--			td_new->files = NULL;
-+			if (td_new->files) {
-+				struct fio_file *f;
-+				for_each_file(td_new, f, i) {
-+					if (f->file_name)
-+						free(f->file_name);
-+					free(f);
-+				}
-+				td_new->files = NULL;
-+			}
-+			if (td_new->o.filename) {
-+				free(td_new->o.filename);
-+				td_new->o.filename = NULL;
-+			}
- 		}
- 
- 		job_add_num = numjobs - 1;
+-- 
+Daniel Gollub
 
