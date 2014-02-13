@@ -1,104 +1,123 @@
-Return-Path: <d.gollub@telekom.de>
-From: "Gollub, Daniel" <d.gollub@telekom.de>
-Date: Thu, 13 Feb 2014 17:27:33 +0100
-Subject: fio ioengines for CEPH (was: RE: [PATCH] Fix g++ warning about
- void* used in arithmetic)
-Message-ID: <8C0F43FF977B33478B9D801E3A9A8F9F0255DADC5B@QEO40075.de.t-online.corp>
-References: <1392229542-14083-1-git-send-email-d.gollub@telekom.de>
- <52FC45E9.3090101@kernel.dk>
- <20140213071357.36e92383@marvin>,<842615085.1431531.1392287522937.JavaMail.zimbra@enovance.com>
-In-Reply-To: <842615085.1431531.1392287522937.JavaMail.zimbra@enovance.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <axboe@kernel.dk>
+Date: Thu, 13 Feb 2014 13:34:39 -0700
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] io_u_qiter: Fix buffer overrun
+Message-ID: <20140213203434.GG10926@kernel.dk>
+References: <20140213070625.GA9117@sucs.org>
+ <20140213161733.GD10926@kernel.dk>
+ <20140213200459.GA31261@sucs.org>
 MIME-Version: 1.0
-To: Erwan Velu <erwan.velu@enovance.com>, Daniel Gollub <daniel.gollub@t-online.de>
-Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, "danny.al-gaaf@bisect.de" <danny.al-gaaf@bisect.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20140213200459.GA31261@sucs.org>
+To: Sitsofe Wheeler <sitsofe@yahoo.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-Hi Erwan,
+On Thu, Feb 13 2014, Sitsofe Wheeler wrote:
+> On Thu, Feb 13, 2014 at 09:17:33AM -0700, Jens Axboe wrote:
+> > 
+> > Initially I didn't see the issue, but then I realized that ->io_us is a
+> > pointer to the io_u pointer. So it is an issue. The fix isn't super
+> > pretty, but it gets rid of the bug, so I'll apply it. It might be nicer
+> > to split it into a top and bottom define.
+> 
+> Can you explain this top and bottom define more - would this let me turn
+> it into a while loop?
+> 
+> The only reason for the current abuse was because I couldn't think of a
+> another way to fix it while preserving the macro...
 
-my colleagues of DTAG P&I Platform Engineering of the Business Marketplace =
-and me did the last month
-performance profiling of our CEPH cluster for RBDs. We decided to implement=
- fio engine based on librbd
-and an external fio engine using CEPHs FileStore class. So we can run the s=
-ame IO pattern with the same
-IO test tool on all the different layers. And fio was just the perfect fit =
-for us:
+Basically you turn it into a do-while with two macros. Ala the below,
+completely untested...
 
- * inside the KVM/QEMU VM with fio ioengine=3Dlibaio
- * on the KVM-host using fio ioengine=3Drbd
- * on the CEPH OSD node with a external fio engine based on CEPH FileStore =
-(writing the PG groups on the filesystem + OSD journal)
- * finally: fio tests on the OSD filesystem and the plain blockdevice
+diff --git a/backend.c b/backend.c
+index 32bc2652bd0b..e355447d1e3a 100644
+--- a/backend.c
++++ b/backend.c
+@@ -255,13 +255,13 @@ static void cleanup_pending_aio(struct thread_data *td)
+ 		struct io_u *io_u;
+ 		int i;
+ 
+-		io_u_qiter(&td->io_u_all, io_u, i) {
++		io_u_do_qiter(&td->io_u_all, io_u, i) {
+ 			if (io_u->flags & IO_U_F_FLIGHT) {
+ 				r = td->io_ops->cancel(td, io_u);
+ 				if (!r)
+ 					put_io_u(td, io_u);
+ 			}
+-		}
++		} while_each_io_u(&td->io_u_all, io_u, i);
+ 	}
+ 
+ 	if (td->cur_depth)
+diff --git a/engines/posixaio.c b/engines/posixaio.c
+index 2df26af3848e..3b27fcdfcc34 100644
+--- a/engines/posixaio.c
++++ b/engines/posixaio.c
+@@ -111,7 +111,7 @@ static int fio_posixaio_getevents(struct thread_data *td, unsigned int min,
+ restart:
+ 	memset(suspend_list, 0, sizeof(*suspend_list));
+ 	suspend_entries = 0;
+-	io_u_qiter(&td->io_u_all, io_u, i) {
++	io_u_do_qiter(&td->io_u_all, io_u, i) {
+ 		int err;
+ 
+ 		if (io_u->seen || !(io_u->flags & IO_U_F_FLIGHT))
+@@ -138,7 +138,7 @@ restart:
+ 			io_u->resid = io_u->xfer_buflen - retval;
+ 		} else
+ 			io_u->error = err;
+-	}
++	} while_each_io_u(&td->io_u_all, io_u, i);
+ 
+ 	if (r >= min)
+ 		return r;
+diff --git a/engines/windowsaio.c b/engines/windowsaio.c
+index 16df74035f18..c6ff27a4408f 100644
+--- a/engines/windowsaio.c
++++ b/engines/windowsaio.c
+@@ -275,7 +275,7 @@ static int fio_windowsaio_getevents(struct thread_data *td, unsigned int min,
+ 	}
+ 
+ 	do {
+-		io_u_qiter(&td->io_u_all, io_u, i) {
++		io_u_do_qiter(&td->io_u_all, io_u, i) {
+ 			if (!(io_u->flags & IO_U_F_FLIGHT))
+ 				continue;
+ 
+@@ -290,7 +290,7 @@ static int fio_windowsaio_getevents(struct thread_data *td, unsigned int min,
+ 
+ 			if (dequeued >= min)
+ 				break;
+-		}
++		} while_each_io_u(&td->io_u_all, io_u, i);
+ 
+ 		if (dequeued < min) {
+ 			status = WaitForSingleObject(wd->iocomplete_event, mswait);
+diff --git a/io_u_queue.h b/io_u_queue.h
+index 5b6cad0ef173..649dcb5ca67c 100644
+--- a/io_u_queue.h
++++ b/io_u_queue.h
+@@ -28,8 +28,14 @@ static inline int io_u_qempty(struct io_u_queue *q)
+ 	return !q->nr;
+ }
+ 
+-#define io_u_qiter(q, io_u, i)	\
+-	for (i = 0; i < (q)->nr && (io_u = (q)->io_us[i]); i++)
++#define io_u_do_qiter(q, io_u, i)				\
++	(i) = 0;						\
++	do {							\
++		(io_u) = (q)->io_us[i];				\
++		(i)++;						\
++
++#define while_each_io_u(q, io_u, i)				\
++	} while ((i) < (q)->nr);				\
+ 
+ int io_u_qinit(struct io_u_queue *q, unsigned int nr);
+ void io_u_qexit(struct io_u_queue *q);
 
+-- 
+Jens Axboe
 
-
-I plan to clean the RBD branch up and send out patches hopefully tomorrow.
-RBD ioengine branch: https://github.com/TelekomCloud/fio/commits/rbd-engine=
-_v2
-
-
-The external FileStore ioengine I plan to cleanup next week - right now its=
- a "quick hack" shape:
-https://github.com/gollub/ceph/blob/fio_filestore/src/fio_ceph_filestore.c
-
-Once I am done with the cleanup and pushed everything Danny and me will pro=
-vide a write-up on the
-TelekomCloud blog about our CEPH-RBD performance sprint with fio.
-
-
-Kind Regards
-Daniel Gollub
-________________________________________
-From: Erwan Velu [erwan.velu@enovance.com]
-Sent: Thursday, February 13, 2014 11:32 AM
-To: Daniel Gollub
-Cc: Jens Axboe; fio@vger.kernel.org; Gollub, Daniel
-Subject: Re: [PATCH] Fix g++ warning about void* used in arithmetic
-
-I'm interested in CEPH too. Can you tell us what is your plan with fio & CE=
-PH ?
-
------ Mail original -----
-De: "Daniel Gollub" <daniel.gollub@t-online.de>
-=C0: "Jens Axboe" <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, "Daniel Gollub" <d.gollub@telekom.de>
-Envoy=E9: Jeudi 13 F=E9vrier 2014 07:13:57
-Objet: Re: [PATCH] Fix g++ warning about void* used in arithmetic
-
-Hi Jens,
-
-On Wed, 12 Feb 2014 21:11:21 -0700, Jens Axboe wrote:
-> On 2014-02-12 11:25, Daniel Gollub wrote:
-> > ../parse.h: In function =91void* td_var(thread_options*, fio_option*,
-> > unsigned int)=92: ../parse.h:110:10: warning: pointer of type =91void
-> > *=92 used in arithmetic [-Wpointer-arith] ../parse.h:112:9: warning:
-> > pointer of type =91void *=92 used in arithmetic [-Wpointer-arith]
->
-> I bet there are a lot of these, or other similar code that would
-> prevent compiling with g++. I'm dubious of the value add here. Fio is
-> written in C, after all.
->
-
-I should have mentioned this in the commit message: this is required to
-compile an external ionengine written in C++. I do not try to compile
-entire fio with g++. If I include fio.h in the external ioengine,
-parse.h gets included by fio.h or so and causes this g++ warning.
-
-This was the last warning (which just got introduced 2 days
-ago) when fio.h gets included by an external engine build with g++.
-
-So the value here is to build external ioengines against libraries/APIs
-which are only available in C++. In my case against an internal library
-of CEPH.
-
-
---
-Daniel Gollub
---
-To unsubscribe from this list: send the line "unsubscribe fio" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html=
 
