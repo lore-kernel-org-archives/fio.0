@@ -1,26 +1,17 @@
-Return-Path: <erwan.velu@enovance.com>
-Date: Thu, 13 Feb 2014 11:32:02 +0100 (CET)
-From: Erwan Velu <erwan.velu@enovance.com>
-Message-ID: <842615085.1431531.1392287522937.JavaMail.zimbra@enovance.com>
-In-Reply-To: <20140213071357.36e92383@marvin>
-References: <1392229542-14083-1-git-send-email-d.gollub@telekom.de> <52FC45E9.3090101@kernel.dk> <20140213071357.36e92383@marvin>
+Return-Path: <daniel.gollub@t-online.de>
+Date: Thu, 13 Feb 2014 07:13:57 +0100
+From: Daniel Gollub <daniel.gollub@t-online.de>
 Subject: Re: [PATCH] Fix g++ warning about void* used in arithmetic
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Message-ID: <20140213071357.36e92383@marvin>
+In-Reply-To: <52FC45E9.3090101@kernel.dk>
+References: <1392229542-14083-1-git-send-email-d.gollub@telekom.de>
+	<52FC45E9.3090101@kernel.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-To: Daniel Gollub <daniel.gollub@t-online.de>
-Cc: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Daniel Gollub <d.gollub@telekom.de>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org, Daniel Gollub <d.gollub@telekom.de>
 List-ID: <fio@vger.kernel.org>
-
-I'm interested in CEPH too. Can you tell us what is your plan with fio & CE=
-PH ?
-
------ Mail original -----
-De: "Daniel Gollub" <daniel.gollub@t-online.de>
-=C3=80: "Jens Axboe" <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, "Daniel Gollub" <d.gollub@telekom.de>
-Envoy=C3=A9: Jeudi 13 F=C3=A9vrier 2014 07:13:57
-Objet: Re: [PATCH] Fix g++ warning about void* used in arithmetic
 
 Hi Jens,
 
@@ -55,3 +46,4 @@ of CEPH.
 
 --=20
 Daniel Gollub
+
