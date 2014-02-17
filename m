@@ -1,35 +1,56 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:42876 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752006AbaAXPv7 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 24 Jan 2014 10:51:59 -0500
-Date: Fri, 24 Jan 2014 07:51:55 -0800
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Leaving Fusion-io
-Message-ID: <20140124155155.GI15424@kernel.dk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Received: from wp188.webpack.hosteurope.de ([80.237.132.195]:51795 "EHLO
+	wp188.webpack.hosteurope.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752315AbaBQNNu (ORCPT
+	<rfc822;fio@vger.kernel.org>); Mon, 17 Feb 2014 08:13:50 -0500
+From: Daniel Gollub <d.gollub@telekom.de>
+Subject: [PATCH 3/3] add example job file for the RBD engine
+Date: Mon, 17 Feb 2014 13:53:07 +0100
+Message-Id: <1392641587-24803-3-git-send-email-d.gollub@telekom.de>
+In-Reply-To: <1392641587-24803-1-git-send-email-d.gollub@telekom.de>
+References: <1392641587-24803-1-git-send-email-d.gollub@telekom.de>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Jim Zemlin <jim@linux.com>
+To: fio@vger.kernel.org
+Cc: Danny Al-Gaaf <danny.al-gaaf@bisect.de>
 
-Hi,
+From: Danny Al-Gaaf <danny.al-gaaf@bisect.de>
 
-Just a heads-up that any email to jaxboe@fusionio.com does no longer
-work, please use axboe@kernel.dk or axboe@fb.com going forward.
+Signed-off-by: Danny Al-Gaaf <danny.al-gaaf@bisect.de>
+---
+ examples/rbd.fio |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+ create mode 100644 examples/rbd.fio
 
-I have decided to leave Fusion-io, after about 3.5 years there. It's
-been an interesting ride and I would not have been without it, but now
-it's time to try new things. As can be deducted from above, I am now at
-Facebook. For fio, very little will change. On the linux kernel side, I
-now have more time to dedicate to continuing blk-mq development, and
-other interesting developments. I look forward to that!
-
-A special thanks to those that helped on my visa transition. This would
-not have been possible without your help.
-
+diff --git a/examples/rbd.fio b/examples/rbd.fio
+new file mode 100644
+index 0000000..fcb494a
+--- /dev/null
++++ b/examples/rbd.fio
+@@ -0,0 +1,23 @@
++######################################################################
++# Example test for the RBD engine.
++# 
++# Runs a 4k random write test agains a RBD via librbd  
++#
++# NOTE: Make sure you have either a RBD named 'fio_test' or change 
++#       the rbdname parameter.
++######################################################################
++[global]
++#logging
++#write_iops_log=write_iops_log
++#write_bw_log=write_bw_log
++#write_lat_log=write_lat_log
++ioengine=rbd
++clientname=admin
++pool=rbd
++rbdname=fio_test
++invalidate=0	# mandatory
++rw=randwrite
++bs=4k
++
++[rbd_iodepth32]
++iodepth=32
 -- 
-Jens Axboe
+1.7.10.4
 
