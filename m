@@ -1,14 +1,12 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from wp188.webpack.hosteurope.de ([80.237.132.195]:53076 "EHLO
+Received: from wp188.webpack.hosteurope.de ([80.237.132.195]:51802 "EHLO
 	wp188.webpack.hosteurope.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752348AbaBQNfi (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 17 Feb 2014 08:35:38 -0500
+	by vger.kernel.org with ESMTP id S1752315AbaBQNNz (ORCPT
+	<rfc822;fio@vger.kernel.org>); Mon, 17 Feb 2014 08:13:55 -0500
 From: Daniel Gollub <d.gollub@telekom.de>
-Subject: [PATCH] librbd ioengine support
-Date: Mon, 17 Feb 2014 14:35:28 +0100
-Message-Id: <1392644128-25678-2-git-send-email-d.gollub@telekom.de>
-In-Reply-To: <1392644128-25678-1-git-send-email-d.gollub@telekom.de>
-References: <1392644128-25678-1-git-send-email-d.gollub@telekom.de>
+Subject: [PATCH 1/3] librbd ioengine support
+Date: Mon, 17 Feb 2014 13:53:05 +0100
+Message-Id: <1392641587-24803-1-git-send-email-d.gollub@telekom.de>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
@@ -25,9 +23,9 @@ Signed-off-by: Danny Al-Gaaf <danny.al-gaaf@bisect.de>
  Makefile      |    3 +
  configure     |   30 ++++
  engines/rbd.c |  449 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- options.c     |    5 +
+ options.c     |    7 +-
  options.h     |    2 +
- 5 files changed, 489 insertions(+)
+ 5 files changed, 490 insertions(+), 1 deletion(-)
  create mode 100644 engines/rbd.c
 
 diff --git a/Makefile b/Makefile
@@ -548,21 +546,23 @@ index 0000000..d089a41
 +	unregister_ioengine(&ioengine);
 +}
 diff --git a/options.c b/options.c
-index 4dcefba..ea51664 100644
+index 4dcefba..321ca8c 100644
 --- a/options.c
 +++ b/options.c
-@@ -1388,6 +1388,11 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 			    .help = "Windows native asynchronous IO"
- 			  },
+@@ -1385,7 +1385,12 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
  #endif
+ #ifdef CONFIG_WINDOWSAIO
+ 			  { .ival = "windowsaio",
+-			    .help = "Windows native asynchronous IO"
++			    .help = "windows native asynchronous io"
++			  },
++#endif
 +#ifdef CONFIG_RBD
 +			  { .ival = "rbd",
 +			    .help = "Rados Block Device asynchronous IO"
-+			  },
-+#endif
- 			  { .ival = "mmap",
- 			    .help = "Memory mapped IO"
  			  },
+ #endif
+ 			  { .ival = "mmap",
 diff --git a/options.h b/options.h
 index fc36368..3dc48a9 100644
 --- a/options.h
