@@ -1,98 +1,154 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailout09.t-online.de ([194.25.134.84]:56566 "EHLO
-	mailout09.t-online.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751533AbaBLPMw (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 12 Feb 2014 10:12:52 -0500
-From: "Daniel Gollub" <daniel.gollub@t-online.de>
-Subject: [PATCH 2/2] Make parse.h C++ safe by avoiding "or" keyword
-Date: Wed, 12 Feb 2014 15:51:55 +0100
-Message-Id: <1392216715-9539-3-git-send-email-d.gollub@telekom.de>
-In-Reply-To: <1392216715-9539-1-git-send-email-d.gollub@telekom.de>
-References: <1392216715-9539-1-git-send-email-d.gollub@telekom.de>
+Received: from e06smtp16.uk.ibm.com ([195.75.94.112]:37168 "EHLO
+	e06smtp16.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753771AbaBSPM6 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 19 Feb 2014 10:12:58 -0500
+Received: from /spool/local
+	by e06smtp16.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <fio@vger.kernel.org> from <ehrhardt@linux.vnet.ibm.com>;
+	Wed, 19 Feb 2014 15:12:57 -0000
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+	by d06dlp02.portsmouth.uk.ibm.com (Postfix) with ESMTP id 46D52219005C
+	for <fio@vger.kernel.org>; Wed, 19 Feb 2014 15:12:51 +0000 (GMT)
+Received: from d06av12.portsmouth.uk.ibm.com (d06av12.portsmouth.uk.ibm.com [9.149.37.247])
+	by b06cxnps4074.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id s1JFCgHA63176852
+	for <fio@vger.kernel.org>; Wed, 19 Feb 2014 15:12:42 GMT
+Received: from d06av12.portsmouth.uk.ibm.com (localhost [127.0.0.1])
+	by d06av12.portsmouth.uk.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id s1JFCrc5006030
+	for <fio@vger.kernel.org>; Wed, 19 Feb 2014 08:12:53 -0700
+Message-ID: <5304C9F4.5070209@linux.vnet.ibm.com>
+Date: Wed, 19 Feb 2014 16:12:52 +0100
+From: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Subject: [patch 7/9] fio: flush log files on test end
+References: <20140219143639.168501090@linux.vnet.ibm.com>
+In-Reply-To: <20140219143639.168501090@linux.vnet.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: Daniel Gollub <d.gollub@telekom.de>
+Cc: oberpar@linux.vnet.ibm.com, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
 
-Fixes for g++ (4.7.2) following compiler errors when fio.h
-gets included (e.g. in an external C++ ioengine):
+From: Peter Oberparleiter <oberpar@linux.vnet.ibm.com>
 
---8<---
-[...]
-parse.h:31:6: error: expected unqualified-id before ‘or’ token
-[...]
---->8---
+Ensure proper flushing of all logs at the end of tests.
 
-Signed-off-by: Daniel Gollub <d.gollub@telekom.de>
+Signed-off-by: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+
 ---
- options.c |    6 +++---
- parse.c   |    4 ++--
- parse.h   |    2 +-
- 3 files changed, 6 insertions(+), 6 deletions(-)
+[diffstat]
+  backend.c |    1  iolog.h   |    1  stat.c    |   73 
+++++++++++++++++++++++++++++++++++++++++----------------------
+  3 files changed, 50 insertions(+), 25 deletions(-)
 
-diff --git a/options.c b/options.c
-index 57e9af5..a646546 100644
---- a/options.c
-+++ b/options.c
-@@ -1901,18 +1901,18 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 			  { .ival = "wait_before",
- 			    .oval = SYNC_FILE_RANGE_WAIT_BEFORE,
- 			    .help = "SYNC_FILE_RANGE_WAIT_BEFORE",
--			    .or	  = 1,
-+			    .orval  = 1,
- 			  },
- 			  { .ival = "write",
- 			    .oval = SYNC_FILE_RANGE_WRITE,
- 			    .help = "SYNC_FILE_RANGE_WRITE",
--			    .or	  = 1,
-+			    .orval  = 1,
- 			  },
- 			  {
- 			    .ival = "wait_after",
- 			    .oval = SYNC_FILE_RANGE_WAIT_AFTER,
- 			    .help = "SYNC_FILE_RANGE_WAIT_AFTER",
--			    .or	  = 1,
-+			    .orval  = 1,
- 			  },
- 		},
- 		.type	= FIO_OPT_STR_MULTI,
-diff --git a/parse.c b/parse.c
-index 6141c91..f74f0a9 100644
---- a/parse.c
-+++ b/parse.c
-@@ -415,14 +415,14 @@ static int __handle_option(struct fio_option *o, const char *ptr, void *data,
- 			if (!strncmp(vp->ival, ptr, str_match_len(vp, ptr))) {
- 				ret = 0;
- 				if (o->roff1) {
--					if (vp->or)
-+					if (vp->orval)
- 						*(unsigned int *) o->roff1 |= vp->oval;
- 					else
- 						*(unsigned int *) o->roff1 = vp->oval;
- 				} else {
- 					if (!o->off1)
- 						continue;
--					val_store(ilp, vp->oval, o->off1, vp->or, data);
-+					val_store(ilp, vp->oval, o->off1, vp->orval, data);
- 				}
- 				continue;
- 			}
-diff --git a/parse.h b/parse.h
-index 34d99d4..b98b514 100644
---- a/parse.h
-+++ b/parse.h
-@@ -28,7 +28,7 @@ struct value_pair {
- 	const char *ival;		/* string option */
- 	unsigned int oval;		/* output value */
- 	const char *help;		/* help text for sub option */
--	int or;				/* OR value */
-+	int orval;			/* OR value */
- 	void *cb;			/* sub-option callback */
- };
- 
--- 
-1.7.10.4
+--- a/backend.c
++++ b/backend.c
+@@ -1461,6 +1461,7 @@ static void *thread_main(void *data)
+  	fio_unpin_memory(td);
+   	fio_mutex_down(writeout_mutex);
++	finalize_logs(td);
+  	if (td->bw_log) {
+  		if (o->bw_log_file) {
+  			finish_log_named(td, td->bw_log,
+--- a/iolog.h
++++ b/iolog.h
+@@ -117,6 +117,7 @@ extern void write_iolog_close(struct thr
+  /*
+   * Logging
+   */
++extern void finalize_logs(struct thread_data *td);
+  extern void add_lat_sample(struct thread_data *, enum fio_ddir, 
+unsigned long,
+  				unsigned int);
+  extern void add_clat_sample(struct thread_data *, enum fio_ddir, 
+unsigned long,
+--- a/stat.c
++++ b/stat.c
+@@ -1579,6 +1579,37 @@ static inline void reset_io_stat(struct
+  	ios->mean.u.f = ios->S.u.f = 0;
+  }
+  +static void _add_stat_to_log(struct io_log *iolog, unsigned long elapsed)
++{
++	/*
++	 * Note an entry in the log. Use the mean from the logged samples,
++	 * making sure to properly round up. Only write a log entry if we
++	 * had actual samples done.
++	 */
++	if (iolog->avg_window[DDIR_READ].samples) {
++		unsigned long mr;
++
++		mr = iolog->avg_window[DDIR_READ].mean.u.f + 0.50;
++		__add_log_sample(iolog, mr, DDIR_READ, 0, elapsed);
++	}
++	if (iolog->avg_window[DDIR_WRITE].samples) {
++		unsigned long mw;
++
++		mw = iolog->avg_window[DDIR_WRITE].mean.u.f + 0.50;
++		__add_log_sample(iolog, mw, DDIR_WRITE, 0, elapsed);
++	}
++	if (iolog->avg_window[DDIR_TRIM].samples) {
++		unsigned long mw;
++
++		mw = iolog->avg_window[DDIR_TRIM].mean.u.f + 0.50;
++		__add_log_sample(iolog, mw, DDIR_TRIM, 0, elapsed);
++	}
++
++	reset_io_stat(&iolog->avg_window[DDIR_READ]);
++	reset_io_stat(&iolog->avg_window[DDIR_WRITE]);
++	reset_io_stat(&iolog->avg_window[DDIR_TRIM]);
++}
++
+  static void add_log_sample(struct thread_data *td, struct io_log *iolog,
+  			   unsigned long val, enum fio_ddir ddir,
+  			   unsigned int bs)
+@@ -1612,35 +1643,27 @@ static void add_log_sample(struct thread
+  	if (this_window < iolog->avg_msec)
+  		return;
+  -	/*
+-	 * Note an entry in the log. Use the mean from the logged samples,
+-	 * making sure to properly round up. Only write a log entry if we
+-	 * had actual samples done.
+-	 */
+-	if (iolog->avg_window[DDIR_READ].samples) {
+-		unsigned long mr;
++	_add_stat_to_log(iolog, elapsed);
+  -		mr = iolog->avg_window[DDIR_READ].mean.u.f + 0.50;
+-		__add_log_sample(iolog, mr, DDIR_READ, 0, elapsed);
+-	}
+-	if (iolog->avg_window[DDIR_WRITE].samples) {
+-		unsigned long mw;
+-
+-		mw = iolog->avg_window[DDIR_WRITE].mean.u.f + 0.50;
+-		__add_log_sample(iolog, mw, DDIR_WRITE, 0, elapsed);
+-	}
+-	if (iolog->avg_window[DDIR_TRIM].samples) {
+-		unsigned long mw;
++	iolog->avg_last = elapsed;
++}
+  -		mw = iolog->avg_window[DDIR_TRIM].mean.u.f + 0.50;
+-		__add_log_sample(iolog, mw, DDIR_TRIM, 0, elapsed);
+-	}
++void finalize_logs(struct thread_data *td)
++{
++	unsigned long elapsed;
+  +	elapsed = mtime_since_now(&td->epoch);
+  -	reset_io_stat(&iolog->avg_window[DDIR_READ]);
+-	reset_io_stat(&iolog->avg_window[DDIR_WRITE]);
+-	reset_io_stat(&iolog->avg_window[DDIR_TRIM]);
+-	iolog->avg_last = elapsed;
++	if (td->clat_log)
++		_add_stat_to_log(td->clat_log, elapsed);
++	if (td->slat_log)
++		_add_stat_to_log(td->slat_log, elapsed);
++	if (td->lat_log)
++		_add_stat_to_log(td->lat_log, elapsed);
++	if (td->bw_log)
++		_add_stat_to_log(td->bw_log, elapsed);
++	if (td->iops_log)
++		_add_stat_to_log(td->iops_log, elapsed);
+  }
+   void add_agg_sample(unsigned long val, enum fio_ddir ddir, unsigned 
+int bs)
+
 
