@@ -1,50 +1,53 @@
-Return-Path: <axboe@kernel.dk>
-Date: Thu, 20 Feb 2014 09:18:59 -0800
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: [patch 8/9] fio: fix last block never being touched by random
- offsets
-Message-ID: <20140220171832.GC30251@kernel.dk>
-References: <20140220132051.624645398@linux.vnet.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20140220132051.624645398@linux.vnet.ibm.com>
-To: ehrhardt@linux.vnet.ibm.com
-Cc: fio@vger.kernel.org, oberpar@linux.vnet.ibm.com
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from e06smtp18.uk.ibm.com ([195.75.94.114]:51165 "EHLO
+	e06smtp18.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754609AbaBTNVA (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 20 Feb 2014 08:21:00 -0500
+Received: from /spool/local
+	by e06smtp18.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <fio@vger.kernel.org> from <ehrhardt@linux.vnet.ibm.com>;
+	Thu, 20 Feb 2014 13:20:59 -0000
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+	by d06dlp01.portsmouth.uk.ibm.com (Postfix) with ESMTP id 70F8217D805A
+	for <fio@vger.kernel.org>; Thu, 20 Feb 2014 13:21:28 +0000 (GMT)
+Received: from d06av10.portsmouth.uk.ibm.com (d06av10.portsmouth.uk.ibm.com [9.149.37.251])
+	by b06cxnps4074.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id s1KDKkka59048012
+	for <fio@vger.kernel.org>; Thu, 20 Feb 2014 13:20:46 GMT
+Received: from d06av10.portsmouth.uk.ibm.com (localhost [127.0.0.1])
+	by d06av10.portsmouth.uk.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id s1KDKvDw031978
+	for <fio@vger.kernel.org>; Thu, 20 Feb 2014 06:20:57 -0700
+Message-Id: <20140220132051.624645398@linux.vnet.ibm.com>
+Date: Thu, 20 Feb 2014 14:20:06 +0100
+From: ehrhardt@linux.vnet.ibm.com
+Subject: [patch 8/9] fio: fix last block never being touched by random offsets
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
+Cc: oberpar@linux.vnet.ibm.com, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
 
-On Thu, Feb 20 2014, ehrhardt@linux.vnet.ibm.com wrote:
-> *Resend with hopefully non mangled patches*
-> References: <20140220131958.965092001@linux.vnet.ibm.com>
-> Content-Disposition: inline; filename=fix_last_block.diff
-> 
-> From: Peter Oberparleiter <oberpar@linux.vnet.ibm.com>
-> 
-> Fix the available range for random offsets which never touched the last block.
-> 
-> Signed-off-by: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
-> ---
-> [diffstat]
->  io_u.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- a/io_u.c
-> +++ b/io_u.c
-> @@ -104,7 +104,7 @@ static int __get_next_rand_offset(struct
->  
->  		dprint(FD_RANDOM, "off rand %llu\n", (unsigned long long) r);
->  
-> -		*b = (lastb - 1) * (r / ((uint64_t) rmax + 1.0));
-> +		*b = lastb * (r / ((uint64_t) rmax + 1.0));
->  	} else {
->  		uint64_t off = 0;
+*Resend with hopefully non mangled patches*
+References: <20140220131958.965092001@linux.vnet.ibm.com>
+Content-Disposition: inline; filename=fix_last_block.diff
 
-Wont this generate lastb as the potentially last block? We want lastb-1
-as the last one, otherwise the length of IO from it will be 0.
+From: Peter Oberparleiter <oberpar@linux.vnet.ibm.com>
 
-I might be missing something here.
+Fix the available range for random offsets which never touched the last block.
 
--- 
-Jens Axboe
+Signed-off-by: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+---
+[diffstat]
+ io_u.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+--- a/io_u.c
++++ b/io_u.c
+@@ -104,7 +104,7 @@ static int __get_next_rand_offset(struct
+ 
+ 		dprint(FD_RANDOM, "off rand %llu\n", (unsigned long long) r);
+ 
+-		*b = (lastb - 1) * (r / ((uint64_t) rmax + 1.0));
++		*b = lastb * (r / ((uint64_t) rmax + 1.0));
+ 	} else {
+ 		uint64_t off = 0;
+ 
 
