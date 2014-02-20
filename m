@@ -1,42 +1,79 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailout11.t-online.de ([194.25.134.85]:56049 "EHLO
-	mailout11.t-online.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752916AbaBLS0I (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 12 Feb 2014 13:26:08 -0500
-From: "Daniel Gollub" <daniel.gollub@t-online.de>
-Subject: [PATCH] Fix g++ warning about void* used in arithmetic
-Date: Wed, 12 Feb 2014 19:25:42 +0100
-Message-Id: <1392229542-14083-1-git-send-email-d.gollub@telekom.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Received: from e06smtp18.uk.ibm.com ([195.75.94.114]:51115 "EHLO
+	e06smtp18.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754375AbaBTNU4 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 20 Feb 2014 08:20:56 -0500
+Received: from /spool/local
+	by e06smtp18.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <fio@vger.kernel.org> from <ehrhardt@linux.vnet.ibm.com>;
+	Thu, 20 Feb 2014 13:20:54 -0000
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+	by d06dlp02.portsmouth.uk.ibm.com (Postfix) with ESMTP id F25402190061
+	for <fio@vger.kernel.org>; Thu, 20 Feb 2014 13:20:48 +0000 (GMT)
+Received: from d06av05.portsmouth.uk.ibm.com (d06av05.portsmouth.uk.ibm.com [9.149.37.229])
+	by b06cxnps3074.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id s1KDKdEB1049070
+	for <fio@vger.kernel.org>; Thu, 20 Feb 2014 13:20:39 GMT
+Received: from d06av05.portsmouth.uk.ibm.com (localhost [127.0.0.1])
+	by d06av05.portsmouth.uk.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id s1KDKoQo015404
+	for <fio@vger.kernel.org>; Thu, 20 Feb 2014 06:20:51 -0700
+Message-Id: <20140220132050.305734025@linux.vnet.ibm.com>
+Date: Thu, 20 Feb 2014 14:19:59 +0100
+From: ehrhardt@linux.vnet.ibm.com
+Subject: [patch 1/9] fio: fix job clone mem leak
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: Daniel Gollub <d.gollub@telekom.de>
+Cc: oberpar@linux.vnet.ibm.com, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
 
-../parse.h: In function ‘void* td_var(thread_options*, fio_option*, unsigned int)’:
-../parse.h:110:10: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
-../parse.h:112:9: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+*Resend with hopefully non mangled patches*
+References: <20140220131958.965092001@linux.vnet.ibm.com>
+Content-Disposition: inline; filename=fio-fix-cloneleak.diff
 
-Signed-off-by: Daniel Gollub <d.gollub@telekom.de>
+From: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+
+In the loop to create clones at the bottom of add_job the function get_new_job
+clones the thread_data, just to occaisonally get the allocated pointers for
+filename and files overwritten a few lines later.
+
+The dup files also duplicates the name strings so the references to these are
+lost by the setting to null.
+
+This patch fixes takes care of that and frees the memory before discarding the
+pointers (found via valgrind).
+
+Signed-off-by: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
 ---
- parse.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/parse.h b/parse.h
-index 5273d23..1009252 100644
---- a/parse.h
-+++ b/parse.h
-@@ -100,7 +100,7 @@ typedef int (fio_opt_str_val_fn)(void *, long long *);
- typedef int (fio_opt_int_fn)(void *, int *);
- typedef int (fio_opt_str_set_fn)(void *);
+[diffstat]
+ init.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+[diff]
+
+--- a/init.c
++++ b/init.c
+@@ -1118,10 +1118,21 @@ static int add_job(struct thread_data *t
+ 		td_new->o.new_group = 0;
  
--#define __td_var(start, offset)	((void *) start + (offset))
-+#define __td_var(start, offset)	((char *) start + (offset))
+ 		if (file_alloced) {
+-			td_new->o.filename = NULL;
+ 			td_new->files_index = 0;
+ 			td_new->files_size = 0;
+-			td_new->files = NULL;
++			if (td_new->files) {
++				struct fio_file *f;
++				for_each_file(td_new, f, i) {
++					if (f->file_name)
++						free(f->file_name);
++					free(f);
++				}
++				td_new->files = NULL;
++			}
++			if (td_new->o.filename) {
++				free(td_new->o.filename);
++				td_new->o.filename = NULL;
++			}
+ 		}
  
- struct thread_options;
- static inline void *td_var(struct thread_options *to, struct fio_option *o,
--- 
-1.7.10.4
+ 		job_add_num = numjobs - 1;
 
