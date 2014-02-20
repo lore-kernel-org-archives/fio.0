@@ -1,61 +1,54 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from wp188.webpack.hosteurope.de ([80.237.132.195]:51800 "EHLO
-	wp188.webpack.hosteurope.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752315AbaBQNNx (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 17 Feb 2014 08:13:53 -0500
-From: Daniel Gollub <d.gollub@telekom.de>
-Subject: [PATCH 2/3] fio.1: add rbd options to man page
-Date: Mon, 17 Feb 2014 13:53:06 +0100
-Message-Id: <1392641587-24803-2-git-send-email-d.gollub@telekom.de>
-In-Reply-To: <1392641587-24803-1-git-send-email-d.gollub@telekom.de>
-References: <1392641587-24803-1-git-send-email-d.gollub@telekom.de>
+Received: from e06smtp14.uk.ibm.com ([195.75.94.110]:53224 "EHLO
+	e06smtp14.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754646AbaBTNVB (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 20 Feb 2014 08:21:01 -0500
+Received: from /spool/local
+	by e06smtp14.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <fio@vger.kernel.org> from <ehrhardt@linux.vnet.ibm.com>;
+	Thu, 20 Feb 2014 13:20:59 -0000
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+	by d06dlp03.portsmouth.uk.ibm.com (Postfix) with ESMTP id CA3BF1B08070
+	for <fio@vger.kernel.org>; Thu, 20 Feb 2014 13:20:36 +0000 (GMT)
+Received: from d06av09.portsmouth.uk.ibm.com (d06av09.portsmouth.uk.ibm.com [9.149.37.250])
+	by b06cxnps4074.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id s1KDKk3U30933198
+	for <fio@vger.kernel.org>; Thu, 20 Feb 2014 13:20:46 GMT
+Received: from d06av09.portsmouth.uk.ibm.com (localhost [127.0.0.1])
+	by d06av09.portsmouth.uk.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id s1KDKvsB023772
+	for <fio@vger.kernel.org>; Thu, 20 Feb 2014 06:20:58 -0700
+Message-Id: <20140220132051.840462957@linux.vnet.ibm.com>
+Date: Thu, 20 Feb 2014 14:20:07 +0100
+From: ehrhardt@linux.vnet.ibm.com
+Subject: [patch 9/9] fio: allow 0 as compress percentage
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: Danny Al-Gaaf <danny.al-gaaf@bisect.de>
+Cc: oberpar@linux.vnet.ibm.com, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
 
-From: Danny Al-Gaaf <danny.al-gaaf@bisect.de>
+*Resend with hopefully non mangled patches*
+References: <20140220131958.965092001@linux.vnet.ibm.com>
+Content-Disposition: inline; filename=buffer_compress_zero.diff
 
-Signed-off-by: Danny Al-Gaaf <danny.al-gaaf@bisect.de>
+From: Peter Oberparleiter <oberpar@linux.vnet.ibm.com>
 
-(cherry picked from commit 6e44a82a724b7ad0a559c22eec694e8afa7d2a20
-git@github.com:dalgaaf/fio.git)
+Allow 0 as value for option compress_percentage which can be useful for
+certain deduplication and compression based storage back ends.
+
+Signed-off-by: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
 ---
- fio.1 |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+[diffstat]
+ options.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fio.1 b/fio.1
-index ec10377..1df1cd1 100644
---- a/fio.1
-+++ b/fio.1
-@@ -557,6 +557,11 @@ transfer as fio ioengine
- .B e4defrag
- IO engine that does regular EXT4_IOC_MOVE_EXT ioctls to simulate defragment activity
- request to DDIR_WRITE event
-+.TP
-+.B rbd
-+IO engine supporting direct access to Ceph Rados Block Devices (RBD) via librbd 
-+without the need to use the kernel rbd driver. This ioengine defines engine specific 
-+options.
- .RE
- .P
- .RE
-@@ -1394,6 +1399,15 @@ Preallocate donor's file on init
- .BI 1:
- allocate space immediately inside defragment event, and free right after event
- .RE
-+.TP
-+.BI (rbd)rbdname \fR=\fPstr
-+Specifies the name of the RBD.
-+.TP
-+.BI (rbd)pool \fR=\fPstr
-+Specifies the name of the Ceph pool containing the RBD.
-+.TP
-+.BI (rbd)clientname \fR=\fPstr
-+Specifies the username (without the 'client.' prefix) used to access the Ceph cluster.
- .SH OUTPUT
- While running, \fBfio\fR will display the status of the created jobs.  For
- example:
--- 
-1.7.10.4
+--- a/options.c
++++ b/options.c
+@@ -3072,7 +3072,7 @@ struct fio_option fio_options[FIO_MAX_OP
+ 		.type	= FIO_OPT_INT,
+ 		.off1	= td_var_offset(compress_percentage),
+ 		.maxval	= 100,
+-		.minval	= 1,
++		.minval	= 0,
+ 		.help	= "How compressible the buffer is (approximately)",
+ 		.interval = 5,
+ 		.category = FIO_OPT_C_IO,
 
