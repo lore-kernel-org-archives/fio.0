@@ -1,46 +1,38 @@
-Return-Path: <sits@sucs.org>
-Date: Fri, 7 Feb 2014 03:44:42 +0000
-From: Sitsofe Wheeler <sitsofe@yahoo.com>
-Subject: Mutex destruction, invalid memory accesses, leaks
-Message-ID: <20140207034439.GA17588@sucs.org>
-References: <20140206192135.GB3950@kernel.dk>
+Return-Path: <axboe@kernel.dk>
+Date: Thu, 20 Feb 2014 09:03:10 -0800
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [patch 4/9] fio: provide an option for a startdelay range
+Message-ID: <20140220170310.GA30251@kernel.dk>
+References: <20140220132050.860880543@linux.vnet.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20140206192135.GB3950@kernel.dk>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org
+In-Reply-To: <20140220132050.860880543@linux.vnet.ibm.com>
+To: ehrhardt@linux.vnet.ibm.com
+Cc: fio@vger.kernel.org, oberpar@linux.vnet.ibm.com
 List-ID: <fio@vger.kernel.org>
 
-On Thu, Feb 06, 2014 at 12:21:35PM -0700, Jens Axboe wrote:
+On Thu, Feb 20 2014, ehrhardt@linux.vnet.ibm.com wrote:
+> *Resend with hopefully non mangled patches*
+> References: <20140220131958.965092001@linux.vnet.ibm.com>
+> Content-Disposition: inline; filename=startdelay-range.diff
 > 
-> Similarly, if you know of bugs (particularly regressions from previous
-> releases), speak up now so we can get them fixed before 2.1.5 is cut.
-
-I think there is a problem with how mutexes are being destroyed and it's
-manifesting as a reproducible segfault in libwinpthread-1.dll on
-Windows. From
-http://thread.gmane.org/gmane.comp.storage.fio/97/focus=136 :
-
-> I've finally had time to reproduce this on a Windows 7 box. I use a
-> different command line:
+> From: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
 > 
-> ./fio.exe --debug=all --filename=fiojob --thread --size=512 --rw=read --bs=512 --ioengine=sync --verify_pattern=0xdeadbeef --name=fiojobname
+> This patch allows the specification of start delay as range.
+> With a range each thread will chose an individual startdelay out of the range.
 > 
-> The problem appears to be that the mutex is being destroyed while it
-> is still being held by a different thread. Adding return; to the first
-> line of fio_mutex_remove in mutex.c papers over the problem...
+> That solves an issue of startdelay being the same for each numjob clone and
+> that way spreads all kind of activities e.g. that all clones with mixed r/w
+> jobs switch r/w at the same time.
+> Also all kind of other "thundering herd" issues can be softened by some
+> time spread due to this option.
+> 
+> Signed-off-by: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
 
-This issue hasn't seen much interest since it was raised a few weeks ago
-and I haven't had time to come up with a proper fix but it looks similar
-to the issue described in https://lwn.net/Articles/575460/ (A surprise
-with mutexes and reference counts).
-
-Additionally Dr Memory is also flagging up an invalid memory access on
-the Windows version of fio (one is in a macro which makes a for loop but
-I only have a non-macro fix for it at the moment) and some memory leaks
-around string_to_cpu and init_io_u.
+You forgot the options part for thread_options.h.
 
 -- 
-Sitsofe | http://sucs.org/~sits/
+Jens Axboe
+
 
