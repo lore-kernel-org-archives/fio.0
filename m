@@ -1,133 +1,76 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:43993 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750932AbaBNNAG (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 14 Feb 2014 08:00:06 -0500
-Received: from kernel.dk ([54.225.238.116] helo=strynoevaenget.dk)
-	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1WEINA-0008Qf-Rt
-	for fio@vger.kernel.org; Fri, 14 Feb 2014 13:00:04 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Date: Fri, 21 Feb 2014 11:49:00 -0800
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20140214130003.8246141A12@strynoevaenget.dk>
-Date: Fri, 14 Feb 2014 06:00:03 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Subject: Re: [patch 3/9] fio: allow milliseconds on all time specifiers
+Message-ID: <20140221194900.GA29129@kernel.dk>
+References: <20140220132050.651641496@linux.vnet.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20140220132050.651641496@linux.vnet.ibm.com>
+To: ehrhardt@linux.vnet.ibm.com
+Cc: fio@vger.kernel.org, oberpar@linux.vnet.ibm.com
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 8d6ecac27d36b3001c8fed00eab7f32cd573636a:
+On Thu, Feb 20 2014, ehrhardt@linux.vnet.ibm.com wrote:
+> From: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+> 
+> This patch allows all time specifiers to be specified down to milliseconds.
+> Default will stay seconds for compatibility with old configs.
+> 
+> It also adds documentation to the existing time units day, hour and minute.
 
-  null: style fixup (2014-02-12 21:25:20 -0700)
+THis breaks default delays being in usec, it's not in msec. So if you
+had some time set before on options that weren't specifically seconds,
+it now would be msec instead of usec. I will commit the below to fix
+this.
 
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to b74b8208826be02d93d0933eb24ad792f4e78f64:
-
-  Fix inverted logic in gtod_reduce() (2014-02-13 20:04:02 -0700)
-
-----------------------------------------------------------------
-Bruce Cran (1):
-      Fix IPv6 check on FreeBSD by including netinet/in.h
-
-Jens Axboe (2):
-      Don't compute iops samples for gtod_reduce=1
-      Fix inverted logic in gtod_reduce()
-
-Sitsofe Wheeler (2):
-      cpuid: Null terminate x86 CPU string.
-      io_u_qiter: Fix buffer overrun
-
- arch/arch-x86-common.h |    1 +
- configure              |    1 +
- io_u.c                 |   14 +++++++++++---
- io_u_queue.h           |    2 +-
- 4 files changed, 14 insertions(+), 4 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/arch/arch-x86-common.h b/arch/arch-x86-common.h
-index 179572d..26a14a8 100644
---- a/arch/arch-x86-common.h
-+++ b/arch/arch-x86-common.h
-@@ -60,6 +60,7 @@ static inline int arch_init(char *envp[])
- 			 (unsigned int *) &str[8],
- 			 (unsigned int *) &str[4]);
- 
-+	str[11] = '\0';
- 	if (!strcmp(str, "GenuineIntel"))
- 		tsc_reliable = arch_init_intel(level);
- 	else if (!strcmp(str, "AuthenticAMD"))
-diff --git a/configure b/configure
-index 78a6ccb..89405cd 100755
---- a/configure
-+++ b/configure
-@@ -1098,6 +1098,7 @@ ipv6="no"
- cat > $TMPC << EOF
- #include <sys/types.h>
- #include <sys/socket.h>
-+#include <netinet/in.h>
- #include <netdb.h>
- #include <stdio.h>
- int main(int argc, char **argv)
-diff --git a/io_u.c b/io_u.c
-index acc1a7b..61038a4 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -1521,13 +1521,19 @@ void io_u_log_error(struct thread_data *td, struct io_u *io_u)
- 		td_verror(td, io_u->error, "io_u error");
- }
- 
-+static inline int gtod_reduce(struct thread_data *td)
-+{
-+	return td->o.disable_clat && td->o.disable_lat && !td->o.disable_slat
-+		&& td->o.disable_bw;
-+}
-+
- static void account_io_completion(struct thread_data *td, struct io_u *io_u,
- 				  struct io_completion_data *icd,
- 				  const enum fio_ddir idx, unsigned int bytes)
+diff --git a/parse.c b/parse.c
+index c8bae0335a4e..5c23d91ebab6 100644
+--- a/parse.c
++++ b/parse.c
+@@ -126,7 +126,7 @@ static unsigned long long get_mult_time(const char *str, int len)
  {
- 	unsigned long lusec = 0;
+ 	const char *p = str;
+ 	char *c;
+-	unsigned long long mult = 1000;
++	unsigned long long mult = 1;
  
--	if (!td->o.disable_clat || !td->o.disable_bw)
-+	if (!gtod_reduce(td))
- 		lusec = utime_since(&io_u->issue_time, &icd->time);
+ 	/*
+          * Go forward until we hit a non-digit, or +/- sign
+@@ -138,22 +138,24 @@ static unsigned long long get_mult_time(const char *str, int len)
+ 	}
  
- 	if (!td->o.disable_lat) {
-@@ -1559,7 +1565,8 @@ static void account_io_completion(struct thread_data *td, struct io_u *io_u,
- 	if (!td->o.disable_bw)
- 		add_bw_sample(td, idx, bytes, &icd->time);
+ 	if (!isalpha((int) *p))
+-		return 1000;
++		return mult;
  
--	add_iops_sample(td, idx, bytes, &icd->time);
-+	if (!gtod_reduce(td))
-+		add_iops_sample(td, idx, bytes, &icd->time);
+ 	c = strdup(p);
+ 	for (int i = 0; i < strlen(c); i++)
+ 		c[i] = tolower(c[i]);
  
- 	if (td->o.number_ios && !--td->o.number_ios)
- 		td->done = 1;
-@@ -1680,7 +1687,8 @@ static void init_icd(struct thread_data *td, struct io_completion_data *icd,
- 		     int nr)
- {
- 	int ddir;
--	if (!td->o.disable_clat || !td->o.disable_bw)
-+
-+	if (!gtod_reduce(td))
- 		fio_gettime(&icd->time, NULL);
+-	if (!strncmp("ms", c, 2))
++	if (!strncmp("us", c, 2) || !strncmp("usec", c, 4))
+ 		mult = 1;
+-	else if (!strcmp("s", c))
++	else if (!strncmp("ms", c, 2) || !strncmp("msec", c, 4))
+ 		mult = 1000;
++	else if (!strcmp("s", c))
++		mult = 1000000;
+ 	else if (!strcmp("m", c))
+-		mult = 60 * 1000;
++		mult = 60 * 1000000UL;
+ 	else if (!strcmp("h", c))
+-		mult = 60 * 60 * 1000;
++		mult = 60 * 60 * 1000000UL;
+ 	else if (!strcmp("d", c))
+-		mult = 24 * 60 * 60 * 1000;
++		mult = 24 * 60 * 60 * 1000000UL;
  
- 	icd->nr = nr;
-diff --git a/io_u_queue.h b/io_u_queue.h
-index 4f6e8e6..5b6cad0 100644
---- a/io_u_queue.h
-+++ b/io_u_queue.h
-@@ -29,7 +29,7 @@ static inline int io_u_qempty(struct io_u_queue *q)
- }
- 
- #define io_u_qiter(q, io_u, i)	\
--	for (i = 0, io_u = (q)->io_us[0]; i < (q)->nr; i++, io_u = (q)->io_us[i])
-+	for (i = 0; i < (q)->nr && (io_u = (q)->io_us[i]); i++)
- 
- int io_u_qinit(struct io_u_queue *q, unsigned int nr);
- void io_u_qexit(struct io_u_queue *q);
+ 	free(c);
+ 	return mult;
+
+-- 
+Jens Axboe
+
+
