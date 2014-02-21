@@ -1,65 +1,94 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from server506g.appriver.com ([50.56.144.37]:59414 "EHLO
-	server506.appriver.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751308AbaBUTpd convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Fri, 21 Feb 2014 14:45:33 -0500
-From: Carl Zwanzig <cpz@coraid.com>
-Subject: RE: strange discrepancy
-Date: Fri, 21 Feb 2014 19:31:46 +0000
-Message-ID: <A7A1D348E34E024BBC74480FB93A2EAB0C0919@DAGN05A-E6.exg6.exghost.com>
-References: <CAFTxqD9pJB62TkFNAS+Ex=KyS0E=7PWyzWZatFK03ef22yQ7CA@mail.gmail.com>
- <CAFTxqD-PMRbo9M+DsDtZznx9VebYk5t5vbeSyhra3=hQ9Yn1_A@mail.gmail.com>
-In-Reply-To: <CAFTxqD-PMRbo9M+DsDtZznx9VebYk5t5vbeSyhra3=hQ9Yn1_A@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:49630 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932524AbaBUPoN (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 21 Feb 2014 10:44:13 -0500
+Received: by mail-pa0-f52.google.com with SMTP id bj1so3621026pad.39
+        for <fio@vger.kernel.org>; Fri, 21 Feb 2014 07:44:12 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <CAFTxqD9pJB62TkFNAS+Ex=KyS0E=7PWyzWZatFK03ef22yQ7CA@mail.gmail.com>
+References: <CAFTxqD9pJB62TkFNAS+Ex=KyS0E=7PWyzWZatFK03ef22yQ7CA@mail.gmail.com>
+Date: Fri, 21 Feb 2014 16:44:12 +0100
+Message-ID: <CAFTxqD-PMRbo9M+DsDtZznx9VebYk5t5vbeSyhra3=hQ9Yn1_A@mail.gmail.com>
+Subject: Fwd: strange discrepancy
+From: "Pal, Laszlo" <vlad@vlad.hu>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Pal, Laszlo" <vlad@vlad.hu>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
-> Behalf Of Pal, Laszlo
+Hi,
 
-> Finally I've figured out how to use FIO :) now, I can measure several
-> things, so I've started to get IOPS data for our hardware. The graphs
-> looks good, however I can see a very strange discrepancy at seq_write
-> part
+Finally I've figured out how to use FIO :) now, I can measure several
+things, so I've started to get IOPS data for our hardware. The graphs
+looks good, however I can see a very strange discrepancy at seq_write
+part
 
-> [global]
-> ioengine=libaio
-Without iodepth >1, you'll effectively be doing synchronous i/o, so there's no benefit to using libaio. If you're interested in throughput (not latency), set iodepth to 512, which will likely be greater than whatever is in the drive/controller/OS.
+The HW itself is an appliance built from supermicro components and
+using software raid and running ubuntu squeezy based OS
 
-> buffered=0
-Don't need this if you specify-
-> direct=1
+FIO paramaters I'm currently using as the follows
 
+[global]
+ioengine=libaio
+buffered=0
+direct=1
+bs=4k
+blocksize_range=1k-64k
+size=2048m
 
-> bs=4k
-> blocksize_range=1k-64k
+[seq_read]
+rw=read
+write_iolog=iops_seq_read
+write_bw_log=iops_seq_read
+write_lat_log=iops_seq_read
+write_iops_log=iops_seq_read
 
-AFAIK, blocksize_range will supersede bs. Also depending on the drive (what type?), this can cause mis-aligned writes which massively slow the overall process. I've mostly seen this with 4kn and 512e SSDs. You can examine that by trying blockalign=4k.
+[seq_write]
+rw=write
+write_iolog=iops_seq_write
+write_bw_log=iops_seq_write
+write_lat_log=iops_seq_write
+write_iops_log=iops_seq_write
 
-> size=2048m
-I usually use a runtime spec instead of size, and also set fill_device=true.
+[random_read]
+rw=randread
+write_iolog=iops_rand_read
+write_bw_log=iops_rand_read
+write_lat_log=iops_rand_read
+write_iops_log=iops_rand_read
 
-[snip]
+[random_write]
+rw=randwrite
+write_iolog=iops_rand_write
+write_bw_log=iops_rand_write
+write_lat_log=iops_rand_write
+write_iops_log=iops_rand_write
 
-> 
-> the results as the follows
-(iops or MB/s?)
-> Random Read -- 86
-> Random Write -- 77
-> Sequential Read -- 2170
-> Sequential Write -- 45
+[random_rw]
+rw=randrw
+write_iolog=iops_rand_randrw
+write_bw_log=iops_rand_randrw
+write_lat_log=iops_rand_randrw
+write_iops_log=iops_rand_randrw
 
-> I have two questions again.
-> The parameters above are good approach to determine IOPS for this system?
-See above  :)
+------------------------------
 
-> What can be the reason of the huge difference between Seq_read and Seq_write?
+the results as the follows
 
-Many things. First off, is this a block level test or is there a file system involved? What drives? What controller? RAID? 
+Random Read -- 86
+Random Write -- 77
+Sequential Read -- 2170
+Sequential Write -- 45
+Random RW -- 40
 
-z!
+---------------------------------------------------------
 
+I have two questions again.
+
+The parameters above are good approach to determine IOPS for this system?
+
+What can be the reason of the huge difference between Seq_read and Seq_write?
+
+Thank you for your help
+L:
