@@ -1,42 +1,172 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mxi1.enovance.com ([94.143.114.217]:35419 "EHLO
-	mxi1.enovance.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752316AbaBXObU (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 24 Feb 2014 09:31:20 -0500
-Message-ID: <530B57B5.10505@enovance.com>
-Date: Mon, 24 Feb 2014 15:31:17 +0100
-From: Erwan Velu <erwan@enovance.com>
+Received: from mail-pd0-f170.google.com ([209.85.192.170]:62474 "EHLO
+	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751797AbaBXLzB (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 24 Feb 2014 06:55:01 -0500
+Received: by mail-pd0-f170.google.com with SMTP id y10so3006629pdj.1
+        for <fio@vger.kernel.org>; Mon, 24 Feb 2014 03:55:00 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <CAFTxqD-HGbv8nYXPKfU_7ct_6jGtbBoX951_=T1tGd-XB9TBYg@mail.gmail.com>
+References: <CAFTxqD9pJB62TkFNAS+Ex=KyS0E=7PWyzWZatFK03ef22yQ7CA@mail.gmail.com>
+	<CAFTxqD-PMRbo9M+DsDtZznx9VebYk5t5vbeSyhra3=hQ9Yn1_A@mail.gmail.com>
+	<A7A1D348E34E024BBC74480FB93A2EAB0C0919@DAGN05A-E6.exg6.exghost.com>
+	<CAFTxqD-HGbv8nYXPKfU_7ct_6jGtbBoX951_=T1tGd-XB9TBYg@mail.gmail.com>
+Date: Mon, 24 Feb 2014 12:55:00 +0100
+Message-ID: <CAFTxqD_UdtAqhXPjopzHg6FKw25JPzoE-BeXhSuD9NLRhNMyeg@mail.gmail.com>
 Subject: Re: strange discrepancy
-References: <CAFTxqD9pJB62TkFNAS+Ex=KyS0E=7PWyzWZatFK03ef22yQ7CA@mail.gmail.com>	<CAFTxqD-PMRbo9M+DsDtZznx9VebYk5t5vbeSyhra3=hQ9Yn1_A@mail.gmail.com>	<A7A1D348E34E024BBC74480FB93A2EAB0C0919@DAGN05A-E6.exg6.exghost.com>	<CAFTxqD-HGbv8nYXPKfU_7ct_6jGtbBoX951_=T1tGd-XB9TBYg@mail.gmail.com> <CAFTxqD_UdtAqhXPjopzHg6FKw25JPzoE-BeXhSuD9NLRhNMyeg@mail.gmail.com>
-In-Reply-To: <CAFTxqD_UdtAqhXPjopzHg6FKw25JPzoE-BeXhSuD9NLRhNMyeg@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: "Pal, Laszlo" <vlad@vlad.hu>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Pal, Laszlo" <vlad@vlad.hu>, Carl Zwanzig <cpz@coraid.com>
+To: Carl Zwanzig <cpz@coraid.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 24/02/2014 12:55, Pal, Laszlo wrote:
-> Hi,
+Hi,
+
+I've modified the .fio file according to the suggestions. Now, it
+looks like this
+
+[global]
+ioengine=sync
+direct=1
+blocksize_range=1k-64k
+directory=/mnt/drbd/private/
+size=5120000000
+runtime=7200
+
+[seq_read]
+rw=read
+write_bw_log=iops_seq_read
+write_lat_log=iops_seq_read
+write_iops_log=iops_seq_read
+
+[seq_write]
+rw=write
+write_bw_log=iops_seq_write
+write_lat_log=iops_seq_write
+write_iops_log=iops_seq_write
+
+[random_read]
+rw=randread
+write_bw_log=iops_rand_read
+write_lat_log=iops_rand_read
+write_iops_log=iops_rand_read
+
+[random_write]
+rw=randwrite
+write_bw_log=iops_rand_write
+write_lat_log=iops_rand_write
+write_iops_log=iops_rand_write
+
+[random_rw]
+rw=randrw
+write_bw_log=iops_rand_randrw
+write_lat_log=iops_rand_randrw
+write_iops_log=iops_rand_randrw
+
+
+
+Now, I'm getting much worst results (around 30 IOPS for random). I'm
+wondering if the above config is the right approach for measur the
+IOPS of this system?
+
+As I written below this is a debian based box, using soft raid with
+DRBD and my task is to tell what is the IOPS of this box
+
+
+Any idea?
+
+Thank you
+Lastlo
+
+On 21 February 2014 20:47, Pal, Laszlo <vlad@vlad.hu> wrote:
+> Thank you for your answer. I'm quite new in this, so I'm sure my parameters
+> maybe not optimal.
 >
-> I've modified the .fio file according to the suggestions. Now, it
-> looks like this
+> The system is a supermicro appliance running an ubuntu variant and using
+> 2x7200 RPM disk in raid1 with DRBD
+>
+> The other box is a bit stronger and includes and adaptec raid controller
+> 12x7200 RPM disk in RAID50 but also with DRBD
+>
+> The goal is to measure the IOPS of this two hardware running this software.
+> Basically the IOPS values I've got with these parameters are very close to
+> the average IOPS of a 7200 disk which is as far as I know arund 100
+>
+> I also put some comments inline, so if you can help me with same appropritae
+> parameters for this scenario it would be great
+>
+> Thank you
+> Laszlo
 >
 >
-I'm pretty sure you are making a mistake here.
-You shall use the 'stonewall' instruction of your jobs if you want to 
-make them one after the other unless you are running all of them at the 
-same time.
-
-My genfio script inside the tools/ directory would have surely help you 
-avoiding this mistake.... but I'm not yet supporting the filesystems 
-with it... I have to spend some time on it.
-
-At least, generate an output with it and change then after the block 
-device by your filesystem stuff.
-
-The nice stuff is that genfio is easy to "pipe" with fio2gnuplot. Btw, 
-I'm glad some are using it ;o)))
-
-Erwan,
+>
+> On 21 February 2014 20:31, Carl Zwanzig <cpz@coraid.com> wrote:
+>>
+>> > From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
+>> > Behalf Of Pal, Laszlo
+>>
+>> > Finally I've figured out how to use FIO :) now, I can measure several
+>> > things, so I've started to get IOPS data for our hardware. The graphs
+>> > looks good, however I can see a very strange discrepancy at seq_write
+>> > part
+>>
+>> > [global]
+>> > ioengine=libaio
+>> Without iodepth >1, you'll effectively be doing synchronous i/o, so
+>> there's no benefit to using libaio. If you're interested in throughput (not
+>> latency), set iodepth to 512, which will likely be greater than whatever is
+>> in the drive/controller/OS.
+>>
+>> > buffered=0
+>> Don't need this if you specify-
+>> > direct=1
+>>
+>>
+>> > bs=4k
+>> > blocksize_range=1k-64k
+>>
+>> AFAIK, blocksize_range will supersede bs. Also depending on the drive
+>> (what type?), this can cause mis-aligned writes which massively slow the
+>> overall process. I've mostly seen this with 4kn and 512e SSDs. You can
+>> examine that by trying blockalign=4k.
+>>
+> it is normal 7200K disk
+>>
+>> > size=2048m
+>> I usually use a runtime spec instead of size, and also set
+>> fill_device=true.
+>
+>
+>>
+>>
+>> [snip]
+>>
+>> >
+>> > the results as the follows
+>> (iops or MB/s?)
+>
+> these numbers from the IOPS log generated by fio
+>>
+>> > Random Read -- 86
+>> > Random Write -- 77
+>> > Sequential Read -- 2170
+>> > Sequential Write -- 45
+>>
+>> > I have two questions again.
+>> > The parameters above are good approach to determine IOPS for this
+>> > system?
+>> See above  :)
+>>
+>> > What can be the reason of the huge difference between Seq_read and
+>> > Seq_write?
+>>
+>> Many things. First off, is this a block level test or is there a file
+>> system involved? What drives? What controller? RAID?
+>
+> it is file system (ext3) soft raid + DRBD
+>>
+>>
+>> z!
+>>
+>
