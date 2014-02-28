@@ -1,82 +1,90 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from e06smtp16.uk.ibm.com ([195.75.94.112]:37032 "EHLO
-	e06smtp16.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753622AbaBSPMb (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 19 Feb 2014 10:12:31 -0500
-Received: from /spool/local
-	by e06smtp16.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <fio@vger.kernel.org> from <ehrhardt@linux.vnet.ibm.com>;
-	Wed, 19 Feb 2014 15:12:30 -0000
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-	by d06dlp02.portsmouth.uk.ibm.com (Postfix) with ESMTP id 13C5C219005C
-	for <fio@vger.kernel.org>; Wed, 19 Feb 2014 15:12:24 +0000 (GMT)
-Received: from d06av12.portsmouth.uk.ibm.com (d06av12.portsmouth.uk.ibm.com [9.149.37.247])
-	by b06cxnps4074.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id s1JFCEpC66978004
-	for <fio@vger.kernel.org>; Wed, 19 Feb 2014 15:12:14 GMT
-Received: from d06av12.portsmouth.uk.ibm.com (localhost [127.0.0.1])
-	by d06av12.portsmouth.uk.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id s1JFCPxo005206
-	for <fio@vger.kernel.org>; Wed, 19 Feb 2014 08:12:26 -0700
-Message-ID: <5304C9D9.1010207@linux.vnet.ibm.com>
-Date: Wed, 19 Feb 2014 16:12:25 +0100
-From: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <5310C264.4080807@kernel.dk>
+Date: Fri, 28 Feb 2014 09:07:48 -0800
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Subject: [patch 1/9] fio: fix job clone mem leak
-References: <20140219143639.168501090@linux.vnet.ibm.com>
-In-Reply-To: <20140219143639.168501090@linux.vnet.ibm.com>
+Subject: Re: [patch 8/9] fio: fix last block never being touched by random
+ offsets
+References: <20140220132051.624645398@linux.vnet.ibm.com> <20140220171832.GC30251@kernel.dk> <5310BD68.101@linux.vnet.ibm.com>
+In-Reply-To: <5310BD68.101@linux.vnet.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: oberpar@linux.vnet.ibm.com, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+To: Peter Oberparleiter <oberpar@linux.vnet.ibm.com>, ehrhardt@linux.vnet.ibm.com
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-From: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+On 2014-02-28 08:46, Peter Oberparleiter wrote:
+> On 20.02.2014 18:18, Jens Axboe wrote:
+>> On Thu, Feb 20 2014, ehrhardt@linux.vnet.ibm.com wrote:
+>>> *Resend with hopefully non mangled patches*
+>>> References: <20140220131958.965092001@linux.vnet.ibm.com>
+>>> Content-Disposition: inline; filename=fix_last_block.diff
+>>>
+>>> From: Peter Oberparleiter <oberpar@linux.vnet.ibm.com>
+>>>
+>>> Fix the available range for random offsets which never touched the last block.
+>>>
+>>> Signed-off-by: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+>>> ---
+>>> [diffstat]
+>>>   io_u.c |    2 +-
+>>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> --- a/io_u.c
+>>> +++ b/io_u.c
+>>> @@ -104,7 +104,7 @@ static int __get_next_rand_offset(struct
+>>>
+>>>   		dprint(FD_RANDOM, "off rand %llu\n", (unsigned long long) r);
+>>>
+>>> -		*b = (lastb - 1) * (r / ((uint64_t) rmax + 1.0));
+>>> +		*b = lastb * (r / ((uint64_t) rmax + 1.0));
+>>>   	} else {
+>>>   		uint64_t off = 0;
+>>
+>> Wont this generate lastb as the potentially last block? We want lastb-1
+>> as the last one, otherwise the length of IO from it will be 0.
+>>
+>> I might be missing something here.
+>
+> I would expect that the last I/O would be at offset size-blocksize and
+> size blocksize. Consider this example test case that should generate 1
+> second of random reads with offsets 0 and 512:
+>
+> [job]
+> filename=datafile
+> blocksize=512
+> size=1024
+> time_based
+> runtime=1
+> rw=randread
+> norandommap
+> write_iolog=/dev/stdout
+>
+> Running it with FIO_VERSION = fio-2.1.5-44-ga1fc produces the following
+> result:
+>
+>> fio job | grep datafile | sort | uniq
+> datafile add
+> datafile close
+> datafile open
+> datafile read 0 512
+>
+> -> I/O is only generated for offset 0
+>
+> Running it with the same version and the subject patch applied:
+>
+>> fio job | grep datafile | sort | uniq
+> datafile add
+> datafile close
+> datafile open
+> datafile read 0 512
+> datafile read 512 512
+>
+> -> Both offsets are covered
 
-In the loop to create clones at the bottom of add_job the function 
-get_new_job
-clones the thread_data, just to occaisonally get the allocated pointers for
-filename and files overwritten a few lines later.
+Tested here, and it does look correct. Thanks, I will apply it.
 
-The dup files also duplicates the name strings so the references to 
-these are
-lost by the setting to null.
-
-This patch fixes takes care of that and frees the memory before 
-discarding the
-pointers (found via valgrind).
-
-Signed-off-by: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
----
-
-[diffstat]
-  init.c |   15 +++++++++++++--
-  1 file changed, 13 insertions(+), 2 deletions(-)
-
-[diff]
-
---- a/init.c
-+++ b/init.c
-@@ -1118,10 +1118,21 @@ static int add_job(struct thread_data *t
-  		td_new->o.new_group = 0;
-   		if (file_alloced) {
--			td_new->o.filename = NULL;
-  			td_new->files_index = 0;
-  			td_new->files_size = 0;
--			td_new->files = NULL;
-+			if (td_new->files) {
-+				struct fio_file *f;
-+				for_each_file(td_new, f, i) {
-+					if (f->file_name)
-+						free(f->file_name);
-+					free(f);
-+				}
-+				td_new->files = NULL;
-+			}
-+			if (td_new->o.filename) {
-+				free(td_new->o.filename);
-+				td_new->o.filename = NULL;
-+			}
-  		}
-   		job_add_num = numjobs - 1;
+-- 
+Jens Axboe
 
 
