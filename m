@@ -1,81 +1,67 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:38289 "EHLO
+Received: from merlin.infradead.org ([205.233.59.134]:51024 "EHLO
 	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965398AbaCUMAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 21 Mar 2014 08:00:05 -0400
+	with ESMTP id S1751564AbaCENAF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 5 Mar 2014 08:00:05 -0500
 Received: from kernel.dk ([54.225.238.116] helo=strynoevaenget.dk)
 	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1WQy7I-0002Q7-8c
-	for fio@vger.kernel.org; Fri, 21 Mar 2014 12:00:04 +0000
+	id 1WLBQb-0000XX-8Q
+	for fio@vger.kernel.org; Wed, 05 Mar 2014 13:00:05 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20140321120002.CBC07400A9@strynoevaenget.dk>
-Date: Fri, 21 Mar 2014 06:00:02 -0600 (MDT)
+Message-Id: <20140305130003.4221140062@strynoevaenget.dk>
+Date: Wed,  5 Mar 2014 06:00:03 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit b1bebc321e3b831d424dd49626833dd642224bd4:
+The following changes since commit fad69e155f10094611154e76c6babc1fdd1d40c1:
 
-  Prevent file_append=1 with IO engine that can't extend files (2014-03-18 13:30:32 -0600)
+  Fio 2.1.6 (2014-03-03 15:49:00 -0800)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 1417daeb92c44632f2e1e376d736a0f198d7af8d:
+for you to fetch changes up to d004a209eee0a8db603c2d7ca6dc5fb6c367aa5a:
 
-  Don't re-create/unlink write file for append workload (2014-03-20 09:33:13 -0600)
+  Fix typo in fio_cpu_count() (2014-03-04 09:02:10 -0700)
 
 ----------------------------------------------------------------
-Jens Axboe (2):
-      Unlink after file close
-      Don't re-create/unlink write file for append workload
+Jens Axboe (1):
+      Fix typo in fio_cpu_count()
 
- filesetup.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ os/os-freebsd.h |    2 +-
+ os/os-linux.h   |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/filesetup.c b/filesetup.c
-index c3c0fc4..5ce0f68 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -50,10 +50,11 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
- 	 * does that for operations involving reads, or for writes
- 	 * where overwrite is set
- 	 */
--	if (td_read(td) || (td_write(td) && td->o.overwrite) ||
-+	if (td_read(td) ||
-+	   (td_write(td) && td->o.overwrite && !td->o.file_append) ||
- 	    (td_write(td) && td->io_ops->flags & FIO_NOEXTEND))
- 		new_layout = 1;
--	if (td_write(td) && !td->o.overwrite)
-+	if (td_write(td) && !td->o.overwrite && !td->o.file_append)
- 		unlink_file = 1;
+diff --git a/os/os-freebsd.h b/os/os-freebsd.h
+index e35c835..22765ce 100644
+--- a/os/os-freebsd.h
++++ b/os/os-freebsd.h
+@@ -33,7 +33,7 @@ typedef cpuset_t os_cpu_mask_t;
+ #define fio_cpu_clear(mask, cpu)        (void) CPU_CLR((cpu), (mask))
+ #define fio_cpu_set(mask, cpu)          (void) CPU_SET((cpu), (mask))
+ #define fio_cpu_isset(mask, cpu)	CPU_ISSET((cpu), (mask))
+-#define fio_cpu_count(maks)		CPU_COUNT((mask))
++#define fio_cpu_count(mask)		CPU_COUNT((mask))
  
- 	if (unlink_file || new_layout) {
-@@ -1057,16 +1058,16 @@ void close_and_free_files(struct thread_data *td)
- 	dprint(FD_FILE, "close files\n");
+ static inline int fio_cpuset_init(os_cpu_mask_t *mask)
+ {
+diff --git a/os/os-linux.h b/os/os-linux.h
+index ef80ce2..81d0402 100644
+--- a/os/os-linux.h
++++ b/os/os-linux.h
+@@ -62,7 +62,7 @@ typedef struct drand48_data os_random_state_t;
+ #define fio_cpu_clear(mask, cpu)	(void) CPU_CLR((cpu), (mask))
+ #define fio_cpu_set(mask, cpu)		(void) CPU_SET((cpu), (mask))
+ #define fio_cpu_isset(mask, cpu)	CPU_ISSET((cpu), (mask))
+-#define fio_cpu_count(maks)		CPU_COUNT((mask))
++#define fio_cpu_count(mask)		CPU_COUNT((mask))
  
- 	for_each_file(td, f, i) {
--		if (td->o.unlink && f->filetype == FIO_TYPE_FILE) {
--			dprint(FD_FILE, "free unlink %s\n", f->file_name);
--			unlink(f->file_name);
--		}
--
- 		if (fio_file_open(f))
- 			td_io_close_file(td, f);
- 
- 		remove_file_hash(f);
- 
-+		if (td->o.unlink && f->filetype == FIO_TYPE_FILE) {
-+			dprint(FD_FILE, "free unlink %s\n", f->file_name);
-+			unlink(f->file_name);
-+		}
-+
- 		sfree(f->file_name);
- 		f->file_name = NULL;
- 		axmap_free(f->io_axmap);
+ static inline int fio_cpuset_init(os_cpu_mask_t *mask)
+ {
