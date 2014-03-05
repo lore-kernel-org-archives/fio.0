@@ -1,105 +1,158 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:54055 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751210AbaCFNAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 6 Mar 2014 08:00:05 -0500
-Received: from kernel.dk ([54.225.238.116] helo=strynoevaenget.dk)
-	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1WLXu8-0006oY-0A
-	for fio@vger.kernel.org; Thu, 06 Mar 2014 13:00:04 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <53179398.9000300@kernel.dk>
+Date: Wed, 05 Mar 2014 14:14:00 -0700
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20140306130003.3AFD241A72@strynoevaenget.dk>
-Date: Thu,  6 Mar 2014 06:00:03 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: regression since 2.1.3 (solaris/zfs)
+References: <1E602C14-0C00-4258-94C2-8F16A56C509D@coraid.com> <53149EF3.7020005@kernel.dk> <AAC03F56-6145-4649-AA09-32AEF3452119@coraid.com> <53174E4C.90402@kernel.dk> <E0FE1FC4-FA69-40E4-AD88-3F0743A51345@coraid.com> <D173A05B-AD5C-4F5A-9106-53D188B44A3E@kernel.dk> <9F498F1D-A6EC-4012-B6CC-271EEA8F4F32@coraid.com> <531791B5.2010606@kernel.dk> <5ED3076B-B15B-42B1-8AD4-500B62D19EFA@coraid.com>
+In-Reply-To: <5ED3076B-B15B-42B1-8AD4-500B62D19EFA@coraid.com>
+Content-Type: text/plain; charset="windows-1252"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+To: "Robin P. Blanchard" <robin@coraid.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit d004a209eee0a8db603c2d7ca6dc5fb6c367aa5a:
+On 03/05/2014 02:12 PM, Robin P. Blanchard wrote:
+>
+> On Mar 5, 2014, at 16:05 PM, Jens Axboe <axboe@kernel.dk> wrote:
+>
+>> On 03/05/2014 01:39 PM, Robin P. Blanchard wrote:
+>>>
+>>> On Mar 5, 2014, at 12:06 PM, Jens Axboe <axboe@kernel.dk> wrote:
+>>>
+>>>> On Mar 5, 2014, at 9:27 AM, Robin P. Blanchard <robin@coraid.com> wrot=
+e:
+>>>>
+>>>>>
+>>>>> On Mar 5, 2014, at 11:18 AM, Jens Axboe <axboe@kernel.dk> wrote:
+>>>>>
+>>>>>> On 2014-03-05 09:11, Robin P. Blanchard wrote:
+>>>>>>>
+>>>>>>> On Mar 3, 2014, at 10:25 AM, Jens Axboe <axboe@kernel.dk> wrote:
+>>>>>>>
+>>>>>>>> On 03/02/2014 07:59 AM, Robin P. Blanchard wrote:
+>>>>>>>>> My config file has direct=3D0, which until 2.1.4 worked as expect=
+ed.
+>>>>>>>>> Things seem to regress since.
+>>>>>>>>>
+>>>>>>>>> I apologize in advance if this has already been reported. Please
+>>>>>>>>> let me know what I can do to further help (truss/debug).
+>>>>>>>>
+>>>>>>>> This isn't a known issue, so thanks for reporting it. The easiest =
+way to debug this is to git bisect it. Looks like you are running from the =
+tar balls, but I assume you have git installed? I'm assuming fio-2.1.3 work=
+ed for you - if not, just replace fio-2.1.3 in the below with whatever late=
+st version did work. If you do, the cheat sheet is something ala:
+>>>>>>>>
+>>>>>>>> $ git clone git://git.kernel.dk/fio
+>>>>>>>> $ cd fio; make
+>>>>>>>> $ git bisect start
+>>>>>>>> $ git bisect good fio-2.1.3
+>>>>>>>> $ git bisect bad fio-2.1.4
+>>>>>>>>
+>>>>>>>> This starts the bisect series, now do:
+>>>>>>>>
+>>>>>>>> $ make clean; make
+>>>>>>>>
+>>>>>>>> and re-run your direct=3D0 job file. If it worked, then you do
+>>>>>>>>
+>>>>>>>> $ git bisect good
+>>>>>>>>
+>>>>>>>> and if not, you do git bisect bad instead. This gets you a new poi=
+nt in the tree to test, so repeat the make clean; make and re-run the test.
+>>>>>>>> Keep doing this good/bad iteration until fio tells you what commit=
+ broke the test for you. Then send those results here!
+>>>>>>>>
+>>>>>>>> --
+>>>>>>>> Jens Axboe
+>>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>> Here=EF=BF=BDs where it started working again:
+>>>>>>>
+>>>>>>> # git bisect good
+>>>>>>> Bisecting: 4 revisions left to test after this (roughly 2 steps)
+>>>>>>> [3bb0a7b0fda9945973f799ab253c70d3cb0e5c8b] howto: Fix redundant ent=
+ries
+>>>>>>>
+>>>>>>> Let me know how else I can help.
+>>>>>>
+>>>>>> Please keep going until it tells you what the definitively bad commi=
+t is. It'll end up spitting out that info, if you keep doing git bisect goo=
+d/bad on each test point. You need just ~2 more tests after this one.
+>>>>>>
+>>>>>> --
+>>>>>> Jens Axboe
+>>>>>>
+>>>>>
+>>>>> Here you go:
+>>>>>
+>>>>> # git bisect good
+>>>>> ddc0cc31a2b75b1c7dde870c8867af11fa44db92 is the first bad commit
+>>>>> commit ddc0cc31a2b75b1c7dde870c8867af11fa44db92
+>>>>> Author: Jens Axboe <axboe@kernel.dk>
+>>>>> Date:   Fri Oct 11 10:27:28 2013 -0600
+>>>>>
+>>>>>    ppc: disable CPU clock until we can detect whether we have it or n=
+ot
+>>>>>
+>>>>>    The child segfault test should catch it, however it does not on
+>>>>>    AIX at least.
+>>>>>
+>>>>>    Signed-off-by: Jens Axboe <axboe@kernel.dk>
+>>>>
+>>>> Hmm, that can=EF=BF=BDt possibly be correct. Would you mind redoing th=
+e bisection,
+>>>> just to double check?
+>>>>
+>>>> Thanks!
+>>>>
+>>>> =EF=BF=BD
+>>>> Jens Axboe
+>>>
+>>> Ok. Let=EF=BF=BDs try this again. Silly user, me.
+>>>
+>>> # git bisect good
+>>> 7cb024f89dbbc314e740885afccd9a05da056cf1 is the first bad commit
+>>> commit 7cb024f89dbbc314e740885afccd9a05da056cf1
+>>> Author: Jens Axboe <axboe@kernel.dk>
+>>> Date:   Wed Nov 6 15:37:35 2013 -0700
+>>>
+>>>      solaris: ensure that -D_REENTRANT gets set
+>>>
+>>>      Apparently some Solaris' require this for threadsafe
+>>>      errno.
+>>>
+>>>      Signed-off-by: Jens Axboe <axboe@kernel.dk>
+>>>
+>>> :100755 100755 b6bfe19aa743fc4104eb587b3ff6068fb5dc67ef ef7be0180258abe=
+cd4703ebfcf4ed63625d6392f M      configure
+>>>
+>>>
+>>> I have the complete git/bisect session in a screen log if you=EF=BF=BDd=
+ like it.
+>>
+>> That makes a lot more sense! Can you do:
+>>
+>> $ git checkout -f master
+>> $ git revert 7cb024f89dbbc314e740885afccd9a05da056cf1
+>> $ make clean; make
+>>
+>> and retest just to be on the safe side? Also, please attach the job file=
+ you are using.
+>>
+>> --
+>> Jens Axboe
+>
+>
+> Actually, based on the git bisect work, I took out -D_REENTRANT from conf=
+igure,
+ > and fio-2.1.6 now works as expected. Still want the job file?
 
-  Fix typo in fio_cpu_count() (2014-03-04 09:02:10 -0700)
+I do, since the direct part makes little sense to me, if you have=20
+direct=3D0 set.
 
-are available in the git repository at:
+--=20
+Jens Axboe
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 6cf71c249abd60f2d2f6878ae436d4bab00aacbd:
-
-  Fix compile on CentOS/RHEL5 (2014-03-05 15:49:54 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Fix compile on CentOS/RHEL5
-
- configure |   19 +++++++++++++++++++
- os/os.h   |   16 ++++++++++++++++
- 2 files changed, 35 insertions(+)
-
----
-
-Diff of recent changes:
-
-diff --git a/configure b/configure
-index 4b00679..4a8d352 100755
---- a/configure
-+++ b/configure
-@@ -650,6 +650,22 @@ echo "sched_setaffinity(3 arg)      $linux_3arg_affinity"
- echo "sched_setaffinity(2 arg)      $linux_2arg_affinity"
- 
- ##########################################
-+# CPU_COUNT test
-+cpu_count="no"
-+cat > $TMPC << EOF
-+#include <sched.h>
-+int main(int argc, char **argv)
-+{
-+  cpu_set_t mask;
-+  return CPU_COUNT(&mask);
-+}
-+EOF
-+if compile_prog "" "" "cpu_count"; then
-+  cpu_count="yes"
-+fi
-+echo "CPU_COUNT                     $cpu_count"
-+
-+##########################################
- # clock_gettime probe
- clock_gettime="no"
- cat > $TMPC << EOF
-@@ -1270,6 +1286,9 @@ fi
- if test "$rbd" = "yes" ; then
-   output_sym "CONFIG_RBD"
- fi
-+if test "$cpu_count" = "yes" ; then
-+  output_sym "CONFIG_CPU_COUNT"
-+fi
- 
- echo "LIBS+=$LIBS" >> $config_host_mak
- echo "CFLAGS+=$CFLAGS" >> $config_host_mak
-diff --git a/os/os.h b/os/os.h
-index a6bc17f..7f92d1b 100644
---- a/os/os.h
-+++ b/os/os.h
-@@ -327,6 +327,22 @@ static inline unsigned int cpus_online(void)
- }
- #endif
- 
-+#ifndef CONFIG_CPU_COUNT
-+#ifdef FIO_HAVE_CPU_AFFINITY
-+static inline int CPU_COUNT(os_cpu_mask_t *mask)
-+{
-+	int max_cpus = cpus_online();
-+	int nr_cpus, i;
-+
-+	for (i = 0, nr_cpus = 0; i < max_cpus; i++)
-+		if (fio_cpu_isset(mask, i))
-+			nr_cpus++;
-+
-+	return nr_cpus;
-+}
-+#endif
-+#endif
-+
- #ifndef FIO_HAVE_GETTID
- static inline int gettid(void)
- {
