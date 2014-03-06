@@ -1,29 +1,33 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:13050 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751555AbaCGIbz (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 7 Mar 2014 03:31:55 -0500
-Date: Fri, 7 Mar 2014 09:31:35 +0100
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH 0/2] Two small ./configure fixes
-Message-ID: <20140307083135.GB17270@stefanha-thinkpad.redhat.com>
-References: <1394127719-3105-1-git-send-email-stefanha@redhat.com>
- <20140306181450.GA23848@sucs.org>
- <5318E68A.1000904@fb.com>
- <0dee324adeb2479d96ebb8c90a6654ee@DM2PR04MB478.namprd04.prod.outlook.com>
+Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:37259 "EHLO
+	mx0b-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750829AbaCFVcU (ORCPT
+	<rfc822;fio@vger.kernel.org>); Thu, 6 Mar 2014 16:32:20 -0500
+Message-ID: <5318E962.5040207@fb.com>
+Date: Thu, 6 Mar 2014 14:32:18 -0700
+From: Jens Axboe <axboe@fb.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0dee324adeb2479d96ebb8c90a6654ee@DM2PR04MB478.namprd04.prod.outlook.com>
+Subject: Re: [PATCH 0/2] Two small ./configure fixes
+References: <1394127719-3105-1-git-send-email-stefanha@redhat.com>
+In-Reply-To: <1394127719-3105-1-git-send-email-stefanha@redhat.com>
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Bruce Cran <BCran@fusionio.com>
-Cc: Jens Axboe <axboe@fb.com>, Sitsofe Wheeler <sitsofe@yahoo.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Stefan Hajnoczi <stefanha@redhat.com>, fio@vger.kernel.org
 
-On Thu, Mar 06, 2014 at 09:22:30PM +0000, Bruce Cran wrote:
-> The Windows build of fio assumes only a minimal set of POSIX headers is available, so trying to build using Cygwin's GCC and its full set is probably not going to work. Why do you not want to use MinGW GCC?
+On 03/06/2014 10:41 AM, Stefan Hajnoczi wrote:
+> My hopes of cross-compiling fio for Windows were dashed when I realized
+> pthreads is needed (I guess only Cygwin supports it, not mingw).
+>
+> On the plus side, here are two small fixes for ./configure.
+>
+> Stefan Hajnoczi (2):
+>    Honor ./configure --cc= option
+>    Detect Windows operating system in ./configure
 
-I want to cross-compile using mingw, just wasn't aware of winpthreads.
-Not sure if anyone actually wants to use Cygwin :-).
+Thanks, applied both.
 
-Stefan
+-- 
+Jens Axboe
+
