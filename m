@@ -1,50 +1,40 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from [213.199.154.11] ([213.199.154.11]:43559 "EHLO
-	emea01-am1-obe.outbound.protection.outlook.com"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1754151AbaCLPir convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 12 Mar 2014 11:38:47 -0400
-From: =?iso-8859-1?Q?S=E9bastien_Bouchex_Bellomi=E9?= 
-	<sbouchex@infovista.com>
-Subject: Bug with "multi directory support" on windows
-Date: Wed, 12 Mar 2014 15:38:23 +0000
-Message-ID: <e54fd34a63624f1ca306d3a6970272ac@DB4PR03MB572.eurprd03.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:17453 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751648AbaCFRmi (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 6 Mar 2014 12:42:38 -0500
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: [PATCH 2/2] Detect Windows operating system in ./configure
+Date: Thu,  6 Mar 2014 18:41:59 +0100
+Message-Id: <1394127719-3105-3-git-send-email-stefanha@redhat.com>
+In-Reply-To: <1394127719-3105-1-git-send-email-stefanha@redhat.com>
+References: <1394127719-3105-1-git-send-email-stefanha@redhat.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
+Cc: axboe@fb.com
 
-Hi,
+We should not rely on `uname -s` if we ever want cross-compiling to
+work, so detect _WIN32.
 
-A nice bug on Windows=EF=BF=BD:
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+---
+ configure | 2 ++
+ 1 file changed, 2 insertions(+)
 
-My profile is :
-
-[global]
-thread
-
-[random_read]
-rw=3Drandread
-size=3D1024m
-directory=3Dc:\temp\fio\read
-bs=3D32k
-
-fio start looks like :
-C:\Program Files\fio>fio.exe H:\fio\fio.win
-fio: c is not a directory
-fio: failed parsing directory=3Dc:\temp\fio\read
-fio: job random_read dropped
-fio: file:options.c:875, func=3Dlstat, error=3DNo such file or directory
-
-Of course ! The : separator of the multi directory support feature does not=
- filter the Windows drive letter
-
-Seb
-
-S=EF=BF=BDbastien BOUCHEX BELLOMI=EF=BF=BD
-Infovista=EF=BF=BD Server Technical Lead, Service Assurance R&D
-
+diff --git a/configure b/configure
+index 7b1d79a..63aa02d 100755
+--- a/configure
++++ b/configure
+@@ -184,6 +184,8 @@ elif check_define __OpenBSD__ ; then
+ elif check_define __sun__ ; then
+   targetos='SunOS'
+   CFLAGS="$CFLAGS -D_REENTRANT"
++elif check_define _WIN32 ; then
++  targetos='CYGWIN'
+ else
+   targetos=`uname -s`
+ fi
+-- 
+1.8.5.3
 
