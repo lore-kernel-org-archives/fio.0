@@ -1,56 +1,29 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:58766 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933380AbaCSMAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 19 Mar 2014 08:00:05 -0400
-Received: from kernel.dk ([54.225.238.116] helo=strynoevaenget.dk)
-	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1WQFAC-0007yh-8w
-	for fio@vger.kernel.org; Wed, 19 Mar 2014 12:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20140319120002.B0CAD400DC@strynoevaenget.dk>
-Date: Wed, 19 Mar 2014 06:00:02 -0600 (MDT)
+Received: from mx1.redhat.com ([209.132.183.28]:13050 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751555AbaCGIbz (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 7 Mar 2014 03:31:55 -0500
+Date: Fri, 7 Mar 2014 09:31:35 +0100
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH 0/2] Two small ./configure fixes
+Message-ID: <20140307083135.GB17270@stefanha-thinkpad.redhat.com>
+References: <1394127719-3105-1-git-send-email-stefanha@redhat.com>
+ <20140306181450.GA23848@sucs.org>
+ <5318E68A.1000904@fb.com>
+ <0dee324adeb2479d96ebb8c90a6654ee@DM2PR04MB478.namprd04.prod.outlook.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0dee324adeb2479d96ebb8c90a6654ee@DM2PR04MB478.namprd04.prod.outlook.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Bruce Cran <BCran@fusionio.com>
+Cc: Jens Axboe <axboe@fb.com>, Sitsofe Wheeler <sitsofe@yahoo.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit 0aae4ce7dbc93fe5770b25c76f5b6242ce398b7a:
+On Thu, Mar 06, 2014 at 09:22:30PM +0000, Bruce Cran wrote:
+> The Windows build of fio assumes only a minimal set of POSIX headers is available, so trying to build using Cygwin's GCC and its full set is probably not going to work. Why do you not want to use MinGW GCC?
 
-  Update file_append documentation (2014-03-17 12:55:08 -0600)
+I want to cross-compile using mingw, just wasn't aware of winpthreads.
+Not sure if anyone actually wants to use Cygwin :-).
 
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to b1bebc321e3b831d424dd49626833dd642224bd4:
-
-  Prevent file_append=1 with IO engine that can't extend files (2014-03-18 13:30:32 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Prevent file_append=1 with IO engine that can't extend files
-
- init.c |    5 +++++
- 1 file changed, 5 insertions(+)
-
----
-
-Diff of recent changes:
-
-diff --git a/init.c b/init.c
-index 73ec9eb..9b0666d 100644
---- a/init.c
-+++ b/init.c
-@@ -676,6 +676,11 @@ static int fixup_options(struct thread_data *td)
- 	if (td->o.rand_seed)
- 		td->o.rand_repeatable = 0;
- 
-+	if ((td->io_ops->flags & FIO_NOEXTEND) && td->o.file_append) {
-+		log_err("fio: can't append/extent with IO engine %s\n", td->io_ops->name);
-+		ret = 1;
-+	}
-+
- 	return ret;
- }
- 
+Stefan
