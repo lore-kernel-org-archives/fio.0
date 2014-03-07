@@ -1,142 +1,105 @@
-Return-Path: <andrey.v.kuzmin@gmail.com>
-MIME-Version: 1.0
-From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
-Date: Mon, 31 Mar 2014 18:08:36 -0700
-Message-ID: <CANvN+ekEmEeFeXZ_b7-51QpetdWx2nwJHwoEsbsiFTOcpYwizw@mail.gmail.com>
-Subject: Shared files with thread=1: func=xfer, err=Bad file descriptor
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:54598 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752092AbaCGNAG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 7 Mar 2014 08:00:06 -0500
+Received: from kernel.dk ([54.225.238.116] helo=strynoevaenget.dk)
+	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1WLuNg-00081Z-F5
+	for fio@vger.kernel.org; Fri, 07 Mar 2014 13:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20140307130003.7D04941E39@strynoevaenget.dk>
+Date: Fri,  7 Mar 2014 06:00:03 -0700 (MST)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
 
-The following simple setup
+The following changes since commit 6cf71c249abd60f2d2f6878ae436d4bab00aacbd:
+
+  Fix compile on CentOS/RHEL5 (2014-03-05 15:49:54 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to b24f59ab5ac96a67a016dc921687b0feae9bbf94:
+
+  Detect Windows operating system in ./configure (2014-03-06 14:31:57 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Fio 2.1.6.1
+
+Stefan Hajnoczi (2):
+      Honor ./configure --cc= option
+      Detect Windows operating system in ./configure
+
+ FIO-VERSION-GEN        |    2 +-
+ configure              |    8 +++++---
+ os/windows/install.wxs |    2 +-
+ 3 files changed, 7 insertions(+), 5 deletions(-)
+
 ---
-[global]
-ioengine=psync
-direct=1
-sync=1
 
-[randrwrite]
-filename=/tmp/test.dat
-lockfile=exclusive
-filesize=1m
-;
-thread=1
-numjobs=4
-runtime=10
-time_based=1
-;
-rw=randwrite
-bs=4k
----
+Diff of recent changes:
 
-runs fine with jobs being processes, and fails as follows with thread=1.
-
-randrwrite: (g=0): rw=randwrite, bs=4K-4K/4K-4K/4K-4K, ioengine=psync, iodepth=1
-...
-fio-2.1.6.1-23-g9f97
-Starting 4 threads
-fio: pid=10455, err=9/file:engines/sync.c:67, func=xfer, error=Bad
-file descriptor]
-fio: pid=10453, err=9/file:engines/sync.c:67, func=xfer, error=Bad
-file descriptor
-fio: pid=10454, err=9/file:engines/sync.c:67, func=xfer, error=Bad
-file descriptor
-Jobs: 1 (f=1): [wXXX] [100.0% done] [0KB/2372KB/0KB /s] [0/593/0 iops]
-[eta 00m:00s]
-randrwrite: (groupid=0, jobs=1): err= 0: pid=10452: Mon Mar 31 18:05:26 2014
-  write: io=14900KB, bw=1489.9KB/s, iops=372, runt= 10001msec
-    clat (usec): min=419, max=260739, avg=1546.00, stdev=4329.54
-     lat (usec): min=424, max=260744, avg=1551.95, stdev=4329.58
-    clat percentiles (usec):
-     |  1.00th=[  588],  5.00th=[  732], 10.00th=[  780], 20.00th=[  828],
-     | 30.00th=[  876], 40.00th=[  956], 50.00th=[ 1080], 60.00th=[ 1432],
-     | 70.00th=[ 2064], 80.00th=[ 2256], 90.00th=[ 2480], 95.00th=[ 2736],
-     | 99.00th=[ 3344], 99.50th=[ 3632], 99.90th=[ 4512], 99.95th=[23680],
-     | 99.99th=[261120]
-    bw (KB  /s): min=    5, max= 1099, per=22.09%, avg=519.90, stdev=359.34
-    lat (usec) : 500=0.19%, 750=6.42%, 1000=37.61%
-    lat (msec) : 2=23.68%, 4=31.81%, 10=0.24%, 50=0.03%, 500=0.03%
-  cpu          : usr=0.76%, sys=8.08%, ctx=8191, majf=0, minf=5
-  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued    : total=r=0/w=3725/d=0, short=r=0/w=0/d=0
-     latency   : target=0, window=0, percentile=100.00%, depth=1
-randrwrite: (groupid=0, jobs=1): err= 9 (file:engines/sync.c:67,
-func=xfer, error=Bad file descriptor): pid=10453: Mon Mar 31 18:05:26
-2014
-  write: io=3072.0KB, bw=581465B/s, iops=142, runt=  5410msec
-    clat (usec): min=587, max=33827, avg=1817.50, stdev=2464.14
-     lat (usec): min=593, max=33837, avg=1823.85, stdev=2464.47
-    clat percentiles (usec):
-     |  1.00th=[  804],  5.00th=[  876], 10.00th=[  932], 20.00th=[  988],
-     | 30.00th=[ 1048], 40.00th=[ 1096], 50.00th=[ 1208], 60.00th=[ 2024],
-     | 70.00th=[ 2224], 80.00th=[ 2352], 90.00th=[ 2576], 95.00th=[ 2896],
-     | 99.00th=[ 4080], 99.50th=[32640], 99.90th=[34048], 99.95th=[34048],
-     | 99.99th=[34048]
-    bw (KB  /s): min=  165, max= 1266, per=25.28%, avg=595.00, stdev=450.04
-    lat (usec) : 750=0.39%, 1000=22.76%
-    lat (msec) : 2=36.67%, 4=38.88%, 10=0.52%, 20=0.13%, 50=0.52%
-  cpu          : usr=0.15%, sys=5.69%, ctx=2288, majf=0, minf=0
-  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.1%, 4=99.9%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued    : total=r=0/w=769/d=0, short=r=0/w=0/d=0
-     latency   : target=0, window=0, percentile=100.00%, depth=1
-randrwrite: (groupid=0, jobs=1): err= 9 (file:engines/sync.c:67,
-func=xfer, error=Bad file descriptor): pid=10454: Mon Mar 31 18:05:26
-2014
-  write: io=2528.0KB, bw=478497B/s, iops=117, runt=  5410msec
-    clat (usec): min=299, max=33920, avg=2106.79, stdev=3775.38
-     lat (usec): min=303, max=33930, avg=2113.60, stdev=3775.68
-    clat percentiles (usec):
-     |  1.00th=[  564],  5.00th=[  820], 10.00th=[  932], 20.00th=[  996],
-     | 30.00th=[ 1064], 40.00th=[ 1160], 50.00th=[ 1256], 60.00th=[ 1976],
-     | 70.00th=[ 2224], 80.00th=[ 2384], 90.00th=[ 2672], 95.00th=[ 3056],
-     | 99.00th=[33024], 99.50th=[33024], 99.90th=[34048], 99.95th=[34048],
-     | 99.99th=[34048]
-    bw (KB  /s): min=   46, max=  728, per=18.61%, avg=438.17, stdev=265.37
-    lat (usec) : 500=0.16%, 750=3.63%, 1000=16.59%
-    lat (msec) : 2=39.81%, 4=37.28%, 10=0.63%, 20=0.32%, 50=1.42%
-  cpu          : usr=0.30%, sys=5.03%, ctx=2048, majf=0, minf=2
-  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.2%, 4=99.8%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued    : total=r=0/w=633/d=0, short=r=0/w=0/d=0
-     latency   : target=0, window=0, percentile=100.00%, depth=1
-randrwrite: (groupid=0, jobs=1): err= 9 (file:engines/sync.c:67,
-func=xfer, error=Bad file descriptor): pid=10455: Mon Mar 31 18:05:26
-2014
-  write: io=3052.0KB, bw=583286B/s, iops=142, runt=  5358msec
-    clat (usec): min=541, max=24712, avg=1707.90, stdev=1533.18
-     lat (usec): min=547, max=24743, avg=1714.89, stdev=1533.64
-    clat percentiles (usec):
-     |  1.00th=[  796],  5.00th=[  876], 10.00th=[  908], 20.00th=[  980],
-     | 30.00th=[ 1048], 40.00th=[ 1128], 50.00th=[ 1240], 60.00th=[ 1736],
-     | 70.00th=[ 2224], 80.00th=[ 2384], 90.00th=[ 2640], 95.00th=[ 2896],
-     | 99.00th=[ 3280], 99.50th=[ 4640], 99.90th=[24704], 99.95th=[24704],
-     | 99.99th=[24704]
-    bw (KB  /s): min=  204, max= 1009, per=20.39%, avg=480.00, stdev=283.93
-    lat (usec) : 750=0.65%, 1000=22.12%
-    lat (msec) : 2=38.35%, 4=38.09%, 10=0.26%, 50=0.39%
-  cpu          : usr=0.37%, sys=5.45%, ctx=2261, majf=0, minf=5
-  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.1%, 4=99.9%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued    : total=r=0/w=764/d=0, short=r=0/w=0/d=0
-     latency   : target=0, window=0, percentile=100.00%, depth=1
-
-Run status group 0 (all jobs):
-  WRITE: io=23552KB, aggrb=2354KB/s, minb=467KB/s, maxb=1489KB/s,
-mint=5358msec, maxt=10001msec
-
-Disk stats (read/write):
-  sda: ios=0/13818, merge=0/2227, ticks=0/7428, in_queue=7260, util=72.37%
-
-Is file sharing with non-trivial lockfile= setting is expected to work
-with threads=1, or is it an unanticipated use case?
-
-Regards,
-Andrey
-
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index 8953d10..4122933 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-2.1.6
++DEF_VER=fio-2.1.6.1
+ 
+ LF='
+ '
+diff --git a/configure b/configure
+index 4a8d352..63aa02d 100755
+--- a/configure
++++ b/configure
+@@ -130,9 +130,6 @@ output_sym() {
+ targetos=""
+ cpu=""
+ 
+-cross_prefix=${cross_prefix-${CROSS_COMPILE}}
+-cc="${CC-${cross_prefix}gcc}"
+-
+ # default options
+ show_help="no"
+ exit_val=0
+@@ -175,6 +172,9 @@ if test "$show_help" = "yes" ; then
+   exit $exit_val
+ fi
+ 
++cross_prefix=${cross_prefix-${CROSS_COMPILE}}
++cc="${CC-${cross_prefix}gcc}"
++
+ if check_define __ANDROID__ ; then
+   targetos="Android"
+ elif check_define __linux__ ; then
+@@ -184,6 +184,8 @@ elif check_define __OpenBSD__ ; then
+ elif check_define __sun__ ; then
+   targetos='SunOS'
+   CFLAGS="$CFLAGS -D_REENTRANT"
++elif check_define _WIN32 ; then
++  targetos='CYGWIN'
+ else
+   targetos=`uname -s`
+ fi
+diff --git a/os/windows/install.wxs b/os/windows/install.wxs
+index 694d422..df5707f 100755
+--- a/os/windows/install.wxs
++++ b/os/windows/install.wxs
+@@ -10,7 +10,7 @@
+ 	<Product Id="*"
+ 	  Codepage="1252" Language="1033"
+ 	  Manufacturer="fio" Name="fio"
+-	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.1.6">
++	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.1.6.1">
+ 		<Package
+ 		  Description="Flexible IO Tester"
+ 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
