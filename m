@@ -1,43 +1,56 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from g4t3425.houston.hp.com ([15.201.208.53]:37023 "EHLO
-	g4t3425.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752546AbaCJVM6 convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 10 Mar 2014 17:12:58 -0400
-Received: from G9W0364.americas.hpqcorp.net (g9w0364.houston.hp.com [16.216.193.45])
-	(using TLSv1 with cipher AES128-SHA (128/128 bits))
-	(No client certificate requested)
-	by g4t3425.houston.hp.com (Postfix) with ESMTPS id 1EAB01C6
-	for <fio@vger.kernel.org>; Mon, 10 Mar 2014 21:12:58 +0000 (UTC)
-From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
-Subject: number_ios is checked on completion, not submission
-Date: Mon, 10 Mar 2014 21:12:03 +0000
-Message-ID: <94D0CD8314A33A4D9D801C0FE68B4029548C76CF@G4W3202.americas.hpqcorp.net>
+Return-Path: <BCran@fusionio.com>
+From: Bruce Cran <BCran@fusionio.com>
+Subject: RE: ioengine=sync issue on Windows
+Date: Wed, 12 Mar 2014 19:44:21 +0000
+Message-ID: <2b1a7177596f4a7e944ef1f91860f6e2@BLUPR04MB467.namprd04.prod.outlook.com>
+References: <8a71414766f34cfe98805c5dd2e94d2e@DB4PR03MB572.eurprd03.prod.outlook.com>
+ <53208C60.8090708@kernel.dk>
+ <07a59dd29eae446f83d85387bff2a130@BLUPR04MB467.namprd04.prod.outlook.com>
+ <5320B15F.1060401@kernel.dk>
+ <bd155da4787d49eb88221a9cc7f4612a@BLUPR04MB467.namprd04.prod.outlook.com>
+ <5320B5E6.7010902@kernel.dk>
+ <749c722481744d36883cdd77210a41be@BLUPR04MB467.namprd04.prod.outlook.com>
+ <5320B7BC.3090801@kernel.dk> <5320B85C.7070806@kernel.dk>
+In-Reply-To: <5320B85C.7070806@kernel.dk>
 Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Jens Axboe <axboe@kernel.dk>, =?iso-8859-1?Q?S=E9bastien_Bouchex_Bellomi=E9?= <sbouchex@infovista.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Since number_ios is checked in io_u.c account_io_completion() rather than a submission function, fio actually runs the requested number of I/Os plus iodepth - 1.
+Perfect - thanks!
 
-Example: for a job specifying:
-number_ios=5000
-iodepth=128
+--=20
+Bruce
 
-the results are:
-  read : io=20000KB, bw=222222KB/s, iops=56966, runt=    90msec
-  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.2%, 16=0.3%, 32=0.6%, >=64=98.8%
-     issued    : total=r=5127/w=0/d=0, short=r=0/w=0/d=0
+-----Original Message-----
+From: Jens Axboe [mailto:axboe@kernel.dk]=20
+Sent: Wednesday, March 12, 2014 1:41 PM
+To: Bruce Cran; S=E9bastien Bouchex Bellomi=E9; fio@vger.kernel.org
+Subject: Re: ioengine=3Dsync issue on Windows
 
-Should that just be documented as such, or should this logic be moved to submission?
-static void account_io_completion(struct thread_data *td, struct io_u *io_u,
-...
-        if (td->o.number_ios && !--td->o.number_ios)
-                td->done = 1;
+On 03/12/2014 01:38 PM, Jens Axboe wrote:
+> On 03/12/2014 01:36 PM, Bruce Cran wrote:
+>> Oh, I see - that works.   Though the existing code also does with the
+>> removal of
+>  > 'tmp' from FIO_STATUS_FILE - Windows defines both TMP and TEMP=20
+> environment variables.
+>
+> So the getenv() works fine on Windows? If so, I can clean it up some more.
 
----
-Rob Elliott    HP Server Storage
+Queued this up:
 
+http://git.kernel.dk/?p=3Dfio.git;a=3Dcommit;h=3Ddac45f23c3c7d146f7df82047a=
+e7f25abf231ed3
+
+--
+Jens Axboe
+
+
+This e-mail (and any attachments) is confidential and may be privileged.  A=
+ny unauthorized use, copying, disclosure or dissemination of this communica=
+tion is prohibited.  If you are not the intended recipient,  please notify =
+the sender immediately and delete all copies of the message and its attachm=
+ents.
 
