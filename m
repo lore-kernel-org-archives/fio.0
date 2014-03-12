@@ -1,54 +1,30 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from dkim1.fusionio.com ([66.114.96.53]:45431 "EHLO
-	dkim1.fusionio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754337AbaCLSC0 convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 12 Mar 2014 14:02:26 -0400
-Received: from mx1.fusionio.com (unknown [10.101.1.160])
-	by dkim1.fusionio.com (Postfix) with ESMTP id 86C497C06C3
-	for <fio@vger.kernel.org>; Wed, 12 Mar 2014 12:02:25 -0600 (MDT)
+Return-Path: <BCran@fusionio.com>
 From: Bruce Cran <BCran@fusionio.com>
 Subject: RE: ioengine=sync issue on Windows
-Date: Wed, 12 Mar 2014 18:02:22 +0000
-Message-ID: <07a59dd29eae446f83d85387bff2a130@BLUPR04MB467.namprd04.prod.outlook.com>
+Date: Wed, 12 Mar 2014 17:48:53 +0000
+Message-ID: <adaa6c8327de4b3e8a97d7ad69194d79@BLUPR04MB467.namprd04.prod.outlook.com>
 References: <8a71414766f34cfe98805c5dd2e94d2e@DB4PR03MB572.eurprd03.prod.outlook.com>
- <53208C60.8090708@kernel.dk> 
+ <53208C60.8090708@kernel.dk>
+In-Reply-To: <53208C60.8090708@kernel.dk>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
 To: Jens Axboe <axboe@kernel.dk>, =?iso-8859-1?Q?S=E9bastien_Bouchex_Bellomi=E9?= <sbouchex@infovista.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-It turns out this is unrelated, but in stat.c the following change should p=
-robably be made:
-
--#define FIO_STATUS_FILE                "/tmp/fio-dump-status"
-+#define FIO_STATUS_FILE                "fio-dump-status"
+It looks like it's trying to access %TEMP%\tmp for some reason.
 
 --=20
 Bruce
 
 -----Original Message-----
-From: Bruce Cran=20
-Sent: Wednesday, March 12, 2014 11:49 AM
-To: 'Jens Axboe'; S=EF=BF=BDbastien Bouchex Bellomi=EF=BF=BD; fio@vger.kern=
-el.org
-Subject: RE: ioengine=3Dsync issue on Windows
-
-It looks like it's trying to access %TEMP%\tmp for some reason.
-
---
-Bruce
-
------Original Message-----
-From: Jens Axboe [mailto:axboe@kernel.dk]
+From: Jens Axboe [mailto:axboe@kernel.dk]=20
 Sent: Wednesday, March 12, 2014 10:34 AM
-To: S=EF=BF=BDbastien Bouchex Bellomi=EF=BF=BD; fio@vger.kernel.org; Bruce =
-Cran
+To: S=E9bastien Bouchex Bellomi=E9; fio@vger.kernel.org; Bruce Cran
 Subject: Re: ioengine=3Dsync issue on Windows
 
-On 03/12/2014 09:41 AM, S=EF=BF=BDbastien Bouchex Bellomi=EF=BF=BD wrote:
+On 03/12/2014 09:41 AM, S=E9bastien Bouchex Bellomi=E9 wrote:
 > Hi,
 >
 > The "sync" engine does not seem to work correctly on Windows :
@@ -102,3 +78,4 @@ ny unauthorized use, copying, disclosure or dissemination of this communica=
 tion is prohibited.  If you are not the intended recipient,  please notify =
 the sender immediately and delete all copies of the message and its attachm=
 ents.
+
