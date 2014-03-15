@@ -1,47 +1,49 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ve0-f173.google.com ([209.85.128.173]:58220 "EHLO
-	mail-ve0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750842AbaCPMML (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 16 Mar 2014 08:12:11 -0400
-Received: by mail-ve0-f173.google.com with SMTP id oy12so4678597veb.32
-        for <fio@vger.kernel.org>; Sun, 16 Mar 2014 05:12:10 -0700 (PDT)
+Received: from sm02.isp.telecom.li ([217.173.238.131]:33197 "EHLO
+	sm02.isp.telecom.li" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752483AbaCOLWi (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 15 Mar 2014 07:22:38 -0400
+Received: from [80.248.201.43] (helo=[192.168.1.35])
+	by sm01.isp.telecom.li with esmtpsa (TLSv1:AES128-SHA:128)
+	(Exim 4.77)
+	(envelope-from <jvogt@adon.li>)
+	id 1WOmUD-0000uI-6L
+	for fio@vger.kernel.org; Sat, 15 Mar 2014 12:10:42 +0100
+Message-ID: <53243539.5010405@adon.li>
+Date: Sat, 15 Mar 2014 12:10:49 +0100
+From: jvogt <jvogt@adon.li>
 MIME-Version: 1.0
-In-Reply-To: <53243539.5010405@adon.li>
-References: <53243539.5010405@adon.li>
-Date: Sun, 16 Mar 2014 20:12:10 +0800
-Message-ID: <CACVXFVNbNpwH44DHfN+BU2a7KvF=Ah7As3+UwKHB8eGOX6b7ug@mail.gmail.com>
-Subject: Re: correct file size to use
-From: Ming Lei <tom.leiming@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: correct file size to use
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: jvogt <jvogt@adon.li>
-Cc: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On Sat, Mar 15, 2014 at 7:10 PM, jvogt <jvogt@adon.li> wrote:
-> Hi list
->
-> I was wondering:
-> When i start
-> fio --name=/srv/mail/test --size=10M --direct=1 --runtime=60 --time_based
-> --group_reporting --refill_buffer --rw=read --numjobs=1
->
-> I get as result:
-> read : io=1177.4MB, bw=20093KB/s, iops=5023, runt= 60000msec
+Hi list
 
-From fio/HOWTO:
+I was wondering:
+When i start
+fio --name=/srv/mail/test --size=10M --direct=1 --runtime=60 
+--time_based --group_reporting --refill_buffer --rw=read --numjobs=1
 
-time_based  If set, fio will run for the duration of the runtime
-        specified even if the file(s) are completely read or
-        written. It will simply loop over the same workload
-        as many times as the runtime allows.
+I get as result:
+read : io=1177.4MB, bw=20093KB/s, iops=5023, runt= 60000msec
 
-The same 10M file will be read many times(118), so most
-of times it is read from page cache instead of the file, and
-the result can't be accurate enough.
+But when I do a
+fio --name=/srv/mail/test --size=10G --direct=1 --runtime=60 
+--time_based --group_reporting --refill_buffer --rw=read --numjobs=1
 
+The result is:
+read : io=976692KB, bw=16278KB/s, iops=4069, runt= 60001msec
+(decrease of 20%, in some scenarios it's even worse with more than 30%)
 
+So how does the file size influence the speed (iops, bandwith)? My 
+understanding was that it is not important from which filesize we are 
+reading from - important is the block size and if the filesize is not 
+big enough, fio just restarts to read the file from the beginning. How 
+can that be explained? And which sizes should be used to get reliable 
+results?
 
-Thanks,
--- 
-Ming Lei
+Thanks
+Josef
