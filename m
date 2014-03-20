@@ -1,40 +1,32 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:17453 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751648AbaCFRmi (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 6 Mar 2014 12:42:38 -0500
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: [PATCH 2/2] Detect Windows operating system in ./configure
-Date: Thu,  6 Mar 2014 18:41:59 +0100
-Message-Id: <1394127719-3105-3-git-send-email-stefanha@redhat.com>
-In-Reply-To: <1394127719-3105-1-git-send-email-stefanha@redhat.com>
-References: <1394127719-3105-1-git-send-email-stefanha@redhat.com>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:34778 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933009AbaCTSAE (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 20 Mar 2014 14:00:04 -0400
+Received: by mail-pa0-f46.google.com with SMTP id kp14so1283950pab.33
+        for <fio@vger.kernel.org>; Thu, 20 Mar 2014 11:00:02 -0700 (PDT)
+Received: from cayuga.dssd.com (50-76-39-249-ip-static.hfc.comcastbusiness.net. [50.76.39.249])
+        by mx.google.com with ESMTPSA id yj1sm13318737pab.30.2014.03.20.10.59.57
+        for <fio@vger.kernel.org>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 20 Mar 2014 11:00:01 -0700 (PDT)
+From: castor.fu@egocast.org
+Subject: Re: unlink
+Date: Thu, 20 Mar 2014 10:59:28 -0700
+Message-Id: <1395338370-89038-1-git-send-email-castor.fu@egocast.org>
+In-Reply-To: <c1160a632c8b42e28487bf5902346d7e@DB4PR03MB572.eurprd03.prod.outlook.com>
+References: <c1160a632c8b42e28487bf5902346d7e@DB4PR03MB572.eurprd03.prod.outlook.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: axboe@fb.com
 
-We should not rely on `uname -s` if we ever want cross-compiling to
-work, so detect _WIN32.
+I think it makes sense to include 'unlink' in the ioengine API.
 
-Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
----
- configure | 2 ++
- 1 file changed, 2 insertions(+)
+The Unix semantics of being able to unlink open files goes back a long ways,
+but for those environments which don't match it, the following patch gives
+an opportunity to handle things differently.
 
-diff --git a/configure b/configure
-index 7b1d79a..63aa02d 100755
---- a/configure
-+++ b/configure
-@@ -184,6 +184,8 @@ elif check_define __OpenBSD__ ; then
- elif check_define __sun__ ; then
-   targetos='SunOS'
-   CFLAGS="$CFLAGS -D_REENTRANT"
-+elif check_define _WIN32 ; then
-+  targetos='CYGWIN'
- else
-   targetos=`uname -s`
- fi
--- 
-1.8.5.3
+I also have a patch for some stylistic issues...
+
+-castor
 
