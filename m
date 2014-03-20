@@ -1,55 +1,52 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:51691 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751417AbaC2MAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 29 Mar 2014 08:00:05 -0400
-Received: from kernel.dk ([54.225.238.116] helo=strynoevaenget.dk)
-	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1WTrvg-0006Yh-8w
-	for fio@vger.kernel.org; Sat, 29 Mar 2014 12:00:04 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <532AFB4A.7000707@kernel.dk>
+Date: Thu, 20 Mar 2014 08:29:30 -0600
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20140329120003.72E9740099@strynoevaenget.dk>
-Date: Sat, 29 Mar 2014 06:00:03 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: unlink=1 issue on Windows
+References: <c1160a632c8b42e28487bf5902346d7e@DB4PR03MB572.eurprd03.prod.outlook.com>
+In-Reply-To: <c1160a632c8b42e28487bf5902346d7e@DB4PR03MB572.eurprd03.prod.outlook.com>
+Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+To: =?ISO-8859-1?Q?S=E9bastien_Bouchex_Bellomi=E9?= <sbouchex@infovista.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 43cdea1d0d62fe57c0b1017c55b4700cd95f63b0:
+On 03/19/2014 10:02 AM, S=EF=BF=BDbastien Bouchex Bellomi=EF=BF=BD wrote:
+> Hi,
+>
+> I'm having an issue on windows : unlink=3D1 is not working (temp file are=
+ still there) and it's working fine on unix
+>
+> Looking at the code in close_and_free_files function :
+>
+> [...]
+> if (td->o.unlink && f->filetype =3D=3D FIO_TYPE_FILE) {
+> 			dprint(FD_FILE, "free unlink %s\n", f->file_name);
+> 			unlink(f->file_name);
+> 		}
+> [...]
+>
+> Unlink() fails because the file is still open : On Solaris, truss shows t=
+he following :
+>
+> [...]
+> write(3, "\0\0\0\0\0 ;80\0\0\0\0\0".., 32768)   =3D 32768
+> unlink("/data/fio/random_rw.0.0")               =3D 0
+> close(3)                                        =3D 0
+> [...]
+>
+> So unlink is called first.
+>
+> I would put this unlinking phase AFTER the remove_file_hash call.
 
-  server: unlink sock file if interrupted early (2014-03-25 15:06:17 -0700)
+Sure, we can move the unlink down a bit, should not matter really. Linux=20
+doesn't care when you call unlink, last close will just really unlink=20
+it. But if other operating systems do care, then I'll just move it.
 
-are available in the git repository at:
+http://git.kernel.dk/?p=3Dfio.git;a=3Dcommit;h=3Db5f4d8baefc6eb3e13235b7d90=
+42b7ffecdb23dd
 
-  git://git.kernel.dk/fio.git master
+--=20
+Jens Axboe
 
-for you to fetch changes up to 9f973d1322fe387bc9b4442a23a912cfbc2203b9:
 
-  Merge branch 'master' of ssh://git.kernel.dk/data/git/fio (2014-03-28 08:09:35 -0600)
-
-----------------------------------------------------------------
-
-Jens Axboe (2):
-      Fix wrong time conversion on --status-interval= command line option
-      Merge branch 'master' of ssh://git.kernel.dk/data/git/fio
-
- init.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/init.c b/init.c
-index 9b0666d..adb9066 100644
---- a/init.c
-+++ b/init.c
-@@ -1938,7 +1938,7 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 		case 'L': {
- 			long long val;
- 
--			if (check_str_time(optarg, &val, 1)) {
-+			if (check_str_time(optarg, &val, 0)) {
- 				log_err("fio: failed parsing time %s\n", optarg);
- 				do_exit++;
- 				exit_val = 1;
