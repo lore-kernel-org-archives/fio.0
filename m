@@ -1,47 +1,81 @@
-Return-Path: <puthik@google.com>
-Return-Path: <puthik@google.com>
-From: Puthikorn Voravootivat <puthik@chromium.org>
-Subject: [PATCH] Fix verify_only option not working properly
-Date: Mon,  3 Mar 2014 15:33:32 -0800
-Message-Id: <1393889612-14391-1-git-send-email-puthik@chromium.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: FIO List <fio@vger.kernel.org>, Gwendal Grignou <gwendal@chromium.org>, Grant Grundler <grundler@chromium.org>, Puthikorn Voravootivat <puthik@chromium.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:38289 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965398AbaCUMAF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 21 Mar 2014 08:00:05 -0400
+Received: from kernel.dk ([54.225.238.116] helo=strynoevaenget.dk)
+	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1WQy7I-0002Q7-8c
+	for fio@vger.kernel.org; Fri, 21 Mar 2014 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20140321120002.CBC07400A9@strynoevaenget.dk>
+Date: Fri, 21 Mar 2014 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-In commit c4b6117, we changed the place to call log_io_piece but
-the new place won't be reached when using verify_only option so
-that when we run with the verify_only option, fio won't verify
-anything at all.
+The following changes since commit b1bebc321e3b831d424dd49626833dd642224bd4:
 
-This patch fix that by also call the log_io_piece in the do_dry_run
-function for the verify_only code path.
+  Prevent file_append=1 with IO engine that can't extend files (2014-03-18 13:30:32 -0600)
 
-Signed-off-by: Puthikorn Voravootivat <puthik@chromium.org>
-Reviewed-by: Gwendal Grignou <gwendal@chromium.org>
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 1417daeb92c44632f2e1e376d736a0f198d7af8d:
+
+  Don't re-create/unlink write file for append workload (2014-03-20 09:33:13 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (2):
+      Unlink after file close
+      Don't re-create/unlink write file for append workload
+
+ filesetup.c |   15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
 ---
-Fix my own patch bug. Didn't catch it that time.
- backend.c | 6 ++++++
- 1 file changed, 6 insertions(+)
 
-diff --git a/backend.c b/backend.c
-index 72d9d6d..992033c 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1196,6 +1196,12 @@ static uint64_t do_dry_run(struct thread_data *td)
- 			td->ts.total_io_u[io_u->ddir]++;
- 		}
+Diff of recent changes:
+
+diff --git a/filesetup.c b/filesetup.c
+index c3c0fc4..5ce0f68 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -50,10 +50,11 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
+ 	 * does that for operations involving reads, or for writes
+ 	 * where overwrite is set
+ 	 */
+-	if (td_read(td) || (td_write(td) && td->o.overwrite) ||
++	if (td_read(td) ||
++	   (td_write(td) && td->o.overwrite && !td->o.file_append) ||
+ 	    (td_write(td) && td->io_ops->flags & FIO_NOEXTEND))
+ 		new_layout = 1;
+-	if (td_write(td) && !td->o.overwrite)
++	if (td_write(td) && !td->o.overwrite && !td->o.file_append)
+ 		unlink_file = 1;
  
-+		if (td_write(td) && io_u->ddir == DDIR_WRITE &&
-+		    td->o.do_verify &&
-+		    td->o.verify != VERIFY_NONE &&
-+		    !td->o.experimental_verify)
-+			log_io_piece(td, io_u);
+ 	if (unlink_file || new_layout) {
+@@ -1057,16 +1058,16 @@ void close_and_free_files(struct thread_data *td)
+ 	dprint(FD_FILE, "close files\n");
+ 
+ 	for_each_file(td, f, i) {
+-		if (td->o.unlink && f->filetype == FIO_TYPE_FILE) {
+-			dprint(FD_FILE, "free unlink %s\n", f->file_name);
+-			unlink(f->file_name);
+-		}
+-
+ 		if (fio_file_open(f))
+ 			td_io_close_file(td, f);
+ 
+ 		remove_file_hash(f);
+ 
++		if (td->o.unlink && f->filetype == FIO_TYPE_FILE) {
++			dprint(FD_FILE, "free unlink %s\n", f->file_name);
++			unlink(f->file_name);
++		}
 +
- 		ret = io_u_sync_complete(td, io_u, bytes_done);
- 		(void) ret;
- 	}
--- 
-1.9.0.279.gdc9e3eb
-
-
+ 		sfree(f->file_name);
+ 		f->file_name = NULL;
+ 		axmap_free(f->io_axmap);
