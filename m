@@ -1,211 +1,135 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:32975 "EHLO
+Received: from merlin.infradead.org ([205.233.59.134]:58485 "EHLO
 	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753934AbaCOMAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 15 Mar 2014 08:00:05 -0400
+	with ESMTP id S1750878AbaCVMAF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 22 Mar 2014 08:00:05 -0400
 Received: from kernel.dk ([54.225.238.116] helo=strynoevaenget.dk)
 	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1WOnG0-00040U-Ln
-	for fio@vger.kernel.org; Sat, 15 Mar 2014 12:00:04 +0000
+	id 1WRKaq-0007lY-BO
+	for fio@vger.kernel.org; Sat, 22 Mar 2014 12:00:04 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20140315120003.C222E400D9@strynoevaenget.dk>
-Date: Sat, 15 Mar 2014 06:00:03 -0600 (MDT)
+Message-Id: <20140322120003.70AB9400B4@strynoevaenget.dk>
+Date: Sat, 22 Mar 2014 06:00:03 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit dac45f23c3c7d146f7df82047ae7f25abf231ed3:
+The following changes since commit 1417daeb92c44632f2e1e376d736a0f198d7af8d:
 
-  stat: fixup fio-dump-status file location (2014-03-12 13:40:09 -0600)
+  Don't re-create/unlink write file for append workload (2014-03-20 09:33:13 -0600)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 7750aac43ee4e0c001860426e6fdaf22d9ddfc76:
+for you to fetch changes up to 190b8f0c9c1c1a99ed26fd953f7af9023f9533ee:
 
-  Update documentation on zero_buffers / scramble_buffers (2014-03-14 19:41:07 -0600)
+  Pass -Wstrict-prototypes -Wold-style-definition, whitespace (2014-03-21 09:28:08 -0600)
 
 ----------------------------------------------------------------
-Jens Axboe (4):
-      Disable status file updates on error
-      Bump length of description field to 256 chars
-      Don't scramble buffers if compression is enabled
-      Update documentation on zero_buffers / scramble_buffers
+Castor Fu (1):
+      Pass -Wstrict-prototypes -Wold-style-definition, whitespace
 
- HOWTO    |    2 ++
- fio.1    |    2 ++
- init.c   |   13 ++++++++++++-
- server.c |    6 +++---
- server.h |    2 +-
- stat.c   |   18 ++++++++++++++----
- stat.h   |    3 ++-
- 7 files changed, 36 insertions(+), 10 deletions(-)
+ crc/xxhash.c |   14 +++++++-------
+ crc/xxhash.h |    2 +-
+ filesetup.c  |    9 ++++++---
+ 3 files changed, 14 insertions(+), 11 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/HOWTO b/HOWTO
-index 725214f..0f9c0fc 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -519,6 +519,8 @@ bs_is_seq_rand	If this option is set, fio will use the normal read,write
+diff --git a/crc/xxhash.c b/crc/xxhash.c
+index 5190330..db7890b 100644
+--- a/crc/xxhash.c
++++ b/crc/xxhash.c
+@@ -149,11 +149,11 @@ typedef enum { XXH_bigEndian=0, XXH_littleEndian=1 } XXH_endianess;
+ typedef enum { XXH_aligned, XXH_unaligned } XXH_alignment;
  
- zero_buffers	If this option is given, fio will init the IO buffers to
- 		all zeroes. The default is to fill them with random data.
-+		The resulting IO buffers will not be completely zeroed,
-+		unless scramble_buffers is also turned off.
+ uint32_t XXH_readLE32_align(const uint32_t* ptr, XXH_endianess endian, XXH_alignment align)
+-{ 
++{
+     if (align==XXH_unaligned)
+-        return endian==XXH_littleEndian ? A32(ptr) : XXH_swap32(A32(ptr)); 
++        return endian==XXH_littleEndian ? A32(ptr) : XXH_swap32(A32(ptr));
+     else
+-        return endian==XXH_littleEndian ? *ptr : XXH_swap32(*ptr); 
++        return endian==XXH_littleEndian ? *ptr : XXH_swap32(*ptr);
+ }
  
- refill_buffers	If this option is given, fio will refill the IO buffers
- 		on every submit. The default is to only fill it at init
-diff --git a/fio.1 b/fio.1
-index 2dee56b..20f0c09 100644
---- a/fio.1
-+++ b/fio.1
-@@ -430,6 +430,8 @@ blocksize setting.
- .TP
- .B zero_buffers
- Initialise buffers with all zeros. Default: fill buffers with random data.
-+The resulting IO buffers will not be completely zeroed, unless
-+\fPscramble_buffers\fR is also turned off.
- .TP
- .B refill_buffers
- If this option is given, fio will refill the IO buffers on every submit. The
-diff --git a/init.c b/init.c
-index 73ec9eb..0a872c0 100644
---- a/init.c
-+++ b/init.c
-@@ -856,6 +856,11 @@ int ioengine_load(struct thread_data *td)
+ uint32_t XXH_readLE32(const uint32_t* ptr, XXH_endianess endian) { return XXH_readLE32_align(ptr, endian, XXH_unaligned); }
+@@ -253,15 +253,15 @@ uint32_t XXH32(const void* input, int len, uint32_t seed)
+ // Advanced Hash Functions
+ //****************************
+ 
+-int XXH32_sizeofState() 
++int XXH32_sizeofState(void)
+ {
+     XXH_STATIC_ASSERT(XXH32_SIZEOFSTATE >= sizeof(struct XXH_state32_t));   // A compilation error here means XXH32_SIZEOFSTATE is not large enough
+-    return sizeof(struct XXH_state32_t); 
++    return sizeof(struct XXH_state32_t);
+ }
+ 
+ 
+ XXH_errorcode XXH32_resetState(void* state_in, uint32_t seed)
+-{ 
++{
+     struct XXH_state32_t * state = (struct XXH_state32_t *) state_in;
+     state->seed = seed;
+     state->v1 = seed + PRIME32_1 + PRIME32_2;
+@@ -307,7 +307,7 @@ XXH_errorcode XXH32_update_endian (void* state_in, const void* input, int len, X
+         {
+             const uint32_t* p32 = (const uint32_t*)state->memory;
+             state->v1 += XXH_readLE32(p32, endian) * PRIME32_2; state->v1 = XXH_rotl32(state->v1, 13); state->v1 *= PRIME32_1; p32++;
+-            state->v2 += XXH_readLE32(p32, endian) * PRIME32_2; state->v2 = XXH_rotl32(state->v2, 13); state->v2 *= PRIME32_1; p32++; 
++            state->v2 += XXH_readLE32(p32, endian) * PRIME32_2; state->v2 = XXH_rotl32(state->v2, 13); state->v2 *= PRIME32_1; p32++;
+             state->v3 += XXH_readLE32(p32, endian) * PRIME32_2; state->v3 = XXH_rotl32(state->v3, 13); state->v3 *= PRIME32_1; p32++;
+             state->v4 += XXH_readLE32(p32, endian) * PRIME32_2; state->v4 = XXH_rotl32(state->v4, 13); state->v4 *= PRIME32_1; p32++;
+         }
+diff --git a/crc/xxhash.h b/crc/xxhash.h
+index bcd060e..e80a91d 100644
+--- a/crc/xxhash.h
++++ b/crc/xxhash.h
+@@ -134,7 +134,7 @@ Memory will be freed by XXH32_digest().
+ */
+ 
+ 
+-int           XXH32_sizeofState();
++int           XXH32_sizeofState(void);
+ XXH_errorcode XXH32_resetState(void* state, unsigned int seed);
+ 
+ #define       XXH32_SIZEOFSTATE 48
+diff --git a/filesetup.c b/filesetup.c
+index 5ce0f68..db80a8b 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -1109,7 +1109,8 @@ static void get_file_type(struct fio_file *f)
+ 	}
+ }
+ 
+-static void set_already_allocated(const char *fname) {
++static void set_already_allocated(const char *fname)
++{
+ 	struct file_name *fn;
+ 
+ 	fn = malloc(sizeof(struct file_name));
+@@ -1135,7 +1136,8 @@ static int is_already_allocated(const char *fname)
  	return 0;
  }
  
-+static int compression_enabled(struct thread_options *o)
+-static void free_already_allocated() {
++static void free_already_allocated(void)
 +{
-+	return o->compress_percentage || o->compress_chunk;
-+}
-+
- static void init_flags(struct thread_data *td)
- {
- 	struct thread_options *o = &td->o;
-@@ -868,8 +873,14 @@ static void init_flags(struct thread_data *td)
- 		td->flags |= TD_F_READ_IOLOG;
- 	if (o->refill_buffers)
- 		td->flags |= TD_F_REFILL_BUFFERS;
--	if (o->scramble_buffers)
-+
-+	/*
-+	 * Don't scramble buffers if we set any of the compression
-+	 * settings
-+	 */
-+	if (o->scramble_buffers && !compression_enabled(o))
- 		td->flags |= TD_F_SCRAMBLE_BUFFERS;
-+
- 	if (o->verify != VERIFY_NONE)
- 		td->flags |= TD_F_VER_NONE;
- }
-diff --git a/server.c b/server.c
-index dc70616..2f12162 100644
---- a/server.c
-+++ b/server.c
-@@ -987,9 +987,9 @@ void fio_server_send_ts(struct thread_stat *ts, struct group_run_stats *rs)
+ 	struct flist_head *entry, *tmp;
+ 	struct file_name *fn;
  
- 	memset(&p, 0, sizeof(p));
- 
--	strcpy(p.ts.name, ts->name);
--	strcpy(p.ts.verror, ts->verror);
--	strcpy(p.ts.description, ts->description);
-+	strncpy(p.ts.name, ts->name, FIO_JOBNAME_SIZE - 1);
-+	strncpy(p.ts.verror, ts->verror, FIO_VERROR_SIZE - 1);
-+	strncpy(p.ts.description, ts->description, FIO_JOBDESC_SIZE - 1);
- 
- 	p.ts.error		= cpu_to_le32(ts->error);
- 	p.ts.thread_number	= cpu_to_le32(ts->thread_number);
-diff --git a/server.h b/server.h
-index 8f79c14..3a279f0 100644
---- a/server.h
-+++ b/server.h
-@@ -38,7 +38,7 @@ struct fio_net_cmd_reply {
- };
- 
- enum {
--	FIO_SERVER_VER			= 32,
-+	FIO_SERVER_VER			= 33,
- 
- 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
- 
-diff --git a/stat.c b/stat.c
-index f018f33..f84ce53 100644
---- a/stat.c
-+++ b/stat.c
-@@ -1232,12 +1232,12 @@ static void __show_run_stats(void)
- 			/*
- 			 * These are per-group shared already
- 			 */
--			strncpy(ts->name, td->o.name, FIO_JOBNAME_SIZE);
-+			strncpy(ts->name, td->o.name, FIO_JOBNAME_SIZE - 1);
- 			if (td->o.description)
- 				strncpy(ts->description, td->o.description,
--						FIO_JOBNAME_SIZE);
-+						FIO_JOBDESC_SIZE - 1);
- 			else
--				memset(ts->description, 0, FIO_JOBNAME_SIZE);
-+				memset(ts->description, 0, FIO_JOBDESC_SIZE);
- 
- 			/*
- 			 * If multiple entries in this group, this is
-@@ -1479,6 +1479,7 @@ void show_running_run_stats(void)
- 
- static int status_interval_init;
- static struct timeval status_time;
-+static int status_file_disabled;
- 
- #define FIO_STATUS_FILE		"fio-dump-status"
- 
-@@ -1488,6 +1489,9 @@ static int check_status_file(void)
- 	const char *temp_dir;
- 	char fio_status_file_path[PATH_MAX];
- 
-+	if (status_file_disabled)
-+		return 0;
-+
- 	temp_dir = getenv("TMPDIR");
- 	if (temp_dir == NULL)
- 		temp_dir = getenv("TEMP");
-@@ -1499,7 +1503,13 @@ static int check_status_file(void)
- 	if (stat(fio_status_file_path, &sb))
- 		return 0;
- 
--	unlink(fio_status_file_path);
-+	if (unlink(fio_status_file_path) < 0) {
-+		log_err("fio: failed to unlink %s: %s\n", fio_status_file_path,
-+							strerror(errno));
-+		log_err("fio: disabling status file updates\n");
-+		status_file_disabled = 1;
-+	}
-+
- 	return 1;
+@@ -1488,6 +1490,7 @@ int fio_files_done(struct thread_data *td)
  }
  
-diff --git a/stat.h b/stat.h
-index bc4f6da..3f68305 100644
---- a/stat.h
-+++ b/stat.h
-@@ -114,6 +114,7 @@ struct group_run_stats {
- 
- #define MAX_PATTERN_SIZE	512
- #define FIO_JOBNAME_SIZE	128
-+#define FIO_JOBDESC_SIZE	256
- #define FIO_VERROR_SIZE		128
- 
- struct thread_stat {
-@@ -123,7 +124,7 @@ struct thread_stat {
- 	uint32_t thread_number;
- 	uint32_t groupid;
- 	uint32_t pid;
--	char description[FIO_JOBNAME_SIZE];
-+	char description[FIO_JOBDESC_SIZE];
- 	uint32_t members;
- 	uint32_t unified_rw_rep;
- 
+ /* free memory used in initialization phase only */
+-void filesetup_mem_free() {
++void filesetup_mem_free(void)
++{
+ 	free_already_allocated();
+ }
