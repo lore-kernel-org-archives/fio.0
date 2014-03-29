@@ -1,123 +1,55 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pb0-f68.google.com ([209.85.160.68]:33230 "EHLO
-	mail-pb0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933251AbaCTSAh (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 20 Mar 2014 14:00:37 -0400
-Received: by mail-pb0-f68.google.com with SMTP id jt11so510194pbb.7
-        for <fio@vger.kernel.org>; Thu, 20 Mar 2014 11:00:37 -0700 (PDT)
-From: castor.fu@egocast.org
-Subject: [PATCH 1/2] Pass -Wstrict-prototypes -Wold-style-definition, whitespace
-Date: Thu, 20 Mar 2014 10:59:29 -0700
-Message-Id: <1395338370-89038-2-git-send-email-castor.fu@egocast.org>
-In-Reply-To: <1395338370-89038-1-git-send-email-castor.fu@egocast.org>
-References: <c1160a632c8b42e28487bf5902346d7e@DB4PR03MB572.eurprd03.prod.outlook.com>
- <1395338370-89038-1-git-send-email-castor.fu@egocast.org>
+Received: from merlin.infradead.org ([205.233.59.134]:51691 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751417AbaC2MAF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 29 Mar 2014 08:00:05 -0400
+Received: from kernel.dk ([54.225.238.116] helo=strynoevaenget.dk)
+	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1WTrvg-0006Yh-8w
+	for fio@vger.kernel.org; Sat, 29 Mar 2014 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20140329120003.72E9740099@strynoevaenget.dk>
+Date: Sat, 29 Mar 2014 06:00:03 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: Castor Fu <castor@alumni.caltech.edu>
 
-From: Castor Fu <castor@alumni.caltech.edu>
+The following changes since commit 43cdea1d0d62fe57c0b1017c55b4700cd95f63b0:
+
+  server: unlink sock file if interrupted early (2014-03-25 15:06:17 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 9f973d1322fe387bc9b4442a23a912cfbc2203b9:
+
+  Merge branch 'master' of ssh://git.kernel.dk/data/git/fio (2014-03-28 08:09:35 -0600)
+
+----------------------------------------------------------------
+
+Jens Axboe (2):
+      Fix wrong time conversion on --status-interval= command line option
+      Merge branch 'master' of ssh://git.kernel.dk/data/git/fio
+
+ init.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 ---
- crc/xxhash.c | 14 +++++++-------
- crc/xxhash.h |  2 +-
- filesetup.c  |  9 ++++++---
- 3 files changed, 14 insertions(+), 11 deletions(-)
 
-diff --git a/crc/xxhash.c b/crc/xxhash.c
-index 5190330..db7890b 100644
---- a/crc/xxhash.c
-+++ b/crc/xxhash.c
-@@ -149,11 +149,11 @@ typedef enum { XXH_bigEndian=0, XXH_littleEndian=1 } XXH_endianess;
- typedef enum { XXH_aligned, XXH_unaligned } XXH_alignment;
- 
- uint32_t XXH_readLE32_align(const uint32_t* ptr, XXH_endianess endian, XXH_alignment align)
--{ 
-+{
-     if (align==XXH_unaligned)
--        return endian==XXH_littleEndian ? A32(ptr) : XXH_swap32(A32(ptr)); 
-+        return endian==XXH_littleEndian ? A32(ptr) : XXH_swap32(A32(ptr));
-     else
--        return endian==XXH_littleEndian ? *ptr : XXH_swap32(*ptr); 
-+        return endian==XXH_littleEndian ? *ptr : XXH_swap32(*ptr);
- }
- 
- uint32_t XXH_readLE32(const uint32_t* ptr, XXH_endianess endian) { return XXH_readLE32_align(ptr, endian, XXH_unaligned); }
-@@ -253,15 +253,15 @@ uint32_t XXH32(const void* input, int len, uint32_t seed)
- // Advanced Hash Functions
- //****************************
- 
--int XXH32_sizeofState() 
-+int XXH32_sizeofState(void)
- {
-     XXH_STATIC_ASSERT(XXH32_SIZEOFSTATE >= sizeof(struct XXH_state32_t));   // A compilation error here means XXH32_SIZEOFSTATE is not large enough
--    return sizeof(struct XXH_state32_t); 
-+    return sizeof(struct XXH_state32_t);
- }
- 
- 
- XXH_errorcode XXH32_resetState(void* state_in, uint32_t seed)
--{ 
-+{
-     struct XXH_state32_t * state = (struct XXH_state32_t *) state_in;
-     state->seed = seed;
-     state->v1 = seed + PRIME32_1 + PRIME32_2;
-@@ -307,7 +307,7 @@ XXH_errorcode XXH32_update_endian (void* state_in, const void* input, int len, X
-         {
-             const uint32_t* p32 = (const uint32_t*)state->memory;
-             state->v1 += XXH_readLE32(p32, endian) * PRIME32_2; state->v1 = XXH_rotl32(state->v1, 13); state->v1 *= PRIME32_1; p32++;
--            state->v2 += XXH_readLE32(p32, endian) * PRIME32_2; state->v2 = XXH_rotl32(state->v2, 13); state->v2 *= PRIME32_1; p32++; 
-+            state->v2 += XXH_readLE32(p32, endian) * PRIME32_2; state->v2 = XXH_rotl32(state->v2, 13); state->v2 *= PRIME32_1; p32++;
-             state->v3 += XXH_readLE32(p32, endian) * PRIME32_2; state->v3 = XXH_rotl32(state->v3, 13); state->v3 *= PRIME32_1; p32++;
-             state->v4 += XXH_readLE32(p32, endian) * PRIME32_2; state->v4 = XXH_rotl32(state->v4, 13); state->v4 *= PRIME32_1; p32++;
-         }
-diff --git a/crc/xxhash.h b/crc/xxhash.h
-index bcd060e..e80a91d 100644
---- a/crc/xxhash.h
-+++ b/crc/xxhash.h
-@@ -134,7 +134,7 @@ Memory will be freed by XXH32_digest().
- */
- 
- 
--int           XXH32_sizeofState();
-+int           XXH32_sizeofState(void);
- XXH_errorcode XXH32_resetState(void* state, unsigned int seed);
- 
- #define       XXH32_SIZEOFSTATE 48
-diff --git a/filesetup.c b/filesetup.c
-index 4bfa470..033b119 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -1103,7 +1103,8 @@ static void get_file_type(struct fio_file *f)
- 	}
- }
- 
--static void set_already_allocated(const char *fname) {
-+static void set_already_allocated(const char *fname)
-+{
- 	struct file_name *fn;
- 
- 	fn = malloc(sizeof(struct file_name));
-@@ -1129,7 +1130,8 @@ static int is_already_allocated(const char *fname)
- 	return 0;
- }
- 
--static void free_already_allocated() {
-+static void free_already_allocated(void)
-+{
- 	struct flist_head *entry, *tmp;
- 	struct file_name *fn;
- 
-@@ -1482,6 +1484,7 @@ int fio_files_done(struct thread_data *td)
- }
- 
- /* free memory used in initialization phase only */
--void filesetup_mem_free() {
-+void filesetup_mem_free(void)
-+{
- 	free_already_allocated();
- }
--- 
-1.7.11.5
+Diff of recent changes:
 
+diff --git a/init.c b/init.c
+index 9b0666d..adb9066 100644
+--- a/init.c
++++ b/init.c
+@@ -1938,7 +1938,7 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ 		case 'L': {
+ 			long long val;
+ 
+-			if (check_str_time(optarg, &val, 1)) {
++			if (check_str_time(optarg, &val, 0)) {
+ 				log_err("fio: failed parsing time %s\n", optarg);
+ 				do_exit++;
+ 				exit_val = 1;
