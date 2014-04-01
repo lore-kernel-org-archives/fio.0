@@ -1,39 +1,26 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from muon.cran.org.uk ([93.89.92.64]:58939 "EHLO muon.cran.org.uk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751831AbaDKV5T (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 11 Apr 2014 17:57:19 -0400
-Received: from muon.cran.org.uk (localhost [127.0.0.1])
-	by muon.cran.org.uk (Postfix) with ESMTP id 12936E7496
-	for <fio@vger.kernel.org>; Fri, 11 Apr 2014 22:57:18 +0100 (BST)
-Received: from [10.0.10.15] (c-67-177-56-43.hsd1.ut.comcast.net [67.177.56.43])
-	(using TLSv1 with cipher DHE-RSA-AES128-SHA (128/128 bits))
-	(No client certificate requested)
-	by muon.cran.org.uk (Postfix) with ESMTPSA id A9E73E73B0
-	for <fio@vger.kernel.org>; Fri, 11 Apr 2014 22:57:17 +0100 (BST)
-Message-ID: <5348653E.2010909@cran.org.uk>
-Date: Fri, 11 Apr 2014 15:57:18 -0600
-From: Bruce Cran <bruce@cran.org.uk>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <533B0C97.8080007@kernel.dk>
+Date: Tue, 01 Apr 2014 12:59:35 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Subject: No output when insufficient parameters given on the commandline
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Shared files with thread=1: func=xfer, err=Bad file descriptor
+References: <CANvN+ekEmEeFeXZ_b7-51QpetdWx2nwJHwoEsbsiFTOcpYwizw@mail.gmail.com> <533ACDDC.6010002@kernel.dk> <CANvN+emPxK2FmEAsbdruCMR0jDdjE-s6N6wovHtAqowFprJH4g@mail.gmail.com> <533B045B.9070607@kernel.dk> <CANvN+eknc=9Ncooprk6AUqOTvkju_JpYivy7EL5xRXka2qv+6g@mail.gmail.com>
+In-Reply-To: <CANvN+eknc=9Ncooprk6AUqOTvkju_JpYivy7EL5xRXka2qv+6g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-When an incomplete job file is run, fio displays an error - but when 
-insufficient parameters are specified on the commandline, fio just exits 
-with no messages:
+On 04/01/2014 12:56 PM, Andrey Kuzmin wrote:
+> Seems to have fixed it: EBADF does not show up anymore even in a 120s run.
 
- > fio --iodepth 32
- >
-
- > fio --filename test --iodepth 8 --rw randrw --size 4g --thread 
---runtime 120 --time_based
- > echo $?
-0
- >
+Great, it has been committed. The issue was that fio would mistakenly 
+not assign shadow_fd on that one alloc, hence it would think it was fd 0 
+and close it. And when open(2) then (validly) started handing out 
+untracked fd 0, then all hell broke lose.
 
 -- 
-Bruce
+Jens Axboe
+
+
