@@ -1,27 +1,42 @@
-Return-Path: <erwan@enovance.com>
-Message-ID: <533BC63A.1020301@enovance.com>
-Date: Wed, 02 Apr 2014 10:11:38 +0200
-From: Erwan Velu <erwan@enovance.com>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <533B0A40.3050504@kernel.dk>
+Date: Tue, 01 Apr 2014 12:49:36 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
 Subject: Re: Surprising use of basename in finish_log_named
-References: <533AD484.2040608@enovance.com> <533B0A40.3050504@kernel.dk>
-In-Reply-To: <533B0A40.3050504@kernel.dk>
+References: <533AD484.2040608@enovance.com>
+In-Reply-To: <533AD484.2040608@enovance.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+To: Erwan Velu <erwan@enovance.com>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
+On 04/01/2014 09:00 AM, Erwan Velu wrote:
+> Hi Jens,
+>
+> I had a input of the fio irc channel (yes some at getting into it
+> sometimes :p), and he had a very interesting point.
+>
+> If you specify a full path name for the iops_log, the file will stay
+> into the current dir.
+> While looking at the code I found that finish_log_named() is performing
+> the following:
+>
+>      char file_name[256], *p;
+>      snprintf(file_name, sizeof(file_name), "%s_%s.log", prefix, postfix);
+>      p = basename(file_name);
+>
+> Why do we basename the file_name ? What's the reason of shrinking the
+> path this way ?
 
-Le 01/04/2014 20:49, Jens Axboe a =E9crit :
-> I don't think there's a good reason for that. So feel free to send in=20
-> a (tested) patch :-)=20
-Please find my branch ready for master here :=20
-https://github.com/enovance/fio/tree/erwan/nobasename
-> We can make it PATH_MAX instead, not a big deal
-I've been looking at it and fixing it in iolog is pretty easy but I have=20
-some fear that it will not be enough to fix it globally. I mean, there=20
-is many occurences of paths & strings set at 256. So I'll have a look at=20
-a global scale for this issue in another thread.
+I don't think there's a good reason for that. So feel free to send in a 
+(tested) patch :-)
 
-Erwan,
+> Note for the author: 256 is maybe too small for some ? :)))
+
+We can make it PATH_MAX instead, not a big deal.
+
+-- 
+Jens Axboe
+
 
