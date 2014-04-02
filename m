@@ -1,31 +1,40 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-la0-f68.google.com ([209.85.215.68]:64710 "EHLO
-	mail-la0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932080AbaDPOVU (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 16 Apr 2014 10:21:20 -0400
-Received: by mail-la0-f68.google.com with SMTP id pv20so2597856lab.7
-        for <fio@vger.kernel.org>; Wed, 16 Apr 2014 07:21:19 -0700 (PDT)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <533C1DB7.90206@kernel.dk>
+Date: Wed, 02 Apr 2014 08:24:55 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Date: Wed, 16 Apr 2014 10:21:19 -0400
-Message-ID: <CANyhEAtZQdnzCiQj77u+WbGkk1d6yXBnrHE0pKypbX0mDPNeeQ@mail.gmail.com>
-Subject: fio laying out file question
-From: Yuyang Wang <yyalex.wang@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Subject: Re: Curious code in init()
+References: <533BCB67.4050709@enovance.com>
+In-Reply-To: <533BCB67.4050709@enovance.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Erwan Velu <erwan@enovance.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-hi all
+On 2014-04-02 02:33, Erwan Velu wrote:
+> Hey Jens,
+>
+> The following code is pretty confusing for me :
+> http://git.kernel.dk/?p=fio.git;a=blob;f=init.c;h=c3996a76c12840e3ab3cf6514e5d5dce611a1077;hb=HEAD#l1962
+>
+>
+> The "if (nr_clients && fio_clients_connect()) {" is using the do_exit
+> concept while being after the code that manage it and does a return -1
+> while exit code is set to 1.
+>
+> I don't get how it should be fixed.
+> 1- we shall move the if nr_clients before the "if (do_exit", remove the
+> return -1 and adjust the exit_code ?
+> 2- we shall get rid of the do_exit & exit code semantic of the if
+> nr_clients.
+>
+> What was the intent while reading the code ? ;o)
 
-I am using fio (2.1.7) for a simple sequential write test (see command
-below). It seems the process will get stuck on "Laying out IO file" for a
-long long time ...  Of course, smaller size take less time for layout,  I
-am curious as to, is FIO trying to precreate the file before doing write,
-what's going on there?
+It should probably just be turned into an exit(1) or similar exit code. 
+The current code will work to the extent that it will properly exit, 
+however it wont signal the error correctly in the return value.
 
-./fio --rw=write --size=128g --bs=8m --filename=/test/$RANDOM
---ioengine=posixaio --iodepth=16 --name=mytest
+-- 
+Jens Axboe
 
-Thanks
 
-Alex
