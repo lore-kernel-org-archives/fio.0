@@ -1,47 +1,65 @@
-Return-Path: <sendtold@gmail.com>
-MIME-Version: 1.0
-Date: Mon, 14 Apr 2014 17:30:18 -0500
-Message-ID: <CAEyTGCffvRyGUgXaFP8k6X_kF9sDFbw_nP6T-LQS0bsQO8+D9A@mail.gmail.com>
-Subject: ( file:io_u.c:1550, func=io_u error, error=No space left on device)
- when using libaio ioengine
-From: Lakshmi <sendtold@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:48359 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752382AbaDEMAH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 5 Apr 2014 08:00:07 -0400
+Received: from kernel.dk ([54.225.238.116] helo=strynoevaenget.dk)
+	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1WWPGY-0003DO-9t
+	for fio@vger.kernel.org; Sat, 05 Apr 2014 12:00:06 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20140405120003.5C9CD400B1@strynoevaenget.dk>
+Date: Sat,  5 Apr 2014 06:00:03 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Hi Jens,
-  I am trying to run a replay job with ioengine set as libaio. the
-other paratemers are shown below.
-===================================================
-[global]
-#replay_no_stall=1
-ioengine=libaio
-iodepth=60
-direct=0
+The following changes since commit ee2e5717d1df0c37279eb94876777ee43d403e58:
 
-group_reporting=1
+  Fix JSON_INTEGER overflow on Windows by changing datatype to 'long long' (2014-04-03 12:22:35 -0600)
 
-[job1]
-read_iolog=/home/TRACE_REPLAY_1/MarkTrace_Replay_1/pBlock_4kBusy_nanosec_device/file_54657438.bin
-===================================================
-however when i run the Job i keep getting the below error
+are available in the git repository at:
 
-job1: (groupid=0, jobs=90): err=28 (file:io_u.c:1550, func=io_u error,
-error=No space left on device): pid=13103: Mon Apr 14 17:24:36 2014
-  read : io=10288KB, bw=7788.4KB/s, iops=1947, runt=  1321msec
-    slat (usec): min=4, max=3311, avg= 7.03, stdev=65.18
-    clat (usec): min=107, max=28167, avg=4105.30, stdev=2070.77
-     lat (usec): min=114, max=31479, avg=4112.50, stdev=2086.66
-  ........................................
-    bw (KB  /s): min= 7720, max= 7888, per=100.00%, avg=7804.00, stdev=118.79
-  write: io=179568KB, bw=135933KB/s, iops=33868, runt=  1321msec
-    slat (usec): min=3, max=24637, avg=686.05, stdev=1486.47
-    clat (usec): min=14, max=70161, avg=5362.90, stdev=3996.05
-=========================================
+  git://git.kernel.dk/fio.git master
 
-I don't get this when i try with sync or posixaio. Am I missing something here?
-Please let me know what is causing this in libaio engine.
+for you to fetch changes up to 7788b76fe13059aa3610f592e58512cb5f4cdb28:
 
-Thanks,
-Lakshmi
+  Makefile: add doc target to generate PDFs from the man pages (2014-04-04 08:28:17 -0600)
 
+----------------------------------------------------------------
+Jens Axboe (1):
+      Makefile: add doc target to generate PDFs from the man pages
+
+ Makefile |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/Makefile b/Makefile
+index 231b4ab..3c9e0ee 100644
+--- a/Makefile
++++ b/Makefile
+@@ -277,7 +277,7 @@ clean: FORCE
+ 	-rm -f .depend $(FIO_OBJS) $(GFIO_OBJS) $(OBJS) $(T_OBJS) $(PROGS) $(T_PROGS) core.* core gfio FIO-VERSION-FILE *.d config-host.mak config-host.h
+ 
+ distclean: clean FORCE
+-	@rm -f cscope.out
++	@rm -f cscope.out fio.pdf fio_generate_plots.pdf fio2gnuplot.pdf
+ 
+ cscope:
+ 	@cscope -b -R
+@@ -285,6 +285,11 @@ cscope:
+ tools/plot/fio2gnuplot.1:
+ 	@cat tools/plot/fio2gnuplot.manpage | txt2man -t fio2gnuplot >  tools/plot/fio2gnuplot.1
+ 
++doc: tools/plot/fio2gnuplot.1
++	@man -t ./fio.1 | ps2pdf - fio.pdf
++	@man -t tools/fio_generate_plots.1 | ps2pdf - fio_generate_plots.pdf
++	@man -t tools/plot/fio2gnuplot.1 | ps2pdf - fio2gnuplot.pdf
++
+ install: $(PROGS) $(SCRIPTS) tools/plot/fio2gnuplot.1 FORCE
+ 	$(INSTALL) -m 755 -d $(DESTDIR)$(bindir)
+ 	$(INSTALL) $(PROGS) $(SCRIPTS) $(DESTDIR)$(bindir)
