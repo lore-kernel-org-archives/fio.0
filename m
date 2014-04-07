@@ -1,87 +1,137 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from wp188.webpack.hosteurope.de ([80.237.132.195]:50512 "EHLO
-	wp188.webpack.hosteurope.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751983AbaD3JZ7 (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 30 Apr 2014 05:25:59 -0400
-From: Daniel Gollub <d.gollub@telekom.de>
-Subject: fio headers as build dependency for external-ioengines
-Date: Wed, 30 Apr 2014 11:25:03 +0200
-Message-Id: <1398849904-6013-1-git-send-email-d.gollub@telekom.de>
+Received: from merlin.infradead.org ([205.233.59.134]:43604 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754652AbaDGMAD (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 7 Apr 2014 08:00:03 -0400
+Received: from kernel.dk ([54.225.238.116] helo=rt116.dk)
+	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1WX8Db-0004Qp-Cg
+	for fio@vger.kernel.org; Mon, 07 Apr 2014 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20140407120002.E12744012E@rt116.dk>
+Date: Mon,  7 Apr 2014 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: Daniel Gollub <d.gollub@telekom.de>
 
-Hi,
+The following changes since commit 7788b76fe13059aa3610f592e58512cb5f4cdb28:
 
-I am working right now in preparing for the Ceph project an external
-fio ioengine, which depends on Ceph-internal libraries. So I thought
-about building this ioengine as an external ioengine. (Thats why I
-send couple of weeks/month ago this C++-compiler-issues-fixes for
-fio.h)
+  Makefile: add doc target to generate PDFs from the man pages (2014-04-04 08:28:17 -0600)
 
-Since fio is not (yet) distributed with a -dev/-devel package in
-linux distribution and was very likely not yet consider doing so
-I wanted to start the discussion here if this in interested of the
-project "exporting"/"installing" the required fio headers to build
-external ioengines. So fio can be later a "packaged" build-dependency.
+are available in the git repository at:
 
-For time-being I thought about solving this like this:
+  git://git.kernel.dk/fio.git master
 
-One can introduce in the external project's build-env a parameter
-like: --with-fio=~/projects/fio/ and the resulting build-env will
-pass this path as include directory as compiler flags for the
-external ioengine build.
+for you to fetch changes up to bc4f5ef67d26ef98f4822d5f798cb8c4e2d2fce5:
 
-Unfortunately there are some issues with double-declaration and
-one ambiguous header file name (e.g. time.h - see provided patch)
+  Support limited mixed command line options and job file (2014-04-06 10:10:32 -0600)
 
-Double-declaration issues of defines/macros/... I hit while building
-the Ceph filestore external ioengine:
+----------------------------------------------------------------
+Jens Axboe (4):
+      Fix crash in setup_files() if no files are defined
+      Merge branch 'master' of ssh://git.kernel.dk/data/git/fio
+      Fixup --timeout command line option
+      Support limited mixed command line options and job file
 
- * ARRAY_SIZE
- * CONFIG_CPU_COUNT
- * le16_to_cpu
- * le32_to_cpu
- * le64_to_cpu
+ filesetup.c |    2 +-
+ init.c      |   25 ++++++++++++++++++++-----
+ 2 files changed, 21 insertions(+), 6 deletions(-)
 
+---
 
-If you want to reproduce the described issue with ceph,
-checkout following revision:
-https://github.com/gollub/ceph/commit/079c08c67f811c0173e70201dc91168b60d2e86b
-( Working branch: https://github.com/gollub/ceph/tree/fio_filestore_v2 )
+Diff of recent changes:
 
-And run:
-./configure --with-fio-dir=/path/to/fio/
-cd src
-make libfio_ceph_filestore.la
-
-
-This could be solved/workaround on the external ioengine side, as well
-as in the fio header. One possibility on the fio side could be to relax
-fio.h header a bit, so only mandatory declarations and further
-includes are part of it to successfully build an external-ioengine.
-I am happy to help on this if fio decides to go this route.
-
-Thoughts?
-
-Best Regards
-Daniel
-
-
-
-
-Daniel Gollub (1):
-  Rename time.h for third-party include of fio.h
-
- fio.h      |    2 +-
- fio_time.h |   19 +++++++++++++++++++
- mutex.c    |    2 +-
- time.h     |   19 -------------------
- 4 files changed, 21 insertions(+), 21 deletions(-)
- create mode 100644 fio_time.h
- delete mode 100644 time.h
-
--- 
-1.7.10.4
-
+diff --git a/filesetup.c b/filesetup.c
+index fa09219..bf05b6f 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -806,7 +806,7 @@ int setup_files(struct thread_data *td)
+ 	 * Calculate per-file size and potential extra size for the
+ 	 * first files, if needed.
+ 	 */
+-	if (!o->file_size_low) {
++	if (!o->file_size_low && o->nr_files) {
+ 		uint64_t all_fs;
+ 
+ 		fs = o->size / o->nr_files;
+diff --git a/init.c b/init.c
+index 910f2ba..e9e49eb 100644
+--- a/init.c
++++ b/init.c
+@@ -38,7 +38,7 @@ const char fio_version_string[] = FIO_VERSION;
+ static char **ini_file;
+ static int max_jobs = FIO_MAX_JOBS;
+ static int dump_cmdline;
+-static int def_timeout;
++static long long def_timeout;
+ static int parse_only;
+ 
+ static struct thread_data def_thread;
+@@ -318,6 +318,14 @@ static int setup_thread_area(void)
+ 	return 0;
+ }
+ 
++static void set_cmd_options(struct thread_data *td)
++{
++	struct thread_options *o = &td->o;
++
++	if (!o->timeout)
++		o->timeout = def_timeout;
++}
++
+ /*
+  * Return a free job structure.
+  */
+@@ -326,8 +334,10 @@ static struct thread_data *get_new_job(int global, struct thread_data *parent,
+ {
+ 	struct thread_data *td;
+ 
+-	if (global)
++	if (global) {
++		set_cmd_options(&def_thread);
+ 		return &def_thread;
++	}
+ 	if (setup_thread_area()) {
+ 		log_err("error: failed to setup shm segment\n");
+ 		return NULL;
+@@ -357,6 +367,7 @@ static struct thread_data *get_new_job(int global, struct thread_data *parent,
+ 	if (!parent || !parent->o.group_reporting)
+ 		stat_number++;
+ 
++	set_cmd_options(td);
+ 	return td;
+ }
+ 
+@@ -1440,8 +1451,8 @@ static int fill_def_thread(void)
+ 	memset(&def_thread, 0, sizeof(def_thread));
+ 
+ 	fio_getaffinity(getpid(), &def_thread.o.cpumask);
+-	def_thread.o.timeout = def_timeout;
+ 	def_thread.o.error_dump = 1;
++
+ 	/*
+ 	 * fill default options
+ 	 */
+@@ -1695,7 +1706,11 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ 			smalloc_pool_size = atoi(optarg);
+ 			break;
+ 		case 't':
+-			def_timeout = atoi(optarg);
++			if (check_str_time(optarg, &def_timeout, 1)) {
++				log_err("fio: failed parsing time %s\n", optarg);
++				do_exit++;
++				exit_val = 1;
++			}
+ 			break;
+ 		case 'l':
+ 			write_lat_log = 1;
+@@ -2018,7 +2033,7 @@ int parse_options(int argc, char *argv[])
+ 
+ 	if (job_files > 0) {
+ 		for (i = 0; i < job_files; i++) {
+-			if (fill_def_thread())
++			if (i && fill_def_thread())
+ 				return 1;
+ 			if (nr_clients) {
+ 				if (fio_clients_send_ini(ini_file[i]))
