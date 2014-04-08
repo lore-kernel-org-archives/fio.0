@@ -1,43 +1,32 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <53444A86.3030904@kernel.dk>
-Date: Tue, 08 Apr 2014 13:14:14 -0600
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <sendtold@gmail.com>
 MIME-Version: 1.0
-Subject: Re: Qn on setting ioengine on Replay job
-References: <CAEyTGCfDabxuWOXW_UWq76bmVYqNUELk9X3YqcVFe5gtCvOGwg@mail.gmail.com>
-In-Reply-To: <CAEyTGCfDabxuWOXW_UWq76bmVYqNUELk9X3YqcVFe5gtCvOGwg@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Lakshmi <sendtold@gmail.com>, fio@vger.kernel.org
+Date: Tue, 8 Apr 2014 11:39:40 -0500
+Message-ID: <CAEyTGCfDabxuWOXW_UWq76bmVYqNUELk9X3YqcVFe5gtCvOGwg@mail.gmail.com>
+Subject: Qn on setting ioengine on Replay job
+From: Lakshmi <sendtold@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-On 04/08/2014 10:39 AM, Lakshmi wrote:
-> Hi Jens,
->
->    Is it possible to set the ioengine and iodepth on a replay job?
-> Would it have any effect on the replay jobs? I tried setting as below,
-> but didnt see any change. So wanted to make sure if what I am doing is
-> valid.
->
-> [global]
-> replay_no_stall=1
-> ioengine=posixaio
-> buffered=0
-> iodepth=6
->
-> [job1]
-> read_iolog=/home/file_3080658.bin
+Hi Jens,
 
-The ioengine will always work, the iodepth should work as well. blktrace 
-loading doesn't actually set the iodepth, so it should run at depth 1 
-unless you tell it otherwise. That should be fixed up, actually.
+  Is it possible to set the ioengine and iodepth on a replay job?
+Would it have any effect on the replay jobs? I tried setting as below,
+but didnt see any change. So wanted to make sure if what I am doing is
+valid.
 
-That said, you wont see higher depth than the job itself has done. The 
-depth will be naturally limited by the events in that trace. However, if 
-a lower depth is set, then that should be enforced (since fio is forced 
-to wait on IO if it runs out of IO buffers).
+[global]
+replay_no_stall=1
+ioengine=posixaio
+buffered=0
+iodepth=6
 
--- 
-Jens Axboe
+[job1]
+read_iolog=/home/file_3080658.bin
 
+==============================
+Please let me know
+
+Thanks,
+Lakshmi
 
