@@ -1,40 +1,80 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from [213.199.154.80] ([213.199.154.80]:49995 "EHLO
-	emea01-db3-obe.outbound.protection.outlook.com"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751766AbaDCLRT convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Thu, 3 Apr 2014 07:17:19 -0400
-From: =?iso-8859-1?Q?S=E9bastien_Bouchex_Bellomi=E9?= 
-	<sbouchex@infovista.com>
-Subject: fio crash when using an env variable that is not set
-Date: Thu, 3 Apr 2014 11:16:56 +0000
-Message-ID: <d1e49b99b2164d5d825c50e11bb349a9@DB4PR03MB572.eurprd03.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Return-Path: <gdowding@nutanix.com>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <5344B97D.5060506@kernel.dk>
+References: <CAKO35LMpO7_=yGBVpLz7kd2n3YakVWOM8QzV3zWeh4F-_2yYoA@mail.gmail.com>
+	<5344B97D.5060506@kernel.dk>
+Date: Wed, 9 Apr 2014 11:11:07 -0400
+Message-ID: <CAKO35LNGxdvo=8bomTVAZ+FOJY5Gb0wLehCkM7gFrYwpCJo9Ng@mail.gmail.com>
+Subject: Re: bug: fio only uses first file in filename
+From: George Dowding <gdowding@nutanix.com>
+Content-Type: text/plain; charset=ISO-8859-1
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+Thanks,
 
-A crash on solaris & windows (at least) when using fio-2.1.6.1 :
+That is working.
 
-A simple profile that use a env variable : directory=${DIRECTORY}
+On Tue, Apr 8, 2014 at 11:07 PM, Jens Axboe <axboe@kernel.dk> wrote:
+> On 2014-04-08 14:04, George Dowding wrote:
+>>
+>> Hi,
+>>
+>> I've been using this command with fio-2.0.7. When I tried this with
+>> fio-201.7 from git, it would only write to the first file in the
+>> filename list.
+>>
+>> ./fio --filename=/dev/sdb:/dev/sdc:/dev/sdd:/dev/sde:/dev/sdf:/dev/sdg
+>> --direct=1 --rw=randwrite --bs=4k --iodepth=128 --runtime=30
+>> --group_reporting --name=file1 --ioengine=libaio
+>>
+>> Linux perf-bench 3.2.0-23-generic #36-Ubuntu SMP Tue Apr 10 20:39:51
+>> UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
+>>
+>> It looks like this behavior changed as of bcd27f7.
+>>
+>> Adding before and after output. If there is a different way this
+>> should be run. I'm ok with that as I'd like to upgrade to the newer
+>> version.
+>>
+>> fio-68631b36e37.out
+>> Disk stats (read/write):
+>>    sdb: ios=83/67975, merge=0/0, ticks=104/607900, in_queue=608016,
+>> util=99.78%
+>>    sdc: ios=83/67976, merge=0/0, ticks=96/616048, in_queue=616152,
+>> util=99.75%
+>>    sdd: ios=74/67975, merge=0/0, ticks=76/629324, in_queue=629420,
+>> util=99.76%
+>>    sde: ios=57/67975, merge=0/0, ticks=64/609128, in_queue=609196,
+>> util=99.76%
+>>    sdf: ios=44/67975, merge=0/0, ticks=48/625372, in_queue=625424,
+>> util=99.74%
+>>    sdg: ios=29/67975, merge=0/0, ticks=48/597756, in_queue=597828,
+>> util=99.77%
+>>
+>> fio-bcd27f7ae1c.out
+>> Disk stats (read/write):
+>>    sdb: ios=73/151552, merge=0/106, ticks=68/3775036, in_queue=3776548,
+>> util=99.57%
+>>    sdc: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
+>>    sdd: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
+>>    sde: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
+>>    sdf: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
+>>    sdg: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
+>
+>
+> Can you try current -git?
+>
+> --
+> Jens Axboe
+>
 
-I'm starting fio without defining DIRECTORY and I'm getting a crash:
 
-The stack on solaris is :
 
-core 'core' of 4574:    ./fio ../fio_env.win
- 0000000100035348 set_name_idx (ffffffff7fffe970, 100231950, 0, 16c4e8, 0, 1002319b0) + cc
- 0000000100021a70 add_file (ffffffff7b400000, ffffffff7fffee60, 0, 0, 100071c30, ffffffff7fffe970) + 38
- 000000010000daf4 add_job.part.4 (7, 100236050, 0, ffffffff7ffff268, 1, 0) + 11f0
- 000000010000f444 parse_jobs_ini (0, 0, 0, 1, 100236050, 1002276c0) + 77c
- 0000000100010db0 parse_options (5118, ffffffff7ffff968, 1, 0, 0, 10021eef0) + 304
- 000000010006ff68 main (2, ffffffff7ffff968, ffffffff7ffff980, 100228338, 100000000, 2800) + 20
- 000000010000952c _start (0, 0, 0, 0, 0, 0) + 7c
-
-Seb
+-- 
+George Dowding
+Performance Engineer Nutanix
+http://www.nutanix.com/
+(669) 200 6682
 
