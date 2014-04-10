@@ -1,64 +1,31 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from hermes.informatik.uni-rostock.de ([139.30.5.210]:47049 "EHLO
-	hermes.informatik.uni-rostock.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754464AbaDNMta (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 14 Apr 2014 08:49:30 -0400
-Received: from ekas.informatik.uni-rostock.de (ekas.informatik.uni-rostock.de [139.30.1.211])
-	by hermes.informatik.uni-rostock.de (8.14.3+Sun/8.12.4/poprelay-1.0) with ESMTP id s3ECeppq025879
-	for <fio@vger.kernel.org>; Mon, 14 Apr 2014 14:40:52 +0200 (CEST)
-Received: from [139.30.96.67] (nj-desktop.informatik.uni-rostock.de [139.30.96.67])
-	by ekas.informatik.uni-rostock.de (8.14.4+Sun/8.9.1/fin2.2) with ESMTP id s3ECeplc011196
-	for <fio@vger.kernel.org>; Mon, 14 Apr 2014 14:40:51 +0200 (MEST)
-Message-ID: <534BD74E.1080205@informatik.uni-rostock.de>
-Date: Mon, 14 Apr 2014 14:40:46 +0200
-From: Nikolaus Jeremic <jeremic@informatik.uni-rostock.de>
-MIME-Version: 1.0
-Subject: Writing an amount of data less than capacity at random to offsets
- from whole address range
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: from e06smtp10.uk.ibm.com ([195.75.94.106]:53070 "EHLO
+	e06smtp10.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030617AbaDJNKF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 10 Apr 2014 09:10:05 -0400
+Received: from /spool/local
+	by e06smtp10.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <fio@vger.kernel.org> from <ehrhardt@linux.vnet.ibm.com>;
+	Thu, 10 Apr 2014 14:10:03 +0100
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+	by d06dlp03.portsmouth.uk.ibm.com (Postfix) with ESMTP id 133FA1B08069
+	for <fio@vger.kernel.org>; Thu, 10 Apr 2014 14:10:01 +0100 (BST)
+Received: from d06av11.portsmouth.uk.ibm.com (d06av11.portsmouth.uk.ibm.com [9.149.37.252])
+	by b06cxnps4074.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id s3AD9vkL3211584
+	for <fio@vger.kernel.org>; Thu, 10 Apr 2014 13:09:57 GMT
+Received: from d06av11.portsmouth.uk.ibm.com (localhost [127.0.0.1])
+	by d06av11.portsmouth.uk.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id s3ADA0J2011053
+	for <fio@vger.kernel.org>; Thu, 10 Apr 2014 07:10:01 -0600
+Received: from dyn-9-152-222-127.boeblingen.de.ibm.com 
+	(dyn-9-152-222-127.boeblingen.de.ibm.com [9.152.222.127])by 
+	d06av11.portsmouth.uk.ibm.com (8.14.4/8.14.4/NCO v10.0 AVin) with SMTP id 
+	s3ADA0Tv011050for <fio@vger.kernel.org>; Thu, 10 Apr 2014 07:10:00 -0600
+Message-Id: <20140410130946.570253556@linux.vnet.ibm.com>
+Date: Thu, 10 Apr 2014 15:09:46 +0200
+From: <ehrhardt@linux.vnet.ibm.com>
+Subject: [patch 0/1] Further timing and nop fixes for the s390 architecture
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hello,
 
-how can I nudge fio to write a certain amount of data (less than 
-capacity of block device) to randomly generated offsets covering the 
-whole address space of a block device (e.g. MD RAID device)?
-
-Using the size parameter yields offsets from 0 to size (thus, not 
-covering the whole address range). Using a time based job leads to the 
-desired result, but I would like two write a defined amount of data. I 
-have already tried this with fio 2.0.14, 2.1.6.1, 2.1.17, and 2.1.18 
-without success. I am using Gentoo Linux with kernel 3.13.6 and libaio 
-0.3.109. The job description looks as follows:
-
-######################
-[global]
-name=rw-04k
-ioengine=libaio
-iodepth=512
-direct=1
-continue_on_error=1
-rw=randwrite
-norandommap
-filename=/dev/md9
-bs=4k
-ba=4k
-numjobs=1
-stonewall
-size=1G
-
-[rand-writes-04k]
-#####################
-
-Thanks,
-Nikolaus
-
-
--- 
-Dipl.-Inf. Nikolaus Jeremic          nikolaus.jeremic@uni-rostock.de
-Universitaet Rostock                 Tel:  (+49) 381 / 498 - 7635
-Albert-Einstein-Str. 22	             Fax:  (+49) 381 / 498 - 7482
-18059 Rostock, Germany               wwwava.informatik.uni-rostock.de
