@@ -1,137 +1,67 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:43604 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754652AbaDGMAD (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 7 Apr 2014 08:00:03 -0400
-Received: from kernel.dk ([54.225.238.116] helo=rt116.dk)
-	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1WX8Db-0004Qp-Cg
-	for fio@vger.kernel.org; Mon, 07 Apr 2014 12:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20140407120002.E12744012E@rt116.dk>
-Date: Mon,  7 Apr 2014 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <sendtold@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <534C9859.2050801@kernel.dk>
+References: <CAEyTGCffvRyGUgXaFP8k6X_kF9sDFbw_nP6T-LQS0bsQO8+D9A@mail.gmail.com>
+	<534C9859.2050801@kernel.dk>
+Date: Tue, 15 Apr 2014 16:20:49 -0500
+Message-ID: <CAEyTGCfciMGgrqp+OTSKxfeV0qk-0m83uB6_nNx++fnfkWp5uA@mail.gmail.com>
+Subject: Re: ( file:io_u.c:1550, func=io_u error, error=No space left on
+ device) when using libaio ioengine
+From: Lakshmi <sendtold@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 7788b76fe13059aa3610f592e58512cb5f4cdb28:
+Actually never mind Jens, I had a memory leak in my source code that
+generated the binary files. hence the error. I have fixed it. Thanks
 
-  Makefile: add doc target to generate PDFs from the man pages (2014-04-04 08:28:17 -0600)
+-Lakshmi
 
-are available in the git repository at:
+On Mon, Apr 14, 2014 at 9:24 PM, Jens Axboe <axboe@kernel.dk> wrote:
+> On 2014-04-14 16:30, Lakshmi wrote:
+>>
+>> Hi Jens,
+>>    I am trying to run a replay job with ioengine set as libaio. the
+>> other paratemers are shown below.
+>> ===================================================
+>> [global]
+>> #replay_no_stall=1
+>> ioengine=libaio
+>> iodepth=60
+>> direct=0
+>>
+>> group_reporting=1
+>>
+>> [job1]
+>>
+>> read_iolog=/home/TRACE_REPLAY_1/MarkTrace_Replay_1/pBlock_4kBusy_nanosec_device/file_54657438.bin
+>> ===================================================
+>> however when i run the Job i keep getting the below error
+>>
+>> job1: (groupid=0, jobs=90): err=28 (file:io_u.c:1550, func=io_u error,
+>> error=No space left on device): pid=13103: Mon Apr 14 17:24:36 2014
+>>    read : io=10288KB, bw=7788.4KB/s, iops=1947, runt=  1321msec
+>>      slat (usec): min=4, max=3311, avg= 7.03, stdev=65.18
+>>      clat (usec): min=107, max=28167, avg=4105.30, stdev=2070.77
+>>       lat (usec): min=114, max=31479, avg=4112.50, stdev=2086.66
+>>    ........................................
+>>      bw (KB  /s): min= 7720, max= 7888, per=100.00%, avg=7804.00,
+>> stdev=118.79
+>>    write: io=179568KB, bw=135933KB/s, iops=33868, runt=  1321msec
+>>      slat (usec): min=3, max=24637, avg=686.05, stdev=1486.47
+>>      clat (usec): min=14, max=70161, avg=5362.90, stdev=3996.05
+>> =========================================
+>>
+>> I don't get this when i try with sync or posixaio. Am I missing something
+>> here?
+>> Please let me know what is causing this in libaio engine.
+>
+>
+> That sounds odd. Can you send me the file_54657438.bin blktrace file?
+> Probably compress it first.
+>
+> --
+> Jens Axboe
+>
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to bc4f5ef67d26ef98f4822d5f798cb8c4e2d2fce5:
-
-  Support limited mixed command line options and job file (2014-04-06 10:10:32 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (4):
-      Fix crash in setup_files() if no files are defined
-      Merge branch 'master' of ssh://git.kernel.dk/data/git/fio
-      Fixup --timeout command line option
-      Support limited mixed command line options and job file
-
- filesetup.c |    2 +-
- init.c      |   25 ++++++++++++++++++++-----
- 2 files changed, 21 insertions(+), 6 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/filesetup.c b/filesetup.c
-index fa09219..bf05b6f 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -806,7 +806,7 @@ int setup_files(struct thread_data *td)
- 	 * Calculate per-file size and potential extra size for the
- 	 * first files, if needed.
- 	 */
--	if (!o->file_size_low) {
-+	if (!o->file_size_low && o->nr_files) {
- 		uint64_t all_fs;
- 
- 		fs = o->size / o->nr_files;
-diff --git a/init.c b/init.c
-index 910f2ba..e9e49eb 100644
---- a/init.c
-+++ b/init.c
-@@ -38,7 +38,7 @@ const char fio_version_string[] = FIO_VERSION;
- static char **ini_file;
- static int max_jobs = FIO_MAX_JOBS;
- static int dump_cmdline;
--static int def_timeout;
-+static long long def_timeout;
- static int parse_only;
- 
- static struct thread_data def_thread;
-@@ -318,6 +318,14 @@ static int setup_thread_area(void)
- 	return 0;
- }
- 
-+static void set_cmd_options(struct thread_data *td)
-+{
-+	struct thread_options *o = &td->o;
-+
-+	if (!o->timeout)
-+		o->timeout = def_timeout;
-+}
-+
- /*
-  * Return a free job structure.
-  */
-@@ -326,8 +334,10 @@ static struct thread_data *get_new_job(int global, struct thread_data *parent,
- {
- 	struct thread_data *td;
- 
--	if (global)
-+	if (global) {
-+		set_cmd_options(&def_thread);
- 		return &def_thread;
-+	}
- 	if (setup_thread_area()) {
- 		log_err("error: failed to setup shm segment\n");
- 		return NULL;
-@@ -357,6 +367,7 @@ static struct thread_data *get_new_job(int global, struct thread_data *parent,
- 	if (!parent || !parent->o.group_reporting)
- 		stat_number++;
- 
-+	set_cmd_options(td);
- 	return td;
- }
- 
-@@ -1440,8 +1451,8 @@ static int fill_def_thread(void)
- 	memset(&def_thread, 0, sizeof(def_thread));
- 
- 	fio_getaffinity(getpid(), &def_thread.o.cpumask);
--	def_thread.o.timeout = def_timeout;
- 	def_thread.o.error_dump = 1;
-+
- 	/*
- 	 * fill default options
- 	 */
-@@ -1695,7 +1706,11 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 			smalloc_pool_size = atoi(optarg);
- 			break;
- 		case 't':
--			def_timeout = atoi(optarg);
-+			if (check_str_time(optarg, &def_timeout, 1)) {
-+				log_err("fio: failed parsing time %s\n", optarg);
-+				do_exit++;
-+				exit_val = 1;
-+			}
- 			break;
- 		case 'l':
- 			write_lat_log = 1;
-@@ -2018,7 +2033,7 @@ int parse_options(int argc, char *argv[])
- 
- 	if (job_files > 0) {
- 		for (i = 0; i < job_files; i++) {
--			if (fill_def_thread())
-+			if (i && fill_def_thread())
- 				return 1;
- 			if (nr_clients) {
- 				if (fio_clients_send_ini(ini_file[i]))
