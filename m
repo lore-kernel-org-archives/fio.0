@@ -1,48 +1,68 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <534DB18A.4050507@kernel.dk>
-Date: Tue, 15 Apr 2014 16:24:10 -0600
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <xiaofei.du008@gmail.com>
 MIME-Version: 1.0
-Subject: Re: Question about FIO sequential writes
-References: <CAND_vCYOVgFzN+TQv=onWG-CH2ApczsKUaToxQ-YCiuuJAUr5Q@mail.gmail.com>
-In-Reply-To: <CAND_vCYOVgFzN+TQv=onWG-CH2ApczsKUaToxQ-YCiuuJAUr5Q@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Xiaofei Du <xiaofei.du008@gmail.com>
+From: Xiaofei Du <xiaofei.du008@gmail.com>
+Date: Tue, 15 Apr 2014 15:14:24 -0700
+Message-ID: <CAND_vCYOVgFzN+TQv=onWG-CH2ApczsKUaToxQ-YCiuuJAUr5Q@mail.gmail.com>
+Subject: Question about FIO sequential writes
+Content-Type: multipart/alternative; boundary=001a1134b51a261cf604f71c213b
+To: axboe@kernel.dk
 Cc: fio@vger.kernel.org, aaronc@cse.unsw.edu.au
 List-ID: <fio@vger.kernel.org>
 
-On 2014-04-15 16:14, Xiaofei Du wrote:
-> Dear Jens,
->
-> I have a couple questions about FIO.
->
-> First question. For default ioengine, with direct IO option enabled. On
-> a hard drive with writing cache disabled. I got random writes faster
-> than sequential writes. I couldn't explain this. Can you please help me
-> explain if you know the reason. Could that be a bug?
+--001a1134b51a261cf604f71c213b
+Content-Type: text/plain; charset=UTF-8
 
-How big of a difference are you seeing? Depending on the time and size 
-of the seek, the random write could be faster. The sequential write in 
-this case has to wait for a full revolution of the platters before the 
-head is positioned correctly again. For a random write, statistically 
-you would have to wait for half a revolution. But you have seek time for 
-that case too, so it depends on the IO pattern.
+Dear Jens,
 
-So it might be useful to include the job you ran and the outputs.
+I have a couple questions about FIO.
 
-> Second question. For libaio ioengin, with direct IO option enabled and
-> on a hard drive with writing cache disabled, I could get very high IOPS
-> for sequential writes if I keep increasing the iodepth. The IOPS I got
-> seems unreasonable. It could go up to 16000 IOPS for 4k blocks. So is
-> there anything wrong with sequential writes in FIO?
+First question. For default ioengine, with direct IO option enabled. On a
+hard drive with writing cache disabled. I got random writes faster than
+sequential writes. I couldn't explain this. Can you please help me explain
+if you know the reason. Could that be a bug?
 
-If you go to a higher depth, the OS/driver may merge sequential IO. So 
-this means that fio might be issuing 4K IOs and calculating IOPS based 
-on that, but further down they are coalesced and (for instance) 128 4K 
-writes are submitted and completed by the drive as a single 512K write.
+Second question. For libaio ioengin, with direct IO option enabled and on a
+hard drive with writing cache disabled, I could get very high IOPS for
+sequential writes if I keep increasing the iodepth. The IOPS I got seems
+unreasonable. It could go up to 16000 IOPS for 4k blocks. So is there
+anything wrong with sequential writes in FIO?
 
--- 
-Jens Axboe
+Thanks a lot for your help.
 
+Best,
+Xiaofei
+
+--001a1134b51a261cf604f71c213b
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><span style=3D"font-family:arial,sans-serif;font-size:13px=
+">Dear Jens,</span><div style=3D"font-family:arial,sans-serif;font-size:13p=
+x"><br></div><div style=3D"font-family:arial,sans-serif;font-size:13px">I h=
+ave a couple questions about FIO.</div>
+
+<div style=3D"font-family:arial,sans-serif;font-size:13px"><br></div><div s=
+tyle=3D"font-family:arial,sans-serif;font-size:13px">First question. For de=
+fault ioengine, with direct IO option enabled. On a hard drive with writing=
+ cache disabled. I got random writes faster than sequential writes. I could=
+n&#39;t explain this. Can you please help me explain if you know the reason=
+. Could that be a bug?</div>
+
+<div style=3D"font-family:arial,sans-serif;font-size:13px"><br></div><div s=
+tyle=3D"font-family:arial,sans-serif;font-size:13px">Second question. For l=
+ibaio ioengin, with direct IO option enabled and on a hard drive with writi=
+ng cache disabled, I could get very high IOPS for sequential writes if I ke=
+ep increasing the iodepth. The IOPS I got seems unreasonable. It could go u=
+p to 16000 IOPS for 4k blocks. So is there anything wrong with sequential w=
+rites in FIO?</div>
+
+<div style=3D"font-family:arial,sans-serif;font-size:13px"><br></div><div s=
+tyle=3D"font-family:arial,sans-serif;font-size:13px">Thanks a lot for your =
+help.</div><div style=3D"font-family:arial,sans-serif;font-size:13px"><br><=
+/div>
+
+<div style=3D"font-family:arial,sans-serif;font-size:13px">Best,</div><div =
+style=3D"font-family:arial,sans-serif;font-size:13px">Xiaofei</div></div>
+
+--001a1134b51a261cf604f71c213b--
 
