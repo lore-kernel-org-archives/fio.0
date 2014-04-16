@@ -1,34 +1,31 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <534EB748.70207@kernel.dk>
-Date: Wed, 16 Apr 2014 11:00:56 -0600
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-la0-f68.google.com ([209.85.215.68]:64710 "EHLO
+	mail-la0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932080AbaDPOVU (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 16 Apr 2014 10:21:20 -0400
+Received: by mail-la0-f68.google.com with SMTP id pv20so2597856lab.7
+        for <fio@vger.kernel.org>; Wed, 16 Apr 2014 07:21:19 -0700 (PDT)
 MIME-Version: 1.0
-Subject: Re: fio laying out file question
-References: <CANyhEAtZQdnzCiQj77u+WbGkk1d6yXBnrHE0pKypbX0mDPNeeQ@mail.gmail.com>
-In-Reply-To: <CANyhEAtZQdnzCiQj77u+WbGkk1d6yXBnrHE0pKypbX0mDPNeeQ@mail.gmail.com>
+Date: Wed, 16 Apr 2014 10:21:19 -0400
+Message-ID: <CANyhEAtZQdnzCiQj77u+WbGkk1d6yXBnrHE0pKypbX0mDPNeeQ@mail.gmail.com>
+Subject: fio laying out file question
+From: Yuyang Wang <yyalex.wang@gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-To: Yuyang Wang <yyalex.wang@gmail.com>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On 04/16/2014 08:21 AM, Yuyang Wang wrote:
-> hi all
-> 
-> I am using fio (2.1.7) for a simple sequential write test (see command
-> below). It seems the process will get stuck on "Laying out IO file" for a
-> long long time ...  Of course, smaller size take less time for layout,  I
-> am curious as to, is FIO trying to precreate the file before doing write,
-> what's going on there?
-> 
-> ./fio --rw=write --size=128g --bs=8m --filename=/test/$RANDOM
-> --ioengine=posixaio --iodepth=16 --name=mytest
+hi all
 
-For a pure write, it wont layout the file completely first. I'm guessing
-you are stuck in fallocate - depending on the file system, that will
-fill out blocks. You can try and add fallocate=none, that should get rid
-of it.
+I am using fio (2.1.7) for a simple sequential write test (see command
+below). It seems the process will get stuck on "Laying out IO file" for a
+long long time ...  Of course, smaller size take less time for layout,  I
+am curious as to, is FIO trying to precreate the file before doing write,
+what's going on there?
 
--- 
-Jens Axboe
+./fio --rw=write --size=128g --bs=8m --filename=/test/$RANDOM
+--ioengine=posixaio --iodepth=16 --name=mytest
 
+Thanks
 
+Alex
