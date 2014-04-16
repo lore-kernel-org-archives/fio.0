@@ -1,47 +1,60 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx12.netapp.com ([216.240.18.77]:26330 "EHLO mx12.netapp.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754389AbaCJVSz convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 10 Mar 2014 17:18:55 -0400
-From: "Neto, Antonio Jose Rodrigues" 
-	<Antonio.Jose.Rodrigues.Neto@netapp.com>
-Subject: Compressible and Dedupable ratios using fio
-Date: Mon, 10 Mar 2014 21:18:54 +0000
-Message-ID: <CF43A47E.293D5%Antonio.Jose.Rodrigues.Neto@netapp.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <D19CBECD0E494943B9FF4BDF2432C5CB@hq.netapp.com>
-Content-Transfer-Encoding: 8BIT
+Return-Path: <axboe@kernel.dk>
+Message-ID: <534EFA40.7040305@kernel.dk>
+Date: Wed, 16 Apr 2014 15:46:40 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Subject: Re: Suspected Block Size 8m limit, Help with larget transfer sizes
+References: <89470388ACB8A24491F3E64F24385FD75A487F66@wdscexmb03>
+In-Reply-To: <89470388ACB8A24491F3E64F24385FD75A487F66@wdscexmb03>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+To: Stephen Nichols <Stephen.Nichols@wdc.com>, "'fio@vger.kernel.org'" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi All,
+On 04/16/2014 03:32 PM, Stephen Nichols wrote:
+> To any applicable persons,
+> 
+> My attempts to use block sizes above 8m lead to threads not working properly. I did not notice anything in the documentation stating if there was a limit at 8m. Is this a bug or an intended limit? Has anyone experienced these issues as well? Any work around or fixes?
+> 
+> My workloads and results.
+> 
+> 
+> *********************************
+> Using 8m and lower BS
+> **********************************
+> fio --runtime=1h--numjobs=1--filesize=64m --time_based --direct=1 --ioengine=libaio --norandommap --refill_buffers -rw=rw --iodepth=128--bs=8m
+> 
+> /dev/sdb_rw_128: (g=0): rw=rw, bs=8M-8M/8M-8M/8M-8M, ioengine=libaio, iodepth=128
+> /dev/sdc_rw_128: (g=0): rw=rw, bs=8M-8M/8M-8M/8M-8M, ioengine=libaio, iodepth=128
+> /dev/sdd_rw_128: (g=0): rw=rw, bs=8M-8M/8M-8M/8M-8M, ioengine=libaio, iodepth=128
+> fio-2.1.8
+> Starting 3 processes
+> Jobs: 3 (f=3): [MMM] [0.2% done] [191.9MB/191.9MB/0KB /s] [23/23/0 iops] [eta 59m:55s]
+> 
+> *********************************
+> Using 16m and Higher BS
+> **********************************
+> fio --runtime=1h--numjobs=1--filesize=64m --time_based --direct=1 --ioengine=libaio --norandommap --refill_buffers -rw=rw --iodepth=128--bs=64m
+> 
+> /dev/sdb_rw_128: (g=0): rw=rw, bs=32M-32M/32M-32M/32M-32M, ioengine=libaio, iodepth=128
+> /dev/sdc_rw_128: (g=0): rw=rw, bs=32M-32M/32M-32M/32M-32M, ioengine=libaio, iodepth=128
+> /dev/sdd_rw_128: (g=0): rw=rw, bs=32M-32M/32M-32M/32M-32M, ioengine=libaio, iodepth=128
+> fio-2.1.8
+> Starting 3 processes
+> fio: pid=8007, got signal=9done] [0KB/0KB/0KB /s] [0/0/0 iops] [eta 1158050434d:01h:53m:55s]
+> Jobs: 2 (f=0): [KMM] [1.9% done] [0KB/0KB/0KB /s] [0/0/0 iops] [eta 59m:42s]
+> 
+> 
+> ^^ Note no data is being transferred on each thread and the eta is being calculated wrong. Then some threads are reaped when the time adjusts itself.
 
-This is neto from Brazil
+It's probably a bug with blocksizes getting close to the actual file
+size. I'll take a look at this, but I'd advise you to make the files
+bigger to get rid of this problem temporarily.
 
-How are you?
+You might also be running out of memory. 3 jobs, at queue depth 128,
+with 64M block size is 24G of memory!
 
-I need to know how to control the % of compression and deduplication using
-fio?
+-- 
+Jens Axboe
 
-My idea is to generate some workload based on:
-
-Workload Random
-0% compressible and 0% dedupable
-
-Workload Mixed
-20% compressible and 20% dedupable
-
-Workload Easier
-100% compressible and 100% dedupable
-
-Could you please help me?
-
-Thank you very much,
-
-All the best
-
-neto
 
