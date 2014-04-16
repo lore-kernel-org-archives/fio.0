@@ -1,55 +1,48 @@
-Return-Path: <Elliott@hp.com>
-From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
-Subject: RE: Question about FIO sequential writes
-Date: Wed, 16 Apr 2014 04:47:02 +0000
-Message-ID: <94D0CD8314A33A4D9D801C0FE68B402956EDA0F2@G9W0745.americas.hpqcorp.net>
-References: <CAND_vCYOVgFzN+TQv=onWG-CH2ApczsKUaToxQ-YCiuuJAUr5Q@mail.gmail.com>
- <534DB18A.4050507@kernel.dk>
- <CAND_vCbQHu4k5Q2RS5XeFYNTh5r1yC0ORYdv0JG-hHan4404kg@mail.gmail.com>
- <534DE08D.2070604@kernel.dk>
-In-Reply-To: <534DE08D.2070604@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <axboe@kernel.dk>
+Message-ID: <534DE08D.2070604@kernel.dk>
+Date: Tue, 15 Apr 2014 19:44:45 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, Xiaofei Du <xiaofei.du008@gmail.com>
+Subject: Re: Question about FIO sequential writes
+References: <CAND_vCYOVgFzN+TQv=onWG-CH2ApczsKUaToxQ-YCiuuJAUr5Q@mail.gmail.com> <534DB18A.4050507@kernel.dk> <CAND_vCbQHu4k5Q2RS5XeFYNTh5r1yC0ORYdv0JG-hHan4404kg@mail.gmail.com>
+In-Reply-To: <CAND_vCbQHu4k5Q2RS5XeFYNTh5r1yC0ORYdv0JG-hHan4404kg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Xiaofei Du <xiaofei.du008@gmail.com>
 Cc: fio <fio@vger.kernel.org>, aaronc <aaronc@cse.unsw.edu.au>
 List-ID: <fio@vger.kernel.org>
 
-PiBPbiAyMDE0LTA0LTE1IDE3OjA0LCBYaWFvZmVpIER1IHdyb3RlOg0KPiA+IFtnbG9iYWxdDQo+
-ID4gYnM9NGsNCj4gPiBzaXplPTEwMG0NCj4gPiBkaXJlY3Q9MQ0KPiA+IGZpbGVuYW1lPTEwMG1m
-aWxlDQo+ID4NCg0KQSBmZXcgbW9yZSB0aXBzOg0KLSBJIGRvbid0IHNlZSBpb2VuZ2luZT1saWJh
-aW8gb3IgaW9kZXB0aD1ubiBpbiB0aGF0IGV4Y2VycHQuDQotIHVzZSBpb3N0YXQgLW14eXogMiB3
-aGlsZSB0aGUgdGVzdCBpcyBydW5uaW5nIHRvIHNlZSB0aGUgSU8gc2l6ZXMgdGhhdCB0aGUgYmxv
-Y2sgbGF5ZXIgaXMgc2VuZGluZyB0byB0aGUgTExELCBob3cgbWFueSBibG9jayBsYXllciBtZXJn
-ZXMgYXJlIG9jY3VycmluZywgdGhlIElPIGRlcHRoIGJlaW5nIG1haW50YWluZWQgdG8gdGhlIExM
-RCwgYW5kIHRoZSBJT1BTIHJhdGUuDQotIHNldCAvc3lzL2Jsb2NrLzxkcml2ZSBuYW1lPi9xdWV1
-ZS9ub21lcmdlcyB0byAyIHRvIGRpc2FibGUgYmxvY2sgbGF5ZXIvc2NoZWR1bGVyIG1lcmdpbmcu
-DQotIHlvdXIgTExEIG9yIGNvbnRyb2xsZXIgbWlnaHQgaGF2ZSBpdHMgb3duIGNhY2hlIGFuZC9v
-ciBkbyBzZXF1ZW50aWFsIG1lcmdpbmcgKGNvYWxlc2NpbmcpIHRvby4gIFdoYXQgY29udHJvbGxl
-ciBhcmUgeW91IHVzaW5nPw0KLSBieSB1c2luZyBhIGZpbGUsIHlvdSBkb24ndCBrbm93IHdoZXRo
-ZXIgaXQncyBvbiB0aGUgaW5uZXIgdHJhY2tzIG9yIG91dGVyIHRyYWNrcyBvciBzb21ld2hlcmUg
-aW4gYmV0d2Vlbi4NCi0gYnkgdXNpbmcgYSBmaWxlLCB5b3UgZG9uJ3Qga25vdyB3aGV0aGVyIGl0
-J3MgZnJhZ21lbnRlZCwgbWFraW5nIHNlcXVlbnRpYWwgdHJhbnNmZXJzIHJlYWxseSByYW5kb20g
-dG8gdGhlIGRyaXZlLg0KLSBieSB1c2luZyBhIGZpbGUsIGlmIHVzaW5nIGFuICJhZHZhbmNlZCBm
-b3JtYXQiIGRyaXZlICh3aXRoIGxhcmdlIHBoeXNpY2FsIHNlY3RvcnMpLCB5b3UgaGF2ZSB0byBi
-ZSB3YXJ5IG9mIHVuYWxpZ25lZCB0cmFuc2ZlcnMuICBJcyB0aGUgcGFydGl0aW9uIGFsaWduZWQg
-c28gYWxsIHRoZSBhY2Nlc3NlcyByZWFsbHkgZ28gdG8gdGhlIGRyaXZlIGFsaWduZWQgdG8gNCBL
-aUIgYm91bmRhcmllcz8gDQotIGJ5IHVzaW5nIGEgdGlueSBmaWxlIHNpemUgbGlrZSAxMDAgTWlC
-LCB3cml0ZXMgY291bGQgZWFzaWx5IGdldCBidWZmZXJlZCBpbiBhIHdyaXRlIGNhY2hlIHNvbWV3
-aGVyZSBhbG9uZyB0aGUgd2F5OyA2NCBhbmQgMTI4IE1pQiBIREQgdm9sYXRpbGUgd3JpdGUgY2Fj
-aGUgc2l6ZXMgYXJlIGNvbW1vbiBub3dhZGF5cywgYW5kIFJBSUQgY29udHJvbGxlcnMgaGF2ZSBt
-dWx0aS1HaUIgbm9uLXZvbGF0aWxlIHdyaXRlIGNhY2hlcy4NCi0gYWx0aG91Z2ggeW91IGRpZG4n
-dCByZXBvcnQgcmVzdWx0cyB3aXRoIHJlYWRzLCBiZXdhcmUgdGhhdCB0aGUgZHJpdmUgY291bGQg
-ZW5kIHVwIHNlcnZpbmcgYWxsIDEwMCBNaUIgb2YgcmFuZG9tIHJlYWQgZGF0YSBmcm9tIGl0cyBj
-YWNoZSAocmVhZHMgY2FuIGFsd2F5cyBiZSBjYWNoZWQsIHZvbGF0aWxlIG9yIG5vdCksIHdoaWxl
-IHRocm93aW5nIGF3YXkgc2VxdWVudGlhbCBwcmVmZXRjaGVkIHJlYWQgZGF0YSBhZnRlciByZXR1
-cm5pbmcgdGhhdCBkYXRhIGJlY2F1c2UgdGhlIGRyaXZlIGRvZXMgbm90IGV4cGVjdCB0aGUgZGF0
-YSB0byBiZSByZWFkIGFnYWluLg0KLSB0byBhdm9pZCBmaWxlc3lzdGVtIGludGVyZmVyZW5jZSwg
-ZGlyZWN0bHkgYWNjZXNzIHRoZSBkcml2ZSB3aXRoIC9kZXYvZGlzay9ieS1wYXRoLCAvZGV2L2Rp
-c2svYnktaWQsIG9yIC9kZXYvc2ROTiB0eXBlIG5hbWVzIChvciBcXC5cUGh5c2ljYWxEcml2ZU5O
-IGluIFdpbmRvd3MpLiAgSWYgdXNpbmcgL2Rldi9zZE5OIG9yIFBoeXNpY2FsRHJpdmVOTiwgYmUg
-dmVyeSBjYXJlZnVsIG5vdCB0byBvdmVyd3JpdGUgeW91ciBib290IGRyaXZlLCBzaW5jZSB0aGUg
-bWFwcGluZyBjYW4gY2hhbmdlIGV2ZXJ5IHJlYm9vdDsgSSBkb24ndCB0aGluayBmaW8gcHJvdmlk
-ZXMgYW55IHByb3RlY3Rpb24gZnJvbSBkb2luZyBzby4NCg0K
+On 2014-04-15 17:04, Xiaofei Du wrote:
+> [global]
+> bs=4k
+> size=100m
+> direct=1
+> filename=100mfile
+>
+> [seq-write]
+> rw=write
+> stonewall
+>
+> [rand-write]
+> rw=randwrite
+> stonewall
+>
+> ########################################################################
+>
+> This is the output. In this run the difference is 115 vs 123. On another
+> disk, the number I got was 121 vs 141. Random writes are always faster
+> than sequential writes.
+
+Since the region is only 100M, it seems reasonable to expect random IO 
+within that region to be faster than sequential ones. The sequential 
+ones will always be subject to a full rotational penalty, limiting your 
+IOPS to 120 if we disregard software overhead, DMA, etc. So 115 seems 
+very in the ballpark. For random IO, we have to move the head a bit, but 
+if the seek is less than half 1/RPM, then it's a win.
+
+So I'd say things are looking as expected.
+
+-- 
+Jens Axboe
+
 
