@@ -1,59 +1,56 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from e06smtp16.uk.ibm.com ([195.75.94.112]:36182 "EHLO
-	e06smtp16.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932196AbaDHPwv (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 8 Apr 2014 11:52:51 -0400
-Received: from /spool/local
-	by e06smtp16.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <fio@vger.kernel.org> from <ehrhardt@linux.vnet.ibm.com>;
-	Tue, 8 Apr 2014 16:52:50 +0100
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-	by d06dlp03.portsmouth.uk.ibm.com (Postfix) with ESMTP id 4314B1B08040
-	for <fio@vger.kernel.org>; Tue,  8 Apr 2014 16:52:47 +0100 (BST)
-Received: from d06av03.portsmouth.uk.ibm.com (d06av03.portsmouth.uk.ibm.com [9.149.37.213])
-	by b06cxnps4075.portsmouth.uk.ibm.com (8.13.8/8.13.8/NCO v10.0) with ESMTP id s38FqbSp65536204
-	for <fio@vger.kernel.org>; Tue, 8 Apr 2014 15:52:37 GMT
-Received: from d06av03.portsmouth.uk.ibm.com (localhost [127.0.0.1])
-	by d06av03.portsmouth.uk.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id s38FqloR007814
-	for <fio@vger.kernel.org>; Tue, 8 Apr 2014 09:52:47 -0600
-Message-Id: <20140408155246.244233350@linux.vnet.ibm.com>
-Date: Tue, 08 Apr 2014 17:52:01 +0200
-From: ehrhardt@linux.vnet.ibm.com
-Subject: [patch 2/2] [PATCH] fio: fix s390 nop
-References: <20140408155159.696154675@linux.vnet.ibm.com>
-Content-Disposition: inline; filename=fix-s390-nop.diff
+Received: from merlin.infradead.org ([205.233.59.134]:57884 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753153AbaDQMAE (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 17 Apr 2014 08:00:04 -0400
+Received: from kernel.dk ([54.225.238.116] helo=rt116.dk)
+	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1Wakz6-0007Gk-6W
+	for fio@vger.kernel.org; Thu, 17 Apr 2014 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20140417120002.EE9504006B@rt116.dk>
+Date: Thu, 17 Apr 2014 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
 
-From: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+The following changes since commit 3a35845f7756a8a86b420650bff41267192dce22:
 
-When trying to run rate limited fio runs we encountered that the current
-definition of a nop uses a privileged instruction which is not even a nop,
-but a yield call to the hipervisor.
-That leads to a SIGILL as it is privileged.
+  sg/binject: only restore file flags if they have been set (2014-04-15 09:07:44 -0600)
 
-To solve that issue replace it with a nop, the assembler will take care
-of it (likely to become a BCR 0,0)
+are available in the git repository at:
 
-Signed-off-by: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to d1faa06dc74fcdcae02e70260c90121502ef01cf:
+
+  Error out if the set blocksize is larger than the file size (2014-04-16 23:51:27 +0200)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Error out if the set blocksize is larger than the file size
+
+ filesetup.c |    5 +++++
+ 1 file changed, 5 insertions(+)
+
 ---
 
-[diffstat]
- arch/arch-s390.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Diff of recent changes:
 
-[diff]
---- a/arch/arch-s390.h
-+++ b/arch/arch-s390.h
-@@ -18,7 +18,7 @@
- #define __NR_sys_vmsplice	309
- #endif
+diff --git a/filesetup.c b/filesetup.c
+index 60e7947..79eea9f 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -885,6 +885,11 @@ int setup_files(struct thread_data *td)
+ 	if (!o->size || o->size > total_size)
+ 		o->size = total_size;
  
--#define nop		asm volatile ("diag 0,0,68" : : : "memory")
-+#define nop		asm volatile("nop" : : : "memory")
- #define read_barrier()	asm volatile("bcr 15,0" : : : "memory")
- #define write_barrier()	asm volatile("bcr 15,0" : : : "memory")
- 
-
++	if (o->size < td_min_bs(td)) {
++		log_err("fio: blocksize too large for data set\n");
++		goto err_out;
++	}
++
+ 	/*
+ 	 * See if we need to extend some files
+ 	 */
