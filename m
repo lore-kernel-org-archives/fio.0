@@ -1,158 +1,156 @@
-Return-Path: <Elliott@hp.com>
-From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
-Subject: RE: Question about FIO sequential writes
-Date: Thu, 17 Apr 2014 14:30:34 +0000
-Message-ID: <94D0CD8314A33A4D9D801C0FE68B402956EDB8E4@G9W0745.americas.hpqcorp.net>
-References: <CAND_vCYOVgFzN+TQv=onWG-CH2ApczsKUaToxQ-YCiuuJAUr5Q@mail.gmail.com>
- <534DB18A.4050507@kernel.dk>
- <CAND_vCbQHu4k5Q2RS5XeFYNTh5r1yC0ORYdv0JG-hHan4404kg@mail.gmail.com>
- <534DE08D.2070604@kernel.dk>
- <94D0CD8314A33A4D9D801C0FE68B402956EDA0F2@G9W0745.americas.hpqcorp.net>
- <CAND_vCYxvpDc8cqpQCoZye-eBHCWDajKhecCixDKac7aUOimMw@mail.gmail.com>
-In-Reply-To: <CAND_vCYxvpDc8cqpQCoZye-eBHCWDajKhecCixDKac7aUOimMw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: multipart/alternative;
-	boundary="_000_94D0CD8314A33A4D9D801C0FE68B402956EDB8E4G9W0745americas_"
+Return-Path: <xiaofei.du008@gmail.com>
 MIME-Version: 1.0
-To: Xiaofei Du <xiaofei.du008@gmail.com>
+In-Reply-To: <94D0CD8314A33A4D9D801C0FE68B402956EDA0F2@G9W0745.americas.hpqcorp.net>
+References: <CAND_vCYOVgFzN+TQv=onWG-CH2ApczsKUaToxQ-YCiuuJAUr5Q@mail.gmail.com>
+ <534DB18A.4050507@kernel.dk> <CAND_vCbQHu4k5Q2RS5XeFYNTh5r1yC0ORYdv0JG-hHan4404kg@mail.gmail.com>
+ <534DE08D.2070604@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402956EDA0F2@G9W0745.americas.hpqcorp.net>
+From: Xiaofei Du <xiaofei.du008@gmail.com>
+Date: Wed, 16 Apr 2014 18:08:55 -0700
+Message-ID: <CAND_vCYxvpDc8cqpQCoZye-eBHCWDajKhecCixDKac7aUOimMw@mail.gmail.com>
+Subject: Re: Question about FIO sequential writes
+Content-Type: multipart/alternative; boundary=089e013c661421de8604f732afd6
+To: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
 Cc: Jens Axboe <axboe@kernel.dk>, fio <fio@vger.kernel.org>, aaronc <aaronc@cse.unsw.edu.au>
 List-ID: <fio@vger.kernel.org>
 
---_000_94D0CD8314A33A4D9D801C0FE68B402956EDB8E4G9W0745americas_
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+--089e013c661421de8604f732afd6
+Content-Type: text/plain; charset=UTF-8
 
-PiBUaGFua3MgZm9yIHRoZSB0aXBzLiBJIGRvbid0IHVuZGVyc3RhbmQgdGhlIGxhc3QgcG9pbnQg
-KC0gdG8gYXZvaWQNCj4gZmlsZXN5c3RlbSBpbnRlcmZlcmVuY2UsIGRpcmVjdGx5IGFjY2VzcyB0
-aGUgZHJpdmUgd2l0aA0KPiAvZGV2L2Rpc2svYnktcGF0aCwgL2Rldi9kaXNrL2J5LWlkLCAuLi4p
-DQoNCj4gSSBnb29nbGVkIGl0LCBidXQgZGlkbid0IGZpbmQgc29tZXRoaW5nIHJlbGF0ZWQgZGly
-ZWN0bHkuIE1heWJlDQo+IEkgZ29vZ2xlZCB0aGUgd3Jvbmcga2V5IHdvcmRzLiBTbyBjb3VsZCB5
-b3UgcGxlYXNlIGhlbHAgdG8NCj4gZXhwbGFpbiB0aGlzIGxhc3QgcG9pbnQsIG9yIHNlbmQgbWUg
-c29tZSBsaW5rcyB0byByZWFkPyBUaGFua3MgYSBsb3QuDQoNClBvaW50IGZpbyB0byBhIGJsb2Nr
-IGRldmljZSByYXRoZXIgdGhhbiBhIGZpbGUsIGxpa2U6DQpmaWxlbmFtZT0vZGV2L3NkYg0KDQpI
-b3dldmVyLCB0aGUgL2Rldi9zZE5OIG5hbWVzIGFyZSBub3QgcGVyc2lzdGVudCBhbmQgY2FuIGNo
-YW5nZSB3aGVuIHlvdSByZWJvb3QuICBJdCBpcyBkYW5nZXJvdXMgdG8gaGFyZGNvZGUgdGhlbSBp
-biBhIGpvYiBkZXNjcmlwdGlvbiBmaWxlIHRoYXQgZG9lcyB3cml0ZXMuIFlvdSBtYXkgdXNlIHRo
-ZXNlIHR5cGVzIG9mIHBhdGhzIGluc3RlYWQ6DQoNCmZpbGVuYW1lPS9kZXYvZGlzay9ieS1wYXRo
-L3BjaS0wMDAwXDowNFw6MDAuMC1zY3NpLTBcOjBcOjBcOjE1DQpwb2ludHMgdG8gdGhlIGNvbnRy
-b2xsZXLigJlzIFBDSSBJRCAoZS5nLiwgZnJvbSBsc3BjaSkgYW5kIHRoZSBvYnNvbGV0ZSBidXM6
-dGFyZ2V0OkxVTiBtYXBwaW5nIHByb3ZpZGVkIGZvciB0aGUgZHJpdmUuICAgIFRoZSBidXM6dGFy
-Z2V0OkxVTiBtYXBwaW5nIG1pZ2h0IG5vdCBiZSBwZXJzaXN0ZW50LCBkZXBlbmRpbmcgb24geW91
-ciBjb250cm9sbGVyIGFuZCBpdHMgZHJpdmVyLg0KDQpmaWxlbmFtZT0vZGV2L2Rpc2svYnktaWQv
-d3duLTB4NTAwMGNjYTAyYjA0MmVmMA0KcG9pbnRzIHRvIHRoZSB3b3JsZHdpZGUgbmFtZSBvZiB0
-aGUgZHJpdmUgKHNhZmVzdCkNCg0KLS0tDQpSb2IgRWxsaW90dCAgICBIUCBTZXJ2ZXIgU3RvcmFn
-ZQ0KDQoNCg==
+Robert,
 
---_000_94D0CD8314A33A4D9D801C0FE68B402956EDB8E4G9W0745americas_
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: base64
+Thanks for the tips. I don't understand the last point (- to avoid
+filesystem interference, directly access the drive with /dev/disk/by-path,
+/dev/disk/by-id, ...)
 
-PGh0bWwgeG1sbnM6dj0idXJuOnNjaGVtYXMtbWljcm9zb2Z0LWNvbTp2bWwiIHhtbG5zOm89InVy
-bjpzY2hlbWFzLW1pY3Jvc29mdC1jb206b2ZmaWNlOm9mZmljZSIgeG1sbnM6dz0idXJuOnNjaGVt
-YXMtbWljcm9zb2Z0LWNvbTpvZmZpY2U6d29yZCIgeG1sbnM6bT0iaHR0cDovL3NjaGVtYXMubWlj
-cm9zb2Z0LmNvbS9vZmZpY2UvMjAwNC8xMi9vbW1sIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv
-VFIvUkVDLWh0bWw0MCI+DQo8aGVhZD4NCjxtZXRhIGh0dHAtZXF1aXY9IkNvbnRlbnQtVHlwZSIg
-Y29udGVudD0idGV4dC9odG1sOyBjaGFyc2V0PXV0Zi04Ij4NCjxtZXRhIG5hbWU9IkdlbmVyYXRv
-ciIgY29udGVudD0iTWljcm9zb2Z0IFdvcmQgMTQgKGZpbHRlcmVkIG1lZGl1bSkiPg0KPHN0eWxl
-PjwhLS0NCi8qIEZvbnQgRGVmaW5pdGlvbnMgKi8NCkBmb250LWZhY2UNCgl7Zm9udC1mYW1pbHk6
-IkNhbWJyaWEgTWF0aCI7DQoJcGFub3NlLTE6MiA0IDUgMyA1IDQgNiAzIDIgNDt9DQpAZm9udC1m
-YWNlDQoJe2ZvbnQtZmFtaWx5OkNhbGlicmk7DQoJcGFub3NlLTE6MiAxNSA1IDIgMiAyIDQgMyAy
-IDQ7fQ0KLyogU3R5bGUgRGVmaW5pdGlvbnMgKi8NCnAuTXNvTm9ybWFsLCBsaS5Nc29Ob3JtYWws
-IGRpdi5Nc29Ob3JtYWwNCgl7bWFyZ2luOjBpbjsNCgltYXJnaW4tYm90dG9tOi4wMDAxcHQ7DQoJ
-Zm9udC1zaXplOjEyLjBwdDsNCglmb250LWZhbWlseToiVGltZXMgTmV3IFJvbWFuIiwic2VyaWYi
-O30NCmE6bGluaywgc3Bhbi5Nc29IeXBlcmxpbmsNCgl7bXNvLXN0eWxlLXByaW9yaXR5Ojk5Ow0K
-CWNvbG9yOmJsdWU7DQoJdGV4dC1kZWNvcmF0aW9uOnVuZGVybGluZTt9DQphOnZpc2l0ZWQsIHNw
-YW4uTXNvSHlwZXJsaW5rRm9sbG93ZWQNCgl7bXNvLXN0eWxlLXByaW9yaXR5Ojk5Ow0KCWNvbG9y
-OnB1cnBsZTsNCgl0ZXh0LWRlY29yYXRpb246dW5kZXJsaW5lO30NCnNwYW4uRW1haWxTdHlsZTE3
-DQoJe21zby1zdHlsZS10eXBlOnBlcnNvbmFsLXJlcGx5Ow0KCWZvbnQtZmFtaWx5OiJDYWxpYnJp
-Iiwic2Fucy1zZXJpZiI7DQoJY29sb3I6IzFGNDk3RDt9DQouTXNvQ2hwRGVmYXVsdA0KCXttc28t
-c3R5bGUtdHlwZTpleHBvcnQtb25seTsNCglmb250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2Vy
-aWYiO30NCkBwYWdlIFdvcmRTZWN0aW9uMQ0KCXtzaXplOjguNWluIDExLjBpbjsNCgltYXJnaW46
-MS4waW4gMS4waW4gMS4waW4gMS4waW47fQ0KZGl2LldvcmRTZWN0aW9uMQ0KCXtwYWdlOldvcmRT
-ZWN0aW9uMTt9DQotLT48L3N0eWxlPjwhLS1baWYgZ3RlIG1zbyA5XT48eG1sPg0KPG86c2hhcGVk
-ZWZhdWx0cyB2OmV4dD0iZWRpdCIgc3BpZG1heD0iMTAyNiIgLz4NCjwveG1sPjwhW2VuZGlmXS0t
-PjwhLS1baWYgZ3RlIG1zbyA5XT48eG1sPg0KPG86c2hhcGVsYXlvdXQgdjpleHQ9ImVkaXQiPg0K
-PG86aWRtYXAgdjpleHQ9ImVkaXQiIGRhdGE9IjEiIC8+DQo8L286c2hhcGVsYXlvdXQ+PC94bWw+
-PCFbZW5kaWZdLS0+DQo8L2hlYWQ+DQo8Ym9keSBsYW5nPSJFTi1VUyIgbGluaz0iYmx1ZSIgdmxp
-bms9InB1cnBsZSI+DQo8ZGl2IGNsYXNzPSJXb3JkU2VjdGlvbjEiPg0KPHAgY2xhc3M9Ik1zb05v
-cm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2Fs
-aWJyaSZxdW90OywmcXVvdDtzYW5zLXNlcmlmJnF1b3Q7O2NvbG9yOiMxRjQ5N0QiPiZndDsgVGhh
-bmtzIGZvciB0aGUgdGlwcy4gSSBkb24ndCB1bmRlcnN0YW5kIHRoZSBsYXN0IHBvaW50ICgtIHRv
-IGF2b2lkPG86cD48L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4g
-c3R5bGU9ImZvbnQtc2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90Oywm
-cXVvdDtzYW5zLXNlcmlmJnF1b3Q7O2NvbG9yOiMxRjQ5N0QiPiZndDsgZmlsZXN5c3RlbSBpbnRl
-cmZlcmVuY2UsIGRpcmVjdGx5IGFjY2VzcyB0aGUgZHJpdmUgd2l0aA0KPG86cD48L286cD48L3Nw
-YW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMS4w
-cHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90OywmcXVvdDtzYW5zLXNlcmlmJnF1b3Q7
-O2NvbG9yOiMxRjQ5N0QiPiZndDsgL2Rldi9kaXNrL2J5LXBhdGgsIC9kZXYvZGlzay9ieS1pZCwg
-Li4uKTxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0
-eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OiZxdW90O0NhbGlicmkmcXVvdDssJnF1
-b3Q7c2Fucy1zZXJpZiZxdW90Oztjb2xvcjojMUY0OTdEIj48bzpwPiZuYnNwOzwvbzpwPjwvc3Bh
-bj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1zaXplOjExLjBw
-dDtmb250LWZhbWlseTomcXVvdDtDYWxpYnJpJnF1b3Q7LCZxdW90O3NhbnMtc2VyaWYmcXVvdDs7
-Y29sb3I6IzFGNDk3RCI+Jmd0OyBJIGdvb2dsZWQgaXQsIGJ1dCBkaWRuJ3QgZmluZCBzb21ldGhp
-bmcgcmVsYXRlZCBkaXJlY3RseS4gTWF5YmUNCjxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNs
-YXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5
-OiZxdW90O0NhbGlicmkmcXVvdDssJnF1b3Q7c2Fucy1zZXJpZiZxdW90Oztjb2xvcjojMUY0OTdE
-Ij4mZ3Q7IEkgZ29vZ2xlZCB0aGUgd3Jvbmcga2V5IHdvcmRzLiBTbyBjb3VsZCB5b3UgcGxlYXNl
-IGhlbHAgdG8NCjxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxz
-cGFuIHN0eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OiZxdW90O0NhbGlicmkmcXVv
-dDssJnF1b3Q7c2Fucy1zZXJpZiZxdW90Oztjb2xvcjojMUY0OTdEIj4mZ3Q7IGV4cGxhaW4gdGhp
-cyBsYXN0IHBvaW50LCBvciBzZW5kIG1lIHNvbWUgbGlua3MgdG8gcmVhZD8gVGhhbmtzIGEgbG90
-LjxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxl
-PSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OiZxdW90O0NhbGlicmkmcXVvdDssJnF1b3Q7
-c2Fucy1zZXJpZiZxdW90Oztjb2xvcjojMUY0OTdEIj48bzpwPiZuYnNwOzwvbzpwPjwvc3Bhbj48
-L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1zaXplOjExLjBwdDtm
-b250LWZhbWlseTomcXVvdDtDYWxpYnJpJnF1b3Q7LCZxdW90O3NhbnMtc2VyaWYmcXVvdDs7Y29s
-b3I6IzFGNDk3RCI+UG9pbnQgZmlvIHRvIGEgYmxvY2sgZGV2aWNlIHJhdGhlciB0aGFuIGEgZmls
-ZSwgbGlrZTo8bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3Bh
-biBzdHlsZT0iZm9udC1zaXplOjExLjBwdDtmb250LWZhbWlseTomcXVvdDtDYWxpYnJpJnF1b3Q7
-LCZxdW90O3NhbnMtc2VyaWYmcXVvdDs7Y29sb3I6IzFGNDk3RCI+ZmlsZW5hbWU9L2Rldi9zZGI8
-bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0i
-Zm9udC1zaXplOjExLjBwdDtmb250LWZhbWlseTomcXVvdDtDYWxpYnJpJnF1b3Q7LCZxdW90O3Nh
-bnMtc2VyaWYmcXVvdDs7Y29sb3I6IzFGNDk3RCI+PG86cD4mbmJzcDs8L286cD48L3NwYW4+PC9w
-Pg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMS4wcHQ7Zm9u
-dC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90OywmcXVvdDtzYW5zLXNlcmlmJnF1b3Q7O2NvbG9y
-OiMxRjQ5N0QiPkhvd2V2ZXIsIHRoZSAvZGV2L3NkTk4gbmFtZXMgYXJlIG5vdCBwZXJzaXN0ZW50
-IGFuZCBjYW4gY2hhbmdlIHdoZW4geW91IHJlYm9vdC4mbmJzcDsgSXQgaXMgZGFuZ2Vyb3VzIHRv
-IGhhcmRjb2RlIHRoZW0gaW4gYSBqb2IgZGVzY3JpcHRpb24gZmlsZSB0aGF0IGRvZXMgd3JpdGVz
-Lg0KIFlvdSBtYXkgdXNlIHRoZXNlIHR5cGVzIG9mIHBhdGhzIGluc3RlYWQ6PG86cD48L286cD48
-L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTox
-MS4wcHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90OywmcXVvdDtzYW5zLXNlcmlmJnF1
-b3Q7O2NvbG9yOiMxRjQ5N0QiPjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNz
-PSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OiZx
-dW90O0NhbGlicmkmcXVvdDssJnF1b3Q7c2Fucy1zZXJpZiZxdW90Oztjb2xvcjojMUY0OTdEIj5m
-aWxlbmFtZT0vZGV2L2Rpc2svYnktcGF0aC9wY2ktMDAwMFw6MDRcOjAwLjAtc2NzaS0wXDowXDow
-XDoxNTxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0
-eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OiZxdW90O0NhbGlicmkmcXVvdDssJnF1
-b3Q7c2Fucy1zZXJpZiZxdW90Oztjb2xvcjojMUY0OTdEIj5wb2ludHMgdG8gdGhlIGNvbnRyb2xs
-ZXLigJlzIFBDSSBJRCAoZS5nLiwgZnJvbSBsc3BjaSkgYW5kIHRoZSBvYnNvbGV0ZSBidXM6dGFy
-Z2V0OkxVTiBtYXBwaW5nIHByb3ZpZGVkIGZvciB0aGUgZHJpdmUuJm5ic3A7ICZuYnNwOyZuYnNw
-O1RoZSBidXM6dGFyZ2V0OkxVTiBtYXBwaW5nIG1pZ2h0IG5vdA0KIGJlIHBlcnNpc3RlbnQsIGRl
-cGVuZGluZyBvbiB5b3VyIGNvbnRyb2xsZXIgYW5kIGl0cyBkcml2ZXIuPG86cD48L286cD48L3Nw
-YW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMS4w
-cHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90OywmcXVvdDtzYW5zLXNlcmlmJnF1b3Q7
-O2NvbG9yOiMxRjQ5N0QiPjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJN
-c29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OiZxdW90
-O0NhbGlicmkmcXVvdDssJnF1b3Q7c2Fucy1zZXJpZiZxdW90Oztjb2xvcjojMUY0OTdEIj5maWxl
-bmFtZT0vZGV2L2Rpc2svYnktaWQvd3duLTB4NTAwMGNjYTAyYjA0MmVmMDxvOnA+PC9vOnA+PC9z
-cGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTEu
-MHB0O2ZvbnQtZmFtaWx5OiZxdW90O0NhbGlicmkmcXVvdDssJnF1b3Q7c2Fucy1zZXJpZiZxdW90
-Oztjb2xvcjojMUY0OTdEIj5wb2ludHMgdG8gdGhlIHdvcmxkd2lkZSBuYW1lIG9mIHRoZSBkcml2
-ZSAoc2FmZXN0KTxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxz
-cGFuIHN0eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OiZxdW90O0NhbGlicmkmcXVv
-dDssJnF1b3Q7c2Fucy1zZXJpZiZxdW90Oztjb2xvcjojMUY0OTdEIj48bzpwPiZuYnNwOzwvbzpw
-Pjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1zaXpl
-OjExLjBwdDtmb250LWZhbWlseTomcXVvdDtDYWxpYnJpJnF1b3Q7LCZxdW90O3NhbnMtc2VyaWYm
-cXVvdDs7Y29sb3I6IzFGNDk3RCI+LS0tPG86cD48L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9
-Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6JnF1
-b3Q7Q2FsaWJyaSZxdW90OywmcXVvdDtzYW5zLXNlcmlmJnF1b3Q7O2NvbG9yOiMxRjQ5N0QiPlJv
-YiBFbGxpb3R0Jm5ic3A7Jm5ic3A7Jm5ic3A7IEhQIFNlcnZlciBTdG9yYWdlPG86cD48L286cD48
-L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTox
-MS4wcHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90OywmcXVvdDtzYW5zLXNlcmlmJnF1
-b3Q7O2NvbG9yOiMxRjQ5N0QiPjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNz
-PSJNc29Ob3JtYWwiPjxvOnA+Jm5ic3A7PC9vOnA+PC9wPg0KPC9kaXY+DQo8L2JvZHk+DQo8L2h0
-bWw+DQo=
+I googled it, but didn't find something related directly. Maybe I googled
+the wrong key words. So could you please help to explain this last point,
+or send me some links to read? Thanks a lot.
 
---_000_94D0CD8314A33A4D9D801C0FE68B402956EDB8E4G9W0745americas_--
+Best,
+Xiaofei
+
+
+On Tue, Apr 15, 2014 at 9:47 PM, Elliott, Robert (Server Storage) <
+Elliott@hp.com> wrote:
+
+> > On 2014-04-15 17:04, Xiaofei Du wrote:
+> > > [global]
+> > > bs=4k
+> > > size=100m
+> > > direct=1
+> > > filename=100mfile
+> > >
+>
+> A few more tips:
+> - I don't see ioengine=libaio or iodepth=nn in that excerpt.
+> - use iostat -mxyz 2 while the test is running to see the IO sizes that
+> the block layer is sending to the LLD, how many block layer merges are
+> occurring, the IO depth being maintained to the LLD, and the IOPS rate.
+> - set /sys/block/<drive name>/queue/nomerges to 2 to disable block
+> layer/scheduler merging.
+> - your LLD or controller might have its own cache and/or do sequential
+> merging (coalescing) too.  What controller are you using?
+> - by using a file, you don't know whether it's on the inner tracks or
+> outer tracks or somewhere in between.
+> - by using a file, you don't know whether it's fragmented, making
+> sequential transfers really random to the drive.
+> - by using a file, if using an "advanced format" drive (with large
+> physical sectors), you have to be wary of unaligned transfers.  Is the
+> partition aligned so all the accesses really go to the drive aligned to 4
+> KiB boundaries?
+> - by using a tiny file size like 100 MiB, writes could easily get buffered
+> in a write cache somewhere along the way; 64 and 128 MiB HDD volatile write
+> cache sizes are common nowadays, and RAID controllers have multi-GiB
+> non-volatile write caches.
+> - although you didn't report results with reads, beware that the drive
+> could end up serving all 100 MiB of random read data from its cache (reads
+> can always be cached, volatile or not), while throwing away sequential
+> prefetched read data after returning that data because the drive does not
+> expect the data to be read again.
+> - to avoid filesystem interference, directly access the drive with
+> /dev/disk/by-path, /dev/disk/by-id, or /dev/sdNN type names (or
+> \\.\PhysicalDriveNN in Windows).  If using /dev/sdNN or PhysicalDriveNN, be
+> very careful not to overwrite your boot drive, since the mapping can change
+> every reboot; I don't think fio provides any protection from doing so.
+>
+>
+
+--089e013c661421de8604f732afd6
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Robert,<div><br></div><div>Thanks for the tips. I don&#39;=
+t understand the last point (<span style=3D"font-family:arial,sans-serif;fo=
+nt-size:13px">- to avoid filesystem interference, directly access the drive=
+ with /dev/disk/by-path, /dev/disk/by-id, ...)</span></div>
+
+<div><span style=3D"font-family:arial,sans-serif;font-size:13px"><br></span=
+></div><div><span style=3D"font-family:arial,sans-serif;font-size:13px">I g=
+oogled it, but didn&#39;t find something related directly. Maybe I googled =
+the wrong key words. So could you please help to explain this last point, o=
+r send me some links to read? Thanks a lot.</span></div>
+
+<div><span style=3D"font-family:arial,sans-serif;font-size:13px"><br></span=
+></div><div><span style=3D"font-family:arial,sans-serif;font-size:13px">Bes=
+t,</span></div><div><span style=3D"font-family:arial,sans-serif;font-size:1=
+3px">Xiaofei</span></div>
+
+</div><div class=3D"gmail_extra"><br><br><div class=3D"gmail_quote">On Tue,=
+ Apr 15, 2014 at 9:47 PM, Elliott, Robert (Server Storage) <span dir=3D"ltr=
+">&lt;<a href=3D"mailto:Elliott@hp.com" target=3D"_blank">Elliott@hp.com</a=
+>&gt;</span> wrote:<br>
+
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex"><div class=3D"">&gt; On 2014-04-15 17:04, Xi=
+aofei Du wrote:<br>
+&gt; &gt; [global]<br>
+&gt; &gt; bs=3D4k<br>
+&gt; &gt; size=3D100m<br>
+&gt; &gt; direct=3D1<br>
+&gt; &gt; filename=3D100mfile<br>
+&gt; &gt;<br>
+<br>
+</div>A few more tips:<br>
+- I don&#39;t see ioengine=3Dlibaio or iodepth=3Dnn in that excerpt.<br>
+- use iostat -mxyz 2 while the test is running to see the IO sizes that the=
+ block layer is sending to the LLD, how many block layer merges are occurri=
+ng, the IO depth being maintained to the LLD, and the IOPS rate.<br>
+- set /sys/block/&lt;drive name&gt;/queue/nomerges to 2 to disable block la=
+yer/scheduler merging.<br>
+- your LLD or controller might have its own cache and/or do sequential merg=
+ing (coalescing) too. =C2=A0What controller are you using?<br>
+- by using a file, you don&#39;t know whether it&#39;s on the inner tracks =
+or outer tracks or somewhere in between.<br>
+- by using a file, you don&#39;t know whether it&#39;s fragmented, making s=
+equential transfers really random to the drive.<br>
+- by using a file, if using an &quot;advanced format&quot; drive (with larg=
+e physical sectors), you have to be wary of unaligned transfers. =C2=A0Is t=
+he partition aligned so all the accesses really go to the drive aligned to =
+4 KiB boundaries?<br>
+
+
+- by using a tiny file size like 100 MiB, writes could easily get buffered =
+in a write cache somewhere along the way; 64 and 128 MiB HDD volatile write=
+ cache sizes are common nowadays, and RAID controllers have multi-GiB non-v=
+olatile write caches.<br>
+
+
+- although you didn&#39;t report results with reads, beware that the drive =
+could end up serving all 100 MiB of random read data from its cache (reads =
+can always be cached, volatile or not), while throwing away sequential pref=
+etched read data after returning that data because the drive does not expec=
+t the data to be read again.<br>
+
+
+- to avoid filesystem interference, directly access the drive with /dev/dis=
+k/by-path, /dev/disk/by-id, or /dev/sdNN type names (or \\.\PhysicalDriveNN=
+ in Windows). =C2=A0If using /dev/sdNN or PhysicalDriveNN, be very careful =
+not to overwrite your boot drive, since the mapping can change every reboot=
+; I don&#39;t think fio provides any protection from doing so.<br>
+
+
+<br>
+</blockquote></div><br></div>
+
+--089e013c661421de8604f732afd6--
 
