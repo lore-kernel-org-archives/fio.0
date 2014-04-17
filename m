@@ -1,197 +1,158 @@
-Return-Path: <xiaofei.du008@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <94D0CD8314A33A4D9D801C0FE68B402956EDB8E4@G9W0745.americas.hpqcorp.net>
+Return-Path: <Elliott@hp.com>
+From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
+Subject: RE: Question about FIO sequential writes
+Date: Thu, 17 Apr 2014 14:30:34 +0000
+Message-ID: <94D0CD8314A33A4D9D801C0FE68B402956EDB8E4@G9W0745.americas.hpqcorp.net>
 References: <CAND_vCYOVgFzN+TQv=onWG-CH2ApczsKUaToxQ-YCiuuJAUr5Q@mail.gmail.com>
- <534DB18A.4050507@kernel.dk> <CAND_vCbQHu4k5Q2RS5XeFYNTh5r1yC0ORYdv0JG-hHan4404kg@mail.gmail.com>
- <534DE08D.2070604@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402956EDA0F2@G9W0745.americas.hpqcorp.net>
- <CAND_vCYxvpDc8cqpQCoZye-eBHCWDajKhecCixDKac7aUOimMw@mail.gmail.com> <94D0CD8314A33A4D9D801C0FE68B402956EDB8E4@G9W0745.americas.hpqcorp.net>
-From: Xiaofei Du <xiaofei.du008@gmail.com>
-Date: Thu, 17 Apr 2014 11:29:51 -0700
-Message-ID: <CAND_vCYQo03ADr68sURiiGfFTm5AH+bqDe6W=u4dhguJfjHj=Q@mail.gmail.com>
-Subject: Re: Question about FIO sequential writes
-Content-Type: multipart/alternative; boundary=001a1134b51ad43ee204f7413992
-To: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
+ <534DB18A.4050507@kernel.dk>
+ <CAND_vCbQHu4k5Q2RS5XeFYNTh5r1yC0ORYdv0JG-hHan4404kg@mail.gmail.com>
+ <534DE08D.2070604@kernel.dk>
+ <94D0CD8314A33A4D9D801C0FE68B402956EDA0F2@G9W0745.americas.hpqcorp.net>
+ <CAND_vCYxvpDc8cqpQCoZye-eBHCWDajKhecCixDKac7aUOimMw@mail.gmail.com>
+In-Reply-To: <CAND_vCYxvpDc8cqpQCoZye-eBHCWDajKhecCixDKac7aUOimMw@mail.gmail.com>
+Content-Language: en-US
+Content-Type: multipart/alternative;
+	boundary="_000_94D0CD8314A33A4D9D801C0FE68B402956EDB8E4G9W0745americas_"
+MIME-Version: 1.0
+To: Xiaofei Du <xiaofei.du008@gmail.com>
 Cc: Jens Axboe <axboe@kernel.dk>, fio <fio@vger.kernel.org>, aaronc <aaronc@cse.unsw.edu.au>
 List-ID: <fio@vger.kernel.org>
 
---001a1134b51ad43ee204f7413992
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+--_000_94D0CD8314A33A4D9D801C0FE68B402956EDB8E4G9W0745americas_
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 
-Robert -- Thank you for the explanation.
+PiBUaGFua3MgZm9yIHRoZSB0aXBzLiBJIGRvbid0IHVuZGVyc3RhbmQgdGhlIGxhc3QgcG9pbnQg
+KC0gdG8gYXZvaWQNCj4gZmlsZXN5c3RlbSBpbnRlcmZlcmVuY2UsIGRpcmVjdGx5IGFjY2VzcyB0
+aGUgZHJpdmUgd2l0aA0KPiAvZGV2L2Rpc2svYnktcGF0aCwgL2Rldi9kaXNrL2J5LWlkLCAuLi4p
+DQoNCj4gSSBnb29nbGVkIGl0LCBidXQgZGlkbid0IGZpbmQgc29tZXRoaW5nIHJlbGF0ZWQgZGly
+ZWN0bHkuIE1heWJlDQo+IEkgZ29vZ2xlZCB0aGUgd3Jvbmcga2V5IHdvcmRzLiBTbyBjb3VsZCB5
+b3UgcGxlYXNlIGhlbHAgdG8NCj4gZXhwbGFpbiB0aGlzIGxhc3QgcG9pbnQsIG9yIHNlbmQgbWUg
+c29tZSBsaW5rcyB0byByZWFkPyBUaGFua3MgYSBsb3QuDQoNClBvaW50IGZpbyB0byBhIGJsb2Nr
+IGRldmljZSByYXRoZXIgdGhhbiBhIGZpbGUsIGxpa2U6DQpmaWxlbmFtZT0vZGV2L3NkYg0KDQpI
+b3dldmVyLCB0aGUgL2Rldi9zZE5OIG5hbWVzIGFyZSBub3QgcGVyc2lzdGVudCBhbmQgY2FuIGNo
+YW5nZSB3aGVuIHlvdSByZWJvb3QuICBJdCBpcyBkYW5nZXJvdXMgdG8gaGFyZGNvZGUgdGhlbSBp
+biBhIGpvYiBkZXNjcmlwdGlvbiBmaWxlIHRoYXQgZG9lcyB3cml0ZXMuIFlvdSBtYXkgdXNlIHRo
+ZXNlIHR5cGVzIG9mIHBhdGhzIGluc3RlYWQ6DQoNCmZpbGVuYW1lPS9kZXYvZGlzay9ieS1wYXRo
+L3BjaS0wMDAwXDowNFw6MDAuMC1zY3NpLTBcOjBcOjBcOjE1DQpwb2ludHMgdG8gdGhlIGNvbnRy
+b2xsZXLigJlzIFBDSSBJRCAoZS5nLiwgZnJvbSBsc3BjaSkgYW5kIHRoZSBvYnNvbGV0ZSBidXM6
+dGFyZ2V0OkxVTiBtYXBwaW5nIHByb3ZpZGVkIGZvciB0aGUgZHJpdmUuICAgIFRoZSBidXM6dGFy
+Z2V0OkxVTiBtYXBwaW5nIG1pZ2h0IG5vdCBiZSBwZXJzaXN0ZW50LCBkZXBlbmRpbmcgb24geW91
+ciBjb250cm9sbGVyIGFuZCBpdHMgZHJpdmVyLg0KDQpmaWxlbmFtZT0vZGV2L2Rpc2svYnktaWQv
+d3duLTB4NTAwMGNjYTAyYjA0MmVmMA0KcG9pbnRzIHRvIHRoZSB3b3JsZHdpZGUgbmFtZSBvZiB0
+aGUgZHJpdmUgKHNhZmVzdCkNCg0KLS0tDQpSb2IgRWxsaW90dCAgICBIUCBTZXJ2ZXIgU3RvcmFn
+ZQ0KDQoNCg==
 
-Jens -- Thank you for your help as well.
+--_000_94D0CD8314A33A4D9D801C0FE68B402956EDB8E4G9W0745americas_
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: base64
 
-Have a great day!!
+PGh0bWwgeG1sbnM6dj0idXJuOnNjaGVtYXMtbWljcm9zb2Z0LWNvbTp2bWwiIHhtbG5zOm89InVy
+bjpzY2hlbWFzLW1pY3Jvc29mdC1jb206b2ZmaWNlOm9mZmljZSIgeG1sbnM6dz0idXJuOnNjaGVt
+YXMtbWljcm9zb2Z0LWNvbTpvZmZpY2U6d29yZCIgeG1sbnM6bT0iaHR0cDovL3NjaGVtYXMubWlj
+cm9zb2Z0LmNvbS9vZmZpY2UvMjAwNC8xMi9vbW1sIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv
+VFIvUkVDLWh0bWw0MCI+DQo8aGVhZD4NCjxtZXRhIGh0dHAtZXF1aXY9IkNvbnRlbnQtVHlwZSIg
+Y29udGVudD0idGV4dC9odG1sOyBjaGFyc2V0PXV0Zi04Ij4NCjxtZXRhIG5hbWU9IkdlbmVyYXRv
+ciIgY29udGVudD0iTWljcm9zb2Z0IFdvcmQgMTQgKGZpbHRlcmVkIG1lZGl1bSkiPg0KPHN0eWxl
+PjwhLS0NCi8qIEZvbnQgRGVmaW5pdGlvbnMgKi8NCkBmb250LWZhY2UNCgl7Zm9udC1mYW1pbHk6
+IkNhbWJyaWEgTWF0aCI7DQoJcGFub3NlLTE6MiA0IDUgMyA1IDQgNiAzIDIgNDt9DQpAZm9udC1m
+YWNlDQoJe2ZvbnQtZmFtaWx5OkNhbGlicmk7DQoJcGFub3NlLTE6MiAxNSA1IDIgMiAyIDQgMyAy
+IDQ7fQ0KLyogU3R5bGUgRGVmaW5pdGlvbnMgKi8NCnAuTXNvTm9ybWFsLCBsaS5Nc29Ob3JtYWws
+IGRpdi5Nc29Ob3JtYWwNCgl7bWFyZ2luOjBpbjsNCgltYXJnaW4tYm90dG9tOi4wMDAxcHQ7DQoJ
+Zm9udC1zaXplOjEyLjBwdDsNCglmb250LWZhbWlseToiVGltZXMgTmV3IFJvbWFuIiwic2VyaWYi
+O30NCmE6bGluaywgc3Bhbi5Nc29IeXBlcmxpbmsNCgl7bXNvLXN0eWxlLXByaW9yaXR5Ojk5Ow0K
+CWNvbG9yOmJsdWU7DQoJdGV4dC1kZWNvcmF0aW9uOnVuZGVybGluZTt9DQphOnZpc2l0ZWQsIHNw
+YW4uTXNvSHlwZXJsaW5rRm9sbG93ZWQNCgl7bXNvLXN0eWxlLXByaW9yaXR5Ojk5Ow0KCWNvbG9y
+OnB1cnBsZTsNCgl0ZXh0LWRlY29yYXRpb246dW5kZXJsaW5lO30NCnNwYW4uRW1haWxTdHlsZTE3
+DQoJe21zby1zdHlsZS10eXBlOnBlcnNvbmFsLXJlcGx5Ow0KCWZvbnQtZmFtaWx5OiJDYWxpYnJp
+Iiwic2Fucy1zZXJpZiI7DQoJY29sb3I6IzFGNDk3RDt9DQouTXNvQ2hwRGVmYXVsdA0KCXttc28t
+c3R5bGUtdHlwZTpleHBvcnQtb25seTsNCglmb250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2Vy
+aWYiO30NCkBwYWdlIFdvcmRTZWN0aW9uMQ0KCXtzaXplOjguNWluIDExLjBpbjsNCgltYXJnaW46
+MS4waW4gMS4waW4gMS4waW4gMS4waW47fQ0KZGl2LldvcmRTZWN0aW9uMQ0KCXtwYWdlOldvcmRT
+ZWN0aW9uMTt9DQotLT48L3N0eWxlPjwhLS1baWYgZ3RlIG1zbyA5XT48eG1sPg0KPG86c2hhcGVk
+ZWZhdWx0cyB2OmV4dD0iZWRpdCIgc3BpZG1heD0iMTAyNiIgLz4NCjwveG1sPjwhW2VuZGlmXS0t
+PjwhLS1baWYgZ3RlIG1zbyA5XT48eG1sPg0KPG86c2hhcGVsYXlvdXQgdjpleHQ9ImVkaXQiPg0K
+PG86aWRtYXAgdjpleHQ9ImVkaXQiIGRhdGE9IjEiIC8+DQo8L286c2hhcGVsYXlvdXQ+PC94bWw+
+PCFbZW5kaWZdLS0+DQo8L2hlYWQ+DQo8Ym9keSBsYW5nPSJFTi1VUyIgbGluaz0iYmx1ZSIgdmxp
+bms9InB1cnBsZSI+DQo8ZGl2IGNsYXNzPSJXb3JkU2VjdGlvbjEiPg0KPHAgY2xhc3M9Ik1zb05v
+cm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2Fs
+aWJyaSZxdW90OywmcXVvdDtzYW5zLXNlcmlmJnF1b3Q7O2NvbG9yOiMxRjQ5N0QiPiZndDsgVGhh
+bmtzIGZvciB0aGUgdGlwcy4gSSBkb24ndCB1bmRlcnN0YW5kIHRoZSBsYXN0IHBvaW50ICgtIHRv
+IGF2b2lkPG86cD48L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4g
+c3R5bGU9ImZvbnQtc2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90Oywm
+cXVvdDtzYW5zLXNlcmlmJnF1b3Q7O2NvbG9yOiMxRjQ5N0QiPiZndDsgZmlsZXN5c3RlbSBpbnRl
+cmZlcmVuY2UsIGRpcmVjdGx5IGFjY2VzcyB0aGUgZHJpdmUgd2l0aA0KPG86cD48L286cD48L3Nw
+YW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMS4w
+cHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90OywmcXVvdDtzYW5zLXNlcmlmJnF1b3Q7
+O2NvbG9yOiMxRjQ5N0QiPiZndDsgL2Rldi9kaXNrL2J5LXBhdGgsIC9kZXYvZGlzay9ieS1pZCwg
+Li4uKTxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0
+eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OiZxdW90O0NhbGlicmkmcXVvdDssJnF1
+b3Q7c2Fucy1zZXJpZiZxdW90Oztjb2xvcjojMUY0OTdEIj48bzpwPiZuYnNwOzwvbzpwPjwvc3Bh
+bj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1zaXplOjExLjBw
+dDtmb250LWZhbWlseTomcXVvdDtDYWxpYnJpJnF1b3Q7LCZxdW90O3NhbnMtc2VyaWYmcXVvdDs7
+Y29sb3I6IzFGNDk3RCI+Jmd0OyBJIGdvb2dsZWQgaXQsIGJ1dCBkaWRuJ3QgZmluZCBzb21ldGhp
+bmcgcmVsYXRlZCBkaXJlY3RseS4gTWF5YmUNCjxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNs
+YXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5
+OiZxdW90O0NhbGlicmkmcXVvdDssJnF1b3Q7c2Fucy1zZXJpZiZxdW90Oztjb2xvcjojMUY0OTdE
+Ij4mZ3Q7IEkgZ29vZ2xlZCB0aGUgd3Jvbmcga2V5IHdvcmRzLiBTbyBjb3VsZCB5b3UgcGxlYXNl
+IGhlbHAgdG8NCjxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxz
+cGFuIHN0eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OiZxdW90O0NhbGlicmkmcXVv
+dDssJnF1b3Q7c2Fucy1zZXJpZiZxdW90Oztjb2xvcjojMUY0OTdEIj4mZ3Q7IGV4cGxhaW4gdGhp
+cyBsYXN0IHBvaW50LCBvciBzZW5kIG1lIHNvbWUgbGlua3MgdG8gcmVhZD8gVGhhbmtzIGEgbG90
+LjxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxl
+PSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OiZxdW90O0NhbGlicmkmcXVvdDssJnF1b3Q7
+c2Fucy1zZXJpZiZxdW90Oztjb2xvcjojMUY0OTdEIj48bzpwPiZuYnNwOzwvbzpwPjwvc3Bhbj48
+L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1zaXplOjExLjBwdDtm
+b250LWZhbWlseTomcXVvdDtDYWxpYnJpJnF1b3Q7LCZxdW90O3NhbnMtc2VyaWYmcXVvdDs7Y29s
+b3I6IzFGNDk3RCI+UG9pbnQgZmlvIHRvIGEgYmxvY2sgZGV2aWNlIHJhdGhlciB0aGFuIGEgZmls
+ZSwgbGlrZTo8bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3Bh
+biBzdHlsZT0iZm9udC1zaXplOjExLjBwdDtmb250LWZhbWlseTomcXVvdDtDYWxpYnJpJnF1b3Q7
+LCZxdW90O3NhbnMtc2VyaWYmcXVvdDs7Y29sb3I6IzFGNDk3RCI+ZmlsZW5hbWU9L2Rldi9zZGI8
+bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0i
+Zm9udC1zaXplOjExLjBwdDtmb250LWZhbWlseTomcXVvdDtDYWxpYnJpJnF1b3Q7LCZxdW90O3Nh
+bnMtc2VyaWYmcXVvdDs7Y29sb3I6IzFGNDk3RCI+PG86cD4mbmJzcDs8L286cD48L3NwYW4+PC9w
+Pg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMS4wcHQ7Zm9u
+dC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90OywmcXVvdDtzYW5zLXNlcmlmJnF1b3Q7O2NvbG9y
+OiMxRjQ5N0QiPkhvd2V2ZXIsIHRoZSAvZGV2L3NkTk4gbmFtZXMgYXJlIG5vdCBwZXJzaXN0ZW50
+IGFuZCBjYW4gY2hhbmdlIHdoZW4geW91IHJlYm9vdC4mbmJzcDsgSXQgaXMgZGFuZ2Vyb3VzIHRv
+IGhhcmRjb2RlIHRoZW0gaW4gYSBqb2IgZGVzY3JpcHRpb24gZmlsZSB0aGF0IGRvZXMgd3JpdGVz
+Lg0KIFlvdSBtYXkgdXNlIHRoZXNlIHR5cGVzIG9mIHBhdGhzIGluc3RlYWQ6PG86cD48L286cD48
+L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTox
+MS4wcHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90OywmcXVvdDtzYW5zLXNlcmlmJnF1
+b3Q7O2NvbG9yOiMxRjQ5N0QiPjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNz
+PSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OiZx
+dW90O0NhbGlicmkmcXVvdDssJnF1b3Q7c2Fucy1zZXJpZiZxdW90Oztjb2xvcjojMUY0OTdEIj5m
+aWxlbmFtZT0vZGV2L2Rpc2svYnktcGF0aC9wY2ktMDAwMFw6MDRcOjAwLjAtc2NzaS0wXDowXDow
+XDoxNTxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0
+eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OiZxdW90O0NhbGlicmkmcXVvdDssJnF1
+b3Q7c2Fucy1zZXJpZiZxdW90Oztjb2xvcjojMUY0OTdEIj5wb2ludHMgdG8gdGhlIGNvbnRyb2xs
+ZXLigJlzIFBDSSBJRCAoZS5nLiwgZnJvbSBsc3BjaSkgYW5kIHRoZSBvYnNvbGV0ZSBidXM6dGFy
+Z2V0OkxVTiBtYXBwaW5nIHByb3ZpZGVkIGZvciB0aGUgZHJpdmUuJm5ic3A7ICZuYnNwOyZuYnNw
+O1RoZSBidXM6dGFyZ2V0OkxVTiBtYXBwaW5nIG1pZ2h0IG5vdA0KIGJlIHBlcnNpc3RlbnQsIGRl
+cGVuZGluZyBvbiB5b3VyIGNvbnRyb2xsZXIgYW5kIGl0cyBkcml2ZXIuPG86cD48L286cD48L3Nw
+YW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMS4w
+cHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90OywmcXVvdDtzYW5zLXNlcmlmJnF1b3Q7
+O2NvbG9yOiMxRjQ5N0QiPjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJN
+c29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OiZxdW90
+O0NhbGlicmkmcXVvdDssJnF1b3Q7c2Fucy1zZXJpZiZxdW90Oztjb2xvcjojMUY0OTdEIj5maWxl
+bmFtZT0vZGV2L2Rpc2svYnktaWQvd3duLTB4NTAwMGNjYTAyYjA0MmVmMDxvOnA+PC9vOnA+PC9z
+cGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTEu
+MHB0O2ZvbnQtZmFtaWx5OiZxdW90O0NhbGlicmkmcXVvdDssJnF1b3Q7c2Fucy1zZXJpZiZxdW90
+Oztjb2xvcjojMUY0OTdEIj5wb2ludHMgdG8gdGhlIHdvcmxkd2lkZSBuYW1lIG9mIHRoZSBkcml2
+ZSAoc2FmZXN0KTxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxz
+cGFuIHN0eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OiZxdW90O0NhbGlicmkmcXVv
+dDssJnF1b3Q7c2Fucy1zZXJpZiZxdW90Oztjb2xvcjojMUY0OTdEIj48bzpwPiZuYnNwOzwvbzpw
+Pjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1zaXpl
+OjExLjBwdDtmb250LWZhbWlseTomcXVvdDtDYWxpYnJpJnF1b3Q7LCZxdW90O3NhbnMtc2VyaWYm
+cXVvdDs7Y29sb3I6IzFGNDk3RCI+LS0tPG86cD48L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9
+Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6JnF1
+b3Q7Q2FsaWJyaSZxdW90OywmcXVvdDtzYW5zLXNlcmlmJnF1b3Q7O2NvbG9yOiMxRjQ5N0QiPlJv
+YiBFbGxpb3R0Jm5ic3A7Jm5ic3A7Jm5ic3A7IEhQIFNlcnZlciBTdG9yYWdlPG86cD48L286cD48
+L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTox
+MS4wcHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90OywmcXVvdDtzYW5zLXNlcmlmJnF1
+b3Q7O2NvbG9yOiMxRjQ5N0QiPjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNsYXNz
+PSJNc29Ob3JtYWwiPjxvOnA+Jm5ic3A7PC9vOnA+PC9wPg0KPC9kaXY+DQo8L2JvZHk+DQo8L2h0
+bWw+DQo=
 
-Best,
-Xiaofei
-
-
-
-On Thu, Apr 17, 2014 at 7:30 AM, Elliott, Robert (Server Storage) <
-Elliott@hp.com> wrote:
-
->  > Thanks for the tips. I don't understand the last point (- to avoid
->
-> > filesystem interference, directly access the drive with
->
-> > /dev/disk/by-path, /dev/disk/by-id, ...)
->
->
->
-> > I googled it, but didn't find something related directly. Maybe
->
-> > I googled the wrong key words. So could you please help to
->
-> > explain this last point, or send me some links to read? Thanks a lot.
->
->
->
-> Point fio to a block device rather than a file, like:
->
-> filename=3D/dev/sdb
->
->
->
-> However, the /dev/sdNN names are not persistent and can change when you
-> reboot.  It is dangerous to hardcode them in a job description file that
-> does writes. You may use these types of paths instead:
->
->
->
-> filename=3D/dev/disk/by-path/pci-0000\:04\:00.0-scsi-0\:0\:0\:15
->
-> points to the controller=E2=80=99s PCI ID (e.g., from lspci) and the obso=
-lete
-> bus:target:LUN mapping provided for the drive.    The bus:target:LUN
-> mapping might not be persistent, depending on your controller and its
-> driver.
->
->
->
-> filename=3D/dev/disk/by-id/wwn-0x5000cca02b042ef0
->
-> points to the worldwide name of the drive (safest)
->
->
->
-> ---
->
-> Rob Elliott    HP Server Storage
->
->
->
->
->
-
---001a1134b51ad43ee204f7413992
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div>Robert -- Thank you for the explanation.</div><div><b=
-r></div><div>Jens -- Thank you for your help as well.</div><div><br></div><=
-div>Have a great day!!<br></div><div><br></div><div>Best,</div><div>Xiaofei=
-</div>
-
-<div><br></div></div><div class=3D"gmail_extra"><br><br><div class=3D"gmail=
-_quote">On Thu, Apr 17, 2014 at 7:30 AM, Elliott, Robert (Server Storage) <=
-span dir=3D"ltr">&lt;<a href=3D"mailto:Elliott@hp.com" target=3D"_blank">El=
-liott@hp.com</a>&gt;</span> wrote:<br>
-
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex">
-
-
-
-
-
-<div lang=3D"EN-US" link=3D"blue" vlink=3D"purple">
-<div><div class=3D"">
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d">&gt; Thanks for the tips.=
- I don&#39;t understand the last point (- to avoid<u></u><u></u></span></p>
-
-
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d">&gt; filesystem interfere=
-nce, directly access the drive with
-<u></u><u></u></span></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d">&gt; /dev/disk/by-path, /=
-dev/disk/by-id, ...)<u></u><u></u></span></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d"><u></u>=C2=A0<u></u></spa=
-n></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d">&gt; I googled it, but di=
-dn&#39;t find something related directly. Maybe
-<u></u><u></u></span></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d">&gt; I googled the wrong =
-key words. So could you please help to
-<u></u><u></u></span></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d">&gt; explain this last po=
-int, or send me some links to read? Thanks a lot.<u></u><u></u></span></p>
-
-
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d"><u></u>=C2=A0<u></u></spa=
-n></p>
-</div><p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&q=
-uot;Calibri&quot;,&quot;sans-serif&quot;;color:#1f497d">Point fio to a bloc=
-k device rather than a file, like:<u></u><u></u></span></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d">filename=3D/dev/sdb<u></u=
-><u></u></span></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d"><u></u>=C2=A0<u></u></spa=
-n></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d">However, the /dev/sdNN na=
-mes are not persistent and can change when you reboot.=C2=A0 It is dangerou=
-s to hardcode them in a job description file that does writes.
- You may use these types of paths instead:<u></u><u></u></span></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d"><u></u>=C2=A0<u></u></spa=
-n></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d">filename=3D/dev/disk/by-p=
-ath/pci-0000\:04\:00.0-scsi-0\:0\:0\:15<u></u><u></u></span></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d">points to the controller=
-=E2=80=99s PCI ID (e.g., from lspci) and the obsolete bus:target:LUN mappin=
-g provided for the drive.=C2=A0 =C2=A0=C2=A0The bus:target:LUN mapping migh=
-t not
- be persistent, depending on your controller and its driver.<u></u><u></u><=
-/span></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d"><u></u>=C2=A0<u></u></spa=
-n></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d">filename=3D/dev/disk/by-i=
-d/wwn-0x5000cca02b042ef0<u></u><u></u></span></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d">points to the worldwide n=
-ame of the drive (safest)<u></u><u></u></span></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d"><u></u>=C2=A0<u></u></spa=
-n></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d">---<u></u><u></u></span><=
-/p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d">Rob Elliott=C2=A0=C2=A0=
-=C2=A0 HP Server Storage<u></u><u></u></span></p>
-<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
-libri&quot;,&quot;sans-serif&quot;;color:#1f497d"><u></u>=C2=A0<u></u></spa=
-n></p>
-<p class=3D"MsoNormal"><u></u>=C2=A0<u></u></p>
-</div>
-</div>
-
-</blockquote></div><br></div>
-
---001a1134b51ad43ee204f7413992--
+--_000_94D0CD8314A33A4D9D801C0FE68B402956EDB8E4G9W0745americas_--
 
