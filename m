@@ -1,74 +1,37 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <53554C4D.60706@kernel.dk>
-Date: Mon, 21 Apr 2014 10:50:21 -0600
-From: Jens Axboe <axboe@kernel.dk>
-MIME-Version: 1.0
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-ie0-f176.google.com ([209.85.223.176]:44654 "EHLO
+	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751736AbaDUQkk convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Mon, 21 Apr 2014 12:40:40 -0400
+Received: by mail-ie0-f176.google.com with SMTP id rd18so4000380iec.7
+        for <fio@vger.kernel.org>; Mon, 21 Apr 2014 09:40:39 -0700 (PDT)
+Content-Type: text/plain; charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 6.6 \(1510\))
 Subject: Re: runtime resets eta after countdown
-References: <F73CB16A-07C1-4E7B-AD65-2045F7538FBF@gmail.com>
-In-Reply-To: <F73CB16A-07C1-4E7B-AD65-2045F7538FBF@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-To: Vasu Kulkarni <vasu.kulkarni@gmail.com>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+From: Vasu Kulkarni <vasu.kulkarni@gmail.com>
+In-Reply-To: <A7A1D348E34E024BBC74480FB93A2EAB1086BE95@DAGN05B-E6.exg6.exghost.com>
+Date: Mon, 21 Apr 2014 09:40:36 -0700
+Content-Transfer-Encoding: 8BIT
+Message-Id: <8BEF02A4-AC51-4C98-8495-00FECE136C9E@gmail.com>
+References: <F73CB16A-07C1-4E7B-AD65-2045F7538FBF@gmail.com> <A7A1D348E34E024BBC74480FB93A2EAB1086BE95@DAGN05B-E6.exg6.exghost.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Carl Zwanzig <cpz@coraid.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 04/20/2014 11:08 AM, Vasu Kulkarni wrote:
-> I see the following issue with my testing,  runtime always resets  eta to some higher number after countdown to 0
-> 
-> [randon_rw1]
-> rw=randrw
-> iodepth=8
-> runtime=24
-> ioengine=sync
-> filename=/dev/mapper/mpathdeo:/dev/mapper/mpathdep
-> 
-> 
-> or
-> 
-> [randon_rw1]
-> rw=randrw
-> iodepth=4
-> runtime=24
-> ioengine=sync
-> filename=/dev/mapper/mpathdeo
-> filename=/dev/mapper/mpathdep
-> 
-> both devices have 8 paths
-> 
-> mpathdep (23035376338373633) dm-7 FUSIONIO,ION LUN
-> size=382G features='3 queue_if_no_path pg_init_retries 50' hwhandler='1 alua' wp=rw
-> |-+- policy='queue-length 0' prio=130 status=active
-> | |- 0:0:1:5 sdk  8:160  active ready running
-> | |- 1:0:1:5 sdl  8:176  active ready running
-> | |- 1:0:0:5 sdaa 65:160 active ready running
-> | `- 0:0:0:5 sdab 65:176 active ready running
-> `-+- policy='queue-length 0' prio=1 status=enabled
->   |- 1:0:2:5 sdar 66:176 active ready running
->   |- 0:0:2:5 sdas 66:192 active ready running
->   |- 0:0:3:5 sdbi 67:192 active ready running
->   `- 1:0:3:5 sdbh 67:176 active ready running
-> mpathdeo (26361306637636532) dm-6 FUSIONIO,ION LUN
-> size=345G features='3 queue_if_no_path pg_init_retries 50' hwhandler='1 alua' wp=rw
-> |-+- policy='queue-length 0' prio=130 status=active
-> | |- 0:0:2:4 sdap 66:144 active ready running
-> | |- 1:0:2:4 sdaq 66:160 active ready running
-> | |- 1:0:3:4 sdbf 67:144 active ready running
-> | `- 0:0:3:4 sdbg 67:160 active ready running
-> `-+- policy='queue-length 0' prio=1 status=enabled
->   |- 1:0:1:4 sdj  8:144  active ready running
->   |- 0:0:1:4 sdi  8:128  active ready running
->   |- 0:0:0:4 sdy  65:128 active ready running
->   `- 1:0:0:4 sdz  65:144 active ready running
-> 
-> 
-> runtime gradually decreases from 24 seconds to 1 seconds and then eta is reset back to 4hours,  if there is only one device the runtime works properly
+What is the workaround for this issue? I tried SIGINT but it doesn't always generate the numbers 
 
-Just tried this with current fio -git, and it seems to work fine. Counts
-down from 24s to 0, then quits and displays results. Can you try and
-download the latest snapshot and re-test?
+randon_rw1: (groupid=0, jobs=1): err= 0: pid=29726: Mon Apr 21 00:20:13 2014
+    lat (usec) : 2=0.04%, 4=32.08%, 10=17.79%, 20=0.03%, 50=8.33%
+    lat (usec) : 100=41.23%, 250=0.41%, 500=0.02%, 750=0.01%, 1000=0.01%
+    lat (msec) : 2=0.01%, 4=0.01%, 10=0.03%, 20=0.01%, 50=0.01%
+    lat (msec) : 100=0.01%, 250=0.01%, 500=0.01%
+  cpu          : usr=0.00%, sys=0.00%, ctx=11640791, majf=3, minf=47
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued    : total=r=9359258/w=9362934/d=0, short=r=0/w=0/d=0
+     latency   : target=0, window=0, percentile=100.00%, depth=8
 
-http://brick.kernel.dk/snaps/fio-git-latest.tar.gz
-
--- 
-Jens Axboe
-
+Run status group 0 (all jobs):
 
