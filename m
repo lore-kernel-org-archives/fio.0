@@ -1,68 +1,42 @@
-Return-Path: <xiaofei.du008@gmail.com>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <535F0803.3060704@kernel.dk>
+Date: Mon, 28 Apr 2014 20:01:39 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-From: Xiaofei Du <xiaofei.du008@gmail.com>
-Date: Tue, 15 Apr 2014 15:14:24 -0700
-Message-ID: <CAND_vCYOVgFzN+TQv=onWG-CH2ApczsKUaToxQ-YCiuuJAUr5Q@mail.gmail.com>
-Subject: Question about FIO sequential writes
-Content-Type: multipart/alternative; boundary=001a1134b51a261cf604f71c213b
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, aaronc@cse.unsw.edu.au
+Subject: Re: Ubuntu-13.10-- fio: engine libaio not loadable
+References: <89470388ACB8A24491F3E64F24385FD75A488BB5@wdscexmb03>
+In-Reply-To: <89470388ACB8A24491F3E64F24385FD75A488BB5@wdscexmb03>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Stephen Nichols <Stephen.Nichols@wdc.com>, "'fio@vger.kernel.org'" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
---001a1134b51a261cf604f71c213b
-Content-Type: text/plain; charset=UTF-8
+On 2014-04-28 17:59, Stephen Nichols wrote:
+> Greetings all.
+>
+> I have a issues using the libaio engine on Ubuntu-13.10. FIO version 2.1.8 is installed and runs fine if I leave the -ioengine option out of my configuration (it defaults to ioengine sync). When I try and use -ioengine=libaio I receive the errors
+>
+> fio: engine libaio not loadable
+> fio: failed to lead engine libaio
+>
+> I have use these identical workloads on Suse 11, RH6, and Cent OS systems with no issue. And even after specifically installing libaio on Ubuntu I still see these issues.
+>
+> apt-get install libaio1
+>
+> Any ideas? I'm suspecting this is user error but I can't see where I went wrong.
 
-Dear Jens,
+You need libaio-devel (or whatever the package is called) installed, 
+otherwise fio can't build with libaio enabled. Watch the configure 
+output, it'll tell you what it detects:
 
-I have a couple questions about FIO.
+$ ./configure
+[...]
+Linux AIO support             yes
 
-First question. For default ioengine, with direct IO option enabled. On a
-hard drive with writing cache disabled. I got random writes faster than
-sequential writes. I couldn't explain this. Can you please help me explain
-if you know the reason. Could that be a bug?
+This is also detailed in the "Building" section in the README that came 
+with fio.
 
-Second question. For libaio ioengin, with direct IO option enabled and on a
-hard drive with writing cache disabled, I could get very high IOPS for
-sequential writes if I keep increasing the iodepth. The IOPS I got seems
-unreasonable. It could go up to 16000 IOPS for 4k blocks. So is there
-anything wrong with sequential writes in FIO?
+-- 
+Jens Axboe
 
-Thanks a lot for your help.
-
-Best,
-Xiaofei
-
---001a1134b51a261cf604f71c213b
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><span style=3D"font-family:arial,sans-serif;font-size:13px=
-">Dear Jens,</span><div style=3D"font-family:arial,sans-serif;font-size:13p=
-x"><br></div><div style=3D"font-family:arial,sans-serif;font-size:13px">I h=
-ave a couple questions about FIO.</div>
-
-<div style=3D"font-family:arial,sans-serif;font-size:13px"><br></div><div s=
-tyle=3D"font-family:arial,sans-serif;font-size:13px">First question. For de=
-fault ioengine, with direct IO option enabled. On a hard drive with writing=
- cache disabled. I got random writes faster than sequential writes. I could=
-n&#39;t explain this. Can you please help me explain if you know the reason=
-. Could that be a bug?</div>
-
-<div style=3D"font-family:arial,sans-serif;font-size:13px"><br></div><div s=
-tyle=3D"font-family:arial,sans-serif;font-size:13px">Second question. For l=
-ibaio ioengin, with direct IO option enabled and on a hard drive with writi=
-ng cache disabled, I could get very high IOPS for sequential writes if I ke=
-ep increasing the iodepth. The IOPS I got seems unreasonable. It could go u=
-p to 16000 IOPS for 4k blocks. So is there anything wrong with sequential w=
-rites in FIO?</div>
-
-<div style=3D"font-family:arial,sans-serif;font-size:13px"><br></div><div s=
-tyle=3D"font-family:arial,sans-serif;font-size:13px">Thanks a lot for your =
-help.</div><div style=3D"font-family:arial,sans-serif;font-size:13px"><br><=
-/div>
-
-<div style=3D"font-family:arial,sans-serif;font-size:13px">Best,</div><div =
-style=3D"font-family:arial,sans-serif;font-size:13px">Xiaofei</div></div>
-
---001a1134b51a261cf604f71c213b--
 
