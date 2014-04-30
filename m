@@ -1,56 +1,29 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:57884 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753153AbaDQMAE (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 17 Apr 2014 08:00:04 -0400
-Received: from kernel.dk ([54.225.238.116] helo=rt116.dk)
-	by merlin.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1Wakz6-0007Gk-6W
-	for fio@vger.kernel.org; Thu, 17 Apr 2014 12:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20140417120002.EE9504006B@rt116.dk>
-Date: Thu, 17 Apr 2014 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <danny.al-gaaf@bisect.de>
+Message-ID: <53617267.8070909@bisect.de>
+Date: Thu, 01 May 2014 00:00:07 +0200
+From: Danny Al-Gaaf <danny.al-gaaf@bisect.de>
+Reply-To: Danny Al-Gaaf <danny.al-gaaf@bisect.de>
+MIME-Version: 1.0
+Subject: Re: [PATCH] crc/test.c: fix include of time.h
+References: <1398883696-12041-1-git-send-email-danny.al-gaaf@bisect.de> <5361647E.6090904@kernel.dk>
+In-Reply-To: <5361647E.6090904@kernel.dk>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+Cc: Daniel Gollub <daniel.gollub@t-online.de>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 3a35845f7756a8a86b420650bff41267192dce22:
+Am 30.04.2014 23:00, schrieb Jens Axboe:
+> On 04/30/2014 12:48 PM, Danny Al-Gaaf wrote:
+>> Replace include of time.h with renamed fio_time.h to fix build.
+> 
+> Thanks Danny, applied. Mine still builds fine, for some odd reason...
+> But it of course needs fixing.
+> 
 
-  sg/binject: only restore file flags if they have been set (2014-04-15 09:07:44 -0600)
+It seems it was the same strange issue for Daniel.
 
-are available in the git repository at:
+Regards,
 
-  git://git.kernel.dk/fio.git master
+Danny
 
-for you to fetch changes up to d1faa06dc74fcdcae02e70260c90121502ef01cf:
-
-  Error out if the set blocksize is larger than the file size (2014-04-16 23:51:27 +0200)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Error out if the set blocksize is larger than the file size
-
- filesetup.c |    5 +++++
- 1 file changed, 5 insertions(+)
-
----
-
-Diff of recent changes:
-
-diff --git a/filesetup.c b/filesetup.c
-index 60e7947..79eea9f 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -885,6 +885,11 @@ int setup_files(struct thread_data *td)
- 	if (!o->size || o->size > total_size)
- 		o->size = total_size;
- 
-+	if (o->size < td_min_bs(td)) {
-+		log_err("fio: blocksize too large for data set\n");
-+		goto err_out;
-+	}
-+
- 	/*
- 	 * See if we need to extend some files
- 	 */
