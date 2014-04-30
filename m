@@ -1,140 +1,111 @@
-Return-Path: <sendtold@gmail.com>
-MIME-Version: 1.0
-Date: Thu, 3 Apr 2014 10:49:37 -0500
-Message-ID: <CAEyTGCfGRExp32sZhnEash1LN26z9mCUeVuSP5T8mKpMu002+g@mail.gmail.com>
-Subject: FIO hangs and shows HUGE eta while replaying blkparse.bin files - 2.1.6.1
-From: Lakshmi <sendtold@gmail.com>
-Content-Type: multipart/mixed; boundary=001a11c14a4632080204f625590b
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from wp188.webpack.hosteurope.de ([80.237.132.195]:50637 "EHLO
+	wp188.webpack.hosteurope.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751983AbaD3J0H (ORCPT
+	<rfc822;fio@vger.kernel.org>); Wed, 30 Apr 2014 05:26:07 -0400
+From: Daniel Gollub <d.gollub@telekom.de>
+Subject: [PATCH] Rename time.h for third-party include of fio.h
+Date: Wed, 30 Apr 2014 11:25:04 +0200
+Message-Id: <1398849904-6013-2-git-send-email-d.gollub@telekom.de>
+In-Reply-To: <1398849904-6013-1-git-send-email-d.gollub@telekom.de>
+References: <1398849904-6013-1-git-send-email-d.gollub@telekom.de>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
+Cc: Daniel Gollub <d.gollub@telekom.de>, Daniel Gollub <daniel.gollub@t-online.de>
 
---001a11c14a4632080204f625590b
-Content-Type: text/plain; charset=ISO-8859-1
+External project might build external ioengines and need to
+include there for fio.h. If a project set the include path
+to the fio root source directory and the third-party source
+holds an "time.h" as well things get complicated.
 
-Hello,
+Signed-off-by: Daniel Gollub <d.gollub@telekom.de>
+Cc: Daniel Gollub <daniel.gollub@t-online.de>
+---
+ fio.h      |    2 +-
+ fio_time.h |   19 +++++++++++++++++++
+ mutex.c    |    2 +-
+ time.h     |   19 -------------------
+ 4 files changed, 21 insertions(+), 21 deletions(-)
+ create mode 100644 fio_time.h
+ delete mode 100644 time.h
 
-  I am having a strange problem. I am trying to replay the blkparsed
-binary files through FIO and FIO hangs staying at a certain % and the
-eta time just keeps increasing.
-=====================================
-job2: (g=0): rw=read, bs=4K-4K/4K-4K/4K-4K, ioengine=sync, iodepth=1
-fio-2.1.6.1
-Starting 1 process
-Jobs: 1 (f=1): [W] [45.9% done] [0KB/0KB/0KB /s] [0/0/0 iops] [eta 00m:20s]
-
-=====================================
-
-Input file for FIO job to replay- file_65208400.bin
-
-Attached are the file_65208400.bin file used in FIO and the text file
-of the blktrace that was run in parallel when the above job was
-running.
-
-The trace text file doesn't show any information on what went wrong ,
-and can anyone give me some pointers on debugging this?
-
-Appreciate it.
-
-Thanks,
-Lakshmi
-
---001a11c14a4632080204f625590b
-Content-Type: text/plain; charset=US-ASCII; name="bp_FIO_Job.txt"
-Content-Disposition: attachment; filename="bp_FIO_Job.txt"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_htk7wkww1
-
-ICA4LDAgICAyNCAgICAgICAgMSAgICAgMC4wMDAwMDAwMDAgMTMzMDEgIFEgIFdTIDE3MTgxOTI4
-MDU2ICsgOCBbZmlvXQ0KICA4LDAgICAyNCAgICAgICAgMiAgICAgMC4wMDAwMDMwNjEgMTMzMDEg
-IEcgIFdTIDE3MTgxOTI4MDU2ICsgOCBbZmlvXQ0KICA4LDAgICAyNCAgICAgICAgMyAgICAgMC4w
-MDAwMDM4NzcgMTMzMDEgIFAgICBOIFtmaW9dDQogIDgsMCAgIDI0ICAgICAgICA0ICAgICAwLjAw
-MDAwNTU3NSAxMzMwMSAgSSAgV1MgMTcxODE5MjgwNTYgKyA4IFtmaW9dDQogIDgsMCAgIDI0ICAg
-ICAgICA1ICAgICAwLjAwMDAwNjQ2OSAxMzMwMSAgVSAgIE4gW2Zpb10gMQ0KICA4LDAgICAyNCAg
-ICAgICAgNiAgICAgMC4wMDAwMDcyNTggMTMzMDEgIEQgIFdTIDE3MTgxOTI4MDU2ICsgOCBbZmlv
-XQ0KICA4LDAgICAyNCAgICAgICAgNyAgICAgMC4wMDAwNjQ4NDQgICAgIDAgIEMgIFdTIDE3MTgx
-OTI4MDU2ICsgOCBbMF0NCiAgOCwwICAgMjQgICAgICAgIDggICAgIDAuMDA0ODQ1MjgyIDEzMzAx
-ICBRICBXUyAxNzE4MTkyODA1NiArIDggW2Zpb10NCiAgOCwwICAgMjQgICAgICAgIDkgICAgIDAu
-MDA0ODQ2MDY3IDEzMzAxICBHICBXUyAxNzE4MTkyODA1NiArIDggW2Zpb10NCiAgOCwwICAgMjQg
-ICAgICAgMTAgICAgIDAuMDA0ODQ2MzEzIDEzMzAxICBQICAgTiBbZmlvXQ0KICA4LDAgICAyNCAg
-ICAgICAxMSAgICAgMC4wMDQ4NDY4NDQgMTMzMDEgIEkgIFdTIDE3MTgxOTI4MDU2ICsgOCBbZmlv
-XQ0KICA4LDAgICAyNCAgICAgICAxMiAgICAgMC4wMDQ4NDcwODEgMTMzMDEgIFUgICBOIFtmaW9d
-IDENCiAgOCwwICAgMjQgICAgICAgMTMgICAgIDAuMDA0ODQ3Mzc2IDEzMzAxICBEICBXUyAxNzE4
-MTkyODA1NiArIDggW2Zpb10NCiAgOCwwICAgMjQgICAgICAgMTQgICAgIDAuMDA0ODkyNDM4ICAg
-ICAwICBDICBXUyAxNzE4MTkyODA1NiArIDggWzBdDQogIDgsMCAgIDI0ICAgICAgIDE1ICAgICAw
-LjAwNDkwMjEzOSAxMzMwMSAgUSAgV1MgMTcxODE5Mjk0MjQgKyA4IFtmaW9dDQogIDgsMCAgIDI0
-ICAgICAgIDE2ICAgICAwLjAwNDkwMjc1NiAxMzMwMSAgRyAgV1MgMTcxODE5Mjk0MjQgKyA4IFtm
-aW9dDQogIDgsMCAgIDI0ICAgICAgIDE3ICAgICAwLjAwNDkwMjk5NSAxMzMwMSAgUCAgIE4gW2Zp
-b10NCiAgOCwwICAgMjQgICAgICAgMTggICAgIDAuMDA0OTAzNDE3IDEzMzAxICBJICBXUyAxNzE4
-MTkyOTQyNCArIDggW2Zpb10NCiAgOCwwICAgMjQgICAgICAgMTkgICAgIDAuMDA0OTAzNjE2IDEz
-MzAxICBVICAgTiBbZmlvXSAxDQogIDgsMCAgIDI0ICAgICAgIDIwICAgICAwLjAwNDkwMzkwNyAx
-MzMwMSAgRCAgV1MgMTcxODE5Mjk0MjQgKyA4IFtmaW9dDQogIDgsMCAgIDI0ICAgICAgIDIxICAg
-ICAwLjAwNDk0MDUyNiAgICAgMCAgQyAgV1MgMTcxODE5Mjk0MjQgKyA4IFswXQ0KICA4LDAgICAy
-NCAgICAgICAyMiAgICAgMC4wMDYwNTQ2ODggMTMzMDEgIFEgIFdTIDE3MTgxOTI5NDI0ICsgOCBb
-ZmlvXQ0KICA4LDAgICAyNCAgICAgICAyMyAgICAgMC4wMDYwNTUzMTMgMTMzMDEgIEcgIFdTIDE3
-MTgxOTI5NDI0ICsgOCBbZmlvXQ0KICA4LDAgICAyNCAgICAgICAyNCAgICAgMC4wMDYwNTU1MDMg
-MTMzMDEgIFAgICBOIFtmaW9dDQogIDgsMCAgIDI0ICAgICAgIDI1ICAgICAwLjAwNjA1NzI4NiAx
-MzMwMSAgSSAgV1MgMTcxODE5Mjk0MjQgKyA4IFtmaW9dDQogIDgsMCAgIDI0ICAgICAgIDI2ICAg
-ICAwLjAwNjA1NzUzMiAxMzMwMSAgVSAgIE4gW2Zpb10gMQ0KICA4LDAgICAyNCAgICAgICAyNyAg
-ICAgMC4wMDYwNTc3NzQgMTMzMDEgIEQgIFdTIDE3MTgxOTI5NDI0ICsgOCBbZmlvXQ0KICA4LDAg
-ICAyNCAgICAgICAyOCAgICAgMC4wMDYxMDExMTYgICAgIDAgIEMgIFdTIDE3MTgxOTI5NDI0ICsg
-OCBbMF0NCiAgOCwwICAgMjQgICAgICAgMjkgICAgIDAuMDA2MTExMTg4IDEzMzAxICBRICBXUyAx
-NzE4MTkyOTQ5NiArIDggW2Zpb10NCiAgOCwwICAgMjQgICAgICAgMzAgICAgIDAuMDA2MTExNjU3
-IDEzMzAxICBHICBXUyAxNzE4MTkyOTQ5NiArIDggW2Zpb10NCiAgOCwwICAgMjQgICAgICAgMzEg
-ICAgIDAuMDA2MTExODM4IDEzMzAxICBQICAgTiBbZmlvXQ0KICA4LDAgICAyNCAgICAgICAzMiAg
-ICAgMC4wMDYxMTIyMDggMTMzMDEgIEkgIFdTIDE3MTgxOTI5NDk2ICsgOCBbZmlvXQ0KICA4LDAg
-ICAyNCAgICAgICAzMyAgICAgMC4wMDYxMTI0MDcgMTMzMDEgIFUgICBOIFtmaW9dIDENCiAgOCww
-ICAgMjQgICAgICAgMzQgICAgIDAuMDA2MTEyNjI2IDEzMzAxICBEICBXUyAxNzE4MTkyOTQ5NiAr
-IDggW2Zpb10NCiAgOCwwICAgMjQgICAgICAgMzUgICAgIDAuMDA2MTQ5MDAzICAgICAwICBDICBX
-UyAxNzE4MTkyOTQ5NiArIDggWzBdDQogIDgsMCAgIDI0ICAgICAgIDM2ICAgICAwLjAwNzUxOTUz
-MiAxMzMwMSAgUSAgV1MgMTcxODE5Mjk0OTYgKyA4IFtmaW9dDQogIDgsMCAgIDI0ICAgICAgIDM3
-ICAgICAwLjAwNzUyMDA5NCAxMzMwMSAgRyAgV1MgMTcxODE5Mjk0OTYgKyA4IFtmaW9dDQogIDgs
-MCAgIDI0ICAgICAgIDM4ICAgICAwLjAwNzUyMDMwOSAxMzMwMSAgUCAgIE4gW2Zpb10NCiAgOCww
-ICAgMjQgICAgICAgMzkgICAgIDAuMDA3NTIxOTY5IDEzMzAxICBJICBXUyAxNzE4MTkyOTQ5NiAr
-IDggW2Zpb10NCiAgOCwwICAgMjQgICAgICAgNDAgICAgIDAuMDA3NTIyMTc4IDEzMzAxICBVICAg
-TiBbZmlvXSAxDQogIDgsMCAgIDI0ICAgICAgIDQxICAgICAwLjAwNzUyMzc2NCAxMzMwMSAgRCAg
-V1MgMTcxODE5Mjk0OTYgKyA4IFtmaW9dDQogIDgsMCAgIDI0ICAgICAgIDQyICAgICAwLjAwNzU2
-NzAzMiAgICAgMCAgQyAgV1MgMTcxODE5Mjk0OTYgKyA4IFswXQ0KICA4LDAgICAyNCAgICAgICA0
-MyAgICAgMC4wMDc1NzcyMjMgMTMzMDEgIFEgIFdTIDE3MTgxOTMwMjI0ICsgOCBbZmlvXQ0KICA4
-LDAgICAyNCAgICAgICA0NCAgICAgMC4wMDc1Nzc2OTAgMTMzMDEgIEcgIFdTIDE3MTgxOTMwMjI0
-ICsgOCBbZmlvXQ0KICA4LDAgICAyNCAgICAgICA0NSAgICAgMC4wMDc1Nzc4ODUgMTMzMDEgIFAg
-ICBOIFtmaW9dDQogIDgsMCAgIDI0ICAgICAgIDQ2ICAgICAwLjAwNzU3ODM0NCAxMzMwMSAgSSAg
-V1MgMTcxODE5MzAyMjQgKyA4IFtmaW9dDQogIDgsMCAgIDI0ICAgICAgIDQ3ICAgICAwLjAwNzU3
-ODUzMiAxMzMwMSAgVSAgIE4gW2Zpb10gMQ0KICA4LDAgICAyNCAgICAgICA0OCAgICAgMC4wMDc1
-Nzg4MjEgMTMzMDEgIEQgIFdTIDE3MTgxOTMwMjI0ICsgOCBbZmlvXQ0KICA4LDAgICAyNCAgICAg
-ICA0OSAgICAgMC4wMDc2MTU5ODkgICAgIDAgIEMgIFdTIDE3MTgxOTMwMjI0ICsgOCBbMF0NCiAg
-OCwwICAgMjQgICAgICAgNTAgICAgIDAuMDA4NzU2NTYzIDEzMzAxICBRICBXUyAxNzE4MTkzMDIy
-NCArIDggW2Zpb10NCiAgOCwwICAgMjQgICAgICAgNTEgICAgIDAuMDA4NzU3MTc0IDEzMzAxICBH
-ICBXUyAxNzE4MTkzMDIyNCArIDggW2Zpb10NCiAgOCwwICAgMjQgICAgICAgNTIgICAgIDAuMDA4
-NzU3Mzc3IDEzMzAxICBQICAgTiBbZmlvXQ0KICA4LDAgICAyNCAgICAgICA1MyAgICAgMC4wMDg3
-NTc3ODIgMTMzMDEgIEkgIFdTIDE3MTgxOTMwMjI0ICsgOCBbZmlvXQ0KICA4LDAgICAyNCAgICAg
-ICA1NCAgICAgMC4wMDg3NTc5NjkgMTMzMDEgIFUgICBOIFtmaW9dIDENCiAgOCwwICAgMjQgICAg
-ICAgNTUgICAgIDAuMDA4NzU4MjA1IDEzMzAxICBEICBXUyAxNzE4MTkzMDIyNCArIDggW2Zpb10N
-CiAgOCwwICAgMjQgICAgICAgNTYgICAgIDAuMDA4Nzk5NzUwICAgICAwICBDICBXUyAxNzE4MTkz
-MDIyNCArIDggWzBdDQpDUFUyNCAoLi80S19SUl9UcmFjZSk6DQogUmVhZHMgUXVldWVkOiAgICAg
-ICAgICAgMCwgICAgICAgIDBLaUIJIFdyaXRlcyBRdWV1ZWQ6ICAgICAgICAgICA4LCAgICAgICAz
-MktpQg0KIFJlYWQgRGlzcGF0Y2hlczogICAgICAgIDAsICAgICAgICAwS2lCCSBXcml0ZSBEaXNw
-YXRjaGVzOiAgICAgICAgOCwgICAgICAgMzJLaUINCiBSZWFkcyBSZXF1ZXVlZDogICAgICAgICAw
-CQkgV3JpdGVzIFJlcXVldWVkOiAgICAgICAgIDANCiBSZWFkcyBDb21wbGV0ZWQ6ICAgICAgICAw
-LCAgICAgICAgMEtpQgkgV3JpdGVzIENvbXBsZXRlZDogICAgICAgIDgsICAgICAgIDMyS2lCDQog
-UmVhZCBNZXJnZXM6ICAgICAgICAgICAgMCwgICAgICAgIDBLaUIJIFdyaXRlIE1lcmdlczogICAg
-ICAgICAgICAwLCAgICAgICAgMEtpQg0KIFJlYWQgZGVwdGg6ICAgICAgICAgICAgIDAgICAgICAg
-IAkgV3JpdGUgZGVwdGg6ICAgICAgICAgICAgIDENCiBJTyB1bnBsdWdzOiAgICAgICAgICAgICA4
-ICAgICAgICAJIFRpbWVyIHVucGx1Z3M6ICAgICAgICAgICAwDQoNClRocm91Z2hwdXQgKFIvVyk6
-IDBLaUIvcyAvIDQsMDAwS2lCL3MNCkV2ZW50cyAoLi80S19SUl9UcmFjZSk6IDU2IGVudHJpZXMN
-ClNraXBzOiAwIGZvcndhcmQgKDAgLSAgIDAuMCUpDQo=
---001a11c14a4632080204f625590b
-Content-Type: application/octet-stream; name="file_65208400.bin"
-Content-Disposition: attachment; filename="file_65208400.bin"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_htk7v9d80
-
-ZWF0BwAAAABAY7ktIg/S5AAAAAQAH2p4AAAQAAAaAAED4wBQAIAAAAAAAAwAAAAAZWF0BwAAAABA
-jbSyUIb4egAAAAQAH2/QAAAQAAAaAAED4wBQAIAAAAAAABwAAAAAZWF0BwAAAABAjbyD/JiGOAAA
-AAQAH3AYAAAQAAAaAAED4wBQAIAAAAAAABgAAAAAZWF0BwAAAABAjrb3eO4oZwAAAAQAH3LwAAAQ
-AAAaAAED4wBQAIAAAAAAAAQAAAAAZWF0BwAAAABAkLlo4QbJJgAAAAQAH3pwAAAQAAAaAAED4wBQ
-AIAAAAAAAAQAAAAAZWF0BwAAAABAk3RcehGlKgAAAAQAH4VIAAAQAAAaAAED4wBQAIAAAAAAABgA
-AAAAZWF0BwAAAABAlReHq2OKWAAAAAQAH4vQAAAQAAAaAAED4wBQAIAAAAAAAAwAAAAAZWF0BwAA
-AABAmXelDGtiEwAAAAQAH5vQAAAQAAAaAAED4wBQAIAAAAAAAAAAAAAAZWF0BwAAAABAmhKvQdtB
-sAAAAAQAH55IAAAQAAAaAAED4wBQAIAAAAAAABwAAAAA
---001a11c14a4632080204f625590b--
+diff --git a/fio.h b/fio.h
+index 9eecba3..ed034cb 100644
+--- a/fio.h
++++ b/fio.h
+@@ -30,7 +30,7 @@
+ #include "helpers.h"
+ #include "options.h"
+ #include "profile.h"
+-#include "time.h"
++#include "fio_time.h"
+ #include "gettime.h"
+ #include "lib/getopt.h"
+ #include "lib/rand.h"
+diff --git a/fio_time.h b/fio_time.h
+new file mode 100644
+index 0000000..c550a55
+--- /dev/null
++++ b/fio_time.h
+@@ -0,0 +1,19 @@
++#ifndef FIO_TIME_H
++#define FIO_TIME_H
++
++extern uint64_t utime_since(struct timeval *, struct timeval *);
++extern uint64_t utime_since_now(struct timeval *);
++extern uint64_t mtime_since(struct timeval *, struct timeval *);
++extern uint64_t mtime_since_now(struct timeval *);
++extern uint64_t time_since_now(struct timeval *);
++extern uint64_t mtime_since_genesis(void);
++extern uint64_t utime_since_genesis(void);
++extern void usec_spin(unsigned int);
++extern void usec_sleep(struct thread_data *, unsigned long);
++extern void fill_start_time(struct timeval *);
++extern void set_genesis_time(void);
++extern int ramp_time_over(struct thread_data *);
++extern int in_ramp_time(struct thread_data *);
++extern void fio_time_init(void);
++
++#endif
+diff --git a/mutex.c b/mutex.c
+index 466e20e..9d10c2c 100644
+--- a/mutex.c
++++ b/mutex.c
+@@ -15,7 +15,7 @@
+ #include "arch/arch.h"
+ #include "os/os.h"
+ #include "helpers.h"
+-#include "time.h"
++#include "fio_time.h"
+ #include "gettime.h"
+ 
+ void fio_mutex_remove(struct fio_mutex *mutex)
+diff --git a/time.h b/time.h
+deleted file mode 100644
+index c550a55..0000000
+--- a/time.h
++++ /dev/null
+@@ -1,19 +0,0 @@
+-#ifndef FIO_TIME_H
+-#define FIO_TIME_H
+-
+-extern uint64_t utime_since(struct timeval *, struct timeval *);
+-extern uint64_t utime_since_now(struct timeval *);
+-extern uint64_t mtime_since(struct timeval *, struct timeval *);
+-extern uint64_t mtime_since_now(struct timeval *);
+-extern uint64_t time_since_now(struct timeval *);
+-extern uint64_t mtime_since_genesis(void);
+-extern uint64_t utime_since_genesis(void);
+-extern void usec_spin(unsigned int);
+-extern void usec_sleep(struct thread_data *, unsigned long);
+-extern void fill_start_time(struct timeval *);
+-extern void set_genesis_time(void);
+-extern int ramp_time_over(struct thread_data *);
+-extern int in_ramp_time(struct thread_data *);
+-extern void fio_time_init(void);
+-
+-#endif
+-- 
+1.7.10.4
 
