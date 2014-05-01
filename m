@@ -1,46 +1,50 @@
-Return-Path: <daniel.gollub@t-online.de>
-Date: Thu, 1 May 2014 10:05:40 +0200
-From: Daniel Gollub <daniel.gollub@t-online.de>
-Subject: Re: [PATCH] crc/test.c: fix include of time.h
-Message-ID: <20140501100540.6f9e18c0@marvin>
-In-Reply-To: <53617267.8070909@bisect.de>
-References: <1398883696-12041-1-git-send-email-danny.al-gaaf@bisect.de>
-	<5361647E.6090904@kernel.dk>
-	<53617267.8070909@bisect.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-To: Danny Al-Gaaf <danny.al-gaaf@bisect.de>
-Cc: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-ee0-f51.google.com ([74.125.83.51]:34192 "EHLO
+	mail-ee0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752102AbaEAMHO (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 1 May 2014 08:07:14 -0400
+Received: by mail-ee0-f51.google.com with SMTP id c13so2210044eek.38
+        for <fio@vger.kernel.org>; Thu, 01 May 2014 05:07:13 -0700 (PDT)
+From: Daniel Gollub <daniel.gollub@gmail.com>
+Subject: [PATCH 4/4] Avoid double declaration of leXX_to_cpu
+Date: Thu,  1 May 2014 14:07:04 +0200
+Message-Id: <1398946024-13566-4-git-send-email-daniel.gollub@gmail.com>
+In-Reply-To: <1398946024-13566-1-git-send-email-daniel.gollub@gmail.com>
+References: <1398946024-13566-1-git-send-email-daniel.gollub@gmail.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
+Cc: Daniel Gollub <daniel.gollub@gmail.com>
 
-On Thu, 01 May 2014 00:00:07 +0200, Danny Al-Gaaf wrote:
-> Am 30.04.2014 23:00, schrieb Jens Axboe:
-> > On 04/30/2014 12:48 PM, Danny Al-Gaaf wrote:
-> >> Replace include of time.h with renamed fio_time.h to fix build.
-> > 
-> > Thanks Danny, applied. Mine still builds fine, for some odd
-> > reason... But it of course needs fixing.
-> > 
-> 
-> It seems it was the same strange issue for Daniel.
+for external ioengines. leXX_to_cpu is a very common
+declaration - e.g. Ceph is using this as well.
 
-In my case (Ubuntu) the multi-arch packaging of glibc caused this:
+Signed-off-by: Daniel Gollub <daniel.gollub@gmail.com>
+---
+ os/os.h |    3 +++
+ 1 file changed, 3 insertions(+)
 
-[...]
-25441 open("crc/../gettime.h", O_RDONLY|O_NOCTTY) = 4
-25441 open("crc/../time.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
-25441 open("/usr/lib/gcc/x86_64-linux-gnu/4.7/include/../time.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
-25441 open("/usr/local/include/../time.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
-25441 open("/usr/lib/gcc/x86_64-linux-gnu/4.7/include-fixed/../time.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
-25441 open("/usr/include/x86_64-linux-gnu/../time.h", O_RDONLY|O_NOCTTY) = 4 
-[...]
-
-I guess the same is true for all Debian-based distros doing multi-arch packaging like this.
-
-Thanks Danny for finding this!
-
-Best Regards
-Daniel
-
+diff --git a/os/os.h b/os/os.h
+index 98b4532..b8eee66 100644
+--- a/os/os.h
++++ b/os/os.h
+@@ -200,6 +200,7 @@ static inline uint64_t fio_swap64(uint64_t val)
+ #endif
+ #endif /* FIO_HAVE_BYTEORDER_FUNCS */
+ 
++#ifdef FIO_INTERNAL
+ #define le16_to_cpu(val) ({			\
+ 	__le16_to_cpu(val);			\
+ })
+@@ -209,6 +210,8 @@ static inline uint64_t fio_swap64(uint64_t val)
+ #define le64_to_cpu(val) ({			\
+ 	__le64_to_cpu(val);				\
+ })
++#endif
++
+ #define cpu_to_le16(val) ({			\
+ 	__cpu_to_le16(val);			\
+ })
+-- 
+1.7.10.4
 
