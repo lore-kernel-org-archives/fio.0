@@ -1,70 +1,46 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:41014 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932401AbaEMMAH (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 13 May 2014 08:00:07 -0400
-Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1WkBNO-0003Bw-4m
-	for fio@vger.kernel.org; Tue, 13 May 2014 12:00:06 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20140513120003.AA41A400C3@lyth.info>
-Date: Tue, 13 May 2014 06:00:03 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <daniel.gollub@t-online.de>
+Date: Thu, 1 May 2014 10:05:40 +0200
+From: Daniel Gollub <daniel.gollub@t-online.de>
+Subject: Re: [PATCH] crc/test.c: fix include of time.h
+Message-ID: <20140501100540.6f9e18c0@marvin>
+In-Reply-To: <53617267.8070909@bisect.de>
+References: <1398883696-12041-1-git-send-email-danny.al-gaaf@bisect.de>
+	<5361647E.6090904@kernel.dk>
+	<53617267.8070909@bisect.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+To: Danny Al-Gaaf <danny.al-gaaf@bisect.de>
+Cc: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 890b665611751661aac1030603175bb7bbde34bc:
+On Thu, 01 May 2014 00:00:07 +0200, Danny Al-Gaaf wrote:
+> Am 30.04.2014 23:00, schrieb Jens Axboe:
+> > On 04/30/2014 12:48 PM, Danny Al-Gaaf wrote:
+> >> Replace include of time.h with renamed fio_time.h to fix build.
+> > 
+> > Thanks Danny, applied. Mine still builds fine, for some odd
+> > reason... But it of course needs fixing.
+> > 
+> 
+> It seems it was the same strange issue for Daniel.
 
-  verify: fix verification of uncompleted or errored ios (2014-05-06 19:06:51 -0600)
+In my case (Ubuntu) the multi-arch packaging of glibc caused this:
 
-are available in the git repository at:
+[...]
+25441 open("crc/../gettime.h", O_RDONLY|O_NOCTTY) = 4
+25441 open("crc/../time.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+25441 open("/usr/lib/gcc/x86_64-linux-gnu/4.7/include/../time.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+25441 open("/usr/local/include/../time.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+25441 open("/usr/lib/gcc/x86_64-linux-gnu/4.7/include-fixed/../time.h", O_RDONLY|O_NOCTTY) = -1 ENOENT (No such file or directory)
+25441 open("/usr/include/x86_64-linux-gnu/../time.h", O_RDONLY|O_NOCTTY) = 4 
+[...]
 
-  git://git.kernel.dk/fio.git master
+I guess the same is true for all Debian-based distros doing multi-arch packaging like this.
 
-for you to fetch changes up to 2c3fcd7bd67209e141e259b1fdd4585e8d91167c:
+Thanks Danny for finding this!
 
-  Fio 2.1.9 (2014-05-12 17:18:13 -0600)
+Best Regards
+Daniel
 
-----------------------------------------------------------------
-fio v2.1.9
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      Fio 2.1.9
-
- FIO-VERSION-GEN        |    2 +-
- os/windows/install.wxs |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index b126baf..4cb3545 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-2.1.8
-+DEF_VER=fio-2.1.9
- 
- LF='
- '
-diff --git a/os/windows/install.wxs b/os/windows/install.wxs
-index e78bb30..bd89a7b 100755
---- a/os/windows/install.wxs
-+++ b/os/windows/install.wxs
-@@ -10,7 +10,7 @@
- 	<Product Id="*"
- 	  Codepage="1252" Language="1033"
- 	  Manufacturer="fio" Name="fio"
--	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.1.8">
-+	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.1.9">
- 		<Package
- 		  Description="Flexible IO Tester"
- 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
