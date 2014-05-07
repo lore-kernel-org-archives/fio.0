@@ -1,39 +1,27 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ob0-f182.google.com ([209.85.214.182]:43575 "EHLO
-	mail-ob0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751339AbaE1UYl (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 28 May 2014 16:24:41 -0400
-Received: by mail-ob0-f182.google.com with SMTP id wn1so11384662obc.41
-        for <fio@vger.kernel.org>; Wed, 28 May 2014 13:24:41 -0700 (PDT)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <536A4158.5070508@kernel.dk>
+Date: Wed, 07 May 2014 08:21:12 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Date: Wed, 28 May 2014 16:24:41 -0400
-Message-ID: <CAGw_T3o=eAEHYbQ68a+OodruxEuX0EDE9gihinb+zBkDWU_dcg@mail.gmail.com>
-Subject: ETA no longer works when -o specified
-From: Rik Faith <rickard.faith@nutanix.com>
-Content-Type: text/plain; charset=UTF-8
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Subject: Re: Fio giving iops results that are equal to RAM speeds
+References: <BLU436-SMTP9791A8BB35991D92CA0E06E54E0@phx.gbl> <5369E886.1030100@enovance.com> <BLU436-SMTP1086A621DD12787F2EECD40E54E0@phx.gbl> <5369EE78.3060705@enovance.com>
+In-Reply-To: <5369EE78.3060705@enovance.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+To: Erwan Velu <erwan@enovance.com>, Kim Holmebakken <kim.holmebakken@hotmail.com>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Regarding fio version fio-2.1.9-17-gd9b1 (after April 11, 2014):
+> Le 07/05/2014 10:19, Kim Holmebakken a =EF=BF=BDcrit :
+>> Also the direct=3D0 is for the fact that in the documentation to fio the
+>> direct=3D parameter is not supported for zfs. And as a result the test
+>> will not complete(it does not even create the test files).=20
 
-A recent change (5e1d8745471d1f315113c5c3fd8b93809d9ddff9) caused stdout
-to be closed when -o was specified, which prevents ETA output from showing
-up on stdout even when, e.g., json is being saved in the file.
+Clarification, this is not a fio limitation, it's zfs that doesn't
+support unbuffered IO.
 
-This patch continues to close f_out so that there is no leak if multiple -o
-options are specified, but doesn't close stdout.  Hence, ETA works again
-when it should.
 
-diff --git a/init.c b/init.c
-index 4c5a8dd..a546861 100644
---- a/init.c
-+++ b/init.c
-@@ -1739,7 +1739,7 @@ int parse_cmd_line(int argc, char *argv[], int
-client_type)
-                        write_bw_log = 1;
-                        break;
-                case 'o':
--                       if (f_out)
-+                       if (f_out && f_out != stdout)
-                                fclose(f_out);
+--=20
+Jens Axboe
+
+
