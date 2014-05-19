@@ -1,24 +1,30 @@
-Return-Path: <xanpeng@gmail.com>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <537A2545.80104@kernel.dk>
+Date: Mon, 19 May 2014 09:37:41 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <537A2545.80104@kernel.dk>
-References: <CA+8ZFnjK+68M1aSp4pFx=orD4fhM0D+Qi1QOjpQsDBwQvOhVSA@mail.gmail.com>
-	<537A2545.80104@kernel.dk>
-Date: Tue, 20 May 2014 00:38:08 +0800
-Message-ID: <CA+8ZFnjhqs7Y8Ho6XjqrWXLebYKrn5jJeVdMnr+x4dc6xL1ReQ@mail.gmail.com>
 Subject: Re: A possible patch for a dangling pointer issue of librbd engine
-From: "xan.peng" <xanpeng@gmail.com>
+References: <CA+8ZFnjK+68M1aSp4pFx=orD4fhM0D+Qi1QOjpQsDBwQvOhVSA@mail.gmail.com>
+In-Reply-To: <CA+8ZFnjK+68M1aSp4pFx=orD4fhM0D+Qi1QOjpQsDBwQvOhVSA@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
-To: Jens Axboe <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, daniel.gollub@gmail.com
+Content-Transfer-Encoding: 7bit
+To: "xan.peng" <xanpeng@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, daniel.gollub@gmail.com
 List-ID: <fio@vger.kernel.org>
 
-On Mon, May 19, 2014 at 11:37 PM, Jens Axboe <axboe@kernel.dk> wrote:
-> Sure, you can do that, but email me+list about them separately as I
-> might not see them on github. So I'm not going to pull your branch,
-> since you have two patches on top of the interesting one, where the 2nd
-> just reverts the other one. I'm apply this one separately.
+On 05/18/2014 07:58 PM, xan.peng wrote:
+> I'm interested in the librbd engine, and I possibly found a bug which
+> you can see from the following patch.
+> 
+> And you can see more information at https://github.com/axboe/fio/pull/10.
+> (BTW, are github pull requests the correct way to submit patches to fio?)
 
-Got it.
-p.s. I reverted the 2nd commit as it's of a different topic, and it
-was automatically merged into the 1st by GitHub before I noticed.
+Sure, you can do that, but email me+list about them separately as I
+might not see them on github. So I'm not going to pull your branch,
+since you have two patches on top of the interesting one, where the 2nd
+just reverts the other one. I'm apply this one separately.
+
+
+-- 
+Jens Axboe
+
 
