@@ -1,81 +1,78 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vc0-f178.google.com ([209.85.220.178]:44360 "EHLO
-	mail-vc0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751011AbaEUIb0 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 21 May 2014 04:31:26 -0400
-Received: by mail-vc0-f178.google.com with SMTP id hq16so2109478vcb.9
-        for <fio@vger.kernel.org>; Wed, 21 May 2014 01:31:25 -0700 (PDT)
-From: Haomai Wang <haomaiwang@gmail.com>
-Subject: [PATCH] Make rbd engine use aio flush
-Date: Wed, 21 May 2014 16:30:55 +0800
-Message-Id: <1400661055-1452-1-git-send-email-haomaiwang@gmail.com>
+Received: from mail-yh0-f51.google.com ([209.85.213.51]:35545 "EHLO
+	mail-yh0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751684AbaETOOe (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 20 May 2014 10:14:34 -0400
+Received: by mail-yh0-f51.google.com with SMTP id f73so393126yha.10
+        for <fio@vger.kernel.org>; Tue, 20 May 2014 07:14:33 -0700 (PDT)
+MIME-Version: 1.0
+From: Devon Yablonski <dmyablonski@gmail.com>
+Date: Tue, 20 May 2014 10:13:53 -0400
+Message-ID: <CAN-=-wRVhkFHtW4BQb6DRBbaTpbogshXcdoPOyHuTCWKVkZECQ@mail.gmail.com>
+Subject: Unexpected ramp_time behavior?
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: Haomai Wang <haomaiwang@gmail.com>
 
-The fio's option "fsync" can make rbd engine issue sync request. In practice,
-we would like to use aio_rbd_flush to make it non-block. So it will be more
-reliable to use fio to evaluate actual io scene like qemu.
+Hi, I'm using fio 2.1.7 and I have the following fio configuration:
 
-Signed-off-by: Haomai Wang <haomaiwang@gmail.com>
----
- engines/rbd.c | 30 ++++++++++++++++++++++++++++--
- 1 file changed, 28 insertions(+), 2 deletions(-)
+#FIO CONFIGURATION
+[globals]
+name=fio_write
+rw=write
+size=5G
+ioengine=libaio
+direct=1
+unlink=0
+bs=4096
+iodepth=128
+scramble_buffers=1
+group_reporting
+gtod_reduce=0
+norandommap
+thread
+randrepeat=0
+ramp_time=0s
+random_generator=tausworthe
 
-diff --git a/engines/rbd.c b/engines/rbd.c
-index d006123..32ce60c 100644
---- a/engines/rbd.c
-+++ b/engines/rbd.c
-@@ -195,6 +195,23 @@ static void _fio_rbd_finish_read_aiocb(rbd_completion_t comp, void *data)
- 	return;
- }
- 
-+static void _fio_rbd_finish_sync_aiocb(rbd_completion_t comp, void *data)
-+{
-+	struct io_u *io_u = (struct io_u *)data;
-+	struct fio_rbd_iou *fio_rbd_iou =
-+	    (struct fio_rbd_iou *)io_u->engine_data;
-+
-+	fio_rbd_iou->io_complete = 1;
-+
-+	/* if sync needs to be verified - we should not release comp here
-+	   without fetching the result */
-+	rbd_aio_release(comp);
-+
-+	/* TODO handle error */
-+
-+	return;
-+}
-+
- static struct io_u *fio_rbd_event(struct thread_data *td, int event)
- {
- 	struct rbd_data *rbd_data = td->io_ops->data;
-@@ -281,13 +298,22 @@ static int fio_rbd_queue(struct thread_data *td, struct io_u *io_u)
- 		}
- 
- 	} else if (io_u->ddir == DDIR_SYNC) {
--		r = rbd_flush(rbd_data->image);
-+		r = rbd_aio_create_completion(io_u,
-+					      (rbd_callback_t)
-+					      _fio_rbd_finish_sync_aiocb,
-+					      &comp);
-+		if (r < 0) {
-+			log_err
-+			    ("rbd_aio_create_completion for DDIR_SYNC failed.\n");
-+			goto failed;
-+		}
-+
-+		r = rbd_aio_flush(rbd_data->image, comp);
- 		if (r < 0) {
- 			log_err("rbd_flush failed.\n");
- 			goto failed;
- 		}
- 
--		return FIO_Q_COMPLETED;
- 	} else {
- 		dprint(FD_IO, "%s: Warning: unhandled ddir: %d\n", __func__,
- 		       io_u->ddir);
--- 
-1.8.5.2 (Apple Git-48)
+[thread 0]
+filename=/dev/md0
 
+My result shows:
+/fio fioc.cfg
+fio_write: (g=0): rw=write, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=128
+fio-2.1.7
+Starting 1 thread
+Jobs: 1 (f=1): [W] [100.0% done] [0KB/799.8MB/0KB /s] [0/205K/0 iops]
+[eta 00m:00s]
+fio_write: (groupid=0, jobs=1): err= 0: pid=13889: Mon May 19 15:29:55 2014
+  write: io=5120.0MB, bw=821510KB/s, iops=205377, runt=  6382msec
+<snip>
+Run status group 0 (all jobs):
+  WRITE: io=5120.0MB, aggrb=821510KB/s, minb=821510KB/s,
+maxb=821510KB/s, mint=6382msec, maxt=6382msec
+
+Note that the runtime was about 6 seconds.
+
+If I change the ramp_time to 1s (ramp_time=1s) the test runs for 12-13
+seconds (about 2x) and writes much more data than size:
+
+fio_write: (g=0): rw=write, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=128
+fio-2.1.7
+Starting 1 thread
+Jobs: 1 (f=1): [W] [100.0% done] [0KB/626.1MB/0KB /s] [0/160K/0 iops]
+[eta 00m:00s]
+fio_write: (groupid=0, jobs=1): err= 0: pid=15860: Tue May 20 08:28:35 2014
+  write: io=9406.3MB, bw=717344KB/s, iops=179326, runt= 13427msec
+<snip>
+Run status group 0 (all jobs):
+  WRITE: io=9406.3MB, aggrb=717343KB/s, minb=717343KB/s,
+maxb=717343KB/s, mint=13427msec, maxt=13427msec
+
+The time remaining counts down to 0 and then the test keeps running -
+it seems like the test may be running a second iteration. What am I
+doing incorrectly?
+
+Thanks,
+Devon
