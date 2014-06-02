@@ -1,148 +1,143 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:39043 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752574AbaFXMAG (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 24 Jun 2014 08:00:06 -0400
-Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1WzPOP-0001YT-2H
-	for fio@vger.kernel.org; Tue, 24 Jun 2014 12:00:05 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20140624120003.D17F1400D1@lyth.info>
-Date: Tue, 24 Jun 2014 06:00:03 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <jiri.horky@gmail.com>
+Message-ID: <538CC242.60109@gmail.com>
+Date: Mon, 02 Jun 2014 20:28:18 +0200
+From: Jiri Horky <jiri.horky@gmail.com>
+MIME-Version: 1.0
+Subject: Re: [PATCH] Allow to reset offset_increment counter
+References: <537F439E.9040904@gmail.com> <537F7E8E.4050200@kernel.dk> <537F8454.3020203@gmail.com>
+In-Reply-To: <537F8454.3020203@gmail.com>
+Content-Type: multipart/mixed;
+ boundary="------------010406030200040107080708"
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit c89318761586dbd77b8f31ce0ed68ff4fc086c89:
+This is a multi-part message in MIME format.
+--------------010406030200040107080708
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-  Add support for compiling for ESX (2014-06-18 15:30:09 -0700)
+Hi,
 
-are available in the git repository at:
+so here is another try. I thought about it a little and I think that it
+only makes sense to define offset_increment together with numjobs=X
+setting, i.e. when using subjobs. The patch reflects this. Each subjob
+starts at next offset_increment for each file it operates on.
 
-  git://git.kernel.dk/fio.git master
+Cheers
+Jirka H.
 
-for you to fetch changes up to 111558579a2f1965ff3f6a67ecb8ee4b596a4f88:
 
-  Ensure we have enough room for the ETA runstr (2014-06-23 19:07:12 -0600)
+On 05/23/2014 07:24 PM, Jiri Horky wrote:
+> Hi Jens,
+> On 05/23/2014 06:59 PM, Jens Axboe wrote:
+>> On 2014-05-23 06:48, Jiri Horky wrote:
+>>> Hi all,
+>>>
+>>> because I got bitten by this multiple times I decided to give this patch
+>>> a try :)
+>>>
+>>> Current implementation of offset calculation when offset_increment is in
+>>> effect uses global thread_number as follows:
+>>>      f->file_offset = td->o.start_offset + (td->thread_number - 1) *
+>>> td->o.offset_increment;
+>>>
+>>> The thread number gets incremented for every job (subjob) so even you
+>>> have multiple jobs with different filenames, the offset calculation is
+>>> shared. I find this very unintuitive, especially in cases the offsets
+>>> gets past the device/file. For example, if one wants to run sequential
+>>> read test in 16 threads of multiple devices (/dev/sd{b,c,d}) in one
+>>> group, which are of  1TB size, and to eliminate caching effect he wants
+>>> each read to start at different offset, the config could look like
+>>> following:
+>> Maybe it would be better to have this offset calculation be on a
+>> per-thread-per-file basis? You are right in that it only makes sense
+>> within the same file or device, so maybe it'd be better to make it
+>> work more like you expect.
+> I agree it should definitely be file-based, I just wasn't sure how you
+> would express that in the config file. Or you mean that that the offset
+> calculation would not be shared between different jobs (not subjobs)
+> even if they share the same file?
+> The fact is that one can always calculate the start offset in the new
+> job definition if he needs the offset calculation to be shared. And if
+> there are multiple files within a job, the offset_increment should be
+> independent.
+>
+> I will try to look at this.
+>
+> Jiri
+>
 
-----------------------------------------------------------------
-Andreas Gruenbacher (1):
-      Fix two minor typos
 
-Jens Axboe (2):
-      README: update to include official mirrors for the git repo
-      Ensure we have enough room for the ETA runstr
+--------------010406030200040107080708
+Content-Type: text/x-patch;
+ name="fio.offset_increment.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="fio.offset_increment.patch"
 
- HOWTO    |   10 +++++-----
- README   |   11 +++++++++++
- eta.c    |    6 +++---
- server.c |    2 +-
- stat.h   |    3 +++
- 5 files changed, 23 insertions(+), 9 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO b/HOWTO
-index cad175c..d9f3095 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -81,7 +81,7 @@ $ fio job_file
- and it will start doing what the job_file tells it to do. You can give
- more than one job file on the command line, fio will serialize the running
- of those files. Internally that is the same as using the 'stonewall'
--parameter described the the parameter section.
-+parameter described in the parameter section.
+diff --git a/filesetup.c b/filesetup.c
+index 84eaed6..aa908ad 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -752,7 +752,7 @@ uint64_t get_start_offset(struct thread_data *td, struct fio_file *f)
+ 		return f->real_file_size;
  
- If the job file contains only one job, you may as well just give the
- parameters on the command line. The command line parameters are identical
-@@ -424,10 +424,10 @@ size=int	The total size of file io for this job. Fio will run until
- 		Unless specific nrfiles and filesize options are given,
- 		fio will divide this size between the available files
- 		specified by the job. If not set, fio will use the full
--		size of the given files or devices. If the the files
--		do not exist, size must be given. It is also possible to
--		give size as a percentage between 1 and 100. If size=20%
--		is given, fio will use 20% of the full size of the given
-+		size of the given files or devices. If the files do not
-+		exist, size must be given. It is also possible to give
-+		size as a percentage between 1 and 100. If size=20% is
-+		given, fio will use 20% of the full size of the given
- 		files or devices.
- 
- io_limit=int	Normally fio operates within the region set by 'size', which
-diff --git a/README b/README
-index 2be0bfd..5897339 100644
---- a/README
-+++ b/README
-@@ -26,6 +26,17 @@ Snapshots can download from:
- 
- 	http://brick.kernel.dk/snaps/
- 
-+There are also two official mirrors. Both of these are synced within
-+an hour of commits landing at git.kernel.dk. So if the main repo is
-+down for some reason, either one of those is safe to use:
-+
-+	git://git.kernel.org/pub/scm/linux/kernel/git/axboe/fio.git
-+	https://git.kernel.org/pub/scm/linux/kernel/git/axboe/fio.git
-+
-+or
-+
-+	https://github.com/axboe/fio.git
-+
- 
- Binary packages
- ---------------
-diff --git a/eta.c b/eta.c
-index 0dd04be..dfe66f9 100644
---- a/eta.c
-+++ b/eta.c
-@@ -10,9 +10,9 @@
- static char __run_str[REAL_MAX_JOBS + 1];
- 
- /*
-- * Worst level condensing would be 1:4, so allow enough room for that
-+ * Worst level condensing would be 1:5, so allow enough room for that
-  */
--static char run_str[(4 * REAL_MAX_JOBS) + 1];
-+static char run_str[__THREAD_RUNSTR_SZ(REAL_MAX_JOBS)];
- 
- static void update_condensed_str(char *run_str, char *run_str_condensed)
- {
-@@ -592,7 +592,7 @@ void print_thread_status(void)
- 	if (!thread_number)
- 		return;
- 
--	size = sizeof(*je) + thread_number * sizeof(char) + 1;
-+	size = sizeof(*je) + THREAD_RUNSTR_SZ;
- 	je = malloc(size);
- 	memset(je, 0, size);
- 
-diff --git a/server.c b/server.c
-index 8865502..e20f592 100644
---- a/server.c
-+++ b/server.c
-@@ -673,7 +673,7 @@ static int handle_send_eta_cmd(struct fio_net_cmd *cmd)
- 	if (!thread_number)
- 		return 0;
- 
--	size = sizeof(*je) + thread_number * sizeof(char) + 1;
-+	size = sizeof(*je) + THREAD_RUNSTR_SZ;
- 	je = malloc(size);
- 	memset(je, 0, size);
- 
-diff --git a/stat.h b/stat.h
-index 3f68305..2c2f1e1 100644
---- a/stat.h
-+++ b/stat.h
-@@ -241,4 +241,7 @@ static inline int usec_to_msec(unsigned long *min, unsigned long *max,
- 	return 1;
+ 	return td->o.start_offset +
+-		(td->thread_number - 1) * td->o.offset_increment;
++		td->subjob_number * td->o.offset_increment;
  }
  
-+#define __THREAD_RUNSTR_SZ(nr)	(((nr) * 5) + 1)
-+#define THREAD_RUNSTR_SZ	__THREAD_RUNSTR_SZ(thread_number)
-+
- #endif
+ /*
+diff --git a/fio.1 b/fio.1
+index 62f40ea..10f4b77 100644
+--- a/fio.1
++++ b/fio.1
+@@ -658,9 +658,10 @@ Offset in the file to start I/O. Data before the offset will not be touched.
+ .BI offset_increment \fR=\fPint
+ If this is provided, then the real offset becomes the
+ offset + offset_increment * thread_number, where the thread number is a counter
+-that starts at 0 and is incremented for each job. This option is useful if
+-there are several jobs which are intended to operate on a file in parallel in
+-disjoint segments, with even spacing between the starting points.
++that starts at 0 and is incremented for each sub-job (i.e. when numjobs option
++is specified). This option is useful if there are several jobs which are
++intended to operate on a file in parallel in disjoint segments, with even
++spacing between the starting points.
+ .TP
+ .BI number_ios \fR=\fPint
+ Fio will normally perform IOs until it has exhausted the size of the region
+diff --git a/fio.h b/fio.h
+index 4d4af0a..b0c247e 100644
+--- a/fio.h
++++ b/fio.h
+@@ -101,6 +101,7 @@ struct thread_data {
+ 	char verror[FIO_VERROR_SIZE];
+ 	pthread_t thread;
+ 	unsigned int thread_number;
++	unsigned int subjob_number;
+ 	unsigned int groupid;
+ 	struct thread_stat ts;
+ 
+diff --git a/init.c b/init.c
+index a546861..a454e5e 100644
+--- a/init.c
++++ b/init.c
+@@ -363,6 +363,7 @@ static struct thread_data *get_new_job(int global, struct thread_data *parent,
+ 	profile_add_hooks(td);
+ 
+ 	td->thread_number = thread_number;
++	td->subjob_number = 0;
+ 
+ 	if (!parent->o.group_reporting)
+ 		stat_number++;
+@@ -1198,6 +1199,7 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
+ 		td_new->o.numjobs = 1;
+ 		td_new->o.stonewall = 0;
+ 		td_new->o.new_group = 0;
++		td_new->subjob_number = numjobs;
+ 
+ 		if (file_alloced) {
+ 			if (td_new->files) {
+
+--------------010406030200040107080708--
+
