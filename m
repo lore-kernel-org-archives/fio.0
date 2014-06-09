@@ -1,70 +1,104 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:59014 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933165AbaFLMAI (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 12 Jun 2014 08:00:08 -0400
+Received: from bombadil.infradead.org ([198.137.202.9]:40632 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754635AbaFIMAG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 9 Jun 2014 08:00:06 -0400
 Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1Wv3fq-0001HS-Fs
-	for fio@vger.kernel.org; Thu, 12 Jun 2014 12:00:06 +0000
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1WtyFB-0004Gc-2o
+	for fio@vger.kernel.org; Mon, 09 Jun 2014 12:00:05 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20140612120003.433E4403F8@lyth.info>
-Date: Thu, 12 Jun 2014 06:00:03 -0600 (MDT)
+Message-Id: <20140609120002.E200240164@lyth.info>
+Date: Mon,  9 Jun 2014 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 70afff5949ccad1196256763aab69b2528b55d88:
+The following changes since commit 290a9a2ae1778428123d4a6b10d4db7c18993b17:
 
-  iolog: remember to add bytes to total IO size (2014-06-09 19:56:51 -0600)
+  glusterfs: remove glfs-handles.h include (2014-06-03 08:36:20 -0600)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 0ed2192dc4600ebef0715e748969b80fd58fe156:
+for you to fetch changes up to 78c8831e2ec211a293ccd8bd37c169719ca1ba4a:
 
-  Fio 2.1.10 (2014-06-10 13:18:38 -0600)
-
-----------------------------------------------------------------
-fio v2.1.10
+  Add aarch64 support. (2014-06-08 21:17:49 -0600)
 
 ----------------------------------------------------------------
-Jens Axboe (1):
-      Fio 2.1.10
+Doug Kwan (1):
+      Add aarch64 support.
 
- FIO-VERSION-GEN        |    2 +-
- os/windows/install.wxs |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arch-aarch64.h |   35 +++++++++++++++++++++++++++++++++++
+ arch/arch.h         |    3 +++
+ 2 files changed, 38 insertions(+)
+ create mode 100644 arch/arch-aarch64.h
 
 ---
 
 Diff of recent changes:
 
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index 4cb3545..d2b5405 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
+diff --git a/arch/arch-aarch64.h b/arch/arch-aarch64.h
+new file mode 100644
+index 0000000..a6cfaf2
+--- /dev/null
++++ b/arch/arch-aarch64.h
+@@ -0,0 +1,35 @@
++#ifndef ARCH_AARCH64_H
++#define ARCH_AARCH64_H
++
++#include <unistd.h>
++#include <stdlib.h>
++#include <sys/types.h>
++#include <sys/wait.h>
++
++#define FIO_ARCH	(arch_aarch64)
++
++#ifndef __NR_ioprio_set
++#define __NR_ioprio_set		30
++#define __NR_ioprio_get		31
++#endif
++
++#define nop		do { __asm__ __volatile__ ("yield"); } while (0)
++#define read_barrier()	do { __sync_synchronize(); } while (0)
++#define write_barrier()	do { __sync_synchronize(); } while (0)
++
++static inline int arch_ffz(unsigned long bitmask)
++{
++	unsigned long count, reversed_bits;
++	if (~bitmask == 0)	/* ffz() in lib/ffz.h does this. */
++		return 63;
++
++	__asm__ __volatile__ ("rbit %1, %2\n"
++			      "clz %0, %1\n" : 
++			      "=r"(count), "=&r"(reversed_bits) :
++			      "r"(~bitmask));
++	return count;
++}
++
++#define ARCH_HAVE_FFZ
++
++#endif
+diff --git a/arch/arch.h b/arch/arch.h
+index 31d96d4..0075f73 100644
+--- a/arch/arch.h
++++ b/arch/arch.h
+@@ -14,6 +14,7 @@ enum {
+ 	arch_sh,
+ 	arch_hppa,
+ 	arch_mips,
++	arch_aarch64,
  
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-2.1.9
-+DEF_VER=fio-2.1.10
+ 	arch_generic,
  
- LF='
- '
-diff --git a/os/windows/install.wxs b/os/windows/install.wxs
-index bd89a7b..d69a086 100755
---- a/os/windows/install.wxs
-+++ b/os/windows/install.wxs
-@@ -10,7 +10,7 @@
- 	<Product Id="*"
- 	  Codepage="1252" Language="1033"
- 	  Manufacturer="fio" Name="fio"
--	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.1.9">
-+	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.1.10">
- 		<Package
- 		  Description="Flexible IO Tester"
- 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
+@@ -53,6 +54,8 @@ extern unsigned long arch_flags;
+ #include "arch-sh.h"
+ #elif defined(__hppa__)
+ #include "arch-hppa.h"
++#elif defined(__aarch64__)
++#include "arch-aarch64.h"
+ #else
+ #warning "Unknown architecture, attempting to use generic model."
+ #include "arch-generic.h"
