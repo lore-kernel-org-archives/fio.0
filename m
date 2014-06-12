@@ -1,56 +1,70 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail.stepping-stone.ch ([194.176.109.206]:56927 "EHLO
-	mail.stepping-stone.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750851AbaFZMaj (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 26 Jun 2014 08:30:39 -0400
-From: =?UTF-8?q?Tiziano=20M=C3=BCller?= 
-	<tiziano.mueller@stepping-stone.ch>
-Subject: [PATCH] Add configure flags for gfapi and rbd
-Date: Thu, 26 Jun 2014 14:20:20 +0200
-Message-Id: <1403785220-30665-1-git-send-email-tiziano.mueller@stepping-stone.ch>
+Received: from casper.infradead.org ([85.118.1.10]:59014 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933165AbaFLMAI (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 12 Jun 2014 08:00:08 -0400
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1Wv3fq-0001HS-Fs
+	for fio@vger.kernel.org; Thu, 12 Jun 2014 12:00:06 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20140612120003.433E4403F8@lyth.info>
+Date: Thu, 12 Jun 2014 06:00:03 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: =?UTF-8?q?Tiziano=20M=C3=BCller?= <tiziano.mueller@stepping-stone.ch>
 
-Add --disable-{gfapi,rbd} to disable gfapi/rbd support even if available.
+The following changes since commit 70afff5949ccad1196256763aab69b2528b55d88:
+
+  iolog: remember to add bytes to total IO size (2014-06-09 19:56:51 -0600)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 0ed2192dc4600ebef0715e748969b80fd58fe156:
+
+  Fio 2.1.10 (2014-06-10 13:18:38 -0600)
+
+----------------------------------------------------------------
+fio v2.1.10
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Fio 2.1.10
+
+ FIO-VERSION-GEN        |    2 +-
+ os/windows/install.wxs |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
 ---
- configure | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/configure b/configure
-index 0e861ee..f1e116e 100755
---- a/configure
-+++ b/configure
-@@ -156,6 +156,10 @@ for opt do
-   ;;
-   --disable-numa) disable_numa="yes"
-   ;;
-+  --disable-rbd) disable_rbd="yes"
-+  ;;
-+  --disable-gfapi) disable_gfapi="yes"
-+  ;;
-   --help)
-     show_help="yes"
-     ;;
-@@ -1146,7 +1150,7 @@ int main(int argc, char **argv)
-   return 0;
- }
- EOF
--if compile_prog "" "-lrbd -lrados" "rbd"; then
-+if test "$disable_rbd" != "yes"  && compile_prog "" "-lrbd -lrados" "rbd"; then
-   LIBS="-lrbd -lrados $LIBS"
-   rbd="yes"
- fi
-@@ -1183,7 +1187,7 @@ int main(int argc, char **argv)
-   return 0;
- }
- EOF
--if compile_prog "" "-lgfapi -lglusterfs" "gfapi"; then
-+if test "$disable_gfapi" != "yes"  && compile_prog "" "-lgfapi -lglusterfs" "gfapi"; then
-   LIBS="-lgfapi -lglusterfs $LIBS"
-   gfapi="yes"
- fi
--- 
-1.9.2
+Diff of recent changes:
 
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index 4cb3545..d2b5405 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-2.1.9
++DEF_VER=fio-2.1.10
+ 
+ LF='
+ '
+diff --git a/os/windows/install.wxs b/os/windows/install.wxs
+index bd89a7b..d69a086 100755
+--- a/os/windows/install.wxs
++++ b/os/windows/install.wxs
+@@ -10,7 +10,7 @@
+ 	<Product Id="*"
+ 	  Codepage="1252" Language="1033"
+ 	  Manufacturer="fio" Name="fio"
+-	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.1.9">
++	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.1.10">
+ 		<Package
+ 		  Description="Flexible IO Tester"
+ 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
