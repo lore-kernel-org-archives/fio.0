@@ -1,127 +1,148 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:38621 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.9]:39043 "EHLO
 	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752668AbaF1MAH (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 28 Jun 2014 08:00:07 -0400
+	with ESMTP id S1752574AbaFXMAG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 24 Jun 2014 08:00:06 -0400
 Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
 	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1X0rIa-000549-MU
-	for fio@vger.kernel.org; Sat, 28 Jun 2014 12:00:04 +0000
+	id 1WzPOP-0001YT-2H
+	for fio@vger.kernel.org; Tue, 24 Jun 2014 12:00:05 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20140628120003.987F540076@lyth.info>
-Date: Sat, 28 Jun 2014 06:00:03 -0600 (MDT)
+Message-Id: <20140624120003.D17F1400D1@lyth.info>
+Date: Tue, 24 Jun 2014 06:00:03 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 4445856ab659ffa41bdb8f5b81aa00704c50a5c6:
+The following changes since commit c89318761586dbd77b8f31ce0ed68ff4fc086c89:
 
-  Verify: Tighten header length check in verify_header() (2014-06-26 19:30:16 +0200)
+  Add support for compiling for ESX (2014-06-18 15:30:09 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 372d89627cc04b5f30193ad8df762f86a580596d:
+for you to fetch changes up to 111558579a2f1965ff3f6a67ecb8ee4b596a4f88:
 
-  Fix typo in io_u.c::get_next_file() (2014-06-27 20:21:22 -0600)
+  Ensure we have enough room for the ETA runstr (2014-06-23 19:07:12 -0600)
 
 ----------------------------------------------------------------
-Andrey Kuzmin (1):
-      Fix typo in io_u.c::get_next_file()
+Andreas Gruenbacher (1):
+      Fix two minor typos
 
-Jens Axboe (3):
-      Fix struct jobs_eta packing on 32 vs 64-bit archs
-      eta: only pass real size of jobs_eta
-      client: fix ETA run_str
+Jens Axboe (2):
+      README: update to include official mirrors for the git repo
+      Ensure we have enough room for the ETA runstr
 
- client.c |   10 +++++++---
- eta.c    |    1 +
- io_u.c   |    2 +-
- stat.h   |    5 +++++
- 4 files changed, 14 insertions(+), 4 deletions(-)
+ HOWTO    |   10 +++++-----
+ README   |   11 +++++++++++
+ eta.c    |    6 +++---
+ server.c |    2 +-
+ stat.h   |    3 +++
+ 5 files changed, 23 insertions(+), 9 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/client.c b/client.c
-index af6621d..828dd97 100644
---- a/client.c
-+++ b/client.c
-@@ -987,7 +987,12 @@ void fio_client_sum_jobs_eta(struct jobs_eta *dst, struct jobs_eta *je)
- 		dst->eta_sec = je->eta_sec;
+diff --git a/HOWTO b/HOWTO
+index cad175c..d9f3095 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -81,7 +81,7 @@ $ fio job_file
+ and it will start doing what the job_file tells it to do. You can give
+ more than one job file on the command line, fio will serialize the running
+ of those files. Internally that is the same as using the 'stonewall'
+-parameter described the the parameter section.
++parameter described in the parameter section.
  
- 	dst->nr_threads		+= je->nr_threads;
--	/* we need to handle je->run_str too ... */
+ If the job file contains only one job, you may as well just give the
+ parameters on the command line. The command line parameters are identical
+@@ -424,10 +424,10 @@ size=int	The total size of file io for this job. Fio will run until
+ 		Unless specific nrfiles and filesize options are given,
+ 		fio will divide this size between the available files
+ 		specified by the job. If not set, fio will use the full
+-		size of the given files or devices. If the the files
+-		do not exist, size must be given. It is also possible to
+-		give size as a percentage between 1 and 100. If size=20%
+-		is given, fio will use 20% of the full size of the given
++		size of the given files or devices. If the files do not
++		exist, size must be given. It is also possible to give
++		size as a percentage between 1 and 100. If size=20% is
++		given, fio will use 20% of the full size of the given
+ 		files or devices.
+ 
+ io_limit=int	Normally fio operates within the region set by 'size', which
+diff --git a/README b/README
+index 2be0bfd..5897339 100644
+--- a/README
++++ b/README
+@@ -26,6 +26,17 @@ Snapshots can download from:
+ 
+ 	http://brick.kernel.dk/snaps/
+ 
++There are also two official mirrors. Both of these are synced within
++an hour of commits landing at git.kernel.dk. So if the main repo is
++down for some reason, either one of those is safe to use:
 +
-+	/*
-+	 * This wont be correct for multiple strings, but at least it
-+	 * works for the basic cases.
-+	 */
-+	strcpy((char *) dst->run_str, (char *) je->run_str);
- }
++	git://git.kernel.org/pub/scm/linux/kernel/git/axboe/fio.git
++	https://git.kernel.org/pub/scm/linux/kernel/git/axboe/fio.git
++
++or
++
++	https://github.com/axboe/fio.git
++
  
- void fio_client_dec_jobs_eta(struct client_eta *eta, client_eta_op eta_fn)
-@@ -1374,8 +1379,7 @@ static void request_client_etas(struct client_ops *ops)
- 
- 	dprint(FD_NET, "client: request eta (%d)\n", nr_clients);
- 
--	eta = malloc(sizeof(*eta));
--	memset(&eta->eta, 0, sizeof(eta->eta));
-+	eta = calloc(1, sizeof(*eta) + __THREAD_RUNSTR_SZ(REAL_MAX_JOBS));
- 	eta->pending = nr_clients;
- 
- 	flist_for_each(entry, &client_list) {
+ Binary packages
+ ---------------
 diff --git a/eta.c b/eta.c
-index 850a784..0105cda 100644
+index 0dd04be..dfe66f9 100644
 --- a/eta.c
 +++ b/eta.c
-@@ -581,6 +581,7 @@ struct jobs_eta *get_jobs_eta(int force, size_t *size)
- 		return NULL;
- 	}
+@@ -10,9 +10,9 @@
+ static char __run_str[REAL_MAX_JOBS + 1];
  
-+	*size = sizeof(*je) + strlen((char *) je->run_str) + 1;
- 	return je;
- }
+ /*
+- * Worst level condensing would be 1:4, so allow enough room for that
++ * Worst level condensing would be 1:5, so allow enough room for that
+  */
+-static char run_str[(4 * REAL_MAX_JOBS) + 1];
++static char run_str[__THREAD_RUNSTR_SZ(REAL_MAX_JOBS)];
  
-diff --git a/io_u.c b/io_u.c
-index e132fd9..997e113 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -1100,7 +1100,7 @@ out:
- 
- static struct fio_file *get_next_file(struct thread_data *td)
+ static void update_condensed_str(char *run_str, char *run_str_condensed)
  {
--	if (!(td->flags & TD_F_PROFILE_OPS)) {
-+	if (td->flags & TD_F_PROFILE_OPS) {
- 		struct prof_io_ops *ops = &td->prof_io_ops;
+@@ -592,7 +592,7 @@ void print_thread_status(void)
+ 	if (!thread_number)
+ 		return;
  
- 		if (ops->get_next_file)
+-	size = sizeof(*je) + thread_number * sizeof(char) + 1;
++	size = sizeof(*je) + THREAD_RUNSTR_SZ;
+ 	je = malloc(size);
+ 	memset(je, 0, size);
+ 
+diff --git a/server.c b/server.c
+index 8865502..e20f592 100644
+--- a/server.c
++++ b/server.c
+@@ -673,7 +673,7 @@ static int handle_send_eta_cmd(struct fio_net_cmd *cmd)
+ 	if (!thread_number)
+ 		return 0;
+ 
+-	size = sizeof(*je) + thread_number * sizeof(char) + 1;
++	size = sizeof(*je) + THREAD_RUNSTR_SZ;
+ 	je = malloc(size);
+ 	memset(je, 0, size);
+ 
 diff --git a/stat.h b/stat.h
-index 6f9d82a..fb1485d 100644
+index 3f68305..2c2f1e1 100644
 --- a/stat.h
 +++ b/stat.h
-@@ -186,9 +186,13 @@ struct thread_stat {
- struct jobs_eta {
- 	uint32_t nr_running;
- 	uint32_t nr_ramp;
-+
- 	uint32_t nr_pending;
- 	uint32_t nr_setting_up;
-+
- 	uint32_t files_open;
-+	uint32_t pad1;
-+
- 	uint32_t m_rate[DDIR_RWDIR_CNT], t_rate[DDIR_RWDIR_CNT];
- 	uint32_t m_iops[DDIR_RWDIR_CNT], t_iops[DDIR_RWDIR_CNT];
- 	uint32_t rate[DDIR_RWDIR_CNT];
-@@ -202,6 +206,7 @@ struct jobs_eta {
- 	 * Network 'copy' of run_str[]
- 	 */
- 	uint32_t nr_threads;
-+	uint32_t pad2;
- 	uint8_t run_str[];
- };
+@@ -241,4 +241,7 @@ static inline int usec_to_msec(unsigned long *min, unsigned long *max,
+ 	return 1;
+ }
  
++#define __THREAD_RUNSTR_SZ(nr)	(((nr) * 5) + 1)
++#define THREAD_RUNSTR_SZ	__THREAD_RUNSTR_SZ(thread_number)
++
+ #endif
