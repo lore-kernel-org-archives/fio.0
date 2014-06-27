@@ -1,173 +1,236 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ee0-f49.google.com ([74.125.83.49]:57965 "EHLO
-	mail-ee0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752140AbaEAPIN (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 1 May 2014 11:08:13 -0400
-Received: by mail-ee0-f49.google.com with SMTP id e53so2330110eek.8
-        for <fio@vger.kernel.org>; Thu, 01 May 2014 08:08:12 -0700 (PDT)
-From: Daniel Gollub <daniel.gollub@gmail.com>
-Subject: [PATCH] Avoid buildenv conditional in thread_option struct
-Date: Thu,  1 May 2014 17:07:49 +0200
-Message-Id: <1398956869-22489-1-git-send-email-daniel.gollub@gmail.com>
+Received: from casper.infradead.org ([85.118.1.10]:39489 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752845AbaF0MAH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 27 Jun 2014 08:00:07 -0400
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1X0Up3-0004Nh-V2
+	for fio@vger.kernel.org; Fri, 27 Jun 2014 12:00:06 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20140627120003.B2DD5401FC@lyth.info>
+Date: Fri, 27 Jun 2014 06:00:03 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: Daniel Gollub <daniel.gollub@gmail.com>
 
-Managed to run into issues with an external ioengine
-which got build with CONFIG_LIBNUMA not defined. Fio
-itself got build with CONFIG_LIBNUMA this resulted
-in different struct members offsets in the two different
-ELF objects. Causing crashes due to invalidate offsets
-inside the thread_data structure (e.g. td->io_ops->data).
+The following changes since commit a606a802173272002e37be6475802be8c37481d6:
 
-Ideally all structs which might be used by external
-ioengines should be independent of buildenv conditionals
-like CONFIG_LIBNUMA or others.
+  Cast input argument for json_object_add_value_int to long long (2014-06-24 19:31:22 -0600)
 
-Removed the CONFIG_LIBNUMA in thread_options.h and replaced
-the libnuma specific "struct bitmask" members with strings
-which hold the option's input value. This should also make
-the marshaling/demarshaling in cconv.c easier.
-(Note: the NUMA bits are not handled in cconv.c at the
-moment. And not part of the thread_options_packed struct)
+are available in the git repository at:
 
-Signed-off-by: Daniel Gollub <daniel.gollub@gmail.com>
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 4445856ab659ffa41bdb8f5b81aa00704c50a5c6:
+
+  Verify: Tighten header length check in verify_header() (2014-06-26 19:30:16 +0200)
+
+----------------------------------------------------------------
+Andreas Gruenbacher (3):
+      update_condensed_str(): Fix for empty input strings
+      Verify: Fix and improve verify_header()
+      Verify: Tighten header length check in verify_header()
+
+Tiziano M��ller (1):
+      Add configure flags for gfapi and rbd
+
+ configure |    8 +++++--
+ eta.c     |   39 ++++++++++--------------------
+ verify.c  |   80 +++++++++++++++++++++++++------------------------------------
+ 3 files changed, 51 insertions(+), 76 deletions(-)
+
 ---
- backend.c        |   16 +++++++++++++---
- options.c        |   15 +++++++++++----
- thread_options.h |    6 ++----
- 3 files changed, 26 insertions(+), 11 deletions(-)
 
-diff --git a/backend.c b/backend.c
-index e0f8aa7..9deef28 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1339,6 +1339,7 @@ static void *thread_main(void *data)
- #ifdef CONFIG_LIBNUMA
- 	/* numa node setup */
- 	if (o->numa_cpumask_set || o->numa_memmask_set) {
-+		struct bitmask *mask;
- 		int ret;
- 
- 		if (numa_available() < 0) {
-@@ -1347,7 +1348,9 @@ static void *thread_main(void *data)
- 		}
- 
- 		if (o->numa_cpumask_set) {
--			ret = numa_run_on_node_mask(o->numa_cpunodesmask);
-+			mask = numa_parse_nodestring(o->numa_cpunodes);
-+			ret = numa_run_on_node_mask(mask);
-+			numa_free_nodemask(mask);
- 			if (ret == -1) {
- 				td_verror(td, errno, \
- 					"numa_run_on_node_mask failed\n");
-@@ -1357,12 +1360,16 @@ static void *thread_main(void *data)
- 
- 		if (o->numa_memmask_set) {
- 
-+			mask = NULL;
-+			if (o->numa_memnodes)
-+				mask = numa_parse_nodestring(o->numa_memnodes);
-+
- 			switch (o->numa_mem_mode) {
- 			case MPOL_INTERLEAVE:
--				numa_set_interleave_mask(o->numa_memnodesmask);
-+				numa_set_interleave_mask(mask);
- 				break;
- 			case MPOL_BIND:
--				numa_set_membind(o->numa_memnodesmask);
-+				numa_set_membind(mask);
- 				break;
- 			case MPOL_LOCAL:
- 				numa_set_localalloc();
-@@ -1375,6 +1382,9 @@ static void *thread_main(void *data)
- 				break;
- 			}
- 
-+			if (mask)
-+				numa_free_nodemask(mask);
-+
- 		}
- 	}
- #endif
-diff --git a/options.c b/options.c
-index 163c5fc..9dcb255 100644
---- a/options.c
-+++ b/options.c
-@@ -554,6 +554,7 @@ static int str_verify_cpus_allowed_cb(void *data, const char *input)
- static int str_numa_cpunodes_cb(void *data, char *input)
- {
- 	struct thread_data *td = data;
-+	struct bitmask *verify_bitmask;
- 
- 	if (parse_dryrun())
- 		return 0;
-@@ -563,13 +564,15 @@ static int str_numa_cpunodes_cb(void *data, char *input)
- 	 * numa_allocate_nodemask(), so it should be freed by
- 	 * numa_free_nodemask().
- 	 */
--	td->o.numa_cpunodesmask = numa_parse_nodestring(input);
--	if (td->o.numa_cpunodesmask == NULL) {
-+	verify_bitmask = numa_parse_nodestring(input);
-+	if (verify_bitmask == NULL) {
- 		log_err("fio: numa_parse_nodestring failed\n");
- 		td_verror(td, 1, "str_numa_cpunodes_cb");
- 		return 1;
- 	}
-+	numa_free_nodemask(verify_bitmask);
- 
-+	td->o.numa_cpunodes = strdup(input);
- 	td->o.numa_cpumask_set = 1;
- 	return 0;
+Diff of recent changes:
+
+diff --git a/configure b/configure
+index 0e861ee..f1e116e 100755
+--- a/configure
++++ b/configure
+@@ -156,6 +156,10 @@ for opt do
+   ;;
+   --disable-numa) disable_numa="yes"
+   ;;
++  --disable-rbd) disable_rbd="yes"
++  ;;
++  --disable-gfapi) disable_gfapi="yes"
++  ;;
+   --help)
+     show_help="yes"
+     ;;
+@@ -1146,7 +1150,7 @@ int main(int argc, char **argv)
+   return 0;
  }
-@@ -581,6 +584,7 @@ static int str_numa_mpol_cb(void *data, char *input)
- 		{ "default", "prefer", "bind", "interleave", "local", NULL };
- 	int i;
- 	char *nodelist;
-+	struct bitmask *verify_bitmask;
+ EOF
+-if compile_prog "" "-lrbd -lrados" "rbd"; then
++if test "$disable_rbd" != "yes"  && compile_prog "" "-lrbd -lrados" "rbd"; then
+   LIBS="-lrbd -lrados $LIBS"
+   rbd="yes"
+ fi
+@@ -1183,7 +1187,7 @@ int main(int argc, char **argv)
+   return 0;
+ }
+ EOF
+-if compile_prog "" "-lgfapi -lglusterfs" "gfapi"; then
++if test "$disable_gfapi" != "yes"  && compile_prog "" "-lgfapi -lglusterfs" "gfapi"; then
+   LIBS="-lgfapi -lglusterfs $LIBS"
+   gfapi="yes"
+ fi
+diff --git a/eta.c b/eta.c
+index bdd5376..850a784 100644
+--- a/eta.c
++++ b/eta.c
+@@ -12,35 +12,20 @@ static char run_str[__THREAD_RUNSTR_SZ(REAL_MAX_JOBS)];
  
- 	if (parse_dryrun())
- 		return 0;
-@@ -660,12 +664,15 @@ static int str_numa_mpol_cb(void *data, char *input)
- 		break;
- 	case MPOL_INTERLEAVE:
- 	case MPOL_BIND:
--		td->o.numa_memnodesmask = numa_parse_nodestring(nodelist);
--		if (td->o.numa_memnodesmask == NULL) {
-+		verify_bitmask = numa_parse_nodestring(nodelist);
-+		if (verify_bitmask == NULL) {
- 			log_err("fio: numa_parse_nodestring failed\n");
- 			td_verror(td, 1, "str_numa_memnodes_cb");
- 			return 1;
+ static void update_condensed_str(char *run_str, char *run_str_condensed)
+ {
+-	int i, ci, last, nr;
+-	size_t len;
+-
+-	len = strlen(run_str);
+-	if (!len)
+-		return;
+-
+-	last = 0;
+-	nr = 0;
+-	ci = 0;
+-	for (i = 0; i < len; i++) {
+-		if (!last) {
+-new:
+-			run_str_condensed[ci] = run_str[i];
+-			last = run_str[i];
+-			nr = 1;
+-			ci++;
+-		} else if (last == run_str[i]) {
+-			nr++;
+-		} else {
+-			ci += sprintf(&run_str_condensed[ci], "(%u),", nr);
+-			goto new;
++	if (*run_str) {
++		while (*run_str) {
++			int nr = 1;
++
++			*run_str_condensed++ = *run_str++;
++			while (*(run_str - 1) == *run_str) {
++				run_str++;
++				nr++;
++			}
++			run_str_condensed += sprintf(run_str_condensed, "(%u),", nr);
  		}
-+		td->o.numa_memnodes = strdup(nodelist);
-+		numa_free_nodemask(verify_bitmask);
-+                
- 		break;
- 	case MPOL_LOCAL:
- 	case MPOL_DEFAULT:
-diff --git a/thread_options.h b/thread_options.h
-index 41b6e54..57d84db 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -158,14 +158,12 @@ struct thread_options {
- 	os_cpu_mask_t verify_cpumask;
- 	unsigned int verify_cpumask_set;
- 	unsigned int cpus_allowed_policy;
--#ifdef CONFIG_LIBNUMA
--	struct bitmask *numa_cpunodesmask;
-+	char *numa_cpunodes;
- 	unsigned int numa_cpumask_set;
- 	unsigned short numa_mem_mode;
- 	unsigned int numa_mem_prefer_node;
--	struct bitmask *numa_memnodesmask;
-+	char *numa_memnodes;
- 	unsigned int numa_memmask_set;
--#endif
- 	unsigned int iolog;
- 	unsigned int rwmixcycle;
- 	unsigned int rwmix[DDIR_RWDIR_CNT];
--- 
-1.7.10.4
-
++		run_str_condensed--;
+ 	}
+-
+-	if (nr)
+-		ci += sprintf(&run_str_condensed[ci], "(%u)", nr);
+-
+-	run_str_condensed[ci + 1] = '\0';
++	*run_str_condensed = '\0';
+ }
+ 
+ /*
+diff --git a/verify.c b/verify.c
+index 282a8cf..2615701 100644
+--- a/verify.c
++++ b/verify.c
+@@ -709,23 +709,42 @@ static int verify_trimmed_io_u(struct thread_data *td, struct io_u *io_u)
+ 	return ret;
+ }
+ 
+-static int verify_header(struct io_u *io_u, struct verify_header *hdr)
++static int verify_header(struct io_u *io_u, struct verify_header *hdr,
++			 unsigned int hdr_num, unsigned int hdr_len)
+ {
+ 	void *p = hdr;
+ 	uint32_t crc;
+ 
+-	if (hdr->magic != FIO_HDR_MAGIC)
+-		return 1;
+-	if (hdr->len > io_u->buflen)
+-		return 2;
+-	if (hdr->rand_seed != io_u->rand_seed)
+-		return 3;
++	if (hdr->magic != FIO_HDR_MAGIC) {
++		log_err("verify: bad magic header %x, wanted %x",
++			hdr->magic, FIO_HDR_MAGIC);
++		goto err;
++	}
++	if (hdr->len != hdr_len) {
++		log_err("verify: bad header length %u, wanted %u",
++			hdr->len, hdr_len);
++		goto err;
++	}
++	if (hdr->rand_seed != io_u->rand_seed) {
++		log_err("verify: bad header rand_seed %"PRIu64
++			", wanted %"PRIu64,
++			hdr->rand_seed, io_u->rand_seed);
++		goto err;
++	}
+ 
+ 	crc = fio_crc32c(p, offsetof(struct verify_header, crc32));
+-	if (crc == hdr->crc32)
+-		return 0;
+-	log_err("fio: verify header crc %x, calculated %x\n", hdr->crc32, crc);
+-	return 4;
++	if (crc != hdr->crc32) {
++		log_err("verify: bad header crc %x, calculated %x",
++			hdr->crc32, crc);
++		goto err;
++	}
++	return 0;
++
++err:
++	log_err(" at file %s offset %llu, length %u\n",
++		io_u->file->file_name,
++		io_u->offset + hdr_num * hdr_len, hdr_len);
++	return EILSEQ;
+ }
+ 
+ int verify_io_u(struct thread_data *td, struct io_u *io_u)
+@@ -769,42 +788,9 @@ int verify_io_u(struct thread_data *td, struct io_u *io_u)
+ 		if (td->o.verifysort || (td->flags & TD_F_VER_BACKLOG))
+ 			io_u->rand_seed = hdr->rand_seed;
+ 
+-		ret = verify_header(io_u, hdr);
+-		switch (ret) {
+-		case 0:
+-			break;
+-		case 1:
+-			log_err("verify: bad magic header %x, wanted %x at "
+-				"file %s offset %llu, length %u\n",
+-				hdr->magic, FIO_HDR_MAGIC,
+-				io_u->file->file_name,
+-				io_u->offset + hdr_num * hdr->len, hdr->len);
+-			return EILSEQ;
+-			break;
+-		case 2:
+-			log_err("fio: verify header exceeds buffer length (%u "
+-				"> %lu)\n", hdr->len, io_u->buflen);
+-			return EILSEQ;
+-			break;
+-		case 3:
+-			log_err("verify: bad header rand_seed %"PRIu64
+-				", wanted %"PRIu64" at file %s offset %llu, "
+-				"length %u\n",
+-				hdr->rand_seed, io_u->rand_seed,
+-				io_u->file->file_name,
+-				io_u->offset + hdr_num * hdr->len, hdr->len);
+-			return EILSEQ;
+-			break;
+-		case 4:
+-			return EILSEQ;
+-			break;
+-		default:
+-			log_err("verify: unknown header error at file %s "
+-			"offset %llu, length %u\n",
+-			io_u->file->file_name,
+-			io_u->offset + hdr_num * hdr->len, hdr->len);
+-			return EILSEQ;
+-		}
++		ret = verify_header(io_u, hdr, hdr_num, hdr_inc);
++		if (ret)
++			return ret;
+ 
+ 		if (td->o.verify != VERIFY_NONE)
+ 			verify_type = td->o.verify;
