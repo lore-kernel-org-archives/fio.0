@@ -1,143 +1,94 @@
-Return-Path: <jiri.horky@gmail.com>
-Message-ID: <538CC242.60109@gmail.com>
-Date: Mon, 02 Jun 2014 20:28:18 +0200
-From: Jiri Horky <jiri.horky@gmail.com>
+Return-Path: <andrey.v.kuzmin@gmail.com>
 MIME-Version: 1.0
-Subject: Re: [PATCH] Allow to reset offset_increment counter
-References: <537F439E.9040904@gmail.com> <537F7E8E.4050200@kernel.dk> <537F8454.3020203@gmail.com>
-In-Reply-To: <537F8454.3020203@gmail.com>
-Content-Type: multipart/mixed;
- boundary="------------010406030200040107080708"
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+In-Reply-To: <53AE26F4.9050808@kernel.dk>
+References: <CANvN+ekEc4AW+0WcC2YwmJdXA4WO_APSqPQkhq5oexOdrD+UXw@mail.gmail.com>
+	<53AE26F4.9050808@kernel.dk>
+Date: Fri, 27 Jun 2014 20:55:35 -0700
+Message-ID: <CANvN+ensqZP3_jv=FNy4S_hhuyz8Mdnory7dwQFKHpmMw+4r8Q@mail.gmail.com>
+Subject: Re: A typo in io_u.c::get_next_file()?
+From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Content-Type: multipart/alternative; boundary=047d7b6762cefee30c04fcdd655b
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------010406030200040107080708
+--047d7b6762cefee30c04fcdd655b
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
-Hi,
+Still unsure how it could have worked all the way down to now ;). given
+the default profile being null (unless I'm missing it being set
+differently).
+On Jun 27, 2014 7:22 PM, "Jens Axboe" <axboe@kernel.dk> wrote:
 
-so here is another try. I thought about it a little and I think that it
-only makes sense to define offset_increment together with numjobs=X
-setting, i.e. when using subjobs. The patch reflects this. Each subjob
-starts at next offset_increment for each file it operates on.
-
-Cheers
-Jirka H.
-
-
-On 05/23/2014 07:24 PM, Jiri Horky wrote:
-> Hi Jens,
-> On 05/23/2014 06:59 PM, Jens Axboe wrote:
->> On 2014-05-23 06:48, Jiri Horky wrote:
->>> Hi all,
->>>
->>> because I got bitten by this multiple times I decided to give this patch
->>> a try :)
->>>
->>> Current implementation of offset calculation when offset_increment is in
->>> effect uses global thread_number as follows:
->>>      f->file_offset = td->o.start_offset + (td->thread_number - 1) *
->>> td->o.offset_increment;
->>>
->>> The thread number gets incremented for every job (subjob) so even you
->>> have multiple jobs with different filenames, the offset calculation is
->>> shared. I find this very unintuitive, especially in cases the offsets
->>> gets past the device/file. For example, if one wants to run sequential
->>> read test in 16 threads of multiple devices (/dev/sd{b,c,d}) in one
->>> group, which are of  1TB size, and to eliminate caching effect he wants
->>> each read to start at different offset, the config could look like
->>> following:
->> Maybe it would be better to have this offset calculation be on a
->> per-thread-per-file basis? You are right in that it only makes sense
->> within the same file or device, so maybe it'd be better to make it
->> work more like you expect.
-> I agree it should definitely be file-based, I just wasn't sure how you
-> would express that in the config file. Or you mean that that the offset
-> calculation would not be shared between different jobs (not subjobs)
-> even if they share the same file?
-> The fact is that one can always calculate the start offset in the new
-> job definition if he needs the offset calculation to be shared. And if
-> there are multiple files within a job, the offset_increment should be
-> independent.
+> On 2014-06-27 18:54, Andrey Kuzmin wrote:
 >
-> I will try to look at this.
+>> diff --git a/io_u.c b/io_u.c
+>> index e132fd9..f487b0a 100644
+>> --- a/io_u.c
+>> +++ b/io_u.c
+>> @@ -1100,7 +1100,7 @@ out:
+>>
+>>   static struct fio_file *get_next_file(struct thread_data *td)
+>>   {
+>> -       if (!(td->flags & TD_F_PROFILE_OPS)) {
+>> +       if ((td->flags & TD_F_PROFILE_OPS)) {
+>>                  struct prof_io_ops *ops = &td->prof_io_ops;
+>>
+>>                  if (ops->get_next_file)
+>>
 >
-> Jiri
+> Hah indeed, good catch! I was wondering why it would not segfault, but I
+> guess we fall through normally anyway. So it only impacts profiles that
+> have get_next_file set, which makes it a minor issue.
+>
+> Thanks for the patch! Applied.
+>
+> --
+> Jens Axboe
+>
 >
 
+--047d7b6762cefee30c04fcdd655b
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
---------------010406030200040107080708
-Content-Type: text/x-patch;
- name="fio.offset_increment.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="fio.offset_increment.patch"
+<p dir=3D"ltr">Still unsure how it could have worked all the way down to no=
+w ;). given=C2=A0 the default profile being null (unless I&#39;m missing it=
+ being set differently).</p>
+<div class=3D"gmail_quote">On Jun 27, 2014 7:22 PM, &quot;Jens Axboe&quot; =
+&lt;<a href=3D"mailto:axboe@kernel.dk">axboe@kernel.dk</a>&gt; wrote:<br ty=
+pe=3D"attribution"><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 =
+.8ex;border-left:1px #ccc solid;padding-left:1ex">
+On 2014-06-27 18:54, Andrey Kuzmin wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex">
+diff --git a/io_u.c b/io_u.c<br>
+index e132fd9..f487b0a 100644<br>
+--- a/io_u.c<br>
++++ b/io_u.c<br>
+@@ -1100,7 +1100,7 @@ out:<br>
+<br>
+=C2=A0 static struct fio_file *get_next_file(struct thread_data *td)<br>
+=C2=A0 {<br>
+- =C2=A0 =C2=A0 =C2=A0 if (!(td-&gt;flags &amp; TD_F_PROFILE_OPS)) {<br>
++ =C2=A0 =C2=A0 =C2=A0 if ((td-&gt;flags &amp; TD_F_PROFILE_OPS)) {<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0struct prof_i=
+o_ops *ops =3D &amp;td-&gt;prof_io_ops;<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0if (ops-&gt;g=
+et_next_file)<br>
+</blockquote>
+<br>
+Hah indeed, good catch! I was wondering why it would not segfault, but I gu=
+ess we fall through normally anyway. So it only impacts profiles that have =
+get_next_file set, which makes it a minor issue.<br>
+<br>
+Thanks for the patch! Applied.<br>
+<br>
+-- <br>
+Jens Axboe<br>
+<br>
+</blockquote></div>
 
-diff --git a/filesetup.c b/filesetup.c
-index 84eaed6..aa908ad 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -752,7 +752,7 @@ uint64_t get_start_offset(struct thread_data *td, struct fio_file *f)
- 		return f->real_file_size;
- 
- 	return td->o.start_offset +
--		(td->thread_number - 1) * td->o.offset_increment;
-+		td->subjob_number * td->o.offset_increment;
- }
- 
- /*
-diff --git a/fio.1 b/fio.1
-index 62f40ea..10f4b77 100644
---- a/fio.1
-+++ b/fio.1
-@@ -658,9 +658,10 @@ Offset in the file to start I/O. Data before the offset will not be touched.
- .BI offset_increment \fR=\fPint
- If this is provided, then the real offset becomes the
- offset + offset_increment * thread_number, where the thread number is a counter
--that starts at 0 and is incremented for each job. This option is useful if
--there are several jobs which are intended to operate on a file in parallel in
--disjoint segments, with even spacing between the starting points.
-+that starts at 0 and is incremented for each sub-job (i.e. when numjobs option
-+is specified). This option is useful if there are several jobs which are
-+intended to operate on a file in parallel in disjoint segments, with even
-+spacing between the starting points.
- .TP
- .BI number_ios \fR=\fPint
- Fio will normally perform IOs until it has exhausted the size of the region
-diff --git a/fio.h b/fio.h
-index 4d4af0a..b0c247e 100644
---- a/fio.h
-+++ b/fio.h
-@@ -101,6 +101,7 @@ struct thread_data {
- 	char verror[FIO_VERROR_SIZE];
- 	pthread_t thread;
- 	unsigned int thread_number;
-+	unsigned int subjob_number;
- 	unsigned int groupid;
- 	struct thread_stat ts;
- 
-diff --git a/init.c b/init.c
-index a546861..a454e5e 100644
---- a/init.c
-+++ b/init.c
-@@ -363,6 +363,7 @@ static struct thread_data *get_new_job(int global, struct thread_data *parent,
- 	profile_add_hooks(td);
- 
- 	td->thread_number = thread_number;
-+	td->subjob_number = 0;
- 
- 	if (!parent->o.group_reporting)
- 		stat_number++;
-@@ -1198,6 +1199,7 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
- 		td_new->o.numjobs = 1;
- 		td_new->o.stonewall = 0;
- 		td_new->o.new_group = 0;
-+		td_new->subjob_number = numjobs;
- 
- 		if (file_alloced) {
- 			if (td_new->files) {
-
---------------010406030200040107080708--
+--047d7b6762cefee30c04fcdd655b--
 
