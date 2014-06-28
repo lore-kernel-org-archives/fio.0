@@ -1,82 +1,127 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailout1b.intuit.com ([206.108.40.7]:23104 "EHLO
-	qdcapmail1.data.ie.intuit.net" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751862AbaFYAdl convert rfc822-to-8bit
-	(ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 24 Jun 2014 20:33:41 -0400
-From: "Hinson, Roger" <Roger_Hinson@intuit.com>
-Subject: Block size of zero in log files
-Date: Wed, 25 Jun 2014 00:33:35 +0000
-Message-ID: <ab186420ecb140c887b85f36fcdde766@BLUPR02MB453.namprd02.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+Received: from bombadil.infradead.org ([198.137.202.9]:38621 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752668AbaF1MAH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 28 Jun 2014 08:00:07 -0400
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1X0rIa-000549-MU
+	for fio@vger.kernel.org; Sat, 28 Jun 2014 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20140628120003.987F540076@lyth.info>
+Date: Sat, 28 Jun 2014 06:00:03 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=
-=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD Hi,
+The following changes since commit 4445856ab659ffa41bdb8f5b81aa00704c50a5c6:
 
-=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=
-=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD I'm new to usi=
-ng FIO.=EF=BF=BD I'm using FIO 2.1.10, although I had the same problem with=
- FIO 2.1.7.=EF=BF=BD The log files are not listing the blocksize.=EF=BF=BD =
-I looked around and can't find anything obvious that I'm doing wrong, altho=
-ugh I see posts with it working for people.=EF=BF=BD Has anyone seen and so=
-lved this?
+  Verify: Tighten header length check in verify_header() (2014-06-26 19:30:16 +0200)
 
-Here is a snippet from my FIO config file.
+are available in the git repository at:
 
-[global]
-thread
-group_reporting=3D1
-direct=3D1
-norandommap=3D0
-randrepeat=3D0
-refill_buffers
-buffer_compress_percentage=3D0
-ioengine=3Dlibaio
-#filename=3D/dev/dm-0:/dev/dm-1:/dev/dm-2:/dev/dm-3:/dev/dm-4:/dev/dm-5
+  git://git.kernel.dk/fio.git master
 
-log_avg_msec=3D1000
+for you to fetch changes up to 372d89627cc04b5f30193ad8df762f86a580596d:
 
-[128kB_SeqWr_dm0_1stPass]
-write_bw_log=3D128kB_SeqWr_dm0_1stPass
-write_lat_log=3D128kB_SeqWr_dm0_1stPass
-write_iops_log=3D128kB_SeqWr_dm0_1stPass
-filename=3D/dev/dm-0
-bs=3D128k
-rw=3Dwrite
-numjobs=3D1
-iodepth=3D8
+  Fix typo in io_u.c::get_next_file() (2014-06-27 20:21:22 -0600)
 
-[128kB_SeqWr_dm1_1stPass]
-write_bw_log=3D128kB_SeqWr_dm1_1stPass
-write_lat_log=3D128kB_SeqWr_dm1_1stPass
-write_iops_log=3D128kB_SeqWr_dm1_1stPass
-filename=3D/dev/dm-1
-bs=3D128k
-rw=3Dwrite
-numjobs=3D1
-iodepth=3D8
+----------------------------------------------------------------
+Andrey Kuzmin (1):
+      Fix typo in io_u.c::get_next_file()
 
-and a snippet of a log file
+Jens Axboe (3):
+      Fix struct jobs_eta packing on 32 vs 64-bit archs
+      eta: only pass real size of jobs_eta
+      client: fix ETA run_str
 
-tail -5 128kB_SeqWr_dm0_1stPass_bw.log=20
+ client.c |   10 +++++++---
+ eta.c    |    1 +
+ io_u.c   |    2 +-
+ stat.h   |    5 +++++
+ 4 files changed, 14 insertions(+), 4 deletions(-)
 
-10767282, 171175, 1, 0
-10768286, 167055, 1, 0
-10769288, 172508, 1, 0
-10770292, 170629, 1, 0
-10770926, 174754, 1, 0
+---
 
+Diff of recent changes:
 
-=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=
-=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD Thanks,
-=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=
-=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD Roger
-
-
-
+diff --git a/client.c b/client.c
+index af6621d..828dd97 100644
+--- a/client.c
++++ b/client.c
+@@ -987,7 +987,12 @@ void fio_client_sum_jobs_eta(struct jobs_eta *dst, struct jobs_eta *je)
+ 		dst->eta_sec = je->eta_sec;
+ 
+ 	dst->nr_threads		+= je->nr_threads;
+-	/* we need to handle je->run_str too ... */
++
++	/*
++	 * This wont be correct for multiple strings, but at least it
++	 * works for the basic cases.
++	 */
++	strcpy((char *) dst->run_str, (char *) je->run_str);
+ }
+ 
+ void fio_client_dec_jobs_eta(struct client_eta *eta, client_eta_op eta_fn)
+@@ -1374,8 +1379,7 @@ static void request_client_etas(struct client_ops *ops)
+ 
+ 	dprint(FD_NET, "client: request eta (%d)\n", nr_clients);
+ 
+-	eta = malloc(sizeof(*eta));
+-	memset(&eta->eta, 0, sizeof(eta->eta));
++	eta = calloc(1, sizeof(*eta) + __THREAD_RUNSTR_SZ(REAL_MAX_JOBS));
+ 	eta->pending = nr_clients;
+ 
+ 	flist_for_each(entry, &client_list) {
+diff --git a/eta.c b/eta.c
+index 850a784..0105cda 100644
+--- a/eta.c
++++ b/eta.c
+@@ -581,6 +581,7 @@ struct jobs_eta *get_jobs_eta(int force, size_t *size)
+ 		return NULL;
+ 	}
+ 
++	*size = sizeof(*je) + strlen((char *) je->run_str) + 1;
+ 	return je;
+ }
+ 
+diff --git a/io_u.c b/io_u.c
+index e132fd9..997e113 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -1100,7 +1100,7 @@ out:
+ 
+ static struct fio_file *get_next_file(struct thread_data *td)
+ {
+-	if (!(td->flags & TD_F_PROFILE_OPS)) {
++	if (td->flags & TD_F_PROFILE_OPS) {
+ 		struct prof_io_ops *ops = &td->prof_io_ops;
+ 
+ 		if (ops->get_next_file)
+diff --git a/stat.h b/stat.h
+index 6f9d82a..fb1485d 100644
+--- a/stat.h
++++ b/stat.h
+@@ -186,9 +186,13 @@ struct thread_stat {
+ struct jobs_eta {
+ 	uint32_t nr_running;
+ 	uint32_t nr_ramp;
++
+ 	uint32_t nr_pending;
+ 	uint32_t nr_setting_up;
++
+ 	uint32_t files_open;
++	uint32_t pad1;
++
+ 	uint32_t m_rate[DDIR_RWDIR_CNT], t_rate[DDIR_RWDIR_CNT];
+ 	uint32_t m_iops[DDIR_RWDIR_CNT], t_iops[DDIR_RWDIR_CNT];
+ 	uint32_t rate[DDIR_RWDIR_CNT];
+@@ -202,6 +206,7 @@ struct jobs_eta {
+ 	 * Network 'copy' of run_str[]
+ 	 */
+ 	uint32_t nr_threads;
++	uint32_t pad2;
+ 	uint8_t run_str[];
+ };
+ 
