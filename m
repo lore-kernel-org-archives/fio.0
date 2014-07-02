@@ -1,73 +1,140 @@
-Return-Path: <jiri.horky@gmail.com>
-Message-ID: <53D20B84.4020403@gmail.com>
-Date: Fri, 25 Jul 2014 09:47:16 +0200
-From: Jiri Horky <jiri.horky@gmail.com>
-MIME-Version: 1.0
-Subject: Re: [PATCH] Allow to reset offset_increment counter
-References: <537F439E.9040904@gmail.com> <537F7E8E.4050200@kernel.dk> <537F8454.3020203@gmail.com> <538CC242.60109@gmail.com>
-In-Reply-To: <538CC242.60109@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from casper.infradead.org ([85.118.1.10]:60393 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751243AbaGBMAG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 2 Jul 2014 08:00:06 -0400
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1X2JCm-00029r-A7
+	for fio@vger.kernel.org; Wed, 02 Jul 2014 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20140702120002.D099940165@lyth.info>
+Date: Wed,  2 Jul 2014 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Hi Jens,
+The following changes since commit ae5888523480f094ce04375a45797e111273ab22:
 
-I wonder if you missed this email or you just didn't like the patch?
+  Add option for including byte offset for each log entry (2014-06-30 20:59:03 -0600)
 
-Regards
-Jiri Horky
+are available in the git repository at:
 
-On 06/02/2014 08:28 PM, Jiri Horky wrote:
-> Hi,
->
-> so here is another try. I thought about it a little and I think that it
-> only makes sense to define offset_increment together with numjobs=X
-> setting, i.e. when using subjobs. The patch reflects this. Each subjob
-> starts at next offset_increment for each file it operates on.
->
-> Cheers
-> Jirka H.
->
->
-> On 05/23/2014 07:24 PM, Jiri Horky wrote:
->> Hi Jens,
->> On 05/23/2014 06:59 PM, Jens Axboe wrote:
->>> On 2014-05-23 06:48, Jiri Horky wrote:
->>>> Hi all,
->>>>
->>>> because I got bitten by this multiple times I decided to give this patch
->>>> a try :)
->>>>
->>>> Current implementation of offset calculation when offset_increment is in
->>>> effect uses global thread_number as follows:
->>>>      f->file_offset = td->o.start_offset + (td->thread_number - 1) *
->>>> td->o.offset_increment;
->>>>
->>>> The thread number gets incremented for every job (subjob) so even you
->>>> have multiple jobs with different filenames, the offset calculation is
->>>> shared. I find this very unintuitive, especially in cases the offsets
->>>> gets past the device/file. For example, if one wants to run sequential
->>>> read test in 16 threads of multiple devices (/dev/sd{b,c,d}) in one
->>>> group, which are of  1TB size, and to eliminate caching effect he wants
->>>> each read to start at different offset, the config could look like
->>>> following:
->>> Maybe it would be better to have this offset calculation be on a
->>> per-thread-per-file basis? You are right in that it only makes sense
->>> within the same file or device, so maybe it'd be better to make it
->>> work more like you expect.
->> I agree it should definitely be file-based, I just wasn't sure how you
->> would express that in the config file. Or you mean that that the offset
->> calculation would not be shared between different jobs (not subjobs)
->> even if they share the same file?
->> The fact is that one can always calculate the start offset in the new
->> job definition if he needs the offset calculation to be shared. And if
->> there are multiple files within a job, the offset_increment should be
->> independent.
->>
->> I will try to look at this.
->>
->> Jiri
->>
+  git://git.kernel.dk/fio.git master
 
+for you to fetch changes up to 3310fcedbf11916c20aca6cffc20264a6e781e32:
 
+  client: fix missing init of 'i' (2014-07-01 16:07:59 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (3):
+      Add a typecheck for the endianness conversions
+      client: fix missing pdu->log_offset endianness conversion
+      client: fix missing init of 'i'
+
+ client.c            |    6 +++---
+ compiler/compiler.h |   11 +++++++++++
+ iolog.h             |    4 ++--
+ os/os.h             |    8 +++++++-
+ 4 files changed, 23 insertions(+), 6 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/client.c b/client.c
+index 4587824..e70a27d 100644
+--- a/client.c
++++ b/client.c
+@@ -1154,9 +1154,9 @@ static struct cmd_iolog_pdu *convert_iolog_gz(struct fio_net_cmd *cmd,
+ 	/*
+ 	 * Get header first, it's not compressed
+ 	 */
+-	nr_samples = le32_to_cpu(pdu->nr_samples);
++	nr_samples = le64_to_cpu(pdu->nr_samples);
+ 
+-	total = nr_samples * __log_entry_sz(pdu->log_offset);
++	total = nr_samples * __log_entry_sz(le32_to_cpu(pdu->log_offset));
+ 	ret = malloc(total + sizeof(*pdu));
+ 	ret->nr_samples = nr_samples;
+ 
+@@ -1232,7 +1232,7 @@ static struct cmd_iolog_pdu *convert_iolog(struct fio_net_cmd *cmd)
+ 	ret->compressed		= le32_to_cpu(ret->compressed);
+ 	ret->log_offset		= le32_to_cpu(ret->log_offset);
+ 
+-	samples = &ret->samples[i];
++	samples = &ret->samples[0];
+ 	for (i = 0; i < ret->nr_samples; i++) {
+ 		struct io_sample *s;
+ 
+diff --git a/compiler/compiler.h b/compiler/compiler.h
+index 0a0213b..e1afcb4 100644
+--- a/compiler/compiler.h
++++ b/compiler/compiler.h
+@@ -22,4 +22,15 @@
+ 
+ #define fio_unlikely(x)	__builtin_expect(!!(x), 0)
+ 
++/*
++ * Check at compile time that something is of a particular type.
++ * Always evaluates to 1 so you may use it easily in comparisons.
++ */
++#define typecheck(type,x) \
++({	type __dummy; \
++	typeof(x) __dummy2; \
++	(void)(&__dummy == &__dummy2); \
++	1; \
++})
++
+ #endif
+diff --git a/iolog.h b/iolog.h
+index b387f48..eed9297 100644
+--- a/iolog.h
++++ b/iolog.h
+@@ -48,8 +48,8 @@ struct io_log {
+ 	/*
+ 	 * Entries already logged
+ 	 */
+-	unsigned long nr_samples;
+-	unsigned long max_samples;
++	uint64_t nr_samples;
++	uint64_t max_samples;
+ 	void *log;
+ 
+ 	unsigned int log_type;
+diff --git a/os/os.h b/os/os.h
+index b8eee66..df706ab 100644
+--- a/os/os.h
++++ b/os/os.h
+@@ -202,23 +202,29 @@ static inline uint64_t fio_swap64(uint64_t val)
+ 
+ #ifdef FIO_INTERNAL
+ #define le16_to_cpu(val) ({			\
++	typecheck(uint16_t, val);		\
+ 	__le16_to_cpu(val);			\
+ })
+ #define le32_to_cpu(val) ({			\
++	typecheck(uint32_t, val);		\
+ 	__le32_to_cpu(val);			\
+ })
+ #define le64_to_cpu(val) ({			\
+-	__le64_to_cpu(val);				\
++	typecheck(uint64_t, val);		\
++	__le64_to_cpu(val);			\
+ })
+ #endif
+ 
+ #define cpu_to_le16(val) ({			\
++	typecheck(uint16_t, val);		\
+ 	__cpu_to_le16(val);			\
+ })
+ #define cpu_to_le32(val) ({			\
++	typecheck(uint32_t, val);		\
+ 	__cpu_to_le32(val);			\
+ })
+ #define cpu_to_le64(val) ({			\
++	typecheck(uint64_t, val);		\
+ 	__cpu_to_le64(val);			\
+ })
+ 
