@@ -1,72 +1,54 @@
-Return-Path: <yyalex.wang@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <x49k37uwbug.fsf@segfault.boston.devel.redhat.com>
+Return-Path: <Roger_Hinson@intuit.com>
+From: "Hinson, Roger" <Roger_Hinson@intuit.com>
+Subject: RE: multiple block devices question
+Date: Thu, 3 Jul 2014 18:21:58 +0000
+Message-ID: <abec717a9a75459bb62620bddd00e424@BLUPR02MB453.namprd02.prod.outlook.com>
 References: <CANyhEAuqB4Q2XphsGpn3FcGFhr02D2etUZBaD7j9w20Y44JXVg@mail.gmail.com>
 	<53B462A3.8050402@kernel.dk>
 	<CANyhEAvWNUonhYj1rpDP=o4g4199o1tZY-Oz=1qQJMFQEPpwGw@mail.gmail.com>
-	<x49k37uwbug.fsf@segfault.boston.devel.redhat.com>
-Date: Thu, 3 Jul 2014 14:22:08 -0400
-Message-ID: <CANyhEAvmuj9Lo2by0PbPYbdznYUssugK4=yii4J1KbkoyeENTA@mail.gmail.com>
-Subject: Re: multiple block devices question
-From: "Yuyang (Alex) Wang" <yyalex.wang@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-To: Jeff Moyer <jmoyer@redhat.com>
+ <x49k37uwbug.fsf@segfault.boston.devel.redhat.com>
+In-Reply-To: <x49k37uwbug.fsf@segfault.boston.devel.redhat.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Return-Path: Roger_Hinson@intuit.com
+To: Jeff Moyer <jmoyer@redhat.com>, "Yuyang (Alex) Wang" <yyalex.wang@gmail.com>
 Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-hi Jeff,
+It doesn't work properly with 2.1.7.  it only grabs the first name in filen=
+ame.  I switched to 2.1.10 to fix that problem for me.
 
-iodepth doesn't seem to make difference - see output (this is with two
-raid array)
-
-devices: (g=0): rw=write, bs=1M-1M/1M-1M/1M-1M, ioengine=libaio, iodepth=32
-fio-2.1.7
-Starting 1 process
-Jobs: 1 (f=1): [W] [100.0% done] [0KB/1227MB/0KB /s] [0/1227/0 iops]
-[eta 00m:00s]
-devices: (groupid=0, jobs=1): err= 0: pid=91658: Thu Jul  3 14:20:42 2014
-  write: io=41368MB, bw=1376.7MB/s, iops=1376, runt= 30050msec
-    slat (usec): min=104, max=8419, avg=328.49, stdev=63.54
-    clat (usec): min=4, max=114758, avg=22883.96, stdev=8585.56
-     lat (msec): min=2, max=115, avg=23.21, stdev= 8.58
-    clat percentiles (msec):
-     |  1.00th=[   11],  5.00th=[   12], 10.00th=[   12], 20.00th=[   21],
-     | 30.00th=[   23], 40.00th=[   23], 50.00th=[   23], 60.00th=[   25],
-     | 70.00th=[   25], 80.00th=[   26], 90.00th=[   28], 95.00th=[   35],
-     | 99.00th=[   61], 99.50th=[   68], 99.90th=[   80], 99.95th=[   89],
-     | 99.99th=[  110]
-    bw (MB  /s): min=  926, max= 2790, per=100.00%, avg=1376.74, stdev=420.52
-    lat (usec) : 10=0.01%
-    lat (msec) : 4=0.03%, 10=0.39%, 20=19.28%, 50=78.27%, 100=1.99%
-    lat (msec) : 250=0.04%
-  cpu          : usr=30.09%, sys=17.91%, ctx=19628, majf=0, minf=26
-  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=99.9%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.1%, 64=0.0%, >=64=0.0%
-     issued    : total=r=0/w=41368/d=0, short=r=0/w=0/d=0
-     latency   : target=0, window=0, percentile=100.00%, depth=32
-
-Run status group 0 (all jobs):
-  WRITE: io=41368MB, aggrb=1376.7MB/s, minb=1376.7MB/s,
-maxb=1376.7MB/s, mint=30050msec, maxt=30050msec
+Roger
 
 
+-----Original Message-----
+From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Behal=
+f Of Jeff Moyer
+Sent: Thursday, July 03, 2014 11:12 AM
+To: Yuyang (Alex) Wang
+Cc: Jens Axboe; fio@vger.kernel.org
+Subject: Re: multiple block devices question
 
-On Thu, Jul 3, 2014 at 2:12 PM, Jeff Moyer <jmoyer@redhat.com> wrote:
-> "Yuyang (Alex) Wang" <yyalex.wang@gmail.com> writes:
+"Yuyang (Alex) Wang" <yyalex.wang@gmail.com> writes:
+
+> Jens, thanks for the reply.
 >
->> Jens, thanks for the reply.
->>
->> I also tried the following as the HOWTO suggested, and getting similar results
->> [devices]
->> filename=/dev/mapper/raid0:/dev/mapper/raid1
->>
->>
->> This may be silly part on me misreading the manual, what's correct way
->> of specifying multiple devices?
+> I also tried the following as the HOWTO suggested, and getting similar=20
+> results [devices]
+> filename=3D/dev/mapper/raid0:/dev/mapper/raid1
 >
-> That looks ok to me.  What happens if you double your queue depth?
 >
-> Cheers,
-> Jeff
+> This may be silly part on me misreading the manual, what's correct way=20
+> of specifying multiple devices?
+
+That looks ok to me.  What happens if you double your queue depth?
+
+Cheers,
+Jeff
+--
+To unsubscribe from this list: send the line "unsubscribe fio" in the body =
+of a message to majordomo@vger.kernel.org More majordomo info at  http://vg=
+er.kernel.org/majordomo-info.html
 
