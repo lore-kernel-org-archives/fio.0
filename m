@@ -1,71 +1,77 @@
-Return-Path: <agayev@gmail.com>
-Return-Path: <agayev@gmail.com>
-References: <87pphr7g5d.fsf@gmail.com> <53B1DBB8.4080901@kernel.dk> <87d2dqcak6.fsf@gmail.com> <53B1E257.5070405@kernel.dk> <53B2243F.4080901@kernel.dk>
-From: Abutalib Aghayev <agayev@gmail.com>
-Subject: Re: [PATCH] Log offsets of I/O operations
-Date: Tue, 01 Jul 2014 03:51:48 -0400
-In-reply-to: <53B2243F.4080901@kernel.dk>
-Message-ID: <87a98t7bxo.fsf@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-vc0-f182.google.com ([209.85.220.182]:63141 "EHLO
+	mail-vc0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752880AbaGHBj4 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 7 Jul 2014 21:39:56 -0400
+Received: by mail-vc0-f182.google.com with SMTP id il7so4746043vcb.41
+        for <fio@vger.kernel.org>; Mon, 07 Jul 2014 18:39:55 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+In-Reply-To: <9E26C6259ACF1842A4815F929194EDD394B57968@phex01.corp.bitmicro.com>
+References: <CAFTxqD8+B7BbUCAE5Md2Ro8y4c1FNYV_AZnOT1OvpJd4H2vQ_Q@mail.gmail.com>
+	<CAFTxqD-R2AzHnq8B-QEGhkLSb_ftzjQ6evAgOiQn9DR0koHKXw@mail.gmail.com>
+	<9E26C6259ACF1842A4815F929194EDD394B57968@phex01.corp.bitmicro.com>
+Date: Mon, 7 Jul 2014 18:39:55 -0700
+Message-ID: <CAF+0mv==eRemW_AKeZHb1mx4YMjFGWV2pgrohAMxE_0f_STe-g@mail.gmail.com>
+Subject: Re: Mix Sequential & Random Access
+From: Matthew Eaton <m.eaton82@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Ritchie Babaylan <Ritchie.Babaylan@bitmicro.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-
-On Mon, Jun 30 2014 at 23:00 PM, Jens Axboe <axboe@kernel.dk> wrote:
-> On 2014-06-30 16:19, Jens Axboe wrote:
->> On 2014-06-30 16:09, Abutalib Aghayev wrote:
->>>
->>> On Mon, Jun 30 2014 at 17:50 PM, Jens Axboe <axboe@kernel.dk> wrote:
->>>> On 2014-06-29 11:43, Abutalib Aghayev wrote:
->>>>>
->>>>> This is a quick and dirty patch to log offsets of I/O operations as
->>>>> well.  It is useful if you would like to make offset vs latency plot
->>>>> for
->>>>> random I/O, which may not be interesting to many people, so feel
->>>>> free to
->>>>> ignore it.
->>>>
->>>> I can definitely see this being useful. But adding 8 bytes to every log
->>>> entry complicates things, as fio is already memory intensive there when
->>>> logging longer runs.
->>>>
->>>> I'd suggest having two logging types:
->>>>
->>>> struct io_sample {
->>>>             uint64_t time;
->>>>             uint64_t val;
->>>>             uint32_t ddir;
->>>>             uint32_t bs;
->>>>             uint64_t offset;
->>>
->>> I assume you didn't mean offset being here as well.
->>
->> Ah no, of course not.
->>
->>>> struct io_sample_offset {
->>>>             struct io_sample s;
->>>>             uint64_t offset;
->>>> };
->>>>
->>>> and using the right type for what you are logging. This means you'd need
->>>> an option to switch on the offset logging, and that you'd need to store
->>>> this in the iolog struct (whether to log offset or not) and use the
->>>> appropriate size for allocating and extending the log entries when
->>>> needed.
->>>>
->>>> Make sense?
->>>
->>> Yes, let me rework the patch.
->>
->> Thanks! Note that you also need to handle the client/server part.
->> Half-assed attempt attached, not tested at all. Still needs the client
->> part update.
+On Mon, Jul 7, 2014 at 12:30 AM, Ritchie Babaylan
+<Ritchie.Babaylan@bitmicro.com> wrote:
+> Hi,
 >
-> I finished off the client bit and committed it, it was just a few lines
-> of change and it was done. Also added documentation, etc. So current
-> -git should be complete.
+> I am confuse currently of string to put on rw= for the access profile below.
+>
+>         30% seq 60% read; 8KB
+>         60% seq 30% read; 8KB
+>
+>
+> My config file was written in this matter.
+>
+> [global]
+> ioengine=libaio
+> direct=1
+> ba=4kb
+> iodepth=4
+> numjobs=4
+> runtime=300
+> ramp_time=180
+> time_based
+> group_reporting
+> filename=/dev/sdb1
+>
+> [job-1]
+> description=30% seq 60% read - 8kb
+> stonewall
+> bs=8kb
+> percentage_random=60
+> rwmixread=60
+> rwmixwrite=40
+> rw=??
+>
+> [job-2]
+> description=60% seq 30% read - 8kb
+> stonewall
+> bs=8kb
+> percentage_random=40
+> rwmixread=30
+> rwmixwrite=70
+> rw=??
+>
+>
+> Appreciate any help on this matter.
+>
+>
+> Thanks,
+> Ritchie Babaylan
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Great, thank you!
-
+You should use rw=randrw
