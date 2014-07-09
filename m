@@ -1,109 +1,95 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <53BE5286.2060203@kernel.dk>
-Date: Thu, 10 Jul 2014 10:44:54 +0200
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-oa0-f52.google.com ([209.85.219.52]:54604 "EHLO
+	mail-oa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755041AbaGIW4g convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Wed, 9 Jul 2014 18:56:36 -0400
+Received: by mail-oa0-f52.google.com with SMTP id j17so8872484oag.39
+        for <fio@vger.kernel.org>; Wed, 09 Jul 2014 15:56:35 -0700 (PDT)
 MIME-Version: 1.0
-Subject: Re: fio hangs with --status-interval
-References: <CAE56cDuAUkhEnjMqCSWDcWrdwJrbffMcDG+FeCw6+7GN+jrWUg@mail.gmail.com>
-In-Reply-To: <CAE56cDuAUkhEnjMqCSWDcWrdwJrbffMcDG+FeCw6+7GN+jrWUg@mail.gmail.com>
-Content-Type: multipart/mixed;
- boundary="------------000304060109040407050803"
-To: Michael Mattsson <michael.mattsson@gmail.com>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+From: Michael Mattsson <michael.mattsson@gmail.com>
+Date: Wed, 9 Jul 2014 15:56:15 -0700
+Message-ID: <CAE56cDuAUkhEnjMqCSWDcWrdwJrbffMcDG+FeCw6+7GN+jrWUg@mail.gmail.com>
+Subject: fio hangs with --status-interval
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000304060109040407050803
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Hey,
+I've got 8 identical CentOS 6.5 clients that randomly keeps hanging
+fio when using --status-interval. I've tried fio 2.1.4 and fio 2.1.10
+they both behave the same. I've also tried piping the output to tee
+instead of redirecting to a file. I also tried --output and specified
+output file, still same problem. My fio command runs through its tests
+flawlessly without --status-interval and exits cleanly every time.
+There could be anywhere from 0 to 5 clients that gets affected.
+Running strace on the process that seem hung yields the following
+output:
 
-On 2014-07-10 00:56, Michael Mattsson wrote:
-> Hey,
-> I've got 8 identical CentOS 6.5 clients that randomly keeps hanging
-> fio when using --status-interval. I've tried fio 2.1.4 and fio 2.1.10
-> they both behave the same. I've also tried piping the output to tee
-> instead of redirecting to a file. I also tried --output and specified
-> output file, still same problem. My fio command runs through its tests
-> flawlessly without --status-interval and exits cleanly every time.
-> There could be anywhere from 0 to 5 clients that gets affected.
-> Running strace on the process that seem hung yields the following
-> output:
->
-> $ strace -p 31055
-> Process 31055 attached - interrupt to quit
-> futex(0x7f346ede802c, FUTEX_WAIT, 1, NULL
+$ strace -p 31055
+Process 31055 attached - interrupt to quit
+futex(0x7f346ede802c, FUTEX_WAIT, 1, NULL
 
-Strange, it must be stuck on the stat mutex, but I don't immediately see 
-why that would happen. Does the attached patch make any difference for 
-you, both in getting rid of the hang but still producing output at the 
-desired intervals?
+It will sit there forever. Excuse the splurge but this is the command
+(run 8 clients simultaneously where /fut1 and /fut2 is on shared
+storage (NFSv3)):
 
--- 
-Jens Axboe
+$ fio --minimal --direct=1 --group_reporting --filesize=64m
+--norandommap --blocksize=4k --time_based --iodepth=1 --ramp_time=15
+--ioengine=libaio --status-interval=5 --name=mytest-foo --rw=randread
+--numjobs=64 --filename=/fut1/6of4_1:/fut2/6of4_1:/fut1/6of4_2:/fut2/6of4_2:/fut1/6of4_3:/fut2/6of4_3:/fut1/6of4_4:/fut2/6of4_4:/fut1/6of4_5:/fut2/6of4_5:/fut1/6of4_6:/fut2/6of4_6:/fut1/6of4_7:/fut2/6of4_7:/fut1/6of4_8:/fut2/6of4_8:/fut1/6of4_9:/fut2/6of4_9:/fut1/6of4_10:/fut2/6of4_10:/fut1/6of4_11:/fut2/6of4_11:/fut1/6of4_12:/fut2/6of4_12:/fut1/6of4_13:/fut2/6of4_13:/fut1/6of4_14:/fut2/6of4_14:/fut1/6of4_15:/fut2/6of4_15:/fut1/6of4_16:/fut2/6of4_16:/fut1/6of4_17:/fut2/6of4_17:/fut1/6of4_18:/fut2/6of4_18:/fut1/6of4_19:/fut2/6of4_19:/fut1/6of4_20:/fut2/6of4_20:/fut1/6of4_21:/fut2/6of4_21:/fut1/6of4_22:/fut2/6of4_22:/fut1/6of4_23:/fut2/6of4_23:/fut1/6of4_24:/fut2/6of4_24:/fut1/6of4_25:/fut2/6of4_25:/fut1/6of4_26:/fut2/6of4_26:/fut1/6of4_27:/fut2/6of4_27:/fut1/6of4_28:/fut2/6of4_28:/fut1/6of4_29:/fut2/6of4_29:/fut1/6of4_30:/fut2/6of4_30:/fut1/6of4_31:/fut2/6of4_31:/fut1/6of4_32:/fut2/6of4_32
+--runtime=60
 
+Worth noting is that the output file is redirected to shared storage
+(NFSv4) on a different system than the one under test.
 
---------------000304060109040407050803
-Content-Type: text/x-patch;
- name="stat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="stat.patch"
+These are the fio 2.1.4 compile options:
+$ ./configure
+Operating system              Linux
+CPU                           x86_64
+Big endian                    no
+Compiler                      gcc
+Cross compile                 no
 
-diff --git a/stat.c b/stat.c
-index 979c8100d378..93316a239f7b 100644
---- a/stat.c
-+++ b/stat.c
-@@ -1466,11 +1466,12 @@ static void *__show_running_run_stats(void fio_unused *arg)
-  * in the sig handler, but we should be disturbing the system less by just
-  * creating a thread to do it.
-  */
--void show_running_run_stats(void)
-+int show_running_run_stats(void)
- {
- 	pthread_t thread;
- 
--	fio_mutex_down(stat_mutex);
-+	if (fio_mutex_down_trylock(stat_mutex))
-+		return 1;
- 
- 	if (!pthread_create(&thread, NULL, __show_running_run_stats, NULL)) {
- 		int err;
-@@ -1479,10 +1480,11 @@ void show_running_run_stats(void)
- 		if (err)
- 			log_err("fio: DU thread detach failed: %s\n", strerror(err));
- 
--		return;
-+		return 0;
- 	}
- 
- 	fio_mutex_up(stat_mutex);
-+	return 1;
- }
- 
- static int status_interval_init;
-@@ -1531,8 +1533,8 @@ void check_for_running_stats(void)
- 			fio_gettime(&status_time, NULL);
- 			status_interval_init = 1;
- 		} else if (mtime_since_now(&status_time) >= status_interval) {
--			show_running_run_stats();
--			fio_gettime(&status_time, NULL);
-+			if (!show_running_run_stats())
-+				fio_gettime(&status_time, NULL);
- 			return;
- 		}
- 	}
-diff --git a/stat.h b/stat.h
-index 2e46175053e8..82b8e973e4be 100644
---- a/stat.h
-+++ b/stat.h
-@@ -218,7 +218,7 @@ extern void show_group_stats(struct group_run_stats *rs);
- extern int calc_thread_status(struct jobs_eta *je, int force);
- extern void display_thread_status(struct jobs_eta *je);
- extern void show_run_stats(void);
--extern void show_running_run_stats(void);
-+extern int show_running_run_stats(void);
- extern void check_for_running_stats(void);
- extern void sum_thread_stats(struct thread_stat *dst, struct thread_stat *src, int nr);
- extern void sum_group_stats(struct group_run_stats *dst, struct group_run_stats *src);
+Wordsize                      64
+zlib                          no
+Linux AIO support             yes
+POSIX AIO support             yes
+POSIX AIO support needs -lrt  yes
+POSIX AIO fsync               yes
+Solaris AIO support           no
+__sync_fetch_and_add          yes
+libverbs                      no
+rdmacm                        no
+Linux fallocate               yes
+POSIX fadvise                 yes
+POSIX fallocate               yes
+sched_setaffinity(3 arg)      yes
+sched_setaffinity(2 arg)      no
+clock_gettime                 yes
+CLOCK_MONOTONIC               yes
+CLOCK_MONOTONIC_PRECISE       no
+gettimeofday                  yes
+fdatasync                     yes
+sync_file_range               yes
+EXT4 move extent              yes
+Linux splice(2)               yes
+GUASI                         no
+Fusion-io atomic engine       no
+libnuma                       no
+strsep                        yes
+strcasestr                    yes
+getopt_long_only()            yes
+inet_aton                     yes
+socklen_t                     yes
+__thread                      yes
+gtk 2.18 or higher            no
+RUSAGE_THREAD                 yes
+SCHED_IDLE                    yes
+TCP_NODELAY                   yes
+RLIMIT_MEMLOCK                yes
+pwritev/preadv                yes
 
---------------000304060109040407050803--
-
+Regards
+Michael
