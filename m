@@ -1,71 +1,82 @@
-Return-Path: <gwendal@google.com>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <53C0F983.3050809@kernel.dk>
+Date: Sat, 12 Jul 2014 11:01:55 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Sender: gwendal@google.com
-From: Gwendal Grignou <gwendal@chromium.org>
-Date: Thu, 17 Jul 2014 13:36:45 -0700
-Message-ID: <CAMHSBOXb0f9iZFLiJSXPiT+8yXe8QbF-bS_4KA1c1+=Wps_K_A@mail.gmail.com>
-Subject: [fio-2.1.9] verify and bssplit do not work together
-Content-Type: text/plain; charset=UTF-8
-To: axboe@kernel.dk, Puthikorn Voravootivat <puthik@chromium.org>, fio@vger.kernel.org
+Subject: Re: Disk utilization statistics in terse format
+References: <CAFTzLMPWvQ8+rxmbSruzmHTMvkDXQ_ednA5rkDb3_CVoAtdVVw@mail.gmail.com>	<53BE5357.8050407@kernel.dk> <CAFTzLMODqjrycMH08Wi0TUeOs9SBXqeOG9OtYTBHbXM7qjb+dw@mail.gmail.com>
+In-Reply-To: <CAFTzLMODqjrycMH08Wi0TUeOs9SBXqeOG9OtYTBHbXM7qjb+dw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Vasily Tarasov <tarasov@vasily.name>
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-Jens,
+On 2014-07-12 01:25, Vasily Tarasov wrote:
+> If we just remove is_backend in the _v3_v4, then there will be
+> inconsistencies in the terse output between server-client and
+> standalone modes. In the server-client mode disk utilization will be
+> printed in the very end, while in the standalone mode corresponding
+> fields will be somewhere in the middle.
+>
+> Actually, there are more inconsistencies between these modes. Check this out:
+>
+> In the client-server mode:
+>
+> <snip starts>
+> [user@frontend fios-24-reads]$ fio --minimal --status-interval=10
+> --client frontend 1.fio
+> hostname=bison01, be=0, 64-bit, os=Linux, arch=x86-64, fio=fio-2.1.10, flags=1
+> <bison01> sdaa: (g=0): rw=read, bs=1M-1M/1M-1M/1M-1M, ioengine=sync, iodepth=1
+> <bison01> Starting 1 process
+> <bison01> =1): [] [11.9% done] [191.2M/0K/0K /s] [186/0/0 iops] [eta 10m:50s]
+> fio: terminating on signal 2
+> <bison01>
+> 3;fio-2.1.10;sdaa;0;0;17233920;195675;191;88074;0;0;0.000000;0.000000;4829;10900;5228.857219;220.162611;1.000000%=4896;5.000000%=4960;10.000000%=4960;20.000000%=5024;30.000000%=5088;40.000000%=5152;50.000000%=5280;60.000000%=5280;70.000000%=5344;80.000000%=5408;90.000000%=5472;95.000000%=5472;99.000000%=5536;99.500000%=5856;99.900000%=6432;99.950000%=9024;99.990000%=9408;0%=0;0%=0;0%=0;4830;10900;5229.256982;220.166861;188039;206023;100.000000%;195845.737143;5595.466346;0;0;0;0;0;0;0.000000;0.000000;0;0;0.000000;0.000000;1.000000%=0;5.000000%=0;10.000000%=0;20.000000%=0;30.000000%=0;40.000000%=0;50.000000%=0;60.000000%=0;70.000000%=0;80.000000%=0;90.000000%=0;95.000000%=0;99.000000%=0;99.500000%=0;99.900000%=0;99.950000%=0;99.990000%=0;0%=0;0%=0;0%=0;0;0;0.000000;0.000000;0;0;0.000000%;0.000000;0.000000;0.130574%;1.704268%;18221;0;286;100.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;99.99%;0.01%;0.00%;0.00%;0.00%;0.00%;0.00
+%;0.00%;0.00%;0.00%
+>
+> Run status group 0 (all jobs):
+>     READ: io=16830MB, aggrb=195675KB/s, minb=195675KB/s,
+> maxb=195675KB/s, mint=88074msec, maxt=88074msec
+>
+> Disk stats (read/write):
+> ;sdaa;33614;0;0;0;130703;0;130681;99.31%client: host=bison01 disconnected
+> <snip ends>
+>
+> In the server mode:
+>
+> <snip starts>
+> root@backend fios-24-reads]# fio --minimal --status-interval=10  1.fio
+> 3;fio-2.1.10;sdaa;0;0;1943552;196278;191;9902;0;0;0.000000;0.000000;4835;9504;5210.884676;307.928200;1.000000%=4896;5.000000%=4896;10.000000%=4960;20.000000%=4960;30.000000%=4960;40.000000%=5024;50.000000%=5280;60.000000%=5344;70.000000%=5344;80.000000%=5408;90.000000%=5472;95.000000%=5536;99.000000%=5600;99.500000%=5984;99.900000%=9408;99.950000%=9536;99.990000%=9536;0%=0;0%=0;0%=0;4836;9504;5211.332807;307.944109;188039;206023;99.949829%;196179.526316;7200.889724;0;0;0;0;0;0;0.000000;0.000000;0;0;0.000000;0.000000;1.000000%=0;5.000000%=0;10.000000%=0;20.000000%=0;30.000000%=0;40.000000%=0;50.000000%=0;60.000000%=0;70.000000%=0;80.000000%=0;90.000000%=0;95.000000%=0;99.000000%=0;99.500000%=0;99.900000%=0;99.950000%=0;99.990000%=0;0%=0;0%=0;0%=0;0;0;0.000000;0.000000;0;0;0.000000%;0.000000;0.000000;0.090891%;1.959200%;2046;0;287;100.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;100.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.0
+0%;0.00%;0.00%
+> 3;fio-2.1.10;sdaa;0;0;3913728;196620;192;19905;0;0;0.000000;0.000000;4835;9543;5203.414596;282.073042;1.000000%=4896;5.000000%=4896;10.000000%=4960;20.000000%=4960;30.000000%=4960;40.000000%=5024;50.000000%=5280;60.000000%=5344;70.000000%=5344;80.000000%=5408;90.000000%=5472;95.000000%=5536;99.000000%=5536;99.500000%=5920;99.900000%=9280;99.950000%=9536;99.990000%=9536;0%=0;0%=0;0%=0;4836;9543;5203.836254;282.086563;187665;206023;100.000000%;196695.435897;7344.748539;0;0;0;0;0;0;0.000000;0.000000;0;0;0.000000;0.000000;1.000000%=0;5.000000%=0;10.000000%=0;20.000000%=0;30.000000%=0;40.000000%=0;50.000000%=0;60.000000%=0;70.000000%=0;80.000000%=0;90.000000%=0;95.000000%=0;99.000000%=0;99.500000%=0;99.900000%=0;99.950000%=0;99.990000%=0;0%=0;0%=0;0%=0;0;0;0.000000;0.000000;0;0;0.000000%;0.000000;0.000000;0.110525%;1.914092%;4106;0;288;100.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;100.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0
+.00%;0.00%;0.00%
+> 3;fio-2.1.10;sdaa;0;0;5872640;196356;191;29908;0;0;0.000000;0.000000;4835;44944;5210.319038;585.202403;1.000000%=4896;5.000000%=4896;10.000000%=4960;20.000000%=4960;30.000000%=4960;40.000000%=5088;50.000000%=5280;60.000000%=5344;70.000000%=5344;80.000000%=5408;90.000000%=5472;95.000000%=5536;99.000000%=5536;99.500000%=5792;99.900000%=9152;99.950000%=9536;99.990000%=44800;0%=0;0%=0;0%=0;4836;44945;5210.726464;585.217778;185256;206023;100.000000%;196535.135593;7198.734852;0;0;0;0;0;0;0.000000;0.000000;0;0;0.000000;0.000000;1.000000%=0;5.000000%=0;10.000000%=0;20.000000%=0;30.000000%=0;40.000000%=0;50.000000%=0;60.000000%=0;70.000000%=0;80.000000%=0;90.000000%=0;95.000000%=0;99.000000%=0;99.500000%=0;99.900000%=0;99.950000%=0;99.990000%=0;0%=0;0%=0;0%=0;0;0;0.000000;0.000000;0;0;0.000000%;0.000000;0.000000;0.103651%;1.895814%;6174;0;288;100.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;99.98%;0.00%;0.02%;0.00%;0.00%;0.00%;0.00%
+;0.00%;0.00%;0.00%
+> ^C
+> fio: terminating on signal 2
+> 3;fio-2.1.10;sdaa;0;0;7492608;196275;191;38174;0;0;0.000000;0.000000;4835;44944;5212.864015;523.029154;1.000000%=4896;5.000000%=4960;10.000000%=4960;20.000000%=4960;30.000000%=5024;40.000000%=5088;50.000000%=5280;60.000000%=5344;70.000000%=5344;80.000000%=5408;90.000000%=5472;95.000000%=5472;99.000000%=5536;99.500000%=5792;99.900000%=6432;99.950000%=9408;99.990000%=44800;0%=0;0%=0;0%=0;4836;44945;5213.266366;523.043881;185256;206023;100.000000%;196534.373333;6663.858266;0;0;0;0;0;0;0.000000;0.000000;0;0;0.000000;0.000000;1.000000%=0;5.000000%=0;10.000000%=0;20.000000%=0;30.000000%=0;40.000000%=0;50.000000%=0;60.000000%=0;70.000000%=0;80.000000%=0;90.000000%=0;95.000000%=0;99.000000%=0;99.500000%=0;99.900000%=0;99.950000%=0;99.990000%=0;0%=0;0%=0;0%=0;0;0;0.000000;0.000000;0;0;0.000000%;0.000000;0.000000;0.110025%;1.888770%;7891;0;288;100.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.0%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;99.99%;0.00%;0.01%;0.00%;0.00%;0.00%;0.00%
+;0.00%;0.00%;0.00%
+> <snip ends>
+>
+> Notice, it seems like  --status-interval does not work at all in the
+> client-server mode.
+>
+> So, I would say that there are two problems:
+>
+> 1) --status-interval does not  work in the client server mode
+>
+> 2) Terse output should look the same in both modes
+>
+> Do you think what I say is reasonable?..
 
-I notice that when I enable bssplit and verify, verify always fails:
+Yes, that sounds very reasonable. It's the main reason I hate the terse 
+format, it's just impossible to both verify and present nicely (and 
+uniformly). I usually encourage people to use the json output, which has 
+the nice property of being easily readable for both humans and 
+computers. And it's easily extendable.
 
-...
-meta: verify failed at file /tmp/test offset 7143424, length 65536
-open verify buf file: Read-only file system
-....
-In my tests, the offsets that fails are always:
-7143424, 15073280, 2647654, 450397184, 88080384, 88211456
+-- 
+Jens Axboe
 
-it does not happen when I set a fixed size with bs, or when I do not verify.
-
-Here is the fio control file I use:
-
-[stress]
-filename=/tmp/test
-size=107374182
-
-readwrite=randrw
-bssplit=64k/50:1M/50
-;bs=64k
-
-do_verify=1
-verify=meta
-verify_interval=64k
-verify_dump=1
-continue_on_error=verify
-
-Also, if I set a verify_interval larger than the smallest io size in
-bssplt, I get another kind of error.
-Error messages with bssplt=4k/50:1M/50:
-
-verify: bad magic header a678, wanted acca at file /tmp/test offset
-9097216, length 429524186
-verify: bad magic header 84b9, wanted acca at file /tmp/test offset
-25268224, length 21518097
-verify: bad magic header ba51, wanted acca at file /tmp/test offset
-26505216, length 536429778
-verify: bad magic header 1197, wanted acca at file /tmp/test offset
-42139648, length 373139796
-verify: bad magic header 22bf, wanted acca at file /tmp/test offset
-42209280, length 493427719
-meta: verify failed at file /tmp/test offset 50462720, length 65536
-open verify buf file: Read-only file system
-open verify buf file: Read-only file system
-verify: bad magic header d1f6, wanted acca at file /tmp/test offset
-52305920, length 322125536
-verify: bad magic header 76ee, wanted acca at file /tmp/test offset
-92106752, length 355054425
-verify: bad magic header 821, wanted acca at file /tmp/test offset
-94904320, length 460051914
-
-I don't get these error when I set bs=4k.
-Are you aware of such a limitation in fio?
-
-Thanks,
-
-Gwendal.
 
