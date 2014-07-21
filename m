@@ -1,40 +1,55 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from na3sys010aog109.obsmtp.com ([74.125.245.86]:47246 "EHLO
-	na3sys010aog109.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754648AbaGNMWz convert rfc822-to-8bit
-	(ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 14 Jul 2014 08:22:55 -0400
-From: Ritchie Babaylan <Ritchie.Babaylan@bitmicro.com>
-Subject: Generate Terse Output at specific time interval
-Date: Mon, 14 Jul 2014 12:22:49 +0000
-Message-ID: <9E26C6259ACF1842A4815F929194EDD394B5AC14@phex01.corp.bitmicro.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <axboe@kernel.dk>
+Message-ID: <53CD7874.7010203@kernel.dk>
+Date: Mon, 21 Jul 2014 22:30:44 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "'fio@vger.kernel.org'" <fio@vger.kernel.org>
+Subject: Re: [fio-2.1.9] verify and bssplit do not work together
+References: <CAMHSBOXb0f9iZFLiJSXPiT+8yXe8QbF-bS_4KA1c1+=Wps_K_A@mail.gmail.com> <53C8D124.60202@kernel.dk> <53CCCF60.9090208@kernel.dk> <CAMHSBOW1g2y9nCMQs=qJ-ggWZEG_MiG27BgpttPFsk1tdUQy5g@mail.gmail.com> <53CD5EA6.4090706@kernel.dk> <53CD616D.1030908@kernel.dk> <CAMHSBOV1Vm4Ds1th+OB-JQ6h7kiN8VKR9E4+7aiiN2F=fbjVaw@mail.gmail.com>
+In-Reply-To: <CAMHSBOV1Vm4Ds1th+OB-JQ6h7kiN8VKR9E4+7aiiN2F=fbjVaw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Gwendal Grignou <gwendal@chromium.org>
+Cc: Puthikorn Voravootivat <puthik@chromium.org>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+On 2014-07-21 22:24, Gwendal Grignou wrote:
+> Jens,
+>   I still see some verify errors when I set 'experimental_verify=1'
+>
+> verify: bad magic header 977c, wanted acca at file /tmp/test offset
+> 15478784, length 429437046
+> verify: bad magic header 8aac, wanted acca at file /tmp/test offset
+> 28082176, length 302426815
+> verify: bad magic header c8ad, wanted acca at file /tmp/test offset
+> 30408704, length 318473336
+> verify: bad magic header 3791, wanted acca at file /tmp/test offset
+> 65024000, length 74750452
+>
+> However, without this line, there are no verify errors anymore.
+>
+> The fio file is:
+> [stress]
+> filename=/tmp/test
+> size=107374182
+>
+> readwrite=randrw
+> bssplit=4k/50:1M/50
+> ;bs=64k
+>
+> do_verify=1
+> experimental_verify=1
+> verify=meta
+> verify_interval=64k
+> verify_dump=1
+> continue_on_error=verify
 
-Does FIO has a feature that can generate terse output (i.e. IOPS, throughpu=
-t, latency) at specific interval (say, every 1-sec or every 10-sec or every=
- T-sec)?
+I'll look into the experimental_verify bit - there's a reason it's 
+experimental :-). But the hope is to make that the method for 
+verification, so I'll look into what goes wrong there. It might be 
+highlighting problems elsewhere (like accidental overwrites, due to the 
+mixed block sizes).
 
-If none, will this be added in the future?
+-- 
+Jens Axboe
 
-The reason I ask is because I bumped to one of a software called vdbench wh=
-ich can be able to generate the results based from user defined interval. T=
-he only catch that I see in vdbench is in relation to accesses below 32KB--=
--it seems vdbench is capping it.
-
-Appreciate feedback on this matter.
-
-=EF=BF=BD
-Thanks,
-=EF=BF=BD
-Ritchie Babaylan
-Advance CORE Engineering
-BiTMICRO Networks, Inc.
 
