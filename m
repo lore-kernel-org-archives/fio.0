@@ -1,271 +1,529 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:39803 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.9]:55857 "EHLO
 	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754250AbaGHMAH (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 8 Jul 2014 08:00:07 -0400
+	with ESMTP id S1751860AbaGYMAG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 25 Jul 2014 08:00:06 -0400
 Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
 	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1X4U46-0006ZP-I8
-	for fio@vger.kernel.org; Tue, 08 Jul 2014 12:00:06 +0000
+	id 1XAeAP-0007Xa-3h
+	for fio@vger.kernel.org; Fri, 25 Jul 2014 12:00:05 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20140708120002.D2329400C1@lyth.info>
-Date: Tue,  8 Jul 2014 06:00:02 -0600 (MDT)
+Message-Id: <20140725120003.0CFBB400D5@lyth.info>
+Date: Fri, 25 Jul 2014 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit f302710c4b7dd09fa6beb61a983345b2eda2b8d4:
+The following changes since commit 5c57c084346fbfe6f3f45236c151ad1c83b6b398:
 
-  iolog: fix bug when decompressing chunks with different sequence numbers (2014-07-03 21:57:29 -0600)
+  null: add FIO_FAKEIO flag (2014-07-23 16:19:48 +0200)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 6899b6cb0d996c530e42195cfc29e8e0b02aeae3:
+for you to fetch changes up to 24ef7a61bc7b9ec0f479980b6b219ef7d986d708:
 
-  mutex: move pthread_cond_signal() outside of lock (2014-07-08 09:46:37 +0200)
+  crc/test: cleanup and better precision (2014-07-25 10:12:26 +0200)
 
 ----------------------------------------------------------------
 Jens Axboe (3):
-      Add some new code comments on the log compress/decompress
-      tp: move pthread_cond_signal() outside of lock
-      mutex: move pthread_cond_signal() outside of lock
+      Add test case for previous verify crash
+      Don't grab stat mutex for final stat output
+      crc/test: cleanup and better precision
 
- iolog.c  |   66 +++++++++++++++++++++++++++++++++++++++++++++++++-------------
- lib/tp.c |   15 +++++++++++---
- mutex.c  |    7 ++++++-
- 3 files changed, 70 insertions(+), 18 deletions(-)
+Jiri Horky (1):
+      Allow reset of offset_increment counter
+
+ HOWTO                     |   11 ++--
+ backend.c                 |    2 +-
+ crc/test.c                |  132 +++++++++++++++------------------------------
+ filesetup.c               |    2 +-
+ fio.1                     |    9 ++--
+ fio.h                     |    1 +
+ init.c                    |    2 +
+ stat.c                    |    2 +-
+ stat.h                    |    1 +
+ t/jobs/t0009-f8b0bd10.fio |   40 ++++++++++++++
+ 10 files changed, 101 insertions(+), 101 deletions(-)
+ create mode 100644 t/jobs/t0009-f8b0bd10.fio
 
 ---
 
 Diff of recent changes:
 
-diff --git a/iolog.c b/iolog.c
-index 29997ce..5eca53b 100644
---- a/iolog.c
-+++ b/iolog.c
-@@ -691,6 +691,10 @@ static int z_stream_init(z_stream *stream, int gz_hdr)
- 	stream->opaque = Z_NULL;
- 	stream->next_in = Z_NULL;
+diff --git a/HOWTO b/HOWTO
+index ac96069..1c4b308 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -736,11 +736,12 @@ offset=int	Start io at the given offset in the file. The data before
+ 		caps the file size at real_size - offset.
  
-+	/*
-+	 * zlib magic - add 32 for auto-detection of gz header or not,
-+	 * if we decide to store files in a gzip friendly format.
-+	 */
- 	if (gz_hdr)
- 		wbits += 32;
+ offset_increment=int	If this is provided, then the real offset becomes
+-		the offset + offset_increment * thread_number, where the
+-		thread number is a counter that starts at 0 and is incremented
+-		for each job. This option is useful if there are several jobs
+-		which are intended to operate on a file in parallel in disjoint
+-		segments, with even spacing between the starting points.
++		offset + offset_increment * thread_number, where the thread
++		number is a counter that starts at 0 and is incremented for
++		each sub-job (i.e. when numjobs option is specified). This
++		option is useful if there are several jobs which are intended
++		to operate on a file in parallel disjoint segments, with
++		even spacing between the starting points.
  
-@@ -700,7 +704,7 @@ static int z_stream_init(z_stream *stream, int gz_hdr)
- 	return 0;
- }
+ number_ios=int	Fio will normally perform IOs until it has exhausted the size
+ 		of the region set by size=, or if it exhaust the allocated
+diff --git a/backend.c b/backend.c
+index 30f78b7..981625b 100644
+--- a/backend.c
++++ b/backend.c
+@@ -2068,7 +2068,7 @@ int fio_backend(void)
+ 	run_threads();
  
--struct flush_chunk_iter {
-+struct inflate_chunk_iter {
- 	unsigned int seq;
- 	void *buf;
- 	size_t buf_size;
-@@ -709,7 +713,7 @@ struct flush_chunk_iter {
+ 	if (!fio_abort) {
+-		show_run_stats();
++		__show_run_stats();
+ 		if (write_bw_log) {
+ 			int i;
+ 
+diff --git a/crc/test.c b/crc/test.c
+index 3ce717a..194bbed 100644
+--- a/crc/test.c
++++ b/crc/test.c
+@@ -26,7 +26,7 @@
+ struct test_type {
+ 	const char *name;
+ 	unsigned int mask;
+-	uint64_t (*fn)(void);
++	uint64_t (*fn)(void *, size_t);
  };
  
- static void finish_chunk(z_stream *stream, FILE *f,
--			 struct flush_chunk_iter *iter)
-+			 struct inflate_chunk_iter *iter)
- {
- 	int ret;
- 
-@@ -723,8 +727,12 @@ static void finish_chunk(z_stream *stream, FILE *f,
- 	iter->buf_size = iter->buf_used = 0;
+ enum {
+@@ -50,213 +50,153 @@ static void randomize_buf(void *buf, unsigned int size, int seed)
+ 	fill_random_buf(&state, buf, size);
  }
  
--static size_t flush_chunk(struct iolog_compress *ic, int gz_hdr, FILE *f,
--			  z_stream *stream, struct flush_chunk_iter *iter)
-+/*
-+ * Iterative chunk inflation. Handles cases where we cross into a new
-+ * sequence, doing flush finish of previous chunk if needed.
-+ */
-+static size_t inflate_chunk(struct iolog_compress *ic, int gz_hdr, FILE *f,
-+			    z_stream *stream, struct inflate_chunk_iter *iter)
+-static uint64_t t_md5(void)
++static uint64_t t_md5(void *buf, size_t size)
  {
- 	if (ic->seq != iter->seq) {
- 		if (iter->seq)
-@@ -770,9 +778,13 @@ static size_t flush_chunk(struct iolog_compress *ic, int gz_hdr, FILE *f,
- 	return (void *) stream->next_in - ic->buf;
+ 	uint32_t digest[4];
+ 	struct fio_md5_ctx ctx = { .hash = digest };
+ 	struct timeval s;
+-	uint64_t ret;
+-	void *buf;
+ 	int i;
+ 
+ 	fio_md5_init(&ctx);
+ 
+-	buf = malloc(CHUNK);
+-	randomize_buf(buf, CHUNK, 0x8989);
+-
+ 	fio_gettime(&s, NULL);
+ 	for (i = 0; i < NR_CHUNKS; i++)
+-		fio_md5_update(&ctx, buf, CHUNK);
++		fio_md5_update(&ctx, buf, size);
+ 
+-	ret = utime_since_now(&s);
+-	free(buf);
+-	return ret;
++	return utime_since_now(&s);
  }
  
--static void flush_gz_chunks(struct io_log *log, FILE *f)
-+/*
-+ * Inflate stored compressed chunks, or write them directly to the log
-+ * file if so instructed.
-+ */
-+static void inflate_gz_chunks(struct io_log *log, FILE *f)
+-static uint64_t t_crc64(void)
++static uint64_t t_crc64(void *buf, size_t size)
  {
--	struct flush_chunk_iter iter = { .chunk_sz = log->log_gz, };
-+	struct inflate_chunk_iter iter = { .chunk_sz = log->log_gz, };
- 	z_stream stream;
+ 	struct timeval s;
+-	uint64_t ret;
+-	void *buf;
+ 	int i;
  
- 	while (!flist_empty(&log->chunk_list)) {
-@@ -781,10 +793,14 @@ static void flush_gz_chunks(struct io_log *log, FILE *f)
- 		ic = flist_first_entry(&log->chunk_list, struct iolog_compress, list);
- 		flist_del(&ic->list);
+-	buf = malloc(CHUNK);
+-	randomize_buf(buf, CHUNK, 0x8989);
+-
+ 	fio_gettime(&s, NULL);
+ 	for (i = 0; i < NR_CHUNKS; i++)
+-		fio_crc64(buf, CHUNK);
++		fio_crc64(buf, size);
  
--		if (log->log_gz_store)
--			fwrite(ic->buf, ic->len, 1, f);
--		else
--			flush_chunk(ic, log->log_gz_store, f, &stream, &iter);
-+		if (log->log_gz_store) {
-+			size_t ret;
+-	ret = utime_since_now(&s);
+-	free(buf);
+-	return ret;
++	return utime_since_now(&s);
+ }
+ 
+-static uint64_t t_crc32(void)
++static uint64_t t_crc32(void *buf, size_t size)
+ {
+ 	struct timeval s;
+-	uint64_t ret;
+-	void *buf;
+ 	int i;
+ 
+-	buf = malloc(CHUNK);
+-	randomize_buf(buf, CHUNK, 0x8989);
+-
+ 	fio_gettime(&s, NULL);
+ 	for (i = 0; i < NR_CHUNKS; i++)
+-		fio_crc32(buf, CHUNK);
++		fio_crc32(buf, size);
+ 
+-	ret = utime_since_now(&s);
+-	free(buf);
+-	return ret;
++	return utime_since_now(&s);
+ }
+ 
+-static uint64_t t_crc32c(void)
++static uint64_t t_crc32c(void *buf, size_t size)
+ {
+ 	struct timeval s;
+-	uint64_t ret;
+-	void *buf;
+ 	int i;
+ 
+-	buf = malloc(CHUNK);
+-	randomize_buf(buf, CHUNK, 0x8989);
+-
+ 	fio_gettime(&s, NULL);
+ 	for (i = 0; i < NR_CHUNKS; i++)
+-		fio_crc32c(buf, CHUNK);
++		fio_crc32c(buf, size);
+ 
+-	ret = utime_since_now(&s);
+-	free(buf);
+-	return ret;
++	return utime_since_now(&s);
+ }
+ 
+-static uint64_t t_crc16(void)
++static uint64_t t_crc16(void *buf, size_t size)
+ {
+ 	struct timeval s;
+-	uint64_t ret;
+-	void *buf;
+ 	int i;
+ 
+-	buf = malloc(CHUNK);
+-	randomize_buf(buf, CHUNK, 0x8989);
+-
+ 	fio_gettime(&s, NULL);
+ 	for (i = 0; i < NR_CHUNKS; i++)
+-		fio_crc16(buf, CHUNK);
++		fio_crc16(buf, size);
+ 
+-	ret = utime_since_now(&s);
+-	free(buf);
+-	return ret;
++	return utime_since_now(&s);
+ }
+ 
+-static uint64_t t_crc7(void)
++static uint64_t t_crc7(void *buf, size_t size)
+ {
+ 	struct timeval s;
+ 	uint64_t ret;
+-	void *buf;
+ 	int i;
+ 
+-	buf = malloc(CHUNK);
+-	randomize_buf(buf, CHUNK, 0x8989);
+-
+ 	fio_gettime(&s, NULL);
+ 	for (i = 0; i < NR_CHUNKS; i++)
+-		fio_crc7(buf, CHUNK);
++		fio_crc7(buf, size);
+ 
+ 	ret = utime_since_now(&s);
+-	free(buf);
+ 	return ret;
+ }
+ 
+-static uint64_t t_sha1(void)
++static uint64_t t_sha1(void *buf, size_t size)
+ {
+ 	uint32_t sha[5];
+ 	struct fio_sha1_ctx ctx = { .H = sha };
+ 	struct timeval s;
+ 	uint64_t ret;
+-	void *buf;
+ 	int i;
+ 
+ 	fio_sha1_init(&ctx);
+ 
+-	buf = malloc(CHUNK);
+-	randomize_buf(buf, CHUNK, 0x8989);
+-
+ 	fio_gettime(&s, NULL);
+ 	for (i = 0; i < NR_CHUNKS; i++)
+-		fio_sha1_update(&ctx, buf, CHUNK);
++		fio_sha1_update(&ctx, buf, size);
+ 
+ 	ret = utime_since_now(&s);
+-	free(buf);
+ 	return ret;
+ }
+ 
+-static uint64_t t_sha256(void)
++static uint64_t t_sha256(void *buf, size_t size)
+ {
+ 	uint8_t sha[64];
+ 	struct fio_sha256_ctx ctx = { .buf = sha };
+ 	struct timeval s;
+ 	uint64_t ret;
+-	void *buf;
+ 	int i;
+ 
+ 	fio_sha256_init(&ctx);
+ 
+-	buf = malloc(CHUNK);
+-	randomize_buf(buf, CHUNK, 0x8989);
+-
+ 	fio_gettime(&s, NULL);
+ 	for (i = 0; i < NR_CHUNKS; i++)
+-		fio_sha256_update(&ctx, buf, CHUNK);
++		fio_sha256_update(&ctx, buf, size);
+ 
+ 	ret = utime_since_now(&s);
+-	free(buf);
+ 	return ret;
+ }
+ 
+-static uint64_t t_sha512(void)
++static uint64_t t_sha512(void *buf, size_t size)
+ {
+ 	uint8_t sha[128];
+ 	struct fio_sha512_ctx ctx = { .buf = sha };
+ 	struct timeval s;
+ 	uint64_t ret;
+-	void *buf;
+ 	int i;
+ 
+ 	fio_sha512_init(&ctx);
+ 
+-	buf = malloc(CHUNK);
+-	randomize_buf(buf, CHUNK, 0x8989);
+-
+ 	fio_gettime(&s, NULL);
+ 	for (i = 0; i < NR_CHUNKS; i++)
+-		fio_sha512_update(&ctx, buf, CHUNK);
++		fio_sha512_update(&ctx, buf, size);
+ 
+ 	ret = utime_since_now(&s);
+-	free(buf);
+ 	return ret;
+ }
+ 
+-static uint64_t t_xxhash(void)
++static uint64_t t_xxhash(void *buf, size_t size)
+ {
+ 	void *state;
+ 	struct timeval s;
+ 	uint64_t ret;
+-	void *buf;
+ 	int i;
+ 
+ 	state = XXH32_init(0x8989);
+ 
+-	buf = malloc(CHUNK);
+-	randomize_buf(buf, CHUNK, 0x8989);
+-
+ 	fio_gettime(&s, NULL);
+ 	for (i = 0; i < NR_CHUNKS; i++)
+-		XXH32_update(state, buf, CHUNK);
++		XXH32_update(state, buf, size);
+ 
+ 	XXH32_digest(state);
+ 	ret = utime_since_now(&s);
+-	free(buf);
+ 	return ret;
+ }
+ 
+@@ -345,14 +285,15 @@ static int list_types(void)
+ 	for (i = 0; t[i].name; i++)
+ 		printf("%s\n", t[i].name);
+ 
+-	return 0;
++	return 1;
+ }
+ 
+ int fio_crctest(const char *type)
+ {
+ 	unsigned int test_mask = 0;
+ 	uint64_t mb = CHUNK * NR_CHUNKS;
+-	int i;
++	int i, first = 1;
++	void *buf;
+ 
+ 	crc32c_intel_probe();
+ 
+@@ -363,6 +304,14 @@ int fio_crctest(const char *type)
+ 	else
+ 		test_mask = get_test_mask(type);
+ 
++	if (!test_mask) {
++		fprintf(stderr, "fio: unknown hash `%s`. Available:\n", type);
++		return list_types();
++	}
 +
-+			ret = fwrite(ic->buf, ic->len, 1, f);
-+			if (ret != 1 || ferror(f))
-+				log_err("fio: error writing compressed log\n");
-+		} else
-+			inflate_chunk(ic, log->log_gz_store, f, &stream, &iter);
++	buf = malloc(CHUNK);
++	randomize_buf(buf, CHUNK, 0x8989);
++
+ 	for (i = 0; t[i].name; i++) {
+ 		double mb_sec;
+ 		uint64_t usec;
+@@ -370,11 +319,16 @@ int fio_crctest(const char *type)
+ 		if (!(t[i].mask & test_mask))
+ 			continue;
  
- 		free_chunk(ic);
+-		usec = t[i].fn();
++		usec = t[i].fn(buf, CHUNK);
++		if (first)
++			usec = t[i].fn(buf, CHUNK);
++
+ 		mb_sec = (double) mb / (double) usec;
+ 		mb_sec /= (1.024 * 1.024);
+ 		printf("%s:\t%8.2f MB/sec\n", t[i].name, mb_sec);
++		first = 0;
  	}
-@@ -795,9 +811,14 @@ static void flush_gz_chunks(struct io_log *log, FILE *f)
- 	}
- }
  
-+/*
-+ * Open compressed log file and decompress the stored chunks and
-+ * write them to stdout. The chunks are stored sequentially in the
-+ * file, so we iterate over them and do them one-by-one.
-+ */
- int iolog_file_inflate(const char *file)
- {
--	struct flush_chunk_iter iter = { .chunk_sz = 64 * 1024 * 1024, };
-+	struct inflate_chunk_iter iter = { .chunk_sz = 64 * 1024 * 1024, };
- 	struct iolog_compress ic;
- 	z_stream stream;
- 	struct stat sb;
-@@ -835,11 +856,17 @@ int iolog_file_inflate(const char *file)
- 
- 	fclose(f);
- 
-+	/*
-+	 * Each chunk will return Z_STREAM_END. We don't know how many
-+	 * chunks are in the file, so we just keep looping and incrementing
-+	 * the sequence number until we have consumed the whole compressed
-+	 * file.
-+	 */
- 	total = ic.len;
- 	do {
- 		size_t ret;
- 
--		ret = flush_chunk(&ic,  1, stdout, &stream, &iter);
-+		ret = inflate_chunk(&ic,  1, stdout, &stream, &iter);
- 		total -= ret;
- 		if (!total)
- 			break;
-@@ -860,7 +887,7 @@ int iolog_file_inflate(const char *file)
- 
- #else
- 
--static void flush_gz_chunks(struct io_log *log, FILE *f)
-+static void inflate_gz_chunks(struct io_log *log, FILE *f)
- {
- }
- 
-@@ -879,7 +906,7 @@ void flush_log(struct io_log *log)
- 
- 	buf = set_file_buffer(f);
- 
--	flush_gz_chunks(log, f);
-+	inflate_gz_chunks(log, f);
- 
- 	flush_samples(f, log->log, log->nr_samples * log_entry_sz(log));
- 
-@@ -910,6 +937,11 @@ static int finish_log(struct thread_data *td, struct io_log *log, int trylock)
- 
- #ifdef CONFIG_ZLIB
- 
-+/*
-+ * Invoked from our compress helper thread, when logging would have exceeded
-+ * the specified memory limitation. Compresses the previously stored
-+ * entries.
-+ */
- static int gz_work(struct tp_work *work)
- {
- 	struct iolog_flush_data *data;
-@@ -992,6 +1024,12 @@ static int gz_work(struct tp_work *work)
++	free(buf);
  	return 0;
  }
+diff --git a/filesetup.c b/filesetup.c
+index 39c276a..12a43b1 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -758,7 +758,7 @@ uint64_t get_start_offset(struct thread_data *td, struct fio_file *f)
+ 		return f->real_file_size;
  
-+/*
-+ * Queue work item to compress the existing log entries. We copy the
-+ * samples, and reset the log sample count to 0 (so the logging will
-+ * continue to use the memory associated with the log). If called with
-+ * wait == 1, will not return until the log compression has completed.
-+ */
- int iolog_flush(struct io_log *log, int wait)
- {
- 	struct tp_data *tdat = log->td->tp_data;
-diff --git a/lib/tp.c b/lib/tp.c
-index 5111910..386e31a 100644
---- a/lib/tp.c
-+++ b/lib/tp.c
-@@ -1,3 +1,10 @@
-+/*
-+ * Basic workqueue like code, that sets up a thread and allows async
-+ * processing of some sort. Could be extended to allow for multiple
-+ * worker threads. But right now fio associates one of this per IO
-+ * thread, so should be enough to have just a single thread doing the
-+ * work.
-+ */
- #include <stdio.h>
- #include <stdlib.h>
- #include <stdarg.h>
-@@ -56,8 +63,9 @@ void tp_queue_work(struct tp_data *tdat, struct tp_work *work)
- 
- 	pthread_mutex_lock(&tdat->lock);
- 	flist_add_tail(&work->list, &tdat->work);
--	pthread_cond_signal(&tdat->cv);
- 	pthread_mutex_unlock(&tdat->lock);
-+
-+	pthread_cond_signal(&tdat->cv);
+ 	return td->o.start_offset +
+-		(td->thread_number - 1) * td->o.offset_increment;
++		td->subjob_number * td->o.offset_increment;
  }
  
- void tp_init(struct tp_data **tdatp)
-@@ -87,11 +95,12 @@ void tp_exit(struct tp_data **tdatp)
- 	if (!tdat)
- 		return;
+ /*
+diff --git a/fio.1 b/fio.1
+index 22d6b1e..5291126 100644
+--- a/fio.1
++++ b/fio.1
+@@ -657,10 +657,11 @@ Offset in the file to start I/O. Data before the offset will not be touched.
+ .TP
+ .BI offset_increment \fR=\fPint
+ If this is provided, then the real offset becomes the
+-offset + offset_increment * thread_number, where the thread number is a counter
+-that starts at 0 and is incremented for each job. This option is useful if
+-there are several jobs which are intended to operate on a file in parallel in
+-disjoint segments, with even spacing between the starting points.
++offset + offset_increment * thread_number, where the thread number is a
++counter that starts at 0 and is incremented for each sub-job (i.e. when
++numjobs option is specified). This option is useful if there are several jobs
++which are intended to operate on a file in parallel disjoint segments, with
++even spacing between the starting points.
+ .TP
+ .BI number_ios \fR=\fPint
+ Fio will normally perform IOs until it has exhausted the size of the region
+diff --git a/fio.h b/fio.h
+index c694f2c..dfbad6d 100644
+--- a/fio.h
++++ b/fio.h
+@@ -102,6 +102,7 @@ struct thread_data {
+ 	char verror[FIO_VERROR_SIZE];
+ 	pthread_t thread;
+ 	unsigned int thread_number;
++	unsigned int subjob_number;
+ 	unsigned int groupid;
+ 	struct thread_stat ts;
  
--	tdat->thread_exit = 1;
- 	pthread_mutex_lock(&tdat->lock);
--	pthread_cond_signal(&tdat->cv);
-+	tdat->thread_exit = 1;
- 	pthread_mutex_unlock(&tdat->lock);
+diff --git a/init.c b/init.c
+index b4a0cbb..62c7dc2 100644
+--- a/init.c
++++ b/init.c
+@@ -380,6 +380,7 @@ static struct thread_data *get_new_job(int global, struct thread_data *parent,
+ 	profile_add_hooks(td);
  
-+	pthread_cond_signal(&tdat->cv);
-+
- 	pthread_join(tdat->thread, &ret);
+ 	td->thread_number = thread_number;
++	td->subjob_number = 0;
  
- 	sfree(tdat);
-diff --git a/mutex.c b/mutex.c
-index 9d10c2c..9ee3bd8 100644
---- a/mutex.c
-+++ b/mutex.c
-@@ -162,14 +162,19 @@ void fio_mutex_down(struct fio_mutex *mutex)
+ 	if (jobname)
+ 		td->o.name = strdup(jobname);
+@@ -1288,6 +1289,7 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
+ 		td_new->o.numjobs = 1;
+ 		td_new->o.stonewall = 0;
+ 		td_new->o.new_group = 0;
++		td_new->subjob_number = numjobs;
  
- void fio_mutex_up(struct fio_mutex *mutex)
- {
-+	int do_wake = 0;
-+
- 	assert(mutex->magic == FIO_MUTEX_MAGIC);
- 
- 	pthread_mutex_lock(&mutex->lock);
- 	read_barrier();
- 	if (!mutex->value && mutex->waiters)
--		pthread_cond_signal(&mutex->cond);
-+		do_wake = 1;
- 	mutex->value++;
- 	pthread_mutex_unlock(&mutex->lock);
-+
-+	if (do_wake)
-+		pthread_cond_signal(&mutex->cond);
+ 		if (file_alloced) {
+ 			if (td_new->files) {
+diff --git a/stat.c b/stat.c
+index d836581..89d7194 100644
+--- a/stat.c
++++ b/stat.c
+@@ -1169,7 +1169,7 @@ void init_thread_stat(struct thread_stat *ts)
+ 	ts->groupid = -1;
  }
  
- void fio_rwlock_write(struct fio_rwlock *lock)
+-static void __show_run_stats(void)
++void __show_run_stats(void)
+ {
+ 	struct group_run_stats *runstats, *rs;
+ 	struct thread_data *td;
+diff --git a/stat.h b/stat.h
+index 2e46175..90a7fb3 100644
+--- a/stat.h
++++ b/stat.h
+@@ -218,6 +218,7 @@ extern void show_group_stats(struct group_run_stats *rs);
+ extern int calc_thread_status(struct jobs_eta *je, int force);
+ extern void display_thread_status(struct jobs_eta *je);
+ extern void show_run_stats(void);
++extern void __show_run_stats(void);
+ extern void show_running_run_stats(void);
+ extern void check_for_running_stats(void);
+ extern void sum_thread_stats(struct thread_stat *dst, struct thread_stat *src, int nr);
+diff --git a/t/jobs/t0009-f8b0bd10.fio b/t/jobs/t0009-f8b0bd10.fio
+new file mode 100644
+index 0000000..90e07ad
+--- /dev/null
++++ b/t/jobs/t0009-f8b0bd10.fio
+@@ -0,0 +1,40 @@
++# Expected result: fio verifies and runs for 1m
++# Buggy result: fio crashes with:
++# __get_io_u: Assertion `io_u->flags & IO_U_F_FREE' failed
++
++[global]
++direct=1
++ioengine=null
++size=20g
++norandommap
++randrepeat=0
++bs=4096
++iodepth=170
++#iodepth=96
++#numjobs=1
++numjobs=1
++#numjobs=24
++# number_ios=1
++# runtime=216000
++runtime=3600
++time_based=1
++group_reporting=1
++thread
++gtod_reduce=1
++iodepth_batch=4
++iodepth_batch_complete=4
++cpus_allowed=0-5
++cpus_allowed_policy=split
++rw=randwrite
++verify=crc32c-intel
++verify_backlog=1m
++do_verify=1
++verify_async=6
++verify_async_cpus=0-5
++runtime=1m
++
++[4_KiB_RR_drive_r]
++
++[4_KiB_RR_drive_s]
++
++
