@@ -1,34 +1,28 @@
-Return-Path: <jmoyer@redhat.com>
-From: Jeff Moyer <jmoyer@redhat.com>
-Subject: [patch] fio.1 - escape the escape character so it shows up
-Date: Thu, 03 Jul 2014 14:20:28 -0400
-Message-ID: <x49bnt6wbgz.fsf@segfault.boston.devel.redhat.com>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <53D20C7E.9090802@kernel.dk>
+Date: Fri, 25 Jul 2014 09:51:26 +0200
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain
-To: fio@vger.kernel.org
-Cc: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] Allow to reset offset_increment counter
+References: <537F439E.9040904@gmail.com> <537F7E8E.4050200@kernel.dk> <537F8454.3020203@gmail.com> <538CC242.60109@gmail.com> <53D20B84.4020403@gmail.com>
+In-Reply-To: <53D20B84.4020403@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Jiri Horky <jiri.horky@gmail.com>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-Hi, Jens,
+On 2014-07-25 09:47, Jiri Horky wrote:
+> Hi Jens,
+>
+> I wonder if you missed this email or you just didn't like the patch?
 
-In the filename= text, the escape character gets eaten.  This fixes it
-for me.
+I mostly delayed it and then forgot about it. I agree on the notion of 
+using sub-jobs for the index, practically speaking, I think that is the 
+way that people would use it anyway. It'd be confusing if unrelated jobs 
+had different offset increments. And with a bit of simple math, you can 
+even make different groups of jobs index the same parts, if you want.
 
-Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
+-- 
+Jens Axboe
 
-diff --git a/fio.1 b/fio.1
-index da44e57..72625fd 100644
---- a/fio.1
-+++ b/fio.1
-@@ -182,8 +182,8 @@ set. On Windows, disk devices are accessed as \\.\PhysicalDrive0 for the first
- device, \\.\PhysicalDrive1 for the second etc. Note: Windows and FreeBSD
- prevent write access to areas of the disk containing in-use data
- (e.g. filesystems). If the wanted filename does need to include a colon, then
--escape that with a '\' character. For instance, if the filename is
--"/dev/dsk/foo@3,0:c", then you would use filename="/dev/dsk/foo@3,0\:c".
-+escape that with a '\\' character. For instance, if the filename is
-+"/dev/dsk/foo@3,0:c", then you would use filename="/dev/dsk/foo@3,0\\:c".
- .TP
- .BI filename_format \fR=\fPstr
- If sharing multiple files between jobs, it is usually necessary to have
 
