@@ -1,54 +1,36 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from server506b.appriver.com ([50.56.144.14]:44732 "EHLO
-	server506.appriver.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750985AbaG1SfD (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 28 Jul 2014 14:35:03 -0400
-Received: from [10.242.229.139] (HELO smtp.exg6.exghost.com)
-  by server506.appriver.com (CommuniGate Pro SMTP 6.0.2)
-  with ESMTPS id 192195225 for fio@vger.kernel.org; Mon, 28 Jul 2014 13:35:01 -0500
-From: Carl Zwanzig <cpz@coraid.com>
-Subject: RE: Pull an external [global] section into an .fio file?
-Date: Mon, 28 Jul 2014 18:35:00 +0000
-Message-ID: <A7A1D348E34E024BBC74480FB93A2EAB108B4DB1@DAGN05C-E6.exg6.exghost.com>
-References: <CANvN+e=7M4A=g9ro1dmOJdC2NBj4+iEUaCYrwGfmGY+bpUsnNA@mail.gmail.com>
- <CAM8G_BJ3HNtZB6wjqFUiXSo4Zwzzqy7i34+2xkpvCENuzE0EHg@mail.gmail.com>
-In-Reply-To: <CAM8G_BJ3HNtZB6wjqFUiXSo4Zwzzqy7i34+2xkpvCENuzE0EHg@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <vasu.kulkarni@gmail.com>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <CANvN+e=7M4A=g9ro1dmOJdC2NBj4+iEUaCYrwGfmGY+bpUsnNA@mail.gmail.com>
+References: <CANvN+e=7M4A=g9ro1dmOJdC2NBj4+iEUaCYrwGfmGY+bpUsnNA@mail.gmail.com>
+Date: Mon, 28 Jul 2014 11:21:10 -0700
+Message-ID: <CAM8G_BJ3HNtZB6wjqFUiXSo4Zwzzqy7i34+2xkpvCENuzE0EHg@mail.gmail.com>
+Subject: Re: Pull an external [global] section into an .fio file?
+From: "Kulkarni, Vasu" <vasu.kulkarni@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-SGksDQoNCkZvciB0aGUgbW9zdCBwYXJ0LCBJJ3ZlIHN0b3BwZWQgdXNpbmcgam9iIGZpbGVzIGFu
-ZCB1c2UgYSBzY3JpcHQgdG8gd3JpdGUvZXhlY3V0ZSBhIGZpbyBjb21tYW5kIGxpbmUuIEkgZG8g
-ZW5kIHVwIHdpdGggaGlkZW91c2x5LWxvbmcgY29tbWFuZCBsaW5lcyAoPjExMDAgY2hhcnMpLCBi
-dXQgY2FuIHN0YXNoIGFsbCB0aGUgcGFyYW1ldGVycyBpbiB0aGUgc2NyaXB0IG9yIGluY2x1ZGVk
-IGZpbGUgYW5kIGVhc2lseSBpdGVyYXRlIG92ZXIgY2VydGFpbiBvbmVzLg0KDQpJIHN0YXJ0IHdp
-dGggdGhpbmdzIGxpa2UgdGhpczoNCnNldCBGaW9DbWQgeyBcDQovdmFyL3RtcC9maW8gLS1jcmVh
-dGVfc2VyaWFsaXplPTAgLS10aW1lX2Jhc2VkICAtLW5vcmFuZG9tbWFwIC0taW9lbmdpbmU9c29s
-YXJpc2FpbyAtLW1pbmltYWwgXA0KLS1yYW5kcmVwZWF0PTAgLS1maWxsX2RldmljZT0xIC0taW9k
-ZXB0aD0zMiAtLWdyb3VwX3JlcG9ydGluZyAtLXJhbXBfdGltZT0wIC0tdW5saW5rPTAgLS1vdmVy
-d3JpdGU9MSBcDQotLXNpemU9JHtTSVpFfSAtLXJ3PSR7RElSfSAtLWJzPSR7QlN9IC0tYmE9JHtC
-U30gIC0tcnVudGltZT0ke1JVTlRJTUV9IH0NCg0KYW5kIA0KDQpzZXQgRmlvSm9icyB7IFwNCi0t
-bmFtZT1maWxlX18wICAtLWZpbGVuYW1lPS8ke01OVH0vJHtQTn0vJHtITn0vZmlvZmlsZS4wICAt
-LW5hbWU9ZmlsZV9fMSAtLWZpbGVuYW1lPS8ke01OVH0vJHtQTn0vJHtITn0vZmlvZmlsZS4xIFwN
-Ci0tbmFtZT1maWxlX18yICAtLWZpbGVuYW1lPS8ke01OVH0vJHtQTn0vJHtITn0vZmlvZmlsZS4y
-ICAtLW5hbWU9ZmlsZV9fMyAtLWZpbGVuYW1lPS8ke01OVH0vJHtQTn0vJHtITn0vZmlvZmlsZS4z
-IFwNCi0tbmFtZT1maWxlX180ICAtLWZpbGVuYW1lPS8ke01OVH0vJHtQTn0vJHtITn0vZmlvZmls
-ZS40ICAtLW5hbWU9ZmlsZV9fNSAtLWZpbGVuYW1lPS8ke01OVH0vJHtQTn0vJHtITn0vZmlvZmls
-ZS41IFwNCi0tbmFtZT1maWxlX182ICAtLWZpbGVuYW1lPS8ke01OVH0vJHtQTn0vJHtITn0vZmlv
-ZmlsZS42ICAtLW5hbWU9ZmlsZV9fNyAtLWZpbGVuYW1lPS8ke01OVH0vJHtQTn0vJHtITn0vZmlv
-ZmlsZS43IFwNCi0tbmFtZT1maWxlX184ICAtLWZpbGVuYW1lPS8ke01OVH0vJHtQTn0vJHtITn0v
-ZmlvZmlsZS44ICAtLW5hbWU9ZmlsZV9fOSAtLWZpbGVuYW1lPS8ke01OVH0vJHtQTn0vJHtITn0v
-ZmlvZmlsZS45IFwNCi0tbmFtZT1maWxlX18xMCAtLWZpbGVuYW1lPS8ke01OVH0vJHtQTn0vJHtI
-Tn0vZmlvZmlsZS4xMCAtLW5hbWU9ZmlsZV9fMTEgLS1maWxlbmFtZT0vJHtNTlR9LyR7UE59LyR7
-SE59L2Zpb2ZpbGUuMTEgfQ0KDQpkbyB2YXJpYWJsZSBzdWJzdGl0dXRpb24sIGJvbHQgb24gYSAi
-LS1vdXRwdXQiLCBhbmQgZXhlYyB0aGUgZW50aXJlIHN0cmluZzoNCg0Kc2V0IGNtZHN0cmluZyBb
-IGNvbmNhdCBcDQogICAgZXhlYyAtLSBzc2ggIiR7dW5hbWV9QCR7dGhpc2NsaWVudH0iIFtzdWJz
-dCAke0Zpb0NtZH1dIFwNCiAgICBbc3Vic3QgJE9QVFNdICBcDQogICAgLS1vdXRwdXQgJHtvdXRE
-YXRhRGlyfS8ke2ZpbGV0YWd9LSR7dGhpc2NsaWVudH0uZmlvIFwNCiAgICBbc3Vic3QgJEZpb0pv
-YnNdICYgXQ0KfQ0KDQpUaGVyZSdzIGEgYml0IG1vcmUgbWFnaWMgaW52b2x2ZWQgdG8gcnVuIG11
-bHRpcGxlIGluc3RhbmNlcyBhdCBvbmNlLg0KDQooVGhpcywgb2YgY291cnNlLCBkaWRuJ3QgYWN0
-dWFsbHkgYW5zd2VyIHRoZSBPUCdzIHF1ZXN0aW9uLikNCg0KeiENCg0K
+A workaround is to use separate file with globals and then append just
+before you invoke fio
+#cat globals.txt >> io.txt | fio io.txt
+
+On Mon, Jul 28, 2014 at 10:42 AM, Andrey Kuzmin
+<andrey.v.kuzmin@gmail.com> wrote:
+> When dealing with a growing number of fio test scripts, copy/pasting
+> global section becomes error-prone and cumbersome. Is it possible (or
+> how much effort would it be to add such a feature) to pull a named set
+> of global settings into the .fio file?
+>
+> Regards,
+> Andrey
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+
+-- 
+A ship is safer in a harbor.  But that's not what ships are built for.
+
