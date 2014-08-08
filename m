@@ -1,52 +1,86 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailsrv.s3group.com ([193.120.90.35]:42452 "EHLO
-	mailsrv.s3group.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751153AbaHRPDh (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 18 Aug 2014 11:03:37 -0400
-Received: from avsrvd.s3group.com (avsrvd.s3group.com [193.120.90.37])
-        by mailsrv.s3group.com  with ESMTP id s7IF3Xfi015719
-        for <fio@vger.kernel.org>; Mon, 18 Aug 2014 16:03:34 +0100
-Received: from avsrvd.s3group.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D132915005D
-	for <fio@vger.kernel.org>; Mon, 18 Aug 2014 16:03:33 +0100 (IST)
-Received: from excork2.dublin.ad.s3group.com (unknown [193.120.91.10])
-	by avsrvd.s3group.com (Postfix) with ESMTP id BF001150052
-	for <fio@vger.kernel.org>; Mon, 18 Aug 2014 16:03:33 +0100 (IST)
-Message-ID: <53F215C5.5050207@s3group.com>
-Date: Mon, 18 Aug 2014 16:03:33 +0100
-From: John OCallaghan <john.ocallaghan@s3group.com>
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:41590 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755391AbaHHHtl (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 8 Aug 2014 03:49:41 -0400
+Received: by mail-pd0-f172.google.com with SMTP id y13so694030pdi.31
+        for <fio@vger.kernel.org>; Fri, 08 Aug 2014 00:49:40 -0700 (PDT)
+Received: from [192.168.1.11] (c-50-184-121-221.hsd1.ca.comcast.net. [50.184.121.221])
+        by mx.google.com with ESMTPSA id ib5sm2040420pbb.55.2014.08.08.00.49.39
+        for <fio@vger.kernel.org>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 08 Aug 2014 00:49:40 -0700 (PDT)
+Message-ID: <53E48112.9070800@gmail.com>
+Date: Fri, 08 Aug 2014 00:49:38 -0700
+From: Nicholas Krone <krone.nick@gmail.com>
 MIME-Version: 1.0
-Subject: fio usage question
-Content-Type: text/plain;
-	charset="utf-8"
+Subject: Different percentages of job activity on a single drive, along with
+ different i/o sizes for each drive
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
+Hi,
+
+I'm currently trying to use FIO for some drive endurance testing and I 
+have a few questions that I was hoping you guys could answer.
+
+I need to stress a drive with a split blocksize range and ensure write 
+verifications. Here's a small job I drafted up:
+
+For example, a 100GB drive to test
+
+[global]
+ioengine=noop
+ioengine=libaio
+iodepth=4
+rw=randwrite
+direct=1
+bssplit=512b/4:1024b/1:1536b/1:2048b/1:2560b/1:3072b/1:3584b/1:4096b/67:8192b/10:16384b/7:32768b/3:65536b/3 
+
+do_verify=1
+verify=meta
+verify_backlog=512
+error_dump=1
+verify_dump=1
+verify_fatal=1
+
+[50-pct-ratio]
+offset=0
+size=5%
+
+[30-pct-ratio]
+offset=6g
+size=15%
+
+[20-pct-ratio]
+offset=21g
+size=80%
 
 
-Hi All
+0-5% - 50 PCT write access (5 GB I/O size)
+6%-20% - 30 PCT write access (15 GB I/O size)
+21%-100% - 20 PCT write acces (80 GB I/O size)
 
-A question on usage of fio. I would like to be able to spin up more than
-one fio instance running on the same platform concurrently.
+Will using 3 sets of size params in each job work out correctly? Also, 
+If during one of the jobs, a write verification occurs, will all the 
+jobs fully stop because it wouldn't make sense for any of the test to 
+continue if any write errors occur.
 
-For example, I would like to run one fio instance in time_based mode
-doing some stuff. And after a fixed period of time then start a non-time
-based fio instance doing some other stuff.
+I read about the flow counter and a way control activity between jobs 
+but I'm really unclear as to how implement it and the example didn't 
+really help me out.
 
-I have tried it out and to my untrained eyes it looks like its going OK.
-But I'd love to hear from others with more experience in this area. Is
-this something that is recommended?
+[50-pct-ratio]
+flow=-2
 
-Will my data skew in some way because fio expects there to be only one
-instance of itself playing at any one time?
+[30-pct-ratio]
+flow=3
 
-Any advice would be much appreciated!
+[20-pct-ratio]
+flow=5
 
-John
-
------
-
-The information contained in this e-mail and in any attachments is confidential and is designated solely for the attention of the intended recipient(s). If you are not an intended recipient, you must not use, disclose, copy, distribute or retain this e-mail or any part thereof. If you have received this e-mail in error, please notify the sender by return e-mail and delete all copies of this e-mail from your computer system(s). Please direct any additional queries to: communications@s3group.com. Thank You. Silicon and Software Systems Limited (S3 Group). Registered in Ireland no. 378073. Registered Office: South County Business Park, Leopardstown, Dublin 18.
+Am I on the right track on anything? Any help would be great.
 
