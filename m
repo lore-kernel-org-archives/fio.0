@@ -1,45 +1,167 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g4t3426.houston.hp.com ([15.201.208.54]:3736 "EHLO
-	g4t3426.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750915AbaHRTzq (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 18 Aug 2014 15:55:46 -0400
-From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
-Subject: RE: runtime and status-interval
-Date: Mon, 18 Aug 2014 19:54:32 +0000
-Message-ID: <94D0CD8314A33A4D9D801C0FE68B402958C0C317@G9W0745.americas.hpqcorp.net>
-References: <53ECAAB8.7040205@s3group.com> <53EE3B4F.1090501@s3group.com>
-In-Reply-To: <53EE3B4F.1090501@s3group.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mailsrv.s3group.com ([193.120.90.35]:57891 "EHLO
+	mailsrv.s3group.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751604AbaHOQyn (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 15 Aug 2014 12:54:43 -0400
+Received: from avsrvd.s3group.com (avsrvd.s3group.com [193.120.90.37])
+        by mailsrv.s3group.com  with ESMTP id s7FGseBq001259
+        for <fio@vger.kernel.org>; Fri, 15 Aug 2014 17:54:40 +0100
+Received: from avsrvd.s3group.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3AEB015005D
+	for <fio@vger.kernel.org>; Fri, 15 Aug 2014 17:54:40 +0100 (IST)
+Received: from excork2.dublin.ad.s3group.com (unknown [193.120.91.10])
+	by avsrvd.s3group.com (Postfix) with ESMTP id 1EFE3150052
+	for <fio@vger.kernel.org>; Fri, 15 Aug 2014 17:54:40 +0100 (IST)
+Message-ID: <53EE3B4F.1090501@s3group.com>
+Date: Fri, 15 Aug 2014 17:54:39 +0100
+From: John OCallaghan <john.ocallaghan@s3group.com>
 MIME-Version: 1.0
+Subject: Re: runtime and status-interval
+References: <53ECAAB8.7040205@s3group.com>
+In-Reply-To: <53ECAAB8.7040205@s3group.com>
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: John OCallaghan <john.ocallaghan@s3group.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
-a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uDQo+IEJlaGFs
-ZiBPZiBKb2huIE9DYWxsYWdoYW4NCj4gU2VudDogRnJpZGF5LCAxNSBBdWd1c3QsIDIwMTQgMTE6
-NTUgQU0NCj4gVG86IGZpb0B2Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDogUmU6IHJ1bnRpbWUg
-YW5kIHN0YXR1cy1pbnRlcnZhbA0KPiANCj4gDQo+IA0KPiBGWUkgSSBmb3VuZCB0aGUgcHJvYmxl
-bSBpbiBmaW8vYmFja2VuZC5jLiBTZWVtcyB0byBiZSB3b3JraW5nIGZpbmUgbm93Lg0KPiANCj4g
-DQo+IFRoZSBmaXggSSBwdXQgdG9nZXRoZXIgaXMgdGhpczoNCj4gDQo+IAkJaWYgKHRkX3JlYWQo
-dGQpICYmIHRkLT5pb19ieXRlc1tERElSX1JFQURdKSB7DQo+IAkJCWVsYXBzZWQgPSB1dGltZV9z
-aW5jZV9ub3coJnRkLT5zdGFydCk7DQo+IAkJCXRkLT50cy5ydW50aW1lW0RESVJfUkVBRF0gKz0g
-ZWxhcHNlZC8xMDAwOw0KPiAJCX0NCj4gCQlpZiAodGRfd3JpdGUodGQpICYmIHRkLT5pb19ieXRl
-c1tERElSX1dSSVRFXSkgew0KPiAJCQllbGFwc2VkID0gdXRpbWVfc2luY2Vfbm93KCZ0ZC0+c3Rh
-cnQpOw0KPiAJCQl0ZC0+dHMucnVudGltZVtERElSX1dSSVRFXSArPSBlbGFwc2VkLzEwMDA7DQo+
-IAkJfQ0KPiAJCWlmICh0ZF90cmltKHRkKSAmJiB0ZC0+aW9fYnl0ZXNbRERJUl9UUklNXSkgew0K
-PiAJCQllbGFwc2VkID0gdXRpbWVfc2luY2Vfbm93KCZ0ZC0+c3RhcnQpOw0KPiAJCQl0ZC0+dHMu
-cnVudGltZVtERElSX1RSSU1dICs9IGVsYXBzZWQvMTAwMDsNCj4gCQl9DQoNCg0KPiANCj4gVGhl
-IHByb2JsZW0gaXMgaXMgdGhhdCBydW50aW1lIGlzIGhvbGRpbmcgbWlsbGlzZWNvbmRzIGJ1dA0K
-PiB1dGltZV9zaW5jZV9ub3coKSByZXR1cm5zIG1pY3Jvc2Vjb25kcy4gSSBhZGRlZCB0aGUgIi8x
-MDAwIiB0byBtYWtlIHRoZQ0KPiBjb252ZXJzaW9uLg0KPiANCj4gTXkgY2hhbmdlIGlzIGEgc2lt
-cGxlIGZpeCBidXQgcXVpdGUgcG9zc2libHkgdGhlcmUgYXJlIG90aGVyIHBsYWNlcw0KPiB3aXRo
-aW4gZmlvIG1ha2luZyB0aGUgc2FtZSBtaXN0YWtlPw0KDQpUaGVzZSBsaW5lcyBjb3VsZCBqdXN0
-IGNhbGwgbXRpbWVfc2luY2Vfbm93IHJhdGhlciB0aGFuIHV0aW1lX3NpbmNlX25vdy4NCg0KVGhl
-cmUncyBvbmUgbW9yZSBhIGZldyBsaW5lcyBkb3duOg0KICAgICAgICAgICAgICAgIGZpb19nZXR0
-aW1lKCZ0ZC0+c3RhcnQsIE5VTEwpOw0KDQogICAgICAgICAgICAgICAgZG9fdmVyaWZ5KHRkLCB2
-ZXJpZnlfYnl0ZXMpOw0KDQogICAgICAgICAgICAgICAgdGQtPnRzLnJ1bnRpbWVbRERJUl9SRUFE
-XSArPSB1dGltZV9zaW5jZV9ub3coJnRkLT5zdGFydCk7DQoNCg0KLS0tDQpSb2IgRWxsaW90dCAg
-ICBIUCBTZXJ2ZXIgU3RvcmFnZQ0KDQoNCg0KDQo=
+
+
+FYI I found the problem in fio/backend.c. Seems to be working fine now.
+
+
+The fix I put together is this:
+
+		if (td_read(td) && td->io_bytes[DDIR_READ]) {
+			elapsed = utime_since_now(&td->start);
+			td->ts.runtime[DDIR_READ] += elapsed/1000;
+		}
+		if (td_write(td) && td->io_bytes[DDIR_WRITE]) {
+			elapsed = utime_since_now(&td->start);
+			td->ts.runtime[DDIR_WRITE] += elapsed/1000;
+		}
+		if (td_trim(td) && td->io_bytes[DDIR_TRIM]) {
+			elapsed = utime_since_now(&td->start);
+			td->ts.runtime[DDIR_TRIM] += elapsed/1000;
+		}
+
+
+The problem is is that runtime is holding milliseconds but
+utime_since_now() returns microseconds. I added the "/1000" to make the
+conversion.
+
+My change is a simple fix but quite possibly there are other places
+within fio making the same mistake?
+
+
+J
+
+
+
+
+On 14/08/14 13:25, John OCallaghan wrote:
+> 
+> 
+> Hi
+> 
+> I am running the fio2.1.11 and am seeing something odd with the "runt"
+> value on jobs.
+> 
+> If I run a test with "--status-interval=5" and let it run for over 20
+> seconds I see the runt go from sensible values to nonsensical values
+> once it reaches the 20 second boundary.
+> 
+> Below is a snip from a log that I took. Notice that at the 19 second
+> boundary the runt is OK (19925msec). But at the next status interval the
+> runt has grown from 19 seconds to 21009 seconds!
+> 
+> This throws out the bw calcs (1505KB/s down to 1900B/s).
+> 
+> Here is my fio config file
+> [global]
+> time_based=1
+> runtime=180
+> directory=.
+> size=64m
+> 
+> [job1-HD-ReadWrite]
+> rw=readwrite
+> blocksize=1500k
+> filename=HDRW.STR
+> rate=1500k,1500k
+> 
+> And I run as follows:
+> 
+> ./fio --status-interval=5 test.fio
+> 
+> 
+> Hope thats useful to someone!
+> John
+> 
+> ----------------------
+> 
+> job1-HD-ReadWrite: (groupid=0, jobs=1): err= 0: pid=25640: Thu Aug 14
+> 13:13:20 2014
+>   Description  : [HD Seq read/write]
+>   read : io=30000KB, bw=1505.7KB/s, iops=1, runt= 19925msec
+>     clat (msec): min=4, max=9, avg= 7.80, stdev= 1.24
+>      lat (msec): min=4, max=9, avg= 7.80, stdev= 1.24
+> <snip>
+>     bw (KB  /s): min= 1495, max= 2991, per=100.00%, avg=1871.37,
+> stdev=664.94
+>   write: io=30000KB, bw=1505.7KB/s, iops=1, runt= 19925msec
+>     clat (usec): min=553, max=2030, avg=1498.71, stdev=449.27
+>      lat (usec): min=658, max=2161, avg=1617.00, stdev=464.46
+>     clat percentiles (usec):
+> <snip>
+>     bw (KB  /s): min= 1488, max= 3024, per=100.00%, avg=1857.12,
+> stdev=665.91
+>     lat (usec) : 750=4.88%, 1000=4.88%
+>     lat (msec) : 2=34.15%, 4=7.32%, 10=48.78%
+> <snip>
+> job1-HD-ReadWrite: (groupid=0, jobs=1): err= 0: pid=25640: Thu Aug 14
+> 13:13:25 2014
+>   Description  : [HD Seq read/write]
+>   read : io=39000KB, bw=1900B/s, iops=0, runt=21009984msec
+>     clat (msec): min=4, max=78, avg=10.49, stdev=13.99
+>      lat (msec): min=4, max=78, avg=10.49, stdev=13.99
+> <snip>
+>     bw (KB  /s): min= 1495, max= 2991, per=100.00%, avg=1853.76,
+> stdev=649.04
+>   write: io=37500KB, bw=1827B/s, iops=0, runt=21009984msec
+>     clat (usec): min=553, max=2030, avg=1405.73, stdev=462.04
+>      lat (usec): min=610, max=2161, avg=1519.96, stdev=480.39
+> <snip>
+>     bw (KB  /s): min= 1488, max= 3024, per=100.00%, avg=1860.43,
+> stdev=662.42
+>     lat (usec) : 750=5.77%, 1000=5.77%
+>     lat (msec) : 2=32.69%, 4=5.77%, 10=48.08%, 100=1.92%
+>   cpu          : usr=0.02%, sys=0.34%, ctx=172, majf=0, minf=32
+>   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%,
+>> =64=0.0%
+>      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
+>> =64=0.0%
+>      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
+>> =64=0.0%
+>      issued    : total=r=26/w=26/d=0, short=r=0/w=0/d=0
+>      latency   : target=0, window=0, percentile=100.00%, depth=1
+> 
+> Run status group 0 (all jobs):
+>    READ: io=39000KB, aggrb=1KB/s, minb=1KB/s, maxb=1KB/s,
+> mint=21009984msec, maxt=21009984msec
+>   WRITE: io=37500KB, aggrb=1KB/s, minb=1KB/s, maxb=1KB/s,
+> mint=21009984msec, maxt=21009984msec
+> -----
+> 
+> The information contained in this e-mail and in any attachments is confidential and is designated solely for the attention of the intended recipient(s). If you are not an intended recipient, you must not use, disclose, copy, distribute or retain this e-mail or any part thereof. If you have received this e-mail in error, please notify the sender by return e-mail and delete all copies of this e-mail from your computer system(s). Please direct any additional queries to: communications@s3group.com. Thank You. Silicon and Software Systems Limited (S3 Group). Registered in Ireland no. 378073. Registered Office: South County Business Park, Leopardstown, Dublin 18.
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+-----
+
+The information contained in this e-mail and in any attachments is confidential and is designated solely for the attention of the intended recipient(s). If you are not an intended recipient, you must not use, disclose, copy, distribute or retain this e-mail or any part thereof. If you have received this e-mail in error, please notify the sender by return e-mail and delete all copies of this e-mail from your computer system(s). Please direct any additional queries to: communications@s3group.com. Thank You. Silicon and Software Systems Limited (S3 Group). Registered in Ireland no. 378073. Registered Office: South County Business Park, Leopardstown, Dublin 18.
+
