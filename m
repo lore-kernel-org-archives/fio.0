@@ -1,85 +1,45 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailsrv.s3group.com ([193.120.90.35]:41163 "EHLO
-	mailsrv.s3group.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752183AbaHSQXN (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 19 Aug 2014 12:23:13 -0400
-Message-ID: <53F379E4.3030409@s3group.com>
-Date: Tue, 19 Aug 2014 17:23:00 +0100
-From: John OCallaghan <john.ocallaghan@s3group.com>
+Received: from g4t3426.houston.hp.com ([15.201.208.54]:3736 "EHLO
+	g4t3426.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750915AbaHRTzq (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 18 Aug 2014 15:55:46 -0400
+From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
+Subject: RE: runtime and status-interval
+Date: Mon, 18 Aug 2014 19:54:32 +0000
+Message-ID: <94D0CD8314A33A4D9D801C0FE68B402958C0C317@G9W0745.americas.hpqcorp.net>
+References: <53ECAAB8.7040205@s3group.com> <53EE3B4F.1090501@s3group.com>
+In-Reply-To: <53EE3B4F.1090501@s3group.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Subject: Re: runtime and status-interval
-References: <53ECAAB8.7040205@s3group.com> <53EE3B4F.1090501@s3group.com> <94D0CD8314A33A4D9D801C0FE68B402958C0C317@G9W0745.americas.hpqcorp.net>
-In-Reply-To: <94D0CD8314A33A4D9D801C0FE68B402958C0C317@G9W0745.americas.hpqcorp.net>
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Elliott, Robert (Server Storage)" <Elliott@hp.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: John OCallaghan <john.ocallaghan@s3group.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-
-Thanks Rob
-
-I have made the suggested changes and these appear to be working OK.
-
-John
-
-On 18/08/14 20:54, Elliott, Robert (Server Storage) wrote:
-> 
-> 
->> -----Original Message-----
->> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
->> Behalf Of John OCallaghan
->> Sent: Friday, 15 August, 2014 11:55 AM
->> To: fio@vger.kernel.org
->> Subject: Re: runtime and status-interval
->>
->>
->>
->> FYI I found the problem in fio/backend.c. Seems to be working fine now.
->>
->>
->> The fix I put together is this:
->>
->> 		if (td_read(td) && td->io_bytes[DDIR_READ]) {
->> 			elapsed = utime_since_now(&td->start);
->> 			td->ts.runtime[DDIR_READ] += elapsed/1000;
->> 		}
->> 		if (td_write(td) && td->io_bytes[DDIR_WRITE]) {
->> 			elapsed = utime_since_now(&td->start);
->> 			td->ts.runtime[DDIR_WRITE] += elapsed/1000;
->> 		}
->> 		if (td_trim(td) && td->io_bytes[DDIR_TRIM]) {
->> 			elapsed = utime_since_now(&td->start);
->> 			td->ts.runtime[DDIR_TRIM] += elapsed/1000;
->> 		}
-> 
-> 
->>
->> The problem is is that runtime is holding milliseconds but
->> utime_since_now() returns microseconds. I added the "/1000" to make the
->> conversion.
->>
->> My change is a simple fix but quite possibly there are other places
->> within fio making the same mistake?
-> 
-> These lines could just call mtime_since_now rather than utime_since_now.
-> 
-> There's one more a few lines down:
->                 fio_gettime(&td->start, NULL);
-> 
->                 do_verify(td, verify_bytes);
-> 
->                 td->ts.runtime[DDIR_READ] += utime_since_now(&td->start);
-> 
-> 
-> ---
-> Rob Elliott    HP Server Storage
-> 
-> 
-> 
-> 
------
-
-The information contained in this e-mail and in any attachments is confidential and is designated solely for the attention of the intended recipient(s). If you are not an intended recipient, you must not use, disclose, copy, distribute or retain this e-mail or any part thereof. If you have received this e-mail in error, please notify the sender by return e-mail and delete all copies of this e-mail from your computer system(s). Please direct any additional queries to: communications@s3group.com. Thank You. Silicon and Software Systems Limited (S3 Group). Registered in Ireland no. 378073. Registered Office: South County Business Park, Leopardstown, Dublin 18.
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
+a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uDQo+IEJlaGFs
+ZiBPZiBKb2huIE9DYWxsYWdoYW4NCj4gU2VudDogRnJpZGF5LCAxNSBBdWd1c3QsIDIwMTQgMTE6
+NTUgQU0NCj4gVG86IGZpb0B2Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDogUmU6IHJ1bnRpbWUg
+YW5kIHN0YXR1cy1pbnRlcnZhbA0KPiANCj4gDQo+IA0KPiBGWUkgSSBmb3VuZCB0aGUgcHJvYmxl
+bSBpbiBmaW8vYmFja2VuZC5jLiBTZWVtcyB0byBiZSB3b3JraW5nIGZpbmUgbm93Lg0KPiANCj4g
+DQo+IFRoZSBmaXggSSBwdXQgdG9nZXRoZXIgaXMgdGhpczoNCj4gDQo+IAkJaWYgKHRkX3JlYWQo
+dGQpICYmIHRkLT5pb19ieXRlc1tERElSX1JFQURdKSB7DQo+IAkJCWVsYXBzZWQgPSB1dGltZV9z
+aW5jZV9ub3coJnRkLT5zdGFydCk7DQo+IAkJCXRkLT50cy5ydW50aW1lW0RESVJfUkVBRF0gKz0g
+ZWxhcHNlZC8xMDAwOw0KPiAJCX0NCj4gCQlpZiAodGRfd3JpdGUodGQpICYmIHRkLT5pb19ieXRl
+c1tERElSX1dSSVRFXSkgew0KPiAJCQllbGFwc2VkID0gdXRpbWVfc2luY2Vfbm93KCZ0ZC0+c3Rh
+cnQpOw0KPiAJCQl0ZC0+dHMucnVudGltZVtERElSX1dSSVRFXSArPSBlbGFwc2VkLzEwMDA7DQo+
+IAkJfQ0KPiAJCWlmICh0ZF90cmltKHRkKSAmJiB0ZC0+aW9fYnl0ZXNbRERJUl9UUklNXSkgew0K
+PiAJCQllbGFwc2VkID0gdXRpbWVfc2luY2Vfbm93KCZ0ZC0+c3RhcnQpOw0KPiAJCQl0ZC0+dHMu
+cnVudGltZVtERElSX1RSSU1dICs9IGVsYXBzZWQvMTAwMDsNCj4gCQl9DQoNCg0KPiANCj4gVGhl
+IHByb2JsZW0gaXMgaXMgdGhhdCBydW50aW1lIGlzIGhvbGRpbmcgbWlsbGlzZWNvbmRzIGJ1dA0K
+PiB1dGltZV9zaW5jZV9ub3coKSByZXR1cm5zIG1pY3Jvc2Vjb25kcy4gSSBhZGRlZCB0aGUgIi8x
+MDAwIiB0byBtYWtlIHRoZQ0KPiBjb252ZXJzaW9uLg0KPiANCj4gTXkgY2hhbmdlIGlzIGEgc2lt
+cGxlIGZpeCBidXQgcXVpdGUgcG9zc2libHkgdGhlcmUgYXJlIG90aGVyIHBsYWNlcw0KPiB3aXRo
+aW4gZmlvIG1ha2luZyB0aGUgc2FtZSBtaXN0YWtlPw0KDQpUaGVzZSBsaW5lcyBjb3VsZCBqdXN0
+IGNhbGwgbXRpbWVfc2luY2Vfbm93IHJhdGhlciB0aGFuIHV0aW1lX3NpbmNlX25vdy4NCg0KVGhl
+cmUncyBvbmUgbW9yZSBhIGZldyBsaW5lcyBkb3duOg0KICAgICAgICAgICAgICAgIGZpb19nZXR0
+aW1lKCZ0ZC0+c3RhcnQsIE5VTEwpOw0KDQogICAgICAgICAgICAgICAgZG9fdmVyaWZ5KHRkLCB2
+ZXJpZnlfYnl0ZXMpOw0KDQogICAgICAgICAgICAgICAgdGQtPnRzLnJ1bnRpbWVbRERJUl9SRUFE
+XSArPSB1dGltZV9zaW5jZV9ub3coJnRkLT5zdGFydCk7DQoNCg0KLS0tDQpSb2IgRWxsaW90dCAg
+ICBIUCBTZXJ2ZXIgU3RvcmFnZQ0KDQoNCg0KDQo=
