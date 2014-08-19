@@ -1,72 +1,37 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:62724 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753802AbaHEFJP convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 5 Aug 2014 01:09:15 -0400
-From: "Zhu, Zhengyun" <zhengyun.zhu@intel.com>
-Subject: bug report
-Date: Tue, 5 Aug 2014 05:08:52 +0000
-Message-ID: <9E8FC62FFD81D74BA20610CD2B890B843DF4F8@SHSMSX101.ccr.corp.intel.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Message-ID: <53F3B08C.30703@kernel.dk>
+Date: Tue, 19 Aug 2014 15:16:12 -0500
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Subject: Re: [PATCH] Add unlink hook to ioengine API, gluster ioengine
+References: <1408465733-3061-1-git-send-email-castor.fu@egocast.org>
+In-Reply-To: <1408465733-3061-1-git-send-email-castor.fu@egocast.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+To: castor.fu@egocast.org, fio@vger.kernel.org
+Cc: Castor Fu <castor@alumni.caltech.edu>, Huamin Chen <hchen@redhat.com>
+List-ID: <fio@vger.kernel.org>
+
+On 2014-08-19 11:28, castor.fu@egocast.org wrote:
+> From: Castor Fu <castor@alumni.caltech.edu>
+>
+> fio would just call unlink even with engines that are not using the
+> operating systems file namespace... This provides a hook to allow
+> overriding that, with a default handler, and implements it for the
+> gluster ioengine.
+>
+> There are others which it'd probably make sense I'm sure.
+>
+> Huamin Chen looked over my changes to the gluster code earlier...
+>> I like this unlink idea, it would be great if you can also make unlink optional (if my coding reading is correct). This looks a great pull request candidate to fio. Please ping Axboe after you are done. He is not actively watching pull requests.
+>
+>> Please also feel free to augment gluster code and pull me for review if necessary.
+>
+
+Thanks, applied. I do monitor pull requests, I setup github to notify me 
+of them when this last came up. But either is fine, pull request of 
+emailed patch.
+
+-- 
+Jens Axboe
 
 
-Hi,
-
-When I am using fio to do some tests, I find a problem.
-
-I am using a client with a 10Gb NIC to do the test case of sequential read,=
- and the configuration file is below:
-
-//version 2.0.8
-global]
-iodepth=3D256
-runtime=3D600
-ioengine=3Dlibaio
-direct=3D1
-size=3D30g
-filename=3D/dev/vdb
-ramp_time=3D10
-
-[seq-read-64k]
-rw=3Dread
-bs=3D64k
-iodepth_batch_submit=3D8
-iodepth_batch_complete=3D8
-
-
-we know the bandwidth can reach nearly 1100MB/s without the parameter of ra=
-te. It will finish fio in about 30 seconds, because the size is 30g.
-
-first, when I set ramp_time to 10, the fio result is below:
-
-seq-read-64k: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D26840
-=EF=BF=BD read : io=3D20016MB, bw=3D1105.8MB/s, iops=3D17677 , runt=3D 1810=
-2msec
-
-second, when I set ramp_time to 35, the fio result is below:
-
-seq-read-64k: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D26861
-=EF=BF=BD read : io=3D30720MB, bw=3D1102.3MB/s, iops=3D17636 , runt=3D 2787=
-0msec
-
-According to these, we can summary:
-
-1. When we set ramp_time less than the time of fio finish read(we call it f=
-ftime for short), then
-=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD Runt =3D fftime - ramptime
-2. When we set ramp_time greater than the time of fio finish read(we call i=
-t fftime for short), then
-=EF=BF=BD Runt =3D fftime
-My requirement is:
-=EF=BF=BD I want to use ramp time to warm up 50 seconds, and then collect i=
-ostat data, but fio has finished after 30 seconds, so I will collect all em=
-pty data.
-
-Could we not calculate time and io size during ramp time in runt time, or d=
-o I have some mistakes to understand it?
