@@ -1,117 +1,273 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from smtp.opengridcomputing.com ([72.48.136.20]:39287 "EHLO
-	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751089AbaHHSzx (ORCPT
-	<rfc822;fio@vger.kernel.org>); Fri, 8 Aug 2014 14:55:53 -0400
-Received: from cody (cody.ogc.int [10.10.0.240])
-	by smtp.opengridcomputing.com (Postfix) with ESMTPS id 1834529E71
-	for <fio@vger.kernel.org>; Fri,  8 Aug 2014 13:49:14 -0500 (CDT)
-From: "Steve Wise" <swise@opengridcomputing.com>
-Subject: fio terse output for WRITE not working.
-Date: Fri, 8 Aug 2014 13:49:21 -0500
-Message-ID: <005e01cfb339$774e4640$65ead2c0$@opengridcomputing.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Language: en-us
+Received: from bombadil.infradead.org ([198.137.202.9]:56832 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752006AbaHTMAF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 20 Aug 2014 08:00:05 -0400
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1XK4Ye-0002MT-L8
+	for fio@vger.kernel.org; Wed, 20 Aug 2014 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20140820120003.4C6F8401D1@lyth.info>
+Date: Wed, 20 Aug 2014 06:00:03 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hey,
+The following changes since commit b74e419ec6152ae2dd4b9f36c2559961f4fab5cf:
 
-I'm using fio-2.1.10, and trying to get the Total IO via the terse output.  It works for
-read but not for write.  Here is the output and the fio conf file I'm using.  
+  Update libhdfs engine documention and options (2014-08-14 11:45:16 -0600)
 
-Any thoughts?  Is this a known bug?
+are available in the git repository at:
 
-Thanks,
+  git://git.kernel.dk/fio.git master
 
-Steve.
+for you to fetch changes up to 35af10e11a470a33fe8e9d839bd15b86d97ec1f6:
 
------
+  Update io engine version (2014-08-19 15:16:29 -0500)
 
+----------------------------------------------------------------
+Castor Fu (1):
+      Add unlink hook to ioengine API, gluster ioengine
 
-Read works:
+Jens Axboe (1):
+      Update io engine version
 
-[root@hpc1 ~]# RW=randread fio --minimal fio-test.conf
-3;fio-2.1.10;foo;0;0;80251;40105;40105;2001;4;85;8.170228;4.004539;65;805;189.872799;49.78
-1808;1.000000%=122;5.000000%=133;10.000000%=139;20.000000%=149;30.000000%=159;40.000000%=1
-69;50.000000%=179;60.000000%=191;70.000000%=205;80.000000%=225;90.000000%=258;95.000000%=2
-86;99.000000%=354;99.500000%=386;99.900000%=450;99.950000%=486;99.990000%=596;0%=0;0%=0;0%
-=0;87;809;198.185493;49.501590;38468;42140;100.000000%;40262.666667;1837.395258;0;0;0;0;0;
-0;0.000000;0.000000;0;0;0.000000;0.000000;1.000000%=0;5.000000%=0;10.000000%=0;20.000000%=
-0;30.000000%=0;40.000000%=0;50.000000%=0;60.000000%=0;70.000000%=0;80.000000%=0;90.000000%
-=0;95.000000%=0;99.000000%=0;99.500000%=0;99.900000%=0;99.950000%=0;99.990000%=0;0%=0;0%=0
-;0%=0;0;0;0.000000;0.000000;0;0;0.000000%;0.000000;0.000000;7.750000%;41.150000%;31556;0;9
-;0.1%;0.1%;0.1%;100.0%;0.0%;0.0%;0.0%;0.00%;0.00%;0.00%;0.00%;0.00%;0.01%;88.31%;11.64%;0.
-04%;0.01%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%
+rootfs (1):
+      fix re-open failure issue when using gluster ioengine
 
-Write shows zeros for Total IO:
+ engines/gfapi.h           |    1 +
+ engines/glusterfs.c       |   25 +++++++++++++++++++++----
+ engines/glusterfs_async.c |    1 +
+ engines/glusterfs_sync.c  |    1 +
+ examples/gfapi.fio        |   16 ++++++++++++++++
+ filesetup.c               |   11 ++++++++---
+ ioengine.h                |    4 +++-
+ ioengines.c               |    8 ++++++++
+ iolog.c                   |    2 +-
+ 9 files changed, 60 insertions(+), 9 deletions(-)
+ create mode 100644 examples/gfapi.fio
 
-[root@hpc1 ~]# RW=randwrite fio --minimal fio-test.conf
-3;fio-2.1.10;foo;0;0;0;0;0;0;0;0;0.000000;0.000000;0;0;0.000000;0.000000;1.000000%=0;5.000
-000%=0;10.000000%=0;20.000000%=0;30.000000%=0;40.000000%=0;50.000000%=0;60.000000%=0;70.00
-0000%=0;80.000000%=0;90.000000%=0;95.000000%=0;99.000000%=0;99.500000%=0;99.900000%=0;99.9
-50000%=0;99.990000%=0;0%=0;0%=0;0%=0;0;0;0.000000;0.000000;0;0;0.000000%;0.000000;0.000000
-;5409;2697;2697;2005;6;51;18.330190;7.389300;81;10033;2939.422629;1572.743671;1.000000%=88
-4;5.000000%=1144;10.000000%=1320;20.000000%=1560;30.000000%=1784;40.000000%=2096;50.000000
-%=2448;60.000000%=3120;70.000000%=3664;80.000000%=4320;90.000000%=5216;95.000000%=5984;99.
-000000%=7520;99.500000%=8032;99.900000%=9664;99.950000%=9792;99.990000%=10048;0%=0;0%=0;0%
-=0;89;10040;2957.946016;1571.794210;2572;2794;100.000000%;2701.000000;95.951377;2.894212%;
-8.582834%;4987;0;8;0.1%;0.1%;0.1%;99.9%;0.0%;0.0%;0.0%;0.00%;0.00%;0.00%;0.00%;0.00%;0.17%
-;0.17%;0.02%;0.07%;2.02%;34.72%;36.75%;26.07%;0.02%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.
-00%;0.00%
+---
 
-Without --minimal, we see Total IO WRITE numbers:
+Diff of recent changes:
 
-[root@hpc1 ~]# RW=randwrite fio fio-test.conf
-foo: (g=0): rw=randwrite, bs=1K-1K/1K-1K/1K-1K, ioengine=libaio, iodepth=8
-fio-2.1.10
-Starting 1 process
-Jobs: 1 (f=1): [w] [-.-% done] [0KB/1158KB/0KB /s] [0/1158/0 iops] [eta 00m:00s]
-foo: (groupid=0, jobs=1): err= 0: pid=4547: Fri Aug  8 11:45:00 2014
-  write: io=2334.0KB, bw=1162.1KB/s, iops=1162, runt=  2007msec
-    slat (usec): min=7, max=45, avg=19.02, stdev= 4.98
-    clat (usec): min=72, max=15679, avg=6849.86, stdev=3321.20
-     lat (usec): min=81, max=15699, avg=6869.15, stdev=3322.08
-    clat percentiles (usec):
-     |  1.00th=[ 1864],  5.00th=[ 2960], 10.00th=[ 3408], 20.00th=[ 3824],
-     | 30.00th=[ 4192], 40.00th=[ 4704], 50.00th=[ 5728], 60.00th=[ 7904],
-     | 70.00th=[ 9152], 80.00th=[10176], 90.00th=[11712], 95.00th=[12864],
-     | 99.00th=[13888], 99.50th=[14400], 99.90th=[15424], 99.95th=[15424],
-     | 99.99th=[15680]
-    bw (KB  /s): min= 1101, max= 1226, per=99.91%, avg=1161.00, stdev=60.88
-    lat (usec) : 100=0.30%, 250=0.43%
-    lat (msec) : 2=0.39%, 4=21.34%, 10=55.70%, 20=21.85%
-  cpu          : usr=1.60%, sys=4.34%, ctx=2304, majf=0, minf=8
-  IO depths    : 1=0.1%, 2=0.1%, 4=0.2%, 8=99.7%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=100.0%, 8=0.1%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued    : total=r=0/w=2334/d=0, short=r=0/w=0/d=0
-     latency   : target=0, window=0, percentile=100.00%, depth=8
-
-Run status group 0 (all jobs):
-  WRITE: io=2334KB, aggrb=1162KB/s, minb=1162KB/s, maxb=1162KB/s, mint=2007msec,
-maxt=2007msec
-
-Disk stats (read/write):
-  sda: ios=0/2207, merge=0/0, ticks=0/15041, in_queue=15076, util=95.05%
-
-
-Here is the conf file:
-
- [root@hpc1 ~]# cat fio-test.conf
-[foo]
-rw=${RW}
-size=40m
-bs=1k
-directory=/tmp
-direct=1
-numjobs=1
-runtime=2
-time_based
-ioengine=libaio
-iodepth=8
-
+diff --git a/engines/gfapi.h b/engines/gfapi.h
+index c79838b..0da471c 100644
+--- a/engines/gfapi.h
++++ b/engines/gfapi.h
+@@ -19,3 +19,4 @@ extern void fio_gf_cleanup(struct thread_data *td);
+ extern int fio_gf_get_file_size(struct thread_data *td, struct fio_file *f);
+ extern int fio_gf_open_file(struct thread_data *td, struct fio_file *f);
+ extern int fio_gf_close_file(struct thread_data *td, struct fio_file *f);
++extern int fio_gf_unlink_file(struct thread_data *td, struct fio_file *f);
+diff --git a/engines/glusterfs.c b/engines/glusterfs.c
+index 52006b0..507cd25 100644
+--- a/engines/glusterfs.c
++++ b/engines/glusterfs.c
+@@ -223,10 +223,10 @@ int fio_gf_open_file(struct thread_data *td, struct fio_file *f)
+ 					free(b);
+ 				glfs_lseek(g->fd, 0, SEEK_SET);
+ 
+-				if (td->terminate) {
++				if (td->terminate && td->o.unlink) {
+ 					dprint(FD_FILE, "terminate unlink %s\n",
+ 					       f->file_name);
+-					unlink(f->file_name);
++					glfs_unlink(g->fs, f->file_name);
+ 				} else if (td->o.create_fsync) {
+ 					if (glfs_fsync(g->fd) < 0) {
+ 						dprint(FD_FILE,
+@@ -260,7 +260,7 @@ int fio_gf_open_file(struct thread_data *td, struct fio_file *f)
+ 	dprint(FD_FILE, "fio %p created %s\n", g->fs, f->file_name);
+ 	f->fd = -1;
+ 	f->shadow_fd = -1;
+-
++	td->o.open_files ++;
+ 	return ret;
+ }
+ 
+@@ -274,6 +274,24 @@ int fio_gf_close_file(struct thread_data *td, struct fio_file *f)
+ 	if (g) {
+ 		if (g->fd && glfs_close(g->fd) < 0)
+ 			ret = errno;
++		g->fd = NULL;
++	}
++
++	return ret;
++}
++
++int fio_gf_unlink_file(struct thread_data *td, struct fio_file *f)
++{
++	int ret = 0;
++	struct gf_data *g = td->io_ops->data;
++
++	dprint(FD_FILE, "fd unlink %s\n", f->file_name);
++
++	if (g) {
++		if (g->fd && glfs_close(g->fd) < 0)
++			ret = errno;
++
++		glfs_unlink(g->fs, f->file_name);
+ 
+ 		if (g->fs)
+ 			glfs_fini(g->fs);
+@@ -282,7 +300,6 @@ int fio_gf_close_file(struct thread_data *td, struct fio_file *f)
+ 		free(g);
+ 	}
+ 	td->io_ops->data = NULL;
+-	f->engine_data = 0;
+ 
+ 	return ret;
+ }
+diff --git a/engines/glusterfs_async.c b/engines/glusterfs_async.c
+index 30f1719..7b0b30a 100644
+--- a/engines/glusterfs_async.c
++++ b/engines/glusterfs_async.c
+@@ -186,6 +186,7 @@ static struct ioengine_ops ioengine = {
+ 	.queue = fio_gf_async_queue,
+ 	.open_file = fio_gf_open_file,
+ 	.close_file = fio_gf_close_file,
++	.unlink_file = fio_gf_unlink_file,
+ 	.get_file_size = fio_gf_get_file_size,
+ 	.getevents = fio_gf_getevents,
+ 	.event = fio_gf_event,
+diff --git a/engines/glusterfs_sync.c b/engines/glusterfs_sync.c
+index 938baf4..235d74f 100644
+--- a/engines/glusterfs_sync.c
++++ b/engines/glusterfs_sync.c
+@@ -76,6 +76,7 @@ static struct ioengine_ops ioengine = {
+ 	.queue = fio_gf_queue,
+ 	.open_file = fio_gf_open_file,
+ 	.close_file = fio_gf_close_file,
++	.unlink_file = fio_gf_unlink_file,
+ 	.get_file_size = fio_gf_get_file_size,
+ 	.options = gfapi_options,
+ 	.option_struct_size = sizeof(struct gf_options),
+diff --git a/examples/gfapi.fio b/examples/gfapi.fio
+new file mode 100644
+index 0000000..ccc8123
+--- /dev/null
++++ b/examples/gfapi.fio
+@@ -0,0 +1,16 @@
++# Test opening a file from multiple jobs.
++# Originally authored by Castor Fu
++[global]
++ioengine=gfapi
++volume=vol
++brick=localhost
++create_on_open=1
++rw=write
++
++[reopen_file_test]
++nrfiles=4
++filesize=16k
++size=64k
++openfiles=2
++rw=write
++filename_format=reopen_test.$filenum
+diff --git a/filesetup.c b/filesetup.c
+index 12a43b1..29a76c0 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -59,7 +59,7 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
+ 
+ 	if (unlink_file || new_layout) {
+ 		dprint(FD_FILE, "layout unlink %s\n", f->file_name);
+-		if ((unlink(f->file_name) < 0) && (errno != ENOENT)) {
++		if ((td_io_unlink_file(td, f) < 0) && (errno != ENOENT)) {
+ 			td_verror(td, errno, "unlink");
+ 			return 1;
+ 		}
+@@ -172,7 +172,7 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
+ 
+ 	if (td->terminate) {
+ 		dprint(FD_FILE, "terminate unlink %s\n", f->file_name);
+-		unlink(f->file_name);
++		td_io_unlink_file(td, f);
+ 	} else if (td->o.create_fsync) {
+ 		if (fsync(f->fd) < 0) {
+ 			td_verror(td, errno, "fsync");
+@@ -1100,6 +1100,11 @@ void close_and_free_files(struct thread_data *td)
+ 	dprint(FD_FILE, "close files\n");
+ 
+ 	for_each_file(td, f, i) {
++		if (td->o.unlink && f->filetype == FIO_TYPE_FILE) {
++			dprint(FD_FILE, "free unlink %s\n", f->file_name);
++			td_io_unlink_file(td, f);
++		}
++
+ 		if (fio_file_open(f))
+ 			td_io_close_file(td, f);
+ 
+@@ -1107,7 +1112,7 @@ void close_and_free_files(struct thread_data *td)
+ 
+ 		if (td->o.unlink && f->filetype == FIO_TYPE_FILE) {
+ 			dprint(FD_FILE, "free unlink %s\n", f->file_name);
+-			unlink(f->file_name);
++			td_io_unlink_file(td, f);
+ 		}
+ 
+ 		sfree(f->file_name);
+diff --git a/ioengine.h b/ioengine.h
+index ebe0ebe..108c97c 100644
+--- a/ioengine.h
++++ b/ioengine.h
+@@ -15,7 +15,7 @@
+ #include <guasi.h>
+ #endif
+ 
+-#define FIO_IOOPS_VERSION	19
++#define FIO_IOOPS_VERSION	20
+ 
+ enum {
+ 	IO_U_F_FREE		= 1 << 0,
+@@ -144,6 +144,7 @@ struct ioengine_ops {
+ 	int (*open_file)(struct thread_data *, struct fio_file *);
+ 	int (*close_file)(struct thread_data *, struct fio_file *);
+ 	int (*invalidate)(struct thread_data *, struct fio_file *);
++	int (*unlink_file)(struct thread_data *, struct fio_file *);
+ 	int (*get_file_size)(struct thread_data *, struct fio_file *);
+ 	void (*terminate)(struct thread_data *);
+ 	int (*io_u_init)(struct thread_data *, struct io_u *);
+@@ -185,6 +186,7 @@ extern int __must_check td_io_getevents(struct thread_data *, unsigned int, unsi
+ extern int __must_check td_io_commit(struct thread_data *);
+ extern int __must_check td_io_open_file(struct thread_data *, struct fio_file *);
+ extern int td_io_close_file(struct thread_data *, struct fio_file *);
++extern int td_io_unlink_file(struct thread_data *, struct fio_file *);
+ extern int __must_check td_io_get_file_size(struct thread_data *, struct fio_file *);
+ 
+ extern struct ioengine_ops *load_ioengine(struct thread_data *, const char *);
+diff --git a/ioengines.c b/ioengines.c
+index 0f94d0d..3010f6c 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -506,6 +506,14 @@ int td_io_close_file(struct thread_data *td, struct fio_file *f)
+ 	return put_file(td, f);
+ }
+ 
++int td_io_unlink_file(struct thread_data *td, struct fio_file *f)
++{
++	if (td->io_ops->unlink_file)
++		return td->io_ops->unlink_file(td, f);
++	else
++		return unlink(f->file_name);
++}
++
+ int td_io_get_file_size(struct thread_data *td, struct fio_file *f)
+ {
+ 	if (!td->io_ops->get_file_size)
+diff --git a/iolog.c b/iolog.c
+index 70ccfba..f9e835d 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -107,7 +107,7 @@ static int ipo_special(struct thread_data *td, struct io_piece *ipo)
+ 		td_io_close_file(td, f);
+ 		break;
+ 	case FIO_LOG_UNLINK_FILE:
+-		unlink(f->file_name);
++		td_io_unlink_file(td, f);
+ 		break;
+ 	default:
+ 		log_err("fio: bad file action %d\n", ipo->file_action);
