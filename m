@@ -1,465 +1,280 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:39591 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754297AbaHNMAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 14 Aug 2014 08:00:05 -0400
-Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1XHthN-0002dm-5S
-	for fio@vger.kernel.org; Thu, 14 Aug 2014 12:00:05 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <53F795E0.3090806@kernel.dk>
+Date: Fri, 22 Aug 2014 14:11:28 -0500
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20140814120003.D24B040249@lyth.info>
-Date: Thu, 14 Aug 2014 06:00:03 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: fio main thread got stuck over the weekend
+References: <20140811154423.GE7486@beardog.cce.hp.com> <20140811160418.GG7486@beardog.cce.hp.com> <53F79442.6010500@kernel.dk> <20140822190924.GQ19666@beardog.cce.hp.com>
+In-Reply-To: <20140822190924.GQ19666@beardog.cce.hp.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+To: scameron@beardog.cce.hp.com
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit b7f5c00db0d450aff09b35301bedf16e26e25d3a:
+On 2014-08-22 14:09, scameron@beardog.cce.hp.com wrote:
+> On Fri, Aug 22, 2014 at 02:04:34PM -0500, Jens Axboe wrote:
+>> On 2014-08-11 11:04, scameron@beardog.cce.hp.com wrote:
+>>> On Mon, Aug 11, 2014 at 10:44:23AM -0500, scameron@beardog.cce.hp.com
+>>> wrote:
+>>>>
+>>>> Hi,
+>>>>
+>>>> I was running an fio job over the weekend and the main thread
+>>>> seems to have hung.  This in on RHEL6u5 with kernel
+>>>> 2.6.32-431.20.3.el6.x86_64 but with a highly modified hpsa
+>>>> driver, just in case it matters.
+>>>>
+>>>> [root@msablackburn saperf]# uname -a
+>>>> Linux msablackburn.americas.hpqcorp.net 2.6.32-431.20.3.el6.x86_64 #1 SMP
+>>>> Fri Jun 6 18:30:54 EDT 2014 x86_64 x86_64 x86_64 GNU/Linux
+>>>> [root@msablackburn saperf]# /usr/local/bin/fio --version
+>>>> fio-2.1.11-3-g789d
+>>>>
+>>>> The jobfile looks like this (note the runtime=216000, that's 60 hours)
+>>>> It seems to have hung with about 25 hours remaining.)
+>>>>
+>>>> [root@msablackburn saperf]# cat 2drive_sdr.fio
+>>>> [global]
+>>>> direct=1
+>>>> ioengine=libaio
+>>>> norandommap
+>>>> randrepeat=0
+>>>> bs=4096
+>>>> iodepth=1011
+>>>> #iodepth=96
+>>>> #numjobs=1
+>>>> numjobs=12
+>>>> #numjobs=24
+>>>> # number_ios=1
+>>>> runtime=216000
+>>>> #runtime=54000
+>>>> time_based=1
+>>>> group_reporting
+>>>> thread
+>>>> gtod_reduce=1
+>>>> #iodepth_batch=4
+>>>> #iodepth_batch_complete=4
+>>>> cpus_allowed=0-5
+>>>> cpus_allowed_policy=split
+>>>> rw=randread
+>>>>
+>>>> [4_KiB_RR_drive_r]
+>>>> filename=/dev/sdr
+>>>>
+>>>> [4_KiB_RR_drive_s]
+>>>> filename=/dev/sds
+>>>>
+>>>>
+>>>> Here is all the output so far:
+>>>>
+>>>> ---------------8<------------8<-------------8<-----------------
+>>>> [root@msablackburn saperf]# fio 2drive_sdr.fio
+>>>> 4_KiB_RR_drive_r: (g=0): rw=randread, bs=4K-4K/4K-4K/4K-4K,
+>>>> ioengine=libaio, iodepth=1011
+>>>> ...
+>>>> 4_KiB_RR_drive_s: (g=0): rw=randread, bs=4K-4K/4K-4K/4K-4K,
+>>>> ioengine=libaio, iodepth=1011
+>>>> ...
+>>>> fio-2.1.11-3-g789d
+>>>> Starting 24 threads
+>>>> ^Cbs: 24 (f=24): [r(24)] [1.2% done] [1113MB/0KB/0KB /s] [285K/0/0 iops]
+>>>> [eta 14h:48m:47s]
+>>>> fio: terminating on signal 2
+>>>>
+>>>> 4_KiB_RR_drive_r: (groupid=0, jobs=24): err= 0: pid=7696: Fri Aug  8
+>>>> 16:49:19 2014
+>>>>    read : io=881568MB, bw=1309.1MB/s, iops=335341, runt=672989msec
+>>>>    cpu          : usr=1.75%, sys=23.15%, ctx=1266117, majf=9, minf=835
+>>>>    IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%,
+>>>>    >=64=100.0%
+>>>>       submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
+>>>>       >=64=0.0%
+>>>>       complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
+>>>>       >=64=0.1%
+>>>>       issued    : total=r=225681428/w=0/d=0, short=r=0/w=0/d=0
+>>>>       latency   : target=0, window=0, percentile=100.00%, depth=1011
+>>>>
+>>>> Run status group 0 (all jobs):
+>>>>     READ: io=881568MB, aggrb=1309.1MB/s, minb=1309.1MB/s,
+>>>>     maxb=1309.1MB/s, mint=672989msec, maxt=672989msec
+>>>>
+>>>> Disk stats (read/write):
+>>>>    sdr: ios=112299535/0, merge=0/0, ticks=13349007/0, in_queue=13054755,
+>>>>    util=98.57%
+>>>>    sds: ios=113359581/0, merge=0/0, ticks=13710834/0, in_queue=13414931,
+>>>>    util=98.71%
+>>>> [root@msablackburn saperf]# vi !$
+>>>> vi 2drive_sdr.fio
+>>>> [root@msablackburn saperf]# fio 2drive_sdr.fio
+>>>> 4_KiB_RR_drive_r: (g=0): rw=randread, bs=4K-4K/4K-4K/4K-4K,
+>>>> ioengine=libaio, iodepth=1011
+>>>> ...
+>>>> 4_KiB_RR_drive_s: (g=0): rw=randread, bs=4K-4K/4K-4K/4K-4K,
+>>>> ioengine=libaio, iodepth=1011
+>>>> ...
+>>>> fio-2.1.11-3-g789d
+>>>> Starting 24 threads
+>>>> Jobs: 24 (f=24): [r(24)] [57.1% done] [1408MB/0KB/0KB /s] [361K/0/0 iops]
+>>>> [eta 01d:01h:43m:07s]
+>>>> ---------------8<------------8<-------------8<-----------------
+>>>>
+>>>> And there it sits, the eta does not update.
+>>>>
+>>>>
+>>>> I tried connecting to the process with gdb, and doing "info threads" and
+>>>> "bt":
+>>>>
+>>>> PID of main thread is 8530:
+>>>>
+>>>> root      8530  598  1.0 2159116 170812 pts/0  Sl+  Aug08 23570:56 fio
+>>>> 2drive_sdr.fio
+>>>>
+>>>> ...
+>>>> (gdb) info threads
+>>>>    26 Thread 0x7f65da431700 (LWP 8531)  0x0000003aa4cacced in nanosleep
+>>>>    () from /lib64/libc.so.6
+>>>>    25 Thread 0x7f65d9a30700 (LWP 8532)  0x0000003c69800667 in io_submit
+>>>>    () from /lib64/libaio.so.1
+>>>>    24 Thread 0x7f65d902f700 (LWP 8533)  0x0000003c69800667 in io_submit
+>>>>    () from /lib64/libaio.so.1
+>>>>    23 Thread 0x7f65d862e700 (LWP 8534)  0x0000003c69800667 in io_submit
+>>>>    () from /lib64/libaio.so.1
+>>>>    22 Thread 0x7f65d7c2d700 (LWP 8535)  0x0000003c69800667 in io_submit
+>>>>    () from /lib64/libaio.so.1
+>>>>    21 Thread 0x7f65d722c700 (LWP 8536)  0x0000003c69800667 in io_submit
+>>>>    () from /lib64/libaio.so.1
+>>>>    20 Thread 0x7f65d682b700 (LWP 8537)  0x0000003c69800667 in io_submit
+>>>>    () from /lib64/libaio.so.1
+>>>>    19 Thread 0x7f65d5e2a700 (LWP 8538)  0x0000003c69800667 in io_submit
+>>>>    () from /lib64/libaio.so.1
+>>>>    18 Thread 0x7f65d5429700 (LWP 8539)  0x0000003c69800667 in io_submit
+>>>>    () from /lib64/libaio.so.1
+>>>>    17 Thread 0x7f65d4a28700 (LWP 8540)  0x0000003c69800667 in io_submit
+>>>>    () from /lib64/libaio.so.1
+>>>>    16 Thread 0x7f65d4027700 (LWP 8541)  0x0000003c69800667 in io_submit
+>>>>    () from /lib64/libaio.so.1
+>>>>    15 Thread 0x7f65d3626700 (LWP 8542)  0x0000003c69800667 in io_submit
+>>>>    () from /lib64/libaio.so.1
+>>>>    14 Thread 0x7f65d2c25700 (LWP 8543)  0x0000003c69800667 in io_submit
+>>>>    () from /lib64/libaio.so.1
+>>>>    13 Thread 0x7f65d2222700 (LWP 8544)  0x0000003c69800667 in io_submit
+>>>>    () from /lib64/libaio.so.1
+>>>>    12 Thread 0x7f65d1820700 (LWP 8545)  0x0000003c69800667 in io_submit
+>>>>    () from /lib64/libaio.so.1
+>>>>    11 Thread 0x7f65d0e1e700 (LWP 8546)  td_io_queue (td=0x7f65da496410,
+>>>>    io_u=0x7f656804d010) at ioengines.c:344
+>>>>    10 Thread 0x7f65d041c700 (LWP 8547)  0x0000003c69800667 in io_submit
+>>>>    () from /lib64/libaio.so.1
+>>>>    9 Thread 0x7f65cfa1a700 (LWP 8548)  0x0000003c69800667 in io_submit ()
+>>>>    from /lib64/libaio.so.1
+>>>>    8 Thread 0x7f65cf018700 (LWP 8549)  0x0000003c69800667 in io_submit ()
+>>>>    from /lib64/libaio.so.1
+>>>>    7 Thread 0x7f65ce616700 (LWP 8550)  0x0000003c69800667 in io_submit ()
+>>>>    from /lib64/libaio.so.1
+>>>>    6 Thread 0x7f65cdc14700 (LWP 8551)  fio_libaio_event
+>>>>    (td=0x7f65da4b06a8, event=<value optimized out>) at engines/libaio.c:65
+>>>>    5 Thread 0x7f65cd212700 (LWP 8552)  __get_next_offset
+>>>>    (td=0x7f65da4b5a60) at io_u.c:389
+>>>>    4 Thread 0x7f65cc810700 (LWP 8553)  0x0000003c69800667 in io_submit ()
+>>>>    from /lib64/libaio.so.1
+>>>>    3 Thread 0x7f65cbe0e700 (LWP 8554)  td_io_u_unlock (td=0x7f65da4c01d0,
+>>>>    min_evts=<value optimized out>, bytes=0x7f65cbe0dd10) at fio.h:619
+>>>>    2 Thread 0x7f65cb40c700 (LWP 8555)  0x0000003c69800667 in io_submit ()
+>>>>    from /lib64/libaio.so.1
+>>>> * 1 Thread 0x7f65e34c6720 (LWP 8530)  0x0000003aa4cacced in nanosleep ()
+>>> >from /lib64/libc.so.6
+>>>> (gdb) bt
+>>>> #0  0x0000003aa4cacced in nanosleep () from /lib64/libc.so.6
+>>>> #1  0x0000003aa4ce1e44 in usleep () from /lib64/libc.so.6
+>>>> #2  0x000000000044afe4 in do_usleep () at backend.c:1727
+>>>> #3  run_threads () at backend.c:1965
+>>>> #4  0x000000000044b84d in fio_backend () at backend.c:2068
+>>>> #5  0x0000003aa4c1ed1d in __libc_start_main () from /lib64/libc.so.6
+>>>> #6  0x0000000000409c39 in _start ()
+>>>> (gdb) detach
+>>>> Detaching from program: /usr/local/bin/fio, process 8530
+>>>> (gdb) quit
+>>>> [root@msablackburn saperf]#
+>>>>
+>>>> I am guessing the 8530 thread is the one that prints out the eta updates?
+>>>> Well, maybe not, I see a call to create_disk_util_thread() in backend.c.
+>>>>
+>>>> i/o still seems to be running, and there are no messages in dmesg about
+>>>> hung i/o or the scsi mid layer getting angry and trying to abort things
+>>>> or anything like that.  Seems to be happily cruising along, except that
+>>>> the eta isn't updating, and the job should have finished several hours
+>>>> ago now.  I'm leaving it running for now just to try to figure out
+>>>> what happened.
+>>>>
+>>>> Any ideas?  Anything else I should poke at?
+>>>
+>>> A bit more info:
+>>>
+>>> thread 26 looks to be the one that's supposed to print the eta info:
+>>>
+>>> (gdb) thread 26
+>>> [Switching to thread 26 (Thread 0x7f65da431700 (LWP 8531))]#0
+>>> 0x0000003aa4cacced in nanosleep () from /lib64/libc.so.6
+>>> (gdb) bt
+>>> #0  0x0000003aa4cacced in nanosleep () from /lib64/libc.so.6
+>>> #1  0x0000003aa4ce1e44 in usleep () from /lib64/libc.so.6
+>>> #2  0x00000000004474a0 in disk_thread_main (data=<value optimized out>) at
+>>> backend.c:1992
+>>> #3  0x0000003aa50079d1 in start_thread () from /lib64/libpthread.so.0
+>>> #4  0x0000003aa4ce8b5d in clone () from /lib64/libc.so.6
+>>> (gdb)
+>>>
+>>> static void *disk_thread_main(void *data)
+>>> {
+>>>          int ret = 0;
+>>>
+>>>          fio_mutex_up(startup_mutex);
+>>>
+>>>          while (threads && !ret) {
+>>>                  usleep(DISK_UTIL_MSEC * 1000);
+>>>                  if (!threads)
+>>>                          break;
+>>>                  ret = update_io_ticks();
+>>>
+>>>                  if (!is_backend)
+>>>                          print_thread_status();
+>>>          }
+>>>
+>>>          fio_mutex_up(disk_thread_mutex);
+>>>          return NULL;
+>>> }
+>>>
+>>> that usleep() is where it's in nanosleep, I guess.
+>>>
+>> >from eta.c:
+>>>
+>>> void print_thread_status(void)
+>>> {
+>>>          struct jobs_eta *je;
+>>>          size_t size;
+>>>
+>>>          je = get_jobs_eta(0, &size);
+>>>          if (je)
+>>>                  display_thread_status(je);
+>>>
+>>>          free(je);
+>>> }
+>>>
+>>> Maybe that je is coming back false?  which is
+>>> probably the return value of calc_thread_status() which, well,
+>>> at a glance, I'm not sure what calc_thread_status() is doing.
+>>
+>> I'll take a look at this next week, been away at a conference since last
+>> weekend.
+>
+> Ok.  Meantime, I had to reclaim the machine for testing, so I no longer
+> have it just sitting there to debug, and I have not sseen the problem again
+> that I know of.
 
-  verify: turn off numberio verification for meta and time_based (2014-08-07 15:27:31 -0600)
+Clearly a hardware issue :-)
 
-are available in the git repository at:
+-- 
+Jens Axboe
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 1b10477b21157800f030c3ec91511a810e75e4c7:
-
-  Add support for HDFS IO engine (2014-08-13 13:36:52 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Add missing IO engines to the HOWTO
-
-Manish Mandlik (1):
-      Add support for HDFS IO engine
-
- HOWTO             |   30 +++++--
- Makefile          |    9 +-
- configure         |   30 +++++++
- engines/libhdfs.c |  240 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- fio.1             |    3 +
- options.c         |    6 +-
- 6 files changed, 309 insertions(+), 9 deletions(-)
- create mode 100644 engines/libhdfs.c
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO b/HOWTO
-index 1c4b308..d728353 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -670,15 +670,31 @@ ioengine=str	Defines how the job issues io to the file. The following
- 				channel semantics (Send/Recv) for the
- 				InfiniBand, RoCE and iWARP protocols.
- 
--			falloc   IO engine that does regular fallocate to
--				 simulate data transfer as fio ioengine.
--				 DDIR_READ  does fallocate(,mode = keep_size,)
--				 DDIR_WRITE does fallocate(,mode = 0)
--				 DDIR_TRIM  does fallocate(,mode = punch_hole)
-+			falloc	IO engine that does regular fallocate to
-+				simulate data transfer as fio ioengine.
-+				DDIR_READ  does fallocate(,mode = keep_size,)
-+				DDIR_WRITE does fallocate(,mode = 0)
-+				DDIR_TRIM  does fallocate(,mode = punch_hole)
- 
- 			e4defrag IO engine that does regular EXT4_IOC_MOVE_EXT
--				 ioctls to simulate defragment activity in
--				 request to DDIR_WRITE event
-+				ioctls to simulate defragment activity in
-+				request to DDIR_WRITE event
-+
-+			rbd	IO engine supporting direct access to Ceph
-+				Rados Block Devices (RBD) via librbd without
-+				the need to use the kernel rbd driver. This
-+				ioengine defines engine specific options.
-+
-+			gfapi	Using Glusterfs libgfapi sync interface to
-+				direct access to Glusterfs volumes without
-+				options.
-+
-+			gfapi_async Using Glusterfs libgfapi async interface
-+				to direct access to Glusterfs volumes without
-+				having to go through FUSE. This ioengine
-+				defines engine specific options.
-+
-+			hdfs	Read and write through Hadoop (HDFS).
- 
- 			external Prefix to specify loading an external
- 				IO engine object file. Append the engine
-diff --git a/Makefile b/Makefile
-index 65e95be..8d86269 100644
---- a/Makefile
-+++ b/Makefile
-@@ -38,6 +38,13 @@ SOURCE := gettime.c ioengines.c init.c stat.c log.c time.c filesetup.c \
- 		profiles/tiobench.c profiles/act.c io_u_queue.c filelock.c \
- 		lib/tp.c
- 
-+ifdef CONFIG_LIBHDFS
-+  HDFSFLAGS= -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/linux -I $(FIO_LIBHDFS_INCLUDE)
-+  HDFSLIB= $(JAVA_HOME)/jre/lib/amd64/server/libjvm.so $(FIO_LIBHDFS_LIB)/liblibhdfs.a
-+  CFLAGS += $(HDFSFLAGS)
-+  SOURCE += engines/libhdfs.c
-+endif
-+
- ifdef CONFIG_64BIT_LLP64
-   CFLAGS += -DBITS_PER_LONG=32
- endif
-@@ -268,7 +275,7 @@ t/ieee754: $(T_IEEE_OBJS)
- 	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(T_IEEE_OBJS) $(LIBS)
- 
- fio: $(FIO_OBJS)
--	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(FIO_OBJS) $(LIBS)
-+	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(FIO_OBJS) $(LIBS) $(HDFSLIB)
- 
- gfio: $(GFIO_OBJS)
- 	$(QUIET_LINK)$(CC) $(LDFLAGS) -o gfio $(GFIO_OBJS) $(LIBS) $(GTK_LDFLAGS)
-diff --git a/configure b/configure
-index 1494dd7..33d1327 100755
---- a/configure
-+++ b/configure
-@@ -134,6 +134,7 @@ cpu=""
- show_help="no"
- exit_val=0
- gfio="no"
-+libhdfs="no"
- 
- # parse options
- for opt do
-@@ -160,6 +161,8 @@ for opt do
-   ;;
-   --disable-gfapi) disable_gfapi="yes"
-   ;;
-+  --enable-libhdfs) libhdfs="yes"
-+  ;;
-   --help)
-     show_help="yes"
-     ;;
-@@ -178,6 +181,7 @@ if test "$show_help" = "yes" ; then
-   echo "--esx                  Configure build options for esx"
-   echo "--enable-gfio          Enable building of gtk gfio"
-   echo "--disable-numa         Disable libnuma even if found"
-+  echo "--enable-libhdfs       Enable hdfs support"
-   exit $exit_val
- fi
- 
-@@ -1243,6 +1247,29 @@ if compile_prog "" "" "s390_z196_facilities"; then
-   fi
- fi
- echo "s390_z196_facilities          $s390_z196_facilities"
-+
-+##########################################
-+# Check if we have required environment variables configured for libhdfs
-+if test "$libhdfs" = "yes" ; then
-+  hdfs_conf_error=0
-+  if test "$JAVA_HOME" = "" ; then
-+    echo "configure: JAVA_HOME should be defined to jdk/jvm path"
-+    hdfs_conf_error=1
-+  fi
-+  if test "$FIO_LIBHDFS_INCLUDE" = "" ; then
-+    echo "configure: FIO_LIBHDFS_INCLUDE should be defined to libhdfs inlude path"
-+    hdfs_conf_error=1
-+  fi
-+  if test "$FIO_LIBHDFS_LIB" = "" ; then
-+    echo "configure: FIO_LIBHDFS_LIB should be defined to libhdfs library path"
-+    hdfs_conf_error=1
-+  fi
-+  if test "$hdfs_conf_error" = "1" ; then
-+    exit 1
-+  fi
-+fi
-+echo "HDFS engine                   $libhdfs"
-+
- #############################################################################
- 
- if test "$wordsize" = "64" ; then
-@@ -1384,6 +1411,9 @@ fi
- if test "$gf_fadvise" = "yes" ; then
-   output_sym "CONFIG_GF_FADVISE"
- fi
-+if test "$libhdfs" = "yes" ; then
-+  output_sym "CONFIG_LIBHDFS"
-+fi
- 
- if test "$zlib" = "no" ; then
-   echo "Consider installing zlib-dev (zlib-devel), some fio features depend on it."
-diff --git a/engines/libhdfs.c b/engines/libhdfs.c
-new file mode 100644
-index 0000000..773d46b
---- /dev/null
-+++ b/engines/libhdfs.c
-@@ -0,0 +1,240 @@
-+/*
-+ * libhdfs engine
-+ *
-+ * this engine helps perform read/write operations on hdfs cluster using
-+ * libhdfs. hdfs doesnot support modification of data once file is created.
-+ *
-+ * so to mimic that create many files of small size (e.g 256k), and this
-+ * engine select a file based on the offset generated by fio.
-+ *
-+ * thus, random reads and writes can also be achieved with this logic.
-+ *
-+ * NOTE: please set environment variables FIO_HDFS_BS and FIO_HDFS_FCOUNT
-+ * to appropriate value to work this engine properly
-+ *
-+ */
-+
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <sys/uio.h>
-+#include <errno.h>
-+#include <assert.h>
-+
-+#include "../fio.h"
-+
-+#include "hdfs.h"
-+
-+struct hdfsio_data {
-+	char host[256];
-+	int port;
-+	hdfsFS fs;
-+	hdfsFile fp;
-+	unsigned long fsbs;
-+	unsigned long fscount;
-+	unsigned long curr_file_id;
-+	unsigned int numjobs;
-+	unsigned int fid_correction;
-+};
-+
-+static int fio_hdfsio_setup_fs_params(struct hdfsio_data *hd)
-+{
-+	/* make sure that hdfsConnect is invoked before executing this function */
-+	hdfsSetWorkingDirectory(hd->fs, "/.perftest");
-+	hd->fp = hdfsOpenFile(hd->fs, ".fcount", O_RDONLY, 0, 0, 0);
-+	if (hd->fp) {
-+		hdfsRead(hd->fs, hd->fp, &(hd->fscount), sizeof(hd->fscount));
-+		hdfsCloseFile(hd->fs, hd->fp);
-+	}
-+	hd->fp = hdfsOpenFile(hd->fs, ".fbs", O_RDONLY, 0, 0, 0);
-+	if (hd->fp) {
-+		hdfsRead(hd->fs, hd->fp, &(hd->fsbs), sizeof(hd->fsbs));
-+		hdfsCloseFile(hd->fs, hd->fp);
-+	}
-+
-+	return 0;
-+}
-+
-+static int fio_hdfsio_prep(struct thread_data *td, struct io_u *io_u)
-+{
-+	struct hdfsio_data *hd;
-+	hdfsFileInfo *fi;
-+	unsigned long f_id;
-+	char fname[80];
-+	int open_flags = 0;
-+
-+	hd = td->io_ops->data;
-+
-+	if (hd->curr_file_id == -1) {
-+		/* see comment in fio_hdfsio_setup() function */
-+		fio_hdfsio_setup_fs_params(hd);
-+	}
-+
-+	/* find out file id based on the offset generated by fio */
-+	f_id = (io_u->offset / hd->fsbs) + hd->fid_correction;
-+
-+	if (f_id == hd->curr_file_id) {
-+		/* file is already open */
-+		return 0;
-+	}
-+
-+	if (hd->curr_file_id != -1) {
-+		hdfsCloseFile(hd->fs, hd->fp);
-+	}
-+
-+	if (io_u->ddir == DDIR_READ) {
-+		open_flags = O_RDONLY;
-+	} else if (io_u->ddir == DDIR_WRITE) {
-+		open_flags = O_WRONLY;
-+	} else {
-+		printf("Invalid I/O Operation\n");
-+	}
-+
-+	hd->curr_file_id = f_id;
-+	do {
-+		sprintf(fname, ".f%lu", f_id);
-+		fi = hdfsGetPathInfo(hd->fs, fname);
-+		if (fi->mSize >= hd->fsbs || io_u->ddir == DDIR_WRITE) {
-+			/* file has enough data to read OR file is opened in write mode */
-+			hd->fp =
-+			    hdfsOpenFile(hd->fs, fname, open_flags, 0, 0,
-+					 hd->fsbs);
-+			if (hd->fp) {
-+				break;
-+			}
-+		}
-+		/* file is empty, so try next file for reading */
-+		f_id = (f_id + 1) % hd->fscount;
-+	} while (1);
-+
-+	return 0;
-+}
-+
-+static int fio_io_end(struct thread_data *td, struct io_u *io_u, int ret)
-+{
-+	if (ret != (int)io_u->xfer_buflen) {
-+		if (ret >= 0) {
-+			io_u->resid = io_u->xfer_buflen - ret;
-+			io_u->error = 0;
-+			return FIO_Q_COMPLETED;
-+		} else
-+			io_u->error = errno;
-+	}
-+
-+	if (io_u->error)
-+		td_verror(td, io_u->error, "xfer");
-+
-+	return FIO_Q_COMPLETED;
-+}
-+
-+static int fio_hdfsio_queue(struct thread_data *td, struct io_u *io_u)
-+{
-+	struct hdfsio_data *hd;
-+	int ret = 0;
-+
-+	hd = td->io_ops->data;
-+
-+	if (io_u->ddir == DDIR_READ) {
-+		ret =
-+		    hdfsRead(hd->fs, hd->fp, io_u->xfer_buf, io_u->xfer_buflen);
-+	} else if (io_u->ddir == DDIR_WRITE) {
-+		ret =
-+		    hdfsWrite(hd->fs, hd->fp, io_u->xfer_buf,
-+			      io_u->xfer_buflen);
-+	} else {
-+		printf("Invalid I/O Operation\n");
-+	}
-+
-+	return fio_io_end(td, io_u, ret);
-+}
-+
-+int fio_hdfsio_open_file(struct thread_data *td, struct fio_file *f)
-+{
-+	struct hdfsio_data *hd;
-+
-+	hd = td->io_ops->data;
-+	hd->fs = hdfsConnect(hd->host, hd->port);
-+	hdfsSetWorkingDirectory(hd->fs, "/.perftest");
-+	hd->fid_correction = (getpid() % hd->numjobs);
-+
-+	return 0;
-+}
-+
-+int fio_hdfsio_close_file(struct thread_data *td, struct fio_file *f)
-+{
-+	struct hdfsio_data *hd;
-+
-+	hd = td->io_ops->data;
-+	hdfsDisconnect(hd->fs);
-+
-+	return 0;
-+}
-+
-+static int fio_hdfsio_setup(struct thread_data *td)
-+{
-+	struct hdfsio_data *hd;
-+	struct fio_file *f;
-+	static unsigned int numjobs = 1;	/* atleast one job has to be there! */
-+	numjobs = (td->o.numjobs > numjobs) ? td->o.numjobs : numjobs;
-+
-+	if (!td->io_ops->data) {
-+		hd = malloc(sizeof(*hd));;
-+
-+		memset(hd, 0, sizeof(*hd));
-+		td->io_ops->data = hd;
-+
-+		/* separate host and port from filename */
-+		*(strchr(td->o.filename, ',')) = ' ';
-+		sscanf(td->o.filename, "%s%d", hd->host, &(hd->port));
-+
-+		/* read fbs and fcount and based on that set f->real_file_size */
-+		f = td->files[0];
-+#if 0
-+		/* IMHO, this should be done here instead of fio_hdfsio_prep()
-+		 * but somehow calling it here doesn't seem to work,
-+		 * some problem with libhdfs that needs to be debugged */
-+		hd->fs = hdfsConnect(hd->host, hd->port);
-+		fio_hdfsio_setup_fs_params(hd);
-+		hdfsDisconnect(hd->fs);
-+#else
-+		/* so, as an alternate, using environment variables */
-+		if (getenv("FIO_HDFS_FCOUNT") && getenv("FIO_HDFS_BS")) {
-+			hd->fscount = atol(getenv("FIO_HDFS_FCOUNT"));
-+			hd->fsbs = atol(getenv("FIO_HDFS_BS"));
-+		} else {
-+			fprintf(stderr,
-+				"FIO_HDFS_FCOUNT and/or FIO_HDFS_BS not set.\n");
-+			return 1;
-+		}
-+#endif
-+		f->real_file_size = hd->fscount * hd->fsbs;
-+
-+		td->o.nr_files = 1;
-+		hd->curr_file_id = -1;
-+		hd->numjobs = numjobs;
-+		fio_file_set_size_known(f);
-+	}
-+
-+	return 0;
-+}
-+
-+static struct ioengine_ops ioengine_hdfs = {
-+	.name = "libhdfs",
-+	.version = FIO_IOOPS_VERSION,
-+	.setup = fio_hdfsio_setup,
-+	.prep = fio_hdfsio_prep,
-+	.queue = fio_hdfsio_queue,
-+	.open_file = fio_hdfsio_open_file,
-+	.close_file = fio_hdfsio_close_file,
-+	.flags = FIO_SYNCIO,
-+};
-+
-+static void fio_init fio_hdfsio_register(void)
-+{
-+	register_ioengine(&ioengine_hdfs);
-+}
-+
-+static void fio_exit fio_hdfsio_unregister(void)
-+{
-+	unregister_ioengine(&ioengine_hdfs);
-+}
-diff --git a/fio.1 b/fio.1
-index 5291126..b5ff3cc 100644
---- a/fio.1
-+++ b/fio.1
-@@ -612,6 +612,9 @@ options.
- Using Glusterfs libgfapi async interface to direct access to Glusterfs volumes without
- having to go through FUSE. This ioengine defines engine specific
- options.
-+.TP
-+.B hdfs
-+Read and write through Hadoop (HDFS)
- .RE
- .P
- .RE
-diff --git a/options.c b/options.c
-index 3a3321f..484efc1 100644
---- a/options.c
-+++ b/options.c
-@@ -1541,7 +1541,11 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 			    .help = "Glusterfs libgfapi(async) based engine"
- 			  },
- #endif
--
-+#ifdef CONFIG_LIBHDFS
-+			  { .ival = "hdfs",
-+			    .help = "Hadoop Distributed Filesystem (HDFS) engine"
-+			  },
-+#endif
- 			  { .ival = "external",
- 			    .help = "Load external engine (append name)",
- 			  },
