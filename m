@@ -1,41 +1,48 @@
-Return-Path: <sitsofe@gmail.com>
+Return-Path: <mark.a.nelson@gmail.com>
+Return-Path: <mark.a.nelson@gmail.com>
+Message-ID: <53F7F22B.1090904@gmail.com>
+Date: Fri, 22 Aug 2014 20:45:15 -0500
+From: Mark Nelson <mark.a.nelson@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <53F7F22B.1090904@gmail.com>
-References: <53F29D76.9080108@gmail.com>
-	<53F7C2C6.7000703@kernel.dk>
-	<53F7F22B.1090904@gmail.com>
-Date: Sat, 23 Aug 2014 07:17:58 +0100
-Message-ID: <CALjAwxhWTOTDy1dRf+qxoVmesy2yug=8p=KDpC4+Yg8=ceYUOA@mail.gmail.com>
 Subject: Re: multiple --name parameters with non-file engine?
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-To: Mark Nelson <mark.a.nelson@gmail.com>
-Cc: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+References: <53F29D76.9080108@gmail.com> <53F7C2C6.7000703@kernel.dk>
+In-Reply-To: <53F7C2C6.7000703@kernel.dk>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-On 23 August 2014 02:45, Mark Nelson <mark.a.nelson@gmail.com> wrote:
-> Thanks Jens.  What I'd like to be able to do is start multiple fio processes
-> but have each one only write to a non-overlapping portion of the block
-> device.  Preferably I wouldn't have to manually figure out the ranges
-> myself.  Any way to do something like that?
+On 08/22/2014 05:23 PM, Jens Axboe wrote:
+> On 2014-08-18 19:42, Mark Nelson wrote:
+>> Hi Guys,
+>>
+>> I'm using the librbd engine and trying to determine what exactly happens
+>> when multiple --name parameters are passed.  Primarily, I'm wondering if
+>> each fio process ends up writing to the same blocks on the rbd volume
+>> during sequential writes.  Looking at the code, I see a note that we
+>> pretend to deal with files even if the engine doesn't understand the
+>> concept of files:
+>>
+>> https://github.com/axboe/fio/blob/master/engines/rbd.c#L405
+>> https://github.com/axboe/fio/blob/master/filesetup.c#L1239
+>>
+>> I'm not seeing anything (might be missing it) in the rbd engine or there
+>> that would partition the volume based on the process though.  Am I
+>> missing anything?
+>
+> The same thing will happen as if you ran two instances of fio with the
+> same options. For rbd, each job will create/connect/open and rbd
+> instance. For each of these, you can set the rbd pool and clientname.
+>
 
-A quick Google for "fio zones jobs" tuns up
-http://www.spinics.net/lists/fio/msg01791.html where the fourth answer
-on that page seems relevant to your case.
+Thanks Jens.  What I'd like to be able to do is start multiple fio 
+processes but have each one only write to a non-overlapping portion of 
+the block device.  Preferably I wouldn't have to manually figure out the 
+ranges myself.  Any way to do something like that?
 
-For each job (essentially name section) you can set an offset and a
-size and I/O will be done between offset and offset+size. If you want
-to move the starting offset of each extra job automatically you could
-use offset_increment
-(http://git.kernel.dk/?p=fio.git;a=blob;f=HOWTO;h=73e58ff695c3384df30094d6c15ebe9ed615460f;hb=HEAD#l770
-). You can also use numjobs
-(http://git.kernel.dk/?p=fio.git;a=blob;f=HOWTO;h=73e58ff695c3384df30094d6c15ebe9ed615460f;hb=HEAD#l1275
-) to automatically create job clones.
+For now if we are interested in 4MB IOs to RBD we can just do 4MB random 
+as that more or less translates into the same thing behind the scenes in 
+Ceph anyway.
 
-Perhaps this sort of "parallel non-overlapping zoned I/O" case would
-be a useful example fio job file (for example I never realised size
-was relative to offset...)?
-
--- 
-Sitsofe | http://sucs.org/~sits/
+Mark
 
