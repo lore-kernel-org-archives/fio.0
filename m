@@ -1,225 +1,160 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pa0-f44.google.com ([209.85.220.44]:42802 "EHLO
-	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752010AbaHSQ33 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 19 Aug 2014 12:29:29 -0400
-Received: by mail-pa0-f44.google.com with SMTP id eu11so10318380pac.31
-        for <fio@vger.kernel.org>; Tue, 19 Aug 2014 09:29:27 -0700 (PDT)
-From: castor.fu@egocast.org
-Subject: [PATCH] Add unlink hook to ioengine API, gluster ioengine
-Date: Tue, 19 Aug 2014 09:28:53 -0700
-Message-Id: <1408465733-3061-1-git-send-email-castor.fu@egocast.org>
+Received: from casper.infradead.org ([85.118.1.10]:33162 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751683AbaHWMAH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 23 Aug 2014 08:00:07 -0400
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1XL9zJ-00066Y-Nv
+	for fio@vger.kernel.org; Sat, 23 Aug 2014 12:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20140823120003.AA26740203@lyth.info>
+Date: Sat, 23 Aug 2014 06:00:03 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: Castor Fu <castor@alumni.caltech.edu>, Huamin Chen <hchen@redhat.com>
 
-From: Castor Fu <castor@alumni.caltech.edu>
+The following changes since commit 35af10e11a470a33fe8e9d839bd15b86d97ec1f6:
 
-fio would just call unlink even with engines that are not using the
-operating systems file namespace... This provides a hook to allow
-overriding that, with a default handler, and implements it for the
-gluster ioengine.
+  Update io engine version (2014-08-19 15:16:29 -0500)
 
-There are others which it'd probably make sense I'm sure.
+are available in the git repository at:
 
-Huamin Chen looked over my changes to the gluster code earlier...
->I like this unlink idea, it would be great if you can also make unlink optional (if my coding reading is correct). This looks a great pull request candidate to fio. Please ping Axboe after you are done. He is not actively watching pull requests.
+  git://git.kernel.dk/fio.git master
 
->Please also feel free to augment gluster code and pull me for review if necessary. 
+for you to fetch changes up to 9a4424c81b146b9a08b105af9e53d8435e888cd1:
 
--castor
+  Fix crash in client with NULL hostname (2014-08-22 17:16:44 -0500)
 
+----------------------------------------------------------------
+Castor Fu (1):
+      Fix crash in client with NULL hostname
+
+Jens Axboe (2):
+      options: warn if we fail to make sense of buffer_pattern
+      Add string support for buffer_pattern
+
+ HOWTO     |    2 ++
+ client.c  |    6 ++++--
+ fio.1     |    3 ++-
+ options.c |   33 ++++++++++++++++++++++++++++++---
+ 4 files changed, 38 insertions(+), 6 deletions(-)
 
 ---
- engines/gfapi.h           |  1 +
- engines/glusterfs.c       | 23 ++++++++++++++++++++---
- engines/glusterfs_async.c |  1 +
- engines/glusterfs_sync.c  |  1 +
- filesetup.c               | 11 ++++++++---
- ioengine.h                |  2 ++
- ioengines.c               |  8 ++++++++
- iolog.c                   |  2 +-
- 8 files changed, 42 insertions(+), 7 deletions(-)
 
-diff --git a/engines/gfapi.h b/engines/gfapi.h
-index c79838b..0da471c 100644
---- a/engines/gfapi.h
-+++ b/engines/gfapi.h
-@@ -19,3 +19,4 @@ extern void fio_gf_cleanup(struct thread_data *td);
- extern int fio_gf_get_file_size(struct thread_data *td, struct fio_file *f);
- extern int fio_gf_open_file(struct thread_data *td, struct fio_file *f);
- extern int fio_gf_close_file(struct thread_data *td, struct fio_file *f);
-+extern int fio_gf_unlink_file(struct thread_data *td, struct fio_file *f);
-diff --git a/engines/glusterfs.c b/engines/glusterfs.c
-index 52006b0..67bdded 100644
---- a/engines/glusterfs.c
-+++ b/engines/glusterfs.c
-@@ -223,10 +223,10 @@ int fio_gf_open_file(struct thread_data *td, struct fio_file *f)
- 					free(b);
- 				glfs_lseek(g->fd, 0, SEEK_SET);
+Diff of recent changes:
+
+diff --git a/HOWTO b/HOWTO
+index a0b89c8..73e58ff 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -569,6 +569,8 @@ buffer_pattern=str	If set, fio will fill the io buffers with this pattern.
+ 		If not set, the contents of io buffers is defined by the other
+ 		options related to buffer contents. The setting can be any
+ 		pattern of bytes, and can be prefixed with 0x for hex values.
++		It may also be a string, where the string must then be
++		wrapped with "".
  
--				if (td->terminate) {
-+				if (td->terminate && td->o.unlink) {
- 					dprint(FD_FILE, "terminate unlink %s\n",
- 					       f->file_name);
--					unlink(f->file_name);
-+					glfs_unlink(g->fs, f->file_name);
- 				} else if (td->o.create_fsync) {
- 					if (glfs_fsync(g->fd) < 0) {
- 						dprint(FD_FILE,
-@@ -274,6 +274,24 @@ int fio_gf_close_file(struct thread_data *td, struct fio_file *f)
- 	if (g) {
- 		if (g->fd && glfs_close(g->fd) < 0)
- 			ret = errno;
-+		g->fd = NULL;
+ nrfiles=int	Number of files to use for this job. Defaults to 1.
+ 
+diff --git a/client.c b/client.c
+index 1f52734..1dded09 100644
+--- a/client.c
++++ b/client.c
+@@ -823,9 +823,11 @@ static void convert_gs(struct group_run_stats *dst, struct group_run_stats *src)
+ }
+ 
+ static void json_object_add_client_info(struct json_object *obj,
+-struct fio_client *client)
++					struct fio_client *client)
+ {
+-	json_object_add_value_string(obj, "hostname", client->hostname);
++	const char *hostname = client->hostname ? client->hostname : "";
++
++	json_object_add_value_string(obj, "hostname", hostname);
+ 	json_object_add_value_int(obj, "port", client->port);
+ }
+ 
+diff --git a/fio.1 b/fio.1
+index c61948b..e3334bd 100644
+--- a/fio.1
++++ b/fio.1
+@@ -478,7 +478,8 @@ size, fio can alternate random and zeroed data throughout the IO buffer.
+ If set, fio will fill the IO buffers with this pattern. If not set, the contents
+ of IO buffers is defined by the other options related to buffer contents. The
+ setting can be any pattern of bytes, and can be prefixed with 0x for hex
+-values.
++values. It may also be a string, where the string must then be wrapped with
++"".
+ .TP
+ .BI nrfiles \fR=\fPint
+ Number of files to use for this job.  Default: 1.
+diff --git a/options.c b/options.c
+index 3acfdc8..bc07885 100644
+--- a/options.c
++++ b/options.c
+@@ -930,6 +930,29 @@ static int pattern_cb(char *pattern, unsigned int max_size,
+ 	uint32_t pattern_length;
+ 	char *loc1, *loc2;
+ 
++	/*
++	 * Check if it's a string input
++	 */
++	loc1 = strchr(input, '\"');
++	if (loc1) {
++		do {
++			loc1++;
++			if (*loc1 == '\0' || *loc1 == '\"')
++				break;
++
++			pattern[i] = *loc1;
++			i++;
++		} while (i < max_size);
++
++		if (!i)
++			return 1;
++
++		goto fill;
 +	}
 +
-+	return ret;
-+}
-+
-+int fio_gf_unlink_file(struct thread_data *td, struct fio_file *f)
-+{
-+	int ret = 0;
-+	struct gf_data *g = td->io_ops->data;
-+
-+	dprint(FD_FILE, "fd unlink %s\n", f->file_name);
-+
-+	if (g) {
-+		if (g->fd && glfs_close(g->fd) < 0)
-+			ret = errno;
-+
-+		glfs_unlink(g->fs, f->file_name);
++	/*
++	 * No string, find out if it's decimal or hexidecimal
++	 */
+ 	loc1 = strstr(input, "0x");
+ 	loc2 = strstr(input, "0X");
+ 	if (loc1 || loc2)
+@@ -966,6 +989,7 @@ static int pattern_cb(char *pattern, unsigned int max_size,
+ 	 * Fill the pattern all the way to the end. This greatly reduces
+ 	 * the number of memcpy's we have to do when verifying the IO.
+ 	 */
++fill:
+ 	pattern_length = i;
+ 	while (i > 1 && i * 2 <= max_size) {
+ 		memcpy(&pattern[i], &pattern[0], i);
+@@ -985,8 +1009,8 @@ static int pattern_cb(char *pattern, unsigned int max_size,
  
- 		if (g->fs)
- 			glfs_fini(g->fs);
-@@ -282,7 +300,6 @@ int fio_gf_close_file(struct thread_data *td, struct fio_file *f)
- 		free(g);
+ 	if (i == 1) {
+ 		/*
+-		 * The code in verify_io_u_pattern assumes a single byte pattern
+-		 * fills the whole verify pattern buffer.
++		 * The code in verify_io_u_pattern assumes a single byte
++		 * pattern fills the whole verify pattern buffer.
+ 		 */
+ 		memset(pattern, pattern[0], max_size);
  	}
- 	td->io_ops->data = NULL;
--	f->engine_data = 0;
+@@ -1003,10 +1027,13 @@ static int str_buffer_pattern_cb(void *data, const char *input)
+ 	ret = pattern_cb(td->o.buffer_pattern, MAX_PATTERN_SIZE, input,
+ 				&td->o.buffer_pattern_bytes);
+ 
+-	if (!ret) {
++	if (!ret && td->o.buffer_pattern_bytes) {
+ 		td->o.refill_buffers = 0;
+ 		td->o.scramble_buffers = 0;
+ 		td->o.zero_buffers = 0;
++	} else {
++		log_err("fio: failed parsing pattern `%s`\n", input);
++		ret = 1;
+ 	}
  
  	return ret;
- }
-diff --git a/engines/glusterfs_async.c b/engines/glusterfs_async.c
-index 30f1719..7b0b30a 100644
---- a/engines/glusterfs_async.c
-+++ b/engines/glusterfs_async.c
-@@ -186,6 +186,7 @@ static struct ioengine_ops ioengine = {
- 	.queue = fio_gf_async_queue,
- 	.open_file = fio_gf_open_file,
- 	.close_file = fio_gf_close_file,
-+	.unlink_file = fio_gf_unlink_file,
- 	.get_file_size = fio_gf_get_file_size,
- 	.getevents = fio_gf_getevents,
- 	.event = fio_gf_event,
-diff --git a/engines/glusterfs_sync.c b/engines/glusterfs_sync.c
-index 938baf4..235d74f 100644
---- a/engines/glusterfs_sync.c
-+++ b/engines/glusterfs_sync.c
-@@ -76,6 +76,7 @@ static struct ioengine_ops ioengine = {
- 	.queue = fio_gf_queue,
- 	.open_file = fio_gf_open_file,
- 	.close_file = fio_gf_close_file,
-+	.unlink_file = fio_gf_unlink_file,
- 	.get_file_size = fio_gf_get_file_size,
- 	.options = gfapi_options,
- 	.option_struct_size = sizeof(struct gf_options),
-diff --git a/filesetup.c b/filesetup.c
-index 12a43b1..29a76c0 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -59,7 +59,7 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
- 
- 	if (unlink_file || new_layout) {
- 		dprint(FD_FILE, "layout unlink %s\n", f->file_name);
--		if ((unlink(f->file_name) < 0) && (errno != ENOENT)) {
-+		if ((td_io_unlink_file(td, f) < 0) && (errno != ENOENT)) {
- 			td_verror(td, errno, "unlink");
- 			return 1;
- 		}
-@@ -172,7 +172,7 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
- 
- 	if (td->terminate) {
- 		dprint(FD_FILE, "terminate unlink %s\n", f->file_name);
--		unlink(f->file_name);
-+		td_io_unlink_file(td, f);
- 	} else if (td->o.create_fsync) {
- 		if (fsync(f->fd) < 0) {
- 			td_verror(td, errno, "fsync");
-@@ -1100,6 +1100,11 @@ void close_and_free_files(struct thread_data *td)
- 	dprint(FD_FILE, "close files\n");
- 
- 	for_each_file(td, f, i) {
-+		if (td->o.unlink && f->filetype == FIO_TYPE_FILE) {
-+			dprint(FD_FILE, "free unlink %s\n", f->file_name);
-+			td_io_unlink_file(td, f);
-+		}
-+
- 		if (fio_file_open(f))
- 			td_io_close_file(td, f);
- 
-@@ -1107,7 +1112,7 @@ void close_and_free_files(struct thread_data *td)
- 
- 		if (td->o.unlink && f->filetype == FIO_TYPE_FILE) {
- 			dprint(FD_FILE, "free unlink %s\n", f->file_name);
--			unlink(f->file_name);
-+			td_io_unlink_file(td, f);
- 		}
- 
- 		sfree(f->file_name);
-diff --git a/ioengine.h b/ioengine.h
-index ebe0ebe..a8af6b0 100644
---- a/ioengine.h
-+++ b/ioengine.h
-@@ -144,6 +144,7 @@ struct ioengine_ops {
- 	int (*open_file)(struct thread_data *, struct fio_file *);
- 	int (*close_file)(struct thread_data *, struct fio_file *);
- 	int (*invalidate)(struct thread_data *, struct fio_file *);
-+	int (*unlink_file)(struct thread_data *, struct fio_file *);
- 	int (*get_file_size)(struct thread_data *, struct fio_file *);
- 	void (*terminate)(struct thread_data *);
- 	int (*io_u_init)(struct thread_data *, struct io_u *);
-@@ -185,6 +186,7 @@ extern int __must_check td_io_getevents(struct thread_data *, unsigned int, unsi
- extern int __must_check td_io_commit(struct thread_data *);
- extern int __must_check td_io_open_file(struct thread_data *, struct fio_file *);
- extern int td_io_close_file(struct thread_data *, struct fio_file *);
-+extern int td_io_unlink_file(struct thread_data *, struct fio_file *);
- extern int __must_check td_io_get_file_size(struct thread_data *, struct fio_file *);
- 
- extern struct ioengine_ops *load_ioengine(struct thread_data *, const char *);
-diff --git a/ioengines.c b/ioengines.c
-index 0f94d0d..3010f6c 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -506,6 +506,14 @@ int td_io_close_file(struct thread_data *td, struct fio_file *f)
- 	return put_file(td, f);
- }
- 
-+int td_io_unlink_file(struct thread_data *td, struct fio_file *f)
-+{
-+	if (td->io_ops->unlink_file)
-+		return td->io_ops->unlink_file(td, f);
-+	else
-+		return unlink(f->file_name);
-+}
-+
- int td_io_get_file_size(struct thread_data *td, struct fio_file *f)
- {
- 	if (!td->io_ops->get_file_size)
-diff --git a/iolog.c b/iolog.c
-index 70ccfba..f9e835d 100644
---- a/iolog.c
-+++ b/iolog.c
-@@ -107,7 +107,7 @@ static int ipo_special(struct thread_data *td, struct io_piece *ipo)
- 		td_io_close_file(td, f);
- 		break;
- 	case FIO_LOG_UNLINK_FILE:
--		unlink(f->file_name);
-+		td_io_unlink_file(td, f);
- 		break;
- 	default:
- 		log_err("fio: bad file action %d\n", ipo->file_action);
--- 
-1.8.5.2 (Apple Git-48)
-
