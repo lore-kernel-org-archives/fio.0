@@ -1,13 +1,26 @@
-Return-Path: <elliott@hp.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from g2t1383g.austin.hp.com ([15.217.136.92]:45718 "EHLO
+	g2t1383g.austin.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754312AbaIDAYH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 3 Sep 2014 20:24:07 -0400
+Received: from g6t1525.atlanta.hp.com (g6t1525.atlanta.hp.com [15.193.200.68])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by g2t1383g.austin.hp.com (Postfix) with ESMTPS id 9549D94
+	for <fio@vger.kernel.org>; Thu,  4 Sep 2014 00:24:05 +0000 (UTC)
+Received: from g5t1633.atlanta.hp.com (g5t1633.atlanta.hp.com [16.201.144.132])
+	by g6t1525.atlanta.hp.com (Postfix) with ESMTP id D00AD18A
+	for <fio@vger.kernel.org>; Thu,  4 Sep 2014 00:23:54 +0000 (UTC)
 Subject: [PATCH] fio: fix hangs due to iodepth_low
 From: Robert Elliott <elliott@hp.com>
-Date: Wed, 03 Sep 2014 19:23:43 -0500
-Message-ID: <20140904002343.24650.74664.stgit@beardog.cce.hp.com>
+Date: Wed, 03 Sep 2014 19:23:02 -0500
+Message-ID: <20140904002246.24621.83732.stgit@beardog.cce.hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-To: axboe@kernel.dk, elliott@hp.com, fio@vger.kernel.org, scameron@beardog.cce.hp.com
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: elliott@hp.com, axboe@kernek.dk, fio@vger.kernel.org, scameron@beardog.cce.hp.com
 
 With some combinations of iodepth, iodepth_batch, iodepth_batch_complete,
 and io_depth_low, do_io hangs after reaping the first set of completions
@@ -66,5 +79,4 @@ index 7cb0a39..ce97f6d 100644
  				ret = io_u_queued_complete(td, min_evts, bytes_done);
  				if (ret < 0)
  					break;
-
 
