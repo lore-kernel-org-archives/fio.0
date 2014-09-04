@@ -1,82 +1,29 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from g2t1383g.austin.hp.com ([15.217.136.92]:45718 "EHLO
-	g2t1383g.austin.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754312AbaIDAYH (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 3 Sep 2014 20:24:07 -0400
-Received: from g6t1525.atlanta.hp.com (g6t1525.atlanta.hp.com [15.193.200.68])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by g2t1383g.austin.hp.com (Postfix) with ESMTPS id 9549D94
-	for <fio@vger.kernel.org>; Thu,  4 Sep 2014 00:24:05 +0000 (UTC)
-Received: from g5t1633.atlanta.hp.com (g5t1633.atlanta.hp.com [16.201.144.132])
-	by g6t1525.atlanta.hp.com (Postfix) with ESMTP id D00AD18A
-	for <fio@vger.kernel.org>; Thu,  4 Sep 2014 00:23:54 +0000 (UTC)
-Subject: [PATCH] fio: fix hangs due to iodepth_low
-From: Robert Elliott <elliott@hp.com>
-Date: Wed, 03 Sep 2014 19:23:02 -0500
-Message-ID: <20140904002246.24621.83732.stgit@beardog.cce.hp.com>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <5408C3E7.2050105@kernel.dk>
+Date: Thu, 04 Sep 2014 13:56:23 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Subject: Re: cpus_allowed_policy for async IO verification threads
+References: <94D0CD8314A33A4D9D801C0FE68B402958C4F41B@G4W3202.americas.hpqcorp.net>
+In-Reply-To: <94D0CD8314A33A4D9D801C0FE68B402958C4F41B@G4W3202.americas.hpqcorp.net>
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: elliott@hp.com, axboe@kernek.dk, fio@vger.kernel.org, scameron@beardog.cce.hp.com
+To: "Elliott, Robert (Server Storage)" <Elliott@hp.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-With some combinations of iodepth, iodepth_batch, iodepth_batch_complete,
-and io_depth_low, do_io hangs after reaping the first set of completions
-since io_u_queued_complete is called requesting more completions than
-td->cur_depth.
+On 09/04/2014 01:40 PM, Elliott, Robert (Server Storage) wrote:
+> To accompany cpus_allowed_policy=split, should fio offer
+> a verify_async_cpus_allowed_policy=split to bind its
+> async IO verification threads to particular CPUs?
+> 
+>       verify_async_cpus=str
+>       Tell fio to set the given CPU affinity on 
+> 	the async IO verification threads.  See cpus_allowed for 
+> 	the format used.
 
-Example printing min_evts and td->cur_depth in the do/while loop:
-waiting on min=96 cd=627
-waiting on min=96 cd=531
-waiting on min=96 cd=435
-waiting on min=96 cd=339
-waiting on min=96 cd=243
-waiting on min=96 cd=147
-waiting on min=96 cd=51
-Jobs: 12 (f=12): [r(12)] [43.8% done] [0KB/0KB/0KB /s] [0/0/0 iops] [eta 00m:09s]
-...
-Jobs: 12 (f=12): [r(12)] [0.0% done] [0KB/0KB/0KB /s] [0/0/0 iops] [eta 2863d:18h:28m:38s]
-<fio never exits>
+That would probably not be a bad idea.
 
-Fix this by adjusting min_evts to the current_depth if that is smaller.
+-- 
+Jens Axboe
 
-Tested with a jobfile including:
-iodepth=1011
-iodepth_batch=96
-iodepth_batch_complete=96
-iodepth_low=1
-runtime=15
-time_based
-
-Made the same change to do_verify, but not tested there.
-
-Signed-off-by: Robert Elliott <elliott@hp.com>
----
- backend.c |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
-
-diff --git a/backend.c b/backend.c
-index 7cb0a39..ce97f6d 100644
---- a/backend.c
-+++ b/backend.c
-@@ -606,6 +606,8 @@ reap:
- 				 * and do the verification on them through
- 				 * the callback handler
- 				 */
-+				if (min_events < td->cur_depth)
-+					min_events = td->cur_depth;
- 				if (io_u_queued_complete(td, min_events, bytes_done) < 0) {
- 					ret = -1;
- 					break;
-@@ -873,6 +875,8 @@ reap:
- 				fio_gettime(&comp_time, NULL);
- 
- 			do {
-+				if (min_evts < td->cur_depth)
-+					min_evts = td->cur_depth;
- 				ret = io_u_queued_complete(td, min_evts, bytes_done);
- 				if (ret < 0)
- 					break;
 
