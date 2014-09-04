@@ -1,40 +1,59 @@
-Return-Path: <Elliott@hp.com>
-From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
-Subject: linux /dev and normal files
-Date: Tue, 30 Sep 2014 23:49:46 +0000
-Message-ID: <94D0CD8314A33A4D9D801C0FE68B402958CC5D81@G4W3202.americas.hpqcorp.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <axboe@kernel.dk>
+Message-ID: <5408C3C5.6010309@kernel.dk>
+Date: Thu, 04 Sep 2014 13:55:49 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: Sitsofe Wheeler <sitsofe@gmail.com>, Jon Tango <cheerios123@outlook.com>
+Subject: Re: [PATCH] fio: fix hangs due to iodepth_low
+References: <20140904002343.24650.74664.stgit@beardog.cce.hp.com> <5407C19C.1030202@kernel.dk> <5407C227.5060707@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958C4DCDC@G4W3202.americas.hpqcorp.net> <5408797F.3070803@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958C4F44A@G4W3202.americas.hpqcorp.net>
+In-Reply-To: <94D0CD8314A33A4D9D801C0FE68B402958C4F44A@G4W3202.americas.hpqcorp.net>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+To: "Elliott, Robert (Server Storage)" <Elliott@hp.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, "scameron@beardog.cce.hp.com" <scameron@beardog.cce.hp.com>
 List-ID: <fio@vger.kernel.org>
 
-DQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IGZpby1vd25lckB2Z2VyLmtl
-cm5lbC5vcmcgW21haWx0bzpmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnXSBPbiBCZWhhbGYNCj4g
-T2YgU2l0c29mZSBXaGVlbGVyDQouLi4NCj4gZmlsZW5hbWU9XFwuXHBoeXNpY2FsZHJpdmUxDQo+
-IGlvZW5naW5lPXdpbmRvd3NhaW8NCj4gZGlyZWN0PTENCi4uLg0KPiBzaXplPTg2JQ0KPiBicz00
-aw0KLi4uDQoNCkkgbm90aWNlZCB0aGF0LCBpbiBsaW51eCwgaWYgeW91IHNlbGVjdCANCglmaWxl
-bmFtZT0vZGV2L3NkPG5vdCB0aGVyZT4NCglzaXplPTxzb21ldGhpbmc+IA0KDQooZS5nLiwgaWYg
-eW91IHJ1biBmaW8gYWZ0ZXIgYSBkZXZpY2UgaGFzIGZhaWxlZCksIGl0ICBjcmVhdGVzIGEgDQpu
-b3JtYWwgZmlsZSBvZiB0aGUgc3BlY2lmaWVkIHNpemUgKHdoaWNoIGNvdWxkIGJlIHF1aXRlIGxh
-cmdlIA0KaWYgdXNpbmcgYSBzY3JpcHQgc3VjaCBhcyBhYm92ZSkuDQoNCklmIHlvdSB1c2UgZGly
-ZWN0PTEsIHRoZSBmaWxlIGlzIGNyZWF0ZWQsIGZvbGxvd2VkIGJ5IHRoaXMgZXJyb3I6DQpmaW86
-IHBpZD04OTE0LCBlcnI9MjIvZmlsZTpmaWxlc2V0dXAuYzo2MTEsIGZ1bmM9b3BlbigvZGV2L3Nk
-YWQpLCBlcnJvcj1JbnZhbGlkIGFyZ3VtZW50DQpmaW86IGxvb2tzIGxpa2UgeW91ciBmaWxlIHN5
-c3RlbSBkb2VzIG5vdCBzdXBwb3J0IGRpcmVjdD0xL2J1ZmZlcmVkPTANCmZpbzogbG9va3MgbGlr
-ZSB5b3VyIGZpbGUgc3lzdGVtIGRvZXMgbm90IHN1cHBvcnQgZGlyZWN0PTEvYnVmZmVyZWQ9MA0K
-ZmlvOiBkZXN0aW5hdGlvbiBkb2VzIG5vdCBzdXBwb3J0IE9fRElSRUNUDQoNCklmIHlvdSBkb24n
-dCB1c2Ugc2l6ZT0sIG5vIGZpbGUgaXMgY3JlYXRlZCBhbmQgdGhpcyBlcnJvcg0Kb2NjdXJzOg0K
-ZmlvOiBwaWQ9MCwgZXJyPTIyL2ZpbGU6ZmlsZXNldHVwLmM6ODIwLCBmdW5jPXRvdGFsX2ZpbGVf
-c2l6ZSwgZXJyb3I9SW52YWxpZCBhcmd1bWVudA0KZHJpdmVfYWc6IHlvdSBuZWVkIHRvIHNwZWNp
-Znkgc2l6ZT0NCg0KSWYgeW91IHJlY3JlYXRlIHRoZSBkZXZpY2UsIHVkZXZkIGJsb3dzIGF3YXkg
-YW55IHN1Y2ggZmlsZSB3aXRoDQp0aGUgYmxvY2sgZGV2aWNlIG5vZGUgZmlsZSwgc28gaXQncyBu
-b3QgYSBnb29kIHBsYWNlIHRvIHB1dA0Kbm9ybWFsIGZpbGVzLCBldmVuIGlmIHRoYXQgaXMgaW50
-ZW50aW9uYWwuDQoNCkluIFdpbmRvd3MsIGFsbCAiXFwuXCIgcGF0aHMgYXJlIGFzc3VtZWQgdG8g
-bWVhbiBibG9jayBkZXZpY2VzLA0Kc28gZmlvIGRvZXNuJ3QgaW5hZHZlcnRlbnRseSB0cnkgdG8g
-Y3JlYXRlIGEgbm9ybWFsIGZpbGUgaW4NCnN1Y2ggYSBsb2NhdGlvbi4NCg0KU2hvdWxkIGZpbyB0
-cmVhdCAiL2RldiIgcGF0aHMgaW4gbGludXggdGhlIHNhbWUgd2F5Pw0KDQotLS0NClJvYiBFbGxp
-b3R0ICAgIEhQIFNlcnZlciBTdG9yYWdlDQoNCg0KDQo=
+On 09/04/2014 01:42 PM, Elliott, Robert (Server Storage) wrote:
+> 
+> 
+>> -----Original Message-----
+>> From: Jens Axboe [mailto:axboe@kernel.dk]
+>> Sent: Thursday, 04 September, 2014 9:39 AM
+>> To: Elliott, Robert (Server Storage); fio@vger.kernel.org;
+>> scameron@beardog.cce.hp.com
+>> Subject: Re: [PATCH] fio: fix hangs due to iodepth_low
+>>
+>> On 09/04/2014 08:27 AM, Elliott, Robert (Server Storage) wrote:
+>>>>> should be:
+>>>>>
+>>>>>      if (min_events > td->cur_depth)
+>>>>>          min_events = td->cur_depth;
+>>>>>
+>>>>> and we should probably put this logic in io_u_queued_complete(),
+>> I
+>>>> think
+>>>>> that would be a safer alternative instead of near the callers.
+>>>
+>>> io_u_quisce, which calls io_u_queued_complete with an argument
+>>> of 1, includes this comment:
+>>>          * and cur_depth is meaningless for sync engines.
+>>>
+>>> If that is invoked during sync traffic too, then putting this
+>>> change inside io_u_queued_complete might not work right.
+>>
+>> It's good enough for this use case. And it doesn't really matter if
+>> it's
+>> near the caller or in the function from this point of view, since
+>> there
+>> will be nothing (0) to complete for sync engines. By their very
+>> nature,
+>> they have nothing pending at that point. So I think the patch is fine
+>> as
+>> I sent out.
+> 
+> I ran this version through similar tests and it works as well.
+
+Great thanks Rob, I committed that fix.
+
+-- 
+Jens Axboe
+
 
