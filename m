@@ -1,59 +1,106 @@
-Return-Path: <Elliott@hp.com>
-From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
-Subject: RE: [PATCH] fio: fix hangs due to iodepth_low
-Date: Thu, 4 Sep 2014 02:08:51 +0000
-Message-ID: <94D0CD8314A33A4D9D801C0FE68B402958C4C27B@G4W3202.americas.hpqcorp.net>
-References: <20140904002343.24650.74664.stgit@beardog.cce.hp.com>
- <5407C19C.1030202@kernel.dk>
-In-Reply-To: <5407C19C.1030202@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <axboe@kernel.dk>
+Message-ID: <5407C227.5060707@kernel.dk>
+Date: Wed, 03 Sep 2014 19:36:39 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, "scameron@beardog.cce.hp.com" <scameron@beardog.cce.hp.com>
+Subject: Re: [PATCH] fio: fix hangs due to iodepth_low
+References: <20140904002343.24650.74664.stgit@beardog.cce.hp.com> <5407C19C.1030202@kernel.dk>
+In-Reply-To: <5407C19C.1030202@kernel.dk>
+Content-Type: multipart/mixed;
+ boundary="------------030102090907000003010907"
+To: Robert Elliott <elliott@hp.com>, fio@vger.kernel.org, scameron@beardog.cce.hp.com
 List-ID: <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmVucyBBeGJvZSBbbWFp
-bHRvOmF4Ym9lQGtlcm5lbC5ka10NCj4gU2VudDogV2VkbmVzZGF5LCBTZXB0ZW1iZXIgMDMsIDIw
-MTQgODozNCBQTQ0KPiBUbzogRWxsaW90dCwgUm9iZXJ0IChTZXJ2ZXIgU3RvcmFnZSk7IGZpb0B2
-Z2VyLmtlcm5lbC5vcmc7DQo+IHNjYW1lcm9uQGJlYXJkb2cuY2NlLmhwLmNvbQ0KPiBTdWJqZWN0
-OiBSZTogW1BBVENIXSBmaW86IGZpeCBoYW5ncyBkdWUgdG8gaW9kZXB0aF9sb3cNCj4gDQo+IE9u
-IDIwMTQtMDktMDMgMTg6MjMsIFJvYmVydCBFbGxpb3R0IHdyb3RlOg0KPiA+IFdpdGggc29tZSBj
-b21iaW5hdGlvbnMgb2YgaW9kZXB0aCwgaW9kZXB0aF9iYXRjaCwNCj4gaW9kZXB0aF9iYXRjaF9j
-b21wbGV0ZSwNCj4gPiBhbmQgaW9fZGVwdGhfbG93LCBkb19pbyBoYW5ncyBhZnRlciByZWFwaW5n
-IHRoZSBmaXJzdCBzZXQgb2YNCj4gY29tcGxldGlvbnMNCj4gPiBzaW5jZSBpb191X3F1ZXVlZF9j
-b21wbGV0ZSBpcyBjYWxsZWQgcmVxdWVzdGluZyBtb3JlIGNvbXBsZXRpb25zIHRoYW4NCj4gPiB0
-ZC0+Y3VyX2RlcHRoLg0KPiA+DQo+ID4gRXhhbXBsZSBwcmludGluZyBtaW5fZXZ0cyBhbmQgdGQt
-PmN1cl9kZXB0aCBpbiB0aGUgZG8vd2hpbGUgbG9vcDoNCj4gPiB3YWl0aW5nIG9uIG1pbj05NiBj
-ZD02MjcNCj4gPiB3YWl0aW5nIG9uIG1pbj05NiBjZD01MzENCj4gPiB3YWl0aW5nIG9uIG1pbj05
-NiBjZD00MzUNCj4gPiB3YWl0aW5nIG9uIG1pbj05NiBjZD0zMzkNCj4gPiB3YWl0aW5nIG9uIG1p
-bj05NiBjZD0yNDMNCj4gPiB3YWl0aW5nIG9uIG1pbj05NiBjZD0xNDcNCj4gPiB3YWl0aW5nIG9u
-IG1pbj05NiBjZD01MQ0KPiA+IEpvYnM6IDEyIChmPTEyKTogW3IoMTIpXSBbNDMuOCUgZG9uZV0g
-WzBLQi8wS0IvMEtCIC9zXSBbMC8wLzAgaW9wc10NCj4gW2V0YSAwMG06MDlzXQ0KPiA+IC4uLg0K
-PiA+IEpvYnM6IDEyIChmPTEyKTogW3IoMTIpXSBbMC4wJSBkb25lXSBbMEtCLzBLQi8wS0IgL3Nd
-IFswLzAvMCBpb3BzXQ0KPiBbZXRhIDI4NjNkOjE4aDoyOG06MzhzXQ0KPiA+IDxmaW8gbmV2ZXIg
-ZXhpdHM+DQo+ID4NCj4gPiBGaXggdGhpcyBieSBhZGp1c3RpbmcgbWluX2V2dHMgdG8gdGhlIGN1
-cnJlbnRfZGVwdGggaWYgdGhhdCBpcw0KPiBzbWFsbGVyLg0KPiA+DQo+ID4gVGVzdGVkIHdpdGgg
-YSBqb2JmaWxlIGluY2x1ZGluZzoNCj4gPiBpb2RlcHRoPTEwMTENCj4gPiBpb2RlcHRoX2JhdGNo
-PTk2DQo+ID4gaW9kZXB0aF9iYXRjaF9jb21wbGV0ZT05Ng0KPiA+IGlvZGVwdGhfbG93PTENCj4g
-PiBydW50aW1lPTE1DQo+ID4gdGltZV9iYXNlZA0KPiA+DQo+ID4gTWFkZSB0aGUgc2FtZSBjaGFu
-Z2UgdG8gZG9fdmVyaWZ5LCBidXQgbm90IHRlc3RlZCB0aGVyZS4NCj4gPg0KPiA+IFNpZ25lZC1v
-ZmYtYnk6IFJvYmVydCBFbGxpb3R0IDxlbGxpb3R0QGhwLmNvbT4NCj4gPiAtLS0NCj4gPiAgIGJh
-Y2tlbmQuYyB8ICAgIDQgKysrKw0KPiA+ICAgMSBmaWxlcyBjaGFuZ2VkLCA0IGluc2VydGlvbnMo
-KyksIDAgZGVsZXRpb25zKC0pDQo+ID4NCj4gPiBkaWZmIC0tZ2l0IGEvYmFja2VuZC5jIGIvYmFj
-a2VuZC5jDQo+ID4gaW5kZXggN2NiMGEzOS4uY2U5N2Y2ZCAxMDA2NDQNCj4gPiAtLS0gYS9iYWNr
-ZW5kLmMNCj4gPiArKysgYi9iYWNrZW5kLmMNCj4gPiBAQCAtNjA2LDYgKzYwNiw4IEBAIHJlYXA6
-DQo+ID4gICAJCQkJICogYW5kIGRvIHRoZSB2ZXJpZmljYXRpb24gb24gdGhlbSB0aHJvdWdoDQo+
-ID4gICAJCQkJICogdGhlIGNhbGxiYWNrIGhhbmRsZXINCj4gPiAgIAkJCQkgKi8NCj4gPiArCQkJ
-CWlmIChtaW5fZXZlbnRzIDwgdGQtPmN1cl9kZXB0aCkNCj4gPiArCQkJCQltaW5fZXZlbnRzID0g
-dGQtPmN1cl9kZXB0aDsNCj4gDQo+IERpZCB5b3UgcmV2ZXJzZSB0aGVzZT8gRnJvbSB0aGUgZGVz
-Y3JpcHRpb24gYW5kIGRlYnVnIG91dHB1dCwgc2VlbXMgaXQNCj4gc2hvdWxkIGJlOg0KPiANCj4g
-CWlmIChtaW5fZXZlbnRzID4gdGQtPmN1cl9kZXB0aCkNCj4gCQltaW5fZXZlbnRzID0gdGQtPmN1
-cl9kZXB0aDsNCj4gDQo+IGFuZCB3ZSBzaG91bGQgcHJvYmFibHkgcHV0IHRoaXMgbG9naWMgaW4g
-aW9fdV9xdWV1ZWRfY29tcGxldGUoKSwgSSB0aGluaw0KPiB0aGF0IHdvdWxkIGJlIGEgc2FmZXIg
-YWx0ZXJuYXRpdmUgaW5zdGVhZCBvZiBuZWFyIHRoZSBjYWxsZXJzLg0KPiANCj4gLS0NCj4gSmVu
-cyBBeGJvZQ0KDQpTb3JyeSwgeWVzIC0gSSBkaWRuJ3QgcHV0IGl0IGJhY2sgcmlnaHQgYWZ0ZXIg
-YWRkaW5nIGNvZGUNCnRvIGluamVjdCB0aGUgZXJyb3IuDQoNCkkgd2lsbCBzZW5kIGFuIHVwZGF0
-ZWQgcGF0Y2ggdG9tb3Jyb3cgcHV0dGluZyB0aGUgY2hlY2sgaW50bw0KaW9fdV9xdWV1ZWRfY29t
-cGxldGUgKGlmIHRoYXQgaGFzIGFjY2VzcyB0byB0ZCkuDQoNCg0KDQoNCg0K
+This is a multi-part message in MIME format.
+--------------030102090907000003010907
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+On 2014-09-03 19:34, Jens Axboe wrote:
+> On 2014-09-03 18:23, Robert Elliott wrote:
+>> With some combinations of iodepth, iodepth_batch, iodepth_batch_complete,
+>> and io_depth_low, do_io hangs after reaping the first set of completions
+>> since io_u_queued_complete is called requesting more completions than
+>> td->cur_depth.
+>>
+>> Example printing min_evts and td->cur_depth in the do/while loop:
+>> waiting on min=96 cd=627
+>> waiting on min=96 cd=531
+>> waiting on min=96 cd=435
+>> waiting on min=96 cd=339
+>> waiting on min=96 cd=243
+>> waiting on min=96 cd=147
+>> waiting on min=96 cd=51
+>> Jobs: 12 (f=12): [r(12)] [43.8% done] [0KB/0KB/0KB /s] [0/0/0 iops]
+>> [eta 00m:09s]
+>> ...
+>> Jobs: 12 (f=12): [r(12)] [0.0% done] [0KB/0KB/0KB /s] [0/0/0 iops]
+>> [eta 2863d:18h:28m:38s]
+>> <fio never exits>
+>>
+>> Fix this by adjusting min_evts to the current_depth if that is smaller.
+>>
+>> Tested with a jobfile including:
+>> iodepth=1011
+>> iodepth_batch=96
+>> iodepth_batch_complete=96
+>> iodepth_low=1
+>> runtime=15
+>> time_based
+>>
+>> Made the same change to do_verify, but not tested there.
+>>
+>> Signed-off-by: Robert Elliott <elliott@hp.com>
+>> ---
+>>   backend.c |    4 ++++
+>>   1 files changed, 4 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/backend.c b/backend.c
+>> index 7cb0a39..ce97f6d 100644
+>> --- a/backend.c
+>> +++ b/backend.c
+>> @@ -606,6 +606,8 @@ reap:
+>>                    * and do the verification on them through
+>>                    * the callback handler
+>>                    */
+>> +                if (min_events < td->cur_depth)
+>> +                    min_events = td->cur_depth;
+>
+> Did you reverse these? From the description and debug output, seems it
+> should be:
+>
+>      if (min_events > td->cur_depth)
+>          min_events = td->cur_depth;
+>
+> and we should probably put this logic in io_u_queued_complete(), I think
+> that would be a safer alternative instead of near the callers.
+
+Ala the attached.
+
+-- 
+Jens Axboe
+
+
+--------------030102090907000003010907
+Content-Type: text/x-patch;
+ name="depth.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="depth.patch"
+
+diff --git a/io_u.c b/io_u.c
+index ba192a32a985..be2f242a6e2b 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -1792,6 +1792,8 @@ int io_u_queued_complete(struct thread_data *td, int min_evts,
+ 
+ 	if (!min_evts)
+ 		tvp = &ts;
++	else if (min_evts > td->cur_depth)
++		min_evts = td->cur_depth;
+ 
+ 	ret = td_io_getevents(td, min_evts, td->o.iodepth_batch_complete, tvp);
+ 	if (ret < 0) {
+
+--------------030102090907000003010907--
 
