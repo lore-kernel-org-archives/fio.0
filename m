@@ -1,84 +1,68 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:59847 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751418AbaIRMAP (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 18 Sep 2014 08:00:15 -0400
-Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1XUaNY-0000Xc-Jx
-	for fio@vger.kernel.org; Thu, 18 Sep 2014 12:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20140918120003.6DBDB4017D@lyth.info>
-Date: Thu, 18 Sep 2014 06:00:03 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <matthew.weber@rockwellcollins.com>
+MIME-Version: 1.0
+In-Reply-To: <5409D102.7090306@kernel.dk>
+References: <CANQCQpamy7TCmgtZBwtzcKH3KMZnJZ1tguPRGr2Xa63Axo3P1w@mail.gmail.com>
+	<5409D102.7090306@kernel.dk>
+Date: Fri, 5 Sep 2014 10:19:50 -0500
+Message-ID: <CANQCQpYjJ7bHiUq0B8ghp5yo70iCzV_zK7-CUeZLjSmfvU=HRg@mail.gmail.com>
+Subject: Re: fio-2.1.4 - dlopen failed for libaio
+From: Matthew Weber <matthew.weber@rockwellcollins.com>
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 65ff9cd5fd5859b1547a9f7e1b2c97c6b9352f4d:
+Agreed, thanks!
 
-  btrace2fio: move file tracking to btrace_pid (2014-09-16 20:17:55 -0600)
+On Fri, Sep 5, 2014 at 10:04 AM, Jens Axboe <axboe@kernel.dk> wrote:
+> On 09/05/2014 07:42 AM, Matthew Weber wrote:
+>> Status output from a case where fio is built without libaio support....
+>>      fio: engine libaio not loadable
+>>      fio: failed to load engine libaio
+>>      fio: file:ioengines.c:102, func=dlopen, error=libaio: cannot open
+>> shared object file: No such file or directory
+>>
+>> I don't think this is necessarily a bug, but I wanted to comment on
+>> what we observed.  There was some discussion on this on the buildroot
+>> mailing list since we thought we needed to force a dependency on
+>> having libaio always built as a dependency for the fio package to link
+>> against.  Instead the user just needs to enable the libaio if they use
+>> it as an engine (which is fine).
+>> http://buildroot-busybox.2317881.n4.nabble.com/PATCH-v4-fio-add-missing-libaio-dependency-td77314.html
+>>
+>> Here our interpretation of what's happening.... It looks like the
+>> shared library open error is one of the expected failure outputs if
+>> you don't have support for the specific dynamic "io library".  The
+>> build of the fio package does correctly determine if the libaio lib is
+>> present or not and correctly adds it to the ioengines list for use (at
+>> build time, so the enghelp output is correct, etc).  However when fio
+>> is executed, it looks up if a "set of operations" is registered for
+>> whichever ioengine library used.  If they are, it goes ahead and uses
+>> them.  If they need to be loaded, like in the case of libaio, it
+>> attempts to load them. However there is no check to see if fio was
+>> built with support for the external library being loaded (like in this
+>> case of libaio).
+>
+> The output could be improved, but it's expected behavior. If you specify
+> ioengine=someengine, fio will check for an internal engine of that name.
+> If it doesn't find one, it will attempt to dynamically load an engine
+> with that file name. When that then fails, you get the above output.
+> This is no different than if you did ioengine=windowsaio on Linux, or
+> ioengine=libaio on Windows, for instance.
+>
+> --
+> Jens Axboe
+>
 
-are available in the git repository at:
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to cea475cd767b7e3d5c4fb2383247cbc78877cf56:
+-- 
+Matthew L Weber / Pr Software Engineer
+Airborne Information Systems / Security Systems and Software
+MS 131-100, C Ave NE, Cedar Rapids, IA, 52498, USA
+www.rockwellcollins.com
 
-  btrace2fio: add rate output (2014-09-17 17:58:31 +0200)
+Note: Any Export License Required Information and License Restricted
+Third Party Intellectual Property (TPIP) content must be encrypted and
+sent to matthew.weber@corp.rockwellcollins.com.
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      btrace2fio: add rate output
-
- t/btrace2fio.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/t/btrace2fio.c b/t/btrace2fio.c
-index bda3c0b..4dff3ec 100644
---- a/t/btrace2fio.c
-+++ b/t/btrace2fio.c
-@@ -46,6 +46,7 @@ struct btrace_out {
- 	unsigned int depth;
- 	uint64_t first_ttime;
- 	uint64_t last_ttime;
-+	uint64_t kb;
- 
- 	uint64_t start_delay;
- };
-@@ -365,8 +366,10 @@ static void handle_trace(struct blk_io_trace *t, struct btrace_pid *p)
- 		struct inflight *i;
- 
- 		i = inflight_find(t->sector + (t->bytes >> 9));
--		if (i)
-+		if (i) {
-+			i->p->o.kb += (t->bytes >> 10);
- 			inflight_remove(i);
-+		}
- 	}
- }
- 
-@@ -509,7 +512,7 @@ static void __output_p_ascii(struct btrace_pid *p, unsigned long *ios)
- {
- 	const char *msg[] = { "reads", "writes", "trims" };
- 	struct btrace_out *o = &p->o;
--	unsigned long total;
-+	unsigned long total, usec;
- 	int i, j;
- 
- 	printf("[pid:\t%u]\n", p->pid);
-@@ -539,7 +542,9 @@ static void __output_p_ascii(struct btrace_pid *p, unsigned long *ios)
- 	}
- 
- 	printf("depth:\t%u\n", o->depth);
--	printf("usec:\t%llu (delay=%llu)\n", (o->last_ttime - o->first_ttime) / 1000ULL, (unsigned long long) o->start_delay);
-+	usec = (o->last_ttime - o->first_ttime) / 1000ULL;
-+	printf("usec:\t%lu (delay=%llu)\n", usec, (unsigned long long) o->start_delay);
-+	printf("rate:\t%.2fKB/sec\n", ((float) o->kb * 1000.0) / ((float) usec / 1000.0));
- 
- 	printf("files:\t");
- 	for (i = 0; i < p->nr_files; i++)
