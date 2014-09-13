@@ -1,90 +1,70 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailout4a.intuit.com ([206.108.40.28]:17603 "EHLO
-	qdcapmail4.data.ie.intuit.net" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753595AbaI1Vy7 convert rfc822-to-8bit
-	(ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 28 Sep 2014 17:54:59 -0400
-From: "Hinson, Roger" <Roger_Hinson@intuit.com>
-Subject: Confirming test parameters
-Date: Sun, 28 Sep 2014 21:45:20 +0000
-Message-ID: <68dcaec92df442db80f34a518dd05cc3@BLUPR02MB453.namprd02.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
+Received: from casper.infradead.org ([85.118.1.10]:37940 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751337AbaIMMAG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 13 Sep 2014 08:00:06 -0400
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1XSlzp-00042E-FZ
+	for fio@vger.kernel.org; Sat, 13 Sep 2014 12:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20140913120003.EAD5E403DD@lyth.info>
+Date: Sat, 13 Sep 2014 06:00:03 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-	Hey all,
+The following changes since commit 44c8268d6e6d3b3f1efb1eb8a1c2d7bba1e8477b:
 
-	I'm setting up a test to simulate what we're actually seeing on one of our storage arrays.  Can you take a look and provide me some feedback?
+  server: fix wrong use of exit() in server when daemonized (2014-09-11 17:05:58 -0600)
 
-	The array usage is for two workload types:
+are available in the git repository at:
 
-	Type 1:
-	Random Read % - 45
-	Random Write % - 55
-	Sequential Read % - 1
-	Sequential Write % - 3
-	R/W Ratio - 45:55
-	Random Block Size - 4K
-	Sequential Block Size - 64K
+  git://git.kernel.dk/fio.git master
 
-	Type 2:
-	Random Read % - 1
-	Random Write % - 13
-	Sequential Read % - 2
-	Sequential Write % - 84
-	R/W Ratio - 3:97
-	Random Block Size - 4K
-	Sequential Block Size - 32K	
+for you to fetch changes up to 8a91fd4b0d42c730d48b5cd672df869609975a0a:
 
-	I came up with this:
+  Fio 2.1.12 (2014-09-12 12:09:32 -0600)
 
-[global]
-group_reporting=1
-thread
-iodepth=8
-ioengine=libaio
-direct=1
-refill_buffers
-randrepeat=1
-randseed=100
-random_distribution=zipf:1.01
-runtime=1200
-time_based
-bs_is_seq_rand
+----------------------------------------------------------------
+fio v2.1.12
 
-[45read55write_dm0_numjobs_2]
-write_bw_log=4555_dm0_2
-write_lat_log=4555_dm0_2
-write_iops_log=4555_dm0_2
-filename=/dev/mapper/mpathq
-rw=randrw
-rwmixread=45
-rwmixwrite=55
-percentage_random=96
-bs=64K,4K
-buffer_compress_percentage=50
-buffer_compress_chunk=512
-numjobs=2
+----------------------------------------------------------------
+Jens Axboe (1):
+      Fio 2.1.12
 
-[3read97write_dm1_numjobs_2]
-write_bw_log=397_dm1_2
-write_lat_log=397_dm1_2
-write_iops_log=397_dm1_2
-filename=/dev/mapper/mpathr
-rw=randrw
-rwmixread=3
-rwmixwrite=97
-percentage_random=14
-bs=32K,4K
-buffer_compress_percentage=50
-buffer_compress_chunk=512
-numjobs=2
+ FIO-VERSION-GEN        |    2 +-
+ os/windows/install.wxs |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
+---
 
-Thanks,
-Roger
+Diff of recent changes:
 
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index 9982b1f..d36c76d 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-2.1.11
++DEF_VER=fio-2.1.12
+ 
+ LF='
+ '
+diff --git a/os/windows/install.wxs b/os/windows/install.wxs
+index 3643c8a..18918cc 100755
+--- a/os/windows/install.wxs
++++ b/os/windows/install.wxs
+@@ -10,7 +10,7 @@
+ 	<Product Id="*"
+ 	  Codepage="1252" Language="1033"
+ 	  Manufacturer="fio" Name="fio"
+-	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.1.11">
++	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.1.12">
+ 		<Package
+ 		  Description="Flexible IO Tester"
+ 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
