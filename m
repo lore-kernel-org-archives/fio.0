@@ -1,46 +1,52 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:64567 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751643AbaIUDio (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 20 Sep 2014 23:38:44 -0400
-Received: by mail-pa0-f54.google.com with SMTP id fb1so2456781pad.13
-        for <fio@vger.kernel.org>; Sat, 20 Sep 2014 20:38:43 -0700 (PDT)
-Received: from Akira-Hayakawas-MacBook-Pro.local (e0109-106-188-109-152.uqwimax.jp. [106.188.109.152])
-        by mx.google.com with ESMTPSA id hb1sm5676325pbd.85.2014.09.20.20.38.41
-        for <fio@vger.kernel.org>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Sat, 20 Sep 2014 20:38:43 -0700 (PDT)
-Message-ID: <541E483F.50805@gmail.com>
-Date: Sun, 21 Sep 2014 12:38:39 +0900
-From: Akira Hayakawa <ruby.wktk@gmail.com>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <5418ED70.7030109@kernel.dk>
+Date: Tue, 16 Sep 2014 20:09:52 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Subject: [Question] What if the parameter for --size option is smaller than
- the target device?
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: io_u_log_error ddir name mismatch
+References: <94D0CD8314A33A4D9D801C0FE68B402958C8469C@G9W0745.americas.hpqcorp.net>
+In-Reply-To: <94D0CD8314A33A4D9D801C0FE68B402958C8469C@G9W0745.americas.hpqcorp.net>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "Elliott, Robert (Server Storage)" <Elliott@hp.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+On 2014-09-16 16:24, Elliott, Robert (Server Storage) wrote:
+> The names in io_u_log_error:
+>         const char *msg[] = { "read", "write", "sync", "datasync",
+>                                 "sync_file_range", "wait", "trim" };
+>
+> which are printed with
+> 	log_err (msg[io_u->ddir]);
+>
+> don't match the enum values for io_u->ddir:
+>
+> enum fio_ddir {
+>          DDIR_READ = 0,
+>          DDIR_WRITE = 1,
+>          DDIR_TRIM = 2,
+>          DDIR_RWDIR_CNT = 3,
+>          DDIR_SYNC = 3,
+>          DDIR_DATASYNC,
+>          DDIR_SYNC_FILE_RANGE,
+>          DDIR_WAIT,
+>          DDIR_INVAL = -1,
+> };
+>
+> struct io_u {
+>          enum fio_ddir ddir;
+> ...
+>
+> Maybe TRIM was moved earlier at some point?
 
-I am writing a test with fio tool (2.0.8) and I am facing a problem.
+TRIM was turned into a first class citizen at one point, I suspect that 
+is when it broke. It's broken in both io_u.c and iolog.c. I fixed it by 
+killing them both, and adding a function for this right in io_ddir.h 
+where the data directions are defined.
 
-I just want to submit 512B random write to a block device.
-In my case, the size of the device is 2MB and the amount of writes (specified by --size option) is 32MB.
+Thanks Robert!
 
-like this (A line from device-mapper-test-suite. Is my command wrong?):
-      ProcessControl.run("fio --name=test --filename=#{dev.path} --rw=randwrite --ioengine=libaio --direct=1 --size=#{@param[0]}m --bs=512")
+-- 
+Jens Axboe
 
-The problem is, the runtime is too short.
-The block device is just a single HDD so, it will be 30sec or so. But it's actually 3sec...
 
-My guess is that fio uses min(device size, param to --size) as the amount of writes here.
-To investigate it, I increased the size of the device to x10 and saw the runtime gets x10.
-
-My questions are:
-1. Is my guess correct?
-2. What shall I do to make fio work as I want it to do?
-
-Thanks,
-- Akira
