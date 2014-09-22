@@ -1,53 +1,69 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:33142 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754060AbaILMAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 12 Sep 2014 08:00:05 -0400
-Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1XSPWF-0000Y8-Vm
-	for fio@vger.kernel.org; Fri, 12 Sep 2014 12:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20140912120002.C721F40128@lyth.info>
-Date: Fri, 12 Sep 2014 06:00:02 -0600 (MDT)
+Received: from mail-pd0-f175.google.com ([209.85.192.175]:56052 "EHLO
+	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753090AbaIVPUX (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 22 Sep 2014 11:20:23 -0400
+Received: by mail-pd0-f175.google.com with SMTP id v10so3510164pde.6
+        for <fio@vger.kernel.org>; Mon, 22 Sep 2014 08:20:23 -0700 (PDT)
+Message-ID: <54203E32.7080907@gmail.com>
+Date: Tue, 23 Sep 2014 00:20:18 +0900
+From: Akira Hayakawa <ruby.wktk@gmail.com>
+MIME-Version: 1.0
+Subject: Re: [Question] What if the parameter for --size option is smaller
+ than the target device?
+References: <541E4CA6.8070705@gmail.com> <CALjAwxgOu+iFoGiexcxBLL-DwKL0wiqyRCK6t8S2qQsyB3DA6A@mail.gmail.com>
+In-Reply-To: <CALjAwxgOu+iFoGiexcxBLL-DwKL0wiqyRCK6t8S2qQsyB3DA6A@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: sitsofe@gmail.com
+Cc: fio@vger.kernel.org
 
-The following changes since commit 5fb4b36674b194ae6c6756314dc0c665fcaea06d:
+Thanks Sitsofe,
+it starts to submit 32M in total.
 
-  Fix hangs due to iodepth_low (2014-09-04 13:51:05 -0600)
+- Akira
 
-are available in the git repository at:
+On 9/21/14 7:21 PM, Sitsofe Wheeler wrote:
+> Hi,
+> 
+> On 21 September 2014 04:57, Akira Hayakawa <ruby.wktk@gmail.com> wrote:
+>> I am writing a test with fio tool (2.0.8) and I am facing a problem.
+>>
+>> I just want to submit 512B random write to a block device.
+>> In my case, the size of the device is 2MB and the amount of writes (specified by --size option) is 32MB.
+> 
+> You probably wanted the behaviour of io_limit
+> (http://git.kernel.dk/?p=fio.git;a=blob;f=HOWTO;h=73e58ff695c3384df30094d6c15ebe9ed615460f;hb=HEAD#l433
+> ) rather than size...
+> 
+>> like this (A line from device-mapper-test-suite. Is my command wrong?):
+>>       ProcessControl.run("fio --name=test --filename=#{dev.path} --rw=randwrite --ioengine=libaio --direct=1 --size=#{@param[0]}m --bs=512")
+>>
+>> The problem is, the runtime is too short.
+>> The block device is just a single HDD so, it will be 30sec or so. But it's actually 3sec...
+>>
+>> My guess is that fio uses min(device size, param to --size) as the amount of writes here.
+> 
+> That's correct in this context - size is limiting the last possible
+> block that can be written to (see
+> http://git.kernel.dk/?p=fio.git;a=blob;f=HOWTO;h=73e58ff695c3384df30094d6c15ebe9ed615460f;hb=HEAD#l421
+> for details).
+> 
+>> To investigate it, I increased the size of the device to x10 and saw the runtime gets x10.
+>>
+>> My questions are:
+>> 1. Is my guess correct?
+> 
+> Yes.
+> 
+>> 2. What shall I do to make fio work as I want it to do?
+> 
+> Use io_limit if your fio is new enough or number_ios
+> (http://git.kernel.dk/?p=fio.git;a=blob;f=HOWTO;h=73e58ff695c3384df30094d6c15ebe9ed615460f;hb=HEAD#l778
+> ).
+> 
+> Sitsofe | http://sucs.org/~sits/
+> 
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 44c8268d6e6d3b3f1efb1eb8a1c2d7bba1e8477b:
-
-  server: fix wrong use of exit() in server when daemonized (2014-09-11 17:05:58 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      server: fix wrong use of exit() in server when daemonized
-
- server.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/server.c b/server.c
-index e2a6f73..36713ee 100644
---- a/server.c
-+++ b/server.c
-@@ -1709,7 +1709,7 @@ int fio_start_server(char *pidfile)
- 		int ret = write_pid(pid, pidfile);
- 
- 		free(pidfile);
--		exit(ret);
-+		_exit(ret);
- 	}
- 
- 	setsid();
