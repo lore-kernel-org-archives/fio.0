@@ -1,54 +1,83 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from secvs01.rockwellcollins.com ([205.175.225.240]:14787 "EHLO
-	secvs01.rockwellcollins.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932418AbaIEN6P (ORCPT
-	<rfc822;fio@vger.kernel.org>); Fri, 5 Sep 2014 09:58:15 -0400
-Received: by mail-ie0-f170.google.com with SMTP id tp5so572073ieb.1
-        for <fio@vger.kernel.org>; Fri, 05 Sep 2014 06:48:39 -0700 (PDT)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <5426C35B.2010001@kernel.dk>
+Date: Sat, 27 Sep 2014 08:02:03 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Date: Fri, 5 Sep 2014 08:42:23 -0500
-Message-ID: <CANQCQpamy7TCmgtZBwtzcKH3KMZnJZ1tguPRGr2Xa63Axo3P1w@mail.gmail.com>
-Subject: fio-2.1.4 - dlopen failed for libaio
-From: Matthew Weber <matthew.weber@rockwellcollins.com>
-Content-Type: text/plain; charset=UTF-8
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Subject: Re: dedupe and replay
+References: <CA+BkS8NvVNyj3KDy3UjtD2G0q-B3Ai7sdbqwRu_DafLQmKk37Q@mail.gmail.com>	<5425B9B7.2080003@kernel.dk>	<5425C0C7.8080303@kernel.dk> <CA+BkS8MZ+TC=itWx4DSpRdqewhRNkNqSem08Em2KWBXWJ4DJMg@mail.gmail.com> <5426BF5C.9090301@kernel.dk>
+In-Reply-To: <5426BF5C.9090301@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Alket Memushaj <amemushaj@gmail.com>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Status output from a case where fio is built without libaio support....
-     fio: engine libaio not loadable
-     fio: failed to load engine libaio
-     fio: file:ioengines.c:102, func=dlopen, error=libaio: cannot open
-shared object file: No such file or directory
+On 2014-09-27 07:45, Jens Axboe wrote:
+> On 09/27/2014 05:19 AM, Alket Memushaj wrote:
+>> thanks for the quick response - but unfortunately this patch does not
+>> seem to have changed the result. I managed to get a 1.4:1 dedupe when
+>> setting dedupe_percentage to 99%. The test rig I have is like this: an
+>> array w/ inline dedupe @ 4K and I am the only user on it - I have a
+>> single machine mounting a single lun from the array (the whole space
+>> in the array is assigned to this lun). The synthetic test at
+>> dedupe_percentage=80 results in a 4:1 dedupe ratio from the array. The
+>> replay at 80% comes out as undedupable (ratio = 1.0:1) even with the
+>> latest patch. The replay generates about 1.7 million I/Os. ~1 million
+>> are 4K, 80 thousand are 8K, 70 thousand are 32K, etc... there's a
+>> decent number of I/O that is not a multiple of 4K, but the vast
+>> majority of the I/O is a multiple of 4K. The offset for each I/O is 4K
+>> aligned in the vast majority of I/Os.
+>
+> (please don't top post)
+>
+> I'll try with a trace replay here. If you can, would be nice to get your
+> trace.
 
-I don't think this is necessarily a bug, but I wanted to comment on
-what we observed.  There was some discussion on this on the buildroot
-mailing list since we thought we needed to force a dependency on
-having libaio always built as a dependency for the fio package to link
-against.  Instead the user just needs to enable the libaio if they use
-it as an engine (which is fine).
-http://buildroot-busybox.2317881.n4.nabble.com/PATCH-v4-fio-add-missing-libaio-dependency-td77314.html
+So ran a quick test here. The original file:
 
-Here our interpretation of what's happening.... It looks like the
-shared library open error is one of the expected failure outputs if
-you don't have support for the specific dynamic "io library".  The
-build of the fio package does correctly determine if the libaio lib is
-present or not and correctly adds it to the ioengines list for use (at
-build time, so the enghelp output is correct, etc).  However when fio
-is executed, it looks up if a "set of operations" is registered for
-whichever ioengine library used.  If they are, it goes ahead and uses
-them.  If they need to be loaded, like in the case of libaio, it
-attempts to load them. However there is no check to see if fio was
-built with support for the external library being loaded (like in this
-case of libaio).
+[dedupe]
+filename=test
+bssplit=4k/58:8k/5:16k/5:32k/5:64k/5:128k/5
+rw=write
+size=1g
+dedupe_percentage=80
+write_iolog=dedupe.log
 
-Thanks,
+Ran this and check how well 'test' dedupes:
+
+axboe@nelson:/home/axboe/git/fio $ t/dedupe test
+Will check <test>, size <1073741824>, using 8 threads
+Threads(8): 262144 items processed
+Extents=262144, Unique extents=51955
+De-dupe factor: 5.05
+Fio setting: dedupe_percentage=80
+
+So far, so good, we get expected results (1:4, or 80%). The dedupe.log 
+looks fine, lets replay that with:
+
+[dedupe]
+filename=test
+rw=write
+read_iolog=dedupe.log
+size=1g
+dedupe_percentage=80
+write_iolog=dedupe.log
+
+Ran this, and then check how well that dedupes:
+
+axboe@nelson:/home/axboe/git/fio $ t/dedupe test
+Will check <test>, size <1073741824>, using 8 threads
+Threads(8): 262144 items processed
+Extents=262144, Unique extents=51953
+De-dupe factor: 5.05
+Fio setting: dedupe_percentage=80
+
+Pretty much identical. So it seems to work fine for me, generating 
+appropriately random buffers.
+
+I might need your trace to figure out what's going on for you.
+
 -- 
-Matthew L Weber / Pr Software Engineer
-Airborne Information Systems / Security Systems and Software
-MS 131-100, C Ave NE, Cedar Rapids, IA, 52498, USA
-www.rockwellcollins.com
+Jens Axboe
 
-Note: Any Export License Required Information and License Restricted
-Third Party Intellectual Property (TPIP) content must be encrypted and
-sent to matthew.weber@corp.rockwellcollins.com.
+
