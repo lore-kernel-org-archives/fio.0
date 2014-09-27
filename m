@@ -1,47 +1,73 @@
-Return-Path: <Elliott@hp.com>
-From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
-Subject: io_u_log_error ddir name mismatch
-Date: Tue, 16 Sep 2014 22:24:59 +0000
-Message-ID: <94D0CD8314A33A4D9D801C0FE68B402958C8469C@G9W0745.americas.hpqcorp.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <axboe@kernel.dk>
+Received: from [192.168.3.11] (66.29.187.50.static.utbb.net. [66.29.187.50])
+        by mx.google.com with ESMTPSA id ow7sm8263281pbc.30.2014.09.27.13.39.36
+        for <fio@vger.kernel.org>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 27 Sep 2014 13:39:37 -0700 (PDT)
+Message-ID: <54272087.10907@kernel.dk>
+Date: Sat, 27 Sep 2014 14:39:35 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-To: "Jens Axboe <axboe@kernel.dk> (axboe@kernel.dk)" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Subject: Re: New tools and changes
+References: <54271828.2040005@kernel.dk>
+In-Reply-To: <54271828.2040005@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-The names in io_u_log_error:
-       const char *msg[] =3D { "read", "write", "sync", "datasync",
-                               "sync_file_range", "wait", "trim" };
+Hi,
 
-which are printed with
-	log_err (msg[io_u->ddir]);
+I forgot to mention another handy change that went in recently - fio now 
+supports including files from job files. This should make it easier to 
+manage a test harness of fio files, since you can have more manageable 
+files with a global (or per-host, whatever) include fio that has options 
+for that particular instance. It's pretty simple to use, here's the 
+section that was added to the HOWTO to explain it:
 
-don't match the enum values for io_u->ddir:
+-----------
 
-enum fio_ddir {
-        DDIR_READ =3D 0,
-        DDIR_WRITE =3D 1,
-        DDIR_TRIM =3D 2,
-        DDIR_RWDIR_CNT =3D 3,
-        DDIR_SYNC =3D 3,
-        DDIR_DATASYNC,
-        DDIR_SYNC_FILE_RANGE,
-        DDIR_WAIT,
-        DDIR_INVAL =3D -1,
-};
+When fio is utilized as a basis of any reasonably large test suite, it 
+might be desirable to share a set of standardized settings across 
+multiple job files. Instead of copy/pasting such settings, any section 
+may pull in an external .fio file with 'include filename' directive, as 
+in the following example:
 
-struct io_u {
-        enum fio_ddir ddir;
-...
+; -- start job file including.fio --
+[global]
+filename=/tmp/test
+filesize=1m
+include glob-include.fio
 
-Maybe TRIM was moved earlier at some point?
+[test]
+rw=randread
+bs=4k
+time_based=1
+runtime=10
+include test-include.fio
+; -- end job file including.fio --
 
-My test cases just generate reads and writes, so I don't have a=20
-test case to validate a patch.
+; -- start job file glob-include.fio --
+thread=1
+group_reporting=1
+; -- end job file glob-include.fio --
 
----
-Rob Elliott    HP Server Storage
+; -- start job file test-include.fio --
+ioengine=libaio
+iodepth=4
+; -- end job file test-include.fio --
 
+Settings pulled into a section apply to that section only (except global
+section). Include directives may be nested in that any included file may
+contain further include directive(s). Include files may not contain []
+sections.
+
+--------
+
+This feature courtesy of Andrey Kuzmin <andrey.v.kuzmin@gmail.com> who 
+did all the work to make this feasible.
+
+-- 
+Jens Axboe
 
 
