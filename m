@@ -1,41 +1,68 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from blu004-omc1s38.hotmail.com ([65.55.116.49]:58040 "EHLO
-	BLU004-OMC1S38.hotmail.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750819AbaI2D2W (ORCPT
-	<rfc822;fio@vger.kernel.org>); Sun, 28 Sep 2014 23:28:22 -0400
-Message-ID: <BLU402-EAS71C90924EA427F167AAF17E0BA0@phx.gbl>
-From: Jon Tango <cheerios123@outlook.com>
-Subject: Limit LBA Range
-Date: Sun, 28 Sep 2014 22:28:19 -0500
+Return-Path: <axboe@kernel.dk>
+Message-ID: <542771CC.9090203@kernel.dk>
+Date: Sat, 27 Sep 2014 20:26:20 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Subject: Re: If loops= is specified, zone state is unexpectedly retained across
+ iterations.
+References: <CAFFT=UkPhmUHD0EAH1_KDviB9909=NwqNSeCXWiOz=0Fp6phhA@mail.gmail.com> <CAFFT=Ukkh3E7tkJkVQ09VMiribNtTt+ZKi8w3VRf7ovS5xw4ww@mail.gmail.com>
+In-Reply-To: <CAFFT=Ukkh3E7tkJkVQ09VMiribNtTt+ZKi8w3VRf7ovS5xw4ww@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Language: en-us
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Akash Verma <akashv@google.com>, fio <fio@vger.kernel.org>
+Cc: Allen Schade <aschade@google.com>
+List-ID: <fio@vger.kernel.org>
 
-I am using windows server 2012R2 and am attempting to limit the LBA range of
-the test. It doesn't seem to be working, I am using this, is it correct?
+On 2014-09-25 11:36, Akash Verma wrote:
+> Adding Jens on cc.
+>
+> On Tue, Sep 23, 2014 at 6:02 PM, Akash Verma <akashv@google.com> wrote:
+>> I'm wondering if this is desired behavior or accidental. If I use this
+>> control file:
+>>
+>> [sdb-zoned-and-looped]
+>> rw=write
+>> bs=4k
+>> size=24k
+>> zonesize=12k
+>> zonerange=512k
+>> zoneskip=512k
+>> ioengine=sync
+>> direct=1
+>> thread=1
+>> loops=10
+>> filename=/dev/sdb
+>> write_iolog=sdb_iolog.txt
+>>
+>> sdb_iolog.txt shows:
+>> fio version 2 iolog
+>> /dev/sdb add
+>> /dev/sdb open
+>> /dev/sdb write 0 4096
+>> /dev/sdb write 4096 4096
+>> /dev/sdb write 8192 4096
+>> /dev/sdb write 1048576 4096
+>> /dev/sdb write 1052672 4096
+>> /dev/sdb write 1056768 4096
+>> /dev/sdb close
+>> /dev/sdb open
+>> /dev/sdb write 1048576 4096
+>> /dev/sdb write 1052672 4096
+>> /dev/sdb write 1056768 4096
+>> /dev/sdb write 2097152 4096
+>> /dev/sdb write 2101248 4096
+>> /dev/sdb write 2105344 4096
+>> ...
+>>
+>> I'd expect each iteration of the loop to be identical, rather than
+>> resuming from the zone offset of the previous iteration. Would it be
+>> okay to change this behavior?
 
-[global]
-name=4ktest
-filename=\\.\physicaldrive1
-direct=1
-numjobs=8
-norandommap
-ba=4k
-time_based
-size=745g
-log_avg_msec=100000
-group_reporting=1
+Yeah I think that would be OK, basically all state is cleared between 
+loops, so I'd consider that a bug. The whole point of a loop is that 
+they are supposed to be identical.
 
-#########################################################
+-- 
+Jens Axboe
 
-[4K Precon]
-stonewall
-runtime=15000
-iodepth=32
-bs=4k
-rw=randwrite
 
