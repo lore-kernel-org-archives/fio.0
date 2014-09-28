@@ -1,93 +1,105 @@
-Return-Path: <sitsofe@gmail.com>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <54288805.2020008@kernel.dk>
+Date: Sun, 28 Sep 2014 16:13:25 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <54288805.2020008@kernel.dk>
-References: <542179FA.5040106@gmail.com>
-	<CANvN+enrUD45Zp1CJKQ3kxQncHLyhp7hE1jr4AnzRD65oDTUvg@mail.gmail.com>
-	<54228237.5000805@gmail.com>
-	<CALjAwxg+o05=3YDOmXaKskrdg3AHU88T-pkqZw=QFQkwRTjdwA@mail.gmail.com>
-	<CALjAwxirUW+v662QZ9zQG-2zuTNtE8xkpfaJqv=5ArLviqjhGw@mail.gmail.com>
-	<5427716A.1080407@kernel.dk>
-	<20140928103616.GA9991@sucs.org>
-	<54281A0A.8050905@kernel.dk>
-	<5428246F.7020506@kernel.dk>
-	<20140928194419.GA24724@sucs.org>
-	<54288805.2020008@kernel.dk>
-Date: Mon, 29 Sep 2014 06:42:59 +0100
-Message-ID: <CALjAwxiqmHgS-V6QME4Y+Z0my67Es7sU1QwhzjC8FwZqK4q4sA@mail.gmail.com>
 Subject: Re: [Question] How to perform stride access?
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Content-Type: multipart/alternative; boundary=f46d04447dfd4be4f805042dbdc2
-To: Jens Axboe <axboe@kernel.dk>
+References: <542179FA.5040106@gmail.com> <CANvN+enrUD45Zp1CJKQ3kxQncHLyhp7hE1jr4AnzRD65oDTUvg@mail.gmail.com> <54228237.5000805@gmail.com> <CALjAwxg+o05=3YDOmXaKskrdg3AHU88T-pkqZw=QFQkwRTjdwA@mail.gmail.com> <CALjAwxirUW+v662QZ9zQG-2zuTNtE8xkpfaJqv=5ArLviqjhGw@mail.gmail.com> <5427716A.1080407@kernel.dk> <20140928103616.GA9991@sucs.org> <54281A0A.8050905@kernel.dk> <5428246F.7020506@kernel.dk> <20140928194419.GA24724@sucs.org>
+In-Reply-To: <20140928194419.GA24724@sucs.org>
+Content-Type: multipart/mixed;
+ boundary="------------050608060407060508080301"
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: Akira Hayakawa <ruby.wktk@gmail.com>, Andrey Kuzmin <andrey.v.kuzmin@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
---f46d04447dfd4be4f805042dbdc2
-Content-Type: text/plain; charset=UTF-8
+This is a multi-part message in MIME format.
+--------------050608060407060508080301
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 
-On 28 September 2014 23:13, Jens Axboe <axboe@kernel.dk> wrote:
+On 09/28/2014 01:44 PM, Sitsofe Wheeler wrote:
+> On Sun, Sep 28, 2014 at 09:08:31AM -0600, Jens Axboe wrote:
+>> On 2014-09-28 08:24, Jens Axboe wrote:
+>>> On 2014-09-28 04:36, Sitsofe Wheeler wrote:
+>>>> I guess I would have thought io_limit always forced wraparound. For
+>>>> example:
+>>>>
+>>>> # dd if=/dev/zero of=/dev/shm/1M bs=1M count=1 # fio --bs=4k
+>>>> --filename=/dev/shm/1M --name=go1 --rw=write [...] Run status group
+>>>> 0 (all jobs): WRITE: io=1024KB, aggrb=341333KB/s, minb=341333KB/s,
+>>>> maxb=341333KB/s, mint=3msec, maxt=3msec # fio --bs=4k
+>>>> --filename=/dev/shm/1M --name=go2 --io_limit=2M --rw=write Run
+>>>> status group 0 (all jobs): WRITE: io=2048KB, aggrb=341333KB/s,
+>>>> minb=341333KB/s, maxb=341333KB/s, mint=6msec, maxt=6msec [...] # fio
+>>>> --bs=4k --filename=/dev/shm/1M --name=go3 --io_limit=2M
+>>>> --rw=write:4k [...] WRITE: io=512KB, aggrb=256000KB/s,
+>>>> minb=256000KB/s, maxb=256000KB/s, mint=2msec, maxt=2msec Run status
+>>>> group 0 (all jobs): # fio --bs=4k --filename=/dev/shm/1M --name=go4
+>>>> --io_limit=2M --rw=write:4k [...] Run status group 0 (all jobs):
+>>>> WRITE: io=512KB, aggrb=256000KB/s, minb=256000KB/s, maxb=256000KB/s,
+>>>> mint=2msec, maxt=2msec
+>>>>
+>>>> go2 is a plain sequential job that does twice as much I/O as go1.
+>>>> Given that the size of the file being written to has not changed
+>>>> between the runs one could guess that fio simply wrapped around and
+>>>> started from the first offset (0) to write the second MB of data.
+>>>> Given this isn't it a fair assumption that when doing a skipping
+>>>> workload if io_limit is used (as in go4) and an offset beyond the
+>>>> end of the device is produced the same wraparound behaviour as go2
+>>>> should occur and the total io done should match that specified in
+>>>> io_limit?
+>>>
+>>> I would agree on that, behavior for those cases _should_ be the same.
+>>> Without the holed IO, it closes/reopens the file and repeats the 1M
+>>> writes. With it, it does not. I will take a look.
+>>
+>> Does the attached fix it up?
+> 
+> The patch fixes
+> fio --bs=4k --rw=write:4k --filename=/dev/shm/1M --name=go --io_limit=2M
+> but not
+> fio --bs=512k --rw=write --filename=/dev/shm/1M --name=go --number_io=4
 
-> On 09/28/2014 01:44 PM, Sitsofe Wheeler wrote:
-> > The patch fixes
-> > fio --bs=4k --rw=write:4k --filename=/dev/shm/1M --name=go --io_limit=2M
-> > but not
-> > fio --bs=512k --rw=write --filename=/dev/shm/1M --name=go --number_io=4
->
-> number_ios=x is implemented as a cap, not a forced "must complete this
-> amount of ios to be done".
->
+number_ios=x is implemented as a cap, not a forced "must complete this
+amount of ios to be done".
 
-Ah I see. Now I look again the HOWTO even says it doesn't extend the number
-of I/Os - I should have read more carefully!
+> or
+> fio --bs=4k --rw=write --filename=/dev/shm/1M --name=go --zoneskip=4k --zonesize=4k --io_limit=2M
 
-
-> > or
-> > fio --bs=4k --rw=write --filename=/dev/shm/1M --name=go --zoneskip=4k
-> --zonesize=4k --io_limit=2M
->
-> That one is a bit more tricky. Oh, try the attached (keep the previous
-> applied).
-
-
- Latest patch fixes zone skipping for me too. Akira are things better for
-you too?
+That one is a bit more tricky. Oh, try the attached (keep the previous
+applied).
 
 -- 
-Sitsofe | http://sucs.org/~sits/
+Jens Axboe
 
---f46d04447dfd4be4f805042dbdc2
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-<div dir=3D"ltr"><div class=3D"gmail_extra"><div class=3D"gmail_quote">On 2=
-8 September 2014 23:13, Jens Axboe <span dir=3D"ltr">&lt;<a href=3D"mailto:=
-axboe@kernel.dk" target=3D"_blank">axboe@kernel.dk</a>&gt;</span> wrote:<br=
-><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1=
-px #ccc solid;padding-left:1ex"><div class=3D"HOEnZb"><div class=3D"h5">On =
-09/28/2014 01:44 PM, Sitsofe Wheeler wrote:<br>&gt; The patch fixes<br>
-&gt; fio --bs=3D4k --rw=3Dwrite:4k --filename=3D/dev/shm/1M --name=3Dgo --i=
-o_limit=3D2M<br>
-&gt; but not<br>
-&gt; fio --bs=3D512k --rw=3Dwrite --filename=3D/dev/shm/1M --name=3Dgo --nu=
-mber_io=3D4<br>
-<br>
-</div></div>number_ios=3Dx is implemented as a cap, not a forced &quot;must=
- complete this<br>
-amount of ios to be done&quot;.<br></blockquote><div><br></div><div>Ah I se=
-e. Now I look again the HOWTO even says it doesn&#39;t extend the number of=
- I/Os - I should have read more carefully!</div><div>=C2=A0</div><blockquot=
-e class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc sol=
-id;padding-left:1ex"><span class=3D"">
-&gt; or<br>
-&gt; fio --bs=3D4k --rw=3Dwrite --filename=3D/dev/shm/1M --name=3Dgo --zone=
-skip=3D4k --zonesize=3D4k --io_limit=3D2M<br>
-<br>
-</span>That one is a bit more tricky. Oh, try the attached (keep the previo=
-us<br>
-applied).</blockquote><div><br></div><div>=C2=A0Latest patch fixes zone ski=
-pping for me too. Akira are things better for you too?</div></div><div><br>=
-</div>-- <br>Sitsofe | <a href=3D"http://sucs.org/~sits/">http://sucs.org/~=
-sits/</a>
-</div></div>
+--------------050608060407060508080301
+Content-Type: text/x-patch;
+ name="zone-skip.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="zone-skip.patch"
 
---f46d04447dfd4be4f805042dbdc2--
+diff --git a/io_u.c b/io_u.c
+index 8546899c03e7..02f600be3126 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -748,9 +751,13 @@ static int fill_io_u(struct thread_data *td, struct io_u *io_u)
+ 	 * See if it's time to switch to a new zone
+ 	 */
+ 	if (td->zone_bytes >= td->o.zone_size && td->o.zone_skip) {
++		struct fio_file *f = io_u->file;
++
+ 		td->zone_bytes = 0;
+-		io_u->file->file_offset += td->o.zone_range + td->o.zone_skip;
+-		io_u->file->last_pos = io_u->file->file_offset;
++		f->file_offset += td->o.zone_range + td->o.zone_skip;
++		if (f->file_offset >= f->real_file_size)
++			f->file_offset = f->real_file_size - f->file_offset;
++		f->last_pos = f->file_offset;
+ 		td->io_skip_bytes += td->o.zone_skip;
+ 	}
+ 
+
+--------------050608060407060508080301--
 
