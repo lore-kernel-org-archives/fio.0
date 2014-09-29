@@ -1,153 +1,354 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <5428A98D.6040300@kernel.dk>
-Date: Sun, 28 Sep 2014 18:36:29 -0600
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <stephenmcameron@gmail.com>
 MIME-Version: 1.0
-Subject: Re: [RFC PATCH] fio: allow arithmetic expressions in job files
-References: <CADzpL0TTYJ7VehiK=B8HC4yHp+vVGgv5S06hQWn-2FrYs2XQLA@mail.gmail.com>
-In-Reply-To: <CADzpL0TTYJ7VehiK=B8HC4yHp+vVGgv5S06hQWn-2FrYs2XQLA@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-To: Stephen Cameron <stephenmcameron@gmail.com>, fio@vger.kernel.org
+Date: Sun, 28 Sep 2014 19:19:39 -0500
+Message-ID: <CADzpL0TTYJ7VehiK=B8HC4yHp+vVGgv5S06hQWn-2FrYs2XQLA@mail.gmail.com>
+Subject: [RFC PATCH] fio: allow arithmetic expressions in job files
+From: Stephen Cameron <stephenmcameron@gmail.com>
+Content-Type: multipart/mixed; boundary=f46d043d65590db49e05042939e8
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-On 2014-09-28 18:19, Stephen Cameron wrote:
-> Note:  this patch is not really production quality.  I was just messing
-> around with lex and yacc and wrote a little expression parser, and then
-> thought, hmm, I always wished I could say "runtime=(24*60*60)" in an fio
-> job file... how hard could it be to make that work?
->
-> Some known issues:
->
-> 1) Have not integrated with autoconf (don't know how, esp. since it uses
-> lex and yacc).
->
-> 2) overflow and underflow during arithmetic expression evaluation is not
-> handled, and detection of floating point divide by zero is probably a
-> bit iffy.  Probably some other numeric subtleties lurking in there too.
-> To mitigate that, I required that expressions be enclosed in parens, so
-> existing jobs essentially use the existing code for conversion of
-> strings to numbers, the idea being to try to avoid accidentally breaking
-> existing job files.
->
-> 3) It's been awhile since I looked at fio's source, so it's possible I
-> missed some avenues by which numbers are parsed.  I *think* they all go
-> through str_to_float() and str_to_decimal() in parse.c.  If there are
-> other avenues, I  missed those.
->
-> 4) I did do some testing, but I'm no lex / yacc expert by any stretch,
-> so there could be wild bugs in there.
->
-> Just a fun little project I did today so I thought I'd share it, but if
-> getting autoconf to deal with lex and yacc is too painful, or those
-> aren't available on windows, etc., or for whatever reason this patch is
-> deemed to be unusable, that won't hurt my feelings at all.
+--f46d043d65590db49e05042939e8
+Content-Type: multipart/alternative; boundary=f46d043d65590db49a05042939e6
 
-That's pretty awesome! I've wanted something like that as well, so I do 
-welcome an effort to make that work. That said, there seems to be some 
-hitches. I get this:
+--f46d043d65590db49a05042939e6
+Content-Type: text/plain; charset=UTF-8
 
-axboe@lenny:[.]git/fio/expression-parser $ make
-yacc -d expression-parser.y
-cc -Wall -Wextra   -c -o y.tab.o y.tab.c
-lex expression-parser.l
-cc -Wall -Wextra   -c -o lex.yy.o lex.yy.c
-In file included from expression-parser.l:23:0:
-y.tab.h:60:15: error: stray ‘#’ in program
-  typedef union #line 47 "expression-parser.y" /* yacc.c:1909  */
-                ^
-y.tab.h:60:21: error: expected identifier or ‘(’ before numeric constant
-  typedef union #line 47 "expression-parser.y" /* yacc.c:1909  */
-                      ^
-y.tab.h:63:7: error: stray ‘#’ in program
-  union #line 47 "expression-parser.y" /* yacc.c:1909  */
-        ^
-y.tab.h:63:13: error: expected identifier or ‘(’ before numeric constant
-  union #line 47 "expression-parser.y" /* yacc.c:1909  */
-              ^
-In file included from expression-parser.l:23:0:
-y.tab.h:83:1: error: unknown type name ‘YYSTYPE’
-  extern YYSTYPE yylval;
-  ^
-expression-parser.l: In function ‘yylex’:
-expression-parser.l:53:11: error: request for member ‘v’ in something 
-not a structure or union
-      yylval.v.dval = dval;
-            ^
-expression-parser.l:54:11: error: request for member ‘v’ in something 
-not a structure or union
-      yylval.v.ival = (long long) dval;
-            ^
-expression-parser.l:55:11: error: request for member ‘v’ in something 
-not a structure or union
-      yylval.v.has_dval = 1;
-            ^
-expression-parser.l:56:11: error: request for member ‘v’ in something 
-not a structure or union
-      yylval.v.has_error = 0;
-            ^
-expression-parser.l:60:11: error: request for member ‘v’ in something 
-not a structure or union
-      yylval.v.has_error = 1;
-            ^
-expression-parser.l:68:10: error: request for member ‘v’ in something 
-not a structure or union
-     yylval.v.ival = intval;
-           ^
-expression-parser.l:69:10: error: request for member ‘v’ in something 
-not a structure or union
-     yylval.v.dval = (double) intval;
-           ^
-expression-parser.l:70:10: error: request for member ‘v’ in something 
-not a structure or union
-     yylval.v.has_dval = 0;
-           ^
-expression-parser.l:71:10: error: request for member ‘v’ in something 
-not a structure or union
-     yylval.v.has_error = 0;
-           ^
-expression-parser.l:75:10: error: request for member ‘v’ in something 
-not a structure or union
-     yylval.v.has_error = 1;
-           ^
-expression-parser.l:83:10: error: request for member ‘v’ in something 
-not a structure or union
-     yylval.v.ival = intval;
-           ^
-expression-parser.l:84:10: error: request for member ‘v’ in something 
-not a structure or union
-     yylval.v.dval = (double) intval;
-           ^
-expression-parser.l:85:10: error: request for member ‘v’ in something 
-not a structure or union
-     yylval.v.has_dval = 0;
-           ^
-expression-parser.l:86:10: error: request for member ‘v’ in something 
-not a structure or union
-     yylval.v.has_error = 0;
-           ^
-expression-parser.l:90:10: error: request for member ‘v’ in something 
-not a structure or union
-     yylval.v.has_error = 1;
-           ^
-expression-parser.l:97:9: error: request for member ‘v’ in something not 
-a structure or union
-    yylval.v.has_error = 1;
-          ^
-make: *** [lex.yy.o] Error 1
+Note:  this patch is not really production quality.  I was just messing
+around with lex and yacc and wrote a little expression parser, and then
+thought, hmm, I always wished I could say "runtime=(24*60*60)" in an fio
+job file... how hard could it be to make that work?
 
-And there are a few issues around the Makefile and ensuring the lex/yacc 
-bits are built properly, but those can be easily fixed up.
+Some known issues:
 
-Don't worry about the configure bits, Windows, etc. I can fix that stuff 
-up pretty easily. Would be nice to have it work for me, though :-)
+1) Have not integrated with autoconf (don't know how, esp. since it uses
+lex and yacc).
 
-> p.s.  I have a feeling the mailing list won't like that I'm sending this
-> from gmail.
+2) overflow and underflow during arithmetic expression evaluation is not
+handled, and detection of floating point divide by zero is probably a bit
+iffy.  Probably some other numeric subtleties lurking in there too.  To
+mitigate that, I required that expressions be enclosed in parens, so
+existing jobs essentially use the existing code for conversion of strings
+to numbers, the idea being to try to avoid accidentally breaking existing
+job files.
 
-Looked good from this end, but that may be the direct email, dunno.
+3) It's been awhile since I looked at fio's source, so it's possible I
+missed some avenues by which numbers are parsed.  I *think* they all go
+through str_to_float() and str_to_decimal() in parse.c.  If there are other
+avenues, I  missed those.
 
--- 
-Jens Axboe
+4) I did do some testing, but I'm no lex / yacc expert by any stretch, so
+there could be wild bugs in there.
 
+Just a fun little project I did today so I thought I'd share it, but if
+getting autoconf to deal with lex and yacc is too painful, or those aren't
+available on windows, etc., or for whatever reason this patch is deemed to
+be unusable, that won't hurt my feelings at all.
+
+p.s.  I have a feeling the mailing list won't like that I'm sending this
+from gmail.
+
+-- steve
+
+--f46d043d65590db49a05042939e6
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>Note:=C2=A0 this patch is not really production quali=
+ty.=C2=A0 I was just messing around with lex and yacc and wrote a little ex=
+pression parser, and then thought, hmm, I always wished I could say &quot;r=
+untime=3D(24*60*60)&quot; in an fio job file... how hard could it be to mak=
+e that work?<br><br></div><div>Some known issues:<br><br></div><div>1) Have=
+ not integrated with autoconf (don&#39;t know how, esp. since it uses lex a=
+nd yacc).<br><br></div><div>2) overflow and underflow during arithmetic exp=
+ression evaluation is not handled, and detection of floating point divide b=
+y zero is probably a bit iffy.=C2=A0 Probably some other numeric subtleties=
+ lurking in there too.=C2=A0 To mitigate that, I required that expressions =
+be enclosed in parens, so existing jobs essentially use the existing code f=
+or conversion of strings to numbers, the idea being to try to avoid acciden=
+tally breaking existing job files.<br><br></div><div>3) It&#39;s been awhil=
+e since I looked at fio&#39;s source, so it&#39;s possible I missed some av=
+enues by which numbers are parsed.=C2=A0 I *think* they all go through str_=
+to_float() and str_to_decimal() in parse.c.=C2=A0 If there are other avenue=
+s, I=C2=A0 missed those.<br><br></div><div>4) I did do some testing, but I&=
+#39;m no lex / yacc expert by any stretch, so there could be wild bugs in t=
+here.<br></div><div><br></div><div>Just a fun little project I did today so=
+ I thought I&#39;d share it, but if getting autoconf to deal with lex and y=
+acc is too painful, or those aren&#39;t available on windows, etc., or for =
+whatever reason this patch is deemed to be unusable, that won&#39;t hurt my=
+ feelings at all.<br><br></div><div>p.s.=C2=A0 I have a feeling the mailing=
+ list won&#39;t like that I&#39;m sending this from gmail.<br><br></div><di=
+v>-- steve<br><br></div></div>
+
+--f46d043d65590db49a05042939e6--
+
+--f46d043d65590db49e05042939e8
+Content-Type: application/octet-stream; 
+	name=fio-allow-arithmetic-expressions-in-job-files
+Content-Disposition: attachment; 
+	filename=fio-allow-arithmetic-expressions-in-job-files
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_i0n2ht4j0
+
+Y29tbWl0IDQzOTFjYWVhMGJhODAxMDRiYTVmZjc5NDM4MWI3MzA5M2VkYjQ2MmUKQXV0aG9yOiBT
+dGVwaGVuIE0uIENhbWVyb24gPHN0ZXBoZW5tY2FtZXJvbkBnbWFpbC5jb20+CkRhdGU6ICAgU3Vu
+IFNlcCAyOCAxNDo1MTowNCAyMDE0IC0wNTAwCgogICAgZmlvOiBhbGxvdyBhcml0aG1ldGljIGV4
+cHJlc3Npb25zIHRvIGJlIHVzZWQgaW4gam9iIGZpbGVzIGFueXdoZXJlIGEgbnVtYmVyIGlzIG5l
+ZWRlZAogICAgCiAgICBIb3dldmVyLCB0aGUgYXJpdGhtZXRpYyBleHByZXNzaW9ucyBtdXN0IGJl
+IGVuY2xvc2VkIGluIHBhcmVudGhlc2VzLiAgVGhhdCBpcwogICAgbm90IGEgaGFyZHIgcmVxdWly
+ZW1lbnQsIEkganVzdCBkaWQgaXQgdGhhdCB3YXkgdG8gZW5hYmxlIHRoZSBvbGQgY29kZSB0byBi
+ZQogICAgdXNlZCBmb3IgdGhlIGV4aXN0aW5nIGpvYiBmaWxlcywgdG8gcmVkdWNlIHJpc2sgb2Yg
+YnJlYWtpbmcgc29tZXRoaW5nIHRoYXQKICAgIHByZXZpb3VzbHkgd29ya2VkLgogICAgCiAgICBL
+bm93biBpc3N1ZXM6IDEpIGlmIG92ZXJmbG93IG9yIHVuZGVyZmxvdyBvY2N1cnMgZHVyaW5nIHRo
+ZSBldmFsdWF0aW9uIG9mCiAgICBhcml0aG1ldGljIGV4cHJlc3Npb25zLCBpdCBpcyBub3QgZGV0
+ZWN0ZWQuICBMaWtld2lzZSwgZGV0ZWN0aW9uIG9mIGZsb2F0aW5nCiAgICBwb2ludCBkaXZpZGUg
+YnkgemVybyBpcyBhIGJpdCBpZmZ5LiAgQ2FsY3VsYXRpb25zIGFyZSBjYXJyaWVkIG91dCBib3Ro
+IGFzCiAgICBsb25nIGxvbmdzIGFuZCBhcyBpbnRlZ2Vycy4gIElmIGF0IGFueSBwb2ludCwgYSBk
+b3VibGUgcHJlY2lzaW9uIGZsb2F0aW5nIHBvaW50CiAgICB2YWx1ZSBpcyB1c2VkLCBmbG9hdGlu
+ZyBwb2ludCB2YWx1ZXMgYXJlIHVzZWQsIGFuZCBmb3IgdGhlIGZpbmFsIGxvbmcgbG9uZwogICAg
+Y2FsY3VsYXRpb24gdGhlIGRvdWJsZSBpcyBjYXN0IHRvIGEgbG9uZyBsb25nLgogICAgCiAgICBU
+aGVyZSBtYXkgYmUgb3RoZXIgbnVtZXJpYyBzdWJ0bGV0aWVzIGx1cmtpbmcgYXMgd2VsbC4gIFRo
+ZXNlIGtpbmQgb2YgdGhpbmdzCiAgICBhcmUgd2h5IEkgcmVxdWlyZSB0aGUgcGFyZW50aGVzZXMg
+dG8gaW52b2tlIHRoZSBhcml0aG1ldGljIHByb2Nlc3NpbmcuCiAgICAKICAgIDIpIEkgbWFkZSBu
+byBlZmZvcnQgdG8gd29yayB0aGlzIGNvZGUgaW50byB0aGUgYXV0b2NvbmYgc3lzdGVtLiAgSGF2
+ZSBubyBpZGVhCiAgICBob3cgdG8gZG8gdGhhdCwgZXNwLiB3aXRoIGxleCBhbmQgeWFjYyBpbnZv
+bHZlZCBpbiB0aGlzLgogICAgCiAgICBTaWduZWQtb2ZmLWJ5OiBTdGVwaGVuIE0uIENhbWVyb24g
+PHN0ZXBoZW5tY2FtZXJvbkBnbWFpbC5jb20+CgpkaWZmIC0tZ2l0IGEvTWFrZWZpbGUgYi9NYWtl
+ZmlsZQppbmRleCA4YzZjMDU2Li4wMzllNjJlIDEwMDY0NAotLS0gYS9NYWtlZmlsZQorKysgYi9N
+YWtlZmlsZQpAQCAtMTgsNyArMTgsNyBAQCBERUJVR0ZMQUdTID0gLURfRk9SVElGWV9TT1VSQ0U9
+MiAtREZJT19JTkNfREVCVUcKIENQUEZMQUdTPSAtRF9MQVJHRUZJTEVfU09VUkNFIC1EX0ZJTEVf
+T0ZGU0VUX0JJVFM9NjQgLURGSU9fSU5URVJOQUwgJChERUJVR0ZMQUdTKQogT1BURkxBR1M9IC1P
+MyAtZyAtZmZhc3QtbWF0aAogQ0ZMQUdTCT0gLXN0ZD1nbnU5OSAtV3dyaXRlLXN0cmluZ3MgLVdh
+bGwgLVdkZWNsYXJhdGlvbi1hZnRlci1zdGF0ZW1lbnQgJChPUFRGTEFHUykgJChFWFRGTEFHUykg
+JChCVUlMRF9DRkxBR1MpCi1MSUJTCSs9IC1sbSAkKEVYVExJQlMpCitMSUJTCSs9IC1sbSAkKEVY
+VExJQlMpIC1seSAtbGwKIFBST0dTCT0gZmlvCiBTQ1JJUFRTID0gdG9vbHMvZmlvX2dlbmVyYXRl
+X3Bsb3RzIHRvb2xzL3Bsb3QvZmlvMmdudXBsb3QgdG9vbHMvZ2VuZmlvCiAKQEAgLTE1Nyw3ICsx
+NTcsNyBAQCBlbmRpZgogCiBPQkpTID0gJChTT1VSQ0U6LmM9Lm8pCiAKLUZJT19PQkpTID0gJChP
+QkpTKSBmaW8ubworRklPX09CSlMgPSAkKE9CSlMpIGZpby5vIGV4cHJlc3Npb24tcGFyc2VyL2xl
+eC55eS5vIGV4cHJlc3Npb24tcGFyc2VyL3kudGFiLm8KIEdGSU9fT0JKUyA9ICQoT0JKUykgZ2Zp
+by5vIGdyYXBoLm8gdGlja21hcmtzLm8gZ2hlbHBlcnMubyBnb3B0aW9ucy5vIGdlcnJvci5vIFwK
+IAkJCWdjbGllbnQubyBnY29tcGF0Lm8gY2Fpcm9fdGV4dF9oZWxwZXJzLm8gcHJpbnRpbmcubwog
+CmRpZmYgLS1naXQgYS9leGFtcGxlcy9sYXRlbmN5LXByb2ZpbGUuZmlvIGIvZXhhbXBsZXMvbGF0
+ZW5jeS1wcm9maWxlLmZpbwppbmRleCBmNWNkODQ0Li43ZWNjZDZmIDEwMDY0NAotLS0gYS9leGFt
+cGxlcy9sYXRlbmN5LXByb2ZpbGUuZmlvCisrKyBiL2V4YW1wbGVzL2xhdGVuY3ktcHJvZmlsZS5m
+aW8KQEAgLTQsMTggKzQsMTggQEAKICMgcmVhZCB3b3JrbG9hZC4KIAogW2dsb2JhbF0KLWJzPTRr
+Citicz0oNCAqIDEwMjQpCiBydz1yYW5kcmVhZAogcmFuZG9tX2dlbmVyYXRvcj1sZnNyCiBkaXJl
+Y3Q9MQogaW9lbmdpbmU9bGliYWlvCi1pb2RlcHRoPTEyOAoraW9kZXB0aD0oNjQgKiAyKQogIyBT
+ZXQgbWF4IGFjY2VwdGFibGUgbGF0ZW5jeSB0byA1MDBtc2VjCiBsYXRlbmN5X3RhcmdldD01MDAw
+MDAKICMgcHJvZmlsZSBvdmVyIGEgNXMgd2luZG93CiBsYXRlbmN5X3dpbmRvdz01MDAwMDAwCiAj
+IDk5LjklIG9mIElPcyBtdXN0IGJlIGJlbG93IHRoZSB0YXJnZXQKLWxhdGVuY3lfcGVyY2VudGls
+ZT05OS45CitsYXRlbmN5X3BlcmNlbnRpbGU9KDEwMCAtIDAuMSkKIAogW2RldmljZV0KIGZpbGVu
+YW1lPS9kZXYvc2RhCmRpZmYgLS1naXQgYS9leHByZXNzaW9uLXBhcnNlci9NYWtlZmlsZSBiL2V4
+cHJlc3Npb24tcGFyc2VyL01ha2VmaWxlCm5ldyBmaWxlIG1vZGUgMTAwNjQ0CmluZGV4IDAwMDAw
+MDAuLjk4MzUyYWMKLS0tIC9kZXYvbnVsbAorKysgYi9leHByZXNzaW9uLXBhcnNlci9NYWtlZmls
+ZQpAQCAtMCwwICsxLDIwIEBACisKK0NGTEFHUz0tV2FsbCAtV2V4dHJhCisKK2FsbDoJdGVzdC1l
+eHByZXNzaW9uLXBhcnNlcgorCitsZXgueXkubzoJbGV4Lnl5LmMgeS50YWIuaAorCitsZXgueXku
+byB5LnRhYi5vOgl5LnRhYi5oCisKK3kudGFiLmMgeS50YWIuaDoJZXhwcmVzc2lvbi1wYXJzZXIu
+eQorCSQoWUFDQykgLWQgZXhwcmVzc2lvbi1wYXJzZXIueQorCitsZXgueXkuYzoJZXhwcmVzc2lv
+bi1wYXJzZXIubAorCSQoTEVYKSBleHByZXNzaW9uLXBhcnNlci5sCisKK3Rlc3QtZXhwcmVzc2lv
+bi1wYXJzZXI6CXkudGFiLm8gbGV4Lnl5Lm8gdGVzdC1leHByZXNzaW9uLXBhcnNlci5jCisJZ2Nj
+IC1vIHRlc3QtZXhwcmVzc2lvbi1wYXJzZXIgdGVzdC1leHByZXNzaW9uLXBhcnNlci5jIHkudGFi
+Lm8gbGV4Lnl5Lm8gLWx5IC1sbAorCitjbGVhbjoKKwlybSAtZiBsZXgueXkuYyB5LnRhYi5jIHku
+dGFiLmggKi5vIHRlc3QtZXhwcmVzc2lvbi1wYXJzZXIKZGlmZiAtLWdpdCBhL2V4cHJlc3Npb24t
+cGFyc2VyL1JFQURNRS5tZCBiL2V4cHJlc3Npb24tcGFyc2VyL1JFQURNRS5tZApuZXcgZmlsZSBt
+b2RlIDEwMDY0NAppbmRleCAwMDAwMDAwLi40OGMxMWM5Ci0tLSAvZGV2L251bGwKKysrIGIvZXhw
+cmVzc2lvbi1wYXJzZXIvUkVBRE1FLm1kCkBAIC0wLDAgKzEsNyBAQAorc2ltcGxlLWV4cHJlc3Np
+b24tcGFyc2VyCis9PT09PT09PT09PT09PT09PT09PT09PT0KKworQSBzaW1wbGUgZXhwcmVzc2lv
+biBwYXJzZXIgZm9yIGFyaXRobWV0aWMgZXhwcmVzc2lvbnMgbWFkZSB3aXRoIGJpc29uICsgZmxl
+eAorCitUbyB1c2UsIHNlZSB0aGUgZXhhbXBsZSB0ZXN0LWV4cHJlc3Npb24tcGFyc2VyLmMKKwpk
+aWZmIC0tZ2l0IGEvZXhwcmVzc2lvbi1wYXJzZXIvZXhwcmVzc2lvbi1wYXJzZXIubCBiL2V4cHJl
+c3Npb24tcGFyc2VyL2V4cHJlc3Npb24tcGFyc2VyLmwKbmV3IGZpbGUgbW9kZSAxMDA2NDQKaW5k
+ZXggMDAwMDAwMC4uMzg4NTE1ZQotLS0gL2Rldi9udWxsCisrKyBiL2V4cHJlc3Npb24tcGFyc2Vy
+L2V4cHJlc3Npb24tcGFyc2VyLmwKQEAgLTAsMCArMSwxMDEgQEAKKyV7CisKKy8qCisgKiAoQykg
+Q29weXJpZ2h0IDIwMTQsIFN0ZXBoZW4gTS4gQ2FtZXJvbi4KKyAqCisgKiAgVGhpcyBwcm9ncmFt
+IGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vciBtb2RpZnkK
+KyAqICBpdCB1bmRlciB0aGUgdGVybXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNl
+IHZlcnNpb24gMiBhcworICogIHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0
+aW9uLgorICoKKyAqICBUaGlzIHByb2dyYW0gaXMgZGlzdHJpYnV0ZWQgaW4gdGhlIGhvcGUgdGhh
+dCBpdCB3aWxsIGJlIHVzZWZ1bCwKKyAqICBidXQgV0lUSE9VVCBBTlkgV0FSUkFOVFk7IHdpdGhv
+dXQgZXZlbiB0aGUgaW1wbGllZCB3YXJyYW50eSBvZgorICogIE1FUkNIQU5UQUJJTElUWSBvciBG
+SVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9TRS4gIFNlZSB0aGUKKyAqICBHTlUgR2VuZXJh
+bCBQdWJsaWMgTGljZW5zZSBmb3IgbW9yZSBkZXRhaWxzLgorICoKKyAqICBZb3Ugc2hvdWxkIGhh
+dmUgcmVjZWl2ZWQgYSBjb3B5IG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZQorICog
+IGFsb25nIHdpdGggdGhpcyBwcm9ncmFtOyBpZiBub3QsIHdyaXRlIHRvIHRoZSBGcmVlIFNvZnR3
+YXJlCisgKiAgRm91bmRhdGlvbiwgSW5jLiwgNTkgVGVtcGxlIFBsYWNlLCBTdWl0ZSAzMzAsIEJv
+c3RvbiwgTUEgIDAyMTExLTEzMDcgIFVTQQorICoKKyAqLworCisjaW5jbHVkZSA8c3RkaW8uaD4K
+KyNpbmNsdWRlIDxzdHJpbmcuaD4KKyNpbmNsdWRlICJ5LnRhYi5oIgorCisjZGVmaW5lIFlZU1RZ
+UEUgUEFSU0VSX1ZBTFVFX1RZUEUKKworZXh0ZXJuIGludCBsZXhlcl9pbnB1dChjaGFyKiBidWZm
+ZXIsIGludCAqbmJ5dGVzLCBpbnQgYnVmZmVyc2l6ZSk7CisKKyN1bmRlZiBZWV9JTlBVVAorI2Rl
+ZmluZSBZWV9JTlBVVChidWZmZXIsIGJ5dGVzX3JlYWQsIGJ5dGVzX3JlcXVlc3RlZCkgXAorCQls
+ZXhlcl9pbnB1dCgoYnVmZmVyKSwgJihieXRlc19yZWFkKSwgKGJ5dGVzX3JlcXVlc3RlZCkpCisK
+K2V4dGVybiBpbnQgeXllcnJvcihsb25nIGxvbmcgKnJlc3VsdCwgZG91YmxlICpkcmVzdWx0LAor
+CQlpbnQgKmhhc19lcnJvciwgaW50ICpieWUsIGNvbnN0IGNoYXIgKm1zZyk7CisKK3N0YXRpYyB2
+b2lkIF9fYXR0cmlidXRlX18oKHVudXNlZCkpIHl5dW5wdXQoaW50IGMsY2hhciAqYnVmX3B0cik7
+CitzdGF0aWMgaW50IF9fYXR0cmlidXRlX18oKHVudXNlZCkpIGlucHV0KHZvaWQpOworCislfQor
+CislJQorCisKK2J5ZQlyZXR1cm4gQllFOworWyBcdF0gOyAvKiBpZ25vcmUgd2hpdGVzcGFjZSAq
+LworIy4rIDsgLyogaWdub3JlIGNvbW1lbnRzICovCitbMC05XSpbLl1bMC05XSsgeworCQkJaW50
+IHJjOworCQkJZG91YmxlIGR2YWw7CisKKwkJCXJjID0gc3NjYW5mKHl5dGV4dCwgIiVsZiIsICZk
+dmFsKTsKKwkJCWlmIChyYyA9PSAxKSB7CisJCQkJeXlsdmFsLnYuZHZhbCA9IGR2YWw7CisJCQkJ
+eXlsdmFsLnYuaXZhbCA9IChsb25nIGxvbmcpIGR2YWw7CisJCQkJeXlsdmFsLnYuaGFzX2R2YWwg
+PSAxOworCQkJCXl5bHZhbC52Lmhhc19lcnJvciA9IDA7CisJCQkJcmV0dXJuIE5VTUJFUjsKKwkJ
+CX0gZWxzZSB7CisJCQkJeXllcnJvcigwLCAwLCAwLCAwLCAiYmFkIG51bWJlclxuIik7CisJCQkJ
+eXlsdmFsLnYuaGFzX2Vycm9yID0gMTsKKwkJCQlyZXR1cm4gTlVNQkVSOworCQkJfQorCQl9Cisw
+eFswLTlhLWZBLUZdKyB7CisJCWludCByYywgaW50dmFsOworCQlyYyA9IHNzY2FuZih5eXRleHQs
+ICIleCIsICZpbnR2YWwpOworCQlpZiAocmMgPT0gMSkgeworCQkJeXlsdmFsLnYuaXZhbCA9IGlu
+dHZhbDsKKwkJCXl5bHZhbC52LmR2YWwgPSAoZG91YmxlKSBpbnR2YWw7CisJCQl5eWx2YWwudi5o
+YXNfZHZhbCA9IDA7CisJCQl5eWx2YWwudi5oYXNfZXJyb3IgPSAwOworCQkJcmV0dXJuIE5VTUJF
+UjsKKwkJfSBlbHNlIHsKKwkJCXl5ZXJyb3IoMCwgMCwgMCwgMCwgImJhZCBudW1iZXJcbiIpOwor
+CQkJeXlsdmFsLnYuaGFzX2Vycm9yID0gMTsKKwkJCXJldHVybiBOVU1CRVI7CisJCX0KKwl9Citb
+MC05XSsJeworCQlpbnQgcmMsIGludHZhbDsKKwkJcmMgPSBzc2NhbmYoeXl0ZXh0LCAiJWQiLCAm
+aW50dmFsKTsKKwkJaWYgKHJjID09IDEpIHsKKwkJCXl5bHZhbC52Lml2YWwgPSBpbnR2YWw7CisJ
+CQl5eWx2YWwudi5kdmFsID0gKGRvdWJsZSkgaW50dmFsOworCQkJeXlsdmFsLnYuaGFzX2R2YWwg
+PSAwOworCQkJeXlsdmFsLnYuaGFzX2Vycm9yID0gMDsKKwkJCXJldHVybiBOVU1CRVI7CisJCX0g
+ZWxzZSB7CisJCQl5eWVycm9yKDAsIDAsIDAsIDAsICJiYWQgbnVtYmVyXG4iKTsKKwkJCXl5bHZh
+bC52Lmhhc19lcnJvciA9IDE7CisJCQlyZXR1cm4gTlVNQkVSOworCQl9CisJfQorXG4JcmV0dXJu
+IDA7CitbKy0vKigpXQlyZXR1cm4geXl0ZXh0WzBdOworLgl7CisJCXl5bHZhbC52Lmhhc19lcnJv
+ciA9IDE7CisJCXJldHVybiBOVU1CRVI7CQorCX0KKyUlCisKZGlmZiAtLWdpdCBhL2V4cHJlc3Np
+b24tcGFyc2VyL2V4cHJlc3Npb24tcGFyc2VyLnkgYi9leHByZXNzaW9uLXBhcnNlci9leHByZXNz
+aW9uLXBhcnNlci55Cm5ldyBmaWxlIG1vZGUgMTAwNjQ0CmluZGV4IDAwMDAwMDAuLmRiZDhiNmMK
+LS0tIC9kZXYvbnVsbAorKysgYi9leHByZXNzaW9uLXBhcnNlci9leHByZXNzaW9uLXBhcnNlci55
+CkBAIC0wLDAgKzEsMTgwIEBACisleworCisvKgorICogKEMpIENvcHlyaWdodCAyMDE0LCBTdGVw
+aGVuIE0uIENhbWVyb24uCisgKgorICogIFRoaXMgcHJvZ3JhbSBpcyBmcmVlIHNvZnR3YXJlOyB5
+b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3IgbW9kaWZ5CisgKiAgaXQgdW5kZXIgdGhlIHRl
+cm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSB2ZXJzaW9uIDIgYXMKKyAqICBw
+dWJsaXNoZWQgYnkgdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbi4KKyAqCisgKiAgVGhpcyBw
+cm9ncmFtIGlzIGRpc3RyaWJ1dGVkIGluIHRoZSBob3BlIHRoYXQgaXQgd2lsbCBiZSB1c2VmdWws
+CisgKiAgYnV0IFdJVEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhlIGltcGxpZWQg
+d2FycmFudHkgb2YKKyAqICBNRVJDSEFOVEFCSUxJVFkgb3IgRklUTkVTUyBGT1IgQSBQQVJUSUNV
+TEFSIFBVUlBPU0UuICBTZWUgdGhlCisgKiAgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgZm9y
+IG1vcmUgZGV0YWlscy4KKyAqCisgKiAgWW91IHNob3VsZCBoYXZlIHJlY2VpdmVkIGEgY29weSBv
+ZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UKKyAqICBhbG9uZyB3aXRoIHRoaXMgcHJv
+Z3JhbTsgaWYgbm90LCB3cml0ZSB0byB0aGUgRnJlZSBTb2Z0d2FyZQorICogIEZvdW5kYXRpb24s
+IEluYy4sIDU5IFRlbXBsZSBQbGFjZSwgU3VpdGUgMzMwLCBCb3N0b24sIE1BICAwMjExMS0xMzA3
+ICBVU0EKKyAqCisgKi8KKworI2luY2x1ZGUgPHN0ZGlvLmg+CisjaW5jbHVkZSA8c3RyaW5nLmg+
+CisKK3N0cnVjdCBwYXJzZXJfdmFsdWVfdHlwZSB7CisJZG91YmxlIGR2YWw7CisJbG9uZyBsb25n
+IGl2YWw7CisJaW50IGhhc19kdmFsOworCWludCBoYXNfZXJyb3I7Cit9OworCit0eXBlZGVmIHVu
+aW9uIHZhbHR5cGUgeworCXN0cnVjdCBwYXJzZXJfdmFsdWVfdHlwZSB2OworfSBQQVJTRVJfVkFM
+VUVfVFlQRTsKKworI2RlZmluZSBZWVNUWVBFIFBBUlNFUl9WQUxVRV9UWVBFCisKK2ludCB5eWVy
+cm9yKF9fYXR0cmlidXRlX18oKHVudXNlZCkpIGxvbmcgbG9uZyAqcmVzdWx0LAorCQlfX2F0dHJp
+YnV0ZV9fKCh1bnVzZWQpKSBkb3VibGUgKmRyZXN1bHQsCisJCV9fYXR0cmlidXRlX18oKHVudXNl
+ZCkpIGludCAqaGFzX2Vycm9yLAorCQlfX2F0dHJpYnV0ZV9fKCh1bnVzZWQpKSBpbnQgKmJ5ZSwg
+Y29uc3QgY2hhciAqbXNnKTsKKworZXh0ZXJuIGludCB5eWxleCh2b2lkKTsKK2V4dGVybiB2b2lk
+IHl5cmVzdGFydChGSUxFICpmaWxlKTsKKworJX0KKworJXVuaW9uIHZhbHR5cGUgeworCXN0cnVj
+dCBwYXJzZXJfdmFsdWVfdHlwZSB7CisJCWRvdWJsZSBkdmFsOworCQlsb25nIGxvbmcgaXZhbDsK
+KwkJaW50IGhhc19kdmFsOworCQlpbnQgaGFzX2Vycm9yOworCX0gdjsKK307CisKKyV0b2tlbiA8
+dj4gTlVNQkVSCisldG9rZW4gPHY+IEJZRQorJWxlZnQgJy0nICcrJworJWxlZnQgJyonICcvJwor
+JW5vbmFzc29jIFVNSU5VUworJXBhcnNlLXBhcmFtIHsgbG9uZyBsb25nICpyZXN1bHQgfQorJXBh
+cnNlLXBhcmFtIHsgZG91YmxlICpkcmVzdWx0IH0KKyVwYXJzZS1wYXJhbSB7IGludCAqaGFzX2Vy
+cm9yIH0KKyVwYXJzZS1wYXJhbSB7IGludCAqYnllIH0KKworJXR5cGUgPHY+IGV4cHJlc3Npb24K
+KyUlCisKK3RvcF9sZXZlbDoJZXhwcmVzc2lvbiB7CisJCQkJKnJlc3VsdCA9ICQxLml2YWw7CisJ
+CQkJKmRyZXN1bHQgPSAkMS5kdmFsOworCQkJCSpoYXNfZXJyb3IgPSAkMS5oYXNfZXJyb3I7CisJ
+CQl9CisJCXwgZXhwcmVzc2lvbiBlcnJvciB7CisJCQkJKnJlc3VsdCA9ICQxLml2YWw7CisJCQkJ
+KmRyZXN1bHQgPSAkMS5kdmFsOworCQkJCSpoYXNfZXJyb3IgPSAxOworCQkJfQorZXhwcmVzc2lv
+bjoJZXhwcmVzc2lvbiAnKycgZXhwcmVzc2lvbiB7IAorCQkJaWYgKCEkMS5oYXNfZHZhbCAmJiAh
+JDMuaGFzX2R2YWwpCisJCQkJJCQuaXZhbCA9ICQxLml2YWwgKyAkMy5pdmFsOworCQkJZWxzZQor
+CQkJCSQkLml2YWwgPSAobG9uZyBsb25nKSAoJDEuZHZhbCArICQzLmR2YWwpOworCQkJJCQuZHZh
+bCA9ICQxLmR2YWwgKyAkMy5kdmFsOworCQkJJCQuaGFzX2Vycm9yID0gJDEuaGFzX2Vycm9yIHx8
+ICQzLmhhc19lcnJvcjsKKwkJfQorCXwJZXhwcmVzc2lvbiAnLScgZXhwcmVzc2lvbiB7CisJCQlp
+ZiAoISQxLmhhc19kdmFsICYmICEkMy5oYXNfZHZhbCkKKwkJCQkkJC5pdmFsID0gJDEuaXZhbCAt
+ICQzLml2YWw7IAorCQkJZWxzZQorCQkJCSQkLml2YWwgPSAobG9uZyBsb25nKSAoJDEuZHZhbCAt
+ICQzLmR2YWwpOyAKKwkJCSQkLmR2YWwgPSAkMS5kdmFsIC0gJDMuZHZhbDsgCisJCQkkJC5oYXNf
+ZXJyb3IgPSAkMS5oYXNfZXJyb3IgfHwgJDMuaGFzX2Vycm9yOworCQl9CisJfAlleHByZXNzaW9u
+ICcqJyBleHByZXNzaW9uIHsKKwkJCWlmICghJDEuaGFzX2R2YWwgJiYgISQzLmhhc19kdmFsKQor
+CQkJCSQkLml2YWwgPSAkMS5pdmFsICogJDMuaXZhbDsKKwkJCWVsc2UKKwkJCQkkJC5pdmFsID0g
+KGxvbmcgbG9uZykgKCQxLmR2YWwgKiAkMy5kdmFsKTsKKwkJCSQkLmR2YWwgPSAkMS5kdmFsICog
+JDMuZHZhbDsKKwkJCSQkLmhhc19lcnJvciA9ICQxLmhhc19lcnJvciB8fCAkMy5oYXNfZXJyb3I7
+CisJCX0KKwl8CWV4cHJlc3Npb24gJy8nIGV4cHJlc3Npb24geworCQkJaWYgKCQzLml2YWwgPT0g
+MCkKKwkJCQl5eWVycm9yKDAsIDAsIDAsIDAsICJkaXZpZGUgYnkgemVybyIpOworCQkJZWxzZQor
+CQkJCSQkLml2YWwgPSAkMS5pdmFsIC8gJDMuaXZhbDsKKwkJCWlmICgkMy5kdmFsIDwgMWUtMjAg
+JiYgJDMuZHZhbCA+IC0xZS0yMCkKKwkJCQl5eWVycm9yKDAsIDAsIDAsIDAsICJkaXZpZGUgYnkg
+emVybyIpOworCQkJZWxzZQorCQkJCSQkLmR2YWwgPSAkMS5kdmFsIC8gJDMuZHZhbDsKKwkJCWlm
+ICgkMy5oYXNfZHZhbCB8fCAkMS5oYXNfZHZhbCkKKwkJCQkkJC5pdmFsID0gKGxvbmcgbG9uZykg
+JCQuZHZhbDsKKwkJCSQkLmhhc19lcnJvciA9ICQxLmhhc19lcnJvciB8fCAkMy5oYXNfZXJyb3I7
+CisJCX0KKwl8CSctJyBleHByZXNzaW9uICVwcmVjIFVNSU5VUyB7CisJCQkkJC5pdmFsID0gLSQy
+Lml2YWw7CisJCQkkJC5kdmFsID0gLSQyLmR2YWw7CisJCQkkJC5oYXNfZXJyb3IgPSAkMi5oYXNf
+ZXJyb3I7CisJCX0KKwl8CScoJyBleHByZXNzaW9uICcpJyB7ICQkID0gJDI7IH0KKwl8CU5VTUJF
+UiB7ICQkID0gJDE7IH0KKwl8CUJZRSB7ICQkID0gJDE7ICpieWUgPSAxOyB9OworJSUKKyNpbmNs
+dWRlIDxzdGRpby5oPgorCisvKiBVcmdoLiAgeWFjYyBhbmQgbGV4IGFyZSBraW5kIG9mIGhvcnJp
+YmxlLiAgVGhpcyBpcyBub3QgdGhyZWFkIHNhZmUsIG9idmlvdXNseS4gKi8KK3N0YXRpYyBpbnQg
+bGV4ZXJfcmVhZF9vZmZzZXQgPSAwOworc3RhdGljIGNoYXIgbGV4ZXJfaW5wdXRfYnVmZmVyWzEw
+MDBdOworCitpbnQgbGV4ZXJfaW5wdXQoY2hhciogYnVmZmVyLCBpbnQgKmJ5dGVzX3JlYWQsIGlu
+dCBieXRlc19yZXF1ZXN0ZWQpCit7CisJaW50IGJ5dGVzX2xlZnQgPSBzdHJsZW4obGV4ZXJfaW5w
+dXRfYnVmZmVyKSAtIGxleGVyX3JlYWRfb2Zmc2V0OworCisJaWYgKGJ5dGVzX3JlcXVlc3RlZCA+
+IGJ5dGVzX2xlZnQgKQorCQlieXRlc19yZXF1ZXN0ZWQgPSBieXRlc19sZWZ0OworCW1lbWNweShi
+dWZmZXIsICZsZXhlcl9pbnB1dF9idWZmZXJbbGV4ZXJfcmVhZF9vZmZzZXRdLCBieXRlc19yZXF1
+ZXN0ZWQpOworCSpieXRlc19yZWFkID0gYnl0ZXNfcmVxdWVzdGVkOworCWxleGVyX3JlYWRfb2Zm
+c2V0ICs9IGJ5dGVzX3JlcXVlc3RlZDsKKwlyZXR1cm4gMDsKK30KKworc3RhdGljIHZvaWQgc2V0
+dXBfdG9fcGFyc2Vfc3RyaW5nKGNvbnN0IGNoYXIgKnN0cmluZykKK3sKKwl1bnNpZ25lZCBpbnQg
+bGVuOworCisJbGVuID0gc3RybGVuKHN0cmluZyk7CisJaWYgKGxlbiA+IHNpemVvZihsZXhlcl9p
+bnB1dF9idWZmZXIpIC0gMykKKwkJbGVuID0gc2l6ZW9mKGxleGVyX2lucHV0X2J1ZmZlcikgLSAz
+OworCisJc3RybmNweShsZXhlcl9pbnB1dF9idWZmZXIsIHN0cmluZywgbGVuKTsKKwlsZXhlcl9p
+bnB1dF9idWZmZXJbbGVuXSA9ICdcMCc7IAorCWxleGVyX2lucHV0X2J1ZmZlcltsZW4gKyAxXSA9
+ICdcMCc7ICAvKiBsZXgveWFjYyB3YW50IHN0cmluZyBkb3VibGUgbnVsbCB0ZXJtaW5hdGVkISAq
+LworCWxleGVyX3JlYWRfb2Zmc2V0ID0gMDsKK30KKworaW50IGV2YWx1YXRlX2FyaXRobWV0aWNf
+ZXhwcmVzc2lvbihjb25zdCBjaGFyICpidWZmZXIsIGxvbmcgbG9uZyAqaXZhbCwgZG91YmxlICpk
+dmFsKQoreworCWludCByYywgYnllID0gMCwgaGFzX2Vycm9yID0gMDsKKworCXNldHVwX3RvX3Bh
+cnNlX3N0cmluZyhidWZmZXIpOworCXJjID0geXlwYXJzZShpdmFsLCBkdmFsLCAmaGFzX2Vycm9y
+LCAmYnllKTsKKwl5eXJlc3RhcnQoTlVMTCk7CisJaWYgKHJjIHx8IGJ5ZSB8fCBoYXNfZXJyb3Ip
+IHsKKwkJKml2YWwgPSAwOworCQkqZHZhbCA9IDA7CisJCWhhc19lcnJvciA9IDE7CisJfQorCXJl
+dHVybiBoYXNfZXJyb3I7Cit9CisKK2ludCB5eWVycm9yKF9fYXR0cmlidXRlX18oKHVudXNlZCkp
+IGxvbmcgbG9uZyAqcmVzdWx0LAorCQlfX2F0dHJpYnV0ZV9fKCh1bnVzZWQpKSBkb3VibGUgKmRy
+ZXN1bHQsCisJCV9fYXR0cmlidXRlX18oKHVudXNlZCkpIGludCAqaGFzX2Vycm9yLAorCQlfX2F0
+dHJpYnV0ZV9fKCh1bnVzZWQpKSBpbnQgKmJ5ZSwgY29uc3QgY2hhciAqbXNnKQoreworCWZwcmlu
+dGYoc3RkZXJyLCAiJXNcbiIsIG1zZyk7CisJcmV0dXJuIDA7Cit9CisKZGlmZiAtLWdpdCBhL2V4
+cHJlc3Npb24tcGFyc2VyL3Rlc3QtZXhwcmVzc2lvbi1wYXJzZXIuYyBiL2V4cHJlc3Npb24tcGFy
+c2VyL3Rlc3QtZXhwcmVzc2lvbi1wYXJzZXIuYwpuZXcgZmlsZSBtb2RlIDEwMDY0NAppbmRleCAw
+MDAwMDAwLi42YjRhYjVkCi0tLSAvZGV2L251bGwKKysrIGIvZXhwcmVzc2lvbi1wYXJzZXIvdGVz
+dC1leHByZXNzaW9uLXBhcnNlci5jCkBAIC0wLDAgKzEsNTAgQEAKKy8qCisgKiAoQykgQ29weXJp
+Z2h0IDIwMTQsIFN0ZXBoZW4gTS4gQ2FtZXJvbi4KKyAqCisgKiBUaGUgbGljZW5zZSBiZWxvdyBj
+b3ZlcnMgYWxsIGZpbGVzIGRpc3RyaWJ1dGVkIHdpdGggZmlvIHVubGVzcyBvdGhlcndpc2UKKyAq
+IG5vdGVkIGluIHRoZSBmaWxlIGl0c2VsZi4KKyAqCisgKiAgVGhpcyBwcm9ncmFtIGlzIGZyZWUg
+c29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vciBtb2RpZnkKKyAqICBpdCB1
+bmRlciB0aGUgdGVybXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIHZlcnNpb24g
+MiBhcworICogIHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uLgorICoK
+KyAqICBUaGlzIHByb2dyYW0gaXMgZGlzdHJpYnV0ZWQgaW4gdGhlIGhvcGUgdGhhdCBpdCB3aWxs
+IGJlIHVzZWZ1bCwKKyAqICBidXQgV0lUSE9VVCBBTlkgV0FSUkFOVFk7IHdpdGhvdXQgZXZlbiB0
+aGUgaW1wbGllZCB3YXJyYW50eSBvZgorICogIE1FUkNIQU5UQUJJTElUWSBvciBGSVRORVNTIEZP
+UiBBIFBBUlRJQ1VMQVIgUFVSUE9TRS4gIFNlZSB0aGUKKyAqICBHTlUgR2VuZXJhbCBQdWJsaWMg
+TGljZW5zZSBmb3IgbW9yZSBkZXRhaWxzLgorICoKKyAqICBZb3Ugc2hvdWxkIGhhdmUgcmVjZWl2
+ZWQgYSBjb3B5IG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZQorICogIGFsb25nIHdp
+dGggdGhpcyBwcm9ncmFtOyBpZiBub3QsIHdyaXRlIHRvIHRoZSBGcmVlIFNvZnR3YXJlCisgKiAg
+Rm91bmRhdGlvbiwgSW5jLiwgNTkgVGVtcGxlIFBsYWNlLCBTdWl0ZSAzMzAsIEJvc3RvbiwgTUEg
+IDAyMTExLTEzMDcgIFVTQQorICoKKyAqLworCisjaW5jbHVkZSA8c3RkaW8uaD4KKyNpbmNsdWRl
+IDxzdHJpbmcuaD4KKworI2luY2x1ZGUgInkudGFiLmgiCisgCitpbnQgbWFpbihpbnQgYXJnYywg
+Y2hhciAqYXJndltdKQoreworCWludCByYywgaGFzX2Vycm9yLCAgYnllID0gMDsKKwlsb25nIGxv
+bmcgcmVzdWx0OworCWRvdWJsZSBkcmVzdWx0OworCWNoYXIgYnVmZmVyWzEwMF07CisKKwlkbyB7
+CisJCWlmIChmZ2V0cyhidWZmZXIsIDkwLCBzdGRpbikgPT0gTlVMTCkKKwkJCWJyZWFrOworCQly
+YyA9IHN0cmxlbihidWZmZXIpOworCQlpZiAocmMgPiAwICYmIGJ1ZmZlcltyYyAtIDFdID09ICdc
+bicpCisJCQlidWZmZXJbcmMgLSAxXSA9ICdcMCc7CisJCXJjID0gZXZhbHVhdGVfYXJpdGhtZXRp
+Y19leHByZXNzaW9uKGJ1ZmZlciwgJnJlc3VsdCwgJmRyZXN1bHQpOworCQlpZiAoIXJjKSB7CisJ
+CQlwcmludGYoIiVsbGQgKCVsZilcbiIsIHJlc3VsdCwgZHJlc3VsdCk7CisJCX0gZWxzZSB7CisJ
+CQlyZXN1bHQgPSAwOworCQkJZHJlc3VsdCA9IDA7CisJCX0KKwl9IHdoaWxlICghYnllKTsKKwly
+ZXR1cm4gMDsKK30KKwpkaWZmIC0tZ2l0IGEvcGFyc2UuYyBiL3BhcnNlLmMKaW5kZXggNDBjZDQ2
+NS4uZjI2MDNhMyAxMDA2NDQKLS0tIGEvcGFyc2UuYworKysgYi9wYXJzZS5jCkBAIC0xNyw2ICsx
+Nyw3IEBACiAjaW5jbHVkZSAib3B0aW9ucy5oIgogI2luY2x1ZGUgIm1pbm1heC5oIgogI2luY2x1
+ZGUgImxpYi9pZWVlNzU0LmgiCisjaW5jbHVkZSAiZXhwcmVzc2lvbi1wYXJzZXIveS50YWIuaCIK
+IAogc3RhdGljIHN0cnVjdCBmaW9fb3B0aW9uICpfX2Zpb19vcHRpb25zOwogCkBAIC0yNjQsMTEg
+KzI2NSwyNSBAQCBzdGF0aWMgdW5zaWduZWQgbG9uZyBsb25nIGdldF9tdWx0X2J5dGVzKGNvbnN0
+IGNoYXIgKnN0ciwgaW50IGxlbiwgdm9pZCAqZGF0YSwKIAlyZXR1cm4gX19nZXRfbXVsdF9ieXRl
+cyhwLCBkYXRhLCBwZXJjZW50KTsKIH0KIAorZXh0ZXJuIGludCBldmFsdWF0ZV9hcml0aG1ldGlj
+X2V4cHJlc3Npb24oY29uc3QgY2hhciAqYnVmZmVyLCBsb25nIGxvbmcgKml2YWwsIGRvdWJsZSAq
+ZHZhbCk7CisKIC8qCiAgKiBDb252ZXJ0IHN0cmluZyBpbnRvIGEgZmxvYXRpbmcgbnVtYmVyLiBS
+ZXR1cm4gMSBmb3Igc3VjY2VzcyBhbmQgMCBvdGhlcndpc2UuCiAgKi8KIGludCBzdHJfdG9fZmxv
+YXQoY29uc3QgY2hhciAqc3RyLCBkb3VibGUgKnZhbCkKIHsKKwlpbnQgcmM7CisJbG9uZyBsb25n
+IGl2YWw7CisJZG91YmxlIGR2YWw7IAorCisJaWYgKHN0clswXSA9PSAnKCcpIHsKKwkJcmMgPSBl
+dmFsdWF0ZV9hcml0aG1ldGljX2V4cHJlc3Npb24oc3RyLCAmaXZhbCwgJmR2YWwpOyAKKwkJaWYg
+KCFyYykgeworCQkJKnZhbCA9IGR2YWw7CisJCQlwcmludGYoInVzaW5nIGRvdWJsZSB2YWx1ZSAl
+bGZcbiIsIGR2YWwpOworCQkJcmV0dXJuIDE7CisJCX0KKwl9CiAJcmV0dXJuICgxID09IHNzY2Fu
+ZihzdHIsICIlbGYiLCB2YWwpKTsKIH0KIApAQCAtMjc5LDE5ICsyOTQsMjkgQEAgaW50IHN0cl90
+b19kZWNpbWFsKGNvbnN0IGNoYXIgKnN0ciwgbG9uZyBsb25nICp2YWwsIGludCBraWxvLCB2b2lk
+ICpkYXRhLAogCQkgICBpbnQgaXNfc2Vjb25kcykKIHsKIAlpbnQgbGVuLCBiYXNlOworCWludCBy
+YzsKKwlsb25nIGxvbmcgaXZhbDsKKwlkb3VibGUgZHZhbDsgCiAKIAlsZW4gPSBzdHJsZW4oc3Ry
+KTsKIAlpZiAoIWxlbikKIAkJcmV0dXJuIDE7CiAKLQlpZiAoc3Ryc3RyKHN0ciwgIjB4IikgfHwg
+c3Ryc3RyKHN0ciwgIjBYIikpCi0JCWJhc2UgPSAxNjsKLQllbHNlCi0JCWJhc2UgPSAxMDsKKwlp
+ZiAoc3RyWzBdID09ICcoJykKKwkJcmMgPSBldmFsdWF0ZV9hcml0aG1ldGljX2V4cHJlc3Npb24o
+c3RyLCAmaXZhbCwgJmR2YWwpOyAKKwlpZiAoc3RyWzBdID09ICcoJyAmJiAhcmMpIHsKKwkJKnZh
+bCA9IGl2YWw7CisJCXByaW50ZigidXNpbmcgaW50IHZhbHVlICVsbGRcbiIsIGl2YWwpOworCX0g
+ZWxzZSB7CisJCWlmIChzdHJzdHIoc3RyLCAiMHgiKSB8fCBzdHJzdHIoc3RyLCAiMFgiKSkKKwkJ
+CWJhc2UgPSAxNjsKKwkJZWxzZQorCQkJYmFzZSA9IDEwOwogCi0JKnZhbCA9IHN0cnRvbGwoc3Ry
+LCBOVUxMLCBiYXNlKTsKLQlpZiAoKnZhbCA9PSBMT05HX01BWCAmJiBlcnJubyA9PSBFUkFOR0Up
+Ci0JCXJldHVybiAxOworCQkqdmFsID0gc3RydG9sbChzdHIsIE5VTEwsIGJhc2UpOworCQlpZiAo
+KnZhbCA9PSBMT05HX01BWCAmJiBlcnJubyA9PSBFUkFOR0UpCisJCQlyZXR1cm4gMTsKKwl9CiAK
+IAlpZiAoa2lsbykgewogCQl1bnNpZ25lZCBsb25nIGxvbmcgbXVsdDsK
+--f46d043d65590db49e05042939e8--
 
