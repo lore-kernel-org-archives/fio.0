@@ -1,51 +1,41 @@
-Return-Path: <sitsofe@gmail.com>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <5429D14B.5030908@kernel.dk>
+Date: Mon, 29 Sep 2014 15:38:19 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <BLU402-EAS83A272EBBE7E3778E31EF8E0BA0@phx.gbl>
-References: <BLU402-EAS71C90924EA427F167AAF17E0BA0@phx.gbl>
-	<5429B424.7080903@kernel.dk>
-	<BLU402-EAS1251A573D70EC1946D3C402E0BA0@phx.gbl>
-	<5429C839.7090408@kernel.dk>
-	<BLU402-EAS83A272EBBE7E3778E31EF8E0BA0@phx.gbl>
-Date: Tue, 30 Sep 2014 03:23:47 +0100
-Message-ID: <CALjAwxjEs_pcP3tHDSE76cdjC0JpRK_+xofshHTL0Lgch3J_OQ@mail.gmail.com>
 Subject: Re: Limit LBA Range
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-To: Jon Tango <cheerios123@outlook.com>
-Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+References: <BLU402-EAS71C90924EA427F167AAF17E0BA0@phx.gbl> <5429B424.7080903@kernel.dk> <BLU402-EAS1251A573D70EC1946D3C402E0BA0@phx.gbl> <5429C839.7090408@kernel.dk> <BLU402-EAS83A272EBBE7E3778E31EF8E0BA0@phx.gbl> <5429CD3F.4000307@kernel.dk> <BLU402-EAS37786FC6E4480886241B03CE0BA0@phx.gbl>
+In-Reply-To: <BLU402-EAS37786FC6E4480886241B03CE0BA0@phx.gbl>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Jon Tango <cheerios123@outlook.com>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-On 29 September 2014 22:10, Jon Tango <cheerios123@outlook.com> wrote:
+On 2014-09-29 15:37, Jon Tango wrote:
 >
-> I include both of those commands, in addition to size=745g, and it seems to
-> be conducting the workload over the entire LBA range. Is this the correct
-> combination of the three parameters? Here is the test script:
+> On 2014-09-29 15:10, Jon Tango wrote:
+>> I include both of those commands, in addition to size=745g, and it
+>> seems to be conducting the workload over the entire LBA range. Is this
+>> the correct combination of the three parameters? Here is the test script:
 >
->  [global]
-> name=4ktest
-> filename=\\.\physicaldrive1
-> direct=1
-> numjobs=8
-> norandommap
-> ba=4k
+> When you explicitly set size=745G, the range is 0..745G as previously
+> specified.
+>
+> --
+> Jens Axboe
+>
+> --
+> So it would be both time_based and limited to 745G as well? The workload
+> will continue to run even if over 745GB of data is written, but only to the
+> 0..745GB range?
+>
+> size=745G
 > time_based
-> size=745g
-> log_avg_msec=100000
-> group_reporting=1
-> #########################################################
->
-> [4K Precon]
-> stonewall
-> runtime=15000
-> iodepth=32
-> bs=4k
-> rw=randwrite
+> runtime=4h
 
-Bear in mind that because you are asking for eight stonewalled jobs
-this fio run will take 8 * 15000 seconds (around 33 hours) to finish
-because after the first job has run for four hours the second job will
-start etc.
+Yes and yes
 
 -- 
-Sitsofe | http://sucs.org/~sits/
+Jens Axboe
+
 
