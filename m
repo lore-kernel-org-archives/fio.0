@@ -1,40 +1,53 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from sjc00mx1.hgst.com ([199.255.44.36]:34748 "EHLO
-	sjc00mx1.hgst.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753354AbaIXVIY convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 24 Sep 2014 17:08:24 -0400
-From: Arash Jamalian <Arash.Jamalian@hgst.com>
-Subject: FIO performance testing
-Date: Wed, 24 Sep 2014 21:08:17 +0000
-Message-ID: <D04880D0.333F%arash.jamalian@hgst.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <821568F7AA34AB4084E05A3F747DEC0B@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: 8BIT
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: Steven Roberts <steve@blueotter.net>
+In-Reply-To: <CALjAwxiN0cg0adpYvHZaYwp=aOueNJph5QWtUVih_JtoejjFFQ@mail.gmail.com>
+References: <BLU402-EAS71C90924EA427F167AAF17E0BA0@phx.gbl>
+	<5429B424.7080903@kernel.dk>
+	<BLU402-EAS1251A573D70EC1946D3C402E0BA0@phx.gbl>
+	<5429C839.7090408@kernel.dk>
+	<BLU402-EAS83A272EBBE7E3778E31EF8E0BA0@phx.gbl>
+	<CALjAwxjEs_pcP3tHDSE76cdjC0JpRK_+xofshHTL0Lgch3J_OQ@mail.gmail.com>
+	<542A1A21.4070406@kernel.dk>
+	<BLU402-EAS3400F7B4A22E573A13F520CE0BB0@phx.gbl>
+	<CALjAwxjcCm-Tm5kRf8SX0xYjj458fycVJ3SvOEPsOKaQUgiRDA@mail.gmail.com>
+	<BLU402-EAS379961D4B53D8CE57017DC8E0BB0@phx.gbl>
+	<CALjAwxhBMStNgdwqYVxcq4yDwJB+F+22Ef4Ra=oorCfeRBb6ew@mail.gmail.com>
+	<BLU402-EAS374F3B5890A9AA4FCE9E01DE0BB0@phx.gbl>
+	<CALjAwxiN0cg0adpYvHZaYwp=aOueNJph5QWtUVih_JtoejjFFQ@mail.gmail.com>
+Date: Tue, 30 Sep 2014 22:17:05 +0100
+Message-ID: <CALjAwxj4oUspNtqk=kOmmBE7U5Pu=s7-qGqaGOTUzZSBwb_=yA@mail.gmail.com>
+Subject: Re: Limit LBA Range
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+To: Jon Tango <cheerios123@outlook.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+On 30 September 2014 14:07, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+> If all you're trying to do is run a limited random job as quickly as
+> possible you may find there are simpler fio jobs that will get higher
+> throughput...
 
-I am tasked with testing several NAS HDDs connected to a Ubuntu Host. I am
-being asked to run performance tests with fio. Besides the how to
-document, can you share any documentation for maximizing video file
-performance?
+Perhaps something like the following (this would be the entire file):
 
+[4K Precon]
+name=4ktest
+filename=\\.\physicaldrive1
+ioengine=windowsaio
+direct=1
+time_based
+runtime=18000
+size=86%
+bs=4k
+offset=4k
+norandommap
+gtod_reduce=1
+iodepth=256
+thread
 
-In particular, where can I get more information about IO engines? Which
-engine to use for NAS systems when measuring video file performance?
-What is the relationship between the parameters size and runtime? Does
-runtime become redundant when we specify the size?
+Again it's not the same as your vdbench workload but does it show a
+different speed to your previous fio job?
 
-Best,
-Arash Jamalian
-Electrical and Firmware Development Engineer
-D: 408-717-8040 | M: 408-601-9513
-Email: Arash.Jamalian@hgst.com
-HGST Inc., a Western Digital Company
-3403 Yerba Buena Rd., San Jose, CA 95135
+-- 
+Sitsofe | http://sucs.org/~sits/
 
