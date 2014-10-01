@@ -1,38 +1,74 @@
-Return-Path: <Elliott@hp.com>
-From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
-Subject: RE: linux /dev and normal files
-Date: Wed, 1 Oct 2014 01:12:54 +0000
-Message-ID: <94D0CD8314A33A4D9D801C0FE68B402958CC5EBE@G4W3202.americas.hpqcorp.net>
-References: <94D0CD8314A33A4D9D801C0FE68B402958CC5D81@G4W3202.americas.hpqcorp.net>
- <542B52B3.5060908@kernel.dk>
-In-Reply-To: <542B52B3.5060908@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <axboe@kernel.dk>
+Message-ID: <542B52B3.5060908@kernel.dk>
+Date: Tue, 30 Sep 2014 19:02:43 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Subject: Re: linux /dev and normal files
+References: <94D0CD8314A33A4D9D801C0FE68B402958CC5D81@G4W3202.americas.hpqcorp.net>
+In-Reply-To: <94D0CD8314A33A4D9D801C0FE68B402958CC5D81@G4W3202.americas.hpqcorp.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: "Elliott, Robert (Server Storage)" <Elliott@hp.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 Cc: Sitsofe Wheeler <sitsofe@gmail.com>, Jon Tango <cheerios123@outlook.com>
 List-ID: <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmVucyBBeGJvZSBbbWFp
-bHRvOmF4Ym9lQGtlcm5lbC5ka10NCi4uLg0KPiBJJ2QgbXVjaCByYXRoZXIga2VlcCBmaW8gaWdu
-b3JhbnQgb2YgYW55ICJzcGVjaWFsIiBkaXJlY3RvcmllcywgZXZlbiBpZg0KPiBpdCBtZWFucyB0
-aGF0IHNvbWV0aW1lcyB5b3UgZG8gcG90ZW50aWFsbHkgcnVuIGludG8gaXNzdWVzIGxpa2UgdGhl
-DQo+IGFib3ZlLCB3aGVyZSB5b3Ugc3BlY2lmeSBhIGJsb2NrIGRldmljZSB0aGF0IGRvZXMgbm90
-IGV4aXN0Lg0KDQpIb3cgYWJvdXQgYW4gb3B0aW9uIGluIHRoZSBzY3JpcHQ6DQpkaXJlY3Q9MiAg
-IGZpbGUgbXVzdCBleGlzdCBhbmQgYmUgYSBibG9jayBkZXZpY2UsIG90aGVyd2lzZSBza2lwIGl0
-DQoNCklmIHRoZSBzaXplIGlzIHRvbyBiaWcsIHRoaXMgaXMgdGhlIGVycm9yOg0KDQpkcml2ZV9y
-OiBMYXlpbmcgb3V0IElPIGZpbGUocykgKDEgZmlsZShzKSAvIDE1NzI4NjQwMDBNQikNCmZpbzog
-cG9zaXhfZmFsbG9jYXRlIGZhaWxzOiBObyBzcGFjZSBsZWZ0IG9uIGRldmljZQ0KDQpmaW86IEVO
-T1NQQyBvbiBsYXlpbmcgb3V0IGZpbGUsIHN0b3BwaW5nDQpmaW86IGxvb2tzIGxpa2UgeW91ciBm
-aWxlIHN5c3RlbSBkb2VzIG5vdCBzdXBwb3J0IGRpcmVjdD0xL2J1ZmZlcmVkPTANCmZpbzogZGVz
-dGluYXRpb24gZG9lcyBub3Qgc3VwcG9ydCBPX0RJUkVDVA0KZmlvOiBsb29rcyBsaWtlIHlvdXIg
-ZmlsZSBzeXN0ZW0gZG9lcyBub3Qgc3VwcG9ydCBkaXJlY3Q9MS9idWZmZXJlZD0wDQpmaW86IGRl
-c3RpbmF0aW9uIGRvZXMgbm90IHN1cHBvcnQgT19ESVJFQ1QNCmZpbzogcGlkPTg5OTEsIGVycj0y
-Mi9maWxlOmZpbGVzZXR1cC5jOjYxMSwgZnVuYz1vcGVuKC9kZXYvc2Rub3RoZXJlKSwgZXJyb3I9
-SW52YWxpZCBhcmd1bWVudA0KZmlvOiBwaWQ9ODk5MCwgZXJyPTIyL2ZpbGU6ZmlsZXNldHVwLmM6
-NjExLCBmdW5jPW9wZW4oL2Rldi9zZG5vdGhlcmUpLCBlcnJvcj1JbnZhbGlkIGFyZ3VtZW50DQoN
-CmFuZCBpdCBsZWF2ZXMgYSAiZmlsZSIgdGhhdCBsb29rcyBsaWtlOg0KDQokIGxzIC1hbHQgL2Rl
-di9zZCoNCi1ydy1yLS1yLS0gMSByb290IHJvb3QgMTY0OTI2NzQ0MTY2NDAwMCBTZXAgMzAgMjA6
-MTAgL2Rldi9zZG5vdGhlcmUNCg0KDQo=
+On 2014-09-30 17:49, Elliott, Robert (Server Storage) wrote:
+>
+>> -----Original Message-----
+>> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Behalf
+>> Of Sitsofe Wheeler
+> ...
+>> filename=\\.\physicaldrive1
+>> ioengine=windowsaio
+>> direct=1
+> ...
+>> size=86%
+>> bs=4k
+> ...
+>
+> I noticed that, in linux, if you select
+> 	filename=/dev/sd<not there>
+> 	size=<something>
+>
+> (e.g., if you run fio after a device has failed), it  creates a
+> normal file of the specified size (which could be quite large
+> if using a script such as above).
+>
+> If you use direct=1, the file is created, followed by this error:
+> fio: pid=8914, err=22/file:filesetup.c:611, func=open(/dev/sdad), error=Invalid argument
+> fio: looks like your file system does not support direct=1/buffered=0
+> fio: looks like your file system does not support direct=1/buffered=0
+> fio: destination does not support O_DIRECT
+
+This is because /dev is usually devtmpfs these days, and that fs does 
+not support O_DIRECT.
+
+> If you don't use size=, no file is created and this error
+> occurs:
+> fio: pid=0, err=22/file:filesetup.c:820, func=total_file_size, error=Invalid argument
+> drive_ag: you need to specify size=
+>
+> If you recreate the device, udevd blows away any such file with
+> the block device node file, so it's not a good place to put
+> normal files, even if that is intentional.
+>
+> In Windows, all "\\.\" paths are assumed to mean block devices,
+> so fio doesn't inadvertently try to create a normal file in
+> such a location.
+>
+> Should fio treat "/dev" paths in linux the same way?
+
+No, I don't think so. It's a directory like anything else. Who knows 
+what will happen in the future, with all the core OS changes in Linux. 
+/dev could be a symlink, or special files could be in a different 
+location completely.  What about FreeBSD, should we do the same there? 
+Or Solaris?
+
+I'd much rather keep fio ignorant of any "special" directories, even if 
+it means that sometimes you do potentially run into issues like the 
+above, where you specify a block device that does not exist.
+
+-- 
+Jens Axboe
+
 
