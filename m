@@ -1,55 +1,38 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <542B5632.8030404@kernel.dk>
-Date: Tue, 30 Sep 2014 19:17:38 -0600
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <Elliott@hp.com>
+From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
+Subject: RE: linux /dev and normal files
+Date: Wed, 1 Oct 2014 01:12:54 +0000
+Message-ID: <94D0CD8314A33A4D9D801C0FE68B402958CC5EBE@G4W3202.americas.hpqcorp.net>
+References: <94D0CD8314A33A4D9D801C0FE68B402958CC5D81@G4W3202.americas.hpqcorp.net>
+ <542B52B3.5060908@kernel.dk>
+In-Reply-To: <542B52B3.5060908@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Subject: Re: linux /dev and normal files
-References: <94D0CD8314A33A4D9D801C0FE68B402958CC5D81@G4W3202.americas.hpqcorp.net> <542B52B3.5060908@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958CC5EBE@G4W3202.americas.hpqcorp.net>
-In-Reply-To: <94D0CD8314A33A4D9D801C0FE68B402958CC5EBE@G4W3202.americas.hpqcorp.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: "Elliott, Robert (Server Storage)" <Elliott@hp.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 Cc: Sitsofe Wheeler <sitsofe@gmail.com>, Jon Tango <cheerios123@outlook.com>
 List-ID: <fio@vger.kernel.org>
 
-On 2014-09-30 19:12, Elliott, Robert (Server Storage) wrote:
->
->
->> -----Original Message-----
->> From: Jens Axboe [mailto:axboe@kernel.dk]
-> ...
->> I'd much rather keep fio ignorant of any "special" directories, even if
->> it means that sometimes you do potentially run into issues like the
->> above, where you specify a block device that does not exist.
->
-> How about an option in the script:
-> direct=2   file must exist and be a block device, otherwise skip it
-
-Might be a bit nasty to overload direct= like that. But I'd be open to 
-adding an option that says must_be_bdev or something, which can be a 
-bool as well.
-
-> If the size is too big, this is the error:
->
-> drive_r: Laying out IO file(s) (1 file(s) / 1572864000MB)
-> fio: posix_fallocate fails: No space left on device
->
-> fio: ENOSPC on laying out file, stopping
-> fio: looks like your file system does not support direct=1/buffered=0
-> fio: destination does not support O_DIRECT
-> fio: looks like your file system does not support direct=1/buffered=0
-> fio: destination does not support O_DIRECT
-> fio: pid=8991, err=22/file:filesetup.c:611, func=open(/dev/sdnothere), error=Invalid argument
-> fio: pid=8990, err=22/file:filesetup.c:611, func=open(/dev/sdnothere), error=Invalid argument
->
-> and it leaves a "file" that looks like:
->
-> $ ls -alt /dev/sd*
-> -rw-r--r-- 1 root root 1649267441664000 Sep 30 20:10 /dev/sdnothere
-
-Yeah I know, I've had that happen myself 1-2 times.
-
--- 
-Jens Axboe
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmVucyBBeGJvZSBbbWFp
+bHRvOmF4Ym9lQGtlcm5lbC5ka10NCi4uLg0KPiBJJ2QgbXVjaCByYXRoZXIga2VlcCBmaW8gaWdu
+b3JhbnQgb2YgYW55ICJzcGVjaWFsIiBkaXJlY3RvcmllcywgZXZlbiBpZg0KPiBpdCBtZWFucyB0
+aGF0IHNvbWV0aW1lcyB5b3UgZG8gcG90ZW50aWFsbHkgcnVuIGludG8gaXNzdWVzIGxpa2UgdGhl
+DQo+IGFib3ZlLCB3aGVyZSB5b3Ugc3BlY2lmeSBhIGJsb2NrIGRldmljZSB0aGF0IGRvZXMgbm90
+IGV4aXN0Lg0KDQpIb3cgYWJvdXQgYW4gb3B0aW9uIGluIHRoZSBzY3JpcHQ6DQpkaXJlY3Q9MiAg
+IGZpbGUgbXVzdCBleGlzdCBhbmQgYmUgYSBibG9jayBkZXZpY2UsIG90aGVyd2lzZSBza2lwIGl0
+DQoNCklmIHRoZSBzaXplIGlzIHRvbyBiaWcsIHRoaXMgaXMgdGhlIGVycm9yOg0KDQpkcml2ZV9y
+OiBMYXlpbmcgb3V0IElPIGZpbGUocykgKDEgZmlsZShzKSAvIDE1NzI4NjQwMDBNQikNCmZpbzog
+cG9zaXhfZmFsbG9jYXRlIGZhaWxzOiBObyBzcGFjZSBsZWZ0IG9uIGRldmljZQ0KDQpmaW86IEVO
+T1NQQyBvbiBsYXlpbmcgb3V0IGZpbGUsIHN0b3BwaW5nDQpmaW86IGxvb2tzIGxpa2UgeW91ciBm
+aWxlIHN5c3RlbSBkb2VzIG5vdCBzdXBwb3J0IGRpcmVjdD0xL2J1ZmZlcmVkPTANCmZpbzogZGVz
+dGluYXRpb24gZG9lcyBub3Qgc3VwcG9ydCBPX0RJUkVDVA0KZmlvOiBsb29rcyBsaWtlIHlvdXIg
+ZmlsZSBzeXN0ZW0gZG9lcyBub3Qgc3VwcG9ydCBkaXJlY3Q9MS9idWZmZXJlZD0wDQpmaW86IGRl
+c3RpbmF0aW9uIGRvZXMgbm90IHN1cHBvcnQgT19ESVJFQ1QNCmZpbzogcGlkPTg5OTEsIGVycj0y
+Mi9maWxlOmZpbGVzZXR1cC5jOjYxMSwgZnVuYz1vcGVuKC9kZXYvc2Rub3RoZXJlKSwgZXJyb3I9
+SW52YWxpZCBhcmd1bWVudA0KZmlvOiBwaWQ9ODk5MCwgZXJyPTIyL2ZpbGU6ZmlsZXNldHVwLmM6
+NjExLCBmdW5jPW9wZW4oL2Rldi9zZG5vdGhlcmUpLCBlcnJvcj1JbnZhbGlkIGFyZ3VtZW50DQoN
+CmFuZCBpdCBsZWF2ZXMgYSAiZmlsZSIgdGhhdCBsb29rcyBsaWtlOg0KDQokIGxzIC1hbHQgL2Rl
+di9zZCoNCi1ydy1yLS1yLS0gMSByb290IHJvb3QgMTY0OTI2NzQ0MTY2NDAwMCBTZXAgMzAgMjA6
+MTAgL2Rldi9zZG5vdGhlcmUNCg0KDQo=
 
