@@ -1,71 +1,62 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <542D9A26.6060204@kernel.dk>
-Date: Thu, 02 Oct 2014 12:32:06 -0600
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <Elliott@hp.com>
+From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
+Subject: RE: linux /dev and normal files
+Date: Thu, 2 Oct 2014 18:21:43 +0000
+Message-ID: <94D0CD8314A33A4D9D801C0FE68B402958CCAA76@G4W3202.americas.hpqcorp.net>
+References: <94D0CD8314A33A4D9D801C0FE68B402958CC5D81@G4W3202.americas.hpqcorp.net>
+ <542B52B3.5060908@kernel.dk>
+ <94D0CD8314A33A4D9D801C0FE68B402958CC5EBE@G4W3202.americas.hpqcorp.net>
+ <542B5632.8030404@kernel.dk> <542B784F.5090405@kernel.dk>
+ <94D0CD8314A33A4D9D801C0FE68B402958CC85F9@G4W3202.americas.hpqcorp.net>
+ <542CA321.5090608@kernel.dk> <542CA44D.1030700@kernel.dk>
+In-Reply-To: <542CA44D.1030700@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Subject: Re: linux /dev and normal files
-References: <94D0CD8314A33A4D9D801C0FE68B402958CC5D81@G4W3202.americas.hpqcorp.net> <542B52B3.5060908@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958CC5EBE@G4W3202.americas.hpqcorp.net> <542B5632.8030404@kernel.dk> <542B784F.5090405@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958CC85F9@G4W3202.americas.hpqcorp.net> <542CA321.5090608@kernel.dk> <542CA44D.1030700@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958CCAA76@G4W3202.americas.hpqcorp.net>
-In-Reply-To: <94D0CD8314A33A4D9D801C0FE68B402958CCAA76@G4W3202.americas.hpqcorp.net>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-To: "Elliott, Robert (Server Storage)" <Elliott@hp.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 Cc: Sitsofe Wheeler <sitsofe@gmail.com>, Jon Tango <cheerios123@outlook.com>
 List-ID: <fio@vger.kernel.org>
 
-On 10/02/2014 12:21 PM, Elliott, Robert (Server Storage) wrote:
->>>> It might be better to continue to attempt to run the
->>>> other jobs.
->>>
->>> We should just go for the simpler create/nocreate solution, I prefer
->>> that. This is too involved, and it's hard to get all the cases right
->>> since there are a bunch of different ways that files are added. Which
->>> was why this patch only focused on filename=, since that is the one that
->>> is the most interesting. But it still isn't pretty. If we add the
->>> allow_file_create option, it's basically a two-liner change in a few
->>> places to not use O_CREAT.
->>
->> That took roughly 4 minutes... Does this work? Set allow_file_create=0
->> to disallow creating new files.
->>
-> 
-> Mostly.  
-> 
-> With no size= setting or size=xx%, the error messages it prints are 
-> about the lack of size, not the fact that file creation is disallowed.
-> It does proceed to run the jobs that have valid filenames.
-> 
-> drive_af: you need to specify size=
-> fio: pid=0, err=22/file:filesetup.c:822, func=total_file_size, error=Invalid argument
-> drive_af: you need to specify size=
-> fio: pid=0, err=22/file:filesetup.c:822, func=total_file_size, error=Invalid argument
-> ...
-> drive_ag: you need to specify size=
-> fio: pid=0, err=22/file:filesetup.c:822, func=total_file_size, error=Invalid argument
-> Jobs: 168 (f=168): [r(168),X(24)] [0.0% done] [2449MB/0KB/0KB /s] [627K/0/0 iops] [eta 02d:11h:58m:33s]
-
-Fio always does this, if the file does not exist and no size is given.
-The reason is that it doesn't know what size to create. But we can
-augment that a little bit if allow_file_create == 0, since the size
-setting would not change that.
-
-> With size=xxm (a fixed size), it prints complaints about O_DIRECT.
-> It does proceed to run the jobs that have valid filenames.
-> 
-> fio: looks like your file system does not support direct=1/buffered=0
-> fio: destination does not support O_DIRECT
-> fio: pid=21834, err=22/file:filesetup.c:613, func=open(/dev/sdaf), error=Invalid argument
-> fio: looks like your file system does not support direct=1/buffered=0
-> fio: destination does not support O_DIRECT
-> fio: pid=21846, err=22/file:filesetup.c:613, func=open(/dev/sdag), error=Invalid argument
-> fio: looks like your file system does not support direct=1/buffered=0
-> fio: destination does not support O_DIRECT
-> ...
-> fio: pid=21856, err=22/file:filesetup.c:613, func=open(/dev/sdag), error=Invalid argument
-> Jobs: 168 (f=168): [r(168),X(24)] [0.0% done] [2449MB/0KB/0KB /s] [627K/0/0 iops] [eta 02d:11h:58m:50s]
-
-OK, let me test that, will spin a new one.
-
--- 
-Jens Axboe
-
+PiA+PiBJdCBtaWdodCBiZSBiZXR0ZXIgdG8gY29udGludWUgdG8gYXR0ZW1wdCB0byBydW4gdGhl
+DQo+ID4+IG90aGVyIGpvYnMuDQo+ID4NCj4gPiBXZSBzaG91bGQganVzdCBnbyBmb3IgdGhlIHNp
+bXBsZXIgY3JlYXRlL25vY3JlYXRlIHNvbHV0aW9uLCBJIHByZWZlcg0KPiA+IHRoYXQuIFRoaXMg
+aXMgdG9vIGludm9sdmVkLCBhbmQgaXQncyBoYXJkIHRvIGdldCBhbGwgdGhlIGNhc2VzIHJpZ2h0
+DQo+ID4gc2luY2UgdGhlcmUgYXJlIGEgYnVuY2ggb2YgZGlmZmVyZW50IHdheXMgdGhhdCBmaWxl
+cyBhcmUgYWRkZWQuIFdoaWNoDQo+ID4gd2FzIHdoeSB0aGlzIHBhdGNoIG9ubHkgZm9jdXNlZCBv
+biBmaWxlbmFtZT0sIHNpbmNlIHRoYXQgaXMgdGhlIG9uZSB0aGF0DQo+ID4gaXMgdGhlIG1vc3Qg
+aW50ZXJlc3RpbmcuIEJ1dCBpdCBzdGlsbCBpc24ndCBwcmV0dHkuIElmIHdlIGFkZCB0aGUNCj4g
+PiBhbGxvd19maWxlX2NyZWF0ZSBvcHRpb24sIGl0J3MgYmFzaWNhbGx5IGEgdHdvLWxpbmVyIGNo
+YW5nZSBpbiBhIGZldw0KPiA+IHBsYWNlcyB0byBub3QgdXNlIE9fQ1JFQVQuDQo+IA0KPiBUaGF0
+IHRvb2sgcm91Z2hseSA0IG1pbnV0ZXMuLi4gRG9lcyB0aGlzIHdvcms/IFNldCBhbGxvd19maWxl
+X2NyZWF0ZT0wDQo+IHRvIGRpc2FsbG93IGNyZWF0aW5nIG5ldyBmaWxlcy4NCj4gDQoNCk1vc3Rs
+eS4gIA0KDQpXaXRoIG5vIHNpemU9IHNldHRpbmcgb3Igc2l6ZT14eCUsIHRoZSBlcnJvciBtZXNz
+YWdlcyBpdCBwcmludHMgYXJlIA0KYWJvdXQgdGhlIGxhY2sgb2Ygc2l6ZSwgbm90IHRoZSBmYWN0
+IHRoYXQgZmlsZSBjcmVhdGlvbiBpcyBkaXNhbGxvd2VkLg0KSXQgZG9lcyBwcm9jZWVkIHRvIHJ1
+biB0aGUgam9icyB0aGF0IGhhdmUgdmFsaWQgZmlsZW5hbWVzLg0KDQpkcml2ZV9hZjogeW91IG5l
+ZWQgdG8gc3BlY2lmeSBzaXplPQ0KZmlvOiBwaWQ9MCwgZXJyPTIyL2ZpbGU6ZmlsZXNldHVwLmM6
+ODIyLCBmdW5jPXRvdGFsX2ZpbGVfc2l6ZSwgZXJyb3I9SW52YWxpZCBhcmd1bWVudA0KZHJpdmVf
+YWY6IHlvdSBuZWVkIHRvIHNwZWNpZnkgc2l6ZT0NCmZpbzogcGlkPTAsIGVycj0yMi9maWxlOmZp
+bGVzZXR1cC5jOjgyMiwgZnVuYz10b3RhbF9maWxlX3NpemUsIGVycm9yPUludmFsaWQgYXJndW1l
+bnQNCi4uLg0KZHJpdmVfYWc6IHlvdSBuZWVkIHRvIHNwZWNpZnkgc2l6ZT0NCmZpbzogcGlkPTAs
+IGVycj0yMi9maWxlOmZpbGVzZXR1cC5jOjgyMiwgZnVuYz10b3RhbF9maWxlX3NpemUsIGVycm9y
+PUludmFsaWQgYXJndW1lbnQNCkpvYnM6IDE2OCAoZj0xNjgpOiBbcigxNjgpLFgoMjQpXSBbMC4w
+JSBkb25lXSBbMjQ0OU1CLzBLQi8wS0IgL3NdIFs2MjdLLzAvMCBpb3BzXSBbZXRhIDAyZDoxMWg6
+NThtOjMzc10NCg0KDQpXaXRoIHNpemU9eHhtIChhIGZpeGVkIHNpemUpLCBpdCBwcmludHMgY29t
+cGxhaW50cyBhYm91dCBPX0RJUkVDVC4NCkl0IGRvZXMgcHJvY2VlZCB0byBydW4gdGhlIGpvYnMg
+dGhhdCBoYXZlIHZhbGlkIGZpbGVuYW1lcy4NCg0KZmlvOiBsb29rcyBsaWtlIHlvdXIgZmlsZSBz
+eXN0ZW0gZG9lcyBub3Qgc3VwcG9ydCBkaXJlY3Q9MS9idWZmZXJlZD0wDQpmaW86IGRlc3RpbmF0
+aW9uIGRvZXMgbm90IHN1cHBvcnQgT19ESVJFQ1QNCmZpbzogcGlkPTIxODM0LCBlcnI9MjIvZmls
+ZTpmaWxlc2V0dXAuYzo2MTMsIGZ1bmM9b3BlbigvZGV2L3NkYWYpLCBlcnJvcj1JbnZhbGlkIGFy
+Z3VtZW50DQpmaW86IGxvb2tzIGxpa2UgeW91ciBmaWxlIHN5c3RlbSBkb2VzIG5vdCBzdXBwb3J0
+IGRpcmVjdD0xL2J1ZmZlcmVkPTANCmZpbzogZGVzdGluYXRpb24gZG9lcyBub3Qgc3VwcG9ydCBP
+X0RJUkVDVA0KZmlvOiBwaWQ9MjE4NDYsIGVycj0yMi9maWxlOmZpbGVzZXR1cC5jOjYxMywgZnVu
+Yz1vcGVuKC9kZXYvc2RhZyksIGVycm9yPUludmFsaWQgYXJndW1lbnQNCmZpbzogbG9va3MgbGlr
+ZSB5b3VyIGZpbGUgc3lzdGVtIGRvZXMgbm90IHN1cHBvcnQgZGlyZWN0PTEvYnVmZmVyZWQ9MA0K
+ZmlvOiBkZXN0aW5hdGlvbiBkb2VzIG5vdCBzdXBwb3J0IE9fRElSRUNUDQouLi4NCmZpbzogcGlk
+PTIxODU2LCBlcnI9MjIvZmlsZTpmaWxlc2V0dXAuYzo2MTMsIGZ1bmM9b3BlbigvZGV2L3NkYWcp
+LCBlcnJvcj1JbnZhbGlkIGFyZ3VtZW50DQpKb2JzOiAxNjggKGY9MTY4KTogW3IoMTY4KSxYKDI0
+KV0gWzAuMCUgZG9uZV0gWzI0NDlNQi8wS0IvMEtCIC9zXSBbNjI3Sy8wLzAgaW9wc10gW2V0YSAw
+MmQ6MTFoOjU4bTo1MHNdDQoNCg0KDQoNCi0tLQ0KUm9iIEVsbGlvdHQgICAgSFAgU2VydmVyIFN0
+b3JhZ2UNCg0KDQoNCg0K
 
