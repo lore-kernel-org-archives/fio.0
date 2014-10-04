@@ -1,736 +1,997 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:50466 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750768AbaJAMAG (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 1 Oct 2014 08:00:06 -0400
+Received: from bombadil.infradead.org ([198.137.202.9]:55298 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750973AbaJDMAG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 4 Oct 2014 08:00:06 -0400
 Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1XZIZg-0000gO-Pt
-	for fio@vger.kernel.org; Wed, 01 Oct 2014 12:00:04 +0000
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1XaO0K-0005oL-Me
+	for fio@vger.kernel.org; Sat, 04 Oct 2014 12:00:04 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20141001120003.8657640128@lyth.info>
-Date: Wed,  1 Oct 2014 06:00:03 -0600 (MDT)
+Message-Id: <20141004120003.BFBF140136@lyth.info>
+Date: Sat,  4 Oct 2014 06:00:03 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 0bc27b0b7019e4c386f83258430fb6b3ac34cc06:
+The following changes since commit e3b4e568b362ec8d89243609e75763b37cf81b17:
 
-  filesetup: fix a bug where we overwrite the set size (2014-09-29 21:23:51 -0600)
+  engines/libaio: reset 'wait_start' on non-EAGAIN (2014-10-01 08:48:54 -0600)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to a120ca7f793b41532b04e3915fcd6646fa37bb4f:
+for you to fetch changes up to b220c6d6f37fc55760d66728f6f9f521ea2f9b46:
 
-  engines/libaio: don't reap on EAGAIN and no pending events (2014-09-30 20:28:45 -0600)
+  Merge branch 'expression-parser' (2014-10-03 13:20:16 -0600)
 
 ----------------------------------------------------------------
-Jens Axboe (5):
-      Use calloc() instead of malloc + memset
-      Constify 'td' in a few functions
-      engines/libaio: fix issue with EAGAIN
-      Constify a few more hot paths
-      engines/libaio: don't reap on EAGAIN and no pending events
 
-ordahan (1):
-      HOWTO: fix typo
+Jens Axboe (18):
+      fio: support modulus for the arithmetic parser
+      Update .gitignore with auto-generated lex/yacc outputs
+      exp: set float output for int modulus
+      Wire up exp/test-expression-parser
+      Makefile: silence fixup
+      Makefile: silence make clean
+      exp: fix __pow_finite being undefined
+      Merge branch 'master' into expression-parser
+      configure: fix for the cases where bison provides yacc
+      exp: get rid of the #line bug workaround
+      Makefile: PARSER_OBJS is not used anymore
+      exp: update man page and HOWTO
+      Makefile: properly annotate LEX/YACC parts
+      exp: we don't need -ly
+      Makefile: exp/fixup-buggy-yacc-output is no more
+      engines/libaio: modify getevents and commit error handling
+      Fio 2.1.13
+      Merge branch 'expression-parser'
 
- HOWTO                       |    4 +-
- engines/binject.c           |    3 +-
- engines/glusterfs_async.c   |    2 +-
- engines/guasi.c             |    2 +-
- engines/libaio.c            |  110 ++++++++++++++++++++++++++++++++-----------
- engines/null.c              |    2 +-
- engines/posixaio.c          |    2 +-
- engines/rbd.c               |    2 +-
- engines/rdma.c              |    2 +-
- engines/sg.c                |    3 +-
- engines/skeleton_external.c |    2 +-
- engines/solarisaio.c        |    2 +-
- engines/sync.c              |    2 +-
- engines/windowsaio.c        |    5 +-
- fio.h                       |    2 +-
- fio_time.h                  |   10 ++--
- gettime.c                   |   10 ++--
- io_u.c                      |    2 +-
- io_u_queue.h                |    2 +-
- ioengine.h                  |   10 ++--
- ioengines.c                 |    9 ++--
- iolog.c                     |    8 ++--
- iolog.h                     |    4 +-
- json.c                      |   10 +---
- 24 files changed, 131 insertions(+), 79 deletions(-)
+Stephen M. Cameron (10):
+      fio: allow arithmetic expressions to be used in job files
+      fio: support suffixes in expression parser
+      fio: support exponentiation in expression parser
+      exp: fix shift/reduce conflict complaints
+      Treat colons and commas as end of input in expression parser
+      verify that expression parsing code gets the right answer
+      do not call fprintf from yyerror in expression parser
+      enable informing arithmetic parser of implicit units
+      remove unused bye symbol from arithmetic parser
+      make expression parser handle scientific notation
+
+ .gitignore                   |    2 +
+ FIO-VERSION-GEN              |    2 +-
+ HOWTO                        |   15 ++-
+ Makefile                     |   36 ++++++-
+ configure                    |   51 +++++++++
+ engines/libaio.c             |   11 ++
+ exp/README.md                |    7 ++
+ exp/expression-parser.l      |  167 +++++++++++++++++++++++++++++
+ exp/expression-parser.y      |  244 ++++++++++++++++++++++++++++++++++++++++++
+ exp/test-expression-parser.c |   54 ++++++++++
+ fio.1                        |   24 ++++-
+ os/windows/install.wxs       |    2 +-
+ parse.c                      |  109 +++++++++++++++++--
+ 13 files changed, 708 insertions(+), 16 deletions(-)
+ create mode 100644 exp/README.md
+ create mode 100644 exp/expression-parser.l
+ create mode 100644 exp/expression-parser.y
+ create mode 100644 exp/test-expression-parser.c
 
 ---
 
 Diff of recent changes:
 
+diff --git a/.gitignore b/.gitignore
+index 3993a30..c9d90fb 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -7,3 +7,5 @@
+ /config.log
+ /cscope.out
+ /fio
++y.tab.*
++lex.yy.c
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index d36c76d..3057fed 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-2.1.12
++DEF_VER=fio-2.1.13
+ 
+ LF='
+ '
 diff --git a/HOWTO b/HOWTO
-index e770b99..693eeb1 100644
+index 693eeb1..2cecbbb 100644
 --- a/HOWTO
 +++ b/HOWTO
-@@ -379,7 +379,7 @@ rw=str		Type of io pattern. Accepted values are:
- 		For certain types of io the result may still be skewed a bit,
- 		since the speed may be different. It is possible to specify
- 		a number of IO's to do before getting a new offset, this is
--		one by appending a ':<nr>' to the end of the string given.
-+		done by appending a ':<nr>' to the end of the string given.
- 		For a random read, it would look like 'rw=randread:8' for
- 		passing in an offset modifier with a value of 8. If the
- 		suffix is used with a sequential IO pattern, then the value
-@@ -554,7 +554,7 @@ bssplit=str	Sometimes you want even finer grained control of the
- 		while having 90% 4k writes and 10% 8k writes, you would
- 		specify:
+@@ -253,7 +253,20 @@ machine.
  
--		bssplit=2k/50:4k/50,4k/90,8k/10
-+		bssplit=2k/50:4k/50,4k/90:8k/10
+ This section describes in details each parameter associated with a job.
+ Some parameters take an option of a given type, such as an integer or
+-a string. The following types are used:
++a string. Anywhere a numeric value is required, an arithmetic expression
++may be used, provided it is surrounded by parentheses. Supported operators
++are:
++
++	addition (+)
++	subtraction (-)
++	multiplication (*)
++	division (/)
++	modulus (%)
++	exponentiation (^)
++
++For time values in expressions, units are microseconds by default. This is
++different than for time values not in expressions (not enclosed in
++parentheses). The following types are used:
  
- blocksize_unaligned
- bs_unaligned	If this option is given, any byte size value within bsrange
-diff --git a/engines/binject.c b/engines/binject.c
-index 43e3169..c0baf9d 100644
---- a/engines/binject.c
-+++ b/engines/binject.c
-@@ -91,7 +91,8 @@ one_more:
- }
+ str	String. This is a sequence of alpha characters.
+ time	Integer with possible time suffix. In seconds unless otherwise
+diff --git a/Makefile b/Makefile
+index 8c6c056..d735ec7 100644
+--- a/Makefile
++++ b/Makefile
+@@ -158,6 +158,11 @@ endif
+ OBJS = $(SOURCE:.c=.o)
  
- static int fio_binject_getevents(struct thread_data *td, unsigned int min,
--			      unsigned int max, struct timespec fio_unused *t)
-+				 unsigned int max,
-+				 const struct timespec fio_unused *t)
- {
- 	struct binject_data *bd = td->io_ops->data;
- 	int left = max, ret, r = 0, ev_index = 0;
-diff --git a/engines/glusterfs_async.c b/engines/glusterfs_async.c
-index 7b0b30a..599bc5d 100644
---- a/engines/glusterfs_async.c
-+++ b/engines/glusterfs_async.c
-@@ -20,7 +20,7 @@ static struct io_u *fio_gf_event(struct thread_data *td, int event)
- }
+ FIO_OBJS = $(OBJS) fio.o
++
++ifdef CONFIG_ARITHMETIC
++FIO_OBJS += lex.yy.o y.tab.o
++endif
++
+ GFIO_OBJS = $(OBJS) gfio.o graph.o tickmarks.o ghelpers.o goptions.o gerror.o \
+ 			gclient.o gcompat.o cairo_text_helpers.o printing.o
  
- static int fio_gf_getevents(struct thread_data *td, unsigned int min,
--			    unsigned int max, struct timespec *t)
-+			    unsigned int max, const struct timespec *t)
- {
- 	struct gf_data *g = td->io_ops->data;
- 	unsigned int events = 0;
-diff --git a/engines/guasi.c b/engines/guasi.c
-index c9c7429..c586f09 100644
---- a/engines/guasi.c
-+++ b/engines/guasi.c
-@@ -80,7 +80,7 @@ static struct io_u *fio_guasi_event(struct thread_data *td, int event)
- }
+@@ -218,8 +223,10 @@ PROGS += $(T_PROGS)
+ ifneq ($(findstring $(MAKEFLAGS),s),s)
+ ifndef V
+ 	QUIET_CC	= @echo '   ' CC $@;
+-	QUIET_LINK	= @echo '   ' LINK $@;
+-	QUIET_DEP	= @echo '   ' DEP $@;
++	QUIET_LINK	= @echo ' ' LINK $@;
++	QUIET_DEP	= @echo '  ' DEP $@;
++	QUIET_YACC	= @echo ' ' YACC $@;
++	QUIET_LEX	= @echo '  ' LEX $@;
+ endif
+ endif
  
- static int fio_guasi_getevents(struct thread_data *td, unsigned int min,
--			       unsigned int max, struct timespec *t)
-+			       unsigned int max, const struct timespec *t)
- {
- 	struct guasi_data *ld = td->io_ops->data;
- 	int n, r;
+@@ -259,6 +266,29 @@ override CFLAGS += -DFIO_VERSION='"$(FIO_VERSION)"'
+ 		sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
+ 	@rm -f $*.d.tmp
+ 
++ifdef CONFIG_ARITHMETIC
++lex.yy.c: exp/expression-parser.l
++	$(QUIET_LEX)$(LEX) exp/expression-parser.l
++
++lex.yy.o: lex.yy.c y.tab.h
++	$(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) -c $<
++
++y.tab.o: y.tab.c y.tab.h
++	$(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) -c $<
++
++y.tab.c: exp/expression-parser.y
++	$(QUIET_YACC)$(YACC) --no-lines -d exp/expression-parser.y
++
++y.tab.h: y.tab.c
++
++exp/test-expression-parser.o: exp/test-expression-parser.c
++	$(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) -c $<
++exp/test-expression-parser: exp/test-expression-parser.o
++	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) $< y.tab.o lex.yy.o -o $@ $(LIBS)
++
++parse.o: lex.yy.o y.tab.o
++endif
++
+ init.o: FIO-VERSION-FILE init.c
+ 	$(QUIET_CC)$(CC) -o init.o $(CFLAGS) $(CPPFLAGS) -c init.c
+ 
+@@ -319,7 +349,7 @@ t/dedupe: $(T_DEDUPE_OBJS)
+ 	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(T_DEDUPE_OBJS) $(LIBS)
+ 
+ clean: FORCE
+-	-rm -f .depend $(FIO_OBJS) $(GFIO_OBJS) $(OBJS) $(T_OBJS) $(PROGS) $(T_PROGS) core.* core gfio FIO-VERSION-FILE *.d lib/*.d crc/*.d engines/*.d profiles/*.d t/*.d config-host.mak config-host.h
++	@rm -f .depend $(FIO_OBJS) $(GFIO_OBJS) $(OBJS) $(T_OBJS) $(PROGS) $(T_PROGS) core.* core gfio FIO-VERSION-FILE *.d lib/*.d crc/*.d engines/*.d profiles/*.d t/*.d config-host.mak config-host.h y.tab.[ch] lex.yy.c exp/*.[do]
+ 
+ distclean: clean FORCE
+ 	@rm -f cscope.out fio.pdf fio_generate_plots.pdf fio2gnuplot.pdf
+diff --git a/configure b/configure
+index 33d1327..f7d8ff9 100755
+--- a/configure
++++ b/configure
+@@ -1270,6 +1270,49 @@ if test "$libhdfs" = "yes" ; then
+ fi
+ echo "HDFS engine                   $libhdfs"
+ 
++# Check if we have lex/yacc available
++yacc="no"
++yacc_is_bison="no"
++lex="no"
++arith="no"
++LEX=$(which lex 2> /dev/null)
++if test -x "$LEX" ; then
++  lex="yes"
++fi
++YACC=$(which yacc 2> /dev/null)
++if test -x "$YACC" ; then
++  yacc="yes"
++else
++  YACC=$(which bison 2> /dev/null)
++  if test -x "$YACC" ; then
++    yacc="yes"
++    yacc_is_bison="yes"
++  fi
++fi
++if test "$yacc" = "yes" && test "$lex" = "yes" ; then
++  arith="yes"
++fi
++
++if test "$arith" = "yes" ; then
++cat > $TMPC << EOF
++extern int yywrap(void);
++
++int main(int argc, char **argv)
++{
++  yywrap();
++  return 0;
++}
++EOF
++
++if compile_prog "" "-ll" "lex"; then
++  LIBS="-ll $LIBS"
++else
++  arith="no"
++fi
++fi
++
++echo "lex/yacc for arithmetic       $arith"
++
+ #############################################################################
+ 
+ if test "$wordsize" = "64" ; then
+@@ -1414,6 +1457,14 @@ fi
+ if test "$libhdfs" = "yes" ; then
+   output_sym "CONFIG_LIBHDFS"
+ fi
++if test "$arith" = "yes" ; then
++  output_sym "CONFIG_ARITHMETIC"
++  if test "$yacc_is_bison" = "yes" ; then
++    echo "YACC=$YACC -y" >> $config_host_mak
++  else
++    echo "YACC=$YACC" >> $config_host_mak
++  fi
++fi
+ 
+ if test "$zlib" = "no" ; then
+   echo "Consider installing zlib-dev (zlib-devel), some fio features depend on it."
 diff --git a/engines/libaio.c b/engines/libaio.c
-index 9cc910d..ca7bfde 100644
+index 31c850e..6c5d73e 100644
 --- a/engines/libaio.c
 +++ b/engines/libaio.c
-@@ -18,7 +18,20 @@ struct libaio_data {
- 	struct io_event *aio_events;
- 	struct iocb **iocbs;
- 	struct io_u **io_us;
--	int iocbs_nr;
-+
-+	/*
-+	 * Basic ring buffer. 'head' is incremented in _queue(), and
-+	 * 'tail' is incremented in _commit(). We keep 'queued' so
-+	 * that we know if the ring is full or empty, when
-+	 * 'head' == 'tail'. 'entries' is the ring size, and
-+	 * 'is_pow2' is just an optimization to use AND instead of
-+	 * modulus to get the remainder on ring increment.
-+	 */
-+	int is_pow2;
-+	unsigned int entries;
-+	unsigned int queued;
-+	unsigned int head;
-+	unsigned int tail;
- };
- 
- struct libaio_options {
-@@ -41,6 +54,15 @@ static struct fio_option options[] = {
- 	},
- };
- 
-+static inline void ring_inc(struct libaio_data *ld, unsigned int *val,
-+			    unsigned int add)
-+{
-+	if (ld->is_pow2)
-+		*val = (*val + add) & (ld->entries - 1);
-+	else
-+		*val = (*val + add) % ld->entries;
-+}
-+
- static int fio_libaio_prep(struct thread_data fio_unused *td, struct io_u *io_u)
- {
- 	struct fio_file *f = io_u->file;
-@@ -117,13 +139,19 @@ static int user_io_getevents(io_context_t aio_ctx, unsigned int max,
- }
- 
- static int fio_libaio_getevents(struct thread_data *td, unsigned int min,
--				unsigned int max, struct timespec *t)
-+				unsigned int max, const struct timespec *t)
- {
- 	struct libaio_data *ld = td->io_ops->data;
- 	struct libaio_options *o = td->eo;
- 	unsigned actual_min = td->o.iodepth_batch_complete == 0 ? 0 : min;
-+	struct timespec __lt, *lt = NULL;
- 	int r, events = 0;
- 
-+	if (t) {
-+		__lt = *t;
-+		lt = &__lt;
-+	}
-+
- 	do {
- 		if (o->userspace_reap == 1
- 		    && actual_min == 0
-@@ -133,7 +161,7 @@ static int fio_libaio_getevents(struct thread_data *td, unsigned int min,
- 				ld->aio_events + events);
- 		} else {
- 			r = io_getevents(ld->aio_ctx, actual_min,
--				max, ld->aio_events + events, t);
-+				max, ld->aio_events + events, lt);
- 		}
- 		if (r >= 0)
+@@ -167,6 +167,8 @@ static int fio_libaio_getevents(struct thread_data *td, unsigned int min,
  			events += r;
-@@ -150,7 +178,7 @@ static int fio_libaio_queue(struct thread_data *td, struct io_u *io_u)
+ 		else if (r == -EAGAIN)
+ 			usleep(100);
++		else
++			break;
+ 	} while (events < min);
  
- 	fio_ro_check(td, io_u);
- 
--	if (ld->iocbs_nr == (int) td->o.iodepth)
-+	if (ld->queued == td->o.iodepth)
- 		return FIO_Q_BUSY;
- 
- 	/*
-@@ -160,7 +188,7 @@ static int fio_libaio_queue(struct thread_data *td, struct io_u *io_u)
- 	 * have pending io, to let fio complete those first.
- 	 */
- 	if (ddir_sync(io_u->ddir)) {
--		if (ld->iocbs_nr)
-+		if (ld->queued)
- 			return FIO_Q_BUSY;
- 
- 		do_io_u_sync(td, io_u);
-@@ -168,16 +196,17 @@ static int fio_libaio_queue(struct thread_data *td, struct io_u *io_u)
- 	}
- 
- 	if (io_u->ddir == DDIR_TRIM) {
--		if (ld->iocbs_nr)
-+		if (ld->queued)
- 			return FIO_Q_BUSY;
- 
- 		do_io_u_trim(td, io_u);
- 		return FIO_Q_COMPLETED;
- 	}
- 
--	ld->iocbs[ld->iocbs_nr] = &io_u->iocb;
--	ld->io_us[ld->iocbs_nr] = io_u;
--	ld->iocbs_nr++;
-+	ld->iocbs[ld->head] = &io_u->iocb;
-+	ld->io_us[ld->head] = io_u;
-+	ring_inc(ld, &ld->head, 1);
-+	ld->queued++;
- 	return FIO_Q_QUEUED;
- }
- 
-@@ -205,29 +234,56 @@ static int fio_libaio_commit(struct thread_data *td)
- 	struct libaio_data *ld = td->io_ops->data;
- 	struct iocb **iocbs;
- 	struct io_u **io_us;
--	int ret;
-+	struct timeval tv;
-+	int ret, wait_start = 0;
- 
--	if (!ld->iocbs_nr)
-+	if (!ld->queued)
- 		return 0;
- 
--	io_us = ld->io_us;
--	iocbs = ld->iocbs;
- 	do {
--		ret = io_submit(ld->aio_ctx, ld->iocbs_nr, iocbs);
-+		long nr = ld->queued;
-+
-+		nr = min((unsigned int) nr, ld->entries - ld->tail);
-+		io_us = ld->io_us + ld->tail;
-+		iocbs = ld->iocbs + ld->tail;
-+
-+		ret = io_submit(ld->aio_ctx, nr, iocbs);
- 		if (ret > 0) {
- 			fio_libaio_queued(td, io_us, ret);
- 			io_u_mark_submit(td, ret);
--			ld->iocbs_nr -= ret;
--			io_us += ret;
--			iocbs += ret;
-+
-+			ld->queued -= ret;
-+			ring_inc(ld, &ld->tail, ret);
- 			ret = 0;
--		} else if (!ret || ret == -EAGAIN || ret == -EINTR) {
-+		} else if (ret == -EINTR || !ret) {
- 			if (!ret)
- 				io_u_mark_submit(td, ret);
+ 	return r < 0 ? r : events;
+@@ -283,6 +285,15 @@ static int fio_libaio_commit(struct thread_data *td)
+ 			}
+ 			usleep(1);
  			continue;
-+		} else if (ret == -EAGAIN) {
++		} else if (ret == -ENOMEM) {
 +			/*
-+			 * If we get EAGAIN, we should break out without
-+			 * error and let the upper layer reap some
-+			 * events for us. If we have no queued IO, we
-+			 * must loop here. If we loop for more than 30s,
-+			 * just error out, something must be buggy in the
-+			 * IO path.
++			 * If we get -ENOMEM, reap events if we can. If
++			 * we cannot, treat it as a fatal event since there's
++			 * nothing we can do about it.
 +			 */
-+			if (ld->queued) {
++			if (ld->queued)
 +				ret = 0;
-+				break;
-+			}
-+			if (!wait_start) {
-+				fio_gettime(&tv, NULL);
-+				wait_start = 0;
-+			} else if (mtime_since_now(&tv) > 30000) {
-+				log_err("fio: aio appears to be stalled, giving up\n");
-+				break;
-+			}
-+			usleep(1);
-+			continue;
++			break;
  		} else
  			break;
--	} while (ld->iocbs_nr);
-+	} while (ld->head != ld->tail);
+ 	} while (ld->queued);
+diff --git a/exp/README.md b/exp/README.md
+new file mode 100644
+index 0000000..48c11c9
+--- /dev/null
++++ b/exp/README.md
+@@ -0,0 +1,7 @@
++simple-expression-parser
++========================
++
++A simple expression parser for arithmetic expressions made with bison + flex
++
++To use, see the example test-expression-parser.c
++
+diff --git a/exp/expression-parser.l b/exp/expression-parser.l
+new file mode 100644
+index 0000000..7d5e787
+--- /dev/null
++++ b/exp/expression-parser.l
+@@ -0,0 +1,167 @@
++%{
++
++/*
++ * (C) Copyright 2014, Stephen M. Cameron.
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2 as
++ *  published by the Free Software Foundation.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include <stdio.h>
++#include <string.h>
++#include "y.tab.h"
++
++#define YYSTYPE PARSER_VALUE_TYPE
++
++extern int lexer_input(char* buffer, int *nbytes, int buffersize);
++
++#undef YY_INPUT
++#define YY_INPUT(buffer, bytes_read, bytes_requested) \
++		lexer_input((buffer), &(bytes_read), (bytes_requested))
++
++extern int yyerror(long long *result, double *dresult,
++		int *has_error, int *units_specified, const char *msg);
++
++static void __attribute__((unused)) yyunput(int c,char *buf_ptr);
++static int __attribute__((unused)) input(void);
++
++#define set_suffix_value(yylval, i_val, d_val, has_d_val) \
++	(yylval).v.dval = (d_val); \
++	(yylval).v.ival = (i_val); \
++	(yylval).v.has_dval = (has_d_val); \
++	(yylval).v.has_error = 0;
++
++%}
++
++%%
++
++
++[kK]|[kK][bB] 	{
++			set_suffix_value(yylval, 1024, 1024.0, 0);
++			return SUFFIX;
++		}
++[Mm]|[Mm][bB]	{
++			set_suffix_value(yylval, 1024 * 1024, 1024.0 * 1024.0, 0);
++			return SUFFIX;
++		}
++[mM][sS]	{
++			set_suffix_value(yylval, 1000, 1000.0, 1);
++			return SUFFIX;
++		}
++[uU][sS]	{
++			set_suffix_value(yylval, 1, 1.0, 1);
++			return SUFFIX;
++		}
++[gG]|[Gg][Bb]	{
++			set_suffix_value(yylval, 1024LL * 1024 * 1024, 1024.0 * 1024.0 * 1024, 0);
++			return SUFFIX;
++		}
++[tT]|[tT][bB]	{	
++			set_suffix_value(yylval, 1024LL * 1024 * 1024 * 1024,
++						1024.0 * 1024.0 * 1024.0 * 1024.0 * 1024, 0);
++			return SUFFIX;
++		}
++[pP]|[pP][bB]	{	
++			set_suffix_value(yylval, 1024LL * 1024 * 1024 * 1024 * 1024,
++					1024.0 * 1024.0 * 1024.0 * 1024.0 * 1024.0, 0);
++			return SUFFIX;
++		}
++[kK][iI][Bb]	{
++			set_suffix_value(yylval, 1000LL, 1000.0, 0);
++			return SUFFIX;
++		}
++[mM][Ii][bB]	{
++			set_suffix_value(yylval, 1000000LL, 1000000.0 , 0);
++			return SUFFIX;
++		}
++[gG][iI][Bb]	{
++			set_suffix_value(yylval, 1000000000LL, 1000000000.0 , 0);
++			return SUFFIX;
++		}
++[pP][iI][Bb]	{	
++			set_suffix_value(yylval, 1000000000000LL, 1000000000000.0 , 0);
++			return SUFFIX;
++		}
++[sS]		{
++			set_suffix_value(yylval, 1000000LL, 1000000.0 , 0);
++			return SUFFIX;
++		}
++[dD]		{
++			set_suffix_value(yylval, 60LL * 60LL * 24LL * 1000000LL,
++						60.0 * 60.0 * 24.0 * 1000000.0, 0);
++			return SUFFIX;
++		}
++[hH]		{	
++			set_suffix_value(yylval, 60LL * 60LL * 1000000LL,
++					60.0 * 60.0 * 1000000.0, 0);
++			return SUFFIX;
++		}
++[ \t] ; /* ignore whitespace */
++[#:,].* ; /* ignore comments, and everything after colons and commas */
++[0-9]*[.][0-9]+|[0-9]*[.]?[0-9]+[eE][-+]*[0-9]+ {
++			int rc;
++			double dval;
++
++			rc = sscanf(yytext, "%lf", &dval);
++			if (rc == 1) {
++				yylval.v.dval = dval;
++				yylval.v.ival = (long long) dval;
++				yylval.v.has_dval = 1;
++				yylval.v.has_error = 0;
++				return NUMBER;
++			} else {
++				yyerror(0, 0, 0, 0, "bad number\n");
++				yylval.v.has_error = 1;
++				return NUMBER;
++			}
++		}
++0x[0-9a-fA-F]+ {
++		int rc, intval;
++		rc = sscanf(yytext, "%x", &intval);
++		if (rc == 1) {
++			yylval.v.ival = intval;
++			yylval.v.dval = (double) intval;
++			yylval.v.has_dval = 0;
++			yylval.v.has_error = 0;
++			return NUMBER;
++		} else {
++			yyerror(0, 0, 0, 0, "bad number\n");
++			yylval.v.has_error = 1;
++			return NUMBER;
++		}
++	}
++[0-9]+	{
++		int rc, intval;
++		rc = sscanf(yytext, "%d", &intval);
++		if (rc == 1) {
++			yylval.v.ival = intval;
++			yylval.v.dval = (double) intval;
++			yylval.v.has_dval = 0;
++			yylval.v.has_error = 0;
++			return NUMBER;
++		} else {
++			yyerror(0, 0, 0, 0, "bad number\n");
++			yylval.v.has_error = 1;
++			return NUMBER;
++		}
++	}
++\n	return 0;
++[+-/*()^%]	return yytext[0];
++
++.	{
++		yylval.v.has_error = 1;
++		return NUMBER;	
++	}
++%%
++
+diff --git a/exp/expression-parser.y b/exp/expression-parser.y
+new file mode 100644
+index 0000000..e4373d4
+--- /dev/null
++++ b/exp/expression-parser.y
+@@ -0,0 +1,244 @@
++%{
++
++/*
++ * (C) Copyright 2014, Stephen M. Cameron.
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2 as
++ *  published by the Free Software Foundation.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include <stdio.h>
++#include <string.h>
++#include <math.h>
++struct parser_value_type {
++	double dval;
++	long long ival;
++	int has_dval;
++	int has_error;
++};
++
++typedef union valtype {
++	struct parser_value_type v;
++} PARSER_VALUE_TYPE;
++
++#define YYSTYPE PARSER_VALUE_TYPE
++
++int yyerror(__attribute__((unused)) long long *result,
++		__attribute__((unused)) double *dresult,
++		__attribute__((unused)) int *has_error,
++		__attribute__((unused)) int *units_specified,
++		__attribute__((unused)) const char *msg);
++
++extern int yylex(void);
++extern void yyrestart(FILE *file);
++
++%}
++
++%union valtype {
++	struct parser_value_type {
++		double dval;
++		long long ival;
++		int has_dval;
++		int has_error;
++	} v;
++};
++
++%token <v> NUMBER
++%token <v> BYE
++%token <v> SUFFIX 
++%left '-' '+'
++%right SUFFIX
++%left '*' '/'
++%right '^'
++%left '%'
++%nonassoc UMINUS
++%parse-param { long long *result }
++%parse-param { double *dresult }
++%parse-param { int *has_error }
++%parse-param { int *units_specified }
++
++%type <v> expression
++%%
++
++top_level:	expression {
++				*result = $1.ival;
++				*dresult = $1.dval;
++				*has_error = $1.has_error;
++			}
++		| expression error {
++				*result = $1.ival;
++				*dresult = $1.dval;
++				*has_error = 1;
++			}
++expression:	expression '+' expression { 
++			if (!$1.has_dval && !$3.has_dval)
++				$$.ival = $1.ival + $3.ival;
++			else
++				$$.ival = (long long) ($1.dval + $3.dval);
++			$$.dval = $1.dval + $3.dval;
++			$$.has_error = $1.has_error || $3.has_error;
++		}
++	|	expression '-' expression {
++			if (!$1.has_dval && !$3.has_dval)
++				$$.ival = $1.ival - $3.ival; 
++			else
++				$$.ival = (long long) ($1.dval - $3.dval); 
++			$$.dval = $1.dval - $3.dval; 
++			$$.has_error = $1.has_error || $3.has_error;
++		}
++	|	expression '*' expression {
++			if (!$1.has_dval && !$3.has_dval)
++				$$.ival = $1.ival * $3.ival;
++			else
++				$$.ival = (long long) ($1.dval * $3.dval);
++			$$.dval = $1.dval * $3.dval;
++			$$.has_error = $1.has_error || $3.has_error;
++		}
++	|	expression '/' expression {
++			if ($3.ival == 0)
++				yyerror(0, 0, 0, 0, "divide by zero");
++			else
++				$$.ival = $1.ival / $3.ival;
++			if ($3.dval < 1e-20 && $3.dval > -1e-20)
++				yyerror(0, 0, 0, 0, "divide by zero");
++			else
++				$$.dval = $1.dval / $3.dval;
++			if ($3.has_dval || $1.has_dval)
++				$$.ival = (long long) $$.dval;
++			$$.has_error = $1.has_error || $3.has_error;
++		}
++	|	'-' expression %prec UMINUS {
++			$$.ival = -$2.ival;
++			$$.dval = -$2.dval;
++			$$.has_error = $2.has_error;
++		}
++	|	'(' expression ')' { $$ = $2; }
++	|	expression SUFFIX {
++			if (!$1.has_dval && !$2.has_dval)
++				$$.ival = $1.ival * $2.ival;
++			else
++				$$.ival = (long long) $1.dval * $2.dval;
++			if ($1.has_dval || $2.has_dval)
++				$$.dval = $1.dval * $2.dval;
++			else
++				$$.dval = $1.ival * $2.ival;
++			$$.has_error = $1.has_error || $2.has_error;
++			*units_specified = 1;
++		}
++	|	expression '%' expression {
++			if ($1.has_dval || $3.has_dval)
++				yyerror(0, 0, 0, 0, "modulo on floats");
++			if ($3.ival == 0)
++				yyerror(0, 0, 0, 0, "divide by zero");
++			else {
++				$$.ival = $1.ival % $3.ival;
++				$$.dval = $$.ival;
++			}
++			$$.has_error = $1.has_error || $3.has_error;
++		}
++	|	expression '^' expression {
++			$$.has_error = $1.has_error || $3.has_error;
++			if (!$1.has_dval && !$3.has_dval) {
++				int i;
++
++				if ($3.ival == 0) {
++					$$.ival = 1;
++				} else if ($3.ival > 0) {
++					long long tmp = $1.ival;
++					$$.ival = 1.0;
++					for (i = 0; i < $3.ival; i++)
++						$$.ival *= tmp;
++				}  else {
++					/* integers, 2^-3, ok, we now have doubles */
++					double tmp;
++					if ($1.ival == 0 && $3.ival == 0) {
++						tmp = 1.0;
++						$$.has_error = 1;
++					} else {
++						double x = (double) $1.ival;
++						double y = (double) $3.ival;
++						tmp = pow(x, y);
++					}
++					$$.ival = (long long) tmp;
++				}
++				$$.dval = pow($1.dval, $3.dval);
++			} else {
++				$$.dval = pow($1.dval, $3.dval);
++				$$.ival = (long long) $$.dval;
++			}
++		}
++	|	NUMBER { $$ = $1; };
++%%
++#include <stdio.h>
++
++/* Urgh.  yacc and lex are kind of horrible.  This is not thread safe, obviously. */
++static int lexer_read_offset = 0;
++static char lexer_input_buffer[1000];
++
++int lexer_input(char* buffer, int *bytes_read, int bytes_requested)
++{
++	int bytes_left = strlen(lexer_input_buffer) - lexer_read_offset;
++
++	if (bytes_requested > bytes_left )
++		bytes_requested = bytes_left;
++	memcpy(buffer, &lexer_input_buffer[lexer_read_offset], bytes_requested);
++	*bytes_read = bytes_requested;
++	lexer_read_offset += bytes_requested;
++	return 0;
++}
++
++static void setup_to_parse_string(const char *string)
++{
++	unsigned int len;
++
++	len = strlen(string);
++	if (len > sizeof(lexer_input_buffer) - 3)
++		len = sizeof(lexer_input_buffer) - 3;
++
++	strncpy(lexer_input_buffer, string, len);
++	lexer_input_buffer[len] = '\0'; 
++	lexer_input_buffer[len + 1] = '\0';  /* lex/yacc want string double null terminated! */
++	lexer_read_offset = 0;
++}
++
++int evaluate_arithmetic_expression(const char *buffer, long long *ival, double *dval,
++					double implied_units)
++{
++	int rc, units_specified = 0, has_error = 0;
++
++	setup_to_parse_string(buffer);
++	rc = yyparse(ival, dval, &has_error, &units_specified);
++	yyrestart(NULL);
++	if (rc || has_error) {
++		*ival = 0;
++		*dval = 0;
++		has_error = 1;
++	}
++	if (!units_specified) {
++		*ival = (int) ((double) *ival * implied_units);
++		*dval = *dval * implied_units;
++	}
++	return has_error;
++}
++
++int yyerror(__attribute__((unused)) long long *result,
++		__attribute__((unused)) double *dresult,
++		__attribute__((unused)) int *has_error,
++		__attribute__((unused)) int *units_specified,
++		__attribute__((unused)) const char *msg)
++{
++	/* We do not need to do anything here. */
++	return 0;
++}
++
+diff --git a/exp/test-expression-parser.c b/exp/test-expression-parser.c
+new file mode 100644
+index 0000000..93c766a
+--- /dev/null
++++ b/exp/test-expression-parser.c
+@@ -0,0 +1,54 @@
++/*
++ * (C) Copyright 2014, Stephen M. Cameron.
++ *
++ * The license below covers all files distributed with fio unless otherwise
++ * noted in the file itself.
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2 as
++ *  published by the Free Software Foundation.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include <stdio.h>
++#include <string.h>
++
++#include "../y.tab.h"
++
++extern int evaluate_arithmetic_expression(const char *buffer, long long *ival,
++					  double *dval, double implied_units);
++ 
++int main(int argc, char *argv[])
++{
++	int rc, bye = 0;
++	long long result;
++	double dresult;
++	char buffer[100];
++
++	do {
++		if (fgets(buffer, 90, stdin) == NULL)
++			break;
++		rc = strlen(buffer);
++		if (rc > 0 && buffer[rc - 1] == '\n')
++			buffer[rc - 1] = '\0';
++		rc = evaluate_arithmetic_expression(buffer, &result, &dresult, 1.0);
++		if (!rc) {
++			printf("%lld (%20.20lf)\n", result, dresult);
++		} else {
++			fprintf(stderr, "Syntax error\n");
++			result = 0;
++			dresult = 0;
++		}
++	} while (!bye);
++	return 0;
++}
++
+diff --git a/fio.1 b/fio.1
+index d64fbb7..b4dec91 100644
+--- a/fio.1
++++ b/fio.1
+@@ -115,7 +115,29 @@ and there may be any number of global sections.  Specific job definitions
+ may override any parameter set in global sections.
+ .SH "JOB PARAMETERS"
+ .SS Types
+-Some parameters may take arguments of a specific type.  The types used are:
++Some parameters may take arguments of a specific type.
++Anywhere a numeric value is required, an arithmetic expression may be used,
++provided it is surrounded by parentheses. Supported operators are:
++.RS
++.RS
++.TP
++.B addition (+)
++.TP
++.B subtraction (-)
++.TP
++.B multiplication (*)
++.TP
++.B division (/)
++.TP
++.B modulus (%)
++.TP
++.B exponentiation (^)
++.RE
++.RE
++.P
++For time values in expressions, units are microseconds by default. This is
++different than for time values not in expressions (not enclosed in
++parentheses). The types used are:
+ .TP
+ .I str
+ String: a sequence of alphanumeric characters.
+diff --git a/os/windows/install.wxs b/os/windows/install.wxs
+index 18918cc..7338d63 100755
+--- a/os/windows/install.wxs
++++ b/os/windows/install.wxs
+@@ -10,7 +10,7 @@
+ 	<Product Id="*"
+ 	  Codepage="1252" Language="1033"
+ 	  Manufacturer="fio" Name="fio"
+-	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.1.12">
++	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.1.13">
+ 		<Package
+ 		  Description="Flexible IO Tester"
+ 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
+diff --git a/parse.c b/parse.c
+index 40cd465..9e31908 100644
+--- a/parse.c
++++ b/parse.c
+@@ -18,6 +18,10 @@
+ #include "minmax.h"
+ #include "lib/ieee754.h"
  
- 	return ret;
++#ifdef CONFIG_ARITHMETIC
++#include "y.tab.h"
++#endif
++
+ static struct fio_option *__fio_options;
+ 
+ static int vp_cmp(const void *p1, const void *p2)
+@@ -264,12 +268,76 @@ static unsigned long long get_mult_bytes(const char *str, int len, void *data,
+ 	return __get_mult_bytes(p, data, percent);
  }
-@@ -254,11 +310,11 @@ static void fio_libaio_cleanup(struct thread_data *td)
  
- static int fio_libaio_init(struct thread_data *td)
++extern int evaluate_arithmetic_expression(const char *buffer, long long *ival,
++					  double *dval, double implied_units);
++
++#ifdef CONFIG_ARITHMETIC
++/*
++ * These two verification functions are just to gain confidence that
++ * the arithmetic processing code is always getting the same answer as the
++ * original number parsing code.  Once sufficiently sure that the arithmetic
++ * code is always getting the right answers, these can be removed.
++ */
++static void verify_exp_parser_float(const char *str, double implied_units)
++{
++	long long ival;
++	double dval, tmpval;
++
++	if (sscanf(str, "%lf", &tmpval) != 1)
++		return;
++
++	if (evaluate_arithmetic_expression(str, &ival, &dval, implied_units) != 0) {
++		log_info("Arithmetic failed on '%s'\n", str);
++		return;
++	}
++	if (dval != tmpval) {
++		log_info("Arithmetic failed on: '%s' got %lf, expected %lf\n",
++				str, dval, tmpval);
++	}
++}
++
++static void verify_exp_parser_decimal(const char *str, long long val, int kilo, int is_seconds)
++{
++	int rc;
++	long long ival;
++	double dval;
++	double implied_units = 1.0;
++
++	if (is_seconds)
++		implied_units = 1000000.0;
++
++	rc = evaluate_arithmetic_expression(str, &ival, &dval, implied_units);
++	if (!rc) {
++		if (ival != val)
++			log_info("Arithmetic failed on '%s', expected %lld, got %lld\n",
++				str, val, ival);
++	} else {
++		log_info("Arithmetic failed on '%s'\n", str);
++	}
++}
++#endif
++
+ /*
+  * Convert string into a floating number. Return 1 for success and 0 otherwise.
+  */
+ int str_to_float(const char *str, double *val)
  {
--	struct libaio_data *ld = malloc(sizeof(*ld));
- 	struct libaio_options *o = td->eo;
-+	struct libaio_data *ld;
- 	int err = 0;
+-	return (1 == sscanf(str, "%lf", val));
++#ifdef CONFIG_ARITHMETIC
++	int rc;
++	long long ival;
++	double dval;
++
++	if (str[0] == '(') {
++		rc = evaluate_arithmetic_expression(str, &ival, &dval, 1.0);
++		if (!rc) {
++			*val = dval;
++			return 1;
++		}
++	} else {
++		verify_exp_parser_float(str, 1.0);
++	}
++#endif
++	return 1 == sscanf(str, "%lf", val);
+ }
  
--	memset(ld, 0, sizeof(*ld));
-+	ld = calloc(1, sizeof(*ld));
+ /*
+@@ -279,19 +347,40 @@ int str_to_decimal(const char *str, long long *val, int kilo, void *data,
+ 		   int is_seconds)
+ {
+ 	int len, base;
++	int rc = 1;
++#ifdef CONFIG_ARITHMETIC
++	long long ival;
++	double dval;
++	double implied_units = 1.0;
++#endif
  
- 	/*
- 	 * First try passing in 0 for queue depth, since we don't
-@@ -276,13 +332,11 @@ static int fio_libaio_init(struct thread_data *td)
+ 	len = strlen(str);
+ 	if (!len)
  		return 1;
- 	}
  
--	ld->aio_events = malloc(td->o.iodepth * sizeof(struct io_event));
--	memset(ld->aio_events, 0, td->o.iodepth * sizeof(struct io_event));
--	ld->iocbs = malloc(td->o.iodepth * sizeof(struct iocb *));
--	memset(ld->iocbs, 0, sizeof(struct iocb *));
--	ld->io_us = malloc(td->o.iodepth * sizeof(struct io_u *));
--	memset(ld->io_us, 0, td->o.iodepth * sizeof(struct io_u *));
--	ld->iocbs_nr = 0;
-+	ld->entries = td->o.iodepth;
-+	ld->is_pow2 = is_power_of_2(ld->entries);
-+	ld->aio_events = calloc(ld->entries, sizeof(struct io_event));
-+	ld->iocbs = calloc(ld->entries, sizeof(struct iocb *));
-+	ld->io_us = calloc(ld->entries, sizeof(struct io_u *));
+-	if (strstr(str, "0x") || strstr(str, "0X"))
+-		base = 16;
+-	else
+-		base = 10;
++#ifdef CONFIG_ARITHMETIC
++	if (is_seconds)
++		implied_units = 1000000.0;
++	if (str[0] == '(')
++		rc = evaluate_arithmetic_expression(str, &ival, &dval, implied_units);
++	if (str[0] == '(' && !rc) {
++		if (!kilo && is_seconds)
++			*val = ival / 1000000LL;
++		else
++			*val = ival;
++	}
++#endif
  
- 	td->io_ops->data = ld;
- 	return 0;
-diff --git a/engines/null.c b/engines/null.c
-index e7df6a1..6000930 100644
---- a/engines/null.c
-+++ b/engines/null.c
-@@ -32,7 +32,7 @@ static struct io_u *fio_null_event(struct thread_data *td, int event)
+-	*val = strtoll(str, NULL, base);
+-	if (*val == LONG_MAX && errno == ERANGE)
+-		return 1;
++	if (rc == 1) {
++		if (strstr(str, "0x") || strstr(str, "0X"))
++			base = 16;
++		else
++			base = 10;
++
++		*val = strtoll(str, NULL, base);
++		if (*val == LONG_MAX && errno == ERANGE)
++			return 1;
++	}
  
- static int fio_null_getevents(struct thread_data *td, unsigned int min_events,
- 			      unsigned int fio_unused max,
--			      struct timespec fio_unused *t)
-+			      const struct timespec fio_unused *t)
- {
- 	struct null_data *nd = (struct null_data *) td->io_ops->data;
- 	int ret = 0;
-diff --git a/engines/posixaio.c b/engines/posixaio.c
-index 2df26af..8ab88fb 100644
---- a/engines/posixaio.c
-+++ b/engines/posixaio.c
-@@ -91,7 +91,7 @@ static int fio_posixaio_prep(struct thread_data fio_unused *td,
- #define SUSPEND_ENTRIES	8
- 
- static int fio_posixaio_getevents(struct thread_data *td, unsigned int min,
--				  unsigned int max, struct timespec *t)
-+				  unsigned int max, const struct timespec *t)
- {
- 	struct posixaio_data *pd = td->io_ops->data;
- 	os_aiocb_t *suspend_list[SUSPEND_ENTRIES];
-diff --git a/engines/rbd.c b/engines/rbd.c
-index 85a705f..6fe87b8 100644
---- a/engines/rbd.c
-+++ b/engines/rbd.c
-@@ -222,7 +222,7 @@ static struct io_u *fio_rbd_event(struct thread_data *td, int event)
- }
- 
- static int fio_rbd_getevents(struct thread_data *td, unsigned int min,
--			     unsigned int max, struct timespec *t)
-+			     unsigned int max, const struct timespec *t)
- {
- 	struct rbd_data *rbd_data = td->io_ops->data;
- 	unsigned int events = 0;
-diff --git a/engines/rdma.c b/engines/rdma.c
-index af50187..5081202 100644
---- a/engines/rdma.c
-+++ b/engines/rdma.c
-@@ -524,7 +524,7 @@ static struct io_u *fio_rdmaio_event(struct thread_data *td, int event)
- }
- 
- static int fio_rdmaio_getevents(struct thread_data *td, unsigned int min,
--				unsigned int max, struct timespec *t)
-+				unsigned int max, const struct timespec *t)
- {
- 	struct rdmaio_data *rd = td->io_ops->data;
- 	enum ibv_wc_opcode comp_opcode;
-diff --git a/engines/sg.c b/engines/sg.c
-index 1a027da..6272b79 100644
---- a/engines/sg.c
-+++ b/engines/sg.c
-@@ -62,7 +62,8 @@ static int pollin_events(struct pollfd *pfds, int fds)
- }
- 
- static int fio_sgio_getevents(struct thread_data *td, unsigned int min,
--			      unsigned int max, struct timespec fio_unused *t)
-+			      unsigned int max,
-+			      const struct timespec fio_unused *t)
- {
- 	struct sgio_data *sd = td->io_ops->data;
- 	int left = max, ret, r = 0;
-diff --git a/engines/skeleton_external.c b/engines/skeleton_external.c
-index f9a0e1c..63a6f8d 100644
---- a/engines/skeleton_external.c
-+++ b/engines/skeleton_external.c
-@@ -38,7 +38,7 @@ static struct io_u *fio_skeleton_event(struct thread_data *td, int event)
-  * numbers. Required.
-  */
- static int fio_skeleton_getevents(struct thread_data *td, unsigned int min,
--				  unsigned int max, struct timespec *t)
-+				  unsigned int max, const struct timespec *t)
- {
+ 	if (kilo) {
+ 		unsigned long long mult;
+@@ -304,7 +393,9 @@ int str_to_decimal(const char *str, long long *val, int kilo, void *data,
+ 			*val *= mult;
+ 	} else
+ 		*val *= get_mult_time(str, len, is_seconds);
+-
++#ifdef CONFIG_ARITHMETIC
++	verify_exp_parser_decimal(str, *val, kilo, is_seconds);
++#endif
  	return 0;
  }
-diff --git a/engines/solarisaio.c b/engines/solarisaio.c
-index 137dc22..55a0cb9 100644
---- a/engines/solarisaio.c
-+++ b/engines/solarisaio.c
-@@ -73,7 +73,7 @@ static void wait_for_event(struct timeval *tv)
- }
  
- static int fio_solarisaio_getevents(struct thread_data *td, unsigned int min,
--				    unsigned int max, struct timespec *t)
-+				    unsigned int max, const struct timespec *t)
- {
- 	struct solarisaio_data *sd = td->io_ops->data;
- 	struct timeval tv;
-diff --git a/engines/sync.c b/engines/sync.c
-index 1329946..41612df 100644
---- a/engines/sync.c
-+++ b/engines/sync.c
-@@ -138,7 +138,7 @@ static int fio_syncio_queue(struct thread_data *td, struct io_u *io_u)
- 
- static int fio_vsyncio_getevents(struct thread_data *td, unsigned int min,
- 				 unsigned int max,
--				 struct timespec fio_unused *t)
-+				 const struct timespec fio_unused *t)
- {
- 	struct syncio_data *sd = td->io_ops->data;
- 	int ret;
-diff --git a/engines/windowsaio.c b/engines/windowsaio.c
-index 16df740..ec8222c 100644
---- a/engines/windowsaio.c
-+++ b/engines/windowsaio.c
-@@ -37,7 +37,7 @@ struct thread_ctx {
- 
- static BOOL timeout_expired(DWORD start_count, DWORD end_count);
- static int fio_windowsaio_getevents(struct thread_data *td, unsigned int min,
--					unsigned int max, struct timespec *t);
-+				unsigned int max, const struct timespec *t);
- static struct io_u *fio_windowsaio_event(struct thread_data *td, int event);
- static int fio_windowsaio_queue(struct thread_data *td,
- 				  struct io_u *io_u);
-@@ -256,7 +256,8 @@ static struct io_u* fio_windowsaio_event(struct thread_data *td, int event)
- }
- 
- static int fio_windowsaio_getevents(struct thread_data *td, unsigned int min,
--					unsigned int max, struct timespec *t)
-+				    unsigned int max,
-+				    const struct timespec *t)
- {
- 	struct windowsaio_data *wd = td->io_ops->data;
- 	unsigned int dequeued = 0;
-diff --git a/fio.h b/fio.h
-index 136b430..f981739 100644
---- a/fio.h
-+++ b/fio.h
-@@ -406,7 +406,7 @@ extern const char fio_version_string[];
- 
- extern struct thread_data *threads;
- 
--static inline void fio_ro_check(struct thread_data *td, struct io_u *io_u)
-+static inline void fio_ro_check(const struct thread_data *td, struct io_u *io_u)
- {
- 	assert(!(io_u->ddir == DDIR_WRITE && !td_write(td)));
- }
-diff --git a/fio_time.h b/fio_time.h
-index 9f7d209..5fd3847 100644
---- a/fio_time.h
-+++ b/fio_time.h
-@@ -2,11 +2,11 @@
- #define FIO_TIME_H
- 
- struct thread_data;
--extern uint64_t utime_since(struct timeval *, struct timeval *);
--extern uint64_t utime_since_now(struct timeval *);
--extern uint64_t mtime_since(struct timeval *, struct timeval *);
--extern uint64_t mtime_since_now(struct timeval *);
--extern uint64_t time_since_now(struct timeval *);
-+extern uint64_t utime_since(const struct timeval *,const  struct timeval *);
-+extern uint64_t utime_since_now(const struct timeval *);
-+extern uint64_t mtime_since(const struct timeval *, const struct timeval *);
-+extern uint64_t mtime_since_now(const struct timeval *);
-+extern uint64_t time_since_now(const struct timeval *);
- extern uint64_t mtime_since_genesis(void);
- extern uint64_t utime_since_genesis(void);
- extern void usec_spin(unsigned int);
-diff --git a/gettime.c b/gettime.c
-index 8a13923..9f83620 100644
---- a/gettime.c
-+++ b/gettime.c
-@@ -377,7 +377,7 @@ void fio_clock_init(void)
- 		log_info("fio: clocksource=cpu may not be reliable\n");
- }
- 
--uint64_t utime_since(struct timeval *s, struct timeval *e)
-+uint64_t utime_since(const struct timeval *s, const struct timeval *e)
- {
- 	long sec, usec;
- 	uint64_t ret;
-@@ -400,7 +400,7 @@ uint64_t utime_since(struct timeval *s, struct timeval *e)
- 	return ret;
- }
- 
--uint64_t utime_since_now(struct timeval *s)
-+uint64_t utime_since_now(const struct timeval *s)
- {
- 	struct timeval t;
- 
-@@ -408,7 +408,7 @@ uint64_t utime_since_now(struct timeval *s)
- 	return utime_since(s, &t);
- }
- 
--uint64_t mtime_since(struct timeval *s, struct timeval *e)
-+uint64_t mtime_since(const struct timeval *s, const struct timeval *e)
- {
- 	long sec, usec, ret;
- 
-@@ -429,7 +429,7 @@ uint64_t mtime_since(struct timeval *s, struct timeval *e)
- 	return ret;
- }
- 
--uint64_t mtime_since_now(struct timeval *s)
-+uint64_t mtime_since_now(const struct timeval *s)
- {
- 	struct timeval t;
- 	void *p = __builtin_return_address(0);
-@@ -438,7 +438,7 @@ uint64_t mtime_since_now(struct timeval *s)
- 	return mtime_since(s, &t);
- }
- 
--uint64_t time_since_now(struct timeval *s)
-+uint64_t time_since_now(const struct timeval *s)
- {
- 	return mtime_since_now(s) / 1000;
- }
-diff --git a/io_u.c b/io_u.c
-index 9adc31b..612057d 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -1301,7 +1301,7 @@ void lat_target_check(struct thread_data *td)
-  * If latency target is enabled, we might be ramping up or down and not
-  * using the full queue depth available.
-  */
--int queue_full(struct thread_data *td)
-+int queue_full(const struct thread_data *td)
- {
- 	const int qempty = io_u_qempty(&td->io_u_freelist);
- 
-diff --git a/io_u_queue.h b/io_u_queue.h
-index b702b1f..bda40d5 100644
---- a/io_u_queue.h
-+++ b/io_u_queue.h
-@@ -28,7 +28,7 @@ static inline void io_u_qpush(struct io_u_queue *q, struct io_u *io_u)
- 	q->io_us[q->nr++] = io_u;
- }
- 
--static inline int io_u_qempty(struct io_u_queue *q)
-+static inline int io_u_qempty(const struct io_u_queue *q)
- {
- 	return !q->nr;
- }
-diff --git a/ioengine.h b/ioengine.h
-index 108c97c..dfe84ac 100644
---- a/ioengine.h
-+++ b/ioengine.h
-@@ -137,7 +137,7 @@ struct ioengine_ops {
- 	int (*prep)(struct thread_data *, struct io_u *);
- 	int (*queue)(struct thread_data *, struct io_u *);
- 	int (*commit)(struct thread_data *);
--	int (*getevents)(struct thread_data *, unsigned int, unsigned int, struct timespec *);
-+	int (*getevents)(struct thread_data *, unsigned int, unsigned int, const struct timespec *);
- 	struct io_u *(*event)(struct thread_data *, int);
- 	int (*cancel)(struct thread_data *, struct io_u *);
- 	void (*cleanup)(struct thread_data *);
-@@ -182,7 +182,7 @@ extern int __must_check td_io_init(struct thread_data *);
- extern int __must_check td_io_prep(struct thread_data *, struct io_u *);
- extern int __must_check td_io_queue(struct thread_data *, struct io_u *);
- extern int __must_check td_io_sync(struct thread_data *, struct fio_file *);
--extern int __must_check td_io_getevents(struct thread_data *, unsigned int, unsigned int, struct timespec *);
-+extern int __must_check td_io_getevents(struct thread_data *, unsigned int, unsigned int, const struct timespec *);
- extern int __must_check td_io_commit(struct thread_data *);
- extern int __must_check td_io_open_file(struct thread_data *, struct fio_file *);
- extern int td_io_close_file(struct thread_data *, struct fio_file *);
-@@ -215,10 +215,10 @@ extern void fill_io_buffer(struct thread_data *, void *, unsigned int, unsigned
- extern void io_u_fill_buffer(struct thread_data *td, struct io_u *, unsigned int, unsigned int);
- void io_u_mark_complete(struct thread_data *, unsigned int);
- void io_u_mark_submit(struct thread_data *, unsigned int);
--int queue_full(struct thread_data *);
-+int queue_full(const struct thread_data *);
- 
--int do_io_u_sync(struct thread_data *, struct io_u *);
--int do_io_u_trim(struct thread_data *, struct io_u *);
-+int do_io_u_sync(const struct thread_data *, struct io_u *);
-+int do_io_u_trim(const struct thread_data *, struct io_u *);
- 
- #ifdef FIO_INC_DEBUG
- static inline void dprint_io_u(struct io_u *io_u, const char *p)
-diff --git a/ioengines.c b/ioengines.c
-index 3010f6c..07d1d56 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -220,7 +220,7 @@ int td_io_prep(struct thread_data *td, struct io_u *io_u)
- }
- 
- int td_io_getevents(struct thread_data *td, unsigned int min, unsigned int max,
--		    struct timespec *t)
-+		    const struct timespec *t)
- {
- 	int r = 0;
- 
-@@ -522,7 +522,8 @@ int td_io_get_file_size(struct thread_data *td, struct fio_file *f)
- 	return td->io_ops->get_file_size(td, f);
- }
- 
--static int do_sync_file_range(struct thread_data *td, struct fio_file *f)
-+static int do_sync_file_range(const struct thread_data *td,
-+			      struct fio_file *f)
- {
- 	off64_t offset, nbytes;
- 
-@@ -535,7 +536,7 @@ static int do_sync_file_range(struct thread_data *td, struct fio_file *f)
- 	return sync_file_range(f->fd, offset, nbytes, td->o.sync_file_range);
- }
- 
--int do_io_u_sync(struct thread_data *td, struct io_u *io_u)
-+int do_io_u_sync(const struct thread_data *td, struct io_u *io_u)
- {
- 	int ret;
- 
-@@ -561,7 +562,7 @@ int do_io_u_sync(struct thread_data *td, struct io_u *io_u)
- 	return ret;
- }
- 
--int do_io_u_trim(struct thread_data *td, struct io_u *io_u)
-+int do_io_u_trim(const struct thread_data *td, struct io_u *io_u)
- {
- #ifndef FIO_HAVE_TRIM
- 	io_u->error = EINVAL;
-diff --git a/iolog.c b/iolog.c
-index ef8b841..4a7d939 100644
---- a/iolog.c
-+++ b/iolog.c
-@@ -28,7 +28,7 @@ void queue_io_piece(struct thread_data *td, struct io_piece *ipo)
- 	td->total_io_size += ipo->len;
- }
- 
--void log_io_u(struct thread_data *td, struct io_u *io_u)
-+void log_io_u(const struct thread_data *td, const struct io_u *io_u)
- {
- 	if (!td->o.write_iolog_file)
- 		return;
-@@ -282,7 +282,7 @@ void unlog_io_piece(struct thread_data *td, struct io_u *io_u)
- 	td->io_hist_len--;
- }
- 
--void trim_io_piece(struct thread_data *td, struct io_u *io_u)
-+void trim_io_piece(struct thread_data *td, const struct io_u *io_u)
- {
- 	struct io_piece *ipo = io_u->ipo;
- 
-@@ -539,9 +539,9 @@ int init_iolog(struct thread_data *td)
- void setup_log(struct io_log **log, struct log_params *p,
- 	       const char *filename)
- {
--	struct io_log *l = malloc(sizeof(*l));
-+	struct io_log *l;
- 
--	memset(l, 0, sizeof(*l));
-+	l = calloc(1, sizeof(*l));
- 	l->nr_samples = 0;
- 	l->max_samples = 1024;
- 	l->log_type = p->log_type;
-diff --git a/iolog.h b/iolog.h
-index fcd6794..a1e32ae 100644
---- a/iolog.h
-+++ b/iolog.h
-@@ -174,12 +174,12 @@ enum file_log_act {
- 
- struct io_u;
- extern int __must_check read_iolog_get(struct thread_data *, struct io_u *);
--extern void log_io_u(struct thread_data *, struct io_u *);
-+extern void log_io_u(const struct thread_data *, const struct io_u *);
- extern void log_file(struct thread_data *, struct fio_file *, enum file_log_act);
- extern int __must_check init_iolog(struct thread_data *td);
- extern void log_io_piece(struct thread_data *, struct io_u *);
- extern void unlog_io_piece(struct thread_data *, struct io_u *);
--extern void trim_io_piece(struct thread_data *, struct io_u *);
-+extern void trim_io_piece(struct thread_data *, const struct io_u *);
- extern void queue_io_piece(struct thread_data *, struct io_piece *);
- extern void prune_io_piece_log(struct thread_data *);
- extern void write_iolog_close(struct thread_data *);
-diff --git a/json.c b/json.c
-index 7480a61..6145ee4 100644
---- a/json.c
-+++ b/json.c
-@@ -8,18 +8,12 @@
- 
- struct json_object *json_create_object(void)
- {
--	struct json_object *obj = malloc(sizeof(struct json_object));
--	if (obj)
--		memset(obj, 0, sizeof(struct json_object));
--	return obj;
-+	return calloc(1, sizeof(struct json_object));
- }
- 
- struct json_array *json_create_array(void)
- {
--	struct json_array *array = malloc(sizeof(struct json_array));
--	if (array)
--		memset(array, 0, sizeof(struct json_array));
--	return array;
-+	return calloc(1, sizeof(struct json_array));
- }
- 
- static struct json_pair *json_create_pair(const char *name, struct json_value *value)
