@@ -1,173 +1,33 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-oi0-f51.google.com ([209.85.218.51]:49545 "EHLO
-	mail-oi0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751505AbaJUXzC (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 21 Oct 2014 19:55:02 -0400
-Received: by mail-oi0-f51.google.com with SMTP id h136so1859470oig.24
-        for <fio@vger.kernel.org>; Tue, 21 Oct 2014 16:55:01 -0700 (PDT)
+Return-Path: <ruby.wktk@gmail.com>
+Return-Path: <ruby.wktk@gmail.com>
+Message-ID: <5430F01E.2010906@gmail.com>
+Date: Sun, 05 Oct 2014 16:15:42 +0900
+From: Akira Hayakawa <ruby.wktk@gmail.com>
 MIME-Version: 1.0
-From: Michael Mattsson <michael.mattsson@gmail.com>
-Date: Tue, 21 Oct 2014 16:54:40 -0700
-Message-ID: <CAE56cDu7ctJfTLbFRUGh+VwyHdJ=_rtLYLL_b-kJ=YmeeGaopA@mail.gmail.com>
-Subject: --status-interval output race
-Content-Type: multipart/mixed; boundary=001a11c2a28c352c710505f78fba
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+Subject: Re: [Question] How to perform stride access?
+References: <CANvN+enrUD45Zp1CJKQ3kxQncHLyhp7hE1jr4AnzRD65oDTUvg@mail.gmail.com>	<54228237.5000805@gmail.com>	<CALjAwxg+o05=3YDOmXaKskrdg3AHU88T-pkqZw=QFQkwRTjdwA@mail.gmail.com>	<CALjAwxirUW+v662QZ9zQG-2zuTNtE8xkpfaJqv=5ArLviqjhGw@mail.gmail.com>	<5427716A.1080407@kernel.dk>	<20140928103616.GA9991@sucs.org>	<54281A0A.8050905@kernel.dk>	<5428246F.7020506@kernel.dk>	<20140928194419.GA24724@sucs.org>	<54288805.2020008@kernel.dk>	<20140929074038.GA12377@sucs.org> <20140930102344.4a6b95795a43c614bb1ab253@gmail.com>
+In-Reply-To: <20140930102344.4a6b95795a43c614bb1ab253@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+To: sitsofe@gmail.com
+Cc: axboe@kernel.dk, andrey.v.kuzmin@gmail.com, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
---001a11c2a28c352c710505f78fba
-Content-Type: text/plain; charset=UTF-8
+The latest fio works as I expected.
+It wraps around until certain amount (specified by io_limit) ends.
 
-Hey,
-I'm trying to get predictable output from --status-interval. I believe
-there's some output racing going on and can't think of a way of
-working around it at this point. Is there a way to redirect
---status-interval to a separate file and have the summary go to
---output? That would be useful.
+Thanks,
 
-Anyhow.
+- Akira
 
-Attached is a --side-by-side diff by a custom --minimal parser, this
-is the command line used: fio --minimal --direct=1 --group_reporting
---filesize=100m --norandommap --blocksize=32k --time_based --iodepth=1
---ramp_time=0 --ioengine=libaio --status-interval=5
---percentage_random=100 --name=randrw-workload --rw=randrw
---rwmixread=0 --numjobs=2 --filename=/fut1/rs-dev2_2:/fut2/rs-dev2_2
---runtime=60 --output fio_w.dat
+On 9/30/14 10:23 AM, Akira Hayakawa wrote:
+>> Latest patch fixes zone skipping for me too. Akira are things better for
+>> you too?
+> Thanks Sitsofe,
+> I will make my time on this weekend to try your patch out.
+> But, at the first look, it looks fine.
+> 
+> - Akira
+> 
 
-What happens is that intermittently I get a <1s splurge on the last
-line which is suppose to be final output but it screws up the summary
-fields, more explictly:
 
-Bandwidth KB
-IOPS
-Runtime (ms)
-
-Sometime it happens with this workload but it happens more
-infrequently: fio --minimal --direct=1 --group_reporting
---filesize=100m --norandommap --blocksize=32k --time_based --iodepth=1
---ramp_time=0 --ioengine=libaio --status-interval=5
---percentage_random=100 --name=rainscaler-randrw --rw=randrw
---rwmixread=100 --numjobs=2 --filename=/fut1/rs-dev2_1:/fut2/rs-dev2_1
---runtime=60 --output fio_r.dat
-
-What is good to know here is that both these run in parallel as two
-independent fio jobs on the same host if there is some communication
-between fio processes that are run independently on the same host that
-promotes this behavior. I can't use /tmp/fio-dump-status as there will
-be a race between master processes who unlink the file first.
-
-fio-2.1.4 and fio-2.1.13 on CentOS 6.5.
-
-Thanks!
-Michael
-
-PS. The other --status-interval issue I've reported a few months back
-I haven't got to as that have only occurred on my "production" rig and
-this is just my dev environment.
-
---001a11c2a28c352c710505f78fba
-Content-Type: text/plain; charset=US-ASCII; name="diff.txt"
-Content-Disposition: attachment; filename="diff.txt"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_i1jwba0l0
-
-W2FkbWluQHJzbS1kZXYxIH5dJCBkaWZmIC0tc2lkZS1ieS1zaWRlIDEgMgpPdmVydmlldwkJCQkJ
-CQlPdmVydmlldwogMTozOnRlcnNlIHZlcnNpb24JCQkJCQkgMTozOnRlcnNlIHZlcnNpb24KIDI6
-ZmlvLTIuMS40OmZpbyB2ZXJzaW9uCQkJCQkgMjpmaW8tMi4xLjQ6ZmlvIHZlcnNpb24KIDM6cmFp
-bnNjYWxlci1yYW5kcnc6bmFtZQkJCQkJIDM6cmFpbnNjYWxlci1yYW5kcnc6bmFtZQogNDowOmdy
-b3VwIGlkCQkJCQkJCSA0OjA6Z3JvdXAgaWQKIDU6MDplcnJvcgkJCQkJCQkgNTowOmVycm9yClJl
-YWQgU3RhdHVzCQkJCQkJCVJlYWQgU3RhdHVzCiA2OjA6VG90YWwgSS9PIEtCCQkJCQkJIDY6MDpU
-b3RhbCBJL08gS0IKIDc6MDpCYW5kd2lkdGggS0IJCQkJCQkgNzowOkJhbmR3aWR0aCBLQgogODow
-OklPUFMJCQkJCQkJIDg6MDpJT1BTCiA5OjA6UnVudGltZSAobXMpCQkJCQkJIDk6MDpSdW50aW1l
-IChtcykKU3VibWlzc2lvbiBsYXRlbmN5CQkJCQkJU3VibWlzc2lvbiBsYXRlbmN5CiAxMDowOm1p
-bgkJCQkJCQkgMTA6MDptaW4KIDExOjA6bWF4CQkJCQkJCSAxMTowOm1heAogMTI6MC4wMDAwMDA6
-bWVhbgkJCQkJCSAxMjowLjAwMDAwMDptZWFuCiAxMzowLjAwMDAwMDpzdGRldgkJCQkJCSAxMzow
-LjAwMDAwMDpzdGRldgpDb21wbGV0aW9uIGxhdGVuY3kJCQkJCQlDb21wbGV0aW9uIGxhdGVuY3kK
-IDE0OjA6bWluCQkJCQkJCSAxNDowOm1pbgogMTU6MDptYXgJCQkJCQkJIDE1OjA6bWF4CiAxNjow
-LjAwMDAwMDptZWFuCQkJCQkJIDE2OjAuMDAwMDAwOm1lYW4KIDE3OjAuMDAwMDAwOnN0ZGV2CQkJ
-CQkJIDE3OjAuMDAwMDAwOnN0ZGV2CkNvbXBsZXRpb24gbGF0ZW5jeSBwZXJjZW50aWxlcyAoMjAg
-ZmllbGRzKQkJCUNvbXBsZXRpb24gbGF0ZW5jeSBwZXJjZW50aWxlcyAoMjAgZmllbGRzKQogMTg6
-MS4wMDAwMDAlPTA6CQkJCQkJIDE4OjEuMDAwMDAwJT0wOgogMTk6NS4wMDAwMDAlPTA6CQkJCQkJ
-IDE5OjUuMDAwMDAwJT0wOgogMjA6MTAuMDAwMDAwJT0wOgkJCQkJCSAyMDoxMC4wMDAwMDAlPTA6
-CiAyMToyMC4wMDAwMDAlPTA6CQkJCQkJIDIxOjIwLjAwMDAwMCU9MDoKIDIyOjMwLjAwMDAwMCU9
-MDoJCQkJCQkgMjI6MzAuMDAwMDAwJT0wOgogMjM6NDAuMDAwMDAwJT0wOgkJCQkJCSAyMzo0MC4w
-MDAwMDAlPTA6CiAyNDo1MC4wMDAwMDAlPTA6CQkJCQkJIDI0OjUwLjAwMDAwMCU9MDoKIDI1OjYw
-LjAwMDAwMCU9MDoJCQkJCQkgMjU6NjAuMDAwMDAwJT0wOgogMjY6NzAuMDAwMDAwJT0wOgkJCQkJ
-CSAyNjo3MC4wMDAwMDAlPTA6CiAyNzo4MC4wMDAwMDAlPTA6CQkJCQkJIDI3OjgwLjAwMDAwMCU9
-MDoKIDI4OjkwLjAwMDAwMCU9MDoJCQkJCQkgMjg6OTAuMDAwMDAwJT0wOgogMjk6OTUuMDAwMDAw
-JT0wOgkJCQkJCSAyOTo5NS4wMDAwMDAlPTA6CiAzMDo5OS4wMDAwMDAlPTA6CQkJCQkJIDMwOjk5
-LjAwMDAwMCU9MDoKIDMxOjk5LjUwMDAwMCU9MDoJCQkJCQkgMzE6OTkuNTAwMDAwJT0wOgogMzI6
-OTkuOTAwMDAwJT0wOgkJCQkJCSAzMjo5OS45MDAwMDAlPTA6CiAzMzo5OS45NTAwMDAlPTA6CQkJ
-CQkJIDMzOjk5Ljk1MDAwMCU9MDoKIDM0Ojk5Ljk5MDAwMCU9MDoJCQkJCQkgMzQ6OTkuOTkwMDAw
-JT0wOgogMzU6MCU9MDoJCQkJCQkJIDM1OjAlPTA6CiAzNjowJT0wOgkJCQkJCQkgMzY6MCU9MDoK
-IDM3OjAlPTA6CQkJCQkJCSAzNzowJT0wOgpUb3RhbCBsYXRlbmN5CQkJCQkJCVRvdGFsIGxhdGVu
-Y3kKIDM4OjA6bWluCQkJCQkJCSAzODowOm1pbgogMzk6MDptYXgJCQkJCQkJIDM5OjA6bWF4CiA0
-MDowLjAwMDAwMDptZWFuCQkJCQkJIDQwOjAuMDAwMDAwOm1lYW4KIDQxOjAuMDAwMDAwOnN0ZGV2
-CQkJCQkJIDQxOjAuMDAwMDAwOnN0ZGV2CkJhbmR3aWR0aAkJCQkJCQlCYW5kd2lkdGgKIDQyOjA6
-bWluCQkJCQkJCSA0MjowOm1pbgogNDM6MDptYXgJCQkJCQkJIDQzOjA6bWF4CiA0NDowLjAwMDAw
-MCU6YWdncmVnYXRlICUgb2YgdG90YWwJCQkJIDQ0OjAuMDAwMDAwJTphZ2dyZWdhdGUgJSBvZiB0
-b3RhbAogNDU6MC4wMDAwMDA6bWVhbgkJCQkJCSA0NTowLjAwMDAwMDptZWFuCiA0NjowLjAwMDAw
-MDpzdGRldgkJCQkJCSA0NjowLjAwMDAwMDpzdGRldgpXcml0ZSBzdGF0dXMJCQkJCQkJV3JpdGUg
-c3RhdHVzCiA0NzozMTMyNDg6VG90YWwgSU8gS0IJCQkJCQkgNDc6MzEzMjQ4OlRvdGFsIElPIEtC
-CiA0ODo1MTYxOkJhbmR3aWR0aCBLQgkJCQkJICAgICAgfAkgNDg6NDM1NjcxOkJhbmR3aWR0aCBL
-QgogNDk6MTYxOklPUFMJCQkJCQkgICAgICB8CSA0OToxMzYxNDpJT1BTCiA1MDo2MDY5MzpydW50
-aW1lIChtcykJCQkJCSAgICAgIHwJIDUwOjcxOTpydW50aW1lIChtcykKU3VibWlzc2lvbiBsYXRl
-bmN5CQkJCQkJU3VibWlzc2lvbiBsYXRlbmN5CiA1MTowOm1pbgkJCQkJCQkgNTE6MDptaW4KIDUy
-OjI2Mzc6bWF4CQkJCQkJCSA1MjoyNjM3Om1heAogNTM6MjUuMTI1NTQ5Om1lYW4JCQkJCQkgNTM6
-MjUuMTI1NTQ5Om1lYW4KIDU0OjEwMS44NjE3MzI6c3RkZXYJCQkJCQkgNTQ6MTAxLjg2MTczMjpz
-dGRldgpDb21wbGV0aW9uIGxhdGVuY3kJCQkJCQlDb21wbGV0aW9uIGxhdGVuY3kKIDU1OjM3OTI6
-bWluCQkJCQkJCSA1NTozNzkyOm1pbgogNTY6MTE2ODk5MjptYXgJCQkJCQkJIDU2OjExNjg5OTI6
-bWF4CiA1NzoxMjM1Mi42NzM2MTM6bWVhbgkJCQkJCSA1NzoxMjM1Mi42NzM2MTM6bWVhbgogNTg6
-Mjc4MDQuMjg5NDg1OnN0ZGV2CQkJCQkJIDU4OjI3ODA0LjI4OTQ4NTpzdGRldgpDb21wbGV0aW9u
-IGxhdGVuY3kgcGVyY2VudGlsZXMgKDIwIGZpZWxkcykJCQlDb21wbGV0aW9uIGxhdGVuY3kgcGVy
-Y2VudGlsZXMgKDIwIGZpZWxkcykKIDU5OjEuMDAwMDAwJT01NDcyOgkJCQkJCSA1OToxLjAwMDAw
-MCU9NTQ3MjoKIDYwOjUuMDAwMDAwJT02MzY4OgkJCQkJCSA2MDo1LjAwMDAwMCU9NjM2ODoKIDYx
-OjEwLjAwMDAwMCU9NzEzNjoJCQkJCQkgNjE6MTAuMDAwMDAwJT03MTM2OgogNjI6MjAuMDAwMDAw
-JT04MjU2OgkJCQkJCSA2MjoyMC4wMDAwMDAlPTgyNTY6CiA2MzozMC4wMDAwMDAlPTg2NDA6CQkJ
-CQkJIDYzOjMwLjAwMDAwMCU9ODY0MDoKIDY0OjQwLjAwMDAwMCU9OTAyNDoJCQkJCQkgNjQ6NDAu
-MDAwMDAwJT05MDI0OgogNjU6NTAuMDAwMDAwJT05NDA4OgkJCQkJCSA2NTo1MC4wMDAwMDAlPTk0
-MDg6CiA2Njo2MC4wMDAwMDAlPTk5MjA6CQkJCQkJIDY2OjYwLjAwMDAwMCU9OTkyMDoKIDY3Ojcw
-LjAwMDAwMCU9MTA2ODg6CQkJCQkJIDY3OjcwLjAwMDAwMCU9MTA2ODg6CiA2ODo4MC4wMDAwMDAl
-PTExNzEyOgkJCQkJCSA2ODo4MC4wMDAwMDAlPTExNzEyOgogNjk6OTAuMDAwMDAwJT0xMzc2MDoJ
-CQkJCQkgNjk6OTAuMDAwMDAwJT0xMzc2MDoKIDcwOjk1LjAwMDAwMCU9MTYzMjA6CQkJCQkJIDcw
-Ojk1LjAwMDAwMCU9MTYzMjA6CiA3MTo5OS4wMDAwMDAlPTY0MjU2OgkJCQkJCSA3MTo5OS4wMDAw
-MDAlPTY0MjU2OgogNzI6OTkuNTAwMDAwJT0xMzA1NjA6CQkJCQkJIDcyOjk5LjUwMDAwMCU9MTMw
-NTYwOgogNzM6OTkuOTAwMDAwJT00MjgwMzI6CQkJCQkJIDczOjk5LjkwMDAwMCU9NDI4MDMyOgog
-NzQ6OTkuOTUwMDAwJT00Njg5OTI6CQkJCQkJIDc0Ojk5Ljk1MDAwMCU9NDY4OTkyOgogNzU6OTku
-OTkwMDAwJT0xMTcxNDU2OgkJCQkJCSA3NTo5OS45OTAwMDAlPTExNzE0NTY6CiA3NjowJT0wOgkJ
-CQkJCQkgNzY6MCU9MDoKIDc3OjAlPTA6CQkJCQkJCSA3NzowJT0wOgogNzg6MCU9MDoJCQkJCQkJ
-IDc4OjAlPTA6ClRvdGFsIGxhdGVuY3kJCQkJCQkJVG90YWwgbGF0ZW5jeQogNzk6Mzc5ODptaW4J
-CQkJCQkJIDc5OjM3OTg6bWluCiA4MDoxMTY5MDAyOm1heAkJCQkJCQkgODA6MTE2OTAwMjptYXgK
-IDgxOjEyMzc4Ljk0NDAxOTptZWFuCQkJCQkJIDgxOjEyMzc4Ljk0NDAxOTptZWFuCiA4MjoyNzgw
-NS43Mjk0MTE6c3RkZXYJCQkJCQkgODI6Mjc4MDUuNzI5NDExOnN0ZGV2CkJhbmR3aWR0aAkJCQkJ
-CQlCYW5kd2lkdGgKIDgzOjE4MzptaW4JCQkJCQkJIDgzOjE4MzptaW4KIDg0OjM1ODM6bWF4CQkJ
-CQkJCSA4NDozNTgzOm1heAogODU6NTEuNDMyMjUyJTphZ2dyZWF0ZSAlIG9mIHRvdGFsCQkJICAg
-ICAgfAkgODU6MC42MDkyNzElOmFnZ3JlYXRlICUgb2YgdG90YWwKIDg2OjI2NTQuNDE4NTAyOm1l
-YW4JCQkJCQkgODY6MjY1NC40MTg1MDI6bWVhbgogODc6OTAxLjAzODU5NzpzdGRldgkJCQkJCSA4
-Nzo5MDEuMDM4NTk3OnN0ZGV2CkNQVSBVc2FnZQkJCQkJCQlDUFUgVXNhZ2UKIDg4OjAuMDIzOTE1
-JTp1c2VyCQkJCQkJIDg4OjAuMDIzOTE1JTp1c2VyCiA4OTowLjM5NjY1OSU6c3lzdGVtCQkJCQkJ
-IDg5OjAuMzk2NjU5JTpzeXN0ZW0KIDkwOjk4MDg6Y3R4IHN3aXRjaGVzCQkJCQkJIDkwOjk4MDg6
-Y3R4IHN3aXRjaGVzCiA5MTowOm1ham9yIHBmCQkJCQkJCSA5MTowOm1ham9yIHBmCiA5Mjo1NDpt
-aW5vciBwZgkJCQkJCQkgOTI6NTQ6bWlub3IgcGYKSU8gZGVwdGggZGlzdAkJCQkJCQlJTyBkZXB0
-aCBkaXN0CiA5MzoxMDAuMCU6PD0xCQkJCQkJCSA5MzoxMDAuMCU6PD0xCiA5NDowLjAlOjIJCQkJ
-CQkJIDk0OjAuMCU6MgogOTU6MC4wJTo0CQkJCQkJCSA5NTowLjAlOjQKIDk2OjAuMCU6OAkJCQkJ
-CQkgOTY6MC4wJTo4CiA5NzowLjAlOjE2CQkJCQkJCSA5NzowLjAlOjE2CiA5ODowLjAlOjMyCQkJ
-CQkJCSA5ODowLjAlOjMyCiA5OTowLjAlOj49NjQJCQkJCQkJIDk5OjAuMCU6Pj02NApJTyBsYXRl
-bmN5IGRpc3QgKG1pY3Jvc2Vjb25kcykJCQkJCUlPIGxhdGVuY3kgZGlzdCAobWljcm9zZWNvbmRz
-KQogMTAwOjAuMDAlOjw9MgkJCQkJCQkgMTAwOjAuMDAlOjw9MgogMTAxOjAuMDAlOjQJCQkJCQkJ
-IDEwMTowLjAwJTo0CiAxMDI6MC4wMCU6MTAJCQkJCQkJIDEwMjowLjAwJToxMAogMTAzOjAuMDAl
-OjIwCQkJCQkJCSAxMDM6MC4wMCU6MjAKIDEwNDowLjAwJTo1MAkJCQkJCQkgMTA0OjAuMDAlOjUw
-CiAxMDU6MC4wMCU6MTAwCQkJCQkJCSAxMDU6MC4wMCU6MTAwCiAxMDY6MC4wMCU6MjUwCQkJCQkJ
-CSAxMDY6MC4wMCU6MjUwCiAxMDc6MC4wMCU6NTAwCQkJCQkJCSAxMDc6MC4wMCU6NTAwCiAxMDg6
-MC4wMCU6NzUwCQkJCQkJCSAxMDg6MC4wMCU6NzUwCiAxMDk6MC4wMCU6MTAwMAkJCQkJCQkgMTA5
-OjAuMDAlOjEwMDAKSU8gbGF0ZW5jeSBkaXN0IChtcykJCQkJCQlJTyBsYXRlbmN5IGRpc3QgKG1z
-KQogMTEwOjAuMDAlOjw9MgkJCQkJCQkgMTEwOjAuMDAlOjw9MgogMTExOjAuMDElOjQJCQkJCQkJ
-IDExMTowLjAxJTo0CiAxMTI6NjEuNzElOjEwCQkJCQkJCSAxMTI6NjEuNzElOjEwCiAxMTM6MzUu
-MDglOjIwCQkJCQkJCSAxMTM6MzUuMDglOjIwCiAxMTQ6MS43MyU6NTAJCQkJCQkJIDExNDoxLjcz
-JTo1MAogMTE1OjAuODElOjEwMAkJCQkJCQkgMTE1OjAuODElOjEwMAogMTE2OjAuNDAlOjI1MAkJ
-CQkJCQkgMTE2OjAuNDAlOjI1MAogMTE3OjAuMjUlOjUwMAkJCQkJCQkgMTE3OjAuMjUlOjUwMAog
-MTE4OjAuMDAlOjc1MAkJCQkJCQkgMTE4OjAuMDAlOjc1MAogMTE5OjAuMDAlOjEwMDAJCQkJCQkJ
-IDExOTowLjAwJToxMDAwCiAxMjA6MC4wMiU6MjAwMAkJCQkJCQkgMTIwOjAuMDIlOjIwMDAKIDEy
-MTowLjAwJTo+PTIwMDAJCQkJCQkgMTIxOjAuMDAlOj49MjAwMAoK
---001a11c2a28c352c710505f78fba--
