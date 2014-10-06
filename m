@@ -1,78 +1,105 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-oi0-f47.google.com ([209.85.218.47]:46131 "EHLO
-	mail-oi0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751523AbaJFWZP convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 6 Oct 2014 18:25:15 -0400
-Received: by mail-oi0-f47.google.com with SMTP id a141so4354778oig.6
-        for <fio@vger.kernel.org>; Mon, 06 Oct 2014 15:25:15 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <D0588B95.51DDD%Antonio.Jose.Rodrigues.Neto@netapp.com>
-References: <D0587E1A.51DBE%Antonio.Jose.Rodrigues.Neto@netapp.com>
-	<CADzpL0TJm=qM8UXFriQmH3t6c8BOHCJY7O-w+mtQspE-sLg4gg@mail.gmail.com>
-	<D05885C8.51DCC%Antonio.Jose.Rodrigues.Neto@netapp.com>
-	<CADzpL0RsVUsRD25Rr0MokhXVCVa30OXa1RzCLK6X3nKhYn_u=Q@mail.gmail.com>
-	<D0588B95.51DDD%Antonio.Jose.Rodrigues.Neto@netapp.com>
-Date: Mon, 6 Oct 2014 17:25:15 -0500
-Message-ID: <CADzpL0TS_5vnOR-VHrgXRhaeef71stgNtqdYAEotqFisLtejQg@mail.gmail.com>
+Received: from mx12.netapp.com ([216.240.18.77]:59946 "EHLO mx12.netapp.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751098AbaJFWKs (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 6 Oct 2014 18:10:48 -0400
+From: "Neto, Antonio Jose Rodrigues" 
+	<Antonio.Jose.Rodrigues.Neto@netapp.com>
 Subject: Re: YACC y.tab.c Usage: /usr/bin/yacc [options] filename
-From: Stephen Cameron <stephenmcameron@gmail.com>
+Date: Mon, 6 Oct 2014 22:10:02 +0000
+Message-ID: <D0588B95.51DDD%Antonio.Jose.Rodrigues.Neto@netapp.com>
+References: <D0587E1A.51DBE%Antonio.Jose.Rodrigues.Neto@netapp.com>
+ <CADzpL0TJm=qM8UXFriQmH3t6c8BOHCJY7O-w+mtQspE-sLg4gg@mail.gmail.com>
+ <D05885C8.51DCC%Antonio.Jose.Rodrigues.Neto@netapp.com>
+ <CADzpL0RsVUsRD25Rr0MokhXVCVa30OXa1RzCLK6X3nKhYn_u=Q@mail.gmail.com>
+In-Reply-To: <CADzpL0RsVUsRD25Rr0MokhXVCVa30OXa1RzCLK6X3nKhYn_u=Q@mail.gmail.com>
+Content-Language: en-US
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-ID: <0F1682D28B22CB4287429817A1F0483C@hq.netapp.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
+To: Stephen Cameron <stephenmcameron@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On Mon, Oct 6, 2014 at 5:10 PM, Neto, Antonio Jose Rodrigues
-<Antonio.Jose.Rodrigues.Neto@netapp.com> wrote:
->
->
-[...]
->
-> gcc -o lex.yy.o -std=gnu99 -Wwrite-strings -Wall
-> -Wdeclaration-after-statement -O3 -g -ffast-math  -D_GNU_SOURCE -include
-> config-host.h -DBITS_PER_LONG=64 -DFIO_VERSION='"fio-2.1.13-26-gb220c"'
-> -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DFIO_INTERNAL
-> -D_FORTIFY_SOURCE=2 -DFIO_INC_DEBUG -c lex.yy.c
-> exp/expression-parser.l:23:19: error: y.tab.h: No such file or directory
-> exp/expression-parser.l: In function ‘yylex’:
-> exp/expression-parser.l:51: error: ‘yylval’ undeclared (first use in this
-> function)
-> exp/expression-parser.l:51: error: (Each undeclared identifier is reported
-> only once
-> exp/expression-parser.l:51: error: for each function it appears in.)
-> exp/expression-parser.l:52: error: ‘SUFFIX’ undeclared (first use in this
-> function)
-> exp/expression-parser.l:122: error: ‘NUMBER’ undeclared (first use in this
-> function)
-> make: *** [lex.yy.o] Error 1
->
->
-
-Ok, hmm.
-
-Try making the following change to the Makefile:
-
---- a/Makefile
-+++ b/Makefile
-@@ -277,7 +277,7 @@ y.tab.o: y.tab.c y.tab.h
-        $(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) -c $<
-
- y.tab.c: exp/expression-parser.y
--       $(QUIET_YACC)$(YACC) --no-lines -d exp/expression-parser.y
-+       $(QUIET_YACC)$(YACC) --no-lines -d -b y exp/expression-parser.y
-
- y.tab.h: y.tab.c
-
-(I cut and pasted the above, so it is probably not a well formatted
-patch anymore).
-
-That is, add " -b y " into the line for yacc.  bison by default
-doesn't produce y.tab.c y.tab.h, it produces from xxx.y -> xxx.tab.c
-and xxx.tab.h, which makes more sense than what yacc does, but it's
-not what the makefile is expecting.  The "-b y" tells bison to use "y"
-as the output file prefix, just as yacc normally does.
-
-then "make clean" and "make YACC=bison" and see if that works.
-
--- steve
+DQoNCk9uIDEwLzYvMTQsIDY6MDQgUE0sICJTdGVwaGVuIENhbWVyb24iIDxzdGVwaGVubWNhbWVy
+b25AZ21haWwuY29tPiB3cm90ZToNCg0KPk9uIE1vbiwgT2N0IDYsIDIwMTQgYXQgNDo0OSBQTSwg
+TmV0bywgQW50b25pbyBKb3NlIFJvZHJpZ3Vlcw0KPjxBbnRvbmlvLkpvc2UuUm9kcmlndWVzLk5l
+dG9AbmV0YXBwLmNvbT4gd3JvdGU6DQo+Pg0KPj4NCj4+IE9uIDEwLzYvMTQsIDU6NDQgUE0sICJT
+dGVwaGVuIENhbWVyb24iIDxzdGVwaGVubWNhbWVyb25AZ21haWwuY29tPg0KPj53cm90ZToNCj4+
+DQo+Pj5PbiBNb24sIE9jdCA2LCAyMDE0IGF0IDQ6MTIgUE0sIE5ldG8sIEFudG9uaW8gSm9zZSBS
+b2RyaWd1ZXMNCj4+PjxBbnRvbmlvLkpvc2UuUm9kcmlndWVzLk5ldG9AbmV0YXBwLmNvbT4gd3Jv
+dGU6DQo+Pj4+DQo+Pj4+IEhpIEFsbCwNCj4+Pj4NCj4+Pj4gVGhpcyBpcyBuZXRvIGZyb20gQnJh
+emlsDQo+Pj4+DQo+Pj4+IEhvdyBhcmUgeW91Pw0KPj4+Pg0KPj4+PiBUcnlpbmcgdG8gY29tcGls
+ZSBmaW8gb24gUkhFTCA2LjQgYW5kIEkndmUgZ290IHRoaXMgZXJyb3IgKGxhdGVzdA0KPj4+Pmdp
+dCkuDQo+Pj4+DQo+Pj4+IFBsZWFzZSBhbnkgaWRlYXMgaG93IHRvIGZpeCBpdD8gKEkndmUgdHJp
+ZWQgdG8gdXNlDQo+Pj4+Q09ORklHX0FSSVRITUVUSUM9biwNCj4+Pj4gYnV0IG5vdCBzdWNjZXNz
+KQ0KPj4+Pg0KPj4+PiBDQyB2ZXJpZnkubw0KPj4+PiAgICAgQ0MgbWVtb3J5Lm8NCj4+Pj4gICAg
+IENDIGlvX3Uubw0KPj4+PiAgICBMRVggbGV4Lnl5LmMNCj4+Pj4gICBZQUNDIHkudGFiLmMNCj4+
+Pj4gVXNhZ2U6IC91c3IvYmluL3lhY2MgW29wdGlvbnNdIGZpbGVuYW1lDQo+Pj4+DQo+Pj4+IE9w
+dGlvbnM6DQo+Pj4+ICAgLWIgZmlsZV9wcmVmaXggICAgICAgIHNldCBmaWxlbmFtZSBwcmVmaXgg
+KGRlZmF1bHQgInkuIikNCj4+Pj4gICAtZCAgICAgICAgICAgICAgICAgICAgd3JpdGUgZGVmaW5p
+dGlvbnMgKHkudGFiLmgpDQo+Pj4+ICAgLWcgICAgICAgICAgICAgICAgICAgIHdyaXRlIGEgZ3Jh
+cGhpY2FsIGRlc2NyaXB0aW9uDQo+Pj4+ICAgLWwgICAgICAgICAgICAgICAgICAgIHN1cHByZXNz
+ICNsaW5lIGRpcmVjdGl2ZXMNCj4+Pj4gICAtbyBvdXRwdXRfZmlsZSAgICAgICAgKGRlZmF1bHQg
+InkudGFiLmMiKQ0KPj4+PiAgIC1wIHN5bWJvbF9wcmVmaXggICAgICBzZXQgc3ltYm9sIHByZWZp
+eCAoZGVmYXVsdCAieXkiKQ0KPj4+PiAgIC1yICAgICAgICAgICAgICAgICAgICBwcm9kdWNlIHNl
+cGFyYXRlIGNvZGUgYW5kIHRhYmxlIGZpbGVzDQo+Pj4+KHkuY29kZS5jKQ0KPj4+PiAgIC10ICAg
+ICAgICAgICAgICAgICAgICBhZGQgZGVidWdnaW5nIHN1cHBvcnQNCj4+Pj4gICAtdiAgICAgICAg
+ICAgICAgICAgICAgd3JpdGUgZGVzY3JpcHRpb24gKHkub3V0cHV0KQ0KPj4+PiAgIC1WICAgICAg
+ICAgICAgICAgICAgICBzaG93IHZlcnNpb24gaW5mb3JtYXRpb24gYW5kIGV4aXQNCj4+Pj4gbWFr
+ZTogKioqIFt5LnRhYi5jXSBFcnJvciAxDQo+Pj4NCj4+Pkkgc3VzcGVjdCB0aGF0IHlvdXIgdmVy
+c2lvbiBvZiB5YWNjIGRvZXMgbm90IGNvbXByZWhlbmQgdGhlIC0tbm8tbGluZXMNCj4+Pm9wdGlv
+biAod2hpY2ggd2UgbmVlZGVkIG9ubHkgaW4gb3JkZXIgdG8gYXZvaWQgYSBidWcgaW4gc29tZSBv
+dGhlcg0KPj4+dmVyc2lvbnMgb2YgeWFjYykuICBGcm9tIHRoZSB1c2FnZSBtZXNzYWdlIGl0IGRv
+ZXMgYXBwZWFyIHRvDQo+Pj51bmRlcnN0YW5kIGJvdGggLWQgYW5kIC1sIHRob3VnaC4NCj4+Pg0K
+Pj4+VHJ5IGNoYW5naW5nIHRoZSAtLW5vLWxpbmVzIG9wdGlvbiBpbiB0aGUgTWFrZWZpbGUgdG8g
+LWwgaW5zdGVhZCwgYW5kDQo+Pj5zZWUgaWYgdGhhdCBoZWxwcy4NCj4+Pg0KPj4+WW91IGNhbiBh
+bHNvIHJ1biAibWFrZSBWPTEgPiBvdXRwdXQudHh0IiB0byBnZXQgbW9yZSB2ZXJib3NlIG91dHB1
+dA0KPj4+ZnJvbSBtYWtlIGFuZCBnZXQgYSBjbGVhcmVyIGlkZWEgb2Ygd2hhdCB0aGUgb2ZmZW5k
+aW5nIGNvbW1hbmQgbGluZSBpcw0KPj4+dHJ5aW5nIHRvIGRvLg0KPj4+DQo+Pj4tLSBzdGV2ZQ0K
+Pj4NCj4+IEhpIFN0ZXZlLA0KPj4NCj4+IFRoaXMgaXMgbmV0byBmcm9tIEJyYXppbA0KPj4NCj4+
+IEhvdyBhcmUgeW91Pw0KPj4NCj4+IEkgaGF2ZSB0cmllZCB3aXRoIC1sIGFuZCBJJ3ZlIGdvdCB0
+aGlzOiA6LSgNCj4+DQo+PiAgIFlBQ0MgeS50YWIuYw0KPj4gL3Vzci9iaW4veWFjYzogZSAtIGxp
+bmUgNjYgb2YgImV4cC9leHByZXNzaW9uLXBhcnNlci55Iiwgc3ludGF4IGVycm9yDQo+PiAlcGFy
+c2UtcGFyYW0geyBsb25nIGxvbmcgKnJlc3VsdCB9DQo+PiBeDQo+PiBtYWtlOiAqKiogW3kudGFi
+LmNdIEVycm9yIDENCj4+DQo+Pg0KPj4NCj4+IFtyb290QHMxIGZpb10jIG1ha2UgVj0xDQo+PiBn
+Y2MgLW8gbGV4Lnl5Lm8gLXN0ZD1nbnU5OSAtV3dyaXRlLXN0cmluZ3MgLVdhbGwNCj4+IC1XZGVj
+bGFyYXRpb24tYWZ0ZXItc3RhdGVtZW50IC1PMyAtZyAtZmZhc3QtbWF0aCAgLURfR05VX1NPVVJD
+RSAtaW5jbHVkZQ0KPj4gY29uZmlnLWhvc3QuaCAtREJJVFNfUEVSX0xPTkc9NjQgLURGSU9fVkVS
+U0lPTj0nImZpby0yLjEuMTMtMjYtZ2IyMjBjIicNCj4+IC1EX0xBUkdFRklMRV9TT1VSQ0UgLURf
+RklMRV9PRkZTRVRfQklUUz02NCAtREZJT19JTlRFUk5BTA0KPj4gLURfRk9SVElGWV9TT1VSQ0U9
+MiAtREZJT19JTkNfREVCVUcgLWMgbGV4Lnl5LmMNCj4+IGV4cC9leHByZXNzaW9uLXBhcnNlci5s
+OiBJbiBmdW5jdGlvbiDFknl5bGV4wrk6DQo+PiBleHAvZXhwcmVzc2lvbi1wYXJzZXIubDo1MTog
+ZXJyb3I6IMWSeXlsdmFswrkgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluDQo+PnRoaXMNCj4+IGZ1
+bmN0aW9uKQ0KPj4gZXhwL2V4cHJlc3Npb24tcGFyc2VyLmw6NTE6IGVycm9yOiAoRWFjaCB1bmRl
+Y2xhcmVkIGlkZW50aWZpZXIgaXMNCj4+cmVwb3J0ZWQNCj4+IG9ubHkgb25jZQ0KPj4gZXhwL2V4
+cHJlc3Npb24tcGFyc2VyLmw6NTE6IGVycm9yOiBmb3IgZWFjaCBmdW5jdGlvbiBpdCBhcHBlYXJz
+IGluLikNCj4+IGV4cC9leHByZXNzaW9uLXBhcnNlci5sOjUyOiBlcnJvcjogxZJTVUZGSVjCuSB1
+bmRlY2xhcmVkIChmaXJzdCB1c2UgaW4NCj4+dGhpcw0KPj4gZnVuY3Rpb24pDQo+PiBleHAvZXhw
+cmVzc2lvbi1wYXJzZXIubDoxMjI6IGVycm9yOiDFkk5VTUJFUsK5IHVuZGVjbGFyZWQgKGZpcnN0
+IHVzZSBpbg0KPj50aGlzDQo+PiBmdW5jdGlvbikNCj4+IG1ha2U6ICoqKiBbbGV4Lnl5Lm9dIEVy
+cm9yIDENCj5bLi4uXQ0KPj4gQW55IG90aGVyIGlkZWFzPw0KPg0KPkkgZm91bmQgdGhpczoNCj4N
+Cj5odHRwOi8vc3RhY2tvdmVyZmxvdy5jb20vcXVlc3Rpb25zLzE5NjkxNjY1L3l5cGFyc2UtYXJn
+dW1lbnQtbGlzdC1pcy1wYXJzZQ0KPi1wYXJhbS1wb3J0YWJsZQ0KPg0KPndoaWNoIHN1Z2dlc3Rz
+IHRoYXQgdGhlICIlcGFyc2UtcGFyYW0iIHRoaW5nIG9ubHkgd29ya3Mgd2l0aCBiaXNvbiwNCj5h
+bmQgd2l0aCBic2QncyB5YWNjLCBidXQgbm90IHdpdGggYXQmdCdzIHlhY2MsIHdoaWNoIFJIRUw2
+LjQgYmlzb24NCj5tdXN0IGJlIGVtdWxhdGluZyBhbGwgdG9vIGZhaXRoZnVsbHkuDQo+DQo+VHJ5
+ICJtYWtlIFlBQ0M9Ymlzb24gVj0xIiBhbmQgc2VlIGlmIHRoYXQgaGVscHMuDQo+DQo+LS0gc3Rl
+dmUNCj4tLQ0KDQoNCg0KDQpnY2MgLW8gbGV4Lnl5Lm8gLXN0ZD1nbnU5OSAtV3dyaXRlLXN0cmlu
+Z3MgLVdhbGwNCi1XZGVjbGFyYXRpb24tYWZ0ZXItc3RhdGVtZW50IC1PMyAtZyAtZmZhc3QtbWF0
+aCAgLURfR05VX1NPVVJDRSAtaW5jbHVkZQ0KY29uZmlnLWhvc3QuaCAtREJJVFNfUEVSX0xPTkc9
+NjQgLURGSU9fVkVSU0lPTj0nImZpby0yLjEuMTMtMjYtZ2IyMjBjIicNCi1EX0xBUkdFRklMRV9T
+T1VSQ0UgLURfRklMRV9PRkZTRVRfQklUUz02NCAtREZJT19JTlRFUk5BTA0KLURfRk9SVElGWV9T
+T1VSQ0U9MiAtREZJT19JTkNfREVCVUcgLWMgbGV4Lnl5LmMNCmV4cC9leHByZXNzaW9uLXBhcnNl
+ci5sOjIzOjE5OiBlcnJvcjogeS50YWIuaDogTm8gc3VjaCBmaWxlIG9yIGRpcmVjdG9yeQ0KZXhw
+L2V4cHJlc3Npb24tcGFyc2VyLmw6IEluIGZ1bmN0aW9uIOKAmHl5bGV44oCZOg0KZXhwL2V4cHJl
+c3Npb24tcGFyc2VyLmw6NTE6IGVycm9yOiDigJh5eWx2YWzigJkgdW5kZWNsYXJlZCAoZmlyc3Qg
+dXNlIGluIHRoaXMNCmZ1bmN0aW9uKQ0KZXhwL2V4cHJlc3Npb24tcGFyc2VyLmw6NTE6IGVycm9y
+OiAoRWFjaCB1bmRlY2xhcmVkIGlkZW50aWZpZXIgaXMgcmVwb3J0ZWQNCm9ubHkgb25jZQ0KZXhw
+L2V4cHJlc3Npb24tcGFyc2VyLmw6NTE6IGVycm9yOiBmb3IgZWFjaCBmdW5jdGlvbiBpdCBhcHBl
+YXJzIGluLikNCmV4cC9leHByZXNzaW9uLXBhcnNlci5sOjUyOiBlcnJvcjog4oCYU1VGRklY4oCZ
+IHVuZGVjbGFyZWQgKGZpcnN0IHVzZSBpbiB0aGlzDQpmdW5jdGlvbikNCmV4cC9leHByZXNzaW9u
+LXBhcnNlci5sOjEyMjogZXJyb3I6IOKAmE5VTUJFUuKAmSB1bmRlY2xhcmVkIChmaXJzdCB1c2Ug
+aW4gdGhpcw0KZnVuY3Rpb24pDQptYWtlOiAqKiogW2xleC55eS5vXSBFcnJvciAxDQoNCg0K
