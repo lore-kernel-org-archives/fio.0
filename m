@@ -1,8 +1,8 @@
 Return-Path: <Antonio.Jose.Rodrigues.Neto@netapp.com>
 From: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
 Subject: Re: YACC y.tab.c Usage: /usr/bin/yacc [options] filename
-Date: Tue, 7 Oct 2014 13:51:32 +0000
-Message-ID: <D05967DE.51EB1%Antonio.Jose.Rodrigues.Neto@netapp.com>
+Date: Tue, 7 Oct 2014 13:39:45 +0000
+Message-ID: <D05964A6.51EA6%Antonio.Jose.Rodrigues.Neto@netapp.com>
 References: <D0587E1A.51DBE%Antonio.Jose.Rodrigues.Neto@netapp.com>
  <CADzpL0TJm=qM8UXFriQmH3t6c8BOHCJY7O-w+mtQspE-sLg4gg@mail.gmail.com>
  <D05885C8.51DCC%Antonio.Jose.Rodrigues.Neto@netapp.com>
@@ -12,119 +12,160 @@ References: <D0587E1A.51DBE%Antonio.Jose.Rodrigues.Neto@netapp.com>
  <54333D69.7060304@kernel.dk>
  <CADzpL0SQ56xmwT5umYu+OdCMu5YwaV6vngruLzpPyoEu=_iy+w@mail.gmail.com>
  <54334D63.70909@kernel.dk>
- <D05964A6.51EA6%Antonio.Jose.Rodrigues.Neto@netapp.com>
-In-Reply-To: <D05964A6.51EA6%Antonio.Jose.Rodrigues.Neto@netapp.com>
+In-Reply-To: <54334D63.70909@kernel.dk>
 Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <724C328BDAE48C48ACD9E80C24804BDC@hq.netapp.com>
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="Windows-1252"
+Content-ID: <03B082D41FC0894BB2EAB5CD7883D81D@hq.netapp.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>, Jens Axboe <axboe@kernel.dk>, Stephen Cameron <stephenmcameron@gmail.com>
+To: Jens Axboe <axboe@kernel.dk>, Stephen Cameron <stephenmcameron@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-DQoNCk9uIDEwLzcvMTQsIDk6MzkgQU0sICJOZXRvLCBBbnRvbmlvIEpvc2UgUm9kcmlndWVzIg0K
-PEFudG9uaW8uSm9zZS5Sb2RyaWd1ZXMuTmV0b0BuZXRhcHAuY29tPiB3cm90ZToNCg0KPg0KPg0K
-Pk9uIDEwLzYvMTQsIDEwOjE4IFBNLCAiSmVucyBBeGJvZSIgPGF4Ym9lQGtlcm5lbC5kaz4gd3Jv
-dGU6DQo+DQo+Pk9uIDIwMTQtMTAtMDYgMTk6MjYsIFN0ZXBoZW4gQ2FtZXJvbiB3cm90ZToNCj4+
-PiBPbiBNb24sIE9jdCA2LCAyMDE0IGF0IDg6MTAgUE0sIEplbnMgQXhib2UgPGF4Ym9lQGtlcm5l
-bC5kaz4gd3JvdGU6DQo+Pj4+IE9uIDIwMTQtMTAtMDYgMTY6MjUsIFN0ZXBoZW4gQ2FtZXJvbiB3
-cm90ZToNCj4+Pj4+DQo+Pj4+PiBPbiBNb24sIE9jdCA2LCAyMDE0IGF0IDU6MTAgUE0sIE5ldG8s
-IEFudG9uaW8gSm9zZSBSb2RyaWd1ZXMNCj4+Pj4+IDxBbnRvbmlvLkpvc2UuUm9kcmlndWVzLk5l
-dG9AbmV0YXBwLmNvbT4gd3JvdGU6DQo+Pj4+Pj4NCj4+Pj4+Pg0KPj4+Pj4+DQo+Pj4+PiBbLi4u
-XQ0KPj4+Pj4+DQo+Pj4+Pj4NCj4+Pj4+PiBnY2MgLW8gbGV4Lnl5Lm8gLXN0ZD1nbnU5OSAtV3dy
-aXRlLXN0cmluZ3MgLVdhbGwNCj4+Pj4+PiAtV2RlY2xhcmF0aW9uLWFmdGVyLXN0YXRlbWVudCAt
-TzMgLWcgLWZmYXN0LW1hdGggIC1EX0dOVV9TT1VSQ0UNCj4+Pj4+Pi1pbmNsdWRlDQo+Pj4+Pj4g
-Y29uZmlnLWhvc3QuaCAtREJJVFNfUEVSX0xPTkc9NjQNCj4+Pj4+Pi1ERklPX1ZFUlNJT049JyJm
-aW8tMi4xLjEzLTI2LWdiMjIwYyInDQo+Pj4+Pj4gLURfTEFSR0VGSUxFX1NPVVJDRSAtRF9GSUxF
-X09GRlNFVF9CSVRTPTY0IC1ERklPX0lOVEVSTkFMDQo+Pj4+Pj4gLURfRk9SVElGWV9TT1VSQ0U9
-MiAtREZJT19JTkNfREVCVUcgLWMgbGV4Lnl5LmMNCj4+Pj4+PiBleHAvZXhwcmVzc2lvbi1wYXJz
-ZXIubDoyMzoxOTogZXJyb3I6IHkudGFiLmg6IE5vIHN1Y2ggZmlsZSBvcg0KPj4+Pj4+ZGlyZWN0
-b3J5DQo+Pj4+Pj4gZXhwL2V4cHJlc3Npb24tcGFyc2VyLmw6IEluIGZ1bmN0aW9uIMWSeXlsZXjC
-uToNCj4+Pj4+PiBleHAvZXhwcmVzc2lvbi1wYXJzZXIubDo1MTogZXJyb3I6IMWSeXlsdmFswrkg
-dW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluDQo+Pj4+Pj50aGlzDQo+Pj4+Pj4gZnVuY3Rpb24pDQo+
-Pj4+Pj4gZXhwL2V4cHJlc3Npb24tcGFyc2VyLmw6NTE6IGVycm9yOiAoRWFjaCB1bmRlY2xhcmVk
-IGlkZW50aWZpZXIgaXMNCj4+Pj4+PiByZXBvcnRlZA0KPj4+Pj4+IG9ubHkgb25jZQ0KPj4+Pj4+
-IGV4cC9leHByZXNzaW9uLXBhcnNlci5sOjUxOiBlcnJvcjogZm9yIGVhY2ggZnVuY3Rpb24gaXQg
-YXBwZWFycyBpbi4pDQo+Pj4+Pj4gZXhwL2V4cHJlc3Npb24tcGFyc2VyLmw6NTI6IGVycm9yOiDF
-klNVRkZJWMK5IHVuZGVjbGFyZWQgKGZpcnN0IHVzZSBpbg0KPj4+Pj4+dGhpcw0KPj4+Pj4+IGZ1
-bmN0aW9uKQ0KPj4+Pj4+IGV4cC9leHByZXNzaW9uLXBhcnNlci5sOjEyMjogZXJyb3I6IMWSTlVN
-QkVSwrkgdW5kZWNsYXJlZCAoZmlyc3QgdXNlDQo+Pj4+Pj5pbg0KPj4+Pj4+IHRoaXMNCj4+Pj4+
-PiBmdW5jdGlvbikNCj4+Pj4+PiBtYWtlOiAqKiogW2xleC55eS5vXSBFcnJvciAxDQo+Pj4+Pj4N
-Cj4+Pj4+Pg0KPj4+Pj4NCj4+Pj4+IE9rLCBobW0uDQo+Pj4+Pg0KPj4+Pj4gVHJ5IG1ha2luZyB0
-aGUgZm9sbG93aW5nIGNoYW5nZSB0byB0aGUgTWFrZWZpbGU6DQo+Pj4+Pg0KPj4+Pj4gLS0tIGEv
-TWFrZWZpbGUNCj4+Pj4+ICsrKyBiL01ha2VmaWxlDQo+Pj4+PiBAQCAtMjc3LDcgKzI3Nyw3IEBA
-IHkudGFiLm86IHkudGFiLmMgeS50YWIuaA0KPj4+Pj4gICAgICAgICAgICQoUVVJRVRfQ0MpJChD
-QykgLW8gJEAgJChDRkxBR1MpICQoQ1BQRkxBR1MpIC1jICQ8DQo+Pj4+Pg0KPj4+Pj4gICAgeS50
-YWIuYzogZXhwL2V4cHJlc3Npb24tcGFyc2VyLnkNCj4+Pj4+IC0gICAgICAgJChRVUlFVF9ZQUND
-KSQoWUFDQykgLS1uby1saW5lcyAtZCBleHAvZXhwcmVzc2lvbi1wYXJzZXIueQ0KPj4+Pj4gKyAg
-ICAgICAkKFFVSUVUX1lBQ0MpJChZQUNDKSAtLW5vLWxpbmVzIC1kIC1iIHkNCj4+Pj4+ZXhwL2V4
-cHJlc3Npb24tcGFyc2VyLnkNCj4+Pj4+DQo+Pj4+PiAgICB5LnRhYi5oOiB5LnRhYi5jDQo+Pj4+
-Pg0KPj4+Pj4gKEkgY3V0IGFuZCBwYXN0ZWQgdGhlIGFib3ZlLCBzbyBpdCBpcyBwcm9iYWJseSBu
-b3QgYSB3ZWxsIGZvcm1hdHRlZA0KPj4+Pj4gcGF0Y2ggYW55bW9yZSkuDQo+Pj4+Pg0KPj4+Pj4g
-VGhhdCBpcywgYWRkICIgLWIgeSAiIGludG8gdGhlIGxpbmUgZm9yIHlhY2MuICBiaXNvbiBieSBk
-ZWZhdWx0DQo+Pj4+PiBkb2Vzbid0IHByb2R1Y2UgeS50YWIuYyB5LnRhYi5oLCBpdCBwcm9kdWNl
-cyBmcm9tIHh4eC55IC0+IHh4eC50YWIuYw0KPj4+Pj4gYW5kIHh4eC50YWIuaCwgd2hpY2ggbWFr
-ZXMgbW9yZSBzZW5zZSB0aGFuIHdoYXQgeWFjYyBkb2VzLCBidXQgaXQncw0KPj4+Pj4gbm90IHdo
-YXQgdGhlIG1ha2VmaWxlIGlzIGV4cGVjdGluZy4gIFRoZSAiLWIgeSIgdGVsbHMgYmlzb24gdG8g
-dXNlDQo+Pj4+PiJ5Ig0KPj4+Pj4gYXMgdGhlIG91dHB1dCBmaWxlIHByZWZpeCwganVzdCBhcyB5
-YWNjIG5vcm1hbGx5IGRvZXMuDQo+Pj4+Pg0KPj4+Pj4gdGhlbiAibWFrZSBjbGVhbiIgYW5kICJt
-YWtlIFlBQ0M9Ymlzb24iIGFuZCBzZWUgaWYgdGhhdCB3b3Jrcy4NCj4+Pj4NCj4+Pj4NCj4+Pj4g
-U2hvdWxkIHdlIGRlZmF1bHQgdG8gdXNpbmcgYmlzb24/IFJpZ2h0IG5vdyBpdCBjaGVja3MgZm9y
-IHlhY2MgZmlyc3QsDQo+Pj4+YW5kDQo+Pj4+IHVzZXMgdGhhdCBpZiBhdmFpbGFibGUuIElmIG5v
-dCwgaXQgY2hlY2tzIGZvciBiaXNvbiBhbmQgdXNlcyB0aGF0Lg0KPj4+PldvdWxkIGJlDQo+Pj4+
-IGVhc3kgZW5vdWdoIHRvIG1vdmUgYXJvdW5kIGluIGNvbmZpZ3VyZS4NCj4+Pg0KPj4+IEknbSBu
-b3Qgc3VyZSwgSSBoYXZlbid0IHByb3Bvc2VkIGEgcmVhbCBmaXggYmVjYXVzZSBJJ20gbm90IHN1
-cmUgd2hhdA0KPj4+IGEgcmVhbCBmaXggc2hvdWxkIGxvb2sgbGlrZS4gIFdlJ3JlIHVzaW5nICVw
-YXJzZS1wYXJhbSwgYW5kIEkgdGhpbmsNCj4+PiB5YWNjLCBvciBiaXNvbiBkb2luZyBhbiBleGNl
-cHRpb25hbGx5IGdvb2Qgam9iIG9mIHByZXRlbmRpbmcgdG8gYmUNCj4+PiB5YWNjLCBjYW4ndCBo
-YW5kbGUgdGhhdC4gIEkgZ3Vlc3MgdGhlIHZlcnNpb25zIG9mIGJpc29uIHRoYXQgSSBoYXZlDQo+
-Pj4gc2VlbiAgZG8gbm90IGRvIHN1Y2ggYSBwZXJmZWN0IGpvYiBvZiBwcmV0ZW5kaW5nIHRvIGJl
-IHlhY2MsIGFuZCBhbGxvdw0KPj4+ICVwYXJzZS1wYXJhbXMgdG8gd29yayBhbnl3YXkuICAgU28g
-dGhlIHJlYWwgZml4IG1pZ2h0IGJlIHRvIGZpZ3VyZSBvdXQNCj4+PiBob3cgdG8gZ2V0IGF3YXkg
-d2l0aG91dCB1c2luZyAlcGFyc2UtcGFyYW0sIHNvIHRoYXQgeWFjYyBjYW4gZGVhbCB3aXRoDQo+
-Pj4gaXQuDQo+Pj4NCj4+PiBPciBtYXliZSB3ZSBqdXN0IHJlcXVpcmUgYmlzb24/ICAgTWF5YmUg
-bm93YWRheXMgZXZlcnlvbmUgaGFzIGJpc29uPw0KPj4NCj4+SXQncyBwcm9iYWJseSBhIHNhZmVy
-IGNob2ljZSB0aGFuIGRlZmF1bHRpbmcgdG8geWFjYywgbWUgdGhpbmtzLi4uIFdlJ2xsDQo+PnNl
-ZSBob3cgdGhhdCBnb2VzLiBJIG1pZ2h0IGhhdmUgdG8gZXh0ZW5kIGFuZCBpbXByb3ZlIGl0IHRv
-IGNoZWNrIG5vdA0KPj5qdXN0IGlmIGl0J3MgdGhlcmUsIGJ1dCBpZiBpdCBhY3R1YWxseSB3b3Jr
-cyBmb3Igb3VyIGNhc2UgYXMgd2VsbC4gQnV0DQo+PmJhYnkgc3RlcHMsIHBlcmhhcHMgdGhpcyBp
-cyBlbm91Z2guDQo+Pg0KPj4+IE5ldG8gYWxzbyBtZW50aW9uZWQgdGhhdCBoZSB3YXNuJ3QgYWJs
-ZSB0byBidWlsZCB3aXRoIGFyaXRobWV0aWMNCj4+PiBjb25maWd1cmVkIG9mZi4gIEkgZGlkbid0
-IHRyeSB0byBjaGFzZSB0aGF0IGRvd24uDQo+Pg0KPj5JIHRoaW5rIHRoYXQncyBhIGJ1aWxkIGlz
-c3VlIGR1ZSB0byBoYW5kIGVkaXRpbmcgc3R1ZmYgYW5kIGF0dGVtcHRpbmcgYQ0KPj5idWlsZC4g
-VGhlIGN1cnJlbnQgY29kZSBidWlsZHMgZmluZSBpZiBpdCdzIG9mZiwgSSBkZWZpbml0ZWx5IHRl
-c3RlZA0KPj50aGF0IHByaW9yIHRvIHB1bGxpbmcgdGhpbmdzIGluLg0KPj4NCj4+LS0gDQo+Pkpl
-bnMgQXhib2UNCj4NCj4NCj4NCj5IaSBKZW5zLA0KPg0KPlRoaXMgaXMgbmV0byBmcm9tIEJyYXpp
-bA0KPg0KPkhvdyBhcmUgeW91Pw0KPg0KPkkgaGF2ZSBhcHBsaWVkIHRoZSBsYXRlc3QgY29tbWl0
-Lg0KPg0KPk9uIE1BQzoNCj4NCj5TdGlsbCBnZXR0aW5nIHdhcm5pbmdzOg0KPg0KPiAgWUFDQyB5
-LnRhYi5jDQo+ICAgIENDIGxleC55eS5vDQo+bGV4Lnl5LmM6MTIzMTozOiB3YXJuaW5nOiBpbmNv
-bXBhdGlibGUgcG9pbnRlciB0eXBlcyBwYXNzaW5nICd5eV9zaXplX3QgKicNCj4gICAgICAoYWth
-ICd1bnNpZ25lZCBsb25nIConKSB0byBwYXJhbWV0ZXIgb2YgdHlwZSAnaW50IConDQo+ICAgICAg
-Wy1XaW5jb21wYXRpYmxlLXBvaW50ZXItdHlwZXNdDQo+ICAuLi5ZWV9JTlBVVCggKCZZWV9DVVJS
-RU5UX0JVRkZFUl9MVkFMVUUtPnl5X2NoX2J1ZltudW1iZXJfdG9fbW92ZV0pLA0KPiAgICAgXn5+
-fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+
-fn5+fn4NCj5leHAvZXhwcmVzc2lvbi1wYXJzZXIubDozMToyNTogbm90ZTogZXhwYW5kZWQgZnJv
-bSBtYWNybyAnWVlfSU5QVVQnDQo+ICAgICAgICAgICAgICAgIGxleGVyX2lucHV0KChidWZmZXIp
-LCAmKGJ5dGVzX3JlYWQpLCAoYnl0ZXNfcmVxdWVzdGVkKSkNCj4gICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIF5+fn5+fn5+fn5+fn4NCj5leHAvZXhwcmVzc2lvbi1wYXJzZXIu
-bDoyNzo0Mzogbm90ZTogcGFzc2luZyBhcmd1bWVudCB0byBwYXJhbWV0ZXINCj4nbmJ5dGVzJyBo
-ZXJlDQo+ZXh0ZXJuIGludCBsZXhlcl9pbnB1dChjaGFyKiBidWZmZXIsIGludCAqbmJ5dGVzLCBp
-bnQgYnVmZmVyc2l6ZSk7DQo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgXg0KPg0KPg0KPg0KPk9uIExpbnV4IChSZWRIYXQgNi40KQ0KPg0KPkFsbCBnb29kIDotKQ0K
-Pg0KPlRoYW5rIHlvdSwNCj4NCj5uZXRvDQoNCkhpIEplbnMsDQoNClRoaXMgaXMgbmV0byBmcm9t
-IEJyYXppbA0KDQpIb3cgYXJlIHlvdT8NCg0KQW5vdGhlciBpc3N1ZSB0aGF0IEkgaGF2ZSByZWFs
-aXplZCwgb24gUkhFTCB0aGUgbmV3IHRvb2xzIHQvZGVkdXBlIHdvcmtzDQpidXQgaXQgZG9lcyBu
-b3Qgd29yayBvbiBteSBtYWMuDQoNClNlZW1zIHRvIG1lIHRoYXQgaXMgcmVsYXRlZCB0byBZQUND
-Lg0KDQpQbGVhc2Ugc2VlIGJlbG93Og0KDQpOb3NzYSBTZW5ob3JhOmZpbyBuZXRvJCBtYWtlIFY9
-MSB0L2RlZHVwZQ0KZ2NjICAtc3RkPWdudTk5IC1Xd3JpdGUtc3RyaW5ncyAtV2FsbCAtV2RlY2xh
-cmF0aW9uLWFmdGVyLXN0YXRlbWVudCAtTzMgLWcNCi1mZmFzdC1tYXRoICAtRF9HTlVfU09VUkNF
-IC1pbmNsdWRlIGNvbmZpZy1ob3N0LmggLURCSVRTX1BFUl9MT05HPTY0DQotREZJT19WRVJTSU9O
-PSciZmlvLTIuMS4xMy0zMS1nMTVlMyInIC1vIHQvZGVkdXBlICAtbGwgLWx6ICAtbG0gIC1scHRo
-cmVhZA0KLWxkbA0KVW5kZWZpbmVkIHN5bWJvbHMgZm9yIGFyY2hpdGVjdHVyZSB4ODZfNjQ6DQog
-ICJfeXlsZXgiLCByZWZlcmVuY2VkIGZyb206DQogICAgICBfbWFpbiBpbiBsaWJsLmEobGlibWFp
-bi5vKQ0KbGQ6IHN5bWJvbChzKSBub3QgZm91bmQgZm9yIGFyY2hpdGVjdHVyZSB4ODZfNjQNCmNs
-YW5nOiBlcnJvcjogbGlua2VyIGNvbW1hbmQgZmFpbGVkIHdpdGggZXhpdCBjb2RlIDEgKHVzZSAt
-diB0byBzZWUNCmludm9jYXRpb24pDQptYWtlOiAqKiogW3QvZGVkdXBlXSBFcnJvciAxDQoNCkFu
-eSBpZGVhIGhvdyB0byBmaXggaXQ/DQoNCg0KVGhhbmsgeW91LA0KDQpuZXRvDQoNCg0KDQo=
+
+
+On 10/6/14, 10:18 PM, "Jens Axboe" <axboe@kernel.dk> wrote:
+
+>On 2014-10-06 19:26, Stephen Cameron wrote:
+>> On Mon, Oct 6, 2014 at 8:10 PM, Jens Axboe <axboe@kernel.dk> wrote:
+>>> On 2014-10-06 16:25, Stephen Cameron wrote:
+>>>>
+>>>> On Mon, Oct 6, 2014 at 5:10 PM, Neto, Antonio Jose Rodrigues
+>>>> <Antonio.Jose.Rodrigues.Neto@netapp.com> wrote:
+>>>>>
+>>>>>
+>>>>>
+>>>> [...]
+>>>>>
+>>>>>
+>>>>> gcc -o lex.yy.o -std=3Dgnu99 -Wwrite-strings -Wall
+>>>>> -Wdeclaration-after-statement -O3 -g -ffast-math  -D_GNU_SOURCE
+>>>>>-include
+>>>>> config-host.h -DBITS_PER_LONG=3D64
+>>>>>-DFIO_VERSION=3D'"fio-2.1.13-26-gb220c"'
+>>>>> -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=3D64 -DFIO_INTERNAL
+>>>>> -D_FORTIFY_SOURCE=3D2 -DFIO_INC_DEBUG -c lex.yy.c
+>>>>> exp/expression-parser.l:23:19: error: y.tab.h: No such file or
+>>>>>directory
+>>>>> exp/expression-parser.l: In function =8Cyylex=B9:
+>>>>> exp/expression-parser.l:51: error: =8Cyylval=B9 undeclared (first use=
+ in
+>>>>>this
+>>>>> function)
+>>>>> exp/expression-parser.l:51: error: (Each undeclared identifier is
+>>>>> reported
+>>>>> only once
+>>>>> exp/expression-parser.l:51: error: for each function it appears in.)
+>>>>> exp/expression-parser.l:52: error: =8CSUFFIX=B9 undeclared (first use=
+ in
+>>>>>this
+>>>>> function)
+>>>>> exp/expression-parser.l:122: error: =8CNUMBER=B9 undeclared (first us=
+e in
+>>>>> this
+>>>>> function)
+>>>>> make: *** [lex.yy.o] Error 1
+>>>>>
+>>>>>
+>>>>
+>>>> Ok, hmm.
+>>>>
+>>>> Try making the following change to the Makefile:
+>>>>
+>>>> --- a/Makefile
+>>>> +++ b/Makefile
+>>>> @@ -277,7 +277,7 @@ y.tab.o: y.tab.c y.tab.h
+>>>>           $(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) -c $<
+>>>>
+>>>>    y.tab.c: exp/expression-parser.y
+>>>> -       $(QUIET_YACC)$(YACC) --no-lines -d exp/expression-parser.y
+>>>> +       $(QUIET_YACC)$(YACC) --no-lines -d -b y
+>>>>exp/expression-parser.y
+>>>>
+>>>>    y.tab.h: y.tab.c
+>>>>
+>>>> (I cut and pasted the above, so it is probably not a well formatted
+>>>> patch anymore).
+>>>>
+>>>> That is, add " -b y " into the line for yacc.  bison by default
+>>>> doesn't produce y.tab.c y.tab.h, it produces from xxx.y -> xxx.tab.c
+>>>> and xxx.tab.h, which makes more sense than what yacc does, but it's
+>>>> not what the makefile is expecting.  The "-b y" tells bison to use "y"
+>>>> as the output file prefix, just as yacc normally does.
+>>>>
+>>>> then "make clean" and "make YACC=3Dbison" and see if that works.
+>>>
+>>>
+>>> Should we default to using bison? Right now it checks for yacc first,
+>>>and
+>>> uses that if available. If not, it checks for bison and uses that.
+>>>Would be
+>>> easy enough to move around in configure.
+>>
+>> I'm not sure, I haven't proposed a real fix because I'm not sure what
+>> a real fix should look like.  We're using %parse-param, and I think
+>> yacc, or bison doing an exceptionally good job of pretending to be
+>> yacc, can't handle that.  I guess the versions of bison that I have
+>> seen  do not do such a perfect job of pretending to be yacc, and allow
+>> %parse-params to work anyway.   So the real fix might be to figure out
+>> how to get away without using %parse-param, so that yacc can deal with
+>> it.
+>>
+>> Or maybe we just require bison?   Maybe nowadays everyone has bison?
+>
+>It's probably a safer choice than defaulting to yacc, me thinks... We'll
+>see how that goes. I might have to extend and improve it to check not
+>just if it's there, but if it actually works for our case as well. But
+>baby steps, perhaps this is enough.
+>
+>> Neto also mentioned that he wasn't able to build with arithmetic
+>> configured off.  I didn't try to chase that down.
+>
+>I think that's a build issue due to hand editing stuff and attempting a
+>build. The current code builds fine if it's off, I definitely tested
+>that prior to pulling things in.
+>
+>--=20
+>Jens Axboe
+
+
+
+Hi Jens,
+
+This is neto from Brazil
+
+How are you?
+
+I have applied the latest commit.
+
+On MAC:
+
+Still getting warnings:
+
+  YACC y.tab.c
+    CC lex.yy.o
+lex.yy.c:1231:3: warning: incompatible pointer types passing 'yy_size_t *'
+      (aka 'unsigned long *') to parameter of type 'int *'
+      [-Wincompatible-pointer-types]
+  ...YY_INPUT( (&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move]),
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+exp/expression-parser.l:31:25: note: expanded from macro 'YY_INPUT'
+                lexer_input((buffer), &(bytes_read), (bytes_requested))
+                                      ^~~~~~~~~~~~~
+exp/expression-parser.l:27:43: note: passing argument to parameter
+'nbytes' here
+extern int lexer_input(char* buffer, int *nbytes, int buffersize);
+                                          ^
+
+
+
+On Linux (RedHat 6.4)
+
+All good :-)
+
+Thank you,
+
+neto
+
+
 
