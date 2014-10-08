@@ -1,102 +1,121 @@
-Return-Path: <Antonio.Jose.Rodrigues.Neto@netapp.com>
-From: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
-Subject: Re: FIO - Client and Server - Suggestion
-Date: Wed, 8 Oct 2014 03:08:31 +0000
-Message-ID: <D05A22E0.52101%Antonio.Jose.Rodrigues.Neto@netapp.com>
-References: <D0599D7A.51F81%Antonio.Jose.Rodrigues.Neto@netapp.com>
- <54345B52.7060306@kernel.dk> <543462BE.3000101@kernel.dk>
- <D059DCD3.52059%Antonio.Jose.Rodrigues.Neto@netapp.com>
- <D059DD71.5205D%Antonio.Jose.Rodrigues.Neto@netapp.com>
- <54346A66.6000509@kernel.dk>
- <40C9565A-0AB9-413A-B342-F5EF247686E5@netapp.com>
- <D05A0624.520A1%Antonio.Jose.Rodrigues.Neto@netapp.com>
- <54349909.9030701@kernel.dk>
- <D05A1880.520B9%Antonio.Jose.Rodrigues.Neto@netapp.com>
- <5434A833.1040702@kernel.dk>
-In-Reply-To: <5434A833.1040702@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <F6CBE3370747B0499AE5A20502F8398E@hq.netapp.com>
-Content-Transfer-Encoding: base64
+Return-Path: <axboe@kernel.dk>
+Message-ID: <5434A833.1040702@kernel.dk>
+Date: Tue, 07 Oct 2014 20:57:55 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>
+Subject: Re: FIO - Client and Server - Suggestion
+References: <D0599D7A.51F81%Antonio.Jose.Rodrigues.Neto@netapp.com> <54345B52.7060306@kernel.dk> <543462BE.3000101@kernel.dk> <D059DCD3.52059%Antonio.Jose.Rodrigues.Neto@netapp.com> <D059DD71.5205D%Antonio.Jose.Rodrigues.Neto@netapp.com> <54346A66.6000509@kernel.dk> <40C9565A-0AB9-413A-B342-F5EF247686E5@netapp.com> <D05A0624.520A1%Antonio.Jose.Rodrigues.Neto@netapp.com> <54349909.9030701@kernel.dk> <D05A1880.520B9%Antonio.Jose.Rodrigues.Neto@netapp.com>
+In-Reply-To: <D05A1880.520B9%Antonio.Jose.Rodrigues.Neto@netapp.com>
+Content-Type: text/plain; charset="windows-1252"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+To: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-DQo+Pj4+IEkgZm91bmQgd2hhdCBpcyBoYXBwZW5pbmcNCj4+Pj4NCj4+Pj4gSWYgSSB1c2UgYSBu
-b24gYWJzb2x1dGUgcGF0aCBpdCB3b3JrczogdGhlIHJlbW90ZSBjb25maWcgc2hvdWxkIGJlIG9u
-DQo+Pj4+IHRoZQ0KPj4+PiBzYW1lIGRpcmVjdG9yeSB3aXRoIGZpbw0KPj4+Pg0KPj4+Pg0KPj4+
-PiBOb3NzYSBTZW5ob3JhOmZpby5wYXRjaCBuZXRvJCAuL2ZpbyAtLWNsaWVudCAxMC42MS4xMDku
-MTUxDQo+Pj4+IC0tcmVtb3RlLWNvbmZpZw0KPj4+PiBjb25mMw0KPj4+Pg0KPj4+Pg0KPj4+Pg0K
-Pj4+PiBJZiBJIHNwZWNpZnkgYW4gYWJzb2x1dGUgcGF0aCwgaXQgZG9lcyBub3Qgd29yaw0KPj4+
-Pg0KPj4+PiBOb3NzYSBTZW5ob3JhOmZpby5wYXRjaCBuZXRvJCAuL2ZpbyAtLWNsaWVudCAxMC42
-MS4xMDkuMTUxDQo+Pj4+IC0tcmVtb3RlLWNvbmZpZw0KPj4+PiAvcm9vdC9maW8ucGF0Y2gvY29u
-ZjMNCj4+Pj4gaG9zdG5hbWU9czEsIGJlPTAsIDY0LWJpdCwgb3M9TGludXgsIGFyY2g9eDg2LTY0
-LA0KPj4+PiBmaW89ZmlvLTIuMS4xMy0zMS1nMTVlMywNCj4+Pj4gZmxhZ3M9MQ0KPj4+Pg0KPj4+
-Pg0KPj4+PiBEbyB5b3UgdGhpbmsgd2UgY291bGQgZml4IGl0IHRvIG1ha2Ugc3VyZSB3ZSBjYW4g
-dXNlIC0tcmVtb3RlLWNvbmZpZw0KPj4+PiB3aXRoDQo+Pj4+IGFuIGFic29sdXRlIHBhdGg/DQo+
-Pj4NCj4+PiBUaGF0J3MgdmVyeSBvZGQsIHRoZXJlIHNob3VsZCBiZSBub3RoaW5nIHNwZWNpYWwg
-YWJvdXQgaXQuIElmIEkgZG8NCj4+PnRoaXM6DQo+Pj4NCj4+PiBheGJvZUBsZW5ueTovaG9tZS9h
-eGJvZS9naXQvZmlvICQgc3RhdCAvcm9vdC94LmZpbw0KPj4+IHN0YXQ6IGNhbm5vdCBzdGF0IMWS
-L3Jvb3QveC5maW/CuTogUGVybWlzc2lvbiBkZW5pZWQNCj4+PiAkIC4vZmlvIC0tY2xpZW50PWxv
-Y2FsaG9zdCAtLXJlbW90ZS1jb25maWcgL3Jvb3QveC5maW8NCj4+Pg0KPj4+IGFuZCBydW4NCj4+
-Pg0KPj4+IGF4Ym9lQGxlbm55Oi9ob21lL2F4Ym9lL2dpdC9maW8gJCBzdWRvIHN0cmFjZSAtbyB4
-IC1mIC4vZmlvIC0tc2VydmVyDQo+Pj4gZmlvOiBzZXJ2ZXIgbGlzdGVuaW5nIG9uIDAuMC4wLjAs
-ODc2NQ0KPj4+DQo+Pj4gYW5kIHRoZW4gbG9vayBhdCB0aGUgeCBzdHJhY2Ugb3V0cHV0IGZpbGUs
-IGl0IGFsbCBsb29rcyBmaW5lOg0KPj4+DQo+Pj4gMjg2MzIgcmVjdmZyb20oNCwgIlx2XDBcMVww
-L3Jvb3QveC5maW8iLCAxNSwgTVNHX1dBSVRBTEwsIE5VTEwsIE5VTEwpID0NCj4+PiAxNQ0KPj4+
-IDI4NjMyIG9wZW4oIi9yb290L3guZmlvIiwgT19SRE9OTFkpICAgICA9IDUNCj4+Pg0KPj4+IHdo
-aWNoIGlzIGFsbCBmaW5kIGFuZCBkYW5keS4gRmlvIGp1c3QgcGFzc2VzIHRoZSBzdHJpbmcgb2Yg
-dGhlDQo+Pj5maWxlbmFtZSwNCj4+PiBhbmQgdGhlIHNlcnZlciBqdXN0IGRvZXMgYW4gZm9wZW4g
-b24gdGhhdCBwYXNzZWQgaW4gZmlsZS4gU28gcGxlYXNlIHJ1bg0KPj4+IHRoZSBzYW1lIGV4cGVy
-aW1lbnQgb24geW91ciBlbmQgd2l0aCBhbiBzdHJhY2Ugb2YgdGhlIHNlcnZlciBhbmQgdGhlDQo+
-Pj4gYXJndW1lbnRzIHlvdSB1c2VkIG9uIHRoZSBjbGllbnQsIEknZCBsaWtlIHRvIHNlZSB0aGF0
-Lg0KPj4+DQo+Pj4gLS0NCj4+PiBKZW5zIEF4Ym9lDQo+Pj4NCj4+DQo+PiBIaSBKZW5zLA0KPj4N
-Cj4+IFRoaXMgaXMgbmV0byBmcm9tIEJyYXppbA0KPj4NCj4+IEhvdyBhcmUgeW91Pw0KPj4NCj4+
-IEl0J3MgdmVyeSBzdHJhbmdlLi4uLg0KPj4NCj4+IEkgaGF2ZSBhcHBsaWVkIHRoZSBwYXRjaCBh
-Z2Fpbi4uLiBNYWtlIGNsZWFuLCBtYWtlIGFuZCBpdCdzIHdvcmtpbmcgbm93DQo+PjotKA0KPj4N
-Cj4+IE9uIGxpbnV4IGl0J3Mgd29ya2luZw0KPj4NCj4+IEJ1dCBJIGFwcGxpZWQgdGhlIHBhdGNo
-IG9uIG15IG1hYywgYnV0IGl0J3Mgbm90IHdvcmtpbmcNCj4+DQo+PiBOb3NzYSBTZW5ob3JhOmZp
-b3AgbmV0byQgcGF0Y2ggPCBuZXQtcmVtb3RlLWNvbmZpZy5wYXRjaA0KPj4gKFN0cmlwcGluZyB0
-cmFpbGluZyBDUnMgZnJvbSBwYXRjaC4pDQo+PiBwYXRjaGluZyBmaWxlIGNsaWVudC5jDQo+PiAo
-U3RyaXBwaW5nIHRyYWlsaW5nIENScyBmcm9tIHBhdGNoLikNCj4+IHBhdGNoaW5nIGZpbGUgY2xp
-ZW50LmgNCj4+IChTdHJpcHBpbmcgdHJhaWxpbmcgQ1JzIGZyb20gcGF0Y2guKQ0KPj4gcGF0Y2hp
-bmcgZmlsZSBpbml0LmMNCj4+IChTdHJpcHBpbmcgdHJhaWxpbmcgQ1JzIGZyb20gcGF0Y2guKQ0K
-Pj4gcGF0Y2hpbmcgZmlsZSBzZXJ2ZXIuYw0KPj4gKFN0cmlwcGluZyB0cmFpbGluZyBDUnMgZnJv
-bSBwYXRjaC4pDQo+PiBwYXRjaGluZyBmaWxlIHNlcnZlci5oDQo+Pg0KPj4NCj4+DQo+PiBOb3Nz
-YSBTZW5ob3JhOmZpb3AgbmV0byQgLi9maW8gLS1jbGllbnQgMTAuNjEuMTA5LjE1MSAtLXJlbW90
-ZS1jb25maWcNCj4+IC9yb290L2Zpb3AvbW9kZWwNCj4+IE5vc3NhIFNlbmhvcmE6ZmlvcCBuZXRv
-JA0KPj4NCj4+DQo+Pg0KPj4gQ291bGQgeW91IHBsZWFzZSBtYWtlIHRoZSBjaGFuZ2VzIHRvIGdp
-dGh1YiBhbmQgSSB3aWxsIGRvd25sb2FkIGZvcm0NCj4+IHRoZXJlLiBTb21ldGhpbmcgaXMgbm90
-IHJpZ2h0IGhlcmUgd2l0aCB0aGUgcGF0Y2guDQo+DQo+QWx3YXlzIGVuc3VyZSB0aGF0IHlvdSBt
-YWtlIGNsZWFuLCBtaWdodCBiZSB0aGUgc2FtZSBvbiB0aGUgbWFjLiBJbiBhbnkNCj5jYXNlLCBp
-dCdzIGNvbW1pdHRlZCwgYnV0IGl0IGEgc2VwYXJhdGUgYnJhbmNoLiBTbyB3aGVuIHB1bGxpbmcs
-IHlvdQ0KPm5lZWQgdG8gY2hlY2tvdXQgdGhlIHJlbW90ZS1jb25maWcgYnJhbmNoLiBPbmNlIGl0
-J3MgZnVsbHkgZG9uZSwgSSB3aWxsDQo+cHVsbCBpdCBpbnRvIHRoZSBtYXN0ZXIgYnJhbmNoLg0K
-Pg0KPg0KPi0tIA0KPkplbnMgQXhib2UNCj4NCg0KDQpIaSBKZW5zLA0KDQpUaGlzIGlzIG5ldG8g
-ZnJvbSBCcmF6aWwNCg0KSG93IGFyZSB5b3U/DQoNCkdpdCBjbG9uZSB0aGUgcmVtb3RlLWNvbmZp
-ZyBicmFuY2guLi4uIEJ1dCBnZXQgYW4gZXJyb3Igd2hlbiB0cnlpbmcgdG8NCmNvbXBpbGUNCg0K
-Tm9zc2EgU2VuaG9yYTpmaW8ucGF0Y2ggbmV0byQgbWFrZSBWPTENCmdjYyAgLXN0ZD1nbnU5OSAt
-V3dyaXRlLXN0cmluZ3MgLVdhbGwgLVdkZWNsYXJhdGlvbi1hZnRlci1zdGF0ZW1lbnQgLU8zIC1n
-DQotZmZhc3QtbWF0aCAgLURfR05VX1NPVVJDRSAtaW5jbHVkZSBjb25maWctaG9zdC5oIC1EQklU
-U19QRVJfTE9ORz02NA0KLURGSU9fVkVSU0lPTj0nImZpby0yLjEuMTMtNDEtZ2MwNWRhIicgLW8g
-ZmlvIGdldHRpbWUubyBpb2VuZ2luZXMubyBpbml0Lm8NCnN0YXQubyBsb2cubyB0aW1lLm8gZmls
-ZXNldHVwLm8gZXRhLm8gdmVyaWZ5Lm8gbWVtb3J5Lm8gaW9fdS5vIHBhcnNlLm8NCm11dGV4Lm8g
-b3B0aW9ucy5vIGxpYi9yYnRyZWUubyBzbWFsbG9jLm8gZmlsZWhhc2gubyBwcm9maWxlLm8gZGVi
-dWcubw0KbGliL3JhbmQubyBsaWIvbnVtMnN0ci5vIGxpYi9pZWVlNzU0Lm8gY3JjL2NyYzE2Lm8g
-Y3JjL2NyYzMyLm8NCmNyYy9jcmMzMmMtaW50ZWwubyBjcmMvY3JjMzJjLm8gY3JjL2NyYzY0Lm8g
-Y3JjL2NyYzcubyBjcmMvZm52Lm8gY3JjL21kNS5vDQpjcmMvbXVybXVyMy5vIGNyYy9zaGExLm8g
-Y3JjL3NoYTI1Ni5vIGNyYy9zaGE1MTIubyBjcmMvdGVzdC5vIGNyYy94eGhhc2gubw0KZW5naW5l
-cy9jcHUubyBlbmdpbmVzL21tYXAubyBlbmdpbmVzL3N5bmMubyBlbmdpbmVzL251bGwubyBlbmdp
-bmVzL25ldC5vDQptZW1hbGlnbi5vIHNlcnZlci5vIGNsaWVudC5vIGlvbG9nLm8gYmFja2VuZC5v
-IGxpYmZpby5vIGZsb3cubyBjY29udi5vDQpsaWIvcHJpb190cmVlLm8ganNvbi5vIGxpYi96aXBm
-Lm8gbGliL2F4bWFwLm8gbGliL2xmc3IubyBnZXR0aW1lLXRocmVhZC5vDQpoZWxwZXJzLm8gbGli
-L2ZsaXN0X3NvcnQubyBsaWIvaHdlaWdodC5vIGxpYi9nZXRydXNhZ2UubyBpZGxldGltZS5vDQp0
-ZF9lcnJvci5vIHByb2ZpbGVzL3Rpb2JlbmNoLm8gcHJvZmlsZXMvYWN0Lm8gaW9fdV9xdWV1ZS5v
-IGZpbGVsb2NrLm8NCmxpYi90cC5vIGxpYi9ibG9vbS5vIGVuZ2luZXMvcG9zaXhhaW8ubyBmaW8u
-byBsZXgueXkubyB5LnRhYi5vIC1sbCAtbHoNCi1sbSAgLWxwdGhyZWFkIC1sZGwNCmxkOiBjYW4n
-dCBvcGVuIG91dHB1dCBmaWxlIGZvciB3cml0aW5nOiBmaW8sIGVycm5vPTIxIGZvciBhcmNoaXRl
-Y3R1cmUNCng4Nl82NA0KY2xhbmc6IGVycm9yOiBsaW5rZXIgY29tbWFuZCBmYWlsZWQgd2l0aCBl
-eGl0IGNvZGUgMSAodXNlIC12IHRvIHNlZQ0KaW52b2NhdGlvbikNCm1ha2U6ICoqKiBbZmlvXSBF
-cnJvciAxDQoNCg0KDQoNCg0KDQo+DQoNCg==
+On 2014-10-07 20:54, Neto, Antonio Jose Rodrigues wrote:
+>
+>
+> On 10/7/14, 9:53 PM, "Jens Axboe" <axboe@kernel.dk> wrote:
+>
+>> On 2014-10-07 19:07, Neto, Antonio Jose Rodrigues wrote:
+>>> I found what is happening
+>>>
+>>> If I use a non absolute path it works: the remote config should be on
+>>> the
+>>> same directory with fio
+>>>
+>>>
+>>> Nossa Senhora:fio.patch neto$ ./fio --client 10.61.109.151
+>>> --remote-config
+>>> conf3
+>>>
+>>>
+>>>
+>>> If I specify an absolute path, it does not work
+>>>
+>>> Nossa Senhora:fio.patch neto$ ./fio --client 10.61.109.151
+>>> --remote-config
+>>> /root/fio.patch/conf3
+>>> hostname=3Ds1, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64,
+>>> fio=3Dfio-2.1.13-31-g15e3,
+>>> flags=3D1
+>>>
+>>>
+>>> Do you think we could fix it to make sure we can use --remote-config
+>>> with
+>>> an absolute path?
+>>
+>> That's very odd, there should be nothing special about it. If I do this:
+>>
+>> axboe@lenny:/home/axboe/git/fio $ stat /root/x.fio
+>> stat: cannot stat =EF=BF=BD/root/x.fio=EF=BF=BD: Permission denied
+>> $ ./fio --client=3Dlocalhost --remote-config /root/x.fio
+>>
+>> and run
+>>
+>> axboe@lenny:/home/axboe/git/fio $ sudo strace -o x -f ./fio --server
+>> fio: server listening on 0.0.0.0,8765
+>>
+>> and then look at the x strace output file, it all looks fine:
+>>
+>> 28632 recvfrom(4, "\v\0\1\0/root/x.fio", 15, MSG_WAITALL, NULL, NULL) =3D
+>> 15
+>> 28632 open("/root/x.fio", O_RDONLY)     =3D 5
+>>
+>> which is all find and dandy. Fio just passes the string of the filename,
+>> and the server just does an fopen on that passed in file. So please run
+>> the same experiment on your end with an strace of the server and the
+>> arguments you used on the client, I'd like to see that.
+>>
+>> --
+>> Jens Axboe
+>>
+>
+> Hi Jens,
+>
+> This is neto from Brazil
+>
+> How are you?
+>
+> It's very strange....
+>
+> I have applied the patch again... Make clean, make and it's working now :=
+-(
+>
+> On linux it's working
+>
+> But I applied the patch on my mac, but it's not working
+>
+> Nossa Senhora:fiop neto$ patch < net-remote-config.patch
+> (Stripping trailing CRs from patch.)
+> patching file client.c
+> (Stripping trailing CRs from patch.)
+> patching file client.h
+> (Stripping trailing CRs from patch.)
+> patching file init.c
+> (Stripping trailing CRs from patch.)
+> patching file server.c
+> (Stripping trailing CRs from patch.)
+> patching file server.h
+>
+>
+>
+> Nossa Senhora:fiop neto$ ./fio --client 10.61.109.151 --remote-config
+> /root/fiop/model
+> Nossa Senhora:fiop neto$
+>
+>
+>
+> Could you please make the changes to github and I will download form
+> there. Something is not right here with the patch.
+
+Always ensure that you make clean, might be the same on the mac. In any=20
+case, it's committed, but it a separate branch. So when pulling, you=20
+need to checkout the remote-config branch. Once it's fully done, I will=20
+pull it into the master branch.
+
+
+--=20
+Jens Axboe
+
 
