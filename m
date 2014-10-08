@@ -1,8 +1,8 @@
 Return-Path: <Antonio.Jose.Rodrigues.Neto@netapp.com>
 From: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
 Subject: Re: FIO - Client and Server - Suggestion
-Date: Wed, 8 Oct 2014 03:24:13 +0000
-Message-ID: <D05A265C.5210C%Antonio.Jose.Rodrigues.Neto@netapp.com>
+Date: Wed, 8 Oct 2014 03:08:31 +0000
+Message-ID: <D05A22E0.52101%Antonio.Jose.Rodrigues.Neto@netapp.com>
 References: <D0599D7A.51F81%Antonio.Jose.Rodrigues.Neto@netapp.com>
  <54345B52.7060306@kernel.dk> <543462BE.3000101@kernel.dk>
  <D059DCD3.52059%Antonio.Jose.Rodrigues.Neto@netapp.com>
@@ -10,289 +10,93 @@ References: <D0599D7A.51F81%Antonio.Jose.Rodrigues.Neto@netapp.com>
  <54346A66.6000509@kernel.dk>
  <40C9565A-0AB9-413A-B342-F5EF247686E5@netapp.com>
  <D05A0624.520A1%Antonio.Jose.Rodrigues.Neto@netapp.com>
- <D05A0920.520A9%Antonio.Jose.Rodrigues.Neto@netapp.com>
- <54349A4E.3080207@kernel.dk>
-In-Reply-To: <54349A4E.3080207@kernel.dk>
+ <54349909.9030701@kernel.dk>
+ <D05A1880.520B9%Antonio.Jose.Rodrigues.Neto@netapp.com>
+ <5434A833.1040702@kernel.dk>
+In-Reply-To: <5434A833.1040702@kernel.dk>
 Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <9C98DA11E9E89A4CAC8EB0C5697267F3@hq.netapp.com>
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <F6CBE3370747B0499AE5A20502F8398E@hq.netapp.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
 To: Jens Axboe <axboe@kernel.dk>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-
-
-On 10/7/14, 9:58 PM, "Jens Axboe" <axboe@kernel.dk> wrote:
-
->On 2014-10-07 19:19, Neto, Antonio Jose Rodrigues wrote:
->>
->>
->> On 10/7/14, 9:07 PM, "Neto, Antonio Jose Rodrigues"
->> <Antonio.Jose.Rodrigues.Neto@netapp.com> wrote:
->>
->>>
->>>
->>> On 10/7/14, 6:44 PM, "Neto, Antonio Jose Rodrigues"
->>> <Antonio.Jose.Rodrigues.Neto@netapp.com> wrote:
->>>
->>>>
->>>>
->>>>
->>>>
->>>>> On Oct 7, 2014, at 6:33 PM, Jens Axboe <axboe@kernel.dk> wrote:
->>>>>
->>>>>> On 10/07/2014 04:11 PM, Neto, Antonio Jose Rodrigues wrote:
->>>>>>
->>>>>>
->>>>>> On 10/7/14, 6:09 PM, "Neto, Antonio Jose Rodrigues"
->>>>>> <Antonio.Jose.Rodrigues.Neto@netapp.com> wrote:
->>>>>>
->>>>>>>
->>>>>>>
->>>>>>>> On 10/7/14, 6:01 PM, "Jens Axboe" <axboe@kernel.dk> wrote:
->>>>>>>>
->>>>>>>>> On 10/07/2014 03:29 PM, Jens Axboe wrote:
->>>>>>>>>> On 10/07/2014 11:38 AM, Neto, Antonio Jose Rodrigues wrote:
->>>>>>>>>> Hi All,
->>>>>>>>>>
->>>>>>>>>> This is neto from Brazil
->>>>>>>>>>
->>>>>>>>>> How are you?
->>>>>>>>>>
->>>>>>>>>> One small suggestion:
->>>>>>>>>>
->>>>>>>>>> Running Client and Server architecture on FIO, we need to have
->>>>>>>>>>all
->>>>>>>>>> config
->>>>>>>>>> files "locally" to run it.
->>>>>>>>>>
->>>>>>>>>>
->>>>>>>>>> Nossa Senhora:tools neto$ ls
->>>>>>>>>> 151 152 fio
->>>>>>>>>>
->>>>>>>>>>
->>>>>>>>>>
->>>>>>>>>> Nossa Senhora:tools neto$ ./fio --client 10.61.109.151 151
->>>>>>>>>> --client
->>>>>>>>>> 10.61.109.152 152
->>>>>>>>>> hostname=3Ds2, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64,
->>>>>>>>>> fio=3Dfio-2.1.13-31-g15e3,
->>>>>>>>>> flags=3D1
->>>>>>>>>> hostname=3Ds1, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64,
->>>>>>>>>> fio=3Dfio-2.1.13-31-g15e3,
->>>>>>>>>> flags=3D1
->>>>>>>>>> <s2> workload: (g=3D0): rw=3Dread, <s1> workload: (g=3D0): rw=3D=
-read,
->>>>>>>>>> bs=3D64K-64K/64K-64K/64K-64K, bs=3D64K-64K/64K-64K/64K-64K,
->>>>>>>>>> ioengine=3Dlibaio,
->>>>>>>>>> iodepth=3D1
->>>>>>>>>> ioengine=3Dlibaio, iodepth=3D1
->>>>>>>>>>
->>>>>>>>>> If we are doing a test in an HPC environment with hundred of
->>>>>>>>>> files,
->>>>>>>>>> wouldn't be easier to try to point to a single location for the
->>>>>>>>>> file
->>>>>>>>>> and
->>>>>>>>>> access it remotely (we won't need to copy it locally).
->>>>>>>>>>
->>>>>>>>>>
->>>>>>>>>> For example:
->>>>>>>>>>
->>>>>>>>>> ./fio --client 10.61.109.151 --remote-config /root/fio/151
->>>>>>>>>> --client
->>>>>>>>>> 10.61.109.152 --remote-config /root/fio/152
->>>>>>>>>>
->>>>>>>>>>
->>>>>>>>>> Thoughts?
->>>>>>>>>
->>>>>>>>> That's a good idea, would not be hard to insert that step of
->>>>>>>>>having
->>>>>>>>> the
->>>>>>>>> remote fio server load a local config file. I'll look into that.
->>>>>>>>
->>>>>>>> Totally untested, but the below is a start. On the client side,
->>>>>>>> you'd do:
->>>>>>>>
->>>>>>>> fio --client=3Dserver-hostname --remote-config /some/path/to/file
->>>>>>>>
->>>>>>>> and then the server should attempt to open that. Needs a bit of
->>>>>>>> error
->>>>>>>> handling, but the concept should be there.
->>>>>>>>
->>>>>>>> --
->>>>>>>> Jens Axboe
->>>>>>>
->>>>>>>
->>>>>>> Hi Jens,
->>>>>>>
->>>>>>> This is neto from Brazil
->>>>>>>
->>>>>>> How are you?
->>>>>>>
->>>>>>> I think it is not working.... Please see below:
->>>>>>>
->>>>>>> Nossa Senhora:fio.patch neto$ ./fio --client 10.61.109.151
->>>>>>> --remote-config
->>>>>>> /root/fio.patch/model
->>>>>>> hostname=3Ds1, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64,
->>>>>>> fio=3Dfio-2.1.13-31-g15e3,
->>>>>>> flags=3D1
->>>>>>>
->>>>>>> Thank you,
->>>>>>>
->>>>>>>
->>>>>>> neto
->>>>>>
->>>>>> On server side, I've got:
->>>>>>
->>>>>> [root@s1 fio.patch]# ./fio --server
->>>>>> fio: server listening on 0.0.0.0,8765
->>>>>> fopen job file: No such file or directory
->>>>>> fopen job file: No such file or directory
->>>>>> fopen job file: No such file or directory
->>>>>> fopen job file: No such file or directory
->>>>>> fopen job file: No such file or directory
->>>>>> fopen job file: No such file or directory
->>>>>> fopen job file: No such file or directory
->>>>>> fopen job file: No such file or directory
->>>>>
->>>>> Just to be sure, when you use --remote-config /root/fio.patch/model,
->>>>> then it will open /root/fio.patch/model on the s1 machine running fio
->>>>> --server.
->>>>>
->>>>> Ran a quick test here, and it seems to work for me. The fio --server
->>>>> opens the file at the given path, not the client. If you wanted the
->>>>> client to open it, you'd just do
->>>>>
->>>>> fio --client 10.61.109.151 /root/fio.patch/model
->>>>>
->>>>> and it'd do the opposite - load the file on the client side, and send
->>>>> it
->>>>> to the server.
->>>>>
->>>>> --
->>>>> Jens Axboe
->>>>>
->>>>
->>>> I will try again tonight but it did not work
->>>>
->>>> My client is on mac and servers are on linux
->>>
->>>
->>>
->>> Hi Jens,
->>>
->>> This is neto from Brazil
->>>
->>> How are you?
->>>
->>> I found what is happening
->>>
->>> If I use a non absolute path it works: the remote config should be on
->>>the
->>> same directory with fio
->>>
->>>
->>> Nossa Senhora:fio.patch neto$ ./fio --client 10.61.109.151
->>>--remote-config
->>> conf3
->>>
->>>
->>>
->>> If I specify an absolute path, it does not work
->>>
->>> Nossa Senhora:fio.patch neto$ ./fio --client 10.61.109.151
->>>--remote-config
->>> /root/fio.patch/conf3
->>> hostname=3Ds1, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64,
->>>fio=3Dfio-2.1.13-31-g15e3,
->>> flags=3D1
->>>
->>>
->>> Do you think we could fix it to make sure we can use --remote-config
->>>with
->>> an absolute path?
->>>
->>> Thanks
->>>
->>> neto
->>>
->>
->>
->> Also, another thing that I have figured out is (not sure if this was by
->> design or not)
->>
->>
->> Nossa Senhora:fio.patch neto$ ./fio --client 10.61.109.151
->>--remote-config
->> model --client 10.61.109.152 --remote-config model
->> hostname=3Ds2, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64,
->>fio=3Dfio-2.1.13-31-g15e3,
->> flags=3D1
->> hostname=3Ds1, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64,
->>fio=3Dfio-2.1.13-31-g15e3,
->> flags=3D1
->> <s2> workload: (g=3D0): rw=3Dread, bs=3D64K-64K/64K-64K/64K-64K, <s1>
->>workload:
->> (g=3D0): rw=3Dread, ioengine=3Dlibaio, iodepth=3D1
->> bs=3D64K-64K/64K-64K/64K-64K, <s2> ...
->> ioengine=3Dlibaio, iodepth=3D1
->> <s1> ...
->> <s2> Starting <s1> Starting 128 threads
->> 128 threads
->> Jobs: 0 (f=3D0)
->> Jobs: 0 (f=3D0)
->>
->>
->> Jobs: 0 (f=3D0)
->> Jobs: 0 (f=3D0)
->>
->>
->>
->>
->>
->> Running client and server, we do not have the progress (%) and IOPS and
->> KB/s and the time....
->>
->> Is this expected?
->
->Nope, that should work as non client/server. It does for me. You might
->want to try a full make clean and remake, the patch touches some
->structures and fio isn't always consistent in rebuilding perfectly (this
->is something that should be fixed...).
->
->--=20
->Jens Axboe
-
-
-Hi Jens,
-
-This is neto from Brazil
-
-How are you?
-
-Download from latest git (branch remote-login)
-
-The name of the config file is model
-
-Please see below (please note model:70?)
-
-
-Nossa Senhora:fio neto$ ./fio --client 10.61.109.151 --remote-config
-/root/fio.patch/fio/model
-hostname=3Ds1, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64, fio=3Dfio-2.1.13-=
-42-g3232,
-flags=3D1
-<s1> fio: unable to open '/root/fio.patch/fio/model:70?' job file
-client: host=3D10.61.109.151 disconnected
-
-Any ideas?
-
-Thanks a lot
-
-neto
-
-
+DQo+Pj4+IEkgZm91bmQgd2hhdCBpcyBoYXBwZW5pbmcNCj4+Pj4NCj4+Pj4gSWYgSSB1c2UgYSBu
+b24gYWJzb2x1dGUgcGF0aCBpdCB3b3JrczogdGhlIHJlbW90ZSBjb25maWcgc2hvdWxkIGJlIG9u
+DQo+Pj4+IHRoZQ0KPj4+PiBzYW1lIGRpcmVjdG9yeSB3aXRoIGZpbw0KPj4+Pg0KPj4+Pg0KPj4+
+PiBOb3NzYSBTZW5ob3JhOmZpby5wYXRjaCBuZXRvJCAuL2ZpbyAtLWNsaWVudCAxMC42MS4xMDku
+MTUxDQo+Pj4+IC0tcmVtb3RlLWNvbmZpZw0KPj4+PiBjb25mMw0KPj4+Pg0KPj4+Pg0KPj4+Pg0K
+Pj4+PiBJZiBJIHNwZWNpZnkgYW4gYWJzb2x1dGUgcGF0aCwgaXQgZG9lcyBub3Qgd29yaw0KPj4+
+Pg0KPj4+PiBOb3NzYSBTZW5ob3JhOmZpby5wYXRjaCBuZXRvJCAuL2ZpbyAtLWNsaWVudCAxMC42
+MS4xMDkuMTUxDQo+Pj4+IC0tcmVtb3RlLWNvbmZpZw0KPj4+PiAvcm9vdC9maW8ucGF0Y2gvY29u
+ZjMNCj4+Pj4gaG9zdG5hbWU9czEsIGJlPTAsIDY0LWJpdCwgb3M9TGludXgsIGFyY2g9eDg2LTY0
+LA0KPj4+PiBmaW89ZmlvLTIuMS4xMy0zMS1nMTVlMywNCj4+Pj4gZmxhZ3M9MQ0KPj4+Pg0KPj4+
+Pg0KPj4+PiBEbyB5b3UgdGhpbmsgd2UgY291bGQgZml4IGl0IHRvIG1ha2Ugc3VyZSB3ZSBjYW4g
+dXNlIC0tcmVtb3RlLWNvbmZpZw0KPj4+PiB3aXRoDQo+Pj4+IGFuIGFic29sdXRlIHBhdGg/DQo+
+Pj4NCj4+PiBUaGF0J3MgdmVyeSBvZGQsIHRoZXJlIHNob3VsZCBiZSBub3RoaW5nIHNwZWNpYWwg
+YWJvdXQgaXQuIElmIEkgZG8NCj4+PnRoaXM6DQo+Pj4NCj4+PiBheGJvZUBsZW5ueTovaG9tZS9h
+eGJvZS9naXQvZmlvICQgc3RhdCAvcm9vdC94LmZpbw0KPj4+IHN0YXQ6IGNhbm5vdCBzdGF0IMWS
+L3Jvb3QveC5maW/CuTogUGVybWlzc2lvbiBkZW5pZWQNCj4+PiAkIC4vZmlvIC0tY2xpZW50PWxv
+Y2FsaG9zdCAtLXJlbW90ZS1jb25maWcgL3Jvb3QveC5maW8NCj4+Pg0KPj4+IGFuZCBydW4NCj4+
+Pg0KPj4+IGF4Ym9lQGxlbm55Oi9ob21lL2F4Ym9lL2dpdC9maW8gJCBzdWRvIHN0cmFjZSAtbyB4
+IC1mIC4vZmlvIC0tc2VydmVyDQo+Pj4gZmlvOiBzZXJ2ZXIgbGlzdGVuaW5nIG9uIDAuMC4wLjAs
+ODc2NQ0KPj4+DQo+Pj4gYW5kIHRoZW4gbG9vayBhdCB0aGUgeCBzdHJhY2Ugb3V0cHV0IGZpbGUs
+IGl0IGFsbCBsb29rcyBmaW5lOg0KPj4+DQo+Pj4gMjg2MzIgcmVjdmZyb20oNCwgIlx2XDBcMVww
+L3Jvb3QveC5maW8iLCAxNSwgTVNHX1dBSVRBTEwsIE5VTEwsIE5VTEwpID0NCj4+PiAxNQ0KPj4+
+IDI4NjMyIG9wZW4oIi9yb290L3guZmlvIiwgT19SRE9OTFkpICAgICA9IDUNCj4+Pg0KPj4+IHdo
+aWNoIGlzIGFsbCBmaW5kIGFuZCBkYW5keS4gRmlvIGp1c3QgcGFzc2VzIHRoZSBzdHJpbmcgb2Yg
+dGhlDQo+Pj5maWxlbmFtZSwNCj4+PiBhbmQgdGhlIHNlcnZlciBqdXN0IGRvZXMgYW4gZm9wZW4g
+b24gdGhhdCBwYXNzZWQgaW4gZmlsZS4gU28gcGxlYXNlIHJ1bg0KPj4+IHRoZSBzYW1lIGV4cGVy
+aW1lbnQgb24geW91ciBlbmQgd2l0aCBhbiBzdHJhY2Ugb2YgdGhlIHNlcnZlciBhbmQgdGhlDQo+
+Pj4gYXJndW1lbnRzIHlvdSB1c2VkIG9uIHRoZSBjbGllbnQsIEknZCBsaWtlIHRvIHNlZSB0aGF0
+Lg0KPj4+DQo+Pj4gLS0NCj4+PiBKZW5zIEF4Ym9lDQo+Pj4NCj4+DQo+PiBIaSBKZW5zLA0KPj4N
+Cj4+IFRoaXMgaXMgbmV0byBmcm9tIEJyYXppbA0KPj4NCj4+IEhvdyBhcmUgeW91Pw0KPj4NCj4+
+IEl0J3MgdmVyeSBzdHJhbmdlLi4uLg0KPj4NCj4+IEkgaGF2ZSBhcHBsaWVkIHRoZSBwYXRjaCBh
+Z2Fpbi4uLiBNYWtlIGNsZWFuLCBtYWtlIGFuZCBpdCdzIHdvcmtpbmcgbm93DQo+PjotKA0KPj4N
+Cj4+IE9uIGxpbnV4IGl0J3Mgd29ya2luZw0KPj4NCj4+IEJ1dCBJIGFwcGxpZWQgdGhlIHBhdGNo
+IG9uIG15IG1hYywgYnV0IGl0J3Mgbm90IHdvcmtpbmcNCj4+DQo+PiBOb3NzYSBTZW5ob3JhOmZp
+b3AgbmV0byQgcGF0Y2ggPCBuZXQtcmVtb3RlLWNvbmZpZy5wYXRjaA0KPj4gKFN0cmlwcGluZyB0
+cmFpbGluZyBDUnMgZnJvbSBwYXRjaC4pDQo+PiBwYXRjaGluZyBmaWxlIGNsaWVudC5jDQo+PiAo
+U3RyaXBwaW5nIHRyYWlsaW5nIENScyBmcm9tIHBhdGNoLikNCj4+IHBhdGNoaW5nIGZpbGUgY2xp
+ZW50LmgNCj4+IChTdHJpcHBpbmcgdHJhaWxpbmcgQ1JzIGZyb20gcGF0Y2guKQ0KPj4gcGF0Y2hp
+bmcgZmlsZSBpbml0LmMNCj4+IChTdHJpcHBpbmcgdHJhaWxpbmcgQ1JzIGZyb20gcGF0Y2guKQ0K
+Pj4gcGF0Y2hpbmcgZmlsZSBzZXJ2ZXIuYw0KPj4gKFN0cmlwcGluZyB0cmFpbGluZyBDUnMgZnJv
+bSBwYXRjaC4pDQo+PiBwYXRjaGluZyBmaWxlIHNlcnZlci5oDQo+Pg0KPj4NCj4+DQo+PiBOb3Nz
+YSBTZW5ob3JhOmZpb3AgbmV0byQgLi9maW8gLS1jbGllbnQgMTAuNjEuMTA5LjE1MSAtLXJlbW90
+ZS1jb25maWcNCj4+IC9yb290L2Zpb3AvbW9kZWwNCj4+IE5vc3NhIFNlbmhvcmE6ZmlvcCBuZXRv
+JA0KPj4NCj4+DQo+Pg0KPj4gQ291bGQgeW91IHBsZWFzZSBtYWtlIHRoZSBjaGFuZ2VzIHRvIGdp
+dGh1YiBhbmQgSSB3aWxsIGRvd25sb2FkIGZvcm0NCj4+IHRoZXJlLiBTb21ldGhpbmcgaXMgbm90
+IHJpZ2h0IGhlcmUgd2l0aCB0aGUgcGF0Y2guDQo+DQo+QWx3YXlzIGVuc3VyZSB0aGF0IHlvdSBt
+YWtlIGNsZWFuLCBtaWdodCBiZSB0aGUgc2FtZSBvbiB0aGUgbWFjLiBJbiBhbnkNCj5jYXNlLCBp
+dCdzIGNvbW1pdHRlZCwgYnV0IGl0IGEgc2VwYXJhdGUgYnJhbmNoLiBTbyB3aGVuIHB1bGxpbmcs
+IHlvdQ0KPm5lZWQgdG8gY2hlY2tvdXQgdGhlIHJlbW90ZS1jb25maWcgYnJhbmNoLiBPbmNlIGl0
+J3MgZnVsbHkgZG9uZSwgSSB3aWxsDQo+cHVsbCBpdCBpbnRvIHRoZSBtYXN0ZXIgYnJhbmNoLg0K
+Pg0KPg0KPi0tIA0KPkplbnMgQXhib2UNCj4NCg0KDQpIaSBKZW5zLA0KDQpUaGlzIGlzIG5ldG8g
+ZnJvbSBCcmF6aWwNCg0KSG93IGFyZSB5b3U/DQoNCkdpdCBjbG9uZSB0aGUgcmVtb3RlLWNvbmZp
+ZyBicmFuY2guLi4uIEJ1dCBnZXQgYW4gZXJyb3Igd2hlbiB0cnlpbmcgdG8NCmNvbXBpbGUNCg0K
+Tm9zc2EgU2VuaG9yYTpmaW8ucGF0Y2ggbmV0byQgbWFrZSBWPTENCmdjYyAgLXN0ZD1nbnU5OSAt
+V3dyaXRlLXN0cmluZ3MgLVdhbGwgLVdkZWNsYXJhdGlvbi1hZnRlci1zdGF0ZW1lbnQgLU8zIC1n
+DQotZmZhc3QtbWF0aCAgLURfR05VX1NPVVJDRSAtaW5jbHVkZSBjb25maWctaG9zdC5oIC1EQklU
+U19QRVJfTE9ORz02NA0KLURGSU9fVkVSU0lPTj0nImZpby0yLjEuMTMtNDEtZ2MwNWRhIicgLW8g
+ZmlvIGdldHRpbWUubyBpb2VuZ2luZXMubyBpbml0Lm8NCnN0YXQubyBsb2cubyB0aW1lLm8gZmls
+ZXNldHVwLm8gZXRhLm8gdmVyaWZ5Lm8gbWVtb3J5Lm8gaW9fdS5vIHBhcnNlLm8NCm11dGV4Lm8g
+b3B0aW9ucy5vIGxpYi9yYnRyZWUubyBzbWFsbG9jLm8gZmlsZWhhc2gubyBwcm9maWxlLm8gZGVi
+dWcubw0KbGliL3JhbmQubyBsaWIvbnVtMnN0ci5vIGxpYi9pZWVlNzU0Lm8gY3JjL2NyYzE2Lm8g
+Y3JjL2NyYzMyLm8NCmNyYy9jcmMzMmMtaW50ZWwubyBjcmMvY3JjMzJjLm8gY3JjL2NyYzY0Lm8g
+Y3JjL2NyYzcubyBjcmMvZm52Lm8gY3JjL21kNS5vDQpjcmMvbXVybXVyMy5vIGNyYy9zaGExLm8g
+Y3JjL3NoYTI1Ni5vIGNyYy9zaGE1MTIubyBjcmMvdGVzdC5vIGNyYy94eGhhc2gubw0KZW5naW5l
+cy9jcHUubyBlbmdpbmVzL21tYXAubyBlbmdpbmVzL3N5bmMubyBlbmdpbmVzL251bGwubyBlbmdp
+bmVzL25ldC5vDQptZW1hbGlnbi5vIHNlcnZlci5vIGNsaWVudC5vIGlvbG9nLm8gYmFja2VuZC5v
+IGxpYmZpby5vIGZsb3cubyBjY29udi5vDQpsaWIvcHJpb190cmVlLm8ganNvbi5vIGxpYi96aXBm
+Lm8gbGliL2F4bWFwLm8gbGliL2xmc3IubyBnZXR0aW1lLXRocmVhZC5vDQpoZWxwZXJzLm8gbGli
+L2ZsaXN0X3NvcnQubyBsaWIvaHdlaWdodC5vIGxpYi9nZXRydXNhZ2UubyBpZGxldGltZS5vDQp0
+ZF9lcnJvci5vIHByb2ZpbGVzL3Rpb2JlbmNoLm8gcHJvZmlsZXMvYWN0Lm8gaW9fdV9xdWV1ZS5v
+IGZpbGVsb2NrLm8NCmxpYi90cC5vIGxpYi9ibG9vbS5vIGVuZ2luZXMvcG9zaXhhaW8ubyBmaW8u
+byBsZXgueXkubyB5LnRhYi5vIC1sbCAtbHoNCi1sbSAgLWxwdGhyZWFkIC1sZGwNCmxkOiBjYW4n
+dCBvcGVuIG91dHB1dCBmaWxlIGZvciB3cml0aW5nOiBmaW8sIGVycm5vPTIxIGZvciBhcmNoaXRl
+Y3R1cmUNCng4Nl82NA0KY2xhbmc6IGVycm9yOiBsaW5rZXIgY29tbWFuZCBmYWlsZWQgd2l0aCBl
+eGl0IGNvZGUgMSAodXNlIC12IHRvIHNlZQ0KaW52b2NhdGlvbikNCm1ha2U6ICoqKiBbZmlvXSBF
+cnJvciAxDQoNCg0KDQoNCg0KDQo+DQoNCg==
 
