@@ -1,68 +1,62 @@
 Return-Path: <axboe@kernel.dk>
-Message-ID: <54349974.6000300@kernel.dk>
-Date: Tue, 07 Oct 2014 19:55:00 -0600
+Message-ID: <54349909.9030701@kernel.dk>
+Date: Tue, 07 Oct 2014 19:53:13 -0600
 From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
 Subject: Re: FIO - Client and Server - Suggestion
-References: <D0599D7A.51F81%Antonio.Jose.Rodrigues.Neto@netapp.com> <54345B52.7060306@kernel.dk> <543462BE.3000101@kernel.dk> <D059DCD3.52059%Antonio.Jose.Rodrigues.Neto@netapp.com> <D059DD71.5205D%Antonio.Jose.Rodrigues.Neto@netapp.com> <54346A66.6000509@kernel.dk> <40C9565A-0AB9-413A-B342-F5EF247686E5@netapp.com> <D05A0624.520A1%Antonio.Jose.Rodrigues.Neto@netapp.com> <54349909.9030701@kernel.dk>
-In-Reply-To: <54349909.9030701@kernel.dk>
+References: <D0599D7A.51F81%Antonio.Jose.Rodrigues.Neto@netapp.com> <54345B52.7060306@kernel.dk> <543462BE.3000101@kernel.dk> <D059DCD3.52059%Antonio.Jose.Rodrigues.Neto@netapp.com> <D059DD71.5205D%Antonio.Jose.Rodrigues.Neto@netapp.com> <54346A66.6000509@kernel.dk> <40C9565A-0AB9-413A-B342-F5EF247686E5@netapp.com> <D05A0624.520A1%Antonio.Jose.Rodrigues.Neto@netapp.com>
+In-Reply-To: <D05A0624.520A1%Antonio.Jose.Rodrigues.Neto@netapp.com>
 Content-Type: text/plain; charset="windows-1252"; format="flowed"
 Content-Transfer-Encoding: quoted-printable
 To: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 2014-10-07 19:53, Jens Axboe wrote:
-> On 2014-10-07 19:07, Neto, Antonio Jose Rodrigues wrote:
->> I found what is happening
->>
->> If I use a non absolute path it works: the remote config should be on the
->> same directory with fio
->>
->>
->> Nossa Senhora:fio.patch neto$ ./fio --client 10.61.109.151
->> --remote-config
->> conf3
->>
->>
->>
->> If I specify an absolute path, it does not work
->>
->> Nossa Senhora:fio.patch neto$ ./fio --client 10.61.109.151
->> --remote-config
->> /root/fio.patch/conf3
->> hostname=3Ds1, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64,
->> fio=3Dfio-2.1.13-31-g15e3,
->> flags=3D1
->>
->>
->> Do you think we could fix it to make sure we can use --remote-config with
->> an absolute path?
+On 2014-10-07 19:07, Neto, Antonio Jose Rodrigues wrote:
+> I found what is happening
 >
-> That's very odd, there should be nothing special about it. If I do this:
+> If I use a non absolute path it works: the remote config should be on the
+> same directory with fio
 >
-> axboe@lenny:/home/axboe/git/fio $ stat /root/x.fio
-> stat: cannot stat =EF=BF=BD/root/x.fio=EF=BF=BD: Permission denied
-> $ ./fio --client=3Dlocalhost --remote-config /root/x.fio
 >
-> and run
+> Nossa Senhora:fio.patch neto$ ./fio --client 10.61.109.151 --remote-config
+> conf3
 >
-> axboe@lenny:/home/axboe/git/fio $ sudo strace -o x -f ./fio --server
-> fio: server listening on 0.0.0.0,8765
 >
-> and then look at the x strace output file, it all looks fine:
 >
-> 28632 recvfrom(4, "\v\0\1\0/root/x.fio", 15, MSG_WAITALL, NULL, NULL) =3D=
- 15
-> 28632 open("/root/x.fio", O_RDONLY)     =3D 5
+> If I specify an absolute path, it does not work
 >
-> which is all find and dandy. Fio just passes the string of the filename,
-> and the server just does an fopen on that passed in file. So please run
-> the same experiment on your end with an strace of the server and the
-> arguments you used on the client, I'd like to see that.
+> Nossa Senhora:fio.patch neto$ ./fio --client 10.61.109.151 --remote-config
+> /root/fio.patch/conf3
+> hostname=3Ds1, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64, fio=3Dfio-2.1.1=
+3-31-g15e3,
+> flags=3D1
+>
+>
+> Do you think we could fix it to make sure we can use --remote-config with
+> an absolute path?
 
-Actually, you should be able to just run the server with --debug=3Dnet=20
-added, and it'll print what it will attempt to open.
+That's very odd, there should be nothing special about it. If I do this:
+
+axboe@lenny:/home/axboe/git/fio $ stat /root/x.fio
+stat: cannot stat =EF=BF=BD/root/x.fio=EF=BF=BD: Permission denied
+$ ./fio --client=3Dlocalhost --remote-config /root/x.fio
+
+and run
+
+axboe@lenny:/home/axboe/git/fio $ sudo strace -o x -f ./fio --server
+fio: server listening on 0.0.0.0,8765
+
+and then look at the x strace output file, it all looks fine:
+
+28632 recvfrom(4, "\v\0\1\0/root/x.fio", 15, MSG_WAITALL, NULL, NULL) =3D=20
+15
+28632 open("/root/x.fio", O_RDONLY)     =3D 5
+
+which is all find and dandy. Fio just passes the string of the filename,=20
+and the server just does an fopen on that passed in file. So please run=20
+the same experiment on your end with an strace of the server and the=20
+arguments you used on the client, I'd like to see that.
 
 --=20
 Jens Axboe
