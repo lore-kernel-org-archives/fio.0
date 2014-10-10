@@ -1,268 +1,312 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <54395AAA.2010109@kernel.dk>
-Date: Sat, 11 Oct 2014 10:28:26 -0600
-From: Jens Axboe <axboe@kernel.dk>
-MIME-Version: 1.0
+Return-Path: <Antonio.Jose.Rodrigues.Neto@netapp.com>
+From: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
 Subject: Re: FIO - Client and Server - Suggestion
-References: <D0599D7A.51F81%Antonio.Jose.Rodrigues.Neto@netapp.com> <54345B52.7060306@kernel.dk> <543462BE.3000101@kernel.dk> <D059DCD3.52059%Antonio.Jose.Rodrigues.Neto@netapp.com> <D059DD71.5205D%Antonio.Jose.Rodrigues.Neto@netapp.com> <54346A66.6000509@kernel.dk> <40C9565A-0AB9-413A-B342-F5EF247686E5@netapp.com> <D05A0624.520A1%Antonio.Jose.Rodrigues.Neto@netapp.com> <D05A0920.520A9%Antonio.Jose.Rodrigues.Neto@netapp.com> <54349A4E.3080207@kernel.dk> <D05A265C.5210C%Antonio.Jose.Rodrigues.Neto@netapp.com> <5434B79F.4030700@kernel.dk> <D05ABE8A.521B6%Antonio.Jose.Rodrigues.Neto@netapp.com> <54354B49.8040307@kernel.dk> <D05AC6A2.521D3%Antonio.Jose.Rodrigues.Neto@netapp.com> <54354FB7.1010907@kernel.dk> <D05D578B.52714%Antonio.Jose.Rodrigues.Neto@netapp.com>
-In-Reply-To: <D05D578B.52714%Antonio.Jose.Rodrigues.Neto@netapp.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-To: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
+Date: Fri, 10 Oct 2014 13:32:48 +0000
+Message-ID: <D05D578B.52714%Antonio.Jose.Rodrigues.Neto@netapp.com>
+References: <D0599D7A.51F81%Antonio.Jose.Rodrigues.Neto@netapp.com>
+ <54345B52.7060306@kernel.dk> <543462BE.3000101@kernel.dk>
+ <D059DCD3.52059%Antonio.Jose.Rodrigues.Neto@netapp.com>
+ <D059DD71.5205D%Antonio.Jose.Rodrigues.Neto@netapp.com>
+ <54346A66.6000509@kernel.dk>
+ <40C9565A-0AB9-413A-B342-F5EF247686E5@netapp.com>
+ <D05A0624.520A1%Antonio.Jose.Rodrigues.Neto@netapp.com>
+ <D05A0920.520A9%Antonio.Jose.Rodrigues.Neto@netapp.com>
+ <54349A4E.3080207@kernel.dk>
+ <D05A265C.5210C%Antonio.Jose.Rodrigues.Neto@netapp.com>
+ <5434B79F.4030700@kernel.dk>
+ <D05ABE8A.521B6%Antonio.Jose.Rodrigues.Neto@netapp.com>
+ <54354B49.8040307@kernel.dk>
+ <D05AC6A2.521D3%Antonio.Jose.Rodrigues.Neto@netapp.com>
+ <54354FB7.1010907@kernel.dk>
+In-Reply-To: <54354FB7.1010907@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <B988D12DFF399E40B5960CCED1F00F78@hq.netapp.com>
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 2014-10-10 07:32, Neto, Antonio Jose Rodrigues wrote:
->
->
-> On 10/8/14, 10:52 AM, "Jens Axboe" <axboe@kernel.dk> wrote:
->
->> On 10/08/2014 08:47 AM, Neto, Antonio Jose Rodrigues wrote:
->>>
->>>
->>> On 10/8/14, 10:33 AM, "Jens Axboe" <axboe@kernel.dk> wrote:
->>>
->>>> On 10/08/2014 08:13 AM, Neto, Antonio Jose Rodrigues wrote:
->>>>>
->>>>>
->>>>> On 10/8/14, 12:03 AM, "Jens Axboe" <axboe@kernel.dk> wrote:
->>>>>
->>>>>> On 2014-10-07 21:24, Neto, Antonio Jose Rodrigues wrote:
->>>>>>> Nossa Senhora:fio neto$ ./fio --client 10.61.109.151 --remote-config
->>>>>>> /root/fio.patch/fio/model
->>>>>>> hostname=s1, be=0, 64-bit, os=Linux, arch=x86-64,
->>>>>>> fio=fio-2.1.13-42-g3232,
->>>>>>> flags=1
->>>>>>> <s1> fio: unable to open '/root/fio.patch/fio/model:70?' job file
->>>>>>> client: host=10.61.109.151 disconnected
->>>>>>>
->>>>>>> Any ideas?
->>>>>>
->>>>>> Looks like I just forgot to zero terminate that string. It was never
->>>>>> absolute or relative path, just luck and what was in memory. Try and
->>>>>> pull again, I committed a fix for that.
->>>>>>
->>>>>> --
->>>>>> Jens Axboe
->>>>>>
->>>>>> --
->>>>>
->>>>>
->>>>> Hi Jens,
->>>>>
->>>>> This is neto from Brazil
->>>>>
->>>>> How are you?
->>>>>
->>>>> Seems to me it's working with absolute path now with the latest commit
->>>>> to
->>>>> remote-config branch.
->>>>
->>>> Great, I verified this morning that it was an issue, we'd be looking at
->>>> unitialized/allocated memory without it.
->>>>
->>>>> But, running the workload from my mac (connected to 2 Linux clients) I
->>>>> do
->>>>> not see the progress.
->>>>>
->>>>> Nossa Senhora:fiop neto$ ./fio --client 10.61.109.151 --remote-config
->>>>> /root/fiop/model --client 10.61.109.152 --remote-config
->>>>> /root/fiop/model
->>>>> hostname=s2, be=0, 64-bit, os=Linux, arch=x86-64, fio=fio-2.1.13,
->>>>> flags=1
->>>>> hostname=s1, be=0, 64-bit, os=Linux, arch=x86-64,
->>>>> fio=fio-2.1.13-31-g15e3,
->>>>> flags=1
->>>>> <s2> workload: (g=0): rw=read, <s1> workload: (g=0): rw=read,
->>>>> bs=64K-64K/64K-64K/64K-64K, bs=64K-64K/64K-64K/64K-64K,
->>>>> ioengine=libaio,
->>>>> iodepth=1
->>>>> ioengine=libaio, iodepth=1
->>>>> <s2> ...
->>>>> <s1> ...
->>>>> <s1> Starting <s2> Starting 128 threads
->>>>> 128 threads
->>>>> Jobs: 0 (f=0)
->>>>>
->>>>> Any idea why?
->>>>
->>>> Works for me, just tried it from an OSX client. I notice that you don't
->>>> seem to have updated the 's2' fio version, however. So I'd suggest you
->>>> ensure you are running the same thing on all of them.
->>>>
->>>> --
->>>> Jens Axboe
->>>>
->>>
->>>
->>> Hi Jens,
->>>
->>> This is neto from Brazil
->>>
->>> How are you?
->>>
->>> With one client and one server it works
->>>
->>> Nossa Senhora:fiop neto$ ./fio --client 10.61.109.151 --remote-config
->>> /root/fiop/model
->>> hostname=s1, be=0, 64-bit, os=Linux, arch=x86-64,
->>> fio=fio-2.1.13-31-g15e3,
->>> flags=1
->>> <s1> workload: (g=0): rw=read, bs=64K-64K/64K-64K/64K-64K,
->>> ioengine=libaio, iodepth=1
->>> <s1> ...
->>> <s1> Starting 128 threads
->>> Jobs: 128 (f=2048): [R(128)] [4.4% done] [1770M/0K/0K /s] [27.7K/0/0
->>> iops]
->>> [eta 09m:45s]
->>>
->>>
->>>
->>>
->>>
->>> But with one client and 2 servers it does not work (the progress)
->>>
->>>
->>> Nossa Senhora:fiop neto$ ./fio --client 10.61.109.151 --remote-config
->>> /root/fiop/model --client 10.61.109.152 --remote-config /root/fiop/model
->>> hostname=s2, be=0, 64-bit, os=Linux, arch=x86-64,
->>> fio=fio-2.1.13-31-g15e3,
->>> flags=1
->>> hostname=s1, be=0, 64-bit, os=Linux, arch=x86-64,
->>> fio=fio-2.1.13-31-g15e3,
->>> flags=1
->>> <s2> workload: (g=0): rw=read, <s1> workload: (g=0): rw=read,
->>> bs=64K-64K/64K-64K/64K-64K, bs=64K-64K/64K-64K/64K-64K, ioengine=libaio,
->>> iodepth=1
->>> ioengine=libaio, iodepth=1
->>> <s2> ...
->>> <s1> ...
->>> <s2> Starting <s1> Starting 128 threads128 threads
->>>
->>> Jobs: 0 (f=0)
->>> Jobs: 0 (f=0)
->>
->> Weird, tested two here, running different jobs, and it summed them up
->> fine and reported the ETA line. I will take a look, when time permits.
->>
->> --
->> Jens Axboe
->
->
-> Hi Jens,
->
-> This is neto from Brazil
->
-> How are you?
->
-> Just a quick update to help you with the troubleshooting.
->
->  From latest commit ...
->
-> When I start the fio (from my mac to use 2 Linux servers)
->
-> When the job starts, I do not see anything on the screen only this:
->
-> Nossa Senhora:fio neto$ ./fio --client 10.61.109.151 --remote-config
-> /root/fio/write --client 10.61.109.152 --remote-config /root/fio/write
-> hostname=s2, be=0, 64-bit, os=Linux, arch=x86-64, fio=fio-2.1.13-58-g3441,
-> flags=1
-> hostname=s1, be=0, 64-bit, os=Linux, arch=x86-64, fio=fio-2.1.13-58-g3441,
-> flags=1
-> <s2> workload: (g=0): rw=write, <s1> workload: (g=0): rw=write,
-> bs=32K-32K/32K-32K/32K-32K, bs=32K-32K/32K-32K/32K-32K, ioengine=libaio,
-> iodepth=4
-> ioengine=libaio, iodepth=4
-> <s2> ...
-> <s1> ...
-> <s2> Starting <s1> Starting 64 threads
-> 64 threads
-> Jobs: 0 (f=0)
->
->
->
->
-> After 60 seconds.... (on my config file)
->
-> I have this:
->
-> workload: (groupid=0, jobs=64): err= 0: pid=3644: Fri Oct 10 09:31:50 2014
->    mixed: io=36714MB, bw=1223.2MB/s, iops=39141, runt= 30015msec
->      slat (usec): min=10, max=308, avg=20.57, stdev= 5.24
->      clat (usec): min=265, max=295734, avg=6496.79, stdev=12165.17
->       lat (usec): min=280, max=295748, avg=6517.62, stdev=12165.19
->      clat percentiles (usec):
->       |  1th=[  868],  5th=[ 1336], 10th=[ 1720], 20th=[ 2384], 30th=[
-> 3024],
->       | 40th=[ 3696], 50th=[ 4448], 60th=[ 5344], 70th=[ 6496], 80th=[
-> 8096],
->       | 90th=[11968], 95th=[15808], 99th=[22912], 100th=[69120],
-> 100th=[197632],
->       | 100th=[211968], 100th=[254976]
->      bw (KB  /s): min= 3648, max=58112, per=1.57%, avg=19618.75,
-> stdev=4463.44
->      lat (usec) : 500=0.06%, 750=0.45%, 1000=1.38%
->      lat (msec) : 2=12.27%, 4=29.89%, 10=41.98%, 20=12.22%, 50=1.23%
->      lat (msec) : 100=0.06%, 250=0.45%, 500=0.01%
->    cpu          : usr=0.72%, sys=1.15%, ctx=1146612, majf=0, minf=223
->    IO depths    : 1=0.1%, 2=0.1%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%,
->> =64=0.0%
->       submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
->> =64=0.0%
->       complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
->> =64=0.0%
->       issued    : total=r=1174844/w=0/d=0, short=r=0/w=0/d=0,
-> drop=r=0/w=0/d=0
->       latency   : target=0, window=0, percentile=100.00%, depth=4
->
-> Run status group 0 (all jobs):
->    MIXED: io=36714MB, aggrb=1223.2MB/s, minb=1223.2MB/s, maxb=1223.2MB/s,
-> mint=30015msec, maxt=30015msec
-> Jobs: 0 (f=0)
->
->
->
-> After 60 seconds.... ( I have this)...
->
->
-> <s1>  0 (f=0)
-> workload: (groupid=0, jobs=64): err= 0: pid=3607: Fri Oct 10 09:32:04 2014
->    mixed: io=60243MB, bw=1338.6MB/s, iops=42833, runt= 45006msec
->      slat (usec): min=10, max=1097, avg=21.47, stdev= 7.11
->      clat (usec): min=256, max=302936, avg=5944.33, stdev=9841.20
->       lat (usec): min=275, max=302957, avg=5966.03, stdev=9841.14
->      clat percentiles (usec):
->       |  1th=[  820],  5th=[ 1240], 10th=[ 1656], 20th=[ 2416], 30th=[
-> 3120],
->       | 40th=[ 4048], 50th=[ 4704], 60th=[ 5152], 70th=[ 6048], 80th=[
-> 7328],
->       | 90th=[10304], 95th=[14912], 99th=[21888], 100th=[25728],
-> 100th=[181248],
->       | 100th=[207872], 100th=[244736]
->      bw (KB  /s): min= 8256, max=53824, per=1.57%, avg=21476.50,
-> stdev=4885.09
->      lat (usec) : 500=0.07%, 750=0.59%, 1000=1.81%
->      lat (msec) : 2=11.88%, 4=25.20%, 10=49.90%, 20=8.94%, 50=1.29%
->      lat (msec) : 100=0.04%, 250=0.26%, 500=0.01%
->    cpu          : usr=0.78%, sys=1.29%, ctx=1952463, majf=0, minf=219
->    IO depths    : 1=0.1%, 2=0.1%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%,
->> =64=0.0%
->       submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
->> =64=0.0%
->       complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
->> =64=0.0%
->       issued    : total=r=1927764/w=0/d=0, short=r=0/w=0/d=0,
-> drop=r=0/w=0/d=0
->       latency   : target=0, window=0, percentile=100.00%, depth=4
->
-> Run status group 0 (all jobs):
->    MIXED: io=60243MB, aggrb=1338.6MB/s, minb=1338.6MB/s, maxb=1338.6MB/s,
-> mint=45006msec, maxt=45006msec
 
-It's weird, like there's some clock source issue. What happens if you 
-add --eta=always as an option to fio?
 
--- 
-Jens Axboe
+On 10/8/14, 10:52 AM, "Jens Axboe" <axboe@kernel.dk> wrote:
+
+>On 10/08/2014 08:47 AM, Neto, Antonio Jose Rodrigues wrote:
+>>=20
+>>=20
+>> On 10/8/14, 10:33 AM, "Jens Axboe" <axboe@kernel.dk> wrote:
+>>=20
+>>> On 10/08/2014 08:13 AM, Neto, Antonio Jose Rodrigues wrote:
+>>>>
+>>>>
+>>>> On 10/8/14, 12:03 AM, "Jens Axboe" <axboe@kernel.dk> wrote:
+>>>>
+>>>>> On 2014-10-07 21:24, Neto, Antonio Jose Rodrigues wrote:
+>>>>>> Nossa Senhora:fio neto$ ./fio --client 10.61.109.151 --remote-config
+>>>>>> /root/fio.patch/fio/model
+>>>>>> hostname=3Ds1, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64,
+>>>>>> fio=3Dfio-2.1.13-42-g3232,
+>>>>>> flags=3D1
+>>>>>> <s1> fio: unable to open '/root/fio.patch/fio/model:70?' job file
+>>>>>> client: host=3D10.61.109.151 disconnected
+>>>>>>
+>>>>>> Any ideas?
+>>>>>
+>>>>> Looks like I just forgot to zero terminate that string. It was never
+>>>>> absolute or relative path, just luck and what was in memory. Try and
+>>>>> pull again, I committed a fix for that.
+>>>>>
+>>>>> --=20
+>>>>> Jens Axboe
+>>>>>
+>>>>> --
+>>>>
+>>>>
+>>>> Hi Jens,
+>>>>
+>>>> This is neto from Brazil
+>>>>
+>>>> How are you?
+>>>>
+>>>> Seems to me it's working with absolute path now with the latest commit
+>>>> to
+>>>> remote-config branch.
+>>>
+>>> Great, I verified this morning that it was an issue, we'd be looking at
+>>> unitialized/allocated memory without it.
+>>>
+>>>> But, running the workload from my mac (connected to 2 Linux clients) I
+>>>> do
+>>>> not see the progress.
+>>>>
+>>>> Nossa Senhora:fiop neto$ ./fio --client 10.61.109.151 --remote-config
+>>>> /root/fiop/model --client 10.61.109.152 --remote-config
+>>>>/root/fiop/model
+>>>> hostname=3Ds2, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64, fio=3Dfio-2.=
+1.13,
+>>>> flags=3D1
+>>>> hostname=3Ds1, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64,
+>>>> fio=3Dfio-2.1.13-31-g15e3,
+>>>> flags=3D1
+>>>> <s2> workload: (g=3D0): rw=3Dread, <s1> workload: (g=3D0): rw=3Dread,
+>>>> bs=3D64K-64K/64K-64K/64K-64K, bs=3D64K-64K/64K-64K/64K-64K,
+>>>>ioengine=3Dlibaio,
+>>>> iodepth=3D1
+>>>> ioengine=3Dlibaio, iodepth=3D1
+>>>> <s2> ...
+>>>> <s1> ...
+>>>> <s1> Starting <s2> Starting 128 threads
+>>>> 128 threads
+>>>> Jobs: 0 (f=3D0)
+>>>>
+>>>> Any idea why?
+>>>
+>>> Works for me, just tried it from an OSX client. I notice that you don't
+>>> seem to have updated the 's2' fio version, however. So I'd suggest you
+>>> ensure you are running the same thing on all of them.
+>>>
+>>> --=20
+>>> Jens Axboe
+>>>
+>>=20
+>>=20
+>> Hi Jens,
+>>=20
+>> This is neto from Brazil
+>>=20
+>> How are you?
+>>=20
+>> With one client and one server it works
+>>=20
+>> Nossa Senhora:fiop neto$ ./fio --client 10.61.109.151 --remote-config
+>> /root/fiop/model
+>> hostname=3Ds1, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64,
+>>fio=3Dfio-2.1.13-31-g15e3,
+>> flags=3D1
+>> <s1> workload: (g=3D0): rw=3Dread, bs=3D64K-64K/64K-64K/64K-64K,
+>> ioengine=3Dlibaio, iodepth=3D1
+>> <s1> ...
+>> <s1> Starting 128 threads
+>> Jobs: 128 (f=3D2048): [R(128)] [4.4% done] [1770M/0K/0K /s] [27.7K/0/0
+>>iops]
+>> [eta 09m:45s]
+>>=20
+>>=20
+>>=20
+>>=20
+>>=20
+>> But with one client and 2 servers it does not work (the progress)
+>>=20
+>>=20
+>> Nossa Senhora:fiop neto$ ./fio --client 10.61.109.151 --remote-config
+>> /root/fiop/model --client 10.61.109.152 --remote-config /root/fiop/model
+>> hostname=3Ds2, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64,
+>>fio=3Dfio-2.1.13-31-g15e3,
+>> flags=3D1
+>> hostname=3Ds1, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64,
+>>fio=3Dfio-2.1.13-31-g15e3,
+>> flags=3D1
+>> <s2> workload: (g=3D0): rw=3Dread, <s1> workload: (g=3D0): rw=3Dread,
+>> bs=3D64K-64K/64K-64K/64K-64K, bs=3D64K-64K/64K-64K/64K-64K, ioengine=3Dl=
+ibaio,
+>> iodepth=3D1
+>> ioengine=3Dlibaio, iodepth=3D1
+>> <s2> ...
+>> <s1> ...
+>> <s2> Starting <s1> Starting 128 threads128 threads
+>>=20
+>> Jobs: 0 (f=3D0)
+>> Jobs: 0 (f=3D0)
+>
+>Weird, tested two here, running different jobs, and it summed them up
+>fine and reported the ETA line. I will take a look, when time permits.
+>
+>--=20
+>Jens Axboe
+
+
+Hi Jens,
+
+This is neto from Brazil
+
+How are you?
+
+Just a quick update to help you with the troubleshooting.
+
+From latest commit ...
+
+When I start the fio (from my mac to use 2 Linux servers)
+
+When the job starts, I do not see anything on the screen only this:
+
+Nossa Senhora:fio neto$ ./fio --client 10.61.109.151 --remote-config
+/root/fio/write --client 10.61.109.152 --remote-config /root/fio/write
+hostname=3Ds2, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64, fio=3Dfio-2.1.13-=
+58-g3441,
+flags=3D1
+hostname=3Ds1, be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64, fio=3Dfio-2.1.13-=
+58-g3441,
+flags=3D1
+<s2> workload: (g=3D0): rw=3Dwrite, <s1> workload: (g=3D0): rw=3Dwrite,
+bs=3D32K-32K/32K-32K/32K-32K, bs=3D32K-32K/32K-32K/32K-32K, ioengine=3Dliba=
+io,
+iodepth=3D4
+ioengine=3Dlibaio, iodepth=3D4
+<s2> ...
+<s1> ...
+<s2> Starting <s1> Starting 64 threads
+64 threads
+Jobs: 0 (f=3D0)
+
+
+
+
+After 60 seconds.... (on my config file)
+
+I have this:
+
+workload: (groupid=3D0, jobs=3D64): err=3D 0: pid=3D3644: Fri Oct 10 09:31:=
+50 2014
+  mixed: io=3D36714MB, bw=3D1223.2MB/s, iops=3D39141, runt=3D 30015msec
+    slat (usec): min=3D10, max=3D308, avg=3D20.57, stdev=3D 5.24
+    clat (usec): min=3D265, max=3D295734, avg=3D6496.79, stdev=3D12165.17
+     lat (usec): min=3D280, max=3D295748, avg=3D6517.62, stdev=3D12165.19
+    clat percentiles (usec):
+     |  1th=3D[  868],  5th=3D[ 1336], 10th=3D[ 1720], 20th=3D[ 2384], 30th=
+=3D[
+3024],
+     | 40th=3D[ 3696], 50th=3D[ 4448], 60th=3D[ 5344], 70th=3D[ 6496], 80th=
+=3D[
+8096],
+     | 90th=3D[11968], 95th=3D[15808], 99th=3D[22912], 100th=3D[69120],
+100th=3D[197632],
+     | 100th=3D[211968], 100th=3D[254976]
+    bw (KB  /s): min=3D 3648, max=3D58112, per=3D1.57%, avg=3D19618.75,
+stdev=3D4463.44
+    lat (usec) : 500=3D0.06%, 750=3D0.45%, 1000=3D1.38%
+    lat (msec) : 2=3D12.27%, 4=3D29.89%, 10=3D41.98%, 20=3D12.22%, 50=3D1.2=
+3%
+    lat (msec) : 100=3D0.06%, 250=3D0.45%, 500=3D0.01%
+  cpu          : usr=3D0.72%, sys=3D1.15%, ctx=3D1146612, majf=3D0, minf=3D=
+223
+  IO depths    : 1=3D0.1%, 2=3D0.1%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D=
+0.0%,
+>=3D64=3D0.0%
+     submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
+=3D0.0%,
+>=3D64=3D0.0%
+     complete  : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
+=3D0.0%,
+>=3D64=3D0.0%
+     issued    : total=3Dr=3D1174844/w=3D0/d=3D0, short=3Dr=3D0/w=3D0/d=3D0=
+,
+drop=3Dr=3D0/w=3D0/d=3D0
+     latency   : target=3D0, window=3D0, percentile=3D100.00%, depth=3D4
+
+Run status group 0 (all jobs):
+  MIXED: io=3D36714MB, aggrb=3D1223.2MB/s, minb=3D1223.2MB/s, maxb=3D1223.2=
+MB/s,
+mint=3D30015msec, maxt=3D30015msec
+Jobs: 0 (f=3D0)
+
+
+
+After 60 seconds.... ( I have this)...
+
+
+<s1>  0 (f=3D0)
+workload: (groupid=3D0, jobs=3D64): err=3D 0: pid=3D3607: Fri Oct 10 09:32:=
+04 2014
+  mixed: io=3D60243MB, bw=3D1338.6MB/s, iops=3D42833, runt=3D 45006msec
+    slat (usec): min=3D10, max=3D1097, avg=3D21.47, stdev=3D 7.11
+    clat (usec): min=3D256, max=3D302936, avg=3D5944.33, stdev=3D9841.20
+     lat (usec): min=3D275, max=3D302957, avg=3D5966.03, stdev=3D9841.14
+    clat percentiles (usec):
+     |  1th=3D[  820],  5th=3D[ 1240], 10th=3D[ 1656], 20th=3D[ 2416], 30th=
+=3D[
+3120],
+     | 40th=3D[ 4048], 50th=3D[ 4704], 60th=3D[ 5152], 70th=3D[ 6048], 80th=
+=3D[
+7328],
+     | 90th=3D[10304], 95th=3D[14912], 99th=3D[21888], 100th=3D[25728],
+100th=3D[181248],
+     | 100th=3D[207872], 100th=3D[244736]
+    bw (KB  /s): min=3D 8256, max=3D53824, per=3D1.57%, avg=3D21476.50,
+stdev=3D4885.09
+    lat (usec) : 500=3D0.07%, 750=3D0.59%, 1000=3D1.81%
+    lat (msec) : 2=3D11.88%, 4=3D25.20%, 10=3D49.90%, 20=3D8.94%, 50=3D1.29=
+%
+    lat (msec) : 100=3D0.04%, 250=3D0.26%, 500=3D0.01%
+  cpu          : usr=3D0.78%, sys=3D1.29%, ctx=3D1952463, majf=3D0, minf=3D=
+219
+  IO depths    : 1=3D0.1%, 2=3D0.1%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D=
+0.0%,
+>=3D64=3D0.0%
+     submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
+=3D0.0%,
+>=3D64=3D0.0%
+     complete  : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
+=3D0.0%,
+>=3D64=3D0.0%
+     issued    : total=3Dr=3D1927764/w=3D0/d=3D0, short=3Dr=3D0/w=3D0/d=3D0=
+,
+drop=3Dr=3D0/w=3D0/d=3D0
+     latency   : target=3D0, window=3D0, percentile=3D100.00%, depth=3D4
+
+Run status group 0 (all jobs):
+  MIXED: io=3D60243MB, aggrb=3D1338.6MB/s, minb=3D1338.6MB/s, maxb=3D1338.6=
+MB/s,
+mint=3D45006msec, maxt=3D45006msec
+
+
+
+Thanks,
+
+neto
+
+
+
+
 
 
