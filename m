@@ -1,114 +1,216 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:20817 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751615AbaJPSNr convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Thu, 16 Oct 2014 14:13:47 -0400
-From: "Gruher, Joseph R" <joseph.r.gruher@intel.com>
-Subject: client/server and minimal output
-Date: Thu, 16 Oct 2014 18:13:46 +0000
-Message-ID: <DE927C68B458BE418D582EC97927A92851867513@ORSMSX113.amr.corp.intel.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
+Received: from bombadil.infradead.org ([198.137.202.9]:57593 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751183AbaJOMAE (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 15 Oct 2014 08:00:04 -0400
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1XeNFM-0006TZ-6t
+	for fio@vger.kernel.org; Wed, 15 Oct 2014 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20141015120003.205FD401DC@lyth.info>
+Date: Wed, 15 Oct 2014 06:00:03 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: "Gruher, Joseph R" <joseph.r.gruher@intel.com>
+To: fio@vger.kernel.org
 
-Hi folks-
+The following changes since commit e5c9093db2c18166bd572f2ab40d5eba16a25b07:
 
-I'm trying to use the client/server features of FIO.  I have version 2.1.3.  The client/server works great for running the specified job file.  The problem I am having is with the reporting.  I have 96 clients running against a single target and I need to aggregate the results.  So I need to either:
-1)	Get minimal output back, then I can load it up in Excel or whatever and add/average the numbers easily
-2)	Get a version of group reporting, where the client aggregates all the results for me and just shows totals/averages
+  server/client: don't use __ conversion functions if not needed (2014-10-13 16:05:10 -0600)
 
-I don't think #2 is a feature of FIO client/server so I'm trying to do #1.  However, I can't seem to get minimal output back when using client/server (I get it all the time when running locally).  See example below.  Only the very last part ("disk stats") is in minimal format.  Am I doing something wrong?  Is this a bug?  Is minimal output just not supported for client/server?  Thanks!
+are available in the git repository at:
 
-ceph@bfclab:~$ sudo fio --minimal --client=10.0.0.101 test.ini --client=10.0.0.102 test.ini --client=10.0.0.103 test.ini
-hostname=ubuntuavnbfc, be=0, 64-bit, os=Linux, arch=x86-64, fio=fio-2.1.3, flags=1
-hostname=ubuntuavnbfc, be=0, 64-bit, os=Linux, arch=x86-64, fio=fio-2.1.3, flags=1
-hostname=ubuntuavnbfc, be=0, 64-bit, os=Linux, arch=x86-64, fio=fio-2.1.3, flags=1
-<ubuntuavnbfc> job01: (g=0): rw=randread, <ubuntuavnbfc> job01: (g=0): rw=randread, <ubuntuavnbfc> job01: (g=0): rw=randread, bs=4K-4K/4K-4K/4K-4K, bs=4K-4K/4K-4K/4K-4K, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=32
-ioengine=libaio, iodepth=32
-ioengine=libaio, iodepth=32
-<ubuntuavnbfc> Starting <ubuntuavnbfc> Starting <ubuntuavnbfc> Starting 1 thread
-1 thread
-1 thread
-<ubuntuavnbfc> [] [100.0% done] [38986K/0K/0K /s] [9745/0/0 iops] [eta 00m:00s]
-job01: (groupid=0, jobs=1): err= 0: pid=2312: Thu Oct 16 10:38:23 2014
-  read : io=133636KB, bw=13336KB/s, iops=3330, runt= 10021msec
-    slat (usec): min=18, max=188, avg=39.01, stdev=11.42
-    clat (usec): min=513, max=47101, avg=9563.16, stdev=13293.87
-     lat (usec): min=557, max=47148, avg=9602.88, stdev=13292.07
-    clat percentiles (usec):
-     |  1th=[  620],  5th=[  676], 10th=[  724], 20th=[  804], 30th=[  900],
-     | 40th=[ 1032], 50th=[ 1336], 60th=[ 2352], 70th=[ 8768], 80th=[24704],
-     | 90th=[34560], 95th=[37120], 99th=[39680], 100th=[40192], 100th=[41728],
-     | 100th=[42240], 100th=[44288]
-    bw (KB  /s): min=    0, max=14392, per=95.57%, avg=12744.25, stdev=3032.04
-    lat (usec) : 750=13.48%, 1000=24.70%
-    lat (msec) : 2=19.67%, 4=6.41%, 10=6.74%, 20=6.21%, 50=22.88%
-  cpu          : usr=5.54%, sys=21.09%, ctx=90216, majf=0, minf=47
-  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=198.8%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.1%, 64=0.0%, >=64=0.0%
-     issued    : total=r=33378/w=0/d=0, short=r=0/w=0/d=0
+  git://git.kernel.dk/fio.git master
 
-Run status group 0 (all jobs):
-   READ: io=133636KB, aggrb=13335KB/s, minb=13335KB/s, maxb=13335KB/s, mint=10021msec, maxt=10021msec
+for you to fetch changes up to de06a46881e1a8876b5fd1de5e002d6189a90a30:
 
-Disk stats (read/write):
-;rbd1;66084;0;0;0;632904;0;633656;99.60%<ubuntuavnbfc>
-job01: (groupid=0, jobs=1): err= 0: pid=2275: Thu Oct 16 10:38:23 2014
-  read : io=136736KB, bw=13630KB/s, iops=3404, runt= 10032msec
-    slat (usec): min=18, max=187, avg=37.43, stdev=11.83
-    clat (usec): min=533, max=67897, avg=9356.39, stdev=13610.40
-     lat (usec): min=588, max=67937, avg=9394.26, stdev=13608.85
-    clat percentiles (usec):
-     |  1th=[  628],  5th=[  684], 10th=[  732], 20th=[  812], 30th=[  916],
-     | 40th=[ 1032], 50th=[ 1288], 60th=[ 2024], 70th=[ 6368], 80th=[26752],
-     | 90th=[35584], 95th=[37632], 99th=[39680], 100th=[40192], 100th=[42240],
-     | 100th=[47872], 100th=[64256]
-    bw (KB  /s): min=    0, max=14416, per=95.64%, avg=13034.45, stdev=3093.38
-    lat (usec) : 750=12.37%, 1000=25.01%
-    lat (msec) : 2=22.48%, 4=6.85%, 10=7.00%, 20=4.11%, 50=22.25%
-    lat (msec) : 100=0.03%
-  cpu          : usr=5.72%, sys=21.65%, ctx=85461, majf=0, minf=47
-  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=201.3%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.1%, 64=0.0%, >=64=0.0%
-     issued    : total=r=34153/w=0/d=0, short=r=0/w=0/d=0
+  Get rid if --header-file argument for lex (2014-10-14 21:12:22 -0600)
 
-Run status group 0 (all jobs):
-   READ: io=136736KB, aggrb=13629KB/s, minb=13629KB/s, maxb=13629KB/s, mint=10032msec, maxt=10032msec
+----------------------------------------------------------------
+Jens Axboe (7):
+      engines/libaio: fix wrong setting of wait_start
+      crc/test: fix potential div by zero
+      sha256: cast shift to uint64_t
+      t/dedupe: fix bogus items NULL compare
+      t/btrace2fio: fix fd leak on error
+      client: fix potential NULL dereference
+      Get rid if --header-file argument for lex
 
-Disk stats (read/write):
-;rbd1;68465;0;0;0;633116;0;633292;99.57%<ubuntuavnbfc>
-job01: (groupid=0, jobs=1): err= 0: pid=2518: Thu Oct 16 10:38:23 2014
-  read : io=131932KB, bw=13145KB/s, iops=3283, runt= 10037msec
-    slat (usec): min=17, max=161, avg=36.24, stdev= 9.24
-    clat (usec): min=498, max=74571, avg=9707.53, stdev=13526.88
-     lat (usec): min=546, max=74604, avg=9744.54, stdev=13525.06
-    clat percentiles (usec):
-     |  1th=[  612],  5th=[  668], 10th=[  716], 20th=[  796], 30th=[  900],
-     | 40th=[ 1032], 50th=[ 1336], 60th=[ 2416], 70th=[ 8640], 80th=[26240],
-     | 90th=[35072], 95th=[37632], 99th=[39680], 100th=[40192], 100th=[41728],
-     | 100th=[60672], 100th=[72192]
-    bw (KB  /s): min=    0, max=13872, per=95.10%, avg=12499.60, stdev=2976.39
-    lat (usec) : 500=0.01%, 750=14.85%, 1000=22.91%
-    lat (msec) : 2=19.75%, 4=6.54%, 10=7.12%, 20=5.68%, 50=23.19%
-    lat (msec) : 100=0.05%
-  cpu          : usr=5.30%, sys=20.14%, ctx=92803, majf=0, minf=47
-  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=201.5%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.1%, 64=0.0%, >=64=0.0%
-     issued    : total=r=32952/w=0/d=0, short=r=0/w=0/d=0
+ .gitignore              |    1 -
+ Makefile                |    2 +-
+ client.c                |    3 +++
+ crc/sha256.c            |    2 +-
+ crc/test.c              |   17 ++++++++++-------
+ engines/libaio.c        |    2 +-
+ exp/expression-parser.l |    4 ++--
+ exp/expression-parser.y |    3 +--
+ t/btrace2fio.c          |    2 ++
+ t/dedupe.c              |    3 +--
+ 10 files changed, 22 insertions(+), 17 deletions(-)
 
-Run status group 0 (all jobs):
-   READ: io=131932KB, aggrb=13144KB/s, minb=13144KB/s, maxb=13144KB/s, mint=10037msec, maxt=10037msec
+---
 
-Disk stats (read/write):
-;rbd1;66052;0;0;0;632940;0;633496;99.57%
+Diff of recent changes:
 
-ceph@bfclab:~$ fio --version
-fio-2.1.3
+diff --git a/.gitignore b/.gitignore
+index f13ec27..c9d90fb 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -9,4 +9,3 @@
+ /fio
+ y.tab.*
+ lex.yy.c
+-lexer.h
+diff --git a/Makefile b/Makefile
+index 750eccd..0f77df9 100644
+--- a/Makefile
++++ b/Makefile
+@@ -267,7 +267,7 @@ override CFLAGS += -DFIO_VERSION='"$(FIO_VERSION)"'
+ 
+ ifdef CONFIG_ARITHMETIC
+ lex.yy.c: exp/expression-parser.l
+-	$(QUIET_LEX)$(LEX) --header-file=lexer.h exp/expression-parser.l
++	$(QUIET_LEX)$(LEX) exp/expression-parser.l
+ 
+ lex.yy.o: lex.yy.c y.tab.h
+ 	$(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) -c $<
+diff --git a/client.c b/client.c
+index 6b9fdd8..edc02a0 100644
+--- a/client.c
++++ b/client.c
+@@ -271,6 +271,9 @@ int fio_client_add_ini_file(void *cookie, const char *ini_file, int remote)
+ 	size_t new_size;
+ 	void *new_files;
+ 
++	if (!client)
++		return 1;
++
+ 	dprint(FD_NET, "client <%s>: add ini %s\n", client->hostname, ini_file);
+ 
+ 	new_size = (client->nr_files + 1) * sizeof(struct client_file);
+diff --git a/crc/sha256.c b/crc/sha256.c
+index ae9ff4d..2fd17a3 100644
+--- a/crc/sha256.c
++++ b/crc/sha256.c
+@@ -277,7 +277,7 @@ void fio_sha256_final(struct fio_sha256_ctx *sctx)
+ 	static const uint8_t padding[64] = { 0x80, };
+ 
+ 	/* Save number of bits */
+-	bits = sctx->count << 3;
++	bits = (uint64_t) sctx->count << 3;
+ 
+ 	/* Pad out to 56 mod 64. */
+ 	index = sctx->count & 0x3f;
+diff --git a/crc/test.c b/crc/test.c
+index bca46f2..bc5cc45 100644
+--- a/crc/test.c
++++ b/crc/test.c
+@@ -329,13 +329,16 @@ int fio_crctest(const char *type)
+ 		t[i].fn(&t[i], buf, CHUNK);
+ 		usec = utime_since_now(&tv);
+ 
+-		mb_sec = (double) mb / (double) usec;
+-		mb_sec /= (1.024 * 1.024);
+-		if (strlen(t[i].name) >= 7)
+-			sprintf(pre, "\t");
+-		else
+-			sprintf(pre, "\t\t");
+-		printf("%s:%s%8.2f MB/sec\n", t[i].name, pre, mb_sec);
++		if (usec) {
++			mb_sec = (double) mb / (double) usec;
++			mb_sec /= (1.024 * 1.024);
++			if (strlen(t[i].name) >= 7)
++				sprintf(pre, "\t");
++			else
++				sprintf(pre, "\t\t");
++			printf("%s:%s%8.2f MB/sec\n", t[i].name, pre, mb_sec);
++		} else
++			printf("%s:inf MB/sec\n", t[i].name);
+ 		first = 0;
+ 	}
+ 
+diff --git a/engines/libaio.c b/engines/libaio.c
+index 12f3b36..f7e2f89 100644
+--- a/engines/libaio.c
++++ b/engines/libaio.c
+@@ -281,7 +281,7 @@ static int fio_libaio_commit(struct thread_data *td)
+ 			}
+ 			if (!wait_start) {
+ 				fio_gettime(&tv, NULL);
+-				wait_start = 0;
++				wait_start = 1;
+ 			} else if (mtime_since_now(&tv) > 30000) {
+ 				log_err("fio: aio appears to be stalled, giving up\n");
+ 				break;
+diff --git a/exp/expression-parser.l b/exp/expression-parser.l
+index 16e3873..856596a 100644
+--- a/exp/expression-parser.l
++++ b/exp/expression-parser.l
+@@ -24,13 +24,13 @@
+ 
+ #define YYSTYPE PARSER_VALUE_TYPE
+ 
+-extern int lexer_input(char *buffer, size_t *nbytes, int buffersize);
++extern int lexer_input(char *buffer, unsigned int *nbytes, int buffersize);
+ 
+ #undef YY_INPUT
+ #define YY_INPUT(buffer, bytes_read, bytes_requested)			\
+ ({									\
+ 	int __ret;							\
+-	size_t __bread = bytes_read;					\
++	unsigned int __bread = bytes_read;				\
+ 	__ret = lexer_input((buffer), &__bread, (bytes_requested));	\
+ 	bytes_read = __bread;						\
+ 	__ret;								\
+diff --git a/exp/expression-parser.y b/exp/expression-parser.y
+index 83b5b30..8ae0c01 100644
+--- a/exp/expression-parser.y
++++ b/exp/expression-parser.y
+@@ -21,7 +21,6 @@
+ #include <stdio.h>
+ #include <string.h>
+ #include <math.h>
+-#include "lexer.h"
+ 
+ struct parser_value_type {
+ 	double dval;
+@@ -188,7 +187,7 @@ expression:	expression '+' expression {
+ static int lexer_read_offset = 0;
+ static char lexer_input_buffer[1000];
+ 
+-int lexer_input(char* buffer, yy_size_t *bytes_read, int bytes_requested)
++int lexer_input(char* buffer, unsigned int *bytes_read, int bytes_requested)
+ {
+ 	int bytes_left = strlen(lexer_input_buffer) - lexer_read_offset;
+ 
+diff --git a/t/btrace2fio.c b/t/btrace2fio.c
+index 5666a56..baf29ac 100644
+--- a/t/btrace2fio.c
++++ b/t/btrace2fio.c
+@@ -870,9 +870,11 @@ static int trace_needs_swap(const char *trace_file, int *swap)
+ 
+ 	ret = read(fd, &t, sizeof(t));
+ 	if (ret < 0) {
++		close(fd);
+ 		perror("read");
+ 		return 1;
+ 	} else if (ret != sizeof(t)) {
++		close(fd);
+ 		log_err("fio: short read on trace file\n");
+ 		return 1;
+ 	}
+diff --git a/t/dedupe.c b/t/dedupe.c
+index 030b4fc..b43b677 100644
+--- a/t/dedupe.c
++++ b/t/dedupe.c
+@@ -294,8 +294,7 @@ static int do_work(struct worker_thread *thread, void *buf)
+ 	for (i = 0; i < nblocks; i++) {
+ 		void *thisptr = buf + (i * blocksize);
+ 
+-		if (items)
+-			items[i].offset = offset;
++		items[i].offset = offset;
+ 		crc_buf(thisptr, items[i].hash);
+ 		offset += blocksize;
+ 		nitems++;
