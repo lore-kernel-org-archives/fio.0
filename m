@@ -1,106 +1,78 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:36555 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933002AbaJVMAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 22 Oct 2014 08:00:05 -0400
-Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1XguaD-00053w-4W
-	for fio@vger.kernel.org; Wed, 22 Oct 2014 12:00:05 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20141022120003.E3182401D8@lyth.info>
-Date: Wed, 22 Oct 2014 06:00:03 -0600 (MDT)
+Received: from mail-la0-f52.google.com ([209.85.215.52]:43461 "EHLO
+	mail-la0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751490AbaJTRjh (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 20 Oct 2014 13:39:37 -0400
+Received: by mail-la0-f52.google.com with SMTP id hz20so4351371lab.39
+        for <fio@vger.kernel.org>; Mon, 20 Oct 2014 10:39:36 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <D06A9FE5.53977%Antonio.Jose.Rodrigues.Neto@netapp.com>
+References: <D0615A15.529EB%Antonio.Jose.Rodrigues.Neto@netapp.com>
+	<CANQrb8jwNgONAmChLLuT_yF0fBfhvDbjgheN8gGq2rfHV9a84g@mail.gmail.com>
+	<D06A9FE5.53977%Antonio.Jose.Rodrigues.Neto@netapp.com>
+Date: Mon, 20 Oct 2014 18:39:36 +0100
+Message-ID: <CALjAwxjfNz8JSNTf7JoDT9K3y=LePTLofR05YC0HWh0eNdoL6Q@mail.gmail.com>
+Subject: Re: Simulating file services access
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
+Cc: Gary Little <gary.j.little@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit 24ffb6f85058a95d4647541283c94c9e27520f1b:
+On 20 October 2014 16:18, Neto, Antonio Jose Rodrigues
+<Antonio.Jose.Rodrigues.Neto@netapp.com> wrote:
+>
+> From:  Gary Little <gary.j.little@gmail.com>
+> Date:  Saturday, October 18, 2014 at 8:04 AM
+> To:  "Neto, Antonio Jose Rodrigues"
+> <Antonio.Jose.Rodrigues.Neto@netapp.com>
+> Cc:  "fio@vger.kernel.org" <fio@vger.kernel.org>
+> Subject:  Re: Simulating file services access
+>
+> Hi Neto,
+>
+> I would suggest using filebench for that sort of workload.
+>
+> Gary.
+>
+> On Monday, October 13, 2014, Neto, Antonio Jose Rodrigues
+> <Antonio.Jose.Rodrigues.Neto@netapp.com> wrote:
+>
+> Hi All,
+>
+> This is neto from Brazil
+>
+> How are you?
+>
+> I need to mimic a file services workload (1,000,000 files spread across
+> 1000 directories (wide) and 200 directories (deep)). Also, I need to
+> create files from range 1K to 1MB.
+>
+> Does anyone have a sample config file for this?
+>
+> Thank you,
+>
+> neto
+>
+> --
+>
+> Hi Gary,
+>
+> This is neto from Brazil
+>
+> How are you?
+>
+> Hope all is well with you my friend.
 
-  Add alignment to thread_options_pack for proper fp alignment (2014-10-20 10:56:46 -0600)
+Now you're a bona fide fio mailing list regular you can skip the greets :-)
 
-are available in the git repository at:
+> Thank you, I will do some tests with filebench.
 
-  git://git.kernel.dk/fio.git master
+You can also try Crefi (https://github.com/vijaykumar-koppad/Crefi ),
+genbackupdata (http://liw.fi/genbackupdata/ ) or impressions
+(https://github.com/kdave/impressions ). This mailing list might not
+be the best place for filesystem testing tools though...
 
-for you to fetch changes up to 60a5a18b811cd60430d2912b49fa3970df0d5077:
-
-  t/dedupe: fix init of all thread variables (2014-10-21 13:02:29 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (2):
-      compiler: improve gcc 4.x compile time check
-      t/dedupe: fix init of all thread variables
-
-Shu-Yu Fu (1):
-      Fix typo in alignment check
-
- compiler/compiler-gcc4.h |    9 +++++++++
- libfio.c                 |    2 +-
- t/dedupe.c               |    4 +---
- thread_options.h         |    1 +
- 4 files changed, 12 insertions(+), 4 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/compiler/compiler-gcc4.h b/compiler/compiler-gcc4.h
-index f136611..e8701cf 100644
---- a/compiler/compiler-gcc4.h
-+++ b/compiler/compiler-gcc4.h
-@@ -5,4 +5,13 @@
- #define __must_check		__attribute__((warn_unused_result))
- #endif
- 
-+#define GCC_VERSION (__GNUC__ * 10000		\
-+			+ __GNUC_MINOR__ * 100	\
-+			+ __GNUC_PATCHLEVEL__)
-+
-+#if GCC_VERSION >= 40300
-+#define __compiletime_warning(message)	__attribute__((warning(message)))
-+#define __compiletime_error(message)	__attribute__((error(message)))
-+#endif
-+
- #endif
-diff --git a/libfio.c b/libfio.c
-index 523cc36..9ed802a 100644
---- a/libfio.c
-+++ b/libfio.c
-@@ -307,7 +307,7 @@ int initialize_fio(char *envp[])
- 	compiletime_assert((offsetof(struct thread_options_pack, zipf_theta) % 8) == 0, "zipf_theta");
- 	compiletime_assert((offsetof(struct thread_options_pack, pareto_h) % 8) == 0, "pareto_h");
- 	compiletime_assert((offsetof(struct thread_options_pack, percentile_list) % 8) == 0, "percentile_list");
--	compiletime_assert((offsetof(struct thread_options_pack, percentile_list) % 8) == 0, "latency_percentile");
-+	compiletime_assert((offsetof(struct thread_options_pack, latency_percentile) % 8) == 0, "latency_percentile");
- 
- 	if (endian_check()) {
- 		log_err("fio: endianness settings appear wrong.\n");
-diff --git a/t/dedupe.c b/t/dedupe.c
-index b43b677..5b88fcb 100644
---- a/t/dedupe.c
-+++ b/t/dedupe.c
-@@ -387,10 +387,8 @@ static int run_dedupe_threads(struct fio_file *f, uint64_t dev_size,
- 
- 	threads = malloc(num_threads * sizeof(struct worker_thread));
- 	for (i = 0; i < num_threads; i++) {
-+		memset(&threads[i], 0, sizeof(struct worker_thread));
- 		threads[i].fd = f->fd;
--		threads[i].items = 0;
--		threads[i].err = 0;
--		threads[i].done = 0;
- 
- 		err = pthread_create(&threads[i].thread, NULL, thread_fn, &threads[i]);
- 		if (err) {
-diff --git a/thread_options.h b/thread_options.h
-index 5c9910a..ecf4e47 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -477,6 +477,7 @@ struct thread_options_pack {
- 	uint64_t number_ios;
- 
- 	uint32_t sync_file_range;
-+	uint32_t pad2;
- 
- 	uint64_t latency_target;
- 	uint64_t latency_window;
+-- 
+Sitsofe | http://sucs.org/~sits/
