@@ -1,45 +1,36 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-oi0-f49.google.com ([209.85.218.49]:60179 "EHLO
-	mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753533AbaJWSSe (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 23 Oct 2014 14:18:34 -0400
-Received: by mail-oi0-f49.google.com with SMTP id a3so1109776oib.8
-        for <fio@vger.kernel.org>; Thu, 23 Oct 2014 11:18:33 -0700 (PDT)
+Received: from mail-ob0-f181.google.com ([209.85.214.181]:59577 "EHLO
+	mail-ob0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751721AbaJWSIV convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Thu, 23 Oct 2014 14:08:21 -0400
+Received: by mail-ob0-f181.google.com with SMTP id wm4so1179087obc.12
+        for <fio@vger.kernel.org>; Thu, 23 Oct 2014 11:08:20 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <54494059.8030207@kernel.dk>
+In-Reply-To: <CANvN+em+0adNCACMR6A6Zt2FgK5u=x49WZwr_3Q7ipwGH_Zdjw@mail.gmail.com>
 References: <CAGRFgs1Urv6c41Roz9_QKJsP-7yw-ihDKoe3VUq87anDNJWF5g@mail.gmail.com>
 	<CAGRFgs23OL8CDXOA5ENik+B+kPk2s_U_E+kYA9PAr4opux3jYQ@mail.gmail.com>
-	<54494059.8030207@kernel.dk>
-Date: Thu, 23 Oct 2014 12:18:33 -0600
-Message-ID: <CAGRFgs1udDB5Y040nzQ8kZjxmEXiAK3Aee7KMVrL_cGNrSKYSw@mail.gmail.com>
+	<CANvN+em+0adNCACMR6A6Zt2FgK5u=x49WZwr_3Q7ipwGH_Zdjw@mail.gmail.com>
+Date: Thu, 23 Oct 2014 12:08:20 -0600
+Message-ID: <CAGRFgs0bwnMbGXFAGZAo59adwcFtpHph7y-VpK6ecpggUz0cdA@mail.gmail.com>
 Subject: Re: Per-thread and aggregate bandwidth reporting
 From: George Smith <glsmith555@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Thanks Jens.
+Thanks for the response and the code verification.
 
-When you say neither number makes sense, are you referring to the sum
-of threads and the aggrb value, or the summed value and  my suggestion
-of an average value?
+I'm using FIO to read and write to a NAS device, so the variation in
+run times is not too unexpected…
 
-These threads are reading from a NAS device, so there's inherent
-variability expected.  I suppose the ideal solution would be to read
-or write for a set amount of time, record the per-thread I/O done over
-that fixed time, then divide by the time.  It seems like I could
-accomplish this using the "runtime" feature; the challenge (for me)
-with that is that I don't necessarily  know the length of the test
-before the test is run, so it's difficult to choose an appropriate
-runtime.
+--gs
 
-I didn't see anything in the documentation, but is there a way to stop
-all the threads in a group once one of the threads has completed all
-the requested I/O?
-
-On Thu, Oct 23, 2014 at 11:52 AM, Jens Axboe <axboe@kernel.dk> wrote:
-> On 10/23/2014 11:04 AM, George Smith wrote:
+On Thu, Oct 23, 2014 at 11:52 AM, Andrey Kuzmin
+<andrey.v.kuzmin@gmail.com> wrote:
+> On Oct 23, 2014 9:05 PM, "George Smith" <glsmith555@gmail.com> wrote:
+>>
 >> Uh oh, silence is never good :)  Please let me know if I haven't
 >> included key information, missed something obvious, etc.
 >>
@@ -66,19 +57,89 @@ On Thu, Oct 23, 2014 at 11:52 AM, Jens Axboe <axboe@kernel.dk> wrote:
 >> each thread's io= value), divided by maxt, which seems to be the
 >> maximum time seen during the run (which happens to be with my 4th
 >> thread).
+>
+> Looking at the code (https://github.com/axboe/fio/blob/master/stat.c),
+> that's exactly what it does.
+>
 >>
 >> So it appears that this is the discrepancy.  I'm not sure if it's
 >> correct to say the aggregate bandwidth is the total I/O divided by the
 >> max time that one of the threads in the group took to complete.  Seems
 >> like taking the average time and dividing total I/O by that would be
 >> more correct.
+>
+> Aggregate bandwidth is presumably what the device might sustain when
+> all threads are active. If all threads ran for about the same time, those two
+> metrics would give more or less the same answer. If there is a substantial
+> variation in per thread run time as in your case (I'd look into why, being in
+> your shoes, by the way), talking aggregate bandwidth is hardly justified.
+> My $.02.
+>
+> Regards,
+> Andrey
 >>
 >> Am I missing the spirit of what the READ line is supposed to be conveying to me?
->
-> I think you deduced it correctly. And yes, it is a bit misleading, in
-> that it differs from the sum of the reported bandwidths. Neither number
-> really makes sense, however.
->
-> --
-> Jens Axboe
->
+>>
+>> Thanks,
+>>
+>> --gs
+>>
+>> On Tue, Oct 21, 2014 at 11:55 AM, George Smith <glsmith555@gmail.com> wrote:
+>> > Hello,
+>> >
+>> > I use multiple threads for read and write tests, and use group
+>> > reporting to see each thread's stats.  So in my output file, I have
+>> > something like this:
+>> >
+>> > -----
+>> >
+>> > JOB: (groupid=0, jobs=1): err= 0: pid=17829: Tue Oct 21 12:36:24 2014
+>> >  Description  : [foo]
+>> >  write: io=12288MB, bw=30371KB/s, iops=59 , runt=414309msec
+>> >    clat (usec): min=297 , max=30868K, avg=16722.93, stdev=321816.10
+>> >     lat (usec): min=297 , max=30868K, avg=16723.20, stdev=321816.11
+>> >    clat percentiles (usec):
+>> >     |  1.00th=[  326],  5.00th=[  334], 10.00th=[  338], 20.00th=[  342],
+>> >     | 30.00th=[  350], 40.00th=[  358], 50.00th=[  366], 60.00th=[  386],
+>> >     | 70.00th=[  410], 80.00th=[  486], 90.00th=[  572], 95.00th=[  668],
+>> >     | 99.00th=[45824], 99.50th=[626688], 99.90th=[4554752], 99.95th=[5865472],
+>> >     | 99.99th=[10289152]
+>> >    bw (KB/s)  : min=   16, max=1002496, per=32.23%, avg=78205.35,
+>> > stdev=182341.44
+>> >    lat (usec) : 500=82.77%, 750=13.07%, 1000=0.68%
+>> >    lat (msec) : 2=1.42%, 4=0.44%, 10=0.15%, 20=0.23%, 50=0.26%
+>> >    lat (msec) : 100=0.15%, 250=0.14%, 500=0.13%, 750=0.09%, 1000=0.08%
+>> >    lat (msec) : 2000=0.15%, >=2000=0.24%
+>> >  cpu          : usr=0.77%, sys=2.91%, ctx=24853, majf=0, minf=4
+>> >  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+>> >     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>> >     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>> >     issued    : total=r=0/w=24576/d=0, short=r=0/w=0/d=0
+>> >
+>> > … (another thread) …
+>> > … (another thread) ...
+>> >
+>> > Run status group 0 (all jobs):
+>> >  WRITE: io=98304MB, aggrb=242665KB/s, minb=30333KB/s, maxb=44320KB/s,
+>> > mint=283908msec, maxt=414823msec
+>> >
+>> > -----
+>> >
+>> >
+>> > If I go through and parse each "write" line (in this example), and add
+>> > up all the "bw=" numbers, that does not equal the "aggrb" number
+>> > reported at the end (it's higher by about 15%).
+>> >
+>> > I thought "aggrb" would just be a rollup of all the individual
+>> > thread's bandwidth, so I'm having a hard time determining why the two
+>> > numbers don't match.  Maybe my basic assumption is incorrect, and if
+>> > that's true then which numbers are correct -- the per-thread numbers,
+>> > or the aggregate number?
+>> >
+>> > Thanks for any help…
+>> >
+>> > --gs
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe fio" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
