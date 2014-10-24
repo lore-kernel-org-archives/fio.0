@@ -1,40 +1,43 @@
-Return-Path: <mark.kirkwood@catalyst.net.nz>
-Message-ID: <544AD67D.4030603@catalyst.net.nz>
-Date: Sat, 25 Oct 2014 11:45:17 +1300
-From: Mark Kirkwood <mark.kirkwood@catalyst.net.nz>
+Return-Path: <mark.a.nelson@gmail.com>
+Return-Path: <mark.a.nelson@gmail.com>
+Message-ID: <544AD4FB.2060107@gmail.com>
+Date: Fri, 24 Oct 2014 17:38:51 -0500
+From: Mark Nelson <mark.a.nelson@gmail.com>
 MIME-Version: 1.0
 Subject: Re: fio rbd hang for block sizes > 1M
-References: <5449BBB3.7090109@catalyst.net.nz> <5449E50E.7000808@kernel.dk> <5449EEF1.1060407@catalyst.net.nz> <544A51C7.40803@gmail.com> <544A5DA6.2010709@gmail.com>
-In-Reply-To: <544A5DA6.2010709@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+References: <5449BBB3.7090109@catalyst.net.nz> <5449E50E.7000808@kernel.dk> <5449EEF1.1060407@catalyst.net.nz> <544A51C7.40803@gmail.com> <544AD2F7.9070909@catalyst.net.nz>
+In-Reply-To: <544AD2F7.9070909@catalyst.net.nz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-To: Mark Nelson <mark.a.nelson@gmail.com>, Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
-Cc: "d.gollub@telekom.de >> Daniel Gollub" <d.gollub@telekom.de>, "xan.peng" <xanpeng@gmail.com>, "ceph-devel@vger.kernel.org" <ceph-devel@vger.kernel.org>
+To: Mark Kirkwood <mark.kirkwood@catalyst.net.nz>, Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+Cc: "d.gollub@telekom.de >> Daniel Gollub" <d.gollub@telekom.de>, "xan.peng" <xanpeng@gmail.com>
 List-ID: <fio@vger.kernel.org>
 
-Interestingly, I first encountered this on (what I think is) 0.86 
-release (0.86-1precise). I wonder if you had a bigger rbd cache on the 
-release cluster you tested?
-
-As mentioned in the same named thread on -users, disabling the rbd cache 
-stops the hang.
-
-Regards
+Yeah, we reverted the commit that we think was causing it earlier today. 
+  Should be able to confirm things are working again in the next hour or 
+two.
 
 Mark
 
-On 25/10/14 03:09, Mark Nelson wrote:
-> More info:
+On 10/24/2014 05:30 PM, Mark Kirkwood wrote:
+> It looks like it is an rbd cache issue:
 >
-> I went back and tested fio versions back to 2.1.10 and still encountered
-> the issue.  I then went back and tested the v0.86 release versus giant
-> and was able to get through a 4MB read test without error.  I suspect
-> this is not an fio problem.  I'll try to narrow down the commit after
-> 0.86 that is causing this.
+> http://tracker.ceph.com/issues/9854
+>
+> If I disable the rbd ccahe:
+>
+> $ tail /etc/ceph/ceph.conf
+> ...
+> [client]
+> rbd cache = false
+>
+> then the 2-4M reads work fine (no invalid reads in valgrind either).
+>
+> Regards
 >
 > Mark
 >
-> On 10/24/2014 08:19 AM, Mark Nelson wrote:
+> On 25/10/14 02:19, Mark Nelson wrote:
 >> FWIW we are seeing this at Redhat/Inktank with recent fio from master
 >> and ceph giant branch as well.
 >>
