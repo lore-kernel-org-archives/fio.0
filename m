@@ -1,33 +1,63 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ob0-f176.google.com ([209.85.214.176]:41084 "EHLO
-	mail-ob0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754278AbaJNT6L (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 14 Oct 2014 15:58:11 -0400
-Received: by mail-ob0-f176.google.com with SMTP id m8so28305obr.21
-        for <fio@vger.kernel.org>; Tue, 14 Oct 2014 12:58:10 -0700 (PDT)
+Return-Path: <michael.mattsson@gmail.com>
 MIME-Version: 1.0
-Date: Tue, 14 Oct 2014 13:58:10 -0600
-Message-ID: <CAMA-6iaCvppOLvBOP6K2+Gt-BEo5x_m_BXvq8xs8K8ezgt132w@mail.gmail.com>
-Subject: BUG - Cannot build fio on redhat 5
-From: Tim Delaney <2timdelaney@gmail.com>
+In-Reply-To: <CAE56cDuKKEvoOfc8wO8j45oEBzxPQPc6ohH_8jLobJRfQuokkA@mail.gmail.com>
+References: <CAE56cDu7ctJfTLbFRUGh+VwyHdJ=_rtLYLL_b-kJ=YmeeGaopA@mail.gmail.com>
+ <5447D0F5.7090403@kernel.dk> <CAE56cDsm7-FnX2wwhmryrf-6__ZppK353nvUuXpY-96mTkeHrA@mail.gmail.com>
+ <CALjAwxh-McXiYRid+e0RDW3SxCwGDfLdUeOmvLVpzXPi20auNw@mail.gmail.com>
+ <CAE56cDsQVo2gZRX7n3Y4Ny+=2N2mN9upAL4QtH_yrt0TgwYCDA@mail.gmail.com>
+ <54491C12.3020205@kernel.dk> <CAE56cDuuJFyjampbAK7bYWqzSyFmDOqC1amndMu8QBS+dG13vw@mail.gmail.com>
+ <CAE56cDvqnwvH6CArCRavd+gJhbzV8Fa4cVCQ_t0-OTbAiZuDzQ@mail.gmail.com>
+ <544A7543.6040605@kernel.dk> <CAE56cDuKKEvoOfc8wO8j45oEBzxPQPc6ohH_8jLobJRfQuokkA@mail.gmail.com>
+From: Michael Mattsson <michael.mattsson@gmail.com>
+Date: Sat, 25 Oct 2014 09:24:53 -0700
+Message-ID: <CAE56cDt4ZGDmdyNfNLP_CaoiGyt-quLzmAWrtUhP4TRzMa9QrA@mail.gmail.com>
+Subject: Re: --status-interval output race
 Content-Type: text/plain; charset=UTF-8
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Sitsofe Wheeler <sitsofe@gmail.com>, fio <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Trying to make fio on redhat 5.9 results in:
+It seems I jumped the gun too early here. I've been running tests for
+the last 24 hours and I just had one squirt across multiple clients
+rendering the last tick unusable data.
 
-    lex: unknown flag '-'.  For usage, try
-            lex --help
-    make: *** [lex.yy.c] Error 1
+Testing this at my scale with another output engine requires me to
+rewrite my parsers and I might end up doing that but I'd hoped there
+was a more simplistic workaround for this problem.
 
-Changeset "c9fa1c8d (Stephen M. Cameron  2014-10-06 17:58:32 -0500
-270)" introduced the lex '--header-file' option, but that option is
-not valid on redhat 5.
+Thanks!
+Michael
 
-Makefile diff...
+On Fri, Oct 24, 2014 at 12:22 PM, Michael Mattsson
+<michael.mattsson@gmail.com> wrote:
+> Hey,
+> I took another stab at reshuffling output control and I've found a
+> combo that works very consistently. By dropping --output and piping to
+> tee instead I get an incredible high accuracy in my 'runtime' output.
+> It only differs 1-2ms between a sample of ~500 runs. Before this was
+> literally all over the place (+/- <1000ms).
+>
+> Could it be that output redirection is blocked when writing with with
+> fio and asynchronously when piping to tee? Output is being written to
+> an NFS mount which is subject to several layers of virtualization and
+> may cause intermittent latency spikes and deliver my very inconsistent
+> results. Thoughts?
+>
+> Anyhow, thank you for your work here and I owe you lunch!
+>
+> Regards
+> Michael
+>
+> On Fri, Oct 24, 2014 at 8:50 AM, Jens Axboe <axboe@kernel.dk> wrote:
+>> On 2014-10-24 09:44, Michael Mattsson wrote:
+>>>
+>>> Hey,
+>>> Is there anything I can do to help you look at this issue?
+>>
+>>
+>> Does it only happen for minimal output, or on "normal" or json output too?
+>>
+>> --
+>> Jens Axboe
+>>
 
-     ifdef CONFIG_ARITHMETIC
-     lex.yy.c: exp/expression-parser.l
-    -       $(QUIET_LEX)$(LEX) exp/expression-parser.l
-    +       $(QUIET_LEX)$(LEX) --header-file=lexer.h exp/expression-parser.l
