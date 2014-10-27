@@ -1,50 +1,47 @@
 Return-Path: <axboe@kernel.dk>
-Message-ID: <544E63EA.1010204@kernel.dk>
-Date: Mon, 27 Oct 2014 09:25:30 -0600
+Message-ID: <544E6330.1000202@kernel.dk>
+Date: Mon, 27 Oct 2014 09:22:24 -0600
 From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
 Subject: Re: fio rbd completions (Was: fio rbd hang for block sizes > 1M)
-References: <5449BBB3.7090109@catalyst.net.nz> <5449E50E.7000808@kernel.dk> <5449EEF1.1060407@catalyst.net.nz> <544A51C7.40803@gmail.com> <544A5DA6.2010709@gmail.com> <544AD67D.4030603@catalyst.net.nz> <544AEAE7.6080603@redhat.com> <544AF0D2.1050405@catalyst.net.nz> <544B0C7F.4080109@catalyst.net.nz> <544B1D50.4010101@kernel.dk> <544B2C19.7070009@catalyst.net.nz> <544BF808.2090800@kernel.dk> <544C2371.1020403@catalyst.net.nz> <544E547C.30009@kernel.dk> <CAM9_UU9j2erdGT5kqKi_+5z5ERFMPO1hHwMk8kaFjLkGm-zp-g@mail.gmail.com> <544E6330.1000202@kernel.dk>
-In-Reply-To: <544E6330.1000202@kernel.dk>
+References: <5449BBB3.7090109@catalyst.net.nz> <5449E50E.7000808@kernel.dk> <5449EEF1.1060407@catalyst.net.nz> <544A51C7.40803@gmail.com> <544A5DA6.2010709@gmail.com> <544AD67D.4030603@catalyst.net.nz> <544AEAE7.6080603@redhat.com> <544AF0D2.1050405@catalyst.net.nz> <544B0C7F.4080109@catalyst.net.nz> <544B1D50.4010101@kernel.dk> <544B2C19.7070009@catalyst.net.nz> <544BF808.2090800@kernel.dk> <544C2371.1020403@catalyst.net.nz> <544E547C.30009@kernel.dk> <CAM9_UU9j2erdGT5kqKi_+5z5ERFMPO1hHwMk8kaFjLkGm-zp-g@mail.gmail.com>
+In-Reply-To: <CAM9_UU9j2erdGT5kqKi_+5z5ERFMPO1hHwMk8kaFjLkGm-zp-g@mail.gmail.com>
 Content-Type: multipart/mixed;
- boundary="------------020702090201080402000005"
+ boundary="------------010906090604050405000004"
 To: Ketor D <d.ketor@gmail.com>
 Cc: Mark Kirkwood <mark.kirkwood@catalyst.net.nz>, Mark Nelson <mark.nelson@inktank.com>, Mark Nelson <mark.a.nelson@gmail.com>, fio@vger.kernel.org, "xan.peng" <xanpeng@gmail.com>, "ceph-devel@vger.kernel.org" <ceph-devel@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
 This is a multi-part message in MIME format.
---------------020702090201080402000005
+--------------010906090604050405000004
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 
-On 10/27/2014 09:22 AM, Jens Axboe wrote:
-> On 10/27/2014 09:12 AM, Ketor D wrote:
->> The v5 patch does not work.
->>
->> Run 5 times:
->> 3 times SEGSV
->> 2 times NO IOPS, Endless loop
+On 10/27/2014 09:12 AM, Ketor D wrote:
+> The v5 patch does not work.
 > 
-> Try this one, perhaps it's the wrong type passed for release. Typedefs
-> for the win (or not).
-> 
-> This also fixes comp leaks, if the read/write/sync fails.
+> Run 5 times:
+> 3 times SEGSV
+> 2 times NO IOPS, Endless loop
 
-The get_return was wrong too, here's -v7...
+Try this one, perhaps it's the wrong type passed for release. Typedefs
+for the win (or not).
+
+This also fixes comp leaks, if the read/write/sync fails.
 
 -- 
 Jens Axboe
 
 
---------------020702090201080402000005
+--------------010906090604050405000004
 Content-Type: text/x-patch;
- name="rbd-comp-v7.patch"
+ name="rbd-comp-v6.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="rbd-comp-v7.patch"
+ filename="rbd-comp-v6.patch"
 
 diff --git a/engines/rbd.c b/engines/rbd.c
-index 6fe87b8d010c..0e04b610b3d9 100644
+index 6fe87b8d010c..a6e5dafb87fd 100644
 --- a/engines/rbd.c
 +++ b/engines/rbd.c
 @@ -11,7 +11,9 @@
@@ -140,7 +137,7 @@ index 6fe87b8d010c..0e04b610b3d9 100644
 +
 +	fri->io_complete = 1;
 +
-+	ret = rbd_aio_get_return_value(fri->completion);
++	ret = rbd_aio_get_return_value(&fri->completion);
 +	if (ret != (int) io_u->xfer_buflen) {
 +		if (ret >= 0) {
 +			io_u->resid = io_u->xfer_buflen - ret;
@@ -409,5 +406,5 @@ index 6fe87b8d010c..0e04b610b3d9 100644
  }
  
 
---------------020702090201080402000005--
+--------------010906090604050405000004--
 
