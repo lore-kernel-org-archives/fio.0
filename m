@@ -1,410 +1,76 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <544E6330.1000202@kernel.dk>
-Date: Mon, 27 Oct 2014 09:22:24 -0600
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <d.ketor@gmail.com>
 MIME-Version: 1.0
+In-Reply-To: <544E547C.30009@kernel.dk>
+References: <5449BBB3.7090109@catalyst.net.nz> <5449E50E.7000808@kernel.dk>
+ <5449EEF1.1060407@catalyst.net.nz> <544A51C7.40803@gmail.com>
+ <544A5DA6.2010709@gmail.com> <544AD67D.4030603@catalyst.net.nz>
+ <544AEAE7.6080603@redhat.com> <544AF0D2.1050405@catalyst.net.nz>
+ <544B0C7F.4080109@catalyst.net.nz> <544B1D50.4010101@kernel.dk>
+ <544B2C19.7070009@catalyst.net.nz> <544BF808.2090800@kernel.dk>
+ <544C2371.1020403@catalyst.net.nz> <544E547C.30009@kernel.dk>
+From: Ketor D <d.ketor@gmail.com>
+Date: Mon, 27 Oct 2014 23:12:03 +0800
+Message-ID: <CAM9_UU9j2erdGT5kqKi_+5z5ERFMPO1hHwMk8kaFjLkGm-zp-g@mail.gmail.com>
 Subject: Re: fio rbd completions (Was: fio rbd hang for block sizes > 1M)
-References: <5449BBB3.7090109@catalyst.net.nz> <5449E50E.7000808@kernel.dk> <5449EEF1.1060407@catalyst.net.nz> <544A51C7.40803@gmail.com> <544A5DA6.2010709@gmail.com> <544AD67D.4030603@catalyst.net.nz> <544AEAE7.6080603@redhat.com> <544AF0D2.1050405@catalyst.net.nz> <544B0C7F.4080109@catalyst.net.nz> <544B1D50.4010101@kernel.dk> <544B2C19.7070009@catalyst.net.nz> <544BF808.2090800@kernel.dk> <544C2371.1020403@catalyst.net.nz> <544E547C.30009@kernel.dk> <CAM9_UU9j2erdGT5kqKi_+5z5ERFMPO1hHwMk8kaFjLkGm-zp-g@mail.gmail.com>
-In-Reply-To: <CAM9_UU9j2erdGT5kqKi_+5z5ERFMPO1hHwMk8kaFjLkGm-zp-g@mail.gmail.com>
-Content-Type: multipart/mixed;
- boundary="------------010906090604050405000004"
-To: Ketor D <d.ketor@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
 Cc: Mark Kirkwood <mark.kirkwood@catalyst.net.nz>, Mark Nelson <mark.nelson@inktank.com>, Mark Nelson <mark.a.nelson@gmail.com>, fio@vger.kernel.org, "xan.peng" <xanpeng@gmail.com>, "ceph-devel@vger.kernel.org" <ceph-devel@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------010906090604050405000004
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+The v5 patch does not work.
 
-On 10/27/2014 09:12 AM, Ketor D wrote:
-> The v5 patch does not work.
-> 
-> Run 5 times:
-> 3 times SEGSV
-> 2 times NO IOPS, Endless loop
-
-Try this one, perhaps it's the wrong type passed for release. Typedefs
-for the win (or not).
-
-This also fixes comp leaks, if the read/write/sync fails.
-
--- 
-Jens Axboe
+Run 5 times:
+3 times SEGSV
+2 times NO IOPS, Endless loop
 
 
---------------010906090604050405000004
-Content-Type: text/x-patch;
- name="rbd-comp-v6.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="rbd-comp-v6.patch"
 
-diff --git a/engines/rbd.c b/engines/rbd.c
-index 6fe87b8d010c..a6e5dafb87fd 100644
---- a/engines/rbd.c
-+++ b/engines/rbd.c
-@@ -11,7 +11,9 @@
- 
- struct fio_rbd_iou {
- 	struct io_u *io_u;
-+	rbd_completion_t completion;
- 	int io_complete;
-+	int io_seen;
- };
- 
- struct rbd_data {
-@@ -30,35 +32,35 @@ struct rbd_options {
- 
- static struct fio_option options[] = {
- 	{
--	 .name     = "rbdname",
--	 .lname    = "rbd engine rbdname",
--	 .type     = FIO_OPT_STR_STORE,
--	 .help     = "RBD name for RBD engine",
--	 .off1     = offsetof(struct rbd_options, rbd_name),
--	 .category = FIO_OPT_C_ENGINE,
--	 .group    = FIO_OPT_G_RBD,
--	 },
-+		.name		= "rbdname",
-+		.lname		= "rbd engine rbdname",
-+		.type		= FIO_OPT_STR_STORE,
-+		.help		= "RBD name for RBD engine",
-+		.off1		= offsetof(struct rbd_options, rbd_name),
-+		.category	= FIO_OPT_C_ENGINE,
-+		.group		= FIO_OPT_G_RBD,
-+	},
- 	{
--	 .name     = "pool",
--	 .lname    = "rbd engine pool",
--	 .type     = FIO_OPT_STR_STORE,
--	 .help     = "Name of the pool hosting the RBD for the RBD engine",
--	 .off1     = offsetof(struct rbd_options, pool_name),
--	 .category = FIO_OPT_C_ENGINE,
--	 .group    = FIO_OPT_G_RBD,
--	 },
-+		.name     = "pool",
-+		.lname    = "rbd engine pool",
-+		.type     = FIO_OPT_STR_STORE,
-+		.help     = "Name of the pool hosting the RBD for the RBD engine",
-+		.off1     = offsetof(struct rbd_options, pool_name),
-+		.category = FIO_OPT_C_ENGINE,
-+		.group    = FIO_OPT_G_RBD,
-+	},
- 	{
--	 .name     = "clientname",
--	 .lname    = "rbd engine clientname",
--	 .type     = FIO_OPT_STR_STORE,
--	 .help     = "Name of the ceph client to access the RBD for the RBD engine",
--	 .off1     = offsetof(struct rbd_options, client_name),
--	 .category = FIO_OPT_C_ENGINE,
--	 .group    = FIO_OPT_G_RBD,
--	 },
-+		.name     = "clientname",
-+		.lname    = "rbd engine clientname",
-+		.type     = FIO_OPT_STR_STORE,
-+		.help     = "Name of the ceph client to access the RBD for the RBD engine",
-+		.off1     = offsetof(struct rbd_options, client_name),
-+		.category = FIO_OPT_C_ENGINE,
-+		.group    = FIO_OPT_G_RBD,
-+	},
- 	{
--	 .name = NULL,
--	 },
-+		.name = NULL,
-+	},
- };
- 
- static int _fio_setup_rbd_data(struct thread_data *td,
-@@ -163,92 +165,96 @@ static void _fio_rbd_disconnect(struct rbd_data *rbd_data)
- 	}
- }
- 
--static void _fio_rbd_finish_write_aiocb(rbd_completion_t comp, void *data)
-+static void _fio_rbd_finish_aiocb(rbd_completion_t comp, void *data)
- {
--	struct io_u *io_u = (struct io_u *)data;
--	struct fio_rbd_iou *fio_rbd_iou =
--	    (struct fio_rbd_iou *)io_u->engine_data;
--
--	fio_rbd_iou->io_complete = 1;
--
--	/* if write needs to be verified - we should not release comp here
--	   without fetching the result */
-+	struct io_u *io_u = data;
-+	struct fio_rbd_iou *fri = io_u->engine_data;
-+	ssize_t ret;
-+
-+	fri->io_complete = 1;
-+
-+	ret = rbd_aio_get_return_value(&fri->completion);
-+	if (ret != (int) io_u->xfer_buflen) {
-+		if (ret >= 0) {
-+			io_u->resid = io_u->xfer_buflen - ret;
-+			io_u->error = 0;
-+		} else
-+			io_u->error = ret;
-+	}
-+}
- 
--	rbd_aio_release(comp);
--	/* TODO handle error */
-+static struct io_u *fio_rbd_event(struct thread_data *td, int event)
-+{
-+	struct rbd_data *rbd_data = td->io_ops->data;
- 
--	return;
-+	return rbd_data->aio_events[event];
- }
- 
--static void _fio_rbd_finish_read_aiocb(rbd_completion_t comp, void *data)
-+static inline int fri_check_complete(struct rbd_data *rbd_data,
-+				     struct io_u *io_u,
-+				     unsigned int *events)
- {
--	struct io_u *io_u = (struct io_u *)data;
--	struct fio_rbd_iou *fio_rbd_iou =
--	    (struct fio_rbd_iou *)io_u->engine_data;
--
--	fio_rbd_iou->io_complete = 1;
-+	struct fio_rbd_iou *fri = io_u->engine_data;
- 
--	/* if read needs to be verified - we should not release comp here
--	   without fetching the result */
--	rbd_aio_release(comp);
-+	if (fri->io_complete) {
-+		fri->io_complete = 0;
-+		fri->io_seen = 1;
-+		rbd_data->aio_events[*events] = io_u;
-+		(*events)++;
- 
--	/* TODO handle error */
-+		rbd_aio_release(fri->completion);
-+		return 1;
-+	}
- 
--	return;
-+	return 0;
- }
- 
--static void _fio_rbd_finish_sync_aiocb(rbd_completion_t comp, void *data)
-+static int rbd_iter_events(struct thread_data *td, unsigned int *events,
-+			   unsigned int min_evts, int wait)
- {
--	struct io_u *io_u = (struct io_u *)data;
--	struct fio_rbd_iou *fio_rbd_iou =
--	    (struct fio_rbd_iou *)io_u->engine_data;
--
--	fio_rbd_iou->io_complete = 1;
-+	struct rbd_data *rbd_data = td->io_ops->data;
-+	unsigned int this_events = 0;
-+	struct io_u *io_u;
-+	int i;
- 
--	/* if sync needs to be verified - we should not release comp here
--	   without fetching the result */
--	rbd_aio_release(comp);
-+	io_u_qiter(&td->io_u_all, io_u, i) {
-+		struct fio_rbd_iou *fri = io_u->engine_data;
- 
--	/* TODO handle error */
-+		if (!(io_u->flags & IO_U_F_FLIGHT))
-+			continue;
-+		if (fri->io_seen)
-+			continue;
- 
--	return;
--}
-+		if (fri_check_complete(rbd_data, io_u, events))
-+			this_events++;
-+		else if (wait) {
-+			rbd_aio_wait_for_complete(fri->completion);
- 
--static struct io_u *fio_rbd_event(struct thread_data *td, int event)
--{
--	struct rbd_data *rbd_data = td->io_ops->data;
-+			if (fri_check_complete(rbd_data, io_u, events))
-+				this_events++;
-+		}
-+		if (*events >= min_evts)
-+			break;
-+	}
- 
--	return rbd_data->aio_events[event];
-+	return this_events;
- }
- 
- static int fio_rbd_getevents(struct thread_data *td, unsigned int min,
- 			     unsigned int max, const struct timespec *t)
- {
--	struct rbd_data *rbd_data = td->io_ops->data;
--	unsigned int events = 0;
--	struct io_u *io_u;
--	int i;
--	struct fio_rbd_iou *fov;
-+	unsigned int this_events, events = 0;
-+	int wait = 0;
- 
- 	do {
--		io_u_qiter(&td->io_u_all, io_u, i) {
--			if (!(io_u->flags & IO_U_F_FLIGHT))
--				continue;
--
--			fov = (struct fio_rbd_iou *)io_u->engine_data;
-+		this_events = rbd_iter_events(td, &events, min, wait);
- 
--			if (fov->io_complete) {
--				fov->io_complete = 0;
--				rbd_data->aio_events[events] = io_u;
--				events++;
--			}
--
--		}
--		if (events < min)
--			usleep(100);
--		else
-+		if (events >= min)
- 			break;
-+		if (this_events)
-+			continue;
- 
-+		wait = 1;
- 	} while (1);
- 
- 	return events;
-@@ -256,17 +262,18 @@ static int fio_rbd_getevents(struct thread_data *td, unsigned int min,
- 
- static int fio_rbd_queue(struct thread_data *td, struct io_u *io_u)
- {
--	int r = -1;
- 	struct rbd_data *rbd_data = td->io_ops->data;
--	rbd_completion_t comp;
-+	struct fio_rbd_iou *fri = io_u->engine_data;
-+	int r = -1;
- 
- 	fio_ro_check(td, io_u);
- 
-+	fri->io_complete = 0;
-+	fri->io_seen = 0;
-+
- 	if (io_u->ddir == DDIR_WRITE) {
--		r = rbd_aio_create_completion(io_u,
--					      (rbd_callback_t)
--					      _fio_rbd_finish_write_aiocb,
--					      &comp);
-+		r = rbd_aio_create_completion(io_u, _fio_rbd_finish_aiocb,
-+						&fri->completion);
- 		if (r < 0) {
- 			log_err
- 			    ("rbd_aio_create_completion for DDIR_WRITE failed.\n");
-@@ -274,17 +281,17 @@ static int fio_rbd_queue(struct thread_data *td, struct io_u *io_u)
- 		}
- 
- 		r = rbd_aio_write(rbd_data->image, io_u->offset,
--				  io_u->xfer_buflen, io_u->xfer_buf, comp);
-+				  io_u->xfer_buflen, io_u->xfer_buf,
-+				  fri->completion);
- 		if (r < 0) {
- 			log_err("rbd_aio_write failed.\n");
-+			rbd_aio_release(fri->completion);
- 			goto failed;
- 		}
- 
- 	} else if (io_u->ddir == DDIR_READ) {
--		r = rbd_aio_create_completion(io_u,
--					      (rbd_callback_t)
--					      _fio_rbd_finish_read_aiocb,
--					      &comp);
-+		r = rbd_aio_create_completion(io_u, _fio_rbd_finish_aiocb,
-+						&fri->completion);
- 		if (r < 0) {
- 			log_err
- 			    ("rbd_aio_create_completion for DDIR_READ failed.\n");
-@@ -292,27 +299,28 @@ static int fio_rbd_queue(struct thread_data *td, struct io_u *io_u)
- 		}
- 
- 		r = rbd_aio_read(rbd_data->image, io_u->offset,
--				 io_u->xfer_buflen, io_u->xfer_buf, comp);
-+				 io_u->xfer_buflen, io_u->xfer_buf,
-+				 fri->completion);
- 
- 		if (r < 0) {
- 			log_err("rbd_aio_read failed.\n");
-+			rbd_aio_release(fri->completion);
- 			goto failed;
- 		}
- 
- 	} else if (io_u->ddir == DDIR_SYNC) {
--		r = rbd_aio_create_completion(io_u,
--					      (rbd_callback_t)
--					      _fio_rbd_finish_sync_aiocb,
--					      &comp);
-+		r = rbd_aio_create_completion(io_u, _fio_rbd_finish_aiocb,
-+						&fri->completion);
- 		if (r < 0) {
- 			log_err
- 			    ("rbd_aio_create_completion for DDIR_SYNC failed.\n");
- 			goto failed;
- 		}
- 
--		r = rbd_aio_flush(rbd_data->image, comp);
-+		r = rbd_aio_flush(rbd_data->image, fri->completion);
- 		if (r < 0) {
- 			log_err("rbd_flush failed.\n");
-+			rbd_aio_release(fri->completion);
- 			goto failed;
- 		}
- 
-@@ -344,7 +352,6 @@ static int fio_rbd_init(struct thread_data *td)
- 
- failed:
- 	return 1;
--
- }
- 
- static void fio_rbd_cleanup(struct thread_data *td)
-@@ -379,8 +386,9 @@ static int fio_rbd_setup(struct thread_data *td)
- 	}
- 	td->io_ops->data = rbd_data;
- 
--	/* librbd does not allow us to run first in the main thread and later in a
--	 * fork child. It needs to be the same process context all the time. 
-+	/* librbd does not allow us to run first in the main thread and later
-+	 * in a fork child. It needs to be the same process context all the
-+	 * time. 
- 	 */
- 	td->o.use_thread = 1;
- 
-@@ -439,22 +447,21 @@ static int fio_rbd_invalidate(struct thread_data *td, struct fio_file *f)
- 
- static void fio_rbd_io_u_free(struct thread_data *td, struct io_u *io_u)
- {
--	struct fio_rbd_iou *o = io_u->engine_data;
-+	struct fio_rbd_iou *fri = io_u->engine_data;
- 
--	if (o) {
-+	if (fri) {
- 		io_u->engine_data = NULL;
--		free(o);
-+		free(fri);
- 	}
- }
- 
- static int fio_rbd_io_u_init(struct thread_data *td, struct io_u *io_u)
- {
--	struct fio_rbd_iou *o;
-+	struct fio_rbd_iou *fri;
- 
--	o = malloc(sizeof(*o));
--	o->io_complete = 0;
--	o->io_u = io_u;
--	io_u->engine_data = o;
-+	fri = calloc(1, sizeof(*fri));
-+	fri->io_u = io_u;
-+	io_u->engine_data = fri;
- 	return 0;
- }
- 
-
---------------010906090604050405000004--
+2014-10-27 22:19 GMT+08:00 Jens Axboe <axboe@kernel.dk>:
+> On 10/25/2014 04:25 PM, Mark Kirkwood wrote:
+>> On 26/10/14 08:20, Jens Axboe wrote:
+>>> On 10/24/2014 10:50 PM, Mark Kirkwood wrote:
+>>>> On 25/10/14 16:47, Jens Axboe wrote:
+>>>>>
+>>>>> Since you're running rbd tests... Mind giving this patch a go? I don't
+>>>>> have an easy way to test it myself. It has nothing to do with this
+>>>>> issue, it's just a potentially faster way to do the rbd completions.
+>>>>>
+>>>>
+>>>> Sure - but note I'm testing this on my i7 workstation (4x osd's running
+>>>> on 2x Crucial M550) so not exactly server grade :-)
+>>>>
+>>>> With that in mind, I'm seeing slightly *slower* performance with the
+>>>> patch applied: e.g: for 128k blocks - 2 runs, 1 uncached and the next
+>>>> cached.
+>>>
+>>> Yeah, that doesn't look good. Mind trying this one out? I wonder if we
+>>> doubly wait on them - or perhaps rbd_aio_wait_for_complete() isn't
+>>> working correctly. If you try this one, we should know more...
+>>>
+>>> Goal is, I want to get rid of that usleep() in getevents.
+>>>
+>>
+>> Testing with v3 patch applied hangs. I did wonder if we had somehow hit
+>> a new variant of the cache issue - so reran with it disabled in
+>> ceph.conf. Result is the same:
+>>
+>> $ fio read-test.fio
+>> rbd_thread: (g=0): rw=read, bs=128K-128K/128K-128K/128K-128K,
+>> ioengine=rbd, iodepth=32
+>> fio-2.1.13-88-gb2ee7
+>> Starting 1 process
+>> rbd engine: RBD version: 0.1.8
+>> Jobs: 1 (f=1): [R(1)] [0.1% done] [0KB/0KB/0KB /s] [0/0/0 iops] [eta
+>> 01h:25m:15s]
+>
+> There were, unfortunately, still two bugs left in -v3. I just posted an
+> updated one, please try that and see if it works for you.
+>
+> --
+> Jens Axboe
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe ceph-devel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
