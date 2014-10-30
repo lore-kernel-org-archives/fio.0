@@ -1,48 +1,57 @@
-Return-Path: <mark.kirkwood@catalyst.net.nz>
-Message-ID: <5451EC63.9070600@catalyst.net.nz>
-Date: Thu, 30 Oct 2014 20:44:35 +1300
-From: Mark Kirkwood <mark.kirkwood@catalyst.net.nz>
+Return-Path: <d.ketor@gmail.com>
 MIME-Version: 1.0
+In-Reply-To: <5451A8A3.8020106@kernel.dk>
+References: <5449BBB3.7090109@catalyst.net.nz> <544E63EA.1010204@kernel.dk>
+ <CAM9_UU-35i9uRu9EDQSM-b7CjmxrKYV2Gz8ocrykOYk+2q++hw@mail.gmail.com>
+ <544E6691.106@kernel.dk> <CAM9_UU9_ZHtwv=31DyxkAmog7XJbthiRXi5n+Y0Cfxj4qm3bGQ@mail.gmail.com>
+ <544E6A8D.1040608@kernel.dk> <CAM9_UU8x2uZZUWaPPoy+LHmUhC_3sqKZ9GPsEqDwKUkprg4kdQ@mail.gmail.com>
+ <544EC05D.7040807@catalyst.net.nz> <544EC7F1.6010900@kernel.dk>
+ <544ED37D.6060800@catalyst.net.nz> <CAM9_UU8MHdj+mjAWBziETxPDnwTt0JBuHrQp2Fu9YtF=msae3w@mail.gmail.com>
+ <79432849-2F58-4738-82E1-E4D8AB10A6AE@kernel.dk> <CAM9_UU9G5vQ68UxMakte-Wb5B9_KBo24ov7=hNHpYqEtko2nQg@mail.gmail.com>
+ <544FB2F2.2060703@kernel.dk> <CAM9_UU_o8kS1wJnDKTvd8+qkm9=93yfW3THr_8ni8C+5=TH6tg@mail.gmail.com>
+ <544FCDBD.7070106@kernel.dk> <CAM9_UU-gyExbAEo608vGnjqBk56A_VRZc44HkywUuLmXoEZ4Cg@mail.gmail.com>
+ <CAM9_UU8=MtUnQiembBfr8YQiDOD7TNey=mp8_H6gySenRVHy6A@mail.gmail.com>
+ <5450FA47.2030203@kernel.dk> <CAM9_UU-BWHSk713O9v9RuZd1PRfTfG-Vq9nox0YQO3MhV06YEA@mail.gmail.com>
+ <5451A8A3.8020106@kernel.dk>
+From: Ketor D <d.ketor@gmail.com>
+Date: Thu, 30 Oct 2014 13:29:08 +0800
+Message-ID: <CAM9_UU83b-V1z=Lsd=WDEZU3fuP28rmoVYJRAoCoBpuDECnQ3g@mail.gmail.com>
 Subject: Re: fio rbd completions (Was: fio rbd hang for block sizes > 1M)
-References: <5449BBB3.7090109@catalyst.net.nz> <544E6330.1000202@kernel.dk> <544E63EA.1010204@kernel.dk> <CAM9_UU-35i9uRu9EDQSM-b7CjmxrKYV2Gz8ocrykOYk+2q++hw@mail.gmail.com> <544E6691.106@kernel.dk> <CAM9_UU9_ZHtwv=31DyxkAmog7XJbthiRXi5n+Y0Cfxj4qm3bGQ@mail.gmail.com> <544E6A8D.1040608@kernel.dk> <CAM9_UU8x2uZZUWaPPoy+LHmUhC_3sqKZ9GPsEqDwKUkprg4kdQ@mail.gmail.com> <544EC05D.7040807@catalyst.net.nz> <544EC7F1.6010900@kernel.dk> <544ED37D.6060800@catalyst.net.nz> <CAM9_UU8MHdj+mjAWBziETxPDnwTt0JBuHrQp2Fu9YtF=msae3w@mail.gmail.com> <79432849-2F58-4738-82E1-E4D8AB10A6AE@kernel.dk> <CAM9_UU9G5vQ68UxMakte-Wb5B9_KBo24ov7=hNHpYqEtko2nQg@mail.gmail.com> <544FB2F2.2060703@kernel.dk> <CAM9_UU_o8kS1wJnDKTvd8+qkm9=93yfW3THr_8ni8C+5=TH6tg@mail.gmail.com> <544FCDBD.7070106@kernel.dk> <CAM9_UU-gyExbAEo608vGnjqBk56A_VRZc44HkywUuLmXoEZ4Cg@mail.gmail.com> <CAM9_UU8=MtUnQiembBfr8YQiDOD7TNey=mp8_H6gySenRVHy6A@mail.gmail.com> <5450FA47.2030203@kernel.dk>
-In-Reply-To: <5450FA47.2030203@kernel.dk>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Jens Axboe <axboe@kernel.dk>, Ketor D <d.ketor@gmail.com>
-Cc: Mark Nelson <mark.nelson@inktank.com>, Mark Nelson <mark.a.nelson@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, "xan.peng" <xanpeng@gmail.com>, "ceph-devel@vger.kernel.org" <ceph-devel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Mark Kirkwood <mark.kirkwood@catalyst.net.nz>, Mark Nelson <mark.nelson@inktank.com>, Mark Nelson <mark.a.nelson@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, "xan.peng" <xanpeng@gmail.com>, "ceph-devel@vger.kernel.org" <ceph-devel@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 30/10/14 03:31, Jens Axboe wrote:
-> On 2014-10-29 01:15, Ketor D wrote:
->> Hi, Jens,
+Thanks ,I feel a great honour to finished these test and happy to help
+improved fio.
+And I am trying to decrease the librbd latency. I have make some small progess.
+
+2014-10-30 10:55 GMT+08:00 Jens Axboe <axboe@kernel.dk>:
+> On 2014-10-29 20:50, Ketor D wrote:
 >>
->> There is cmdline parse bug in the fio rbd test.
+>> Hi Jens,
 >>
->> I have fixed this and create a pull request on the github.
+>> The current code runs good!
 >>
->> Please review.
+>> Test Conf: jobs=1 iodepth=1 bs=4k
 >>
->> After fix the bugs, the fio test can run.
+>> if busy_poll = 1, IOPS is 38989.
+>> if busy_poll = 0, IOPS is 33031.
+>>
+>> And busy_poll=0 test result looks no difference from the old code than
+>> do not have sorted events wait.
 >
-> I merged your two pull requests (thanks!) and committed a polished
-> variant of the sort patch. Ketor and Mark, would you mind both running a
-> quick benchmark on the current -git head?
 >
-
-Better late than never (sorry), comparing with the 'original' fio code 
-containing the usleep(100):
-
-blocksize k | head iops     | orig iops
-------------+---------------+--------------
-4           |  11114        |  11516
-128         |   4551        |   6550
-1024        |   1195        |   1248
-
-So we do pretty much the same except in the middle blocksize range (I 
-checked again with the old binary just to rule out any other changes on 
-the ceph end...).
-
-Regards
-
-Mark
+> Good to hear! I think we can safely say that we've pushed rbd as far as we
+> can. At least on the fio side. Still appears to be some suboptimal parts of
+> the librbd API. And the kernel rbd driver could definitely be improved a lot
+> as well. Using busy_poll on the user side gets rid of a sleep/wakeup cycle
+> at that end, but the kernel driver still punts and offloads any work item to
+> a work queue...
+>
+> Thanks for all your testing through this, really appreciated!
+>
+> --
+> Jens Axboe
+>
 
