@@ -1,33 +1,95 @@
-Return-Path: <ruby.wktk@gmail.com>
-Return-Path: <ruby.wktk@gmail.com>
-Message-ID: <5430F01E.2010906@gmail.com>
-Date: Sun, 05 Oct 2014 16:15:42 +0900
-From: Akira Hayakawa <ruby.wktk@gmail.com>
-MIME-Version: 1.0
-Subject: Re: [Question] How to perform stride access?
-References: <CANvN+enrUD45Zp1CJKQ3kxQncHLyhp7hE1jr4AnzRD65oDTUvg@mail.gmail.com>	<54228237.5000805@gmail.com>	<CALjAwxg+o05=3YDOmXaKskrdg3AHU88T-pkqZw=QFQkwRTjdwA@mail.gmail.com>	<CALjAwxirUW+v662QZ9zQG-2zuTNtE8xkpfaJqv=5ArLviqjhGw@mail.gmail.com>	<5427716A.1080407@kernel.dk>	<20140928103616.GA9991@sucs.org>	<54281A0A.8050905@kernel.dk>	<5428246F.7020506@kernel.dk>	<20140928194419.GA24724@sucs.org>	<54288805.2020008@kernel.dk>	<20140929074038.GA12377@sucs.org> <20140930102344.4a6b95795a43c614bb1ab253@gmail.com>
-In-Reply-To: <20140930102344.4a6b95795a43c614bb1ab253@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-To: sitsofe@gmail.com
-Cc: axboe@kernel.dk, andrey.v.kuzmin@gmail.com, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.9]:49371 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757934AbaJaMAF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 31 Oct 2014 08:00:05 -0400
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1XkAs9-0002C9-3g
+	for fio@vger.kernel.org; Fri, 31 Oct 2014 12:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20141031120003.8A72F400A6@lyth.info>
+Date: Fri, 31 Oct 2014 06:00:03 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-The latest fio works as I expected.
-It wraps around until certain amount (specified by io_limit) ends.
+The following changes since commit a1f871c72971efe84cd42670d5df4c4dc56dbd3f:
 
-Thanks,
+  engines: rename option specific pad from 'td' to 'pad' (2014-10-29 08:30:07 -0600)
 
-- Akira
+are available in the git repository at:
 
-On 9/30/14 10:23 AM, Akira Hayakawa wrote:
->> Latest patch fixes zone skipping for me too. Akira are things better for
->> you too?
-> Thanks Sitsofe,
-> I will make my time on this weekend to try your patch out.
-> But, at the first look, it looks fine.
-> 
-> - Akira
-> 
+  git://git.kernel.dk/fio.git master
 
+for you to fetch changes up to d904145c8b93f35e8a71d12d29a96a11f96f75e1:
 
+  Merge branch 'master' of ssh://git.kernel.dk/data/git/fio (2014-10-30 17:16:32 -0600)
+
+----------------------------------------------------------------
+
+Jens Axboe (4):
+      mmap: set 'fd' to -1
+      configure: disable lex/yacc on Solaris
+      Merge branch 'master' of ssh://git.kernel.dk/data/git/fio
+      Merge branch 'master' of ssh://git.kernel.dk/data/git/fio
+
+ configure |    3 ++-
+ memory.c  |    5 +++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/configure b/configure
+index de0fc89..eefe28e 100755
+--- a/configure
++++ b/configure
+@@ -1356,6 +1356,7 @@ yacc="no"
+ yacc_is_bison="no"
+ lex="no"
+ arith="no"
++if test "$targetos" != "SunOS" ; then
+ LEX=$(which lex 2> /dev/null)
+ if test -x "$LEX" ; then
+   lex="yes"
+@@ -1384,13 +1385,13 @@ int main(int argc, char **argv)
+   return 0;
+ }
+ EOF
+-
+ if compile_prog "" "-ll" "lex"; then
+   LIBS="-ll $LIBS"
+ else
+   arith="no"
+ fi
+ fi
++fi
+ 
+ echo "lex/yacc for arithmetic       $arith"
+ 
+diff --git a/memory.c b/memory.c
+index 8c06d94..76da8a8 100644
+--- a/memory.c
++++ b/memory.c
+@@ -119,7 +119,7 @@ static int alloc_mem_mmap(struct thread_data *td, size_t total_mem)
+ {
+ 	int flags = 0;
+ 
+-	td->mmapfd = 1;
++	td->mmapfd = -1;
+ 
+ 	if (td->o.mem_type == MEM_MMAPHUGE) {
+ 		unsigned long mask = td->o.hugepage_size - 1;
+@@ -176,7 +176,8 @@ static void free_mem_mmap(struct thread_data *td, size_t total_mem)
+ 						td->orig_buffer);
+ 	munmap(td->orig_buffer, td->orig_buffer_size);
+ 	if (td->o.mmapfile) {
+-		close(td->mmapfd);
++		if (td->mmapfd != -1)
++			close(td->mmapfd);
+ 		unlink(td->o.mmapfile);
+ 		free(td->o.mmapfile);
+ 	}
