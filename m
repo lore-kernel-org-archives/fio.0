@@ -1,117 +1,50 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qg0-f48.google.com ([209.85.192.48]:59744 "EHLO
-	mail-qg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755585AbaKERKY (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 5 Nov 2014 12:10:24 -0500
-Received: by mail-qg0-f48.google.com with SMTP id q108so12327749qgd.7
-        for <fio@vger.kernel.org>; Wed, 05 Nov 2014 09:10:23 -0800 (PST)
-Received: from vass-desktop (ool-18e4aba6.dyn.optonline.net. [24.228.171.166])
-        by mx.google.com with ESMTPSA id s3sm3613491qat.4.2014.11.05.09.10.22
-        for <fio@vger.kernel.org>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Wed, 05 Nov 2014 09:10:23 -0800 (PST)
-Date: Wed, 5 Nov 2014 12:10:24 -0500
-From: Vasily Tarasov <tarasov@vasily.name>
-Subject: Fix for a race when fio prints I/O statistics periodically
-Message-ID: <20141105171024.GC25731@vass-desktop>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="gj572EiMnwbLXET9"
-Content-Disposition: inline
+Received: from casper.infradead.org ([85.118.1.10]:58151 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751523AbaKJNAH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 10 Nov 2014 08:00:07 -0500
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1XnoZh-0005WT-EN
+	for fio@vger.kernel.org; Mon, 10 Nov 2014 13:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20141110130003.A986B401D9@lyth.info>
+Date: Mon, 10 Nov 2014 06:00:03 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
+The following changes since commit 988d97bac90c9ff3ee40a8ccd588fdf78f19320d:
 
---gj572EiMnwbLXET9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+  client/server: percentile_precision wasn't net converted (2014-11-07 18:47:41 -0700)
 
-Below is the demonstration for the latest code in git:
+are available in the git repository at:
 
-Job-file:
+  git://git.kernel.dk/fio.git master
 
-[job]
-filename=/dev/sda
-rw=randread
-blocksize=4096
-direct=1
-time_based=1
-runtime=300
-numjobs=16
+for you to fetch changes up to e5437a073e658e8154b9e87bab5c7b3b06ed4255:
 
-Command line:
+  Fix for a race when fio prints I/O statistics periodically (2014-11-09 20:24:14 -0700)
 
-fio --output-format=json --status-interval=10  /tmp/job.file | tee /tmp/fio.out
+----------------------------------------------------------------
+Vasily Tarasov (1):
+      Fix for a race when fio prints I/O statistics periodically
 
-After parsing json and printing per-job "read->runtime" and "read->iops" in two
-columns, one can see this:
+ backend.c |   17 ++++++++++-------
+ stat.c    |    2 +-
+ stat.h    |    2 ++
+ 3 files changed, 13 insertions(+), 8 deletions(-)
 
-runtime iops
-9854 4762
-19861 4724
-29867 4711
-39873 4705
-49880 4701
-59886 4698
-69894 4696
-79900 4694
-89907 4693
-99913 4692
-109919 4692
-119926 4691
-129933 4691
-139940 4691
-149946 4691
-159953 4690
-169959 4690
-179966 4690
-189972 4690
-199978 4690
-209984 4690
-219990 4690
-229996 4690
-240002 4690
-250009 4690
-260015 4690
-270021 4690
-280027 4690
-290033 4690
-600043 2344 <--- You can see a spurious jump in runtime here
-300001 4690
+---
 
-The problem is two-fold, IMHO:
-
-1) td->ts.runtime[DDIR_READ/DDIR_WRITE/DDIR_TRIM] are set in microseconds
-   instead of milliseconds in thread_main() function. The values are later
-   converted to milliseconds (after exiting from the loop in thread_main()),
-   but it is too late for the out-of-band access by the helper_thread
-   (the one that prints periodic statistics).
-   
-2) The helper_thread in __show_running_run_stats() temporarily adds to
-   td->ts.runtime[DDIR_READ/DDIR_WRITE/DDIR_TRIM]
-   the time that has passed since the beginning of the loop (td->start).
-   However, the same addition happens in thread_main() by the job
-   thread and td->start is not reset atomically with this addition.
-   As a result, the runtime can be added twice. (That's why in the output
-   we see 600043, which is approximately twice larger than the  
-   previous reading).
-
-My proposal is to make the job threads updating both td->ts.runtime and
-td->start atomically by using an already existing stat_mutex.
-__show_running_run_stats() already takes this mutex where needed. 
-
-A proposed patch is attached.
-
-
---gj572EiMnwbLXET9
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: inline; filename="running-stats-race.diff"
+Diff of recent changes:
 
 diff --git a/backend.c b/backend.c
-index d19d870..d05faf4 100644
+index c0b446a..59a14d1 100644
 --- a/backend.c
 +++ b/backend.c
-@@ -1485,18 +1485,21 @@ static void *thread_main(void *data)
+@@ -1484,18 +1484,21 @@ static void *thread_main(void *data)
  
  		clear_state = 1;
  
@@ -136,7 +69,7 @@ index d19d870..d05faf4 100644
  
  		if (td->error || td->terminate)
  			break;
-@@ -1512,16 +1515,16 @@ static void *thread_main(void *data)
+@@ -1511,16 +1514,16 @@ static void *thread_main(void *data)
  
  		do_verify(td, verify_bytes);
  
@@ -158,7 +91,7 @@ index d19d870..d05faf4 100644
  	td->ts.io_bytes[DDIR_READ] = td->io_bytes[DDIR_READ];
  	td->ts.io_bytes[DDIR_WRITE] = td->io_bytes[DDIR_WRITE];
 diff --git a/stat.c b/stat.c
-index 84d9eef..b7f3992 100644
+index 84d9eef..1bfbbeb 100644
 --- a/stat.c
 +++ b/stat.c
 @@ -14,7 +14,7 @@
@@ -183,5 +116,3 @@ index 8aefe03..8b4416c 100644
  extern struct jobs_eta *get_jobs_eta(int force, size_t *size);
  
  extern void stat_init(void);
-
---gj572EiMnwbLXET9--
