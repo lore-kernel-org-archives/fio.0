@@ -1,67 +1,45 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:51370 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752674AbaKYNAG (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 25 Nov 2014 08:00:06 -0500
-Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1XtFiv-0001PN-KL
-	for fio@vger.kernel.org; Tue, 25 Nov 2014 13:00:05 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <5460DAC3.8000000@kernel.dk>
+Date: Mon, 10 Nov 2014 08:33:23 -0700
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20141125130003.3A9C140128@lyth.info>
-Date: Tue, 25 Nov 2014 06:00:03 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: Fix for a race when fio prints I/O statistics periodically
+References: <20141105171024.GC25731@vass-desktop>	<545E44C6.5060505@kernel.dk> <CAFTzLMNOYv+8uP2wiQOPcLjhZG9zoQiOCNn8_69dYV45Ex8aTQ@mail.gmail.com>
+In-Reply-To: <CAFTzLMNOYv+8uP2wiQOPcLjhZG9zoQiOCNn8_69dYV45Ex8aTQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Vasily Tarasov <tarasov@vasily.name>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Michael Mattsson <michael.mattsson@gmail.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 6f49f8bc80fbeff3d24cf84278d2611db0ec6f6c:
+On 2014-11-10 07:19, Vasily Tarasov wrote:
+> Hi Jens,
+>
+> td->start is used in  __show_running_run_stats() to compute the time
+> that passed since the beginning of the loop (stored in td->start) to
+> the moment when periodical statistics need to be printed. Then
+> td->ts.runtime[] is temporarily updated based on the computed value.
+>
+> In thread_main(), similar actions are taken to update td->ts.runtime[]
+> based on the td->start and the loop's elapsed time. Without the patch,
+> td->start is set in the very beginning of the loop in thread_main().
+> So, it leaves a time window between the end of the current loop and
+> the beginning of the next loop when td->ts.runtime[] is already
+> updated while td->start still stores the start of the previous lop. If
+> __show_running_run_stats() is called during that window - the time can
+> be (temporarily) added twice to td->ts.runtime[].
+>
+> However, if we reset the start time in the end of the loop under the
+> stat_mutex it should not happen.
+>
+> I would agree that having a per-td mutex might be an overkill
+> considering that people usually print statistics periodically with
+> relatively long intervals: 1, 5, 10, 60 seconds.
 
-  lfsr: don't pass in last value to lfsr_next() (2014-11-23 18:41:11 -0700)
+Thanks, I missed the change in addition after IO was done, hence the 
+question on ->start. I did commit the patch as-is yesterday, thanks!
 
-are available in the git repository at:
+-- 
+Jens Axboe
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to dd9bd2b2e0ed9665325240fdd5a40253fe23bca6:
-
-  Fixup t/ test apps for lfsr_next change() (2014-11-24 08:07:03 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Fixup t/ test apps for lfsr_next change()
-
- t/axmap.c     |    2 +-
- t/lfsr-test.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/t/axmap.c b/t/axmap.c
-index 57c585b..e32ff98 100644
---- a/t/axmap.c
-+++ b/t/axmap.c
-@@ -37,7 +37,7 @@ static int test_regular(size_t size, int seed)
- 	while (size--) {
- 		uint64_t val;
- 
--		if (lfsr_next(&lfsr, &val, osize)) {
-+		if (lfsr_next(&lfsr, &val)) {
- 			printf("lfsr: short loop\n");
- 			err = 1;
- 			break;
-diff --git a/t/lfsr-test.c b/t/lfsr-test.c
-index 4b54248..901f1a6 100644
---- a/t/lfsr-test.c
-+++ b/t/lfsr-test.c
-@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
- 	 */
- 	fprintf(stderr, "\nTest initiated... ");
- 	fio_gettime(&start, NULL);
--	while (!lfsr_next(fl, &i, fl->max_val)) {
-+	while (!lfsr_next(fl, &i)) {
- 		if (verify)
- 			*(uint8_t *)(v + i) += 1;
- 	}
