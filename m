@@ -1,37 +1,40 @@
-Return-Path: <m.eaton82@gmail.com>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <5462B6B0.3010003@kernel.dk>
+Date: Tue, 11 Nov 2014 18:24:00 -0700
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <5462B6B0.3010003@kernel.dk>
-References: <54627C44.3080909@kernel.dk>
-	<CAF+0mv=H9cauEbP+CMCup0aLUD0qE42Jz9WPzboAv0U757acYw@mail.gmail.com>
-	<5462B6B0.3010003@kernel.dk>
-Date: Wed, 12 Nov 2014 13:36:20 -0800
-Message-ID: <CAF+0mvmhzfzvbp_OnXUQ8eEUCuf+_wh5xuOROe=xFXqzuKytaw@mail.gmail.com>
 Subject: Re: Fio 2.1.14 released
-From: Matthew Eaton <m.eaton82@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-To: Jens Axboe <axboe@kernel.dk>
+References: <54627C44.3080909@kernel.dk> <CAF+0mv=H9cauEbP+CMCup0aLUD0qE42Jz9WPzboAv0U757acYw@mail.gmail.com>
+In-Reply-To: <CAF+0mv=H9cauEbP+CMCup0aLUD0qE42Jz9WPzboAv0U757acYw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Matthew Eaton <m.eaton82@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-> It should all be as fast as it could be before. The issue fixed above is
-> when we wanted the disk util thread to exit, we set a done flag and just
-> waited for it to wakeup as, which it did a few times per second. Now we use
-> regular condvars, so it'll wake and exit immediately. So disk_util=0 should
-> not change more than a msec or so :-)
+On 2014-11-11 18:11, Matthew Eaton wrote:
+>> - Fio will exit a bit faster now, since the disk util thread and the
+>>    helper thread were combined into one, and it'll be immediately torn
+>>    down on exit. It had to wait around 250msecs before this change. You
+>>    might have noticed this delay when doing ctrl-c on a workload.
 >
-> That said, if you do find things where it seems to start or stop slower than
-> it should, let me know. But as far as I know, it's all properly driven now.
+> I find this update interesting, as I have a script that calls fio
+> multiple times, one after the other.
 >
-> --
-> Jens Axboe
->
+> Are there any options that would make fio start or exit faster?  For
+> example, if I used disk_util=0, would this help fio exit any faster?
 
-Thanks!  Just to follow up, I wrote a test script looping 20
-iterations of fio and tested 2.1.12 vs 2.1.14.
+It should all be as fast as it could be before. The issue fixed above is 
+when we wanted the disk util thread to exit, we set a done flag and just 
+waited for it to wakeup as, which it did a few times per second. Now we 
+use regular condvars, so it'll wake and exit immediately. So disk_util=0 
+should not change more than a msec or so :-)
 
-2.1.14 consistently finished ~2.7 seconds faster than 2.1.12, which I
-think is great for only 20 iterations.
+That said, if you do find things where it seems to start or stop slower 
+than it should, let me know. But as far as I know, it's all properly 
+driven now.
 
-Just for kicks, I also tried setting disk_util=0, but could not
-conclude that it made any difference.
+-- 
+Jens Axboe
+
 
