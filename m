@@ -1,69 +1,74 @@
 Return-Path: <axboe@kernel.dk>
-Received: from [192.168.3.11] (66.29.187.51.static.utbb.net. [66.29.187.51])
-        by mx.google.com with ESMTPSA id n2sm20252366pdg.2.2014.11.11.13.14.44
-        for <fio@vger.kernel.org>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 11 Nov 2014 13:14:45 -0800 (PST)
-Message-ID: <54627C44.3080909@kernel.dk>
-Date: Tue, 11 Nov 2014 14:14:44 -0700
+Message-ID: <546D71EB.6040106@kernel.dk>
+Date: Wed, 19 Nov 2014 21:45:31 -0700
 From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Subject: Fio 2.1.14 released
+Subject: Re: question on sg ioengine
+References: <CAMrbZ2A7BwQZ3eho_9ErQAd_gNp+njQvg63CANPUOYz68w9a4g@mail.gmail.com>
+In-Reply-To: <CAMrbZ2A7BwQZ3eho_9ErQAd_gNp+njQvg63CANPUOYz68w9a4g@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Zhe Zhang <zzxuanyuan@gmail.com>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-Hi,
+On 11/19/2014 03:50 PM, Zhe Zhang wrote:
+> Hi,
+>
+> I run into this problem probably because I did not understand the
+> command correctly.
+>
+> But my test.fio configured as follow:
+> [global]
+> bs=4k
+> ba=512b
+> direct=1
+> number_ios=400
+> rw=write:2k
+> ioengine=sg
+> iodepth=2
+> iodepth_batch=2
+> write_bw_log=test
+> write_lat_log=test
+> write_iops_log=test
+> [/dev/sdb]
+>
+> and the result looks like this:
+> /dev/sdb: (groupid=0, jobs=1): err= 0: pid=7783: Mon Nov 17 15:26:30 2014
+>    write: io=1600.0KB, bw=6584.4KB/s, iops=1646, runt=   243msec
+>      clat (usec): min=153, max=14926, avg=602.43, stdev=1165.02
+>       lat (usec): min=153, max=14926, avg=602.91, stdev=1165.03
+>      clat percentiles (usec):
+>       |  1.00th=[  163],  5.00th=[  193], 10.00th=[  253], 20.00th=[  290],
+>       | 30.00th=[  322], 40.00th=[  354], 50.00th=[  394], 60.00th=[  446],
+>       | 70.00th=[  482], 80.00th=[  532], 90.00th=[  708], 95.00th=[ 1048],
+>       | 99.00th=[ 6624], 99.50th=[ 7776], 99.90th=[14912], 99.95th=[14912],
+>       | 99.99th=[14912]
+>      lat (usec) : 250=9.25%, 500=66.00%, 750=15.00%, 1000=3.50%
+>      lat (msec) : 2=3.50%, 4=0.75%, 10=1.75%, 20=0.25%
+>    cpu          : usr=1.65%, sys=1.65%, ctx=402, majf=0, minf=36
+>    IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+>       submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>       complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>       issued    : total=r=0/w=400/d=0, short=r=0/w=0/d=0
+>       latency   : target=0, window=0, percentile=100.00%, depth=2
+>
+> Run status group 0 (all jobs):
+>    WRITE: io=1600KB, aggrb=6584KB/s, minb=6584KB/s, maxb=6584KB/s,
+> mint=243msec, maxt=243msec
+>
+> Disk stats (read/write):
+>    sdb: ios=84/0, merge=0/0, ticks=92/0, in_queue=92, util=36.95%
+>
+> RUN FINISHED; exit value 0; real time: 600ms; user: 40ms; system: 60ms
+>
+> I darker my disk utilization here. My question is why there is no
+> write went tot the disk and where does those 84 reads come from?
+> Because in test.fio, I only issue writes to the disk /dev/sdb
 
-I've released version 2.1.14 today. Here's a (rough) list of the 
-changes, features, additions that were added/done since 2.1.13:
+Only file system requests add to the disk utilization stats in Linux. 
+When you do sg based IO, those are not file system requests. So none of 
+the writes done by fio would show up there.
 
-- Fio now supports arithmetic expressions in job files or on the
-   command line. They have to be enclosed in double parentheses. This
-   might be relaxed in the future, once it's matured a bit. This means
-   you can do things like:
-
-   bs=((4*1024))
-
-   etc. The parser understands the regular +, -, /, *, as well as ^ for
-   exponentiation, and % for modulus operations. Fio needs development
-   packages of lex/flex and yacc/bison, it'll detect these at configure
-   time.
-
-- Some of the test tools are now installed properly when fio is
-   installed. Generally they are prefixed with fio-, like fio-dedupe or
-   fio-btrace2fio.
-
-- The net IO engine grew some options to support setting socket buffer
-   sizes and tcp max segments. It also supports counting dropped packets
-   for UDP now.
-
-- Various improvements and fixes to the RBD IO engine.
-
-- The client/server functionally has seen some bug fixes and should be
-   improved in stability.
-
-- Fix for a stat related hang on exit, and for a stat related issue
-   with periodical dumps through --status-interval.
-
-- Support added for DragonFly BSD.
-
-- The OS provided random functions have been removed. Fio defaulted
-   to its own default random generator for years now, since it was
-   easier to provide consistent workloads across operating systems
-   that way. This means that the 'use_os_rand' option has now been
-   deprecated.
-
-- Fix a potential crash on fio exit with data verification enabled,
-   which has existed since version 2.1.11.
-
-- Fio will exit a bit faster now, since the disk util thread and the
-   helper thread were combined into one, and it'll be immediately torn
-   down on exit. It had to wait around 250msecs before this change. You
-   might have noticed this delay when doing ctrl-c on a workload.
-
-- Lots of small bug fixes.
 
 -- 
 Jens Axboe
