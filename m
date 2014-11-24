@@ -1,31 +1,26 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <54734976.2040207@kernel.dk>
-Date: Mon, 24 Nov 2014 08:06:30 -0700
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <bruce@cran.org.uk>
+Message-ID: <5473317D.1060809@cran.org.uk>
+Date: Mon, 24 Nov 2014 06:24:13 -0700
+From: Bruce Cran <bruce@cran.org.uk>
 MIME-Version: 1.0
 Subject: Re: Recent changes (master)
-References: <20141124130003.2440440408@lyth.info> <5473317D.1060809@cran.org.uk>
-In-Reply-To: <5473317D.1060809@cran.org.uk>
+References: <20141124130003.2440440408@lyth.info>
+In-Reply-To: <20141124130003.2440440408@lyth.info>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-To: Bruce Cran <bruce@cran.org.uk>, fio@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-On 11/24/2014 06:24 AM, Bruce Cran wrote:
-> On 11/24/2014 6:00 AM, Jens Axboe wrote:
->>        lfsr: don't pass in last value to lfsr_next()
->>
->>   io_u.c     |   14 ++++++++------
->>   lib/lfsr.c |    2 +-
->>   lib/lfsr.h |    2 +-
->>   3 files changed, 10 insertions(+), 8 deletions(-)
+On 11/24/2014 6:00 AM, Jens Axboe wrote:
+>        lfsr: don't pass in last value to lfsr_next()
 >
-> t/axmap.c:40 also calls lfsr_next and needs updated.
+>   io_u.c     |   14 ++++++++------
+>   lib/lfsr.c |    2 +-
+>   lib/lfsr.h |    2 +-
+>   3 files changed, 10 insertions(+), 8 deletions(-)
 
-Gah, sorry about that. I was working on a standalone test app, 
-apparently forgot to check the whole thing. Fixed up now.
+t/axmap.c:40 also calls lfsr_next and needs updated.
 
 -- 
-Jens Axboe
-
+Bruce
 
