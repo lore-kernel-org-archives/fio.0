@@ -1,34 +1,28 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from muon.bluestop.org ([204.109.60.166]:54359 "EHLO
-	muon.cran.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751057AbaLRA5G (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 17 Dec 2014 19:57:06 -0500
-Received: from muon.bluestop.org (localhost [127.0.0.1])
-	by muon.cran.org.uk (Postfix) with ESMTP id 720531FD739
-	for <fio@vger.kernel.org>; Wed, 17 Dec 2014 17:56:57 -0700 (MST)
-Received: from muon.cran.org.uk ([127.0.0.1])
-	by muon.bluestop.org (muon.bluestop.org [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id g6lLUE2niE0l for <fio@vger.kernel.org>;
-	Wed, 17 Dec 2014 17:56:57 -0700 (MST)
-Received: from [10.0.10.100] (c-24-10-204-217.hsd1.ut.comcast.net [24.10.204.217])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by muon.cran.org.uk (Postfix) with ESMTPSA
-	for <fio@vger.kernel.org>; Wed, 17 Dec 2014 17:56:56 -0700 (MST)
-Message-ID: <5492265F.6090100@cran.org.uk>
-Date: Wed, 17 Dec 2014 17:57:03 -0700
-From: Bruce Cran <bruce@cran.org.uk>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <547E4D11.4040208@kernel.dk>
+Date: Tue, 02 Dec 2014 16:36:49 -0700
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Subject: 'fio: no option found at offset'
+Subject: Re: Fix for a race when fio prints I/O statistics periodically
+References: <20141105171024.GC25731@vass-desktop> <545E44C6.5060505@kernel.dk> <CAFTzLMNOYv+8uP2wiQOPcLjhZG9zoQiOCNn8_69dYV45Ex8aTQ@mail.gmail.com> <5460DAC3.8000000@kernel.dk> <CAE56cDuRZwUPEhdEmEUzbqs+mRL-RVSG+uqPAgWijQEZKJJ6gA@mail.gmail.com>
+In-Reply-To: <CAE56cDuRZwUPEhdEmEUzbqs+mRL-RVSG+uqPAgWijQEZKJJ6gA@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Michael Mattsson <michael.mattsson@gmail.com>
+Cc: Vasily Tarasov <tarasov@vasily.name>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-I noticed when running examples/tiobench-example.fio on both Windows and 
-FreeBSD that several "fio: no option found at offset x" messages were 
-displayed.   Are they supposed to be printed?
+On 12/02/2014 04:00 PM, Michael Mattsson wrote:
+> Hey,
+> I just want to close the loop here. Last week up until now I've
+> successfully run several hundred jobs and not a single skewed output
+> has come across.
+>
+> Is this patch integrated into the main code base or the latest release?
+
+The fix is in 2.1.14 as released, so both.
 
 -- 
-Bruce
+Jens Axboe
+
+
