@@ -1,55 +1,66 @@
 Return-Path: <axboe@kernel.dk>
-Message-ID: <547FCBC7.20309@kernel.dk>
-Date: Wed, 03 Dec 2014 19:49:43 -0700
+Message-ID: <547FCA1C.1000808@kernel.dk>
+Date: Wed, 03 Dec 2014 19:42:36 -0700
 From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
 Subject: Re: Repeat given pattern with buffer_compress_percentage
-References: <CAGmU4NRCBQkPHQzMwK4hVrQwUF0ngYKsbzOcXbJYucNHbndRRg@mail.gmail.com> <547FCA1C.1000808@kernel.dk>
-In-Reply-To: <547FCA1C.1000808@kernel.dk>
+References: <CAGmU4NRCBQkPHQzMwK4hVrQwUF0ngYKsbzOcXbJYucNHbndRRg@mail.gmail.com>
+In-Reply-To: <CAGmU4NRCBQkPHQzMwK4hVrQwUF0ngYKsbzOcXbJYucNHbndRRg@mail.gmail.com>
 Content-Type: multipart/mixed;
- boundary="------------030507020604030605050702"
+ boundary="------------070408010300010009020902"
 To: Karthick Srinivasachary <karthick@pernixdata.com>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
 This is a multi-part message in MIME format.
---------------030507020604030605050702
+--------------070408010300010009020902
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 12/03/2014 07:42 PM, Jens Axboe wrote:
-> On 12/03/2014 11:48 AM, Karthick Srinivasachary wrote:
->> Hi Folks,
->>
->> I have question. Any feedback appreciated..!
->>
->> With buffer_compress_percentage, fio writes random data + zeros.
->>
->> Is there a way to write random data + repeat_pattern (instead of
->> zero's). Pattern can be any user given pattern.
+On 12/03/2014 11:48 AM, Karthick Srinivasachary wrote:
+> Hi Folks,
 >
-> We can just make it fill with buffer_pattern instead of zeroing. Given
-> that the pattern is short enough, it should not skew the compression
-> rate significantly.
+> I have question. Any feedback appreciated..!
 >
-> OK, did a quick patch and ran a quick test, looks like it's still within
-> half a percent.
+> With buffer_compress_percentage, fio writes random data + zeros.
 >
-> Pull the latest -git, then apply the attached patch. That should do what
-> you want. Please report back.
+> Is there a way to write random data + repeat_pattern (instead of
+> zero's). Pattern can be any user given pattern.
 
-Use this -v2 instead, it fixes a crash if you _don't_ set buffer_pattern...
+We can just make it fill with buffer_pattern instead of zeroing. Given 
+that the pattern is short enough, it should not skew the compression 
+rate significantly.
+
+OK, did a quick patch and ran a quick test, looks like it's still within 
+half a percent.
+
+Pull the latest -git, then apply the attached patch. That should do what 
+you want. Please report back.
 
 -- 
 Jens Axboe
 
 
---------------030507020604030605050702
+--------------070408010300010009020902
 Content-Type: text/x-patch;
- name="refill-compress-pattern-v2.patch"
+ name="refill-compress-pattern.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="refill-compress-pattern-v2.patch"
+ filename="refill-compress-pattern.patch"
 
+diff --git a/init.c b/init.c
+index 4f66759b59b5..82371044c1f5 100644
+--- a/init.c
++++ b/init.c
+@@ -724,7 +724,8 @@ static int fixup_options(struct thread_data *td)
+ 	if (td->o.compress_percentage == 100) {
+ 		td->o.zero_buffers = 1;
+ 		td->o.compress_percentage = 0;
+-	}
++	} else if (td->o.compress_percentage)
++		td->o.refill_buffers = 1;
+ 
+ 	/*
+ 	 * Using a non-uniform random distribution excludes usage of
 diff --git a/io_u.c b/io_u.c
 index 33c82f2c4e9e..963e8cb764b9 100644
 --- a/io_u.c
@@ -89,7 +100,7 @@ index 33c82f2c4e9e..963e8cb764b9 100644
  }
  
 diff --git a/lib/rand.c b/lib/rand.c
-index a79fb9c17c32..e5332bfe7924 100644
+index a79fb9c17c32..5235c7f5b3f2 100644
 --- a/lib/rand.c
 +++ b/lib/rand.c
 @@ -34,6 +34,7 @@
@@ -141,7 +152,7 @@ index a79fb9c17c32..e5332bfe7924 100644
  
  	if (percentage == 100) {
 -		memset(buf, 0, len);
-+		if (pbytes)
++		if (pattern)
 +			fill_pattern(buf, len, pattern, pbytes);
 +		else
 +			memset(buf, 0, len);
@@ -153,7 +164,7 @@ index a79fb9c17c32..e5332bfe7924 100644
  			this_len = len;
  
 -		memset(buf, 0, this_len);
-+		if (pbytes)
++		if (pattern)
 +			fill_pattern(buf, this_len, pattern, pbytes);
 +		else
 +			memset(buf, 0, this_len);
@@ -173,18 +184,6 @@ index 8c35ab1fa263..803bea484757 100644
 +extern void fill_pattern(void *p, unsigned int len, char *pattern, unsigned int pattern_bytes);
  
  #endif
-diff --git a/options.c b/options.c
-index 23469d8d793c..75cfe6df4b06 100644
---- a/options.c
-+++ b/options.c
-@@ -1048,6 +1048,7 @@ static int str_buffer_compress_cb(void *data, unsigned long long *il)
- 
- 	td->flags |= TD_F_COMPRESS;
- 	td->o.compress_percentage = *il;
-+	td->o.refill_buffers = 1;
- 	return 0;
- }
- 
 diff --git a/verify.c b/verify.c
 index c2b3c40edef8..c1791fc69743 100644
 --- a/verify.c
@@ -227,5 +226,5 @@ index c2b3c40edef8..c1791fc69743 100644
  {
  	fill_pattern(p, len, td->o.buffer_pattern, td->o.buffer_pattern_bytes);
 
---------------030507020604030605050702--
+--------------070408010300010009020902--
 
