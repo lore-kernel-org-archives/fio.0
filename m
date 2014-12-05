@@ -1,56 +1,64 @@
-Return-Path: <michael.mattsson@gmail.com>
+Return-Path: <karthick@pernixdata.com>
 MIME-Version: 1.0
-In-Reply-To: <5460DAC3.8000000@kernel.dk>
-References: <20141105171024.GC25731@vass-desktop> <545E44C6.5060505@kernel.dk>
- <CAFTzLMNOYv+8uP2wiQOPcLjhZG9zoQiOCNn8_69dYV45Ex8aTQ@mail.gmail.com> <5460DAC3.8000000@kernel.dk>
-From: Michael Mattsson <michael.mattsson@gmail.com>
-Date: Tue, 2 Dec 2014 15:00:31 -0800
-Message-ID: <CAE56cDuRZwUPEhdEmEUzbqs+mRL-RVSG+uqPAgWijQEZKJJ6gA@mail.gmail.com>
-Subject: Re: Fix for a race when fio prints I/O statistics periodically
+In-Reply-To: <5481EF86.3000900@kernel.dk>
+References: <CAGmU4NRCBQkPHQzMwK4hVrQwUF0ngYKsbzOcXbJYucNHbndRRg@mail.gmail.com>
+ <547FCA1C.1000808@kernel.dk> <547FCBC7.20309@kernel.dk> <547FCDC0.3000005@kernel.dk>
+ <CAGmU4NSC=7ZjjnieWxjFs8xqrVjY0gdMGWwJCTRogXKpUzBbcA@mail.gmail.com>
+ <54807D4F.9080207@kernel.dk> <5480E314.4070206@kernel.dk> <CAGmU4NR8fnz4869-9hjgWR4Za429WRjJHnvJE+-CwO-BF8VX4A@mail.gmail.com>
+ <5481E539.3000806@kernel.dk> <5481E959.8020402@kernel.dk> <5481EF86.3000900@kernel.dk>
+From: Karthick Srinivasachary <karthick@pernixdata.com>
+Date: Fri, 5 Dec 2014 12:06:20 -0800
+Message-ID: <CAGmU4NQ+SE_JHkmGKurGoJPDuhyQpAdz3foeWLf6GxdjCZz1hg@mail.gmail.com>
+Subject: Re: Repeat given pattern with buffer_compress_percentage
 Content-Type: text/plain; charset=UTF-8
 To: Jens Axboe <axboe@kernel.dk>
-Cc: Vasily Tarasov <tarasov@vasily.name>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-Hey,
-I just want to close the loop here. Last week up until now I've
-successfully run several hundred jobs and not a single skewed output
-has come across.
+Great.. Works now..! Thank you for considering my request and
+providing new feature in quick time. Appreciated..!
 
-Is this patch integrated into the main code base or the latest release?
+Regards,
+Karthick
 
-Regards
-Michael
-
-On Mon, Nov 10, 2014 at 7:33 AM, Jens Axboe <axboe@kernel.dk> wrote:
-> On 2014-11-10 07:19, Vasily Tarasov wrote:
+On Fri, Dec 5, 2014 at 9:46 AM, Jens Axboe <axboe@kernel.dk> wrote:
+> On 12/05/2014 10:20 AM, Jens Axboe wrote:
 >>
->> Hi Jens,
+>> On 12/05/2014 10:02 AM, Jens Axboe wrote:
+>>>
+>>> On 12/05/2014 12:25 AM, Karthick Srinivasachary wrote:
+>>>>
+>>>> Hi Jens,
+>>>>
+>>>> Awesome.. Thanks for the fix..!
+>>>> With compress_percentage 80 or more, fio verify is failing. I don't
+>>>> think there any issue with storage in my test environment. Do you
+>>>> think we have a bug here. Complete command and output below.
+>>>>
+>>>> /usr/local/bin/fio --name=global --ioengine=libaio --bsrange=16k-64k
+>>>> --rw=randrw --iodepth=16 --direct=1 --verify=md5 --name=job0
+>>>> --size=100m --filename=/fio/fio.dat --rw=randrw --rate=20m
+>>>> --buffer_compress_percentage=80 --refill_buffers --buffer_pattern=123
+>>>> --verify_dump=1
+>>>
+>>>
+>>> You can't do a random read/write test, it'll fail on the reads that have
+>>> not been populated. It might sometimes work if the file had been laid
+>>> out prior with the right contents, but generally you cannot depend upon
+>>> it. You want to do just --rw=randwrite and then the verify phase will
+>>> take place after the writes are done, verifying those.
+>>>
+>>> Try and delete fio.dat prior to running this job, and it should fail
+>>> consistently with or without buffer_compress_percentage.
 >>
->> td->start is used in  __show_running_run_stats() to compute the time
->> that passed since the beginning of the loop (stored in td->start) to
->> the moment when periodical statistics need to be printed. Then
->> td->ts.runtime[] is temporarily updated based on the computed value.
 >>
->> In thread_main(), similar actions are taken to update td->ts.runtime[]
->> based on the td->start and the loop's elapsed time. Without the patch,
->> td->start is set in the very beginning of the loop in thread_main().
->> So, it leaves a time window between the end of the current loop and
->> the beginning of the next loop when td->ts.runtime[] is already
->> updated while td->start still stores the start of the previous lop. If
->> __show_running_run_stats() is called during that window - the time can
->> be (temporarily) added twice to td->ts.runtime[].
->>
->> However, if we reset the start time in the end of the loop under the
->> stat_mutex it should not happen.
->>
->> I would agree that having a per-td mutex might be an overkill
->> considering that people usually print statistics periodically with
->> relatively long intervals: 1, 5, 10, 60 seconds.
+>> I take it back, there is a bug there. Fio does skip verifying the reads
+>> we generate initially, and verifies the written data after the
+>> read/write phase. So it _should_ work, the fact that it doesn't is a
+>> bug. I'll take a look at it.
 >
 >
-> Thanks, I missed the change in addition after IO was done, hence the
-> question on ->start. I did commit the patch as-is yesterday, thanks!
+> Fixed, pull and retry please.
 >
 > --
 > Jens Axboe
