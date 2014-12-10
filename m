@@ -1,401 +1,556 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:52832 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.9]:54102 "EHLO
 	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750711AbaLONAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 15 Dec 2014 08:00:05 -0500
+	with ESMTP id S1754178AbaLJNAG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 10 Dec 2014 08:00:06 -0500
 Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
 	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1Y0VFt-0001Jf-2h
-	for fio@vger.kernel.org; Mon, 15 Dec 2014 13:00:05 +0000
+	id 1XygsA-0007N6-3M
+	for fio@vger.kernel.org; Wed, 10 Dec 2014 13:00:06 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20141215130003.0F8F5401D9@lyth.info>
-Date: Mon, 15 Dec 2014 06:00:03 -0700 (MST)
+Message-Id: <20141210130003.71180400D0@lyth.info>
+Date: Wed, 10 Dec 2014 06:00:03 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 70034d87976e9175054b8c5d7b32f28be638570f:
+The following changes since commit f8b8f7da1f64353ebc1dfa47de3b7ff1e8cca303:
 
-  eta.c: check malloc return code (2014-12-12 21:50:30 -0700)
+  Update date and email in man page (2014-12-06 18:47:43 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 03a32636475b2efeb9ac3694c36fbe45b187d32a:
+for you to fetch changes up to 3b577774803435109e070cc8f4313fc485c9160f:
 
-  file: move mmap related data to engines/mmap.c where it belongs (2014-12-14 19:17:27 -0700)
+  Fix server/client set_options conversion (2014-12-09 14:12:47 -0700)
 
 ----------------------------------------------------------------
-Jens Axboe (3):
-      Fix read/write mix and different levels of randomness
-      Merge branch 'master' of ssh://git.kernel.dk/data/git/fio
-      file: move mmap related data to engines/mmap.c where it belongs
+Jens Axboe (5):
+      options: add support for checking if an option has been set
+      Get rid of _set variables
+      Always scramble buffers, if scramble_buffers is set
+      Use fio_option_is_set() for ioprio setting
+      Fix server/client set_options conversion
 
- engines/mmap.c |  105 +++++++++++++++++++++++++++++++++++++++++++-------------
- file.h         |   11 +++---
- filesetup.c    |   19 +++++-----
- io_u.c         |   24 ++++++-------
- 4 files changed, 107 insertions(+), 52 deletions(-)
+ backend.c        |   15 +++++-----
+ cconv.c          |   10 ++++---
+ init.c           |    8 +++++-
+ options.c        |   83 +++++++++++++++++++++++++++++++++++++++++-------------
+ options.h        |    7 +++++
+ parse.c          |    2 --
+ server.h         |    2 +-
+ thread_options.h |   13 ++++-----
+ verify.c         |    2 +-
+ 9 files changed, 100 insertions(+), 42 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/engines/mmap.c b/engines/mmap.c
-index 8c04a19..29ac5db 100644
---- a/engines/mmap.c
-+++ b/engines/mmap.c
-@@ -22,9 +22,16 @@
- static unsigned long mmap_map_size;
- static unsigned long mmap_map_mask;
+diff --git a/backend.c b/backend.c
+index 6816362..f027cf0 100644
+--- a/backend.c
++++ b/backend.c
+@@ -1345,7 +1345,7 @@ static void *thread_main(void *data)
+ 	 * Set affinity first, in case it has an impact on the memory
+ 	 * allocations.
+ 	 */
+-	if (o->cpumask_set) {
++	if (fio_option_is_set(o, cpumask)) {
+ 		if (o->cpus_allowed_policy == FIO_CPUS_SPLIT) {
+ 			ret = fio_cpus_split(&o->cpumask, td->thread_number - 1);
+ 			if (!ret) {
+@@ -1364,7 +1364,8 @@ static void *thread_main(void *data)
  
-+struct fio_mmap_data {
-+	void *mmap_ptr;
-+	size_t mmap_sz;
-+	off_t mmap_off;
-+};
-+
- static int fio_mmap_file(struct thread_data *td, struct fio_file *f,
- 			 size_t length, off_t off)
- {
-+	struct fio_mmap_data *fmd = (struct fio_mmap_data *) (uintptr_t) f->engine_data;
- 	int flags = 0;
+ #ifdef CONFIG_LIBNUMA
+ 	/* numa node setup */
+-	if (o->numa_cpumask_set || o->numa_memmask_set) {
++	if (fio_option_is_set(o, numa_cpunodes) ||
++	    fio_option_is_set(o, numa_memnodes)) {
+ 		struct bitmask *mask;
  
- 	if (td_rw(td))
-@@ -37,28 +44,28 @@ static int fio_mmap_file(struct thread_data *td, struct fio_file *f,
- 	} else
- 		flags = PROT_READ;
+ 		if (numa_available() < 0) {
+@@ -1372,7 +1373,7 @@ static void *thread_main(void *data)
+ 			goto err;
+ 		}
  
--	f->mmap_ptr = mmap(NULL, length, flags, MAP_SHARED, f->fd, off);
--	if (f->mmap_ptr == MAP_FAILED) {
--		f->mmap_ptr = NULL;
-+	fmd->mmap_ptr = mmap(NULL, length, flags, MAP_SHARED, f->fd, off);
-+	if (fmd->mmap_ptr == MAP_FAILED) {
-+		fmd->mmap_ptr = NULL;
- 		td_verror(td, errno, "mmap");
+-		if (o->numa_cpumask_set) {
++		if (fio_option_is_set(o, numa_cpunodes)) {
+ 			mask = numa_parse_nodestring(o->numa_cpunodes);
+ 			ret = numa_run_on_node_mask(mask);
+ 			numa_free_nodemask(mask);
+@@ -1383,8 +1384,7 @@ static void *thread_main(void *data)
+ 			}
+ 		}
+ 
+-		if (o->numa_memmask_set) {
+-
++		if (fio_option_is_set(o, numa_memnodes)) {
+ 			mask = NULL;
+ 			if (o->numa_memnodes)
+ 				mask = numa_parse_nodestring(o->numa_memnodes);
+@@ -1430,7 +1430,8 @@ static void *thread_main(void *data)
+ 	if (o->verify_async && verify_async_init(td))
  		goto err;
- 	}
  
- 	if (!td_random(td)) {
--		if (posix_madvise(f->mmap_ptr, length, POSIX_MADV_SEQUENTIAL) < 0) {
-+		if (posix_madvise(fmd->mmap_ptr, length, POSIX_MADV_SEQUENTIAL) < 0) {
- 			td_verror(td, errno, "madvise");
- 			goto err;
- 		}
- 	} else {
--		if (posix_madvise(f->mmap_ptr, length, POSIX_MADV_RANDOM) < 0) {
-+		if (posix_madvise(fmd->mmap_ptr, length, POSIX_MADV_RANDOM) < 0) {
- 			td_verror(td, errno, "madvise");
- 			goto err;
- 		}
- 	}
+-	if (o->ioprio) {
++	if (fio_option_is_set(o, ioprio) ||
++	    fio_option_is_set(o, ioprio_class)) {
+ 		ret = ioprio_set(IOPRIO_WHO_PROCESS, 0, o->ioprio_class, o->ioprio);
+ 		if (ret == -1) {
+ 			td_verror(td, errno, "ioprio_set");
+@@ -1589,7 +1590,7 @@ err:
+ 	cgroup_shutdown(td, &cgroup_mnt);
+ 	verify_free_state(td);
  
- err:
--	if (td->error && f->mmap_ptr)
--		munmap(f->mmap_ptr, length);
-+	if (td->error && fmd->mmap_ptr)
-+		munmap(fmd->mmap_ptr, length);
- 
- 	return td->error;
- }
-@@ -69,19 +76,20 @@ err:
- static int fio_mmapio_prep_limited(struct thread_data *td, struct io_u *io_u)
+-	if (o->cpumask_set) {
++	if (fio_option_is_set(o, cpumask)) {
+ 		ret = fio_cpuset_exit(&o->cpumask);
+ 		if (ret)
+ 			td_verror(td, ret, "fio_cpuset_exit");
+diff --git a/cconv.c b/cconv.c
+index d0a124e..0de2f5c 100644
+--- a/cconv.c
++++ b/cconv.c
+@@ -49,6 +49,9 @@ void convert_thread_options_to_cpu(struct thread_options *o,
  {
- 	struct fio_file *f = io_u->file;
-+	struct fio_mmap_data *fmd = (struct fio_mmap_data *) (uintptr_t) f->engine_data;
+ 	int i, j;
  
- 	if (io_u->buflen > mmap_map_size) {
- 		log_err("fio: bs too big for mmap engine\n");
- 		return EIO;
++	for (i = 0; i < NR_OPTS_SZ; i++)
++		o->set_options[i] = le64_to_cpu(top->set_options[i]);
++
+ 	string_to_cpu(&o->description, top->description);
+ 	string_to_cpu(&o->name, top->name);
+ 	string_to_cpu(&o->directory, top->directory);
+@@ -194,8 +197,6 @@ void convert_thread_options_to_cpu(struct thread_options *o,
+ 	o->stonewall = le32_to_cpu(top->stonewall);
+ 	o->new_group = le32_to_cpu(top->new_group);
+ 	o->numjobs = le32_to_cpu(top->numjobs);
+-	o->cpumask_set = le32_to_cpu(top->cpumask_set);
+-	o->verify_cpumask_set = le32_to_cpu(top->verify_cpumask_set);
+ 	o->cpus_allowed_policy = le32_to_cpu(top->cpus_allowed_policy);
+ 	o->iolog = le32_to_cpu(top->iolog);
+ 	o->rwmixcycle = le32_to_cpu(top->rwmixcycle);
+@@ -258,6 +259,9 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
+ {
+ 	int i, j;
+ 
++	for (i = 0; i < NR_OPTS_SZ; i++)
++		top->set_options[i] = cpu_to_le64(o->set_options[i]);
++
+ 	string_to_net(top->description, o->description);
+ 	string_to_net(top->name, o->name);
+ 	string_to_net(top->directory, o->directory);
+@@ -355,8 +359,6 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
+ 	top->stonewall = cpu_to_le32(o->stonewall);
+ 	top->new_group = cpu_to_le32(o->new_group);
+ 	top->numjobs = cpu_to_le32(o->numjobs);
+-	top->cpumask_set = cpu_to_le32(o->cpumask_set);
+-	top->verify_cpumask_set = cpu_to_le32(o->verify_cpumask_set);
+ 	top->cpus_allowed_policy = cpu_to_le32(o->cpus_allowed_policy);
+ 	top->iolog = cpu_to_le32(o->iolog);
+ 	top->rwmixcycle = cpu_to_le32(o->rwmixcycle);
+diff --git a/init.c b/init.c
+index 9fbc477..f606087 100644
+--- a/init.c
++++ b/init.c
+@@ -926,7 +926,13 @@ static void init_flags(struct thread_data *td)
+ 		td->flags |= TD_F_READ_IOLOG;
+ 	if (o->refill_buffers)
+ 		td->flags |= TD_F_REFILL_BUFFERS;
+-	if (o->scramble_buffers)
++	/*
++	 * Scramble by default, but not if zero_buffer is true and has been
++	 * set. But if scramble_buffers has been set, always scramble.
++	 */
++	if (o->scramble_buffers && ((!o->zero_buffers &&
++	    fio_option_is_set(o, zero_buffers)) ||
++	    fio_option_is_set(o, scramble_buffers)))
+ 		td->flags |= TD_F_SCRAMBLE_BUFFERS;
+ 	if (o->verify != VERIFY_NONE)
+ 		td->flags |= TD_F_VER_NONE;
+diff --git a/options.c b/options.c
+index 2c703fd..afca727 100644
+--- a/options.c
++++ b/options.c
+@@ -453,7 +453,6 @@ static int str_cpumask_cb(void *data, unsigned long long *val)
+ 		}
  	}
  
--	f->mmap_sz = mmap_map_size;
--	if (f->mmap_sz  > f->io_size)
--		f->mmap_sz = f->io_size;
-+	fmd->mmap_sz = mmap_map_size;
-+	if (fmd->mmap_sz  > f->io_size)
-+		fmd->mmap_sz = f->io_size;
+-	td->o.cpumask_set = 1;
+ 	return 0;
+ }
  
--	f->mmap_off = io_u->offset;
-+	fmd->mmap_off = io_u->offset;
+@@ -520,36 +519,24 @@ static int set_cpus_allowed(struct thread_data *td, os_cpu_mask_t *mask,
+ 	}
  
--	return fio_mmap_file(td, f, f->mmap_sz, f->mmap_off);
-+	return fio_mmap_file(td, f, fmd->mmap_sz, fmd->mmap_off);
+ 	free(p);
+-	if (!ret)
+-		td->o.cpumask_set = 1;
+ 	return ret;
+ }
+ 
+ static int str_cpus_allowed_cb(void *data, const char *input)
+ {
+ 	struct thread_data *td = data;
+-	int ret;
+ 
+ 	if (parse_dryrun())
+ 		return 0;
+ 
+-	ret = set_cpus_allowed(td, &td->o.cpumask, input);
+-	if (!ret)
+-		td->o.cpumask_set = 1;
+-
+-	return ret;
++	return set_cpus_allowed(td, &td->o.cpumask, input);
+ }
+ 
+ static int str_verify_cpus_allowed_cb(void *data, const char *input)
+ {
+ 	struct thread_data *td = data;
+-	int ret;
+ 
+-	ret = set_cpus_allowed(td, &td->o.verify_cpumask, input);
+-	if (!ret)
+-		td->o.verify_cpumask_set = 1;
+-
+-	return ret;
++	return set_cpus_allowed(td, &td->o.verify_cpumask, input);
+ }
+ #endif
+ 
+@@ -576,7 +563,6 @@ static int str_numa_cpunodes_cb(void *data, char *input)
+ 	numa_free_nodemask(verify_bitmask);
+ 
+ 	td->o.numa_cpunodes = strdup(input);
+-	td->o.numa_cpumask_set = 1;
+ 	return 0;
+ }
+ 
+@@ -683,9 +669,7 @@ static int str_numa_mpol_cb(void *data, char *input)
+ 		break;
+ 	}
+ 
+-	td->o.numa_memmask_set = 1;
+ 	return 0;
+-
+ out:
+ 	return 1;
+ }
+@@ -1650,6 +1634,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.lname	= "Size",
+ 		.type	= FIO_OPT_STR_VAL,
+ 		.cb	= str_size_cb,
++		.off1	= td_var_offset(size),
+ 		.help	= "Total size of device or files",
+ 		.interval = 1024 * 1024,
+ 		.category = FIO_OPT_C_IO,
+@@ -1789,6 +1774,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.lname	= "Block size split",
+ 		.type	= FIO_OPT_STR,
+ 		.cb	= str_bssplit_cb,
++		.off1	= td_var_offset(bssplit),
+ 		.help	= "Set a specific mix of block sizes",
+ 		.parent	= "rw",
+ 		.hide	= 1,
+@@ -2443,6 +2429,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.lname	= "Verify pattern",
+ 		.type	= FIO_OPT_STR,
+ 		.cb	= str_verify_pattern_cb,
++		.off1	= td_var_offset(verify_pattern),
+ 		.help	= "Fill pattern for IO buffers",
+ 		.parent	= "verify",
+ 		.hide	= 1,
+@@ -2513,6 +2500,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.lname	= "Async verify CPUs",
+ 		.type	= FIO_OPT_STR,
+ 		.cb	= str_verify_cpus_allowed_cb,
++		.off1	= td_var_offset(verify_cpumask),
+ 		.help	= "Set CPUs allowed for async verify threads",
+ 		.parent	= "verify_async",
+ 		.hide	= 1,
+@@ -2722,6 +2710,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.lname	= "Read/write mix read",
+ 		.type	= FIO_OPT_INT,
+ 		.cb	= str_rwmix_read_cb,
++		.off1	= td_var_offset(rwmix[DDIR_READ]),
+ 		.maxval	= 100,
+ 		.help	= "Percentage of mixed workload that is reads",
+ 		.def	= "50",
+@@ -2735,6 +2724,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.lname	= "Read/write mix write",
+ 		.type	= FIO_OPT_INT,
+ 		.cb	= str_rwmix_write_cb,
++		.off1	= td_var_offset(rwmix[DDIR_WRITE]),
+ 		.maxval	= 100,
+ 		.help	= "Percentage of mixed workload that is writes",
+ 		.def	= "50",
+@@ -3004,6 +2994,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.lname	= "CPU mask",
+ 		.type	= FIO_OPT_INT,
+ 		.cb	= str_cpumask_cb,
++		.off1	= td_var_offset(cpumask),
+ 		.help	= "CPU affinity mask",
+ 		.category = FIO_OPT_C_GENERAL,
+ 		.group	= FIO_OPT_G_CRED,
+@@ -3013,6 +3004,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.lname	= "CPUs allowed",
+ 		.type	= FIO_OPT_STR,
+ 		.cb	= str_cpus_allowed_cb,
++		.off1	= td_var_offset(cpumask),
+ 		.help	= "Set CPUs allowed",
+ 		.category = FIO_OPT_C_GENERAL,
+ 		.group	= FIO_OPT_G_CRED,
+@@ -3044,6 +3036,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.name	= "numa_cpu_nodes",
+ 		.type	= FIO_OPT_STR,
+ 		.cb	= str_numa_cpunodes_cb,
++		.off1	= td_var_offset(numa_cpunodes),
+ 		.help	= "NUMA CPU nodes bind",
+ 		.category = FIO_OPT_C_GENERAL,
+ 		.group	= FIO_OPT_G_INVALID,
+@@ -3052,6 +3045,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.name	= "numa_mem_policy",
+ 		.type	= FIO_OPT_STR,
+ 		.cb	= str_numa_mpol_cb,
++		.off1	= td_var_offset(numa_memnodes),
+ 		.help	= "NUMA memory policy setup",
+ 		.category = FIO_OPT_C_GENERAL,
+ 		.group	= FIO_OPT_G_INVALID,
+@@ -3266,6 +3260,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.lname	= "Buffer pattern",
+ 		.type	= FIO_OPT_STR,
+ 		.cb	= str_buffer_pattern_cb,
++		.off1	= td_var_offset(buffer_pattern),
+ 		.help	= "Fill pattern for IO buffers",
+ 		.category = FIO_OPT_C_IO,
+ 		.group	= FIO_OPT_G_IO_BUF,
+@@ -3275,6 +3270,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.lname	= "Buffer compression percentage",
+ 		.type	= FIO_OPT_INT,
+ 		.cb	= str_buffer_compress_cb,
++		.off1	= td_var_offset(compress_percentage),
+ 		.maxval	= 100,
+ 		.minval	= 0,
+ 		.help	= "How compressible the buffer is (approximately)",
+@@ -3299,6 +3295,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.lname	= "Dedupe percentage",
+ 		.type	= FIO_OPT_INT,
+ 		.cb	= str_dedupe_cb,
++		.off1	= td_var_offset(dedupe_percentage),
+ 		.maxval	= 100,
+ 		.minval	= 0,
+ 		.help	= "Percentage of buffers that are dedupable",
+@@ -3469,6 +3466,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.name	= "ignore_error",
+ 		.type	= FIO_OPT_STR,
+ 		.cb	= str_ignore_error_cb,
++		.off1	= td_var_offset(ignore_error_nr),
+ 		.help	= "Set a specific list of errors to ignore",
+ 		.parent	= "rw",
+ 		.category = FIO_OPT_C_GENERAL,
+@@ -3980,6 +3978,9 @@ int fio_options_parse(struct thread_data *td, char **opts, int num_opts,
+ 		int newret = parse_option(opts_copy[i], opts[i], fio_options,
+ 						&o, td, dump_cmdline);
+ 
++		if (!newret && o)
++			fio_option_mark_set(&td->o, o);
++
+ 		if (opts_copy[i]) {
+ 			if (newret && !o) {
+ 				unknown++;
+@@ -4026,7 +4027,18 @@ int fio_options_parse(struct thread_data *td, char **opts, int num_opts,
+ 
+ int fio_cmd_option_parse(struct thread_data *td, const char *opt, char *val)
+ {
+-	return parse_cmd_option(opt, val, fio_options, td);
++	int ret;
++
++	ret = parse_cmd_option(opt, val, fio_options, td);
++	if (!ret) {
++		struct fio_option *o;
++
++		o = find_option(fio_options, opt);
++		if (o)
++			fio_option_mark_set(&td->o, o);
++	}
++
++	return ret;
+ }
+ 
+ int fio_cmd_ioengine_option_parse(struct thread_data *td, const char *opt,
+@@ -4188,3 +4200,36 @@ struct fio_option *fio_option_find(const char *name)
+ 	return find_option(fio_options, name);
+ }
+ 
++int __fio_option_is_set(struct thread_options *o, unsigned int off1)
++{
++	unsigned int opt_off, index, offset;
++	struct fio_option *opt = NULL;
++	int i;
++
++	for (i = 0; fio_options[i].name; i++) {
++		if (off1 == fio_options[i].off1) {
++			opt = &fio_options[i];
++			break;
++		}
++	}
++
++	if (!opt) {
++		log_err("fio: no option found at offset %u\n", off1);
++		return 0;
++	}
++
++	opt_off = opt - &fio_options[0];
++	index = opt_off / (8 * sizeof(uint64_t));
++	offset = opt_off & ((8 * sizeof(uint64_t)) - 1);
++	return (o->set_options[index] & (1UL << offset)) != 0;
++}
++
++void fio_option_mark_set(struct thread_options *o, struct fio_option *opt)
++{
++	unsigned int opt_off, index, offset;
++
++	opt_off = opt - &fio_options[0];
++	index = opt_off / (8 * sizeof(uint64_t));
++	offset = opt_off & ((8 * sizeof(uint64_t)) - 1);
++	o->set_options[index] |= 1UL << offset;
++}
+diff --git a/options.h b/options.h
+index b2e2c0c..fa015c3 100644
+--- a/options.h
++++ b/options.h
+@@ -22,6 +22,13 @@ int set_name_idx(char *, char *, int);
+ 
+ extern struct fio_option fio_options[FIO_MAX_OPTS];
+ 
++extern int __fio_option_is_set(struct thread_options *, unsigned int off);
++
++#define fio_option_is_set(__td, name)	\
++	__fio_option_is_set((__td), td_var_offset(name))
++
++extern void fio_option_mark_set(struct thread_options *, struct fio_option *);
++
+ static inline int o_match(struct fio_option *o, const char *opt)
+ {
+ 	if (!strcmp(o->name, opt))
+diff --git a/parse.c b/parse.c
+index 141f4b2..ae87b1e 100644
+--- a/parse.c
++++ b/parse.c
+@@ -1279,8 +1279,6 @@ void option_init(struct fio_option *o)
+ 	if (o->type == FIO_OPT_STR || o->type == FIO_OPT_STR_STORE ||
+ 	    o->type == FIO_OPT_STR_MULTI)
+ 		return;
+-	if (o->cb && (o->off1 || o->off2 || o->off3 || o->off4))
+-		log_err("Option %s: both cb and offset given\n", o->name);
  }
  
  /*
-@@ -90,15 +98,16 @@ static int fio_mmapio_prep_limited(struct thread_data *td, struct io_u *io_u)
- static int fio_mmapio_prep_full(struct thread_data *td, struct io_u *io_u)
- {
- 	struct fio_file *f = io_u->file;
-+	struct fio_mmap_data *fmd = (struct fio_mmap_data *) (uintptr_t) f->engine_data;
- 	int ret;
- 
- 	if (fio_file_partial_mmap(f))
- 		return EINVAL;
- 
--	f->mmap_sz = f->io_size;
--	f->mmap_off = 0;
-+	fmd->mmap_sz = f->io_size;
-+	fmd->mmap_off = 0;
- 
--	ret = fio_mmap_file(td, f, f->mmap_sz, f->mmap_off);
-+	ret = fio_mmap_file(td, f, fmd->mmap_sz, fmd->mmap_off);
- 	if (ret)
- 		fio_file_set_partial_mmap(f);
- 
-@@ -108,22 +117,23 @@ static int fio_mmapio_prep_full(struct thread_data *td, struct io_u *io_u)
- static int fio_mmapio_prep(struct thread_data *td, struct io_u *io_u)
- {
- 	struct fio_file *f = io_u->file;
-+	struct fio_mmap_data *fmd = (struct fio_mmap_data *) (uintptr_t) f->engine_data;
- 	int ret;
- 
- 	/*
- 	 * It fits within existing mapping, use it
- 	 */
--	if (io_u->offset >= f->mmap_off &&
--	    io_u->offset + io_u->buflen < f->mmap_off + f->mmap_sz)
-+	if (io_u->offset >= fmd->mmap_off &&
-+	    io_u->offset + io_u->buflen < fmd->mmap_off + fmd->mmap_sz)
- 		goto done;
- 
- 	/*
- 	 * unmap any existing mapping
- 	 */
--	if (f->mmap_ptr) {
--		if (munmap(f->mmap_ptr, f->mmap_sz) < 0)
-+	if (fmd->mmap_ptr) {
-+		if (munmap(fmd->mmap_ptr, fmd->mmap_sz) < 0)
- 			return errno;
--		f->mmap_ptr = NULL;
-+		fmd->mmap_ptr = NULL;
- 	}
- 
- 	if (fio_mmapio_prep_full(td, io_u)) {
-@@ -134,7 +144,7 @@ static int fio_mmapio_prep(struct thread_data *td, struct io_u *io_u)
- 	}
- 
- done:
--	io_u->mmap_data = f->mmap_ptr + io_u->offset - f->mmap_off -
-+	io_u->mmap_data = fmd->mmap_ptr + io_u->offset - fmd->mmap_off -
- 				f->file_offset;
- 	return 0;
- }
-@@ -142,6 +152,7 @@ done:
- static int fio_mmapio_queue(struct thread_data *td, struct io_u *io_u)
- {
- 	struct fio_file *f = io_u->file;
-+	struct fio_mmap_data *fmd = (struct fio_mmap_data *) (uintptr_t) f->engine_data;
- 
- 	fio_ro_check(td, io_u);
- 
-@@ -150,7 +161,7 @@ static int fio_mmapio_queue(struct thread_data *td, struct io_u *io_u)
- 	else if (io_u->ddir == DDIR_WRITE)
- 		memcpy(io_u->mmap_data, io_u->xfer_buf, io_u->xfer_buflen);
- 	else if (ddir_sync(io_u->ddir)) {
--		if (msync(f->mmap_ptr, f->mmap_sz, MS_SYNC)) {
-+		if (msync(fmd->mmap_ptr, fmd->mmap_sz, MS_SYNC)) {
- 			io_u->error = errno;
- 			td_verror(td, io_u->error, "msync");
- 		}
-@@ -205,14 +216,60 @@ static int fio_mmapio_init(struct thread_data *td)
- 	return 0;
- }
- 
-+static int fio_mmapio_open_file(struct thread_data *td, struct fio_file *f)
-+{
-+	struct fio_mmap_data *fmd;
-+	int ret;
-+
-+	ret = generic_open_file(td, f);
-+	if (ret)
-+		return ret;
-+
-+	fmd = calloc(1, sizeof(*fmd));
-+	if (!fmd) {
-+		int fio_unused ret;
-+		ret = generic_close_file(td, f);
-+		return 1;
-+	}
-+
-+	f->engine_data = (uintptr_t) fmd;
-+	return 0;
-+}
-+
-+static int fio_mmapio_close_file(struct thread_data *td, struct fio_file *f)
-+{
-+	struct fio_mmap_data *fmd;
-+
-+	fmd = (struct fio_mmap_data *) (uintptr_t) f->engine_data;
-+	f->engine_data = 0;
-+	free(fmd);
-+
-+	return generic_close_file(td, f);
-+}
-+
-+static int fio_mmapio_invalidate(struct thread_data *td, struct fio_file *f)
-+{
-+	struct fio_mmap_data *fmd = (struct fio_mmap_data *) (uintptr_t) f->engine_data;
-+	int ret;
-+
-+	ret = posix_madvise(fmd->mmap_ptr, fmd->mmap_sz, POSIX_MADV_DONTNEED);
-+#ifdef FIO_MADV_FREE
-+	if (f->filetype == FIO_TYPE_BD)
-+		(void) posix_madvise(fmd->mmap_ptr, fmd->mmap_sz, FIO_MADV_FREE);
-+#endif
-+
-+	return ret;
-+}
-+
- static struct ioengine_ops ioengine = {
- 	.name		= "mmap",
- 	.version	= FIO_IOOPS_VERSION,
- 	.init		= fio_mmapio_init,
- 	.prep		= fio_mmapio_prep,
- 	.queue		= fio_mmapio_queue,
--	.open_file	= generic_open_file,
--	.close_file	= generic_close_file,
-+	.open_file	= fio_mmapio_open_file,
-+	.close_file	= fio_mmapio_close_file,
-+	.invalidate	= fio_mmapio_invalidate,
- 	.get_file_size	= generic_get_file_size,
- 	.flags		= FIO_SYNCIO | FIO_NOEXTEND,
+diff --git a/server.h b/server.h
+index 0a98bf5..cd3f999 100644
+--- a/server.h
++++ b/server.h
+@@ -38,7 +38,7 @@ struct fio_net_cmd_reply {
  };
-diff --git a/file.h b/file.h
-index add7773..bfb571b 100644
---- a/file.h
-+++ b/file.h
-@@ -77,10 +77,6 @@ struct fio_file {
- 	unsigned int major, minor;
- 	int fileno;
  
--	void *mmap_ptr;
--	size_t mmap_sz;
--	off_t mmap_off;
--
- 	/*
- 	 * size of the file, offset into file, and io size from that offset
- 	 */
-@@ -88,8 +84,11 @@ struct fio_file {
- 	uint64_t file_offset;
- 	uint64_t io_size;
+ enum {
+-	FIO_SERVER_VER			= 40,
++	FIO_SERVER_VER			= 41,
  
--	uint64_t last_pos;
--	uint64_t last_start;
-+	/*
-+	 * Track last end and last start of IO for a given data direction
-+	 */
-+	uint64_t last_pos[DDIR_RWDIR_CNT];
-+	uint64_t last_start[DDIR_RWDIR_CNT];
+ 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
+ 	FIO_SERVER_MAX_CMD_MB		= 2048,
+diff --git a/thread_options.h b/thread_options.h
+index f311e2c..530dd9a 100644
+--- a/thread_options.h
++++ b/thread_options.h
+@@ -3,6 +3,7 @@
  
- 	uint64_t first_write;
- 	uint64_t last_write;
-diff --git a/filesetup.c b/filesetup.c
-index cc6d440..c026048 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -400,15 +400,9 @@ static int __file_invalidate_cache(struct thread_data *td, struct fio_file *f,
+ #include "arch/arch.h"
+ #include "os/os.h"
++#include "options.h"
+ #include "stat.h"
+ #include "gettime.h"
+ #include "lib/ieee754.h"
+@@ -28,10 +29,13 @@ struct bssplit {
+ 	uint32_t perc;
+ };
  
- 	if (td->io_ops->invalidate)
- 		ret = td->io_ops->invalidate(td, f);
--	else if (f->mmap_ptr) {
--		ret = posix_madvise(f->mmap_ptr, f->mmap_sz, POSIX_MADV_DONTNEED);
--#ifdef FIO_MADV_FREE
--		if (f->filetype == FIO_TYPE_BD)
--			(void) posix_madvise(f->mmap_ptr, f->mmap_sz, FIO_MADV_FREE);
--#endif
--	} else if (f->filetype == FIO_TYPE_FILE) {
-+	else if (f->filetype == FIO_TYPE_FILE)
- 		ret = posix_fadvise(f->fd, off, len, POSIX_FADV_DONTNEED);
--	} else if (f->filetype == FIO_TYPE_BD) {
-+	else if (f->filetype == FIO_TYPE_BD) {
- 		ret = blockdev_invalidate_cache(f);
- 		if (ret < 0 && errno == EACCES && geteuid()) {
- 			if (!root_warn) {
-@@ -1536,8 +1530,13 @@ void free_release_files(struct thread_data *td)
- 
- void fio_file_reset(struct thread_data *td, struct fio_file *f)
- {
--	f->last_pos = f->file_offset;
--	f->last_start = -1ULL;
-+	int i;
++#define NR_OPTS_SZ	(FIO_MAX_OPTS / (8 * sizeof(uint64_t)))
 +
-+	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
-+		f->last_pos[i] = f->file_offset;
-+		f->last_start[i] = -1ULL;
-+	}
-+
- 	if (f->io_axmap)
- 		axmap_reset(f->io_axmap);
- 	if (td->o.random_generator == FIO_RAND_GEN_LFSR)
-diff --git a/io_u.c b/io_u.c
-index f135908..efbcea9 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -249,7 +249,7 @@ static int get_next_rand_block(struct thread_data *td, struct fio_file *f,
- 	}
+ #define OPT_MAGIC	0x4f50544e
  
- 	dprint(FD_IO, "%s: rand offset failed, last=%llu, size=%llu\n",
--			f->file_name, (unsigned long long) f->last_pos,
-+			f->file_name, (unsigned long long) f->last_pos[ddir],
- 			(unsigned long long) f->real_file_size);
- 	return 1;
- }
-@@ -261,17 +261,17 @@ static int get_next_seq_offset(struct thread_data *td, struct fio_file *f,
+ struct thread_options {
+ 	int magic;
++	uint64_t set_options[NR_OPTS_SZ];
+ 	char *description;
+ 	char *name;
+ 	char *directory;
+@@ -159,16 +163,12 @@ struct thread_options {
+ 	unsigned int new_group;
+ 	unsigned int numjobs;
+ 	os_cpu_mask_t cpumask;
+-	unsigned int cpumask_set;
+ 	os_cpu_mask_t verify_cpumask;
+-	unsigned int verify_cpumask_set;
+ 	unsigned int cpus_allowed_policy;
+ 	char *numa_cpunodes;
+-	unsigned int numa_cpumask_set;
+ 	unsigned short numa_mem_mode;
+ 	unsigned int numa_mem_prefer_node;
+ 	char *numa_memnodes;
+-	unsigned int numa_memmask_set;
+ 	unsigned int iolog;
+ 	unsigned int rwmixcycle;
+ 	unsigned int rwmix[DDIR_RWDIR_CNT];
+@@ -265,6 +265,7 @@ struct thread_options {
+ #define FIO_TOP_STR_MAX		256
  
- 	assert(ddir_rw(ddir));
+ struct thread_options_pack {
++	uint64_t set_options[NR_OPTS_SZ];
+ 	uint8_t description[FIO_TOP_STR_MAX];
+ 	uint8_t name[FIO_TOP_STR_MAX];
+ 	uint8_t directory[FIO_TOP_STR_MAX];
+@@ -334,7 +335,6 @@ struct thread_options_pack {
+ 	uint32_t experimental_verify;
+ 	uint32_t verify_state;
+ 	uint32_t verify_state_save;
+-	uint32_t pad;
+ 	uint32_t use_thread;
+ 	uint32_t unlink;
+ 	uint32_t do_disk_util;
+@@ -354,6 +354,7 @@ struct thread_options_pack {
+ 	uint32_t bs_is_seq_rand;
  
--	if (f->last_pos >= f->io_size + get_start_offset(td, f) &&
-+	if (f->last_pos[ddir] >= f->io_size + get_start_offset(td, f) &&
- 	    o->time_based)
--		f->last_pos = f->last_pos - f->io_size;
-+		f->last_pos[ddir] = f->last_pos[ddir] - f->io_size;
+ 	uint32_t random_distribution;
++	uint32_t pad;
+ 	fio_fp64_t zipf_theta;
+ 	fio_fp64_t pareto_h;
  
--	if (f->last_pos < f->real_file_size) {
-+	if (f->last_pos[ddir] < f->real_file_size) {
- 		uint64_t pos;
+@@ -390,9 +391,7 @@ struct thread_options_pack {
+ 	uint32_t new_group;
+ 	uint32_t numjobs;
+ 	uint8_t cpumask[FIO_TOP_STR_MAX];
+-	uint32_t cpumask_set;
+ 	uint8_t verify_cpumask[FIO_TOP_STR_MAX];
+-	uint32_t verify_cpumask_set;
+ 	uint32_t cpus_allowed_policy;
+ 	uint32_t iolog;
+ 	uint32_t rwmixcycle;
+diff --git a/verify.c b/verify.c
+index d1a1266..2ae03f8 100644
+--- a/verify.c
++++ b/verify.c
+@@ -1151,7 +1151,7 @@ static void *verify_async_thread(void *data)
+ 	struct io_u *io_u;
+ 	int ret = 0;
  
--		if (f->last_pos == f->file_offset && o->ddir_seq_add < 0)
--			f->last_pos = f->real_file_size;
-+		if (f->last_pos[ddir] == f->file_offset && o->ddir_seq_add < 0)
-+			f->last_pos[ddir] = f->real_file_size;
- 
--		pos = f->last_pos - f->file_offset;
-+		pos = f->last_pos[ddir] - f->file_offset;
- 		if (pos && o->ddir_seq_add) {
- 			pos += o->ddir_seq_add;
- 
-@@ -330,8 +330,8 @@ static int get_next_block(struct thread_data *td, struct io_u *io_u,
- 				*is_random = 0;
- 			}
- 		} else if (td->o.rw_seq == RW_SEQ_IDENT) {
--			if (f->last_start != -1ULL)
--				offset = f->last_start - f->file_offset;
-+			if (f->last_start[ddir] != -1ULL)
-+				offset = f->last_start[ddir] - f->file_offset;
- 			else
- 				offset = 0;
- 			ret = 0;
-@@ -743,7 +743,7 @@ static int fill_io_u(struct thread_data *td, struct io_u *io_u)
- 		 */
- 		if (f->file_offset >= f->real_file_size)
- 			f->file_offset = f->real_file_size - f->file_offset;
--		f->last_pos = f->file_offset;
-+		f->last_pos[io_u->ddir] = f->file_offset;
- 		td->io_skip_bytes += td->o.zone_skip;
- 	}
- 
-@@ -1471,8 +1471,8 @@ struct io_u *get_io_u(struct thread_data *td)
- 			goto err_put;
- 		}
- 
--		f->last_start = io_u->offset;
--		f->last_pos = io_u->offset + io_u->buflen;
-+		f->last_start[io_u->ddir] = io_u->offset;
-+		f->last_pos[io_u->ddir] = io_u->offset + io_u->buflen;
- 
- 		if (io_u->ddir == DDIR_WRITE) {
- 			if (td->flags & TD_F_REFILL_BUFFERS) {
+-	if (td->o.verify_cpumask_set &&
++	if (fio_option_is_set(&td->o, verify_cpumask) &&
+ 	    fio_setaffinity(td->pid, td->o.verify_cpumask)) {
+ 		log_err("fio: failed setting verify thread affinity\n");
+ 		goto done;
