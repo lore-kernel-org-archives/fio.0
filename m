@@ -1,307 +1,510 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:51863 "EHLO
+Received: from casper.infradead.org ([85.118.1.10]:42191 "EHLO
 	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752812AbaLTNAI (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 20 Dec 2014 08:00:08 -0500
+	with ESMTP id S932159AbaLKNAH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 11 Dec 2014 08:00:07 -0500
 Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
 	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1Y2Jde-0003Bi-HK
-	for fio@vger.kernel.org; Sat, 20 Dec 2014 13:00:06 +0000
+	id 1Xz3Lh-00082k-90
+	for fio@vger.kernel.org; Thu, 11 Dec 2014 13:00:05 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20141220130003.9D73540134@lyth.info>
-Date: Sat, 20 Dec 2014 06:00:03 -0700 (MST)
+Message-Id: <20141211130002.D79E640157@lyth.info>
+Date: Thu, 11 Dec 2014 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 2243dfc796a8a6e137893a57a77949df7657dd71:
+The following changes since commit 3b577774803435109e070cc8f4313fc485c9160f:
 
-  options: add debug code for failure to lookup option names (2014-12-18 21:51:21 -0700)
+  Fix server/client set_options conversion (2014-12-09 14:12:47 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 8a2b393b00dc4b6a8ba129a0e7850a78114ac75e:
+for you to fetch changes up to a4d3b4dbf594be6223a21a47a7ce4c21c7dddaf0:
 
-  gettime: hide fio_gtod_cpumask if not used (2014-12-19 15:04:10 -0700)
+  Update size/io_size descriptions (2014-12-10 19:21:37 -0700)
 
 ----------------------------------------------------------------
-Jens Axboe (5):
-      options: turn missing options into debug parse messages
-      axmap: ensure we lock down the maps for shared access
-      Fio 2.2.1
-      gettime: only use CPU affinity if available
-      gettime: hide fio_gtod_cpumask if not used
+Fabrice Bacchella (1):
+      Improved support for libhdfs
 
- FIO-VERSION-GEN        |    2 +-
- Makefile               |    2 +-
- gettime-thread.c       |    6 +++++-
- lib/axmap.c            |   54 +++++++++++++++++++++++++++++++++++++++---------
- options.c              |    4 +---
- options.h              |    6 ++++--
- os/windows/install.wxs |    2 +-
- t/axmap.c              |    1 +
- 8 files changed, 58 insertions(+), 19 deletions(-)
+Jens Axboe (3):
+      gluster: wire up sync/datasync opcodes
+      btrace2fio: add support for collapsing close entries
+      Update size/io_size descriptions
+
+ HOWTO                     |   27 ++++---
+ Makefile                  |    4 +-
+ configure                 |    5 +-
+ engines/glusterfs_async.c |    2 +
+ engines/glusterfs_sync.c  |    4 +
+ fio.1                     |   22 +++---
+ options.c                 |    5 +-
+ t/btrace2fio.c            |  177 ++++++++++++++++++++++++++++++++++++++++++---
+ 8 files changed, 210 insertions(+), 36 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index f0a0a45..d124e36 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
+diff --git a/HOWTO b/HOWTO
+index 57d3fb7..8da5527 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -462,23 +462,26 @@ fadvise_hint=bool By default, fio will use fadvise() to advise the kernel
  
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-2.2.0
-+DEF_VER=fio-2.2.1
+ size=int	The total size of file io for this job. Fio will run until
+ 		this many bytes has been transferred, unless runtime is
+-		limited by other options (such as 'runtime', for instance).
+-		Unless specific nrfiles and filesize options are given,
+-		fio will divide this size between the available files
+-		specified by the job. If not set, fio will use the full
+-		size of the given files or devices. If the files do not
+-		exist, size must be given. It is also possible to give
+-		size as a percentage between 1 and 100. If size=20% is
+-		given, fio will use 20% of the full size of the given
+-		files or devices.
+-
++		limited by other options (such as 'runtime', for instance,
++		or increased/decreased by 'io_size'). Unless specific nrfiles
++		and filesize options are given, fio will divide this size
++		between the available files specified by the job. If not set,
++		fio will use the full size of the given files or devices.
++		If the files do not exist, size must be given. It is also
++		possible to give size as a percentage between 1 and 100. If
++		size=20% is given, fio will use 20% of the full size of the
++		given files or devices.
++
++io_size=int
+ io_limit=int	Normally fio operates within the region set by 'size', which
+ 		means that the 'size' option sets both the region and size of
+ 		IO to be performed. Sometimes that is not what you want. With
+ 		this option, it is possible to define just the amount of IO
+ 		that fio should do. For instance, if 'size' is set to 20G and
+-		'io_limit' is set to 5G, fio will perform IO within the first
+-		20G but exit when 5G have been done.
++		'io_size' is set to 5G, fio will perform IO within the first
++		20G but exit when 5G have been done. The opposite is also
++		possible - if 'size' is set to 20G, and 'io_size' is set to
++		40G, then fio will do 40G of IO within the 0..20G region.
  
- LF='
- '
+ filesize=int	Individual file sizes. May be a range, in which case fio
+ 		will select sizes for files at random within the given range
 diff --git a/Makefile b/Makefile
-index 52e515b..d27ecaf 100644
+index ff00c0c..52e515b 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -186,7 +186,7 @@ T_ZIPF_OBJS += t/log.o lib/ieee754.o lib/rand.o lib/zipf.o t/genzipf.o
- T_ZIPF_PROGS = t/fio-genzipf
+@@ -40,7 +40,7 @@ SOURCE := gettime.c ioengines.c init.c stat.c log.c time.c filesetup.c \
  
- T_AXMAP_OBJS = t/axmap.o
--T_AXMAP_OBJS += lib/lfsr.o lib/axmap.o
-+T_AXMAP_OBJS += lib/lfsr.o lib/axmap.o gettime.o mutex.o t/log.o t/debug.o
- T_AXMAP_PROGS = t/axmap
+ ifdef CONFIG_LIBHDFS
+   HDFSFLAGS= -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/linux -I $(FIO_LIBHDFS_INCLUDE)
+-  HDFSLIB= $(JAVA_HOME)/jre/lib/amd64/server/libjvm.so $(FIO_LIBHDFS_LIB)/liblibhdfs.a
++  HDFSLIB= -Wl,-rpath $(JAVA_HOME)/jre/lib/amd64/server -L$(JAVA_HOME)/jre/lib/amd64/server -ljvm $(FIO_LIBHDFS_LIB)/libhdfs.a
+   CFLAGS += $(HDFSFLAGS)
+   SOURCE += engines/libhdfs.c
+ endif
+@@ -334,7 +334,7 @@ fio: $(FIO_OBJS)
+ 	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(FIO_OBJS) $(LIBS) $(HDFSLIB)
  
- T_LFSR_TEST_OBJS = t/lfsr-test.o
-diff --git a/gettime-thread.c b/gettime-thread.c
-index 73632d0..2dc976f 100644
---- a/gettime-thread.c
-+++ b/gettime-thread.c
-@@ -8,8 +8,10 @@
+ gfio: $(GFIO_OBJS)
+-	$(QUIET_LINK)$(CC) $(filter-out -static, $(LDFLAGS)) -o gfio $(GFIO_OBJS) $(LIBS) $(GFIO_LIBS) $(GTK_LDFLAGS)
++	$(QUIET_LINK)$(CC) $(filter-out -static, $(LDFLAGS)) -o gfio $(GFIO_OBJS) $(LIBS) $(GFIO_LIBS) $(GTK_LDFLAGS) $(HDFSLIB)
  
- struct timeval *fio_tv = NULL;
- int fio_gtod_offload = 0;
--static os_cpu_mask_t fio_gtod_cpumask;
- static pthread_t gtod_thread;
-+#ifdef FIO_HAVE_CPU_AFFINITY
-+static os_cpu_mask_t fio_gtod_cpumask;
-+#endif
- 
- void fio_gtod_init(void)
- {
-@@ -95,5 +97,7 @@ err:
- 
- void fio_gtod_set_cpu(unsigned int cpu)
- {
-+#ifdef FIO_HAVE_CPU_AFFINITY
- 	fio_cpu_set(&fio_gtod_cpumask, cpu);
-+#endif
- }
-diff --git a/lib/axmap.c b/lib/axmap.c
-index 5b8cb30..e847a38 100644
---- a/lib/axmap.c
-+++ b/lib/axmap.c
-@@ -23,6 +23,7 @@
- #include "../arch/arch.h"
- #include "axmap.h"
- #include "../smalloc.h"
-+#include "../mutex.h"
- #include "../minmax.h"
- 
- #if BITS_PER_LONG == 64
-@@ -45,6 +46,7 @@ struct axmap_level {
- };
- 
- struct axmap {
-+	struct fio_mutex lock;
- 	unsigned int nr_levels;
- 	struct axmap_level *levels;
- 	uint64_t first_free;
-@@ -63,6 +65,8 @@ void axmap_reset(struct axmap *axmap)
- {
- 	int i;
- 
-+	fio_mutex_down(&axmap->lock);
-+
- 	for (i = 0; i < axmap->nr_levels; i++) {
- 		struct axmap_level *al = &axmap->levels[i];
- 
-@@ -70,6 +74,7 @@ void axmap_reset(struct axmap *axmap)
- 	}
- 
- 	axmap->first_free = 0;
-+	fio_mutex_up(&axmap->lock);
- }
- 
- void axmap_free(struct axmap *axmap)
-@@ -83,6 +88,7 @@ void axmap_free(struct axmap *axmap)
- 		sfree(axmap->levels[i].map);
- 
- 	sfree(axmap->levels);
-+	__fio_mutex_remove(&axmap->lock);
- 	sfree(axmap);
- }
- 
-@@ -95,6 +101,8 @@ struct axmap *axmap_new(unsigned long nr_bits)
- 	if (!axmap)
- 		return NULL;
- 
-+	__fio_mutex_init(&axmap->lock, FIO_MUTEX_UNLOCKED);
-+
- 	levels = 1;
- 	i = (nr_bits + BLOCKS_PER_UNIT - 1) >> UNIT_SHIFT;
- 	while (i > 1) {
-@@ -126,6 +134,8 @@ err:
- 			sfree(axmap->levels[i].map);
- 
- 	sfree(axmap->levels);
-+	__fio_mutex_remove(&axmap->lock);
-+	sfree(axmap);
- 	return NULL;
- }
- 
-@@ -287,7 +297,9 @@ void axmap_set(struct axmap *axmap, uint64_t bit_nr)
- {
- 	struct axmap_set_data data = { .nr_bits = 1, };
- 
-+	fio_mutex_down(&axmap->lock);
- 	__axmap_set(axmap, bit_nr, &data);
-+	fio_mutex_up(&axmap->lock);
- }
- 
- unsigned int axmap_set_nr(struct axmap *axmap, uint64_t bit_nr, unsigned int nr_bits)
-@@ -323,8 +335,14 @@ static int axmap_isset_fn(struct axmap_level *al, unsigned long offset,
- 
- int axmap_isset(struct axmap *axmap, uint64_t bit_nr)
- {
--	if (bit_nr <= axmap->nr_bits)
--		return axmap_handler_topdown(axmap, bit_nr, axmap_isset_fn, NULL);
-+	if (bit_nr <= axmap->nr_bits) {
-+		int ret;
-+
-+		fio_mutex_down(&axmap->lock);
-+		ret = axmap_handler_topdown(axmap, bit_nr, axmap_isset_fn, NULL);
-+		fio_mutex_up(&axmap->lock);
-+		return ret;
-+	}
- 
- 	return 0;
- }
-@@ -371,11 +389,17 @@ static uint64_t axmap_find_first_free(struct axmap *axmap, unsigned int level,
- 
- uint64_t axmap_first_free(struct axmap *axmap)
- {
-+	uint64_t ret;
-+
- 	if (firstfree_valid(axmap))
- 		return axmap->first_free;
- 
--	axmap->first_free = axmap_find_first_free(axmap, axmap->nr_levels - 1, 0);
--	return axmap->first_free;
-+	fio_mutex_down(&axmap->lock);
-+	ret = axmap_find_first_free(axmap, axmap->nr_levels - 1, 0);
-+	axmap->first_free = ret;
-+	fio_mutex_up(&axmap->lock);
-+
-+	return ret;
- }
- 
- struct axmap_next_free_data {
-@@ -411,11 +435,17 @@ uint64_t axmap_next_free(struct axmap *axmap, uint64_t bit_nr)
- 	struct axmap_next_free_data data = { .level = -1U, .bit = bit_nr, };
- 	uint64_t ret;
- 
--	if (firstfree_valid(axmap) && bit_nr < axmap->first_free)
--		return axmap->first_free;
-+	fio_mutex_down(&axmap->lock);
- 
--	if (!axmap_handler(axmap, bit_nr, axmap_next_free_fn, &data))
--		return axmap_first_free(axmap);
-+	if (firstfree_valid(axmap) && bit_nr < axmap->first_free) {
-+		ret = axmap->first_free;
-+		goto done;
-+	}
-+
-+	if (!axmap_handler(axmap, bit_nr, axmap_next_free_fn, &data)) {
-+		ret = axmap_first_free(axmap);
-+		goto done;
-+	}
- 
- 	assert(data.level != -1U);
- 
-@@ -425,8 +455,12 @@ uint64_t axmap_next_free(struct axmap *axmap, uint64_t bit_nr)
- 	 * find the first free one, the map is practically full.
- 	 */
- 	ret = axmap_find_first_free(axmap, data.level, data.offset);
--	if (ret != -1ULL)
-+	if (ret != -1ULL) {
-+done:
-+		fio_mutex_up(&axmap->lock);
- 		return ret;
-+	}
- 
--	return axmap_first_free(axmap);
-+	ret = axmap_first_free(axmap);
-+	goto done;
- }
+ t/fio-genzipf: $(T_ZIPF_OBJS)
+ 	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(T_ZIPF_OBJS) $(LIBS)
+diff --git a/configure b/configure
+index 5e5596d..172b235 100755
+--- a/configure
++++ b/configure
+@@ -1566,7 +1566,10 @@ if test "$gf_trim" = "yes" ; then
+ fi
+ if test "$libhdfs" = "yes" ; then
+   output_sym "CONFIG_LIBHDFS"
+-fi
++  echo "JAVA_HOME=$JAVA_HOME" >> $config_host_mak
++  echo "FIO_LIBHDFS_INCLUDE=$FIO_LIBHDFS_INCLUDE" >> $config_host_mak
++  echo "FIO_LIBHDFS_LIB=$FIO_LIBHDFS_LIB" >> $config_host_mak
++ fi
+ if test "$arith" = "yes" ; then
+   output_sym "CONFIG_ARITHMETIC"
+   if test "$yacc_is_bison" = "yes" ; then
+diff --git a/engines/glusterfs_async.c b/engines/glusterfs_async.c
+index 95ca84e..8283f8b 100644
+--- a/engines/glusterfs_async.c
++++ b/engines/glusterfs_async.c
+@@ -117,6 +117,8 @@ static int fio_gf_async_queue(struct thread_data fio_unused * td,
+ 		r = glfs_discard_async(g->fd, io_u->offset, io_u->xfer_buflen,
+ 				       gf_async_cb, io_u);
+ #endif
++	else if (io_u->ddir == DDIR_DATASYNC)
++		r = glfs_fdatasync_async(g->fd, gf_async_cb, io_u);
+ 	else if (io_u->ddir == DDIR_SYNC)
+ 		r = glfs_fsync_async(g->fd, gf_async_cb, io_u);
+ 	else
+diff --git a/engines/glusterfs_sync.c b/engines/glusterfs_sync.c
+index 235d74f..6de4ee2 100644
+--- a/engines/glusterfs_sync.c
++++ b/engines/glusterfs_sync.c
+@@ -41,6 +41,10 @@ static int fio_gf_queue(struct thread_data *td, struct io_u *io_u)
+ 		ret = glfs_read(g->fd, io_u->xfer_buf, io_u->xfer_buflen, 0);
+ 	else if (io_u->ddir == DDIR_WRITE)
+ 		ret = glfs_write(g->fd, io_u->xfer_buf, io_u->xfer_buflen, 0);
++	else if (io_u->ddir == DDIR_SYNC)
++		ret = glfs_fsync(g->fd);
++	else if (io_u->ddir == DDIR_DATASYNC)
++		ret = glfs_fdatasync(g->fd);
+ 	else {
+ 		log_err("unsupported operation.\n");
+ 		return -EINVAL;
+diff --git a/fio.1 b/fio.1
+index 0e66206..33b26cc 100644
+--- a/fio.1
++++ b/fio.1
+@@ -377,21 +377,23 @@ are likely to be issued. Default: true.
+ .TP
+ .BI size \fR=\fPint
+ Total size of I/O for this job.  \fBfio\fR will run until this many bytes have
+-been transferred, unless limited by other options (\fBruntime\fR, for instance).
+-Unless \fBnrfiles\fR and \fBfilesize\fR options are given, this amount will be
+-divided between the available files for the job. If not set, fio will use the
+-full size of the given files or devices. If the files do not exist, size
+-must be given. It is also possible to give size as a percentage between 1 and
+-100. If size=20% is given, fio will use 20% of the full size of the given
+-files or devices.
+-.TP
+-.BI io_limit \fR=\fPint
++been transferred, unless limited by other options (\fBruntime\fR, for instance,
++or increased/descreased by \fBio_size\fR). Unless \fBnrfiles\fR and
++\fBfilesize\fR options are given, this amount will be divided between the
++available files for the job. If not set, fio will use the full size of the
++given files or devices. If the files do not exist, size must be given. It is
++also possible to give size as a percentage between 1 and 100. If size=20% is
++given, fio will use 20% of the full size of the given files or devices.
++.TP
++.BI io_size \fR=\fPint "\fR,\fB io_limit \fR=\fPint
+ Normally fio operates within the region set by \fBsize\fR, which means that
+ the \fBsize\fR option sets both the region and size of IO to be performed.
+ Sometimes that is not what you want. With this option, it is possible to
+ define just the amount of IO that fio should do. For instance, if \fBsize\fR
+ is set to 20G and \fBio_limit\fR is set to 5G, fio will perform IO within
+-the first 20G but exit when 5G have been done.
++the first 20G but exit when 5G have been done. The opposite is also
++possible - if \fBsize\fR is set to 20G, and \fBio_size\fR is set to 40G, then
++fio will do 40G of IO within the 0..20G region.
+ .TP
+ .BI fill_device \fR=\fPbool "\fR,\fB fill_fs" \fR=\fPbool
+ Sets size to something really large and waits for ENOSPC (no space left on
 diff --git a/options.c b/options.c
-index 6ceefbc..e3c9c87 100644
+index afca727..a01b2d9 100644
 --- a/options.c
 +++ b/options.c
-@@ -4204,10 +4204,8 @@ int __fio_option_is_set(struct thread_options *o, unsigned int off1)
- 		}
- 	}
- 
--	if (!opt) {
--		log_err("fio: no option found at offset %u\n", off1);
-+	if (!opt)
- 		return -1;
--	}
- 
- 	opt_off = opt - &fio_options[0];
- 	index = opt_off / (8 * sizeof(uint64_t));
-diff --git a/options.h b/options.h
-index e830884..36fd35d 100644
---- a/options.h
-+++ b/options.h
-@@ -26,9 +26,11 @@ extern int __fio_option_is_set(struct thread_options *, unsigned int off);
- 
- #define fio_option_is_set(__td, name)					\
- ({									\
--	int __r = __fio_option_is_set((__td), td_var_offset(name));	\
-+	const unsigned int off = td_var_offset(name);			\
-+	int __r = __fio_option_is_set((__td), off);			\
- 	if (__r == -1) {						\
--		log_err("fio: wanted %s\n", __fio_stringify(name));	\
-+		dprint(FD_PARSE, "option %s/%u not found in map\n",	\
-+				__fio_stringify(name), off);		\
- 		__r = 0;						\
- 	}								\
- 	__r;								\
-diff --git a/os/windows/install.wxs b/os/windows/install.wxs
-index 26be597..5db099b 100755
---- a/os/windows/install.wxs
-+++ b/os/windows/install.wxs
-@@ -10,7 +10,7 @@
- 	<Product Id="*"
- 	  Codepage="1252" Language="1033"
- 	  Manufacturer="fio" Name="fio"
--	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.2.0">
-+	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.2.1">
- 		<Package
- 		  Description="Flexible IO Tester"
- 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
-diff --git a/t/axmap.c b/t/axmap.c
-index e32ff98..cc078aa 100644
---- a/t/axmap.c
-+++ b/t/axmap.c
-@@ -5,6 +5,7 @@
+@@ -1641,8 +1641,9 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.group	= FIO_OPT_G_INVALID,
+ 	},
+ 	{
+-		.name	= "io_limit",
+-		.lname	= "IO Limit",
++		.name	= "io_size",
++		.alias	= "io_limit",
++		.lname	= "IO Size",
+ 		.type	= FIO_OPT_STR_VAL,
+ 		.off1	= td_var_offset(io_limit),
+ 		.interval = 1024 * 1024,
+diff --git a/t/btrace2fio.c b/t/btrace2fio.c
+index 04d4a28..fc1e4c7 100644
+--- a/t/btrace2fio.c
++++ b/t/btrace2fio.c
+@@ -2,6 +2,7 @@
+ #include <stdio.h>
  #include <unistd.h>
  #include <inttypes.h>
++#include <math.h>
+ #include <assert.h>
  
-+#include "../mutex.h"
- #include "../lib/lfsr.h"
- #include "../lib/axmap.h"
+ #include "../io_ddir.h"
+@@ -23,6 +24,13 @@ static unsigned int max_depth = 256;
+ static int output_ascii = 1;
+ static char *filename;
  
++/*
++ * Collapse defaults
++ */
++static unsigned int collapse_entries = 0;
++static unsigned int depth_diff = 1;
++static unsigned int random_diff = 5;
++
+ struct bs {
+ 	unsigned int bs;
+ 	unsigned int nr;
+@@ -61,9 +69,14 @@ struct btrace_pid {
+ 	struct flist_head pid_list;
+ 	pid_t pid;
+ 
++	pid_t *merge_pids;
++	unsigned int nr_merge_pids;
++
+ 	struct trace_file *files;
+ 	int nr_files;
+ 	unsigned int last_major, last_minor;
++	int numjobs;
++	int ignore;
+ 
+ 	struct btrace_out o;
+ };
+@@ -448,6 +461,7 @@ static struct btrace_pid *pid_hash_get(pid_t pid)
+ 		}
+ 
+ 		p->pid = pid;
++		p->numjobs = 1;
+ 		flist_add_tail(&p->hash_list, hash_list);
+ 		flist_add_tail(&p->pid_list, &pid_list);
+ 	}
+@@ -585,7 +599,11 @@ static void __output_p_ascii(struct btrace_pid *p, unsigned long *ios)
+ 	unsigned long total, usec;
+ 	int i, j;
+ 
+-	printf("[pid:\t%u]\n", p->pid);
++	printf("[pid:\t%u", p->pid);
++	if (p->nr_merge_pids)
++		for (i = 0; i < p->nr_merge_pids; i++)
++			printf(", %u", p->merge_pids[i]);
++	printf("]\n");
+ 
+ 	total = ddir_rw_sum(o->ios);
+ 	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
+@@ -641,7 +659,13 @@ static int __output_p_fio(struct btrace_pid *p, unsigned long *ios)
+ 		return 1;
+ 	}
+ 
+-	printf("[pid%u]\n", p->pid);
++	printf("[pid%u", p->pid);
++	if (p->nr_merge_pids)
++		for (i = 0; i < p->nr_merge_pids; i++)
++			printf(",pid%u", p->merge_pids[i]);
++	printf("]\n");
++
++	printf("numjobs=%u\n", p->numjobs);
+ 	printf("direct=1\n");
+ 	if (o->depth == 1)
+ 		printf("ioengine=sync\n");
+@@ -658,7 +682,7 @@ static int __output_p_fio(struct btrace_pid *p, unsigned long *ios)
+ 		printf("rw=randrw\n");
+ 		total = ddir_rw_sum(o->ios);
+ 		perc = ((float) o->ios[0] * 100.0) / (float) total;
+-		printf("rwmixread=%u\n", (int) (perc + 0.99));
++		printf("rwmixread=%u\n", (int) floor(perc + 0.50));
+ 	}
+ 
+ 	printf("percentage_random=");
+@@ -673,7 +697,7 @@ static int __output_p_fio(struct btrace_pid *p, unsigned long *ios)
+ 		if (i)
+ 			printf(",");
+ 		perc = 100.0 - perc;
+-		printf("%u", (int) perc);
++		printf("%u", (int) floor(perc + 0.5));
+ 	}
+ 	printf("\n");
+ 
+@@ -685,7 +709,8 @@ static int __output_p_fio(struct btrace_pid *p, unsigned long *ios)
+ 	}
+ 	printf("\n");
+ 
+-	printf("startdelay=%llus\n", o->start_delay / 1000000ULL);
++	if (o->start_delay / 1000000ULL)
++		printf("startdelay=%llus\n", o->start_delay / 1000000ULL);
+ 
+ 	time = o_longest_ttime(o);
+ 	time = (time + 1000000000ULL - 1) / 1000000000ULL;
+@@ -708,7 +733,7 @@ static int __output_p_fio(struct btrace_pid *p, unsigned long *ios)
+ 			if (j + 1 == o->nr_bs[i])
+ 				printf("%u/", bs->bs);
+ 			else
+-				printf("%u/%u", bs->bs, (int) perc);
++				printf("%u/%u", bs->bs, (int) floor(perc + 0.5));
+ 		}
+ 	}
+ 	printf("\n");
+@@ -819,6 +844,113 @@ static void free_p(struct btrace_pid *p)
+ 	free(p);
+ }
+ 
++static int entries_close(struct btrace_pid *pida, struct btrace_pid *pidb)
++{
++	float perca, percb, fdiff;
++	int i, idiff;
++
++	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
++		if ((pida->o.ios[i] && !pidb->o.ios[i]) ||
++		    (pidb->o.ios[i] && !pida->o.ios[i]))
++			return 0;
++		if (pida->o.ios[i] && pidb->o.ios[i]) {
++			perca = ((float) pida->o.seq[i] * 100.0) / (float) pida->o.ios[i];
++			percb = ((float) pidb->o.seq[i] * 100.0) / (float) pidb->o.ios[i];
++			fdiff = perca - percb;
++			if (fabs(fdiff) > random_diff)
++				return 0;
++		}
++
++		idiff = pida->o.depth - pidb->o.depth;
++		if (abs(idiff) > depth_diff)
++			return 0;
++	}
++
++	return 1;
++}
++
++static void merge_bs(struct bs **bsap, unsigned int *nr_bsap,
++		     struct bs *bsb, unsigned int nr_bsb)
++{
++	struct bs *bsa = *bsap;
++	unsigned int nr_bsa = *nr_bsap;
++	int a, b;
++
++	for (b = 0; b < nr_bsb; b++) {
++		int next, found = 0;
++
++		for (a = 0; a < nr_bsa; a++) {
++			if (bsb[b].bs != bsa[a].bs)
++				continue;
++
++			bsa[a].nr += bsb[b].nr;
++			bsa[a].merges += bsb[b].merges;
++			found = 1;
++			break;
++		}
++
++		if (found)
++			continue;
++
++		next = *nr_bsap;
++		bsa = realloc(bsa, (next + 1) * sizeof(struct bs));
++		bsa[next].bs = bsb[b].bs;
++		bsa[next].nr = bsb[b].nr;
++		(*nr_bsap)++;
++		*bsap = bsa;
++	}
++}
++
++static int merge_entries(struct btrace_pid *pida, struct btrace_pid *pidb)
++{
++	int i;
++
++	if (!entries_close(pida, pidb))
++		return 0;
++
++	pida->nr_merge_pids++;
++	pida->merge_pids = realloc(pida->merge_pids, pida->nr_merge_pids * sizeof(pid_t));
++	pida->merge_pids[pida->nr_merge_pids - 1] = pidb->pid;
++
++	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
++		struct btrace_out *oa = &pida->o;
++		struct btrace_out *ob = &pidb->o;
++
++		oa->ios[i] += ob->ios[i];
++		oa->merges[i] += ob->merges[i];
++		oa->seq[i] += ob->seq[i];
++		oa->kb[i] += ob->kb[i];
++		oa->first_ttime[i] = min(oa->first_ttime[i], ob->first_ttime[i]);
++		oa->last_ttime[i] = max(oa->last_ttime[i], ob->last_ttime[i]);
++		merge_bs(&oa->bs[i], &oa->nr_bs[i], ob->bs[i], ob->nr_bs[i]);
++	}
++
++	pida->o.start_delay = min(pida->o.start_delay, pidb->o.start_delay);
++	pida->o.depth = (pida->o.depth + pidb->o.depth) / 2;
++	return 1;
++}
++
++static void check_merges(struct btrace_pid *p, struct flist_head *pid_list)
++{
++	struct flist_head *e, *tmp;
++
++	if (p->ignore)
++		return;
++
++	flist_for_each_safe(e, tmp, pid_list) {
++		struct btrace_pid *pidb;
++
++		pidb = flist_entry(e, struct btrace_pid, pid_list);
++		if (pidb == p)
++			continue;
++
++		if (merge_entries(p, pidb)) {
++			pidb->ignore = 1;
++			p->numjobs++;
++		}
++	}
++}
++
+ static int output_p(void)
+ {
+ 	unsigned long ios[DDIR_RWDIR_CNT];
+@@ -838,6 +970,21 @@ static int output_p(void)
+ 		depth_disabled += p->o.depth_disabled;
+ 	}
+ 
++	if (collapse_entries) {
++		struct btrace_pid *p;
++
++		flist_for_each_safe(e, tmp, &pid_list) {
++			p = flist_entry(e, struct btrace_pid, pid_list);
++			check_merges(p, &pid_list);
++		}
++
++		flist_for_each_safe(e, tmp, &pid_list) {
++			p = flist_entry(e, struct btrace_pid, pid_list);
++			if (p->ignore)
++				free_p(p);
++		}
++	}
++
+ 	if (depth_disabled)
+ 		log_err("fio: missing completion traces, depths capped at %u\n", max_depth);
+ 
+@@ -862,14 +1009,17 @@ static int output_p(void)
+ 
+ static int usage(char *argv[])
+ {
+-	log_err("%s: <blktrace bin file>\n", argv[0]);
++	log_err("%s: [options] <blktrace bin file>\n", argv[0]);
+ 	log_err("\t-t\tUsec threshold to ignore task\n");
+ 	log_err("\t-n\tNumber IOS threshold to ignore task\n");
+ 	log_err("\t-f\tFio job file output\n");
+ 	log_err("\t-d\tUse this file/device for replay\n");
+ 	log_err("\t-r\tIgnore jobs with less than this KB/sec rate\n");
+-	log_err("\t-R\tSet rate in fio job\n");
++	log_err("\t-R\tSet rate in fio job (def=%u)\n", set_rate);
+ 	log_err("\t-D\tCap queue depth at this value (def=%u)\n", max_depth);
++	log_err("\t-c\tCollapse \"identical\" jobs (def=%u)\n", collapse_entries);
++	log_err("\t-u\tDepth difference for collapse (def=%u)\n", depth_diff);
++	log_err("\t-x\tRandom difference for collapse (def=%u)\n", random_diff);
+ 	return 1;
+ }
+ 
+@@ -925,7 +1075,7 @@ int main(int argc, char *argv[])
+ 	if (argc < 2)
+ 		return usage(argv);
+ 
+-	while ((c = getopt(argc, argv, "t:n:fd:r:RD:")) != -1) {
++	while ((c = getopt(argc, argv, "t:n:fd:r:RD:c:u:x:")) != -1) {
+ 		switch (c) {
+ 		case 'R':
+ 			set_rate = 1;
+@@ -948,6 +1098,15 @@ int main(int argc, char *argv[])
+ 		case 'D':
+ 			max_depth = atoi(optarg);
+ 			break;
++		case 'c':
++			collapse_entries = atoi(optarg);
++			break;
++		case 'u':
++			depth_diff = atoi(optarg);
++			break;
++		case 'x':
++			random_diff = atoi(optarg);
++			break;
+ 		case '?':
+ 		default:
+ 			return usage(argv);
