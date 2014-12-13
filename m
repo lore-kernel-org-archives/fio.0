@@ -1,27 +1,32 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <548CC380.4070100@kernel.dk>
-Date: Sat, 13 Dec 2014 15:53:52 -0700
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-la0-f48.google.com ([209.85.215.48]:63857 "EHLO
+	mail-la0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751736AbaLMUcS convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Sat, 13 Dec 2014 15:32:18 -0500
+Received: by mail-la0-f48.google.com with SMTP id gf13so7828677lab.35
+        for <fio@vger.kernel.org>; Sat, 13 Dec 2014 12:32:16 -0800 (PST)
 MIME-Version: 1.0
-Subject: Re: Sequential Commands are essentially random when in mixed sequential/random
- workloads
-References: <89470388ACB8A24491F3E64F24385FD75A4DC251@wdscexmb03>
 In-Reply-To: <89470388ACB8A24491F3E64F24385FD75A4DC251@wdscexmb03>
-Content-Type: multipart/mixed;
- boundary="------------010505080009010304080104"
-To: Stephen Nichols <Stephen.Nichols@wdc.com>, "'fio@vger.kernel.org'" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+References: <89470388ACB8A24491F3E64F24385FD75A4DC251@wdscexmb03>
+From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Date: Sat, 13 Dec 2014 23:31:55 +0300
+Message-ID: <CANvN+ekgXKivBooiEtpNKApmoWg=Dv-DwYbOKQ0WKcPLqUCnoQ@mail.gmail.com>
+Subject: Re: Sequential Commands are essentially random when in mixed
+ sequential/random workloads
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Stephen Nichols <Stephen.Nichols@wdc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------010505080009010304080104
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-
-On 12/12/2014 05:23 PM, Stephen Nichols wrote:
+On Sat, Dec 13, 2014 at 3:23 AM, Stephen Nichols
+<Stephen.Nichols@wdc.com> wrote:
+>
 > Hi all,
-> 
+>
 > When using fio configuration below..
-> 
+>
 > [global]
 > ioengine=libaio
 > direct=1
@@ -31,16 +36,16 @@ On 12/12/2014 05:23 PM, Stephen Nichols wrote:
 > rw=randrw
 > rwmixread=80
 > percentage_random=100,0
-> 
+>
 > [drive1]
 > filename=/dev/sda
-> 
-> 
+>
+>
 > I am expecting to see 80% reads, 20% writes where all reads are random and all writes are sequential. I captured a bus trace of traffic to the disk and the bus trace reflected as much with one issue. The write commands are essentially random. Each write begins at a new random LBA. If 2 or more writes occur in a row, the LBA's are sequential based on the block size BUT I feel the heart of this feature would be to emulate a large file write during random access. With that in mind would it be possible for sequential reads or writes within mixed sequential/random workload to remember the last LBA accessed? In this scenario the writes would still only take up 20% of the workload but when a write did occur it should be the next sequential step from the last write.
-> 
-> 
+>
+>
 > Snippet from the bus trace for reference
-> 
+>
 > Command                                           LBA
 > Read FPDMA Queued:                  19F3F818
 > Read FPDMA Queued:                  1CBE2740
@@ -51,129 +56,116 @@ On 12/12/2014 05:23 PM, Stephen Nichols wrote:
 > Read FPDMA Queued:                  20B89488
 > Write FPDMA Queued:                 336EE0D0
 > Write FPDMA Queued:                 336EE0D8
-> 
-> 
-> 
+>
+>
+
+The problem is that, with non-trivial percentage_random, fio generates
+next sequential offset off the file's last position, but the latter is
+global, not per data direction. As a result, with the workload above,
+one gets the pattern where next write is sequential with respect to
+the last I/O, not the last write as, I believe, the expectation goes.
+
+I've added a debug printout for the last_pos to illustrate the point
+in the debug output below. ddir=1 are writes.
+
+Regards,
+Andrey
+
+fio: set debug option io
+io       5299  load ioengine libaio
+drive1: (g=0): rw=randrw, bs=32K-32K/32K-32K/32K-32K, ioengine=libaio, iodepth=8
+fio-2.1.14-45-g7003
+Starting 1 process
+io       5301  invalidate cache /tmp/drive1: 0/1048576
+io       5301  get_next_block: last pos 0
+io       5301  fill_io_u: io_u 0x121ec00: off=32768/len=32768/ddir=0//tmp/drive1
+io       5301  prep: io_u 0x121ec00: off=32768/len=32768/ddir=0//tmp/drive1
+io       5301  ->prep(0x121ec00)=0
+io       5301  queue: io_u 0x121ec00: off=32768/len=32768/ddir=0//tmp/drive1
+io       5301  calling ->commit(), depth 1
+io       5301  get_next_block: last pos 65536
+io       5301  fill_io_u: io_u 0x121e900:
+off=753664/len=32768/ddir=0//tmp/drive1
+io       5301  prep: io_u 0x121e900: off=753664/len=32768/ddir=0//tmp/drive1
+io       5301  ->prep(0x121e900)=0
+io       5301  queue: io_u 0x121e900: off=753664/len=32768/ddir=0//tmp/drive1
+io       5301  calling ->commit(), depth 2
+io       5301  get_next_block: last pos 786432
+io       5301  fill_io_u: io_u 0x121e1c0:
+off=851968/len=32768/ddir=0//tmp/drive1
+io       5301  prep: io_u 0x121e1c0: off=851968/len=32768/ddir=0//tmp/drive1
+io       5301  ->prep(0x121e1c0)=0
+io       5301  queue: io_u 0x121e1c0: off=851968/len=32768/ddir=0//tmp/drive1
+io       5301  calling ->commit(), depth 3
+================================================================
+io       5301  get_next_block: last pos 884736
+io       5301  fill_io_u: io_u 0x121dec0:
+off=884736/len=32768/ddir=1//tmp/drive1
+io       5301  prep: io_u 0x121dec0: off=884736/len=32768/ddir=1//tmp/drive1
+io       5301  ->prep(0x121dec0)=0
+io       5301  queue: io_u 0x121dec0: off=884736/len=32768/ddir=1//tmp/drive1
+io       5301  calling ->commit(), depth 4
+io       5301  get_next_block: last pos 917504
+io       5301  fill_io_u: io_u 0x121dbc0:
+off=491520/len=32768/ddir=0//tmp/drive1
+io       5301  prep: io_u 0x121dbc0: off=491520/len=32768/ddir=0//tmp/drive1
+io       5301  ->prep(0x121dbc0)=0
+io       5301  queue: io_u 0x121dbc0: off=491520/len=32768/ddir=0//tmp/drive1
+io       5301  calling ->commit(), depth 5
+io       5301  get_next_block: last pos 524288
+io       5301  fill_io_u: io_u 0x121d8c0:
+off=393216/len=32768/ddir=0//tmp/drive1
+io       5301  prep: io_u 0x121d8c0: off=393216/len=32768/ddir=0//tmp/drive1
+io       5301  ->prep(0x121d8c0)=0
+io       5301  queue: io_u 0x121d8c0: off=393216/len=32768/ddir=0//tmp/drive1
+io       5301  calling ->commit(), depth 6
+io       5301  get_next_block: last pos 425984
+io       5301  fill_io_u: io_u 0x121d600: off=0/len=32768/ddir=0//tmp/drive1
+io       5301  prep: io_u 0x121d600: off=0/len=32768/ddir=0//tmp/drive1
+io       5301  ->prep(0x121d600)=0
+io       5301  queue: io_u 0x121d600: off=0/len=32768/ddir=0//tmp/drive1
+io       5301  calling ->commit(), depth 7
+io       5301  get_next_block: last pos 32768
+io       5301  fill_io_u: io_u 0x121d300: off=65536/len=32768/ddir=0//tmp/drive1
+io       5301  prep: io_u 0x121d300: off=65536/len=32768/ddir=0//tmp/drive1
+io       5301  ->prep(0x121d300)=0
+io       5301  queue: io_u 0x121d300: off=65536/len=32768/ddir=0//tmp/drive1
+io       5301  calling ->commit(), depth 8
+io       5301  io_u_queued_completed: min=1
+io       5301  getevents: 1
+io       5301  io complete: io_u 0x121ec00:
+off=32768/len=32768/ddir=0//tmp/drive1
+io       5301  get_next_block: last pos 98304
+io       5301  fill_io_u: io_u 0x121ec00:
+off=360448/len=32768/ddir=0//tmp/drive1
+io       5301  prep: io_u 0x121ec00: off=360448/len=32768/ddir=0//tmp/drive1
+io       5301  ->prep(0x121ec00)=0
+io       5301  queue: io_u 0x121ec00: off=360448/len=32768/ddir=0//tmp/drive1
+io       5301  calling ->commit(), depth 8
+io       5301  io_u_queued_completed: min=1
+io       5301  getevents: 1
+io       5301  io complete: io_u 0x121e900:
+off=753664/len=32768/ddir=0//tmp/drive1
+==================================================================
+io       5301  get_next_block: last pos 393216
+io       5301  fill_io_u: io_u 0x121e900:
+off=393216/len=32768/ddir=1//tmp/drive1
+io       5301  prep: io_u 0x121e900: off=393216/len=32768/ddir=1//tmp/drive1
+io       5301  ->prep(0x121e900)=0
+
+
+Regards,
+Andrey
+
+>
 > Let me know what you think, this feature may be working as intended but it seemed off to me.
-
-Would be easy enough to fix, we just need to track last offset per data
-direction. Does the attached work for you? Totally untested, will test
-on Monday.
-
--- 
-Jens Axboe
-
-
---------------010505080009010304080104
-Content-Type: text/x-patch;
- name="last-rwdir-pos.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="last-rwdir-pos.patch"
-
-diff --git a/file.h b/file.h
-index add77730fdb4..70e4c48c2093 100644
---- a/file.h
-+++ b/file.h
-@@ -88,8 +88,8 @@ struct fio_file {
- 	uint64_t file_offset;
- 	uint64_t io_size;
- 
--	uint64_t last_pos;
--	uint64_t last_start;
-+	uint64_t last_pos[DDIR_RWDIR_CNT];
-+	uint64_t last_start[DDIR_RWDIR_CNT];
- 
- 	uint64_t first_write;
- 	uint64_t last_write;
-diff --git a/filesetup.c b/filesetup.c
-index cc6d44091736..a918234fb77f 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -1536,8 +1536,13 @@ void free_release_files(struct thread_data *td)
- 
- void fio_file_reset(struct thread_data *td, struct fio_file *f)
- {
--	f->last_pos = f->file_offset;
--	f->last_start = -1ULL;
-+	int i;
-+
-+	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
-+		f->last_pos[i] = f->file_offset;
-+		f->last_start[i] = -1ULL;
-+	}
-+
- 	if (f->io_axmap)
- 		axmap_reset(f->io_axmap);
- 	if (td->o.random_generator == FIO_RAND_GEN_LFSR)
-diff --git a/io_u.c b/io_u.c
-index f13590835286..efbcea9eb15b 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -249,7 +249,7 @@ static int get_next_rand_block(struct thread_data *td, struct fio_file *f,
- 	}
- 
- 	dprint(FD_IO, "%s: rand offset failed, last=%llu, size=%llu\n",
--			f->file_name, (unsigned long long) f->last_pos,
-+			f->file_name, (unsigned long long) f->last_pos[ddir],
- 			(unsigned long long) f->real_file_size);
- 	return 1;
- }
-@@ -261,17 +261,17 @@ static int get_next_seq_offset(struct thread_data *td, struct fio_file *f,
- 
- 	assert(ddir_rw(ddir));
- 
--	if (f->last_pos >= f->io_size + get_start_offset(td, f) &&
-+	if (f->last_pos[ddir] >= f->io_size + get_start_offset(td, f) &&
- 	    o->time_based)
--		f->last_pos = f->last_pos - f->io_size;
-+		f->last_pos[ddir] = f->last_pos[ddir] - f->io_size;
- 
--	if (f->last_pos < f->real_file_size) {
-+	if (f->last_pos[ddir] < f->real_file_size) {
- 		uint64_t pos;
- 
--		if (f->last_pos == f->file_offset && o->ddir_seq_add < 0)
--			f->last_pos = f->real_file_size;
-+		if (f->last_pos[ddir] == f->file_offset && o->ddir_seq_add < 0)
-+			f->last_pos[ddir] = f->real_file_size;
- 
--		pos = f->last_pos - f->file_offset;
-+		pos = f->last_pos[ddir] - f->file_offset;
- 		if (pos && o->ddir_seq_add) {
- 			pos += o->ddir_seq_add;
- 
-@@ -330,8 +330,8 @@ static int get_next_block(struct thread_data *td, struct io_u *io_u,
- 				*is_random = 0;
- 			}
- 		} else if (td->o.rw_seq == RW_SEQ_IDENT) {
--			if (f->last_start != -1ULL)
--				offset = f->last_start - f->file_offset;
-+			if (f->last_start[ddir] != -1ULL)
-+				offset = f->last_start[ddir] - f->file_offset;
- 			else
- 				offset = 0;
- 			ret = 0;
-@@ -743,7 +743,7 @@ static int fill_io_u(struct thread_data *td, struct io_u *io_u)
- 		 */
- 		if (f->file_offset >= f->real_file_size)
- 			f->file_offset = f->real_file_size - f->file_offset;
--		f->last_pos = f->file_offset;
-+		f->last_pos[io_u->ddir] = f->file_offset;
- 		td->io_skip_bytes += td->o.zone_skip;
- 	}
- 
-@@ -1471,8 +1471,8 @@ struct io_u *get_io_u(struct thread_data *td)
- 			goto err_put;
- 		}
- 
--		f->last_start = io_u->offset;
--		f->last_pos = io_u->offset + io_u->buflen;
-+		f->last_start[io_u->ddir] = io_u->offset;
-+		f->last_pos[io_u->ddir] = io_u->offset + io_u->buflen;
- 
- 		if (io_u->ddir == DDIR_WRITE) {
- 			if (td->flags & TD_F_REFILL_BUFFERS) {
-
---------------010505080009010304080104--
-
+>
+> Thanks,
+> Stephen "Nick" Nichols
+> Western Digital
+> Enterprise Test Development
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
