@@ -1,20 +1,20 @@
 Return-Path: <axboe@kernel.dk>
-Message-ID: <5490B574.3000502@kernel.dk>
-Date: Tue, 16 Dec 2014 15:43:00 -0700
+Message-ID: <548F9E4B.2010103@kernel.dk>
+Date: Mon, 15 Dec 2014 19:51:55 -0700
 From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
 Subject: Re: fio main thread got stuck over the weekend
 References: <20140811154423.GE7486@beardog.cce.hp.com> <20140811160418.GG7486@beardog.cce.hp.com> <53F79442.6010500@kernel.dk> <20140822190924.GQ19666@beardog.cce.hp.com> <53F795E0.3090806@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B40295940B8A0@G4W3202.americas.hpqcorp.net> <548BC55F.9020706@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B40295940EEC5@G4W3202.americas.hpqcorp.net> <548F1C65.2070501@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B40295940F1BF@G4W3202.americas.hpqcorp.net> <548F40A8.3010405@kernel.dk> <548F452D.7040401@kernel.dk> <548F495F.7090200@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B40295940F830@G4W3202.americas.hpqcorp.net>
 In-Reply-To: <94D0CD8314A33A4D9D801C0FE68B40295940F830@G4W3202.americas.hpqcorp.net>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 To: "Elliott, Robert (Server Storage)" <Elliott@hp.com>, "stephenmcameron@gmail.com" <stephenmcameron@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
 On 12/15/2014 05:52 PM, Elliott, Robert (Server Storage) wrote:
-> 
-> 
+>
+>
 >> -----Original Message-----
 >> From: Jens Axboe [mailto:axboe@kernel.dk]
 >> Sent: Monday, 15 December, 2014 2:50 PM
@@ -58,13 +58,14 @@ On 12/15/2014 05:52 PM, Elliott, Robert (Server Storage) wrote:
 >>>> this thread.
 >>>
 >>> So that referred to the output status, your bug was on the ETA, correct?
-> 
+>
 > Yes, the first anomaly was no ETAs incrementing, while IO was still
-> occurring. 
-> 
+> occurring.
+>
 > The second anomaly was running forever.
-> 
-> 
+
+Gotcha
+
 >>> For that, we never get woken up by someone signaling our condvar, we
 >>> just wake up every second to do the ETA display. The time conversion
 >>> looks wrong, though:
@@ -85,27 +86,34 @@ On 12/15/2014 05:52 PM, Elliott, Robert (Server Storage) wrote:
 >> higher, which is the sane thing to do. I wonder if it does that at your
 >> end too, or whether it hangs? If it hangs indefinitely, that could
 >> explain it. Test case attached, I checked in a fix for the off-by-one.
-> 
+>
 > That program results in EINVAL here:
 > will wait
 > done wait 22
-> 
+
+OK, which is the sane way to handle it, but who knows what bugs there 
+might have been there.
+
 > In backend.c helper_thread_main():
 > * should the gettimeofday() return value be checked?
+
+Should not really fail, since we know 'tv' is valid.
+
 > * should fio_gettime() be used instead of gettimeofday() to honor
-> the clocksource setting?  
-> 
+> the clocksource setting?
+
+That would be the case if we used it internally, but we do not. It's 
+only used for passing to the condvar timedwait.
+
 > In this pool of machines, I have occasionally seen time issues where
 > some timeserver communication is messed up and "make" complains that
 > files are newer than expected.  Maybe some time warp occurred during
-> the test?  
+> the test?
 
-I think I figured out what was going in, another user reported a similar
-issue. Since you have it running, can you try and gdb attach to one of
-the fio jobs? Then add a breakpoint in backend.c:__update_tv_cache(),
-and print td->tv_cache after each call. Just do that a handful of times,
-enough so we can see if it's incrementing or if it's stuck at the same
-value.
+That could definitely explain it, not sure what else could. That could 
+cause both the run to continue, and the timedwait to not return. I'll 
+switch it to use clock_gettime, if we have it, otherwise we really have 
+no other option than to use gettimeofday()...
 
 -- 
 Jens Axboe
