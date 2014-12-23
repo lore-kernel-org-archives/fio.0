@@ -1,56 +1,142 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail.thomas-krenn.com ([217.7.54.190]:54004 "EHLO
-	mail.thomas-krenn.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750704AbaLOL4t convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 15 Dec 2014 06:56:49 -0500
-Received: from iris.intern.thomas-kren.com (iris.intern.thomas-krenn.com [192.168.110.42])
-	by mail.thomas-krenn.com (Postfix) with ESMTP id 5F9F1A1A6E
-	for <fio@vger.kernel.org>; Mon, 15 Dec 2014 12:48:21 +0100 (CET)
-Received: from zimbra.thomas-krenn.com (zimbra.thomas-krenn.com [192.168.110.28])
-	by iris.intern.thomas-kren.com (Postfix) with ESMTP id 40F953FD0F
-	for <fio@vger.kernel.org>; Mon, 15 Dec 2014 12:48:21 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-	by zimbra.thomas-krenn.com (Postfix) with ESMTP id 3EE311A84004
-	for <fio@vger.kernel.org>; Mon, 15 Dec 2014 12:48:21 +0100 (CET)
-Date: Mon, 15 Dec 2014 12:48:20 +0100 (CET)
-From: Georg =?utf-8?Q?Sch=C3=B6nberger?= 
-	<gschoenberger@thomas-krenn.com>
-Message-ID: <2028599731.63796.1418644100540.JavaMail.zimbra@thomas-krenn.com>
-In-Reply-To: <298214297.62025.1418642489614.JavaMail.zimbra@thomas-krenn.com>
-Subject: SSD write latency lower than read latency
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Received: from bombadil.infradead.org ([198.137.202.9]:55653 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755815AbaLWNAF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 23 Dec 2014 08:00:05 -0500
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1Y3P4G-0005lB-5b
+	for fio@vger.kernel.org; Tue, 23 Dec 2014 13:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20141223130003.21E4F40195@lyth.info>
+Date: Tue, 23 Dec 2014 06:00:03 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hi Fio users and Jens,
+The following changes since commit b04f590551050b23768a3969d47371d363aa8745:
 
-I am currently analyzing read and write latencies of Solid State Disks (SSDs). My assumption was that
-write latencies are usually higher than read latencies. But my tests with Fio on an Intel DCS3500 show 
-that average latency while writing is lower than while reading (using fio-2.1.3):
+  Fix default scrambling of buffers (2014-12-20 14:44:45 -0700)
 
-* $ sudo /usr/bin/fio --rw=randrw --name=intelDCS3500 --bs=4k --direct=1 --filename=/dev/sda --rwmixread=0
-    --numjobs=1 --ioengine=libaio --runtime=60 --iodepth=1 --time_based 
-    [...]
-    lat (usec): min=30, max=1010, avg=43.32, stdev= 3.42
-    [...]
-* $ sudo /usr/bin/fio --rw=randrw --name=intelDCS3500 --bs=4k --direct=1 --filename=/dev/sda --rwmixread=100
-    --numjobs=1 --ioengine=libaio --runtime=60 --iodepth=1 --time_based 
-    [...]
-    lat (usec): min=103, max=2315, avg=121.92, stdev=11.02
+are available in the git repository at:
 
-I have made this observation on two different machines with different SSDs, always producing similar results.
-Am I doing anything wrong with my tests?
-Are write latencies in general lower than read latencies?
+  git://git.kernel.dk/fio.git master
 
-One guess I have is a SSD cache to enhance write access (in particular the Intel datacenter SSDs, as they have
-a "Enhanced power-loss data protection" feature).
+for you to fetch changes up to 3c6c5a29a74cf5727c0572b82907c330c38cea61:
 
-Thanks a lot, Georg
--- 
-: Georg Schönberger
-: Web Operations & Knowledge Transfer
-: Thomas-Krenn.AG | The server-experts
-: http://www.thomas-krenn.com | http://www.thomas-krenn.com/wiki
+  Fio 2.2.3 (2014-12-22 20:06:45 -0700)
+
+----------------------------------------------------------------
+fio v2.2.3
+
+----------------------------------------------------------------
+Jens Axboe (3):
+      Fio 2.2.2
+      options: ensure that we check all candidates on is_set check
+      Fio 2.2.3
+
+ FIO-VERSION-GEN        |    2 +-
+ options.c              |   46 ++++++++++++++++++++++++++++++++++++----------
+ os/windows/install.wxs |    2 +-
+ 3 files changed, 38 insertions(+), 12 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index d124e36..a26eb2e 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-2.2.1
++DEF_VER=fio-2.2.3
+ 
+ LF='
+ '
+diff --git a/options.c b/options.c
+index e3c9c87..3e783c1 100644
+--- a/options.c
++++ b/options.c
+@@ -4191,21 +4191,32 @@ struct fio_option *fio_option_find(const char *name)
+ 	return find_option(fio_options, name);
+ }
+ 
+-int __fio_option_is_set(struct thread_options *o, unsigned int off1)
++static struct fio_option *find_next_opt(struct thread_options *o,
++					struct fio_option *from,
++					unsigned int off1)
+ {
+-	unsigned int opt_off, index, offset;
+-	struct fio_option *opt = NULL;
+-	int i;
++	struct fio_option *opt;
+ 
+-	for (i = 0; fio_options[i].name; i++) {
+-		if (off1 == fio_options[i].off1) {
+-			opt = &fio_options[i];
++	if (!from)
++		from = &fio_options[0];
++	else
++		from++;
++
++	opt = NULL;
++	do {
++		if (off1 == from->off1) {
++			opt = from;
+ 			break;
+ 		}
+-	}
++		from++;
++	} while (from->name);
+ 
+-	if (!opt)
+-		return -1;
++	return opt;
++}
++
++static int opt_is_set(struct thread_options *o, struct fio_option *opt)
++{
++	unsigned int opt_off, index, offset;
+ 
+ 	opt_off = opt - &fio_options[0];
+ 	index = opt_off / (8 * sizeof(uint64_t));
+@@ -4213,6 +4224,21 @@ int __fio_option_is_set(struct thread_options *o, unsigned int off1)
+ 	return (o->set_options[index] & (1UL << offset)) != 0;
+ }
+ 
++int __fio_option_is_set(struct thread_options *o, unsigned int off1)
++{
++	struct fio_option *opt, *next;
++
++	next = NULL;
++	while ((opt = find_next_opt(o, next, off1)) != NULL) {
++		if (opt_is_set(o, opt))
++			return 1;
++
++		next = opt;
++	}
++
++	return 0;
++}
++
+ void fio_option_mark_set(struct thread_options *o, struct fio_option *opt)
+ {
+ 	unsigned int opt_off, index, offset;
+diff --git a/os/windows/install.wxs b/os/windows/install.wxs
+index 5db099b..405b05b 100755
+--- a/os/windows/install.wxs
++++ b/os/windows/install.wxs
+@@ -10,7 +10,7 @@
+ 	<Product Id="*"
+ 	  Codepage="1252" Language="1033"
+ 	  Manufacturer="fio" Name="fio"
+-	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.2.1">
++	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.2.3">
+ 		<Package
+ 		  Description="Flexible IO Tester"
+ 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
