@@ -1,30 +1,24 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <54AAF98A.6090507@kernel.dk>
-Date: Mon, 05 Jan 2015 13:52:26 -0700
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-ob0-f200.google.com ([209.85.214.200]:35522 "EHLO
+	mail-ob0-f200.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751478AbbADBxM (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 3 Jan 2015 20:53:12 -0500
+Received: by mail-ob0-f200.google.com with SMTP id gq1so486327934obb.3
+        for <fio@vger.kernel.org>; Sat, 03 Jan 2015 17:53:12 -0800 (PST)
 MIME-Version: 1.0
-Subject: Re: fio-2.1.14-17-g8671 in client/server mode: client continues to
- wait even after server is dead
-References: <CAO+GKh3gAXvugqduozYn-0VtG1=t4pdEnznCbM+H3Fd9Xknhqg@mail.gmail.com>
-In-Reply-To: <CAO+GKh3gAXvugqduozYn-0VtG1=t4pdEnznCbM+H3Fd9Xknhqg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-To: Surendar Chandra <surendar@datrium.com>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+From: Surendar Chandra <surendar@datrium.com>
+Date: Sat, 3 Jan 2015 17:52:51 -0800
+Message-ID: <CAO+GKh3gAXvugqduozYn-0VtG1=t4pdEnznCbM+H3Fd9Xknhqg@mail.gmail.com>
+Subject: fio-2.1.14-17-g8671 in client/server mode: client continues to wait
+ even after server is dead
+Content-Type: text/plain; charset=UTF-8
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On 01/03/2015 06:52 PM, Surendar Chandra wrote:
-> In my case, the server machine rebooted and started a new fio server
-> after the client had issued a long running script. The original client
-> continues to futilely wait for the server to come back and return
-> results for its script. I am on Fedora 17.
+In my case, the server machine rebooted and started a new fio server
+after the client had issued a long running script. The original client
+continues to futilely wait for the server to come back and return
+results for its script. I am on Fedora 17.
 
-Can you check if current -git is better? There was a bug in the timeout
-checking for ETA replies, it was using two different time sources for
-it... You want to make sure you have this commit:
-
-http://git.kernel.dk/?p=fio.git;a=commit;h=c7b0978381243f25a06464cdbf57bb55a1dbaa33
-
--- 
-Jens Axboe
-
-
+Thanks much
