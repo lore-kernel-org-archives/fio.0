@@ -1,103 +1,331 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from gate1.sios.com ([221.241.189.195]:45789 "EHLO
-	tenpost3.dc1.sios.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751790AbbAGDiT (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 6 Jan 2015 22:38:19 -0500
-Received: from tenisvw (tenisvw.dc1.sios.com [10.20.0.16])
-	by tenpost4.dc1.sios.com (Postfix) with ESMTP id 8694F2360061
-	for <fio@vger.kernel.org>; Wed,  7 Jan 2015 12:30:36 +0900 (JST)
-Received: from mail-qa0-f48.google.com (mail-qa0-f48.google.com [209.85.216.48])
-	by tenpost3.dc1.sios.com (Postfix) with ESMTP id 230082360061
-	for <fio@vger.kernel.org>; Wed,  7 Jan 2015 12:30:36 +0900 (JST)
-Received: by mail-qa0-f48.google.com with SMTP id k15so1198236qaq.7
-        for <fio@vger.kernel.org>; Tue, 06 Jan 2015 19:30:35 -0800 (PST)
-MIME-Version: 1.0
-From: Yoshinori Sato <yo-satoh@sios.com>
-Date: Wed, 7 Jan 2015 12:30:15 +0900
-Message-ID: <CAL_XjKXUkmDm2kVn3b-PEuRjFP9gyx6hCorVADkUAcfcYM4=BA@mail.gmail.com>
-Subject: [PATCH] mmap backend broken
-Content-Type: text/plain; charset=UTF-8
+Received: from bombadil.infradead.org ([198.137.202.9]:46566 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750905AbbADNAF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sun, 4 Jan 2015 08:00:05 -0500
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1Y7kmq-0002Iq-8a
+	for fio@vger.kernel.org; Sun, 04 Jan 2015 13:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150104130003.4434240191@lyth.info>
+Date: Sun,  4 Jan 2015 06:00:03 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Program received signal SIGSEGV, Segmentation fault.
-0x00000000004345c2 in fio_mmapio_invalidate (td=0x7fffeed6e790,
-    f=0x7ffff75dc3d0) at engines/mmap.c:260
-warning: Source file is more recent than executable.
-260 static struct ioengine_ops ioengine = {
-(gdb) bt
-#0  0x00000000004345c2 in fio_mmapio_invalidate (td=0x7fffeed6e790,
-    f=0x7ffff75dc3d0) at engines/mmap.c:260
-#1  0x000000000041b1da in __file_invalidate_cache (td=0x7fffeed6e790,
-    f=0x7ffff75dc3d0, off=0, len=1456128) at filesetup.c:402
-#2  0x000000000041c465 in setup_files (td=0x7fffeed6e790) at filesetup.c:924
-#3  0x0000000000443d7a in run_threads () at backend.c:1892
-#4  fio_backend () at backend.c:2197
-#5  0x0000003506a1ed1d in __libc_start_main (main=0x453980 <main>, argc=2,
-    ubp_av=0x7fffffffe228, init=<value optimized out>,
-    fini=<value optimized out>, rtld_fini=<value optimized out>,
-    stack_end=0x7fffffffe218) at libc-start.c:226
-#6  0x000000000040aa19 in _start ()
+The following changes since commit aad918e47d119eb2043311f1a2a45ce109c047d1:
 
-madvice before mmap. moved later.
+  gettime: add basic init cpuclock test (2014-12-23 10:41:34 -0700)
 
-Signed-off-by Yoshinori Sato <yo-satoh@sios.com>
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to fde90aadbbf223d4d9b553c8cda3b65b0b1140e2:
+
+  Fio 2.2.4 (2015-01-03 19:46:55 -0700)
+
+----------------------------------------------------------------
+fio v2.2.4
+
+----------------------------------------------------------------
+Jens Axboe (5):
+      Get rid of lockfile callback
+      Revert "axmap: fix deadlock"
+      Revert "axmap: ensure we lock down the maps for shared access"
+      bloom: kill unused function
+      Fio 2.2.4
+
+Ming Lei (2):
+      axmap: fix deadlock
+      axmap: make axmap_first_free() static
+
+ FIO-VERSION-GEN        |    2 +-
+ Makefile               |    2 +-
+ lib/axmap.c            |   56 ++++++++++--------------------------------------
+ lib/axmap.h            |    1 -
+ lib/bloom.c            |    5 -----
+ lib/bloom.h            |    1 -
+ options.c              |   13 -----------
+ os/windows/install.wxs |    2 +-
+ t/axmap.c              |    1 -
+ 9 files changed, 14 insertions(+), 69 deletions(-)
+
 ---
- engines/mmap.c | 25 ++++++++++---------------
- 1 file changed, 10 insertions(+), 15 deletions(-)
 
-diff --git a/engines/mmap.c b/engines/mmap.c
-index 8bcd42c..69add78 100644
---- a/engines/mmap.c
-+++ b/engines/mmap.c
-@@ -62,6 +62,16 @@ static int fio_mmap_file(struct thread_data *td,
-struct fio_file *f,
-  goto err;
-  }
-  }
-+ if (posix_madvise(fmd->mmap_ptr, length, POSIX_MADV_DONTNEED) < 0) {
-+ td_verror(td, errno, "madvise");
-+ goto err;
-+ }
-+
-+#ifdef FIO_MADV_FREE
-+ if (f->filetype == FIO_TYPE_BD)
-+ (void) posix_madvise(fmd->mmap_ptr, fmd->mmap_sz, FIO_MADV_FREE);
-+#endif
-+
+Diff of recent changes:
 
- err:
-  if (td->error && fmd->mmap_ptr)
-@@ -252,20 +262,6 @@ static int fio_mmapio_close_file(struct
-thread_data *td, struct fio_file *f)
-  return generic_close_file(td, f);
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index a26eb2e..a8c8e65 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-2.2.3
++DEF_VER=fio-2.2.4
+ 
+ LF='
+ '
+diff --git a/Makefile b/Makefile
+index d27ecaf..52e515b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -186,7 +186,7 @@ T_ZIPF_OBJS += t/log.o lib/ieee754.o lib/rand.o lib/zipf.o t/genzipf.o
+ T_ZIPF_PROGS = t/fio-genzipf
+ 
+ T_AXMAP_OBJS = t/axmap.o
+-T_AXMAP_OBJS += lib/lfsr.o lib/axmap.o gettime.o mutex.o t/log.o t/debug.o
++T_AXMAP_OBJS += lib/lfsr.o lib/axmap.o
+ T_AXMAP_PROGS = t/axmap
+ 
+ T_LFSR_TEST_OBJS = t/lfsr-test.o
+diff --git a/lib/axmap.c b/lib/axmap.c
+index e847a38..68096d8 100644
+--- a/lib/axmap.c
++++ b/lib/axmap.c
+@@ -23,7 +23,6 @@
+ #include "../arch/arch.h"
+ #include "axmap.h"
+ #include "../smalloc.h"
+-#include "../mutex.h"
+ #include "../minmax.h"
+ 
+ #if BITS_PER_LONG == 64
+@@ -46,7 +45,6 @@ struct axmap_level {
+ };
+ 
+ struct axmap {
+-	struct fio_mutex lock;
+ 	unsigned int nr_levels;
+ 	struct axmap_level *levels;
+ 	uint64_t first_free;
+@@ -65,8 +63,6 @@ void axmap_reset(struct axmap *axmap)
+ {
+ 	int i;
+ 
+-	fio_mutex_down(&axmap->lock);
+-
+ 	for (i = 0; i < axmap->nr_levels; i++) {
+ 		struct axmap_level *al = &axmap->levels[i];
+ 
+@@ -74,7 +70,6 @@ void axmap_reset(struct axmap *axmap)
+ 	}
+ 
+ 	axmap->first_free = 0;
+-	fio_mutex_up(&axmap->lock);
  }
-
--static int fio_mmapio_invalidate(struct thread_data *td, struct fio_file *f)
+ 
+ void axmap_free(struct axmap *axmap)
+@@ -88,7 +83,6 @@ void axmap_free(struct axmap *axmap)
+ 		sfree(axmap->levels[i].map);
+ 
+ 	sfree(axmap->levels);
+-	__fio_mutex_remove(&axmap->lock);
+ 	sfree(axmap);
+ }
+ 
+@@ -101,8 +95,6 @@ struct axmap *axmap_new(unsigned long nr_bits)
+ 	if (!axmap)
+ 		return NULL;
+ 
+-	__fio_mutex_init(&axmap->lock, FIO_MUTEX_UNLOCKED);
+-
+ 	levels = 1;
+ 	i = (nr_bits + BLOCKS_PER_UNIT - 1) >> UNIT_SHIFT;
+ 	while (i > 1) {
+@@ -134,8 +126,6 @@ err:
+ 			sfree(axmap->levels[i].map);
+ 
+ 	sfree(axmap->levels);
+-	__fio_mutex_remove(&axmap->lock);
+-	sfree(axmap);
+ 	return NULL;
+ }
+ 
+@@ -297,9 +287,7 @@ void axmap_set(struct axmap *axmap, uint64_t bit_nr)
+ {
+ 	struct axmap_set_data data = { .nr_bits = 1, };
+ 
+-	fio_mutex_down(&axmap->lock);
+ 	__axmap_set(axmap, bit_nr, &data);
+-	fio_mutex_up(&axmap->lock);
+ }
+ 
+ unsigned int axmap_set_nr(struct axmap *axmap, uint64_t bit_nr, unsigned int nr_bits)
+@@ -335,14 +323,8 @@ static int axmap_isset_fn(struct axmap_level *al, unsigned long offset,
+ 
+ int axmap_isset(struct axmap *axmap, uint64_t bit_nr)
+ {
+-	if (bit_nr <= axmap->nr_bits) {
+-		int ret;
+-
+-		fio_mutex_down(&axmap->lock);
+-		ret = axmap_handler_topdown(axmap, bit_nr, axmap_isset_fn, NULL);
+-		fio_mutex_up(&axmap->lock);
+-		return ret;
+-	}
++	if (bit_nr <= axmap->nr_bits)
++		return axmap_handler_topdown(axmap, bit_nr, axmap_isset_fn, NULL);
+ 
+ 	return 0;
+ }
+@@ -387,19 +369,13 @@ static uint64_t axmap_find_first_free(struct axmap *axmap, unsigned int level,
+ 	return (uint64_t) -1ULL;
+ }
+ 
+-uint64_t axmap_first_free(struct axmap *axmap)
++static uint64_t axmap_first_free(struct axmap *axmap)
+ {
+-	uint64_t ret;
+-
+ 	if (firstfree_valid(axmap))
+ 		return axmap->first_free;
+ 
+-	fio_mutex_down(&axmap->lock);
+-	ret = axmap_find_first_free(axmap, axmap->nr_levels - 1, 0);
+-	axmap->first_free = ret;
+-	fio_mutex_up(&axmap->lock);
+-
+-	return ret;
++	axmap->first_free = axmap_find_first_free(axmap, axmap->nr_levels - 1, 0);
++	return axmap->first_free;
+ }
+ 
+ struct axmap_next_free_data {
+@@ -435,17 +411,11 @@ uint64_t axmap_next_free(struct axmap *axmap, uint64_t bit_nr)
+ 	struct axmap_next_free_data data = { .level = -1U, .bit = bit_nr, };
+ 	uint64_t ret;
+ 
+-	fio_mutex_down(&axmap->lock);
+-
+-	if (firstfree_valid(axmap) && bit_nr < axmap->first_free) {
+-		ret = axmap->first_free;
+-		goto done;
+-	}
++	if (firstfree_valid(axmap) && bit_nr < axmap->first_free)
++		return axmap->first_free;
+ 
+-	if (!axmap_handler(axmap, bit_nr, axmap_next_free_fn, &data)) {
+-		ret = axmap_first_free(axmap);
+-		goto done;
+-	}
++	if (!axmap_handler(axmap, bit_nr, axmap_next_free_fn, &data))
++		return axmap_first_free(axmap);
+ 
+ 	assert(data.level != -1U);
+ 
+@@ -455,12 +425,8 @@ uint64_t axmap_next_free(struct axmap *axmap, uint64_t bit_nr)
+ 	 * find the first free one, the map is practically full.
+ 	 */
+ 	ret = axmap_find_first_free(axmap, data.level, data.offset);
+-	if (ret != -1ULL) {
+-done:
+-		fio_mutex_up(&axmap->lock);
++	if (ret != -1ULL)
+ 		return ret;
+-	}
+ 
+-	ret = axmap_first_free(axmap);
+-	goto done;
++	return axmap_first_free(axmap);
+ }
+diff --git a/lib/axmap.h b/lib/axmap.h
+index edfeba8..3705a1d 100644
+--- a/lib/axmap.h
++++ b/lib/axmap.h
+@@ -11,7 +11,6 @@ void axmap_clear(struct axmap *axmap, uint64_t bit_nr);
+ void axmap_set(struct axmap *axmap, uint64_t bit_nr);
+ unsigned int axmap_set_nr(struct axmap *axmap, uint64_t bit_nr, unsigned int nr_bits);
+ int axmap_isset(struct axmap *axmap, uint64_t bit_nr);
+-uint64_t axmap_first_free(struct axmap *axmap);
+ uint64_t axmap_next_free(struct axmap *axmap, uint64_t bit_nr);
+ void axmap_reset(struct axmap *axmap);
+ 
+diff --git a/lib/bloom.c b/lib/bloom.c
+index 33d093a..ee4ba0b 100644
+--- a/lib/bloom.c
++++ b/lib/bloom.c
+@@ -113,11 +113,6 @@ static int __bloom_check(struct bloom *b, uint32_t *data, unsigned int nwords,
+ 	return was_set == N_HASHES;
+ }
+ 
+-int bloom_check(struct bloom *b, uint32_t *data, unsigned int nwords)
 -{
-- struct fio_mmap_data *fmd = FILE_ENG_DATA(f);
-- int ret;
--
-- ret = posix_madvise(fmd->mmap_ptr, fmd->mmap_sz, POSIX_MADV_DONTNEED);
--#ifdef FIO_MADV_FREE
-- if (f->filetype == FIO_TYPE_BD)
-- (void) posix_madvise(fmd->mmap_ptr, fmd->mmap_sz, FIO_MADV_FREE);
--#endif
--
-- return ret;
+-	return __bloom_check(b, data, nwords, 0);
 -}
 -
- static struct ioengine_ops ioengine = {
-  .name = "mmap",
-  .version = FIO_IOOPS_VERSION,
-@@ -274,7 +270,6 @@ static struct ioengine_ops ioengine = {
-  .queue = fio_mmapio_queue,
-  .open_file = fio_mmapio_open_file,
-  .close_file = fio_mmapio_close_file,
-- .invalidate = fio_mmapio_invalidate,
-  .get_file_size = generic_get_file_size,
-  .flags = FIO_SYNCIO | FIO_NOEXTEND,
- };
--- 
-1.7.12.4
+ int bloom_set(struct bloom *b, uint32_t *data, unsigned int nwords)
+ {
+ 	return __bloom_check(b, data, nwords, 1);
+diff --git a/lib/bloom.h b/lib/bloom.h
+index b3cde95..127ed9b 100644
+--- a/lib/bloom.h
++++ b/lib/bloom.h
+@@ -7,7 +7,6 @@ struct bloom;
+ 
+ struct bloom *bloom_new(uint64_t entries);
+ void bloom_free(struct bloom *b);
+-int bloom_check(struct bloom *b, uint32_t *data, unsigned int nwords);
+ int bloom_set(struct bloom *b, uint32_t *data, unsigned int nwords);
+ 
+ #endif
+diff --git a/options.c b/options.c
+index 3e783c1..12ff621 100644
+--- a/options.c
++++ b/options.c
+@@ -884,18 +884,6 @@ out:
+ 	return ret;
+ }
+ 
+-static int str_lockfile_cb(void *data, const char fio_unused *str)
+-{
+-	struct thread_data *td = data;
+-
+-	if (td->files_index) {
+-		log_err("fio: lockfile= option must precede filename=\n");
+-		return 1;
+-	}
+-
+-	return 0;
+-}
+-
+ static int str_opendir_cb(void *data, const char fio_unused *str)
+ {
+ 	struct thread_data *td = data;
+@@ -1343,7 +1331,6 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.parent	= "filename",
+ 		.hide	= 0,
+ 		.def	= "none",
+-		.cb	= str_lockfile_cb,
+ 		.category = FIO_OPT_C_FILE,
+ 		.group	= FIO_OPT_G_FILENAME,
+ 		.posval = {
+diff --git a/os/windows/install.wxs b/os/windows/install.wxs
+index 405b05b..2f75d00 100755
+--- a/os/windows/install.wxs
++++ b/os/windows/install.wxs
+@@ -10,7 +10,7 @@
+ 	<Product Id="*"
+ 	  Codepage="1252" Language="1033"
+ 	  Manufacturer="fio" Name="fio"
+-	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.2.3">
++	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.2.4">
+ 		<Package
+ 		  Description="Flexible IO Tester"
+ 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
+diff --git a/t/axmap.c b/t/axmap.c
+index cc078aa..e32ff98 100644
+--- a/t/axmap.c
++++ b/t/axmap.c
+@@ -5,7 +5,6 @@
+ #include <unistd.h>
+ #include <inttypes.h>
+ 
+-#include "../mutex.h"
+ #include "../lib/lfsr.h"
+ #include "../lib/axmap.h"
+ 
