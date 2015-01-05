@@ -1,72 +1,128 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-yh0-f44.google.com ([209.85.213.44]:38220 "EHLO
-	mail-yh0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750917AbbACOVU (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 3 Jan 2015 09:21:20 -0500
-Received: by mail-yh0-f44.google.com with SMTP id c41so9508702yho.3
-        for <fio@vger.kernel.org>; Sat, 03 Jan 2015 06:21:19 -0800 (PST)
-From: Ming Lei <ming.lei@canonical.com>
-Subject: [PATCH] axmap: fix deadlock
-Date: Sat,  3 Jan 2015 22:21:09 +0800
-Message-Id: <1420294869-3830-1-git-send-email-ming.lei@canonical.com>
+Received: from bombadil.infradead.org ([198.137.202.9]:48816 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753359AbbAENAE (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 5 Jan 2015 08:00:04 -0500
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1Y87GO-0001pH-2o
+	for fio@vger.kernel.org; Mon, 05 Jan 2015 13:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150105130003.2095640181@lyth.info>
+Date: Mon,  5 Jan 2015 06:00:03 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jens Axboe <axboe@fb.com>, fio@vger.kernel.org
-Cc: Sedat Dilek <sedat.dilek@gmail.com>, Ming Lei <ming.lei@canonical.com>
+To: fio@vger.kernel.org
 
-axmap_first_free() is always called with axmap->lock held,
-so needn't to acquire the lock inside the function.
+The following changes since commit fde90aadbbf223d4d9b553c8cda3b65b0b1140e2:
 
-The deadlock is introduced in commit 12bde3697fc230d7a(axmap:
-ensure we lock down the maps for shared access).
+  Fio 2.2.4 (2015-01-03 19:46:55 -0700)
 
-Given axmap_first_free() is only called inside lib/axmap.c,
-this patch declares the function as static. In the future,
-if external users need the function, axmap lock can be
-considered at that time.
+are available in the git repository at:
 
-Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
-Signed-off-by: Ming Lei <ming.lei@canonical.com>
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 17a2be5945b12959ad3066b7d75432577d29ae82:
+
+  Avoid potential buffer overflow in make_filename() (2015-01-04 13:33:37 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (2):
+      cleanup: add defines for default pareto or zipf values
+      Avoid potential buffer overflow in make_filename()
+
+ fio.h     |    3 +++
+ init.c    |   30 ++++++++++++++++++++++++------
+ options.c |    4 ++--
+ 3 files changed, 29 insertions(+), 8 deletions(-)
+
 ---
- lib/axmap.c |    4 +---
- lib/axmap.h |    1 -
- 2 files changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/lib/axmap.c b/lib/axmap.c
-index e847a38..8247fc1 100644
---- a/lib/axmap.c
-+++ b/lib/axmap.c
-@@ -387,17 +387,15 @@ static uint64_t axmap_find_first_free(struct axmap *axmap, unsigned int level,
- 	return (uint64_t) -1ULL;
- }
- 
--uint64_t axmap_first_free(struct axmap *axmap)
-+static uint64_t axmap_first_free(struct axmap *axmap)
- {
- 	uint64_t ret;
- 
- 	if (firstfree_valid(axmap))
- 		return axmap->first_free;
- 
--	fio_mutex_down(&axmap->lock);
- 	ret = axmap_find_first_free(axmap, axmap->nr_levels - 1, 0);
- 	axmap->first_free = ret;
--	fio_mutex_up(&axmap->lock);
- 
- 	return ret;
- }
-diff --git a/lib/axmap.h b/lib/axmap.h
-index edfeba8..3705a1d 100644
---- a/lib/axmap.h
-+++ b/lib/axmap.h
-@@ -11,7 +11,6 @@ void axmap_clear(struct axmap *axmap, uint64_t bit_nr);
- void axmap_set(struct axmap *axmap, uint64_t bit_nr);
- unsigned int axmap_set_nr(struct axmap *axmap, uint64_t bit_nr, unsigned int nr_bits);
- int axmap_isset(struct axmap *axmap, uint64_t bit_nr);
--uint64_t axmap_first_free(struct axmap *axmap);
- uint64_t axmap_next_free(struct axmap *axmap, uint64_t bit_nr);
- void axmap_reset(struct axmap *axmap);
- 
--- 
-1.7.9.5
+Diff of recent changes:
 
+diff --git a/fio.h b/fio.h
+index 5e352c6..be2f23a 100644
+--- a/fio.h
++++ b/fio.h
+@@ -642,6 +642,9 @@ enum {
+ 	FIO_RAND_DIST_PARETO,
+ };
+ 
++#define FIO_DEF_ZIPF		1.1
++#define FIO_DEF_PARETO		0.2
++
+ enum {
+ 	FIO_RAND_GEN_TAUSWORTHE = 0,
+ 	FIO_RAND_GEN_LFSR,
+diff --git a/init.c b/init.c
+index dc563fd..a0d4f8c 100644
+--- a/init.c
++++ b/init.c
+@@ -1036,8 +1036,14 @@ static char *make_filename(char *buf, size_t buf_size,struct thread_options *o,
+ 				ret = snprintf(dst, dst_left, "%s", jobname);
+ 				if (ret < 0)
+ 					break;
+-				dst += ret;
+-				dst_left -= ret;
++				else if (ret > dst_left) {
++					log_err("fio: truncated filename\n");
++					dst += dst_left;
++					dst_left = 0;
++				} else {
++					dst += ret;
++					dst_left -= ret;
++				}
+ 				break;
+ 				}
+ 			case FPRE_JOBNUM: {
+@@ -1046,8 +1052,14 @@ static char *make_filename(char *buf, size_t buf_size,struct thread_options *o,
+ 				ret = snprintf(dst, dst_left, "%d", jobnum);
+ 				if (ret < 0)
+ 					break;
+-				dst += ret;
+-				dst_left -= ret;
++				else if (ret > dst_left) {
++					log_err("fio: truncated filename\n");
++					dst += dst_left;
++					dst_left = 0;
++				} else {
++					dst += ret;
++					dst_left -= ret;
++				}
+ 				break;
+ 				}
+ 			case FPRE_FILENUM: {
+@@ -1056,8 +1068,14 @@ static char *make_filename(char *buf, size_t buf_size,struct thread_options *o,
+ 				ret = snprintf(dst, dst_left, "%d", filenum);
+ 				if (ret < 0)
+ 					break;
+-				dst += ret;
+-				dst_left -= ret;
++				else if (ret > dst_left) {
++					log_err("fio: truncated filename\n");
++					dst += dst_left;
++					dst_left = 0;
++				} else {
++					dst += ret;
++					dst_left -= ret;
++				}
+ 				break;
+ 				}
+ 			default:
+diff --git a/options.c b/options.c
+index 12ff621..ab6e399 100644
+--- a/options.c
++++ b/options.c
+@@ -715,9 +715,9 @@ static int str_random_distribution_cb(void *data, const char *str)
+ 		return 0;
+ 
+ 	if (td->o.random_distribution == FIO_RAND_DIST_ZIPF)
+-		val = 1.1;
++		val = FIO_DEF_ZIPF;
+ 	else if (td->o.random_distribution == FIO_RAND_DIST_PARETO)
+-		val = 0.2;
++		val = FIO_DEF_PARETO;
+ 	else
+ 		return 0;
+ 
