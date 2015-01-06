@@ -1,90 +1,149 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailout.micron.com ([137.201.242.129]:62283 "EHLO
-	mailout.micron.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752321AbbA2BRp (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 28 Jan 2015 20:17:45 -0500
-Received: from mail.micron.com (ntxboicas02.micron.com [137.201.20.138])
-	by mailout.micron.com (8.14.4/8.14.6) with ESMTP id t0SMdVDx031550
-	(version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=FAIL)
-	for <fio@vger.kernel.org>; Wed, 28 Jan 2015 15:39:31 -0700
-From: "Justin Eno (jeno)" <jeno@micron.com>
-Subject: 
-Date: Wed, 28 Jan 2015 22:39:30 +0000
-Message-ID: <5A8251503902B84E89CE171AD126BCFB2DE52C49@NTXBOIMBX01.micron.com>
-Content-Language: en-US
-Content-Type: multipart/mixed;
-	boundary="_002_5A8251503902B84E89CE171AD126BCFB2DE52C49NTXBOIMBX01micr_"
-MIME-Version: 1.0
+Received: from casper.infradead.org ([85.118.1.10]:54046 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751539AbbAFNAG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 6 Jan 2015 08:00:06 -0500
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1Y8Tjx-0007RF-6c
+	for fio@vger.kernel.org; Tue, 06 Jan 2015 13:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150106130003.95D6140183@lyth.info>
+Date: Tue,  6 Jan 2015 06:00:03 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
---_002_5A8251503902B84E89CE171AD126BCFB2DE52C49NTXBOIMBX01micr_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+The following changes since commit 17a2be5945b12959ad3066b7d75432577d29ae82:
 
-Hi Jens,
+  Avoid potential buffer overflow in make_filename() (2015-01-04 13:33:37 -0700)
 
-It appears do_dry_run(), i.e., verify_only, is broken by the last update to=
- backend.c
+are available in the git repository at:
 
-I have attached a working patch, though you may prefer a different approach=
-.
+  git://git.kernel.dk/fio.git master
 
-Thanks,
-Justin
+for you to fetch changes up to c7b0978381243f25a06464cdbf57bb55a1dbaa33:
 
---_002_5A8251503902B84E89CE171AD126BCFB2DE52C49NTXBOIMBX01micr_
-Content-Type: application/octet-stream; name="verify_only.patch"
-Content-Description: verify_only.patch
-Content-Disposition: attachment; filename="verify_only.patch"; size=2464;
-	creation-date="Wed, 28 Jan 2015 22:35:11 GMT";
-	modification-date="Wed, 28 Jan 2015 22:35:11 GMT"
-Content-Transfer-Encoding: base64
+  server: use fio_gettime() for timeout variables (2015-01-05 13:51:22 -0700)
 
-RnJvbSBkYmRjZDBkNWQ3NWMwYmIyY2VkYTI2NGRiNDFjZTE5ZmUxYWFkYjdhIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBKdXN0aW4gRW5vIDxqZW5vQG1pY3Jvbi5jb20+CkRhdGU6IFdl
-ZCwgMjggSmFuIDIwMTUgMTQ6MTM6MjggLTA4MDAKU3ViamVjdDogW1BBVENIXSBGaXggZm9yIHZl
-cmlmeV9vbmx5IChkb19kcnlfcnVuKCkpIGJyb2tlbiBieSA3NGQ2Mjc3ZgoKUHJldmlvdXMgY29t
-bWl0IHRvIGJhY2tlbmQuYyB0cmFja3MgaW9fbGltaXQgbW9yZSBjbG9zZWx5IGJ5CmNvdW50aW5n
-IHN1Ym1pdHRlZCAoaW4tZmxpZ2h0KSBJL08gaW5zdGVhZCBvZiBjb21wbGV0ZWQgSS9PLgpkb19k
-cnlfcnVuKCkgZG9lcyBub3Qgc3VibWl0IEkvTywgc28gaXRzIEkvTyBpcyBub3QgY291bnRlZCwK
-YW5kIGl0IGxvb3BzIGZvcmV2ZXIuClNpZ25lZC1vZmYtYnk6IEp1c3RpbiBFbm8gPGplbm9AbWlj
-cm9uLmNvbT4KLS0tCiBiYWNrZW5kLmMgfCAgIDI3ICsrKysrKysrKysrKysrKysrKysrKysrKy0t
-LQogMSBmaWxlcyBjaGFuZ2VkLCAyNCBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQoKZGlm
-ZiAtLWdpdCBhL2JhY2tlbmQuYyBiL2JhY2tlbmQuYwppbmRleCA5MDEyMTQwLi43ZWM4ZDJhIDEw
-MDY0NAotLS0gYS9iYWNrZW5kLmMKKysrIGIvYmFja2VuZC5jCkBAIC02NjIsNyArNjYyLDcgQEAg
-c3RhdGljIHVuc2lnbmVkIGludCBleGNlZWRzX251bWJlcl9pb3Moc3RydWN0IHRocmVhZF9kYXRh
-ICp0ZCkKIAlyZXR1cm4gbnVtYmVyX2lvcyA+PSB0ZC0+by5udW1iZXJfaW9zOwogfQogCi1zdGF0
-aWMgaW50IGlvX2J5dGVzX2V4Y2VlZGVkKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpCitzdGF0aWMg
-aW50IGlvX2lzc3VlX2J5dGVzX2V4Y2VlZGVkKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpCiB7CiAJ
-dW5zaWduZWQgbG9uZyBsb25nIGJ5dGVzLCBsaW1pdDsKIApAQCAtNjgzLDYgKzY4MywyNyBAQCBz
-dGF0aWMgaW50IGlvX2J5dGVzX2V4Y2VlZGVkKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpCiAJcmV0
-dXJuIGJ5dGVzID49IGxpbWl0IHx8IGV4Y2VlZHNfbnVtYmVyX2lvcyh0ZCk7CiB9CiAKK3N0YXRp
-YyBpbnQgaW9fY29tcGxldGVfYnl0ZXNfZXhjZWVkZWQoc3RydWN0IHRocmVhZF9kYXRhICp0ZCkK
-K3sKKwl1bnNpZ25lZCBsb25nIGxvbmcgYnl0ZXMsIGxpbWl0OworCisJaWYgKHRkX3J3KHRkKSkK
-KwkJYnl0ZXMgPSB0ZC0+dGhpc19pb19ieXRlc1tERElSX1JFQURdICsgdGQtPnRoaXNfaW9fYnl0
-ZXNbRERJUl9XUklURV07CisJZWxzZSBpZiAodGRfd3JpdGUodGQpKQorCQlieXRlcyA9IHRkLT50
-aGlzX2lvX2J5dGVzW0RESVJfV1JJVEVdOworCWVsc2UgaWYgKHRkX3JlYWQodGQpKQorCQlieXRl
-cyA9IHRkLT50aGlzX2lvX2J5dGVzW0RESVJfUkVBRF07CisJZWxzZQorCQlieXRlcyA9IHRkLT50
-aGlzX2lvX2J5dGVzW0RESVJfVFJJTV07CisKKwlpZiAodGQtPm8uaW9fbGltaXQpCisJCWxpbWl0
-ID0gdGQtPm8uaW9fbGltaXQ7CisJZWxzZQorCQlsaW1pdCA9IHRkLT5vLnNpemU7CisKKwlyZXR1
-cm4gYnl0ZXMgPj0gbGltaXQgfHwgZXhjZWVkc19udW1iZXJfaW9zKHRkKTsKK30KKwogLyoKICAq
-IE1haW4gSU8gd29ya2VyIGZ1bmN0aW9uLiBJdCByZXRyaWV2ZXMgaW9fdSdzIHRvIHByb2Nlc3Mg
-YW5kIHF1ZXVlcwogICogYW5kIHJlYXBzIHRoZW0sIGNoZWNraW5nIGZvciByYXRlIGFuZCBlcnJv
-cnMgYWxvbmcgdGhlIHdheS4KQEAgLTcxNCw3ICs3MzUsNyBAQCBzdGF0aWMgdWludDY0X3QgZG9f
-aW8oc3RydWN0IHRocmVhZF9kYXRhICp0ZCkKIAkJdG90YWxfYnl0ZXMgKz0gdGQtPm8uc2l6ZTsK
-IAogCXdoaWxlICgodGQtPm8ucmVhZF9pb2xvZ19maWxlICYmICFmbGlzdF9lbXB0eSgmdGQtPmlv
-X2xvZ19saXN0KSkgfHwKLQkJKCFmbGlzdF9lbXB0eSgmdGQtPnRyaW1fbGlzdCkpIHx8ICFpb19i
-eXRlc19leGNlZWRlZCh0ZCkgfHwKKwkJKCFmbGlzdF9lbXB0eSgmdGQtPnRyaW1fbGlzdCkpIHx8
-ICFpb19pc3N1ZV9ieXRlc19leGNlZWRlZCh0ZCkgfHwKIAkJdGQtPm8udGltZV9iYXNlZCkgewog
-CQlzdHJ1Y3QgdGltZXZhbCBjb21wX3RpbWU7CiAJCXN0cnVjdCBpb191ICppb191OwpAQCAtMTIz
-MSw3ICsxMjUyLDcgQEAgc3RhdGljIHVpbnQ2NF90IGRvX2RyeV9ydW4oc3RydWN0IHRocmVhZF9k
-YXRhICp0ZCkKIAl0ZF9zZXRfcnVuc3RhdGUodGQsIFREX1JVTk5JTkcpOwogCiAJd2hpbGUgKCh0
-ZC0+by5yZWFkX2lvbG9nX2ZpbGUgJiYgIWZsaXN0X2VtcHR5KCZ0ZC0+aW9fbG9nX2xpc3QpKSB8
-fAotCQkoIWZsaXN0X2VtcHR5KCZ0ZC0+dHJpbV9saXN0KSkgfHwgIWlvX2J5dGVzX2V4Y2VlZGVk
-KHRkKSkgeworCQkoIWZsaXN0X2VtcHR5KCZ0ZC0+dHJpbV9saXN0KSkgfHwgIWlvX2NvbXBsZXRl
-X2J5dGVzX2V4Y2VlZGVkKHRkKSkgewogCQlzdHJ1Y3QgaW9fdSAqaW9fdTsKIAkJaW50IHJldDsK
-IAotLSAKMS43LjEKCg==
+----------------------------------------------------------------
+Jens Axboe (6):
+      init: fix potential mem leak on multiple trigger options
+      client: fix potential buffer overrun in server name copy
+      gluster: io_u->error should be a positive error value
+      memory: double check that mmapfd isn't -1 before closing
+      verify: fix potentially unterminated name
+      server: use fio_gettime() for timeout variables
 
---_002_5A8251503902B84E89CE171AD126BCFB2DE52C49NTXBOIMBX01micr_--
+ client.c                  |    5 ++++-
+ engines/glusterfs_async.c |    2 +-
+ init.c                    |    6 ++++++
+ memory.c                  |    2 +-
+ server.c                  |    2 +-
+ verify.c                  |    3 ++-
+ 6 files changed, 15 insertions(+), 5 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/client.c b/client.c
+index 3cb7c1c..74c9c76 100644
+--- a/client.c
++++ b/client.c
+@@ -380,6 +380,7 @@ static const char *server_name(struct fio_client *client, char *buf,
+ static void probe_client(struct fio_client *client)
+ {
+ 	struct cmd_client_probe_pdu pdu;
++	const char *sname;
+ 	uint64_t tag;
+ 	char buf[64];
+ 
+@@ -391,7 +392,9 @@ static void probe_client(struct fio_client *client)
+ 	pdu.flags = 0;
+ #endif
+ 
+-	strcpy((char *) pdu.server, server_name(client, buf, sizeof(buf)));
++	sname = server_name(client, buf, sizeof(buf));
++	memset(pdu.server, 0, sizeof(pdu.server));
++	strncpy((char *) pdu.server, sname, sizeof(pdu.server) - 1);
+ 
+ 	fio_net_send_cmd(client->fd, FIO_NET_CMD_PROBE, &pdu, sizeof(pdu), &tag, &client->cmd_list);
+ }
+diff --git a/engines/glusterfs_async.c b/engines/glusterfs_async.c
+index 8283f8b..7c2c139 100644
+--- a/engines/glusterfs_async.c
++++ b/engines/glusterfs_async.c
+@@ -122,7 +122,7 @@ static int fio_gf_async_queue(struct thread_data fio_unused * td,
+ 	else if (io_u->ddir == DDIR_SYNC)
+ 		r = glfs_fsync_async(g->fd, gf_async_cb, io_u);
+ 	else
+-		r = -EINVAL;
++		r = EINVAL;
+ 
+ 	if (r) {
+ 		log_err("glfs queue failed.\n");
+diff --git a/init.c b/init.c
+index a0d4f8c..bb53a1e 100644
+--- a/init.c
++++ b/init.c
+@@ -2276,12 +2276,18 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ 			break;
+ 			}
+ 		case 'W':
++			if (trigger_file)
++				free(trigger_file);
+ 			trigger_file = strdup(optarg);
+ 			break;
+ 		case 'H':
++			if (trigger_cmd)
++				free(trigger_cmd);
+ 			trigger_cmd = strdup(optarg);
+ 			break;
+ 		case 'J':
++			if (trigger_remote_cmd)
++				free(trigger_remote_cmd);
+ 			trigger_remote_cmd = strdup(optarg);
+ 			break;
+ 		case 'B':
+diff --git a/memory.c b/memory.c
+index 76da8a8..f81c2dd 100644
+--- a/memory.c
++++ b/memory.c
+@@ -158,7 +158,7 @@ static int alloc_mem_mmap(struct thread_data *td, size_t total_mem)
+ 	if (td->orig_buffer == MAP_FAILED) {
+ 		td_verror(td, errno, "mmap");
+ 		td->orig_buffer = NULL;
+-		if (td->mmapfd != 1) {
++		if (td->mmapfd != 1 && td->mmapfd != -1) {
+ 			close(td->mmapfd);
+ 			if (td->o.mmapfile)
+ 				unlink(td->o.mmapfile);
+diff --git a/server.c b/server.c
+index 3171979..c249849 100644
+--- a/server.c
++++ b/server.c
+@@ -333,7 +333,7 @@ static uint64_t alloc_reply(uint64_t tag, uint16_t opcode)
+ 
+ 	reply = calloc(1, sizeof(*reply));
+ 	INIT_FLIST_HEAD(&reply->list);
+-	gettimeofday(&reply->tv, NULL);
++	fio_gettime(&reply->tv, NULL);
+ 	reply->saved_tag = tag;
+ 	reply->opcode = opcode;
+ 
+diff --git a/verify.c b/verify.c
+index 2ae03f8..205f01a 100644
+--- a/verify.c
++++ b/verify.c
+@@ -1341,7 +1341,8 @@ struct all_io_list *get_all_io_list(int save_mask, size_t *sz)
+ 		s->rand.s[1] = cpu_to_le32(td->random_state.s2);
+ 		s->rand.s[2] = cpu_to_le32(td->random_state.s3);
+ 		s->rand.s[3] = 0;
+-		strncpy((char *) s->name, td->o.name, sizeof(s->name));
++		s->name[sizeof(s->name) - 1] = '\0';
++		strncpy((char *) s->name, td->o.name, sizeof(s->name) - 1);
+ 		next = io_list_next(s);
+ 	}
+ 
