@@ -1,65 +1,103 @@
-Return-Path: <haghdoost@gmail.com>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <54AEA176.7070008@kernel.dk>
+Date: Thu, 08 Jan 2015 08:25:42 -0700
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <54AEA176.7070008@kernel.dk>
-References: <54ADC21F.10207@kernel.dk> <CAB-428nDc67PJZ+imqBgqAqtgriCkkUJZNS6kO2xgYBGkgpcYg@mail.gmail.com>
- <54AEA176.7070008@kernel.dk>
-From: Alireza Haghdoost <haghdoost@gmail.com>
-Date: Thu, 8 Jan 2015 10:07:08 -0600
-Message-ID: <CAB-428nMhwZECyWAxUNjhbpzdb3aoxzks3=H1O9v7pfLGNLc9A@mail.gmail.com>
 Subject: Re: Non-uniform randomness with drifting
-Content-Type: text/plain; charset=ISO-8859-1
-To: Jens Axboe <axboe@kernel.dk>
+References: <54ADC21F.10207@kernel.dk> <CAB-428nDc67PJZ+imqBgqAqtgriCkkUJZNS6kO2xgYBGkgpcYg@mail.gmail.com>
+In-Reply-To: <CAB-428nDc67PJZ+imqBgqAqtgriCkkUJZNS6kO2xgYBGkgpcYg@mail.gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Alireza Haghdoost <haghdoost@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-> In other words, the distribution is identical, it's just a different set of
-> blocks in the range. Fio hashes the linear blocks, so it won't be 0 as the
-> hottest, 1 as the next hottest, etc. That's just for simplicity in this
-> example.
-
-Thanks for describing the idea in the second example. I get a sense of
-what you proposing now. I am just now sure about the application of
-such a workload. From the caching point of view, it does not really
-matter which LBA ranges are in 95% hit range. Specially these days
-that caches are all fully associative and based on key-value store.
-That is my impression that might be wrong. I think am not convinced
-that 95% hit on 0-4 LBA range would have different caching behavior
-compared with 27-29 and 0-1 range.
-
-I agree with you that this LBA drift does not change zipf
-distribution. But only if we look at certain portion of the workload.
-For example, in the first portion of workload, it was a zipf:1.2 and
-95% hit on 0-4 range, in the second phase it is still zipf:1.2 with
-95% hit on the other range. Therefore, if we look at the workload as a
-whole not just a portion of the workload, it would be a zipf that
-receive less than 95% hit on the 0-4 range because the hot range has
-been drifted in the second portion of the workload. Therefore, the
-workload as a whole does not maintain the original zipf:1.2
-distribution since original 95% hit on 0-4 range has been distributed
-to other LBA ranges.
-
+On 01/08/2015 08:02 AM, Alireza Haghdoost wrote:
+> On Wed, Jan 7, 2015 at 5:32 PM, Jens Axboe <axboe@kernel.dk> wrote:
+>> An example job file would contain:
+>>
+>> random_distribution=zipf
+>> random_drift=gradual
+>> random_drift_start_percentage=50
+>> random_drift_percentage=10
 >
-> I would not be adverse to drifting the zipf or pareto values, but I think
-> it's orthogonal to this issue. You could imagine workloads where that is all
-> you drift, or workloads where you both drift the LBA space and the zipf
-> theta, for instance. Drifting between different distribution types (from
-> zipf to pareto, or from pareto to uniform) is likely never going to be
-> implemented, however.
+> Jens,
+>
+> This is an interesting proposal. Just to make sure if I understand
+> your example correctly, in this example you are proposing Gradual
+> shift  in hot/cold Blocks after 50% of workload is generated. This
+> shift then would be 10% total distribution for every 10% of remaining
+> workload access. It that correct ?
 
-Would it be possible to define 4 workers and associate each one to a
-certain distribution then execute them in a sequence ? For example,
-worker 1 with zipf:1.2 start from beginning to 25% of workload, worker
-2 with zipf:1.4 start from the 25% to 50% of workload time, worker 3
-with pareto start from 50% to 75% of the workload time and finally
-worker 4 with uniform distribution start from 75% to the end of
-workload time.
+That is correct.
 
-My point is that for caching workload, change in hot LBA range is less
-important that change in distribution of requests to hot LBAs. For
-example, a VDI workload expose a great temporal locality in the
-morning during boot storm, then its temporal locality would reduce
-since all virtual desktops are running with different applications
-during normal business hours. Finally the temporal locality would
-reduce to zero or uniform distribution over the night since most of
-the clients are turned off or hybernated.
+> If I understand this correctly, the workload randomness distribution
+> would change after drift. For example if I start with zipf:1.2
+> initially, I would have different distribution after the drift which
+> is hard to describe. Would it be still Zipf with what theta parameter
+> ?
+
+After the drift, the zipf distribution would still be 1.2, it would just 
+be a different set of blocks in the bands. The way it's implemented, it 
+basically just shifts the logical offset in the drift. An example - lets 
+say we have set the zipf to have the following distribution, using a 
+small range for ease of representation:
+
+0..4	95% of hits
+5..9	5% of hits
+10..14	2%
+15..19	1%
+20..24	1%
+25..29	0.5%
+
+We'll use the drift parameters from above, so once we've done 50% of the 
+workload, we'll drift 10%. Since N is 30 here, that's a drift of 3. When 
+that 10% drift is done, the distribution will look like this:
+
+27..29 and 0..1		95% of hits
+2..6			5% of hits
+7..11			2%
+12..16			1%
+17..21			1%
+22..26			0.5%
+
+In other words, the distribution is identical, it's just a different set 
+of blocks in the range. Fio hashes the linear blocks, so it won't be 0 
+as the hottest, 1 as the next hottest, etc. That's just for simplicity 
+in this example.
+
+If you graph the distribution from 0..N, after the shift, the graph 
+would look the same. It would just be offset to the right, with the long 
+tail wrapped around.
+
+> Having said that, It would be more interesting and practical if we can
+> set specific distribution parameter for the drifted workload phases.
+> For example, Would be nice to divide the workload into 4 phases, phase
+> 1: workload start with zipf:1.2, phase 2: workload drift to zipf:1.4,
+> phase 3: workload drift to pareto, phase 4:workload drift to uniform
+> distribution.
+
+I would not be adverse to drifting the zipf or pareto values, but I 
+think it's orthogonal to this issue. You could imagine workloads where 
+that is all you drift, or workloads where you both drift the LBA space 
+and the zipf theta, for instance. Drifting between different 
+distribution types (from zipf to pareto, or from pareto to uniform) is 
+likely never going to be implemented, however.
+
+> With this approach, we have more control on the workload randomness
+> distribution parameters for each gradual drift. Moreover, it would be
+> more practical to characterize a real workload and extract
+> distribution parameters for these phases and then feed them to fio for
+> synthetic re-generation of such a workload.
+
+Definitely, the better you understand the workload, the better you can 
+model. The above description is a linear (or sudden) drift of hotness, 
+and an easy implementation of zipf theta drift would also be linear. 
+Since we do have support for evaluating math, it would not be impossible 
+to support having a functional description of the drift. But I think we 
+should just keep it simple and support linear shifts.
+
+-- 
+Jens Axboe
+
 
