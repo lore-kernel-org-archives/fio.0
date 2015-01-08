@@ -1,53 +1,71 @@
-Return-Path: <haghdoost@gmail.com>
+Return-Path: <mark.a.nelson@gmail.com>
+Return-Path: <mark.a.nelson@gmail.com>
+Message-ID: <54AE84AF.4010001@gmail.com>
+Date: Thu, 08 Jan 2015 07:22:55 -0600
+From: Mark Nelson <mark.a.nelson@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <54ADC21F.10207@kernel.dk>
-References: <54ADC21F.10207@kernel.dk>
-From: Alireza Haghdoost <haghdoost@gmail.com>
-Date: Thu, 8 Jan 2015 09:02:55 -0600
-Message-ID: <CAB-428nDc67PJZ+imqBgqAqtgriCkkUJZNS6kO2xgYBGkgpcYg@mail.gmail.com>
 Subject: Re: Non-uniform randomness with drifting
-Content-Type: text/plain; charset=ISO-8859-1
-To: Jens Axboe <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+References: <54ADC21F.10207@kernel.dk>
+In-Reply-To: <54ADC21F.10207@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On Wed, Jan 7, 2015 at 5:32 PM, Jens Axboe <axboe@kernel.dk> wrote:
+On 01/07/2015 05:32 PM, Jens Axboe wrote:
+> Hi,
+>
+> If you boil it down, fio can basically do two types of random
+> distributions (random_distribution=):
+>
+> - Uniform, meaning we scatter evenly across the IO range.
+> - Or zipf/pareto, meaning that we have some notion of hotness of
+>    offsets that are hit more often than others.
+>
+> zipf/pareto are often used to simulate real world access patterns,
+> where, eg, 5% of the dataset is hit 95% of the time, and having a long
+> tail of rarely accessed data.
+>
+> Something that's bothered me for a while is that a zipf/pareto
+> distribution remains static over the runtime of the job. Real world
+> workloads would often see a shift in what appears hot/cold and what
+> isn't. So the attached patch is a first crude attempt at implementing
+> that, and I'm posting it here to solicit ideas on how best to express
+> such a shift in access patterns. The patch attached defines the
+> following options:
+>
+> random_drift    none, meaning the current behavior (static)
+>          sudden, meaning a sudden shift in the hot data
+>          gradual, meaning a gradual shift in the hot data
+>
+> random_drift_start_percentage    0..100%. For example, if set to 50%, the
+>          hot/cold distribution would remain static until 50% of
+>          data has been accessed.
+>
+> random_drift_percentage        0..100% For example, if set to 10%, the
+>          hot/cold distribution would shift 10% of the total size
+>          for every 10% of the workload accessed.
+>
+> I'm thinking that random_drift_percentage should be split in two, so
+> that we could say "shift X percent every time Y percent of the data has
+> been accessed". But apart from that, any input on this? I'm open to
+> suggestions on how to improve this, I think it's a feature that people
+> evaluating caching solutions would be interested in in using.
+>
 > An example job file would contain:
 >
 > random_distribution=zipf
 > random_drift=gradual
 > random_drift_start_percentage=50
 > random_drift_percentage=10
+>
 
-Jens,
+This is fantastic Jens!  We use zipf for testing our cache tiering 
+implementation in Ceph.  I suspect that you are absolutely right that a 
+slowly shifting distribution would be more accurate (and probably slower 
+for us sadly).  I don't think I really have anything to add as it seems 
+like you've got the things I'd want covered.  Good Job!
 
-This is an interesting proposal. Just to make sure if I understand
-your example correctly, in this example you are proposing Gradual
-shift  in hot/cold Blocks after 50% of workload is generated. This
-shift then would be 10% total distribution for every 10% of remaining
-workload access. It that correct ?
-
-If I understand this correctly, the workload randomness distribution
-would change after drift. For example if I start with zipf:1.2
-initially, I would have different distribution after the drift which
-is hard to describe. Would it be still Zipf with what theta parameter
-?
-
-Having said that, It would be more interesting and practical if we can
-set specific distribution parameter for the drifted workload phases.
-For example, Would be nice to divide the workload into 4 phases, phase
-1: workload start with zipf:1.2, phase 2: workload drift to zipf:1.4,
-phase 3: workload drift to pareto, phase 4:workload drift to uniform
-distribution.
-
-With this approach, we have more control on the workload randomness
-distribution parameters for each gradual drift. Moreover, it would be
-more practical to characterize a real workload and extract
-distribution parameters for these phases and then feed them to fio for
-synthetic re-generation of such a workload.
-
-
-Hope it helps.
---
-Alireza
+Thanks,
+Mark
 
