@@ -1,89 +1,63 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:36657 "EHLO
+Received: from casper.infradead.org ([85.118.1.10]:42381 "EHLO
 	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753209AbbAUNAG (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 21 Jan 2015 08:00:06 -0500
+	with ESMTP id S1756669AbbAHNAK (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 8 Jan 2015 08:00:10 -0500
 Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
 	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1YDutB-0004Zt-7y
-	for fio@vger.kernel.org; Wed, 21 Jan 2015 13:00:05 +0000
+	id 1Y9Ch7-0002x4-Ad
+	for fio@vger.kernel.org; Thu, 08 Jan 2015 13:00:09 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150121130003.99DD640129@lyth.info>
-Date: Wed, 21 Jan 2015 06:00:03 -0700 (MST)
+Message-Id: <20150108130003.637FB40157@lyth.info>
+Date: Thu,  8 Jan 2015 06:00:03 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit ae703cdf31532e337cc18c259c883bf5314aa43a:
+The following changes since commit 35326842297205554a9005723309bed565594c8a:
 
-  net: don't record/verify UDP sequence numbers if buffer is too small (2015-01-16 18:26:37 -0700)
+  Adjust ctime_r buf down to 32 (2015-01-06 12:03:09 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 91e475290c03db58f856a62f763d29e964934114:
+for you to fetch changes up to 36bb0880c7f7f48abb86e3a16d3168343dda9b75:
 
-  shm: disable iomem=shm* for shm disabled (2015-01-20 18:38:11 -0700)
+  Fix disk utils being updated too often (2015-01-07 15:04:39 -0700)
 
 ----------------------------------------------------------------
-Jens Axboe (2):
-      configure: add --disable-shm to disable use of shm
-      shm: disable iomem=shm* for shm disabled
+Jens Axboe (1):
+      Fix disk utils being updated too often
 
- configure |    2 ++
- memory.c  |    7 +++++++
- 2 files changed, 9 insertions(+)
+ backend.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/configure b/configure
-index 172b235..6e1376f 100755
---- a/configure
-+++ b/configure
-@@ -165,6 +165,8 @@ for opt do
-   ;;
-   --enable-libhdfs) libhdfs="yes"
-   ;;
-+  --disable-shm) output_sym "CONFIG_NO_SHM"
-+  ;;
-   --help)
-     show_help="yes"
-     ;;
-diff --git a/memory.c b/memory.c
-index f81c2dd..23a0d94 100644
---- a/memory.c
-+++ b/memory.c
-@@ -63,6 +63,7 @@ int fio_pin_memory(struct thread_data *td)
+diff --git a/backend.c b/backend.c
+index 3df0133..efabfa7 100644
+--- a/backend.c
++++ b/backend.c
+@@ -2104,18 +2104,11 @@ static void *helper_thread_main(void *data)
+ 		uint64_t sec = DISK_UTIL_MSEC / 1000;
+ 		uint64_t nsec = (DISK_UTIL_MSEC % 1000) * 1000000;
+ 		struct timespec ts;
+-
+-#if defined(CONFIG_CLOCK_MONOTONIC)
+-		clock_gettime(CLOCK_MONOTONIC, &ts);
+-		ts.tv_sec += sec;
+-		ts.tv_nsec += nsec;
+-#else
+ 		struct timeval tv;
  
- static int alloc_mem_shm(struct thread_data *td, unsigned int total_mem)
- {
-+#ifndef CONFIG_NO_SHM
- 	int flags = IPC_CREAT | S_IRUSR | S_IWUSR;
+ 		gettimeofday(&tv, NULL);
+ 		ts.tv_sec = tv.tv_sec + sec;
+ 		ts.tv_nsec = (tv.tv_usec * 1000) + nsec;
+-#endif
  
- 	if (td->o.mem_type == MEM_SHMHUGE) {
-@@ -104,15 +105,21 @@ static int alloc_mem_shm(struct thread_data *td, unsigned int total_mem)
- 	}
- 
- 	return 0;
-+#else
-+	log_err("fio: shm not supported\n");
-+	return 1;
-+#endif
- }
- 
- static void free_mem_shm(struct thread_data *td)
- {
-+#ifndef CONFIG_NO_SHM
- 	struct shmid_ds sbuf;
- 
- 	dprint(FD_MEM, "shmdt/ctl %d %p\n", td->shm_id, td->orig_buffer);
- 	shmdt(td->orig_buffer);
- 	shmctl(td->shm_id, IPC_RMID, &sbuf);
-+#endif
- }
- 
- static int alloc_mem_mmap(struct thread_data *td, size_t total_mem)
+ 		if (ts.tv_nsec >= 1000000000ULL) {
+ 			ts.tv_nsec -= 1000000000ULL;
