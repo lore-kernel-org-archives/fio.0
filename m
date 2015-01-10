@@ -1,103 +1,121 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:10871 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751220AbbALVGd (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 12 Jan 2015 16:06:33 -0500
-From: "Kudryavtsev, Andrey O" <andrey.o.kudryavtsev@intel.com>
+Received: from mail-lb0-f169.google.com ([209.85.217.169]:49232 "EHLO
+	mail-lb0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751044AbbAJJUa convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Sat, 10 Jan 2015 04:20:30 -0500
+Received: by mail-lb0-f169.google.com with SMTP id p9so11556077lbv.0
+        for <fio@vger.kernel.org>; Sat, 10 Jan 2015 01:20:28 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <D0D59CE2.FF94%andrey.o.kudryavtsev@intel.com>
+References: <D0D596A1.FF42%andrey.o.kudryavtsev@intel.com> <94D0CD8314A33A4D9D801C0FE68B40295A72F566@G9W0745.americas.hpqcorp.net>
+ <D0D59CE2.FF94%andrey.o.kudryavtsev@intel.com>
+From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Date: Sat, 10 Jan 2015 12:20:07 +0300
+Message-ID: <CANvN+e=i1bs71VjQL+mw-5ud0b2+H=vMG1Cwr0KWudVfHma=QQ@mail.gmail.com>
 Subject: Re: REPORT: FIO random read performance degradation without
  "norandommap" option
-Date: Mon, 12 Jan 2015 21:06:04 +0000
-Message-ID: <D0D9732D.107AC%andrey.o.kudryavtsev@intel.com>
-References: <D0D596A1.FF42%andrey.o.kudryavtsev@intel.com>
- <94D0CD8314A33A4D9D801C0FE68B40295A72F566@G9W0745.americas.hpqcorp.net>
- <D0D59CE2.FF94%andrey.o.kudryavtsev@intel.com>
- <CANvN+e=i1bs71VjQL+mw-5ud0b2+H=vMG1Cwr0KWudVfHma=QQ@mail.gmail.com>
-In-Reply-To: <CANvN+e=i1bs71VjQL+mw-5ud0b2+H=vMG1Cwr0KWudVfHma=QQ@mail.gmail.com>
-Content-Language: en-US
 Content-Type: text/plain; charset="utf-8"
-Content-ID: <8408D13987EE324E93184B61A446C0AC@intel.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+To: "Kudryavtsev, Andrey O" <andrey.o.kudryavtsev@intel.com>
 Cc: "Elliott, Robert (Server Storage)" <Elliott@hp.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-SGkgQW5kcmV5LCANClRoYW5rIHlvdSwgaXQgZXhwbGFpbnMgdGhlIHB1cnBvc2Ugb2YgdGhpcyBm
-ZWF0dXJlLiBVbmZvcnR1bmF0ZWx5IGl0IHdhcw0Kbm90IGNsZWFyIHRvIG1lIGZyb20gdGhlIG1h
-bnVhbCwgSSBmYXVsdHkgc3VwcG9zZWQgaXQgaW5jcmVhc2VzIHRoZQ0KcmFuZG9tbmVzcyBvZiB0
-aGUgcmFuZG9tIGdlbmVyYXRvciBkaXN0cmlidXRpb24uIFRoYW5rcyBhZ2FpbiENCg0KSeKAmWQg
-cHJvcG9zZSB0byBoYXZlIGl0IGF1dG8gc2V0IHRvICJub3JhbmRvbW1hcCIgaWYg4oCccmFuZHJl
-YWTigJ0gd29ya2xvYWQgaXMNCnNwZWNpZmllZC4gRG9lcyBpdCBtYWtlIHNlbnNlPw0KDQotLSAN
-CkFuZHJleSBLdWRyeWF2dHNldiwNCg0KU1NEIFNvbHV0aW9uIEFyY2hpdGVjdA0KSW50ZWwgQ29y
-cC4gDQoNCg0KDQoNCk9uIDEvMTAvMTUsIDE6MjAgQU0sICJBbmRyZXkgS3V6bWluIiA8YW5kcmV5
-LnYua3V6bWluQGdtYWlsLmNvbT4gd3JvdGU6DQoNCj5PbiBTYXQsIEphbiAxMCwgMjAxNSBhdCAy
-OjAxIEFNLCBLdWRyeWF2dHNldiwgQW5kcmV5IE8NCj48YW5kcmV5Lm8ua3VkcnlhdnRzZXZAaW50
-ZWwuY29tPiB3cm90ZToNCj4+IFJvYmVydCwgdGhhbmtzIGZvciB0aGUgcmVwbHkuDQo+PiBUaGF0
-xIVzIGV4YWN0bHkgY29uZmlybXMgbXkgZmluZGluZ3MuIEFueSBpZGVhIGlmIExCQSBtYXAgaXMg
-Z2VuZXJhdGVkDQo+PmZvcg0KPj4gZXZlcnkgam9iIGluIGNhc2Ugb2YgbXVsdGlwbGUgbnVtam9i
-cz8NCj4+DQo+PiBUaGUgZmFjdCBvZiB0aGUgcGVyZm9ybWFuY2UgcmVjb3ZlcnkgYWZ0ZXIgZGVn
-cmFkYXRpb24gd2FzIGNvbXBsZXRlbHkNCj4+IGNvbmZ1c2luZyB0b28uIEnEhW0gZ2xhZCB0aGUg
-c29sdXRpb24gd2FzIHNvIGVhc3kuDQo+DQo+TXkgZ3Vlc3MgaXMgdGhlIHByb2JsZW0gaXMgbm90
-IG5vdCB3aXRoIHRoZSBvcHRpb24gaXRzZWxmLCBidXQgd2l0aA0KPnRoZSB3YXkgeW91J3JlIHRy
-eWluZyB0byB1c2UgaXQuIHJhbmRvbW1hcCB0cmFja3Mgd3JpdHRlbiBibG9ja3MgdG8NCj5hdm9p
-ZCByZXdyaXRlLCBpbiBwYXJ0aWN1bGFyIHdoZW4gb25lIHdhbnRzIHRvIHZlcmlmeSBkYXRhIGlu
-dGVncml0eQ0KPmFmdGVyIHRoZSBydW4uIEluIHJlYWQvd3JpdGUgd29ya2xvYWRzLCB0aGUgb3B0
-aW9uIG1pZ2h0IGJlIHV0aWxpemVkDQo+dG8gYXZvaWQgcmVhZGluZyB1bmFsbG9jYXRlZCBzcGFj
-ZSBvbiBhIHRoaW4tcHJvdmlzaW9uZWQgdm9sdW1lLiBJbg0KPnJlYWQtb25seSB3b3JrbG9hZHMs
-IHRoZXJlIGlzIG5vIHBvaW50IGluIHVzaW5nIHJhbmRvbSBtYXAuDQo+DQo+UmVnYXJkaW5nIHJh
-bmRvbSBtYXAgUkFNIGZvb3RwcmludCwgaXQncyBxdWl0ZSBtb2Rlc3QgKGFyb3VuZCAxLjAxDQo+
-Yml0cyBwZXIgbWluaW11bSBibG9jayBzaXplIG9mIHRoZSB3b3JrbG9hZCwgNEsgaW4geW91ciBj
-YXNlKSwgc28gb25lDQo+c2hvdWxkIG9ubHkgc2VlIHRoZSBtZW1vcnkgcHJlc3N1cmUgd2l0aCBj
-YXBhY2l0aWVzIGluIHRoZSB0ZW50aHMgb2YNCj5UQiByYW5nZS4NCj4NCj5SZWdhcmRzLA0KPkFu
-ZHJleQ0KPg0KPj4NCj4+IEplbnMsIGFyZSB0aGVyZSBhbnkgY2hhbmNlIHRvIGFkZCB0aGUgbm90
-ZSBpbnRvIHRoZSBkb2N1bWVudGF0aW9uPw0KPj4NCj4+IC0tDQo+PiBBbmRyZXkgS3VkcnlhdnRz
-ZXYsDQo+Pg0KPj4gU1NEIFNvbHV0aW9uIEFyY2hpdGVjdA0KPj4gSW50ZWwgQ29ycC4NCj4+DQo+
-Pg0KPj4NCj4+IE9uIDEvOS8xNSwgMjo0OSBQTSwgIkVsbGlvdHQsIFJvYmVydCAoU2VydmVyIFN0
-b3JhZ2UpIiA8RWxsaW90dEBocC5jb20+DQo+PiB3cm90ZToNCj4+DQo+Pj4NCj4+Pj4gLS0tLS1P
-cmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4+Pj4gRnJvbTogZmlvLW93bmVyQHZnZXIua2VybmVsLm9y
-ZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uDQo+Pj4+IEJlaGFsZiBPZiBL
-dWRyeWF2dHNldiwgQW5kcmV5IE8NCj4+Pj4gU2VudDogRnJpZGF5LCAwOSBKYW51YXJ5LCAyMDE1
-IDQ6NDIgUE0NCj4+Pj4gVG86IGZpb0B2Z2VyLmtlcm5lbC5vcmcNCj4+Pj4gU3ViamVjdDogUkVQ
-T1JUOiBGSU8gcmFuZG9tIHJlYWQgcGVyZm9ybWFuY2UgZGVncmFkYXRpb24gd2l0aG91dA0KPj4+
-PiAibm9yYW5kb21tYXAiIG9wdGlvbg0KPj4+Pg0KPj4+PiBDb2xsZWFndWVzLA0KPj4+PiBJIGV4
-ZWN1dGVkIDItaG91ciBydW5zIG9mIDRLUlIgdG8gdW5kZXJzdGFuZCBwZXJmb3JtYW5jZSBjaGFu
-Z2VzDQo+Pj4+YWNyb3NzDQo+Pj4+IHRoZSB0aW1lIG9uIHRoZSBzcGVjaWZpYyB2ZXJ5IGZhc3Qg
-TlZNZSBTU0Qgd2l0aCAxLjZUQiBjYXBhY2l0eS4NCj4+Pj4gSSBub3RpY2VkIHRoZSBzaWRlIGVm
-ZmVjdCBvZiDFgm5vcmFuZG9tbWFwy5sgcGFyYW1ldGVyIHBlcmZvcm1pbmcgZnVsbA0KPj4+PnNw
-YW4NCj4+Pj4gdGVzdCBvbiB0aGUgYmxvY2sgZGV2aWNlLg0KPj4+PiBIZXJlIGlzIHRoZSBleGFt
-cGxlIG9mIHRoZSByZXN1bHQgd2l0aCByYW5kb20gbWFwIChJLmUuIHdpdGhvdXQNCj4+Pj4gIm5v
-cmFuZG9tbWFwIiBvcHRpb24pIHdpdGhpbiAxMjAgbWludXRlcyB3aW5kb3dzLg0KPj4+PiBbY2lk
-OkU2ODcyQjY0LTM1RDEtNDQ0Ny1BMENGLTMyRTY0MTFEOUJEQl0NCj4+Pj4gKElPUFMgaW4gYmx1
-ZSkNCj4+Pj4NCj4+Pj4gQXMgc29vbiBhcyBJIGVuYWJsZWQgxYJub3JhbmRvbW1hcMubIG9wdGlv
-biB0aGUgY3VydmUgaGFzIGNoYW5nZWQgaW50bw0KPj4+PnRoZQ0KPj4+PiBzdHJhaWdodCBsaW5l
-IGFzIGV4cGVjdGVkLg0KPj4+DQo+Pj5JdCB0YWtlcyByZXNvdXJjZXMgdG8gbWFpbnRhaW4gdGhl
-IHJhbmRvbSBtYXAgdGFibGUuICBJIGFsd2F5cyBydW4gd2l0aA0KPj4+bm9yYW5kb21tYXAgdW5s
-ZXNzIHVzaW5nIHZlcmlmeSwgd2hpY2ggaGFzIHRvIHJlbWVtYmVyIHdoaWNoIG9uZXMgaGF2ZQ0K
-Pj4+YmVlbiBhY2Nlc3NlZC4NCj4+Pg0KPj4+SGVyZSdzIGEgZGVzY3JpcHRpb24gSSBnYXZlIHNv
-bWVvbmUgYSB3aGlsZSBiYWNrOg0KPj4+V2l0aCBhIGh1Z2UgZGV2aWNlIChlLmcuLCA1LjggVEIg
-ZnJvbSBSQUlELTAgbWFkZSBmcm9tIDE2IFNTRHMpLA0KPj4+aWYgeW91IGRvIG5vdCB1c2UgIm5v
-cmFuZG9tbWFwIiwgZmlvIGFsbG9jYXRlcyBhIGJpdG1hcCBmb3IgYWxsDQo+Pj50aGUgZGlzayBi
-bG9ja3MgdG8ga2VlcCB0cmFjayBvZiB3aGVyZSBpdCBoYXMgcmVhZCBvciB3cml0dGVuLg0KPj4+
-SXQgdXNlcyB0aGlzIHRvIGF2b2lkIGFjY2Vzc2luZyB0aGUgc2FtZSBibG9ja3MgdW50aWwgYWxs
-DQo+Pj50aGUgYmxvY2tzIGhhdmUgYmVlbiBhY2Nlc3NlZCwgYW5kIHRvIGtub3cgd2hpY2ggYmxv
-Y2tzIGl0DQo+Pj5uZWVkcyB0byB2ZXJpZnkgaWYgdmVyaWZ5PTxzb21ldGhpbmc+IGlzIGVuYWJs
-ZWQuDQo+Pj4NCj4+PkZvciA1LjggVEIsIHRoYXQgaXMgMTU2MjcxNDEzNiA9IDEuNSBHQi4gIE5v
-dCBtYW55IG9mIHRob3NlDQo+Pj5odWdlIGFsbG9jYXRpb25zIHdvcmssIHNvIGl0DQo+Pj4qIGhh
-bmdzIHRoZSBzeXN0ZW0gZm9yIGEgd2hpbGUNCj4+PiogZ2VuZXJhdGVzIGVzdGltYXRlcyBsaWtl
-DQo+Pj4gICAgICAgIFtldGEgMTE1ODA1MDQ0MGQ6MDZoOjUwbToyMnNdDQo+Pj4qIGFuZCBldmVu
-dHVhbGx5IHJlcG9ydHMNCj4+PiAgICAgICAgc21hbGxvYzogZmFpbGVkIGFkZGluZyBwb29sDQo+
-Pj4gICAgICAgIGZpbzogZmFpbGVkIGFsbG9jYXRpbmcgcmFuZG9tIG1hcC4gSWYgcnVubmluZyBh
-IGxhcmdlIG51bWJlciBvZg0KPj4+am9icywgdHJ5IHRoZSAnbm9yYW5kb21tYXAnIG9wdGlvbiBv
-ciBzZXQgJ3NvZnRyYW5kb21tYXAnLiBPciBnaXZlIGENCj4+PmxhcmdlciAtLWFsbG9jLXNpemUg
-dG8gZmlvLg0KPj4+DQo+Pj5maW8gY29udGludWVzIHRvIHJ1biBhZnRlciB0aGF0OyBJIHRoaW5r
-IGl0IHZlcmlmaWVzIG9ubHkNCj4+PnRoZSBkZXZpY2VzIGZvciB3aGljaCB0aGUgYWxsb2NhdGlv
-biB3b3JrZWQgYW5kIGlnbm9yZXMNCj4+PnRoZSByZXN0Lg0KPj4+DQo+Pj4NCj4+Pi0tLQ0KPj4+
-Um9iIEVsbGlvdHQgICAgSFAgU2VydmVyIFN0b3JhZ2UNCj4+Pg0KPj4+DQo+Pg0KPj4gLS0NCj4+
-IFRvIHVuc3Vic2NyaWJlIGZyb20gdGhpcyBsaXN0OiBzZW5kIHRoZSBsaW5lICJ1bnN1YnNjcmli
-ZSBmaW8iIGluDQo+PiB0aGUgYm9keSBvZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21vQHZnZXIua2Vy
-bmVsLm9yZw0KPj4gTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2VybmVsLm9y
-Zy9tYWpvcmRvbW8taW5mby5odG1sDQo+LS0NCj5UbyB1bnN1YnNjcmliZSBmcm9tIHRoaXMgbGlz
-dDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgZmlvIiBpbg0KPnRoZSBib2R5IG9mIGEgbWVz
-c2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnDQo+TW9yZSBtYWpvcmRvbW8gaW5mbyBh
-dCAgaHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpvcmRvbW8taW5mby5odG1sDQoNCg==
+On Sat, Jan 10, 2015 at 2:01 AM, Kudryavtsev, Andrey O
+<andrey.o.kudryavtsev@intel.com> wrote:
+> Robert, thanks for the reply.
+> Thatąs exactly confirms my findings. Any idea if LBA map is generated for
+> every job in case of multiple numjobs?
+>
+> The fact of the performance recovery after degradation was completely
+> confusing too. Iąm glad the solution was so easy.
+
+My guess is the problem is not not with the option itself, but with
+the way you're trying to use it. randommap tracks written blocks to
+avoid rewrite, in particular when one wants to verify data integrity
+after the run. In read/write workloads, the option might be utilized
+to avoid reading unallocated space on a thin-provisioned volume. In
+read-only workloads, there is no point in using random map.
+
+Regarding random map RAM footprint, it's quite modest (around 1.01
+bits per minimum block size of the workload, 4K in your case), so one
+should only see the memory pressure with capacities in the tenths of
+TB range.
+
+Regards,
+Andrey
+
+>
+> Jens, are there any chance to add the note into the documentation?
+>
+> --
+> Andrey Kudryavtsev,
+>
+> SSD Solution Architect
+> Intel Corp.
+>
+>
+>
+> On 1/9/15, 2:49 PM, "Elliott, Robert (Server Storage)" <Elliott@hp.com>
+> wrote:
+>
+>>
+>>> -----Original Message-----
+>>> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
+>>> Behalf Of Kudryavtsev, Andrey O
+>>> Sent: Friday, 09 January, 2015 4:42 PM
+>>> To: fio@vger.kernel.org
+>>> Subject: REPORT: FIO random read performance degradation without
+>>> "norandommap" option
+>>>
+>>> Colleagues,
+>>> I executed 2-hour runs of 4KRR to understand performance changes across
+>>> the time on the specific very fast NVMe SSD with 1.6TB capacity.
+>>> I noticed the side effect of łnorandommap˛ parameter performing full
+>>>span
+>>> test on the block device.
+>>> Here is the example of the result with random map (I.e. without
+>>> "norandommap" option) within 120 minutes windows.
+>>> [cid:E6872B64-35D1-4447-A0CF-32E6411D9BDB]
+>>> (IOPS in blue)
+>>>
+>>> As soon as I enabled łnorandommap˛ option the curve has changed into the
+>>> straight line as expected.
+>>
+>>It takes resources to maintain the random map table.  I always run with
+>>norandommap unless using verify, which has to remember which ones have
+>>been accessed.
+>>
+>>Here's a description I gave someone a while back:
+>>With a huge device (e.g., 5.8 TB from RAID-0 made from 16 SSDs),
+>>if you do not use "norandommap", fio allocates a bitmap for all
+>>the disk blocks to keep track of where it has read or written.
+>>It uses this to avoid accessing the same blocks until all
+>>the blocks have been accessed, and to know which blocks it
+>>needs to verify if verify=<something> is enabled.
+>>
+>>For 5.8 TB, that is 1562714136 = 1.5 GB.  Not many of those
+>>huge allocations work, so it
+>>* hangs the system for a while
+>>* generates estimates like
+>>        [eta 1158050440d:06h:50m:22s]
+>>* and eventually reports
+>>        smalloc: failed adding pool
+>>        fio: failed allocating random map. If running a large number of
+>>jobs, try the 'norandommap' option or set 'softrandommap'. Or give a
+>>larger --alloc-size to fio.
+>>
+>>fio continues to run after that; I think it verifies only
+>>the devices for which the allocation worked and ignores
+>>the rest.
+>>
+>>
+>>---
+>>Rob Elliott    HP Server Storage
+>>
+>>
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
