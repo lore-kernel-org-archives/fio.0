@@ -1,283 +1,82 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:52481 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751965AbbAQNAG (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 17 Jan 2015 08:00:06 -0500
-Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1YCSyz-00028f-9y
-	for fio@vger.kernel.org; Sat, 17 Jan 2015 13:00:05 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150117130003.3F07440156@lyth.info>
-Date: Sat, 17 Jan 2015 06:00:03 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <andrey.v.kuzmin@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <54ADC21F.10207@kernel.dk>
+References: <54ADC21F.10207@kernel.dk>
+From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Date: Sat, 10 Jan 2015 12:26:36 +0300
+Message-ID: <CANvN+enbhOSjoVWYvAE0LQZhC7K+=pm1u7OkebB6trDh-GvZdw@mail.gmail.com>
+Subject: Re: Non-uniform randomness with drifting
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 9cc80b6d92a15c6b9cbdbc021436f1628054cfda:
+On Thu, Jan 8, 2015 at 2:32 AM, Jens Axboe <axboe@kernel.dk> wrote:
+> Hi,
+>
+> If you boil it down, fio can basically do two types of random distributions
+> (random_distribution=):
+>
+> - Uniform, meaning we scatter evenly across the IO range.
+> - Or zipf/pareto, meaning that we have some notion of hotness of
+>   offsets that are hit more often than others.
+>
+> zipf/pareto are often used to simulate real world access patterns, where,
+> eg, 5% of the dataset is hit 95% of the time, and having a long tail of
+> rarely accessed data.
+>
+> Something that's bothered me for a while is that a zipf/pareto distribution
+> remains static over the runtime of the job. Real world workloads would often
+> see a shift in what appears hot/cold and what isn't. So the attached patch
+> is a first crude attempt at implementing that, and I'm posting it here to
+> solicit ideas on how best to express such a shift in access patterns. The
+> patch attached defines the following options:
+>
+> random_drift    none, meaning the current behavior (static)
+>                 sudden, meaning a sudden shift in the hot data
+>                 gradual, meaning a gradual shift in the hot data
+>
+> random_drift_start_percentage   0..100%. For example, if set to 50%, the
+>                 hot/cold distribution would remain static until 50% of
+>                 data has been accessed.
+>
+> random_drift_percentage         0..100% For example, if set to 10%, the
+>                 hot/cold distribution would shift 10% of the total size
+>                 for every 10% of the workload accessed.
+>
+> I'm thinking that random_drift_percentage should be split in two, so that we
+> could say "shift X percent every time Y percent of the data has been
+> accessed". But apart from that, any input on this? I'm open to suggestions
+> on how to improve this, I think it's a feature that people evaluating
+> caching solutions would be interested in in using.
 
-  Improve rate limiting (2015-01-15 10:39:12 -0700)
+Great start to me, with a lot of use cases out-of-the-box. A concern,
+probably a minor one, is that drift is global and applies to all data
+directions and threads, while one might be interested to model
+read/write or per thread behavior differently in this regard.
 
-are available in the git repository at:
+Further down the line, I'd give a thought to turning the base of the
+distribution in use into a (say, uniform) random variable.
+start_percentage and percentage then become the moments of the
+distribution that models the base offset evolution in time (expressed
+in either units of time or data volume accessed). An obvious use case
+is modelling multiple clients with zipf distribution, with each zipf's
+base independently evolving in a random fashion (a realistic model of
+a file server load with multiple clients, each with a randomly moving
+hotspot).
 
-  git://git.kernel.dk/fio.git master
+Regards,
+Andrey
 
-for you to fetch changes up to ae703cdf31532e337cc18c259c883bf5314aa43a:
+>
+> An example job file would contain:
+>
+> random_distribution=zipf
+> random_drift=gradual
+> random_drift_start_percentage=50
+> random_drift_percentage=10
+>
+> --
+> Jens Axboe
+>
 
-  net: don't record/verify UDP sequence numbers if buffer is too small (2015-01-16 18:26:37 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (6):
-      Improve precision of the io_limit setting
-      ioengine: if we get BUSY in queuing, adjust accounting
-      verify: always check completion list for low depth verifies
-      sha256: fix verify failure
-      Fix segfault with client/server and minimal output
-      crc/test: sha1 should do _final() after _update()
-
-Steven Noonan (1):
-      net: don't record/verify UDP sequence numbers if buffer is too small
-
- backend.c     |    8 ++++----
- crc/sha1.c    |    7 +------
- crc/sha1.h    |    2 +-
- crc/test.c    |    4 +++-
- diskutil.c    |    3 +++
- engines/net.c |    6 ++++++
- fio.h         |    8 ++++++++
- ioengines.c   |    9 ++++++++-
- verify.c      |   14 +++++++++++---
- 9 files changed, 45 insertions(+), 16 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/backend.c b/backend.c
-index efabfa7..9012140 100644
---- a/backend.c
-+++ b/backend.c
-@@ -667,13 +667,13 @@ static int io_bytes_exceeded(struct thread_data *td)
- 	unsigned long long bytes, limit;
- 
- 	if (td_rw(td))
--		bytes = td->this_io_bytes[DDIR_READ] + td->this_io_bytes[DDIR_WRITE];
-+		bytes = td->io_issue_bytes[DDIR_READ] + td->io_issue_bytes[DDIR_WRITE];
- 	else if (td_write(td))
--		bytes = td->this_io_bytes[DDIR_WRITE];
-+		bytes = td->io_issue_bytes[DDIR_WRITE];
- 	else if (td_read(td))
--		bytes = td->this_io_bytes[DDIR_READ];
-+		bytes = td->io_issue_bytes[DDIR_READ];
- 	else
--		bytes = td->this_io_bytes[DDIR_TRIM];
-+		bytes = td->io_issue_bytes[DDIR_TRIM];
- 
- 	if (td->o.io_limit)
- 		limit = td->o.io_limit;
-diff --git a/crc/sha1.c b/crc/sha1.c
-index 117fbd9..8d64c8e 100644
---- a/crc/sha1.c
-+++ b/crc/sha1.c
-@@ -55,7 +55,7 @@ void fio_sha1_update(struct fio_sha1_ctx *ctx, const void *data,
- 		memcpy(ctx->W, data, len);
- }
- 
--void fio_sha1_final(unsigned char hashout[20], struct fio_sha1_ctx *ctx)
-+void fio_sha1_final(struct fio_sha1_ctx *ctx)
- {
- 	static const unsigned char pad[64] = { 0x80 };
- 	unsigned int padlen[2];
-@@ -69,11 +69,6 @@ void fio_sha1_final(unsigned char hashout[20], struct fio_sha1_ctx *ctx)
- 	i = ctx->size & 63;
- 	fio_sha1_update(ctx, pad, 1+ (63 & (55 - i)));
- 	fio_sha1_update(ctx, padlen, 8);
--
--	/* Output hash
--	 */
--	for (i = 0; i < 5; i++)
--		((unsigned int *)hashout)[i] = htonl(ctx->H[i]);
- }
- 
- #if defined(__i386__) || defined(__x86_64__)
-diff --git a/crc/sha1.h b/crc/sha1.h
-index 14af44a..75317f7 100644
---- a/crc/sha1.h
-+++ b/crc/sha1.h
-@@ -15,6 +15,6 @@ struct fio_sha1_ctx {
- 
- void fio_sha1_init(struct fio_sha1_ctx *);
- void fio_sha1_update(struct fio_sha1_ctx *, const void *dataIn, unsigned long len);
--void fio_sha1_final(unsigned char hashout[20], struct fio_sha1_ctx *);
-+void fio_sha1_final(struct fio_sha1_ctx *);
- 
- #endif
-diff --git a/crc/test.c b/crc/test.c
-index bc5cc45..dbc5653 100644
---- a/crc/test.c
-+++ b/crc/test.c
-@@ -111,8 +111,10 @@ static void t_sha1(struct test_type *t, void *buf, size_t size)
- 
- 	fio_sha1_init(&ctx);
- 
--	for (i = 0; i < NR_CHUNKS; i++)
-+	for (i = 0; i < NR_CHUNKS; i++) {
- 		fio_sha1_update(&ctx, buf, size);
-+		fio_sha1_final(&ctx);
-+	}
- }
- 
- static void t_sha256(struct test_type *t, void *buf, size_t size)
-diff --git a/diskutil.c b/diskutil.c
-index 98ae2fe..52d87f6 100644
---- a/diskutil.c
-+++ b/diskutil.c
-@@ -694,6 +694,9 @@ void show_disk_util(int terse, struct json_object *parent)
- 	struct flist_head *entry;
- 	struct disk_util *du;
- 
-+	if (!disk_util_mutex)
-+		return;
-+
- 	fio_mutex_down(disk_util_mutex);
- 
- 	if (flist_empty(&disk_list)) {
-diff --git a/engines/net.c b/engines/net.c
-index 7a0fe69..cd19535 100644
---- a/engines/net.c
-+++ b/engines/net.c
-@@ -484,6 +484,9 @@ static void store_udp_seq(struct netio_data *nd, struct io_u *io_u)
- {
- 	struct udp_seq *us;
- 
-+	if (io_u->xfer_buflen < sizeof(*us))
-+		return;
-+
- 	us = io_u->xfer_buf + io_u->xfer_buflen - sizeof(*us);
- 	us->magic = cpu_to_le64((uint64_t) FIO_UDP_SEQ_MAGIC);
- 	us->bs = cpu_to_le64((uint64_t) io_u->xfer_buflen);
-@@ -496,6 +499,9 @@ static void verify_udp_seq(struct thread_data *td, struct netio_data *nd,
- 	struct udp_seq *us;
- 	uint64_t seq;
- 
-+	if (io_u->xfer_buflen < sizeof(*us))
-+		return;
-+
- 	if (nd->seq_off)
- 		return;
- 
-diff --git a/fio.h b/fio.h
-index be2f23a..d28f8ce 100644
---- a/fio.h
-+++ b/fio.h
-@@ -235,7 +235,15 @@ struct thread_data {
- 	uint64_t total_io_size;
- 	uint64_t fill_device_size;
- 
-+	/*
-+	 * Issue side
-+	 */
- 	uint64_t io_issues[DDIR_RWDIR_CNT];
-+	uint64_t io_issue_bytes[DDIR_RWDIR_CNT];
-+
-+	/*
-+	 * Completions
-+	 */
- 	uint64_t io_blocks[DDIR_RWDIR_CNT];
- 	uint64_t this_io_blocks[DDIR_RWDIR_CNT];
- 	uint64_t io_bytes[DDIR_RWDIR_CNT];
-diff --git a/ioengines.c b/ioengines.c
-index 6370a56..00098d6 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -294,13 +294,20 @@ int td_io_queue(struct thread_data *td, struct io_u *io_u)
- 					sizeof(struct timeval));
- 	}
- 
--	if (ddir_rw(acct_ddir(io_u)))
-+	if (ddir_rw(acct_ddir(io_u))) {
- 		td->io_issues[acct_ddir(io_u)]++;
-+		td->io_issue_bytes[acct_ddir(io_u)] += io_u->xfer_buflen;
-+	}
- 
- 	ret = td->io_ops->queue(td, io_u);
- 
- 	unlock_file(td, io_u->file);
- 
-+	if (ret == FIO_Q_BUSY && ddir_rw(acct_ddir(io_u))) {
-+		td->io_issues[acct_ddir(io_u)]--;
-+		td->io_issue_bytes[acct_ddir(io_u)] -= io_u->xfer_buflen;
-+	}
-+
- 	/*
- 	 * If an error was seen and the io engine didn't propagate it
- 	 * back to 'td', do so.
-diff --git a/verify.c b/verify.c
-index 205f01a..b6793d7 100644
---- a/verify.c
-+++ b/verify.c
-@@ -472,6 +472,7 @@ static int verify_io_u_sha256(struct verify_header *hdr, struct vcont *vc)
- 
- 	fio_sha256_init(&sha256_ctx);
- 	fio_sha256_update(&sha256_ctx, p, hdr->len - hdr_size(hdr));
-+	fio_sha256_final(&sha256_ctx);
- 
- 	if (!memcmp(vh->sha256, sha256_ctx.buf, sizeof(sha256)))
- 		return 0;
-@@ -497,6 +498,7 @@ static int verify_io_u_sha1(struct verify_header *hdr, struct vcont *vc)
- 
- 	fio_sha1_init(&sha1_ctx);
- 	fio_sha1_update(&sha1_ctx, p, hdr->len - hdr_size(hdr));
-+	fio_sha1_final(&sha1_ctx);
- 
- 	if (!memcmp(vh->sha1, sha1_ctx.H, sizeof(sha1)))
- 		return 0;
-@@ -627,6 +629,7 @@ static int verify_io_u_md5(struct verify_header *hdr, struct vcont *vc)
- 
- 	fio_md5_init(&md5_ctx);
- 	fio_md5_update(&md5_ctx, p, hdr->len - hdr_size(hdr));
-+	fio_md5_final(&md5_ctx);
- 
- 	if (!memcmp(vh->md5_digest, md5_ctx.hash, sizeof(hash)))
- 		return 0;
-@@ -893,6 +896,7 @@ static void fill_sha256(struct verify_header *hdr, void *p, unsigned int len)
- 
- 	fio_sha256_init(&sha256_ctx);
- 	fio_sha256_update(&sha256_ctx, p, len);
-+	fio_sha256_final(&sha256_ctx);
- }
- 
- static void fill_sha1(struct verify_header *hdr, void *p, unsigned int len)
-@@ -904,6 +908,7 @@ static void fill_sha1(struct verify_header *hdr, void *p, unsigned int len)
- 
- 	fio_sha1_init(&sha1_ctx);
- 	fio_sha1_update(&sha1_ctx, p, len);
-+	fio_sha1_final(&sha1_ctx);
- }
- 
- static void fill_crc7(struct verify_header *hdr, void *p, unsigned int len)
-@@ -950,6 +955,7 @@ static void fill_md5(struct verify_header *hdr, void *p, unsigned int len)
- 
- 	fio_md5_init(&md5_ctx);
- 	fio_md5_update(&md5_ctx, p, len);
-+	fio_md5_final(&md5_ctx);
- }
- 
- static void populate_hdr(struct thread_data *td, struct io_u *io_u,
-@@ -1540,10 +1546,12 @@ int verify_state_should_stop(struct thread_data *td, struct io_u *io_u)
- 		return 0;
- 
- 	/*
--	 * If we're not into the window of issues - depth yet, continue
-+	 * If we're not into the window of issues - depth yet, continue. If
-+	 * issue is shorter than depth, do check.
- 	 */
--	if (td->io_blocks[DDIR_READ] < s->depth ||
--	    s->numberio - td->io_blocks[DDIR_READ] > s->depth)
-+	if ((td->io_blocks[DDIR_READ] < s->depth ||
-+	    s->numberio - td->io_blocks[DDIR_READ] > s->depth) &&
-+	    s->numberio > s->depth)
- 		return 0;
- 
- 	/*
