@@ -1,331 +1,358 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:46566 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750905AbbADNAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 4 Jan 2015 08:00:05 -0500
-Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1Y7kmq-0002Iq-8a
-	for fio@vger.kernel.org; Sun, 04 Jan 2015 13:00:04 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <54B5EA5F.2010006@kernel.dk>
+Date: Tue, 13 Jan 2015 21:02:39 -0700
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150104130003.4434240191@lyth.info>
-Date: Sun,  4 Jan 2015 06:00:03 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: Log Bug with fio-2.1.14 and Higher Causing fio Jobs to Time Out
+References: <CAFCBNRFzOw4rVnWpHWN=FfdhDYePKwP9xo7vWdKTPR+LSpyZwQ@mail.gmail.com> <54B45DBE.4000705@kernel.dk> <54B5D956.1040907@kernel.dk>
+In-Reply-To: <54B5D956.1040907@kernel.dk>
+Content-Type: multipart/mixed;
+ boundary="------------020509000502020401000407"
+To: George T Seese <george.t.seese@seagate.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit aad918e47d119eb2043311f1a2a45ce109c047d1:
+This is a multi-part message in MIME format.
+--------------020509000502020401000407
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-  gettime: add basic init cpuclock test (2014-12-23 10:41:34 -0700)
+On 01/13/2015 07:49 PM, Jens Axboe wrote:
+> On 01/12/2015 04:50 PM, Jens Axboe wrote:
+>> On 01/09/2015 09:04 AM, George T Seese wrote:
+>>> fio team,
+>>>
+>>> I've found a bug that results in fio hanging at the end of a workload
+>>> involving log generation, in this case specific to latency log
+>>> generation. The bug appears in version 2.1.14, 2.2.4, and possibly
+>>> others. I have tested these scripts with 2.0.9 and they work. Slightly
+>>> different scripts work on 2.0.14 as well.
+>>>
+>>> Error message and script file are copy-pasted below. The job that
+>>> times out is not always the same job but, usually at least one does
+>>> time out, it's worse with more targets.
+>>>
+>>> fio: pid=37182, got signal=11
+>>> fio: job '/dev/sdc' hasn't exited in 60 seconds, it appears to be
+>>> stuck. Doing forceful exit of this job.
+>>>
+>>> [global]
+>>> bs=4k
+>>> runtime=1800
+>>> rw=randread
+>>> ;thread=1
+>>> direct=1
+>>> ioengine=libaio
+>>> ;offset=0
+>>> ;randommap=1
+>>> ;time_based=1
+>>> bwavgtime=5000
+>>> ;write_lat_log
+>>> ;stonewall=1
+>>> iodepth=1
+>>>
+>>> ;TargetDriveMarker
+>>> [/dev/sdc]
+>>> filename=/dev/sdc
+>>> write_lat_log=sdc
+>>>
+>>> [/dev/sdd]
+>>> filename=/dev/sdd
+>>> write_lat_log=sdd
+>>
+>> Thanks, I'll take a look at this.
+>
+> Can you try the attached patch?
 
-are available in the git repository at:
+This one should be more complete (though the first one should also work 
+for you, but try this one instead if you haven't used the first one).
 
-  git://git.kernel.dk/fio.git master
+-- 
+Jens Axboe
 
-for you to fetch changes up to fde90aadbbf223d4d9b553c8cda3b65b0b1140e2:
 
-  Fio 2.2.4 (2015-01-03 19:46:55 -0700)
+--------------020509000502020401000407
+Content-Type: text/x-patch;
+ name="filelock-v2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="filelock-v2.patch"
 
-----------------------------------------------------------------
-fio v2.2.4
-
-----------------------------------------------------------------
-Jens Axboe (5):
-      Get rid of lockfile callback
-      Revert "axmap: fix deadlock"
-      Revert "axmap: ensure we lock down the maps for shared access"
-      bloom: kill unused function
-      Fio 2.2.4
-
-Ming Lei (2):
-      axmap: fix deadlock
-      axmap: make axmap_first_free() static
-
- FIO-VERSION-GEN        |    2 +-
- Makefile               |    2 +-
- lib/axmap.c            |   56 ++++++++++--------------------------------------
- lib/axmap.h            |    1 -
- lib/bloom.c            |    5 -----
- lib/bloom.h            |    1 -
- options.c              |   13 -----------
- os/windows/install.wxs |    2 +-
- t/axmap.c              |    1 -
- 9 files changed, 14 insertions(+), 69 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index a26eb2e..a8c8e65 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
+diff --git a/filelock.c b/filelock.c
+index 18e8875ed942..544196daba04 100644
+--- a/filelock.c
++++ b/filelock.c
+@@ -5,6 +5,7 @@
+  */
+ #include <inttypes.h>
+ #include <string.h>
++#include <unistd.h>
+ #include <assert.h>
  
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-2.2.3
-+DEF_VER=fio-2.2.4
- 
- LF='
- '
-diff --git a/Makefile b/Makefile
-index d27ecaf..52e515b 100644
---- a/Makefile
-+++ b/Makefile
-@@ -186,7 +186,7 @@ T_ZIPF_OBJS += t/log.o lib/ieee754.o lib/rand.o lib/zipf.o t/genzipf.o
- T_ZIPF_PROGS = t/fio-genzipf
- 
- T_AXMAP_OBJS = t/axmap.o
--T_AXMAP_OBJS += lib/lfsr.o lib/axmap.o gettime.o mutex.o t/log.o t/debug.o
-+T_AXMAP_OBJS += lib/lfsr.o lib/axmap.o
- T_AXMAP_PROGS = t/axmap
- 
- T_LFSR_TEST_OBJS = t/lfsr-test.o
-diff --git a/lib/axmap.c b/lib/axmap.c
-index e847a38..68096d8 100644
---- a/lib/axmap.c
-+++ b/lib/axmap.c
-@@ -23,7 +23,6 @@
- #include "../arch/arch.h"
- #include "axmap.h"
- #include "../smalloc.h"
--#include "../mutex.h"
- #include "../minmax.h"
- 
- #if BITS_PER_LONG == 64
-@@ -46,7 +45,6 @@ struct axmap_level {
+ #include "flist.h"
+@@ -20,36 +21,101 @@ struct fio_filelock {
+ 	struct flist_head list;
+ 	unsigned int references;
  };
++
++#define MAX_FILELOCKS	128
+ 	
+-static struct flist_head *filelock_list;
+-static struct fio_mutex *filelock_lock;
++struct filelock_data {
++	struct flist_head list;
++	struct fio_mutex lock;
++
++	struct fio_filelock ffs[MAX_FILELOCKS];
++	struct flist_head free_list;
++};
++
++static struct filelock_data *fld;
++
++static void put_filelock(struct fio_filelock *ff)
++{
++	flist_add(&ff->list, &fld->free_list);
++}
++
++static struct fio_filelock *__get_filelock(void)
++{
++	struct fio_filelock *ff;
++
++	if (flist_empty(&fld->free_list))
++		return NULL;
++
++	ff = flist_first_entry(&fld->free_list, struct fio_filelock, list);
++	flist_del_init(&ff->list);
++	return ff;
++}
++
++static struct fio_filelock *get_filelock(int trylock, int *retry)
++{
++	struct fio_filelock *ff;
++
++	do {
++		ff = __get_filelock();
++		if (ff || trylock)
++			break;
++
++		fio_mutex_up(&fld->lock);
++		usleep(1000);
++		fio_mutex_down(&fld->lock);
++		*retry = 1;
++	} while (1);
++
++	return ff;
++}
  
- struct axmap {
--	struct fio_mutex lock;
- 	unsigned int nr_levels;
- 	struct axmap_level *levels;
- 	uint64_t first_free;
-@@ -65,8 +63,6 @@ void axmap_reset(struct axmap *axmap)
+ int fio_filelock_init(void)
  {
- 	int i;
+-	filelock_list = smalloc(sizeof(*filelock_list));
+-	if (!filelock_list)
+-		return 1;
++	int i;
  
--	fio_mutex_down(&axmap->lock);
--
- 	for (i = 0; i < axmap->nr_levels; i++) {
- 		struct axmap_level *al = &axmap->levels[i];
- 
-@@ -74,7 +70,6 @@ void axmap_reset(struct axmap *axmap)
+-	INIT_FLIST_HEAD(filelock_list);
+-	filelock_lock = fio_mutex_init(FIO_MUTEX_UNLOCKED);
+-	if (!filelock_lock) {
+-		sfree(filelock_list);
++	fld = smalloc(sizeof(*fld));
++	if (!fld)
+ 		return 1;
++
++	INIT_FLIST_HEAD(&fld->list);
++	INIT_FLIST_HEAD(&fld->free_list);
++
++	if (__fio_mutex_init(&fld->lock, FIO_MUTEX_UNLOCKED))
++		goto err;
++
++	for (i = 0; i < MAX_FILELOCKS; i++) {
++		struct fio_filelock *ff = &fld->ffs[i];
++
++		if (__fio_mutex_init(&ff->lock, FIO_MUTEX_UNLOCKED))
++			goto err;
++		flist_add_tail(&ff->list, &fld->free_list);
  	}
  
- 	axmap->first_free = 0;
--	fio_mutex_up(&axmap->lock);
+ 	return 0;
++err:
++	fio_filelock_exit();
++	return 1;
  }
  
- void axmap_free(struct axmap *axmap)
-@@ -88,7 +83,6 @@ void axmap_free(struct axmap *axmap)
- 		sfree(axmap->levels[i].map);
+ void fio_filelock_exit(void)
+ {
+-	if (!filelock_list)
++	if (!fld)
+ 		return;
  
- 	sfree(axmap->levels);
--	__fio_mutex_remove(&axmap->lock);
- 	sfree(axmap);
+-	assert(flist_empty(filelock_list));
+-	sfree(filelock_list);
+-	filelock_list = NULL;
+-	fio_mutex_remove(filelock_lock);
+-	filelock_lock = NULL;
++	assert(flist_empty(&fld->list));
++	fio_mutex_remove(&fld->lock);
++
++	while (!flist_empty(&fld->free_list)) {
++		struct fio_filelock *ff;
++
++		ff = flist_first_entry(&fld->free_list, struct fio_filelock, list);
++
++		flist_del_init(&ff->list);
++		fio_mutex_remove(&ff->lock);
++	}
++
++	sfree(fld);
++	fld = NULL;
  }
  
-@@ -101,8 +95,6 @@ struct axmap *axmap_new(unsigned long nr_bits)
- 	if (!axmap)
- 		return NULL;
+ static struct fio_filelock *fio_hash_find(uint32_t hash)
+@@ -57,7 +123,7 @@ static struct fio_filelock *fio_hash_find(uint32_t hash)
+ 	struct flist_head *entry;
+ 	struct fio_filelock *ff;
  
--	__fio_mutex_init(&axmap->lock, FIO_MUTEX_UNLOCKED);
--
- 	levels = 1;
- 	i = (nr_bits + BLOCKS_PER_UNIT - 1) >> UNIT_SHIFT;
- 	while (i > 1) {
-@@ -134,8 +126,6 @@ err:
- 			sfree(axmap->levels[i].map);
- 
- 	sfree(axmap->levels);
--	__fio_mutex_remove(&axmap->lock);
--	sfree(axmap);
+-	flist_for_each(entry, filelock_list) {
++	flist_for_each(entry, &fld->list) {
+ 		ff = flist_entry(entry, struct fio_filelock, list);
+ 		if (ff->hash == hash)
+ 			return ff;
+@@ -66,38 +132,68 @@ static struct fio_filelock *fio_hash_find(uint32_t hash)
  	return NULL;
  }
  
-@@ -297,9 +287,7 @@ void axmap_set(struct axmap *axmap, uint64_t bit_nr)
+-static struct fio_filelock *fio_hash_get(uint32_t hash)
++static struct fio_filelock *fio_hash_get(uint32_t hash, int trylock)
  {
- 	struct axmap_set_data data = { .nr_bits = 1, };
+ 	struct fio_filelock *ff;
  
--	fio_mutex_down(&axmap->lock);
- 	__axmap_set(axmap, bit_nr, &data);
--	fio_mutex_up(&axmap->lock);
+ 	ff = fio_hash_find(hash);
+ 	if (!ff) {
+-		ff = smalloc(sizeof(*ff));
++		int retry = 0;
++
++		ff = get_filelock(trylock, &retry);
++		if (!ff)
++			return NULL;
++
++		/*
++		 * If we dropped the main lock, re-lookup the hash in case
++		 * someone else added it meanwhile. If it's now there,
++		 * just return that.
++		 */
++		if (retry) {
++			struct fio_filelock *__ff;
++
++			__ff = fio_hash_find(hash);
++			if (__ff) {
++				put_filelock(ff);
++				return __ff;
++			}
++		}
++
+ 		ff->hash = hash;
+-		__fio_mutex_init(&ff->lock, FIO_MUTEX_UNLOCKED);
+ 		ff->references = 0;
+-		flist_add(&ff->list, filelock_list);
++		flist_add(&ff->list, &fld->list);
+ 	}
+ 
+ 	return ff;
  }
  
- unsigned int axmap_set_nr(struct axmap *axmap, uint64_t bit_nr, unsigned int nr_bits)
-@@ -335,14 +323,8 @@ static int axmap_isset_fn(struct axmap_level *al, unsigned long offset,
- 
- int axmap_isset(struct axmap *axmap, uint64_t bit_nr)
+-int fio_trylock_file(const char *fname)
++static int __fio_lock_file(const char *fname, int trylock)
  {
--	if (bit_nr <= axmap->nr_bits) {
--		int ret;
--
--		fio_mutex_down(&axmap->lock);
--		ret = axmap_handler_topdown(axmap, bit_nr, axmap_isset_fn, NULL);
--		fio_mutex_up(&axmap->lock);
--		return ret;
--	}
-+	if (bit_nr <= axmap->nr_bits)
-+		return axmap_handler_topdown(axmap, bit_nr, axmap_isset_fn, NULL);
+ 	struct fio_filelock *ff;
+ 	uint32_t hash;
  
- 	return 0;
- }
-@@ -387,19 +369,13 @@ static uint64_t axmap_find_first_free(struct axmap *axmap, unsigned int level,
- 	return (uint64_t) -1ULL;
+ 	hash = jhash(fname, strlen(fname), 0);
+ 
+-	fio_mutex_down(filelock_lock);
+-	ff = fio_hash_get(hash);
+-	ff->references++;
+-	fio_mutex_up(filelock_lock);
++	fio_mutex_down(&fld->lock);
++	ff = fio_hash_get(hash, trylock);
++	if (ff)
++		ff->references++;
++	fio_mutex_up(&fld->lock);
++
++	if (!ff) {
++		assert(!trylock);
++		return 1;
++	}
++
++	if (!trylock) {
++		fio_mutex_down(&ff->lock);
++		return 0;
++	}
+ 
+ 	if (!fio_mutex_down_trylock(&ff->lock))
+ 		return 0;
+ 
+-	fio_mutex_down(filelock_lock);
++	fio_mutex_down(&fld->lock);
+ 
+ 	/*
+ 	 * If we raced and the only reference to the lock is us, we can
+@@ -108,7 +204,7 @@ int fio_trylock_file(const char *fname)
+ 		ff = NULL;
+ 	}
+ 
+-	fio_mutex_up(filelock_lock);
++	fio_mutex_up(&fld->lock);
+ 
+ 	if (ff) {
+ 		fio_mutex_down(&ff->lock);
+@@ -118,19 +214,14 @@ int fio_trylock_file(const char *fname)
+ 	return 1;
  }
  
--uint64_t axmap_first_free(struct axmap *axmap)
-+static uint64_t axmap_first_free(struct axmap *axmap)
+-void fio_lock_file(const char *fname)
++int fio_trylock_file(const char *fname)
  {
--	uint64_t ret;
+-	struct fio_filelock *ff;
+-	uint32_t hash;
 -
- 	if (firstfree_valid(axmap))
- 		return axmap->first_free;
+-	hash = jhash(fname, strlen(fname), 0);
+-
+-	fio_mutex_down(filelock_lock);
+-	ff = fio_hash_get(hash);
+-	ff->references++;
+-	fio_mutex_up(filelock_lock);
++	return __fio_lock_file(fname, 1);
++}
  
--	fio_mutex_down(&axmap->lock);
--	ret = axmap_find_first_free(axmap, axmap->nr_levels - 1, 0);
--	axmap->first_free = ret;
--	fio_mutex_up(&axmap->lock);
--
--	return ret;
-+	axmap->first_free = axmap_find_first_free(axmap, axmap->nr_levels - 1, 0);
-+	return axmap->first_free;
+-	fio_mutex_down(&ff->lock);
++void fio_lock_file(const char *fname)
++{
++	__fio_lock_file(fname, 0);
  }
  
- struct axmap_next_free_data {
-@@ -435,17 +411,11 @@ uint64_t axmap_next_free(struct axmap *axmap, uint64_t bit_nr)
- 	struct axmap_next_free_data data = { .level = -1U, .bit = bit_nr, };
- 	uint64_t ret;
+ void fio_unlock_file(const char *fname)
+@@ -140,19 +231,18 @@ void fio_unlock_file(const char *fname)
  
--	fio_mutex_down(&axmap->lock);
--
--	if (firstfree_valid(axmap) && bit_nr < axmap->first_free) {
--		ret = axmap->first_free;
--		goto done;
--	}
-+	if (firstfree_valid(axmap) && bit_nr < axmap->first_free)
-+		return axmap->first_free;
+ 	hash = jhash(fname, strlen(fname), 0);
  
--	if (!axmap_handler(axmap, bit_nr, axmap_next_free_fn, &data)) {
--		ret = axmap_first_free(axmap);
--		goto done;
--	}
-+	if (!axmap_handler(axmap, bit_nr, axmap_next_free_fn, &data))
-+		return axmap_first_free(axmap);
+-	fio_mutex_down(filelock_lock);
++	fio_mutex_down(&fld->lock);
  
- 	assert(data.level != -1U);
+ 	ff = fio_hash_find(hash);
+ 	if (ff) {
+ 		int refs = --ff->references;
+ 		fio_mutex_up(&ff->lock);
+ 		if (!refs) {
+-			flist_del(&ff->list);
+-			__fio_mutex_remove(&ff->lock);
+-			sfree(ff);
++			flist_del_init(&ff->list);
++			put_filelock(ff);
+ 		}
+ 	} else
+ 		log_err("fio: file not found for unlocking\n");
  
-@@ -455,12 +425,8 @@ uint64_t axmap_next_free(struct axmap *axmap, uint64_t bit_nr)
- 	 * find the first free one, the map is practically full.
- 	 */
- 	ret = axmap_find_first_free(axmap, data.level, data.offset);
--	if (ret != -1ULL) {
--done:
--		fio_mutex_up(&axmap->lock);
-+	if (ret != -1ULL)
- 		return ret;
--	}
- 
--	ret = axmap_first_free(axmap);
--	goto done;
-+	return axmap_first_free(axmap);
+-	fio_mutex_up(filelock_lock);
++	fio_mutex_up(&fld->lock);
  }
-diff --git a/lib/axmap.h b/lib/axmap.h
-index edfeba8..3705a1d 100644
---- a/lib/axmap.h
-+++ b/lib/axmap.h
-@@ -11,7 +11,6 @@ void axmap_clear(struct axmap *axmap, uint64_t bit_nr);
- void axmap_set(struct axmap *axmap, uint64_t bit_nr);
- unsigned int axmap_set_nr(struct axmap *axmap, uint64_t bit_nr, unsigned int nr_bits);
- int axmap_isset(struct axmap *axmap, uint64_t bit_nr);
--uint64_t axmap_first_free(struct axmap *axmap);
- uint64_t axmap_next_free(struct axmap *axmap, uint64_t bit_nr);
- void axmap_reset(struct axmap *axmap);
- 
-diff --git a/lib/bloom.c b/lib/bloom.c
-index 33d093a..ee4ba0b 100644
---- a/lib/bloom.c
-+++ b/lib/bloom.c
-@@ -113,11 +113,6 @@ static int __bloom_check(struct bloom *b, uint32_t *data, unsigned int nwords,
- 	return was_set == N_HASHES;
- }
- 
--int bloom_check(struct bloom *b, uint32_t *data, unsigned int nwords)
--{
--	return __bloom_check(b, data, nwords, 0);
--}
--
- int bloom_set(struct bloom *b, uint32_t *data, unsigned int nwords)
- {
- 	return __bloom_check(b, data, nwords, 1);
-diff --git a/lib/bloom.h b/lib/bloom.h
-index b3cde95..127ed9b 100644
---- a/lib/bloom.h
-+++ b/lib/bloom.h
-@@ -7,7 +7,6 @@ struct bloom;
- 
- struct bloom *bloom_new(uint64_t entries);
- void bloom_free(struct bloom *b);
--int bloom_check(struct bloom *b, uint32_t *data, unsigned int nwords);
- int bloom_set(struct bloom *b, uint32_t *data, unsigned int nwords);
- 
- #endif
-diff --git a/options.c b/options.c
-index 3e783c1..12ff621 100644
---- a/options.c
-+++ b/options.c
-@@ -884,18 +884,6 @@ out:
- 	return ret;
- }
- 
--static int str_lockfile_cb(void *data, const char fio_unused *str)
--{
--	struct thread_data *td = data;
--
--	if (td->files_index) {
--		log_err("fio: lockfile= option must precede filename=\n");
--		return 1;
--	}
--
--	return 0;
--}
--
- static int str_opendir_cb(void *data, const char fio_unused *str)
- {
- 	struct thread_data *td = data;
-@@ -1343,7 +1331,6 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.parent	= "filename",
- 		.hide	= 0,
- 		.def	= "none",
--		.cb	= str_lockfile_cb,
- 		.category = FIO_OPT_C_FILE,
- 		.group	= FIO_OPT_G_FILENAME,
- 		.posval = {
-diff --git a/os/windows/install.wxs b/os/windows/install.wxs
-index 405b05b..2f75d00 100755
---- a/os/windows/install.wxs
-+++ b/os/windows/install.wxs
-@@ -10,7 +10,7 @@
- 	<Product Id="*"
- 	  Codepage="1252" Language="1033"
- 	  Manufacturer="fio" Name="fio"
--	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.2.3">
-+	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.2.4">
- 		<Package
- 		  Description="Flexible IO Tester"
- 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
-diff --git a/t/axmap.c b/t/axmap.c
-index cc078aa..e32ff98 100644
---- a/t/axmap.c
-+++ b/t/axmap.c
-@@ -5,7 +5,6 @@
- #include <unistd.h>
- #include <inttypes.h>
- 
--#include "../mutex.h"
- #include "../lib/lfsr.h"
- #include "../lib/axmap.h"
- 
+
+--------------020509000502020401000407--
+
