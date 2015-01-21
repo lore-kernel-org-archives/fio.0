@@ -1,149 +1,89 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:54046 "EHLO
+Received: from casper.infradead.org ([85.118.1.10]:36657 "EHLO
 	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751539AbbAFNAG (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 6 Jan 2015 08:00:06 -0500
+	with ESMTP id S1753209AbbAUNAG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 21 Jan 2015 08:00:06 -0500
 Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
 	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1Y8Tjx-0007RF-6c
-	for fio@vger.kernel.org; Tue, 06 Jan 2015 13:00:05 +0000
+	id 1YDutB-0004Zt-7y
+	for fio@vger.kernel.org; Wed, 21 Jan 2015 13:00:05 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150106130003.95D6140183@lyth.info>
-Date: Tue,  6 Jan 2015 06:00:03 -0700 (MST)
+Message-Id: <20150121130003.99DD640129@lyth.info>
+Date: Wed, 21 Jan 2015 06:00:03 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 17a2be5945b12959ad3066b7d75432577d29ae82:
+The following changes since commit ae703cdf31532e337cc18c259c883bf5314aa43a:
 
-  Avoid potential buffer overflow in make_filename() (2015-01-04 13:33:37 -0700)
+  net: don't record/verify UDP sequence numbers if buffer is too small (2015-01-16 18:26:37 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to c7b0978381243f25a06464cdbf57bb55a1dbaa33:
+for you to fetch changes up to 91e475290c03db58f856a62f763d29e964934114:
 
-  server: use fio_gettime() for timeout variables (2015-01-05 13:51:22 -0700)
+  shm: disable iomem=shm* for shm disabled (2015-01-20 18:38:11 -0700)
 
 ----------------------------------------------------------------
-Jens Axboe (6):
-      init: fix potential mem leak on multiple trigger options
-      client: fix potential buffer overrun in server name copy
-      gluster: io_u->error should be a positive error value
-      memory: double check that mmapfd isn't -1 before closing
-      verify: fix potentially unterminated name
-      server: use fio_gettime() for timeout variables
+Jens Axboe (2):
+      configure: add --disable-shm to disable use of shm
+      shm: disable iomem=shm* for shm disabled
 
- client.c                  |    5 ++++-
- engines/glusterfs_async.c |    2 +-
- init.c                    |    6 ++++++
- memory.c                  |    2 +-
- server.c                  |    2 +-
- verify.c                  |    3 ++-
- 6 files changed, 15 insertions(+), 5 deletions(-)
+ configure |    2 ++
+ memory.c  |    7 +++++++
+ 2 files changed, 9 insertions(+)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/client.c b/client.c
-index 3cb7c1c..74c9c76 100644
---- a/client.c
-+++ b/client.c
-@@ -380,6 +380,7 @@ static const char *server_name(struct fio_client *client, char *buf,
- static void probe_client(struct fio_client *client)
- {
- 	struct cmd_client_probe_pdu pdu;
-+	const char *sname;
- 	uint64_t tag;
- 	char buf[64];
- 
-@@ -391,7 +392,9 @@ static void probe_client(struct fio_client *client)
- 	pdu.flags = 0;
- #endif
- 
--	strcpy((char *) pdu.server, server_name(client, buf, sizeof(buf)));
-+	sname = server_name(client, buf, sizeof(buf));
-+	memset(pdu.server, 0, sizeof(pdu.server));
-+	strncpy((char *) pdu.server, sname, sizeof(pdu.server) - 1);
- 
- 	fio_net_send_cmd(client->fd, FIO_NET_CMD_PROBE, &pdu, sizeof(pdu), &tag, &client->cmd_list);
- }
-diff --git a/engines/glusterfs_async.c b/engines/glusterfs_async.c
-index 8283f8b..7c2c139 100644
---- a/engines/glusterfs_async.c
-+++ b/engines/glusterfs_async.c
-@@ -122,7 +122,7 @@ static int fio_gf_async_queue(struct thread_data fio_unused * td,
- 	else if (io_u->ddir == DDIR_SYNC)
- 		r = glfs_fsync_async(g->fd, gf_async_cb, io_u);
- 	else
--		r = -EINVAL;
-+		r = EINVAL;
- 
- 	if (r) {
- 		log_err("glfs queue failed.\n");
-diff --git a/init.c b/init.c
-index a0d4f8c..bb53a1e 100644
---- a/init.c
-+++ b/init.c
-@@ -2276,12 +2276,18 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 			break;
- 			}
- 		case 'W':
-+			if (trigger_file)
-+				free(trigger_file);
- 			trigger_file = strdup(optarg);
- 			break;
- 		case 'H':
-+			if (trigger_cmd)
-+				free(trigger_cmd);
- 			trigger_cmd = strdup(optarg);
- 			break;
- 		case 'J':
-+			if (trigger_remote_cmd)
-+				free(trigger_remote_cmd);
- 			trigger_remote_cmd = strdup(optarg);
- 			break;
- 		case 'B':
+diff --git a/configure b/configure
+index 172b235..6e1376f 100755
+--- a/configure
++++ b/configure
+@@ -165,6 +165,8 @@ for opt do
+   ;;
+   --enable-libhdfs) libhdfs="yes"
+   ;;
++  --disable-shm) output_sym "CONFIG_NO_SHM"
++  ;;
+   --help)
+     show_help="yes"
+     ;;
 diff --git a/memory.c b/memory.c
-index 76da8a8..f81c2dd 100644
+index f81c2dd..23a0d94 100644
 --- a/memory.c
 +++ b/memory.c
-@@ -158,7 +158,7 @@ static int alloc_mem_mmap(struct thread_data *td, size_t total_mem)
- 	if (td->orig_buffer == MAP_FAILED) {
- 		td_verror(td, errno, "mmap");
- 		td->orig_buffer = NULL;
--		if (td->mmapfd != 1) {
-+		if (td->mmapfd != 1 && td->mmapfd != -1) {
- 			close(td->mmapfd);
- 			if (td->o.mmapfile)
- 				unlink(td->o.mmapfile);
-diff --git a/server.c b/server.c
-index 3171979..c249849 100644
---- a/server.c
-+++ b/server.c
-@@ -333,7 +333,7 @@ static uint64_t alloc_reply(uint64_t tag, uint16_t opcode)
+@@ -63,6 +63,7 @@ int fio_pin_memory(struct thread_data *td)
  
- 	reply = calloc(1, sizeof(*reply));
- 	INIT_FLIST_HEAD(&reply->list);
--	gettimeofday(&reply->tv, NULL);
-+	fio_gettime(&reply->tv, NULL);
- 	reply->saved_tag = tag;
- 	reply->opcode = opcode;
+ static int alloc_mem_shm(struct thread_data *td, unsigned int total_mem)
+ {
++#ifndef CONFIG_NO_SHM
+ 	int flags = IPC_CREAT | S_IRUSR | S_IWUSR;
  
-diff --git a/verify.c b/verify.c
-index 2ae03f8..205f01a 100644
---- a/verify.c
-+++ b/verify.c
-@@ -1341,7 +1341,8 @@ struct all_io_list *get_all_io_list(int save_mask, size_t *sz)
- 		s->rand.s[1] = cpu_to_le32(td->random_state.s2);
- 		s->rand.s[2] = cpu_to_le32(td->random_state.s3);
- 		s->rand.s[3] = 0;
--		strncpy((char *) s->name, td->o.name, sizeof(s->name));
-+		s->name[sizeof(s->name) - 1] = '\0';
-+		strncpy((char *) s->name, td->o.name, sizeof(s->name) - 1);
- 		next = io_list_next(s);
+ 	if (td->o.mem_type == MEM_SHMHUGE) {
+@@ -104,15 +105,21 @@ static int alloc_mem_shm(struct thread_data *td, unsigned int total_mem)
  	}
  
+ 	return 0;
++#else
++	log_err("fio: shm not supported\n");
++	return 1;
++#endif
+ }
+ 
+ static void free_mem_shm(struct thread_data *td)
+ {
++#ifndef CONFIG_NO_SHM
+ 	struct shmid_ds sbuf;
+ 
+ 	dprint(FD_MEM, "shmdt/ctl %d %p\n", td->shm_id, td->orig_buffer);
+ 	shmdt(td->orig_buffer);
+ 	shmctl(td->shm_id, IPC_RMID, &sbuf);
++#endif
+ }
+ 
+ static int alloc_mem_mmap(struct thread_data *td, size_t total_mem)
