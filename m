@@ -1,128 +1,70 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:46819 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751190AbbAGNAG (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 7 Jan 2015 08:00:06 -0500
+Received: from casper.infradead.org ([85.118.1.10]:41790 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751236AbbAVNAI (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 22 Jan 2015 08:00:08 -0500
 Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1Y8qDV-0006Wp-Au
-	for fio@vger.kernel.org; Wed, 07 Jan 2015 13:00:05 +0000
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1YEHMk-0006jR-Ju
+	for fio@vger.kernel.org; Thu, 22 Jan 2015 13:00:06 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150107130003.4F24840192@lyth.info>
-Date: Wed,  7 Jan 2015 06:00:03 -0700 (MST)
+Message-Id: <20150122130003.09D1E401DB@lyth.info>
+Date: Thu, 22 Jan 2015 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit c7b0978381243f25a06464cdbf57bb55a1dbaa33:
+The following changes since commit 91e475290c03db58f856a62f763d29e964934114:
 
-  server: use fio_gettime() for timeout variables (2015-01-05 13:51:22 -0700)
+  shm: disable iomem=shm* for shm disabled (2015-01-20 18:38:11 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 35326842297205554a9005723309bed565594c8a:
+for you to fetch changes up to 64666f8fe2242cbe4d804df2305924a9e43e8699:
 
-  Adjust ctime_r buf down to 32 (2015-01-06 12:03:09 -0700)
+  Merge branch 'master' of ssh://git.kernel.dk/data/git/fio (2015-01-22 00:57:00 +0100)
 
 ----------------------------------------------------------------
-Jens Axboe (2):
-      gettime: include min/max cycle counts for CPU clock
-      Adjust ctime_r buf down to 32
 
-Steve ODriscoll (1):
-      Add timestamp to json output
+Jens Axboe (3):
+      sha256: fix verify failure
+      Fio 2.2.5
+      Merge branch 'master' of ssh://git.kernel.dk/data/git/fio
 
- gettime.c |   14 +++++++++++---
- stat.c    |   13 +++++++++++--
- 2 files changed, 22 insertions(+), 5 deletions(-)
+ FIO-VERSION-GEN        |    2 +-
+ os/windows/install.wxs |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/gettime.c b/gettime.c
-index 5ceb809..72968c5 100644
---- a/gettime.c
-+++ b/gettime.c
-@@ -254,7 +254,7 @@ static unsigned long get_cycles_per_usec(void)
- static int calibrate_cpu_clock(void)
- {
- 	double delta, mean, S;
--	uint64_t avg, cycles[NR_TIME_ITERS];
-+	uint64_t minc, maxc, avg, cycles[NR_TIME_ITERS];
- 	int i, samples;
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index a8c8e65..da75022 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
  
- 	cycles[0] = get_cycles_per_usec();
-@@ -277,10 +277,14 @@ static int calibrate_cpu_clock(void)
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-2.2.4
++DEF_VER=fio-2.2.5
  
- 	S = sqrt(S / (NR_TIME_ITERS - 1.0));
- 
--	samples = avg = 0;
-+	minc = -1ULL;
-+	maxc = samples = avg = 0;
- 	for (i = 0; i < NR_TIME_ITERS; i++) {
- 		double this = cycles[i];
- 
-+		minc = min(cycles[i], minc);
-+		maxc = max(cycles[i], maxc);
-+
- 		if ((fmax(this, mean) - fmin(this, mean)) > S)
- 			continue;
- 		samples++;
-@@ -296,8 +300,12 @@ static int calibrate_cpu_clock(void)
- 
- 	avg /= samples;
- 	avg = (avg + 5) / 10;
-+	minc /= 10;
-+	maxc /= 10;
- 	dprint(FD_TIME, "avg: %llu\n", (unsigned long long) avg);
--	dprint(FD_TIME, "mean=%f, S=%f\n", mean, S);
-+	dprint(FD_TIME, "min=%llu, max=%llu, mean=%f, S=%f\n",
-+			(unsigned long long) minc,
-+			(unsigned long long) maxc, mean, S);
- 
- 	cycles_per_usec = avg;
- 	inv_cycles_per_usec = 16777216UL / cycles_per_usec;
-diff --git a/stat.c b/stat.c
-index bae3338..db4a387 100644
---- a/stat.c
-+++ b/stat.c
-@@ -504,7 +504,7 @@ static void show_thread_status_normal(struct thread_stat *ts,
- 	unsigned long runtime;
- 	double io_u_dist[FIO_IO_U_MAP_NR];
- 	time_t time_p;
--	char time_buf[64];
-+	char time_buf[32];
- 
- 	if (!ddir_rw_sum(ts->io_bytes) && !ddir_rw_sum(ts->total_io_u))
- 		return;
-@@ -1189,7 +1189,6 @@ void __show_run_stats(void)
- 	int unit_base_warned = 0;
- 	struct json_object *root = NULL;
- 	struct json_array *array = NULL;
--
- 	runstats = malloc(sizeof(struct group_run_stats) * (groupid + 1));
- 
- 	for (i = 0; i < groupid + 1; i++)
-@@ -1351,8 +1350,18 @@ void __show_run_stats(void)
- 	if (output_format == FIO_OUTPUT_NORMAL)
- 		log_info("\n");
- 	else if (output_format == FIO_OUTPUT_JSON) {
-+		char time_buf[32];
-+		time_t time_p;
-+
-+		time(&time_p);
-+		os_ctime_r((const time_t *) &time_p, time_buf,
-+				sizeof(time_buf));
-+		time_buf[strlen(time_buf) - 1] = '\0';
-+
- 		root = json_create_object();
- 		json_object_add_value_string(root, "fio version", fio_version_string);
-+		json_object_add_value_int(root, "timestamp", time_p);
-+		json_object_add_value_string(root, "time", time_buf);
- 		array = json_create_array();
- 		json_object_add_value_array(root, "jobs", array);
- 	}
+ LF='
+ '
+diff --git a/os/windows/install.wxs b/os/windows/install.wxs
+index 2f75d00..f72dfb1 100755
+--- a/os/windows/install.wxs
++++ b/os/windows/install.wxs
+@@ -10,7 +10,7 @@
+ 	<Product Id="*"
+ 	  Codepage="1252" Language="1033"
+ 	  Manufacturer="fio" Name="fio"
+-	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.2.4">
++	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.2.5">
+ 		<Package
+ 		  Description="Flexible IO Tester"
+ 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
