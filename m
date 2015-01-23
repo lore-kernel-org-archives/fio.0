@@ -1,36 +1,61 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qg0-f50.google.com ([209.85.192.50]:40839 "EHLO
-	mail-qg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754113AbbAZM5P (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 26 Jan 2015 07:57:15 -0500
-Received: by mail-qg0-f50.google.com with SMTP id f51so6531345qge.9
-        for <fio@vger.kernel.org>; Mon, 26 Jan 2015 04:57:14 -0800 (PST)
-MIME-Version: 1.0
-From: "telecolega ." <telecolega@gmail.com>
-Date: Mon, 26 Jan 2015 13:56:54 +0100
-Message-ID: <CADtCuZeCCbocXKJ-_fgcxsOUw-NzhP1H+=eH6Y_LOODnWiGWaQ@mail.gmail.com>
-Subject: sequential writing
-Content-Type: text/plain; charset=UTF-8
+Received: from casper.infradead.org ([85.118.1.10]:46844 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755158AbbAWNAI (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 23 Jan 2015 08:00:08 -0500
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1YEdqJ-0008VP-Fo
+	for fio@vger.kernel.org; Fri, 23 Jan 2015 13:00:07 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150123130003.8B5DE4018D@lyth.info>
+Date: Fri, 23 Jan 2015 06:00:03 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hi guys,
+The following changes since commit 64666f8fe2242cbe4d804df2305924a9e43e8699:
 
-In the last days I tried to investigate how fio writes sequentially
-when using the libaio engine. As far as I understood, the key here is
-controlling the offset variable in the iocb struct (iocb->u.c.offset)
-so that the new block is written right next to the previous block.
+  Merge branch 'master' of ssh://git.kernel.dk/data/git/fio (2015-01-22 00:57:00 +0100)
 
-Now a question comes to my mind. Even if fio is writing sequentially
-on a file or block, that does not guarantee that we are writing
-sequentially on the hard disk, right? I guess the linux kernel will be
-the one eventually deciding if that data is written sequentially or
-randomly across the disk. Nevertheless, I assume that when FIO writes
-sequentially to a file or block, the likelyhood that the data is
-written sequentially is increased. Is this correct?
+are available in the git repository at:
 
-Do you know if there is a way from the user space (e.g. fio) to
-"force" the kernel to write sequentially?
 
-Thanks ofr your help!
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 209e10374bb57565f0a61286d1ed8effd50fa95c:
+
+  parse: ensure strings are pre-terminated when using strncpy() (2015-01-22 14:51:56 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      parse: ensure strings are pre-terminated when using strncpy()
+
+ parse.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+---
+
+Diff of recent changes:
+
+diff --git a/parse.c b/parse.c
+index e70ed20..7912212 100644
+--- a/parse.c
++++ b/parse.c
+@@ -506,6 +506,7 @@ static int __handle_option(struct fio_option *o, const char *ptr, void *data,
+ 		if (!is_time && o->is_time)
+ 			is_time = o->is_time;
+ 
++		tmp[sizeof(tmp) - 1] = '\0';
+ 		strncpy(tmp, ptr, sizeof(tmp) - 1);
+ 		p = strchr(tmp, ',');
+ 		if (p)
+@@ -705,6 +706,7 @@ static int __handle_option(struct fio_option *o, const char *ptr, void *data,
+ 		char tmp[128];
+ 		char *p1, *p2;
+ 
++		tmp[sizeof(tmp) - 1] = '\0';
+ 		strncpy(tmp, ptr, sizeof(tmp) - 1);
+ 
+ 		/* Handle bsrange with separate read,write values: */
