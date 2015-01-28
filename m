@@ -1,128 +1,90 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:48816 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753359AbbAENAE (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 5 Jan 2015 08:00:04 -0500
-Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1Y87GO-0001pH-2o
-	for fio@vger.kernel.org; Mon, 05 Jan 2015 13:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150105130003.2095640181@lyth.info>
-Date: Mon,  5 Jan 2015 06:00:03 -0700 (MST)
+Received: from mailout.micron.com ([137.201.242.129]:62283 "EHLO
+	mailout.micron.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752321AbbA2BRp (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 28 Jan 2015 20:17:45 -0500
+Received: from mail.micron.com (ntxboicas02.micron.com [137.201.20.138])
+	by mailout.micron.com (8.14.4/8.14.6) with ESMTP id t0SMdVDx031550
+	(version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=FAIL)
+	for <fio@vger.kernel.org>; Wed, 28 Jan 2015 15:39:31 -0700
+From: "Justin Eno (jeno)" <jeno@micron.com>
+Subject: 
+Date: Wed, 28 Jan 2015 22:39:30 +0000
+Message-ID: <5A8251503902B84E89CE171AD126BCFB2DE52C49@NTXBOIMBX01.micron.com>
+Content-Language: en-US
+Content-Type: multipart/mixed;
+	boundary="_002_5A8251503902B84E89CE171AD126BCFB2DE52C49NTXBOIMBX01micr_"
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit fde90aadbbf223d4d9b553c8cda3b65b0b1140e2:
+--_002_5A8251503902B84E89CE171AD126BCFB2DE52C49NTXBOIMBX01micr_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-  Fio 2.2.4 (2015-01-03 19:46:55 -0700)
+Hi Jens,
 
-are available in the git repository at:
+It appears do_dry_run(), i.e., verify_only, is broken by the last update to=
+ backend.c
 
-  git://git.kernel.dk/fio.git master
+I have attached a working patch, though you may prefer a different approach=
+.
 
-for you to fetch changes up to 17a2be5945b12959ad3066b7d75432577d29ae82:
+Thanks,
+Justin
 
-  Avoid potential buffer overflow in make_filename() (2015-01-04 13:33:37 -0700)
+--_002_5A8251503902B84E89CE171AD126BCFB2DE52C49NTXBOIMBX01micr_
+Content-Type: application/octet-stream; name="verify_only.patch"
+Content-Description: verify_only.patch
+Content-Disposition: attachment; filename="verify_only.patch"; size=2464;
+	creation-date="Wed, 28 Jan 2015 22:35:11 GMT";
+	modification-date="Wed, 28 Jan 2015 22:35:11 GMT"
+Content-Transfer-Encoding: base64
 
-----------------------------------------------------------------
-Jens Axboe (2):
-      cleanup: add defines for default pareto or zipf values
-      Avoid potential buffer overflow in make_filename()
+RnJvbSBkYmRjZDBkNWQ3NWMwYmIyY2VkYTI2NGRiNDFjZTE5ZmUxYWFkYjdhIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBKdXN0aW4gRW5vIDxqZW5vQG1pY3Jvbi5jb20+CkRhdGU6IFdl
+ZCwgMjggSmFuIDIwMTUgMTQ6MTM6MjggLTA4MDAKU3ViamVjdDogW1BBVENIXSBGaXggZm9yIHZl
+cmlmeV9vbmx5IChkb19kcnlfcnVuKCkpIGJyb2tlbiBieSA3NGQ2Mjc3ZgoKUHJldmlvdXMgY29t
+bWl0IHRvIGJhY2tlbmQuYyB0cmFja3MgaW9fbGltaXQgbW9yZSBjbG9zZWx5IGJ5CmNvdW50aW5n
+IHN1Ym1pdHRlZCAoaW4tZmxpZ2h0KSBJL08gaW5zdGVhZCBvZiBjb21wbGV0ZWQgSS9PLgpkb19k
+cnlfcnVuKCkgZG9lcyBub3Qgc3VibWl0IEkvTywgc28gaXRzIEkvTyBpcyBub3QgY291bnRlZCwK
+YW5kIGl0IGxvb3BzIGZvcmV2ZXIuClNpZ25lZC1vZmYtYnk6IEp1c3RpbiBFbm8gPGplbm9AbWlj
+cm9uLmNvbT4KLS0tCiBiYWNrZW5kLmMgfCAgIDI3ICsrKysrKysrKysrKysrKysrKysrKysrKy0t
+LQogMSBmaWxlcyBjaGFuZ2VkLCAyNCBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQoKZGlm
+ZiAtLWdpdCBhL2JhY2tlbmQuYyBiL2JhY2tlbmQuYwppbmRleCA5MDEyMTQwLi43ZWM4ZDJhIDEw
+MDY0NAotLS0gYS9iYWNrZW5kLmMKKysrIGIvYmFja2VuZC5jCkBAIC02NjIsNyArNjYyLDcgQEAg
+c3RhdGljIHVuc2lnbmVkIGludCBleGNlZWRzX251bWJlcl9pb3Moc3RydWN0IHRocmVhZF9kYXRh
+ICp0ZCkKIAlyZXR1cm4gbnVtYmVyX2lvcyA+PSB0ZC0+by5udW1iZXJfaW9zOwogfQogCi1zdGF0
+aWMgaW50IGlvX2J5dGVzX2V4Y2VlZGVkKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpCitzdGF0aWMg
+aW50IGlvX2lzc3VlX2J5dGVzX2V4Y2VlZGVkKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpCiB7CiAJ
+dW5zaWduZWQgbG9uZyBsb25nIGJ5dGVzLCBsaW1pdDsKIApAQCAtNjgzLDYgKzY4MywyNyBAQCBz
+dGF0aWMgaW50IGlvX2J5dGVzX2V4Y2VlZGVkKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpCiAJcmV0
+dXJuIGJ5dGVzID49IGxpbWl0IHx8IGV4Y2VlZHNfbnVtYmVyX2lvcyh0ZCk7CiB9CiAKK3N0YXRp
+YyBpbnQgaW9fY29tcGxldGVfYnl0ZXNfZXhjZWVkZWQoc3RydWN0IHRocmVhZF9kYXRhICp0ZCkK
+K3sKKwl1bnNpZ25lZCBsb25nIGxvbmcgYnl0ZXMsIGxpbWl0OworCisJaWYgKHRkX3J3KHRkKSkK
+KwkJYnl0ZXMgPSB0ZC0+dGhpc19pb19ieXRlc1tERElSX1JFQURdICsgdGQtPnRoaXNfaW9fYnl0
+ZXNbRERJUl9XUklURV07CisJZWxzZSBpZiAodGRfd3JpdGUodGQpKQorCQlieXRlcyA9IHRkLT50
+aGlzX2lvX2J5dGVzW0RESVJfV1JJVEVdOworCWVsc2UgaWYgKHRkX3JlYWQodGQpKQorCQlieXRl
+cyA9IHRkLT50aGlzX2lvX2J5dGVzW0RESVJfUkVBRF07CisJZWxzZQorCQlieXRlcyA9IHRkLT50
+aGlzX2lvX2J5dGVzW0RESVJfVFJJTV07CisKKwlpZiAodGQtPm8uaW9fbGltaXQpCisJCWxpbWl0
+ID0gdGQtPm8uaW9fbGltaXQ7CisJZWxzZQorCQlsaW1pdCA9IHRkLT5vLnNpemU7CisKKwlyZXR1
+cm4gYnl0ZXMgPj0gbGltaXQgfHwgZXhjZWVkc19udW1iZXJfaW9zKHRkKTsKK30KKwogLyoKICAq
+IE1haW4gSU8gd29ya2VyIGZ1bmN0aW9uLiBJdCByZXRyaWV2ZXMgaW9fdSdzIHRvIHByb2Nlc3Mg
+YW5kIHF1ZXVlcwogICogYW5kIHJlYXBzIHRoZW0sIGNoZWNraW5nIGZvciByYXRlIGFuZCBlcnJv
+cnMgYWxvbmcgdGhlIHdheS4KQEAgLTcxNCw3ICs3MzUsNyBAQCBzdGF0aWMgdWludDY0X3QgZG9f
+aW8oc3RydWN0IHRocmVhZF9kYXRhICp0ZCkKIAkJdG90YWxfYnl0ZXMgKz0gdGQtPm8uc2l6ZTsK
+IAogCXdoaWxlICgodGQtPm8ucmVhZF9pb2xvZ19maWxlICYmICFmbGlzdF9lbXB0eSgmdGQtPmlv
+X2xvZ19saXN0KSkgfHwKLQkJKCFmbGlzdF9lbXB0eSgmdGQtPnRyaW1fbGlzdCkpIHx8ICFpb19i
+eXRlc19leGNlZWRlZCh0ZCkgfHwKKwkJKCFmbGlzdF9lbXB0eSgmdGQtPnRyaW1fbGlzdCkpIHx8
+ICFpb19pc3N1ZV9ieXRlc19leGNlZWRlZCh0ZCkgfHwKIAkJdGQtPm8udGltZV9iYXNlZCkgewog
+CQlzdHJ1Y3QgdGltZXZhbCBjb21wX3RpbWU7CiAJCXN0cnVjdCBpb191ICppb191OwpAQCAtMTIz
+MSw3ICsxMjUyLDcgQEAgc3RhdGljIHVpbnQ2NF90IGRvX2RyeV9ydW4oc3RydWN0IHRocmVhZF9k
+YXRhICp0ZCkKIAl0ZF9zZXRfcnVuc3RhdGUodGQsIFREX1JVTk5JTkcpOwogCiAJd2hpbGUgKCh0
+ZC0+by5yZWFkX2lvbG9nX2ZpbGUgJiYgIWZsaXN0X2VtcHR5KCZ0ZC0+aW9fbG9nX2xpc3QpKSB8
+fAotCQkoIWZsaXN0X2VtcHR5KCZ0ZC0+dHJpbV9saXN0KSkgfHwgIWlvX2J5dGVzX2V4Y2VlZGVk
+KHRkKSkgeworCQkoIWZsaXN0X2VtcHR5KCZ0ZC0+dHJpbV9saXN0KSkgfHwgIWlvX2NvbXBsZXRl
+X2J5dGVzX2V4Y2VlZGVkKHRkKSkgewogCQlzdHJ1Y3QgaW9fdSAqaW9fdTsKIAkJaW50IHJldDsK
+IAotLSAKMS43LjEKCg==
 
- fio.h     |    3 +++
- init.c    |   30 ++++++++++++++++++++++++------
- options.c |    4 ++--
- 3 files changed, 29 insertions(+), 8 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/fio.h b/fio.h
-index 5e352c6..be2f23a 100644
---- a/fio.h
-+++ b/fio.h
-@@ -642,6 +642,9 @@ enum {
- 	FIO_RAND_DIST_PARETO,
- };
- 
-+#define FIO_DEF_ZIPF		1.1
-+#define FIO_DEF_PARETO		0.2
-+
- enum {
- 	FIO_RAND_GEN_TAUSWORTHE = 0,
- 	FIO_RAND_GEN_LFSR,
-diff --git a/init.c b/init.c
-index dc563fd..a0d4f8c 100644
---- a/init.c
-+++ b/init.c
-@@ -1036,8 +1036,14 @@ static char *make_filename(char *buf, size_t buf_size,struct thread_options *o,
- 				ret = snprintf(dst, dst_left, "%s", jobname);
- 				if (ret < 0)
- 					break;
--				dst += ret;
--				dst_left -= ret;
-+				else if (ret > dst_left) {
-+					log_err("fio: truncated filename\n");
-+					dst += dst_left;
-+					dst_left = 0;
-+				} else {
-+					dst += ret;
-+					dst_left -= ret;
-+				}
- 				break;
- 				}
- 			case FPRE_JOBNUM: {
-@@ -1046,8 +1052,14 @@ static char *make_filename(char *buf, size_t buf_size,struct thread_options *o,
- 				ret = snprintf(dst, dst_left, "%d", jobnum);
- 				if (ret < 0)
- 					break;
--				dst += ret;
--				dst_left -= ret;
-+				else if (ret > dst_left) {
-+					log_err("fio: truncated filename\n");
-+					dst += dst_left;
-+					dst_left = 0;
-+				} else {
-+					dst += ret;
-+					dst_left -= ret;
-+				}
- 				break;
- 				}
- 			case FPRE_FILENUM: {
-@@ -1056,8 +1068,14 @@ static char *make_filename(char *buf, size_t buf_size,struct thread_options *o,
- 				ret = snprintf(dst, dst_left, "%d", filenum);
- 				if (ret < 0)
- 					break;
--				dst += ret;
--				dst_left -= ret;
-+				else if (ret > dst_left) {
-+					log_err("fio: truncated filename\n");
-+					dst += dst_left;
-+					dst_left = 0;
-+				} else {
-+					dst += ret;
-+					dst_left -= ret;
-+				}
- 				break;
- 				}
- 			default:
-diff --git a/options.c b/options.c
-index 12ff621..ab6e399 100644
---- a/options.c
-+++ b/options.c
-@@ -715,9 +715,9 @@ static int str_random_distribution_cb(void *data, const char *str)
- 		return 0;
- 
- 	if (td->o.random_distribution == FIO_RAND_DIST_ZIPF)
--		val = 1.1;
-+		val = FIO_DEF_ZIPF;
- 	else if (td->o.random_distribution == FIO_RAND_DIST_PARETO)
--		val = 0.2;
-+		val = FIO_DEF_PARETO;
- 	else
- 		return 0;
- 
+--_002_5A8251503902B84E89CE171AD126BCFB2DE52C49NTXBOIMBX01micr_--
