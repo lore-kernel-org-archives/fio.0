@@ -1,63 +1,46 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:42381 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756669AbbAHNAK (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 8 Jan 2015 08:00:10 -0500
-Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1Y9Ch7-0002x4-Ad
-	for fio@vger.kernel.org; Thu, 08 Jan 2015 13:00:09 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <54C90A47.8050901@kernel.dk>
+Date: Wed, 28 Jan 2015 09:11:51 -0700
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150108130003.637FB40157@lyth.info>
-Date: Thu,  8 Jan 2015 06:00:03 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: [PATCH] dedupe_percentage should work even if compress_percentage
+ is not set
+References: <20150127192448.GA16313@vass-desktop>
+In-Reply-To: <20150127192448.GA16313@vass-desktop>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Vasily Tarasov <tarasov@vasily.name>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 35326842297205554a9005723309bed565594c8a:
+On 01/27/2015 12:24 PM, Vasily Tarasov wrote:
+> [PATCH] dedupe_percentage should work even if compress_percentage is not set
+>
+> Currently dedupe_percentage option does not work properly if compress_percentage
+> is not set. This can be easily demonstrated using the following job file:
+>
+> [job-/dev/dm-0]
+> filename=/dev/dm-0
+> rw=randwrite
+> blocksize=4096
+> direct=1
+> ioengine=libaio
+> iodepth=32
+> dedupe_percentage=50
+> time_based=1
+> runtime=5
+> numjobs=1
+>
+> All writes will contain zeroes for the above job file.
+>
+> The problem is in fill_io_buffer() function that switches dedupe random state
+> only if o->compress_percentage is set.
+>
+> This patch updates the condition appropriately in fill_io_buffer()
+> appropriately.
 
-  Adjust ctime_r buf down to 32 (2015-01-06 12:03:09 -0700)
+Thanks, looks good, applied.
 
-are available in the git repository at:
+-- 
+Jens Axboe
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 36bb0880c7f7f48abb86e3a16d3168343dda9b75:
-
-  Fix disk utils being updated too often (2015-01-07 15:04:39 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Fix disk utils being updated too often
-
- backend.c |    7 -------
- 1 file changed, 7 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/backend.c b/backend.c
-index 3df0133..efabfa7 100644
---- a/backend.c
-+++ b/backend.c
-@@ -2104,18 +2104,11 @@ static void *helper_thread_main(void *data)
- 		uint64_t sec = DISK_UTIL_MSEC / 1000;
- 		uint64_t nsec = (DISK_UTIL_MSEC % 1000) * 1000000;
- 		struct timespec ts;
--
--#if defined(CONFIG_CLOCK_MONOTONIC)
--		clock_gettime(CLOCK_MONOTONIC, &ts);
--		ts.tv_sec += sec;
--		ts.tv_nsec += nsec;
--#else
- 		struct timeval tv;
- 
- 		gettimeofday(&tv, NULL);
- 		ts.tv_sec = tv.tv_sec + sec;
- 		ts.tv_nsec = (tv.tv_usec * 1000) + nsec;
--#endif
- 
- 		if (ts.tv_nsec >= 1000000000ULL) {
- 			ts.tv_nsec -= 1000000000ULL;
