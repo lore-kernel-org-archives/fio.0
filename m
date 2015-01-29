@@ -1,87 +1,37 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:54829 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752641AbbAaNAH (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 31 Jan 2015 08:00:07 -0500
-Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1YHXeg-0007dQ-JE
-	for fio@vger.kernel.org; Sat, 31 Jan 2015 13:00:06 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <54CA6331.5090501@kernel.dk>
+Date: Thu, 29 Jan 2015 08:43:29 -0800
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150131130003.821244018E@lyth.info>
-Date: Sat, 31 Jan 2015 06:00:03 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: Should io_limits/queue depth flushed persist while using verify_state?
+References: <CALjAwxgmpWDviJiUyoXSZPy_-JP0va+QdXmhP-r6g6JTTRv7Fg@mail.gmail.com>	<54B84322.10704@kernel.dk>	<54B9495E.1020804@kernel.dk>	<CALjAwxhAS3GvMMpFkxgsbx1KpS2j4EzyQzX=Xc007axPu0dYsw@mail.gmail.com> <CALjAwxij4aMr43E64SvQ-2AM9u+tbB4FF4bRY39LrkWvbpWaGA@mail.gmail.com>
+In-Reply-To: <CALjAwxij4aMr43E64SvQ-2AM9u+tbB4FF4bRY39LrkWvbpWaGA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit d47d7cb371fd24419ea5b4d83469ab66f31aa42e:
+On 01/28/2015 10:18 PM, Sitsofe Wheeler wrote:
+> On 17 January 2015 at 09:11, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>> On 16 January 2015 at 17:24, Jens Axboe <axboe@kernel.dk> wrote:
+>>>
+>>> I wonder if this will do the trick, can you check? If not, I'll need the
+>>> full output of the two runs, and the state files saved from the first run.
+>>
+>> I tried revision ae703cdf31532e337cc18c259c883bf5314aa43a which seems
+>> to already have that patch rolled into it (via commit
+>> def0009508f0f3c763c4de5e0b62388b42544faf ) but it made no
+>> difference...
+>>
+>> Find the two runs with --debug=all and and the state file attached.
+>
+> Just checking - did the above arrive correctly?
 
-  gettime: remember to tear down clock cpumask on normal exit (2015-01-29 09:23:39 -0800)
+I apparently missed it... Will take a look, but traveling in the next 
+few days so response might be a bit slower.
 
-are available in the git repository at:
+-- 
+Jens Axboe
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to e507fa596c6923acc0160de85e7591c91df708e6:
-
-  Update the moral license (2015-01-30 09:38:20 -0800)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Update the moral license
-
- LICENSE => MORAL-LICENSE |    0
- 1 file changed, 0 insertions(+), 0 deletions(-)
- rename LICENSE => MORAL-LICENSE (100%)
-
----
-
-Diff of recent changes:
-
-diff --git a/LICENSE b/LICENSE
-deleted file mode 100644
-index d7c0b1b..0000000
---- a/LICENSE
-+++ /dev/null
-@@ -1,17 +0,0 @@
--As specified by the COPYING file, fio is free software published under version
--2 of the GPL license. That covers the copying part of the license. By using fio,
--you are also promising to uphold the following moral obligations:
--
--- If you publish results that are done using fio, it must be clearly stated
--  that fio was used. The specific version should also be listed.
--
--- If you develop features or bug fixes for fio, they should be sent upstream
--  for inclusion into the main repository. This isn't specific to fio, that
--  is a general rule for any open source project. It's just the Right Thing
--  to do. Plus it means that you don't have to maintain the feature or change
--  internally. In the long run, this is saving you a lot of time.
--
--I would consider the above to fall under "common courtesy", but since
--people tend to have differing opinions of that, it doesn't hurt to spell out
--my expectations clearly.
--
-diff --git a/MORAL-LICENSE b/MORAL-LICENSE
-new file mode 100644
-index 0000000..d7c0b1b
---- /dev/null
-+++ b/MORAL-LICENSE
-@@ -0,0 +1,17 @@
-+As specified by the COPYING file, fio is free software published under version
-+2 of the GPL license. That covers the copying part of the license. By using fio,
-+you are also promising to uphold the following moral obligations:
-+
-+- If you publish results that are done using fio, it must be clearly stated
-+  that fio was used. The specific version should also be listed.
-+
-+- If you develop features or bug fixes for fio, they should be sent upstream
-+  for inclusion into the main repository. This isn't specific to fio, that
-+  is a general rule for any open source project. It's just the Right Thing
-+  to do. Plus it means that you don't have to maintain the feature or change
-+  internally. In the long run, this is saving you a lot of time.
-+
-+I would consider the above to fall under "common courtesy", but since
-+people tend to have differing opinions of that, it doesn't hurt to spell out
-+my expectations clearly.
-+
