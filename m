@@ -1,46 +1,41 @@
-Return-Path: <sitsofe@gmail.com>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <54D4E7D6.9080007@kernel.dk>
+Date: Fri, 06 Feb 2015 09:12:06 -0700
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <54CA6331.5090501@kernel.dk>
-References: <CALjAwxgmpWDviJiUyoXSZPy_-JP0va+QdXmhP-r6g6JTTRv7Fg@mail.gmail.com>
-	<54B84322.10704@kernel.dk>
-	<54B9495E.1020804@kernel.dk>
-	<CALjAwxhAS3GvMMpFkxgsbx1KpS2j4EzyQzX=Xc007axPu0dYsw@mail.gmail.com>
-	<CALjAwxij4aMr43E64SvQ-2AM9u+tbB4FF4bRY39LrkWvbpWaGA@mail.gmail.com>
-	<54CA6331.5090501@kernel.dk>
-Date: Sun, 15 Feb 2015 13:07:00 +0000
-Message-ID: <CALjAwxjwLesoxypb88G__SjQf8-PB9NqAgfvLoMbBRH8F3A+Bg@mail.gmail.com>
-Subject: Re: Should io_limits/queue depth flushed persist while using verify_state?
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-To: Jens Axboe <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Subject: Re: verify_only broken? (was RE: )
+References: <5A8251503902B84E89CE171AD126BCFB2DE5BD27@NTXBOIMBX01.micron.com>
+In-Reply-To: <5A8251503902B84E89CE171AD126BCFB2DE5BD27@NTXBOIMBX01.micron.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+To: "Justin Eno (jeno)" <jeno@micron.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 29 January 2015 at 16:43, Jens Axboe <axboe@kernel.dk> wrote:
-> On 01/28/2015 10:18 PM, Sitsofe Wheeler wrote:
+On 02/04/2015 02:58 PM, Justin Eno (jeno) wrote:
+> On Wed, Jan 28, 2015 at 14:39:29, Justin Eno (jeno) <jeno@micron.com> wrote:
+>> Hi Jens,
 >>
->> On 17 January 2015 at 09:11, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
->>>
->>> On 16 January 2015 at 17:24, Jens Axboe <axboe@kernel.dk> wrote:
->>>>
->>>> I wonder if this will do the trick, can you check? If not, I'll need the
->>>> full output of the two runs, and the state files saved from the first
->>>> run.
->>>
->>> I tried revision ae703cdf31532e337cc18c259c883bf5314aa43a which seems
->>> to already have that patch rolled into it (via commit
->>> def0009508f0f3c763c4de5e0b62388b42544faf ) but it made no
->>> difference...
->>>
->>> Find the two runs with --debug=all and and the state file attached.
+>> It appears do_dry_run(), i.e., verify_only, is broken by the last
+>> update to backend.c
 >>
->> Just checking - did the above arrive correctly?
+>> I have attached a working patch, though you may prefer a different approach.
+>>
+>> Thanks,
+>> Justin
 >
-> I apparently missed it... Will take a look, but traveling in the next few
-> days so response might be a bit slower.
+> I just realized that I sent this original message without a subject. Perhaps it was dropped for that reason.
+>
+> I've re-attached the same patch. If it was NAKed, please just let me know and I will work on an alternative.
+>
+> Also, do you prefer inline or attached patches?
 
-Just pinging this one again... If it's too soon just let me know!
+Thanks, didn't see the original. I prefer attached patches, that has a 
+lower risk of some mailer or MTA corrupting it along the way. But unless 
+it's a huge patch, it's not a big deal.
+
+I have applied your patch.
 
 -- 
-Sitsofe | http://sucs.org/~sits/
+Jens Axboe
+
 
