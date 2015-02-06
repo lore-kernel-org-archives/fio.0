@@ -1,28 +1,40 @@
-Return-Path: <sitsofe@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <CAEyTGCdUUN=3vUUJzN9zSdQg5CsRPm1vdBvoTkOMhxrnKtJ_bA@mail.gmail.com>
-References: <CAEyTGCdUUN=3vUUJzN9zSdQg5CsRPm1vdBvoTkOMhxrnKtJ_bA@mail.gmail.com>
-Date: Sat, 7 Feb 2015 07:02:32 +0000
-Message-ID: <CALjAwxhk4qqPsRuvvsdJuGBPTvLVdup3=60MxJE=m3o11abDEw@mail.gmail.com>
+Return-Path: <sendtold@gmail.com>
+Return-Path: <sendtold@gmail.com>
+Content-Type: text/plain;
+	charset=us-ascii
+Mime-Version: 1.0 (1.0)
 Subject: Re: io_u->flags & IO_U_F_FLIGHT failed errors when using libaio
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-To: Lakshmi <sendtold@gmail.com>
-Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+From: Of <sendtold@gmail.com>
+In-Reply-To: <54D52E8C.4060803@kernel.dk>
+Date: Fri, 6 Feb 2015 17:32:13 -0600
+Content-Transfer-Encoding: 7bit
+Message-Id: <94D849AD-CCC8-4DE5-842D-A5AA16F789CA@gmail.com>
+References: <CAEyTGCdUUN=3vUUJzN9zSdQg5CsRPm1vdBvoTkOMhxrnKtJ_bA@mail.gmail.com> <54D52E8C.4060803@kernel.dk>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 6 February 2015 at 20:03, Lakshmi <sendtold@gmail.com> wrote:
->
-> cmd="$FIO --name=test  --group_reporting=1 --ioengine=libaio
-> --invalidate=1 --iodepth=32 --bs=4K --filename=/dev/sde --rw=randread
-> --direct=1 --buffered=0 --time_based --runtime=300 --numjobs=64"
+Yes Jens it is ppc64
 
-I could be wrong but doesn't an iodepth of 32 and 64 jobs means that
-you would try and queue up 2048 (32*64) 4K I/Os on the same disk at
-once? Does /dev/sde really have a queue depth that high (cat
-/sys/block/sde/queue/nr_requests will tell you the kernel side) and is
-that your intent?
+Sent from my iPhone
 
--- 
-Sitsofe | http://sucs.org/~sits/
+> On Feb 6, 2015, at 3:13 PM, Jens Axboe <axboe@kernel.dk> wrote:
+> 
+>> On 02/06/2015 01:03 PM, Lakshmi wrote:
+>> Hi Jens,
+>>   I have a job file that looks like below and it keeps giving errors
+>> like attached in screen shot. I am using fio-2.2.4
+>> 
+>> cmd="$FIO --name=test  --group_reporting=1 --ioengine=libaio
+>> --invalidate=1 --iodepth=32 --bs=4K --filename=/dev/sde --rw=randread
+>> --direct=1 --buffered=0 --time_based --runtime=300 --numjobs=64"
+>> 
+>> Any idea what is causing this?
+> 
+> Is this on ppc64?
+> 
+> 
+> -- 
+> Jens Axboe
+> 
 
