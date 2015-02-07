@@ -1,37 +1,28 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <54D6476B.8070200@kernel.dk>
-Date: Sat, 07 Feb 2015 10:12:11 -0700
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
+In-Reply-To: <CAEyTGCdUUN=3vUUJzN9zSdQg5CsRPm1vdBvoTkOMhxrnKtJ_bA@mail.gmail.com>
+References: <CAEyTGCdUUN=3vUUJzN9zSdQg5CsRPm1vdBvoTkOMhxrnKtJ_bA@mail.gmail.com>
+Date: Sat, 7 Feb 2015 07:02:32 +0000
+Message-ID: <CALjAwxhk4qqPsRuvvsdJuGBPTvLVdup3=60MxJE=m3o11abDEw@mail.gmail.com>
 Subject: Re: io_u->flags & IO_U_F_FLIGHT failed errors when using libaio
-References: <CAEyTGCdUUN=3vUUJzN9zSdQg5CsRPm1vdBvoTkOMhxrnKtJ_bA@mail.gmail.com> <54D52E8C.4060803@kernel.dk> <94D849AD-CCC8-4DE5-842D-A5AA16F789CA@gmail.com>
-In-Reply-To: <94D849AD-CCC8-4DE5-842D-A5AA16F789CA@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Of <sendtold@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+To: Lakshmi <sendtold@gmail.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 02/06/2015 04:32 PM, Of wrote:
-> Yes Jens it is ppc64
+On 6 February 2015 at 20:03, Lakshmi <sendtold@gmail.com> wrote:
+>
+> cmd="$FIO --name=test  --group_reporting=1 --ioengine=libaio
+> --invalidate=1 --iodepth=32 --bs=4K --filename=/dev/sde --rw=randread
+> --direct=1 --buffered=0 --time_based --runtime=300 --numjobs=64"
 
-I'm pretty sure we have some memory ordering issues, or perhaps the 
-barriers on ppc64 are just wrong. I'll have to check them.
-
-The job:
-
->>> cmd="$FIO --name=test  --group_reporting=1 --ioengine=libaio
->>> --invalidate=1 --iodepth=32 --bs=4K --filename=/dev/sde --rw=randread
->>> --direct=1 --buffered=0 --time_based --runtime=300 --numjobs=64"
-
-does indeed have 32 * 64 potentially pending, which is huge. So there 
-are valid questions on whether this is really what you want. But 
-regardless of that, it should not pose a problem for fio.
-
-Is this on Linux? If so, can you send the output of /proc/cpuinfo, so I 
-can see what CPU this is exactly.
+I could be wrong but doesn't an iodepth of 32 and 64 jobs means that
+you would try and queue up 2048 (32*64) 4K I/Os on the same disk at
+once? Does /dev/sde really have a queue depth that high (cat
+/sys/block/sde/queue/nr_requests will tell you the kernel side) and is
+that your intent?
 
 -- 
-Jens Axboe
-
+Sitsofe | http://sucs.org/~sits/
 
