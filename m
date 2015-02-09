@@ -1,115 +1,46 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:56995 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932155AbbBZNAH (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 26 Feb 2015 08:00:07 -0500
-Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1YQy2v-0000JY-Vo
-	for fio@vger.kernel.org; Thu, 26 Feb 2015 13:00:06 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150226130002.E761E4018E@lyth.info>
-Date: Thu, 26 Feb 2015 06:00:02 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <haghdoost@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <4D550132.4000101@fusionio.com>
+References: <3DEFDA95-E1BA-4C79-BE8E-9AF8EC84603E@bjorgeengen.net>
+ <4D54FEC7.9030602@fusionio.com> <AANLkTimSwmNYraRqZ5oWEPBLV4N5LaqFL8YnY6Fri2K_@mail.gmail.com>
+ <4D550132.4000101@fusionio.com>
+From: Alireza Haghdoost <haghdoost@gmail.com>
+Date: Mon, 9 Feb 2015 12:30:43 -0600
+Message-ID: <CAB-428nAhtX32+_=Nof2m-01bWBh6j=JfhDB_Xf=SEVOmfOCVw@mail.gmail.com>
+Subject: Re: SPC-1 profile
+Content-Type: text/plain; charset=ISO-8859-1
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit cf8a46a75f38afe07ebf823210f95543999e3116:
+Jens,
 
-  Make 'loops' honor full write+verify loops (2015-02-24 14:50:57 -0800)
+Are you aware of the latest status of SPC-1 branch ?
 
-are available in the git repository at:
+--Alireza
 
-  git://git.kernel.dk/fio.git master
+On Fri, Feb 11, 2011 at 3:28 AM, Jens Axboe <jaxboe@fusionio.com> wrote:
+> On 2011-02-11 10:23, DongJin Lee wrote:
+>>
+>> Still alive, I haven't got around to merge to the latest fio version.
+>> But the main functions are still the same, -- mainly on write/read and
+>> rand read/write.  Do you need the test config file? it works but
+>> really lacking the integration with fio's option.  Oh Jens, thanks
+>> again for keeping the branch there!
+>
+> That was fast :-)
+>
+> I would really appreciate an update. If it works, lets fold it into the
+> mainline branch. Then we can work on integrating well with the fio
+> options afterwards.
+>
+> Note I'll be gone in a few hours and all of next week (skiing), so you
+> have plenty of time!
+>
+> --
+> Jens Axboe
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-for you to fetch changes up to 93eeb5582d56fe5e36f455c8de26c302e317fdeb:
-
-  Fix implicit function declaration on Android (2015-02-25 14:00:01 -0700)
-
-----------------------------------------------------------------
-Lars Marowsky-Bree (1):
-      Add --output-format option to manpage.
-
-Raphael Silva (1):
-      Add missing pre-defined ARM arch compiler macro
-
-enh (1):
-      Fix implicit function declaration on Android
-
- arch/arch-arm.h |    3 ++-
- fio.1           |    3 +++
- os/os-android.h |   12 ++++++++++++
- 3 files changed, 17 insertions(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/arch/arch-arm.h b/arch/arch-arm.h
-index 7cd9502..bab886e 100644
---- a/arch/arch-arm.h
-+++ b/arch/arch-arm.h
-@@ -19,7 +19,8 @@
- #endif
- 
- #if defined (__ARM_ARCH_4__) || defined (__ARM_ARCH_4T__) \
--	|| defined (__ARM_ARCH_5__) || defined (__ARM_ARCH_5T__) || defined (__ARM_ARCH_5TE__) || defined (__ARM_ARCH_5TEJ__) \
-+	|| defined (__ARM_ARCH_5__) || defined (__ARM_ARCH_5T__) || defined (__ARM_ARCH_5E__)\
-+	|| defined (__ARM_ARCH_5TE__) || defined (__ARM_ARCH_5TEJ__) \
- 	|| defined(__ARM_ARCH_6__)  || defined(__ARM_ARCH_6J__) || defined(__ARM_ARCH_6Z__) || defined(__ARM_ARCH_6ZK__)
- #define nop             __asm__ __volatile__("mov\tr0,r0\t@ nop\n\t")
- #define read_barrier()	__asm__ __volatile__ ("" : : : "memory")
-diff --git a/fio.1 b/fio.1
-index 33b26cc..b746da1 100644
---- a/fio.1
-+++ b/fio.1
-@@ -20,6 +20,9 @@ list all available tracing options.
- .BI \-\-output \fR=\fPfilename
- Write output to \fIfilename\fR.
- .TP
-+.BI \-\-output-format \fR=\fPformat
-+Set the reporting format to \fInormal\fR, \fIterse\fR, or \fIjosn\fR.
-+.TP
- .BI \-\-runtime \fR=\fPruntime
- Limit run time to \fIruntime\fR seconds.
- .TP
-diff --git a/os/os-android.h b/os/os-android.h
-index 954178d..b4f4f13 100644
---- a/os/os-android.h
-+++ b/os/os-android.h
-@@ -4,6 +4,7 @@
- #define	FIO_OS	os_android
- 
- #include <sys/ioctl.h>
-+#include <sys/mman.h>
- #include <sys/uio.h>
- #include <sys/syscall.h>
- #include <sys/vfs.h>
-@@ -37,10 +38,13 @@
- 
- #define OS_MAP_ANON		MAP_ANONYMOUS
- 
-+#ifndef POSIX_MADV_DONTNEED
- #define posix_madvise   madvise
- #define POSIX_MADV_DONTNEED MADV_DONTNEED
- #define POSIX_MADV_SEQUENTIAL	MADV_SEQUENTIAL
- #define POSIX_MADV_RANDOM	MADV_RANDOM
-+#endif
-+
- #ifdef MADV_REMOVE
- #define FIO_MADV_FREE	MADV_REMOVE
- #endif
-@@ -261,4 +265,12 @@ static inline int os_trim(int fd, unsigned long long start,
- 	return errno;
- }
- 
-+#ifdef CONFIG_SCHED_IDLE
-+static inline int fio_set_sched_idle(void)
-+{
-+        struct sched_param p = { .sched_priority = 0, };
-+        return sched_setscheduler(gettid(), SCHED_IDLE, &p);
-+}
-+#endif
-+
- #endif
