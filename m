@@ -1,104 +1,61 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailout.teamix.de ([194.150.191.118]:52257 "EHLO
-	mailout.teamix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751909AbbBDJSB convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 4 Feb 2015 04:18:01 -0500
-From: Martin Steigerwald <ms@teamix.de>
-Subject: Re: Bug#776701: ssd-test 1g file size too small
-Date: Wed, 4 Feb 2015 10:10:38 +0100
-Message-ID: <13200420.bigzCatb1k@merkaba>
-In-Reply-To: <54CCD756.7000105@pocock.pro>
-References: <54CCD756.7000105@pocock.pro>
+Return-Path: <gwendal@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset="utf-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Daniel Pocock <daniel@pocock.pro>, 776701@bugs.debian.org, fio@vger.kernel.org
+Sender: gwendal@google.com
+From: Gwendal Grignou <gwendal@chromium.org>
+Date: Sun, 8 Feb 2015 17:41:05 -0800
+Message-ID: <CAMHSBOWmVjpg9j4rE5qto+J0mJnViO3kR0r6WXkPZwapkCyQag@mail.gmail.com>
+Subject: fio: verify latency not reported correctly
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-﻿Hello Daniel, hi Jens,
+Jens,
 
-Am Samstag, 31. Januar 2015, 14:23:34 schrieb Daniel Pocock:
-> Package: fio
-> Version: 2.1.11-2
-> Severity: important
-> 
-> 
-> In the ssd-test sample config:
-> 
-> https://sources.debian.net/src/fio/2.1.11-2/examples/ssd-test.fio/
-> 
-> 
-> The test size is 1GB, this line:
-> 
-> size=1g
-> 
-> 
-> There are SSDs that have 1g caches and this leads to unhelpful results.
-> 
-> One user I discussed this with had to use a 10g test file to get
-> consistent and meaningful results.
-> 
-> Maybe bump the example to 10g or add a comment in front of that line.
+I am running a simple verify fio test, looking at latencies:
 
-As the examples are taken from the upstream tarball, I suggest taking this 
-upstream. I put upstream in Cc, Jens, what do you think about this?
+[8k_async_randwrite]
 
-In any case, I don´t think its a release critical issue for Jessie. And I 
-would like to avoid carrying a patch for this.
+filename=/dev/loop0
+size=128M
+bs=8k
+verify=md5
+readwrite=randwrite
+iodepth=1
 
-Also for SSD testing have a look at the (destructive, whole device) steady 
-state test and
+write_lat_log=randwrite-noaio
 
-https://www.thomas-krenn.com/de/wiki/TKperf
+I notice the latencies are correct at first, but goes through the roof
+at during the verify phase:
 
-I view the ssd-test.fio as a simple example that may serve to give a *first* 
-idea, but is in no way complete in any way. Yes, it may be good to point 
-this out in the comment that this is just a starting point.
+0, 43, 1, 8192
+0, 14, 1, 8192
+0, 11, 1, 8192
+...
+389, 9, 1, 8192
+389, 4, 1, 8192
+389, 4, 1, 8192
+576, 187097, 0, 8192
+576, 187203, 0, 8192
+576, 187261, 0, 8192
+...
+1118, 729300, 0, 8192
+1118, 729328, 0, 8192
+1118, 729356, 0, 8192
 
-And yes, its always good to check results for meaningfulness. No comment 
-or warranty clause in an example file is going to cover for that. No 
-benchmark can provide such a warranty for all cases. There are just too 
-many factors at play.
+I suspect the timer is not reset at the beginning of the do_verify() phase:
+When we do get_io_u in do_verify to get every IO and issue the reads,
+get_io_u finds out it is a requeue, exit early and therefore does not
+set io_u->start_time.
 
+Then when we add the sample in the log file, we call add_lat_sample()
+in account_io_completion, the elapsed time is since the io has first
+been sent, not when it has been resent for verification.
 
-Upstream version of fio is 2.1.14. I may look into packaging it, after I 
-recovered from my recent disappointments with how listmasters in Debian 
-handled discussions about systemd within Debian[1]. Feel free to be faster 
-than me as, honestly, my motivation isn´t that high at the moment. I did 
-not yet want to orphan the package in order to give it some time and pick 
-it up again, but if you want, feel free to take over maintenance to speed 
-things. Or as its on collab-maint anyway, just feel free to work on it. I 
-think in some months, after Jessie release, I may look into my packagings 
-again (while staying unsubscribed from certain mailing lists), as it used 
-to be fun working on it.
+It is correct to not reset start_time in get_io_u for a requeue due to
+error for instance, but we should do it for verify.
 
-I think what I have in the repo is current.
+I submit a patch next.
 
-No need to discuss any of this in this bug report, this is just for your 
-information.
-
-
-[1] https://lists.debian.org/debian-devel/2014/12/msg00000.html (I still 
-didn´t even look at any possible responses to what I wrote and I do not 
-intend to do so.)
-
-Thanks,
-Martin
-
--- 
-Martin Steigerwald  | Consultant / Trainer
-
-teamix GmbH
-Südwestpark 43
-90449 Nürnberg
-
-Tel.:  +49 911 30999 55 | Fax: +49 911 30999 99
-mail: martin.steigerwald@teamix.de | web:  http://www.teamix.de | blog: http://blog.teamix.de
-
-Amtsgericht Nürnberg, HRB 18320 | Geschäftsführer: Oliver Kügow, Richard Müller
-
-
-***Nicht verpassen: TechDemo Hochverfügbare Storage-Infrastruktur***
-Nürnberg 25.02.15 | München 26.02.15 | Jetzt anmelden unter: www.teamix.de/techdemo
+Gwendal.
 
