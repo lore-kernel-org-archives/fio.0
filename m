@@ -1,201 +1,28 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qa0-f51.google.com ([209.85.216.51]:51544 "EHLO
-	mail-qa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755560AbbBFPJw (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 6 Feb 2015 10:09:52 -0500
-Received: by mail-qa0-f51.google.com with SMTP id f12so11140877qad.10
-        for <fio@vger.kernel.org>; Fri, 06 Feb 2015 07:09:52 -0800 (PST)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <54E26834.2090202@kernel.dk>
+Date: Mon, 16 Feb 2015 14:59:16 -0700
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Date: Fri, 6 Feb 2015 20:39:51 +0530
-Message-ID: <CAJAu-0j8V5+KxDcX_iwa+_bj1+gf5nN56a=ABG9Wt9szxw-+Zw@mail.gmail.com>
-Subject: fio does not exit even if "bw" is below than "ratemin"
-From: Kiran Patil <kiran@fractalio.com>
-Content-Type: multipart/mixed; boundary=001a11c36122f941a0050e6ccf35
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Subject: Re: [PATCH 1/1] gettime.h: use time_t instead of size_t for copy
+ of tv_sec
+References: <1423838764-40731-1-git-send-email-castor.fu@egocast.org>
+In-Reply-To: <1423838764-40731-1-git-send-email-castor.fu@egocast.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+To: castor.fu@egocast.org, fio@vger.kernel.org
+Cc: Castor Fu <castor@egocast.org>
+List-ID: <fio@vger.kernel.org>
 
---001a11c36122f941a0050e6ccf35
-Content-Type: text/plain; charset=UTF-8
+On 02/13/2015 07:46 AM, castor.fu@egocast.org wrote:
+> From: Castor Fu <castor@egocast.org>
+>
+> This addresses a small nit that our compiler was complaining about.
+> Thanks!
 
-Hello,
+Thanks, applied.
 
-I am using fio to run storage benchmark.
 
-I have set ratemin=50m and ran below fio profile it recorded bw of 14
-MB/s for all the jobs and it did not exited even though it got low bw
-compared to ratemin.
+-- 
+Jens Axboe
 
-Why fio didn't exit ? I have no idea how fio handles internally.
 
-I observed another behavior that if I set file size to 10g then it
-exits for some jobs for not getting ratemin bandwidth.
-
-What makes the difference between small and large files ?
-
-Please help me to understand this behavior.
-
-Runtime environment:
--------------------------------
-Fio Machine - 16 GB RAM - 4 1G ports - nic bonded
-
-Server Machine -
-2 Gluster nodes with 16 GB RAM - each 4 1G ports and 4 drives - nic bonded
-
-Fio is running on a cifs share of gluster distributed vol.
-
-Here is my fio file
---------------------------
-[global]
-directory=/mnt1
-engine=sync
-iodepth=1
-numjobs=8
-rate=55m,55m
-ratemin=50m,50m
-size=80m
-runtime=600
-time_based
-
-[FS_16k_streaming_writes]
-rw=write
-bs=16k
-
-[FS_64k_streaming_writes]
-rw=write
-bs=64k
-
-[FS_128k_streaming_writes]
-rw=write
-bs=128k
-
-[FS_256k_streaming_writes]
-rw=write
-bs=256k
-
-[FS_512k_streaming_writes]
-rw=write
-bs=512k
-
-[FS_1m_streaming_writes]
-rw=write
-bs=1m
-
-The output log files are attached as zip file.
-
---001a11c36122f941a0050e6ccf35
-Content-Type: application/x-gzip; name="fio_log.tgz"
-Content-Disposition: attachment; filename="fio_log.tgz"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_i5tp45ba0
-
-H4sIAEDV1FQAA+2dXW/cxpKGc+1fwRsDDmDTXVVd/SFg9iLABjjwBgucs8BeLIJAthUfnbUtQyMf
-nwD747f50c1ms5vkjMaSxyGBRDI9pCmR88xbVW9V//y33wDN//62v7u9uvxw/fHdb19ur++u9vX7
-m3c/nGgTblNStl/dlnxFySx/AJSKgVEK/kEACxQ/VOJUFzC3fd7fXd5W1Q+3Nzd3c69b+vsz3X4u
-3P+L6tm7nfjxorr9smv3PK9e73fupa9eNP97mfnueXV9c/Xx3fXHq93+j49vmj++vfp09/cdPKnr
-+snv1zcvsMaa3YtfvLtioZ/8zf3q79y/WZnq0+3Nm6v9/mr/pHxF/3H5R/Pim8931V/+s/r9+v3V
-s/2P1TMI376sjPjlpx+3U3yPp5g5x7N3tzefP12/3Ynn1T9umufUPbhXt7e7SlxUzX4AY923P99e
-Vz9fva4qVYG5ILhArtDR5klVtae6cI/szjgG1e5fdA/8lx1IQfrVTy/3zdP8yZ1Y2OfV7eePdzsl
-3Pf0YX/1xh1dVW/eX95Vzz67P7p/2l3cTtPz6sPlv3bsiPa8uvznu50VtXU793dvr/65Q1m7N0Bz
-ZDU5UoUjdX8k1WyjI4mGf/PT1e2bq4937pe192fpTvt/VQW1EO799z/uT0b8+ryqONoBbgeIaAe6
-HRjvoF+f+1NRvJ/dC2W8Q7kdHO/QboeKd9jhVDrab5uLMPGO5lR22AFCNjuG6waIrsraYT81/6bb
-wX6H7HdYv0NTv4P7HVaPTmVtt18K9Wu7+/WX6tmrn6rq5b6/M1Vzlv7mKG7uk/vt79xt1U+7GwUg
-dA3hJmttVG3wyfguVxfuxxI7I2tEdxyy2AHXmp82v0ThTifo6XDIh3BI8zfQ/M2bT5+rsF1Un/fN
-NYBwx+//2O+o1s1p39z9yz2tbKTk5or/8Xvz5nA/xO87AncO915r4bzvzgHute70zeXsuq+y/2r6
-r6D6b8i/4t92qntR9zvcf3794fquO50IJ/GnLZ9Gyfz53tx8+PT+6u7qVOe73u8/X73tru/u5u7y
-/c792l5+2Sm2KF627Nj//eb2rt/d73p7e/Mp3hPeslcf3/zRnevy9t3VXfPaL9cf3958ab4b3pTd
-BTeX4z8L74kxWIsxKWKMoZExxgACxhC0WoExhO4RN8Y90f4Br9z7DQoUY3+g7CEGtZTRgVYfDDFt
-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
---001a11c36122f941a0050e6ccf35--
