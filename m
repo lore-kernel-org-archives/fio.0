@@ -1,104 +1,40 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailout.micron.com ([137.201.242.129]:57656 "EHLO
-	mailout.micron.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932669AbbBDV6O (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 4 Feb 2015 16:58:14 -0500
-Received: from mail.micron.com (ntxboicas01.micron.com [137.201.84.60])
-	by mailout.micron.com (8.14.4/8.14.6) with ESMTP id t14LwCMn019843
-	(version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=FAIL)
-	for <fio@vger.kernel.org>; Wed, 4 Feb 2015 14:58:12 -0700
-From: "Justin Eno (jeno)" <jeno@micron.com>
-Subject: verify_only broken? (was RE: )
-Date: Wed, 4 Feb 2015 21:58:12 +0000
-Message-ID: <5A8251503902B84E89CE171AD126BCFB2DE5BD27@NTXBOIMBX01.micron.com>
+Received: from server506l.appriver.com ([50.56.144.158]:61903 "EHLO
+	server506.appriver.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753552AbbBPSA6 convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Mon, 16 Feb 2015 13:00:58 -0500
+From: Carl Zwanzig <cpz@coraid.com>
+Subject: RE: [Suggestion] Header for --minimal output
+Date: Mon, 16 Feb 2015 17:50:56 +0000
+Message-ID: <A7A1D348E34E024BBC74480FB93A2EAB10940A12@DAGN05C-E6.exg6.exghost.com>
+References: <CAB-428kQh_D2T4tT7AoP3Gmt=Q4=Z32h7PLwM2fugDwuDFNr=A@mail.gmail.com>,<CALjAwxjYy7j9=+Hfh-jS_MiSV2OPatXn1_YAdsUrbQmPkDiHUw@mail.gmail.com>
+In-Reply-To: <CALjAwxjYy7j9=+Hfh-jS_MiSV2OPatXn1_YAdsUrbQmPkDiHUw@mail.gmail.com>
 Content-Language: en-US
-Content-Type: multipart/mixed;
-	boundary="_002_5A8251503902B84E89CE171AD126BCFB2DE5BD27NTXBOIMBX01micr_"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Sitsofe Wheeler <sitsofe@gmail.com>, Alireza Haghdoost <haghdoost@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
---_002_5A8251503902B84E89CE171AD126BCFB2DE5BD27NTXBOIMBX01micr_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+(sorry about the top-posting)
 
-On Wed, Jan 28, 2015 at 14:39:29, Justin Eno (jeno) <jeno@micron.com> wrote=
-:
-> Hi Jens,
->=20
-> It appears do_dry_run(), i.e., verify_only, is broken by the last=20
-> update to backend.c
->=20
-> I have attached a working patch, though you may prefer a different approa=
-ch.
->=20
-> Thanks,
-> Justin
+Not always, there are many applications where columnar data is easier to work with; I have a fair number of processes that collect lots of fio terse output and use awk & sort to condense the results. JSON would add an extra set of steps.
 
-I just realized that I sent this original message without a subject. Perhap=
-s it was dropped for that reason.
+That aside, an optional fio-provided header would be nice.
 
-I've re-attached the same patch. If it was NAKed, please just let me know a=
-nd I will work on an alternative.
+z!
 
-Also, do you prefer inline or attached patches?
+________________________________________
+From: fio-owner@vger.kernel.org [fio-owner@vger.kernel.org] on behalf of Sitsofe Wheeler [sitsofe@gmail.com]
+Sent: Monday, February 16, 2015 9:30 AM
+To: Alireza Haghdoost
+Cc: fio@vger.kernel.org
+Subject: Re: [Suggestion] Header for --minimal output
 
-Thanks,
-Justin
+On 16 February 2015 at 16:34, Alireza Haghdoost <haghdoost@gmail.com> wrote:
+> the --minimal output is very hard to track and decode by script
 
-
---_002_5A8251503902B84E89CE171AD126BCFB2DE5BD27NTXBOIMBX01micr_
-Content-Type: application/octet-stream; name="verify_only.patch"
-Content-Description: verify_only.patch
-Content-Disposition: attachment; filename="verify_only.patch"; size=2464;
-	creation-date="Wed, 04 Feb 2015 21:48:52 GMT";
-	modification-date="Wed, 04 Feb 2015 21:48:52 GMT"
-Content-Transfer-Encoding: base64
-
-RnJvbSBkYmRjZDBkNWQ3NWMwYmIyY2VkYTI2NGRiNDFjZTE5ZmUxYWFkYjdhIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBKdXN0aW4gRW5vIDxqZW5vQG1pY3Jvbi5jb20+CkRhdGU6IFdl
-ZCwgMjggSmFuIDIwMTUgMTQ6MTM6MjggLTA4MDAKU3ViamVjdDogW1BBVENIXSBGaXggZm9yIHZl
-cmlmeV9vbmx5IChkb19kcnlfcnVuKCkpIGJyb2tlbiBieSA3NGQ2Mjc3ZgoKUHJldmlvdXMgY29t
-bWl0IHRvIGJhY2tlbmQuYyB0cmFja3MgaW9fbGltaXQgbW9yZSBjbG9zZWx5IGJ5CmNvdW50aW5n
-IHN1Ym1pdHRlZCAoaW4tZmxpZ2h0KSBJL08gaW5zdGVhZCBvZiBjb21wbGV0ZWQgSS9PLgpkb19k
-cnlfcnVuKCkgZG9lcyBub3Qgc3VibWl0IEkvTywgc28gaXRzIEkvTyBpcyBub3QgY291bnRlZCwK
-YW5kIGl0IGxvb3BzIGZvcmV2ZXIuClNpZ25lZC1vZmYtYnk6IEp1c3RpbiBFbm8gPGplbm9AbWlj
-cm9uLmNvbT4KLS0tCiBiYWNrZW5kLmMgfCAgIDI3ICsrKysrKysrKysrKysrKysrKysrKysrKy0t
-LQogMSBmaWxlcyBjaGFuZ2VkLCAyNCBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQoKZGlm
-ZiAtLWdpdCBhL2JhY2tlbmQuYyBiL2JhY2tlbmQuYwppbmRleCA5MDEyMTQwLi43ZWM4ZDJhIDEw
-MDY0NAotLS0gYS9iYWNrZW5kLmMKKysrIGIvYmFja2VuZC5jCkBAIC02NjIsNyArNjYyLDcgQEAg
-c3RhdGljIHVuc2lnbmVkIGludCBleGNlZWRzX251bWJlcl9pb3Moc3RydWN0IHRocmVhZF9kYXRh
-ICp0ZCkKIAlyZXR1cm4gbnVtYmVyX2lvcyA+PSB0ZC0+by5udW1iZXJfaW9zOwogfQogCi1zdGF0
-aWMgaW50IGlvX2J5dGVzX2V4Y2VlZGVkKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpCitzdGF0aWMg
-aW50IGlvX2lzc3VlX2J5dGVzX2V4Y2VlZGVkKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpCiB7CiAJ
-dW5zaWduZWQgbG9uZyBsb25nIGJ5dGVzLCBsaW1pdDsKIApAQCAtNjgzLDYgKzY4MywyNyBAQCBz
-dGF0aWMgaW50IGlvX2J5dGVzX2V4Y2VlZGVkKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpCiAJcmV0
-dXJuIGJ5dGVzID49IGxpbWl0IHx8IGV4Y2VlZHNfbnVtYmVyX2lvcyh0ZCk7CiB9CiAKK3N0YXRp
-YyBpbnQgaW9fY29tcGxldGVfYnl0ZXNfZXhjZWVkZWQoc3RydWN0IHRocmVhZF9kYXRhICp0ZCkK
-K3sKKwl1bnNpZ25lZCBsb25nIGxvbmcgYnl0ZXMsIGxpbWl0OworCisJaWYgKHRkX3J3KHRkKSkK
-KwkJYnl0ZXMgPSB0ZC0+dGhpc19pb19ieXRlc1tERElSX1JFQURdICsgdGQtPnRoaXNfaW9fYnl0
-ZXNbRERJUl9XUklURV07CisJZWxzZSBpZiAodGRfd3JpdGUodGQpKQorCQlieXRlcyA9IHRkLT50
-aGlzX2lvX2J5dGVzW0RESVJfV1JJVEVdOworCWVsc2UgaWYgKHRkX3JlYWQodGQpKQorCQlieXRl
-cyA9IHRkLT50aGlzX2lvX2J5dGVzW0RESVJfUkVBRF07CisJZWxzZQorCQlieXRlcyA9IHRkLT50
-aGlzX2lvX2J5dGVzW0RESVJfVFJJTV07CisKKwlpZiAodGQtPm8uaW9fbGltaXQpCisJCWxpbWl0
-ID0gdGQtPm8uaW9fbGltaXQ7CisJZWxzZQorCQlsaW1pdCA9IHRkLT5vLnNpemU7CisKKwlyZXR1
-cm4gYnl0ZXMgPj0gbGltaXQgfHwgZXhjZWVkc19udW1iZXJfaW9zKHRkKTsKK30KKwogLyoKICAq
-IE1haW4gSU8gd29ya2VyIGZ1bmN0aW9uLiBJdCByZXRyaWV2ZXMgaW9fdSdzIHRvIHByb2Nlc3Mg
-YW5kIHF1ZXVlcwogICogYW5kIHJlYXBzIHRoZW0sIGNoZWNraW5nIGZvciByYXRlIGFuZCBlcnJv
-cnMgYWxvbmcgdGhlIHdheS4KQEAgLTcxNCw3ICs3MzUsNyBAQCBzdGF0aWMgdWludDY0X3QgZG9f
-aW8oc3RydWN0IHRocmVhZF9kYXRhICp0ZCkKIAkJdG90YWxfYnl0ZXMgKz0gdGQtPm8uc2l6ZTsK
-IAogCXdoaWxlICgodGQtPm8ucmVhZF9pb2xvZ19maWxlICYmICFmbGlzdF9lbXB0eSgmdGQtPmlv
-X2xvZ19saXN0KSkgfHwKLQkJKCFmbGlzdF9lbXB0eSgmdGQtPnRyaW1fbGlzdCkpIHx8ICFpb19i
-eXRlc19leGNlZWRlZCh0ZCkgfHwKKwkJKCFmbGlzdF9lbXB0eSgmdGQtPnRyaW1fbGlzdCkpIHx8
-ICFpb19pc3N1ZV9ieXRlc19leGNlZWRlZCh0ZCkgfHwKIAkJdGQtPm8udGltZV9iYXNlZCkgewog
-CQlzdHJ1Y3QgdGltZXZhbCBjb21wX3RpbWU7CiAJCXN0cnVjdCBpb191ICppb191OwpAQCAtMTIz
-MSw3ICsxMjUyLDcgQEAgc3RhdGljIHVpbnQ2NF90IGRvX2RyeV9ydW4oc3RydWN0IHRocmVhZF9k
-YXRhICp0ZCkKIAl0ZF9zZXRfcnVuc3RhdGUodGQsIFREX1JVTk5JTkcpOwogCiAJd2hpbGUgKCh0
-ZC0+by5yZWFkX2lvbG9nX2ZpbGUgJiYgIWZsaXN0X2VtcHR5KCZ0ZC0+aW9fbG9nX2xpc3QpKSB8
-fAotCQkoIWZsaXN0X2VtcHR5KCZ0ZC0+dHJpbV9saXN0KSkgfHwgIWlvX2J5dGVzX2V4Y2VlZGVk
-KHRkKSkgeworCQkoIWZsaXN0X2VtcHR5KCZ0ZC0+dHJpbV9saXN0KSkgfHwgIWlvX2NvbXBsZXRl
-X2J5dGVzX2V4Y2VlZGVkKHRkKSkgewogCQlzdHJ1Y3QgaW9fdSAqaW9fdTsKIAkJaW50IHJldDsK
-IAotLSAKMS43LjEKCg==
-
---_002_5A8251503902B84E89CE171AD126BCFB2DE5BD27NTXBOIMBX01micr_--
+Wouldn't it be preferable to use the json output if things are going
+to be processed further?
