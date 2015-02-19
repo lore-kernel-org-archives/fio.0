@@ -1,51 +1,51 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <54E613D8.90107@kernel.dk>
-Date: Thu, 19 Feb 2015 08:48:24 -0800
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <erwan@enovance.com>
+Message-ID: <54E5D468.1070200@enovance.com>
+Date: Thu, 19 Feb 2015 13:17:44 +0100
+From: Erwan Velu <erwan@enovance.com>
 MIME-Version: 1.0
 Subject: Re: Potential leaks & errors on current trunk
-References: <54E35788.2000400@enovance.com> <54E4DBB7.7080705@kernel.dk> <54E5D468.1070200@enovance.com>
-In-Reply-To: <54E5D468.1070200@enovance.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-To: Erwan Velu <erwan@enovance.com>, fio@vger.kernel.org
+References: <54E35788.2000400@enovance.com> <54E4DBB7.7080705@kernel.dk>
+In-Reply-To: <54E4DBB7.7080705@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-On 02/19/2015 04:17 AM, Erwan Velu wrote:
+
+Le 18/02/2015 19:36, Jens Axboe a =C3=A9crit :
 >
-> Le 18/02/2015 19:36, Jens Axboe a écrit :
+>> http://git.kernel.dk/?p=3Dfio.git;a=3Dblob;f=3Diolog.c;h=3D99f8bc18d86=
+94cca0c141c51d116aced1b4130f2;hb=3DHEAD#l863=20
 >>
->>> http://git.kernel.dk/?p=fio.git;a=blob;f=iolog.c;h=99f8bc18d8694cca0c141c51d116aced1b4130f2;hb=HEAD#l863
->>>
->>>
->>> In that function, if we do return 1 we do leak ic.buf, we shall free it
->>> before the return
 >>
->> Yep, there's a potential leak or two there, should be fixed up.
->>
->>> http://git.kernel.dk/?p=fio.git;a=blob;f=lib/axmap.c;h=164300f254014b10ed6e04e3e06b7263aa917aac;hb=HEAD#l127
->>>
->>>
->>> Here, we surely miss the free of the axmap. We did free its internal
->>> structure but not axmap itself.
->>
->> Yes, that should free 'axmap' too of course.
->>
+>> In that function, if we do return 1 we do leak ic.buf, we shall free i=
+t
+>> before the return
 >
-> Hey Jens,
+> Yep, there's a potential leak or two there, should be fixed up.
 >
-> I don't know your workflow : do you accept pull request directly on
-> github ?
+>> http://git.kernel.dk/?p=3Dfio.git;a=3Dblob;f=3Dlib/axmap.c;h=3D164300f=
+254014b10ed6e04e3e06b7263aa917aac;hb=3DHEAD#l127=20
+>>
+>>
+>> Here, we surely miss the free of the axmap. We did free its internal
+>> structure but not axmap itself.
+>
+> Yes, that should free 'axmap' too of course.
+>
 
-I do, I'm pretty flexible that way.
+Hey Jens,
 
-> At least, please find the two commits for that issues in my repo :
-> https://github.com/enovance/fio/tree/erwan/memory-leak
+I don't know your workflow : do you accept pull request directly on githu=
+b ?
 
-Thanks, applied. But I had to fix up your whitespace, you are using 
-spaces instead of tabs.
+At least, please find the two commits for that issues in my repo :=20
+https://github.com/enovance/fio/tree/erwan/memory-leak
 
--- 
-Jens Axboe
+Cheers,
+
+--=20
+Erwan Velu
+eNovance from Redhat
 
 
