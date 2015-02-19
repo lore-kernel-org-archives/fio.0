@@ -1,57 +1,110 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:59875 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752484AbbBTXKt convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Fri, 20 Feb 2015 18:10:49 -0500
-From: "Kudryavtsev, Andrey O" <andrey.o.kudryavtsev@intel.com>
-Subject: REPORT: High CPU utilization since 2.2.5
-Date: Fri, 20 Feb 2015 23:10:43 +0000
-Message-ID: <D10CFEF2.19AB0%andrey.o.kudryavtsev@intel.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="windows-1252"
-Content-ID: <DB185304FDE96E47A3F7B9D041F242F1@intel.com>
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+Received: from [198.137.202.9] ([198.137.202.9]:39459 "EHLO
+	bombadil.infradead.org" rhost-flags-FAIL-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1753203AbbBSNA2 (ORCPT
+	<rfc822;fio@vger.kernel.org>); Thu, 19 Feb 2015 08:00:28 -0500
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1YOQi4-0003oy-3K
+	for fio@vger.kernel.org; Thu, 19 Feb 2015 13:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150219130003.0736040191@lyth.info>
+Date: Thu, 19 Feb 2015 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hi Jens,
-I=EF=BF=BDm running NVMe SSD benchmarks which are using multi-job configura=
-tions in the most common scenarios.
-I have noticed that since 2.2.5 release FIO has 3-4 times higher CPU utiliz=
-ation on the same workload, same system, same kernel 3.18.
-In fact I=EF=BF=BDm not able to achieve 450k IOPS on latest Core-i7 CPU due=
- to 100% utilization.
-I tracked down the changes back, 2.1.14 is the most stable for me. Release =
-had 2.2.0 the reporting issues, which were fixed in 2.2.5 but introduced hi=
-gh CPU utilization instead.
-Did anyone notice that too?
+The following changes since commit 495288a1e627c3d1b29897786b786eb6008841a3:
 
-Configuration details are bellow:
+  examples/ssd-test.fio: bump size to 10G (2015-02-16 15:04:11 -0700)
 
-[global]
-name=3D4k random read 4 ios in the queue in 32 queues
-filename=3D/dev/nvme0n1
-ioengine=3Dlibaio
-direct=3D1
-bs=3D4k
-rw=3Drandread
-iodepth=3D4
-numjobs=3D32
-buffered=3D0
-size=3D100%
-runtime=3D0
-randrepeat=3D0
-norandommap
-refill_buffers
-[job1]
+are available in the git repository at:
 
+  git://git.kernel.dk/fio.git master
 
---
-Andrey Kudryavtsev,
-SSD Solution Architect
-Intel Corp.
-inet: 83564353
-work: +1-916-356-4353
-mobile: +1-916-221-2281
+for you to fetch changes up to 83da8fbfa3cdcd16bef7276af6aec0eea4a4566b:
+
+  Allow verify w/norandommap and bsrange (2015-02-18 10:38:37 -0800)
+
+----------------------------------------------------------------
+Justin Eno (2):
+      Allow verification of random overwrites w/ba < bs
+      Allow verify w/norandommap and bsrange
+
+ HOWTO   |    8 ++++----
+ init.c  |    3 +--
+ iolog.c |   14 +++++++++++---
+ 3 files changed, 16 insertions(+), 9 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/HOWTO b/HOWTO
+index 8da5527..0f7909d 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -919,10 +919,10 @@ norandommap	Normally fio will cover every block of the file when doing
+ 		random IO. If this option is given, fio will just get a
+ 		new random offset without looking at past io history. This
+ 		means that some blocks may not be read or written, and that
+-		some blocks may be read/written more than once. This option
+-		is mutually exclusive with verify= if and only if multiple
+-		blocksizes (via bsrange=) are used, since fio only tracks
+-		complete rewrites of blocks.
++		some blocks may be read/written more than once. If this option
++		is used with verify= and multiple blocksizes (via bsrange=),
++		only intact blocks are verified, i.e., partially-overwritten
++		blocks are ignored.
+ 
+ softrandommap=bool See norandommap. If fio runs with the random block map
+ 		enabled and it fails to allocate the map, if this option is
+diff --git a/init.c b/init.c
+index bb53a1e..c210ad2 100644
+--- a/init.c
++++ b/init.c
+@@ -596,8 +596,7 @@ static int fixup_options(struct thread_data *td)
+ 	if (o->norandommap && o->verify != VERIFY_NONE
+ 	    && !fixed_block_size(o))  {
+ 		log_err("fio: norandommap given for variable block sizes, "
+-			"verify disabled\n");
+-		o->verify = VERIFY_NONE;
++			"verify limited\n");
+ 		ret = warnings_fatal;
+ 	}
+ 	if (o->bs_unaligned && (o->odirect || td->io_ops->flags & FIO_RAWIO))
+diff --git a/iolog.c b/iolog.c
+index 99f8bc1..b867583 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -250,6 +250,7 @@ restart:
+ 	p = &td->io_hist_tree.rb_node;
+ 	parent = NULL;
+ 	while (*p) {
++		int overlap = 0;
+ 		parent = *p;
+ 
+ 		__ipo = rb_entry(parent, struct io_piece, rb_node);
+@@ -257,11 +258,18 @@ restart:
+ 			p = &(*p)->rb_left;
+ 		else if (ipo->file > __ipo->file)
+ 			p = &(*p)->rb_right;
+-		else if (ipo->offset < __ipo->offset)
++		else if (ipo->offset < __ipo->offset) {
+ 			p = &(*p)->rb_left;
+-		else if (ipo->offset > __ipo->offset)
++			overlap = ipo->offset + ipo->len > __ipo->offset;
++		}
++		else if (ipo->offset > __ipo->offset) {
+ 			p = &(*p)->rb_right;
+-		else {
++			overlap = __ipo->offset + __ipo->len > ipo->offset;
++		}
++		else
++			overlap = 1;
++
++		if (overlap) {
+ 			dprint(FD_IO, "iolog: overlap %llu/%lu, %llu/%lu",
+ 				__ipo->offset, __ipo->len,
+ 				ipo->offset, ipo->len);
