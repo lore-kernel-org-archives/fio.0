@@ -1,42 +1,25 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from serv4.rootleveltech.com ([198.176.28.4]:53587 "EHLO
-	serv4.rootleveltech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750762AbbBZFIJ (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 26 Feb 2015 00:08:09 -0500
-Message-ID: <54EE9B5D.3040208@voicenet.com>
-Date: Wed, 25 Feb 2015 23:04:45 -0500
-From: thoms <thoms@voicenet.com>
-Reply-To: thoms@voicenet.com
+Return-Path: <axboe@kernel.dk>
+Message-ID: <54EE37F8.6090909@kernel.dk>
+Date: Wed, 25 Feb 2015 14:00:40 -0700
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Subject: Stonewalled ?
+Subject: Re: [PATCH] fix implicit function declaration on Android
+References: <CAJgzZoqb=+nFdbFjAv6Tbx6x-Gdqz-+nvHJpEuZXK4iBrqUsSA@mail.gmail.com>
+In-Reply-To: <CAJgzZoqb=+nFdbFjAv6Tbx6x-Gdqz-+nvHJpEuZXK4iBrqUsSA@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: enh <enh@google.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Hi folks,
+On 02/20/2015 12:00 PM, enh wrote:
+> there's no fio_set_sched_idle in os/os-android.h. copy the one from
+> os/os-linux.h.
+> 
+> current Android also has posix_madvise.
 
-I'm running fio-2.2.5 on a Linux x86_64 platform.  This is the first
-time I've had to create a job file with an extremely large number of job
-sections within the same file (hundreds of jobs).  I need each job to
-run sequentially and have included "stonewall" within each section. 
-When I execute the job file, I get this error:
+Applied, thanks.
 
-  error: maximum number of jobs (2048) reached.
+-- 
+Jens Axboe
 
-When I reduce the number of job sections in the file to under 200, the
-job runs sequentially as expected. 
 
-My understanding of "stonewall" is that it should serialize the running
-of each job within a file (or files).  The implication is that fio
-shouldn't be evaluating a subsequent job section until after the current
-job has fully completed.  But in this case, fio appears to be looking
-ahead and ignoring the "stonewall" directive until it exhausts
-resources. This behavior also occurs within the current git commit.
-
-Is this a feature or a bug, and is there another way to tell fio to
-execute each job sequentially (top to bottom) as it encounters them in
-the file?
-
-Thanks!
