@@ -1,35 +1,46 @@
-Return-Path: <gwendal@google.com>
-Return-Path: <gwendal@google.com>
-From: Gwendal Grignou <gwendal@chromium.org>
-Subject: [PATCH] verify: Fix latency log for verify commands.
-Date: Sun,  8 Feb 2015 19:53:20 -0800
-Message-Id: <1423454000-7730-1-git-send-email-gwendal@chromium.org>
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <54EE3535.8060606@kernel.dk>
+Date: Wed, 25 Feb 2015 13:48:53 -0700
+From: Jens Axboe <axboe@kernel.dk>
+MIME-Version: 1.0
+Subject: Re: REPORT: High CPU utilization since 2.2.5
+References: <D10CFEF2.19AB0%andrey.o.kudryavtsev@intel.com>
+In-Reply-To: <D10CFEF2.19AB0%andrey.o.kudryavtsev@intel.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+To: "Kudryavtsev, Andrey O" <andrey.o.kudryavtsev@intel.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-When commands when requeued for the verify operation,
-their start time was not reset, resulting in bogus latency graphs.
+On 02/20/2015 04:10 PM, Kudryavtsev, Andrey O wrote:
+> Hi Jens,
+> I’m running NVMe SSD benchmarks which are using multi-job configurations in the most common scenarios.
+> I have noticed that since 2.2.5 release FIO has 3-4 times higher CPU utilization on the same workload, same system, same kernel 3.18.
+> In fact I’m not able to achieve 450k IOPS on latest Core-i7 CPU due to 100% utilization.
+> I tracked down the changes back, 2.1.14 is the most stable for me. Release had 2.2.0 the reporting issues, which were fixed in 2.2.5 but introduced high CPU utilization instead.
+> Did anyone notice that too?
+> 
+> Configuration details are bellow:
+> 
+> [global]
+> name=4k random read 4 ios in the queue in 32 queues
+> filename=/dev/nvme0n1
+> ioengine=libaio
+> direct=1
+> bs=4k
+> rw=randread
+> iodepth=4
+> numjobs=32
+> buffered=0
+> size=100%
+> runtime=0
+> randrepeat=0
+> norandommap
+> refill_buffers
+> [job1]
 
-Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
----
- backend.c | 2 ++
- 1 file changed, 2 insertions(+)
+Can you try and bisect the issue?
 
-diff --git a/backend.c b/backend.c
-index 7ec8d2a..0f6e425 100644
---- a/backend.c
-+++ b/backend.c
-@@ -565,6 +565,8 @@ static void do_verify(struct thread_data *td, uint64_t verify_bytes)
- 			io_u->end_io = verify_io_u;
- 
- 		ddir = io_u->ddir;
-+		if (!td->o.disable_slat)
-+			fio_gettime(&io_u->start_time, NULL);
- 
- 		ret = td_io_queue(td, io_u);
- 		switch (ret) {
 -- 
-2.2.0.rc0.207.ga3a616c
+Jens Axboe
 
 
