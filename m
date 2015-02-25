@@ -1,134 +1,102 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailout.micron.com ([137.201.242.129]:59251 "EHLO
-	mailout.micron.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751525AbbBRAgr (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 17 Feb 2015 19:36:47 -0500
-Received: from mail.micron.com (ntxboicas04.micron.com [137.201.20.214])
-	by mailout.micron.com (8.14.4/8.14.6) with ESMTP id t1I0ajo0027589
-	(version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=FAIL)
-	for <fio@vger.kernel.org>; Tue, 17 Feb 2015 17:36:45 -0700
-From: "Justin Eno (jeno)" <jeno@micron.com>
-Subject: [RFC] [PATCH] Allow verification of random overwrites w/ba < bs
-Date: Wed, 18 Feb 2015 00:36:45 +0000
-Message-ID: <5A8251503902B84E89CE171AD126BCFB2DE5C66D@NTXBOIMBX01.micron.com>
-Content-Language: en-US
-Content-Type: multipart/mixed;
-	boundary="_003_5A8251503902B84E89CE171AD126BCFB2DE5C66DNTXBOIMBX01micr_"
-MIME-Version: 1.0
+Received: from bombadil.infradead.org ([198.137.202.9]:50528 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752549AbbBYNAG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 25 Feb 2015 08:00:06 -0500
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1YQbZN-0004gM-4o
+	for fio@vger.kernel.org; Wed, 25 Feb 2015 13:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150225130003.503E640188@lyth.info>
+Date: Wed, 25 Feb 2015 06:00:03 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
---_003_5A8251503902B84E89CE171AD126BCFB2DE5C66DNTXBOIMBX01micr_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+The following changes since commit bb1116fe9a53154447bb4305ed9d9fd42d2a6aa1:
 
-Hi Jens,
+  Fixup whitespace damage in the two previous commits (2015-02-19 08:47:34 -0800)
 
-This is a two patch set.
+are available in the git repository at:
 
-blockalign.patch:
-This patch modifies the behavior of write logging such that *any* overlap
-between a newly-submitted io_piece and elements in the hist_tree results
-in the stale element(s) being evicted and replaced by the new io_piece.
-The current implementation performs replacement only for totally overlappin=
-g
-(i.e., aligned) io_pieces.  This restriction causes verification failures
-for random overwrite workloads if blockalign is smaller than blocksize, and
-the patch allows such workloads to succeed.
+  git://git.kernel.dk/fio.git master
 
-Note that this changes verification semantics for the specified workload.
-Instead of verifying each written byte, verification for this case covers
-only fully-intact blocks, i.e., remnants of partially-overwritten blocks
-are left unverified.
+for you to fetch changes up to cf8a46a75f38afe07ebf823210f95543999e3116:
 
-bsrange.patch:
-This takes advantage of the behavior introduced by blockalign.patch to
-unlock verification of random overwrite workloads with multiple blocksizes.
-The caveat about verification applies here as well, so I've left the warnin=
-g
-in init.c.
+  Make 'loops' honor full write+verify loops (2015-02-24 14:50:57 -0800)
 
-Thanks,
-Justin
+----------------------------------------------------------------
+Jens Axboe (1):
+      Make 'loops' honor full write+verify loops
 
---_003_5A8251503902B84E89CE171AD126BCFB2DE5C66DNTXBOIMBX01micr_
-Content-Type: application/octet-stream; name="blockalign.patch"
-Content-Description: blockalign.patch
-Content-Disposition: attachment; filename="blockalign.patch"; size=1576;
-	creation-date="Tue, 17 Feb 2015 23:47:51 GMT";
-	modification-date="Tue, 17 Feb 2015 23:47:51 GMT"
-Content-Transfer-Encoding: base64
+ backend.c |    6 ++++--
+ fio.h     |    1 +
+ init.c    |    4 ++++
+ 3 files changed, 9 insertions(+), 2 deletions(-)
 
-RnJvbSAxN2EyMzYwNDBmODQxNjY1Y2EyOTcyNGE1YjY1MjY2ZjY0MmVjYWI4IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBKdXN0aW4gRW5vIDxqZW5vQG1pY3Jvbi5jb20+CkRhdGU6IFRo
-dSwgMjkgSmFuIDIwMTUgMTI6NTk6MjIgLTA4MDAKU3ViamVjdDogW1BBVENIXSBBbGxvdyB2ZXJp
-ZmljYXRpb24gb2YgcmFuZG9tIG92ZXJ3cml0ZXMgdy9iYSA8IGJzCgpXaGVuIGJsb2NrYWxpZ24g
-aXMgbGVzcyB0aGFuIGJsb2Nrc2l6ZSwgcmFuZG9tIG92ZXJ3cml0ZQp3b3JrbG9hZHMgbWF5IHBh
-cnRpYWxseSBvdmVyd3JpdGUgYmxvY2tzLiAgVGhpcyBjaGFuZ2UKZXZpY3RzIHBhcnRpYWxseS1v
-dmVyd3JpdHRlbiBibG9ja3MgZnJvbSB0aGUgaW9sb2cgdHJlZQpzbyBzdWJzZXF1ZW50IHZlcmlm
-aWNhdGlvbiB0YXJnZXRzIG9ubHkgaW50YWN0IGJsb2Nrcy4KClRoaXMgY2hhbmdlIGFsc28gYWxs
-b3dzIHZlcmlmaWNhdGlvbiB3aXRoIG5vcmFuZG9tbWFwCmFuZCBic3JhbmdlLCB0aG91Z2ggdGhh
-dCBpcyBsZWZ0IGRpc2FibGVkLgpTaWduZWQtb2ZmLWJ5OiBKdXN0aW4gRW5vIDxqZW5vQG1pY3Jv
-bi5jb20+Ci0tLQogaW9sb2cuYyB8ICAgMTQgKysrKysrKysrKystLS0KIDEgZmlsZXMgY2hhbmdl
-ZCwgMTEgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9pb2xvZy5j
-IGIvaW9sb2cuYwppbmRleCA5OWY4YmMxLi5iODY3NTgzIDEwMDY0NAotLS0gYS9pb2xvZy5jCisr
-KyBiL2lvbG9nLmMKQEAgLTI1MCw2ICsyNTAsNyBAQCByZXN0YXJ0OgogCXAgPSAmdGQtPmlvX2hp
-c3RfdHJlZS5yYl9ub2RlOwogCXBhcmVudCA9IE5VTEw7CiAJd2hpbGUgKCpwKSB7CisJCWludCBv
-dmVybGFwID0gMDsKIAkJcGFyZW50ID0gKnA7CiAKIAkJX19pcG8gPSByYl9lbnRyeShwYXJlbnQs
-IHN0cnVjdCBpb19waWVjZSwgcmJfbm9kZSk7CkBAIC0yNTcsMTEgKzI1OCwxOCBAQCByZXN0YXJ0
-OgogCQkJcCA9ICYoKnApLT5yYl9sZWZ0OwogCQllbHNlIGlmIChpcG8tPmZpbGUgPiBfX2lwby0+
-ZmlsZSkKIAkJCXAgPSAmKCpwKS0+cmJfcmlnaHQ7Ci0JCWVsc2UgaWYgKGlwby0+b2Zmc2V0IDwg
-X19pcG8tPm9mZnNldCkKKwkJZWxzZSBpZiAoaXBvLT5vZmZzZXQgPCBfX2lwby0+b2Zmc2V0KSB7
-CiAJCQlwID0gJigqcCktPnJiX2xlZnQ7Ci0JCWVsc2UgaWYgKGlwby0+b2Zmc2V0ID4gX19pcG8t
-Pm9mZnNldCkKKwkJCW92ZXJsYXAgPSBpcG8tPm9mZnNldCArIGlwby0+bGVuID4gX19pcG8tPm9m
-ZnNldDsKKwkJfQorCQllbHNlIGlmIChpcG8tPm9mZnNldCA+IF9faXBvLT5vZmZzZXQpIHsKIAkJ
-CXAgPSAmKCpwKS0+cmJfcmlnaHQ7Ci0JCWVsc2UgeworCQkJb3ZlcmxhcCA9IF9faXBvLT5vZmZz
-ZXQgKyBfX2lwby0+bGVuID4gaXBvLT5vZmZzZXQ7CisJCX0KKwkJZWxzZQorCQkJb3ZlcmxhcCA9
-IDE7CisKKwkJaWYgKG92ZXJsYXApIHsKIAkJCWRwcmludChGRF9JTywgImlvbG9nOiBvdmVybGFw
-ICVsbHUvJWx1LCAlbGx1LyVsdSIsCiAJCQkJX19pcG8tPm9mZnNldCwgX19pcG8tPmxlbiwKIAkJ
-CQlpcG8tPm9mZnNldCwgaXBvLT5sZW4pOwotLSAKMS43LjEKCg==
+---
 
---_003_5A8251503902B84E89CE171AD126BCFB2DE5C66DNTXBOIMBX01micr_
-Content-Type: application/octet-stream; name="bsrange.patch"
-Content-Description: bsrange.patch
-Content-Disposition: attachment; filename="bsrange.patch"; size=1841;
-	creation-date="Tue, 17 Feb 2015 23:53:10 GMT";
-	modification-date="Tue, 17 Feb 2015 23:53:10 GMT"
-Content-Transfer-Encoding: base64
+Diff of recent changes:
 
-RnJvbSAzYzQ2NzU2NTdlZjI4NWE1MWIzNmYyNDIzMWJiOTRjZjY0MTJiMmE3IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBKdXN0aW4gRW5vIDxqZW5vQG1pY3Jvbi5jb20+CkRhdGU6IFRo
-dSwgMjkgSmFuIDIwMTUgMTQ6Mjg6MzggLTA4MDAKU3ViamVjdDogW1BBVENIXSBBbGxvdyB2ZXJp
-Znkgdy9ub3JhbmRvbW1hcCBhbmQgYnNyYW5nZQoKT25seSBpbnRhY3QgYmxvY2tzIGFyZSB2ZXJp
-ZmllZDsgcGFydGlhbGx5LW92ZXJ3cml0dGVuIGJsb2NrcwphcmUgaWdub3JlZApTaWduZWQtb2Zm
-LWJ5OiBKdXN0aW4gRW5vIDxqZW5vQG1pY3Jvbi5jb20+Ci0tLQogSE9XVE8gIHwgICAgOCArKysr
-LS0tLQogaW5pdC5jIHwgICAgMyArLS0KIDIgZmlsZXMgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCsp
-LCA2IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL0hPV1RPIGIvSE9XVE8KaW5kZXggOGRhNTUy
-Ny4uMGY3OTA5ZCAxMDA2NDQKLS0tIGEvSE9XVE8KKysrIGIvSE9XVE8KQEAgLTkxOSwxMCArOTE5
-LDEwIEBAIG5vcmFuZG9tbWFwCU5vcm1hbGx5IGZpbyB3aWxsIGNvdmVyIGV2ZXJ5IGJsb2NrIG9m
-IHRoZSBmaWxlIHdoZW4gZG9pbmcKIAkJcmFuZG9tIElPLiBJZiB0aGlzIG9wdGlvbiBpcyBnaXZl
-biwgZmlvIHdpbGwganVzdCBnZXQgYQogCQluZXcgcmFuZG9tIG9mZnNldCB3aXRob3V0IGxvb2tp
-bmcgYXQgcGFzdCBpbyBoaXN0b3J5LiBUaGlzCiAJCW1lYW5zIHRoYXQgc29tZSBibG9ja3MgbWF5
-IG5vdCBiZSByZWFkIG9yIHdyaXR0ZW4sIGFuZCB0aGF0Ci0JCXNvbWUgYmxvY2tzIG1heSBiZSBy
-ZWFkL3dyaXR0ZW4gbW9yZSB0aGFuIG9uY2UuIFRoaXMgb3B0aW9uCi0JCWlzIG11dHVhbGx5IGV4
-Y2x1c2l2ZSB3aXRoIHZlcmlmeT0gaWYgYW5kIG9ubHkgaWYgbXVsdGlwbGUKLQkJYmxvY2tzaXpl
-cyAodmlhIGJzcmFuZ2U9KSBhcmUgdXNlZCwgc2luY2UgZmlvIG9ubHkgdHJhY2tzCi0JCWNvbXBs
-ZXRlIHJld3JpdGVzIG9mIGJsb2Nrcy4KKwkJc29tZSBibG9ja3MgbWF5IGJlIHJlYWQvd3JpdHRl
-biBtb3JlIHRoYW4gb25jZS4gSWYgdGhpcyBvcHRpb24KKwkJaXMgdXNlZCB3aXRoIHZlcmlmeT0g
-YW5kIG11bHRpcGxlIGJsb2Nrc2l6ZXMgKHZpYSBic3JhbmdlPSksCisJCW9ubHkgaW50YWN0IGJs
-b2NrcyBhcmUgdmVyaWZpZWQsIGkuZS4sIHBhcnRpYWxseS1vdmVyd3JpdHRlbgorCQlibG9ja3Mg
-YXJlIGlnbm9yZWQuCiAKIHNvZnRyYW5kb21tYXA9Ym9vbCBTZWUgbm9yYW5kb21tYXAuIElmIGZp
-byBydW5zIHdpdGggdGhlIHJhbmRvbSBibG9jayBtYXAKIAkJZW5hYmxlZCBhbmQgaXQgZmFpbHMg
-dG8gYWxsb2NhdGUgdGhlIG1hcCwgaWYgdGhpcyBvcHRpb24gaXMKZGlmZiAtLWdpdCBhL2luaXQu
-YyBiL2luaXQuYwppbmRleCBiYjUzYTFlLi5jMjEwYWQyIDEwMDY0NAotLS0gYS9pbml0LmMKKysr
-IGIvaW5pdC5jCkBAIC01OTYsOCArNTk2LDcgQEAgc3RhdGljIGludCBmaXh1cF9vcHRpb25zKHN0
-cnVjdCB0aHJlYWRfZGF0YSAqdGQpCiAJaWYgKG8tPm5vcmFuZG9tbWFwICYmIG8tPnZlcmlmeSAh
-PSBWRVJJRllfTk9ORQogCSAgICAmJiAhZml4ZWRfYmxvY2tfc2l6ZShvKSkgIHsKIAkJbG9nX2Vy
-cigiZmlvOiBub3JhbmRvbW1hcCBnaXZlbiBmb3IgdmFyaWFibGUgYmxvY2sgc2l6ZXMsICIKLQkJ
-CSJ2ZXJpZnkgZGlzYWJsZWRcbiIpOwotCQlvLT52ZXJpZnkgPSBWRVJJRllfTk9ORTsKKwkJCSJ2
-ZXJpZnkgbGltaXRlZFxuIik7CiAJCXJldCA9IHdhcm5pbmdzX2ZhdGFsOwogCX0KIAlpZiAoby0+
-YnNfdW5hbGlnbmVkICYmIChvLT5vZGlyZWN0IHx8IHRkLT5pb19vcHMtPmZsYWdzICYgRklPX1JB
-V0lPKSkKLS0gCjEuNy4xCgo=
-
---_003_5A8251503902B84E89CE171AD126BCFB2DE5C66DNTXBOIMBX01micr_--
+diff --git a/backend.c b/backend.c
+index 3430e66..fdb7413 100644
+--- a/backend.c
++++ b/backend.c
+@@ -658,10 +658,10 @@ static unsigned int exceeds_number_ios(struct thread_data *td)
+ 	if (!td->o.number_ios)
+ 		return 0;
+ 
+-	number_ios = ddir_rw_sum(td->this_io_blocks);
++	number_ios = ddir_rw_sum(td->io_blocks);
+ 	number_ios += td->io_u_queued + td->io_u_in_flight;
+ 
+-	return number_ios >= td->o.number_ios;
++	return number_ios >= (td->o.number_ios * td->loops);
+ }
+ 
+ static int io_issue_bytes_exceeded(struct thread_data *td)
+@@ -682,6 +682,7 @@ static int io_issue_bytes_exceeded(struct thread_data *td)
+ 	else
+ 		limit = td->o.size;
+ 
++	limit *= td->loops;
+ 	return bytes >= limit || exceeds_number_ios(td);
+ }
+ 
+@@ -703,6 +704,7 @@ static int io_complete_bytes_exceeded(struct thread_data *td)
+ 	else
+ 		limit = td->o.size;
+ 
++	limit *= td->loops;
+ 	return bytes >= limit || exceeds_number_ios(td);
+ }
+ 
+diff --git a/fio.h b/fio.h
+index d28f8ce..f688084 100644
+--- a/fio.h
++++ b/fio.h
+@@ -240,6 +240,7 @@ struct thread_data {
+ 	 */
+ 	uint64_t io_issues[DDIR_RWDIR_CNT];
+ 	uint64_t io_issue_bytes[DDIR_RWDIR_CNT];
++	uint64_t loops;
+ 
+ 	/*
+ 	 * Completions
+diff --git a/init.c b/init.c
+index c210ad2..7aedf2b 100644
+--- a/init.c
++++ b/init.c
+@@ -763,6 +763,10 @@ static int fixup_options(struct thread_data *td)
+ 		fio_gtod_offload = 1;
+ 	}
+ 
++	td->loops = o->loops;
++	if (!td->loops)
++		td->loops = 1;
++
+ 	return ret;
+ }
+ 
