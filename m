@@ -1,34 +1,41 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wg0-f41.google.com ([74.125.82.41]:42366 "EHLO
-	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750752AbbB1BTl convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Fri, 27 Feb 2015 20:19:41 -0500
-Received: by wghl2 with SMTP id l2so23544864wgh.9
-        for <fio@vger.kernel.org>; Fri, 27 Feb 2015 17:19:40 -0800 (PST)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <54EE375B.3060000@kernel.dk>
+Date: Wed, 25 Feb 2015 13:58:03 -0700
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-From: Georgios Koloventzos <g.koloventzos@gmail.com>
-Date: Fri, 27 Feb 2015 20:19:20 -0500
-Message-ID: <CAA6fs6=Dj+ZbCJ2vRSLBy6u+C2TdJZV1neq2PZBFfVuC7kwVWQ@mail.gmail.com>
-Subject: diskutil output explained
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Subject: Re: [PATCH] Add missing pre-defined ARM arch compiler macro
+References: <1424872660-20240-1-git-send-email-raphael.philipe@ossystems.com.br>
+In-Reply-To: <1424872660-20240-1-git-send-email-raphael.philipe@ossystems.com.br>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+To: Raphael Silva <rapphil@gmail.com>, fio@vger.kernel.org
+Cc: Raphael Silva <raphael.philipe@ossystems.com.br>
+List-ID: <fio@vger.kernel.org>
 
-Hello,
+On 02/25/2015 06:57 AM, Raphael Silva wrote:
+> Signed-off-by: Raphael Silva <raphael.philipe@ossystems.com.br>
+> ---
+>  arch/arch-arm.h | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/arch-arm.h b/arch/arch-arm.h
+> index 7cd9502..bab886e 100644
+> --- a/arch/arch-arm.h
+> +++ b/arch/arch-arm.h
+> @@ -19,7 +19,8 @@
+>  #endif
+>  
+>  #if defined (__ARM_ARCH_4__) || defined (__ARM_ARCH_4T__) \
+> -	|| defined (__ARM_ARCH_5__) || defined (__ARM_ARCH_5T__) || defined (__ARM_ARCH_5TE__) || defined (__ARM_ARCH_5TEJ__) \
+> +	|| defined (__ARM_ARCH_5__) || defined (__ARM_ARCH_5T__) || defined (__ARM_ARCH_5E__)\
+> +	|| defined (__ARM_ARCH_5TE__) || defined (__ARM_ARCH_5TEJ__) \
+>  	|| defined(__ARM_ARCH_6__)  || defined(__ARM_ARCH_6J__) || defined(__ARM_ARCH_6Z__) || defined(__ARM_ARCH_6ZK__)
+>  #define nop             __asm__ __volatile__("mov\tr0,r0\t@ nop\n\t")
+>  #define read_barrier()	__asm__ __volatile__ ("" : : : "memory")
 
-I am running fio to test some virtual machines of mine and I am having some
-difficulties.
-So my question as it is written on the subject.
-What exactly are the output of the --debug=diskutil command?
-I have seen the code of diskutil.c but I will like a bit more
-explanatory answer.
-I am using the 2.1.10 version
+Added, thanks.
 
-Thank you,
-George
 -- 
-Georgios Koloventzos
-++++++++++++++++++++++++++++++++++++++++++++++
-ΕΣΟ ΕΤΟΙΜΟΣ | BE PREPARED | TOUJOURS PRÊT
+Jens Axboe
+
+
