@@ -1,58 +1,36 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:10800 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750933AbbCIWHI convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 9 Mar 2015 18:07:08 -0400
-From: "Kudryavtsev, Andrey O" <andrey.o.kudryavtsev@intel.com>
-Subject: Re: REPORT: High CPU utilization since 2.2.5
-Date: Mon, 9 Mar 2015 22:07:06 +0000
-Message-ID: <D1235F6C.1BF40%andrey.o.kudryavtsev@intel.com>
-References: <D10CFEF2.19AB0%andrey.o.kudryavtsev@intel.com>
- <CALjAwxgWEZFHZNgpZvHgak4-bfQQqE9A9Gtu_e2JGcQ_xaovQA@mail.gmail.com>
-In-Reply-To: <CALjAwxgWEZFHZNgpZvHgak4-bfQQqE9A9Gtu_e2JGcQ_xaovQA@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="windows-1251"
-Content-ID: <9D625F5A6AB4624290F04DB73D8BBC53@intel.com>
-Content-Transfer-Encoding: base64
+Return-Path: <axboe@kernel.dk>
+Message-ID: <54F4BD49.9040806@kernel.dk>
+Date: Mon, 02 Mar 2015 12:43:05 -0700
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Subject: Re: diskutil output explained
+References: <CAA6fs6=Dj+ZbCJ2vRSLBy6u+C2TdJZV1neq2PZBFfVuC7kwVWQ@mail.gmail.com>
+In-Reply-To: <CAA6fs6=Dj+ZbCJ2vRSLBy6u+C2TdJZV1neq2PZBFfVuC7kwVWQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Georgios Koloventzos <g.koloventzos@gmail.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-VGhhbmsgeW91IGZvciB0aGUgYWR2aXNlLA0KVXRpbGl6YXRpb24gaXMgY29taW5nIGZyb20gZmlv
-IHRocmVhZHMsIHJlcG9ydGVkIEkvTyBpcyBzaW1pbGFyIHRvIGlvc3RhdC4NCkRpc2FibGluZyBh
-bGwgbGF0ZW5jeSByZXBvcnRpbmcgd29ya3MgYW5kIHJldHVybnMgdGhlIENQVSB1dGlsaXphdGlv
-biBiYWNrDQp0byBub3JtYWwuIFVuZm9ydHVuYXRlbHkgdGhpcyB3b3JrYXJvdW5kIGRvZXNu77+9
-dCB3b3JrIGZvciBtZSwgSe+/vW0gdXNpbmcNCmxhdGVuY3kgbW9uaXRvcmluZyBhIGxvdCBmb3Ig
-bXkgdGVzdHMuDQoNCkkgZGlkIHNvbWUgbW9yZSByZXNlYXJjaCwNCglXaXRoIGxhdGVuY3kgcmVw
-b3J0aW5nIGVuYWJsZWQgSe+/vW0gZ2V077+9aW5nIDM1MGsgSU9QUyBpbnN0ZWFkIG9mIDQ1MGsu
-DQoJV2l0aCBnZG90X2Rpc2FibGU9MSBiYWNrIHRvIG5vcm1hbCA0NTBrDQoJV2l0aCBkaXNhYmxl
-X3NsYXQ9MSBvbmx5IGl0IGdldHMgNDIwaw0KCWRpc2FibGVfY2xhdD0xIGRvZXNu77+9dCBtYWtl
-IGFueSBkaWZmZXJlbmNlIGFuZCB0aGUgcGVyZm9ybWFjZSBpcyBzdGlsbA0KbG93IDM1MGsuDQoN
-ClBsZWFzZSwgYWR2aXNlLiANCi0tIA0KQW5kcmV5IEt1ZHJ5YXZ0c2V2LA0KDQpTU0QgU29sdXRp
-b24gQXJjaGl0ZWN0DQpJbnRlbCBDb3JwLiANCmluZXQ6IDgzNTY0MzUzDQp3b3JrOiArMS05MTYt
-MzU2LTQzNTMNCm1vYmlsZTogKzEtOTE2LTIyMS0yMjgxDQoNCg0KDQoNCk9uIDIvMjEvMTUsIDE6
-MjAgQU0sICJTaXRzb2ZlIFdoZWVsZXIiIDxzaXRzb2ZlQGdtYWlsLmNvbT4gd3JvdGU6DQoNCj5P
-biAyMCBGZWJydWFyeSAyMDE1IGF0IDIzOjEwLCBLdWRyeWF2dHNldiwgQW5kcmV5IE8NCj48YW5k
-cmV5Lm8ua3VkcnlhdnRzZXZAaW50ZWwuY29tPiB3cm90ZToNCj4+IEnvv71tIHJ1bm5pbmcgTlZN
-ZSBTU0QgYmVuY2htYXJrcyB3aGljaCBhcmUgdXNpbmcgbXVsdGktam9iDQo+PmNvbmZpZ3VyYXRp
-b25zIGluIHRoZSBtb3N0IGNvbW1vbiBzY2VuYXJpb3MuDQo+PiBJIGhhdmUgbm90aWNlZCB0aGF0
-IHNpbmNlIDIuMi41IHJlbGVhc2UgRklPIGhhcyAzLTQgdGltZXMgaGlnaGVyIENQVQ0KPj51dGls
-aXphdGlvbiBvbiB0aGUgc2FtZSB3b3JrbG9hZCwgc2FtZSBzeXN0ZW0sIHNhbWUga2VybmVsIDMu
-MTguDQo+PiBJbiBmYWN0IEnvv71tIG5vdCBhYmxlIHRvIGFjaGlldmUgNDUwayBJT1BTIG9uIGxh
-dGVzdCBDb3JlLWk3IENQVSBkdWUgdG8NCj4+MTAwJSB1dGlsaXphdGlvbi4NCj4+IEkgdHJhY2tl
-ZCBkb3duIHRoZSBjaGFuZ2VzIGJhY2ssIDIuMS4xNCBpcyB0aGUgbW9zdCBzdGFibGUgZm9yIG1l
-Lg0KPj5SZWxlYXNlIGhhZCAyLjIuMCB0aGUgcmVwb3J0aW5nIGlzc3Vlcywgd2hpY2ggd2VyZSBm
-aXhlZCBpbiAyLjIuNSBidXQNCj4+aW50cm9kdWNlZCBoaWdoIENQVSB1dGlsaXphdGlvbiBpbnN0
-ZWFkLg0KPj4gRGlkIGFueW9uZSBub3RpY2UgdGhhdCB0b28/DQo+DQo+V2hlcmUgaXMgdGhlIENQ
-VSB1c2FnZSBnb2luZyAtIHVzZXJzcGFjZSwgZGV2aWNlIGludGVycnVwdHMgZXRjPyBJZg0KPml0
-J3MgdmFuaXNoaW5nIGludG8gdXNlcnNwYWNlIGRvZXMgZ3RvZF9yZWR1Y2U9MSBtYWtlIGFueSBk
-aWZmZXJlbmNlPw0KPkRvZXMgaW9zdGF0IGNvbmZpcm0gdGhhdCB5b3Ugd2VyZSBnZXR0aW5nIG1v
-cmUgSU9QcyB3aXRoIHRoZSBvbGRlcg0KPmZpbz8gV2hhdCdzIHRoZSBtYXhpbXVtIG51bWJlciBv
-ZiByZXF1ZXN0cyByZXBvcnRlZCBieQ0KPi9zeXMvYmxvY2svPGJsb2NrZGV2aWNlPi9xdWV1ZS9u
-cl9yZXF1ZXN0cyA/DQo+DQo+KFBTIGJ1ZmZlcmVkPTAgYW5kIGRpcmVjdD0xIGFyZSBzeW5vbnlt
-cyBvZiBlYWNoIG90aGVyIGFuZCB3aHkgcnVudGltZT0wPykNCj4NCj4tLSANCj5TaXRzb2ZlIHwg
-aHR0cDovL3N1Y3Mub3JnL35zaXRzLw0KDQotLQ0KVG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxp
-c3Q6IHNlbmQgdGhlIGxpbmUgInVuc3Vic2NyaWJlIGZpbyIgaW4NCnRoZSBib2R5IG9mIGEgbWVz
-c2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnDQpNb3JlIG1ham9yZG9tbyBpbmZvIGF0
-ICBodHRwOi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwNCg0K
+On 02/27/2015 06:19 PM, Georgios Koloventzos wrote:
+> Hello,
+>
+> I am running fio to test some virtual machines of mine and I am having some
+> difficulties.
+> So my question as it is written on the subject.
+> What exactly are the output of the --debug=diskutil command?
+> I have seen the code of diskutil.c but I will like a bit more
+> explanatory answer.
+
+As the option hints at, it's just debug output. Mostly deals with how it 
+resolves md/dm devices to the underlying devices, and so forth. So not 
+sure there's that much interesting there to you, unless you are trying 
+to debug a problem with it.
+
+In general, fio figures out what devices to monitor, and then 
+continually opens the stat files and collects the appropriate 
+information every 250msecs.
+
+-- 
+Jens Axboe
+
+
