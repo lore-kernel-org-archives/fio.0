@@ -1,50 +1,37 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from [195.248.92.41] ([195.248.92.41]:48163 "EHLO mx2.itsystems.ch"
-	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
-	id S1754053AbbCLOdc convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Thu, 12 Mar 2015 10:33:32 -0400
-Received: from [10.128.10.60] (port=22274 helo=keskonrix.itsystems.ch)
-	by mx2.itsystems.ch with esmtps (TLSv1:AES256-SHA:256)
-	(Exim 4.82_1-5b7a7c0-XX)
-	(envelope-from <urs.schaltegger@itsystems.ch>)
-	id 1YW4AO-0005Mf-1K
-	for fio@vger.kernel.org; Thu, 12 Mar 2015 15:32:52 +0100
-From: Urs Schaltegger <urs.schaltegger@itsystems.ch>
-Subject: fio always writes null bytes whatever I do
-Date: Thu, 12 Mar 2015 14:32:51 +0000
-Message-ID: <4471f819ae264ec8bcb6bb1684effd53@keskonrix.itsystems.ch>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Return-Path: <axboe@kernel.dk>
+Message-ID: <54F63117.7000601@kernel.dk>
+Date: Tue, 03 Mar 2015 15:09:27 -0700
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Subject: Re: [PATCH] fio: fix smalloc strdop allocation failure
+References: <1425383086-9188-1-git-send-email-ehrhardt@de.ibm.com>
+In-Reply-To: <1425383086-9188-1-git-send-email-ehrhardt@de.ibm.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Christian Ehrhardt <ehrhardt@de.ibm.com>, fio@vger.kernel.org
+Cc: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+List-ID: <fio@vger.kernel.org>
 
-fio always writes null bytes whatever I do. I need random data to avoid interference of deduplication solutions (within SSDs or using ZFS).
+On 03/03/2015 04:44 AM, Christian Ehrhardt wrote:
+> From: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+>
+> smalloc_strdup didn't check for allocation success and thereby ran into
+> segfaults if the single pool went out of memory.
+> Now with this patch applied it is still failing, but in a more consistent
+> way than segfaulting.
+>
+> You still get a bad allocation, but it looks like this now:
+>    fio: smalloc OOM
+>    fio: filesetup.c:1495: dup_files: Assertion `0' failed.
+>    Aborted
+>
+> In fact the upper layers expected smalloc_strdup to retrun NULL on failure.
+>
+> Signed-off-by: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
 
-Windows 8.1 Enterprise x64
+Applied, thanks.
 
-fio-2.2.6 (also tried 2.2.0/2.2.1/2.2.3)
-
-fio --section=fiorandom --runtime=60 <FIOFile>
-
-<FIOFile>:
-
-[global]
-ioengine=windowsaio
-thread
-group_reporting
-time_based
-clocksource=clock_gettime
-direct=1
-refill_buffers
-size=1g
-[fiorandom]
-readwrite=randwrite
-numjobs=4
-iodepth=1
-blocksize=8k
-directory=D\:\
+-- 
+Jens Axboe
 
 
