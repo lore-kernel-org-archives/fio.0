@@ -1,120 +1,60 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:58214 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755704AbbCRMAE (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 18 Mar 2015 08:00:04 -0400
-Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1YYCdo-00029B-4o
-	for fio@vger.kernel.org; Wed, 18 Mar 2015 12:00:04 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <54F7231D.5070703@kernel.dk>
+Date: Wed, 04 Mar 2015 08:22:05 -0700
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150318120002.BFCFF4016A@lyth.info>
-Date: Wed, 18 Mar 2015 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: [PATCH] fio: increase max smalloc pools
+References: <1425383094-9242-1-git-send-email-ehrhardt@de.ibm.com> <54F62FAC.8090208@kernel.dk> <54F63165.9040903@kernel.dk> <54F6F792.5060604@linux.vnet.ibm.com>
+In-Reply-To: <54F6F792.5060604@linux.vnet.ibm.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+Cc: Christian Ehrhardt <ehrhardt@de.ibm.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 95e564523d502e5a682ae7f6ee793ca4c9ca76ca:
+On 03/04/2015 05:16 AM, Christian Ehrhardt wrote:
+> On 03/03/15 23:10, Jens Axboe wrote:
+>> On 03/03/2015 03:03 PM, Jens Axboe wrote:
+>> > On 03/03/2015 04:44 AM, Christian Ehrhardt wrote:
+>> >> From: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+>> >>
+>> >> For our tests with about 250k files we found the smalloc pool being
+>> >> depleated.
+>> >> Now for us values of 3-4 would be enough, but since it is a compile
+>> >> time switch
+>> >> I'd like to make it safe for everybody and set 8.
+>> >>
+>> >> Since it is a dynamic sizing anyway that should hopefully be ok for
+>> >> everybody.
+>> >
+>> > The reason it was scaled down to 1 pool is because we could run into
+>> > situations where one of the forked processes (or threads) would cause
+>> > the expansion of pools, and smalloc() could then return memory that
+>> > wasn't properly shared (or valid) between all jobs. This was recently
+>> > found and fixed, and the smalloc code should probably just be
+>> updated to
+>> > reflect that. We can't runtime add pools safely.
+>> >
+>> > Right now it's 1 pool at 16MB - how about we just bump it to 64MB for
+>> > that one pool? Or, alternatively, pre-add 4 pools initially when
+>> smalloc
+>> > is setup?
+>>
+>> Something like the attached, does that work for you? That's 4 pools of
+>> 16MB added. I think that's more flexible than (the more ideal) 1 pool of
+>> 64MB, since fio can survive if later pool additions fail. Or we can bump
+>> it to 8x16 just to be on the safe side...
+>>
+> Hi,
+> I saw you already checked it in with 8 max pools and your new code to
+> initialize on sinit.
+> We tested that and it works like a charm for our case now.
 
-  rate: remove redundant code in rate_ddir() (2015-03-12 10:05:25 -0600)
+Yep, I ended up feeling fine about that patch. It also fixes a bug in 
+the iteration of pools, where smalloc() would sometimes have failed too 
+early.
 
-are available in the git repository at:
+-- 
+Jens Axboe
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 7d1bb70f3d85d041b4b7dd926e98054fea980bdc:
-
-  Scramble IO buffers unless explicitly told not (2015-03-17 18:11:07 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (3):
-      smalloc: don't crash on being passed a bad pointer
-      io_u: fix refill, should be random content
-      Scramble IO buffers unless explicitly told not
-
-Zev Weiss (1):
-      init: fix exit status with bogus arguments
-
- init.c    |    3 +++
- io_u.c    |    7 +++++--
- smalloc.c |    8 ++++++--
- 3 files changed, 14 insertions(+), 4 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/init.c b/init.c
-index 7aedf2b..95e26b8 100644
---- a/init.c
-+++ b/init.c
-@@ -2135,6 +2135,7 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 						td = NULL;
- 					}
- 					do_exit++;
-+					exit_val = 1;
- 					break;
- 				}
- 				fio_options_set_ioengine_opts(l_opts, td);
-@@ -2153,6 +2154,7 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 					td = NULL;
- 				}
- 				do_exit++;
-+				exit_val = 1;
- 			}
- 
- 			if (!ret && !strcmp(opt, "ioengine")) {
-@@ -2161,6 +2163,7 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 					put_job(td);
- 					td = NULL;
- 					do_exit++;
-+					exit_val = 1;
- 					break;
- 				}
- 				fio_options_set_ioengine_opts(l_opts, td);
-diff --git a/io_u.c b/io_u.c
-index 6567e10..a45dd40 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -1484,7 +1484,8 @@ struct io_u *get_io_u(struct thread_data *td)
- 				io_u_fill_buffer(td, io_u,
- 					td->o.min_bs[DDIR_WRITE],
- 					io_u->xfer_buflen);
--			} else if ((td->flags & TD_F_SCRAMBLE_BUFFERS) &&
-+			}
-+			if ((td->flags & TD_F_SCRAMBLE_BUFFERS) &&
- 				   !(td->flags & TD_F_COMPRESS))
- 				do_scramble = 1;
- 			if (td->flags & TD_F_VER_NONE) {
-@@ -1895,8 +1896,10 @@ void fill_io_buffer(struct thread_data *td, void *buf, unsigned int min_write,
- 		} while (left);
- 	} else if (o->buffer_pattern_bytes)
- 		fill_buffer_pattern(td, buf, max_bs);
--	else
-+	else if (o->zero_buffers)
- 		memset(buf, 0, max_bs);
-+	else
-+		fill_random_buf(get_buf_state(td), buf, max_bs);
- }
- 
- /*
-diff --git a/smalloc.c b/smalloc.c
-index b460d65..447d5c5 100644
---- a/smalloc.c
-+++ b/smalloc.c
-@@ -363,8 +363,12 @@ void sfree(void *ptr)
- 
- 	global_read_unlock();
- 
--	assert(pool);
--	sfree_pool(pool, ptr);
-+	if (pool) {
-+		sfree_pool(pool, ptr);
-+		return;
-+	}
-+
-+	log_err("smalloc: ptr %p not from smalloc pool\n", ptr);
- }
- 
- static void *__smalloc_pool(struct pool *pool, size_t size)
