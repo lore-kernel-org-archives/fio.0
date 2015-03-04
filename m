@@ -1,207 +1,86 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailout.teamix.de ([194.150.191.118]:37171 "EHLO
-	mailout.teamix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933967AbbCDJMM convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 4 Mar 2015 04:12:12 -0500
-From: Martin Steigerwald <ms@teamix.de>
-Subject: Re: Bug#779336: fio: calc_clat_percentiles() create unaligned access on armhf
-Date: Wed, 4 Mar 2015 10:12:08 +0100
-Message-ID: <1794059.2h3Ngk0LJU@merkaba>
-In-Reply-To: <20150227111544.3704.27235.reportbug@localhost>
-References: <20150227111544.3704.27235.reportbug@localhost>
+Received: from mail-la0-f41.google.com ([209.85.215.41]:41917 "EHLO
+	mail-la0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757969AbbCDEUe (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 3 Mar 2015 23:20:34 -0500
+Received: by labgm9 with SMTP id gm9so2304080lab.8
+        for <fio@vger.kernel.org>; Tue, 03 Mar 2015 20:20:32 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <C907C3B4-6C98-4E1E-A363-0F3C110BF2E1@ornl.gov>
+References: <C907C3B4-6C98-4E1E-A363-0F3C110BF2E1@ornl.gov>
+From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Date: Wed, 4 Mar 2015 08:20:12 +0400
+Message-ID: <CANvN+ekJfoPg6Z37QZ7c7j_myhxtKfMGpWC1RHRw-1eSX5dPRg@mail.gmail.com>
+Subject: Re: Missing completions with libaio after context switch?
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Andreas =?ISO-8859-1?Q?Bie=DFmann?= <andreas@biessmann.de>, 779336@bugs.debian.org
+To: "Caldwell, Blake A." <blakec@ornl.gov>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-﻿Hello Andreas, hello Jens,
+On Wed, Mar 4, 2015 at 6:40 AM, Caldwell, Blake A. <blakec@ornl.gov> wrote:
+> While looking at fio activity with libaio using blktrace, I could not find completion requests when fio is rescheduled onto a different CPU.
 
-thank you for your bug report.
+Are you witnessing a completion lost, with the respective I/O hung? Or
+is it a blktrace rather than fio issue?
 
-This sounds like an upstream bug, thus I cc fio mailing list.
+If the completion is indeed lost, I stumbled upon a similar issue a
+while back, around fio-2.1 (which, by the way, is quite outdated, so
+you might want to rerun this experiment with a more recent release
+such as https://github.com/axboe/fio/releases/tag/fio-2.2.6), but that
+happened in a special case where I experimented with user_space_reap
+feature of the libaio engine. Under normal circumstances, this path is
+not invoked, and I've never faced lost completions with libaio even in
+massive multi-core setup.
 
-Jens, any idea?
+HTH,
+Andrey
 
-
-For reference, Debian bug report is at:
-https://bugs.debian.org/779336
-
-Thanks,
-Martin
-
-Am Freitag, 27. Februar 2015, 12:15:44 schrieben Sie:
-> Package: fio
-> Version: 2.1.11-2
-> Severity: important
-> 
-> Dear Maintainer,
-> 
-> when performing an extended workload with fio on a armhf box fio ends witch a
-> bus error. It happens while calculating the clat values of a specific test case.
-> The same error does not show up when running a simple read test.
-> 
-> The program output is a follows
-> ---8<---
-> andreas@cubieboard2 % fio four-threads-randio.fio
-> bgwriter: (g=0): rw=randwrite, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=32
-> queryA: (g=0): rw=randread, bs=4K-4K/4K-4K/4K-4K, ioengine=mmap, iodepth=1
-> queryB: (g=0): rw=randread, bs=4K-4K/4K-4K/4K-4K, ioengine=mmap, iodepth=1
-> bgupdater: (g=0): rw=randrw, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=16
-> fio-2.1.11
-> Starting 4 processes
-> Jobs: 1 (f=1): [_(1),r(1),_(2)] [99.6% done] [3017KB/0KB/0KB /s] [754/0/0 iops] [eta 00m:02s]    
-> bgwriter: (groupid=0, jobs=1): err= 0: pid=3459: Fri Feb 27 10:40:38 2015
->   write: io=128000KB, bw=333561B/s, iops=81, runt=392947msec
->     slat (usec): min=33, max=81636, avg=141.64, stdev=1609.52
->     clat (usec): min=644, max=4307.2K, avg=392735.17, stdev=619005.07
->      lat (usec): min=748, max=4307.3K, avg=392881.68, stdev=619036.45
->     clat percentiles (usec):
->      |  1.00th=[ 1352],  5.00th=[ 2128], 10.00th=[ 3280], 20.00th=[ 5344],
->      | 30.00th=[ 7520], 40.00th=[10816], 50.00th=[19840], 60.00th=[37120],
->      | 70.00th=[428032], 80.00th=[1220608], 90.00th=[1302528], 95.00th=[1351680],
->      | 99.00th=[2539520], 99.50th=[2637824], 99.90th=[3751936], 99.95th=[3883008],
->      | 99.99th=[4292608]
->     bw (KB  /s): min=   57, max= 3233, per=96.43%, avg=353.90, stdev=310.19
->     lat (usec) : 750=0.08%, 1000=0.24%
->     lat (msec) : 2=4.10%, 4=8.83%, 10=25.07%, 20=11.80%, 50=13.58%
->     lat (msec) : 100=4.88%, 250=0.43%, 500=2.27%, 750=1.83%, 1000=2.26%
->     lat (msec) : 2000=22.83%, >=2000=1.78%
->   cpu          : usr=0.25%, sys=1.12%, ctx=15458, majf=0, minf=14
->   IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=99.9%, >=64=0.0%
->      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
->      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.1%, 64=0.0%, >=64=0.0%
->      issued    : total=r=0/w=32000/d=0, short=r=0/w=0/d=0
->      latency   : target=0, window=0, percentile=100.00%, depth=32
-> queryA: (groupid=0, jobs=1): err= 0: pid=3460: Fri Feb 27 10:40:38 2015
->   read : io=128000KB, bw=264627B/s, iops=64, runt=495307msec
->     clat (usec): min=211, max=670833, avg=15437.00, stdev=28506.89
->      lat (usec): min=213, max=670837, avg=15440.17, stdev=28506.95
-> [1]    3457 bus error (core dumped)  fio four-threads-randio.fio
-> fio four-threads-randio.fio  6,64s user 24,31s system 6% cpu 8:16,44 total
-> ---->8---
-> 
-> The bus error turns out to be a alignment exception on my armhf box.
-> 
-> Kernel issues the following
-> ---8<---
-> [57912.593192] Alignment trap: not handling instruction ed937b00 at [<0001e2b0>]
-> [57912.600408] Unhandled fault: alignment exception (0x221) at 0x00f625be
-> --->8---
-> 
-> Investigating the core gives me
-> ---8<---
-> andreas@cubieboard2 % gdb /usr/bin/fio core
-> GNU gdb (Debian 7.7.1+dfsg-5) 7.7.1
-> Copyright (C) 2014 Free Software Foundation, Inc.
-> License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
-> This is free software: you are free to change and redistribute it.
-> There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
-> and "show warranty" for details.
-> This GDB was configured as "arm-linux-gnueabihf".
-> Type "show configuration" for configuration details.
-> For bug reporting instructions, please see:
-> <http://www.gnu.org/software/gdb/bugs/>.
-> Find the GDB manual and other documentation resources online at:
-> <http://www.gnu.org/software/gdb/documentation/>.
-> For help, type "help".
-> Type "apropos word" to search for commands related to "word"...
-> Reading symbols from /usr/bin/fio...(no debugging symbols found)...done.
-> [New LWP 3457]
-> [New LWP 3458]
-> [Thread debugging using libthread_db enabled]
-> Using host libthread_db library "/lib/arm-linux-gnueabihf/libthread_db.so.1".
-> Core was generated by `fio four-threads-randio.fio'.
-> Program terminated with signal SIGBUS, Bus error.
-> #0  0x0001e2b4 in calc_clat_percentiles ()
-> (gdb) bt
-> #0  0x0001e2b4 in calc_clat_percentiles ()
-> #1  0x00000000 in ?? ()
-> (gdb) 
-> --->8---
-> 
-> The test runs with the following configuration
-> ---8<---
-> ; Four threads, two query, two writers.
-> 
-> [global]
-> rw=randread
-> size=125m
-> directory=/mnt/fio-testing/data
-> ioengine=libaio
-> iodepth=4
-> invalidate=1
-> direct=1
-> 
-> [bgwriter]
-> rw=randwrite
-> iodepth=32
-> 
-> [queryA]
-> iodepth=1
-> ioengine=mmap
-> direct=0
-> thinktime=3
-> 
-> [queryB]
-> iodepth=1
-> ioengine=mmap
-> direct=0
-> thinktime=5
-> 
-> [bgupdater]
-> rw=randrw
-> iodepth=16
-> thinktime=40
-> size=32m
-> --->8---
-> 
-> 
-> -- System Information:
-> Debian Release: 8.0
->   APT prefers testing-updates
->   APT policy: (500, 'testing-updates'), (500, 'testing')
-> Architecture: armhf (armv7l)
-> 
-> Kernel: Linux 3.16.0-4-armmp-lpae (SMP w/2 CPU cores)
-> Locale: LANG=de_DE.UTF-8, LC_CTYPE=de_DE.UTF-8 (charmap=UTF-8) (ignored: LC_ALL set to de_DE.UTF-8)
-> Shell: /bin/sh linked to /bin/dash
-> Init: systemd (via /run/systemd/system)
-> 
-> Versions of packages fio depends on:
-> ii  libaio1      0.3.110-1
-> ii  libc6        2.19-13
-> ii  libibverbs1  1.1.8-1
-> ii  librados2    0.80.7-2
-> ii  librbd1      0.80.7-2
-> ii  librdmacm1   1.0.19.1-1
-> ii  python       2.7.8-3
-> ii  zlib1g       1:1.2.8.dfsg-2+b1
-> 
-> fio recommends no packages.
-> 
-> Versions of packages fio suggests:
-> pn  gnuplot  <none>
-> 
-> -- no debconf information
-
-
--- 
-Martin Steigerwald  | Consultant / Trainer
-
-teamix GmbH
-Südwestpark 43
-90449 Nürnberg
-
-Tel.:  +49 911 30999 55 | Fax: +49 911 30999 99
-mail: martin.steigerwald@teamix.de | web:  http://www.teamix.de | blog: http://blog.teamix.de
-
-Amtsgericht Nürnberg, HRB 18320 | Geschäftsführer: Oliver Kügow, Richard Müller
-
-
-***Nicht verpassen: Wissenstag - Software defined Datacenter (SDDC)***
-10.03. Nürnberg | 11.03. Mainz | 24.03. Bayreuth | 25.03. München
-Jetzt anmelden unter: www.teamix.de/wissenstag
-
+For instance, in the trace below the IO stream to /dev/sdae is moved
+from CPU 8 to CPU 10 and there is no corresponding completion (or
+insertion) for a get request at offset 5743016.  It would seem that
+fio was preempted before fully forming the request (Q and G, but no I
+or D). Is this expected behavior?
+>
+> fio version 2_1_4 from http://git.kernel.dk/fio.git
+>
+> fio --bs=4k --ioengine=libaio --rw=write --iodepth=127 --buffered=0 --norandommap --thread --loops=2147483648 --runtime=60 --gtod_reduce=1 --invalidate=1 --name=/dev/sdae --filename=/dev/sdae
+>
+>  65,224  8    84946     0.228857464  9729  C  WS 5742888 + 8 [0]
+>  65,224  8    84947     0.228858948  9729  C  WS 5742896 + 8 [0]
+>  65,224  8    84948     0.228861434  9729  C  WS 5742904 + 8 [0]
+>  65,224  8    84949     0.228862696  9729  C  WS 5742912 + 8 [0]
+>  65,224  8    84950     0.228863825  9729  C  WS 5742920 + 8 [0]
+> ...
+>  65,224  8    84966     0.228883226  9729  Q  WS 5743008 + 8 [fio]
+>  65,224  8    84967     0.228883518  9729  G  WS 5743008 + 8 [fio]
+>  65,224  8    84968     0.228883783  9729  I  WS 5743008 + 8 [fio]
+>  65,224  8    84969     0.228884001  9729  D  WS 5743008 + 8 [fio]
+>  65,224  8    84970     0.228885688  9729  U   N [fio] 11
+>  65,224  8    84971     0.228888429  9729  Q  WS 5743016 + 8 [fio]
+>  65,224  8    84972     0.228888728  9729  G  WS 5743016 + 8 [fio]
+>  65,224 10        1     0.243064252  9729  Q  WS 5757368 + 8 [fio]
+>  65,224 10        2     0.243065348  9729  G  WS 5757368 + 8 [fio]
+>  65,224 10        3     0.243066110  9729  I  WS 5757368 + 8 [fio]
+>  65,224 10        4     0.243066816  9729  D  WS 5757368 + 8 [fio]
+> ...
+>  65,224 11    42478     0.322827200  9729  C  WS 5831064 + 8 [0]
+>  65,224 11    42479     0.322833478  9729  Q  WS 5831144 + 8 [fio]
+>  65,224 11    42480     0.322833826  9729  G  WS 5831144 + 8 [fio]
+>  65,224  8    84973     0.334959322  9729  Q  WS 5842992 + 8 [fio]
+>  65,224  8    84974     0.334960161  9729  G  WS 5842992 + 8 [fio]
+>  65,224  8    84975     0.334960993  9729  I  WS 5842992 + 8 [fio]
+>  65,224  8    84976     0.334961632  9729  D  WS 5842992 + 8 [fio]
+>  65,224  8    84977     0.334966226  9729  U   N [fio] 1
+>
+> # blkparse sdae |grep "WS 5743016"
+>  65,224  8    84971     0.228888429  9729  Q  WS 5743016 + 8 [fio]
+>  65,224  8    84972     0.228888728  9729  G  WS 5743016 + 8 [fio]
+>
+> # blktrace --version
+> blktrace version 2.0.0
+>
+> kernel 2.6.32-431.17.1.el6.x86_64--
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
