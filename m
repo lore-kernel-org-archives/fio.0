@@ -1,58 +1,85 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from e06smtp11.uk.ibm.com ([195.75.94.107]:33157 "EHLO
-	e06smtp11.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756091AbbCCLpA (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 3 Mar 2015 06:45:00 -0500
-Received: from /spool/local
-	by e06smtp11.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <fio@vger.kernel.org> from <ehrhardt@de.ibm.com>;
-	Tue, 3 Mar 2015 11:44:58 -0000
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-	by d06dlp01.portsmouth.uk.ibm.com (Postfix) with ESMTP id B4CCF17D8059
-	for <fio@vger.kernel.org>; Tue,  3 Mar 2015 11:45:15 +0000 (GMT)
-Received: from d06av10.portsmouth.uk.ibm.com (d06av10.portsmouth.uk.ibm.com [9.149.37.251])
-	by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id t23Biud96160864
-	for <fio@vger.kernel.org>; Tue, 3 Mar 2015 11:44:56 GMT
-Received: from d06av10.portsmouth.uk.ibm.com (localhost [127.0.0.1])
-	by d06av10.portsmouth.uk.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id t23Biu2W011979
-	for <fio@vger.kernel.org>; Tue, 3 Mar 2015 04:44:56 -0700
-From: Christian Ehrhardt <ehrhardt@de.ibm.com>
-Subject: [PATCH] fio: increase max smalloc pools
-Date: Tue,  3 Mar 2015 12:44:54 +0100
-Message-Id: <1425383094-9242-1-git-send-email-ehrhardt@de.ibm.com>
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Christian Ehrhardt <ehrhardt@de.ibm.com>, Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+Return-Path: <andrey.o.kudryavtsev@intel.com>
+From: "Kudryavtsev, Andrey O" <andrey.o.kudryavtsev@intel.com>
+Subject: Re: REPORT: High CPU utilization since 2.2.5
+Date: Wed, 18 Mar 2015 12:33:42 +0000
+Message-ID: <D12F19CB.1D6B7%andrey.o.kudryavtsev@intel.com>
+References: <D10CFEF2.19AB0%andrey.o.kudryavtsev@intel.com>
+ <CALjAwxgWEZFHZNgpZvHgak4-bfQQqE9A9Gtu_e2JGcQ_xaovQA@mail.gmail.com>
+ <D1235F6C.1BF40%andrey.o.kudryavtsev@intel.com> <55085347.5060702@kernel.dk>
+In-Reply-To: <55085347.5060702@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="windows-1251"
+Content-ID: <BEFE34016C2CD94D90D8362203EC5168@intel.com>
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Return-Path: andrey.o.kudryavtsev@intel.com
+To: Jens Axboe <axboe@kernel.dk>, Sitsofe Wheeler <sitsofe@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-From: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+Thank you, I=92ll do that.
 
-For our tests with about 250k files we found the smalloc pool being depleated.
-Now for us values of 3-4 would be enough, but since it is a compile time switch
-I'd like to make it safe for everybody and set 8.
+--=20
+Andrey Kudryavtsev,
+SSD Solution Architect
+Intel Corp.=20
+inet: 83564353
+work: +1-916-356-4353
+mobile: +1-916-221-2281
 
-Since it is a dynamic sizing anyway that should hopefully be ok for everybody.
 
-Signed-off-by: Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
----
 
-[diffstat]
 
-[diff]
+On 3/17/15, 4:16 PM, "Jens Axboe" <axboe@kernel.dk> wrote:
 
----
- smalloc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+>On 03/09/2015 04:07 PM, Kudryavtsev, Andrey O wrote:
+>> Thank you for the advise,
+>> Utilization is coming from fio threads, reported I/O is similar to
+>>iostat.
+>> Disabling all latency reporting works and returns the CPU utilization
+>>back
+>> to normal. Unfortunately this workaround doesn=92t work for me, I=92m us=
+ing
+>> latency monitoring a lot for my tests.
+>>
+>> I did some more research,
+>> 	With latency reporting enabled I=92m get=E5ing 350k IOPS instead of 450=
+k.
+>> 	With gdot_disable=3D1 back to normal 450k
+>> 	With disable_slat=3D1 only it gets 420k
+>> 	disable_clat=3D1 doesn=92t make any difference and the performace is st=
+ill
+>> low 350k.
+>>
+>> Please, advise.
+>
+>Please run a git bisect, as suggested. This will help pinpoint what
+>commit made it worse for you. Should be pretty easy to do, since you can
+>reproduce quickly and easily. You mentioned that 2.1.14 works, and that
+>2.2.5 is broken. So do:
+>
+>$ git bisect start
+>$ git bisect good fio-2.1.14
+>$ git bisect bad fio-2.2.5
+>
+>Now for each iteration, do:
+>
+>$ make clean && make -j20
+>$ ./fio <jobfile>
+>
+>if the result is slow, do:
+>
+>$ git bisect bad
+>
+>and if the result is fast, do:
+>
+>$ git bisect good
+>
+>Then go back to the make clean && make and rerun your test case. Repeat
+>this until you've bisected your way to the problematic commit, git will
+>tell you when it's done.
+>
+>--=20
+>Jens Axboe
+>
 
---- a/smalloc.c
-+++ b/smalloc.c
-@@ -26,7 +26,7 @@
- #define SMALLOC_BPL	(SMALLOC_BPB * SMALLOC_BPI)
- 
- #define INITIAL_SIZE	16*1024*1024	/* new pool size */
--#define MAX_POOLS	1		/* maximum number of pools to setup */
-+#define MAX_POOLS	8		/* maximum number of pools to setup */
- 
- #define SMALLOC_PRE_RED		0xdeadbeefU
- #define SMALLOC_POST_RED	0x5aa55aa5U
 
