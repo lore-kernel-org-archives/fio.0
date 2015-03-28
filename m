@@ -1,64 +1,69 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mta01.ornl.gov ([128.219.177.14]:63138 "EHLO mta01.ornl.gov"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758003AbbCDDuO convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 3 Mar 2015 22:50:14 -0500
-Received: from EXCHOS32.ornl.gov (exchos32.ornl.gov [128.219.12.152])
-	(using TLSv1 with cipher AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by emgwy2.ornl.gov (Postfix) with ESMTPS id 8A962E06A5
-	for <fio@vger.kernel.org>; Tue,  3 Mar 2015 22:40:23 -0500 (EST)
-From: "Caldwell, Blake A." <blakec@ornl.gov>
-Subject: Missing completions with libaio after context switch?
-Date: Wed, 4 Mar 2015 03:40:21 +0000
-Message-ID: <C907C3B4-6C98-4E1E-A363-0F3C110BF2E1@ornl.gov>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <9713502F0C7F9F4996785C3DD6CA6652@ornl.gov>
-Content-Transfer-Encoding: 8BIT
+Return-Path: <akashv@google.com>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <550C4CAE.7070905@kernel.dk>
+References: <CAFFT=U=vjqCZDoP5M31ifDWaLcG7LEhjgYHKzhdJ6mc6gDO0Sg@mail.gmail.com>
+ <550C4CAE.7070905@kernel.dk>
+From: Akash Verma <akashv@google.com>
+Date: Fri, 27 Mar 2015 18:26:45 -0700
+Message-ID: <CAFFT=U=hn8t2fKVY2gHgy0pOhkvFN9xmKoawV47nXa4VBsOS9Q@mail.gmail.com>
+Subject: Re: Buggy behavior with zone, random IOs since specific commit
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio <fio@vger.kernel.org>, Brian Fulton <bfulton@google.com>
+List-ID: <fio@vger.kernel.org>
 
-While looking at fio activity with libaio using blktrace, I could not find completion requests when fio is rescheduled onto a different CPU. For instance, in the trace below the IO stream to /dev/sdae is moved from CPU 8 to CPU 10 and there is no corresponding completion (or insertion) for a get request at offset 5743016.  It would seem that fio was preempted before fully forming the request (Q and G, but no I or D). Is this expected behavior?
+Hi Jens,
+Apologies for the late response - it doesn't look like we'll be able
+to work on this bug anytime soon.
 
-fio version 2_1_4 from http://git.kernel.dk/fio.git
+On Fri, Mar 20, 2015 at 9:37 AM, Jens Axboe <axboe@kernel.dk> wrote:
+> On 03/18/2015 10:24 PM, Akash Verma wrote:
+>>
+>> This commit seems to have broken the behavior of random IOs with zone
+>> options:
+>>
+>> 4c8be5b1569f0aca8c7769803e57b79280d1f668
+>>
+>> Using this example job file:
+>> [zoned_out]
+>> rw=read
+>> bs=1k
+>> offset=510k
+>> ioengine=sync
+>> zonesize=1k
+>> zonerange=512k
+>> zoneskip=512k
+>> write_iolog=ios_meec.iolog
+>> filename=10MFile
+>>
+>> where 10M file was created as:
+>> dd if=/dev/zero of=./10MFile bs=1M count=10
+>>
+>> Prior to the above commit, FIO does one read per zone, and the job
+>> exits after the last zone. This is as expected.
+>>
+>> Post the above commit, FIO loops back to the first zone and may or may
+>> not succeed in finding a valid offset to seek to. With offset=510k, it
+>> fails on the first loop-back. With offset=100k, it fails on the
+>> second; with no offset, it did about a 100 loops. With --debug=random,
+>> I see messages like:
+>>
+>> file     1885  get file 10MFile, ref=1
+>> random   1885  off rand 1823528783
+>> io       1885  get_next_offset: offset 18446744073708827648 >= size
+>> 10485760
+>> io       1885  io_u 0x8c8e80, failed getting offset
+>>
+>> There should be no loop-back happening at all unless this is specified
+>> as desired (e.g. using runtime and time_based, or io_limit, or
+>> number_ios).
+>
+>
+> It might be more work, but yes, that I think is a good start. Care to send a
+> patch to stop looping unless we're forced to? At least that will fix the
+> case of buggy looping.
+>
+> --
+> Jens Axboe
+>
 
-fio --bs=4k --ioengine=libaio --rw=write --iodepth=127 --buffered=0 --norandommap --thread --loops=2147483648 --runtime=60 --gtod_reduce=1 --invalidate=1 --name=/dev/sdae --filename=/dev/sdae
-
- 65,224  8    84946     0.228857464  9729  C  WS 5742888 + 8 [0]
- 65,224  8    84947     0.228858948  9729  C  WS 5742896 + 8 [0]
- 65,224  8    84948     0.228861434  9729  C  WS 5742904 + 8 [0]
- 65,224  8    84949     0.228862696  9729  C  WS 5742912 + 8 [0]
- 65,224  8    84950     0.228863825  9729  C  WS 5742920 + 8 [0]
-...
- 65,224  8    84966     0.228883226  9729  Q  WS 5743008 + 8 [fio]
- 65,224  8    84967     0.228883518  9729  G  WS 5743008 + 8 [fio]
- 65,224  8    84968     0.228883783  9729  I  WS 5743008 + 8 [fio]
- 65,224  8    84969     0.228884001  9729  D  WS 5743008 + 8 [fio]
- 65,224  8    84970     0.228885688  9729  U   N [fio] 11
- 65,224  8    84971     0.228888429  9729  Q  WS 5743016 + 8 [fio]
- 65,224  8    84972     0.228888728  9729  G  WS 5743016 + 8 [fio]
- 65,224 10        1     0.243064252  9729  Q  WS 5757368 + 8 [fio]
- 65,224 10        2     0.243065348  9729  G  WS 5757368 + 8 [fio]
- 65,224 10        3     0.243066110  9729  I  WS 5757368 + 8 [fio]
- 65,224 10        4     0.243066816  9729  D  WS 5757368 + 8 [fio]
-...
- 65,224 11    42478     0.322827200  9729  C  WS 5831064 + 8 [0]
- 65,224 11    42479     0.322833478  9729  Q  WS 5831144 + 8 [fio]
- 65,224 11    42480     0.322833826  9729  G  WS 5831144 + 8 [fio]
- 65,224  8    84973     0.334959322  9729  Q  WS 5842992 + 8 [fio]
- 65,224  8    84974     0.334960161  9729  G  WS 5842992 + 8 [fio]
- 65,224  8    84975     0.334960993  9729  I  WS 5842992 + 8 [fio]
- 65,224  8    84976     0.334961632  9729  D  WS 5842992 + 8 [fio]
- 65,224  8    84977     0.334966226  9729  U   N [fio] 1
-
-# blkparse sdae |grep "WS 5743016"
- 65,224  8    84971     0.228888429  9729  Q  WS 5743016 + 8 [fio]
- 65,224  8    84972     0.228888728  9729  G  WS 5743016 + 8 [fio]
-
-# blktrace --version
-blktrace version 2.0.0
-
-kernel 2.6.32-431.17.1.el6.x86_64
