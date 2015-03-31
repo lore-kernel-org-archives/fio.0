@@ -1,52 +1,57 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx3-phx2.redhat.com ([209.132.183.24]:50352 "EHLO
-	mx3-phx2.redhat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751520AbbBOWa4 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 15 Feb 2015 17:30:56 -0500
-Received: from zmail16.collab.prod.int.phx2.redhat.com (zmail16.collab.prod.int.phx2.redhat.com [10.5.83.18])
-	by mx3-phx2.redhat.com (8.13.8/8.13.8) with ESMTP id t1FMUuYm017284
-	for <fio@vger.kernel.org>; Sun, 15 Feb 2015 17:30:56 -0500
-Date: Sun, 15 Feb 2015 17:30:55 -0500 (EST)
-From: Ben England <bengland@redhat.com>
-Message-ID: <968967006.10478476.1424039455959.JavaMail.zimbra@redhat.com>
-In-Reply-To: <1797629778.10331443.1423937244266.JavaMail.zimbra@redhat.com>
-Subject: suggested patch to let fio accept client ips from a file
+Return-Path: <axboe@kernel.dk>
+Message-ID: <551AF865.1070609@kernel.dk>
+Date: Tue, 31 Mar 2015 13:41:25 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Subject: Re: FIO still returning 0 and writing file after bogus arguments
+References: <C0788AB690B48C4C8D95FA764A79D177240EE862@CFWEX01.americas.cray.com>
+In-Reply-To: <C0788AB690B48C4C8D95FA764A79D177240EE862@CFWEX01.americas.cray.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Andy Moe <moea@cray.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following patch will allow fio to accept server IPs from a file.  This is particularly useful when you have large numbers of fio servers (example: virtual machine guests) that participate in a test.  To use this, simply use the --client option but instead of specifying a host name or IP, provide a pathname for a file containing a list of host names/addresses, one host per line.
+On 03/26/2015 04:20 PM, Andy Moe wrote:
+> ### Description:
+> FIO still seems to be returning zero and writing a file after bogus arguments have been provided.  In my particular case, it's returning zero when I try to write data to a file with the 'sg' engine.
+>
+> ### Environment:
+> CentOS release 6.4 (Final)
+> Linux iosr80-0.us.cray.com 2.6.32-358.el6.x86_64 #1 SMP Fri Feb 22 00:31:26 UTC 2013 x86_64 x86_64 x86_64 GNU/Linux
+>
+> ### FIO version:
+> fio-2.2.6-15-g3765
+>
+> ### How to reproduce:
+> Here is output demonstrating what I'm finding.
+>
+> [moea@iosr80-0 dev-tests]$ ls -l | grep outfile0
+> [moea@iosr80-0 dev-tests]$ fio --filename outfile0 --rw=readwrite --ioengine=sg --blocksize=8m --size=128m --name=job0
+> job0: (g=0): rw=rw, bs=8M-8M/8M-8M/8M-8M, ioengine=sg, iodepth=1
+> fio-2.2.6-15-g3765
+> Starting 1 process
+> job0: Laying out IO file(s) (1 file(s) / 128MB)
+> ioengine sg only works on block devices
+>
+>
+> Run status group 0 (all jobs):
+>
+> Disk stats (read/write):
+>      dm-3: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%, aggrios=0/0, aggrmerge=0/0, aggrticks=0/0, aggrin_queue=0, aggrutil=0.00%
+>    sda: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
+> [moea@iosr80-0 dev-tests]$ echo $?
+> 0
+> [moea@iosr80-0 dev-tests]$ ls -l outfile0
+> -rw-r--r--. 1 moea moea 134217728 Mar 26 17:06 outfile0
 
---- init.c.sav	2015-02-08 05:39:33.507493776 -0500
-+++ init.c	2015-02-08 06:00:14.479913391 -0500
-@@ -2226,6 +2226,27 @@
- 				exit_val = 1;
- 				break;
- 			}
-+                        if (0 == access(optarg, R_OK)) {
-+                                /* this is really a file containing a list of host addrs or names */
-+                                char hostaddr[257] = {0};
-+                                FILE * hostf = fopen(optarg, "r");
-+                                if (!hostf) {
-+                                        log_err("fio: could not open client list file %s for read\n", optarg);
-+                                        do_exit++;
-+                                        exit_val = 1;
-+                                        break;
-+                                }
-+                                while (fscanf(hostf, "%s", hostaddr) == 1) {
-+                                        if (fio_client_add(&fio_client_ops, hostaddr, &cur_client)) {
-+                                                log_err("fio: failed adding client %s from file %s\n", hostaddr, optarg);
-+                                                do_exit++;
-+                                                exit_val = 1;
-+                                                break;
-+                                        }
-+                                }
-+                                fclose(hostf);
-+                                break; /* no possibility of job file for "this client only" */
-+                        }
- 			if (fio_client_add(&fio_client_ops, optarg, &cur_client)) {
- 				log_err("fio: failed adding client %s\n", optarg);
- 				do_exit++;
+That's because fio will lay out the files first, regardless of IO 
+engine, before the engine opens them. So the file writing is really just 
+an artifact of that. It could be fixed, but I really don't see much 
+point to it.
+
+It should not return 0, though, I checked in a fix for that just now.
+
+-- 
+Jens Axboe
+
+
