@@ -1,63 +1,52 @@
-Return-Path: <dehrenberg@google.com>
-Return-Path: <dehrenberg@google.com>
-Sender: Daniel Ehrenberg <dehrenberg@google.com>
-From: Dan Ehrenberg <dehrenberg@chromium.org>
-Subject: [PATCH 4/7] mtd: Add CONFIG_MTD to ./configure script
-Date: Tue, 14 Apr 2015 15:58:17 -0700
-Message-Id: <1429052300-9822-5-git-send-email-dehrenberg@chromium.org>
-In-Reply-To: <1429052300-9822-1-git-send-email-dehrenberg@chromium.org>
-References: <1429052300-9822-1-git-send-email-dehrenberg@chromium.org>
-To: fio@vger.kernel.org, axboe@kernel.dk
-Cc: gwendal@chromium.org, Dan Ehrenberg <dehrenberg@chromium.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.9]:45500 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753598AbbDAMAO (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 1 Apr 2015 08:00:14 -0400
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1YdHJb-0003wT-4R
+	for fio@vger.kernel.org; Wed, 01 Apr 2015 12:00:11 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150401120003.38E6040161@lyth.info>
+Date: Wed,  1 Apr 2015 06:00:03 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-The CONFIG_MTD option will allow the mtd ioengine to be built. It
-only works when the Linux MTD header is present.
+The following changes since commit 37659335ac616d7c13bf8bfbb76366424b50ea67:
 
-Signed-off-by: Dan Ehrenberg <dehrenberg@chromium.org>
+  Add support for POSIX_FADV_STREAMID (2015-03-24 10:20:22 -0600)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 16ada7542f32b38c1189390a97b595948079b100:
+
+  sg: don't return success if non bdev/char is used (2015-03-31 13:41:18 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      sg: don't return success if non bdev/char is used
+
+ engines/sg.c |    1 +
+ 1 file changed, 1 insertion(+)
+
 ---
- configure | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
 
-diff --git a/configure b/configure
-index 892335b..e1b218c 100755
---- a/configure
-+++ b/configure
-@@ -1369,6 +1369,23 @@ if test "$libhdfs" = "yes" ; then
- fi
- echo "HDFS engine                   $libhdfs"
- 
-+##########################################
-+# Check whether we have MTD
-+mtd="no"
-+cat > $TMPC << EOF
-+#include <mtd/mtd-user.h>
-+#include <sys/ioctl.h>
-+int main(int argc, char **argv)
-+{
-+  struct mtd_info_user info;
-+  return ioctl(0, MEMGETINFO, &info);
-+}
-+EOF
-+if compile_prog "" "" "mtd"; then
-+  mtd="yes"
-+fi
-+echo "MTD                           $mtd"
-+
- # Check if we have lex/yacc available
- yacc="no"
- yacc_is_bison="no"
-@@ -1572,6 +1589,9 @@ if test "$libhdfs" = "yes" ; then
-   echo "FIO_LIBHDFS_INCLUDE=$FIO_LIBHDFS_INCLUDE" >> $config_host_mak
-   echo "FIO_LIBHDFS_LIB=$FIO_LIBHDFS_LIB" >> $config_host_mak
-  fi
-+if test "$mtd" = "yes" ; then
-+  output_sym "CONFIG_MTD"
-+fi
- if test "$arith" = "yes" ; then
-   output_sym "CONFIG_ARITHMETIC"
-   if test "$yacc_is_bison" = "yes" ; then
--- 
-2.2.0.rc0.207.ga3a616c
+Diff of recent changes:
 
-
+diff --git a/engines/sg.c b/engines/sg.c
+index 6272b79..8acbd50 100644
+--- a/engines/sg.c
++++ b/engines/sg.c
+@@ -368,6 +368,7 @@ static int fio_sgio_type_check(struct thread_data *td, struct fio_file *f)
+ 		if (ret)
+ 			return 1;
+ 	} else {
++		td_verror(td, EINVAL, "wrong file type");
+ 		log_err("ioengine sg only works on block devices\n");
+ 		return 1;
+ 	}
