@@ -1,41 +1,54 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qk0-f176.google.com ([209.85.220.176]:32878 "EHLO
-	mail-qk0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932141AbbDNWSo (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 14 Apr 2015 18:18:44 -0400
-Received: by qkx62 with SMTP id 62so42253241qkx.0
-        for <fio@vger.kernel.org>; Tue, 14 Apr 2015 15:18:43 -0700 (PDT)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <551EDAD7.3050803@kernel.dk>
+Date: Fri, 03 Apr 2015 12:24:23 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-From: Brandon Schwartz <schwartz.xn@gmail.com>
-Date: Tue, 14 Apr 2015 16:17:56 -0600
-Message-ID: <CADAGN7Xbgknwxb1p6T28G5ohLC4mT3P-8FH5o2zFg_ZQhJqQaA@mail.gmail.com>
-Subject: Looping blktrace binary files
-Content-Type: text/plain; charset=UTF-8
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Subject: Re: linux /dev and normal files
+References: <94D0CD8314A33A4D9D801C0FE68B402958CC5D81@G4W3202.americas.hpqcorp.net> <542B52B3.5060908@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958CC5EBE@G4W3202.americas.hpqcorp.net> <542B5632.8030404@kernel.dk> <542B784F.5090405@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958CC85F9@G4W3202.americas.hpqcorp.net> <542CA321.5090608@kernel.dk> <542CA44D.1030700@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958CCAA76@G4W3202.americas.hpqcorp.net> <542D9A26.6060204@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B40295A858295@G9W0745.americas.hpqcorp.net>
+In-Reply-To: <94D0CD8314A33A4D9D801C0FE68B40295A858295@G9W0745.americas.hpqcorp.net>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+To: "Elliott, Robert (Server Storage)" <Elliott@hp.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: Sitsofe Wheeler <sitsofe@gmail.com>, Jon Tango <cheerios123@outlook.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+On 04/03/2015 12:13 PM, Elliott, Robert (Server Storage) wrote:
+> 
+> 
+>> -----Original Message-----
+>> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
+>> Behalf Of Jens Axboe
+>> Sent: Thursday, October 2, 2014 1:32 PM
+>> To: Elliott, Robert (Server Storage); fio@vger.kernel.org
+>> Cc: Sitsofe Wheeler; Jon Tango
+>> Subject: Re: linux /dev and normal files
+>>
+>> On 10/02/2014 12:21 PM, Elliott, Robert (Server Storage) wrote:
+>>>>>> It might be better to continue to attempt to run the
+>>>>>> other jobs.
+>>>>>
+>>>>> We should just go for the simpler create/nocreate solution, I prefer
+>>>>> that. This is too involved, and it's hard to get all the cases right
+>>>>> since there are a bunch of different ways that files are added. Which
+>>>>> was why this patch only focused on filename=, since that is the one
+>> that
+>>>>> is the most interesting. But it still isn't pretty. If we add the
+>>>>> allow_file_create option, it's basically a two-liner change in a few
+>>>>> places to not use O_CREAT.
+>>>>
+>>>> That took roughly 4 minutes... Does this work? Set allow_file_create=0
+>>>> to disallow creating new files.
+> ...
+>>
+>> OK, let me test that, will spin a new one.
+> 
+> I don't think this ever got added.
 
-I'm trying to loop a binary blktrace file and I'm unable to get my
-desired result.  The blktrace file I have is ~15minutes in length,
-here is my script to try and loop multiple times, but it always runs
-once and then exits.
+It didn't... Did you re-test? No reason we can't get it added, I'll look
+into it start next week.
 
-[global]
-ioengine=libaio
-direct=1
-loops=2
 
-[sdd]
-read_iolog=sdd.blktrace.bin
-replay_redirect=/dev/sdd
-replay_no_stall=0
+-- 
+Jens Axboe
 
-I'm using fio 2.1.4 (I run into issues trying to run the blktrace file
-with the most current version of fio).  I've also tried setting
-time_based and a runtime, but the script always runs only once, no
-matter the runtime specified.  Any suggestions?
 
-Regards,
-Brandon
