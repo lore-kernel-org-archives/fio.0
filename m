@@ -1,54 +1,44 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <551EDAD7.3050803@kernel.dk>
-Date: Fri, 03 Apr 2015 12:24:23 -0600
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <Elliott@hp.com>
+From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
+Subject: RE: linux /dev and normal files
+Date: Fri, 3 Apr 2015 18:13:01 +0000
+Message-ID: <94D0CD8314A33A4D9D801C0FE68B40295A858295@G9W0745.americas.hpqcorp.net>
+References: <94D0CD8314A33A4D9D801C0FE68B402958CC5D81@G4W3202.americas.hpqcorp.net>
+ <542B52B3.5060908@kernel.dk>
+ <94D0CD8314A33A4D9D801C0FE68B402958CC5EBE@G4W3202.americas.hpqcorp.net>
+ <542B5632.8030404@kernel.dk> <542B784F.5090405@kernel.dk>
+ <94D0CD8314A33A4D9D801C0FE68B402958CC85F9@G4W3202.americas.hpqcorp.net>
+ <542CA321.5090608@kernel.dk> <542CA44D.1030700@kernel.dk>
+ <94D0CD8314A33A4D9D801C0FE68B402958CCAA76@G4W3202.americas.hpqcorp.net>
+ <542D9A26.6060204@kernel.dk>
+In-Reply-To: <542D9A26.6060204@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Subject: Re: linux /dev and normal files
-References: <94D0CD8314A33A4D9D801C0FE68B402958CC5D81@G4W3202.americas.hpqcorp.net> <542B52B3.5060908@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958CC5EBE@G4W3202.americas.hpqcorp.net> <542B5632.8030404@kernel.dk> <542B784F.5090405@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958CC85F9@G4W3202.americas.hpqcorp.net> <542CA321.5090608@kernel.dk> <542CA44D.1030700@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958CCAA76@G4W3202.americas.hpqcorp.net> <542D9A26.6060204@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B40295A858295@G9W0745.americas.hpqcorp.net>
-In-Reply-To: <94D0CD8314A33A4D9D801C0FE68B40295A858295@G9W0745.americas.hpqcorp.net>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-To: "Elliott, Robert (Server Storage)" <Elliott@hp.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 Cc: Sitsofe Wheeler <sitsofe@gmail.com>, Jon Tango <cheerios123@outlook.com>
 List-ID: <fio@vger.kernel.org>
 
-On 04/03/2015 12:13 PM, Elliott, Robert (Server Storage) wrote:
-> 
-> 
->> -----Original Message-----
->> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
->> Behalf Of Jens Axboe
->> Sent: Thursday, October 2, 2014 1:32 PM
->> To: Elliott, Robert (Server Storage); fio@vger.kernel.org
->> Cc: Sitsofe Wheeler; Jon Tango
->> Subject: Re: linux /dev and normal files
->>
->> On 10/02/2014 12:21 PM, Elliott, Robert (Server Storage) wrote:
->>>>>> It might be better to continue to attempt to run the
->>>>>> other jobs.
->>>>>
->>>>> We should just go for the simpler create/nocreate solution, I prefer
->>>>> that. This is too involved, and it's hard to get all the cases right
->>>>> since there are a bunch of different ways that files are added. Which
->>>>> was why this patch only focused on filename=, since that is the one
->> that
->>>>> is the most interesting. But it still isn't pretty. If we add the
->>>>> allow_file_create option, it's basically a two-liner change in a few
->>>>> places to not use O_CREAT.
->>>>
->>>> That took roughly 4 minutes... Does this work? Set allow_file_create=0
->>>> to disallow creating new files.
-> ...
->>
->> OK, let me test that, will spin a new one.
-> 
-> I don't think this ever got added.
-
-It didn't... Did you re-test? No reason we can't get it added, I'll look
-into it start next week.
-
-
--- 
-Jens Axboe
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
+a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uDQo+IEJlaGFs
+ZiBPZiBKZW5zIEF4Ym9lDQo+IFNlbnQ6IFRodXJzZGF5LCBPY3RvYmVyIDIsIDIwMTQgMTozMiBQ
+TQ0KPiBUbzogRWxsaW90dCwgUm9iZXJ0IChTZXJ2ZXIgU3RvcmFnZSk7IGZpb0B2Z2VyLmtlcm5l
+bC5vcmcNCj4gQ2M6IFNpdHNvZmUgV2hlZWxlcjsgSm9uIFRhbmdvDQo+IFN1YmplY3Q6IFJlOiBs
+aW51eCAvZGV2IGFuZCBub3JtYWwgZmlsZXMNCj4gDQo+IE9uIDEwLzAyLzIwMTQgMTI6MjEgUE0s
+IEVsbGlvdHQsIFJvYmVydCAoU2VydmVyIFN0b3JhZ2UpIHdyb3RlOg0KPiA+Pj4+IEl0IG1pZ2h0
+IGJlIGJldHRlciB0byBjb250aW51ZSB0byBhdHRlbXB0IHRvIHJ1biB0aGUNCj4gPj4+PiBvdGhl
+ciBqb2JzLg0KPiA+Pj4NCj4gPj4+IFdlIHNob3VsZCBqdXN0IGdvIGZvciB0aGUgc2ltcGxlciBj
+cmVhdGUvbm9jcmVhdGUgc29sdXRpb24sIEkgcHJlZmVyDQo+ID4+PiB0aGF0LiBUaGlzIGlzIHRv
+byBpbnZvbHZlZCwgYW5kIGl0J3MgaGFyZCB0byBnZXQgYWxsIHRoZSBjYXNlcyByaWdodA0KPiA+
+Pj4gc2luY2UgdGhlcmUgYXJlIGEgYnVuY2ggb2YgZGlmZmVyZW50IHdheXMgdGhhdCBmaWxlcyBh
+cmUgYWRkZWQuIFdoaWNoDQo+ID4+PiB3YXMgd2h5IHRoaXMgcGF0Y2ggb25seSBmb2N1c2VkIG9u
+IGZpbGVuYW1lPSwgc2luY2UgdGhhdCBpcyB0aGUgb25lDQo+IHRoYXQNCj4gPj4+IGlzIHRoZSBt
+b3N0IGludGVyZXN0aW5nLiBCdXQgaXQgc3RpbGwgaXNuJ3QgcHJldHR5LiBJZiB3ZSBhZGQgdGhl
+DQo+ID4+PiBhbGxvd19maWxlX2NyZWF0ZSBvcHRpb24sIGl0J3MgYmFzaWNhbGx5IGEgdHdvLWxp
+bmVyIGNoYW5nZSBpbiBhIGZldw0KPiA+Pj4gcGxhY2VzIHRvIG5vdCB1c2UgT19DUkVBVC4NCj4g
+Pj4NCj4gPj4gVGhhdCB0b29rIHJvdWdobHkgNCBtaW51dGVzLi4uIERvZXMgdGhpcyB3b3JrPyBT
+ZXQgYWxsb3dfZmlsZV9jcmVhdGU9MA0KPiA+PiB0byBkaXNhbGxvdyBjcmVhdGluZyBuZXcgZmls
+ZXMuDQouLi4NCj4gDQo+IE9LLCBsZXQgbWUgdGVzdCB0aGF0LCB3aWxsIHNwaW4gYSBuZXcgb25l
+Lg0KDQpJIGRvbid0IHRoaW5rIHRoaXMgZXZlciBnb3QgYWRkZWQuDQoNCg0K
 
