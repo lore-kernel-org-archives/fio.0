@@ -1,36 +1,49 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-oi0-f46.google.com ([209.85.218.46]:34665 "EHLO
-	mail-oi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030473AbbDWTzu (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 23 Apr 2015 15:55:50 -0400
-Received: by oiko83 with SMTP id o83so23778313oik.1
-        for <fio@vger.kernel.org>; Thu, 23 Apr 2015 12:55:49 -0700 (PDT)
+Received: from mail-qk0-f169.google.com ([209.85.220.169]:34232 "EHLO
+	mail-qk0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752771AbbDGTaY (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 7 Apr 2015 15:30:24 -0400
+Received: by qkgx75 with SMTP id x75so58982796qkg.1
+        for <fio@vger.kernel.org>; Tue, 07 Apr 2015 12:30:23 -0700 (PDT)
 MIME-Version: 1.0
-From: Brandon Schwartz <schwartz.xn@gmail.com>
-Date: Thu, 23 Apr 2015 13:55:29 -0600
-Message-ID: <CADAGN7VV15pQBpXVv=OptqZxjnz3-nkNHpXpotzCxeGUWDvFmA@mail.gmail.com>
-Subject: Unable to replay blktrace with mixed workload
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAB-428mn+_kjUkViKbBUzD1b1Q=018bNDdXo7Ps-2g4P+4disg@mail.gmail.com>
+References: <CAGGT8x6z5vU+K=oQ3=R4s2N2xcq=aS5L+x42znaKzqxGjyE0=A@mail.gmail.com>
+	<CAB-428mdXZqbbK0eGcTnoQae7tOpY06gRVL4m1kNf+jgYrEEHw@mail.gmail.com>
+	<CAGGT8x5BgYeDA9=+Ycj4S6PbYC_EgKGZL-ihCP6Ow5YFBRkquw@mail.gmail.com>
+	<CAB-428mn+_kjUkViKbBUzD1b1Q=018bNDdXo7Ps-2g4P+4disg@mail.gmail.com>
+Date: Tue, 7 Apr 2015 15:30:23 -0400
+Message-ID: <CAGGT8x7sef5oO8Hu8CBZzSP7Hvz=15P8CiFiZihhvzHC+8i-Qw@mail.gmail.com>
+Subject: Re: Latencies around 10 seconds for I/Os in a trace!!!
+From: Mansour Shafaei Moghaddam <mansoor.shafaei@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Using FIO 2.2.7, I'm trying to replay the following workload
-(capturing it with blktrace and replaying with FIO on the same device)
+Thanks for the tip.
+The fourth field does not get interpreted by fio. But fio requires it
+there as all the commands must comply the 4-field format style.
 
- sudo fio --name=rwmix --filename=/dev/sdd --blocksize=128k
---readwrite=randrw --rwmixread=75 --rwmixwrite=25 --runtime=60
-
-And I get the following error:
-
-fio: pid=21428, err=12/file:memory.c:242, func=iomem allocation,
-error=Cannot allocate memory
-
-Older versions of FIO (2.1.*) seem to be able to replay the blktrace
-without that error, but those versions of FIO don't always seem to
-respect the timing of IOs (if there is idle time for example).
-
-Any idea what could be causing the problem?
-
-Regards,
-Brandon
+On Tue, Apr 7, 2015 at 1:33 PM, Alireza Haghdoost <haghdoost@gmail.com> wrote:
+> Not sure what does 512 means in your wait statements. I would also
+> recommend to use blktrace+btrecord+btreplay to replay block I/O
+> workloads on a single HDD. That is more accurate replay method and
+> tested by the community.
+>
+> Good luck with your experiments.
+>
+> On Tue, Apr 7, 2015 at 11:46 AM, Mansour Shafaei Moghaddam
+> <mansoor.shafaei@gmail.com> wrote:
+>> Thanks for the response But I am pretty sure about the functionality
+>> of wait command. The device is a conventional magnetic disk.
+>>
+>> On Tue, Apr 7, 2015 at 12:39 PM, Alireza Haghdoost <haghdoost@gmail.com> wrote:
+>>> Sounds like your wait statements are not correct. Referring to HOWTO.txt :
+>>>
+>>> wait       Wait for 'offset' microseconds. Everything below 100 is
+>>> discarded.
+>>>
+>>>
+>>> What kind of storage device do you have under /dev/sdb ?
+>>>
+>>>
