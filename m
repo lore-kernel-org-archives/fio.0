@@ -1,73 +1,46 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:55749 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422762AbbD2L7z (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 29 Apr 2015 07:59:55 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1YnQeg-0007Oh-Sv
-	for fio@vger.kernel.org; Wed, 29 Apr 2015 11:59:54 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150429120002.244EC2C01AF@kernel.dk>
-Date: Wed, 29 Apr 2015 06:00:02 -0600 (MDT)
+Received: from mail-lb0-f181.google.com ([209.85.217.181]:36270 "EHLO
+	mail-lb0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754267AbbDJGmO (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 10 Apr 2015 02:42:14 -0400
+Received: by lbbqq2 with SMTP id qq2so6635327lbb.3
+        for <fio@vger.kernel.org>; Thu, 09 Apr 2015 23:42:12 -0700 (PDT)
+MIME-Version: 1.0
+Date: Fri, 10 Apr 2015 08:42:12 +0200
+Message-ID: <CAFAfLGOL7Bk_MQCApfLyVhFJs6Kf-V7Cs66LVaMa04ZocchXWQ@mail.gmail.com>
+Subject: FIO Building per ANdroid
+From: Fabio Salvati <fabio.salvati@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 9451b93e81fb950a80da09e295e56b1ad4538509:
+Hi,
 
-  dedupe: improve 100% dedupe case (2015-04-27 09:37:11 -0600)
+I need to run FIO on an ARM platform with Android OS.
 
-are available in the git repository at:
+I tried without success to build FIO configured for targetos=Android
+and cpu=ARM.
 
-  git://git.kernel.dk/fio.git master
+The build error was:
 
-for you to fetch changes up to 76a00ec6684317902e536365b89531431e7f8867:
+.o blktrace.o trim.o profiles/tiobench.o lib/linux-dev-lookup.o fio.o
+-lrt  -lpthread -lm   -ldl
+backend.o: In function `thread_main':
+/home/sys-lab/Desktop/fio/fio-
+2.2.6/backend.c:1610: undefined reference to `cgroup_shutdown'
+/home/sys-lab/Desktop/fio/fio-2.2.6/backend.c:1462: undefined
+reference to `cgroup_setup'
+backend.o: In function `fio_backend':
+/home/sys-lab/Desktop/fio/fio-2.2.6/backend.c:2246: undefined
+reference to `cgroup_kill'
+collect2: ld returned 1 exit status
+make: *** [fio] Error 1
 
-  blktrace: only set O_DIRECT if the min bs is a multiple of 4k (2015-04-28 15:30:02 -0600)
+Could you please help me to build FIO for ANDROID (ARM platform) ?
 
-----------------------------------------------------------------
-Jens Axboe (2):
-      Add recommendation to set direct=0 if first O_DIRECT fails
-      blktrace: only set O_DIRECT if the min bs is a multiple of 4k
+Any FIX?
 
- blktrace.c  | 5 +++--
- ioengines.c | 3 ++-
- 2 files changed, 5 insertions(+), 3 deletions(-)
+Thanks,
 
----
-
-Diff of recent changes:
-
-diff --git a/blktrace.c b/blktrace.c
-index 8ffa9b0..bb0bcbe 100644
---- a/blktrace.c
-+++ b/blktrace.c
-@@ -503,9 +503,10 @@ int load_blktrace(struct thread_data *td, const char *filename, int need_swap)
- 
- 	/*
- 	 * We need to do direct/raw ios to the device, to avoid getting
--	 * read-ahead in our way.
-+	 * read-ahead in our way. But only do so if the minimum block size
-+	 * is a multiple of 4k, otherwise we don't know if it's safe to do so.
- 	 */
--	if (!fio_option_is_set(&td->o, odirect))
-+	if (!fio_option_is_set(&td->o, odirect) && !(td_min_bs(td) & 4095))
- 		td->o.odirect = 1;
- 
- 	/*
-diff --git a/ioengines.c b/ioengines.c
-index b724e0e..958731d 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -327,7 +327,8 @@ int td_io_queue(struct thread_data *td, struct io_u *io_u)
- 	    td->o.odirect) {
- 
- 		log_info("fio: first direct IO errored. File system may not "
--			 "support direct IO, or iomem_align= is bad.\n");
-+			 "support direct IO, or iomem_align= is bad. Try "
-+			 "setting direct=0.\n");
- 	}
- 
- 	if (!td->io_ops->commit || io_u->ddir == DDIR_TRIM) {
+Fabio
