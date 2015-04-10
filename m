@@ -1,35 +1,55 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from plane.gmane.org ([80.91.229.3]:59455 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753341AbbDNIpG (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 14 Apr 2015 04:45:06 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcsf-fio@m.gmane.org>)
-	id 1YhwSt-00039q-TV
-	for fio@vger.kernel.org; Tue, 14 Apr 2015 10:45:04 +0200
-Received: from 213.233.191.19 ([213.233.191.19])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <fio@vger.kernel.org>; Tue, 14 Apr 2015 10:45:03 +0200
-Received: from zahra.estaji68 by 213.233.191.19 with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <fio@vger.kernel.org>; Tue, 14 Apr 2015 10:45:03 +0200
-From: Z Es <zahra.estaji68@gmail.com>
-Subject: fio filename vs directory
-Date: Tue, 14 Apr 2015 05:49:01 +0000 (UTC)
-Message-ID: <loom.20150414T074548-942@post.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Received: from casper.infradead.org ([85.118.1.10]:33411 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751431AbbDJMAH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 10 Apr 2015 08:00:07 -0400
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1YgXbR-00074O-V9
+	for fio@vger.kernel.org; Fri, 10 Apr 2015 12:00:06 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150410120003.81BB140161@lyth.info>
+Date: Fri, 10 Apr 2015 06:00:03 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-as i understand, there are 2 ways to specify the disk you want the test run
-on it. the first one is by filename=/dev/sdx and the second one is by
-linking the mount point of the disk to directory flag in fio.
-but in these 2 ways i get different results
-what is the differences between them?
+The following changes since commit 87f5fce38c1b8fc979cea10c926973c2f2a76217:
 
-thanks
+  genzip: switch to jenkins hash (2015-04-08 16:25:49 -0600)
 
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 92aef550de95c5b33c489cbabd2c1a70e59475b3:
+
+  configure: update to changes in fusion-aw packaging (2015-04-09 08:24:38 -0600)
+
+----------------------------------------------------------------
+Akshita Rajendra Jain (1):
+      configure: update to changes in fusion-aw packaging
+
+ configure |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/configure b/configure
+index 892335b..c1a4915 100755
+--- a/configure
++++ b/configure
+@@ -856,8 +856,8 @@ int main(int argc, char **argv)
+   return nvm_atomic_write(handle, 0, 0, 0);
+ }
+ EOF
+-if compile_prog "" "-L/usr/lib/fio -L/usr/lib/nvm -lnvm-primitives -lvsl -ldl" "fusion-aw"; then
+-  LIBS="-L/usr/lib/fio -L/usr/lib/nvm -lnvm-primitives -lvsl -ldl $LIBS"
++if compile_prog "" "-L/usr/lib/fio -L/usr/lib/nvm -lnvm-primitives -ldl -lpthread" "fusion-aw"; then
++  LIBS="-L/usr/lib/fio -L/usr/lib/nvm -lnvm-primitives -ldl -lpthread $LIBS"
+   fusion_aw="yes"
+ fi
+ echo "Fusion-io atomic engine       $fusion_aw"
