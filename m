@@ -1,71 +1,62 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:39898 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752535AbbDWOC2 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 23 Apr 2015 10:02:28 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1YlHi0-0006Ma-Bo
-	for fio@vger.kernel.org; Thu, 23 Apr 2015 14:02:28 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150423140228.39E642C01AD@kernel.dk>
-Date: Thu, 23 Apr 2015 08:02:28 -0600 (MDT)
+Received: from g9t5008.houston.hp.com ([15.240.92.66]:39093 "EHLO
+	g9t5008.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750805AbbDKEfI (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 11 Apr 2015 00:35:08 -0400
+From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
+Subject: RE: Need support about value IOPS Which FIO measured
+Date: Sat, 11 Apr 2015 04:31:21 +0000
+Message-ID: <94D0CD8314A33A4D9D801C0FE68B40295A889F69@G4W3202.americas.hpqcorp.net>
+References: <loom.20150403T130620-703@post.gmane.org>
+	<94D0CD8314A33A4D9D801C0FE68B40295A857BA9@G9W0745.americas.hpqcorp.net>
+	<CANvo6VVz-s=1MJ=bhzy0YLX=8zoi6kshXEj24j0MvSjHMNC6_A@mail.gmail.com>
+	<94D0CD8314A33A4D9D801C0FE68B40295A85B4E7@G9W0745.americas.hpqcorp.net>
+ <CANvo6VXNTHKuo36OfKzfJ4dcV1vsmrKiHM7EW7XozrSLBBDedw@mail.gmail.com>
+In-Reply-To: <CANvo6VXNTHKuo36OfKzfJ4dcV1vsmrKiHM7EW7XozrSLBBDedw@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Nguyen Viet Dung <dungnguyenviet@vccorp.vn>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit 9e98688960347b9b733db9426fb7747f22d3a77e:
-
-  Fix off-by-one in cpus_allowed (2015-04-21 09:39:32 -0600)
-
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 8a16f59b66e5198050ec735998692ba9436a9884:
-
-  blktrace: only probe and set depth if option isn't set (2015-04-22 19:54:54 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (2):
-      configure: check for more of the used MTD features
-      blktrace: only probe and set depth if option isn't set
-
- blktrace.c | 5 ++---
- configure  | 1 +
- 2 files changed, 3 insertions(+), 3 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/blktrace.c b/blktrace.c
-index 9afc5be..e63c708 100644
---- a/blktrace.c
-+++ b/blktrace.c
-@@ -456,10 +456,9 @@ int load_blktrace(struct thread_data *td, const char *filename, int need_swap)
- 	td->o.odirect = 1;
- 
- 	/*
--	 * we don't know if this option was set or not. it defaults to 1,
--	 * so we'll just guess that we should override it if it's still 1
-+	 * If depth wasn't manually set, use probed depth
- 	 */
--	if (td->o.iodepth == 1)
-+	if (!fio_option_is_set(&td->o, iodepth))
- 		td->o.iodepth = td->o.iodepth_low = depth;
- 
- 	return 0;
-diff --git a/configure b/configure
-index ff97200..8e496b0 100755
---- a/configure
-+++ b/configure
-@@ -1378,6 +1378,7 @@ cat > $TMPC << EOF
- int main(int argc, char **argv)
- {
-   struct mtd_info_user info;
-+  info.type = MTD_MLCNANDFLASH;
-   return ioctl(0, MEMGETINFO, &info);
- }
- EOF
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTmd1eWVuIFZpZXQgRHVu
+ZyBbbWFpbHRvOmR1bmduZ3V5ZW52aWV0QHZjY29ycC52bl0NCj4gU2VudDogRnJpZGF5LCBBcHJp
+bCAxMCwgMjAxNSAyOjIzIEFNDQo+IFRvOiBFbGxpb3R0LCBSb2JlcnQgKFNlcnZlciBTdG9yYWdl
+KQ0KPiBDYzogZmlvQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogTmVlZCBzdXBwb3J0
+IGFib3V0IHZhbHVlIElPUFMgV2hpY2ggRklPIG1lYXN1cmVkDQo+IA0KPiBEZWFyIEVsbGlvdCwg
+Um9iZXJ0DQo+IFRoYW5rcyB5b3Ugc28gbXVjaCBmb3IgeW91ciBzdWdnZXN0LiBUaGF0IHJlc3Vs
+dCB3aGljaCBpIGRpZCB3aXRoIGZpbw0KPiBmb2xsb3cgeW91ciBzdWdnZXN0IGlzIGdvb2QuDQo+
+IFNvLCBpIGhhdmUgc29tZSBwYXJhbWV0dGVyIG9uIHJlc3VsdCBvZiBmaW8gd2hpY2ggaSBkb24n
+dCB1bmRlcnN0YW5kLg0KPiBlLmc6DQo+IFNlZWsgdGltZSBvbiByZXN1bHQgb2YgZmlvDQo+IExh
+dGVuY3kgdGltZQ0KPiBXaGljaCBpIGNhbiBtZWFzdXJlIHBlcmZvcm1hbmNlIG9mIG15IGhhcmRk
+aXNrDQo+IEkgc2VudCBmb3IgYSByZXN1bHQgd2hpY2ggaSBtZWFzdXJlIG9uICIgNTAwR0IgUkU0
+IFdEIFNhdGEvNjRNQg0KPiBXRDUwMDNBQllYLTAxV0VSQTEiIChSUE0gNzIwMGssIHN1cHBvcnQg
+My41R2JwL3MpDQo+IElPUFMgd3JpdGUgMjQsIHJlYWQ9MzUuIChpIHRoaW5rIGl0IHZlcnkgbG93
+KS4gU28gZG8geW91IHRoaW5rIGFib3V0IGl0Lg0KPiBJIGhvcGUgeW91ciByZXBseS4gVGhhbmtz
+DQoNCkEgZmV3IHN1Z2dlc3Rpb25zOg0KDQo+IFJ1biBzdGF0dXMgZ3JvdXAgMCAoYWxsIGpvYnMp
+Og0KPiAgICBSRUFEOiBpbz01MDBLQiwgYWdncmI9MjU0S0IvcywgbWluYj0xMjBLQi9zLCBtYXhi
+PTE0MEtCL3MsDQo+IG1pbnQ9MTg4NW1zZWMsIG1heHQ9MTk2Mm1zZWMNCj4gICBXUklURTogaW89
+MTEyOEtCLCBhZ2dyYj01OTNLQi9zLCBtaW5iPTk3S0IvcywgbWF4Yj00OTZLQi9zLA0KPiBtaW50
+PTE4ODVtc2VjLCBtYXh0PTE5MDFtc2VjDQo+IA0KPiBEaXNrIHN0YXRzIChyZWFkL3dyaXRlKToN
+Cj4gICBzZGE6IGlvcz0xMDgvMjgwLCBtZXJnZT0wLzAsIHRpY2tzPTU1ODc2LzU4NTA3LCBpbl9x
+dWV1ZT0xNDQ3NTMsDQo+IHV0aWw9OTQuNDclDQoNCllvdSBzaG91bGQgcnVuIHRoZSB0ZXN0IGEg
+bG90IGxvbmdlci4uLiB0aGlzIHRlc3QgcnVuIG9ubHkgdHJhbnNmZXJyZWQgDQo1MDArMTEyOCBL
+aUIgKH4gMSBNaUIpLg0KDQo+IMKgwqDCoCBsYXQgKHVzZWMpIDogNTAwPTQuNDYlLCA3NTA9MS43
+OSUsIDEwMDA9Mi42OCUNCj4gwqDCoMKgIGxhdCAobXNlYykgOiAyPTQuNDYlLCAxMD0xLjc5JSwg
+MjA9MC44OSUsIDUwPTguMDQlLCAxMDA9OS44MiUNCj4gwqDCoMKgIGxhdCAobXNlYykgOiAyNTA9
+OS44MiUsIDUwMD05LjgyJSwgNzUwPTE2Ljk2JSwgMTAwMD0wLjg5JSwgMjAwMD0yOC41NyUNCg0K
+V2hhdCB0aG9zZSBtZWFuIGlzOg0KKiA0KzErMiA9IDclIG9mIHRoZSB0aW1lLCB0aGUgbGF0ZW5j
+eSB3YXMgMSBtcyBvciBsZXNzLg0KICBUaGVzZSBhcmUgcHJvYmFibHkgcmVhZCBjYWNoZSBoaXRz
+DQoqIC4uLg0KKiA4KzkrOSs5KzE2ID0gNTElIG9mIHRoZSB0aW1lLCB0aGUgbGF0ZW5jaWVzIHJh
+bmdlZCBmcm9tIDUwIG1zIHRvIDc1MCBtcy4NCiAgVGhlc2UgYXJlIG5vcm1hbCBhY2Nlc3Nlcy4N
+CiogMjglIG9mIHRoZSB0aW1lLCB0aGUgbGF0ZW5jaWVzIHdlcmUgMSB0byAyIHMNCiAgVGhlc2Ug
+YXJlIGVpdGhlciBmcm9tIHRoZSBkcml2ZSBkb2luZyBzb21lIGJhY2tncm91bmQgYWN0aXZpdHks
+IG9yIA0KICB5b3VyIHF1ZXVlIGRlcHRoIGlzIHRvbyBoaWdoLCB0aGUgSS9PcyBhcmUganVzdCBz
+dGFja2luZyB1cCBzb21ld2hlcmUsDQogIG9yIGV2ZW4gdGhhdCB0aGUgZHJpdmUgd2FzIHNwdW5k
+b3duIGFuZCB0b29rIGEgd2hpbGUgdG8gcmVzdW1lLg0KDQpBbGwgb2YgdGhvc2Ugc3VnZ2VzdCBp
+b2RlcHRoPTMyIGlzIHRvbyBoaWdoIGZvciB0aGlzIGRyaXZlOyB5b3Ugc2hvdWxkDQpiZSBzZWVp
+bmcgc2luZ2xlIG9yIGRvdWJsZSBkaWdpdCBtcyBsYXRlbmNpZXMgZG9taW5hdGUuDQoNClJlc3Vs
+dHMgbWF5IGNoYW5nZSB3aXRoIGEgbG9uZ2VyIHJ1biB0aW1lLg0KDQoNCg==
