@@ -1,20 +1,18 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:34836 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753013AbbDKWGd (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 11 Apr 2015 18:06:33 -0400
-Received: by widdi4 with SMTP id di4so32667734wid.0
-        for <fio@vger.kernel.org>; Sat, 11 Apr 2015 15:06:32 -0700 (PDT)
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:33128 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751145AbbDKGPp (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 11 Apr 2015 02:15:45 -0400
+Received: by lbbzk7 with SMTP id zk7so27386477lbb.0
+        for <fio@vger.kernel.org>; Fri, 10 Apr 2015 23:15:43 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CANt18PzSgzy7zVOXuY26iz9gH=tnTLZiKSE=i=pGxAWrxgVq6g@mail.gmail.com>
+In-Reply-To: <CALjAwxiEv6jd5GuRC2rQsdaiGWZmku_tzS0-qQbQxe_RvVAT=A@mail.gmail.com>
 References: <CANt18PxHj5p6f9gXsuKCRDNXwgo_nW0MwD0wM6QbYENBtJd1ww@mail.gmail.com>
 	<CALjAwxjUF7R=GbynqFgj5-1D6F-133oQDXvqv5nPKQKaQ0k=yw@mail.gmail.com>
 	<CANt18PyJoE7e-MqafAD=oYZfo5x0r2gwnvMsF7VXTE3=mwCm2A@mail.gmail.com>
 	<CALjAwxiEv6jd5GuRC2rQsdaiGWZmku_tzS0-qQbQxe_RvVAT=A@mail.gmail.com>
-	<CALjAwxhti4K021uqXVAOt53Cr=mbPz0V1Q7q32vPfgW3byAo2g@mail.gmail.com>
-	<CANt18PzSgzy7zVOXuY26iz9gH=tnTLZiKSE=i=pGxAWrxgVq6g@mail.gmail.com>
-Date: Sat, 11 Apr 2015 23:06:32 +0100
-Message-ID: <CALjAwxg5Sq-VkpBe+4+nK3PdgpGKpVDF3eEacGauWYVKbYtJYQ@mail.gmail.com>
+Date: Sat, 11 Apr 2015 07:15:43 +0100
+Message-ID: <CALjAwxhti4K021uqXVAOt53Cr=mbPz0V1Q7q32vPfgW3byAo2g@mail.gmail.com>
 Subject: Re: during fio scenario with verify=meta some jobs fails
 From: Sitsofe Wheeler <sitsofe@gmail.com>
 Content-Type: text/plain; charset=UTF-8
@@ -23,41 +21,40 @@ List-Id: fio@vger.kernel.org
 To: Samuel Shapiro <samuel.sh79@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 11 April 2015 at 17:48, Samuel Shapiro <samuel.sh79@gmail.com> wrote:
-> Thanks Sitsofe,
-> It make sense, if previous block meta isn't really saved....
-> So maybe the right question to ask,  in which scenarios should I prefer
-> "meta" verification method over "md5" etc...?
+On 11 April 2015 at 07:10, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+> On 11 April 2015 at 04:04, Samuel Shapiro <samuel.sh79@gmail.com> wrote:
+>> Well i guess it could be a good test for data integrity, so why not? :)
+>>
+>> On Fri, Apr 10, 2015 at 9:29 PM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>>> On 8 April 2015 at 11:37, Samuel Shapiro <samuel.sh79@gmail.com> wrote:
+>>>> Hi All,
+>>>>
+>>>> [fsx-file-job1]
+>>>> directory=/mnt/FIO-some-mountpoint-to-NAS-01
+>>>> ioengine=libaio
+>>>> iodepth=256
+>>>> rw=randrw
+>>>> size=256k
+>>>> bs=4k
+>>>> norandommap
+>>>
+>>> ^^^ This allows the same block to be overwritten multiple times. Are
+>>> you sure this is what you want?
+>
+> I could be wide of the mark but my concern would be that meta tries to
+> verify block number (I guess this doesn't need to be saved and can be
+> calculated by just following a sequence). If I've overwritten a block
+> how do I verify that the block number of the earlier write was correct
+> - the block will in fact contain the block number of the last write to
+> it...
 
-Without looking at the source I would guess they will catch different
-issues and have different overheads.
+Apologies, where I said block number I should have said "io sequence
+number" (because you're using verify=meta):
 
-For example, if I use md5 I write a header to each "block" that tells
-me what the data should be. When it comes to verification time I read
-the header and check the body matches the checksum. Reading the body
-and calculating the checksum take time and CPU. If the error is that
-two blocks of the same size (including their headers) have been
-switched I won't catch that because the checksum of the body is still
-correct with respect to the header (this is speculation on my part)...
-
-If I use meta my header contains things like timestamp, block number,
-io sequence number. I don't need to spend time verifying the body and
-unless I used verify_pattern I don't even know what the correct data
-in the body would look like if I were to check/checksum it. I can
-detect identically sized block swaps because the block number and io
-sequence number in the header will be wrong. If a problem is detected
-I've got a better chance of working out where the problem header came
-from (because more meta data is available to me).
-
-If I'm using same sized blocks and I'm worried about entire block
-swaps or I want to do a minimal a check as possible I think you could
-use meta. If I'm more worried about sub block sized data being wrong I
-would say you are better off with one of the checksum routines
-(preferably one that is hardware accelerated). If I'm overwriting my
-data within the same pass and I probably can't use meta any more. meta
-may give me more information about where bad data came from if the
-header is intact and I know how to decode it. However, this is all
-speculation on my part!
+Assuming I only do my verification at the end of a run, if I've
+overwritten a block how do I verify that the io sequence number of the
+earlier writes to that block were correct? Wouldn't the block will
+contain only the io sequence number of the last write to it?
 
 -- 
 Sitsofe | http://sucs.org/~sits/
