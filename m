@@ -1,46 +1,63 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-lb0-f181.google.com ([209.85.217.181]:36270 "EHLO
-	mail-lb0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754267AbbDJGmO (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 10 Apr 2015 02:42:14 -0400
-Received: by lbbqq2 with SMTP id qq2so6635327lbb.3
-        for <fio@vger.kernel.org>; Thu, 09 Apr 2015 23:42:12 -0700 (PDT)
-MIME-Version: 1.0
-Date: Fri, 10 Apr 2015 08:42:12 +0200
-Message-ID: <CAFAfLGOL7Bk_MQCApfLyVhFJs6Kf-V7Cs66LVaMa04ZocchXWQ@mail.gmail.com>
-Subject: FIO Building per ANdroid
-From: Fabio Salvati <fabio.salvati@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <dehrenberg@google.com>
+Return-Path: <dehrenberg@google.com>
+Sender: Daniel Ehrenberg <dehrenberg@google.com>
+From: Dan Ehrenberg <dehrenberg@chromium.org>
+Subject: [PATCH 4/7] mtd: Add CONFIG_MTD to ./configure script
+Date: Tue, 14 Apr 2015 15:58:17 -0700
+Message-Id: <1429052300-9822-5-git-send-email-dehrenberg@chromium.org>
+In-Reply-To: <1429052300-9822-1-git-send-email-dehrenberg@chromium.org>
+References: <1429052300-9822-1-git-send-email-dehrenberg@chromium.org>
+To: fio@vger.kernel.org, axboe@kernel.dk
+Cc: gwendal@chromium.org, Dan Ehrenberg <dehrenberg@chromium.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+The CONFIG_MTD option will allow the mtd ioengine to be built. It
+only works when the Linux MTD header is present.
 
-I need to run FIO on an ARM platform with Android OS.
+Signed-off-by: Dan Ehrenberg <dehrenberg@chromium.org>
+---
+ configure | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-I tried without success to build FIO configured for targetos=Android
-and cpu=ARM.
+diff --git a/configure b/configure
+index 892335b..e1b218c 100755
+--- a/configure
++++ b/configure
+@@ -1369,6 +1369,23 @@ if test "$libhdfs" = "yes" ; then
+ fi
+ echo "HDFS engine                   $libhdfs"
+ 
++##########################################
++# Check whether we have MTD
++mtd="no"
++cat > $TMPC << EOF
++#include <mtd/mtd-user.h>
++#include <sys/ioctl.h>
++int main(int argc, char **argv)
++{
++  struct mtd_info_user info;
++  return ioctl(0, MEMGETINFO, &info);
++}
++EOF
++if compile_prog "" "" "mtd"; then
++  mtd="yes"
++fi
++echo "MTD                           $mtd"
++
+ # Check if we have lex/yacc available
+ yacc="no"
+ yacc_is_bison="no"
+@@ -1572,6 +1589,9 @@ if test "$libhdfs" = "yes" ; then
+   echo "FIO_LIBHDFS_INCLUDE=$FIO_LIBHDFS_INCLUDE" >> $config_host_mak
+   echo "FIO_LIBHDFS_LIB=$FIO_LIBHDFS_LIB" >> $config_host_mak
+  fi
++if test "$mtd" = "yes" ; then
++  output_sym "CONFIG_MTD"
++fi
+ if test "$arith" = "yes" ; then
+   output_sym "CONFIG_ARITHMETIC"
+   if test "$yacc_is_bison" = "yes" ; then
+-- 
+2.2.0.rc0.207.ga3a616c
 
-The build error was:
 
-.o blktrace.o trim.o profiles/tiobench.o lib/linux-dev-lookup.o fio.o
--lrt  -lpthread -lm   -ldl
-backend.o: In function `thread_main':
-/home/sys-lab/Desktop/fio/fio-
-2.2.6/backend.c:1610: undefined reference to `cgroup_shutdown'
-/home/sys-lab/Desktop/fio/fio-2.2.6/backend.c:1462: undefined
-reference to `cgroup_setup'
-backend.o: In function `fio_backend':
-/home/sys-lab/Desktop/fio/fio-2.2.6/backend.c:2246: undefined
-reference to `cgroup_kill'
-collect2: ld returned 1 exit status
-make: *** [fio] Error 1
-
-Could you please help me to build FIO for ANDROID (ARM platform) ?
-
-Any FIX?
-
-Thanks,
-
-Fabio
