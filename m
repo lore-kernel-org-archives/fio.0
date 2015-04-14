@@ -2,389 +2,561 @@ Return-Path: <dehrenberg@google.com>
 Return-Path: <dehrenberg@google.com>
 Sender: Daniel Ehrenberg <dehrenberg@google.com>
 From: Dan Ehrenberg <dehrenberg@chromium.org>
-Subject: [PATCH v2 6/7] mtd: ioengine
-Date: Wed, 15 Apr 2015 10:41:34 -0700
-Message-Id: <1429119695-22425-7-git-send-email-dehrenberg@chromium.org>
-In-Reply-To: <1429119695-22425-1-git-send-email-dehrenberg@chromium.org>
-References: <1429119695-22425-1-git-send-email-dehrenberg@chromium.org>
+Subject: [PATCH 3/7] Collect a block-wise histogram of trim and write errors
+Date: Tue, 14 Apr 2015 15:58:16 -0700
+Message-Id: <1429052300-9822-4-git-send-email-dehrenberg@chromium.org>
+In-Reply-To: <1429052300-9822-1-git-send-email-dehrenberg@chromium.org>
+References: <1429052300-9822-1-git-send-email-dehrenberg@chromium.org>
 To: fio@vger.kernel.org, axboe@kernel.dk
 Cc: gwendal@chromium.org, Dan Ehrenberg <dehrenberg@chromium.org>
 List-ID: <fio@vger.kernel.org>
 
-This patch adds an MTD ioengine. Trims are interpreted as MTD erases.
-A skip_bad option calls out to the kernel to ask if the block being
-operated on is bad first; if it is bad, the operation is skipped
-and -EIO is returned.
+This patch collects information on how many trims or writes each trim
+block sized unit can undergo before its first error. It also records
+the way in which an error occurred, if one did.
+
+Output is provided with a histogram which can be output either in
+normal or json output. Terse output is omitted, since it seemed like
+that would require a version rev bump.
 
 Signed-off-by: Dan Ehrenberg <dehrenberg@chromium.org>
 ---
- HOWTO            |  10 +++
- Makefile         |   5 ++
- engines/mtd.c    | 209 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
- fio.1            |  10 +++
- options.c        |  15 ++++
- options.h        |   2 +
- thread_options.h |   2 +
- 7 files changed, 253 insertions(+)
- create mode 100644 engines/mtd.c
+ HOWTO            |  19 ++++--
+ client.c         |   4 ++
+ filesetup.c      |  21 ++++++
+ fio.1            |  11 +++-
+ init.c           |   7 ++
+ io_u.c           |  13 ++++
+ iolog.c          |  12 ++++
+ options.c        |  15 ++++-
+ server.c         |   4 ++
+ stat.c           | 195 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ stat.h           |  27 ++++++++
+ thread_options.h |   4 ++
+ 12 files changed, 320 insertions(+), 12 deletions(-)
 
 diff --git a/HOWTO b/HOWTO
-index e49a257..4b7b2d1 100644
+index 3f258db..6c7abcc 100644
 --- a/HOWTO
 +++ b/HOWTO
-@@ -776,6 +776,15 @@ ioengine=str	Defines how the job issues io to the file. The following
- 				necessary environment variables to work with
- 				hdfs/libhdfs properly.
+@@ -1468,6 +1468,11 @@ log_store_compressed=bool	If set, and log_compression is also set,
+ 		command line parameter. The files will be stored with a
+ 		.fz suffix.
  
-+			mtd	Read, write and erase an MTD character device
-+				(e.g., /dev/mtd0). Discards are treated as
-+				erases. Depending on the underlying device
-+				type, the I/O may have to go in a certain
-+				pattern, e.g., on NAND, writing sequentially
-+				to erase blocks and discarding before
-+				overwriting. The trimwrite mode works well
-+				for this constraint.
++block_error_percentiles=bool	If set, record errors in trim block-sized
++		units from writes and trims and output a histogram of
++		how many trims it took to get to errors, and what kind
++		of error was encountered.
 +
- 			external Prefix to specify loading an external
- 				IO engine object file. Append the engine
- 				filename, eg ioengine=external:/tmp/foo.o
-@@ -1727,6 +1736,7 @@ be the starting port number since fio will use a range of ports.
- 		1 	  : allocate space immidietly inside defragment event,
- 			    and free right after event
+ lockmem=int	Pin down the specified amount of memory with mlock(2). Can
+ 		potentially be used instead of removing memory or booting
+ 		with less memory to simulate a smaller amount of memory.
+@@ -1507,13 +1512,13 @@ clat_percentiles=bool Enable the reporting of percentiles of
+ 		 completion latencies.
  
-+[mtd] skip_bad=bool	Skip operations against known bad blocks.
+ percentile_list=float_list Overwrite the default list of percentiles
+-		for completion latencies. Each number is a floating
+-		number in the range (0,100], and the maximum length of
+-		the list is 20. Use ':' to separate the numbers, and
+-		list the numbers in ascending order. For example,
+-		--percentile_list=99.5:99.9 will cause fio to report
+-		the values of completion latency below which 99.5% and
+-		99.9% of the observed latencies fell, respectively.
++		for completion latencies and the block error histogram.
++		Each number is a floating number in the range (0,100],
++		and the maximum length of the list is 20. Use ':'
++		to separate the numbers, and list the numbers in ascending
++		order. For example, --percentile_list=99.5:99.9 will cause
++		fio to report the values of completion latency below which
++		99.5% and 99.9% of the observed latencies fell, respectively.
  
+ clocksource=str	Use the given clocksource as the base of timing. The
+ 		supported options are:
+diff --git a/client.c b/client.c
+index 760ec85..af3407c 100644
+--- a/client.c
++++ b/client.c
+@@ -891,6 +891,10 @@ static void convert_ts(struct thread_stat *dst, struct thread_stat *src)
+ 	dst->latency_target	= le64_to_cpu(src->latency_target);
+ 	dst->latency_window	= le64_to_cpu(src->latency_window);
+ 	dst->latency_percentile.u.f = fio_uint64_to_double(le64_to_cpu(src->latency_percentile.u.i));
++
++	dst->nr_block_infos	= le64_to_cpu(src->nr_block_infos);
++	for (i = 0; i < dst->nr_block_infos; i++)
++		dst->block_infos[i] = le32_to_cpu(src->block_infos[i]);
+ }
  
- 6.0 Interpreting the output
-diff --git a/Makefile b/Makefile
-index 52e515b..d7456d2 100644
---- a/Makefile
-+++ b/Makefile
-@@ -107,6 +107,11 @@ ifdef CONFIG_GFAPI
-     CFLAGS += "-DGFAPI_USE_FADVISE"
-   endif
- endif
-+ifdef CONFIG_MTD
-+  SOURCE += engines/mtd.c
-+  SOURCE += lib/libmtd.c
-+  SOURCE += lib/libmtd_legacy.c
-+endif
+ static void convert_gs(struct group_run_stats *dst, struct group_run_stats *src)
+diff --git a/filesetup.c b/filesetup.c
+index 4b63632..dbfb93b 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -880,6 +880,27 @@ int setup_files(struct thread_data *td)
+ 		}
+ 	}
  
- ifeq ($(CONFIG_TARGET_OS), Linux)
-   SOURCE += diskutil.c fifo.c blktrace.c cgroup.c trim.c engines/sg.c \
-diff --git a/engines/mtd.c b/engines/mtd.c
-new file mode 100644
-index 0000000..c24913a
---- /dev/null
-+++ b/engines/mtd.c
-@@ -0,0 +1,209 @@
-+/*
-+ * MTD engine
-+ *
-+ * IO engine that reads/writes from MTD character devices.
-+ *
-+ */
-+#include <assert.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <errno.h>
-+#include <sys/ioctl.h>
-+#include <mtd/mtd-user.h>
++	if (td->o.block_error_hist) {
++		int len;
 +
-+#include "../fio.h"
-+#include "../verify.h"
-+#include "../lib/libmtd.h"
-+
-+libmtd_t desc;
-+
-+struct fio_mtd_data {
-+	struct mtd_dev_info info;
-+};
-+
-+static int fio_mtd_maybe_mark_bad(struct thread_data *td,
-+				  struct fio_mtd_data *fmd,
-+				  struct io_u *io_u, int eb)
-+{
-+	int ret;
-+	if (errno == EIO) {
-+		ret = mtd_mark_bad(&fmd->info, io_u->file->fd, eb);
-+		if (ret != 0) {
-+			io_u->error = errno;
-+			td_verror(td, errno, "mtd_mark_bad");
-+			return -1;
-+		}
-+	}
-+	return 0;
-+}
-+
-+static int fio_mtd_is_bad(struct thread_data *td,
-+			  struct fio_mtd_data *fmd,
-+			  struct io_u *io_u, int eb)
-+{
-+	int ret = mtd_is_bad(&fmd->info, io_u->file->fd, eb);
-+	if (ret == -1) {
-+		io_u->error = errno;
-+		td_verror(td, errno, "mtd_is_bad");
-+	} else if (ret == 1)
-+		io_u->error = EIO;	/* Silent failure--don't flood stderr */
-+	return ret;
-+}
-+
-+static int fio_mtd_queue(struct thread_data *td, struct io_u *io_u)
-+{
-+	struct fio_file *f = io_u->file;
-+	struct fio_mtd_data *fmd = FILE_ENG_DATA(f);
-+	int local_offs = 0;
-+	int ret;
-+
-+	fio_ro_check(td, io_u);
-+
-+	/*
-+	 * Errors tend to pertain to particular erase blocks, so divide up
-+	 * I/O to erase block size.
-+	 * If an error is encountered, log it and keep going onto the next
-+	 * block because the error probably just pertains to that block.
-+	 * TODO(dehrenberg): Divide up reads and writes into page-sized
-+	 * operations to get more fine-grained information about errors.
-+	 * TODO(dehrenberg): Somehow skip ops against known bad blocks
-+	 * rather than erroring out.
-+	 */
-+	while (local_offs < io_u->buflen) {
-+		int eb = (io_u->offset + local_offs) / fmd->info.eb_size;
-+		int eb_offs = (io_u->offset + local_offs) % fmd->info.eb_size;
-+		/* The length is the smaller of the length remaining in the
-+		 * buffer and the distance to the end of the erase block */
-+		int len = min((int)io_u->buflen - local_offs,
-+			      (int)fmd->info.eb_size - eb_offs);
-+		char *buf = ((char *)io_u->buf) + local_offs;
-+
-+		if (td->o.skip_bad) {
-+			ret = fio_mtd_is_bad(td, fmd, io_u, eb);
-+			if (ret == -1)
-+				break;
-+			else if (ret == 1)
-+				goto next;
-+		}
-+		if (io_u->ddir == DDIR_READ) {
-+			ret = mtd_read(&fmd->info, f->fd, eb, eb_offs, buf, len);
-+			if (ret != 0) {
-+				io_u->error = errno;
-+				td_verror(td, errno, "mtd_read");
-+				if (fio_mtd_maybe_mark_bad(td, fmd, io_u, eb))
-+					break;
-+			}
-+		} else if (io_u->ddir == DDIR_WRITE) {
-+			ret = mtd_write(desc, &fmd->info, f->fd, eb,
-+					    eb_offs, buf, len, NULL, 0, 0);
-+			if (ret != 0) {
-+				io_u->error = errno;
-+				td_verror(td, errno, "mtd_write");
-+				if (fio_mtd_maybe_mark_bad(td, fmd, io_u, eb))
-+					break;
-+			}
-+		} else if (io_u->ddir == DDIR_TRIM) {
-+			if (eb_offs != 0 || len != fmd->info.eb_size) {
-+				io_u->error = EINVAL;
-+				td_verror(td, EINVAL,
-+					  "trim on MTD must be erase block-aligned");
-+			}
-+			ret = mtd_erase(desc, &fmd->info, f->fd, eb);
-+			if (ret != 0) {
-+				io_u->error = errno;
-+				td_verror(td, errno, "mtd_erase");
-+				if (fio_mtd_maybe_mark_bad(td, fmd, io_u, eb))
-+					break;
-+			}
-+		} else {
-+			io_u->error = ENOTSUP;
-+			td_verror(td, io_u->error, "operation not supported on mtd");
++		assert(td->o.nr_files == 1);	/* checked in fixup_options */
++		f = td->files[0];
++		len = f->io_size / td->o.bs[DDIR_TRIM];
++		if (len > MAX_NR_BLOCK_INFOS || len <= 0) {
++			log_err("fio: cannot calculate block histogram with "
++				"%d trim blocks, maximum %d\n",
++				len, MAX_NR_BLOCK_INFOS);
++			td_verror(td, EINVAL, "block_error_hist");
++			goto err_out;
 +		}
 +
-+next:
-+		local_offs += len;
-+	}
++		td->ts.nr_block_infos = len;
++		for (int i = 0; i < len; i++)
++			td->ts.block_infos[i] =
++				BLOCK_INFO(0, BLOCK_STATE_UNINIT);
++	} else
++		td->ts.nr_block_infos = 0;
 +
-+	return FIO_Q_COMPLETED;
-+}
-+
-+static int fio_mtd_open_file(struct thread_data *td, struct fio_file *f)
-+{
-+	struct fio_mtd_data *fmd;
-+	int ret;
-+
-+	ret = generic_open_file(td, f);
-+	if (ret)
-+		return ret;
-+
-+	fmd = calloc(1, sizeof(*fmd));
-+	if (!fmd)
-+		goto err_close;
-+
-+	ret = mtd_get_dev_info(desc, f->file_name, &fmd->info);
-+	if (ret != 0) {
-+		td_verror(td, errno, "mtd_get_dev_info");
-+		goto err_free;
-+	}
-+
-+	FILE_SET_ENG_DATA(f, fmd);
-+	return 0;
-+
-+err_free:
-+	free(fmd);
-+err_close:
-+	{
-+		int fio_unused ret;
-+		ret = generic_close_file(td, f);
-+		return 1;
-+	}
-+}
-+
-+static int fio_mtd_close_file(struct thread_data *td, struct fio_file *f)
-+{
-+	struct fio_mtd_data *fmd = FILE_ENG_DATA(f);
-+
-+	FILE_SET_ENG_DATA(f, NULL);
-+	free(fmd);
-+
-+	return generic_close_file(td, f);
-+}
-+
-+int fio_mtd_get_file_size(struct thread_data *td, struct fio_file *f)
-+{
-+	struct mtd_dev_info info;
-+
-+	int ret = mtd_get_dev_info(desc, f->file_name, &info);
-+	if (ret != 0) {
-+		td_verror(td, errno, "mtd_get_dev_info");
-+		return errno;
-+	}
-+	f->real_file_size = info.size;
-+
-+	return 0;
-+}
-+
-+static struct ioengine_ops ioengine = {
-+	.name		= "mtd",
-+	.version	= FIO_IOOPS_VERSION,
-+	.queue		= fio_mtd_queue,
-+	.open_file	= fio_mtd_open_file,
-+	.close_file	= fio_mtd_close_file,
-+	.get_file_size	= fio_mtd_get_file_size,
-+	.flags		= FIO_SYNCIO | FIO_NOEXTEND,
-+};
-+
-+static void fio_init fio_mtd_register(void)
-+{
-+	desc = libmtd_open();
-+	register_ioengine(&ioengine);
-+}
-+
-+static void fio_exit fio_mtd_unregister(void)
-+{
-+	unregister_ioengine(&ioengine);
-+	libmtd_close(desc);
-+	desc = NULL;
-+}
-+
+ 	if (!o->size || (total_size && o->size > total_size))
+ 		o->size = total_size;
+ 
 diff --git a/fio.1 b/fio.1
-index 26531bd..51d5294 100644
+index 0164f42..0f66b3a 100644
 --- a/fio.1
 +++ b/fio.1
-@@ -659,6 +659,13 @@ file out of those files based on the offset generated by fio backend. (see the
- example job file to create such files, use rw=write option). Please note, you
- might want to set necessary environment variables to work with hdfs/libhdfs
- properly.
-+.TP
-+.B mtd
-+Read, write and erase an MTD character device (e.g., /dev/mtd0). Discards are
-+treated as erases. Depending on the underlying device type, the I/O may have
-+to go in a certain pattern, e.g., on NAND, writing sequentially to erase blocks
-+and discarding before overwriting. The trimwrite mode works well for this
-+constraint.
- .RE
- .P
- .RE
-@@ -1576,6 +1583,9 @@ Specifies the name of the Ceph pool containing the RBD.
+@@ -1292,6 +1292,11 @@ a compressed format. They can be decompressed with fio, using the
+ \fB\-\-inflate-log\fR command line parameter. The files will be stored with a
+ \fB\.fz\fR suffix.
  .TP
- .BI (rbd)clientname \fR=\fPstr
- Specifies the username (without the 'client.' prefix) used to access the Ceph cluster.
++.BI block_error_percentiles \fR=\fPbool
++If set, record errors in trim block-sized units from writes and trims and output
++a histogram of how many trims it took to get to errors, and what kind of error
++was encountered.
 +.TP
-+.BI (mtd)skipbad \fR=\fPbool
-+Skip operations against known bad blocks.
- .SH OUTPUT
- While running, \fBfio\fR will display the status of the created jobs.  For
- example:
+ .BI disable_lat \fR=\fPbool
+ Disable measurements of total latency numbers. Useful only for cutting
+ back the number of calls to \fBgettimeofday\fR\|(2), as that does impact performance at
+@@ -1450,9 +1455,9 @@ exceeded before retrying operations
+ Enable the reporting of percentiles of completion latencies.
+ .TP
+ .BI percentile_list \fR=\fPfloat_list
+-Overwrite the default list of percentiles for completion
+-latencies. Each number is a floating number in the range (0,100], and
+-the maximum length of the list is 20. Use ':' to separate the
++Overwrite the default list of percentiles for completion latencies and the
++block error histogram. Each number is a floating number in the range (0,100],
++and the maximum length of the list is 20. Use ':' to separate the
+ numbers. For example, \-\-percentile_list=99.5:99.9 will cause fio to
+ report the values of completion latency below which 99.5% and 99.9% of
+ the observed latencies fell, respectively.
+diff --git a/init.c b/init.c
+index 95e26b8..a126f79 100644
+--- a/init.c
++++ b/init.c
+@@ -767,6 +767,13 @@ static int fixup_options(struct thread_data *td)
+ 	if (!td->loops)
+ 		td->loops = 1;
+ 
++	if (td->o.block_error_hist && td->o.nr_files != 1) {
++		log_err("fio: block error histogram only available with "
++			"with a single file per job, but %d files "
++			"provided\n", td->o.nr_files);
++		ret = 1;
++	}
++
+ 	return ret;
+ }
+ 
+diff --git a/io_u.c b/io_u.c
+index 4e81e69..0021466 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -1595,6 +1595,19 @@ static void account_io_completion(struct thread_data *td, struct io_u *io_u,
+ 
+ 	if (!gtod_reduce(td))
+ 		add_iops_sample(td, idx, bytes, &icd->time);
++
++	if (td->ts.nr_block_infos && io_u->ddir == DDIR_TRIM) {
++		uint32_t *info = io_u_block_info(td, io_u);
++		if (BLOCK_INFO_STATE(*info) < BLOCK_STATE_TRIM_FAILURE) {
++			if (io_u->ddir == DDIR_TRIM) {
++				*info = BLOCK_INFO(BLOCK_STATE_TRIMMED,
++						BLOCK_INFO_TRIMS(*info) + 1);
++			} else if (io_u->ddir == DDIR_WRITE) {
++				*info = BLOCK_INFO_SET_STATE(BLOCK_STATE_WRITTEN,
++								*info);
++			}
++		}
++	}
+ }
+ 
+ static long long usec_for_io(struct thread_data *td, enum fio_ddir ddir)
+diff --git a/iolog.c b/iolog.c
+index dfa329f..b29684a 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -291,6 +291,18 @@ void unlog_io_piece(struct thread_data *td, struct io_u *io_u)
+ {
+ 	struct io_piece *ipo = io_u->ipo;
+ 
++	if (td->ts.nr_block_infos) {
++		uint32_t *info = io_u_block_info(td, io_u);
++		if (BLOCK_INFO_STATE(*info) < BLOCK_STATE_TRIM_FAILURE) {
++			if (io_u->ddir == DDIR_TRIM)
++				*info = BLOCK_INFO_SET_STATE(*info,
++						BLOCK_STATE_TRIM_FAILURE);
++			else if (io_u->ddir == DDIR_WRITE)
++				*info = BLOCK_INFO_SET_STATE(*info,
++						BLOCK_STATE_WRITE_FAILURE);
++		}
++	}
++
+ 	if (!ipo)
+ 		return;
+ 
 diff --git a/options.c b/options.c
-index cda4790..16e4506 100644
+index 690a1e1..426b1a3 100644
 --- a/options.c
 +++ b/options.c
-@@ -1257,6 +1257,10 @@ static struct opt_group fio_opt_cat_groups[] = {
- 		.name	= "Tiobench profile",
- 		.mask	= FIO_OPT_G_TIOBENCH,
+@@ -3185,6 +3185,16 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
  	},
-+	{
-+		.name	= "MTD",
-+		.mask	= FIO_OPT_G_MTD,
-+	},
- 
+ #endif
  	{
- 		.name	= NULL,
-@@ -3650,6 +3654,17 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.group	= FIO_OPT_G_IO_FLOW,
- 	},
- 	{
-+		.name	= "skip_bad",
-+		.lname	= "Skip operations against bad blocks",
++		.name	= "block_error_percentiles",
++		.lname	= "Block error percentiles",
 +		.type	= FIO_OPT_BOOL,
-+		.off1	= td_var_offset(skip_bad),
-+		.help	= "Skip operations against known bad blocks.",
-+		.hide	= 1,
++		.off1	= td_var_offset(block_error_hist),
++		.help	= "Record trim block errors and make a histogram",
 +		.def	= "0",
-+		.category = FIO_OPT_C_IO,
-+		.group	= FIO_OPT_G_MTD,
++		.category = FIO_OPT_C_LOG,
++		.group	= FIO_OPT_G_INVALID,
 +	},
 +	{
- 		.name = NULL,
+ 		.name	= "bwavgtime",
+ 		.lname	= "Bandwidth average time",
+ 		.type	= FIO_OPT_INT,
+@@ -3308,11 +3318,12 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
  	},
- };
-diff --git a/options.h b/options.h
-index 36fd35d..2cf435a 100644
---- a/options.h
-+++ b/options.h
-@@ -115,6 +115,7 @@ enum opt_category_group {
- 	__FIO_OPT_G_LATPROF,
-         __FIO_OPT_G_RBD,
-         __FIO_OPT_G_GFAPI,
-+        __FIO_OPT_G_MTD,
- 	__FIO_OPT_G_NR,
+ 	{
+ 		.name	= "percentile_list",
+-		.lname	= "Completion latency percentile list",
++		.lname	= "Percentile list",
+ 		.type	= FIO_OPT_FLOAT_LIST,
+ 		.off1	= td_var_offset(percentile_list),
+ 		.off2	= td_var_offset(percentile_precision),
+-		.help	= "Specify a custom list of percentiles to report",
++		.help	= "Specify a custom list of percentiles to report for "
++			  "completion latency and block errors",
+ 		.def    = "1:5:10:20:30:40:50:60:70:80:90:95:99:99.5:99.9:99.95:99.99",
+ 		.maxlen	= FIO_IO_U_LIST_MAX_LEN,
+ 		.minfp	= 0.0,
+diff --git a/server.c b/server.c
+index c249849..93c0987 100644
+--- a/server.c
++++ b/server.c
+@@ -1158,6 +1158,10 @@ void fio_server_send_ts(struct thread_stat *ts, struct group_run_stats *rs)
+ 	p.ts.latency_window	= cpu_to_le64(ts->latency_window);
+ 	p.ts.latency_percentile.u.i = cpu_to_le64(fio_double_to_uint64(ts->latency_percentile.u.f));
  
- 	FIO_OPT_G_RATE		= (1U << __FIO_OPT_G_RATE),
-@@ -146,6 +147,7 @@ enum opt_category_group {
- 	FIO_OPT_G_LATPROF	= (1U << __FIO_OPT_G_LATPROF),
- 	FIO_OPT_G_RBD		= (1U << __FIO_OPT_G_RBD),
- 	FIO_OPT_G_GFAPI		= (1U << __FIO_OPT_G_GFAPI),
-+	FIO_OPT_G_MTD		= (1U << __FIO_OPT_G_MTD),
- 	FIO_OPT_G_INVALID	= (1U << __FIO_OPT_G_NR),
- };
++	p.ts.nr_block_infos	= le64_to_cpu(ts->nr_block_infos);
++	for (i = 0; i < p.ts.nr_block_infos; i++)
++		p.ts.block_infos[i] = le32_to_cpu(ts->block_infos[i]);
++
+ 	convert_gs(&p.rs, rs);
  
+ 	fio_net_send_cmd(server_fd, FIO_NET_CMD_TS, &p, sizeof(p), NULL, NULL);
+diff --git a/stat.c b/stat.c
+index 252b2dc..34e3792 100644
+--- a/stat.c
++++ b/stat.c
+@@ -497,6 +497,147 @@ static void show_latencies(struct thread_stat *ts)
+ 	show_lat_m(io_u_lat_m);
+ }
+ 
++static int block_state_category(int block_state)
++{
++	switch (block_state) {
++	case BLOCK_STATE_UNINIT:
++		return 0;
++	case BLOCK_STATE_TRIMMED:
++	case BLOCK_STATE_WRITTEN:
++		return 1;
++	case BLOCK_STATE_WRITE_FAILURE:
++	case BLOCK_STATE_TRIM_FAILURE:
++		return 2;
++	default:
++		assert(0);
++	}
++}
++
++static int compare_block_infos(const void *bs1, const void *bs2)
++{
++	uint32_t block1 = *(uint32_t *)bs1;
++	uint32_t block2 = *(uint32_t *)bs2;
++	int state1 = BLOCK_INFO_STATE(block1);
++	int state2 = BLOCK_INFO_STATE(block2);
++	int bscat1 = block_state_category(state1);
++	int bscat2 = block_state_category(state2);
++	int cycles1 = BLOCK_INFO_TRIMS(block1);
++	int cycles2 = BLOCK_INFO_TRIMS(block2);
++
++	if (bscat1 < bscat2)
++		return -1;
++	if (bscat1 > bscat2)
++		return 1;
++
++	if (cycles1 < cycles2)
++		return -1;
++	if (cycles1 > cycles2)
++		return 1;
++
++	if (state1 < state2)
++		return -1;
++	if (state1 > state2)
++		return 1;
++
++	assert(block1 == block2);
++	return 0;
++}
++
++static int calc_block_percentiles(int nr_block_infos, uint32_t *block_infos,
++				  fio_fp64_t *plist, unsigned int **percentiles,
++				  unsigned int *types)
++{
++	int len = 0;
++	int i, nr_uninit;
++
++	qsort(block_infos, nr_block_infos, sizeof(uint32_t), compare_block_infos);
++
++	while (len < FIO_IO_U_LIST_MAX_LEN && plist[len].u.f != 0.0)
++		len++;
++
++	if (!len)
++		return 0;
++
++	/*
++	 * Sort the percentile list. Note that it may already be sorted if
++	 * we are using the default values, but since it's a short list this
++	 * isn't a worry. Also note that this does not work for NaN values.
++	 */
++	if (len > 1)
++		qsort((void *)plist, len, sizeof(plist[0]), double_cmp);
++
++	nr_uninit = 0;
++	/* Start only after the uninit entries end */
++	for (nr_uninit = 0;
++	     nr_uninit < nr_block_infos
++		&& BLOCK_INFO_STATE(block_infos[nr_uninit]) == BLOCK_STATE_UNINIT;
++	     nr_uninit ++)
++		;
++
++	if (nr_uninit == nr_block_infos)
++		return 0;
++
++	*percentiles = calloc(len, sizeof(**percentiles));
++
++	for (i = 0; i < len; i++) {
++		int idx = (plist[i].u.f * (nr_block_infos - nr_uninit) / 100)
++				+ nr_uninit;
++		(*percentiles)[i] = BLOCK_INFO_TRIMS(block_infos[idx]);
++	}
++
++	memset(types, 0, sizeof(*types) * BLOCK_STATE_COUNT);
++	for (i = 0; i < nr_block_infos; i++)
++		types[BLOCK_INFO_STATE(block_infos[i])]++;
++
++	return len;
++}
++
++static const char *block_state_names[] = {
++	[BLOCK_STATE_UNINIT] = "unwritten",
++	[BLOCK_STATE_TRIMMED] = "trimmed",
++	[BLOCK_STATE_WRITTEN] = "written",
++	[BLOCK_STATE_TRIM_FAILURE] = "trim failure",
++	[BLOCK_STATE_WRITE_FAILURE] = "write failure",
++};
++
++static void show_block_infos(int nr_block_infos, uint32_t *block_infos,
++			     fio_fp64_t *plist)
++{
++	int len, pos, i;
++	unsigned int *percentiles = NULL;
++	unsigned int block_state_counts[BLOCK_STATE_COUNT];
++
++	len = calc_block_percentiles(nr_block_infos, block_infos, plist,
++				     &percentiles, block_state_counts);
++
++	log_info("  block lifetime percentiles :\n   |");
++	pos = 0;
++	for (i = 0; i < len; i++) {
++		uint32_t block_info = percentiles[i];
++#define LINE_LENGTH	75
++		char str[LINE_LENGTH];
++		int strln = snprintf(str, LINE_LENGTH, " %3.2fth=%u%c",
++				     plist[i].u.f, block_info,
++				     i == len - 1 ? '\n' : ',');
++		assert(strln < LINE_LENGTH);
++		if (pos + strln > LINE_LENGTH) {
++			pos = 0;
++			log_info("\n   |");
++		}
++		log_info("%s", str);
++		pos += strln;
++#undef LINE_LENGTH
++	}
++	if (percentiles)
++		free(percentiles);
++
++	log_info("        states               :");
++	for (i = 0; i < BLOCK_STATE_COUNT; i++)
++		log_info(" %s=%u%c",
++			 block_state_names[i], block_state_counts[i],
++			 i == BLOCK_STATE_COUNT - 1 ? '\n' : ',');
++}
++
+ static void show_thread_status_normal(struct thread_stat *ts,
+ 				      struct group_run_stats *rs)
+ {
+@@ -596,6 +737,10 @@ static void show_thread_status_normal(struct thread_stat *ts,
+ 					ts->latency_percentile.u.f,
+ 					ts->latency_depth);
+ 	}
++
++	if (ts->nr_block_infos)
++		show_block_infos(ts->nr_block_infos, ts->block_infos,
++				  ts->percentile_list);
+ }
+ 
+ static void show_ddir_status_terse(struct thread_stat *ts,
+@@ -998,6 +1143,45 @@ static struct json_object *show_thread_status_json(struct thread_stat *ts,
+ 	if (strlen(ts->description))
+ 		json_object_add_value_string(root, "desc", ts->description);
+ 
++	if (ts->nr_block_infos) {
++		/* Block error histogram and types */
++		int len;
++		unsigned int *percentiles = NULL;
++		unsigned int block_state_counts[BLOCK_STATE_COUNT];
++
++		len = calc_block_percentiles(ts->nr_block_infos, ts->block_infos,
++					     ts->percentile_list,
++					     &percentiles, block_state_counts);
++
++		if (len) {
++			struct json_object *block, *percentile_object, *states;
++			int state, i;
++			block = json_create_object();
++			json_object_add_value_object(root, "block", block);
++
++			percentile_object = json_create_object();
++			json_object_add_value_object(block, "percentiles",
++						     percentile_object);
++			for (i = 0; i < len; i++) {
++				char buf[20];
++				snprintf(buf, sizeof(buf), "%f",
++					 ts->percentile_list[i].u.f);
++				json_object_add_value_int(percentile_object,
++							  (const char *)buf,
++							  percentiles[i]);
++			}
++
++			states = json_create_object();
++			json_object_add_value_object(block, "states", states);
++			for (state = 0; state < BLOCK_STATE_COUNT; state++) {
++				json_object_add_value_int(states,
++					block_state_names[state],
++					block_state_counts[state]);
++			}
++			free(percentiles);
++		}
++	}
++
+ 	return root;
+ }
+ 
+@@ -1913,3 +2097,14 @@ void show_running_run_stats(void)
+ 	helper_do_stat = 1;
+ 	pthread_cond_signal(&helper_cond);
+ }
++
++uint32_t *io_u_block_info(struct thread_data *td, struct io_u *io_u)
++{
++	/* Ignore io_u's which span multiple blocks--they will just get
++	 * inaccurate counts. */
++	int idx = (io_u->offset - io_u->file->file_offset)
++			/ td->o.bs[DDIR_TRIM];
++	uint32_t *info = &td->ts.block_infos[idx];
++	assert(idx < td->ts.nr_block_infos);
++	return info;
++}
+diff --git a/stat.h b/stat.h
+index 8b4416c..dd34012 100644
+--- a/stat.h
++++ b/stat.h
+@@ -112,6 +112,28 @@ struct group_run_stats {
+ #define FIO_IO_U_LIST_MAX_LEN 20 /* The size of the default and user-specified
+ 					list of percentiles */
+ 
++/*
++ * Trim cycle count measurements
++ */
++#define MAX_NR_BLOCK_INFOS	8192
++#define BLOCK_INFO_STATE_SHIFT	29
++#define BLOCK_INFO_TRIMS(block_info)	\
++	((block_info) & ((1 << BLOCK_INFO_STATE_SHIFT) - 1))
++#define BLOCK_INFO_STATE(block_info)		\
++	((block_info) >> BLOCK_INFO_STATE_SHIFT)
++#define BLOCK_INFO(state, trim_cycles)	\
++	((trim_cycles) | ((state) << BLOCK_INFO_STATE_SHIFT))
++#define BLOCK_INFO_SET_STATE(block_info, state)	\
++	BLOCK_INFO(state, BLOCK_INFO_TRIMS(block_info))
++enum block_info_state {
++	BLOCK_STATE_UNINIT,
++	BLOCK_STATE_TRIMMED,
++	BLOCK_STATE_WRITTEN,
++	BLOCK_STATE_TRIM_FAILURE,
++	BLOCK_STATE_WRITE_FAILURE,
++	BLOCK_STATE_COUNT,
++} state;
++
+ #define MAX_PATTERN_SIZE	512
+ #define FIO_JOBNAME_SIZE	128
+ #define FIO_JOBDESC_SIZE	256
+@@ -180,6 +202,9 @@ struct thread_stat {
+ 	uint64_t total_err_count;
+ 	uint32_t first_error;
+ 
++	uint64_t nr_block_infos;
++	uint32_t block_infos[MAX_NR_BLOCK_INFOS];
++
+ 	uint32_t kb_base;
+ 	uint32_t unit_base;
+ 
+@@ -261,4 +286,6 @@ static inline int usec_to_msec(unsigned long *min, unsigned long *max,
+ #define __THREAD_RUNSTR_SZ(nr)	((nr) * 5)
+ #define THREAD_RUNSTR_SZ	__THREAD_RUNSTR_SZ(thread_number)
+ 
++uint32_t *io_u_block_info(struct thread_data *td, struct io_u *io_u);
++
+ #endif
 diff --git a/thread_options.h b/thread_options.h
-index 59e32ac..9ebc816 100644
+index 5a2428a..59e32ac 100644
 --- a/thread_options.h
 +++ b/thread_options.h
-@@ -262,6 +262,7 @@ struct thread_options {
+@@ -260,6 +260,8 @@ struct thread_options {
+ 	unsigned long long latency_target;
+ 	unsigned long long latency_window;
  	fio_fp64_t latency_percentile;
- 
- 	unsigned block_error_hist;
-+	unsigned int skip_bad;
++
++	unsigned block_error_hist;
  };
  
  #define FIO_TOP_STR_MAX		256
-@@ -489,6 +490,7 @@ struct thread_options_pack {
+@@ -485,6 +487,8 @@ struct thread_options_pack {
+ 	uint64_t latency_window;
+ 	uint32_t pad3;
  	fio_fp64_t latency_percentile;
- 
- 	uint32_t block_error_hist;
-+	uint32_t skip_bad;
++
++	uint32_t block_error_hist;
  } __attribute__((packed));
  
  extern void convert_thread_options_to_cpu(struct thread_options *o, struct thread_options_pack *top);
