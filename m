@@ -2,9 +2,9 @@ Return-Path: <dehrenberg@google.com>
 Return-Path: <dehrenberg@google.com>
 Sender: Daniel Ehrenberg <dehrenberg@google.com>
 From: Dan Ehrenberg <dehrenberg@chromium.org>
-Subject: [PATCH 0/7] Framework for NAND lifetime testing
-Date: Tue, 14 Apr 2015 15:58:13 -0700
-Message-Id: <1429052300-9822-1-git-send-email-dehrenberg@chromium.org>
+Subject: [PATCH v2 0/7] Framework for NAND lifetime testing
+Date: Wed, 15 Apr 2015 10:41:28 -0700
+Message-Id: <1429119695-22425-1-git-send-email-dehrenberg@chromium.org>
 To: fio@vger.kernel.org, axboe@kernel.dk
 Cc: gwendal@chromium.org, Dan Ehrenberg <dehrenberg@chromium.org>
 List-ID: <fio@vger.kernel.org>
@@ -29,16 +29,19 @@ This patch series adds
   occurred, which corresponds to block lifetime in the case of
   NAND.
 
+In v2, the writetrim mode was renamed to trimwrite and documentation
+was improved.
+
 Dan Ehrenberg (7):
   Allow trim on any file type
-  Add new writetrim rw= mode for trims preceding writes
+  Add new trimwrite rw= mode for trims preceding writes
   Collect a block-wise histogram of trim and write errors
   mtd: Add CONFIG_MTD to ./configure script
   mtd: Import libmtd with modifications to make it compile
   mtd: ioengine
   mtd: example job file
 
- HOWTO               |   29 +-
+ HOWTO               |   37 +-
  Makefile            |    5 +
  backend.c           |    5 +
  client.c            |    4 +
@@ -46,7 +49,7 @@ Dan Ehrenberg (7):
  engines/mtd.c       |  209 ++++++++
  examples/mtd.fio    |   21 +
  filesetup.c         |   26 +-
- fio.1               |   21 +-
+ fio.1               |   29 +-
  init.c              |    7 +
  io_ddir.h           |    3 +
  io_u.c              |   25 +-
@@ -63,7 +66,7 @@ Dan Ehrenberg (7):
  stat.c              |  199 +++++++
  stat.h              |   27 +
  thread_options.h    |    6 +
- 25 files changed, 3241 insertions(+), 18 deletions(-)
+ 25 files changed, 3254 insertions(+), 21 deletions(-)
  create mode 100644 engines/mtd.c
  create mode 100644 examples/mtd.fio
  create mode 100644 lib/libmtd.c
