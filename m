@@ -1,27 +1,70 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ig0-f170.google.com ([209.85.213.170]:38620 "EHLO
-	mail-ig0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754807AbbDYSEs (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 25 Apr 2015 14:04:48 -0400
-Received: by igbhj9 with SMTP id hj9so36847873igb.1
-        for <fio@vger.kernel.org>; Sat, 25 Apr 2015 11:04:47 -0700 (PDT)
-MIME-Version: 1.0
-Date: Sat, 25 Apr 2015 11:04:47 -0700
-Message-ID: <CAHA74uot2-dZCi=iehNRgx0RF55QsBpLFFcxQ7KqdXmjbn1FuA@mail.gmail.com>
-Subject: fio queue depth and windows build.
-From: Iuliu Rus <iuliur@google.com>
-Content-Type: text/plain; charset=UTF-8
+Received: from casper.infradead.org ([85.118.1.10]:34928 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752896AbbDOMAH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 15 Apr 2015 08:00:07 -0400
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1YiLzC-0005Km-82
+	for fio@vger.kernel.org; Wed, 15 Apr 2015 12:00:06 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150415120003.73C9F40187@lyth.info>
+Date: Wed, 15 Apr 2015 06:00:03 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hello,
-Looking at fio for windows, we are pretty sure that the queue depth
-parameter is not working.
-We wanted to investigate this ourselves and prepare a fix, but the
-windows build is not working either. From a cygwin64 shell, make clean
-and make -j results in this:
-t/dedupe.c:13:23: fatal error: sys/ioctl.h: No such file or directory
-(although i see ioctl.h under cygwin64\usr\include\sys and under
-cygwin64\usr\i686-pc-cygwin\sys-root\usr\include\sys).
-Any idea why the build fails?
+The following changes since commit 92aef550de95c5b33c489cbabd2c1a70e59475b3:
+
+  configure: update to changes in fusion-aw packaging (2015-04-09 08:24:38 -0600)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 89c176baca1170db809d4f46416e262851d00874:
+
+  Fio 2.2.7 (2015-04-14 18:08:59 -0600)
+
+----------------------------------------------------------------
+fio v2.2.7
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Fio 2.2.7
+
+ FIO-VERSION-GEN        |    2 +-
+ os/windows/install.wxs |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index 9ae7b7d..22c9f68 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-2.2.6
++DEF_VER=fio-2.2.7
+ 
+ LF='
+ '
+diff --git a/os/windows/install.wxs b/os/windows/install.wxs
+index 74f1d28..ba58b92 100755
+--- a/os/windows/install.wxs
++++ b/os/windows/install.wxs
+@@ -10,7 +10,7 @@
+ 	<Product Id="*"
+ 	  Codepage="1252" Language="1033"
+ 	  Manufacturer="fio" Name="fio"
+-	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.2.6">
++	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.2.7">
+ 		<Package
+ 		  Description="Flexible IO Tester"
+ 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
