@@ -2,36 +2,55 @@ Return-Path: <dehrenberg@google.com>
 Return-Path: <dehrenberg@google.com>
 Sender: Daniel Ehrenberg <dehrenberg@google.com>
 From: Dan Ehrenberg <dehrenberg@chromium.org>
-Subject: [PATCH] Fix mtd valgrind warning
-Date: Thu, 16 Apr 2015 14:50:39 -0700
-Message-Id: <1429221039-31612-1-git-send-email-dehrenberg@chromium.org>
+Subject: [PATCH v2 7/7] mtd: example job file
+Date: Wed, 15 Apr 2015 10:41:35 -0700
+Message-Id: <1429119695-22425-8-git-send-email-dehrenberg@chromium.org>
+In-Reply-To: <1429119695-22425-1-git-send-email-dehrenberg@chromium.org>
+References: <1429119695-22425-1-git-send-email-dehrenberg@chromium.org>
 To: fio@vger.kernel.org, axboe@kernel.dk
 Cc: gwendal@chromium.org, Dan Ehrenberg <dehrenberg@chromium.org>
 List-ID: <fio@vger.kernel.org>
 
-strlen seems to operate in 32-bit chunks, but libmtd sometimes allocates
-strings without that much padding. This patch adds something extra to
-a string allocation so that the mtd ioengine is clean with respect
-to valgrind memory access checks.
+This job file shows how one can write sequentially to an MTD device,
+erase (with trim), and do a looped write/trim workload. Ignoring EIO
+errors allows operations to continue as bad blocks are skipped.
+The block histogram counts P/E cycles and can be used to assess
+NAND flash lifetime and failure characteristics. This job file is
+written to work with the nandsim fake NAND device.
 
 Signed-off-by: Dan Ehrenberg <dehrenberg@chromium.org>
 ---
- lib/libmtd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ examples/mtd.fio | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+ create mode 100644 examples/mtd.fio
 
-diff --git a/lib/libmtd.c b/lib/libmtd.c
-index e1b2be1..5c9eac2 100644
---- a/lib/libmtd.c
-+++ b/lib/libmtd.c
-@@ -55,7 +55,7 @@ static char *mkpath(const char *path, const char *name)
- 	size_t len1 = strlen(path);
- 	size_t len2 = strlen(name);
- 
--	n = xmalloc(len1 + len2 + 2);
-+	n = xmalloc(len1 + len2 + 6);
- 
- 	memcpy(n, path, len1);
- 	if (n[len1 - 1] != '/')
+diff --git a/examples/mtd.fio b/examples/mtd.fio
+new file mode 100644
+index 0000000..e5dcea4
+--- /dev/null
++++ b/examples/mtd.fio
+@@ -0,0 +1,21 @@
++[global]
++gtod_reduce=1
++filename=/dev/mtd0
++ioengine=mtd
++ignore_error=,EIO
++blocksize=512,512,16384
++skip_bad=1
++
++[write]
++stonewall
++rw=trim
++
++[write]
++stonewall
++rw=write
++
++[write]
++stonewall
++block_error_percentiles=1
++rw=trimwrite
++loops=4
 -- 
 2.2.0.rc0.207.ga3a616c
 
