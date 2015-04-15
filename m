@@ -1,44 +1,72 @@
-Return-Path: <Elliott@hp.com>
-From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
-Subject: RE: linux /dev and normal files
-Date: Fri, 3 Apr 2015 18:13:01 +0000
-Message-ID: <94D0CD8314A33A4D9D801C0FE68B40295A858295@G9W0745.americas.hpqcorp.net>
-References: <94D0CD8314A33A4D9D801C0FE68B402958CC5D81@G4W3202.americas.hpqcorp.net>
- <542B52B3.5060908@kernel.dk>
- <94D0CD8314A33A4D9D801C0FE68B402958CC5EBE@G4W3202.americas.hpqcorp.net>
- <542B5632.8030404@kernel.dk> <542B784F.5090405@kernel.dk>
- <94D0CD8314A33A4D9D801C0FE68B402958CC85F9@G4W3202.americas.hpqcorp.net>
- <542CA321.5090608@kernel.dk> <542CA44D.1030700@kernel.dk>
- <94D0CD8314A33A4D9D801C0FE68B402958CCAA76@G4W3202.americas.hpqcorp.net>
- <542D9A26.6060204@kernel.dk>
-In-Reply-To: <542D9A26.6060204@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: Sitsofe Wheeler <sitsofe@gmail.com>, Jon Tango <cheerios123@outlook.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-oi0-f46.google.com ([209.85.218.46]:34223 "EHLO
+	mail-oi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756336AbbDORlv (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 15 Apr 2015 13:41:51 -0400
+Received: by oiko83 with SMTP id o83so32387571oik.1
+        for <fio@vger.kernel.org>; Wed, 15 Apr 2015 10:41:50 -0700 (PDT)
+From: Dan Ehrenberg <dehrenberg@chromium.org>
+Subject: [PATCH v2 1/7] Allow trim on any file type
+Date: Wed, 15 Apr 2015 10:41:29 -0700
+Message-Id: <1429119695-22425-2-git-send-email-dehrenberg@chromium.org>
+In-Reply-To: <1429119695-22425-1-git-send-email-dehrenberg@chromium.org>
+References: <1429119695-22425-1-git-send-email-dehrenberg@chromium.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org, axboe@kernel.dk
+Cc: gwendal@chromium.org, Dan Ehrenberg <dehrenberg@chromium.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
-a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uDQo+IEJlaGFs
-ZiBPZiBKZW5zIEF4Ym9lDQo+IFNlbnQ6IFRodXJzZGF5LCBPY3RvYmVyIDIsIDIwMTQgMTozMiBQ
-TQ0KPiBUbzogRWxsaW90dCwgUm9iZXJ0IChTZXJ2ZXIgU3RvcmFnZSk7IGZpb0B2Z2VyLmtlcm5l
-bC5vcmcNCj4gQ2M6IFNpdHNvZmUgV2hlZWxlcjsgSm9uIFRhbmdvDQo+IFN1YmplY3Q6IFJlOiBs
-aW51eCAvZGV2IGFuZCBub3JtYWwgZmlsZXMNCj4gDQo+IE9uIDEwLzAyLzIwMTQgMTI6MjEgUE0s
-IEVsbGlvdHQsIFJvYmVydCAoU2VydmVyIFN0b3JhZ2UpIHdyb3RlOg0KPiA+Pj4+IEl0IG1pZ2h0
-IGJlIGJldHRlciB0byBjb250aW51ZSB0byBhdHRlbXB0IHRvIHJ1biB0aGUNCj4gPj4+PiBvdGhl
-ciBqb2JzLg0KPiA+Pj4NCj4gPj4+IFdlIHNob3VsZCBqdXN0IGdvIGZvciB0aGUgc2ltcGxlciBj
-cmVhdGUvbm9jcmVhdGUgc29sdXRpb24sIEkgcHJlZmVyDQo+ID4+PiB0aGF0LiBUaGlzIGlzIHRv
-byBpbnZvbHZlZCwgYW5kIGl0J3MgaGFyZCB0byBnZXQgYWxsIHRoZSBjYXNlcyByaWdodA0KPiA+
-Pj4gc2luY2UgdGhlcmUgYXJlIGEgYnVuY2ggb2YgZGlmZmVyZW50IHdheXMgdGhhdCBmaWxlcyBh
-cmUgYWRkZWQuIFdoaWNoDQo+ID4+PiB3YXMgd2h5IHRoaXMgcGF0Y2ggb25seSBmb2N1c2VkIG9u
-IGZpbGVuYW1lPSwgc2luY2UgdGhhdCBpcyB0aGUgb25lDQo+IHRoYXQNCj4gPj4+IGlzIHRoZSBt
-b3N0IGludGVyZXN0aW5nLiBCdXQgaXQgc3RpbGwgaXNuJ3QgcHJldHR5LiBJZiB3ZSBhZGQgdGhl
-DQo+ID4+PiBhbGxvd19maWxlX2NyZWF0ZSBvcHRpb24sIGl0J3MgYmFzaWNhbGx5IGEgdHdvLWxp
-bmVyIGNoYW5nZSBpbiBhIGZldw0KPiA+Pj4gcGxhY2VzIHRvIG5vdCB1c2UgT19DUkVBVC4NCj4g
-Pj4NCj4gPj4gVGhhdCB0b29rIHJvdWdobHkgNCBtaW51dGVzLi4uIERvZXMgdGhpcyB3b3JrPyBT
-ZXQgYWxsb3dfZmlsZV9jcmVhdGU9MA0KPiA+PiB0byBkaXNhbGxvdyBjcmVhdGluZyBuZXcgZmls
-ZXMuDQouLi4NCj4gDQo+IE9LLCBsZXQgbWUgdGVzdCB0aGF0LCB3aWxsIHNwaW4gYSBuZXcgb25l
-Lg0KDQpJIGRvbid0IHRoaW5rIHRoaXMgZXZlciBnb3QgYWRkZWQuDQoNCg0K
+The mtd fio engine will support trim (interpreted as erase). There is
+no particular reason to tie trims to block devices, as it is only a
+particular ioengine which calls the trim ioctl, not generic code.
+This patch simply removes the test which checks that trim is only
+run on block devices.
+
+Signed-off-by: Dan Ehrenberg <dehrenberg@chromium.org>
+
+---
+ filesetup.c | 5 -----
+ fio.1       | 4 ++--
+ 2 files changed, 2 insertions(+), 7 deletions(-)
+
+diff --git a/filesetup.c b/filesetup.c
+index 0fb5589..4b63632 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -512,11 +512,6 @@ int generic_open_file(struct thread_data *td, struct fio_file *f)
+ 
+ 	dprint(FD_FILE, "fd open %s\n", f->file_name);
+ 
+-	if (td_trim(td) && f->filetype != FIO_TYPE_BD) {
+-		log_err("fio: trim only applies to block device\n");
+-		return 1;
+-	}
+-
+ 	if (!strcmp(f->file_name, "-")) {
+ 		if (td_rw(td)) {
+ 			log_err("fio: can't read/write to stdin/out\n");
+diff --git a/fio.1 b/fio.1
+index 0164f42..b94fb43 100644
+--- a/fio.1
++++ b/fio.1
+@@ -270,7 +270,7 @@ Sequential reads.
+ Sequential writes.
+ .TP
+ .B trim
+-Sequential trim (Linux block devices only).
++Sequential trim.
+ .TP
+ .B randread
+ Random reads.
+@@ -279,7 +279,7 @@ Random reads.
+ Random writes.
+ .TP
+ .B randtrim
+-Random trim (Linux block devices only).
++Random trim.
+ .TP
+ .B rw, readwrite
+ Mixed sequential reads and writes.
+-- 
+2.2.0.rc0.207.ga3a616c
 
