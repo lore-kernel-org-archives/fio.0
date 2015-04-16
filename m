@@ -1,82 +1,70 @@
-Return-Path: <dehrenberg@google.com>
-Return-Path: <dehrenberg@google.com>
-Sender: Daniel Ehrenberg <dehrenberg@google.com>
-From: Dan Ehrenberg <dehrenberg@chromium.org>
-Subject: [PATCH v2 0/7] Framework for NAND lifetime testing
-Date: Wed, 15 Apr 2015 10:41:28 -0700
-Message-Id: <1429119695-22425-1-git-send-email-dehrenberg@chromium.org>
-To: fio@vger.kernel.org, axboe@kernel.dk
-Cc: gwendal@chromium.org, Dan Ehrenberg <dehrenberg@chromium.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-ig0-f169.google.com ([209.85.213.169]:38734 "EHLO
+	mail-ig0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756979AbbDPLQG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 16 Apr 2015 07:16:06 -0400
+Received: by igbhj9 with SMTP id hj9so3171852igb.1
+        for <fio@vger.kernel.org>; Thu, 16 Apr 2015 04:16:06 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CABtFm2USrxVrNJyow6sFFNGdJFKoMieFepCWiPBHckg4e_k3-w@mail.gmail.com>
+References: <CABtFm2USrxVrNJyow6sFFNGdJFKoMieFepCWiPBHckg4e_k3-w@mail.gmail.com>
+Date: Thu, 16 Apr 2015 19:16:06 +0800
+Message-ID: <CABtFm2XhAte41q9AFHSuEjAt-Tth=iiayqc=KSxaFcn86+rLSg@mail.gmail.com>
+Subject: Re: lex/yacc not configured properly.
+From: Srinivasa Chamarthy <chamarthy.raju@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
+Cc: Srinivasa Chamarthy <chamarthy.raju@gmail.com>
 
-My goal here is to be able to qualify and characterize NAND flash
-by running fio job files on it. The major problem with NAND is that
-it wears out. The most basic thing to test is how long it takes
-blocks to wear out with repeated program/erase cycles.
+This might fail for solaris. May require some conditional compilation.
 
-Linux exposes NAND devices, among other things, with the MTD
-subsystem. That system allows the proper read, write and erase block
-sizes which vary in ways unlike normal block devices. For many MTD
-devices, blocks must be erased before writing them, and some have
-to be written in sequential order.
+On Thu, Apr 16, 2015 at 6:22 PM, Srinivasa Chamarthy
+<chamarthy.raju@gmail.com> wrote:
+> There seems to be a small issue with configure while checking
+> lex/yacc. Eventhough lex/yacc is available, it fails as the library
+> name for lex is not what is expected.
+>
+> library for lex should be "-lfl" instead of "-ll".
+>
+> + echo 'Compiling test case lex'
+> + do_cc -D_GNU_SOURCE -include config-host.h -o
+> /tmp/fio-conf-1068-8707-30378.exe /tmp/fio-conf-10872-8707-1500.c -ll
+> -lnuma -lrt -laio -lz
+> + echo gcc -D_GNU_SOURCE -include config-host.h -o
+> /tmp/fio-conf-1068-8707-30378.exe /tmp/fio-conf-10872-8707-1500.c -ll
+> -lnuma -lrt -laio -lz
+> + gcc -D_GNU_SOURCE -include config-host.h -o
+> /tmp/fio-conf-1068-8707-30378.exe /tmp/fio-conf-10872-8707-1500.c -ll
+> -lnuma -lrt -laio -lz
+> + return 1
+> + arith=no
+> + echo 'lex/yacc for arithmetic       no'
+>
+> The following fixes the issue:
+> ------------------------
+> --- configure.old       2015-04-16 06:19:44.016796602 -0400
+> +++ configure   2015-04-16 06:19:55.272796870 -0400
+> @@ -1420,8 +1420,8 @@ int main(int argc, char **argv)
+>    return 0;
+>  }
+>  EOF
+> -if compile_prog "" "-ll" "lex"; then
+> -  LIBS="-ll $LIBS"
+> +if compile_prog "" "-lfl" "lex"; then
+> +  LIBS="-lfl $LIBS"
+>  else
+>    arith="no"
+>  fi
+> -------------------
+>
+> lex/yacc for arithmetic       yes
+>
+> --
+> Srinivasa R Chamarthy
 
-This patch series adds
-- an MTD ioengine, interpreting trim as erase.
-- a new writetrim workload to alternate between writes and
-  trims in a way that makes sense for devices which need to be
-  erased before sequential writes.
-- a histogram counting the first trim block where an error
-  occurred, which corresponds to block lifetime in the case of
-  NAND.
 
-In v2, the writetrim mode was renamed to trimwrite and documentation
-was improved.
-
-Dan Ehrenberg (7):
-  Allow trim on any file type
-  Add new trimwrite rw= mode for trims preceding writes
-  Collect a block-wise histogram of trim and write errors
-  mtd: Add CONFIG_MTD to ./configure script
-  mtd: Import libmtd with modifications to make it compile
-  mtd: ioengine
-  mtd: example job file
-
- HOWTO               |   37 +-
- Makefile            |    5 +
- backend.c           |    5 +
- client.c            |    4 +
- configure           |   20 +
- engines/mtd.c       |  209 ++++++++
- examples/mtd.fio    |   21 +
- filesetup.c         |   26 +-
- fio.1               |   29 +-
- init.c              |    7 +
- io_ddir.h           |    3 +
- io_u.c              |   25 +-
- iolog.c             |   12 +
- lib/libmtd.c        | 1424 +++++++++++++++++++++++++++++++++++++++++++++++++++
- lib/libmtd.h        |  354 +++++++++++++
- lib/libmtd_common.h |  223 ++++++++
- lib/libmtd_int.h    |  109 ++++
- lib/libmtd_legacy.c |  384 ++++++++++++++
- lib/libmtd_xalloc.h |  106 ++++
- options.c           |   34 +-
- options.h           |    2 +
- server.c            |    4 +
- stat.c              |  199 +++++++
- stat.h              |   27 +
- thread_options.h    |    6 +
- 25 files changed, 3254 insertions(+), 21 deletions(-)
- create mode 100644 engines/mtd.c
- create mode 100644 examples/mtd.fio
- create mode 100644 lib/libmtd.c
- create mode 100644 lib/libmtd.h
- create mode 100644 lib/libmtd_common.h
- create mode 100644 lib/libmtd_int.h
- create mode 100644 lib/libmtd_legacy.c
- create mode 100644 lib/libmtd_xalloc.h
 
 -- 
-2.2.0.rc0.207.ga3a616c
-
-
+Srinivasa R Chamarthy
