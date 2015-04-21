@@ -1,63 +1,53 @@
-Return-Path: <dehrenberg@google.com>
-Return-Path: <dehrenberg@google.com>
-Sender: Daniel Ehrenberg <dehrenberg@google.com>
-From: Dan Ehrenberg <dehrenberg@chromium.org>
-Subject: [PATCH v2 4/7] mtd: Add CONFIG_MTD to ./configure script
-Date: Wed, 15 Apr 2015 10:41:32 -0700
-Message-Id: <1429119695-22425-5-git-send-email-dehrenberg@chromium.org>
-In-Reply-To: <1429119695-22425-1-git-send-email-dehrenberg@chromium.org>
-References: <1429119695-22425-1-git-send-email-dehrenberg@chromium.org>
-To: fio@vger.kernel.org, axboe@kernel.dk
-Cc: gwendal@chromium.org, Dan Ehrenberg <dehrenberg@chromium.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from casper.infradead.org ([85.118.1.10]:44407 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751488AbbDUMAF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 21 Apr 2015 08:00:05 -0400
+Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1YkWqS-0002Ok-3G
+	for fio@vger.kernel.org; Tue, 21 Apr 2015 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150421120002.D0864401B0@lyth.info>
+Date: Tue, 21 Apr 2015 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-The CONFIG_MTD option will allow the mtd ioengine to be built. It
-only works when the Linux MTD header is present.
+The following changes since commit 51e962a7610f1aa69ffe0374f92774fb83526dc7:
 
-Signed-off-by: Dan Ehrenberg <dehrenberg@chromium.org>
+  Fix mtd valgrind warning (2015-04-16 16:36:22 -0600)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 1d6d3455a9ad610a423f5d4ca849fbe82049997c:
+
+  Don't export state variable (2015-04-20 19:15:50 -0600)
+
+----------------------------------------------------------------
+Dan Ehrenberg (1):
+      Don't export state variable
+
+ stat.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 ---
- configure | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
 
-diff --git a/configure b/configure
-index 892335b..e1b218c 100755
---- a/configure
-+++ b/configure
-@@ -1369,6 +1369,23 @@ if test "$libhdfs" = "yes" ; then
- fi
- echo "HDFS engine                   $libhdfs"
+Diff of recent changes:
+
+diff --git a/stat.h b/stat.h
+index dd34012..e87dae0 100644
+--- a/stat.h
++++ b/stat.h
+@@ -132,7 +132,7 @@ enum block_info_state {
+ 	BLOCK_STATE_TRIM_FAILURE,
+ 	BLOCK_STATE_WRITE_FAILURE,
+ 	BLOCK_STATE_COUNT,
+-} state;
++};
  
-+##########################################
-+# Check whether we have MTD
-+mtd="no"
-+cat > $TMPC << EOF
-+#include <mtd/mtd-user.h>
-+#include <sys/ioctl.h>
-+int main(int argc, char **argv)
-+{
-+  struct mtd_info_user info;
-+  return ioctl(0, MEMGETINFO, &info);
-+}
-+EOF
-+if compile_prog "" "" "mtd"; then
-+  mtd="yes"
-+fi
-+echo "MTD                           $mtd"
-+
- # Check if we have lex/yacc available
- yacc="no"
- yacc_is_bison="no"
-@@ -1572,6 +1589,9 @@ if test "$libhdfs" = "yes" ; then
-   echo "FIO_LIBHDFS_INCLUDE=$FIO_LIBHDFS_INCLUDE" >> $config_host_mak
-   echo "FIO_LIBHDFS_LIB=$FIO_LIBHDFS_LIB" >> $config_host_mak
-  fi
-+if test "$mtd" = "yes" ; then
-+  output_sym "CONFIG_MTD"
-+fi
- if test "$arith" = "yes" ; then
-   output_sym "CONFIG_ARITHMETIC"
-   if test "$yacc_is_bison" = "yes" ; then
--- 
-2.2.0.rc0.207.ga3a616c
-
-
+ #define MAX_PATTERN_SIZE	512
+ #define FIO_JOBNAME_SIZE	128
