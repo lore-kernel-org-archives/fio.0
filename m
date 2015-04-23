@@ -1,42 +1,71 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qk0-f173.google.com ([209.85.220.173]:35188 "EHLO
-	mail-qk0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753116AbbDHCFl (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 7 Apr 2015 22:05:41 -0400
-Received: by qkhg7 with SMTP id g7so68208219qkh.2
-        for <fio@vger.kernel.org>; Tue, 07 Apr 2015 19:05:40 -0700 (PDT)
-MIME-Version: 1.0
-Date: Tue, 7 Apr 2015 23:05:40 -0300
-Message-ID: <CAENGNheNV+BP6eq9cHUrS+rp2tHxfoDfEK2vrfxPizLdws_cig@mail.gmail.com>
-Subject: Question regarding fio build system
-From: Raphael Philipe <rapphil@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Received: from bombadil.infradead.org ([198.137.202.9]:39898 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752535AbbDWOC2 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 23 Apr 2015 10:02:28 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1YlHi0-0006Ma-Bo
+	for fio@vger.kernel.org; Thu, 23 Apr 2015 14:02:28 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150423140228.39E642C01AD@kernel.dk>
+Date: Thu, 23 Apr 2015 08:02:28 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hi,
+The following changes since commit 9e98688960347b9b733db9426fb7747f22d3a77e:
 
-I'm working with fio in the context of the meta-openembedded layer of
-the Yocto project.
+  Fix off-by-one in cpus_allowed (2015-04-21 09:39:32 -0600)
 
-To make the long story short, while building fio 2.2.6, I noticed that
-it has some floating dependencies on zlib and numa if you just try to
-hit the 'make' cmd. (When you do that, the Makefile will execute the
-configure script that tries to detect some libraries).
+are available in the git repository at:
 
-I've found the following comment in the configure script: "Sad this
-this is easier than autoconf and enemies.". I'm evaluating the effort
-to enable fio to be built using autotools and have the following
-questions regarding this:
+  git://git.kernel.dk/fio.git master
 
- - Is there any particular reason to the build process to be like
-this, besides the comment that I pointed out?
+for you to fetch changes up to 8a16f59b66e5198050ec735998692ba9436a9884:
 
-- If fio supported autotools, it would make my life easier :). Is
-there any plans to move fio to use it? Is there any work in progress
-around it? If not, I would be very pleased to provide this change on
-your guidance. Do you guys agree with that?
+  blktrace: only probe and set depth if option isn't set (2015-04-22 19:54:54 -0600)
 
-Regards,
-Raphael Philipe Mendes da Silva.
+----------------------------------------------------------------
+Jens Axboe (2):
+      configure: check for more of the used MTD features
+      blktrace: only probe and set depth if option isn't set
+
+ blktrace.c | 5 ++---
+ configure  | 1 +
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/blktrace.c b/blktrace.c
+index 9afc5be..e63c708 100644
+--- a/blktrace.c
++++ b/blktrace.c
+@@ -456,10 +456,9 @@ int load_blktrace(struct thread_data *td, const char *filename, int need_swap)
+ 	td->o.odirect = 1;
+ 
+ 	/*
+-	 * we don't know if this option was set or not. it defaults to 1,
+-	 * so we'll just guess that we should override it if it's still 1
++	 * If depth wasn't manually set, use probed depth
+ 	 */
+-	if (td->o.iodepth == 1)
++	if (!fio_option_is_set(&td->o, iodepth))
+ 		td->o.iodepth = td->o.iodepth_low = depth;
+ 
+ 	return 0;
+diff --git a/configure b/configure
+index ff97200..8e496b0 100755
+--- a/configure
++++ b/configure
+@@ -1378,6 +1378,7 @@ cat > $TMPC << EOF
+ int main(int argc, char **argv)
+ {
+   struct mtd_info_user info;
++  info.type = MTD_MLCNANDFLASH;
+   return ioctl(0, MEMGETINFO, &info);
+ }
+ EOF
