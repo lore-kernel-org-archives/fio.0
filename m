@@ -1,59 +1,49 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ig0-f171.google.com ([209.85.213.171]:38032 "EHLO
-	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753592AbbDPKWa (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 16 Apr 2015 06:22:30 -0400
-Received: by igbhj9 with SMTP id hj9so2271302igb.1
-        for <fio@vger.kernel.org>; Thu, 16 Apr 2015 03:22:29 -0700 (PDT)
+Return-Path: <schwartz.xn@gmail.com>
 MIME-Version: 1.0
-Date: Thu, 16 Apr 2015 18:22:29 +0800
-Message-ID: <CABtFm2USrxVrNJyow6sFFNGdJFKoMieFepCWiPBHckg4e_k3-w@mail.gmail.com>
-Subject: lex/yacc not configured properly.
-From: Srinivasa Chamarthy <chamarthy.raju@gmail.com>
+In-Reply-To: <553A5B92.2060009@kernel.dk>
+References: <CADAGN7VV15pQBpXVv=OptqZxjnz3-nkNHpXpotzCxeGUWDvFmA@mail.gmail.com>
+ <553A5B92.2060009@kernel.dk>
+From: Brandon Schwartz <schwartz.xn@gmail.com>
+Date: Fri, 24 Apr 2015 12:14:07 -0600
+Message-ID: <CADAGN7W9ehVwBoLdUEQ1bg=wahsw2XTbQBVAqpyyWnALbR5RaQ@mail.gmail.com>
+Subject: Re: Unable to replay blktrace with mixed workload
 Content-Type: text/plain; charset=UTF-8
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Srinivasa Chamarthy <chamarthy.raju@gmail.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-There seems to be a small issue with configure while checking
-lex/yacc. Eventhough lex/yacc is available, it fails as the library
-name for lex is not what is expected.
+Thanks, but now it seems to convert the blktrace replay into all reads
+and increase the run time to 20minutes (from 60seconds).
 
-library for lex should be "-lfl" instead of "-ll".
+fio-2.2.7-24-g7c30 is the latest right?
 
-+ echo 'Compiling test case lex'
-+ do_cc -D_GNU_SOURCE -include config-host.h -o
-/tmp/fio-conf-1068-8707-30378.exe /tmp/fio-conf-10872-8707-1500.c -ll
--lnuma -lrt -laio -lz
-+ echo gcc -D_GNU_SOURCE -include config-host.h -o
-/tmp/fio-conf-1068-8707-30378.exe /tmp/fio-conf-10872-8707-1500.c -ll
--lnuma -lrt -laio -lz
-+ gcc -D_GNU_SOURCE -include config-host.h -o
-/tmp/fio-conf-1068-8707-30378.exe /tmp/fio-conf-10872-8707-1500.c -ll
--lnuma -lrt -laio -lz
-+ return 1
-+ arith=no
-+ echo 'lex/yacc for arithmetic       no'
 
-The following fixes the issue:
-------------------------
---- configure.old       2015-04-16 06:19:44.016796602 -0400
-+++ configure   2015-04-16 06:19:55.272796870 -0400
-@@ -1420,8 +1420,8 @@ int main(int argc, char **argv)
-   return 0;
- }
- EOF
--if compile_prog "" "-ll" "lex"; then
--  LIBS="-ll $LIBS"
-+if compile_prog "" "-lfl" "lex"; then
-+  LIBS="-lfl $LIBS"
- else
-   arith="no"
- fi
--------------------
 
-lex/yacc for arithmetic       yes
+On Fri, Apr 24, 2015 at 9:04 AM, Jens Axboe <axboe@kernel.dk> wrote:
+> On 04/23/2015 01:55 PM, Brandon Schwartz wrote:
+>>
+>> Using FIO 2.2.7, I'm trying to replay the following workload
+>> (capturing it with blktrace and replaying with FIO on the same device)
+>>
+>>   sudo fio --name=rwmix --filename=/dev/sdd --blocksize=128k
+>> --readwrite=randrw --rwmixread=75 --rwmixwrite=25 --runtime=60
+>>
+>> And I get the following error:
+>>
+>> fio: pid=21428, err=12/file:memory.c:242, func=iomem allocation,
+>> error=Cannot allocate memory
+>>
+>> Older versions of FIO (2.1.*) seem to be able to replay the blktrace
+>> without that error, but those versions of FIO don't always seem to
+>> respect the timing of IOs (if there is idle time for example).
+>>
+>> Any idea what could be causing the problem?
+>
+>
+> There were a few bugs in there. Can you try current -git? Just committed a
+> change that should improve things for you.
+>
+> --
+> Jens Axboe
+>
 
--- 
-Srinivasa R Chamarthy
