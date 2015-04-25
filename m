@@ -1,88 +1,56 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ig0-f170.google.com ([209.85.213.170]:33891 "EHLO
-	mail-ig0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750799AbbDIESF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 9 Apr 2015 00:18:05 -0400
-Received: by iget9 with SMTP id t9so41881508ige.1
-        for <fio@vger.kernel.org>; Wed, 08 Apr 2015 21:18:05 -0700 (PDT)
+Received: from mail-ie0-f169.google.com ([209.85.223.169]:36468 "EHLO
+	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750831AbbDYUnh (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 25 Apr 2015 16:43:37 -0400
+Received: by iebrs15 with SMTP id rs15so104412342ieb.3
+        for <fio@vger.kernel.org>; Sat, 25 Apr 2015 13:43:36 -0700 (PDT)
 MIME-Version: 1.0
-Date: Thu, 9 Apr 2015 12:18:05 +0800
-Message-ID: <CABtFm2VCPQUYukN+74snO6vOo__U1T1UG-p1HAkof5i+E3ax9A@mail.gmail.com>
-Subject: FIO not generating multiple jobs for directories
-From: Srinivasa Chamarthy <chamarthy.raju@gmail.com>
+In-Reply-To: <CAHA74uqeP9ntkHVABfdDPxSZK4tTLbm486b9FJm2YjdJPv8XKA@mail.gmail.com>
+References: <CAHA74uot2-dZCi=iehNRgx0RF55QsBpLFFcxQ7KqdXmjbn1FuA@mail.gmail.com>
+	<8DA4332D-F151-41F4-BC00-59F68ED3ACE3@cran.org.uk>
+	<CAHA74uqeP9ntkHVABfdDPxSZK4tTLbm486b9FJm2YjdJPv8XKA@mail.gmail.com>
+Date: Sat, 25 Apr 2015 13:43:36 -0700
+Message-ID: <CAHA74uqXsXBRrNHOdTnnLegnO-DzSdj_DRxnm3R6h8aZkaSSbg@mail.gmail.com>
+Subject: Re: fio queue depth and windows build.
+From: Iuliu Rus <iuliur@google.com>
 Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Srinivasa Chamarthy <chamarthy.raju@gmail.com>
+To: Bruce Cran <bruce@cran.org.uk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-I have 6 mounted LVM volumes on a RAID0. I was generating files using
-FIO to fill up the volumes simultaneously. I see that FIO is using
-only one thread even though i have specified numjobs=6 in the jobfile.
-Its generating io with one thread sequentially from directory to
-directory. Numjobs seems to be working ok when i run directly on block
-devices using filename.
+It however did create the fio.exe after i commented out the include.
+Thanks! We'll submit a patch once we figure out why the queue depth is
+not working.
+BTW this is Google Compute Engine team, and we're using fio to compare
+our windows and linux storage performance.
 
-# fio -v
-fio-2.2.6-25-g87f5
-
-JobFile:
-
-# cat fileio.fio
-[fileio]
-ioengine=libaio
-rw=write
-directory=/mnt/lv0:/mnt/lv1:/mnt/lv2:/mnt/lv3:/mnt/lv4:/mnt/lv5
-filesize=1m-40m
-nrfiles=1024
-file_service_type=random:64
-random_generator=tausworthe
-rate=,400m
-bs=8k
-numjobs=6
-iodepth=32
-scramble_buffers=1
-blocksize_unaligned
-blocksize_range=8k-124k
-loops=1
-percentage_random=100
-random_distribution=random
-norandommap
-overwrite=1
-iodepth_low=8
-iodepth_batch=16
-fill_device=1
-refill_buffers=1
-fsync=1024
-prio=0
-
-# fio --output=fio_test.out_15 fileio.fio
-
-Process tree:
-root      1308  0.0  0.2  43256 23508 ?        Ss   Apr03   1:50 SCREEN -Aa
-root      1309  0.0  0.0  14556  2632 pts/1    Ss+  Apr03   0:00  \_ bash
-root      2860  0.0  0.0  29032   748 pts/1    T    Apr03   0:00  |
-\_ vim fio_dedup.out_3
-root      1517  0.0  0.0  14548  2964 pts/2    Ss   Apr03   0:00  \_ bash
-root     24413 12.0  2.1 296064 178336 pts/2   Dl+  00:07   0:01  |
-\_ fio --output=fio_test.out_15 fileio.fio
-root      2768  0.0  0.0  14540  2208 pts/3    Ss   Apr03   0:00  \_ bash
-root     24250  0.0  0.0   4512   868 pts/3    S+   Apr08   0:00  |
-\_ iostat -dxm /dev/sdb /dev/sdc /dev/sdd /dev/sde /dev/sdf /dev/sdg
-/dev/sdh /dev/sdi 1
-root     25483  0.0  0.0  14700  2948 pts/4    Ss   Apr06   0:00  \_ bash
-root     24427  0.0  0.0  25560  1508 pts/4    R+   00:08   0:00  |   \_ ps auxf
-
-After filling each device, one thread ends and the other starts
-sequentially. There might be something wrong with tracking pid too.
-
-# fio --output=fio_test.out_15 fileio.fio
-fio: pid=0, err=28/file:filesetup.c:79, func=open, error=No space left on device
-fio: pid=0, err=28/file:filesetup.c:79, func=open, error=No space left on device
-fio: pid=0, err=28/file:filesetup.c:79, func=open, error=No space left on device
-fio: pid=0, err=28/file:filesetup.c:79, func=open, error=No space left on device
-
-Is there anything wrong with the parameters?
-
--- 
-Srinivasa R Chamarthy
+On Sat, Apr 25, 2015 at 1:35 PM, Iuliu Rus <iuliur@google.com> wrote:
+> It doesn't create fio.exe for me. I commented that include out since
+> it doesn't look like it's needed, but then linker complains about mmap
+> munmap and sysconfig.
+>
+>
+> On Sat, Apr 25, 2015 at 12:46 PM, Bruce Cran <bruce@cran.org.uk> wrote:
+>> I've been meaning to investigate that build failure: it does, however get as far as creating the fio.exe binary so you can ignore the error.
+>>
+>> --
+>> Bruce
+>>
+>>> On Apr 25, 2015, at 12:04, Iuliu Rus <iuliur@google.com> wrote:
+>>>
+>>> Hello,
+>>> Looking at fio for windows, we are pretty sure that the queue depth
+>>> parameter is not working.
+>>> We wanted to investigate this ourselves and prepare a fix, but the
+>>> windows build is not working either. From a cygwin64 shell, make clean
+>>> and make -j results in this:
+>>> t/dedupe.c:13:23: fatal error: sys/ioctl.h: No such file or directory
+>>> (although i see ioctl.h under cygwin64\usr\include\sys and under
+>>> cygwin64\usr\i686-pc-cygwin\sys-root\usr\include\sys).
+>>> Any idea why the build fails?
+>>> --
+>>> To unsubscribe from this list: send the line "unsubscribe fio" in
+>>> the body of a message to majordomo@vger.kernel.org
+>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
