@@ -1,55 +1,31 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:33411 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751431AbbDJMAH (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 10 Apr 2015 08:00:07 -0400
-Received: from kernel.dk ([54.225.238.116] helo=lyth.info)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1YgXbR-00074O-V9
-	for fio@vger.kernel.org; Fri, 10 Apr 2015 12:00:06 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150410120003.81BB140161@lyth.info>
-Date: Fri, 10 Apr 2015 06:00:03 -0600 (MDT)
+Received: from mail-ie0-f170.google.com ([209.85.223.170]:34621 "EHLO
+	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756287AbbDYNDD (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 25 Apr 2015 09:03:03 -0400
+Received: by iedfl3 with SMTP id fl3so113602149ied.1
+        for <fio@vger.kernel.org>; Sat, 25 Apr 2015 06:03:03 -0700 (PDT)
+MIME-Version: 1.0
+Date: Sat, 25 Apr 2015 21:03:02 +0800
+Message-ID: <CABtFm2U5t2=sM4MDKhaPn7n9nsJTSBUCSUeZ=9irt8EEBTogBQ@mail.gmail.com>
+Subject: achieving a workload to get specific unique duplicate blocks
+From: Srinivasa Chamarthy <chamarthy.raju@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 87f5fce38c1b8fc979cea10c926973c2f2a76217:
+Firstly, thanks before in hand. :)
 
-  genzip: switch to jenkins hash (2015-04-08 16:25:49 -0600)
+Using FIO, what is the way to achieve a work load with specific number
+of unique blocks duplicates for specific number of times. For Example,
+i want a 252k block duplicates 1000 times and i want it to be the
+unique block in the complete workload.
 
-are available in the git repository at:
+Another query is that, for a blocksize of 256k does the io buffers are
+created at 256k and written to the disk and are all those 256k blocks
+unique buffer?. Can there be a change that in a 256k block, the
+smaller size buffers be the same?
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 92aef550de95c5b33c489cbabd2c1a70e59475b3:
-
-  configure: update to changes in fusion-aw packaging (2015-04-09 08:24:38 -0600)
-
-----------------------------------------------------------------
-Akshita Rajendra Jain (1):
-      configure: update to changes in fusion-aw packaging
-
- configure |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/configure b/configure
-index 892335b..c1a4915 100755
---- a/configure
-+++ b/configure
-@@ -856,8 +856,8 @@ int main(int argc, char **argv)
-   return nvm_atomic_write(handle, 0, 0, 0);
- }
- EOF
--if compile_prog "" "-L/usr/lib/fio -L/usr/lib/nvm -lnvm-primitives -lvsl -ldl" "fusion-aw"; then
--  LIBS="-L/usr/lib/fio -L/usr/lib/nvm -lnvm-primitives -lvsl -ldl $LIBS"
-+if compile_prog "" "-L/usr/lib/fio -L/usr/lib/nvm -lnvm-primitives -ldl -lpthread" "fusion-aw"; then
-+  LIBS="-L/usr/lib/fio -L/usr/lib/nvm -lnvm-primitives -ldl -lpthread $LIBS"
-   fusion_aw="yes"
- fi
- echo "Fusion-io atomic engine       $fusion_aw"
+-- 
+Srinivasa R Chamarthy
