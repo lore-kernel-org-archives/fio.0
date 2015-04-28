@@ -1,53 +1,69 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:38455 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932171AbbDQPmq (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 17 Apr 2015 11:42:46 -0400
-Received: by wiun10 with SMTP id n10so24931917wiu.1
-        for <fio@vger.kernel.org>; Fri, 17 Apr 2015 08:42:45 -0700 (PDT)
-MIME-Version: 1.0
-Date: Fri, 17 Apr 2015 16:42:45 +0100
-Message-ID: <CAMwGr2sg+3HY469fipJhPaqzcCtbgvu6Pejw055O_NP+dO=+sA@mail.gmail.com>
-Subject: fio trim bug
-From: Neil Durbridge <neildurbridge@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Received: from bombadil.infradead.org ([198.137.202.9]:43322 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965345AbbD1L7z (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 28 Apr 2015 07:59:55 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1Yn4B9-00075T-1X
+	for fio@vger.kernel.org; Tue, 28 Apr 2015 11:59:55 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150428120001.A15FB2C01AF@kernel.dk>
+Date: Tue, 28 Apr 2015 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hi,
-I think I've found a bug with fio when using trim.
-The size of the workload is reduced proportionally to the number of
-trim/dsm commands that are issued. This applies to the write size and
-(if specified) the verify size too, so no corruption is reported.
-However, if you later repeat the workload with verify_only set, it
-attempts to verify the whole range, and finds corruption at the LBAs
-which were never written,
+The following changes since commit 7c306bb1d27de928cba1b58d7888981d44416fd1:
 
+  io_u: fix bug in rounding of generated buffer length (2015-04-24 10:41:58 -0600)
 
-Example
-I've got this down to a tiny example to fit on a bus trace so i could debug it:
+are available in the git repository at:
 
-./fio --ioengine=libaio --direct=1 --rw=write --bs=4k --size=40k
---iodepth=1 --randrepeat=1 --trim_backlog=1 --trim_percent=20
---trim_verify=1 --verify_dump=1 --error_dump=1 --numjobs=1
---verify=meta --loops=1 --filename=/dev/sdb --name=dsmtest
---output=trace.log
+  git://git.kernel.dk/fio.git master
 
-This should result in 10x 4K sequential Writes to LBAs 0x0, 0x8, 0x10
-... 0x48; and two 4K ranges being trimmed (20%)
+for you to fetch changes up to 9451b93e81fb950a80da09e295e56b1ad4538509:
 
-Instead, only 8x 4K ranges are written: the last Write goes to LBA
-0x38; and two 4K ranges are trimmed, Same for the Read commands.
+  dedupe: improve 100% dedupe case (2015-04-27 09:37:11 -0600)
 
-If I increase trim_percent to 30%, you get 7x 4K writes and 3 trims, and so on.
+----------------------------------------------------------------
+Jens Axboe (2):
+      dedupe: fix dedupe_percentage=100
+      dedupe: improve 100% dedupe case
 
-Then when I run this same command with --verify_only, corruption is
-reported from the first block that was never written
+ io_u.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-fio version is 2.2.6
-Linux is Ubuntu 14.04LTS; k3.13.0-24
+---
 
-Any chance of a fix?!?
+Diff of recent changes:
 
-Great tool though, cheers
+diff --git a/io_u.c b/io_u.c
+index 5064485..d00e6e3 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -1896,8 +1896,10 @@ static struct frand_state *get_buf_state(struct thread_data *td)
+ 
+ 	if (!td->o.dedupe_percentage)
+ 		return &td->buf_state;
+-	else if (td->o.dedupe_percentage == 100)
+-		return &td->buf_state_prev;
++	else if (td->o.dedupe_percentage == 100) {
++		frand_copy(&td->buf_state_prev, &td->buf_state);
++		return &td->buf_state;
++	}
+ 
+ 	r = __rand(&td->dedupe_state);
+ 	v = 1 + (int) (100.0 * (r / (FRAND_MAX + 1.0)));
+@@ -1910,7 +1912,9 @@ static struct frand_state *get_buf_state(struct thread_data *td)
+ 
+ static void save_buf_state(struct thread_data *td, struct frand_state *rs)
+ {
+-	if (rs == &td->buf_state)
++	if (td->o.dedupe_percentage == 100)
++		frand_copy(rs, &td->buf_state_prev);
++	else if (rs == &td->buf_state)
+ 		frand_copy(&td->buf_state_prev, rs);
+ }
+ 
