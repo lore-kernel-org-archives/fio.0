@@ -1,36 +1,86 @@
-Return-Path: <Elliott@hp.com>
-From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
-Subject: RE: fio always writes null bytes whatever I do
-Date: Sat, 4 Apr 2015 02:41:02 +0000
-Message-ID: <94D0CD8314A33A4D9D801C0FE68B40295A858851@G9W0745.americas.hpqcorp.net>
-References: <4471f819ae264ec8bcb6bb1684effd53@keskonrix.itsystems.ch>
- <5508A2F9.50701@kernel.dk>
-In-Reply-To: <5508A2F9.50701@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, Urs Schaltegger <urs.schaltegger@itsystems.ch>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from casper.infradead.org ([85.118.1.10]:39803 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750729AbbD3L7z (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 30 Apr 2015 07:59:55 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1Ynn8E-0000GR-3t
+	for fio@vger.kernel.org; Thu, 30 Apr 2015 11:59:54 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150430120001.BF9342C01B2@kernel.dk>
+Date: Thu, 30 Apr 2015 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
-a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uDQo+IEJlaGFs
-ZiBPZiBKZW5zIEF4Ym9lDQo+IFNlbnQ6IFR1ZXNkYXksIE1hcmNoIDE3LCAyMDE1IDQ6NTYgUE0N
-Cj4gVG86IFVycyBTY2hhbHRlZ2dlcjsgZmlvQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBS
-ZTogZmlvIGFsd2F5cyB3cml0ZXMgbnVsbCBieXRlcyB3aGF0ZXZlciBJIGRvDQo+IA0KPiBPbiAw
-My8xMi8yMDE1IDA4OjMyIEFNLCBVcnMgU2NoYWx0ZWdnZXIgd3JvdGU6DQo+ID4gZmlvIGFsd2F5
-cyB3cml0ZXMgbnVsbCBieXRlcyB3aGF0ZXZlciBJIGRvLiBJIG5lZWQgcmFuZG9tIGRhdGEgdG8g
-YXZvaWQNCj4gaW50ZXJmZXJlbmNlIG9mIGRlZHVwbGljYXRpb24gc29sdXRpb25zICh3aXRoaW4g
-U1NEcyBvciB1c2luZyBaRlMpLg0KPiA+DQouLi4NCj4gDQo+IEhtbSB5ZXMsIHRoYXQgbG9va3Mg
-bGlrZSBhIHJlZ3Jlc3Npb24uIERvZXMgdGhlIGF0dGFjaGVkIHdvcms/DQo+IA0KPiANCj4gLS0N
-Cj4gSmVucyBBeGJvZQ0KDQpXaXRoIHRoaXMgY2hhbmdlLCBmaW8gbm93IGRlZmF1bHRzIHRvIHNw
-ZW5kaW5nIGEgbG90IG9mDQp0aW1lIGR1cmluZyB3cml0ZXMgaW46DQoJZ2V0X2lvX3UgLT4gc21h
-bGxfY29udGVudF9zY3JhbWJsZSAoaW5saW5lZCkNCg0KRm9yIGV4YW1wbGUsIGRvaW5nIHdyaXRl
-cyB0byBhIHBtZW0gZGV2aWNlLCBwZXJmIHRvcCBzaG93cw0KdGhlIENQVSB0aW1lIGFzOg0KKiA2
-NyUgcG1lbSBtZW1jcHkgDQoqIDIxJSBmaW8gZ2V0X2lvX3UgDQoNClRoYXQgZGlzYXBwZWFycyBp
-ZiB5b3UgYWRkDQoJemVyb19idWZmZXJzDQpzaW5jZSB0aGUgaW5pdGlhbGl6YXRpb24gb25seSBo
-YXBwZW5zIG9uY2U6DQoqIDg5JSBwbWVtIG1lbWNweQ0KKiAuLi4NCiogMC4wMiUgZmlvIGdldF9p
-b191DQoNCmJ1dCB0aGF0IG1lYW5zIGEgemVybyBwYXR0ZXJuIGlzIHVzZWQsIHdoaWNoIG1heSBi
-ZQ0KdG9vIGVhc3kgZm9yIHNvbWUgZGVkdXBsaWNhdGluZyBzdG9yYWdlIGRldmljZXMgdG8NCmhh
-bmRsZS4NCg0KLS0tDQpSb2JlcnQgRWxsaW90dCwgSFAgU2VydmVyIFN0b3JhZ2UNCg0KDQoNCg==
+The following changes since commit 76a00ec6684317902e536365b89531431e7f8867:
 
+  blktrace: only set O_DIRECT if the min bs is a multiple of 4k (2015-04-28 15:30:02 -0600)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 020d54bdf73e691b90b75d3abfd8e6f06cd1f637:
+
+  configure: add support for --prefix (2015-04-29 10:29:16 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      configure: add support for --prefix
+
+ Makefile  | 2 +-
+ configure | 5 +++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/Makefile b/Makefile
+index 9b7f27a..1b312cb 100644
+--- a/Makefile
++++ b/Makefile
+@@ -243,7 +243,7 @@ ifeq ($(CONFIG_TARGET_OS), SunOS)
+ else
+ 	INSTALL = install
+ endif
+-prefix = /usr/local
++prefix = $(INSTALL_PREFIX)
+ bindir = $(prefix)/bin
+ 
+ ifeq ($(CONFIG_TARGET_OS), Darwin)
+diff --git a/configure b/configure
+index 8e496b0..0b9874b 100755
+--- a/configure
++++ b/configure
+@@ -135,11 +135,14 @@ show_help="no"
+ exit_val=0
+ gfio_check="no"
+ libhdfs="no"
++prefix=/usr/local
+ 
+ # parse options
+ for opt do
+   optarg=`expr "x$opt" : 'x[^=]*=\(.*\)'`
+   case "$opt" in
++  --prefix=*) prefix="$optarg"
++  ;;
+   --cpu=*) cpu="$optarg"
+   ;;
+   #  esx is cross compiled and cannot be detect through simple uname calls
+@@ -178,6 +181,7 @@ for opt do
+ done
+ 
+ if test "$show_help" = "yes" ; then
++  echo "--prefix=              Use this directory as installation prefix"
+   echo "--cpu=                 Specify target CPU if auto-detect fails"
+   echo "--cc=                  Specify compiler to use"
+   echo "--extra-cflags=        Specify extra CFLAGS to pass to compiler"
+@@ -1612,3 +1616,4 @@ echo "CFLAGS+=$CFLAGS" >> $config_host_mak
+ echo "LDFLAGS+=$LDFLAGS" >> $config_host_mak
+ echo "CC=$cc" >> $config_host_mak
+ echo "BUILD_CFLAGS=$BUILD_CFLAGS $CFLAGS" >> $config_host_mak
++echo "INSTALL_PREFIX=$prefix" >> $config_host_mak
