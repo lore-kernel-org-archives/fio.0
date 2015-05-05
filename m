@@ -1,47 +1,59 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <5547D99E.4080103@kernel.dk>
-Date: Mon, 04 May 2015 14:42:06 -0600
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <chamarthy.raju@gmail.com>
 MIME-Version: 1.0
-Subject: Re: [Bug report] Runtime, IOPS, bandwidth recorded incorrectly if
- small size with time_based
-References: <CAFFT=UmoooCznxAkUREsC5rGN-hxD++PYbL94s-m11jdycDM0w@mail.gmail.com>
-In-Reply-To: <CAFFT=UmoooCznxAkUREsC5rGN-hxD++PYbL94s-m11jdycDM0w@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Akash Verma <akashv@google.com>, fio <fio@vger.kernel.org>
-Cc: Brian Fulton <bfulton@google.com>
+In-Reply-To: <CALjAwxhARkXBLf3_FBbcpBJg+ayPsveKRPt00nA+Prxm618Nug@mail.gmail.com>
+References: <CABtFm2Vmn_u39=pXTKKv9AsDBu=BM9gmSpUmtQpqFGm5Uy00yA@mail.gmail.com>
+	<CALjAwxhARkXBLf3_FBbcpBJg+ayPsveKRPt00nA+Prxm618Nug@mail.gmail.com>
+Date: Tue, 5 May 2015 08:26:53 +0800
+Message-ID: <CABtFm2VTrC_nNMWimz8YvO2iAPv-+BByUAzzXJGX05QpQChPNw@mail.gmail.com>
+Subject: Re: Unexpected runtime when running FIO in time based
+From: Srinivasa Chamarthy <chamarthy.raju@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-On 04/24/2015 04:50 PM, Akash Verma wrote:
-> If there's a load with a very small size, but forced to repeat using
-> time_based, the runtime reported at the end, as well as IOPS,
-> bandwidth are wrong.
->
-> E.g. using this control file:
->
-> [short_and_suite]
-> rw=randread
-> bs=128k
-> size=128k
-> ioengine=libaio
-> time_based=1
-> runtime=1
-> filename=datafile.tmp
->
-> (where datafile.tmp already exists, for a more dramatic demonstration)
-> The results I'm seeing on a hard drive are:
-> read : io=304128KB, bw=24750MB/s, iops=198000, runt=    12msec
->
-> This is a regression from FIO 2.0.5, which gives the following results:
-> read : io=242176KB, bw=242418KB/s, iops=1893 , runt=   999msec
->
-> which is much more reasonable.
+Sorry. That was a mistake. I thought i was writing 1g. Thanks anyway
+for pointing that out.
+Srinivasa R Chamarthy
 
-Looks like a shorter run, try runtime=1s. And that makes me wonder if 
-the default conversion is buggy. What version are you comparing 2.0.5 to?
 
--- 
-Jens Axboe
-
+On Mon, May 4, 2015 at 8:38 PM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+> Hi,
+>
+> When you report these issues could you cut the fio job file down to
+> the smallest possible file that still reproduces the problem (i.e.
+> removing any line in the job file should make the problem disappear)?
+>
+> On 3 May 2015 at 13:00, Srinivasa Chamarthy <chamarthy.raju@gmail.com> wrote:
+>
+> <snip>
+>
+>> # cat test1.fio
+>> [global]
+>> ioengine=libaio
+>> size=1m
+>> blocksize=1024k,1024k
+>> iodepth=8
+>> iodepth_batch=4
+>> iodepth_low=2
+>> ;runtime=60
+>> ;time_based
+>> filename=testfile_test1
+>> numjobs=1
+>>
+>> [pattern_one_seq_write]
+>> buffer_pattern=0xff
+>> readwrite=write
+>
+> So the file size is 1024KBytes, the block size is 1024KBytes and you
+> would like to queue 8 x 1024KByte (i.e. 8192KBytes) blocks in parallel
+> at any one time? Is that correct and your intent?
+>
+> One immediate issue is that you aren't likely to achieve your I/O
+> depth of 8 because OS restrictions on buffered I/O (see
+> https://github.com/axboe/fio/blob/fio-2.2.7/HOWTO#L785 for warning
+> about libaio and buffered I/O case).
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
 
