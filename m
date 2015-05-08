@@ -1,108 +1,94 @@
-Return-Path: <haghdoost@gmail.com>
+Return-Path: <chamarthy.raju@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <53430FB4.1090904@kernel.dk>
-References: <A7A1D348E34E024BBC74480FB93A2EAB10866E58@DAGN05B-E6.exg6.exghost.com>
- <20140405032414.GB18464@kernel.dk> <533F8189.7080103@kernel.dk>
- <53417D88.2080308@kernel.dk> <A7A1D348E34E024BBC74480FB93A2EAB1086777F@DAGN05B-E6.exg6.exghost.com>
- <53430A03.2040503@kernel.dk> <53430FB4.1090904@kernel.dk>
-From: Alireza Haghdoost <haghdoost@gmail.com>
-Date: Fri, 29 May 2015 15:32:06 -0500
-Message-ID: <CAB-428kLz_qKXAmxfWEgikgE+CF4jQpNo4TZe8bpdAg+3GSwhQ@mail.gmail.com>
-Subject: Re: Mixing command line and job file parameters
+In-Reply-To: <CABtFm2UF+Bgj9NpxSnt5SfUE7ZT9+qau9HXVgqMNPWmR1+6vQg@mail.gmail.com>
+References: <CABtFm2U5t2=sM4MDKhaPn7n9nsJTSBUCSUeZ=9irt8EEBTogBQ@mail.gmail.com>
+	<5547D8F3.6090408@kernel.dk>
+	<CABtFm2Xwk7krWgobsW0JfCMuGvjFaUzeORggei7+gdVqg2rjhg@mail.gmail.com>
+	<CAF+0mvkxEvMfjE3r2ffAz6QWMrHMLfmJOhNU5_3kcYO9Qdm9dg@mail.gmail.com>
+	<CABtFm2VhjHURUMHfB=iPoXZfa+_m8xm9qpBCQmv=2UB+Rd-BYA@mail.gmail.com>
+	<554B766A.2090703@kernel.dk>
+	<CABtFm2UF+Bgj9NpxSnt5SfUE7ZT9+qau9HXVgqMNPWmR1+6vQg@mail.gmail.com>
+Date: Fri, 8 May 2015 17:35:54 +0800
+Message-ID: <CABtFm2VQMVXZx-v=L45bXJD-sT5sZMy7ub2f4LS5u-Yk3Tp71g@mail.gmail.com>
+Subject: Re: achieving a workload to get specific unique duplicate blocks
+From: Srinivasa Chamarthy <chamarthy.raju@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 To: Jens Axboe <axboe@kernel.dk>
-Cc: Carl Zwanzig <cpz@coraid.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: fio@vger.kernel.org, Matthew Eaton <m.eaton82@gmail.com>
 List-ID: <fio@vger.kernel.org>
 
-Would it be possible to combine mixed command line and job file
-parameters with --client option ? Right now --client option sends only
-job file to another server. Would be great if --client can also send
-command line options to the remote servers like this:
+My reply din't seem to get through the mailing list. Blame HTML
+enabled on my mobile. :)
 
-#fio  --numjobs=1 --iodepth=128 --runtime=10 --ramp_time=10
---rw=randwrite  --client=host.list job_file
+Again. Sorry for top posting. Thought i was continuing the thread :(
 
-Alireza
+Thanks for clarification on refill_buffers. I get FIO now after trials
+and help from you guys.
 
-On Mon, Apr 7, 2014 at 3:51 PM, Jens Axboe <axboe@kernel.dk> wrote:
-> On 04/07/2014 02:26 PM, Jens Axboe wrote:
+--
+Srinivasa Chamarhy
+
+--
+Srinivasa R Chamarthy
+
+
+On Thu, May 7, 2015 at 11:30 PM, Srinivasa Chamarthy
+<chamarthy.raju@gmail.com> wrote:
+> Sorry for that. Thanks for clarification on refill_buffers.
+>
+> On 07-May-2015 10:27 pm, "Jens Axboe" <axboe@kernel.dk> wrote:
 >>
->> On 04/07/2014 02:24 PM, Carl Zwanzig wrote:
+>> On 05/06/2015 09:58 PM, Srinivasa Chamarthy wrote:
 >>>
->>> Hi,
+>>> Thanks Eaton. One question thought. From the man page for refill_buffers:
 >>>
->>> (Jens- Thanks for the speedy work on this.)
+>>> "If this option is given, fio will refill the IO buffers on every
+>>> submit. The default is to only fill it at init time and reuse that
+>>> data. Only makes sense if zero_buffers isn't specified, naturally. If
+>>> data verification is enabled, refill_buffers is also automatically
+>>> enabled."
 >>>
->>> I just pulled from git and built (fio-2.1.7-29-gbc4f5).
+>>> Every IO submitted will have a new pattern for repeated workloads?
+>>> using refill_buffers, i seem to get same pattern repeatedly. Is that
+>>> how it should be? i was under the impression that refill will use new
+>>> pattern every time.
 >>>
->>> The patch will supply the parameter if it was missing from the config:
+>>> # fio --filename=test_refill --readwrite=randwrite --size=1m
+>>> --refill_buffers --bs=256k --norandommap --name=refill
+>>> # for each in {0..3}; do dd if=test_refill bs=262144 count=1
+>>> skip=$each 2>/dev/null | md5sum; done
+>>> 86c3e47e173a58ad93470fd8db856f8c  -
+>>> 6fe5ce86d04522889c99809d6d97cb94  -
+>>> 9113ce00f3781861afc41aaf6da32428  -
+>>> f0b575c40e9da23b524f585723cbea4e  -
 >>>
->>> works:
->>> ./fio --runtime=10 derf.cfg  (derf.cfg has "time_based" but no "runtime")
->>>
->>> will throws "no runtime" error:
->>> ./fio derf.cfg
->>>
->>> but will not replace an existing parameter as would happen if it's
->>> twice in the cfg file.  Also tried forcing global "./fio --name=global
->>> --runtime=10 derf.cfg", but no luck, either.
->>>
->>> I'll try poking around the area of the changes. (I have 7-8 parameters
->>> that I want to individually override, and using env vars has gotten
->>> ugly and needs a helper script.)
+>>> # fio --filename=test_refill --readwrite=randwrite --size=1m
+>>> --refill_buffers --bs=256k --norandommap --name=refill
+>>> # for each in {0..3}; do dd if=test_refill bs=262144 count=1
+>>> skip=$each 2>/dev/null | md5sum; done
+>>> 86c3e47e173a58ad93470fd8db856f8c  -
+>>> 6fe5ce86d04522889c99809d6d97cb94  -
+>>> 9113ce00f3781861afc41aaf6da32428  -
+>>> f0b575c40e9da23b524f585723cbea4e  -
 >>
 >>
->> Yep, it wont replace an existing parameter. It will basically work like
->> the option appears before any of the others in the global section,
->> similar to if you have:
+>> First of all, please stop top posting. It breaks the flow of
+>> conversations.
 >>
->> timeout=10s
->> foo=1
->> bar=89
->> timeout=20s
+>> Secondly, this is expected behavior, and it's done to get identical
+>> behavior between runs. If you had longer runs, each buffer would be
+>> different. But if you did a new run after that, the sequence of buffers
+>> would be the same. Same thing happens with the offsets generated, the buffer
+>> lengths generated, etc.
 >>
->> the last timeout= will override the first one. To make that work would
->> be more involved, I'm afraid.
+>> If you want a truly different run everytime, you have a few options. One
+>> is to simply set randrepeat=0, then OS entropy will seed the random
+>> generators. Or you can use randseed= to set a specific seed, which would
+>> allow you to reproduce a specific run.
+>>
+>>
+>> --
+>> Jens Axboe
+>>
 >
->
-> So the way to make this would... Right now, the options associated with each
-> thread/process looks like this:
->
-> struct thread_options {
->         char *string_option;
->         unsigned int uint_option;
->         [...]
-> };
->
-> and so forth. We could change that to be more ala:
->
-> typedef struct fio_char_opt {
->         char *option;
->         bool was_set;
-> };
->
-> typedef struct fio_uint_opt {
->         unsigned int option;
->         bool was_set;
-> };
->
-> and so forth. When we parse an option, we'd set the ->was_set flag to true.
-> I have been thinking about doing this before, since there are a few option
-> hacks in fio where we deliberately add an option callback just to know if an
-> option was set or not. This is done for options where checking for 0 isn't
-> the valid check for "was set or not", and it'd be nice to get rid of those.
-> Both because it would make the code cleaner, but also because the callback
-> variants make life harder for the client/server job parsing.
->
-> With this infrastructure in place, it'd be easy enough to track and support
-> overloading of options like the command line and job file mix.
->
->
-> --
-> Jens Axboe
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe fio" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
