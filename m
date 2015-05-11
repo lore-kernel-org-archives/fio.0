@@ -1,74 +1,59 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <55511A63.1040605@kernel.dk>
-Date: Mon, 11 May 2015 17:08:51 -0400
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <cheerios123@outlook.com>
+Message-ID: <BLU406-EAS199DBAAA5C83E547D2C0EBFE0DB0@phx.gbl>
+Return-Path: cheerios123@outlook.com
+From: Jon Tango <cheerios123@outlook.com>
+References: <BLU406-EAS203C4EE266D87AD0F72049E0DB0@phx.gbl> <5550D6D3.9050803@kernel.dk>
+In-Reply-To: <5550D6D3.9050803@kernel.dk>
+Subject: RE: Why Seperate Log Files?
+Date: Mon, 11 May 2015 15:28:35 -0500
 MIME-Version: 1.0
-Subject: Re: Why Seperate Log Files?
-References: <BLU406-EAS203C4EE266D87AD0F72049E0DB0@phx.gbl> <5550D6D3.9050803@kernel.dk> <BLU406-EAS199DBAAA5C83E547D2C0EBFE0DB0@phx.gbl>
-In-Reply-To: <BLU406-EAS199DBAAA5C83E547D2C0EBFE0DB0@phx.gbl>
-Content-Type: multipart/alternative;
- boundary="------------020201010901010909050507"
-To: Jon Tango <cheerios123@outlook.com>
-Cc: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>, Sitsofe Wheeler <sitsofe@gmail.com>, "<fio@vger.kernel.org>" <fio@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-us
+To: 'Jens Axboe' <axboe@kernel.dk>, 'Andrey Kuzmin' <andrey.v.kuzmin@gmail.com>
+Cc: 'Sitsofe Wheeler' <sitsofe@gmail.com>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------020201010901010909050507
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Well, I can honestly admit that I deserved that. Sorry, I had wrote that =
+after having stressed out for like 5 hours trying to get the outputs =
+correct using a variety of commands with the new version. It =
+wasn=E2=80=99t until I switched back to the old version that I realized =
+somewhere along the line the output format had changed. I will re-submit =
+this with some context.=20
 
+-----Original Message-----
+From: Jens Axboe [mailto:axboe@kernel.dk]=20
+Sent: Monday, May 11, 2015 11:21 AM
+To: Jon Tango; 'Andrey Kuzmin'
+Cc: 'Sitsofe Wheeler'; fio@vger.kernel.org
+Subject: Re: Why Seperate Log Files?
 
-On May 11, 2015, at 4:28 PM, Jon Tango <cheerios123@outlook.com 
-<mailto:cheerios123@outlook.com>> wrote:
+On 05/10/2015 09:36 PM, Jon Tango wrote:
+> When I use fio in 2.1.8 the write_iops_log command creates a singular =
+log file, even with 8 workers. With fio in the latest versions, however, =
+it creates eight separate log files. Is there a way to get fio to =
+generate a log file for all 8 workers, instead of 8 separate files? That =
+is untenable. I had to go back to 2.1.8 to get a useable output. It's =
+not like the data outputs are very friendly anyway, but with one file at =
+least that data can easily be parsed and worked with. With a different =
+file for each worker it is just ridiculous.
+> How do we get one output for all workers?
+> It would also be nice if we could just get one output with all of the=20
+> numbers for the different workers combined, but that may be asking a=20
+> bit much. Just getting them all in a workable file would be nice :)
 
-> Well, I can honestly admit that I deserved that. Sorry, I had wrote 
-> that after having stressed out for like 5 hours trying to get the 
-> outputs correct using a variety of commands with the new version. It 
-> wasn’t until I switched back to the old version that I realized 
-> somewhere along the line the output format had changed. I will 
-> re-submit this with some context.
+Lets back this up a bit. Your bug reporting _sucks_. Constructive =
+criticism - look it up. You were even lazy enough to just reply to an =
+old, totally unrelated email, instead of starting a new thread.
 
-I'm nicer than you deserved:
+So lets try this again. I'll even offer you some free hints. Find out =
+where the change happened, see if there's reasoning there. If not, =
+suggest a way to improve the situation. Or even just, constructively, =
+suggest why the current behavior is a problem and offer your opinion on =
+how it could be improved to make your life easier. Nobody on this list =
+owes you anything, you need to earn it.
 
-http://git.kernel.dk/?p=fio.git;a=commit;h=3a5db9201bf7b1717f63cb8f7dbd025903117f70
+--
+Jens Axboe
 
-
---------------020201010901010909050507
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-
-<html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  </head>
-  <body dir="auto" bgcolor="#FFFFFF" text="#000000">
-    <div><br>
-    </div>
-    <div>On May 11, 2015, at 4:28 PM, Jon Tango &lt;<a
-        href="mailto:cheerios123@outlook.com">cheerios123@outlook.com</a>&gt;
-      wrote:<br>
-      <br>
-    </div>
-    <blockquote type="cite">
-      <div><span>Well, I can honestly admit that I deserved that. Sorry,
-          I had wrote that after having stressed out for like 5 hours
-          trying to get the outputs correct using a variety of commands
-          with the new version. It wasn’t until I switched back to the
-          old version that I realized somewhere along the line the
-          output format had changed. I will re-submit this with some
-          context. </span><br>
-      </div>
-    </blockquote>
-    <br>
-    <div>I'm nicer than you deserved:</div>
-    <div><br>
-    </div>
-    <div><a
-href="http://git.kernel.dk/?p=fio.git;a=commit;h=3a5db9201bf7b1717f63cb8f7dbd025903117f70">http://git.kernel.dk/?p=fio.git;a=commit;h=3a5db9201bf7b1717f63cb8f7dbd025903117f70</a></div>
-    <div><br>
-    </div>
-  </body>
-</html>
-
---------------020201010901010909050507--
 
