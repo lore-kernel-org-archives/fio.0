@@ -1,74 +1,88 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:55075 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752639AbbEWMAG (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 23 May 2015 08:00:06 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1Yw860-00050K-Q6
-	for fio@vger.kernel.org; Sat, 23 May 2015 12:00:04 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <55523EC9.7030507@kernel.dk>
+Date: Tue, 12 May 2015 13:56:25 -0400
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150523120001.E468F2C107E@kernel.dk>
-Date: Sat, 23 May 2015 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: linux /dev and normal files
+References: <94D0CD8314A33A4D9D801C0FE68B402958CC5D81@G4W3202.americas.hpqcorp.net> <542B52B3.5060908@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958CC5EBE@G4W3202.americas.hpqcorp.net> <542B5632.8030404@kernel.dk> <542B784F.5090405@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958CC85F9@G4W3202.americas.hpqcorp.net> <542CA321.5090608@kernel.dk> <542CA44D.1030700@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958CCAA76@G4W3202.americas.hpqcorp.net> <542D9A26.6060204@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B40295A858295@G9W0745.americas.hpqcorp.net> <551EDAD7.3050803@kernel.dk> <55521D16.4070706@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B40295A903A7A@G9W0745.americas.hpqcorp.net>
+In-Reply-To: <94D0CD8314A33A4D9D801C0FE68B40295A903A7A@G9W0745.americas.hpqcorp.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: "Elliott, Robert (Server Storage)" <Elliott@hp.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: Sitsofe Wheeler <sitsofe@gmail.com>, Jon Tango <cheerios123@outlook.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit e81ecca33755eae1118b009d0d7b4d3c740ffb5f:
+On 05/12/2015 12:34 PM, Elliott, Robert (Server Storage) wrote:
+>
+>> -----Original Message-----
+>> From: Jens Axboe [mailto:axboe@kernel.dk]
+>> Sent: Tuesday, May 12, 2015 10:33 AM
+>> To: Elliott, Robert (Server Storage); fio@vger.kernel.org
+>> Cc: Sitsofe Wheeler; Jon Tango
+>> Subject: Re: linux /dev and normal files
+>>
+>> On 04/03/2015 02:24 PM, Jens Axboe wrote:
+>>> On 04/03/2015 12:13 PM, Elliott, Robert (Server Storage) wrote:
+>>>>
+>>>>
+>>>>> -----Original Message-----
+>>>>> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
+>>>>> Behalf Of Jens Axboe
+>>>>> Sent: Thursday, October 2, 2014 1:32 PM
+>>>>> To: Elliott, Robert (Server Storage); fio@vger.kernel.org
+>>>>> Cc: Sitsofe Wheeler; Jon Tango
+>>>>> Subject: Re: linux /dev and normal files
+>>>>>
+>>>>> On 10/02/2014 12:21 PM, Elliott, Robert (Server Storage) wrote:
+>>>>>>>>> It might be better to continue to attempt to run the
+>>>>>>>>> other jobs.
+>>>>>>>>
+>>>>>>>> We should just go for the simpler create/nocreate solution, I
+>> prefer
+>>>>>>>> that. This is too involved, and it's hard to get all the cases
+>> right
+>>>>>>>> since there are a bunch of different ways that files are added.
+>> Which
+>>>>>>>> was why this patch only focused on filename=, since that is the one
+>>>>> that
+>>>>>>>> is the most interesting. But it still isn't pretty. If we add the
+>>>>>>>> allow_file_create option, it's basically a two-liner change in a
+>> few
+>>>>>>>> places to not use O_CREAT.
+>>>>>>>
+>>>>>>> That took roughly 4 minutes... Does this work? Set
+>> allow_file_create=0
+>>>>>>> to disallow creating new files.
+>>>> ...
+>>>>>
+>>>>> OK, let me test that, will spin a new one.
+>>>>
+>>>> I don't think this ever got added.
+>>>
+>>> It didn't... Did you re-test? No reason we can't get it added, I'll look
+>>> into it start next week.
+>>
+>> Robert, I added this. Can you check current -git and see if it behaves
+>> as expected for you?
+>>
+>
+> Looks good.  Adding
+> allow_file_create=0
+>
+> prevents it from creating files in /dev when the specified path
+> does not exist and size= is specified.
+>
+> Starting 80 threads
+> drive_0: Laying out IO file(s) (1 file(s) / 10MB)
+> fio: file creation disallowed by allow_file_create=0
+> drive_0: Laying out IO file(s) (1 file(s) / 10MB)
+> fio: file creation disallowed by allow_file_create=0
+> drive_0: Laying out IO file(s) (1 file(s) / 10MB)
+> fio: file creation disallowed by allow_file_create=0
 
-  Add 'allow_mounted_write' option (2015-05-21 21:43:48 -0600)
+Perfect, thanks for (re) testing.
 
-are available in the git repository at:
+-- 
+Jens Axboe
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 8e093781f7995bb77ba0dca2835567a8a88972ec:
-
-  cconv: add allow_mounted_write (2015-05-22 09:09:49 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      cconv: add allow_mounted_write
-
- cconv.c  | 2 ++
- server.h | 2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/cconv.c b/cconv.c
-index b0becb8..44f17da 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -73,6 +73,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
- 	string_to_cpu(&o->cgroup, top->cgroup);
- 
- 	o->allow_create = le32_to_cpu(top->allow_create);
-+	o->allow_mounted_write = le32_to_cpu(top->allow_mounted_write);
- 	o->td_ddir = le32_to_cpu(top->td_ddir);
- 	o->rw_seq = le32_to_cpu(top->rw_seq);
- 	o->kb_base = le32_to_cpu(top->kb_base);
-@@ -290,6 +291,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	string_to_net(top->cgroup, o->cgroup);
- 
- 	top->allow_create = cpu_to_le32(o->allow_create);
-+	top->allow_mounted_write = cpu_to_le32(o->allow_mounted_write);
- 	top->td_ddir = cpu_to_le32(o->td_ddir);
- 	top->rw_seq = cpu_to_le32(o->rw_seq);
- 	top->kb_base = cpu_to_le32(o->kb_base);
-diff --git a/server.h b/server.h
-index b94c221..9944719 100644
---- a/server.h
-+++ b/server.h
-@@ -38,7 +38,7 @@ struct fio_net_cmd_reply {
- };
- 
- enum {
--	FIO_SERVER_VER			= 45,
-+	FIO_SERVER_VER			= 46,
- 
- 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
- 	FIO_SERVER_MAX_CMD_MB		= 2048,
