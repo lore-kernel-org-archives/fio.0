@@ -1,68 +1,57 @@
-Return-Path: <Elliott@hp.com>
-From: "Elliott, Robert (Server Storage)" <Elliott@hp.com>
-Subject: RE: linux /dev and normal files
-Date: Tue, 12 May 2015 16:34:38 +0000
-Message-ID: <94D0CD8314A33A4D9D801C0FE68B40295A903A7A@G9W0745.americas.hpqcorp.net>
-References: <94D0CD8314A33A4D9D801C0FE68B402958CC5D81@G4W3202.americas.hpqcorp.net>
- <542B52B3.5060908@kernel.dk>
- <94D0CD8314A33A4D9D801C0FE68B402958CC5EBE@G4W3202.americas.hpqcorp.net>
- <542B5632.8030404@kernel.dk> <542B784F.5090405@kernel.dk>
- <94D0CD8314A33A4D9D801C0FE68B402958CC85F9@G4W3202.americas.hpqcorp.net>
- <542CA321.5090608@kernel.dk> <542CA44D.1030700@kernel.dk>
- <94D0CD8314A33A4D9D801C0FE68B402958CCAA76@G4W3202.americas.hpqcorp.net>
- <542D9A26.6060204@kernel.dk>
- <94D0CD8314A33A4D9D801C0FE68B40295A858295@G9W0745.americas.hpqcorp.net>
- <551EDAD7.3050803@kernel.dk> <55521D16.4070706@kernel.dk>
-In-Reply-To: <55521D16.4070706@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <axboe@kernel.dk>
+Message-ID: <55521D16.4070706@kernel.dk>
+Date: Tue, 12 May 2015 11:32:38 -0400
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Subject: Re: linux /dev and normal files
+References: <94D0CD8314A33A4D9D801C0FE68B402958CC5D81@G4W3202.americas.hpqcorp.net> <542B52B3.5060908@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958CC5EBE@G4W3202.americas.hpqcorp.net> <542B5632.8030404@kernel.dk> <542B784F.5090405@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958CC85F9@G4W3202.americas.hpqcorp.net> <542CA321.5090608@kernel.dk> <542CA44D.1030700@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B402958CCAA76@G4W3202.americas.hpqcorp.net> <542D9A26.6060204@kernel.dk> <94D0CD8314A33A4D9D801C0FE68B40295A858295@G9W0745.americas.hpqcorp.net> <551EDAD7.3050803@kernel.dk>
+In-Reply-To: <551EDAD7.3050803@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: "Elliott, Robert (Server Storage)" <Elliott@hp.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 Cc: Sitsofe Wheeler <sitsofe@gmail.com>, Jon Tango <cheerios123@outlook.com>
 List-ID: <fio@vger.kernel.org>
 
-DQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IEplbnMgQXhib2UgW21haWx0
-bzpheGJvZUBrZXJuZWwuZGtdDQo+IFNlbnQ6IFR1ZXNkYXksIE1heSAxMiwgMjAxNSAxMDozMyBB
-TQ0KPiBUbzogRWxsaW90dCwgUm9iZXJ0IChTZXJ2ZXIgU3RvcmFnZSk7IGZpb0B2Z2VyLmtlcm5l
-bC5vcmcNCj4gQ2M6IFNpdHNvZmUgV2hlZWxlcjsgSm9uIFRhbmdvDQo+IFN1YmplY3Q6IFJlOiBs
-aW51eCAvZGV2IGFuZCBub3JtYWwgZmlsZXMNCj4gDQo+IE9uIDA0LzAzLzIwMTUgMDI6MjQgUE0s
-IEplbnMgQXhib2Ugd3JvdGU6DQo+ID4gT24gMDQvMDMvMjAxNSAxMjoxMyBQTSwgRWxsaW90dCwg
-Um9iZXJ0IChTZXJ2ZXIgU3RvcmFnZSkgd3JvdGU6DQo+ID4+DQo+ID4+DQo+ID4+PiAtLS0tLU9y
-aWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiA+Pj4gRnJvbTogZmlvLW93bmVyQHZnZXIua2VybmVsLm9y
-ZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uDQo+ID4+PiBCZWhhbGYgT2Yg
-SmVucyBBeGJvZQ0KPiA+Pj4gU2VudDogVGh1cnNkYXksIE9jdG9iZXIgMiwgMjAxNCAxOjMyIFBN
-DQo+ID4+PiBUbzogRWxsaW90dCwgUm9iZXJ0IChTZXJ2ZXIgU3RvcmFnZSk7IGZpb0B2Z2VyLmtl
-cm5lbC5vcmcNCj4gPj4+IENjOiBTaXRzb2ZlIFdoZWVsZXI7IEpvbiBUYW5nbw0KPiA+Pj4gU3Vi
-amVjdDogUmU6IGxpbnV4IC9kZXYgYW5kIG5vcm1hbCBmaWxlcw0KPiA+Pj4NCj4gPj4+IE9uIDEw
-LzAyLzIwMTQgMTI6MjEgUE0sIEVsbGlvdHQsIFJvYmVydCAoU2VydmVyIFN0b3JhZ2UpIHdyb3Rl
-Og0KPiA+Pj4+Pj4+IEl0IG1pZ2h0IGJlIGJldHRlciB0byBjb250aW51ZSB0byBhdHRlbXB0IHRv
-IHJ1biB0aGUNCj4gPj4+Pj4+PiBvdGhlciBqb2JzLg0KPiA+Pj4+Pj4NCj4gPj4+Pj4+IFdlIHNo
-b3VsZCBqdXN0IGdvIGZvciB0aGUgc2ltcGxlciBjcmVhdGUvbm9jcmVhdGUgc29sdXRpb24sIEkN
-Cj4gcHJlZmVyDQo+ID4+Pj4+PiB0aGF0LiBUaGlzIGlzIHRvbyBpbnZvbHZlZCwgYW5kIGl0J3Mg
-aGFyZCB0byBnZXQgYWxsIHRoZSBjYXNlcw0KPiByaWdodA0KPiA+Pj4+Pj4gc2luY2UgdGhlcmUg
-YXJlIGEgYnVuY2ggb2YgZGlmZmVyZW50IHdheXMgdGhhdCBmaWxlcyBhcmUgYWRkZWQuDQo+IFdo
-aWNoDQo+ID4+Pj4+PiB3YXMgd2h5IHRoaXMgcGF0Y2ggb25seSBmb2N1c2VkIG9uIGZpbGVuYW1l
-PSwgc2luY2UgdGhhdCBpcyB0aGUgb25lDQo+ID4+PiB0aGF0DQo+ID4+Pj4+PiBpcyB0aGUgbW9z
-dCBpbnRlcmVzdGluZy4gQnV0IGl0IHN0aWxsIGlzbid0IHByZXR0eS4gSWYgd2UgYWRkIHRoZQ0K
-PiA+Pj4+Pj4gYWxsb3dfZmlsZV9jcmVhdGUgb3B0aW9uLCBpdCdzIGJhc2ljYWxseSBhIHR3by1s
-aW5lciBjaGFuZ2UgaW4gYQ0KPiBmZXcNCj4gPj4+Pj4+IHBsYWNlcyB0byBub3QgdXNlIE9fQ1JF
-QVQuDQo+ID4+Pj4+DQo+ID4+Pj4+IFRoYXQgdG9vayByb3VnaGx5IDQgbWludXRlcy4uLiBEb2Vz
-IHRoaXMgd29yaz8gU2V0DQo+IGFsbG93X2ZpbGVfY3JlYXRlPTANCj4gPj4+Pj4gdG8gZGlzYWxs
-b3cgY3JlYXRpbmcgbmV3IGZpbGVzLg0KPiA+PiAuLi4NCj4gPj4+DQo+ID4+PiBPSywgbGV0IG1l
-IHRlc3QgdGhhdCwgd2lsbCBzcGluIGEgbmV3IG9uZS4NCj4gPj4NCj4gPj4gSSBkb24ndCB0aGlu
-ayB0aGlzIGV2ZXIgZ290IGFkZGVkLg0KPiA+DQo+ID4gSXQgZGlkbid0Li4uIERpZCB5b3UgcmUt
-dGVzdD8gTm8gcmVhc29uIHdlIGNhbid0IGdldCBpdCBhZGRlZCwgSSdsbCBsb29rDQo+ID4gaW50
-byBpdCBzdGFydCBuZXh0IHdlZWsuDQo+IA0KPiBSb2JlcnQsIEkgYWRkZWQgdGhpcy4gQ2FuIHlv
-dSBjaGVjayBjdXJyZW50IC1naXQgYW5kIHNlZSBpZiBpdCBiZWhhdmVzDQo+IGFzIGV4cGVjdGVk
-IGZvciB5b3U/DQo+IA0KDQpMb29rcyBnb29kLiAgQWRkaW5nDQphbGxvd19maWxlX2NyZWF0ZT0w
-DQoNCnByZXZlbnRzIGl0IGZyb20gY3JlYXRpbmcgZmlsZXMgaW4gL2RldiB3aGVuIHRoZSBzcGVj
-aWZpZWQgcGF0aA0KZG9lcyBub3QgZXhpc3QgYW5kIHNpemU9IGlzIHNwZWNpZmllZC4NCg0KU3Rh
-cnRpbmcgODAgdGhyZWFkcw0KZHJpdmVfMDogTGF5aW5nIG91dCBJTyBmaWxlKHMpICgxIGZpbGUo
-cykgLyAxME1CKQ0KZmlvOiBmaWxlIGNyZWF0aW9uIGRpc2FsbG93ZWQgYnkgYWxsb3dfZmlsZV9j
-cmVhdGU9MA0KZHJpdmVfMDogTGF5aW5nIG91dCBJTyBmaWxlKHMpICgxIGZpbGUocykgLyAxME1C
-KQ0KZmlvOiBmaWxlIGNyZWF0aW9uIGRpc2FsbG93ZWQgYnkgYWxsb3dfZmlsZV9jcmVhdGU9MA0K
-ZHJpdmVfMDogTGF5aW5nIG91dCBJTyBmaWxlKHMpICgxIGZpbGUocykgLyAxME1CKQ0KZmlvOiBm
-aWxlIGNyZWF0aW9uIGRpc2FsbG93ZWQgYnkgYWxsb3dfZmlsZV9jcmVhdGU9MA0KLi4uDQoNCi0t
-LQ0KUm9iZXJ0IEVsbGlvdHQsIEhQIFNlcnZlciBTdG9yYWdlDQo=
+On 04/03/2015 02:24 PM, Jens Axboe wrote:
+> On 04/03/2015 12:13 PM, Elliott, Robert (Server Storage) wrote:
+>>
+>>
+>>> -----Original Message-----
+>>> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
+>>> Behalf Of Jens Axboe
+>>> Sent: Thursday, October 2, 2014 1:32 PM
+>>> To: Elliott, Robert (Server Storage); fio@vger.kernel.org
+>>> Cc: Sitsofe Wheeler; Jon Tango
+>>> Subject: Re: linux /dev and normal files
+>>>
+>>> On 10/02/2014 12:21 PM, Elliott, Robert (Server Storage) wrote:
+>>>>>>> It might be better to continue to attempt to run the
+>>>>>>> other jobs.
+>>>>>>
+>>>>>> We should just go for the simpler create/nocreate solution, I prefer
+>>>>>> that. This is too involved, and it's hard to get all the cases right
+>>>>>> since there are a bunch of different ways that files are added. Which
+>>>>>> was why this patch only focused on filename=, since that is the one
+>>> that
+>>>>>> is the most interesting. But it still isn't pretty. If we add the
+>>>>>> allow_file_create option, it's basically a two-liner change in a few
+>>>>>> places to not use O_CREAT.
+>>>>>
+>>>>> That took roughly 4 minutes... Does this work? Set allow_file_create=0
+>>>>> to disallow creating new files.
+>> ...
+>>>
+>>> OK, let me test that, will spin a new one.
+>>
+>> I don't think this ever got added.
+>
+> It didn't... Did you re-test? No reason we can't get it added, I'll look
+> into it start next week.
+
+Robert, I added this. Can you check current -git and see if it behaves 
+as expected for you?
+
+-- 
+Jens Axboe
+
 
