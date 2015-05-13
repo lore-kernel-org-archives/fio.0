@@ -1,37 +1,51 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from srv02.kosbit.com.br ([198.24.183.18]:33059 "EHLO
-	srv02.kosbit.com.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933665AbbEMOfw (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 13 May 2015 10:35:52 -0400
-Date: Wed, 13 May 2015 14:29:34 +0000
-Message-ID: <20150513142934.Horde.QxMWDkRsxjXrIDsUMjgLfg1@srv02.kosbit.com.br>
-From: rodrigo@thesqltimes.com
-Subject: --thinktime seems not work
-Content-Type: text/plain; charset=UTF-8; format=flowed; DelSp=Yes
+Return-Path: <axboe@kernel.dk>
+Message-ID: <555360BE.6010303@kernel.dk>
+Date: Wed, 13 May 2015 10:33:34 -0400
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Disposition: inline
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Subject: Re: --thinktime seems not work
+References: <CAD09ZYSOkoXdHmYPfiF+pQReU1U+UHKfPL=52p818wikTtJDEw@mail.gmail.com>
+In-Reply-To: <CAD09ZYSOkoXdHmYPfiF+pQReU1U+UHKfPL=52p818wikTtJDEw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Rodrigo Ribeiro Gomes <rodrigorigomes@gmail.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
+On 05/13/2015 10:23 AM, Rodrigo Ribeiro Gomes wrote:
+> HI guys!
+>
+> I'm trying use the --thinktime parameter to sleep between each io
+> request for ten seconds.
+>
+> But, it seems not working... I'm doing  something incorrect?
+>
+> fio --name disktst  ... --thinktime 10000000
+>
+> In HOWTO, this param is described as 'Stall the job x microseconds'...
+> But fio dont stop between each request and continues issuing. This is
+> complete command line that i used:
+>
+>
+> fio --name IoRequestDelayTest --directory J\:\  --iodepth 1 --bs 4k
+> --size 1G --io_size 1G --direct 1 --thread --runtime 1h --time_based
+> --rw randread --thinktime 10000000
+>
+> The J: is mounted on a USB flash drive (Kingston SE9 32GB)
 
-HI guys!
+Works fine for me:
 
-I'm trying use the --thinktime parameter to sleep between each io
-request for ten seconds.
+./fio --name=think --size=1g --bs=4k --rw=randread --direct=1
+[...]
+   read : io=130244KB, bw=30114KB/s, iops=7528, runt=  4325msec
 
-But, it seems not working... I'm doing  something incorrect?
+./fio --name=think --size=1g --bs=4k --rw=randread --direct=1 
+--thinktime=1000
+[...]
+   read : io=17668KB, bw=3340.6KB/s, iops=835, runt=  5289msec
 
-fio --name disktst  ... --thinktime 10000000
+I tried your 10s as well, works too.
 
-In HOWTO, this param is described as 'Stall the job x microseconds'...
-But fio dont stop between each request and continues issuing. This is
-complete command line that i used:
+-- 
+Jens Axboe
 
-
-fio --name IoRequestDelayTest --directory J\:\  --iodepth 1 --bs 4k
---size 1G --io_size 1G --direct 1 --thread --runtime 1h --time_based
---rw randread --thinktime 10000000
-
-The J: is mounted on a USB flash drive (Kingston SE9 32GB)
 
