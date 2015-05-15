@@ -1,62 +1,106 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ie0-f180.google.com ([209.85.223.180]:35436 "EHLO
-	mail-ie0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751225AbbEFSfO (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 6 May 2015 14:35:14 -0400
-Received: by ieczm2 with SMTP id zm2so21351484iec.2
-        for <fio@vger.kernel.org>; Wed, 06 May 2015 11:35:13 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CAHA74uqXsXBRrNHOdTnnLegnO-DzSdj_DRxnm3R6h8aZkaSSbg@mail.gmail.com>
-References: <CAHA74uot2-dZCi=iehNRgx0RF55QsBpLFFcxQ7KqdXmjbn1FuA@mail.gmail.com>
-	<8DA4332D-F151-41F4-BC00-59F68ED3ACE3@cran.org.uk>
-	<CAHA74uqeP9ntkHVABfdDPxSZK4tTLbm486b9FJm2YjdJPv8XKA@mail.gmail.com>
-	<CAHA74uqXsXBRrNHOdTnnLegnO-DzSdj_DRxnm3R6h8aZkaSSbg@mail.gmail.com>
-Date: Wed, 6 May 2015 11:35:13 -0700
-Message-ID: <CAHA74uq=vCkY4SVRH6DJM9r70=2ae4vcFVbnjbbVbzRRh=T_SA@mail.gmail.com>
-Subject: Re: fio queue depth and windows build.
-From: Iuliu Rus <iuliur@google.com>
-Content-Type: text/plain; charset=UTF-8
+Received: from casper.infradead.org ([85.118.1.10]:58520 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161066AbbEOMAH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 15 May 2015 08:00:07 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1YtEHd-0000Ks-IA
+	for fio@vger.kernel.org; Fri, 15 May 2015 12:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150515120002.2E7552C1079@kernel.dk>
+Date: Fri, 15 May 2015 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Bruce Cran <bruce@cran.org.uk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-FYI i have sent a pull request https://github.com/axboe/fio/pull/64
-which makes fio on windows on par with iometer. The difference quite
-big on our local flash machines (60k iops to 100k)
+The following changes since commit 2378826d96532b390bd4cb08d3946b497a9b0e51:
 
-On Sat, Apr 25, 2015 at 1:43 PM, Iuliu Rus <iuliur@google.com> wrote:
-> It however did create the fio.exe after i commented out the include.
-> Thanks! We'll submit a patch once we figure out why the queue depth is
-> not working.
-> BTW this is Google Compute Engine team, and we're using fio to compare
-> our windows and linux storage performance.
->
-> On Sat, Apr 25, 2015 at 1:35 PM, Iuliu Rus <iuliur@google.com> wrote:
->> It doesn't create fio.exe for me. I commented that include out since
->> it doesn't look like it's needed, but then linker complains about mmap
->> munmap and sysconfig.
->>
->>
->> On Sat, Apr 25, 2015 at 12:46 PM, Bruce Cran <bruce@cran.org.uk> wrote:
->>> I've been meaning to investigate that build failure: it does, however get as far as creating the fio.exe binary so you can ignore the error.
->>>
->>> --
->>> Bruce
->>>
->>>> On Apr 25, 2015, at 12:04, Iuliu Rus <iuliur@google.com> wrote:
->>>>
->>>> Hello,
->>>> Looking at fio for windows, we are pretty sure that the queue depth
->>>> parameter is not working.
->>>> We wanted to investigate this ourselves and prepare a fix, but the
->>>> windows build is not working either. From a cygwin64 shell, make clean
->>>> and make -j results in this:
->>>> t/dedupe.c:13:23: fatal error: sys/ioctl.h: No such file or directory
->>>> (although i see ioctl.h under cygwin64\usr\include\sys and under
->>>> cygwin64\usr\i686-pc-cygwin\sys-root\usr\include\sys).
->>>> Any idea why the build fails?
->>>> --
->>>> To unsubscribe from this list: send the line "unsubscribe fio" in
->>>> the body of a message to majordomo@vger.kernel.org
->>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+  Add 'allow_file_create' option (2015-05-12 11:31:32 -0400)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 3e55d40fb5a68773b07cebb4a74870338eab81d4:
+
+  Change (blank)cpu affinity macros to inline functions (2015-05-15 05:18:23 +0900)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      stat: add comment on why we need return
+
+Tomohiro Kusumi (2):
+      Fix warning from gmake on BSD
+      Change (blank)cpu affinity macros to inline functions
+
+ gettime-thread.c |  2 --
+ os/os.h          | 18 +++++++++++++++---
+ stat.c           |  2 ++
+ 3 files changed, 17 insertions(+), 5 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/gettime-thread.c b/gettime-thread.c
+index 2dc976f..9bf85f0 100644
+--- a/gettime-thread.c
++++ b/gettime-thread.c
+@@ -9,9 +9,7 @@
+ struct timeval *fio_tv = NULL;
+ int fio_gtod_offload = 0;
+ static pthread_t gtod_thread;
+-#ifdef FIO_HAVE_CPU_AFFINITY
+ static os_cpu_mask_t fio_gtod_cpumask;
+-#endif
+ 
+ void fio_gtod_init(void)
+ {
+diff --git a/os/os.h b/os/os.h
+index 7cb8121..250b71f 100644
+--- a/os/os.h
++++ b/os/os.h
+@@ -79,12 +79,24 @@ typedef struct aiocb os_aiocb_t;
+ #endif
+ 
+ #ifndef FIO_HAVE_CPU_AFFINITY
+-#define fio_setaffinity(pid, mask)	(0)
+ #define fio_getaffinity(pid, mask)	do { } while (0)
+ #define fio_cpu_clear(mask, cpu)	do { } while (0)
+-#define fio_cpuset_exit(mask)		(-1)
+-#define fio_cpus_split(mask, cpu)	(0)
+ typedef unsigned long os_cpu_mask_t;
++
++static inline int fio_setaffinity(int pid, os_cpu_mask_t cpumask)
++{
++	return 0;
++}
++
++static inline int fio_cpuset_exit(os_cpu_mask_t *mask)
++{
++	return -1;
++}
++
++static inline int fio_cpus_split(os_cpu_mask_t *mask, unsigned int cpu_index)
++{
++	return 0;
++}
+ #else
+ extern int fio_cpus_split(os_cpu_mask_t *mask, unsigned int cpu);
+ #endif
+diff --git a/stat.c b/stat.c
+index 9a30bea..7d6ee63 100644
+--- a/stat.c
++++ b/stat.c
+@@ -510,7 +510,9 @@ static int block_state_category(int block_state)
+ 	case BLOCK_STATE_TRIM_FAILURE:
+ 		return 2;
+ 	default:
++		/* Silence compile warning on some BSDs and have a return */
+ 		assert(0);
++		return -1;
+ 	}
+ }
+ 
