@@ -1,176 +1,293 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from micxer.de ([178.254.52.77]:53139 "EHLO micxer.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030242AbbENW0s (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 14 May 2015 18:26:48 -0400
-Received: from qonos.fritz.box (109.125.94.74.dynamic.cablesurf.de [109.125.94.74])
-	(using TLSv1 with cipher DHE-RSA-AES128-SHA (128/128 bits))
-	(No client certificate requested)
-	(Authenticated sender: micxer@micxer.de)
-	by micxer.de (Postfix) with ESMTPSA id E825E248134
-	for <fio@vger.kernel.org>; Thu, 14 May 2015 22:09:28 +0000 (UTC)
-Message-ID: <55551D18.2000405@micxer.de>
-Date: Fri, 15 May 2015 00:09:28 +0200
-From: Michael Weinrich <micxer@micxer.de>
-MIME-Version: 1.0
-Subject: Testing write master and multiple read clients on NFS share
-Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha1; boundary="------------ms050000050500040504090906"
+Received: from bombadil.infradead.org ([198.137.202.9]:59529 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757339AbbEVMAD (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 22 May 2015 08:00:03 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1YvlcR-00062h-7Y
+	for fio@vger.kernel.org; Fri, 22 May 2015 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150522120002.129E02C1078@kernel.dk>
+Date: Fri, 22 May 2015 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+The following changes since commit fcb6b3ef8c606b60511c9c72a908e45f4cbd607b:
 
---------------ms050000050500040504090906
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+  Merge branch 'req4' of git://github.com/kusumi/fio (2015-05-15 20:13:58 -0600)
 
-Hi,
+are available in the git repository at:
 
-in my company we have some sort of database that operates on bit lists=20
-read directly from the files on the hard disk. While this is ok if you=20
-have an SSD in your server it gets tricky to keep performance up when=20
-using an NFS share.
+  git://git.kernel.dk/fio.git master
 
-While I was trying to assess different solutions I stumbled upon fio and =
+for you to fetch changes up to e81ecca33755eae1118b009d0d7b4d3c740ffb5f:
 
-was happy to see that it can also run in client-server-mode. So I was=20
-trying to emulate the following scenario:
+  Add 'allow_mounted_write' option (2015-05-21 21:43:48 -0600)
 
-- 1 node that takes care of updating the bit lists in the db files,
-   nothing else
-- 5 nodes that only read from those files and respond to queries,=20
-hopefully leveraging the local filesystem or NFS client cache
+----------------------------------------------------------------
+Jens Axboe (2):
+      Add start of mount check
+      Add 'allow_mounted_write' option
 
-I read through the HOWTO and tried to pick the options that should=20
-simulate the scenario as best as possible. This is what I came up with:
+ HOWTO            |  6 ++++++
+ Makefile         |  2 +-
+ backend.c        | 24 ++++++++++++++++++++++++
+ configure        | 22 ++++++++++++++++++++++
+ fio.1            |  6 ++++++
+ lib/mountcheck.c | 39 +++++++++++++++++++++++++++++++++++++++
+ lib/mountcheck.h |  6 ++++++
+ options.c        | 11 +++++++++++
+ thread_options.h |  2 ++
+ 9 files changed, 117 insertions(+), 1 deletion(-)
+ create mode 100644 lib/mountcheck.c
+ create mode 100644 lib/mountcheck.h
 
-[global]
-ioengine=3Dsync
-iodepth=3D1
-size=3D100%
-io_size=3D4g
-filesize=3D4g
-blocksize=3D64k
-direct=3D0
-numjobs=3D4
-directory=3D/mnt/nfs
-filename_format=3Dindex.$filenum
-fadvise_hint=3D0
-lockfile=3Dreadwrite
-randrepeat=3D1
-nrfiles=3D8
-openfiles=3D4
-runtime=3D120
-ramp_time=3D10
-blocksize=3D64k
-file_service_type=3Drandom:8
-overwrite=3D1
-fsync_on_close=3D1
-random_distribution=3Dzipf:0.6
-norandommap
-file_append=3D0
-rate=3D1m
+---
 
-[reader]
-rw=3Drandread
+Diff of recent changes:
 
-[writer]
-rw=3Drandrw
-rwmixwrite=3D80
-
-
-Is this a viable approach or is this scenario not really testable with fi=
-o?
-
-
-Thanks,
-Michael
-
-
---------------ms050000050500040504090906
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIMWjCC
-Bh4wggUGoAMCAQICAwz6pjANBgkqhkiG9w0BAQsFADCBjDELMAkGA1UEBhMCSUwxFjAUBgNV
-BAoTDVN0YXJ0Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRl
-IFNpZ25pbmcxODA2BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlh
-dGUgQ2xpZW50IENBMB4XDTE1MDIxNDEyNTAwOFoXDTE2MDIxNTE1MjQ0NlowPDEZMBcGA1UE
-AwwQbWljeGVyQG1pY3hlci5kZTEfMB0GCSqGSIb3DQEJARYQbWljeGVyQG1pY3hlci5kZTCC
-ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKK0XQQqBJnBI/F/LooOGFLqGgTtMkbN
-MWK844qnjeKCZ9xmDW9bmi4Hrk3Oojk0b4A8Ipv0kEM6aPkLLuC+FPjkkVjHBm3UrUtAi0sy
-G2jF70IXiYRnXT4bMxC7mD5t3k3SHs67ZfoibM0in7t26XYDgkrIF91AiTOg5pVU/y2Os7qs
-uobQERU8WQfC1ml8pizoCfGGFTaEr+3q1abFZGdju3ux6cbvykfDUWUliiiT5r+9x5hosMKa
-Q28xPolbyBzj6VMq36WI2jPHip0jyeuVs15s/dcpRJfEBTEMTIMsgRzWgGtyzQjBVq/FyFDs
-EMWtkTynmgD0YDvX3pVETZ8CAwEAAaOCAtYwggLSMAkGA1UdEwQCMAAwCwYDVR0PBAQDAgSw
-MB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDAdBgNVHQ4EFgQUEhEBaI348BxtlyLu
-U0xjLjlCVDIwHwYDVR0jBBgwFoAUU3Ltkpzg2ssBXHx+ljVO8tS4UYIwGwYDVR0RBBQwEoEQ
-bWljeGVyQG1pY3hlci5kZTCCAUwGA1UdIASCAUMwggE/MIIBOwYLKwYBBAGBtTcBAgMwggEq
-MC4GCCsGAQUFBwIBFiJodHRwOi8vd3d3LnN0YXJ0c3NsLmNvbS9wb2xpY3kucGRmMIH3Bggr
-BgEFBQcCAjCB6jAnFiBTdGFydENvbSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTADAgEBGoG+
-VGhpcyBjZXJ0aWZpY2F0ZSB3YXMgaXNzdWVkIGFjY29yZGluZyB0byB0aGUgQ2xhc3MgMSBW
-YWxpZGF0aW9uIHJlcXVpcmVtZW50cyBvZiB0aGUgU3RhcnRDb20gQ0EgcG9saWN5LCByZWxp
-YW5jZSBvbmx5IGZvciB0aGUgaW50ZW5kZWQgcHVycG9zZSBpbiBjb21wbGlhbmNlIG9mIHRo
-ZSByZWx5aW5nIHBhcnR5IG9ibGlnYXRpb25zLjA2BgNVHR8ELzAtMCugKaAnhiVodHRwOi8v
-Y3JsLnN0YXJ0c3NsLmNvbS9jcnR1MS1jcmwuY3JsMIGOBggrBgEFBQcBAQSBgTB/MDkGCCsG
-AQUFBzABhi1odHRwOi8vb2NzcC5zdGFydHNzbC5jb20vc3ViL2NsYXNzMS9jbGllbnQvY2Ew
-QgYIKwYBBQUHMAKGNmh0dHA6Ly9haWEuc3RhcnRzc2wuY29tL2NlcnRzL3N1Yi5jbGFzczEu
-Y2xpZW50LmNhLmNydDAjBgNVHRIEHDAahhhodHRwOi8vd3d3LnN0YXJ0c3NsLmNvbS8wDQYJ
-KoZIhvcNAQELBQADggEBAJOdDLbeJhuMDBBxIiLrSLE5bRkYL3Vw7fTW+XQV56lLl+4wOwY+
-ffbREuj4FocsHHVfEn4v1t8yj8PTmFRRhdt6mc9Q7Fb6eUhXjPe7fO0zYTJAcOCPwYjVVwQM
-Xju8kWJBGOyOSwamSfKwtJZNUM3pZKh1Qn/0mu2SKZ5NF70z8dKqPMSEBY/QEnen1muxJf9m
-GvfeuIgE7Gk2aXYvs0agqE/ERtURrQF4LBZGyRm5o/83izEKDFtSvevS89EnXpzJ5t9lTO/X
-jN0lCrVqM8CRtsSQW5zOkfRogA0ArQwDBtth/Gapqft8Fc8Ua4ur5NBcJ3NKz/9e7Qp7FvGn
-NzkwggY0MIIEHKADAgECAgEeMA0GCSqGSIb3DQEBBQUAMH0xCzAJBgNVBAYTAklMMRYwFAYD
-VQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0
-ZSBTaWduaW5nMSkwJwYDVQQDEyBTdGFydENvbSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTAe
-Fw0wNzEwMjQyMTAxNTVaFw0xNzEwMjQyMTAxNTVaMIGMMQswCQYDVQQGEwJJTDEWMBQGA1UE
-ChMNU3RhcnRDb20gTHRkLjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwgQ2VydGlmaWNhdGUg
-U2lnbmluZzE4MDYGA1UEAxMvU3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IEludGVybWVkaWF0
-ZSBDbGllbnQgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDHCYPMzi3YGrEp
-pC4Tq5a+ijKDjKaIQZZVR63UbxIP6uq/I0fhCu+cQhoUfE6ERKKnu8zPf1Jwuk0tsvVCk6U9
-b+0UjM0dLep3ZdE1gblK/1FwYT5Pipsu2yOMluLqwvsuz9/9f1+1PKHG/FaR/wpbfuIqu54q
-zHDYeqiUfsYzoVflR80DAC7hmJ+SmZnNTWyUGHJbBpA8Q89lGxahNvuryGaC/o2/ceD2uYDX
-9U8Eg5DpIpGQdcbQeGarV04WgAUjjXX5r/2dabmtxWMZwhZna//jdiSyrrSMTGKkDiXm6/3/
-4ebfeZuCYKzN2P8O2F/Xe2AC/Y7zeEsnR7FOp+uXAgMBAAGjggGtMIIBqTAPBgNVHRMBAf8E
-BTADAQH/MA4GA1UdDwEB/wQEAwIBBjAdBgNVHQ4EFgQUU3Ltkpzg2ssBXHx+ljVO8tS4UYIw
-HwYDVR0jBBgwFoAUTgvvGqRAW6UXaYcwyjRoQ9BBrvIwZgYIKwYBBQUHAQEEWjBYMCcGCCsG
-AQUFBzABhhtodHRwOi8vb2NzcC5zdGFydHNzbC5jb20vY2EwLQYIKwYBBQUHMAKGIWh0dHA6
-Ly93d3cuc3RhcnRzc2wuY29tL3Nmc2NhLmNydDBbBgNVHR8EVDBSMCegJaAjhiFodHRwOi8v
-d3d3LnN0YXJ0c3NsLmNvbS9zZnNjYS5jcmwwJ6AloCOGIWh0dHA6Ly9jcmwuc3RhcnRzc2wu
-Y29tL3Nmc2NhLmNybDCBgAYDVR0gBHkwdzB1BgsrBgEEAYG1NwECATBmMC4GCCsGAQUFBwIB
-FiJodHRwOi8vd3d3LnN0YXJ0c3NsLmNvbS9wb2xpY3kucGRmMDQGCCsGAQUFBwIBFihodHRw
-Oi8vd3d3LnN0YXJ0c3NsLmNvbS9pbnRlcm1lZGlhdGUucGRmMA0GCSqGSIb3DQEBBQUAA4IC
-AQAKgwh9eKssBly4Y4xerhy5I3dNoXHYfYa8PlVLL/qtXnkFgdtY1o95CfegFJTwqBBmf8py
-TUnFsukDFUI22zF5bVHzuJ+GxhnSqN2sD1qetbYwBYK2iyYA5Pg7Er1A+hKMIzEzcduRkIMm
-CeUTyMyikfbUFvIBivtvkR8ZFAk22BZy+pJfAoedO61HTz4qSfQoCRcLN5A0t4DkuVhTMXIz
-uQ8CnykhExD6x4e6ebIbrjZLb7L+ocR0y4YjCl/Pd4MXU91y0vTipgr/O75CDUHDRHCCKBVm
-z/Rzkc/b970MEeHt5LC3NiWTgBSvrLEuVzBKM586YoRD9Dy3OHQgWI270g+5MYA8GfgI/EPT
-5G7xPbCDz+zjdH89PeR3U4So4lSXur6H6vp+m9TQXPF3a0LwZrp8MQ+Z77U1uL7TelWO5lAp
-sbAonrqASfTpaprFVkL4nyGH+NHST2ZJPWIBk81i6Vw0ny0qZW2Niy/QvVNKbb43A43ny076
-khXO7cNbBIRdJ/6qQNq9Bqb5C0Q5nEsFcj75oxQRqlKf6TcvGbjxkJh8BYtv9ePsXklAxtm8
-J7GCUBthHSQgepbkOexhJ0wP8imUkyiPHQ0GvEnd83129fZjoEhdGwXV27ioRKbj/cIq7JRX
-un0NbeY+UdMYu9jGfIpDLtUUGSgsg2zMGs5R4jGCA90wggPZAgEBMIGUMIGMMQswCQYDVQQG
-EwJJTDEWMBQGA1UEChMNU3RhcnRDb20gTHRkLjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwg
-Q2VydGlmaWNhdGUgU2lnbmluZzE4MDYGA1UEAxMvU3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5
-IEludGVybWVkaWF0ZSBDbGllbnQgQ0ECAwz6pjAJBgUrDgMCGgUAoIICHTAYBgkqhkiG9w0B
-CQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xNTA1MTQyMjA5MjhaMCMGCSqGSIb3
-DQEJBDEWBBQnRuTx3n7TYlg7f+3Tzq9GelDmcTBsBgkqhkiG9w0BCQ8xXzBdMAsGCWCGSAFl
-AwQBKjALBglghkgBZQMEAQIwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqGSIb3
-DQMCAgFAMAcGBSsOAwIHMA0GCCqGSIb3DQMCAgEoMIGlBgkrBgEEAYI3EAQxgZcwgZQwgYwx
-CzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUg
-RGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAx
-IFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVudCBDQQIDDPqmMIGnBgsqhkiG9w0BCRACCzGB
-l6CBlDCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0Q29tIEx0ZC4xKzApBgNVBAsT
-IlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxODA2BgNVBAMTL1N0YXJ0Q29t
-IENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENBAgMM+qYwDQYJKoZIhvcN
-AQEBBQAEggEAIPDOrv/L4aUl3M5dRBmsWtwTwm62eIcDQHkAs4PBDoXo6ZZ3JTA6ygbaTnEU
-I1azR0B8OeQgA2oRUXFjzn/BI4ofb6tgJ8ZR1aOnyIJRyNULs+j6gKdDIYKssuqqyCXI1B1V
-ZNbZ/8MkbD4F62nzpph61dqmLFEn/niGKwqHV1+mw0dPW8YfjSIhUcBp+icQ4KLdQyhJgC9y
-Ty8OrBNvwe7/ZI31KVS/+YkRDUvNsM21NymYg4RrPwigco3+B9wMhiwdkpNbIJMbuM08FJoA
-jnum6DHrstPbIfP9jUcxzO0bAPtE2ea+XSYphvOg5hjUPcgYUd78bhuKy9j48Yg4SwAAAAAA
-AA==
---------------ms050000050500040504090906--
+diff --git a/HOWTO b/HOWTO
+index 7447512..ab0250c 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -1204,6 +1204,12 @@ allow_file_create=bool	If true, fio is permitted to create files as part
+ 		option is false, then fio will error out if the files it
+ 		needs to use don't already exist. Default: true.
+ 
++allow_mounted_write=bool	If this isn't set, fio will abort jobs that
++		are destructive (eg that write) to what appears to be a
++		mounted device or partition. This should help catch creating
++		inadvertently destructive tests, not realizing that the test
++		will destroy data on the mounted file system. Default: false.
++
+ pre_read=bool	If this is given, files will be pre-read into memory before
+ 		starting the given IO operation. This will also clear
+ 		the 'invalidate' flag, since it is pointless to pre-read
+diff --git a/Makefile b/Makefile
+index d9aedf5..b3acbcf 100644
+--- a/Makefile
++++ b/Makefile
+@@ -36,7 +36,7 @@ SOURCE := gettime.c ioengines.c init.c stat.c log.c time.c filesetup.c \
+ 		lib/lfsr.c gettime-thread.c helpers.c lib/flist_sort.c \
+ 		lib/hweight.c lib/getrusage.c idletime.c td_error.c \
+ 		profiles/tiobench.c profiles/act.c io_u_queue.c filelock.c \
+-		lib/tp.c lib/bloom.c lib/gauss.c workqueue.c
++		lib/tp.c lib/bloom.c lib/gauss.c lib/mountcheck.c workqueue.c
+ 
+ ifdef CONFIG_LIBHDFS
+   HDFSFLAGS= -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/linux -I $(FIO_LIBHDFS_INCLUDE)
+diff --git a/backend.c b/backend.c
+index c58294b..ef5003e 100644
+--- a/backend.c
++++ b/backend.c
+@@ -55,6 +55,7 @@
+ #include "err.h"
+ #include "lib/tp.h"
+ #include "workqueue.h"
++#include "lib/mountcheck.h"
+ 
+ static pthread_t helper_thread;
+ static pthread_mutex_t helper_lock;
+@@ -1895,6 +1896,27 @@ static void do_usleep(unsigned int usecs)
+ 	usleep(usecs);
+ }
+ 
++static int check_mount_writes(struct thread_data *td)
++{
++	struct fio_file *f;
++	unsigned int i;
++
++	if (!td_write(td) || td->o.allow_mounted_write)
++		return 0;
++
++	for_each_file(td, f, i) {
++		if (f->filetype != FIO_TYPE_BD)
++			continue;
++		if (device_is_mounted(f->file_name))
++			goto mounted;
++	}
++
++	return 0;
++mounted:
++	log_err("fio: %s appears mounted, and 'allow_mounted_write' isn't set. Aborting.", f->file_name);
++	return 1;
++}
++
+ /*
+  * Main function for kicking off and reaping jobs, as needed.
+  */
+@@ -1913,6 +1935,8 @@ static void run_threads(void)
+ 
+ 	nr_thread = nr_process = 0;
+ 	for_each_td(td, i) {
++		if (check_mount_writes(td))
++			return;
+ 		if (td->o.use_thread)
+ 			nr_thread++;
+ 		else
+diff --git a/configure b/configure
+index 3b871ef..5c6129d 100755
+--- a/configure
++++ b/configure
+@@ -1453,6 +1453,25 @@ fi
+ 
+ echo "lex/yacc for arithmetic       $arith"
+ 
++##########################################
++# Check whether we have setmntent/getmntent
++getmntent="no"
++cat > $TMPC << EOF
++#include <stdio.h>
++#include <mntent.h>
++int main(int argc, char **argv)
++{
++  FILE *mtab = setmntent(NULL, "r");
++  struct mntent *mnt = getmntent(mtab);
++  endmntent(mnt);
++  return 0;
++}
++EOF
++if compile_prog "" "" "getmntent"; then
++  getmntent="yes"
++fi
++echo "getmntent                     $getmntent"
++
+ #############################################################################
+ 
+ if test "$wordsize" = "64" ; then
+@@ -1626,6 +1645,9 @@ if test "$arith" = "yes" ; then
+     echo "YACC=$YACC" >> $config_host_mak
+   fi
+ fi
++if test "$getmntent" = "yes" ; then
++  output_sym "CONFIG_GETMNTENT"
++fi
+ 
+ if test "$zlib" = "no" ; then
+   echo "Consider installing zlib-dev (zlib-devel), some fio features depend on it."
+diff --git a/fio.1 b/fio.1
+index d5e5536..36f80d6 100644
+--- a/fio.1
++++ b/fio.1
+@@ -1080,6 +1080,12 @@ If true, fio is permitted to create files as part of its workload. This is
+ the default behavior. If this option is false, then fio will error out if the
+ files it needs to use don't already exist. Default: true.
+ .TP
++.BI allow_mounted_write \fR=\fPbool
++If this isn't set, fio will abort jobs that are destructive (eg that write)
++to what appears to be a mounted device or partition. This should help catch
++creating inadvertently destructive tests, not realizing that the test will
++destroy data on the mounted file system. Default: false.
++.TP
+ .BI pre_read \fR=\fPbool
+ If this is given, files will be pre-read into memory before starting the given
+ IO operation. This will also clear the \fR \fBinvalidate\fR flag, since it is
+diff --git a/lib/mountcheck.c b/lib/mountcheck.c
+new file mode 100644
+index 0000000..dea2746
+--- /dev/null
++++ b/lib/mountcheck.c
+@@ -0,0 +1,39 @@
++#include <stdio.h>
++#include <string.h>
++#include <mntent.h>
++
++#ifdef CONFIG_GETMNTENT
++
++#define MTAB	"/etc/mtab"
++
++int device_is_mounted(const char *dev)
++{
++	FILE *mtab;
++	struct mntent *mnt;
++	int ret = 0;
++
++	mtab = setmntent(MTAB, "r");
++	if (!mtab)
++		return 0;
++
++	while ((mnt = getmntent(mtab)) != NULL) {
++		if (!mnt->mnt_fsname)
++			continue;
++		if (!strcmp(mnt->mnt_fsname, dev)) {
++			ret = 1;
++			break;
++		}
++	}
++
++	endmntent(mtab);
++	return ret;
++}
++
++#else
++
++int device_is_mounted(const char *dev)
++{
++	return 0;
++}
++
++#endif
+diff --git a/lib/mountcheck.h b/lib/mountcheck.h
+new file mode 100644
+index 0000000..14ec45a
+--- /dev/null
++++ b/lib/mountcheck.h
+@@ -0,0 +1,6 @@
++#ifndef FIO_MOUNT_CHECK_H
++#define FIO_MOUNT_CHECK_H
++
++extern int device_is_mounted(const char *);
++
++#endif
+diff --git a/options.c b/options.c
+index ce1d11e..7f9075b 100644
+--- a/options.c
++++ b/options.c
+@@ -3041,6 +3041,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 	},
+ 	{
+ 		.name	= "allow_file_create",
++		.lname	= "Allow file create",
+ 		.type	= FIO_OPT_BOOL,
+ 		.off1	= td_var_offset(allow_create),
+ 		.help	= "Permit fio to create files, if they don't exist",
+@@ -3049,6 +3050,16 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.group	= FIO_OPT_G_FILENAME,
+ 	},
+ 	{
++		.name	= "allow_mounted_write",
++		.lname	= "Allow mounted write",
++		.type	= FIO_OPT_BOOL,
++		.off1	= td_var_offset(allow_mounted_write),
++		.help	= "Allow writes to a mounted partition",
++		.def	= "0",
++		.category = FIO_OPT_C_FILE,
++		.group	= FIO_OPT_G_FILENAME,
++	},
++	{
+ 		.name	= "pre_read",
+ 		.lname	= "Pre-read files",
+ 		.type	= FIO_OPT_BOOL,
+diff --git a/thread_options.h b/thread_options.h
+index aed39c8..6604a37 100644
+--- a/thread_options.h
++++ b/thread_options.h
+@@ -272,6 +272,7 @@ struct thread_options {
+ 	unsigned int per_job_logs;
+ 
+ 	unsigned int allow_create;
++	unsigned int allow_mounted_write;
+ };
+ 
+ #define FIO_TOP_STR_MAX		256
+@@ -509,6 +510,7 @@ struct thread_options_pack {
+ 	uint32_t per_job_logs;
+ 
+ 	uint32_t allow_create;
++	uint32_t allow_mounted_write;
+ } __attribute__((packed));
+ 
+ extern void convert_thread_options_to_cpu(struct thread_options *o, struct thread_options_pack *top);
