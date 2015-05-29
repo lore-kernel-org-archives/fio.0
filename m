@@ -1,106 +1,108 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:58520 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161066AbbEOMAH (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 15 May 2015 08:00:07 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1YtEHd-0000Ks-IA
-	for fio@vger.kernel.org; Fri, 15 May 2015 12:00:05 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150515120002.2E7552C1079@kernel.dk>
-Date: Fri, 15 May 2015 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <haghdoost@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <53430FB4.1090904@kernel.dk>
+References: <A7A1D348E34E024BBC74480FB93A2EAB10866E58@DAGN05B-E6.exg6.exghost.com>
+ <20140405032414.GB18464@kernel.dk> <533F8189.7080103@kernel.dk>
+ <53417D88.2080308@kernel.dk> <A7A1D348E34E024BBC74480FB93A2EAB1086777F@DAGN05B-E6.exg6.exghost.com>
+ <53430A03.2040503@kernel.dk> <53430FB4.1090904@kernel.dk>
+From: Alireza Haghdoost <haghdoost@gmail.com>
+Date: Fri, 29 May 2015 15:32:06 -0500
+Message-ID: <CAB-428kLz_qKXAmxfWEgikgE+CF4jQpNo4TZe8bpdAg+3GSwhQ@mail.gmail.com>
+Subject: Re: Mixing command line and job file parameters
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Carl Zwanzig <cpz@coraid.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 2378826d96532b390bd4cb08d3946b497a9b0e51:
+Would it be possible to combine mixed command line and job file
+parameters with --client option ? Right now --client option sends only
+job file to another server. Would be great if --client can also send
+command line options to the remote servers like this:
 
-  Add 'allow_file_create' option (2015-05-12 11:31:32 -0400)
+#fio  --numjobs=1 --iodepth=128 --runtime=10 --ramp_time=10
+--rw=randwrite  --client=host.list job_file
 
-are available in the git repository at:
+Alireza
 
-  git://git.kernel.dk/fio.git master
+On Mon, Apr 7, 2014 at 3:51 PM, Jens Axboe <axboe@kernel.dk> wrote:
+> On 04/07/2014 02:26 PM, Jens Axboe wrote:
+>>
+>> On 04/07/2014 02:24 PM, Carl Zwanzig wrote:
+>>>
+>>> Hi,
+>>>
+>>> (Jens- Thanks for the speedy work on this.)
+>>>
+>>> I just pulled from git and built (fio-2.1.7-29-gbc4f5).
+>>>
+>>> The patch will supply the parameter if it was missing from the config:
+>>>
+>>> works:
+>>> ./fio --runtime=10 derf.cfg  (derf.cfg has "time_based" but no "runtime")
+>>>
+>>> will throws "no runtime" error:
+>>> ./fio derf.cfg
+>>>
+>>> but will not replace an existing parameter as would happen if it's
+>>> twice in the cfg file.  Also tried forcing global "./fio --name=global
+>>> --runtime=10 derf.cfg", but no luck, either.
+>>>
+>>> I'll try poking around the area of the changes. (I have 7-8 parameters
+>>> that I want to individually override, and using env vars has gotten
+>>> ugly and needs a helper script.)
+>>
+>>
+>> Yep, it wont replace an existing parameter. It will basically work like
+>> the option appears before any of the others in the global section,
+>> similar to if you have:
+>>
+>> timeout=10s
+>> foo=1
+>> bar=89
+>> timeout=20s
+>>
+>> the last timeout= will override the first one. To make that work would
+>> be more involved, I'm afraid.
+>
+>
+> So the way to make this would... Right now, the options associated with each
+> thread/process looks like this:
+>
+> struct thread_options {
+>         char *string_option;
+>         unsigned int uint_option;
+>         [...]
+> };
+>
+> and so forth. We could change that to be more ala:
+>
+> typedef struct fio_char_opt {
+>         char *option;
+>         bool was_set;
+> };
+>
+> typedef struct fio_uint_opt {
+>         unsigned int option;
+>         bool was_set;
+> };
+>
+> and so forth. When we parse an option, we'd set the ->was_set flag to true.
+> I have been thinking about doing this before, since there are a few option
+> hacks in fio where we deliberately add an option callback just to know if an
+> option was set or not. This is done for options where checking for 0 isn't
+> the valid check for "was set or not", and it'd be nice to get rid of those.
+> Both because it would make the code cleaner, but also because the callback
+> variants make life harder for the client/server job parsing.
+>
+> With this infrastructure in place, it'd be easy enough to track and support
+> overloading of options like the command line and job file mix.
+>
+>
+> --
+> Jens Axboe
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-for you to fetch changes up to 3e55d40fb5a68773b07cebb4a74870338eab81d4:
-
-  Change (blank)cpu affinity macros to inline functions (2015-05-15 05:18:23 +0900)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      stat: add comment on why we need return
-
-Tomohiro Kusumi (2):
-      Fix warning from gmake on BSD
-      Change (blank)cpu affinity macros to inline functions
-
- gettime-thread.c |  2 --
- os/os.h          | 18 +++++++++++++++---
- stat.c           |  2 ++
- 3 files changed, 17 insertions(+), 5 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/gettime-thread.c b/gettime-thread.c
-index 2dc976f..9bf85f0 100644
---- a/gettime-thread.c
-+++ b/gettime-thread.c
-@@ -9,9 +9,7 @@
- struct timeval *fio_tv = NULL;
- int fio_gtod_offload = 0;
- static pthread_t gtod_thread;
--#ifdef FIO_HAVE_CPU_AFFINITY
- static os_cpu_mask_t fio_gtod_cpumask;
--#endif
- 
- void fio_gtod_init(void)
- {
-diff --git a/os/os.h b/os/os.h
-index 7cb8121..250b71f 100644
---- a/os/os.h
-+++ b/os/os.h
-@@ -79,12 +79,24 @@ typedef struct aiocb os_aiocb_t;
- #endif
- 
- #ifndef FIO_HAVE_CPU_AFFINITY
--#define fio_setaffinity(pid, mask)	(0)
- #define fio_getaffinity(pid, mask)	do { } while (0)
- #define fio_cpu_clear(mask, cpu)	do { } while (0)
--#define fio_cpuset_exit(mask)		(-1)
--#define fio_cpus_split(mask, cpu)	(0)
- typedef unsigned long os_cpu_mask_t;
-+
-+static inline int fio_setaffinity(int pid, os_cpu_mask_t cpumask)
-+{
-+	return 0;
-+}
-+
-+static inline int fio_cpuset_exit(os_cpu_mask_t *mask)
-+{
-+	return -1;
-+}
-+
-+static inline int fio_cpus_split(os_cpu_mask_t *mask, unsigned int cpu_index)
-+{
-+	return 0;
-+}
- #else
- extern int fio_cpus_split(os_cpu_mask_t *mask, unsigned int cpu);
- #endif
-diff --git a/stat.c b/stat.c
-index 9a30bea..7d6ee63 100644
---- a/stat.c
-+++ b/stat.c
-@@ -510,7 +510,9 @@ static int block_state_category(int block_state)
- 	case BLOCK_STATE_TRIM_FAILURE:
- 		return 2;
- 	default:
-+		/* Silence compile warning on some BSDs and have a return */
- 		assert(0);
-+		return -1;
- 	}
- }
- 
