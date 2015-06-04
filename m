@@ -1,56 +1,43 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <5585A169.7090708@kernel.dk>
-Date: Sat, 20 Jun 2015 13:22:49 -0400
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-by2on0065.outbound.protection.outlook.com ([207.46.100.65]:3722
+	"EHLO na01-by2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752187AbbFDWnW (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 4 Jun 2015 18:43:22 -0400
+From: Reed Crowe <Reed.Crowe@sandisk.com>
+Subject: FIO creating empty latency log files
+Date: Thu, 4 Jun 2015 21:09:48 +0000
+Message-ID: <5570BEAB.10707@sandisk.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <235BF47219F03D4AB481BE1B595720B6@sandisk.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Subject: Re: FIO creating empty latency log files
-References: <5570BEAB.10707@sandisk.com>
-In-Reply-To: <5570BEAB.10707@sandisk.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Reed Crowe <Reed.Crowe@sandisk.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 06/04/2015 05:09 PM, Reed Crowe wrote:
->
-> Using this version of FIO:
-> * io-threads
->     master
-> rcrowe@rcrowe-desktop:~/fio_iothreads/fio$ ./fio --version
-> fio-2.2.7-14-g00b2
->
-> I have a job file which looks like this:
->
-> [global]
-> ioengine=libaio
-> direct=1
-> numjobs=1
-> bs=4k
-> iodepth=300
-> rw=randwrite
-> randrepeat=0
-> io_submit_mode=offload
-> rate_iops=8070
-> time_based=1
-> runtime=1m
->
-> [slow_write]
-> filename=/mnt/test1/testfile.io
-> write_lat_log=/tmp/fio_lat
->
-> And it produces empty files:
-> -rw-r--r-- 1 root   root         0 Jun  4 14:34 fio_lat_clat.1.log
-> -rw-r--r-- 1 root   root         0 Jun  4 14:34 fio_lat_lat.1.log
-> -rw-r--r-- 1 root   root         0 Jun  4 14:34 fio_lat_slat.1.log
->
-> What am I missing?
-
-Nothing, it was a bug in the io_submit_mode=offload code. Try updating 
-to current -git, this should fix it:
-
-http://git.kernel.dk/cgit/fio/commit/?id=75dc383e9d05369c830559496afa382178905e39
-
--- 
-Jens Axboe
-
-
+DQpVc2luZyB0aGlzIHZlcnNpb24gb2YgRklPOg0KKiBpby10aHJlYWRzDQogICBtYXN0ZXINCnJj
+cm93ZUByY3Jvd2UtZGVza3RvcDp+L2Zpb19pb3RocmVhZHMvZmlvJCAuL2ZpbyAtLXZlcnNpb24N
+CmZpby0yLjIuNy0xNC1nMDBiMg0KDQpJIGhhdmUgYSBqb2IgZmlsZSB3aGljaCBsb29rcyBsaWtl
+IHRoaXM6DQoNCltnbG9iYWxdDQppb2VuZ2luZT1saWJhaW8NCmRpcmVjdD0xDQpudW1qb2JzPTEN
+CmJzPTRrDQppb2RlcHRoPTMwMA0Kcnc9cmFuZHdyaXRlDQpyYW5kcmVwZWF0PTANCmlvX3N1Ym1p
+dF9tb2RlPW9mZmxvYWQNCnJhdGVfaW9wcz04MDcwDQp0aW1lX2Jhc2VkPTENCnJ1bnRpbWU9MW0N
+Cg0KW3Nsb3dfd3JpdGVdDQpmaWxlbmFtZT0vbW50L3Rlc3QxL3Rlc3RmaWxlLmlvDQp3cml0ZV9s
+YXRfbG9nPS90bXAvZmlvX2xhdA0KDQpBbmQgaXQgcHJvZHVjZXMgZW1wdHkgZmlsZXM6DQotcnct
+ci0tci0tIDEgcm9vdCAgIHJvb3QgICAgICAgICAwIEp1biAgNCAxNDozNCBmaW9fbGF0X2NsYXQu
+MS5sb2cNCi1ydy1yLS1yLS0gMSByb290ICAgcm9vdCAgICAgICAgIDAgSnVuICA0IDE0OjM0IGZp
+b19sYXRfbGF0LjEubG9nDQotcnctci0tci0tIDEgcm9vdCAgIHJvb3QgICAgICAgICAwIEp1biAg
+NCAxNDozNCBmaW9fbGF0X3NsYXQuMS5sb2cNCg0KV2hhdCBhbSBJIG1pc3Npbmc/DQoNCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fDQoNClBMRUFTRSBOT1RFOiBUaGUgaW5mb3JtYXRp
+b24gY29udGFpbmVkIGluIHRoaXMgZWxlY3Ryb25pYyBtYWlsIG1lc3NhZ2UgaXMgaW50ZW5kZWQg
+b25seSBmb3IgdGhlIHVzZSBvZiB0aGUgZGVzaWduYXRlZCByZWNpcGllbnQocykgbmFtZWQgYWJv
+dmUuIElmIHRoZSByZWFkZXIgb2YgdGhpcyBtZXNzYWdlIGlzIG5vdCB0aGUgaW50ZW5kZWQgcmVj
+aXBpZW50LCB5b3UgYXJlIGhlcmVieSBub3RpZmllZCB0aGF0IHlvdSBoYXZlIHJlY2VpdmVkIHRo
+aXMgbWVzc2FnZSBpbiBlcnJvciBhbmQgdGhhdCBhbnkgcmV2aWV3LCBkaXNzZW1pbmF0aW9uLCBk
+aXN0cmlidXRpb24sIG9yIGNvcHlpbmcgb2YgdGhpcyBtZXNzYWdlIGlzIHN0cmljdGx5IHByb2hp
+Yml0ZWQuIElmIHlvdSBoYXZlIHJlY2VpdmVkIHRoaXMgY29tbXVuaWNhdGlvbiBpbiBlcnJvciwg
+cGxlYXNlIG5vdGlmeSB0aGUgc2VuZGVyIGJ5IHRlbGVwaG9uZSBvciBlLW1haWwgKGFzIHNob3du
+IGFib3ZlKSBpbW1lZGlhdGVseSBhbmQgZGVzdHJveSBhbnkgYW5kIGFsbCBjb3BpZXMgb2YgdGhp
+cyBtZXNzYWdlIGluIHlvdXIgcG9zc2Vzc2lvbiAod2hldGhlciBoYXJkIGNvcGllcyBvciBlbGVj
+dHJvbmljYWxseSBzdG9yZWQgY29waWVzKS4NCg0K
