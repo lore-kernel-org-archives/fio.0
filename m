@@ -1,71 +1,46 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:49110 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752068AbbFXMAN (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 24 Jun 2015 08:00:13 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1Z7jLh-0000A6-AZ
-	for fio@vger.kernel.org; Wed, 24 Jun 2015 12:00:13 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150624120002.4193A2C00CB@kernel.dk>
-Date: Wed, 24 Jun 2015 06:00:02 -0600 (MDT)
+Received: from mail-qc0-f169.google.com ([209.85.216.169]:35803 "EHLO
+	mail-qc0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752789AbbFDPg1 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 4 Jun 2015 11:36:27 -0400
+Received: by qczw4 with SMTP id w4so19147965qcz.2
+        for <fio@vger.kernel.org>; Thu, 04 Jun 2015 08:36:26 -0700 (PDT)
+MIME-Version: 1.0
+From: Alireza Haghdoost <haghdoost@gmail.com>
+Date: Thu, 4 Jun 2015 10:35:45 -0500
+Message-ID: <CAB-428k1q6kGKkJTKHUq7Q46-9gqbxisk5u+rLm_k=rjcp4FqA@mail.gmail.com>
+Subject: Wired Latency Reporting in the FIO results
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit 75dc383e9d05369c830559496afa382178905e39:
+Would you please kindly let me know what is the difference between
+disable_lat and disable_clat options ?
 
-  Fix latency logging for io_submit_mode=offload (2015-06-20 13:21:48 -0400)
+I have run a test job with disable_clat=1 and disable_slat=1 and got
+following lat results:
 
-are available in the git repository at:
+   lat (msec): min=309, max=30312, avg=15285.13, stdev=8664.28
+   READ: io=15658MB, aggrb=534390KB/s, minb=534390KB/s,
+maxb=534390KB/s, mint=30004msec, maxt=30004msec
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to b01af66b13f0594617602b61d31b1495292e5fd2:
+These results are certainly wrong because my storage has faster
+response time than reported 15 seconds avg lat. 15 seconds avg lat is
+certainly noticeable in run time if that was the case.
 
-  add eta and elapsed to root of json output (2015-06-22 14:34:04 -0700)
+Then, I have enabled clat and slat and got following results:
 
-----------------------------------------------------------------
-Christopher Jacobs (1):
-      add eta and elapsed to root of json output
+    slat (usec): min=2, max=31893, avg= 7.78, stdev=50.65
+    clat (usec): min=218, max=73714, avg=3813.82, stdev=3948.53
+     lat (usec): min=262, max=73718, avg=3821.84, stdev=3947.77
+     READ: io=15694MB, aggrb=535627KB/s, minb=535627KB/s,
+maxb=535627KB/s, mint=30003msec, maxt=30003msec
 
- stat.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+These results are making more sense. However, my intention was to cut
+some gettimeofday() overhead by disabling clat and slat. Which seems
+for some reason my logic is not correct.
 
----
-
-Diff of recent changes:
-
-diff --git a/stat.c b/stat.c
-index 30a2c1e..00eb75d 100644
---- a/stat.c
-+++ b/stat.c
-@@ -1062,17 +1062,26 @@ static struct json_object *show_thread_status_json(struct thread_stat *ts,
- 				    struct group_run_stats *rs)
- {
- 	struct json_object *root, *tmp;
-+	struct jobs_eta *je;
- 	double io_u_dist[FIO_IO_U_MAP_NR];
- 	double io_u_lat_u[FIO_IO_U_LAT_U_NR];
- 	double io_u_lat_m[FIO_IO_U_LAT_M_NR];
- 	double usr_cpu, sys_cpu;
- 	int i;
-+	size_t size;
-+
- 
- 	root = json_create_object();
- 	json_object_add_value_string(root, "jobname", ts->name);
- 	json_object_add_value_int(root, "groupid", ts->groupid);
- 	json_object_add_value_int(root, "error", ts->error);
- 
-+	/* ETA Info */
-+	je = get_jobs_eta(1, &size);
-+	json_object_add_value_int(root, "eta", je->eta_sec);
-+	json_object_add_value_int(root, "elapsed", je->elapsed_sec);
-+
-+
- 	add_ddir_status_json(ts, rs, DDIR_READ, root);
- 	add_ddir_status_json(ts, rs, DDIR_WRITE, root);
- 	add_ddir_status_json(ts, rs, DDIR_TRIM, root);
+I appreciate your input,
+--Alireza
