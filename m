@@ -1,46 +1,71 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qc0-f169.google.com ([209.85.216.169]:35803 "EHLO
-	mail-qc0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752789AbbFDPg1 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 4 Jun 2015 11:36:27 -0400
-Received: by qczw4 with SMTP id w4so19147965qcz.2
-        for <fio@vger.kernel.org>; Thu, 04 Jun 2015 08:36:26 -0700 (PDT)
-MIME-Version: 1.0
-From: Alireza Haghdoost <haghdoost@gmail.com>
-Date: Thu, 4 Jun 2015 10:35:45 -0500
-Message-ID: <CAB-428k1q6kGKkJTKHUq7Q46-9gqbxisk5u+rLm_k=rjcp4FqA@mail.gmail.com>
-Subject: Wired Latency Reporting in the FIO results
-Content-Type: text/plain; charset=UTF-8
+Received: from bombadil.infradead.org ([198.137.202.9]:41729 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755239AbbFQMAI (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 17 Jun 2015 08:00:08 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1Z5C0l-0004V6-C8
+	for fio@vger.kernel.org; Wed, 17 Jun 2015 12:00:07 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150617120001.9124E2C00C7@kernel.dk>
+Date: Wed, 17 Jun 2015 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Would you please kindly let me know what is the difference between
-disable_lat and disable_clat options ?
+The following changes since commit 1116dc04bec6df8f0857fceaf1cbf9032644e643:
 
-I have run a test job with disable_clat=1 and disable_slat=1 and got
-following lat results:
+  Enable FIO_HAVE_CHARDEV_SIZE on DragonFlyBSD (2015-06-12 23:16:26 +0900)
 
-   lat (msec): min=309, max=30312, avg=15285.13, stdev=8664.28
-   READ: io=15658MB, aggrb=534390KB/s, minb=534390KB/s,
-maxb=534390KB/s, mint=30004msec, maxt=30004msec
+are available in the git repository at:
 
+  git://git.kernel.dk/fio.git master
 
-These results are certainly wrong because my storage has faster
-response time than reported 15 seconds avg lat. 15 seconds avg lat is
-certainly noticeable in run time if that was the case.
+for you to fetch changes up to d86ae56c2995f90b5ac38de981d6f46114dabdf3:
 
-Then, I have enabled clat and slat and got following results:
+  HOWTO: make it clear that deviation is standard deviation (2015-06-16 09:30:59 -0600)
 
-    slat (usec): min=2, max=31893, avg= 7.78, stdev=50.65
-    clat (usec): min=218, max=73714, avg=3813.82, stdev=3948.53
-     lat (usec): min=262, max=73718, avg=3821.84, stdev=3947.77
-     READ: io=15694MB, aggrb=535627KB/s, minb=535627KB/s,
-maxb=535627KB/s, mint=30003msec, maxt=30003msec
+----------------------------------------------------------------
+Chris Worley (1):
+      HOWTO: make it clear that deviation is standard deviation
 
-These results are making more sense. However, my intention was to cut
-some gettimeofday() overhead by disabling clat and slat. Which seems
-for some reason my logic is not correct.
+ HOWTO | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-I appreciate your input,
---Alireza
+---
+
+Diff of recent changes:
+
+diff --git a/HOWTO b/HOWTO
+index 61ebe5e..b823eae 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -1956,18 +1956,18 @@ Split up, the format is as follows:
+ 	terse version, fio version, jobname, groupid, error
+ 	READ status:
+ 		Total IO (KB), bandwidth (KB/sec), IOPS, runtime (msec)
+-		Submission latency: min, max, mean, deviation (usec)
+-		Completion latency: min, max, mean, deviation (usec)
++		Submission latency: min, max, mean, stdev (usec)
++		Completion latency: min, max, mean, stdev (usec)
+ 		Completion latency percentiles: 20 fields (see below)
+-		Total latency: min, max, mean, deviation (usec)
+-		Bw (KB/s): min, max, aggregate percentage of total, mean, deviation
++		Total latency: min, max, mean, stdev (usec)
++		Bw (KB/s): min, max, aggregate percentage of total, mean, stdev
+ 	WRITE status:
+ 		Total IO (KB), bandwidth (KB/sec), IOPS, runtime (msec)
+-		Submission latency: min, max, mean, deviation (usec)
+-		Completion latency: min, max, mean, deviation (usec)
++		Submission latency: min, max, mean, stdev (usec)
++		Completion latency: min, max, mean, stdev(usec)
+ 		Completion latency percentiles: 20 fields (see below)
+-		Total latency: min, max, mean, deviation (usec)
+-		Bw (KB/s): min, max, aggregate percentage of total, mean, deviation
++		Total latency: min, max, mean, stdev (usec)
++		Bw (KB/s): min, max, aggregate percentage of total, mean, stdev
+ 	CPU usage: user, system, context switches, major faults, minor faults
+ 	IO depths: <=1, 2, 4, 8, 16, 32, >=64
+ 	IO latencies microseconds: <=2, 4, 10, 20, 50, 100, 250, 500, 750, 1000
