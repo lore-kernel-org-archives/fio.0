@@ -1,43 +1,71 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-by2on0065.outbound.protection.outlook.com ([207.46.100.65]:3722
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752187AbbFDWnW (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 4 Jun 2015 18:43:22 -0400
-From: Reed Crowe <Reed.Crowe@sandisk.com>
-Subject: FIO creating empty latency log files
-Date: Thu, 4 Jun 2015 21:09:48 +0000
-Message-ID: <5570BEAB.10707@sandisk.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <235BF47219F03D4AB481BE1B595720B6@sandisk.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+Received: from bombadil.infradead.org ([198.137.202.9]:49110 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752068AbbFXMAN (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 24 Jun 2015 08:00:13 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1Z7jLh-0000A6-AZ
+	for fio@vger.kernel.org; Wed, 24 Jun 2015 12:00:13 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150624120002.4193A2C00CB@kernel.dk>
+Date: Wed, 24 Jun 2015 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-DQpVc2luZyB0aGlzIHZlcnNpb24gb2YgRklPOg0KKiBpby10aHJlYWRzDQogICBtYXN0ZXINCnJj
-cm93ZUByY3Jvd2UtZGVza3RvcDp+L2Zpb19pb3RocmVhZHMvZmlvJCAuL2ZpbyAtLXZlcnNpb24N
-CmZpby0yLjIuNy0xNC1nMDBiMg0KDQpJIGhhdmUgYSBqb2IgZmlsZSB3aGljaCBsb29rcyBsaWtl
-IHRoaXM6DQoNCltnbG9iYWxdDQppb2VuZ2luZT1saWJhaW8NCmRpcmVjdD0xDQpudW1qb2JzPTEN
-CmJzPTRrDQppb2RlcHRoPTMwMA0Kcnc9cmFuZHdyaXRlDQpyYW5kcmVwZWF0PTANCmlvX3N1Ym1p
-dF9tb2RlPW9mZmxvYWQNCnJhdGVfaW9wcz04MDcwDQp0aW1lX2Jhc2VkPTENCnJ1bnRpbWU9MW0N
-Cg0KW3Nsb3dfd3JpdGVdDQpmaWxlbmFtZT0vbW50L3Rlc3QxL3Rlc3RmaWxlLmlvDQp3cml0ZV9s
-YXRfbG9nPS90bXAvZmlvX2xhdA0KDQpBbmQgaXQgcHJvZHVjZXMgZW1wdHkgZmlsZXM6DQotcnct
-ci0tci0tIDEgcm9vdCAgIHJvb3QgICAgICAgICAwIEp1biAgNCAxNDozNCBmaW9fbGF0X2NsYXQu
-MS5sb2cNCi1ydy1yLS1yLS0gMSByb290ICAgcm9vdCAgICAgICAgIDAgSnVuICA0IDE0OjM0IGZp
-b19sYXRfbGF0LjEubG9nDQotcnctci0tci0tIDEgcm9vdCAgIHJvb3QgICAgICAgICAwIEp1biAg
-NCAxNDozNCBmaW9fbGF0X3NsYXQuMS5sb2cNCg0KV2hhdCBhbSBJIG1pc3Npbmc/DQoNCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fDQoNClBMRUFTRSBOT1RFOiBUaGUgaW5mb3JtYXRp
-b24gY29udGFpbmVkIGluIHRoaXMgZWxlY3Ryb25pYyBtYWlsIG1lc3NhZ2UgaXMgaW50ZW5kZWQg
-b25seSBmb3IgdGhlIHVzZSBvZiB0aGUgZGVzaWduYXRlZCByZWNpcGllbnQocykgbmFtZWQgYWJv
-dmUuIElmIHRoZSByZWFkZXIgb2YgdGhpcyBtZXNzYWdlIGlzIG5vdCB0aGUgaW50ZW5kZWQgcmVj
-aXBpZW50LCB5b3UgYXJlIGhlcmVieSBub3RpZmllZCB0aGF0IHlvdSBoYXZlIHJlY2VpdmVkIHRo
-aXMgbWVzc2FnZSBpbiBlcnJvciBhbmQgdGhhdCBhbnkgcmV2aWV3LCBkaXNzZW1pbmF0aW9uLCBk
-aXN0cmlidXRpb24sIG9yIGNvcHlpbmcgb2YgdGhpcyBtZXNzYWdlIGlzIHN0cmljdGx5IHByb2hp
-Yml0ZWQuIElmIHlvdSBoYXZlIHJlY2VpdmVkIHRoaXMgY29tbXVuaWNhdGlvbiBpbiBlcnJvciwg
-cGxlYXNlIG5vdGlmeSB0aGUgc2VuZGVyIGJ5IHRlbGVwaG9uZSBvciBlLW1haWwgKGFzIHNob3du
-IGFib3ZlKSBpbW1lZGlhdGVseSBhbmQgZGVzdHJveSBhbnkgYW5kIGFsbCBjb3BpZXMgb2YgdGhp
-cyBtZXNzYWdlIGluIHlvdXIgcG9zc2Vzc2lvbiAod2hldGhlciBoYXJkIGNvcGllcyBvciBlbGVj
-dHJvbmljYWxseSBzdG9yZWQgY29waWVzKS4NCg0K
+The following changes since commit 75dc383e9d05369c830559496afa382178905e39:
+
+  Fix latency logging for io_submit_mode=offload (2015-06-20 13:21:48 -0400)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to b01af66b13f0594617602b61d31b1495292e5fd2:
+
+  add eta and elapsed to root of json output (2015-06-22 14:34:04 -0700)
+
+----------------------------------------------------------------
+Christopher Jacobs (1):
+      add eta and elapsed to root of json output
+
+ stat.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+---
+
+Diff of recent changes:
+
+diff --git a/stat.c b/stat.c
+index 30a2c1e..00eb75d 100644
+--- a/stat.c
++++ b/stat.c
+@@ -1062,17 +1062,26 @@ static struct json_object *show_thread_status_json(struct thread_stat *ts,
+ 				    struct group_run_stats *rs)
+ {
+ 	struct json_object *root, *tmp;
++	struct jobs_eta *je;
+ 	double io_u_dist[FIO_IO_U_MAP_NR];
+ 	double io_u_lat_u[FIO_IO_U_LAT_U_NR];
+ 	double io_u_lat_m[FIO_IO_U_LAT_M_NR];
+ 	double usr_cpu, sys_cpu;
+ 	int i;
++	size_t size;
++
+ 
+ 	root = json_create_object();
+ 	json_object_add_value_string(root, "jobname", ts->name);
+ 	json_object_add_value_int(root, "groupid", ts->groupid);
+ 	json_object_add_value_int(root, "error", ts->error);
+ 
++	/* ETA Info */
++	je = get_jobs_eta(1, &size);
++	json_object_add_value_int(root, "eta", je->eta_sec);
++	json_object_add_value_int(root, "elapsed", je->elapsed_sec);
++
++
+ 	add_ddir_status_json(ts, rs, DDIR_READ, root);
+ 	add_ddir_status_json(ts, rs, DDIR_WRITE, root);
+ 	add_ddir_status_json(ts, rs, DDIR_TRIM, root);
