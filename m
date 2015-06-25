@@ -1,53 +1,72 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:39269 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751884AbbFKMAP (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 11 Jun 2015 08:00:15 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1Z319X-0004Fh-AD
-	for fio@vger.kernel.org; Thu, 11 Jun 2015 12:00:11 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150611120001.800F52C0102@kernel.dk>
-Date: Thu, 11 Jun 2015 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <haghdoost@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <4F85E399.3030603@kernel.dk>
+References: <CAN8qX8YZoZ2TtcqU0QOTEguHoqsYQRuMoFvRsT3JTJc9Uba19w@mail.gmail.com>
+ <4F7E35F2.5010701@kernel.dk> <CAN8qX8ZnCCZz3cBbhocdTwXgBqsL=JV=QYFD_OSj4nmEFVUZMQ@mail.gmail.com>
+ <4F85E399.3030603@kernel.dk>
+From: Alireza Haghdoost <haghdoost@gmail.com>
+Date: Thu, 25 Jun 2015 00:29:39 -0500
+Message-ID: <CAB-428kfhcDuQBrpkd4wg17Vp_Rz-mx0OUMMDhBfYbnhDbXfMA@mail.gmail.com>
+Subject: Re: query on verify_dump option
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Suresh Dhanarajan <sureshdrajan@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit f491a907983c1022ec3c4d3a76d969c286fe441b:
+On Wed, Apr 11, 2012 at 3:03 PM, Jens Axboe <axboe@kernel.dk> wrote:
+>
+> On 2012-04-06 02:28, Suresh Dhanarajan wrote:
+> > Hi,
+> >
+> > I am looking for this files in the same location where my fio is and i
+> > dont see the two files that you refereed.
+>
+> Hmm, you really should, if you have verify_dump=1 set. The pattern
+> verify is the odd one out, all the other checksum verifiers use shared
+> code for this. I'll take a look at this and see if I can reproduce it.
+>
 
-  Dropped commented out part of line. (2015-06-09 14:14:20 -0700)
+Jens,
 
-are available in the git repository at:
+Not sure if you had a chance to take a look at this issue. I have just
+replicate this issue in my setup. The .received and .excpected files
+are missing with verify_dump=1.
 
-  git://git.kernel.dk/fio.git master
+Here is my job file, would you please kindly take a look and let me
+know if my job file is not correct ?
 
-for you to fetch changes up to 7a717ac6e6f154deebfe2af75a82ca0a76025453:
+; writes 512 byte verification blocks until the disk is full,
+; then verifies written data
+[global]
+thread=1
+bs=128k
+direct=1
+iodepth=32
+size=10G
+ioengine=libaio
+verify=crc32c
+verify_pattern=0x0123456789abcdfe
+verify_interval=512
 
-  Fix compiler warning (2015-06-10 08:45:36 +0900)
+[write-phase]
+filename=/dev/sdd    ; or use a full disk, for example /dev/sda
+rw=write
+;fill_device=1
+do_verify=0
+verify_state_save=1
 
-----------------------------------------------------------------
-Tomohiro Kusumi (1):
-      Fix compiler warning
+[verify-phase]
+stonewall
+create_serialize=0
+filename=/dev/sdd
+rw=read
+do_verify=1
+verify_only
+verify_state_load=1
+verify_dump=1
+error_dump=1
+description=dump_pattern
 
- options.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
----
+--Alireza
 
-Diff of recent changes:
-
-diff --git a/options.c b/options.c
-index e3b9338..76146a7 100644
---- a/options.c
-+++ b/options.c
-@@ -917,7 +917,7 @@ static int str_opendir_cb(void *data, const char fio_unused *str)
- static int pattern_cb(char *pattern, unsigned int max_size,
- 		      const char *input, unsigned int *pattern_bytes)
- {
--	long off;
-+	long off = 0;
- 	int i = 0, j = 0, len, k, base = 10;
- 	uint32_t pattern_length;
- 	char *loc1, *loc2;
