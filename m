@@ -1,72 +1,28 @@
-Return-Path: <haghdoost@gmail.com>
+Return-Path: <axboe@kernel.dk>
+Message-ID: <55919868.4010504@kernel.dk>
+Date: Mon, 29 Jun 2015 13:11:36 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <4F85E399.3030603@kernel.dk>
-References: <CAN8qX8YZoZ2TtcqU0QOTEguHoqsYQRuMoFvRsT3JTJc9Uba19w@mail.gmail.com>
- <4F7E35F2.5010701@kernel.dk> <CAN8qX8ZnCCZz3cBbhocdTwXgBqsL=JV=QYFD_OSj4nmEFVUZMQ@mail.gmail.com>
- <4F85E399.3030603@kernel.dk>
-From: Alireza Haghdoost <haghdoost@gmail.com>
-Date: Thu, 25 Jun 2015 00:29:39 -0500
-Message-ID: <CAB-428kfhcDuQBrpkd4wg17Vp_Rz-mx0OUMMDhBfYbnhDbXfMA@mail.gmail.com>
-Subject: Re: query on verify_dump option
-Content-Type: text/plain; charset=UTF-8
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Suresh Dhanarajan <sureshdrajan@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Subject: Re: competime_assert failure without -O3 optimization flag expected
+ ?
+References: <CAB-428=biE+PMVOA8qg_VcH9bf0ZVZO1dimXVh3KC3Z7j=QrmQ@mail.gmail.com> <5591687D.6040803@kernel.dk> <CAB-428=EKjcxK6J9OvKU1nM34Q998fN=LFQKgNgofeMb_cuY1g@mail.gmail.com> <55916A66.5080303@kernel.dk> <55916C87.1030408@kernel.dk> <CAB-428=ToOGYb=5r6VhORWiFqXoHk6N8tMX8HbUr2_Cctf9oWw@mail.gmail.com> <55918558.8090006@kernel.dk> <CAB-428=30M7HXTfL4P3KpyjAG3dqMA9vVirc8iyjbO-8eAgDrQ@mail.gmail.com> <55918E78.2050706@kernel.dk> <CAB-428kYoWm-SqfCpQRa2z6-fb=7X+kkNC7hfOV8HOUU-TV4PQ@mail.gmail.com>
+In-Reply-To: <CAB-428kYoWm-SqfCpQRa2z6-fb=7X+kkNC7hfOV8HOUU-TV4PQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Alireza Haghdoost <haghdoost@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On Wed, Apr 11, 2012 at 3:03 PM, Jens Axboe <axboe@kernel.dk> wrote:
->
-> On 2012-04-06 02:28, Suresh Dhanarajan wrote:
-> > Hi,
-> >
-> > I am looking for this files in the same location where my fio is and i
-> > dont see the two files that you refereed.
->
-> Hmm, you really should, if you have verify_dump=1 set. The pattern
-> verify is the odd one out, all the other checksum verifiers use shared
-> code for this. I'll take a look at this and see if I can reproduce it.
->
+On 06/29/2015 12:58 PM, Alireza Haghdoost wrote:
+> Make sens Jens. I did not get what you told me in the first place. Let
+> me know if this would fix it. It works for me with GCC 4.6 (patch file
+> is also attached):
 
-Jens,
+This is perfect! Thanks, committed:
 
-Not sure if you had a chance to take a look at this issue. I have just
-replicate this issue in my setup. The .received and .excpected files
-are missing with verify_dump=1.
+http://git.kernel.dk/cgit/fio/commit/?id=5018f79f6d8da82b6fafbbeeebdecb3799788bc3
 
-Here is my job file, would you please kindly take a look and let me
-know if my job file is not correct ?
+-- 
+Jens Axboe
 
-; writes 512 byte verification blocks until the disk is full,
-; then verifies written data
-[global]
-thread=1
-bs=128k
-direct=1
-iodepth=32
-size=10G
-ioengine=libaio
-verify=crc32c
-verify_pattern=0x0123456789abcdfe
-verify_interval=512
-
-[write-phase]
-filename=/dev/sdd    ; or use a full disk, for example /dev/sda
-rw=write
-;fill_device=1
-do_verify=0
-verify_state_save=1
-
-[verify-phase]
-stonewall
-create_serialize=0
-filename=/dev/sdd
-rw=read
-do_verify=1
-verify_only
-verify_state_load=1
-verify_dump=1
-error_dump=1
-description=dump_pattern
-
-
---Alireza
 
