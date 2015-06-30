@@ -1,186 +1,67 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from muon.bluestop.org ([204.109.60.166]:43008 "EHLO
-	muon.cran.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752368AbbF2WkF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 29 Jun 2015 18:40:05 -0400
-Received: from muon.bluestop.org (localhost [127.0.0.1])
-	by muon.cran.org.uk (Postfix) with ESMTP id ABD1E27334A
-	for <fio@vger.kernel.org>; Mon, 29 Jun 2015 16:34:26 -0600 (MDT)
-Received: from muon.cran.org.uk ([127.0.0.1])
-	by muon.bluestop.org (muon.bluestop.org [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id Fx14V_SdNPvQ for <fio@vger.kernel.org>;
-	Mon, 29 Jun 2015 16:34:25 -0600 (MDT)
-Received: from [10.50.3.54] (63-158-132-10.dia.static.qwest.net [63.158.132.10])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by muon.cran.org.uk (Postfix) with ESMTPSA
-	for <fio@vger.kernel.org>; Mon, 29 Jun 2015 16:34:25 -0600 (MDT)
-Message-ID: <5591C7F0.1090004@cran.org.uk>
-Date: Mon, 29 Jun 2015 16:34:24 -0600
-From: Bruce Cran <bruce@cran.org.uk>
+Received: from mail.cs.umn.edu ([128.101.32.201]:59140 "EHLO mail.cs.umn.edu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750981AbbF3BxZ (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 29 Jun 2015 21:53:25 -0400
+Received: from mail-qk0-f170.google.com (mail-qk0-f170.google.com [209.85.220.170])
+	by mail.cs.umn.edu (Postfix) with ESMTPSA id C98CD3DDEC6
+	for <fio@vger.kernel.org>; Mon, 29 Jun 2015 20:18:05 -0500 (CDT)
+Received: by qkei195 with SMTP id i195so65061788qke.3
+        for <fio@vger.kernel.org>; Mon, 29 Jun 2015 18:18:05 -0700 (PDT)
 MIME-Version: 1.0
-Subject: FreeBSD build broken following _Static_assert commit
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Alireza Haghdoost <alireza@cs.umn.edu>
+Date: Mon, 29 Jun 2015 20:17:25 -0500
+Message-ID: <CAB-428kbc6uE0fViU9ahW15BtPZi1txKcKnBdgzyb+083SfRZg@mail.gmail.com>
+Subject: Question about data integrity check
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Grant Grundler <grundler@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Puthikorn Voravootivat <puthik@chromium.org>
+Cc: FIO List <fio@vger.kernel.org>
 
-On FreeBSD 10.1 with clang 3.4.1, a standard "gmake" build now fails with:
+Dear Chrome OS developers,
 
-libfio.c:309:21: error: static_assert expression is not an integral 
-constant expression
-         compiletime_assert((offsetof(struct thread_stat, 
-percentile_list) % 8) == 0, "stat percentile_list");
-~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./compiler/compiler.h:39:59: note: expanded from macro 'compiletime_assert'
-#define compiletime_assert(condition, msg) _Static_assert(condition, msg)
-                                                           ^
-libfio.c:309:22: note: cast that performs the conversions of a 
-reinterpret_cast is not allowed in a constant expression
-         compiletime_assert((offsetof(struct thread_stat, 
-percentile_list) % 8) == 0, "stat percentile_list");
-                             ^
-./flist.h:10:33: note: expanded from macro 'offsetof'
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-                                 ^
-./compiler/compiler.h:39:59: note: expanded from macro 'compiletime_assert'
-#define compiletime_assert(condition, msg) _Static_assert(condition, msg)
-                                                           ^
-libfio.c:310:21: error: static_assert expression is not an integral 
-constant expression
-         compiletime_assert((offsetof(struct thread_stat, 
-total_run_time) % 8) == 0, "total_run_time");
-~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./compiler/compiler.h:39:59: note: expanded from macro 'compiletime_assert'
-#define compiletime_assert(condition, msg) _Static_assert(condition, msg)
-                                                           ^
-libfio.c:310:22: note: cast that performs the conversions of a 
-reinterpret_cast is not allowed in a constant expression
-         compiletime_assert((offsetof(struct thread_stat, 
-total_run_time) % 8) == 0, "total_run_time");
-                             ^
-./flist.h:10:33: note: expanded from macro 'offsetof'
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-                                 ^
-./compiler/compiler.h:39:59: note: expanded from macro 'compiletime_assert'
-#define compiletime_assert(condition, msg) _Static_assert(condition, msg)
-                                                           ^
-libfio.c:311:21: error: static_assert expression is not an integral 
-constant expression
-         compiletime_assert((offsetof(struct thread_stat, 
-total_err_count) % 8) == 0, "total_err_count");
-~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./compiler/compiler.h:39:59: note: expanded from macro 'compiletime_assert'
-#define compiletime_assert(condition, msg) _Static_assert(condition, msg)
-                                                           ^
-libfio.c:311:22: note: cast that performs the conversions of a 
-reinterpret_cast is not allowed in a constant expression
-         compiletime_assert((offsetof(struct thread_stat, 
-total_err_count) % 8) == 0, "total_err_count");
-                             ^
-./flist.h:10:33: note: expanded from macro 'offsetof'
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-                                 ^
-./compiler/compiler.h:39:59: note: expanded from macro 'compiletime_assert'
-#define compiletime_assert(condition, msg) _Static_assert(condition, msg)
-                                                           ^
-libfio.c:312:21: error: static_assert expression is not an integral 
-constant expression
-         compiletime_assert((offsetof(struct thread_stat, 
-latency_percentile) % 8) == 0, "stat latency_percentile");
-~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./compiler/compiler.h:39:59: note: expanded from macro 'compiletime_assert'
-#define compiletime_assert(condition, msg) _Static_assert(condition, msg)
-                                                           ^
-libfio.c:312:22: note: cast that performs the conversions of a 
-reinterpret_cast is not allowed in a constant expression
-         compiletime_assert((offsetof(struct thread_stat, 
-latency_percentile) % 8) == 0, "stat latency_percentile");
-                             ^
-./flist.h:10:33: note: expanded from macro 'offsetof'
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-                                 ^
-./compiler/compiler.h:39:59: note: expanded from macro 'compiletime_assert'
-#define compiletime_assert(condition, msg) _Static_assert(condition, msg)
-                                                           ^
-libfio.c:313:21: error: static_assert expression is not an integral 
-constant expression
-         compiletime_assert((offsetof(struct thread_options_pack, 
-zipf_theta) % 8) == 0, "zipf_theta");
-~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./compiler/compiler.h:39:59: note: expanded from macro 'compiletime_assert'
-#define compiletime_assert(condition, msg) _Static_assert(condition, msg)
-                                                           ^
-libfio.c:313:22: note: cast that performs the conversions of a 
-reinterpret_cast is not allowed in a constant expression
-         compiletime_assert((offsetof(struct thread_options_pack, 
-zipf_theta) % 8) == 0, "zipf_theta");
-                             ^
-./flist.h:10:33: note: expanded from macro 'offsetof'
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-                                 ^
-./compiler/compiler.h:39:59: note: expanded from macro 'compiletime_assert'
-#define compiletime_assert(condition, msg) _Static_assert(condition, msg)
-                                                           ^
-libfio.c:314:21: error: static_assert expression is not an integral 
-constant expression
-         compiletime_assert((offsetof(struct thread_options_pack, 
-pareto_h) % 8) == 0, "pareto_h");
-~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./compiler/compiler.h:39:59: note: expanded from macro 'compiletime_assert'
-#define compiletime_assert(condition, msg) _Static_assert(condition, msg)
-                                                           ^
-libfio.c:314:22: note: cast that performs the conversions of a 
-reinterpret_cast is not allowed in a constant expression
-         compiletime_assert((offsetof(struct thread_options_pack, 
-pareto_h) % 8) == 0, "pareto_h");
-                             ^
-./flist.h:10:33: note: expanded from macro 'offsetof'
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-                                 ^
-./compiler/compiler.h:39:59: note: expanded from macro 'compiletime_assert'
-#define compiletime_assert(condition, msg) _Static_assert(condition, msg)
-                                                           ^
-libfio.c:315:21: error: static_assert expression is not an integral 
-constant expression
-         compiletime_assert((offsetof(struct thread_options_pack, 
-percentile_list) % 8) == 0, "percentile_list");
-~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./compiler/compiler.h:39:59: note: expanded from macro 'compiletime_assert'
-#define compiletime_assert(condition, msg) _Static_assert(condition, msg)
-                                                           ^
-libfio.c:315:22: note: cast that performs the conversions of a 
-reinterpret_cast is not allowed in a constant expression
-         compiletime_assert((offsetof(struct thread_options_pack, 
-percentile_list) % 8) == 0, "percentile_list");
-                             ^
-./flist.h:10:33: note: expanded from macro 'offsetof'
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-                                 ^
-./compiler/compiler.h:39:59: note: expanded from macro 'compiletime_assert'
-#define compiletime_assert(condition, msg) _Static_assert(condition, msg)
-                                                           ^
-libfio.c:316:21: error: static_assert expression is not an integral 
-constant expression
-         compiletime_assert((offsetof(struct thread_options_pack, 
-latency_percentile) % 8) == 0, "latency_percentile");
-~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./compiler/compiler.h:39:59: note: expanded from macro 'compiletime_assert'
-#define compiletime_assert(condition, msg) _Static_assert(condition, msg)
-                                                           ^
-libfio.c:316:22: note: cast that performs the conversions of a 
-reinterpret_cast is not allowed in a constant expression
-         compiletime_assert((offsetof(struct thread_options_pack, 
-latency_percentile) % 8) == 0, "latency_percentile");
-                             ^
-./flist.h:10:33: note: expanded from macro 'offsetof'
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-                                 ^
-./compiler/compiler.h:39:59: note: expanded from macro 'compiletime_assert'
-#define compiletime_assert(condition, msg) _Static_assert(condition, msg)
-                                                           ^
-8 errors generated.
+Thanks a lot for your contribution on this mailing list to develop
+data integrity test for fio. I am in need to extend this tool for
+almost similar purpose. Therefore, I did some research to understand
+what you and your intern (Juan) has been done so far and have some
+comments on your approach:
 
--- 
-Bruce
+Based on my understanding the integrity test framework works like this:
+    - First, run the write intensive job with verify_only=0 option to
+write initial contents and headers on the media
+    - Second, run the same job with verify_only=1 option to read what
+has been written in the previous run and checks a) header rand_seed b)
+in case of verify=meta check numberio
+
+
+Refering to sample job file posted in here :
+https://chromium.googlesource.com/chromiumos/third_party/autotest/+/master/client/site_tests/hardware_StorageFio/8k_async_randwrite
+
+This kind of integrity checking failed to detect stale writes in
+following cases. Please correct me if I am wrong but here is why I
+think this is not a good method to do integrity checking:
+
+   1. The logic does not work for multiple integrity check on the same
+target (file,raw device) since it write exactly the same contents and
+headers every time we run the test on the target media. Therefore, if
+the test pass for the 1st time, it will pass forever regardless of
+future stale writes. You are using randrepeat=1 which essentially
+force FIO to use 0 for rand_seed and follow exact the same random IO
+blocks every time/run.
+
+   2. The logic does not work for 0 initialized target media with
+verify != meta. This is exactly similar to the 8K_async_randwrite job
+file that sounds like you are using. In this case, since verify !=
+meta then the verify_only phase just check the rand_seed value of
+written data with default rand_seed value of FIO. It turns out the
+default rand_seed value of FIO is 0 if you have randrepeat=1.
+Therefore, assuming the target media is already initialized to 0
+(which is a valid case for most of new drives) regardless of what has
+been written in first phase, the header rand_write check will pass.
+
+
+--Alireza
+PhD Candidate,
+Center for Research in Intelligent Storage,
+University of Minnesota - Twin Cities
