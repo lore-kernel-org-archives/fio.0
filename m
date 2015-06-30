@@ -1,41 +1,30 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from plane.gmane.org ([80.91.229.3]:59057 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751753AbbFCTbB (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 3 Jun 2015 15:31:01 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcsf-fio@m.gmane.org>)
-	id 1Z0EMV-0000Jf-U8
-	for fio@vger.kernel.org; Wed, 03 Jun 2015 21:30:04 +0200
-Received: from lmcpra.ericsson.ca ([192.75.88.231])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <fio@vger.kernel.org>; Wed, 03 Jun 2015 21:30:03 +0200
-Received: from viali.lee by lmcpra.ericsson.ca with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <fio@vger.kernel.org>; Wed, 03 Jun 2015 21:30:03 +0200
-From: FIO-User-KKV <viali.lee@gmail.com>
-Subject: Parameter Issue with 'ratemin'...
-Date: Wed, 3 Jun 2015 19:21:22 +0000 (UTC)
-Message-ID: <loom.20150603T211024-259@post.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Return-Path: <axboe@kernel.dk>
+Message-ID: <55929EED.9060509@kernel.dk>
+Date: Tue, 30 Jun 2015 07:51:41 -0600
+From: Jens Axboe <axboe@kernel.dk>
+MIME-Version: 1.0
+Subject: Re: FreeBSD build broken following _Static_assert commit
+References: <5591C7F0.1090004@cran.org.uk> <55920381.6060906@kernel.dk> <55920FE0.60901@cran.org.uk> <559210FF.6030900@kernel.dk> <55929806.7070002@cran.org.uk>
+In-Reply-To: <55929806.7070002@cran.org.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Bruce Cran <bruce@cran.org.uk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi, I am using Fio 2.2.8.
-I have an issue when setting the parameter 'ratemin'.
-It only accepts '0'!
-no matter what non-zero values I set, 
+On 06/30/2015 07:22 AM, Bruce Cran wrote:
+> On 6/29/2015 9:46 PM, Jens Axboe wrote:
+>> But it's bogus, it's nothing but static pointer math.
+>
+> Apparently it's a known bug: https://llvm.org/bugs/show_bug.cgi?id=17410 .
+> It looks like on FreeBSD there's no __compiler_offsetof (which on Linux
+> ends up being defined as __builtin_offsetof) but clang _does_ provide
+> __builtin_offsetof.
 
-e.g., 
-sudo fio -name "SOURCE"  -numjobs 1  -bs 1M   -rw write -direct 1 -runtime 
-50 -filename=/dev/vdb  -prio 0 -ratemin=1K
+I used clang 3.6.0 to reproduce it, so apparently still not fixed. If 
+you want to do a cleanup around what I committed, feel free, but as far 
+as I'm concerned, it's resolved.
 
-I will end up quickly with "fio: minimum rate exceeds rate"!
-Could anyone know what's wrong there?
+-- 
+Jens Axboe
 
-Thanks!
 
