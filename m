@@ -1,60 +1,54 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:40708 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750734AbbG3MAI (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 30 Jul 2015 08:00:08 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1ZKmVM-0007Ww-9T
-	for fio@vger.kernel.org; Thu, 30 Jul 2015 12:00:08 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <5596F032.9070002@kernel.dk>
+Date: Fri, 03 Jul 2015 14:27:30 -0600
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150730120001.DB3C82C005D@kernel.dk>
-Date: Thu, 30 Jul 2015 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: gcc 5.1.1 and warnings when building fio on Linux with -flto
+References: <5595B800.3030303@cran.org.uk>
+In-Reply-To: <5595B800.3030303@cran.org.uk>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+To: Bruce Cran <bruce@cran.org.uk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 61054f0d5c2ccb945c240704fc4bfa6a708eaf46:
+On 07/02/2015 04:15 PM, Bruce Cran wrote:
+> Noticed the following warnings when building fio on Linux with gcc 5.1.1
+> and -flto:
+>
+> debug.h:38:22: warning: type of ‘fio_debug’ does not match original
+> declaration
+>   extern unsigned long fio_debug;
+>                        ^
+> t/debug.c:5:14: note: previously declared here
+>   unsigned int fio_debug = 0;
 
-  configure: add --disable-optimizations (2015-07-27 15:10:00 -0600)
+Fixed that one up.
 
-are available in the git repository at:
+> lib/libmtd.c: In function ‘mtd_get_dev_info1’:
+> lib/libmtd.c:751:46: warning: passing argument 3 of ‘dev_read_data’
+> discards ‘const’ qualifier from pointer target type
+> [-Wdiscarded-array-qualifiers]
+>    ret = dev_read_data(lib->mtd_name, mtd_num, &mtd->name,
+>                                                ^
+> lib/libmtd.c:184:12: note: expected ‘void *’ but argument is of type
+> ‘const char (*)[128]’
+>   static int dev_read_data(const char *patt, int mtd_num, void *buf, int
+> buf_len)
+>              ^
+> lib/libmtd.c:757:46: warning: passing argument 3 of ‘dev_read_data’
+> discards ‘const’ qualifier from pointer target type
+> [-Wdiscarded-array-qualifiers]
+>    ret = dev_read_data(lib->mtd_type, mtd_num, &mtd->type_str,
+>                                                ^
+> lib/libmtd.c:184:12: note: expected ‘void *’ but argument is of type
+> ‘const char (*)[65]’
+>   static int dev_read_data(const char *patt, int mtd_num, void *buf, int
+> buf_len)
 
-  git://git.kernel.dk/fio.git master
+This one I know about, mtd is in need of some const cleaning. It is 
+currently reading into const strings.
 
-for you to fetch changes up to 669e8bf8d509458aa6b3978b9e8a2e3d666e892d:
+-- 
+Jens Axboe
 
-  server: make the setsockopt() error output a bit more informative (2015-07-29 09:00:03 -0600)
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      server: make the setsockopt() error output a bit more informative
-
- server.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/server.c b/server.c
-index b4137d1..18b3a08 100644
---- a/server.c
-+++ b/server.c
-@@ -1495,13 +1495,13 @@ static int fio_init_server_ip(void)
- 
- 	opt = 1;
- 	if (setsockopt(sk, SOL_SOCKET, SO_REUSEADDR, (void *)&opt, sizeof(opt)) < 0) {
--		log_err("fio: setsockopt: %s\n", strerror(errno));
-+		log_err("fio: setsockopt(REUSEADDR): %s\n", strerror(errno));
- 		close(sk);
- 		return -1;
- 	}
- #ifdef SO_REUSEPORT
- 	if (setsockopt(sk, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
--		log_err("fio: setsockopt: %s\n", strerror(errno));
-+		log_err("fio: setsockopt(REUSEPORT): %s\n", strerror(errno));
- 		close(sk);
- 		return -1;
- 	}
