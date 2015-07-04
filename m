@@ -1,53 +1,34 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:54925 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754100AbbGJMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 10 Jul 2015 08:00:09 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1ZDWyO-0000Ve-Rj
-	for fio@vger.kernel.org; Fri, 10 Jul 2015 12:00:08 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150710120002.0A8412C005F@kernel.dk>
-Date: Fri, 10 Jul 2015 06:00:02 -0600 (MDT)
+Received: from mail-yk0-f170.google.com ([209.85.160.170]:35739 "EHLO
+	mail-yk0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752135AbbGEJZi (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sun, 5 Jul 2015 05:25:38 -0400
+Received: by ykfs198 with SMTP id s198so21135167ykf.2
+        for <fio@vger.kernel.org>; Sun, 05 Jul 2015 02:25:38 -0700 (PDT)
+MIME-Version: 1.0
+Date: Sat, 4 Jul 2015 15:16:02 +0300
+Message-ID: <CAFaEk=-grWeELSnpYKPJWGfBjgo3iuVLXeJVEnNRAy_hXPPZzA@mail.gmail.com>
+Subject: Starvation on large amount of threads
+From: Gleb Stepanov <glebstepanov1992@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 59d8f4125b0871cc26ad60150bcf4cd29f7daac7:
+Hello, all.
 
-  configure: don't be so eager to overwrite an existing Makefile (2015-07-08 13:50:35 -0700)
+  1) We are using fio for testing disk perfomance and we use fio log
+files to collect data about tests.
+We have encontered one issue when run with bit amount of threads(100
+or more). Some threads
+starving due to big latency and produce less log data that another,
+because time of test is restricted. is it possible to configure fio to
+have global log file?
 
-are available in the git repository at:
+2) FIO produce log files with iopses. Is it possible to switch from
+iopeses to io operation count?
+That allows to compute iopses manually or at least disable rounding in
+iops count. That rounding produce some difference between json
+output(total_ios) and iopses from log multiplied for time intervals.
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to fd727d9de9f22a7ad3e026bcca80f58a65410ad6:
-
-  verify: fix bad 'from_verify' setting in do_io() (2015-07-09 13:13:43 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      verify: fix bad 'from_verify' setting in do_io()
-
- backend.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/backend.c b/backend.c
-index 6989407..3eafff6 100644
---- a/backend.c
-+++ b/backend.c
-@@ -894,7 +894,7 @@ static uint64_t do_io(struct thread_data *td)
- 		} else {
- 			ret = td_io_queue(td, io_u);
- 
--			if (io_queue_event(td, io_u, &ret, ddir, &bytes_issued, 1, &comp_time))
-+			if (io_queue_event(td, io_u, &ret, ddir, &bytes_issued, 0, &comp_time))
- 				break;
- 
- 			/*
+Kind regards, Gleb Stepanov.
