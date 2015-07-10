@@ -1,52 +1,53 @@
-Return-Path: <andrey.v.kuzmin@gmail.com>
-MIME-Version: 1.0
-From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
-Date: Fri, 17 Jul 2015 17:30:12 +0300
-Message-ID: <CANvN+ekBVCAMge-A9dMTeOnXSJ7sZ9OdQ_ZMeqgcTsoa8J0bJg@mail.gmail.com>
-Subject: PATCH: Don't lose pending completions on exit in time- or size-based
- job with asynchronous I/O engine
-Content-Type: text/plain; charset=UTF-8
-To: Jens Axboe <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.9]:54925 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754100AbbGJMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 10 Jul 2015 08:00:09 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1ZDWyO-0000Ve-Rj
+	for fio@vger.kernel.org; Fri, 10 Jul 2015 12:00:08 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150710120002.0A8412C005F@kernel.dk>
+Date: Fri, 10 Jul 2015 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Probably worth adding to do_verify() as well.
+The following changes since commit 59d8f4125b0871cc26ad60150bcf4cd29f7daac7:
 
-Regards,
-Andrey
+  configure: don't be so eager to overwrite an existing Makefile (2015-07-08 13:50:35 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to fd727d9de9f22a7ad3e026bcca80f58a65410ad6:
+
+  verify: fix bad 'from_verify' setting in do_io() (2015-07-09 13:13:43 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      verify: fix bad 'from_verify' setting in do_io()
+
+ backend.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
 
 diff --git a/backend.c b/backend.c
-index 9ac94ed..c782fde 100644
+index 6989407..3eafff6 100644
 --- a/backend.c
 +++ b/backend.c
-@@ -803,7 +803,8 @@ static uint64_t do_io(struct thread_data *td)
-                total_bytes += td->total_io_size;
-
-        while ((td->o.read_iolog_file && !flist_empty(&td->io_log_list)) ||
--               (!flist_empty(&td->trim_list)) ||
-!io_issue_bytes_exceeded(td) ||
-+               (!flist_empty(&td->trim_list)) ||
-+               !(io_issue_bytes_exceeded(td) && !td->cur_depth) ||
-                td->o.time_based) {
-                struct timeval comp_time;
-                struct io_u *io_u;
-@@ -819,7 +820,7 @@ static uint64_t do_io(struct thread_data *td)
-
-                if (runtime_exceeded(td, &td->tv_cache)) {
-                        __update_tv_cache(td);
--                       if (runtime_exceeded(td, &td->tv_cache)) {
-+                       if (runtime_exceeded(td, &td->tv_cache) &&
-!td->cur_depth) {
-                                fio_mark_td_terminate(td);
-                                break;
-                        }
-@@ -828,7 +829,7 @@ static uint64_t do_io(struct thread_data *td)
-                if (flow_threshold_exceeded(td))
-                        continue;
-
--               if (bytes_issued >= total_bytes)
-+               if (bytes_issued >= total_bytes && !td->cur_depth)
-                        break;
-
-                io_u = get_io_u(td);
-
+@@ -894,7 +894,7 @@ static uint64_t do_io(struct thread_data *td)
+ 		} else {
+ 			ret = td_io_queue(td, io_u);
+ 
+-			if (io_queue_event(td, io_u, &ret, ddir, &bytes_issued, 1, &comp_time))
++			if (io_queue_event(td, io_u, &ret, ddir, &bytes_issued, 0, &comp_time))
+ 				break;
+ 
+ 			/*
