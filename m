@@ -1,327 +1,277 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:59479 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751776AbbGNMAH (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 14 Jul 2015 08:00:07 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1ZEysY-0006B7-B5
-	for fio@vger.kernel.org; Tue, 14 Jul 2015 12:00:06 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150714120002.689012C00B7@kernel.dk>
-Date: Tue, 14 Jul 2015 06:00:02 -0600 (MDT)
+Received: from mail-yk0-f196.google.com ([209.85.160.196]:33148 "EHLO
+	mail-yk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751132AbbGLLPy convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Sun, 12 Jul 2015 07:15:54 -0400
+Received: by ykeo3 with SMTP id o3so7416449yke.0
+        for <fio@vger.kernel.org>; Sun, 12 Jul 2015 04:15:53 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CAB-428==Da=QFYsJ8qK0R-ycG2AQAZj6nsHAt8qEjbg8KXVs=A@mail.gmail.com>
+References: <CAEg8mkz7MdEjZHukGX4AiaMF4hGKVPYcX3U3xszqAjjSFYEL4Q@mail.gmail.com>
+	<CAM8G_BLZCApz3TVWXMfuc4vub5eLOVXws1MShFb9J-FRKTdoCg@mail.gmail.com>
+	<CAEg8mkwoP0QZDBZDgEQPa7Yvhyu105Yq-CfBV7WQ7bX4sXZ7Kw@mail.gmail.com>
+	<CAKXScpVU3HdvKKNR+bipyt+wOsezirL+QV7sz+y=TAV_0vbX6w@mail.gmail.com>
+	<CAEg8mkyaAwXpzuJvS1t_CcWxDD+cgaPAG2qkhV-YND_Osthcnw@mail.gmail.com>
+	<CAKXScpWjpfLCk4zczN=cjD5cYMSoVOb0hekLg-1+xreMznyH=A@mail.gmail.com>
+	<CAEg8mkw76FZfGe-pgDX9znLLGCH4JT7M8mfTsnN1yeexkkbtHg@mail.gmail.com>
+	<CAKXScpUCcuQ03_5QAy_MxWdLhaH_xZGHSE28f555jHeDrDp+Yg@mail.gmail.com>
+	<CAB-428==Da=QFYsJ8qK0R-ycG2AQAZj6nsHAt8qEjbg8KXVs=A@mail.gmail.com>
+Date: Sun, 12 Jul 2015 18:58:05 +0800
+Message-ID: <CAEg8mkyeJP9_FvonwK+g4SqxNiUUPNftgE2kU=u63GU2Jk4gwQ@mail.gmail.com>
+Subject: Re: ask a question about fio
+From: john gong <johngong0791@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Alireza Haghdoost <alireza@cs.umn.edu>
+Cc: "danielabuggie ." <danielabuggie@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit 7627557b4795971e0a7565f51415697c71d27c6b:
+hello Alireza,
 
-  buffer: only set refill_buffers, it it wasn't set manually (2015-07-10 09:27:02 -0600)
+thanks for your suggestions!
 
-are available in the git repository at:
+I will study it further. If fio can not satisfy my demands, I will
+write a small c program to solve it.
 
-  git://git.kernel.dk/fio.git master
+B.R.
 
-for you to fetch changes up to 4fbe186054f09654f31c9a77b743d2aa40c85e54:
+John.Gong
 
-  HOWTO: spelling error (2015-07-13 14:35:30 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (3):
-      Update README for DragonFly
-      HOWTO: fix long line
-      HOWTO: spelling error
-
-Logan Gunthorpe (2):
-      Error when the block size on the RDMA server is less than the client
-      RDMA engine server mode flow fix ups.
-
- HOWTO          |  6 +++---
- README         |  7 ++++---
- engines/rdma.c | 53 +++++++++++++++++++++++++++++++++++++++++++++--------
- eta.c          | 13 +++++++++++--
- fio.h          |  1 +
- 5 files changed, 64 insertions(+), 16 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO b/HOWTO
-index b823eae..b61a638 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -198,7 +198,7 @@ sections.
- -------------------------
- 
- fio also supports environment variable expansion in job files. Any
--substring of the form "${VARNAME}" as part of an option value (in other
-+sub-string of the form "${VARNAME}" as part of an option value (in other
- words, on the right of the `='), will be expanded to the value of the
- environment variable called VARNAME.  If no such environment variable
- is defined, or VARNAME is the empty string, the empty string will be
-@@ -875,8 +875,8 @@ fsync=int	If writing to a file, issue a sync of the dirty data
- 
- fdatasync=int	Like fsync= but uses fdatasync() to only sync data and not
- 		metadata blocks.
--		In FreeBSD and Windows there is no fdatasync(), this falls back to
--		using fsync()
-+		In FreeBSD and Windows there is no fdatasync(), this falls back
-+		to using fsync()
- 
- sync_file_range=str:val	Use sync_file_range() for every 'val' number of
- 		write operations. Fio will track range of writes that
-diff --git a/README b/README
-index 25189f8..ab42f1b 100644
---- a/README
-+++ b/README
-@@ -345,9 +345,10 @@ Platforms
- ---------
- 
- Fio works on (at least) Linux, Solaris, AIX, HP-UX, OSX, NetBSD, OpenBSD,
--Windows and FreeBSD.  Some features and/or options may only be available on
--some of the platforms, typically because those features only apply to that
--platform (like the solarisaio engine, or the splice engine on Linux).
-+Windows, FreeBSD, and DragonFly. Some features and/or options may only be
-+available on some of the platforms, typically because those features only
-+apply to that platform (like the solarisaio engine, or the splice engine on
-+Linux).
- 
- Some features are not available on FreeBSD/Solaris even if they could be
- implemented, I'd be happy to take patches for that. An example of that is
-diff --git a/engines/rdma.c b/engines/rdma.c
-index 2ba34e4..7eb0051 100644
---- a/engines/rdma.c
-+++ b/engines/rdma.c
-@@ -137,6 +137,7 @@ struct rdma_info_blk {
- 	uint32_t nr;		/* client: io depth
- 				   server: number of records for memory semantic
- 				 */
-+	uint32_t max_bs;        /* maximum block size */
- 	struct remote_u rmt_us[FIO_RDMA_MAX_IO_DEPTH];
- };
- 
-@@ -190,12 +191,21 @@ struct rdmaio_data {
- static int client_recv(struct thread_data *td, struct ibv_wc *wc)
- {
- 	struct rdmaio_data *rd = td->io_ops->data;
-+	unsigned int max_bs;
- 
- 	if (wc->byte_len != sizeof(rd->recv_buf)) {
- 		log_err("Received bogus data, size %d\n", wc->byte_len);
- 		return 1;
- 	}
- 
-+	max_bs = max(td->o.max_bs[DDIR_READ], td->o.max_bs[DDIR_WRITE]);
-+	if (max_bs > ntohl(rd->recv_buf.max_bs)) {
-+		log_err("fio: Server's block size (%d) must be greater than or "
-+			"equal to the client's block size (%d)!\n",
-+			ntohl(rd->recv_buf.max_bs), max_bs);
-+		return 1;
-+	}
-+
- 	/* store mr info for MEMORY semantic */
- 	if ((rd->rdma_protocol == FIO_RDMA_MEM_WRITE) ||
- 	    (rd->rdma_protocol == FIO_RDMA_MEM_READ)) {
-@@ -222,6 +232,7 @@ static int client_recv(struct thread_data *td, struct ibv_wc *wc)
- static int server_recv(struct thread_data *td, struct ibv_wc *wc)
- {
- 	struct rdmaio_data *rd = td->io_ops->data;
-+	unsigned int max_bs;
- 
- 	if (wc->wr_id == FIO_RDMA_MAX_IO_DEPTH) {
- 		rd->rdma_protocol = ntohl(rd->recv_buf.mode);
-@@ -229,6 +240,15 @@ static int server_recv(struct thread_data *td, struct ibv_wc *wc)
- 		/* CHANNEL semantic, do nothing */
- 		if (rd->rdma_protocol == FIO_RDMA_CHA_SEND)
- 			rd->rdma_protocol = FIO_RDMA_CHA_RECV;
-+
-+		max_bs = max(td->o.max_bs[DDIR_READ], td->o.max_bs[DDIR_WRITE]);
-+		if (max_bs < ntohl(rd->recv_buf.max_bs)) {
-+			log_err("fio: Server's block size (%d) must be greater than or "
-+				"equal to the client's block size (%d)!\n",
-+				ntohl(rd->recv_buf.max_bs), max_bs);
-+			return 1;
-+		}
-+
- 	}
- 
- 	return 0;
-@@ -257,9 +277,12 @@ static int cq_event_handler(struct thread_data *td, enum ibv_wc_opcode opcode)
- 
- 		case IBV_WC_RECV:
- 			if (rd->is_client == 1)
--				client_recv(td, &wc);
-+				ret = client_recv(td, &wc);
- 			else
--				server_recv(td, &wc);
-+				ret = server_recv(td, &wc);
-+
-+			if (ret)
-+				return -1;
- 
- 			if (wc.wr_id == FIO_RDMA_MAX_IO_DEPTH)
- 				break;
-@@ -329,6 +352,7 @@ static int cq_event_handler(struct thread_data *td, enum ibv_wc_opcode opcode)
- 		}
- 		rd->cq_event_num++;
- 	}
-+
- 	if (ret) {
- 		log_err("fio: poll error %d\n", ret);
- 		return 1;
-@@ -368,7 +392,7 @@ again:
- 	}
- 
- 	ret = cq_event_handler(td, opcode);
--	if (ret < 1)
-+	if (ret == 0)
- 		goto again;
- 
- 	ibv_ack_cq_events(rd->cq, ret);
-@@ -860,10 +884,12 @@ static int fio_rdmaio_connect(struct thread_data *td, struct fio_file *f)
- 		return 1;
- 	}
- 
--	rdma_poll_wait(td, IBV_WC_SEND);
-+	if (rdma_poll_wait(td, IBV_WC_SEND) < 0)
-+		return 1;
- 
- 	/* wait for remote MR info from server side */
--	rdma_poll_wait(td, IBV_WC_RECV);
-+	if (rdma_poll_wait(td, IBV_WC_RECV) < 0)
-+		return 1;
- 
- 	/* In SEND/RECV test, it's a good practice to setup the iodepth of
- 	 * of the RECV side deeper than that of the SEND side to
-@@ -883,6 +909,7 @@ static int fio_rdmaio_accept(struct thread_data *td, struct fio_file *f)
- 	struct rdmaio_data *rd = td->io_ops->data;
- 	struct rdma_conn_param conn_param;
- 	struct ibv_send_wr *bad_wr;
-+	int ret = 0;
- 
- 	/* rdma_accept() - then wait for accept success */
- 	memset(&conn_param, 0, sizeof(conn_param));
-@@ -901,16 +928,17 @@ static int fio_rdmaio_accept(struct thread_data *td, struct fio_file *f)
- 	}
- 
- 	/* wait for request */
--	rdma_poll_wait(td, IBV_WC_RECV);
-+	ret = rdma_poll_wait(td, IBV_WC_RECV) < 0;
- 
- 	if (ibv_post_send(rd->qp, &rd->sq_wr, &bad_wr) != 0) {
- 		log_err("fio: ibv_post_send fail");
- 		return 1;
- 	}
- 
--	rdma_poll_wait(td, IBV_WC_SEND);
-+	if (rdma_poll_wait(td, IBV_WC_SEND) < 0)
-+		return 1;
- 
--	return 0;
-+	return ret;
- }
- 
- static int fio_rdmaio_open_file(struct thread_data *td, struct fio_file *f)
-@@ -1045,6 +1073,9 @@ static int fio_rdmaio_setup_listen(struct thread_data *td, short port)
- {
- 	struct rdmaio_data *rd = td->io_ops->data;
- 	struct ibv_recv_wr *bad_wr;
-+	int state = td->runstate;
-+
-+	td_set_runstate(td, TD_SETTING_UP);
- 
- 	rd->addr.sin_family = AF_INET;
- 	rd->addr.sin_addr.s_addr = htonl(INADDR_ANY);
-@@ -1061,6 +1092,8 @@ static int fio_rdmaio_setup_listen(struct thread_data *td, short port)
- 		return 1;
- 	}
- 
-+	log_info("fio: waiting for connection\n");
-+
- 	/* wait for CONNECT_REQUEST */
- 	if (get_next_channel_event
- 	    (td, rd->cm_channel, RDMA_CM_EVENT_CONNECT_REQUEST) != 0) {
-@@ -1080,6 +1113,7 @@ static int fio_rdmaio_setup_listen(struct thread_data *td, short port)
- 		return 1;
- 	}
- 
-+	td_set_runstate(td, state);
- 	return 0;
- }
- 
-@@ -1236,6 +1270,7 @@ static int fio_rdmaio_init(struct thread_data *td)
- 
- 	if (td_read(td)) {	/* READ as the server */
- 		rd->is_client = 0;
-+		td->flags |= TD_F_NO_PROGRESS;
- 		/* server rd->rdma_buf_len will be setup after got request */
- 		ret = fio_rdmaio_setup_listen(td, o->port);
- 	} else {		/* WRITE as the client */
-@@ -1244,6 +1279,8 @@ static int fio_rdmaio_init(struct thread_data *td)
- 	}
- 
- 	max_bs = max(td->o.max_bs[DDIR_READ], td->o.max_bs[DDIR_WRITE]);
-+	rd->send_buf.max_bs = htonl(max_bs);
-+
- 	/* register each io_u in the free list */
- 	for (i = 0; i < td->io_u_freelist.nr; i++) {
- 		struct io_u *io_u = td->io_u_freelist.io_us[i];
-diff --git a/eta.c b/eta.c
-index e458457..aed61ec 100644
---- a/eta.c
-+++ b/eta.c
-@@ -123,6 +123,11 @@ void eta_to_str(char *str, unsigned long eta_sec)
- 	unsigned int d, h, m, s;
- 	int disp_hour = 0;
- 
-+	if (eta_sec == -1) {
-+		sprintf(str, "--");
-+		return;
-+	}
-+
- 	s = eta_sec % 60;
- 	eta_sec /= 60;
- 	m = eta_sec % 60;
-@@ -146,7 +151,7 @@ void eta_to_str(char *str, unsigned long eta_sec)
- /*
-  * Best effort calculation of the estimated pending runtime of a job.
-  */
--static int thread_eta(struct thread_data *td)
-+static unsigned long thread_eta(struct thread_data *td)
- {
- 	unsigned long long bytes_total, bytes_done;
- 	unsigned long eta_sec = 0;
-@@ -158,6 +163,9 @@ static int thread_eta(struct thread_data *td)
- 
- 	bytes_total = td->total_io_size;
- 
-+	if (td->flags & TD_F_NO_PROGRESS)
-+		return -1;
-+
- 	if (td->o.fill_device && td->o.size  == -1ULL) {
- 		if (!td->fill_device_size || td->fill_device_size == -1ULL)
- 			return 0;
-@@ -513,7 +521,8 @@ void display_thread_status(struct jobs_eta *je)
- 		int l;
- 		int ddir;
- 
--		if ((!je->eta_sec && !eta_good) || je->nr_ramp == je->nr_running)
-+		if ((!je->eta_sec && !eta_good) || je->nr_ramp == je->nr_running ||
-+		    je->eta_sec == -1)
- 			strcpy(perc_str, "-.-% done");
- 		else {
- 			double mult = 100.0;
-diff --git a/fio.h b/fio.h
-index 819d4fc..744d994 100644
---- a/fio.h
-+++ b/fio.h
-@@ -78,6 +78,7 @@ enum {
- 	TD_F_VSTATE_SAVED	= 1U << 10,
- 	TD_F_NEED_LOCK		= 1U << 11,
- 	TD_F_CHILD		= 1U << 12,
-+	TD_F_NO_PROGRESS        = 1U << 13,
- };
- 
- enum {
+On Thu, Jul 9, 2015 at 9:34 PM, Alireza Haghdoost <alireza@cs.umn.edu> wrote:
+> I might be wrong and did not understand your point well but I would do
+> this to satisfy the requirement:
+>
+> - Remove the stonewalls and let all four jobs run in parallel with the
+> same speed, sequential read and writes will hit the same block, random
+> read and writes would also hit the same block if we specify randseed.
+> - use thread=1 to eliminate creation of multiple process using fork
+> and keep all the jobs in a single process with multiple thread.
+>
+> --Alireza
+>
+> On Thu, Jul 9, 2015 at 3:50 AM, danielabuggie . <danielabuggie@gmail.com> wrote:
+>> Sorry, fio just doesn't work that way.  For example, even if you only
+>> did (#1) it will spawn 2 processes as fio forks a worker for every
+>> job.  So any way you run it, you will get multiple processes with fio.
+>>
+>> Therefore, I suspect you would need to either reconsider the
+>> single-process requirement or look elsewhere.  Personally, I'd
+>> seriously consider the former as I don't see there being much of a
+>> quantifiable difference between 1 process and 3-4 when your looking at
+>> an I/O tester.
+>>
+>> Daniel
+>>
+>>
+>>
+>>
+>> On Thu, Jul 9, 2015 at 12:57 AM, john gong <johngong0791@gmail.com> wrote:
+>>> Hi Daniel,
+>>>
+>>> What am i doing is to simulate the ANTUTU benchmark on android 5.1.
+>>> We learned that ANTUTU benchmark do the below things sequentially in
+>>> the same process.
+>>> 1) first sequentially write to a file with bs=8KB. the file's size is 16M.
+>>> 2) after write finish, then read the same file  from the begin to the
+>>> end with bs=4KB.
+>>> 3) after 2) finish, then sequentially overwrite to the same file with
+>>> bs=4KB, total size is 16M too,
+>>>     and every 4096 requests do a fsync.
+>>>
+>>> all done with in the same process.
+>>> I have construct one job file to simulate that process. like:
+>>> --cut--
+>>> [antutu_io_first_write]
+>>>     ioengine=sync
+>>>     size=16m
+>>>     numjobs=1
+>>>     bs=8k
+>>>     ba=4k
+>>>     rw=write
+>>>     gtod_reduce=1
+>>>     disk_util=1
+>>>     name=antutu_io_first_write
+>>>     filename=/data/antutu_test
+>>>     stonewall
+>>> [antutu_io_first_read]
+>>>     ioengine=sync
+>>>     size=16m
+>>>     numjobs=1
+>>>     bs=8k
+>>>     ba=4k
+>>>     rw=read
+>>>     gtod_reduce=1
+>>>     disk_util=1
+>>>     name=antutu_io_first_read
+>>>     filename=/data/antutu_test
+>>>     stonewall
+>>> [antutu_io_second_write]
+>>>     ioengine=sync
+>>>     size=16m
+>>>     numjobs=1
+>>>     bs=4k
+>>>     ba=4k
+>>>     rw=write
+>>>     gtod_reduce=1
+>>>     disk_util=1
+>>>     name=antutu_io_second_write
+>>>     filename=/data/antutu_test
+>>>     fsync=4096
+>>>     stonewall
+>>> --cut--
+>>>
+>>>
+>>> But result is:
+>>> --cut--
+>>> antutu_io_first_write: (groupid=0, jobs=1): err= 0: pid=1451: Sat Feb
+>>> 4 20:05:04 2012
+>>>   write: io=16384KB, bw=54613KB/s, iops=6826, runt=   300msec
+>>>   cpu          : usr=3.33%, sys=93.33%, ctx=13, majf=0, minf=25
+>>>   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+>>>      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>>>      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>>>      issued    : total=r=0/w=2048/d=0, short=r=0/w=0/d=0
+>>>      latency   : target=0, window=0, percentile=100.00%, depth=1
+>>> antutu_io_first_read: (groupid=1, jobs=1): err= 0: pid=1452: Sat Feb
+>>> 4 20:05:04 2012
+>>>   read : io=16384KB, bw=287439KB/s, iops=35929, runt=    57msec
+>>>   cpu          : usr=17.86%, sys=53.57%, ctx=7, majf=0, minf=27
+>>>   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+>>>      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>>>      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>>>      issued    : total=r=2048/w=0/d=0, short=r=0/w=0/d=0
+>>>      latency   : target=0, window=0, percentile=100.00%, depth=1
+>>> antutu_io_second_write: (groupid=2, jobs=1): err= 0: pid=1453: Sat Feb
+>>>  4 20:05:04 2012
+>>>   write: io=16384KB, bw=45011KB/s, iops=11252, runt=   364msec
+>>>   cpu          : usr=16.48%, sys=74.18%, ctx=34, majf=0, minf=24
+>>>   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+>>>      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>>>      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>>>      issued    : total=r=0/w=4096/d=0, short=r=0/w=0/d=0
+>>>      latency   : target=0, window=0, percentile=100.00%, depth=1
+>>> --cut--
+>>>
+>>> Obviously it can not satisfy my demand. It forks 3 processes(
+>>> pid=1451, pid=1452, pid=1453) to finish these jobs.
+>>> I want to do all these actions in just one process.
+>>>
+>>> Any clue？
+>>>
+>>> Thanks in advance!
+>>>
+>>> John Gong
+>>>
+>>> On Thu, Jul 9, 2015 at 3:00 PM, danielabuggie . <danielabuggie@gmail.com> wrote:
+>>>> Unfortunately, I don't think there is an option then that will
+>>>> precisely do what you are asking then.  Perhaps if you clarify more
+>>>> about what you are looking to test someone can help you approximate it
+>>>> better.
+>>>>
+>>>> Some suggestions though for you to look into:
+>>>> * Use a randrw process with percentage_random set to an appropriate
+>>>> value to control roughly how many blocks would be read before seeking.
+>>>>
+>>>> * Also a randrw process with bssplit set to a mix of small and large
+>>>> blocks sizes would make "random" IO intermittently more sequential.
+>>>>
+>>>> Daniel
+>>>>
+>>>> On Wed, Jul 8, 2015 at 11:08 PM, john gong <johngong0791@gmail.com> wrote:
+>>>>> hi Daniel,
+>>>>>
+>>>>> Thanks for your suggestion.
+>>>>>
+>>>>> "stonewall" can not solve my problem.  "stonewall" just enforce the
+>>>>> processes which do the exact jobs run sequentially.
+>>>>> But what I want to do is that all things be done in one process, not
+>>>>> with one jobfile.
+>>>>>
+>>>>> B.R.
+>>>>>
+>>>>> On Thu, Jul 9, 2015 at 1:21 PM, danielabuggie . <danielabuggie@gmail.com> wrote:
+>>>>>> So you want to run them all with one jobfile, but sequentially and not
+>>>>>> simultaneously?
+>>>>>>
+>>>>>> In that case, stonewall is the option you want to add.
+>>>>>>
+>>>>>> Daniel
+>>>>>>
+>>>>>> On Wed, Jul 8, 2015 at 9:02 PM, john gong <johngong0791@gmail.com> wrote:
+>>>>>>> hello  Kulkarni & Alireza,
+>>>>>>>
+>>>>>>> Thanks for your attentions.
+>>>>>>> tiobench-example.fio will spawn 16 processes, each job consumes 4 processes.
+>>>>>>> But what i want is all things defined in the job description be done
+>>>>>>> in one process.
+>>>>>>> For example, executes below job description
+>>>>>>> --cut--
+>>>>>>> [global]
+>>>>>>> engine=sync
+>>>>>>> filename=/data/test
+>>>>>>> size=100m
+>>>>>>> [job1]
+>>>>>>> rw=write
+>>>>>>> stonewall
+>>>>>>> [job2]
+>>>>>>> rw=read
+>>>>>>> stonewall
+>>>>>>> [job3]
+>>>>>>> rw=randwrite
+>>>>>>> stonewall
+>>>>>>> [job4]
+>>>>>>> rw=randread
+>>>>>>> stonewall
+>>>>>>> --cut--
+>>>>>>>
+>>>>>>> This job description can satisfy the demand of sequential execute, but
+>>>>>>> they will be done in 4 different processes.
+>>>>>>> What i want is all things be done in the same process sequentilly.
+>>>>>>>
+>>>>>>> B.R.
+>>>>>>>
+>>>>>>> John.Gong
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>> On Thu, Jul 9, 2015 at 11:19 AM, Kulkarni, Vasu <vasu.kulkarni@gmail.com> wrote:
+>>>>>>>> Here's one example with 4 jobs which you can customize
+>>>>>>>> https://github.com/axboe/fio/blob/master/examples/tiobench-example.fio
+>>>>>>>>
+>>>>>>>>
+>>>>>>>> On Wed, Jul 8, 2015 at 6:55 PM, john gong <johngong0791@gmail.com> wrote:
+>>>>>>>>> hello All,
+>>>>>>>>>
+>>>>>>>>> I wonder whether FIO can do below things in the same job?
+>>>>>>>>> 1) sequential write
+>>>>>>>>> 2) sequential read
+>>>>>>>>> 3) randomly write
+>>>>>>>>> 4) randomly read
+>>>>>>>>>
+>>>>>>>>> Namely FIO do not need to spawn other processes to do the things respectively.
+>>>>>>>>> All things will be done in the same process.
+>>>>>>>>>
+>>>>>>>>> Thanks in advance!
+>>>>>>>>>
+>>>>>>>>> John.Gong
+>>>>>>>>> --
+>>>>>>>>> To unsubscribe from this list: send the line "unsubscribe fio" in
+>>>>>>>>> the body of a message to majordomo@vger.kernel.org
+>>>>>>>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>>>>>>>
+>>>>>>>>
+>>>>>>>>
+>>>>>>>> --
+>>>>>>>> A ship is safer in a harbor.  But that's not what ships are built for.
+>>>>>>> --
+>>>>>>> To unsubscribe from this list: send the line "unsubscribe fio" in
+>>>>>>> the body of a message to majordomo@vger.kernel.org
+>>>>>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe fio" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
