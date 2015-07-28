@@ -1,165 +1,39 @@
-Return-Path: <r.peniaev@gmail.com>
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
 In-Reply-To: <55B69F09.2010802@kernel.dk>
 References: <1437767373-26631-1-git-send-email-r.peniaev@gmail.com>
 	<55B69F09.2010802@kernel.dk>
-Date: Tue, 28 Jul 2015 15:20:13 +0200
-Message-ID: <CACZ9PQU93u6xvSJ+wW=Y_f5MUbQG11iM8bxyc-Kbc7BbswFYHg@mail.gmail.com>
+Date: Tue, 28 Jul 2015 06:09:26 +0100
+Message-ID: <CALjAwxiFJXrEkkcaihiw4tF2WbwXR1AQ7CGGwom9AJ_noCoFUQ@mail.gmail.com>
 Subject: Re: [PATCH 1/1] verify: move meta header to generic verify_header
-From: Roman Peniaev <r.peniaev@gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 To: Jens Axboe <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: Roman Pen <r.peniaev@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On Mon, Jul 27, 2015 at 11:13 PM, Jens Axboe <axboe@kernel.dk> wrote:
-> On 07/24/2015 01:49 PM, Roman Pen wrote:
->>
->> fio does not provide any possibility to verify checksum of a block with
->> meta
->> information inside. You can create configuration for verifincation
->> checksum
->> of random data either you can verify meta information with some pattern or
->> random data, but not both.
->>
->> Why checksumming and meta together can be useful? Meta helps to figure out
->> internally
->> on filesystem or storage what block was written in case of corruption,
->> i.e. offset
->> of the block and block number explicitly tell us the virtual address of
->> the block.
->> On the other hand checksum of random data helps to detect corruption.
->> Using meta
->> and pattern together do not help a lot, since 'verify_interval' can be big
->> enough
->> and same sequence of pattern bytes will be undistinguishable internally on
->> filesystem
->> or storage.
->>
->> Also, it seems to me that keeping meta header separately from generic
->> verify header
->> does not make a lot of sense, since generic verify header can include all
->> members
->> of meta header without any performance or other impact.
->>
->> In this patch I move all members from vhdr_meta structure to generic
->> verify_header,
->> always verifying meta with the possiblity to checksum the following data:
->> random
->> or pattern.
->>
->> You are allowed to specify verify_pattern=str with any of the possible
->> verification
->> methods and have also meta verification, i.e.
->>
->>     verify=md5
->>     verify_pattern=0xfe
->>
->>   or
->>
->>     verify=sha1
->>     verify_pattern=0xff
->>
->>   etc.
->>
->> To keep everything compatible with old configurations it is still possible
->> to specify
->>
->>     verify=meta
->>
->> but this option marked and depricated and kept only for compatibility
->> reasons.
->>
->> Before that patch the verification layout according to the specified
->> options looks
->> as the following, e.g.:
->>
->>   #1
->>      --
->>      verify=meta
->>      verify_pattern=0xff
->>      --
->>
->>      result layout of each block: [hdr|meta|pattern]
->>
->>   #2
->>      --
->>      verify_pattern=0xff
->>      --
->>
->>      result layout of each block: [hdr|pattern]
->>
->>   #3
->>      --
->>      verify=pattern
->>      verify_pattern=0xff
->>      --
->>
->>      result layout of each block: [pattern]
->>
->> After applying of the patch 'vhdr_meta' is always embedded into
->> 'verify_header' and layout
->> looks as the following, e.g.:
->>
->>   #1
->>      --
->>      verify=meta
->>      verify_pattern=0xff
->>      --
->>
->>      result layout of each block: [hdr+meta|pattern]
->>   #2
->>      --
->>      verify=md5|sha1|etc
->>      verify_pattern=0xff
->>      --
->>
->>      result layout of each block: [hdr+meta|cksum|pattern]
->>
->>   #3
->>      --
->>      verify_pattern=0xff
->>      --
->>
->>      result layout of each block: [hdr+meta|pattern]
->>
->>   #4
->>      --
->>      verify=pattern
->>      verify_pattern=0xff
->>      --
->>
->>      result layout of each block: [pattern]
->
->
-> Good work! I'll make some time this week to fully review this, so we can get
-> it committed.
->
-> If you feel like you are up for more in this area, I'd love to have a mode
-> that writes verify info based the location on disk/file, and hence doesn't
-> need a header. This could/should work with any of the hashes, and it should
+> If you feel like you are up for more in this area, I'd love to have a mod=
+e
+> that writes verify info based the location on disk/file, and hence doesn'=
+t
+> need a header. This could/should work with any of the hashes, and it shou=
+ld
 > have a way to specify the seed for the data. The generated data for the
 > block would be a function of the offset, hash, seed.
 
-Can it be simply the pattern with some specified FORMAT?
-Like
+Would this be akin to dt's "pattern=3Diot"? From
+http://www.scsifaq.org/RMiller_Tools/ftp/dt/dt-UsersGuide.pdf :
+"So, what is DJ=E2=80=99s IOT test pattern? This pattern places the logical
+block address (lba) in the first word (4 bytes) of each block, with
+(lba+=3D0x01010101) being placed in all remaining words in the data
+block (512 bytes by default). In this way, the logical block is seeded
+throughout each word in the block."
 
-    pattern=%block_num%block_offset%write_num%whatever_you_want
+If so what would happen on things like the second pass - e.g. if fio
+stops how do you know which iteration you were on or is this
+irrelevant?
 
-And along with this pattern you can  use verify method you want:
-
-   verify=md5|sha1|etc
-
-??
-
-For now that change can consist of few major FORMATs, but in the future anybody
-can add something useful for its test case.
-
---
-Roman
-
->
-> --
-> Jens Axboe
->
+--=20
+Sitsofe | http://sucs.org/~sits/
 
