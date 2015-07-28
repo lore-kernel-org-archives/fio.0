@@ -1,57 +1,165 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:42743 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752330AbbGPMAI (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 16 Jul 2015 08:00:08 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1ZFhpe-000689-U4
-	for fio@vger.kernel.org; Thu, 16 Jul 2015 12:00:07 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150716120002.34C4C2C00B7@kernel.dk>
-Date: Thu, 16 Jul 2015 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <r.peniaev@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <55B69F09.2010802@kernel.dk>
+References: <1437767373-26631-1-git-send-email-r.peniaev@gmail.com>
+	<55B69F09.2010802@kernel.dk>
+Date: Tue, 28 Jul 2015 15:20:13 +0200
+Message-ID: <CACZ9PQU93u6xvSJ+wW=Y_f5MUbQG11iM8bxyc-Kbc7BbswFYHg@mail.gmail.com>
+Subject: Re: [PATCH 1/1] verify: move meta header to generic verify_header
+From: Roman Peniaev <r.peniaev@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 4fbe186054f09654f31c9a77b743d2aa40c85e54:
+On Mon, Jul 27, 2015 at 11:13 PM, Jens Axboe <axboe@kernel.dk> wrote:
+> On 07/24/2015 01:49 PM, Roman Pen wrote:
+>>
+>> fio does not provide any possibility to verify checksum of a block with
+>> meta
+>> information inside. You can create configuration for verifincation
+>> checksum
+>> of random data either you can verify meta information with some pattern or
+>> random data, but not both.
+>>
+>> Why checksumming and meta together can be useful? Meta helps to figure out
+>> internally
+>> on filesystem or storage what block was written in case of corruption,
+>> i.e. offset
+>> of the block and block number explicitly tell us the virtual address of
+>> the block.
+>> On the other hand checksum of random data helps to detect corruption.
+>> Using meta
+>> and pattern together do not help a lot, since 'verify_interval' can be big
+>> enough
+>> and same sequence of pattern bytes will be undistinguishable internally on
+>> filesystem
+>> or storage.
+>>
+>> Also, it seems to me that keeping meta header separately from generic
+>> verify header
+>> does not make a lot of sense, since generic verify header can include all
+>> members
+>> of meta header without any performance or other impact.
+>>
+>> In this patch I move all members from vhdr_meta structure to generic
+>> verify_header,
+>> always verifying meta with the possiblity to checksum the following data:
+>> random
+>> or pattern.
+>>
+>> You are allowed to specify verify_pattern=str with any of the possible
+>> verification
+>> methods and have also meta verification, i.e.
+>>
+>>     verify=md5
+>>     verify_pattern=0xfe
+>>
+>>   or
+>>
+>>     verify=sha1
+>>     verify_pattern=0xff
+>>
+>>   etc.
+>>
+>> To keep everything compatible with old configurations it is still possible
+>> to specify
+>>
+>>     verify=meta
+>>
+>> but this option marked and depricated and kept only for compatibility
+>> reasons.
+>>
+>> Before that patch the verification layout according to the specified
+>> options looks
+>> as the following, e.g.:
+>>
+>>   #1
+>>      --
+>>      verify=meta
+>>      verify_pattern=0xff
+>>      --
+>>
+>>      result layout of each block: [hdr|meta|pattern]
+>>
+>>   #2
+>>      --
+>>      verify_pattern=0xff
+>>      --
+>>
+>>      result layout of each block: [hdr|pattern]
+>>
+>>   #3
+>>      --
+>>      verify=pattern
+>>      verify_pattern=0xff
+>>      --
+>>
+>>      result layout of each block: [pattern]
+>>
+>> After applying of the patch 'vhdr_meta' is always embedded into
+>> 'verify_header' and layout
+>> looks as the following, e.g.:
+>>
+>>   #1
+>>      --
+>>      verify=meta
+>>      verify_pattern=0xff
+>>      --
+>>
+>>      result layout of each block: [hdr+meta|pattern]
+>>   #2
+>>      --
+>>      verify=md5|sha1|etc
+>>      verify_pattern=0xff
+>>      --
+>>
+>>      result layout of each block: [hdr+meta|cksum|pattern]
+>>
+>>   #3
+>>      --
+>>      verify_pattern=0xff
+>>      --
+>>
+>>      result layout of each block: [hdr+meta|pattern]
+>>
+>>   #4
+>>      --
+>>      verify=pattern
+>>      verify_pattern=0xff
+>>      --
+>>
+>>      result layout of each block: [pattern]
+>
+>
+> Good work! I'll make some time this week to fully review this, so we can get
+> it committed.
+>
+> If you feel like you are up for more in this area, I'd love to have a mode
+> that writes verify info based the location on disk/file, and hence doesn't
+> need a header. This could/should work with any of the hashes, and it should
+> have a way to specify the seed for the data. The generated data for the
+> block would be a function of the offset, hash, seed.
 
-  HOWTO: spelling error (2015-07-13 14:35:30 -0600)
+Can it be simply the pattern with some specified FORMAT?
+Like
 
-are available in the git repository at:
+    pattern=%block_num%block_offset%write_num%whatever_you_want
 
-  git://git.kernel.dk/fio.git master
+And along with this pattern you can  use verify method you want:
 
-for you to fetch changes up to adaa73f65a8b805dced0b017984d536f215e4353:
+   verify=md5|sha1|etc
 
-  README: no delay on sync to backup git hosts anymore (2015-07-15 08:43:03 -0600)
+??
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      README: no delay on sync to backup git hosts anymore
+For now that change can consist of few major FORMATs, but in the future anybody
+can add something useful for its test case.
 
- README | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+--
+Roman
 
----
+>
+> --
+> Jens Axboe
+>
 
-Diff of recent changes:
-
-diff --git a/README b/README
-index ab42f1b..cfe7084 100644
---- a/README
-+++ b/README
-@@ -26,9 +26,9 @@ Snapshots can download from:
- 
- 	http://brick.kernel.dk/snaps/
- 
--There are also two official mirrors. Both of these are synced within
--an hour of commits landing at git.kernel.dk. So if the main repo is
--down for some reason, either one of those is safe to use:
-+There are also two official mirrors. Both of these are automatically synced
-+with the main repository, when changes are pushed. If the main repo is down
-+for some reason, either one of these is safe to use as a backup:
- 
- 	git://git.kernel.org/pub/scm/linux/kernel/git/axboe/fio.git
- 	https://git.kernel.org/pub/scm/linux/kernel/git/axboe/fio.git
