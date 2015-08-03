@@ -1,29 +1,26 @@
-Return-Path: <axboe@kernel.dk>
-Message-ID: <55CE0DA9.6050204@kernel.dk>
-Date: Fri, 14 Aug 2015 09:47:53 -0600
-From: Jens Axboe <axboe@kernel.dk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-la0-f51.google.com ([209.85.215.51]:34259 "EHLO
+	mail-la0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932358AbbHCVMO (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 3 Aug 2015 17:12:14 -0400
+Received: by labow3 with SMTP id ow3so25518957lab.1
+        for <fio@vger.kernel.org>; Mon, 03 Aug 2015 14:12:12 -0700 (PDT)
 MIME-Version: 1.0
-Subject: Re: server mode and verify_dump
-References: <CALjAwxh7sx3OHw9Gb=gBwet+YqpJNNDzZusNZK7X7bGK0Z06pQ@mail.gmail.com>
-In-Reply-To: <CALjAwxh7sx3OHw9Gb=gBwet+YqpJNNDzZusNZK7X7bGK0Z06pQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Sitsofe Wheeler <sitsofe@gmail.com>, fio <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Date: Mon, 3 Aug 2015 22:12:12 +0100
+Message-ID: <CALjAwxh7sx3OHw9Gb=gBwet+YqpJNNDzZusNZK7X7bGK0Z06pQ@mail.gmail.com>
+Subject: server mode and verify_dump
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio <fio@vger.kernel.org>
 
-On 08/03/2015 03:12 PM, Sitsofe Wheeler wrote:
-> Hi,
->
-> I've noticed that when running fio in server mode it's not possible to
-> get a dump of using verify_dump when a verify mismatch occurs. Is it
-> possible to add a mode where the server process saves the mismatch
-> files to its current working directory for inspection later?
+Hi,
 
-That sounds like an oversight. To save time, can you let me know how you 
-are invoking fio and with what job file? Should not be that hard to 
-fixup, it should just work.
+I've noticed that when running fio in server mode it's not possible to
+get a dump of using verify_dump when a verify mismatch occurs. Is it
+possible to add a mode where the server process saves the mismatch
+files to its current working directory for inspection later?
 
 -- 
-Jens Axboe
-
-
+Sitsofe | http://sucs.org/~sits/
