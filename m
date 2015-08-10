@@ -1,253 +1,148 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from muon.bluestop.org ([74.50.51.35]:59394 "EHLO muon.cran.org.uk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751692AbbHDPsp (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 4 Aug 2015 11:48:45 -0400
-Received: from muon.bluestop.org (localhost [127.0.0.1])
-	by muon.cran.org.uk (Postfix) with ESMTP id 49A9847274
-	for <fio@vger.kernel.org>; Tue,  4 Aug 2015 15:48:44 +0000 (UTC)
-Received: from muon.cran.org.uk ([127.0.0.1])
-	by muon.bluestop.org (muon.bluestop.org [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id sAC_ChjcSKwx for <fio@vger.kernel.org>;
-	Tue,  4 Aug 2015 15:48:43 +0000 (UTC)
-Received: from [10.50.3.54] (63-158-132-10.dia.static.qwest.net [63.158.132.10])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by muon.cran.org.uk (Postfix) with ESMTPSA
-	for <fio@vger.kernel.org>; Tue,  4 Aug 2015 15:48:43 +0000 (UTC)
-From: Bruce Cran <bruce@cran.org.uk>
-Subject: Clang static analyzer warnings
-Message-ID: <55C0DEDA.2090306@cran.org.uk>
-Date: Tue, 4 Aug 2015 09:48:42 -0600
+Return-Path: <axboe@kernel.dk>
+Message-ID: <55C8CAF4.8020900@kernel.dk>
+Date: Mon, 10 Aug 2015 10:01:56 -0600
+From: Jens Axboe <axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------040001090605090906080605"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
-
-This is a multi-part message in MIME format.
---------------040001090605090906080605
+Subject: Re: [PATCH 1/1] verify: move meta header to generic verify_header
+References: <1437767373-26631-1-git-send-email-r.peniaev@gmail.com>	<55B69F09.2010802@kernel.dk> <CACZ9PQX_8snVRoteGjhW00WhLrmKxwE4+BDkAboFOCnk0-UomQ@mail.gmail.com>
+In-Reply-To: <CACZ9PQX_8snVRoteGjhW00WhLrmKxwE4+BDkAboFOCnk0-UomQ@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
+To: Roman Peniaev <r.peniaev@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-I don't know how many of these are false positives, but I ran clang's 
-static analyzer and it found a few potential issues. e.g.:
+On 08/10/2015 05:29 AM, Roman Peniaev wrote:
+> On Mon, Jul 27, 2015 at 11:13 PM, Jens Axboe <axboe@kernel.dk> wrote:
+>> On 07/24/2015 01:49 PM, Roman Pen wrote:
+>>>
+>>> fio does not provide any possibility to verify checksum of a block with
+>>> meta
+>>> information inside. You can create configuration for verifincation
+>>> checksum
+>>> of random data either you can verify meta information with some pattern or
+>>> random data, but not both.
+>>>
+>>> Why checksumming and meta together can be useful? Meta helps to figure out
+>>> internally
+>>> on filesystem or storage what block was written in case of corruption,
+>>> i.e. offset
+>>> of the block and block number explicitly tell us the virtual address of
+>>> the block.
+>>> On the other hand checksum of random data helps to detect corruption.
+>>> Using meta
+>>> and pattern together do not help a lot, since 'verify_interval' can be big
+>>> enough
+>>> and same sequence of pattern bytes will be undistinguishable internally on
+>>> filesystem
+>>> or storage.
+>>>
+>>> Also, it seems to me that keeping meta header separately from generic
+>>> verify header
+>>> does not make a lot of sense, since generic verify header can include all
+>>> members
+>>> of meta header without any performance or other impact.
+>>>
+>>> In this patch I move all members from vhdr_meta structure to generic
+>>> verify_header,
+>>> always verifying meta with the possiblity to checksum the following data:
+>>> random
+>>> or pattern.
+>>>
+>>> You are allowed to specify verify_pattern=str with any of the possible
+>>> verification
+>>> methods and have also meta verification, i.e.
+>>>
+>>>      verify=md5
+>>>      verify_pattern=0xfe
+>>>
+>>>    or
+>>>
+>>>      verify=sha1
+>>>      verify_pattern=0xff
+>>>
+>>>    etc.
+>>>
+>>> To keep everything compatible with old configurations it is still possible
+>>> to specify
+>>>
+>>>      verify=meta
+>>>
+>>> but this option marked and depricated and kept only for compatibility
+>>> reasons.
+>>>
+>>> Before that patch the verification layout according to the specified
+>>> options looks
+>>> as the following, e.g.:
+>>>
+>>>    #1
+>>>       --
+>>>       verify=meta
+>>>       verify_pattern=0xff
+>>>       --
+>>>
+>>>       result layout of each block: [hdr|meta|pattern]
+>>>
+>>>    #2
+>>>       --
+>>>       verify_pattern=0xff
+>>>       --
+>>>
+>>>       result layout of each block: [hdr|pattern]
+>>>
+>>>    #3
+>>>       --
+>>>       verify=pattern
+>>>       verify_pattern=0xff
+>>>       --
+>>>
+>>>       result layout of each block: [pattern]
+>>>
+>>> After applying of the patch 'vhdr_meta' is always embedded into
+>>> 'verify_header' and layout
+>>> looks as the following, e.g.:
+>>>
+>>>    #1
+>>>       --
+>>>       verify=meta
+>>>       verify_pattern=0xff
+>>>       --
+>>>
+>>>       result layout of each block: [hdr+meta|pattern]
+>>>    #2
+>>>       --
+>>>       verify=md5|sha1|etc
+>>>       verify_pattern=0xff
+>>>       --
+>>>
+>>>       result layout of each block: [hdr+meta|cksum|pattern]
+>>>
+>>>    #3
+>>>       --
+>>>       verify_pattern=0xff
+>>>       --
+>>>
+>>>       result layout of each block: [hdr+meta|pattern]
+>>>
+>>>    #4
+>>>       --
+>>>       verify=pattern
+>>>       verify_pattern=0xff
+>>>       --
+>>>
+>>>       result layout of each block: [pattern]
+>>
+>>
+>> Good work! I'll make some time this week to fully review this, so we can get
+>> it committed.
+>
+> Hi, Jens.
+>
+> Do you still have plans to review this patch?
 
-client.c:1577:3: warning: Use of memory after it is freed
-                 fio_client_dec_jobs_eta(eta, ops->eta);
-                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-client.c:1579:2: warning: Use of memory after it is freed
-         dprint(FD_NET, "client: requested eta tag %p\n", eta);
-
-I've attached a copy of the build log, which includes the other warnings.
+I do, vacation came in the way, however. Back now, will get to it this week.
 
 -- 
-Bruce
+Jens Axboe
 
---------------040001090605090906080605
-Content-Type: text/plain; charset=UTF-8;
- name="typescript"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="typescript"
 
-U2NyaXB0IHN0YXJ0ZWQgb24gVHVlIDA0IEF1ZyAyMDE1IDA5OjM1OjU2IEFNIE1EVApiY3Jh
-bkBjdWJlOn4vZmlvPiBzY2FuLWJ1aWxkIG1ha2UKc2Nhbi1idWlsZDogVXNpbmcgJy9ob21l
-L2JjcmFuL2Jpbi9jbGFuZy0zLjcnIGZvciBzdGF0aWMgYW5hbHlzaXMNCk1ha2VmaWxlOjIw
-OiBjb25maWctaG9zdC5tYWs6IE5vIHN1Y2ggZmlsZSBvciBkaXJlY3RvcnkNCkZJT19WRVJT
-SU9OID0gZmlvLTIuMi45LTI2LWc2NjllDQpSdW5uaW5nIGNvbmZpZ3VyZSBmb3IgeW91Li4u
-DQpPcGVyYXRpbmcgc3lzdGVtICAgICAgICAgICAgICBMaW51eA0KQ1BVICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgeDg2XzY0DQpCaWcgZW5kaWFuICAgICAgICAgICAgICAgICAgICBu
-bw0KQ29tcGlsZXIgICAgICAgICAgICAgICAgICAgICAgL2hvbWUvYmNyYW4vYmluL2NjYy1h
-bmFseXplcg0KQ3Jvc3MgY29tcGlsZSAgICAgICAgICAgICAgICAgbm8NCg0KU3RhdGljIGJ1
-aWxkICAgICAgICAgICAgICAgICAgbm8NCldvcmRzaXplICAgICAgICAgICAgICAgICAgICAg
-IDY0DQp6bGliICAgICAgICAgICAgICAgICAgICAgICAgICB5ZXMNCkxpbnV4IEFJTyBzdXBw
-b3J0ICAgICAgICAgICAgIHllcw0KUE9TSVggQUlPIHN1cHBvcnQgICAgICAgICAgICAgeWVz
-DQpQT1NJWCBBSU8gc3VwcG9ydCBuZWVkcyAtbHJ0ICB5ZXMNClBPU0lYIEFJTyBmc3luYyAg
-ICAgICAgICAgICAgIHllcw0KU29sYXJpcyBBSU8gc3VwcG9ydCAgICAgICAgICAgbm8NCl9f
-c3luY19mZXRjaF9hbmRfYWRkICAgICAgICAgIHllcw0KbGlidmVyYnMgICAgICAgICAgICAg
-ICAgICAgICAgbm8NCnJkbWFjbSAgICAgICAgICAgICAgICAgICAgICAgIG5vDQpMaW51eCBm
-YWxsb2NhdGUgICAgICAgICAgICAgICB5ZXMNClBPU0lYIGZhZHZpc2UgICAgICAgICAgICAg
-ICAgIHllcw0KUE9TSVggZmFsbG9jYXRlICAgICAgICAgICAgICAgeWVzDQpzY2hlZF9zZXRh
-ZmZpbml0eSgzIGFyZykgICAgICB5ZXMNCnNjaGVkX3NldGFmZmluaXR5KDIgYXJnKSAgICAg
-IG5vDQpjbG9ja19nZXR0aW1lICAgICAgICAgICAgICAgICB5ZXMNCkNMT0NLX01PTk9UT05J
-QyAgICAgICAgICAgICAgIHllcw0KQ0xPQ0tfTU9OT1RPTklDX1JBVyAgICAgICAgICAgeWVz
-DQpDTE9DS19NT05PVE9OSUNfUFJFQ0lTRSAgICAgICBubw0KZ2V0dGltZW9mZGF5ICAgICAg
-ICAgICAgICAgICAgeWVzDQpmZGF0YXN5bmMgICAgICAgICAgICAgICAgICAgICB5ZXMNCnN5
-bmNfZmlsZV9yYW5nZSAgICAgICAgICAgICAgIHllcw0KRVhUNCBtb3ZlIGV4dGVudCAgICAg
-ICAgICAgICAgeWVzDQpMaW51eCBzcGxpY2UoMikgICAgICAgICAgICAgICB5ZXMNCkdVQVNJ
-ICAgICAgICAgICAgICAgICAgICAgICAgIG5vDQpGdXNpb24taW8gYXRvbWljIGVuZ2luZSAg
-ICAgICBubw0KbGlibnVtYSAgICAgICAgICAgICAgICAgICAgICAgbm8NCnN0cnNlcCAgICAg
-ICAgICAgICAgICAgICAgICAgIHllcw0Kc3RyY2FzZXN0ciAgICAgICAgICAgICAgICAgICAg
-eWVzDQpnZXRvcHRfbG9uZ19vbmx5KCkgICAgICAgICAgICB5ZXMNCmluZXRfYXRvbiAgICAg
-ICAgICAgICAgICAgICAgIHllcw0Kc29ja2xlbl90ICAgICAgICAgICAgICAgICAgICAgeWVz
-DQpfX3RocmVhZCAgICAgICAgICAgICAgICAgICAgICB5ZXMNClJVU0FHRV9USFJFQUQgICAg
-ICAgICAgICAgICAgIHllcw0KU0NIRURfSURMRSAgICAgICAgICAgICAgICAgICAgeWVzDQpU
-Q1BfTk9ERUxBWSAgICAgICAgICAgICAgICAgICB5ZXMNCk5ldCBlbmdpbmUgd2luZG93X3Np
-emUgICAgICAgIHllcw0KVENQX01BWFNFRyAgICAgICAgICAgICAgICAgICAgeWVzDQpSTElN
-SVRfTUVNTE9DSyAgICAgICAgICAgICAgICB5ZXMNCnB3cml0ZXYvcHJlYWR2ICAgICAgICAg
-ICAgICAgIHllcw0KSVB2NiBoZWxwZXJzICAgICAgICAgICAgICAgICAgeWVzDQpSYWRvcyBC
-bG9jayBEZXZpY2UgZW5naW5lICAgICBubw0Kc2V0dmJ1ZiAgICAgICAgICAgICAgICAgICAg
-ICAgeWVzDQpHbHVzdGVyIEFQSSBlbmdpbmUgICAgICAgICAgICBubw0KczM5MF96MTk2X2Zh
-Y2lsaXRpZXMgICAgICAgICAgbm8NCkhERlMgZW5naW5lICAgICAgICAgICAgICAgICAgIG5v
-DQpNVEQgICAgICAgICAgICAgICAgICAgICAgICAgICB5ZXMNCmxleC95YWNjIGZvciBhcml0
-aG1ldGljICAgICAgIG5vDQpnZXRtbnRlbnQgICAgICAgICAgICAgICAgICAgICB5ZXMNCmdl
-dG1udGluZm8gICAgICAgICAgICAgICAgICAgIG5vDQpTdGF0aWMgQXNzZXJ0ICAgICAgICAg
-ICAgICAgICBubw0KICAgIENDIGdldHRpbWUubw0KICAgIENDIGlvZW5naW5lcy5vDQogICAg
-Q0MgaW5pdC5vDQogICAgQ0Mgc3RhdC5vDQpzdGF0LmM6MjQwOjY6IHdhcm5pbmc6IEJyYW5j
-aCBjb25kaXRpb24gZXZhbHVhdGVzIHRvIGEgZ2FyYmFnZSB2YWx1ZQ0KICAgICAgICBpZiAo
-b3ZhbHMpDQogICAgICAgICAgICBefn5+fg0Kc3RhdC5jOjU3MjoyOiB3YXJuaW5nOiBWYWx1
-ZSBzdG9yZWQgdG8gJ25yX3VuaW5pdCcgaXMgbmV2ZXIgcmVhZA0KICAgICAgICBucl91bmlu
-aXQgPSAwOw0KICAgICAgICBeICAgICAgICAgICB+DQpzdGF0LmM6NjM5OjM6IHdhcm5pbmc6
-IEZ1bmN0aW9uIGNhbGwgYXJndW1lbnQgaXMgYW4gdW5pbml0aWFsaXplZCB2YWx1ZQ0KICAg
-ICAgICAgICAgICAgIGxvZ19pbmZvKCIgJXM9JXUlYyIsDQogICAgICAgICAgICAgICAgXn5+
-fn5+fn5+fn5+fn5+fn5+fn4NCnN0YXQuYzoxNzkwOjE0OiB3YXJuaW5nOiBDYWxsIHRvICdy
-ZWFsbG9jJyBoYXMgYW4gYWxsb2NhdGlvbiBzaXplIG9mIDAgYnl0ZXMNCiAgICAgICAgICAg
-ICAgICAgICAgICAgIG5ld19sb2cgPSByZWFsbG9jKGlvbG9nLT5sb2csIG5ld19zaXplKTsN
-CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBefn5+fn5+fn5+fn5+fn5+fn5+
-fn5+fn5+fn5+fg0KNCB3YXJuaW5ncyBnZW5lcmF0ZWQuDQogICAgQ0MgbG9nLm8NCiAgICBD
-QyB0aW1lLm8NCiAgICBDQyBmaWxlc2V0dXAubw0KZmlsZXNldHVwLmM6NDM2OjM6IHdhcm5p
-bmc6IFZhbHVlIHN0b3JlZCB0byAncmV0JyBpcyBuZXZlciByZWFkDQogICAgICAgICAgICAg
-ICAgcmV0ID0gMDsNCiAgICAgICAgICAgICAgICBeICAgICB+DQoxIHdhcm5pbmcgZ2VuZXJh
-dGVkLg0KICAgIENDIGV0YS5vDQpldGEuYzoxNDg6Mjogd2FybmluZzogVmFsdWUgc3RvcmVk
-IHRvICdzdHInIGlzIG5ldmVyIHJlYWQNCiAgICAgICAgc3RyICs9IHNwcmludGYoc3RyLCAi
-JTAydXMiLCBzKTsNCiAgICAgICAgXiAgICAgIH5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fg0K
-ZXRhLmM6NTcxOjI6IHdhcm5pbmc6IFZhbHVlIHN0b3JlZCB0byAncCcgaXMgbmV2ZXIgcmVh
-ZA0KICAgICAgICBwICs9IHNwcmludGYocCwgIlxyIik7DQogICAgICAgIF4gICAgfn5+fn5+
-fn5+fn5+fn5+fg0KMiB3YXJuaW5ncyBnZW5lcmF0ZWQuDQogICAgQ0MgdmVyaWZ5Lm8NCiAg
-ICBDQyBtZW1vcnkubw0KICAgIENDIGlvX3Uubw0KICAgIENDIHBhcnNlLm8NCnBhcnNlLmM6
-MTA4NTozOiB3YXJuaW5nOiBWYWx1ZSBzdG9yZWQgdG8gJ29yZycgaXMgbmV2ZXIgcmVhZA0K
-ICAgICAgICAgICAgICAgIG9yZyA9IG87DQogICAgICAgICAgICAgICAgXiAgICAgfg0KMSB3
-YXJuaW5nIGdlbmVyYXRlZC4NCiAgICBDQyBtdXRleC5vDQogICAgQ0Mgb3B0aW9ucy5vDQpJ
-biBmaWxlIGluY2x1ZGVkIGZyb20gb3B0aW9ucy5jOjE2Og0KLi9saWIvZmxzLmg6MzU6Mzog
-d2FybmluZzogVmFsdWUgc3RvcmVkIHRvICd4JyBpcyBuZXZlciByZWFkDQogICAgICAgICAg
-ICAgICAgeCA8PD0gMTsNCiAgICAgICAgICAgICAgICBeICAgICB+DQpvcHRpb25zLmM6MjE1
-OjQ6IHdhcm5pbmc6IFZhbHVlIHN0b3JlZCB0byAncmV0JyBpcyBuZXZlciByZWFkDQogICAg
-ICAgICAgICAgICAgICAgICAgICByZXQgPSBic3NwbGl0X2RkaXIoJnRkLT5vLCBERElSX1RS
-SU0sIG9wKTsNCiAgICAgICAgICAgICAgICAgICAgICAgIF4gICAgIH5+fn5+fn5+fn5+fn5+
-fn5+fn5+fn5+fn5+fn5+fn5+fn5+DQpvcHRpb25zLmM6MjU3OjEwOiB3YXJuaW5nOiBSZXN1
-bHQgb2YgJ21hbGxvYycgaXMgY29udmVydGVkIHRvIGEgcG9pbnRlciBvZiB0eXBlICdpbnQn
-LCB3aGljaCBpcyBpbmNvbXBhdGlibGUgd2l0aCBzaXplb2Ygb3BlcmFuZCB0eXBlICdzdHJ1
-Y3QgYnNzcGxpdCcNCiAgICAgICAgZXJyb3IgPSBtYWxsb2MoNCAqIHNpemVvZihzdHJ1Y3Qg
-YnNzcGxpdCkpOw0KICAgICAgICAgICAgICAgIF5+fn5+fiAgICAgfn5+fn5+fn5+fn5+fn5+
-fn5+fn5+fg0KMyB3YXJuaW5ncyBnZW5lcmF0ZWQuDQogICAgQ0MgbGliL3JidHJlZS5vDQog
-ICAgQ0Mgc21hbGxvYy5vDQogICAgQ0MgZmlsZWhhc2gubw0KICAgIENDIHByb2ZpbGUubw0K
-ICAgIENDIGRlYnVnLm8NCiAgICBDQyBsaWIvcmFuZC5vDQogICAgQ0MgbGliL251bTJzdHIu
-bw0KICAgIENDIGxpYi9pZWVlNzU0Lm8NCiAgICBDQyBlbmdpbmVzL2NwdS5vDQogICAgQ0Mg
-ZW5naW5lcy9tbWFwLm8NCiAgICBDQyBlbmdpbmVzL3N5bmMubw0KICAgIENDIGVuZ2luZXMv
-bnVsbC5vDQogICAgQ0MgZW5naW5lcy9uZXQubw0KZW5naW5lcy9uZXQuYzozMDk6MTg6IHdh
-cm5pbmc6IFRoZSBsZWZ0IG9wZXJhbmQgb2YgJyYnIGlzIGEgZ2FyYmFnZSB2YWx1ZQ0KICAg
-ICAgICBpZiAocGZkLnJldmVudHMgJiBldmVudHMpDQogICAgICAgICAgICB+fn5+fn5+fn5+
-fiBeDQoxIHdhcm5pbmcgZ2VuZXJhdGVkLg0KICAgIENDIG1lbWFsaWduLm8NCiAgICBDQyBz
-ZXJ2ZXIubw0Kc2VydmVyLmM6MTI1OjEzOiB3YXJuaW5nOiBUaGUgcmlnaHQgb3BlcmFuZCBv
-ZiAnPj0nIGlzIGEgZ2FyYmFnZSB2YWx1ZQ0KICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICBpZiAocmV0ID49IGlvdi0+aW92X2xlbikgew0KICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIF4gIH5+fn5+fn5+fn5+fg0Kc2VydmVyLmM6ODg4OjM6IHdh
-cm5pbmc6IFZhbHVlIHN0b3JlZCB0byAncmV0JyBpcyBuZXZlciByZWFkDQogICAgICAgICAg
-ICAgICAgcmV0ID0gMDsNCiAgICAgICAgICAgICAgICBeICAgICB+DQoyIHdhcm5pbmdzIGdl
-bmVyYXRlZC4NCiAgICBDQyBjbGllbnQubw0KY2xpZW50LmM6MTU3NzozOiB3YXJuaW5nOiBV
-c2Ugb2YgbWVtb3J5IGFmdGVyIGl0IGlzIGZyZWVkDQogICAgICAgICAgICAgICAgZmlvX2Ns
-aWVudF9kZWNfam9ic19ldGEoZXRhLCBvcHMtPmV0YSk7DQogICAgICAgICAgICAgICAgXn5+
-fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn4NCmNsaWVudC5jOjE1Nzk6Mjog
-d2FybmluZzogVXNlIG9mIG1lbW9yeSBhZnRlciBpdCBpcyBmcmVlZA0KICAgICAgICBkcHJp
-bnQoRkRfTkVULCAiY2xpZW50OiByZXF1ZXN0ZWQgZXRhIHRhZyAlcFxuIiwgZXRhKTsNCiAg
-ICAgICAgXn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+
-fn5+fn4NCi4vZGVidWcuaDo0NjozOiBub3RlOiBleHBhbmRlZCBmcm9tIG1hY3JvICdkcHJp
-bnQnDQogICAgICAgICAgICAgICAgX19kcHJpbnQoKHR5cGUpLCAoc3RyKSwgIyNhcmdzKTsg
-ICAgICAgIFwNCiAgICAgICAgICAgICAgICBefn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+
-fn5+DQpjbGllbnQuYzoxNTgwOjE6IHdhcm5pbmc6IFBvdGVudGlhbCBsZWFrIG9mIG1lbW9y
-eSBwb2ludGVkIHRvIGJ5ICdldGEnDQp9DQpeDQozIHdhcm5pbmdzIGdlbmVyYXRlZC4NCiAg
-ICBDQyBpb2xvZy5vDQpJbiBmaWxlIGluY2x1ZGVkIGZyb20gaW9sb2cuYzoxNjoNCi4vbGli
-Ly4uL2ZsaXN0Lmg6OTg6MTQ6IHdhcm5pbmc6IFVzZSBvZiBtZW1vcnkgYWZ0ZXIgaXQgaXMg
-ZnJlZWQNCiAgICAgICAgX19mbGlzdF9kZWwoZW50cnktPnByZXYsIGVudHJ5LT5uZXh0KTsN
-CiAgICAgICAgICAgICAgICAgICAgXn5+fn5+fn5+fn4NCmlvbG9nLmM6MzkzOjU6IHdhcm5p
-bmc6IFZhbHVlIHN0b3JlZCB0byAnZmlsZW5vJyBpcyBuZXZlciByZWFkDQogICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIGZpbGVubyA9IGFkZF9maWxlKHRkLCBmbmFtZSwgMCwg
-MSk7DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIF4gICAgICAgIH5+fn5+fn5+
-fn5+fn5+fn5+fn5+fn5+fn4NCmlvbG9nLmM6NzA0OjI6IHdhcm5pbmc6IEZ1bmN0aW9uIGNh
-bGwgYXJndW1lbnQgaXMgYW4gdW5pbml0aWFsaXplZCB2YWx1ZQ0KICAgICAgICBmcmVlKGlj
-LT5idWYpOw0KICAgICAgICBefn5+fn5+fn5+fn5+DQppb2xvZy5jOjg1MjoyOiB3YXJuaW5n
-OiBQb3RlbnRpYWwgbGVhayBvZiBtZW1vcnkgcG9pbnRlZCB0byBieSAnaXRlci5idWYnDQog
-ICAgICAgIHJldHVybiBpdGVyLmVycjsNCiAgICAgICAgXn5+fn5+fn5+fn5+fn5+DQo0IHdh
-cm5pbmdzIGdlbmVyYXRlZC4NCiAgICBDQyBiYWNrZW5kLm8NCmJhY2tlbmQuYzoyODA6Mzog
-d2FybmluZzogVmFsdWUgc3RvcmVkIHRvICdyJyBpcyBuZXZlciByZWFkDQogICAgICAgICAg
-ICAgICAgciA9IGlvX3VfcXVldWVkX2NvbXBsZXRlKHRkLCB0ZC0+Y3VyX2RlcHRoKTsNCiAg
-ICAgICAgICAgICAgICBeICAgfn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+
-fn5+DQpiYWNrZW5kLmM6NDc5OjIxOiB3YXJuaW5nOiBWYWx1ZSBzdG9yZWQgdG8gJ2YnIGR1
-cmluZyBpdHMgaW5pdGlhbGl6YXRpb24gaXMgbmV2ZXIgcmVhZA0KICAgICAgICAgICAgICAg
-ICAgICAgICAgc3RydWN0IGZpb19maWxlICpmID0gaW9fdS0+ZmlsZTsNCiAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXiAgIH5+fn5+fn5+fn4NCjIgd2Fybmlu
-Z3MgZ2VuZXJhdGVkLg0KICAgIENDIGxpYmZpby5vDQogICAgQ0MgZmxvdy5vDQogICAgQ0Mg
-Y2NvbnYubw0KICAgIENDIGxpYi9wcmlvX3RyZWUubw0KICAgIENDIGpzb24ubw0KICAgIEND
-IGxpYi96aXBmLm8NCiAgICBDQyBsaWIvYXhtYXAubw0KICAgIENDIGxpYi9sZnNyLm8NCiAg
-ICBDQyBnZXR0aW1lLXRocmVhZC5vDQogICAgQ0MgaGVscGVycy5vDQogICAgQ0MgbGliL2Zs
-aXN0X3NvcnQubw0KICAgIENDIGxpYi9od2VpZ2h0Lm8NCiAgICBDQyBsaWIvZ2V0cnVzYWdl
-Lm8NCiAgICBDQyBpZGxldGltZS5vDQogICAgQ0MgdGRfZXJyb3Iubw0KICAgIENDIHByb2Zp
-bGVzL3Rpb2JlbmNoLm8NCiAgICBDQyBwcm9maWxlcy9hY3Qubw0KICAgIENDIGlvX3VfcXVl
-dWUubw0KICAgIENDIGZpbGVsb2NrLm8NCiAgICBDQyBsaWIvdHAubw0KICAgIENDIGxpYi9i
-bG9vbS5vDQogICAgQ0MgbGliL2dhdXNzLm8NCiAgICBDQyBsaWIvbW91bnRjaGVjay5vDQog
-ICAgQ0Mgd29ya3F1ZXVlLm8NCndvcmtxdWV1ZS5jOjcyOjY6IHdhcm5pbmc6IEFjY2VzcyB0
-byBmaWVsZCAnaW5kZXgnIHJlc3VsdHMgaW4gYSBkZXJlZmVyZW5jZSBvZiBhIG51bGwgcG9p
-bnRlciAobG9hZGVkIGZyb20gdmFyaWFibGUgJ3N3JykNCiAgICAgICAgaWYgKHN3LT5pbmRl
-eCA9PSB3cS0+bmV4dF9mcmVlX3dvcmtlcikgew0KICAgICAgICAgICAgXn5+fn5+fn5+DQox
-IHdhcm5pbmcgZ2VuZXJhdGVkLg0KICAgIENDIGNyYy9jcmMxNi5vDQogICAgQ0MgY3JjL3No
-YTUxMi5vDQpjcmMvc2hhNTEyLmM6MTQ2OjI6IHdhcm5pbmc6IFZhbHVlIHN0b3JlZCB0byAn
-YScgaXMgbmV2ZXIgcmVhZA0KICAgICAgICBhID0gYiA9IGMgPSBkID0gZSA9IGYgPSBnID0g
-aCA9IHQxID0gdDIgPSAwOw0KICAgICAgICBeICAgfn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+
-fn5+fn5+fn5+fn5+fn5+DQoxIHdhcm5pbmcgZ2VuZXJhdGVkLg0KICAgIENDIGNyYy9jcmM3
-Lm8NCiAgICBDQyBjcmMvc2hhMS5vDQogICAgQ0MgY3JjL2NyYzMyYy5vDQogICAgQ0MgY3Jj
-L3Rlc3Qubw0KICAgIENDIGNyYy9jcmMzMi5vDQogICAgQ0MgY3JjL211cm11cjMubw0KICAg
-IENDIGNyYy9jcmMzMmMtaW50ZWwubw0KICAgIENDIGNyYy94eGhhc2gubw0KICAgIENDIGNy
-Yy9zaGEyNTYubw0KY3JjL3NoYTI1Ni5jOjIyNjoyOiB3YXJuaW5nOiBWYWx1ZSBzdG9yZWQg
-dG8gJ2EnIGlzIG5ldmVyIHJlYWQNCiAgICAgICAgYSA9IGIgPSBjID0gZCA9IGUgPSBmID0g
-ZyA9IGggPSB0MSA9IHQyID0gMDsNCiAgICAgICAgXiAgIH5+fn5+fn5+fn5+fn5+fn5+fn5+
-fn5+fn5+fn5+fn5+fn5+fn5+fg0KMSB3YXJuaW5nIGdlbmVyYXRlZC4NCiAgICBDQyBjcmMv
-Zm52Lm8NCiAgICBDQyBjcmMvbWQ1Lm8NCiAgICBDQyBjcmMvY3JjNjQubw0KICAgIENDIGVu
-Z2luZXMvbGliYWlvLm8NCiAgICBDQyBlbmdpbmVzL3Bvc2l4YWlvLm8NCiAgICBDQyBlbmdp
-bmVzL2ZhbGxvYy5vDQogICAgQ0MgZW5naW5lcy9lNGRlZnJhZy5vDQogICAgQ0MgZW5naW5l
-cy9zcGxpY2Uubw0KICAgIENDIGVuZ2luZXMvbXRkLm8NCiAgICBDQyBsaWIvbGlibXRkLm8N
-CmxpYi9saWJtdGQuYzoxMDA1OjI6IHdhcm5pbmc6IFZhbHVlIHN0b3JlZCB0byAnZXJyJyBp
-cyBuZXZlciByZWFkDQogICAgICAgIGVyciA9IDA7DQogICAgICAgIF4gICAgIH4NCmxpYi9s
-aWJtdGQuYzoxMTIwOjk6IHdhcm5pbmc6IFBvdGVudGlhbCBsZWFrIG9mIG1lbW9yeSBwb2lu
-dGVkIHRvIGJ5ICd0bXBfYnVmJw0KICAgICAgICByZXR1cm4gMDsNCiAgICAgICAgICAgICAg
-IF4NCjIgd2FybmluZ3MgZ2VuZXJhdGVkLg0KICAgIENDIGxpYi9saWJtdGRfbGVnYWN5Lm8N
-CiAgICBDQyBkaXNrdXRpbC5vDQogICAgQ0MgZmlmby5vDQogICAgQ0MgYmxrdHJhY2Uubw0K
-ICAgIENDIGNncm91cC5vDQogICAgQ0MgdHJpbS5vDQogICAgQ0MgZW5naW5lcy9zZy5vDQpl
-bmdpbmVzL3NnLmM6Mzk2OjM6IHdhcm5pbmc6IFZhbHVlIHN0b3JlZCB0byAncmV0JyBpcyBu
-ZXZlciByZWFkDQogICAgICAgICAgICAgICAgcmV0ID0gZ2VuZXJpY19jbG9zZV9maWxlKHRk
-LCBmKTsNCiAgICAgICAgICAgICAgICBeICAgICB+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+
-DQoxIHdhcm5pbmcgZ2VuZXJhdGVkLg0KICAgIENDIGVuZ2luZXMvYmluamVjdC5vDQplbmdp
-bmVzL2JpbmplY3QuYzozNzA6Mzogd2FybmluZzogVmFsdWUgc3RvcmVkIHRvICdyZXQnIGlz
-IG5ldmVyIHJlYWQNCiAgICAgICAgICAgICAgICByZXQgPSBnZW5lcmljX2Nsb3NlX2ZpbGUo
-dGQsIGYpOw0KICAgICAgICAgICAgICAgIF4gICAgIH5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+
-fn4NCjEgd2FybmluZyBnZW5lcmF0ZWQuDQogICAgQ0MgbGliL2xpbnV4LWRldi1sb29rdXAu
-bw0KICAgIENDIGZpby5vDQogIExJTksgZmlvDQogICAgQ0MgdC9sb2cubw0KICAgIENDIHQv
-Z2VuemlwZi5vDQogIExJTksgdC9maW8tZ2VuemlwZg0KICAgIENDIHQvYnRyYWNlMmZpby5v
-DQogIExJTksgdC9maW8tYnRyYWNlMmZpbw0KICAgIENDIHQvZGVkdXBlLm8NCkluIGZpbGUg
-aW5jbHVkZWQgZnJvbSB0L2RlZHVwZS5jOjE3Og0KdC8uLi9saWIvcmJ0cmVlLmg6MTI1OjQ1
-OiB3YXJuaW5nOiBUaGUgbGVmdCBvcGVyYW5kIG9mICcmJyBpcyBhIGdhcmJhZ2UgdmFsdWUN
-CiAgICAgICAgcmItPnJiX3BhcmVudF9jb2xvciA9IChyYi0+cmJfcGFyZW50X2NvbG9yICYg
-MykgfCAodWludHB0cl90KXA7DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfn5+
-fn5+fn5+fn5+fn5+fn5+fiBeDQp0L2RlZHVwZS5jOjM1MDoxMTogd2FybmluZzogQXNzaWdu
-ZWQgdmFsdWUgaXMgZ2FyYmFnZSBvciB1bmRlZmluZWQNCiAgICAgICAgICAgICAgICAgICAg
-ICAgIG5pdGVtcyArPSB0aHJlYWRzW2ldLml0ZW1zOw0KICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgIF4gIH5+fn5+fn5+fn5+fn5+fn4NCnQvZGVkdXBlLmM6NDA3OjM6IHdhcm5p
-bmc6IEZ1bmN0aW9uIGNhbGwgYXJndW1lbnQgaXMgYW4gdW5pbml0aWFsaXplZCB2YWx1ZQ0K
-ICAgICAgICAgICAgICAgIHB0aHJlYWRfam9pbih0aHJlYWRzW2ldLnRocmVhZCwgJnJldCk7
-DQogICAgICAgICAgICAgICAgXn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+
-fg0KMyB3YXJuaW5ncyBnZW5lcmF0ZWQuDQogICAgQ0MgdC9kZWJ1Zy5vDQogIExJTksgdC9m
-aW8tZGVkdXBlDQogICAgQ0MgdC9zdGVzdC5vDQogIExJTksgdC9zdGVzdA0KICAgIENDIHQv
-aWVlZTc1NC5vDQogIExJTksgdC9pZWVlNzU0DQogICAgQ0MgdC9heG1hcC5vDQogIExJTksg
-dC9heG1hcA0KICAgIENDIHQvbGZzci10ZXN0Lm8NCiAgTElOSyB0L2xmc3ItdGVzdA0Kc2Nh
-bi1idWlsZDogMzIgYnVncyBmb3VuZC4NCnNjYW4tYnVpbGQ6IFJ1biAnc2Nhbi12aWV3IC90
-bXAvc2Nhbi1idWlsZC0yMDE1LTA4LTA0LTA5MzYwNC05MzA3LTEnIHRvIGV4YW1pbmUgYnVn
-IHJlcG9ydHMuDQpzY2FuLWJ1aWxkOiBUaGUgYW5hbHl6ZXIgZW5jb3VudGVyZWQgcHJvYmxl
-bXMgb24gc29tZSBzb3VyY2UgZmlsZXMuDQpzY2FuLWJ1aWxkOiBQcmVwcm9jZXNzZWQgdmVy
-c2lvbnMgb2YgdGhlc2Ugc291cmNlcyB3ZXJlIGRlcG9zaXRlZCBpbiAnL3RtcC9zY2FuLWJ1
-aWxkLTIwMTUtMDgtMDQtMDkzNjA0LTkzMDctMS9mYWlsdXJlcycuDQpzY2FuLWJ1aWxkOiBQ
-bGVhc2UgY29uc2lkZXIgc3VibWl0dGluZyBhIGJ1ZyByZXBvcnQgdXNpbmcgdGhlc2UgZmls
-ZXM6DQpzY2FuLWJ1aWxkOiAgIGh0dHA6Ly9jbGFuZy1hbmFseXplci5sbHZtLm9yZy9maWxp
-bmdfYnVncy5odG1sDQpiY3JhbkBjdWJlOn4vZmlvPiBleGl0DQoKU2NyaXB0IGRvbmUgb24g
-VHVlIDA0IEF1ZyAyMDE1IDA5OjM5OjQzIEFNIE1EVAo=
---------------040001090605090906080605--
