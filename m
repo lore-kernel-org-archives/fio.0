@@ -1,54 +1,52 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:37608 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753744AbbGAMAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 1 Jul 2015 08:00:05 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1ZAGgO-0002QM-8L
-	for fio@vger.kernel.org; Wed, 01 Jul 2015 12:00:04 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Message-ID: <55CE4693.5050503@kernel.dk>
+Date: Fri, 14 Aug 2015 13:50:43 -0600
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150701120001.664BB2C00D0@kernel.dk>
-Date: Wed,  1 Jul 2015 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: server mode and verify_dump
+References: <CALjAwxh7sx3OHw9Gb=gBwet+YqpJNNDzZusNZK7X7bGK0Z06pQ@mail.gmail.com>	<55CE0DA9.6050204@kernel.dk>	<55CE1025.6080009@kernel.dk>	<CALjAwxjk6TG+UO6d3L_7Fq=Ucm5WBtkMLLQwSqx+F_J9f=gReg@mail.gmail.com>	<55CE3ED4.8020505@kernel.dk>	<CALjAwxhbjE4xTZ5jA_m-0spFTtvwJb_bNZz7m7cPRcCXLY1wNA@mail.gmail.com>	<55CE4001.8090705@kernel.dk> <CALjAwxg9c2Mgykc9tH7gm4qH_RRHQ=SkQyxWuYi2NdDP9Fo4HA@mail.gmail.com>
+In-Reply-To: <CALjAwxg9c2Mgykc9tH7gm4qH_RRHQ=SkQyxWuYi2NdDP9Fo4HA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 94815a5c8366a9290167e8539f29994c2d43d15c:
+On 08/14/2015 01:41 PM, Sitsofe Wheeler wrote:
+> On 14 August 2015 at 20:22, Jens Axboe <axboe@kernel.dk> wrote:
+>> On 08/14/2015 01:21 PM, Sitsofe Wheeler wrote:
+>>>
+>>> On 14 August 2015 at 20:17, Jens Axboe <axboe@kernel.dk> wrote:
+>>>>
+>>>> Right, I suspected that might have been the case. If the header isn't
+>>>> valid,
+>>>> then fio doesn't dump any contents. One could argue that it would be
+>>>> cleaner
+>>>
+>>>
+>>> What do you think it would take to dump a block's worth of data when
+>>> encountering a header error during a verify?
+>>
+>>
+>> Without a valid header, we can't re-generate the data. That's why it
+>> currently doesn't dump the expected contents if the header verification
+>> fails.
+>
+> I see. Even fixed patterns would be a pain unless they have an
+> entirely separate code path. How about just dumping whatever you
+> received even if it was just a header's worth?
 
-  configure: fixup clang stupidity (2015-06-29 20:46:31 -0600)
+It's not guaranteed that we could do it. We could always just fake up a 
+new header, but we don't know the seed and other important things. It 
+would be trivial to dump the received block of data, but that seems a 
+bit pointless when we don't have the expected data. Since the 
+offset+size is listed in the output, getting the same from 'dd' or a 
+similar tool would be easy enough.
 
-are available in the git repository at:
+But I'm willing to be convinced. Dumping the received data is a quick 
+change.
 
-  git://git.kernel.dk/fio.git master
+-- 
+Jens Axboe
 
-for you to fetch changes up to aa1af5fd4a7b801cc506cb511eb09f64c89648b6:
 
-  smalloc: fix unused 'int_mask' warning if redzoning is turned off (2015-06-30 15:31:50 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      smalloc: fix unused 'int_mask' warning if redzoning is turned off
-
- smalloc.c | 2 ++
- 1 file changed, 2 insertions(+)
-
----
-
-Diff of recent changes:
-
-diff --git a/smalloc.c b/smalloc.c
-index 447d5c5..6bf66fc 100644
---- a/smalloc.c
-+++ b/smalloc.c
-@@ -32,7 +32,9 @@
- #define SMALLOC_POST_RED	0x5aa55aa5U
- 
- unsigned int smalloc_pool_size = INITIAL_SIZE;
-+#ifdef SMALLOC_REDZONE
- static const int int_mask = sizeof(int) - 1;
-+#endif
- 
- struct pool {
- 	struct fio_mutex *lock;			/* protects this pool */
