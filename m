@@ -1,116 +1,102 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wi0-f174.google.com ([209.85.212.174]:35725 "EHLO
-	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751532AbbHSKPw (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 19 Aug 2015 06:15:52 -0400
-Received: by wicne3 with SMTP id ne3so116410686wic.0
-        for <fio@vger.kernel.org>; Wed, 19 Aug 2015 03:15:51 -0700 (PDT)
-From: Roman Pen <r.peniaev@gmail.com>
-Subject: [RFC 0/6] Add support of formats for the pattern input
-Date: Wed, 19 Aug 2015 12:15:37 +0200
-Message-Id: <1439979343-1571-1-git-send-email-r.peniaev@gmail.com>
+Received: from bombadil.infradead.org ([198.137.202.9]:49304 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751295AbbHRMAD (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 18 Aug 2015 08:00:03 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1ZRfYg-0004WP-OZ
+	for fio@vger.kernel.org; Tue, 18 Aug 2015 12:00:02 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150818120001.C19DB2C0179@kernel.dk>
+Date: Tue, 18 Aug 2015 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: 
-Cc: Roman Pen <r.peniaev@gmail.com>, fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Hello, all.
+The following changes since commit 75f90d5f9859e985feee8b6aca7b913d15fd2296:
 
-The intention of this patchset is to support dynamic formats for pattern
-input which is used for writing and verifying data, e.g. in the latest patch
-I added '%o' format, which means that current block offset will be written to
-the buffer and then verified back, i.e. this option can be used as the
-following:
+  filesetup: make random generator block auto-switch on huge files (2015-08-14 12:25:20 -0600)
 
- verify_pattern=%o
+are available in the git repository at:
 
-and the hexdump of generated file in my case is (few last lines):
+  git://git.kernel.dk/fio.git master
 
-  ...
-  000f5c00  00 5c 0f 00 00 00 00 00  00 5c 0f 00 00 00 00 00  |.\.......\......|
-  *
-  000fdc00  00 dc 0f 00 00 00 00 00  00 dc 0f 00 00 00 00 00  |................|
-  *
-  000ffc00  00 fc 0f 00 00 00 00 00  00 fc 0f 00 00 00 00 00  |................|
-  *
-  00100000
+for you to fetch changes up to 0e1c454a80bc9f1516ebc910ceb257bc6733e6b4:
 
-So, each block is filled in with block offset in little endian order and 8 bytes
-long.
+  mtd: expand configure check (2015-08-17 15:47:42 -0600)
 
-Unfortunately, 'buffer_pattern' option does not support formats, because it
-turned out to be a lot of changes which should be made to pass correct
-io_u->offset through the whole stack of calls. I left this task for future.
+----------------------------------------------------------------
+DaveGlen (1):
+      allow for ratemin to be used without setting rate
 
-Additionally, I moved all 'pattern' parsing/substituting logic to separate
-library file 'lib/pattern.[ch]'. Also, now 'verify_pattern' and 'buffer_pattern'
-support combined input which can consist of strings, numbers and formats
-(as was said formats are supported only by 'verify_pattern' option), e.g. let's
-consider the following example, where 'in' is a 'verify_pattern' or
-'buffer_pattern' and 'out' is an output buffer filled in with bytes regarding
-specified pattern:
+Jens Axboe (3):
+      Merge branch 'master' of git://github.com/DaveGlen/fio
+      gettime: silence bogus gcc warnings
+      mtd: expand configure check
 
-  #1                 #2                 #3        #4
-    in="abcd"          in=-1024           in=66     in=0xFF0X1
-   out=61 62 63 64    out=00 fc ff ff    out=42    out=ff 01
+ configure |  3 +++
+ gettime.c |  2 ++
+ init.c    | 12 ++++++------
+ 3 files changed, 11 insertions(+), 6 deletions(-)
 
-  #5                               #6
-    in=%o                            in="123"0xFFeeCC
-   out=00 00 00 00 00 00 00 00      out=31 32 33 ff ec cc
+---
 
-  #7
-    in=-100xab"1"%o"2"
-    out=f6 ff ff ff ab 31 00 00 00 00 00 00 00 00 32
+Diff of recent changes:
 
-  #8
-    in=%o0xdeadbeef%o
-   out=00 00 00 00 00 00 00 00 de ad be ef 00 00 00 00 00 00 00 00
-
-  #9
-     in=0xfefefefefefefefefefefefefefefefefefefefefe
-    out=fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe
-
-For %o format 8 bytes reserved in pattern, and when buffer is ready
-substitution occurs.
-
-The old behaviour is preserved: strings are in quotes, decimals are in the
-range [INT_MIN, INT_MAX], hexidecimals start from 0[Xx] and can be of any
-size (the limit is the maximum size of the pattern, which is 512).
-
-New behaviour: now you can combine everything together and additionally
-use formats (now %o is supported).
-
- --
- Roman
-
-Roman Pen (6):
-  lib/strntol: add 'strntol' function
-  lib/pattern: add set of functions to parse combined pattern input
-  replace 'fill_pattern' with 'cpy_pattern' from 'lib/pattern.c'
-  verify: use 'cmp_pattern' from 'lib/pattern.c' to compare pattern and
-    buffer
-  add FIELD_SIZE macro to calculate the size of the specified field
-  use 'lib/pattern' to parse patterns and paste formats into buffers
-
- HOWTO            |  20 ++-
- Makefile         |   9 +-
- fio.h            |   3 +-
- lib/pattern.c    | 464 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
- lib/pattern.h    |  47 ++++++
- lib/rand.c       |  31 +---
- lib/rand.h       |   1 -
- lib/strntol.c    |  31 ++++
- lib/strntol.h    |   6 +
- options.c        | 166 ++++----------------
- thread_options.h |   3 +
- verify.c         |  62 +++++---
- verify.h         |   5 +
- 13 files changed, 656 insertions(+), 192 deletions(-)
- create mode 100644 lib/pattern.c
- create mode 100644 lib/pattern.h
- create mode 100644 lib/strntol.c
- create mode 100644 lib/strntol.h
-
--- 
-2.4.4
-
+diff --git a/configure b/configure
+index 4fb65e6..1a41fe5 100755
+--- a/configure
++++ b/configure
+@@ -1409,11 +1409,14 @@ echo "HDFS engine                   $libhdfs"
+ # Check whether we have MTD
+ mtd="no"
+ cat > $TMPC << EOF
++#include <string.h>
+ #include <mtd/mtd-user.h>
+ #include <sys/ioctl.h>
+ int main(int argc, char **argv)
+ {
++  struct mtd_write_req ops;
+   struct mtd_info_user info;
++  memset(&ops, 0, sizeof(ops));
+   info.type = MTD_MLCNANDFLASH;
+   return ioctl(0, MEMGETINFO, &info);
+ }
+diff --git a/gettime.c b/gettime.c
+index ac54111..8d99900 100644
+--- a/gettime.c
++++ b/gettime.c
+@@ -640,6 +640,8 @@ int fio_monotonic_clocktest(int debug)
+ 
+ 	qsort(entries, tentries, sizeof(struct clock_entry), clock_cmp);
+ 
++	/* silence silly gcc */
++	prev = NULL;
+ 	for (failed = i = 0; i < tentries; i++) {
+ 		this = &entries[i];
+ 
+diff --git a/init.c b/init.c
+index 8e1f295..6d8dcff 100644
+--- a/init.c
++++ b/init.c
+@@ -636,12 +636,12 @@ static int fixup_options(struct thread_data *td)
+ 		log_err("fio: rate and rate_iops are mutually exclusive\n");
+ 		ret = 1;
+ 	}
+-	if ((o->rate[DDIR_READ] < o->ratemin[DDIR_READ]) ||
+-	    (o->rate[DDIR_WRITE] < o->ratemin[DDIR_WRITE]) ||
+-	    (o->rate[DDIR_TRIM] < o->ratemin[DDIR_TRIM]) ||
+-	    (o->rate_iops[DDIR_READ] < o->rate_iops_min[DDIR_READ]) ||
+-	    (o->rate_iops[DDIR_WRITE] < o->rate_iops_min[DDIR_WRITE]) ||
+-	    (o->rate_iops[DDIR_TRIM] < o->rate_iops_min[DDIR_TRIM])) {
++	if ((o->rate[DDIR_READ] && (o->rate[DDIR_READ] < o->ratemin[DDIR_READ])) ||
++	    (o->rate[DDIR_WRITE] && (o->rate[DDIR_WRITE] < o->ratemin[DDIR_WRITE])) ||
++	    (o->rate[DDIR_TRIM] && (o->rate[DDIR_TRIM] < o->ratemin[DDIR_TRIM])) ||
++	    (o->rate_iops[DDIR_READ] && (o->rate_iops[DDIR_READ] < o->rate_iops_min[DDIR_READ])) ||
++	    (o->rate_iops[DDIR_WRITE] && (o->rate_iops[DDIR_WRITE] < o->rate_iops_min[DDIR_WRITE])) ||
++	    (o->rate_iops[DDIR_TRIM] && (o->rate_iops[DDIR_TRIM] < o->rate_iops_min[DDIR_TRIM]))) {
+ 		log_err("fio: minimum rate exceeds rate\n");
+ 		ret = 1;
+ 	}
