@@ -1,14 +1,14 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:33872 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752609AbbHSKdW (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 19 Aug 2015 06:33:22 -0400
-Received: by wicne3 with SMTP id ne3so122910476wic.1
-        for <fio@vger.kernel.org>; Wed, 19 Aug 2015 03:33:21 -0700 (PDT)
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:37094 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751525AbbHSKdU (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 19 Aug 2015 06:33:20 -0400
+Received: by wibhh20 with SMTP id hh20so4048729wib.0
+        for <fio@vger.kernel.org>; Wed, 19 Aug 2015 03:33:19 -0700 (PDT)
 From: Roman Pen <r.peniaev@gmail.com>
-Subject: [RFC 4/6] verify: use 'cmp_pattern' from 'lib/pattern.c' to compare pattern and buffer
-Date: Wed, 19 Aug 2015 12:33:09 +0200
-Message-Id: <1439980391-2311-5-git-send-email-r.peniaev@gmail.com>
+Subject: [RFC 1/6] lib/strntol: add 'strntol' function
+Date: Wed, 19 Aug 2015 12:33:06 +0200
+Message-Id: <1439980391-2311-2-git-send-email-r.peniaev@gmail.com>
 In-Reply-To: <1439980391-2311-1-git-send-email-r.peniaev@gmail.com>
 References: <1439980391-2311-1-git-send-email-r.peniaev@gmail.com>
 Sender: fio-owner@vger.kernel.org
@@ -16,80 +16,79 @@ List-Id: fio@vger.kernel.org
 To: 
 Cc: Roman Pen <r.peniaev@gmail.com>, fio@vger.kernel.org
 
-'cmp_pattern' function should be faster, since it does not use loops
-and while doing 'memcmp' the same CPU cache line is used.
-
-Keep in mind, that now single-byte pattern becomes the string of 512 bytes.
-In that case this optimization will not work as expected, since 'memcmp'
-will be called twice for the whole pattern, but in next patches this
-behaviour will be avoided and single-byte pattern will stay single-byte
-pattern without any attempt to duplicate it.
-
-Also print buffer and pattern bytes as unsigned chars.
+In future patches I will need it.
 
 Signed-off-by: Roman Pen <r.peniaev@gmail.com>
 ---
- verify.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ Makefile      |  2 +-
+ lib/strntol.c | 31 +++++++++++++++++++++++++++++++
+ lib/strntol.h |  6 ++++++
+ 3 files changed, 38 insertions(+), 1 deletion(-)
+ create mode 100644 lib/strntol.c
+ create mode 100644 lib/strntol.h
 
-diff --git a/verify.c b/verify.c
-index 668d933..984b272 100644
---- a/verify.c
-+++ b/verify.c
-@@ -356,7 +356,8 @@ static int verify_io_u_pattern(struct verify_header *hdr, struct vcont *vc)
- 	struct io_u *io_u = vc->io_u;
- 	char *buf, *pattern;
- 	unsigned int header_size = __hdr_size(td->o.verify);
--	unsigned int len, mod, i, size, pattern_size;
-+	unsigned int len, mod, i, pattern_size;
-+	int rc;
- 
- 	pattern = td->o.verify_pattern;
- 	pattern_size = td->o.verify_pattern_bytes;
-@@ -366,23 +367,20 @@ static int verify_io_u_pattern(struct verify_header *hdr, struct vcont *vc)
- 	len = get_hdr_inc(td, io_u) - header_size;
- 	mod = header_size % pattern_size;
- 
--	for (i = 0; i < len; i += size) {
--		size = pattern_size - mod;
--		if (size > (len - i))
--			size = len - i;
--		if (memcmp(buf + i, pattern + mod, size))
--			/* Let the slow compare find the first mismatch byte. */
--			break;
--		mod = 0;
--	}
-+	rc = cmp_pattern(pattern, pattern_size, mod, buf, len);
-+	if (!rc)
+diff --git a/Makefile b/Makefile
+index 24663a4..fe0da43 100644
+--- a/Makefile
++++ b/Makefile
+@@ -39,7 +39,7 @@ endif
+ SOURCE :=	gettime.c ioengines.c init.c stat.c log.c time.c filesetup.c \
+ 		eta.c verify.c memory.c io_u.c parse.c mutex.c options.c \
+ 		lib/rbtree.c smalloc.c filehash.c profile.c debug.c lib/rand.c \
+-		lib/num2str.c lib/ieee754.c engines/cpu.c \
++		lib/num2str.c lib/ieee754.c lib/strntol.c engines/cpu.c \
+ 		engines/mmap.c engines/sync.c engines/null.c engines/net.c \
+ 		memalign.c server.c client.c iolog.c backend.c libfio.c flow.c \
+ 		cconv.c lib/prio_tree.c json.c lib/zipf.c lib/axmap.c \
+diff --git a/lib/strntol.c b/lib/strntol.c
+new file mode 100644
+index 0000000..713f63b
+--- /dev/null
++++ b/lib/strntol.c
+@@ -0,0 +1,31 @@
++#include <string.h>
++#include <stdlib.h>
++#include <limits.h>
++
++long strntol(const char *str, size_t sz, char **end, int base)
++{
++	/* Expect that digit representation of LONG_MAX/MIN
++	 * not greater than this buffer */
++	char buf[24];
++	long ret;
++	const char *beg = str;
++
++	/* Catch up leading spaces */
++	for (; beg && sz && *beg == ' '; beg++, sz--)
++		;
++
++	if (!sz || sz >= sizeof(buf)) {
++		if (end)
++			*end = (char *)str;
 +		return 0;
- 
--	for (; i < len; i++) {
-+	/* Slow path, compare each byte */
-+	for (i = 0; i < len; i++) {
- 		if (buf[i] != pattern[mod]) {
- 			unsigned int bits;
- 
- 			bits = hweight8(buf[i] ^ pattern[mod]);
--			log_err("fio: got pattern %x, wanted %x. Bad bits %d\n",
--				buf[i], pattern[mod], bits);
-+			log_err("fio: got pattern '%02x', wanted '%02x'. Bad bits %d\n",
-+				(unsigned char)buf[i],
-+				(unsigned char)pattern[mod],
-+				bits);
- 			log_err("fio: bad pattern block offset %u\n", i);
- 			dump_verify_buffers(hdr, vc);
- 			return EILSEQ;
-@@ -392,7 +390,9 @@ static int verify_io_u_pattern(struct verify_header *hdr, struct vcont *vc)
- 			mod = 0;
- 	}
- 
--	return 0;
-+	/* Unreachable line */
-+	assert(0);
-+	return EILSEQ;
- }
- 
- static int verify_io_u_meta(struct verify_header *hdr, struct vcont *vc)
++	}
++
++	memcpy(buf, beg, sz);
++	buf[sz] = '\0';
++	ret = strtol(buf, end, base);
++	if (ret == LONG_MIN || ret == LONG_MAX)
++		return ret;
++	if (end)
++		*end = (char *)str + (*end - buf);
++	return ret;
++}
+diff --git a/lib/strntol.h b/lib/strntol.h
+new file mode 100644
+index 0000000..68f5d1b
+--- /dev/null
++++ b/lib/strntol.h
+@@ -0,0 +1,6 @@
++#ifndef FIO_STRNTOL_H
++#define FIO_STRNTOL_H
++
++long strntol(const char *str, size_t sz, char **end, int base);
++
++#endif
 -- 
 2.4.4
 
