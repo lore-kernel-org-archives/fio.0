@@ -1,185 +1,552 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:43270 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750932AbbHOMAf (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 15 Aug 2015 08:00:35 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1ZQa8X-0005QL-A1
-	for fio@vger.kernel.org; Sat, 15 Aug 2015 12:00:33 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20150815120002.61A112C00BE@kernel.dk>
-Date: Sat, 15 Aug 2015 06:00:02 -0600 (MDT)
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:37311 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752022AbbIERBW (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 5 Sep 2015 13:01:22 -0400
+Received: by wicfx3 with SMTP id fx3so45035751wic.0
+        for <fio@vger.kernel.org>; Sat, 05 Sep 2015 10:01:21 -0700 (PDT)
+From: Roman Pen <r.peniaev@gmail.com>
+Subject: [PATCH 2/2] verify: move meta header to generic verify_header
+Date: Sat,  5 Sep 2015 19:01:02 +0200
+Message-Id: <1441472462-5344-2-git-send-email-r.peniaev@gmail.com>
+In-Reply-To: <1441472462-5344-1-git-send-email-r.peniaev@gmail.com>
+References: <1441472462-5344-1-git-send-email-r.peniaev@gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: 
+Cc: Roman Pen <r.peniaev@gmail.com>, fio@vger.kernel.org
 
-The following changes since commit 92060d6c59f1848e86cd9ddd7550907c79bda3d5:
+fio does not provide any possibility to verify checksum of a block with meta
+information inside. You can create configuration for verifincation checksum
+of random data either you can verify meta information with some pattern or
+random data, but not both.
 
-  arch-ppc.h: Add ilog2 implementation for ppc64 (2015-08-13 12:45:20 -0600)
+Why checksumming and meta together can be useful? Meta helps to figure out internally
+on filesystem or storage what block was written in case of corruption, i.e. offset
+of the block and block number explicitly tell us the virtual address of the block.
+On the other hand checksum of random data helps to detect corruption. Using meta
+and pattern together do not help a lot, since 'verify_interval' can be big enough
+and same sequence of pattern bytes will be undistinguishable internally on filesystem
+or storage.
 
-are available in the git repository at:
+Also, it seems to me that keeping meta header separately from generic verify header
+does not make a lot of sense, since generic verify header can include all members
+of meta header without any performance or other impact.
 
-  git://git.kernel.dk/fio.git master
+In this patch I move all members from vhdr_meta structure to generic verify_header,
+always verifying meta with the possiblity to checksum the following data: random
+or pattern.
 
-for you to fetch changes up to 75f90d5f9859e985feee8b6aca7b913d15fd2296:
+You are allowed to specify verify_pattern=str with any of the possible verification
+methods and have also meta verification, i.e.
 
-  filesetup: make random generator block auto-switch on huge files (2015-08-14 12:25:20 -0600)
+   verify=md5
+   verify_pattern=0xfe
 
-----------------------------------------------------------------
-Jens Axboe (3):
-      eta: ensure we include terminating 0 space in je->run_str[]
-      client: make it explicit that we don't reuse 'eta' after freeing it
-      filesetup: make random generator block auto-switch on huge files
+ or
 
- client.c    | 25 +++++++++++++++----------
- client.h    |  1 -
- eta.c       |  2 +-
- filesetup.c | 46 ++++++++++++++++++++++++++++++++++++++--------
- 4 files changed, 54 insertions(+), 20 deletions(-)
+   verify=sha1
+   verify_pattern=0xff
 
+ etc.
+
+To keep everything compatible with old configurations it is still possible to specify
+
+   verify=meta
+
+but this option marked and depricated and kept only for compatibility reasons.
+
+Before that patch the verification layout according to the specified options looks
+as the following, e.g.:
+
+ #1
+    --
+    verify=meta
+    verify_pattern=0xff
+    --
+
+    result layout of each block: [hdr|meta|pattern]
+
+ #2
+    --
+    verify_pattern=0xff
+    --
+
+    result layout of each block: [hdr|pattern]
+
+ #3
+    --
+    verify=pattern
+    verify_pattern=0xff
+    --
+
+    result layout of each block: [pattern]
+
+After applying of the patch 'vhdr_meta' is always embedded into 'verify_header' and layout
+looks as the following, e.g.:
+
+ #1
+    --
+    verify=meta
+    verify_pattern=0xff
+    --
+
+    result layout of each block: [hdr+meta|pattern]
+ #2
+    --
+    verify=md5|sha1|etc
+    verify_pattern=0xff
+    --
+
+    result layout of each block: [hdr+meta|cksum|pattern]
+
+ #3
+    --
+    verify_pattern=0xff
+    --
+
+    result layout of each block: [hdr+meta|pattern]
+
+ #4
+    --
+    verify=pattern
+    verify_pattern=0xff
+    --
+
+    result layout of each block: [pattern]
+
+Signed-off-by: Roman Pen <r.peniaev@gmail.com>
+Cc: fio@vger.kernel.org
 ---
+ HOWTO     |  19 +++++----
+ fio.1     |  19 +++++----
+ options.c |  10 +++--
+ verify.c  | 140 +++++++++++++++++++++++++++-----------------------------------
+ verify.h  |  16 +++----
+ 5 files changed, 99 insertions(+), 105 deletions(-)
 
-Diff of recent changes:
-
-diff --git a/client.c b/client.c
-index af3407c..110a01b 100644
---- a/client.c
-+++ b/client.c
-@@ -184,6 +184,17 @@ void fio_put_client(struct fio_client *client)
- 	free(client);
- }
+diff --git a/HOWTO b/HOWTO
+index cee505f..d3ead19 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -1248,7 +1248,12 @@ do_verify=bool	Run the verify phase after a write phase. Only makes sense if
+ 		verify is set. Defaults to 1.
  
-+static int fio_client_dec_jobs_eta(struct client_eta *eta, client_eta_op eta_fn)
-+{
-+	if (!--eta->pending) {
-+		eta_fn(&eta->eta);
-+		free(eta);
-+		return 0;
-+	}
-+
-+	return 1;
-+}
-+
- static void remove_client(struct fio_client *client)
- {
- 	assert(client->refs);
-@@ -1091,14 +1102,6 @@ void fio_client_sum_jobs_eta(struct jobs_eta *dst, struct jobs_eta *je)
- 	strcpy((char *) dst->run_str, (char *) je->run_str);
- }
+ verify=str	If writing to a file, fio can verify the file contents
+-		after each iteration of the job. The allowed values are:
++		after each iteration of the job. Each verification method also implies
++		verification of special header, which is written to the beginning of
++		each block. This header also includes meta information, like offset
++		of the block, block number, timestamp when block was written, etc.
++		verify=str can be combined with verify_pattern=str option.
++		The allowed values are:
  
--void fio_client_dec_jobs_eta(struct client_eta *eta, client_eta_op eta_fn)
--{
--	if (!--eta->pending) {
--		eta_fn(&eta->eta);
--		free(eta);
--	}
--}
--
- static void remove_reply_cmd(struct fio_client *client, struct fio_net_cmd *cmd)
+ 			md5	Use an md5 sum of the data area and store
+ 				it in the header of each block.
+@@ -1284,11 +1289,11 @@ verify=str	If writing to a file, fio can verify the file contents
+ 
+ 			sha1	Use optimized sha1 as the checksum function.
+ 
+-			meta	Write extra information about each io
+-				(timestamp, block number etc.). The block
+-				number is verified. The io sequence number is
+-				verified for workloads that write data.
+-				See also verify_pattern.
++			meta	This option is deprecated, since now meta information is
++				included in generic verification header and meta verification
++				happens by default. For detailed information see the description
++				of the verify=str setting. This option is kept because of
++				compatibility's sake with old configurations. Do not use it.
+ 
+ 			pattern	Verify a strict pattern. Normally fio includes
+ 				a header with some basic information and
+@@ -1333,7 +1338,7 @@ verify_pattern=str	If set, fio will fill the io buffers with this
+ 		buffer at the time(it can be either a decimal or a hex number).
+ 		The verify_pattern if larger than a 32-bit quantity has to
+ 		be a hex number that starts with either "0x" or "0X". Use
+-		with verify=meta. Also, verify_pattern supports %o format,
++		with verify=str. Also, verify_pattern supports %o format,
+ 		which means that for each block offset will be written and
+ 		then verifyied back, e.g.:
+ 
+diff --git a/fio.1 b/fio.1
+index 7c13409..c1cb2a5 100644
+--- a/fio.1
++++ b/fio.1
+@@ -1134,8 +1134,12 @@ Run the verify phase after a write phase.  Only valid if \fBverify\fR is set.
+ Default: true.
+ .TP
+ .BI verify \fR=\fPstr
+-Method of verifying file contents after each iteration of the job.  Allowed
+-values are:
++Method of verifying file contents after each iteration of the job. Each
++verification method also implies verification of special header, which is
++written to the beginning of each block. This header also includes meta
++information, like offset of the block, block number, timestamp when block
++was written, etc.  \fBverify\fR=str can be combined with \fBverify_pattern\fR=str
++option.  The allowed values are:
+ .RS
+ .RS
+ .TP
+@@ -1145,8 +1149,10 @@ hardware accelerated SSE4.2 driven, falls back to regular crc32c if
+ not supported by the system.
+ .TP
+ .B meta
+-Write extra information about each I/O (timestamp, block number, etc.). The
+-block number is verified. See \fBverify_pattern\fR as well.
++This option is deprecated, since now meta information is included in generic
++verification header and meta verification happens by default.  For detailed
++information see the description of the \fBverify\fR=str setting. This option
++is kept because of compatibility's sake with old configurations. Do not use it.
+ .TP
+ .B pattern
+ Verify a strict pattern. Normally fio includes a header with some basic
+@@ -1186,9 +1192,8 @@ pattern for io verification purposes. Depending on the width of the pattern,
+ fio will fill 1/2/3/4 bytes of the buffer at the time(it can be either a
+ decimal or a hex number). The verify_pattern if larger than a 32-bit quantity
+ has to be a hex number that starts with either "0x" or "0X". Use with
+-\fBverify\fP=meta or \fBverify\fP=pattern. Also, verify_pattern supports %o
+-format, which means that for each block offset will be written and then
+-verifyied back, e.g.:
++\fBverify\fP=str. Also, verify_pattern supports %o format, which means that for
++each block offset will be written and then verifyied back, e.g.:
+ .RS
+ .RS
+ \fBverify_pattern\fR=%o
+diff --git a/options.c b/options.c
+index fab4675..4798fbf 100644
+--- a/options.c
++++ b/options.c
+@@ -958,7 +958,7 @@ static int str_verify_pattern_cb(void *data, const char *input)
+ 	assert(ret != 0);
+ 	td->o.verify_pattern_bytes = ret;
+ 	/*
+-	 * VERIFY_META could already be set
++	 * VERIFY_* could already be set
+ 	 */
+ 	if (!fio_option_is_set(&td->o, verify))
+ 		td->o.verify = VERIFY_PATTERN;
+@@ -2294,9 +2294,13 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 			    .oval = VERIFY_XXHASH,
+ 			    .help = "Use xxhash checksums for verification",
+ 			  },
++			  /* Meta information was included into verify_header,
++			   * 'meta' verification is implied by default. */
+ 			  { .ival = "meta",
+-			    .oval = VERIFY_META,
+-			    .help = "Use io information",
++			    .oval = VERIFY_HDR_ONLY,
++			    .help = "Use io information for verification. "
++				    "Now is implied by default, thus option is obsolete, "
++				    "don't use it",
+ 			  },
+ 			  { .ival = "pattern",
+ 			    .oval = VERIFY_PATTERN_NO_HDR,
+diff --git a/verify.c b/verify.c
+index 227d220..ee9160c 100644
+--- a/verify.c
++++ b/verify.c
+@@ -29,10 +29,12 @@
+ static void populate_hdr(struct thread_data *td, struct io_u *io_u,
+ 			 struct verify_header *hdr, unsigned int header_num,
+ 			 unsigned int header_len);
+-static void fill_hdr(struct verify_header *hdr, int verify_type, uint32_t len,
+-		     uint64_t rand_seed);
+-static void __fill_hdr(struct verify_header *hdr, int verify_type, uint32_t len,
+-		       uint64_t rand_seed);
++static void fill_hdr(struct thread_data *td, struct io_u *io_u,
++		     struct verify_header *hdr, unsigned int header_num,
++		     unsigned int header_len, uint64_t rand_seed);
++static void __fill_hdr(struct thread_data *td, struct io_u *io_u,
++		       struct verify_header *hdr, unsigned int header_num,
++		       unsigned int header_len, uint64_t rand_seed);
+ 
+ void fill_buffer_pattern(struct thread_data *td, void *p, unsigned int len)
  {
- 	struct fio_net_cmd_reply *reply = NULL;
-@@ -1573,8 +1576,10 @@ static void request_client_etas(struct client_ops *ops)
- 					(uintptr_t) eta, &client->cmd_list);
+@@ -141,6 +143,7 @@ static inline unsigned int __hdr_size(int verify_type)
+ 
+ 	switch (verify_type) {
+ 	case VERIFY_NONE:
++	case VERIFY_HDR_ONLY:
+ 	case VERIFY_NULL:
+ 	case VERIFY_PATTERN:
+ 		len = 0;
+@@ -171,9 +174,6 @@ static inline unsigned int __hdr_size(int verify_type)
+ 	case VERIFY_XXHASH:
+ 		len = sizeof(struct vhdr_xxhash);
+ 		break;
+-	case VERIFY_META:
+-		len = sizeof(struct vhdr_meta);
+-		break;
+ 	case VERIFY_SHA1:
+ 		len = sizeof(struct vhdr_sha1);
+ 		break;
+@@ -323,7 +323,7 @@ static void dump_verify_buffers(struct verify_header *hdr, struct vcont *vc)
+ 	struct verify_header shdr;
+ 
+ 	if (td->o.verify == VERIFY_PATTERN_NO_HDR) {
+-		__fill_hdr(&shdr, td->o.verify, vc->io_u->buflen, 0);
++		__fill_hdr(td, vc->io_u, &shdr, 0, vc->io_u->buflen, 0);
+ 		hdr = &shdr;
  	}
  
--	while (skipped--)
--		fio_client_dec_jobs_eta(eta, ops->eta);
-+	while (skipped--) {
-+		if (!fio_client_dec_jobs_eta(eta, ops->eta))
-+			break;
-+	}
- 
- 	dprint(FD_NET, "client: requested eta tag %p\n", eta);
+@@ -405,43 +405,6 @@ static int verify_io_u_pattern(struct verify_header *hdr, struct vcont *vc)
+ 	return EILSEQ;
  }
-diff --git a/client.h b/client.h
-index 8818de2..cfb0b4d 100644
---- a/client.h
-+++ b/client.h
-@@ -111,7 +111,6 @@ struct client_eta {
- };
  
- extern int fio_handle_client(struct fio_client *);
--extern void fio_client_dec_jobs_eta(struct client_eta *eta, client_eta_op fn);
- extern void fio_client_sum_jobs_eta(struct jobs_eta *dst, struct jobs_eta *je);
+-static int verify_io_u_meta(struct verify_header *hdr, struct vcont *vc)
+-{
+-	struct thread_data *td = vc->td;
+-	struct vhdr_meta *vh = hdr_priv(hdr);
+-	struct io_u *io_u = vc->io_u;
+-	int ret = EILSEQ;
+-
+-	dprint(FD_VERIFY, "meta verify io_u %p, len %u\n", io_u, hdr->len);
+-
+-	if (vh->offset == io_u->offset + vc->hdr_num * td->o.verify_interval)
+-		ret = 0;
+-
+-	if (td->o.verify_pattern_bytes)
+-		ret |= verify_io_u_pattern(hdr, vc);
+-
+-	/*
+-	 * For read-only workloads, the program cannot be certain of the
+-	 * last numberio written to a block. Checking of numberio will be
+-	 * done only for workloads that write data.  For verify_only,
+-	 * numberio will be checked in the last iteration when the correct
+-	 * state of numberio, that would have been written to each block
+-	 * in a previous run of fio, has been reached.
+-	 */
+-	if ((td_write(td) || td_rw(td)) && (td_min_bs(td) == td_max_bs(td)) &&
+-	    !td->o.time_based)
+-		if (!td->o.verify_only || td->o.loops == 0)
+-			if (vh->numberio != io_u->numberio)
+-				ret = EILSEQ;
+-
+-	if (!ret)
+-		return 0;
+-
+-	vc->name = "meta";
+-	log_verify_failure(hdr, vc);
+-	return ret;
+-}
+-
+ static int verify_io_u_xxhash(struct verify_header *hdr, struct vcont *vc)
+ {
+ 	void *p = io_u_verify_off(hdr, vc);
+@@ -732,8 +695,9 @@ static int verify_trimmed_io_u(struct thread_data *td, struct io_u *io_u)
+ 	return ret;
+ }
+ 
+-static int verify_header(struct io_u *io_u, struct verify_header *hdr,
+-			 unsigned int hdr_num, unsigned int hdr_len)
++static int verify_header(struct io_u *io_u, struct thread_data *td,
++			 struct verify_header *hdr, unsigned int hdr_num,
++			 unsigned int hdr_len)
+ {
+ 	void *p = hdr;
+ 	uint32_t crc;
+@@ -754,6 +718,30 @@ static int verify_header(struct io_u *io_u, struct verify_header *hdr,
+ 			hdr->rand_seed, io_u->rand_seed);
+ 		goto err;
+ 	}
++	if (hdr->offset != io_u->offset + hdr_num * td->o.verify_interval) {
++		log_err("verify: bad header offset %"PRIu64
++			", wanted %llu",
++			hdr->offset, io_u->offset);
++		goto err;
++	}
++
++	/*
++	 * For read-only workloads, the program cannot be certain of the
++	 * last numberio written to a block. Checking of numberio will be
++	 * done only for workloads that write data.  For verify_only,
++	 * numberio will be checked in the last iteration when the correct
++	 * state of numberio, that would have been written to each block
++	 * in a previous run of fio, has been reached.
++	 */
++	if ((td_write(td) || td_rw(td)) && (td_min_bs(td) == td_max_bs(td)) &&
++	    !td->o.time_based)
++		if (!td->o.verify_only || td->o.loops == 0)
++			if (hdr->numberio != io_u->numberio) {
++				log_err("verify: bad header numberio %"PRIu16
++					", wanted %"PRIu16,
++					hdr->numberio, io_u->numberio);
++				goto err;
++			}
+ 
+ 	crc = fio_crc32c(p, offsetof(struct verify_header, crc32));
+ 	if (crc != hdr->crc32) {
+@@ -820,7 +808,7 @@ int verify_io_u(struct thread_data *td, struct io_u **io_u_ptr)
+ 			io_u->rand_seed = hdr->rand_seed;
+ 
+ 		if (td->o.verify != VERIFY_PATTERN_NO_HDR) {
+-			ret = verify_header(io_u, hdr, hdr_num, hdr_inc);
++			ret = verify_header(io_u, td, hdr, hdr_num, hdr_inc);
+ 			if (ret)
+ 				return ret;
+ 		}
+@@ -831,6 +819,12 @@ int verify_io_u(struct thread_data *td, struct io_u **io_u_ptr)
+ 			verify_type = hdr->verify_type;
+ 
+ 		switch (verify_type) {
++		case VERIFY_HDR_ONLY:
++			/* Header is always verified, check if pattern is left
++			 * for verification. */
++			if (td->o.verify_pattern_bytes)
++				ret = verify_io_u_pattern(hdr, &vc);
++			break;
+ 		case VERIFY_MD5:
+ 			ret = verify_io_u_md5(hdr, &vc);
+ 			break;
+@@ -859,9 +853,6 @@ int verify_io_u(struct thread_data *td, struct io_u **io_u_ptr)
+ 		case VERIFY_XXHASH:
+ 			ret = verify_io_u_xxhash(hdr, &vc);
+ 			break;
+-		case VERIFY_META:
+-			ret = verify_io_u_meta(hdr, &vc);
+-			break;
+ 		case VERIFY_SHA1:
+ 			ret = verify_io_u_sha1(hdr, &vc);
+ 			break;
+@@ -886,21 +877,6 @@ done:
+ 	return ret;
+ }
+ 
+-static void fill_meta(struct verify_header *hdr, struct thread_data *td,
+-		      struct io_u *io_u, unsigned int header_num)
+-{
+-	struct vhdr_meta *vh = hdr_priv(hdr);
+-
+-	vh->thread = td->thread_number;
+-
+-	vh->time_sec = io_u->start_time.tv_sec;
+-	vh->time_usec = io_u->start_time.tv_usec;
+-
+-	vh->numberio = io_u->numberio;
+-
+-	vh->offset = io_u->offset + header_num * td->o.verify_interval;
+-}
+-
+ static void fill_xxhash(struct verify_header *hdr, void *p, unsigned int len)
+ {
+ 	struct vhdr_xxhash *vh = hdr_priv(hdr);
+@@ -993,24 +969,32 @@ static void fill_md5(struct verify_header *hdr, void *p, unsigned int len)
+ 	fio_md5_final(&md5_ctx);
+ }
+ 
+-static void __fill_hdr(struct verify_header *hdr, int verify_type,
+-		       uint32_t len, uint64_t rand_seed)
++static void __fill_hdr(struct thread_data *td, struct io_u *io_u,
++		       struct verify_header *hdr, unsigned int header_num,
++		       unsigned int header_len, uint64_t rand_seed)
+ {
+ 	void *p = hdr;
+ 
+ 	hdr->magic = FIO_HDR_MAGIC;
+-	hdr->verify_type = verify_type;
+-	hdr->len = len;
++	hdr->verify_type = td->o.verify;
++	hdr->len = header_len;
+ 	hdr->rand_seed = rand_seed;
++	hdr->offset = io_u->offset + header_num * td->o.verify_interval;
++	hdr->time_sec = io_u->start_time.tv_sec;
++	hdr->time_usec = io_u->start_time.tv_usec;
++	hdr->thread = td->thread_number;
++	hdr->numberio = io_u->numberio;
+ 	hdr->crc32 = fio_crc32c(p, offsetof(struct verify_header, crc32));
+ }
+ 
+ 
+-static void fill_hdr(struct verify_header *hdr, int verify_type, uint32_t len,
+-		     uint64_t rand_seed)
++static void fill_hdr(struct thread_data *td, struct io_u *io_u,
++		     struct verify_header *hdr, unsigned int header_num,
++		     unsigned int header_len, uint64_t rand_seed)
+ {
+-	if (verify_type != VERIFY_PATTERN_NO_HDR)
+-		__fill_hdr(hdr, verify_type, len, rand_seed);
++
++	if (td->o.verify != VERIFY_PATTERN_NO_HDR)
++		__fill_hdr(td, io_u, hdr, header_num, header_len, rand_seed);
+ }
+ 
+ static void populate_hdr(struct thread_data *td, struct io_u *io_u,
+@@ -1022,7 +1006,7 @@ static void populate_hdr(struct thread_data *td, struct io_u *io_u,
+ 
+ 	p = (void *) hdr;
+ 
+-	fill_hdr(hdr, td->o.verify, header_len, io_u->rand_seed);
++	fill_hdr(td, io_u, hdr, header_num, header_len, io_u->rand_seed);
+ 
+ 	data_len = header_len - hdr_size(td, hdr);
+ 
+@@ -1074,16 +1058,12 @@ static void populate_hdr(struct thread_data *td, struct io_u *io_u,
+ 						io_u, hdr->len);
+ 		fill_xxhash(hdr, data, data_len);
+ 		break;
+-	case VERIFY_META:
+-		dprint(FD_VERIFY, "fill meta io_u %p, len %u\n",
+-						io_u, hdr->len);
+-		fill_meta(hdr, td, io_u, header_num);
+-		break;
+ 	case VERIFY_SHA1:
+ 		dprint(FD_VERIFY, "fill sha1 io_u %p, len %u\n",
+ 						io_u, hdr->len);
+ 		fill_sha1(hdr, data, data_len);
+ 		break;
++	case VERIFY_HDR_ONLY:
+ 	case VERIFY_PATTERN:
+ 	case VERIFY_PATTERN_NO_HDR:
+ 		/* nothing to do here */
+diff --git a/verify.h b/verify.h
+index 74cad85..87675af 100644
+--- a/verify.h
++++ b/verify.h
+@@ -7,6 +7,9 @@
  
  enum {
-diff --git a/eta.c b/eta.c
-index db045cb..3e8eb0b 100644
---- a/eta.c
-+++ b/eta.c
-@@ -590,7 +590,7 @@ struct jobs_eta *get_jobs_eta(int force, size_t *size)
- 	if (!thread_number)
- 		return NULL;
+ 	VERIFY_NONE = 0,		/* no verification */
++	VERIFY_HDR_ONLY,		/* verify header only, kept for sake of
++					 * compatibility with old configurations
++					 * which use 'verify=meta' */
+ 	VERIFY_MD5,			/* md5 sum data blocks */
+ 	VERIFY_CRC64,			/* crc64 sum data blocks */
+ 	VERIFY_CRC32,			/* crc32 sum data blocks */
+@@ -17,7 +20,6 @@ enum {
+ 	VERIFY_SHA256,			/* sha256 sum data blocks */
+ 	VERIFY_SHA512,			/* sha512 sum data blocks */
+ 	VERIFY_XXHASH,			/* xxhash sum data blocks */
+-	VERIFY_META,			/* block_num, timestamp etc. */
+ 	VERIFY_SHA1,			/* sha1 sum data blocks */
+ 	VERIFY_PATTERN,			/* verify specific patterns */
+ 	VERIFY_PATTERN_NO_HDR,		/* verify specific patterns, no hdr */
+@@ -34,6 +36,11 @@ struct verify_header {
+ 	uint16_t verify_type;
+ 	uint32_t len;
+ 	uint64_t rand_seed;
++	uint64_t offset;
++	uint32_t time_sec;
++	uint32_t time_usec;
++	uint16_t thread;
++	uint16_t numberio;
+ 	uint32_t crc32;
+ };
  
--	*size = sizeof(*je) + THREAD_RUNSTR_SZ;
-+	*size = sizeof(*je) + THREAD_RUNSTR_SZ + 1;
- 	je = malloc(*size);
- 	if (!je)
- 		return NULL;
-diff --git a/filesetup.c b/filesetup.c
-index 212a126..881aeee 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -1051,6 +1051,43 @@ static int init_rand_distribution(struct thread_data *td)
- 	return 1;
- }
- 
-+/*
-+ * Check if the number of blocks exceeds the randomness capability of
-+ * the selected generator. Tausworthe is 32-bit, the others are fullly
-+ * 64-bit capable.
-+ */
-+static int check_rand_gen_limits(struct thread_data *td, struct fio_file *f,
-+				 uint64_t blocks)
-+{
-+	if (blocks <= FRAND32_MAX)
-+		return 0;
-+	if (td->o.random_generator != FIO_RAND_GEN_TAUSWORTHE)
-+		return 0;
-+
-+	/*
-+	 * If the user hasn't specified a random generator, switch
-+	 * to tausworthe64 with informational warning. If the user did
-+	 * specify one, just warn.
-+	 */
-+	log_info("fio: file %s exceeds 32-bit tausworthe random generator.\n",
-+			f->file_name);
-+
-+	if (!fio_option_is_set(&td->o, random_generator)) {
-+		log_info("fio: Switching to tausworthe64. Use the "
-+			 "random_generator= option to get rid of this "
-+			 " warning.\n");
-+		td->o.random_generator = FIO_RAND_GEN_TAUSWORTHE64;
-+		return 0;
-+	}
-+
-+	/*
-+	 * Just make this information to avoid breaking scripts.
-+	 */
-+	log_info("fio: Use the random_generator= option to switch to lfsr or "
-+			 "tausworthe64.\n");
-+	return 0;
-+}
-+
- int init_random_map(struct thread_data *td)
- {
- 	unsigned long long blocks;
-@@ -1067,15 +1104,8 @@ int init_random_map(struct thread_data *td)
- 
- 		blocks = fsize / (unsigned long long) td->o.rw_min_bs;
- 
--		if (blocks > FRAND32_MAX &&
--		    td->o.random_generator == FIO_RAND_GEN_TAUSWORTHE &&
--		    !fio_option_is_set(&td->o, random_generator)) {
--			log_err("fio: file %s exceeds 32-bit tausworthe "
--				 "random generator. Use lfsr or "
--				 "tausworthe64.\n", f->file_name);
--			td_verror(td, EINVAL, "init file random");
-+		if (check_rand_gen_limits(td, f, blocks))
- 			return 1;
--		}
- 
- 		if (td->o.random_generator == FIO_RAND_GEN_LFSR) {
- 			unsigned long seed;
+@@ -61,13 +68,6 @@ struct vhdr_crc16 {
+ struct vhdr_crc7 {
+ 	uint8_t crc7;
+ };
+-struct vhdr_meta {
+-	uint64_t offset;
+-	unsigned char thread;
+-	unsigned short numberio;
+-	unsigned long time_sec;
+-	unsigned long time_usec;
+-};
+ struct vhdr_xxhash {
+ 	uint32_t hash;
+ };
+-- 
+2.5.1
+
