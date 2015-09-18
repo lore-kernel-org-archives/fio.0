@@ -1,32 +1,61 @@
-Return-Path: <andrey.v.kuzmin@gmail.com>
-MIME-Version: 1.0
-From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
-Date: Mon, 7 Sep 2015 18:11:46 +0300
-Message-ID: <CANvN+entGv7PSde2Q_Ehm7CCMeVO_WLQow-ea9vY6ViXB+=mQg@mail.gmail.com>
-Subject: Ensure submission offload worker inherits parent's options
-Content-Type: text/plain; charset=UTF-8
-To: Jens Axboe <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.9]:58219 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753590AbbIRMAD (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 18 Sep 2015 08:00:03 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1ZcuKh-0006pm-DH
+	for fio@vger.kernel.org; Fri, 18 Sep 2015 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20150918120002.48C462C225F@kernel.dk>
+Date: Fri, 18 Sep 2015 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Seems to be broken otherwise.
+The following changes since commit 5193b4e5000e7a11bd86ad2661f750e4e2a11fe0:
 
-Regards,
-Andrey
+  Merge branch 'patch-1' of git://github.com/Tfindelkind/fio (2015-09-16 15:43:28 -0600)
 
-    Properly initialize sibling's eo, as otherwise it will miss parent's
-    options.
+are available in the git repository at:
 
-diff --git a/workqueue.c b/workqueue.c
-index 0a6cd20..f481027 100644
---- a/workqueue.c
-+++ b/workqueue.c
-@@ -161,6 +161,7 @@ static int init_submit_worker(struct submit_worker *sw)
-        memcpy(&td->ts, &parent->ts, sizeof(td->ts));
-        td->o.uid = td->o.gid = -1U;
-        dup_files(td, parent);
-+       td->eo = parent->eo;
-        fio_options_mem_dupe(td);
+  git://git.kernel.dk/fio.git master
 
-        if (ioengine_load(td))
+for you to fetch changes up to 01cbd4d913d4eed56dc51256cddfe327b9c28d4c:
 
+  Update fio2gnuplot (2015-09-17 19:42:34 +0200)
+
+----------------------------------------------------------------
+Thomas Findelkind (1):
+      Update fio2gnuplot
+
+ tools/plot/fio2gnuplot | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/tools/plot/fio2gnuplot b/tools/plot/fio2gnuplot
+index 1aef047..1009ae0 100755
+--- a/tools/plot/fio2gnuplot
++++ b/tools/plot/fio2gnuplot
+@@ -458,7 +458,15 @@ def main(argv):
+     fio_data_file=find_file('.',pattern)
+     if len(fio_data_file) == 0:
+ 	    print "No log file found with pattern %s!" % pattern
+-	    sys.exit(1)
++	    # Try numjob log file format if per_numjob_logs=1
++            if (pattern == '*_bw.log'):
++                fio_data_file=find_file('.','*_bw.*.log')
++            if (pattern == '*_iops.log'):
++                fio_data_file=find_file('.','*_iops.*.log')
++            if len(fio_data_file) == 0:
++                sys.exit(1)
++            else:
++                print "Using log file per job format instead"
+     else:
+ 	    print "%d files Selected with pattern '%s'" % (len(fio_data_file), pattern)
+ 
