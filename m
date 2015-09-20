@@ -1,54 +1,37 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-by2on0064.outbound.protection.outlook.com ([207.46.100.64]:62592
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S933116AbbIVRDP convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 22 Sep 2015 13:03:15 -0400
-From: Vincent Fu <Vincent.Fu@sandisk.com>
-Subject: Re: Latency Output Question
-Date: Tue, 22 Sep 2015 15:29:27 +0000
-Message-ID: <97C1DC862E22B54781ABC9E892E1331504FD6657@SACMBXIP02.sdcorp.global.sandisk.com>
-References: <BLU406-EAS1200B1366C5B77840349795E0580@phx.gbl>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Received: from mail-io0-f172.google.com ([209.85.223.172]:32908 "EHLO
+	mail-io0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751897AbbITHfq (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sun, 20 Sep 2015 03:35:46 -0400
+Received: by iofh134 with SMTP id h134so93396393iof.0
+        for <fio@vger.kernel.org>; Sun, 20 Sep 2015 00:35:46 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <BLU406-EAS1200B1366C5B77840349795E0580@phx.gbl>
+References: <BLU406-EAS1200B1366C5B77840349795E0580@phx.gbl>
+Date: Sun, 20 Sep 2015 08:35:45 +0100
+Message-ID: <CALjAwxjwPs0uRAjax0t9-gookh7iRVWSGsKKYv77skVKLQPSvw@mail.gmail.com>
+Subject: Re: Latency Output Question
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jon Tango <cheerios123@outlook.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Jon Tango <cheerios123@outlook.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 2015-9-19 1:33 PM, Jon Tango wrote:
-> Hello All, I took a measurement with an 4k workload with a 90% mixture of
-> reads and 10 % writes.
->
-> The latency output in the test result is:
->
-> Read lat avg=490.27
-> Write lat avg=191.78
->
-> Is this the correct way to calculate the latency? 490+192 is 682, and then
-> 682/2?
->
-> Or, do I need to account for the 90/10 distribution when I calculate
-> latency?
+Hi Jon
+
+On 19 September 2015 at 18:32, Jon Tango <cheerios123@outlook.com> wrote:
 >
 > Alos, is there a way to just get one average latency output, instead of a
 > separate one for read, and write?
-> --
-> To unsubscribe from this list: send the line "unsubscribe fio" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-Use the option below to combine reads and writes in the latency output:
 
-unified_rw_reporting=bool
-        Fio normally reports statistics on a per
-        data direction basis, meaning that read, write, and trim are
-        accounted and reported separately. If this option is set,
-        the fio will sum the results and report them as "mixed"
-        instead.
+This is more of a question of statistics and is it meaningful to
+combine particular results into single scalar result. If my total
+throughput over one second for reads of a fixed size is 25MBytes but
+for writes (of the same fixed size) I get 1MByte is it meaningful to
+say my average throughput is 13MBytes? I think a decision to do
+something like that has to be made by postprocessing results and
+adding the necessary qualifications...
 
-________________________________
-
-PLEASE NOTE: The information contained in this electronic mail message is intended only for the use of the designated recipient(s) named above. If the reader of this message is not the intended recipient, you are hereby notified that you have received this message in error and that any review, dissemination, distribution, or copying of this message is strictly prohibited. If you have received this communication in error, please notify the sender by telephone or e-mail (as shown above) immediately and destroy any and all copies of this message in your possession (whether hard copies or electronically stored copies).
-
+-- 
+Sitsofe | http://sucs.org/~sits/
