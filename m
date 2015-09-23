@@ -1,30 +1,32 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from snt004-omc2s50.hotmail.com ([65.54.61.101]:63420 "EHLO
-	SNT004-OMC2S50.hotmail.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754109AbbIYBoP convert rfc822-to-8bit
+Received: from snt004-omc1s12.hotmail.com ([65.55.90.23]:58359 "EHLO
+	SNT004-OMC1S12.hotmail.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754368AbbIWNAo convert rfc822-to-8bit
 	(ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 24 Sep 2015 21:44:15 -0400
+	Wed, 23 Sep 2015 09:00:44 -0400
 From: Cheerio Cheerio <cheerios123@outlook.com>
 Subject: RE: Latency Output Question
-Date: Fri, 25 Sep 2015 01:39:12 +0000
-Message-ID: <SN1PR14MB01590B008D905E88BC64AF15E0420@SN1PR14MB0159.namprd14.prod.outlook.com>
+Date: Wed, 23 Sep 2015 12:52:43 +0000
+Message-ID: <SN1PR14MB01590A1A1CAB7DC787AFBB89E0440@SN1PR14MB0159.namprd14.prod.outlook.com>
 References: <BLU406-EAS1200B1366C5B77840349795E0580@phx.gbl>
  <97C1DC862E22B54781ABC9E892E1331504FD6657@SACMBXIP02.sdcorp.global.sandisk.com>
 In-Reply-To: <97C1DC862E22B54781ABC9E892E1331504FD6657@SACMBXIP02.sdcorp.global.sandisk.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
-Content-ID: <01479711C3CBF046A89B3BCA385008D9@sct-15-1-274-16-msonline-outlook-6cd53.templateTenant>
+Content-ID: <7880E4444AF70C4AB4752CBED8AA255D@sct-15-1-274-16-msonline-outlook-6cd53.templateTenant>
 Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: 'Vincent Fu' <Vincent.Fu@sandisk.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-
+Yes, shows them together in one output for the overall test output, but in
+the time-based logs it still splits them up into separate outputs even with
+unified_rw_reporting.
 
 -----Original Message-----
 From: Vincent Fu [mailto:Vincent.Fu@sandisk.com] 
-Sent: Tuesday, September 22, 2015 10:29 AM
+Sent: Wednesday, September 23, 2015 12:29 AM
 To: Jon Tango <cheerios123@outlook.com>; fio@vger.kernel.org
 Subject: Re: Latency Output Question
 
@@ -57,18 +59,7 @@ unified_rw_reporting=bool
         data direction basis, meaning that read, write, and trim are
         accounted and reported separately. If this option is set,
         the fio will sum the results and report them as "mixed"
-        instead..
--------------------
-
-Thank you for the guidance. However, I have tested significantly with the
-unified_rw_reporting option, and it combines them in the group data outputs
-- but it does not combine read/write in the logs created with the
-write_iops_log or write_lat_log command. 
-When parsing the latency data from the write_lat_log outputs, should I
-merely divide the results by 2, or should I use a weighted average that
-reflects the read/write mixture?
-Also, is there a way to get fio to combine read/write latency in the
-write_lat_log outputs?
+        instead.
 
 ________________________________
 
