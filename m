@@ -1,30 +1,30 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from g9t5008.houston.hp.com ([15.240.92.66]:58286 "EHLO
-	g9t5008.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751801AbbJTUbX convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 20 Oct 2015 16:31:23 -0400
-Received: from G4W6310.americas.hpqcorp.net (g4w6310.houston.hp.com [16.210.26.217])
-	(using TLSv1 with cipher AES128-SHA (128/128 bits))
-	(No client certificate requested)
-	by g9t5008.houston.hp.com (Postfix) with ESMTPS id 836477A
-	for <fio@vger.kernel.org>; Tue, 20 Oct 2015 20:31:22 +0000 (UTC)
-From: "Wolford, Jeff (HP Servers - Web Scale performance)" 
-	<jeff.wolford@hpe.com>
-Subject: FIO: adding SMR ZONE management commands
-Date: Tue, 20 Oct 2015 20:30:46 +0000
-Message-ID: <DC12A894E6E89949B50B1F35C3903C1B3B2B0ECA@G9W0747.americas.hpqcorp.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Return-Path: <axboe@kernel.dk>
+Subject: Re: Threading vs forking
+References: <CAF+0mvnWjT5wMpCZzsC6oN_7eobbsqGXdvqdJLxO9M0HFTH9UA@mail.gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <562500D9.2020900@kernel.dk>
+Date: Mon, 19 Oct 2015 08:40:25 -0600
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "Benchmark FIO (fio@vger.kernel.org)" <fio@vger.kernel.org>
+In-Reply-To: <CAF+0mvnWjT5wMpCZzsC6oN_7eobbsqGXdvqdJLxO9M0HFTH9UA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Matthew Eaton <m.eaton82@gmail.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Has any consideration been given to adding support for SMR Management ZONE commands to FIO (obviously in block mode) ?
-(Open, Close, Report, Finish, Reset Write Pointer) ?
+On 10/10/2015 09:57 PM, Matthew Eaton wrote:
+> Hello fio group,
+>
+> I have been wondering is there any point in telling fio to use threads
+> rather than forking on a linux platform? Is there any benefit?
 
-Jeff
+Fio is no different than other programs in that regard. Benefits include 
+cheaper switching between threads, downsides include things like shared 
+mm that can hurt you a bit since the threads share the mmap_sem. From 
+fio's point of view, the option is there so you can choose what best 
+models the target application.
 
-Jeff Wolford                       
+
+-- 
+Jens Axboe
+
 
