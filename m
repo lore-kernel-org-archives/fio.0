@@ -1,91 +1,142 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk0-f51.google.com ([209.85.213.51]:35507 "EHLO
-	mail-vk0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753924AbbJ0Fde convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 27 Oct 2015 01:33:34 -0400
-Received: by vkfw189 with SMTP id w189so113307249vkf.2
-        for <fio@vger.kernel.org>; Mon, 26 Oct 2015 22:33:33 -0700 (PDT)
-MIME-Version: 1.0
-From: Hyukjoong Kim <wangmir@gmail.com>
-Date: Tue, 27 Oct 2015 14:33:14 +0900
-Message-ID: <CAAkw5-PAt2O01H-i4WrvPaBPuMX7zPDyg8u9jS3KyA4PrNu=2A@mail.gmail.com>
-Subject: Problem on using fio replay function with fio iolog trace
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Received: from bombadil.infradead.org ([198.137.202.9]:55823 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751216AbbJTMAD (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 20 Oct 2015 08:00:03 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1ZoVaE-0003VT-Tj
+	for fio@vger.kernel.org; Tue, 20 Oct 2015 12:00:02 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20151020120002.05F532C0A2E@kernel.dk>
+Date: Tue, 20 Oct 2015 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hi,
+The following changes since commit 20cf5aab85ddfa8f58a1638925ccdfe4d57f3f69:
 
-I'm trying to replay iolog using fio iolog, but i failed with that.
+  engines/rbd: potential re-use of active fio_rbd_iou (2015-10-13 15:40:47 -0400)
 
-simply, I check the example trace with write_iolog option, and I got
-trace like this,
---------------
-fio version 2 iolog
-/mnt/test/rand-write.1.0 add
-/mnt/test/rand-write.1.0 open
-/mnt/test/rand-write.1.0 read 64757760 4096
-/mnt/test/rand-write.1.0 read 794873856 4096
-/mnt/test/rand-write.1.0 read 905355264 4096
-/mnt/test/rand-write.1.0 write 504672256 4096
--------------
-So, I make a new trace with similar format like this
--------------
-fio version 2 iolog
-/dev/sdb open
-/dev/sdb write 4096 4096
-------------
-However, I failed to replay both with different error.
+are available in the git repository at:
 
-Firstly, I ran extracted file (fio --name test --read_iolog=trace
---replay_redirect=/dev/sdb), but error was like this,
---------------------------------------------
-test: (g=0): rw=read, bs=4K-4K/4K-4K/4K-4K, ioengine=sync, iodepth=1
-fio-2.0.10
-Starting 1 process
-bad iolog2: fio version 2 iolog
-fio: pid=14839, got signal=11
+  git://git.kernel.dk/fio.git master
 
+for you to fetch changes up to 4d400e92d60d2c8e02f30c5eba41238567e6e603:
 
-Run status group 0 (all jobs):
---------------------------------------------
+  strlcat: fix header guard typo (2015-10-19 22:37:39 -0600)
 
-and if I delete the first line than, fio said don't support iolog 1
+----------------------------------------------------------------
+Jens Axboe (2):
+      verify: add faster 'memory is all zeroes' helper
+      strlcat: fix header guard typo
 
+ lib/strlcat.h |  2 +-
+ verify.c      | 67 ++++++++++++++++++++++++++++++++++++++++-------------------
+ 2 files changed, 47 insertions(+), 22 deletions(-)
 
-Secondly, I ran the file I made with same command, and error was
-different from former,
+---
 
-----------------------------------------
-test: (g=0): rw=read, bs=4K-4K/4K-4K/4K-4K, ioengine=sync, iodepth=1
-fio-2.0.10
-Starting 1 process
-fio: pid=12868, got signal=11
+Diff of recent changes:
 
-
-Run status group 0 (all jobs):
---------------------------------------------------
-
-I think fio was killed by someone, but I don't know why.
-
-So,, how can I fix this problem? I tried this behavior with apt
-repository fio, and current git, and fio 2.0.10 also, but error was
-same.
-
-Thnks,
--Hyukjoong
-
-
-
-김 혁 중
-성균관대학교 IT 융합학과 박사과정
-임베디드 소프트웨어 연구실
-
-Kim, Hyukjoong
-Sungkyunkwan University
-Ph.D Course in Computer Engineering, IT Convergence
-Embedded Software Lab.
-e-mail : wangmir@skku.edu / wangmir@gmail.com
-phone : +82 10-9489-8974
+diff --git a/lib/strlcat.h b/lib/strlcat.h
+index 34b668e..baeace4 100644
+--- a/lib/strlcat.h
++++ b/lib/strlcat.h
+@@ -1,5 +1,5 @@
+ #ifndef FIO_STRLCAT_H
+-#define FIO_STRLCAT_h
++#define FIO_STRLCAT_H
+ 
+ size_t strlcat(char *dst, const char *src, size_t size);
+ 
+diff --git a/verify.c b/verify.c
+index ee9160c..19bec75 100644
+--- a/verify.c
++++ b/verify.c
+@@ -661,38 +661,63 @@ int verify_io_u_async(struct thread_data *td, struct io_u **io_u_ptr)
+ 	return 0;
+ }
+ 
++/*
++ * Thanks Rusty, for spending the time so I don't have to.
++ *
++ * http://rusty.ozlabs.org/?p=560
++ */
++static int mem_is_zero(const void *data, size_t length)
++{
++	const unsigned char *p = data;
++	size_t len;
++
++	/* Check first 16 bytes manually */
++	for (len = 0; len < 16; len++) {
++		if (!length)
++			return 1;
++		if (*p)
++			return 0;
++		p++;
++		length--;
++	}
++
++	/* Now we know that's zero, memcmp with self. */
++	return memcmp(data, p, length) == 0;
++}
++
++static int mem_is_zero_slow(const void *data, size_t length, size_t *offset)
++{
++	const unsigned char *p = data;
++
++	*offset = 0;
++	while (length) {
++		if (*p)
++			break;
++		(*offset)++;
++		length--;
++		p++;
++	}
++
++	return !length;
++}
++
+ static int verify_trimmed_io_u(struct thread_data *td, struct io_u *io_u)
+ {
+-	static char zero_buf[1024];
+-	unsigned int this_len, len;
+-	int ret = 0;
+-	void *p;
++	size_t offset;
+ 
+ 	if (!td->o.trim_zero)
+ 		return 0;
+ 
+-	len = io_u->buflen;
+-	p = io_u->buf;
+-	do {
+-		this_len = sizeof(zero_buf);
+-		if (this_len > len)
+-			this_len = len;
+-		if (memcmp(p, zero_buf, this_len)) {
+-			ret = EILSEQ;
+-			break;
+-		}
+-		len -= this_len;
+-		p += this_len;
+-	} while (len);
+-
+-	if (!ret)
++	if (mem_is_zero(io_u->buf, io_u->buflen))
+ 		return 0;
+ 
++	mem_is_zero_slow(io_u->buf, io_u->buflen, &offset);
++
+ 	log_err("trim: verify failed at file %s offset %llu, length %lu"
+ 		", block offset %lu\n",
+ 			io_u->file->file_name, io_u->offset, io_u->buflen,
+-			(unsigned long) (p - io_u->buf));
+-	return ret;
++			(unsigned long) offset);
++	return EILSEQ;
+ }
+ 
+ static int verify_header(struct io_u *io_u, struct thread_data *td,
