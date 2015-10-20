@@ -1,27 +1,30 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: FIO: adding SMR ZONE management commands
-References: <DC12A894E6E89949B50B1F35C3903C1B3B2B0ECA@G9W0747.americas.hpqcorp.net>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <5627FC2B.2@kernel.dk>
-Date: Wed, 21 Oct 2015 14:57:15 -0600
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from g9t5008.houston.hp.com ([15.240.92.66]:58286 "EHLO
+	g9t5008.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751801AbbJTUbX convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Tue, 20 Oct 2015 16:31:23 -0400
+Received: from G4W6310.americas.hpqcorp.net (g4w6310.houston.hp.com [16.210.26.217])
+	(using TLSv1 with cipher AES128-SHA (128/128 bits))
+	(No client certificate requested)
+	by g9t5008.houston.hp.com (Postfix) with ESMTPS id 836477A
+	for <fio@vger.kernel.org>; Tue, 20 Oct 2015 20:31:22 +0000 (UTC)
+From: "Wolford, Jeff (HP Servers - Web Scale performance)" 
+	<jeff.wolford@hpe.com>
+Subject: FIO: adding SMR ZONE management commands
+Date: Tue, 20 Oct 2015 20:30:46 +0000
+Message-ID: <DC12A894E6E89949B50B1F35C3903C1B3B2B0ECA@G9W0747.americas.hpqcorp.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-In-Reply-To: <DC12A894E6E89949B50B1F35C3903C1B3B2B0ECA@G9W0747.americas.hpqcorp.net>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-To: "Wolford, Jeff (HP Servers - Web Scale performance)" <jeff.wolford@hpe.com>, "Benchmark FIO (fio@vger.kernel.org)" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "Benchmark FIO (fio@vger.kernel.org)" <fio@vger.kernel.org>
 
-On 10/20/2015 02:30 PM, Wolford, Jeff (HP Servers - Web Scale 
-performance) wrote:
-> Has any consideration been given to adding support for SMR Management ZONE commands to FIO (obviously in block mode) ?
-> (Open, Close, Report, Finish, Reset Write Pointer) ?
+Has any consideration been given to adding support for SMR Management ZONE commands to FIO (obviously in block mode) ?
+(Open, Close, Report, Finish, Reset Write Pointer) ?
 
-Some folks from Seagate expressed interest and desire for working on SMR 
-for fio this summer, not sure if anything came of that yet. I'll check 
-with them. Personally I haven't looked at it much, I don't even have any 
-SMR hw.
+Jeff
 
--- 
-Jens Axboe
-
+Jeff Wolford                       
 
