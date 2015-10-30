@@ -1,34 +1,48 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from blu004-omc1s2.hotmail.com ([65.55.116.13]:51971 "EHLO
-	BLU004-OMC1S2.hotmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755801AbbISRcs (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 19 Sep 2015 13:32:48 -0400
-Message-ID: <BLU406-EAS1200B1366C5B77840349795E0580@phx.gbl>
-From: Jon Tango <cheerios123@outlook.com>
-Subject: Latency Output Question
-Date: Sat, 19 Sep 2015 12:32:45 -0500
+Received: from mail-wi0-f179.google.com ([209.85.212.179]:36102 "EHLO
+	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757331AbbJ3Oej (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 30 Oct 2015 10:34:39 -0400
+Received: by wicfx6 with SMTP id fx6so11899350wic.1
+        for <fio@vger.kernel.org>; Fri, 30 Oct 2015 07:34:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Language: en-us
+In-Reply-To: <56333CD3.40101@htec.rs>
+References: <56333CD3.40101@htec.rs>
+From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Date: Fri, 30 Oct 2015 17:34:18 +0300
+Message-ID: <CANvN+ekXBgL5qJZBU4qNbyFkzY3BS+6KmGqr3dWgoWdSjKcF4A@mail.gmail.com>
+Subject: Re: FIO IO units block size setting function
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: vmokric <vojislav.mokric@htec.rs>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
+On Fri, Oct 30, 2015 at 12:48 PM, vmokric <vojislav.mokric@htec.rs> wrote:
+> Hello,
+>
+> can someone point me to FIO function which performs IO units block size
+> settings? If I, e.g. pass "bs=8k", where does it actually ends up?
 
-Hello All, I took a measurement with an 4k workload with a 90% mixture of
-reads and 10 % writes.
+It goes through the parser into setting up the per-process/thread
+I/O pattern, look under struct thread_options definition.
 
-The latency output in the test result is:
+>
+> I have searched ioctl commands, but couldn't figure out actual function.
+>
 
-Read lat avg=490.27
-Write lat avg=191.78
+ioctl has more or less nothing to do with this as it pops up only when fio
+deals with a block device and wants to learn its size (look under filesetup.c
+and os/os-linux.h).
 
-Is this the correct way to calculate the latency? 490+192 is 682, and then
-682/2?
+Regards,
+Andrey
 
-Or, do I need to account for the 90/10 distribution when I calculate
-latency?
-
-Alos, is there a way to just get one average latency output, instead of a
-separate one for read, and write?
+> I would really appreciate any help, since I need some guidelines within
+> perplexed world of Linux IO system.
+>
+> Regards
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
