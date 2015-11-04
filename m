@@ -1,165 +1,108 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:34245 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752794AbbKXNAE (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 24 Nov 2015 08:00:04 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1a1DCV-0004GJ-9A
-	for fio@vger.kernel.org; Tue, 24 Nov 2015 13:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20151124130002.70B152C00ED@kernel.dk>
-Date: Tue, 24 Nov 2015 06:00:02 -0700 (MST)
+Received: from mail-wm0-f45.google.com ([74.125.82.45]:38697 "EHLO
+	mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932323AbbKDJLQ (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 4 Nov 2015 04:11:16 -0500
+Received: by wmeg8 with SMTP id g8so35794223wme.1
+        for <fio@vger.kernel.org>; Wed, 04 Nov 2015 01:11:15 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <BN3PR1001MB11371E8F71C42CBCAD5EEC7FBC2B0@BN3PR1001MB1137.namprd10.prod.outlook.com>
+References: <BN3PR1001MB11371E8F71C42CBCAD5EEC7FBC2B0@BN3PR1001MB1137.namprd10.prod.outlook.com>
+From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Date: Wed, 4 Nov 2015 12:10:56 +0300
+Message-ID: <CANvN+e=8kT5F1SuaXE_+4Doc90EFXnbECm2ZM63T-jPhPS+kbQ@mail.gmail.com>
+Subject: Re: Trying to understand a weird timeout when using fio and multipath IO
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Todd Lawall <tlawall@nexgenstorage.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit 13aa415afc8d0a2ad0de2d6c17d6bca2d16f00c7:
+On Wed, Nov 4, 2015 at 12:22 AM, Todd Lawall <tlawall@nexgenstorage.com> wrote:
+> Hello,
+>
+> I'm trying to understand a behavior, and I am hoping to further my
+> understanding of what Fio is doing.  In the specific case in question,
+> I'm seeing a seven minute wait in resuming IO after a failover.  In other
+>  variations on this job file, the seven minute wait disappears, and it
+>  drops back down to the 40 second wait that I see with usual IO
+> loads that are run.
+>
+> The setup:
+> - I have one Windows 2012 R2 host, with two NICs.
+> - I have one storage array, with 2 controllers A and B, with 2 10GbE ports
+>    for each side, making 4 ports, with failover capability between the two
+>    sides.
+> - I have iSCSI and MPIO setup so that there is one login from each NIC to
+>    each side, so four sessions total for each volume.   The map looks
+>    something like this:
+>
+>            nic1                 nic2
+>            /  \                 /  \
+>           /    \               /    \
+>      side A   side B       side A  side B
+>      port 0   port 0       port 1  port 1
+>
+> - I have the fio job below.  It is basically 256k blocks, 1 iodepth, one
+>    worker with 48 drives.
+>
+> [global]
+> do_verify=0
+> ioengine=windowsaio
+> numjobs=1
+> iodepth=1
+> offset=0
+> direct=1
+> thread
+>
+> [fio-0]
+> blocksize=256k
+> readwrite=rw
+> filename=\\.\PHYSICALDRIVE19
+> filename=\\.\PHYSICALDRIVE20
+> <snipped out the other 44 drives>
+> filename=\\.\PHYSICALDRIVE13
+> filename=\\.\PHYSICALDRIVE14
+> size=100%
+>
 
-  gettime: get rid of the (unecessary) 10x scaling factor (2015-11-20 17:26:37 -0700)
+If my understanding of how multi-pathing works doesn't fool me, you
+problem with the above setup is fairly straightforward. You are
+running an asynchronous engine with single I/O queue depth
+single-threaded against multiple files, which means running
+synchronous I/O against one file at a time (FIO switches files for you
+round-robin, unless specifically instructed to do it any other way).
 
-are available in the git repository at:
+So when a path fails, your job does roughly 11 path failovers
+(slightly more, depending on whether a device the current I/O was
+running against is on the failed path) one by one, which should take
+11x40s = 440 s or roughly 7 minutes.
 
-  git://git.kernel.dk/fio.git master
+> If I alter the job in any of the following ways, IO keeps going after the
+>  failover period which is about 40 seconds.  To summarize:
+>
+> Doesn't work:
+>  - multiple disks, single job, 1 iodepth
+>
+> Works:
+>  - Single disk, one job, 1 iodepth
+>  - multiple disks, one job with all disks, same iodepth as # of disks (e.g.
+>    if there's 48 disks, iodepth is set to 48)
+>  - multiple disks, one job per disk, 1 iodepth
 
-for you to fetch changes up to 4b157ac6446364e5eecdcdbf75fc1a814489a343:
+All above setups differ from the original in that failover for each
+drive run in parallel, taking roughly 40 s.
 
-  A few min/max cleanups (2015-11-23 15:04:56 -0700)
+Hope this helps,
+Andrey
 
-----------------------------------------------------------------
-Jens Axboe (3):
-      io_u: properly split buffer prep for compression
-      options: set 'refill_buffers' for compress_percentage != 0
-      A few min/max cleanups
-
- backend.c |  2 +-
- init.c    | 13 +++++++++----
- io_u.c    | 24 +++++++++++++-----------
- log.c     |  3 +--
- minmax.h  |  5 +++++
- 5 files changed, 29 insertions(+), 18 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/backend.c b/backend.c
-index aa94acf..1560749 100644
---- a/backend.c
-+++ b/backend.c
-@@ -448,7 +448,7 @@ static int wait_for_completions(struct thread_data *td, struct timeval *time)
- 	 * if the queue is full, we MUST reap at least 1 event
- 	 */
- 	min_evts = min(td->o.iodepth_batch_complete_min, td->cur_depth);
--    if ((full && !min_evts) || !td->o.iodepth_batch_complete_min)
-+	if ((full && !min_evts) || !td->o.iodepth_batch_complete_min)
- 		min_evts = 1;
- 
- 	if (time && (__should_check_rate(td, DDIR_READ) ||
-diff --git a/init.c b/init.c
-index af35ee6..b7945cf 100644
---- a/init.c
-+++ b/init.c
-@@ -737,11 +737,16 @@ static int fixup_options(struct thread_data *td)
- 
- 	/*
- 	 * For fully compressible data, just zero them at init time.
--	 * It's faster than repeatedly filling it.
-+	 * It's faster than repeatedly filling it. For non-zero
-+	 * compression, we should have refill_buffers set. Set it, unless
-+	 * the job file already changed it.
- 	 */
--	if (td->o.compress_percentage == 100) {
--		td->o.zero_buffers = 1;
--		td->o.compress_percentage = 0;
-+	if (o->compress_percentage) {
-+		if (o->compress_percentage == 100) {
-+			o->zero_buffers = 1;
-+			o->compress_percentage = 0;
-+		} else if (!fio_option_is_set(o, refill_buffers))
-+			o->refill_buffers = 1;
- 	}
- 
- 	/*
-diff --git a/io_u.c b/io_u.c
-index 6b6b47d..dd4502f 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -13,6 +13,7 @@
- #include "lib/axmap.h"
- #include "err.h"
- #include "lib/pow2.h"
-+#include "minmax.h"
- 
- struct io_completion_data {
- 	int nr;				/* input */
-@@ -1919,6 +1920,7 @@ void fill_io_buffer(struct thread_data *td, void *buf, unsigned int min_write,
- 		unsigned int perc = td->o.compress_percentage;
- 		struct frand_state *rs;
- 		unsigned int left = max_bs;
-+		unsigned int this_write;
- 
- 		do {
- 			rs = get_buf_state(td);
-@@ -1926,20 +1928,20 @@ void fill_io_buffer(struct thread_data *td, void *buf, unsigned int min_write,
- 			min_write = min(min_write, left);
- 
- 			if (perc) {
--				unsigned int seg = min_write;
-+				this_write = min_not_zero(min_write,
-+							td->o.compress_chunk);
- 
--				seg = min(min_write, td->o.compress_chunk);
--				if (!seg)
--					seg = min_write;
--
--				fill_random_buf_percentage(rs, buf, perc, seg,
--					min_write, o->buffer_pattern,
--						   o->buffer_pattern_bytes);
--			} else
-+				fill_random_buf_percentage(rs, buf, perc,
-+					this_write, this_write,
-+					o->buffer_pattern,
-+					o->buffer_pattern_bytes);
-+			} else {
- 				fill_random_buf(rs, buf, min_write);
-+				this_write = min_write;
-+			}
- 
--			buf += min_write;
--			left -= min_write;
-+			buf += this_write;
-+			left -= this_write;
- 			save_buf_state(td, rs);
- 		} while (left);
- 	} else if (o->buffer_pattern_bytes)
-diff --git a/log.c b/log.c
-index 8d511b5..d508267 100644
---- a/log.c
-+++ b/log.c
-@@ -59,9 +59,8 @@ size_t __log_buf(struct buf_output *buf, const char *format, ...)
- 	va_start(args, format);
- 	len = vsnprintf(buffer, sizeof(buffer), format, args);
- 	va_end(args);
--	len = min(len, sizeof(buffer) - 1);
- 
--	return buf_output_add(buf, buffer, len);
-+	return buf_output_add(buf, buffer, min(len, sizeof(buffer) - 1));
- }
- 
- int log_info_flush(void)
-diff --git a/minmax.h b/minmax.h
-index 97957c8..afc78f0 100644
---- a/minmax.h
-+++ b/minmax.h
-@@ -17,4 +17,9 @@
- 	_x > _y ? _x : _y; })
- #endif
- 
-+#define min_not_zero(x, y) ({		\
-+	typeof(x) __x = (x);		\
-+	typeof(y) __y = (y);		\
-+	__x == 0 ? __y : ((__y == 0) ? __x : min(__x, __y)); })
-+
- #endif
+>
+> Would anyone have any idea why that one arrangement causes a
+> significant delay before IO is resumed?
+>
+> Thanks in advance,
+> Todd
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
