@@ -1,24 +1,33 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm0-f45.google.com ([74.125.82.45]:38697 "EHLO
-	mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932323AbbKDJLQ (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 4 Nov 2015 04:11:16 -0500
-Received: by wmeg8 with SMTP id g8so35794223wme.1
-        for <fio@vger.kernel.org>; Wed, 04 Nov 2015 01:11:15 -0800 (PST)
+Received: from mail-io0-f172.google.com ([209.85.223.172]:34584 "EHLO
+	mail-io0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750914AbbKDFrj (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 4 Nov 2015 00:47:39 -0500
+Received: by iody8 with SMTP id y8so43195904iod.1
+        for <fio@vger.kernel.org>; Tue, 03 Nov 2015 21:47:38 -0800 (PST)
 MIME-Version: 1.0
 In-Reply-To: <BN3PR1001MB11371E8F71C42CBCAD5EEC7FBC2B0@BN3PR1001MB1137.namprd10.prod.outlook.com>
 References: <BN3PR1001MB11371E8F71C42CBCAD5EEC7FBC2B0@BN3PR1001MB1137.namprd10.prod.outlook.com>
-From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
-Date: Wed, 4 Nov 2015 12:10:56 +0300
-Message-ID: <CANvN+e=8kT5F1SuaXE_+4Doc90EFXnbECm2ZM63T-jPhPS+kbQ@mail.gmail.com>
+Date: Wed, 4 Nov 2015 05:47:38 +0000
+Message-ID: <CALjAwxjUsfYEjDNub6hd1hkt0XNYo8aE+T-TyabTbnU2YCOBVw@mail.gmail.com>
 Subject: Re: Trying to understand a weird timeout when using fio and multipath IO
+From: Sitsofe Wheeler <sitsofe@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: Todd Lawall <tlawall@nexgenstorage.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On Wed, Nov 4, 2015 at 12:22 AM, Todd Lawall <tlawall@nexgenstorage.com> wrote:
+Hi Todd,
+
+What path policy have you set Windows to and what does the does the
+Windows event log have to say when things stall? Can you reproduce
+this error if you readwrite to only writes or only reads? Does halving
+the number of disks still show the problem? Does reducing the
+blocksize make the problem less likely to happen? If you run two fio
+binaries with the same job do they both pause at the same time?
+
+On 3 November 2015 at 21:22, Todd Lawall <tlawall@nexgenstorage.com> wrote:
 > Hello,
 >
 > I'm trying to understand a behavior, and I am hoping to further my
@@ -65,19 +74,6 @@ On Wed, Nov 4, 2015 at 12:22 AM, Todd Lawall <tlawall@nexgenstorage.com> wrote:
 > filename=\\.\PHYSICALDRIVE14
 > size=100%
 >
-
-If my understanding of how multi-pathing works doesn't fool me, you
-problem with the above setup is fairly straightforward. You are
-running an asynchronous engine with single I/O queue depth
-single-threaded against multiple files, which means running
-synchronous I/O against one file at a time (FIO switches files for you
-round-robin, unless specifically instructed to do it any other way).
-
-So when a path fails, your job does roughly 11 path failovers
-(slightly more, depending on whether a device the current I/O was
-running against is on the failed path) one by one, which should take
-11x40s = 440 s or roughly 7 minutes.
-
 > If I alter the job in any of the following ways, IO keeps going after the
 >  failover period which is about 40 seconds.  To summarize:
 >
@@ -89,13 +85,6 @@ running against is on the failed path) one by one, which should take
 >  - multiple disks, one job with all disks, same iodepth as # of disks (e.g.
 >    if there's 48 disks, iodepth is set to 48)
 >  - multiple disks, one job per disk, 1 iodepth
-
-All above setups differ from the original in that failover for each
-drive run in parallel, taking roughly 40 s.
-
-Hope this helps,
-Andrey
-
 >
 > Would anyone have any idea why that one arrangement causes a
 > significant delay before IO is resumed?
@@ -106,3 +95,8 @@ Andrey
 > To unsubscribe from this list: send the line "unsubscribe fio" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+
+-- 
+Sitsofe | http://sucs.org/~sits/
