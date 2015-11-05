@@ -1,74 +1,67 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:35009 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752490AbbKANAH (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 1 Nov 2015 08:00:07 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1ZssEv-0006i0-5F
-	for fio@vger.kernel.org; Sun, 01 Nov 2015 13:00:05 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20151101130002.8B1592C00BE@kernel.dk>
-Date: Sun,  1 Nov 2015 06:00:02 -0700 (MST)
+Received: from mailout.teamix.de ([194.150.191.118]:55665 "EHLO
+	mailout.teamix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1031333AbbKEPgP convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Thu, 5 Nov 2015 10:36:15 -0500
+Received: from exchange01.nbg.teamix.net (unknown [IPv6:2001:67c:14c:64:306c:b60d:93de:8b04])
+	(using TLSv1 with cipher RC4-SHA (128/128 bits))
+	(No client certificate requested)
+	by mailout.teamix.de (Postfix) with ESMTPS id 06C3A382BD
+	for <fio@vger.kernel.org>; Thu,  5 Nov 2015 16:30:54 +0100 (CET)
+Received: from merkaba.localnet (unknown [10.41.2.16])	(using TLSv1 with
+ cipher DHE-RSA-AES256-SHA (256/256 bits))	(No client certificate requested)
+	by rproxy.teamix.net (Postfix) with ESMTPSA id BC4DA7A0AA	for
+ <fio@vger.kernel.org>; Thu,  5 Nov 2015 16:30:54 +0100 (CET)
+From: Martin Steigerwald <ms@teamix.de>
+Subject: preliminary fio and gfio 2.2.10 Debian packages
+Date: Thu, 5 Nov 2015 16:30:53 +0100
+Message-ID: <2025885.N9lTbm2gWF@merkaba>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 125451c0455dfcfd11dbcf9570d23218ed4b8ad3:
+﻿Hi!
 
-  Bump the client ETA timeout from 5s to 30s (2015-10-30 11:52:23 +0900)
+For the first time I let it build a gfio package with the graphical frontend.
 
-are available in the git repository at:
+This is still subject to review and in part based on guess work on how this is 
+supposed to work.
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to f6cbf8ac4f70c800bbbfc23c5dcf44ed619c0acc:
+But as the gfio binary starts up into a GTK+ window and appears something 
+useful once I figured out where to click things, I thought I share it here 
+nonetheless:
 
-  output_buffer: only realloc once, and memset just what we need (2015-10-30 19:34:21 -0600)
+http://people.teamix.net/~ms/debian/sid/fio/
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      output_buffer: only realloc once, and memset just what we need
+http://people.teamix.net/~ms/debian/sid/fio/fio_2.2.10-1.dsc
 
- lib/output_buffer.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+Its also up in version control on alioth and github¹.
 
----
 
-Diff of recent changes:
+If you try it out, please give feedback.
 
-diff --git a/lib/output_buffer.c b/lib/output_buffer.c
-index 03cd848..c1fdfc9 100644
---- a/lib/output_buffer.c
-+++ b/lib/output_buffer.c
-@@ -4,6 +4,7 @@
+[1] http://github.com/teamix/fio-debian
+
+Thanks,
+
+
+-- 
+Martin Steigerwald  | Consultant / Trainer
+
+teamix GmbH
+Südwestpark 43
+90449 Nürnberg
+
+Tel.:  +49 911 30999 55 | Fax: +49 911 30999 99
+mail: martin.steigerwald@teamix.de | web:  http://www.teamix.de | blog: http://blog.teamix.de
+
+Amtsgericht Nürnberg, HRB 18320 | Geschäftsführer: Oliver Kügow, Richard Müller
+
+teamix Support Hotline: +49 911 30999-112
  
- #include "output_buffer.h"
- #include "../log.h"
-+#include "../minmax.h"
- 
- #define BUF_INC	1024
- 
-@@ -21,12 +22,18 @@ void buf_output_free(struct buf_output *out)
- 
- size_t buf_output_add(struct buf_output *out, const char *buf, size_t len)
- {
--	while (out->max_buflen - out->buflen < len) {
-+	if (out->max_buflen - out->buflen < len) {
-+		size_t need = len - (out->max_buflen - out->buflen);
- 		size_t old_max = out->max_buflen;
- 
--		out->max_buflen += BUF_INC;
-+		need = max((size_t) BUF_INC, need);
-+		out->max_buflen += need;
- 		out->buf = realloc(out->buf, out->max_buflen);
--		memset(&out->buf[old_max], 0, BUF_INC);
-+
-+		old_max = max(old_max, out->buflen + len);
-+		if (old_max + need > out->max_buflen)
-+			need = out->max_buflen - old_max;
-+		memset(&out->buf[old_max], 0, need);
- 	}
- 
- 	memcpy(&out->buf[out->buflen], buf, len);
+ *** Besuchen Sie uns vom 16.-19.11.2015 auf der NetApp Insight im CityCube in Berlin auf Stand A5. ***
+
