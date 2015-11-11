@@ -1,29 +1,54 @@
-Return-Path: <626542@gmail.com>
-Return-Path: <626542@gmail.com>
-Content-Type: text/plain; charset=windows-1252
-Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
+Return-Path: <axboe@kernel.dk>
 Subject: Re: Aggregate values in logs
-From: GrAnt <626542@gmail.com>
-In-Reply-To: <5643825A.1060508@kernel.dk>
-Date: Sat, 21 Nov 2015 12:24:32 +0300
+References: <94806C6A-BFE4-4B3A-BE4C-BAD60A294460@gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <5643825A.1060508@kernel.dk>
+Date: Wed, 11 Nov 2015 11:00:58 -0700
+MIME-Version: 1.0
+In-Reply-To: <94806C6A-BFE4-4B3A-BE4C-BAD60A294460@gmail.com>
+Content-Type: text/plain; charset="windows-1252"; format="flowed"
 Content-Transfer-Encoding: quoted-printable
-Message-Id: <22E36830-F922-470E-811C-44EC2BD5D44A@gmail.com>
-References: <94806C6A-BFE4-4B3A-BE4C-BAD60A294460@gmail.com> <5643825A.1060508@kernel.dk>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org
+To: GrAnt <626542@gmail.com>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
->>=20
->> May be I should multiply values in second column by 4? :)
->=20
-> Look further down, the log will have each of the jobs following each =
+On 11/10/2015 10:38 AM, GrAnt wrote:
+> Hello!
+>
+> How to get aggregate values in log (_bw,_lat,_iops) files?
+> I use job with:
+>
+>> group_reporting=3D1
+>> disable_lat=3D0
+>> disable_clat=3D0
+>> disable_slat=3D0
+>> numjobs=3D4
+>> per_job_logs=3D0
+>
+> After benchmarking I=EF=BF=BDve got output (normal) with aggregate (for a=
+ll 4 jobs):
+>
+> read : io=3D148620MB, bw=3D253474KB/s, iops=3D247, runt=3D600404msec
+>
+> But in logs there are stats only about one job, job_bw.log:
+>
+>> 221, 3091, 0, 1048576
+>> 934, 68936, 0, 1048576
+>> 1477, 60457, 0, 1048576
+>> 2182, 60457, 0, 1048576
+>> 2714, 61709, 0, 1048576
+>> 3371, 74926, 0, 1048576
+>> 4130, 64844, 0, 1048576
+>> 4644, 63750, 0, 1048576
+>> 5184, 60794, 0, 1048576
+>> ..
+>
+> May be I should multiply values in second column by 4? :)
+
+Look further down, the log will have each of the jobs following each=20
 other. They are not summed for you, you have to do that.
 
-Sorry, that=92s my mistake, and I should be more carefull in further.
-I wrote simple shell script to get average values, but it too slow for =
-huge log files.
 
---
-Regards, Grishin [GrAnt] Anton
+--=20
+Jens Axboe
 
 
