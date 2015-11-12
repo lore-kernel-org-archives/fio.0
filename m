@@ -1,109 +1,67 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-io0-f171.google.com ([209.85.223.171]:36689 "EHLO
-	mail-io0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752378AbbKOJHH (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 15 Nov 2015 04:07:07 -0500
-Received: by iofh3 with SMTP id h3so134629904iof.3
-        for <fio@vger.kernel.org>; Sun, 15 Nov 2015 01:07:05 -0800 (PST)
-MIME-Version: 1.0
-Date: Sun, 15 Nov 2015 17:07:05 +0800
-Message-ID: <CABtFm2VEc6-LX4bFE8Nq=dsHqh33Y37e-xmW+4exdvr9bUF51g@mail.gmail.com>
-Subject: Job hangs on a NFS share with shared workload
-From: Srinivasa Chamarthy <chamarthy.raju@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Received: from casper.infradead.org ([85.118.1.10]:41392 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751216AbbKLNAH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 12 Nov 2015 08:00:07 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1ZwrTx-0004uJ-TT
+	for fio@vger.kernel.org; Thu, 12 Nov 2015 13:00:06 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20151112130002.868982C00CE@kernel.dk>
+Date: Thu, 12 Nov 2015 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following job is executed from two systems on the same NFS share.
-From host-1 the job is readwrite and host-2 the job is only write. I
-am trying to simulate writes to the same share from multiple clients.
+The following changes since commit ced5db250347606cbd966d28cd193cc9f0880dff:
 
-# cat file_lock_nfs.fio
-[global]
-readwrite=readwrite
-ioengine=libaio
-refill_buffers
-randrepeat=0
-overwrite=0
-end_fsync=1
-lockfile=readwrite
-iodepth=8
-direct=1
-;runtime=3600
-;time_based
-create_on_open=1
+  Fix verification error with bsrange and split read/write phase (2015-11-10 18:13:40 -0700)
 
-[shared_nfs_job1]
-directory=/schamart
-;opendir=/schamart
-filename_format=parent.$jobnum.$filenum
-numjobs=2
-nrfiles=2500
-size=100g
-filesize=20m
-blocksize=512k
-openfiles=64
-;file_service_type=random
-fsync=1024
-fsync_on_close=1
-;rwmixread=30
-norandommap
+are available in the git repository at:
 
-After writing approx 100G of data with 5000 files, Host-2 with write
-exited as expectd, but the host-1 with readwrite workload seems to
-hang.
+  git://git.kernel.dk/fio.git master
 
-# fio file_lock_nfs.fio
-shared_nfs_job1: (g=0): rw=rw, bs=512K-512K/512K-512K/512K-512K,
-ioengine=libaio, iodepth=8
-...
-fio-2.2.11-15-g236d
-Starting 2 processes
-Jobs: 2 (f=0): [F(2)] [100.0% done] [0KB/0KB/0KB /s] [0/0/0 iops] [eta
-00m:00s]0s]
+for you to fetch changes up to 236d24dff4826a469d2e980c2b71c2adba3b907e:
 
-From strace, i see that is continuously opening and closing files sequentially.
+  json output fixups (2015-11-11 11:26:37 -0700)
 
-open("/schamart/parent.0.1599", O_RDWR|O_CREAT|O_DIRECT, 0600) = 3
-fadvise64(3, 0, 20971520, POSIX_FADV_DONTNEED) = 0
-fadvise64(3, 0, 20971520, POSIX_FADV_SEQUENTIAL) = 0
-fsync(3)                                = 0
-close(3)                                = 0
-open("/schamart/parent.0.1600", O_RDWR|O_CREAT|O_DIRECT, 0600) = 3
-fadvise64(3, 0, 20971520, POSIX_FADV_DONTNEED) = 0
-fadvise64(3, 0, 20971520, POSIX_FADV_SEQUENTIAL) = 0
-fsync(3)                                = 0
-close(3)                                = 0
-open("/schamart/parent.0.1601", O_RDWR|O_CREAT|O_DIRECT, 0600) = 3
-fadvise64(3, 0, 20971520, POSIX_FADV_DONTNEED) = 0
-fadvise64(3, 0, 20971520, POSIX_FADV_SEQUENTIAL) = 0
-fsync(3)                                = 0
-close(3)                                = 0
-open("/schamart/parent.0.1602", O_RDWR|O_CREAT|O_DIRECT, 0600) = 3
-fadvise64(3, 0, 20971520, POSIX_FADV_DONTNEED) = 0
-fadvise64(3, 0, 20971520, POSIX_FADV_SEQUENTIAL) = 0
-fsync(3)                                = 0
-close(3)                                = 0
-open("/schamart/parent.0.1603", O_RDWR|O_CREAT|O_DIRECT, 0600) = 3
-fadvise64(3, 0, 20971520, POSIX_FADV_DONTNEED) = 0
-fadvise64(3, 0, 20971520, POSIX_FADV_SEQUENTIAL) = 0
-fsync(3)                                = 0
-close(3)                                = 0
-open("/schamart/parent.0.1604", O_RDWR|O_CREAT|O_DIRECT, 0600) = 3
-fadvise64(3, 0, 20971520, POSIX_FADV_DONTNEED) = 0
-fadvise64(3, 0, 20971520, POSIX_FADV_SEQUENTIAL) = 0
-fsync(3)                                = 0
-close(3)                                = 0
-open("/schamart/parent.0.1605", O_RDWR|O_CREAT|O_DIRECT, 0600) = 3
-fadvise64(3, 0, 20971520, POSIX_FADV_DONTNEED) = 0
-fadvise64(3, 0, 20971520, POSIX_FADV_SEQUENTIAL) = 0
-fsync(3)                                = 0
-close(3)                                = 0
+----------------------------------------------------------------
+Vincent Fu (1):
+      json output fixups
 
-Is there something wrong, or there is some problem with the job file?
+ diskutil.c | 2 +-
+ idletime.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Thanks for your support.
+---
 
---
-Srinivasa R Chamarthy
+Diff of recent changes:
+
+diff --git a/diskutil.c b/diskutil.c
+index f83fc47..c3181b5 100644
+--- a/diskutil.c
++++ b/diskutil.c
+@@ -714,7 +714,7 @@ void show_disk_util(int terse, struct json_object *parent,
+ 
+ 	if (output_format & FIO_OUTPUT_JSON)
+ 		json_object_add_disk_utils(parent, &disk_list);
+-	if (output_format & ~(FIO_OUTPUT_JSON)) {
++	if (output_format & ~(FIO_OUTPUT_JSON | FIO_OUTPUT_JSON_PLUS)) {
+ 		flist_for_each(entry, &disk_list) {
+ 			du = flist_entry(entry, struct disk_util, list);
+ 
+diff --git a/idletime.c b/idletime.c
+index 5cc8b65..fab43c5 100644
+--- a/idletime.c
++++ b/idletime.c
+@@ -481,7 +481,7 @@ void show_idle_prof_stats(int output, struct json_object *parent,
+ 		return;
+ 	}
+ 
+-	if ((ipc.opt != IDLE_PROF_OPT_NONE) && (output == FIO_OUTPUT_JSON)) {
++	if ((ipc.opt != IDLE_PROF_OPT_NONE) && (output & FIO_OUTPUT_JSON)) {
+ 		if (!parent)
+ 			return;
+ 
