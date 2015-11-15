@@ -1,59 +1,109 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-lf0-f46.google.com ([209.85.215.46]:36414 "EHLO
-	mail-lf0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751864AbbKJRib convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 10 Nov 2015 12:38:31 -0500
-Received: by lfs39 with SMTP id 39so2345653lfs.3
-        for <fio@vger.kernel.org>; Tue, 10 Nov 2015 09:38:29 -0800 (PST)
-Received: from [192.168.1.200] ([82.208.124.106])
-        by smtp.gmail.com with ESMTPSA id m17sm714532lfb.16.2015.11.10.09.38.28
-        for <fio@vger.kernel.org>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Tue, 10 Nov 2015 09:38:28 -0800 (PST)
-From: GrAnt <626542@gmail.com>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
-Subject: Aggregate values in logs
-Message-Id: <94806C6A-BFE4-4B3A-BE4C-BAD60A294460@gmail.com>
-Date: Tue, 10 Nov 2015 20:38:25 +0300
-Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
+Received: from mail-io0-f171.google.com ([209.85.223.171]:36689 "EHLO
+	mail-io0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752378AbbKOJHH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sun, 15 Nov 2015 04:07:07 -0500
+Received: by iofh3 with SMTP id h3so134629904iof.3
+        for <fio@vger.kernel.org>; Sun, 15 Nov 2015 01:07:05 -0800 (PST)
+MIME-Version: 1.0
+Date: Sun, 15 Nov 2015 17:07:05 +0800
+Message-ID: <CABtFm2VEc6-LX4bFE8Nq=dsHqh33Y37e-xmW+4exdvr9bUF51g@mail.gmail.com>
+Subject: Job hangs on a NFS share with shared workload
+From: Srinivasa Chamarthy <chamarthy.raju@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hello!
+The following job is executed from two systems on the same NFS share.
+From host-1 the job is readwrite and host-2 the job is only write. I
+am trying to simulate writes to the same share from multiple clients.
 
-How to get aggregate values in log (_bw,_lat,_iops) files?
-I use job with:
+# cat file_lock_nfs.fio
+[global]
+readwrite=readwrite
+ioengine=libaio
+refill_buffers
+randrepeat=0
+overwrite=0
+end_fsync=1
+lockfile=readwrite
+iodepth=8
+direct=1
+;runtime=3600
+;time_based
+create_on_open=1
 
-> group_reporting=3D1
-> disable_lat=3D0
-> disable_clat=3D0
-> disable_slat=3D0
-> numjobs=3D4
-> per_job_logs=3D0
+[shared_nfs_job1]
+directory=/schamart
+;opendir=/schamart
+filename_format=parent.$jobnum.$filenum
+numjobs=2
+nrfiles=2500
+size=100g
+filesize=20m
+blocksize=512k
+openfiles=64
+;file_service_type=random
+fsync=1024
+fsync_on_close=1
+;rwmixread=30
+norandommap
 
-After benchmarking I=EF=BF=BDve got output (normal) with aggregate (for all=
- 4 jobs):
+After writing approx 100G of data with 5000 files, Host-2 with write
+exited as expectd, but the host-1 with readwrite workload seems to
+hang.
 
-read : io=3D148620MB, bw=3D253474KB/s, iops=3D247, runt=3D600404msec
+# fio file_lock_nfs.fio
+shared_nfs_job1: (g=0): rw=rw, bs=512K-512K/512K-512K/512K-512K,
+ioengine=libaio, iodepth=8
+...
+fio-2.2.11-15-g236d
+Starting 2 processes
+Jobs: 2 (f=0): [F(2)] [100.0% done] [0KB/0KB/0KB /s] [0/0/0 iops] [eta
+00m:00s]0s]
 
-But in logs there are stats only about one job, job_bw.log:
+From strace, i see that is continuously opening and closing files sequentially.
 
-> 221, 3091, 0, 1048576
-> 934, 68936, 0, 1048576
-> 1477, 60457, 0, 1048576
-> 2182, 60457, 0, 1048576
-> 2714, 61709, 0, 1048576
-> 3371, 74926, 0, 1048576
-> 4130, 64844, 0, 1048576
-> 4644, 63750, 0, 1048576
-> 5184, 60794, 0, 1048576
-> ..
+open("/schamart/parent.0.1599", O_RDWR|O_CREAT|O_DIRECT, 0600) = 3
+fadvise64(3, 0, 20971520, POSIX_FADV_DONTNEED) = 0
+fadvise64(3, 0, 20971520, POSIX_FADV_SEQUENTIAL) = 0
+fsync(3)                                = 0
+close(3)                                = 0
+open("/schamart/parent.0.1600", O_RDWR|O_CREAT|O_DIRECT, 0600) = 3
+fadvise64(3, 0, 20971520, POSIX_FADV_DONTNEED) = 0
+fadvise64(3, 0, 20971520, POSIX_FADV_SEQUENTIAL) = 0
+fsync(3)                                = 0
+close(3)                                = 0
+open("/schamart/parent.0.1601", O_RDWR|O_CREAT|O_DIRECT, 0600) = 3
+fadvise64(3, 0, 20971520, POSIX_FADV_DONTNEED) = 0
+fadvise64(3, 0, 20971520, POSIX_FADV_SEQUENTIAL) = 0
+fsync(3)                                = 0
+close(3)                                = 0
+open("/schamart/parent.0.1602", O_RDWR|O_CREAT|O_DIRECT, 0600) = 3
+fadvise64(3, 0, 20971520, POSIX_FADV_DONTNEED) = 0
+fadvise64(3, 0, 20971520, POSIX_FADV_SEQUENTIAL) = 0
+fsync(3)                                = 0
+close(3)                                = 0
+open("/schamart/parent.0.1603", O_RDWR|O_CREAT|O_DIRECT, 0600) = 3
+fadvise64(3, 0, 20971520, POSIX_FADV_DONTNEED) = 0
+fadvise64(3, 0, 20971520, POSIX_FADV_SEQUENTIAL) = 0
+fsync(3)                                = 0
+close(3)                                = 0
+open("/schamart/parent.0.1604", O_RDWR|O_CREAT|O_DIRECT, 0600) = 3
+fadvise64(3, 0, 20971520, POSIX_FADV_DONTNEED) = 0
+fadvise64(3, 0, 20971520, POSIX_FADV_SEQUENTIAL) = 0
+fsync(3)                                = 0
+close(3)                                = 0
+open("/schamart/parent.0.1605", O_RDWR|O_CREAT|O_DIRECT, 0600) = 3
+fadvise64(3, 0, 20971520, POSIX_FADV_DONTNEED) = 0
+fadvise64(3, 0, 20971520, POSIX_FADV_SEQUENTIAL) = 0
+fsync(3)                                = 0
+close(3)                                = 0
 
-May be I should multiply values in second column by 4? :) =20
+Is there something wrong, or there is some problem with the job file?
 
-Bye.
+Thanks for your support.
+
 --
-Regards, GrAnt
-
+Srinivasa R Chamarthy
