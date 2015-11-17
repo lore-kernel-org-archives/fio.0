@@ -1,114 +1,112 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:40570 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751479AbbKTNAD (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 20 Nov 2015 08:00:03 -0500
+Received: from casper.infradead.org ([85.118.1.10]:60889 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752941AbbKQNAG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 17 Nov 2015 08:00:06 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1ZzlIJ-0004ox-7G
-	for fio@vger.kernel.org; Fri, 20 Nov 2015 13:00:03 +0000
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1Zyfrg-0006iM-Tk
+	for fio@vger.kernel.org; Tue, 17 Nov 2015 13:00:05 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20151120130002.465712C00E7@kernel.dk>
-Date: Fri, 20 Nov 2015 06:00:02 -0700 (MST)
+Message-Id: <20151117130001.DA8032C00CE@kernel.dk>
+Date: Tue, 17 Nov 2015 06:00:01 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit d883efbdb2034b4ab23abec9cee1762d6d476247:
+The following changes since commit 236d24dff4826a469d2e980c2b71c2adba3b907e:
 
-  Fix group_id != groupid mixup (2015-11-16 14:00:41 -0700)
+  json output fixups (2015-11-11 11:26:37 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 3379b94e3b7da4b74afcfa9781752179ede6ec4d:
+for you to fetch changes up to d883efbdb2034b4ab23abec9cee1762d6d476247:
 
-  Fix ETA calculations (2015-11-19 13:36:18 -0700)
+  Fix group_id != groupid mixup (2015-11-16 14:00:41 -0700)
 
 ----------------------------------------------------------------
+Casey Bodley (1):
+      iolog: fix error when compiled as c++
+
 Jens Axboe (1):
-      Don't output json headers for fio backend
+      Fix group_id != groupid mixup
 
-Jens Rosenboom (1):
-      Fix ETA calculations
-
- eta.c  | 28 +++++++++++++++++-----------
- stat.c |  2 +-
- 2 files changed, 18 insertions(+), 12 deletions(-)
+ fio.h    | 4 ++--
+ init.c   | 4 ++++
+ iolog.h  | 3 ++-
+ libfio.c | 4 ++--
+ 4 files changed, 10 insertions(+), 5 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/eta.c b/eta.c
-index 7eb1c27..8785540 100644
---- a/eta.c
-+++ b/eta.c
-@@ -214,7 +214,7 @@ static unsigned long thread_eta(struct thread_data *td)
- 		if (td->o.time_based) {
- 			if (timeout) {
- 				perc_t = (double) elapsed / (double) timeout;
--				if (perc_t < perc)
-+				if (perc_t > perc)
- 					perc = perc_t;
- 			} else {
- 				/*
-@@ -250,7 +250,7 @@ static unsigned long thread_eta(struct thread_data *td)
- 			t_eta = __timeout + start_delay + ramp_time;
- 			t_eta /= 1000000ULL;
+diff --git a/fio.h b/fio.h
+index a2b3d9f..2e13b54 100644
+--- a/fio.h
++++ b/fio.h
+@@ -539,8 +539,8 @@ extern void td_restore_runstate(struct thread_data *, int);
+  */
+ #define FIO_REAP_TIMEOUT	60
  
--			if (in_ramp_time(td)) {
-+			if ((td->runstate == TD_RAMP) && in_ramp_time(td)) {
- 				unsigned long ramp_left;
+-#define TERMINATE_ALL		(-1)
+-extern void fio_terminate_threads(int);
++#define TERMINATE_ALL		(-1U)
++extern void fio_terminate_threads(unsigned int);
+ extern void fio_mark_td_terminate(struct thread_data *);
  
- 				ramp_left = mtime_since_now(&td->epoch);
-@@ -438,19 +438,25 @@ int calc_thread_status(struct jobs_eta *je, int force)
- 		}
- 	}
- 
--	if (exitall_on_terminate)
-+	if (exitall_on_terminate) {
- 		je->eta_sec = INT_MAX;
--	else
--		je->eta_sec = 0;
--
--	for_each_td(td, i) {
--		if (exitall_on_terminate) {
-+		for_each_td(td, i) {
- 			if (eta_secs[i] < je->eta_sec)
- 				je->eta_sec = eta_secs[i];
--		} else {
--			if (eta_secs[i] > je->eta_sec)
--				je->eta_sec = eta_secs[i];
- 		}
-+	} else {
-+		unsigned long eta_stone = 0;
-+
-+		je->eta_sec = 0;
-+		for_each_td(td, i) {
-+			if ((td->runstate == TD_NOT_CREATED) && td->o.stonewall)
-+				eta_stone += eta_secs[i];
-+			else {
-+				if (eta_secs[i] > je->eta_sec)
-+					je->eta_sec = eta_secs[i];
-+			}
+ /*
+diff --git a/init.c b/init.c
+index 04b4a1e..af35ee6 100644
+--- a/init.c
++++ b/init.c
+@@ -1233,6 +1233,10 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
+ 	if ((o->stonewall || o->new_group) && prev_group_jobs) {
+ 		prev_group_jobs = 0;
+ 		groupid++;
++		if (groupid == INT_MAX) {
++			log_err("fio: too many groups defined\n");
++			goto err;
 +		}
-+		je->eta_sec += eta_stone;
  	}
  
- 	free(eta_secs);
-diff --git a/stat.c b/stat.c
-index 6ee02d3..da3ad2a 100644
---- a/stat.c
-+++ b/stat.c
-@@ -1612,7 +1612,7 @@ void __show_run_stats(void)
- 				show_thread_status_normal(ts, rs, &output[__FIO_OUTPUT_NORMAL]);
- 		}
- 	}
--	if (output_format & FIO_OUTPUT_JSON) {
-+	if (!is_backend && (output_format & FIO_OUTPUT_JSON)) {
- 		/* disk util stats, if any */
- 		show_disk_util(1, root, &output[__FIO_OUTPUT_JSON]);
+ 	td->groupid = groupid;
+diff --git a/iolog.h b/iolog.h
+index b1c13bf..aa4562d 100644
+--- a/iolog.h
++++ b/iolog.h
+@@ -122,7 +122,8 @@ static inline size_t log_entry_sz(struct io_log *log)
+ static inline struct io_sample *__get_sample(void *samples, int log_offset,
+ 					     uint64_t sample)
+ {
+-	return samples + sample * __log_entry_sz(log_offset);
++	uint64_t sample_offset = sample * __log_entry_sz(log_offset);
++	return (struct io_sample *) ((char *) samples + sample_offset);
+ }
+ 
+ static inline struct io_sample *get_sample(struct io_log *iolog,
+diff --git a/libfio.c b/libfio.c
+index 09591a1..3aa52e0 100644
+--- a/libfio.c
++++ b/libfio.c
+@@ -229,7 +229,7 @@ void fio_mark_td_terminate(struct thread_data *td)
+ 	td->terminate = 1;
+ }
+ 
+-void fio_terminate_threads(int group_id)
++void fio_terminate_threads(unsigned int group_id)
+ {
+ 	struct thread_data *td;
+ 	pid_t pid = getpid();
+@@ -238,7 +238,7 @@ void fio_terminate_threads(int group_id)
+ 	dprint(FD_PROCESS, "terminate group_id=%d\n", group_id);
+ 
+ 	for_each_td(td, i) {
+-		if (group_id == TERMINATE_ALL || groupid == td->groupid) {
++		if (group_id == TERMINATE_ALL || group_id == td->groupid) {
+ 			dprint(FD_PROCESS, "setting terminate on %s/%d\n",
+ 						td->o.name, (int) td->pid);
  
