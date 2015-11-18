@@ -1,81 +1,85 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-bn1bon0098.outbound.protection.outlook.com ([157.56.111.98]:32746
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752679AbbKCVhH convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 3 Nov 2015 16:37:07 -0500
-From: Todd Lawall <tlawall@nexgenstorage.com>
-Subject: Trying to understand a weird timeout when using fio and multipath IO
-Date: Tue, 3 Nov 2015 21:22:10 +0000
-Message-ID: <BN3PR1001MB11371E8F71C42CBCAD5EEC7FBC2B0@BN3PR1001MB1137.namprd10.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Received: from mail-lb0-f177.google.com ([209.85.217.177]:35549 "EHLO
+	mail-lb0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753403AbbKRNmd (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 18 Nov 2015 08:42:33 -0500
+Received: by lbbsy6 with SMTP id sy6so24466052lbb.2
+        for <fio@vger.kernel.org>; Wed, 18 Nov 2015 05:42:31 -0800 (PST)
 MIME-Version: 1.0
+Date: Wed, 18 Nov 2015 14:42:30 +0100
+Message-ID: <CADr68Wa3iW1LXTAUorEBrZQ6dPYO3r30AQ1PB0j100X6wnF-Ag@mail.gmail.com>
+Subject: Issues with ETA calculations
+From: Jens Rosenboom <j.rosenboom@x-ion.de>
+Content-Type: multipart/mixed; boundary=001a11c33eac5cd9160524d0d0e9
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hello,
+--001a11c33eac5cd9160524d0d0e9
+Content-Type: text/plain; charset=UTF-8
 
-I'm trying to understand a behavior, and I am hoping to further my
-understanding of what Fio is doing.  In the specific case in question,
-I'm seeing a seven minute wait in resuming IO after a failover.  In other
- variations on this job file, the seven minute wait disappears, and it
- drops back down to the 40 second wait that I see with usual IO
-loads that are run.
+The attached patch tries to fix some issues I have found, this may
+also be related to the ones mentioned earlier in
+http://www.spinics.net/lists/fio/msg04187.html
 
-The setup:
-- I have one Windows 2012 R2 host, with two NICs.
-- I have one storage array, with 2 controllers A and B, with 2 10GbE ports
-   for each side, making 4 ports, with failover capability between the two
-   sides.
-- I have iSCSI and MPIO setup so that there is one login from each NIC to
-   each side, so four sessions total for each volume.   The map looks 
-   something like this:
+The part regarding stonewalled jobs may require some further work, but
+at least it gives proper values now for my standard fio runs.
 
-           nic1                 nic2
-           /  \                 /  \
-          /    \               /    \
-     side A   side B       side A  side B
-     port 0   port 0       port 1  port 1
+Sorry for not sending the patch inline, I'll have to get rid of using
+this *censored* web-mail interface for that.
 
-- I have the fio job below.  It is basically 256k blocks, 1 iodepth, one
-   worker with 48 drives.
+Also, I'm still wondering about the intention behind the way done_secs
+is being used. It cumulates time spent in finished jobs globally, but
+is being used in per-job ETA calculations. This seems to break at
+least for the case of stonewalled jobs, too.
 
-[global]
-do_verify=0
-ioengine=windowsaio
-numjobs=1
-iodepth=1
-offset=0
-direct=1
-thread
+--001a11c33eac5cd9160524d0d0e9
+Content-Type: application/octet-stream; name=patch
+Content-Disposition: attachment; filename=patch
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_ih4upjyv0
 
-[fio-0]
-blocksize=256k
-readwrite=rw
-filename=\\.\PHYSICALDRIVE19
-filename=\\.\PHYSICALDRIVE20
-<snipped out the other 44 drives>
-filename=\\.\PHYSICALDRIVE13
-filename=\\.\PHYSICALDRIVE14
-size=100%
-
-If I alter the job in any of the following ways, IO keeps going after the
- failover period which is about 40 seconds.  To summarize:
-
-Doesn't work:
- - multiple disks, single job, 1 iodepth
-
-Works:
- - Single disk, one job, 1 iodepth
- - multiple disks, one job with all disks, same iodepth as # of disks (e.g.
-   if there's 48 disks, iodepth is set to 48)
- - multiple disks, one job per disk, 1 iodepth
-
-Would anyone have any idea why that one arrangement causes a
-significant delay before IO is resumed?
-
-Thanks in advance,
-Todd
+Y29tbWl0IDY4YmE1MzJmZmUzOTc4NTA4ZjAyNjRlY2I0N2Q0ZWQ4NWVlNmQ5ZTQKQXV0aG9yOiBK
+ZW5zIFJvc2VuYm9vbSA8ai5yb3NlbmJvb21AeC1pb24uZGU+CkRhdGU6ICAgV2VkIE5vdiAxOCAx
+NDoxNToxMyAyMDE1ICswMTAwCgogICAgRml4IEVUQSBjYWxjdWxhdGlvbnMKICAgIAogICAgVGhl
+cmUgYXJlIGEgY291cGxlIG9mIGlzc3VlcyBpbiBldGEuYzoKICAgIAogICAgLSBUaGUgY29tcGFy
+aXNvbiBmb3IgdGltZS0gdnMuIHJhdGUtYmFzZWQgRVRBIGNhbGN1bGF0aW9uIGlzIGRvbmUgdGhl
+CiAgICAgIHdyb25nIHdheSByb3VuZC4KICAgIC0gVGhlIGVsYXBzZWQgcmFtcCB0aW1lIHNob3Vs
+ZCBvbmx5IGJlIHN1YnRyYWN0ZWQgd2hlbiB0aGUgdGhyZWFkIGhhcwogICAgICBpbmRlZWQgZW50
+ZXJlZCB0aGUgcmFtcCBwaGFzZS4KICAgIC0gQ3VycmVudGx5IGpvYnMgdGhhdCBhcmUgc3RvbmV3
+YWxsZWQgYXJlIG5vdCB0YWtlbiBpbnRvIGFjY291bnQgZm9yIEVUQQogICAgICBjYWxjdWxhdGlv
+bi4gVGhpcyBwYXRjaCBhdCBsZWFzdCBmaXhlcyB0aGlzIGZvciB0aGUgY2FzZSB0aGF0IHRoZXJl
+IGlzCiAgICAgIG9ubHkgYSBzaW5nbGUgam9iIHBlciBzdG9uZXdhbGwgZ3JvdXAuCgpkaWZmIC0t
+Z2l0IGEvZXRhLmMgYi9ldGEuYwppbmRleCA3ZWIxYzI3Li5lNzNjYzJjIDEwMDY0NAotLS0gYS9l
+dGEuYworKysgYi9ldGEuYwpAQCAtMjE0LDcgKzIxNCw3IEBAIHN0YXRpYyB1bnNpZ25lZCBsb25n
+IHRocmVhZF9ldGEoc3RydWN0IHRocmVhZF9kYXRhICp0ZCkKIAkJaWYgKHRkLT5vLnRpbWVfYmFz
+ZWQpIHsKIAkJCWlmICh0aW1lb3V0KSB7CiAJCQkJcGVyY190ID0gKGRvdWJsZSkgZWxhcHNlZCAv
+IChkb3VibGUpIHRpbWVvdXQ7Ci0JCQkJaWYgKHBlcmNfdCA8IHBlcmMpCisJCQkJaWYgKHBlcmNf
+dCA+IHBlcmMpCiAJCQkJCXBlcmMgPSBwZXJjX3Q7CiAJCQl9IGVsc2UgewogCQkJCS8qCkBAIC0y
+MjYsNiArMjI2LDcgQEAgc3RhdGljIHVuc2lnbmVkIGxvbmcgdGhyZWFkX2V0YShzdHJ1Y3QgdGhy
+ZWFkX2RhdGEgKnRkKQogCQl9CiAKIAkJZXRhX3NlYyA9ICh1bnNpZ25lZCBsb25nKSAoZWxhcHNl
+ZCAqICgxLjAgLyBwZXJjKSkgLSBlbGFwc2VkOworCQkvLyBwcmludGYoImV0YV9zZWM6ICVsdSwg
+ZWxhcHNlZDogJWx1LCBwZXJjOiAlMDIuNmYsIGRvbmU6ICVsbHUsIHRvdGFsOiAlbGx1XG4iLCBl
+dGFfc2VjLCBlbGFwc2VkLCBwZXJjLCBieXRlc19kb25lLCBieXRlc190b3RhbCk7CiAKIAkJaWYg
+KHRkLT5vLnRpbWVvdXQgJiYKIAkJICAgIGV0YV9zZWMgPiAodGltZW91dCArIGRvbmVfc2VjcyAt
+IGVsYXBzZWQpKQpAQCAtMjUwLDcgKzI1MSw3IEBAIHN0YXRpYyB1bnNpZ25lZCBsb25nIHRocmVh
+ZF9ldGEoc3RydWN0IHRocmVhZF9kYXRhICp0ZCkKIAkJCXRfZXRhID0gX190aW1lb3V0ICsgc3Rh
+cnRfZGVsYXkgKyByYW1wX3RpbWU7CiAJCQl0X2V0YSAvPSAxMDAwMDAwVUxMOwogCi0JCQlpZiAo
+aW5fcmFtcF90aW1lKHRkKSkgeworCQkJaWYgKCh0ZC0+cnVuc3RhdGUgPT0gVERfUkFNUCkgJiYg
+aW5fcmFtcF90aW1lKHRkKSkgewogCQkJCXVuc2lnbmVkIGxvbmcgcmFtcF9sZWZ0OwogCiAJCQkJ
+cmFtcF9sZWZ0ID0gbXRpbWVfc2luY2Vfbm93KCZ0ZC0+ZXBvY2gpOwpAQCAtNDM4LDE5ICs0Mzks
+MjUgQEAgaW50IGNhbGNfdGhyZWFkX3N0YXR1cyhzdHJ1Y3Qgam9ic19ldGEgKmplLCBpbnQgZm9y
+Y2UpCiAJCX0KIAl9CiAKLQlpZiAoZXhpdGFsbF9vbl90ZXJtaW5hdGUpCisJaWYgKGV4aXRhbGxf
+b25fdGVybWluYXRlKSB7CiAJCWplLT5ldGFfc2VjID0gSU5UX01BWDsKLQllbHNlCi0JCWplLT5l
+dGFfc2VjID0gMDsKLQotCWZvcl9lYWNoX3RkKHRkLCBpKSB7Ci0JCWlmIChleGl0YWxsX29uX3Rl
+cm1pbmF0ZSkgeworCQlmb3JfZWFjaF90ZCh0ZCwgaSkgewogCQkJaWYgKGV0YV9zZWNzW2ldIDwg
+amUtPmV0YV9zZWMpCiAJCQkJamUtPmV0YV9zZWMgPSBldGFfc2Vjc1tpXTsKLQkJfSBlbHNlIHsK
+LQkJCWlmIChldGFfc2Vjc1tpXSA+IGplLT5ldGFfc2VjKQotCQkJCWplLT5ldGFfc2VjID0gZXRh
+X3NlY3NbaV07CiAJCX0KKwl9IGVsc2UgeworCQl1bnNpZ25lZCBsb25nIGV0YV9zdG9uZSA9IDA7
+CisJCWplLT5ldGFfc2VjID0gMDsKKwkJZm9yX2VhY2hfdGQodGQsIGkpIHsKKwkJCWlmICgodGQt
+PnJ1bnN0YXRlID09IFREX05PVF9DUkVBVEVEKSAmJiAodGQtPm8uc3RvbmV3YWxsKSkgeworCQkJ
+CWV0YV9zdG9uZSArPSBldGFfc2Vjc1tpXTsKKwkJCX0gZWxzZSB7CisJCQkJaWYgKGV0YV9zZWNz
+W2ldID4gamUtPmV0YV9zZWMpCisJCQkJCWplLT5ldGFfc2VjID0gZXRhX3NlY3NbaV07CisJCQl9
+CisJCX0KKwkJamUtPmV0YV9zZWMgKz0gZXRhX3N0b25lOworCQkvLyBwcmludGYoInN0b25lZDog
+JWx1XG4iLCBldGFfc3RvbmUpOwogCX0KIAogCWZyZWUoZXRhX3NlY3MpOwo=
+--001a11c33eac5cd9160524d0d0e9--
