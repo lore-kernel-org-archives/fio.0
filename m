@@ -1,147 +1,116 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:44860 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752395AbbKGNAG (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 7 Nov 2015 08:00:06 -0500
+Received: from bombadil.infradead.org ([198.137.202.9]:41908 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751653AbbKUNAE (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 21 Nov 2015 08:00:04 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1Zv36C-0004uL-Ls
-	for fio@vger.kernel.org; Sat, 07 Nov 2015 13:00:04 +0000
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1a07lr-0007FT-3e
+	for fio@vger.kernel.org; Sat, 21 Nov 2015 13:00:03 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20151107130002.17DAB2C00B0@kernel.dk>
-Date: Sat,  7 Nov 2015 06:00:02 -0700 (MST)
+Message-Id: <20151121130002.59E6B2C00ED@kernel.dk>
+Date: Sat, 21 Nov 2015 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 0e0484c51ff9bae3ea5bcdf2a97b614e5a1a6612:
+The following changes since commit 3379b94e3b7da4b74afcfa9781752179ede6ec4d:
 
-  Fio 2.2.11 (2015-11-05 09:05:15 -0700)
+  Fix ETA calculations (2015-11-19 13:36:18 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 513e37eeb01a3037763124869dfcdd6152d92ab8:
+for you to fetch changes up to 13aa415afc8d0a2ad0de2d6c17d6bca2d16f00c7:
 
-  Add latency bin output to the json output format (2015-11-06 08:46:44 -0700)
+  gettime: get rid of the (unecessary) 10x scaling factor (2015-11-20 17:26:37 -0700)
 
 ----------------------------------------------------------------
-Vincent Fu (1):
-      Add latency bin output to the json output format
+Jens Axboe (3):
+      gettime: print first clock offset for CPU clock
+      gettime: make cpuclock calibration more tolerant
+      gettime: get rid of the (unecessary) 10x scaling factor
 
- README |  2 +-
- fio.1  |  6 ++++--
- fio.h  |  4 +++-
- init.c |  4 +++-
- stat.c | 14 +++++++++++++-
- 5 files changed, 24 insertions(+), 6 deletions(-)
+ gettime.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/README b/README
-index 9d0863d..5fa37f3 100644
---- a/README
-+++ b/README
-@@ -151,7 +151,7 @@ $ fio
- 	--runtime		Runtime in seconds
- 	--bandwidth-log		Generate per-job bandwidth logs
- 	--minimal		Minimal (terse) output
--	--output-format=type	Output format (terse,json,normal)
-+	--output-format=type	Output format (terse,json,json+,normal)
- 	--terse-version=type	Terse version output format (default 3, or 2 or 4).
- 	--version		Print version info and exit
- 	--help			Print this page
-diff --git a/fio.1 b/fio.1
-index 3bd3318..140c9bb 100644
---- a/fio.1
-+++ b/fio.1
-@@ -21,8 +21,10 @@ list all available tracing options.
- Write output to \fIfilename\fR.
- .TP
- .BI \-\-output-format \fR=\fPformat
--Set the reporting format to \fInormal\fR, \fIterse\fR, or \fIjson\fR.
--Multiple formats can be selected, separate by a comma.
-+Set the reporting format to \fInormal\fR, \fIterse\fR, \fIjson\fR, or
-+\fIjson+\fR. Multiple formats can be selected, separate by a comma. \fIterse\fR
-+is a CSV based format. \fIjson+\fR is like \fIjson\fR, except it adds a full
-+dump of the latency buckets.
- .TP
- .BI \-\-runtime \fR=\fPruntime
- Limit run time to \fIruntime\fR seconds.
-diff --git a/fio.h b/fio.h
-index 8daf975..5e8ac66 100644
---- a/fio.h
-+++ b/fio.h
-@@ -677,11 +677,13 @@ enum {
- 	__FIO_OUTPUT_TERSE	= 0,
- 	__FIO_OUTPUT_JSON	= 1,
- 	__FIO_OUTPUT_NORMAL	= 2,
--	FIO_OUTPUT_NR		= 3,
-+        __FIO_OUTPUT_JSON_PLUS  = 3,
-+	FIO_OUTPUT_NR		= 4,
+diff --git a/gettime.c b/gettime.c
+index 8d99900..b896b5b 100644
+--- a/gettime.c
++++ b/gettime.c
+@@ -232,6 +232,7 @@ static unsigned long get_cycles_per_usec(void)
+ 	struct timeval s, e;
+ 	uint64_t c_s, c_e;
+ 	enum fio_cs old_cs = fio_clock_source;
++	uint64_t elapsed;
  
- 	FIO_OUTPUT_TERSE	= 1U << __FIO_OUTPUT_TERSE,
- 	FIO_OUTPUT_JSON		= 1U << __FIO_OUTPUT_JSON,
- 	FIO_OUTPUT_NORMAL	= 1U << __FIO_OUTPUT_NORMAL,
-+	FIO_OUTPUT_JSON_PLUS    = 1U << __FIO_OUTPUT_JSON_PLUS,
- };
+ #ifdef CONFIG_CLOCK_GETTIME
+ 	fio_clock_source = CS_CGETTIME;
+@@ -242,8 +243,6 @@ static unsigned long get_cycles_per_usec(void)
  
- enum {
-diff --git a/init.c b/init.c
-index 4f5b7dc..e09872f 100644
---- a/init.c
-+++ b/init.c
-@@ -1766,7 +1766,7 @@ static void usage(const char *name)
- 	printf("  --runtime\t\tRuntime in seconds\n");
- 	printf("  --bandwidth-log\tGenerate per-job bandwidth logs\n");
- 	printf("  --minimal\t\tMinimal (terse) output\n");
--	printf("  --output-format=x\tOutput format (terse,json,normal)\n");
-+	printf("  --output-format=x\tOutput format (terse,json,json+,normal)\n");
- 	printf("  --terse-version=x\tSet terse version output format to 'x'\n");
- 	printf("  --version\t\tPrint version info and exit\n");
- 	printf("  --help\t\tPrint this page\n");
-@@ -2024,6 +2024,8 @@ static int parse_output_format(const char *optarg)
- 			output_format |= FIO_OUTPUT_TERSE;
- 		else if (!strcmp(opt, "json"))
- 			output_format |= FIO_OUTPUT_JSON;
-+		else if (!strcmp(opt, "json+"))
-+			output_format |= (FIO_OUTPUT_JSON | FIO_OUTPUT_JSON_PLUS);
- 		else if (!strcmp(opt, "normal"))
- 			output_format |= FIO_OUTPUT_NORMAL;
- 		else {
-diff --git a/stat.c b/stat.c
-index 091d6fb..6ee02d3 100644
---- a/stat.c
-+++ b/stat.c
-@@ -832,7 +832,7 @@ static void add_ddir_status_json(struct thread_stat *ts,
- 	unsigned int len, minv, maxv;
- 	int i;
- 	const char *ddirname[] = {"read", "write", "trim"};
--	struct json_object *dir_object, *tmp_object, *percentile_object;
-+	struct json_object *dir_object, *tmp_object, *percentile_object, *clat_bins_object;
- 	char buf[120];
- 	double p_of_agg = 100.0;
+ 	c_s = get_cpu_clock();
+ 	do {
+-		uint64_t elapsed;
+-
+ 		__fio_gettime(&e);
  
-@@ -903,6 +903,18 @@ static void add_ddir_status_json(struct thread_stat *ts,
- 		json_object_add_value_int(percentile_object, (const char *)buf, ovals[i]);
+ 		elapsed = utime_since(&s, &e);
+@@ -254,7 +253,7 @@ static unsigned long get_cycles_per_usec(void)
+ 	} while (1);
+ 
+ 	fio_clock_source = old_cs;
+-	return (c_e - c_s + 127) >> 7;
++	return (c_e - c_s) / elapsed;
+ }
+ 
+ #define NR_TIME_ITERS	50
+@@ -300,16 +299,11 @@ static int calibrate_cpu_clock(void)
  	}
  
-+	if (output_format & FIO_OUTPUT_JSON_PLUS) {
-+		clat_bins_object = json_create_object();
-+		json_object_add_value_object(tmp_object, "bins", clat_bins_object);
-+		for(i = 0; i < FIO_IO_U_PLAT_NR; i++) {
-+			snprintf(buf, sizeof(buf), "%d", i);
-+			json_object_add_value_int(clat_bins_object, (const char *)buf, ts->io_u_plat[ddir][i]);
-+		}
-+		json_object_add_value_int(clat_bins_object, "FIO_IO_U_PLAT_BITS", FIO_IO_U_PLAT_BITS);
-+		json_object_add_value_int(clat_bins_object, "FIO_IO_U_PLAT_VAL", FIO_IO_U_PLAT_VAL);
-+		json_object_add_value_int(clat_bins_object, "FIO_IO_U_PLAT_NR", FIO_IO_U_PLAT_NR);
-+	}
-+
- 	if (!calc_lat(&ts->lat_stat[ddir], &min, &max, &mean, &dev)) {
- 		min = max = 0;
- 		mean = dev = 0.0;
+ 	S /= (double) NR_TIME_ITERS;
+-	mean /= 10.0;
+ 
+ 	for (i = 0; i < NR_TIME_ITERS; i++)
+-		dprint(FD_TIME, "cycles[%d]=%llu\n", i,
+-					(unsigned long long) cycles[i] / 10);
++		dprint(FD_TIME, "cycles[%d]=%llu\n", i, (unsigned long long) cycles[i]);
+ 
+ 	avg /= samples;
+-	avg = (avg + 5) / 10;
+-	minc /= 10;
+-	maxc /= 10;
+ 	dprint(FD_TIME, "avg: %llu\n", (unsigned long long) avg);
+ 	dprint(FD_TIME, "min=%llu, max=%llu, mean=%f, S=%f\n",
+ 			(unsigned long long) minc,
+@@ -485,6 +479,7 @@ static void *clock_thread_fn(void *data)
+ 	struct clock_entry *c;
+ 	os_cpu_mask_t cpu_mask;
+ 	uint32_t last_seq;
++	unsigned long long first;
+ 	int i;
+ 
+ 	if (fio_cpuset_init(&cpu_mask)) {
+@@ -506,6 +501,7 @@ static void *clock_thread_fn(void *data)
+ 	pthread_mutex_lock(&t->lock);
+ 	pthread_mutex_unlock(&t->started);
+ 
++	first = get_cpu_clock();
+ 	last_seq = 0;
+ 	c = &t->entries[0];
+ 	for (i = 0; i < t->nr_entries; i++, c++) {
+@@ -528,7 +524,8 @@ static void *clock_thread_fn(void *data)
+ 		unsigned long long clocks;
+ 
+ 		clocks = t->entries[i - 1].tsc - t->entries[0].tsc;
+-		log_info("cs: cpu%3d: %llu clocks seen\n", t->cpu, clocks);
++		log_info("cs: cpu%3d: %llu clocks seen, first %llu\n", t->cpu,
++							clocks, first);
+ 	}
+ 
+ 	/*
