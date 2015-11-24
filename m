@@ -1,53 +1,47 @@
-Return-Path: <m.eaton82@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <5653D5EA.1060201@kernel.dk>
-References: <CAF+0mvmGOrVdpaobMa-ChSz2qPJqhE1s+qUbJpdHPpEo+UKcww@mail.gmail.com>
-	<56533A11.4050706@kernel.dk>
-	<56533BE5.3010606@kernel.dk>
-	<CAF+0mv=KWZ-_VGEFLhDzh70E2ztr7esdjOpQR-wdLJ-eQ-mRng@mail.gmail.com>
-	<5653D5EA.1060201@kernel.dk>
-Date: Wed, 25 Nov 2015 09:16:34 -0800
-Message-ID: <CAF+0mvnKfMNX-Pb1mYrQYubDqJJj84C0NQKVzMAGOoR84Qt8zg@mail.gmail.com>
+Return-Path: <axboe@kernel.dk>
 Subject: Re: Bug with --buffer_compress_percentage
-From: Matthew Eaton <m.eaton82@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-To: Jens Axboe <axboe@kernel.dk>
+References: <CAF+0mvmGOrVdpaobMa-ChSz2qPJqhE1s+qUbJpdHPpEo+UKcww@mail.gmail.com>
+ <56533A11.4050706@kernel.dk> <56533BE5.3010606@kernel.dk>
+ <CAF+0mv=KWZ-_VGEFLhDzh70E2ztr7esdjOpQR-wdLJ-eQ-mRng@mail.gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <5653D5EA.1060201@kernel.dk>
+Date: Mon, 23 Nov 2015 20:13:46 -0700
+MIME-Version: 1.0
+In-Reply-To: <CAF+0mv=KWZ-_VGEFLhDzh70E2ztr7esdjOpQR-wdLJ-eQ-mRng@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Matthew Eaton <m.eaton82@gmail.com>
 Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-> Perfect, thanks for reporting and followup testing.
+On 11/23/2015 03:15 PM, Matthew Eaton wrote:
+>>> I think this is an artifact of how gzip compression works, it doesn't
+>>> have an unlimited size window. It's 32k, iirc. Fio should fill so that
+>>> it ideally would compress to the given size with an ideal compression
+>>> algorithm.
+>>>
+>>> You'd probably want to use buffer_compress_chunk=x to always force fio
+>>> to operate in sizes of that for compression, if you want to ensure that
+>>> gzip would be able to compress to the specified ratio. I do think we
+>>> have a loop missing though for that to do what you need, let me test
+>>> that and report back.
+>>
+>>
+>> I think things should work for all sizes, if you add this patch and then add
+>> buffer_compress_chunk=32k or similar to your job file. You can do that for
+>> smaller block sizes as well, fio will use the minimum of that chunk size or
+>> the write block size.
+>>
+>> --
+>> Jens Axboe
+>>
 >
-> --
-> Jens Axboe
+> Applied the patch and added buffer_compress_chunk=32k and now it's
+> working for all block sizes. Thank you for the info and the patch!
 
-Unfortunately I am having an issue with buffer_compress_chunk in the
-2.2.12 release.  Removing buffer_compress_chunk from the tests below
-fixes the issues.
+Perfect, thanks for reporting and followup testing.
 
-fio --name=test --rw=write --bs=4k --ioengine=libaio --direct=1
---iodepth=32 --size=1g --refill_buffers
---buffer_compress_percentage=50 --buffer_compress_chunk=32k
---filename=testfile
-test: (g=0): rw=write, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=32
-fio-2.2.12
-Starting 1 process
-fio: pid=24516, got signal=11
+-- 
+Jens Axboe
 
-
-Run status group 0 (all jobs):
-
-Disk stats (read/write):
-  sda: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
-fio: file hash not empty on exit
-
-
-fio --name=test --rw=write --bs=128k --ioengine=libaio --direct=1
---iodepth=32 --size=1g --refill_buffers
---buffer_compress_percentage=50 --buffer_compress_chunk=32k
---filename=testfile
-test: (g=0): rw=write, bs=128K-128K/128K-128K/128K-128K,
-ioengine=libaio, iodepth=32
-fio-2.2.12
-Starting 1 process
-Segmentation fault (core dumped)
 
