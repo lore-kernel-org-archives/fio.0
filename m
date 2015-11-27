@@ -1,49 +1,89 @@
-Return-Path: <martin.steigerwald@teamix.de>
-From: Martin Steigerwald <ms@teamix.de>
-Subject: relationship of fio versus gfio
-Date: Fri, 6 Nov 2015 09:54:42 +0100
-Message-ID: <6266593.Pst2hzQaXB@merkaba>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: RBD client cache
+References: <CADr68WZZqpVAeS-EuUgc5eOz=XoyrcCWCTymx58WBEAger442A@mail.gmail.com>
+ <564E318C.3060602@kernel.dk> <1448553070.29391.3.camel@x-ion.de>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <56587F75.80800@kernel.dk>
+Date: Fri, 27 Nov 2015 09:06:13 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="utf-8"
-To: fio@vger.kernel.org
-Cc: Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <1448553070.29391.3.camel@x-ion.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Jens Rosenboom <j.rosenboom@x-ion.de>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-=EF=BB=BFHello Jens, hello fio community.
+On 11/26/2015 08:51 AM, Jens Rosenboom wrote:
+>  From dbd950891a43a7104bce5ec935cd992c7e2b27ff Mon Sep 17 00:00:00 2001
+> From: Jens Rosenboom <j.rosenboom@x-ion.de>
+> Date: Thu, 26 Nov 2015 16:27:49 +0100
+> Subject: [PATCH] Add an option to flush RBD after opening
+>
+> With recent Ceph releases the default value for
+>
+> rbd cache writethrough until flush
+>
+> has been changed to true, so the librbd client cache will stay in
+> writethrough mode for fio.
+>
+> This patch adds an option to perform an rbd_flush() call after opening
+> the RBD, causing the client cache to activate writeback mode.
+>
+> Signed-off-by: Jens Rosenboom <j.rosenboom@x-ion.de>
+> ---
+>
+> This works in my test enviroment and boosts 4k randwrites at iodepth=1 from 100 to 6000.
+> Still it would probably be good if other people could test this, too.
+>
+>
+>   engines/rbd.c | 18 ++++++++++++++++++
+>   1 file changed, 18 insertions(+)
+>
+> diff --git a/engines/rbd.c b/engines/rbd.c
+> index 2be9b55..b3efedf 100644
+> --- a/engines/rbd.c
+> +++ b/engines/rbd.c
+> @@ -30,6 +30,7 @@ struct rbd_options {
+>   	char *pool_name;
+>   	char *client_name;
+>   	int busy_poll;
+> +	int flush_on_open;
+>   };
+>
+>   static struct fio_option options[] = {
+> @@ -71,6 +72,16 @@ static struct fio_option options[] = {
+>   		.group		= FIO_OPT_G_RBD,
+>   	},
+>   	{
+> +		.name		= "flush_on_open",
+> +		.lname		= "Flush on open",
+> +		.type		= FIO_OPT_BOOL,
+> +		.help		= "Flush on opening the RBD to activate client cache",
+> +		.off1		= offsetof(struct rbd_options, flush_on_open),
+> +		.def		= "0",
+> +		.category	= FIO_OPT_C_ENGINE,
+> +		.group		= FIO_OPT_G_RBD,
+> +	},
+> +	{
+>   		.name = NULL,
+>   	},
+>   };
+> @@ -140,6 +151,13 @@ static int _fio_rbd_connect(struct thread_data *td)
+>   		log_err("rbd_open failed.\n");
+>   		goto failed_open;
+>   	}
+> +	if (o->flush_on_open) {
+> +		r = rbd_flush(rbd->image);
+> +		if (r < 0) {
+> +			log_err("rbd_flush failed.\n");
+> +			goto failed_open;
+> +		}
+> +	}
+>   	return 0;
 
-During package review of my new fio package my reviewer raised the question=
- of=20
-the relationship between gfio and fio. I already also wondered about it=20
-before.
+Looks good, but we should probably limit this to td_write() being true, 
+and not do this for read-only opens.
 
-Can gfio be used on a system, without fio installed? My guess would be yes:=
- As=20
-fio could be running on another machine as a server.
-
-Also currently I have it that gfio is linked against the same libraries as=
-=20
-fio. Is a complete fio engine included in gfio?
-
-Thanks,
-
---=20
-Martin Steigerwald  | Consultant / Trainer
-
-teamix GmbH
-S=C3=BCdwestpark 43
-90449 N=C3=BCrnberg
-
-Tel.:  +49 911 30999 55 | Fax: +49 911 30999 99
-mail: martin.steigerwald@teamix.de | web:  http://www.teamix.de | blog: htt=
-p://blog.teamix.de
-
-Amtsgericht N=C3=BCrnberg, HRB 18320 | Gesch=C3=A4ftsf=C3=BChrer: Oliver K=
-=C3=BCgow, Richard M=C3=BCller
-
-teamix Support Hotline: +49 911 30999-112
-=20
- *** Besuchen Sie uns vom 16.-19.11.2015 auf der NetApp Insight im CityCube=
- in Berlin auf Stand A5. ***
+-- 
+Jens Axboe
 
 
