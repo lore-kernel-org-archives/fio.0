@@ -1,67 +1,33 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:54729 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932824AbbKFNAD (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 6 Nov 2015 08:00:03 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1Zugcd-0008C9-2Z
-	for fio@vger.kernel.org; Fri, 06 Nov 2015 13:00:03 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: Bug using ramp_time shows cpu over 100%
+References: <ed17d1a2eea2407cb00badb46a05a386@BOWEX36-B.micron.com>
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20151106130002.217772C00B0@kernel.dk>
-Date: Fri,  6 Nov 2015 06:00:02 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <565CC382.1010706@kernel.dk>
+Date: Mon, 30 Nov 2015 14:45:38 -0700
+MIME-Version: 1.0
+In-Reply-To: <ed17d1a2eea2407cb00badb46a05a386@BOWEX36-B.micron.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+To: "Deyoung Hong (dhong)" <dhong@micron.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit f6cbf8ac4f70c800bbbfc23c5dcf44ed619c0acc:
+On 11/25/2015 12:36 PM, Deyoung Hong (dhong) wrote:
+> I think this is an fio bug.
+>
+> Description:   When specifying ramp_time, cpu may show over 100% (when using a polling mode driver).
+> If ramp_time is not specified, cpu values appear to be correct.
+> You normally don't see this problem because most drivers don't utilize high CPU usage.
+> You will have to use some custom driver that does polling, for example (something like http://www.dpdk.org/).
+>
+> OS:  Any (but tested on Linux CentOS 6.6)
 
-  output_buffer: only realloc once, and memset just what we need (2015-10-30 19:34:21 -0600)
+This should fix it:
 
-are available in the git repository at:
+http://git.kernel.dk/cgit/fio/commit/?id=210dd0fc66b8956065e098bb9314febe8993e849
 
-  git://git.kernel.dk/fio.git master
+Try current -git and hopefully it'll behave better.
 
-for you to fetch changes up to 0e0484c51ff9bae3ea5bcdf2a97b614e5a1a6612:
+-- 
+Jens Axboe
 
-  Fio 2.2.11 (2015-11-05 09:05:15 -0700)
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      Fio 2.2.11
-
- FIO-VERSION-GEN        | 2 +-
- os/windows/install.wxs | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index 9dd811d..a5949d3 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-2.2.10
-+DEF_VER=fio-2.2.11
- 
- LF='
- '
-diff --git a/os/windows/install.wxs b/os/windows/install.wxs
-index 77d6bf2..4bc5bd4 100755
---- a/os/windows/install.wxs
-+++ b/os/windows/install.wxs
-@@ -10,7 +10,7 @@
- 	<Product Id="*"
- 	  Codepage="1252" Language="1033"
- 	  Manufacturer="fio" Name="fio"
--	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.2.10">
-+	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.2.11">
- 		<Package
- 		  Description="Flexible IO Tester"
- 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
