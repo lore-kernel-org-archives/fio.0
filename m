@@ -1,84 +1,124 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from plane.gmane.org ([80.91.229.3]:59047 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750797AbbLICzI (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 8 Dec 2015 21:55:08 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcsf-fio@m.gmane.org>)
-	id 1a6UuG-0004RR-Fu
-	for fio@vger.kernel.org; Wed, 09 Dec 2015 03:55:05 +0100
-Received: from eagleheights-118-111.resnet.wisc.edu ([146.151.118.111])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <fio@vger.kernel.org>; Wed, 09 Dec 2015 03:55:04 +0100
-Received: from jhe by eagleheights-118-111.resnet.wisc.edu with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <fio@vger.kernel.org>; Wed, 09 Dec 2015 03:55:04 +0100
-From: Jun He <jhe@cs.wisc.edu>
-Subject: =?utf-8?b?aW9fc2l6ZQ==?= usage
-Date: Wed, 9 Dec 2015 02:50:40 +0000 (UTC)
-Message-ID: <loom.20151209T033523-799@post.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Return-Path: <avi@cloudius-systems.com>
+Return-Path: <avi@cloudius-systems.com>
+Subject: Re: RFE: Graphing and iteration support for fio
+References: <565D7ED9.3000606@scylladb.com> <56607574.6050602@kernel.dk>
+ <5660798C.8000900@scylladb.com> <56607B43.4060908@kernel.dk>
+ <56607C86.5080408@scylladb.com>
+From: Avi Kivity <avi@scylladb.com>
+Message-ID: <56608323.5050809@scylladb.com>
+Date: Thu, 3 Dec 2015 20:00:03 +0200
+MIME-Version: 1.0
+In-Reply-To: <56607C86.5080408@scylladb.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Hi all,
-I think there is a bug for io_size. 
+On 12/03/2015 07:31 PM, Avi Kivity wrote:
+>
+>
+> On 12/03/2015 07:26 PM, Jens Axboe wrote:
+>> On 12/03/2015 10:19 AM, Avi Kivity wrote:
+>>>
+>>>
+>>> On 12/03/2015 07:01 PM, Jens Axboe wrote:
+>>>> On 12/01/2015 04:04 AM, Avi Kivity wrote:
+>>>>> Sometimes you want to run a set of experiments on a disk, varying a
+>>>>> parameter between tests (in my case, iodepth, but buffer size is 
+>>>>> also a
+>>>>> good candidate).  You then want to present the results in a nice 
+>>>>> graph.
+>>>>>
+>>>>> I wrote a small wrapper around fio to do this
+>>>>> (https://github.com/avikivity/diskplorer), but it occurs to me that
+>>>>> generalized support for both in fio would be much more useful.
+>>>>>
+>>>>> Possibly, you'd define a job as a template:
+>>>>>
+>>>>> [aio-read]
+>>>>> template_start=1
+>>>>> template_end=100
+>>>>> template_step=1
+>>>>> (or template_ratio=1.05 for exponential growth)
+>>>>> iodepth=template_variable
+>>>>>
+>>>>> (it's just possible that someone can come up with better syntax).
+>>>>>
+>>>>> A few more options in the global section can then cause a graph to be
+>>>>> generated.
+>>>>
+>>>> It'd be great to integrate this into fio, as graphing results is
+>>>> something that most people want to do. Any chance you would be willing
+>>>> to try and hash that out?
+>>>
+>>> I'd love to say yes, but no.
+>>
+>> :-)
+>>
+>>>>> btw, a fast disk can easily saturate a single core using libaio, so a
+>>>>> multithreaded libaio ioengine would be welcome (I am currently 
+>>>>> emulating
+>>>>> it using multiple jobs and new_group).
+>>>>
+>>>> In the context of fio, that doesn't make a lot of sense. A job in fio
+>>>> is, by definition, either a thread or a process that does IO. So if
+>>>> you want more threads banging on a device, then you'd add more jobs.
+>>>> If multiple threads shared on aio context, then we'd also potentially
+>>>> see contention on that part. If you just use more jobs, then each gets
+>>>> an aio context as well.
+>>>>
+>>>
+>>> If your jobs are generated via a template, as above, then this is hard
+>>> to do.  For iodepth=1 you want one job with iodepth=1.  For iodepth=64
+>>> you want 8 jobs (one per core) each with an iodepth=8; otherwise a fast
+>>> SSD will overwhelm a single core.
+>>>
+>>> Perhaps the job specification can be modified so that it auto-generates
+>>> subjobs.  In the specification, there is one entry, but fio sees 8 (or
+>>> 1, when the template sets iodepth=1), and reports them via a group.
+>>>
+>>> [aio-read]
+>>> template_start=1
+>>> template_end=100
+>>> template_step=1
+>>> (or template_ratio=1.05 for exponential growth)
+>>> subjobs=(min(template_variable, core_count))
+>>> iodepth=(template_variable / subjobs)
+>>>
+>>> (the above doesn't cope will with an iodepth that doesn't divide into
+>>> your core_count; displorer will generate subjobs with different iodepth
+>>> for this)
+>>
+>> For purely automated or templated, yeah, it's not ideal. But some of 
+>> this is highly setup specific. For QD=64, 2 threads at QD=32 might be 
+>> the best option. Or 8/8, perhaps. Sometimes it's a tradeoff between 
+>> throwing CPU cycles at it to squeeze out the last drop of 
+>> performance, sometimes (eg on nvme), you need "just enough" threads 
+>> to reach max performance, since things are mostly 100% parallelized 
+>> on both the submission and completion path.
+>>
+>> Fio does support thread offload (io_submit_mode=offload), which was 
+>> added not for performance reasons, but because it's important to 
+>> capture the true latency of the device in case of device backup. So 
+>> the framework is in place to do that - which was the harder part. You 
+>> might want to take a look at that. It would need slight modifications 
+>> for your use case, but it'd be a good general addition.
+>>
+>
+> Ok.  For my case the existing diskplorer hack is enough, but this 
+> really belongs in fio proper.
+>
+> Maybe it wants integration with a scripting language that can 
+> succinctly represent the job by returning an object (or array of 
+> objects for a multi-job test), instead of the ugly template syntax I 
+> proposed.
+>
+>
+> So you'd run 'fio test.lua' and it would generate test specifications 
+> for you, then graph them.
+>
 
-For example, I want to write 16KB data to a file of size 8KB (so each block is
-written twice) and I have the following job file:
-
-[global]
-ioengine=sync
-rw=write
-bs=4kb
-size=8kb
-io_size=32kb
-
-[job1]
-write_iolog=iolog.1
-
-
-After running, iolog.1 will contain the following contents:
-
-fio version 2 iolog
-job1.0.0 add
-job1.0.0 open
-job1.0.0 write 0 4096
-job1.0.0 write 4096 4096
-job1.0.0 close
-
-This shows that each block has been only written once. 
-
-If I change the ioengine to libaio, iolog.1 will contain:
-
-fio version 2 iolog
-job1.0.0 add
-job1.0.0 open
-job1.0.0 write 0 4096
-job1.0.0 write 4096 4096
-job1.0.0 close
-job1.0.0 open
-job1.0.0 write 0 4096
-job1.0.0 write 4096 4096
-job1.0.0 close
-job1.0.0 open
-job1.0.0 write 0 4096
-job1.0.0 write 4096 4096
-job1.0.0 close
-job1.0.0 open
-job1.0.0 write 0 4096
-job1.0.0 write 4096 4096
-job1.0.0 close
-
-
-Bug or wrong usage?
-
-Thanks,
-Jun
+Or fio test.ebpf, if you're a hardcore kernel hacker.
 
 
 
