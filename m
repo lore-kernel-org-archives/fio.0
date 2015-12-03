@@ -1,193 +1,190 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-db3on0098.outbound.protection.outlook.com ([157.55.234.98]:61312
-	"EHLO emea01-db3-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752566AbbL1WAd convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 28 Dec 2015 17:00:33 -0500
-From: Thierry BERTAUD <tbertaud@conforama.fr>
-Subject: fio-f1480f9: AIX 6.1 build KO against gcc function overlap
-Date: Mon, 28 Dec 2015 21:45:59 +0000
-Message-ID: <VI1PR05MB1343197BD54DC24EA6A2AF65B1FB0@VI1PR05MB1343.eurprd05.prod.outlook.com>
-Content-Language: fr-FR
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Return-Path: <axboe@kernel.dk>
+Subject: Re: Running a separate fio process for each disk?
+References: <CADp+U7ibiKciX8_cpzGzob4oL-UF-H+W7kYuiujovD0ba=hM6A@mail.gmail.com>
+ <56464ACC.9030605@kernel.dk>
+ <CADp+U7gHq5VJgRFzGXvHTKN8Tyz9NDUZGePDWQ548ciyJmGr7A@mail.gmail.com>
+ <56465F00.1060504@kernel.dk>
+ <CADp+U7i=OPhuF9+nB1MW0ScaPv5sX3mL4ASdJ-8AGrDMfX71oA@mail.gmail.com>
+ <CAFXh1QgZNghYY9CKJY5BZA4=ARGzXWYVHBBpHxV724qu2Wd5Hw@mail.gmail.com>
+ <564F798A.8050009@kernel.dk>
+ <CAFFT=UnmqonF2LSb9HNoiBQXeuWTA+La=B-fp54miv_NnTjg3Q@mail.gmail.com>
+ <CAKb3OG9GfNrypxFPMMRR1W2QTi=Pnt0AXnFzzjDv4cJ9k0ZuVA@mail.gmail.com>
+ <564FB905.7060609@kernel.dk> <5654876F.9080803@kernel.dk>
+ <CAFFT=UnYcVN4s=eZ8Uj63VonEcuApfAQz1AoiOaVZqdrwgZLYw@mail.gmail.com>
+ <56550C49.4070700@kernel.dk>
+ <CAFFT=Uks8j+K7M0dfT0tS2aiRTOHCqu0S_3-DnKY2zL-K33T7g@mail.gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <566090B8.60302@kernel.dk>
+Date: Thu, 3 Dec 2015 11:58:00 -0700
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <CAFFT=Uks8j+K7M0dfT0tS2aiRTOHCqu0S_3-DnKY2zL-K33T7g@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Akash Verma <akashv@google.com>
+Cc: Michael Bella <mbella@google.com>, Caio Villela <caio@google.com>, Allen Schade <aschade@google.com>, fio <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Hello Fio Team,
-
-The 'send_file' function is defiined twice, so gcc doesn't like the same function with different signature. 
-How can i fix this issue and build fio since send_file is used by a system library?
-
-Output from make:
----------------
-client.c:1488:12: error: conflicting types for 'send_file'
-static int send_file(struct fio_client *client, struct cmd_sendfile *pdu,
-            ^
-In file included from client.c:11:0:
-/usr/include/sys/socket.h:760:9: note: previous declaration of 'send_file' was here
-ssize_t send_file(int *, struct sf_parms *, uint_t);
--------------
+Perfect! Thanks for reporting and re-testing.
 
 
-Version:
-AIX:
-# oslevel -s
-6100-08-01-1245
-# 
+On 12/03/2015 11:54 AM, Akash Verma wrote:
+> Jens, I confirmed that the issue is not seen with the latest FIO (I used
+> version fio-2.2.12-15-gcdab).
+>
+> On Tue, Nov 24, 2015 at 5:18 PM, Jens Axboe <axboe@kernel.dk
+> <mailto:axboe@kernel.dk>> wrote:
+>
+>     No worries, I know this week is a bit more problematic than usual.
+>     I'll hold off on the new release until I know.
+>
+>
+>
+>     On 11/24/2015 01:51 PM, Akash Verma wrote:
+>
+>         Sorry for not getting back - I didn't get a chance to try the latest
+>         git, and I'm off on vacation soon; I'm ccing Michael and Caio who
+>         might have a chance to try it out before Thursday. Michael or Caio,
+>         could you try run the two things Jens asked (the cpuclock test using
+>         the FIO we've been currently using as well as the latest from
+>         Git; and
+>         the regular multi-process FIO run with the latest git)?
+>
+>         On Tue, Nov 24, 2015 at 7:51 AM, Jens Axboe <axboe@kernel.dk
+>         <mailto:axboe@kernel.dk>> wrote:
+>
+>             Did you try current -git yet? I think it should work for
+>             both scenarios.
+>             It's a silly bug, would be great to have confirmation that
+>             it's fixed. Then
+>             I'll spin a new release.
+>
+>
+>
+>             On 11/20/2015 05:21 PM, Jens Axboe wrote:
+>
+>
+>                 And finally, there's a potential fix, if you run commit
+>                 99afcdb53dc3 or later. So please do try that as well, and
+>                 see if that behaves any better for you.
+>
+>
+>                 On 11/20/2015 05:03 PM, Jens Axboe wrote:
+>
+>
+>                     Hi,
+>
+>                     OK, I see. Can you pull the latest -git, and then
+>                     run fio
+>                     --cpuclock-test on one of the boxes where you see
+>                     the issue? It should
+>                     have commit 5896d827e1e2 or later.
+>
+>
+>                     On Fri, Nov 20, 2015 at 3:20 PM, Akash Verma
+>                     <akashv@google.com <mailto:akashv@google.com>
+>                     <mailto:akashv@google.com
+>                     <mailto:akashv@google.com>>> wrote:
+>
+>                           Hi Jens,
+>                           The issue is not seen with non-cpu clock
+>                     sources, or when using a
+>                           single process (with individual threads, the
+>                     only config I tried). We
+>                           only see the issue when using multiple
+>                     processes and the cpu clock
+>                           source.
+>
+>                           On Fri, Nov 20, 2015 at 11:50 AM, Jens Axboe
+>                     <axboe@kernel.dk <mailto:axboe@kernel.dk>
+>                           <mailto:axboe@kernel.dk
+>                     <mailto:axboe@kernel.dk>>> wrote:
+>                            > On 11/20/2015 12:37 PM, Caio Villela wrote:
+>                            >>
+>                            >> Hello Allen and Jens,
+>                            >>
+>                            >> Sorry for the long output, this is just in
+>                     case you want the
+>                           details.
+>                            >> Here is a simple explanation for the
+>                     problem. I want to run a 15
+>                           minute
+>                            >> random write, using 1 Meg requests, and
+>                     measure throughput and
+>                           latency.
+>                            >> What seems to be the problem is that if
+>                     the test system has a
+>                     large
+>                            >> number of drives - the system that I am
+>                     testing here has 28
+>                     drives -
+>                            >> then the time accounting seems to go bad
+>                     for some of the
+>                     processes.
+>                            >> What you see below is that during the 15
+>                     minutes from start, all
+>                           disks
+>                            >> are getting hit the same, as they should.
+>                     Then, after 15
+>                           minutes, there
+>                            >> are 15 drives that are still running....
+>                     after 5 minutes over the
+>                            >> specified 15 minutes, there is still one
+>                     drive running. Then
+>                           looking at
+>                            >> the amount of IOs sent to each drive, the
+>                     ones that ran on that
+>                           excess
+>                            >> time have much more IOs. FIO still reports
+>                     that all drives ran
+>                           for 15
+>                            >> minutes, although some ran for more than
+>                     20 minutes.
+>                            >>
+>                            >> We will attempt to run a single process
+>                     instead of 28 instances
+>                           of FIO
+>                            >> to see if this goes away.
+>                            >
+>                            >
+>                            > Could you also check if adding
+>                     clocksource=gettimeofday makes any
+>                            > difference? This sounds very odd.
+>                            >
+>                            > Assuming this was run with fio -git?
+>                            >
+>                            >
+>                            > --
+>                            > Jens Axboe
+>                            >
+>                           > --
+>                           > To unsubscribe from this list: send the line
+>                     "unsubscribe fio" in
+>                           > the body of a message
+>                     tomajordomo@vger.kernel.org
+>                     <mailto:tomajordomo@vger.kernel.org>
+>                     <mailto:majordomo@vger.kernel.org
+>                     <mailto:majordomo@vger.kernel.org>>
+>                           > More majordomo info
+>                     athttp://vger.kernel.org/majordomo-info.html
+>                     <http://vger.kernel.org/majordomo-info.html>
+>
+>
+>
+>
+>
+>
+>             --
+>             Jens Axboe
+>
+>
+>
+>     --
+>     Jens Axboe
+>
+>
 
-GCC:
-# gcc --version
-gcc (GCC) 4.8.3
-Copyright (C) 2013 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-#
+-- 
+Jens Axboe
 
 
-Build output:
-# ./configure --disable-lex
-Operating system              AIX
-CPU                           ppc
-Big endian                    yes
-Compiler                      gcc
-Cross compile                 no
-
-Static build                  no
-Wordsize                      32
-zlib                          yes
-Linux AIO support             no
-POSIX AIO support             yes
-POSIX AIO support needs -lrt  no
-POSIX AIO fsync               yes
-Solaris AIO support           no
-__sync_fetch_and_add          no
-libverbs                      no
-rdmacm                        yes
-Linux fallocate               no
-POSIX fadvise                 yes
-POSIX fallocate               yes
-sched_setaffinity(3 arg)      no
-sched_setaffinity(2 arg)      no
-clock_gettime                 yes
-CLOCK_MONOTONIC               yes
-CLOCK_MONOTONIC_RAW           no
-CLOCK_MONOTONIC_PRECISE       no
-gettimeofday                  yes
-fdatasync                     yes
-sync_file_range               no
-EXT4 move extent              no
-Linux splice(2)               no
-GUASI                         no
-Fusion-io atomic engine       no
-libnuma                       no
-strsep                        yes
-strcasestr                    no
-strlcat                       no
-getopt_long_only()            no
-inet_aton                     yes
-socklen_t                     yes
-__thread                      yes
-RUSAGE_THREAD                 yes
-SCHED_IDLE                    no
-TCP_NODELAY                   yes
-Net engine window_size        yes
-TCP_MAXSEG                    yes
-RLIMIT_MEMLOCK                no
-pwritev/preadv                yes
-IPv6 helpers                  yes
-Rados Block Device engine     no
-setvbuf                       yes
-Gluster API engine            no
-s390_z196_facilities          no
-HDFS engine                   no
-MTD                           no
-lex/yacc for arithmetic       no
-getmntent                     yes
-getmntinfo                    no
-Static Assert                 yes
-bool                          yes
-#
-# gmake CC=gcc
-FIO_VERSION = fio-2.3
-    CC crc/crc64.o
-    CC crc/md5.o
-    CC crc/fnv.o
-    CC crc/sha256.o
-    CC crc/test.o
-    CC crc/xxhash.o
-    CC crc/crc32c-intel.o
-    CC crc/murmur3.o
-    CC crc/crc32.o
-    CC crc/crc32c.o
-    CC crc/sha1.o
-    CC crc/crc7.o
-    CC crc/sha512.o
-    CC crc/crc16.o
-    CC lib/gauss.o
-    CC lib/prio_tree.o
-    CC lib/axmap.o
-    CC lib/flist_sort.o
-    CC lib/hweight.o
-    CC lib/zipf.o
-    CC lib/getrusage.o
-    CC lib/output_buffer.o
-    CC lib/memalign.o
-    CC lib/lfsr.o
-    CC lib/bloom.o
-    CC lib/strntol.o
-    CC lib/num2str.o
-    CC lib/mountcheck.o
-    CC lib/pattern.o
-lib/pattern.c: In function 'parse_number':
-lib/pattern.c:77:3: warning: implicit declaration of function 'strcasestr' [-Wimplicit-function-declaration]
-   _end = strcasestr(beg, "0x");
-   ^
-lib/pattern.c:77:8: warning: assignment makes pointer from integer without a cast [enabled by default]
-   _end = strcasestr(beg, "0x");
-        ^
-    CC lib/ieee754.o
-    CC lib/rbtree.o
-    CC lib/rand.o
-    CC gettime.o
-    CC ioengines.o
-    CC init.o
-    CC stat.o
-    CC log.o
-    CC time.o
-    CC filesetup.o
-    CC eta.o
-    CC verify.o
-    CC memory.o
-    CC io_u.o
-    CC parse.o
-    CC mutex.o
-    CC options.o
-    CC smalloc.o
-    CC filehash.o
-    CC profile.o
-    CC debug.o
-    CC engines/cpu.o
-    CC engines/mmap.o
-    CC engines/sync.o
-    CC engines/null.o
-    CC engines/net.o
-    CC server.o
-    CC client.o
-client.c:1488:12: error: conflicting types for 'send_file'
-static int send_file(struct fio_client *client, struct cmd_sendfile *pdu,
-            ^
-In file included from client.c:11:0:
-/usr/include/sys/socket.h:760:9: note: previous declaration of 'send_file' was here
-ssize_t send_file(int *, struct sf_parms *, uint_t);
-         ^
-Makefile:289: recipe for target 'client.o' failed
-gmake: *** [client.o] Error 1
-#
-
-Regards,
-Thierry
-  
