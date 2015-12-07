@@ -1,34 +1,49 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-lf0-f52.google.com ([209.85.215.52]:36825 "EHLO
-	mail-lf0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754516AbbLHOEu (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 8 Dec 2015 09:04:50 -0500
-Received: by lfs39 with SMTP id 39so13263823lfs.3
-        for <fio@vger.kernel.org>; Tue, 08 Dec 2015 06:04:48 -0800 (PST)
+Return-Path: <zhong@imap.linux.ibm.com>
 MIME-Version: 1.0
-Date: Tue, 8 Dec 2015 15:04:47 +0100
-Message-ID: <CADr68Wabo8sjpN6VAB6jxPAEogjMEqX_fHBpOBtoMUvyC_QeTA@mail.gmail.com>
-Subject: Latency percentile cap
-From: Jens Rosenboom <j.rosenboom@x-ion.de>
-Content-Type: text/plain; charset=UTF-8
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date: Mon, 07 Dec 2015 15:21:52 +0800
+From: zhong <zhong@imap.linux.ibm.com>
+Subject: Re: [RFC PATCH] powerpc: enable cpu clock for powerpc64
+In-Reply-To: <5661CC63.7070305@kernel.dk>
+References: <1449208206.30683.9.camel@TP420> <5661CC63.7070305@kernel.dk>
+Message-ID: <dc73b2eb8cae04be0634d3ecee0df064@imap.linux.ibm.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Li Zhong <zhong@linux.vnet.ibm.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-When running jobs where some operations are taking very long, the
-calculation of the latency percentiles seems to get capped at 16.7s or
-rather exactly at 2^24-2^16 microseconds.
+On 2015-12-05 01:24, Jens Axboe wrote:
+> On 12/03/2015 10:50 PM, Li Zhong wrote:
+>> This patch tries to enable cpu clock for powerpc64, the code is copied 
+>> from
+>> mftb() in kernel source.
+>> 
+>> The two instructions after mfspr are added in the kernel to solve an 
+>> erratum on
+>> Cell and fsl booke CPUs. On those CPUs, 64 bits mftb is not atomic, so 
+>> it is
+>> possible that the low order 32 bits are already reset to 0x00000000 
+>> but the
+>> high order bits are not yet incremented by one.
+>> 
+>> Don't know how to tell whether it will be running on those CPUs or 
+>> not, I just
+>> keep the above fix for all ppc64 CPUs. Even if we have some method to 
+>> check
+>> whether we are on those CPUs or not at run time, I think the check 
+>> won't cost
+>> less than the two added instructions. Maybe we could use the similar 
+>> fix up
+>> code kernel uses to dynamically patch the instructions with nops if 
+>> not needed.
+>> But that would add much more complexity.
+> 
+> Thanks, applied. I don't have any powerpc hw, so I'll depend on your
+> testing for this.
 
-Looking at the code, I'm not sure whether this is intentional or not,
-the long comment at the beginning of stat.h seems to indicate that the
-highest bucket should be uncapped, but maybe I am reading this wrong.
+Thank you. We did compile and run it on a P8 host/guest, it seemed ok.
 
-If it is indeed intentional, then there are two additional questions:
+Thanks, Zhong
 
-1. Can the code generate a warning when it notices that it reaches its limits?
-2. Can I increase the limit by just setting FIO_IO_U_PLAT_BITS to some
-higher value like 7 or 8? Or do some of the other constants need to be
-changed accordingly?
 
-Yours,
-Jens
