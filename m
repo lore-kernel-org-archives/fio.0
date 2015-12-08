@@ -1,68 +1,116 @@
-Return-Path: <sendtold@gmail.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: RBD client cache
+References: <CADr68WZZqpVAeS-EuUgc5eOz=XoyrcCWCTymx58WBEAger442A@mail.gmail.com>
+ <564E318C.3060602@kernel.dk> <1448553070.29391.3.camel@x-ion.de>
+ <56587F75.80800@kernel.dk>
+ <CADr68WbHebJQHm+am3XP8e1EC32wZZAwPBf7PA5OBvS6+5nuKQ@mail.gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <5666F1FE.8060700@kernel.dk>
+Date: Tue, 8 Dec 2015 08:06:38 -0700
 MIME-Version: 1.0
-Date: Fri, 4 Dec 2015 15:28:35 -0600
-Message-ID: <CAEyTGCcRHC6_D7n8aCs_tEqJMTLigZp-dDVzAtk8mEw0sD1V9A@mail.gmail.com>
-Subject: blkparse gives bad trace magic 7746165
-From: Lakshmi <sendtold@gmail.com>
-Content-Type: multipart/alternative; boundary=001a114526be9ee82a0526193052
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <CADr68WbHebJQHm+am3XP8e1EC32wZZAwPBf7PA5OBvS6+5nuKQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Jens Rosenboom <j.rosenboom@x-ion.de>, Fio <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
---001a114526be9ee82a0526193052
-Content-Type: text/plain; charset=UTF-8
+On 12/08/2015 06:41 AM, Jens Rosenboom wrote:
+> 2015-11-27 17:06 GMT+01:00 Jens Axboe <axboe@kernel.dk>:
+>> On 11/26/2015 08:51 AM, Jens Rosenboom wrote:
+>>>
+>>>   From dbd950891a43a7104bce5ec935cd992c7e2b27ff Mon Sep 17 00:00:00 2001
+>>> From: Jens Rosenboom <j.rosenboom@x-ion.de>
+>>> Date: Thu, 26 Nov 2015 16:27:49 +0100
+>>> Subject: [PATCH] Add an option to flush RBD after opening
+>>>
+>>> With recent Ceph releases the default value for
+>>>
+>>> rbd cache writethrough until flush
+>>>
+>>> has been changed to true, so the librbd client cache will stay in
+>>> writethrough mode for fio.
+>>>
+>>> This patch adds an option to perform an rbd_flush() call after opening
+>>> the RBD, causing the client cache to activate writeback mode.
+>>>
+>>> Signed-off-by: Jens Rosenboom <j.rosenboom@x-ion.de>
+>>> ---
+>>>
+>>> This works in my test enviroment and boosts 4k randwrites at iodepth=1
+>>> from 100 to 6000.
+>>> Still it would probably be good if other people could test this, too.
+>>>
+>>>
+>>>    engines/rbd.c | 18 ++++++++++++++++++
+>>>    1 file changed, 18 insertions(+)
+>>>
+>>> diff --git a/engines/rbd.c b/engines/rbd.c
+>>> index 2be9b55..b3efedf 100644
+>>> --- a/engines/rbd.c
+>>> +++ b/engines/rbd.c
+>>> @@ -30,6 +30,7 @@ struct rbd_options {
+>>>          char *pool_name;
+>>>          char *client_name;
+>>>          int busy_poll;
+>>> +       int flush_on_open;
+>>>    };
+>>>
+>>>    static struct fio_option options[] = {
+>>> @@ -71,6 +72,16 @@ static struct fio_option options[] = {
+>>>                  .group          = FIO_OPT_G_RBD,
+>>>          },
+>>>          {
+>>> +               .name           = "flush_on_open",
+>>> +               .lname          = "Flush on open",
+>>> +               .type           = FIO_OPT_BOOL,
+>>> +               .help           = "Flush on opening the RBD to activate
+>>> client cache",
+>>> +               .off1           = offsetof(struct rbd_options,
+>>> flush_on_open),
+>>> +               .def            = "0",
+>>> +               .category       = FIO_OPT_C_ENGINE,
+>>> +               .group          = FIO_OPT_G_RBD,
+>>> +       },
+>>> +       {
+>>>                  .name = NULL,
+>>>          },
+>>>    };
+>>> @@ -140,6 +151,13 @@ static int _fio_rbd_connect(struct thread_data *td)
+>>>                  log_err("rbd_open failed.\n");
+>>>                  goto failed_open;
+>>>          }
+>>> +       if (o->flush_on_open) {
+>>> +               r = rbd_flush(rbd->image);
+>>> +               if (r < 0) {
+>>> +                       log_err("rbd_flush failed.\n");
+>>> +                       goto failed_open;
+>>> +               }
+>>> +       }
+>>>          return 0;
+>>
+>>
+>> Looks good, but we should probably limit this to td_write() being true, and
+>> not do this for read-only opens.
+>
+> I'm not sure that it will be helpful to make this option more
+> complicated in behaviour and documentation. I agree that currently it
+> will only be useful for write jobs, but it should not do any harm for
+> others. And maybe in the future the behaviour of librbd will also
+> change for read operations, rather than having to add yet another flag
+> then, I'd vote for KISS.
 
-Hi all,
-   I ran the below blktrace command and collected the trace for 4 devices
-and there were 80 blktrace.bin files created for each device and there were
-a total of 1120 .bin files.
+I'm all for KISS, but issuing a flush on a read-only opened device is 
+not a great idea, period. And since the flush-to-enable-write-cache only 
+has an effect on writes, we should only do it for writes.
 
-blktrace -d /dev/sda /dev/sdb /dev/sdl /dev/sdm /dev/sdn /dev/sdo /dev/sdq
-/dev/sdp /dev/sds /dev/sdr /dev/sdt /dev/sdw /dev/sdv /dev/sdu -w 900 -a
-write -a read -b 8192
+We should also rename the option to "write_cache_enable" or something 
+like that, flush_on_open tells us what a horrible interface rbd is, not 
+what the option actually does. The fact that this is the control 
+interface for write caching should not be imposed on the user, since 
+it's crazy. When you do that rename, the fact that it should only have 
+an effect on a writeable workload becomes more apparent.
 
-I tried doing  a blkparse on these binary files using below command
-blkparse -i ./*.blktrace.0 -d ./bp.bin -o bp.txt -w 0:900
+-- 
+Jens Axboe
 
-and I get
-
-bad trace magic 7746165
-Input file ./sdw.blktrace.19 added
-bad trace magic 7746165
-Input file ./sdw.blktrace.20 added
-bad trace magic 7746165
-Input file ./sdw.blktrace.21 added
-..........
-
-for all of the files.
-
-Did I miss something while collecting the trace ? I am not able to figure
-out and there is not much information available online too.
-
-If any of you have faced similar issue, please suggest your ideas.
-
-Thanks
-Ld
-
---001a114526be9ee82a0526193052
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div><div><div><div><div><div><div><div>Hi all,<br></div>=
-=C2=A0=C2=A0 I ran the below blktrace command and collected the trace for 4=
- devices and there were 80 blktrace.bin files created for each device and t=
-here were a total of 1120 .bin files.<br><br>blktrace -d /dev/sda /dev/sdb =
-/dev/sdl /dev/sdm /dev/sdn /dev/sdo /dev/sdq /dev/sdp /dev/sds /dev/sdr /de=
-v/sdt /dev/sdw /dev/sdv /dev/sdu -w 900 -a write -a read -b 8192 <br><br></=
-div>I tried doing=C2=A0 a blkparse on these binary files using below comman=
-d<br>blkparse -i ./*.blktrace.0 -d ./bp.bin -o bp.txt -w 0:900<br><br></div=
->and I get <br><br>bad trace magic 7746165<br>Input file ./sdw.blktrace.19 =
-added<br>bad trace magic 7746165<br>Input file ./sdw.blktrace.20 added<br>b=
-ad trace magic 7746165<br>Input file ./sdw.blktrace.21 added<br>..........<=
-br><br></div>for all of the files.<br><br></div>Did I miss something while =
-collecting the trace ? I am not able to figure out and there is not much in=
-formation available online too.<br><br></div>If any of you have faced simil=
-ar issue, please suggest your ideas.<br><br></div>Thanks<br></div>Ld<br></d=
-iv>
-
---001a114526be9ee82a0526193052--
 
