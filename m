@@ -1,49 +1,63 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g4t3425.houston.hp.com ([15.201.208.53]:17472 "EHLO
-	g4t3425.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751842AbbLJQvW (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 10 Dec 2015 11:51:22 -0500
-From: "Wolford, Jeff (HP Servers - Web Scale performance)" 
-	<jeff.wolford@hpe.com>
-Subject: RE: GiB vs GB
-Date: Thu, 10 Dec 2015 16:50:39 +0000
-Message-ID: <DC12A894E6E89949B50B1F35C3903C1B3B3CF8B2@G4W3291.americas.hpqcorp.net>
-References: <43CC9862-F6E2-46FE-879E-09A7AE2251FC@hpi.de>
-In-Reply-To: <43CC9862-F6E2-46FE-879E-09A7AE2251FC@hpi.de>
+Received: from mail2.hpi.uni-potsdam.de ([141.89.225.122]:48828 "EHLO
+	mail2.hpi.uni-potsdam.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755211AbbLJIKC (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 10 Dec 2015 03:10:02 -0500
+Received: from MX2015-DAG1.hpi.uni-potsdam.de (unknown [192.168.32.2])
+	by mail2.hpi.uni-potsdam.de (Postfix) with ESMTPS id 67B836066C
+	for <fio@vger.kernel.org>; Thu, 10 Dec 2015 09:00:23 +0100 (CET)
+From: "Boissier, Martin" <Martin.Boissier@hpi.de>
+Subject: GiB vs GB
+Date: Thu, 10 Dec 2015 08:00:22 +0000
+Message-ID: <43CC9862-F6E2-46FE-879E-09A7AE2251FC@hpi.de>
 Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed;
+	boundary="Apple-Mail=_B0E408EE-911C-43AA-B97C-6C2F44AE043C";
+	protocol="application/pgp-signature"; micalg=pgp-sha256
 MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Boissier, Martin" <Martin.Boissier@hpi.de>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-MSkgQXMgdGhlIHByZW1pZXJlIHN0b3JhZ2UgcGVyZm9ybWFuY2UgdGVzdGluZyB0b29sLCBmaW8g
-c2hvdWxkIG1ha2Ugc3VyZSBpdCBpcyBjb3JyZWN0IGFuZCBjb25zaXN0ZW50IGluIGl0cyB1c2Ug
-b2YgR0IgdnMgR2lCDQoJTkVUOiBJbiBnZW5lcmFsIGFsbCBvZiB0aGUga0IsIE1CLCBNQi9zLCBl
-dGMgZmlvIHVzYWdlIG5lZWRzIHRvIGJlIGRpc3BsYXllZCBhcyBLaUIsIE1pQiBhbmQgTWlCL3Ms
-IGV0Yw0KCQkoeWVzLCBub3RpY2UgdGhlIGNhc2UgZGlmZmVyZW5jZSBiZXR3ZWVuIGtCIGFuZCBL
-aUIuLiB0aGF0IGlzIGhvdyBpdCBpcyBkZWZpbmVkIGJ5IHRoZSBJRUMgaW4gMTk5OA0KCQlTbyBp
-dCB3b3VsZCBiZSBnb29kIHRvIGJyaW5nIGZpbyBmb3J3YXJkIDE3IHllYXJzDQoNCjIpIFRoZXJl
-IGlzIG5vIGNvbnNwaXJhY3kuLi4gdGhlIG1lbW9yeSBndXlzIGdvdCBpdCBXUk9ORyB3aGVuIHRo
-ZXkgdXNlZCBhIFNJIHRlcm0gYW5kIFJFREVGSU5FRCBpdCBhcyBLQiA9IDEwMjQNCglUaGUgTWV0
-cmljIC8gU0kgc3lzdGVtLCBIeiwgVm9sdCwgT2htLi4uIGV4aXN0ZWQgMTAwIHllYXJzIGJlZm9y
-ZSB0aGUgbWVtb3J5IGd1eXMuDQoJCUhvdyBtYW55IEh6IGFyZSBpbiBhIE1lZ2EgSGVydHogPyAg
-SG93IG1hbnkgb2htcyBpbiBhIE1lZ2EgT2htID8gZXRjLCBldGMNCgkJQWxsIHRoZSByZXN0IG9m
-IHRoZSBwaWVjZXMgb2YgdGhlIGNvbXB1dGVyIHN5c3RlbSB0aGF0IHVzZSBTSSAvIE1ldHJpYyB1
-c2UgMTAgYmFzZWQgZGVmaW5pdGlvbnMNCglBcmUgSU9QcyBpbiAxMDI0IHNlY29uZCBncm91cHMg
-PyBEb2VzIHRoZSBDUFUgdXNlIDEwMjReMyBHSHogY2xvY2sgPw0KDQpTbyBub3cgdGhpcyAicmVk
-ZWZpbml0aW9uIiBpcyBrbm93biBhcyBLaUIuDQoNCkplZmYNCg0KDQp8IC0tLS0tT3JpZ2luYWwg
-TWVzc2FnZS0tLS0tDQp8IEZyb206IGZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmcgW21haWx0bzpm
-aW8tb3duZXJAdmdlci5rZXJuZWwub3JnXSBPbiBCZWhhbGYgT2YNCnwgQm9pc3NpZXIsIE1hcnRp
-bg0KfCBTZW50OiBUaHVyc2RheSwgRGVjZW1iZXIgMTAsIDIwMTUgMjowMCBBTQ0KfCBUbzogZmlv
-QHZnZXIua2VybmVsLm9yZw0KfCBTdWJqZWN0OiBHaUIgdnMgR0INCnwgDQp8IEhleSBBYXJvbiwN
-CnwgDQp8IEkgd2FzIGp1c3Qgc3R1bXBsaW5nIG92ZXIgdGhlIHBhZ2UgZm9yIEZJTyBhbmQgd2Fz
-IHRvdGFsbHkgc3VycHJpc2VkIGhvdyBHaUIgYW5kDQp8IEdCIGFyZSB1c2VkIGV2ZW4gZGVub3Rp
-bmcgIlN0b3JhZ2UgbWFudWZhY3R1cmVycyBsaWtlIHRvIHVzZSAxMF4zIG9yIDEwMDAgYXMgYQ0K
-fCBiYXNlIHRlbiB1bml0IGluc3RlYWQsIGZvciBvYnZpb3VzIHJlYXNvbnMu4oCdLg0KfCBBcyBG
-SU8gaXMgYSBncmVhdCB0b29sIHRvIGdldCBpbnRvIHRoZSB3aG9sZSBnYW1lIG9mIGJsb2NrIElP
-IGl04oCZcyBzYWQgdGhhdCBiZWdpbm5lcnMNCnwgYXJlIGNvbmZ1c2VkIGJ5IGEgd3JvbmcgdXNh
-Z2Ugb2YgU0kgc3RhbmRhcmRzIGFuZCBzdWNoIChhbG1vc3QpICJjb25zcGlyYWN5DQp8IHRoZW9y
-aWVz4oCdLiBPciBkaWQgSSBnZXQgc29tZXRoaW5nIHdyb25nIGhlcmU/DQp8IA0KfCBCZXN0LA0K
-fCBNYXJ0aW4NCg==
+--Apple-Mail=_B0E408EE-911C-43AA-B97C-6C2F44AE043C
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset=utf-8
+
+Hey Aaron,
+
+I was just stumpling over the page for FIO and was totally surprised how =
+GiB and GB are used even denoting "Storage manufacturers like to use =
+10^3 or 1000 as a base ten unit instead, for obvious reasons.=E2=80=9D.
+As FIO is a great tool to get into the whole game of block IO it=E2=80=99s=
+ sad that beginners are confused by a wrong usage of SI standards and =
+such (almost) "conspiracy theories=E2=80=9D. Or did I get something =
+wrong here?
+
+Best,
+Martin
+
+--Apple-Mail=_B0E408EE-911C-43AA-B97C-6C2F44AE043C
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="signature.asc"
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Message signed with OpenPGP using GPGMail
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAEBCAAGBQJWaTEAAAoJEHcZn5VFQmtzN5UP/0TzWI84OyLVIRLqfhEH8Bp/
+6Ft0880uzMuMQlZGpqdGIKLOWxpkNHMIIErYVHPwBlvEfSBd/CyF+kB3/3ya0jlP
+j9rvQPL2UGJh4qw1J4lZG0ho6OBXfV3N+/k0X40gdlbd/2+AUj7FX1QKaKLVeM3Z
+vZRLTAHXZqjdUOK33TKmTThjsmbnkgUZF+qIP9nWbkPSetLqW1OPfeUPC6V8HX/V
+RzTu8/3roTvDvbhfIzIIOgJc8H8d7fUFHWnDdiIEuiPeyLg5WicqIZmbP7XCjPTr
+mOQwDjURGEOA87bMbGW7Ec36cer7tg2PaVNgFcKnv6DNY5tW0KDwog9R4HZ+qnqv
+UHe82oaEJe0Gtj1UEtnWVDi6wmDDn9GD12semYlTIzQF3LMrwWWlXF835DsScKRq
+YbAoqbCb0DaZMQ9AAwSopMKzuWj4tnJcNU/nmwUcCswLMUCT0v3qxTRnQvUuKskZ
+KK5FAyQmg85hPSaQGLGHIsu4IJ7IpXQYq6QTGEIBZELHmCkXZrB94g0pS6FN4c1S
+wbfVAR1golrNfnRGYBg2A8ReYYHwZKzjmcmR2A4whG9LsxEAUeR5ZcmtqcMXWZg7
+vf8b6OZQLS0tAmKQ/0vWVDRM+MmpjFwMWJNcnRNgbqoR14JIDhw6rQks2Dr4QvZn
+2qrATTWqSJ64nHn0rqrN
+=8laN
+-----END PGP SIGNATURE-----
+
+--Apple-Mail=_B0E408EE-911C-43AA-B97C-6C2F44AE043C--
