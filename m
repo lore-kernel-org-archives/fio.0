@@ -1,81 +1,116 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from plane.gmane.org ([80.91.229.3]:55321 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752509AbbLIRUF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 9 Dec 2015 12:20:05 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcsf-fio@m.gmane.org>)
-	id 1a6iPL-0004Ew-H7
-	for fio@vger.kernel.org; Wed, 09 Dec 2015 18:20:03 +0100
-Received: from pc1mwgproxy08-dmz.us.dell.com ([143.166.255.128])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <fio@vger.kernel.org>; Wed, 09 Dec 2015 18:20:03 +0100
-Received: from Kurt_Dorsey by pc1mwgproxy08-dmz.us.dell.com with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <fio@vger.kernel.org>; Wed, 09 Dec 2015 18:20:03 +0100
-From: Kurt Dorsey <Kurt_Dorsey@Dell.com>
-Subject: Feature Request, Job Info inserted into json output
-Date: Wed, 9 Dec 2015 16:10:58 +0000 (UTC)
-Message-ID: <loom.20151209T170827-533@post.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Received: from casper.infradead.org ([85.118.1.10]:36130 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755924AbbLQNAG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 17 Dec 2015 08:00:06 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1a9YAF-0000WY-AD
+	for fio@vger.kernel.org; Thu, 17 Dec 2015 13:00:11 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20151217130002.611062C01DE@kernel.dk>
+Date: Thu, 17 Dec 2015 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hi All,
+The following changes since commit bc0fec0e12f19dd424f4bf83cfca89d434184c8d:
 
-I have a feature request.   One of the things that is missing (in my 
-opinion) from the json output is the actual fio job configuration.
+  client/server: ensure we don't overrun memory for long option values (2015-12-15 21:02:51 -0700)
 
-In the current state it outputs a json file with all the output from the 
-jobs run.  One addition that would make it very helpful for parsing and 
-comparing data (especially historical data  or data run by another 
-engineer) is to have the actual job file as a key inside the json 
-output.  This could be something as simple as just putting the parsed 
-command line argument in
+are available in the git repository at:
 
-fio --ioengine=libaio --buffered=0 --norandommap --log_avg_msec=10000 --
-direct=1 --ba=4k --ramp_time=0 --runtime=1800 --time_based --
-filename=/dev/sdg --name=8K_RR_QD1 --name=8K_RR_QD1 --bs=8k --
-rw=randread --iodepth=1 --write_iops_log=./8K_RR_qd1_
+  git://git.kernel.dk/fio.git master
 
-Or even better would be a dictionary inside the json with every 
-configuration parameter verbosely printed (like the below "jobinfo")
+for you to fetch changes up to dde7b2361bf5b052a9c5c727bb2b062c604c7d42:
 
+  gclient: don't free pdu on iolog return (2015-12-16 15:05:54 -0700)
 
+----------------------------------------------------------------
+Jens Axboe (4):
+      parse: fix segfault if posval option doesn't have a value
+      verify: dump failed header, if verification fails
+      client: fix double free of command on timeout
+      gclient: don't free pdu on iolog return
 
-{
-  "fio version" : "fio-2.1.10",
-  "jobs" : [
-    {
-      "jobname" : "8K_Random_Read",
-      "jobinfo" :{
-        "ioengine" : "libaio"
-        "buffered" : 0
-        "norandommap" : 1
-        "log_avg_msec" : 10000
-        "direct" : 1
-        "ba" : 4k
-        "ramp_time" : 0
-        "runtime" :1800
-        "time_based" : 1
-        "filename" : "/dev/sdc"
-        "name" : "8K_Random_Read"
-        "bs" : "8K"
-        "rw" : "randread"
-        "iodepth" : 1
-      }
-      "groupid" : 0,
-      "error" : 0,
-      "read" : {
+ client.c  | 7 +++----
+ gclient.c | 1 -
+ parse.c   | 2 ++
+ verify.c  | 5 +++++
+ 4 files changed, 10 insertions(+), 5 deletions(-)
 
+---
 
-I understand it would add size to the output but I think it would really 
-help.
+Diff of recent changes:
 
-Thoughts?
--Kurt
-
+diff --git a/client.c b/client.c
+index 637cd3f..f4b95d3 100644
+--- a/client.c
++++ b/client.c
+@@ -1666,12 +1666,13 @@ static void request_client_etas(struct client_ops *ops)
+ static int handle_cmd_timeout(struct fio_client *client,
+ 			      struct fio_net_cmd_reply *reply)
+ {
++	flist_del(&reply->list);
++	free(reply);
++
+ 	if (reply->opcode != FIO_NET_CMD_SEND_ETA)
+ 		return 1;
+ 
+ 	log_info("client <%s>: timeout on SEND_ETA\n", client->hostname);
+-	flist_del(&reply->list);
+-	free(reply);
+ 
+ 	flist_del_init(&client->eta_list);
+ 	if (client->eta_in_flight) {
+@@ -1706,8 +1707,6 @@ static int client_check_cmd_timeout(struct fio_client *client,
+ 
+ 		log_err("fio: client %s, timeout on cmd %s\n", client->hostname,
+ 						fio_server_op(reply->opcode));
+-		flist_del(&reply->list);
+-		free(reply);
+ 		ret = 1;
+ 	}
+ 
+diff --git a/gclient.c b/gclient.c
+index 17af38a..949ad42 100644
+--- a/gclient.c
++++ b/gclient.c
+@@ -696,7 +696,6 @@ static void gfio_client_job_start(struct fio_client *client, struct fio_net_cmd
+ static void gfio_client_iolog(struct fio_client *client, struct cmd_iolog_pdu *pdu)
+ {
+ 	printf("got iolog: name=%s, type=%u, entries=%lu\n", pdu->name, pdu->log_type, (unsigned long) pdu->nr_samples);
+-	free(pdu);
+ }
+ 
+ static void gfio_add_total_depths_tree(GtkListStore *model,
+diff --git a/parse.c b/parse.c
+index df42e22..0ef00b8 100644
+--- a/parse.c
++++ b/parse.c
+@@ -483,6 +483,8 @@ static int __handle_option(struct fio_option *o, const char *ptr, void *data,
+ 			if (!vp->ival || vp->ival[0] == '\0')
+ 				continue;
+ 			all_skipped = 0;
++			if (!ptr)
++				break;
+ 			if (!strncmp(vp->ival, ptr, str_match_len(vp, ptr))) {
+ 				ret = 0;
+ 				if (o->off1)
+diff --git a/verify.c b/verify.c
+index 268c060..5d491d7 100644
+--- a/verify.c
++++ b/verify.c
+@@ -780,6 +780,11 @@ err:
+ 	log_err(" at file %s offset %llu, length %u\n",
+ 		io_u->file->file_name,
+ 		io_u->offset + hdr_num * hdr_len, hdr_len);
++
++	if (td->o.verify_dump)
++		dump_buf(p, hdr_len, io_u->offset + hdr_num * hdr_len,
++				"hdr_fail", io_u->file);
++
+ 	return EILSEQ;
+ }
+ 
