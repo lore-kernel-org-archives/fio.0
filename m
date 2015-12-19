@@ -1,260 +1,228 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:47906 "EHLO
+Received: from casper.infradead.org ([85.118.1.10]:53570 "EHLO
 	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751469AbbLENAH (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 5 Dec 2015 08:00:07 -0500
+	with ESMTP id S1751272AbbLSNAG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 19 Dec 2015 08:00:06 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
 	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1a4qr2-00055E-LK
-	for fio@vger.kernel.org; Fri, 04 Dec 2015 13:56:56 +0000
+	id 1aAH7L-0001mx-7t
+	for fio@vger.kernel.org; Sat, 19 Dec 2015 13:00:11 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20151205130001.D838B2C00DF@kernel.dk>
-Date: Sat,  5 Dec 2015 06:00:01 -0700 (MST)
+Message-Id: <20151219130002.3D4BB2C0EA8@kernel.dk>
+Date: Sat, 19 Dec 2015 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 0b139881150f7179688243c224a07b57eedbdfa0:
+The following changes since commit dfc8e76c8d438da9861acfcdc96c46afe4339148:
 
-  posix_fadvise() returns positive error values (2015-12-03 15:08:08 -0700)
+  server: code cleanups (2015-12-17 15:23:48 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to a6a3469ea8753a999b9bb9bea33299700d3094eb:
+for you to fetch changes up to 70c6807675291c2c5ccb38cc9c81b45bcaed0ce1:
 
-  workqueue: fix potential ABBA deadlock in stats summing (2015-12-04 13:15:36 -0700)
+  backend: count iterative bytes for progress (2015-12-18 22:33:35 -0700)
 
 ----------------------------------------------------------------
-Jens Axboe (3):
-      io_u: make io_u_quiesce() return how many IOs it completed
-      workqueue: properly account ->cur_depth
-      workqueue: fix potential ABBA deadlock in stats summing
+Jens Axboe (4):
+      client: iolog cleanups
+      server: don't store command tag on the stack
+      server: command tag cleanup
+      backend: count iterative bytes for progress
 
-Li Zhong (1):
-      powerpc: enable cpu clock for powerpc64
-
- arch/arch-ppc.h | 24 ++++++++++++++++++++++++
- backend.c       | 30 ++++++++++++++++++++++++++----
- io_u.c          | 10 ++++++++--
- ioengine.h      |  2 +-
- workqueue.c     | 38 +++++++++++++++++++++++++++++---------
- 5 files changed, 88 insertions(+), 16 deletions(-)
+ backend.c |  7 ++++++-
+ client.c  | 28 +++++++++++++++++++---------
+ server.c  | 38 ++++++++++++++++----------------------
+ 3 files changed, 41 insertions(+), 32 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/arch/arch-ppc.h b/arch/arch-ppc.h
-index aed41f9..161c39c 100644
---- a/arch/arch-ppc.h
-+++ b/arch/arch-ppc.h
-@@ -67,6 +67,21 @@ static inline unsigned int mfspr(unsigned int reg)
- #define SPRN_ATBL  0x20E /* Alternate Time Base Lower */
- #define SPRN_ATBU  0x20F /* Alternate Time Base Upper */
- 
-+#ifdef __powerpc64__
-+static inline unsigned long long get_cpu_clock(void)
-+{
-+	unsigned long long rval;
-+
-+	asm volatile(
-+		"90:	mfspr %0, %1;\n"
-+		"	cmpwi %0,0;\n"
-+		"	beq-  90b;\n"
-+	: "=r" (rval)
-+	: "i" (SPRN_TBRL));
-+
-+	return rval;
-+}
-+#else
- static inline unsigned long long get_cpu_clock(void)
- {
- 	unsigned int tbl, tbu0, tbu1;
-@@ -87,6 +102,7 @@ static inline unsigned long long get_cpu_clock(void)
- 	ret = (((unsigned long long)tbu0) << 32) | tbl;
- 	return ret;
- }
-+#endif
- 
- #if 0
- static void atb_child(void)
-@@ -136,4 +152,12 @@ static inline int arch_init(char *envp[])
-  * #define ARCH_HAVE_CPU_CLOCK
-  */
- 
-+/*
-+ * Let's have it defined for ppc64
-+ */
-+
-+#ifdef __powerpc64__
-+#define ARCH_HAVE_CPU_CLOCK
-+#endif
-+
- #endif
 diff --git a/backend.c b/backend.c
-index 4a689eb..10622ef 100644
+index c9875f4..89ac76b 100644
 --- a/backend.c
 +++ b/backend.c
-@@ -1358,16 +1358,38 @@ static void io_workqueue_fn(struct thread_data *td, struct io_u *io_u)
- 
- 	td->cur_depth++;
- 
--	ret = td_io_queue(td, io_u);
-+	do {
-+		ret = td_io_queue(td, io_u);
-+		if (ret != FIO_Q_BUSY)
-+			break;
-+		ret = io_u_queued_complete(td, 1);
-+		if (ret > 0)
-+			td->cur_depth -= ret;
-+		io_u_clear(io_u, IO_U_F_FLIGHT);
-+	} while (1);
- 
- 	dprint(FD_RATE, "io_u %p ret %d by %u\n", io_u, ret, gettid());
- 
- 	io_queue_event(td, io_u, &ret, ddir, NULL, 0, NULL);
- 
--	if (ret == FIO_Q_QUEUED)
--		ret = io_u_queued_complete(td, 1);
-+	if (ret == FIO_Q_COMPLETED)
-+		td->cur_depth--;
-+	else if (ret == FIO_Q_QUEUED) {
-+		unsigned int min_evts;
- 
--	td->cur_depth--;
-+		if (td->o.iodepth == 1)
-+			min_evts = 1;
-+		else
-+			min_evts = 0;
+@@ -813,6 +813,10 @@ static uint64_t do_io(struct thread_data *td)
+ 	unsigned int i;
+ 	int ret = 0;
+ 	uint64_t total_bytes, bytes_issued = 0;
++	uint64_t this_bytes[2];
 +
-+		ret = io_u_queued_complete(td, min_evts);
-+		if (ret > 0)
-+			td->cur_depth -= ret;
-+	} else if (ret == FIO_Q_BUSY) {
-+		ret = io_u_queued_complete(td, td->cur_depth);
-+		if (ret > 0)
-+			td->cur_depth -= ret;
-+	}
++	this_bytes[0] = td->bytes_done[DDIR_WRITE];
++	this_bytes[1] = td->bytes_done[DDIR_TRIM];
+ 
+ 	if (in_ramp_time(td))
+ 		td_set_runstate(td, TD_RAMP);
+@@ -1046,7 +1050,8 @@ reap:
+ 	if (!ddir_rw_sum(td->this_io_bytes))
+ 		td->done = 1;
+ 
+-	return td->bytes_done[DDIR_WRITE] + td->bytes_done[DDIR_TRIM];
++	return (td->bytes_done[DDIR_WRITE] - this_bytes[0]) +
++		(td->bytes_done[DDIR_TRIM] - this_bytes[1]);
  }
  
- /*
-diff --git a/io_u.c b/io_u.c
-index d45a6f0..f86367b 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -542,8 +542,10 @@ static inline enum fio_ddir get_rand_ddir(struct thread_data *td)
- 	return DDIR_WRITE;
+ static void cleanup_io_u(struct thread_data *td)
+diff --git a/client.c b/client.c
+index 27a764d..df13254 100644
+--- a/client.c
++++ b/client.c
+@@ -1226,14 +1226,17 @@ static void handle_eta(struct fio_client *client, struct fio_net_cmd *cmd)
+ 	fio_client_dec_jobs_eta(eta, client->ops->eta);
  }
  
--void io_u_quiesce(struct thread_data *td)
-+int io_u_quiesce(struct thread_data *td)
+-void fio_client_handle_iolog(struct fio_client *client, struct fio_net_cmd *cmd)
++static int fio_client_handle_iolog(struct fio_client *client,
++				   struct fio_net_cmd *cmd)
  {
-+	int completed = 0;
-+
- 	/*
- 	 * We are going to sleep, ensure that we flush anything pending as
- 	 * not to skew our latency numbers.
-@@ -563,7 +565,11 @@ void io_u_quiesce(struct thread_data *td)
- 		int fio_unused ret;
+ 	struct cmd_iolog_pdu *pdu;
+ 	bool store_direct;
  
- 		ret = io_u_queued_complete(td, 1);
-+		if (ret > 0)
-+			completed += ret;
+ 	pdu = convert_iolog(cmd, &store_direct);
+-	if (!pdu)
+-		return;
++	if (!pdu) {
++		log_err("fio: failed converting IO log\n");
++		return 1;
++	}
+ 
+ 	if (store_direct) {
+ 		ssize_t ret;
+@@ -1243,26 +1246,33 @@ void fio_client_handle_iolog(struct fio_client *client, struct fio_net_cmd *cmd)
+ 		fd = open((const char *) pdu->name,
+ 				O_WRONLY | O_CREAT | O_TRUNC, 0644);
+ 		if (fd < 0) {
+-			perror("open log");
+-			return;
++			log_err("fio: open log: %s\n", strerror(errno));
++			return 1;
+ 		}
++
+ 		sz = cmd->pdu_len - sizeof(*pdu);
+ 		ret = write(fd, pdu->samples, sz);
+-		if (ret != sz)
+-			log_err("fio: short write on compressed log\n");
+ 		close(fd);
++
++		if (ret != sz) {
++			log_err("fio: short write on compressed log\n");
++			return 1;
++		}
++
++		return 0;
+ 	} else {
+ 		FILE *f;
+ 
+ 		f = fopen((const char *) pdu->name, "w");
+ 		if (!f) {
+-			perror("fopen log");
+-			return;
++			log_err("fio: fopen log: %s\n", strerror(errno));
++			return 1;
+ 		}
+ 
+ 		flush_samples(f, pdu->samples,
+ 				pdu->nr_samples * sizeof(struct io_sample));
+ 		fclose(f);
++		return 0;
  	}
-+
-+	return completed;
  }
  
- static enum fio_ddir rate_ddir(struct thread_data *td, enum fio_ddir ddir)
-@@ -1856,7 +1862,7 @@ int io_u_queued_complete(struct thread_data *td, int min_evts)
- 	for (ddir = DDIR_READ; ddir < DDIR_RWDIR_CNT; ddir++)
- 		td->bytes_done[ddir] += icd.bytes_done[ddir];
+diff --git a/server.c b/server.c
+index f53e2c8..a71562b 100644
+--- a/server.c
++++ b/server.c
+@@ -46,7 +46,7 @@ struct sk_entry {
+ 	int opcode;		/* Actual command fields */
+ 	void *buf;
+ 	off_t size;
+-	uint64_t *tagptr;
++	uint64_t tag;
+ 	struct flist_head next;	/* Other sk_entry's, if linked command */
+ };
  
--	return 0;
-+	return ret;
+@@ -536,7 +536,10 @@ static struct sk_entry *fio_net_prep_cmd(uint16_t opcode, void *buf,
+ 		entry->buf = buf;
+ 
+ 	entry->size = size;
+-	entry->tagptr = tagptr;
++	if (tagptr)
++		entry->tag = *tagptr;
++	else
++		entry->tag = 0;
+ 	entry->flags = flags;
+ 	return entry;
+ }
+@@ -1069,29 +1072,24 @@ static void finish_entry(struct sk_entry *entry)
+ 	sfree(entry);
  }
  
- /*
-diff --git a/ioengine.h b/ioengine.h
-index c557f7a..37f0336 100644
---- a/ioengine.h
-+++ b/ioengine.h
-@@ -214,7 +214,7 @@ extern void requeue_io_u(struct thread_data *, struct io_u **);
- extern int __must_check io_u_sync_complete(struct thread_data *, struct io_u *);
- extern int __must_check io_u_queued_complete(struct thread_data *, int);
- extern void io_u_queued(struct thread_data *, struct io_u *);
--extern void io_u_quiesce(struct thread_data *);
-+extern int io_u_quiesce(struct thread_data *);
- extern void io_u_log_error(struct thread_data *, struct io_u *);
- extern void io_u_mark_depth(struct thread_data *, unsigned int);
- extern void fill_io_buffer(struct thread_data *, void *, unsigned int, unsigned int);
-diff --git a/workqueue.c b/workqueue.c
-index 3442375..7cd83bf 100644
---- a/workqueue.c
-+++ b/workqueue.c
-@@ -217,13 +217,32 @@ static void sum_val(uint64_t *dst, uint64_t *src)
- }
- #endif
- 
--static void sum_ddir(struct thread_data *dst, struct thread_data *src,
--		     enum fio_ddir ddir)
-+static void pthread_double_unlock(pthread_mutex_t *lock1,
-+				  pthread_mutex_t *lock2)
-+{
-+#ifndef CONFIG_SFAA
-+	pthread_mutex_unlock(lock1);
-+	pthread_mutex_unlock(lock2);
-+#endif
-+}
-+
-+static void pthread_double_lock(pthread_mutex_t *lock1, pthread_mutex_t *lock2)
+-static void entry_set_flags_tag(struct sk_entry *entry, struct flist_head *list,
+-				unsigned int *flags, uint64_t *tag)
++static void entry_set_flags(struct sk_entry *entry, struct flist_head *list,
++			    unsigned int *flags)
  {
- #ifndef CONFIG_SFAA
--	pthread_mutex_lock(&dst->io_wq.stat_lock);
--	pthread_mutex_lock(&src->io_wq.stat_lock);
-+	if (lock1 < lock2) {
-+		pthread_mutex_lock(lock1);
-+		pthread_mutex_lock(lock2);
-+	} else {
-+		pthread_mutex_lock(lock2);
-+		pthread_mutex_lock(lock1);
-+	}
- #endif
-+}
-+
-+static void sum_ddir(struct thread_data *dst, struct thread_data *src,
-+		     enum fio_ddir ddir)
-+{
-+	pthread_double_lock(&dst->io_wq.stat_lock, &src->io_wq.stat_lock);
- 
- 	sum_val(&dst->io_bytes[ddir], &src->io_bytes[ddir]);
- 	sum_val(&dst->io_blocks[ddir], &src->io_blocks[ddir]);
-@@ -231,10 +250,7 @@ static void sum_ddir(struct thread_data *dst, struct thread_data *src,
- 	sum_val(&dst->this_io_bytes[ddir], &src->this_io_bytes[ddir]);
- 	sum_val(&dst->bytes_done[ddir], &src->bytes_done[ddir]);
- 
--#ifndef CONFIG_SFAA
--	pthread_mutex_unlock(&src->io_wq.stat_lock);
--	pthread_mutex_unlock(&dst->io_wq.stat_lock);
--#endif
-+	pthread_double_unlock(&dst->io_wq.stat_lock, &src->io_wq.stat_lock);
+ 	if (!flist_empty(list))
+ 		*flags = FIO_NET_CMD_F_MORE;
+ 	else
+ 		*flags = 0;
+-
+-	if (entry->tagptr)
+-		*tag = *entry->tagptr;
+-	else
+-		*tag = 0;
  }
  
- static void update_accounting(struct submit_worker *sw)
-@@ -283,8 +299,12 @@ static void *worker_thread(void *data)
+ static int send_vec_entry(struct sk_out *sk_out, struct sk_entry *first)
+ {
+ 	unsigned int flags;
+-	uint64_t tag;
+ 	int ret;
  
- 			if (td->io_u_queued || td->cur_depth ||
- 			    td->io_u_in_flight) {
-+				int ret;
-+
- 				pthread_mutex_unlock(&sw->lock);
--				io_u_quiesce(td);
-+				ret = io_u_quiesce(td);
-+				if (ret > 0)
-+					td->cur_depth -= ret;
- 				pthread_mutex_lock(&sw->lock);
- 			}
+-	entry_set_flags_tag(first, &first->next, &flags, &tag);
++	entry_set_flags(first, &first->next, &flags);
  
+-	ret = fio_send_cmd_ext_pdu(sk_out->sk, first->opcode, first->buf, first->size, tag, flags);
++	ret = fio_send_cmd_ext_pdu(sk_out->sk, first->opcode, first->buf,
++					first->size, first->tag, flags);
+ 
+ 	while (!flist_empty(&first->next)) {
+ 		struct sk_entry *next;
+@@ -1099,9 +1097,10 @@ static int send_vec_entry(struct sk_out *sk_out, struct sk_entry *first)
+ 		next = flist_first_entry(&first->next, struct sk_entry, list);
+ 		flist_del_init(&next->list);
+ 
+-		entry_set_flags_tag(next, &first->next, &flags, &tag);
++		entry_set_flags(next, &first->next, &flags);
+ 
+-		ret += fio_send_cmd_ext_pdu(sk_out->sk, next->opcode, next->buf, next->size, tag, flags);
++		ret += fio_send_cmd_ext_pdu(sk_out->sk, next->opcode, next->buf,
++						next->size, next->tag, flags);
+ 		finish_entry(next);
+ 	}
+ 
+@@ -1117,16 +1116,11 @@ static int handle_sk_entry(struct sk_out *sk_out, struct sk_entry *entry)
+ 	if (entry->flags & SK_F_VEC)
+ 		ret = send_vec_entry(sk_out, entry);
+ 	else if (entry->flags & SK_F_SIMPLE) {
+-		uint64_t tag = 0;
+-
+-		if (entry->tagptr)
+-			tag = *entry->tagptr;
+-
+-		ret = fio_net_send_simple_cmd(sk_out->sk, entry->opcode, tag,
+-						NULL);
++		ret = fio_net_send_simple_cmd(sk_out->sk, entry->opcode,
++						entry->tag, NULL);
+ 	} else {
+ 		ret = fio_net_send_cmd(sk_out->sk, entry->opcode, entry->buf,
+-					entry->size, entry->tagptr, NULL);
++					entry->size, &entry->tag, NULL);
+ 	}
+ 
+ 	fio_mutex_up(&sk_out->xmit);
