@@ -1,84 +1,315 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailout.micron.com ([137.201.242.129]:27744 "EHLO
-	mailout.micron.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750737AbbLHVpF convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 8 Dec 2015 16:45:05 -0500
-Received: from mail.micron.com (bowex36-b.micron.com [137.201.85.142])
-	by mailout.micron.com (8.14.4/8.14.6) with ESMTP id tB8Lj15l031237
-	(version=TLSv1/SSLv3 cipher=AES256-SHA bits=256 verify=FAIL)
-	for <fio@vger.kernel.org>; Tue, 8 Dec 2015 14:45:02 -0700
-From: "Deyoung Hong (dhong)" <dhong@micron.com>
-Subject: RE: Bug using ramp_time shows cpu over 100%
-Date: Tue, 8 Dec 2015 21:45:00 +0000
-Message-ID: <3ccceea7625d474b8afd2a6f6a7ab0ef@BOWEX36-B.micron.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
+Received: from casper.infradead.org ([85.118.1.10]:42178 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751761AbbLVNAH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 22 Dec 2015 08:00:07 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1aBMXz-0007KF-RP
+	for fio@vger.kernel.org; Tue, 22 Dec 2015 13:00:12 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20151222130002.31A122C2AAE@kernel.dk>
+Date: Tue, 22 Dec 2015 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-I saw the response on http://www.spinics.net/lists/fio/msg04392.html (didn't get the email), so I'm pasting it here.
+The following changes since commit 70c6807675291c2c5ccb38cc9c81b45bcaed0ce1:
 
-I git pulled the latest fio code and observed the specified changes.  I compiled and ran the latest code but still seeing the same problem:
+  backend: count iterative bytes for progress (2015-12-18 22:33:35 -0700)
 
-===============
-test: (g=0): rw=randread, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=1
-fio-2.2.12-50-g5261
-Starting 1 thread
+are available in the git repository at:
 
-test: (groupid=0, jobs=1): err= 0: pid=10726: Tue Dec  8 13:40:21 2015
-  read : io=799740KB, bw=79966KB/s, iops=19991, runt= 10001msec
-    slat (usec): min=0, max=11, avg= 0.10, stdev= 0.30
-    clat (usec): min=26, max=2624, avg=49.03, stdev=34.07
-     lat (usec): min=35, max=2624, avg=49.12, stdev=34.07
-    clat percentiles (usec):
-     |  1.00th=[   36],  5.00th=[   36], 10.00th=[   36], 20.00th=[   37],
-     | 30.00th=[   37], 40.00th=[   38], 50.00th=[   38], 60.00th=[   39],
-     | 70.00th=[   40], 80.00th=[   70], 90.00th=[   79], 95.00th=[   87],
-     | 99.00th=[   92], 99.50th=[   94], 99.90th=[  225], 99.95th=[  298],
-     | 99.99th=[ 2128]
-    bw (KB  /s): min=    0, max=81072, per=95.01%, avg=75974.80, stdev=17896.56
-    lat (usec) : 50=71.32%, 100=28.42%, 250=0.19%, 500=0.04%, 750=0.01%
-    lat (usec) : 1000=0.01%
-    lat (msec) : 2=0.01%, 4=0.01%
-  cpu          : usr=99.99%, sys=0.00%, ctx=8, majf=0, minf=0
-  IO depths    : 1=157.5%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued    : total=r=199935/w=0/d=0, short=r=0/w=0/d=0, drop=r=0/w=0/d=0
-     latency   : target=0, window=0, percentile=100.00%, depth=1
+  git://git.kernel.dk/fio.git master
 
-Run status group 0 (all jobs):
-   READ: io=799740KB, aggrb=79966KB/s, minb=79966KB/s, maxb=79966KB/s, mint=10001msec, maxt=10001msec
+for you to fetch changes up to 72f397487788fc0b542870de5cc29ea8e8134346:
 
+  Make options mask a 64-bit type (2015-12-21 16:03:01 -0700)
 
-===============
-Jens Axboe wrote:
+----------------------------------------------------------------
+Jens Axboe (2):
+      backend: only terminate multiple loops if we did no IO
+      Make options mask a 64-bit type
 
-On 11/25/2015 12:36 PM, Deyoung Hong (dhong) wrote:
-> I think this is an fio bug.
-> 
-> Description:   When specifying ramp_time, cpu may show over 100% (when using a polling mode driver).
-> If ramp_time is not specified, cpu values appear to be correct.
-> You normally don't see this problem because most drivers don't utilize high CPU usage.
-> You will have to use some custom driver that does polling, for example (something like http://www.dpdk.org/).
-> 
-> OS:  Any (but tested on Linux CentOS 6.6)
+ backend.c |  23 +++++++++-----
+ options.c |  15 ++++-----
+ options.h | 105 ++++++++++++++++++++++++++++++--------------------------------
+ 3 files changed, 74 insertions(+), 69 deletions(-)
 
-This should fix it:
+---
 
-http://git.kernel.dk/cgit/fio/commit/?id=210dd0fc66b8956065e098bb9314febe8993e849
+Diff of recent changes:
 
-Try current -git and hopefully it'll behave better.
-
---
-Jens Axboe
-
---
-To unsubscribe from this list: send the line "unsubscribe fio" in
-the body of a message to majordomo@xxxxxxxxxxxxxxx
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
+diff --git a/backend.c b/backend.c
+index 89ac76b..9920e63 100644
+--- a/backend.c
++++ b/backend.c
+@@ -808,15 +808,14 @@ static long long usec_for_io(struct thread_data *td, enum fio_ddir ddir)
+  *
+  * Returns number of bytes written and trimmed.
+  */
+-static uint64_t do_io(struct thread_data *td)
++static void do_io(struct thread_data *td, uint64_t *bytes_done)
+ {
+ 	unsigned int i;
+ 	int ret = 0;
+ 	uint64_t total_bytes, bytes_issued = 0;
+-	uint64_t this_bytes[2];
+ 
+-	this_bytes[0] = td->bytes_done[DDIR_WRITE];
+-	this_bytes[1] = td->bytes_done[DDIR_TRIM];
++	for (i = 0; i < DDIR_RWDIR_CNT; i++)
++		bytes_done[i] = td->bytes_done[i];
+ 
+ 	if (in_ramp_time(td))
+ 		td_set_runstate(td, TD_RAMP);
+@@ -1050,8 +1049,8 @@ reap:
+ 	if (!ddir_rw_sum(td->this_io_bytes))
+ 		td->done = 1;
+ 
+-	return (td->bytes_done[DDIR_WRITE] - this_bytes[0]) +
+-		(td->bytes_done[DDIR_TRIM] - this_bytes[1]);
++	for (i = 0; i < DDIR_RWDIR_CNT; i++)
++		bytes_done[i] = td->bytes_done[i] - bytes_done[i];
+ }
+ 
+ static void cleanup_io_u(struct thread_data *td)
+@@ -1603,9 +1602,17 @@ static void *thread_main(void *data)
+ 		if (td->o.verify_only && (td_write(td) || td_rw(td)))
+ 			verify_bytes = do_dry_run(td);
+ 		else {
+-			verify_bytes = do_io(td);
+-			if (!verify_bytes)
++			uint64_t bytes_done[DDIR_RWDIR_CNT];
++
++			do_io(td, bytes_done);
++
++			if (!ddir_rw_sum(bytes_done)) {
+ 				fio_mark_td_terminate(td);
++				verify_bytes = 0;
++			} else {
++				verify_bytes = bytes_done[DDIR_WRITE] +
++						bytes_done[DDIR_TRIM];
++			}
+ 		}
+ 
+ 		clear_state = 1;
+diff --git a/options.c b/options.c
+index 45726aa..8494713 100644
+--- a/options.c
++++ b/options.c
+@@ -1075,8 +1075,9 @@ static struct opt_group fio_opt_groups[] = {
+ 	},
+ };
+ 
+-static struct opt_group *__opt_group_from_mask(struct opt_group *ogs, unsigned int *mask,
+-					       unsigned int inv_mask)
++static struct opt_group *__opt_group_from_mask(struct opt_group *ogs,
++					       uint64_t *mask,
++					       uint64_t inv_mask)
+ {
+ 	struct opt_group *og;
+ 	int i;
+@@ -1096,7 +1097,7 @@ static struct opt_group *__opt_group_from_mask(struct opt_group *ogs, unsigned i
+ 	return NULL;
+ }
+ 
+-struct opt_group *opt_group_from_mask(unsigned int *mask)
++struct opt_group *opt_group_from_mask(uint64_t *mask)
+ {
+ 	return __opt_group_from_mask(fio_opt_groups, mask, FIO_OPT_C_INVALID);
+ }
+@@ -1200,7 +1201,7 @@ static struct opt_group fio_opt_cat_groups[] = {
+ 	}
+ };
+ 
+-struct opt_group *opt_group_cat_from_mask(unsigned int *mask)
++struct opt_group *opt_group_cat_from_mask(uint64_t *mask)
+ {
+ 	return __opt_group_from_mask(fio_opt_cat_groups, mask, FIO_OPT_G_INVALID);
+ }
+@@ -4350,19 +4351,19 @@ static int opt_is_set(struct thread_options *o, struct fio_option *opt)
+ 	return (o->set_options[index] & ((uint64_t)1 << offset)) != 0;
+ }
+ 
+-int __fio_option_is_set(struct thread_options *o, unsigned int off1)
++bool __fio_option_is_set(struct thread_options *o, unsigned int off1)
+ {
+ 	struct fio_option *opt, *next;
+ 
+ 	next = NULL;
+ 	while ((opt = find_next_opt(o, next, off1)) != NULL) {
+ 		if (opt_is_set(o, opt))
+-			return 1;
++			return true;
+ 
+ 		next = opt;
+ 	}
+ 
+-	return 0;
++	return false;
+ }
+ 
+ void fio_option_mark_set(struct thread_options *o, struct fio_option *opt)
+diff --git a/options.h b/options.h
+index fd6ad92..d37b162 100644
+--- a/options.h
++++ b/options.h
+@@ -4,8 +4,10 @@
+ #define FIO_MAX_OPTS		512
+ 
+ #include <string.h>
++#include <inttypes.h>
+ #include "parse.h"
+ #include "flist.h"
++#include "lib/types.h"
+ 
+ #define td_var_offset(var)	((size_t) &((struct thread_options *)0)->var)
+ 
+@@ -24,30 +26,25 @@ extern char client_sockaddr_str[];  /* used with --client option */
+ 
+ extern struct fio_option fio_options[FIO_MAX_OPTS];
+ 
+-extern int __fio_option_is_set(struct thread_options *, unsigned int off);
++extern bool __fio_option_is_set(struct thread_options *, unsigned int off);
+ 
+ #define fio_option_is_set(__td, name)					\
+ ({									\
+ 	const unsigned int off = td_var_offset(name);			\
+-	int __r = __fio_option_is_set((__td), off);			\
+-	if (__r == -1) {						\
+-		dprint(FD_PARSE, "option %s/%u not found in map\n",	\
+-				__fio_stringify(name), off);		\
+-		__r = 0;						\
+-	}								\
++	bool __r = __fio_option_is_set((__td), off);			\
+ 	__r;								\
+ })
+ 
+ extern void fio_option_mark_set(struct thread_options *, struct fio_option *);
+ 
+-static inline int o_match(struct fio_option *o, const char *opt)
++static inline bool o_match(struct fio_option *o, const char *opt)
+ {
+ 	if (!strcmp(o->name, opt))
+-		return 1;
++		return true;
+ 	else if (o->alias && !strcmp(o->alias, opt))
+-		return 1;
++		return true;
+ 
+-	return 0;
++	return false;
+ }
+ 
+ static inline struct fio_option *find_option(struct fio_option *options,
+@@ -64,7 +61,7 @@ static inline struct fio_option *find_option(struct fio_option *options,
+ 
+ struct opt_group {
+ 	const char *name;
+-	unsigned int mask;
++	uint64_t mask;
+ };
+ 
+ enum opt_category {
+@@ -77,14 +74,14 @@ enum opt_category {
+ 	__FIO_OPT_C_ENGINE,
+ 	__FIO_OPT_C_NR,
+ 
+-	FIO_OPT_C_GENERAL	= (1U << __FIO_OPT_C_GENERAL),
+-	FIO_OPT_C_IO		= (1U << __FIO_OPT_C_IO),
+-	FIO_OPT_C_FILE		= (1U << __FIO_OPT_C_FILE),
+-	FIO_OPT_C_STAT		= (1U << __FIO_OPT_C_STAT),
+-	FIO_OPT_C_LOG		= (1U << __FIO_OPT_C_LOG),
+-	FIO_OPT_C_PROFILE	= (1U << __FIO_OPT_C_PROFILE),
+-	FIO_OPT_C_ENGINE	= (1U << __FIO_OPT_C_ENGINE),
+-	FIO_OPT_C_INVALID	= (1U << __FIO_OPT_C_NR),
++	FIO_OPT_C_GENERAL	= (1ULL << __FIO_OPT_C_GENERAL),
++	FIO_OPT_C_IO		= (1ULL << __FIO_OPT_C_IO),
++	FIO_OPT_C_FILE		= (1ULL << __FIO_OPT_C_FILE),
++	FIO_OPT_C_STAT		= (1ULL << __FIO_OPT_C_STAT),
++	FIO_OPT_C_LOG		= (1ULL << __FIO_OPT_C_LOG),
++	FIO_OPT_C_PROFILE	= (1ULL << __FIO_OPT_C_PROFILE),
++	FIO_OPT_C_ENGINE	= (1ULL << __FIO_OPT_C_ENGINE),
++	FIO_OPT_C_INVALID	= (1ULL << __FIO_OPT_C_NR),
+ };
+ 
+ enum opt_category_group {
+@@ -121,42 +118,42 @@ enum opt_category_group {
+         __FIO_OPT_G_MTD,
+ 	__FIO_OPT_G_NR,
+ 
+-	FIO_OPT_G_RATE		= (1U << __FIO_OPT_G_RATE),
+-	FIO_OPT_G_ZONE		= (1U << __FIO_OPT_G_ZONE),
+-	FIO_OPT_G_RWMIX		= (1U << __FIO_OPT_G_RWMIX),
+-	FIO_OPT_G_VERIFY	= (1U << __FIO_OPT_G_VERIFY),
+-	FIO_OPT_G_TRIM		= (1U << __FIO_OPT_G_TRIM),
+-	FIO_OPT_G_IOLOG		= (1U << __FIO_OPT_G_IOLOG),
+-	FIO_OPT_G_IO_DEPTH	= (1U << __FIO_OPT_G_IO_DEPTH),
+-	FIO_OPT_G_IO_FLOW	= (1U << __FIO_OPT_G_IO_FLOW),
+-	FIO_OPT_G_DESC		= (1U << __FIO_OPT_G_DESC),
+-	FIO_OPT_G_FILENAME	= (1U << __FIO_OPT_G_FILENAME),
+-	FIO_OPT_G_IO_BASIC	= (1U << __FIO_OPT_G_IO_BASIC),
+-	FIO_OPT_G_CGROUP	= (1U << __FIO_OPT_G_CGROUP),
+-	FIO_OPT_G_RUNTIME	= (1U << __FIO_OPT_G_RUNTIME),
+-	FIO_OPT_G_PROCESS	= (1U << __FIO_OPT_G_PROCESS),
+-	FIO_OPT_G_CRED		= (1U << __FIO_OPT_G_CRED),
+-	FIO_OPT_G_CLOCK		= (1U << __FIO_OPT_G_CLOCK),
+-	FIO_OPT_G_IO_TYPE	= (1U << __FIO_OPT_G_IO_TYPE),
+-	FIO_OPT_G_THINKTIME	= (1U << __FIO_OPT_G_THINKTIME),
+-	FIO_OPT_G_RANDOM	= (1U << __FIO_OPT_G_RANDOM),
+-	FIO_OPT_G_IO_BUF	= (1U << __FIO_OPT_G_IO_BUF),
+-	FIO_OPT_G_TIOBENCH	= (1U << __FIO_OPT_G_TIOBENCH),
+-	FIO_OPT_G_ERR		= (1U << __FIO_OPT_G_ERR),
+-	FIO_OPT_G_E4DEFRAG	= (1U << __FIO_OPT_G_E4DEFRAG),
+-	FIO_OPT_G_NETIO		= (1U << __FIO_OPT_G_NETIO),
+-	FIO_OPT_G_RDMA		= (1U << __FIO_OPT_G_RDMA),
+-	FIO_OPT_G_LIBAIO	= (1U << __FIO_OPT_G_LIBAIO),
+-	FIO_OPT_G_ACT		= (1U << __FIO_OPT_G_ACT),
+-	FIO_OPT_G_LATPROF	= (1U << __FIO_OPT_G_LATPROF),
+-	FIO_OPT_G_RBD		= (1U << __FIO_OPT_G_RBD),
+-	FIO_OPT_G_GFAPI		= (1U << __FIO_OPT_G_GFAPI),
+-	FIO_OPT_G_MTD		= (1U << __FIO_OPT_G_MTD),
+-	FIO_OPT_G_INVALID	= (1U << __FIO_OPT_G_NR),
++	FIO_OPT_G_RATE		= (1ULL << __FIO_OPT_G_RATE),
++	FIO_OPT_G_ZONE		= (1ULL << __FIO_OPT_G_ZONE),
++	FIO_OPT_G_RWMIX		= (1ULL << __FIO_OPT_G_RWMIX),
++	FIO_OPT_G_VERIFY	= (1ULL << __FIO_OPT_G_VERIFY),
++	FIO_OPT_G_TRIM		= (1ULL << __FIO_OPT_G_TRIM),
++	FIO_OPT_G_IOLOG		= (1ULL << __FIO_OPT_G_IOLOG),
++	FIO_OPT_G_IO_DEPTH	= (1ULL << __FIO_OPT_G_IO_DEPTH),
++	FIO_OPT_G_IO_FLOW	= (1ULL << __FIO_OPT_G_IO_FLOW),
++	FIO_OPT_G_DESC		= (1ULL << __FIO_OPT_G_DESC),
++	FIO_OPT_G_FILENAME	= (1ULL << __FIO_OPT_G_FILENAME),
++	FIO_OPT_G_IO_BASIC	= (1ULL << __FIO_OPT_G_IO_BASIC),
++	FIO_OPT_G_CGROUP	= (1ULL << __FIO_OPT_G_CGROUP),
++	FIO_OPT_G_RUNTIME	= (1ULL << __FIO_OPT_G_RUNTIME),
++	FIO_OPT_G_PROCESS	= (1ULL << __FIO_OPT_G_PROCESS),
++	FIO_OPT_G_CRED		= (1ULL << __FIO_OPT_G_CRED),
++	FIO_OPT_G_CLOCK		= (1ULL << __FIO_OPT_G_CLOCK),
++	FIO_OPT_G_IO_TYPE	= (1ULL << __FIO_OPT_G_IO_TYPE),
++	FIO_OPT_G_THINKTIME	= (1ULL << __FIO_OPT_G_THINKTIME),
++	FIO_OPT_G_RANDOM	= (1ULL << __FIO_OPT_G_RANDOM),
++	FIO_OPT_G_IO_BUF	= (1ULL << __FIO_OPT_G_IO_BUF),
++	FIO_OPT_G_TIOBENCH	= (1ULL << __FIO_OPT_G_TIOBENCH),
++	FIO_OPT_G_ERR		= (1ULL << __FIO_OPT_G_ERR),
++	FIO_OPT_G_E4DEFRAG	= (1ULL << __FIO_OPT_G_E4DEFRAG),
++	FIO_OPT_G_NETIO		= (1ULL << __FIO_OPT_G_NETIO),
++	FIO_OPT_G_RDMA		= (1ULL << __FIO_OPT_G_RDMA),
++	FIO_OPT_G_LIBAIO	= (1ULL << __FIO_OPT_G_LIBAIO),
++	FIO_OPT_G_ACT		= (1ULL << __FIO_OPT_G_ACT),
++	FIO_OPT_G_LATPROF	= (1ULL << __FIO_OPT_G_LATPROF),
++	FIO_OPT_G_RBD		= (1ULL << __FIO_OPT_G_RBD),
++	FIO_OPT_G_GFAPI		= (1ULL << __FIO_OPT_G_GFAPI),
++	FIO_OPT_G_MTD		= (1ULL << __FIO_OPT_G_MTD),
++	FIO_OPT_G_INVALID	= (1ULL << __FIO_OPT_G_NR),
+ };
+ 
+-extern struct opt_group *opt_group_from_mask(unsigned int *mask);
+-extern struct opt_group *opt_group_cat_from_mask(unsigned int *mask);
++extern struct opt_group *opt_group_from_mask(uint64_t *mask);
++extern struct opt_group *opt_group_cat_from_mask(uint64_t *mask);
+ extern struct fio_option *fio_option_find(const char *name);
+ extern unsigned int fio_get_kb_base(void *);
+ 
