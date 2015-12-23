@@ -1,95 +1,51 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:37427 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752107AbbLDNAD (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 4 Dec 2015 08:00:03 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1a4pxy-0001ct-VN
-	for fio@vger.kernel.org; Fri, 04 Dec 2015 13:00:03 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Received: from [192.168.1.130] ([216.160.245.98])
+        by smtp.gmail.com with ESMTPSA id gv6sm9014353obc.21.2015.12.23.08.47.46
+        for <fio@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 23 Dec 2015 08:47:47 -0800 (PST)
+Subject: Re: Fio 2.3 released
+References: <567ACF12.1050404@kernel.dk>
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20151204130001.BF0452C00CC@kernel.dk>
-Date: Fri,  4 Dec 2015 06:00:01 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <567AD032.1070807@kernel.dk>
+Date: Wed, 23 Dec 2015 09:47:46 -0700
+MIME-Version: 1.0
+In-Reply-To: <567ACF12.1050404@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit a655bbc42903e27775600dc4d359ed8ac9d0992d:
+On 12/23/2015 09:42 AM, Jens Axboe wrote:
+> Hi,
+>
+> Just in time for Christmas, I've spun a new release. You might have
+> noticed that it has a different numbering than expected. The previous
+> release was 2.2.13, so this should have been 2.2.14. But I've decided to
+> switch to a simpler versioning scheme, so we'll just bump the Y of the
+> X.Y numbering going forward.
+>
+> As usual, report any weirdness in testing this newer release.
+>
+> Happy Holidays!
 
-  configure: add --disable-lex (2015-12-01 09:25:08 -0700)
+Shortlog of the release can be found here:
 
-are available in the git repository at:
+http://brick.kernel.dk/snaps/fio-2.3.shortlog.txt
 
-  git://git.kernel.dk/fio.git master
+Notable new features is a rewrite of the client/server message handling, 
+so it should be more stable now. It should also be a bit more fault 
+tolerant, it can recover from certain lost messages. It also supports 
+transmitting of the logs now, so you don't have to grab those from the 
+server side. If you use fio in client/server mode, testing would be great.
 
-for you to fetch changes up to 0b139881150f7179688243c224a07b57eedbdfa0:
+There's a rewrite of the hdfs IO engine.
 
-  posix_fadvise() returns positive error values (2015-12-03 15:08:08 -0700)
+And there's support for a new job primitive, 'wait_for'. This is a bit 
+more flexible than 'stonewall' in that you can wait for specific jobs, 
+instead of just inserting a barrier in your job file.
 
-----------------------------------------------------------------
-Jens Axboe (2):
-      filesetup: properly propagate error value from invalidate
-      posix_fadvise() returns positive error values
+-- 
+Jens Axboe
 
- filesetup.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
 
----
-
-Diff of recent changes:
-
-diff --git a/filesetup.c b/filesetup.c
-index b5628ce..7666754 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -391,7 +391,7 @@ static int __file_invalidate_cache(struct thread_data *td, struct fio_file *f,
- 				   unsigned long long off,
- 				   unsigned long long len)
- {
--	int ret = 0;
-+	int errval = 0, ret = 0;
- 
- #ifdef CONFIG_ESX
- 	return 0;
-@@ -408,11 +408,15 @@ static int __file_invalidate_cache(struct thread_data *td, struct fio_file *f,
- 	dprint(FD_IO, "invalidate cache %s: %llu/%llu\n", f->file_name, off,
- 								len);
- 
--	if (td->io_ops->invalidate)
-+	if (td->io_ops->invalidate) {
- 		ret = td->io_ops->invalidate(td, f);
--	else if (f->filetype == FIO_TYPE_FILE)
-+		if (ret < 0)
-+			errval = ret;
-+	} else if (f->filetype == FIO_TYPE_FILE) {
- 		ret = posix_fadvise(f->fd, off, len, POSIX_FADV_DONTNEED);
--	else if (f->filetype == FIO_TYPE_BD) {
-+		if (ret)
-+			errval = ret;
-+	} else if (f->filetype == FIO_TYPE_BD) {
- 		int retry_count = 0;
- 
- 		ret = blockdev_invalidate_cache(f);
-@@ -434,6 +438,8 @@ static int __file_invalidate_cache(struct thread_data *td, struct fio_file *f,
- 			}
- 			ret = 0;
- 		}
-+		if (ret < 0)
-+			errval = errno;
- 	} else if (f->filetype == FIO_TYPE_CHAR || f->filetype == FIO_TYPE_PIPE)
- 		ret = 0;
- 
-@@ -443,10 +449,8 @@ static int __file_invalidate_cache(struct thread_data *td, struct fio_file *f,
- 	 * function to flush eg block device caches. So just warn and
- 	 * continue on our way.
- 	 */
--	if (ret) {
--		log_info("fio: cache invalidation of %s failed: %s\n", f->file_name, strerror(errno));
--		ret = 0;
--	}
-+	if (errval)
-+		log_info("fio: cache invalidation of %s failed: %s\n", f->file_name, strerror(errval));
- 
- 	return 0;
- 
