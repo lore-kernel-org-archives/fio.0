@@ -1,228 +1,207 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:53570 "EHLO
+Received: from casper.infradead.org ([85.118.1.10]:51350 "EHLO
 	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751272AbbLSNAG (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 19 Dec 2015 08:00:06 -0500
+	with ESMTP id S1752006AbbLXNAG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 24 Dec 2015 08:00:06 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
 	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1aAH7L-0001mx-7t
-	for fio@vger.kernel.org; Sat, 19 Dec 2015 13:00:11 +0000
+	id 1aC5V5-00051a-1h
+	for fio@vger.kernel.org; Thu, 24 Dec 2015 13:00:11 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20151219130002.3D4BB2C0EA8@kernel.dk>
-Date: Sat, 19 Dec 2015 06:00:02 -0700 (MST)
+Message-Id: <20151224130002.228AC2C00B1@kernel.dk>
+Date: Thu, 24 Dec 2015 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit dfc8e76c8d438da9861acfcdc96c46afe4339148:
+The following changes since commit 5c74fc767600f75cd6d53bdc5926962b75a614ae:
 
-  server: code cleanups (2015-12-17 15:23:48 -0700)
+  backend: continue on failed wait_for() check, not break (2015-12-22 13:40:14 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 70c6807675291c2c5ccb38cc9c81b45bcaed0ce1:
+for you to fetch changes up to f1480f98ae77ccb23888028563c5ae117d939e55:
 
-  backend: count iterative bytes for progress (2015-12-18 22:33:35 -0700)
+  Fio 2.3 (2015-12-23 09:39:04 -0700)
 
 ----------------------------------------------------------------
-Jens Axboe (4):
-      client: iolog cleanups
-      server: don't store command tag on the stack
-      server: command tag cleanup
-      backend: count iterative bytes for progress
+Jens Axboe (3):
+      arch: add ffs64 and ffz64
+      gfio: use ffz64 for 64-bit types
+      Fio 2.3
 
- backend.c |  7 ++++++-
- client.c  | 28 +++++++++++++++++++---------
- server.c  | 38 ++++++++++++++++----------------------
- 3 files changed, 41 insertions(+), 32 deletions(-)
+shoichi.sawada@toshiba.co.jp (1):
+      Fix runtime of terse output
+
+ FIO-VERSION-GEN        |  2 +-
+ arch/arch.h            |  4 ----
+ goptions.c             |  4 ++--
+ lib/ffz.h              | 19 +++++++++++++++----
+ os/windows/install.wxs |  2 +-
+ stat.c                 | 22 +++++++++++-----------
+ 6 files changed, 30 insertions(+), 23 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/backend.c b/backend.c
-index c9875f4..89ac76b 100644
---- a/backend.c
-+++ b/backend.c
-@@ -813,6 +813,10 @@ static uint64_t do_io(struct thread_data *td)
- 	unsigned int i;
- 	int ret = 0;
- 	uint64_t total_bytes, bytes_issued = 0;
-+	uint64_t this_bytes[2];
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index 108ca4b..3253034 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-2.2.13
++DEF_VER=fio-2.3
+ 
+ LF='
+ '
+diff --git a/arch/arch.h b/arch/arch.h
+index 5671b9a..043e283 100644
+--- a/arch/arch.h
++++ b/arch/arch.h
+@@ -63,11 +63,7 @@ extern unsigned long arch_flags;
+ #include "arch-generic.h"
+ #endif
+ 
+-#ifdef ARCH_HAVE_FFZ
+-#define ffz(bitmask)	arch_ffz(bitmask)
+-#else
+ #include "../lib/ffz.h"
+-#endif
+ 
+ #ifndef ARCH_HAVE_INIT
+ static inline int arch_init(char *envp[])
+diff --git a/goptions.c b/goptions.c
+index 20a17d1..9279b22 100644
+--- a/goptions.c
++++ b/goptions.c
+@@ -107,7 +107,7 @@ static GtkWidget *gopt_get_group_frame(struct gopt_job_view *gjv,
+ 	if (!og)
+ 		return NULL;
+ 
+-	group = ffz(~groupmask);
++	group = ffz64(~groupmask);
+ 	gfw = &gjv->g_widgets[group];
+ 	if (!gfw->vbox[0]) {
+ 		frame = gtk_frame_new(og->name);
+@@ -1139,7 +1139,7 @@ static void gopt_add_options(struct gopt_job_view *gjv,
+ 		struct opt_group *og;
+ 
+ 		while ((og = opt_group_from_mask(&mask)) != NULL) {
+-			GtkWidget *vbox = gjv->vboxes[ffz(~og->mask)];
++			GtkWidget *vbox = gjv->vboxes[ffz64(~og->mask)];
+ 
+ 			hbox = gtk_hbox_new(FALSE, 3);
+ 			gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
+diff --git a/lib/ffz.h b/lib/ffz.h
+index eef612d..e2c1b8e 100644
+--- a/lib/ffz.h
++++ b/lib/ffz.h
+@@ -1,16 +1,16 @@
+ #ifndef FIO_FFZ_H
+ #define FIO_FFZ_H
+ 
+-static inline int __ffs(unsigned long word)
++#include <inttypes.h>
 +
-+	this_bytes[0] = td->bytes_done[DDIR_WRITE];
-+	this_bytes[1] = td->bytes_done[DDIR_TRIM];
- 
- 	if (in_ramp_time(td))
- 		td_set_runstate(td, TD_RAMP);
-@@ -1046,7 +1050,8 @@ reap:
- 	if (!ddir_rw_sum(td->this_io_bytes))
- 		td->done = 1;
- 
--	return td->bytes_done[DDIR_WRITE] + td->bytes_done[DDIR_TRIM];
-+	return (td->bytes_done[DDIR_WRITE] - this_bytes[0]) +
-+		(td->bytes_done[DDIR_TRIM] - this_bytes[1]);
- }
- 
- static void cleanup_io_u(struct thread_data *td)
-diff --git a/client.c b/client.c
-index 27a764d..df13254 100644
---- a/client.c
-+++ b/client.c
-@@ -1226,14 +1226,17 @@ static void handle_eta(struct fio_client *client, struct fio_net_cmd *cmd)
- 	fio_client_dec_jobs_eta(eta, client->ops->eta);
- }
- 
--void fio_client_handle_iolog(struct fio_client *client, struct fio_net_cmd *cmd)
-+static int fio_client_handle_iolog(struct fio_client *client,
-+				   struct fio_net_cmd *cmd)
++static inline int ffs64(uint64_t word)
  {
- 	struct cmd_iolog_pdu *pdu;
- 	bool store_direct;
+ 	int r = 0;
  
- 	pdu = convert_iolog(cmd, &store_direct);
--	if (!pdu)
--		return;
-+	if (!pdu) {
-+		log_err("fio: failed converting IO log\n");
-+		return 1;
-+	}
- 
- 	if (store_direct) {
- 		ssize_t ret;
-@@ -1243,26 +1246,33 @@ void fio_client_handle_iolog(struct fio_client *client, struct fio_net_cmd *cmd)
- 		fd = open((const char *) pdu->name,
- 				O_WRONLY | O_CREAT | O_TRUNC, 0644);
- 		if (fd < 0) {
--			perror("open log");
--			return;
-+			log_err("fio: open log: %s\n", strerror(errno));
-+			return 1;
- 		}
-+
- 		sz = cmd->pdu_len - sizeof(*pdu);
- 		ret = write(fd, pdu->samples, sz);
--		if (ret != sz)
--			log_err("fio: short write on compressed log\n");
- 		close(fd);
-+
-+		if (ret != sz) {
-+			log_err("fio: short write on compressed log\n");
-+			return 1;
-+		}
-+
-+		return 0;
- 	} else {
- 		FILE *f;
- 
- 		f = fopen((const char *) pdu->name, "w");
- 		if (!f) {
--			perror("fopen log");
--			return;
-+			log_err("fio: fopen log: %s\n", strerror(errno));
-+			return 1;
- 		}
- 
- 		flush_samples(f, pdu->samples,
- 				pdu->nr_samples * sizeof(struct io_sample));
- 		fclose(f);
-+		return 0;
+-#if BITS_PER_LONG == 64
+ 	if ((word & 0xffffffff) == 0) {
+ 		r += 32;
+ 		word >>= 32;
  	}
+-#endif
+ 	if (!(word & 0xffff)) {
+ 		word >>= 16;
+ 		r += 16;
+@@ -35,9 +35,20 @@ static inline int __ffs(unsigned long word)
+ 	return r;
  }
  
-diff --git a/server.c b/server.c
-index f53e2c8..a71562b 100644
---- a/server.c
-+++ b/server.c
-@@ -46,7 +46,7 @@ struct sk_entry {
- 	int opcode;		/* Actual command fields */
- 	void *buf;
- 	off_t size;
--	uint64_t *tagptr;
-+	uint64_t tag;
- 	struct flist_head next;	/* Other sk_entry's, if linked command */
- };
- 
-@@ -536,7 +536,10 @@ static struct sk_entry *fio_net_prep_cmd(uint16_t opcode, void *buf,
- 		entry->buf = buf;
- 
- 	entry->size = size;
--	entry->tagptr = tagptr;
-+	if (tagptr)
-+		entry->tag = *tagptr;
-+	else
-+		entry->tag = 0;
- 	entry->flags = flags;
- 	return entry;
- }
-@@ -1069,29 +1072,24 @@ static void finish_entry(struct sk_entry *entry)
- 	sfree(entry);
- }
- 
--static void entry_set_flags_tag(struct sk_entry *entry, struct flist_head *list,
--				unsigned int *flags, uint64_t *tag)
-+static void entry_set_flags(struct sk_entry *entry, struct flist_head *list,
-+			    unsigned int *flags)
++#ifndef ARCH_HAVE_FFZ
++
+ static inline int ffz(unsigned long bitmask)
  {
- 	if (!flist_empty(list))
- 		*flags = FIO_NET_CMD_F_MORE;
- 	else
- 		*flags = 0;
+-	return __ffs(~bitmask);
++	return ffs64(~bitmask);
++}
++
++#else
++#define ffz(bitmask)	arch_ffz(bitmask)
++#endif
++
++static inline int ffz64(uint64_t bitmask)
++{
++	return ffs64(~bitmask);
+ }
+ 
+ #endif
+diff --git a/os/windows/install.wxs b/os/windows/install.wxs
+index 08de42f..299ca9b 100755
+--- a/os/windows/install.wxs
++++ b/os/windows/install.wxs
+@@ -10,7 +10,7 @@
+ 	<Product Id="*"
+ 	  Codepage="1252" Language="1033"
+ 	  Manufacturer="fio" Name="fio"
+-	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.2.13">
++	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.3">
+ 		<Package
+ 		  Description="Flexible IO Tester"
+ 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
+diff --git a/stat.c b/stat.c
+index a3bfe63..3070cef 100644
+--- a/stat.c
++++ b/stat.c
+@@ -1730,19 +1730,19 @@ void __show_running_run_stats(void)
+ 	fio_gettime(&tv, NULL);
+ 
+ 	for_each_td(td, i) {
+-		rt[i] = mtime_since(&td->start, &tv);
+-		if (td_read(td) && td->io_bytes[DDIR_READ])
+-			td->ts.runtime[DDIR_READ] += rt[i];
+-		if (td_write(td) && td->io_bytes[DDIR_WRITE])
+-			td->ts.runtime[DDIR_WRITE] += rt[i];
+-		if (td_trim(td) && td->io_bytes[DDIR_TRIM])
+-			td->ts.runtime[DDIR_TRIM] += rt[i];
 -
--	if (entry->tagptr)
--		*tag = *entry->tagptr;
--	else
--		*tag = 0;
- }
- 
- static int send_vec_entry(struct sk_out *sk_out, struct sk_entry *first)
- {
- 	unsigned int flags;
--	uint64_t tag;
- 	int ret;
- 
--	entry_set_flags_tag(first, &first->next, &flags, &tag);
-+	entry_set_flags(first, &first->next, &flags);
- 
--	ret = fio_send_cmd_ext_pdu(sk_out->sk, first->opcode, first->buf, first->size, tag, flags);
-+	ret = fio_send_cmd_ext_pdu(sk_out->sk, first->opcode, first->buf,
-+					first->size, first->tag, flags);
- 
- 	while (!flist_empty(&first->next)) {
- 		struct sk_entry *next;
-@@ -1099,9 +1097,10 @@ static int send_vec_entry(struct sk_out *sk_out, struct sk_entry *first)
- 		next = flist_first_entry(&first->next, struct sk_entry, list);
- 		flist_del_init(&next->list);
- 
--		entry_set_flags_tag(next, &first->next, &flags, &tag);
-+		entry_set_flags(next, &first->next, &flags);
- 
--		ret += fio_send_cmd_ext_pdu(sk_out->sk, next->opcode, next->buf, next->size, tag, flags);
-+		ret += fio_send_cmd_ext_pdu(sk_out->sk, next->opcode, next->buf,
-+						next->size, next->tag, flags);
- 		finish_entry(next);
+ 		td->update_rusage = 1;
+ 		td->ts.io_bytes[DDIR_READ] = td->io_bytes[DDIR_READ];
+ 		td->ts.io_bytes[DDIR_WRITE] = td->io_bytes[DDIR_WRITE];
+ 		td->ts.io_bytes[DDIR_TRIM] = td->io_bytes[DDIR_TRIM];
+ 		td->ts.total_run_time = mtime_since(&td->epoch, &tv);
++
++		rt[i] = mtime_since(&td->start, &tv);
++		if (td_read(td) && td->ts.io_bytes[DDIR_READ])
++			td->ts.runtime[DDIR_READ] += rt[i];
++		if (td_write(td) && td->ts.io_bytes[DDIR_WRITE])
++			td->ts.runtime[DDIR_WRITE] += rt[i];
++		if (td_trim(td) && td->ts.io_bytes[DDIR_TRIM])
++			td->ts.runtime[DDIR_TRIM] += rt[i];
  	}
  
-@@ -1117,16 +1116,11 @@ static int handle_sk_entry(struct sk_out *sk_out, struct sk_entry *entry)
- 	if (entry->flags & SK_F_VEC)
- 		ret = send_vec_entry(sk_out, entry);
- 	else if (entry->flags & SK_F_SIMPLE) {
--		uint64_t tag = 0;
--
--		if (entry->tagptr)
--			tag = *entry->tagptr;
--
--		ret = fio_net_send_simple_cmd(sk_out->sk, entry->opcode, tag,
--						NULL);
-+		ret = fio_net_send_simple_cmd(sk_out->sk, entry->opcode,
-+						entry->tag, NULL);
- 	} else {
- 		ret = fio_net_send_cmd(sk_out->sk, entry->opcode, entry->buf,
--					entry->size, entry->tagptr, NULL);
-+					entry->size, &entry->tag, NULL);
+ 	for_each_td(td, i) {
+@@ -1758,11 +1758,11 @@ void __show_running_run_stats(void)
+ 	__show_run_stats();
+ 
+ 	for_each_td(td, i) {
+-		if (td_read(td) && td->io_bytes[DDIR_READ])
++		if (td_read(td) && td->ts.io_bytes[DDIR_READ])
+ 			td->ts.runtime[DDIR_READ] -= rt[i];
+-		if (td_write(td) && td->io_bytes[DDIR_WRITE])
++		if (td_write(td) && td->ts.io_bytes[DDIR_WRITE])
+ 			td->ts.runtime[DDIR_WRITE] -= rt[i];
+-		if (td_trim(td) && td->io_bytes[DDIR_TRIM])
++		if (td_trim(td) && td->ts.io_bytes[DDIR_TRIM])
+ 			td->ts.runtime[DDIR_TRIM] -= rt[i];
  	}
  
- 	fio_mutex_up(&sk_out->xmit);
