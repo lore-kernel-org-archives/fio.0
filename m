@@ -1,8 +1,8 @@
 Return-Path: <tbertaud@conforama.fr>
 From: Thierry BERTAUD <tbertaud@conforama.fr>
 Subject: RE: fio-f1480f9: AIX 6.1 build KO against gcc function overlap
-Date: Tue, 29 Dec 2015 21:10:13 +0000
-Message-ID: <VI1PR05MB1343AFE71D15E197D549461FB1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>
+Date: Tue, 29 Dec 2015 16:16:44 +0000
+Message-ID: <VI1PR05MB134366A0B6A8833617A18D4FB1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>
 References: <VI1PR05MB1343197BD54DC24EA6A2AF65B1FB0@VI1PR05MB1343.eurprd05.prod.outlook.com>
  <5681C3ED.2000708@kernel.dk>
  <VI1PR05MB1343C677E9AD2577F510184DB1FB0@VI1PR05MB1343.eurprd05.prod.outlook.com>
@@ -11,8 +11,8 @@ References: <VI1PR05MB1343197BD54DC24EA6A2AF65B1FB0@VI1PR05MB1343.eurprd05.prod.
  <5681D0A8.8030507@kernel.dk>
  <VI1PR05MB1343AD6DF9BD33ED9A3C0C88B1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>
  <5681D65A.10200@kernel.dk>
- <VI1PR05MB134330236BC82EF62F5219C0B1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>,<5682A81A.8010008@kernel.dk>,<VI1PR05MB134366A0B6A8833617A18D4FB1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>
-In-Reply-To: <VI1PR05MB134366A0B6A8833617A18D4FB1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>
+ <VI1PR05MB134330236BC82EF62F5219C0B1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>,<5682A81A.8010008@kernel.dk>
+In-Reply-To: <5682A81A.8010008@kernel.dk>
 Content-Language: fr-FR
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -22,34 +22,24 @@ List-ID: <fio@vger.kernel.org>
 
 Hello Jens,
 
->>Hmm, I'll see if I can add a check in configure for whether or not lex
->>requires -o to specify an output file. For now, just use --disable-lex.
->OK, i continue to just use: --disable-yes.
->If you add a check in configure later, i'll try a ./configure to confirm y=
-ou that's fine in AIX.
+> That's the aix compiler being a bit too dumb to realize that 'bytes' is
+> only used for a zero return of that function. You can safely ignore
+> that, I can add a small patch to get rid of it.
+I built against fio-75adbcf and no warning.
 
-I build against fio-63bda37 (configure: if lex requires/fails with -o for o=
-utput)
-With configure, i have this:
-____
-MTD                           no
-0: Warning: 1285-300 The o flag is not valid.
-0: Error: 1285-331 Cannot read input file lex.yy.c
-lex/yacc for arithmetic       yes
-____
+>That you can have arithmetical expressions in your job files, that's all
+>it provides.
+Ok thanks for feedback, i don't need this at this time.
 
-and the make fail with:
-----
-YACC y.tab.c
-yacc: 1285-770 The -o flag is now the default in yacc.
+>Hmm, I'll see if I can add a check in configure for whether or not lex
+>requires -o to specify an output file. For now, just use --disable-lex.
+OK, i continue to just use: --disable-yes.
+If you add a check in configure later, i'll try a ./configure to confirm yo=
+u that's fine in AIX.
 
- yacc: 1285-725 Reached end of file before %% Line 1
-Makefile:313: recipe for target 'y.tab.c' failed
-gmake: *** [y.tab.c] Error 1
-----
-
-Below the full output:
-# ./configure
+Below full output (for information):
+___________________
+# ./configure --disable-lex
 Operating system              AIX
 CPU                           ppc
 Big endian                    yes
@@ -105,13 +95,13 @@ Gluster API engine            no
 s390_z196_facilities          no
 HDFS engine                   no
 MTD                           no
-0: Warning: 1285-300 The o flag is not valid.
-0: Error: 1285-331 Cannot read input file lex.yy.c
-lex/yacc for arithmetic       yes
+lex/yacc for arithmetic       no
 getmntent                     yes
 getmntinfo                    no
 Static Assert                 yes
 bool                          yes
+#
+
 # gmake CC=3Dgcc
 FIO_VERSION =3D fio-2.3
     CC crc/crc64.o
@@ -157,15 +147,57 @@ FIO_VERSION =3D fio-2.3
     CC verify.o
     CC memory.o
     CC io_u.o
-   LEX lex.yy.c
-  YACC y.tab.c
-yacc: 1285-770 The -o flag is now the default in yacc.
-
- yacc: 1285-725 Reached end of file before %% Line 1
-Makefile:313: recipe for target 'y.tab.c' failed
-gmake: *** [y.tab.c] Error 1
+    CC parse.o
+    CC mutex.o
+    CC options.o
+    CC smalloc.o
+    CC filehash.o
+    CC profile.o
+    CC debug.o
+    CC engines/cpu.o
+    CC engines/mmap.o
+    CC engines/sync.o
+    CC engines/null.o
+    CC engines/net.o
+    CC server.o
+    CC client.o
+    CC iolog.o
+    CC backend.o
+    CC libfio.o
+    CC flow.o
+    CC cconv.o
+    CC gettime-thread.o
+    CC helpers.o
+    CC json.o
+    CC idletime.o
+    CC td_error.o
+    CC profiles/tiobench.o
+    CC profiles/act.o
+    CC io_u_queue.o
+    CC filelock.o
+    CC workqueue.o
+    CC rate-submit.o
+    CC engines/posixaio.o
+    CC oslib/strcasestr.o
+    CC oslib/strlcat.o
+    CC oslib/getopt_long.o
+    CC fio.o
+  LINK fio
+    CC t/log.o
+    CC t/genzipf.o
+  LINK t/fio-genzipf
+    CC t/dedupe.o
+    CC t/debug.o
+  LINK t/fio-dedupe
+    CC t/stest.o
+  LINK t/stest
+    CC t/ieee754.o
+  LINK t/ieee754
+    CC t/axmap.o
+  LINK t/axmap
+    CC t/lfsr-test.o
+  LINK t/lfsr-test
 #
-
 
 Regards,
 Thierry=
