@@ -1,1054 +1,152 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:34031 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934520AbbLWNAG (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 23 Dec 2015 08:00:06 -0500
+Received: from bombadil.infradead.org ([198.137.202.9]:49732 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754712AbbL3NAE (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 30 Dec 2015 08:00:04 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1aBj1W-00038F-N1
-	for fio@vger.kernel.org; Wed, 23 Dec 2015 13:00:11 +0000
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1aEGMF-0006vI-M8
+	for fio@vger.kernel.org; Wed, 30 Dec 2015 13:00:03 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20151223130002.33A9C2C00B1@kernel.dk>
-Date: Wed, 23 Dec 2015 06:00:02 -0700 (MST)
+Message-Id: <20151230130002.10B262C00B6@kernel.dk>
+Date: Wed, 30 Dec 2015 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 72f397487788fc0b542870de5cc29ea8e8134346:
+The following changes since commit 2c2c93d8bd89c0cb15fc2430f9838744153a3946:
 
-  Make options mask a 64-bit type (2015-12-21 16:03:01 -0700)
+  t/genzipf: fix for strcasestr missing (2015-12-28 17:39:22 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 5c74fc767600f75cd6d53bdc5926962b75a614ae:
+for you to fetch changes up to de26b8245b06c99ec64d9f88cfde1ed9627f871a:
 
-  backend: continue on failed wait_for() check, not break (2015-12-22 13:40:14 -0700)
+  configure: add --enable-lex (2015-12-29 20:58:13 -0700)
 
 ----------------------------------------------------------------
-Andrey Kuzmin (1):
-      Add support for waiting for other jobs by name
-
-Fabrice Bacchella (1):
-      rewrote libhdfs engine
-
 Jens Axboe (3):
-      parse: ensure that option group/category hold 64-bit
-      gfio: update for 64-bit option category/group
-      backend: continue on failed wait_for() check, not break
+      t/dedupe: silence bogus warning on 'bytes' being used uninitialized
+      configure: check if lex requires/fails with -o for output
+      configure: add --enable-lex
 
- HOWTO                |  31 ++--
- backend.c            |  32 ++++
- cconv.c              |   3 +
- engines/libhdfs.c    | 431 ++++++++++++++++++++++++++++++++++++---------------
- examples/waitfor.fio |  35 +++++
- file.h               |   1 +
- filesetup.c          |   2 +-
- fio.1                |   8 +
- fio.h                |   1 +
- goptions.c           |   8 +-
- init.c               |  49 ++++++
- libfio.c             |   2 +-
- options.c            |   9 ++
- options.h            |   2 +
- parse.h              |   5 +-
- server.h             |   2 +-
- thread_options.h     |   2 +
- 17 files changed, 476 insertions(+), 147 deletions(-)
- create mode 100644 examples/waitfor.fio
+ Makefile   |  4 ++++
+ configure  | 26 ++++++++++++++++++++++++--
+ t/dedupe.c |  2 +-
+ 3 files changed, 29 insertions(+), 3 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/HOWTO b/HOWTO
-index b21d27e..7c24c1b 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -305,6 +305,16 @@ name=str	ASCII name of the job. This may be used to override the
- 		special purpose of also signaling the start of a new
- 		job.
+diff --git a/Makefile b/Makefile
+index 510e257..1b5c9a6 100644
+--- a/Makefile
++++ b/Makefile
+@@ -297,7 +297,11 @@ override CFLAGS += -DFIO_VERSION='"$(FIO_VERSION)"'
  
-+wait_for=str	Specifies the name of the already defined job to wait
-+		for. Single waitee name only may be specified. If set, the job
-+		won't be started until all workers of the waitee job are done.
+ ifdef CONFIG_ARITHMETIC
+ lex.yy.c: exp/expression-parser.l
++ifdef CONFIG_LEX_USE_O
+ 	$(QUIET_LEX)$(LEX) -o $@ $<
++else
++	$(QUIET_LEX)$(LEX) $<
++endif
+ 
+ lex.yy.o: lex.yy.c y.tab.h
+ 	$(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) -c $<
+diff --git a/configure b/configure
+index af26165..e92e96b 100755
+--- a/configure
++++ b/configure
+@@ -135,7 +135,7 @@ show_help="no"
+ exit_val=0
+ gfio_check="no"
+ libhdfs="no"
+-disable_lex="no"
++disable_lex=""
+ prefix=/usr/local
+ 
+ # parse options
+@@ -171,6 +171,8 @@ for opt do
+   ;;
+   --disable-lex) disable_lex="yes"
+   ;;
++  --enable-lex) disable_lex="no"
++  ;;
+   --disable-shm) no_shm="yes"
+   ;;
+   --disable-optimizations) disable_opt="yes"
+@@ -198,6 +200,7 @@ if test "$show_help" = "yes" ; then
+   echo "--disable-gfapi        Disable gfapi"
+   echo "--enable-libhdfs       Enable hdfs support"
+   echo "--disable-lex          Disable use of lex/yacc for math"
++  echo "--enable-lex           Enable use of lex/yacc for math"
+   echo "--disable-shm          Disable SHM support"
+   echo "--disable-optimizations Don't enable compiler optimizations"
+   exit $exit_val
+@@ -240,6 +243,12 @@ fi
+ # cross-compiling to one of these OSes then you'll need to specify
+ # the correct CPU with the --cpu option.
+ case $targetos in
++AIX)
++  # Unless explicitly enabled, turn off lex.
++  if test -z "$disable_lex" ; then
++    disable_lex="yes"
++  fi
++  ;;
+ Darwin)
+   # on Leopard most of the system is 32-bit, so we have to ask the kernel if
+   # we can run 64-bit userspace code.
+@@ -1455,7 +1464,7 @@ yacc="no"
+ yacc_is_bison="no"
+ lex="no"
+ arith="no"
+-if test "$disable_lex" = "no"; then
++if test "$disable_lex" = "no" || test -z "$disable_lex" ; then
+ if test "$targetos" != "SunOS" ; then
+ LEX=$(which lex 2> /dev/null)
+ if test -x "$LEX" ; then
+@@ -1494,6 +1503,16 @@ fi
+ fi
+ fi
+ 
++# Check if lex fails using -o
++if test "$arith" = "yes" ; then
++$LEX -o lex.yy.c exp/expression-parser.l 2> /dev/null
++if test "$?" = "0" ; then
++  lex_use_o="yes"
++else
++  lex_use_o="no"
++fi
++fi
 +
-+		Wait_for operates on the job name basis, so there are a few
-+		limitations. First, the waitee must be defined prior to the
-+		waiter job (meaning no forward references). Second, if a job
-+		is being referenced as a waitee, it must have a unique name
-+		(no duplicate waitees).
-+
- description=str	Text description of the job. Doesn't do anything except
- 		dump this text description when this job is run. It's
- 		not parsed.
-@@ -767,20 +777,14 @@ ioengine=str	Defines how the job issues io to the file. The following
- 				defines engine specific options.
+ echo "lex/yacc for arithmetic       $arith"
  
- 			libhdfs	Read and write through Hadoop (HDFS).
--				The 'filename' option is used to specify host,
--				port of the hdfs name-node to connect. This
--				engine interprets offsets a little
-+				This engine interprets offsets a little
- 				differently. In HDFS, files once created
- 				cannot be modified. So random writes are not
- 				possible. To imitate this, libhdfs engine
--				expects bunch of small files to be created
--				over HDFS, and engine will randomly pick a
--				file out of those files based on the offset
--				generated by fio backend. (see the example
--				job file to create such files, use rw=write
--				option). Please note, you might want to set
--				necessary environment variables to work with
--				hdfs/libhdfs properly.
-+				creates bunch of small files, and engine will
-+				pick a file out of those files based on the 
-+				offset enerated by fio backend. Each jobs uses
-+				it's own connection to HDFS.
+ ##########################################
+@@ -1756,6 +1775,9 @@ if test "$arith" = "yes" ; then
+   else
+     echo "YACC=$YACC" >> $config_host_mak
+   fi
++  if test "$lex_use_o" = "yes" ; then
++    echo "CONFIG_LEX_USE_O=y" >> $config_host_mak
++  fi
+ fi
+ if test "$getmntent" = "yes" ; then
+   output_sym "CONFIG_GETMNTENT"
+diff --git a/t/dedupe.c b/t/dedupe.c
+index e1cea50..3a66820 100644
+--- a/t/dedupe.c
++++ b/t/dedupe.c
+@@ -84,7 +84,7 @@ static uint64_t get_size(struct fio_file *f, struct stat *sb)
+ 	uint64_t ret;
  
- 			mtd	Read, write and erase an MTD character device
- 				(e.g., /dev/mtd0). Discards are treated as
-@@ -1785,11 +1789,13 @@ that defines them is selected.
- 		If the job is a TCP listener or UDP reader, the hostname is not
- 		used and must be omitted unless it is a valid UDP multicast
- 		address.
-+[libhdfs] namenode=str The host name or IP address of a HDFS cluster namenode to contact.
+ 	if (S_ISBLK(sb->st_mode)) {
+-		unsigned long long bytes;
++		unsigned long long bytes = 0;
  
- [netsplice] port=int
- [net] port=int	The TCP or UDP port to bind to or connect to. If this is used
- with numjobs to spawn multiple instances of the same job type, then this will
- be the starting port number since fio will use a range of ports.
-+[libhdfs] port=int	the listening port of the HFDS cluster namenode.
- 
- [netsplice] interface=str
- [net] interface=str  The IP address of the network interface used to send or
-@@ -1848,6 +1854,9 @@ be the starting port number since fio will use a range of ports.
- 
- [mtd] skip_bad=bool	Skip operations against known bad blocks.
- 
-+[libhdfs] hdfsdirectory	libhdfs will create chunk in this HDFS directory
-+[libhdfs] chunck_size	the size of the chunck to use for each file.
-+
- 
- 6.0 Interpreting the output
- ---------------------------
-diff --git a/backend.c b/backend.c
-index 9920e63..bd94078 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1978,6 +1978,32 @@ mounted:
- 	return true;
- }
- 
-+static bool waitee_running(struct thread_data *me)
-+{
-+	const char *waitee = me->o.wait_for;
-+	const char *self = me->o.name;
-+	struct thread_data *td;
-+	int i;
-+
-+	if (!waitee)
-+		return false;
-+
-+	for_each_td(td, i) {
-+		if (!strcmp(td->o.name, self) || strcmp(td->o.name, waitee))
-+			continue;
-+
-+		if (td->runstate < TD_EXITED) {
-+			dprint(FD_PROCESS, "%s fenced by %s(%s)\n",
-+					self, td->o.name,
-+					runstate_to_name(td->runstate));
-+			return true;
-+		}
-+	}
-+
-+	dprint(FD_PROCESS, "%s: %s completed, can run\n", self, waitee);
-+	return false;
-+}
-+
- /*
-  * Main function for kicking off and reaping jobs, as needed.
-  */
-@@ -2101,6 +2127,12 @@ reap:
- 				break;
- 			}
- 
-+			if (waitee_running(td)) {
-+				dprint(FD_PROCESS, "%s: waiting for %s\n",
-+						td->o.name, td->o.wait_for);
-+				continue;
-+			}
-+
- 			init_disk_util(td);
- 
- 			td->rusage_sem = fio_mutex_init(FIO_MUTEX_LOCKED);
-diff --git a/cconv.c b/cconv.c
-index a476aad..6d8d0b3 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -25,6 +25,7 @@ static void free_thread_options_to_cpu(struct thread_options *o)
- {
- 	free(o->description);
- 	free(o->name);
-+	free(o->wait_for);
- 	free(o->directory);
- 	free(o->filename);
- 	free(o->filename_format);
-@@ -54,6 +55,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
- 
- 	string_to_cpu(&o->description, top->description);
- 	string_to_cpu(&o->name, top->name);
-+	string_to_cpu(&o->wait_for, top->wait_for);
- 	string_to_cpu(&o->directory, top->directory);
- 	string_to_cpu(&o->filename, top->filename);
- 	string_to_cpu(&o->filename_format, top->filename_format);
-@@ -276,6 +278,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 
- 	string_to_net(top->description, o->description);
- 	string_to_net(top->name, o->name);
-+	string_to_net(top->wait_for, o->wait_for);
- 	string_to_net(top->directory, o->directory);
- 	string_to_net(top->filename, o->filename);
- 	string_to_net(top->filename_format, o->filename_format);
-diff --git a/engines/libhdfs.c b/engines/libhdfs.c
-index 658cd6a..f690b00 100644
---- a/engines/libhdfs.c
-+++ b/engines/libhdfs.c
-@@ -9,69 +9,123 @@
-  *
-  * thus, random reads and writes can also be achieved with this logic.
-  *
-- * NOTE: please set environment variables FIO_HDFS_BS and FIO_HDFS_FCOUNT
-- * to appropriate value to work this engine properly
-- *
-  */
- 
--#include <stdio.h>
--#include <stdlib.h>
--#include <unistd.h>
--#include <sys/uio.h>
--#include <errno.h>
--#include <assert.h>
-+#include <math.h>
-+#include <hdfs.h>
- 
- #include "../fio.h"
- 
--#include "hdfs.h"
-+
-+#define CHUNCK_NAME_LENGTH_MAX 80
-+#define CHUNCK_CREATION_BUFFER_SIZE 65536
- 
- struct hdfsio_data {
--	char host[256];
--	int port;
- 	hdfsFS fs;
- 	hdfsFile fp;
--	unsigned long fsbs;
--	unsigned long fscount;
--	unsigned long curr_file_id;
--	unsigned int numjobs;
--	unsigned int fid_correction;
-+	uint64_t curr_file_id;
- };
- 
--static int fio_hdfsio_setup_fs_params(struct hdfsio_data *hd)
--{
--	/* make sure that hdfsConnect is invoked before executing this function */
--	hdfsSetWorkingDirectory(hd->fs, "/.perftest");
--	hd->fp = hdfsOpenFile(hd->fs, ".fcount", O_RDONLY, 0, 0, 0);
--	if (hd->fp) {
--		hdfsRead(hd->fs, hd->fp, &(hd->fscount), sizeof(hd->fscount));
--		hdfsCloseFile(hd->fs, hd->fp);
--	}
--	hd->fp = hdfsOpenFile(hd->fs, ".fbs", O_RDONLY, 0, 0, 0);
--	if (hd->fp) {
--		hdfsRead(hd->fs, hd->fp, &(hd->fsbs), sizeof(hd->fsbs));
--		hdfsCloseFile(hd->fs, hd->fp);
--	}
-+struct hdfsio_options {
-+	void *pad;			/* needed because offset can't be 0 for a option defined used offsetof */
-+	char *host;
-+	char *directory;
-+	unsigned int port;
-+	unsigned int chunck_size;
-+	unsigned int single_instance;
-+	unsigned int use_direct;
-+};
- 
--	return 0;
-+static struct fio_option options[] = {
-+	{
-+		.name	= "namenode",
-+		.lname	= "hfds namenode",
-+		.type	= FIO_OPT_STR_STORE,
-+		.off1   = offsetof(struct hdfsio_options, host),
-+		.def    = "localhost",
-+		.help	= "Namenode of the HDFS cluster",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_HDFS,
-+	},
-+	{
-+		.name	= "hostname",
-+		.lname	= "hfds namenode",
-+		.type	= FIO_OPT_STR_STORE,
-+		.off1   = offsetof(struct hdfsio_options, host),
-+		.def    = "localhost",
-+		.help	= "Namenode of the HDFS cluster",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_HDFS,
-+	},
-+	{
-+		.name	= "port",
-+		.lname	= "hdfs namenode port",
-+		.type	= FIO_OPT_INT,
-+		.off1	= offsetof(struct hdfsio_options, port),
-+		.def    = "9000",
-+		.minval	= 1,
-+		.maxval	= 65535,
-+		.help	= "Port used by the HDFS cluster namenode",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_HDFS,
-+	},
-+	{
-+		.name	= "hdfsdirectory",
-+		.lname	= "hfds directory",
-+		.type	= FIO_OPT_STR_STORE,
-+		.off1   = offsetof(struct hdfsio_options, directory),
-+		.def    = "/",
-+		.help	= "The HDFS directory where fio will create chuncks",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_HDFS,
-+	},
-+	{
-+		.name	= "chunck_size",
-+		.type	= FIO_OPT_INT,
-+		.off1	= offsetof(struct hdfsio_options, chunck_size),
-+		.def    = "1048576",
-+		.help	= "Size of individual chunck",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_HDFS,
-+	},
-+	{
-+		.name	= "single_instance",
-+		.type	= FIO_OPT_BOOL,
-+		.off1	= offsetof(struct hdfsio_options, single_instance),
-+		.def    = "1",
-+		.help	= "Use a single instance",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_HDFS,
-+	},
-+	{
-+		.name	= "hdfs_use_direct",
-+		.type	= FIO_OPT_BOOL,
-+		.off1	= offsetof(struct hdfsio_options, use_direct),
-+		.def    = "0",
-+		.help	= "Use readDirect instead of hdfsRead",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_HDFS,
-+	},
-+	{
-+		.name	= NULL,
-+	},
-+};
-+
-+
-+static int get_chunck_name(char *dest, char *file_name, uint64_t chunk_id) {
-+	return snprintf(dest, CHUNCK_NAME_LENGTH_MAX, "%s_%lu", file_name, chunk_id);
- }
- 
- static int fio_hdfsio_prep(struct thread_data *td, struct io_u *io_u)
- {
--	struct hdfsio_data *hd;
--	hdfsFileInfo *fi;
-+	struct hdfsio_options *options = td->eo;
-+	struct hdfsio_data *hd = td->io_ops->data;
- 	unsigned long f_id;
--	char fname[80];
--	int open_flags = 0;
--
--	hd = td->io_ops->data;
--
--	if (hd->curr_file_id == -1) {
--		/* see comment in fio_hdfsio_setup() function */
--		fio_hdfsio_setup_fs_params(hd);
--	}
-+	char fname[CHUNCK_NAME_LENGTH_MAX];
-+	int open_flags;
- 
- 	/* find out file id based on the offset generated by fio */
--	f_id = (io_u->offset / hd->fsbs) + hd->fid_correction;
-+	f_id = floor(io_u->offset / options-> chunck_size);
- 
- 	if (f_id == hd->curr_file_id) {
- 		/* file is already open */
-@@ -79,46 +133,76 @@ static int fio_hdfsio_prep(struct thread_data *td, struct io_u *io_u)
- 	}
- 
- 	if (hd->curr_file_id != -1) {
--		hdfsCloseFile(hd->fs, hd->fp);
-+		if ( hdfsCloseFile(hd->fs, hd->fp) == -1) {
-+			log_err("hdfs: unable to close file: %s\n", strerror(errno));
-+			return errno;
-+		}
-+		hd->curr_file_id = -1;
- 	}
- 
--	if (io_u->ddir == DDIR_READ) {
-+	if (io_u->ddir == DDIR_READ || io_u->ddir == DDIR_SYNC) {
- 		open_flags = O_RDONLY;
- 	} else if (io_u->ddir == DDIR_WRITE) {
- 		open_flags = O_WRONLY;
- 	} else {
- 		log_err("hdfs: Invalid I/O Operation\n");
-+		return 0;
-+	}
-+	
-+	get_chunck_name(fname, io_u->file->file_name, f_id);
-+	hd->fp = hdfsOpenFile(hd->fs, fname, open_flags, 0, 0,
-+			      options->chunck_size);
-+	if(hd->fp == NULL) {
-+		log_err("hdfs: unable to open file: %s: %d\n", fname, strerror(errno));
-+		return errno;
- 	}
--
- 	hd->curr_file_id = f_id;
--	do {
--		sprintf(fname, ".f%lu", f_id);
--		fi = hdfsGetPathInfo(hd->fs, fname);
--		if (fi->mSize >= hd->fsbs || io_u->ddir == DDIR_WRITE) {
--			/* file has enough data to read OR file is opened in write mode */
--			hd->fp =
--			    hdfsOpenFile(hd->fs, fname, open_flags, 0, 0,
--					 hd->fsbs);
--			if (hd->fp) {
--				break;
--			}
--		}
--		/* file is empty, so try next file for reading */
--		f_id = (f_id + 1) % hd->fscount;
--	} while (1);
- 
- 	return 0;
- }
- 
--static int fio_io_end(struct thread_data *td, struct io_u *io_u, int ret)
-+static int fio_hdfsio_queue(struct thread_data *td, struct io_u *io_u)
- {
-+	struct hdfsio_data *hd = td->io_ops->data;
-+	struct hdfsio_options *options = td->eo;
-+	int ret;
-+	unsigned long offset;
-+	
-+	offset = io_u->offset % options->chunck_size;
-+	
-+	if( (io_u->ddir == DDIR_READ || io_u->ddir == DDIR_WRITE) && 
-+	     hdfsTell(hd->fs, hd->fp) != offset && hdfsSeek(hd->fs, hd->fp, offset) != 0 ) {
-+		log_err("hdfs: seek failed: %s, are you doing random write smaller than chunck size ?\n", strerror(errno));
-+		io_u->error = errno;
-+		return FIO_Q_COMPLETED;
-+	};
-+
-+	// do the IO
-+	if (io_u->ddir == DDIR_READ) {
-+		if (options->use_direct) {
-+			ret = readDirect(hd->fs, hd->fp, io_u->xfer_buf, io_u->xfer_buflen);
-+		} else {
-+			ret = hdfsRead(hd->fs, hd->fp, io_u->xfer_buf, io_u->xfer_buflen);
-+		}
-+	} else if (io_u->ddir == DDIR_WRITE) {
-+		ret = hdfsWrite(hd->fs, hd->fp, io_u->xfer_buf,
-+				io_u->xfer_buflen);
-+	} else if (io_u->ddir == DDIR_SYNC) {
-+		ret = hdfsFlush(hd->fs, hd->fp);
-+	} else {
-+		log_err("hdfs: Invalid I/O Operation: %d\n", io_u->ddir);
-+		ret = EINVAL;
-+	}
-+
-+	// Check if the IO went fine, or is incomplete
- 	if (ret != (int)io_u->xfer_buflen) {
- 		if (ret >= 0) {
- 			io_u->resid = io_u->xfer_buflen - ret;
- 			io_u->error = 0;
- 			return FIO_Q_COMPLETED;
--		} else
-+		} else {
- 			io_u->error = errno;
-+		}
- 	}
- 
- 	if (io_u->error)
-@@ -127,107 +211,200 @@ static int fio_io_end(struct thread_data *td, struct io_u *io_u, int ret)
- 	return FIO_Q_COMPLETED;
- }
- 
--static int fio_hdfsio_queue(struct thread_data *td, struct io_u *io_u)
-+int fio_hdfsio_open_file(struct thread_data *td, struct fio_file *f)
- {
--	struct hdfsio_data *hd;
--	int ret = 0;
--
--	hd = td->io_ops->data;
--
--	if (io_u->ddir == DDIR_READ) {
--		ret =
--		    hdfsRead(hd->fs, hd->fp, io_u->xfer_buf, io_u->xfer_buflen);
--	} else if (io_u->ddir == DDIR_WRITE) {
--		ret =
--		    hdfsWrite(hd->fs, hd->fp, io_u->xfer_buf,
--			      io_u->xfer_buflen);
--	} else {
--		log_err("hdfs: Invalid I/O Operation\n");
-+	if (td->o.odirect) {
-+		td->error = EINVAL;
-+		return 0;
- 	}
- 
--	return fio_io_end(td, io_u, ret);
-+	return 0;
- }
- 
--int fio_hdfsio_open_file(struct thread_data *td, struct fio_file *f)
-+int fio_hdfsio_close_file(struct thread_data *td, struct fio_file *f)
- {
--	struct hdfsio_data *hd;
--
--	hd = td->io_ops->data;
--	hd->fs = hdfsConnect(hd->host, hd->port);
--	hdfsSetWorkingDirectory(hd->fs, "/.perftest");
--	hd->fid_correction = (getpid() % hd->numjobs);
-+	struct hdfsio_data *hd = td->io_ops->data;
- 
-+	if (hd->curr_file_id != -1) {
-+		if ( hdfsCloseFile(hd->fs, hd->fp) == -1) {
-+			log_err("hdfs: unable to close file: %s\n", strerror(errno));
-+			return errno;
-+		}
-+		hd->curr_file_id = -1;
-+	}
- 	return 0;
- }
- 
--int fio_hdfsio_close_file(struct thread_data *td, struct fio_file *f)
-+static int fio_hdfsio_init(struct thread_data *td)
- {
--	struct hdfsio_data *hd;
--
--	hd = td->io_ops->data;
--	hdfsDisconnect(hd->fs);
-+	struct hdfsio_options *options = td->eo;
-+	struct hdfsio_data *hd = td->io_ops->data;
-+	struct fio_file *f;
-+	uint64_t j,k;
-+	int i, failure = 0;
-+	uint8_t buffer[CHUNCK_CREATION_BUFFER_SIZE];
-+	uint64_t bytes_left;	
-+	char fname[CHUNCK_NAME_LENGTH_MAX];	
-+	hdfsFile fp;
-+	hdfsFileInfo *fi;
-+	tOffset fi_size;
-+
-+	for_each_file(td, f, i) {
-+		k = 0;
-+		for(j=0; j < f->real_file_size; j += options->chunck_size) {
-+			get_chunck_name(fname, f->file_name, k++);
-+			fi = hdfsGetPathInfo(hd->fs, fname);
-+			fi_size = fi ? fi->mSize : 0;
-+			// fill exist and is big enough, nothing to do
-+			if( fi && fi_size >= options->chunck_size) {
-+				continue;
-+			}
-+			fp = hdfsOpenFile(hd->fs, fname, O_WRONLY, 0, 0,
-+					  options->chunck_size);
-+			if(fp == NULL) {
-+				failure = errno;
-+				log_err("hdfs: unable to prepare file chunk %s: %s\n", fname, strerror(errno));
-+				break;
-+			}
-+			bytes_left = options->chunck_size;
-+			memset(buffer, 0, CHUNCK_CREATION_BUFFER_SIZE);
-+			while( bytes_left > CHUNCK_CREATION_BUFFER_SIZE) {
-+				if( hdfsWrite(hd->fs, fp, buffer, CHUNCK_CREATION_BUFFER_SIZE)
-+				    != CHUNCK_CREATION_BUFFER_SIZE) {
-+    					failure = errno;
-+	    				log_err("hdfs: unable to prepare file chunk %s: %s\n", fname, strerror(errno));
-+					break;
-+				};
-+				bytes_left -= CHUNCK_CREATION_BUFFER_SIZE;
-+			}
-+			if(bytes_left > 0) {
-+				if( hdfsWrite(hd->fs, fp, buffer, bytes_left)
-+				    != bytes_left) {
-+					failure = errno;
-+					break;
-+				};
-+			}
-+			if( hdfsCloseFile(hd->fs, fp) != 0) {
-+				failure = errno;
-+				log_err("hdfs: unable to prepare file chunk %s: %s\n", fname, strerror(errno));
-+				break;
-+			}
-+		}
-+		if(failure) {
-+			break;
-+		}
-+	}
-+	
-+	if( !failure ) {
-+		fio_file_set_size_known(f);
-+	}
- 
--	return 0;
-+	return failure;
- }
- 
- static int fio_hdfsio_setup(struct thread_data *td)
- {
- 	struct hdfsio_data *hd;
- 	struct fio_file *f;
--	static unsigned int numjobs = 1;	/* atleast one job has to be there! */
--	numjobs = (td->o.numjobs > numjobs) ? td->o.numjobs : numjobs;
-+	int i;
-+	uint64_t file_size, total_file_size;
- 
- 	if (!td->io_ops->data) {
--		hd = malloc(sizeof(*hd));;
--
-+		hd = malloc(sizeof(*hd));
- 		memset(hd, 0, sizeof(*hd));
--		td->io_ops->data = hd;
-+		
-+		hd->curr_file_id = -1;
- 
--		/* separate host and port from filename */
--		*(strchr(td->o.filename, ',')) = ' ';
--		sscanf(td->o.filename, "%s%d", hd->host, &(hd->port));
--
--		/* read fbs and fcount and based on that set f->real_file_size */
--		f = td->files[0];
--#if 0
--		/* IMHO, this should be done here instead of fio_hdfsio_prep()
--		 * but somehow calling it here doesn't seem to work,
--		 * some problem with libhdfs that needs to be debugged */
--		hd->fs = hdfsConnect(hd->host, hd->port);
--		fio_hdfsio_setup_fs_params(hd);
--		hdfsDisconnect(hd->fs);
--#else
--		/* so, as an alternate, using environment variables */
--		if (getenv("FIO_HDFS_FCOUNT") && getenv("FIO_HDFS_BS")) {
--			hd->fscount = atol(getenv("FIO_HDFS_FCOUNT"));
--			hd->fsbs = atol(getenv("FIO_HDFS_BS"));
--		} else {
--			log_err("FIO_HDFS_FCOUNT and/or FIO_HDFS_BS not set.\n");
--			return 1;
-+		td->io_ops->data = hd;
-+	}
-+	
-+	total_file_size = 0;
-+	file_size = 0;
-+
-+	for_each_file(td, f, i) {
-+		if(!td->o.file_size_low) {
-+			file_size = floor(td->o.size / td->o.nr_files);
-+			total_file_size += file_size;
- 		}
--#endif
--		f->real_file_size = hd->fscount * hd->fsbs;
--
--		td->o.nr_files = 1;
--		hd->curr_file_id = -1;
--		hd->numjobs = numjobs;
--		fio_file_set_size_known(f);
-+		else if (td->o.file_size_low == td->o.file_size_high)
-+			file_size = td->o.file_size_low;
-+		else {
-+			file_size = get_rand_file_size(td);
-+		}
-+		f->real_file_size = file_size;
- 	}
-+	/* If the size doesn't divide nicely with the chunck size,
-+	 * make the last files bigger.
-+	 * Used only if filesize was not explicitely given
-+	 */
-+	if (!td->o.file_size_low && total_file_size < td->o.size) {
-+		f->real_file_size += (td->o.size - total_file_size);
-+	}
-+
-+	return 0;
-+}
- 
-+static int fio_hdfsio_io_u_init(struct thread_data *td, struct io_u *io_u)
-+{
-+	struct hdfsio_data *hd = td->io_ops->data;
-+	struct hdfsio_options *options = td->eo;
-+	int failure;
-+	struct hdfsBuilder *bld;
-+
-+	if (options->host == NULL || options->port == 0) {
-+		log_err("hdfs: server not defined\n");
-+		return EINVAL;
-+	}
-+	
-+	bld = hdfsNewBuilder();
-+	if (!bld) {
-+		failure = errno;
-+		log_err("hdfs: unable to allocate connect builder\n");
-+		return failure;
-+	}
-+	hdfsBuilderSetNameNode(bld, options->host);
-+	hdfsBuilderSetNameNodePort(bld, options->port);
-+	if(! options->single_instance) {
-+		hdfsBuilderSetForceNewInstance(bld);
-+	}
-+	hd->fs = hdfsBuilderConnect(bld);
-+	
-+	/* hdfsSetWorkingDirectory succeed on non existend directory */
-+	if (hdfsExists(hd->fs, options->directory) < 0 || hdfsSetWorkingDirectory(hd->fs, options->directory) < 0) {
-+		failure = errno;
-+		log_err("hdfs: invalid working directory %s: %s\n", options->directory, strerror(errno));
-+		return failure;
-+	}
-+	
- 	return 0;
- }
- 
-+static void fio_hdfsio_io_u_free(struct thread_data *td, struct io_u *io_u)
-+{
-+	struct hdfsio_data *hd = td->io_ops->data;
-+
-+	if (hd->fs && hdfsDisconnect(hd->fs) < 0) {
-+		log_err("hdfs: disconnect failed: %d\n", errno);
-+	}
-+}
-+
- static struct ioengine_ops ioengine_hdfs = {
- 	.name = "libhdfs",
- 	.version = FIO_IOOPS_VERSION,
-+	.flags = FIO_SYNCIO | FIO_DISKLESSIO | FIO_NODISKUTIL,
- 	.setup = fio_hdfsio_setup,
-+	.init = fio_hdfsio_init,
- 	.prep = fio_hdfsio_prep,
- 	.queue = fio_hdfsio_queue,
- 	.open_file = fio_hdfsio_open_file,
- 	.close_file = fio_hdfsio_close_file,
--	.flags = FIO_SYNCIO,
-+	.io_u_init = fio_hdfsio_io_u_init,
-+	.io_u_free = fio_hdfsio_io_u_free,
-+	.option_struct_size	= sizeof(struct hdfsio_options),
-+	.options		= options,
- };
- 
-+
- static void fio_init fio_hdfsio_register(void)
- {
- 	register_ioengine(&ioengine_hdfs);
-diff --git a/examples/waitfor.fio b/examples/waitfor.fio
-new file mode 100644
-index 0000000..95fad00
---- /dev/null
-+++ b/examples/waitfor.fio
-@@ -0,0 +1,35 @@
-+[global]
-+threads=1
-+group_reporting=1
-+filename=/tmp/data
-+filesize=128m
-+
-+[writers]
-+rw=write
-+bs=128k
-+numjobs=4
-+runtime=10
-+
-+[readers]
-+new_group
-+wait_for=writers
-+rw=randread
-+bs=4k
-+numjobs=4
-+runtime=10
-+
-+[writers2]
-+new_group
-+wait_for=readers
-+rw=randwrite
-+bs=4k
-+numjobs=4
-+runtime=10
-+
-+[readers2]
-+new_group
-+wait_for=writers2
-+rw=randread
-+bs=4k
-+numjobs=4
-+runtime=10
-diff --git a/file.h b/file.h
-index d5595c1..a631766 100644
---- a/file.h
-+++ b/file.h
-@@ -180,6 +180,7 @@ extern int __must_check generic_close_file(struct thread_data *, struct fio_file
- extern int __must_check generic_get_file_size(struct thread_data *, struct fio_file *);
- extern int __must_check file_lookup_open(struct fio_file *f, int flags);
- extern int __must_check pre_read_files(struct thread_data *);
-+extern unsigned long long get_rand_file_size(struct thread_data *td);
- extern int add_file(struct thread_data *, const char *, int, int);
- extern int add_file_exclusive(struct thread_data *, const char *);
- extern void get_file(struct fio_file *);
-diff --git a/filesetup.c b/filesetup.c
-index 7666754..a821632 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -264,7 +264,7 @@ error:
- 	return ret;
- }
- 
--static unsigned long long get_rand_file_size(struct thread_data *td)
-+unsigned long long get_rand_file_size(struct thread_data *td)
- {
- 	unsigned long long ret, sized;
- 	uint64_t frand_max;
-diff --git a/fio.1 b/fio.1
-index 4fe1be2..7bdfea3 100644
---- a/fio.1
-+++ b/fio.1
-@@ -180,6 +180,14 @@ a ':' character.
- May be used to override the job name.  On the command line, this parameter
- has the special purpose of signalling the start of a new job.
- .TP
-+.BI wait_for \fR=\fPstr
-+Specifies the name of the already defined job to wait for. Single waitee name
-+only may be specified. If set, the job won't be started until all workers of
-+the waitee job are done.  Wait_for operates on the job name basis, so there are
-+a few limitations. First, the waitee must be defined prior to the waiter job
-+(meaning no forward references). Second, if a job is being referenced as a
-+waitee, it must have a unique name (no duplicate waitees).
-+.TP
- .BI description \fR=\fPstr
- Human-readable description of the job. It is printed when the job is run, but
- otherwise has no special purpose.
-diff --git a/fio.h b/fio.h
-index ddc29db..66211e9 100644
---- a/fio.h
-+++ b/fio.h
-@@ -542,6 +542,7 @@ enum {
- extern void td_set_runstate(struct thread_data *, int);
- extern int td_bump_runstate(struct thread_data *, int);
- extern void td_restore_runstate(struct thread_data *, int);
-+extern const char *runstate_to_name(int runstate);
- 
- /*
-  * Allow 60 seconds for a job to quit on its own, otherwise reap with
-diff --git a/goptions.c b/goptions.c
-index c01b6cc..20a17d1 100644
---- a/goptions.c
-+++ b/goptions.c
-@@ -92,9 +92,9 @@ struct gopt_job_view {
- static GNode *gopt_dep_tree;
- 
- static GtkWidget *gopt_get_group_frame(struct gopt_job_view *gjv,
--				       GtkWidget *box, unsigned int groupmask)
-+				       GtkWidget *box, uint64_t groupmask)
- {
--	unsigned int mask, group;
-+	uint64_t mask, group;
- 	struct opt_group *og;
- 	GtkWidget *frame, *hbox;
- 	struct gopt_frame_widget *gfw;
-@@ -1135,7 +1135,7 @@ static void gopt_add_options(struct gopt_job_view *gjv,
- 	 */
- 	for (i = 0; fio_options[i].name; i++) {
- 		struct fio_option *o = &fio_options[i];
--		unsigned int mask = o->category;
-+		uint64_t mask = o->category;
- 		struct opt_group *og;
- 
- 		while ((og = opt_group_from_mask(&mask)) != NULL) {
-@@ -1189,7 +1189,7 @@ static void gopt_add_group_tabs(GtkWidget *notebook, struct gopt_job_view *gjv)
- 
- 	i = 0;
- 	do {
--		unsigned int mask = (1U << i);
-+		uint64_t mask = (1ULL << i);
- 
- 		og = opt_group_from_mask(&mask);
- 		if (!og)
-diff --git a/init.c b/init.c
-index 8773138..991fa1c 100644
---- a/init.c
-+++ b/init.c
-@@ -1217,6 +1217,49 @@ static void gen_log_name(char *name, size_t size, const char *logtype,
- 		snprintf(name, size, "%s_%s.%s", logname, logtype, suf);
- }
- 
-+static int check_waitees(char *waitee)
-+{
-+	struct thread_data *td;
-+	int i, ret = 0;
-+
-+	for_each_td(td, i) {
-+		if (td->subjob_number)
-+			continue;
-+
-+		ret += !strcmp(td->o.name, waitee);
-+	}
-+
-+	return ret;
-+}
-+
-+static bool wait_for_ok(const char *jobname, struct thread_options *o)
-+{
-+	int nw;
-+
-+	if (!o->wait_for)
-+		return true;
-+
-+	if (!strcmp(jobname, o->wait_for)) {
-+		log_err("%s: a job cannot wait for itself (wait_for=%s).\n",
-+				jobname, o->wait_for);
-+		return false;
-+	}
-+
-+	if (!(nw = check_waitees(o->wait_for))) {
-+		log_err("%s: waitee job %s unknown.\n", jobname, o->wait_for);
-+		return false;
-+	}
-+
-+	if (nw > 1) {
-+		log_err("%s: multiple waitees %s found,\n"
-+			"please avoid duplicates when using wait_for option.\n",
-+				jobname, o->wait_for);
-+		return false;
-+	}
-+
-+	return true;
-+}
-+
- /*
-  * Adds a job to the list of things todo. Sanitizes the various options
-  * to make sure we don't have conflicts, and initializes various
-@@ -1273,6 +1316,12 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
- 	if (fixup_options(td))
- 		goto err;
- 
-+	/*
-+	 * Belongs to fixup_options, but o->name is not necessarily set as yet
-+	 */
-+	if (!wait_for_ok(jobname, o))
-+		goto err;
-+
- 	flow_init_job(td);
- 
- 	/*
-diff --git a/libfio.c b/libfio.c
-index 6c74852..c626d15 100644
---- a/libfio.c
-+++ b/libfio.c
-@@ -190,7 +190,7 @@ static const char *td_runstates[] = {
- 	"REAPED",
- };
- 
--static const char *runstate_to_name(int runstate)
-+const char *runstate_to_name(int runstate)
- {
- 	compiletime_assert(TD_LAST == 12, "td runstate list");
- 	if (runstate >= 0 && runstate < TD_LAST)
-diff --git a/options.c b/options.c
-index 8494713..49d6600 100644
---- a/options.c
-+++ b/options.c
-@@ -1229,6 +1229,15 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.group	= FIO_OPT_G_DESC,
- 	},
- 	{
-+		.name	= "wait_for",
-+		.lname	= "Waitee name",
-+		.type	= FIO_OPT_STR_STORE,
-+		.off1	= td_var_offset(wait_for),
-+		.help	= "Name of the job this one wants to wait for before starting",
-+		.category = FIO_OPT_C_GENERAL,
-+		.group	= FIO_OPT_G_DESC,
-+	},
-+	{
- 		.name	= "filename",
- 		.lname	= "Filename(s)",
- 		.type	= FIO_OPT_STR_STORE,
-diff --git a/options.h b/options.h
-index d37b162..13b534a 100644
---- a/options.h
-+++ b/options.h
-@@ -116,6 +116,7 @@ enum opt_category_group {
-         __FIO_OPT_G_RBD,
-         __FIO_OPT_G_GFAPI,
-         __FIO_OPT_G_MTD,
-+	__FIO_OPT_G_HDFS,
- 	__FIO_OPT_G_NR,
- 
- 	FIO_OPT_G_RATE		= (1ULL << __FIO_OPT_G_RATE),
-@@ -149,6 +150,7 @@ enum opt_category_group {
- 	FIO_OPT_G_RBD		= (1ULL << __FIO_OPT_G_RBD),
- 	FIO_OPT_G_GFAPI		= (1ULL << __FIO_OPT_G_GFAPI),
- 	FIO_OPT_G_MTD		= (1ULL << __FIO_OPT_G_MTD),
-+	FIO_OPT_G_HDFS		= (1ULL << __FIO_OPT_G_HDFS),
- 	FIO_OPT_G_INVALID	= (1ULL << __FIO_OPT_G_NR),
- };
- 
-diff --git a/parse.h b/parse.h
-index 3ba8047..77450ef 100644
---- a/parse.h
-+++ b/parse.h
-@@ -1,6 +1,7 @@
- #ifndef FIO_PARSE_H
- #define FIO_PARSE_H
- 
-+#include <inttypes.h>
- #include "flist.h"
- 
- /*
-@@ -69,8 +70,8 @@ struct fio_option {
- 	int (*verify)(struct fio_option *, void *);
- 	const char *prof_name;		/* only valid for specific profile */
- 	void *prof_opts;
--	unsigned int category;		/* what type of option */
--	unsigned int group;		/* who to group with */
-+	uint64_t category;		/* what type of option */
-+	uint64_t group;			/* who to group with */
- 	void *gui_data;
- 	int is_seconds;			/* time value with seconds base */
- 	int is_time;			/* time based value */
-diff --git a/server.h b/server.h
-index 5a59d07..9205ae6 100644
---- a/server.h
-+++ b/server.h
-@@ -38,7 +38,7 @@ struct fio_net_cmd_reply {
- };
- 
- enum {
--	FIO_SERVER_VER			= 50,
-+	FIO_SERVER_VER			= 51,
- 
- 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
- 	FIO_SERVER_MAX_CMD_MB		= 2048,
-diff --git a/thread_options.h b/thread_options.h
-index 6ae0335..858f307 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -40,6 +40,7 @@ struct thread_options {
- 	uint64_t set_options[NR_OPTS_SZ];
- 	char *description;
- 	char *name;
-+	char *wait_for;
- 	char *directory;
- 	char *filename;
- 	char *filename_format;
-@@ -289,6 +290,7 @@ struct thread_options_pack {
- 	uint64_t set_options[NR_OPTS_SZ];
- 	uint8_t description[FIO_TOP_STR_MAX];
- 	uint8_t name[FIO_TOP_STR_MAX];
-+	uint8_t wait_for[FIO_TOP_STR_MAX];
- 	uint8_t directory[FIO_TOP_STR_MAX];
- 	uint8_t filename[FIO_TOP_STR_MAX];
- 	uint8_t filename_format[FIO_TOP_STR_MAX];
+ 		if (blockdev_size(f, &bytes)) {
+ 			log_err("dedupe: failed getting bdev size\n");
