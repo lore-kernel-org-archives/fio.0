@@ -14,64 +14,76 @@ References: <VI1PR05MB1343197BD54DC24EA6A2AF65B1FB0@VI1PR05MB1343.eurprd05.prod.
  <VI1PR05MB1343AFE71D15E197D549461FB1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>
  <56834ED5.40506@kernel.dk> <568356A8.1040904@kernel.dk>
  <VI1PR05MB13431E57B67F7322189A74E2B1FD0@VI1PR05MB1343.eurprd05.prod.outlook.com>
- <5684089C.7000201@kernel.dk>
 From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <56840B48.4040301@kernel.dk>
-Date: Wed, 30 Dec 2015 09:50:16 -0700
+Message-ID: <5684089C.7000201@kernel.dk>
+Date: Wed, 30 Dec 2015 09:38:52 -0700
 MIME-Version: 1.0
-In-Reply-To: <5684089C.7000201@kernel.dk>
-Content-Type: multipart/mixed;
- boundary="------------050104050201040508030400"
+In-Reply-To: <VI1PR05MB13431E57B67F7322189A74E2B1FD0@VI1PR05MB1343.eurprd05.prod.outlook.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 To: Thierry BERTAUD <tbertaud@conforama.fr>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------050104050201040508030400
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+On 12/30/2015 01:36 AM, Thierry BERTAUD wrote:
+> Jens,
+>
+>> Unless I botched it, it should disable lex on AIX now, unless you
+>> explicitly attempt to enable with --enable-lex.
+>
+> I built against fio-de26b82 and now lex its disable by default. Tha'ts OK  (cf full output below).
+>
+> Concerning error with  --enable-lex, i think is due that option '-o' is not valid so lex doon't generate the file leyx.yy.c => don't find it after.
+> ---
+> MTD                           no
+> 0: Warning: 1285-300 The o flag is not valid.
+> 0: Error: 1285-331 Cannot read input file lex.yy.c
+> lex/yacc for arithmetic       yes
+> ---
+> If i read configure:
+>      +1505
+>      +1506  # Check if lex fails using -o
+>      +1507  if test "$arith" = "yes" ; then
+>      +1508  $LEX -o lex.yy.c exp/expression-parser.l 2> /dev/null
+>      +1509  if test "$?" = "0" ; then
+>      +1510    lex_use_o="yes"
+>      +1511  else
+>      +1512    lex_use_o="no"
+>      +1513  fi
+>      +1514  fi
+>      +1515
+>      +1516  echo "lex/yacc for arithmetic       $arith"
+>
+> Could you update test condition, if OS is AIX to use "less exp/expression-parser.l" and other case "-o lex.yy.c exp/expression-parser.l"
+>     # lex exp/expression-parser.l; echo $?;ls -l lex.yy.c
+>     0
+>     -rw-r--r--    1 root     staff         48081 Dec 30 09:34 lex.yy.c
 
-On 12/30/2015 09:38 AM, Jens Axboe wrote:
-> so that logic does look correct. Maybe the configure check for the error
-> return of lex -o isn't working. Do you have CONFIG_LEX_USE_O in your
-> config-host.mak, if you run configure --enable-lex?
+But that's what the lex_use_o should control. If lex is enabled, we'll 
+output CONFIG_LEX_USE_O=y if lex should use -o and nothing if it should 
+not. If CONFIG_LEX_USE_O is in config-host.mak, then the Makefile target 
+will use -o. If not, then it should not. But maybe I screwed it up. 
+Testing here:
 
-If the latter is the case, then the attached patch should hopefully 
-work. That'll force NOT using -o for AIX always, if lex is enabled.
+axboe@xps13:/home/axboe/git/fio $ grep USE_O config-host.mak
+CONFIG_LEX_USE_O=y
+axboe@xps13:/home/axboe/git/fio $ make V=1 lex.yy.c
+lex -o lex.yy.c exp/expression-parser.l
+
+which looks correct. I'll manually kill CONFIG_LEX_USE_O=y from 
+config-host.mak, and retry:
+
+axboe@xps13:/home/axboe/git/fio $ rm lex.yy.c
+axboe@xps13:/home/axboe/git/fio $ grep USE_O config-host.mak
+axboe@xps13:/home/axboe/git/fio $ make V=1 lex.yy.c
+lex exp/expression-parser.l
+axboe@xps13:/home/axboe/git/fio $ ls -al lex.yy.c
+-rw-r--r-- 1 axboe axboe 51991 Dec 30 09:37 lex.yy.c
+
+so that logic does look correct. Maybe the configure check for the error 
+return of lex -o isn't working. Do you have CONFIG_LEX_USE_O in your 
+config-host.mak, if you run configure --enable-lex?
 
 -- 
 Jens Axboe
 
-
---------------050104050201040508030400
-Content-Type: text/x-patch;
- name="no-lex-o.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="no-lex-o.patch"
-
-diff --git a/configure b/configure
-index e92e96b879b5..0dea5d8b0b68 100755
---- a/configure
-+++ b/configure
-@@ -247,6 +247,8 @@ AIX)
-   # Unless explicitly enabled, turn off lex.
-   if test -z "$disable_lex" ; then
-     disable_lex="yes"
-+  else
-+    force_no_lex_o="yes"
-   fi
-   ;;
- Darwin)
-@@ -1505,6 +1507,9 @@ fi
- 
- # Check if lex fails using -o
- if test "$arith" = "yes" ; then
-+if test "$force_no_lex_o" = "yes" ; then
-+  lex_use_o="no"
-+else
- $LEX -o lex.yy.c exp/expression-parser.l 2> /dev/null
- if test "$?" = "0" ; then
-   lex_use_o="yes"
-
---------------050104050201040508030400--
 
