@@ -12,42 +12,35 @@ References: <VI1PR05MB1343197BD54DC24EA6A2AF65B1FB0@VI1PR05MB1343.eurprd05.prod.
  <5682A81A.8010008@kernel.dk>
  <VI1PR05MB134366A0B6A8833617A18D4FB1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>
  <VI1PR05MB1343AFE71D15E197D549461FB1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>
- <56834ED5.40506@kernel.dk>
 From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <568356A8.1040904@kernel.dk>
-Date: Tue, 29 Dec 2015 20:59:36 -0700
+Message-ID: <56834ED5.40506@kernel.dk>
+Date: Tue, 29 Dec 2015 20:26:13 -0700
 MIME-Version: 1.0
-In-Reply-To: <56834ED5.40506@kernel.dk>
+In-Reply-To: <VI1PR05MB1343AFE71D15E197D549461FB1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 To: Thierry BERTAUD <tbertaud@conforama.fr>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 12/29/2015 08:26 PM, Jens Axboe wrote:
-> On 12/29/2015 02:10 PM, Thierry BERTAUD wrote:
->> Hello Jens,
->>
->>>> Hmm, I'll see if I can add a check in configure for whether or not lex
->>>> requires -o to specify an output file. For now, just use --disable-lex.
->>> OK, i continue to just use: --disable-yes.
->>> If you add a check in configure later, i'll try a ./configure to
->>> confirm you that's fine in AIX.
->>
->> I build against fio-63bda37 (configure: if lex requires/fails with -o
->> for output)
->> With configure, i have this:
->> ____
->> MTD                           no
->> 0: Warning: 1285-300 The o flag is not valid.
->> 0: Error: 1285-331 Cannot read input file lex.yy.c
->> lex/yacc for arithmetic       yes
+On 12/29/2015 02:10 PM, Thierry BERTAUD wrote:
+> Hello Jens,
 >
-> Might have to do rm lex.yy.c before running configure. If you do, does
-> it then work? If not, then we'll just have to have AIX default to lex
-> off, I'm afraid. We can automate that as well in configure.
+>>> Hmm, I'll see if I can add a check in configure for whether or not lex
+>>> requires -o to specify an output file. For now, just use --disable-lex.
+>> OK, i continue to just use: --disable-yes.
+>> If you add a check in configure later, i'll try a ./configure to confirm you that's fine in AIX.
+>
+> I build against fio-63bda37 (configure: if lex requires/fails with -o for output)
+> With configure, i have this:
+> ____
+> MTD                           no
+> 0: Warning: 1285-300 The o flag is not valid.
+> 0: Error: 1285-331 Cannot read input file lex.yy.c
+> lex/yacc for arithmetic       yes
 
-Unless I botched it, it should disable lex on AIX now, unless you 
-explicitly attempt to enable with --enable-lex.
+Might have to do rm lex.yy.c before running configure. If you do, does 
+it then work? If not, then we'll just have to have AIX default to lex 
+off, I'm afraid. We can automate that as well in configure.
 
 -- 
 Jens Axboe
