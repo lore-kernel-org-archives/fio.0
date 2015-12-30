@@ -1,152 +1,252 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:49732 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754712AbbL3NAE (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 30 Dec 2015 08:00:04 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1aEGMF-0006vI-M8
-	for fio@vger.kernel.org; Wed, 30 Dec 2015 13:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20151230130002.10B262C00B6@kernel.dk>
-Date: Wed, 30 Dec 2015 06:00:02 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <tbertaud@conforama.fr>
+From: Thierry BERTAUD <tbertaud@conforama.fr>
+Subject: RE: fio-f1480f9: AIX 6.1 build KO against gcc function overlap
+Date: Wed, 30 Dec 2015 17:59:39 +0000
+Message-ID: <VI1PR05MB13431A3381B0D79ED7118494B1FD0@VI1PR05MB1343.eurprd05.prod.outlook.com>
+References: <VI1PR05MB1343197BD54DC24EA6A2AF65B1FB0@VI1PR05MB1343.eurprd05.prod.outlook.com>
+ <5681C3ED.2000708@kernel.dk>
+ <VI1PR05MB1343C677E9AD2577F510184DB1FB0@VI1PR05MB1343.eurprd05.prod.outlook.com>
+ <5681C9E2.3040006@kernel.dk>
+ <VI1PR05MB13430153F93BD34C56DFB4CAB1FB0@VI1PR05MB1343.eurprd05.prod.outlook.com>
+ <5681D0A8.8030507@kernel.dk>
+ <VI1PR05MB1343AD6DF9BD33ED9A3C0C88B1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>
+ <5681D65A.10200@kernel.dk>
+ <VI1PR05MB134330236BC82EF62F5219C0B1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>
+ <5682A81A.8010008@kernel.dk>
+ <VI1PR05MB134366A0B6A8833617A18D4FB1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>
+ <VI1PR05MB1343AFE71D15E197D549461FB1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>
+ <56834ED5.40506@kernel.dk> <568356A8.1040904@kernel.dk>
+ <VI1PR05MB13431E57B67F7322189A74E2B1FD0@VI1PR05MB1343.eurprd05.prod.outlook.com>
+ <5684089C.7000201@kernel.dk>
+ <56840B48.4040301@kernel.dk>,<56840B75.5070002@kernel.dk>
+In-Reply-To: <56840B75.5070002@kernel.dk>
+Content-Language: fr-FR
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 2c2c93d8bd89c0cb15fc2430f9838744153a3946:
+Hello Jens;
 
-  t/genzipf: fix for strcasestr missing (2015-12-28 17:39:22 -0700)
+I use fio-5f3bd0f.
+No trace of USE_O if config-host.mak so is use your patch.
+That's OK for the confgure with --enable-lex with the patch but have some i=
+ssue with the make against yacc.
+Seems an '-o' option again but for yacc this time.
 
-are available in the git repository at:
+I did the following step:
+Dod configure:
+   # grep USE_O config-host.mak
+   grep: 0652-033 Cannot open config-host.mak.
+   # ./configure --enable-lex
+   Operating system              AIX
+   CPU                           ppc
+   Big endian                    yes
+   Compiler                      gcc
+   Cross compile                 no
 
-  git://git.kernel.dk/fio.git master
+   Static build                  no
+   Wordsize                      32
+   zlib                          yes
+   Linux AIO support             no
+   POSIX AIO support             yes
+   POSIX AIO support needs -lrt  no
+   POSIX AIO fsync               yes
+   Solaris AIO support           no
+   __sync_fetch_and_add          no
+   libverbs                      no
+   rdmacm                        yes
+   Linux fallocate               no
+   POSIX fadvise                 yes
+   POSIX fallocate               yes
+   sched_setaffinity(3 arg)      no
+   sched_setaffinity(2 arg)      no
+   clock_gettime                 yes
+   CLOCK_MONOTONIC               yes
+   CLOCK_MONOTONIC_RAW           no
+   CLOCK_MONOTONIC_PRECISE       no
+   gettimeofday                  yes
+   fdatasync                     yes
+   sync_file_range               no
+   EXT4 move extent              no
+   Linux splice(2)               no
+   GUASI                         no
+   Fusion-io atomic engine       no
+   libnuma                       no
+   strsep                        yes
+   strcasestr                    no
+   strlcat                       no
+   getopt_long_only()            no
+   inet_aton                     yes
+   socklen_t                     yes
+   __thread                      yes
+   RUSAGE_THREAD                 yes
+   SCHED_IDLE                    no
+   TCP_NODELAY                   yes
+   Net engine window_size        yes
+   TCP_MAXSEG                    yes
+   RLIMIT_MEMLOCK                no
+   pwritev/preadv                yes
+   IPv6 helpers                  yes
+   Rados Block Device engine     no
+   setvbuf                       yes
+   Gluster API engine            no
+   s390_z196_facilities          no
+   HDFS engine                   no
+   MTD                           no
+   0: Warning: 1285-300 The o flag is not valid.
+   0: Error: 1285-331 Cannot read input file lex.yy.c
+   lex/yacc for arithmetic       yes
+   getmntent                     yes
+   getmntinfo                    no
+   Static Assert                 yes
+   bool                          yes
+   #=20
 
-for you to fetch changes up to de26b8245b06c99ec64d9f88cfde1ed9627f871a:
+No option USE_O  and file lex.yy.c generated.
+   # grep USE_O config-host.mak
+   #
+   # ls -l lex.yy.c
+   ls: 0653-341 The file lex.yy.c does not exist.
+   #
+   # rm config-host.mak
+   #
 
-  configure: add --enable-lex (2015-12-29 20:58:13 -0700)
+Apply your patch:
+   # /usr/linux/bin/patch < no-lex-o-v2.patch
+   (Stripping trailing CRs from patch; use --binary to disable.)
+   patching file configure
+   #
 
-----------------------------------------------------------------
-Jens Axboe (3):
-      t/dedupe: silence bogus warning on 'bytes' being used uninitialized
-      configure: check if lex requires/fails with -o for output
-      configure: add --enable-lex
+Do configure:
+   # ./configure --enable-lex
+   Operating system              AIX
+   CPU                           ppc
+   Big endian                    yes
+   Compiler                      gcc
+   Cross compile                 no
 
- Makefile   |  4 ++++
- configure  | 26 ++++++++++++++++++++++++--
- t/dedupe.c |  2 +-
- 3 files changed, 29 insertions(+), 3 deletions(-)
+   Static build                  no
+   Wordsize                      32
+   zlib                          yes
+   Linux AIO support             no
+   POSIX AIO support             yes
+   POSIX AIO support needs -lrt  no
+   POSIX AIO fsync               yes
+   Solaris AIO support           no
+   __sync_fetch_and_add          no
+   libverbs                      no
+   rdmacm                        yes
+   Linux fallocate               no
+   POSIX fadvise                 yes
+   POSIX fallocate               yes
+   sched_setaffinity(3 arg)      no
+   sched_setaffinity(2 arg)      no
+   clock_gettime                 yes
+   CLOCK_MONOTONIC               yes
+   CLOCK_MONOTONIC_RAW           no
+   CLOCK_MONOTONIC_PRECISE       no
+   gettimeofday                  yes
+   fdatasync                     yes
+   sync_file_range               no
+   EXT4 move extent              no
+   Linux splice(2)               no
+   GUASI                         no
+   Fusion-io atomic engine       no
+   libnuma                       no
+   strsep                        yes
+   strcasestr                    no
+   strlcat                       no
+   getopt_long_only()            no
+   inet_aton                     yes
+   socklen_t                     yes
+   __thread                      yes
+   RUSAGE_THREAD                 yes
+   SCHED_IDLE                    no
+   TCP_NODELAY                   yes
+   Net engine window_size        yes
+   TCP_MAXSEG                    yes
+   RLIMIT_MEMLOCK                no
+   pwritev/preadv                yes
+   IPv6 helpers                  yes
+   Rados Block Device engine     no
+   setvbuf                       yes
+   Gluster API engine            no
+   s390_z196_facilities          no
+   HDFS engine                   no
+   MTD                           no
+   lex/yacc for arithmetic       yes
+   getmntent                     yes
+   getmntinfo                    no
+   Static Assert                 yes
+   bool                          yes
+   #
 
----
+Follow your previous steps:
+   # grep USE_O config-host.mak
+   # ls -l  lex.yy.c
+   ls: 0653-341 The file lex.yy.c does not exist.
+   # gmake V=3D1 lex.yy.c
+   FIO_VERSION =3D fio-2.3
+   lex exp/expression-parser.l
+   # ls -al lex.yy.c
+   -rw-r--r--    1 root     staff         48081 Dec 30 18:48 lex.yy.c
+   #
 
-Diff of recent changes:
+Try to do a full make:
+   # gmake CC=3Dgcc
+       CC crc/crc64.o
+       CC crc/md5.o
+       CC crc/fnv.o
+       CC crc/sha256.o
+       CC crc/test.o
+       CC crc/xxhash.o
+       CC crc/crc32c-intel.o
+       CC crc/murmur3.o
+       CC crc/crc32.o
+       CC crc/crc32c.o
+       CC crc/sha1.o
+       CC crc/crc7.o
+       CC crc/sha512.o
+       CC crc/crc16.o
+       CC lib/gauss.o
+       CC lib/prio_tree.o
+       CC lib/axmap.o
+       CC lib/flist_sort.o
+       CC lib/hweight.o
+       CC lib/zipf.o
+       CC lib/getrusage.o
+       CC lib/output_buffer.o
+       CC lib/memalign.o
+       CC lib/lfsr.o
+       CC lib/bloom.o
+       CC lib/strntol.o
+       CC lib/num2str.o
+       CC lib/mountcheck.o
+       CC lib/pattern.o
+       CC lib/ieee754.o
+       CC lib/rbtree.o
+       CC lib/rand.o
+       CC gettime.o
+       CC ioengines.o
+       CC init.o
+       CC stat.o
+       CC log.o
+       CC time.o
+       CC filesetup.o
+       CC eta.o
+       CC verify.o
+       CC memory.o
+       CC io_u.o
+     YACC y.tab.c
+   yacc: 1285-770 The -o flag is now the default in yacc.
 
-diff --git a/Makefile b/Makefile
-index 510e257..1b5c9a6 100644
---- a/Makefile
-+++ b/Makefile
-@@ -297,7 +297,11 @@ override CFLAGS += -DFIO_VERSION='"$(FIO_VERSION)"'
- 
- ifdef CONFIG_ARITHMETIC
- lex.yy.c: exp/expression-parser.l
-+ifdef CONFIG_LEX_USE_O
- 	$(QUIET_LEX)$(LEX) -o $@ $<
-+else
-+	$(QUIET_LEX)$(LEX) $<
-+endif
- 
- lex.yy.o: lex.yy.c y.tab.h
- 	$(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) -c $<
-diff --git a/configure b/configure
-index af26165..e92e96b 100755
---- a/configure
-+++ b/configure
-@@ -135,7 +135,7 @@ show_help="no"
- exit_val=0
- gfio_check="no"
- libhdfs="no"
--disable_lex="no"
-+disable_lex=""
- prefix=/usr/local
- 
- # parse options
-@@ -171,6 +171,8 @@ for opt do
-   ;;
-   --disable-lex) disable_lex="yes"
-   ;;
-+  --enable-lex) disable_lex="no"
-+  ;;
-   --disable-shm) no_shm="yes"
-   ;;
-   --disable-optimizations) disable_opt="yes"
-@@ -198,6 +200,7 @@ if test "$show_help" = "yes" ; then
-   echo "--disable-gfapi        Disable gfapi"
-   echo "--enable-libhdfs       Enable hdfs support"
-   echo "--disable-lex          Disable use of lex/yacc for math"
-+  echo "--enable-lex           Enable use of lex/yacc for math"
-   echo "--disable-shm          Disable SHM support"
-   echo "--disable-optimizations Don't enable compiler optimizations"
-   exit $exit_val
-@@ -240,6 +243,12 @@ fi
- # cross-compiling to one of these OSes then you'll need to specify
- # the correct CPU with the --cpu option.
- case $targetos in
-+AIX)
-+  # Unless explicitly enabled, turn off lex.
-+  if test -z "$disable_lex" ; then
-+    disable_lex="yes"
-+  fi
-+  ;;
- Darwin)
-   # on Leopard most of the system is 32-bit, so we have to ask the kernel if
-   # we can run 64-bit userspace code.
-@@ -1455,7 +1464,7 @@ yacc="no"
- yacc_is_bison="no"
- lex="no"
- arith="no"
--if test "$disable_lex" = "no"; then
-+if test "$disable_lex" = "no" || test -z "$disable_lex" ; then
- if test "$targetos" != "SunOS" ; then
- LEX=$(which lex 2> /dev/null)
- if test -x "$LEX" ; then
-@@ -1494,6 +1503,16 @@ fi
- fi
- fi
- 
-+# Check if lex fails using -o
-+if test "$arith" = "yes" ; then
-+$LEX -o lex.yy.c exp/expression-parser.l 2> /dev/null
-+if test "$?" = "0" ; then
-+  lex_use_o="yes"
-+else
-+  lex_use_o="no"
-+fi
-+fi
-+
- echo "lex/yacc for arithmetic       $arith"
- 
- ##########################################
-@@ -1756,6 +1775,9 @@ if test "$arith" = "yes" ; then
-   else
-     echo "YACC=$YACC" >> $config_host_mak
-   fi
-+  if test "$lex_use_o" = "yes" ; then
-+    echo "CONFIG_LEX_USE_O=y" >> $config_host_mak
-+  fi
- fi
- if test "$getmntent" = "yes" ; then
-   output_sym "CONFIG_GETMNTENT"
-diff --git a/t/dedupe.c b/t/dedupe.c
-index e1cea50..3a66820 100644
---- a/t/dedupe.c
-+++ b/t/dedupe.c
-@@ -84,7 +84,7 @@ static uint64_t get_size(struct fio_file *f, struct stat *sb)
- 	uint64_t ret;
- 
- 	if (S_ISBLK(sb->st_mode)) {
--		unsigned long long bytes;
-+		unsigned long long bytes = 0;
- 
- 		if (blockdev_size(f, &bytes)) {
- 			log_err("dedupe: failed getting bdev size\n");
+    yacc: 1285-725 Reached end of file before %% Line 1
+   Makefile:313: recipe for target 'y.tab.c' failed
+   gmake: *** [y.tab.c] Error 1
+   #
+
+Regards,
+Thierry
+
