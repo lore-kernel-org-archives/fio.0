@@ -1,66 +1,92 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: time_based option broken
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from sjc00mx1.hgst.com ([199.255.44.36]:11943 "EHLO
+	sjc00mx1.hgst.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754509AbcAHTfi (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 8 Jan 2016 14:35:38 -0500
+From: Jeff Furlong <jeff.furlong@hgst.com>
+Subject: RE: time_based option broken
+Date: Fri, 8 Jan 2016 19:35:34 +0000
+Message-ID: <BN3PR0401MB14575B8D6E7F8ADF762878C0F7F60@BN3PR0401MB1457.namprd04.prod.outlook.com>
 References: <BN3PR0401MB145733E19D0EC0B19F88C9D1F7F40@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <CALjAwxjV8Qb2op2Og5RoZtGQ781vn5VCSRsWgrXZm8Fo8j7UNg@mail.gmail.com>
+	<CALjAwxjV8Qb2op2Og5RoZtGQ781vn5VCSRsWgrXZm8Fo8j7UNg@mail.gmail.com>
  <CADr68WbPCum7F3eSee8zs4Y=sasByzfqbuqurfmcgNY_YzYAOQ@mail.gmail.com>
- <BN3PR0401MB14575B8D6E7F8ADF762878C0F7F60@BN3PR0401MB1457.namprd04.prod.outlook.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <5697DBD7.7010201@kernel.dk>
-Date: Thu, 14 Jan 2016 10:33:11 -0700
+In-Reply-To: <CADr68WbPCum7F3eSee8zs4Y=sasByzfqbuqurfmcgNY_YzYAOQ@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <BN3PR0401MB14575B8D6E7F8ADF762878C0F7F60@BN3PR0401MB1457.namprd04.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Jeff Furlong <jeff.furlong@hgst.com>, Jens Rosenboom <j.rosenboom@x-ion.de>, Sitsofe Wheeler <sitsofe@gmail.com>
+Content-Transfer-Encoding: base64
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Jens Rosenboom <j.rosenboom@x-ion.de>, Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
 
-On 01/08/2016 12:35 PM, Jeff Furlong wrote:
-> Good points.  Here is further data:
->
-> # blockdev --getsize64 /dev/nvme2n1
-> 800166076416
->
-> # fio --name=SW_1MB_QD32 --ioengine=libaio --direct=1 --rw=write --iodepth=32 --size=1000m --runtime=60s --time_based --numjobs=1 --bs=1m --overwrite=1 --filename=/dev/nvme2n1
-> SW_1MB_QD32: (g=0): rw=write, bs=1M-1M/1M-1M/1M-1M, ioengine=libaio, iodepth=32
-> fio-2.3-11-g5f3b
-> Starting 1 process
-> Jobs: 1 (f=1): [W(1)] [100.0% done] [0KB/990.2MB/0KB /s] [0/990/0 iops] [eta 00m:00s]
-> SW_1MB_QD32: (groupid=0, jobs=1): err= 0: pid=19511: Fri Jan  8 11:08:55 2016
->    write: io=58620MB, bw=976.11MB/s, iops=976, runt= 60001msec
->
-> So the above using a fixed --size that is compatible with --bs is one workaround.
->
-> When trying to write more than 100% of the device (wrapping around after end of device), instead of --size=100% we could use a fixed size (where above 800166076416 bytes is 763097.8 MB), even if time_based is not used (use --io_size instead):
->
-> # fio --name=SW_1MB_QD32 --ioengine=libaio --direct=1 --rw=write --iodepth=32 --size=763097m --io_size=764000m --numjobs=1 --bs=1m --overwrite=1 --filename=/dev/nvme2n1
-> SW_1MB_QD32: (g=0): rw=write, bs=1M-1M/1M-1M/1M-1M, ioengine=libaio, iodepth=32
-> fio-2.3-11-g5f3b
-> Starting 1 process
-> Jobs: 1 (f=1): [W(1)] [100.0% done] [0KB/567.9MB/0KB /s] [0/567/0 iops] [eta 00m:00s]
-> SW_1MB_QD32: (groupid=0, jobs=1): err= 0: pid=129928: Thu Jan  7 12:45:52 2016
->    write: io=764000MB, bw=600510KB/s, iops=586, runt=1302786msec
->
-> Alternatively, if we simply back out the commit c82ea3d49aa then we can make the 1% or 100% options (--time_based or --io_size) work fine:
->
-> # fio --name=SW_1MB_QD32 --ioengine=libaio --direct=1 --rw=write --iodepth=32 --size=1% --runtime=60s --time_based --numjobs=1 --bs=1m --overwrite=1 --filename=/dev/nvme2n1
-> SW_1MB_QD32: (g=0): rw=write, bs=1M-1M/1M-1M/1M-1M, ioengine=libaio, iodepth=32
-> fio-2.3-11-g5f3b
-> Starting 1 process
-> Jobs: 1 (f=1): [W(1)] [100.0% done] [0KB/954.2MB/0KB /s] [0/954/0 iops] [eta 00m:00s]
-> SW_1MB_QD32: (groupid=0, jobs=1): err= 0: pid=21853: Fri Jan  8 11:20:04 2016
->    write: io=56931MB, bw=971606KB/s, iops=948, runt= 60001msec
-
-So the bug isn't really in the bisected commit, it just changes how fio 
-backs out and then shows another bug. The real bug is that we don't 
-align the new start properly, so we end up with these weird unaligned 
-start offsets that don't work with O_DIRECT IO.
-
-Try current -git, I just committed this fix:
-
-http://git.kernel.dk/cgit/fio/commit/?id=19ddc35b9b97be5af371bb65e93a4864d1dce7b6
-
--- 
-Jens Axboe
-
+R29vZCBwb2ludHMuICBIZXJlIGlzIGZ1cnRoZXIgZGF0YToNCg0KIyBibG9ja2RldiAtLWdldHNp
+emU2NCAvZGV2L252bWUybjENCjgwMDE2NjA3NjQxNg0KDQojIGZpbyAtLW5hbWU9U1dfMU1CX1FE
+MzIgLS1pb2VuZ2luZT1saWJhaW8gLS1kaXJlY3Q9MSAtLXJ3PXdyaXRlIC0taW9kZXB0aD0zMiAt
+LXNpemU9MTAwMG0gLS1ydW50aW1lPTYwcyAtLXRpbWVfYmFzZWQgLS1udW1qb2JzPTEgLS1icz0x
+bSAtLW92ZXJ3cml0ZT0xIC0tZmlsZW5hbWU9L2Rldi9udm1lMm4xDQpTV18xTUJfUUQzMjogKGc9
+MCk6IHJ3PXdyaXRlLCBicz0xTS0xTS8xTS0xTS8xTS0xTSwgaW9lbmdpbmU9bGliYWlvLCBpb2Rl
+cHRoPTMyDQpmaW8tMi4zLTExLWc1ZjNiDQpTdGFydGluZyAxIHByb2Nlc3MNCkpvYnM6IDEgKGY9
+MSk6IFtXKDEpXSBbMTAwLjAlIGRvbmVdIFswS0IvOTkwLjJNQi8wS0IgL3NdIFswLzk5MC8wIGlv
+cHNdIFtldGEgMDBtOjAwc10NClNXXzFNQl9RRDMyOiAoZ3JvdXBpZD0wLCBqb2JzPTEpOiBlcnI9
+IDA6IHBpZD0xOTUxMTogRnJpIEphbiAgOCAxMTowODo1NSAyMDE2DQogIHdyaXRlOiBpbz01ODYy
+ME1CLCBidz05NzYuMTFNQi9zLCBpb3BzPTk3NiwgcnVudD0gNjAwMDFtc2VjDQoNClNvIHRoZSBh
+Ym92ZSB1c2luZyBhIGZpeGVkIC0tc2l6ZSB0aGF0IGlzIGNvbXBhdGlibGUgd2l0aCAtLWJzIGlz
+IG9uZSB3b3JrYXJvdW5kLg0KDQpXaGVuIHRyeWluZyB0byB3cml0ZSBtb3JlIHRoYW4gMTAwJSBv
+ZiB0aGUgZGV2aWNlICh3cmFwcGluZyBhcm91bmQgYWZ0ZXIgZW5kIG9mIGRldmljZSksIGluc3Rl
+YWQgb2YgLS1zaXplPTEwMCUgd2UgY291bGQgdXNlIGEgZml4ZWQgc2l6ZSAod2hlcmUgYWJvdmUg
+ODAwMTY2MDc2NDE2IGJ5dGVzIGlzIDc2MzA5Ny44IE1CKSwgZXZlbiBpZiB0aW1lX2Jhc2VkIGlz
+IG5vdCB1c2VkICh1c2UgLS1pb19zaXplIGluc3RlYWQpOg0KDQojIGZpbyAtLW5hbWU9U1dfMU1C
+X1FEMzIgLS1pb2VuZ2luZT1saWJhaW8gLS1kaXJlY3Q9MSAtLXJ3PXdyaXRlIC0taW9kZXB0aD0z
+MiAtLXNpemU9NzYzMDk3bSAtLWlvX3NpemU9NzY0MDAwbSAtLW51bWpvYnM9MSAtLWJzPTFtIC0t
+b3ZlcndyaXRlPTEgLS1maWxlbmFtZT0vZGV2L252bWUybjENClNXXzFNQl9RRDMyOiAoZz0wKTog
+cnc9d3JpdGUsIGJzPTFNLTFNLzFNLTFNLzFNLTFNLCBpb2VuZ2luZT1saWJhaW8sIGlvZGVwdGg9
+MzINCmZpby0yLjMtMTEtZzVmM2INClN0YXJ0aW5nIDEgcHJvY2Vzcw0KSm9iczogMSAoZj0xKTog
+W1coMSldIFsxMDAuMCUgZG9uZV0gWzBLQi81NjcuOU1CLzBLQiAvc10gWzAvNTY3LzAgaW9wc10g
+W2V0YSAwMG06MDBzXQ0KU1dfMU1CX1FEMzI6IChncm91cGlkPTAsIGpvYnM9MSk6IGVycj0gMDog
+cGlkPTEyOTkyODogVGh1IEphbiAgNyAxMjo0NTo1MiAyMDE2DQogIHdyaXRlOiBpbz03NjQwMDBN
+QiwgYnc9NjAwNTEwS0IvcywgaW9wcz01ODYsIHJ1bnQ9MTMwMjc4Nm1zZWMgDQoNCkFsdGVybmF0
+aXZlbHksIGlmIHdlIHNpbXBseSBiYWNrIG91dCB0aGUgY29tbWl0IGM4MmVhM2Q0OWFhIHRoZW4g
+d2UgY2FuIG1ha2UgdGhlIDElIG9yIDEwMCUgb3B0aW9ucyAoLS10aW1lX2Jhc2VkIG9yIC0taW9f
+c2l6ZSkgd29yayBmaW5lOg0KDQojIGZpbyAtLW5hbWU9U1dfMU1CX1FEMzIgLS1pb2VuZ2luZT1s
+aWJhaW8gLS1kaXJlY3Q9MSAtLXJ3PXdyaXRlIC0taW9kZXB0aD0zMiAtLXNpemU9MSUgLS1ydW50
+aW1lPTYwcyAtLXRpbWVfYmFzZWQgLS1udW1qb2JzPTEgLS1icz0xbSAtLW92ZXJ3cml0ZT0xIC0t
+ZmlsZW5hbWU9L2Rldi9udm1lMm4xDQpTV18xTUJfUUQzMjogKGc9MCk6IHJ3PXdyaXRlLCBicz0x
+TS0xTS8xTS0xTS8xTS0xTSwgaW9lbmdpbmU9bGliYWlvLCBpb2RlcHRoPTMyDQpmaW8tMi4zLTEx
+LWc1ZjNiDQpTdGFydGluZyAxIHByb2Nlc3MNCkpvYnM6IDEgKGY9MSk6IFtXKDEpXSBbMTAwLjAl
+IGRvbmVdIFswS0IvOTU0LjJNQi8wS0IgL3NdIFswLzk1NC8wIGlvcHNdIFtldGEgMDBtOjAwc10N
+ClNXXzFNQl9RRDMyOiAoZ3JvdXBpZD0wLCBqb2JzPTEpOiBlcnI9IDA6IHBpZD0yMTg1MzogRnJp
+IEphbiAgOCAxMToyMDowNCAyMDE2DQogIHdyaXRlOiBpbz01NjkzMU1CLCBidz05NzE2MDZLQi9z
+LCBpb3BzPTk0OCwgcnVudD0gNjAwMDFtc2VjDQoNClRoYW5rcy4NCg0KUmVnYXJkcywNCkplZmYN
+Cg0KDQo+IEhpLA0KPj4NCj4+IEhlcmUgaXMgMi4zIHdpdGggYSAtLXJ1bnRpbWUgb2YgNjBzLCBh
+bmQgYSBydW50IG9mIG9ubHkgMTZzLCBhbmQgYW4gZXJyb3I6DQo+Pg0KPj4gIyBmaW8gLS1uYW1l
+PVNXXzFNQl9RRDMyIC0taW9lbmdpbmU9bGliYWlvIC0tZGlyZWN0PTEgLS1ydz13cml0ZSANCj4+
+IC0taW9kZXB0aD0zMiAtLXNpemU9MSUgLS1ydW50aW1lPTYwcyAtLXRpbWVfYmFzZWQgLS1udW1q
+b2JzPTEgLS1icz0xbSANCj4+IC0tb3ZlcndyaXRlPTEgLS1maWxlbmFtZT0vZGV2L252bWUwbjEN
+Cj4+IFNXXzFNQl9RRDMyOiAoZz0wKTogcnc9d3JpdGUsIGJzPTFNLTFNLzFNLTFNLzFNLTFNLCBp
+b2VuZ2luZT1saWJhaW8sIA0KPj4gaW9kZXB0aD0zMiBmaW8tMi4zLTExLWc1ZjNiIFN0YXJ0aW5n
+IDEgcHJvY2Vzcw0KPj4gZmlvOiBpb191IGVycm9yIG9uIGZpbGUgL2Rldi9udm1lMG4xOiBJbnZh
+bGlkIGFyZ3VtZW50OiB3cml0ZSANCj4+IG9mZnNldD0xNTM3NjQsIGJ1Zmxlbj0xMDQ4NTc2DQo+
+PiBmaW86IGlvX3UgZXJyb3Igb24gZmlsZSAvZGV2L252bWUwbjE6IEludmFsaWQgYXJndW1lbnQ6
+IHdyaXRlIA0KPj4gb2Zmc2V0PTEyMDIzNDAsIGJ1Zmxlbj0xMDQ4NTc2DQo+PiBmaW86IHBpZD02
+ODM5MSwgZXJyPTIyL2ZpbGU6aW9fdS5jOjE1OTYsIGZ1bmM9aW9fdSBlcnJvciwgDQo+PiBlcnJv
+cj1JbnZhbGlkIGFyZ3VtZW50DQo+Pg0KPj4gU1dfMU1CX1FEMzI6IChncm91cGlkPTAsIGpvYnM9
+MSk6IGVycj0yMiAoZmlsZTppb191LmM6MTU5NiwgZnVuYz1pb191IA0KPj4gZXJyb3IsIGVycm9y
+PUludmFsaWQgYXJndW1lbnQpOiBwaWQ9NjgzOTE6IFdlZCBKYW4gIDYgMDg6NDg6MTggMjAxNg0K
+Pg0KPiBDYW4gc2F5IGhvdyBiaWcgL2Rldi9udm1lMG4xIGlzIGFuZCBjYW4geW91IHJlcGVhdCB5
+b3VyIHRlc3QgYnV0IHdpdGggDQo+IHNpemUgc2V0IGluIGJ5dGVzPyBJJ20gd29uZGVyaW5nIGlm
+IHlvdXIgMU1CeXRlIGJsb2Nrc2l6ZSBkb2Vzbid0IA0KPiBkaXZpZGUgZXZlbmx5IGluIHRoZSAx
+JSBzcGFjZSB0aGUgam9iIGhhcyB0byB3b3JrIHdpdGguLi4NCg0KSW5kZWVkIEkgY2FuIHByZXR0
+eSBlYXNpbHkgcmVwcm9kdWNlIHRoaXMgYnkgc2V0dGluZyBzaXplIHRvIHNvbWUgb2RkIHZhbHVl
+LiBnaXQgYmlzZWN0IHRoZW4gZmluZHMgYzgyZWEzZDQ5YWEgYXMgdGhlIGN1bHByaXQuDQpIR1NU
+IEUtbWFpbCBDb25maWRlbnRpYWxpdHkgTm90aWNlICYgRGlzY2xhaW1lcjoKVGhpcyBlLW1haWwg
+YW5kIGFueSBmaWxlcyB0cmFuc21pdHRlZCB3aXRoIGl0IG1heSBjb250YWluIGNvbmZpZGVudGlh
+bCBvciBsZWdhbGx5IHByaXZpbGVnZWQgaW5mb3JtYXRpb24gb2YgSEdTVCBhbmQgYXJlIGludGVu
+ZGVkIHNvbGVseSBmb3IgdGhlIHVzZSBvZiB0aGUgaW5kaXZpZHVhbCBvciBlbnRpdHkgdG8gd2hp
+Y2ggdGhleSBhcmUgYWRkcmVzc2VkLiBJZiB5b3UgYXJlIG5vdCB0aGUgaW50ZW5kZWQgcmVjaXBp
+ZW50LCBhbnkgZGlzY2xvc3VyZSwgY29weWluZywgZGlzdHJpYnV0aW9uIG9yIGFueSBhY3Rpb24g
+dGFrZW4gb3Igb21pdHRlZCB0byBiZSB0YWtlbiBpbiByZWxpYW5jZSBvbiBpdCwgaXMgcHJvaGli
+aXRlZC4gIElmIHlvdSBoYXZlIHJlY2VpdmVkIHRoaXMgZS1tYWlsIGluIGVycm9yLCBwbGVhc2Ug
+bm90aWZ5IHRoZSBzZW5kZXIgaW1tZWRpYXRlbHkgYW5kIGRlbGV0ZSB0aGUgZS1tYWlsIGluIGl0
+cyBlbnRpcmV0eSBmcm9tIHlvdXIgc3lzdGVtLgo=
 
