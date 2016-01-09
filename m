@@ -1,61 +1,53 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-db3on0098.outbound.protection.outlook.com ([157.55.234.98]:10328
-	"EHLO emea01-db3-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1754668AbcARX6w convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 18 Jan 2016 18:58:52 -0500
-From: Thierry BERTAUD <tbertaud@conforama.fr>
-Subject: How to stress a 8Gbps card to get 500 000 IOPS or 1600 MB/s
-Date: Mon, 18 Jan 2016 23:58:47 +0000
-Message-ID: <VI1PR05MB1343E7E335FA4E27991FD523B1C00@VI1PR05MB1343.eurprd05.prod.outlook.com>
-References: <VI1PR05MB13437814C9CD31D2CECE7398B1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>
-	<56840F80.4060903@kernel.dk>
-	<VI1PR05MB13435F5190D9D9A17C59315BB1FD0@VI1PR05MB1343.eurprd05.prod.outlook.com>
-	<5684A8F1.6010105@kernel.dk>
-	<VI1PR05MB13439C4033DED096900CDF30B1FE0@VI1PR05MB1343.eurprd05.prod.outlook.com>
-	<CANvN+ekwjftjYq=8KFiefRAFmUvZF1qpJ9Y6ohFBdMHH6TEAQg@mail.gmail.com>
-	<VI1PR05MB13433A1D09C1C60B66E2ABBFB1FF0@VI1PR05MB1343.eurprd05.prod.outlook.com>
-	<CANvN+e=X09zp=HRme4Wwad2_HhmNkOQkL8zXGWozuVWCm+NMYg@mail.gmail.com>
-	<VI1PR05MB1343810AF909BB41065666C9B1FF0@VI1PR05MB1343.eurprd05.prod.outlook.com>
-	<CANvN+e=cxWLEnu3Ve7RQKTh4TQubWMzkt0fkZ_AyKbNPAt21QQ@mail.gmail.com>
-	<VI1PR05MB13430232A50B8818A220B23DB1FF0@VI1PR05MB1343.eurprd05.prod.outlook.com>,<CANvN+emwcrcVpuGsHBuNiw28WDKyyuNQvVd7G3QJFuy5siXqYw@mail.gmail.com>,<VI1PR05MB13431DA43361FC9F4F55FC95B1FF0@VI1PR05MB1343.eurprd05.prod.outlook.com>
-In-Reply-To: <VI1PR05MB13431DA43361FC9F4F55FC95B1FF0@VI1PR05MB1343.eurprd05.prod.outlook.com>
-Content-Language: fr-FR
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-MIME-Version: 1.0
+Received: from bombadil.infradead.org ([198.137.202.9]:49372 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754008AbcAINAD (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 9 Jan 2016 08:00:03 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1aHt7i-0002e7-M1
+	for fio@vger.kernel.org; Sat, 09 Jan 2016 13:00:02 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160109130001.8E97E2C16ED@kernel.dk>
+Date: Sat,  9 Jan 2016 06:00:01 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hello fio team,
+The following changes since commit 98996ef93ff37e0f51d90ca87ff0f75d4d1c153f:
 
-I tryed to stress my 8 Gbps hba with fio wit a lot of case:
-I know that the hba card is capable of 500 000 IOPS or get data rate neat that 8 Gbps (1600 MB/sec).
- i tried to change block size, iodepth, numjobs, iodepth but idon't have good resulut. (42000 IOPS and throughput 162 MB/s).
+  t/verify-state: add helper to inspect verify dump state files (2016-01-07 15:06:22 -0700)
 
-Below fio conf:
-[global]
-thread
-numjobs=1
-iodepth=1
-group_reporting
-bs=4k
-norandommap=1
-refill_buffers
-direct=1
-ioengine=posixaio
-runtime=300
-time_based
-filename=/dev/hdisk6
-log_avg_msec=1000
-[randwrite_64_64]
-rw=randwrite
-numjobs=64
-ioepth=64
-stonewal 
+are available in the git repository at:
 
+  git://git.kernel.dk/fio.git master
 
+for you to fetch changes up to 204c368ebe461b08b18124e1e5555a65b128ab7a:
 
-Regards,
-Thierry
+  use option smalloc_pool_size (2016-01-08 14:29:12 +0100)
+
+----------------------------------------------------------------
+Andreas Piesk (1):
+      use option smalloc_pool_size
+
+ smalloc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/smalloc.c b/smalloc.c
+index b6b367a..6f647c0 100644
+--- a/smalloc.c
++++ b/smalloc.c
+@@ -204,7 +204,7 @@ void sinit(void)
+ 	int i, ret;
+ 
+ 	for (i = 0; i < MAX_POOLS; i++) {
+-		ret = add_pool(&mp[i], INITIAL_SIZE);
++		ret = add_pool(&mp[i], smalloc_pool_size);
+ 		if (ret)
+ 			break;
+ 	}
