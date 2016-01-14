@@ -1,100 +1,131 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: time_based option broken
+Return-Path: <jeff.furlong@hgst.com>
+From: Jeff Furlong <jeff.furlong@hgst.com>
+Subject: RE: time_based option broken
+Date: Thu, 14 Jan 2016 19:51:40 +0000
+Message-ID: <BN3PR0401MB14579072365E22B95D9D08FFF7CC0@BN3PR0401MB1457.namprd04.prod.outlook.com>
 References: <BN3PR0401MB145733E19D0EC0B19F88C9D1F7F40@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <CALjAwxjV8Qb2op2Og5RoZtGQ781vn5VCSRsWgrXZm8Fo8j7UNg@mail.gmail.com>
  <CADr68WbPCum7F3eSee8zs4Y=sasByzfqbuqurfmcgNY_YzYAOQ@mail.gmail.com>
  <BN3PR0401MB14575B8D6E7F8ADF762878C0F7F60@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <5697DBD7.7010201@kernel.dk>
- <BN3PR0401MB14579072365E22B95D9D08FFF7CC0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <569800D2.1010406@kernel.dk>
-Date: Thu, 14 Jan 2016 13:10:58 -0700
+In-Reply-To: <5697DBD7.7010201@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <BN3PR0401MB14579072365E22B95D9D08FFF7CC0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Jeff Furlong <jeff.furlong@hgst.com>, Jens Rosenboom <j.rosenboom@x-ion.de>, Sitsofe Wheeler <sitsofe@gmail.com>
+Content-Transfer-Encoding: base64
+To: Jens Axboe <axboe@kernel.dk>, Jens Rosenboom <j.rosenboom@x-ion.de>, Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 01/14/2016 12:51 PM, Jeff Furlong wrote:
-> Latest commit seems to help, but found one more issue:
->
-> # blockdev --getsize64 /dev/nvme2n1
-> 800166076416
->
-> 800166076416B = 763097.8MB
->
-> Test1: Round io_size to match bs: PASS
-> # ./fio/fio --name=SW_1MB_QD32 --ioengine=libaio --direct=1 --rw=write --iodepth=32 --size=1% --runtime=60s --time_based --numjobs=1 --bs=1m --overwrite=1 --filename=/dev/nvme2n1
-> SW_1MB_QD32: (g=0): rw=write, bs=1M-1M/1M-1M/1M-1M, ioengine=libaio, iodepth=32
-> fio-2.3-26-g19dd
-> Starting 1 process
-> Jobs: 1 (f=1): [W(1)] [100.0% done] [0KB/1380MB/0KB /s] [0/1380/0 iops] [eta 00m:00s]
-> SW_1MB_QD32: (groupid=0, jobs=1): err= 0: pid=80311: Thu Jan 14 10:11:36 2016
->    write: io=84966MB, bw=1415.1MB/s, iops=1415, runt= 60009msec
->
-> Test2: Loop around max device size and continue IO with fixed runtime: PASS
-> # ./fio/fio --name=SW_1MB_QD32 --ioengine=libaio --direct=1 --rw=write --iodepth=32 --size=100% --runtime=15m --time_based --numjobs=1 --bs=1m --overwrite=1 --filename=/dev/nvme2n1
-> SW_1MB_QD32: (g=0): rw=write, bs=1M-1M/1M-1M/1M-1M, ioengine=libaio, iodepth=32
-> fio-2.3-26-g19dd
-> Starting 1 process
-> Jobs: 1 (f=1): [W(1)] [100.0% done] [0KB/1388MB/0KB /s] [0/1388/0 iops] [eta 00m:00s]
-> SW_1MB_QD32: (groupid=0, jobs=1): err= 0: pid=80377: Thu Jan 14 10:28:27 2016
->    write: io=1231.9GB, bw=1401.6MB/s, iops=1401, runt=900008msec
->
-> Test3: Loop around max device size and continue IO with fixed total IO, round total IO to bs: FAIL (does not loop around to start LBA)
-> # ./fio/fio --name=SW_1MB_QD32 --ioengine=libaio --direct=1 --rw=write --iodepth=32 --size=100% --io_size=810000000000 --numjobs=1 --bs=1m --overwrite=1 --filename=/dev/nvme2n1
-> SW_1MB_QD32: (g=0): rw=write, bs=1M-1M/1M-1M/1M-1M, ioengine=libaio, iodepth=32
-> fio-2.3-26-g19dd
-> Starting 1 process
-> Jobs: 1 (f=0): [W(1)] [98.9% done] [0KB/1453MB/0KB /s] [0/1453/0 iops] [eta 00m:06s]
-> SW_1MB_QD32: (groupid=0, jobs=1): err= 0: pid=81065: Thu Jan 14 10:49:53 2016
->    write: io=763097MB, bw=1399.5MB/s, iops=1399, runt=545278msec
->
-> Test4: Loop around max device size and continue IO with fixed total IO, total IO is already aligned to bs: FAIL (does not loop around to start LBA)
-> # ./fio/fio --name=SW_1MB_QD32 --ioengine=libaio --direct=1 --rw=write --iodepth=32 --size=100% --io_size=810675077120 --numjobs=1 --bs=1m --overwrite=1 --filename=/dev/nvme2n1
-> SW_1MB_QD32: (g=0): rw=write, bs=1M-1M/1M-1M/1M-1M, ioengine=libaio, iodepth=32
-> fio-2.3-26-g19dd
-> Starting 1 process
-> Jobs: 1 (f=1): [W(1)] [98.6% done] [0KB/1404MB/0KB /s] [0/1404/0 iops] [eta 00m:08s]
-> SW_1MB_QD32: (groupid=0, jobs=1): err= 0: pid=81339: Thu Jan 14 11:01:57 2016
->    write: io=763097MB, bw=1399.9MB/s, iops=1399, runt=545142msec
-
-Very strange, I can't reproduce 3/4 test case failures. I've got a small 
-nvme0n1 device here:
-
-axboe@dell:~ $ sudo blockdev --getsize64 /dev/nvme0n1
-4286578688
-
-and I tried:
-
-./fio --name=SW_1MB_QD32 --ioengine=libaio --direct=1 --rw=write 
---iodepth=1 --size=100% --io_size=4386578688 --numjobs=1 --bs=1m 
---overwrite=1 --filename=/dev/nvme0n1
-
-and 4300000000 for sizes, and it produces the desired outcome in writing 
-the bytes specified by io_size. I added a quick dump to the offset, and 
-that looks correct too:
-
-[...]
-off=4281335808
-off=4282384384
-off=4283432960
-off=4284481536
-off=4285530112
-off=0
-off=1048576
-off=2097152
-off=3145728
-[...]
-
-which loops around and starts writing from 0 again.
-
-I'll try a bigger device, though it'd be weird if that behaved differently.
-
-
--- 
-Jens Axboe
+TGF0ZXN0IGNvbW1pdCBzZWVtcyB0byBoZWxwLCBidXQgZm91bmQgb25lIG1vcmUgaXNzdWU6DQoN
+CiMgYmxvY2tkZXYgLS1nZXRzaXplNjQgL2Rldi9udm1lMm4xDQo4MDAxNjYwNzY0MTYNCg0KODAw
+MTY2MDc2NDE2QiA9IDc2MzA5Ny44TUINCg0KVGVzdDE6IFJvdW5kIGlvX3NpemUgdG8gbWF0Y2gg
+YnM6IFBBU1MNCiMgLi9maW8vZmlvIC0tbmFtZT1TV18xTUJfUUQzMiAtLWlvZW5naW5lPWxpYmFp
+byAtLWRpcmVjdD0xIC0tcnc9d3JpdGUgLS1pb2RlcHRoPTMyIC0tc2l6ZT0xJSAtLXJ1bnRpbWU9
+NjBzIC0tdGltZV9iYXNlZCAtLW51bWpvYnM9MSAtLWJzPTFtIC0tb3ZlcndyaXRlPTEgLS1maWxl
+bmFtZT0vZGV2L252bWUybjENClNXXzFNQl9RRDMyOiAoZz0wKTogcnc9d3JpdGUsIGJzPTFNLTFN
+LzFNLTFNLzFNLTFNLCBpb2VuZ2luZT1saWJhaW8sIGlvZGVwdGg9MzINCmZpby0yLjMtMjYtZzE5
+ZGQNClN0YXJ0aW5nIDEgcHJvY2Vzcw0KSm9iczogMSAoZj0xKTogW1coMSldIFsxMDAuMCUgZG9u
+ZV0gWzBLQi8xMzgwTUIvMEtCIC9zXSBbMC8xMzgwLzAgaW9wc10gW2V0YSAwMG06MDBzXQ0KU1df
+MU1CX1FEMzI6IChncm91cGlkPTAsIGpvYnM9MSk6IGVycj0gMDogcGlkPTgwMzExOiBUaHUgSmFu
+IDE0IDEwOjExOjM2IDIwMTYNCiAgd3JpdGU6IGlvPTg0OTY2TUIsIGJ3PTE0MTUuMU1CL3MsIGlv
+cHM9MTQxNSwgcnVudD0gNjAwMDltc2VjDQoNClRlc3QyOiBMb29wIGFyb3VuZCBtYXggZGV2aWNl
+IHNpemUgYW5kIGNvbnRpbnVlIElPIHdpdGggZml4ZWQgcnVudGltZTogUEFTUw0KIyAuL2Zpby9m
+aW8gLS1uYW1lPVNXXzFNQl9RRDMyIC0taW9lbmdpbmU9bGliYWlvIC0tZGlyZWN0PTEgLS1ydz13
+cml0ZSAtLWlvZGVwdGg9MzIgLS1zaXplPTEwMCUgLS1ydW50aW1lPTE1bSAtLXRpbWVfYmFzZWQg
+LS1udW1qb2JzPTEgLS1icz0xbSAtLW92ZXJ3cml0ZT0xIC0tZmlsZW5hbWU9L2Rldi9udm1lMm4x
+DQpTV18xTUJfUUQzMjogKGc9MCk6IHJ3PXdyaXRlLCBicz0xTS0xTS8xTS0xTS8xTS0xTSwgaW9l
+bmdpbmU9bGliYWlvLCBpb2RlcHRoPTMyDQpmaW8tMi4zLTI2LWcxOWRkDQpTdGFydGluZyAxIHBy
+b2Nlc3MNCkpvYnM6IDEgKGY9MSk6IFtXKDEpXSBbMTAwLjAlIGRvbmVdIFswS0IvMTM4OE1CLzBL
+QiAvc10gWzAvMTM4OC8wIGlvcHNdIFtldGEgMDBtOjAwc10NClNXXzFNQl9RRDMyOiAoZ3JvdXBp
+ZD0wLCBqb2JzPTEpOiBlcnI9IDA6IHBpZD04MDM3NzogVGh1IEphbiAxNCAxMDoyODoyNyAyMDE2
+DQogIHdyaXRlOiBpbz0xMjMxLjlHQiwgYnc9MTQwMS42TUIvcywgaW9wcz0xNDAxLCBydW50PTkw
+MDAwOG1zZWMNCg0KVGVzdDM6IExvb3AgYXJvdW5kIG1heCBkZXZpY2Ugc2l6ZSBhbmQgY29udGlu
+dWUgSU8gd2l0aCBmaXhlZCB0b3RhbCBJTywgcm91bmQgdG90YWwgSU8gdG8gYnM6IEZBSUwgKGRv
+ZXMgbm90IGxvb3AgYXJvdW5kIHRvIHN0YXJ0IExCQSkNCiMgLi9maW8vZmlvIC0tbmFtZT1TV18x
+TUJfUUQzMiAtLWlvZW5naW5lPWxpYmFpbyAtLWRpcmVjdD0xIC0tcnc9d3JpdGUgLS1pb2RlcHRo
+PTMyIC0tc2l6ZT0xMDAlIC0taW9fc2l6ZT04MTAwMDAwMDAwMDAgLS1udW1qb2JzPTEgLS1icz0x
+bSAtLW92ZXJ3cml0ZT0xIC0tZmlsZW5hbWU9L2Rldi9udm1lMm4xDQpTV18xTUJfUUQzMjogKGc9
+MCk6IHJ3PXdyaXRlLCBicz0xTS0xTS8xTS0xTS8xTS0xTSwgaW9lbmdpbmU9bGliYWlvLCBpb2Rl
+cHRoPTMyDQpmaW8tMi4zLTI2LWcxOWRkDQpTdGFydGluZyAxIHByb2Nlc3MNCkpvYnM6IDEgKGY9
+MCk6IFtXKDEpXSBbOTguOSUgZG9uZV0gWzBLQi8xNDUzTUIvMEtCIC9zXSBbMC8xNDUzLzAgaW9w
+c10gW2V0YSAwMG06MDZzXQ0KU1dfMU1CX1FEMzI6IChncm91cGlkPTAsIGpvYnM9MSk6IGVycj0g
+MDogcGlkPTgxMDY1OiBUaHUgSmFuIDE0IDEwOjQ5OjUzIDIwMTYNCiAgd3JpdGU6IGlvPTc2MzA5
+N01CLCBidz0xMzk5LjVNQi9zLCBpb3BzPTEzOTksIHJ1bnQ9NTQ1Mjc4bXNlYw0KDQpUZXN0NDog
+TG9vcCBhcm91bmQgbWF4IGRldmljZSBzaXplIGFuZCBjb250aW51ZSBJTyB3aXRoIGZpeGVkIHRv
+dGFsIElPLCB0b3RhbCBJTyBpcyBhbHJlYWR5IGFsaWduZWQgdG8gYnM6IEZBSUwgKGRvZXMgbm90
+IGxvb3AgYXJvdW5kIHRvIHN0YXJ0IExCQSkNCiMgLi9maW8vZmlvIC0tbmFtZT1TV18xTUJfUUQz
+MiAtLWlvZW5naW5lPWxpYmFpbyAtLWRpcmVjdD0xIC0tcnc9d3JpdGUgLS1pb2RlcHRoPTMyIC0t
+c2l6ZT0xMDAlIC0taW9fc2l6ZT04MTA2NzUwNzcxMjAgLS1udW1qb2JzPTEgLS1icz0xbSAtLW92
+ZXJ3cml0ZT0xIC0tZmlsZW5hbWU9L2Rldi9udm1lMm4xDQpTV18xTUJfUUQzMjogKGc9MCk6IHJ3
+PXdyaXRlLCBicz0xTS0xTS8xTS0xTS8xTS0xTSwgaW9lbmdpbmU9bGliYWlvLCBpb2RlcHRoPTMy
+DQpmaW8tMi4zLTI2LWcxOWRkDQpTdGFydGluZyAxIHByb2Nlc3MNCkpvYnM6IDEgKGY9MSk6IFtX
+KDEpXSBbOTguNiUgZG9uZV0gWzBLQi8xNDA0TUIvMEtCIC9zXSBbMC8xNDA0LzAgaW9wc10gW2V0
+YSAwMG06MDhzXQ0KU1dfMU1CX1FEMzI6IChncm91cGlkPTAsIGpvYnM9MSk6IGVycj0gMDogcGlk
+PTgxMzM5OiBUaHUgSmFuIDE0IDExOjAxOjU3IDIwMTYNCiAgd3JpdGU6IGlvPTc2MzA5N01CLCBi
+dz0xMzk5LjlNQi9zLCBpb3BzPTEzOTksIHJ1bnQ9NTQ1MTQybXNlYw0KDQpSZWdhcmRzLA0KSmVm
+Zg0KDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBKZW5zIEF4Ym9lIFttYWls
+dG86YXhib2VAa2VybmVsLmRrXSANClNlbnQ6IFRodXJzZGF5LCBKYW51YXJ5IDE0LCAyMDE2IDk6
+MzMgQU0NClRvOiBKZWZmIEZ1cmxvbmcgPGplZmYuZnVybG9uZ0BoZ3N0LmNvbT47IEplbnMgUm9z
+ZW5ib29tIDxqLnJvc2VuYm9vbUB4LWlvbi5kZT47IFNpdHNvZmUgV2hlZWxlciA8c2l0c29mZUBn
+bWFpbC5jb20+DQpDYzogZmlvQHZnZXIua2VybmVsLm9yZw0KU3ViamVjdDogUmU6IHRpbWVfYmFz
+ZWQgb3B0aW9uIGJyb2tlbg0KDQpPbiAwMS8wOC8yMDE2IDEyOjM1IFBNLCBKZWZmIEZ1cmxvbmcg
+d3JvdGU6DQo+IEdvb2QgcG9pbnRzLiAgSGVyZSBpcyBmdXJ0aGVyIGRhdGE6DQo+DQo+ICMgYmxv
+Y2tkZXYgLS1nZXRzaXplNjQgL2Rldi9udm1lMm4xDQo+IDgwMDE2NjA3NjQxNg0KPg0KPiAjIGZp
+byAtLW5hbWU9U1dfMU1CX1FEMzIgLS1pb2VuZ2luZT1saWJhaW8gLS1kaXJlY3Q9MSAtLXJ3PXdy
+aXRlIA0KPiAtLWlvZGVwdGg9MzIgLS1zaXplPTEwMDBtIC0tcnVudGltZT02MHMgLS10aW1lX2Jh
+c2VkIC0tbnVtam9icz0xIA0KPiAtLWJzPTFtIC0tb3ZlcndyaXRlPTEgLS1maWxlbmFtZT0vZGV2
+L252bWUybjENCj4gU1dfMU1CX1FEMzI6IChnPTApOiBydz13cml0ZSwgYnM9MU0tMU0vMU0tMU0v
+MU0tMU0sIGlvZW5naW5lPWxpYmFpbywgDQo+IGlvZGVwdGg9MzIgZmlvLTIuMy0xMS1nNWYzYiBT
+dGFydGluZyAxIHByb2Nlc3MNCj4gSm9iczogMSAoZj0xKTogW1coMSldIFsxMDAuMCUgZG9uZV0g
+WzBLQi85OTAuMk1CLzBLQiAvc10gWzAvOTkwLzAgDQo+IGlvcHNdIFtldGEgMDBtOjAwc10NCj4g
+U1dfMU1CX1FEMzI6IChncm91cGlkPTAsIGpvYnM9MSk6IGVycj0gMDogcGlkPTE5NTExOiBGcmkg
+SmFuICA4IDExOjA4OjU1IDIwMTYNCj4gICAgd3JpdGU6IGlvPTU4NjIwTUIsIGJ3PTk3Ni4xMU1C
+L3MsIGlvcHM9OTc2LCBydW50PSA2MDAwMW1zZWMNCj4NCj4gU28gdGhlIGFib3ZlIHVzaW5nIGEg
+Zml4ZWQgLS1zaXplIHRoYXQgaXMgY29tcGF0aWJsZSB3aXRoIC0tYnMgaXMgb25lIHdvcmthcm91
+bmQuDQo+DQo+IFdoZW4gdHJ5aW5nIHRvIHdyaXRlIG1vcmUgdGhhbiAxMDAlIG9mIHRoZSBkZXZp
+Y2UgKHdyYXBwaW5nIGFyb3VuZCBhZnRlciBlbmQgb2YgZGV2aWNlKSwgaW5zdGVhZCBvZiAtLXNp
+emU9MTAwJSB3ZSBjb3VsZCB1c2UgYSBmaXhlZCBzaXplICh3aGVyZSBhYm92ZSA4MDAxNjYwNzY0
+MTYgYnl0ZXMgaXMgNzYzMDk3LjggTUIpLCBldmVuIGlmIHRpbWVfYmFzZWQgaXMgbm90IHVzZWQg
+KHVzZSAtLWlvX3NpemUgaW5zdGVhZCk6DQo+DQo+ICMgZmlvIC0tbmFtZT1TV18xTUJfUUQzMiAt
+LWlvZW5naW5lPWxpYmFpbyAtLWRpcmVjdD0xIC0tcnc9d3JpdGUgDQo+IC0taW9kZXB0aD0zMiAt
+LXNpemU9NzYzMDk3bSAtLWlvX3NpemU9NzY0MDAwbSAtLW51bWpvYnM9MSAtLWJzPTFtIA0KPiAt
+LW92ZXJ3cml0ZT0xIC0tZmlsZW5hbWU9L2Rldi9udm1lMm4xDQo+IFNXXzFNQl9RRDMyOiAoZz0w
+KTogcnc9d3JpdGUsIGJzPTFNLTFNLzFNLTFNLzFNLTFNLCBpb2VuZ2luZT1saWJhaW8sIA0KPiBp
+b2RlcHRoPTMyIGZpby0yLjMtMTEtZzVmM2IgU3RhcnRpbmcgMSBwcm9jZXNzDQo+IEpvYnM6IDEg
+KGY9MSk6IFtXKDEpXSBbMTAwLjAlIGRvbmVdIFswS0IvNTY3LjlNQi8wS0IgL3NdIFswLzU2Ny8w
+IA0KPiBpb3BzXSBbZXRhIDAwbTowMHNdDQo+IFNXXzFNQl9RRDMyOiAoZ3JvdXBpZD0wLCBqb2Jz
+PTEpOiBlcnI9IDA6IHBpZD0xMjk5Mjg6IFRodSBKYW4gIDcgMTI6NDU6NTIgMjAxNg0KPiAgICB3
+cml0ZTogaW89NzY0MDAwTUIsIGJ3PTYwMDUxMEtCL3MsIGlvcHM9NTg2LCBydW50PTEzMDI3ODZt
+c2VjDQo+DQo+IEFsdGVybmF0aXZlbHksIGlmIHdlIHNpbXBseSBiYWNrIG91dCB0aGUgY29tbWl0
+IGM4MmVhM2Q0OWFhIHRoZW4gd2UgY2FuIG1ha2UgdGhlIDElIG9yIDEwMCUgb3B0aW9ucyAoLS10
+aW1lX2Jhc2VkIG9yIC0taW9fc2l6ZSkgd29yayBmaW5lOg0KPg0KPiAjIGZpbyAtLW5hbWU9U1df
+MU1CX1FEMzIgLS1pb2VuZ2luZT1saWJhaW8gLS1kaXJlY3Q9MSAtLXJ3PXdyaXRlIA0KPiAtLWlv
+ZGVwdGg9MzIgLS1zaXplPTElIC0tcnVudGltZT02MHMgLS10aW1lX2Jhc2VkIC0tbnVtam9icz0x
+IC0tYnM9MW0gDQo+IC0tb3ZlcndyaXRlPTEgLS1maWxlbmFtZT0vZGV2L252bWUybjENCj4gU1df
+MU1CX1FEMzI6IChnPTApOiBydz13cml0ZSwgYnM9MU0tMU0vMU0tMU0vMU0tMU0sIGlvZW5naW5l
+PWxpYmFpbywgDQo+IGlvZGVwdGg9MzIgZmlvLTIuMy0xMS1nNWYzYiBTdGFydGluZyAxIHByb2Nl
+c3MNCj4gSm9iczogMSAoZj0xKTogW1coMSldIFsxMDAuMCUgZG9uZV0gWzBLQi85NTQuMk1CLzBL
+QiAvc10gWzAvOTU0LzAgDQo+IGlvcHNdIFtldGEgMDBtOjAwc10NCj4gU1dfMU1CX1FEMzI6IChn
+cm91cGlkPTAsIGpvYnM9MSk6IGVycj0gMDogcGlkPTIxODUzOiBGcmkgSmFuICA4IDExOjIwOjA0
+IDIwMTYNCj4gICAgd3JpdGU6IGlvPTU2OTMxTUIsIGJ3PTk3MTYwNktCL3MsIGlvcHM9OTQ4LCBy
+dW50PSA2MDAwMW1zZWMNCg0KU28gdGhlIGJ1ZyBpc24ndCByZWFsbHkgaW4gdGhlIGJpc2VjdGVk
+IGNvbW1pdCwgaXQganVzdCBjaGFuZ2VzIGhvdyBmaW8gYmFja3Mgb3V0IGFuZCB0aGVuIHNob3dz
+IGFub3RoZXIgYnVnLiBUaGUgcmVhbCBidWcgaXMgdGhhdCB3ZSBkb24ndCBhbGlnbiB0aGUgbmV3
+IHN0YXJ0IHByb3Blcmx5LCBzbyB3ZSBlbmQgdXAgd2l0aCB0aGVzZSB3ZWlyZCB1bmFsaWduZWQg
+c3RhcnQgb2Zmc2V0cyB0aGF0IGRvbid0IHdvcmsgd2l0aCBPX0RJUkVDVCBJTy4NCg0KVHJ5IGN1
+cnJlbnQgLWdpdCwgSSBqdXN0IGNvbW1pdHRlZCB0aGlzIGZpeDoNCg0KaHR0cDovL2dpdC5rZXJu
+ZWwuZGsvY2dpdC9maW8vY29tbWl0Lz9pZD0xOWRkYzM1YjliOTdiZTVhZjM3MWJiNjVlOTNhNDg2
+NGQxZGNlN2I2DQoNCi0tDQpKZW5zIEF4Ym9lDQoNCkhHU1QgRS1tYWlsIENvbmZpZGVudGlhbGl0
+eSBOb3RpY2UgJiBEaXNjbGFpbWVyOgpUaGlzIGUtbWFpbCBhbmQgYW55IGZpbGVzIHRyYW5zbWl0
+dGVkIHdpdGggaXQgbWF5IGNvbnRhaW4gY29uZmlkZW50aWFsIG9yIGxlZ2FsbHkgcHJpdmlsZWdl
+ZCBpbmZvcm1hdGlvbiBvZiBIR1NUIGFuZCBhcmUgaW50ZW5kZWQgc29sZWx5IGZvciB0aGUgdXNl
+IG9mIHRoZSBpbmRpdmlkdWFsIG9yIGVudGl0eSB0byB3aGljaCB0aGV5IGFyZSBhZGRyZXNzZWQu
+IElmIHlvdSBhcmUgbm90IHRoZSBpbnRlbmRlZCByZWNpcGllbnQsIGFueSBkaXNjbG9zdXJlLCBj
+b3B5aW5nLCBkaXN0cmlidXRpb24gb3IgYW55IGFjdGlvbiB0YWtlbiBvciBvbWl0dGVkIHRvIGJl
+IHRha2VuIGluIHJlbGlhbmNlIG9uIGl0LCBpcyBwcm9oaWJpdGVkLiAgSWYgeW91IGhhdmUgcmVj
+ZWl2ZWQgdGhpcyBlLW1haWwgaW4gZXJyb3IsIHBsZWFzZSBub3RpZnkgdGhlIHNlbmRlciBpbW1l
+ZGlhdGVseSBhbmQgZGVsZXRlIHRoZSBlLW1haWwgaW4gaXRzIGVudGlyZXR5IGZyb20geW91ciBz
+eXN0ZW0uCg==
 
 
