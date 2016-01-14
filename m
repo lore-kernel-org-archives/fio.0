@@ -1,8 +1,5 @@
-Return-Path: <jeff.furlong@hgst.com>
-From: Jeff Furlong <jeff.furlong@hgst.com>
-Subject: RE: time_based option broken
-Date: Thu, 14 Jan 2016 23:04:27 +0000
-Message-ID: <BN3PR0401MB1457C9A6E9DB94D36CCFFC04F7CC0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: time_based option broken
 References: <BN3PR0401MB145733E19D0EC0B19F88C9D1F7F40@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <CALjAwxjV8Qb2op2Og5RoZtGQ781vn5VCSRsWgrXZm8Fo8j7UNg@mail.gmail.com>
  <CADr68WbPCum7F3eSee8zs4Y=sasByzfqbuqurfmcgNY_YzYAOQ@mail.gmail.com>
@@ -10,151 +7,129 @@ References: <BN3PR0401MB145733E19D0EC0B19F88C9D1F7F40@BN3PR0401MB1457.namprd04.p
  <5697DBD7.7010201@kernel.dk>
  <BN3PR0401MB14579072365E22B95D9D08FFF7CC0@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <569800D2.1010406@kernel.dk> <5698036F.9000700@kernel.dk>
- <5698174B.8090401@kernel.dk>
-In-Reply-To: <5698174B.8090401@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <5698174B.8090401@kernel.dk>
+Date: Thu, 14 Jan 2016 14:46:51 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-To: Jens Axboe <axboe@kernel.dk>, Jens Rosenboom <j.rosenboom@x-ion.de>, Sitsofe Wheeler <sitsofe@gmail.com>
+In-Reply-To: <5698036F.9000700@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Jeff Furlong <jeff.furlong@hgst.com>, Jens Rosenboom <j.rosenboom@x-ion.de>, Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-U3VjY2VzcyENCg0KVGVzdDE6IFJvdW5kIGlvX3NpemUgdG8gbWF0Y2ggYnM6IFBBU1MNCiMgLi9m
-aW8vZmlvIC0tbmFtZT1TV18xTUJfUUQzMiAtLWlvZW5naW5lPWxpYmFpbyAtLWRpcmVjdD0xIC0t
-cnc9d3JpdGUgLS1pb2RlcHRoPTMyIC0tc2l6ZT0xJSAtLXJ1bnRpbWU9NjBzIC0tdGltZV9iYXNl
-ZCAtLW51bWpvYnM9MSAtLWJzPTFtIC0tb3ZlcndyaXRlPTEgLS1maWxlbmFtZT0vZGV2L252bWUy
-bjENClNXXzFNQl9RRDMyOiAoZz0wKTogcnc9d3JpdGUsIGJzPTFNLTFNLzFNLTFNLzFNLTFNLCBp
-b2VuZ2luZT1saWJhaW8sIGlvZGVwdGg9MzINCmZpby0yLjMtMjctZzU0M2UNClN0YXJ0aW5nIDEg
-cHJvY2Vzcw0KSm9iczogMSAoZj0xKTogW1coMSldIFsxMDAuMCUgZG9uZV0gWzBLQi8xNDIyTUIv
-MEtCIC9zXSBbMC8xNDIyLzAgaW9wc10gW2V0YSAwMG06MDBzXQ0KU1dfMU1CX1FEMzI6IChncm91
-cGlkPTAsIGpvYnM9MSk6IGVycj0gMDogcGlkPTg5NzIyOiBUaHUgSmFuIDE0IDE0OjM5OjQ4IDIw
-MTYNCiAgd3JpdGU6IGlvPTg0NjY0TUIsIGJ3PTE0MTAuMU1CL3MsIGlvcHM9MTQxMCwgcnVudD0g
-NjAwMDdtc2VjDQoNClRlc3QyOiBMb29wIGFyb3VuZCBtYXggZGV2aWNlIHNpemUgYW5kIGNvbnRp
-bnVlIElPIHdpdGggZml4ZWQgcnVudGltZTogUEFTUw0KIyAuL2Zpby9maW8gLS1uYW1lPVNXXzFN
-Ql9RRDMyIC0taW9lbmdpbmU9bGliYWlvIC0tZGlyZWN0PTEgLS1ydz13cml0ZSAtLWlvZGVwdGg9
-MzIgLS1zaXplPTEwMCUgLS1ydW50aW1lPTE1bSAtLXRpbWVfYmFzZWQgLS1udW1qb2JzPTEgLS1i
-cz0xbSAtLW92ZXJ3cml0ZT0xIC0tZmlsZW5hbWU9L2Rldi9udm1lMm4xDQpTV18xTUJfUUQzMjog
-KGc9MCk6IHJ3PXdyaXRlLCBicz0xTS0xTS8xTS0xTS8xTS0xTSwgaW9lbmdpbmU9bGliYWlvLCBp
-b2RlcHRoPTMyDQpmaW8tMi4zLTI3LWc1NDNlDQpTdGFydGluZyAxIHByb2Nlc3MNCkpvYnM6IDEg
-KGY9MSk6IFtXKDEpXSBbMTAwLjAlIGRvbmVdIFswS0IvMTQyOU1CLzBLQiAvc10gWzAvMTQyOS8w
-IGlvcHNdIFtldGEgMDBtOjAwc10NClNXXzFNQl9RRDMyOiAoZ3JvdXBpZD0wLCBqb2JzPTEpOiBl
-cnI9IDA6IHBpZD04OTkyMzogVGh1IEphbiAxNCAxNDo1NTo0MSAyMDE2DQogIHdyaXRlOiBpbz0x
-MjI3LjJHQiwgYnc9MTM5Ny4yTUIvcywgaW9wcz0xMzk3LCBydW50PTkwMDAxMG1zZWMNCg0KVGVz
-dDM6IExvb3AgYXJvdW5kIG1heCBkZXZpY2Ugc2l6ZSBhbmQgY29udGludWUgSU8gd2l0aCBmaXhl
-ZCB0b3RhbCBJTywgcm91bmQgdG90YWwgSU8gdG8gYnM6IFBBU1MNCiMgLi9maW8vZmlvIC0tbmFt
-ZT1TV18xTUJfUUQzMiAtLWlvZW5naW5lPWxpYmFpbyAtLWRpcmVjdD0xIC0tcnc9d3JpdGUgLS1p
-b2RlcHRoPTMyIC0tc2l6ZT0xMDAlIC0taW9fc2l6ZT04MTAwMDAwMDAwMDAgLS1udW1qb2JzPTEg
-LS1icz0xbSAtLW92ZXJ3cml0ZT0xIC0tZmlsZW5hbWU9L2Rldi9udm1lMm4xDQpTV18xTUJfUUQz
-MjogKGc9MCk6IHJ3PXdyaXRlLCBicz0xTS0xTS8xTS0xTS8xTS0xTSwgaW9lbmdpbmU9bGliYWlv
-LCBpb2RlcHRoPTMyDQpmaW8tMi4zLTI3LWc1NDNlDQpTdGFydGluZyAxIHByb2Nlc3MNCkpvYnM6
-IDEgKGY9MSk6IFtXKDEpXSBbMTAwLjAlIGRvbmVdIFswS0IvMTM3N01CLzBLQiAvc10gWzAvMTM3
-Ny8wIGlvcHNdIFtldGEgMDBtOjAwc10NClNXXzFNQl9RRDMyOiAoZ3JvdXBpZD0wLCBqb2JzPTEp
-OiBlcnI9IDA6IHBpZD04OTE3NTogVGh1IEphbiAxNCAxNDoyNDozNSAyMDE2DQogIHdyaXRlOiBp
-bz03NzI0NzdNQiwgYnc9MTM5OS4xTUIvcywgaW9wcz0xMzk5LCBydW50PTU1MTc5MW1zZWMNCg0K
-VGVzdDQ6IExvb3AgYXJvdW5kIG1heCBkZXZpY2Ugc2l6ZSBhbmQgY29udGludWUgSU8gd2l0aCBm
-aXhlZCB0b3RhbCBJTywgdG90YWwgSU8gaXMgYWxyZWFkeSBhbGlnbmVkIHRvIGJzOiBQQVNTDQoj
-IC4vZmlvL2ZpbyAtLW5hbWU9U1dfMU1CX1FEMzIgLS1pb2VuZ2luZT1saWJhaW8gLS1kaXJlY3Q9
-MSAtLXJ3PXdyaXRlIC0taW9kZXB0aD0zMiAtLXNpemU9MTAwJSAtLWlvX3NpemU9ODEwNjc1MDc3
-MTIwIC0tbnVtam9icz0xIC0tYnM9MW0gLS1vdmVyd3JpdGU9MSAtLWZpbGVuYW1lPS9kZXYvbnZt
-ZTJuMQ0KU1dfMU1CX1FEMzI6IChnPTApOiBydz13cml0ZSwgYnM9MU0tMU0vMU0tMU0vMU0tMU0s
-IGlvZW5naW5lPWxpYmFpbywgaW9kZXB0aD0zMg0KZmlvLTIuMy0yNy1nNTQzZQ0KU3RhcnRpbmcg
-MSBwcm9jZXNzDQpKb2JzOiAxIChmPTEpOiBbVygxKV0gWzEwMC4wJSBkb25lXSBbMEtCLzE0MzNN
-Qi8wS0IgL3NdIFswLzE0MzMvMCBpb3BzXSBbZXRhIDAwbTowMHNdDQpTV18xTUJfUUQzMjogKGdy
-b3VwaWQ9MCwgam9icz0xKTogZXJyPSAwOiBwaWQ9ODk0NDY6IFRodSBKYW4gMTQgMTQ6MzY6NTIg
-MjAxNg0KICB3cml0ZTogaW89NzczMTIwTUIsIGJ3PTEzOTguOU1CL3MsIGlvcHM9MTM5OCwgcnVu
-dD01NTI3MDltc2VjDQoNClJlZ2FyZHMsDQpKZWZmDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0t
-LS0tDQpGcm9tOiBKZW5zIEF4Ym9lIFttYWlsdG86YXhib2VAa2VybmVsLmRrXSANClNlbnQ6IFRo
-dXJzZGF5LCBKYW51YXJ5IDE0LCAyMDE2IDE6NDcgUE0NClRvOiBKZWZmIEZ1cmxvbmcgPGplZmYu
-ZnVybG9uZ0BoZ3N0LmNvbT47IEplbnMgUm9zZW5ib29tIDxqLnJvc2VuYm9vbUB4LWlvbi5kZT47
-IFNpdHNvZmUgV2hlZWxlciA8c2l0c29mZUBnbWFpbC5jb20+DQpDYzogZmlvQHZnZXIua2VybmVs
-Lm9yZw0KU3ViamVjdDogUmU6IHRpbWVfYmFzZWQgb3B0aW9uIGJyb2tlbg0KDQpPbiAwMS8xNC8y
-MDE2IDAxOjIyIFBNLCBKZW5zIEF4Ym9lIHdyb3RlOg0KPiBPbiAwMS8xNC8yMDE2IDAxOjEwIFBN
-LCBKZW5zIEF4Ym9lIHdyb3RlOg0KPj4gT24gMDEvMTQvMjAxNiAxMjo1MSBQTSwgSmVmZiBGdXJs
-b25nIHdyb3RlOg0KPj4+IExhdGVzdCBjb21taXQgc2VlbXMgdG8gaGVscCwgYnV0IGZvdW5kIG9u
-ZSBtb3JlIGlzc3VlOg0KPj4+DQo+Pj4gIyBibG9ja2RldiAtLWdldHNpemU2NCAvZGV2L252bWUy
-bjENCj4+PiA4MDAxNjYwNzY0MTYNCj4+Pg0KPj4+IDgwMDE2NjA3NjQxNkIgPSA3NjMwOTcuOE1C
-DQo+Pj4NCj4+PiBUZXN0MTogUm91bmQgaW9fc2l6ZSB0byBtYXRjaCBiczogUEFTUyAjIC4vZmlv
-L2ZpbyANCj4+PiAtLW5hbWU9U1dfMU1CX1FEMzIgLS1pb2VuZ2luZT1saWJhaW8gLS1kaXJlY3Q9
-MSAtLXJ3PXdyaXRlDQo+Pj4gLS1pb2RlcHRoPTMyIC0tc2l6ZT0xJSAtLXJ1bnRpbWU9NjBzIC0t
-dGltZV9iYXNlZCAtLW51bWpvYnM9MSANCj4+PiAtLWJzPTFtDQo+Pj4gLS1vdmVyd3JpdGU9MSAt
-LWZpbGVuYW1lPS9kZXYvbnZtZTJuMQ0KPj4+IFNXXzFNQl9RRDMyOiAoZz0wKTogcnc9d3JpdGUs
-IGJzPTFNLTFNLzFNLTFNLzFNLTFNLCBpb2VuZ2luZT1saWJhaW8sDQo+Pj4gaW9kZXB0aD0zMg0K
-Pj4+IGZpby0yLjMtMjYtZzE5ZGQNCj4+PiBTdGFydGluZyAxIHByb2Nlc3MNCj4+PiBKb2JzOiAx
-IChmPTEpOiBbVygxKV0gWzEwMC4wJSBkb25lXSBbMEtCLzEzODBNQi8wS0IgL3NdIFswLzEzODAv
-MCANCj4+PiBpb3BzXSBbZXRhIDAwbTowMHNdDQo+Pj4gU1dfMU1CX1FEMzI6IChncm91cGlkPTAs
-IGpvYnM9MSk6IGVycj0gMDogcGlkPTgwMzExOiBUaHUgSmFuIDE0DQo+Pj4gMTA6MTE6MzYgMjAx
-Ng0KPj4+ICAgIHdyaXRlOiBpbz04NDk2Nk1CLCBidz0xNDE1LjFNQi9zLCBpb3BzPTE0MTUsIHJ1
-bnQ9IDYwMDA5bXNlYw0KPj4+DQo+Pj4gVGVzdDI6IExvb3AgYXJvdW5kIG1heCBkZXZpY2Ugc2l6
-ZSBhbmQgY29udGludWUgSU8gd2l0aCBmaXhlZCBydW50aW1lOg0KPj4+IFBBU1MNCj4+PiAjIC4v
-ZmlvL2ZpbyAtLW5hbWU9U1dfMU1CX1FEMzIgLS1pb2VuZ2luZT1saWJhaW8gLS1kaXJlY3Q9MSAN
-Cj4+PiAtLXJ3PXdyaXRlDQo+Pj4gLS1pb2RlcHRoPTMyIC0tc2l6ZT0xMDAlIC0tcnVudGltZT0x
-NW0gLS10aW1lX2Jhc2VkIC0tbnVtam9icz0xIA0KPj4+IC0tYnM9MW0gLS1vdmVyd3JpdGU9MSAt
-LWZpbGVuYW1lPS9kZXYvbnZtZTJuMQ0KPj4+IFNXXzFNQl9RRDMyOiAoZz0wKTogcnc9d3JpdGUs
-IGJzPTFNLTFNLzFNLTFNLzFNLTFNLCBpb2VuZ2luZT1saWJhaW8sDQo+Pj4gaW9kZXB0aD0zMg0K
-Pj4+IGZpby0yLjMtMjYtZzE5ZGQNCj4+PiBTdGFydGluZyAxIHByb2Nlc3MNCj4+PiBKb2JzOiAx
-IChmPTEpOiBbVygxKV0gWzEwMC4wJSBkb25lXSBbMEtCLzEzODhNQi8wS0IgL3NdIFswLzEzODgv
-MCANCj4+PiBpb3BzXSBbZXRhIDAwbTowMHNdDQo+Pj4gU1dfMU1CX1FEMzI6IChncm91cGlkPTAs
-IGpvYnM9MSk6IGVycj0gMDogcGlkPTgwMzc3OiBUaHUgSmFuIDE0DQo+Pj4gMTA6Mjg6MjcgMjAx
-Ng0KPj4+ICAgIHdyaXRlOiBpbz0xMjMxLjlHQiwgYnc9MTQwMS42TUIvcywgaW9wcz0xNDAxLCBy
-dW50PTkwMDAwOG1zZWMNCj4+Pg0KPj4+IFRlc3QzOiBMb29wIGFyb3VuZCBtYXggZGV2aWNlIHNp
-emUgYW5kIGNvbnRpbnVlIElPIHdpdGggZml4ZWQgdG90YWwgDQo+Pj4gSU8sIHJvdW5kIHRvdGFs
-IElPIHRvIGJzOiBGQUlMIChkb2VzIG5vdCBsb29wIGFyb3VuZCB0byBzdGFydCBMQkEpICMgDQo+
-Pj4gLi9maW8vZmlvIC0tbmFtZT1TV18xTUJfUUQzMiAtLWlvZW5naW5lPWxpYmFpbyAtLWRpcmVj
-dD0xIC0tcnc9d3JpdGUNCj4+PiAtLWlvZGVwdGg9MzIgLS1zaXplPTEwMCUgLS1pb19zaXplPTgx
-MDAwMDAwMDAwMCAtLW51bWpvYnM9MSAtLWJzPTFtDQo+Pj4gLS1vdmVyd3JpdGU9MSAtLWZpbGVu
-YW1lPS9kZXYvbnZtZTJuMQ0KPj4+IFNXXzFNQl9RRDMyOiAoZz0wKTogcnc9d3JpdGUsIGJzPTFN
-LTFNLzFNLTFNLzFNLTFNLCBpb2VuZ2luZT1saWJhaW8sDQo+Pj4gaW9kZXB0aD0zMg0KPj4+IGZp
-by0yLjMtMjYtZzE5ZGQNCj4+PiBTdGFydGluZyAxIHByb2Nlc3MNCj4+PiBKb2JzOiAxIChmPTAp
-OiBbVygxKV0gWzk4LjklIGRvbmVdIFswS0IvMTQ1M01CLzBLQiAvc10gWzAvMTQ1My8wIA0KPj4+
-IGlvcHNdIFtldGEgMDBtOjA2c10NCj4+PiBTV18xTUJfUUQzMjogKGdyb3VwaWQ9MCwgam9icz0x
-KTogZXJyPSAwOiBwaWQ9ODEwNjU6IFRodSBKYW4gMTQNCj4+PiAxMDo0OTo1MyAyMDE2DQo+Pj4g
-ICAgd3JpdGU6IGlvPTc2MzA5N01CLCBidz0xMzk5LjVNQi9zLCBpb3BzPTEzOTksIHJ1bnQ9NTQ1
-Mjc4bXNlYw0KPj4+DQo+Pj4gVGVzdDQ6IExvb3AgYXJvdW5kIG1heCBkZXZpY2Ugc2l6ZSBhbmQg
-Y29udGludWUgSU8gd2l0aCBmaXhlZCB0b3RhbCANCj4+PiBJTywgdG90YWwgSU8gaXMgYWxyZWFk
-eSBhbGlnbmVkIHRvIGJzOiBGQUlMIChkb2VzIG5vdCBsb29wIGFyb3VuZCB0byANCj4+PiBzdGFy
-dCBMQkEpICMgLi9maW8vZmlvIC0tbmFtZT1TV18xTUJfUUQzMiAtLWlvZW5naW5lPWxpYmFpbyAN
-Cj4+PiAtLWRpcmVjdD0xIC0tcnc9d3JpdGUNCj4+PiAtLWlvZGVwdGg9MzIgLS1zaXplPTEwMCUg
-LS1pb19zaXplPTgxMDY3NTA3NzEyMCAtLW51bWpvYnM9MSAtLWJzPTFtDQo+Pj4gLS1vdmVyd3Jp
-dGU9MSAtLWZpbGVuYW1lPS9kZXYvbnZtZTJuMQ0KPj4+IFNXXzFNQl9RRDMyOiAoZz0wKTogcnc9
-d3JpdGUsIGJzPTFNLTFNLzFNLTFNLzFNLTFNLCBpb2VuZ2luZT1saWJhaW8sDQo+Pj4gaW9kZXB0
-aD0zMg0KPj4+IGZpby0yLjMtMjYtZzE5ZGQNCj4+PiBTdGFydGluZyAxIHByb2Nlc3MNCj4+PiBK
-b2JzOiAxIChmPTEpOiBbVygxKV0gWzk4LjYlIGRvbmVdIFswS0IvMTQwNE1CLzBLQiAvc10gWzAv
-MTQwNC8wIA0KPj4+IGlvcHNdIFtldGEgMDBtOjA4c10NCj4+PiBTV18xTUJfUUQzMjogKGdyb3Vw
-aWQ9MCwgam9icz0xKTogZXJyPSAwOiBwaWQ9ODEzMzk6IFRodSBKYW4gMTQNCj4+PiAxMTowMTo1
-NyAyMDE2DQo+Pj4gICAgd3JpdGU6IGlvPTc2MzA5N01CLCBidz0xMzk5LjlNQi9zLCBpb3BzPTEz
-OTksIHJ1bnQ9NTQ1MTQybXNlYw0KPj4NCj4+IFZlcnkgc3RyYW5nZSwgSSBjYW4ndCByZXByb2R1
-Y2UgMy80IHRlc3QgY2FzZSBmYWlsdXJlcy4gSSd2ZSBnb3QgYSANCj4+IHNtYWxsDQo+PiBudm1l
-MG4xIGRldmljZSBoZXJlOg0KPj4NCj4+IGF4Ym9lQGRlbGw6fiAkIHN1ZG8gYmxvY2tkZXYgLS1n
-ZXRzaXplNjQgL2Rldi9udm1lMG4xDQo+PiA0Mjg2NTc4Njg4DQo+Pg0KPj4gYW5kIEkgdHJpZWQ6
-DQo+Pg0KPj4gLi9maW8gLS1uYW1lPVNXXzFNQl9RRDMyIC0taW9lbmdpbmU9bGliYWlvIC0tZGly
-ZWN0PTEgLS1ydz13cml0ZQ0KPj4gLS1pb2RlcHRoPTEgLS1zaXplPTEwMCUgLS1pb19zaXplPTQz
-ODY1Nzg2ODggLS1udW1qb2JzPTEgLS1icz0xbQ0KPj4gLS1vdmVyd3JpdGU9MSAtLWZpbGVuYW1l
-PS9kZXYvbnZtZTBuMQ0KPj4NCj4+IGFuZCA0MzAwMDAwMDAwIGZvciBzaXplcywgYW5kIGl0IHBy
-b2R1Y2VzIHRoZSBkZXNpcmVkIG91dGNvbWUgaW4gDQo+PiB3cml0aW5nIHRoZSBieXRlcyBzcGVj
-aWZpZWQgYnkgaW9fc2l6ZS4gSSBhZGRlZCBhIHF1aWNrIGR1bXAgdG8gdGhlIA0KPj4gb2Zmc2V0
-LCBhbmQgdGhhdCBsb29rcyBjb3JyZWN0IHRvbzoNCj4+DQo+PiBbLi4uXQ0KPj4gb2ZmPTQyODEz
-MzU4MDgNCj4+IG9mZj00MjgyMzg0Mzg0DQo+PiBvZmY9NDI4MzQzMjk2MA0KPj4gb2ZmPTQyODQ0
-ODE1MzYNCj4+IG9mZj00Mjg1NTMwMTEyDQo+PiBvZmY9MA0KPj4gb2ZmPTEwNDg1NzYNCj4+IG9m
-Zj0yMDk3MTUyDQo+PiBvZmY9MzE0NTcyOA0KPj4gWy4uLl0NCj4+DQo+PiB3aGljaCBsb29wcyBh
-cm91bmQgYW5kIHN0YXJ0cyB3cml0aW5nIGZyb20gMCBhZ2Fpbi4NCj4+DQo+PiBJJ2xsIHRyeSBh
-IGJpZ2dlciBkZXZpY2UsIHRob3VnaCBpdCdkIGJlIHdlaXJkIGlmIHRoYXQgYmVoYXZlZCANCj4+
-IGRpZmZlcmVudGx5Lg0KPg0KPiBJdCBkb2VzIHJlcHJvZHVjZSB3aXRoIGEgYmlnZ2VyIGRldmlj
-ZSwganVzdCBub3Qgb24gdGhlIDRHLzE2RyBvbmVzIEkgDQo+IGhhdmUuIFZlcnkgb2RkLCBidXQg
-YXQgbGVhc3QgSSBjYW4gcmVwcm9kdWNlIGl0Lg0KDQpJdCdzIG5vdCBhbiBhYnNvbHV0ZSBzaXpl
-LCBidXQgcmF0aGVyIG9uZSB3aGVyZSB3ZSBydW4gaW50byBhbiBpc3N1ZSBpZiB0aGUgZGV2aWNl
-IHNpemUgaXNuJ3QgYSBtdWx0aXBsZSBvZiB0aGUgYmxvY2sgc2l6ZSB3ZSB1c2UuIFRoaXMgaXMg
-YSBjb21tb24gY2FzZSBmb3IgcmVhbCBkZXZpY2VzLiBDYW4geW91IHRyeSBjdXJyZW50IC1naXQg
-YWdhaW4/IEhvcGVmdWxseSBpdCBzaG91bGQgYmUgZml4ZWQuDQoNCi0tDQpKZW5zIEF4Ym9lDQoN
-CkhHU1QgRS1tYWlsIENvbmZpZGVudGlhbGl0eSBOb3RpY2UgJiBEaXNjbGFpbWVyOgpUaGlzIGUt
-bWFpbCBhbmQgYW55IGZpbGVzIHRyYW5zbWl0dGVkIHdpdGggaXQgbWF5IGNvbnRhaW4gY29uZmlk
-ZW50aWFsIG9yIGxlZ2FsbHkgcHJpdmlsZWdlZCBpbmZvcm1hdGlvbiBvZiBIR1NUIGFuZCBhcmUg
-aW50ZW5kZWQgc29sZWx5IGZvciB0aGUgdXNlIG9mIHRoZSBpbmRpdmlkdWFsIG9yIGVudGl0eSB0
-byB3aGljaCB0aGV5IGFyZSBhZGRyZXNzZWQuIElmIHlvdSBhcmUgbm90IHRoZSBpbnRlbmRlZCBy
-ZWNpcGllbnQsIGFueSBkaXNjbG9zdXJlLCBjb3B5aW5nLCBkaXN0cmlidXRpb24gb3IgYW55IGFj
-dGlvbiB0YWtlbiBvciBvbWl0dGVkIHRvIGJlIHRha2VuIGluIHJlbGlhbmNlIG9uIGl0LCBpcyBw
-cm9oaWJpdGVkLiAgSWYgeW91IGhhdmUgcmVjZWl2ZWQgdGhpcyBlLW1haWwgaW4gZXJyb3IsIHBs
-ZWFzZSBub3RpZnkgdGhlIHNlbmRlciBpbW1lZGlhdGVseSBhbmQgZGVsZXRlIHRoZSBlLW1haWwg
-aW4gaXRzIGVudGlyZXR5IGZyb20geW91ciBzeXN0ZW0uCg==
+On 01/14/2016 01:22 PM, Jens Axboe wrote:
+> On 01/14/2016 01:10 PM, Jens Axboe wrote:
+>> On 01/14/2016 12:51 PM, Jeff Furlong wrote:
+>>> Latest commit seems to help, but found one more issue:
+>>>
+>>> # blockdev --getsize64 /dev/nvme2n1
+>>> 800166076416
+>>>
+>>> 800166076416B = 763097.8MB
+>>>
+>>> Test1: Round io_size to match bs: PASS
+>>> # ./fio/fio --name=SW_1MB_QD32 --ioengine=libaio --direct=1 --rw=write
+>>> --iodepth=32 --size=1% --runtime=60s --time_based --numjobs=1 --bs=1m
+>>> --overwrite=1 --filename=/dev/nvme2n1
+>>> SW_1MB_QD32: (g=0): rw=write, bs=1M-1M/1M-1M/1M-1M, ioengine=libaio,
+>>> iodepth=32
+>>> fio-2.3-26-g19dd
+>>> Starting 1 process
+>>> Jobs: 1 (f=1): [W(1)] [100.0% done] [0KB/1380MB/0KB /s] [0/1380/0
+>>> iops] [eta 00m:00s]
+>>> SW_1MB_QD32: (groupid=0, jobs=1): err= 0: pid=80311: Thu Jan 14
+>>> 10:11:36 2016
+>>>    write: io=84966MB, bw=1415.1MB/s, iops=1415, runt= 60009msec
+>>>
+>>> Test2: Loop around max device size and continue IO with fixed runtime:
+>>> PASS
+>>> # ./fio/fio --name=SW_1MB_QD32 --ioengine=libaio --direct=1 --rw=write
+>>> --iodepth=32 --size=100% --runtime=15m --time_based --numjobs=1
+>>> --bs=1m --overwrite=1 --filename=/dev/nvme2n1
+>>> SW_1MB_QD32: (g=0): rw=write, bs=1M-1M/1M-1M/1M-1M, ioengine=libaio,
+>>> iodepth=32
+>>> fio-2.3-26-g19dd
+>>> Starting 1 process
+>>> Jobs: 1 (f=1): [W(1)] [100.0% done] [0KB/1388MB/0KB /s] [0/1388/0
+>>> iops] [eta 00m:00s]
+>>> SW_1MB_QD32: (groupid=0, jobs=1): err= 0: pid=80377: Thu Jan 14
+>>> 10:28:27 2016
+>>>    write: io=1231.9GB, bw=1401.6MB/s, iops=1401, runt=900008msec
+>>>
+>>> Test3: Loop around max device size and continue IO with fixed total
+>>> IO, round total IO to bs: FAIL (does not loop around to start LBA)
+>>> # ./fio/fio --name=SW_1MB_QD32 --ioengine=libaio --direct=1 --rw=write
+>>> --iodepth=32 --size=100% --io_size=810000000000 --numjobs=1 --bs=1m
+>>> --overwrite=1 --filename=/dev/nvme2n1
+>>> SW_1MB_QD32: (g=0): rw=write, bs=1M-1M/1M-1M/1M-1M, ioengine=libaio,
+>>> iodepth=32
+>>> fio-2.3-26-g19dd
+>>> Starting 1 process
+>>> Jobs: 1 (f=0): [W(1)] [98.9% done] [0KB/1453MB/0KB /s] [0/1453/0 iops]
+>>> [eta 00m:06s]
+>>> SW_1MB_QD32: (groupid=0, jobs=1): err= 0: pid=81065: Thu Jan 14
+>>> 10:49:53 2016
+>>>    write: io=763097MB, bw=1399.5MB/s, iops=1399, runt=545278msec
+>>>
+>>> Test4: Loop around max device size and continue IO with fixed total
+>>> IO, total IO is already aligned to bs: FAIL (does not loop around to
+>>> start LBA)
+>>> # ./fio/fio --name=SW_1MB_QD32 --ioengine=libaio --direct=1 --rw=write
+>>> --iodepth=32 --size=100% --io_size=810675077120 --numjobs=1 --bs=1m
+>>> --overwrite=1 --filename=/dev/nvme2n1
+>>> SW_1MB_QD32: (g=0): rw=write, bs=1M-1M/1M-1M/1M-1M, ioengine=libaio,
+>>> iodepth=32
+>>> fio-2.3-26-g19dd
+>>> Starting 1 process
+>>> Jobs: 1 (f=1): [W(1)] [98.6% done] [0KB/1404MB/0KB /s] [0/1404/0 iops]
+>>> [eta 00m:08s]
+>>> SW_1MB_QD32: (groupid=0, jobs=1): err= 0: pid=81339: Thu Jan 14
+>>> 11:01:57 2016
+>>>    write: io=763097MB, bw=1399.9MB/s, iops=1399, runt=545142msec
+>>
+>> Very strange, I can't reproduce 3/4 test case failures. I've got a small
+>> nvme0n1 device here:
+>>
+>> axboe@dell:~ $ sudo blockdev --getsize64 /dev/nvme0n1
+>> 4286578688
+>>
+>> and I tried:
+>>
+>> ./fio --name=SW_1MB_QD32 --ioengine=libaio --direct=1 --rw=write
+>> --iodepth=1 --size=100% --io_size=4386578688 --numjobs=1 --bs=1m
+>> --overwrite=1 --filename=/dev/nvme0n1
+>>
+>> and 4300000000 for sizes, and it produces the desired outcome in writing
+>> the bytes specified by io_size. I added a quick dump to the offset, and
+>> that looks correct too:
+>>
+>> [...]
+>> off=4281335808
+>> off=4282384384
+>> off=4283432960
+>> off=4284481536
+>> off=4285530112
+>> off=0
+>> off=1048576
+>> off=2097152
+>> off=3145728
+>> [...]
+>>
+>> which loops around and starts writing from 0 again.
+>>
+>> I'll try a bigger device, though it'd be weird if that behaved
+>> differently.
+>
+> It does reproduce with a bigger device, just not on the 4G/16G ones I
+> have. Very odd, but at least I can reproduce it.
+
+It's not an absolute size, but rather one where we run into an issue if 
+the device size isn't a multiple of the block size we use. This is a 
+common case for real devices. Can you try current -git again? Hopefully 
+it should be fixed.
+
+-- 
+Jens Axboe
 
 
