@@ -1,17 +1,25 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: inflated bandwidth numbers with buffered I/O
-References: <CAE9DZUTFeBgZi+sP28RgVpmiVVYyrRj1K2pSZazVjiyQXQeg8g@mail.gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <56991407.1020809@kernel.dk>
-Date: Fri, 15 Jan 2016 08:45:11 -0700
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-qg0-f52.google.com ([209.85.192.52]:34738 "EHLO
+	mail-qg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751694AbcAOBu3 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 14 Jan 2016 20:50:29 -0500
+Received: by mail-qg0-f52.google.com with SMTP id 6so419536192qgy.1
+        for <fio@vger.kernel.org>; Thu, 14 Jan 2016 17:50:28 -0800 (PST)
 MIME-Version: 1.0
 In-Reply-To: <CAE9DZUTFeBgZi+sP28RgVpmiVVYyrRj1K2pSZazVjiyQXQeg8g@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Dallas Clement <dallas.a.clement@gmail.com>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+References: <CAE9DZUTFeBgZi+sP28RgVpmiVVYyrRj1K2pSZazVjiyQXQeg8g@mail.gmail.com>
+Date: Thu, 14 Jan 2016 17:50:28 -0800
+Message-ID: <CAF+0mvm1sr7AxL1=kFu5dofmOXb4kac=NX03deJ13gbkQrfSYA@mail.gmail.com>
+Subject: Re: inflated bandwidth numbers with buffered I/O
+From: Matthew Eaton <m.eaton82@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Dallas Clement <dallas.a.clement@gmail.com>
+Cc: fio@vger.kernel.org
 
-On 01/14/2016 04:28 PM, Dallas Clement wrote:
+On Thu, Jan 14, 2016 at 3:28 PM, Dallas Clement
+<dallas.a.clement@gmail.com> wrote:
 > Hi, I hope it's ok to ask usage questions on this mailing list.
 >
 > I have been using fio version 2.2.4 on a Fedora 22 server host to test
@@ -62,40 +70,28 @@ On 01/14/2016 04:28 PM, Dallas Clement wrote:
 >
 > for RW in read write randread randwrite
 > do
->    for BS in 4k 512k 2048k
->    do
->      for DEPTH in 4 32 256
->      do
->        RW=${RW} BS=${BS} DEPTH=${DEPTH} fio ${JOB_FILE}
->      done
->    done
+>   for BS in 4k 512k 2048k
+>   do
+>     for DEPTH in 4 32 256
+>     do
+>       RW=${RW} BS=${BS} DEPTH=${DEPTH} fio ${JOB_FILE}
+>     done
+>   done
 > done
 >
 > I have also tried running this script without the filename=blah
 > setting on an XFS formatted block device.  I am still seeing inflated
 > numbers for this also.
-
-buffered IO is, well, buffered. So if you don't include any kind of 
-sync'ing, then you are merely measuring how long it took you to dirty 
-the amount of memory specified. You can set end_fsync=1 and fio will do 
-an fsync at the end of the job run. Or you can sprinkle fsync/fdatasync 
-to sync for every X blocks. Or you can set sync=1, which would open the 
-device O_SYNC.
-
-axboe@xps13:/home/axboe/git/fio $ ./fio --cmdhelp|grep sync
-fsync                   : Issue fsync for writes every given number of 
-blocks
-fdatasync               : Issue fdatasync for writes every given number 
-of blocks
-sync_file_range         : Use sync_file_range()
-   sync                  : Use O_SYNC for buffered writes
-   verify_async          : Number of async verifier threads to use
-create_fsync            : fsync file after creation
-end_fsync               : Include fsync at the end of job
-fsync_on_close          : fsync files on close
+>
+> Thanks,
+>
+> Dallas
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 
--- 
-Jens Axboe
-
-
+I don't have much experience in testing devices over the network but
+you could try increasing size= or leave it out completely to use the
+full device size and see how that affects your throughput.
