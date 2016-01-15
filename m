@@ -1,71 +1,77 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:45429 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.9]:46081 "EHLO
 	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755729AbcAaNAE (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 31 Jan 2016 08:00:04 -0500
+	with ESMTP id S1754115AbcAONAE (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 15 Jan 2016 08:00:04 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
 	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1aPrbo-0006zi-1V
-	for fio@vger.kernel.org; Sun, 31 Jan 2016 13:00:04 +0000
+	id 1aK3z1-0006Wh-NI
+	for fio@vger.kernel.org; Fri, 15 Jan 2016 13:00:03 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160131130001.F1A202C0117@kernel.dk>
-Date: Sun, 31 Jan 2016 06:00:01 -0700 (MST)
+Message-Id: <20160115130002.3236D2C00E7@kernel.dk>
+Date: Fri, 15 Jan 2016 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit a89c77abb152277ca3731f4766a7f377f0fc99df:
+The following changes since commit 65f41ccb386850671c0651f976cd33fdfbe0644d:
 
-  server: send trigger state inline (2016-01-28 13:41:18 -0700)
+  t/verify-state: one more printf type fix (2016-01-13 13:17:39 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 3bb85e8443d626ee71a4126dbe6ebcaf751527f1:
+for you to fetch changes up to 543e2e9d2ebdd26449a3f07934b87c8e1ff35033:
 
-  Add a note of what is the default value for random_generator (2016-01-30 22:03:39 -0700)
+  Fix issue with termination before io_size has been reached (2016-01-14 14:44:23 -0700)
 
 ----------------------------------------------------------------
-Jens Axboe (1):
-      Add a note of what is the default value for random_generator
+Jens Axboe (2):
+      io_u: ensure that we align new start offset properly for time_based
+      Fix issue with termination before io_size has been reached
 
- HOWTO | 4 +++-
- fio.1 | 4 +++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ backend.c |  2 +-
+ io_u.c    | 11 +++++++++--
+ 2 files changed, 10 insertions(+), 3 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/HOWTO b/HOWTO
-index 7c24c1b..4a910a1 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1013,7 +1013,9 @@ random_generator=str	Fio supports the following engines for generating
- 		typically good enough. LFSR only works with single
- 		block sizes, not with workloads that use multiple block
- 		sizes. If used with such a workload, fio may read or write
--		some blocks multiple times.
-+		some blocks multiple times. The default value is tausworthe,
-+		unless the required space exceeds 2^32 blocks. If it does,
-+		then tausworthe64 is selected automatically.
+diff --git a/backend.c b/backend.c
+index bd94078..2078409 100644
+--- a/backend.c
++++ b/backend.c
+@@ -1293,7 +1293,7 @@ static bool keep_running(struct thread_data *td)
+ 		if (diff < td_max_bs(td))
+ 			return false;
  
- nice=int	Run the job with the given nice value. See man nice(2).
+-		if (fio_files_done(td))
++		if (fio_files_done(td) && !td->o.io_limit)
+ 			return false;
  
-diff --git a/fio.1 b/fio.1
-index 7bdfea3..6cc6379 100644
---- a/fio.1
-+++ b/fio.1
-@@ -920,7 +920,9 @@ guarantees that we never generate the same offset twice, and it's also less
- computationally expensive. It's not a true random generator, however, though
- for IO purposes it's typically good enough. LFSR only works with single block
- sizes, not with workloads that use multiple block sizes. If used with such a
--workload, fio may read or write some blocks multiple times.
-+workload, fio may read or write some blocks multiple times. The default
-+value is tausworthe, unless the required space exceeds 2^32 blocks. If it does,
-+then tausworthe64 is selected automatically.
- .TP
- .BI nice \fR=\fPint
- Run job with given nice value.  See \fBnice\fR\|(2).
+ 		return true;
+diff --git a/io_u.c b/io_u.c
+index 9628d5e..8d34912 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -285,8 +285,15 @@ static int get_next_seq_offset(struct thread_data *td, struct fio_file *f,
+ 	assert(ddir_rw(ddir));
+ 
+ 	if (f->last_pos[ddir] >= f->io_size + get_start_offset(td, f) &&
+-	    o->time_based)
+-		f->last_pos[ddir] = f->last_pos[ddir] - f->io_size;
++	    o->time_based) {
++		struct thread_options *o = &td->o;
++		uint64_t io_size = f->io_size + (f->io_size % o->min_bs[ddir]);
++
++		if (io_size > f->last_pos[ddir])
++			f->last_pos[ddir] = 0;
++		else
++			f->last_pos[ddir] = f->last_pos[ddir] - io_size;
++	}
+ 
+ 	if (f->last_pos[ddir] < f->real_file_size) {
+ 		uint64_t pos;
