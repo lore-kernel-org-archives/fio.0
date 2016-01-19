@@ -1,13 +1,13 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-db3on0073.outbound.protection.outlook.com ([157.55.234.73]:60075
-	"EHLO emea01-db3-obe.outbound.protection.outlook.com"
+Received: from mail-am1on0079.outbound.protection.outlook.com ([157.56.112.79]:35264
+	"EHLO emea01-am1-obe.outbound.protection.outlook.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932391AbcASBEo convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 18 Jan 2016 20:04:44 -0500
+	id S932389AbcASAom convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Mon, 18 Jan 2016 19:44:42 -0500
 From: Thierry BERTAUD <tbertaud@conforama.fr>
 Subject: RE: How to stress a 8Gbps card to get 500 000 IOPS or 1600 MB/s
-Date: Tue, 19 Jan 2016 01:04:39 +0000
-Message-ID: <VI1PR05MB1343FA34ED1B8DE6E04DE3D5B1C10@VI1PR05MB1343.eurprd05.prod.outlook.com>
+Date: Tue, 19 Jan 2016 00:29:39 +0000
+Message-ID: <VI1PR05MB13439667BBEE922D9955F58EB1C10@VI1PR05MB1343.eurprd05.prod.outlook.com>
 References: <VI1PR05MB13437814C9CD31D2CECE7398B1FC0@VI1PR05MB1343.eurprd05.prod.outlook.com>
  <56840F80.4060903@kernel.dk>
  <VI1PR05MB13435F5190D9D9A17C59315BB1FD0@VI1PR05MB1343.eurprd05.prod.outlook.com>
@@ -21,80 +21,99 @@ References: <VI1PR05MB13437814C9CD31D2CECE7398B1FC0@VI1PR05MB1343.eurprd05.prod.
  <VI1PR05MB13430232A50B8818A220B23DB1FF0@VI1PR05MB1343.eurprd05.prod.outlook.com>
  <CANvN+emwcrcVpuGsHBuNiw28WDKyyuNQvVd7G3QJFuy5siXqYw@mail.gmail.com>
  <VI1PR05MB13431DA43361FC9F4F55FC95B1FF0@VI1PR05MB1343.eurprd05.prod.outlook.com>
- <VI1PR05MB1343E7E335FA4E27991FD523B1C00@VI1PR05MB1343.eurprd05.prod.outlook.com>
- <941 9CB2F-E2A7-453F-A5CE-88533306BC00@nellans.org>
- <CAM8G_BJ22QGD3jgKO3i2HXjEpi4He_eUegAr+XDPPO-AYU_5xg@mail.gmail.com>,<DA15262B-D52B-4FF3-B8A9-079073DEC874@nellans.org>
-In-Reply-To: <DA15262B-D52B-4FF3-B8A9-079073DEC874@nellans.org>
+ <VI1PR05MB1343E7E335FA4E27991FD523B1C00@VI1PR05MB1343.eurprd05.prod.outlook.com>,<9419CB2F-E2A7-453F-A5CE-88533306BC00@nellans.org>
+In-Reply-To: <9419CB2F-E2A7-453F-A5CE-88533306BC00@nellans.org>
 Content-Language: fr-FR
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: David Nellans <david@nellans.org>, "Kulkarni, Vasu" <vasu.kulkarni@gmail.com>
+To: David Nellans <david@nellans.org>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-David and Vasu,
+David,
 
->>agree with vasu - assuming you're trying to hit numbers a vendor spec'd however on a flash drive of >>some sort.
+Sorry for typo.
+I paste and not copy the configuration file.
 
->>you're doing random writes which is also tough on some flash drive if they're into write >>amplification. try changing to random reads and you only need a couple of threads (with a depth of >>128 each) to generate enough iodepth to saturate most drives. 64 threads might be more threads >>than you have CPUs to run them so you're switching which also hurts performance
-
-I test against a SAN LUN (Infinidat F2000).
-This my AIX LUN:
-# lsattr -El hdisk6
-PCM             PCM/friend/NFINIDATpcm                                      Path Control Module          False
-PR_key_value                                                                Persistent Reserve Key value True
-algorithm       round_robin                                                 Algorithm                    True
-hcheck_cmd      test_unit_rdy                                               Health Check Command         True
-hcheck_interval 60                                                          Health Check Interval        True
-hcheck_mode     nonactive                                                   Health Check Mode            True
-lun_id          0x1000000000000                                             Logical Unit Number ID       False
-lun_reset_spt   yes                                                         LUN Reset Supported          True
-max_transfer    0x80000                                                     Maximum TRANSFER Size        True
-node_name       0x5742b0f00004c700                                          FC Node Name                 False
-pvid            none                                                        Physical volume identifier   False
-q_type          simple                                                      Queuing TYPE                 True
-queue_depth     64                                                          Queue DEPTH                  True
-reserve_policy  no_reserve                                                  Reserve Policy               True
-rw_timeout      30                                                          READ/WRITE time out value    True
-scsi_id         0x1e0800                                                    SCSI ID                      False
-unique_id       3B1F742b0f0000004c700000000000001d609InfiniBox08NFINIDATfcp Unique device identifier     False
-ww_name         0x5742b0f00004c711                                          FC World Wide Name           False
-#
-
-With this conf:
 # cat randwrite.fio
 [global]
 thread
-numjobs=1
-iodepth=1
+numjobs=3D1
+iodepth=3D1
 group_reporting
-bs=4k
-norandommap=1
+bs=3D4k
+norandommap=3D1
 refill_buffers
-direct=1
-ioengine=posixaio
-runtime=300
+direct=3D1
+ioengine=3Dposixaio
+runtime=3D300
 time_based
-filename=/dev/hdisk6
-log_avg_msec=1000
-[randread_32_128]
-rw=randread
-numjobs=32
-iodepth=128
+filename=3D/dev/hdisk6
+log_avg_msec=3D1000
+[randwrite_64_64]
+rw=3Drandwrite
+numjobs=3D64
+iodepth=3D64
 stonewall
 #
 
-I have now bad resulsts:
-IOPS: 2 800
-Bandwith:11 MB/s
-latency : 6ms
 
-before with old configuration file:
-IOPS: 42 000
-Bandwith:164 MB/s
-latency : 0.2 ms
+Cordialement,
+Thierry Bertaud
+Tel: 01 60 95 51 41
 
-Regards,
-Thierry
+PS: Merci de mettre en copie pour toute demande syst=EF=BF=BDme, le groupe =
+dsisystunix@conforama.fr
+
+________________________________________
+De : David Nellans <david@nellans.org>
+Envoy=EF=BF=BD : mardi 19 janvier 2016 01:15
+=EF=BF=BD : Thierry BERTAUD
+Cc : fio@vger.kernel.org
+Objet : Re: How to stress a 8Gbps card to get 500 000 IOPS or 1600 MB/s
+
+you have two typos in your config that will likely result in less than suff=
+icient iodepth to hit 500k IOPS. check if those are in your actual config o=
+r not...
+
+> On Jan 18, 2016, at 5:58 PM, Thierry BERTAUD <tbertaud@conforama.fr> wrot=
+e:
+>
+> Hello fio team,
+>
+> I tryed to stress my 8 Gbps hba with fio wit a lot of case:
+> I know that the hba card is capable of 500 000 IOPS or get data rate neat=
+ that 8 Gbps (1600 MB/sec).
+> i tried to change block size, iodepth, numjobs, iodepth but idon't have g=
+ood resulut. (42000 IOPS and throughput 162 MB/s).
+>
+> Below fio conf:
+> [global]
+> thread
+> numjobs=3D1
+> iodepth=3D1
+> group_reporting
+> bs=3D4k
+> norandommap=3D1
+> refill_buffers
+> direct=3D1
+> ioengine=3Dposixaio
+> runtime=3D300
+> time_based
+> filename=3D/dev/hdisk6
+> log_avg_msec=3D1000
+> [randwrite_64_64]
+> rw=3Drandwrite
+> numjobs=3D64
+> ioepth=3D64
+> stonewal
+>
+>
+>
+> Regards,
+> Thierry--
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
