@@ -1,55 +1,42 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:50625 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753369AbcAVNAD (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 22 Jan 2016 08:00:03 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1aMbJr-0001V3-KB
-	for fio@vger.kernel.org; Fri, 22 Jan 2016 13:00:03 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: fio newer than 2.2.12 segfaults on examples/tiobench-example.fio
+References: <569B9F48.3010808@cran.org.uk> <569D5FB4.6050602@kernel.dk>
+ <56A05EDC.4030309@cran.org.uk> <56A05F80.7070903@kernel.dk>
+ <56A0620D.6000204@cran.org.uk> <56A063DD.8040502@kernel.dk>
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160122130001.CCC742C00D8@kernel.dk>
-Date: Fri, 22 Jan 2016 06:00:01 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <56A0647C.6030607@kernel.dk>
+Date: Wed, 20 Jan 2016 21:54:20 -0700
+MIME-Version: 1.0
+In-Reply-To: <56A063DD.8040502@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Bruce Cran <bruce@cran.org.uk>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit e3dae3b77f1a7285afd5a0ada6960eeb4a21e9a8:
+On 01/20/2016 09:51 PM, Jens Axboe wrote:
+> On 01/20/2016 09:43 PM, Bruce Cran wrote:
+>> On 01/20/2016 09:33 PM, Jens Axboe wrote:
+>>> Can you try and revert commit 09400a60042 and see if that fixes it?
+>>
+>> Yes, that does fix it.
+>
+> So it sounds like a double unlock issue, as per the bug report you also
+> referenced.
+>
+> Can you checkout out the 2.4 release again, and see if there are cases
+> where pthread_cond_timedwait() returns with the mutex unlocked already?
+> The man page states:
+>
+> "Upon successful return, the mutex shall have been locked and shall  be
+>   owned by the calling thread."
+>
+> but it's not clear if that's not the case for error return (eg timed out).
 
-  Fio 2.5 (2016-01-20 22:00:17 -0700)
+Duh, nevermind:
 
-are available in the git repository at:
+http://git.kernel.dk/cgit/fio/commit/?id=42e833fa08803ccea6c99df353398a7423845c51
 
-  git://git.kernel.dk/fio.git master
+-- 
+Jens Axboe
 
-for you to fetch changes up to 6a971db3b3375bf9d6b835c64cac12850edc7760:
 
-  ioengine: remove duplicate queue handler check (2016-01-21 17:45:44 +0100)
-
-----------------------------------------------------------------
-David Disseldorp (1):
-      ioengine: remove duplicate queue handler check
-
- ioengines.c | 4 ----
- 1 file changed, 4 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/ioengines.c b/ioengines.c
-index 9c5ac60..decc9cb 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -49,10 +49,6 @@ static int check_engine_ops(struct ioengine_ops *ops)
- 		log_err("%s: no getevents handler\n", ops->name);
- 		return 1;
- 	}
--	if (!ops->queue) {
--		log_err("%s: no queue handler\n", ops->name);
--		return 1;
--	}
- 
- 	return 0;
- }
