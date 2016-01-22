@@ -1,35 +1,40 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from muon.bluestop.org ([74.50.51.35]:44287 "EHLO muon.cran.org.uk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752455AbcAQOLL (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 17 Jan 2016 09:11:11 -0500
-Received: from muon.bluestop.org (localhost [127.0.0.1])
-	by muon.cran.org.uk (Postfix) with ESMTP id 4AEB24B433
-	for <fio@vger.kernel.org>; Sun, 17 Jan 2016 14:03:54 +0000 (UTC)
-Received: from muon.cran.org.uk ([127.0.0.1])
-	by muon.bluestop.org (muon.bluestop.org [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id qH5HLzPDqAME for <fio@vger.kernel.org>;
-	Sun, 17 Jan 2016 14:03:53 +0000 (UTC)
-Received: from My-MBP.local (c-67-164-250-65.hsd1.ut.comcast.net [67.164.250.65])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by muon.cran.org.uk (Postfix) with ESMTPSA
-	for <fio@vger.kernel.org>; Sun, 17 Jan 2016 14:03:53 +0000 (UTC)
-From: Bruce Cran <bruce@cran.org.uk>
-Subject: fio newer than 2.2.12 segfaults on examples/tiobench-example.fio
-Message-ID: <569B9F48.3010808@cran.org.uk>
-Date: Sun, 17 Jan 2016 07:03:52 -0700
+Return-Path: <jeff.furlong@hgst.com>
+From: Jeff Furlong <jeff.furlong@hgst.com>
+Subject: RE: Windows Make Broken
+Date: Fri, 22 Jan 2016 22:58:12 +0000
+Message-ID: <BN3PR0401MB1457EF6D566786E1B20521D2F7C40@BN3PR0401MB1457.namprd04.prod.outlook.com>
+References: <BN3PR0401MB14571048CD0CFE7699E18400F7C30@BN3PR0401MB1457.namprd04.prod.outlook.com>
+ <56A1536A.6060308@cran.org.uk> <56A1AD7C.3060802@kernel.dk>
+ <56A271EF.6040401@cran.org.uk> <56A279E4.8090209@kernel.dk>
+ <56A2A6DB.2090802@cran.org.uk> <56A2A940.9000105@kernel.dk>
+ <56A2AB81.60107@cran.org.uk> <56A2AC50.6010306@kernel.dk>
+ <56A2AF31.4000206@cran.org.uk>
+In-Reply-To: <56A2AF31.4000206@cran.org.uk>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Content-Transfer-Encoding: base64
+To: Bruce Cran <bruce@cran.org.uk>, Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-I'm seeing a crash when running anything newer than 2.2.12 (I've tried 
-2.2.13 and 2.3) on my openSUSE Tumbleweed system: "./fio 
-examples/tiobench-example.fio" causes a segfault in pthreads (apparently 
-via fio_mutex_down).
+QnVpbGRzIGZpbmUgaGVyZSBhcyB3ZWxsLiAgVGhhbmtzLg0KDQpSZWdhcmRzLA0KSmVmZg0KDQoN
+Ci0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBCcnVjZSBDcmFuIFttYWlsdG86YnJ1
+Y2VAY3Jhbi5vcmcudWtdIA0KU2VudDogRnJpZGF5LCBKYW51YXJ5IDIyLCAyMDE2IDI6MzggUE0N
+ClRvOiBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+OyBKZWZmIEZ1cmxvbmcgPGplZmYuZnVy
+bG9uZ0BoZ3N0LmNvbT47IGZpb0B2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBXaW5kb3dz
+IE1ha2UgQnJva2VuDQoNCk9uIDEvMjIvMTYgMzoyNSBQTSwgSmVucyBBeGJvZSB3cm90ZToNCg0K
+PiBBZGRlZCwgdGhhbmtzLiBBcmUgd2UgZ29vZCBvbiBXaW5kb3dzIG5vdz8NCg0KSSBqdXN0IHZl
+cmlmaWVkIGJvdGggMzItYml0IGFuZCA2NC1iaXQgYnVpbGRzLCBhbmQgYm90aCB3b3JrIHdpdGgg
+bm8gY29tcGlsZXIgd2FybmluZ3MgLSBzbyB5ZXMsIFdpbmRvd3MgaXMgZ29vZCBub3cuDQoNCi0t
+DQpCcnVjZQ0KDQpIR1NUIEUtbWFpbCBDb25maWRlbnRpYWxpdHkgTm90aWNlICYgRGlzY2xhaW1l
+cjoKVGhpcyBlLW1haWwgYW5kIGFueSBmaWxlcyB0cmFuc21pdHRlZCB3aXRoIGl0IG1heSBjb250
+YWluIGNvbmZpZGVudGlhbCBvciBsZWdhbGx5IHByaXZpbGVnZWQgaW5mb3JtYXRpb24gb2YgSEdT
+VCBhbmQgYXJlIGludGVuZGVkIHNvbGVseSBmb3IgdGhlIHVzZSBvZiB0aGUgaW5kaXZpZHVhbCBv
+ciBlbnRpdHkgdG8gd2hpY2ggdGhleSBhcmUgYWRkcmVzc2VkLiBJZiB5b3UgYXJlIG5vdCB0aGUg
+aW50ZW5kZWQgcmVjaXBpZW50LCBhbnkgZGlzY2xvc3VyZSwgY29weWluZywgZGlzdHJpYnV0aW9u
+IG9yIGFueSBhY3Rpb24gdGFrZW4gb3Igb21pdHRlZCB0byBiZSB0YWtlbiBpbiByZWxpYW5jZSBv
+biBpdCwgaXMgcHJvaGliaXRlZC4gIElmIHlvdSBoYXZlIHJlY2VpdmVkIHRoaXMgZS1tYWlsIGlu
+IGVycm9yLCBwbGVhc2Ugbm90aWZ5IHRoZSBzZW5kZXIgaW1tZWRpYXRlbHkgYW5kIGRlbGV0ZSB0
+aGUgZS1tYWlsIGluIGl0cyBlbnRpcmV0eSBmcm9tIHlvdXIgc3lzdGVtLgo=
 
--- 
-Bruce
+
