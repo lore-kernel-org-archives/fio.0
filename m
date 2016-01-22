@@ -1,40 +1,32 @@
-Return-Path: <jeff.furlong@hgst.com>
-From: Jeff Furlong <jeff.furlong@hgst.com>
-Subject: RE: Windows Make Broken
-Date: Fri, 22 Jan 2016 22:58:12 +0000
-Message-ID: <BN3PR0401MB1457EF6D566786E1B20521D2F7C40@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: Windows Make Broken
 References: <BN3PR0401MB14571048CD0CFE7699E18400F7C30@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <56A1536A.6060308@cran.org.uk> <56A1AD7C.3060802@kernel.dk>
  <56A271EF.6040401@cran.org.uk> <56A279E4.8090209@kernel.dk>
  <56A2A6DB.2090802@cran.org.uk> <56A2A940.9000105@kernel.dk>
  <56A2AB81.60107@cran.org.uk> <56A2AC50.6010306@kernel.dk>
  <56A2AF31.4000206@cran.org.uk>
-In-Reply-To: <56A2AF31.4000206@cran.org.uk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <56A2AFDA.9020905@kernel.dk>
+Date: Fri, 22 Jan 2016 15:40:26 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-To: Bruce Cran <bruce@cran.org.uk>, Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <56A2AF31.4000206@cran.org.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Bruce Cran <bruce@cran.org.uk>, Jeff Furlong <jeff.furlong@hgst.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-QnVpbGRzIGZpbmUgaGVyZSBhcyB3ZWxsLiAgVGhhbmtzLg0KDQpSZWdhcmRzLA0KSmVmZg0KDQoN
-Ci0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBCcnVjZSBDcmFuIFttYWlsdG86YnJ1
-Y2VAY3Jhbi5vcmcudWtdIA0KU2VudDogRnJpZGF5LCBKYW51YXJ5IDIyLCAyMDE2IDI6MzggUE0N
-ClRvOiBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+OyBKZWZmIEZ1cmxvbmcgPGplZmYuZnVy
-bG9uZ0BoZ3N0LmNvbT47IGZpb0B2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBXaW5kb3dz
-IE1ha2UgQnJva2VuDQoNCk9uIDEvMjIvMTYgMzoyNSBQTSwgSmVucyBBeGJvZSB3cm90ZToNCg0K
-PiBBZGRlZCwgdGhhbmtzLiBBcmUgd2UgZ29vZCBvbiBXaW5kb3dzIG5vdz8NCg0KSSBqdXN0IHZl
-cmlmaWVkIGJvdGggMzItYml0IGFuZCA2NC1iaXQgYnVpbGRzLCBhbmQgYm90aCB3b3JrIHdpdGgg
-bm8gY29tcGlsZXIgd2FybmluZ3MgLSBzbyB5ZXMsIFdpbmRvd3MgaXMgZ29vZCBub3cuDQoNCi0t
-DQpCcnVjZQ0KDQpIR1NUIEUtbWFpbCBDb25maWRlbnRpYWxpdHkgTm90aWNlICYgRGlzY2xhaW1l
-cjoKVGhpcyBlLW1haWwgYW5kIGFueSBmaWxlcyB0cmFuc21pdHRlZCB3aXRoIGl0IG1heSBjb250
-YWluIGNvbmZpZGVudGlhbCBvciBsZWdhbGx5IHByaXZpbGVnZWQgaW5mb3JtYXRpb24gb2YgSEdT
-VCBhbmQgYXJlIGludGVuZGVkIHNvbGVseSBmb3IgdGhlIHVzZSBvZiB0aGUgaW5kaXZpZHVhbCBv
-ciBlbnRpdHkgdG8gd2hpY2ggdGhleSBhcmUgYWRkcmVzc2VkLiBJZiB5b3UgYXJlIG5vdCB0aGUg
-aW50ZW5kZWQgcmVjaXBpZW50LCBhbnkgZGlzY2xvc3VyZSwgY29weWluZywgZGlzdHJpYnV0aW9u
-IG9yIGFueSBhY3Rpb24gdGFrZW4gb3Igb21pdHRlZCB0byBiZSB0YWtlbiBpbiByZWxpYW5jZSBv
-biBpdCwgaXMgcHJvaGliaXRlZC4gIElmIHlvdSBoYXZlIHJlY2VpdmVkIHRoaXMgZS1tYWlsIGlu
-IGVycm9yLCBwbGVhc2Ugbm90aWZ5IHRoZSBzZW5kZXIgaW1tZWRpYXRlbHkgYW5kIGRlbGV0ZSB0
-aGUgZS1tYWlsIGluIGl0cyBlbnRpcmV0eSBmcm9tIHlvdXIgc3lzdGVtLgo=
+On 01/22/2016 03:37 PM, Bruce Cran wrote:
+> On 1/22/16 3:25 PM, Jens Axboe wrote:
+>
+>> Added, thanks. Are we good on Windows now?
+>
+> I just verified both 32-bit and 64-bit builds, and both work with no
+> compiler warnings - so yes, Windows is good now.
+
+Perfect. I'll roll 2.6 sometime next week.
+
+-- 
+Jens Axboe
 
 
