@@ -1,38 +1,71 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-lb0-f173.google.com ([209.85.217.173]:34452 "EHLO
-	mail-lb0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754698AbcAHLPq (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 8 Jan 2016 06:15:46 -0500
-Received: by mail-lb0-f173.google.com with SMTP id cl12so5483027lbc.1
-        for <fio@vger.kernel.org>; Fri, 08 Jan 2016 03:15:45 -0800 (PST)
-MIME-Version: 1.0
-Date: Fri, 8 Jan 2016 12:15:44 +0100
-Message-ID: <CADr68WZJ0+r4M5WArqvRkHHTAj=uLg8bi8xmGr+mMJ=KamQ+UQ@mail.gmail.com>
-Subject: engine rbd broken after commit 2466096336bd0fbc1a94811aa338926af6baf42f
-From: Jens Rosenboom <j.rosenboom@x-ion.de>
-Content-Type: text/plain; charset=UTF-8
+Received: from bombadil.infradead.org ([198.137.202.9]:45429 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755729AbcAaNAE (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sun, 31 Jan 2016 08:00:04 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1aPrbo-0006zi-1V
+	for fio@vger.kernel.org; Sun, 31 Jan 2016 13:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160131130001.F1A202C0117@kernel.dk>
+Date: Sun, 31 Jan 2016 06:00:01 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-When running fio-2.3 with the rbd engine, the tests themselves run
-fine, but instead of the results being printed, I get:
+The following changes since commit a89c77abb152277ca3731f4766a7f377f0fc99df:
 
-fio: mutex.c:163: fio_mutex_down: Assertion `mutex->magic ==
-0x4d555445U' failed.
+  server: send trigger state inline (2016-01-28 13:41:18 -0700)
 
-The command I am using is
+are available in the git repository at:
 
-fio --ioengine=rbd --clientname=admin --pool=test --rbdname=test1
---rw=randwrite --runtime=10 --ramp_time=None --numjobs=1 --direct=1
---bs=1048576B --iodepth=64 --name=test1
+  git://git.kernel.dk/fio.git master
 
-If I instead use another engine, everything is fine, e.g.:
+for you to fetch changes up to 3bb85e8443d626ee71a4126dbe6ebcaf751527f1:
 
-fio --ioengine=libaio --filename=/dev/sdb1 --rw=randwrite --runtime=10
---ramp_time=None --numjobs=1 --direct=1 --bs=1048576B --iodepth=64
---name=test1
+  Add a note of what is the default value for random_generator (2016-01-30 22:03:39 -0700)
 
-Going back to fio-2.2.13 makes the error go away and running a git
-bisect leads to the commit mentioned in the subject as the culprit,
-the error turns into a Segmentation Fault at that point, though.
+----------------------------------------------------------------
+Jens Axboe (1):
+      Add a note of what is the default value for random_generator
+
+ HOWTO | 4 +++-
+ fio.1 | 4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/HOWTO b/HOWTO
+index 7c24c1b..4a910a1 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -1013,7 +1013,9 @@ random_generator=str	Fio supports the following engines for generating
+ 		typically good enough. LFSR only works with single
+ 		block sizes, not with workloads that use multiple block
+ 		sizes. If used with such a workload, fio may read or write
+-		some blocks multiple times.
++		some blocks multiple times. The default value is tausworthe,
++		unless the required space exceeds 2^32 blocks. If it does,
++		then tausworthe64 is selected automatically.
+ 
+ nice=int	Run the job with the given nice value. See man nice(2).
+ 
+diff --git a/fio.1 b/fio.1
+index 7bdfea3..6cc6379 100644
+--- a/fio.1
++++ b/fio.1
+@@ -920,7 +920,9 @@ guarantees that we never generate the same offset twice, and it's also less
+ computationally expensive. It's not a true random generator, however, though
+ for IO purposes it's typically good enough. LFSR only works with single block
+ sizes, not with workloads that use multiple block sizes. If used with such a
+-workload, fio may read or write some blocks multiple times.
++workload, fio may read or write some blocks multiple times. The default
++value is tausworthe, unless the required space exceeds 2^32 blocks. If it does,
++then tausworthe64 is selected automatically.
+ .TP
+ .BI nice \fR=\fPint
+ Run job with given nice value.  See \fBnice\fR\|(2).
