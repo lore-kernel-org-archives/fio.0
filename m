@@ -1,30 +1,35 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx5-phx2.redhat.com ([209.132.183.37]:35136 "EHLO
-	mx5-phx2.redhat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751204AbcBLQXA (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 12 Feb 2016 11:23:00 -0500
-Received: from zmail24.collab.prod.int.phx2.redhat.com (zmail24.collab.prod.int.phx2.redhat.com [10.5.83.30])
-	by mx5-phx2.redhat.com (8.14.4/8.14.4) with ESMTP id u1CGN0w3025447
-	for <fio@vger.kernel.org>; Fri, 12 Feb 2016 11:23:00 -0500
-Date: Fri, 12 Feb 2016 11:23:00 -0500 (EST)
-From: Erwan Velu <evelu@redhat.com>
-Message-ID: <1499154031.27756078.1455294180577.JavaMail.zimbra@redhat.com>
-Subject: Logging completed IOs only
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] fio: fix ignore_error regression
+References: <20160203232302.GA4500@localhost.localdomain>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <56B29464.5060501@kernel.dk>
+Date: Wed, 3 Feb 2016 16:59:32 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20160203232302.GA4500@localhost.localdomain>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Eric Whitney <enwlinux@gmail.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Hey,
+On 02/03/2016 04:23 PM, Eric Whitney wrote:
+> Commit e9d512d8e7d2 introduced a regression affecting handling for
+> the ignore_error parameter.  The common code for io_u event handling
+> pulled from do_io() and do_verify() into io_queue_event() does not
+> check for and process errors that are to be ignored in the main I/O
+> path as I/Os are completed.  Prior to that commit, do_io() called
+> break_on_this_error() to handle that case.
+>
+> The change causes fio to return a non-zero exit status after
+> encountering an error it should ignore while performing I/O, even
+> though the job does run to completion. This regression causes
+> failures for some fstests that use fio, including ext4/302, ext4/303,
+> and generic/300.
+>
+> This patch restores the original error handling behavior.
 
-I was exchanging on the possibility to use fio to perform write test to a device and then check how does the device handled the power failure.
-I thought about using the verify options of it but I was shown that write_iolog does only log IOs that were sent to the device but not the one actually completed.
+Thanks Eric, good catch! Applied.
 
-What do you think about adding an option not to log the IO that were sent but completed ?
+-- 
+Jens Axboe
 
-That way it would be possible to track what was actually done at the time the log was written.
 
-Cheers,
-Erwan
