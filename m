@@ -1,98 +1,41 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:60297 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760089AbcBYNAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 25 Feb 2016 08:00:05 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.85 #2 (Red Hat Linux))
-	id 1aYvWW-0003ge-3p
-	for fio@vger.kernel.org; Thu, 25 Feb 2016 13:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160225130001.72E282C1369@kernel.dk>
-Date: Thu, 25 Feb 2016 06:00:01 -0700 (MST)
+Received: from mail-wm0-f47.google.com ([74.125.82.47]:36292 "EHLO
+	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932719AbcBIW1P (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 9 Feb 2016 17:27:15 -0500
+Received: by mail-wm0-f47.google.com with SMTP id p63so3875320wmp.1
+        for <fio@vger.kernel.org>; Tue, 09 Feb 2016 14:27:14 -0800 (PST)
+From: =?UTF-8?Q?Michal_=c5=a0mucr?= <msmucr@gmail.com>
+Subject: missing waitpid() and server functionality at Windows
+Message-ID: <56BA67C0.1030603@gmail.com>
+Date: Tue, 9 Feb 2016 23:27:12 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: fio@vger.kernel.org, bruce@cran.org.uk
 
-The following changes since commit c0821a08db2fd3e37e16db73c3c4c9c7ff601e88:
+Hello,
 
-  Allow for the include file specification to be relative. (2016-02-13 12:31:00 -0700)
+previously I've used fio mainly at Linux and OS X, so I didn't have any 
+issues with fio in server mode. Now I'm trying to simulate workload to 
+shared storage for Windows clients and this functionality with remote 
+control of fio instances running at Windows machines will be very handy.
+Unfortunately it isn't possible to use it that way, because of missing 
+waitpid() syscall implementation and forking in MinGw builds for Windows.
 
-are available in the git repository at:
+I've stumbled upon at some messages posted 2y ago, where Bruce explained it.
+http://www.spinics.net/lists/fio/msg02565.html
 
-  git://git.kernel.dk/fio.git master
+I don't know, if I got it correctly, but can be a build with Cygwin 
+toolchain possible workaround for this issue?
+I've tried to compile current fio with Cygwin (so no MinGw toolchain) 
+and compiler variables override, but failed badly.. It doesn't even pass 
+through crc/test.c with lot of messed definitions. Is it currently 
+possible to build with it or MinGW is currently only way for Windows 
+compilation of fio?
 
-for you to fetch changes up to a6cb85e25b31553aab043fe763ce4c999197dcff:
+Kind regards,
 
-  Allow IO engine driven allocations of IO structures (2016-02-24 16:29:08 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Allow IO engine driven allocations of IO structures
-
- ioengine.h |  4 +++-
- memory.c   | 17 +++++++++++++++--
- 2 files changed, 18 insertions(+), 3 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/ioengine.h b/ioengine.h
-index 6734c7b..161acf5 100644
---- a/ioengine.h
-+++ b/ioengine.h
-@@ -16,7 +16,7 @@
- #include <guasi.h>
- #endif
- 
--#define FIO_IOOPS_VERSION	22
-+#define FIO_IOOPS_VERSION	23
- 
- enum {
- 	IO_U_F_FREE		= 1 << 0,
-@@ -157,6 +157,8 @@ struct ioengine_ops {
- 	int (*unlink_file)(struct thread_data *, struct fio_file *);
- 	int (*get_file_size)(struct thread_data *, struct fio_file *);
- 	void (*terminate)(struct thread_data *);
-+	int (*iomem_alloc)(struct thread_data *, size_t);
-+	void (*iomem_free)(struct thread_data *);
- 	int (*io_u_init)(struct thread_data *, struct io_u *);
- 	void (*io_u_free)(struct thread_data *, struct io_u *);
- 	int option_struct_size;
-diff --git a/memory.c b/memory.c
-index 5060223..c04d7df 100644
---- a/memory.c
-+++ b/memory.c
-@@ -229,7 +229,17 @@ int allocate_io_mem(struct thread_data *td)
- 
- 	dprint(FD_MEM, "Alloc %llu for buffers\n", (unsigned long long) total_mem);
- 
--	if (td->o.mem_type == MEM_MALLOC)
-+	/*
-+	 * If the IO engine has hooks to allocate/free memory, use those. But
-+	 * error out if the user explicitly asked for something else.
-+	 */
-+	if (td->io_ops->iomem_alloc) {
-+		if (fio_option_is_set(&td->o, mem_type)) {
-+			log_err("fio: option 'mem/iomem' conflicts with specified IO engine\n");
-+			ret = 1;
-+		} else
-+			ret = td->io_ops->iomem_alloc(td, total_mem);
-+	} else if (td->o.mem_type == MEM_MALLOC)
- 		ret = alloc_mem_malloc(td, total_mem);
- 	else if (td->o.mem_type == MEM_SHM || td->o.mem_type == MEM_SHMHUGE)
- 		ret = alloc_mem_shm(td, total_mem);
-@@ -255,7 +265,10 @@ void free_io_mem(struct thread_data *td)
- 	if (td->o.odirect || td->o.oatomic)
- 		total_mem += page_mask;
- 
--	if (td->o.mem_type == MEM_MALLOC)
-+	if (td->io_ops->iomem_alloc) {
-+		if (td->io_ops->iomem_free)
-+			td->io_ops->iomem_free(td);
-+	} else if (td->o.mem_type == MEM_MALLOC)
- 		free_mem_malloc(td);
- 	else if (td->o.mem_type == MEM_SHM || td->o.mem_type == MEM_SHMHUGE)
- 		free_mem_shm(td);
+Michal
