@@ -1,154 +1,141 @@
-Return-Path: <sitsofe@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-lf0-f45.google.com ([209.85.215.45]:36768 "EHLO
+	mail-lf0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750725AbcBKJyn (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 11 Feb 2016 04:54:43 -0500
+Received: by mail-lf0-f45.google.com with SMTP id 78so28113598lfy.3
+        for <fio@vger.kernel.org>; Thu, 11 Feb 2016 01:54:42 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CADr68Wb=o+wQFqubNb5rnzdcrCX+-Wzf8m-X7B-JmYi5VKC3XQ@mail.gmail.com>
+In-Reply-To: <CALjAwxg3Y2a+ahW6apM2dw5HfZ4+F13cPL92iW7atypFnEMa_w@mail.gmail.com>
 References: <CADr68WaBX2_Z9+dfScoLb62Td+sUWsuCS0F2q1L9JgYBP+m9rA@mail.gmail.com>
 	<CALjAwxg3Y2a+ahW6apM2dw5HfZ4+F13cPL92iW7atypFnEMa_w@mail.gmail.com>
-	<CADr68Wb=o+wQFqubNb5rnzdcrCX+-Wzf8m-X7B-JmYi5VKC3XQ@mail.gmail.com>
-Date: Fri, 12 Feb 2016 06:59:15 +0000
-Message-ID: <CALjAwxgRkz0PYAuCoM1qnmSDRB5+VSHPhR2KJSF80qzGi+NqoQ@mail.gmail.com>
+Date: Thu, 11 Feb 2016 10:54:41 +0100
+Message-ID: <CADr68Wb=o+wQFqubNb5rnzdcrCX+-Wzf8m-X7B-JmYi5VKC3XQ@mail.gmail.com>
 Subject: Re: Small writes being split with fdatasync based on non-aligned
  partition ending
-From: Sitsofe Wheeler <sitsofe@gmail.com>
+From: Jens Rosenboom <j.rosenboom@x-ion.de>
 Content-Type: text/plain; charset=UTF-8
-To: Jens Rosenboom <j.rosenboom@x-ion.de>
-Cc: Fio <fio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, parted-devel@lists.alioth.debian.org, linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: Fio <fio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, parted-devel@lists.alioth.debian.org, linux-block@vger.kernel.org
 
-CC'ing Jens Axboe.
-
-On 11 February 2016 at 09:54, Jens Rosenboom <j.rosenboom@x-ion.de> wrote:
-> 2016-02-11 4:48 GMT+01:00 Sitsofe Wheeler <sitsofe@gmail.com>:
->> Trying to cc the GNU parted and linux-block mailing lists.
+2016-02-11 4:48 GMT+01:00 Sitsofe Wheeler <sitsofe@gmail.com>:
+> Trying to cc the GNU parted and linux-block mailing lists.
+>
+> On 9 February 2016 at 13:02, Jens Rosenboom <j.rosenboom@x-ion.de> wrote:
+>> While trying to reproduce some performance issues I have been seeing
+>> with Ceph, I have come across a strange behaviour which is seemingly
+>> affected only by the end point (and thereby the size) of a partition
+>> being an odd number of sectors. Since all documentation about
+>> alignment only refers to the starting point of the partition, this was
+>> pretty surprising and I would like to know whether this is expected
+>> behaviour or maybe a kernel issue.
 >>
->> On 9 February 2016 at 13:02, Jens Rosenboom <j.rosenboom@x-ion.de> wrote:
->>> While trying to reproduce some performance issues I have been seeing
->>> with Ceph, I have come across a strange behaviour which is seemingly
->>> affected only by the end point (and thereby the size) of a partition
->>> being an odd number of sectors. Since all documentation about
->>> alignment only refers to the starting point of the partition, this was
->>> pretty surprising and I would like to know whether this is expected
->>> behaviour or maybe a kernel issue.
->>>
->>> The command I am using is pretty simple:
->>>
->>> fio --rw=randwrite --size=1G --fdatasync=1 --bs=4k
->>> --filename=/dev/sdb2 --runtime=10 --name=test
->>>
->>> The difference shows itself when the partition is created either by
->>> sgdisk or by parted:
->>>
->>> sgdisk --new=2:6000M: /dev/sdb
->>>
->>> parted -s /dev/sdb mkpart osd-device-1-block 6291456000B 100%
->>>
->>> The difference in the partition table looks like this:
->>>
->>> <  2      6291456000B  1600320962559B  1594029506560B
->>> osd-device-1-block
->>> ---
->>>>  2      6291456000B  1600321297919B  1594029841920B               osd-device-1-block
+>> The command I am using is pretty simple:
 >>
->> Looks like parted took you at your word when you asked for your
->> partition at 100%. Just out of curiosity if you try and make the same
->> partition interactively with parted do you get any warnings after
->> making and after running align-check ?
->
-> No warnings and everything fine for align-check. I found out that I
-> can get the same effect if I step the partition ending manually in
-> parted in 1s increments. The sequence of write sizes is 8, 1, 2, 1, 4,
-> 1, 2, 1, 8, ... which corresponds to the size (unit s) of the
-> resulting partion mod 8.
-
-OK. Could you add the output of
-grep . /sys/block/nvme0n1/queue/*size
-sgdisk -D /dev/sdb
-and could you post the information about the whole partition table.
-Does sgdisk create a similar problem ending if you use
-sgdisk --new=2:0 /dev/sdb
-? It seems strange that the end of the disk (and thus a 100% sized
-partition) wouldn't end on a multiple of 4k...
-
->>> So this is really only the end of the partition that is different.
->>> However, in the first case, the 4k writes all get broken up into 512b
->>> writes somewhere in the kernel, as can be seen with btrace:
->>>
->>>   8,16   3       36     0.000102666  8184  A  WS 12353985 + 1 <- (8,18) 65985
->>>   8,16   3       37     0.000102739  8184  Q  WS 12353985 + 1 [fio]
->>>   8,16   3       38     0.000102875  8184  M  WS 12353985 + 1 [fio]
->>>   8,16   3       39     0.000103038  8184  A  WS 12353986 + 1 <- (8,18) 65986
->>>   8,16   3       40     0.000103109  8184  Q  WS 12353986 + 1 [fio]
->>>   8,16   3       41     0.000103196  8184  M  WS 12353986 + 1 [fio]
->>>   8,16   3       42     0.000103335  8184  A  WS 12353987 + 1 <- (8,18) 65987
->>>   8,16   3       43     0.000103403  8184  Q  WS 12353987 + 1 [fio]
->>>   8,16   3       44     0.000103489  8184  M  WS 12353987 + 1 [fio]
->>>   8,16   3       45     0.000103609  8184  A  WS 12353988 + 1 <- (8,18) 65988
->>>   8,16   3       46     0.000103678  8184  Q  WS 12353988 + 1 [fio]
->>>   8,16   3       47     0.000103767  8184  M  WS 12353988 + 1 [fio]
->>>   8,16   3       48     0.000103879  8184  A  WS 12353989 + 1 <- (8,18) 65989
->>>   8,16   3       49     0.000103947  8184  Q  WS 12353989 + 1 [fio]
->>>   8,16   3       50     0.000104035  8184  M  WS 12353989 + 1 [fio]
->>>   8,16   3       51     0.000104150  8184  A  WS 12353990 + 1 <- (8,18) 65990
->>>   8,16   3       52     0.000104219  8184  Q  WS 12353990 + 1 [fio]
->>>   8,16   3       53     0.000104307  8184  M  WS 12353990 + 1 [fio]
->>>   8,16   3       54     0.000104452  8184  A  WS 12353991 + 1 <- (8,18) 65991
->>>   8,16   3       55     0.000104520  8184  Q  WS 12353991 + 1 [fio]
->>>   8,16   3       56     0.000104609  8184  M  WS 12353991 + 1 [fio]
->>>   8,16   3       57     0.000104885  8184  I  WS 12353984 + 8 [fio]
->>>
->>> whereas in the second case, I'm getting the expected 4k writes:
->>>
->>>   8,16   6       42 1266874889.659842036  8409  A  WS 12340232 + 8 <-
->>> (8,18) 52232
->>>   8,16   6       43 1266874889.659842167  8409  Q  WS 12340232 + 8 [fio]
->>>   8,16   6       44 1266874889.659842393  8409  G  WS 12340232 + 8 [fio]
+>> fio --rw=randwrite --size=1G --fdatasync=1 --bs=4k
+>> --filename=/dev/sdb2 --runtime=10 --name=test
 >>
->> This is weird because --size=1G should mean that fio is "seeing" an
->> aligned end. Does direct=1 with a sequential job of iodepth=1 show the
->> problem too?
->
-> IIUC fio uses the size only to find out where to write to, it opens
-> the block device and passes the resulting fd to the fdatasync call, so
-> the kernel will not know about what size fio thinks the device has. In
-> fact, the effect is the same without the size=1G option, I used it
-> just to make sure that the writes do not go anywhere near the badly
-> aligned partition ending.
->
-> direct=1 kills the effect, i.e. all writes will be 4k size again.
-> Astonishingly though, sequential writes also are affected, i.e.
-> changing to rw=write in my sample above behaves the same as randwrite.
-
-Do you get this style of behaviour without fdatasync (or with larger
-values of fdatasync) too?
-
->>> The above examples are from running with an SSD, where the small
->>> writes get merged together again before hitting the block device,
->>> which is still pretty o.k. performance wise. But when I run the same
->>> test on some NVMe device, the writes do not get merged, instead the
->>> performance drops to less then 10% of what I get in the second case.
+>> The difference shows itself when the partition is created either by
+>> sgdisk or by parted:
 >>
->> Perhaps the ioscheduler doesn't have the opportunity with the NVMe device...
->
-> Yes, there is no scheduler available in this case:
->
-> $ cat /sys/block/nvme0n1/queue/scheduler
-> none
->
-> This is just to show that the argument "Don't bother, the writes get
-> merged back together anyway" doesn't hold true in all cases.
->
->>> If this is indeed expected behaviour from the kernel pov, it might
->>> need some better documentation and probably sgdisk should also be
->>> enhanced to align the end of the partition as well. FWIW, this happens
->>> on a stock 4.4.0 kernel as well as recent Ubuntu and CentOS kernels.
+>> sgdisk --new=2:6000M: /dev/sdb
 >>
->> Do you mean parted?
+>> parted -s /dev/sdb mkpart osd-device-1-block 6291456000B 100%
+>>
+>> The difference in the partition table looks like this:
+>>
+>> <  2      6291456000B  1600320962559B  1594029506560B
+>> osd-device-1-block
+>> ---
+>>>  2      6291456000B  1600321297919B  1594029841920B               osd-device-1-block
 >
-> No, as I am currently assuming that the issue is caused by some effect
-> happening inside the kernel during the fdatasync call, there was the
-> idea that only certain kernels might be affected. But I don't have a
-> clue yet how for back I would have to go in order to find a kernel
-> that behaves differently.
+> Looks like parted took you at your word when you asked for your
+> partition at 100%. Just out of curiosity if you try and make the same
+> partition interactively with parted do you get any warnings after
+> making and after running align-check ?
 
--- 
-Sitsofe | http://sucs.org/~sits/
+No warnings and everything fine for align-check. I found out that I
+can get the same effect if I step the partition ending manually in
+parted in 1s increments. The sequence of write sizes is 8, 1, 2, 1, 4,
+1, 2, 1, 8, ... which corresponds to the size (unit s) of the
+resulting partion mod 8.
 
+>> So this is really only the end of the partition that is different.
+>> However, in the first case, the 4k writes all get broken up into 512b
+>> writes somewhere in the kernel, as can be seen with btrace:
+>>
+>>   8,16   3       36     0.000102666  8184  A  WS 12353985 + 1 <- (8,18) 65985
+>>   8,16   3       37     0.000102739  8184  Q  WS 12353985 + 1 [fio]
+>>   8,16   3       38     0.000102875  8184  M  WS 12353985 + 1 [fio]
+>>   8,16   3       39     0.000103038  8184  A  WS 12353986 + 1 <- (8,18) 65986
+>>   8,16   3       40     0.000103109  8184  Q  WS 12353986 + 1 [fio]
+>>   8,16   3       41     0.000103196  8184  M  WS 12353986 + 1 [fio]
+>>   8,16   3       42     0.000103335  8184  A  WS 12353987 + 1 <- (8,18) 65987
+>>   8,16   3       43     0.000103403  8184  Q  WS 12353987 + 1 [fio]
+>>   8,16   3       44     0.000103489  8184  M  WS 12353987 + 1 [fio]
+>>   8,16   3       45     0.000103609  8184  A  WS 12353988 + 1 <- (8,18) 65988
+>>   8,16   3       46     0.000103678  8184  Q  WS 12353988 + 1 [fio]
+>>   8,16   3       47     0.000103767  8184  M  WS 12353988 + 1 [fio]
+>>   8,16   3       48     0.000103879  8184  A  WS 12353989 + 1 <- (8,18) 65989
+>>   8,16   3       49     0.000103947  8184  Q  WS 12353989 + 1 [fio]
+>>   8,16   3       50     0.000104035  8184  M  WS 12353989 + 1 [fio]
+>>   8,16   3       51     0.000104150  8184  A  WS 12353990 + 1 <- (8,18) 65990
+>>   8,16   3       52     0.000104219  8184  Q  WS 12353990 + 1 [fio]
+>>   8,16   3       53     0.000104307  8184  M  WS 12353990 + 1 [fio]
+>>   8,16   3       54     0.000104452  8184  A  WS 12353991 + 1 <- (8,18) 65991
+>>   8,16   3       55     0.000104520  8184  Q  WS 12353991 + 1 [fio]
+>>   8,16   3       56     0.000104609  8184  M  WS 12353991 + 1 [fio]
+>>   8,16   3       57     0.000104885  8184  I  WS 12353984 + 8 [fio]
+>>
+>> whereas in the second case, I'm getting the expected 4k writes:
+>>
+>>   8,16   6       42 1266874889.659842036  8409  A  WS 12340232 + 8 <-
+>> (8,18) 52232
+>>   8,16   6       43 1266874889.659842167  8409  Q  WS 12340232 + 8 [fio]
+>>   8,16   6       44 1266874889.659842393  8409  G  WS 12340232 + 8 [fio]
+>
+> This is weird because --size=1G should mean that fio is "seeing" an
+> aligned end. Does direct=1 with a sequential job of iodepth=1 show the
+> problem too?
+
+IIUC fio uses the size only to find out where to write to, it opens
+the block device and passes the resulting fd to the fdatasync call, so
+the kernel will not know about what size fio thinks the device has. In
+fact, the effect is the same without the size=1G option, I used it
+just to make sure that the writes do not go anywhere near the badly
+aligned partition ending.
+
+direct=1 kills the effect, i.e. all writes will be 4k size again.
+Astonishingly though, sequential writes also are affected, i.e.
+changing to rw=write in my sample above behaves the same as randwrite.
+
+>> The above examples are from running with an SSD, where the small
+>> writes get merged together again before hitting the block device,
+>> which is still pretty o.k. performance wise. But when I run the same
+>> test on some NVMe device, the writes do not get merged, instead the
+>> performance drops to less then 10% of what I get in the second case.
+>
+> Perhaps the ioscheduler doesn't have the opportunity with the NVMe device...
+
+Yes, there is no scheduler available in this case:
+
+$ cat /sys/block/nvme0n1/queue/scheduler
+none
+
+This is just to show that the argument "Don't bother, the writes get
+merged back together anyway" doesn't hold true in all cases.
+
+>> If this is indeed expected behaviour from the kernel pov, it might
+>> need some better documentation and probably sgdisk should also be
+>> enhanced to align the end of the partition as well. FWIW, this happens
+>> on a stock 4.4.0 kernel as well as recent Ubuntu and CentOS kernels.
+>
+> Do you mean parted?
+
+No, as I am currently assuming that the issue is caused by some effect
+happening inside the kernel during the fdatasync call, there was the
+idea that only certain kernels might be affected. But I don't have a
+clue yet how for back I would have to go in order to find a kernel
+that behaves differently.
