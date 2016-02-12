@@ -1,251 +1,118 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx142.netapp.com ([216.240.21.19]:63533 "EHLO mx142.netapp.com"
+Received: from mail.cs.umn.edu ([128.101.32.201]:51381 "EHLO mail.cs.umn.edu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751792AbcAEQg4 convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Tue, 5 Jan 2016 11:36:56 -0500
-From: neto from Brazil <Antonio.Jose.Rodrigues.Neto@netapp.com>
-Subject: AIX 7.1 - Makefile - make: 1254-055 Dependency line needs colon or
- double colon operator.
-Date: Tue, 5 Jan 2016 16:36:54 +0000
-Message-ID: <D2B15B56.19DAE%Antonio.Jose.Rodrigues.Neto@netapp.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <D03E81D5EAFABA449525D5A54866285C@hq.netapp.com>
-Content-Transfer-Encoding: 8BIT
+	id S1751783AbcBLRBd (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 12 Feb 2016 12:01:33 -0500
+Received: from localhost (enchanter.cs.umn.edu [160.94.22.228])
+	by mail.cs.umn.edu (Postfix) with ESMTP id 2B7FC3E7F74
+	for <fio@vger.kernel.org>; Fri, 12 Feb 2016 11:01:33 -0600 (CST)
+Received: from mail.cs.umn.edu ([128.101.32.201])
+	by localhost (enchanter.cs.umn.edu [160.94.22.228]) (amavisd-new, port 10024)
+	with ESMTP id Kx50iieeglRm for <fio@vger.kernel.org>;
+	Fri, 12 Feb 2016 11:01:32 -0600 (CST)
+Received: from mail-io0-f179.google.com (mail-io0-f179.google.com [209.85.223.179])
+	by mail.cs.umn.edu (Postfix) with ESMTPSA id 51A8A3E7F67
+	for <fio@vger.kernel.org>; Fri, 12 Feb 2016 11:01:31 -0600 (CST)
+Received: by mail-io0-f179.google.com with SMTP id l127so97318895iof.3
+        for <fio@vger.kernel.org>; Fri, 12 Feb 2016 09:01:31 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <D2DFB645.1D3AB%Antonio.Jose.Rodrigues.Neto@netapp.com>
+References: <D2D93BA8.1CCD9%Antonio.Jose.Rodrigues.Neto@netapp.com> <D2DFB645.1D3AB%Antonio.Jose.Rodrigues.Neto@netapp.com>
+From: Alireza Haghdoost <alireza@cs.umn.edu>
+Date: Fri, 12 Feb 2016 11:00:51 -0600
+Message-ID: <CAB-428kPtVR5y3vgST_LkEqZKhdj5rYLAX72GK=+PfnoJzF=Ew@mail.gmail.com>
+Subject: Re: FIO and replay_redirect
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: neto from Brazil <Antonio.Jose.Rodrigues.Neto@netapp.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi All,
+Neto,
 
-This is neto from Brazil
+Once again, I would recommend you to use blkreplay instead of fio. You
+can control the compressibility ratio in blkreplay using fill_random
+parameter.
 
-How are you?
+--Alireza
 
-First, Happy New Year 2016 to all of you.
-
-AIX 7.1 :-)
-
-./configure works great
-
-But when I do make:
-
-# make
-"Makefile", line 3: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 7: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 13: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 15: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 18: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 21: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 31: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 33: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 35: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 37: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 50: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 55: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 57: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 59: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 60: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 62: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 63: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 65: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 66: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 68: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 69: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 71: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 72: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 74: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 75: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 77: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 78: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 80: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 81: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 83: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 84: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 86: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 87: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 89: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 90: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 92: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 93: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 95: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 96: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 98: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 99: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 101: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 102: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 104: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 105: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 107: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 108: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 110: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 111: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 113: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 114: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 118: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 120: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 121: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 122: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 126: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 128: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 133: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 134: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 139: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 140: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 143: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 144: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 147: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 148: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 151: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 152: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 155: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 156: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 159: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 160: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 164: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 165: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 168: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 169: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 171: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 172: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 177: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 186: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 189: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 191: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 214: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 218: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 234: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 239: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 251: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 252: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 258: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 259: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 261: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 263: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 265: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 269: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 272: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 275: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 284: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 286: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 298: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 300: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 302: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 304: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 325: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 385: make: 1254-055 Dependency line needs colon or double
-colon operator.
-"Makefile", line 388: make: 1254-055 Dependency line needs colon or double
-colon operator.
-make: 1254-058 Fatal errors encountered -- cannot continue.
-
-Any ideas how to fix it?
-
-
-Thanks
-
-neto
-
+On Tue, Feb 9, 2016 at 2:29 PM, neto from Brazil
+<Antonio.Jose.Rodrigues.Neto@netapp.com> wrote:
+>
+>>Hi All,
+>>
+>>This is neto from Brazil
+>>
+>>How are you?
+>>
+>>I have captured a blktrace from an Oracle workload. 18 dm devices.
+>>
+>>Steps to capture:
+>>
+>>blktrace <device 0> <device 1> ... -w 40
+>>blkparse -i <device 0> -i <device 1> ... -o /dev/null -d oracle_trace.out
+>>
+>>Trying to replay with FIO (here I have 2 devices - /dev/sdh and /dev/sdi)
+>>
+>>Testing with one device:
+>>
+>>[workload]
+>>ioengine=libaio
+>>iodepth=1
+>>size=100g
+>>numjobs=1
+>>direct=1
+>>thread
+>>read_iolog=/root/traces/oracle-s144/oracle_trace.out
+>>replay_no_stall=1
+>>replay_redirect=/dev/sdh
+>>
+>>[root@oraperf1 fio]# ./fio oracle-replay.cfg
+>>workload: (g=0): rw=read, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=1
+>>fio-2.2.9-26-g669e
+>>Starting 1 thread
+>>fio: ioengines.c:422: td_io_open_file: Assertion `!fio_file_open(f)'
+>>failed.
+>>Aborted (core dumped)
+>>
+>>
+>>
+>>
+>>
+>>Questions:
+>>
+>>1) The workload that I capture, all DM devices have 200GB size. My devices
+>>where I want to replay have 100GB. I believe I will need to match the size
+>>of all disks (where I captured the workload) with the destination where I
+>>am going to replay. For example: If I capture a workload with 18 LUNs
+>>200GB, to replay I need to have 18 LUNs with 200GB minimum.
+>>
+>>2) I need to replay to more than one device. How can I do that with fio?
+>>Seems to me replay_redirect is for a single specified device.
+>>
+>>3) Any help why I am getting that error? fio: ioengines.c:422:
+>>td_io_open_file: Assertion `!fio_file_open(f)' failed.
+>>
+>>Thank you very much for all help.
+>>
+>>All the best
+>>
+>>Neto
+>
+>
+> Hi All,
+>
+> This is neto from Brazil
+>
+> How are you?
+>
+> Any suggestions here?
+>
+> Thank you,
+>
+> neto
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
