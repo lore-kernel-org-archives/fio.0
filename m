@@ -1,269 +1,154 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:36810 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751999AbcBENAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 5 Feb 2016 08:00:05 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.85 #2 (Red Hat Linux))
-	id 1aRfzY-0005Qs-7l
-	for fio@vger.kernel.org; Fri, 05 Feb 2016 13:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160205130001.B3F142C2155@kernel.dk>
-Date: Fri,  5 Feb 2016 06:00:01 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <sitsofe@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <CADr68Wb=o+wQFqubNb5rnzdcrCX+-Wzf8m-X7B-JmYi5VKC3XQ@mail.gmail.com>
+References: <CADr68WaBX2_Z9+dfScoLb62Td+sUWsuCS0F2q1L9JgYBP+m9rA@mail.gmail.com>
+	<CALjAwxg3Y2a+ahW6apM2dw5HfZ4+F13cPL92iW7atypFnEMa_w@mail.gmail.com>
+	<CADr68Wb=o+wQFqubNb5rnzdcrCX+-Wzf8m-X7B-JmYi5VKC3XQ@mail.gmail.com>
+Date: Fri, 12 Feb 2016 06:59:15 +0000
+Message-ID: <CALjAwxgRkz0PYAuCoM1qnmSDRB5+VSHPhR2KJSF80qzGi+NqoQ@mail.gmail.com>
+Subject: Re: Small writes being split with fdatasync based on non-aligned
+ partition ending
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+To: Jens Rosenboom <j.rosenboom@x-ion.de>
+Cc: Fio <fio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, parted-devel@lists.alioth.debian.org, linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit d96d3bb34689d0290174134e5a4770056dd4f980:
+CC'ing Jens Axboe.
 
-  stat: cleanup average logging (2016-02-03 21:10:33 -0700)
+On 11 February 2016 at 09:54, Jens Rosenboom <j.rosenboom@x-ion.de> wrote:
+> 2016-02-11 4:48 GMT+01:00 Sitsofe Wheeler <sitsofe@gmail.com>:
+>> Trying to cc the GNU parted and linux-block mailing lists.
+>>
+>> On 9 February 2016 at 13:02, Jens Rosenboom <j.rosenboom@x-ion.de> wrote:
+>>> While trying to reproduce some performance issues I have been seeing
+>>> with Ceph, I have come across a strange behaviour which is seemingly
+>>> affected only by the end point (and thereby the size) of a partition
+>>> being an odd number of sectors. Since all documentation about
+>>> alignment only refers to the starting point of the partition, this was
+>>> pretty surprising and I would like to know whether this is expected
+>>> behaviour or maybe a kernel issue.
+>>>
+>>> The command I am using is pretty simple:
+>>>
+>>> fio --rw=randwrite --size=1G --fdatasync=1 --bs=4k
+>>> --filename=/dev/sdb2 --runtime=10 --name=test
+>>>
+>>> The difference shows itself when the partition is created either by
+>>> sgdisk or by parted:
+>>>
+>>> sgdisk --new=2:6000M: /dev/sdb
+>>>
+>>> parted -s /dev/sdb mkpart osd-device-1-block 6291456000B 100%
+>>>
+>>> The difference in the partition table looks like this:
+>>>
+>>> <  2      6291456000B  1600320962559B  1594029506560B
+>>> osd-device-1-block
+>>> ---
+>>>>  2      6291456000B  1600321297919B  1594029841920B               osd-device-1-block
+>>
+>> Looks like parted took you at your word when you asked for your
+>> partition at 100%. Just out of curiosity if you try and make the same
+>> partition interactively with parted do you get any warnings after
+>> making and after running align-check ?
+>
+> No warnings and everything fine for align-check. I found out that I
+> can get the same effect if I step the partition ending manually in
+> parted in 1s increments. The sequence of write sizes is 8, 1, 2, 1, 4,
+> 1, 2, 1, 8, ... which corresponds to the size (unit s) of the
+> resulting partion mod 8.
 
-are available in the git repository at:
+OK. Could you add the output of
+grep . /sys/block/nvme0n1/queue/*size
+sgdisk -D /dev/sdb
+and could you post the information about the whole partition table.
+Does sgdisk create a similar problem ending if you use
+sgdisk --new=2:0 /dev/sdb
+? It seems strange that the end of the disk (and thus a 100% sized
+partition) wouldn't end on a multiple of 4k...
 
-  git://git.kernel.dk/fio.git master
+>>> So this is really only the end of the partition that is different.
+>>> However, in the first case, the 4k writes all get broken up into 512b
+>>> writes somewhere in the kernel, as can be seen with btrace:
+>>>
+>>>   8,16   3       36     0.000102666  8184  A  WS 12353985 + 1 <- (8,18) 65985
+>>>   8,16   3       37     0.000102739  8184  Q  WS 12353985 + 1 [fio]
+>>>   8,16   3       38     0.000102875  8184  M  WS 12353985 + 1 [fio]
+>>>   8,16   3       39     0.000103038  8184  A  WS 12353986 + 1 <- (8,18) 65986
+>>>   8,16   3       40     0.000103109  8184  Q  WS 12353986 + 1 [fio]
+>>>   8,16   3       41     0.000103196  8184  M  WS 12353986 + 1 [fio]
+>>>   8,16   3       42     0.000103335  8184  A  WS 12353987 + 1 <- (8,18) 65987
+>>>   8,16   3       43     0.000103403  8184  Q  WS 12353987 + 1 [fio]
+>>>   8,16   3       44     0.000103489  8184  M  WS 12353987 + 1 [fio]
+>>>   8,16   3       45     0.000103609  8184  A  WS 12353988 + 1 <- (8,18) 65988
+>>>   8,16   3       46     0.000103678  8184  Q  WS 12353988 + 1 [fio]
+>>>   8,16   3       47     0.000103767  8184  M  WS 12353988 + 1 [fio]
+>>>   8,16   3       48     0.000103879  8184  A  WS 12353989 + 1 <- (8,18) 65989
+>>>   8,16   3       49     0.000103947  8184  Q  WS 12353989 + 1 [fio]
+>>>   8,16   3       50     0.000104035  8184  M  WS 12353989 + 1 [fio]
+>>>   8,16   3       51     0.000104150  8184  A  WS 12353990 + 1 <- (8,18) 65990
+>>>   8,16   3       52     0.000104219  8184  Q  WS 12353990 + 1 [fio]
+>>>   8,16   3       53     0.000104307  8184  M  WS 12353990 + 1 [fio]
+>>>   8,16   3       54     0.000104452  8184  A  WS 12353991 + 1 <- (8,18) 65991
+>>>   8,16   3       55     0.000104520  8184  Q  WS 12353991 + 1 [fio]
+>>>   8,16   3       56     0.000104609  8184  M  WS 12353991 + 1 [fio]
+>>>   8,16   3       57     0.000104885  8184  I  WS 12353984 + 8 [fio]
+>>>
+>>> whereas in the second case, I'm getting the expected 4k writes:
+>>>
+>>>   8,16   6       42 1266874889.659842036  8409  A  WS 12340232 + 8 <-
+>>> (8,18) 52232
+>>>   8,16   6       43 1266874889.659842167  8409  Q  WS 12340232 + 8 [fio]
+>>>   8,16   6       44 1266874889.659842393  8409  G  WS 12340232 + 8 [fio]
+>>
+>> This is weird because --size=1G should mean that fio is "seeing" an
+>> aligned end. Does direct=1 with a sequential job of iodepth=1 show the
+>> problem too?
+>
+> IIUC fio uses the size only to find out where to write to, it opens
+> the block device and passes the resulting fd to the fdatasync call, so
+> the kernel will not know about what size fio thinks the device has. In
+> fact, the effect is the same without the size=1G option, I used it
+> just to make sure that the writes do not go anywhere near the badly
+> aligned partition ending.
+>
+> direct=1 kills the effect, i.e. all writes will be 4k size again.
+> Astonishingly though, sequential writes also are affected, i.e.
+> changing to rw=write in my sample above behaves the same as randwrite.
 
-for you to fetch changes up to e6989e10964f5ae30e0ba8f0cd27a663baf5617b:
+Do you get this style of behaviour without fdatasync (or with larger
+values of fdatasync) too?
 
-  log: add support for logging max instead of averages (2016-02-04 12:09:48 -0700)
+>>> The above examples are from running with an SSD, where the small
+>>> writes get merged together again before hitting the block device,
+>>> which is still pretty o.k. performance wise. But when I run the same
+>>> test on some NVMe device, the writes do not get merged, instead the
+>>> performance drops to less then 10% of what I get in the second case.
+>>
+>> Perhaps the ioscheduler doesn't have the opportunity with the NVMe device...
+>
+> Yes, there is no scheduler available in this case:
+>
+> $ cat /sys/block/nvme0n1/queue/scheduler
+> none
+>
+> This is just to show that the argument "Don't bother, the writes get
+> merged back together anyway" doesn't hold true in all cases.
+>
+>>> If this is indeed expected behaviour from the kernel pov, it might
+>>> need some better documentation and probably sgdisk should also be
+>>> enhanced to align the end of the partition as well. FWIW, this happens
+>>> on a stock 4.4.0 kernel as well as recent Ubuntu and CentOS kernels.
+>>
+>> Do you mean parted?
+>
+> No, as I am currently assuming that the issue is caused by some effect
+> happening inside the kernel during the fdatasync call, there was the
+> idea that only certain kernels might be affected. But I don't have a
+> clue yet how for back I would have to go in order to find a kernel
+> that behaves differently.
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      log: add support for logging max instead of averages
+-- 
+Sitsofe | http://sucs.org/~sits/
 
- HOWTO            |  6 +++++-
- cconv.c          |  2 ++
- fio.1            |  9 +++++++--
- options.c        | 10 ++++++++++
- server.h         |  2 +-
- stat.c           | 25 +++++++++++++++----------
- thread_options.h |  7 ++++++-
- 7 files changed, 46 insertions(+), 15 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO b/HOWTO
-index 4a910a1..6d80360 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1570,8 +1570,12 @@ log_avg_msec=int By default, fio will log an entry in the iops, latency,
- 		disk log, that can quickly grow to a very large size. Setting
- 		this option makes fio average the each log entry over the
- 		specified period of time, reducing the resolution of the log.
--		Defaults to 0.
-+		See log_max as well. Defaults to 0, logging all entries.
- 
-+log_max=bool	If log_avg_msec is set, fio logs the average over that window.
-+		If you instead want to log the maximum value, set this option
-+		to 1. Defaults to 0, meaning that averaged values are logged.
-+.
- log_offset=int	If this is set, the iolog options will include the byte
- 		offset for the IO entry as well as the other data values.
- 
-diff --git a/cconv.c b/cconv.c
-index 6d8d0b3..6f57d90 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -160,6 +160,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
- 	o->allrand_repeatable = le32_to_cpu(top->allrand_repeatable);
- 	o->rand_seed = le64_to_cpu(top->rand_seed);
- 	o->log_avg_msec = le32_to_cpu(top->log_avg_msec);
-+	o->log_max = le32_to_cpu(top->log_max);
- 	o->log_offset = le32_to_cpu(top->log_offset);
- 	o->log_gz = le32_to_cpu(top->log_gz);
- 	o->log_gz_store = le32_to_cpu(top->log_gz_store);
-@@ -348,6 +349,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	top->allrand_repeatable = cpu_to_le32(o->allrand_repeatable);
- 	top->rand_seed = __cpu_to_le64(o->rand_seed);
- 	top->log_avg_msec = cpu_to_le32(o->log_avg_msec);
-+	top->log_max = cpu_to_le32(o->log_max);
- 	top->log_offset = cpu_to_le32(o->log_offset);
- 	top->log_gz = cpu_to_le32(o->log_gz);
- 	top->log_gz_store = cpu_to_le32(o->log_gz_store);
-diff --git a/fio.1 b/fio.1
-index 6cc6379..246bcd2 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1423,8 +1423,13 @@ then the filename will not include the job index.
- By default, fio will log an entry in the iops, latency, or bw log for every
- IO that completes. When writing to the disk log, that can quickly grow to a
- very large size. Setting this option makes fio average the each log entry
--over the specified period of time, reducing the resolution of the log.
--Defaults to 0.
-+over the specified period of time, reducing the resolution of the log. See
-+\fBlog_max\fR as well.  Defaults to 0, logging all entries.
-+.TP
-+.BI log_max \fR=\fPbool
-+If \fBlog_avg_msec\fR is set, fio logs the average over that window. If you
-+instead want to log the maximum value, set this option to 1.  Defaults to
-+0, meaning that averaged values are logged.
- .TP
- .BI log_offset \fR=\fPbool
- If this is set, the iolog options will include the byte offset for the IO
-diff --git a/options.c b/options.c
-index 0bf1390..3902087 100644
---- a/options.c
-+++ b/options.c
-@@ -3074,6 +3074,16 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.group	= FIO_OPT_G_INVALID,
- 	},
- 	{
-+		.name	= "log_max_value",
-+		.lname	= "Log maximum instead of average",
-+		.type	= FIO_OPT_BOOL,
-+		.off1	= td_var_offset(log_max),
-+		.help	= "Log max sample in a window instead of average",
-+		.def	= "0",
-+		.category = FIO_OPT_C_LOG,
-+		.group	= FIO_OPT_G_INVALID,
-+	},
-+	{
- 		.name	= "log_offset",
- 		.lname	= "Log offset of IO",
- 		.type	= FIO_OPT_BOOL,
-diff --git a/server.h b/server.h
-index 05f98e5..a726894 100644
---- a/server.h
-+++ b/server.h
-@@ -38,7 +38,7 @@ struct fio_net_cmd_reply {
- };
- 
- enum {
--	FIO_SERVER_VER			= 51,
-+	FIO_SERVER_VER			= 52,
- 
- 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
- 	FIO_SERVER_MAX_CMD_MB		= 2048,
-diff --git a/stat.c b/stat.c
-index 73fd9f9..d2720a4 100644
---- a/stat.c
-+++ b/stat.c
-@@ -1943,7 +1943,7 @@ void reset_io_stats(struct thread_data *td)
- }
- 
- static void __add_stat_to_log(struct io_log *iolog, enum fio_ddir ddir,
--			      unsigned long elapsed)
-+			      unsigned long elapsed, bool log_max)
- {
- 	/*
- 	 * Note an entry in the log. Use the mean from the logged samples,
-@@ -1953,19 +1953,24 @@ static void __add_stat_to_log(struct io_log *iolog, enum fio_ddir ddir,
- 	if (iolog->avg_window[ddir].samples) {
- 		unsigned long val;
- 
--		val = iolog->avg_window[ddir].mean.u.f + 0.50;
-+		if (log_max)
-+			val = iolog->avg_window[ddir].max_val;
-+		else
-+			val = iolog->avg_window[ddir].mean.u.f + 0.50;
-+
- 		__add_log_sample(iolog, val, ddir, 0, elapsed, 0);
- 	}
- 
- 	reset_io_stat(&iolog->avg_window[ddir]);
- }
- 
--static void _add_stat_to_log(struct io_log *iolog, unsigned long elapsed)
-+static void _add_stat_to_log(struct io_log *iolog, unsigned long elapsed,
-+			     bool log_max)
- {
- 	int ddir;
- 
- 	for (ddir = 0; ddir < DDIR_RWDIR_CNT; ddir++)
--		__add_stat_to_log(iolog, ddir, elapsed);
-+		__add_stat_to_log(iolog, ddir, elapsed, log_max);
- }
- 
- static void add_log_sample(struct thread_data *td, struct io_log *iolog,
-@@ -2001,7 +2006,7 @@ static void add_log_sample(struct thread_data *td, struct io_log *iolog,
- 	if (this_window < iolog->avg_msec)
- 		return;
- 
--	_add_stat_to_log(iolog, elapsed);
-+	_add_stat_to_log(iolog, elapsed, td->o.log_max != 0);
- 
- 	iolog->avg_last = elapsed;
- }
-@@ -2013,15 +2018,15 @@ void finalize_logs(struct thread_data *td)
- 	elapsed = mtime_since_now(&td->epoch);
- 
- 	if (td->clat_log)
--		_add_stat_to_log(td->clat_log, elapsed);
-+		_add_stat_to_log(td->clat_log, elapsed, td->o.log_max != 0);
- 	if (td->slat_log)
--		_add_stat_to_log(td->slat_log, elapsed);
-+		_add_stat_to_log(td->slat_log, elapsed, td->o.log_max != 0);
- 	if (td->lat_log)
--		_add_stat_to_log(td->lat_log, elapsed);
-+		_add_stat_to_log(td->lat_log, elapsed, td->o.log_max != 0);
- 	if (td->bw_log)
--		_add_stat_to_log(td->bw_log, elapsed);
-+		_add_stat_to_log(td->bw_log, elapsed, td->o.log_max != 0);
- 	if (td->iops_log)
--		_add_stat_to_log(td->iops_log, elapsed);
-+		_add_stat_to_log(td->iops_log, elapsed, td->o.log_max != 0);
- }
- 
- void add_agg_sample(unsigned long val, enum fio_ddir ddir, unsigned int bs)
-diff --git a/thread_options.h b/thread_options.h
-index 858f307..384534a 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -120,6 +120,7 @@ struct thread_options {
- 	unsigned long long rand_seed;
- 	unsigned int dep_use_os_rand;
- 	unsigned int log_avg_msec;
-+	unsigned int log_max;
- 	unsigned int log_offset;
- 	unsigned int log_gz;
- 	unsigned int log_gz_store;
-@@ -369,6 +370,7 @@ struct thread_options_pack {
- 	uint64_t rand_seed;
- 	uint32_t dep_use_os_rand;
- 	uint32_t log_avg_msec;
-+	uint32_t log_max;
- 	uint32_t log_offset;
- 	uint32_t log_gz;
- 	uint32_t log_gz_store;
-@@ -380,6 +382,7 @@ struct thread_options_pack {
- 
- 	uint32_t random_distribution;
- 	uint32_t exitall_error;
-+	uint32_t pad0;
- 
- 	fio_fp64_t zipf_theta;
- 	fio_fp64_t pareto_h;
-@@ -397,6 +400,7 @@ struct thread_options_pack {
- 	uint32_t fsync_blocks;
- 	uint32_t fdatasync_blocks;
- 	uint32_t barrier_blocks;
-+	uint32_t pad1;
- 	uint64_t start_delay;
- 	uint64_t start_delay_high;
- 	uint64_t timeout;
-@@ -461,6 +465,7 @@ struct thread_options_pack {
- 	uint64_t trim_backlog;
- 	uint32_t clat_percentiles;
- 	uint32_t percentile_precision;
-+	uint32_t pad2;
- 	fio_fp64_t percentile_list[FIO_IO_U_LIST_MAX_LEN];
- 
- 	uint8_t read_iolog_file[FIO_TOP_STR_MAX];
-@@ -483,7 +488,6 @@ struct thread_options_pack {
- 	uint32_t rate_iops[DDIR_RWDIR_CNT];
- 	uint32_t rate_iops_min[DDIR_RWDIR_CNT];
- 	uint32_t rate_process;
--	uint32_t padding_0;   /* for alignment assert */
- 
- 	uint8_t ioscheduler[FIO_TOP_STR_MAX];
- 
-@@ -516,6 +520,7 @@ struct thread_options_pack {
- 	uint64_t number_ios;
- 
- 	uint32_t sync_file_range;
-+	uint32_t pad3;
- 
- 	uint64_t latency_target;
- 	uint64_t latency_window;
