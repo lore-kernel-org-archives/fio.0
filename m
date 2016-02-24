@@ -1,149 +1,100 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:56625 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965015AbcBDNAD (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 4 Feb 2016 08:00:03 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1aRJVy-0000vY-Nb
-	for fio@vger.kernel.org; Thu, 04 Feb 2016 13:00:02 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH v2]: Let I/O engine provide methods to allocate/free I/O
+ memory.
+References: <CANvN+emV7MN2HXt-Lzm_AhdiFgV34z_v2kWbvsbW0q2o7N3vdA@mail.gmail.com>
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160204130001.D52342C2157@kernel.dk>
-Date: Thu,  4 Feb 2016 06:00:01 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <56CDDDEF.9050207@kernel.dk>
+Date: Wed, 24 Feb 2016 09:44:31 -0700
+MIME-Version: 1.0
+In-Reply-To: <CANvN+emV7MN2HXt-Lzm_AhdiFgV34z_v2kWbvsbW0q2o7N3vdA@mail.gmail.com>
+Content-Type: multipart/mixed;
+ boundary="------------060103010404000409000405"
+To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 3bb85e8443d626ee71a4126dbe6ebcaf751527f1:
+This is a multi-part message in MIME format.
+--------------060103010404000409000405
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 
-  Add a note of what is the default value for random_generator (2016-01-30 22:03:39 -0700)
+On 02/24/2016 09:32 AM, Andrey Kuzmin wrote:
+> The patch has been revised to add 'mem=ioengine' option and respective
+> sanity checks.
 
-are available in the git repository at:
+I kind of like the suggestion I made yesterday, where we don't add the 
+new option type, but error out if the IO engine has alloc/free hooks AND 
+the user has asked for a different backing than the default. Something 
+like the attached - untested.
 
-  git://git.kernel.dk/fio.git master
+-- 
+Jens Axboe
 
-for you to fetch changes up to d96d3bb34689d0290174134e5a4770056dd4f980:
 
-  stat: cleanup average logging (2016-02-03 21:10:33 -0700)
+--------------060103010404000409000405
+Content-Type: text/x-patch;
+ name="fio-engine-alloc.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="fio-engine-alloc.patch"
 
-----------------------------------------------------------------
-Eric Whitney (1):
-      fio: fix ignore_error regression
-
-Jens Axboe (1):
-      stat: cleanup average logging
-
-Robin H. Johnson (2):
-      Makefile: false positive on _FORTIFY_SOURCE
-      libmtd: compile fix for linux header changes.
-
- Makefile       |  2 +-
- backend.c      |  8 ++++++++
- oslib/libmtd.h |  3 +++
- stat.c         | 31 +++++++++++++------------------
- 4 files changed, 25 insertions(+), 19 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/Makefile b/Makefile
-index 9b15afe..684b565 100644
---- a/Makefile
-+++ b/Makefile
-@@ -20,7 +20,7 @@ all:
- include config-host.mak
- endif
- 
--DEBUGFLAGS = -D_FORTIFY_SOURCE=2 -DFIO_INC_DEBUG
-+DEBUGFLAGS = -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -DFIO_INC_DEBUG
- CPPFLAGS= -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DFIO_INTERNAL $(DEBUGFLAGS)
- OPTFLAGS= -g -ffast-math
- CFLAGS	= -std=gnu99 -Wwrite-strings -Wall -Wdeclaration-after-statement $(OPTFLAGS) $(EXTFLAGS) $(BUILD_CFLAGS) -I. -I$(SRCDIR)
-diff --git a/backend.c b/backend.c
-index 2078409..fd81849 100644
---- a/backend.c
-+++ b/backend.c
-@@ -520,6 +520,14 @@ sync_done:
- 			if (*ret < 0)
- 				break;
- 		}
-+
-+		/*
-+		 * when doing I/O (not when verifying),
-+		 * check for any errors that are to be ignored
-+		 */
-+		if (!from_verify)
-+			break;
-+
- 		return 0;
- 	case FIO_Q_QUEUED:
- 		/*
-diff --git a/oslib/libmtd.h b/oslib/libmtd.h
-index 3625de5..b5fd3f3 100644
---- a/oslib/libmtd.h
-+++ b/oslib/libmtd.h
-@@ -29,6 +29,9 @@
- extern "C" {
+diff --git a/ioengine.h b/ioengine.h
+index 6734c7bb95df..161acf595caa 100644
+--- a/ioengine.h
++++ b/ioengine.h
+@@ -16,7 +16,7 @@
+ #include <guasi.h>
  #endif
  
-+// Needed for uint8_t, uint64_t
-+#include <stdint.h>
-+
- /* Maximum MTD device name length */
- #define MTD_NAME_MAX 127
- /* Maximum MTD device type string length */
-diff --git a/stat.c b/stat.c
-index 3070cef..73fd9f9 100644
---- a/stat.c
-+++ b/stat.c
-@@ -1942,35 +1942,30 @@ void reset_io_stats(struct thread_data *td)
- 	}
- }
+-#define FIO_IOOPS_VERSION	22
++#define FIO_IOOPS_VERSION	23
  
--static void _add_stat_to_log(struct io_log *iolog, unsigned long elapsed)
-+static void __add_stat_to_log(struct io_log *iolog, enum fio_ddir ddir,
-+			      unsigned long elapsed)
- {
- 	/*
- 	 * Note an entry in the log. Use the mean from the logged samples,
- 	 * making sure to properly round up. Only write a log entry if we
- 	 * had actual samples done.
- 	 */
--	if (iolog->avg_window[DDIR_READ].samples) {
--		unsigned long mr;
-+	if (iolog->avg_window[ddir].samples) {
-+		unsigned long val;
+ enum {
+ 	IO_U_F_FREE		= 1 << 0,
+@@ -157,6 +157,8 @@ struct ioengine_ops {
+ 	int (*unlink_file)(struct thread_data *, struct fio_file *);
+ 	int (*get_file_size)(struct thread_data *, struct fio_file *);
+ 	void (*terminate)(struct thread_data *);
++	int (*iomem_alloc)(struct thread_data *, size_t);
++	void (*iomem_free)(struct thread_data *);
+ 	int (*io_u_init)(struct thread_data *, struct io_u *);
+ 	void (*io_u_free)(struct thread_data *, struct io_u *);
+ 	int option_struct_size;
+diff --git a/memory.c b/memory.c
+index 50602239a41c..c04d7dfa6cf4 100644
+--- a/memory.c
++++ b/memory.c
+@@ -229,7 +229,17 @@ int allocate_io_mem(struct thread_data *td)
  
--		mr = iolog->avg_window[DDIR_READ].mean.u.f + 0.50;
--		__add_log_sample(iolog, mr, DDIR_READ, 0, elapsed, 0);
-+		val = iolog->avg_window[ddir].mean.u.f + 0.50;
-+		__add_log_sample(iolog, val, ddir, 0, elapsed, 0);
- 	}
--	if (iolog->avg_window[DDIR_WRITE].samples) {
--		unsigned long mw;
+ 	dprint(FD_MEM, "Alloc %llu for buffers\n", (unsigned long long) total_mem);
  
--		mw = iolog->avg_window[DDIR_WRITE].mean.u.f + 0.50;
--		__add_log_sample(iolog, mw, DDIR_WRITE, 0, elapsed, 0);
--	}
--	if (iolog->avg_window[DDIR_TRIM].samples) {
--		unsigned long mw;
-+	reset_io_stat(&iolog->avg_window[ddir]);
-+}
+-	if (td->o.mem_type == MEM_MALLOC)
++	/*
++	 * If the IO engine has hooks to allocate/free memory, use those. But
++	 * error out if the user explicitly asked for something else.
++	 */
++	if (td->io_ops->iomem_alloc) {
++		if (fio_option_is_set(&td->o, mem_type)) {
++			log_err("fio: option 'mem/iomem' conflicts with specified IO engine\n");
++			ret = 1;
++		} else
++			ret = td->io_ops->iomem_alloc(td, total_mem);
++	} else if (td->o.mem_type == MEM_MALLOC)
+ 		ret = alloc_mem_malloc(td, total_mem);
+ 	else if (td->o.mem_type == MEM_SHM || td->o.mem_type == MEM_SHMHUGE)
+ 		ret = alloc_mem_shm(td, total_mem);
+@@ -255,7 +265,10 @@ void free_io_mem(struct thread_data *td)
+ 	if (td->o.odirect || td->o.oatomic)
+ 		total_mem += page_mask;
  
--		mw = iolog->avg_window[DDIR_TRIM].mean.u.f + 0.50;
--		__add_log_sample(iolog, mw, DDIR_TRIM, 0, elapsed, 0);
--	}
-+static void _add_stat_to_log(struct io_log *iolog, unsigned long elapsed)
-+{
-+	int ddir;
- 
--	reset_io_stat(&iolog->avg_window[DDIR_READ]);
--	reset_io_stat(&iolog->avg_window[DDIR_WRITE]);
--	reset_io_stat(&iolog->avg_window[DDIR_TRIM]);
-+	for (ddir = 0; ddir < DDIR_RWDIR_CNT; ddir++)
-+		__add_stat_to_log(iolog, ddir, elapsed);
- }
- 
- static void add_log_sample(struct thread_data *td, struct io_log *iolog,
+-	if (td->o.mem_type == MEM_MALLOC)
++	if (td->io_ops->iomem_alloc) {
++		if (td->io_ops->iomem_free)
++			td->io_ops->iomem_free(td);
++	} else if (td->o.mem_type == MEM_MALLOC)
+ 		free_mem_malloc(td);
+ 	else if (td->o.mem_type == MEM_SHM || td->o.mem_type == MEM_SHMHUGE)
+ 		free_mem_shm(td);
+
+--------------060103010404000409000405--
+
