@@ -1,52 +1,98 @@
-Return-Path: <andrey.v.kuzmin@gmail.com>
-MIME-Version: 1.0
-From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
-Date: Fri, 5 Feb 2016 11:59:48 +0300
-Message-ID: <CANvN+emGxSfGdx=XO9_Lgfgjuybd1+PDJMW1xsMN-LVUQFw_Cw@mail.gmail.com>
-Subject: Copy/paste nit in io_ddir.h?
-Content-Type: multipart/alternative; boundary=001a11418eb8f58024052b021364
-To: Jens Axboe <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from casper.infradead.org ([85.118.1.10]:60297 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760089AbcBYNAF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 25 Feb 2016 08:00:05 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.85 #2 (Red Hat Linux))
+	id 1aYvWW-0003ge-3p
+	for fio@vger.kernel.org; Thu, 25 Feb 2016 13:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160225130001.72E282C1369@kernel.dk>
+Date: Thu, 25 Feb 2016 06:00:01 -0700 (MST)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
---001a11418eb8f58024052b021364
-Content-Type: text/plain; charset=UTF-8
+The following changes since commit c0821a08db2fd3e37e16db73c3c4c9c7ff601e88:
 
-diff --git a/io_ddir.h b/io_ddir.h
-index e5eff68..071b036 100644
---- a/io_ddir.h
-+++ b/io_ddir.h
-@@ -17,7 +17,7 @@ enum fio_ddir {
- static inline const char *io_ddir_name(enum fio_ddir ddir)
- {
-        const char *name[] = { "read", "write", "trim", "sync", "datasync",
--                               "sync_file_range", "write", };
-+                               "sync_file_range", "wait", };
+  Allow for the include file specification to be relative. (2016-02-13 12:31:00 -0700)
 
-        if (ddir < DDIR_LAST)
-                return name[ddir];
+are available in the git repository at:
 
-Regards,
-Andrey
+  git://git.kernel.dk/fio.git master
 
---001a11418eb8f58024052b021364
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+for you to fetch changes up to a6cb85e25b31553aab043fe763ce4c999197dcff:
 
-<div dir=3D"ltr"><div>diff --git a/io_ddir.h b/io_ddir.h</div><div>index e5=
-eff68..071b036 100644</div><div>--- a/io_ddir.h</div><div>+++ b/io_ddir.h</=
-div><div>@@ -17,7 +17,7 @@ enum fio_ddir {</div><div>=C2=A0static inline co=
-nst char *io_ddir_name(enum fio_ddir ddir)</div><div>=C2=A0{</div><div>=C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 const char *name[] =3D { &quot;read&quot;, &quot;w=
-rite&quot;, &quot;trim&quot;, &quot;sync&quot;, &quot;datasync&quot;,</div>=
-<div>- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 &quot;sync_file_range&quot;, &quot;w=
-rite&quot;, };</div><div>+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 &quot;sync_file_ra=
-nge&quot;, &quot;wait&quot;, };</div><div>=C2=A0</div><div>=C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 if (ddir &lt; DDIR_LAST)</div><div>=C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return name[ddir];</div><div><br></div>Rega=
-rds,<br>Andrey<br></div>
+  Allow IO engine driven allocations of IO structures (2016-02-24 16:29:08 -0700)
 
---001a11418eb8f58024052b021364--
+----------------------------------------------------------------
+Jens Axboe (1):
+      Allow IO engine driven allocations of IO structures
 
+ ioengine.h |  4 +++-
+ memory.c   | 17 +++++++++++++++--
+ 2 files changed, 18 insertions(+), 3 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/ioengine.h b/ioengine.h
+index 6734c7b..161acf5 100644
+--- a/ioengine.h
++++ b/ioengine.h
+@@ -16,7 +16,7 @@
+ #include <guasi.h>
+ #endif
+ 
+-#define FIO_IOOPS_VERSION	22
++#define FIO_IOOPS_VERSION	23
+ 
+ enum {
+ 	IO_U_F_FREE		= 1 << 0,
+@@ -157,6 +157,8 @@ struct ioengine_ops {
+ 	int (*unlink_file)(struct thread_data *, struct fio_file *);
+ 	int (*get_file_size)(struct thread_data *, struct fio_file *);
+ 	void (*terminate)(struct thread_data *);
++	int (*iomem_alloc)(struct thread_data *, size_t);
++	void (*iomem_free)(struct thread_data *);
+ 	int (*io_u_init)(struct thread_data *, struct io_u *);
+ 	void (*io_u_free)(struct thread_data *, struct io_u *);
+ 	int option_struct_size;
+diff --git a/memory.c b/memory.c
+index 5060223..c04d7df 100644
+--- a/memory.c
++++ b/memory.c
+@@ -229,7 +229,17 @@ int allocate_io_mem(struct thread_data *td)
+ 
+ 	dprint(FD_MEM, "Alloc %llu for buffers\n", (unsigned long long) total_mem);
+ 
+-	if (td->o.mem_type == MEM_MALLOC)
++	/*
++	 * If the IO engine has hooks to allocate/free memory, use those. But
++	 * error out if the user explicitly asked for something else.
++	 */
++	if (td->io_ops->iomem_alloc) {
++		if (fio_option_is_set(&td->o, mem_type)) {
++			log_err("fio: option 'mem/iomem' conflicts with specified IO engine\n");
++			ret = 1;
++		} else
++			ret = td->io_ops->iomem_alloc(td, total_mem);
++	} else if (td->o.mem_type == MEM_MALLOC)
+ 		ret = alloc_mem_malloc(td, total_mem);
+ 	else if (td->o.mem_type == MEM_SHM || td->o.mem_type == MEM_SHMHUGE)
+ 		ret = alloc_mem_shm(td, total_mem);
+@@ -255,7 +265,10 @@ void free_io_mem(struct thread_data *td)
+ 	if (td->o.odirect || td->o.oatomic)
+ 		total_mem += page_mask;
+ 
+-	if (td->o.mem_type == MEM_MALLOC)
++	if (td->io_ops->iomem_alloc) {
++		if (td->io_ops->iomem_free)
++			td->io_ops->iomem_free(td);
++	} else if (td->o.mem_type == MEM_MALLOC)
+ 		free_mem_malloc(td);
+ 	else if (td->o.mem_type == MEM_SHM || td->o.mem_type == MEM_SHMHUGE)
+ 		free_mem_shm(td);
