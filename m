@@ -1,55 +1,78 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g4t3426.houston.hp.com ([15.201.208.54]:34364 "EHLO
-	g4t3426.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752531AbcCBShj (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 2 Mar 2016 13:37:39 -0500
-From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Subject: RE: Fio high IOPS measurement mistake
-Date: Wed, 2 Mar 2016 18:37:07 +0000
-Message-ID: <94D0CD8314A33A4D9D801C0FE68B40295C349408@G9W0745.americas.hpqcorp.net>
-References: <56D525E1.6010407@vlnb.net>
- <CALjAwxjLb7L8sZCensSNXZ4kDyHb683bu-zuwDvgk5sFoeMckw@mail.gmail.com>
- <56D66B1C.6050506@vlnb.net>
-In-Reply-To: <56D66B1C.6050506@vlnb.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-lf0-f51.google.com ([209.85.215.51]:35261 "EHLO
+	mail-lf0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750977AbcCBI1M (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 2 Mar 2016 03:27:12 -0500
+Received: by mail-lf0-f51.google.com with SMTP id j186so55559231lfg.2
+        for <fio@vger.kernel.org>; Wed, 02 Mar 2016 00:27:11 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <56D525E1.6010407@vlnb.net>
+References: <56D525E1.6010407@vlnb.net>
+From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Date: Wed, 2 Mar 2016 11:26:50 +0300
+Message-ID: <CANvN+enRXmL5dZaaQX3q2Fi7FmADwBU4_kePWiG7c5L9So2T6A@mail.gmail.com>
+Subject: Re: Fio high IOPS measurement mistake
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Vladislav Bolkhovitin <vst@vlnb.net>, Sitsofe Wheeler <sitsofe@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Vladislav Bolkhovitin <vst@vlnb.net>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
-a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uDQo+IEJlaGFs
-ZiBPZiBWbGFkaXNsYXYgQm9sa2hvdml0aW4NCj4gU2VudDogVHVlc2RheSwgTWFyY2ggMDEsIDIw
-MTYgMTA6MjUgUE0NCj4gVG86IFNpdHNvZmUgV2hlZWxlciA8c2l0c29mZUBnbWFpbC5jb20+OyBm
-aW9Admdlci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IFJlOiBGaW8gaGlnaCBJT1BTIG1lYXN1cmVt
-ZW50IG1pc3Rha2UNCj4gDQo+IEhpLA0KPiANCi4uLg0KPiA+PiBIZXJlIGlzIG15IGZ1bGwgZmlv
-IGpvYjoNCj4gPj4NCj4gPj4gW2dsb2JhbF0NCj4gPj4gaW9lbmdpbmU9bGliYWlvDQo+ID4+IGJ1
-ZmZlcmVkPTANCj4gPj4gc3luYz0wDQo+ID4+IGRpcmVjdD0xDQo+ID4+IHJhbmRyZXBlYXQ9MQ0K
-PiA+PiBzb2Z0cmFuZG9tbWFwPTENCj4gPj4gcnc9cmFuZHJlYWQNCj4gPj4gYnM9NGsNCj4gPj4g
-ZmlsZW5hbWU9Li9udnJhbSAoaXQncyBhIGxpbmsgdG8gYSBibG9jayBkZXZpY2UpDQo+ID4+IGV4
-aXRhbGw9MQ0KPiA+PiB0aHJlYWQ9MQ0KPiA+PiBkaXNhYmxlX2xhdD0xDQo+ID4+IGRpc2FibGVf
-c2xhdD0xDQo+ID4+IGRpc2FibGVfY2xhdD0xDQo+ID4+IGxvb3BzPTEwDQo+ID4+IGlvZGVwdGg9
-MTYNCj4gPg0KPiA+IFlvdSBhcHBlYXIgdG8gYmUgbWlzc2luZyBndG9kX3JlZHVjZQ0KPiA+ICho
-dHRwczovL2dpdGh1Yi5jb20vYXhib2UvZmlvL2Jsb2IvZmlvLTIuNi9IT1dUTyNMMTY2OCApIG9y
-DQo+ID4gZ2V0dGltZW9mZGF5IGNwdSBwaW5uaW5nLiBZb3UgYWxzbyBhcmVuJ3QgdXNpbmcgYmF0
-Y2hpbmcNCj4gPiAoaHR0cHM6Ly9naXRodWIuY29tL2F4Ym9lL2Zpby9ibG9iL2Zpby0yLjYvSE9X
-VE8jTDgxNSApLg0KPiANCi4uLg0KPiBKb2JzCUlPUFMoTSkJJXVzZXIJJXN5cw0KPiAxCTQuMwk3
-OAkyMg0KPiAyCTcuNgk2NwkzMw0KPiAzCTEwLjUJNjUJMzUNCj4gNAk3LjcJNjEJMzgNCj4gNQk0
-LjgJNzgJMjINCj4gNgk0LjcJODMJMTcNCj4gNwk0LjgJODQJMTUNCg0KVXNlIGNwdXNfYWxsb3dl
-ZF9wb2xpY3k9c3BsaXQgdG8ga2VlcCB0aHJlYWRzIG9yIHByb2Nlc3Nlcw0KZnJvbSB3YW5kZXJp
-bmcgYWNyb3NzIENQVXMuDQoNCklmIHRoZSBzeXN0ZW0gaXMgTlVNQSwgc3BsaXQgdGhlIE5WRElN
-TXMgYmFzZWQgb24gdGhhdA0KYW5kIHVzZSBjcHVzX2FsbG93ZWQgdG8ganVzdCBoYXZlIHRocmVh
-ZHMgYWNjZXNzIGxvY2FsDQpOVkRJTU1zLg0KDQpBcyBzb21lb25lIGVsc2UgbWVudGlvbmVkLCB0
-aGUgcmFuZG9tIG1hcCBvdmVyaGVhZCBpcw0Kbm90aWNlYWJsZSwgZXNwZWNpYWxseSBmb3IgbGFy
-Z2UgY2FwYWNpdHkgZGV2aWNlcy4gIFVzZQ0Kbm9yYW5kb21tYXAgYW5kIHJhbmRyZXBlYXQ9MC4N
-Cg0KVGhlcmUgd2FzIGEgcHJvYmxlbSBpbiAyMDE0IHJlcXVpcmluZyBpbnZhbGlkYXRlPTAgZm9y
-DQpzbWFsbCBjYXBhY2l0aWVzOyBJIGRvbid0IHJlY2FsbCBpZiB0aGF0IHdhcyBmaXhlZC4NCg0K
-SWYgeW91J3JlIHVzaW5nIHRoZSBwbWVtIGRyaXZlciwgaXQgaXMgaW5jYXBhYmxlIG9mIHF1ZXVp
-bmcNCihzdWJtaXNzaW9ucyBhcmUgaW1tZWRpYXRlbHkgY29tcGxldGVkKSwgc28gaW9kZXB0aCBp
-cw0KaXJyZWxldmFudC4NCg0KVGhlcmUgYXJlIG90aGVyIHN5c3RlbSBhbmQgT1Mgc2V0dGluZ3Mg
-dG8gdHVuZSwgbGlrZTogDQoqIHVzZSB0aGUgcGVyZm9ybWFuY2UgZ292ZXJub3IuIFRoZSB1c2Vy
-c3BhY2UgZ292ZXJub3INCnNwZW5kcyBhIGxvdCBvZiB0aW1lIG1ha2luZyBhY3BpX29zX3dyaXRl
-IGNhbGxzDQoqIHR1cm4gb2ZmIGF1ZGl0aW5nIChhdWRpdD0wIG9uIHRoZSBrZXJuZWwgY29tbWFu
-ZCBsaW5lKQ0KKiB0dXJuIG9mZiBDIHN0YXRlcw0KDQoNCg==
+On Tue, Mar 1, 2016 at 8:17 AM, Vladislav Bolkhovitin <vst@vlnb.net> wrote:
+> Hello,
+>
+> I'm currently looking at one NVRAM device, and during fio tests noticed that each fio
+> thread consumes 30% of user space CPU. I'm using ioengine=libaio, buffered=0, sync=0
+> and direct=1, so user space CPU consumption should be virtually zero.
+>
+> That 30% user CPU consumption makes me suspect that this is overhead for internal fio
+> housekeeping, i.e., scientifically speaking, fio instrumental measurement mistake (I
+> hope, I'm using correct English terms).
+>
+
+If you believe fio to be 'mistaken', please profile your runs with
+perf and publish the profile,
+pointing out what you believe to be a mistake.
+
+> Can anybody comment it and suggest how to decrease this user space CPU consumption?
+>
+> Here is my full fio job:
+>
+> [global]
+> ioengine=libaio
+> buffered=0
+> sync=0
+> direct=1
+> randrepeat=1
+> softrandommap=1
+
+I suggest you start with switching the random map off as it's known to
+be expensive and,
+for some reason, is being maintained even in read-only workloads.
+
+Regards,
+Andrey
+
+> rw=randread
+> bs=4k
+> filename=./nvram (it's a link to a block device)
+> exitall=1
+> thread=1
+> disable_lat=1
+> disable_slat=1
+> disable_clat=1
+> loops=10
+> iodepth=16
+>
+> [file1]
+>
+> [file2]
+>
+> I'm working on million+ IOPS range.
+>
+> Thanks,
+> Vlad
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
