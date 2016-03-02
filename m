@@ -1,104 +1,55 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.17.13]:53740 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754123AbcCCDCo (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 2 Mar 2016 22:02:44 -0500
-Message-ID: <56D7A94D.1010708@vlnb.net>
-Date: Wed, 02 Mar 2016 19:02:37 -0800
-From: Vladislav Bolkhovitin <vst@vlnb.net>
+Received: from g4t3426.houston.hp.com ([15.201.208.54]:34364 "EHLO
+	g4t3426.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752531AbcCBShj (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 2 Mar 2016 13:37:39 -0500
+From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+Subject: RE: Fio high IOPS measurement mistake
+Date: Wed, 2 Mar 2016 18:37:07 +0000
+Message-ID: <94D0CD8314A33A4D9D801C0FE68B40295C349408@G9W0745.americas.hpqcorp.net>
+References: <56D525E1.6010407@vlnb.net>
+ <CALjAwxjLb7L8sZCensSNXZ4kDyHb683bu-zuwDvgk5sFoeMckw@mail.gmail.com>
+ <56D66B1C.6050506@vlnb.net>
+In-Reply-To: <56D66B1C.6050506@vlnb.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Subject: Re: Fio high IOPS measurement mistake
-References: <56D525E1.6010407@vlnb.net>	<CALjAwxjLb7L8sZCensSNXZ4kDyHb683bu-zuwDvgk5sFoeMckw@mail.gmail.com>	<56D66B1C.6050506@vlnb.net> <CALjAwxgT1OHUWfx6p3=SZ=SnM2KyPTEs6xdMnb2dYjbzzq+zhA@mail.gmail.com>
-In-Reply-To: <CALjAwxgT1OHUWfx6p3=SZ=SnM2KyPTEs6xdMnb2dYjbzzq+zhA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Vladislav Bolkhovitin <vst@vlnb.net>, Sitsofe Wheeler <sitsofe@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Sitsofe Wheeler wrote on 03/01/2016 11:38 PM:
-> On 2 March 2016 at 04:25, Vladislav Bolkhovitin <vst@vlnb.net> wrote:
->> Hi,
->>
->> Sitsofe Wheeler wrote on 02/29/2016 10:01 PM:
->>> Hi,
->>>
->>> On 1 March 2016 at 05:17, Vladislav Bolkhovitin <vst@vlnb.net> wrote:
->>>> Hello,
->>>>
->>>> I'm currently looking at one NVRAM device, and during fio tests noticed that each fio
->>>> thread consumes 30% of user space CPU. I'm using ioengine=libaio, buffered=0, sync=0
->>>> and direct=1, so user space CPU consumption should be virtually zero.
->>>>
->>>> That 30% user CPU consumption makes me suspect that this is overhead for internal fio
->>>> housekeeping, i.e., scientifically speaking, fio instrumental measurement mistake (I
->>>> hope, I'm using correct English terms).
->>>>
->>>> Can anybody comment it and suggest how to decrease this user space CPU consumption?
->>>>
->>>> Here is my full fio job:
->>>>
->>>> [global]
->>>> ioengine=libaio
->>>> buffered=0
->>>> sync=0
->>>> direct=1
->>>> randrepeat=1
->>>> softrandommap=1
->>>> rw=randread
->>>> bs=4k
->>>> filename=./nvram (it's a link to a block device)
->>>> exitall=1
->>>> thread=1
->>>> disable_lat=1
->>>> disable_slat=1
->>>> disable_clat=1
->>>> loops=10
->>>> iodepth=16
->>>
->>> You appear to be missing gtod_reduce
->>> (https://github.com/axboe/fio/blob/fio-2.6/HOWTO#L1668 ) or
->>> gettimeofday cpu pinning. You also aren't using batching
->>> (https://github.com/axboe/fio/blob/fio-2.6/HOWTO#L815 ).
->>
->> Thanks, I tried them, but they did not make any significant difference. The biggest
-> 
-> There was no cpu reduction from setting both iodepth_batch and
-> iodepth_batch_complete together?
-
-No, no significant difference.
-
-I also forgot to mention that I had tried gtod_cpu=11 as well, and it only made things
-worse.
-
->> difference I had was when I changed CPU governor to "performance". Now I have 20-25%
->> user space, measured by fio itself, it's coherent with top. Note, I'm considering
->> per-thread CPU consumption, to see it in top you need to press '1' (one line per each CPU).
-> 
-> Have you applied the points mentioned in
-> https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Performance_Tuning_Guide/chap-Red_Hat_Enterprise_Linux-Performance_Tuning_Guide-Performance_Features_in_RednbspHat_EnterprisenbspLinuxnbsp7.html
-> ? Things like the scheduler granularity (as changed by Red Hat's
-> tuned-adm) can have a large impact...
-
-Thanks for your help and feedback, but you are trying to improve my results, while I'm
-asking how to _decrease fio overhead_ on high IOPS with libaio. It's very different
-question.
-
->> The full job file was:
->>
->> [global]
->> ioengine=sync
->> buffered=0
->> sync=0
->> direct=1
-> [...]
->> iodepth=8 /* does not matter */
-> ^^^ It's worth noting that direct and iodepth don't really have an
-> impact on synchronous ioengines -
-> https://github.com/axboe/fio/blob/master/HOWTO#L804
-
-Yes, sure, this is why I commented it as "doesn't matter".
-
-Thanks,
-Vlad
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
+a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uDQo+IEJlaGFs
+ZiBPZiBWbGFkaXNsYXYgQm9sa2hvdml0aW4NCj4gU2VudDogVHVlc2RheSwgTWFyY2ggMDEsIDIw
+MTYgMTA6MjUgUE0NCj4gVG86IFNpdHNvZmUgV2hlZWxlciA8c2l0c29mZUBnbWFpbC5jb20+OyBm
+aW9Admdlci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IFJlOiBGaW8gaGlnaCBJT1BTIG1lYXN1cmVt
+ZW50IG1pc3Rha2UNCj4gDQo+IEhpLA0KPiANCi4uLg0KPiA+PiBIZXJlIGlzIG15IGZ1bGwgZmlv
+IGpvYjoNCj4gPj4NCj4gPj4gW2dsb2JhbF0NCj4gPj4gaW9lbmdpbmU9bGliYWlvDQo+ID4+IGJ1
+ZmZlcmVkPTANCj4gPj4gc3luYz0wDQo+ID4+IGRpcmVjdD0xDQo+ID4+IHJhbmRyZXBlYXQ9MQ0K
+PiA+PiBzb2Z0cmFuZG9tbWFwPTENCj4gPj4gcnc9cmFuZHJlYWQNCj4gPj4gYnM9NGsNCj4gPj4g
+ZmlsZW5hbWU9Li9udnJhbSAoaXQncyBhIGxpbmsgdG8gYSBibG9jayBkZXZpY2UpDQo+ID4+IGV4
+aXRhbGw9MQ0KPiA+PiB0aHJlYWQ9MQ0KPiA+PiBkaXNhYmxlX2xhdD0xDQo+ID4+IGRpc2FibGVf
+c2xhdD0xDQo+ID4+IGRpc2FibGVfY2xhdD0xDQo+ID4+IGxvb3BzPTEwDQo+ID4+IGlvZGVwdGg9
+MTYNCj4gPg0KPiA+IFlvdSBhcHBlYXIgdG8gYmUgbWlzc2luZyBndG9kX3JlZHVjZQ0KPiA+ICho
+dHRwczovL2dpdGh1Yi5jb20vYXhib2UvZmlvL2Jsb2IvZmlvLTIuNi9IT1dUTyNMMTY2OCApIG9y
+DQo+ID4gZ2V0dGltZW9mZGF5IGNwdSBwaW5uaW5nLiBZb3UgYWxzbyBhcmVuJ3QgdXNpbmcgYmF0
+Y2hpbmcNCj4gPiAoaHR0cHM6Ly9naXRodWIuY29tL2F4Ym9lL2Zpby9ibG9iL2Zpby0yLjYvSE9X
+VE8jTDgxNSApLg0KPiANCi4uLg0KPiBKb2JzCUlPUFMoTSkJJXVzZXIJJXN5cw0KPiAxCTQuMwk3
+OAkyMg0KPiAyCTcuNgk2NwkzMw0KPiAzCTEwLjUJNjUJMzUNCj4gNAk3LjcJNjEJMzgNCj4gNQk0
+LjgJNzgJMjINCj4gNgk0LjcJODMJMTcNCj4gNwk0LjgJODQJMTUNCg0KVXNlIGNwdXNfYWxsb3dl
+ZF9wb2xpY3k9c3BsaXQgdG8ga2VlcCB0aHJlYWRzIG9yIHByb2Nlc3Nlcw0KZnJvbSB3YW5kZXJp
+bmcgYWNyb3NzIENQVXMuDQoNCklmIHRoZSBzeXN0ZW0gaXMgTlVNQSwgc3BsaXQgdGhlIE5WRElN
+TXMgYmFzZWQgb24gdGhhdA0KYW5kIHVzZSBjcHVzX2FsbG93ZWQgdG8ganVzdCBoYXZlIHRocmVh
+ZHMgYWNjZXNzIGxvY2FsDQpOVkRJTU1zLg0KDQpBcyBzb21lb25lIGVsc2UgbWVudGlvbmVkLCB0
+aGUgcmFuZG9tIG1hcCBvdmVyaGVhZCBpcw0Kbm90aWNlYWJsZSwgZXNwZWNpYWxseSBmb3IgbGFy
+Z2UgY2FwYWNpdHkgZGV2aWNlcy4gIFVzZQ0Kbm9yYW5kb21tYXAgYW5kIHJhbmRyZXBlYXQ9MC4N
+Cg0KVGhlcmUgd2FzIGEgcHJvYmxlbSBpbiAyMDE0IHJlcXVpcmluZyBpbnZhbGlkYXRlPTAgZm9y
+DQpzbWFsbCBjYXBhY2l0aWVzOyBJIGRvbid0IHJlY2FsbCBpZiB0aGF0IHdhcyBmaXhlZC4NCg0K
+SWYgeW91J3JlIHVzaW5nIHRoZSBwbWVtIGRyaXZlciwgaXQgaXMgaW5jYXBhYmxlIG9mIHF1ZXVp
+bmcNCihzdWJtaXNzaW9ucyBhcmUgaW1tZWRpYXRlbHkgY29tcGxldGVkKSwgc28gaW9kZXB0aCBp
+cw0KaXJyZWxldmFudC4NCg0KVGhlcmUgYXJlIG90aGVyIHN5c3RlbSBhbmQgT1Mgc2V0dGluZ3Mg
+dG8gdHVuZSwgbGlrZTogDQoqIHVzZSB0aGUgcGVyZm9ybWFuY2UgZ292ZXJub3IuIFRoZSB1c2Vy
+c3BhY2UgZ292ZXJub3INCnNwZW5kcyBhIGxvdCBvZiB0aW1lIG1ha2luZyBhY3BpX29zX3dyaXRl
+IGNhbGxzDQoqIHR1cm4gb2ZmIGF1ZGl0aW5nIChhdWRpdD0wIG9uIHRoZSBrZXJuZWwgY29tbWFu
+ZCBsaW5lKQ0KKiB0dXJuIG9mZiBDIHN0YXRlcw0KDQoNCg==
