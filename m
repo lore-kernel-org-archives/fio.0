@@ -1,97 +1,81 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([217.72.192.74]:64940 "EHLO
+Received: from mout.kundenserver.de ([212.227.17.24]:60671 "EHLO
 	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932111AbcCCDDJ (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 2 Mar 2016 22:03:09 -0500
-Message-ID: <56D7A964.3040809@vlnb.net>
-Date: Wed, 02 Mar 2016 19:03:00 -0800
+	with ESMTP id S1756084AbcCCDCz (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 2 Mar 2016 22:02:55 -0500
+Message-ID: <56D7A959.4060809@vlnb.net>
+Date: Wed, 02 Mar 2016 19:02:49 -0800
 From: Vladislav Bolkhovitin <vst@vlnb.net>
 MIME-Version: 1.0
 Subject: Re: Fio high IOPS measurement mistake
-References: <56D525E1.6010407@vlnb.net> <CALjAwxjLb7L8sZCensSNXZ4kDyHb683bu-zuwDvgk5sFoeMckw@mail.gmail.com> <56D66B1C.6050506@vlnb.net> <94D0CD8314A33A4D9D801C0FE68B40295C349408@G9W0745.americas.hpqcorp.net>
-In-Reply-To: <94D0CD8314A33A4D9D801C0FE68B40295C349408@G9W0745.americas.hpqcorp.net>
+References: <56D525E1.6010407@vlnb.net> <CANvN+enRXmL5dZaaQX3q2Fi7FmADwBU4_kePWiG7c5L9So2T6A@mail.gmail.com>
+In-Reply-To: <CANvN+enRXmL5dZaaQX3q2Fi7FmADwBU4_kePWiG7c5L9So2T6A@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>, Sitsofe Wheeler <sitsofe@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Elliott, Robert (Persistent Memory) wrote on 03/02/2016 10:37 AM:
->>>> Here is my full fio job:
->>>>
->>>> [global]
->>>> ioengine=libaio
->>>> buffered=0
->>>> sync=0
->>>> direct=1
->>>> randrepeat=1
->>>> softrandommap=1
->>>> rw=randread
->>>> bs=4k
->>>> filename=./nvram (it's a link to a block device)
->>>> exitall=1
->>>> thread=1
->>>> disable_lat=1
->>>> disable_slat=1
->>>> disable_clat=1
->>>> loops=10
->>>> iodepth=16
->>>
->>> You appear to be missing gtod_reduce
->>> (https://github.com/axboe/fio/blob/fio-2.6/HOWTO#L1668 ) or
->>> gettimeofday cpu pinning. You also aren't using batching
->>> (https://github.com/axboe/fio/blob/fio-2.6/HOWTO#L815 ).
+Andrey Kuzmin wrote on 03/02/2016 12:26 AM:
+> On Tue, Mar 1, 2016 at 8:17 AM, Vladislav Bolkhovitin <vst@vlnb.net> wrote:
+>> Hello,
 >>
-> ...
->> Jobs	IOPS(M)	%user	%sys
->> 1	4.3	78	22
->> 2	7.6	67	33
->> 3	10.5	65	35
->> 4	7.7	61	38
->> 5	4.8	78	22
->> 6	4.7	83	17
->> 7	4.8	84	15
+>> I'm currently looking at one NVRAM device, and during fio tests noticed that each fio
+>> thread consumes 30% of user space CPU. I'm using ioengine=libaio, buffered=0, sync=0
+>> and direct=1, so user space CPU consumption should be virtually zero.
+>>
+>> That 30% user CPU consumption makes me suspect that this is overhead for internal fio
+>> housekeeping, i.e., scientifically speaking, fio instrumental measurement mistake (I
+>> hope, I'm using correct English terms).
 > 
-> Use cpus_allowed_policy=split to keep threads or processes
-> from wandering across CPUs.
+> If you believe fio to be 'mistaken', please profile your runs with
+> perf and publish the profile,
+> pointing out what you believe to be a mistake.
 
-Tried, no help, which is easily explainable, because I'm always running num jobs < num
-CPUs.
+I had done it, see my yesterday's e-mail.
 
-> If the system is NUMA, split the NVDIMMs based on that
-> and use cpus_allowed to just have threads access local
-> NVDIMMs.
-
-No, it's single socket.
-
-> As someone else mentioned, the random map overhead is
-> noticeable, especially for large capacity devices.  Use
-> norandommap and randrepeat=0.
-
-Had done, see the job file in my message you didn't quote.
-
-> There was a problem in 2014 requiring invalidate=0 for
-> small capacities; I don't recall if that was fixed.
+>> Can anybody comment it and suggest how to decrease this user space CPU consumption?
+>>
+>> Here is my full fio job:
+>>
+>> [global]
+>> ioengine=libaio
+>> buffered=0
+>> sync=0
+>> direct=1
+>> randrepeat=1
+>> softrandommap=1
 > 
-> If you're using the pmem driver, it is incapable of queuing
-> (submissions are immediately completed), so iodepth is
-> irrelevant.
-> 
-> There are other system and OS settings to tune, like: 
-> * use the performance governor. The userspace governor
-> spends a lot of time making acpi_os_write calls
+> I suggest you start with switching the random map off as it's known to
+> be expensive and,
+> for some reason, is being maintained even in read-only workloads.
 
-Had done, see not quoted part of my e-mail.
-
-> * turn off auditing (audit=0 on the kernel command line)
-> * turn off C states
-
-Tried too.
-
-Overall, I appreciate your help, but again, question is not how to improve my results.
-The question is how to _decrease fio overhead_ with libaio, see subject of this e-mail.
-It's very different question.
+Also done, see the same my e-mail.
 
 Thanks,
 Vlad
+
+> Regards,
+> Andrey
+> 
+>> rw=randread
+>> bs=4k
+>> filename=./nvram (it's a link to a block device)
+>> exitall=1
+>> thread=1
+>> disable_lat=1
+>> disable_slat=1
+>> disable_clat=1
+>> loops=10
+>> iodepth=16
+>>
+>> [file1]
+>>
+>> [file2]
+>>
+>> I'm working on million+ IOPS range.
+>>
+>> Thanks,
+>> Vlad
 
