@@ -1,55 +1,43 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: Fio high IOPS measurement mistake
-References: <56D525E1.6010407@vlnb.net>
- <CALjAwxjLb7L8sZCensSNXZ4kDyHb683bu-zuwDvgk5sFoeMckw@mail.gmail.com>
- <56D66B1C.6050506@vlnb.net> <56D7A97F.9080800@vlnb.net>
- <CALjAwxgU06EEYCw9VV7S8UzDtgpo-KUQtS90HK=KpfffkCKn2A@mail.gmail.com>
- <20160303162037.GD22164@kernel.dk> <56D91110.8080203@vlnb.net>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <56D9AADC.3070600@kernel.dk>
-Date: Fri, 4 Mar 2016 08:33:48 -0700
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.126.187]:58774 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756119AbcCDEiC (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 3 Mar 2016 23:38:02 -0500
+Message-ID: <56D91124.8050905@vlnb.net>
+Date: Thu, 03 Mar 2016 20:37:56 -0800
+From: Vladislav Bolkhovitin <vst@vlnb.net>
 MIME-Version: 1.0
-In-Reply-To: <56D91110.8080203@vlnb.net>
-Content-Type: text/plain; charset=windows-1251; format=flowed
+Subject: Re: Fio high IOPS measurement mistake
+References: <56D525E1.6010407@vlnb.net>	<CALjAwxjLb7L8sZCensSNXZ4kDyHb683bu-zuwDvgk5sFoeMckw@mail.gmail.com>	<56D66B1C.6050506@vlnb.net>	<56D7A97F.9080800@vlnb.net>	<CALjAwxgU06EEYCw9VV7S8UzDtgpo-KUQtS90HK=KpfffkCKn2A@mail.gmail.com> <CALjAwxi4B4=AAjmR9BmTRtq824_2qEu3nb2AcpH1654HRDAExg@mail.gmail.com>
+In-Reply-To: <CALjAwxi4B4=AAjmR9BmTRtq824_2qEu3nb2AcpH1654HRDAExg@mail.gmail.com>
+Content-Type: text/plain; charset=windows-1251
 Content-Transfer-Encoding: 7bit
-To: Vladislav Bolkhovitin <vst@vlnb.net>, Sitsofe Wheeler <sitsofe@gmail.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
 
-On 03/03/2016 09:37 PM, Vladislav Bolkhovitin wrote:
-> Jens Axboe wrote on 03/03/2016 08:20 AM:
->> On Thu, Mar 03 2016, Sitsofe Wheeler wrote:
->>> On 3 March 2016 at 03:03, Vladislav Bolkhovitin <vst@vlnb.net> wrote:
->>>> For those who asked about perf profiling, it remained the same as before with the CPU
->>>> consumption is all about timekeeping and memset:
->>>>
->>>> -  55.74%  fio  fio                [.] clock_thread_fn
->>>>       clock_thread_fn
+Sitsofe Wheeler wrote on 03/02/2016 11:13 PM:
+> On 3 March 2016 at 07:10, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>> On 3 March 2016 at 03:03, Vladislav Bolkhovitin <vst@vlnb.net> wrote:
+>>> For those who asked about perf profiling, it remained the same as before with the CPU
+>>> consumption is all about timekeeping and memset:
 >>>
->>> Perhaps this is what is already included above but could you use the
->>> -g option on perf to collect it into a call-graph and post the top
->>> results?
+>>> -  55.74%  fio  fio                [.] clock_thread_fn
+>>>      clock_thread_fn
 >>
->> The above looks like a side effect of using gtod_cpu, it'll burn one
->> core. For the original poster - did you verify whether using gtod_cpu
->> was faster than using the CPU clock source in each CPU?
->
-> Yes, I had verified it and mentioned in one of my reports. It slightly decreased the
-> IOPS. I guess, it's a locking contention somewhere.
+>> Perhaps this is what is already included above but could you use the
+>> -g option on perf to collect it into a call-graph and post the top
+>> results?
+> 
+> One extra question: do you see a difference between when you use
+> threads (thread=1) and when you use processes (thread=0)?
 
-For clocksource=cpu there is no internal fio contention, nor can there 
-be any kernel/OS contention. Getting the clock is serializing, so that 
-might slow things down a bit.
+Nothing serious (few %%), which could be easily explained, because I'm running number
+of jobs less, than CPU cores count, so each thread or process has a dedicated CPU core.
 
-I've seen you bring up this contention idea before. Is that pure 
-guesswork on your end, or have you profiled any contention? For most fio 
-workloads there is no cross-job traffic, that's by design. Fio does add 
-some overhead in general (everything does), and some of it is opt-out 
-like cutting down on the number of time calls (gtod_cpu). But that's 
-different from any locking contention between jobs, since it's constant 
-and isn't affected by how you spread the workloads.
+Thanks,
+Vlad
 
--- 
-Jens Axboe
 
 
