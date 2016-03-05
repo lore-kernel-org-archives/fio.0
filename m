@@ -1,65 +1,57 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk0-f45.google.com ([209.85.213.45]:36195 "EHLO
-	mail-vk0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757235AbcCaQoM (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 31 Mar 2016 12:44:12 -0400
-Received: by mail-vk0-f45.google.com with SMTP id z68so110556861vkg.3
-        for <fio@vger.kernel.org>; Thu, 31 Mar 2016 09:44:12 -0700 (PDT)
+Return-Path: <vst@vlnb.net>
+Message-ID: <56DA31DB.5090507@vlnb.net>
+Date: Fri, 04 Mar 2016 17:09:47 -0800
+From: Vladislav Bolkhovitin <vst@vlnb.net>
 MIME-Version: 1.0
-Date: Thu, 31 Mar 2016 10:44:11 -0600
-Message-ID: <CAANLjFrvQhEt02+7csMxnBg_fvLyJ8DWWxnAWf1MExSQTqCpMw@mail.gmail.com>
-Subject: fio: rdma_create_event_channel fail
-From: Robert LeBlanc <robert@leblancnet.us>
-Content-Type: text/plain; charset=UTF-8
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Subject: Re: Fio high IOPS measurement mistake
+References: <56D525E1.6010407@vlnb.net> <CALjAwxjLb7L8sZCensSNXZ4kDyHb683bu-zuwDvgk5sFoeMckw@mail.gmail.com> <56D66B1C.6050506@vlnb.net> <56D7A97F.9080800@vlnb.net> <CALjAwxgU06EEYCw9VV7S8UzDtgpo-KUQtS90HK=KpfffkCKn2A@mail.gmail.com> <20160303162037.GD22164@kernel.dk> <56D91110.8080203@vlnb.net> <56D9AADC.3070600@kernel.dk> <56DA2C92.5030508@vlnb.net> <56DA2E49.2050207@kernel.dk>
+In-Reply-To: <56DA2E49.2050207@kernel.dk>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+To: Jens Axboe <axboe@kernel.dk>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
+Jens Axboe wrote on 03/04/2016 04:54 PM:
+>>> I've seen you bring up this contention idea before.
+>>
+>> Yes, it was when I forgot to short circuit lseek calls in the sync engine. Usually, if
+>> you see performance dropping from certain number of threads, it is safe to guess there
+>> is a lock contention somewhere.
+> 
+> That is true, the lseek() part is not in fio though, that's a kernel issue. But for
+> this case, avoiding lseek through one of the sync variants with offset is the best
+> solution. Might actually makes sense to make that the default.
 
-When trying to use the RDMA engine and the example job for the server
-with the port set to an arbitrary value I get:
+BTW, as far as I can see, fio is using independent, fully dedicated file handles for
+each job. Shouldn't independent file handles, ever for the same block device, behave
+fully independently with nothing shared, hence protected by locks?
 
-# /home/rleblanc/fio/fio /home/rleblanc/fio/examples/rdmaio-server.fio
-receiver: (g=0): rw=read, bs=1M-1M/1M-1M/1M-1M, ioengine=rdma, iodepth=16
-fio-2.8-14-g23a8
-Starting 1 process
-fio: rdma_create_event_channel fail
-fio: io engine init failed. Perhaps try reducing io depth?
-fio: pid=18588, err=1/
+In my naive understanding, lseek should be just changing internal offset, a single
+variable. Perhaps, translation fd (integer) -> corresponding internal structure is what
+to blame here (also pure guess).
 
-Setting I/O depth=1 only removed the corresponding message from the output.
-# uname -r
-4.1.15.bs.ufd
+>>> Is that pure guesswork on your end, or have you profiled any contention?
+>>
+>> Pure guesswork. I'm looking at fio in details only few days, so it is still pretty much
+>> a black box for me. Generally, if you see performance drop with another thread, it must
+>> be either locks contention, or communication overhead. Nowadays the former is more
+>> common, hence the guess.
+> 
+> Right, but that contention can be anywhere from the application to the driver. So some
+> more details would be great, when you have them.
+> 
+> One thing I've seen for higher IOPS cases is that the bdev inode inc/dec for every IO,
+> that hurts scalability. That was fixed here:
+> 
+> http://git.kernel.dk/cgit/linux-block/commit/?id=fe0f07d08ee35
+> 
+> but you might already be running a kernel with that included (what are you running?).
+> Another one is the io stats collected, that tends to cause poorer scaling than you
+> would expect, you can turn that off through sysfs (/sys/block/<dev>/queue/iostats).
 
-# rpm -qa | grep -E "ibverbs|rdmacm"
-libibverbs-devel-1.1.8-8.el7.x86_64
-librdmacm-1.0.21-1.el7.x86_64
-libibverbs-1.1.8-8.el7.x86_64
-librdmacm-devel-1.0.21-1.el7.x86_64
+Thanks, I'm planning to update to the latest kernel and try with it.
 
-I'm not sure what is wrong as this is the first time I've tried using
-the RDMA engine.
-- ----------------
-Robert LeBlanc
-PGP Fingerprint 79A2 9CA4 6CC4 45DD A904  C70E E654 3BB2 FA62 B9F1
------BEGIN PGP SIGNATURE-----
-Version: Mailvelope v1.3.6
-Comment: https://www.mailvelope.com
+Vlad
 
-wsFcBAEBCAAQBQJW/VPPCRDmVDuy+mK58QAAPKMQAJF8B3y8pk9l2emtsrGm
-2Rt7ufstv6c4XtuCk2wsc6ocZe8yNfAM1BNkW6pTF96orHZuLTt/QDvbDlnN
-q6N0vPkGJbDVbm7YNDzFc4qOU1pbrn8a66eck5BKuHPPogXCsJJTu+rdfAd9
-TNUGD4b9MzogTCzI8Zs6YRdWLIeaJRsPaHqJGYsD5G83rxGFagjx0qoOPuF+
-CNcFVYXZeU3+/YzsTDfuvNtiSDDJTUe3Shjw6fSu8ZFNabucAbbGOflovIIL
-kGjFmprrFgqOLiTnw7muF6tSXcc205YMGbCgOiEye4i9Ajd/ITiEQ3QlbQZ1
-WDz5WPSukDR8KqJoREKcksWVL7zVciulE5/+ZlJajD02JfOTz7j9QydLAPJ/
-sQM1g7Ft5HZK8TB9IgVKBernHCpahNQ5dU2OadDgpe0rxjzjrVcxegYOqLPd
-iUVFT2/UUFwzxaVnxHXTDNGO5A4JSyctvPTQ4uKLFFox9p6L5pFgrz9o86Fs
-lbW/72IjJD/8AEC64cqJp6JuC/sSEmz2hPpOvKdbpWPlVijzPB0OnpkMB4cC
-DATo4afT5uDRDe7IS8Ypi/WcriVLA+O9jRsigARri1F4FFc1QR/FDtXQnKYE
-SKB8sOE6sAv8qsyNLDqyD3rAzjRJ267zweNcWficcrHD3pYljXCLK1oaZgHD
-EcOB
-=f1X7
------END PGP SIGNATURE-----
+
