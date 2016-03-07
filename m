@@ -4,52 +4,72 @@ References: <BN3PR0401MB145783CB3B39ADEEAED39523F7A70@BN3PR0401MB1457.namprd04.p
  <CANvN+e=rTzEnCybj3jFkxt0WCGbSP4R1YbTBKpF+QBv3H2swkA@mail.gmail.com>
  <20160303161828.GC22164@kernel.dk> <20160303200446.GA2234@kernel.dk>
  <BN3PR0401MB1457E708CC129BD01FE8B94EF7B10@BN3PR0401MB1457.namprd04.prod.outlook.com>
+ <CANvN+e=jaYQZNS7KRHALDeEF6bwJ0uqDf7ra+qoCwy5OYXMzwA@mail.gmail.com>
 From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <56DDEDE7.9020603@kernel.dk>
-Date: Mon, 7 Mar 2016 14:08:55 -0700
+Message-ID: <56DDEDB4.6020704@kernel.dk>
+Date: Mon, 7 Mar 2016 14:08:04 -0700
 MIME-Version: 1.0
-In-Reply-To: <BN3PR0401MB1457E708CC129BD01FE8B94EF7B10@BN3PR0401MB1457.namprd04.prod.outlook.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+In-Reply-To: <CANvN+e=jaYQZNS7KRHALDeEF6bwJ0uqDf7ra+qoCwy5OYXMzwA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-To: Jeff Furlong <jeff.furlong@hgst.com>, Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>, Jeff Furlong <jeff.furlong@hgst.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 03/07/2016 01:46 PM, Jeff Furlong wrote:
-> Thanks for the suggestions and patches.  Using the latest fio version, the JESD219 workload is possible:
+On 03/07/2016 02:02 PM, Andrey Kuzmin wrote:
+> On Mon, Mar 7, 2016 at 11:46 PM, Jeff Furlong <jeff.furlong@hgst.com> wrote:
+>> Thanks for the suggestions and patches.  Using the latest fio version, the JESD219 workload is possible:
 >
-> # fio -version
-> fio-2.6-27-gd283
+> Nice.
 >
-> # fio --name=JESD219 --ioengine=libaio --direct=1 --rw=randrw --norandommap --randrepeat=0 --rwmixread=40 --rwmixwrite=60 --iodepth=256 --size=100% --numjobs=4 --bssplit=512/4:1024/1:1536/1:2048/1:2560/1:3072/1:3584/1:4k/67:8k/10:16k/7:32k/3:64k/3 --random_distribution=zoned:50/5:30/15:20/80 --overwrite=1 --filename=/dev/nvme0n1 --group_reporting --runtime=5m --time_based --output=JESD219
+>>
+>> # fio -version
+>> fio-2.6-27-gd283
+>>
+>> # fio --name=JESD219 --ioengine=libaio --direct=1 --rw=randrw --norandommap --randrepeat=0 --rwmixread=40 --rwmixwrite=60 --iodepth=256 --size=100% --numjobs=4 --bssplit=512/4:1024/1:1536/1:2048/1:2560/1:3072/1:3584/1:4k/67:8k/10:16k/7:32k/3:64k/3 --random_distribution=zoned:50/5:30/15:20/80 --overwrite=1 --filename=/dev/nvme0n1 --group_reporting --runtime=5m --time_based --output=JESD219
+>>
+>> A quick statistical analysis of the results shows:
+>>
+>> Found 20380582 IOs
+>>
+>>   Found 39.9903152913% reads
+>>   Found 60.0096847087% writes
+>>
+>>   Found 4.00492979052% 512
+>>   Found 1.00495658073% 1024
+>>   Found 1.00079575745% 1536
+>>   Found 1.00046701316% 2048
+>>   Found 0.998764412125% 2560
+>>   Found 0.998043137335% 3072
+>>   Found 0.999520033334% 3584
+>>   Found 67.0145778958% 4096
+>>   Found 9.98662844859% 8192
+>>   Found 6.99898560306% 16384
+>>   Found 2.99961993235% 32768
+>>   Found 2.99271139558% 65536
+>>
+>>   Found 49.9895734086% 0-5%
+>>   Found 30.0126463513% 5-20%%
+>>   Found 19.99778024% 20-100%
+>>
 >
-> A quick statistical analysis of the results shows:
->
-> Found 20380582 IOs
->
->   Found 39.9903152913% reads
->   Found 60.0096847087% writes
->
->   Found 4.00492979052% 512
->   Found 1.00495658073% 1024
->   Found 1.00079575745% 1536
->   Found 1.00046701316% 2048
->   Found 0.998764412125% 2560
->   Found 0.998043137335% 3072
->   Found 0.999520033334% 3584
->   Found 67.0145778958% 4096
->   Found 9.98662844859% 8192
->   Found 6.99898560306% 16384
->   Found 2.99961993235% 32768
->   Found 2.99271139558% 65536
->
->   Found 49.9895734086% 0-5%
->   Found 30.0126463513% 5-20%%
->   Found 19.99778024% 20-100%
->
-> So we can confirm (with a reasonable tolerance) that the read/write distribution, the blocksize distribution, and the zoned distribution hold true.  Feel free to modify the fio cmd for your actual JESD219 workload (duration, logs, etc.).
+> It hardly matters, but is still somewhat surprising to see that both
+> bs and zone split percentage are accurate only up to 5x10^-3.
 
-Thanks for posting this Jeff, looks great!
+It tends to be more accurate with more IOs - for this case, it's 20 
+million, I guess you could assume that it'd be better. Generally it does 
+get more accurate with more ios. But I'm mostly in the camp of "it 
+hardly matters", it's close enough that you'd be hard pressed to 
+complain about it.
+
+Fio does most of its math in integers, so we lose a bit of precision 
+there, but it's a lot faster.
+
+That said, just a one-off in the calculations here could mean that it's 
+an order of magnitude less accurate than it should. Maybe the above 
+could be 10^-4 or 10^-5. It's so close that I'm finding it hard to 
+locate the motivation to actually check and verify all that :-)
+
 
 -- 
 Jens Axboe
