@@ -1,39 +1,22 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from sjc00mx2.hgst.com ([199.255.44.37]:6730 "EHLO sjc00mx2.hgst.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753010AbcCNSTH convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 14 Mar 2016 14:19:07 -0400
-From: Jeff Furlong <jeff.furlong@hgst.com>
+Received: from AUSXIPPC110.us.dell.com ([143.166.85.200]:48836 "EHLO
+	ausxippc110.us.dell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932250AbcCNSPK convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Mon, 14 Mar 2016 14:15:10 -0400
+From: <Kurt_Dorsey@Dell.com>
 Subject: RE: Monitor IO while fio is running
-Date: Mon, 14 Mar 2016 18:19:05 +0000
-Message-ID: <BN3PR0401MB14577A6218C90FF7C23098CDF7880@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Date: Mon, 14 Mar 2016 18:03:03 +0000
+Message-ID: <c0aff70ec5314c33a41556b828fb7bd1@AUSX13MPC107.AMER.DELL.COM>
 References: <e0428ae214c0407bb565172a563e79ad@AUSX13MPC103.AMER.DELL.COM>
  <BN3PR0401MB1457AF32B8D51A1BC9512D4AF7880@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <c0aff70ec5314c33a41556b828fb7bd1@AUSX13MPC107.AMER.DELL.COM>
-In-Reply-To: <c0aff70ec5314c33a41556b828fb7bd1@AUSX13MPC107.AMER.DELL.COM>
+In-Reply-To: <BN3PR0401MB1457AF32B8D51A1BC9512D4AF7880@BN3PR0401MB1457.namprd04.prod.outlook.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
 Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Kurt_Dorsey@Dell.com" <Kurt_Dorsey@Dell.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-
-No need to redirect if you're in python.  You can invoke fio from subprocess, then read the subprocess's output in realtime:
-
-subprocess.stdout.readline().strip()
-
-would get you the eta newline outputs, which you can analyze, print to screen, etc. from python.
-
-Regards,
-Jeff
-
-
------Original Message-----
-From: Kurt_Dorsey@Dell.com [mailto:Kurt_Dorsey@Dell.com] 
-Sent: Monday, March 14, 2016 11:03 AM
-To: Jeff Furlong <jeff.furlong@hgst.com>; fio@vger.kernel.org
-Subject: RE: Monitor IO while fio is running
+To: jeff.furlong@hgst.com, fio@vger.kernel.org
 
 Thank you Jeff for the reply.
 
@@ -41,7 +24,9 @@ I have been playing around with this but unfortunately I cannot get the output t
 
 I haven't done C programming in years but I am trying to figure out from the code why this is.  I see in the eta.c file
 
-void display_thread_status(struct jobs_eta *je) { ...
+void display_thread_status(struct jobs_eta *je)
+{
+...
        printf("%s", output);
 
         if (!eta_new_line_init) {
@@ -63,7 +48,7 @@ Kurt
 
 
 -----Original Message-----
-From: Jeff Furlong [mailto:jeff.furlong@hgst.com]
+From: Jeff Furlong [mailto:jeff.furlong@hgst.com] 
 Sent: Monday, March 14, 2016 12:56 PM
 To: Dorsey, Kurt ; fio@vger.kernel.org
 Subject: RE: Monitor IO while fio is running
@@ -93,7 +78,3 @@ To unsubscribe from this list: send the line "unsubscribe fio" in the body of a 
 Western Digital Corporation (and its subsidiaries) E-mail Confidentiality Notice & Disclaimer:
 
 This e-mail and any files transmitted with it may contain confidential or legally privileged information of WDC and/or its affiliates, and are intended solely for the use of the individual or entity to which they are addressed. If you are not the intended recipient, any disclosure, copying, distribution or any action taken or omitted to be taken in reliance on it, is prohibited. If you have received this e-mail in error, please notify the sender immediately and delete the e-mail in its entirety from your system.
-Western Digital Corporation (and its subsidiaries) E-mail Confidentiality Notice & Disclaimer:
-
-This e-mail and any files transmitted with it may contain confidential or legally privileged information of WDC and/or its affiliates, and are intended solely for the use of the individual or entity to which they are addressed. If you are not the intended recipient, any disclosure, copying, distribution or any action taken or omitted to be taken in reliance on it, is prohibited. If you have received this e-mail in error, please notify the sender immediately and delete the e-mail in its entirety from your system.
-
