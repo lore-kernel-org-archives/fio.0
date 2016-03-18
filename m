@@ -1,125 +1,96 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from [198.137.202.9] ([198.137.202.9]:36417 "EHLO
-	bombadil.infradead.org" rhost-flags-FAIL-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S965027AbcCPMAw (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 16 Mar 2016 08:00:52 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1agA7P-0007jC-Iu
-	for fio@vger.kernel.org; Wed, 16 Mar 2016 12:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160316120002.3A34B2C0C38@kernel.dk>
-Date: Wed, 16 Mar 2016 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <lftan.linux@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <56EAD8E0.7080604@kernel.dk>
+References: <CAFiDJ59S0zhHDNbbron+Q1X06kBZ2i24VXYzHrSbrr0ujAR74w@mail.gmail.com>
+	<56E85B38.9010904@kernel.dk>
+	<CAFiDJ58k7KMZKxqE0OpKq0ckdfoEthKrYyPH3DGvW+S577xG5Q@mail.gmail.com>
+	<56E988DC.9050506@kernel.dk>
+	<CAFiDJ59P-eGKHcrdWAdpR-aJf=oe43G67bGaSY-zPnK-r8P__Q@mail.gmail.com>
+	<56EAD8E0.7080604@kernel.dk>
+Date: Fri, 18 Mar 2016 15:09:32 +0800
+Message-ID: <CAFiDJ5_kr-gesHe_ybaUnNaazMZZEg-B0Xhpvt6JFqJTYCgK_g@mail.gmail.com>
+Subject: Re: fio with polling mode
+From: Ley Foon Tan <lftan.linux@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 5f2f35697b1559cc4fff47c7c94cb983e6f2a460:
+On Fri, Mar 18, 2016 at 12:18 AM, Jens Axboe <axboe@kernel.dk> wrote:
+> On 03/17/2016 02:39 AM, Ley Foon Tan wrote:
+>>
+>> On Thu, Mar 17, 2016 at 12:25 AM, Jens Axboe <axboe@kernel.dk> wrote:
+>>>
+>>> On 03/16/2016 04:18 AM, Ley Foon Tan wrote:
+>>>>
+>>>>
+>>>> On Wed, Mar 16, 2016 at 2:58 AM, Jens Axboe <axboe@kernel.dk> wrote:
+>>>>>
+>>>>>
+>>>>>
+>>>>> On 03/15/2016 04:20 AM, Ley Foon Tan wrote:
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>> Hi
+>>>>>>
+>>>>>> In the kernel v4.4 above, we can use polling mode for the NVMe data
+>>>>>> transfer with command below:
+>>>>>>
+>>>>>> echo 1 > /sys/block/nvme0n1/queue/io_poll
+>>>>>>
+>>>>>> We can see NVMe throughput increase with polling mode with dd command.
+>>>>>> Can we run fio with polling mode as well? If yes, what are the correct
+>>>>>> fio parameters/arguments should we use?
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>> direct=1, and use one of the sync IO engines (psync would be a good
+>>>>> one).
+>>>>> And enable io_poll like you did above, then fio should be in polled
+>>>>> mode.
+>>>>>
+>>>>> --
+>>>>> Jens Axboe
+>>>>
+>>>>
+>>>> Hi Jens
+>>>>
+>>>> I have tried fio with direct=1 and ioengine=psync. But the results
+>>>> almost the same (low throughput). Below is example command for
+>>>> sequential write.
+>>>> With your experiences, any clue where is the bottleneck for low
+>>>> throughput (based on fio output). Note, kernel v4.4 and ARM platform.
+>>>
+>>>
+>>>
+>>> Polled IO helps with latencies, which means that the effects are most
+>>> pronounced on smaller block size IO. You are using 128K, which is pretty
+>>> far
+>>> outside the realm of "smaller block size".
+>>>
+>>> That said, you do seem to have a reduction in average latency with
+>>> polling.
+>>> But given the transfer size and time, percentage wise, it's not that
+>>> huge.
+>>>
+>> Yes, you are right. We can see about 20% throughput gain with 4KB
+>> block size. But, block size greater than 4KB doesn't have much
+>> improvement.
+>> Do you know any other fio or OS settings that can help on the NVMe
+>> throughput? Tried set scheduler to NOOP mode doesn't help too.
+>
+>
+> Polling isn't really going to help your throughput, it'll only do that if
+> you are IOPS bound. If you are missing bandwidth, you probably need to look
+> closer at why that is.
+Yes, we are looking at this now.
+Let me know if you know any part that will impact this.
 
-  lib/rand: make __init_randX() static (2016-03-10 12:12:09 -0700)
+BTW, thanks for your help!
 
-are available in the git repository at:
 
-  git://git.kernel.dk/fio.git master
+Regards
+Ley Foon
 
-for you to fetch changes up to a7ef38c4f0bb5ff11f46968e7fa5fa9a54c16de0:
-
-  Fio 2.8 (2016-03-15 09:10:37 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (3):
-      Revert "options: move pattern_fmt_desc where we need it"
-      verify: clear IO verify state all_io_list before writing
-      Fio 2.8
-
- FIO-VERSION-GEN        |  2 +-
- options.c              | 19 ++++++++++---------
- os/windows/install.wxs |  2 +-
- verify.c               |  1 +
- 4 files changed, 13 insertions(+), 11 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index a4ff012..502d4fe 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-2.7
-+DEF_VER=fio-2.8
- 
- LF='
- '
-diff --git a/options.c b/options.c
-index 7075d84..062abb4 100644
---- a/options.c
-+++ b/options.c
-@@ -20,6 +20,14 @@
- 
- char client_sockaddr_str[INET6_ADDRSTRLEN] = { 0 };
- 
-+struct pattern_fmt_desc fmt_desc[] = {
-+	{
-+		.fmt   = "%o",
-+		.len   = FIELD_SIZE(struct io_u *, offset),
-+		.paste = paste_blockoff
-+	}
-+};
-+
- /*
-  * Check if mmap/mmaphuge has a :/foo/bar/file at the end. If so, return that.
-  */
-@@ -1184,20 +1192,13 @@ static int str_dedupe_cb(void *data, unsigned long long *il)
- 
- static int str_verify_pattern_cb(void *data, const char *input)
- {
--	struct pattern_fmt_desc fmt_desc[] = {
--		{
--			.fmt   = "%o",
--			.len   = FIELD_SIZE(struct io_u *, offset),
--			.paste = paste_blockoff
--		}
--	};
- 	struct thread_data *td = data;
- 	int ret;
- 
- 	td->o.verify_fmt_sz = ARRAY_SIZE(td->o.verify_fmt);
- 	ret = parse_and_fill_pattern(input, strlen(input), td->o.verify_pattern,
--			MAX_PATTERN_SIZE, fmt_desc, sizeof(fmt_desc),
--			td->o.verify_fmt, &td->o.verify_fmt_sz);
-+				     MAX_PATTERN_SIZE, fmt_desc, sizeof(fmt_desc),
-+				     td->o.verify_fmt, &td->o.verify_fmt_sz);
- 	if (ret < 0)
- 		return 1;
- 
-diff --git a/os/windows/install.wxs b/os/windows/install.wxs
-index ed9f98b..366547d 100755
---- a/os/windows/install.wxs
-+++ b/os/windows/install.wxs
-@@ -10,7 +10,7 @@
- 	<Product Id="*"
- 	  Codepage="1252" Language="1033"
- 	  Manufacturer="fio" Name="fio"
--	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.7">
-+	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.8">
- 		<Package
- 		  Description="Flexible IO Tester"
- 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
-diff --git a/verify.c b/verify.c
-index 5d491d7..0f43a3e 100644
---- a/verify.c
-+++ b/verify.c
-@@ -1385,6 +1385,7 @@ struct all_io_list *get_all_io_list(int save_mask, size_t *sz)
- 	*sz += nr * sizeof(struct thread_io_list);
- 	*sz += depth * sizeof(uint64_t);
- 	rep = malloc(*sz);
-+	memset(rep, 0, *sz);
- 
- 	rep->threads = cpu_to_le64((uint64_t) nr);
- 
