@@ -1,25 +1,69 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from AUSXIPPS310.us.dell.com ([143.166.148.211]:7254 "EHLO
-	ausxipps310.us.dell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752666AbcCLWU1 convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Sat, 12 Mar 2016 17:20:27 -0500
-From: <Kurt_Dorsey@Dell.com>
-Subject: Monitor IO while fio is running
-Date: Sat, 12 Mar 2016 22:20:24 +0000
-Message-ID: <e0428ae214c0407bb565172a563e79ad@AUSX13MPC103.AMER.DELL.COM>
+Return-Path: <jeff.furlong@hgst.com>
+From: Jeff Furlong <jeff.furlong@hgst.com>
+Subject: RE: Windows make fails
+Date: Mon, 21 Mar 2016 18:59:31 +0000
+Message-ID: <CY1PR0401MB14665DFD356E947839CD8F25F78F0@CY1PR0401MB1466.namprd04.prod.outlook.com>
+References: <BN3PR0401MB14579B2785DF531EC8BC867BF78C0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+ <56EEC480.8030709@kernel.dk>
+In-Reply-To: <56EEC480.8030709@kernel.dk>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Bruce Cran <bruce@cran.org.uk>
+List-ID: <fio@vger.kernel.org>
 
-I may just not know how to do this
-I know about the ability to touch /tmp/fio-dump-status which will dump the output of fio to a file or stdout while the test is running.  What I am looking for is to be able to dump the write_iops_log while fio is running so that I can see the point in time average IOps for a given interval
-For example if I have log_avg_msec=60000 it will write an iops.log file with 60second intervals, unfortunately this file doesn't get created until fio exits.  Is there a way to get this to dump on a regular basis (or by touching a file in /tmp) so that I can tail the output?
+The current git fixes the Windows build error.
 
-I am looking for a way to get point in time status via a script and the output from tmp-dump-status only gives me averages from the start of time rather than the last interval
+However, the current git build on Windows only shows fio version 2.8.
 
-Thank you,
-Kurt
+Regards,
+Jeff
+
+
+-----Original Message-----
+From: Jens Axboe [mailto:axboe@kernel.dk] =
+
+Sent: Sunday, March 20, 2016 8:41 AM
+To: Jeff Furlong <jeff.furlong@hgst.com>; fio@vger.kernel.org; Bruce Cran <=
+bruce@cran.org.uk>
+Subject: Re: Windows make fails
+
+On 03/18/2016 11:29 AM, Jeff Furlong wrote:
+> Hi All,
+> The latest fio version seems to fail building on Windows:
+>
+>    LINK t/gen-rand
+> lib/pattern.o: In function `parse_number':
+> /fio-fio-2.8_win/lib/pattern.c:78: undefined reference to `strcasestr'
+> collect2: error: ld returned 1 exit status
+> Makefile:396: recipe for target 't/gen-rand' failed
+> make: *** [t/gen-rand] Error 1
+
+Current -git should fix that.
+
+> Also, the Windows builds only seem to pick up the base version number (fi=
+o 2.7 or fio 2.8), not the latest git version (fio 2.8-123).  So the last r=
+elease (e.g. 2.8) build cannot be distinguishable from the latest git versi=
+on (e.g 2.8-123).
+
+Someone more knowledgable on the windows build needs to answer that... =
+
+Bruce, would adding the -git version be easy enough to do? It's available i=
+n the FIO_VERSION define.
+
+--
+Jens Axboe
+
+Western Digital Corporation (and its subsidiaries) E-mail Confidentiality N=
+otice & Disclaimer:
+
+This e-mail and any files transmitted with it may contain confidential or l=
+egally privileged information of WDC and/or its affiliates, and are intende=
+d solely for the use of the individual or entity to which they are addresse=
+d. If you are not the intended recipient, any disclosure, copying, distribu=
+tion or any action taken or omitted to be taken in reliance on it, is prohi=
+bited. If you have received this e-mail in error, please notify the sender =
+immediately and delete the e-mail in its entirety from your system.
+
+
