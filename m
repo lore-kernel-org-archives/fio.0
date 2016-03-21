@@ -1,49 +1,54 @@
-Return-Path: <axboe@kernel.dk>
-Date: Thu, 3 Mar 2016 09:16:03 -0700
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from casper.infradead.org ([85.118.1.10]:52343 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754251AbcCUMAH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 21 Mar 2016 08:00:07 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.85 #2 (Red Hat Linux))
+	id 1ahyVB-0004vH-En
+	for fio@vger.kernel.org; Mon, 21 Mar 2016 12:00:05 +0000
+Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: Specify range and distribution of accesses
-Message-ID: <20160303161603.GB22164@kernel.dk>
-References: <BN3PR0401MB145783CB3B39ADEEAED39523F7A70@BN3PR0401MB1457.namprd04.prod.outlook.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BN3PR0401MB145783CB3B39ADEEAED39523F7A70@BN3PR0401MB1457.namprd04.prod.outlook.com>
-To: Jeff Furlong <jeff.furlong@hgst.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Message-Id: <20160321120002.6B6192C0114@kernel.dk>
+Date: Mon, 21 Mar 2016 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On Fri, Feb 26 2016, Jeff Furlong wrote:
-> Hi All,
-> I'm looking for a method to distribute access to certain ranges of a
-> block device.  For example, the JESD219 workload
-> (http://www.jedec.org/sites/default/files/docs/JESD219.pdf) specifies 
-> 
-> The workload shall be distributed across the SSD such that the following is achieved:
-> 1) 50% of accesses to first 5% of user LBA space (LBA group a)
-> 2) 30% of accesses to next 15% of user LBA space (LBA group b)
-> 3) 20% of accesses to remainder of user LBA space (LBA group c)
-> 
-> I do not currently see any fio options to allow such usage.  Perhaps
-> if --size or --iosize is updated to allow ranges/distributions, it may
-> be possible?
-> 
-> The JESD219 workload also specifies a distribution of block sizes,
-> which can already be accomplished in fio with --bssplit, such as
-> --bssplit=4k/10:64k/50:32k/40.  Perhaps extending that usage to --size
-> or --iosize may solve the issue?
-> 
-> The above link for the JESD219 workload includes a vdbench script to
-> produce the desired workload, but I'm hesitant to think that vdbench
-> does something that fio cannot.  Has anyone been able to specify
-> ranges and distributions of accesses in any other way?  Thanks.
+The following changes since commit 87a0ea3b58ef3d126148cb0279e015177ef9c62f:
 
-There's no straight forward way to do that, I'm afraid. Might be
-possible to do with a somewhat convoluted use of the existing
-options. Would be a useful addition, however, to be able to do this in a
-logical manner. I'll think about it a bit, would require some
-abstraction around zoning of a fio_file.
+  init: seed repeatable jobs differently (2016-03-18 09:07:16 -0700)
 
--- 
-Jens Axboe
+are available in the git repository at:
 
+  git://git.kernel.dk/fio.git master
 
+for you to fetch changes up to e91ba49acb8ff9f2e82046fec4f42b790e8644b1:
+
+  gen-rand: fix dependency on strcasestr.o (2016-03-20 09:38:57 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      gen-rand: fix dependency on strcasestr.o
+
+ Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/Makefile b/Makefile
+index a2502dc..749a508 100644
+--- a/Makefile
++++ b/Makefile
+@@ -212,7 +212,8 @@ T_LFSR_TEST_OBJS += lib/lfsr.o gettime.o t/log.o t/debug.o t/arch.o
+ T_LFSR_TEST_PROGS = t/lfsr-test
+ 
+ T_GEN_RAND_OBJS = t/gen-rand.o
+-T_GEN_RAND_OBJS += t/log.o t/debug.o lib/rand.o lib/pattern.o lib/strntol.o
++T_GEN_RAND_OBJS += t/log.o t/debug.o lib/rand.o lib/pattern.o lib/strntol.o \
++			oslib/strcasestr.o
+ T_GEN_RAND_PROGS = t/gen-rand
+ 
+ ifeq ($(CONFIG_TARGET_OS), Linux)
