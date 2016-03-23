@@ -1,130 +1,86 @@
-Return-Path: <flashyan83@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <BN3PR0401MB145719A81EC72FA99E7BB8A3F7810@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Return-Path: <jeff.furlong@hgst.com>
+From: Jeff Furlong <jeff.furlong@hgst.com>
+Subject: RE: Linux OS killed fio process because fio invoked oom_killer
+Date: Wed, 23 Mar 2016 19:29:49 +0000
+Message-ID: <BN3PR0401MB145719A81EC72FA99E7BB8A3F7810@BN3PR0401MB1457.namprd04.prod.outlook.com>
 References: <CADvrUP8gH3S-fLnHU4QXJLO87YzUge8MxKt3WdffN+9uiVpH3w@mail.gmail.com>
 	<56F17326.3000908@kernel.dk>
 	<CADvrUP9duNxzfMuQum-e_YXqVUjG_K8any52e7sQn6ZcBy9o8Q@mail.gmail.com>
 	<61A20AC4-3F8E-4B1E-A2C9-81BE827B188F@kernel.dk>
-	<CADvrUP-C-Sm_kGbQTNZRitVMi8ory4GrMNy7+oXFeE=fYRJnvQ@mail.gmail.com>
-	<BN3PR0401MB145719A81EC72FA99E7BB8A3F7810@BN3PR0401MB1457.namprd04.prod.outlook.com>
-Date: Thu, 24 Mar 2016 06:51:32 +0800
-Message-ID: <CADvrUP-Lz4WSzx6H+0bWpRtF5rp+FFSq0Atso8uaar=mt08zHQ@mail.gmail.com>
-Subject: Re: Linux OS killed fio process because fio invoked oom_killer
-From: flash yan <flashyan83@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-To: Jeff Furlong <jeff.furlong@hgst.com>
-Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+ <CADvrUP-C-Sm_kGbQTNZRitVMi8ory4GrMNy7+oXFeE=fYRJnvQ@mail.gmail.com>
+In-Reply-To: <CADvrUP-C-Sm_kGbQTNZRitVMi8ory4GrMNy7+oXFeE=fYRJnvQ@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+To: flash yan <flashyan83@gmail.com>, Jens Axboe <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-I will try verify_backlog option.
-I have a question. Why it happened with io_size to 4096 not other
-io_size? Other io_size should have same problem.
+SSBiZWxpZXZlIHlvdSBhcmUgc2VlaW5nIGV4cGVjdGVkIGJlaGF2aW9yLiAgV2hlbiB2ZXJpZnkg
+aXMgZW5hYmxlZCwgdGhlIHdyaXR0ZW4gZGF0YSBpcyBidWZmZXJlZCBpbiBEUkFNIHVudGlsIHRo
+ZSBqb2IgaXMgZmluaXNoZWQsIHRoZW4gY29tcGFyZWQgYnkgcmVhZGluZyBkYXRhIGZyb20gdGhl
+IGRldmljZS4gIElmIHRoZSBkZXZpY2UgY2FwYWNpdHkgaXMgbGFyZ2UsIG9yIGlmIHRoZSBkZXZp
+Y2UgY2FwYWNpdHkgaXMgc21hbGwgYnV0IHlvdSBzZXQgdGhlIHJ1bnRpbWUsIHlvdSB3aWxsIGJ1
+ZmZlciBtYW55IElPJ3MuICBTbyB0aGUgb29tX2tpbGxlciBzZWVzIHRoZSBwcm9jZXNzIGFzIGhv
+Z2dpbmcgbW9zdCBvZiB0aGUgRFJBTSwgdGhlbiBraWxscyBpdC4gIFdoZW4gdmVyaWZ5IGlzIGRp
+c2FibGVkLCBubyBidWZmZXJpbmcgdGFrZXMgcGxhY2UsIHNvIG5vIG9vbV9raWxsZXIuDQoNClRy
+eSB0aGUgdmVyaWZ5X2JhY2tsb2cgb3B0aW9uLiAgSWYgeW91IGhhdmUgYSA0S0IgYnMsIGFuZCB5
+b3Ugc2V0IHZlcmlmeV9iYWNrbG9nPTEwNDg1NzYsIHRoZW4geW91J2xsIHdyaXRlIG91dCA0R0Ig
+b2YgZGF0YSwgdGhlbiByZWFkIGl0IGJhY2sgYW5kIGNvbXBhcmUgd2l0aCB0aGUgRFJBTSBidWZm
+ZXIsIHRoZW4gc3RhcnQgYWdhaW4uICBKdXN0IGJlIHN1cmUgdGhlIHZlcmlmeV9iYWNrbG9nIHZh
+bHVlIGlzIGxlc3MgdGhhbiB5b3VyIGZyZWUgRFJBTS4NCg0KUmVnYXJkcywNCkplZmYNCg0KDQot
+LS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogZmlvLW93bmVyQHZnZXIua2VybmVsLm9y
+ZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBPZiBmbGFzaCB5
+YW4NClNlbnQ6IFdlZG5lc2RheSwgTWFyY2ggMjMsIDIwMTYgODoxMCBBTQ0KVG86IEplbnMgQXhi
+b2UgPGF4Ym9lQGtlcm5lbC5kaz4NCkNjOiBmaW9Admdlci5rZXJuZWwub3JnDQpTdWJqZWN0OiBS
+ZTogTGludXggT1Mga2lsbGVkIGZpbyBwcm9jZXNzIGJlY2F1c2UgZmlvIGludm9rZWQgb29tX2tp
+bGxlcg0KDQpJIGhhdmUgcnVuIGZpbyB3aXRob3V0IHZlcmlmeSBhbmQgdGhpcyBpc3N1ZSBkaWRu
+J3QgaGFwcGVuLiBTbyBpdCBzaG91bGQgYmUgdmVyaWZ5IGlzc3VlLg0KVGhlIGZpbyBqb2IgZmls
+ZSBpcyBhcyBiZWxvdzoNCg0KW2dsb2JhbF0NCnRocmVhZD0xDQppbnZhbGlkYXRlPTENCnJ3PXJh
+bmR3cml0ZQ0KdGltZV9iYXNlZD0xDQpydW50aW1lPTMwMDANCnJ3bWl4cmVhZD01MA0KaW9lbmdp
+bmU9bGliYWlvDQpkaXJlY3Q9MQ0KYnM9NDA5Ng0KaW9kZXB0aD0xNg0KdmVyaWZ5X2R1bXA9MQ0K
+dmVyaWZ5X2FzeW5jPTEwDQpkb192ZXJpZnk9MQ0KdmVyaWZ5PW1ldGENCnZlcmlmeV9wYXR0ZXJu
+PSJtZXRhIg0KW2pvYjBdDQpmaWxlbmFtZT0vZGV2L3NkYQ0KW2pvYjFdDQpmaWxlbmFtZT0vZGV2
+L3NkYg0KDQpJIHRoaW5rIHlvdSBjYW4gdXNlIHJhbSBkaXNrKHVidW50dSBoYXZlIHJhbSBkaXNr
+IC9kZXYvcmFtKikgdG8gcmVwcm9kdWNlIHRoaXMgaXNzdWUuDQpJdCBoYXBwZW5lZCB3aXRoIGRl
+dmljZXMgd2hpY2ggaGF2ZSBoaWdoIHNwZWVkLg0KDQoyMDE2LTAzLTIzIDg6NDIgR01UKzA4OjAw
+IEplbnMgQXhib2UgPGF4Ym9lQGtlcm5lbC5kaz46DQo+IFdoYXQgam9iIGRpZCB5b3UgcnVuPyBX
+aGVuIHJlcG9ydGluZyBhIHBvdGVudGlhbCBpc3N1ZSwgYWx3YXlzIGluY2x1ZGUgdGhhdC4gSGFy
+ZCB0byBoZWxwIG9yIGFkdmlzZSBvdGhlcndpc2UuDQo+DQo+PiBPbiBNYXIgMjIsIDIwMTYsIGF0
+IDU6MTIgUE0sIGZsYXNoIHlhbiA8Zmxhc2h5YW44M0BnbWFpbC5jb20+IHdyb3RlOg0KPj4NCj4+
+IFRoaXMgaXNzdWUgaGFwcGVuZWQgYWZ0ZXIgYWJvdXQgMjAgbWludXRlcy4gVGhlIGlzY3NpIGRl
+dmljZSBpcyB2ZXJ5IA0KPj4gc21hbGwsIG9ubHkgMTI4TUIuDQo+PiBBcyB5b3Ugc2FpZCwgSSBo
+YXZlIGVuYWJsZWQgdmVyaWZ5PSBvcHRpb25zLg0KPj4gSSB3aWxsIHRyeSBiaWcgaXNjc2kgZGV2
+aWNlIGFuZCBubyB2ZXJpZnkuDQo+Pg0KPj4gVGhhbmtzDQo+Pg0KPj4gTGlhbmcgWWFuDQo+Pg0K
+Pj4gMjAxNi0wMy0yMyAwOjMwIEdNVCswODowMCBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+
+Og0KPj4+PiBPbiAwMy8yMi8yMDE2IDA4OjA2IEFNLCBmbGFzaCB5YW4gd3JvdGU6DQo+Pj4+DQo+
+Pj4+IEhpIGFsbCwNCj4+Pj4NCj4+Pj4gSSBoYXZlIHJ1biBmaW8tMi43IHRvIHRlc3QgaXNjc2kg
+ZGV2aWNlLCBvbmUgdW51c3VhbCBpc3N1ZSBoYXBwZW5lZC4NCj4+Pj4gSWYgSSBzZXQgdGhlIGlv
+X3NpemUgdG8gNDA5NiwgcXVldWVfZGVwdGggdG8gMTYgLHJ3IHRvIHJhbmR3cml0ZSANCj4+Pj4g
+YW5kIHJ1bl90aW1lIHRvIDMwMDAsIHRoZSBmaW8gd291bGQgaW52b2tlIG9vbV9raWxsZXIgYW5k
+IHRoZSBMaW51eCANCj4+Pj4gT1Mgd291bGQga2lsbCB0aGUgZmlvIHByb2Nlc3MuDQo+Pj4+IFRo
+ZSBtYWNoaW5lIGhhdmUgYWJvdXQgMTEgR0IgbWVtb3J5IGFuZCBJIGhhdmUgdHJpZWQgdGhlIG1h
+Y2hpbmUgDQo+Pj4+IHdpdGggMjNHQiwgdGhlIGlzc3VlIGFsc28gaGFwcGVuZWQuDQo+Pj4+IEkg
+dGhpbmsgZmlvIGhhdmUgcHJvYmxlbSB3aGVuIGRlYWxpbmcgd2l0aCA0S0IgaW9fc2l6ZSB0aGVu
+IHVzZWQgDQo+Pj4+IHRvbyBtYW55IG1lbW9yeS4NCj4+Pg0KPj4+DQo+Pj4gV2hlbiBkaWQgdGhp
+cyBoYXBwZW4gLSBzaG9ydGx5IGFmdGVyIHRoZSBqb2IgaXMgc3RhcnRlZCwgb3IgbG9uZyANCj4+
+PiBhZnRlcj8gSG93IGJpZyBpcyB0aGUgaXNjc2kgZGV2aWNlPyBEaWQgeW91IGhhdmUgdmVyaWZ5
+PSBvcHRpb25zIGVuYWJsZWQ/DQo+Pj4NCj4+PiAtLQ0KPj4+IEplbnMgQXhib2UNCj4+Pg0KLS0N
+ClRvIHVuc3Vic2NyaWJlIGZyb20gdGhpcyBsaXN0OiBzZW5kIHRoZSBsaW5lICJ1bnN1YnNjcmli
+ZSBmaW8iIGluIHRoZSBib2R5IG9mIGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwu
+b3JnIE1vcmUgbWFqb3Jkb21vIGluZm8gYXQgIGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFqb3Jk
+b21vLWluZm8uaHRtbA0KV2VzdGVybiBEaWdpdGFsIENvcnBvcmF0aW9uIChhbmQgaXRzIHN1YnNp
+ZGlhcmllcykgRS1tYWlsIENvbmZpZGVudGlhbGl0eSBOb3RpY2UgJiBEaXNjbGFpbWVyOgoKVGhp
+cyBlLW1haWwgYW5kIGFueSBmaWxlcyB0cmFuc21pdHRlZCB3aXRoIGl0IG1heSBjb250YWluIGNv
+bmZpZGVudGlhbCBvciBsZWdhbGx5IHByaXZpbGVnZWQgaW5mb3JtYXRpb24gb2YgV0RDIGFuZC9v
+ciBpdHMgYWZmaWxpYXRlcywgYW5kIGFyZSBpbnRlbmRlZCBzb2xlbHkgZm9yIHRoZSB1c2Ugb2Yg
+dGhlIGluZGl2aWR1YWwgb3IgZW50aXR5IHRvIHdoaWNoIHRoZXkgYXJlIGFkZHJlc3NlZC4gSWYg
+eW91IGFyZSBub3QgdGhlIGludGVuZGVkIHJlY2lwaWVudCwgYW55IGRpc2Nsb3N1cmUsIGNvcHlp
+bmcsIGRpc3RyaWJ1dGlvbiBvciBhbnkgYWN0aW9uIHRha2VuIG9yIG9taXR0ZWQgdG8gYmUgdGFr
+ZW4gaW4gcmVsaWFuY2Ugb24gaXQsIGlzIHByb2hpYml0ZWQuIElmIHlvdSBoYXZlIHJlY2VpdmVk
+IHRoaXMgZS1tYWlsIGluIGVycm9yLCBwbGVhc2Ugbm90aWZ5IHRoZSBzZW5kZXIgaW1tZWRpYXRl
+bHkgYW5kIGRlbGV0ZSB0aGUgZS1tYWlsIGluIGl0cyBlbnRpcmV0eSBmcm9tIHlvdXIgc3lzdGVt
+Lgo=
 
-2016-03-24 3:29 GMT+08:00 Jeff Furlong <jeff.furlong@hgst.com>:
-> I believe you are seeing expected behavior.  When verify is enabled, the =
-written data is buffered in DRAM until the job is finished, then compared b=
-y reading data from the device.  If the device capacity is large, or if the=
- device capacity is small but you set the runtime, you will buffer many IO'=
-s.  So the oom_killer sees the process as hogging most of the DRAM, then ki=
-lls it.  When verify is disabled, no buffering takes place, so no oom_kille=
-r.
->
-> Try the verify_backlog option.  If you have a 4KB bs, and you set verify_=
-backlog=3D1048576, then you'll write out 4GB of data, then read it back and=
- compare with the DRAM buffer, then start again.  Just be sure the verify_b=
-acklog value is less than your free DRAM.
->
-> Regards,
-> Jeff
->
->
-> -----Original Message-----
-> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Beh=
-alf Of flash yan
-> Sent: Wednesday, March 23, 2016 8:10 AM
-> To: Jens Axboe <axboe@kernel.dk>
-> Cc: fio@vger.kernel.org
-> Subject: Re: Linux OS killed fio process because fio invoked oom_killer
->
-> I have run fio without verify and this issue didn't happen. So it should =
-be verify issue.
-> The fio job file is as below:
->
-> [global]
-> thread=3D1
-> invalidate=3D1
-> rw=3Drandwrite
-> time_based=3D1
-> runtime=3D3000
-> rwmixread=3D50
-> ioengine=3Dlibaio
-> direct=3D1
-> bs=3D4096
-> iodepth=3D16
-> verify_dump=3D1
-> verify_async=3D10
-> do_verify=3D1
-> verify=3Dmeta
-> verify_pattern=3D"meta"
-> [job0]
-> filename=3D/dev/sda
-> [job1]
-> filename=3D/dev/sdb
->
-> I think you can use ram disk(ubuntu have ram disk /dev/ram*) to reproduce=
- this issue.
-> It happened with devices which have high speed.
->
-> 2016-03-23 8:42 GMT+08:00 Jens Axboe <axboe@kernel.dk>:
->> What job did you run? When reporting a potential issue, always include t=
-hat. Hard to help or advise otherwise.
->>
->>> On Mar 22, 2016, at 5:12 PM, flash yan <flashyan83@gmail.com> wrote:
->>>
->>> This issue happened after about 20 minutes. The iscsi device is very
->>> small, only 128MB.
->>> As you said, I have enabled verify=3D options.
->>> I will try big iscsi device and no verify.
->>>
->>> Thanks
->>>
->>> Liang Yan
->>>
->>> 2016-03-23 0:30 GMT+08:00 Jens Axboe <axboe@kernel.dk>:
->>>>> On 03/22/2016 08:06 AM, flash yan wrote:
->>>>>
->>>>> Hi all,
->>>>>
->>>>> I have run fio-2.7 to test iscsi device, one unusual issue happened.
->>>>> If I set the io_size to 4096, queue_depth to 16 ,rw to randwrite
->>>>> and run_time to 3000, the fio would invoke oom_killer and the Linux
->>>>> OS would kill the fio process.
->>>>> The machine have about 11 GB memory and I have tried the machine
->>>>> with 23GB, the issue also happened.
->>>>> I think fio have problem when dealing with 4KB io_size then used
->>>>> too many memory.
->>>>
->>>>
->>>> When did this happen - shortly after the job is started, or long
->>>> after? How big is the iscsi device? Did you have verify=3D options ena=
-bled?
->>>>
->>>> --
->>>> Jens Axboe
->>>>
-> --
-> To unsubscribe from this list: send the line "unsubscribe fio" in the bod=
-y of a message to majordomo@vger.kernel.org More majordomo info at  http://=
-vger.kernel.org/majordomo-info.html
-> Western Digital Corporation (and its subsidiaries) E-mail Confidentiality=
- Notice & Disclaimer:
->
-> This e-mail and any files transmitted with it may contain confidential or=
- legally privileged information of WDC and/or its affiliates, and are inten=
-ded solely for the use of the individual or entity to which they are addres=
-sed. If you are not the intended recipient, any disclosure, copying, distri=
-bution or any action taken or omitted to be taken in reliance on it, is pro=
-hibited. If you have received this e-mail in error, please notify the sende=
-r immediately and delete the e-mail in its entirety from your system.
 
