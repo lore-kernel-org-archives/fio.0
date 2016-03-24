@@ -12,8 +12,8 @@ References: <CADvrUP8gH3S-fLnHU4QXJLO87YzUge8MxKt3WdffN+9uiVpH3w@mail.gmail.com>
 	<CADvrUP-x8Ur+K1WvUuFBr8P9og4183CRYj7+ihhWNrb9iPU3NA@mail.gmail.com>
 	<56F3F481.6050508@kernel.dk>
 	<56F44286.8000706@kernel.dk>
-Date: Fri, 25 Mar 2016 23:03:07 +0800
-Message-ID: <CADvrUP8WUwWUJYOr_8zdkgM3+k-JAm9oMVseHCs1DEW9z7x9QA@mail.gmail.com>
+Date: Fri, 25 Mar 2016 07:33:20 +0800
+Message-ID: <CADvrUP9Nbr+BbMX81jj8DMPB+YgY1eNZ249xx_7s1SLLZ1okrg@mail.gmail.com>
 Subject: Re: Linux OS killed fio process because fio invoked oom_killer
 From: flash yan <flashyan83@gmail.com>
 Content-Type: text/plain; charset=UTF-8
@@ -21,9 +21,7 @@ To: Jens Axboe <axboe@kernel.dk>
 Cc: Jeff Furlong <jeff.furlong@hgst.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-I have tried your patch. It fixed the issue. But I don't understand
-"So we just kept piling on buffers to verify, but we never did".
-You mean that fio didn't run any verify job with verify_async enabled?
+Thanks. I will try your patch.
 
 2016-03-25 3:39 GMT+08:00 Jens Axboe <axboe@kernel.dk>:
 > I took a look, and it's a regression introduced by this change in 2012:
