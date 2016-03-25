@@ -1,86 +1,159 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:33549 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750916AbcCJNAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 10 Mar 2016 08:00:05 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.85 #2 (Red Hat Linux))
-	id 1ae0CB-0003TO-OA
-	for fio@vger.kernel.org; Thu, 10 Mar 2016 13:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160310130001.7D1DF2C0105@kernel.dk>
-Date: Thu, 10 Mar 2016 06:00:01 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <tbertaud@conforama.fr>
+From: Thierry BERTAUD <tbertaud@conforama.fr>
+Subject: RE: IO mixed : 12% seqread, 8% seqwrite, 80% random (30% W, 70%R)
+Date: Fri, 25 Mar 2016 20:20:51 +0000
+Message-ID: <HE1PR05MB17878F1F9FF0A2515C361F84B1830@HE1PR05MB1787.eurprd05.prod.outlook.com>
+References: <HE1PR05MB17878EE04B3D85CD447FFBD7B1800@HE1PR05MB1787.eurprd05.prod.outlook.com>
+ <CANvN+enipwNVDS4QSsgh67FkpL-EoBsW0j0XRj5F2qSc7w+83A@mail.gmail.com>
+ <HE1PR05MB1787EB4BBDE5DE3867EE47D5B1810@HE1PR05MB1787.eurprd05.prod.outlook.com>
+ <CANvN+enHQqeXyimRCNnPS5Bp+hc+apVN5+-sKH8HLN=LhyeHHw@mail.gmail.com>
+ <HE1PR05MB17875B7FE235655AB2A81519B1810@HE1PR05MB1787.eurprd05.prod.outlook.com>
+ <56F4BB3E.6050205@kernel.dk>
+ <HE1PR05MB178780CACBC2631A841BB3FDB1830@HE1PR05MB1787.eurprd05.prod.outlook.com>,<56F55429.1090506@kernel.dk>
+In-Reply-To: <56F55429.1090506@kernel.dk>
+Content-Language: fr-FR
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>, Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 4f126cad8fc5ed71c7ac8155726e38395c689905:
+Hi Jens,
 
-  .gitignore: ignore vim undo files (2016-03-08 11:19:17 -0700)
+Thanks for update.
 
-are available in the git repository at:
+>Fio can't do a double split like that in a single job, but if you can
+>tolerate mixing the 60/40 and 70/30 read/write between sequential and
+>random, then you can make it work.
 
-  git://git.kernel.dk/fio.git master
+>Or you can split it in two jobs, one doing the sequential part and the
+>other the random. The you can use the flow parameters to pace them at
+>20/80 ratios.
 
-for you to fetch changes up to 9d0ad2a56d63e7f59473f31708358a4b65d2a5e3:
+I tried to use choice 2.
+------------------------------
+[global]
+ioengine=3Dposixaio
+invalidate=3D0
+norandommap
+ramp_time=3D5
+iodepth=3D8
+runtime=3D10
+time_based
+direct=3D1
+#numjobs=3D1
+group_reporting
+filesize=3D10M
+blocksize=3D8k
 
-  t/gen-rand: remove compile warning on 32-bit (2016-03-09 14:15:11 -0700)
+[hdisk2]
+stonewall
+filename=3D/dev/rhdisk2
+rw=3Dreadwrite
+rwmixread=3D60
+flow=3D2
 
-----------------------------------------------------------------
-Jens Axboe (2):
-      Fio 2.7
-      t/gen-rand: remove compile warning on 32-bit
+[hdisk2a]
+stonewall
+filename=3D/dev/rhdisk2
+rw=3Drandrw
+rwmixread=3D70
+flow=3D8
+------------------------------
+# ./fio inftest.conf
+hdisk2: (g=3D0): rw=3Drw, bs=3D8K-8K/8K-8K/8K-8K, ioengine=3Dposixaio, iode=
+pth=3D8
+hdisk2a: (g=3D1): rw=3Drandrw, bs=3D8K-8K/8K-8K/8K-8K, ioengine=3Dposixaio,=
+ iodepth=3D8
+fio-2.3
+Starting 2 processes
+Jobs: 1 (f=3D0): [/(1),P(1)] [-.-% done] [0KB/0KB/0KB /s] [0/0/0 iops] [eta=
+ 00m:30s]
+..
 
- FIO-VERSION-GEN        | 2 +-
- os/windows/install.wxs | 2 +-
- t/gen-rand.c           | 4 ++--
- 3 files changed, 4 insertions(+), 4 deletions(-)
+The fio process eat a lot of cpu but no disk activity. Some output from top=
+as. So i think i don't use correctly the flow parmeter and perhaps do some =
+loops somewhere into fio.
+------------------
+CPU  User%  Kern%  Wait%  Idle%                =20
+ALL   46.9   53.1    0.0    0.0=20
 
----
+Disk    Busy%     KBPS     TPS KB-Read KB-Writ
+hdisk2    0.0     0.0      0.0    0.0     0.0
 
-Diff of recent changes:
+Name            PID  CPU%  PgSp Owner
+fio          504000  46.8   0.3 root
+sshd         549094  28.6   1.0 root
+fio          393304  24.0   0.2 root
+topas        462868   0.1   1.9 root
+--------------------------------------
 
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index 597e615..a4ff012 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-2.6
-+DEF_VER=fio-2.7
- 
- LF='
- '
-diff --git a/os/windows/install.wxs b/os/windows/install.wxs
-index 011c1eb..ed9f98b 100755
---- a/os/windows/install.wxs
-+++ b/os/windows/install.wxs
-@@ -10,7 +10,7 @@
- 	<Product Id="*"
- 	  Codepage="1252" Language="1033"
- 	  Manufacturer="fio" Name="fio"
--	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.6">
-+	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.7">
- 		<Package
- 		  Description="Flexible IO Tester"
- 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
-diff --git a/t/gen-rand.c b/t/gen-rand.c
-index c2a31bc..a03646a 100644
---- a/t/gen-rand.c
-+++ b/t/gen-rand.c
-@@ -54,10 +54,10 @@ int main(int argc, char *argv[])
- 	pass = fail = 0;
- 	for (i = 0; i < index; i++) {
- 		if (buckets[i] < vmin || buckets[i] > vmax) {
--			printf("FAIL bucket%4lu: val=%8lu (%.1f < %.1f > %.1f)\n", i + 1, buckets[i], vmin, mean, vmax);
-+			printf("FAIL bucket%4lu: val=%8lu (%.1f < %.1f > %.1f)\n", (unsigned long) i + 1, buckets[i], vmin, mean, vmax);
- 			fail++;
- 		} else {
--			printf("PASS bucket%4lu: val=%8lu (%.1f < %.1f > %.1f)\n", i + 1, buckets[i], vmin, mean, vmax);
-+			printf("PASS bucket%4lu: val=%8lu (%.1f < %.1f > %.1f)\n", (unsigned long) i + 1, buckets[i], vmin, mean, vmax);
- 			pass++;
- 		}
- 	}
+
+If i do a ctrl+c, i have the following:
+
+# ./fio inftest.conf
+hdisk2: (g=3D0): rw=3Drw, bs=3D8K-8K/8K-8K/8K-8K, ioengine=3Dposixaio, iode=
+pth=3D8
+hdisk2a: (g=3D1): rw=3Drandrw, bs=3D8K-8K/8K-8K/8K-8K, ioengine=3Dposixaio,=
+ iodepth=3D8
+fio-2.3
+Starting 2 processes
+Jobs: 1 (f=3D0): [/(1),P(1)] [-.-% done] [0KB/0KB/0KB /s] [0/0/0 iops] [eta=
+ 00m:30s]
+fio: terminating on signal 2
+
+fio: terminating on signal 2
+Jobs: 0 (f=3D0): [/(1),P(1)] [-.-% done] [0KB/0KB/0KB /s] [0/0/0 iops] [eta=
+ 00m:30s]
+hdisk2: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D504000: Fri Mar 25 21:19:5=
+2 2016
+  read : io=3D32768B, bw=3D32000KB/s, iops=3D0, runt=3D     1msec
+    slat (usec): min=3D16, max=3D194, avg=3D25.25, stdev=3D15.63
+    clat percentiles (usec):
+     |  1.00th=3D[    0],  5.00th=3D[    0], 10.00th=3D[    0], 20.00th=3D[=
+    0],
+     | 30.00th=3D[    0], 40.00th=3D[    0], 50.00th=3D[    0], 60.00th=3D[=
+    0],
+     | 70.00th=3D[    0], 80.00th=3D[    0], 90.00th=3D[    0], 95.00th=3D[=
+    0],
+     | 99.00th=3D[    0], 99.50th=3D[    0], 99.90th=3D[    0], 99.95th=3D[=
+    0],
+     | 99.99th=3D[    0]
+  write: io=3D16384B, bw=3D16000KB/s, iops=3D0, runt=3D     1msec
+    slat (usec): min=3D16, max=3D105, avg=3D26.12, stdev=3D13.44
+    clat percentiles (usec):
+     |  1.00th=3D[    0],  5.00th=3D[    0], 10.00th=3D[    0], 20.00th=3D[=
+    0],
+     | 30.00th=3D[    0], 40.00th=3D[    0], 50.00th=3D[    0], 60.00th=3D[=
+    0],
+     | 70.00th=3D[    0], 80.00th=3D[    0], 90.00th=3D[    0], 95.00th=3D[=
+    0],
+     | 99.00th=3D[    0], 99.50th=3D[    0], 99.90th=3D[    0], 99.95th=3D[=
+    0],
+     | 99.99th=3D[    0]
+  cpu          : usr=3D0.00%, sys=3D0.00%, ctx=3D0, majf=3D0, minf=3D0
+  IO depths    : 1=3D0.0%, 2=3D0.0%, 4=3D0.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.=
+0%, >=3D64=3D0.0%
+     submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
+=3D0.0%, >=3D64=3D0.0%
+     complete  : 0=3D0.0%, 4=3D98.0%, 8=3D2.0%, 16=3D0.0%, 32=3D0.0%, 64=3D=
+0.0%, >=3D64=3D0.0%
+     issued    : total=3Dr=3D0/w=3D0/d=3D0, short=3Dr=3D0/w=3D0/d=3D0, drop=
+=3Dr=3D0/w=3D0/d=3D0
+     latency   : target=3D0, window=3D0, percentile=3D100.00%, depth=3D8
+
+Run status group 0 (all jobs):
+   READ: io=3D32KB, aggrb=3D32000KB/s, minb=3D32000KB/s, maxb=3D32000KB/s, =
+mint=3D1msec, maxt=3D1msec
+  WRITE: io=3D16KB, aggrb=3D16000KB/s, minb=3D16000KB/s, maxb=3D16000KB/s, =
+mint=3D1msec, maxt=3D1msec
+
+Run status group 1 (all jobs):
+#
+
+Regards,
+Thierry
+
+
+
