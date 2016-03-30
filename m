@@ -1,40 +1,67 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from sjc00mx2.hgst.com ([199.255.44.37]:51304 "EHLO
-	sjc00mx2.hgst.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932228AbcCRR35 convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Fri, 18 Mar 2016 13:29:57 -0400
-From: Jeff Furlong <jeff.furlong@hgst.com>
-Subject: Windows make fails
-Date: Fri, 18 Mar 2016 17:29:54 +0000
-Message-ID: <BN3PR0401MB14579B2785DF531EC8BC867BF78C0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
+Received: from mga09.intel.com ([134.134.136.24]:50073 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752701AbcC3WXf (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 30 Mar 2016 18:23:35 -0400
+From: Jon Derrick <jonathan.derrick@intel.com>
+Subject: [PATCH] fio: register pvsync2 engine correctly
+Date: Wed, 30 Mar 2016 16:17:55 -0600
+Message-Id: <1459376275-13194-1-git-send-email-jonathan.derrick@intel.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
+Cc: Jon Derrick <jonathan.derrick@intel.com>
 
-Hi All,
-The latest fio version seems to fail building on Windows:
+I'm experimenting with the new syscalls and noticed fio's support was
+incomplete. This patch fixes some of those issues.
 
-  LINK t/gen-rand
-lib/pattern.o: In function `parse_number':
-/fio-fio-2.8_win/lib/pattern.c:78: undefined reference to `strcasestr'
-collect2: error: ld returned 1 exit status
-Makefile:396: recipe for target 't/gen-rand' failed
-make: *** [t/gen-rand] Error 1
+Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
+---
+Additionally, until libc catches up, I've hacked in:
+#include <unistd.h>
+#include <sys/syscall.h>
+#define preadv2(...) syscall(SYS_preadv2, __VA_ARGS__)
+#define pwritev2(...) syscall(SYS_pwritev2, __VA_ARGS__)
 
-Also, the Windows builds only seem to pick up the base version number (fio 2.7 or fio 2.8), not the latest git version (fio 2.8-123).  So the last release (e.g. 2.8) build cannot be distinguishable from the latest git version (e.g 2.8-123).
+ engines/sync.c | 6 ++++++
+ options.c      | 2 +-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-Thoughts on either issue?  Thanks.
-
-Regards,
-Jeff
-
-
-
-Western Digital Corporation (and its subsidiaries) E-mail Confidentiality Notice & Disclaimer:
-
-This e-mail and any files transmitted with it may contain confidential or legally privileged information of WDC and/or its affiliates, and are intended solely for the use of the individual or entity to which they are addressed. If you are not the intended recipient, any disclosure, copying, distribution or any action taken or omitted to be taken in reliance on it, is prohibited. If you have received this e-mail in error, please notify the sender immediately and delete the e-mail in its entirety from your system.
+diff --git a/engines/sync.c b/engines/sync.c
+index 0b0d1a7..260ef66 100644
+--- a/engines/sync.c
++++ b/engines/sync.c
+@@ -453,6 +453,9 @@ static void fio_init fio_syncio_register(void)
+ #ifdef CONFIG_PWRITEV
+ 	register_ioengine(&ioengine_pvrw);
+ #endif
++#ifdef CONFIG_PWRITEV2
++	register_ioengine(&ioengine_pvrw2);
++#endif
+ }
+ 
+ static void fio_exit fio_syncio_unregister(void)
+@@ -463,4 +466,7 @@ static void fio_exit fio_syncio_unregister(void)
+ #ifdef CONFIG_PWRITEV
+ 	unregister_ioengine(&ioengine_pvrw);
+ #endif
++#ifdef CONFIG_PWRITEV2
++	unregister_ioengine(&ioengine_pvrw2);
++#endif
+ }
+diff --git a/options.c b/options.c
+index 062abb4..b6c980e 100644
+--- a/options.c
++++ b/options.c
+@@ -1471,7 +1471,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 			    .help = "Use preadv/pwritev",
+ 			  },
+ #endif
+-#ifdef CONFIG_PWRITEV
++#ifdef CONFIG_PWRITEV2
+ 			  { .ival = "pvsync2",
+ 			    .help = "Use preadv2/pwritev2",
+ 			  },
+-- 
+2.5.0
 
