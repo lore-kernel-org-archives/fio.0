@@ -1,55 +1,76 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailuogwhop.emc.com ([168.159.213.141]:59729 "EHLO
-	mailuogwhop.emc.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750908AbcDHUB6 convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Fri, 8 Apr 2016 16:01:58 -0400
-Received: from maildlpprd03.lss.emc.com (maildlpprd03.lss.emc.com [10.253.24.35])
-	by mailuogwprd04.lss.emc.com (Sentrion-MTA-4.3.1/Sentrion-MTA-4.3.0) with ESMTP id u38K1uxB000946
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
-	for <fio@vger.kernel.org>; Fri, 8 Apr 2016 16:01:57 -0400
-Received: from mailusrhubprd52.lss.emc.com (mailusrhubprd52.lss.emc.com [10.106.48.25]) by maildlpprd03.lss.emc.com (RSA Interceptor) for <fio@vger.kernel.org>; Fri, 8 Apr 2016 16:00:12 -0400
-Received: from MXHUB215.corp.emc.com (MXHUB215.corp.emc.com [10.253.68.85])
-	by mailusrhubprd52.lss.emc.com (Sentrion-MTA-4.3.1/Sentrion-MTA-4.3.0) with ESMTP id u38K1g8N015738
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=FAIL)
-	for <fio@vger.kernel.org>; Fri, 8 Apr 2016 16:01:43 -0400
-From: "Foley, Robert" <robert.foley@emc.com>
-Subject: random writes with different patterns
-Date: Fri, 8 Apr 2016 20:01:40 +0000
-Message-ID: <759ED0CCB4AB7D4A897D03A711E4EC4C6F771F72@MX204CL02.corp.emc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
+Received: from casper.infradead.org ([85.118.1.10]:37036 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753212AbcDBMAH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 2 Apr 2016 08:00:07 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.85 #2 (Red Hat Linux))
+	id 1amKDk-0002OI-Ny
+	for fio@vger.kernel.org; Sat, 02 Apr 2016 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160402120001.D98A52C00AE@kernel.dk>
+Date: Sat,  2 Apr 2016 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hello all,
-We use fio and it more than meets our needs in the majority of cases.  There is one use case where we would like to write to randomly selected blocks with one data pattern, and then overwrite that same set of blocks with a different data pattern.  We did not find the fio parameters that would allow this.
+The following changes since commit 23a8e176c3725f3640eaaf31a0a4c7497366c40f:
 
-Our use case is one where we initially write randomly to a portion of a test area. Here is an example of our job file parameters:
-verify=crc32c 
-rw=randwrite
-bs=4k
-size=128G
-io_size=32M 
-randseed=42
+  HOWTO/man: clarify that the usr/sys utilization numbers are averages (2016-03-29 08:34:06 -0600)
 
-Our understanding is that this job allows us to write 32 meg of data to random areas in the 128 gig region.  Since we are using randseed, this allows us to later use a read job to verify the data on these random blocks.
+are available in the git repository at:
 
-Suppose at time A we wrote out a pattern using the parameters above.  Later at time B we would like to write the same blocks (offsets) of the test area but with a different pattern of data bytes.  Our understanding is that randseed will seed the generation of both a) the pattern of I/O blocks that we generate as well as b) the pattern of data in the buffers we are writing.  In other words since the randseed controls both a) and b), there is no way for us to get a different data pattern written to the same pattern of blocks (offsets).
+  git://git.kernel.dk/fio.git master
 
-Does anyone know how to accomplish this with fio?
+for you to fetch changes up to 526c403dc9b892ae1dda6ebb2a0f2d5883795d17:
 
-We had some ideas around how to solve this if it is not currently supported.   It might be useful to have an optional "verify_io_stamp" parameter, which would specify a simple 32 or 64 bit integer that could get added to and verified with the verify_header.  
+  fio: register pvsync2 engine correctly (2016-04-01 20:56:52 -0600)
 
-At time A in the example above, the job would specify one value for the verify_io_stamp (A)  and at time B the job would specify a different value (B).  Since reads would verify the verify_io_stamp in the header, we could distinguish between the (A) and the (B) data and solve the use case we mentioned above.
+----------------------------------------------------------------
+Jon Derrick (1):
+      fio: register pvsync2 engine correctly
 
-Another benefit of this verify_io_stamp is that if we ever received incorrect data, it might help us find out from which point that data was.  So for example if we wrote with a different verify_io_stamp at times A, B, and C, and we received data pattern "A" at time "C" then it would give us potentially valuable information about the failure, which might help us to debug it faster.  
+ engines/sync.c | 6 ++++++
+ options.c      | 2 +-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-Does this seem useful to you?  We are willing to contribute this if it seems beneficial to the community. 
+---
 
-Thank You !
--Rob Foley
+Diff of recent changes:
 
-
+diff --git a/engines/sync.c b/engines/sync.c
+index 0b0d1a7..260ef66 100644
+--- a/engines/sync.c
++++ b/engines/sync.c
+@@ -453,6 +453,9 @@ static void fio_init fio_syncio_register(void)
+ #ifdef CONFIG_PWRITEV
+ 	register_ioengine(&ioengine_pvrw);
+ #endif
++#ifdef CONFIG_PWRITEV2
++	register_ioengine(&ioengine_pvrw2);
++#endif
+ }
+ 
+ static void fio_exit fio_syncio_unregister(void)
+@@ -463,4 +466,7 @@ static void fio_exit fio_syncio_unregister(void)
+ #ifdef CONFIG_PWRITEV
+ 	unregister_ioengine(&ioengine_pvrw);
+ #endif
++#ifdef CONFIG_PWRITEV2
++	unregister_ioengine(&ioengine_pvrw2);
++#endif
+ }
+diff --git a/options.c b/options.c
+index 062abb4..b6c980e 100644
+--- a/options.c
++++ b/options.c
+@@ -1471,7 +1471,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 			    .help = "Use preadv/pwritev",
+ 			  },
+ #endif
+-#ifdef CONFIG_PWRITEV
++#ifdef CONFIG_PWRITEV2
+ 			  { .ival = "pvsync2",
+ 			    .help = "Use preadv2/pwritev2",
+ 			  },
