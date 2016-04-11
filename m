@@ -1,54 +1,55 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk0-f68.google.com ([209.85.213.68]:33451 "EHLO
-	mail-vk0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933686AbcDMFi4 convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 13 Apr 2016 01:38:56 -0400
-Received: by mail-vk0-f68.google.com with SMTP id v68so4995876vka.0
-        for <fio@vger.kernel.org>; Tue, 12 Apr 2016 22:38:55 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <759ED0CCB4AB7D4A897D03A711E4EC4C6F772A98@MX204CL02.corp.emc.com>
+Received: from mailuogwhop.emc.com ([168.159.213.141]:35930 "EHLO
+	mailuogwhop.emc.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933271AbcDKNzG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 11 Apr 2016 09:55:06 -0400
+From: "Foley, Robert" <robert.foley@emc.com>
+Subject: RE: random writes with different patterns
+Date: Mon, 11 Apr 2016 13:54:40 +0000
+Message-ID: <759ED0CCB4AB7D4A897D03A711E4EC4C6F772A98@MX204CL02.corp.emc.com>
 References: <759ED0CCB4AB7D4A897D03A711E4EC4C6F771F72@MX204CL02.corp.emc.com>
-	<CALjAwximeyPand181Q71B9f0CJgXcFHNGTBheTk2MGQkaf5+dQ@mail.gmail.com>
-	<759ED0CCB4AB7D4A897D03A711E4EC4C6F772A98@MX204CL02.corp.emc.com>
-Date: Wed, 13 Apr 2016 06:38:54 +0100
-Message-ID: <CALjAwxhzP3XrEapHjEK4uY4vYpc0PYBwEE=OTUXFfpgH+eKbMA@mail.gmail.com>
-Subject: Re: random writes with different patterns
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+ <CALjAwximeyPand181Q71B9f0CJgXcFHNGTBheTk2MGQkaf5+dQ@mail.gmail.com>
+In-Reply-To: <CALjAwximeyPand181Q71B9f0CJgXcFHNGTBheTk2MGQkaf5+dQ@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Foley, Robert" <robert.foley@emc.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 11 April 2016 at 14:54, Foley, Robert <robert.foley@emc.com> wrote:
->
-> Thanks for the information about the %o option.
->
-> On Saturday, April 09, 2016 1:00 AM, Sitsofe Wheeler [mailto:sitsofe@gmail.com] wrote:
->>>  You could always force a particular pattern to be put into every block by using verify_pattern (https://github.com/axboe/fio/blob/fio-2.8/HOWTO#L1407) and use it's %o option for generating more sophisticated patterns. Another choice would be to change the block size otherwise you're going to struggle to work out what "run" the pattern in the block came from.
->
-> I apologize for not mentioning before that we have use cases with compression where we cannot use a repeating pattern.  The %o seems to allow the pattern to vary between blocks, but within the block the pattern repeats.   We really appreciate the use of the randomly generated data bytes by fio.
->
->>>We had some ideas around how to solve this if it is not currently supported.   It might be useful to have an optional "verify_io_stamp" parameter, which would specify a simple 32 or 64 bit integer that could get added to and verified with the verify_header.
->
->>Might you be able to do this by creating a particular verify pattern and specifying a custom header format?
->
-> We could create a new verify pattern with a custom header format.  That would give us the ability to save and validate this verify_io_stamp parameter.   But it seems we would lose the ability to specify the different validation types (md5, crc64, crc32, etc).
->
-> We really appreciate the flexibility of fio in being able to use different validation types (md5, crc64, crc32, etc) along with randomly generated data, and we would like to leverage those options along with the ability to specify a new verify_io_stamp.  Adding a new parameter for verify_io_stamp seems like the best option to achieve this, but we would appreciate more thoughts or ideas here.
-
-Some sort of "generation" id in the header would allow better
-verification when using something like loops (assuming it was being
-incremented on a per iteration basis). Perhaps what is needed is some
-sort of verify_header_extra_pattern that allows a few extra bytes to
-be set in the header and verified later...
-
-However this doesn't seem to solve your entire problem as I understood
-it: given the same randseed you want the ability for the same blocks
-to be written in the same order but with different pseudorandom data
-contents? Further this data must be verifiable in a separate job?
-Would changing the buffer_compress_percentage option do?
-
--- 
-Sitsofe | http://sucs.org/~sits/
+SGkgU2l0c29mZSwNClRoYW5rcyBmb3IgdGhlIGluZm9ybWF0aW9uIGFib3V0IHRoZSAlbyBvcHRp
+b24uICAgDQoNCk9uIFNhdHVyZGF5LCBBcHJpbCAwOSwgMjAxNiAxOjAwIEFNLCBTaXRzb2ZlIFdo
+ZWVsZXIgW21haWx0bzpzaXRzb2ZlQGdtYWlsLmNvbV0gd3JvdGU6DQo+PiAgWW91IGNvdWxkIGFs
+d2F5cyBmb3JjZSBhIHBhcnRpY3VsYXIgcGF0dGVybiB0byBiZSBwdXQgaW50byBldmVyeSBibG9j
+ayBieSB1c2luZyB2ZXJpZnlfcGF0dGVybiAoaHR0cHM6Ly9naXRodWIuY29tL2F4Ym9lL2Zpby9i
+bG9iL2Zpby0yLjgvSE9XVE8jTDE0MDcpIGFuZCB1c2UgaXQncyAlbyBvcHRpb24gZm9yIGdlbmVy
+YXRpbmcgbW9yZSBzb3BoaXN0aWNhdGVkIHBhdHRlcm5zLiBBbm90aGVyIGNob2ljZSB3b3VsZCBi
+ZSB0byBjaGFuZ2UgdGhlIGJsb2NrIHNpemUgb3RoZXJ3aXNlIHlvdSdyZSBnb2luZyB0byBzdHJ1
+Z2dsZSB0byB3b3JrIG91dCB3aGF0ICJydW4iIHRoZSBwYXR0ZXJuIGluIHRoZSBibG9jayBjYW1l
+IGZyb20uDQoNCkkgYXBvbG9naXplIGZvciBub3QgbWVudGlvbmluZyBiZWZvcmUgdGhhdCB3ZSBo
+YXZlIHVzZSBjYXNlcyB3aXRoIGNvbXByZXNzaW9uIHdoZXJlIHdlIGNhbm5vdCB1c2UgYSByZXBl
+YXRpbmcgcGF0dGVybi4gIFRoZSAlbyBzZWVtcyB0byBhbGxvdyB0aGUgcGF0dGVybiB0byB2YXJ5
+IGJldHdlZW4gYmxvY2tzLCBidXQgd2l0aGluIHRoZSBibG9jayB0aGUgcGF0dGVybiByZXBlYXRz
+LiAgIFdlIHJlYWxseSBhcHByZWNpYXRlIHRoZSB1c2Ugb2YgdGhlIHJhbmRvbWx5IGdlbmVyYXRl
+ZCBkYXRhIGJ5dGVzIGJ5IGZpby4gIA0KDQo+PldlIGhhZCBzb21lIGlkZWFzIGFyb3VuZCBob3cg
+dG8gc29sdmUgdGhpcyBpZiBpdCBpcyBub3QgY3VycmVudGx5IHN1cHBvcnRlZC4gICBJdCBtaWdo
+dCBiZSB1c2VmdWwgdG8gaGF2ZSBhbiBvcHRpb25hbCAidmVyaWZ5X2lvX3N0YW1wIiBwYXJhbWV0
+ZXIsIHdoaWNoIHdvdWxkIHNwZWNpZnkgYSBzaW1wbGUgMzIgb3IgNjQgYml0IGludGVnZXIgdGhh
+dCBjb3VsZCBnZXQgYWRkZWQgdG8gYW5kIHZlcmlmaWVkIHdpdGggdGhlIHZlcmlmeV9oZWFkZXIu
+DQoNCj5NaWdodCB5b3UgYmUgYWJsZSB0byBkbyB0aGlzIGJ5IGNyZWF0aW5nIGEgcGFydGljdWxh
+ciB2ZXJpZnkgcGF0dGVybiBhbmQgc3BlY2lmeWluZyBhIGN1c3RvbSBoZWFkZXIgZm9ybWF0Pw0K
+DQpXZSBjb3VsZCBjcmVhdGUgYSBuZXcgdmVyaWZ5IHBhdHRlcm4gd2l0aCBhIGN1c3RvbSBoZWFk
+ZXIgZm9ybWF0LiAgVGhhdCB3b3VsZCBnaXZlIHVzIHRoZSBhYmlsaXR5IHRvIHNhdmUgYW5kIHZh
+bGlkYXRlIHRoaXMgdmVyaWZ5X2lvX3N0YW1wIHBhcmFtZXRlci4gICBCdXQgaXQgc2VlbXMgd2Ug
+d291bGQgbG9zZSB0aGUgYWJpbGl0eSB0byBzcGVjaWZ5IHRoZSBkaWZmZXJlbnQgdmFsaWRhdGlv
+biB0eXBlcyAobWQ1LCBjcmM2NCwgY3JjMzIsIGV0YykuDQoNCldlIHJlYWxseSBhcHByZWNpYXRl
+IHRoZSBmbGV4aWJpbGl0eSBvZiBmaW8gaW4gYmVpbmcgYWJsZSB0byB1c2UgZGlmZmVyZW50IHZh
+bGlkYXRpb24gdHlwZXMgKG1kNSwgY3JjNjQsIGNyYzMyLCBldGMpIGFsb25nIHdpdGggcmFuZG9t
+bHkgZ2VuZXJhdGVkIGRhdGEsIGFuZCB3ZSB3b3VsZCBsaWtlIHRvIGxldmVyYWdlIHRob3NlIG9w
+dGlvbnMgYWxvbmcgd2l0aCB0aGUgYWJpbGl0eSB0byBzcGVjaWZ5IGEgbmV3IHZlcmlmeV9pb19z
+dGFtcC4gIEFkZGluZyBhIG5ldyBwYXJhbWV0ZXIgZm9yIHZlcmlmeV9pb19zdGFtcCBzZWVtcyBs
+aWtlIHRoZSBiZXN0IG9wdGlvbiB0byBhY2hpZXZlIHRoaXMsIGJ1dCB3ZSB3b3VsZCBhcHByZWNp
+YXRlIG1vcmUgdGhvdWdodHMgb3IgaWRlYXMgaGVyZS4NCg0KVGhhbmtzIQ0KLVJvYg0KDQoNCg0K
+DQoNCg0KDQoNCg0KDQo=
