@@ -1,74 +1,54 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailuogwdur.emc.com ([128.221.224.79]:27079 "EHLO
-	mailuogwdur.emc.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753064AbcDMUpd (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 13 Apr 2016 16:45:33 -0400
-From: "Foley, Robert" <robert.foley@emc.com>
-Subject: RE: random writes with different patterns
-Date: Wed, 13 Apr 2016 20:08:22 +0000
-Message-ID: <759ED0CCB4AB7D4A897D03A711E4EC4C6F773D73@MX204CL02.corp.emc.com>
+Received: from mail-vk0-f68.google.com ([209.85.213.68]:33451 "EHLO
+	mail-vk0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933686AbcDMFi4 convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Wed, 13 Apr 2016 01:38:56 -0400
+Received: by mail-vk0-f68.google.com with SMTP id v68so4995876vka.0
+        for <fio@vger.kernel.org>; Tue, 12 Apr 2016 22:38:55 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <759ED0CCB4AB7D4A897D03A711E4EC4C6F772A98@MX204CL02.corp.emc.com>
 References: <759ED0CCB4AB7D4A897D03A711E4EC4C6F771F72@MX204CL02.corp.emc.com>
 	<CALjAwximeyPand181Q71B9f0CJgXcFHNGTBheTk2MGQkaf5+dQ@mail.gmail.com>
 	<759ED0CCB4AB7D4A897D03A711E4EC4C6F772A98@MX204CL02.corp.emc.com>
- <CALjAwxhzP3XrEapHjEK4uY4vYpc0PYBwEE=OTUXFfpgH+eKbMA@mail.gmail.com>
-In-Reply-To: <CALjAwxhzP3XrEapHjEK4uY4vYpc0PYBwEE=OTUXFfpgH+eKbMA@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+Date: Wed, 13 Apr 2016 06:38:54 +0100
+Message-ID: <CALjAwxhzP3XrEapHjEK4uY4vYpc0PYBwEE=OTUXFfpgH+eKbMA@mail.gmail.com>
+Subject: Re: random writes with different patterns
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: "Foley, Robert" <robert.foley@emc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Pk9uIFdlZG5lc2RheSwgQXByaWwgMTMsIDIwMTYgMTozOSBBTSwgIFNpdHNvZmUgV2hlZWxlciBb
-bWFpbHRvOnNpdHNvZmVAZ21haWwuY29tXSB3cm90ZToNCj5Tb21lIHNvcnQgb2YgImdlbmVyYXRp
-b24iIGlkIGluIHRoZSBoZWFkZXIgd291bGQgYWxsb3cgYmV0dGVyIHZlcmlmaWNhdGlvbiB3aGVu
-IHVzaW5nIHNvbWV0aGluZyBsaWtlIA0KPmxvb3BzIChhc3N1bWluZyBpdCB3YXMgYmVpbmcgaW5j
-cmVtZW50ZWQgb24gYSBwZXIgaXRlcmF0aW9uIGJhc2lzKS4gUGVyaGFwcyB3aGF0IGlzIG5lZWRl
-ZCBpcyBzb21lIA0KPiBzb3J0IG9mIHZlcmlmeV9oZWFkZXJfZXh0cmFfcGF0dGVybiB0aGF0IGFs
-bG93cyBhIGZldyBleHRyYSBieXRlcyB0byBiZSBzZXQgaW4gdGhlIGhlYWRlciBhbmQgdmVyaWZp
-ZWQgbGF0ZXIuLi4NCg0KVGhpcyBpcyBhIGdvb2QgcG9pbnQuICBUaGUgdmVyaWZ5X2hlYWRlcl9l
-eHRyYV9wYXR0ZXJuIHBhcmFtZXRlciBhbG9uZSB3b3VsZCBzb2x2ZSBvbmUgb2Ygb3VyIHVzZSBj
-YXNlcyB3aGVyZSB3ZSB3YW50IHRvIHdyaXRlIGEgc2VxdWVuY2Ugb2YgcmFuZG9tIGJsb2NrcyB3
-aXRoIGEgcGF0dGVybiBhbmQgdGhlbiBvdmVyd3JpdGUgdGhlIHNhbWUgc2VxdWVuY2Ugd2l0aCBw
-YXR0ZXJucyB0aGF0IHZhcnkganVzdCBieSB0aGF0IGV4dHJhIHBhdHRlcm4uICAgV2l0aCB1c2Ug
-b2YgcmFuZHNlZWQsIHdlIHdpbGwgYmUgYWJsZSB0byB3cml0ZSB0byB0aGUgc2FtZSBzZXQgb2Yg
-YmxvY2tzIHdpdGggcmFuZG9tIGRhdGEuICBCdXQgaW4gYmV0d2VlbiBydW5zIGl0IHdvdWxkIGJl
-IGVub3VnaCBmb3Igb25seSB0aGlzIGV4dHJhX3BhdHRlcm4gaW4gdGhlIGhlYWRlciB0byB2YXJ5
-LiAgQWxzbywgdGhlIG5hbWluZyB0aGF0IHlvdSBzdWdnZXN0ZWQgc2VlbXMganVzdCByaWdodCBo
-ZXJlLiAgV2UgY2FuIHN0YXJ0IHB1dHRpbmcgdGhpcyB0b2dldGhlciBzb29uLCBhbmQgd2lsbCBj
-b250cmlidXRlIGl0IHdoZW4gaXQgaXMgcmVhZHkuDQoNCj4gSG93ZXZlciB0aGlzIGRvZXNuJ3Qg
-c2VlbSB0byBzb2x2ZSB5b3VyIGVudGlyZSBwcm9ibGVtIGFzIEkgdW5kZXJzdG9vZA0KPiBpdDog
-Z2l2ZW4gdGhlIHNhbWUgcmFuZHNlZWQgeW91IHdhbnQgdGhlIGFiaWxpdHkgZm9yIHRoZSBzYW1l
-IGJsb2NrcyB0byBiZSB3cml0dGVuIGluIHRoZSBzYW1lIG9yZGVyIGJ1dCB3aXRoIGRpZmZlcmVu
-dCANCj5wc2V1ZG9yYW5kb20gZGF0YSBjb250ZW50cz8gRnVydGhlciB0aGlzIGRhdGEgbXVzdCBi
-ZSB2ZXJpZmlhYmxlIGluIGEgc2VwYXJhdGUgam9iPw0KPldvdWxkIGNoYW5naW5nIHRoZSBidWZm
-ZXJfY29tcHJlc3NfcGVyY2VudGFnZSBvcHRpb24gZG8/DQoNCllvdSBicmluZyB1cCBhIGdvb2Qg
-cG9pbnQgaW4gdGhhdCB3ZSBkbyBoYXZlIGEgdXNlIGNhc2Ugd2hlcmUgd2Ugd2FudCB0aGUgZGF0
-YSBpbiB0aGUgYmxvY2sgdG8gYWxzbyB2YXJ5IGJldHdlZW4gcnVucyB0byB0aGUgc2FtZSBzZXF1
-ZW5jZSBvZiBibG9ja3MuICBTbyB0aGUgdXNlIGNhc2UgaXMgd2hlcmUgd2Ugd3JpdGUgYSBzZXQg
-b2YgcmFuZG9tIGJsb2NrcyB3aXRoIHJhbmRvbSBkYXRhLiAgTGF0ZXIgd2UgZG8gd2FudCB0byBi
-ZSBhYmxlIHRvIHZlcmlmeSB0aGF0IGRhdGEgaXMgdGhlIHNhbWUuICBCdXQgd2UgYWxzbyB3YW50
-IHRvIG92ZXJ3cml0ZSB0aGF0IHNhbWUgc2VxdWVuY2Ugb2YgYmxvY2tzIHdpdGggYSBkaWZmZXJl
-bnQgZGF0YSBwYXR0ZXJuLiAgV2UgbG9va2VkIGF0IHRoZSBidWZmZXJfY29tcHJlc3NfcGVyY2Vu
-dGFnZSBvcHRpb24gYW5kIHdlIGJlbGlldmUgdGhhdCB0aGlzIGRvZXMgbm90IGhlbHAgdXMgc2lu
-Y2Ugd2Ugd2FudCB0byBiZSBhYmxlIHRvIHdyaXRlIGJsb2NrcyB0aGF0IGFyZSBjb21wbGV0ZWx5
-IGRpZmZlcmVudCBmcm9tIHRoZSBwcmlvciBydW4gYmxvY2suICBXZSB3ZXJlIGNvbmNlcm5lZCB0
-aGF0IHdlIG1pZ2h0IGJlIHRlc3RpbmcgYSB1c2UgY2FzZSB3aGVyZSB3ZSBhY3R1YWxseSBkbyBu
-b3Qgd2FudCB0aGUgZGF0YSB0byBiZSBjb21wcmVzc2libGUvZGVkdXBhYmxlIHNvIGl0IHdvdWxk
-IGJlIGJldHRlciBmb3IgdGhlIGVudGlyZSBibG9jayB0byB2YXJ5Lg0KDQpJdCBzZWVtcyB0aGF0
-IHdoZW4gd2UgdXNlIHRoZSByYW5kc2VlZCBvcHRpb24sIHRoaXMgc2luZ2xlIHNlZWQgd2lsbCBl
-ZmZlY3RpdmVseSBzZWVkIGV2ZXJ5dGhpbmcgaW5jbHVkaW5nIHRoZSBvZmZzZXQgZ2VuZXJhdGlv
-biAoSS9PIHBhdHRlcm4pIGFuZCB0aGUgZGF0YSBwYXR0ZXJuIGdlbmVyYXRpb24uICBJdCBzZWVt
-cyBsaWtlIGEgbmV3IHBhcmFtZXRlciAocmFuZF92ZXJpZnlfc2VlZCkgdGhhdCBhbGxvd3MgdXMg
-dG8gcHJvdmlkZSB0aGUgcmFuZG9tIHNlZWQgZm9yIHRoZSBkYXRhIHBhdHRlcm4gYWxvbmUgd291
-bGQgYmUgcXVpdGUgdXNlZnVsIGluIGdlbmVyYWwgYW5kIHdvdWxkIGhlbHAgdXMgc29sdmUgdGhp
-cyBjYXNlLiAgSXQgd291bGQgYWxsb3cgdXMgaW4gdGhpcyBjYXNlIHRvIHNwZWNpZnkgdGhlIHNh
-bWUgcmFuZHNlZWQgc28gdGhhdCB0aGUgSS9PIHBhdHRlcm4gaXMgdGhlIHNhbWUsIGJ1dCB0aGVu
-IHVzZSBhIGRpZmZlcmVudCB2ZXJpZnkgc2VlZCBzbyB0aGF0IHRoZSBkYXRhIHBhdHRlcm4gaXMg
-ZGlmZmVyZW50LiANCg0KVGhpcyBwb3RlbnRpYWwgbmV3IHBhcmFtZXRlciBmb3IgcmFuZF92ZXJp
-Znlfc2VlZCBzZWVtcyBsaWtlIGEgZ29vZCBvcHRpb24gaGVyZSwgYnV0IGFzIGFsd2F5cyB3ZSB3
-b3VsZCBsaWtlIHRvIGhlYXIgdGhvdWdodHMgYW5kIGlkZWFzIGhlcmUuICBXZSB3b3VsZCBiZSB3
-aWxsaW5nIHRvIGNvbnRyaWJ1dGUgdGhpcyBpZiBpdCBzZWVtcyB1c2VmdWwuDQoNClRoYW5rcyAh
-IA0KLVJvYg0K
+On 11 April 2016 at 14:54, Foley, Robert <robert.foley@emc.com> wrote:
+>
+> Thanks for the information about the %o option.
+>
+> On Saturday, April 09, 2016 1:00 AM, Sitsofe Wheeler [mailto:sitsofe@gmail.com] wrote:
+>>>  You could always force a particular pattern to be put into every block by using verify_pattern (https://github.com/axboe/fio/blob/fio-2.8/HOWTO#L1407) and use it's %o option for generating more sophisticated patterns. Another choice would be to change the block size otherwise you're going to struggle to work out what "run" the pattern in the block came from.
+>
+> I apologize for not mentioning before that we have use cases with compression where we cannot use a repeating pattern.  The %o seems to allow the pattern to vary between blocks, but within the block the pattern repeats.   We really appreciate the use of the randomly generated data bytes by fio.
+>
+>>>We had some ideas around how to solve this if it is not currently supported.   It might be useful to have an optional "verify_io_stamp" parameter, which would specify a simple 32 or 64 bit integer that could get added to and verified with the verify_header.
+>
+>>Might you be able to do this by creating a particular verify pattern and specifying a custom header format?
+>
+> We could create a new verify pattern with a custom header format.  That would give us the ability to save and validate this verify_io_stamp parameter.   But it seems we would lose the ability to specify the different validation types (md5, crc64, crc32, etc).
+>
+> We really appreciate the flexibility of fio in being able to use different validation types (md5, crc64, crc32, etc) along with randomly generated data, and we would like to leverage those options along with the ability to specify a new verify_io_stamp.  Adding a new parameter for verify_io_stamp seems like the best option to achieve this, but we would appreciate more thoughts or ideas here.
+
+Some sort of "generation" id in the header would allow better
+verification when using something like loops (assuming it was being
+incremented on a per iteration basis). Perhaps what is needed is some
+sort of verify_header_extra_pattern that allows a few extra bytes to
+be set in the header and verified later...
+
+However this doesn't seem to solve your entire problem as I understood
+it: given the same randseed you want the ability for the same blocks
+to be written in the same order but with different pseudorandom data
+contents? Further this data must be verifiable in a separate job?
+Would changing the buffer_compress_percentage option do?
+
+-- 
+Sitsofe | http://sucs.org/~sits/
