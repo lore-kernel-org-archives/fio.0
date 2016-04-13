@@ -1,77 +1,74 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: fio: rdma_create_event_channel fail
-References: <CAANLjFrvQhEt02+7csMxnBg_fvLyJ8DWWxnAWf1MExSQTqCpMw@mail.gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <57013E24.8090607@kernel.dk>
-Date: Sun, 3 Apr 2016 10:00:36 -0600
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mailuogwdur.emc.com ([128.221.224.79]:27079 "EHLO
+	mailuogwdur.emc.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753064AbcDMUpd (ORCPT <rfc822;fio@vger.kernel.org>);
+	Wed, 13 Apr 2016 16:45:33 -0400
+From: "Foley, Robert" <robert.foley@emc.com>
+Subject: RE: random writes with different patterns
+Date: Wed, 13 Apr 2016 20:08:22 +0000
+Message-ID: <759ED0CCB4AB7D4A897D03A711E4EC4C6F773D73@MX204CL02.corp.emc.com>
+References: <759ED0CCB4AB7D4A897D03A711E4EC4C6F771F72@MX204CL02.corp.emc.com>
+	<CALjAwximeyPand181Q71B9f0CJgXcFHNGTBheTk2MGQkaf5+dQ@mail.gmail.com>
+	<759ED0CCB4AB7D4A897D03A711E4EC4C6F772A98@MX204CL02.corp.emc.com>
+ <CALjAwxhzP3XrEapHjEK4uY4vYpc0PYBwEE=OTUXFfpgH+eKbMA@mail.gmail.com>
+In-Reply-To: <CALjAwxhzP3XrEapHjEK4uY4vYpc0PYBwEE=OTUXFfpgH+eKbMA@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <CAANLjFrvQhEt02+7csMxnBg_fvLyJ8DWWxnAWf1MExSQTqCpMw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Robert LeBlanc <robert@leblancnet.us>, fio@vger.kernel.org
-Cc: Logan Gunthorpe <logang@deltatee.com>
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-CC'ing Logan, who might have an idea.
-
-
-On 03/31/2016 10:44 AM, Robert LeBlanc wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA256
->
-> When trying to use the RDMA engine and the example job for the server
-> with the port set to an arbitrary value I get:
->
-> # /home/rleblanc/fio/fio /home/rleblanc/fio/examples/rdmaio-server.fio
-> receiver: (g=0): rw=read, bs=1M-1M/1M-1M/1M-1M, ioengine=rdma, iodepth=16
-> fio-2.8-14-g23a8
-> Starting 1 process
-> fio: rdma_create_event_channel fail
-> fio: io engine init failed. Perhaps try reducing io depth?
-> fio: pid=18588, err=1/
->
-> Setting I/O depth=1 only removed the corresponding message from the output.
-> # uname -r
-> 4.1.15.bs.ufd
->
-> # rpm -qa | grep -E "ibverbs|rdmacm"
-> libibverbs-devel-1.1.8-8.el7.x86_64
-> librdmacm-1.0.21-1.el7.x86_64
-> libibverbs-1.1.8-8.el7.x86_64
-> librdmacm-devel-1.0.21-1.el7.x86_64
->
-> I'm not sure what is wrong as this is the first time I've tried using
-> the RDMA engine.
-> - ----------------
-> Robert LeBlanc
-> PGP Fingerprint 79A2 9CA4 6CC4 45DD A904  C70E E654 3BB2 FA62 B9F1
-> -----BEGIN PGP SIGNATURE-----
-> Version: Mailvelope v1.3.6
-> Comment: https://www.mailvelope.com
->
-> wsFcBAEBCAAQBQJW/VPPCRDmVDuy+mK58QAAPKMQAJF8B3y8pk9l2emtsrGm
-> 2Rt7ufstv6c4XtuCk2wsc6ocZe8yNfAM1BNkW6pTF96orHZuLTt/QDvbDlnN
-> q6N0vPkGJbDVbm7YNDzFc4qOU1pbrn8a66eck5BKuHPPogXCsJJTu+rdfAd9
-> TNUGD4b9MzogTCzI8Zs6YRdWLIeaJRsPaHqJGYsD5G83rxGFagjx0qoOPuF+
-> CNcFVYXZeU3+/YzsTDfuvNtiSDDJTUe3Shjw6fSu8ZFNabucAbbGOflovIIL
-> kGjFmprrFgqOLiTnw7muF6tSXcc205YMGbCgOiEye4i9Ajd/ITiEQ3QlbQZ1
-> WDz5WPSukDR8KqJoREKcksWVL7zVciulE5/+ZlJajD02JfOTz7j9QydLAPJ/
-> sQM1g7Ft5HZK8TB9IgVKBernHCpahNQ5dU2OadDgpe0rxjzjrVcxegYOqLPd
-> iUVFT2/UUFwzxaVnxHXTDNGO5A4JSyctvPTQ4uKLFFox9p6L5pFgrz9o86Fs
-> lbW/72IjJD/8AEC64cqJp6JuC/sSEmz2hPpOvKdbpWPlVijzPB0OnpkMB4cC
-> DATo4afT5uDRDe7IS8Ypi/WcriVLA+O9jRsigARri1F4FFc1QR/FDtXQnKYE
-> SKB8sOE6sAv8qsyNLDqyD3rAzjRJ267zweNcWficcrHD3pYljXCLK1oaZgHD
-> EcOB
-> =f1X7
-> -----END PGP SIGNATURE-----
-> --
-> To unsubscribe from this list: send the line "unsubscribe fio" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-
-
--- 
-Jens Axboe
-
-
+Pk9uIFdlZG5lc2RheSwgQXByaWwgMTMsIDIwMTYgMTozOSBBTSwgIFNpdHNvZmUgV2hlZWxlciBb
+bWFpbHRvOnNpdHNvZmVAZ21haWwuY29tXSB3cm90ZToNCj5Tb21lIHNvcnQgb2YgImdlbmVyYXRp
+b24iIGlkIGluIHRoZSBoZWFkZXIgd291bGQgYWxsb3cgYmV0dGVyIHZlcmlmaWNhdGlvbiB3aGVu
+IHVzaW5nIHNvbWV0aGluZyBsaWtlIA0KPmxvb3BzIChhc3N1bWluZyBpdCB3YXMgYmVpbmcgaW5j
+cmVtZW50ZWQgb24gYSBwZXIgaXRlcmF0aW9uIGJhc2lzKS4gUGVyaGFwcyB3aGF0IGlzIG5lZWRl
+ZCBpcyBzb21lIA0KPiBzb3J0IG9mIHZlcmlmeV9oZWFkZXJfZXh0cmFfcGF0dGVybiB0aGF0IGFs
+bG93cyBhIGZldyBleHRyYSBieXRlcyB0byBiZSBzZXQgaW4gdGhlIGhlYWRlciBhbmQgdmVyaWZp
+ZWQgbGF0ZXIuLi4NCg0KVGhpcyBpcyBhIGdvb2QgcG9pbnQuICBUaGUgdmVyaWZ5X2hlYWRlcl9l
+eHRyYV9wYXR0ZXJuIHBhcmFtZXRlciBhbG9uZSB3b3VsZCBzb2x2ZSBvbmUgb2Ygb3VyIHVzZSBj
+YXNlcyB3aGVyZSB3ZSB3YW50IHRvIHdyaXRlIGEgc2VxdWVuY2Ugb2YgcmFuZG9tIGJsb2NrcyB3
+aXRoIGEgcGF0dGVybiBhbmQgdGhlbiBvdmVyd3JpdGUgdGhlIHNhbWUgc2VxdWVuY2Ugd2l0aCBw
+YXR0ZXJucyB0aGF0IHZhcnkganVzdCBieSB0aGF0IGV4dHJhIHBhdHRlcm4uICAgV2l0aCB1c2Ug
+b2YgcmFuZHNlZWQsIHdlIHdpbGwgYmUgYWJsZSB0byB3cml0ZSB0byB0aGUgc2FtZSBzZXQgb2Yg
+YmxvY2tzIHdpdGggcmFuZG9tIGRhdGEuICBCdXQgaW4gYmV0d2VlbiBydW5zIGl0IHdvdWxkIGJl
+IGVub3VnaCBmb3Igb25seSB0aGlzIGV4dHJhX3BhdHRlcm4gaW4gdGhlIGhlYWRlciB0byB2YXJ5
+LiAgQWxzbywgdGhlIG5hbWluZyB0aGF0IHlvdSBzdWdnZXN0ZWQgc2VlbXMganVzdCByaWdodCBo
+ZXJlLiAgV2UgY2FuIHN0YXJ0IHB1dHRpbmcgdGhpcyB0b2dldGhlciBzb29uLCBhbmQgd2lsbCBj
+b250cmlidXRlIGl0IHdoZW4gaXQgaXMgcmVhZHkuDQoNCj4gSG93ZXZlciB0aGlzIGRvZXNuJ3Qg
+c2VlbSB0byBzb2x2ZSB5b3VyIGVudGlyZSBwcm9ibGVtIGFzIEkgdW5kZXJzdG9vZA0KPiBpdDog
+Z2l2ZW4gdGhlIHNhbWUgcmFuZHNlZWQgeW91IHdhbnQgdGhlIGFiaWxpdHkgZm9yIHRoZSBzYW1l
+IGJsb2NrcyB0byBiZSB3cml0dGVuIGluIHRoZSBzYW1lIG9yZGVyIGJ1dCB3aXRoIGRpZmZlcmVu
+dCANCj5wc2V1ZG9yYW5kb20gZGF0YSBjb250ZW50cz8gRnVydGhlciB0aGlzIGRhdGEgbXVzdCBi
+ZSB2ZXJpZmlhYmxlIGluIGEgc2VwYXJhdGUgam9iPw0KPldvdWxkIGNoYW5naW5nIHRoZSBidWZm
+ZXJfY29tcHJlc3NfcGVyY2VudGFnZSBvcHRpb24gZG8/DQoNCllvdSBicmluZyB1cCBhIGdvb2Qg
+cG9pbnQgaW4gdGhhdCB3ZSBkbyBoYXZlIGEgdXNlIGNhc2Ugd2hlcmUgd2Ugd2FudCB0aGUgZGF0
+YSBpbiB0aGUgYmxvY2sgdG8gYWxzbyB2YXJ5IGJldHdlZW4gcnVucyB0byB0aGUgc2FtZSBzZXF1
+ZW5jZSBvZiBibG9ja3MuICBTbyB0aGUgdXNlIGNhc2UgaXMgd2hlcmUgd2Ugd3JpdGUgYSBzZXQg
+b2YgcmFuZG9tIGJsb2NrcyB3aXRoIHJhbmRvbSBkYXRhLiAgTGF0ZXIgd2UgZG8gd2FudCB0byBi
+ZSBhYmxlIHRvIHZlcmlmeSB0aGF0IGRhdGEgaXMgdGhlIHNhbWUuICBCdXQgd2UgYWxzbyB3YW50
+IHRvIG92ZXJ3cml0ZSB0aGF0IHNhbWUgc2VxdWVuY2Ugb2YgYmxvY2tzIHdpdGggYSBkaWZmZXJl
+bnQgZGF0YSBwYXR0ZXJuLiAgV2UgbG9va2VkIGF0IHRoZSBidWZmZXJfY29tcHJlc3NfcGVyY2Vu
+dGFnZSBvcHRpb24gYW5kIHdlIGJlbGlldmUgdGhhdCB0aGlzIGRvZXMgbm90IGhlbHAgdXMgc2lu
+Y2Ugd2Ugd2FudCB0byBiZSBhYmxlIHRvIHdyaXRlIGJsb2NrcyB0aGF0IGFyZSBjb21wbGV0ZWx5
+IGRpZmZlcmVudCBmcm9tIHRoZSBwcmlvciBydW4gYmxvY2suICBXZSB3ZXJlIGNvbmNlcm5lZCB0
+aGF0IHdlIG1pZ2h0IGJlIHRlc3RpbmcgYSB1c2UgY2FzZSB3aGVyZSB3ZSBhY3R1YWxseSBkbyBu
+b3Qgd2FudCB0aGUgZGF0YSB0byBiZSBjb21wcmVzc2libGUvZGVkdXBhYmxlIHNvIGl0IHdvdWxk
+IGJlIGJldHRlciBmb3IgdGhlIGVudGlyZSBibG9jayB0byB2YXJ5Lg0KDQpJdCBzZWVtcyB0aGF0
+IHdoZW4gd2UgdXNlIHRoZSByYW5kc2VlZCBvcHRpb24sIHRoaXMgc2luZ2xlIHNlZWQgd2lsbCBl
+ZmZlY3RpdmVseSBzZWVkIGV2ZXJ5dGhpbmcgaW5jbHVkaW5nIHRoZSBvZmZzZXQgZ2VuZXJhdGlv
+biAoSS9PIHBhdHRlcm4pIGFuZCB0aGUgZGF0YSBwYXR0ZXJuIGdlbmVyYXRpb24uICBJdCBzZWVt
+cyBsaWtlIGEgbmV3IHBhcmFtZXRlciAocmFuZF92ZXJpZnlfc2VlZCkgdGhhdCBhbGxvd3MgdXMg
+dG8gcHJvdmlkZSB0aGUgcmFuZG9tIHNlZWQgZm9yIHRoZSBkYXRhIHBhdHRlcm4gYWxvbmUgd291
+bGQgYmUgcXVpdGUgdXNlZnVsIGluIGdlbmVyYWwgYW5kIHdvdWxkIGhlbHAgdXMgc29sdmUgdGhp
+cyBjYXNlLiAgSXQgd291bGQgYWxsb3cgdXMgaW4gdGhpcyBjYXNlIHRvIHNwZWNpZnkgdGhlIHNh
+bWUgcmFuZHNlZWQgc28gdGhhdCB0aGUgSS9PIHBhdHRlcm4gaXMgdGhlIHNhbWUsIGJ1dCB0aGVu
+IHVzZSBhIGRpZmZlcmVudCB2ZXJpZnkgc2VlZCBzbyB0aGF0IHRoZSBkYXRhIHBhdHRlcm4gaXMg
+ZGlmZmVyZW50LiANCg0KVGhpcyBwb3RlbnRpYWwgbmV3IHBhcmFtZXRlciBmb3IgcmFuZF92ZXJp
+Znlfc2VlZCBzZWVtcyBsaWtlIGEgZ29vZCBvcHRpb24gaGVyZSwgYnV0IGFzIGFsd2F5cyB3ZSB3
+b3VsZCBsaWtlIHRvIGhlYXIgdGhvdWdodHMgYW5kIGlkZWFzIGhlcmUuICBXZSB3b3VsZCBiZSB3
+aWxsaW5nIHRvIGNvbnRyaWJ1dGUgdGhpcyBpZiBpdCBzZWVtcyB1c2VmdWwuDQoNClRoYW5rcyAh
+IA0KLVJvYg0K
