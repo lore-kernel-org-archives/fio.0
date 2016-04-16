@@ -1,48 +1,48 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx2.ssi.samsung.com ([207.140.43.206]:43095 "EHLO
-	mx2.ssi.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751164AbcDRVA6 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 18 Apr 2016 17:00:58 -0400
-From: "TK (Tzung-Kwang) Wang-SSI" <tk.wang@ssi.samsung.com>
-Subject: RE: sector size other than 512 bytes
-Date: Mon, 18 Apr 2016 20:56:22 +0000
-Message-ID: <6970D64051BC6047987810C1EE37A0351B698AB0@SSIEXCH-MB3.ssi.samsung.com>
+Received: from mail-vk0-f65.google.com ([209.85.213.65]:32913 "EHLO
+	mail-vk0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751216AbcDPKe4 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sat, 16 Apr 2016 06:34:56 -0400
+Received: by mail-vk0-f65.google.com with SMTP id v68so17243179vka.0
+        for <fio@vger.kernel.org>; Sat, 16 Apr 2016 03:34:56 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <6970D64051BC6047987810C1EE37A0351B695F5F@SSIEXCH-MB3.ssi.samsung.com>
 References: <6970D64051BC6047987810C1EE37A0351B6956EA@SSIEXCH-MB3.ssi.samsung.com>
 	<CALjAwxhD2PW239kH03uuOiaEgaeW8Gn+sFAOytHpUHXHgeXcFA@mail.gmail.com>
 	<6970D64051BC6047987810C1EE37A0351B6957A9@SSIEXCH-MB3.ssi.samsung.com>
 	<CALjAwxiRaX5v=v00DhrX2=CS0GwsgHiiw62qgvb5NFumibb2xw@mail.gmail.com>
 	<6970D64051BC6047987810C1EE37A0351B695F5F@SSIEXCH-MB3.ssi.samsung.com>
- <CALjAwxhktXN=-PqpebHOgq2RzhD6HrzDW101gpjArh=3J6o2pQ@mail.gmail.com>
-In-Reply-To: <CALjAwxhktXN=-PqpebHOgq2RzhD6HrzDW101gpjArh=3J6o2pQ@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+Date: Sat, 16 Apr 2016 11:34:55 +0100
+Message-ID: <CALjAwxhktXN=-PqpebHOgq2RzhD6HrzDW101gpjArh=3J6o2pQ@mail.gmail.com>
+Subject: Re: sector size other than 512 bytes
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: "TK (Tzung-Kwang) Wang-SSI" <tk.wang@ssi.samsung.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-U2l0c29mZSwNCg0KWWVzLCBkbWVzZyBzaG93cyAiVW5zdXBwb3J0ZWQgc2VjdG9yIHNpemUgNTIw
-LiIuIFNvIHNvbHV0aW9uIGZvciB0aGlzIGlzc3VlIGlzIGhhdmUgNTIwLWJ5dGUgc2VjdG9yIHNp
-emUgc3VwcG9ydCBpbiBsaW51eCBkZXZpY2UgZHJpdmVyLCBpdCBzZWVtcy4NCg0KUmVnYXJkcywN
-ClRLDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBTaXRzb2ZlIFdoZWVsZXIg
-W21haWx0bzpzaXRzb2ZlQGdtYWlsLmNvbV0gDQpTZW50OiBTYXR1cmRheSwgQXByaWwgMTYsIDIw
-MTYgMzozNSBBTQ0KVG86IFRLIChUenVuZy1Ld2FuZykgV2FuZy1TU0kNCkNjOiBmaW9Admdlci5r
-ZXJuZWwub3JnDQpTdWJqZWN0OiBSZTogc2VjdG9yIHNpemUgb3RoZXIgdGhhbiA1MTIgYnl0ZXMN
-Cg0KT24gMTUgQXByaWwgMjAxNiBhdCAyMjoxOSwgVEsgKFR6dW5nLUt3YW5nKSBXYW5nLVNTSSA8
-dGsud2FuZ0Bzc2kuc2Ftc3VuZy5jb20+IHdyb3RlOg0KPiBUaGF0IHNob3dzIDUxMiBpbnN0ZWFk
-IG9mIDUyMCwNCj4NCj4gIyBjYXQgL3N5cy9ibG9jay9zZGIvcXVldWUvbG9naWNhbF9ibG9ja19z
-aXplDQo+IDUxMg0KPiAjIHNnX3JlYWRjYXAgL2Rldi9zZGINCj4gUmVhZCBDYXBhY2l0eSByZXN1
-bHRzOg0KPiAgICBMYXN0IGxvZ2ljYWwgYmxvY2sgYWRkcmVzcz05MTg1NTI1NzUgKDB4MzZiZmZm
-ZmYpLCBOdW1iZXIgb2YgYmxvY2tzPTkxODU1MjU3Ng0KPiAgICBMb2dpY2FsIGJsb2NrIGxlbmd0
-aD01MjAgYnl0ZXMNCj4gSGVuY2U6DQo+ICAgIERldmljZSBzaXplOiA0Nzc2NDczMzk1MjAgYnl0
-ZXMsIDQ1NTUyMC4wIE1pQiwgNDc3LjY1IEdCDQoNCkluIHRoYXQgY2FzZSBJJ2Qgc2F5IHRoZSBp
-c3N1ZSB5b3UncmUgc2VlaW5nIGlzIHdpdGhpbiB0aGUga2VybmVsIHJhdGhlciB0aGFuIGluIGZp
-byAtIHRoZSBrZXJuZWwgYmxvY2sgZGV2aWNlIGlzIGdvaW5nIHRvIHJlZnVzZSB1c2Vyc3BhY2Ug
-YWNjZXNzZXMgdGhhdCBhcmVuJ3QgbXVsdGlwbGVzIG9mIDUxMi4gUG9zc2libHkgcmF3IFNDU0kg
-Y29tbWFuZHMgd291bGQgd29yaz8NCg0KSXMgdGhlcmUgYW55dGhpbmcgaW4gZG1lc2cgYWJvdXQg
-InVuc3VwcG9ydGVkIHNlY3RvciBzaXplIiAoc2VlDQpodHRwczovL2dpdGh1Yi5jb20vdG9ydmFs
-ZHMvbGludXgvYmxvYi92NC41L2RyaXZlcnMvc2NzaS9zZC5jI0wyMjkyDQpmb3IgdGhlIGNoZWNr
-IHRoYXQgcHJvdm9rZXMgdGhhdCBtZXNzYWdlKT8NCg0KLS0NClNpdHNvZmUgfCBodHRwOi8vc3Vj
-cy5vcmcvfnNpdHMvDQo=
+On 15 April 2016 at 22:19, TK (Tzung-Kwang) Wang-SSI
+<tk.wang@ssi.samsung.com> wrote:
+> That shows 512 instead of 520,
+>
+> # cat /sys/block/sdb/queue/logical_block_size
+> 512
+> # sg_readcap /dev/sdb
+> Read Capacity results:
+>    Last logical block address=918552575 (0x36bfffff), Number of blocks=918552576
+>    Logical block length=520 bytes
+> Hence:
+>    Device size: 477647339520 bytes, 455520.0 MiB, 477.65 GB
+
+In that case I'd say the issue you're seeing is within the kernel
+rather than in fio - the kernel block device is going to refuse
+userspace accesses that aren't multiples of 512. Possibly raw SCSI
+commands would work?
+
+Is there anything in dmesg about "unsupported sector size" (see
+https://github.com/torvalds/linux/blob/v4.5/drivers/scsi/sd.c#L2292
+for the check that provokes that message)?
+
+-- 
+Sitsofe | http://sucs.org/~sits/
