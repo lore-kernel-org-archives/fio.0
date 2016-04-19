@@ -1,27 +1,80 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx2.ssi.samsung.com ([207.140.43.206]:50558 "EHLO
-	mx2.ssi.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754797AbcDNSoq convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Thu, 14 Apr 2016 14:44:46 -0400
-Received: from ssiexch-casht2.ssi.samsung.com ([105.128.134.61]) by mx2.ssi.samsung.com with ESMTP id cr087N5YspeBR2Kl for <fio@vger.kernel.org>; Thu, 14 Apr 2016 11:44:44 -0700 (PDT)
-From: "TK (Tzung-Kwang) Wang-SSI" <tk.wang@ssi.samsung.com>
-Subject: sector size other than 512 bytes
-Date: Thu, 14 Apr 2016 18:44:07 +0000
-Message-ID: <6970D64051BC6047987810C1EE37A0351B6956EA@SSIEXCH-MB3.ssi.samsung.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
+Received: from merlin.infradead.org ([205.233.59.134]:36454 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752407AbcDSMAG (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 19 Apr 2016 08:00:06 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+	id 1asUK5-00031v-7U
+	for fio@vger.kernel.org; Tue, 19 Apr 2016 12:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160419120002.883CB2C18E7@kernel.dk>
+Date: Tue, 19 Apr 2016 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hi All,
+The following changes since commit eeea64a6ad6c1fed6c477a49bd5398559cf667d3:
 
-I have been using FIO on SATA drives for some times and all were fine until recently I added SAS drives to the test list. Some of the SAS drives have 520-byte sector size, with DIF, and my FIO setup was not able to run on those drives. I have not found related postings in archive for possible workaround. My had also upgrade from v2.1.14 to v2.8 with the same result.
+  t/fio-verify-state: show completions in order (2016-04-15 09:03:34 -0600)
 
-Is there a patch available for supporting sector size other than 512-byte for either Windows 7 and/or Ubuntu 14 LTS environment?
+are available in the git repository at:
 
-Thanks,
-TK
+  git://git.kernel.dk/fio.git master
 
+for you to fetch changes up to 4b1ddb7afd332431e83ef5f1b9ee0216aef197c4:
+
+  Documentation: it's 'log_max_value', not 'log_max' (2016-04-18 16:54:12 -0400)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Documentation: it's 'log_max_value', not 'log_max'
+
+ HOWTO | 11 ++++++-----
+ fio.1 |  4 ++--
+ 2 files changed, 8 insertions(+), 7 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/HOWTO b/HOWTO
+index 6e052f5..2be1648 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -1596,12 +1596,13 @@ log_avg_msec=int By default, fio will log an entry in the iops, latency,
+ 		disk log, that can quickly grow to a very large size. Setting
+ 		this option makes fio average the each log entry over the
+ 		specified period of time, reducing the resolution of the log.
+-		See log_max as well. Defaults to 0, logging all entries.
++		See log_max_value as well. Defaults to 0, logging all entries.
++
++log_max_value=bool	If log_avg_msec is set, fio logs the average over that
++		window. If you instead want to log the maximum value, set this
++		option to 1. Defaults to 0, meaning that averaged values are
++		logged.
+ 
+-log_max=bool	If log_avg_msec is set, fio logs the average over that window.
+-		If you instead want to log the maximum value, set this option
+-		to 1. Defaults to 0, meaning that averaged values are logged.
+-.
+ log_offset=int	If this is set, the iolog options will include the byte
+ 		offset for the IO entry as well as the other data values.
+ 
+diff --git a/fio.1 b/fio.1
+index b54f568..e502dfe 100644
+--- a/fio.1
++++ b/fio.1
+@@ -1465,9 +1465,9 @@ By default, fio will log an entry in the iops, latency, or bw log for every
+ IO that completes. When writing to the disk log, that can quickly grow to a
+ very large size. Setting this option makes fio average the each log entry
+ over the specified period of time, reducing the resolution of the log. See
+-\fBlog_max\fR as well.  Defaults to 0, logging all entries.
++\fBlog_max_value\fR as well.  Defaults to 0, logging all entries.
+ .TP
+-.BI log_max \fR=\fPbool
++.BI log_max_value \fR=\fPbool
+ If \fBlog_avg_msec\fR is set, fio logs the average over that window. If you
+ instead want to log the maximum value, set this option to 1.  Defaults to
+ 0, meaning that averaged values are logged.
