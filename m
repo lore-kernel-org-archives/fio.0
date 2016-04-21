@@ -1,75 +1,65 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from smtp.hig.no ([128.39.41.135]:47869 "EHLO smtp.hig.no"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932280AbcDDLQN (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 4 Apr 2016 07:16:13 -0400
-From: Mihkal Dunfjeld <mihkal.dunfjeld@stud.ntnu.no>
-Subject: Missing log entries and other questions
-Message-ID: <57024B1A.10808@stud.ntnu.no>
-Date: Mon, 4 Apr 2016 13:08:10 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Received: from bombadil.infradead.org ([198.137.202.9]:36214 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751571AbcDUMAE (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 21 Apr 2016 08:00:04 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1atDH9-0002pX-J5
+	for fio@vger.kernel.org; Thu, 21 Apr 2016 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160421120002.178592C18E7@kernel.dk>
+Date: Thu, 21 Apr 2016 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: birger.lunstoeng@stud.ntnu.no
 
-Hello fio team!
+The following changes since commit 4b1ddb7afd332431e83ef5f1b9ee0216aef197c4:
 
-We are a group of three students that are writing a bachelor thesis at
-NTNU Gjøvik Norway about Ceph and we are trying to measure its
-performance using the great tool Fio. During our testing we find that
-for 16 job write runs, the amount of lines in our logs falls
-significantly below what we expect for a test set to run for 120 seconds.
+  Documentation: it's 'log_max_value', not 'log_max' (2016-04-18 16:54:12 -0400)
 
-Example: 4 jobs, 8 QD, random write
-sudo fio --filename=/dev/rbd0 --direct=1 --rw=randwrite --refill_buffers
---norandommap --randrepeat=0 --ioengine=libaio --bs=4k --iodepth=8
---numjobs=4 --runtime=120 --log_avg_msec=1000
---write_iops_log=fsrandW4-8-iopslog --group_reporting --ramp_time=60
---name=fsrandW4-8 --output=fsrandW4-8
+are available in the git repository at:
 
-For this test we are missing 23% of the log entries. Got 369/480 (120
-sec times 4 jobs).
-Raw data file: http://pastebin.com/CeXa61MF
-This gets worse with higher load. On 16 jobs 64 QD runs, more than 50%
-of the log entries are missing.
-The tests are run from a HP DL380G6 with 2x Xeon X5560 @ 2.8 Ghz, 12 GB
-ECC RAM running Ubuntu Server 14.04. Tested with both the Ubuntu
-repository version and the latest version compiled from github. We also
-tried to output the log files to tempfs without that making much of a
-difference.
+  git://git.kernel.dk/fio.git master
 
-Because of this we have a few questions:
+for you to fetch changes up to 250e878ab5f26b32facbb6e134f3738aa1aa0120:
 
-1. What causes fio to not be able to write a new line to the 	
-Write_iops_log file at the set interval? (log_avg_msec=1000).  We see up
-to several seconds of delay (See above pastebin).
+  include sys/sysmacros.h for major/minor (2016-04-21 07:47:26 -0400)
 
-2. Does fio write to the write_iops_log file even if iops is zero? For
-instance if cluster performance is really bad.
+----------------------------------------------------------------
+Mike Frysinger (1):
+      include sys/sysmacros.h for major/minor
 
-3. The iops-number that Fio writes to the log, is that the number of I/O
-operations since the last line in the log, or the number of operations
-during the time specified with iopsavgtime, or just a snapshot of the
-current number of operations at the time of writing to the log?
+ os/os-linux.h         | 1 +
+ oslib/libmtd_common.h | 1 +
+ 2 files changed, 2 insertions(+)
 
-4. Does the operation to write to the log enter the same I/O queue as
-the jobs/QD Fio uses? This is not directly a Fio question, but maybe
-someone knows. I suppose we really ought to know this ourselves, but
-sadly do not.
+---
 
-5. The average IOPS number that Fio reports for a run, how is that
-calculated? We see an at times significant disparity between our own
-calculation from the raw data log (--write_iops_log) and the standard
---output. Our average is always higher when we calculate the iopslog
-like this: http://pastebin.com/ZY3hNWh3
+Diff of recent changes:
 
-There may be simple explanation for all of this, but we are
-unfortunately unable to see it.
-
-Any help would be much appreciated.
-
-Regards,
-Birger, Mihkal, Øyvind
+diff --git a/os/os-linux.h b/os/os-linux.h
+index 9e708f0..23c16b6 100644
+--- a/os/os-linux.h
++++ b/os/os-linux.h
+@@ -6,6 +6,7 @@
+ #include <sys/ioctl.h>
+ #include <sys/uio.h>
+ #include <sys/syscall.h>
++#include <sys/sysmacros.h>
+ #include <sys/vfs.h>
+ #include <sys/mman.h>
+ #include <unistd.h>
+diff --git a/oslib/libmtd_common.h b/oslib/libmtd_common.h
+index a123323..9768066 100644
+--- a/oslib/libmtd_common.h
++++ b/oslib/libmtd_common.h
+@@ -30,6 +30,7 @@
+ #include <errno.h>
+ #include <features.h>
+ #include <inttypes.h>
++#include <sys/sysmacros.h>
+ 
+ #ifndef PROGRAM_NAME
+ # error "You must define PROGRAM_NAME before including this header"
