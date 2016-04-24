@@ -1,67 +1,102 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:48146 "EHLO
+Received: from merlin.infradead.org ([205.233.59.134]:42600 "EHLO
 	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753026AbcD2MAE (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 29 Apr 2016 08:00:04 -0400
+	with ESMTP id S1752575AbcDXMAH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sun, 24 Apr 2016 08:00:07 -0400
 Received: from [216.160.245.99] (helo=kernel.dk)
 	by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-	id 1aw75W-0000e0-RY
-	for fio@vger.kernel.org; Fri, 29 Apr 2016 12:00:03 +0000
+	id 1auIhn-0006QS-V9
+	for fio@vger.kernel.org; Sun, 24 Apr 2016 12:00:05 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160429120001.8B1852C18E8@kernel.dk>
-Date: Fri, 29 Apr 2016 06:00:01 -0600 (MDT)
+Message-Id: <20160424120001.AC9552C18E7@kernel.dk>
+Date: Sun, 24 Apr 2016 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 603e604eb6d9b3ba9f201a6bff0a18da1a6c0967:
+The following changes since commit 250e878ab5f26b32facbb6e134f3738aa1aa0120:
 
-  oslib/getopt_long: allow (unique) short match (2016-04-22 18:14:24 -0400)
+  include sys/sysmacros.h for major/minor (2016-04-21 07:47:26 -0400)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to fe8d0f4c54f0c308c9a02a4e3c2f5084e8bf5461:
+for you to fetch changes up to 603e604eb6d9b3ba9f201a6bff0a18da1a6c0967:
 
-  Fio 2.9 (2016-04-28 16:23:10 -0600)
+  oslib/getopt_long: allow (unique) short match (2016-04-22 18:14:24 -0400)
 
 ----------------------------------------------------------------
 Jens Axboe (1):
-      Fio 2.9
+      oslib/getopt_long: allow (unique) short match
 
- FIO-VERSION-GEN        | 2 +-
- os/windows/install.wxs | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ oslib/getopt_long.c | 36 +++++++++++++++++++++++++++++++-----
+ 1 file changed, 31 insertions(+), 5 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index 502d4fe..fcdbd98 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
+diff --git a/oslib/getopt_long.c b/oslib/getopt_long.c
+index 11d879a..8ec7741 100644
+--- a/oslib/getopt_long.c
++++ b/oslib/getopt_long.c
+@@ -26,14 +26,14 @@ static struct getopt_private_state {
+ } pvt;
  
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-2.8
-+DEF_VER=fio-2.9
+ static inline const char *option_matches(const char *arg_str,
+-					 const char *opt_name)
++					 const char *opt_name, int smatch)
+ {
+ 	while (*arg_str != '\0' && *arg_str != '=') {
+ 		if (*arg_str++ != *opt_name++)
+ 			return NULL;
+ 	}
  
- LF='
- '
-diff --git a/os/windows/install.wxs b/os/windows/install.wxs
-index 366547d..44cc938 100755
---- a/os/windows/install.wxs
-+++ b/os/windows/install.wxs
-@@ -10,7 +10,7 @@
- 	<Product Id="*"
- 	  Codepage="1252" Language="1033"
- 	  Manufacturer="fio" Name="fio"
--	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.8">
-+	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.9">
- 		<Package
- 		  Description="Flexible IO Tester"
- 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
+-	if (*opt_name)
++	if (*opt_name && !smatch)
+ 		return NULL;
+ 
+ 	return arg_str;
+@@ -84,11 +84,37 @@ int getopt_long_only(int argc, char *const *argv, const char *optstring,
+ 		}
+ 
+ 		for (lo = longopts; lo->name; lo++) {
+-			if ((opt_end = option_matches(carg+2, lo->name)))
++			opt_end = option_matches(carg+2, lo->name, 0);
++			if (opt_end)
+ 			    break;
+ 		}
+-		if (!opt_end)
+-			return '?';
++		/*
++		 * The GNU getopt_long_only() apparently allows a short match,
++		 * if it's unique and if we don't have a full match. Let's
++		 * do the same here, search and see if there is one (and only
++		 * one) short match.
++		 */
++		if (!opt_end) {
++			const struct option *lo_match = NULL;
++
++			for (lo = longopts; lo->name; lo++) {
++				const char *ret;
++
++				ret = option_matches(carg+2, lo->name, 1);
++				if (!ret)
++					continue;
++				if (!opt_end) {
++					opt_end = ret;
++					lo_match = lo;
++				} else {
++					opt_end = NULL;
++					break;
++				}
++			}
++			if (!opt_end)
++				return '?';
++			lo = lo_match;
++		}
+ 
+ 		if (longindex)
+ 			*longindex = lo-longopts;
