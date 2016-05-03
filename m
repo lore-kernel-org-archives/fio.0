@@ -1,382 +1,145 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:60575 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753505AbcEZMAE (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 26 May 2016 08:00:04 -0400
+Received: from merlin.infradead.org ([205.233.59.134]:52409 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755436AbcECMAF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 3 May 2016 08:00:05 -0400
 Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1b5txL-0005gl-PL
-	for fio@vger.kernel.org; Thu, 26 May 2016 12:00:03 +0000
+	by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+	id 1axYzj-0003Rm-Nv
+	for fio@vger.kernel.org; Tue, 03 May 2016 12:00:04 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160526120002.5DBF52C00B5@kernel.dk>
-Date: Thu, 26 May 2016 06:00:02 -0600 (MDT)
+Message-Id: <20160503120001.A66022C00AA@kernel.dk>
+Date: Tue,  3 May 2016 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 97e1fe78db572a48a44c2a8511f8393a8643fc28:
+The following changes since commit fe8d0f4c54f0c308c9a02a4e3c2f5084e8bf5461:
 
-  Fio 2.11 (2016-05-24 18:42:04 -0600)
+  Fio 2.9 (2016-04-28 16:23:10 -0600)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 34febb23fa9c7b9b0d54c324effff1a808a8fe6e:
+for you to fetch changes up to 08a2cbf64720d9371ea4649b1bdc00257916a326:
 
-  mutex: abstract out cond/lock pshared init (2016-05-25 13:55:48 -0600)
+  Update RBD documentation (2016-05-02 08:25:16 -0600)
 
 ----------------------------------------------------------------
-Jan Kara (2):
-      fio: Simplify forking of processes
-      Fix occasional hangs on mutexes
+Jens Axboe (1):
+      Update RBD documentation
 
-Jens Axboe (2):
-      hash: make 64-bit even on 32-bit
-      mutex: abstract out cond/lock pshared init
+Tianqing (1):
+      rbd: add clustername option
 
- backend.c       | 61 +++++++++++++--------------------------------
- hash.h          |  6 ++---
- helper_thread.c |  7 ++++--
- iolog.c         |  2 +-
- mutex.c         | 77 ++++++++++++++++++++++++++++++++++++++++++++-------------
- mutex.h         |  4 +++
- workqueue.c     | 18 ++++++++++----
- 7 files changed, 103 insertions(+), 72 deletions(-)
+ HOWTO         |  9 +++++++++
+ engines/rbd.c | 30 +++++++++++++++++++++++++++++-
+ fio.1         |  7 ++++++-
+ 3 files changed, 44 insertions(+), 2 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/backend.c b/backend.c
-index f132222..d8f4f4c 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1428,7 +1428,6 @@ static void *thread_main(void *data)
- 	struct thread_data *td = fd->td;
- 	struct thread_options *o = &td->o;
- 	struct sk_out *sk_out = fd->sk_out;
--	pthread_condattr_t attr;
- 	int clear_state;
- 	int ret;
+diff --git a/HOWTO b/HOWTO
+index 2be1648..1f523d3 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -1888,6 +1888,15 @@ be the starting port number since fio will use a range of ports.
+ 		1 	  : allocate space immidietly inside defragment event,
+ 			    and free right after event
  
-@@ -1453,12 +1452,18 @@ static void *thread_main(void *data)
- 	INIT_FLIST_HEAD(&td->verify_list);
- 	INIT_FLIST_HEAD(&td->trim_list);
- 	INIT_FLIST_HEAD(&td->next_rand_list);
--	pthread_mutex_init(&td->io_u_lock, NULL);
- 	td->io_hist_tree = RB_ROOT;
- 
--	pthread_condattr_init(&attr);
--	pthread_cond_init(&td->verify_cond, &attr);
--	pthread_cond_init(&td->free_cond, &attr);
-+	ret = mutex_cond_init_pshared(&td->io_u_lock, &td->free_cond);
-+	if (ret) {
-+		td_verror(td, ret, "mutex_cond_init_pshared");
-+		goto err;
-+	}
-+	ret = cond_init_pshared(&td->verify_cond);
-+	if (ret) {
-+		td_verror(td, ret, "mutex_cond_pshared");
-+		goto err;
-+	}
- 
- 	td_set_runstate(td, TD_INITIALIZED);
- 	dprint(FD_MUTEX, "up startup_mutex\n");
-@@ -1794,39 +1799,6 @@ err:
- 	return (void *) (uintptr_t) td->error;
- }
- 
--
--/*
-- * We cannot pass the td data into a forked process, so attach the td and
-- * pass it to the thread worker.
-- */
--static int fork_main(struct sk_out *sk_out, int shmid, int offset)
--{
--	struct fork_data *fd;
--	void *data, *ret;
--
--#if !defined(__hpux) && !defined(CONFIG_NO_SHM)
--	data = shmat(shmid, NULL, 0);
--	if (data == (void *) -1) {
--		int __err = errno;
--
--		perror("shmat");
--		return __err;
--	}
--#else
--	/*
--	 * HP-UX inherits shm mappings?
--	 */
--	data = threads;
--#endif
--
--	fd = calloc(1, sizeof(*fd));
--	fd->td = data + offset * sizeof(struct thread_data);
--	fd->sk_out = sk_out;
--	ret = thread_main(fd);
--	shmdt(data);
--	return (int) (uintptr_t) ret;
--}
--
- static void dump_td_info(struct thread_data *td)
- {
- 	log_err("fio: job '%s' (state=%d) hasn't exited in %lu seconds, it "
-@@ -2164,6 +2136,7 @@ reap:
- 		struct thread_data *map[REAL_MAX_JOBS];
- 		struct timeval this_start;
- 		int this_jobs = 0, left;
-+		struct fork_data *fd;
- 
- 		/*
- 		 * create threads (TD_NOT_CREATED -> TD_CREATED)
-@@ -2213,14 +2186,13 @@ reap:
- 			map[this_jobs++] = td;
- 			nr_started++;
- 
-+			fd = calloc(1, sizeof(*fd));
-+			fd->td = td;
-+			fd->sk_out = sk_out;
++[rbd] clustername=str	Specifies the name of the Ceph cluster.
++[rbd] rbdname=str	Specifies the name of the RBD.
++[rbd] pool=str		Specifies the naem of the Ceph pool containing RBD.
++[rbd] clientname=str	Specifies the username (without the 'client.' prefix)
++			used to access the Ceph cluster. If the clustername is
++			specified, the clientmae shall be the full type.id
++			string. If no type. prefix is given, fio will add
++			'client.' by default.
 +
- 			if (td->o.use_thread) {
--				struct fork_data *fd;
- 				int ret;
+ [mtd] skip_bad=bool	Skip operations against known bad blocks.
  
--				fd = calloc(1, sizeof(*fd));
--				fd->td = td;
--				fd->sk_out = sk_out;
--
- 				dprint(FD_PROCESS, "will pthread_create\n");
- 				ret = pthread_create(&td->thread, NULL,
- 							thread_main, fd);
-@@ -2240,8 +2212,9 @@ reap:
- 				dprint(FD_PROCESS, "will fork\n");
- 				pid = fork();
- 				if (!pid) {
--					int ret = fork_main(sk_out, shm_id, i);
-+					int ret;
+ [libhdfs] hdfsdirectory	libhdfs will create chunk in this HDFS directory
+diff --git a/engines/rbd.c b/engines/rbd.c
+index 8252d27..87ed360 100644
+--- a/engines/rbd.c
++++ b/engines/rbd.c
+@@ -27,6 +27,7 @@ struct rbd_data {
  
-+					ret = (int)(uintptr_t)thread_main(fd);
- 					_exit(ret);
- 				} else if (i == fio_debug_jobno)
- 					*fio_debug_jobp = pid;
-diff --git a/hash.h b/hash.h
-index 1d7608b..d227b93 100644
---- a/hash.h
-+++ b/hash.h
-@@ -44,15 +44,15 @@
- #define GOLDEN_RATIO_32 0x61C88647
- #define GOLDEN_RATIO_64 0x61C8864680B583EBull
+ struct rbd_options {
+ 	void *pad;
++	char *cluster_name;
+ 	char *rbd_name;
+ 	char *pool_name;
+ 	char *client_name;
+@@ -34,6 +35,15 @@ struct rbd_options {
+ };
  
--static inline unsigned long __hash_long(unsigned long val)
-+static inline unsigned long __hash_long(uint64_t val)
- {
--	unsigned long hash = val;
-+	uint64_t hash = val;
+ static struct fio_option options[] = {
++        {
++		.name		= "clustername",
++		.lname		= "ceph cluster name",
++		.type		= FIO_OPT_STR_STORE,
++		.help		= "Cluster name for ceph",
++		.off1		= offsetof(struct rbd_options, cluster_name),
++		.category	= FIO_OPT_C_ENGINE,
++		.group		= FIO_OPT_G_RBD,
++        },
+ 	{
+ 		.name		= "rbdname",
+ 		.lname		= "rbd engine rbdname",
+@@ -112,7 +122,25 @@ static int _fio_rbd_connect(struct thread_data *td)
+ 	struct rbd_options *o = td->eo;
+ 	int r;
  
- #if BITS_PER_LONG == 64
- 	hash *= GOLDEN_RATIO_64;
- #else
- 	/*  Sigh, gcc can't optimise this alone like it does for 32 bits. */
--	unsigned long n = hash;
-+	uint64_t n = hash;
- 	n <<= 18;
- 	hash -= n;
- 	n <<= 33;
-diff --git a/helper_thread.c b/helper_thread.c
-index 1befabf..e788af5 100644
---- a/helper_thread.c
-+++ b/helper_thread.c
-@@ -148,8 +148,11 @@ int helper_thread_create(struct fio_mutex *startup_mutex, struct sk_out *sk_out)
- 	setup_disk_util();
- 
- 	hd->sk_out = sk_out;
--	pthread_cond_init(&hd->cond, NULL);
--	pthread_mutex_init(&hd->lock, NULL);
+-	r = rados_create(&rbd->cluster, o->client_name);
++	if (o->cluster_name) {
++		char *client_name = NULL; 
 +
-+	ret = mutex_cond_init_pshared(&hd->lock, &hd->cond);
-+	if (ret)
-+		return 1;
-+
- 	hd->startup_mutex = startup_mutex;
- 
- 	ret = pthread_create(&hd->thread, NULL, helper_thread_main, hd);
-diff --git a/iolog.c b/iolog.c
-index d9a17a5..9391507 100644
---- a/iolog.c
-+++ b/iolog.c
-@@ -604,7 +604,7 @@ void setup_log(struct io_log **log, struct log_params *p,
- 	if (l->log_gz && !p->td)
- 		l->log_gz = 0;
- 	else if (l->log_gz || l->log_gz_store) {
--		pthread_mutex_init(&l->chunk_lock, NULL);
-+		mutex_init_pshared(&l->chunk_lock);
- 		p->td->flags |= TD_F_COMPRESS_LOG;
- 	}
- 
-diff --git a/mutex.c b/mutex.c
-index 16107dd..7580922 100644
---- a/mutex.c
-+++ b/mutex.c
-@@ -30,16 +30,39 @@ void fio_mutex_remove(struct fio_mutex *mutex)
- 	munmap((void *) mutex, sizeof(*mutex));
- }
- 
--int __fio_mutex_init(struct fio_mutex *mutex, int value)
-+int cond_init_pshared(pthread_cond_t *cond)
- {
--	pthread_mutexattr_t attr;
--	pthread_condattr_t cond;
-+	pthread_condattr_t cattr;
- 	int ret;
- 
--	mutex->value = value;
--	mutex->magic = FIO_MUTEX_MAGIC;
-+	ret = pthread_condattr_init(&cattr);
-+	if (ret) {
-+		log_err("pthread_condattr_init: %s\n", strerror(ret));
-+		return ret;
-+	}
-+
-+#ifdef FIO_HAVE_PSHARED_MUTEX
-+	ret = pthread_condattr_setpshared(&cattr, PTHREAD_PROCESS_SHARED);
-+	if (ret) {
-+		log_err("pthread_condattr_setpshared: %s\n", strerror(ret));
-+		return ret;
-+	}
-+#endif
-+	ret = pthread_cond_init(cond, &cattr);
-+	if (ret) {
-+		log_err("pthread_cond_init: %s\n", strerror(ret));
-+		return ret;
-+	}
-+
-+	return 0;
-+}
- 
--	ret = pthread_mutexattr_init(&attr);
-+int mutex_init_pshared(pthread_mutex_t *mutex)
-+{
-+	pthread_mutexattr_t mattr;
-+	int ret;
-+
-+	ret = pthread_mutexattr_init(&mattr);
- 	if (ret) {
- 		log_err("pthread_mutexattr_init: %s\n", strerror(ret));
- 		return ret;
-@@ -49,27 +72,47 @@ int __fio_mutex_init(struct fio_mutex *mutex, int value)
- 	 * Not all platforms support process shared mutexes (FreeBSD)
- 	 */
- #ifdef FIO_HAVE_PSHARED_MUTEX
--	ret = pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
-+	ret = pthread_mutexattr_setpshared(&mattr, PTHREAD_PROCESS_SHARED);
- 	if (ret) {
- 		log_err("pthread_mutexattr_setpshared: %s\n", strerror(ret));
- 		return ret;
- 	}
- #endif
--
--	pthread_condattr_init(&cond);
--#ifdef FIO_HAVE_PSHARED_MUTEX
--	pthread_condattr_setpshared(&cond, PTHREAD_PROCESS_SHARED);
--#endif
--	pthread_cond_init(&mutex->cond, &cond);
--
--	ret = pthread_mutex_init(&mutex->lock, &attr);
-+	ret = pthread_mutex_init(mutex, &mattr);
- 	if (ret) {
- 		log_err("pthread_mutex_init: %s\n", strerror(ret));
- 		return ret;
- 	}
- 
--	pthread_condattr_destroy(&cond);
--	pthread_mutexattr_destroy(&attr);
-+	return 0;
-+}
-+
-+int mutex_cond_init_pshared(pthread_mutex_t *mutex, pthread_cond_t *cond)
-+{
-+	int ret;
-+
-+	ret = mutex_init_pshared(mutex);
-+	if (ret)
-+		return ret;
-+
-+	ret = cond_init_pshared(cond);
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+int __fio_mutex_init(struct fio_mutex *mutex, int value)
-+{
-+	int ret;
-+
-+	mutex->value = value;
-+	mutex->magic = FIO_MUTEX_MAGIC;
-+
-+	ret = mutex_cond_init_pshared(&mutex->lock, &mutex->cond);
-+	if (ret)
-+		return ret;
-+
- 	return 0;
- }
- 
-diff --git a/mutex.h b/mutex.h
-index 8c1a711..54009ba 100644
---- a/mutex.h
-+++ b/mutex.h
-@@ -40,4 +40,8 @@ extern void fio_rwlock_unlock(struct fio_rwlock *);
- extern struct fio_rwlock *fio_rwlock_init(void);
- extern void fio_rwlock_remove(struct fio_rwlock *);
- 
-+extern int mutex_init_pshared(pthread_mutex_t *);
-+extern int cond_init_pshared(pthread_cond_t *);
-+extern int mutex_cond_init_pshared(pthread_mutex_t *, pthread_cond_t *);
-+
- #endif
-diff --git a/workqueue.c b/workqueue.c
-index 4f9c414..2e01b58 100644
---- a/workqueue.c
-+++ b/workqueue.c
-@@ -278,8 +278,11 @@ static int start_worker(struct workqueue *wq, unsigned int index,
- 	int ret;
- 
- 	INIT_FLIST_HEAD(&sw->work_list);
--	pthread_cond_init(&sw->cond, NULL);
--	pthread_mutex_init(&sw->lock, NULL);
-+
-+	ret = mutex_cond_init_pshared(&sw->lock, &sw->cond);
-+	if (ret)
-+		return ret;
-+
- 	sw->wq = wq;
- 	sw->index = index;
- 	sw->sk_out = sk_out;
-@@ -308,15 +311,20 @@ int workqueue_init(struct thread_data *td, struct workqueue *wq,
- {
- 	unsigned int running;
- 	int i, error;
-+	int ret;
- 
- 	wq->max_workers = max_workers;
- 	wq->td = td;
- 	wq->ops = *ops;
- 	wq->work_seq = 0;
- 	wq->next_free_worker = 0;
--	pthread_cond_init(&wq->flush_cond, NULL);
--	pthread_mutex_init(&wq->flush_lock, NULL);
--	pthread_mutex_init(&wq->stat_lock, NULL);
-+
-+	ret = mutex_cond_init_pshared(&wq->flush_lock, &wq->flush_cond);
-+	if (ret)
-+		goto err;
-+	ret = mutex_init_pshared(&wq->stat_lock);
-+	if (ret)
-+		goto err;
- 
- 	wq->workers = smalloc(wq->max_workers * sizeof(struct submit_worker));
- 
++		/*
++		 * If we specify cluser name, the rados_creat2
++		 * will not assume 'client.'. name is considered
++		 * as a full type.id namestr
++		 */
++		if (!index(o->client_name, '.')) {
++			client_name = calloc(1, strlen("client.") +
++						strlen(o->client_name) + 1);
++			strcat(client_name, "client.");
++			o->client_name = strcat(client_name, o->client_name);
++		}
++		r = rados_create2(&rbd->cluster, o->cluster_name,
++					o->client_name, 0);
++	} else
++		r = rados_create(&rbd->cluster, o->client_name);
++	
+ 	if (r < 0) {
+ 		log_err("rados_create failed.\n");
+ 		goto failed_early;
+diff --git a/fio.1 b/fio.1
+index e502dfe..73fdee6 100644
+--- a/fio.1
++++ b/fio.1
+@@ -1772,6 +1772,9 @@ Preallocate donor's file on init
+ .BI 1:
+ allocate space immediately inside defragment event, and free right after event
+ .RE
++.TP 
++.BI (rbd)clustername \fR=\fPstr
++Specifies the name of the ceph cluster.
+ .TP
+ .BI (rbd)rbdname \fR=\fPstr
+ Specifies the name of the RBD.
+@@ -1780,7 +1783,9 @@ Specifies the name of the RBD.
+ Specifies the name of the Ceph pool containing the RBD.
+ .TP
+ .BI (rbd)clientname \fR=\fPstr
+-Specifies the username (without the 'client.' prefix) used to access the Ceph cluster.
++Specifies the username (without the 'client.' prefix) used to access the Ceph
++cluster. If the clustername is specified, the clientname shall be the full
++type.id string. If no type. prefix is given, fio will add 'client.' by default.
+ .TP
+ .BI (mtd)skipbad \fR=\fPbool
+ Skip operations against known bad blocks.
