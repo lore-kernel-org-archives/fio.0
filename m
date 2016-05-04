@@ -3,56 +3,73 @@ Subject: Re: Missing log entries and other questions
 References: <eBGJ1s00E1TeosZ01BGKGG> <036a01d19f62$717af530$5470df90$@cox.net>
  <20160427203823.GB25397@kernel.dk> <572A02B9.1040902@kernel.dk>
  <572A24AC.5090106@kernel.dk> <c85dc095-f2d2-851b-7246-8530230e997c@gmail.com>
- <572A60D1.3050700@kernel.dk>
 From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <572A69F7.4010102@kernel.dk>
-Date: Wed, 4 May 2016 15:30:31 -0600
+Message-ID: <572A60D1.3050700@kernel.dk>
+Date: Wed, 4 May 2016 14:51:29 -0600
 MIME-Version: 1.0
-In-Reply-To: <572A60D1.3050700@kernel.dk>
+In-Reply-To: <c85dc095-f2d2-851b-7246-8530230e997c@gmail.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 To: Mark Nelson <mark.a.nelson@gmail.com>, Paul Alcorn <paullie1@cox.net>
 Cc: 'Mihkal Dunfjeld' <mihkal.dunfjeld@stud.ntnu.no>, fio@vger.kernel.org, birger.lunstoeng@stud.ntnu.no
 List-ID: <fio@vger.kernel.org>
 
-On 05/04/2016 02:51 PM, Jens Axboe wrote:
-> On 05/04/2016 11:43 AM, Mark Nelson wrote:
->> On 05/04/2016 11:34 AM, Jens Axboe wrote:
->>> On 05/04/2016 08:10 AM, Jens Axboe wrote:
->>>> On 04/27/2016 02:38 PM, Jens Axboe wrote:
->>>>> I'll try and see if I can reproduce this.
->>>>
->>>> So I took a look at your logged output. The way that fio logs is
->>>> that it
->>>> does it on IO completion. You have set 1s intervals, so it checks, when
->>>> an IO completes, if we're due for logging the previous interval IOPS:
->>>>
->>>> spent = mtime_since(&td->iops_sample_time, t);
->>>> if (spent < td->o.iops_avg_time)
->>>>          return;
->>>>
->>>> If you are doing lots of IO, it matches pretty evenly. But for slow
->>>> workloads, it will end up being skewed a bit. It won't be too hard to
->>>> fix the drift, though, but it still won't make it clock precise at
->>>> exact
->>>> 1s intervals.
->>>>
->>>> We could move this part into the main thread, and out of the workers.
->>>> Then we could make it more precise. Might not be a bad idea in general,
->>>> since it'll move some of this code out of the fast path.
->>>>
->>>> I'll take a stab at it.
+On 05/04/2016 11:43 AM, Mark Nelson wrote:
+> On 05/04/2016 11:34 AM, Jens Axboe wrote:
+>> On 05/04/2016 08:10 AM, Jens Axboe wrote:
+>>> On 04/27/2016 02:38 PM, Jens Axboe wrote:
+>>>> I'll try and see if I can reproduce this.
 >>>
->>> Can you try the below patch?
+>>> So I took a look at your logged output. The way that fio logs is that it
+>>> does it on IO completion. You have set 1s intervals, so it checks, when
+>>> an IO completes, if we're due for logging the previous interval IOPS:
+>>>
+>>> spent = mtime_since(&td->iops_sample_time, t);
+>>> if (spent < td->o.iops_avg_time)
+>>>          return;
+>>>
+>>> If you are doing lots of IO, it matches pretty evenly. But for slow
+>>> workloads, it will end up being skewed a bit. It won't be too hard to
+>>> fix the drift, though, but it still won't make it clock precise at exact
+>>> 1s intervals.
+>>>
+>>> We could move this part into the main thread, and out of the workers.
+>>> Then we could make it more precise. Might not be a bad idea in general,
+>>> since it'll move some of this code out of the fast path.
+>>>
+>>> I'll take a stab at it.
 >>
->> I'll also try to take a look at this as we've seen a fair amount of skew
->> in the logs doing fio librbd upstream ceph testing.
+>> Can you try the below patch?
 >
-> That'd be great. More complete version below, fwiw.
+> I'll also try to take a look at this as we've seen a fair amount of skew
+> in the logs doing fio librbd upstream ceph testing.
 
-And hopefully final... Little corner cases fixed. Seems to pass my
-testing, would be great if others could test too. Any job that currently
-uses any of the loggings would do.
+That'd be great. More complete version below, fwiw.
+
+> I actually wrote a
+> first stab at a parser to aggregate logs from multiple fio processes
+> with the assumption of non-uniform sampling:
+>
+> https://github.com/ceph/cbt/blob/master/tools/fiologpaser.py
+>
+> The idea is you have say 8 fio bw logs in a directory you can do:
+>
+> fiologparser.py -f *bw*
+>
+> which will return average values from the logs over user defined
+> intervals by taking weighted scores from samples that overlap.  You can
+> also look at per-interval averages, sums, or just a global average.
+>
+> various option flags:
+>
+> -i <interval time in ms>
+> -d <divide results by d (say if you want a different unit of output)
+> -f <show full interval data>
+> -a <show average interval data across logs>
+> -s <show sums for interval data across logs>
+
+That looks useful. Might want to put that in the fio repo as well, if
+you are interested.
 
 
 diff --git a/HOWTO b/HOWTO
@@ -224,7 +241,7 @@ char *jobname, int job_add_num,
   			suf = "log.fz";
   		else
 diff --git a/io_u.c b/io_u.c
-index 6622bc0..8a5245a 100644
+index 6622bc0..a268c9b 100644
 --- a/io_u.c
 +++ b/io_u.c
 @@ -1715,11 +1715,11 @@ static void account_io_completion(struct 
@@ -234,18 +251,18 @@ thread_data *td, struct io_u *io_u,
 
 -	if (!td->o.disable_bw)
 -		add_bw_sample(td, idx, bytes, &icd->time);
-+	if (!td->o.disable_bw && per_unit_log(td->bw_log))
++	if (!td->o.disable_bw && (per_unit_log(td->bw_log) || !td->o.bw_avg_time))
 +		add_bw_sample(td, io_u, bytes, lusec);
 
 -	if (no_reduce)
 -		add_iops_sample(td, idx, bytes, &icd->time);
-+	if (no_reduce && per_unit_log(td->iops_log))
-+		add_iops_sample(td, io_u, bytes);
++	if (no_reduce && (per_unit_log(td->iops_log) || !td->o.iops_avg_time))
++		add_iops_sample(td, io_u, bytes, lusec);
 
   	if (td->ts.nr_block_infos && io_u->ddir == DDIR_TRIM) {
   		uint32_t *info = io_u_block_info(td, io_u);
 diff --git a/iolog.c b/iolog.c
-index feda9ed..f1edf84 100644
+index feda9ed..21ab9c8 100644
 --- a/iolog.c
 +++ b/iolog.c
 @@ -18,6 +18,7 @@
@@ -309,7 +326,7 @@ struct io_log *log, int try)
 -	return __write_log(td, td->slat_log, try);
 +	int ret;
 +
-+	if (!unit_log)
++	if (per_unit_log(td->slat_log) != unit_log)
 +		return 0;
 +
 +	ret = __write_log(td, td->slat_log, try);
@@ -325,7 +342,7 @@ struct io_log *log, int try)
 -	return __write_log(td, td->clat_log, try);
 +	int ret;
 +
-+	if (!unit_log)
++	if (per_unit_log(td->clat_log) != unit_log)
 +		return 0;
 +
 +	ret = __write_log(td, td->clat_log, try);
@@ -341,7 +358,7 @@ struct io_log *log, int try)
 -	return __write_log(td, td->lat_log, try);
 +	int ret;
 +
-+	if (!unit_log)
++	if (per_unit_log(td->lat_log) != unit_log)
 +		return 0;
 +
 +	ret = __write_log(td, td->lat_log, try);
@@ -466,7 +483,7 @@ index c626d15..b17f148 100644
   	lat_target_reset(td);
   	clear_rusage_stat(td);
 diff --git a/stat.c b/stat.c
-index 6d8d4d0..df73ed7 100644
+index 6d8d4d0..49ce2e6 100644
 --- a/stat.c
 +++ b/stat.c
 @@ -1862,10 +1862,15 @@ static void __add_log_sample(struct io_log 
@@ -511,13 +528,13 @@ unsigned long val,
   	elapsed = mtime_since_now(&td->epoch);
 
 -	if (td->clat_log)
-+	if (td->clat_log && unit_logs)
++	if (td->clat_log && (unit_logs == per_unit_log(td->clat_log)))
   		_add_stat_to_log(td->clat_log, elapsed, td->o.log_max != 0);
 -	if (td->slat_log)
-+	if (td->slat_log && unit_logs)
++	if (td->slat_log && (unit_logs == per_unit_log(td->slat_log)))
   		_add_stat_to_log(td->slat_log, elapsed, td->o.log_max != 0);
 -	if (td->lat_log)
-+	if (td->lat_log && unit_logs)
++	if (td->lat_log && (unit_logs == per_unit_log(td->lat_log)))
   		_add_stat_to_log(td->lat_log, elapsed, td->o.log_max != 0);
 -	if (td->bw_log)
 +	if (td->bw_log && (unit_logs == per_unit_log(td->bw_log)))
@@ -527,7 +544,7 @@ unsigned long val,
   		_add_stat_to_log(td->iops_log, elapsed, td->o.log_max != 0);
   }
 
-@@ -2108,18 +2113,43 @@ void add_lat_sample(struct thread_data *td, enum 
+@@ -2108,18 +2113,48 @@ void add_lat_sample(struct thread_data *td, enum 
 fio_ddir ddir,
   	td_io_u_unlock(td);
   }
@@ -541,17 +558,22 @@ int bs,
   	struct thread_stat *ts = &td->ts;
 -	unsigned long spent, rate;
 +	unsigned long rate;
++	uint64_t delta;
 
 -	if (!ddir_rw(ddir))
 +	if (!ddir_rw(io_u->ddir))
   		return;
 
++	td_io_u_lock(td);
++
++	delta = td->this_io_bytes[io_u->ddir] - td->stat_io_bytes[io_u->ddir];
++	if (!delta)
++		return;
++
 +	if (spent)
-+		rate = bytes * 1000 / spent;
++		rate = delta * 1000 / spent / 1024;
 +	else
 +		rate = 0;
-+
-+	td_io_u_lock(td);
 +
 +	add_stat_sample(&ts->bw_stat[io_u->ddir], rate);
 +
@@ -568,7 +590,7 @@ int bs,
 +	unsigned long spent, rate;
 +	enum fio_ddir ddir;
 +
-+	if (per_unit_log(td->bw_log))
++	if (per_unit_log(td->bw_log) || !td->o.bw_avg_time)
 +		return 0;
 +
   	spent = mtime_since(&td->bw_sample_time, t);
@@ -578,7 +600,7 @@ int bs,
 
   	td_io_u_lock(td);
 
-@@ -2141,27 +2171,48 @@ void add_bw_sample(struct thread_data *td, enum 
+@@ -2141,27 +2176,59 @@ void add_bw_sample(struct thread_data *td, enum 
 fio_ddir ddir, unsigned int bs,
   		add_stat_sample(&ts->bw_stat[ddir], rate);
 
@@ -600,10 +622,12 @@ fio_ddir ddir, unsigned int bs,
 unsigned int bs,
 -		     struct timeval *t)
 +void add_iops_sample(struct thread_data *td, struct io_u *io_u,
-+		     unsigned int bytes)
++		     unsigned int bytes, unsigned long spent)
   {
   	struct thread_stat *ts = &td->ts;
 -	unsigned long spent, iops;
++	unsigned long iops;
++	uint64_t delta;
 
 -	if (!ddir_rw(ddir))
 +	if (!ddir_rw(io_u->ddir))
@@ -611,10 +635,19 @@ unsigned int bs,
 
 +	td_io_u_lock(td);
 +
-+	add_stat_sample(&ts->iops_stat[io_u->ddir], 1);
++	delta = td->this_io_blocks[io_u->ddir] - td->stat_io_blocks[io_u->ddir];
++	if (!delta)
++		return;
++
++	if (spent)
++		iops = (delta * 1000) / spent;
++	else
++		iops = 0;
++
++	add_stat_sample(&ts->iops_stat[io_u->ddir], iops);
 +
 +	if (td->iops_log)
-+		add_log_sample(td, td->iops_log, 1, io_u->ddir, bytes, io_u->offset);
++		add_log_sample(td, td->iops_log, iops, io_u->ddir, bytes, io_u->offset);
 +
 +	td->stat_io_blocks[io_u->ddir] = td->this_io_blocks[io_u->ddir];
 +	td_io_u_unlock(td);
@@ -626,7 +659,7 @@ unsigned int bs,
 +	unsigned long spent, iops;
 +	enum fio_ddir ddir;
 +
-+	if (per_unit_log(td->iops_log))
++	if (per_unit_log(td->iops_log) || !td->o.iops_avg_time)
 +		return 0;
 +
   	spent = mtime_since(&td->iops_sample_time, t);
@@ -636,7 +669,7 @@ unsigned int bs,
 
   	td_io_u_lock(td);
 
-@@ -2183,13 +2234,48 @@ void add_iops_sample(struct thread_data *td, 
+@@ -2183,13 +2250,48 @@ void add_iops_sample(struct thread_data *td, 
 enum fio_ddir ddir, unsigned int bs
   		add_stat_sample(&ts->iops_stat[ddir], iops);
 
@@ -689,7 +722,7 @@ enum fio_ddir ddir, unsigned int bs
 
   void stat_init(void)
 diff --git a/stat.h b/stat.h
-index 9c3f192..7c2b16e 100644
+index 9c3f192..d95a2a7 100644
 --- a/stat.h
 +++ b/stat.h
 @@ -276,11 +276,12 @@ extern void add_clat_sample(struct thread_data *, 
@@ -706,14 +739,13 @@ unsigned int,
 -				struct timeval *);
   extern void add_agg_sample(unsigned long, enum fio_ddir, unsigned int);
 +extern void add_iops_sample(struct thread_data *, struct io_u *,
-+				unsigned int);
++				unsigned int, unsigned long);
 +extern void add_bw_sample(struct thread_data *, struct io_u *,
 +				unsigned int, unsigned long);
 +extern unsigned int calc_log_samples(void);
 
   extern struct io_log *agg_io_log[DDIR_RWDIR_CNT];
   extern int write_bw_log;
-
 
 -- 
 Jens Axboe
