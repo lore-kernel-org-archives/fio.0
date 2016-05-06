@@ -1,96 +1,48 @@
-Return-Path: <mark.a.nelson@gmail.com>
-Return-Path: <mark.a.nelson@gmail.com>
+Return-Path: <axboe@kernel.dk>
 Subject: Re: Missing log entries and other questions
 References: <eBGJ1s00E1TeosZ01BGKGG> <036a01d19f62$717af530$5470df90$@cox.net>
  <20160427203823.GB25397@kernel.dk> <572A02B9.1040902@kernel.dk>
  <572A24AC.5090106@kernel.dk> <c85dc095-f2d2-851b-7246-8530230e997c@gmail.com>
- <572A60D1.3050700@kernel.dk> <ff3a0354-231b-289c-5748-b9f9463d7ef3@gmail.com>
- <572CD05A.6050404@kernel.dk>
-From: Mark Nelson <mark.a.nelson@gmail.com>
-Message-ID: <338fdf0f-36fc-e5bf-2380-351672034a58@gmail.com>
-Date: Fri, 6 May 2016 12:43:19 -0500
+ <572A60D1.3050700@kernel.dk> <572A69F7.4010102@kernel.dk>
+ <bbbda45d-dc91-0cdf-cd65-d0541c5ffc20@gmail.com> <572CD03F.6060507@kernel.dk>
+ <f039468a-0c04-570a-679b-1c76b5d3f37d@gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <572CD1EF.9000005@kernel.dk>
+Date: Fri, 6 May 2016 11:18:39 -0600
 MIME-Version: 1.0
-In-Reply-To: <572CD05A.6050404@kernel.dk>
+In-Reply-To: <f039468a-0c04-570a-679b-1c76b5d3f37d@gmail.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-To: Jens Axboe <axboe@kernel.dk>, Paul Alcorn <paullie1@cox.net>
+To: Mark Nelson <mark.a.nelson@gmail.com>, Paul Alcorn <paullie1@cox.net>
 Cc: 'Mihkal Dunfjeld' <mihkal.dunfjeld@stud.ntnu.no>, fio@vger.kernel.org, birger.lunstoeng@stud.ntnu.no
 List-ID: <fio@vger.kernel.org>
 
-
-
-On 05/06/2016 12:11 PM, Jens Axboe wrote:
-> On 05/05/2016 01:36 PM, Mark Nelson wrote:
->>
->>
->> On 05/04/2016 03:51 PM, Jens Axboe wrote:
->>> On 05/04/2016 11:43 AM, Mark Nelson wrote:
->>>> On 05/04/2016 11:34 AM, Jens Axboe wrote:
->>>>> On 05/04/2016 08:10 AM, Jens Axboe wrote:
->>>>>> On 04/27/2016 02:38 PM, Jens Axboe wrote:
->>>>>>> I'll try and see if I can reproduce this.
+On 05/06/2016 11:16 AM, Mark Nelson wrote:
+> On 05/06/2016 12:11 PM, Jens Axboe wrote:
+>> On 05/05/2016 01:33 PM, Mark Nelson wrote:
+>>>>>>> Can you try the below patch?
 >>>>>>
->>>>>> So I took a look at your logged output. The way that fio logs is
->>>>>> that it
->>>>>> does it on IO completion. You have set 1s intervals, so it checks,
->>>>>> when
->>>>>> an IO completes, if we're due for logging the previous interval IOPS:
->>>>>>
->>>>>> spent = mtime_since(&td->iops_sample_time, t);
->>>>>> if (spent < td->o.iops_avg_time)
->>>>>>          return;
->>>>>>
->>>>>> If you are doing lots of IO, it matches pretty evenly. But for slow
->>>>>> workloads, it will end up being skewed a bit. It won't be too hard to
->>>>>> fix the drift, though, but it still won't make it clock precise at
->>>>>> exact
->>>>>> 1s intervals.
->>>>>>
->>>>>> We could move this part into the main thread, and out of the workers.
->>>>>> Then we could make it more precise. Might not be a bad idea in
->>>>>> general,
->>>>>> since it'll move some of this code out of the fast path.
->>>>>>
->>>>>> I'll take a stab at it.
+>>>>>> I'll also try to take a look at this as we've seen a fair amount of
+>>>>>> skew
+>>>>>> in the logs doing fio librbd upstream ceph testing.
 >>>>>
->>>>> Can you try the below patch?
->>>>
->>>> I'll also try to take a look at this as we've seen a fair amount of
->>>> skew
->>>> in the logs doing fio librbd upstream ceph testing.
+>>>>> That'd be great. More complete version below, fwiw.
 >>>
->>> That'd be great. More complete version below, fwiw.
->>>
->>>> I actually wrote a
->>>> first stab at a parser to aggregate logs from multiple fio processes
->>>> with the assumption of non-uniform sampling:
->>>>
->>>> https://github.com/ceph/cbt/blob/master/tools/fiologpaser.py
->>>>
->>>> The idea is you have say 8 fio bw logs in a directory you can do:
->>>>
->>>> fiologparser.py -f *bw*
->>>>
->>>> which will return average values from the logs over user defined
->>>> intervals by taking weighted scores from samples that overlap.  You can
->>>> also look at per-interval averages, sums, or just a global average.
->>>>
->>>> various option flags:
->>>>
->>>> -i <interval time in ms>
->>>> -d <divide results by d (say if you want a different unit of output)
->>>> -f <show full interval data>
->>>> -a <show average interval data across logs>
->>>> -s <show sums for interval data across logs>
->>>
->>> That looks useful. Might want to put that in the fio repo as well, if
->>> you are interested.
+>>> Ok, I'll try this one.  It might be a bit before I can test it since I'm
+>>> bisecting ceph right now looking for a regression that only hits 128k
+>>> sequential rbd reads.  Go figure. :)
 >>
->> Sure, I'm game.  Might be a little buggy and it's definitely slow since
->> I just threw it together the other day.  Do you have a place in the repo
->> you like throwing parsing scripts?
+>> When you get to it, here's an updated version. I'm tempted to shove this
+>> into a new branch, instead of flinging diffs around... Let me know what
+>> you prefer.
 >
-> Usually I put them in the tools/ directory.
+> new branch would be wonderful!
 
-Done: https://github.com/axboe/fio/pull/170
+Done, it's now in the 'logging' branch:
+
+http://git.kernel.dk/cgit/fio/commit/?h=logging&id=a47591e4923fb8faef18e1cd5125a50429282089
+
+-- 
+Jens Axboe
+
 
