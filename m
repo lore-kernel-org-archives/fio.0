@@ -1,44 +1,34 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: file_service_type and random_distribution
-References: <CAGjEAhstKdQQQORoniayYLuvTdfXqAkOCXdargudF7oyeM0S5Q@mail.gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <5739FC0D.7070106@kernel.dk>
-Date: Mon, 16 May 2016 10:57:49 -0600
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-io0-f177.google.com ([209.85.223.177]:33649 "EHLO
+	mail-io0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751482AbcEMB70 (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 12 May 2016 21:59:26 -0400
+Received: by mail-io0-f177.google.com with SMTP id f89so116041493ioi.0
+        for <fio@vger.kernel.org>; Thu, 12 May 2016 18:59:26 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAGjEAhstKdQQQORoniayYLuvTdfXqAkOCXdargudF7oyeM0S5Q@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: qingwei wei <tchengwee@gmail.com>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Date: Fri, 13 May 2016 09:59:25 +0800
+Message-ID: <CAGjEAhstKdQQQORoniayYLuvTdfXqAkOCXdargudF7oyeM0S5Q@mail.gmail.com>
+Subject: file_service_type and random_distribution
+From: qingwei wei <tchengwee@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On 05/12/2016 07:59 PM, qingwei wei wrote:
-> Hi,
->
-> I am looking at performing some small files benchmark and i would like
-> to confirm few things here:
->
-> 1) Random distribution, for file type test, is this only applicable to
-> how it choose offset in the file?
+Hi,
 
-Yes
+I am looking at performing some small files benchmark and i would like
+to confirm few things here:
 
-> 2) file_service_type, is this decide which file to be opened during
-> test if i choose to have openfiles less than nrfiles?
+1) Random distribution, for file type test, is this only applicable to
+how it choose offset in the file?
+2) file_service_type, is this decide which file to be opened during
+test if i choose to have openfiles less than nrfiles?
 
-Yes
+I would like to confirm those points is because i intend to run
+workload test that simulate hot file access. At any one time, the
+files open will be less than the total files in the system and there
+will be files that are hot and get access multiple times. Can i do it
+using fio? Thanks.
 
-> I would like to confirm those points is because i intend to run
-> workload test that simulate hot file access. At any one time, the
-> files open will be less than the total files in the system and there
-> will be files that are hot and get access multiple times. Can i do it
-> using fio? Thanks.
-
-That's a good question. Currently fio doesn't, but there's no reason why 
-it could not use the same distribution methods for choosing what files 
-to service. That would indeed allow you to mimic some files being hotter 
-than others, just like we do for offsets in that file.
-
--- 
-Jens Axboe
-
-
+Cw
