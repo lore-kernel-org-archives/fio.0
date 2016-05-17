@@ -1,67 +1,33 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:42495 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752213AbcEVMAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sun, 22 May 2016 08:00:05 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
-	id 1b4S38-0007VB-Vx
-	for fio@vger.kernel.org; Sun, 22 May 2016 12:00:03 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: Windows crash in ctime_r()
+References: <f803f397a70446f98a8af0a14634cb31@bowex36a.micron.com>
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160522120001.94EE02C00DF@kernel.dk>
-Date: Sun, 22 May 2016 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <573A72DA.2080208@kernel.dk>
+Date: Mon, 16 May 2016 19:24:42 -0600
+MIME-Version: 1.0
+In-Reply-To: <f803f397a70446f98a8af0a14634cb31@bowex36a.micron.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+To: "Michael Schoberg (mschoberg)" <mschoberg@micron.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 2ab71dc4d39e29764f0f80a3559a0119247e1eb1:
+On 05/16/2016 03:50 PM, Michael Schoberg (mschoberg) wrote:
+> I think I found an issue in os\windows\posix.c that results in a FIO
+> crash (on Windows.)  I'm including a patch that resolves the crash for
+> us, but includes another (optional) fix.  > > Crash issue:  possix.c  -
+> ctime_r() will reference a negative array index on Sunday.  SYSTEMTIME
+> states the days of the week as: "0=Sunday, .. , 6=Saturday."  The "fix"
+> can likely be dialed back to safely assume the days/months will adhere
+> to how they're documented.
+>
+>
+> Optional - StringCchPrintfA() calls should allow for the string plus a
+> NULL character.  Instead, the value getting passed in is for the entire
+> string size.
 
-  iolog: fix potential oops in iolog disabling (2016-05-20 14:36:34 -0600)
+Thanks, both look good, applied.
 
-are available in the git repository at:
+-- 
+Jens Axboe
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to ac32c6a20a37e850d721aee082493838b184fed1:
-
-  Fio 2.10 (2016-05-21 09:00:54 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Fio 2.10
-
- FIO-VERSION-GEN        | 2 +-
- os/windows/install.wxs | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index fcdbd98..d1ba7ca 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-2.9
-+DEF_VER=fio-2.10
- 
- LF='
- '
-diff --git a/os/windows/install.wxs b/os/windows/install.wxs
-index 44cc938..8ae1394 100755
---- a/os/windows/install.wxs
-+++ b/os/windows/install.wxs
-@@ -10,7 +10,7 @@
- 	<Product Id="*"
- 	  Codepage="1252" Language="1033"
- 	  Manufacturer="fio" Name="fio"
--	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.9">
-+	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.10">
- 		<Package
- 		  Description="Flexible IO Tester"
- 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
