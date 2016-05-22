@@ -1,50 +1,67 @@
-Return-Path: <ms@teamix.de>
-From: Martin Steigerwald <ms@teamix.de>
-Subject: GPG signed release tarballs
-Date: Tue, 24 May 2016 11:52:59 +0200
-Message-ID: <5317714.h06u3Dy0pi@merkaba>
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="iso-8859-1"
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.9]:42495 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752213AbcEVMAF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Sun, 22 May 2016 08:00:05 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1b4S38-0007VB-Vx
+	for fio@vger.kernel.org; Sun, 22 May 2016 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160522120001.94EE02C00DF@kernel.dk>
+Date: Sun, 22 May 2016 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
 
-Hi Jens!
+The following changes since commit 2ab71dc4d39e29764f0f80a3559a0119247e1eb1:
 
-I wonder about a way to retrieve the source after checking upstream gpg=20
-signature. Do you provide those somewhere?
+  iolog: fix potential oops in iolog disabling (2016-05-20 14:36:34 -0600)
 
-I don=B4t see any on: http://brick.kernel.dk/snaps/ where I usually go for=
-=20
-getting new upstream release tarball.
+are available in the git repository at:
 
+  git://git.kernel.dk/fio.git master
 
-N: Processing source package fio (version 2.10-1, arch source) ...
-P: fio source: debian-watch-may-check-gpg-signature
-N:=20
-N:    This watch file does not include a means to verify the upstream tarba=
-ll
-N:    using cryptographic signature.
-N:   =20
-N:    If upstream distributions provide such signatures, please use the
-N:    pgpsigurlmangle options in this watch file's opts=3D to generate the =
-URL
-N:    of an upstream GPG signature. This signature is automatically downloa=
-ded
-N:    and verified against a keyring stored in
-N:    debian/upstream/signing-key.asc.
-N:   =20
-N:    Of course, not all upstreams provide such signatures, but you could
-N:    request them as a way of verifying that no third party has modified t=
-he
-N:    code against their wishes after the release. Projects such as
-N:    phpmyadmin, unrealircd, and proftpd have suffered from this kind of
-N:    attack.
-N:   =20
-N:    Refer to the uscan(1) manual page for details.
-N:   =20
-N:    Severity: pedantic, Certainty: certain
-N:   =20
-N:    Check: watch-file, Type: source
+for you to fetch changes up to ac32c6a20a37e850d721aee082493838b184fed1:
 
+  Fio 2.10 (2016-05-21 09:00:54 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Fio 2.10
+
+ FIO-VERSION-GEN        | 2 +-
+ os/windows/install.wxs | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index fcdbd98..d1ba7ca 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-2.9
++DEF_VER=fio-2.10
+ 
+ LF='
+ '
+diff --git a/os/windows/install.wxs b/os/windows/install.wxs
+index 44cc938..8ae1394 100755
+--- a/os/windows/install.wxs
++++ b/os/windows/install.wxs
+@@ -10,7 +10,7 @@
+ 	<Product Id="*"
+ 	  Codepage="1252" Language="1033"
+ 	  Manufacturer="fio" Name="fio"
+-	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.9">
++	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.10">
+ 		<Package
+ 		  Description="Flexible IO Tester"
+ 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
