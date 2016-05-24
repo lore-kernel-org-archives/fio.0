@@ -1,62 +1,49 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailout.micron.com ([137.201.242.129]:20639 "EHLO
-	mailout.micron.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751988AbcEPVuW convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 16 May 2016 17:50:22 -0400
-Received: from mail.micron.com (bowex36d.micron.com [137.201.85.223])
-	by mailout.micron.com (8.14.4/8.14.6) with ESMTP id u4GLoJB3027598
-	(version=TLSv1/SSLv3 cipher=AES256-SHA bits=256 verify=FAIL)
-	for <fio@vger.kernel.org>; Mon, 16 May 2016 15:50:20 -0600
-From: "Michael Schoberg (mschoberg)" <mschoberg@micron.com>
-Subject: Windows crash in ctime_r()
-Date: Mon, 16 May 2016 21:50:19 +0000
-Message-ID: <f803f397a70446f98a8af0a14634cb31@bowex36a.micron.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Received: from mailout.teamix.de ([194.150.191.118]:39362 "EHLO
+	mailout.teamix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753304AbcEXKM0 convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Tue, 24 May 2016 06:12:26 -0400
+Received: from exchange01.nbg.teamix.net (unknown [IPv6:2001:67c:14c:64:306c:b60d:93de:8b04])
+	(using TLSv1 with cipher RC4-SHA (128/128 bits))
+	(No client certificate requested)
+	by mailout.teamix.de (Postfix) with ESMTPS id 3C58B38062
+	for <fio@vger.kernel.org>; Tue, 24 May 2016 12:12:36 +0200 (CEST)
+Received: from merkaba.localnet (unknown [10.41.2.16])	(using TLSv1 with
+ cipher ECDHE-RSA-AES256-SHA (256/256 bits))	(No client certificate requested)
+	by rproxy.teamix.net (Postfix) with ESMTPSA id 8458880063	for
+ <fio@vger.kernel.org>; Tue, 24 May 2016 12:12:21 +0200 (CEST)
+From: Martin Steigerwald <ms@teamix.de>
+Subject: Debian fio package 2.10-1
+Date: Tue, 24 May 2016 12:12:22 +0200
+Message-ID: <2382133.QACAKejHsv@merkaba>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-I think I found an issue in os\windows\posix.c that results in a FIO crash (on Windows.)  I'm including a patch that resolves the crash for us, but includes another (optional) fix.
+﻿Hello!
 
-Crash issue:  possix.c  - ctime_r() will reference a negative array index on Sunday.  SYSTEMTIME states the days of the week as: "0=Sunday, .. , 6=Saturday."  The "fix" can likely be dialed back to safely assume the days/months will adhere to how they're documented.
+available in unstable since yesterday.
 
-Optional - StringCchPrintfA() calls should allow for the string plus a NULL character.  Instead, the value getting passed in is for the entire string size.
+I intend to create a backport for Jessie, once it is in testing.
 
+Thanks,
 
+-- 
+Martin Steigerwald  | Trainer
 
-os/windows/posix.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+teamix GmbH
+Südwestpark 43
+90449 Nürnberg
 
-diff --git a/os/windows/posix.c b/os/windows/posix.c
-index 41fc480..fd3d9ab 100755
---- a/os/windows/posix.c
-+++ b/os/windows/posix.c
-@@ -243,12 +243,12 @@ void Time_tToSystemTime(time_t dosTime, SYSTEMTIME *systemTime)
- char* ctime_r(const time_t *t, char *buf)
- {
-     SYSTEMTIME systime;
--    const char * const dayOfWeek[] = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
-+    const char * const dayOfWeek[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-     const char * const monthOfYear[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+Tel.:  +49 911 30999 55 | Fax: +49 911 30999 99
+mail: martin.steigerwald@teamix.de | web:  http://www.teamix.de | blog: http://blog.teamix.de
+
+Amtsgericht Nürnberg, HRB 18320 | Geschäftsführer: Oliver Kügow, Richard Müller
+
+teamix Support Hotline: +49 911 30999-112
  
-     Time_tToSystemTime(*t, &systime);
-     /* We don't know how long `buf` is, but assume it's rounded up from the minimum of 25 to 32 */
--    StringCchPrintfA(buf, 32, "%s %s %d %02d:%02d:%02d %04d", dayOfWeek[systime.wDayOfWeek - 1], monthOfYear[systime.wMonth - 1],
-+    StringCchPrintfA(buf, 31, "%s %s %d %02d:%02d:%02d %04d", dayOfWeek[systime.wDayOfWeek % 7], monthOfYear[(systime.wMonth - 1) % 12],
- 										 systime.wDay, systime.wHour, systime.wMinute, systime.wSecond, systime.wYear);
-     return buf;
- }
-@@ -888,7 +888,7 @@ struct dirent *readdir(DIR *dirp)
- 
- 	if (dirp->find_handle == INVALID_HANDLE_VALUE) {
- 		char search_pattern[MAX_PATH];
--		StringCchPrintfA(search_pattern, MAX_PATH, "%s\\*", dirp->dirname);
-+		StringCchPrintfA(search_pattern, MAX_PATH-1, "%s\\*", dirp->dirname);
- 		dirp->find_handle = FindFirstFileA(search_pattern, &find_data);
- 		if (dirp->find_handle == INVALID_HANDLE_VALUE)
- 			return NULL;
-
+ Flexibilität im Haus – Sicherheit im Kopf, testen Sie jetzt 30 Tage kostenfrei unsere Cloud Backup Lösung FlexVault: www.teamix.de/cloud-backup 
 
