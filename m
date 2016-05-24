@@ -1,29 +1,50 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: GPG signed release tarballs
-References: <5317714.h06u3Dy0pi@merkaba>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <574471BB.6050300@kernel.dk>
-Date: Tue, 24 May 2016 09:22:35 -0600
+Return-Path: <ms@teamix.de>
+From: Martin Steigerwald <ms@teamix.de>
+Subject: GPG signed release tarballs
+Date: Tue, 24 May 2016 11:52:59 +0200
+Message-ID: <5317714.h06u3Dy0pi@merkaba>
 MIME-Version: 1.0
-In-Reply-To: <5317714.h06u3Dy0pi@merkaba>
-Content-Type: text/plain; charset="windows-1252"; format="flowed"
 Content-Transfer-Encoding: quoted-printable
-To: Martin Steigerwald <ms@teamix.de>, fio@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+To: fio@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-On 05/24/2016 03:52 AM, Martin Steigerwald wrote:
-> Hi Jens!
->
-> I wonder about a way to retrieve the source after checking upstream gpg
-> signature. Do you provide those somewhere?
->
-> I don=EF=BF=BDt see any on: http://brick.kernel.dk/snaps/ where I usually=
- go for
-> getting new upstream release tarball.
+Hi Jens!
 
-I've added GPG signatures using my public key.
+I wonder about a way to retrieve the source after checking upstream gpg=20
+signature. Do you provide those somewhere?
 
---=20
-Jens Axboe
+I don=B4t see any on: http://brick.kernel.dk/snaps/ where I usually go for=
+=20
+getting new upstream release tarball.
 
+
+N: Processing source package fio (version 2.10-1, arch source) ...
+P: fio source: debian-watch-may-check-gpg-signature
+N:=20
+N:    This watch file does not include a means to verify the upstream tarba=
+ll
+N:    using cryptographic signature.
+N:   =20
+N:    If upstream distributions provide such signatures, please use the
+N:    pgpsigurlmangle options in this watch file's opts=3D to generate the =
+URL
+N:    of an upstream GPG signature. This signature is automatically downloa=
+ded
+N:    and verified against a keyring stored in
+N:    debian/upstream/signing-key.asc.
+N:   =20
+N:    Of course, not all upstreams provide such signatures, but you could
+N:    request them as a way of verifying that no third party has modified t=
+he
+N:    code against their wishes after the release. Projects such as
+N:    phpmyadmin, unrealircd, and proftpd have suffered from this kind of
+N:    attack.
+N:   =20
+N:    Refer to the uscan(1) manual page for details.
+N:   =20
+N:    Severity: pedantic, Certainty: certain
+N:   =20
+N:    Check: watch-file, Type: source
 
