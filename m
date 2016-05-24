@@ -1,139 +1,107 @@
-Return-Path: <bengland@redhat.com>
-Date: Tue, 24 May 2016 16:47:22 -0400 (EDT)
-From: Ben England <bengland@redhat.com>
-Message-ID: <1678172793.65613994.1464122842521.JavaMail.zimbra@redhat.com>
+Return-Path: <jeff.furlong@hgst.com>
+From: Jeff Furlong <jeff.furlong@hgst.com>
+Subject: RE: fiologparser.py
+Date: Tue, 24 May 2016 18:38:36 +0000
+Message-ID: <BN3PR0401MB1457C028E03DFC6265D930ADF74F0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+References: <12634496.Be1YEipj88@merkaba>
+ <2097283958.65342663.1464088355308.JavaMail.zimbra@redhat.com>
+ <196b983d-e6e1-2c2d-299e-de3b9cc742ff@gmail.com>
+ <1549707390.65536830.1464103326492.JavaMail.zimbra@redhat.com>
+ <57447327.3010503@kernel.dk>
+ <852858719.65540595.1464104124345.JavaMail.zimbra@redhat.com>
+ <a69a1cdc-6d92-d004-1361-69eea862bfa6@gmail.com>
 In-Reply-To: <a69a1cdc-6d92-d004-1361-69eea862bfa6@gmail.com>
-References: <12634496.Be1YEipj88@merkaba> <2097283958.65342663.1464088355308.JavaMail.zimbra@redhat.com> <196b983d-e6e1-2c2d-299e-de3b9cc742ff@gmail.com> <1549707390.65536830.1464103326492.JavaMail.zimbra@redhat.com> <57447327.3010503@kernel.dk> <852858719.65540595.1464104124345.JavaMail.zimbra@redhat.com> <a69a1cdc-6d92-d004-1361-69eea862bfa6@gmail.com>
-Subject: Re: fiologparser.py
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-To: Mark Nelson <mark.a.nelson@gmail.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Martin Steigerwald <ms@teamix.de>, fio@vger.kernel.org, Mark Nelson <mnelson@redhat.com>
+Content-Transfer-Encoding: base64
+To: Mark Nelson <mark.a.nelson@gmail.com>, Ben England <bengland@redhat.com>, Jens Axboe <axboe@kernel.dk>
+Cc: Martin Steigerwald <ms@teamix.de>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Mark Nelson <mnelson@redhat.com>
 List-ID: <fio@vger.kernel.org>
 
-Mark, I didn't notice the sample weighting code before.  Weighting of samples might work for averaging, but it doesn't work for percentiles, min or max provided by -A option.  I guess for min this won't be an issue generally, since min-latency samples will probably fall entirely within a time interval.  But for max or higher percentiles it will *definitely* be an issue.   For example, a really high latency sample could be the max for a whole range of time intervals.   
+WW91IG1heSB3YW50IHRvIGNvbnNpZGVyIHVzaW5nIGluIHBsYWNlIHNvcnQgZnVuY3Rpb25zLiAg
+bGlzdC5zb3J0KCkgaXMgbW9yZSBlZmZpY2llbnQgdGhhbiBzPXNvcnRlZChsaXN0KSBhbmQgd2ls
+bCBncmVhdGx5IHJlZHVjZSBEUkFNIHVzYWdlIGZvciBsYXJnZSBsYXRlbmN5IGxvZ3MuICBPbiBM
+aW51eCB5b3UgY2FuIGNoZWNrIHRoZSBweXRob24gRFJBTSB1c2FnZSB3aXRoIHJlc291cmNlLmdl
+dHJ1c2FnZShyZXNvdXJjZS5SVVNBR0VfU0VMRikucnVfbWF4cnNzLCBlLmcuIGJlZm9yZSBhbmQg
+YWZ0ZXIgeW91ciBzb3J0IHN0YXRlbWVudHMuDQoNClJlZ2FyZHMsDQpKZWZmDQoNCg0KLS0tLS1P
+cmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IGZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmcgW21h
+aWx0bzpmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnXSBPbiBCZWhhbGYgT2YgTWFyayBOZWxzb24N
+ClNlbnQ6IFR1ZXNkYXksIE1heSAyNCwgMjAxNiA5OjIwIEFNDQpUbzogQmVuIEVuZ2xhbmQgPGJl
+bmdsYW5kQHJlZGhhdC5jb20+OyBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+DQpDYzogTWFy
+dGluIFN0ZWlnZXJ3YWxkIDxtc0B0ZWFtaXguZGU+OyBmaW9Admdlci5rZXJuZWwub3JnOyBNYXJr
+IE5lbHNvbiA8bW5lbHNvbkByZWRoYXQuY29tPg0KU3ViamVjdDogUmU6IGZpb2xvZ3BhcnNlci5w
+eQ0KDQpJJ3ZlIGdvdCBhIHZlcnNpb24gdGhhdCByZW1vdmVzIHRoZSBkZXBlbmRlbmN5IGFuZCBh
+cHBlYXJzIHRvIHJldHVybiB0aGUgc2FtZSB2YWx1ZXM6DQoNCmh0dHBzOi8vZ2l0aHViLmNvbS9h
+eGJvZS9maW8vcHVsbC8xODENCg0KR29pbmcgdGhyb3VnaCB0aGUgY29kZSB0aG91Z2gsIGl0IGxv
+b2tzIGxpa2UgdGhlIC1BIHZhbHVlcyBhcmUgY29tcHV0ZWQgZGlmZmVyZW50bHkgdGhhbiBpbiB0
+aGUgb3RoZXIgb3JpZ2luYWwgZnVuY3Rpb25zLiAgSW4gdGhlIG9yaWdpbmFsIGdldF9jb250cmli
+dXRpb24gZnVuY3Rpb24sIGFsbCBzYW1wbGVzIHdpdGhpbiB0aGUgYm91bmRzIGFyZSBjb3VudGVk
+LCBhbG9uZyB3aXRoIHNhbXBsZXMgdGhhdCBhcmUgb25seSBwYXJ0aWFsbHkgd2l0aGluIHRoZSBi
+b3VuZHMuICBFYWNoIHNhbXBsZSBpcyB3ZWlnaHRlZCBiYXNlZCBvbiB0aGUgZHVyYXRpb24gaXQg
+b3ZlcmxhcHBlZCB3aXRoIHRoZSBzYW1wbGUNCnBlcmlvZDoNCg0KaHR0cHM6Ly9naXRodWIuY29t
+L2F4Ym9lL2Zpby9ibG9iL21hc3Rlci90b29scy9maW9sb2dwYXJzZXIucHkjTDE5NS1MMTk4DQoN
+CmZvciAtQSwgb25seSB0aGUgc2FtcGxlcyB0aGF0IGFyZSB0b3RhbGx5IHdpdGhpbiB0aGUgYm91
+bmRzIGFyZSBjb3VudGVkLCBhbmQgYXJlIHdlaWdodGVkIGVxdWFsbHkgZGVzcGl0ZSBob3cgbXVj
+aCBvZiB0aGUgcGVyaW9kIHdhcyBzcGVudCBpbiB0aGF0IHNhbXBsZToNCg0KaHR0cHM6Ly9naXRo
+dWIuY29tL2F4Ym9lL2Zpby9ibG9iL21hc3Rlci90b29scy9maW9sb2dwYXJzZXIucHkjTDE3Mw0K
+DQpUaHVzIGlmIHlvdSBsb29rIGF0IHNheSB0aGUgYXZlcmFnZSBmcm9tIC1hOg0KDQpmaW9sb2dw
+YXJzZXIucHkgLWEgKmNsYXQqDQoNCjEwMDAsIDExNTgyLjc3MA0KMjAwMCwgMTQwMzMuODQ0DQoz
+MDAwLCAxNzA4Ny40NDYNCjQwMDAsIDE3OTQ2LjI0NQ0KNTAwMCwgMTQ1NTQuMTk2DQo2MDAwLCAx
+NDQwNy44MDQNCjcwMDAsIDE1MjE4LjEwNg0KODAwMCwgMTUxNTcuOTUxDQoNCnRoZSByZXN1bHRz
+IGFyZSBxdWl0ZSBhIGJpdCBkaWZmZXJlbnQgZnJvbSAtQToNCg0KZmlvbG9ncGFyc2VyLnB5IC1B
+ICpjbGF0KiB8IHRyIC1zICIsIiAiICIgfCBjdXQgLWYxLDQgLWQiICINCg0KMC4wMDAwMDAgMTE5
+MDIuNzE5Mjk4DQoxMDAwLjAwMDAwMCAxMzI0Ny43NTAwMDANCjIwMDAuMDAwMDAwIDE0MjcwLjU0
+OTAyMA0KMzAwMC4wMDAwMDAgMTUwOTIuMTkyMzA4DQo0MDAwLjAwMDAwMCAxNDEyNy40NzI3MjcN
+CjUwMDAuMDAwMDAwIDEyODgwLjEzNzkzMQ0KNjAwMC4wMDAwMDAgMTUyOTYuNzM1ODQ5DQo3MDAw
+LjAwMDAwMCAxNDg1Ny4zMDYxMjINCjgwMDAuMDAwMDAwIDE0ODU0Ljc2NjY2Nw0KDQpNYXJrDQoN
+Cg0KT24gMDUvMjQvMjAxNiAxMDozNSBBTSwgQmVuIEVuZ2xhbmQgd3JvdGU6DQo+IE9LIHdlJ2xs
+IHJlbW92ZSB0aGUgZGVwZW5kZW5jaWVzLCBJIHN0aWxsIHdhbnQgdG8gaGF2ZSB0aGUgLUEgb3B0
+aW9uIHN1cHBvcnRlZC4NCj4gLWJlbg0KPg0KPiAtLS0tLSBPcmlnaW5hbCBNZXNzYWdlIC0tLS0t
+DQo+PiBGcm9tOiAiSmVucyBBeGJvZSIgPGF4Ym9lQGtlcm5lbC5kaz4NCj4+IFRvOiAiQmVuIEVu
+Z2xhbmQiIDxiZW5nbGFuZEByZWRoYXQuY29tPiwgIk1hcmsgTmVsc29uIiANCj4+IDxtYXJrLmEu
+bmVsc29uQGdtYWlsLmNvbT4NCj4+IENjOiAiTWFydGluIFN0ZWlnZXJ3YWxkIiA8bXNAdGVhbWl4
+LmRlPiwgZmlvQHZnZXIua2VybmVsLm9yZywgIk1hcmsgDQo+PiBOZWxzb24iIDxtbmVsc29uQHJl
+ZGhhdC5jb20+DQo+PiBTZW50OiBUdWVzZGF5LCBNYXkgMjQsIDIwMTYgMTE6Mjg6MzkgQU0NCj4+
+IFN1YmplY3Q6IFJlOiBmaW9sb2dwYXJzZXIucHkNCj4+DQo+PiBPbiAwNS8yNC8yMDE2IDA5OjIy
+IEFNLCBCZW4gRW5nbGFuZCB3cm90ZToNCj4+Pg0KPj4+DQo+Pj4gLS0tLS0gT3JpZ2luYWwgTWVz
+c2FnZSAtLS0tLQ0KPj4+PiBGcm9tOiAiTWFyayBOZWxzb24iIDxtYXJrLmEubmVsc29uQGdtYWls
+LmNvbT4NCj4+Pj4gVG86ICJCZW4gRW5nbGFuZCIgPGJlbmdsYW5kQHJlZGhhdC5jb20+LCAiTWFy
+dGluIFN0ZWlnZXJ3YWxkIg0KPj4+PiA8bXNAdGVhbWl4LmRlPg0KPj4+PiBDYzogZmlvQHZnZXIu
+a2VybmVsLm9yZywgIk1hcmsgTmVsc29uIiA8bW5lbHNvbkByZWRoYXQuY29tPiwgIkplbnMgQXhi
+b2UiDQo+Pj4+IDxheGJvZUBrZXJuZWwuZGs+DQo+Pj4+IFNlbnQ6IFR1ZXNkYXksIE1heSAyNCwg
+MjAxNiAxMDowNDoxNCBBTQ0KPj4+PiBTdWJqZWN0OiBSZTogZmlvbG9ncGFyc2VyLnB5DQo+Pj4+
+DQo+Pj4+IExldCdzIHNlZSBpZiB3ZSBjYW4gcmVtb3ZlIHRoZSBudW1weSBhbmQgc2NpcHkgZGVw
+ZW5kZW5jaWVzLiAgSXQgDQo+Pj4+IGxvb2tzIGxpa2Ugd2UgYXJlIGp1c3QgdXNpbmcgaXQgZm9y
+IA0KPj4+PiBtaW4vYXZlcmFnZS9tZWRpYW4vbWF4L3BlcmNlbnRpbGUgY2FsY3VsYXRpb25zLiAg
+SXQgd291bGQgYmUgbmljZSANCj4+Pj4gaWYgdXNlcnMgZGlkbid0IG5lZWQgYW55dGhpbmcgb3Ro
+ZXIgdGhhbiBhcmdwYXJzZS4NCj4+Pj4NCj4+Pg0KPj4+IEp1c3QgY3VyaW91cywgd2h5IGlzIHNj
+aXB5IGEgcHJvYmxlbT8gIElzIGl0IGJlY2F1c2UgQ0JUIGlzbid0IGEgDQo+Pj4gcGFja2FnZSBz
+byB5b3UgZG9uJ3QgZ2V0IGRlcGVuZGVuY2llcyBoYW5kbGVkIHdoZW4geW91IGluc3RhbGwgaXQ/
+ICANCj4+PiBZb3UgYXJlIGNvcnJlY3QsIGl0J3MgZWFzeSB0byByZW1vdmUgdGhlIGRlcGVuZGVu
+Y2llcywgSSBqdXN0IGRpZG4ndCANCj4+PiBrbm93IGl0IHdhcyBjYXVzaW5nIHByb2JsZW1zIGZv
+ciBwZW9wbGUuICBZb3UgY2FuIGdldCBwZXJjZW50aWxlcyANCj4+PiBmcm9tIGp1c3Qgc29ydGlu
+ZyB0aGUgc2FtcGxlIHZhbHVlcyBhbmQgaW5kZXhpbmcgaW50byB0aGUgYXJyYXkgYXQgDQo+Pj4g
+dGhlIGFwcHJvcHJpYXRlIG9mZnNldCwgSSB3YXMganVzdCB0cnlpbmcgdG8gcmUtdXNlIGV4aXN0
+aW5nIGNsYXNzZXMuDQo+Pg0KPj4gSXQncyBub3QgbmVjZXNzYXJpbHkgYSBwcm9ibGVtLCBidXQg
+dGhlIGxlc3MgZGVwZW5kZW5jaWVzIHlvdSBoYXZlLCANCj4+IHRoZSBlYXNpZXIgaXQgaXMgZm9y
+IHBlb3BsZSB0byB1c2UuIEkgZG8gdGhlIHNhbWUgZm9yIGZpbywgdHJ5IHRvIA0KPj4gaGF2ZSBh
+cyBmZXcgZXh0ZXJuYWwgZGVwZW5kZW5jaWVzIGFzIHBvc3NpYmxlLiBSZW1lbWJlciwgbm90IA0K
+Pj4gZXZlcnlib2R5IGlzIHJ1bm5pbmcgb24gTGludXguLi4NCj4+DQo+PiAtLQ0KPj4gSmVucyBB
+eGJvZQ0KPj4NCj4+DQotLQ0KVG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhl
+IGxpbmUgInVuc3Vic2NyaWJlIGZpbyIgaW4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9y
+ZG9tb0B2Z2VyLmtlcm5lbC5vcmcgTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3ZnZXIu
+a2VybmVsLm9yZy9tYWpvcmRvbW8taW5mby5odG1sDQpXZXN0ZXJuIERpZ2l0YWwgQ29ycG9yYXRp
+b24gKGFuZCBpdHMgc3Vic2lkaWFyaWVzKSBFLW1haWwgQ29uZmlkZW50aWFsaXR5IE5vdGljZSAm
+IERpc2NsYWltZXI6CgpUaGlzIGUtbWFpbCBhbmQgYW55IGZpbGVzIHRyYW5zbWl0dGVkIHdpdGgg
+aXQgbWF5IGNvbnRhaW4gY29uZmlkZW50aWFsIG9yIGxlZ2FsbHkgcHJpdmlsZWdlZCBpbmZvcm1h
+dGlvbiBvZiBXREMgYW5kL29yIGl0cyBhZmZpbGlhdGVzLCBhbmQgYXJlIGludGVuZGVkIHNvbGVs
+eSBmb3IgdGhlIHVzZSBvZiB0aGUgaW5kaXZpZHVhbCBvciBlbnRpdHkgdG8gd2hpY2ggdGhleSBh
+cmUgYWRkcmVzc2VkLiBJZiB5b3UgYXJlIG5vdCB0aGUgaW50ZW5kZWQgcmVjaXBpZW50LCBhbnkg
+ZGlzY2xvc3VyZSwgY29weWluZywgZGlzdHJpYnV0aW9uIG9yIGFueSBhY3Rpb24gdGFrZW4gb3Ig
+b21pdHRlZCB0byBiZSB0YWtlbiBpbiByZWxpYW5jZSBvbiBpdCwgaXMgcHJvaGliaXRlZC4gSWYg
+eW91IGhhdmUgcmVjZWl2ZWQgdGhpcyBlLW1haWwgaW4gZXJyb3IsIHBsZWFzZSBub3RpZnkgdGhl
+IHNlbmRlciBpbW1lZGlhdGVseSBhbmQgZGVsZXRlIHRoZSBlLW1haWwgaW4gaXRzIGVudGlyZXR5
+IGZyb20geW91ciBzeXN0ZW0uCg==
 
-To compute percentiles, we can sort (by response time) the samples that *overlap the time interval* and then index into the python list something like this (ignoring boundary conditions):
-
- def get_percentile(list, percentile): 
-   return sample_list[len(list) * percentile / 100]
-
-min would be first array element in sample_list, 
-max would be last array element in sample_list. 
-
-And I'll definitely try using .sort instead of sorted(), thx Jeff.
-
-make sense?
-
--ben
-
-
------ Original Message -----
-> From: "Mark Nelson" <mark.a.nelson@gmail.com>
-> To: "Ben England" <bengland@redhat.com>, "Jens Axboe" <axboe@kernel.dk>
-> Cc: "Martin Steigerwald" <ms@teamix.de>, fio@vger.kernel.org, "Mark Nelson" <mnelson@redhat.com>
-> Sent: Tuesday, May 24, 2016 12:20:19 PM
-> Subject: Re: fiologparser.py
-> 
-> I've got a version that removes the dependency and appears to return the
-> same values:
-> 
-> https://github.com/axboe/fio/pull/181
-> 
-> Going through the code though, it looks like the -A values are computed
-> differently than in the other original functions.  In the original
-> get_contribution function, all samples within the bounds are counted,
-> along with samples that are only partially within the bounds.  Each
-> sample is weighted based on the duration it overlapped with the sample
-> period:
-> 
-> https://github.com/axboe/fio/blob/master/tools/fiologparser.py#L195-L198
-> 
-> for -A, only the samples that are totally within the bounds are counted,
-> and are weighted equally despite how much of the period was spent in
-> that sample:
-> 
-> https://github.com/axboe/fio/blob/master/tools/fiologparser.py#L173
-> 
-> Thus if you look at say the average from -a:
-> 
-> fiologparser.py -a *clat*
-> 
-> 1000, 11582.770
-> 2000, 14033.844
-> 3000, 17087.446
-> 4000, 17946.245
-> 5000, 14554.196
-> 6000, 14407.804
-> 7000, 15218.106
-> 8000, 15157.951
-> 
-> the results are quite a bit different from -A:
-> 
-> fiologparser.py -A *clat* | tr -s "," " " | cut -f1,4 -d" "
-> 
-> 0.000000 11902.719298
-> 1000.000000 13247.750000
-> 2000.000000 14270.549020
-> 3000.000000 15092.192308
-> 4000.000000 14127.472727
-> 5000.000000 12880.137931
-> 6000.000000 15296.735849
-> 7000.000000 14857.306122
-> 8000.000000 14854.766667
-> 
-> Mark
-> 
-> 
-> On 05/24/2016 10:35 AM, Ben England wrote:
-> > OK we'll remove the dependencies, I still want to have the -A option
-> > supported.
-> > -ben
-> >
-> > ----- Original Message -----
-> >> From: "Jens Axboe" <axboe@kernel.dk>
-> >> To: "Ben England" <bengland@redhat.com>, "Mark Nelson"
-> >> <mark.a.nelson@gmail.com>
-> >> Cc: "Martin Steigerwald" <ms@teamix.de>, fio@vger.kernel.org, "Mark
-> >> Nelson" <mnelson@redhat.com>
-> >> Sent: Tuesday, May 24, 2016 11:28:39 AM
-> >> Subject: Re: fiologparser.py
-> >>
-> >> On 05/24/2016 09:22 AM, Ben England wrote:
-> >>>
-> >>>
-> >>> ----- Original Message -----
-> >>>> From: "Mark Nelson" <mark.a.nelson@gmail.com>
-> >>>> To: "Ben England" <bengland@redhat.com>, "Martin Steigerwald"
-> >>>> <ms@teamix.de>
-> >>>> Cc: fio@vger.kernel.org, "Mark Nelson" <mnelson@redhat.com>, "Jens
-> >>>> Axboe"
-> >>>> <axboe@kernel.dk>
-> >>>> Sent: Tuesday, May 24, 2016 10:04:14 AM
-> >>>> Subject: Re: fiologparser.py
-> >>>>
-> >>>> Let's see if we can remove the numpy and scipy dependencies.  It looks
-> >>>> like we are just using it for min/average/median/max/percentile
-> >>>> calculations.  It would be nice if users didn't need anything other than
-> >>>> argparse.
-> >>>>
-> >>>
-> >>> Just curious, why is scipy a problem?  Is it because CBT isn't a
-> >>> package so you don't get dependencies handled when you install it?  You
-> >>> are correct, it's easy to remove the dependencies, I just didn't know it
-> >>> was causing problems for people.  You can get percentiles from just
-> >>> sorting the sample values and indexing into the array at the appropriate
-> >>> offset, I was just trying to re-use existing classes.
-> >>
-> >> It's not necessarily a problem, but the less dependencies you have, the
-> >> easier it is for people to use. I do the same for fio, try to have as
-> >> few external dependencies as possible. Remember, not everybody is
-> >> running on Linux...
-> >>
-> >> --
-> >> Jens Axboe
-> >>
-> >>
-> 
 
