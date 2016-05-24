@@ -1,49 +1,37 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: testing thin provisioned block device
-References: <CANo=J15Pt4+=G4dmq+hwUGH+3-OP4wWvqO44dbZLNOZaQYcmRQ@mail.gmail.com>
- <CANvN+enHvuNd5TC=Qxte22k52qR3XdLzyeGxQ5OLihwOM0XDRQ@mail.gmail.com>
- <CALjAwxgtwP+6K0qLnNzm2Z72gLGasd_oG6EH66bjV-Rc6rOEpw@mail.gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <57446C01.9080806@kernel.dk>
-Date: Tue, 24 May 2016 08:58:09 -0600
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-vk0-f48.google.com ([209.85.213.48]:34137 "EHLO
+	mail-vk0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750973AbcEXElM (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 24 May 2016 00:41:12 -0400
+Received: by mail-vk0-f48.google.com with SMTP id c189so6932405vkb.1
+        for <fio@vger.kernel.org>; Mon, 23 May 2016 21:41:11 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CALjAwxgtwP+6K0qLnNzm2Z72gLGasd_oG6EH66bjV-Rc6rOEpw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Sitsofe Wheeler <sitsofe@gmail.com>, Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
-Cc: Tim Walker <tim.t.walker@seagate.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+In-Reply-To: <CANo=J17Bu7w2GM5Tb8aB41dvbCFq1n36c2f=+FQDJKpuS82Ydg@mail.gmail.com>
+References: <CANo=J15Pt4+=G4dmq+hwUGH+3-OP4wWvqO44dbZLNOZaQYcmRQ@mail.gmail.com>
+	<CANvN+enHvuNd5TC=Qxte22k52qR3XdLzyeGxQ5OLihwOM0XDRQ@mail.gmail.com>
+	<CALjAwxgtwP+6K0qLnNzm2Z72gLGasd_oG6EH66bjV-Rc6rOEpw@mail.gmail.com>
+	<CANo=J17Bu7w2GM5Tb8aB41dvbCFq1n36c2f=+FQDJKpuS82Ydg@mail.gmail.com>
+Date: Tue, 24 May 2016 05:41:10 +0100
+Message-ID: <CALjAwxjy6caqqdO+kJ3OOua41_ae_0QVpMBZ3Q3wMk0M+4OTeg@mail.gmail.com>
+Subject: Re: testing thin provisioned block device
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Tim Walker <tim.t.walker@seagate.com>
+Cc: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 05/23/2016 11:41 AM, Sitsofe Wheeler wrote:
-> On 23 May 2016 at 16:02, Andrey Kuzmin <andrey.v.kuzmin@gmail.com> wrote:
->>
->> To my knowledge, there's no prebuilt configuration to read only those blocks
->> that have been written before.
->>
->> At the same time, when randommap is on, FIO keeps track of the blocks written,
->> so it may be possible to limit the read generation to those by adding
->> a bit of code.
->
-> I thought this type of facility had to exist so that verification
-> triggers (https://github.com/axboe/fio/blob/fio-2.10/HOWTO#L2214 ) via
-> verify_state_load could work?
+On 24 May 2016 at 04:52, Tim Walker <tim.t.walker@seagate.com> wrote:
+> This looks interesting.  Thanks!
+> I will report back...
 
-Definitely. Similarly to what Alireza suggested, using the same random 
-seed for a reader would read the exact same blocks that fio previously 
-wrote. You don't strictly need the random map for that. If you seed 
-things the same way, then the offsets/sizes/etc will be generated 
-identically. The random map can help with verifies if you overwrite 
-blocks or need to trim, but for a pure write-then-read setup, it's not 
-needed.
-
-For instance, if you do verifies, you can have a write job file that you 
-run to completion. Then you take that exact same job file, and change 
-the write (random or sequential) to the equivalent read, and run fio 
-again. The same thing is of course possible without doing the 
-verification, but just using that same mechanism to read only the parts 
-that were written.
+Other possibilities would be to use verify_backlog
+(https://github.com/axboe/fio/blob/fio-2.10/HOWTO#L1467 ) so you're
+re-reading periodically as you're going along or to use
+io_limit/io_size
+(https://github.com/axboe/fio/blob/fio-2.10/HOWTO#L495 ) with two
+stonewalled jobs using the same seeds but where the first job was a
+write and the second a read.
 
 -- 
-Jens Axboe
-
-
+Sitsofe | http://sucs.org/~sits/
