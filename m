@@ -1,137 +1,49 @@
-Return-Path: <ms@teamix.de>
-From: Martin Steigerwald <ms@teamix.de>
-Subject: hardening fio build with PIE for Address Space Layout Randomization and bindnow linking
-Date: Tue, 24 May 2016 12:10:27 +0200
-Message-ID: <6243211.bqPIL7RjHY@merkaba>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: testing thin provisioned block device
+References: <CANo=J15Pt4+=G4dmq+hwUGH+3-OP4wWvqO44dbZLNOZaQYcmRQ@mail.gmail.com>
+ <CANvN+enHvuNd5TC=Qxte22k52qR3XdLzyeGxQ5OLihwOM0XDRQ@mail.gmail.com>
+ <CALjAwxgtwP+6K0qLnNzm2Z72gLGasd_oG6EH66bjV-Rc6rOEpw@mail.gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <57446C01.9080806@kernel.dk>
+Date: Tue, 24 May 2016 08:58:09 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="iso-8859-1"
-To: fio@vger.kernel.org
-Cc: Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <CALjAwxgtwP+6K0qLnNzm2Z72gLGasd_oG6EH66bjV-Rc6rOEpw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Sitsofe Wheeler <sitsofe@gmail.com>, Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Cc: Tim Walker <tim.t.walker@seagate.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-Hello Jens!
+On 05/23/2016 11:41 AM, Sitsofe Wheeler wrote:
+> On 23 May 2016 at 16:02, Andrey Kuzmin <andrey.v.kuzmin@gmail.com> wrote:
+>>
+>> To my knowledge, there's no prebuilt configuration to read only those blocks
+>> that have been written before.
+>>
+>> At the same time, when randommap is on, FIO keeps track of the blocks written,
+>> so it may be possible to limit the read generation to those by adding
+>> a bit of code.
+>
+> I thought this type of facility had to exist so that verification
+> triggers (https://github.com/axboe/fio/blob/fio-2.10/HOWTO#L2214 ) via
+> verify_state_load could work?
 
-In my attempt to harden the fio build as recommended within Debian, I tried=
- to=20
-build it with PIE by using Debian=B4s own mechanism via dpkg-buildflags. An=
-d I=20
-got:
+Definitely. Similarly to what Alireza suggested, using the same random 
+seed for a reader would read the exact same blocks that fio previously 
+wrote. You don't strictly need the random map for that. If you seed 
+things the same way, then the offsets/sizes/etc will be generated 
+identically. The random map can help with verifies if you overwrite 
+blocks or need to trim, but for a pure write-then-read setup, it's not 
+needed.
 
-    CC diskutil.o
-    CC fifo.o
-    CC blktrace.o
-    CC cgroup.o
-    CC trim.o
-    CC engines/sg.o
-    CC engines/binject.o
-    CC oslib/linux-dev-lookup.o
-    CC fio.o
-  LINK fio
-/usr/bin/ld: crc/crc16.o: relocation R_X86_64_32S against `crc16_table' can=
-=20
-not be used when making a shared object; recompile with -fPIC
-crc/crc16.o: error adding symbols: Bad value
-collect2: error: ld returned 1 exit status
-Makefile:399: recipe for target 'fio' failed
-make[1]: *** [fio] Error 1
-make[1]: Leaving directory '/home/ms/Debian/fio/pkg-fio'
-dh_auto_build: make -j1 returned exit code 2
-debian/rules:17: recipe for target 'build' failed
-make: *** [build] Error 2
-dpkg-buildpackage: error: debian/rules build gave error exit status 2
+For instance, if you do verifies, you can have a write job file that you 
+run to completion. Then you take that exact same job file, and change 
+the write (random or sequential) to the equivalent read, and run fio 
+again. The same thing is of course possible without doing the 
+verification, but just using that same mechanism to read only the parts 
+that were written.
 
+-- 
+Jens Axboe
 
-Yet, building fio 2.10 from upstream does doesn=B4t produce a shared object=
-=20
-file.
-
-Any idea?
-
-
-
-
-I: fio: hardening-no-pie usr/bin/fio
-N:=20
-N:    This package provides an ELF executable that was not compiled as a
-N:    position independent executable (PIE).
-N:   =20
-N:    PIE is required for fully enabling Address Space Layout Randomization
-N:    (ASLR), which makes "Return-oriented" attacks more difficult.
-N:   =20
-N:    Historically, PIE has been associated with noticeable performance
-N:    overhead on i386. However, GCC-5 has implemented an optimization that
-N:    can reduce the overhead significantly.
-N:   =20
-N:    If you use dpkg-buildflags, you may have to add hardening=3D+pie or
-N:    hardening=3D+all to DEB_BUILD_MAINT_OPTIONS.
-N:   =20
-N:    The relevant compiler flags must be passed both to the compiler and t=
-he
-N:    linker (e.g. for C that would be commonly be CFLAGS and LDFLAGS).
-N:   =20
-N:    CAVEAT: Please keep in mind that the PIE flag (-fPIE) is not suitable
-N:    for all cases:
-N:   =20
-N:     * It is <not> compatible with -fPIC which required for
-N:       compiling shared libraries.
-N:     * It is unlikely to work when compiling static libraries or
-N:       executables (gcc -static).
-N:   =20
-N:    If your upstream build compiles either of the above, you may have to
-N:    patch the build to ensure that only ELF executables are compiled with
-N:    PIE.
-N:   =20
-N:    Refer to https://wiki.debian.org/Hardening,
-N:    https://gcc.gnu.org/gcc-5/changes.html, and
-N:    https://software.intel.com/en-us/blogs/2014/12/26/new-optimizations-f=
-or-x86-in-upcoming-gcc-50-32bit-pic-mode
-N:    for details.
-N:   =20
-N:    Severity: wishlist, Certainty: certain
-N:   =20
-N:    Check: binaries, Type: binary, udeb
-N:=20
-I: fio: hardening-no-pie usr/bin/fio-btrace2fio
-I: fio: hardening-no-pie usr/bin/fio-dedupe
-I: fio: hardening-no-pie usr/bin/fio-genzipf
-
-
-Another option to harden fio works find and that is:
-
-I: fio: hardening-no-bindnow usr/bin/fio
-N:=20
-N:    This package provides an ELF binary that lacks the "bindnow" linker
-N:    flag.
-N:   =20
-N:    If the ELF binary does not rely on late binding of symbols (e.g. weak
-N:    symbols), then please consider enabling this feature. Otherwise, plea=
-se
-N:    consider overriding the tag (possibly with a comment about why).
-N:   =20
-N:    If you use dpkg-buildflags, you may have to add hardening=3D+bindnow =
-or
-N:    hardening=3D+all to DEB_BUILD_MAINT_OPTIONS.
-N:   =20
-N:    The relevant compiler flags are set in LDFLAGS.
-N:   =20
-N:    Refer to https://wiki.debian.org/Hardening for details.
-N:   =20
-N:    Severity: wishlist, Certainty: certain
-N:   =20
-N:    Check: binaries, Type: binary, udeb
-N:=20
-I: fio: hardening-no-pie usr/bin/fio-btrace2fio
-I: fio: hardening-no-bindnow usr/bin/fio-btrace2fio
-I: fio: hardening-no-pie usr/bin/fio-dedupe
-I: fio: hardening-no-bindnow usr/bin/fio-dedupe
-I: fio: hardening-no-pie usr/bin/fio-genzipf
-I: fio: hardening-no-bindnow usr/bin/fio-genzipf
-
-
-Maybe it would be nice to have some of these in upstream build? PIE may not=
-=20
-yet be advisable as for GCC 5 requirement.
-
-Thanks,
 
