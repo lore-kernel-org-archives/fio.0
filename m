@@ -1,32 +1,30 @@
-Return-Path: <ms@merkaba.lichtvoll.de>
-From: Martin Steigerwald <martin.steigerwald@teamix.de>
-Subject: [PATCH 4/5] Spelling fix.
-Date: Tue, 24 May 2016 11:22:49 +0200
-Message-Id: <1464081770-19361-5-git-send-email-martin.steigerwald@teamix.de>
-In-Reply-To: <1464081770-19361-1-git-send-email-martin.steigerwald@teamix.de>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 0/5] Some spelling fixes
 References: <1464081770-19361-1-git-send-email-martin.steigerwald@teamix.de>
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Martin Steigerwald <martin.steigerwald@teamix.de>
+ <1792022.SfIpEbUJeL@merkaba>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <57446140.107@kernel.dk>
+Date: Tue, 24 May 2016 08:12:16 -0600
+MIME-Version: 1.0
+In-Reply-To: <1792022.SfIpEbUJeL@merkaba>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Martin Steigerwald <ms@teamix.de>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
----
- idletime.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 05/24/2016 03:40 AM, Martin Steigerwald wrote:
+> Hi Jens,
+>
+> On Dienstag, 24. Mai 2016 11:22:45 CEST Martin Steigerwald wrote:
+>> Just some spelling fixes.
+>
+> You can also pull from:
+>
+> https://github.com/axboe/fio/pull/180
 
-diff --git a/idletime.c b/idletime.c
-index fab43c5..4c00d80 100644
---- a/idletime.c
-+++ b/idletime.c
-@@ -260,7 +260,7 @@ void fio_idle_prof_init(void)
- 
- 		if ((ret = pthread_detach(ipt->thread))) {
- 			/* log error and let the thread spin */
--			log_err("fio: pthread_detatch %s\n", strerror(ret));
-+			log_err("fio: pthread_detach %s\n", strerror(ret));
- 		}
- 	}
- 
+Pulled them, thanks!
+
 -- 
-2.8.1
+Jens Axboe
 
 
