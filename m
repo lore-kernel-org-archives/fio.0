@@ -1,57 +1,43 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:39067 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754583AbcESMAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 19 May 2016 08:00:05 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-	id 1b3McW-0004xk-38
-	for fio@vger.kernel.org; Thu, 19 May 2016 12:00:04 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 2/2] Fix occasional hangs on mutexes
+References: <1464102202-16724-1-git-send-email-jack@suse.cz>
+ <1464102202-16724-2-git-send-email-jack@suse.cz> <5745FC91.5010408@kernel.dk>
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160519120001.BFAFE2C00D0@kernel.dk>
-Date: Thu, 19 May 2016 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <57460370.5090905@kernel.dk>
+Date: Wed, 25 May 2016 13:56:32 -0600
+MIME-Version: 1.0
+In-Reply-To: <5745FC91.5010408@kernel.dk>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Jan Kara <jack@suse.cz>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 8c4693e2e578613f517dc42b38e204bf77fdab1d:
+On 05/25/2016 01:27 PM, Jens Axboe wrote:
+> On 05/24/2016 09:03 AM, Jan Kara wrote:
+>> When running xfstest generic/299 using fio on my test machine using
+>> ramdisk as a backing store, I have noticed that fio often hangs waiting
+>> for td->io_u_lock. After some debugging I have found out the reason is
+>> that mutexes are created as process-private by default and but this
+>> mutex is actually manipulated from several processes. The hang is not
+>> obvious immediately as the mutex is located in shared memory and thus
+>> while the locking is resolved in userspace, everything works as
+>> expected. Only once we use kernel futexes, the process is not properly
+>> woken up when futex is released.
+>>
+>> Fix the problem by marking all mutexes and conditional variables that
+>> are located in shared memory as shared.
+>
+> Thanks Jan, applied both 1 and 2.
+>
+> Would be nice to factor out the cv/mutex init code, so we don't have to
+> essentially copy/paste it wherever we want to have process shared
+> mutexes or cond vars.
 
-  add -A option for better stats (2016-05-17 18:48:30 -0400)
+I did that:
 
-are available in the git repository at:
+http://git.kernel.dk/cgit/fio/commit/?id=34febb23fa9c7b9b0d54c324effff1a808a8fe6e
 
-  git://git.kernel.dk/fio.git master
+-- 
+Jens Axboe
 
-for you to fetch changes up to e391c70489d9f63612bce419d7fa0df5d15abf16:
 
-  filesetup: align a size given as a percentage to the block size (2016-05-18 15:06:05 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      filesetup: align a size given as a percentage to the block size
-
- filesetup.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/filesetup.c b/filesetup.c
-index 9c37ae5..f721c36 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -894,8 +894,10 @@ int setup_files(struct thread_data *td)
- 		if (f->io_size == -1ULL)
- 			total_size = -1ULL;
- 		else {
--                        if (o->size_percent)
--                                f->io_size = (f->io_size * o->size_percent) / 100;
-+                        if (o->size_percent) {
-+				f->io_size = (f->io_size * o->size_percent) / 100;
-+				f->io_size -= (f->io_size % td_min_bs(td));
-+			}
- 			total_size += f->io_size;
- 		}
- 
