@@ -1,40 +1,40 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-io0-f196.google.com ([209.85.223.196]:33675 "EHLO
-	mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933411AbcE3Peu convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 30 May 2016 11:34:50 -0400
-Received: by mail-io0-f196.google.com with SMTP id p194so9467131iod.0
-        for <fio@vger.kernel.org>; Mon, 30 May 2016 08:34:50 -0700 (PDT)
+Return-Path: <ms@teamix.de>
+From: Martin Steigerwald <ms@teamix.de>
+Subject: Re: fiologparser.py
+Date: Wed, 25 May 2016 10:58:59 +0200
+Message-ID: <2911112.R94pZHdCuf@merkaba>
+In-Reply-To: <c54ab91f-ccc9-59a1-bf17-9b72b0525d78@gmail.com>
+References: <12634496.Be1YEipj88@merkaba> <1678172793.65613994.1464122842521.JavaMail.zimbra@redhat.com> <c54ab91f-ccc9-59a1-bf17-9b72b0525d78@gmail.com>
 MIME-Version: 1.0
-From: Nitin Mathur <nitinmathur@gmail.com>
-Date: Mon, 30 May 2016 23:34:10 +0800
-Message-ID: <CAMy1HkEAccd5FwvUKpJMuaKtcGa_T18GXdivR06S8Ne7m0Qq=w@mail.gmail.com>
-Subject: fio error when using direct=1
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="iso-8859-1"
+To: Mark Nelson <mark.a.nelson@gmail.com>
+Cc: Ben England <bengland@redhat.com>, Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Mark Nelson <mnelson@redhat.com>
+List-ID: <fio@vger.kernel.org>
 
-I am getting the following error and need help from someone
+On Dienstag, 24. Mai 2016 21:04:13 CEST Mark Nelson wrote:
+> On 05/24/2016 03:47 PM, Ben England wrote:
+> > Mark, I didn't notice the sample weighting code before.  Weighting of
+> > samples might work for averaging, but it doesn't work for percentiles,
+> > min or max provided by -A option.  I guess for min this won't be an iss=
+ue
+> > generally, since min-latency samples will probably fall entirely within=
+ a
+> > time interval.  But for max or higher percentiles it will *definitely* =
+be
+> > an issue.   For example, a really high latency sample could be the max
+> > for a whole range of time intervals.
+> I went back and reworked the print and per-interval functions so that
+> they are part of a Printer class and Interval class respectively.  It
+> cleaned the code up pretty nicely.  I was also able to integrate the
+> "-A" code to use a lot of the existing statistics and formatting code.
+> It now supports the "-d" flag for example.
 
-Test environment
-CentOS 6.5
-Linux kernel: 3.8.8, 64 bit
-FIO version: fio-2.11
+While at it, Mark, could you also do the renaming to fiologparser?
 
-I run the following command
+Otherwise I=B4d prepare a patch, but then we risk a trivial merge conflict =
+:)
 
-> ./fio --name=test_workld --ioengine=libaio --direct=1 --rw=randrw --norandommap --randrepeat=0 --rwmixread=40 --rwmixwrite=60 --iodepth=256 --size=100% --numjobs=4 --bssplit=512/4:64k/96 --random_distribution=zoned:50/5:50/95 --overwrite=1 --output=test_op --filename=/dev/nvme0n1 --group_reporting --runtime=1m --time_based
+Thanks,
+Martin
 
-
-This means, I'm using libaio, with a queue depth of 256, and fio is
-utilizing asynchronous IO engines. But when i run this command, it
-results into an error "Invalid argument". If i change the parameter
---direct=0, I'm able to issue the command successfully.
-
-Can you help me to understand, why with direct=1, the fio command
-results in an error  ?
-
-Thanks
-Nitin
