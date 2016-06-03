@@ -1,265 +1,371 @@
-Return-Path: <Vincent.Fu@sandisk.com>
-From: Vincent Fu <Vincent.Fu@sandisk.com>
-Subject: terminating fio jobs upon reaching steady state
-Date: Thu, 30 Jun 2016 15:49:35 +0000
-Message-ID: <CY1PR0201MB1882D39478B9483993B429488C240@CY1PR0201MB1882.namprd02.prod.outlook.com>
-Content-Language: en-US
-Content-Type: multipart/alternative;
-	boundary="_000_CY1PR0201MB1882D39478B9483993B429488C240CY1PR0201MB1882_"
-MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.9]:42406 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751727AbcFCMAF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 3 Jun 2016 08:00:05 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by bombadil.infradead.org with esmtpsa (Exim 4.80.1 #2 (Red Hat Linux))
+	id 1b8nlj-00033V-O8
+	for fio@vger.kernel.org; Fri, 03 Jun 2016 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160603120002.237112C00A3@kernel.dk>
+Date: Fri,  3 Jun 2016 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
---_000_CY1PR0201MB1882D39478B9483993B429488C240CY1PR0201MB1882_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+The following changes since commit aa7d2ef092d5a8e417fcddaf8808fb0d48f1064b:
 
-Jens, I have been working on a patch to give fio the ability to terminate a=
- job when steady state is attained. I have a crude implementation that is w=
-orking at https://bitbucket.org/vincentfu/fio/commits/all but I'm hoping to=
- receive some feedback on its design.
+  Added millisecond-accurate timestamp to JSON output (2016-05-27 14:26:16 -0400)
 
-Currently, the feature works via helper_thread_main(). It collects data in =
-a ring buffer for a specified duration and carries out the termination test=
- when the ring buffer is full. If the test passes, the job terminates. If t=
-he test fails, the job continues, the oldest data point in the buffer is dr=
-opped, a new data point is added, and the termination test is carried out a=
-gain. The cycle repeats until the job terminates because steady state was a=
-ttained or for other reasons.
+are available in the git repository at:
 
-Reporting of results is done via JSON output and includes per second IOPS/B=
-W measurements from the ring buffer.
+  git://git.kernel.dk/fio.git master
 
-Three new job options control this feature:
+for you to fetch changes up to 385e1da6468bc951a0bf7ae60d890bb4d4a55ded:
 
-ss_dur =3D size of the ring buffer used for termination test. Data points a=
-re collected once per second.
+  Documentation update (2016-06-02 16:57:20 -0600)
 
-ss_ramp =3D ramp time once job is underway before data collection begins (t=
-o avoid false positives detecting steady state for jobs run on freshly form=
-atted SSDs)
+----------------------------------------------------------------
+Jens Axboe (3):
+      Enable preadv2/pwritev2 engines by default on Linux
+      arch: wire up preadv2/pwritev2 for more architectures
+      Documentation update
 
-ss =3D criterion:limit
+Omar Sandoval (1):
+      Fix iodepth_batch=0
 
-criterion is one of iops, bw, iops_ slope, bw_slope
+ HOWTO               | 11 +++++------
+ arch/arch-arm.h     |  7 +++++++
+ arch/arch-ia64.h    |  7 +++++++
+ arch/arch-s390.h    |  7 +++++++
+ arch/arch-sparc.h   |  7 +++++++
+ arch/arch-sparc64.h |  7 +++++++
+ arch/arch-x86.h     |  7 +++++++
+ arch/arch-x86_64.h  |  8 ++++++++
+ engines/sync.c      | 10 +++++-----
+ fio.1               |  3 ---
+ options.c           |  3 +--
+ os/os-linux.h       | 52 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 12 files changed, 113 insertions(+), 16 deletions(-)
 
-iops, bw                        terminate the job when the all data points =
-in the buffer are within the specified limit of the mean
+---
 
-iops_slope, bw_slope    terminate the job when the magnitude of the least s=
-quares slope falls below the specified limit
+Diff of recent changes:
 
-limit can be either a fixed number or a percentage. ss=3Diops:10 will termi=
-nate the job when all IOPS values in the buffer are within 10 of the mean. =
-ss=3Dbw_slope:0.01% will terminate the job when the least squares slope fal=
-ls below 0.01% of the mean bandwidth in the buffer.
-
-This command:
-
-./fio --name=3Dtest --rw=3Drandrw --rwmixread=3D100 --filename=3Dfio --time=
-_based --runtime=3D30s --ss_dur=3D10 --ss_ramp=3D3 --ss=3Diops:10000 --outp=
-ut-format=3Djson
-
-results in something like this:
-
- "steadystate" : {
-        "ss" : "iops:10000.000000",
-        "duration" : 10,
-        "steadystate_ramptime" : 3,
-        "attained" : 1,
-        "criterion" : 9664.599609,
-        "data" : [
-          613354,
-          624473,
-          623099,
-          617032,
-          617280,
-          614679,
-          607775,
-          620743,
-          617561,
-          618400
-        ] }
-
-
-I'm wondering how important are the following requirements?
-
-1) Full bandwidth/IOPS series for the entire runtime
-
-I can imagine a use case where a user would want to see how the device beha=
-ves as it approaches steady state, in addition to the behavior of the devic=
-e while it is in steady state. Right now the patch only reports IOPS/BW dat=
-a from the ring buffer that was used for testing the termination criterion.
-
-2) Ability to report latency data for the steady state period
-
-An obvious use case is to run a workload in steady state for a long duratio=
-n and then report its latency distribution. The only way I can imagine to h=
-ave this feature provide latency data is to maintain a ring buffer of io_u_=
-plat[DDIR_RWDIR_CNT][FIO_IO_U_PLAT_NR] arrays, one for each thread. Then th=
-e latency distribution for the steady state period will be the difference b=
-etween the overall final latency distribution and the distribution at the h=
-ead of the ring buffer. The disadvantage of this approach is high memory co=
-nsumption. A work-around is to have one job use this feature to drive the d=
-evice to steady state and then follow up with a second time-based identical=
- follow-up job for latency data collection, although there will be no guara=
-ntee that the second job will meet the steady state criterion.
-
-3) How should this interact with group_reporting?
-
-Since reporting will be for the entire group, it seems sensible to have ste=
-ady state detection operate at the group level, with BW and IOPS values sum=
-med over all threads in a group and all threads in a group terminating when=
- steady state is attained.
-
-
-Vincent
-
---
-Vincent Fu
-Software Dev Engr II
-SanDisk | a Western Digital brand
-Remote Worker, Rockville, MD, USA
-T: 801 987 7079
-Vincent.Fu@SanDisk.com<mailto:Vincent.Fu@SanDisk.com>
-
-PLEASE NOTE: The information contained in this electronic mail message is i=
-ntended only for the use of the designated recipient(s) named above. If the=
- reader of this message is not the intended recipient, you are hereby notif=
-ied that you have received this message in error and that any review, disse=
-mination, distribution, or copying of this message is strictly prohibited. =
-If you have received this communication in error, please notify the sender =
-by telephone or e-mail (as shown above) immediately and destroy any and all=
- copies of this message in your possession (whether hard copies or electron=
-ically stored copies).
-
---_000_CY1PR0201MB1882D39478B9483993B429488C240CY1PR0201MB1882_
-Content-Type: text/html; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<html>
-<head>
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
->
-</head>
-<body bgcolor=3D"#FFFFFF" text=3D"#000000">
-<p>Jens, I have been working on a patch to give fio the ability to terminat=
-e a job when steady state is attained. I have a crude implementation that i=
-s working at
-<a class=3D"moz-txt-link-freetext" href=3D"https://bitbucket.org/vincentfu/=
-fio/commits/all">
-https://bitbucket.org/vincentfu/fio/commits/all</a> but I'm hoping to recei=
-ve some feedback on its design.</p>
-<p>Currently, the feature works via helper_thread_main(). It collects data =
-in a ring buffer for a specified duration and carries out the termination t=
-est when the ring buffer is full. If the test passes, the job terminates. I=
-f the test fails, the job continues,
- the oldest data point in the buffer is dropped, a new data point is added,=
- and the termination test is carried out again. The cycle repeats until the=
- job terminates because steady state was attained or for other reasons.</p>
-<p>Reporting of results is done via JSON output and includes per second IOP=
-S/BW measurements from the ring buffer.</p>
-<p>Three new job options control this feature:</p>
-<p>ss_dur =3D size of the ring buffer used for termination test. Data point=
-s are collected once per second.</p>
-<p>ss_ramp =3D ramp time once job is underway before data collection begins=
- (to avoid false positives detecting steady state for jobs run on freshly f=
-ormatted SSDs)<br>
-</p>
-<p>ss =3D criterion:limit</p>
-<p>criterion is one of iops, bw, iops_ slope, bw_slope</p>
-<p>iops, bw&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&=
-nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; terminate the job when th=
-e all data points in the buffer are within the specified limit of the mean<=
-/p>
-<p>iops_slope, bw_slope&nbsp;&nbsp;&nbsp; terminate the job when the magnit=
-ude of the least squares slope falls below the specified limit</p>
-<p>limit can be either a fixed number or a percentage. ss=3Diops:10 will te=
-rminate the job when all IOPS values in the buffer are within 10 of the mea=
-n. ss=3Dbw_slope:0.01% will terminate the job when the least squares slope =
-falls below 0.01% of the mean bandwidth
- in the buffer.</p>
-<p>This command:</p>
-<p>./fio --name=3Dtest --rw=3Drandrw --rwmixread=3D100 --filename=3Dfio --t=
-ime_based --runtime=3D30s --ss_dur=3D10 --ss_ramp=3D3 --ss=3Diops:10000 --o=
-utput-format=3Djson</p>
-results in something like this:<br>
-<p></p>
-<p>&nbsp;&quot;steadystate&quot; : {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;ss&quot; : &quot;iops:1000=
-0.000000&quot;,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;duration&quot; : 10,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;steadystate_ramptime&quot;=
- : 3,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;attained&quot; : 1,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;criterion&quot; : 9664.599=
-609,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;data&quot; : [<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 613354,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 624473,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 623099,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 617032,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 617280,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 614679,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 607775,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 620743,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 617561,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 618400<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ] }<br>
-</p>
-<p><br>
-</p>
-<p>I'm wondering how important are the following requirements?</p>
-<p>1) Full bandwidth/IOPS series for the entire runtime</p>
-<p>I can imagine a use case where a user would want to see how the device b=
-ehaves as it approaches steady state, in addition to the behavior of the de=
-vice while it is in steady state. Right now the patch only reports IOPS/BW =
-data from the ring buffer that was
- used for testing the termination criterion.<br>
-</p>
-<p>2) Ability to report latency data for the steady state period</p>
-<p>An obvious use case is to run a workload in steady state for a long dura=
-tion and then report its latency distribution. The only way I can imagine t=
-o have this feature provide latency data is to maintain a ring buffer of io=
-_u_plat[DDIR_RWDIR_CNT][FIO_IO_U_PLAT_NR]
- arrays, one for each thread. Then the latency distribution for the steady =
-state period will be the difference between the overall final latency distr=
-ibution and the distribution at the head of the ring buffer. The disadvanta=
-ge of this approach is high memory
- consumption. A work-around is to have one job use this feature to drive th=
-e device to steady state and then follow up with a second time-based identi=
-cal follow-up job for latency data collection, although there will be no gu=
-arantee that the second job will
- meet the steady state criterion. </p>
-<p>3) How should this interact with group_reporting?</p>
-<p>Since reporting will be for the entire group, it seems sensible to have =
-steady state detection operate at the group level, with BW and IOPS values =
-summed over all threads in a group and all threads in a group terminating w=
-hen steady state is attained.</p>
-<p><br>
-</p>
-<p>Vincent<br>
-</p>
-<pre class=3D"moz-signature" cols=3D"72">-- =0A=
-Vincent Fu=0A=
-Software Dev Engr II=0A=
-SanDisk | a Western Digital brand=0A=
-Remote Worker, Rockville, MD, USA=0A=
-T: 801 987 7079=0A=
-<a class=3D"moz-txt-link-abbreviated" href=3D"mailto:Vincent.Fu@SanDisk.com=
-">Vincent.Fu@SanDisk.com</a></pre>
-PLEASE NOTE: The information contained in this electronic mail message is i=
-ntended only for the use of the designated recipient(s) named above. If the=
- reader of this message is not the intended recipient, you are hereby notif=
-ied that you have received this
- message in error and that any review, dissemination, distribution, or copy=
-ing of this message is strictly prohibited. If you have received this commu=
-nication in error, please notify the sender by telephone or e-mail (as show=
-n above) immediately and destroy
- any and all copies of this message in your possession (whether hard copies=
- or electronically stored copies).
-</body>
-</html>
-
---_000_CY1PR0201MB1882D39478B9483993B429488C240CY1PR0201MB1882_--
-
+diff --git a/HOWTO b/HOWTO
+index cec4e42..1d4e46c 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -53,8 +53,8 @@ bottom, it contains the following basic parameters:
+ 
+ 	IO engine	How do we issue io? We could be memory mapping the
+ 			file, we could be using regular read/write, we
+-			could be using splice, async io, syslet, or even
+-			SG (SCSI generic sg).
++			could be using splice, async io, or even SG
++			(SCSI generic sg).
+ 
+ 	IO depth	If the io engine is async, how large a queuing
+ 			depth do we want to maintain?
+@@ -706,7 +706,9 @@ ioengine=str	Defines how the job issues io to the file. The following
+ 
+ 			vsync	Basic readv(2) or writev(2) IO.
+ 
+-			psyncv	Basic preadv(2) or pwritev(2) IO.
++			pvsync	Basic preadv(2) or pwritev(2) IO.
++
++			psync2	Basic preadv2(2) or pwritev2(2) IO.
+ 
+ 			libaio	Linux native asynchronous io. Note that Linux
+ 				may only support queued behaviour with
+@@ -726,9 +728,6 @@ ioengine=str	Defines how the job issues io to the file. The following
+ 				vmsplice(2) to transfer data from user
+ 				space to the kernel.
+ 
+-			syslet-rw Use the syslet system calls to make
+-				regular read/write async.
+-
+ 			sg	SCSI generic sg v3 io. May either be
+ 				synchronous using the SG_IO ioctl, or if
+ 				the target is an sg character device
+diff --git a/arch/arch-arm.h b/arch/arch-arm.h
+index 93268d2..57d9488 100644
+--- a/arch/arch-arm.h
++++ b/arch/arch-arm.h
+@@ -18,6 +18,13 @@
+ #define __NR_sys_vmsplice	343
+ #endif
+ 
++#ifndef __NR_preadv2
++#define __NR_preadv2		392
++#endif
++#ifndef __NR_pwritev2
++#define __NR_pwritev2		393
++#endif
++
+ #if defined (__ARM_ARCH_4__) || defined (__ARM_ARCH_4T__) \
+ 	|| defined (__ARM_ARCH_5__) || defined (__ARM_ARCH_5T__) || defined (__ARM_ARCH_5E__)\
+ 	|| defined (__ARM_ARCH_5TE__) || defined (__ARM_ARCH_5TEJ__) \
+diff --git a/arch/arch-ia64.h b/arch/arch-ia64.h
+index 8e8dd7f..7cdeefc 100644
+--- a/arch/arch-ia64.h
++++ b/arch/arch-ia64.h
+@@ -18,6 +18,13 @@
+ #define __NR_sys_vmsplice	1302
+ #endif
+ 
++#ifndef __NR_preadv2
++#define __NR_preadv2		1348
++#endif
++#ifndef __NR_pwritev2
++#define __NR_pwritev2		1349
++#endif
++
+ #define nop		asm volatile ("hint @pause" ::: "memory");
+ #define read_barrier()	asm volatile ("mf" ::: "memory")
+ #define write_barrier()	asm volatile ("mf" ::: "memory")
+diff --git a/arch/arch-s390.h b/arch/arch-s390.h
+index cc7a1d1..71beb7d 100644
+--- a/arch/arch-s390.h
++++ b/arch/arch-s390.h
+@@ -18,6 +18,13 @@
+ #define __NR_sys_vmsplice	309
+ #endif
+ 
++#ifndef __NR_preadv2
++#define __NR_preadv2		376
++#endif
++#ifndef __NR_pwritev2
++#define __NR_pwritev2		377
++#endif
++
+ #define nop		asm volatile("nop" : : : "memory")
+ #define read_barrier()	asm volatile("bcr 15,0" : : : "memory")
+ #define write_barrier()	asm volatile("bcr 15,0" : : : "memory")
+diff --git a/arch/arch-sparc.h b/arch/arch-sparc.h
+index fe47b80..d0df883 100644
+--- a/arch/arch-sparc.h
++++ b/arch/arch-sparc.h
+@@ -18,6 +18,13 @@
+ #define __NR_sys_vmsplice	25
+ #endif
+ 
++#ifndef __NR_preadv2
++#define __NR_preadv2		358
++#endif
++#ifndef __NR_pwritev2
++#define __NR_pwritev2		359
++#endif
++
+ #define nop	do { } while (0)
+ 
+ #define read_barrier()	__asm__ __volatile__ ("" : : : "memory")
+diff --git a/arch/arch-sparc64.h b/arch/arch-sparc64.h
+index e793ae5..5c4e649 100644
+--- a/arch/arch-sparc64.h
++++ b/arch/arch-sparc64.h
+@@ -18,6 +18,13 @@
+ #define __NR_sys_vmsplice	25
+ #endif
+ 
++#ifndef __NR_preadv2
++#define __NR_preadv2		358
++#endif
++#ifndef __NR_pwritev2
++#define __NR_pwritev2		359
++#endif
++
+ #define nop	do { } while (0)
+ 
+ #define membar_safe(type) \
+diff --git a/arch/arch-x86.h b/arch/arch-x86.h
+index 385a912..9471a89 100644
+--- a/arch/arch-x86.h
++++ b/arch/arch-x86.h
+@@ -29,6 +29,13 @@ static inline void do_cpuid(unsigned int *eax, unsigned int *ebx,
+ #define __NR_sys_vmsplice	316
+ #endif
+ 
++#ifndef __NR_preadv2
++#define __NR_preadv2		378
++#endif
++#ifndef __NR_pwritev2
++#define __NR_pwritev2		379
++#endif
++
+ #define	FIO_HUGE_PAGE		4194304
+ 
+ #define nop		__asm__ __volatile__("rep;nop": : :"memory")
+diff --git a/arch/arch-x86_64.h b/arch/arch-x86_64.h
+index 8f33fc5..21da412 100644
+--- a/arch/arch-x86_64.h
++++ b/arch/arch-x86_64.h
+@@ -36,6 +36,14 @@ static inline void do_cpuid(unsigned int *eax, unsigned int *ebx,
+ #define __NR_shmdt		 67
+ #endif
+ 
++#ifndef __NR_preadv2
++#define __NR_preadv2		327
++#endif
++#ifndef __NR_pwritev2
++#define __NR_pwritev2		328
++#endif
++
++
+ #define	FIO_HUGE_PAGE		2097152
+ 
+ #define nop		__asm__ __volatile__("rep;nop": : :"memory")
+diff --git a/engines/sync.c b/engines/sync.c
+index 260ef66..433e4fa 100644
+--- a/engines/sync.c
++++ b/engines/sync.c
+@@ -32,7 +32,7 @@ struct syncio_data {
+ 	enum fio_ddir last_ddir;
+ };
+ 
+-#ifdef CONFIG_PWRITEV2
++#ifdef FIO_HAVE_PWRITEV2
+ struct psyncv2_options {
+ 	void *pad;
+ 	unsigned int hipri;
+@@ -121,7 +121,7 @@ static int fio_pvsyncio_queue(struct thread_data *td, struct io_u *io_u)
+ }
+ #endif
+ 
+-#ifdef CONFIG_PWRITEV2
++#ifdef FIO_HAVE_PWRITEV2
+ static int fio_pvsyncio2_queue(struct thread_data *td, struct io_u *io_u)
+ {
+ 	struct syncio_data *sd = td->io_ops->data;
+@@ -429,7 +429,7 @@ static struct ioengine_ops ioengine_pvrw = {
+ };
+ #endif
+ 
+-#ifdef CONFIG_PWRITEV2
++#ifdef FIO_HAVE_PWRITEV2
+ static struct ioengine_ops ioengine_pvrw2 = {
+ 	.name		= "pvsync2",
+ 	.version	= FIO_IOOPS_VERSION,
+@@ -453,7 +453,7 @@ static void fio_init fio_syncio_register(void)
+ #ifdef CONFIG_PWRITEV
+ 	register_ioengine(&ioengine_pvrw);
+ #endif
+-#ifdef CONFIG_PWRITEV2
++#ifdef FIO_HAVE_PWRITEV2
+ 	register_ioengine(&ioengine_pvrw2);
+ #endif
+ }
+@@ -466,7 +466,7 @@ static void fio_exit fio_syncio_unregister(void)
+ #ifdef CONFIG_PWRITEV
+ 	unregister_ioengine(&ioengine_pvrw);
+ #endif
+-#ifdef CONFIG_PWRITEV2
++#ifdef FIO_HAVE_PWRITEV2
+ 	unregister_ioengine(&ioengine_pvrw2);
+ #endif
+ }
+diff --git a/fio.1 b/fio.1
+index f521c9d..7f053d4 100644
+--- a/fio.1
++++ b/fio.1
+@@ -633,9 +633,6 @@ File is memory mapped with \fBmmap\fR\|(2) and data copied using
+ \fBsplice\fR\|(2) is used to transfer the data and \fBvmsplice\fR\|(2) to
+ transfer data from user-space to the kernel.
+ .TP
+-.B syslet-rw
+-Use the syslet system calls to make regular read/write asynchronous.
+-.TP
+ .B sg
+ SCSI generic sg v3 I/O. May be either synchronous using the SG_IO ioctl, or if
+ the target is an sg character device, we use \fBread\fR\|(2) and
+diff --git a/options.c b/options.c
+index 3360784..7a22fe4 100644
+--- a/options.c
++++ b/options.c
+@@ -1548,7 +1548,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 			    .help = "Use preadv/pwritev",
+ 			  },
+ #endif
+-#ifdef CONFIG_PWRITEV2
++#ifdef FIO_HAVE_PWRITEV2
+ 			  { .ival = "pvsync2",
+ 			    .help = "Use preadv2/pwritev2",
+ 			  },
+@@ -1678,7 +1678,6 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.help	= "Number of IO buffers to submit in one go",
+ 		.parent	= "iodepth",
+ 		.hide	= 1,
+-		.minval	= 1,
+ 		.interval = 1,
+ 		.def	= "1",
+ 		.category = FIO_OPT_C_IO,
+diff --git a/os/os-linux.h b/os/os-linux.h
+index 23c16b6..b36d33c 100644
+--- a/os/os-linux.h
++++ b/os/os-linux.h
+@@ -38,6 +38,7 @@
+ #define FIO_HAVE_BINJECT
+ #define FIO_HAVE_GETTID
+ #define FIO_USE_GENERIC_INIT_RANDOM_STATE
++#define FIO_HAVE_PWRITEV2
+ 
+ #ifdef MAP_HUGETLB
+ #define FIO_HAVE_MMAP_HUGE
+@@ -289,4 +290,55 @@ static inline int fio_set_sched_idle(void)
+ 
+ #define FIO_HAVE_STREAMID
+ 
++#ifndef RWF_HIPRI
++#define RWF_HIPRI	0x00000001
++#endif
++#ifndef RWF_DSYNC
++#define RWF_DSYNC	0x00000002
++#endif
++#ifndef RWF_SYNC
++#define RWF_SYNC	0x00000004
++#endif
++
++#ifndef CONFIG_PWRITEV2
++#ifdef __NR_preadv2
++static inline void make_pos_h_l(unsigned long *pos_h, unsigned long *pos_l,
++				off_t offset)
++{
++	*pos_l = offset & 0xffffffff;
++	*pos_h = ((uint64_t) offset) >> 32;
++
++}
++static inline ssize_t preadv2(int fd, const struct iovec *iov, int iovcnt,
++			      off_t offset, unsigned int flags)
++{
++	unsigned long pos_l, pos_h;
++
++	make_pos_h_l(&pos_h, &pos_l, offset);
++	return syscall(__NR_preadv2, fd, iov, iovcnt, pos_l, pos_h, flags);
++}
++static inline ssize_t pwritev2(int fd, const struct iovec *iov, int iovcnt,
++			       off_t offset, unsigned int flags)
++{
++	unsigned long pos_l, pos_h;
++
++	make_pos_h_l(&pos_h, &pos_l, offset);
++	return syscall(__NR_pwritev2, fd, iov, iovcnt, pos_l, pos_h, flags);
++}
++#else
++static inline ssize_t preadv2(int fd, const struct iovec *iov, int iovcnt,
++			      off_t offset, unsigned int flags)
++{
++	errno = ENOSYS;
++	return -1;
++}
++static inline ssize_t pwritev2(int fd, const struct iovec *iov, int iovcnt,
++			       off_t offset, unsigned int flags)
++{
++	errno = ENOSYS;
++	return -1;
++}
++#endif /* __NR_preadv2 */
++#endif /* CONFIG_PWRITEV2 */
++
+ #endif
