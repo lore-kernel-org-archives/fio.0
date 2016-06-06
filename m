@@ -1,81 +1,62 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from sjc00mx2.hgst.com ([199.255.44.37]:3713 "EHLO sjc00mx2.hgst.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752256AbcFFXbx (ORCPT <rfc822;fio@vger.kernel.org>);
-	Mon, 6 Jun 2016 19:31:53 -0400
-From: Jeff Furlong <jeff.furlong@hgst.com>
-Subject: RE: computing percentiles from fio data
-Date: Mon, 6 Jun 2016 23:31:26 +0000
-Message-ID: <BN3PR0401MB1457F4D614F9E2A038D0D5D5F75C0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Received: from mail-it0-f44.google.com ([209.85.214.44]:36423 "EHLO
+	mail-it0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750886AbcFFVLH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 6 Jun 2016 17:11:07 -0400
+Received: by mail-it0-f44.google.com with SMTP id f67so53766166ith.1
+        for <fio@vger.kernel.org>; Mon, 06 Jun 2016 14:11:06 -0700 (PDT)
+Subject: Re: computing percentiles from fio data
 References: <CAJ9yE1BYp_jqjwVVap1U-zjYfGT6bsOuXbOMcJV0r8Mz-5LQBQ@mail.gmail.com>
- <a67cead2-b23f-5cf3-cfc3-f1705989f9b4@gmail.com>
-In-Reply-To: <a67cead2-b23f-5cf3-cfc3-f1705989f9b4@gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
+From: Mark Nelson <mark.a.nelson@gmail.com>
+Message-ID: <a67cead2-b23f-5cf3-cfc3-f1705989f9b4@gmail.com>
+Date: Mon, 6 Jun 2016 16:11:04 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
+In-Reply-To: <CAJ9yE1BYp_jqjwVVap1U-zjYfGT6bsOuXbOMcJV0r8Mz-5LQBQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Mark Nelson <mark.a.nelson@gmail.com>, Karl Cronburg <kcronbur@redhat.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Karl Cronburg <kcronbur@redhat.com>, fio@vger.kernel.org
 
-SWYgeW91IGFkZCBzb21lIG1vcmUgbG9nZ2luZyBvciBzb3J0aW5nIG9wdGlvbnMgdG8gZmlvLCBi
-ZSBzdXJlIHRoYXQgdGhlIGV4dHJhIG92ZXJoZWFkIGRvZXMgbm90IHNsb3cgZG93biBmaW8gaW4g
-YW55IHdheSAoZGVjcmVhc2UgSU9QcywgaW5jcmVhc2UgbGF0ZW5jeSwgaW5jcmVhc2UgQ1BVIHV0
-aWxpemF0aW9uLCBldGMuKS4gIEhhdmluZyBhIHBvc3QgcHJvY2VzcyBzdGVwICh3aXRoaW4gZmlv
-KSBvciBzZXBhcmF0ZSBwYXJzZXIgc2NyaXB0IChvdXRzaWRlIGZpbykgd291bGQga2VlcCB0aGUg
-b3ZlcmhlYWQgbG93IHdoZW4gcnVubmluZyBmaW8gbWVhc3VyZW1lbnRzLg0KDQpSZWdhcmRzLA0K
-SmVmZg0KDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBmaW8tb3duZXJAdmdl
-ci5rZXJuZWwub3JnIFttYWlsdG86ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZ10gT24gQmVoYWxm
-IE9mIE1hcmsgTmVsc29uDQpTZW50OiBNb25kYXksIEp1bmUgNiwgMjAxNiAyOjExIFBNDQpUbzog
-S2FybCBDcm9uYnVyZyA8a2Nyb25idXJAcmVkaGF0LmNvbT47IGZpb0B2Z2VyLmtlcm5lbC5vcmcN
-ClN1YmplY3Q6IFJlOiBjb21wdXRpbmcgcGVyY2VudGlsZXMgZnJvbSBmaW8gZGF0YQ0KDQpPbiAw
-Ni8wNi8yMDE2IDA0OjAwIFBNLCBLYXJsIENyb25idXJnIHdyb3RlOg0KPiBIZWxsbywNCj4NCj4g
-SW4gYmVuY2htYXJraW5nIGNlcGggSSd2ZSBiZWVuIHVzaW5nIGZpbyAvIGZpb2xvZ3BhcnNlciwg
-YW5kIHdhbnQgdG8gDQo+IGdldCBvdXQgdGhlIHNvcnQgb2Ygc3RhdHMgJiBwZXJjZW50aWxlcyBm
-aW9sb2dwYXJzZXIgY3VycmVudGx5IGdpdmVzIA0KPiAobWluLCBhdmcsIG1heCwgcGVyY2VudGls
-ZXMpLiBIb3dldmVyIEknbSBjb25jZXJuZWQgdGhlIGRhdGEgY29taW5nIA0KPiBvdXQgb2YgZmlv
-IGlzIGluc3VmZmljaWVudCB3aGVuIEkgcGFzcyBpdCB0aGUgbG9nX2F2Z19tc2VjIGFyZ3VtZW50
-Lg0KPiBOYW1lbHkgdXNpbmcgdGhlIGF2ZXJhZ2Ugb2YgYSBwb3NzaWJseSBhc3ltbWV0cmljIHNh
-bXBsZSBkaXN0cmlidXRpb24gDQo+ICh0aGUgc2V0IG9mIEkvTyByZXF1ZXN0IHNhbXBsZXMgb3Zl
-ciB3aGljaCBmaW8gaXMgYXZlcmFnaW5nIHdoZW4gSSANCj4gcGFzcyBpdCB0aGlzIGFyZ3VtZW50
-KSB3aWxsIG5vdCBnaXZlIGFjY3VyYXRlIHBlcmNlbnRpbGVzLg0KPg0KPiBTb21ldGhpbmcgbGlr
-ZSB0aGlzIGFyZ3VtZW50IGlzIG5lY2Vzc2FyeSB0aG91Z2ggdG8ga2VlcCB0aGUgbG9nIGZpbGVz
-IA0KPiBhIHJlYXNvbmFibGUgc2l6ZS4gV291bGQgaXQgYmUgYSBnb29kIGlkZWEgdG8gcHVzaCB0
-aGUgc29ydCBvZiANCj4gc3RhdGlzdGljcyBkb25lIGluIHRoZSBsb2cgcGFyc2VyIGRpcmVjdGx5
-IGludG8gZmlvPyBJJ20gY29uc2lkZXJpbmcgDQo+IHdyaXRpbmcgc29tZSBjb2RlIHRvIGNvbXB1
-dGUgdGhlIHF1YW50aWxlcyBkaXJlY3RseSBpbiBmaW8sIGVpdGhlciANCj4gYnJ1dGUtZm9yY2Ug
-YnkgbWFpbnRhaW5pbmcgYSBzb3J0ZWQgbGlzdCBvciBpbXBsZW1lbnRpbmcgc29tZXRoaW5nIA0K
-PiBsaWtlIHRoZSBhbGdvcml0aG0gZGVzY3JpYmVkIGhlcmU6DQo+DQo+IGh0dHA6Ly93d3cuY3Mu
-cnV0Z2Vycy5lZHUvfm11dGh1L2JxdWFudC5wZGYNCj4NCj4gd2l0aCBzb21lIGFjY2VwdGFibGUg
-dXNlci1kZWZpbmVkIGxldmVsIG9mIGVycm9yIGdpdmVuIHRvIGZpbyB3aGVuIA0KPiBhc2tlZCB0
-byBjb21wdXRlIHRoZSBwZXJjZW50aWxlcyBvbiBsb25nLXJ1bm5pbmcgLyBsYXJnZSBkYXRhIHNl
-dHMuDQo+DQo+IElzIHRoZXJlIGFueSBpbnRlcmVzdCBpbiBoYXZpbmcgdGhpcyBhZGRlZCBkaXJl
-Y3RseSBpbnRvIGZpbz8gSWYgc28gDQo+IHdoZXJlIGluIHRoZSBjb2RlIHNob3VsZCBJIGJlIGxv
-b2tpbmc/DQoNCkkgdGhpbmsgaXQgd291bGQgYmUgZ3JlYXQhICBJIGNvbmZlc3MgSSBoYXZlbid0
-IHJlYWQgdGhyb3VnaCB0aGUgcGFwZXIgeWV0IChhbmQgbWF5IG5vdCBiZSBhYmxlIHRvIGJlZm9y
-ZSBJIGxlYXZlIG9uIGhvbGlkYXkgZm9yIDIgd2Vla3MpLiAgVGhlIGJpZyB0aGluZyB3aWxsIGJl
-IGhhdmluZyBzb21lIGtpbmQgb2YgcmVhc29uYWJsZSB0ZXN0IGNhc2UgZGF0YSB0byBtYWtlIHN1
-cmUgdGhlIHJlc3VsdHMgYXJlIHJlYXNvbmFibGUgYW5kIGFuIGV4cGxhbmF0aW9uIG9mIGhvdyBp
-dCB3b3Jrcy4gDQpJdCdzIG9uZSBvZiB0aGUgdGhpbmdzIG1pc3NpbmcgZnJvbSBmaW9sb2dwYXJz
-ZXIucHkgcmlnaHQgbm93Lg0KDQpQb3RlbnRpYWxseSB0aGlzIGNvdWxkIGJlbmVmaXQgYSBsb3Qg
-bW9yZSBmb2xrcyB0aGFuIGp1c3QgdGhvc2Ugb2YgdXMgZG9pbmcgY2VwaCB0ZXN0aW5nLCBzbyBJ
-J2Qgc2F5IGdvIGZvciBpdC4gOikNCg0KPg0KPiAtS2FybCBDcm9uYnVyZy0NCj4gLS0NCj4gVG8g
-dW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhlIGxpbmUgInVuc3Vic2NyaWJlIGZp
-byIgaW4gdGhlIA0KPiBib2R5IG9mIGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwu
-b3JnIE1vcmUgbWFqb3Jkb21vIGluZm8gYXQgIA0KPiBodHRwOi8vdmdlci5rZXJuZWwub3JnL21h
-am9yZG9tby1pbmZvLmh0bWwNCj4NCi0tDQpUbyB1bnN1YnNjcmliZSBmcm9tIHRoaXMgbGlzdDog
-c2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgZmlvIiBpbiB0aGUgYm9keSBvZiBhIG1lc3NhZ2Ug
-dG8gbWFqb3Jkb21vQHZnZXIua2VybmVsLm9yZyBNb3JlIG1ham9yZG9tbyBpbmZvIGF0ICBodHRw
-Oi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwNCldlc3Rlcm4gRGlnaXRhbCBD
-b3Jwb3JhdGlvbiAoYW5kIGl0cyBzdWJzaWRpYXJpZXMpIEUtbWFpbCBDb25maWRlbnRpYWxpdHkg
-Tm90aWNlICYgRGlzY2xhaW1lcjoKClRoaXMgZS1tYWlsIGFuZCBhbnkgZmlsZXMgdHJhbnNtaXR0
-ZWQgd2l0aCBpdCBtYXkgY29udGFpbiBjb25maWRlbnRpYWwgb3IgbGVnYWxseSBwcml2aWxlZ2Vk
-IGluZm9ybWF0aW9uIG9mIFdEQyBhbmQvb3IgaXRzIGFmZmlsaWF0ZXMsIGFuZCBhcmUgaW50ZW5k
-ZWQgc29sZWx5IGZvciB0aGUgdXNlIG9mIHRoZSBpbmRpdmlkdWFsIG9yIGVudGl0eSB0byB3aGlj
-aCB0aGV5IGFyZSBhZGRyZXNzZWQuIElmIHlvdSBhcmUgbm90IHRoZSBpbnRlbmRlZCByZWNpcGll
-bnQsIGFueSBkaXNjbG9zdXJlLCBjb3B5aW5nLCBkaXN0cmlidXRpb24gb3IgYW55IGFjdGlvbiB0
-YWtlbiBvciBvbWl0dGVkIHRvIGJlIHRha2VuIGluIHJlbGlhbmNlIG9uIGl0LCBpcyBwcm9oaWJp
-dGVkLiBJZiB5b3UgaGF2ZSByZWNlaXZlZCB0aGlzIGUtbWFpbCBpbiBlcnJvciwgcGxlYXNlIG5v
-dGlmeSB0aGUgc2VuZGVyIGltbWVkaWF0ZWx5IGFuZCBkZWxldGUgdGhlIGUtbWFpbCBpbiBpdHMg
-ZW50aXJldHkgZnJvbSB5b3VyIHN5c3RlbS4K
+On 06/06/2016 04:00 PM, Karl Cronburg wrote:
+> Hello,
+>
+> In benchmarking ceph I've been using fio / fiologparser, and want to
+> get out the sort of stats & percentiles fiologparser currently gives
+> (min, avg, max, percentiles). However I'm concerned the data coming
+> out of fio is insufficient when I pass it the log_avg_msec argument.
+> Namely using the average of a possibly asymmetric sample distribution
+> (the set of I/O request samples over which fio is averaging when I
+> pass it this argument) will not give accurate percentiles.
+>
+> Something like this argument is necessary though to keep the log files
+> a reasonable size. Would it be a good idea to push the sort of
+> statistics done in the log parser directly into fio? I'm considering
+> writing some code to compute the quantiles directly in fio, either
+> brute-force by maintaining a sorted list or implementing something
+> like the algorithm described here:
+>
+> http://www.cs.rutgers.edu/~muthu/bquant.pdf
+>
+> with some acceptable user-defined level of error given to fio when
+> asked to compute the percentiles on long-running / large data sets.
+>
+> Is there any interest in having this added directly into fio? If so
+> where in the code should I be looking?
 
+I think it would be great!  I confess I haven't read through the paper 
+yet (and may not be able to before I leave on holiday for 2 weeks).  The 
+big thing will be having some kind of reasonable test case data to make 
+sure the results are reasonable and an explanation of how it works. 
+It's one of the things missing from fiologparser.py right now.
+
+Potentially this could benefit a lot more folks than just those of us 
+doing ceph testing, so I'd say go for it. :)
+
+>
+> -Karl Cronburg-
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
