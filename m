@@ -1,38 +1,60 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk0-f47.google.com ([209.85.213.47]:36020 "EHLO
-	mail-vk0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750924AbcGAAFs (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 30 Jun 2016 20:05:48 -0400
-Received: by mail-vk0-f47.google.com with SMTP id m127so73115466vkb.3
-        for <fio@vger.kernel.org>; Thu, 30 Jun 2016 17:05:47 -0700 (PDT)
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-From: Matthew Eaton <m.eaton82@gmail.com>
-Date: Thu, 30 Jun 2016 17:05:46 -0700
-Message-ID: <CAF+0mvny52U+Z9LWaHyuEVZjem8q8X11bF6fp-qepa4Y6W8pcQ@mail.gmail.com>
-Subject: Iosched_switch error
+In-Reply-To: <CAKapHkMc1GpyrvyUoprPEC=iOsbtbz7gxWESrakV+WGN=9Ne+w@mail.gmail.com>
+References: <CAKapHkMhGrnb1g=b9Pz_D_Frx8OSP65aiXBBM_KgVy5wpSz-kw@mail.gmail.com>
+ <5756D05D.2050205@kernel.dk> <CAKapHkMc1GpyrvyUoprPEC=iOsbtbz7gxWESrakV+WGN=9Ne+w@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 8 Jun 2016 06:52:06 +0100
+Message-ID: <CALjAwxiUcs84bCK8kPVT8jtqAsd7rWTFFn9JMv6x8A_7W8ATGA@mail.gmail.com>
+Subject: Re: System IOPS vs. fio IOPS
 Content-Type: text/plain; charset=UTF-8
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Karan Singh <karan@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi Jens,
+On 7 June 2016 at 22:01, Karan Singh <karan@redhat.com> wrote:
+> Thanks Jens for answering
+>
+> You said kernel merges / divides IO into 512k chunk.
+>
+> #1 How can i verify this (512k) value, any command or file to look this into ?
 
-I have run into this error when using ioscheduler=noop in my job
-files. I only run into the error when specifying unsupported devices
-such as nvme or md raid device. Should this be a fatal error? I ask
-because sometimes I want to run the same job on various devices.
+You could turn on blktrace block tracing
+(http://www.cse.unsw.edu.au/~aaronc/iosched/doc/blktrace.html ) and
+parse the log. This would allow to see events such as splits and
+merges. You could also use the kernel's generic tracing to watch key
+functions (but this is more work).
 
-sudo fname=/dev/nvme0n1 ./fio seqread.ini
-seq-read: (g=0): rw=read, bs=128K-128K/128K-128K/128K-128K,
-ioengine=libaio, iodepth=32
-fio-2.12-3-g8a09
-Starting 1 process
-fio: io scheduler noop not found
-fio: pid=5541, err=22/file:backend.c:1306, func=iosched_switch,
-error=Invalid argument
+> #2 Out of curiosity is there a way to disable this merging / division
+> of IO ? it might be not efficient but just want to play around this.
 
+You can disable merging by writing 2 to the block device's nomerges
+parameter - see the nomerges section in
+https://www.kernel.org/doc/Documentation/block/queue-sysfs.txt for
+details. I don't believe you can turn off splitting without manually
+modifying the kernel code.
 
-Run status group 0 (all jobs):
+> #3 Is it true that merging /division of IO is irrespective of pattern
+> ( sequential or random ) i.e kernel will perform this whether the IO
+> is seq. or random ?
 
-Disk stats (read/write):
-  nvme0n1: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
+Splitting has to happen when the I/O is bigger than the device's
+maximum single I/O request size (see attributes like max_hw_sectors_kb
+in https://www.kernel.org/doc/Documentation/block/queue-sysfs.txt )
+and might also happen if it's bigger than its optimal size (if the
+kernel has the choice). Merging can happen when the I/O scheduler is
+in its wait period before submitting I/O and consecutive I/Os are
+spotted. If you think about it, there's no reason why random I/O
+couldn't produce mergable sequences (e.g. if you do random I/O in a
+very small region such that all of the region is hit while the I/O
+scheduler was waiting) - it just less likely. See
+https://www.kernel.org/doc/Documentation/block/ *iosched.txt for
+individual scheduler details and see the above answer to #2 above for
+turning it off.
+
+These types of question might be also worth asking on the Kernel
+Newbies list (http://kernelnewbies.org/ML ).
+
+-- 
+Sitsofe | http://sucs.org/~sits/
+
