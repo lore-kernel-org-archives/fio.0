@@ -1,74 +1,42 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from sjc00mx2.hgst.com ([199.255.44.37]:25415 "EHLO
-	sjc00mx2.hgst.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751710AbcFJSmW (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 10 Jun 2016 14:42:22 -0400
-From: Jeff Furlong <jeff.furlong@hgst.com>
-Subject: RE: fio signal 11
-Date: Fri, 10 Jun 2016 18:42:14 +0000
-Message-ID: <BN3PR0401MB145737C5D3670374BE0D29E5F7500@BN3PR0401MB1457.namprd04.prod.outlook.com>
-References: <BN3PR0401MB1457415455A5B0CEFB84447DF75F0@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <CALjAwxhv8pCLJe0uT6PX1r7g4Mu=d8gA19VUFu0pUE9LkHTkrw@mail.gmail.com>
-In-Reply-To: <CALjAwxhv8pCLJe0uT6PX1r7g4Mu=d8gA19VUFu0pUE9LkHTkrw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
+Received: from mail-vk0-f53.google.com ([209.85.213.53]:35480 "EHLO
+	mail-vk0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751832AbcFJHRP convert rfc822-to-8bit (ORCPT
+	<rfc822;fio@vger.kernel.org>); Fri, 10 Jun 2016 03:17:15 -0400
+Received: by mail-vk0-f53.google.com with SMTP id d127so86547773vkh.2
+        for <fio@vger.kernel.org>; Fri, 10 Jun 2016 00:17:15 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
+In-Reply-To: <BN3PR0401MB1457415455A5B0CEFB84447DF75F0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+References: <BN3PR0401MB1457415455A5B0CEFB84447DF75F0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Fri, 10 Jun 2016 08:17:13 +0100
+Message-ID: <CALjAwxhv8pCLJe0uT6PX1r7g4Mu=d8gA19VUFu0pUE9LkHTkrw@mail.gmail.com>
+Subject: Re: fio signal 11
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Jeff Furlong <jeff.furlong@hgst.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-R29vZCBwb2ludC4gIEhlcmUgaXMgdGhlIHRyYWNlOg0KDQpbTmV3IExXUCA1OTIzMV0NCltUaHJl
-YWQgZGVidWdnaW5nIHVzaW5nIGxpYnRocmVhZF9kYiBlbmFibGVkXQ0KVXNpbmcgaG9zdCBsaWJ0
-aHJlYWRfZGIgbGlicmFyeSAiL2xpYjY0L2xpYnRocmVhZF9kYi5zby4xIi4NCkNvcmUgd2FzIGdl
-bmVyYXRlZCBieSBgZmlvIC0tbmFtZT10ZXN0X2pvYiAtLWlvZW5naW5lPWxpYmFpbyAtLWRpcmVj
-dD0xIC0tcnc9d3JpdGUgLS1pb2RlcHRoPTMyJy4NClByb2dyYW0gdGVybWluYXRlZCB3aXRoIHNp
-Z25hbCAxMSwgU2VnbWVudGF0aW9uIGZhdWx0Lg0KIzAgIDB4MDAwMDAwMDAwMDQyMWUzOSBpbiBy
-ZWdyb3dfbG9nIChpb2xvZz0weDdmODI4YzBjNWFkMCkgYXQgc3RhdC5jOjE5MDkNCjE5MDkJCWlm
-ICghY3VyX2xvZykgew0KIA0KKGdkYikgYnQNCiMwICAweDAwMDAwMDAwMDA0MjFlMzkgaW4gcmVn
-cm93X2xvZyAoaW9sb2c9MHg3ZjgyOGMwYzVhZDApIGF0IHN0YXQuYzoxOTA5DQojMSAgMHgwMDAw
-MDAwMDAwNDJkNGRmIGluIHJlZ3Jvd19sb2dzICh0ZD10ZEBlbnRyeT0weDdmODI3N2RlMDAwMCkg
-YXQgc3RhdC5jOjE5NjUNCiMyICAweDAwMDAwMDAwMDA0MGNhOTAgaW4gd2FpdF9mb3JfY29tcGxl
-dGlvbnMgKHRkPXRkQGVudHJ5PTB4N2Y4Mjc3ZGUwMDAwLCB0aW1lPXRpbWVAZW50cnk9MHg3ZmZm
-Y2ZiNmIzMDApIGF0IGJhY2tlbmQuYzo0NDYNCiMzICAweDAwMDAwMDAwMDA0NWFkZTcgaW4gZG9f
-aW8gKGJ5dGVzX2RvbmU9PHN5bnRoZXRpYyBwb2ludGVyPiwgdGQ9MHg3ZjgyNzdkZTAwMDApIGF0
-IGJhY2tlbmQuYzo5OTENCiM0ICB0aHJlYWRfbWFpbiAoZGF0YT1kYXRhQGVudHJ5PTB4MjY0ZDQ1
-MCkgYXQgYmFja2VuZC5jOjE2NjcNCiM1ICAweDAwMDAwMDAwMDA0NWNmZWMgaW4gcnVuX3RocmVh
-ZHMgKHNrX291dD1za19vdXRAZW50cnk9MHgwKSBhdCBiYWNrZW5kLmM6MjIxNw0KIzYgIDB4MDAw
-MDAwMDAwMDQ1ZDJjZCBpbiBmaW9fYmFja2VuZCAoc2tfb3V0PXNrX291dEBlbnRyeT0weDApIGF0
-IGJhY2tlbmQuYzoyMzQ5DQojNyAgMHgwMDAwMDAwMDAwNDBkMDljIGluIG1haW4gKGFyZ2M9MjIs
-IGFyZ3Y9MHg3ZmZmY2ZiNmY2MzgsIGVudnA9PG9wdGltaXplZCBvdXQ+KSBhdCBmaW8uYzo2Mw0K
-DQpSZWdhcmRzLA0KSmVmZg0KDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBT
-aXRzb2ZlIFdoZWVsZXIgW21haWx0bzpzaXRzb2ZlQGdtYWlsLmNvbV0gDQpTZW50OiBGcmlkYXks
-IEp1bmUgMTAsIDIwMTYgMTI6MTcgQU0NClRvOiBKZWZmIEZ1cmxvbmcgPGplZmYuZnVybG9uZ0Bo
-Z3N0LmNvbT4NCkNjOiBmaW9Admdlci5rZXJuZWwub3JnDQpTdWJqZWN0OiBSZTogZmlvIHNpZ25h
-bCAxMQ0KDQpPbiA5IEp1bmUgMjAxNiBhdCAyMjo1OCwgSmVmZiBGdXJsb25nIDxqZWZmLmZ1cmxv
-bmdAaGdzdC5jb20+IHdyb3RlOg0KPg0KPiBVc2luZyB0aGUgbGF0ZXN0IHZlcnNpb24gZnJvbSBn
-aXQsIEkgYW0gZ2V0dGluZyBhIHNpZ25hbCAxMSBlcnJvciB3aGVuIHJ1bm5pbmcgc29tZSB3b3Jr
-bG9hZHMuICBJdCBtYXkgYmUgdGhhdCB3b3JrbG9hZHMgZmFpbCB3aGVuIHdlIHdyYXAgYXJvdW5k
-IHRoZSBkZXZpY2UgY2FwYWNpdHkgKGUuZy4gcnVudGltZSBhbmQgdGltZV9iYXNlZCkuICBTZWUg
-YmVsb3cgZXhhbXBsZSBwYXJhbWV0ZXJzOg0KPg0KPiAjIGZpbyAtLW5hbWU9dGVzdF9qb2IgLS1p
-b2VuZ2luZT1saWJhaW8gLS1kaXJlY3Q9MSAtLXJ3PXdyaXRlIA0KPiAtLWlvZGVwdGg9MzIgLS1z
-aXplPTEwMCUgLS1udW1qb2JzPTEgLS1icz0xbSAtLWZpbGVuYW1lPS9kZXYvbnZtZTBuMSANCj4g
-LS1ncm91cF9yZXBvcnRpbmcgLS13cml0ZV9id19sb2c9dGVzdF9qb2IgLS13cml0ZV9pb3BzX2xv
-Zz10ZXN0X2pvYiANCj4gLS13cml0ZV9sYXRfbG9nPXRlc3Rfam9iIC0tbG9nX2F2Z19tc2VjPTEw
-MDAgLS1kaXNhYmxlX2xhdD0wIA0KPiAtLWRpc2FibGVfY2xhdD0wIC0tZGlzYWJsZV9zbGF0PTAg
-LS1ydW50aW1lPTE1MDBzIC0tdGltZV9iYXNlZCANCj4gLS1yYW1wX3RpbWU9NXMgLS1vdXRwdXQ9
-dGVzdF9qb2INCj4NCj4gZmlvLTIuMTEtMTctZ2EyNzUNCj4gU3RhcnRpbmcgMSBwcm9jZXNzDQo+
-IGZpbzogcGlkPTE0NTc2MywgZ290IHNpZ25hbD0xMQ0KDQpDb3VsZCB5b3UgcnVuIGZpbyB1bmRl
-ciBnZGIgKA0KZ2RiIC4vZmlvDQpydW4gLS1uYW1lPXRlc3Rfam9iIC0taW9lbmdpbmU9bGliYWlv
-IGV0Yy4NCikNCg0KYW5kIHdoZW4gaXQgY3Jhc2hlcyBnZXQgYSBiYWNrdHJhY2Ugd2l0aCB0aHJl
-YWQgYXBwbHkgYWxsIGJ0ID8NCg0KLS0NClNpdHNvZmUgfCBodHRwOi8vc3Vjcy5vcmcvfnNpdHMv
-DQpXZXN0ZXJuIERpZ2l0YWwgQ29ycG9yYXRpb24gKGFuZCBpdHMgc3Vic2lkaWFyaWVzKSBFLW1h
-aWwgQ29uZmlkZW50aWFsaXR5IE5vdGljZSAmIERpc2NsYWltZXI6CgpUaGlzIGUtbWFpbCBhbmQg
-YW55IGZpbGVzIHRyYW5zbWl0dGVkIHdpdGggaXQgbWF5IGNvbnRhaW4gY29uZmlkZW50aWFsIG9y
-IGxlZ2FsbHkgcHJpdmlsZWdlZCBpbmZvcm1hdGlvbiBvZiBXREMgYW5kL29yIGl0cyBhZmZpbGlh
-dGVzLCBhbmQgYXJlIGludGVuZGVkIHNvbGVseSBmb3IgdGhlIHVzZSBvZiB0aGUgaW5kaXZpZHVh
-bCBvciBlbnRpdHkgdG8gd2hpY2ggdGhleSBhcmUgYWRkcmVzc2VkLiBJZiB5b3UgYXJlIG5vdCB0
-aGUgaW50ZW5kZWQgcmVjaXBpZW50LCBhbnkgZGlzY2xvc3VyZSwgY29weWluZywgZGlzdHJpYnV0
-aW9uIG9yIGFueSBhY3Rpb24gdGFrZW4gb3Igb21pdHRlZCB0byBiZSB0YWtlbiBpbiByZWxpYW5j
-ZSBvbiBpdCwgaXMgcHJvaGliaXRlZC4gSWYgeW91IGhhdmUgcmVjZWl2ZWQgdGhpcyBlLW1haWwg
-aW4gZXJyb3IsIHBsZWFzZSBub3RpZnkgdGhlIHNlbmRlciBpbW1lZGlhdGVseSBhbmQgZGVsZXRl
-IHRoZSBlLW1haWwgaW4gaXRzIGVudGlyZXR5IGZyb20geW91ciBzeXN0ZW0uCg==
+On 9 June 2016 at 22:58, Jeff Furlong <jeff.furlong@hgst.com> wrote:
+>
+> Using the latest version from git, I am getting a signal 11 error when running some workloads.  It may be that workloads fail when we wrap around the device capacity (e.g. runtime and time_based).  See below example parameters:
+>
+> # fio --name=test_job --ioengine=libaio --direct=1 --rw=write --iodepth=32 --size=100% --numjobs=1 --bs=1m --filename=/dev/nvme0n1 --group_reporting --write_bw_log=test_job --write_iops_log=test_job --write_lat_log=test_job --log_avg_msec=1000 --disable_lat=0 --disable_clat=0 --disable_slat=0 --runtime=1500s --time_based --ramp_time=5s --output=test_job
+>
+> fio-2.11-17-ga275
+> Starting 1 process
+> fio: pid=145763, got signal=11
 
+Could you run fio under gdb (
+gdb ./fio
+run --name=test_job --ioengine=libaio etc.
+)
+
+and when it crashes get a backtrace with
+thread apply all bt
+?
+
+-- 
+Sitsofe | http://sucs.org/~sits/
