@@ -1,59 +1,69 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-oi0-f46.google.com ([209.85.218.46]:34717 "EHLO
-	mail-oi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752164AbcFFMpS convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Mon, 6 Jun 2016 08:45:18 -0400
-Received: by mail-oi0-f46.google.com with SMTP id e72so223598503oib.1
-        for <fio@vger.kernel.org>; Mon, 06 Jun 2016 05:45:18 -0700 (PDT)
-MIME-Version: 1.0
-From: Jinpu Wang <jinpu.wang@profitbricks.com>
-Date: Mon, 6 Jun 2016 14:44:58 +0200
-Message-ID: <CAMGffEkGs5imFNH6T7uU07fDp_UX+RdbY-n2c8FrdzqmipLi3w@mail.gmail.com>
-Subject: fio hang (sleep forever) after first job with ramp_time?
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Received: from merlin.infradead.org ([205.233.59.134]:60491 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751833AbcFJMAF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 10 Jun 2016 08:00:05 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+	id 1bBL6Z-0006c0-VU
+	for fio@vger.kernel.org; Fri, 10 Jun 2016 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160610120002.A0A542C00A7@kernel.dk>
+Date: Fri, 10 Jun 2016 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hi all,
+The following changes since commit a275c37ab0001b62b1961e3430e58a2d42ee3dc9:
 
-We run into fio hang (sleep forever) all the time with latest fio (fio --version
-fio-2.11-12-g82e6)
+  options: mark unsupported options as such (2016-06-08 11:13:08 -0600)
 
-Kernel 4.4.5 on Debian Jessie
-Configuration:
-cat test.ini
-[global]
-ioengine=libaio
-direct=1
-time_based=1
+are available in the git repository at:
 
-# runtime options
-runtime=5
-ramp_time=5
-filename=/dev/ram0
-[job1]
-blocksize=32k
+  git://git.kernel.dk/fio.git master
 
-[job2]
-blocksize=128k
-stonewall
+for you to fetch changes up to 54d0a3150d44adca3ee4047fabd85651c6ea2db1:
 
-Fio process is sleep in:
-cat /proc/9891/stack
-[<ffffffff810ba469>] hrtimer_nanosleep+0xc9/0x1b0
-[<ffffffff810ba5a7>] SyS_nanosleep+0x57/0x70
-[<ffffffff81810757>] entry_SYSCALL_64_fastpath+0x12/0x6a
-[<ffffffffffffffff>] 0xffffffffffffffff
+  options: fix typos (2016-06-09 13:30:52 -0600)
 
+----------------------------------------------------------------
+Vincent Fu (1):
+      options: fix typos
 
-If I remove the ramp_time, problem is gone.
-I've also created a issue in github:
-https://github.com/axboe/fio/issues/188
+ options.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
--- 
-Mit freundlichen Grüßen,
-Best Regards,
+---
 
-Jack Wang
+Diff of recent changes:
+
+diff --git a/options.c b/options.c
+index e8c0b7f..5199823 100644
+--- a/options.c
++++ b/options.c
+@@ -2190,6 +2190,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.group	= FIO_OPT_G_INVALID,
+ 	},
+ #else
++	{
+ 		.name	= "fadvise_stream",
+ 		.lname	= "Fadvise stream",
+ 		.type	= FIO_OPT_UNSUPPORTED,
+@@ -2259,6 +2260,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.group	= FIO_OPT_G_INVALID,
+ 	},
+ #else
++	{
+ 		.name	= "sync_file_range",
+ 		.lname	= "Sync file range",
+ 		.type	= FIO_OPT_UNSUPPORTED,
+@@ -2700,7 +2702,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.name	= "verify_async_cpus",
+ 		.lname	= "Async verify CPUs",
+ 		.type	= FIO_OPT_UNSUPPORTED,
+-		.help	"Your platform does not support CPU affinities",
++		.help	= "Your platform does not support CPU affinities",
+ 	},
+ #endif
+ 	{
