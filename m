@@ -1,110 +1,73 @@
-Return-Path: <jeff.furlong@hgst.com>
-From: Jeff Furlong <jeff.furlong@hgst.com>
-Subject: RE: fio signal 11
-Date: Mon, 13 Jun 2016 17:58:15 +0000
-Message-ID: <BN3PR0401MB1457AD48DF8406D550343DC6F7530@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: fio signal 11
 References: <BN3PR0401MB1457415455A5B0CEFB84447DF75F0@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <CALjAwxhv8pCLJe0uT6PX1r7g4Mu=d8gA19VUFu0pUE9LkHTkrw@mail.gmail.com>
  <BN3PR0401MB145737C5D3670374BE0D29E5F7500@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <575CCF51.8020704@kernel.dk> <575CD738.1050505@kernel.dk>
-In-Reply-To: <575CD738.1050505@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
+ <575CCF51.8020704@kernel.dk>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <575CD738.1050505@kernel.dk>
+Date: Sat, 11 Jun 2016 21:30:00 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-To: Jens Axboe <axboe@kernel.dk>, Sitsofe Wheeler <sitsofe@gmail.com>
+In-Reply-To: <575CCF51.8020704@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Jeff Furlong <jeff.furlong@hgst.com>, Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jan Kara <jack@suse.cz>
 List-ID: <fio@vger.kernel.org>
 
-SSdkIGxpa2UgdG8gdXNlIHRoZSBsYXRlc3QgZ2l0IHZlcnNpb24gc28gdGhhdCBJIGNhbiBwaWNr
-dXAgcGF0Y2ggMzU2MDE0ZmYzNTFjNmViNjkzMzk2NTI2NTBhZjVmNmFmNzJlNWMyMiB0byBmaXgg
-dGhlIHJhbXAgdGltZSBpc3N1ZS4gIA0KDQpJIHRyaWVkIHRoZSBsYXRlc3QgZ2l0IHZlcnNpb24g
-ZmlvLTIuMTEtMjEtZzJiNzYyLCBidXQgZ290IGEgbmV3IGlzc3VlOg0KDQpbTmV3IExXUCAxMjAy
-OThdDQpbTmV3IExXUCAxMjAyODFdDQpbVGhyZWFkIGRlYnVnZ2luZyB1c2luZyBsaWJ0aHJlYWRf
-ZGIgZW5hYmxlZF0NClVzaW5nIGhvc3QgbGlidGhyZWFkX2RiIGxpYnJhcnkgIi9saWI2NC9saWJ0
-aHJlYWRfZGIuc28uMSIuDQpDb3JlIHdhcyBnZW5lcmF0ZWQgYnkgYGZpbyAtLW5hbWU9dGVzdF9q
-b2IgLS1pb2VuZ2luZT1saWJhaW8gLS1kaXJlY3Q9MSAtLXJ3PXdyaXRlIC0taW9kZXB0aD0zMicu
-DQpQcm9ncmFtIHRlcm1pbmF0ZWQgd2l0aCBzaWduYWwgMTEsIFNlZ21lbnRhdGlvbiBmYXVsdC4N
-CiMwICBfX2FkZF9sb2dfc2FtcGxlIChpb2xvZz1pb2xvZ0BlbnRyeT0weDdmODM3NjIyMmMzMCwg
-dmFsPTIyMzAsIGRkaXI9ZGRpckBlbnRyeT1ERElSX1dSSVRFLCBicz1ic0BlbnRyeT0wLCB0PXRA
-ZW50cnk9MTA1NjAwMCwgDQogICAgb2Zmc2V0PW9mZnNldEBlbnRyeT0wKSBhdCBzdGF0LmM6MjAx
-NQ0KMjAxNQkJCXMtPnZhbCA9IHZhbDsNCihnZGIpIGJ0DQojMCAgX19hZGRfbG9nX3NhbXBsZSAo
-aW9sb2c9aW9sb2dAZW50cnk9MHg3ZjgzNzYyMjJjMzAsIHZhbD0yMjMwLCBkZGlyPWRkaXJAZW50
-cnk9RERJUl9XUklURSwgYnM9YnNAZW50cnk9MCwgdD10QGVudHJ5PTEwNTYwMDAsIA0KICAgIG9m
-ZnNldD1vZmZzZXRAZW50cnk9MCkgYXQgc3RhdC5jOjIwMTUNCiMxICAweDAwMDAwMDAwMDA0MjI0
-MTEgaW4gX19hZGRfbG9nX3NhbXBsZSAob2Zmc2V0PTAsIHQ9MTA1NjAwMCwgYnM9MCwgZGRpcj1E
-RElSX1dSSVRFLCB2YWw9PG9wdGltaXplZCBvdXQ+LCBpb2xvZz0weDdmODM3NjIyMmMzMCkNCiAg
-ICBhdCBzdGF0LmM6MjAwNA0KIzIgIF9fYWRkX3N0YXRfdG9fbG9nIChsb2dfbWF4PTxvcHRpbWl6
-ZWQgb3V0PiwgZWxhcHNlZD0xMDU2MDAwLCBkZGlyPURESVJfV1JJVEUsIGlvbG9nPTB4N2Y4Mzc2
-MjIyYzMwKSBhdCBzdGF0LmM6MjA5MQ0KIzMgIF9hZGRfc3RhdF90b19sb2cgKGxvZ19tYXg9PG9w
-dGltaXplZCBvdXQ+LCBlbGFwc2VkPTxvcHRpbWl6ZWQgb3V0PiwgaW9sb2c9MHg3ZjgzNzYyMjJj
-MzApIGF0IHN0YXQuYzoyMTAzDQojNCAgYWRkX2xvZ19zYW1wbGUgKHRkPXRkQGVudHJ5PTB4N2Y4
-MzYxZjNkMDAwLCBpb2xvZz0weDdmODM3NjIyMmMzMCwgdmFsPTIyMzAsIGRkaXI9ZGRpckBlbnRy
-eT1ERElSX1dSSVRFLCBicz0xMDQ4NTc2LCANCiAgICBvZmZzZXQ9b2Zmc2V0QGVudHJ5PTApIGF0
-IHN0YXQuYzoyMTM5DQojNSAgMHgwMDAwMDAwMDAwNDJmNDVmIGluIGFkZF9sb2dfc2FtcGxlIChv
-ZmZzZXQ9MCwgYnM9PG9wdGltaXplZCBvdXQ+LCBkZGlyPURESVJfV1JJVEUsIHZhbD08b3B0aW1p
-emVkIG91dD4sIGlvbG9nPTxvcHRpbWl6ZWQgb3V0PiwgDQogICAgdGQ9MHg3ZjgzNjFmM2QwMDAp
-IGF0IHN0YXQuYzoyMzU3DQojNiAgYWRkX2lvcHNfc2FtcGxlcyAodD0weDdmODM1YTRiYWU1MCwg
-dGQ9MHg3ZjgzNjFmM2QwMDApIGF0IHN0YXQuYzoyMzYyDQojNyAgY2FsY19sb2dfc2FtcGxlcyAo
-KSBhdCBzdGF0LmM6MjQwMg0KIzggIDB4MDAwMDAwMDAwMDQ2NzUwOCBpbiBoZWxwZXJfdGhyZWFk
-X21haW4gKGRhdGE9MHg3ZjgzNzYyMjJkOTApIGF0IGhlbHBlcl90aHJlYWQuYzoxMjUNCiM5ICAw
-eDAwMDA3ZjgzNzdlN2NkZjUgaW4gc3RhcnRfdGhyZWFkICgpIGZyb20gL2xpYjY0L2xpYnB0aHJl
-YWQuc28uMA0KIzEwIDB4MDAwMDdmODM3NzlhNjFhZCBpbiBjbG9uZSAoKSBmcm9tIC9saWI2NC9s
-aWJjLnNvLjYNCg0KTWF5YmUgSSBzaG91bGQgdHJ5IHRoZSByYW1wIHRpbWUgcGF0Y2ggb25seSBv
-biAyLjExIHJlbGVhc2U/DQoNClJlZ2FyZHMsDQpKZWZmDQoNCg0KLS0tLS1PcmlnaW5hbCBNZXNz
-YWdlLS0tLS0NCkZyb206IEplbnMgQXhib2UgW21haWx0bzpheGJvZUBrZXJuZWwuZGtdIA0KU2Vu
-dDogU2F0dXJkYXksIEp1bmUgMTEsIDIwMTYgODozMCBQTQ0KVG86IEplZmYgRnVybG9uZyA8amVm
-Zi5mdXJsb25nQGhnc3QuY29tPjsgU2l0c29mZSBXaGVlbGVyIDxzaXRzb2ZlQGdtYWlsLmNvbT4N
-CkNjOiBmaW9Admdlci5rZXJuZWwub3JnOyBKYW4gS2FyYSA8amFja0BzdXNlLmN6Pg0KU3ViamVj
-dDogUmU6IGZpbyBzaWduYWwgMTENCg0KT24gMDYvMTEvMjAxNiAwODo1NiBQTSwgSmVucyBBeGJv
-ZSB3cm90ZToNCj4gT24gMDYvMTAvMjAxNiAxMjo0MiBQTSwgSmVmZiBGdXJsb25nIHdyb3RlOg0K
-Pj4gR29vZCBwb2ludC4gIEhlcmUgaXMgdGhlIHRyYWNlOg0KPj4NCj4+IFtOZXcgTFdQIDU5MjMx
-XQ0KPj4gW1RocmVhZCBkZWJ1Z2dpbmcgdXNpbmcgbGlidGhyZWFkX2RiIGVuYWJsZWRdIFVzaW5n
-IGhvc3QgbGlidGhyZWFkX2RiIA0KPj4gbGlicmFyeSAiL2xpYjY0L2xpYnRocmVhZF9kYi5zby4x
-Ii4NCj4+IENvcmUgd2FzIGdlbmVyYXRlZCBieSBgZmlvIC0tbmFtZT10ZXN0X2pvYiAtLWlvZW5n
-aW5lPWxpYmFpbw0KPj4gLS1kaXJlY3Q9MSAtLXJ3PXdyaXRlIC0taW9kZXB0aD0zMicuDQo+PiBQ
-cm9ncmFtIHRlcm1pbmF0ZWQgd2l0aCBzaWduYWwgMTEsIFNlZ21lbnRhdGlvbiBmYXVsdC4NCj4+
-ICMwICAweDAwMDAwMDAwMDA0MjFlMzkgaW4gcmVncm93X2xvZyAoaW9sb2c9MHg3ZjgyOGMwYzVh
-ZDApIGF0DQo+PiBzdGF0LmM6MTkwOQ0KPj4gMTkwOSAgICAgICAgaWYgKCFjdXJfbG9nKSB7DQo+
-Pg0KPj4gKGdkYikgYnQNCj4+ICMwICAweDAwMDAwMDAwMDA0MjFlMzkgaW4gcmVncm93X2xvZyAo
-aW9sb2c9MHg3ZjgyOGMwYzVhZDApIGF0DQo+PiBzdGF0LmM6MTkwOQ0KPj4gIzEgIDB4MDAwMDAw
-MDAwMDQyZDRkZiBpbiByZWdyb3dfbG9ncyAodGQ9dGRAZW50cnk9MHg3ZjgyNzdkZTAwMDApIGF0
-DQo+PiBzdGF0LmM6MTk2NQ0KPj4gIzIgIDB4MDAwMDAwMDAwMDQwY2E5MCBpbiB3YWl0X2Zvcl9j
-b21wbGV0aW9ucyANCj4+ICh0ZD10ZEBlbnRyeT0weDdmODI3N2RlMDAwMCwgdGltZT10aW1lQGVu
-dHJ5PTB4N2ZmZmNmYjZiMzAwKSBhdA0KPj4gYmFja2VuZC5jOjQ0Ng0KPj4gIzMgIDB4MDAwMDAw
-MDAwMDQ1YWRlNyBpbiBkb19pbyAoYnl0ZXNfZG9uZT08c3ludGhldGljIHBvaW50ZXI+LA0KPj4g
-dGQ9MHg3ZjgyNzdkZTAwMDApIGF0IGJhY2tlbmQuYzo5OTENCj4+ICM0ICB0aHJlYWRfbWFpbiAo
-ZGF0YT1kYXRhQGVudHJ5PTB4MjY0ZDQ1MCkgYXQgYmFja2VuZC5jOjE2NjcNCj4+ICM1ICAweDAw
-MDAwMDAwMDA0NWNmZWMgaW4gcnVuX3RocmVhZHMgKHNrX291dD1za19vdXRAZW50cnk9MHgwKSBh
-dA0KPj4gYmFja2VuZC5jOjIyMTcNCj4+ICM2ICAweDAwMDAwMDAwMDA0NWQyY2QgaW4gZmlvX2Jh
-Y2tlbmQgKHNrX291dD1za19vdXRAZW50cnk9MHgwKSBhdA0KPj4gYmFja2VuZC5jOjIzNDkNCj4+
-ICM3ICAweDAwMDAwMDAwMDA0MGQwOWMgaW4gbWFpbiAoYXJnYz0yMiwgYXJndj0weDdmZmZjZmI2
-ZjYzOCwgDQo+PiBlbnZwPTxvcHRpbWl6ZWQgb3V0PikgYXQgZmlvLmM6NjMNCj4NCj4gVGhhdCBs
-b29rcyBvZGQsIHRoYW5rcyBmb3IgcmVwb3J0aW5nIHRoaXMuIEknbGwgc2VlIGlmIEkgY2FuIGdl
-dCB0byANCj4gdGhpcyBvbiBNb25kYXksIGlmIG5vdCwgaXQnbGwgaGF2ZSB0byB3YWl0IHVudGls
-IGFmdGVyIG15IHZhY2F0aW9uLi4uIA0KPiBTbyB3aGlsZSBJIGFwcHJlY2lhdGUgcGVvcGxlIHJ1
-bm5pbmcgLWdpdCBhbmQgZmluZGluZyBpc3N1ZXMgbGlrZSANCj4gdGhlc2UgYmVmb3JlIHRoZXkg
-c2hvdyB1cCBpbiBhIHJlbGVhc2UsIG1pZ2h0IGJlIGJlc3QgdG8gcmV2ZXJ0IGJhY2sgDQo+IHRv
-IDIuMi4xMSB1bnRpbCBJIGNhbiBnZXQgdGhpcyBkZWJ1Z2dlZC4NCg0KSSB0YWtlIHRoYXQgYmFj
-ayAtIGNvbnRpbnVlIHVzaW5nIC1naXQhIEp1c3QgcHVsbCBhIGZyZXNoIGNvcHksIHNob3VsZCBi
-ZSBmaXhlZCBub3cuDQoNCkphbiwgdGhlIHJlcG9ydGVyIGlzIHJpZ2h0LCAyLjExIHdvcmtzIGFu
-ZCAtZ2l0IGRvZXMgbm90LiBTbyBJIGp1c3QgcmFuIGEgcXVpY2sgYmlzZWN0LCBjaGFuZ2luZyB0
-aGUgbG9nZ2luZyBmcm9tIGV2ZXJ5IHNlY29uZCB0byBldmVyeSAxMDBtcyB0byBtYWtlIGl0IHJl
-cHJvZHVjZSBmYXN0ZXIuIEkgZG9uJ3QgaGF2ZSB0aW1lIHRvIGxvb2sgaW50byB3aHkgeWV0LCBz
-byBJIGp1c3QgcmV2ZXJ0ZWQgdGhlIGNvbW1pdC4NCg0KY29tbWl0IGQ3OTgyZGQwYWIyYTFhMzE1
-YjVmOTg1OWM2N2EwMjQxNGNlNjI3NGYNCkF1dGhvcjogSmFuIEthcmEgPGphY2tAc3VzZS5jej4N
-CkRhdGU6ICAgVHVlIE1heSAyNCAxNzowMzoyMSAyMDE2ICswMjAwDQoNCiAgICAgZmlvOiBTaW1w
-bGlmeSBmb3JraW5nIG9mIHByb2Nlc3Nlcw0KDQotLQ0KSmVucyBBeGJvZQ0KDQpXZXN0ZXJuIERp
-Z2l0YWwgQ29ycG9yYXRpb24gKGFuZCBpdHMgc3Vic2lkaWFyaWVzKSBFLW1haWwgQ29uZmlkZW50
-aWFsaXR5IE5vdGljZSAmIERpc2NsYWltZXI6CgpUaGlzIGUtbWFpbCBhbmQgYW55IGZpbGVzIHRy
-YW5zbWl0dGVkIHdpdGggaXQgbWF5IGNvbnRhaW4gY29uZmlkZW50aWFsIG9yIGxlZ2FsbHkgcHJp
-dmlsZWdlZCBpbmZvcm1hdGlvbiBvZiBXREMgYW5kL29yIGl0cyBhZmZpbGlhdGVzLCBhbmQgYXJl
-IGludGVuZGVkIHNvbGVseSBmb3IgdGhlIHVzZSBvZiB0aGUgaW5kaXZpZHVhbCBvciBlbnRpdHkg
-dG8gd2hpY2ggdGhleSBhcmUgYWRkcmVzc2VkLiBJZiB5b3UgYXJlIG5vdCB0aGUgaW50ZW5kZWQg
-cmVjaXBpZW50LCBhbnkgZGlzY2xvc3VyZSwgY29weWluZywgZGlzdHJpYnV0aW9uIG9yIGFueSBh
-Y3Rpb24gdGFrZW4gb3Igb21pdHRlZCB0byBiZSB0YWtlbiBpbiByZWxpYW5jZSBvbiBpdCwgaXMg
-cHJvaGliaXRlZC4gSWYgeW91IGhhdmUgcmVjZWl2ZWQgdGhpcyBlLW1haWwgaW4gZXJyb3IsIHBs
-ZWFzZSBub3RpZnkgdGhlIHNlbmRlciBpbW1lZGlhdGVseSBhbmQgZGVsZXRlIHRoZSBlLW1haWwg
-aW4gaXRzIGVudGlyZXR5IGZyb20geW91ciBzeXN0ZW0uCg==
+On 06/11/2016 08:56 PM, Jens Axboe wrote:
+> On 06/10/2016 12:42 PM, Jeff Furlong wrote:
+>> Good point.  Here is the trace:
+>>
+>> [New LWP 59231]
+>> [Thread debugging using libthread_db enabled]
+>> Using host libthread_db library "/lib64/libthread_db.so.1".
+>> Core was generated by `fio --name=test_job --ioengine=libaio
+>> --direct=1 --rw=write --iodepth=32'.
+>> Program terminated with signal 11, Segmentation fault.
+>> #0  0x0000000000421e39 in regrow_log (iolog=0x7f828c0c5ad0) at
+>> stat.c:1909
+>> 1909        if (!cur_log) {
+>>
+>> (gdb) bt
+>> #0  0x0000000000421e39 in regrow_log (iolog=0x7f828c0c5ad0) at
+>> stat.c:1909
+>> #1  0x000000000042d4df in regrow_logs (td=td@entry=0x7f8277de0000) at
+>> stat.c:1965
+>> #2  0x000000000040ca90 in wait_for_completions
+>> (td=td@entry=0x7f8277de0000, time=time@entry=0x7fffcfb6b300) at
+>> backend.c:446
+>> #3  0x000000000045ade7 in do_io (bytes_done=<synthetic pointer>,
+>> td=0x7f8277de0000) at backend.c:991
+>> #4  thread_main (data=data@entry=0x264d450) at backend.c:1667
+>> #5  0x000000000045cfec in run_threads (sk_out=sk_out@entry=0x0) at
+>> backend.c:2217
+>> #6  0x000000000045d2cd in fio_backend (sk_out=sk_out@entry=0x0) at
+>> backend.c:2349
+>> #7  0x000000000040d09c in main (argc=22, argv=0x7fffcfb6f638,
+>> envp=<optimized out>) at fio.c:63
+>
+> That looks odd, thanks for reporting this. I'll see if I can get to this
+> on Monday, if not, it'll have to wait until after my vacation... So
+> while I appreciate people running -git and finding issues like these
+> before they show up in a release, might be best to revert back to 2.2.11
+> until I can get this debugged.
+
+I take that back - continue using -git! Just pull a fresh copy, should
+be fixed now.
+
+Jan, the reporter is right, 2.11 works and -git does not. So I just ran
+a quick bisect, changing the logging from every second to every 100ms to
+make it reproduce faster. I don't have time to look into why yet, so I
+just reverted the commit.
+
+commit d7982dd0ab2a1a315b5f9859c67a02414ce6274f
+Author: Jan Kara <jack@suse.cz>
+Date:   Tue May 24 17:03:21 2016 +0200
+
+     fio: Simplify forking of processes
+
+-- 
+Jens Axboe
 
 
