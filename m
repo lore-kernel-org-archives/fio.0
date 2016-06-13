@@ -1,90 +1,58 @@
-Return-Path: <jeff.furlong@hgst.com>
-From: Jeff Furlong <jeff.furlong@hgst.com>
-Subject: RE: fio signal 11
-Date: Mon, 13 Jun 2016 18:04:42 +0000
-Message-ID: <BN3PR0401MB14579231CA6ACFBD645161A1F7530@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: fio signal 11
 References: <BN3PR0401MB1457415455A5B0CEFB84447DF75F0@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <CALjAwxhv8pCLJe0uT6PX1r7g4Mu=d8gA19VUFu0pUE9LkHTkrw@mail.gmail.com>
  <BN3PR0401MB145737C5D3670374BE0D29E5F7500@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <575CCF51.8020704@kernel.dk> <575CD738.1050505@kernel.dk>
  <BN3PR0401MB1457AD48DF8406D550343DC6F7530@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <575EF50D.5010005@kernel.dk>
-In-Reply-To: <575EF50D.5010005@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <575EF50D.5010005@kernel.dk>
+Date: Mon, 13 Jun 2016 12:01:49 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-To: Jens Axboe <axboe@kernel.dk>, Sitsofe Wheeler <sitsofe@gmail.com>
+In-Reply-To: <BN3PR0401MB1457AD48DF8406D550343DC6F7530@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Jeff Furlong <jeff.furlong@hgst.com>, Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jan Kara <jack@suse.cz>
 List-ID: <fio@vger.kernel.org>
 
-SSB1c2VkIHRoZSBzYW1lIHdvcmtsb2FkOg0KDQojIGZpbyAtLW5hbWU9dGVzdF9qb2IgLS1pb2Vu
-Z2luZT1saWJhaW8gLS1kaXJlY3Q9MSAtLXJ3PXdyaXRlIC0taW9kZXB0aD0zMiAtLXNpemU9MTAw
-JSAtLW51bWpvYnM9MSAtLWJzPTFtIC0tZmlsZW5hbWU9L2Rldi9udm1lMG4xIC0tZ3JvdXBfcmVw
-b3J0aW5nIC0td3JpdGVfYndfbG9nPXRlc3Rfam9iIC0td3JpdGVfaW9wc19sb2c9dGVzdF9qb2Ig
-LS13cml0ZV9sYXRfbG9nPXRlc3Rfam9iIC0tbG9nX2F2Z19tc2VjPTEwMDAgLS1kaXNhYmxlX2xh
-dD0wIC0tZGlzYWJsZV9jbGF0PTAgLS1kaXNhYmxlX3NsYXQ9MCAtLXJ1bnRpbWU9MTUwMHMgLS10
-aW1lX2Jhc2VkIC0tcmFtcF90aW1lPTVzIC0tb3V0cHV0PXRlc3Rfam9iDQoNCkZvciB3aGF0ZXZl
-ciByZWFzb24sIGxvb2tzIGxpa2UgZ2RiIHRydW5jYXRlcyB0aGUgcGFyYW1ldGVycy4NCg0KUmVn
-YXJkcywNCkplZmYNCg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogZmlvLW93
-bmVyQHZnZXIua2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9u
-IEJlaGFsZiBPZiBKZW5zIEF4Ym9lDQpTZW50OiBNb25kYXksIEp1bmUgMTMsIDIwMTYgMTE6MDIg
-QU0NClRvOiBKZWZmIEZ1cmxvbmcgPGplZmYuZnVybG9uZ0BoZ3N0LmNvbT47IFNpdHNvZmUgV2hl
-ZWxlciA8c2l0c29mZUBnbWFpbC5jb20+DQpDYzogZmlvQHZnZXIua2VybmVsLm9yZzsgSmFuIEth
-cmEgPGphY2tAc3VzZS5jej4NClN1YmplY3Q6IFJlOiBmaW8gc2lnbmFsIDExDQoNCk9uIDA2LzEz
-LzIwMTYgMTE6NTggQU0sIEplZmYgRnVybG9uZyB3cm90ZToNCj4gSSdkIGxpa2UgdG8gdXNlIHRo
-ZSBsYXRlc3QgZ2l0IHZlcnNpb24gc28gdGhhdCBJIGNhbiBwaWNrdXAgcGF0Y2ggMzU2MDE0ZmYz
-NTFjNmViNjkzMzk2NTI2NTBhZjVmNmFmNzJlNWMyMiB0byBmaXggdGhlIHJhbXAgdGltZSBpc3N1
-ZS4NCj4NCj4gSSB0cmllZCB0aGUgbGF0ZXN0IGdpdCB2ZXJzaW9uIGZpby0yLjExLTIxLWcyYjc2
-MiwgYnV0IGdvdCBhIG5ldyBpc3N1ZToNCj4NCj4gW05ldyBMV1AgMTIwMjk4XQ0KPiBbTmV3IExX
-UCAxMjAyODFdDQo+IFtUaHJlYWQgZGVidWdnaW5nIHVzaW5nIGxpYnRocmVhZF9kYiBlbmFibGVk
-XSBVc2luZyBob3N0IGxpYnRocmVhZF9kYiANCj4gbGlicmFyeSAiL2xpYjY0L2xpYnRocmVhZF9k
-Yi5zby4xIi4NCj4gQ29yZSB3YXMgZ2VuZXJhdGVkIGJ5IGBmaW8gLS1uYW1lPXRlc3Rfam9iIC0t
-aW9lbmdpbmU9bGliYWlvIC0tZGlyZWN0PTEgLS1ydz13cml0ZSAtLWlvZGVwdGg9MzInLg0KPiBQ
-cm9ncmFtIHRlcm1pbmF0ZWQgd2l0aCBzaWduYWwgMTEsIFNlZ21lbnRhdGlvbiBmYXVsdC4NCj4g
-IzAgIF9fYWRkX2xvZ19zYW1wbGUgKGlvbG9nPWlvbG9nQGVudHJ5PTB4N2Y4Mzc2MjIyYzMwLCB2
-YWw9MjIzMCwgZGRpcj1kZGlyQGVudHJ5PURESVJfV1JJVEUsIGJzPWJzQGVudHJ5PTAsIHQ9dEBl
-bnRyeT0xMDU2MDAwLA0KPiAgICAgIG9mZnNldD1vZmZzZXRAZW50cnk9MCkgYXQgc3RhdC5jOjIw
-MTUNCj4gMjAxNQkJCXMtPnZhbCA9IHZhbDsNCj4gKGdkYikgYnQNCj4gIzAgIF9fYWRkX2xvZ19z
-YW1wbGUgKGlvbG9nPWlvbG9nQGVudHJ5PTB4N2Y4Mzc2MjIyYzMwLCB2YWw9MjIzMCwgZGRpcj1k
-ZGlyQGVudHJ5PURESVJfV1JJVEUsIGJzPWJzQGVudHJ5PTAsIHQ9dEBlbnRyeT0xMDU2MDAwLA0K
-PiAgICAgIG9mZnNldD1vZmZzZXRAZW50cnk9MCkgYXQgc3RhdC5jOjIwMTUNCj4gIzEgIDB4MDAw
-MDAwMDAwMDQyMjQxMSBpbiBfX2FkZF9sb2dfc2FtcGxlIChvZmZzZXQ9MCwgdD0xMDU2MDAwLCBi
-cz0wLCBkZGlyPURESVJfV1JJVEUsIHZhbD08b3B0aW1pemVkIG91dD4sIGlvbG9nPTB4N2Y4Mzc2
-MjIyYzMwKQ0KPiAgICAgIGF0IHN0YXQuYzoyMDA0DQo+ICMyICBfX2FkZF9zdGF0X3RvX2xvZyAo
-bG9nX21heD08b3B0aW1pemVkIG91dD4sIGVsYXBzZWQ9MTA1NjAwMCwgDQo+IGRkaXI9RERJUl9X
-UklURSwgaW9sb2c9MHg3ZjgzNzYyMjJjMzApIGF0IHN0YXQuYzoyMDkxDQo+ICMzICBfYWRkX3N0
-YXRfdG9fbG9nIChsb2dfbWF4PTxvcHRpbWl6ZWQgb3V0PiwgZWxhcHNlZD08b3B0aW1pemVkIA0K
-PiBvdXQ+LCBpb2xvZz0weDdmODM3NjIyMmMzMCkgYXQgc3RhdC5jOjIxMDMNCj4gIzQgIGFkZF9s
-b2dfc2FtcGxlICh0ZD10ZEBlbnRyeT0weDdmODM2MWYzZDAwMCwgaW9sb2c9MHg3ZjgzNzYyMjJj
-MzAsIHZhbD0yMjMwLCBkZGlyPWRkaXJAZW50cnk9RERJUl9XUklURSwgYnM9MTA0ODU3NiwNCj4g
-ICAgICBvZmZzZXQ9b2Zmc2V0QGVudHJ5PTApIGF0IHN0YXQuYzoyMTM5DQo+ICM1ICAweDAwMDAw
-MDAwMDA0MmY0NWYgaW4gYWRkX2xvZ19zYW1wbGUgKG9mZnNldD0wLCBicz08b3B0aW1pemVkIG91
-dD4sIGRkaXI9RERJUl9XUklURSwgdmFsPTxvcHRpbWl6ZWQgb3V0PiwgaW9sb2c9PG9wdGltaXpl
-ZCBvdXQ+LA0KPiAgICAgIHRkPTB4N2Y4MzYxZjNkMDAwKSBhdCBzdGF0LmM6MjM1Nw0KPiAjNiAg
-YWRkX2lvcHNfc2FtcGxlcyAodD0weDdmODM1YTRiYWU1MCwgdGQ9MHg3ZjgzNjFmM2QwMDApIGF0
-IA0KPiBzdGF0LmM6MjM2Mg0KPiAjNyAgY2FsY19sb2dfc2FtcGxlcyAoKSBhdCBzdGF0LmM6MjQw
-Mg0KPiAjOCAgMHgwMDAwMDAwMDAwNDY3NTA4IGluIGhlbHBlcl90aHJlYWRfbWFpbiAoZGF0YT0w
-eDdmODM3NjIyMmQ5MCkgYXQgDQo+IGhlbHBlcl90aHJlYWQuYzoxMjUNCj4gIzkgIDB4MDAwMDdm
-ODM3N2U3Y2RmNSBpbiBzdGFydF90aHJlYWQgKCkgZnJvbSAvbGliNjQvbGlicHRocmVhZC5zby4w
-DQo+ICMxMCAweDAwMDA3ZjgzNzc5YTYxYWQgaW4gY2xvbmUgKCkgZnJvbSAvbGliNjQvbGliYy5z
-by42DQo+DQo+IE1heWJlIEkgc2hvdWxkIHRyeSB0aGUgcmFtcCB0aW1lIHBhdGNoIG9ubHkgb24g
-Mi4xMSByZWxlYXNlPw0KDQpXaGF0IGRpZCB5b3UgcnVuIHRvIGNhdXNlIHRoaXMgY3Jhc2g/IExv
-b2tzIGxpa2Ugb25seSBzb21lIG9mIHRoZSBhcmd1bWVudHMgZ290IHNob3duLg0KDQotLQ0KSmVu
-cyBBeGJvZQ0KDQotLQ0KVG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhlIGxp
-bmUgInVuc3Vic2NyaWJlIGZpbyIgaW4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9t
-b0B2Z2VyLmtlcm5lbC5vcmcgTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2Vy
-bmVsLm9yZy9tYWpvcmRvbW8taW5mby5odG1sDQpXZXN0ZXJuIERpZ2l0YWwgQ29ycG9yYXRpb24g
-KGFuZCBpdHMgc3Vic2lkaWFyaWVzKSBFLW1haWwgQ29uZmlkZW50aWFsaXR5IE5vdGljZSAmIERp
-c2NsYWltZXI6CgpUaGlzIGUtbWFpbCBhbmQgYW55IGZpbGVzIHRyYW5zbWl0dGVkIHdpdGggaXQg
-bWF5IGNvbnRhaW4gY29uZmlkZW50aWFsIG9yIGxlZ2FsbHkgcHJpdmlsZWdlZCBpbmZvcm1hdGlv
-biBvZiBXREMgYW5kL29yIGl0cyBhZmZpbGlhdGVzLCBhbmQgYXJlIGludGVuZGVkIHNvbGVseSBm
-b3IgdGhlIHVzZSBvZiB0aGUgaW5kaXZpZHVhbCBvciBlbnRpdHkgdG8gd2hpY2ggdGhleSBhcmUg
-YWRkcmVzc2VkLiBJZiB5b3UgYXJlIG5vdCB0aGUgaW50ZW5kZWQgcmVjaXBpZW50LCBhbnkgZGlz
-Y2xvc3VyZSwgY29weWluZywgZGlzdHJpYnV0aW9uIG9yIGFueSBhY3Rpb24gdGFrZW4gb3Igb21p
-dHRlZCB0byBiZSB0YWtlbiBpbiByZWxpYW5jZSBvbiBpdCwgaXMgcHJvaGliaXRlZC4gSWYgeW91
-IGhhdmUgcmVjZWl2ZWQgdGhpcyBlLW1haWwgaW4gZXJyb3IsIHBsZWFzZSBub3RpZnkgdGhlIHNl
-bmRlciBpbW1lZGlhdGVseSBhbmQgZGVsZXRlIHRoZSBlLW1haWwgaW4gaXRzIGVudGlyZXR5IGZy
-b20geW91ciBzeXN0ZW0uCg==
+On 06/13/2016 11:58 AM, Jeff Furlong wrote:
+> I'd like to use the latest git version so that I can pickup patch 356014ff351c6eb69339652650af5f6af72e5c22 to fix the ramp time issue.
+>
+> I tried the latest git version fio-2.11-21-g2b762, but got a new issue:
+>
+> [New LWP 120298]
+> [New LWP 120281]
+> [Thread debugging using libthread_db enabled]
+> Using host libthread_db library "/lib64/libthread_db.so.1".
+> Core was generated by `fio --name=test_job --ioengine=libaio --direct=1 --rw=write --iodepth=32'.
+> Program terminated with signal 11, Segmentation fault.
+> #0  __add_log_sample (iolog=iolog@entry=0x7f8376222c30, val=2230, ddir=ddir@entry=DDIR_WRITE, bs=bs@entry=0, t=t@entry=1056000,
+>      offset=offset@entry=0) at stat.c:2015
+> 2015			s->val = val;
+> (gdb) bt
+> #0  __add_log_sample (iolog=iolog@entry=0x7f8376222c30, val=2230, ddir=ddir@entry=DDIR_WRITE, bs=bs@entry=0, t=t@entry=1056000,
+>      offset=offset@entry=0) at stat.c:2015
+> #1  0x0000000000422411 in __add_log_sample (offset=0, t=1056000, bs=0, ddir=DDIR_WRITE, val=<optimized out>, iolog=0x7f8376222c30)
+>      at stat.c:2004
+> #2  __add_stat_to_log (log_max=<optimized out>, elapsed=1056000, ddir=DDIR_WRITE, iolog=0x7f8376222c30) at stat.c:2091
+> #3  _add_stat_to_log (log_max=<optimized out>, elapsed=<optimized out>, iolog=0x7f8376222c30) at stat.c:2103
+> #4  add_log_sample (td=td@entry=0x7f8361f3d000, iolog=0x7f8376222c30, val=2230, ddir=ddir@entry=DDIR_WRITE, bs=1048576,
+>      offset=offset@entry=0) at stat.c:2139
+> #5  0x000000000042f45f in add_log_sample (offset=0, bs=<optimized out>, ddir=DDIR_WRITE, val=<optimized out>, iolog=<optimized out>,
+>      td=0x7f8361f3d000) at stat.c:2357
+> #6  add_iops_samples (t=0x7f835a4bae50, td=0x7f8361f3d000) at stat.c:2362
+> #7  calc_log_samples () at stat.c:2402
+> #8  0x0000000000467508 in helper_thread_main (data=0x7f8376222d90) at helper_thread.c:125
+> #9  0x00007f8377e7cdf5 in start_thread () from /lib64/libpthread.so.0
+> #10 0x00007f83779a61ad in clone () from /lib64/libc.so.6
+>
+> Maybe I should try the ramp time patch only on 2.11 release?
+
+What did you run to cause this crash? Looks like only some of the 
+arguments got shown.
+
+-- 
+Jens Axboe
 
 
