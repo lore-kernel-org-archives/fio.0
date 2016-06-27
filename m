@@ -1,40 +1,24 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-oi0-f45.google.com ([209.85.218.45]:34956 "EHLO
-	mail-oi0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751087AbcFQRuK (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 17 Jun 2016 13:50:10 -0400
-Received: by mail-oi0-f45.google.com with SMTP id v7so16742364oig.2
-        for <fio@vger.kernel.org>; Fri, 17 Jun 2016 10:50:09 -0700 (PDT)
+Received: from mx142.netapp.com ([216.240.21.19]:6006 "EHLO mx142.netapp.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751639AbcF0SET (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 27 Jun 2016 14:04:19 -0400
+From: neto from Brazil <Antonio.Jose.Rodrigues.Neto@netapp.com>
+Subject: gfio - Error Gdk-ERROR **: g_thread_init() must be called before
+ gdk_threads_init()
+Date: Mon, 27 Jun 2016 18:04:17 +0000
+Message-ID: <D5FAFAB3-16BE-4BC9-85EB-EAAC44C45DD8@netapp.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <2279AE9B753ED54191A8C903DA03541F@hq.netapp.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-From: Oscar Wahlberg <oscar.wahlberg@gmail.com>
-Date: Fri, 17 Jun 2016 10:49:29 -0700
-Message-ID: <CACAMNSzaK8_iqbEEsuBZMR_WuZ7RY6vGU4iqxX3edu_h7owb3A@mail.gmail.com>
-Subject: Per-second logs using client/server mode
-Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi,
-
-I am trying to figure out if there is a way to use client/server mode
-and get per-second statistics, in terse format, printed either on
-STDOUT or in the output log.
-
-At best I have been able to get the client to print this at the
-completion of the job, but not continuously.
-I want the per-second stats to parse the output and send it to
-Graphite database for analysis in correlation with other data
-collected during the runs.
-
-I've been unsuccessful in finding a way to do this.
-For example, "fio --client=host.list simple.fio --status-interval=1
---output=simple.log --output-format=terse"
-did not do what I expected/hoped it would.
-
-Is there a way to do what I want to do,
-or do I need to stick with my current approach of manually running fio
-on each server?
-
-Thank you,
-Oscar
+SGkgQWxsLA0KDQpUaGlzIGlzIG5ldG8gZnJvbSBCcmF6aWwNCg0KSG93IGFyZSB5b3U/DQoNCkNv
+bXBpbGluZyBnZmlvIGlzIE9LIGJ1dCB3aGVuIEkgaGF2ZSB0cmllZCB0byBleGVjdXRlLCBJ4oCZ
+dmUgZ290IHRoaXMgZXJyb3I6DQoNCkdkay1FUlJPUiAqKjogZ190aHJlYWRfaW5pdCgpIG11c3Qg
+YmUgY2FsbGVkIGJlZm9yZSBnZGtfdGhyZWFkc19pbml0KCkNCg0KQ291bGQgc29tZW9uZSBwbGVh
+c2UgaGVscCBtZT8NCg0KVGhhbmtzDQoNCm5ldG8NCg0KDQoNCg==
