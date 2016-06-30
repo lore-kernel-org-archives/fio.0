@@ -1,110 +1,105 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:51564 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751575AbcF3MAD (ORCPT <rfc822;fio@vger.kernel.org>);
-	Thu, 30 Jun 2016 08:00:03 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-	id 1bIadX-0004NS-4K
-	for fio@vger.kernel.org; Thu, 30 Jun 2016 12:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160630120002.3F2692C23FF@kernel.dk>
-Date: Thu, 30 Jun 2016 06:00:02 -0600 (MDT)
+Received: from mail-lf0-f48.google.com ([209.85.215.48]:35576 "EHLO
+	mail-lf0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751536AbcF3Xbm (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 30 Jun 2016 19:31:42 -0400
+Received: by mail-lf0-f48.google.com with SMTP id l188so66122897lfe.2
+        for <fio@vger.kernel.org>; Thu, 30 Jun 2016 16:31:41 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CALjAwxh+rnpX0TsXvCnPA_A_dPGAbS=FBAD-fSB=Gds_szzeQQ@mail.gmail.com>
+References: <CAOkRmkmnoHqBoKP2VYiY9LLJYfADK6moZdK_t1VOedDd670Aeg@mail.gmail.com>
+ <CALjAwxhCyuRf-JO8P3Cm+Emk7E_VXBqN1f+4+QhqHpgd6LHHVA@mail.gmail.com>
+ <CAOkRmkkeB8b7338VtNCeOAuKmaHfdFi7tFD0Czox3T1nDRu4Gw@mail.gmail.com>
+ <CAOkRmknpr96En3_NHYABKbkpnSGAmZ-4n4HfOC0DyWUVmapGfg@mail.gmail.com> <CALjAwxh+rnpX0TsXvCnPA_A_dPGAbS=FBAD-fSB=Gds_szzeQQ@mail.gmail.com>
+From: Srinath Krishna Ananthakrishnan <ska@datera.io>
+Date: Thu, 30 Jun 2016 16:23:10 -0700
+Message-ID: <CAOkRmknM3=3XRDCtBTQeC7HgnMjuzBjzf4F-Th_CUTnRUpgvSg@mail.gmail.com>
+Subject: Re: Compression options in fio
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit bccdc0d0c9d41749515131226aab71baa59e03cd:
+On Thu, Jun 30, 2016 at 1:43 PM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+> Could you bottom post replies? It makes things a bit easier here...
+>
 
-  Fio 2.12 (2016-06-13 15:42:44 -0600)
+Sorry about that.
 
-are available in the git repository at:
+>> On Thu, Jun 30, 2016 at 10:58 AM, Srinath Krishna Ananthakrishnan
+>> <ska@datera.io> wrote:
+>>> I don't want fio to vary the data and need it to be more deterministic.
+>
+> Don't forget you can use can also use randseed to generate the same
+> random data between invocations.
+>
+>>> After playing with it for quite some time, I have the following
+>>> (inconclusive) theory.
+>>>
+>>> 1. If no verify options are set, fio generates
+>>> buffer_compress_percentage worth of compressible data per block size.
+>>> Compressible data is always zeroed out.
+>>> 2. With verify options, fio generates buffer_compress_percentage worth
+>>> of compressible data (zeroes) for some blocks but there are these
+>>> bunch of blocks from time to time that contain purely random data.
+>
+> You can inspect the source code directly (e.g.
+> https://github.com/axboe/fio/blob/8c07860de982fabaaf41d44c22aa86aba2539b58/io_u.c#L2031
+> ) to find out what's happening.
+>
+>>> From the manual, verify options add additional meta data to the header
+>>> of every block for verification but I'm not sure why some blocks turn
+>>> out to be completely random with this setting on. I tried multiple
+>>> verify hashes with the same result.
+>>>
+>>> With either of the cases, I don't seem to get the buffer_pattern
+>>> setting working.
+>
+> I don't quite see the behaviour you describe. I used the following
+> with the latest git fio on x86_64:
+> [global]
+> randrepeat=1
+> ioengine=sync
+> iodepth=64
+> iodepth_batch=16
+> direct=1
+> numjobs=1
+> verify_fatal=1
+> verify_dump=1
+> filename=./my_file
+>
+> [small_write]
+> rw=write
+> blocksize=4k
+> size=100M
+> verify=crc32c-intel
+> buffer_compress_percentage=50
+> buffer_pattern=0xdeadbeef
+>
+> Using hexdump showed an initial header followed by random data up to
+> 0x800 and from 0x801 to 0xfff was the pattern deadbeef (in binary). So
+> 50% of the block was the header + random and the other 50% was the
+> buffer_pattern I specified. Bear in mind that if something were to
+> compress these blocks it would likely get better than 50% compression
+> because the repeating deadbeef pattern is itself highly
+> compressible...
+>
+> On 30 June 2016 at 19:35, Srinath Krishna Ananthakrishnan <ska@datera.io> wrote:
+>> Another idiosyncrasy that I observed was,
+>>
+>> With rw=write, compression options are not heeded. They seem to work only rw=rw.
+>> Thanks,
+>> Srinath
+>
+> See the above job file where I used rw=write. Are you using a git
+> version of fio?
 
-  git://git.kernel.dk/fio.git master
+I just tried on the tip of the branch fio and it works. The fio
+version I was using was 2.1.10 which is quite old. I believe these
+issues have been addressed in the more recent versions. Thanks
+Sitsofe.
 
-for you to fetch changes up to 8a09277d18f942ed35354e31e38df50d991a595a:
-
-  HOWTO: remove old use cases for the net IO engine (2016-06-29 13:09:15 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      HOWTO: remove old use cases for the net IO engine
-
-Vincent Fu (2):
-      Remove hard-coded precision for printing JSON float values
-      helper_thread: remove impossible branch
-
- HOWTO           | 21 +++++++++------------
- helper_thread.c |  8 ++------
- json.c          |  2 +-
- 3 files changed, 12 insertions(+), 19 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO b/HOWTO
-index 67fd833..a50f93e 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -329,18 +329,15 @@ directory=str	Prefix filenames with this directory. Used to place files
- filename=str	Fio normally makes up a filename based on the job name,
- 		thread number, and file number. If you want to share
- 		files between threads in a job or several jobs, specify
--		a filename for each of them to override the default. If
--		the ioengine used is 'net', the filename is the host, port,
--		and protocol to use in the format of =host,port,protocol.
--		See ioengine=net for more. If the ioengine is file based, you
--		can specify a number of files by separating the names with a
--		':' colon. So if you wanted a job to open /dev/sda and /dev/sdb
--		as the two working files, you would use
--		filename=/dev/sda:/dev/sdb. On Windows, disk devices are
--		accessed as \\.\PhysicalDrive0 for the first device,
--		\\.\PhysicalDrive1 for the second etc. Note: Windows and
--		FreeBSD prevent write access to areas of the disk containing
--		in-use data (e.g. filesystems).
-+		a filename for each of them to override the default.
-+		If the ioengine is file based, you can specify a number of
-+		files by separating the names with a ':' colon. So if you
-+		wanted a job to open /dev/sda and /dev/sdb as the two working
-+		files, you would use filename=/dev/sda:/dev/sdb. On Windows,
-+		disk devices are accessed as \\.\PhysicalDrive0 for the first
-+		device, \\.\PhysicalDrive1 for the second etc. Note: Windows
-+		and FreeBSD prevent write access to areas of the disk
-+		containing in-use data (e.g. filesystems).
- 		If the wanted filename does need to include a colon, then
- 		escape that with a '\' character. For instance, if the filename
- 		is "/dev/dsk/foo@3,0:c", then you would use
-diff --git a/helper_thread.c b/helper_thread.c
-index e788af5..f031df4 100644
---- a/helper_thread.c
-+++ b/helper_thread.c
-@@ -110,12 +110,8 @@ static void *helper_thread_main(void *data)
- 			msec_to_next_event = DISK_UTIL_MSEC;
- 			if (since_du >= DISK_UTIL_MSEC)
- 				msec_to_next_event -= (since_du - DISK_UTIL_MSEC);
--		} else {
--			if (since_du >= DISK_UTIL_MSEC)
--				msec_to_next_event = DISK_UTIL_MSEC - (DISK_UTIL_MSEC - since_du);
--			else
--				msec_to_next_event = DISK_UTIL_MSEC;
--		}
-+		} else
-+			msec_to_next_event = DISK_UTIL_MSEC - since_du;
- 
- 		if (hd->do_stat) {
- 			hd->do_stat = 0;
-diff --git a/json.c b/json.c
-index f3ec0bb..190fa9e 100644
---- a/json.c
-+++ b/json.c
-@@ -347,7 +347,7 @@ static void json_print_value(struct json_value *value, struct buf_output *out)
- 		log_buf(out, "%lld", value->integer_number);
- 		break;
- 	case JSON_TYPE_FLOAT:
--		log_buf(out, "%.2f", value->float_number);
-+		log_buf(out, "%f", value->float_number);
- 		break;
- 	case JSON_TYPE_OBJECT:
- 		json_print_object(value->object, out);
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
