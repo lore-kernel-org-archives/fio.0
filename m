@@ -1,193 +1,265 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:52848 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750834AbcFDMAE (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 4 Jun 2016 08:00:04 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-	id 1b9AFH-0002Hz-EM
-	for fio@vger.kernel.org; Sat, 04 Jun 2016 12:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160604120001.A740A2C00A3@kernel.dk>
-Date: Sat,  4 Jun 2016 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <Vincent.Fu@sandisk.com>
+From: Vincent Fu <Vincent.Fu@sandisk.com>
+Subject: terminating fio jobs upon reaching steady state
+Date: Thu, 30 Jun 2016 15:49:35 +0000
+Message-ID: <CY1PR0201MB1882D39478B9483993B429488C240@CY1PR0201MB1882.namprd02.prod.outlook.com>
+Content-Language: en-US
+Content-Type: multipart/alternative;
+	boundary="_000_CY1PR0201MB1882D39478B9483993B429488C240CY1PR0201MB1882_"
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 385e1da6468bc951a0bf7ae60d890bb4d4a55ded:
+--_000_CY1PR0201MB1882D39478B9483993B429488C240CY1PR0201MB1882_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-  Documentation update (2016-06-02 16:57:20 -0600)
+Jens, I have been working on a patch to give fio the ability to terminate a=
+ job when steady state is attained. I have a crude implementation that is w=
+orking at https://bitbucket.org/vincentfu/fio/commits/all but I'm hoping to=
+ receive some feedback on its design.
 
-are available in the git repository at:
+Currently, the feature works via helper_thread_main(). It collects data in =
+a ring buffer for a specified duration and carries out the termination test=
+ when the ring buffer is full. If the test passes, the job terminates. If t=
+he test fails, the job continues, the oldest data point in the buffer is dr=
+opped, a new data point is added, and the termination test is carried out a=
+gain. The cycle repeats until the job terminates because steady state was a=
+ttained or for other reasons.
 
-  git://git.kernel.dk/fio.git master
+Reporting of results is done via JSON output and includes per second IOPS/B=
+W measurements from the ring buffer.
 
-for you to fetch changes up to 82e65aecd90a35171eb9930ba7b08d27fee95640:
+Three new job options control this feature:
 
-  Documentation: fix psyncv2 typo (2016-06-03 09:00:49 -0600)
+ss_dur =3D size of the ring buffer used for termination test. Data points a=
+re collected once per second.
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      Documentation: fix psyncv2 typo
+ss_ramp =3D ramp time once job is underway before data collection begins (t=
+o avoid false positives detecting steady state for jobs run on freshly form=
+atted SSDs)
 
-Vincent Fu (1):
-      tools/fio_latency2csv.py: add tool that converts json+ to CSV
+ss =3D criterion:limit
 
- HOWTO                    |   2 +-
- Makefile                 |   2 +-
- fio.1                    |   2 +-
- tools/fio_latency2csv.py | 101 +++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 104 insertions(+), 3 deletions(-)
- create mode 100755 tools/fio_latency2csv.py
+criterion is one of iops, bw, iops_ slope, bw_slope
 
----
+iops, bw                        terminate the job when the all data points =
+in the buffer are within the specified limit of the mean
 
-Diff of recent changes:
+iops_slope, bw_slope    terminate the job when the magnitude of the least s=
+quares slope falls below the specified limit
 
-diff --git a/HOWTO b/HOWTO
-index 1d4e46c..67fd833 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -708,7 +708,7 @@ ioengine=str	Defines how the job issues io to the file. The following
- 
- 			pvsync	Basic preadv(2) or pwritev(2) IO.
- 
--			psync2	Basic preadv2(2) or pwritev2(2) IO.
-+			pvsync2	Basic preadv2(2) or pwritev2(2) IO.
- 
- 			libaio	Linux native asynchronous io. Note that Linux
- 				may only support queued behaviour with
-diff --git a/Makefile b/Makefile
-index 108e6ee..c617d6f 100644
---- a/Makefile
-+++ b/Makefile
-@@ -26,7 +26,7 @@ OPTFLAGS= -g -ffast-math
- CFLAGS	= -std=gnu99 -Wwrite-strings -Wall -Wdeclaration-after-statement $(OPTFLAGS) $(EXTFLAGS) $(BUILD_CFLAGS) -I. -I$(SRCDIR)
- LIBS	+= -lm $(EXTLIBS)
- PROGS	= fio
--SCRIPTS = $(addprefix $(SRCDIR)/,tools/fio_generate_plots tools/plot/fio2gnuplot tools/genfio tools/fiologparser.py)
-+SCRIPTS = $(addprefix $(SRCDIR)/,tools/fio_generate_plots tools/plot/fio2gnuplot tools/genfio tools/fiologparser.py tools/fio_latency2csv.py)
- 
- ifndef CONFIG_FIO_NO_OPT
-   CFLAGS += -O3
-diff --git a/fio.1 b/fio.1
-index 7f053d4..353f8ff 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1709,7 +1709,7 @@ from user-space to reap events. The reaping mode is only
- enabled when polling for a minimum of 0 events (eg when
- iodepth_batch_complete=0).
- .TP
--.BI (psyncv2)hipri
-+.BI (pvsync2)hipri
- Set RWF_HIPRI on IO, indicating to the kernel that it's of
- higher priority than normal.
- .TP
-diff --git a/tools/fio_latency2csv.py b/tools/fio_latency2csv.py
-new file mode 100755
-index 0000000..93586d2
---- /dev/null
-+++ b/tools/fio_latency2csv.py
-@@ -0,0 +1,101 @@
-+#!/usr/bin/python
-+#
-+# fio_latency2csv.py
-+#
-+# This tool converts fio's json+ completion latency data to CSV format.
-+# For example:
-+#
-+# fio_latency2csv.py fio-jsonplus.output fio-latency.csv
-+#
-+
-+import os
-+import json
-+import argparse
-+
-+
-+def parse_args():
-+    parser = argparse.ArgumentParser()
-+    parser.add_argument('source',
-+                        help='fio json+ output file containing completion '
-+                             'latency data')
-+    parser.add_argument('dest',
-+                        help='destination file stub for latency data in CSV '
-+                             'format. job number will be appended to filename')
-+    args = parser.parse_args()
-+
-+    return args
-+
-+
-+# from stat.c
-+def plat_idx_to_val(idx, FIO_IO_U_PLAT_BITS=6, FIO_IO_U_PLAT_VAL=64):
-+    # MSB <= (FIO_IO_U_PLAT_BITS-1), cannot be rounded off. Use
-+    # all bits of the sample as index
-+    if (idx < (FIO_IO_U_PLAT_VAL << 1)):
-+        return idx
-+
-+    # Find the group and compute the minimum value of that group
-+    error_bits = (idx >> FIO_IO_U_PLAT_BITS) - 1
-+    base = 1 << (error_bits + FIO_IO_U_PLAT_BITS)
-+
-+    # Find its bucket number of the group
-+    k = idx % FIO_IO_U_PLAT_VAL
-+
-+    # Return the mean of the range of the bucket
-+    return (base + ((k + 0.5) * (1 << error_bits)))
-+
-+
-+def percentile(idx, run_total):
-+    total = run_total[len(run_total)-1]
-+    if total == 0:
-+        return 0
-+
-+    return float(run_total[x]) / total
-+
-+
-+if __name__ == '__main__':
-+    args = parse_args()
-+
-+    with open(args.source, 'r') as source:
-+        jsondata = json.loads(source.read())
-+
-+    bins = {}
-+    bin_const = {}
-+    run_total = {}
-+    ddir_list = ['read', 'write', 'trim']
-+    const_list = ['FIO_IO_U_PLAT_NR', 'FIO_IO_U_PLAT_BITS',
-+                  'FIO_IO_U_PLAT_VAL']
-+
-+    for jobnum in range(0,len(jsondata['jobs'])):
-+        prev_ddir = None
-+        for ddir in ddir_list:
-+            bins[ddir] = jsondata['jobs'][jobnum][ddir]['clat']['bins']
-+
-+            bin_const[ddir] = {}
-+            for const in const_list:
-+                bin_const[ddir][const] = bins[ddir].pop(const)
-+                if prev_ddir:
-+                    assert bin_const[ddir][const] == bin_const[prev_ddir][const]
-+            prev_ddir = ddir
-+
-+            run_total[ddir] = [0 for x in
-+                               range(bin_const[ddir]['FIO_IO_U_PLAT_NR'])]
-+            run_total[ddir][0] = bins[ddir]['0']
-+            for x in range(1, bin_const[ddir]['FIO_IO_U_PLAT_NR']):
-+                run_total[ddir][x] = run_total[ddir][x-1] + bins[ddir][str(x)]
-+        
-+        stub, ext = os.path.splitext(args.dest)
-+        outfile = stub + '_job' + str(jobnum) + ext
-+
-+        with open(outfile, 'w') as output:
-+            output.write("clat (usec),")
-+            for ddir in ddir_list:
-+                output.write("{0},".format(ddir))
-+            output.write("\n")
-+
-+            for x in range(bin_const['read']['FIO_IO_U_PLAT_NR']):
-+                output.write("{0},".format(plat_idx_to_val(x,
-+                                          bin_const['read']['FIO_IO_U_PLAT_BITS'],
-+                                          bin_const['read']['FIO_IO_U_PLAT_VAL'])))
-+                for ddir in ddir_list:
-+                    output.write("{0},".format(percentile(x, run_total[ddir])))
-+                output.write("\n")
+limit can be either a fixed number or a percentage. ss=3Diops:10 will termi=
+nate the job when all IOPS values in the buffer are within 10 of the mean. =
+ss=3Dbw_slope:0.01% will terminate the job when the least squares slope fal=
+ls below 0.01% of the mean bandwidth in the buffer.
+
+This command:
+
+./fio --name=3Dtest --rw=3Drandrw --rwmixread=3D100 --filename=3Dfio --time=
+_based --runtime=3D30s --ss_dur=3D10 --ss_ramp=3D3 --ss=3Diops:10000 --outp=
+ut-format=3Djson
+
+results in something like this:
+
+ "steadystate" : {
+        "ss" : "iops:10000.000000",
+        "duration" : 10,
+        "steadystate_ramptime" : 3,
+        "attained" : 1,
+        "criterion" : 9664.599609,
+        "data" : [
+          613354,
+          624473,
+          623099,
+          617032,
+          617280,
+          614679,
+          607775,
+          620743,
+          617561,
+          618400
+        ] }
+
+
+I'm wondering how important are the following requirements?
+
+1) Full bandwidth/IOPS series for the entire runtime
+
+I can imagine a use case where a user would want to see how the device beha=
+ves as it approaches steady state, in addition to the behavior of the devic=
+e while it is in steady state. Right now the patch only reports IOPS/BW dat=
+a from the ring buffer that was used for testing the termination criterion.
+
+2) Ability to report latency data for the steady state period
+
+An obvious use case is to run a workload in steady state for a long duratio=
+n and then report its latency distribution. The only way I can imagine to h=
+ave this feature provide latency data is to maintain a ring buffer of io_u_=
+plat[DDIR_RWDIR_CNT][FIO_IO_U_PLAT_NR] arrays, one for each thread. Then th=
+e latency distribution for the steady state period will be the difference b=
+etween the overall final latency distribution and the distribution at the h=
+ead of the ring buffer. The disadvantage of this approach is high memory co=
+nsumption. A work-around is to have one job use this feature to drive the d=
+evice to steady state and then follow up with a second time-based identical=
+ follow-up job for latency data collection, although there will be no guara=
+ntee that the second job will meet the steady state criterion.
+
+3) How should this interact with group_reporting?
+
+Since reporting will be for the entire group, it seems sensible to have ste=
+ady state detection operate at the group level, with BW and IOPS values sum=
+med over all threads in a group and all threads in a group terminating when=
+ steady state is attained.
+
+
+Vincent
+
+--
+Vincent Fu
+Software Dev Engr II
+SanDisk | a Western Digital brand
+Remote Worker, Rockville, MD, USA
+T: 801 987 7079
+Vincent.Fu@SanDisk.com<mailto:Vincent.Fu@SanDisk.com>
+
+PLEASE NOTE: The information contained in this electronic mail message is i=
+ntended only for the use of the designated recipient(s) named above. If the=
+ reader of this message is not the intended recipient, you are hereby notif=
+ied that you have received this message in error and that any review, disse=
+mination, distribution, or copying of this message is strictly prohibited. =
+If you have received this communication in error, please notify the sender =
+by telephone or e-mail (as shown above) immediately and destroy any and all=
+ copies of this message in your possession (whether hard copies or electron=
+ically stored copies).
+
+--_000_CY1PR0201MB1882D39478B9483993B429488C240CY1PR0201MB1882_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+</head>
+<body bgcolor=3D"#FFFFFF" text=3D"#000000">
+<p>Jens, I have been working on a patch to give fio the ability to terminat=
+e a job when steady state is attained. I have a crude implementation that i=
+s working at
+<a class=3D"moz-txt-link-freetext" href=3D"https://bitbucket.org/vincentfu/=
+fio/commits/all">
+https://bitbucket.org/vincentfu/fio/commits/all</a> but I'm hoping to recei=
+ve some feedback on its design.</p>
+<p>Currently, the feature works via helper_thread_main(). It collects data =
+in a ring buffer for a specified duration and carries out the termination t=
+est when the ring buffer is full. If the test passes, the job terminates. I=
+f the test fails, the job continues,
+ the oldest data point in the buffer is dropped, a new data point is added,=
+ and the termination test is carried out again. The cycle repeats until the=
+ job terminates because steady state was attained or for other reasons.</p>
+<p>Reporting of results is done via JSON output and includes per second IOP=
+S/BW measurements from the ring buffer.</p>
+<p>Three new job options control this feature:</p>
+<p>ss_dur =3D size of the ring buffer used for termination test. Data point=
+s are collected once per second.</p>
+<p>ss_ramp =3D ramp time once job is underway before data collection begins=
+ (to avoid false positives detecting steady state for jobs run on freshly f=
+ormatted SSDs)<br>
+</p>
+<p>ss =3D criterion:limit</p>
+<p>criterion is one of iops, bw, iops_ slope, bw_slope</p>
+<p>iops, bw&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&=
+nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; terminate the job when th=
+e all data points in the buffer are within the specified limit of the mean<=
+/p>
+<p>iops_slope, bw_slope&nbsp;&nbsp;&nbsp; terminate the job when the magnit=
+ude of the least squares slope falls below the specified limit</p>
+<p>limit can be either a fixed number or a percentage. ss=3Diops:10 will te=
+rminate the job when all IOPS values in the buffer are within 10 of the mea=
+n. ss=3Dbw_slope:0.01% will terminate the job when the least squares slope =
+falls below 0.01% of the mean bandwidth
+ in the buffer.</p>
+<p>This command:</p>
+<p>./fio --name=3Dtest --rw=3Drandrw --rwmixread=3D100 --filename=3Dfio --t=
+ime_based --runtime=3D30s --ss_dur=3D10 --ss_ramp=3D3 --ss=3Diops:10000 --o=
+utput-format=3Djson</p>
+results in something like this:<br>
+<p></p>
+<p>&nbsp;&quot;steadystate&quot; : {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;ss&quot; : &quot;iops:1000=
+0.000000&quot;,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;duration&quot; : 10,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;steadystate_ramptime&quot;=
+ : 3,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;attained&quot; : 1,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;criterion&quot; : 9664.599=
+609,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;data&quot; : [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 613354,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 624473,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 623099,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 617032,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 617280,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 614679,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 607775,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 620743,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 617561,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 618400<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ] }<br>
+</p>
+<p><br>
+</p>
+<p>I'm wondering how important are the following requirements?</p>
+<p>1) Full bandwidth/IOPS series for the entire runtime</p>
+<p>I can imagine a use case where a user would want to see how the device b=
+ehaves as it approaches steady state, in addition to the behavior of the de=
+vice while it is in steady state. Right now the patch only reports IOPS/BW =
+data from the ring buffer that was
+ used for testing the termination criterion.<br>
+</p>
+<p>2) Ability to report latency data for the steady state period</p>
+<p>An obvious use case is to run a workload in steady state for a long dura=
+tion and then report its latency distribution. The only way I can imagine t=
+o have this feature provide latency data is to maintain a ring buffer of io=
+_u_plat[DDIR_RWDIR_CNT][FIO_IO_U_PLAT_NR]
+ arrays, one for each thread. Then the latency distribution for the steady =
+state period will be the difference between the overall final latency distr=
+ibution and the distribution at the head of the ring buffer. The disadvanta=
+ge of this approach is high memory
+ consumption. A work-around is to have one job use this feature to drive th=
+e device to steady state and then follow up with a second time-based identi=
+cal follow-up job for latency data collection, although there will be no gu=
+arantee that the second job will
+ meet the steady state criterion. </p>
+<p>3) How should this interact with group_reporting?</p>
+<p>Since reporting will be for the entire group, it seems sensible to have =
+steady state detection operate at the group level, with BW and IOPS values =
+summed over all threads in a group and all threads in a group terminating w=
+hen steady state is attained.</p>
+<p><br>
+</p>
+<p>Vincent<br>
+</p>
+<pre class=3D"moz-signature" cols=3D"72">-- =0A=
+Vincent Fu=0A=
+Software Dev Engr II=0A=
+SanDisk | a Western Digital brand=0A=
+Remote Worker, Rockville, MD, USA=0A=
+T: 801 987 7079=0A=
+<a class=3D"moz-txt-link-abbreviated" href=3D"mailto:Vincent.Fu@SanDisk.com=
+">Vincent.Fu@SanDisk.com</a></pre>
+PLEASE NOTE: The information contained in this electronic mail message is i=
+ntended only for the use of the designated recipient(s) named above. If the=
+ reader of this message is not the intended recipient, you are hereby notif=
+ied that you have received this
+ message in error and that any review, dissemination, distribution, or copy=
+ing of this message is strictly prohibited. If you have received this commu=
+nication in error, please notify the sender by telephone or e-mail (as show=
+n above) immediately and destroy
+ any and all copies of this message in your possession (whether hard copies=
+ or electronically stored copies).
+</body>
+</html>
+
+--_000_CY1PR0201MB1882D39478B9483993B429488C240CY1PR0201MB1882_--
+
