@@ -1,77 +1,61 @@
-Return-Path: <jeff.furlong@hgst.com>
-From: Jeff Furlong <jeff.furlong@hgst.com>
-Subject: RE: what is the sample logger doing when the buffer fills up?
-Date: Thu, 7 Jul 2016 21:04:44 +0000
-Message-ID: <BN3PR0401MB1457BF2D349098BBF7F579A2F73B0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Return-Path: <kcronbur@redhat.com>
+MIME-Version: 1.0
+In-Reply-To: <20160707183605.GB8567@kernel.dk>
 References: <CAJ9yE1DPWmV0Hx_AAS5cKZR5qSFeqmqJVg7dgikQK=ZBje-e3A@mail.gmail.com>
  <20160707183605.GB8567@kernel.dk>
- <CAJ9yE1Ayvzkq5iNYCWEfhzunA7pLoJrS-YBb9TtBR3RM1xyWDg@mail.gmail.com>
-In-Reply-To: <CAJ9yE1Ayvzkq5iNYCWEfhzunA7pLoJrS-YBb9TtBR3RM1xyWDg@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-To: Karl Cronburg <kcronbur@redhat.com>, Jens Axboe <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+From: Karl Cronburg <kcronbur@redhat.com>
+Date: Thu, 7 Jul 2016 15:46:32 -0400
+Message-ID: <CAJ9yE1Ayvzkq5iNYCWEfhzunA7pLoJrS-YBb9TtBR3RM1xyWDg@mail.gmail.com>
+Subject: Re: what is the sample logger doing when the buffer fills up?
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-SSBhbSBzdGlsbCBzZWVpbmcgZHJvcHBlZCBlbnRyaWVzIG9uIGEgc2xpZ2h0bHkgZGlmZmVyZW50
-IGNhc2U6DQoNCiMgZmlvIC12ZXJzaW9uDQpmaW8tMi4xMi01LWcwYjJlDQoNCiMgZmlvIC0tbmFt
-ZT10ZXN0X2pvYiAtLWlvZW5naW5lPWxpYmFpbyAtLWRpcmVjdD0xIC0tcnc9cmFuZHJlYWQgLS1p
-b2RlcHRoPTI1NiAtLXNpemU9MTAwJSAtLW51bWpvYnM9MiAtLWJzPTRrIC0tZmlsZW5hbWU9L2Rl
-di9udm1lMG4xIC0tZ3JvdXBfcmVwb3J0aW5nIC0td3JpdGVfYndfbG9nPXRlc3Rfam9iIC0td3Jp
-dGVfaW9wc19sb2c9dGVzdF9qb2IgLS13cml0ZV9sYXRfbG9nPXRlc3Rfam9iIC0tbG9nX2F2Z19t
-c2VjPTEwMDAgLS1kaXNhYmxlX2xhdD0wIC0tZGlzYWJsZV9jbGF0PTAgLS1kaXNhYmxlX3NsYXQ9
-MCAtLXJ1bnRpbWU9NjBzIC0tdGltZV9iYXNlZCAtLW91dHB1dD10ZXN0X2pvYg0KDQojIGNhdCB0
-ZXN0X2pvYl9pb3BzLjEubG9nIA0KMTAwMCwgMzc1NjAxLCAwLCAwDQozMDAwLCAyNDM1MzksIDAs
-IDANCjQwMDAsIDQ2MjA3NiwgMCwgMA0KLi4uDQoNClJlZ2FyZHMsDQpKZWZmDQoNCg0KLS0tLS1P
-cmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IGZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmcgW21h
-aWx0bzpmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnXSBPbiBCZWhhbGYgT2YgS2FybCBDcm9uYnVy
-Zw0KU2VudDogVGh1cnNkYXksIEp1bHkgNywgMjAxNiAxMjo0NyBQTQ0KVG86IEplbnMgQXhib2Ug
-PGF4Ym9lQGtlcm5lbC5kaz4NCkNjOiBmaW9Admdlci5rZXJuZWwub3JnDQpTdWJqZWN0OiBSZTog
-d2hhdCBpcyB0aGUgc2FtcGxlIGxvZ2dlciBkb2luZyB3aGVuIHRoZSBidWZmZXIgZmlsbHMgdXA/
-DQoNClllcywgbXkgcGF0Y2ggZml4ZWQgdGhlIGRyb3BwaW5nIG9mIGVudHJpZXMgSSB3YXMgc2Vl
-aW5nLg0KDQpPbiBUaHUsIEp1bCA3LCAyMDE2IGF0IDI6MzYgUE0sIEplbnMgQXhib2UgPGF4Ym9l
-QGtlcm5lbC5kaz4gd3JvdGU6DQo+IE9uIFdlZCwgSnVsIDA2IDIwMTYsIEthcmwgQ3JvbmJ1cmcg
-d3JvdGU6DQo+PiBIZWxsbyBhbGwsDQo+Pg0KPj4gV2hlbiBJIGNoYW5nZSBhZGRfY2xhdF9zYW1w
-bGUoKSBpbiBzdGF0LmMgdG8gY2FsbCBhZGRfbG9nX3NhbXBsZSgpIA0KPj4gc2V2ZW4gdGltZXMg
-aW5zdGVhZCBvZiBvbmNlLCBhbmQgSSBzZXQgREVGX0xPR19FTlRSSUVTPTQwOTYsIEkgZ2V0IA0K
-Pj4gdGhlIGZvbGxvd2luZyBpbiB0aGUgY2xhdCBsb2cgZmlsZSAobm90ZSBmaXJzdCBjb2x1bW4g
-aXMgbGluZSBudW1iZXIgaW4gdGhlIGZpbGUpOg0KPj4NCj4+ICAgNDA4OSAxNDMsIDk4MzIsIDAs
-IDEzMTA3Mg0KPj4gICA0MDkwIDE0MywgOTgzMiwgMCwgMTMxMDcyDQo+PiAgIDQwOTEgMTQzLCA5
-ODMyLCAwLCAxMzEwNzINCj4+ICAgNDA5MiAxNDMsIDk4MzIsIDAsIDEzMTA3Mg0KPj4gICA0MDkz
-IDE0MywgOTgzMiwgMCwgMTMxMDcyDQo+PiAgIDQwOTQgMTQzLCA5ODMyLCAwLCAxMzEwNzINCj4+
-ICAgNDA5NSAxNDMsIDk4MzIsIDAsIDEzMTA3Mg0KPj4gICA0MDk2IDE0MywgOTgzNCwgMCwgMTMx
-MDcyDQo+PiAgIDQwOTcgMTcwLCAxNTk4MiwgMCwgMTMxMDcyDQo+PiAgIDQwOTggMTcwLCAxNTk4
-MiwgMCwgMTMxMDcyDQo+PiAgIDQwOTkgMTcwLCAxNTk4MiwgMCwgMTMxMDcyDQo+PiAgIDQxMDAg
-MTcwLCAxNTk4MiwgMCwgMTMxMDcyDQo+PiAgIDQxMDEgMTcwLCAxNTk4MiwgMCwgMTMxMDcyDQo+
-PiAgIDQxMDIgMTcwLCAxNTk4MiwgMCwgMTMxMDcyDQo+PiAgIDQxMDMgMTcwLCAxNTk4MiwgMCwg
-MTMxMDcyDQo+PiAgIDQxMDQgMTcwLCAxNTk4NSwgMCwgMTMxMDcyDQo+PiAgIDQxMDUgMTcwLCAx
-NTk4NSwgMCwgMTMxMDcyDQo+Pg0KPj4gTm90aWNlIHRoZSBsb25lbHkgJzk4MzQnIHZhbHVlIGlu
-IHRoZSBjZW50ZXIsIHdoaWNoIHNob3VsZCBoYXZlIDcgDQo+PiBleGFjdCBjb3BpZXMgb2YgaXRz
-ZWxmIGJ1dCBnZXRzIGN1dCBvZmYgcmlnaHQgYXQgdGhlIGJ1ZmZlciBzaXplIG9mIA0KPj4gNDA5
-NiBlbnRyaWVzLg0KPj4NCj4+IFNvIGlmIEknbSBpbnRlcnByZXRpbmcgdGhpcyBjb3JyZWN0bHks
-IHNhbXBsZXMgZ2V0IHNpbGVudGx5IGRyb3BwZWQgDQo+PiAob3Igbm90IHByb3Blcmx5IHByaW50
-ZWQ/KSB3aGVuIHRoZSBidWZmZXIgZmlsbHMgdXAuIElzIHRoaXMgYSBidWc/IA0KPj4gQW0gSSBt
-aXNpbnRlcnByZXRpbmcgd2hhdCB0aGUgZG91Ymx5IGxpbmtlZCBsaXN0IGlzIGZvcj8gSSB3YXMg
-dW5kZXIgDQo+PiB0aGUgaW1wcmVzc2lvbiB0aGF0IGEgbmV3IHNhbXBsZSBidWZmZXIgc2hvdWxk
-IGJlIGFkZGVkIHRvIHRoZSBsaW5rZWQgDQo+PiBsaXN0IHdoZW4gdGhlIGN1cnJlbnQgb25lIGZp
-bGxzIHVwLg0KPg0KPiBGYWlyIHRvIGFzc3VtZSB0aGlzIGlzIHdoYXQgeW91ciBwYXRjaCBmaXhl
-ZCwgY29ycmVjdD8gSnVzdCB3YW50ZWQgdG8gDQo+IGVuc3VyZSB0aGF0IGl0J3MgYWxyZWFkeSBm
-aXhlZC4NCj4NCj4gLS0NCj4gSmVucyBBeGJvZQ0KPg0KLS0NClRvIHVuc3Vic2NyaWJlIGZyb20g
-dGhpcyBsaXN0OiBzZW5kIHRoZSBsaW5lICJ1bnN1YnNjcmliZSBmaW8iIGluIHRoZSBib2R5IG9m
-IGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnIE1vcmUgbWFqb3Jkb21vIGlu
-Zm8gYXQgIGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFqb3Jkb21vLWluZm8uaHRtbA0KV2VzdGVy
-biBEaWdpdGFsIENvcnBvcmF0aW9uIChhbmQgaXRzIHN1YnNpZGlhcmllcykgRS1tYWlsIENvbmZp
-ZGVudGlhbGl0eSBOb3RpY2UgJiBEaXNjbGFpbWVyOgoKVGhpcyBlLW1haWwgYW5kIGFueSBmaWxl
-cyB0cmFuc21pdHRlZCB3aXRoIGl0IG1heSBjb250YWluIGNvbmZpZGVudGlhbCBvciBsZWdhbGx5
-IHByaXZpbGVnZWQgaW5mb3JtYXRpb24gb2YgV0RDIGFuZC9vciBpdHMgYWZmaWxpYXRlcywgYW5k
-IGFyZSBpbnRlbmRlZCBzb2xlbHkgZm9yIHRoZSB1c2Ugb2YgdGhlIGluZGl2aWR1YWwgb3IgZW50
-aXR5IHRvIHdoaWNoIHRoZXkgYXJlIGFkZHJlc3NlZC4gSWYgeW91IGFyZSBub3QgdGhlIGludGVu
-ZGVkIHJlY2lwaWVudCwgYW55IGRpc2Nsb3N1cmUsIGNvcHlpbmcsIGRpc3RyaWJ1dGlvbiBvciBh
-bnkgYWN0aW9uIHRha2VuIG9yIG9taXR0ZWQgdG8gYmUgdGFrZW4gaW4gcmVsaWFuY2Ugb24gaXQs
-IGlzIHByb2hpYml0ZWQuIElmIHlvdSBoYXZlIHJlY2VpdmVkIHRoaXMgZS1tYWlsIGluIGVycm9y
-LCBwbGVhc2Ugbm90aWZ5IHRoZSBzZW5kZXIgaW1tZWRpYXRlbHkgYW5kIGRlbGV0ZSB0aGUgZS1t
-YWlsIGluIGl0cyBlbnRpcmV0eSBmcm9tIHlvdXIgc3lzdGVtLgo=
+Yes, my patch fixed the dropping of entries I was seeing.
 
+On Thu, Jul 7, 2016 at 2:36 PM, Jens Axboe <axboe@kernel.dk> wrote:
+> On Wed, Jul 06 2016, Karl Cronburg wrote:
+>> Hello all,
+>>
+>> When I change add_clat_sample() in stat.c to call add_log_sample() seven times
+>> instead of once, and I set DEF_LOG_ENTRIES=4096, I get the following in the clat
+>> log file (note first column is line number in the file):
+>>
+>>   4089 143, 9832, 0, 131072
+>>   4090 143, 9832, 0, 131072
+>>   4091 143, 9832, 0, 131072
+>>   4092 143, 9832, 0, 131072
+>>   4093 143, 9832, 0, 131072
+>>   4094 143, 9832, 0, 131072
+>>   4095 143, 9832, 0, 131072
+>>   4096 143, 9834, 0, 131072
+>>   4097 170, 15982, 0, 131072
+>>   4098 170, 15982, 0, 131072
+>>   4099 170, 15982, 0, 131072
+>>   4100 170, 15982, 0, 131072
+>>   4101 170, 15982, 0, 131072
+>>   4102 170, 15982, 0, 131072
+>>   4103 170, 15982, 0, 131072
+>>   4104 170, 15985, 0, 131072
+>>   4105 170, 15985, 0, 131072
+>>
+>> Notice the lonely '9834' value in the center, which should have 7
+>> exact copies of itself
+>> but gets cut off right at the buffer size of 4096 entries.
+>>
+>> So if I'm interpreting this correctly, samples get silently dropped
+>> (or not properly printed?)
+>> when the buffer fills up. Is this a bug? Am I misinterpreting what the
+>> doubly linked list is
+>> for? I was under the impression that a new sample buffer should be
+>> added to the linked
+>> list when the current one fills up.
+>
+> Fair to assume this is what your patch fixed, correct? Just wanted to
+> ensure that it's already fixed.
+>
+> --
+> Jens Axboe
+>
 
