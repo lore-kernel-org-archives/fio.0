@@ -1,29 +1,52 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: what is the sample logger doing when the buffer fills up?
+Return-Path: <jeff.furlong@hgst.com>
+From: Jeff Furlong <jeff.furlong@hgst.com>
+Subject: RE: what is the sample logger doing when the buffer fills up?
+Date: Thu, 7 Jul 2016 21:47:52 +0000
+Message-ID: <BN3PR0401MB1457786D4450A0AA7A6571D1F73B0@BN3PR0401MB1457.namprd04.prod.outlook.com>
 References: <CAJ9yE1DPWmV0Hx_AAS5cKZR5qSFeqmqJVg7dgikQK=ZBje-e3A@mail.gmail.com>
  <20160707183605.GB8567@kernel.dk>
  <CAJ9yE1Ayvzkq5iNYCWEfhzunA7pLoJrS-YBb9TtBR3RM1xyWDg@mail.gmail.com>
  <BN3PR0401MB1457BF2D349098BBF7F579A2F73B0@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <577ECD29.2090204@kernel.dk>
- <BN3PR0401MB1457786D4450A0AA7A6571D1F73B0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <577ECE94.2080105@kernel.dk>
-Date: Thu, 7 Jul 2016 15:50:12 -0600
+In-Reply-To: <577ECD29.2090204@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <BN3PR0401MB1457786D4450A0AA7A6571D1F73B0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Jeff Furlong <jeff.furlong@hgst.com>, Karl Cronburg <kcronbur@redhat.com>
+Content-Transfer-Encoding: base64
+To: Jens Axboe <axboe@kernel.dk>, Karl Cronburg <kcronbur@redhat.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 07/07/2016 03:47 PM, Jeff Furlong wrote:
-> There are more.  In a 60s test, logging every 1s, I see 6 to 7 samples
-> get dropped.  But I only see it when numjobs > 1.
-
-OK, I'll take a look.
-
--- 
-Jens Axboe
+VGhlcmUgYXJlIG1vcmUuICBJbiBhIDYwcyB0ZXN0LCBsb2dnaW5nIGV2ZXJ5IDFzLCBJIHNlZSA2
+IHRvIDcgc2FtcGxlcyBnZXQgZHJvcHBlZC4gIEJ1dCBJIG9ubHkgc2VlIGl0IHdoZW4gbnVtam9i
+cyA+IDEuDQoNClJlZ2FyZHMsDQpKZWZmDQoNCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0N
+CkZyb206IEplbnMgQXhib2UgW21haWx0bzpheGJvZUBrZXJuZWwuZGtdIA0KU2VudDogVGh1cnNk
+YXksIEp1bHkgNywgMjAxNiAyOjQ0IFBNDQpUbzogSmVmZiBGdXJsb25nIDxqZWZmLmZ1cmxvbmdA
+aGdzdC5jb20+OyBLYXJsIENyb25idXJnIDxrY3JvbmJ1ckByZWRoYXQuY29tPg0KQ2M6IGZpb0B2
+Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiB3aGF0IGlzIHRoZSBzYW1wbGUgbG9nZ2VyIGRv
+aW5nIHdoZW4gdGhlIGJ1ZmZlciBmaWxscyB1cD8NCg0KT24gMDcvMDcvMjAxNiAwMzowNCBQTSwg
+SmVmZiBGdXJsb25nIHdyb3RlOg0KPiBJIGFtIHN0aWxsIHNlZWluZyBkcm9wcGVkIGVudHJpZXMg
+b24gYSBzbGlnaHRseSBkaWZmZXJlbnQgY2FzZToNCj4NCj4gIyBmaW8gLXZlcnNpb24NCj4gZmlv
+LTIuMTItNS1nMGIyZQ0KPg0KPiAjIGZpbyAtLW5hbWU9dGVzdF9qb2IgLS1pb2VuZ2luZT1saWJh
+aW8gLS1kaXJlY3Q9MSAtLXJ3PXJhbmRyZWFkIC0taW9kZXB0aD0yNTYgLS1zaXplPTEwMCUgLS1u
+dW1qb2JzPTIgLS1icz00ayAtLWZpbGVuYW1lPS9kZXYvbnZtZTBuMSAtLWdyb3VwX3JlcG9ydGlu
+ZyAtLXdyaXRlX2J3X2xvZz10ZXN0X2pvYiAtLXdyaXRlX2lvcHNfbG9nPXRlc3Rfam9iIC0td3Jp
+dGVfbGF0X2xvZz10ZXN0X2pvYiAtLWxvZ19hdmdfbXNlYz0xMDAwIC0tZGlzYWJsZV9sYXQ9MCAt
+LWRpc2FibGVfY2xhdD0wIC0tZGlzYWJsZV9zbGF0PTAgLS1ydW50aW1lPTYwcyAtLXRpbWVfYmFz
+ZWQgLS1vdXRwdXQ9dGVzdF9qb2INCj4NCj4gIyBjYXQgdGVzdF9qb2JfaW9wcy4xLmxvZw0KPiAx
+MDAwLCAzNzU2MDEsIDAsIDANCj4gMzAwMCwgMjQzNTM5LCAwLCAwDQo+IDQwMDAsIDQ2MjA3Niwg
+MCwgMA0KDQpUaGF0J3MgdmVyeSBvZGQuIElzIGl0IGp1c3QgdGhlIDIwMDAgdGhhdCdzIGRyb3Bw
+ZWQsIG9yIGFyZSB0aGVyZSBtb3JlPw0KDQotLSANCkplbnMgQXhib2UNCg0KV2VzdGVybiBEaWdp
+dGFsIENvcnBvcmF0aW9uIChhbmQgaXRzIHN1YnNpZGlhcmllcykgRS1tYWlsIENvbmZpZGVudGlh
+bGl0eSBOb3RpY2UgJiBEaXNjbGFpbWVyOgoKVGhpcyBlLW1haWwgYW5kIGFueSBmaWxlcyB0cmFu
+c21pdHRlZCB3aXRoIGl0IG1heSBjb250YWluIGNvbmZpZGVudGlhbCBvciBsZWdhbGx5IHByaXZp
+bGVnZWQgaW5mb3JtYXRpb24gb2YgV0RDIGFuZC9vciBpdHMgYWZmaWxpYXRlcywgYW5kIGFyZSBp
+bnRlbmRlZCBzb2xlbHkgZm9yIHRoZSB1c2Ugb2YgdGhlIGluZGl2aWR1YWwgb3IgZW50aXR5IHRv
+IHdoaWNoIHRoZXkgYXJlIGFkZHJlc3NlZC4gSWYgeW91IGFyZSBub3QgdGhlIGludGVuZGVkIHJl
+Y2lwaWVudCwgYW55IGRpc2Nsb3N1cmUsIGNvcHlpbmcsIGRpc3RyaWJ1dGlvbiBvciBhbnkgYWN0
+aW9uIHRha2VuIG9yIG9taXR0ZWQgdG8gYmUgdGFrZW4gaW4gcmVsaWFuY2Ugb24gaXQsIGlzIHBy
+b2hpYml0ZWQuIElmIHlvdSBoYXZlIHJlY2VpdmVkIHRoaXMgZS1tYWlsIGluIGVycm9yLCBwbGVh
+c2Ugbm90aWZ5IHRoZSBzZW5kZXIgaW1tZWRpYXRlbHkgYW5kIGRlbGV0ZSB0aGUgZS1tYWlsIGlu
+IGl0cyBlbnRpcmV0eSBmcm9tIHlvdXIgc3lzdGVtLgo=
 
 
