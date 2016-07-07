@@ -1,36 +1,77 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: what is the sample logger doing when the buffer fills up?
+Return-Path: <jeff.furlong@hgst.com>
+From: Jeff Furlong <jeff.furlong@hgst.com>
+Subject: RE: what is the sample logger doing when the buffer fills up?
+Date: Thu, 7 Jul 2016 21:04:44 +0000
+Message-ID: <BN3PR0401MB1457BF2D349098BBF7F579A2F73B0@BN3PR0401MB1457.namprd04.prod.outlook.com>
 References: <CAJ9yE1DPWmV0Hx_AAS5cKZR5qSFeqmqJVg7dgikQK=ZBje-e3A@mail.gmail.com>
  <20160707183605.GB8567@kernel.dk>
  <CAJ9yE1Ayvzkq5iNYCWEfhzunA7pLoJrS-YBb9TtBR3RM1xyWDg@mail.gmail.com>
- <BN3PR0401MB1457BF2D349098BBF7F579A2F73B0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <577ECD29.2090204@kernel.dk>
-Date: Thu, 7 Jul 2016 15:44:09 -0600
+In-Reply-To: <CAJ9yE1Ayvzkq5iNYCWEfhzunA7pLoJrS-YBb9TtBR3RM1xyWDg@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <BN3PR0401MB1457BF2D349098BBF7F579A2F73B0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Jeff Furlong <jeff.furlong@hgst.com>, Karl Cronburg <kcronbur@redhat.com>
+Content-Transfer-Encoding: base64
+To: Karl Cronburg <kcronbur@redhat.com>, Jens Axboe <axboe@kernel.dk>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 07/07/2016 03:04 PM, Jeff Furlong wrote:
-> I am still seeing dropped entries on a slightly different case:
->
-> # fio -version
-> fio-2.12-5-g0b2e
->
-> # fio --name=test_job --ioengine=libaio --direct=1 --rw=randread --iodepth=256 --size=100% --numjobs=2 --bs=4k --filename=/dev/nvme0n1 --group_reporting --write_bw_log=test_job --write_iops_log=test_job --write_lat_log=test_job --log_avg_msec=1000 --disable_lat=0 --disable_clat=0 --disable_slat=0 --runtime=60s --time_based --output=test_job
->
-> # cat test_job_iops.1.log
-> 1000, 375601, 0, 0
-> 3000, 243539, 0, 0
-> 4000, 462076, 0, 0
-
-That's very odd. Is it just the 2000 that's dropped, or are there more?
-
--- 
-Jens Axboe
+SSBhbSBzdGlsbCBzZWVpbmcgZHJvcHBlZCBlbnRyaWVzIG9uIGEgc2xpZ2h0bHkgZGlmZmVyZW50
+IGNhc2U6DQoNCiMgZmlvIC12ZXJzaW9uDQpmaW8tMi4xMi01LWcwYjJlDQoNCiMgZmlvIC0tbmFt
+ZT10ZXN0X2pvYiAtLWlvZW5naW5lPWxpYmFpbyAtLWRpcmVjdD0xIC0tcnc9cmFuZHJlYWQgLS1p
+b2RlcHRoPTI1NiAtLXNpemU9MTAwJSAtLW51bWpvYnM9MiAtLWJzPTRrIC0tZmlsZW5hbWU9L2Rl
+di9udm1lMG4xIC0tZ3JvdXBfcmVwb3J0aW5nIC0td3JpdGVfYndfbG9nPXRlc3Rfam9iIC0td3Jp
+dGVfaW9wc19sb2c9dGVzdF9qb2IgLS13cml0ZV9sYXRfbG9nPXRlc3Rfam9iIC0tbG9nX2F2Z19t
+c2VjPTEwMDAgLS1kaXNhYmxlX2xhdD0wIC0tZGlzYWJsZV9jbGF0PTAgLS1kaXNhYmxlX3NsYXQ9
+MCAtLXJ1bnRpbWU9NjBzIC0tdGltZV9iYXNlZCAtLW91dHB1dD10ZXN0X2pvYg0KDQojIGNhdCB0
+ZXN0X2pvYl9pb3BzLjEubG9nIA0KMTAwMCwgMzc1NjAxLCAwLCAwDQozMDAwLCAyNDM1MzksIDAs
+IDANCjQwMDAsIDQ2MjA3NiwgMCwgMA0KLi4uDQoNClJlZ2FyZHMsDQpKZWZmDQoNCg0KLS0tLS1P
+cmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IGZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmcgW21h
+aWx0bzpmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnXSBPbiBCZWhhbGYgT2YgS2FybCBDcm9uYnVy
+Zw0KU2VudDogVGh1cnNkYXksIEp1bHkgNywgMjAxNiAxMjo0NyBQTQ0KVG86IEplbnMgQXhib2Ug
+PGF4Ym9lQGtlcm5lbC5kaz4NCkNjOiBmaW9Admdlci5rZXJuZWwub3JnDQpTdWJqZWN0OiBSZTog
+d2hhdCBpcyB0aGUgc2FtcGxlIGxvZ2dlciBkb2luZyB3aGVuIHRoZSBidWZmZXIgZmlsbHMgdXA/
+DQoNClllcywgbXkgcGF0Y2ggZml4ZWQgdGhlIGRyb3BwaW5nIG9mIGVudHJpZXMgSSB3YXMgc2Vl
+aW5nLg0KDQpPbiBUaHUsIEp1bCA3LCAyMDE2IGF0IDI6MzYgUE0sIEplbnMgQXhib2UgPGF4Ym9l
+QGtlcm5lbC5kaz4gd3JvdGU6DQo+IE9uIFdlZCwgSnVsIDA2IDIwMTYsIEthcmwgQ3JvbmJ1cmcg
+d3JvdGU6DQo+PiBIZWxsbyBhbGwsDQo+Pg0KPj4gV2hlbiBJIGNoYW5nZSBhZGRfY2xhdF9zYW1w
+bGUoKSBpbiBzdGF0LmMgdG8gY2FsbCBhZGRfbG9nX3NhbXBsZSgpIA0KPj4gc2V2ZW4gdGltZXMg
+aW5zdGVhZCBvZiBvbmNlLCBhbmQgSSBzZXQgREVGX0xPR19FTlRSSUVTPTQwOTYsIEkgZ2V0IA0K
+Pj4gdGhlIGZvbGxvd2luZyBpbiB0aGUgY2xhdCBsb2cgZmlsZSAobm90ZSBmaXJzdCBjb2x1bW4g
+aXMgbGluZSBudW1iZXIgaW4gdGhlIGZpbGUpOg0KPj4NCj4+ICAgNDA4OSAxNDMsIDk4MzIsIDAs
+IDEzMTA3Mg0KPj4gICA0MDkwIDE0MywgOTgzMiwgMCwgMTMxMDcyDQo+PiAgIDQwOTEgMTQzLCA5
+ODMyLCAwLCAxMzEwNzINCj4+ICAgNDA5MiAxNDMsIDk4MzIsIDAsIDEzMTA3Mg0KPj4gICA0MDkz
+IDE0MywgOTgzMiwgMCwgMTMxMDcyDQo+PiAgIDQwOTQgMTQzLCA5ODMyLCAwLCAxMzEwNzINCj4+
+ICAgNDA5NSAxNDMsIDk4MzIsIDAsIDEzMTA3Mg0KPj4gICA0MDk2IDE0MywgOTgzNCwgMCwgMTMx
+MDcyDQo+PiAgIDQwOTcgMTcwLCAxNTk4MiwgMCwgMTMxMDcyDQo+PiAgIDQwOTggMTcwLCAxNTk4
+MiwgMCwgMTMxMDcyDQo+PiAgIDQwOTkgMTcwLCAxNTk4MiwgMCwgMTMxMDcyDQo+PiAgIDQxMDAg
+MTcwLCAxNTk4MiwgMCwgMTMxMDcyDQo+PiAgIDQxMDEgMTcwLCAxNTk4MiwgMCwgMTMxMDcyDQo+
+PiAgIDQxMDIgMTcwLCAxNTk4MiwgMCwgMTMxMDcyDQo+PiAgIDQxMDMgMTcwLCAxNTk4MiwgMCwg
+MTMxMDcyDQo+PiAgIDQxMDQgMTcwLCAxNTk4NSwgMCwgMTMxMDcyDQo+PiAgIDQxMDUgMTcwLCAx
+NTk4NSwgMCwgMTMxMDcyDQo+Pg0KPj4gTm90aWNlIHRoZSBsb25lbHkgJzk4MzQnIHZhbHVlIGlu
+IHRoZSBjZW50ZXIsIHdoaWNoIHNob3VsZCBoYXZlIDcgDQo+PiBleGFjdCBjb3BpZXMgb2YgaXRz
+ZWxmIGJ1dCBnZXRzIGN1dCBvZmYgcmlnaHQgYXQgdGhlIGJ1ZmZlciBzaXplIG9mIA0KPj4gNDA5
+NiBlbnRyaWVzLg0KPj4NCj4+IFNvIGlmIEknbSBpbnRlcnByZXRpbmcgdGhpcyBjb3JyZWN0bHks
+IHNhbXBsZXMgZ2V0IHNpbGVudGx5IGRyb3BwZWQgDQo+PiAob3Igbm90IHByb3Blcmx5IHByaW50
+ZWQ/KSB3aGVuIHRoZSBidWZmZXIgZmlsbHMgdXAuIElzIHRoaXMgYSBidWc/IA0KPj4gQW0gSSBt
+aXNpbnRlcnByZXRpbmcgd2hhdCB0aGUgZG91Ymx5IGxpbmtlZCBsaXN0IGlzIGZvcj8gSSB3YXMg
+dW5kZXIgDQo+PiB0aGUgaW1wcmVzc2lvbiB0aGF0IGEgbmV3IHNhbXBsZSBidWZmZXIgc2hvdWxk
+IGJlIGFkZGVkIHRvIHRoZSBsaW5rZWQgDQo+PiBsaXN0IHdoZW4gdGhlIGN1cnJlbnQgb25lIGZp
+bGxzIHVwLg0KPg0KPiBGYWlyIHRvIGFzc3VtZSB0aGlzIGlzIHdoYXQgeW91ciBwYXRjaCBmaXhl
+ZCwgY29ycmVjdD8gSnVzdCB3YW50ZWQgdG8gDQo+IGVuc3VyZSB0aGF0IGl0J3MgYWxyZWFkeSBm
+aXhlZC4NCj4NCj4gLS0NCj4gSmVucyBBeGJvZQ0KPg0KLS0NClRvIHVuc3Vic2NyaWJlIGZyb20g
+dGhpcyBsaXN0OiBzZW5kIHRoZSBsaW5lICJ1bnN1YnNjcmliZSBmaW8iIGluIHRoZSBib2R5IG9m
+IGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnIE1vcmUgbWFqb3Jkb21vIGlu
+Zm8gYXQgIGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFqb3Jkb21vLWluZm8uaHRtbA0KV2VzdGVy
+biBEaWdpdGFsIENvcnBvcmF0aW9uIChhbmQgaXRzIHN1YnNpZGlhcmllcykgRS1tYWlsIENvbmZp
+ZGVudGlhbGl0eSBOb3RpY2UgJiBEaXNjbGFpbWVyOgoKVGhpcyBlLW1haWwgYW5kIGFueSBmaWxl
+cyB0cmFuc21pdHRlZCB3aXRoIGl0IG1heSBjb250YWluIGNvbmZpZGVudGlhbCBvciBsZWdhbGx5
+IHByaXZpbGVnZWQgaW5mb3JtYXRpb24gb2YgV0RDIGFuZC9vciBpdHMgYWZmaWxpYXRlcywgYW5k
+IGFyZSBpbnRlbmRlZCBzb2xlbHkgZm9yIHRoZSB1c2Ugb2YgdGhlIGluZGl2aWR1YWwgb3IgZW50
+aXR5IHRvIHdoaWNoIHRoZXkgYXJlIGFkZHJlc3NlZC4gSWYgeW91IGFyZSBub3QgdGhlIGludGVu
+ZGVkIHJlY2lwaWVudCwgYW55IGRpc2Nsb3N1cmUsIGNvcHlpbmcsIGRpc3RyaWJ1dGlvbiBvciBh
+bnkgYWN0aW9uIHRha2VuIG9yIG9taXR0ZWQgdG8gYmUgdGFrZW4gaW4gcmVsaWFuY2Ugb24gaXQs
+IGlzIHByb2hpYml0ZWQuIElmIHlvdSBoYXZlIHJlY2VpdmVkIHRoaXMgZS1tYWlsIGluIGVycm9y
+LCBwbGVhc2Ugbm90aWZ5IHRoZSBzZW5kZXIgaW1tZWRpYXRlbHkgYW5kIGRlbGV0ZSB0aGUgZS1t
+YWlsIGluIGl0cyBlbnRpcmV0eSBmcm9tIHlvdXIgc3lzdGVtLgo=
 
 
