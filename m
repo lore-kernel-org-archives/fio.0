@@ -1,138 +1,52 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:48483 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.9]:59367 "EHLO
 	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754206AbcG0MAD (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 27 Jul 2016 08:00:03 -0400
+	with ESMTP id S1751251AbcGGMAD (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 7 Jul 2016 08:00:03 -0400
 Received: from [216.160.245.99] (helo=kernel.dk)
 	by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-	id 1bSNVL-0002p9-85
-	for fio@vger.kernel.org; Wed, 27 Jul 2016 12:00:03 +0000
+	id 1bL7yM-0007i7-HP
+	for fio@vger.kernel.org; Thu, 07 Jul 2016 12:00:02 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160727120001.B9B5C2C00D9@kernel.dk>
-Date: Wed, 27 Jul 2016 06:00:01 -0600 (MDT)
+Message-Id: <20160707120001.C52CE2C23FF@kernel.dk>
+Date: Thu,  7 Jul 2016 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 79baf7f48a6e680e1e746e150b60c165542fdf6c:
+The following changes since commit f1c4b3727386bd8da3617a6730ad55cf2ba04ec8:
 
-  Fio 2.13 (2016-07-22 13:43:56 -0600)
+  gfio: call g_thread_init() for <= 2.31.0 (2016-07-05 14:23:56 -0600)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to fa3cdbb7a46e42186e8fa62d33b82b92c7c0e310:
+for you to fetch changes up to 0b2eef4940d9818f91f455d0cdb4f37db4fbb158:
 
-  Add sample job file showing how to read backwards (2016-07-26 14:50:02 -0600)
+  samples being added to the pending log were silently dropped because we failed to set nr_samples in the new log they get copied into (2016-07-06 15:54:10 -0400)
 
 ----------------------------------------------------------------
-Jens Axboe (2):
-      Revert "Revert "fio: Simplify forking of processes""
-      Add sample job file showing how to read backwards
+Karl Cronburg (1):
+      samples being added to the pending log were silently dropped because we failed to set nr_samples in the new log they get copied into
 
- backend.c                   | 46 +++++++--------------------------------------
- examples/backwards-read.fio |  7 +++++++
- 2 files changed, 14 insertions(+), 39 deletions(-)
- create mode 100644 examples/backwards-read.fio
+ stat.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/backend.c b/backend.c
-index 58c77cb..ad2d7da 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1808,39 +1808,6 @@ err:
- 	return (void *) (uintptr_t) td->error;
- }
+diff --git a/stat.c b/stat.c
+index e0e97cd..96cd764 100644
+--- a/stat.c
++++ b/stat.c
+@@ -1949,6 +1949,7 @@ static struct io_logs *regrow_log(struct io_log *iolog)
+ 		dst = get_sample(iolog, cur_log, i);
+ 		memcpy(dst, src, log_entry_sz(iolog));
+ 	}
++	cur_log->nr_samples = iolog->pending->nr_samples;
  
--
--/*
-- * We cannot pass the td data into a forked process, so attach the td and
-- * pass it to the thread worker.
-- */
--static int fork_main(struct sk_out *sk_out, int shmid, int offset)
--{
--	struct fork_data *fd;
--	void *data, *ret;
--
--#if !defined(__hpux) && !defined(CONFIG_NO_SHM)
--	data = shmat(shmid, NULL, 0);
--	if (data == (void *) -1) {
--		int __err = errno;
--
--		perror("shmat");
--		return __err;
--	}
--#else
--	/*
--	 * HP-UX inherits shm mappings?
--	 */
--	data = threads;
--#endif
--
--	fd = calloc(1, sizeof(*fd));
--	fd->td = data + offset * sizeof(struct thread_data);
--	fd->sk_out = sk_out;
--	ret = thread_main(fd);
--	shmdt(data);
--	return (int) (uintptr_t) ret;
--}
--
- static void dump_td_info(struct thread_data *td)
- {
- 	log_err("fio: job '%s' (state=%d) hasn't exited in %lu seconds, it "
-@@ -2178,6 +2145,7 @@ reap:
- 		struct thread_data *map[REAL_MAX_JOBS];
- 		struct timeval this_start;
- 		int this_jobs = 0, left;
-+		struct fork_data *fd;
- 
- 		/*
- 		 * create threads (TD_NOT_CREATED -> TD_CREATED)
-@@ -2227,14 +2195,13 @@ reap:
- 			map[this_jobs++] = td;
- 			nr_started++;
- 
-+			fd = calloc(1, sizeof(*fd));
-+			fd->td = td;
-+			fd->sk_out = sk_out;
-+
- 			if (td->o.use_thread) {
--				struct fork_data *fd;
- 				int ret;
- 
--				fd = calloc(1, sizeof(*fd));
--				fd->td = td;
--				fd->sk_out = sk_out;
--
- 				dprint(FD_PROCESS, "will pthread_create\n");
- 				ret = pthread_create(&td->thread, NULL,
- 							thread_main, fd);
-@@ -2254,8 +2221,9 @@ reap:
- 				dprint(FD_PROCESS, "will fork\n");
- 				pid = fork();
- 				if (!pid) {
--					int ret = fork_main(sk_out, shm_id, i);
-+					int ret;
- 
-+					ret = (int)(uintptr_t)thread_main(fd);
- 					_exit(ret);
- 				} else if (i == fio_debug_jobno)
- 					*fio_debug_jobp = pid;
-diff --git a/examples/backwards-read.fio b/examples/backwards-read.fio
-new file mode 100644
-index 0000000..ddd47e4
---- /dev/null
-+++ b/examples/backwards-read.fio
-@@ -0,0 +1,7 @@
-+# Demonstrates how to read backwards in a file.
-+
-+[backwards-read]
-+bs=4k
-+# seek -8k back for every IO
-+rw=read:-8k
-+filename=128m
+ 	iolog->pending->nr_samples = 0;
+ 	return cur_log;
