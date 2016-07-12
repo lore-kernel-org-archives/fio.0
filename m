@@ -1,243 +1,87 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:59042 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751252AbcGWMAF (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 23 Jul 2016 08:00:05 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-	id 1bQvbA-00056W-11
-	for fio@vger.kernel.org; Sat, 23 Jul 2016 12:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160723120002.4AE1E2C00A5@kernel.dk>
-Date: Sat, 23 Jul 2016 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <Vincent.Fu@sandisk.com>
+From: Vincent Fu <Vincent.Fu@sandisk.com>
+Subject: Re: terminating fio jobs upon reaching steady state
+Date: Tue, 12 Jul 2016 21:50:50 +0000
+Message-ID: <CY1PR0201MB18826AA731A7D9862BB848E18C300@CY1PR0201MB1882.namprd02.prod.outlook.com>
+References: <CY1PR0201MB1882D39478B9483993B429488C240@CY1PR0201MB1882.namprd02.prod.outlook.com>
+ <57854B1F.1000106@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit c16556af62cd1cd1ae31b6ee8706efc43c137f77:
+On 2016-7-12 3:55 PM, Jens Axboe wrote:
+> On 06/30/2016 08:49 AM, Vincent Fu wrote:
+>> Jens, I have been working on a patch to give fio the ability to
+>> terminate a job when steady state is attained. I have a crude
+>> implementation that is working at
+>> https://bitbucket.org/vincentfu/fio/commits/all but I'm hoping to
+>> receive some feedback on its design.
+>>
+>> Currently, the feature works via helper_thread_main(). It collects data
+>> in a ring buffer for a specified duration and carries out the
+>> termination test when the ring buffer is full. If the test passes, the
+>> job terminates. If the test fails, the job continues, the oldest data
+>> point in the buffer is dropped, a new data point is added, and the
+>> termination test is carried out again. The cycle repeats until the job
+>> terminates because steady state was attained or for other reasons.
+> Vincent, where are we at on this? Would be nice to get this included. A
+> few comments:
+I have a tweak for the JSON output to make, and I'm still a bit troubled
+by the absence of a couple features (latency data for the steady state
+period, BW/IOPS sequence for the entire run), but maybe those are tasks
+to work on later.
+> - The global 'steadystate' bool. Seems like this should be a per-job
+> thing, and not global. For a specific group of threads, whether we are
+> in steady state or not should be checked for those td's.
+I set it as a global to avoid iterating over all the td's if a user is
+just running a normal job and steadystate testing is not engaged at all,
+but it's easy enough to make this a per-job variable.
+> - Should still work with ramptime. If we're in ramp time, no checking.
+> Start steady state checking once we are out of ramp time.
+I do have one question about this. Suppose steady state detection and
+group_reporting are enabled with 2 jobs:
+job 0: ramp time =3D 10s
+job 1: ramp time =3D 60s
+What if job 0 reaches steady state before job 1's ramp time elapses? I
+think the appropriate thing to do is to terminate all the jobs even
+though job 1 is still in its ramp time. Does this sound reasonable to you?
+> - Would be nice if the SS output was there for non-json. At least
+> something for the normal output, I think we can safely ignore the
+> terse/csv in this regard.
+Ok. I will add this.
+> - Should struct steady_state just be embedded in the thread_stat? It
+> needs to be transmitted across the wire for client/server. So either you
+> need to split it in two, or you need to embed it and sanitize it for
+> on-the-wire transmission. You could keep the td->ss, and have a version
+> that we export and embed that in thread_stat? If you do that, then have
+> a steady_state_bla that's embedded in both struct steady_state and
+> struct thread_stat.
+I might need more direction from you to understand the implications of
+the different choices but I will study this some more.
 
-  drifting in output of interval-averaged values was eventually causing IOP samples to be dropped. (2016-07-20 16:21:55 -0400)
+Thanks for the feedback.
 
-are available in the git repository at:
+Vincent
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 79baf7f48a6e680e1e746e150b60c165542fdf6c:
+--
+Vincent Fu
+Software Dev Engr II
+SanDisk | a Western Digital brand
+Remote Worker, Rockville, MD, USA
+T: 801 987 7079
+Vincent.Fu@SanDisk.com
 
-  Fio 2.13 (2016-07-22 13:43:56 -0600)
+PLEASE NOTE: The information contained in this electronic mail message is i=
+ntended only for the use of the designated recipient(s) named above. If the=
+ reader of this message is not the intended recipient, you are hereby notif=
+ied that you have received this message in error and that any review, disse=
+mination, distribution, or copying of this message is strictly prohibited. =
+If you have received this communication in error, please notify the sender =
+by telephone or e-mail (as shown above) immediately and destroy any and all=
+ copies of this message in your possession (whether hard copies or electron=
+ically stored copies).
 
-----------------------------------------------------------------
-Jens Axboe (3):
-      log: fix missing entries
-      log: fix averaged latency logging
-      Fio 2.13
-
-YukiKita (1):
-      Fix "exitall_on_error" option     "exitall_on_error" option should be enabled without any argument.
-
- FIO-VERSION-GEN        |  2 +-
- iolog.h                |  7 +++++++
- options.c              |  4 ++--
- os/windows/install.wxs |  2 +-
- stat.c                 | 43 ++++++++++++++++++++++++++++++-------------
- 5 files changed, 41 insertions(+), 17 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index 04802dd..7065a57 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-2.12
-+DEF_VER=fio-2.13
- 
- LF='
- '
-diff --git a/iolog.h b/iolog.h
-index a58e3f0..0438fa7 100644
---- a/iolog.h
-+++ b/iolog.h
-@@ -230,6 +230,13 @@ static inline bool per_unit_log(struct io_log *log)
- 	return log && !log->avg_msec;
- }
- 
-+static inline bool inline_log(struct io_log *log)
-+{
-+	return log->log_type == IO_LOG_TYPE_LAT ||
-+		log->log_type == IO_LOG_TYPE_CLAT ||
-+		log->log_type == IO_LOG_TYPE_SLAT;
-+}
-+
- extern void finalize_logs(struct thread_data *td, bool);
- extern void setup_log(struct io_log **, struct log_params *, const char *);
- extern void flush_log(struct io_log *, bool);
-diff --git a/options.c b/options.c
-index 4723e41..4461643 100644
---- a/options.c
-+++ b/options.c
-@@ -3444,8 +3444,8 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 	{
- 		.name	= "exitall_on_error",
- 		.lname	= "Exit-all on terminate in error",
--		.type	= FIO_OPT_BOOL,
--		.off1	= td_var_offset(unlink),
-+		.type	= FIO_OPT_STR_SET,
-+		.off1	= td_var_offset(exitall_error),
- 		.help	= "Terminate all jobs when one exits in error",
- 		.category = FIO_OPT_C_GENERAL,
- 		.group	= FIO_OPT_G_PROCESS,
-diff --git a/os/windows/install.wxs b/os/windows/install.wxs
-index 1e8022d..f8d3773 100755
---- a/os/windows/install.wxs
-+++ b/os/windows/install.wxs
-@@ -10,7 +10,7 @@
- 	<Product Id="*"
- 	  Codepage="1252" Language="1033"
- 	  Manufacturer="fio" Name="fio"
--	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.12">
-+	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.13">
- 		<Package
- 		  Description="Flexible IO Tester"
- 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
-diff --git a/stat.c b/stat.c
-index 08a402a..7a35117 100644
---- a/stat.c
-+++ b/stat.c
-@@ -18,6 +18,8 @@
- #include "helper_thread.h"
- #include "smalloc.h"
- 
-+#define LOG_MSEC_SLACK	10
-+
- struct fio_mutex *stat_mutex;
- 
- void clear_rusage_stat(struct thread_data *td)
-@@ -2107,14 +2109,14 @@ static void _add_stat_to_log(struct io_log *iolog, unsigned long elapsed,
- 		__add_stat_to_log(iolog, ddir, elapsed, log_max);
- }
- 
--static void add_log_sample(struct thread_data *td, struct io_log *iolog,
-+static long add_log_sample(struct thread_data *td, struct io_log *iolog,
- 			   unsigned long val, enum fio_ddir ddir,
- 			   unsigned int bs, uint64_t offset)
- {
- 	unsigned long elapsed, this_window;
- 
- 	if (!ddir_rw(ddir))
--		return;
-+		return 0;
- 
- 	elapsed = mtime_since_now(&td->epoch);
- 
-@@ -2123,7 +2125,7 @@ static void add_log_sample(struct thread_data *td, struct io_log *iolog,
- 	 */
- 	if (!iolog->avg_msec) {
- 		__add_log_sample(iolog, val, ddir, bs, elapsed, offset);
--		return;
-+		return 0;
- 	}
- 
- 	/*
-@@ -2137,12 +2139,17 @@ static void add_log_sample(struct thread_data *td, struct io_log *iolog,
- 	 * need to do.
- 	 */
- 	this_window = elapsed - iolog->avg_last;
--	if (this_window < iolog->avg_msec)
--		return;
-+	if (this_window < iolog->avg_msec) {
-+		int diff = iolog->avg_msec - this_window;
-+
-+		if (inline_log(iolog) || diff > LOG_MSEC_SLACK)
-+			return diff;
-+	}
- 
- 	_add_stat_to_log(iolog, elapsed, td->o.log_max != 0);
- 
- 	iolog->avg_last = elapsed - (this_window - iolog->avg_msec);
-+	return iolog->avg_msec;
- }
- 
- void finalize_logs(struct thread_data *td, bool unit_logs)
-@@ -2264,10 +2271,13 @@ static int add_bw_samples(struct thread_data *td, struct timeval *t)
- 	struct thread_stat *ts = &td->ts;
- 	unsigned long spent, rate;
- 	enum fio_ddir ddir;
-+	unsigned int next, next_log;
-+
-+	next_log = td->o.bw_avg_time;
- 
- 	spent = mtime_since(&td->bw_sample_time, t);
- 	if (spent < td->o.bw_avg_time &&
--	    td->o.bw_avg_time - spent >= 10)
-+	    td->o.bw_avg_time - spent >= LOG_MSEC_SLACK)
- 		return td->o.bw_avg_time - spent;
- 
- 	td_io_u_lock(td);
-@@ -2295,7 +2305,8 @@ static int add_bw_samples(struct thread_data *td, struct timeval *t)
- 			if (td->o.min_bs[ddir] == td->o.max_bs[ddir])
- 				bs = td->o.min_bs[ddir];
- 
--			add_log_sample(td, td->bw_log, rate, ddir, bs, 0);
-+			next = add_log_sample(td, td->bw_log, rate, ddir, bs, 0);
-+			next_log = min(next_log, next);
- 		}
- 
- 		td->stat_io_bytes[ddir] = td->this_io_bytes[ddir];
-@@ -2306,9 +2317,10 @@ static int add_bw_samples(struct thread_data *td, struct timeval *t)
- 	td_io_u_unlock(td);
- 
- 	if (spent <= td->o.bw_avg_time)
--		return td->o.bw_avg_time;
-+		return min(next_log, td->o.bw_avg_time);
- 
--	return td->o.bw_avg_time - (1 + spent - td->o.bw_avg_time);
-+	next = td->o.bw_avg_time - (1 + spent - td->o.bw_avg_time);
-+	return min(next, next_log);
- }
- 
- void add_iops_sample(struct thread_data *td, struct io_u *io_u,
-@@ -2332,10 +2344,13 @@ static int add_iops_samples(struct thread_data *td, struct timeval *t)
- 	struct thread_stat *ts = &td->ts;
- 	unsigned long spent, iops;
- 	enum fio_ddir ddir;
-+	unsigned int next, next_log;
-+
-+	next_log = td->o.iops_avg_time;
- 
- 	spent = mtime_since(&td->iops_sample_time, t);
- 	if (spent < td->o.iops_avg_time &&
--	    td->o.iops_avg_time - spent >= 10)
-+	    td->o.iops_avg_time - spent >= LOG_MSEC_SLACK)
- 		return td->o.iops_avg_time - spent;
- 
- 	td_io_u_lock(td);
-@@ -2363,7 +2378,8 @@ static int add_iops_samples(struct thread_data *td, struct timeval *t)
- 			if (td->o.min_bs[ddir] == td->o.max_bs[ddir])
- 				bs = td->o.min_bs[ddir];
- 
--			add_log_sample(td, td->iops_log, iops, ddir, bs, 0);
-+			next = add_log_sample(td, td->iops_log, iops, ddir, bs, 0);
-+			next_log = min(next_log, next);
- 		}
- 
- 		td->stat_io_blocks[ddir] = td->this_io_blocks[ddir];
-@@ -2374,9 +2390,10 @@ static int add_iops_samples(struct thread_data *td, struct timeval *t)
- 	td_io_u_unlock(td);
- 
- 	if (spent <= td->o.iops_avg_time)
--		return td->o.iops_avg_time;
-+		return min(next_log, td->o.iops_avg_time);
- 
--	return td->o.iops_avg_time - (1 + spent - td->o.iops_avg_time);
-+	next = td->o.iops_avg_time - (1 + spent - td->o.iops_avg_time);
-+	return min(next, next_log);
- }
- 
- /*
