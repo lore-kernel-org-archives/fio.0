@@ -1,22 +1,75 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH 1/2] Add os_trim() support for DragonFlyBSD
-References: <1468499263-6328-1-git-send-email-kusumi.tomohiro@gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <5787B05A.5010006@kernel.dk>
-Date: Thu, 14 Jul 2016 08:31:38 -0700
-MIME-Version: 1.0
-In-Reply-To: <1468499263-6328-1-git-send-email-kusumi.tomohiro@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>, fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Subject: [PATCH 1/2] Add os_trim() support for DragonFlyBSD
+Date: Thu, 14 Jul 2016 21:27:42 +0900
+Message-Id: <1468499263-6328-1-git-send-email-kusumi.tomohiro@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 List-ID: <fio@vger.kernel.org>
 
-On 07/14/2016 05:27 AM, Tomohiro Kusumi wrote:
-> It has the same interface as Linux kernel with a different ioctl name.
+It has the same interface as Linux kernel with a different ioctl name.
 
-Thanks, applied this and 2/2.
+Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+---
+ Makefile          |  1 +
+ os/os-dragonfly.h | 16 ++++++++++++++++
+ 2 files changed, 17 insertions(+)
 
+diff --git a/Makefile b/Makefile
+index c617d6f..a9cd151 100644
+--- a/Makefile
++++ b/Makefile
+@@ -157,6 +157,7 @@ ifeq ($(CONFIG_TARGET_OS), NetBSD)
+   LDFLAGS += -rdynamic
+ endif
+ ifeq ($(CONFIG_TARGET_OS), DragonFly)
++  SOURCE += trim.c
+   LIBS	 += -lpthread -lrt
+   LDFLAGS += -rdynamic
+ endif
+diff --git a/os/os-dragonfly.h b/os/os-dragonfly.h
+index b67c660..d776d1f 100644
+--- a/os/os-dragonfly.h
++++ b/os/os-dragonfly.h
+@@ -9,6 +9,7 @@
+ #include <sys/sysctl.h>
+ #include <sys/statvfs.h>
+ #include <sys/diskslice.h>
++#include <sys/ioctl_compat.h>
+ 
+ #include "../file.h"
+ 
+@@ -16,6 +17,7 @@
+ #define FIO_USE_GENERIC_RAND
+ #define FIO_USE_GENERIC_INIT_RANDOM_STATE
+ #define FIO_HAVE_FS_STAT
++#define FIO_HAVE_TRIM
+ #define FIO_HAVE_CHARDEV_SIZE
+ #define FIO_HAVE_GETTID
+ 
+@@ -84,6 +86,20 @@ static inline unsigned long long get_fs_free_size(const char *path)
+ 	return ret;
+ }
+ 
++static inline int os_trim(int fd, unsigned long long start,
++			  unsigned long long len)
++{
++	off_t range[2];
++
++	range[0] = start;
++	range[1] = len;
++
++	if (!ioctl(fd, IOCTLTRIM, range))
++		return 0;
++
++	return errno;
++}
++
+ #ifdef MADV_FREE
+ #define FIO_MADV_FREE	MADV_FREE
+ #endif
 -- 
-Jens Axboe
+2.5.5
 
 
