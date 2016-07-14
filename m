@@ -1,95 +1,108 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from plane.gmane.org ([80.91.229.3]:48668 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752186AbcGVQaE (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 22 Jul 2016 12:30:04 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcsf-fio@m.gmane.org>)
-	id 1bQdKs-0003oK-4N
-	for fio@vger.kernel.org; Fri, 22 Jul 2016 18:30:02 +0200
-Received: from cpe-24-55-26-223.austin.res.rr.com ([24.55.26.223])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <fio@vger.kernel.org>; Fri, 22 Jul 2016 18:30:02 +0200
-Received: from ionictea by cpe-24-55-26-223.austin.res.rr.com with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <fio@vger.kernel.org>; Fri, 22 Jul 2016 18:30:02 +0200
-From: Saeed <ionictea@gmail.com>
-Subject: "errror=Invalid or incomplete multibyte or wide character" & "verify: bad header numberio" errors
-Date: Fri, 22 Jul 2016 11:29:49 -0500
-Message-ID: <nmthlt$4m6$1@ger.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Received: from bombadil.infradead.org ([198.137.202.9]:50167 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750983AbcGNMAE (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 14 Jul 2016 08:00:04 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+	id 1bNfJD-0005ff-Cv
+	for fio@vger.kernel.org; Thu, 14 Jul 2016 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160714120001.CE13C2C23FF@kernel.dk>
+Date: Thu, 14 Jul 2016 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Has anyone seen these errors before?
+The following changes since commit b86ad8f1c3845419742715e94526f60e1e2bf596:
 
-Here's the job file:
+  workqueue: rename private to priv for compiling as c++ (2016-07-11 16:52:34 -0400)
 
-bs=4k
-ioengine=libaio
-iodepth=32
-size=1g
-direct=1
-runtime=60
-filename=/dev/sdb
-group_reporting
-numjobs=10
+are available in the git repository at:
 
-# validation
-do_verify=1
-verify_fatal=1
-verify_dump=1
+  git://git.kernel.dk/fio.git master
 
-verify_pattern=0x01020304
+for you to fetch changes up to 883e4841d5466955ad464ee3a6b37e009cfa80ef:
 
-[mixed-a]
-rw=readwrite
-stonewall
+  Merge branch 'fix_verify' of https://github.com/charles-jacobsen/fio (2016-07-13 09:13:46 -0700)
 
-[mixed-b]
-rw=randrw
-stonewall
+----------------------------------------------------------------
+Charlie Jacobsen (1):
+      verify: Reset verify_state before verification phase.
 
-[mixed-c]
-rw=readwrite:4k
-stonewall
+Jens Axboe (1):
+      Merge branch 'fix_verify' of https://github.com/charles-jacobsen/fio
 
-[mixed-d]
-rw=randrw:4k
-stonewall
+ backend.c |  9 +++++++++
+ fio.h     |  1 +
+ init.c    | 15 ++++++++++++++-
+ 3 files changed, 24 insertions(+), 1 deletion(-)
 
-Errors:
+---
 
-Multiple writers may overwrite blocks that belong to other jobs. This 
-can cause verification failures.
-mixed-verify-random-with-holes-4k: (g=3): rw=randrw, 
-bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=32
-...
-fio-2.12
-Starting 40 processes
-fio: pid=5809, err=84/file:io_u.c:1968, func=io_u_queued_complete, 
-error=Invalid or incomplete multibyte or wide character
-fio: pid=5814, err=84/file:io_u.c:1968, func=io_u_queued_complete, 
-error=Invalid or incomplete multibyte or wide character
-fio: pid=5808, err=84/file:io_u.c:1968, func=io_u_queued_complete, 
-error=Invalid or incomplete multibyte or wide character
+Diff of recent changes:
 
-verify: bad header numberio 2985, wanted 11 at file /dev/sdb offset 
-1224704, length 4096
-       hdr_fail data dumped as sdb.1224704.hdr_fail
-verify: bad header numberio 2986, wanted 12 at file /dev/sdb offset 
-1228800, length 4096
-       hdr_fail data dumped as sdb.1228800.hdr_fail
-verify: bad header numberio 23727, wanted 22903 at file /dev/sdb offset 
-106496, length 4096
-       hdr_fail data dumped as sdb.106496.hdr_fail
-verify: bad header numberio 13399, wanted 1319 at file /dev/sdb offset 
-311296, length 4096
-       hdr_fail data dumped as sdb.311296.hdr_fail
-
-
+diff --git a/backend.c b/backend.c
+index dc6f530..58c77cb 100644
+--- a/backend.c
++++ b/backend.c
+@@ -603,6 +603,15 @@ static void do_verify(struct thread_data *td, uint64_t verify_bytes)
+ 	if (td->error)
+ 		return;
+ 
++	/*
++	 * verify_state needs to be reset before verification
++	 * proceeds so that expected random seeds match actual
++	 * random seeds in headers. The main loop will reset
++	 * all random number generators if randrepeat is set.
++	 */
++	if (!td->o.rand_repeatable)
++		td_fill_verify_state_seed(td);
++
+ 	td_set_runstate(td, TD_VERIFYING);
+ 
+ 	io_u = NULL;
+diff --git a/fio.h b/fio.h
+index 7e6311c..8a0ebe3 100644
+--- a/fio.h
++++ b/fio.h
+@@ -502,6 +502,7 @@ extern void fio_options_dup_and_init(struct option *);
+ extern void fio_options_mem_dupe(struct thread_data *);
+ extern void options_mem_dupe(void *data, struct fio_option *options);
+ extern void td_fill_rand_seeds(struct thread_data *);
++extern void td_fill_verify_state_seed(struct thread_data *);
+ extern void add_job_opts(const char **, int);
+ extern char *num2str(uint64_t, int, int, int, int);
+ extern int ioengine_load(struct thread_data *);
+diff --git a/init.c b/init.c
+index 7166ea7..065a71a 100644
+--- a/init.c
++++ b/init.c
+@@ -936,12 +936,25 @@ static void init_rand_file_service(struct thread_data *td)
+ 	}
+ }
+ 
++void td_fill_verify_state_seed(struct thread_data *td)
++{
++	bool use64;
++
++	if (td->o.random_generator == FIO_RAND_GEN_TAUSWORTHE64)
++		use64 = 1;
++	else
++		use64 = 0;
++
++	init_rand_seed(&td->verify_state, td->rand_seeds[FIO_RAND_VER_OFF],
++		use64);
++}
++
+ static void td_fill_rand_seeds_internal(struct thread_data *td, bool use64)
+ {
+ 	int i;
+ 
+ 	init_rand_seed(&td->bsrange_state, td->rand_seeds[FIO_RAND_BS_OFF], use64);
+-	init_rand_seed(&td->verify_state, td->rand_seeds[FIO_RAND_VER_OFF], use64);
++	td_fill_verify_state_seed(td);
+ 	init_rand_seed(&td->rwmix_state, td->rand_seeds[FIO_RAND_MIX_OFF], false);
+ 
+ 	if (td->o.file_service_type == FIO_FSERVICE_RANDOM)
