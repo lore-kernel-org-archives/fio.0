@@ -1,109 +1,91 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Subject: [PATCH 01/15] Make return value type of fio_getaffinity() consistent
-Date: Wed, 27 Jul 2016 22:37:06 +0900
-Message-Id: <1469626640-13335-1-git-send-email-kusumi.tomohiro@gmail.com>
+Subject: [PATCH 3/7] Make I/O priority option generic for non-Linux environment [1/2]
+Date: Wed, 20 Jul 2016 01:33:43 +0900
+Message-Id: <1468946027-22580-3-git-send-email-kusumi.tomohiro@gmail.com>
+In-Reply-To: <1468946027-22580-1-git-send-email-kusumi.tomohiro@gmail.com>
+References: <1468946027-22580-1-git-send-email-kusumi.tomohiro@gmail.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 List-ID: <fio@vger.kernel.org>
 
-Return type of fio_getaffinity() isn't consistent among supported OS.
-Windows and DragonFlyBSD return void while FreeBSD version is int.
-The default version for those that don't support is do{}while(0).
+There is a kernel that supports I/O priority with a syscall similar
+to Linux (e.g. DragonFlyBSD's ioprio_set(2) which apparently seems
+to have been inspired by ioprio_set(2) in Linux kernel), however
+min/max value of the priority may differ, so use OS specific macros
+instead of hardcoded values that are designed to work on Linux.
 
-Linux version is a macro for sched_getaffinity(2) which returns 0
-on success and -1 otherwise, so others should basically follow that.
-
-Note that I haven't compiled this on Windows, but it shouldn't fail.
+This commit adds IOPRIO_MIN|MAX_PRIO and IOPRIO_MIN|MAX_PRIO_CLASS
+to Linux (incl Android), but no functional changes.
 
 Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 ---
- os/os-dragonfly.h | 10 ++++++----
- os/os-windows.h   |  5 ++++-
- os/os.h           |  6 +++++-
- 3 files changed, 15 insertions(+), 6 deletions(-)
+ options.c       | 8 ++++----
+ os/os-android.h | 6 ++++++
+ os/os-linux.h   | 6 ++++++
+ 3 files changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/os/os-dragonfly.h b/os/os-dragonfly.h
-index 187330b..d4a9579 100644
---- a/os/os-dragonfly.h
-+++ b/os/os-dragonfly.h
-@@ -70,8 +70,7 @@ typedef cpumask_t os_cpu_mask_t;
+diff --git a/options.c b/options.c
+index 5199823..d2a029d 100644
+--- a/options.c
++++ b/options.c
+@@ -3012,8 +3012,8 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.type	= FIO_OPT_INT,
+ 		.off1	= td_var_offset(ioprio),
+ 		.help	= "Set job IO priority value",
+-		.minval	= 0,
+-		.maxval	= 7,
++		.minval	= IOPRIO_MIN_PRIO,
++		.maxval	= IOPRIO_MAX_PRIO,
+ 		.interval = 1,
+ 		.category = FIO_OPT_C_GENERAL,
+ 		.group	= FIO_OPT_G_CRED,
+@@ -3024,8 +3024,8 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.type	= FIO_OPT_INT,
+ 		.off1	= td_var_offset(ioprio_class),
+ 		.help	= "Set job IO priority class",
+-		.minval	= 0,
+-		.maxval	= 3,
++		.minval	= IOPRIO_MIN_PRIO_CLASS,
++		.maxval	= IOPRIO_MAX_PRIO_CLASS,
+ 		.interval = 1,
+ 		.category = FIO_OPT_C_GENERAL,
+ 		.group	= FIO_OPT_G_CRED,
+diff --git a/os/os-android.h b/os/os-android.h
+index 1699539..9e3a3d2 100644
+--- a/os/os-android.h
++++ b/os/os-android.h
+@@ -140,6 +140,12 @@ enum {
+ #define IOPRIO_BITS		16
+ #define IOPRIO_CLASS_SHIFT	13
  
- /*
-  * Define USCHED_GET_CPUMASK as the macro didn't exist until release 4.5.
-- * usched_set(2) returns EINVAL if the kernel doesn't support it, though
-- * fio_getaffinity() returns void.
-+ * usched_set(2) returns EINVAL if the kernel doesn't support it.
-  *
-  * Also note usched_set(2) works only for the current thread regardless of
-  * the command type. It doesn't work against another thread regardless of
-@@ -145,12 +144,15 @@ static inline int fio_setaffinity(int pid, os_cpu_mask_t mask)
- 	return 0;
- }
- 
--static inline void fio_getaffinity(int pid, os_cpu_mask_t *mask)
-+static inline int fio_getaffinity(int pid, os_cpu_mask_t *mask)
- {
- 	/* 0 for the current thread, see BUGS in usched_set(2) */
- 	pid = 0;
- 
--	usched_set(pid, USCHED_GET_CPUMASK, mask, sizeof(*mask));
-+	if (usched_set(pid, USCHED_GET_CPUMASK, mask, sizeof(*mask)))
-+		return -1;
++#define IOPRIO_MIN_PRIO		0	/* highest priority */
++#define IOPRIO_MAX_PRIO		7	/* lowest priority */
 +
-+	return 0;
- }
- 
- /* fio code is Linux based, so rename macros to Linux style */
-diff --git a/os/os-windows.h b/os/os-windows.h
-index d049531..616ad43 100644
---- a/os/os-windows.h
-+++ b/os/os-windows.h
-@@ -193,7 +193,7 @@ static inline int fio_setaffinity(int pid, os_cpu_mask_t cpumask)
- 	return (bSuccess)? 0 : -1;
- }
- 
--static inline void fio_getaffinity(int pid, os_cpu_mask_t *mask)
-+static inline int fio_getaffinity(int pid, os_cpu_mask_t *mask)
- {
- 	os_cpu_mask_t systemMask;
- 
-@@ -204,7 +204,10 @@ static inline void fio_getaffinity(int pid, os_cpu_mask_t *mask)
- 		CloseHandle(h);
- 	} else {
- 		log_err("fio_getaffinity failed: failed to get handle for pid %d\n", pid);
-+		return -1;
- 	}
++#define IOPRIO_MIN_PRIO_CLASS	0
++#define IOPRIO_MAX_PRIO_CLASS	3
 +
-+	return 0;
- }
- 
- static inline void fio_cpu_clear(os_cpu_mask_t *mask, int cpu)
-diff --git a/os/os.h b/os/os.h
-index 9877383..4f267c2 100644
---- a/os/os.h
-+++ b/os/os.h
-@@ -84,7 +84,6 @@ typedef struct aiocb os_aiocb_t;
- #endif
- 
- #ifndef FIO_HAVE_CPU_AFFINITY
--#define fio_getaffinity(pid, mask)	do { } while (0)
- #define fio_cpu_clear(mask, cpu)	do { } while (0)
- typedef unsigned long os_cpu_mask_t;
- 
-@@ -93,6 +92,11 @@ static inline int fio_setaffinity(int pid, os_cpu_mask_t cpumask)
- 	return 0;
- }
- 
-+static inline int fio_getaffinity(int pid, os_cpu_mask_t *cpumask)
-+{
-+	return -1;
-+}
-+
- static inline int fio_cpuset_exit(os_cpu_mask_t *mask)
+ static inline int ioprio_set(int which, int who, int ioprio_class, int ioprio)
  {
- 	return -1;
+ 	/*
+diff --git a/os/os-linux.h b/os/os-linux.h
+index b36d33c..a410497 100644
+--- a/os/os-linux.h
++++ b/os/os-linux.h
+@@ -96,6 +96,12 @@ enum {
+ #define IOPRIO_BITS		16
+ #define IOPRIO_CLASS_SHIFT	13
+ 
++#define IOPRIO_MIN_PRIO		0	/* highest priority */
++#define IOPRIO_MAX_PRIO		7	/* lowest priority */
++
++#define IOPRIO_MIN_PRIO_CLASS	0
++#define IOPRIO_MAX_PRIO_CLASS	3
++
+ static inline int ioprio_set(int which, int who, int ioprio_class, int ioprio)
+ {
+ 	/*
 -- 
 2.5.5
 
