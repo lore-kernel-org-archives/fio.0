@@ -1,110 +1,92 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:35050 "EHLO
-	mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752540AbcG0GV7 convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 27 Jul 2016 02:21:59 -0400
-Received: by mail-pf0-f196.google.com with SMTP id h186so1236652pfg.2
-        for <fio@vger.kernel.org>; Tue, 26 Jul 2016 23:21:59 -0700 (PDT)
-Received: from [10.234.19.188] ([166.170.43.24])
-        by smtp.gmail.com with ESMTPSA id wp4sm5814625pab.15.2016.07.26.23.21.56
-        for <fio@vger.kernel.org>
-        (version=TLS1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Tue, 26 Jul 2016 23:21:57 -0700 (PDT)
-From: seth roth <sethrroth@gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: more information around io: client: unable to find matching tag - fio: client.c:1241: handle_eta: Assertion `client->eta_in_flight == eta' failed
-Message-Id: <652DFA88-EEE6-4E46-83FE-1525931F721A@gmail.com>
-Date: Tue, 26 Jul 2016 23:21:53 -0700
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Subject: [PATCH 5/7] Add ioprio_set() support for DragonFlyBSD
+Date: Wed, 20 Jul 2016 01:33:45 +0900
+Message-Id: <1468946027-22580-5-git-send-email-kusumi.tomohiro@gmail.com>
+In-Reply-To: <1468946027-22580-1-git-send-email-kusumi.tomohiro@gmail.com>
+References: <1468946027-22580-1-git-send-email-kusumi.tomohiro@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+List-ID: <fio@vger.kernel.org>
 
-version -
+It basically has the same interface as Linux kernel's ioprio_set(2),
+but needed to workaround a compile issue by defining it as a macro
+as mentioned in a comment (it can be called without syscall(NR, ...)).
 
-[root@tme-sj-s16 4krd]# fio --version
-fio-2.12
+This commit is based on the last two commits which made I/O priority
+option more generic for non Linux environment.
 
-OS
+ # uname
+ DragonFly
+ # fio --cmdhelp | grep prioclass -B1
+ prio                    : Set job IO priority value
+ prioclass               : Your platform does not support IO priority classes
 
-SB Version:    :core-4.1-amd64:core-4.1-noarch
+Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+---
+ HOWTO             |  3 ++-
+ os/os-dragonfly.h | 18 ++++++++++++++++++
+ 2 files changed, 20 insertions(+), 1 deletion(-)
 
-at /etc/redhat-release
-Red Hat Enterprise Linux Server release 7.2 (Maipo)
+diff --git a/HOWTO b/HOWTO
+index 2a4f4d0..ab25cb2 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -1064,7 +1064,8 @@ nice=int	Run the job with the given nice value. See man nice(2).
+ 
+ prio=int	Set the io priority value of this job. Linux limits us to
+ 		a positive value between 0 and 7, with 0 being the highest.
+-		See man ionice(1).
++		See man ionice(1). Refer to an appropriate manpage for
++		other operating systems since meaning of priority may differ.
+ 
+ prioclass=int	Set the io priority class. See man ionice(1).
+ 
+diff --git a/os/os-dragonfly.h b/os/os-dragonfly.h
+index 57958ca..187330b 100644
+--- a/os/os-dragonfly.h
++++ b/os/os-dragonfly.h
+@@ -11,6 +11,7 @@
+ #include <sys/diskslice.h>
+ #include <sys/ioctl_compat.h>
+ #include <sys/usched.h>
++#include <sys/resource.h>
+ 
+ #include "../file.h"
+ 
+@@ -22,6 +23,7 @@
+ #define FIO_HAVE_CHARDEV_SIZE
+ #define FIO_HAVE_GETTID
+ #define FIO_HAVE_CPU_AFFINITY
++#define FIO_HAVE_IOPRIO
+ 
+ #define OS_MAP_ANON		MAP_ANON
+ 
+@@ -151,6 +153,22 @@ static inline void fio_getaffinity(int pid, os_cpu_mask_t *mask)
+ 	usched_set(pid, USCHED_GET_CPUMASK, mask, sizeof(*mask));
+ }
+ 
++/* fio code is Linux based, so rename macros to Linux style */
++#define IOPRIO_WHO_PROCESS	PRIO_PROCESS
++#define IOPRIO_WHO_PGRP		PRIO_PGRP
++#define IOPRIO_WHO_USER		PRIO_USER
++
++#define IOPRIO_MIN_PRIO		1	/* lowest priority */
++#define IOPRIO_MAX_PRIO		10	/* highest priority */
++
++/*
++ * Prototypes declared in sys/sys/resource.h are preventing from defining
++ * ioprio_set() with 4 arguments, so define fio's ioprio_set() as a macro.
++ * Note that there is no idea of class within ioprio_set(2) unlike Linux.
++ */
++#define ioprio_set(which, who, ioprio_class, ioprio)	\
++	ioprio_set(which, who, ioprio)
++
+ static inline int blockdev_size(struct fio_file *f, unsigned long long *bytes)
+ {
+ 	struct partinfo pi;
+-- 
+2.5.5
 
-command on launcher node:
-/usr/local/bin/fio --client=tme-sj-s27.lab 4kread_s27.job --client=tme-sj-s28.lab 4kread_s28.job --client=tme-sj-s29.lab 4kread_s29.job --client=tme-sj-s30.lab 4kread_s30.job --output=./4krd_qd6.txt
 
-—output=4krd_qd6.txt
-
-cat 4krd_qd6.txt
-hostname=tme-sj-s30, be=0, 64-bit, os=Linux, arch=x86-64, fio=fio-2.12, flags=1
-hostname=tme-sj-s29, be=0, 64-bit, os=Linux, arch=x86-64, fio=fio-2.12, flags=1
-hostname=tme-sj-s28, be=0, 64-bit, os=Linux, arch=x86-64, fio=fio-2.12, flags=1
-hostname=tme-sj-s27, be=0, 64-bit, os=Linux, arch=x86-64, fio=fio-2.12, flags=1
-<tme-sj-s30> IF_4krd_30_qd6: (g=0): rw=randread, <tme-sj-s29> IF_4krd_29_qd6: (g=0): rw=randread, <tme-sj-s28> IF_4krd_28_qd6: (g=0): rw=randread, <tme-sj-s27> IF_4krd_27_qd6: (g=0): rw=randread, bs=4K-4K/4K-4K/4K-4K, bs=4K-4K/4K-4K/4K-4K, bs=4K-4K/4K-4K/4K-4K, bs=4K-4K/4K-4K/4K-4K, ioengine=rbd, iodepth=6
-ioengine=rbd, iodepth=6
-ioengine=rbd, iodepth=6
-ioengine=rbd, iodepth=6
-<tme-sj-s30> ...
-<tme-sj-s29> ...
-<tme-sj-s28> ...
-<tme-sj-s27> ...
-<tme-sj-s29> Starting 10 processes
-<tme-sj-s29> rbd engine: RBD version: 0.1.9
-<tme-sj-s28> Starting 10 processes
-<tme-sj-s28> rbd engine: RBD version: 0.1.9
-<tme-sj-s27> Starting 10 processes
-<tme-sj-s27> rbd engine: RBD version: 0.1.9
-<tme-sj-s30> Starting 10 processes
-<tme-sj-s30> rbd engine: RBD version: 0.1.9
-<tme-sj-s29> rbd engine: RBD version: 0.1.9
-<tme-sj-s28> rbd engine: RBD version: 0.1.9
-<tme-sj-s27> rbd engine: RBD version: 0.1.9
-<tme-sj-s30> rbd engine: RBD version: 0.1.9
-<tme-sj-s29> rbd engine: RBD version: 0.1.9
-<tme-sj-s28> rbd engine: RBD version: 0.1.9
-<tme-sj-s27> rbd engine: RBD version: 0.1.9
-<tme-sj-s30> rbd engine: RBD version: 0.1.9
-<tme-sj-s29> rbd engine: RBD version: 0.1.9
-<tme-sj-s28> rbd engine: RBD version: 0.1.9
-<tme-sj-s27> rbd engine: RBD version: 0.1.9
-<tme-sj-s30> rbd engine: RBD version: 0.1.9
-<tme-sj-s29> rbd engine: RBD version: 0.1.9
-<tme-sj-s28> rbd engine: RBD version: 0.1.9
-<tme-sj-s27> rbd engine: RBD version: 0.1.9
-<tme-sj-s30> rbd engine: RBD version: 0.1.9
-<tme-sj-s29> rbd engine: RBD version: 0.1.9
-<tme-sj-s28> rbd engine: RBD version: 0.1.9
-<tme-sj-s27> rbd engine: RBD version: 0.1.9
-<tme-sj-s30> rbd engine: RBD version: 0.1.9
-<tme-sj-s29> rbd engine: RBD version: 0.1.9
-<tme-sj-s28> rbd engine: RBD version: 0.1.9
-<tme-sj-s27> rbd engine: RBD version: 0.1.9
-<tme-sj-s30> rbd engine: RBD version: 0.1.9
-<tme-sj-s29> rbd engine: RBD version: 0.1.9
-<tme-sj-s28> rbd engine: RBD version: 0.1.9
-<tme-sj-s27> rbd engine: RBD version: 0.1.9
-<tme-sj-s29> rbd engine: RBD version: 0.1.9
-<tme-sj-s30> rbd engine: RBD version: 0.1.9
-<tme-sj-s28> rbd engine: RBD version: 0.1.9
-<tme-sj-s27> rbd engine: RBD version: 0.1.9
-<tme-sj-s29> rbd engine: RBD version: 0.1.9
-<tme-sj-s30> rbd engine: RBD version: 0.1.9
-<tme-sj-s28> rbd engine: RBD version: 0.1.9
-<tme-sj-s27> rbd engine: RBD version: 0.1.9
-<tme-sj-s30> rbd engine: RBD version: 0.1.9
-client <tme-sj-s30.lab>: timeout on SEND_ETA
-client <tme-sj-s29.lab>: timeout on SEND_ETA
-client <tme-sj-s28.lab>: timeout on SEND_ETA
-client <tme-sj-s27.lab>: timeout on SEND_ETA
-client <tme-sj-s30.lab>: timeout on SEND_ETA
-client <tme-sj-s29.lab>: timeout on SEND_ETA
-client <tme-sj-s28.lab>: timeout on SEND_ETA
-client <tme-sj-s27.lab>: timeout on SEND_ETA
-client <tme-sj-s30.lab>: timeout on SEND_ETA
-client <tme-sj-s29.lab>: timeout on SEND_ETA
-client <tme-sj-s28.lab>: timeout on SEND_ETA
-client <tme-sj-s27.lab>: timeout on SEND_ETA
-fio: client: unable to find matching tag (13cca90)
