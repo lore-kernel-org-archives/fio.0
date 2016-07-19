@@ -1,74 +1,108 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Subject: [PATCH 1/2] Add os_trim() support for DragonFlyBSD
-Date: Thu, 14 Jul 2016 21:27:42 +0900
-Message-Id: <1468499263-6328-1-git-send-email-kusumi.tomohiro@gmail.com>
+Subject: [PATCH 4/7] Make I/O priority option generic for non-Linux environment [2/2]
+Date: Wed, 20 Jul 2016 01:33:44 +0900
+Message-Id: <1468946027-22580-4-git-send-email-kusumi.tomohiro@gmail.com>
+In-Reply-To: <1468946027-22580-1-git-send-email-kusumi.tomohiro@gmail.com>
+References: <1468946027-22580-1-git-send-email-kusumi.tomohiro@gmail.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 List-ID: <fio@vger.kernel.org>
 
-It has the same interface as Linux kernel with a different ioctl name.
+There is a kernel that supports I/O priority with a syscall similar
+to Linux (e.g. DragonFlyBSD's ioprio_set(2) which apparently seems
+to have been inspired by ioprio_set(2) in Linux kernel), however
+the idea of class within the syscall may not exist depending on the
+I/O scheduler and its design, so "prioclass" option should be an
+optional one for "prio" option.
+
+This commit adds FIO_HAVE_IOPRIO_CLASS to separate "prioclass" from
+"prio" on compile-time for those that do support priority itself,
+but not priority classes.
+
+If the platform supports I/O priority, it defines FIO_HAVE_IOPRIO
+like it did before. If the platform supports I/O priority classes,
+it defines FIO_HAVE_IOPRIO_CLASS in addition to above.
+If FIO_HAVE_IOPRIO_CLASS is enabled, FIO_HAVE_IOPRIO must also be
+enabled since FIO_HAVE_IOPRIO defines io_prioset(). This is also
+checked on compile-time.
+
+Linux (incl Android) has both of these macros enabled, so there is
+no functional changes made by this commit.
 
 Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 ---
- Makefile          |  1 +
- os/os-dragonfly.h | 16 ++++++++++++++++
- 2 files changed, 17 insertions(+)
+ options.c       | 20 +++++++++++++-------
+ os/os-android.h |  1 +
+ os/os-linux.h   |  1 +
+ 3 files changed, 15 insertions(+), 7 deletions(-)
 
-diff --git a/Makefile b/Makefile
-index c617d6f..a9cd151 100644
---- a/Makefile
-+++ b/Makefile
-@@ -157,6 +157,7 @@ ifeq ($(CONFIG_TARGET_OS), NetBSD)
-   LDFLAGS += -rdynamic
- endif
- ifeq ($(CONFIG_TARGET_OS), DragonFly)
-+  SOURCE += trim.c
-   LIBS	 += -lpthread -lrt
-   LDFLAGS += -rdynamic
- endif
-diff --git a/os/os-dragonfly.h b/os/os-dragonfly.h
-index b67c660..d776d1f 100644
---- a/os/os-dragonfly.h
-+++ b/os/os-dragonfly.h
-@@ -9,6 +9,7 @@
- #include <sys/sysctl.h>
- #include <sys/statvfs.h>
- #include <sys/diskslice.h>
-+#include <sys/ioctl_compat.h>
- 
- #include "../file.h"
- 
-@@ -16,6 +17,7 @@
- #define FIO_USE_GENERIC_RAND
- #define FIO_USE_GENERIC_INIT_RANDOM_STATE
- #define FIO_HAVE_FS_STAT
-+#define FIO_HAVE_TRIM
- #define FIO_HAVE_CHARDEV_SIZE
- #define FIO_HAVE_GETTID
- 
-@@ -84,6 +86,20 @@ static inline unsigned long long get_fs_free_size(const char *path)
- 	return ret;
- }
- 
-+static inline int os_trim(int fd, unsigned long long start,
-+			  unsigned long long len)
-+{
-+	off_t range[2];
-+
-+	range[0] = start;
-+	range[1] = len;
-+
-+	if (!ioctl(fd, IOCTLTRIM, range))
-+		return 0;
-+
-+	return errno;
-+}
-+
- #ifdef MADV_FREE
- #define FIO_MADV_FREE	MADV_FREE
+diff --git a/options.c b/options.c
+index d2a029d..4723e41 100644
+--- a/options.c
++++ b/options.c
+@@ -3018,6 +3018,18 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.category = FIO_OPT_C_GENERAL,
+ 		.group	= FIO_OPT_G_CRED,
+ 	},
++#else
++	{
++		.name	= "prio",
++		.lname	= "I/O nice priority",
++		.type	= FIO_OPT_UNSUPPORTED,
++		.help	= "Your platform does not support IO priorities",
++	},
++#endif
++#ifdef FIO_HAVE_IOPRIO_CLASS
++#ifndef FIO_HAVE_IOPRIO
++#error "FIO_HAVE_IOPRIO_CLASS requires FIO_HAVE_IOPRIO"
++#endif
+ 	{
+ 		.name	= "prioclass",
+ 		.lname	= "I/O nice priority class",
+@@ -3032,16 +3044,10 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 	},
+ #else
+ 	{
+-		.name	= "prio",
+-		.lname	= "I/O nice priority",
+-		.type	= FIO_OPT_UNSUPPORTED,
+-		.help	= "Your platform does not support IO priorities",
+-	},
+-	{
+ 		.name	= "prioclass",
+ 		.lname	= "I/O nice priority class",
+ 		.type	= FIO_OPT_UNSUPPORTED,
+-		.help	= "Your platform does not support IO priorities",
++		.help	= "Your platform does not support IO priority classes",
+ 	},
  #endif
+ 	{
+diff --git a/os/os-android.h b/os/os-android.h
+index 9e3a3d2..70d0570 100644
+--- a/os/os-android.h
++++ b/os/os-android.h
+@@ -22,6 +22,7 @@
+ #define FIO_HAVE_DISK_UTIL
+ #define FIO_HAVE_IOSCHED_SWITCH
+ #define FIO_HAVE_IOPRIO
++#define FIO_HAVE_IOPRIO_CLASS
+ #define FIO_HAVE_ODIRECT
+ #define FIO_HAVE_HUGETLB
+ #define FIO_HAVE_BLKTRACE
+diff --git a/os/os-linux.h b/os/os-linux.h
+index a410497..937aade 100644
+--- a/os/os-linux.h
++++ b/os/os-linux.h
+@@ -25,6 +25,7 @@
+ #define FIO_HAVE_DISK_UTIL
+ #define FIO_HAVE_SGIO
+ #define FIO_HAVE_IOPRIO
++#define FIO_HAVE_IOPRIO_CLASS
+ #define FIO_HAVE_IOSCHED_SWITCH
+ #define FIO_HAVE_ODIRECT
+ #define FIO_HAVE_HUGETLB
 -- 
 2.5.5
 
