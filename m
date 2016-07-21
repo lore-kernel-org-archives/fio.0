@@ -1,223 +1,329 @@
-Return-Path: <jeff.furlong@hgst.com>
-From: Jeff Furlong <jeff.furlong@hgst.com>
-Subject: RE: what is the sample logger doing when the buffer fills up?
-Date: Thu, 21 Jul 2016 17:00:10 +0000
-Message-ID: <BN3PR0401MB1457787C3D5632BD79FFFC5BF7090@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Return-Path: <kcronbur@redhat.com>
+MIME-Version: 1.0
+In-Reply-To: <805ada82-a3be-5b0f-226c-258d7e6f7711@kernel.dk>
 References: <CAJ9yE1DPWmV0Hx_AAS5cKZR5qSFeqmqJVg7dgikQK=ZBje-e3A@mail.gmail.com>
- <20160707183605.GB8567@kernel.dk>
- <CAJ9yE1Ayvzkq5iNYCWEfhzunA7pLoJrS-YBb9TtBR3RM1xyWDg@mail.gmail.com>
+ <20160707183605.GB8567@kernel.dk> <CAJ9yE1Ayvzkq5iNYCWEfhzunA7pLoJrS-YBb9TtBR3RM1xyWDg@mail.gmail.com>
  <BN3PR0401MB1457BF2D349098BBF7F579A2F73B0@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <577ECD29.2090204@kernel.dk>
- <BN3PR0401MB1457786D4450A0AA7A6571D1F73B0@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <577ECE94.2080105@kernel.dk>
- <CAF+0mvnTM6Rv3Vh1oOZd=9TQ1wVtWWrHMVkbKxdisufiYvZ0Zw@mail.gmail.com>
+ <577ECD29.2090204@kernel.dk> <BN3PR0401MB1457786D4450A0AA7A6571D1F73B0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+ <577ECE94.2080105@kernel.dk> <CAF+0mvnTM6Rv3Vh1oOZd=9TQ1wVtWWrHMVkbKxdisufiYvZ0Zw@mail.gmail.com>
  <BN3PR0401MB1457463C7131E975F7ED0812F7370@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <CAJ9yE1CkoXrkK2PowRkSyby6zbb+ngWFAD-AariWcp64FNTZNw@mail.gmail.com>
  <BN3PR0401MB145725E84C509D7F14BC2C2FF7080@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <BN3PR0401MB14573F44F190D9B11CCF836FF7080@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <805ada82-a3be-5b0f-226c-258d7e6f7711@kernel.dk>
- <CAJ9yE1CXNBvGFnJ1FNnodRKanXrqMgEfJsBrCz1dXBcNq4Qwxg@mail.gmail.com>
-In-Reply-To: <CAJ9yE1CXNBvGFnJ1FNnodRKanXrqMgEfJsBrCz1dXBcNq4Qwxg@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-To: Karl Cronburg <kcronbur@redhat.com>, Jens Axboe <axboe@kernel.dk>
-Cc: Matthew Eaton <m.eaton82@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+From: Karl Cronburg <kcronbur@redhat.com>
+Date: Thu, 21 Jul 2016 11:49:28 -0400
+Message-ID: <CAJ9yE1CXNBvGFnJ1FNnodRKanXrqMgEfJsBrCz1dXBcNq4Qwxg@mail.gmail.com>
+Subject: Re: what is the sample logger doing when the buffer fills up?
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Jeff Furlong <jeff.furlong@hgst.com>, Matthew Eaton <m.eaton82@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-SW4gbXkgc2FtcGxlIGpvYiwgSSdtIGxvZ2dpbmcgZXZlcnl0aGluZzogaW9wcywgYncsIHNsYXQs
-IGNsYXQsIGxhdC4gIFRoZSBpb3BzIGFuZCBidyBsb2dzIGhhdmUgbWlzc2luZyBlbnRyaWVzIChh
-dCB0aGUgc2FtZSB0aW1lIG9mZnNldCkuICBUaGUgc2xhdCwgY2xhdCwgbGF0IGxvZ3MgYXBwZWFy
-IGZpbmUgKG5vIG1pc3NpbmcgZW50cmllcykuDQoNClJlZ2FyZHMsDQpKZWZmDQoNCg0KLS0tLS1P
-cmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IGZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmcgW21h
-aWx0bzpmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnXSBPbiBCZWhhbGYgT2YgS2FybCBDcm9uYnVy
-Zw0KU2VudDogVGh1cnNkYXksIEp1bHkgMjEsIDIwMTYgODo0OSBBTQ0KVG86IEplbnMgQXhib2Ug
-PGF4Ym9lQGtlcm5lbC5kaz4NCkNjOiBKZWZmIEZ1cmxvbmcgPGplZmYuZnVybG9uZ0BoZ3N0LmNv
-bT47IE1hdHRoZXcgRWF0b24gPG0uZWF0b244MkBnbWFpbC5jb20+OyBmaW9Admdlci5rZXJuZWwu
-b3JnDQpTdWJqZWN0OiBSZTogd2hhdCBpcyB0aGUgc2FtcGxlIGxvZ2dlciBkb2luZyB3aGVuIHRo
-ZSBidWZmZXIgZmlsbHMgdXA/DQoNCkxvb2tzIGxpa2Ugd2UncmUgd2FraW5nIHVwIGJ1dCBub3Qg
-ZG9pbmcgYW55dGhpbmcgLSBkZWJ1ZyB0cmFjZToNCg0KZWxhcHNlZD0xMTMzDQplbGFwc2VkPTEx
-MzMNCmVsYXBzZWQ9MTIwMA0KbmV4dF9sb2c9MTAwDQptc2VjX3RvX25leHRfZXZlbnQ9OTkNCm5l
-eHRfbG9nPTEwMA0KbXNlY190b19uZXh0X2V2ZW50PTEwMA0KbmV4dF9sb2c9MTAwDQptc2VjX3Rv
-X25leHRfZXZlbnQ9MTAwDQpuZXh0X2xvZz0xMDANCm1zZWNfdG9fbmV4dF9ldmVudD01MA0KbmV4
-dF9sb2c9NTENCm1zZWNfdG9fbmV4dF9ldmVudD01MQ0KbmV4dF9sb2c9MTAwDQptc2VjX3RvX25l
-eHRfZXZlbnQ9MTAwDQpuZXh0X2xvZz0xMDANCm1zZWNfdG9fbmV4dF9ldmVudD05OQ0KbmV4dF9s
-b2c9MTAwDQptc2VjX3RvX25leHRfZXZlbnQ9MTAwDQplbGFwc2VkPTE4NzcNCmVsYXBzZWQ9MTg3
-Nw0KZWxhcHNlZD0xODk5DQoNCl4gZWxhcHNlZCBpcyBwcmludGVkIGFmdGVyIGVhY2ggbG9nX2F2
-Z19tc2VjIHNhbXBsZSBpcyBhZGRlZCwgYW5kIG5leHRfbG9nIGFuZCBtc2VjX3RvX25leHRfZXZl
-bnQgYXJlIHByaW50ZWQgaW4gaGVscGVyX3RocmVhZF9tYWluLg0KVGhpcyBpcyB0aGUgY29tbWFu
-ZCBJJ20gdXNpbmc6DQoNCiMgLi4vZmlvIC0taW9lbmdpbmU9cmJkIC0tY2xpZW50bmFtZT1hZG1p
-biAtLXBvb2w9Y2J0LWxpYnJiZGZpbyAtLXJiZG5hbWU9Y2J0LWxpYnJiZGZpby1gaG9zdG5hbWUg
-LXNgLTAgLS1pbnZhbGlkYXRlPTAgIC0tcnc9d3JpdGUNCi0tbnVtam9icz0xIC0tYnM9NE0gLS1u
-YW1lPWxpYnJiZGZpby1gaG9zdG5hbWUgLXNgLTANCi0tbG9nX2F2Z19tc2VjPTEwMCAtLXJ1bnRp
-bWU9NSAtLXdyaXRlX2lvcHNfbG9nPXRlc3QgLS13cml0ZV9sYXRfbG9nPXRlc3QgLS1kaXNhYmxl
-X3NsYXQ9MSAtLWRpc2FibGVfYnc9MQ0KDQpUaGUgZ2FwIGZyb20gMTIwMCB0byAxOTAwIGNvcnJl
-c3BvbmRzIHRvIHRoZSBsYWNrIG9mIElPUCBlbnRyaWVzIGluIHRoZSBsb2c6DQoNCjg5OSwgMjAs
-IDEsIDANCjk5OSwgMTAsIDEsIDANCjEyMDAsIDEwLCAxLCAwDQoxODk5LCAxMCwgMSwgMA0KMTk5
-OSwgMTAsIDEsIDANCjIxMDAsIDIwLCAxLCAwDQoNCldpbGwgZGVidWcgZnVydGhlci4NCg0KSmVm
-ZiAtIGFyZSB5b3Ugc2VlaW5nIHRoZSBzYW1lIGdhcHMgaW4geW91ciBsYXRlbmN5IGxvZ3MgYXMg
-d2l0aCB5b3VyIElPUCBsb2dzPyBJJ20gbm90IGNvbXBsZXRlbHkgY2VydGFpbiB3aGF0IEknbSBz
-ZWVpbmcgaGVyZSBpcyB0aGUgc2FtZS4NCg0KT24gV2VkLCBKdWwgMjAsIDIwMTYgYXQgNzo0NiBQ
-TSwgSmVucyBBeGJvZSA8YXhib2VAa2VybmVsLmRrPiB3cm90ZToNCj4gSSB3YXMgc3VzcGljaW91
-cyB0aGF0IHRoZSBkcmlmdCBmaXggd291bGQgYmUgc29tZXRoaW5nIGVsc2UuIEJ1dCBhdCANCj4g
-bGVhc3QgdGhhdCdzIGFub3RoZXIgYnVnIGZpeGVkLg0KPg0KPiBUaGUgcXVlc3Rpb24gaXMgaWYg
-d2UncmUgd2FraW5nIHVwIGluIHRoZSBoZWxwZXJfdGhyZWFkIGF0IHRoZSByaWdodCANCj4gdGlt
-ZSwgYW5kIG5vdCBkZWNpZGluZyB0byBkbyBhbnl0aGluZyBmb3Igd2hhdGV2ZXIgcmVhc29uICh3
-aGljaCB3b3VsZCANCj4gYmUgYSBidWcpLCBvciBpZiB3ZSdyZSBub3Qgd2FraW5nIGF0IGFsbCBk
-dWUgdG8gdGhlIG1hdGggYmVpbmcgd3JvbmcgDQo+ICh3aGljaCB3b3VsZCBiZSBhbm90aGVyIGJ1
-ZykuIEl0IGhhcyB0byBiZSBvbmUgb2YgdGhvc2UuDQo+DQo+DQo+DQo+IE9uIDA3LzIwLzIwMTYg
-MDM6MjggUE0sIEplZmYgRnVybG9uZyB3cm90ZToNCj4+DQo+PiBSZXRyeWluZyB0aGUgaW9wcyBs
-b2cgb3V0cHV0IGZvcm1hdCAobWlzc2luZyAzMDAwIGFuZCAxMzAwMCBpcyBkcmlmdGVkKToNCj4+
-DQo+PiAxMDAwLCAyOTk2MzYsIDAsIDANCj4+IDIwMDAsIDM1NDM4OCwgMCwgMA0KPj4gNDAwMCwg
-MzM3OTcyLCAwLCAwDQo+PiA1MDAwLCAzMjM4MjUsIDAsIDANCj4+IDYwMDAsIDMzNzQ1NywgMCwg
-MA0KPj4gNzAwMCwgMzI3Nzc1LCAwLCAwDQo+PiA4MDAwLCAzNjEyNzUsIDAsIDANCj4+IDkwMDAs
-IDM0ODA2MCwgMCwgMA0KPj4gMTAwMDAsIDM0MDI3MywgMCwgMA0KPj4gMTEwMDAsIDM0OTEyNywg
-MCwgMA0KPj4gMTIwMDAsIDMyOTA4OCwgMCwgMA0KPj4gMTI5OTksIDM0OTYwNCwgMCwgMA0KPj4g
-MTQwMDAsIDMyMjMyMSwgMCwgMA0KPj4gMTUwMDAsIDMxOTQ2NywgMCwgMA0KPj4NCj4+IFJlZ2Fy
-ZHMsDQo+PiBKZWZmDQo+Pg0KPj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4+IEZyb206
-IGZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmcgW21haWx0bzpmaW8tb3duZXJAdmdlci5rZXJuZWwu
-b3JnXSBPbiANCj4+IEJlaGFsZiBPZiBKZWZmIEZ1cmxvbmcNCj4+IFNlbnQ6IFdlZG5lc2RheSwg
-SnVseSAyMCwgMjAxNiAyOjIzIFBNDQo+PiBUbzogS2FybCBDcm9uYnVyZyA8a2Nyb25idXJAcmVk
-aGF0LmNvbT4NCj4+IENjOiBNYXR0aGV3IEVhdG9uIDxtLmVhdG9uODJAZ21haWwuY29tPjsgSmVu
-cyBBeGJvZSANCj4+IDxheGJvZUBrZXJuZWwuZGs+OyBmaW9Admdlci5rZXJuZWwub3JnDQo+PiBT
-dWJqZWN0OiBSRTogd2hhdCBpcyB0aGUgc2FtcGxlIGxvZ2dlciBkb2luZyB3aGVuIHRoZSBidWZm
-ZXIgZmlsbHMgdXA/DQo+Pg0KPj4gSSBzdGlsbCBzZWUgc29tZSBzYW1wbGVzIGFzIGRyb3BwZWQu
-DQo+Pg0KPj4gIyBmaW8gLXZlcnNpb24NCj4+IGZpby0yLjEyLTIzLWdjMTY1DQo+Pg0KPj4gMTAw
-MCwgMjk5NjM2LCAwLCAwDQo+PiAyMDAwLCAzNTQzODgsIDAsIDAgLS0+IG1pc3NpbmcgMzAwMCBi
-ZWxvdyA0MDAwLCAzMzc5NzIsIDAsIDAgNTAwMCwgDQo+PiAzMjM4MjUsIDAsIDAgNjAwMCwgMzM3
-NDU3LCAwLCAwIDcwMDAsIDMyNzc3NSwgMCwgMCA4MDAwLCAzNjEyNzUsIDAsIDAgDQo+PiA5MDAw
-LCAzNDgwNjAsIDAsIDAgMTAwMDAsIDM0MDI3MywgMCwgMCAxMTAwMCwgMzQ5MTI3LCAwLCAwIDEy
-MDAwLCANCj4+IDMyOTA4OCwgMCwgMCAxMjk5OSwgMzQ5NjA0LCAwLCAwIC0tPiBtaWxkIGNsb2Nr
-IGRyaWZ0IDE0MDAwLCAzMjIzMjEsIA0KPj4gMCwgMCAxNTAwMCwgMzE5NDY3LCAwLCAwDQo+Pg0K
-Pj4gUmVnYXJkcywNCj4+IEplZmYNCj4+DQo+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0K
-Pj4gRnJvbTogS2FybCBDcm9uYnVyZyBbbWFpbHRvOmtjcm9uYnVyQHJlZGhhdC5jb21dDQo+PiBT
-ZW50OiBXZWRuZXNkYXksIEp1bHkgMjAsIDIwMTYgMToyOSBQTQ0KPj4gVG86IEplZmYgRnVybG9u
-ZyA8amVmZi5mdXJsb25nQGhnc3QuY29tPg0KPj4gQ2M6IE1hdHRoZXcgRWF0b24gPG0uZWF0b244
-MkBnbWFpbC5jb20+OyBKZW5zIEF4Ym9lIA0KPj4gPGF4Ym9lQGtlcm5lbC5kaz47IGZpb0B2Z2Vy
-Lmtlcm5lbC5vcmcNCj4+IFN1YmplY3Q6IFJlOiB3aGF0IGlzIHRoZSBzYW1wbGUgbG9nZ2VyIGRv
-aW5nIHdoZW4gdGhlIGJ1ZmZlciBmaWxscyB1cD8NCj4+DQo+PiBQUiAyMTEgaXMgb25lIHBvc3Np
-YmxlIHNvbHV0aW9uOiANCj4+IGh0dHBzOi8vZ2l0aHViLmNvbS9heGJvZS9maW8vcHVsbC8yMTEN
-Cj4+DQo+PiBUaGUgZ2FwcyBpbiB0aGUgSU9QcyBsb2dzIGFyZSBjYXVzZWQgYnkgZHJpZnQgaW4g
-dGhlIHZhbHVlIG9mIA0KPj4gYXZnX2xhc3QgZm9yd2FyZCBpbiB0aW1lLCBlLmcuIGlmIHRoZXJl
-J3MgYSBkcmlmdCBvZiAxIG1pbGxpc2Vjb25kIA0KPj4gZXZlcnkgdGltZSB3ZSBvdXRwdXQgYSBz
-YW1wbGUgYW5kIGxvZ19hdmdfbXNlYz0xMDAsIHRoZW4gZXZlcnkgMTAwdGggDQo+PiBJT1AgYXZl
-cmFnZSBnZXRzIGEgZ2FwLg0KPj4NCj4+IE9uIE1vbiwgSnVsIDE4LCAyMDE2IGF0IDg6MDkgUE0s
-IEplZmYgRnVybG9uZyA8amVmZi5mdXJsb25nQGhnc3QuY29tPg0KPj4gd3JvdGU6DQo+Pj4NCj4+
-PiBJIGhhdmVuJ3QgYmVlbiBhYmxlIHRvIGRlYnVnIHRoZSBpc3N1ZSBhbGwgdGhlIHdheSwgYnV0
-IG5vdGljZSB0aGF0IA0KPj4+IHRoZSByZXBvcnRlZCB0aW1lIGxvZ3MgYXJvdW5kIHRoZSBtaXNz
-aW5nIGVudHJpZXMgYXJlIG5vdCBwZXJmZWN0LiAgDQo+Pj4gQWZ0ZXIgdGltZSA1MDAxdXMsIHRo
-ZSA2MDAwdXMgZW50cnkgaXMgbWlzc2luZy4gIEFmdGVyIHRpbWUgMjEwMDF1cywgDQo+Pj4gdGhl
-IDIyMDAwdXMgZW50cnkgaXMgbWlzc2luZy4NCj4+Pg0KPj4+IE9uIG15IHdvcmtsb2FkcywgSSBz
-ZWUgdGltZSAxMTk5OXVzLCBidXQgdGltZSAxMTAwMCBpcyBtaXNzaW5nLiAgU28gDQo+Pj4gdGhl
-IHRpbWUgbG9ncyBnbzogMTAwMDAsIDExOTk5LCAxMzAwMCwgMTQwMDAsIGV0Yy4NCj4+Pg0KPj4+
-IEkgc3VzcGVjdCB0aGUgaXNzdWUgdG8gYmUgaW4gb3IgbmVhciBzdGF0LmM6DQo+Pj4NCj4+PiBz
-dGF0aWMgdm9pZCBhZGRfbG9nX3NhbXBsZShzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBzdHJ1Y3Qg
-aW9fbG9nICppb2xvZywNCj4+PiAgICAgICAgICAgICAgICAgICAgICAgICAgICB1bnNpZ25lZCBs
-b25nIHZhbCwgZW51bSBmaW9fZGRpciBkZGlyLA0KPj4+ICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgIHVuc2lnbmVkIGludCBicywgdWludDY0X3Qgb2Zmc2V0KSB7DQo+Pj4gICAgICAgICB1bnNp
-Z25lZCBsb25nIGVsYXBzZWQsIHRoaXNfd2luZG93Ow0KPj4+DQo+Pj4gICAgICAgICBpZiAoIWRk
-aXJfcncoZGRpcikpDQo+Pj4gICAgICAgICAgICAgICAgIHJldHVybjsNCj4+Pg0KPj4+ICAgICAg
-ICAgZWxhcHNlZCA9IG10aW1lX3NpbmNlX25vdygmdGQtPmVwb2NoKTsNCj4+Pg0KPj4+ICAgICAg
-ICAgLyoNCj4+PiAgICAgICAgICAqIElmIG5vIHRpbWUgYXZlcmFnaW5nLCBqdXN0IGFkZCB0aGUg
-bG9nIHNhbXBsZS4NCj4+PiAgICAgICAgICAqLw0KPj4+ICAgICAgICAgaWYgKCFpb2xvZy0+YXZn
-X21zZWMpIHsNCj4+PiAgICAgICAgICAgICAgICAgX19hZGRfbG9nX3NhbXBsZShpb2xvZywgdmFs
-LCBkZGlyLCBicywgZWxhcHNlZCwgb2Zmc2V0KTsNCj4+PiAgICAgICAgICAgICAgICAgcmV0dXJu
-Ow0KPj4+ICAgICAgICAgfQ0KPj4+DQo+Pj4gICAgICAgICAvKg0KPj4+ICAgICAgICAgICogQWRk
-IHRoZSBzYW1wbGUuIElmIHRoZSB0aW1lIHBlcmlvZCBoYXMgcGFzc2VkLCB0aGVuDQo+Pj4gICAg
-ICAgICAgKiBhZGQgdGhhdCBlbnRyeSB0byB0aGUgbG9nIGFuZCBjbGVhci4NCj4+PiAgICAgICAg
-ICAqLw0KPj4+ICAgICAgICAgYWRkX3N0YXRfc2FtcGxlKCZpb2xvZy0+YXZnX3dpbmRvd1tkZGly
-XSwgdmFsKTsNCj4+Pg0KPj4+ICAgICAgICAgLyoNCj4+PiAgICAgICAgICAqIElmIHBlcmlvZCBo
-YXNuJ3QgcGFzc2VkLCBhZGRpbmcgdGhlIGFib3ZlIHNhbXBsZSBpcyBhbGwgd2UNCj4+PiAgICAg
-ICAgICAqIG5lZWQgdG8gZG8uDQo+Pj4gICAgICAgICAgKi8NCj4+PiAgICAgICAgIHRoaXNfd2lu
-ZG93ID0gZWxhcHNlZCAtIGlvbG9nLT5hdmdfbGFzdDsNCj4+PiAgICAgICAgIGlmICh0aGlzX3dp
-bmRvdyA8IGlvbG9nLT5hdmdfbXNlYykNCj4+PiAgICAgICAgICAgICAgICAgcmV0dXJuOw0KPj4+
-DQo+Pj4gICAgICAgICBfYWRkX3N0YXRfdG9fbG9nKGlvbG9nLCBlbGFwc2VkLCB0ZC0+by5sb2df
-bWF4ICE9IDApOw0KPj4+DQo+Pj4gICAgICAgICBpb2xvZy0+YXZnX2xhc3QgPSBlbGFwc2VkOw0K
-Pj4+IH0NCj4+Pg0KPj4+IFJlZ2FyZHMsDQo+Pj4gSmVmZg0KPj4+DQo+Pj4gLS0tLS1PcmlnaW5h
-bCBNZXNzYWdlLS0tLS0NCj4+PiBGcm9tOiBNYXR0aGV3IEVhdG9uIFttYWlsdG86bS5lYXRvbjgy
-QGdtYWlsLmNvbV0NCj4+PiBTZW50OiBNb25kYXksIEp1bHkgMTgsIDIwMTYgMTE6MjQgQU0NCj4+
-PiBUbzogSmVucyBBeGJvZSA8YXhib2VAa2VybmVsLmRrPg0KPj4+IENjOiBKZWZmIEZ1cmxvbmcg
-PGplZmYuZnVybG9uZ0BoZ3N0LmNvbT47IEthcmwgQ3JvbmJ1cmcgDQo+Pj4gPGtjcm9uYnVyQHJl
-ZGhhdC5jb20+OyBmaW9Admdlci5rZXJuZWwub3JnDQo+Pj4gU3ViamVjdDogUmU6IHdoYXQgaXMg
-dGhlIHNhbXBsZSBsb2dnZXIgZG9pbmcgd2hlbiB0aGUgYnVmZmVyIGZpbGxzIHVwPw0KPj4+DQo+
-Pj4gSSBhbSBhbHNvIHNlZWluZyB0aGlzIGJ1ZyBidXQgd2l0aCBudW1qb2JzID0gMS4NCj4+Pg0K
-Pj4+IGZpbyAtLW51bWpvYnM9MSAtLWlvZGVwdGg9MzIgLS1yYW1wX3RpbWU9MTgwMCAtLXJ1bnRp
-bWU9MTgxMCANCj4+PiAtLXRpbWVfYmFzZWQgLS1ydz1yYW5kd3JpdGUgLS1icz00ayAtLWlvZW5n
-aW5lPWxpYmFpbyAtLWRpcmVjdD0xIA0KPj4+IC0tcmVmaWxsX2J1ZmZlcnMgLS1ub3JhbmRvbW1h
-cCAtLXJhbmRyZXBlYXQ9MCAtLWxvZ19hdmdfbXNlYz0xMDAwIA0KPj4+IC0td3JpdGVfaW9wc19s
-b2c9d3JpdGUgLS1uYW1lPXdyaXRlLWlvcHMgLS1maWxlbmFtZT0vZGV2L3NkYg0KPj4+DQo+Pj4g
-ZmlvLTIuMTItMTItZzQ1MjEzDQo+Pj4NCj4+PiAzMDAwLCAyMzAzMywgMSwgMA0KPj4+IDQwMDAs
-IDIzMDM1LCAxLCAwDQo+Pj4gNTAwMSwgMjU0NjMsIDEsIDAgPDw8DQo+Pj4gNzAwMCwgMjQ2NDks
-IDEsIDAgPDw8DQo+Pj4gODAwMCwgMjcxMDMsIDEsIDANCj4+PiA5MDAwLCAyMzAwNCwgMSwgMA0K
-Pj4+IDEwMDAwLCAyMzA2NCwgMSwgMA0KPj4+IDExMDAwLCAyNjE5OSwgMSwgMA0KPj4+IDEyMDAw
-LCAyMzEwNywgMSwgMA0KPj4+IDEzMDAwLCAyODczNCwgMSwgMA0KPj4+IDE0MDAwLCAyMzg1Mywg
-MSwgMA0KPj4+IDE1MDAwLCAyODczOSwgMSwgMA0KPj4+IDE2MDAwLCAyNzA2MSwgMSwgMA0KPj4+
-IDE3MDAwLCAyNTUwNCwgMSwgMA0KPj4+IDE4MDAwLCAyOTU1MCwgMSwgMA0KPj4+IDE5MDAwLCAy
-Mzg0MiwgMSwgMA0KPj4+IDIwMDAwLCAyMzA1NiwgMSwgMA0KPj4+IDIxMDAxLCAyMzAxMCwgMSwg
-MCA8PDwNCj4+PiAyMzAwMCwgMjQyMzYsIDEsIDAgPDw8DQo+Pj4gMjQwMDAsIDIzODY3LCAxLCAw
-DQo+Pj4gMjUwMDAsIDI1NDU5LCAxLCAwDQo+Pj4NCj4+PiBPbiBUaHUsIEp1bCA3LCAyMDE2IGF0
-IDI6NTAgUE0sIEplbnMgQXhib2UgPGF4Ym9lQGtlcm5lbC5kaz4gd3JvdGU6DQo+Pj4+DQo+Pj4+
-IE9uIDA3LzA3LzIwMTYgMDM6NDcgUE0sIEplZmYgRnVybG9uZyB3cm90ZToNCj4+Pj4+DQo+Pj4+
-Pg0KPj4+Pj4gVGhlcmUgYXJlIG1vcmUuICBJbiBhIDYwcyB0ZXN0LCBsb2dnaW5nIGV2ZXJ5IDFz
-LCBJIHNlZSA2IHRvIDcgDQo+Pj4+PiBzYW1wbGVzIGdldCBkcm9wcGVkLiAgQnV0IEkgb25seSBz
-ZWUgaXQgd2hlbiBudW1qb2JzID4gMS4NCj4+Pj4NCj4+Pj4NCj4+Pj4NCj4+Pj4gT0ssIEknbGwg
-dGFrZSBhIGxvb2suDQo+Pj4+DQo+Pj4+DQo+Pj4+IC0tDQo+Pj4+IEplbnMgQXhib2UNCj4+Pj4N
-Cj4+Pj4gLS0NCj4+Pj4gVG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhlIGxp
-bmUgInVuc3Vic2NyaWJlIGZpbyIgaW4gDQo+Pj4+IHRoZSBib2R5IG9mIGEgbWVzc2FnZSB0byBt
-YWpvcmRvbW9Admdlci5rZXJuZWwub3JnIE1vcmUgbWFqb3Jkb21vIA0KPj4+PiBpbmZvIGF0IGh0
-dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFqb3Jkb21vLWluZm8uaHRtbA0KPj4+DQo+Pj4gV2VzdGVy
-biBEaWdpdGFsIENvcnBvcmF0aW9uIChhbmQgaXRzIHN1YnNpZGlhcmllcykgRS1tYWlsIA0KPj4+
-IENvbmZpZGVudGlhbGl0eSBOb3RpY2UgJiBEaXNjbGFpbWVyOg0KPj4+DQo+Pj4gVGhpcyBlLW1h
-aWwgYW5kIGFueSBmaWxlcyB0cmFuc21pdHRlZCB3aXRoIGl0IG1heSBjb250YWluIA0KPj4+IGNv
-bmZpZGVudGlhbCBvciBsZWdhbGx5IHByaXZpbGVnZWQgaW5mb3JtYXRpb24gb2YgV0RDIGFuZC9v
-ciBpdHMgDQo+Pj4gYWZmaWxpYXRlcywgYW5kIGFyZSBpbnRlbmRlZCBzb2xlbHkgZm9yIHRoZSB1
-c2Ugb2YgdGhlIGluZGl2aWR1YWwgb3IgDQo+Pj4gZW50aXR5IHRvIHdoaWNoIHRoZXkgYXJlIGFk
-ZHJlc3NlZC4gSWYgeW91IGFyZSBub3QgdGhlIGludGVuZGVkIA0KPj4+IHJlY2lwaWVudCwgYW55
-IGRpc2Nsb3N1cmUsIGNvcHlpbmcsIGRpc3RyaWJ1dGlvbiBvciBhbnkgYWN0aW9uIHRha2VuIA0K
-Pj4+IG9yIG9taXR0ZWQgdG8gYmUgdGFrZW4gaW4gcmVsaWFuY2Ugb24gaXQsIGlzIHByb2hpYml0
-ZWQuIElmIHlvdSBoYXZlIA0KPj4+IHJlY2VpdmVkIHRoaXMgZS1tYWlsIGluIGVycm9yLCBwbGVh
-c2Ugbm90aWZ5IHRoZSBzZW5kZXIgaW1tZWRpYXRlbHkgYW5kIGRlbGV0ZSB0aGUgZS1tYWlsIGlu
-IGl0cyBlbnRpcmV0eSBmcm9tIHlvdXIgc3lzdGVtLg0KPj4NCj4+IFdlc3Rlcm4gRGlnaXRhbCBD
-b3Jwb3JhdGlvbiAoYW5kIGl0cyBzdWJzaWRpYXJpZXMpIEUtbWFpbCANCj4+IENvbmZpZGVudGlh
-bGl0eSBOb3RpY2UgJiBEaXNjbGFpbWVyOg0KPj4NCj4+IFRoaXMgZS1tYWlsIGFuZCBhbnkgZmls
-ZXMgdHJhbnNtaXR0ZWQgd2l0aCBpdCBtYXkgY29udGFpbiANCj4+IGNvbmZpZGVudGlhbCBvciBs
-ZWdhbGx5IHByaXZpbGVnZWQgaW5mb3JtYXRpb24gb2YgV0RDIGFuZC9vciBpdHMgDQo+PiBhZmZp
-bGlhdGVzLCBhbmQgYXJlIGludGVuZGVkIHNvbGVseSBmb3IgdGhlIHVzZSBvZiB0aGUgaW5kaXZp
-ZHVhbCBvciANCj4+IGVudGl0eSB0byB3aGljaCB0aGV5IGFyZSBhZGRyZXNzZWQuIElmIHlvdSBh
-cmUgbm90IHRoZSBpbnRlbmRlZCANCj4+IHJlY2lwaWVudCwgYW55IGRpc2Nsb3N1cmUsIGNvcHlp
-bmcsIGRpc3RyaWJ1dGlvbiBvciBhbnkgYWN0aW9uIHRha2VuIA0KPj4gb3Igb21pdHRlZCB0byBi
-ZSB0YWtlbiBpbiByZWxpYW5jZSBvbiBpdCwgaXMgcHJvaGliaXRlZC4gSWYgeW91IGhhdmUgDQo+
-PiByZWNlaXZlZCB0aGlzIGUtbWFpbCBpbiBlcnJvciwgcGxlYXNlIG5vdGlmeSB0aGUgc2VuZGVy
-IGltbWVkaWF0ZWx5IGFuZCBkZWxldGUgdGhlIGUtbWFpbCBpbiBpdHMgZW50aXJldHkgZnJvbSB5
-b3VyIHN5c3RlbS4NCj4+ICAgey5uICsgICAgICAgKyUgIGx6d20gIGIg66eyICByICB5ICAge2F5
-ICDKh9qZICxqICAgZiAgIGggICB6ICAgdyAgICAgICBqOit2DQo+PiB3IGogbSAgICAgICAgIHpa
-KyAgICAg3aJqIiAgISBpDQo+PiBXZXN0ZXJuIERpZ2l0YWwgQ29ycG9yYXRpb24gKGFuZCBpdHMg
-c3Vic2lkaWFyaWVzKSBFLW1haWwgDQo+PiBDb25maWRlbnRpYWxpdHkgTm90aWNlICYgRGlzY2xh
-aW1lcjoNCj4+DQo+PiBUaGlzIGUtbWFpbCBhbmQgYW55IGZpbGVzIHRyYW5zbWl0dGVkIHdpdGgg
-aXQgbWF5IGNvbnRhaW4gDQo+PiBjb25maWRlbnRpYWwgb3IgbGVnYWxseSBwcml2aWxlZ2VkIGlu
-Zm9ybWF0aW9uIG9mIFdEQyBhbmQvb3IgaXRzIA0KPj4gYWZmaWxpYXRlcywgYW5kIGFyZSBpbnRl
-bmRlZCBzb2xlbHkgZm9yIHRoZSB1c2Ugb2YgdGhlIGluZGl2aWR1YWwgb3IgDQo+PiBlbnRpdHkg
-dG8gd2hpY2ggdGhleSBhcmUgYWRkcmVzc2VkLiBJZiB5b3UgYXJlIG5vdCB0aGUgaW50ZW5kZWQg
-DQo+PiByZWNpcGllbnQsIGFueSBkaXNjbG9zdXJlLCBjb3B5aW5nLCBkaXN0cmlidXRpb24gb3Ig
-YW55IGFjdGlvbiB0YWtlbiANCj4+IG9yIG9taXR0ZWQgdG8gYmUgdGFrZW4gaW4gcmVsaWFuY2Ug
-b24gaXQsIGlzIHByb2hpYml0ZWQuIElmIHlvdSBoYXZlIA0KPj4gcmVjZWl2ZWQgdGhpcyBlLW1h
-aWwgaW4gZXJyb3IsIHBsZWFzZSBub3RpZnkgdGhlIHNlbmRlciBpbW1lZGlhdGVseSBhbmQgZGVs
-ZXRlIHRoZSBlLW1haWwgaW4gaXRzIGVudGlyZXR5IGZyb20geW91ciBzeXN0ZW0uDQo+Pg0KPg0K
-PiAtLQ0KPiBKZW5zIEF4Ym9lDQo+DQotLQ0KVG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6
-IHNlbmQgdGhlIGxpbmUgInVuc3Vic2NyaWJlIGZpbyIgaW4gdGhlIGJvZHkgb2YgYSBtZXNzYWdl
-IHRvIG1ham9yZG9tb0B2Z2VyLmtlcm5lbC5vcmcgTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0
-cDovL3ZnZXIua2VybmVsLm9yZy9tYWpvcmRvbW8taW5mby5odG1sDQpXZXN0ZXJuIERpZ2l0YWwg
-Q29ycG9yYXRpb24gKGFuZCBpdHMgc3Vic2lkaWFyaWVzKSBFLW1haWwgQ29uZmlkZW50aWFsaXR5
-IE5vdGljZSAmIERpc2NsYWltZXI6CgpUaGlzIGUtbWFpbCBhbmQgYW55IGZpbGVzIHRyYW5zbWl0
-dGVkIHdpdGggaXQgbWF5IGNvbnRhaW4gY29uZmlkZW50aWFsIG9yIGxlZ2FsbHkgcHJpdmlsZWdl
-ZCBpbmZvcm1hdGlvbiBvZiBXREMgYW5kL29yIGl0cyBhZmZpbGlhdGVzLCBhbmQgYXJlIGludGVu
-ZGVkIHNvbGVseSBmb3IgdGhlIHVzZSBvZiB0aGUgaW5kaXZpZHVhbCBvciBlbnRpdHkgdG8gd2hp
-Y2ggdGhleSBhcmUgYWRkcmVzc2VkLiBJZiB5b3UgYXJlIG5vdCB0aGUgaW50ZW5kZWQgcmVjaXBp
-ZW50LCBhbnkgZGlzY2xvc3VyZSwgY29weWluZywgZGlzdHJpYnV0aW9uIG9yIGFueSBhY3Rpb24g
-dGFrZW4gb3Igb21pdHRlZCB0byBiZSB0YWtlbiBpbiByZWxpYW5jZSBvbiBpdCwgaXMgcHJvaGli
-aXRlZC4gSWYgeW91IGhhdmUgcmVjZWl2ZWQgdGhpcyBlLW1haWwgaW4gZXJyb3IsIHBsZWFzZSBu
-b3RpZnkgdGhlIHNlbmRlciBpbW1lZGlhdGVseSBhbmQgZGVsZXRlIHRoZSBlLW1haWwgaW4gaXRz
-IGVudGlyZXR5IGZyb20geW91ciBzeXN0ZW0uCg==
+Looks like we're waking up but not doing anything - debug trace:
 
+elapsed=3D1133
+elapsed=3D1133
+elapsed=3D1200
+next_log=3D100
+msec_to_next_event=3D99
+next_log=3D100
+msec_to_next_event=3D100
+next_log=3D100
+msec_to_next_event=3D100
+next_log=3D100
+msec_to_next_event=3D50
+next_log=3D51
+msec_to_next_event=3D51
+next_log=3D100
+msec_to_next_event=3D100
+next_log=3D100
+msec_to_next_event=3D99
+next_log=3D100
+msec_to_next_event=3D100
+elapsed=3D1877
+elapsed=3D1877
+elapsed=3D1899
+
+^ elapsed is printed after each log_avg_msec sample is added, and
+next_log and msec_to_next_event are printed in helper_thread_main.
+This is the command I'm using:
+
+# ../fio --ioengine=3Drbd --clientname=3Dadmin --pool=3Dcbt-librbdfio
+--rbdname=3Dcbt-librbdfio-`hostname -s`-0 --invalidate=3D0  --rw=3Dwrite
+--numjobs=3D1 --bs=3D4M --name=3Dlibrbdfio-`hostname -s`-0
+--log_avg_msec=3D100 --runtime=3D5 --write_iops_log=3Dtest
+--write_lat_log=3Dtest --disable_slat=3D1 --disable_bw=3D1
+
+The gap from 1200 to 1900 corresponds to the lack of IOP entries in the log=
+:
+
+899, 20, 1, 0
+999, 10, 1, 0
+1200, 10, 1, 0
+1899, 10, 1, 0
+1999, 10, 1, 0
+2100, 20, 1, 0
+
+Will debug further.
+
+Jeff - are you seeing the same gaps in your latency logs as with your
+IOP logs? I'm not completely certain what I'm seeing here is the same.
+
+On Wed, Jul 20, 2016 at 7:46 PM, Jens Axboe <axboe@kernel.dk> wrote:
+> I was suspicious that the drift fix would be something else. But at least
+> that's another bug fixed.
+>
+> The question is if we're waking up in the helper_thread at the right time=
+,
+> and not deciding to do anything for whatever reason (which would be a bug=
+),
+> or if we're not waking at all due to the math being wrong (which would be
+> another bug). It has to be one of those.
+>
+>
+>
+> On 07/20/2016 03:28 PM, Jeff Furlong wrote:
+>>
+>> Retrying the iops log output format (missing 3000 and 13000 is drifted):
+>>
+>> 1000, 299636, 0, 0
+>> 2000, 354388, 0, 0
+>> 4000, 337972, 0, 0
+>> 5000, 323825, 0, 0
+>> 6000, 337457, 0, 0
+>> 7000, 327775, 0, 0
+>> 8000, 361275, 0, 0
+>> 9000, 348060, 0, 0
+>> 10000, 340273, 0, 0
+>> 11000, 349127, 0, 0
+>> 12000, 329088, 0, 0
+>> 12999, 349604, 0, 0
+>> 14000, 322321, 0, 0
+>> 15000, 319467, 0, 0
+>>
+>> Regards,
+>> Jeff
+>>
+>> -----Original Message-----
+>> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
+>> Behalf Of Jeff Furlong
+>> Sent: Wednesday, July 20, 2016 2:23 PM
+>> To: Karl Cronburg <kcronbur@redhat.com>
+>> Cc: Matthew Eaton <m.eaton82@gmail.com>; Jens Axboe <axboe@kernel.dk>;
+>> fio@vger.kernel.org
+>> Subject: RE: what is the sample logger doing when the buffer fills up?
+>>
+>> I still see some samples as dropped.
+>>
+>> # fio -version
+>> fio-2.12-23-gc165
+>>
+>> 1000, 299636, 0, 0
+>> 2000, 354388, 0, 0 --> missing 3000 below 4000, 337972, 0, 0 5000, 32382=
+5,
+>> 0, 0 6000, 337457, 0, 0 7000, 327775, 0, 0 8000, 361275, 0, 0 9000, 3480=
+60,
+>> 0, 0 10000, 340273, 0, 0 11000, 349127, 0, 0 12000, 329088, 0, 0 12999,
+>> 349604, 0, 0 --> mild clock drift 14000, 322321, 0, 0 15000, 319467, 0, =
+0
+>>
+>> Regards,
+>> Jeff
+>>
+>> -----Original Message-----
+>> From: Karl Cronburg [mailto:kcronbur@redhat.com]
+>> Sent: Wednesday, July 20, 2016 1:29 PM
+>> To: Jeff Furlong <jeff.furlong@hgst.com>
+>> Cc: Matthew Eaton <m.eaton82@gmail.com>; Jens Axboe <axboe@kernel.dk>;
+>> fio@vger.kernel.org
+>> Subject: Re: what is the sample logger doing when the buffer fills up?
+>>
+>> PR 211 is one possible solution: https://github.com/axboe/fio/pull/211
+>>
+>> The gaps in the IOPs logs are caused by drift in the value of avg_last
+>> forward in time, e.g. if there's a drift of 1 millisecond every time we
+>> output a sample and log_avg_msec=3D100, then every 100th IOP average get=
+s a
+>> gap.
+>>
+>> On Mon, Jul 18, 2016 at 8:09 PM, Jeff Furlong <jeff.furlong@hgst.com>
+>> wrote:
+>>>
+>>> I haven't been able to debug the issue all the way, but notice that the
+>>> reported time logs around the missing entries are not perfect.  After t=
+ime
+>>> 5001us, the 6000us entry is missing.  After time 21001us, the 22000us e=
+ntry
+>>> is missing.
+>>>
+>>> On my workloads, I see time 11999us, but time 11000 is missing.  So the
+>>> time logs go: 10000, 11999, 13000, 14000, etc.
+>>>
+>>> I suspect the issue to be in or near stat.c:
+>>>
+>>> static void add_log_sample(struct thread_data *td, struct io_log *iolog=
+,
+>>>                            unsigned long val, enum fio_ddir ddir,
+>>>                            unsigned int bs, uint64_t offset) {
+>>>         unsigned long elapsed, this_window;
+>>>
+>>>         if (!ddir_rw(ddir))
+>>>                 return;
+>>>
+>>>         elapsed =3D mtime_since_now(&td->epoch);
+>>>
+>>>         /*
+>>>          * If no time averaging, just add the log sample.
+>>>          */
+>>>         if (!iolog->avg_msec) {
+>>>                 __add_log_sample(iolog, val, ddir, bs, elapsed, offset)=
+;
+>>>                 return;
+>>>         }
+>>>
+>>>         /*
+>>>          * Add the sample. If the time period has passed, then
+>>>          * add that entry to the log and clear.
+>>>          */
+>>>         add_stat_sample(&iolog->avg_window[ddir], val);
+>>>
+>>>         /*
+>>>          * If period hasn't passed, adding the above sample is all we
+>>>          * need to do.
+>>>          */
+>>>         this_window =3D elapsed - iolog->avg_last;
+>>>         if (this_window < iolog->avg_msec)
+>>>                 return;
+>>>
+>>>         _add_stat_to_log(iolog, elapsed, td->o.log_max !=3D 0);
+>>>
+>>>         iolog->avg_last =3D elapsed;
+>>> }
+>>>
+>>> Regards,
+>>> Jeff
+>>>
+>>> -----Original Message-----
+>>> From: Matthew Eaton [mailto:m.eaton82@gmail.com]
+>>> Sent: Monday, July 18, 2016 11:24 AM
+>>> To: Jens Axboe <axboe@kernel.dk>
+>>> Cc: Jeff Furlong <jeff.furlong@hgst.com>; Karl Cronburg
+>>> <kcronbur@redhat.com>; fio@vger.kernel.org
+>>> Subject: Re: what is the sample logger doing when the buffer fills up?
+>>>
+>>> I am also seeing this bug but with numjobs =3D 1.
+>>>
+>>> fio --numjobs=3D1 --iodepth=3D32 --ramp_time=3D1800 --runtime=3D1810
+>>> --time_based --rw=3Drandwrite --bs=3D4k --ioengine=3Dlibaio --direct=3D=
+1
+>>> --refill_buffers --norandommap --randrepeat=3D0 --log_avg_msec=3D1000
+>>> --write_iops_log=3Dwrite --name=3Dwrite-iops --filename=3D/dev/sdb
+>>>
+>>> fio-2.12-12-g45213
+>>>
+>>> 3000, 23033, 1, 0
+>>> 4000, 23035, 1, 0
+>>> 5001, 25463, 1, 0 <<<
+>>> 7000, 24649, 1, 0 <<<
+>>> 8000, 27103, 1, 0
+>>> 9000, 23004, 1, 0
+>>> 10000, 23064, 1, 0
+>>> 11000, 26199, 1, 0
+>>> 12000, 23107, 1, 0
+>>> 13000, 28734, 1, 0
+>>> 14000, 23853, 1, 0
+>>> 15000, 28739, 1, 0
+>>> 16000, 27061, 1, 0
+>>> 17000, 25504, 1, 0
+>>> 18000, 29550, 1, 0
+>>> 19000, 23842, 1, 0
+>>> 20000, 23056, 1, 0
+>>> 21001, 23010, 1, 0 <<<
+>>> 23000, 24236, 1, 0 <<<
+>>> 24000, 23867, 1, 0
+>>> 25000, 25459, 1, 0
+>>>
+>>> On Thu, Jul 7, 2016 at 2:50 PM, Jens Axboe <axboe@kernel.dk> wrote:
+>>>>
+>>>> On 07/07/2016 03:47 PM, Jeff Furlong wrote:
+>>>>>
+>>>>>
+>>>>> There are more.  In a 60s test, logging every 1s, I see 6 to 7
+>>>>> samples get dropped.  But I only see it when numjobs > 1.
+>>>>
+>>>>
+>>>>
+>>>> OK, I'll take a look.
+>>>>
+>>>>
+>>>> --
+>>>> Jens Axboe
+>>>>
+>>>> --
+>>>> To unsubscribe from this list: send the line "unsubscribe fio" in the
+>>>> body of a message to majordomo@vger.kernel.org More majordomo info at
+>>>> http://vger.kernel.org/majordomo-info.html
+>>>
+>>> Western Digital Corporation (and its subsidiaries) E-mail Confidentiali=
+ty
+>>> Notice & Disclaimer:
+>>>
+>>> This e-mail and any files transmitted with it may contain confidential =
+or
+>>> legally privileged information of WDC and/or its affiliates, and are
+>>> intended solely for the use of the individual or entity to which they a=
+re
+>>> addressed. If you are not the intended recipient, any disclosure, copyi=
+ng,
+>>> distribution or any action taken or omitted to be taken in reliance on =
+it,
+>>> is prohibited. If you have received this e-mail in error, please notify=
+ the
+>>> sender immediately and delete the e-mail in its entirety from your syst=
+em.
+>>
+>> Western Digital Corporation (and its subsidiaries) E-mail Confidentialit=
+y
+>> Notice & Disclaimer:
+>>
+>> This e-mail and any files transmitted with it may contain confidential o=
+r
+>> legally privileged information of WDC and/or its affiliates, and are
+>> intended solely for the use of the individual or entity to which they ar=
+e
+>> addressed. If you are not the intended recipient, any disclosure, copyin=
+g,
+>> distribution or any action taken or omitted to be taken in reliance on i=
+t,
+>> is prohibited. If you have received this e-mail in error, please notify =
+the
+>> sender immediately and delete the e-mail in its entirety from your syste=
+m.
+>>   {.n +       +%  lzwm  b =EB=A7=B2  r  y   {ay  =CA=87=DA=99 ,j   f   h=
+   z   w       j:+v
+>> w j m         zZ+     =DD=A2j"  ! i
+>> Western Digital Corporation (and its subsidiaries) E-mail Confidentialit=
+y
+>> Notice & Disclaimer:
+>>
+>> This e-mail and any files transmitted with it may contain confidential o=
+r
+>> legally privileged information of WDC and/or its affiliates, and are
+>> intended solely for the use of the individual or entity to which they ar=
+e
+>> addressed. If you are not the intended recipient, any disclosure, copyin=
+g,
+>> distribution or any action taken or omitted to be taken in reliance on i=
+t,
+>> is prohibited. If you have received this e-mail in error, please notify =
+the
+>> sender immediately and delete the e-mail in its entirety from your syste=
+m.
+>>
+>
+> --
+> Jens Axboe
+>
 
