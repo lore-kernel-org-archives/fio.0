@@ -1,6 +1,15 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: what is the sample logger doing when the buffer fills up?
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa2.hgst.iphmx.com ([68.232.143.124]:56447 "EHLO
+	esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752965AbcGVTkU (ORCPT <rfc822;fio@vger.kernel.org>);
+	Fri, 22 Jul 2016 15:40:20 -0400
+From: Jeff Furlong <jeff.furlong@hgst.com>
+Subject: RE: what is the sample logger doing when the buffer fills up?
+Date: Fri, 22 Jul 2016 19:40:15 +0000
+Message-ID: <BN3PR0401MB14575C9A18FA75A34F69B838F70A0@BN3PR0401MB1457.namprd04.prod.outlook.com>
 References: <CAF+0mvnTM6Rv3Vh1oOZd=9TQ1wVtWWrHMVkbKxdisufiYvZ0Zw@mail.gmail.com>
+ <CAJ9yE1CkoXrkK2PowRkSyby6zbb+ngWFAD-AariWcp64FNTZNw@mail.gmail.com>
+ <BN3PR0401MB145725E84C509D7F14BC2C2FF7080@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <BN3PR0401MB14573F44F190D9B11CCF836FF7080@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <805ada82-a3be-5b0f-226c-258d7e6f7711@kernel.dk>
  <CAJ9yE1CXNBvGFnJ1FNnodRKanXrqMgEfJsBrCz1dXBcNq4Qwxg@mail.gmail.com>
@@ -13,25 +22,57 @@ References: <CAF+0mvnTM6Rv3Vh1oOZd=9TQ1wVtWWrHMVkbKxdisufiYvZ0Zw@mail.gmail.com>
  <BN3PR0401MB14578638FC8BA420D42FACFCF70A0@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <587a3a61-3cfc-0e29-21bb-4a5f77a2c5ae@kernel.dk>
  <52bca033-7898-8a86-7266-11fa64016412@kernel.dk>
- <BN3PR0401MB14575C9A18FA75A34F69B838F70A0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <b54aac68-13dd-a78b-a671-99aee462710b@kernel.dk>
-Date: Fri, 22 Jul 2016 13:49:01 -0600
+In-Reply-To: <52bca033-7898-8a86-7266-11fa64016412@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <BN3PR0401MB14575C9A18FA75A34F69B838F70A0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Jeff Furlong <jeff.furlong@hgst.com>
+Content-Transfer-Encoding: base64
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
 Cc: Karl Cronburg <kcronbur@redhat.com>, Matthew Eaton <m.eaton82@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
 
-On 07/22/2016 01:40 PM, Jeff Furlong wrote:
-> Excellent.  My test job is working great, and I created a few more job variations that also work great.  Thanks for the help.
-
-Sweet! I've tagged 2.13 with the changes, to kill this issue off. Thanks 
-for testing and reporting.
-
--- 
-Jens Axboe
-
+RXhjZWxsZW50LiAgTXkgdGVzdCBqb2IgaXMgd29ya2luZyBncmVhdCwgYW5kIEkgY3JlYXRlZCBh
+IGZldyBtb3JlIGpvYiB2YXJpYXRpb25zIHRoYXQgYWxzbyB3b3JrIGdyZWF0LiAgVGhhbmtzIGZv
+ciB0aGUgaGVscC4NCg0KUmVnYXJkcywNCkplZmYNCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0t
+LS0NCkZyb206IEplbnMgQXhib2UgW21haWx0bzpheGJvZUBrZXJuZWwuZGtdIA0KU2VudDogRnJp
+ZGF5LCBKdWx5IDIyLCAyMDE2IDEyOjIxIFBNDQpUbzogSmVmZiBGdXJsb25nIDxqZWZmLmZ1cmxv
+bmdAaGdzdC5jb20+DQpDYzogS2FybCBDcm9uYnVyZyA8a2Nyb25idXJAcmVkaGF0LmNvbT47IE1h
+dHRoZXcgRWF0b24gPG0uZWF0b244MkBnbWFpbC5jb20+OyBmaW9Admdlci5rZXJuZWwub3JnDQpT
+dWJqZWN0OiBSZTogd2hhdCBpcyB0aGUgc2FtcGxlIGxvZ2dlciBkb2luZyB3aGVuIHRoZSBidWZm
+ZXIgZmlsbHMgdXA/DQoNCg0KDQpPbiAwNy8yMi8yMDE2IDEyOjU1IFBNLCBKZW5zIEF4Ym9lIHdy
+b3RlOg0KPg0KPg0KPiBPbiAwNy8yMi8yMDE2IDEyOjUyIFBNLCBKZWZmIEZ1cmxvbmcgd3JvdGU6
+DQo+PiBUb28gbGF0ZSwgSSBhbHJlYWR5IHB1dCB2MiBwYXRjaCB0aHJvdWdoIHRoZSBwcm9jZXNz
+LiAgU29tZSBnb29kLCANCj4+IHNvbWUgYmFkLiAgVGhlIGdvb2QgaXMgdGhhdCBubyBtb3JlIGRy
+b3BwZWQgZW50cmllcyBhcHBlYXIgaW4gdGhlIG1pZGRsZSENCj4+IFNvIGZvciB0aGUgaW9wcyBh
+bmQgYncgbG9ncywgSSBnZXQgcmVzdWx0cyBzdWNoIGFzOg0KPj4NCj4+IDk5OSwgMjkzODE0LCAw
+LCAwDQo+PiAyMDAwLCAzNTQ4NTcsIDAsIDANCj4+IDMwMDAsIDM4MzA4MSwgMCwgMA0KPj4gLi4u
+DQo+PiA1NzAwMCwgMzIxOTQ2LCAwLCAwDQo+PiA1ODAwMCwgMzIxNTY2LCAwLCAwDQo+PiA1OTAw
+MCwgMzIxNTk2LCAwLCAwDQo+Pg0KPj4gVGhlIGZpcnN0IHNhbXBsZSBpcyBzbGlnaHRseSBvZmYs
+IGJ1dCB3ZWxsIHdpdGhpbiBhIHJlYXNvbmFibGUgDQo+PiB0b2xlcmFuY2UuICBUaGUgbGFzdCBz
+YW1wbGUgaXMgYWx3YXlzIG1pc3NpbmcgKHJ1bnRpbWU9NjBzKS4NCj4+DQo+PiBUaGUgYmFkIGlz
+IHRoYXQgdGhlIHNsYXQvY2xhdC9sYXQgbG9nIGlzIG5vdCBkb2luZyBhdmVyYWdlcyBhbnkgbW9y
+ZSwgDQo+PiBzdWNoIGFzIGxvZ19hdmdfbXNlYz0xMDAwLCBidXQgaXQncyBsb2dnaW5nIGV2ZXJ5
+IHZhbHVlLg0KPj4NCj4+ICMgZmlvIC0tbmFtZT10ZXN0X2pvYiAtLWlvZW5naW5lPWxpYmFpbyAt
+LWRpcmVjdD0xIC0tcnc9cmFuZHJlYWQNCj4+IC0taW9kZXB0aD0yNTYgLS1zaXplPTEwMCUgLS1u
+dW1qb2JzPTQgLS1icz00ayAtLWZpbGVuYW1lPS9kZXYvbnZtZTBuMSANCj4+IC0tZ3JvdXBfcmVw
+b3J0aW5nIC0td3JpdGVfYndfbG9nPXRlc3Rfam9iIC0td3JpdGVfaW9wc19sb2c9dGVzdF9qb2Ig
+DQo+PiAtLXdyaXRlX2xhdF9sb2c9dGVzdF9qb2IgLS1sb2dfYXZnX21zZWM9MTAwMCAtLWRpc2Fi
+bGVfbGF0PTANCj4+IC0tZGlzYWJsZV9jbGF0PTAgLS1kaXNhYmxlX3NsYXQ9MCAtLXJ1bnRpbWU9
+NjBzIC0tdGltZV9iYXNlZCANCj4+IC0tb3V0cHV0PXRlc3Rfam9iDQo+DQo+IE9LLCBJIGd1ZXNz
+IGl0J3Mgbm90IHBlcmZlY3QhIEknbGwgdGFja2xlIHRoYXQgb25lLg0KDQpUcnkgY3VycmVudCAt
+Z2l0LCB0aGlzIHNob3VsZCBmaXggdGhhdDoNCg0KaHR0cDovL2dpdC5rZXJuZWwuZGsvY2dpdC9m
+aW8vY29tbWl0Lz9pZD1iMzkyZjM2ZGFmN2E2YzI4OTVkODk5MzIwZmE4OWQzNTcyMjU2N2MyDQoN
+Ci0tDQpKZW5zIEF4Ym9lDQoNCldlc3Rlcm4gRGlnaXRhbCBDb3Jwb3JhdGlvbiAoYW5kIGl0cyBz
+dWJzaWRpYXJpZXMpIEUtbWFpbCBDb25maWRlbnRpYWxpdHkgTm90aWNlICYgRGlzY2xhaW1lcjoK
+ClRoaXMgZS1tYWlsIGFuZCBhbnkgZmlsZXMgdHJhbnNtaXR0ZWQgd2l0aCBpdCBtYXkgY29udGFp
+biBjb25maWRlbnRpYWwgb3IgbGVnYWxseSBwcml2aWxlZ2VkIGluZm9ybWF0aW9uIG9mIFdEQyBh
+bmQvb3IgaXRzIGFmZmlsaWF0ZXMsIGFuZCBhcmUgaW50ZW5kZWQgc29sZWx5IGZvciB0aGUgdXNl
+IG9mIHRoZSBpbmRpdmlkdWFsIG9yIGVudGl0eSB0byB3aGljaCB0aGV5IGFyZSBhZGRyZXNzZWQu
+IElmIHlvdSBhcmUgbm90IHRoZSBpbnRlbmRlZCByZWNpcGllbnQsIGFueSBkaXNjbG9zdXJlLCBj
+b3B5aW5nLCBkaXN0cmlidXRpb24gb3IgYW55IGFjdGlvbiB0YWtlbiBvciBvbWl0dGVkIHRvIGJl
+IHRha2VuIGluIHJlbGlhbmNlIG9uIGl0LCBpcyBwcm9oaWJpdGVkLiBJZiB5b3UgaGF2ZSByZWNl
+aXZlZCB0aGlzIGUtbWFpbCBpbiBlcnJvciwgcGxlYXNlIG5vdGlmeSB0aGUgc2VuZGVyIGltbWVk
+aWF0ZWx5IGFuZCBkZWxldGUgdGhlIGUtbWFpbCBpbiBpdHMgZW50aXJldHkgZnJvbSB5b3VyIHN5
+c3RlbS4K
 
