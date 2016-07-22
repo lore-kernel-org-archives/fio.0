@@ -1,12 +1,5 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa2.hgst.iphmx.com ([68.232.143.124]:56447 "EHLO
-	esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752965AbcGVTkU (ORCPT <rfc822;fio@vger.kernel.org>);
-	Fri, 22 Jul 2016 15:40:20 -0400
-From: Jeff Furlong <jeff.furlong@hgst.com>
-Subject: RE: what is the sample logger doing when the buffer fills up?
-Date: Fri, 22 Jul 2016 19:40:15 +0000
-Message-ID: <BN3PR0401MB14575C9A18FA75A34F69B838F70A0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: what is the sample logger doing when the buffer fills up?
 References: <CAF+0mvnTM6Rv3Vh1oOZd=9TQ1wVtWWrHMVkbKxdisufiYvZ0Zw@mail.gmail.com>
  <CAJ9yE1CkoXrkK2PowRkSyby6zbb+ngWFAD-AariWcp64FNTZNw@mail.gmail.com>
  <BN3PR0401MB145725E84C509D7F14BC2C2FF7080@BN3PR0401MB1457.namprd04.prod.outlook.com>
@@ -21,58 +14,55 @@ References: <CAF+0mvnTM6Rv3Vh1oOZd=9TQ1wVtWWrHMVkbKxdisufiYvZ0Zw@mail.gmail.com>
  <39517e39-daeb-29ed-a4e3-8d5e759d9382@kernel.dk>
  <BN3PR0401MB14578638FC8BA420D42FACFCF70A0@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <587a3a61-3cfc-0e29-21bb-4a5f77a2c5ae@kernel.dk>
- <52bca033-7898-8a86-7266-11fa64016412@kernel.dk>
-In-Reply-To: <52bca033-7898-8a86-7266-11fa64016412@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <52bca033-7898-8a86-7266-11fa64016412@kernel.dk>
+Date: Fri, 22 Jul 2016 13:20:47 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <587a3a61-3cfc-0e29-21bb-4a5f77a2c5ae@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Jeff Furlong <jeff.furlong@hgst.com>
 Cc: Karl Cronburg <kcronbur@redhat.com>, Matthew Eaton <m.eaton82@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-RXhjZWxsZW50LiAgTXkgdGVzdCBqb2IgaXMgd29ya2luZyBncmVhdCwgYW5kIEkgY3JlYXRlZCBh
-IGZldyBtb3JlIGpvYiB2YXJpYXRpb25zIHRoYXQgYWxzbyB3b3JrIGdyZWF0LiAgVGhhbmtzIGZv
-ciB0aGUgaGVscC4NCg0KUmVnYXJkcywNCkplZmYNCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0t
-LS0NCkZyb206IEplbnMgQXhib2UgW21haWx0bzpheGJvZUBrZXJuZWwuZGtdIA0KU2VudDogRnJp
-ZGF5LCBKdWx5IDIyLCAyMDE2IDEyOjIxIFBNDQpUbzogSmVmZiBGdXJsb25nIDxqZWZmLmZ1cmxv
-bmdAaGdzdC5jb20+DQpDYzogS2FybCBDcm9uYnVyZyA8a2Nyb25idXJAcmVkaGF0LmNvbT47IE1h
-dHRoZXcgRWF0b24gPG0uZWF0b244MkBnbWFpbC5jb20+OyBmaW9Admdlci5rZXJuZWwub3JnDQpT
-dWJqZWN0OiBSZTogd2hhdCBpcyB0aGUgc2FtcGxlIGxvZ2dlciBkb2luZyB3aGVuIHRoZSBidWZm
-ZXIgZmlsbHMgdXA/DQoNCg0KDQpPbiAwNy8yMi8yMDE2IDEyOjU1IFBNLCBKZW5zIEF4Ym9lIHdy
-b3RlOg0KPg0KPg0KPiBPbiAwNy8yMi8yMDE2IDEyOjUyIFBNLCBKZWZmIEZ1cmxvbmcgd3JvdGU6
-DQo+PiBUb28gbGF0ZSwgSSBhbHJlYWR5IHB1dCB2MiBwYXRjaCB0aHJvdWdoIHRoZSBwcm9jZXNz
-LiAgU29tZSBnb29kLCANCj4+IHNvbWUgYmFkLiAgVGhlIGdvb2QgaXMgdGhhdCBubyBtb3JlIGRy
-b3BwZWQgZW50cmllcyBhcHBlYXIgaW4gdGhlIG1pZGRsZSENCj4+IFNvIGZvciB0aGUgaW9wcyBh
-bmQgYncgbG9ncywgSSBnZXQgcmVzdWx0cyBzdWNoIGFzOg0KPj4NCj4+IDk5OSwgMjkzODE0LCAw
-LCAwDQo+PiAyMDAwLCAzNTQ4NTcsIDAsIDANCj4+IDMwMDAsIDM4MzA4MSwgMCwgMA0KPj4gLi4u
-DQo+PiA1NzAwMCwgMzIxOTQ2LCAwLCAwDQo+PiA1ODAwMCwgMzIxNTY2LCAwLCAwDQo+PiA1OTAw
-MCwgMzIxNTk2LCAwLCAwDQo+Pg0KPj4gVGhlIGZpcnN0IHNhbXBsZSBpcyBzbGlnaHRseSBvZmYs
-IGJ1dCB3ZWxsIHdpdGhpbiBhIHJlYXNvbmFibGUgDQo+PiB0b2xlcmFuY2UuICBUaGUgbGFzdCBz
-YW1wbGUgaXMgYWx3YXlzIG1pc3NpbmcgKHJ1bnRpbWU9NjBzKS4NCj4+DQo+PiBUaGUgYmFkIGlz
-IHRoYXQgdGhlIHNsYXQvY2xhdC9sYXQgbG9nIGlzIG5vdCBkb2luZyBhdmVyYWdlcyBhbnkgbW9y
-ZSwgDQo+PiBzdWNoIGFzIGxvZ19hdmdfbXNlYz0xMDAwLCBidXQgaXQncyBsb2dnaW5nIGV2ZXJ5
-IHZhbHVlLg0KPj4NCj4+ICMgZmlvIC0tbmFtZT10ZXN0X2pvYiAtLWlvZW5naW5lPWxpYmFpbyAt
-LWRpcmVjdD0xIC0tcnc9cmFuZHJlYWQNCj4+IC0taW9kZXB0aD0yNTYgLS1zaXplPTEwMCUgLS1u
-dW1qb2JzPTQgLS1icz00ayAtLWZpbGVuYW1lPS9kZXYvbnZtZTBuMSANCj4+IC0tZ3JvdXBfcmVw
-b3J0aW5nIC0td3JpdGVfYndfbG9nPXRlc3Rfam9iIC0td3JpdGVfaW9wc19sb2c9dGVzdF9qb2Ig
-DQo+PiAtLXdyaXRlX2xhdF9sb2c9dGVzdF9qb2IgLS1sb2dfYXZnX21zZWM9MTAwMCAtLWRpc2Fi
-bGVfbGF0PTANCj4+IC0tZGlzYWJsZV9jbGF0PTAgLS1kaXNhYmxlX3NsYXQ9MCAtLXJ1bnRpbWU9
-NjBzIC0tdGltZV9iYXNlZCANCj4+IC0tb3V0cHV0PXRlc3Rfam9iDQo+DQo+IE9LLCBJIGd1ZXNz
-IGl0J3Mgbm90IHBlcmZlY3QhIEknbGwgdGFja2xlIHRoYXQgb25lLg0KDQpUcnkgY3VycmVudCAt
-Z2l0LCB0aGlzIHNob3VsZCBmaXggdGhhdDoNCg0KaHR0cDovL2dpdC5rZXJuZWwuZGsvY2dpdC9m
-aW8vY29tbWl0Lz9pZD1iMzkyZjM2ZGFmN2E2YzI4OTVkODk5MzIwZmE4OWQzNTcyMjU2N2MyDQoN
-Ci0tDQpKZW5zIEF4Ym9lDQoNCldlc3Rlcm4gRGlnaXRhbCBDb3Jwb3JhdGlvbiAoYW5kIGl0cyBz
-dWJzaWRpYXJpZXMpIEUtbWFpbCBDb25maWRlbnRpYWxpdHkgTm90aWNlICYgRGlzY2xhaW1lcjoK
-ClRoaXMgZS1tYWlsIGFuZCBhbnkgZmlsZXMgdHJhbnNtaXR0ZWQgd2l0aCBpdCBtYXkgY29udGFp
-biBjb25maWRlbnRpYWwgb3IgbGVnYWxseSBwcml2aWxlZ2VkIGluZm9ybWF0aW9uIG9mIFdEQyBh
-bmQvb3IgaXRzIGFmZmlsaWF0ZXMsIGFuZCBhcmUgaW50ZW5kZWQgc29sZWx5IGZvciB0aGUgdXNl
-IG9mIHRoZSBpbmRpdmlkdWFsIG9yIGVudGl0eSB0byB3aGljaCB0aGV5IGFyZSBhZGRyZXNzZWQu
-IElmIHlvdSBhcmUgbm90IHRoZSBpbnRlbmRlZCByZWNpcGllbnQsIGFueSBkaXNjbG9zdXJlLCBj
-b3B5aW5nLCBkaXN0cmlidXRpb24gb3IgYW55IGFjdGlvbiB0YWtlbiBvciBvbWl0dGVkIHRvIGJl
-IHRha2VuIGluIHJlbGlhbmNlIG9uIGl0LCBpcyBwcm9oaWJpdGVkLiBJZiB5b3UgaGF2ZSByZWNl
-aXZlZCB0aGlzIGUtbWFpbCBpbiBlcnJvciwgcGxlYXNlIG5vdGlmeSB0aGUgc2VuZGVyIGltbWVk
-aWF0ZWx5IGFuZCBkZWxldGUgdGhlIGUtbWFpbCBpbiBpdHMgZW50aXJldHkgZnJvbSB5b3VyIHN5
-c3RlbS4K
+
+
+On 07/22/2016 12:55 PM, Jens Axboe wrote:
+>
+>
+> On 07/22/2016 12:52 PM, Jeff Furlong wrote:
+>> Too late, I already put v2 patch through the process.  Some good, some
+>> bad.  The good is that no more dropped entries appear in the middle!
+>> So for the iops and bw logs, I get results such as:
+>>
+>> 999, 293814, 0, 0
+>> 2000, 354857, 0, 0
+>> 3000, 383081, 0, 0
+>> ...
+>> 57000, 321946, 0, 0
+>> 58000, 321566, 0, 0
+>> 59000, 321596, 0, 0
+>>
+>> The first sample is slightly off, but well within a reasonable
+>> tolerance.  The last sample is always missing (runtime=60s).
+>>
+>> The bad is that the slat/clat/lat log is not doing averages any more,
+>> such as log_avg_msec=1000, but it's logging every value.
+>>
+>> # fio --name=test_job --ioengine=libaio --direct=1 --rw=randread
+>> --iodepth=256 --size=100% --numjobs=4 --bs=4k --filename=/dev/nvme0n1
+>> --group_reporting --write_bw_log=test_job --write_iops_log=test_job
+>> --write_lat_log=test_job --log_avg_msec=1000 --disable_lat=0
+>> --disable_clat=0 --disable_slat=0 --runtime=60s --time_based
+>> --output=test_job
+>
+> OK, I guess it's not perfect! I'll tackle that one.
+
+Try current -git, this should fix that:
+
+http://git.kernel.dk/cgit/fio/commit/?id=b392f36daf7a6c2895d899320fa89d35722567c2
+
+-- 
+Jens Axboe
+
 
