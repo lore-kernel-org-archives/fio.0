@@ -1,66 +1,37 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from plane.gmane.org ([80.91.229.3]:59782 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751962AbcGEWAH (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 5 Jul 2016 18:00:07 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gcsf-fio@m.gmane.org>)
-	id 1bKYNw-0008KW-TF
-	for fio@vger.kernel.org; Wed, 06 Jul 2016 00:00:05 +0200
-Received: from cpe-24-55-26-223.austin.res.rr.com ([24.55.26.223])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <fio@vger.kernel.org>; Wed, 06 Jul 2016 00:00:04 +0200
-Received: from ionictea by cpe-24-55-26-223.austin.res.rr.com with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <fio@vger.kernel.org>; Wed, 06 Jul 2016 00:00:04 +0200
-From: Saeed Tea <ionictea@gmail.com>
-Subject: fio2gnuplot issue 
-Date: Tue, 5 Jul 2016 16:52:47 -0500
-Message-ID: <nlha7f$a7q$2@ger.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <axboe@kernel.dk>
+Subject: Re: what is the sample logger doing when the buffer fills up?
+References: <CAF+0mvnTM6Rv3Vh1oOZd=9TQ1wVtWWrHMVkbKxdisufiYvZ0Zw@mail.gmail.com>
+ <BN3PR0401MB14573F44F190D9B11CCF836FF7080@BN3PR0401MB1457.namprd04.prod.outlook.com>
+ <805ada82-a3be-5b0f-226c-258d7e6f7711@kernel.dk>
+ <CAJ9yE1CXNBvGFnJ1FNnodRKanXrqMgEfJsBrCz1dXBcNq4Qwxg@mail.gmail.com>
+ <BN3PR0401MB1457787C3D5632BD79FFFC5BF7090@BN3PR0401MB1457.namprd04.prod.outlook.com>
+ <CAJ9yE1AYiuwX2tZbybqQw25YtGC8U40_JRz_iFQWypei_EVcMg@mail.gmail.com>
+ <BN3PR0401MB1457883E34BC695500DEAF57F7090@BN3PR0401MB1457.namprd04.prod.outlook.com>
+ <20160722144702.GA7328@kernel.dk>
+ <87c24164-a129-c6cd-b9bf-49ae52f7034f@kernel.dk>
+ <39517e39-daeb-29ed-a4e3-8d5e759d9382@kernel.dk>
+ <BN3PR0401MB14578638FC8BA420D42FACFCF70A0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+ <587a3a61-3cfc-0e29-21bb-4a5f77a2c5ae@kernel.dk>
+ <52bca033-7898-8a86-7266-11fa64016412@kernel.dk>
+ <BN3PR0401MB14575C9A18FA75A34F69B838F70A0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <b54aac68-13dd-a78b-a671-99aee462710b@kernel.dk>
+Date: Fri, 22 Jul 2016 13:49:01 -0600
+MIME-Version: 1.0
+In-Reply-To: <BN3PR0401MB14575C9A18FA75A34F69B838F70A0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Jeff Furlong <jeff.furlong@hgst.com>
+Cc: Karl Cronburg <kcronbur@redhat.com>, Matthew Eaton <m.eaton82@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-I'm trying generate graphs with logs create by fio using fio2gnu and=20
-keep getting this error when generating graphs for iops or bandwidth:
+On 07/22/2016 01:40 PM, Jeff Furlong wrote:
+> Excellent.  My test job is working great, and I created a few more job variations that also work great.  Thanks for the help.
 
-1 files Selected with pattern '*_iops.log'
-|-> 4k.results_iops.log
+Sweet! I've tagged 2.13 with the changes, to kill this issue off. Thanks 
+for testing and reporting.
 
-Running gnuplot Rendering
-"/usr/share/fio//math.gpm", line 25: no datablock named $1
-
-"/usr/share/fio//graph2D.gpm", line 25: no datablock named $1
-
-
-Rendering traces are available in the current directory
-
-Checking the directory listing only shows this file:
-
-$3.png
-
-Am I missing something in fio profile??=EF=BF=BD Here's a snippet:
-
-[global]
-rw=3Drandread
-ioengine=3Dposixaio
-iodepth=3D64
-size=3D10g
-direct=3D0
-buffered=3D1
-startdelay=3D5
-ramp_time=3D5
-runtime=3D20
-time_based
-disk_util=3D0
-clat_percentiles=3D0
-write_bw_log=3D4k.results
-write_iops_log=3D4k.results
-write_lat_log=3D4k.results
-per_job_logs=3D0
+-- 
+Jens Axboe
 
 
