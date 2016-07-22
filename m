@@ -1,8 +1,5 @@
-Return-Path: <jeff.furlong@hgst.com>
-From: Jeff Furlong <jeff.furlong@hgst.com>
-Subject: RE: what is the sample logger doing when the buffer fills up?
-Date: Fri, 22 Jul 2016 18:52:58 +0000
-Message-ID: <BN3PR0401MB14578638FC8BA420D42FACFCF70A0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: what is the sample logger doing when the buffer fills up?
 References: <CAF+0mvnTM6Rv3Vh1oOZd=9TQ1wVtWWrHMVkbKxdisufiYvZ0Zw@mail.gmail.com>
  <BN3PR0401MB1457463C7131E975F7ED0812F7370@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <CAJ9yE1CkoXrkK2PowRkSyby6zbb+ngWFAD-AariWcp64FNTZNw@mail.gmail.com>
@@ -15,64 +12,36 @@ References: <CAF+0mvnTM6Rv3Vh1oOZd=9TQ1wVtWWrHMVkbKxdisufiYvZ0Zw@mail.gmail.com>
  <BN3PR0401MB1457883E34BC695500DEAF57F7090@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <20160722144702.GA7328@kernel.dk>
  <87c24164-a129-c6cd-b9bf-49ae52f7034f@kernel.dk>
- <39517e39-daeb-29ed-a4e3-8d5e759d9382@kernel.dk>
-In-Reply-To: <39517e39-daeb-29ed-a4e3-8d5e759d9382@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <39517e39-daeb-29ed-a4e3-8d5e759d9382@kernel.dk>
+Date: Fri, 22 Jul 2016 12:37:10 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-To: Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <87c24164-a129-c6cd-b9bf-49ae52f7034f@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Jeff Furlong <jeff.furlong@hgst.com>
 Cc: Karl Cronburg <kcronbur@redhat.com>, Matthew Eaton <m.eaton82@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-VG9vIGxhdGUsIEkgYWxyZWFkeSBwdXQgdjIgcGF0Y2ggdGhyb3VnaCB0aGUgcHJvY2Vzcy4gIFNv
-bWUgZ29vZCwgc29tZSBiYWQuICBUaGUgZ29vZCBpcyB0aGF0IG5vIG1vcmUgZHJvcHBlZCBlbnRy
-aWVzIGFwcGVhciBpbiB0aGUgbWlkZGxlISAgU28gZm9yIHRoZSBpb3BzIGFuZCBidyBsb2dzLCBJ
-IGdldCByZXN1bHRzIHN1Y2ggYXM6DQoNCjk5OSwgMjkzODE0LCAwLCAwDQoyMDAwLCAzNTQ4NTcs
-IDAsIDANCjMwMDAsIDM4MzA4MSwgMCwgMA0KLi4uDQo1NzAwMCwgMzIxOTQ2LCAwLCAwDQo1ODAw
-MCwgMzIxNTY2LCAwLCAwDQo1OTAwMCwgMzIxNTk2LCAwLCAwDQoNClRoZSBmaXJzdCBzYW1wbGUg
-aXMgc2xpZ2h0bHkgb2ZmLCBidXQgd2VsbCB3aXRoaW4gYSByZWFzb25hYmxlIHRvbGVyYW5jZS4g
-IFRoZSBsYXN0IHNhbXBsZSBpcyBhbHdheXMgbWlzc2luZyAocnVudGltZT02MHMpLg0KDQpUaGUg
-YmFkIGlzIHRoYXQgdGhlIHNsYXQvY2xhdC9sYXQgbG9nIGlzIG5vdCBkb2luZyBhdmVyYWdlcyBh
-bnkgbW9yZSwgc3VjaCBhcyBsb2dfYXZnX21zZWM9MTAwMCwgYnV0IGl0J3MgbG9nZ2luZyBldmVy
-eSB2YWx1ZS4NCg0KIyBmaW8gLS1uYW1lPXRlc3Rfam9iIC0taW9lbmdpbmU9bGliYWlvIC0tZGly
-ZWN0PTEgLS1ydz1yYW5kcmVhZCAtLWlvZGVwdGg9MjU2IC0tc2l6ZT0xMDAlIC0tbnVtam9icz00
-IC0tYnM9NGsgLS1maWxlbmFtZT0vZGV2L252bWUwbjEgLS1ncm91cF9yZXBvcnRpbmcgLS13cml0
-ZV9id19sb2c9dGVzdF9qb2IgLS13cml0ZV9pb3BzX2xvZz10ZXN0X2pvYiAtLXdyaXRlX2xhdF9s
-b2c9dGVzdF9qb2IgLS1sb2dfYXZnX21zZWM9MTAwMCAtLWRpc2FibGVfbGF0PTAgLS1kaXNhYmxl
-X2NsYXQ9MCAtLWRpc2FibGVfc2xhdD0wIC0tcnVudGltZT02MHMgLS10aW1lX2Jhc2VkIC0tb3V0
-cHV0PXRlc3Rfam9iDQoNClJlZ2FyZHMsDQpKZWZmDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0t
-LS0tDQpGcm9tOiBKZW5zIEF4Ym9lIFttYWlsdG86YXhib2VAa2VybmVsLmRrXSANClNlbnQ6IEZy
-aWRheSwgSnVseSAyMiwgMjAxNiAxMTozNyBBTQ0KVG86IEplZmYgRnVybG9uZyA8amVmZi5mdXJs
-b25nQGhnc3QuY29tPg0KQ2M6IEthcmwgQ3JvbmJ1cmcgPGtjcm9uYnVyQHJlZGhhdC5jb20+OyBN
-YXR0aGV3IEVhdG9uIDxtLmVhdG9uODJAZ21haWwuY29tPjsgZmlvQHZnZXIua2VybmVsLm9yZw0K
-U3ViamVjdDogUmU6IHdoYXQgaXMgdGhlIHNhbXBsZSBsb2dnZXIgZG9pbmcgd2hlbiB0aGUgYnVm
-ZmVyIGZpbGxzIHVwPw0KDQpPbiAwNy8yMi8yMDE2IDA5OjU1IEFNLCBKZW5zIEF4Ym9lIHdyb3Rl
-Og0KPiBBY3R1YWxseSwgSSB0aGluayBpdCdzIG1pc3Npbmcgb25lIG1vcmUgdGhpbmcuIFRyeSB0
-aGUgYXR0YWNoZWQgdjIgDQo+IGluc3RlYWQuIEthcmwsIHlvdSBtZW50aW9uZWQgdGhlIGlvcHMg
-PSAwIHRyaWNrLiBJIGRvbid0IHRoaW5rIHRoYXQncyANCj4gdGhlIHJpZ2h0IGZpeCwgYnV0IEkg
-dGhpbmsgeW91IHdlcmUgZ2V0dGluZyBjbG9zZS4gSSBzdXNwZWN0IHRoYXQgd2UgDQo+IHNvbWV0
-aW1lcyB3YWtlIHVwIGEgbGl0dGxlIGVhcmx5LiBMZXQncyBzYXkgd2Ugd2FudCB0byBsb2cgdGhl
-IDYwMDAgDQo+IGVudHJ5LCBidXQgd2Ugd2FrZSB1cCBhdCA1OTk5IGluc3RlYWQuIFdlIGFkZCB0
-aGUgcmVndWxhciBzdGF0IHNhbXBsZSwgDQo+IGFuZCBjbGVhciBpbnRlcnZhbC4gQnV0IHdlIGRv
-bid0IGFkZCB0aGUgYXZlcmFnZWQgbG9nIGVudHJ5LCBzaW5jZSB0aGUgDQo+IHRpbWUgaGFzbid0
-IHBhc3NlZCB5ZXQsIHdlJ3JlIG1pc3NpbmcgMSBtc2VjLiBIZW5jZSB3aGVuIHdlIGRvIHdha2Ug
-dXAgDQo+IDFtc2VjIGxhdGVyLCBzcGVudC9pb3BzIHdpbGwgYmUgemVyby4gWW91J3JlIGNvbnRp
-bnVlIGFkZHMgdGhlIGxvZyANCj4gZW50cnksIGJ1dCBtaXNzZXMgdGhlIGRhdGEuDQoNCkknbSBm
-ZWVsaW5nIGdvb2QgYWJvdXQgdGhpcyBjaGFuZ2UsIHNvIEkgY29tbWl0dGVkIGl0Og0KDQpodHRw
-Oi8vZ2l0Lmtlcm5lbC5kay9jZ2l0L2Zpby9jb21taXQvP2lkPWQ0NTRhMjA1ZjgxZTFiMTIyMDIw
-Y2I0ZmI0NjljNWEwYzlkMzE5NWYNCg0KU28ganVzdCB0ZXN0IGN1cnJlbnQgLWdpdCwgd291bGQg
-bG92ZSB0byBoZWFyIGlmIGl0IGZpeGVzIHRoZSBpc3N1ZSBmb3IgeW91IGd1eXMuDQoNCi0tDQpK
-ZW5zIEF4Ym9lDQoNCldlc3Rlcm4gRGlnaXRhbCBDb3Jwb3JhdGlvbiAoYW5kIGl0cyBzdWJzaWRp
-YXJpZXMpIEUtbWFpbCBDb25maWRlbnRpYWxpdHkgTm90aWNlICYgRGlzY2xhaW1lcjoKClRoaXMg
-ZS1tYWlsIGFuZCBhbnkgZmlsZXMgdHJhbnNtaXR0ZWQgd2l0aCBpdCBtYXkgY29udGFpbiBjb25m
-aWRlbnRpYWwgb3IgbGVnYWxseSBwcml2aWxlZ2VkIGluZm9ybWF0aW9uIG9mIFdEQyBhbmQvb3Ig
-aXRzIGFmZmlsaWF0ZXMsIGFuZCBhcmUgaW50ZW5kZWQgc29sZWx5IGZvciB0aGUgdXNlIG9mIHRo
-ZSBpbmRpdmlkdWFsIG9yIGVudGl0eSB0byB3aGljaCB0aGV5IGFyZSBhZGRyZXNzZWQuIElmIHlv
-dSBhcmUgbm90IHRoZSBpbnRlbmRlZCByZWNpcGllbnQsIGFueSBkaXNjbG9zdXJlLCBjb3B5aW5n
-LCBkaXN0cmlidXRpb24gb3IgYW55IGFjdGlvbiB0YWtlbiBvciBvbWl0dGVkIHRvIGJlIHRha2Vu
-IGluIHJlbGlhbmNlIG9uIGl0LCBpcyBwcm9oaWJpdGVkLiBJZiB5b3UgaGF2ZSByZWNlaXZlZCB0
-aGlzIGUtbWFpbCBpbiBlcnJvciwgcGxlYXNlIG5vdGlmeSB0aGUgc2VuZGVyIGltbWVkaWF0ZWx5
-IGFuZCBkZWxldGUgdGhlIGUtbWFpbCBpbiBpdHMgZW50aXJldHkgZnJvbSB5b3VyIHN5c3RlbS4K
+On 07/22/2016 09:55 AM, Jens Axboe wrote:
+> Actually, I think it's missing one more thing. Try the attached v2
+> instead. Karl, you mentioned the iops = 0 trick. I don't think that's
+> the right fix, but I think you were getting close. I suspect that we
+> sometimes wake up a little early. Let's say we want to log the 6000
+> entry, but we wake up at 5999 instead. We add the regular stat sample,
+> and clear interval. But we don't add the averaged log entry, since the
+> time hasn't passed yet, we're missing 1 msec. Hence when we do wake up
+> 1msec later, spent/iops will be zero. You're continue adds the log
+> entry, but misses the data.
+
+I'm feeling good about this change, so I committed it:
+
+http://git.kernel.dk/cgit/fio/commit/?id=d454a205f81e1b122020cb4fb469c5a0c9d3195f
+
+So just test current -git, would love to hear if it fixes the issue for 
+you guys.
+
+-- 
+Jens Axboe
 
 
