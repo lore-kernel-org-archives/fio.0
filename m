@@ -1,5 +1,8 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: what is the sample logger doing when the buffer fills up?
+Return-Path: <jeff.furlong@hgst.com>
+From: Jeff Furlong <jeff.furlong@hgst.com>
+Subject: RE: what is the sample logger doing when the buffer fills up?
+Date: Fri, 22 Jul 2016 18:52:58 +0000
+Message-ID: <BN3PR0401MB14578638FC8BA420D42FACFCF70A0@BN3PR0401MB1457.namprd04.prod.outlook.com>
 References: <CAF+0mvnTM6Rv3Vh1oOZd=9TQ1wVtWWrHMVkbKxdisufiYvZ0Zw@mail.gmail.com>
  <BN3PR0401MB1457463C7131E975F7ED0812F7370@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <CAJ9yE1CkoXrkK2PowRkSyby6zbb+ngWFAD-AariWcp64FNTZNw@mail.gmail.com>
@@ -13,40 +16,63 @@ References: <CAF+0mvnTM6Rv3Vh1oOZd=9TQ1wVtWWrHMVkbKxdisufiYvZ0Zw@mail.gmail.com>
  <20160722144702.GA7328@kernel.dk>
  <87c24164-a129-c6cd-b9bf-49ae52f7034f@kernel.dk>
  <39517e39-daeb-29ed-a4e3-8d5e759d9382@kernel.dk>
- <BN3PR0401MB14578638FC8BA420D42FACFCF70A0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <587a3a61-3cfc-0e29-21bb-4a5f77a2c5ae@kernel.dk>
-Date: Fri, 22 Jul 2016 12:55:05 -0600
+In-Reply-To: <39517e39-daeb-29ed-a4e3-8d5e759d9382@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <BN3PR0401MB14578638FC8BA420D42FACFCF70A0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Jeff Furlong <jeff.furlong@hgst.com>
+Content-Transfer-Encoding: base64
+To: Jens Axboe <axboe@kernel.dk>
 Cc: Karl Cronburg <kcronbur@redhat.com>, Matthew Eaton <m.eaton82@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-
-
-On 07/22/2016 12:52 PM, Jeff Furlong wrote:
-> Too late, I already put v2 patch through the process.  Some good, some bad.  The good is that no more dropped entries appear in the middle!  So for the iops and bw logs, I get results such as:
->
-> 999, 293814, 0, 0
-> 2000, 354857, 0, 0
-> 3000, 383081, 0, 0
-> ...
-> 57000, 321946, 0, 0
-> 58000, 321566, 0, 0
-> 59000, 321596, 0, 0
->
-> The first sample is slightly off, but well within a reasonable tolerance.  The last sample is always missing (runtime=60s).
->
-> The bad is that the slat/clat/lat log is not doing averages any more, such as log_avg_msec=1000, but it's logging every value.
->
-> # fio --name=test_job --ioengine=libaio --direct=1 --rw=randread --iodepth=256 --size=100% --numjobs=4 --bs=4k --filename=/dev/nvme0n1 --group_reporting --write_bw_log=test_job --write_iops_log=test_job --write_lat_log=test_job --log_avg_msec=1000 --disable_lat=0 --disable_clat=0 --disable_slat=0 --runtime=60s --time_based --output=test_job
-
-OK, I guess it's not perfect! I'll tackle that one.
-
--- 
-Jens Axboe
+VG9vIGxhdGUsIEkgYWxyZWFkeSBwdXQgdjIgcGF0Y2ggdGhyb3VnaCB0aGUgcHJvY2Vzcy4gIFNv
+bWUgZ29vZCwgc29tZSBiYWQuICBUaGUgZ29vZCBpcyB0aGF0IG5vIG1vcmUgZHJvcHBlZCBlbnRy
+aWVzIGFwcGVhciBpbiB0aGUgbWlkZGxlISAgU28gZm9yIHRoZSBpb3BzIGFuZCBidyBsb2dzLCBJ
+IGdldCByZXN1bHRzIHN1Y2ggYXM6DQoNCjk5OSwgMjkzODE0LCAwLCAwDQoyMDAwLCAzNTQ4NTcs
+IDAsIDANCjMwMDAsIDM4MzA4MSwgMCwgMA0KLi4uDQo1NzAwMCwgMzIxOTQ2LCAwLCAwDQo1ODAw
+MCwgMzIxNTY2LCAwLCAwDQo1OTAwMCwgMzIxNTk2LCAwLCAwDQoNClRoZSBmaXJzdCBzYW1wbGUg
+aXMgc2xpZ2h0bHkgb2ZmLCBidXQgd2VsbCB3aXRoaW4gYSByZWFzb25hYmxlIHRvbGVyYW5jZS4g
+IFRoZSBsYXN0IHNhbXBsZSBpcyBhbHdheXMgbWlzc2luZyAocnVudGltZT02MHMpLg0KDQpUaGUg
+YmFkIGlzIHRoYXQgdGhlIHNsYXQvY2xhdC9sYXQgbG9nIGlzIG5vdCBkb2luZyBhdmVyYWdlcyBh
+bnkgbW9yZSwgc3VjaCBhcyBsb2dfYXZnX21zZWM9MTAwMCwgYnV0IGl0J3MgbG9nZ2luZyBldmVy
+eSB2YWx1ZS4NCg0KIyBmaW8gLS1uYW1lPXRlc3Rfam9iIC0taW9lbmdpbmU9bGliYWlvIC0tZGly
+ZWN0PTEgLS1ydz1yYW5kcmVhZCAtLWlvZGVwdGg9MjU2IC0tc2l6ZT0xMDAlIC0tbnVtam9icz00
+IC0tYnM9NGsgLS1maWxlbmFtZT0vZGV2L252bWUwbjEgLS1ncm91cF9yZXBvcnRpbmcgLS13cml0
+ZV9id19sb2c9dGVzdF9qb2IgLS13cml0ZV9pb3BzX2xvZz10ZXN0X2pvYiAtLXdyaXRlX2xhdF9s
+b2c9dGVzdF9qb2IgLS1sb2dfYXZnX21zZWM9MTAwMCAtLWRpc2FibGVfbGF0PTAgLS1kaXNhYmxl
+X2NsYXQ9MCAtLWRpc2FibGVfc2xhdD0wIC0tcnVudGltZT02MHMgLS10aW1lX2Jhc2VkIC0tb3V0
+cHV0PXRlc3Rfam9iDQoNClJlZ2FyZHMsDQpKZWZmDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0t
+LS0tDQpGcm9tOiBKZW5zIEF4Ym9lIFttYWlsdG86YXhib2VAa2VybmVsLmRrXSANClNlbnQ6IEZy
+aWRheSwgSnVseSAyMiwgMjAxNiAxMTozNyBBTQ0KVG86IEplZmYgRnVybG9uZyA8amVmZi5mdXJs
+b25nQGhnc3QuY29tPg0KQ2M6IEthcmwgQ3JvbmJ1cmcgPGtjcm9uYnVyQHJlZGhhdC5jb20+OyBN
+YXR0aGV3IEVhdG9uIDxtLmVhdG9uODJAZ21haWwuY29tPjsgZmlvQHZnZXIua2VybmVsLm9yZw0K
+U3ViamVjdDogUmU6IHdoYXQgaXMgdGhlIHNhbXBsZSBsb2dnZXIgZG9pbmcgd2hlbiB0aGUgYnVm
+ZmVyIGZpbGxzIHVwPw0KDQpPbiAwNy8yMi8yMDE2IDA5OjU1IEFNLCBKZW5zIEF4Ym9lIHdyb3Rl
+Og0KPiBBY3R1YWxseSwgSSB0aGluayBpdCdzIG1pc3Npbmcgb25lIG1vcmUgdGhpbmcuIFRyeSB0
+aGUgYXR0YWNoZWQgdjIgDQo+IGluc3RlYWQuIEthcmwsIHlvdSBtZW50aW9uZWQgdGhlIGlvcHMg
+PSAwIHRyaWNrLiBJIGRvbid0IHRoaW5rIHRoYXQncyANCj4gdGhlIHJpZ2h0IGZpeCwgYnV0IEkg
+dGhpbmsgeW91IHdlcmUgZ2V0dGluZyBjbG9zZS4gSSBzdXNwZWN0IHRoYXQgd2UgDQo+IHNvbWV0
+aW1lcyB3YWtlIHVwIGEgbGl0dGxlIGVhcmx5LiBMZXQncyBzYXkgd2Ugd2FudCB0byBsb2cgdGhl
+IDYwMDAgDQo+IGVudHJ5LCBidXQgd2Ugd2FrZSB1cCBhdCA1OTk5IGluc3RlYWQuIFdlIGFkZCB0
+aGUgcmVndWxhciBzdGF0IHNhbXBsZSwgDQo+IGFuZCBjbGVhciBpbnRlcnZhbC4gQnV0IHdlIGRv
+bid0IGFkZCB0aGUgYXZlcmFnZWQgbG9nIGVudHJ5LCBzaW5jZSB0aGUgDQo+IHRpbWUgaGFzbid0
+IHBhc3NlZCB5ZXQsIHdlJ3JlIG1pc3NpbmcgMSBtc2VjLiBIZW5jZSB3aGVuIHdlIGRvIHdha2Ug
+dXAgDQo+IDFtc2VjIGxhdGVyLCBzcGVudC9pb3BzIHdpbGwgYmUgemVyby4gWW91J3JlIGNvbnRp
+bnVlIGFkZHMgdGhlIGxvZyANCj4gZW50cnksIGJ1dCBtaXNzZXMgdGhlIGRhdGEuDQoNCkknbSBm
+ZWVsaW5nIGdvb2QgYWJvdXQgdGhpcyBjaGFuZ2UsIHNvIEkgY29tbWl0dGVkIGl0Og0KDQpodHRw
+Oi8vZ2l0Lmtlcm5lbC5kay9jZ2l0L2Zpby9jb21taXQvP2lkPWQ0NTRhMjA1ZjgxZTFiMTIyMDIw
+Y2I0ZmI0NjljNWEwYzlkMzE5NWYNCg0KU28ganVzdCB0ZXN0IGN1cnJlbnQgLWdpdCwgd291bGQg
+bG92ZSB0byBoZWFyIGlmIGl0IGZpeGVzIHRoZSBpc3N1ZSBmb3IgeW91IGd1eXMuDQoNCi0tDQpK
+ZW5zIEF4Ym9lDQoNCldlc3Rlcm4gRGlnaXRhbCBDb3Jwb3JhdGlvbiAoYW5kIGl0cyBzdWJzaWRp
+YXJpZXMpIEUtbWFpbCBDb25maWRlbnRpYWxpdHkgTm90aWNlICYgRGlzY2xhaW1lcjoKClRoaXMg
+ZS1tYWlsIGFuZCBhbnkgZmlsZXMgdHJhbnNtaXR0ZWQgd2l0aCBpdCBtYXkgY29udGFpbiBjb25m
+aWRlbnRpYWwgb3IgbGVnYWxseSBwcml2aWxlZ2VkIGluZm9ybWF0aW9uIG9mIFdEQyBhbmQvb3Ig
+aXRzIGFmZmlsaWF0ZXMsIGFuZCBhcmUgaW50ZW5kZWQgc29sZWx5IGZvciB0aGUgdXNlIG9mIHRo
+ZSBpbmRpdmlkdWFsIG9yIGVudGl0eSB0byB3aGljaCB0aGV5IGFyZSBhZGRyZXNzZWQuIElmIHlv
+dSBhcmUgbm90IHRoZSBpbnRlbmRlZCByZWNpcGllbnQsIGFueSBkaXNjbG9zdXJlLCBjb3B5aW5n
+LCBkaXN0cmlidXRpb24gb3IgYW55IGFjdGlvbiB0YWtlbiBvciBvbWl0dGVkIHRvIGJlIHRha2Vu
+IGluIHJlbGlhbmNlIG9uIGl0LCBpcyBwcm9oaWJpdGVkLiBJZiB5b3UgaGF2ZSByZWNlaXZlZCB0
+aGlzIGUtbWFpbCBpbiBlcnJvciwgcGxlYXNlIG5vdGlmeSB0aGUgc2VuZGVyIGltbWVkaWF0ZWx5
+IGFuZCBkZWxldGUgdGhlIGUtbWFpbCBpbiBpdHMgZW50aXJldHkgZnJvbSB5b3VyIHN5c3RlbS4K
 
 
