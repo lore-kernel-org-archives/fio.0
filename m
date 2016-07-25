@@ -1,105 +1,193 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-it0-f49.google.com ([209.85.214.49]:35687 "EHLO
-	mail-it0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757338AbcGZRBQ (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 26 Jul 2016 13:01:16 -0400
-Received: by mail-it0-f49.google.com with SMTP id u186so120108788ita.0
-        for <fio@vger.kernel.org>; Tue, 26 Jul 2016 10:01:16 -0700 (PDT)
+Received: from mail-qt0-f174.google.com ([209.85.216.174]:34558 "EHLO
+	mail-qt0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752535AbcGYPAZ (ORCPT <rfc822;fio@vger.kernel.org>);
+	Mon, 25 Jul 2016 11:00:25 -0400
+Received: by mail-qt0-f174.google.com with SMTP id u25so98367509qtb.1
+        for <fio@vger.kernel.org>; Mon, 25 Jul 2016 08:00:25 -0700 (PDT)
 MIME-Version: 1.0
-From: Yao Zhihao <yzhh029@gmail.com>
-Date: Tue, 26 Jul 2016 10:01:08 -0700
-Message-ID: <CAF_4wirLitECc0seVhDTythHx63BB2f-GU_Wcx+UpA9UJdc+eA@mail.gmail.com>
-Subject: question about eta time when replaying trace
+In-Reply-To: <CAJ9yE1C4zDwWU7-MY7imTD3SuwrKtSUztxdqw8i=NaR44nTOjQ@mail.gmail.com>
+References: <CAJ9yE1D_J5hvq_=vJ_DbgYy5nrQM0bC_nMhRKziDWjnbw23i-w@mail.gmail.com>
+ <19326c3d-bfdc-09ab-88ba-034206c7d4aa@gmail.com> <CAJ9yE1AqxZwwcMfZWjfuVQQaTe5oamNGHrvu92_L46eP=cQ4JA@mail.gmail.com>
+ <5932bab0-6513-2bd4-5d13-4e14609d752c@gmail.com> <CAJ9yE1C4zDwWU7-MY7imTD3SuwrKtSUztxdqw8i=NaR44nTOjQ@mail.gmail.com>
+From: Karl Cronburg <kcronbur@redhat.com>
+Date: Mon, 25 Jul 2016 11:00:23 -0400
+Message-ID: <CAJ9yE1BY44PczgzMTu5KHthC=3Ajxti_MRQgZetaNjwA=F3_NQ@mail.gmail.com>
+Subject: Re: fiologparser
 Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Mark Nelson <mark.a.nelson@gmail.com>
+Cc: fio@vger.kernel.org, Ben England <bengland@redhat.com>
 
-Hello,
+On Fri, Jul 15, 2016 at 9:02 AM, Karl Cronburg <kcronbur@redhat.com> wrote:
+>
+> On Thu, Jul 14, 2016 at 3:05 PM, Mark Nelson <mark.a.nelson@gmail.com> wrote:
+> >
+> >
+> > On 07/14/2016 01:48 PM, Karl Cronburg wrote:
+> >>
+> >> On Thu, Jul 14, 2016 at 12:29 PM, Mark Nelson <mark.a.nelson@gmail.com>
+> >> wrote:
+> >>>
+> >>>
+> >>>
+> >>> On 07/14/2016 10:35 AM, Karl Cronburg wrote:
+> >>>>
+> >>>>
+> >>>> Hello all,
+> >>>>
+> >>>> I have written a new version of fiologparser and could use some feedback
+> >>>> from anyone who uses the tool regularly. It is on branch fiologparser of
+> >>>> my fork
+> >>>> of fio:
+> >>>>
+> >>>> https://github.com/cronburg/fio/blob/fiologparser/tools/fiologparser.py
+> >>>>
+> >>>> It uses numpy and cython to speed up the data parsing and percentile
+> >>>> calculations,
+> >>>> while decreasing the memory footprint and making it scalable.
+> >>>
+> >>>
+> >>>
+> >>> I was really trying to avoid the extra dependencies. :/  That's why Ben's
+> >>> last commit was reworked so we could avoid adding numpy as a dependency
+> >>> in
+> >>> the fio distribution (not that fio itself would need it, but it would be
+> >>> really swell if none of the tools needed anything other than stock
+> >>> python).
+> >>>
+> >>> How much improvement are you seeing and where is the speedup coming from?
+> >>> I
+> >>
+> >>
+> >> All the speedup is coming from using dedicated parsing libraries (pandas),
+> >> numpy arrays (with vector math) instead of python lists, and streaming
+> >> smaller
+> >> portions of the data at a time into memory.
+> >>
+> >> On a single 39 MB latency log file it takes ~ a tenth of a second per
+> >> interval to calculate
+> >> percentiles for each interval whereas the one in wip-interval (with
+> >> slight modification
+> >> to stop a NoneType error) takes 5+ seconds per interval.
+> >
+> >
+> > FWIW no optimizations were done at all in wip-interval.  We should be able
+> > to speed it up quite a bit since it's doing quite a bit of work it probably
+> > doesn't need to do every loop, though yours might still be faster.  I guess
+> > the question is how fast do we need it and is it worth bringing in the extra
+> > dependency.
+> >
+> >>
+> >>> suspect we can get similar gains without needing to bring it in.  For now
+> >>> though I really think we need to worry about correctness rather than
+> >>> speed.
+> >>
+> >>
+> >> I would think someone running python on a large data set would be more
+> >> than
+> >> willing to install something as widely used and supported as numpy. If
+> >> anything
+> >> numpy gives us better correctness guarantees and less technical debt.
+> >
+> >
+> > If it does something that we can't easily do ourselves I could be convinced,
+> > but it's a tradeoff I'd personally not want to make lightly. Ultimately it
+> > should Jen's call though.
+> >
+> >>
+> >> Who else is using / wants the percentiles fiologparser is calculating? If
+> >> enough
+> >> users are put-off by the dependencies I understand, the data scientist
+> >> in me is just
+> >> really sad that the exact thing numpy was built for is being
+> >> re-engineered.
+> >>
+> >>> As such, does this version use a similar technique as what's in
+> >>> wip-interval?
+> >>
+> >>
+> >> Yes - weighted percentiles are calculated using the fraction of a
+> >> sample falling in
+> >> the given interval.
+> >>
+> >>>
+> >>> https://github.com/markhpc/fio/commits/wip-interval
+> >>>
+> >>> If so, we should probably merge that first and make sure we have test
+> >>> cases
+> >>> for it to make sure the idea is sound.  If this is something new, it
+> >>> would
+> >>> be good to showcase that it's as good or better than wip-interval.  I
+> >>> could
+> >>> easily be convinced that it is, but let's demonstrate it.
+> >>
+> >>
+> >> Will do - I'll make some test cases to see where wip-interval differs
+> >> with this implementation.
+> >> If anything I figure it's good to maintain both for now to see where
+> >> our thinking differs - just looking
+> >> at your code I wasn't even sure what numbers should be calculated, but
+> >> now that I've implemented
+> >> weighted latency percentiles myself I have a better idea what we want.
+> >
+> >
+> > There's no guarantee that mine is correct either! :)  Hence why I didn't
+> > want to submit a PR for it yet.  Having another set of eyes looking at it is
+> > good.
+> >
+> > One thing I suspect may be contentious is when you are looking at sample
+> > points that are averages from fio (like 100ms) and you have two samples that
+> > are farther than 100ms apart, does that mean the interval is longer than
+> > 100ms or that the interval is 100ms with a gap?  I assumed a longer than
+> > 100ms interval, but this may be wrong.  Probably won't know without reading
+> > the fio code.
+>
+> From looking at the code that assumption looks good to me. Namely here:
+>
+> https://github.com/axboe/fio/blob/master/stat.c#L2135
+>
+> the code checks to see if *at least* 100ms have passed since the last time we
+> logged an average. So you effectively get an average sample as soon as you see
+> the first IO request complete after the given time interval. This is
+> also why the sample
+> end times appear to drift forward in time with averaging, e.g.:
+>
+> 102, 2293, 0, 0
+> 202, 1688, 0, 0
+> 306, 1797, 0, 0
+> 406, 2056, 0, 0
+> 508, 1227, 0, 0
+>
 
-I have a question on the time unit in trace file. Based on the HOWTO
-doc, the time unit in trace v2 format is microseconds. I have a trace
-file which wait 190000 microseconds in total. But when I replay a test
-trace, the eta in thread status keeps growing until 18m20s. Then the
-job finish very fast. When I try with a larger trace which contains 1
-day I/O, the eta grows to more than 1000 days and never stop growing.
+Mark,
 
-And in the test result, the runtime of test is 99924 msec, which is 99
-seconds. This number is not what I expected.
+I have a (pure python / no new dependencies) implementation now of the
+weighted percentiles method as described on wikipedia
+(https://en.wikipedia.org/wiki/Percentile#Weighted_percentile), with
+test cases and verified against one of the "Linear Interpolation
+Between Closest Ranks" examples with weights of all one - namely at
+the bottom of this ipython notebook:
 
-I think this may be a bug of different time unit in trace file and eta
-display. But I am not sure. And my question is, how do I know fio wait
-correctly between two I/O in the trace for the exact time that I
-specify in the trace file?
+https://cronburg.com/fio/Weighted-Percentiles.html
 
-The job file, job result and test trace is attached below.
+Will make a PR to your wip-interval branch shortly. One thing I needed
+to do was add a command line parameter to specify bandwidth vs
+latency, because of the differing units / need to calculate start
+times of samples based on these units for latency logs.
 
-Thank you in advance!
-Zhihao Yao
+Another thing I noticed is for bandwidth files with both read/write
+enabled we get a divide by zero error because of the way start / end
+times are calculated. We'll need to segregate the data by r/w
+direction in order to account for this. For example the first few
+entries in a bw file:
 
-job file(replay.fio):
-[replay]
-direct=1
-read_iolog=/home/test/fiotest/testwait
-filename=/dev/sdb1
+74, 1, 0, 4096
+74, 3, 1, 4096
+930, 4, 0, 4096
+930, 28, 1, 4096
+1667, 81, 0, 4096
+1667, 124, 1, 4096
 
-test trace(testwait):
-fio version 2 iolog
-/dev/sdb1 add
-/dev/sdb1 open
-/dev/sdb1 write 3154137088 1024
-/dev/sdb1 wait 100000 0
-/dev/sdb1 write 1023483904 1024
-/dev/sdb1 wait 10000 0
-/dev/sdb1 write 3282030592 1024
-/dev/sdb1 wait 10000 0
-/dev/sdb1 write 3232870400 1024
-/dev/sdb1 wait 10000 0
-/dev/sdb1 write 3232870400 1024
-/dev/sdb1 wait 10000 0
-/dev/sdb1 write 3232870400 1024
-/dev/sdb1 wait 10000 0
-/dev/sdb1 write 3232870400 1024
-/dev/sdb1 wait 10000 0
-/dev/sdb1 write 3232870400 1024
-/dev/sdb1 wait 10000 0
-/dev/sdb1 write 3232870400 1024
-/dev/sdb1 wait 10000 0
-/dev/sdb1 write 3232870400 1024
-/dev/sdb1 wait 10000 0
-/dev/sdb1 write 3232870400 1024
-/dev/sdb1 close
-
-fio job result:
-root@ubuntu:/home/test/fiotest# fio replay.fio
-replay: (g=0): rw=read, bs=4K-4K/4K-4K/4K-4K, ioengine=psync, iodepth=1
-fio-2.13
-Starting 1 process
-Jobs: 1 (f=1): [W(1)] [8.4% done] [0KB/0KB/0KB /s] [0/0/0 iops] [eta 18m:20s]
-replay: (groupid=0, jobs=1): err= 0: pid=1372: Mon Jul 25 23:54:56 2016
-  write: io=11264B, bw=112B/s, iops=0, runt= 99924msec
-    clat (usec): min=182, max=420, avg=286.27, stdev=61.36
-     lat (usec): min=182, max=422, avg=286.91, stdev=61.79
-    clat percentiles (usec):
-     |  1.00th=[  183],  5.00th=[  183], 10.00th=[  225], 20.00th=[  233],
-     | 30.00th=[  278], 40.00th=[  286], 50.00th=[  298], 60.00th=[  298],
-     | 70.00th=[  302], 80.00th=[  314], 90.00th=[  318], 95.00th=[  422],
-     | 99.00th=[  422], 99.50th=[  422], 99.90th=[  422], 99.95th=[  422],
-     | 99.99th=[  422]
-    bw (KB  /s): min=    2, max=    2, per=100.00%, avg= 2.00, stdev= 0.00
-    lat (usec) : 250=27.27%, 500=72.73%
-  cpu          : usr=0.00%, sys=0.00%, ctx=13, majf=0, minf=7
-  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-
-
-     issued    : total=r=0/w=11/d=0, short=r=0/w=0/d=0, drop=r=0/w=0/d=0
-     latency   : target=0, window=0, percentile=100.00%, depth=1
-
-Run status group 0 (all jobs):
-  WRITE: io=11KB, aggrb=0KB/s, minb=0KB/s, maxb=0KB/s, mint=99924msec,
-maxt=99924msec
-
-Disk stats (read/write):
-  sdb: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
+-Karl-
