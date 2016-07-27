@@ -1,31 +1,52 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from webmail.igeprev.to.gov.br ([177.0.16.3]:35463 "EHLO
-	webmail.igeprev.to.gov.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751258AbcGFJyT convert rfc822-to-8bit (ORCPT
-	<rfc822;fio@vger.kernel.org>); Wed, 6 Jul 2016 05:54:19 -0400
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Description: Mail message body
-Subject: Donation!
-From: "Carlos Slim Helu" <slimhelucarlos9@gmail.com>
-Date: Wed, 06 Jul 2016 11:07:15 +0530
-Reply-To: slimhelucarlos9@gmail.com
-Message-Id: <20160706053751.19B784497AE@webmail.igeprev.to.gov.br>
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Recipients <slimhelucarlos9@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Subject: [PATCH 14/15] Add missing archs in fio_arch_strings[]
+Date: Wed, 27 Jul 2016 22:37:19 +0900
+Message-Id: <1469626640-13335-14-git-send-email-kusumi.tomohiro@gmail.com>
+In-Reply-To: <1469626640-13335-1-git-send-email-kusumi.tomohiro@gmail.com>
+References: <1469626640-13335-1-git-send-email-kusumi.tomohiro@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+List-ID: <fio@vger.kernel.org>
 
-GREETINGS,
+Add MIPS and AArch64 after PARISC.
+
+Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+---
+ libfio.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/libfio.c b/libfio.c
+index 2586675..fb7d35a 100644
+--- a/libfio.c
++++ b/libfio.c
+@@ -47,6 +47,7 @@ unsigned long arch_flags = 0;
+ uintptr_t page_mask = 0;
+ uintptr_t page_size = 0;
  
- My name is Carlos Slim Helu, A philanthropist the CEO and Chairman of the Carlos Slim Helu Foundation Charitable Foundation, one of the largest private foundations in the world. I believe strongly in ‘giving while living’ I had one idea that never changed in my mind — that you should use your wealth to help people and i have decided to secretly give 
-{$2,500,000.00} Two Million Five Hundred Thousand United Dollars, to randomly selected individuals worldwide. On receipt of this email, you should count yourself as the lucky individual. Your email address was chosen on-line while searching at random. Kindly get back to me with your full address at your earliest convenience, so I know your email address is valid Visit the web page to know more about me: http://www.bornrich.com/carlos-slim-helu.html or you can google me ( Carlos Slim Helu ) contact me at this email id (slimhelucarlos9@gmail.com) Email me the details bellow:
++/* see os/os.h */
+ static const char *fio_os_strings[os_nr] = {
+ 	"Invalid",
+ 	"Linux",
+@@ -62,6 +63,7 @@ static const char *fio_os_strings[os_nr] = {
+ 	"DragonFly",
+ };
  
- FULL NAME
- FULL ADDRESS
- COUNTRY
- CITY
- PHONE NUMBER
- OCCUPATION
- AGE
- ANY I.D PROOF
++/* see arch/arch.h */
+ static const char *fio_arch_strings[arch_nr] = {
+ 	"Invalid",
+ 	"x86-64",
+@@ -75,6 +77,8 @@ static const char *fio_arch_strings[arch_nr] = {
+ 	"arm",
+ 	"sh",
+ 	"hppa",
++	"mips",
++	"aarch64",
+ 	"generic"
+ };
+ 
+-- 
+2.5.5
+
+
