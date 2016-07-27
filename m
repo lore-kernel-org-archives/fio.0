@@ -1,53 +1,45 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:42052 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751622AbcGFMAE (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 6 Jul 2016 08:00:04 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-	by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-	id 1bKlUp-0007H3-Kv
-	for fio@vger.kernel.org; Wed, 06 Jul 2016 12:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160706120002.969322C23FF@kernel.dk>
-Date: Wed,  6 Jul 2016 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <20160727142537.GA26856@kernel.dk>
+References: <1469626640-13335-1-git-send-email-kusumi.tomohiro@gmail.com>
+ <1469626640-13335-4-git-send-email-kusumi.tomohiro@gmail.com> <20160727142537.GA26856@kernel.dk>
+From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Date: Wed, 27 Jul 2016 23:44:24 +0900
+Message-ID: <CAHndrBnUn+-6k_Rt4aYyP_h2Ao7dc+kNWoOgXDK5-Dt9e85-cg@mail.gmail.com>
+Subject: Re: [PATCH 04/15] Add FIO_HAVE_BLKDEV_INVALIDATE_CACHE to selectively
+ support pagecache invalidation
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 8a09277d18f942ed35354e31e38df50d991a595a:
+ah ok, sorry about that.
+this option does cover regfiles..
 
-  HOWTO: remove old use cases for the net IO engine (2016-06-29 13:09:15 -0600)
+2016-07-27 23:25 GMT+09:00 Jens Axboe <axboe@kernel.dk>:
+> On Wed, Jul 27 2016, Tomohiro Kusumi wrote:
+>> Most kernels either don't provide a way to invalidate the cache
+>> or don't need to provide one as "block device" no longer exist
+>> as a file type after being replaced by character device.
+>> Linux (incl Android) is the only supported OS that actually does
+>> something via ioctl.
+>>
+>> This commit adds FIO_HAVE_BLKDEV_INVALIDATE_CACHE. If this macro
+>> is undefined, cache invalidation for block device isn't supported.
+>> Only Linux supports it as mentioned above. It's better to do this
+>> like other OS specific features, because having blockdev_invalidate_cache()
+>> implementation which only pretends as if it has invalidated cache
+>> (by returning either 0 or EINVAL) could be misleading for users.
+>>
+>> The drawback is this commit requires users to fix config files
+>> (remove invalidate=) in order to use them on other platforms
+>> that were portable till then.
+>
+> This seems to equate invalidate with only working on a block device,
+> which is not true. And for files, it'll work fine on non-linux as well,
+> using the fadvise functions.
+>
+> --
+> Jens Axboe
+>
 
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to f1c4b3727386bd8da3617a6730ad55cf2ba04ec8:
-
-  gfio: call g_thread_init() for <= 2.31.0 (2016-07-05 14:23:56 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      gfio: call g_thread_init() for <= 2.31.0
-
- gfio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/gfio.c b/gfio.c
-index e3bcbdf..37c1818 100644
---- a/gfio.c
-+++ b/gfio.c
-@@ -1677,7 +1677,7 @@ static void init_ui(int *argc, char **argv[], struct gui *ui)
- 	 * Without it, the update that happens in gfio_update_thread_status
- 	 * doesn't really happen in a timely fashion, you need expose events
- 	 */
--#if !GTK_CHECK_VERSION(2, 24, 0)
-+#if !GLIB_CHECK_VERSION(2, 31, 0)
- 	if (!g_thread_supported())
- 		g_thread_init(NULL);
- #endif
