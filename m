@@ -1,84 +1,66 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Subject: [PATCH 09/15] Use correct I/O engine name "cpuio" instead of "cpu"
-Date: Wed, 27 Jul 2016 22:37:14 +0900
-Message-Id: <1469626640-13335-9-git-send-email-kusumi.tomohiro@gmail.com>
+Subject: [PATCH 15/15] Change arch_i386 to arch_x86
+Date: Wed, 27 Jul 2016 22:37:20 +0900
+Message-Id: <1469626640-13335-15-git-send-email-kusumi.tomohiro@gmail.com>
 In-Reply-To: <1469626640-13335-1-git-send-email-kusumi.tomohiro@gmail.com>
 References: <1469626640-13335-1-git-send-email-kusumi.tomohiro@gmail.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 List-ID: <fio@vger.kernel.org>
 
-"cpuio" is the name of the engine/option, though the filename is cpu.c.
+fio_arch_strings[arch_i386] is "x86" (not "i386"),
+so change arch_i386 to arch_x86.
 
- # grep "ioengine =" engines/cpu.c -A1
- static struct ioengine_ops ioengine = {
- 	.name           = "cpuio",
+Other than arch_i386, "i386" is only used in __i386__.
 
 Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 ---
- HOWTO         | 6 +++---
- engines/cpu.c | 4 ++--
- fio.1         | 6 +++---
- 3 files changed, 8 insertions(+), 8 deletions(-)
+ arch/arch-x86.h       | 2 +-
+ arch/arch.h           | 2 +-
+ os/os-linux-syscall.h | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/HOWTO b/HOWTO
-index cfcc81f..bc69ab0 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1840,12 +1840,12 @@ that defines them is selected.
- [psyncv2] hipri		Set RWF_HIPRI on IO, indicating to the kernel that
- 			it's of higher priority than normal.
+diff --git a/arch/arch-x86.h b/arch/arch-x86.h
+index d3b8985..457b44c 100644
+--- a/arch/arch-x86.h
++++ b/arch/arch-x86.h
+@@ -12,7 +12,7 @@ static inline void do_cpuid(unsigned int *eax, unsigned int *ebx,
  
--[cpu] cpuload=int Attempt to use the specified percentage of CPU cycles.
-+[cpuio] cpuload=int Attempt to use the specified percentage of CPU cycles.
+ #include "arch-x86-common.h"
  
--[cpu] cpuchunks=int Split the load into cycles of the given time. In
-+[cpuio] cpuchunks=int Split the load into cycles of the given time. In
- 		microseconds.
+-#define FIO_ARCH	(arch_i386)
++#define FIO_ARCH	(arch_x86)
  
--[cpu] exit_on_io_done=bool Detect when IO threads are done, then exit.
-+[cpuio] exit_on_io_done=bool Detect when IO threads are done, then exit.
+ #define	FIO_HUGE_PAGE		4194304
  
- [netsplice] hostname=str
- [net] hostname=str The host name or IP address to use for TCP or UDP based IO.
-diff --git a/engines/cpu.c b/engines/cpu.c
-index 7643a8c..3d855e3 100644
---- a/engines/cpu.c
-+++ b/engines/cpu.c
-@@ -88,8 +88,8 @@ static int fio_cpuio_init(struct thread_data *td)
+diff --git a/arch/arch.h b/arch/arch.h
+index 043e283..00d247c 100644
+--- a/arch/arch.h
++++ b/arch/arch.h
+@@ -3,7 +3,7 @@
  
- 	o->nr_files = o->open_files = 1;
+ enum {
+ 	arch_x86_64 = 1,
+-	arch_i386,
++	arch_x86,
+ 	arch_ppc,
+ 	arch_ia64,
+ 	arch_s390,
+diff --git a/os/os-linux-syscall.h b/os/os-linux-syscall.h
+index 2de02f1..c399b2f 100644
+--- a/os/os-linux-syscall.h
++++ b/os/os-linux-syscall.h
+@@ -3,7 +3,7 @@
  
--	log_info("%s: ioengine=cpu, cpuload=%u, cpucycle=%u\n", td->o.name,
--						co->cpuload, co->cpucycle);
-+	log_info("%s: ioengine=%s, cpuload=%u, cpucycle=%u\n",
-+		td->o.name, td->io_ops->name, co->cpuload, co->cpucycle);
+ #include "../arch/arch.h"
  
- 	return 0;
- }
-diff --git a/fio.1 b/fio.1
-index cff95ee..8387cbd 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1696,13 +1696,13 @@ Some parameters are only valid when a specific ioengine is in use. These are
- used identically to normal parameters, with the caveat that when used on the
- command line, they must come after the ioengine.
- .TP
--.BI (cpu)cpuload \fR=\fPint
-+.BI (cpuio)cpuload \fR=\fPint
- Attempt to use the specified percentage of CPU cycles.
- .TP
--.BI (cpu)cpuchunks \fR=\fPint
-+.BI (cpuio)cpuchunks \fR=\fPint
- Split the load into cycles of the given time. In microseconds.
- .TP
--.BI (cpu)exit_on_io_done \fR=\fPbool
-+.BI (cpuio)exit_on_io_done \fR=\fPbool
- Detect when IO threads are done, then exit.
- .TP
- .BI (libaio)userspace_reap
+-/* Linux syscalls for i386 */
++/* Linux syscalls for x86 */
+ #if defined(ARCH_X86_H)
+ #ifndef __NR_ioprio_set
+ #define __NR_ioprio_set		289
 -- 
 2.5.5
 
