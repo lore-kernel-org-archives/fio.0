@@ -1,38 +1,57 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: Iosched_switch error
-References: <CAF+0mvny52U+Z9LWaHyuEVZjem8q8X11bF6fp-qepa4Y6W8pcQ@mail.gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <577C15F5.2040005@kernel.dk>
-Date: Tue, 5 Jul 2016 14:17:57 -0600
-MIME-Version: 1.0
-In-Reply-To: <CAF+0mvny52U+Z9LWaHyuEVZjem8q8X11bF6fp-qepa4Y6W8pcQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Matthew Eaton <m.eaton82@gmail.com>, fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Subject: [PATCH 3/4] Null terminate before (or after) strncpy(3)
+Date: Sat, 30 Jul 2016 00:05:59 +0900
+Message-Id: <1469804760-17333-3-git-send-email-kusumi.tomohiro@gmail.com>
+In-Reply-To: <1469804760-17333-1-git-send-email-kusumi.tomohiro@gmail.com>
+References: <1469804760-17333-1-git-send-email-kusumi.tomohiro@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 List-ID: <fio@vger.kernel.org>
 
-On 06/30/2016 06:05 PM, Matthew Eaton wrote:
-> Hi Jens,
->
-> I have run into this error when using ioscheduler=noop in my job
-> files. I only run into the error when specifying unsupported devices
-> such as nvme or md raid device. Should this be a fatal error? I ask
-> because sometimes I want to run the same job on various devices.
->
-> sudo fname=/dev/nvme0n1 ./fio seqread.ini
-> seq-read: (g=0): rw=read, bs=128K-128K/128K-128K/128K-128K,
-> ioengine=libaio, iodepth=32
-> fio-2.12-3-g8a09
-> Starting 1 process
-> fio: io scheduler noop not found
-> fio: pid=5541, err=22/file:backend.c:1306, func=iosched_switch,
-> error=Invalid argument
+These three strncpy() calls copy at most sizeof(buffer)-1 bytes,
+but buffer isn't explicitly 0 cleared, so 0 terminate the last byte.
 
-IO scheduler switching can only work, if the device is using an IO 
-scheduler. md/raid devices are not, and nvme is driven by blk-mq, which 
-doesn't have an IO scheduler either. That's why these devices fail for you.
+Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+---
+ diskutil.c  |    2 ++
+ ioengines.c |    1 +
+ 2 files changed, 3 insertions(+), 0 deletions(-)
 
+diff --git a/diskutil.c b/diskutil.c
+index 294d2d3..a1077d4 100644
+--- a/diskutil.c
++++ b/diskutil.c
+@@ -179,6 +179,7 @@ static int get_device_numbers(char *file_name, int *maj, int *min)
+ 		/*
+ 		 * must be a file, open "." in that path
+ 		 */
++		tempname[PATH_MAX - 1] = '\0';
+ 		strncpy(tempname, file_name, PATH_MAX - 1);
+ 		p = dirname(tempname);
+ 		if (stat(p, &st)) {
+@@ -426,6 +427,7 @@ static struct disk_util *__init_per_file_disk_util(struct thread_data *td,
+ 			log_err("unknown sysfs layout\n");
+ 			return NULL;
+ 		}
++		tmp[PATH_MAX - 1] = '\0';
+ 		strncpy(tmp, p, PATH_MAX - 1);
+ 		sprintf(path, "%s", tmp);
+ 	}
+diff --git a/ioengines.c b/ioengines.c
+index 918b50a..f7b5ed6 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -130,6 +130,7 @@ struct ioengine_ops *load_ioengine(struct thread_data *td, const char *name)
+ 
+ 	dprint(FD_IO, "load ioengine %s\n", name);
+ 
++	engine[sizeof(engine) - 1] = '\0';
+ 	strncpy(engine, name, sizeof(engine) - 1);
+ 
+ 	/*
 -- 
-Jens Axboe
+1.7.1
 
 
