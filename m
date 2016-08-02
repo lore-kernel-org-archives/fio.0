@@ -1,51 +1,53 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm0-f52.google.com ([74.125.82.52]:35661 "EHLO
-	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932068AbcHCGV6 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Wed, 3 Aug 2016 02:21:58 -0400
-Received: by mail-wm0-f52.google.com with SMTP id f65so434349372wmi.0
-        for <fio@vger.kernel.org>; Tue, 02 Aug 2016 23:21:57 -0700 (PDT)
-MIME-Version: 1.0
-From: Martin Dev <mrturtledev@gmail.com>
-Date: Wed, 3 Aug 2016 07:21:56 +0100
-Message-ID: <CAG6KGPRQf7Mii35T1drhL=u0mZB8PQEeOMnmuBFWSNgBy4E31A@mail.gmail.com>
-Subject: Unlink after each loop in job
-Content-Type: text/plain; charset=UTF-8
+Received: from merlin.infradead.org ([205.233.59.134]:44988 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933059AbcHBMAF (ORCPT <rfc822;fio@vger.kernel.org>);
+	Tue, 2 Aug 2016 08:00:05 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+	id 1bUYMd-0006ih-FM
+	for fio@vger.kernel.org; Tue, 02 Aug 2016 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160802120001.DAD942C00A2@kernel.dk>
+Date: Tue,  2 Aug 2016 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-I'm after the following data pattern from a job, which is 1 out of 4
-jobs run at the same time:
+The following changes since commit 99955d3d3e290ccb06583a821a8112210e4b332d:
 
-Targeted at the filesystem level
-Write Xgb of verifiable data to file
-Verify file
-Delete file
-Loop
+  backend: do_dry_run(): get_io_u() can return an error pointer (2016-07-29 09:59:38 -0600)
 
-The idea is we want to test trim at the file system level, whilst also
-having 3 other jobs that perform different workloads.
+are available in the git repository at:
 
-Unlink=1 will only trigger after all loops of a job are complete
-exec_post_run will only trigger after all loops of a job are complete
+  git://git.kernel.dk/fio.git master
 
-I have implemented the functionality I'm after, by adding a
-unlink_each_loop paremeter to options.c, and in backend.c under the
-while(keep_running) I've added an unlink() to both the if block
-checking verify is false (before the loop continue) and after the
-verification, if the flag is set.
+for you to fetch changes up to 059b61f219b15db434eddc2207b876c6a0bad6c0:
 
-The problem is, I'm not a C programmer (in the slightest), and I don't
-know FIO at all well. My code probably does not live up to the
-standard, or understand the internals of FIO well enough to handle
-errors in the correct way etc.
+  backend: do_verify() cleanup (2016-08-01 13:46:17 -0600)
 
-So I guess I have 2 questions,
+----------------------------------------------------------------
+Jens Axboe (1):
+      backend: do_verify() cleanup
 
-1) Have I missed something which already does what I need (delete file
-on each loop of a write job)
-2) How can I get someone who actually knows what they're doing to
-implement this feature :)
+ backend.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---Martin
+---
+
+Diff of recent changes:
+
+diff --git a/backend.c b/backend.c
+index 8a71490..c3ad831 100644
+--- a/backend.c
++++ b/backend.c
+@@ -652,7 +652,7 @@ static void do_verify(struct thread_data *td, uint64_t verify_bytes)
+ 				break;
+ 
+ 			while ((io_u = get_io_u(td)) != NULL) {
+-				if (IS_ERR(io_u)) {
++				if (IS_ERR_OR_NULL(io_u)) {
+ 					io_u = NULL;
+ 					ret = FIO_Q_BUSY;
+ 					goto reap;
