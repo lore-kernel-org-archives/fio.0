@@ -13,8 +13,8 @@ References: <BN3PR0401MB1457415455A5B0CEFB84447DF75F0@BN3PR0401MB1457.namprd04.p
  <a59fa122-2ed2-0194-f961-84566e3166da@kernel.dk>
  <BN3PR0401MB1457ADC13254E4C80473E489F7040@BN3PR0401MB1457.namprd04.prod.outlook.com>
 From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <f9e632e7-849f-9e4e-0615-2feb18da358a@kernel.dk>
-Date: Wed, 3 Aug 2016 07:55:34 -0700
+Message-ID: <883e8381-7fbb-fb23-97f9-03bc35bee22c@kernel.dk>
+Date: Tue, 2 Aug 2016 14:03:59 -0700
 MIME-Version: 1.0
 In-Reply-To: <BN3PR0401MB1457ADC13254E4C80473E489F7040@BN3PR0401MB1457.namprd04.prod.outlook.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
@@ -23,7 +23,8 @@ To: Jeff Furlong <jeff.furlong@hgst.com>, Jan Kara <jack@suse.cz>
 Cc: Sitsofe Wheeler <sitsofe@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-What version did you test? Works fine for me.
+But not related to the segfault issue, this is a continuation of another
+logging problem. I'll check up on that one.
 
 
 On 08/01/2016 03:57 PM, Jeff Furlong wrote:
