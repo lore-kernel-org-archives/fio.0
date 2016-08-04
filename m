@@ -1,186 +1,117 @@
-Return-Path: <kishore.vinjam@gmail.com>
-MIME-Version: 1.0
-From: Kishore Vinjam <kishore.vinjam@gmail.com>
-Date: Wed, 31 Aug 2016 10:40:35 -0700
-Message-ID: <CAG1rLFekUcqFC4EBGXgop7e=NmuktcwvfDZt1Cpg4vSWOODc=A@mail.gmail.com>
-Subject: fio reporting data corruption with bsrange and zoneskip.
-Content-Type: multipart/alternative; boundary=047d7bd91a664c13df053b619817
-To: fio@vger.kernel.org, axboe@kernel.dk
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:47107 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754287AbcHDMAH (ORCPT <rfc822;fio@vger.kernel.org>);
+	Thu, 4 Aug 2016 08:00:07 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+	by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+	id 1bVHJj-0007we-Hb
+	for fio@vger.kernel.org; Thu, 04 Aug 2016 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160804120002.053682C00A2@kernel.dk>
+Date: Thu,  4 Aug 2016 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
---047d7bd91a664c13df053b619817
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+The following changes since commit 550beaad94a11beef70dfb4057797ff8800c8a72:
 
-=E2=80=8B
-Following command is reporting a data corruption. Wondering if it is a real
-corruption from the backend disk or am I doing anything wrong on the FIO
-command usage.
+  engines/rbd: fix compile without blkin support (2016-08-02 15:23:43 -0600)
 
-Looking in to the hexdump of the .expected and .received files (snippet in
-the bottom), I have couple of observations that makes me suspect fio usage
-more than the actual corruption from backend. I just want to make sure I am
-right with the tool usage before digging in to the other end to far.
+are available in the git repository at:
 
-1. The expected data reports 1024 bytes of data and rest all zeros. My min
-block size in bsrange is 3k, per my understanding the minimum block size
-used for writes is min block in the bsrange. why is it expecting 1k data?
-2. As shown below, the data mismatch is reported on "25-56" bytes and last
-16 bytes of the first 1024 bytes.  Is there any significance to the blocks
-25-56 in FIO. Some other tools i know use for signature. The device I am
-testing is 4K fixed block and less chances(can't overrule) of 32 byte
-corruption.
+  git://git.kernel.dk/fio.git master
 
+for you to fetch changes up to ff56a4e2e0a87e4e3b1cc1e74547d55b295967a6:
 
-The hexdump of .expected file shows that frist 1KB has some data and rest
-all are zeros.
-`fio  --runtime=3D43200  --filename=3D/dev/mapper/mpathbkx --rw=3Drandrw
---ioengine=3Dlibaio --direct=3D1 --time_based --verify=3Dmd5 --verify_dump=
-=3D1
---threads=3D8 --zonesize=3D1m --zoneskip=3D1024 --name=3Dzoning-unaligned-l=
-arge
---bsrange=3D3k-1025k`
-=E2=80=8B=E2=80=8B
+  travis: don't enable rbd (2016-08-03 10:18:42 -0600)
 
-**Corruption Comparision:**
+----------------------------------------------------------------
+Jan Fajerski (2):
+      fix typo in HOWTO
+      fix typo in HOWTO
 
-> 00000000  ca ac 02 00 00 0c 00 00  02 8e 82 e5 32 c4 97 60  |   00000000
- ca ac 02 00 00 0c 00 00  02 8e 82 e5 32 c4 97 60  |
-00000010  00 c0 32 00 00 00 00 00  01 00 00 00 10 07 0d 00  | | 00000010
- 00 c0 32 00 00 00 00 00  4e 1e 00 00 61 76 0b 00  |
-00000020  01 00 05 00 19 dc 0f 93  a9 ff d1 8a 62 9c 7e 9d  | | 00000020
- 01 00 05 00 a1 2b a6 63  f9 ca 00 22 95 78 72 13  |
-00000030  86 06 e8 ab cd b8 1d 91  15 3a a6 e5 b2 69 9e 1b  | | 00000030
- a6 0a 74 fa f8 45 bd d0  15 3a a6 e5 b2 69 9e 1b  |
-00000040  42 47 aa 3f 63 5a ed 03  e8 48 54 44 77 0b 9a 1d  |   00000040
- 42 47 aa 3f 63 5a ed 03  e8 48 54 44 77 0b 9a 1d  |
-00000050  1d 89 16 c4 44 9f 4f 02  23 51 f4 53 dd 91 32 0d  |   00000050
- 1d 89 16 c4 44 9f 4f 02  23 51 f4 53 dd 91 32 0d  |
-....
-_... trucated as there is no mismatch ..._
-....
-000003e0  f7 02 4f 6b 8e f1 1c 11  5e 60 ee 4b 8a 68 5d 0c  |   000003e0
- f7 02 4f 6b 8e f1 1c 11  5e 60 ee 4b 8a 68 5d 0c  |
-000003f0  0b cc 4e 19 1a 87 58 10  81 59 24 dd 3b 04 0b 0c  |   000003f0
- 0b cc 4e 19 1a 87 58 10  81 59 24 dd 3b 04 0b 0c  |
-00000400  00 90 c4 9e 3e 00 00 00  00 90 56 42 1d 00 00 00  | | 00000400
- 00 00 00 00 00 00 00 00  61 0d 02 00 00 00 00 00  |
-00000410  00 90 d2 d0 3d 00 00 00  00 90 be d4 17 00 00 00  | | 00000410
- 00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |
-00000420  00 90 d8 09 3a 00 00 00  00 90 f8 00 43 00 00 00  | | 00000420
- 00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |
-00000430  00 90 42 6c 21 00 00 00  00 90 6a cf 26 00 00 00  | | 00000430
- 00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |
+Jens Axboe (4):
+      iolog: prevent early entry from skewing entire logging run
+      filesetup: ensure that we catch a file flagged for extend
+      travis: add rbd/zlib
+      travis: don't enable rbd
 
---047d7bd91a664c13df053b619817
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+ .travis.yml | 2 +-
+ HOWTO       | 4 ++--
+ filesetup.c | 7 ++++---
+ stat.c      | 4 +++-
+ 4 files changed, 10 insertions(+), 7 deletions(-)
 
-<div dir=3D"ltr"><div class=3D"gmail_default" style=3D"font-family:tahoma,s=
-ans-serif;font-size:small"><span style=3D"background-color:rgb(255,255,255)=
-"><font color=3D"#000000"><br clear=3D"all"></font></span></div><div><div c=
-lass=3D"gmail_signature"><span style=3D"background-color:rgb(255,255,255)">=
-<font color=3D"#000000"><div class=3D"gmail_default" style=3D"font-family:t=
-ahoma,sans-serif;font-size:small;display:inline">=E2=80=8B</div><font face=
-=3D"tahoma, sans-serif">Following command is reporting a data corruption. W=
-ondering if it is a real corruption from the backend disk or am I doing any=
-thing wrong on the FIO command usage.</font></font></span></div><div class=
-=3D"gmail_signature"><font face=3D"tahoma, sans-serif" style=3D"background-=
-color:rgb(255,255,255)" color=3D"#000000"><br></font></div><div class=3D"gm=
-ail_signature"><font face=3D"tahoma, sans-serif" style=3D"background-color:=
-rgb(255,255,255)" color=3D"#000000">Looking in to the hexdump of the .expec=
-ted and .received files (snippet in the bottom), I have couple of observati=
-ons that makes me suspect fio usage more than the actual corruption from ba=
-ckend. I just want to make sure I am right with the tool usage before diggi=
-ng in to the other end to far.</font></div><div class=3D"gmail_signature"><=
-font face=3D"tahoma, sans-serif" style=3D"background-color:rgb(255,255,255)=
-" color=3D"#000000"><br></font></div><div class=3D"gmail_signature"><font f=
-ace=3D"tahoma, sans-serif" style=3D"background-color:rgb(255,255,255)" colo=
-r=3D"#000000">1. The expected data reports 1024 bytes of data and rest all =
-zeros. My min block size in bsrange is 3k, per my understanding the minimum=
- block size used for writes is min block in the bsrange. why is it expectin=
-g 1k data?</font></div><div class=3D"gmail_signature"><font face=3D"tahoma,=
- sans-serif" style=3D"background-color:rgb(255,255,255)" color=3D"#000000">=
-2. As shown below, the data mismatch is reported on &quot;25-56&quot; bytes=
- and last 16 bytes of the first 1024 bytes.=C2=A0 Is there any significance=
- to the blocks 25-56 in FIO. Some other tools i know use for signature. The=
- device I am testing is 4K fixed block and less chances(can&#39;t overrule)=
- of 32 byte corruption.</font></div><div class=3D"gmail_signature"><font fa=
-ce=3D"tahoma, sans-serif" style=3D"background-color:rgb(255,255,255)" color=
-=3D"#000000"><br></font></div><div class=3D"gmail_signature"><font face=3D"=
-tahoma, sans-serif" style=3D"background-color:rgb(255,255,255)" color=3D"#0=
-00000"><br></font></div><div class=3D"gmail_signature"><font face=3D"tahoma=
-, sans-serif" style=3D"background-color:rgb(255,255,255)" color=3D"#000000"=
->The hexdump of .expected file shows that frist 1KB has some data and rest =
-all are zeros.=C2=A0</font></div><div class=3D"gmail_signature"><font face=
-=3D"tahoma, sans-serif" style=3D"background-color:rgb(255,255,255)" color=
-=3D"#000000">`fio =C2=A0--runtime=3D43200 =C2=A0--filename=3D/dev/mapper/mp=
-athbkx --rw=3Drandrw --ioengine=3Dlibaio --direct=3D1 --time_based --verify=
-=3Dmd5 --verify_dump=3D1 --threads=3D8 --zonesize=3D1m --zoneskip=3D1024 --=
-name=3Dzoning-unaligned-large --bsrange=3D3k-1025k`</font></div><div class=
-=3D"gmail_signature"><font face=3D"tahoma, sans-serif" style=3D"background-=
-color:rgb(255,255,255)" color=3D"#000000"><div class=3D"gmail_default" styl=
-e=3D"font-family:tahoma,sans-serif;font-size:small;display:inline">=E2=80=
-=8B=E2=80=8B</div><br></font></div><div class=3D"gmail_signature"><font fac=
-e=3D"tahoma, sans-serif" style=3D"background-color:rgb(255,255,255)" color=
-=3D"#000000">**Corruption Comparision:**</font></div><div class=3D"gmail_si=
-gnature"><font face=3D"tahoma, sans-serif" style=3D"background-color:rgb(25=
-5,255,255)" color=3D"#000000"><br></font></div><div class=3D"gmail_signatur=
-e"><font face=3D"tahoma, sans-serif" style=3D"background-color:rgb(255,255,=
-255)" color=3D"#000000">&gt; 00000000 =C2=A0ca ac 02 00 00 0c 00 00 =C2=A00=
-2 8e 82 e5 32 c4 97 60 =C2=A0| =C2=A0 00000000 =C2=A0ca ac 02 00 00 0c 00 0=
-0 =C2=A002 8e 82 e5 32 c4 97 60 =C2=A0|</font></div><div class=3D"gmail_sig=
-nature"><font face=3D"tahoma, sans-serif" style=3D"background-color:rgb(255=
-,255,255)" color=3D"#000000">00000010 =C2=A000 c0 32 00 00 00 00 00 =C2=A00=
-1 00 00 00 10 07 0d 00 =C2=A0| | 00000010 =C2=A000 c0 32 00 00 00 00 00 =C2=
-=A04e 1e 00 00 61 76 0b 00 =C2=A0|</font></div><div class=3D"gmail_signatur=
-e"><font face=3D"tahoma, sans-serif" style=3D"background-color:rgb(255,255,=
-255)" color=3D"#000000">00000020 =C2=A001 00 05 00 19 dc 0f 93 =C2=A0a9 ff =
-d1 8a 62 9c 7e 9d =C2=A0| | 00000020 =C2=A001 00 05 00 a1 2b a6 63 =C2=A0f9=
- ca 00 22 95 78 72 13 =C2=A0|</font></div><div class=3D"gmail_signature"><f=
-ont face=3D"tahoma, sans-serif" style=3D"background-color:rgb(255,255,255)"=
- color=3D"#000000">00000030 =C2=A086 06 e8 ab cd b8 1d 91 =C2=A015 3a a6 e5=
- b2 69 9e 1b =C2=A0| | 00000030 =C2=A0a6 0a 74 fa f8 45 bd d0 =C2=A015 3a a=
-6 e5 b2 69 9e 1b =C2=A0|</font></div><div class=3D"gmail_signature"><font f=
-ace=3D"tahoma, sans-serif" style=3D"background-color:rgb(255,255,255)" colo=
-r=3D"#000000">00000040 =C2=A042 47 aa 3f 63 5a ed 03 =C2=A0e8 48 54 44 77 0=
-b 9a 1d =C2=A0| =C2=A0 00000040 =C2=A042 47 aa 3f 63 5a ed 03 =C2=A0e8 48 5=
-4 44 77 0b 9a 1d =C2=A0|</font></div><div class=3D"gmail_signature"><font f=
-ace=3D"tahoma, sans-serif" style=3D"background-color:rgb(255,255,255)" colo=
-r=3D"#000000">00000050 =C2=A01d 89 16 c4 44 9f 4f 02 =C2=A023 51 f4 53 dd 9=
-1 32 0d =C2=A0| =C2=A0 00000050 =C2=A01d 89 16 c4 44 9f 4f 02 =C2=A023 51 f=
-4 53 dd 91 32 0d =C2=A0|</font></div><div class=3D"gmail_signature"><font f=
-ace=3D"tahoma, sans-serif" style=3D"background-color:rgb(255,255,255)" colo=
-r=3D"#000000">....</font></div><div class=3D"gmail_signature"><font face=3D=
-"tahoma, sans-serif" style=3D"background-color:rgb(255,255,255)" color=3D"#=
-000000">_... trucated as there is no mismatch ..._</font></div><div class=
-=3D"gmail_signature"><font face=3D"tahoma, sans-serif" style=3D"background-=
-color:rgb(255,255,255)" color=3D"#000000">....</font></div><div class=3D"gm=
-ail_signature"><font face=3D"tahoma, sans-serif" style=3D"background-color:=
-rgb(255,255,255)" color=3D"#000000">000003e0 =C2=A0f7 02 4f 6b 8e f1 1c 11 =
-=C2=A05e 60 ee 4b 8a 68 5d 0c =C2=A0| =C2=A0 000003e0 =C2=A0f7 02 4f 6b 8e =
-f1 1c 11 =C2=A05e 60 ee 4b 8a 68 5d 0c =C2=A0|</font></div><div class=3D"gm=
-ail_signature"><font face=3D"tahoma, sans-serif" style=3D"background-color:=
-rgb(255,255,255)" color=3D"#000000">000003f0 =C2=A00b cc 4e 19 1a 87 58 10 =
-=C2=A081 59 24 dd 3b 04 0b 0c =C2=A0| =C2=A0 000003f0 =C2=A00b cc 4e 19 1a =
-87 58 10 =C2=A081 59 24 dd 3b 04 0b 0c =C2=A0|</font></div><div class=3D"gm=
-ail_signature"><font face=3D"tahoma, sans-serif" style=3D"background-color:=
-rgb(255,255,255)" color=3D"#000000">00000400 =C2=A000 90 c4 9e 3e 00 00 00 =
-=C2=A000 90 56 42 1d 00 00 00 =C2=A0| | 00000400 =C2=A000 00 00 00 00 00 00=
- 00 =C2=A061 0d 02 00 00 00 00 00 =C2=A0|</font></div><div class=3D"gmail_s=
-ignature"><font face=3D"tahoma, sans-serif" style=3D"background-color:rgb(2=
-55,255,255)" color=3D"#000000">00000410 =C2=A000 90 d2 d0 3d 00 00 00 =C2=
-=A000 90 be d4 17 00 00 00 =C2=A0| | 00000410 =C2=A000 00 00 00 00 00 00 00=
- =C2=A000 00 00 00 00 00 00 00 =C2=A0|</font></div><div class=3D"gmail_sign=
-ature"><font face=3D"tahoma, sans-serif" style=3D"background-color:rgb(255,=
-255,255)" color=3D"#000000">00000420 =C2=A000 90 d8 09 3a 00 00 00 =C2=A000=
- 90 f8 00 43 00 00 00 =C2=A0| | 00000420 =C2=A000 00 00 00 00 00 00 00 =C2=
-=A000 00 00 00 00 00 00 00 =C2=A0|</font></div><div class=3D"gmail_signatur=
-e"><font face=3D"tahoma, sans-serif" style=3D"background-color:rgb(255,255,=
-255)" color=3D"#000000">00000430 =C2=A000 90 42 6c 21 00 00 00 =C2=A000 90 =
-6a cf 26 00 00 00 =C2=A0| | 00000430 =C2=A000 00 00 00 00 00 00 00 =C2=A000=
- 00 00 00 00 00 00 00 =C2=A0|</font></div></div><div><br></div>
-</div>
+---
 
---047d7bd91a664c13df053b619817--
+Diff of recent changes:
 
+diff --git a/.travis.yml b/.travis.yml
+index 9bef750..bf0433d 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -4,4 +4,4 @@ compiler:
+   - gcc
+ before_install:
+   - sudo apt-get -qq update
+-  - sudo apt-get install -y libaio-dev libnuma-dev
++  - sudo apt-get install -qq -y libaio-dev libnuma-dev libz-dev
+diff --git a/HOWTO b/HOWTO
+index 2c5896d..d18d59b 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -1175,7 +1175,7 @@ cpus_allowed_policy=str Set the policy of how fio distributes the CPUs
+ 		one cpu per job. If not enough CPUs are given for the jobs
+ 		listed, then fio will roundrobin the CPUs in the set.
+ 
+-numa_cpu_nodes=str Set this job running on spcified NUMA nodes' CPUs. The
++numa_cpu_nodes=str Set this job running on specified NUMA nodes' CPUs. The
+ 		arguments allow comma delimited list of cpu numbers,
+ 		A-B ranges, or 'all'. Note, to enable numa options support,
+ 		fio must be built on a system with libnuma-dev(el) installed.
+@@ -1606,7 +1606,7 @@ write_lat_log=str Same as write_bw_log, except that this option stores io
+ 		The actual log names will be foo_slat.x.log, foo_clat.x.log,
+ 		and foo_lat.x.log, where x is the index of the job (1..N,
+ 		where N is the number of jobs). This helps fio_generate_plot
+-		fine the logs automatically. If 'per_job_logs' is false, then
++		find the logs automatically. If 'per_job_logs' is false, then
+ 		the filename will not include the job index. See 'Log File
+ 		Formats'.
+ 
+diff --git a/filesetup.c b/filesetup.c
+index 1ecdda6..f32d874 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -900,11 +900,12 @@ int setup_files(struct thread_data *td)
+ 		if (f->filetype == FIO_TYPE_FILE &&
+ 		    (f->io_size + f->file_offset) > f->real_file_size &&
+ 		    !(td->io_ops->flags & FIO_DISKLESSIO)) {
+-			if (!o->create_on_open) {
+-				need_extend++;
++			if (!o->create_on_open)
+ 				extend_size += (f->io_size + f->file_offset);
+-			} else
++			else
+ 				f->real_file_size = f->io_size + f->file_offset;
++
++			need_extend++;
+ 			fio_file_set_extend(f);
+ 		}
+ 	}
+diff --git a/stat.c b/stat.c
+index 7a35117..d6787b7 100644
+--- a/stat.c
++++ b/stat.c
+@@ -2139,7 +2139,9 @@ static long add_log_sample(struct thread_data *td, struct io_log *iolog,
+ 	 * need to do.
+ 	 */
+ 	this_window = elapsed - iolog->avg_last;
+-	if (this_window < iolog->avg_msec) {
++	if (elapsed < iolog->avg_last)
++		return iolog->avg_last - elapsed;
++	else if (this_window < iolog->avg_msec) {
+ 		int diff = iolog->avg_msec - this_window;
+ 
+ 		if (inline_log(iolog) || diff > LOG_MSEC_SLACK)
