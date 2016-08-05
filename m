@@ -1,28 +1,23 @@
-Return-Path: <chamarthy.raju@gmail.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: create_on_open fails with "err=5/file:backend.c:498"
+References: <CABtFm2X1th74qPOKaT+UG7rA-X8bjiADLE7x3n3qBjS7YAibNg@mail.gmail.com>
+ <185b7fb1-e59a-c0e4-9a8a-ed5a21b441e8@kernel.dk>
+ <93206ce7-e4ea-2188-7809-48ea44f1aafa@kernel.dk>
+ <CABtFm2UfFJ0m78qOh5C=-+5p3qQhCg77OdHXQtK1EdWY9aOHbA@mail.gmail.com>
+ <CABtFm2VX4H3579bJ9FbB+rAjW5WT4OEm_UnATg_pPYGD=aCrRQ@mail.gmail.com>
+ <86e61b86-3cd8-ee34-31b7-42a4b7254212@kernel.dk>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <d7afaf68-fe78-bc57-50a7-d8ddb6a77cf9@kernel.dk>
+Date: Thu, 4 Aug 2016 19:43:04 -0600
 MIME-Version: 1.0
 In-Reply-To: <86e61b86-3cd8-ee34-31b7-42a4b7254212@kernel.dk>
-References: <CABtFm2X1th74qPOKaT+UG7rA-X8bjiADLE7x3n3qBjS7YAibNg@mail.gmail.com>
- <185b7fb1-e59a-c0e4-9a8a-ed5a21b441e8@kernel.dk> <93206ce7-e4ea-2188-7809-48ea44f1aafa@kernel.dk>
- <CABtFm2UfFJ0m78qOh5C=-+5p3qQhCg77OdHXQtK1EdWY9aOHbA@mail.gmail.com>
- <CABtFm2VX4H3579bJ9FbB+rAjW5WT4OEm_UnATg_pPYGD=aCrRQ@mail.gmail.com> <86e61b86-3cd8-ee34-31b7-42a4b7254212@kernel.dk>
-From: Srinivasa Chamarthy <chamarthy.raju@gmail.com>
-Date: Fri, 5 Aug 2016 09:43:22 +0800
-Message-ID: <CABtFm2UFqBjuvACess2H-PNSthSx5CDm6OAgBGY9Rxnvq4QZ8g@mail.gmail.com>
-Subject: Re: create_on_open fails with "err=5/file:backend.c:498"
-Content-Type: text/plain; charset=UTF-8
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Srinivasa Chamarthy <chamarthy.raju@gmail.com>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-Thanks for the info. :)
-
---
-Srinivasa R Chamarthy
-
-
-On Fri, Aug 5, 2016 at 9:39 AM, Jens Axboe <axboe@kernel.dk> wrote:
+On 08/04/2016 07:39 PM, Jens Axboe wrote:
 > On 08/04/2016 04:53 AM, Srinivasa Chamarthy wrote:
->>
 >> Tried the latest git, i do not get the failure now. But i have the
 >> following questions
 >>
@@ -31,11 +26,9 @@ On Fri, Aug 5, 2016 at 9:39 AM, Jens Axboe <axboe@kernel.dk> wrote:
 >> the files first and then do read (workload defaults to read if --rw is
 >> not specified).
 >
->
 > Right, but that's similar to how a normal read job without
 > create_on_open would also layout the files to be able to run the read
 > workload.
->
 >
 >> 2) For Write or mixed jobs, create_on_open is expected not to layout
 >> the IO files before the workload. Currently with the latest git, i see
@@ -77,13 +70,15 @@ On Fri, Aug 5, 2016 at 9:39 AM, Jens Axboe <axboe@kernel.dk> wrote:
 >> under the impression that if create_on_open is not specified, default
 >> behavior is to layout the files for jobs.
 >
->
 > Right, that was essentially the behaviour before the recent change. With
 > the recent change, it'll lay them out if it needs to. It needs to, if
 > the actual job doesn't do it, or if overwrite=1 is set, for instance,
 > and it's a writable job.
->
-> --
-> Jens Axboe
->
+
+I have reverted the change, I think the previous behavior made more
+sense. I think you alluded to that as well.
+
+-- 
+Jens Axboe
+
 
