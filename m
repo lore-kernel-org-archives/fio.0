@@ -10,36 +10,31 @@ References: <CAG6KGPRQf7Mii35T1drhL=u0mZB8PQEeOMnmuBFWSNgBy4E31A@mail.gmail.com>
  <c9875949-57c5-aac6-4665-d50cf6e34261@kernel.dk>
  <1464993948.447706.1470665651090.JavaMail.zimbra@redhat.com>
  <6881e50d-9779-01e0-7a54-c3131c09dc6b@kernel.dk>
- <bdaafdc4-50ac-d720-9470-e3547d34a972@kernel.dk>
 From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <5b1fca3e-3139-09a4-d895-ae1d2f52e90d@kernel.dk>
-Date: Mon, 8 Aug 2016 09:47:59 -0600
+Message-ID: <bdaafdc4-50ac-d720-9470-e3547d34a972@kernel.dk>
+Date: Mon, 8 Aug 2016 09:33:22 -0600
 MIME-Version: 1.0
-In-Reply-To: <bdaafdc4-50ac-d720-9470-e3547d34a972@kernel.dk>
+In-Reply-To: <6881e50d-9779-01e0-7a54-c3131c09dc6b@kernel.dk>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 To: Erwan Velu <evelu@redhat.com>
 Cc: Martin Dev <mrturtledev@gmail.com>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-On 08/08/2016 09:33 AM, Jens Axboe wrote:
-> On 08/08/2016 08:18 AM, Jens Axboe wrote:
->> On 08/08/2016 08:14 AM, Erwan Velu wrote:
->>> Sorry, I was'nt that clear in my message :/
->>>
->>> The guy that offered the patch have passed through the #fio channel on
->>> OFTC and we spoke about the need of that patch.  > I was just curious
->>> to read it and wasn't able to find where the patch that is under
->>> discussion is.
+On 08/08/2016 08:18 AM, Jens Axboe wrote:
+> On 08/08/2016 08:14 AM, Erwan Velu wrote:
+>> Sorry, I was'nt that clear in my message :/
 >>
->> It just needs a little polish, then it can go in.
+>> The guy that offered the patch have passed through the #fio channel on
+>> OFTC and we spoke about the need of that patch.  > I was just curious
+>> to read it and wasn't able to find where the patch that is under
+>> discussion is.
 >
-> Martin, can you check if this one works as you expect? It's building on
-> top of yours, adding the missing bits, and fixing up td_io_unlink_file()
-> error propagation as well.
+> It just needs a little polish, then it can go in.
 
-And here's one against the current master, since I committed the unlink
-error propagation as a separate fix.
+Martin, can you check if this one works as you expect? It's building on
+top of yours, adding the missing bits, and fixing up td_io_unlink_file()
+error propagation as well.
 
 
 diff --git a/HOWTO b/HOWTO
@@ -127,6 +122,39 @@ thread_options_pack *top,
   	top->do_disk_util = cpu_to_le32(o->do_disk_util);
   	top->override_sync = cpu_to_le32(o->override_sync);
   	top->rand_repeatable = cpu_to_le32(o->rand_repeatable);
+diff --git a/engines/pmemblk.c b/engines/pmemblk.c
+index 6d19864ae0db..ca7269781951 100644
+--- a/engines/pmemblk.c
++++ b/engines/pmemblk.c
+@@ -475,7 +475,7 @@ static int fio_pmemblk_unlink_file(struct 
+thread_data *td, struct fio_file *f)
+
+  	pmb_parse_path(f->file_name, &path, &bsize, &fsize);
+  	if (!path)
+-		return 1;
++		return ENOENT;
+
+  	unlink(path);
+  	free(path);
+diff --git a/filesetup.c b/filesetup.c
+index 1ecdda61c3f4..42a9f4155fbf 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -58,8 +58,12 @@ static int extend_file(struct thread_data *td, struct 
+fio_file *f)
+  		unlink_file = 1;
+
+  	if (unlink_file || new_layout) {
++		int ret;
++
+  		dprint(FD_FILE, "layout unlink %s\n", f->file_name);
+-		if ((td_io_unlink_file(td, f) < 0) && (errno != ENOENT)) {
++
++		ret = td_io_unlink_file(td, f);
++		if (ret != 0 && ret != ENOENT) {
+  			td_verror(td, errno, "unlink");
+  			return 1;
+  		}
 diff --git a/fio.1 b/fio.1
 index d1acebcdeef1..696664afb081 100644
 --- a/fio.1
@@ -143,6 +171,29 @@ network or splice IO.
   Specifies the number of iterations (runs of the same workload) of this 
 job.
   Default: 1.
+diff --git a/ioengines.c b/ioengines.c
+index 4129ac2363b9..a06909e0ff9d 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -521,8 +521,15 @@ int td_io_unlink_file(struct thread_data *td, 
+struct fio_file *f)
+  {
+  	if (td->io_ops->unlink_file)
+  		return td->io_ops->unlink_file(td, f);
+-	else
+-		return unlink(f->file_name);
++	else {
++		int ret;
++
++		ret = unlink(f->file_name);
++		if (ret < 0)
++			return errno;
++
++		return 0;
++	}
+  }
+
+  int td_io_get_file_size(struct thread_data *td, struct fio_file *f)
 diff --git a/options.c b/options.c
 index 56d3e2b6027e..7cd5121988c0 100644
 --- a/options.c
