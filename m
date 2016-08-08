@@ -1,24 +1,34 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH 1/6] Use char* for pid_file path
-References: <1470677251-8292-1-git-send-email-kusumi.tomohiro@gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <50027455-fac6-efb9-ffc6-8ceebc5469a9@kernel.dk>
-Date: Mon, 8 Aug 2016 11:33:53 -0600
-MIME-Version: 1.0
-In-Reply-To: <1470677251-8292-1-git-send-email-kusumi.tomohiro@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>, fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Subject: [PATCH 1/6] Use char* for pid_file path
+Date: Tue,  9 Aug 2016 02:27:26 +0900
+Message-Id: <1470677251-8292-1-git-send-email-kusumi.tomohiro@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 List-ID: <fio@vger.kernel.org>
 
-On 08/08/2016 11:27 AM, Tomohiro Kusumi wrote:
-> since no function expects this to be void*.
->
-> Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+since no function expects this to be void*.
 
-Thanks, applied this and the 5 others, all look good.
+Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+---
+ init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/init.c b/init.c
+index 048bd5d..0a6766e 100644
+--- a/init.c
++++ b/init.c
+@@ -2302,7 +2302,7 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ 	struct thread_data *td = NULL;
+ 	int c, ini_idx = 0, lidx, ret = 0, do_exit = 0, exit_val = 0;
+ 	char *ostr = cmd_optstr;
+-	void *pid_file = NULL;
++	char *pid_file = NULL;
+ 	void *cur_client = NULL;
+ 	int backend = 0;
+ 
 -- 
-Jens Axboe
+2.5.5
 
 
