@@ -1,151 +1,33 @@
-Return-Path: <subratndash@gmail.com>
-MIME-Version: 1.0
-From: subrat dash <subratndash@gmail.com>
-Date: Mon, 22 Aug 2016 14:12:40 -0700
-Message-ID: <CAFrY4nQGgOkNK+wtEoXcY3FU36k-5U1eOne51RucDdjSnnV6ug@mail.gmail.com>
-Subject: Error during sequential read
-Content-Type: multipart/mixed; boundary=94eb2c19e60e31c30e053aaf8256
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Subject: [PATCH 4/6] Add missing FIO_NET_CMD entry to fio_server_ops[]
+Date: Tue,  9 Aug 2016 02:27:29 +0900
+Message-Id: <1470677251-8292-4-git-send-email-kusumi.tomohiro@gmail.com>
+In-Reply-To: <1470677251-8292-1-git-send-email-kusumi.tomohiro@gmail.com>
+References: <1470677251-8292-1-git-send-email-kusumi.tomohiro@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 List-ID: <fio@vger.kernel.org>
 
---94eb2c19e60e31c30e053aaf8256
-Content-Type: multipart/alternative; boundary=94eb2c19e60e31c307053aaf8254
+Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+---
+ server.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---94eb2c19e60e31c307053aaf8254
-Content-Type: text/plain; charset=UTF-8
+diff --git a/server.c b/server.c
+index 667a66c..2fd9b45 100644
+--- a/server.c
++++ b/server.c
+@@ -114,6 +114,7 @@ static const char *fio_server_ops[FIO_NET_CMD_NR] = {
+ 	"LOAD_FILE",
+ 	"VTRIGGER",
+ 	"SENDFILE",
++	"JOB_OPT",
+ };
+ 
+ static void sk_lock(struct sk_out *sk_out)
+-- 
+2.5.5
 
-Hello,
-
-Hope you are well..!!
-
-I have a question regarding the verify test that is done using FIO.
-
-I am trying to run the --rw=read test using FIO. However, I am getting an
-error #84. Please find attached the output file.
-
-*err=84 (file:io_u.c:1805, func=io_u_sync_complete, error=Invalid or
-incomplete multibyte or wide character)*
-
-If you see in the output file, I ran the test with and without the
-verify_pattern argument. The test PASSES when I don't use this option but
-FAILs when I do.
-
-Also, This happens only when the Sequential READ test is done. The test
-does not FAIL when I use any other option such as mix write and read or
-random read, etc etc..
-
-Can you please tell me what exactly happens with this test? Does the
-command actually write the pattern to the drive first and then try to read
-it back or does it just try to read the pattern without writing anything?
-Does the test check for any ECC errors?
-
-Any input would be highly appreciated!
-
-Thanks,
-Subrat Dash
-
---94eb2c19e60e31c307053aaf8254
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div><div><div><div><div><div><div><div><div>Hello,<br><br=
-></div>Hope you are well..!!<br><br></div>I have a question regarding the v=
-erify test that is done using FIO.<br><br></div>I am trying to run the --rw=
-=3Dread test using FIO. However, I am getting an error #84. Please find att=
-ached the output file.<br><br><b>err=3D84 (file:io_u.c:1805, func=3Dio_u_sy=
-nc_complete, error=3DInvalid or incomplete multibyte or wide character)</b>=
-<br><br></div>If
- you see in the output file, I ran the test with and without the=20
-verify_pattern argument. The test PASSES when I don&#39;t use this option=
-=20
-but FAILs when I do.<br><br></div>Also, This happens only when the=20
-Sequential READ test is done. The test does not FAIL when I use any=20
-other option such as mix write and read or random read, etc etc..<br><br></=
-div>Can
- you please tell me what exactly happens with this test? Does the=20
-command actually write the pattern to the drive first and then try to=20
-read it back or does it just try to read the pattern without writing=20
-anything? Does the test check for any ECC errors?<br><br></div>Any input wo=
-uld be highly appreciated!<br><br></div>Thanks,<br></div>Subrat Dash<br></d=
-iv>
-
---94eb2c19e60e31c307053aaf8254--
-
---94eb2c19e60e31c30e053aaf8256
-Content-Type: text/plain; charset=US-ASCII; 
-	name="verify_READ_4TB_with&woPATTERN_8_20_2016.txt"
-Content-Disposition: attachment; 
-	filename="verify_READ_4TB_with&woPATTERN_8_20_2016.txt"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_is6jgu9c0
-
-ZGFzaEBkYXNoLWRlc2t0b3A6L21lZGlhL2Rhc2gvNFRCIFZPTFVNRSQgc3VkbyBmaW8gLS1uYW1l
-PXNkYV92ZXJpZnkgLS1kaXJlY3Rvcnk9VGVzdCAtLWRpcmVjdD0xIC0tcnc9cmVhZCAtLWlvZW5n
-aW5lPXN5bmMgLS1icz02NGsgLS1pb2RlcHRoPTEgLS1udW1qb2JzPTEgLS1vZmZzZXQ9MCAtLXZl
-cmlmeV9pbnRlcnZhbD01MTIgLS1maWxsX2RldmljZT0wIC0tc2l6ZT01ME0gIC0tZG9fdmVyaWZ5
-PTEgLS1jcmVhdGVfc2VyaWFsaXplPTEgLS12ZXJpZnlfZHVtcD0xIC0tdmVyaWZ5X2ZhdGFsPTEg
-LS12ZXJpZnlfcGF0dGVybj0yNTYgCltzdWRvXSBwYXNzd29yZCBmb3IgZGFzaDogCnNkYV92ZXJp
-Znk6IChnPTApOiBydz1yZWFkLCBicz02NEstNjRLLzY0Sy02NEsvNjRLLTY0SywgaW9lbmdpbmU9
-c3luYywgaW9kZXB0aD0xCmZpby0yLjIuMTAKU3RhcnRpbmcgMSBwcm9jZXNzCnNkYV92ZXJpZnk6
-IExheWluZyBvdXQgSU8gZmlsZShzKSAoMSBmaWxlKHMpIC8gNTBNQikKdmVyaWZ5OiBiYWQgbWFn
-aWMgaGVhZGVyIGEwOTAsIHdhbnRlZCBhY2NhIGF0IGZpbGUgVGVzdC9zZGFfdmVyaWZ5LjAuMCBv
-ZmZzZXQgMCwgbGVuZ3RoIDUxMgpmaW86IHBpZD03OTc2LCBlcnI9ODQvZmlsZTppb191LmM6MTgw
-NSwgZnVuYz1pb191X3N5bmNfY29tcGxldGUsIGVycm9yPUludmFsaWQgb3IgaW5jb21wbGV0ZSBt
-dWx0aWJ5dGUgb3Igd2lkZSBjaGFyYWN0ZXIKCnNkYV92ZXJpZnk6IChncm91cGlkPTAsIGpvYnM9
-MSk6IGVycj04NCAoZmlsZTppb191LmM6MTgwNSwgZnVuYz1pb191X3N5bmNfY29tcGxldGUsIGVy
-cm9yPUludmFsaWQgb3IgaW5jb21wbGV0ZSBtdWx0aWJ5dGUgb3Igd2lkZSBjaGFyYWN0ZXIpOiBw
-aWQ9Nzk3NjogU2F0IEF1ZyAyMCAwNDo0NjoyMyAyMDE2CiAgcmVhZCA6IGlvPTY1NTM2QiwgYnc9
-NjQwMDBLQi9zLCBpb3BzPTEwMDAsIHJ1bnQ9ICAgICAxbXNlYwogICAgY2xhdCAodXNlYyk6IG1p
-bj0yNDQsIG1heD0yNDQsIGF2Zz0yNDQuMDAsIHN0ZGV2PSAwLjAwCiAgICAgbGF0ICh1c2VjKTog
-bWluPTI0NSwgbWF4PTI0NSwgYXZnPTI0NS4wMCwgc3RkZXY9IDAuMDAKICAgIGNsYXQgcGVyY2Vu
-dGlsZXMgKHVzZWMpOgogICAgIHwgIDEuMDB0aD1bICAyNDVdLCAgNS4wMHRoPVsgIDI0NV0sIDEw
-LjAwdGg9WyAgMjQ1XSwgMjAuMDB0aD1bICAyNDVdLAogICAgIHwgMzAuMDB0aD1bICAyNDVdLCA0
-MC4wMHRoPVsgIDI0NV0sIDUwLjAwdGg9WyAgMjQ1XSwgNjAuMDB0aD1bICAyNDVdLAogICAgIHwg
-NzAuMDB0aD1bICAyNDVdLCA4MC4wMHRoPVsgIDI0NV0sIDkwLjAwdGg9WyAgMjQ1XSwgOTUuMDB0
-aD1bICAyNDVdLAogICAgIHwgOTkuMDB0aD1bICAyNDVdLCA5OS41MHRoPVsgIDI0NV0sIDk5Ljkw
-dGg9WyAgMjQ1XSwgOTkuOTV0aD1bICAyNDVdLAogICAgIHwgOTkuOTl0aD1bICAyNDVdCiAgICBs
-YXQgKHVzZWMpIDogMjUwPTEwMC4wMCUKICBjcHUgICAgICAgICAgOiB1c3I9MC4wMCUsIHN5cz0w
-LjAwJSwgY3R4PTYsIG1hamY9MCwgbWluZj0zNAogIElPIGRlcHRocyAgICA6IDE9MTAwLjAlLCAy
-PTAuMCUsIDQ9MC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCA+PTY0PTAuMCUKICAgICBz
-dWJtaXQgICAgOiAwPTAuMCUsIDQ9MTAwLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsIDY0
-PTAuMCUsID49NjQ9MC4wJQogICAgIGNvbXBsZXRlICA6IDA9NTAuMCUsIDQ9NTAuMCUsIDg9MC4w
-JSwgMTY9MC4wJSwgMzI9MC4wJSwgNjQ9MC4wJSwgPj02ND0wLjAlCiAgICAgaXNzdWVkICAgIDog
-dG90YWw9cj0xL3c9MC9kPTAsIHNob3J0PXI9MC93PTAvZD0wLCBkcm9wPXI9MC93PTAvZD0wCiAg
-ICAgbGF0ZW5jeSAgIDogdGFyZ2V0PTAsIHdpbmRvdz0wLCBwZXJjZW50aWxlPTEwMC4wMCUsIGRl
-cHRoPTEKClJ1biBzdGF0dXMgZ3JvdXAgMCAoYWxsIGpvYnMpOgogICBSRUFEOiBpbz02NEtCLCBh
-Z2dyYj02NDAwMEtCL3MsIG1pbmI9NjQwMDBLQi9zLCBtYXhiPTY0MDAwS0IvcywgbWludD0xbXNl
-YywgbWF4dD0xbXNlYwoKRGlzayBzdGF0cyAocmVhZC93cml0ZSk6CiAgc2RiOiBpb3M9MC8wLCBt
-ZXJnZT0wLzAsIHRpY2tzPTAvMCwgaW5fcXVldWU9MCwgdXRpbD0wLjAwJQpkYXNoQGRhc2gtZGVz
-a3RvcDovbWVkaWEvZGFzaC80VEIgVk9MVU1FJCBzdWRvIGZpbyAtLW5hbWU9c2RhX3ZlcmlmeSAt
-LWRpcmVjdG9yeT1UZXN0IC0tZGlyZWN0PTEgLS1ydz1yZWFkIC0taW9lbmdpbmU9c3luYyAtLWJz
-PTY0ayAtLWlvZGVwdGg9MSAtLW51bWpvYnM9MSAtLW9mZnNldD0wIC0tdmVyaWZ5X2ludGVydmFs
-PTUxMiAtLWZpbGxfZGV2aWNlPTAgLS1zaXplPTUwTSAgLS1kb192ZXJpZnk9MSAtLWNyZWF0ZV9z
-ZXJpYWxpemU9MSAtLXZlcmlmeV9kdW1wPTEgLS12ZXJpZnlfZmF0YWw9MSAKc2RhX3ZlcmlmeTog
-KGc9MCk6IHJ3PXJlYWQsIGJzPTY0Sy02NEsvNjRLLTY0Sy82NEstNjRLLCBpb2VuZ2luZT1zeW5j
-LCBpb2RlcHRoPTEKZmlvLTIuMi4xMApTdGFydGluZyAxIHByb2Nlc3MKCnNkYV92ZXJpZnk6IChn
-cm91cGlkPTAsIGpvYnM9MSk6IGVycj0gMDogcGlkPTc5ODQ6IFNhdCBBdWcgMjAgMDQ6NDY6Mzkg
-MjAxNgogIHJlYWQgOiBpbz01MTIwMEtCLCBidz0xNDI4LjZNQi9zLCBpb3BzPTIyODU3LCBydW50
-PSAgICAzNW1zZWMKICAgIGNsYXQgKHVzZWMpOiBtaW49MzQsIG1heD0yNDcsIGF2Zz00MS40Miwg
-c3RkZXY9MTEuODUKICAgICBsYXQgKHVzZWMpOiBtaW49MzQsIG1heD0yNDgsIGF2Zz00MS42MCwg
-c3RkZXY9MTEuOTAKICAgIGNsYXQgcGVyY2VudGlsZXMgKHVzZWMpOgogICAgIHwgIDEuMDB0aD1b
-ICAgMzddLCAgNS4wMHRoPVsgICAzN10sIDEwLjAwdGg9WyAgIDM3XSwgMjAuMDB0aD1bICAgMzhd
-LAogICAgIHwgMzAuMDB0aD1bICAgMzhdLCA0MC4wMHRoPVsgICA0MF0sIDUwLjAwdGg9WyAgIDQw
-XSwgNjAuMDB0aD1bICAgNDFdLAogICAgIHwgNzAuMDB0aD1bICAgNDJdLCA4MC4wMHRoPVsgICA0
-M10sIDkwLjAwdGg9WyAgIDQ0XSwgOTUuMDB0aD1bICAgNDRdLAogICAgIHwgOTkuMDB0aD1bICAg
-NjVdLCA5OS41MHRoPVsgIDExOV0sIDk5LjkwdGg9WyAgMjQ3XSwgOTkuOTV0aD1bICAyNDddLAog
-ICAgIHwgOTkuOTl0aD1bICAyNDddCiAgICBsYXQgKHVzZWMpIDogNTA9OTguMjUlLCAxMDA9MS4x
-MiUsIDI1MD0wLjYyJQogIGNwdSAgICAgICAgICA6IHVzcj0xMS43NiUsIHN5cz0xMS43NiUsIGN0
-eD04MDUsIG1hamY9MCwgbWluZj0yNgogIElPIGRlcHRocyAgICA6IDE9MTAwLjAlLCAyPTAuMCUs
-IDQ9MC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCA+PTY0PTAuMCUKICAgICBzdWJtaXQg
-ICAgOiAwPTAuMCUsIDQ9MTAwLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsIDY0PTAuMCUs
-ID49NjQ9MC4wJQogICAgIGNvbXBsZXRlICA6IDA9MC4wJSwgND0xMDAuMCUsIDg9MC4wJSwgMTY9
-MC4wJSwgMzI9MC4wJSwgNjQ9MC4wJSwgPj02ND0wLjAlCiAgICAgaXNzdWVkICAgIDogdG90YWw9
-cj04MDAvdz0wL2Q9MCwgc2hvcnQ9cj0wL3c9MC9kPTAsIGRyb3A9cj0wL3c9MC9kPTAKICAgICBs
-YXRlbmN5ICAgOiB0YXJnZXQ9MCwgd2luZG93PTAsIHBlcmNlbnRpbGU9MTAwLjAwJSwgZGVwdGg9
-MQoKUnVuIHN0YXR1cyBncm91cCAwIChhbGwgam9icyk6CiAgIFJFQUQ6IGlvPTUxMjAwS0IsIGFn
-Z3JiPTE0MjguNk1CL3MsIG1pbmI9MTQyOC42TUIvcywgbWF4Yj0xNDI4LjZNQi9zLCBtaW50PTM1
-bXNlYywgbWF4dD0zNW1zZWMKCkRpc2sgc3RhdHMgKHJlYWQvd3JpdGUpOgogIHNkYjogaW9zPTAv
-MCwgbWVyZ2U9MC8wLCB0aWNrcz0wLzAsIGluX3F1ZXVlPTAsIHV0aWw9MC4wMCUKCg==
---94eb2c19e60e31c30e053aaf8256--
 
