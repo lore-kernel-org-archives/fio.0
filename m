@@ -1,34 +1,52 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Subject: [PATCH 1/6] Use char* for pid_file path
-Date: Tue,  9 Aug 2016 02:27:26 +0900
-Message-Id: <1470677251-8292-1-git-send-email-kusumi.tomohiro@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.9]:41674 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751694AbcHUMAE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 21 Aug 2016 08:00:04 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+        id 1bbRQ3-00026g-PY
+        for fio@vger.kernel.org; Sun, 21 Aug 2016 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160821120001.CE85E2C0285@kernel.dk>
+Date: Sun, 21 Aug 2016 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-since no function expects this to be void*.
+The following changes since commit d1f6fcadb7cb28a5e57a5e573395fe2deb3cfd7b:
 
-Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+  Manual page for fiologparser_hist.py and Makefile updates to install them. (2016-08-18 18:56:17 -0400)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to a86f6d07f12141a32ccad2007d4568e612e0df10:
+
+  verify: use proper include for PATH_MAX (2016-08-20 10:28:57 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      verify: use proper include for PATH_MAX
+
+ verify-state.h | 1 +
+ 1 file changed, 1 insertion(+)
+
 ---
- init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/init.c b/init.c
-index 048bd5d..0a6766e 100644
---- a/init.c
-+++ b/init.c
-@@ -2302,7 +2302,7 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 	struct thread_data *td = NULL;
- 	int c, ini_idx = 0, lidx, ret = 0, do_exit = 0, exit_val = 0;
- 	char *ostr = cmd_optstr;
--	void *pid_file = NULL;
-+	char *pid_file = NULL;
- 	void *cur_client = NULL;
- 	int backend = 0;
+Diff of recent changes:
+
+diff --git a/verify-state.h b/verify-state.h
+index 901aa0a..e46265e 100644
+--- a/verify-state.h
++++ b/verify-state.h
+@@ -3,6 +3,7 @@
  
--- 
-2.5.5
-
-
+ #include <stdint.h>
+ #include <string.h>
++#include <limits.h>
+ 
+ struct thread_rand32_state {
+ 	uint32_t s[4];
