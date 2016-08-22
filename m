@@ -1,36 +1,86 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Subject: [PATCH 3/6] Make local const string array static
-Date: Tue,  9 Aug 2016 02:27:28 +0900
-Message-Id: <1470677251-8292-3-git-send-email-kusumi.tomohiro@gmail.com>
-In-Reply-To: <1470677251-8292-1-git-send-email-kusumi.tomohiro@gmail.com>
-References: <1470677251-8292-1-git-send-email-kusumi.tomohiro@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: write_iops_log doesn't show any iops
+References: <npf960$31m$1@blaine.gmane.org>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <ad10d39d-9ef7-8cec-fd90-552e8805ef45@kernel.dk>
+Date: Mon, 22 Aug 2016 11:32:56 -0600
+MIME-Version: 1.0
+In-Reply-To: <npf960$31m$1@blaine.gmane.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Saeed <ionictea@gmail.com>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-like it is in io_ddir_name().
+On 08/22/2016 10:27 AM, Saeed wrote:
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 2, 1, 1, 4096
+> 2, 1, 1, 4096
+> 2, 1, 1, 4096
+> 2, 1, 1, 4096
+> 2, 1, 1, 4096
+> 2, 1, 1, 4096
+> 2, 1, 1, 4096
+>
+> Strange but my write_iops_log log file doesn't contain any IOP data.
+> What column should the iops data be in and what could be the reason why
+> I'm getting any iop stats?
+>
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 1, 1, 1, 4096
+> 2, 1, 1, 4096
+> 2, 1, 1, 4096
+> 2, 1, 1, 4096
+> 2, 1, 1, 4096
+> 2, 1, 1, 4096
+> 2, 1, 1, 4096
+> 2, 1, 1, 4096
+> 2, 1, 1, 4096
+>
+> FIO 2.12 job:
+> [global]
+> ioengine=libaio
+> direct=1
+> filename=/dev/sdc
+> group_reporting
+> numjobs=1
+> time_based=1
+> per_job_logs=0
+> write_bw_log=results
+> write_iops_log=results
+> write_lat_log=results
+>
+> [fill]
+> rw=randwrite
+> bs=8K
+> runtime=120
+> iodepth=1
+> stonewall
+>
+> [read]
+> rw=randread
+> bs=8k
+> iodepth=16
+> runtime=480
+> stonewall
 
-Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
----
- io_ddir.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Can you try the current -git version?
 
-diff --git a/io_ddir.h b/io_ddir.h
-index 763e826..2141119 100644
---- a/io_ddir.h
-+++ b/io_ddir.h
-@@ -61,7 +61,7 @@ static inline int ddir_rw(enum fio_ddir ddir)
- 
- static inline const char *ddir_str(enum td_ddir ddir)
- {
--	const char *__str[] = { NULL, "read", "write", "rw", NULL,
-+	static const char *__str[] = { NULL, "read", "write", "rw", NULL,
- 				"randread", "randwrite", "randrw",
- 				"trim", NULL, NULL, NULL, "randtrim" };
- 
 -- 
-2.5.5
-
+Jens Axboe
 
