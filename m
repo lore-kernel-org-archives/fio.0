@@ -1,59 +1,27 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Subject: [PATCH 6/6] Check if sysfs ioscheduler entry is "none"
-Date: Tue,  9 Aug 2016 02:27:31 +0900
-Message-Id: <1470677251-8292-6-git-send-email-kusumi.tomohiro@gmail.com>
-In-Reply-To: <1470677251-8292-1-git-send-email-kusumi.tomohiro@gmail.com>
-References: <1470677251-8292-1-git-send-email-kusumi.tomohiro@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Return-Path: <bruce@cran.org.uk>
+Subject: Re: Fwd: Trim options for Windows
+References: <CAP0A3FUaeY=zmhab1bFzSrtpcR-pA5ZNrAZopCjcScU6dFtgOQ@mail.gmail.com>
+ <CAP0A3FXtCvUyK01v6WSGCcu44KqkYdGOx_jJLrDTpoPCKh=sMA@mail.gmail.com>
+ <f6a4f5e0-f18b-7356-4705-0fdcf83262fc@kernel.dk>
+From: Bruce Cran <bruce@cran.org.uk>
+Message-ID: <f204b5dd-3fd0-2a1a-9a7e-fc89206194f2@cran.org.uk>
+Date: Tue, 23 Aug 2016 14:06:10 -0600
+MIME-Version: 1.0
+In-Reply-To: <f6a4f5e0-f18b-7356-4705-0fdcf83262fc@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Jens Axboe <axboe@kernel.dk>, Jagatananda Samal <jagata.samal@gmail.com>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-Block devices without elevator (bio-based-dm/loop/etc) have "none"
-for sysfs ioscheduler tunable, and write to this entry never fail
-from the way elv_iosched_store() is implemented.
+On 8/23/2016 1:17 PM, Jens Axboe wrote:
 
-This commit checks if the entry is "none" type so as not to show
-an irrelevant error message which assumes the entry has a list of
-available I/O schedulers.
+>
+> Right, trim isn't supported on Windows. If someone knows the application
+> interface for trim on that OS, it should be trivial to add, however.
+>
 
- # cat /sys/block/dm-0/queue/scheduler
- none
- # echo deadline > /sys/block/dm-0/queue/scheduler ; echo $?
- 0
- # cat /sys/block/dm-0/queue/scheduler
- none
- # echo aaa > /sys/block/dm-0/queue/scheduler ; echo $?
- 0
- # cat /sys/block/dm-0/queue/scheduler
- none
+I'll see if I can find some time to take a look.
 
-Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
----
- backend.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/backend.c b/backend.c
-index 5872711..6bf5d67 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1331,6 +1331,14 @@ static int switch_ioscheduler(struct thread_data *td)
- 	 */
- 	tmp[strlen(tmp) - 1] = '\0';
- 
-+	/*
-+	 * Write to "none" entry doesn't fail, so check the result here.
-+	 */
-+	if (!strcmp(tmp, "none")) {
-+		log_err("fio: io scheduler is not tunable\n");
-+		fclose(f);
-+		return 0;
-+	}
- 
- 	sprintf(tmp2, "[%s]", td->o.ioscheduler);
- 	if (!strstr(tmp, tmp2)) {
 -- 
-2.5.5
-
+Bruce
 
