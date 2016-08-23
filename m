@@ -1,56 +1,59 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-oi0-f47.google.com ([209.85.218.47]:33901 "EHLO
-	mail-oi0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935166AbcHBOf0 (ORCPT <rfc822;fio@vger.kernel.org>);
-	Tue, 2 Aug 2016 10:35:26 -0400
-Received: by mail-oi0-f47.google.com with SMTP id l65so238846802oib.1
-        for <fio@vger.kernel.org>; Tue, 02 Aug 2016 07:34:49 -0700 (PDT)
-MIME-Version: 1.0
-From: Srinivasa Chamarthy <chamarthy.raju@gmail.com>
-Date: Tue, 2 Aug 2016 22:29:18 +0800
-Message-ID: <CABtFm2X1th74qPOKaT+UG7rA-X8bjiADLE7x3n3qBjS7YAibNg@mail.gmail.com>
-Subject: create_on_open fails with "err=5/file:backend.c:498"
-Content-Type: text/plain; charset=UTF-8
+Received: from bombadil.infradead.org ([198.137.202.9]:48161 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1758019AbcHWMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 23 Aug 2016 08:00:09 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+        id 1bcANA-0002Cx-Py
+        for fio@vger.kernel.org; Tue, 23 Aug 2016 12:00:06 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160823120003.766532C0286@kernel.dk>
+Date: Tue, 23 Aug 2016 06:00:03 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hi All,
+The following changes since commit a86f6d07f12141a32ccad2007d4568e612e0df10:
 
-With the latest version of FIO, i see that create_on_open failing
-always with error "err=5/file:backend.c:498"
+  verify: use proper include for PATH_MAX (2016-08-20 10:28:57 -0600)
 
-# fio --name=test --directory=/testdata --nrfiles=10 --size=1g
---refill_buffers=1 --direct=1 --create_on_open=1
-test: (g=0): rw=read, bs=4K-4K/4K-4K/4K-4K, ioengine=psync, iodepth=1
-fio-2.13-28-g059b6
-Starting 1 process
-fio: pid=8439, err=5/file:backend.c:498, func=full resid,
-error=Input/output error
+are available in the git repository at:
 
-test: (groupid=0, jobs=1): err= 5 (file:backend.c:498, func=full
-resid, error=Input/output error): pid=8439: Tue Aug  2 10:24:08 2016
-  cpu          : usr=0.00%, sys=0.00%, ctx=1, majf=0, minf=57
-  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=50.0%, 4=50.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued    : total=r=1/w=0/d=0, short=r=0/w=0/d=0, drop=r=0/w=0/d=0
-     latency   : target=0, window=0, percentile=100.00%, depth=1
+  git://git.kernel.dk/fio.git master
 
-Run status group 0 (all jobs):
+for you to fetch changes up to 9e4438fecd1d92b4d5221f35d5e73546f52c6ebf:
 
-Disk stats (read/write):
-    dm-0: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%,
-aggrios=0/0, aggrmerge=0/0, aggrticks=0/0, aggrin_queue=0,
-aggrutil=0.00%
-  sda: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
+  stat: don't trust per_unit_log() if log is NULL (2016-08-22 13:23:29 -0600)
 
-# fio --version
-fio-2.13-28-g059b6
+----------------------------------------------------------------
+Jens Axboe (1):
+      stat: don't trust per_unit_log() if log is NULL
 
-The execution was on RHEL7.2 and CentOS7.2
+ stat.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thanks for your support.
+---
 
---
-Srinivasa R Chamarthy
+Diff of recent changes:
+
+diff --git a/stat.c b/stat.c
+index 552d88d..74c2686 100644
+--- a/stat.c
++++ b/stat.c
+@@ -2457,12 +2457,12 @@ int calc_log_samples(void)
+ 			next = min(td->o.iops_avg_time, td->o.bw_avg_time);
+ 			continue;
+ 		}
+-		if (!per_unit_log(td->bw_log)) {
++		if (td->bw_log && !per_unit_log(td->bw_log)) {
+ 			tmp = add_bw_samples(td, &now);
+ 			if (tmp < next)
+ 				next = tmp;
+ 		}
+-		if (!per_unit_log(td->iops_log)) {
++		if (td->iops_log && !per_unit_log(td->iops_log)) {
+ 			tmp = add_iops_samples(td, &now);
+ 			if (tmp < next)
+ 				next = tmp;
