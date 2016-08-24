@@ -1,36 +1,31 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: client/server histograms
-References: <CAJ9yE1D8JXLgmbmx5_PXfiPM33vHyMZpVTK4sAinccEvMKX8yg@mail.gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <49bef06a-483a-6f42-2778-1e57fdaa4306@kernel.dk>
-Date: Thu, 25 Aug 2016 22:41:29 -0600
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-qk0-f180.google.com ([209.85.220.180]:35166 "EHLO
+        mail-qk0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752703AbcHXRcD (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 24 Aug 2016 13:32:03 -0400
+Received: by mail-qk0-f180.google.com with SMTP id v123so21924935qkh.2
+        for <fio@vger.kernel.org>; Wed, 24 Aug 2016 10:32:03 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAJ9yE1D8JXLgmbmx5_PXfiPM33vHyMZpVTK4sAinccEvMKX8yg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Karl Cronburg <kcronbur@redhat.com>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+From: Karl Cronburg <kcronbur@redhat.com>
+Date: Wed, 24 Aug 2016 13:32:01 -0400
+Message-ID: <CAJ9yE1D8JXLgmbmx5_PXfiPM33vHyMZpVTK4sAinccEvMKX8yg@mail.gmail.com>
+Subject: client/server histograms
+Content-Type: text/plain; charset=UTF-8
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On 08/24/2016 11:32 AM, Karl Cronburg wrote:
-> What would be the best way to get an fio server to send the histogram
-> samples to a client? i.e.:
->
-> - Should I make a new FIO_NET_CMD or can I easily modify the existing
-> IOLOG one? Presently each sample has a pointer to a histogram array in
-> place of the sample value.
+What would be the best way to get an fio server to send the histogram
+samples to a client? i.e.:
 
-I'd probably reuse the existing IOLOG command, just with an appropriate
-log type. You'd need to turn it into something that can be sent over the
-network easily, of course.
+- Should I make a new FIO_NET_CMD or can I easily modify the existing
+IOLOG one? Presently each sample has a pointer to a histogram array in
+place of the sample value.
 
-> - The histograms compress nicely (because sparseness), but should I be
-> compressing them immediately after compressing the time/direction/size
-> values of the sample? I tried doing it after all the io_sample structs
-> are compressed, but then samples in one pdu need the histogram values
-> in a not-yet-parsed pdu.
+- The histograms compress nicely (because sparseness), but should I be
+compressing them immediately after compressing the time/direction/size
+values of the sample? I tried doing it after all the io_sample structs
+are compressed, but then samples in one pdu need the histogram values
+in a not-yet-parsed pdu.
 
-Might need to see the code you already have to help you with that one.
-
--- 
-Jens Axboe
-
+-Karl Cronburg-
