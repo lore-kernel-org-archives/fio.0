@@ -1,214 +1,108 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm0-f47.google.com ([74.125.82.47]:38026 "EHLO
-        mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755596AbcH3P2X (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 30 Aug 2016 11:28:23 -0400
-Received: by mail-wm0-f47.google.com with SMTP id o80so42206428wme.1
-        for <fio@vger.kernel.org>; Tue, 30 Aug 2016 08:28:23 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CABtFm2UabELu776EVnrwVUgrfeWcjkM=W1irhxF6L_o-QdTDLg@mail.gmail.com>
-References: <CABtFm2WPnKVVBVPU0N97ipX=RTAVK7Tz0nJUNtAmS9chLw3nHw@mail.gmail.com>
- <56C4D7D4.4020904@kernel.dk> <CABtFm2UabELu776EVnrwVUgrfeWcjkM=W1irhxF6L_o-QdTDLg@mail.gmail.com>
-From: Chris Worley <worleys@gmail.com>
-Date: Tue, 30 Aug 2016 05:28:16 -1000
-Message-ID: <CANWz5fhXDTu=zKLtHuoecVWcMzvditqs6AqHK-Y-RfsJscJ=GA@mail.gmail.com>
-Subject: Re: client/server mode fails with Assertion `client->eta_in_flight =
- eta' failed
-Content-Type: text/plain; charset=UTF-8
+Received: from bombadil.infradead.org ([198.137.202.9]:36596 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750746AbcH0MAE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 27 Aug 2016 08:00:04 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+        id 1bdcHL-0004ew-Eq
+        for fio@vger.kernel.org; Sat, 27 Aug 2016 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160827120002.84C5A2C0286@kernel.dk>
+Date: Sat, 27 Aug 2016 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Was there ever a solution?  I'm seeing this a lot on v2.9.
+The following changes since commit 04d6530f6ecd50520e99732b0b6bb90f71ff131a:
 
-On Wed, Feb 17, 2016 at 6:30 PM, Srinivasa Chamarthy
-<chamarthy.raju@gmail.com> wrote:
-> Hi Jens,
->
-> Job Files:
->
-> Client1:
-> # cat all_powerpath.fio
-> [global]
-> ioengine=libaio
-> invalidate=1
-> ramp_time=10
-> direct=1
-> refill_buffers=1
-> time_based
-> runtime=259200
->
-> [readwrite-emcpowera-8k-para]
-> bs=4k
-> iodepth=8
-> filename=/dev/emcpowera
-> size=10g
-> rw=randrw
->
-> [readwrite-emcpowerb-8k-para]
-> bs=4k
-> iodepth=8
-> filename=/dev/emcpowerb
-> size=10g
-> rw=randrw
->
-> [readwrite-emcpowerc-8k-para]
-> bs=4k
-> iodepth=8
-> filename=/dev/emcpowerc
-> size=10g
-> rw=randrw
->
-> [readwrite-emcpowerd-8k-para]
-> bs=4k
-> iodepth=8
-> filename=/dev/emcpowerd
-> size=10g
-> rw=randrw
->
-> [readwrite-emcpowere-8k-para]
-> bs=4k
-> iodepth=8
-> filename=/dev/emcpowere
-> size=10g
-> rw=randrw
->
-> [readwrite-emcpowerf-8k-para]
-> bs=4k
-> iodepth=8
-> filename=/dev/emcpowerf
-> size=10g
-> rw=randrw
->
-> ...
-> ... [Extends till /dev/emcpowerx -- 24 devices
->
-> client2:
-> # cat all_multipaths.fio q
->
->                                                   [112/2161]
-> [global]
-> ioengine=libaio
-> invalidate=1
-> ramp_time=10
-> direct=1
-> refill_buffers=1
-> time_based
-> runtime=259200
-> norandommap
->
-> [readwrite-mpatha-8k-para]
-> bs=8k
-> iodepth=8
-> filename=/dev/mapper/mpatha
-> size=10g
-> rw=randrw
->
-> [readwrite-mpathb-8k-para]
-> bs=8k
-> iodepth=8
-> filename=/dev/mapper/mpathb
-> size=10g
-> rw=randrw
->
-> [readwrite-mpathc-8k-para]
-> bs=8k
-> iodepth=8
-> filename=/dev/mapper/mpathc
-> size=10g
-> rw=randrw
->
-> [readwrite-mpathd-8k-para]
-> bs=8k
-> iodepth=8
-> filename=/dev/mapper/mpathd
-> size=10g
-> rw=randrw
->
-> [readwrite-mpathe-8k-para]
-> bs=8k
-> iodepth=8
-> filename=/dev/mapper/mpathe
-> size=10g
-> rw=randrw
->
-> [readwrite-mpathf-8k-para]
-> bs=8k
-> iodepth=8
-> filename=/dev/mapper/mpathf
-> size=10g
-> rw=randrw
->
-> [readwrite-mpathg-8k-para]
-> bs=8k
-> iodepth=8
-> filename=/dev/mapper/mpathg
-> size=10g
-> rw=randrw
-> ...
-> ... [ Extends till /dev/mapper/mpathx --- 24 devices ]
->
-> --
-> Srinivasa R Chamarthy
->
->
-> On Thu, Feb 18, 2016 at 4:28 AM, Jens Axboe <axboe@kernel.dk> wrote:
->> On 02/16/2016 01:19 AM, Srinivasa Chamarthy wrote:
->>>
->>> I started FIO in client/server mode with two clients running 24 jobs
->>> each on individual LUNs. After a while, FIO fails with the following
->>> assertion, even though the jobs are still running on both the clients.
->>>
->>> # fio --client=client1 --remote-config=/root/all_powerpath.fio
->>> --client=client2 --remote-config=/root/all_multipaths.fio
->>> hostname=client1, be=0, 64-bit, os=Linux, arch=x86-64,
->>> fio=fio-2.6-13-g8a76, flags=1
->>> hostname=client2, be=0, 64-bit, os=Linux, arch=x86-64,
->>> fio=fio-2.6-13-g8a76, flags=1
->>>
->>> <client2> readwrite-mpatha-8k-para: (g=0): rw=randrw, <client1>
->>> readwrite-emcpowera-8k-para: (g=0): rw=randrw, bs=8K-8K/8K-8K/8K-8K,
->>> bs=8K-8K/8K-8K/8K-8K, ioengine=libaio, iodepth=8
->>> ioengine=libaio, iodepth=8
->>> <client2> readwrite-mpathb-8k-para: (g=0): rw=randrw, <client1>
->>> readwrite-emcpowerb-8k-para: (g=0): rw=randrw, bs=8K-8K/8K-8K/8K-8K,
->>> bs=8K-8K/8K-8K/8K-8K, ioengine=libaio, iodepth=8
->>> ioengine=libaio, iodepth=8
->>> <client2> readwrite-mpathc-8k-para: (g=0): rw=randrw, <client1>
->>> readwrite-emcpowerc-8k-para: (g=0): rw=randrw, bs=8K-8K/8K-8K/8K-8K,
->>> bs=8K-8K/8K-8K/8K-8K, ioengine=libaio, iodepth=8
->>> ioengine=libaio, iodepth=8
->>> <client2> readwrite-mpathd-8k-para: (g=0): rw=randrw, <client1>
->>> readwrite-emcpowerd-8k-para: (g=0): rw=randrw, bs=8K-8K/8K-8K/8K-8K,
->>> bs=8K-8K/8K-8K/8K-8K, ioengine=libaio, iodepth=8
->>> ioengine=libaio, iodepth=8
->>>
->>> <<< Omit other info >>>
->>>
->>> <client2> Starting 24 processes
->>> <client1> Starting 24 processes
->>>
->>> client <client1>: timeout on SEND_ETA/405.7M/0K /s] [51.2K/50.7K/0
->>> iops] [eta 02d:23h:59m:49s]
->>> fio: client: unable to find matching tag (dbebe0)2M/0K /s]
->>> [60.8K/58.6K/0 iops] [eta 02d:23h:59m:54s]
->>> fio: client.c:1241: handle_eta: Assertion `client->eta_in_flight == eta'
->>> failed.
->>> Aborted
->>>
->>> # fio --version
->>> fio-2.6-13-g8a76
->>>
->>> Also sometimes the job information gets mixed up from both the clients
->>> as above.
->>
->>
->> Can you include the job file(s) that you used?
->>
->> --
->> Jens Axboe
->>
-> --
-> To unsubscribe from this list: send the line "unsubscribe fio" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+  file: fix numjobs > 1 and implied jobname as filename (2016-08-25 21:00:55 -0600)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 39d13e67ef1f4b327c68431f8daf033a03920117:
+
+  backend: check if we need to update rusage stats, if stat_mutex is busy (2016-08-26 14:39:30 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (2):
+      file: fio_files_done() can return bool
+      backend: check if we need to update rusage stats, if stat_mutex is busy
+
+ backend.c   | 8 ++++++--
+ file.h      | 2 +-
+ filesetup.c | 7 +++----
+ 3 files changed, 10 insertions(+), 7 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/backend.c b/backend.c
+index d986586..fb2a855 100644
+--- a/backend.c
++++ b/backend.c
+@@ -1731,9 +1731,13 @@ static void *thread_main(void *data)
+ 		 * the rusage_sem, which would never get upped because
+ 		 * this thread is waiting for the stat mutex.
+ 		 */
+-		check_update_rusage(td);
++		do {
++			check_update_rusage(td);
++			if (!fio_mutex_down_trylock(stat_mutex))
++				break;
++			usleep(1000);
++		} while (1);
+ 
+-		fio_mutex_down(stat_mutex);
+ 		if (td_read(td) && td->io_bytes[DDIR_READ])
+ 			update_runtime(td, elapsed_us, DDIR_READ);
+ 		if (td_write(td) && td->io_bytes[DDIR_WRITE])
+diff --git a/file.h b/file.h
+index aff3ce9..6f34dd5 100644
+--- a/file.h
++++ b/file.h
+@@ -210,7 +210,7 @@ extern int get_fileno(struct thread_data *, const char *);
+ extern void free_release_files(struct thread_data *);
+ extern void filesetup_mem_free(void);
+ extern void fio_file_reset(struct thread_data *, struct fio_file *);
+-extern int fio_files_done(struct thread_data *);
++extern bool fio_files_done(struct thread_data *);
+ extern bool exists_and_not_regfile(const char *);
+ 
+ #endif
+diff --git a/filesetup.c b/filesetup.c
+index fc9f306..c6ef3bf 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -1292,7 +1292,6 @@ static void set_already_allocated(const char *fname)
+ 	}
+ }
+ 
+-
+ static void free_already_allocated(void)
+ {
+ 	struct flist_head *entry, *tmp;
+@@ -1666,16 +1665,16 @@ void fio_file_reset(struct thread_data *td, struct fio_file *f)
+ 		lfsr_reset(&f->lfsr, td->rand_seeds[FIO_RAND_BLOCK_OFF]);
+ }
+ 
+-int fio_files_done(struct thread_data *td)
++bool fio_files_done(struct thread_data *td)
+ {
+ 	struct fio_file *f;
+ 	unsigned int i;
+ 
+ 	for_each_file(td, f, i)
+ 		if (!fio_file_done(f))
+-			return 0;
++			return false;
+ 
+-	return 1;
++	return true;
+ }
+ 
+ /* free memory used in initialization phase only */
