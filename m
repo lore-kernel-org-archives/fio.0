@@ -1,58 +1,249 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f175.google.com ([209.85.217.175]:34231 "EHLO
-	mail-ua0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751566AbcHMKdP (ORCPT <rfc822;fio@vger.kernel.org>);
-	Sat, 13 Aug 2016 06:33:15 -0400
-Received: by mail-ua0-f175.google.com with SMTP id k90so14179016uak.1
-        for <fio@vger.kernel.org>; Sat, 13 Aug 2016 03:31:55 -0700 (PDT)
-MIME-Version: 1.0
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Sat, 13 Aug 2016 11:26:26 +0100
-Message-ID: <CALjAwxhbN5aOz+MeVg8wSatS55eGYg7vqDVzguGP6Hsowjt9JA@mail.gmail.com>
-Subject: Segfault in fio_libaio_getevents
-Content-Type: text/plain; charset=UTF-8
+Received: from bombadil.infradead.org ([198.137.202.9]:33816 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757907AbcH3MAE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 30 Aug 2016 08:00:04 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+        id 1behhz-0006LM-9N
+        for fio@vger.kernel.org; Tue, 30 Aug 2016 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160830120002.36A732C00B3@kernel.dk>
+Date: Tue, 30 Aug 2016 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-With fio-2.12-3-g8a09 I've seen the occasional segfault while running
-a job like this:
+The following changes since commit 39d13e67ef1f4b327c68431f8daf033a03920117:
 
-./fio --allow_file_create=0 --randseed=1 --rw=randread --direct=1
---iodepth=16  --ioengine=libaio --bs=64k --time_based=1 --runtime=12h
---random_distribution=zipf:0.8 --name=go --filename  /dev/sde
+  backend: check if we need to update rusage stats, if stat_mutex is busy (2016-08-26 14:39:30 -0600)
 
-Here's a backtrace:
-Thread 1 (Thread 0x7f8518911740 (LWP 4078)):
-#0  fio_libaio_getevents (td=0x7f850076fa80, min=15, max=15,
-t=<optimized out>) at engines/libaio.c:161
-#1  0x000000000041a493 in td_io_getevents (td=td@entry=0x7f850076fa80,
-min=15, max=<optimized out>, t=0x0) at ioengines.c:241
-#2  0x000000000043ead6 in io_u_queued_complete
-(td=td@entry=0x7f850076fa80, min_evts=<optimized out>) at io_u.c:1958
-#3  0x000000000045db9e in do_io (bytes_done=<synthetic pointer>,
-td=0x7f850076fa80) at backend.c:1048
-#4  thread_main (data=<optimized out>) at backend.c:1667
-#5  0x000000000045f3f7 in fork_main (offset=1, shmid=<optimized out>,
-sk_out=0x0) at backend.c:1830
-#6  run_threads (sk_out=sk_out@entry=0x0) at backend.c:2248
-#7  0x000000000045f76d in fio_backend (sk_out=sk_out@entry=0x0) at
-backend.c:2381
-#8  0x000000000040cf28 in main (argc=17, argv=0x7ffd99aef418,
-envp=<optimized out>) at fio.c:63
+are available in the git repository at:
 
-Looking close to line 161 shows the following:
-160 if (o->userspace_reap == 1
-161    && actual_min == 0
-162    && ((struct aio_ring *)(ld->aio_ctx))->magic
-163 == AIO_RING_MAGIC) {
+  git://git.kernel.dk/fio.git master
 
-(gdb) p o
-$1 = (struct libaio_options *) 0x0
-(gdb) p actual_min
-$2 = <optimized out>
-(gdb) p ((struct aio_ring *)(ld->aio_ctx))->magic
-Cannot access memory at address 0x7f8518903010
+for you to fetch changes up to 32bc83ddb4adb6b19500f2f6acec8c591feaae26:
 
--- 
-Sitsofe | http://sucs.org/~sits/
+  jesd219: fix alignment (2016-08-29 15:43:27 -0600)
+
+----------------------------------------------------------------
+Jeff Furlong (1):
+      jesd219: fix alignment
+
+Jens Axboe (3):
+      trim: convert to bool
+      filelock: bool conversion
+      FIO-VERSION-GEN: fix dirty repo tracking
+
+ FIO-VERSION-GEN      |  4 +---
+ examples/jesd219.fio |  1 +
+ filelock.c           | 14 +++++++-------
+ filelock.h           |  4 +++-
+ io_u.c               |  2 +-
+ trim.c               | 14 +++++++-------
+ trim.h               | 12 ++++++------
+ 7 files changed, 26 insertions(+), 25 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index 7065a57..d19dcca 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -15,7 +15,7 @@ elif test -d .git -o -f .git &&
+ 	VN=`git describe --match "fio-[0-9]*" --abbrev=4 HEAD 2>/dev/null` &&
+ 	case "$VN" in
+ 	*$LF*) (exit 1) ;;
+-	v[0-9]*)
++	fio-[0-9]*)
+ 		git update-index -q --refresh
+ 		test -z "`git diff-index --name-only HEAD --`" ||
+ 		VN="$VN-dirty" ;;
+@@ -38,5 +38,3 @@ test "$VN" = "$VC" || {
+ 	echo >&2 "FIO_VERSION = $VN"
+ 	echo "FIO_VERSION = $VN" >$GVF
+ }
+-
+-
+diff --git a/examples/jesd219.fio b/examples/jesd219.fio
+index ab2c40e..24f16f7 100644
+--- a/examples/jesd219.fio
++++ b/examples/jesd219.fio
+@@ -14,6 +14,7 @@ rwmixwrite=60
+ iodepth=256
+ numjobs=4
+ bssplit=512/4:1024/1:1536/1:2048/1:2560/1:3072/1:3584/1:4k/67:8k/10:16k/7:32k/3:64k/3
++blockalign=4k
+ random_distribution=zoned:50/5:30/15:20/80
+ filename=/dev/nvme0n1
+ group_reporting=1
+diff --git a/filelock.c b/filelock.c
+index b113007..6e84970 100644
+--- a/filelock.c
++++ b/filelock.c
+@@ -165,7 +165,7 @@ static struct fio_filelock *fio_hash_get(uint32_t hash, int trylock)
+ 	return ff;
+ }
+ 
+-static int __fio_lock_file(const char *fname, int trylock)
++static bool __fio_lock_file(const char *fname, int trylock)
+ {
+ 	struct fio_filelock *ff;
+ 	uint32_t hash;
+@@ -180,16 +180,16 @@ static int __fio_lock_file(const char *fname, int trylock)
+ 
+ 	if (!ff) {
+ 		assert(!trylock);
+-		return 1;
++		return true;
+ 	}
+ 
+ 	if (!trylock) {
+ 		fio_mutex_down(&ff->lock);
+-		return 0;
++		return false;
+ 	}
+ 
+ 	if (!fio_mutex_down_trylock(&ff->lock))
+-		return 0;
++		return false;
+ 
+ 	fio_mutex_down(&fld->lock);
+ 
+@@ -206,13 +206,13 @@ static int __fio_lock_file(const char *fname, int trylock)
+ 
+ 	if (ff) {
+ 		fio_mutex_down(&ff->lock);
+-		return 0;
++		return false;
+ 	}
+ 
+-	return 1;
++	return true;
+ }
+ 
+-int fio_trylock_file(const char *fname)
++bool fio_trylock_file(const char *fname)
+ {
+ 	return __fio_lock_file(fname, 1);
+ }
+diff --git a/filelock.h b/filelock.h
+index 97d13b7..4551bb0 100644
+--- a/filelock.h
++++ b/filelock.h
+@@ -1,8 +1,10 @@
+ #ifndef FIO_LOCK_FILE_H
+ #define FIO_LOCK_FILE_H
+ 
++#include "lib/types.h"
++
+ extern void fio_lock_file(const char *);
+-extern int fio_trylock_file(const char *);
++extern bool fio_trylock_file(const char *);
+ extern void fio_unlock_file(const char *);
+ 
+ extern int fio_filelock_init(void);
+diff --git a/io_u.c b/io_u.c
+index dcf7a40..b6d530f 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -1510,7 +1510,7 @@ static bool check_get_trim(struct thread_data *td, struct io_u *io_u)
+ 			get_trim = 1;
+ 		}
+ 
+-		if (get_trim && !get_next_trim(td, io_u))
++		if (get_trim && get_next_trim(td, io_u))
+ 			return true;
+ 	}
+ 
+diff --git a/trim.c b/trim.c
+index 4345541..78cf672 100644
+--- a/trim.c
++++ b/trim.c
+@@ -11,7 +11,7 @@
+ #include "trim.h"
+ 
+ #ifdef FIO_HAVE_TRIM
+-int get_next_trim(struct thread_data *td, struct io_u *io_u)
++bool get_next_trim(struct thread_data *td, struct io_u *io_u)
+ {
+ 	struct io_piece *ipo;
+ 
+@@ -19,9 +19,9 @@ int get_next_trim(struct thread_data *td, struct io_u *io_u)
+ 	 * this io_u is from a requeue, we already filled the offsets
+ 	 */
+ 	if (io_u->file)
+-		return 0;
++		return true;
+ 	if (flist_empty(&td->trim_list))
+-		return 1;
++		return false;
+ 
+ 	assert(td->trim_entries);
+ 	ipo = flist_first_entry(&td->trim_list, struct io_piece, trim_list);
+@@ -53,7 +53,7 @@ int get_next_trim(struct thread_data *td, struct io_u *io_u)
+ 		if (r) {
+ 			dprint(FD_VERIFY, "failed file %s open\n",
+ 					io_u->file->file_name);
+-			return 1;
++			return false;
+ 		}
+ 	}
+ 
+@@ -64,17 +64,17 @@ int get_next_trim(struct thread_data *td, struct io_u *io_u)
+ 	io_u->xfer_buflen = io_u->buflen;
+ 
+ 	dprint(FD_VERIFY, "get_next_trim: ret io_u %p\n", io_u);
+-	return 0;
++	return true;
+ }
+ 
+-int io_u_should_trim(struct thread_data *td, struct io_u *io_u)
++bool io_u_should_trim(struct thread_data *td, struct io_u *io_u)
+ {
+ 	unsigned long long val;
+ 	uint64_t frand_max;
+ 	unsigned long r;
+ 
+ 	if (!td->o.trim_percentage)
+-		return 0;
++		return false;
+ 
+ 	frand_max = rand_max(&td->trim_state);
+ 	r = __rand(&td->trim_state);
+diff --git a/trim.h b/trim.h
+index 6584606..37f5d7c 100644
+--- a/trim.h
++++ b/trim.h
+@@ -4,8 +4,8 @@
+ #include "fio.h"
+ 
+ #ifdef FIO_HAVE_TRIM
+-extern int __must_check get_next_trim(struct thread_data *td, struct io_u *io_u);
+-extern int io_u_should_trim(struct thread_data *td, struct io_u *io_u);
++extern bool __must_check get_next_trim(struct thread_data *td, struct io_u *io_u);
++extern bool io_u_should_trim(struct thread_data *td, struct io_u *io_u);
+ 
+ /*
+  * Determine whether a given io_u should be logged for verify or
+@@ -20,13 +20,13 @@ static inline void remove_trim_entry(struct thread_data *td, struct io_piece *ip
+ }
+ 
+ #else
+-static inline int get_next_trim(struct thread_data *td, struct io_u *io_u)
++static inline bool get_next_trim(struct thread_data *td, struct io_u *io_u)
+ {
+-	return 1;
++	return false;
+ }
+-static inline int io_u_should_trim(struct thread_data *td, struct io_u *io_u)
++static inline bool io_u_should_trim(struct thread_data *td, struct io_u *io_u)
+ {
+-	return 0;
++	return false;
+ }
+ static inline void remove_trim_entry(struct thread_data *td, struct io_piece *ipo)
+ {
