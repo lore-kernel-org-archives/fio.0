@@ -1,37 +1,141 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:45067 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755805AbcITSDb (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 20 Sep 2016 14:03:31 -0400
-From: Jeff Furlong <jeff.furlong@hgst.com>
-Subject: fio SGL support
-Date: Tue, 20 Sep 2016 18:03:01 +0000
-Message-ID: <BN3PR0401MB1457EB6AB90FEEAEA28DF05EF7F70@BN3PR0401MB1457.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <subratndash@gmail.com>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+From: subrat dash <subratndash@gmail.com>
+Date: Wed, 7 Sep 2016 16:24:14 -0700
+Message-ID: <CAFrY4nSUSOVDc=WmFGSANVGR0heSnUH5osDQkAPCG3euqz54Lg@mail.gmail.com>
+Subject: Need help with issuing time based commands
+Content-Type: multipart/alternative; boundary=94eb2c08a4fe23820a053bf3362b
+To: fio@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-Hi All,
-Is it possible to add Scatter Gather List (SGL) support to fio?=A0 Suppose =
-we have a 16KB write to our device.=A0 I believe fio will allocate memory i=
-n 4KB pages (depending upon machine architecture).=A0 For SGL use, it would=
- be valuable to define the SGL descriptors, such that we could control the =
-16KB write as (example): 512B, 3.5KB, 4KB, 8KB.=A0 Similarly for reads, we =
-may define the SGL descriptors for how to place the IO in memory.
+--94eb2c08a4fe23820a053bf3362b
+Content-Type: text/plain; charset=UTF-8
 
-If fio SGL support is possible, then the descriptors would be passed down t=
-o the kernel and driver level, where SGL supported drivers would be require=
-d.=A0 However, the latest Linux kernels are offering support.
+Hello,
 
-If fio SGL support is possible, adding an option such as sglsplit (similar =
-to bssplit) may be an easy way to specify the descriptors.
+I am trying to do this in FIO:
 
-Thanks.
+Queued Random 16K block transerfers Write/(read) commands ( 5 min)
+Idle for 3 seconds
+Queued  32k block transfers Write/(read) commands ( 5 min)
+Queued sync command
+Idle for 2 Seconds
+Queued  128K Write/read commands ( 10 Min)
+Idle for a 5 seconds
+Queued  1 meg file size Write/(read) commands ( 5 min)
+Queued sync command
+Idle for 5 seconds
+Queued Seq Reads OD ( 10 Min)
+Idle for 4 seconds
+Queued Seq Reads ID (5 Min)
+Idle for 3 seconds
+Queued Seq Reads MD ( 5min)
+Idle for 3 seconds
 
-Regards,
-Jeff
+Keep repeating until test is stopped.
+
+Can someone tell me how to implement this in FIO? I am fairly new and hence
+not sure how to run this. How can we issue time based commands in FIO?
+
+Thanks,
+Dash
+
+--94eb2c08a4fe23820a053bf3362b
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>Hello,<br><br></div>I am trying to do this in FIO:<br=
+><br><div style=3D"color:rgb(34,34,34);font-family:arial,sans-serif;font-si=
+ze:12.8px;font-style:normal;font-variant-ligatures:normal;font-variant-caps=
+:normal;font-weight:normal;letter-spacing:normal;line-height:normal;text-al=
+ign:start;text-indent:0px;text-transform:none;white-space:normal;word-spaci=
+ng:0px;background-color:rgb(255,255,255)">Queued Random 16K block transerfe=
+rs Write/(read) commands ( 5 min)</div><div style=3D"color:rgb(34,34,34);fo=
+nt-family:arial,sans-serif;font-size:12.8px;font-style:normal;font-variant-=
+ligatures:normal;font-variant-caps:normal;font-weight:normal;letter-spacing=
+:normal;line-height:normal;text-align:start;text-indent:0px;text-transform:=
+none;white-space:normal;word-spacing:0px;background-color:rgb(255,255,255)"=
+>Idle for 3 seconds</div><div style=3D"color:rgb(34,34,34);font-family:aria=
+l,sans-serif;font-size:12.8px;font-style:normal;font-variant-ligatures:norm=
+al;font-variant-caps:normal;font-weight:normal;letter-spacing:normal;line-h=
+eight:normal;text-align:start;text-indent:0px;text-transform:none;white-spa=
+ce:normal;word-spacing:0px;background-color:rgb(255,255,255)"><span style=
+=3D"font-size:12.8px">Queued =C2=A032k block transfers Write/(read) command=
+s ( 5 min)</span><br>Queued sync command</div><div style=3D"color:rgb(34,34=
+,34);font-family:arial,sans-serif;font-size:12.8px;font-style:normal;font-v=
+ariant-ligatures:normal;font-variant-caps:normal;font-weight:normal;letter-=
+spacing:normal;line-height:normal;text-align:start;text-indent:0px;text-tra=
+nsform:none;white-space:normal;word-spacing:0px;background-color:rgb(255,25=
+5,255)">Idle for 2 Seconds<br>Queued =C2=A0128K Write/read commands ( 10 Mi=
+n)<br>Idle for a 5 seconds</div><div style=3D"color:rgb(34,34,34);font-fami=
+ly:arial,sans-serif;font-size:12.8px;font-style:normal;font-variant-ligatur=
+es:normal;font-variant-caps:normal;font-weight:normal;letter-spacing:normal=
+;line-height:normal;text-align:start;text-indent:0px;text-transform:none;wh=
+ite-space:normal;word-spacing:0px;background-color:rgb(255,255,255)"><span =
+style=3D"font-size:12.8px">Queued =C2=A01 meg file size Write/(read) comman=
+ds ( 5 min)</span><br style=3D"font-size:12.8px"><span style=3D"font-size:1=
+2.8px">Queued sync command</span></div><div style=3D"color:rgb(34,34,34);fo=
+nt-family:arial,sans-serif;font-size:12.8px;font-style:normal;font-variant-=
+ligatures:normal;font-variant-caps:normal;font-weight:normal;letter-spacing=
+:normal;line-height:normal;text-align:start;text-indent:0px;text-transform:=
+none;white-space:normal;word-spacing:0px;background-color:rgb(255,255,255)"=
+>Idle for 5 seconds</div><div style=3D"color:rgb(34,34,34);font-family:aria=
+l,sans-serif;font-size:12.8px;font-style:normal;font-variant-ligatures:norm=
+al;font-variant-caps:normal;font-weight:normal;letter-spacing:normal;line-h=
+eight:normal;text-align:start;text-indent:0px;text-transform:none;white-spa=
+ce:normal;word-spacing:0px;background-color:rgb(255,255,255)">Queued Seq Re=
+ads OD ( 10 Min)</div><div style=3D"color:rgb(34,34,34);font-family:arial,s=
+ans-serif;font-size:12.8px;font-style:normal;font-variant-ligatures:normal;=
+font-variant-caps:normal;font-weight:normal;letter-spacing:normal;line-heig=
+ht:normal;text-align:start;text-indent:0px;text-transform:none;white-space:=
+normal;word-spacing:0px;background-color:rgb(255,255,255)">Idle for 4 secon=
+ds</div><div style=3D"color:rgb(34,34,34);font-family:arial,sans-serif;font=
+-size:12.8px;font-style:normal;font-variant-ligatures:normal;font-variant-c=
+aps:normal;font-weight:normal;letter-spacing:normal;line-height:normal;text=
+-align:start;text-indent:0px;text-transform:none;white-space:normal;word-sp=
+acing:0px;background-color:rgb(255,255,255)">Queued Seq Reads ID (5 Min)</d=
+iv><div style=3D"color:rgb(34,34,34);font-family:arial,sans-serif;font-size=
+:12.8px;font-style:normal;font-variant-ligatures:normal;font-variant-caps:n=
+ormal;font-weight:normal;letter-spacing:normal;line-height:normal;text-alig=
+n:start;text-indent:0px;text-transform:none;white-space:normal;word-spacing=
+:0px;background-color:rgb(255,255,255)">Idle for 3 seconds</div><div style=
+=3D"color:rgb(34,34,34);font-family:arial,sans-serif;font-size:12.8px;font-=
+style:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-we=
+ight:normal;letter-spacing:normal;line-height:normal;text-align:start;text-=
+indent:0px;text-transform:none;white-space:normal;word-spacing:0px;backgrou=
+nd-color:rgb(255,255,255)">Queued Seq Reads MD ( 5min)</div><div style=3D"c=
+olor:rgb(34,34,34);font-family:arial,sans-serif;font-size:12.8px;font-style=
+:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-weight:=
+normal;letter-spacing:normal;line-height:normal;text-align:start;text-inden=
+t:0px;text-transform:none;white-space:normal;word-spacing:0px;background-co=
+lor:rgb(255,255,255)">Idle for 3 seconds</div><div style=3D"color:rgb(34,34=
+,34);font-family:arial,sans-serif;font-size:12.8px;font-style:normal;font-v=
+ariant-ligatures:normal;font-variant-caps:normal;font-weight:normal;letter-=
+spacing:normal;line-height:normal;text-align:start;text-indent:0px;text-tra=
+nsform:none;white-space:normal;word-spacing:0px;background-color:rgb(255,25=
+5,255)"><br></div><div style=3D"color:rgb(34,34,34);font-family:arial,sans-=
+serif;font-size:12.8px;font-style:normal;font-variant-ligatures:normal;font=
+-variant-caps:normal;font-weight:normal;letter-spacing:normal;line-height:n=
+ormal;text-align:start;text-indent:0px;text-transform:none;white-space:norm=
+al;word-spacing:0px;background-color:rgb(255,255,255)">Keep repeating until=
+ test is stopped.<br><br></div><div style=3D"color:rgb(34,34,34);font-famil=
+y:arial,sans-serif;font-size:12.8px;font-style:normal;font-variant-ligature=
+s:normal;font-variant-caps:normal;font-weight:normal;letter-spacing:normal;=
+line-height:normal;text-align:start;text-indent:0px;text-transform:none;whi=
+te-space:normal;word-spacing:0px;background-color:rgb(255,255,255)">Can som=
+eone tell me how to implement this in FIO? I am fairly new and hence not su=
+re how to run this. How can we issue time based commands in FIO?<br><br></d=
+iv><div style=3D"color:rgb(34,34,34);font-family:arial,sans-serif;font-size=
+:12.8px;font-style:normal;font-variant-ligatures:normal;font-variant-caps:n=
+ormal;font-weight:normal;letter-spacing:normal;line-height:normal;text-alig=
+n:start;text-indent:0px;text-transform:none;white-space:normal;word-spacing=
+:0px;background-color:rgb(255,255,255)">Thanks,<br></div><div style=3D"colo=
+r:rgb(34,34,34);font-family:arial,sans-serif;font-size:12.8px;font-style:no=
+rmal;font-variant-ligatures:normal;font-variant-caps:normal;font-weight:nor=
+mal;letter-spacing:normal;line-height:normal;text-align:start;text-indent:0=
+px;text-transform:none;white-space:normal;word-spacing:0px;background-color=
+:rgb(255,255,255)">Dash<br></div><br></div>
+
+--94eb2c08a4fe23820a053bf3362b--
 
