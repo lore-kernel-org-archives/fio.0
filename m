@@ -1,95 +1,77 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from muon.bluestop.org ([74.50.51.35]:48281 "EHLO muon.cran.org.uk"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S936454AbcISD3J (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 18 Sep 2016 23:29:09 -0400
-Received: from muon.bluestop.org (localhost [127.0.0.1])
-        by muon.cran.org.uk (Postfix) with ESMTP id 89A9C8935C
-        for <fio@vger.kernel.org>; Mon, 19 Sep 2016 03:29:07 +0000 (UTC)
-Received: from muon.cran.org.uk ([127.0.0.1])
-        by muon.bluestop.org (muon.bluestop.org [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id pSHWeRn1g1j7 for <fio@vger.kernel.org>;
-        Mon, 19 Sep 2016 03:29:06 +0000 (UTC)
-Received: from [10.50.3.126] (63-158-132-10.dia.static.qwest.net [63.158.132.10])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by muon.cran.org.uk (Postfix) with ESMTPSA
-        for <fio@vger.kernel.org>; Mon, 19 Sep 2016 03:29:06 +0000 (UTC)
-From: Bruce Cran <bruce@cran.org.uk>
-Subject: Patches to fix Time_tToSystemTime and stat.c time_buf being
- uninitialized
-Message-ID: <591b8426-6486-3c70-8a99-25948146f2f3@cran.org.uk>
-Date: Mon, 19 Sep 2016 03:29:06 +0000
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------716F830A9F375030D1752870"
+Received: from merlin.infradead.org ([205.233.59.134]:45102 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753446AbcIMMAE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 13 Sep 2016 08:00:04 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+        id 1bjmNf-0000oG-LZ
+        for fio@vger.kernel.org; Tue, 13 Sep 2016 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160913120001.EE6842C1A70@kernel.dk>
+Date: Tue, 13 Sep 2016 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------716F830A9F375030D1752870
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+The following changes since commit 5e333ada464c885d2a33a30e98812bfb666e6052:
 
-I've attached a couple of patches contributed by Josh Sinykin.
+  init: pass in right pointer to def thread options free (2016-09-11 19:14:10 -0600)
 
--- 
-Bruce
+are available in the git repository at:
 
+  git://git.kernel.dk/fio.git master
 
---------------716F830A9F375030D1752870
-Content-Type: text/plain; charset=UTF-8;
- name="0001-Fix-garbage-characters-in-json-output-caused-by-time.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename*0="0001-Fix-garbage-characters-in-json-output-caused-by-time.pa";
- filename*1="tch"
+for you to fetch changes up to 247e54360a9dff433e815f91b500073fe3c1a820:
 
-RnJvbSAyMjgzYjg0M2Y0OTUxM2MzMjUxZTkwZGJmNTMwOTYyYWY3MGU1YzYyIE1vbiBTZXAg
-MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBKb3NoIFNpbnlraW4gPGpvc2guc2lueWtpbkBicm9h
-ZGNvbS5jb20+CkRhdGU6IE1vbiwgMTkgU2VwIDIwMTYgMDQ6MjU6MDIgKzAxMDAKU3ViamVj
-dDogW1BBVENIXSBGaXggZ2FyYmFnZSBjaGFyYWN0ZXJzIGluIGpzb24gb3V0cHV0IGNhdXNl
-ZCBieSB0aW1lX2J1ZgogYmVpbmcgdW5pbml0aWFsaXplZAoKLS0tCiBzdGF0LmMgfCAyICsr
-CiAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEvc3RhdC5j
-IGIvc3RhdC5jCmluZGV4IDc0YzI2ODYuLmM5MTQ4YWQgMTAwNjQ0Ci0tLSBhL3N0YXQuYwor
-KysgYi9zdGF0LmMKQEAgLTY2OSw2ICs2NjksOCBAQCBzdGF0aWMgdm9pZCBzaG93X3RocmVh
-ZF9zdGF0dXNfbm9ybWFsKHN0cnVjdCB0aHJlYWRfc3RhdCAqdHMsCiAKIAlpZiAoIWRkaXJf
-cndfc3VtKHRzLT5pb19ieXRlcykgJiYgIWRkaXJfcndfc3VtKHRzLT50b3RhbF9pb191KSkK
-IAkJcmV0dXJuOworCQkKKwltZW1zZXQodGltZV9idWYsIDAsIHNpemVvZih0aW1lX2J1Zikp
-OwogCiAJdGltZSgmdGltZV9wKTsKIAlvc19jdGltZV9yKChjb25zdCB0aW1lX3QgKikgJnRp
-bWVfcCwgdGltZV9idWYsIHNpemVvZih0aW1lX2J1ZikpOwotLSAKMi45LjMud2luZG93cy4y
-Cgo=
---------------716F830A9F375030D1752870
-Content-Type: text/plain; charset=UTF-8;
- name="0001-Windows-fix-Time_tToSystemTime-function-to-be-64-bit.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename*0="0001-Windows-fix-Time_tToSystemTime-function-to-be-64-bit.pa";
- filename*1="tch"
+  Makefile: fixup java path for libhdfs (2016-09-12 08:10:45 -0600)
 
-RnJvbSBmMTZlNGJhODY3NTM4MzlmOTA3ZWNlY2NlNzY4NGQ2MGU4ZTNlMmNhIE1vbiBTZXAg
-MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBKb3NoIFNpbnlraW4gPGpvc2guc2lueWtpbkBicm9h
-ZGNvbS5jb20+CkRhdGU6IE1vbiwgMTkgU2VwIDIwMTYgMDQ6MTc6MzAgKzAxMDAKU3ViamVj
-dDogW1BBVENIXSBXaW5kb3dzOiBmaXggVGltZV90VG9TeXN0ZW1UaW1lIGZ1bmN0aW9uIHRv
-IGJlIDY0LWJpdAogY29tcGxpYW50CgpVc2UgTE9OR0xPTkcgaW5zdGVhZCBvZiBMQVJHRV9J
-TlRFR0VSIHRvIGF2b2lkIHByb2JsZW1zIG9uIDY0LWJpdApzeXN0ZW1zIGNhdXNpbmcgYSBj
-cmFzaC4KLS0tCiBvcy93aW5kb3dzL3Bvc2l4LmMgfCAxMCArKysrKystLS0tCiAxIGZpbGUg
-Y2hhbmdlZCwgNiBpbnNlcnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBh
-L29zL3dpbmRvd3MvcG9zaXguYyBiL29zL3dpbmRvd3MvcG9zaXguYwppbmRleCBmZDNkOWFi
-Li41ODMwZTRjIDEwMDc1NQotLS0gYS9vcy93aW5kb3dzL3Bvc2l4LmMKKysrIGIvb3Mvd2lu
-ZG93cy9wb3NpeC5jCkBAIC0yMzIsMTAgKzIzMiwxMiBAQCBjaGFyICpkbGVycm9yKHZvaWQp
-CiAvKiBDb3BpZWQgZnJvbSBodHRwOi8vYmxvZ3MubXNkbi5jb20vYi9qb3NocG9sZXkvYXJj
-aGl2ZS8yMDA3LzEyLzE5L2RhdGUtdGltZS1mb3JtYXRzLWFuZC1jb252ZXJzaW9ucy5hc3B4
-ICovCiB2b2lkIFRpbWVfdFRvU3lzdGVtVGltZSh0aW1lX3QgZG9zVGltZSwgU1lTVEVNVElN
-RSAqc3lzdGVtVGltZSkKIHsKLSAgICBMQVJHRV9JTlRFR0VSIGphbjE5NzBGVDsKLSAgICBM
-QVJHRV9JTlRFR0VSIHV0Y0ZUOwotICAgIGphbjE5NzBGVC5RdWFkUGFydCA9IDExNjQ0NDcz
-NjAwMDAwMDAwMExMOyAvLyBqYW51YXJ5IDFzdCAxOTcwCi0gICAgdXRjRlQuUXVhZFBhcnQg
-PSAoKHVuc2lnbmVkIF9faW50NjQpZG9zVGltZSkgKiAxMDAwMDAwMCArIGphbjE5NzBGVC5R
-dWFkUGFydDsKKyAgICBGSUxFVElNRSB1dGNGVDsKKyAgICBMT05HTE9ORyBqYW4xOTcwOwor
-CisgICAgamFuMTk3MCA9IEludDMyeDMyVG82NChkb3NUaW1lLCAxMDAwMDAwMCkgKyAxMTY0
-NDQ3MzYwMDAwMDAwMDA7CisgICAgdXRjRlQuZHdMb3dEYXRlVGltZSA9IChEV09SRClqYW4x
-OTcwOworICAgIHV0Y0ZULmR3SGlnaERhdGVUaW1lID0gamFuMTk3MCA+PiAzMjsKIAogICAg
-IEZpbGVUaW1lVG9TeXN0ZW1UaW1lKChGSUxFVElNRSopJnV0Y0ZULCBzeXN0ZW1UaW1lKTsK
-IH0KLS0gCjIuOS4zLndpbmRvd3MuMgoK
---------------716F830A9F375030D1752870--
+----------------------------------------------------------------
+Jens Axboe (1):
+      Makefile: fixup java path for libhdfs
+
+ Makefile  | 2 +-
+ configure | 5 +++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/Makefile b/Makefile
+index 3f67ab7..6b5548a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -49,7 +49,7 @@ SOURCE :=	$(patsubst $(SRCDIR)/%,%,$(wildcard $(SRCDIR)/crc/*.c)) \
+ 
+ ifdef CONFIG_LIBHDFS
+   HDFSFLAGS= -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/linux -I $(FIO_LIBHDFS_INCLUDE)
+-  HDFSLIB= -Wl,-rpath $(JAVA_HOME)/jre/lib/`uname -m`/server -L$(JAVA_HOME)/jre/lib/`uname -m`/server -ljvm $(FIO_LIBHDFS_LIB)/libhdfs.a
++  HDFSLIB= -Wl,-rpath $(JAVA_HOME)/jre/lib/$(FIO_HDFS_CPU)/server -L$(JAVA_HOME)/jre/lib/$(FIO_HDFS_CPU)/server -ljvm $(FIO_LIBHDFS_LIB)/libhdfs.a
+   CFLAGS += $(HDFSFLAGS)
+   SOURCE += engines/libhdfs.c
+ endif
+diff --git a/configure b/configure
+index 93c3720..2851f54 100755
+--- a/configure
++++ b/configure
+@@ -1489,6 +1489,10 @@ if test "$libhdfs" = "yes" ; then
+   if test "$hdfs_conf_error" = "1" ; then
+     exit 1
+   fi
++  FIO_HDFS_CPU=$cpu
++  if test "$FIO_HDFS_CPU" = "x86_64" ; then
++    FIO_HDFS_CPU="amd64"
++  fi
+ fi
+ echo "HDFS engine                   $libhdfs"
+ 
+@@ -1829,6 +1833,7 @@ if test "$gf_trim" = "yes" ; then
+ fi
+ if test "$libhdfs" = "yes" ; then
+   output_sym "CONFIG_LIBHDFS"
++  echo "FIO_HDFS_CPU=$FIO_HDFS_CPU" >> $config_host_mak
+   echo "JAVA_HOME=$JAVA_HOME" >> $config_host_mak
+   echo "FIO_LIBHDFS_INCLUDE=$FIO_LIBHDFS_INCLUDE" >> $config_host_mak
+   echo "FIO_LIBHDFS_LIB=$FIO_LIBHDFS_LIB" >> $config_host_mak
