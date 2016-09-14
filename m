@@ -1,30 +1,66 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx5-phx2.redhat.com ([209.132.183.37]:46793 "EHLO
-        mx5-phx2.redhat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1758541AbcIMWnz (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 13 Sep 2016 18:43:55 -0400
-Date: Tue, 13 Sep 2016 18:43:54 -0400 (EDT)
-From: Ben England <bengland@redhat.com>
-Message-ID: <1887684558.8387275.1473806634276.JavaMail.zimbra@redhat.com>
-In-Reply-To: <1632172196.8370296.1473801360706.JavaMail.zimbra@redhat.com>
-Subject: progress on fio --client
+Return-Path: <chamarthy.raju@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Nick Dokos <ndokos@redhat.com>
+In-Reply-To: <8ba8ee1d-f07a-4619-278a-3526e82262e0@kernel.dk>
+References: <CABtFm2WPnKVVBVPU0N97ipX=RTAVK7Tz0nJUNtAmS9chLw3nHw@mail.gmail.com>
+ <56C4D7D4.4020904@kernel.dk> <CABtFm2UabELu776EVnrwVUgrfeWcjkM=W1irhxF6L_o-QdTDLg@mail.gmail.com>
+ <CANWz5fhXDTu=zKLtHuoecVWcMzvditqs6AqHK-Y-RfsJscJ=GA@mail.gmail.com>
+ <43640b9a-b49c-eee8-ef6a-66333a649930@kernel.dk> <8ba8ee1d-f07a-4619-278a-3526e82262e0@kernel.dk>
+From: Srinivasa Chamarthy <chamarthy.raju@gmail.com>
+Date: Wed, 14 Sep 2016 17:25:54 +0800
+Message-ID: <CABtFm2XzkHXQ809eFa98gtpeknf08UzFiKzx-r_NXEg=xRk9Ww@mail.gmail.com>
+Subject: Re: client/server mode fails with Assertion `client->eta_in_flight =
+ eta' failed
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Chris Worley <worleys@gmail.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Am now running with Jens patch "ignore SEND_ETA, if we can't fin a reply command ".   Thanks!  I was trying to solve it by increasing timeout.
+I have stated the workload and seems to be working fine for the last
+one hour. If i hit the issue i will let you know.
 
-I did the last commit on PR 241 to address the remaining comment.  If it looks ok to you, I would appreciate this being pulled in because it is important to distributed fio --client testing in order to get bandwidth/iops logs and latency histogram logs.    I have been testing it for about a week now with 900 workload generator threads across 7 hosts and it seems to work, especially now that assertion isn't firing because of above patch.
+# fio --version
+fio-2.13-95-g308d
 
-An unrelated minor problem - There are still a couple of threads that have trouble returning a fio histogram to the test driver, will look into that, but at least fio --client is getting almost all the logs now with PR 241, enough that meaningful stats can be generated.  Error messages are:
+# fio --client=client1 --remote-config=/root/fio_randrw_8k.fio
+--client=client2 --remote-config=/root/fio_randrw_8k.fio
 
-fio: failed decompressing log
-fio: failed converting IO log
+<client1> Starting 24 processes
+<client2> Starting 24 processes
+Jobs: 48 (f=48): [m(24)] [2.0% done] [687.5M/687.8M/0K /s]
+[85.1K/85.1K/0 iops] [eta 02d:23h:15m:22s]
 
-This doesn't happen for smaller numbers of workload generator threads.
+One question though, related to the number of jobs. I stated 24 jobs
+on each client which should total to 48. But the job info shows only
+m(24). I have asked the same query using another thread
+http://www.spinics.net/lists/fio/msg04604.html.
 
--ben e
+Thanks for the great support.
+
+--
+Srinivasa R Chamarthy
+
+
+On Tue, Sep 13, 2016 at 11:09 PM, Jens Axboe <axboe@kernel.dk> wrote:
+> On 09/13/2016 09:04 AM, Jens Axboe wrote:
+>>
+>> On 08/30/2016 09:28 AM, Chris Worley wrote:
+>>>
+>>> Was there ever a solution?  I'm seeing this a lot on v2.9.
+>>
+>>
+>> Chris/Srinivasa, can you try the below patch? Looks like we're racing
+>> sometimes on the ETA command. And if we don't find a reply tag, we
+>> already decremented the ETA count, so we should just ignore it.
+>
+>
+> I committed this fix, so you can just update to current -git to get it.
+>
+>
+> --
+> Jens Axboe
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
