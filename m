@@ -1,30 +1,49 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa2.hgst.iphmx.com ([68.232.143.124]:20949 "EHLO
-        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754016AbcITSiK (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 20 Sep 2016 14:38:10 -0400
-From: Greg Frees <greg.frees@hgst.com>
-Subject: Can FIO replay a "blktrace/blkparse" command list in Windows?
-Date: Tue, 20 Sep 2016 18:38:07 +0000
-Message-ID: <BN6PR04MB0788FC374E1CD50A85DE51ECE3F70@BN6PR04MB0788.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <axboe@kernel.dk>
+Subject: Re: progress on fio --client
+References: <1887684558.8387275.1473806634276.JavaMail.zimbra@redhat.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <96a00a71-dcca-c34c-7428-f14df4f1b823@kernel.dk>
+Date: Fri, 16 Sep 2016 09:30:27 -0600
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <1887684558.8387275.1473806634276.JavaMail.zimbra@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Ben England <bengland@redhat.com>, fio@vger.kernel.org
+Cc: Nick Dokos <ndokos@redhat.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+On 09/13/2016 04:43 PM, Ben England wrote:
+> Am now running with Jens patch "ignore SEND_ETA, if we can't fin a
+> reply command ".   Thanks!  I was trying to solve it by increasing
+> timeout.
+>
+> I did the last commit on PR 241 to address the remaining comment.  If
+> it looks ok to you, I would appreciate this being pulled in because it
+> is important to distributed fio --client testing in order to get
+> bandwidth/iops logs and latency histogram logs.    I have been testing
+> it for about a week now with 900 workload generator threads across 7
+> hosts and it seems to work, especially now that assertion isn't firing
+> because of above patch.
 
-I need to be able to replay the cmds and the cmd timing that has been captu=
-red and parsed with blktrace and blkparse using FIO on a Windows 7 computer=
-.
+Glad that works!
 
-Can FIO for Windows replay the output file from blkparse?  (I have not had =
-luck trying this)
+> An unrelated minor problem - There are still a couple of threads that
+> have trouble returning a fio histogram to the test driver, will look
+> into that, but at least fio --client is getting almost all the logs now
+> with PR 241, enough that meaningful stats can be generated.  Error
+> messages are:
+>
+> fio: failed decompressing log
+> fio: failed converting IO log
+>
+> This doesn't happen for smaller numbers of workload generator threads.
+
+That usually points to a bug in the compression or decompression
+handling, so I'd probably look at that. We've had that in a few other
+areas, you might want to look at the changelog and see the fixes for
+those.
+
+-- 
+Jens Axboe
 
 
-If the answer is "yes", can you please provide a short example of a blkpars=
-e output file that I can replay using read_iolog in an FIO script running o=
-n Windows?  Thanks.
