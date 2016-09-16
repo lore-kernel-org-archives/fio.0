@@ -1,60 +1,74 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:53981 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934700AbcIPMAH (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 16 Sep 2016 08:00:07 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-        id 1bkroM-0002Qi-DF
-        for fio@vger.kernel.org; Fri, 16 Sep 2016 12:00:06 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160916120005.0B93E2C18F3@kernel.dk>
-Date: Fri, 16 Sep 2016 06:00:05 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <rstiles.org@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <c11934e9-904b-a976-a7a6-c156f035d45d@kernel.dk>
+References: <CACDTvf5PhEZ55+CYQV6JpBAr7=KDQQSiWySA=EZWJiE0f42KSQ@mail.gmail.com>
+ <c11934e9-904b-a976-a7a6-c156f035d45d@kernel.dk>
+From: Ryan Stiles <rstiles.org@gmail.com>
+Date: Fri, 16 Sep 2016 16:34:21 -0700
+Message-ID: <CACDTvf7iukwi2ALxsPRRxhjqHQ3D5N0Zcs+cj=BGsUC58aom-g@mail.gmail.com>
+Subject: Re: bssplit functionality seems broken in 2.13
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 308d69b5d340577b7886696f39753b7ba5ae9e11:
+Thanks for the patch Jens,
 
-  client: ignore SEND_ETA, if we can't fin a reply command (2016-09-13 09:08:00 -0600)
+without the patch:
+[0.0% done] [399.2MB/933.2MB/0KB /s] [102K/239K/0 iops]
 
-are available in the git repository at:
+with the patch:
+[0.0% done] [2629MB/6158MB/0KB /s] [30.3K/70.7K/0 iops]
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 7903bf87725b18495a06f7199342f167147712eb:
+This looks like it corrected the issue.
 
-  Merge branch 'master' of https://github.com/jan--f/fio (2016-09-15 07:57:38 -0600)
+Thank you for your time and support, have a great weekend!
+Ryan
 
-----------------------------------------------------------------
-Jan Fajerski (1):
-      add simple fio.service to start fio server with systemd
 
-Jens Axboe (1):
-      Merge branch 'master' of https://github.com/jan--f/fio
+On Fri, Sep 16, 2016 at 8:14 AM, Jens Axboe <axboe@kernel.dk> wrote:
+> On 09/15/2016 11:01 AM, Ryan Stiles wrote:
+>>
+>> Good day,
+>>
+>> We have automation that uses the "bssplit" function to get a wide
+>> variety of IO patterns, I have noticed that in 2.13 (compiled with
+>> no-shared-mem).  The bsssplit only takes the first variable, meaning:
+>>
+>> bssplit=1k/50:128k/50
+>>
+>> will yield a 100% 1k workload.
+>>
+>> This is the workload:
+>> [global]
+>> random_generator=tausworthe64
+>> direct=1
+>> loops=1
+>> ioengine=libaio
+>> iodepth=16
+>> group_reporting
+>> filename=/dev/disk/by-uuid/27602b49-4a18-4dca-a896-e2fc86746015
+>>
+>> [workload]
+>> rw=randread
+>> bssplit=1k/50:128k/50
+>
+>
+> What's causing this issue is the use of the 64-bit random generator.
+> There's a bug in the bssplit calculation code that overflows for that
+> case. I've pushed a fix out for it:
+>
+> http://git.kernel.dk/cgit/fio/commit/?id=3dd29f7c21538c164fcbd078c3f2e532a9193a04
+>
+> With that fix, you should see better behavior. Note that to truly have a
+> 50/50 split for this, you'd want to set 'norandommap' as well. Otherwise
+> fio will fit the block size to avoid overlapped IO. When that happens,
+> you'll have 50% 1k random reads, but the other 50% will be between 1k
+> and 128k. If a 128k random read would overlap at the generated offset,
+> fio would adjust it down.
+>
+> --
+> Jens Axboe
+>
 
- tools/fio.service | 10 ++++++++++
- 1 file changed, 10 insertions(+)
- create mode 100644 tools/fio.service
-
----
-
-Diff of recent changes:
-
-diff --git a/tools/fio.service b/tools/fio.service
-new file mode 100644
-index 0000000..21de0b7
---- /dev/null
-+++ b/tools/fio.service
-@@ -0,0 +1,10 @@
-+[Unit]
-+
-+Description=flexible I/O tester server
-+After=network.target
-+
-+[Service]
-+
-+Type=simple
-+PIDFile=/run/fio.pid
-+ExecStart=/usr/bin/fio --server
