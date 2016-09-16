@@ -1,99 +1,52 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:53436 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751900AbcIXMAF (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 24 Sep 2016 08:00:05 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-        id 1bnlci-0000Iv-0u
-        for fio@vger.kernel.org; Sat, 24 Sep 2016 12:00:04 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: fio and posix_fadvise
+References: <AEA40A07-F002-4E1C-B4E4-991FF6B13F55@orange.fr>
+ <35191fbf-d272-31e0-4d66-5b702d91ff03@kernel.dk>
+ <DDFC579C-9A81-4E6D-928E-57BD38E54874@orange.fr>
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160924120001.A47242C00D4@kernel.dk>
-Date: Sat, 24 Sep 2016 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <19609dfd-2489-d1da-4475-f1eb1063d5de@kernel.dk>
+Date: Fri, 16 Sep 2016 10:40:31 -0600
+MIME-Version: 1.0
+In-Reply-To: <DDFC579C-9A81-4E6D-928E-57BD38E54874@orange.fr>
+Content-Type: text/plain; charset="windows-1252"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
+To: Fabrice Bacchella <fabrice.bacchella@orange.fr>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 1d272416412b0c867224a2b667e6b6124cbc26e8:
+On 09/16/2016 10:34 AM, Fabrice Bacchella wrote:
+>
+>> Le 16 sept. 2016 =EF=BF=BD 17:23, Jens Axboe <axboe@kernel.dk> a =EF=BF=
+=BDcrit :
+>>
+>> On 09/15/2016 08:23 AM, Fabrice Bacchella wrote:
+>>>
+>
+>>> Is there any plan to support it ?
+>>
+>> What kind of use case did you have in mind? Dropping pages after writing
+>> them? That basically boils down to being a non data integrity fdatasync.
+>> You would get basically the same effect by using fdatasync=3D1 in your
+>> workload. The difference would mainly be that DONTNEED would factor in
+>> the range and offset. So if you have multiple writers on the same file,
+>> then there would be a difference in behavior.
+>>
+>> That said, I don't mind adding support for using DONTNEED specifically.
+>> Currently it's just used to set a permanent hint, which is why it's only
+>> done once. For DONTNEED, you'd want to call it after each write instead.
+>
+> I was thinking about read. When you have servers with huge amount of
+> memory, either you reboot then with mem=3D<less>G or run bench with huge
+> datasets. Both are clumsy solutions. directio is not a very good
+> solution either, it's a very specific think that don't match not cached
+> data. Using DONTNEED allows to simulate (I hope) a "bigger that RAM"
+> data set.
 
-  stat: check if ctime_r() ends in a newline before stripping (2016-09-20 21:58:34 -0600)
+You could also just use lockmem=3D to pin down some memory, it basically
+has the same effect as booting with mem=3D to reduce the memory available
+for caching.
 
-are available in the git repository at:
+--=20
+Jens Axboe
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 0a301e93062df3735f9bb87c445e18d98a4b6efb:
-
-  bloom: add string version (2016-09-23 11:57:00 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (3):
-      bloom: use bool
-      bloom: hashes take byte lengths, not nwords
-      bloom: add string version
-
- lib/bloom.c | 15 ++++++++++-----
- lib/bloom.h |  4 +++-
- 2 files changed, 13 insertions(+), 6 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/lib/bloom.c b/lib/bloom.c
-index f4eff57..c2e6c11 100644
---- a/lib/bloom.c
-+++ b/lib/bloom.c
-@@ -88,14 +88,14 @@ void bloom_free(struct bloom *b)
- 	free(b);
- }
- 
--static int __bloom_check(struct bloom *b, uint32_t *data, unsigned int nwords,
--			 int set)
-+static bool __bloom_check(struct bloom *b, const void *data, unsigned int len,
-+			  bool set)
- {
- 	uint32_t hash[N_HASHES];
- 	int i, was_set;
- 
- 	for (i = 0; i < N_HASHES; i++) {
--		hash[i] = hashes[i].fn(data, nwords, hashes[i].seed);
-+		hash[i] = hashes[i].fn(data, len, hashes[i].seed);
- 		hash[i] = hash[i] % b->nentries;
- 	}
- 
-@@ -113,7 +113,12 @@ static int __bloom_check(struct bloom *b, uint32_t *data, unsigned int nwords,
- 	return was_set == N_HASHES;
- }
- 
--int bloom_set(struct bloom *b, uint32_t *data, unsigned int nwords)
-+bool bloom_set(struct bloom *b, uint32_t *data, unsigned int nwords)
- {
--	return __bloom_check(b, data, nwords, 1);
-+	return __bloom_check(b, data, nwords * sizeof(uint32_t), true);
-+}
-+
-+bool bloom_set_string(struct bloom *b, const char *data, unsigned int len)
-+{
-+	return __bloom_check(b, data, len, true);
- }
-diff --git a/lib/bloom.h b/lib/bloom.h
-index 127ed9b..d40d9f6 100644
---- a/lib/bloom.h
-+++ b/lib/bloom.h
-@@ -2,11 +2,13 @@
- #define FIO_BLOOM_H
- 
- #include <inttypes.h>
-+#include "../lib/types.h"
- 
- struct bloom;
- 
- struct bloom *bloom_new(uint64_t entries);
- void bloom_free(struct bloom *b);
--int bloom_set(struct bloom *b, uint32_t *data, unsigned int nwords);
-+bool bloom_set(struct bloom *b, uint32_t *data, unsigned int nwords);
-+bool bloom_set_string(struct bloom *b, const char *data, unsigned int len);
- 
- #endif
