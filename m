@@ -1,42 +1,76 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-sn1nam02on0064.outbound.protection.outlook.com ([104.47.36.64]:12611
-        "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S932710AbcISWN7 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 19 Sep 2016 18:13:59 -0400
-From: Chris Taylor <ctaylor@pivot3.com>
-Subject: json ouput is striping the last character of the year on Windows
-Date: Mon, 19 Sep 2016 21:40:27 +0000
-Message-ID: <MWHPR10MB177593F557B14F7EB39730D68CF40@MWHPR10MB1775.namprd10.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+Received: from merlin.infradead.org ([205.233.59.134]:37226 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752158AbcITMAF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 20 Sep 2016 08:00:05 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+        id 1bmJiW-0004Y9-Kw
+        for fio@vger.kernel.org; Tue, 20 Sep 2016 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20160920120002.79B772C009B@kernel.dk>
+Date: Tue, 20 Sep 2016 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-On Windows the year is not correct when using JSON output.
+The following changes since commit d22042d2117b78e16b06bab0880422c417007d37:
 
-  "time" : "Mon Sep 19 17:21:45 201",
+  workqueue: kill SW_F_EXITED (2016-09-16 12:48:32 -0600)
 
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 5de1ade5a8a8dd118bdfac835a6cfb4bcf013734:
+
+  Windows: fix Time_tToSystemTime function to be 64-bit compliant (2016-09-19 08:28:11 -0600)
+
+----------------------------------------------------------------
+Josh Sinykin (2):
+      Fix garbage characters in json output caused by time_buf being uninitialized
+      Windows: fix Time_tToSystemTime function to be 64-bit compliant
+
+ os/windows/posix.c | 10 ++++++----
+ stat.c             |  2 ++
+ 2 files changed, 8 insertions(+), 4 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/os/windows/posix.c b/os/windows/posix.c
+index fd3d9ab..5830e4c 100755
+--- a/os/windows/posix.c
++++ b/os/windows/posix.c
+@@ -232,10 +232,12 @@ char *dlerror(void)
+ /* Copied from http://blogs.msdn.com/b/joshpoley/archive/2007/12/19/date-time-formats-and-conversions.aspx */
+ void Time_tToSystemTime(time_t dosTime, SYSTEMTIME *systemTime)
+ {
+-    LARGE_INTEGER jan1970FT;
+-    LARGE_INTEGER utcFT;
+-    jan1970FT.QuadPart = 116444736000000000LL; // january 1st 1970
+-    utcFT.QuadPart = ((unsigned __int64)dosTime) * 10000000 + jan1970FT.QuadPart;
++    FILETIME utcFT;
++    LONGLONG jan1970;
++
++    jan1970 = Int32x32To64(dosTime, 10000000) + 116444736000000000;
++    utcFT.dwLowDateTime = (DWORD)jan1970;
++    utcFT.dwHighDateTime = jan1970 >> 32;
+ 
+     FileTimeToSystemTime((FILETIME*)&utcFT, systemTime);
+ }
 diff --git a/stat.c b/stat.c
-index c9148ad..0c64333 100644
+index 74c2686..c9148ad 100644
 --- a/stat.c
 +++ b/stat.c
-@@ -1650,7 +1650,9 @@ void __show_run_stats(void)
-=20
-                os_ctime_r((const time_t *) &now.tv_sec, time_buf,
-                                sizeof(time_buf));
--               time_buf[strlen(time_buf) - 1] =3D '\0';
-+               #if !defined(WIN32)=20
-+                    time_buf[strlen(time_buf) - 1] =3D '\0';
-+                #endif=20
-=20
-                root =3D json_create_object();
-                json_object_add_value_string(root, "fio version", fio_versi=
-on_string);
-
-I tested this patch on Windows and Linux and got the correct time format fo=
-r both
-  "time" : "Mon Sep 19 21:18:24 2016",
+@@ -669,6 +669,8 @@ static void show_thread_status_normal(struct thread_stat *ts,
+ 
+ 	if (!ddir_rw_sum(ts->io_bytes) && !ddir_rw_sum(ts->total_io_u))
+ 		return;
++		
++	memset(time_buf, 0, sizeof(time_buf));
+ 
+ 	time(&time_p);
+ 	os_ctime_r((const time_t *) &time_p, time_buf, sizeof(time_buf));
