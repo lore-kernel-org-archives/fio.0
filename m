@@ -1,31 +1,25 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qk0-f180.google.com ([209.85.220.180]:35166 "EHLO
-        mail-qk0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752703AbcHXRcD (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 24 Aug 2016 13:32:03 -0400
-Received: by mail-qk0-f180.google.com with SMTP id v123so21924935qkh.2
-        for <fio@vger.kernel.org>; Wed, 24 Aug 2016 10:32:03 -0700 (PDT)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: json ouput is striping the last character of the year on Windows
+References: <MWHPR10MB177593F557B14F7EB39730D68CF40@MWHPR10MB1775.namprd10.prod.outlook.com>
+ <cc182b9b-7c30-cacd-a976-d43aba4c1eea@kernel.dk>
+ <MWHPR10MB17751F015348863551B145B78CF60@MWHPR10MB1775.namprd10.prod.outlook.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <61ce0e4a-a68c-432e-e95f-fbc149425b52@kernel.dk>
+Date: Wed, 21 Sep 2016 09:30:31 -0600
 MIME-Version: 1.0
-From: Karl Cronburg <kcronbur@redhat.com>
-Date: Wed, 24 Aug 2016 13:32:01 -0400
-Message-ID: <CAJ9yE1D8JXLgmbmx5_PXfiPM33vHyMZpVTK4sAinccEvMKX8yg@mail.gmail.com>
-Subject: client/server histograms
-Content-Type: text/plain; charset=UTF-8
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <MWHPR10MB17751F015348863551B145B78CF60@MWHPR10MB1775.namprd10.prod.outlook.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Chris Taylor <ctaylor@pivot3.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-What would be the best way to get an fio server to send the histogram
-samples to a client? i.e.:
+On 09/21/2016 09:29 AM, Chris Taylor wrote:
+> Hi Jens,
+> Yes that is the better fix and yes it does work for me.
 
-- Should I make a new FIO_NET_CMD or can I easily modify the existing
-IOLOG one? Presently each sample has a pointer to a histogram array in
-place of the sample value.
+Thanks for verifying, I committed it yesterday so you should be all set.
 
-- The histograms compress nicely (because sparseness), but should I be
-compressing them immediately after compressing the time/direction/size
-values of the sample? I tried doing it after all the io_sample structs
-are compressed, but then samples in one pdu need the histogram values
-in a not-yet-parsed pdu.
+-- 
+Jens Axboe
 
--Karl Cronburg-
+
