@@ -1,77 +1,97 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:45102 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753446AbcIMMAE (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 13 Sep 2016 08:00:04 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-        id 1bjmNf-0000oG-LZ
-        for fio@vger.kernel.org; Tue, 13 Sep 2016 12:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20160913120001.EE6842C1A70@kernel.dk>
-Date: Tue, 13 Sep 2016 06:00:01 -0600 (MDT)
+Received: from esa2.hgst.iphmx.com ([68.232.143.124]:28743 "EHLO
+        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751693AbcIXPEu (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 24 Sep 2016 11:04:50 -0400
+From: Greg Frees <greg.frees@hgst.com>
+Subject: RE: Can FIO replay a "blktrace/blkparse" command list in Windows?
+Date: Sat, 24 Sep 2016 15:04:47 +0000
+Message-ID: <BN6PR04MB0788B9C0A175B808383C776FE3CB0@BN6PR04MB0788.namprd04.prod.outlook.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit 5e333ada464c885d2a33a30e98812bfb666e6052:
+Hi,
 
-  init: pass in right pointer to def thread options free (2016-09-11 19:14:10 -0600)
+Just refreshing the original question in hopes of an answer...
 
-are available in the git repository at:
+Can FIO for Windows replay an output file from blktrace/blkparse?
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 247e54360a9dff433e815f91b500073fe3c1a820:
+I need the ability to replay cmds from bus traces with the same timing as f=
+ound in a SAS/SATA bus trace.  This is in order to use FIO to mimic the ori=
+ginal read/write cmd workload as closely as possible so that I can reproduc=
+e customer performance problems on the bench.  My goal is to create/synthes=
+ize a replay file that contains the cmds and the timing of the cmds and use=
+ FIO to replay it using read_iolog.  My experience is that I cannot accompl=
+ish my goal by using a standard iolog such as the following because the WAI=
+T statement does not work as documented in the FIO user guide.  I have done=
+ several experiments trying to understand the behavior of the WAIT statemen=
+t and it simply will not work to control the timing of the cmds in a way th=
+at will match the original timing found in the bus trace.  Therefore I need=
+ a different solution.
 
-  Makefile: fixup java path for libhdfs (2016-09-12 08:10:45 -0600)
+fio version 2 iolog
+\.\PhysicalDrive0 add
+\.\PhysicalDrive0 open
+\.\PhysicalDrive0 read 603182858240 131072
+\.\PhysicalDrive0 wait 1000 0
+\.\PhysicalDrive0 read 7403516723200 131072
+\.\PhysicalDrive0 wait 1000 0
+\.\PhysicalDrive0 read 8432532848640 131072
+\.\PhysicalDrive0 wait 1000 0
+\.\PhysicalDrive0 write 4700536045568 131072
+\.\PhysicalDrive0 wait 1000 0
+\.\PhysicalDrive0 read 4019454869504 131072
+\.\PhysicalDrive0 wait 1000 0
+\.\PhysicalDrive0 read 8401981407232 131072
+\.\PhysicalDrive0 read 3805264740352 131072
+\.\PhysicalDrive0 read 3535500869632 131072
+\.\PhysicalDrive0 close
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      Makefile: fixup java path for libhdfs
 
- Makefile  | 2 +-
- configure | 5 +++++
- 2 files changed, 6 insertions(+), 1 deletion(-)
+From reading the FIO User's Guide it appears that FIO will try to enforce t=
+he cmd timing of a replay file if it was created using the Linux "blktrace/=
+blkparse" tools.  The output from blkparse contains records of cmds along w=
+ith timestamps.  FIO apparently will use the timestamps of cmds to control =
+the timing of when it will send an I/O.  This is exactly what I need.  Howe=
+ver, blktrace/blkparse are Linux tools.  I need to be able to run the FIO r=
+eplay on a Windows machine and I have not had success trying to use a blkpa=
+rse output file as an iolog on Windows. =20
 
----
 
-Diff of recent changes:
+QUESTIONS:
 
-diff --git a/Makefile b/Makefile
-index 3f67ab7..6b5548a 100644
---- a/Makefile
-+++ b/Makefile
-@@ -49,7 +49,7 @@ SOURCE :=	$(patsubst $(SRCDIR)/%,%,$(wildcard $(SRCDIR)/crc/*.c)) \
- 
- ifdef CONFIG_LIBHDFS
-   HDFSFLAGS= -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/linux -I $(FIO_LIBHDFS_INCLUDE)
--  HDFSLIB= -Wl,-rpath $(JAVA_HOME)/jre/lib/`uname -m`/server -L$(JAVA_HOME)/jre/lib/`uname -m`/server -ljvm $(FIO_LIBHDFS_LIB)/libhdfs.a
-+  HDFSLIB= -Wl,-rpath $(JAVA_HOME)/jre/lib/$(FIO_HDFS_CPU)/server -L$(JAVA_HOME)/jre/lib/$(FIO_HDFS_CPU)/server -ljvm $(FIO_LIBHDFS_LIB)/libhdfs.a
-   CFLAGS += $(HDFSFLAGS)
-   SOURCE += engines/libhdfs.c
- endif
-diff --git a/configure b/configure
-index 93c3720..2851f54 100755
---- a/configure
-+++ b/configure
-@@ -1489,6 +1489,10 @@ if test "$libhdfs" = "yes" ; then
-   if test "$hdfs_conf_error" = "1" ; then
-     exit 1
-   fi
-+  FIO_HDFS_CPU=$cpu
-+  if test "$FIO_HDFS_CPU" = "x86_64" ; then
-+    FIO_HDFS_CPU="amd64"
-+  fi
- fi
- echo "HDFS engine                   $libhdfs"
- 
-@@ -1829,6 +1833,7 @@ if test "$gf_trim" = "yes" ; then
- fi
- if test "$libhdfs" = "yes" ; then
-   output_sym "CONFIG_LIBHDFS"
-+  echo "FIO_HDFS_CPU=$FIO_HDFS_CPU" >> $config_host_mak
-   echo "JAVA_HOME=$JAVA_HOME" >> $config_host_mak
-   echo "FIO_LIBHDFS_INCLUDE=$FIO_LIBHDFS_INCLUDE" >> $config_host_mak
-   echo "FIO_LIBHDFS_LIB=$FIO_LIBHDFS_LIB" >> $config_host_mak
+	1.  Does FIO support using a blkparse output file as an iolog/replay file =
+on FIO for Windows... or does this ONLY work on FIO for Linux?
+
+	2.  If it does work on FIO for Windows, can you please send me a short exa=
+mple blkparse file so that I can study it and use it as a model (i.e. the f=
+ormat) for how I would synthesize a blkparse output to suit my needs?
+
+
+
+
+Regards,
+Greg
+
+
+Greg Frees
+Lead Performance Engineer
+Senior Technologist
+
+HGST, a Western Digital brand
+5601 Great Oaks Parkway
+San Jose, CA 95138
+Email:  greg.frees@hgst.com
+Office:  +1-408-717-7852
+www.hgst.com
+#LongLiveData
+
+
+
+
