@@ -1,46 +1,58 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-yb0-f173.google.com ([209.85.213.173]:35486 "EHLO
-        mail-yb0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750794AbcIORBw (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 15 Sep 2016 13:01:52 -0400
-Received: by mail-yb0-f173.google.com with SMTP id d69so37456012ybf.2
-        for <fio@vger.kernel.org>; Thu, 15 Sep 2016 10:01:51 -0700 (PDT)
+Received: from mail-co1nam03on0123.outbound.protection.outlook.com ([104.47.40.123]:15403
+        "EHLO NAM03-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1753204AbcI1UV1 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 28 Sep 2016 16:21:27 -0400
+From: Shahar Glixman <sglixman@velostrata.com>
+Subject: fio crash on windows when using json output 
+Date: Wed, 28 Sep 2016 20:21:24 +0000
+Message-ID: <BY2PR0701MB2039BAE87219973B20F0FB8BAFCF0@BY2PR0701MB2039.namprd07.prod.outlook.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-From: Ryan Stiles <rstiles.org@gmail.com>
-Date: Thu, 15 Sep 2016 10:01:50 -0700
-Message-ID: <CACDTvf5PhEZ55+CYQV6JpBAr7=KDQQSiWySA=EZWJiE0f42KSQ@mail.gmail.com>
-Subject: bssplit functionality seems broken in 2.13
-Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Good day,
+Hello,
 
-We have automation that uses the "bssplit" function to get a wide
-variety of IO patterns, I have noticed that in 2.13 (compiled with
-no-shared-mem).  The bsssplit only takes the first variable, meaning:
+I am trying to run fio on windows (2012 core), and getting sporadic crashes=
+  (~ 1 out of 3 runs) -
+Tried both 2.13 (taken from bluestop site: fio-2.13-x64.zip)
+And also compiled 2.14 from sources.
+In both binaries, when I run the following command:
 
-bssplit=1k/50:128k/50
+fio.exe --thread --direct=3D1 --output-format=3Djson --output=3D\fio.result=
+s.192.168.1.53.json --name=3DwriteTestFile --filename=3DE\:\throughput.tst =
+--size=3D100m --rw=3Dwrite --bs=3D256k --iodepth=3D2 --buffer_comp ress_per=
+centage=3D0
 
-will yield a 100% 1k workload.
+The test completes (gets to 100%) and then crash:
 
-This is the workload:
-[global]
-random_generator=tausworthe64
-direct=1
-loops=1
-ioengine=libaio
-iodepth=16
-group_reporting
-filename=/dev/disk/by-uuid/27602b49-4a18-4dca-a896-e2fc86746015
+Faulting application name: fio.exe, version: 0.0.0.0, time stamp: 0x57bf1de=
+1
+Faulting module name: msvcrt.dll, version: 7.0.9600.16384, time stamp: 0x52=
+15f944
+Exception code: 0xc0000005
+Fault offset: 0x0000000000003209
+Faulting process id: 0x914
+Faulting application start time: 0x01d218fd8209cc06
+Faulting application path: c:\fio\fio-2.13-x64\fio.exe
+Faulting module path: C:\Windows\system32\msvcrt.dll
+Report Id: 6ca2ff1e-84f1-11e6-80c4-06db2ed6a2ef
+Faulting package full name:=20
+Faulting package-relative application ID:
 
-[workload]
-rw=randread
-bssplit=1k/50:128k/50
+The output file (--output=3D\fio.results.192.168.1.53.json) is empty.
 
-I tried to work around this using block range but when using a large
-number of targets, ~150, the memory consumption is around 150GB.
+I was able to narrow the problem to creating json output, e.g., when text o=
+utput is requested, the crash does not happen.
 
-Thank you for your help!
-Ryan
+fio.exe --version
+fio-2.14
+
+Thanks in advance
+Shahar
+
