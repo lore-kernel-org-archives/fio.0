@@ -1,66 +1,61 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Subject: [PATCH 2/2] Use fmt -w WIDTH option instead of -WIDTH
-Date: Thu, 20 Oct 2016 23:03:18 +0900
-Message-Id: <1476972198-5530-2-git-send-email-kusumi.tomohiro@gmail.com>
-In-Reply-To: <1476972198-5530-1-git-send-email-kusumi.tomohiro@gmail.com>
-References: <1476972198-5530-1-git-send-email-kusumi.tomohiro@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:34290 "EHLO
+        mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934302AbcJEWPi (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 5 Oct 2016 18:15:38 -0400
+Received: by mail-pa0-f43.google.com with SMTP id rz1so667559pab.1
+        for <fio@vger.kernel.org>; Wed, 05 Oct 2016 15:15:37 -0700 (PDT)
+From: Omar Sandoval <osandov@osandov.com>
+Subject: [PATCH 2/4] iolog: fix --bandwidth-log segfaults
+Date: Wed,  5 Oct 2016 15:15:27 -0700
+Message-Id: <0fbb21a1d03796c77a79e588e8c9f51cd90e1030.1475705698.git.osandov@fb.com>
+In-Reply-To: <334c09f8e51802e0d751b485fe9e3538c430e9b3.1475705698.git.osandov@fb.com>
+References: <334c09f8e51802e0d751b485fe9e3538c430e9b3.1475705698.git.osandov@fb.com>
+In-Reply-To: <334c09f8e51802e0d751b485fe9e3538c430e9b3.1475705698.git.osandov@fb.com>
+References: <334c09f8e51802e0d751b485fe9e3538c430e9b3.1475705698.git.osandov@fb.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
+Cc: kernel-team@fb.com
 
-Most systems support -WIDTH option which is an abbreviated form
-of -w WIDTH or --width=WIDTH option, but some OS don't support
--WIDTH format.
+From: Omar Sandoval <osandov@fb.com>
 
-As far as I've checked (on actual systems or online manpages),
-Linux/FreeBSD/DragonFlyBSD/OpenBSD/Solaris/AIX/Cygwin support
--WIDTH format, but NetBSD doesn't support this (see below).
-IRIX and HPUX may not support either according to online manpages.
+The global bandwidth log doesn't have thread data.
 
--w WIDTH format is basically supported by all systems that have
-fmt command, so this is probably better in terms of portability.
-
---
-    CC crc/crc64.o
-fmt: unknown option -- 1
-Usage: fmt [-Cr] [-g <goal>] [-m|w <max>] [<files>..]
-         fmt [-Cr] [<goal>] [<max>] [<files>]
-    CC crc/md5.o
-fmt: unknown option -- 1
-Usage: fmt [-Cr] [-g <goal>] [-m|w <max>] [<files>..]
-         fmt [-Cr] [<goal>] [<max>] [<files>]
-...
-
-Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Fixes: 1e613c9c2393 ("This commit / feature adds completion latency histogram output to fio")
+Fixes: 3aea75b14510 ("Option for changing log files to use Unix epoch")
+Signed-off-by: Omar Sandoval <osandov@fb.com>
 ---
- Makefile |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ iolog.c | 2 +-
+ stat.c  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Makefile b/Makefile
-index 6b5548a..b3a12dd 100644
---- a/Makefile
-+++ b/Makefile
-@@ -315,7 +315,7 @@ override CFLAGS += -DFIO_VERSION='"$(FIO_VERSION)"'
- 	@$(CC) -MM $(CFLAGS) $(CPPFLAGS) $(SRCDIR)/$*.c > $*.d
- 	@mv -f $*.d $*.d.tmp
- 	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
--	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
-+	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -w 1 | \
- 		sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
- 	@rm -f $*.d.tmp
+diff --git a/iolog.c b/iolog.c
+index 6576ca5..ab9c878 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -1065,7 +1065,7 @@ void flush_log(struct io_log *log, bool do_append)
+ 		cur_log = flist_first_entry(&log->io_logs, struct io_logs, list);
+ 		flist_del_init(&cur_log->list);
+ 		
+-		if (log == log->td->clat_hist_log)
++		if (log->td && log == log->td->clat_hist_log)
+ 			flush_hist_samples(f, log->hist_coarseness, cur_log->log,
+ 			                   log_sample_sz(log, cur_log));
+ 		else
+diff --git a/stat.c b/stat.c
+index 3c72a6c..1e889f5 100644
+--- a/stat.c
++++ b/stat.c
+@@ -2023,7 +2023,7 @@ static void __add_log_sample(struct io_log *iolog, unsigned long val,
+ 		s = get_sample(iolog, cur_log, cur_log->nr_samples);
  
-@@ -354,7 +354,7 @@ init.o: init.c FIO-VERSION-FILE
- 	@$(CC) -MM $(CFLAGS) $(CPPFLAGS) $(SRCDIR)/$*.c > $*.d
- 	@mv -f $*.d $*.d.tmp
- 	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
--	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
-+	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -w 1 | \
- 		sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
- 	@rm -f $*.d.tmp
+ 		s->val = val;
+-		s->time = t + iolog->td->unix_epoch;
++		s->time = t + (iolog->td ? iolog->td->unix_epoch : 0);
+ 		io_sample_set_ddir(iolog, s, ddir);
+ 		s->bs = bs;
  
 -- 
-1.7.1
-
+2.10.0
 
