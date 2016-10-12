@@ -1,52 +1,32 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: fio crash on windows when using json output
-References: <BY2PR0701MB2039BAE87219973B20F0FB8BAFCF0@BY2PR0701MB2039.namprd07.prod.outlook.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <d8754f54-4c79-62c3-df33-d4f216aaec91@kernel.dk>
-Date: Wed, 12 Oct 2016 16:20:27 -0600
+Return-Path: <bruce@cran.org.uk>
+Subject: Re: "disable_bw" option in HOWTO should be "disable_bw_measurement"
+References: <3dcd7620-5355-680d-ae2e-c20f7a50045e@cran.org.uk>
+ <03444854-ebc8-3aaa-0956-1212fcb9812f@kernel.dk>
+ <d0d2fb07-e16a-5599-f69a-32df45e39248@cran.org.uk>
+ <b13495f7-d30b-0443-4bef-909517f87352@kernel.dk>
+From: Bruce Cran <bruce@cran.org.uk>
+Message-ID: <992b9380-91a6-d88e-6fda-53f93427c7f2@cran.org.uk>
+Date: Wed, 12 Oct 2016 10:23:59 -0600
 MIME-Version: 1.0
-In-Reply-To: <BY2PR0701MB2039BAE87219973B20F0FB8BAFCF0@BY2PR0701MB2039.namprd07.prod.outlook.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+In-Reply-To: <b13495f7-d30b-0443-4bef-909517f87352@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-To: Shahar Glixman <sglixman@velostrata.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: Bruce Cran <bruce@cran.org.uk>
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-On 09/28/2016 02:21 PM, Shahar Glixman wrote:
-> Hello,
->
-> I am trying to run fio on windows (2012 core), and getting sporadic crashes  (~ 1 out of 3 runs) -
-> Tried both 2.13 (taken from bluestop site: fio-2.13-x64.zip)
-> And also compiled 2.14 from sources.
-> In both binaries, when I run the following command:
->
-> fio.exe --thread --direct=1 --output-format=json --output=\fio.results.192.168.1.53.json --name=writeTestFile --filename=E\:\throughput.tst --size=100m --rw=write --bs=256k --iodepth=2 --buffer_comp ress_percentage=0
->
-> The test completes (gets to 100%) and then crash:
->
-> Faulting application name: fio.exe, version: 0.0.0.0, time stamp: 0x57bf1de1
-> Faulting module name: msvcrt.dll, version: 7.0.9600.16384, time stamp: 0x5215f944
-> Exception code: 0xc0000005
-> Fault offset: 0x0000000000003209
-> Faulting process id: 0x914
-> Faulting application start time: 0x01d218fd8209cc06
-> Faulting application path: c:\fio\fio-2.13-x64\fio.exe
-> Faulting module path: C:\Windows\system32\msvcrt.dll
-> Report Id: 6ca2ff1e-84f1-11e6-80c4-06db2ed6a2ef
-> Faulting package full name:
-> Faulting package-relative application ID:
->
-> The output file (--output=\fio.results.192.168.1.53.json) is empty.
->
-> I was able to narrow the problem to creating json output, e.g., when text output is requested, the crash does not happen.
->
-> fio.exe --version
-> fio-2.14
+On 10/12/16 10:03 AM, Jens Axboe wrote:
 
-Does this still happen in current -git? It's too bad the windows version
-doesn't generate the git sha, Bruce, any chance that could get added?
+> axboe@x1:/home/axboe/git/fio $ ./fio --name=null --ioengine=null --bs=4k
+> --rw=read --size=1g --disable_bw=1
+> null: (g=0): rw=read, bs=4K-4K/4K-4K/4K-4K, ioengine=null, iodepth=1
+> fio-2.14-27-gafd2c
+> Starting 1 process
+> [...]
+>
+> Works for me...
+
+Hmm, sorry - adding "disable_bw=1" in a job file also works for me now.
 
 -- 
-Jens Axboe
-
+Bruce
 
