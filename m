@@ -1,57 +1,97 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from muon.bluestop.org ([74.50.51.35]:62202 "EHLO muon.cran.org.uk"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S965410AbcJXSLm (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 24 Oct 2016 14:11:42 -0400
-Received: from muon.bluestop.org (localhost [127.0.0.1])
-        by muon.cran.org.uk (Postfix) with ESMTP id 506095ABC7
-        for <fio@vger.kernel.org>; Mon, 24 Oct 2016 18:11:41 +0000 (UTC)
-Received: from muon.cran.org.uk ([127.0.0.1])
-        by muon.bluestop.org (muon.bluestop.org [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id tBN2bc1VRmO2 for <fio@vger.kernel.org>;
-        Mon, 24 Oct 2016 18:11:40 +0000 (UTC)
-Received: from [10.0.1.172] (unknown [207.108.170.162])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by muon.cran.org.uk (Postfix) with ESMTPSA
-        for <fio@vger.kernel.org>; Mon, 24 Oct 2016 18:11:40 +0000 (UTC)
-From: Bruce Cran <bruce@cran.org.uk>
-Subject: [PATCH] Use the POSIX `EDEADLK` instead of the Linux `EDEADLOCK`
-Message-ID: <33f1d961-5db0-e998-2998-0fac11041e85@cran.org.uk>
-Date: Mon, 24 Oct 2016 12:11:39 -0600
+Received: from mail-io0-f179.google.com ([209.85.223.179]:34634 "EHLO
+        mail-io0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751510AbcJOBEY (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 14 Oct 2016 21:04:24 -0400
+Received: by mail-io0-f179.google.com with SMTP id r30so138167031ioi.1
+        for <fio@vger.kernel.org>; Fri, 14 Oct 2016 18:03:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------ED6F93CE945C1BAC518C7CC2"
+In-Reply-To: <CAOHuL9jnXcN4Tn5ri6WWtWXmH7HbV2TB20VDe1vAZ1ca7NMoHA@mail.gmail.com>
+References: <CAOHuL9jnXcN4Tn5ri6WWtWXmH7HbV2TB20VDe1vAZ1ca7NMoHA@mail.gmail.com>
+From: Matthew Eaton <m.eaton82@gmail.com>
+Date: Fri, 14 Oct 2016 18:03:45 -0700
+Message-ID: <CAF+0mvmERxKpo0BBxbjb5NeM8FbY10ESAnmuHmYp0gyZUKjaOg@mail.gmail.com>
+Subject: Re: Fio Multiple Nvme Disks
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Tarek <cashew250@gmail.com>
+Cc: fio@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------ED6F93CE945C1BAC518C7CC2
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, Oct 14, 2016 at 12:09 PM, Tarek <cashew250@gmail.com> wrote:
+> I want to run Fio on 10 NVME drive sending each iodepth of 128, having the
+> results combined as an aggregate result, and also have logging every
+> 1000ms for BW and IO. I did the following below, combining all drives in
+> one 'filename' separated by colon under global, then set my job below.
+> However, I don't think it's doing what I intended and sending each drive
+> 128 iodepth. How can I achieve what I am after?
+>
+> Example of what I was doing
+> Example below: 10 NVME drives are each getting iodepth of 128, or just
+> 12.8 (roughly)?
+> [global]
+> thread
+> ioengine=libaio
+> direct=1
+> buffered=0
+> log_avg_msec=1000
+> group_reporting=1
+> filename=/dev/nvme0n1:/dev/nvme1n1:/dev/nvme2n1:/dev/nvme3n1:/dev/nvme4n1:
+> /dev/nvme5n1:/dev/nvme6n1:/dev/nvme7n1:/dev/nvme8n1:/dev/nvme9n1
+>
+> [sequential-write_4k_qd128_jobs_1]
+> description=Sequential write precondition
+> rw=write
+> bs=4k
+> iodepth=128
+> numjobs=1
+> size=100%
+> stonewall
+>
+> thank you
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
+For testing multiple devices I usually create a new job per device, in
+your case:
 
+[global]
+thread
+ioengine=libaio
+direct=1
+buffered=0
+log_avg_msec=1000
+group_reporting=1
+rw=write
+bs=4k
+iodepth=128
+numjobs=1
+size=100%
 
---------------ED6F93CE945C1BAC518C7CC2
-Content-Type: text/plain; charset=UTF-8;
- name="0001-Use-the-POSIX-EDEADLK-instead-of-the-Linux-EDEADLOCK.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename*0="0001-Use-the-POSIX-EDEADLK-instead-of-the-Linux-EDEADLOCK.pa";
- filename*1="tch"
+[job1]
+filename=/dev/nvme0n1
 
-RnJvbSAyOTBjNmE0ZWE1ZjU5MjljMDdmYzNmZWVjY2E1MDMwNzRmZmEzNWViIE1vbiBTZXAg
-MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCcnVjZSBDcmFuIDxCcnVjZS5DcmFuQHNhbmRpc2su
-Y29tPgpEYXRlOiBNb24sIDI0IE9jdCAyMDE2IDEyOjA4OjQwIC0wNjAwClN1YmplY3Q6IFtQ
-QVRDSF0gVXNlIHRoZSBQT1NJWCBgRURFQURMS2AgaW5zdGVhZCBvZiB0aGUgTGludXggYEVE
-RUFETE9DS2AKCi0tLQogYmFja2VuZC5jIHwgMiArLQogMSBmaWxlIGNoYW5nZWQsIDEgaW5z
-ZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvYmFja2VuZC5jIGIvYmFj
-a2VuZC5jCmluZGV4IGYwOTI3YWIuLmVkNGYxZjAgMTAwNjQ0Ci0tLSBhL2JhY2tlbmQuYwor
-KysgYi9iYWNrZW5kLmMKQEAgLTE3NDgsNyArMTc0OCw3IEBAIHN0YXRpYyB2b2lkICp0aHJl
-YWRfbWFpbih2b2lkICpkYXRhKQogCQkJdXNsZWVwKDEwMDApOwogCQkJaWYgKGRlYWRsb2Nr
-X2xvb3BfY250KysgPiA1MDAwKSB7CiAJCQkJbG9nX2VycigiZmlvIHNlZW1zIHRvIGJlIHN0
-dWNrIGdyYWJiaW5nIHN0YXRfbXV0ZXgsIGZvcmNpYmx5IGV4aXRpbmdcbiIpOwotCQkJCXRk
-LT5lcnJvciA9IEVERUFETE9DSzsKKwkJCQl0ZC0+ZXJyb3IgPSBFREVBRExLOwogCQkJCWdv
-dG8gZXJyOwogCQkJfQogCQl9IHdoaWxlICgxKTsKLS0gCjIuMTAuMQoK
---------------ED6F93CE945C1BAC518C7CC2--
+[job2]
+filename=/dev/nvme1n1
+
+[job3]
+filename=/dev/nvme2n1
+...
+
+Fio will write logs per job but you might use the fiologparser script
+to get what you want:
+
+# fiologparser.py
+#
+# This tool lets you parse multiple fio log files and look at interaval
+# statistics even when samples are non-uniform. For instance:
+#
+# fiologparser.py -s *bw*
+#
+# to see per-interval sums for all bandwidth logs or:
+#
+# fiologparser.py -a *clat*
+#
+# to see per-interval average completion latency.
