@@ -1,93 +1,66 @@
-Return-Path: <Vincent.Fu@sandisk.com>
-From: Vincent Fu <Vincent.Fu@sandisk.com>
-Subject: [PATCH] Eliminate extraneous JSON output
-Date: Thu, 27 Oct 2016 20:47:08 +0000
-Message-ID: <CY1PR02MB1995A599D374FAF3F5EE6AD98CAA0@CY1PR02MB1995.namprd02.prod.outlook.com>
-Content-Language: en-US
-Content-Type: multipart/mixed;
-	boundary="_002_CY1PR02MB1995A599D374FAF3F5EE6AD98CAA0CY1PR02MB1995namp_"
-MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.9]:38905 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754396AbcJOMkP (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 15 Oct 2016 08:40:15 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+        id 1bvNdD-0005Q3-6h
+        for fio@vger.kernel.org; Sat, 15 Oct 2016 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20161015120002.545B42C0400@kernel.dk>
+Date: Sat, 15 Oct 2016 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
---_002_CY1PR02MB1995A599D374FAF3F5EE6AD98CAA0CY1PR02MB1995namp_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+The following changes since commit afd2ceffd65514a54665493075d7957ec9d0e5fc:
 
-Jens, please consider the attached patch.
+  Add alias for 'disable_bw_measurement' option (2016-10-12 08:59:25 -0600)
 
-I'm not certain the place I have added the code is optimal, but it does
-appear to resolve the problem both when fio is run directly and when fio
-is run in client/server mode.
+are available in the git repository at:
 
-The steadystate feature also depends on group_reporting being set for
-all members of a reporting group if it is set for any member.
+  git://git.kernel.dk/fio.git master
 
-Vincent
+for you to fetch changes up to a4f581f981a2a0e19d22339d9fdf17b3aaeb12b8:
 
---
-Vincent Fu
-Software Dev Engr II
-SanDisk, a Western Digital brand
-Email: Vincent.Fu@SanDisk.com
-Office: 801 987 7079
+  Update REPORTING-BUGS (2016-10-14 14:07:43 -0600)
 
-PLEASE NOTE: The information contained in this electronic mail message is i=
-ntended only for the use of the designated recipient(s) named above. If the=
- reader of this message is not the intended recipient, you are hereby notif=
-ied that you have received this message in error and that any review, disse=
-mination, distribution, or copying of this message is strictly prohibited. =
-If you have received this communication in error, please notify the sender =
-by telephone or e-mail (as shown above) immediately and destroy any and all=
- copies of this message in your possession (whether hard copies or electron=
-ically stored copies).
+----------------------------------------------------------------
+Jens Axboe (1):
+      Update REPORTING-BUGS
 
---_002_CY1PR02MB1995A599D374FAF3F5EE6AD98CAA0CY1PR02MB1995namp_
-Content-Type: text/plain; name="0001-Eliminate-extraneous-JSON-output.patch"
-Content-Description: 0001-Eliminate-extraneous-JSON-output.patch
-Content-Disposition: attachment;
-	filename="0001-Eliminate-extraneous-JSON-output.patch"; size=2109;
-	creation-date="Thu, 27 Oct 2016 20:47:07 GMT";
-	modification-date="Thu, 27 Oct 2016 20:47:07 GMT"
-Content-Transfer-Encoding: base64
+ REPORTING-BUGS | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-RnJvbSA1NGQ1OWY2OGRjMWQ0N2FiYTg2NWUzZWQ3MDE2MjExZWUwY2E0NjhlIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBWaW5jZW50IEZ1IDxWaW5jZW50LkZ1QHNhbmRpc2suY29tPgpE
-YXRlOiBUdWUsIDI1IE9jdCAyMDE2IDE1OjUxOjMwIC0wNDAwClN1YmplY3Q6IFtQQVRDSF0gRWxp
-bWluYXRlIGV4dHJhbmVvdXMgSlNPTiBvdXRwdXQKCi4vZmlvIC0tbmFtZT1nbG9iYWwgLS1maWxl
-bmFtZT0vZGV2L3VyYW5kb20gLS10aW1lX2Jhc2VkIC0tcnVudGltZT0zIC0tc2l6ZT0xTSAtLW5h
-bWU9am9iMSAtLW5hbWU9am9iMiAtLWdyb3VwX3JlcG9ydGluZyAtLW91dHB1dC1mb3JtYXQ9anNv
-bgoKd2lsbCBwcm9kdWNlIHR3byBvYmplY3RzIGluIGpvYnNbXSwgZXZlbiB0aG91Z2ggZ3JvdXBf
-cmVwcnRpbmcgaXMgZW5hYmxlZC4gVGhlIHNlY29uZCBvYmplY3Qgd2lsbCBiZSBlc3NlbnRpYWxs
-eSBlbXB0eS4KClRoaXMgaXMgYmVjYXVzZSB0aGUgY29kZSBpbiBzdGF0LmM6X19zaG93X3J1bl9z
-dGF0cyB0aGF0IGNvdW50cyBob3cgbWFueSB0aHJlYWRzdGF0cyBhcmUgbmVlZGVkIGFzc3VtZXMg
-dGhhdCBpZiBncm91cF9yZXBvcnRpbmcgaXMgc2V0IGZvciBvbmUgam9iIHdpdGhpbiBhIHJlcG9y
-dGluZyBncm91cCwgaXQgaXMgYWxzbyBzZXQgZm9yIGFsbCB0aGUgb3RoZXIgam9icyBpbiB0aGUg
-cmVwb3J0aW5nIGdyb3VwLgoKVGhpcyBwYXRjaCBtYWtlcyB0aGUgYXNzdW1wdGlvbiB0cnVlIGJ5
-IHNldHRpbmcgZ3JvdXBfcmVwb3J0aW5nIHRvIHRydWUgZm9yIGFsbCBqb2JzIHdpdGhpbiBhIHJl
-cG9ydGluZyBncm91cCBpZiBpdCBpcyBzZXQgZm9yIGFueSBqb2Igd2l0aGluIHRoZSByZXBvcnRp
-bmcgZ3JvdXAuCi0tLQogaW5pdC5jIHwgMTQgKysrKysrKysrKysrKy0KIDEgZmlsZSBjaGFuZ2Vk
-LCAxMyBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvaW5pdC5jIGIv
-aW5pdC5jCmluZGV4IGQ4YzBiZDEuLjQ2YjhhNjEgMTAwNjQ0Ci0tLSBhL2luaXQuYworKysgYi9p
-bml0LmMKQEAgLTEyODgsMTEgKzEyODgsMTIgQEAgc3RhdGljIGJvb2wgd2FpdF9mb3Jfb2soY29u
-c3QgY2hhciAqam9ibmFtZSwgc3RydWN0IHRocmVhZF9vcHRpb25zICpvKQogc3RhdGljIGludCBh
-ZGRfam9iKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsIGNvbnN0IGNoYXIgKmpvYm5hbWUsIGludCBq
-b2JfYWRkX251bSwKIAkJICAgaW50IHJlY3Vyc2VkLCBpbnQgY2xpZW50X3R5cGUpCiB7Ci0JdW5z
-aWduZWQgaW50IGk7CisJdW5zaWduZWQgaW50IGksIGo7CiAJY2hhciBmbmFtZVtQQVRIX01BWF07
-CiAJaW50IG51bWpvYnMsIGZpbGVfYWxsb2NlZDsKIAlzdHJ1Y3QgdGhyZWFkX29wdGlvbnMgKm8g
-PSAmdGQtPm87CiAJY2hhciBsb2duYW1lW1BBVEhfTUFYICsgMzJdOworCXN0cnVjdCB0aHJlYWRf
-ZGF0YSAqdGQyOwogCiAJLyoKIAkgKiB0aGUgZGVmX3RocmVhZCBpcyBqdXN0IGZvciBvcHRpb25z
-LCBpdCdzIG5vdCBhIHJlYWwgam9iCkBAIC0xMzgxLDYgKzEzODIsMTcgQEAgc3RhdGljIGludCBh
-ZGRfam9iKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsIGNvbnN0IGNoYXIgKmpvYm5hbWUsIGludCBq
-b2JfYWRkX251bSwKIAl0ZC0+Z3JvdXBpZCA9IGdyb3VwaWQ7CiAJcHJldl9ncm91cF9qb2JzKys7
-CiAKKwkvKgorCSAqIElmIGdyb3VwX3JlcG9ydGluZyBpcyBzZXQgZm9yIG9uZSBqb2IgaW4gYSBy
-ZXBvcnRpbmcgZ3JvdXAsCisJICogc2V0IGl0IGZvciBhbGwgdGhlIG90aGVyIGpvYnMgaW4gdGhl
-IHJlcG9ydGluZyBncm91cAorCSAqLworCWZvcl9lYWNoX3RkKHRkMiwgaikgeworCQlpZiAodGQy
-LT5ncm91cGlkID09IGdyb3VwaWQgJiYgdGQyLT5vLmdyb3VwX3JlcG9ydGluZykKKwkJCW8tPmdy
-b3VwX3JlcG9ydGluZyA9IDE7CisJCWlmIChvLT5ncm91cF9yZXBvcnRpbmcgJiYgdGQyLT5ncm91
-cGlkID09IGdyb3VwaWQpCisJCQl0ZDItPm8uZ3JvdXBfcmVwb3J0aW5nID0gMTsKKwl9CisKIAlp
-ZiAoc2V0dXBfcmFuZG9tX3NlZWRzKHRkKSkgewogCQl0ZF92ZXJyb3IodGQsIGVycm5vLCAiaW5p
-dF9yYW5kb21fc3RhdGUiKTsKIAkJZ290byBlcnI7Ci0tIAoyLjcuNCAoQXBwbGUgR2l0LTY2KQoK
+---
 
---_002_CY1PR02MB1995A599D374FAF3F5EE6AD98CAA0CY1PR02MB1995namp_--
+Diff of recent changes:
 
+diff --git a/REPORTING-BUGS b/REPORTING-BUGS
+index c6150d1..d8876ae 100644
+--- a/REPORTING-BUGS
++++ b/REPORTING-BUGS
+@@ -2,8 +2,10 @@ Reporting a bug
+ ---------------
+ 
+ If you notice anything that seems like a fio bug, please do send email
+-to the list (fio@vger.kernel.org, see README) about it. You'll need
+-to report at least:
++to the list (fio@vger.kernel.org, see README) about it. If you are not
++running the newest release of fio, upgrading first is recommended.
++
++When reporting a bug, you'll need to include:
+ 
+ 1) A description of what you think the bug is
+ 2) Environment (Linux distro version, kernel version). This is mostly
+@@ -12,4 +14,8 @@ to report at least:
+ 4) How to reproduce. Please include a full list of the parameters
+    passed to fio and the job file used (if any).
+ 
++A bug report can never have too much information. Any time information
++is left out and has to be asked for, it'll add to the turn-around time
++of getting to the bottom of it and committing a fix.
++
+ That's it!
