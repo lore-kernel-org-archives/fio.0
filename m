@@ -1,94 +1,71 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:60418 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S941664AbcJSOUx (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 19 Oct 2016 10:20:53 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-        id 1bwpXO-00071q-J8
-        for fio@vger.kernel.org; Wed, 19 Oct 2016 12:00:02 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20161019120001.7774C2C0400@kernel.dk>
-Date: Wed, 19 Oct 2016 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Subject: [PATCH 2/4] Add FIO_HAVE_FS_STAT/get_fs_free_size() support for OpenBSD
+Date: Mon, 17 Oct 2016 23:17:39 +0900
+Message-Id: <1476713861-8325-2-git-send-email-kusumi.tomohiro@gmail.com>
+In-Reply-To: <1476713861-8325-1-git-send-email-kusumi.tomohiro@gmail.com>
+References: <1476713861-8325-1-git-send-email-kusumi.tomohiro@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit dac34079f7d8cfb0a64e4d3f086728edd7eded6d:
+This commit is OpenBSD version of 60f840a8 in 2015.
+This is the same as 60f840a8, as well as the previous commit
+for NetBSD, as it uses POSIX statvfs.
 
-  iolog: enable replay_redirect on iolog replay (2016-10-17 14:51:54 -0600)
+Note that fio doesn't compile on OpenBSD 5.9 (hits lex error),
+but this this commit should still be good since this function
+alone compiles on OpenBSD.
 
-are available in the git repository at:
+(Note that the function was renamed with _free in c08ad04c)
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 0228cfe7bb04b3c8329f8e77ee47e30e1a5a03cd:
-
-  HOWTO: update to include iolog replay (2016-10-18 09:12:45 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (2):
-      iolog: add support for 'replay_no_stall'
-      HOWTO: update to include iolog replay
-
- HOWTO   | 19 ++++++++++---------
- iolog.c |  2 ++
- 2 files changed, 12 insertions(+), 9 deletions(-)
-
+Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 ---
+ os/os-openbsd.h |   15 +++++++++++++++
+ 1 files changed, 15 insertions(+), 0 deletions(-)
 
-Diff of recent changes:
+diff --git a/os/os-openbsd.h b/os/os-openbsd.h
+index b1d8e83..2998510 100644
+--- a/os/os-openbsd.h
++++ b/os/os-openbsd.h
+@@ -5,6 +5,7 @@
+ 
+ #include <errno.h>
+ #include <sys/param.h>
++#include <sys/statvfs.h>
+ /* XXX hack to avoid conflicts between rbtree.h and <sys/tree.h> */
+ #include <sys/sysctl.h>
+ #undef RB_BLACK
+@@ -17,6 +18,7 @@
+ #define FIO_USE_GENERIC_BDEV_SIZE
+ #define FIO_USE_GENERIC_RAND
+ #define FIO_USE_GENERIC_INIT_RANDOM_STATE
++#define FIO_HAVE_FS_STAT
+ #define FIO_HAVE_GETTID
+ 
+ #undef	FIO_HAVE_CPU_AFFINITY	/* XXX notyet */
+@@ -53,6 +55,19 @@ static inline int gettid(void)
+ 	return (int) pthread_self();
+ }
+ 
++static inline unsigned long long get_fs_free_size(const char *path)
++{
++	unsigned long long ret;
++	struct statvfs s;
++
++	if (statvfs(path, &s) < 0)
++		return -1ULL;
++
++	ret = s.f_frsize;
++	ret *= (unsigned long long) s.f_bfree;
++	return ret;
++}
++
+ #ifdef MADV_FREE
+ #define FIO_MADV_FREE	MADV_FREE
+ #endif
+-- 
+1.7.1
 
-diff --git a/HOWTO b/HOWTO
-index cf1024c..3f8acee 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1558,10 +1558,10 @@ read_iolog=str	Open an iolog with the specified file name and replay the
- 
- replay_no_stall=int When replaying I/O with read_iolog the default behavior
- 		is to attempt to respect the time stamps within the log and
--		replay them with the appropriate delay between IOPS.  By
-+		replay them with the appropriate delay between IOPS. By
- 		setting this variable fio will not respect the timestamps and
- 		attempt to replay them as fast as possible while still
--		respecting ordering.  The result is the same I/O pattern to a
-+		respecting ordering. The result is the same I/O pattern to a
- 		given device, but different timings.
- 
- replay_redirect=str While replaying I/O patterns using read_iolog the
-@@ -1573,13 +1573,14 @@ replay_redirect=str While replaying I/O patterns using read_iolog the
- 		mapping.  Replay_redirect causes all IOPS to be replayed onto
- 		the single specified device regardless of the device it was
- 		recorded from. i.e. replay_redirect=/dev/sdc would cause all
--		IO in the blktrace to be replayed onto /dev/sdc.  This means
--		multiple devices will be replayed onto a single, if the trace
--		contains multiple devices.  If you want multiple devices to be
--		replayed concurrently to multiple redirected devices you must
--		blkparse your trace into separate traces and replay them with
--		independent fio invocations.  Unfortuantely this also breaks
--		the strict time ordering between multiple device accesses.
-+		IO in the blktrace or iolog to be replayed onto /dev/sdc.
-+		This means multiple devices will be replayed onto a single
-+		device, if the trace contains multiple devices. If you want
-+		multiple devices to be replayed concurrently to multiple
-+		redirected devices you must blkparse your trace into separate
-+		traces and replay them with independent fio invocations.
-+		Unfortuantely this also breaks the strict time ordering
-+		between multiple device accesses.
- 
- replay_align=int	Force alignment of IO offsets and lengths in a trace
- 		to this power of 2 value.
-diff --git a/iolog.c b/iolog.c
-index 686c713..f0ce3b2 100644
---- a/iolog.c
-+++ b/iolog.c
-@@ -425,6 +425,8 @@ static int read_iolog2(struct thread_data *td, FILE *f)
- 				continue;
- 			writes++;
- 		} else if (rw == DDIR_WAIT) {
-+			if (td->o.no_stall)
-+				continue;
- 			waits++;
- 		} else if (rw == DDIR_INVAL) {
- 		} else if (!ddir_sync(rw)) {
+
