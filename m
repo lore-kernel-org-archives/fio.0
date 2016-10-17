@@ -1,65 +1,43 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Subject: [PATCH 1/2] Add blockdev_size() support for NetBSD
-Date: Sat, 22 Oct 2016 02:07:32 +0900
-Message-Id: <1477069653-14350-1-git-send-email-kusumi.tomohiro@gmail.com>
+Subject: [PATCH 3/4] Fix e7e136da (Add device_is_mounted() support for BSDs)
+Date: Mon, 17 Oct 2016 23:17:40 +0900
+Message-Id: <1476713861-8325-3-git-send-email-kusumi.tomohiro@gmail.com>
+In-Reply-To: <1476713861-8325-1-git-send-email-kusumi.tomohiro@gmail.com>
+References: <1476713861-8325-1-git-send-email-kusumi.tomohiro@gmail.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 List-ID: <fio@vger.kernel.org>
 
-This commit is NetBSD version of 1116dc04 in 2015.
+The actual C code was good, but the code to check getmntinfo(3)
+in ./configure was missing * for st. getmntinfo(3) on FreeBSD/
+DragonFlyBSD/etc takes statfs** as an argument.
 
-NetBSD still has block device as a file type, thus it differs
-from FreeBSD/DragonFlyBSD regarding FIO_HAVE_CHARDEV_SIZE.
+I failed to catch this error as gcc without -Werror only gives
+warning and sets $? to 0, though as a result it didn't break anything.
+
+It did nothing to Linux since getmntinfo(3) doesn't compile on
+Linux whether arg is * or **.
 
 Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 ---
- os/os-netbsd.h |   17 ++++++++++++++++-
- 1 files changed, 16 insertions(+), 1 deletions(-)
+ configure |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/os/os-netbsd.h b/os/os-netbsd.h
-index 1ef5866..2133d7a 100644
---- a/os/os-netbsd.h
-+++ b/os/os-netbsd.h
-@@ -7,6 +7,9 @@
- #include <lwp.h>
- #include <sys/param.h>
- #include <sys/statvfs.h>
-+#include <sys/ioctl.h>
-+#include <sys/dkio.h>
-+#include <sys/disklabel.h>
- /* XXX hack to avoid confilcts between rbtree.h and <sys/rb.h> */
- #define	rb_node	_rb_node
- #include <sys/sysctl.h>
-@@ -17,7 +20,6 @@
- #include "../file.h"
- 
- #define FIO_HAVE_ODIRECT
--#define FIO_USE_GENERIC_BDEV_SIZE
- #define FIO_USE_GENERIC_RAND
- #define FIO_USE_GENERIC_INIT_RANDOM_STATE
- #define FIO_HAVE_FS_STAT
-@@ -37,6 +39,19 @@
- 
- typedef off_t off64_t;
- 
-+static inline int blockdev_size(struct fio_file *f, unsigned long long *bytes)
-+{
-+	struct disklabel dl;
-+
-+	if (!ioctl(f->fd, DIOCGDINFO, &dl)) {
-+		*bytes = ((unsigned long long)dl.d_secperunit) * dl.d_secsize;
-+		return 0;
-+	}
-+
-+	*bytes = 0;
-+	return errno;
-+}
-+
- static inline int blockdev_invalidate_cache(struct fio_file *f)
+diff --git a/configure b/configure
+index a24e3ef..e8e6953 100755
+--- a/configure
++++ b/configure
+@@ -1628,7 +1628,7 @@ cat > $TMPC << EOF
+ #include <sys/mount.h>
+ int main(int argc, char **argv)
  {
- 	return EINVAL;
+-  struct statfs st;
++  struct statfs *st;
+   return getmntinfo(&st, MNT_NOWAIT);
+ }
+ EOF
 -- 
 1.7.1
 
