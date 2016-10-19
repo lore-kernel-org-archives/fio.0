@@ -1,59 +1,94 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from muon.bluestop.org ([74.50.51.35]:28023 "EHLO muon.cran.org.uk"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751031AbcJ2FOz (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 29 Oct 2016 01:14:55 -0400
-Received: from muon.bluestop.org (localhost [127.0.0.1])
-        by muon.cran.org.uk (Postfix) with ESMTP id 7C1347A64A
-        for <fio@vger.kernel.org>; Sat, 29 Oct 2016 05:14:54 +0000 (UTC)
-Received: from muon.cran.org.uk ([127.0.0.1])
-        by muon.bluestop.org (muon.bluestop.org [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id AFXJOvCeOAik for <fio@vger.kernel.org>;
-        Sat, 29 Oct 2016 05:14:53 +0000 (UTC)
-Received: from [10.0.1.120] (unknown [207.108.170.162])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by muon.cran.org.uk (Postfix) with ESMTPSA
-        for <fio@vger.kernel.org>; Sat, 29 Oct 2016 05:14:53 +0000 (UTC)
-From: Bruce Cran <bruce@cran.org.uk>
-Subject: [PATCH] Remove extra space in tausworthe32 warning message
-Message-ID: <88ba9360-f0e0-ca6a-223e-529920262ac1@cran.org.uk>
-Date: Fri, 28 Oct 2016 23:14:52 -0600
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------AAE609E80F6DC5FE786F30D4"
+Received: from bombadil.infradead.org ([198.137.202.9]:60418 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S941664AbcJSOUx (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 19 Oct 2016 10:20:53 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+        id 1bwpXO-00071q-J8
+        for fio@vger.kernel.org; Wed, 19 Oct 2016 12:00:02 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20161019120001.7774C2C0400@kernel.dk>
+Date: Wed, 19 Oct 2016 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------AAE609E80F6DC5FE786F30D4
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+The following changes since commit dac34079f7d8cfb0a64e4d3f086728edd7eded6d:
 
+  iolog: enable replay_redirect on iolog replay (2016-10-17 14:51:54 -0600)
 
+are available in the git repository at:
 
---------------AAE609E80F6DC5FE786F30D4
-Content-Type: text/plain; charset=UTF-8;
- name="0001-Remove-extra-space-in-tausworthe32-warning-message.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename*0="0001-Remove-extra-space-in-tausworthe32-warning-message.patc";
- filename*1="h"
+  git://git.kernel.dk/fio.git master
 
-RnJvbSAxOTlkMTM5YTlhNDBlMGU0NTUzMTUyOGViNzI4MWRmYzg5YTcwNWVkIE1vbiBTZXAg
-MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBCcnVjZSBDcmFuIDxCcnVjZS5DcmFuQHNhbmRpc2su
-Y29tPgpEYXRlOiBGcmksIDI4IE9jdCAyMDE2IDIzOjEyOjE1IC0wNjAwClN1YmplY3Q6IFtQ
-QVRDSF0gUmVtb3ZlIGV4dHJhIHNwYWNlIGluIHRhdXN3b3J0aGUzMiB3YXJuaW5nIG1lc3Nh
-Z2UKCi0tLQogZmlsZXNldHVwLmMgfCAyICstCiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRp
-b24oKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9maWxlc2V0dXAuYyBiL2ZpbGVz
-ZXR1cC5jCmluZGV4IGEzYmJiYjIuLjk2OWU3Y2MgMTAwNjQ0Ci0tLSBhL2ZpbGVzZXR1cC5j
-CisrKyBiL2ZpbGVzZXR1cC5jCkBAIC0xMDk4LDcgKzEwOTgsNyBAQCBzdGF0aWMgaW50IGNo
-ZWNrX3JhbmRfZ2VuX2xpbWl0cyhzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBzdHJ1Y3QgZmlv
-X2ZpbGUgKmYsCiAJaWYgKCFmaW9fb3B0aW9uX2lzX3NldCgmdGQtPm8sIHJhbmRvbV9nZW5l
-cmF0b3IpKSB7CiAJCWxvZ19pbmZvKCJmaW86IFN3aXRjaGluZyB0byB0YXVzd29ydGhlNjQu
-IFVzZSB0aGUgIgogCQkJICJyYW5kb21fZ2VuZXJhdG9yPSBvcHRpb24gdG8gZ2V0IHJpZCBv
-ZiB0aGlzICIKLQkJCSAiIHdhcm5pbmcuXG4iKTsKKwkJCSAid2FybmluZy5cbiIpOwogCQl0
-ZC0+by5yYW5kb21fZ2VuZXJhdG9yID0gRklPX1JBTkRfR0VOX1RBVVNXT1JUSEU2NDsKIAkJ
-cmV0dXJuIDA7CiAJfQotLSAKMi4xMC4xCgo=
---------------AAE609E80F6DC5FE786F30D4--
+for you to fetch changes up to 0228cfe7bb04b3c8329f8e77ee47e30e1a5a03cd:
+
+  HOWTO: update to include iolog replay (2016-10-18 09:12:45 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (2):
+      iolog: add support for 'replay_no_stall'
+      HOWTO: update to include iolog replay
+
+ HOWTO   | 19 ++++++++++---------
+ iolog.c |  2 ++
+ 2 files changed, 12 insertions(+), 9 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/HOWTO b/HOWTO
+index cf1024c..3f8acee 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -1558,10 +1558,10 @@ read_iolog=str	Open an iolog with the specified file name and replay the
+ 
+ replay_no_stall=int When replaying I/O with read_iolog the default behavior
+ 		is to attempt to respect the time stamps within the log and
+-		replay them with the appropriate delay between IOPS.  By
++		replay them with the appropriate delay between IOPS. By
+ 		setting this variable fio will not respect the timestamps and
+ 		attempt to replay them as fast as possible while still
+-		respecting ordering.  The result is the same I/O pattern to a
++		respecting ordering. The result is the same I/O pattern to a
+ 		given device, but different timings.
+ 
+ replay_redirect=str While replaying I/O patterns using read_iolog the
+@@ -1573,13 +1573,14 @@ replay_redirect=str While replaying I/O patterns using read_iolog the
+ 		mapping.  Replay_redirect causes all IOPS to be replayed onto
+ 		the single specified device regardless of the device it was
+ 		recorded from. i.e. replay_redirect=/dev/sdc would cause all
+-		IO in the blktrace to be replayed onto /dev/sdc.  This means
+-		multiple devices will be replayed onto a single, if the trace
+-		contains multiple devices.  If you want multiple devices to be
+-		replayed concurrently to multiple redirected devices you must
+-		blkparse your trace into separate traces and replay them with
+-		independent fio invocations.  Unfortuantely this also breaks
+-		the strict time ordering between multiple device accesses.
++		IO in the blktrace or iolog to be replayed onto /dev/sdc.
++		This means multiple devices will be replayed onto a single
++		device, if the trace contains multiple devices. If you want
++		multiple devices to be replayed concurrently to multiple
++		redirected devices you must blkparse your trace into separate
++		traces and replay them with independent fio invocations.
++		Unfortuantely this also breaks the strict time ordering
++		between multiple device accesses.
+ 
+ replay_align=int	Force alignment of IO offsets and lengths in a trace
+ 		to this power of 2 value.
+diff --git a/iolog.c b/iolog.c
+index 686c713..f0ce3b2 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -425,6 +425,8 @@ static int read_iolog2(struct thread_data *td, FILE *f)
+ 				continue;
+ 			writes++;
+ 		} else if (rw == DDIR_WAIT) {
++			if (td->o.no_stall)
++				continue;
+ 			waits++;
+ 		} else if (rw == DDIR_INVAL) {
+ 		} else if (!ddir_sync(rw)) {
