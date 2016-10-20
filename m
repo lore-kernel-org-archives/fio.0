@@ -1,36 +1,66 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH 2/2] Use fmt -w WIDTH option instead of -WIDTH
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Subject: [PATCH 2/2] Use fmt -w WIDTH option instead of -WIDTH
+Date: Thu, 20 Oct 2016 23:03:18 +0900
+Message-Id: <1476972198-5530-2-git-send-email-kusumi.tomohiro@gmail.com>
+In-Reply-To: <1476972198-5530-1-git-send-email-kusumi.tomohiro@gmail.com>
 References: <1476972198-5530-1-git-send-email-kusumi.tomohiro@gmail.com>
- <1476972198-5530-2-git-send-email-kusumi.tomohiro@gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <d9fe5348-43b0-b69a-ecb9-1aa588b1f980@kernel.dk>
-Date: Thu, 20 Oct 2016 08:16:55 -0600
-MIME-Version: 1.0
-In-Reply-To: <1476972198-5530-2-git-send-email-kusumi.tomohiro@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>, fio@vger.kernel.org
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 List-ID: <fio@vger.kernel.org>
 
-On 10/20/2016 08:03 AM, Tomohiro Kusumi wrote:
-> Most systems support -WIDTH option which is an abbreviated form
-> of -w WIDTH or --width=WIDTH option, but some OS don't support
-> -WIDTH format.
->
-> As far as I've checked (on actual systems or online manpages),
-> Linux/FreeBSD/DragonFlyBSD/OpenBSD/Solaris/AIX/Cygwin support
-> -WIDTH format, but NetBSD doesn't support this (see below).
-> IRIX and HPUX may not support either according to online manpages.
+Most systems support -WIDTH option which is an abbreviated form
+of -w WIDTH or --width=WIDTH option, but some OS don't support
+-WIDTH format.
 
-It's been a while since I tried, but HPUX used to build without warning. 
-Don't remember what version, though.
+As far as I've checked (on actual systems or online manpages),
+Linux/FreeBSD/DragonFlyBSD/OpenBSD/Solaris/AIX/Cygwin support
+-WIDTH format, but NetBSD doesn't support this (see below).
+IRIX and HPUX may not support either according to online manpages.
 
-> -w WIDTH format is basically supported by all systems that have
-> fmt command, so this is probably better in terms of portability.
+-w WIDTH format is basically supported by all systems that have
+fmt command, so this is probably better in terms of portability.
 
-Seems sane enough, I'll apply it.
+--
+    CC crc/crc64.o
+fmt: unknown option -- 1
+Usage: fmt [-Cr] [-g <goal>] [-m|w <max>] [<files>..]
+         fmt [-Cr] [<goal>] [<max>] [<files>]
+    CC crc/md5.o
+fmt: unknown option -- 1
+Usage: fmt [-Cr] [-g <goal>] [-m|w <max>] [<files>..]
+         fmt [-Cr] [<goal>] [<max>] [<files>]
+...
 
+Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+---
+ Makefile |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 6b5548a..b3a12dd 100644
+--- a/Makefile
++++ b/Makefile
+@@ -315,7 +315,7 @@ override CFLAGS += -DFIO_VERSION='"$(FIO_VERSION)"'
+ 	@$(CC) -MM $(CFLAGS) $(CPPFLAGS) $(SRCDIR)/$*.c > $*.d
+ 	@mv -f $*.d $*.d.tmp
+ 	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
+-	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
++	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -w 1 | \
+ 		sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
+ 	@rm -f $*.d.tmp
+ 
+@@ -354,7 +354,7 @@ init.o: init.c FIO-VERSION-FILE
+ 	@$(CC) -MM $(CFLAGS) $(CPPFLAGS) $(SRCDIR)/$*.c > $*.d
+ 	@mv -f $*.d $*.d.tmp
+ 	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
+-	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
++	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -w 1 | \
+ 		sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
+ 	@rm -f $*.d.tmp
+ 
 -- 
-Jens Axboe
+1.7.1
 
 
