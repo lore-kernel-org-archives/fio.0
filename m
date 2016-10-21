@@ -1,100 +1,76 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:53767 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.9]:36830 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754035AbcJMMAD (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 13 Oct 2016 08:00:03 -0400
+        with ESMTP id S932553AbcJUMAD (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 21 Oct 2016 08:00:03 -0400
 Received: from [216.160.245.99] (helo=kernel.dk)
         by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-        id 1bueg7-00086V-7R
-        for fio@vger.kernel.org; Thu, 13 Oct 2016 12:00:03 +0000
+        id 1bxYUU-0003WN-RU
+        for fio@vger.kernel.org; Fri, 21 Oct 2016 12:00:02 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20161013120002.087E72C0400@kernel.dk>
-Date: Thu, 13 Oct 2016 06:00:02 -0600 (MDT)
+Message-Id: <20161021120001.E0DF72C302E@kernel.dk>
+Date: Fri, 21 Oct 2016 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit d23ae82785f99927331e358d2c0deac5e53f2df1:
+The following changes since commit 99350ae471e1271cae7bb3ef68b5ee0e11c21828:
 
-  Update bandwidth log documentation (2016-10-11 16:04:28 -0600)
+  Merge branch 'rbd-poll' (2016-10-19 09:24:04 -0600)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to afd2ceffd65514a54665493075d7957ec9d0e5fc:
+for you to fetch changes up to e291cff14e97feb3cff711f5a5cbcb63b32f9c72:
 
-  Add alias for 'disable_bw_measurement' option (2016-10-12 08:59:25 -0600)
+  Use fmt -w WIDTH option instead of -WIDTH (2016-10-20 08:10:10 -0600)
 
 ----------------------------------------------------------------
-Bruce Cran (1):
-      Implement nice() for Windows
+Tomohiro Kusumi (2):
+      Remove getopt_long_only macro from NetBSD header
+      Use fmt -w WIDTH option instead of -WIDTH
 
-Jens Axboe (1):
-      Add alias for 'disable_bw_measurement' option
-
- HOWTO              |  4 ++++
- options.c          |  1 +
- os/windows/posix.c | 17 +++++++++++++----
- 3 files changed, 18 insertions(+), 4 deletions(-)
+ Makefile       | 4 ++--
+ os/os-netbsd.h | 3 ---
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/HOWTO b/HOWTO
-index 07419a1..cf1024c 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1066,6 +1066,10 @@ random_generator=str	Fio supports the following engines for generating
+diff --git a/Makefile b/Makefile
+index 6b5548a..b3a12dd 100644
+--- a/Makefile
++++ b/Makefile
+@@ -315,7 +315,7 @@ override CFLAGS += -DFIO_VERSION='"$(FIO_VERSION)"'
+ 	@$(CC) -MM $(CFLAGS) $(CPPFLAGS) $(SRCDIR)/$*.c > $*.d
+ 	@mv -f $*.d $*.d.tmp
+ 	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
+-	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
++	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -w 1 | \
+ 		sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
+ 	@rm -f $*.d.tmp
  
- nice=int	Run the job with the given nice value. See man nice(2).
+@@ -354,7 +354,7 @@ init.o: init.c FIO-VERSION-FILE
+ 	@$(CC) -MM $(CFLAGS) $(CPPFLAGS) $(SRCDIR)/$*.c > $*.d
+ 	@mv -f $*.d $*.d.tmp
+ 	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
+-	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
++	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -w 1 | \
+ 		sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
+ 	@rm -f $*.d.tmp
  
-+     On Windows, values less than -15 set the process class to "High";
-+     -1 through -15 set "Above Normal"; 1 through 15 "Below Normal";
-+     and above 15 "Idle" priority class.
-+
- prio=int	Set the io priority value of this job. Linux limits us to
- 		a positive value between 0 and 7, with 0 being the highest.
- 		See man ionice(1). Refer to an appropriate manpage for
-diff --git a/options.c b/options.c
-index bcda556..3c9adfb 100644
---- a/options.c
-+++ b/options.c
-@@ -3920,6 +3920,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 	},
- 	{
- 		.name	= "disable_bw_measurement",
-+		.alias	= "disable_bw",
- 		.lname	= "Disable bandwidth stats",
- 		.type	= FIO_OPT_BOOL,
- 		.off1	= offsetof(struct thread_options, disable_bw),
-diff --git a/os/windows/posix.c b/os/windows/posix.c
-index 3388127..bbd93e9 100755
---- a/os/windows/posix.c
-+++ b/os/windows/posix.c
-@@ -647,10 +647,19 @@ int setgid(gid_t gid)
+diff --git a/os/os-netbsd.h b/os/os-netbsd.h
+index 4c629dd..1ef5866 100644
+--- a/os/os-netbsd.h
++++ b/os/os-netbsd.h
+@@ -74,7 +74,4 @@ static inline unsigned long long get_fs_free_size(const char *path)
+ #define FIO_MADV_FREE	MADV_FREE
+ #endif
  
- int nice(int incr)
- {
--	if (incr != 0) {
--		errno = EINVAL;
--		return -1;
--	}
-+	DWORD prioclass = NORMAL_PRIORITY_CLASS;
-+	
-+	if (incr < -15)
-+		prioclass = HIGH_PRIORITY_CLASS;
-+	else if (incr < 0)
-+		prioclass = ABOVE_NORMAL_PRIORITY_CLASS;
-+	else if (incr > 15)
-+		prioclass = IDLE_PRIORITY_CLASS;
-+	else if (incr > 0)
-+		prioclass = BELOW_NORMAL_PRIORITY_CLASS;
-+	
-+	if (!SetPriorityClass(GetCurrentProcess(), prioclass))
-+		log_err("fio: SetPriorityClass failed\n");
- 
- 	return 0;
- }
+-/* XXX NetBSD doesn't have getopt_long_only */
+-#define	getopt_long_only	getopt_long
+-
+ #endif
