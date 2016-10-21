@@ -1,47 +1,73 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-oi0-f51.google.com ([209.85.218.51]:36589 "EHLO
-        mail-oi0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751532AbcJNTJ5 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 14 Oct 2016 15:09:57 -0400
-Received: by mail-oi0-f51.google.com with SMTP id m72so147826527oik.3
-        for <fio@vger.kernel.org>; Fri, 14 Oct 2016 12:09:56 -0700 (PDT)
-MIME-Version: 1.0
-From: Tarek <cashew250@gmail.com>
-Date: Fri, 14 Oct 2016 14:09:55 -0500
-Message-ID: <CAOHuL9jnXcN4Tn5ri6WWtWXmH7HbV2TB20VDe1vAZ1ca7NMoHA@mail.gmail.com>
-Subject: Fio Multiple Nvme Disks
-Content-Type: text/plain; charset=UTF-8
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Subject: [PATCH 2/2] Add blockdev_size() support for OpenBSD
+Date: Sat, 22 Oct 2016 02:07:33 +0900
+Message-Id: <1477069653-14350-2-git-send-email-kusumi.tomohiro@gmail.com>
+In-Reply-To: <1477069653-14350-1-git-send-email-kusumi.tomohiro@gmail.com>
+References: <1477069653-14350-1-git-send-email-kusumi.tomohiro@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+List-ID: <fio@vger.kernel.org>
 
-I want to run Fio on 10 NVME drive sending each iodepth of 128, having the
-results combined as an aggregate result, and also have logging every
-1000ms for BW and IO. I did the following below, combining all drives in
-one 'filename' separated by colon under global, then set my job below.
-However, I don't think it's doing what I intended and sending each drive
-128 iodepth. How can I achieve what I am after?
+This commit is OpenBSD version of 1116dc04 in 2015.
+This is exactly the same as the previous commit for NetBSD.
 
-Example of what I was doing
-Example below: 10 NVME drives are each getting iodepth of 128, or just
-12.8 (roughly)?
-[global]
-thread
-ioengine=libaio
-direct=1
-buffered=0
-log_avg_msec=1000
-group_reporting=1
-filename=/dev/nvme0n1:/dev/nvme1n1:/dev/nvme2n1:/dev/nvme3n1:/dev/nvme4n1:
-/dev/nvme5n1:/dev/nvme6n1:/dev/nvme7n1:/dev/nvme8n1:/dev/nvme9n1
+OpenBSD still has block device as a file type, thus it differs
+from FreeBSD/DragonFlyBSD regarding FIO_HAVE_CHARDEV_SIZE.
 
-[sequential-write_4k_qd128_jobs_1]
-description=Sequential write precondition
-rw=write
-bs=4k
-iodepth=128
-numjobs=1
-size=100%
-stonewall
+Note that fio doesn't compile on OpenBSD 5.9 (hits lex error),
+but this this commit should still be good since this function
+alone compiles on OpenBSD.
 
-thank you
+Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+---
+ os/os-openbsd.h |   17 ++++++++++++++++-
+ 1 files changed, 16 insertions(+), 1 deletions(-)
+
+diff --git a/os/os-openbsd.h b/os/os-openbsd.h
+index 2998510..3343cbd 100644
+--- a/os/os-openbsd.h
++++ b/os/os-openbsd.h
+@@ -6,6 +6,9 @@
+ #include <errno.h>
+ #include <sys/param.h>
+ #include <sys/statvfs.h>
++#include <sys/ioctl.h>
++#include <sys/dkio.h>
++#include <sys/disklabel.h>
+ /* XXX hack to avoid conflicts between rbtree.h and <sys/tree.h> */
+ #include <sys/sysctl.h>
+ #undef RB_BLACK
+@@ -15,7 +18,6 @@
+ #include "../file.h"
+ 
+ #undef  FIO_HAVE_ODIRECT
+-#define FIO_USE_GENERIC_BDEV_SIZE
+ #define FIO_USE_GENERIC_RAND
+ #define FIO_USE_GENERIC_INIT_RANDOM_STATE
+ #define FIO_HAVE_FS_STAT
+@@ -35,6 +37,19 @@
+ 
+ typedef off_t off64_t;
+ 
++static inline int blockdev_size(struct fio_file *f, unsigned long long *bytes)
++{
++	struct disklabel dl;
++
++	if (!ioctl(f->fd, DIOCGDINFO, &dl)) {
++		*bytes = ((unsigned long long)dl.d_secperunit) * dl.d_secsize;
++		return 0;
++	}
++
++	*bytes = 0;
++	return errno;
++}
++
+ static inline int blockdev_invalidate_cache(struct fio_file *f)
+ {
+ 	return EINVAL;
+-- 
+1.7.1
+
+
