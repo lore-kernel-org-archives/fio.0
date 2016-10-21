@@ -1,39 +1,33 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-dm3nam03on0116.outbound.protection.outlook.com ([104.47.41.116]:28695
-        "EHLO NAM03-DM3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750781AbcJVEL0 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 22 Oct 2016 00:11:26 -0400
-From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Subject: RE: Results too good to be true?
-Date: Sat, 22 Oct 2016 03:07:34 +0000
-Message-ID: <DF4PR84MB0169198E7CB58F942068F566ABD70@DF4PR84MB0169.NAMPRD84.PROD.OUTLOOK.COM>
-References: <CAOHuL9gEd8VoDuyirSosdTwyQETskOgTvCyEGEPJoDEQS+9K=A@mail.gmail.com>
-In-Reply-To: <CAOHuL9gEd8VoDuyirSosdTwyQETskOgTvCyEGEPJoDEQS+9K=A@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-vk0-f41.google.com ([209.85.213.41]:33119 "EHLO
+        mail-vk0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750856AbcJUFzw (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 21 Oct 2016 01:55:52 -0400
+Received: by mail-vk0-f41.google.com with SMTP id 83so102726143vkd.0
+        for <fio@vger.kernel.org>; Thu, 20 Oct 2016 22:55:52 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <CAOHuL9gEd8VoDuyirSosdTwyQETskOgTvCyEGEPJoDEQS+9K=A@mail.gmail.com>
+References: <CAOHuL9gEd8VoDuyirSosdTwyQETskOgTvCyEGEPJoDEQS+9K=A@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Fri, 21 Oct 2016 06:55:51 +0100
+Message-ID: <CALjAwxgw7fH165NOn_AEtax3vOdec2zJw0FGU1x4LXkxHBLdkw@mail.gmail.com>
+Subject: Re: Results too good to be true?
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Tarek <cashew250@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Tarek <cashew250@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBmaW8tb3duZXJAdmdlci5rZXJu
-ZWwub3JnIFttYWlsdG86ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZ10gT24gQmVoYWxmDQo+IE9m
-IFRhcmVrDQo+IFNlbnQ6IFRodXJzZGF5LCBPY3RvYmVyIDIwLCAyMDE2IDg6MzEgUE0NCj4gU3Vi
-amVjdDogUmVzdWx0cyB0b28gZ29vZCB0byBiZSB0cnVlPw0KPiANCj4gMTAgTlZNRSBJbnRlbCBE
-QyBQMzYwMCBzcGVjJ2QgYXQgNDUwSyBSYW5kb20gUmVhZCAzMlFEIDQgSm9icw0KPiBJIHJhbiAx
-MjhRRCwgMyBKb2JzIGVhY2ggYW5kIGdvdCBhZ2dyZWdhdGUgdG90YWwgb2YgIGlvcHM9NzAzOS4z
-SyENCj4gVGhhdCdzIG1vcmUgdGhhbiB0aGUgc3BlYyAoZ3JhbnRlZCB0aGV5IGRpZG4ndCBzcGVj
-IGl0IGZvciAxMjhRRCkuDQo+IFJlc3VsdHMgYmVsb3cgYW5kIEZpbyBGaWxlIGJlbG93IHRoYXQg
-Y2FuIHlvdSB0YWtlIGEgbG9vayANCj4gaWYgSSBhbSBvdmVybG9va2luZyBzb21ldGhpbmc/DQoN
-CklmIHlvdSB3YW50IHRvIG1hdGNoIHRoZSBkYXRhIHNoZWV0LCB5b3Ugc2hvdWxkIHJlcGxpY2F0
-ZSB0aGUgDQpkYXRhIHNoZWV0J3MgdGVzdCBjb25kaXRpb25zOiA0IGpvYnMgd2l0aCBhIHF1ZXVl
-IGRlcHRoIG9mIDMyLg0KDQpodHRwOi8vd3d3LmFuYW5kdGVjaC5jb20vc2hvdy84MTA0L2ludGVs
-LXNzZC1kYy1wMzcwMC1yZXZpZXctdGhlLXBjaWUtc3NkLXRyYW5zaXRpb24tYmVnaW5zLXdpdGgt
-bnZtZS8zIHNob3dzIHRoZSBQMzcwMCBpcyBiZXR0ZXIgYXQgUUQgMTI4IGZvciByYW5kb20gcmVh
-ZHM6DQoqIDExMjUgTUIvcyBhdCBRRCAzMg0KKiAxODc1IE1CL3MgYXQgUUQgMTI4DQoNCnNvIHlv
-dSBtaWdodCBiZSBzZWVpbmcgYSBzaW1pbGFyIGVmZmVjdC4NCg0KQWxzbywgc2luY2UgdGhlIGRh
-dGEgc2hlZXQgbWVudGlvbnMgaW9tZXRlciwgdGhleSBtdXN0IGhhdmUgdXNlZA0KV2luZG93cy4g
-IFdpbmRvd3MgYW5kIGxpbnV4IGRyaXZlcnMgZG9uJ3QgYWx3YXlzIGRlbGl2ZXIgZXF1YWwNCnBl
-cmZvcm1hbmNlLg0KDQo=
+On 21 October 2016 at 02:30, Tarek <cashew250@gmail.com> wrote:
+> 10 NVME Intel DC P3600 spec'd at 450K Random Read 32QD 4 Jobs
+> I ran 128QD, 3 Jobs each and got aggregate total of  iops=7039.3K!
+> That's more than
+> the spec (granted they didn't spec it for 128QD). Results below and
+> Fio File below that
+> can you take a look if I am overlooking something?
+
+If you run using only one drive land ook at iostat while the job is
+running does that show radically different information?
+
+-- 
+Sitsofe | http://sucs.org/~sits/
