@@ -1,52 +1,39 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-yw0-f182.google.com ([209.85.161.182]:36601 "EHLO
-        mail-yw0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752030AbcJXQNF (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 24 Oct 2016 12:13:05 -0400
-Received: by mail-yw0-f182.google.com with SMTP id u124so4024319ywg.3
-        for <fio@vger.kernel.org>; Mon, 24 Oct 2016 09:13:05 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <DF4PR84MB0169198E7CB58F942068F566ABD70@DF4PR84MB0169.NAMPRD84.PROD.OUTLOOK.COM>
+Received: from mail-dm3nam03on0116.outbound.protection.outlook.com ([104.47.41.116]:28695
+        "EHLO NAM03-DM3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750781AbcJVEL0 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 22 Oct 2016 00:11:26 -0400
+From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+Subject: RE: Results too good to be true?
+Date: Sat, 22 Oct 2016 03:07:34 +0000
+Message-ID: <DF4PR84MB0169198E7CB58F942068F566ABD70@DF4PR84MB0169.NAMPRD84.PROD.OUTLOOK.COM>
 References: <CAOHuL9gEd8VoDuyirSosdTwyQETskOgTvCyEGEPJoDEQS+9K=A@mail.gmail.com>
- <DF4PR84MB0169198E7CB58F942068F566ABD70@DF4PR84MB0169.NAMPRD84.PROD.OUTLOOK.COM>
-From: Matthew Eaton <m.eaton82@gmail.com>
-Date: Mon, 24 Oct 2016 09:13:04 -0700
-Message-ID: <CAF+0mvnc2kyMroFSoXT8FHck54DmHvPmEBfvyvHfuqeChk4ssA@mail.gmail.com>
-Subject: Re: Results too good to be true?
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAOHuL9gEd8VoDuyirSosdTwyQETskOgTvCyEGEPJoDEQS+9K=A@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Cc: Tarek <cashew250@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Tarek <cashew250@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On Fri, Oct 21, 2016 at 8:07 PM, Elliott, Robert (Persistent Memory)
-<elliott@hpe.com> wrote:
->> -----Original Message-----
->> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Behalf
->> Of Tarek
->> Sent: Thursday, October 20, 2016 8:31 PM
->> Subject: Results too good to be true?
->>
->> 10 NVME Intel DC P3600 spec'd at 450K Random Read 32QD 4 Jobs
->> I ran 128QD, 3 Jobs each and got aggregate total of  iops=7039.3K!
->> That's more than the spec (granted they didn't spec it for 128QD).
->> Results below and Fio File below that can you take a look
->> if I am overlooking something?
->
-> If you want to match the data sheet, you should replicate the
-> data sheet's test conditions: 4 jobs with a queue depth of 32.
->
-> http://www.anandtech.com/show/8104/intel-ssd-dc-p3700-review-the-pcie-ssd-transition-begins-with-nvme/3 shows the P3700 is better at QD 128 for random reads:
-> * 1125 MB/s at QD 32
-> * 1875 MB/s at QD 128
->
-> so you might be seeing a similar effect.
->
-> Also, since the data sheet mentions iometer, they must have used
-> Windows.  Windows and linux drivers don't always deliver equal
-> performance.
->
-
-Have the drives been preconditioned? Reads won't make it all the way
-to the nand if the mapping table is empty so you need to fill each
-drive with data first (preconditioning) and then run your test.
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBmaW8tb3duZXJAdmdlci5rZXJu
+ZWwub3JnIFttYWlsdG86ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZ10gT24gQmVoYWxmDQo+IE9m
+IFRhcmVrDQo+IFNlbnQ6IFRodXJzZGF5LCBPY3RvYmVyIDIwLCAyMDE2IDg6MzEgUE0NCj4gU3Vi
+amVjdDogUmVzdWx0cyB0b28gZ29vZCB0byBiZSB0cnVlPw0KPiANCj4gMTAgTlZNRSBJbnRlbCBE
+QyBQMzYwMCBzcGVjJ2QgYXQgNDUwSyBSYW5kb20gUmVhZCAzMlFEIDQgSm9icw0KPiBJIHJhbiAx
+MjhRRCwgMyBKb2JzIGVhY2ggYW5kIGdvdCBhZ2dyZWdhdGUgdG90YWwgb2YgIGlvcHM9NzAzOS4z
+SyENCj4gVGhhdCdzIG1vcmUgdGhhbiB0aGUgc3BlYyAoZ3JhbnRlZCB0aGV5IGRpZG4ndCBzcGVj
+IGl0IGZvciAxMjhRRCkuDQo+IFJlc3VsdHMgYmVsb3cgYW5kIEZpbyBGaWxlIGJlbG93IHRoYXQg
+Y2FuIHlvdSB0YWtlIGEgbG9vayANCj4gaWYgSSBhbSBvdmVybG9va2luZyBzb21ldGhpbmc/DQoN
+CklmIHlvdSB3YW50IHRvIG1hdGNoIHRoZSBkYXRhIHNoZWV0LCB5b3Ugc2hvdWxkIHJlcGxpY2F0
+ZSB0aGUgDQpkYXRhIHNoZWV0J3MgdGVzdCBjb25kaXRpb25zOiA0IGpvYnMgd2l0aCBhIHF1ZXVl
+IGRlcHRoIG9mIDMyLg0KDQpodHRwOi8vd3d3LmFuYW5kdGVjaC5jb20vc2hvdy84MTA0L2ludGVs
+LXNzZC1kYy1wMzcwMC1yZXZpZXctdGhlLXBjaWUtc3NkLXRyYW5zaXRpb24tYmVnaW5zLXdpdGgt
+bnZtZS8zIHNob3dzIHRoZSBQMzcwMCBpcyBiZXR0ZXIgYXQgUUQgMTI4IGZvciByYW5kb20gcmVh
+ZHM6DQoqIDExMjUgTUIvcyBhdCBRRCAzMg0KKiAxODc1IE1CL3MgYXQgUUQgMTI4DQoNCnNvIHlv
+dSBtaWdodCBiZSBzZWVpbmcgYSBzaW1pbGFyIGVmZmVjdC4NCg0KQWxzbywgc2luY2UgdGhlIGRh
+dGEgc2hlZXQgbWVudGlvbnMgaW9tZXRlciwgdGhleSBtdXN0IGhhdmUgdXNlZA0KV2luZG93cy4g
+IFdpbmRvd3MgYW5kIGxpbnV4IGRyaXZlcnMgZG9uJ3QgYWx3YXlzIGRlbGl2ZXIgZXF1YWwNCnBl
+cmZvcm1hbmNlLg0KDQo=
