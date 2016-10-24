@@ -1,78 +1,70 @@
-Return-Path: <axboe@kernel.dk>
-Subject: =?UTF-8?Q?Re:_Unaligned_zoned_write_with_bsrange_=e2=80=983k-1025K?=
- =?UTF-8?Q?=e2=80=99_always_fails_for_the_reason_being_=e2=80=98data_corrupt?=
- =?UTF-8?B?aW9u4oCZ?=
-References: <CAE5BwqHyQzTx7gtGMXb7wE1xvysxeiopsCBijSHEzOx29PvzHg@mail.gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:55626 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757498AbcJXMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 24 Oct 2016 08:00:09 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+        id 1bydvA-0004ox-Ed
+        for fio@vger.kernel.org; Mon, 24 Oct 2016 12:00:04 +0000
+Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <f78587ff-29be-aeee-29e3-4f08873701c7@kernel.dk>
-Date: Mon, 19 Sep 2016 14:52:29 -0600
-MIME-Version: 1.0
-In-Reply-To: <CAE5BwqHyQzTx7gtGMXb7wE1xvysxeiopsCBijSHEzOx29PvzHg@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-To: Sunil Nadumutlu <nadumutlusunil@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Message-Id: <20161024120001.EF4DF2C00C8@kernel.dk>
+Date: Mon, 24 Oct 2016 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On 09/19/2016 06:30 AM, Sunil Nadumutlu wrote:
-> Hi Jens,
->
-> I have been observing one interesting issue since couple of days where
-> write_verify is failing (due to data corruption) while running unaligned
-> zoned write with bsrange ‘3k-1025K’.
-> I have following fio CLI syntax tried on RHEL 7.0 client, by involving
-> raw device and filesystem on raw dev as well.
->
-> Here are fio CLI syntax:
-> Raw device IO:
-> ==============
->   fio  --runtime=43200  --filename=/dev/sdc --rw=randrw
-> --ioengine=libaio --direct=1 --time_based --verify=md5 --verify_dump=1
-> --verify_fatal=1 --threads=8 --zonesize=1m --zoneskip=1024
-> --name=zoning-unaligned-large --bsrange=3k-1025k --runtime=86400
->
-> File system (ext4) IO:
-> ======================
-> fio  --runtime=43200  --filename=/tmp/xyz/fio3  --rw=randrw
-> --ioengine=libaio --direct=1 --time_based --verify=md5 --verify_dump=1
-> --verify_fatal=1 --threads=8 --zonesize=1m --zoneskip=1024
-> --name=zoning-unaligned-large --bsrange=3k-1025k --runtime=86400
-> --create_on_open=1 --filesize=500m  --buffer_pattern=0x48656c6c6f776f746c64
->
-> write_verify always failed within few seconds on filesystem, and
-> write_verify failed on raw device within 2-3mins for the reason being
-> data corruption observed during write verification.
-> In case of raw dev, data mismatch was observed after 1K (sometiem it was
-> across block), however incase FS, data corruption was observed across
-> 3076 block.
->
-> To narrow down the issue, I ran similar workload bs=3k ( no bsrange ,
-> and only fixed block) IO using vdbench and medusa tool, where test have
-> passed successfully. Hence I am thinking that this is not an issue with
-> storage array. At this time, I am just curious to know whether fio has
-> any known bug in this area. One thing to note here is that vdbench and
-> medusa doesn’t have block zoneing and bsrange option. It is always fixed
-> block size with these tools.
->
-> Attached herewith are dumps collected from above 2 tests…
-> File system fio dump:
-> fio3.1390592.expected
-> fio3.1390592.received
->
-> Raw dev fio dump:
-> sdc.3325952.expected
-> sdc.3325952.received
->
-> Anticipating your help in this regard.
+The following changes since commit e291cff14e97feb3cff711f5a5cbcb63b32f9c72:
 
-Please send questions to the fio mailing list, fio@vger.kernel.org. I 
-don't have time to answer all queries personally, plenty more people are 
-capable of doing that.
+  Use fmt -w WIDTH option instead of -WIDTH (2016-10-20 08:10:10 -0600)
 
-That said, you have multiple threads writing to the same file or device 
-in both cases.
+are available in the git repository at:
 
--- 
-Jens Axboe
+  git://git.kernel.dk/fio.git master
 
+for you to fetch changes up to ca0122d822ea7dd573f05ca4cf43c5d0ff9f4adb:
 
+  backend: if we can't grab stat_mutex, report a deadlock error and exit (2016-10-23 08:35:14 -0600)
+
+----------------------------------------------------------------
+Theodore Ts'o (1):
+      backend: if we can't grab stat_mutex, report a deadlock error and exit
+
+ backend.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+---
+
+Diff of recent changes:
+
+diff --git a/backend.c b/backend.c
+index fb2a855..093b6a3 100644
+--- a/backend.c
++++ b/backend.c
+@@ -1471,6 +1471,7 @@ static void *thread_main(void *data)
+ 	struct thread_data *td = fd->td;
+ 	struct thread_options *o = &td->o;
+ 	struct sk_out *sk_out = fd->sk_out;
++	int deadlock_loop_cnt;
+ 	int clear_state;
+ 	int ret;
+ 
+@@ -1731,11 +1732,17 @@ static void *thread_main(void *data)
+ 		 * the rusage_sem, which would never get upped because
+ 		 * this thread is waiting for the stat mutex.
+ 		 */
++		deadlock_loop_cnt = 0;
+ 		do {
+ 			check_update_rusage(td);
+ 			if (!fio_mutex_down_trylock(stat_mutex))
+ 				break;
+ 			usleep(1000);
++			if (deadlock_loop_cnt++ > 5000) {
++				log_err("fio seems to be stuck grabbing stat_mutex, forcibly exiting\n");
++				td->error = EDEADLOCK;
++				goto err;
++			}
+ 		} while (1);
+ 
+ 		if (td_read(td) && td->io_bytes[DDIR_READ])
