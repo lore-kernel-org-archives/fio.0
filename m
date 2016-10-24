@@ -1,88 +1,48 @@
-Return-Path: <Vincent.Fu@sandisk.com>
-From: Vincent Fu <Vincent.Fu@sandisk.com>
-Subject: [PATCH] Steadystate fixes
-Date: Thu, 27 Oct 2016 20:50:53 +0000
-Message-ID: <CY1PR02MB19955961FCC2C848CACE62FF8CAA0@CY1PR02MB1995.namprd02.prod.outlook.com>
-Content-Language: en-US
-Content-Type: multipart/mixed;
-	boundary="_002_CY1PR02MB19955961FCC2C848CACE62FF8CAA0CY1PR02MB1995namp_"
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-ua0-f182.google.com ([209.85.217.182]:40260 "EHLO
+        mail-ua0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752030AbcJXRuU (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 24 Oct 2016 13:50:20 -0400
+Received: by mail-ua0-f182.google.com with SMTP id u14so3831141uau.7
+        for <fio@vger.kernel.org>; Mon, 24 Oct 2016 10:50:20 -0700 (PDT)
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+In-Reply-To: <CAOHuL9h5c-tNKqf-79a_UWDTBANLd+jAS4qJTFdVdTYpKqCLGg@mail.gmail.com>
+References: <CAOHuL9gEd8VoDuyirSosdTwyQETskOgTvCyEGEPJoDEQS+9K=A@mail.gmail.com>
+ <DF4PR84MB0169198E7CB58F942068F566ABD70@DF4PR84MB0169.NAMPRD84.PROD.OUTLOOK.COM>
+ <CAF+0mvnc2kyMroFSoXT8FHck54DmHvPmEBfvyvHfuqeChk4ssA@mail.gmail.com> <CAOHuL9h5c-tNKqf-79a_UWDTBANLd+jAS4qJTFdVdTYpKqCLGg@mail.gmail.com>
+From: Andrzej Jakowski <andrzej.jakowski@gmail.com>
+Date: Mon, 24 Oct 2016 10:50:18 -0700
+Message-ID: <CAOmo8Da6qCB8Qmj5OwnxTitTweYJ_WrMjLSEwrNhDw3XYkyENQ@mail.gmail.com>
+Subject: Re: Results too good to be true?
+Content-Type: text/plain; charset=UTF-8
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Tarek <cashew250@gmail.com>
+Cc: Matthew Eaton <m.eaton82@gmail.com>, "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
---_002_CY1PR02MB19955961FCC2C848CACE62FF8CAA0CY1PR02MB1995namp_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+2016-10-24 10:24 GMT-07:00 Tarek <cashew250@gmail.com>:
+> Matthew
+>
+> That is a good point, I typically do but had a bug in this latest
+> script that ran blkdiscard prior to any fio test. I will rerun and
+> report back.
+>
+> Thanks
+>
 
-Jens, the attached patch is for the steady-state branch.
+There is whole documented devoted to performance testing and steps
+required to gather reliable data.
 
-With this patch the feature should have the original functionality,
-although the list of items in the TODO is unchanged.
+http://www.snia.org/sites/default/files/SSS_PTS_Enterprise_v1.1.pdf
 
-Vincent
+I think since you are doing randread workload preconditioning
+shouldn't matter too much.
+It mostly matters for write operations.
+It seems like your workload fetches all the data from kind of cache.
+Maybe cache on SSD side.
+You can easily investigate it by reading the log pages. C1/C2 for Intel drives.
+See http://www.intel.com/content/www/us/en/solid-state-drives/ssd-dc-p3600-spec.html
+for details.
 
---
-Vincent Fu
-Software Dev Engr II
-SanDisk, a Western Digital brand
-Email: Vincent.Fu@SanDisk.com
-Office: 801 987 7079
-
-PLEASE NOTE: The information contained in this electronic mail message is i=
-ntended only for the use of the designated recipient(s) named above. If the=
- reader of this message is not the intended recipient, you are hereby notif=
-ied that you have received this message in error and that any review, disse=
-mination, distribution, or copying of this message is strictly prohibited. =
-If you have received this communication in error, please notify the sender =
-by telephone or e-mail (as shown above) immediately and destroy any and all=
- copies of this message in your possession (whether hard copies or electron=
-ically stored copies).
-
---_002_CY1PR02MB19955961FCC2C848CACE62FF8CAA0CY1PR02MB1995namp_
-Content-Type: text/plain; name="0001-Steadystate-fixes.patch"
-Content-Description: 0001-Steadystate-fixes.patch
-Content-Disposition: attachment; filename="0001-Steadystate-fixes.patch";
-	size=2081; creation-date="Thu, 27 Oct 2016 20:50:53 GMT";
-	modification-date="Thu, 27 Oct 2016 20:50:53 GMT"
-Content-Transfer-Encoding: base64
-
-RnJvbSBmMDFmMjg3YTkwMjAzYTViZTA1ZjNmZjA4ZjZjMDNlMjU3NmNkNWZiIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBWaW5jZW50IEZ1IDxWaW5jZW50LkZ1QHNhbmRpc2suY29tPgpE
-YXRlOiBUaHUsIDI3IE9jdCAyMDE2IDE2OjM2OjQzIC0wNDAwClN1YmplY3Q6IFtQQVRDSF0gU3Rl
-YWR5c3RhdGUgZml4ZXMKCjEpIEZpeCBzdGVhZHlzdGF0ZSBvcHRpb24gcGFyc2luZyBjYWxsYmFj
-ayBidQoyKSBSZS1pbnNlcnQgbWlzc2luZyBtdWx0aXBsaWVyIGluIHNsb3BlIGNhbGN1bGF0aW9u
-CjMpIFJldmVydCAnYXR0YWluZWQnIGluIHRoZSBKU09OIG91dHB1dCB0byBiZSBlaXRoZXIgMCBv
-ciAxCi0tLQogb3B0aW9ucy5jICAgICB8IDIgKy0KIHN0YXQuYyAgICAgICAgfCAyICstCiBzdGVh
-ZHlzdGF0ZS5jIHwgNCArKy0tCiAzIGZpbGVzIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgNCBk
-ZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9vcHRpb25zLmMgYi9vcHRpb25zLmMKaW5kZXggNmYz
-NzUyZi4uM2FmNjA0YiAxMDA2NDQKLS0tIGEvb3B0aW9ucy5jCisrKyBiL29wdGlvbnMuYwpAQCAt
-MTA2Myw3ICsxMDYzLDcgQEAgc3RhdGljIGludCBzdHJfcmFuZG9tX2Rpc3RyaWJ1dGlvbl9jYih2
-b2lkICpkYXRhLCBjb25zdCBjaGFyICpzdHIpCiAKIHN0YXRpYyBpbnQgc3RyX3N0ZWFkeXN0YXRl
-X2NiKHZvaWQgKmRhdGEsIGNvbnN0IGNoYXIgKnN0cikKIHsKLQlzdHJ1Y3QgdGhyZWFkX2RhdGEg
-KnRkID0gZGF0YTsKKwlzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkID0gY2JfZGF0YV90b190ZChkYXRh
-KTsKIAlkb3VibGUgdmFsOwogCWNoYXIgKm5yOwogCWNoYXIgKnBjdDsKZGlmZiAtLWdpdCBhL3N0
-YXQuYyBiL3N0YXQuYwppbmRleCAwZWI4N2JkLi5jNDFhYzg5IDEwMDY0NAotLS0gYS9zdGF0LmMK
-KysrIGIvc3RhdC5jCkBAIC0xMjc2LDcgKzEyNzYsNyBAQCBzdGF0aWMgc3RydWN0IGpzb25fb2Jq
-ZWN0ICpzaG93X3RocmVhZF9zdGF0dXNfanNvbihzdHJ1Y3QgdGhyZWFkX3N0YXQgKnRzLAogCQlq
-c29uX29iamVjdF9hZGRfdmFsdWVfc3RyaW5nKHRtcCwgInNzIiwgc3NfYnVmKTsKIAkJanNvbl9v
-YmplY3RfYWRkX3ZhbHVlX2ludCh0bXAsICJkdXJhdGlvbiIsIChpbnQpc3MtPmR1cik7CiAJCWpz
-b25fb2JqZWN0X2FkZF92YWx1ZV9pbnQodG1wLCAic3RlYWR5c3RhdGVfcmFtcHRpbWUiLCBzcy0+
-cmFtcF90aW1lIC8gMTAwMDAwMEwpOwotCQlqc29uX29iamVjdF9hZGRfdmFsdWVfaW50KHRtcCwg
-ImF0dGFpbmVkIiwgc3MtPnN0YXRlICYgX19GSU9fU1NfQVRUQUlORUQpOworCQlqc29uX29iamVj
-dF9hZGRfdmFsdWVfaW50KHRtcCwgImF0dGFpbmVkIiwgKHNzLT5zdGF0ZSAmIF9fRklPX1NTX0FU
-VEFJTkVEKSA+IDApOwogCiAJCXNucHJpbnRmKHNzX2J1Ziwgc2l6ZW9mKHNzX2J1ZiksICIlZiVz
-IiwgKGZsb2F0KSBzcy0+Y3JpdGVyaW9uLCBzcy0+cGN0ID8gIiUiIDogIiIpOwogCQlqc29uX29i
-amVjdF9hZGRfdmFsdWVfc3RyaW5nKHRtcCwgImNyaXRlcmlvbiIsIHNzX2J1Zik7CmRpZmYgLS1n
-aXQgYS9zdGVhZHlzdGF0ZS5jIGIvc3RlYWR5c3RhdGUuYwppbmRleCAyMzVkZWFjLi4xZjUzYWU0
-IDEwMDY0NAotLS0gYS9zdGVhZHlzdGF0ZS5jCisrKyBiL3N0ZWFkeXN0YXRlLmMKQEAgLTg0LDkg
-Kzg0LDkgQEAgc3RhdGljIGJvb2wgc3RlYWR5c3RhdGVfc2xvcGUodW5zaWduZWQgbG9uZyBpb3Bz
-LCB1bnNpZ25lZCBsb25nIGJ3LAogCQkJCWlmIChqID49IHNzLT5kdXIpCiAJCQkJCWogLT0gc3Mt
-PmR1cjsKIAkJCQlpZiAoc3MtPnN0YXRlICYgX19GSU9fU1NfSU9QUykKLQkJCQkJc3MtPnN1bV94
-eSArPSBzcy0+aW9wc19kYXRhW2pdOworCQkJCQlzcy0+c3VtX3h5ICs9IGkgKiBzcy0+aW9wc19k
-YXRhW2pdOwogCQkJCWVsc2UKLQkJCQkJc3MtPnN1bV94eSArPSBzcy0+YndfZGF0YVtqXTsKKwkJ
-CQkJc3MtPnN1bV94eSArPSBpICogc3MtPmJ3X2RhdGFbal07CiAJCQl9CiAJCX0gZWxzZSB7CQkv
-KiBlYXN5IHRvIHVwZGF0ZSB0aGUgc3VtcyAqLwogCQkJc3MtPnN1bV95IC09IHNzLT5vbGRlc3Rf
-eTsKLS0gCjIuNy40IChBcHBsZSBHaXQtNjYpCgo=
-
---_002_CY1PR02MB19955961FCC2C848CACE62FF8CAA0CY1PR02MB1995namp_--
-
+Regards,
+Andrzej
