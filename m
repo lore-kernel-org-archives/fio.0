@@ -1,227 +1,105 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:39902 "EHLO
+Received: from merlin.infradead.org ([205.233.59.134]:59912 "EHLO
         merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750820AbcJTMAE (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 20 Oct 2016 08:00:04 -0400
+        with ESMTP id S1750841AbcJYMAF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 25 Oct 2016 08:00:05 -0400
 Received: from [216.160.245.99] (helo=kernel.dk)
         by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-        id 1bxC0x-0005rP-Nr
-        for fio@vger.kernel.org; Thu, 20 Oct 2016 12:00:03 +0000
+        id 1bz0Oh-0003b2-Uu
+        for fio@vger.kernel.org; Tue, 25 Oct 2016 12:00:04 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20161020120001.DFD372C302E@kernel.dk>
-Date: Thu, 20 Oct 2016 06:00:01 -0600 (MDT)
+Message-Id: <20161025120002.65E432C302F@kernel.dk>
+Date: Tue, 25 Oct 2016 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 0228cfe7bb04b3c8329f8e77ee47e30e1a5a03cd:
+The following changes since commit ca0122d822ea7dd573f05ca4cf43c5d0ff9f4adb:
 
-  HOWTO: update to include iolog replay (2016-10-18 09:12:45 -0600)
+  backend: if we can't grab stat_mutex, report a deadlock error and exit (2016-10-23 08:35:14 -0600)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 99350ae471e1271cae7bb3ef68b5ee0e11c21828:
+for you to fetch changes up to 43f248c4527a49d3de0cd758ce669f7736028ea4:
 
-  Merge branch 'rbd-poll' (2016-10-19 09:24:04 -0600)
+  Use the POSIX `EDEADLK` instead of the Linux `EDEADLOCK` (2016-10-24 20:48:43 -0600)
 
 ----------------------------------------------------------------
-Jens Axboe (2):
-      rbd: poll cleanups
-      Merge branch 'rbd-poll'
+Bruce Cran (1):
+      Use the POSIX `EDEADLK` instead of the Linux `EDEADLOCK`
 
-Pan Liu (1):
-      use poll() and rbd_poll_io_events to speed up io retrieval.
+Jens Axboe (3):
+      mutex: clear mutex when removed
+      fio: make job reap timeout 5 minutes
+      backend: end IO loop early, if the job is marked as terminated
 
- configure     | 29 ++++++++++++++++++++++
- engines/rbd.c | 78 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 105 insertions(+), 2 deletions(-)
+ backend.c | 10 +++++++++-
+ fio.h     |  2 +-
+ mutex.c   |  6 ++++++
+ 3 files changed, 16 insertions(+), 2 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/configure b/configure
-index e91ec25..833b6d3 100755
---- a/configure
-+++ b/configure
-@@ -1335,6 +1335,32 @@ fi
- echo "Rados Block Device engine     $rbd"
+diff --git a/backend.c b/backend.c
+index 093b6a3..ed4f1f0 100644
+--- a/backend.c
++++ b/backend.c
+@@ -1723,6 +1723,14 @@ static void *thread_main(void *data)
+ 			}
+ 		}
  
- ##########################################
-+# check for rbd_poll
-+rbd_poll="no"
-+if test "$rbd" = "yes"; then
-+cat > $TMPC << EOF
-+#include <rbd/librbd.h>
-+#include <sys/eventfd.h>
++		/*
++		 * If we took too long to shut down, the main thread could
++		 * already consider us reaped/exited. If that happens, break
++		 * out and clean up.
++		 */
++		if (td->runstate >= TD_EXITED)
++			break;
 +
-+int main(int argc, char **argv)
-+{
-+  rbd_image_t image;
-+  rbd_completion_t comp;
-+
-+  int fd = eventfd(0, EFD_NONBLOCK);
-+  rbd_set_image_notification(image, fd, EVENT_TYPE_EVENTFD);
-+  rbd_poll_io_events(image, comp, 1);
-+
-+  return 0;
-+}
-+EOF
-+if compile_prog "" "-lrbd -lrados" "rbd"; then
-+  rbd_poll="yes"
-+fi
-+echo "rbd_poll                      $rbd_poll"
-+fi
-+
-+##########################################
- # check for rbd_invaidate_cache()
- rbd_inval="no"
- if test "$rbd" = "yes"; then
-@@ -1853,6 +1879,9 @@ fi
- if test "$rbd" = "yes" ; then
-   output_sym "CONFIG_RBD"
- fi
-+if test "$rbd_poll" = "yes" ; then
-+  output_sym "CONFIG_RBD_POLL"
-+fi
- if test "$rbd_inval" = "yes" ; then
-   output_sym "CONFIG_RBD_INVAL"
- fi
-diff --git a/engines/rbd.c b/engines/rbd.c
-index 5e17fbe..aa50c80 100644
---- a/engines/rbd.c
-+++ b/engines/rbd.c
-@@ -13,6 +13,12 @@
- #include <zipkin_c.h>
- #endif
+ 		clear_state = 1;
  
-+#ifdef CONFIG_RBD_POLL
-+/* add for poll */
-+#include <poll.h>
-+#include <sys/eventfd.h>
-+#endif
+ 		/*
+@@ -1740,7 +1748,7 @@ static void *thread_main(void *data)
+ 			usleep(1000);
+ 			if (deadlock_loop_cnt++ > 5000) {
+ 				log_err("fio seems to be stuck grabbing stat_mutex, forcibly exiting\n");
+-				td->error = EDEADLOCK;
++				td->error = EDEADLK;
+ 				goto err;
+ 			}
+ 		} while (1);
+diff --git a/fio.h b/fio.h
+index 080842a..74c1b30 100644
+--- a/fio.h
++++ b/fio.h
+@@ -588,7 +588,7 @@ extern const char *runstate_to_name(int runstate);
+  * Allow 60 seconds for a job to quit on its own, otherwise reap with
+  * a vengeance.
+  */
+-#define FIO_REAP_TIMEOUT	60
++#define FIO_REAP_TIMEOUT	300
+ 
+ #define TERMINATE_ALL		(-1U)
+ extern void fio_terminate_threads(unsigned int);
+diff --git a/mutex.c b/mutex.c
+index 7580922..e5b045e 100644
+--- a/mutex.c
++++ b/mutex.c
+@@ -22,6 +22,12 @@ void __fio_mutex_remove(struct fio_mutex *mutex)
+ {
+ 	assert(mutex->magic == FIO_MUTEX_MAGIC);
+ 	pthread_cond_destroy(&mutex->cond);
 +
- struct fio_rbd_iou {
- 	struct io_u *io_u;
- 	rbd_completion_t completion;
-@@ -29,6 +35,7 @@ struct rbd_data {
- 	rbd_image_t image;
- 	struct io_u **aio_events;
- 	struct io_u **sort_events;
-+	int fd; /* add for poll */
- };
- 
- struct rbd_options {
-@@ -104,6 +111,9 @@ static int _fio_setup_rbd_data(struct thread_data *td,
- 	if (!rbd)
- 		goto failed;
- 
-+	/* add for poll, init fd: -1 */
-+	rbd->fd = -1;
-+
- 	rbd->aio_events = calloc(td->o.iodepth, sizeof(struct io_u *));
- 	if (!rbd->aio_events)
- 		goto failed;
-@@ -127,6 +137,35 @@ failed:
- 
++	/*
++	 * Ensure any subsequent attempt to grab this mutex will fail
++	 * with an assert, instead of just silently hanging.
++	 */
++	memset(mutex, 0, sizeof(*mutex));
  }
  
-+#ifdef CONFIG_RBD_POLL
-+static bool _fio_rbd_setup_poll(struct rbd_data *rbd)
-+{
-+	int r;
-+
-+	/* add for rbd poll */
-+	rbd->fd = eventfd(0, EFD_NONBLOCK);
-+	if (rbd->fd < 0) {
-+		log_err("eventfd failed.\n");
-+		return false;
-+	}
-+
-+	r = rbd_set_image_notification(rbd->image, rbd->fd, EVENT_TYPE_EVENTFD);
-+	if (r < 0) {
-+		log_err("rbd_set_image_notification failed.\n");
-+		close(rbd->fd);
-+		rbd->fd = -1;
-+		return false;
-+	}
-+
-+	return true;
-+}
-+#else
-+static bool _fio_rbd_setup_poll(struct rbd_data *rbd)
-+{
-+	return true;
-+}
-+#endif
-+
- static int _fio_rbd_connect(struct thread_data *td)
- {
- 	struct rbd_data *rbd = td->io_ops_data;
-@@ -188,8 +227,15 @@ static int _fio_rbd_connect(struct thread_data *td)
- 		log_err("rbd_open failed.\n");
- 		goto failed_open;
- 	}
-+
-+	if (!_fio_rbd_setup_poll(rbd))
-+		goto failed_poll;
-+
- 	return 0;
- 
-+failed_poll:
-+	rbd_close(rbd->image);
-+	rbd->image = NULL;
- failed_open:
- 	rados_ioctx_destroy(rbd->io_ctx);
- 	rbd->io_ctx = NULL;
-@@ -205,6 +251,12 @@ static void _fio_rbd_disconnect(struct rbd_data *rbd)
- 	if (!rbd)
- 		return;
- 
-+	/* close eventfd */
-+	if (rbd->fd != -1) {
-+		close(rbd->fd);
-+		rbd->fd = -1;
-+	}
-+
- 	/* shutdown everything */
- 	if (rbd->image) {
- 		rbd_close(rbd->image);
-@@ -304,10 +356,32 @@ static int rbd_iter_events(struct thread_data *td, unsigned int *events,
- 	struct rbd_data *rbd = td->io_ops_data;
- 	unsigned int this_events = 0;
- 	struct io_u *io_u;
--	int i, sidx;
-+	int i, sidx = 0;
-+
-+#ifdef CONFIG_RBD_POLL
-+	int ret = 0;
-+	int event_num = 0;
-+	struct fio_rbd_iou *fri = NULL;
-+	rbd_completion_t comps[min_evts];
- 
--	sidx = 0;
-+	struct pollfd pfd;
-+	pfd.fd = rbd->fd;
-+	pfd.events = POLLIN;
-+
-+	ret = poll(&pfd, 1, -1);
-+	if (ret <= 0)
-+		return 0;
-+
-+	assert(pfd.revents & POLLIN);
-+
-+	event_num = rbd_poll_io_events(rbd->image, comps, min_evts);
-+
-+	for (i = 0; i < event_num; i++) {
-+		fri = rbd_aio_get_arg(comps[i]);
-+		io_u = fri->io_u;
-+#else
- 	io_u_qiter(&td->io_u_all, io_u, i) {
-+#endif
- 		if (!(io_u->flags & IO_U_F_FLIGHT))
- 			continue;
- 		if (rbd_io_u_seen(io_u))
+ void fio_mutex_remove(struct fio_mutex *mutex)
