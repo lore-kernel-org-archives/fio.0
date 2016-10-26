@@ -1,67 +1,35 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:60818 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754768AbcJZMAD (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 26 Oct 2016 08:00:03 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-        id 1bzMsE-0001Z8-W0
-        for fio@vger.kernel.org; Wed, 26 Oct 2016 12:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20161026120002.3B2DD2C1A72@kernel.dk>
-Date: Wed, 26 Oct 2016 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <7eda37b1-b0df-9f90-56b4-64f146e7cc29@kernel.dk>
+References: <1477069653-14350-1-git-send-email-kusumi.tomohiro@gmail.com>
+ <CAHndrB=qorNcy+kQb-bZhd8L0k6KXw2jyw344Vj+UMfoMuERYQ@mail.gmail.com> <7eda37b1-b0df-9f90-56b4-64f146e7cc29@kernel.dk>
+From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Date: Wed, 26 Oct 2016 23:42:22 +0900
+Message-ID: <CAHndrBnriZdTHTZHyhn1pYXgWWrO55gZPf9OQp1dHu1kXC3Ohg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] Add blockdev_size() support for NetBSD
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 43f248c4527a49d3de0cd758ce669f7736028ea4:
+Thank you (as always).
 
-  Use the POSIX `EDEADLK` instead of the Linux `EDEADLOCK` (2016-10-24 20:48:43 -0600)
 
-are available in the git repository at:
+2016-10-26 23:01 GMT+09:00 Jens Axboe <axboe@kernel.dk>:
+> On 10/26/2016 06:09 AM, Tomohiro Kusumi wrote:
+>>
+>> Hi Jens
+>>
+>> Sorry to ping you, but could you please review this (1/2) and 2/2 ?
+>
+>
+> No problem, both applied.
+>
+> --
+> Jens Axboe
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to a0290964d9e15aa9faa5a139effc14cfa5bcd3f1:
-
-  Fio 2.15 (2016-10-25 12:38:13 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Fio 2.15
-
- FIO-VERSION-GEN        | 2 +-
- os/windows/install.wxs | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index 8d4f1ef..eac0e00 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-2.14
-+DEF_VER=fio-2.15
- 
- LF='
- '
-diff --git a/os/windows/install.wxs b/os/windows/install.wxs
-index da09b9f..25cb269 100755
---- a/os/windows/install.wxs
-+++ b/os/windows/install.wxs
-@@ -10,7 +10,7 @@
- 	<Product Id="*"
- 	  Codepage="1252" Language="1033"
- 	  Manufacturer="fio" Name="fio"
--	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.14">
-+	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.15">
- 		<Package
- 		  Description="Flexible IO Tester"
- 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
