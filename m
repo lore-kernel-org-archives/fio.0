@@ -1,70 +1,88 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:55626 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757498AbcJXMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 24 Oct 2016 08:00:09 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-        id 1bydvA-0004ox-Ed
-        for fio@vger.kernel.org; Mon, 24 Oct 2016 12:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20161024120001.EF4DF2C00C8@kernel.dk>
-Date: Mon, 24 Oct 2016 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <Vincent.Fu@sandisk.com>
+From: Vincent Fu <Vincent.Fu@sandisk.com>
+Subject: [PATCH] Steadystate fixes
+Date: Thu, 27 Oct 2016 20:50:53 +0000
+Message-ID: <CY1PR02MB19955961FCC2C848CACE62FF8CAA0@CY1PR02MB1995.namprd02.prod.outlook.com>
+Content-Language: en-US
+Content-Type: multipart/mixed;
+	boundary="_002_CY1PR02MB19955961FCC2C848CACE62FF8CAA0CY1PR02MB1995namp_"
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit e291cff14e97feb3cff711f5a5cbcb63b32f9c72:
+--_002_CY1PR02MB19955961FCC2C848CACE62FF8CAA0CY1PR02MB1995namp_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-  Use fmt -w WIDTH option instead of -WIDTH (2016-10-20 08:10:10 -0600)
+Jens, the attached patch is for the steady-state branch.
 
-are available in the git repository at:
+With this patch the feature should have the original functionality,
+although the list of items in the TODO is unchanged.
 
-  git://git.kernel.dk/fio.git master
+Vincent
 
-for you to fetch changes up to ca0122d822ea7dd573f05ca4cf43c5d0ff9f4adb:
+--
+Vincent Fu
+Software Dev Engr II
+SanDisk, a Western Digital brand
+Email: Vincent.Fu@SanDisk.com
+Office: 801 987 7079
 
-  backend: if we can't grab stat_mutex, report a deadlock error and exit (2016-10-23 08:35:14 -0600)
+PLEASE NOTE: The information contained in this electronic mail message is i=
+ntended only for the use of the designated recipient(s) named above. If the=
+ reader of this message is not the intended recipient, you are hereby notif=
+ied that you have received this message in error and that any review, disse=
+mination, distribution, or copying of this message is strictly prohibited. =
+If you have received this communication in error, please notify the sender =
+by telephone or e-mail (as shown above) immediately and destroy any and all=
+ copies of this message in your possession (whether hard copies or electron=
+ically stored copies).
 
-----------------------------------------------------------------
-Theodore Ts'o (1):
-      backend: if we can't grab stat_mutex, report a deadlock error and exit
+--_002_CY1PR02MB19955961FCC2C848CACE62FF8CAA0CY1PR02MB1995namp_
+Content-Type: text/plain; name="0001-Steadystate-fixes.patch"
+Content-Description: 0001-Steadystate-fixes.patch
+Content-Disposition: attachment; filename="0001-Steadystate-fixes.patch";
+	size=2081; creation-date="Thu, 27 Oct 2016 20:50:53 GMT";
+	modification-date="Thu, 27 Oct 2016 20:50:53 GMT"
+Content-Transfer-Encoding: base64
 
- backend.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+RnJvbSBmMDFmMjg3YTkwMjAzYTViZTA1ZjNmZjA4ZjZjMDNlMjU3NmNkNWZiIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBWaW5jZW50IEZ1IDxWaW5jZW50LkZ1QHNhbmRpc2suY29tPgpE
+YXRlOiBUaHUsIDI3IE9jdCAyMDE2IDE2OjM2OjQzIC0wNDAwClN1YmplY3Q6IFtQQVRDSF0gU3Rl
+YWR5c3RhdGUgZml4ZXMKCjEpIEZpeCBzdGVhZHlzdGF0ZSBvcHRpb24gcGFyc2luZyBjYWxsYmFj
+ayBidQoyKSBSZS1pbnNlcnQgbWlzc2luZyBtdWx0aXBsaWVyIGluIHNsb3BlIGNhbGN1bGF0aW9u
+CjMpIFJldmVydCAnYXR0YWluZWQnIGluIHRoZSBKU09OIG91dHB1dCB0byBiZSBlaXRoZXIgMCBv
+ciAxCi0tLQogb3B0aW9ucy5jICAgICB8IDIgKy0KIHN0YXQuYyAgICAgICAgfCAyICstCiBzdGVh
+ZHlzdGF0ZS5jIHwgNCArKy0tCiAzIGZpbGVzIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgNCBk
+ZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9vcHRpb25zLmMgYi9vcHRpb25zLmMKaW5kZXggNmYz
+NzUyZi4uM2FmNjA0YiAxMDA2NDQKLS0tIGEvb3B0aW9ucy5jCisrKyBiL29wdGlvbnMuYwpAQCAt
+MTA2Myw3ICsxMDYzLDcgQEAgc3RhdGljIGludCBzdHJfcmFuZG9tX2Rpc3RyaWJ1dGlvbl9jYih2
+b2lkICpkYXRhLCBjb25zdCBjaGFyICpzdHIpCiAKIHN0YXRpYyBpbnQgc3RyX3N0ZWFkeXN0YXRl
+X2NiKHZvaWQgKmRhdGEsIGNvbnN0IGNoYXIgKnN0cikKIHsKLQlzdHJ1Y3QgdGhyZWFkX2RhdGEg
+KnRkID0gZGF0YTsKKwlzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkID0gY2JfZGF0YV90b190ZChkYXRh
+KTsKIAlkb3VibGUgdmFsOwogCWNoYXIgKm5yOwogCWNoYXIgKnBjdDsKZGlmZiAtLWdpdCBhL3N0
+YXQuYyBiL3N0YXQuYwppbmRleCAwZWI4N2JkLi5jNDFhYzg5IDEwMDY0NAotLS0gYS9zdGF0LmMK
+KysrIGIvc3RhdC5jCkBAIC0xMjc2LDcgKzEyNzYsNyBAQCBzdGF0aWMgc3RydWN0IGpzb25fb2Jq
+ZWN0ICpzaG93X3RocmVhZF9zdGF0dXNfanNvbihzdHJ1Y3QgdGhyZWFkX3N0YXQgKnRzLAogCQlq
+c29uX29iamVjdF9hZGRfdmFsdWVfc3RyaW5nKHRtcCwgInNzIiwgc3NfYnVmKTsKIAkJanNvbl9v
+YmplY3RfYWRkX3ZhbHVlX2ludCh0bXAsICJkdXJhdGlvbiIsIChpbnQpc3MtPmR1cik7CiAJCWpz
+b25fb2JqZWN0X2FkZF92YWx1ZV9pbnQodG1wLCAic3RlYWR5c3RhdGVfcmFtcHRpbWUiLCBzcy0+
+cmFtcF90aW1lIC8gMTAwMDAwMEwpOwotCQlqc29uX29iamVjdF9hZGRfdmFsdWVfaW50KHRtcCwg
+ImF0dGFpbmVkIiwgc3MtPnN0YXRlICYgX19GSU9fU1NfQVRUQUlORUQpOworCQlqc29uX29iamVj
+dF9hZGRfdmFsdWVfaW50KHRtcCwgImF0dGFpbmVkIiwgKHNzLT5zdGF0ZSAmIF9fRklPX1NTX0FU
+VEFJTkVEKSA+IDApOwogCiAJCXNucHJpbnRmKHNzX2J1Ziwgc2l6ZW9mKHNzX2J1ZiksICIlZiVz
+IiwgKGZsb2F0KSBzcy0+Y3JpdGVyaW9uLCBzcy0+cGN0ID8gIiUiIDogIiIpOwogCQlqc29uX29i
+amVjdF9hZGRfdmFsdWVfc3RyaW5nKHRtcCwgImNyaXRlcmlvbiIsIHNzX2J1Zik7CmRpZmYgLS1n
+aXQgYS9zdGVhZHlzdGF0ZS5jIGIvc3RlYWR5c3RhdGUuYwppbmRleCAyMzVkZWFjLi4xZjUzYWU0
+IDEwMDY0NAotLS0gYS9zdGVhZHlzdGF0ZS5jCisrKyBiL3N0ZWFkeXN0YXRlLmMKQEAgLTg0LDkg
+Kzg0LDkgQEAgc3RhdGljIGJvb2wgc3RlYWR5c3RhdGVfc2xvcGUodW5zaWduZWQgbG9uZyBpb3Bz
+LCB1bnNpZ25lZCBsb25nIGJ3LAogCQkJCWlmIChqID49IHNzLT5kdXIpCiAJCQkJCWogLT0gc3Mt
+PmR1cjsKIAkJCQlpZiAoc3MtPnN0YXRlICYgX19GSU9fU1NfSU9QUykKLQkJCQkJc3MtPnN1bV94
+eSArPSBzcy0+aW9wc19kYXRhW2pdOworCQkJCQlzcy0+c3VtX3h5ICs9IGkgKiBzcy0+aW9wc19k
+YXRhW2pdOwogCQkJCWVsc2UKLQkJCQkJc3MtPnN1bV94eSArPSBzcy0+YndfZGF0YVtqXTsKKwkJ
+CQkJc3MtPnN1bV94eSArPSBpICogc3MtPmJ3X2RhdGFbal07CiAJCQl9CiAJCX0gZWxzZSB7CQkv
+KiBlYXN5IHRvIHVwZGF0ZSB0aGUgc3VtcyAqLwogCQkJc3MtPnN1bV95IC09IHNzLT5vbGRlc3Rf
+eTsKLS0gCjIuNy40IChBcHBsZSBHaXQtNjYpCgo=
 
----
+--_002_CY1PR02MB19955961FCC2C848CACE62FF8CAA0CY1PR02MB1995namp_--
 
-Diff of recent changes:
-
-diff --git a/backend.c b/backend.c
-index fb2a855..093b6a3 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1471,6 +1471,7 @@ static void *thread_main(void *data)
- 	struct thread_data *td = fd->td;
- 	struct thread_options *o = &td->o;
- 	struct sk_out *sk_out = fd->sk_out;
-+	int deadlock_loop_cnt;
- 	int clear_state;
- 	int ret;
- 
-@@ -1731,11 +1732,17 @@ static void *thread_main(void *data)
- 		 * the rusage_sem, which would never get upped because
- 		 * this thread is waiting for the stat mutex.
- 		 */
-+		deadlock_loop_cnt = 0;
- 		do {
- 			check_update_rusage(td);
- 			if (!fio_mutex_down_trylock(stat_mutex))
- 				break;
- 			usleep(1000);
-+			if (deadlock_loop_cnt++ > 5000) {
-+				log_err("fio seems to be stuck grabbing stat_mutex, forcibly exiting\n");
-+				td->error = EDEADLOCK;
-+				goto err;
-+			}
- 		} while (1);
- 
- 		if (td_read(td) && td->io_bytes[DDIR_READ])
