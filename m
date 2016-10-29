@@ -1,29 +1,28 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from muon.bluestop.org ([74.50.51.35]:21107 "EHLO muon.cran.org.uk"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752423AbcJ2Ah4 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 28 Oct 2016 20:37:56 -0400
+Return-Path: <bruce@cran.org.uk>
 Subject: Re: fio crash on windows when using json output
 References: <BY2PR0701MB2039BAE87219973B20F0FB8BAFCF0@BY2PR0701MB2039.namprd07.prod.outlook.com>
+ <d8754f54-4c79-62c3-df33-d4f216aaec91@kernel.dk>
 From: Bruce Cran <bruce@cran.org.uk>
-Message-ID: <b5af750c-b0bb-a75c-fa9d-05c004458fe8@cran.org.uk>
-Date: Fri, 28 Oct 2016 18:37:54 -0600
+Message-ID: <52eccbdb-00ea-ef0e-f46f-be7961b59b6d@cran.org.uk>
+Date: Fri, 28 Oct 2016 18:26:22 -0600
 MIME-Version: 1.0
-In-Reply-To: <BY2PR0701MB2039BAE87219973B20F0FB8BAFCF0@BY2PR0701MB2039.namprd07.prod.outlook.com>
+In-Reply-To: <d8754f54-4c79-62c3-df33-d4f216aaec91@kernel.dk>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Shahar Glixman <sglixman@velostrata.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Jens Axboe <axboe@kernel.dk>, Shahar Glixman <sglixman@velostrata.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-On 9/28/2016 2:21 PM, Shahar Glixman wrote:
-> I am trying to run fio on windows (2012 core), and getting sporadic crashes  (~ 1 out of 3 runs) -
-> Tried both 2.13 (taken from bluestop site: fio-2.13-x64.zip)
-> And also compiled 2.14 from sources.
+On 10/12/2016 4:20 PM, Jens Axboe wrote:
+> Does this still happen in current -git? It's too bad the windows version
+> doesn't generate the git sha, Bruce, any chance that could get added?
+>
 
-I haven't been able to replicate the crash in either current or older 
-code on my Windows system. Could you check if a build of the current git 
-code also crashes, please?
+It does output the git sha if you're running a build that hasn't been 
+tagged:
 
-Thanks.
+C:\...\workspace\fio>fio --version
+fio-2.15-2-ga955
+
+-- 
 Bruce
+
