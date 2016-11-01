@@ -1,159 +1,46 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Subject: [PATCH 4/4] Add device_is_mounted() support for NetBSD
-Date: Mon, 17 Oct 2016 23:17:41 +0900
-Message-Id: <1476713861-8325-4-git-send-email-kusumi.tomohiro@gmail.com>
-In-Reply-To: <1476713861-8325-1-git-send-email-kusumi.tomohiro@gmail.com>
-References: <1476713861-8325-1-git-send-email-kusumi.tomohiro@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-ua0-f169.google.com ([209.85.217.169]:35072 "EHLO
+        mail-ua0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1163121AbcKAGHN (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 1 Nov 2016 02:07:13 -0400
+Received: by mail-ua0-f169.google.com with SMTP id 12so121647849uas.2
+        for <fio@vger.kernel.org>; Mon, 31 Oct 2016 23:07:13 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CAKZcxgdhYey+dbUN7T5mW=Ghfw34=OtNrocJxqDH8k4fQ1tTJw@mail.gmail.com>
+References: <CAKZcxgdhYey+dbUN7T5mW=Ghfw34=OtNrocJxqDH8k4fQ1tTJw@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Tue, 1 Nov 2016 06:07:12 +0000
+Message-ID: <CALjAwxjVK5v+JNo2Ww9m3cfwCyjiEMVzjdrYUpMsht2Q2j1AOA@mail.gmail.com>
+Subject: Re: fio assert
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Jaze Lee <jazeltq@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-This commit is NetBSD version of e7e136da in 2015. It's basically
-the same as the one for FreeBSD/DragonFlyBSD, but NetBSD takes
-statvfs instead of statfs, so I had to add CONFIG_GETMNTINFO_STATVFS
-to differentiate from CONFIG_GETMNTINFO. It could be renamed if
-there is any better name, as it sounds strange.
+On 1 November 2016 at 03:12, Jaze Lee <jazeltq@gmail.com> wrote:
+> Hello,
+>    I found that when rate_iops used with write_lat_log=EF=BC=8C it will b=
+e
+> high probability
+> that the fio will assert. The below is the core dump.
+>
+> (gdb) bt
+> #0  0x00007f3c3ccd25f7 in raise () from /lib64/libc.so.6
+> #1  0x00007f3c3ccd3ce8 in abort () from /lib64/libc.so.6
+> #2  0x00007f3c3cccb566 in __assert_fail_base () from /lib64/libc.so.6
+> #3  0x00007f3c3cccb612 in __assert_fail () from /lib64/libc.so.6
+> #4  0x000000000042249c in get_cur_log (iolog=3D0x7f3c390bb8b0) at stat.c:=
+2004
+> #5  __add_log_sample (iolog=3Diolog@entry=3D0x7f3c390bb8b0,
+> val=3Dval@entry=3D1, ddir=3Dddir@entry=3DDDIR_WRITE, bs=3Dbs@entry=3D4096=
+, t=3D1024,
+> offset=3Doffset@entry=3D972521472)
+>     at stat.c:2019
 
-compile_prog() takes -Werror for local CFLAGS. Without -Werror,
-the existing getmntinfo(3) test code for FreeBSD/DragonFlyBSD only
-gives a warning on NetBSD and results in trying to compile wrong
-device_is_mounted().
+Could you include the job file / command line that reproduces the
+issue and the version of fio you were using?
 
-(The reason this hasn't been reported as a problem is because of
-the ./configure bug fixed by the previous commit. It fails to
-compile the test code unless st is a pointer.)
-
-The remaining one, OpenBSD seems to have the same interface as
-FreeBSD/DragonFlyBSD, so the existing test code will probably work,
-but fio doesn't compile on OpenBSD 5.9 due to other compile time
-errors (lex error) that have nothing to do with this.
-
---
- # uname
- NetBSD
- # cat ./test1.c
- #include <stdio.h>
- #include "./lib/mountcheck.h"
- int main(int argc, char *argv[]) {
-         printf("%s %d\n", argv[1], device_is_mounted(argv[1]));
-         return 0;
- }
- # gcc -Wall -g ./test1.c ./lib/mountcheck.o -o ./test1
- # ./test1 /dev/wd0a	/* UFS */
- /dev/wd0a 1
- # ./test1 procfs	/* procfs */
- procfs 1
- # ./test1 tmpfs	/* tmpfs */
- tmpfs 1
- # ./test1 invalid	/* irrelevant string */
- invalid 0
-
-Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
----
- configure        |   27 ++++++++++++++++++++++++++-
- lib/mountcheck.c |   23 ++++++++++++++++++++++-
- 2 files changed, 48 insertions(+), 2 deletions(-)
-
-diff --git a/configure b/configure
-index e8e6953..e91ec25 100755
---- a/configure
-+++ b/configure
-@@ -1621,6 +1621,11 @@ echo "getmntent                     $getmntent"
- 
- ##########################################
- # Check whether we have getmntinfo
-+# These are originally added for BSDs, but may also work
-+# on other operating systems with getmntinfo(3).
-+
-+# getmntinfo(3) for FreeBSD/DragonFlyBSD/OpenBSD.
-+# Note that NetBSD needs -Werror to catch warning as error.
- getmntinfo="no"
- cat > $TMPC << EOF
- #include <stdio.h>
-@@ -1632,11 +1637,28 @@ int main(int argc, char **argv)
-   return getmntinfo(&st, MNT_NOWAIT);
- }
- EOF
--if compile_prog "" "" "getmntinfo"; then
-+if compile_prog "-Werror" "" "getmntinfo"; then
-   getmntinfo="yes"
- fi
- echo "getmntinfo                    $getmntinfo"
- 
-+# getmntinfo(3) for NetBSD.
-+getmntinfo_statvfs="no"
-+cat > $TMPC << EOF
-+#include <stdio.h>
-+#include <sys/statvfs.h>
-+int main(int argc, char **argv)
-+{
-+  struct statvfs *st;
-+  return getmntinfo(&st, MNT_NOWAIT);
-+}
-+EOF
-+# Skip the test if the one with statfs arg is detected.
-+if test "$getmntinfo" != "yes" && compile_prog "-Werror" "" "getmntinfo_statvfs"; then
-+  getmntinfo_statvfs="yes"
-+  echo "getmntinfo_statvfs            $getmntinfo_statvfs"
-+fi
-+
- ##########################################
- # Check whether we have _Static_assert
- static_assert="no"
-@@ -1883,6 +1905,9 @@ fi
- if test "$getmntinfo" = "yes" ; then
-   output_sym "CONFIG_GETMNTINFO"
- fi
-+if test "$getmntinfo_statvfs" = "yes" ; then
-+  output_sym "CONFIG_GETMNTINFO_STATVFS"
-+fi
- if test "$static_assert" = "yes" ; then
-   output_sym "CONFIG_STATIC_ASSERT"
- fi
-diff --git a/lib/mountcheck.c b/lib/mountcheck.c
-index e8780eb..0aec744 100644
---- a/lib/mountcheck.c
-+++ b/lib/mountcheck.c
-@@ -32,7 +32,7 @@ int device_is_mounted(const char *dev)
- }
- 
- #elif defined(CONFIG_GETMNTINFO)
--/* for BSDs */
-+/* for most BSDs */
- #include <sys/param.h>
- #include <sys/mount.h>
- 
-@@ -53,6 +53,27 @@ int device_is_mounted(const char *dev)
- 	return 0;
- }
- 
-+#elif defined(CONFIG_GETMNTINFO_STATVFS)
-+/* for NetBSD */
-+#include <sys/statvfs.h>
-+
-+int device_is_mounted(const char *dev)
-+{
-+	struct statvfs *st;
-+	int i, ret;
-+
-+	ret = getmntinfo(&st, MNT_NOWAIT);
-+	if (ret <= 0)
-+		return 0;
-+
-+	for (i = 0; i < ret; i++) {
-+		if (!strcmp(st[i].f_mntfromname, dev))
-+			return 1;
-+	}
-+
-+	return 0;
-+}
-+
- #else
- /* others */
- 
--- 
-1.7.1
-
-
+--=20
+Sitsofe | http://sucs.org/~sits/
