@@ -1,85 +1,259 @@
-Return-Path: <sitsofe@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <CAKZcxgeXnostqxPAGi2ek1x+Tw7_CxrnjVzuy3QrJhwbERewnQ@mail.gmail.com>
-References: <CAKZcxgdhYey+dbUN7T5mW=Ghfw34=OtNrocJxqDH8k4fQ1tTJw@mail.gmail.com>
- <CALjAwxjVK5v+JNo2Ww9m3cfwCyjiEMVzjdrYUpMsht2Q2j1AOA@mail.gmail.com>
- <CAKZcxgc2k=o2_kbYdFmxScxC2Zns+SKi++=rdxvwD2vGj83RZg@mail.gmail.com>
- <CAKZcxgfr_RfHD0XcDV0nMgFhU1nPNEzP0GciE-Unw-i-k3eaSw@mail.gmail.com> <CAKZcxgeXnostqxPAGi2ek1x+Tw7_CxrnjVzuy3QrJhwbERewnQ@mail.gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Thu, 3 Nov 2016 07:31:14 +0000
-Message-ID: <CALjAwxia8JGF2uErqV3BdqLt7YTwZ=qwAKMmU2xJL1FnmcjvKg@mail.gmail.com>
-Subject: Re: fio assert
-Content-Type: text/plain; charset=UTF-8
-To: Jaze Lee <jazeltq@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.9]:46012 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751111AbcKBMAF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 2 Nov 2016 08:00:05 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+        id 1c1uD6-0004Sh-IT
+        for fio@vger.kernel.org; Wed, 02 Nov 2016 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20161102120002.858FF2C03BA@kernel.dk>
+Date: Wed,  2 Nov 2016 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On 3 November 2016 at 01:58, Jaze Lee <jazeltq@gmail.com> wrote:
-> Is there some news for this bug ?
->
-> 2016-11-02 11:50 GMT+08:00 Jaze Lee <jazeltq@gmail.com>:
->> I found this is not related with rbd engine. If use libaio, and test
->> raw device. It will also happen.
->> the fio script is
->>
->> [global]
->> ioengine=libaio
->> filename=/dev/sda
->> direct=1
->> group_reporting
->> iodepth=32
->> thread
->>
->> [fio_iops_test]
->> description=fio_iops_test
->> runtime=600
->> bs=4K
->> rw=randread
->> write_lat_log=cpuiops
->> rate_iops=2000
+The following changes since commit a955f5297d6951517c663ac9effd94adfae6a563:
 
-Can you make sure that you keep the fio mailing list CC'd on your
-mails rather than just replying to me directly? I'm just another fio
-user like you...
+  Add blockdev_size() support for OpenBSD (2016-10-26 08:00:10 -0600)
 
-I too can reproduce the problem with a slightly modified version of
-your job file:
-[fio_iops_test]
-ioengine=libaio
-direct=1
-filename=/dev/nullb0
-iodepth=2
-bs=4K
-rw=read
-write_lat_log=/dev/null
-rate_iops=2000
+are available in the git repository at:
 
-Within a second or two of running it the following assert is printed:
-fio: stat.c:2004: get_cur_log: Assertion `iolog->pending->nr_samples <
-iolog->pending->max_samples' failed.
+  git://git.kernel.dk/fio.git master
 
-Doing any of the following stops the assertion from triggering:
-setting the iodepth to 1, removing the write_lat_log parameter,
-removing the rate_iops parameter or adding the io_submit_mode=offload
-parameter.
+for you to fetch changes up to 4e795a3e0940509bd991682ec029000b6aa8881b:
 
-The problem seems to be due to the rate limiting somehow forcing iolog
-growth pressure but there is an inability to grow the iolog at the
-point we notice we need more room within stats. Normally the iolog
-growing can be deferred until next submission but I guess when you
-have to average over the samples in it (so as to work out the write
-latency for a given period) this is an issue because the logging areas
-aren't prepared for the change in size.
+  Remove extra space in tausworthe32 warning message (2016-11-01 14:24:50 -0600)
 
-You could hack the fio code to force a bigger default iolog size so it
-doesn't have to grow it later but a better way would be to use the
-io_submit_mode=offload parameter
-(https://github.com/axboe/fio/blob/fio-2.15/HOWTO#L888 ) which
-decouples the submission from the completion/logging. Perhaps fio
-could put up a warning suggesting its use if you use rate_iops and one
-of the parameters that force averaging together but there could be
-other ways of triggering the same issue...
+----------------------------------------------------------------
+Bruce Cran (1):
+      Remove extra space in tausworthe32 warning message
 
--- 
-Sitsofe | http://sucs.org/~sits/
+Jens Axboe (2):
+      backend: cleanup check for completion/issue byte checking
+      Merge branch 'HOWTO-cleanup' of https://github.com/szaydel/fio
 
+Sam Zaydel (1):
+      Fix minor spelling mistakes in HOWTO document
+
+ HOWTO       | 33 ++++++++++++++++-----------------
+ backend.c   | 34 +++++++++++-----------------------
+ filesetup.c |  2 +-
+ 3 files changed, 28 insertions(+), 41 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/HOWTO b/HOWTO
+index 3f8acee..577eed9 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -803,8 +803,8 @@ ioengine=str	Defines how the job issues io to the file. The following
+ 				cannot be modified. So random writes are not
+ 				possible. To imitate this, libhdfs engine
+ 				creates bunch of small files, and engine will
+-				pick a file out of those files based on the 
+-				offset enerated by fio backend. Each jobs uses
++				pick a file out of those files based on the
++				offset generated by fio backend. Each jobs uses
+ 				it's own connection to HDFS.
+ 
+ 			mtd	Read, write and erase an MTD character device
+@@ -864,7 +864,7 @@ iodepth_batch_complete_max=int This defines maximum pieces of IO to
+ 		iodepth_batch_complete_min=1
+ 		iodepth_batch_complete_max=<iodepth>
+ 
+-		which means that we will retrieve at leat 1 IO and up to the
++		which means that we will retrieve at least 1 IO and up to the
+ 		whole submitted queue depth. If none of IO has been completed
+ 		yet, we will wait.
+ 
+@@ -986,7 +986,7 @@ random_distribution=str:float	By default, fio will use a completely uniform
+ 		random		Uniform random distribution
+ 		zipf		Zipf distribution
+ 		pareto		Pareto distribution
+-		gauss		Normal (guassian) distribution
++		gauss		Normal (gaussian) distribution
+ 		zoned		Zoned random distribution
+ 
+ 		When using a zipf or pareto distribution, an input value
+@@ -1027,7 +1027,7 @@ percentage_random=int	For a random workload, set how big a percentage should
+ 		and random IO, at the given percentages. It is possible to
+ 		set different values for reads, writes, and trim. To do so,
+ 		simply use a comma separated list. See blocksize.
+-	
++
+ norandommap	Normally fio will cover every block of the file when doing
+ 		random IO. If this option is given, fio will just get a
+ 		new random offset without looking at past io history. This
+@@ -1185,7 +1185,7 @@ numa_cpu_nodes=str Set this job running on specified NUMA nodes' CPUs. The
+ 		fio must be built on a system with libnuma-dev(el) installed.
+ 
+ numa_mem_policy=str Set this job's memory policy and corresponding NUMA
+-		nodes. Format of the argements:
++		nodes. Format of the arguments:
+ 			<mode>[:<nodelist>]
+ 		`mode' is one of the following memory policy:
+ 			default, prefer, bind, interleave, local
+@@ -1266,7 +1266,7 @@ mem=str		Fio can use various types of memory as the io unit buffer.
+ 		location should point there. So if it's mounted in /huge,
+ 		you would use mem=mmaphuge:/huge/somefile.
+ 
+-iomem_align=int	This indiciates the memory alignment of the IO memory buffers.
++iomem_align=int	This indicates the memory alignment of the IO memory buffers.
+ 		Note that the given alignment is applied to the first IO unit
+ 		buffer, if using iodepth the alignment of the following buffers
+ 		are given by the bs used. In other words, if using a bs that is
+@@ -1330,7 +1330,7 @@ pre_read=bool	If this is given, files will be pre-read into memory before
+ 		starting the given IO operation. This will also clear
+ 		the 'invalidate' flag, since it is pointless to pre-read
+ 		and then drop the cache. This will only work for IO engines
+-		that are seekable, since they allow you to read the same data
++		that are seek-able, since they allow you to read the same data
+ 		multiple times. Thus it will not work on eg network or splice
+ 		IO.
+ 
+@@ -1372,7 +1372,7 @@ verify=str	If writing to a file, fio can verify the file contents
+ 			crc32c	Use a crc32c sum of the data area and store
+ 				it in the header of each block.
+ 
+-			crc32c-intel Use hardware assisted crc32c calcuation
++			crc32c-intel Use hardware assisted crc32c calculation
+ 				provided on SSE4.2 enabled processors. Falls
+ 				back to regular software crc32c, if not
+ 				supported by the system.
+@@ -1447,7 +1447,7 @@ verify_pattern=str	If set, fio will fill the io buffers with this
+ 		be a hex number that starts with either "0x" or "0X". Use
+ 		with verify=str. Also, verify_pattern supports %o format,
+ 		which means that for each block offset will be written and
+-		then verifyied back, e.g.:
++		then verified back, e.g.:
+ 
+ 		verify_pattern=%o
+ 
+@@ -1579,7 +1579,7 @@ replay_redirect=str While replaying I/O patterns using read_iolog the
+ 		multiple devices to be replayed concurrently to multiple
+ 		redirected devices you must blkparse your trace into separate
+ 		traces and replay them with independent fio invocations.
+-		Unfortuantely this also breaks the strict time ordering
++		Unfortunately this also breaks the strict time ordering
+ 		between multiple device accesses.
+ 
+ replay_align=int	Force alignment of IO offsets and lengths in a trace
+@@ -1924,7 +1924,7 @@ be the starting port number since fio will use a range of ports.
+ 		connections rather than initiating an outgoing connection. The
+ 		hostname must be omitted if this option is used.
+ 
+-[net] pingpong	Normaly a network writer will just continue writing data, and
++[net] pingpong	Normally a network writer will just continue writing data, and
+ 		a network reader will just consume packages. If pingpong=1
+ 		is set, a writer will send its normal payload to the reader,
+ 		then wait for the reader to send the same payload back. This
+@@ -1945,15 +1945,15 @@ be the starting port number since fio will use a range of ports.
+ [e4defrag] inplace=int
+ 		Configure donor file blocks allocation strategy
+ 		0(default): Preallocate donor's file on init
+-		1 	  : allocate space immidietly inside defragment event,
++		1 	  : allocate space immediately inside defragment event,
+ 			    and free right after event
+ 
+ [rbd] clustername=str	Specifies the name of the Ceph cluster.
+ [rbd] rbdname=str	Specifies the name of the RBD.
+-[rbd] pool=str		Specifies the naem of the Ceph pool containing RBD.
++[rbd] pool=str		Specifies the name of the Ceph pool containing RBD.
+ [rbd] clientname=str	Specifies the username (without the 'client.' prefix)
+ 			used to access the Ceph cluster. If the clustername is
+-			specified, the clientmae shall be the full type.id
++			specified, the clientname shall be the full type.id
+ 			string. If no type. prefix is given, fio will add
+ 			'client.' by default.
+ 
+@@ -2353,10 +2353,9 @@ Data direction is one of the following:
+ The offset is the offset, in bytes, from the start of the file, for that
+ particular IO. The logging of the offset can be toggled with 'log_offset'.
+ 
+-If windowed logging is enabled though 'log_avg_msec', then fio doesn't log
++If windowed logging is enabled through 'log_avg_msec', then fio doesn't log
+ individual IOs. Instead of logs the average values over the specified
+ period of time. Since 'data direction' and 'offset' are per-IO values,
+ they aren't applicable if windowed logging is enabled. If windowed logging
+ is enabled and 'log_max_value' is set, then fio logs maximum values in
+ that window instead of averages.
+-
+diff --git a/backend.c b/backend.c
+index ed4f1f0..60cea3c 100644
+--- a/backend.c
++++ b/backend.c
+@@ -771,18 +771,18 @@ static bool exceeds_number_ios(struct thread_data *td)
+ 	return number_ios >= (td->o.number_ios * td->loops);
+ }
+ 
+-static bool io_issue_bytes_exceeded(struct thread_data *td)
++static bool io_bytes_exceeded(struct thread_data *td, uint64_t *this_bytes)
+ {
+ 	unsigned long long bytes, limit;
+ 
+ 	if (td_rw(td))
+-		bytes = td->io_issue_bytes[DDIR_READ] + td->io_issue_bytes[DDIR_WRITE];
++		bytes = this_bytes[DDIR_READ] + this_bytes[DDIR_WRITE];
+ 	else if (td_write(td))
+-		bytes = td->io_issue_bytes[DDIR_WRITE];
++		bytes = this_bytes[DDIR_WRITE];
+ 	else if (td_read(td))
+-		bytes = td->io_issue_bytes[DDIR_READ];
++		bytes = this_bytes[DDIR_READ];
+ 	else
+-		bytes = td->io_issue_bytes[DDIR_TRIM];
++		bytes = this_bytes[DDIR_TRIM];
+ 
+ 	if (td->o.io_limit)
+ 		limit = td->o.io_limit;
+@@ -793,26 +793,14 @@ static bool io_issue_bytes_exceeded(struct thread_data *td)
+ 	return bytes >= limit || exceeds_number_ios(td);
+ }
+ 
+-static bool io_complete_bytes_exceeded(struct thread_data *td)
++static bool io_issue_bytes_exceeded(struct thread_data *td)
+ {
+-	unsigned long long bytes, limit;
+-
+-	if (td_rw(td))
+-		bytes = td->this_io_bytes[DDIR_READ] + td->this_io_bytes[DDIR_WRITE];
+-	else if (td_write(td))
+-		bytes = td->this_io_bytes[DDIR_WRITE];
+-	else if (td_read(td))
+-		bytes = td->this_io_bytes[DDIR_READ];
+-	else
+-		bytes = td->this_io_bytes[DDIR_TRIM];
+-
+-	if (td->o.io_limit)
+-		limit = td->o.io_limit;
+-	else
+-		limit = td->o.size;
++	return io_bytes_exceeded(td, td->io_issue_bytes);
++}
+ 
+-	limit *= td->loops;
+-	return bytes >= limit || exceeds_number_ios(td);
++static bool io_complete_bytes_exceeded(struct thread_data *td)
++{
++	return io_bytes_exceeded(td, td->this_io_bytes);
+ }
+ 
+ /*
+diff --git a/filesetup.c b/filesetup.c
+index a3bbbb2..969e7cc 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -1098,7 +1098,7 @@ static int check_rand_gen_limits(struct thread_data *td, struct fio_file *f,
+ 	if (!fio_option_is_set(&td->o, random_generator)) {
+ 		log_info("fio: Switching to tausworthe64. Use the "
+ 			 "random_generator= option to get rid of this "
+-			 " warning.\n");
++			 "warning.\n");
+ 		td->o.random_generator = FIO_RAND_GEN_TAUSWORTHE64;
+ 		return 0;
+ 	}
