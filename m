@@ -1,57 +1,85 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:59744 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933161AbcKMNAE (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 13 Nov 2016 08:00:04 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-        id 1c5uOB-0000lw-P9
-        for fio@vger.kernel.org; Sun, 13 Nov 2016 13:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20161113130001.89A332C008C@kernel.dk>
-Date: Sun, 13 Nov 2016 06:00:01 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <sitsofe@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <CAKZcxgeXnostqxPAGi2ek1x+Tw7_CxrnjVzuy3QrJhwbERewnQ@mail.gmail.com>
+References: <CAKZcxgdhYey+dbUN7T5mW=Ghfw34=OtNrocJxqDH8k4fQ1tTJw@mail.gmail.com>
+ <CALjAwxjVK5v+JNo2Ww9m3cfwCyjiEMVzjdrYUpMsht2Q2j1AOA@mail.gmail.com>
+ <CAKZcxgc2k=o2_kbYdFmxScxC2Zns+SKi++=rdxvwD2vGj83RZg@mail.gmail.com>
+ <CAKZcxgfr_RfHD0XcDV0nMgFhU1nPNEzP0GciE-Unw-i-k3eaSw@mail.gmail.com> <CAKZcxgeXnostqxPAGi2ek1x+Tw7_CxrnjVzuy3QrJhwbERewnQ@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Thu, 3 Nov 2016 07:31:14 +0000
+Message-ID: <CALjAwxia8JGF2uErqV3BdqLt7YTwZ=qwAKMmU2xJL1FnmcjvKg@mail.gmail.com>
+Subject: Re: fio assert
+Content-Type: text/plain; charset=UTF-8
+To: Jaze Lee <jazeltq@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 4e7a881493790a3a2b970988aef4bd3603877fab:
+On 3 November 2016 at 01:58, Jaze Lee <jazeltq@gmail.com> wrote:
+> Is there some news for this bug ?
+>
+> 2016-11-02 11:50 GMT+08:00 Jaze Lee <jazeltq@gmail.com>:
+>> I found this is not related with rbd engine. If use libaio, and test
+>> raw device. It will also happen.
+>> the fio script is
+>>
+>> [global]
+>> ioengine=libaio
+>> filename=/dev/sda
+>> direct=1
+>> group_reporting
+>> iodepth=32
+>> thread
+>>
+>> [fio_iops_test]
+>> description=fio_iops_test
+>> runtime=600
+>> bs=4K
+>> rw=randread
+>> write_lat_log=cpuiops
+>> rate_iops=2000
 
-  Fix duplicated typos from 42d97b5c in fio(1) (2016-11-02 08:05:49 -0600)
+Can you make sure that you keep the fio mailing list CC'd on your
+mails rather than just replying to me directly? I'm just another fio
+user like you...
 
-are available in the git repository at:
+I too can reproduce the problem with a slightly modified version of
+your job file:
+[fio_iops_test]
+ioengine=libaio
+direct=1
+filename=/dev/nullb0
+iodepth=2
+bs=4K
+rw=read
+write_lat_log=/dev/null
+rate_iops=2000
 
-  git://git.kernel.dk/fio.git master
+Within a second or two of running it the following assert is printed:
+fio: stat.c:2004: get_cur_log: Assertion `iolog->pending->nr_samples <
+iolog->pending->max_samples' failed.
 
-for you to fetch changes up to 206c546d6015fe3809b8e52ea95f56114b8e9f25:
+Doing any of the following stops the assertion from triggering:
+setting the iodepth to 1, removing the write_lat_log parameter,
+removing the rate_iops parameter or adding the io_submit_mode=offload
+parameter.
 
-  rbd: fix crash with zero sized image (2016-11-12 08:36:23 -0700)
+The problem seems to be due to the rate limiting somehow forcing iolog
+growth pressure but there is an inability to grow the iolog at the
+point we notice we need more room within stats. Normally the iolog
+growing can be deferred until next submission but I guess when you
+have to average over the samples in it (so as to work out the write
+latency for a given period) this is an issue because the logging areas
+aren't prepared for the change in size.
 
-----------------------------------------------------------------
-Pan Liu (1):
-      rbd: fix crash with zero sized image
+You could hack the fio code to force a bigger default iolog size so it
+doesn't have to grow it later but a better way would be to use the
+io_submit_mode=offload parameter
+(https://github.com/axboe/fio/blob/fio-2.15/HOWTO#L888 ) which
+decouples the submission from the completion/logging. Perhaps fio
+could put up a warning suggesting its use if you use rate_iops and one
+of the parameters that force averaging together but there could be
+other ways of triggering the same issue...
 
- engines/rbd.c | 5 +++++
- 1 file changed, 5 insertions(+)
+-- 
+Sitsofe | http://sucs.org/~sits/
 
----
-
-Diff of recent changes:
-
-diff --git a/engines/rbd.c b/engines/rbd.c
-index aa50c80..ee2ce81 100644
---- a/engines/rbd.c
-+++ b/engines/rbd.c
-@@ -595,7 +595,12 @@ static int fio_rbd_setup(struct thread_data *td)
- 	if (r < 0) {
- 		log_err("rbd_status failed.\n");
- 		goto disconnect;
-+	} else if (info.size == 0) {
-+		log_err("image size should be larger than zero.\n");
-+		r = -EINVAL;
-+		goto disconnect;
- 	}
-+
- 	dprint(FD_IO, "rbd-engine: image size: %lu\n", info.size);
- 
- 	/* taken from "net" engine. Pretend we deal with files,
