@@ -1,52 +1,57 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:33788 "EHLO
+Received: from merlin.infradead.org ([205.233.59.134]:59744 "EHLO
         merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932173AbcKNNAE (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 14 Nov 2016 08:00:04 -0500
+        with ESMTP id S933161AbcKMNAE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 13 Nov 2016 08:00:04 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
         by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-        id 1c6Grj-0002Cf-RH
-        for fio@vger.kernel.org; Mon, 14 Nov 2016 13:00:03 +0000
+        id 1c5uOB-0000lw-P9
+        for fio@vger.kernel.org; Sun, 13 Nov 2016 13:00:03 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20161114130002.5DFB02C008C@kernel.dk>
-Date: Mon, 14 Nov 2016 06:00:02 -0700 (MST)
+Message-Id: <20161113130001.89A332C008C@kernel.dk>
+Date: Sun, 13 Nov 2016 06:00:01 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 206c546d6015fe3809b8e52ea95f56114b8e9f25:
+The following changes since commit 4e7a881493790a3a2b970988aef4bd3603877fab:
 
-  rbd: fix crash with zero sized image (2016-11-12 08:36:23 -0700)
+  Fix duplicated typos from 42d97b5c in fio(1) (2016-11-02 08:05:49 -0600)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 471bb52b2e75413d18e8def5bb7d301aab7541e9:
+for you to fetch changes up to 206c546d6015fe3809b8e52ea95f56114b8e9f25:
 
-  Fix memory leak on tmp_buf (2016-11-14 00:05:37 +0000)
+  rbd: fix crash with zero sized image (2016-11-12 08:36:23 -0700)
 
 ----------------------------------------------------------------
-Colin Ian King (1):
-      Fix memory leak on tmp_buf
+Pan Liu (1):
+      rbd: fix crash with zero sized image
 
- oslib/libmtd.c | 1 +
- 1 file changed, 1 insertion(+)
+ engines/rbd.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/oslib/libmtd.c b/oslib/libmtd.c
-index 5b22d6a..24e9db9 100644
---- a/oslib/libmtd.c
-+++ b/oslib/libmtd.c
-@@ -1116,6 +1116,7 @@ static int legacy_auto_oob_layout(const struct mtd_dev_info *mtd, int fd,
- 		len = mtd->oob_size - start;
- 		memcpy(oob + start, tmp_buf + start, len);
+diff --git a/engines/rbd.c b/engines/rbd.c
+index aa50c80..ee2ce81 100644
+--- a/engines/rbd.c
++++ b/engines/rbd.c
+@@ -595,7 +595,12 @@ static int fio_rbd_setup(struct thread_data *td)
+ 	if (r < 0) {
+ 		log_err("rbd_status failed.\n");
+ 		goto disconnect;
++	} else if (info.size == 0) {
++		log_err("image size should be larger than zero.\n");
++		r = -EINVAL;
++		goto disconnect;
  	}
-+	free(tmp_buf);
++
+ 	dprint(FD_IO, "rbd-engine: image size: %lu\n", info.size);
  
- 	return 0;
- }
+ 	/* taken from "net" engine. Pretend we deal with files,
