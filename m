@@ -1,126 +1,52 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:52312 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S936481AbcJ0NvL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 27 Oct 2016 09:51:11 -0400
+Received: from merlin.infradead.org ([205.233.59.134]:33788 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932173AbcKNNAE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 14 Nov 2016 08:00:04 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
-        id 1bzjLm-0001oJ-VW
-        for fio@vger.kernel.org; Thu, 27 Oct 2016 12:00:03 +0000
+        by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+        id 1c6Grj-0002Cf-RH
+        for fio@vger.kernel.org; Mon, 14 Nov 2016 13:00:03 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20161027120001.CECC32C1A72@kernel.dk>
-Date: Thu, 27 Oct 2016 06:00:01 -0600 (MDT)
+Message-Id: <20161114130002.5DFB02C008C@kernel.dk>
+Date: Mon, 14 Nov 2016 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit a0290964d9e15aa9faa5a139effc14cfa5bcd3f1:
+The following changes since commit 206c546d6015fe3809b8e52ea95f56114b8e9f25:
 
-  Fio 2.15 (2016-10-25 12:38:13 -0600)
+  rbd: fix crash with zero sized image (2016-11-12 08:36:23 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to a955f5297d6951517c663ac9effd94adfae6a563:
+for you to fetch changes up to 471bb52b2e75413d18e8def5bb7d301aab7541e9:
 
-  Add blockdev_size() support for OpenBSD (2016-10-26 08:00:10 -0600)
+  Fix memory leak on tmp_buf (2016-11-14 00:05:37 +0000)
 
 ----------------------------------------------------------------
-Tomohiro Kusumi (2):
-      Add blockdev_size() support for NetBSD
-      Add blockdev_size() support for OpenBSD
+Colin Ian King (1):
+      Fix memory leak on tmp_buf
 
- os/os-netbsd.h  | 17 ++++++++++++++++-
- os/os-openbsd.h | 17 ++++++++++++++++-
- 2 files changed, 32 insertions(+), 2 deletions(-)
+ oslib/libmtd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/os/os-netbsd.h b/os/os-netbsd.h
-index 1ef5866..2133d7a 100644
---- a/os/os-netbsd.h
-+++ b/os/os-netbsd.h
-@@ -7,6 +7,9 @@
- #include <lwp.h>
- #include <sys/param.h>
- #include <sys/statvfs.h>
-+#include <sys/ioctl.h>
-+#include <sys/dkio.h>
-+#include <sys/disklabel.h>
- /* XXX hack to avoid confilcts between rbtree.h and <sys/rb.h> */
- #define	rb_node	_rb_node
- #include <sys/sysctl.h>
-@@ -17,7 +20,6 @@
- #include "../file.h"
+diff --git a/oslib/libmtd.c b/oslib/libmtd.c
+index 5b22d6a..24e9db9 100644
+--- a/oslib/libmtd.c
++++ b/oslib/libmtd.c
+@@ -1116,6 +1116,7 @@ static int legacy_auto_oob_layout(const struct mtd_dev_info *mtd, int fd,
+ 		len = mtd->oob_size - start;
+ 		memcpy(oob + start, tmp_buf + start, len);
+ 	}
++	free(tmp_buf);
  
- #define FIO_HAVE_ODIRECT
--#define FIO_USE_GENERIC_BDEV_SIZE
- #define FIO_USE_GENERIC_RAND
- #define FIO_USE_GENERIC_INIT_RANDOM_STATE
- #define FIO_HAVE_FS_STAT
-@@ -37,6 +39,19 @@
- 
- typedef off_t off64_t;
- 
-+static inline int blockdev_size(struct fio_file *f, unsigned long long *bytes)
-+{
-+	struct disklabel dl;
-+
-+	if (!ioctl(f->fd, DIOCGDINFO, &dl)) {
-+		*bytes = ((unsigned long long)dl.d_secperunit) * dl.d_secsize;
-+		return 0;
-+	}
-+
-+	*bytes = 0;
-+	return errno;
-+}
-+
- static inline int blockdev_invalidate_cache(struct fio_file *f)
- {
- 	return EINVAL;
-diff --git a/os/os-openbsd.h b/os/os-openbsd.h
-index 2998510..3343cbd 100644
---- a/os/os-openbsd.h
-+++ b/os/os-openbsd.h
-@@ -6,6 +6,9 @@
- #include <errno.h>
- #include <sys/param.h>
- #include <sys/statvfs.h>
-+#include <sys/ioctl.h>
-+#include <sys/dkio.h>
-+#include <sys/disklabel.h>
- /* XXX hack to avoid conflicts between rbtree.h and <sys/tree.h> */
- #include <sys/sysctl.h>
- #undef RB_BLACK
-@@ -15,7 +18,6 @@
- #include "../file.h"
- 
- #undef  FIO_HAVE_ODIRECT
--#define FIO_USE_GENERIC_BDEV_SIZE
- #define FIO_USE_GENERIC_RAND
- #define FIO_USE_GENERIC_INIT_RANDOM_STATE
- #define FIO_HAVE_FS_STAT
-@@ -35,6 +37,19 @@
- 
- typedef off_t off64_t;
- 
-+static inline int blockdev_size(struct fio_file *f, unsigned long long *bytes)
-+{
-+	struct disklabel dl;
-+
-+	if (!ioctl(f->fd, DIOCGDINFO, &dl)) {
-+		*bytes = ((unsigned long long)dl.d_secperunit) * dl.d_secsize;
-+		return 0;
-+	}
-+
-+	*bytes = 0;
-+	return errno;
-+}
-+
- static inline int blockdev_invalidate_cache(struct fio_file *f)
- {
- 	return EINVAL;
+ 	return 0;
+ }
