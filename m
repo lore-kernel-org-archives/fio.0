@@ -1,28 +1,53 @@
-Return-Path: <axboe@kernel.dk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.9]:44561 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751564AbcKPNAD (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 16 Nov 2016 08:00:03 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+        id 1c6zoo-0008BJ-J8
+        for fio@vger.kernel.org; Wed, 16 Nov 2016 13:00:02 +0000
+Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Date: Tue, 1 Nov 2016 14:25:02 -0600
-Subject: Re: [PATCH] Remove extra space in tausworthe32 warning message
-Message-ID: <20161101202502.GD9797@kernel.dk>
-References: <88ba9360-f0e0-ca6a-223e-529920262ac1@cran.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <88ba9360-f0e0-ca6a-223e-529920262ac1@cran.org.uk>
-To: Bruce Cran <bruce@cran.org.uk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Message-Id: <20161116130001.87E912C008C@kernel.dk>
+Date: Wed, 16 Nov 2016 06:00:01 -0700 (MST)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On Fri, Oct 28 2016, Bruce Cran wrote:
-> 
+The following changes since commit 471bb52b2e75413d18e8def5bb7d301aab7541e9:
 
-> From 199d139a9a40e0e45531528eb7281dfc89a705ed Mon Sep 17 00:00:00 2001
-> From: Bruce Cran <Bruce.Cran@sandisk.com>
-> Date: Fri, 28 Oct 2016 23:12:15 -0600
-> Subject: [PATCH] Remove extra space in tausworthe32 warning message
+  Fix memory leak on tmp_buf (2016-11-14 00:05:37 +0000)
 
-Applied, thanks.
+are available in the git repository at:
 
--- 
-Jens Axboe
+  git://git.kernel.dk/fio.git master
 
+for you to fetch changes up to effe99e4b18eb5c345629d7bbaae1879a2594b20:
 
+  posixaio: fix bad type passed to memset (2016-11-15 10:42:58 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      posixaio: fix bad type passed to memset
+
+ engines/posixaio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/engines/posixaio.c b/engines/posixaio.c
+index e5411b7..bddb1ec 100644
+--- a/engines/posixaio.c
++++ b/engines/posixaio.c
+@@ -109,7 +109,7 @@ static int fio_posixaio_getevents(struct thread_data *td, unsigned int min,
+ 
+ 	r = 0;
+ restart:
+-	memset(suspend_list, 0, sizeof(*suspend_list));
++	memset(suspend_list, 0, sizeof(suspend_list));
+ 	suspend_entries = 0;
+ 	io_u_qiter(&td->io_u_all, io_u, i) {
+ 		int err;
