@@ -1,121 +1,89 @@
-Return-Path: <dave.jiang@intel.com>
-Subject: [PATCH] fio: add additional support for dev-dax ioengine
-From: Dave Jiang <dave.jiang@intel.com>
-Date: Fri, 16 Dec 2016 15:59:06 -0700
-Message-ID: <148192914644.212226.6107445930190025121.stgit@djiang5-desk3.ch.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.9]:54850 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751515AbcLFNAq (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 6 Dec 2016 08:00:46 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+        id 1cEFLn-000514-E5
+        for fio@vger.kernel.org; Tue, 06 Dec 2016 13:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20161206130001.AA51C2C16A9@kernel.dk>
+Date: Tue,  6 Dec 2016 06:00:01 -0700 (MST)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Fixup options.c to add the dev-dax to ioengine list. Update fio.1 and
-HOWTO as well. Also adding example fio job file.
+The following changes since commit 6be06c46544c19e513ff80e7b841b1de688ffc66:
 
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+  log: fix for crash with rate IO and logging (2016-12-01 21:23:47 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 487197d9e8f3aa0f135a6d88e5f222a1a930723a:
+
+  mmap engine: remove unused variable mmap_map_mask (2016-12-05 09:48:08 -0700)
+
+----------------------------------------------------------------
+Ross Zwisler (1):
+      mmap engine: remove unused variable mmap_map_mask
+
+ engines/mmap.c | 17 ++---------------
+ 1 file changed, 2 insertions(+), 15 deletions(-)
+
 ---
- HOWTO                |    3 +++
- examples/dev-dax.fio |   45 +++++++++++++++++++++++++++++++++++++++++++++
- fio.1                |    3 +++
- options.c            |    5 +++++
- 4 files changed, 56 insertions(+)
- create mode 100644 examples/dev-dax.fio
 
-diff --git a/HOWTO b/HOWTO
-index 3f8acee..b0f92cf 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -819,6 +819,9 @@ ioengine=str	Defines how the job issues io to the file. The following
- 			pmemblk	Read and write through the NVML libpmemblk
- 				interface.
+Diff of recent changes:
+
+diff --git a/engines/mmap.c b/engines/mmap.c
+index 14e4013..c479ed3 100644
+--- a/engines/mmap.c
++++ b/engines/mmap.c
+@@ -20,7 +20,6 @@
+ #define MMAP_TOTAL_SZ	(1 * 1024 * 1024 * 1024UL)
  
-+			dev-dax Read and write through a DAX device exposed
-+				from persistent memory.
-+
- 			external Prefix to specify loading an external
- 				IO engine object file. Append the engine
- 				filename, eg ioengine=external:/tmp/foo.o
-diff --git a/examples/dev-dax.fio b/examples/dev-dax.fio
-new file mode 100644
-index 0000000..d9f430e
---- /dev/null
-+++ b/examples/dev-dax.fio
-@@ -0,0 +1,45 @@
-+[global]
-+bs=2m
-+ioengine=dev-dax
-+norandommap
-+time_based=1
-+runtime=30
-+group_reporting
-+disable_lat=1
-+disable_slat=1
-+disable_clat=1
-+clat_percentiles=0
-+cpus_allowed_policy=split
-+
-+# For the dev-dax engine:
-+#
-+#   IOs always complete immediately
-+#   IOs are always direct
-+#
-+iodepth=1
-+direct=0
-+thread=1
-+numjobs=16
-+#
-+# The dev-dax engine does IO to DAX device that are special character
-+# devices exported by the kernel (e.g. /dev/dax0.0). The device is
-+# opened normally and then the region is accessible via mmap. We do
-+# not use the O_DIRECT flag because the device is naturally direct
-+# access. The O_DIRECT flags will result in failure. The engine
-+# access the underlying NVDIMM directly once the mmapping is setup.
-+#
-+# Check the alignment requirement of your DAX device. Currently the default
-+# should be 2M. Blocksize (bs) should meet alignment requirement.
-+#
-+# An example of creating a dev dax device node from pmem:
-+# ndctl create-namespace --reconfig=namespace0.0 --mode=dax --force
-+#
-+filename=/dev/dax0.0
-+
-+[dev-dax-write]
-+rw=randwrite
-+stonewall
-+
-+[dev-dax-read]
-+rw=randread
-+stonewall
-diff --git a/fio.1 b/fio.1
-index 48c2060..baef382 100644
---- a/fio.1
-+++ b/fio.1
-@@ -722,6 +722,9 @@ constraint.
- .TP
- .B pmemblk
- Read and write through the NVML libpmemblk interface.
-+.TP
-+.B dev-dax
-+Read and write through a DAX device exposed from persistent memory.
- .RE
- .P
- .RE
-diff --git a/options.c b/options.c
-index 3c9adfb..72c001b 100644
---- a/options.c
-+++ b/options.c
-@@ -1698,6 +1698,11 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 			  },
+ static unsigned long mmap_map_size;
+-static unsigned long mmap_map_mask;
  
+ struct fio_mmap_data {
+ 	void *mmap_ptr;
+@@ -72,7 +71,6 @@ static int fio_mmap_file(struct thread_data *td, struct fio_file *f,
+ 		(void) posix_madvise(fmd->mmap_ptr, fmd->mmap_sz, FIO_MADV_FREE);
  #endif
-+#ifdef CONFIG_LINUX_DEVDAX
-+			  { .ival = "dev-dax",
-+			    .help = "DAX Device based IO engine",
-+			  },
-+#endif
- 			  { .ival = "external",
- 			    .help = "Load external engine (append name)",
- 			  },
-
-
+ 
+-
+ err:
+ 	if (td->error && fmd->mmap_ptr)
+ 		munmap(fmd->mmap_ptr, length);
+@@ -208,26 +206,15 @@ static int fio_mmapio_queue(struct thread_data *td, struct io_u *io_u)
+ static int fio_mmapio_init(struct thread_data *td)
+ {
+ 	struct thread_options *o = &td->o;
+-	unsigned long shift, mask;
+ 
+-	if ((td->o.rw_min_bs & page_mask) &&
++	if ((o->rw_min_bs & page_mask) &&
+ 	    (o->odirect || o->fsync_blocks || o->fdatasync_blocks)) {
+ 		log_err("fio: mmap options dictate a minimum block size of "
+ 			"%llu bytes\n", (unsigned long long) page_size);
+ 		return 1;
+ 	}
+ 
+-	mmap_map_size = MMAP_TOTAL_SZ / td->o.nr_files;
+-	mask = mmap_map_size;
+-	shift = 0;
+-	do {
+-		mask >>= 1;
+-		if (!mask)
+-			break;
+-		shift++;
+-	} while (1);
+-
+-	mmap_map_mask = 1UL << shift;
++	mmap_map_size = MMAP_TOTAL_SZ / o->nr_files;
+ 	return 0;
+ }
+ 
