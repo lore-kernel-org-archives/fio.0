@@ -1,230 +1,148 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g2t1383g.austin.hpe.com ([15.233.16.89]:8419 "EHLO
-        g2t1383g.austin.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754179AbcLVGHa (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 22 Dec 2016 01:07:30 -0500
-Received: from g9t5008.houston.hpe.com (g9t5008.houston.hpe.com [15.241.48.72])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by g2t1383g.austin.hpe.com (Postfix) with ESMTPS id F4091136C
-        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 06:07:29 +0000 (UTC)
-Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
-        by g9t5008.houston.hpe.com (Postfix) with ESMTP id F379976
-        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 06:06:35 +0000 (UTC)
-From: Robert Elliott <elliott@hpe.com>
-Subject: [PATCH 10/12] Clean up unit prefixes for binary multiples in comments and prints
-Date: Thu, 22 Dec 2016 00:08:51 -0600
-Message-Id: <20161222060853.64104-11-elliott@hpe.com>
-In-Reply-To: <20161222060853.64104-1-elliott@hpe.com>
-References: <20161222060853.64104-1-elliott@hpe.com>
+Received: from merlin.infradead.org ([205.233.59.134]:38090 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751769AbcLMNAF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 13 Dec 2016 08:00:05 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+        id 1cGmge-0007GW-2O
+        for fio@vger.kernel.org; Tue, 13 Dec 2016 13:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20161213130002.3FC962C029F@kernel.dk>
+Date: Tue, 13 Dec 2016 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: Robert Elliott <elliott@hpe.com>
 
-From: Robert Elliott <elliott@hpe.com>
+The following changes since commit 487197d9e8f3aa0f135a6d88e5f222a1a930723a:
 
-Change comments and prints that are referring to values based on
-binary multiples to use IEC 80000-13 prefixes for binary
-multiples rather than SI prefixes for decimal multiples (e.g.,
-KiB, MiB, and GiB rather than KB, MB, and GB).
+  mmap engine: remove unused variable mmap_map_mask (2016-12-05 09:48:08 -0700)
 
-Includes a fix for the rate_min print that was printing "KB/s"
-although it was really printing bytes per second.
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to a79f17bf3bfa20b83424c2301de092bdcfbaaea4:
+
+  iolog: add support for replay_scale option (2016-12-12 22:23:28 +0000)
+
+----------------------------------------------------------------
+Sitsofe Wheeler (3):
+      iolog: Ignore re-add/re-open with replay_redirect
+      blktrace: Fix replay_align 32 bit truncation
+      iolog: add support for replay_scale option
+
+ blktrace.c | 13 ++-----------
+ iolog.c    | 22 +++++++++++++++++++---
+ iolog.h    |  8 ++++++++
+ 3 files changed, 29 insertions(+), 14 deletions(-)
+
 ---
- README            |  2 +-
- backend.c         | 18 ++++++++----------
- engines/dev-dax.c |  2 +-
- engines/mmap.c    |  2 +-
- eta.c             |  2 +-
- filesetup.c       |  5 ++---
- goptions.c        |  2 +-
- memory.c          |  4 ++--
- stat.c            |  6 +++---
- 9 files changed, 20 insertions(+), 23 deletions(-)
 
-diff --git a/README b/README
-index a8a4fdf..98884e2 100644
---- a/README
-+++ b/README
-@@ -233,7 +233,7 @@ sections.  The reserved 'global' section is always parsed and used.
- The --alloc-size switch allows one to use a larger pool size for smalloc.
- If running large jobs with randommap enabled, fio can run out of memory.
- Smalloc is an internal allocator for shared structures from a fixed size
--memory pool. The pool size defaults to 16M and can grow to 8 pools.
-+memory pool. The pool size defaults to 16MiB and can grow to 8 pools.
- 
- NOTE: While running .fio_smalloc.* backing store files are visible in /tmp.
- 
-diff --git a/backend.c b/backend.c
-index a048452..c8c6de6 100644
---- a/backend.c
-+++ b/backend.c
-@@ -180,8 +180,8 @@ static bool __check_min_rate(struct thread_data *td, struct timeval *now,
- 			 * check bandwidth specified rate
- 			 */
- 			if (bytes < td->rate_bytes[ddir]) {
--				log_err("%s: min rate %u not met\n", td->o.name,
--								ratemin);
-+				log_err("%s: rate_min=%uB/s not met, only transferred %lluB\n",
-+					td->o.name, ratemin, bytes);
- 				return true;
- 			} else {
- 				if (spent)
-@@ -191,9 +191,8 @@ static bool __check_min_rate(struct thread_data *td, struct timeval *now,
- 
- 				if (rate < ratemin ||
- 				    bytes < td->rate_bytes[ddir]) {
--					log_err("%s: min rate %u not met, got"
--						" %luKB/sec\n", td->o.name,
--							ratemin, rate);
-+					log_err("%s: rate_min=%uB/s not met, got %luB/s\n",
-+						td->o.name, ratemin, rate);
- 					return true;
- 				}
- 			}
-@@ -202,8 +201,8 @@ static bool __check_min_rate(struct thread_data *td, struct timeval *now,
- 			 * checks iops specified rate
- 			 */
- 			if (iops < rate_iops) {
--				log_err("%s: min iops rate %u not met\n",
--						td->o.name, rate_iops);
-+				log_err("%s: rate_iops_min=%u not met, only performed %lu IOs\n",
-+						td->o.name, rate_iops, iops);
- 				return true;
- 			} else {
- 				if (spent)
-@@ -213,9 +212,8 @@ static bool __check_min_rate(struct thread_data *td, struct timeval *now,
- 
- 				if (rate < rate_iops_min ||
- 				    iops < td->rate_blocks[ddir]) {
--					log_err("%s: min iops rate %u not met,"
--						" got %lu\n", td->o.name,
--							rate_iops_min, rate);
-+					log_err("%s: rate_iops_min=%u not met, got %lu IOPS\n",
-+						td->o.name, rate_iops_min, rate);
- 					return true;
- 				}
- 			}
-diff --git a/engines/dev-dax.c b/engines/dev-dax.c
-index 6372576..2516bca 100644
---- a/engines/dev-dax.c
-+++ b/engines/dev-dax.c
-@@ -58,7 +58,7 @@
- #include "../verify.h"
- 
- /*
-- * Limits us to 1GB of mapped files in total to model after
-+ * Limits us to 1GiB of mapped files in total to model after
-  * mmap engine behavior
-  */
- #define MMAP_TOTAL_SZ	(1 * 1024 * 1024 * 1024UL)
-diff --git a/engines/mmap.c b/engines/mmap.c
-index c479ed3..99e1d6a 100644
---- a/engines/mmap.c
-+++ b/engines/mmap.c
-@@ -15,7 +15,7 @@
- #include "../verify.h"
- 
- /*
-- * Limits us to 1GB of mapped files in total
-+ * Limits us to 1GiB of mapped files in total
-  */
- #define MMAP_TOTAL_SZ	(1 * 1024 * 1024 * 1024UL)
- 
-diff --git a/eta.c b/eta.c
-index 19afad5..68dc0c9 100644
---- a/eta.c
-+++ b/eta.c
-@@ -308,7 +308,7 @@ static void calc_rate(int unified_rw_rep, unsigned long mtime,
- 
- 		diff = io_bytes[i] - prev_io_bytes[i];
- 		if (mtime)
--			this_rate = ((1000 * diff) / mtime) / 1024;
-+			this_rate = ((1000 * diff) / mtime) / 1024; /* KiB/s */
- 		else
- 			this_rate = 0;
- 
-diff --git a/filesetup.c b/filesetup.c
-index 969e7cc..ef94bd2 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -948,9 +948,8 @@ int setup_files(struct thread_data *td)
- 	if (need_extend) {
- 		temp_stall_ts = 1;
- 		if (output_format & FIO_OUTPUT_NORMAL)
--			log_info("%s: Laying out IO file(s) (%u file(s) /"
--				 " %lluMB)\n", o->name, need_extend,
--					extend_size >> 20);
-+			log_info("%s: Laying out IO file(s) (%u file(s) / %lluMiB)\n",
-+				 o->name, need_extend, extend_size >> 20);
- 
- 		for_each_file(td, f, i) {
- 			unsigned long long old_len = -1ULL, extend_len = -1ULL;
-diff --git a/goptions.c b/goptions.c
-index b3d3684..be49248 100644
---- a/goptions.c
-+++ b/goptions.c
-@@ -826,7 +826,7 @@ static struct gopt *gopt_new_str_val(struct gopt_job_view *gjv,
- 				     unsigned long long *p, unsigned int idx)
- {
- 	struct gopt_str_val *g;
--	const gchar *postfix[] = { "B", "KB", "MB", "GB", "PB", "TB", "" };
-+	const gchar *postfix[] = { "B", "KiB", "MiB", "GiB", "PiB", "TiB", "" };
- 	GtkWidget *label;
- 	int i;
- 
-diff --git a/memory.c b/memory.c
-index 9124117..9e73f10 100644
---- a/memory.c
-+++ b/memory.c
-@@ -33,13 +33,13 @@ int fio_pin_memory(struct thread_data *td)
- 	dprint(FD_MEM, "pinning %llu bytes\n", td->o.lockmem);
- 
- 	/*
--	 * Don't allow mlock of more than real_mem-128MB
-+	 * Don't allow mlock of more than real_mem-128MiB
- 	 */
- 	phys_mem = os_phys_mem();
- 	if (phys_mem) {
- 		if ((td->o.lockmem + 128 * 1024 * 1024) > phys_mem) {
- 			td->o.lockmem = phys_mem - 128 * 1024 * 1024;
--			log_info("fio: limiting mlocked memory to %lluMB\n",
-+			log_info("fio: limiting mlocked memory to %lluMiB\n",
- 							td->o.lockmem >> 20);
- 		}
- 	}
-diff --git a/stat.c b/stat.c
-index f014e60..8562ab4 100644
---- a/stat.c
-+++ b/stat.c
-@@ -812,7 +812,7 @@ static void show_ddir_status_terse(struct thread_stat *ts,
- 	if (ts->runtime[ddir]) {
- 		uint64_t runt = ts->runtime[ddir];
- 
--		bw = ((1000 * ts->io_bytes[ddir]) / runt) / 1024;
-+		bw = ((1000 * ts->io_bytes[ddir]) / runt) / 1024; /* KiB/s */
- 		iops = (1000 * (uint64_t) ts->total_io_u[ddir]) / runt;
- 	}
- 
-@@ -896,7 +896,7 @@ static void add_ddir_status_json(struct thread_stat *ts,
- 	if (ts->runtime[ddir]) {
- 		uint64_t runt = ts->runtime[ddir];
- 
--		bw = ((1000 * ts->io_bytes[ddir]) / runt) / 1024;
-+		bw = ((1000 * ts->io_bytes[ddir]) / runt) / 1024; /* KiB/s */
- 		iops = (1000.0 * (uint64_t) ts->total_io_u[ddir]) / runt;
- 	}
- 
-@@ -2431,7 +2431,7 @@ static int add_bw_samples(struct thread_data *td, struct timeval *t)
- 			continue; /* No entries for interval */
- 
- 		if (spent)
--			rate = delta * 1000 / spent / 1024;
-+			rate = delta * 1000 / spent / 1024; /* KiB/s */
- 		else
- 			rate = 0;
- 
--- 
-2.9.3
+Diff of recent changes:
 
+diff --git a/blktrace.c b/blktrace.c
+index deb8b2d..a3474cb 100644
+--- a/blktrace.c
++++ b/blktrace.c
+@@ -216,15 +216,6 @@ static void t_bytes_align(struct thread_options *o, struct blk_io_trace *t)
+ 	t->bytes = (t->bytes + o->replay_align - 1) & ~(o->replay_align - 1);
+ }
+ 
+-static void ipo_bytes_align(struct thread_options *o, struct io_piece *ipo)
+-{
+-	if (!o->replay_align)
+-		return;
+-
+-	ipo->offset &= ~(o->replay_align - 1);
+-}
+-
+-
+ /*
+  * Store blk_io_trace data in an ipo for later retrieval.
+  */
+@@ -239,7 +230,7 @@ static void store_ipo(struct thread_data *td, unsigned long long offset,
+ 	ipo->offset = offset * bs;
+ 	if (td->o.replay_scale)
+ 		ipo->offset = ipo->offset / td->o.replay_scale;
+-	ipo_bytes_align(&td->o, ipo);
++	ipo_bytes_align(td->o.replay_align, ipo);
+ 	ipo->len = bytes;
+ 	ipo->delay = ttime / 1000;
+ 	if (rw)
+@@ -297,7 +288,7 @@ static void handle_trace_discard(struct thread_data *td,
+ 	ipo->offset = t->sector * bs;
+ 	if (td->o.replay_scale)
+ 		ipo->offset = ipo->offset / td->o.replay_scale;
+-	ipo_bytes_align(&td->o, ipo);
++	ipo_bytes_align(td->o.replay_align, ipo);
+ 	ipo->len = t->bytes;
+ 	ipo->delay = ttime / 1000;
+ 	ipo->ddir = DDIR_TRIM;
+diff --git a/iolog.c b/iolog.c
+index 2bc3e3a..9393890 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -109,6 +109,11 @@ static int ipo_special(struct thread_data *td, struct io_piece *ipo)
+ 
+ 	switch (ipo->file_action) {
+ 	case FIO_LOG_OPEN_FILE:
++		if (td->o.replay_redirect && fio_file_open(f)) {
++			dprint(FD_FILE, "iolog: ignoring re-open of file %s\n",
++					f->file_name);
++			break;
++		}
+ 		ret = td_io_open_file(td, f);
+ 		if (!ret)
+ 			break;
+@@ -396,8 +401,14 @@ static int read_iolog2(struct thread_data *td, FILE *f)
+ 		} else if (r == 2) {
+ 			rw = DDIR_INVAL;
+ 			if (!strcmp(act, "add")) {
+-				fileno = add_file(td, fname, 0, 1);
+-				file_action = FIO_LOG_ADD_FILE;
++				if (td->o.replay_redirect &&
++				    get_fileno(td, fname) != -1) {
++					dprint(FD_FILE, "iolog: ignoring"
++						" re-add of file %s\n", fname);
++				} else {
++					fileno = add_file(td, fname, 0, 1);
++					file_action = FIO_LOG_ADD_FILE;
++				}
+ 				continue;
+ 			} else if (!strcmp(act, "open")) {
+ 				fileno = get_fileno(td, fname);
+@@ -443,7 +454,12 @@ static int read_iolog2(struct thread_data *td, FILE *f)
+ 		if (rw == DDIR_WAIT) {
+ 			ipo->delay = offset;
+ 		} else {
+-			ipo->offset = offset;
++			if (td->o.replay_scale)
++				ipo->offset = offset / td->o.replay_scale;
++			else
++				ipo->offset = offset;
++			ipo_bytes_align(td->o.replay_align, ipo);
++
+ 			ipo->len = bytes;
+ 			if (rw != DDIR_INVAL && bytes > td->o.max_bs[rw])
+ 				td->o.max_bs[rw] = bytes;
+diff --git a/iolog.h b/iolog.h
+index ee28944..60ee3e9 100644
+--- a/iolog.h
++++ b/iolog.h
+@@ -269,6 +269,14 @@ static inline bool inline_log(struct io_log *log)
+ 		log->log_type == IO_LOG_TYPE_SLAT;
+ }
+ 
++static inline void ipo_bytes_align(unsigned int replay_align, struct io_piece *ipo)
++{
++	if (replay_align)
++		return;
++
++	ipo->offset &= ~(replay_align - (uint64_t)1);
++}
++
+ extern void finalize_logs(struct thread_data *td, bool);
+ extern void setup_log(struct io_log **, struct log_params *, const char *);
+ extern void flush_log(struct io_log *, bool);
