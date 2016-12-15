@@ -1,36 +1,42 @@
-Return-Path: <contactme@olausson.de>
+Return-Path: <axboe@kernel.dk>
+Date: Thu, 15 Dec 2016 13:29:37 -0700
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: "fio --server" on Windows -> "fio: waitpid: Function not
+ implemented"
+Message-ID: <20161215202937.GD29056@kernel.dk>
+References: <CAE7O3TdQh8MmuJeb6Q+QD+LOD2ZKaEBfFSBbL1dV0YDuKs-GXA@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20161215202937.GD29056@kernel.dk>
-References: <20161215202937.GD29056@kernel.dk>
-From: contactme@olausson.de
-Date: Fri, 16 Dec 2016 09:09:36 -0500
-Message-ID: <CAE7O3TeXoojLZey-pskumfEx_6zh3D+NSnvVO+wyKju4K__bUA@mail.gmail.com>
-Subject: "fio --server" on Windows -> "fio: waitpid: Function not implemented"
-Content-Type: text/plain; charset=UTF-8
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio <fio@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAE7O3TdQh8MmuJeb6Q+QD+LOD2ZKaEBfFSBbL1dV0YDuKs-GXA@mail.gmail.com>
+To: "Olausson, Bjoern" <contactme@olausson.de>
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-Hello Jens,
+On Wed, Dec 07 2016, Olausson, Bjoern wrote:
+> Hello FIO users,
+> 
+> I have to run some benchmarks on multiple Windows Server 2012 Build
+> 9200 clients.
+> 
+> When I start fio as server on the windows machines everything looks
+> fine until I commence the benchmark, I get the following output:
+> 
+> 
+> PS C:\Program Files\fio> .\fio.exe --server
+> fio: server listening on 0.0.0.0,8765
+> fork is not implemented
+> waitpid is not implemented
+> fio: waitpid: Function not implemented
+> waitpid is not implemented
+> fio: waitpid: Function not implemented
 
-bad news, but good to know.
+Windows doesn't support fork(), and the fio server implementation was
+written to use processes. It could be made threaded instead and switched
+to that, in which case it would work. But it would require a fair amount
+of work...
 
-Is there any way to run "fio --server" on Windows? Maybe "native" cygwin?
-If that would be possible, how would I compile it?
+-- 
+Jens Axboe
 
-When I run "configure" it automatically detects Windows and tries to
-use mingw32 (which I don't want to use)
-
-root@WIN-OJQRIHLM3VR ~/fio/fio-fio-2.15
-$ make
-FIO_VERSION = fio-2.15
-    CC crc/crc64.o
-/bin/sh: x86_64-w64-mingw32-gcc: command not found
-make: *** [Makefile:314: crc/crc64.o] Error 127
-
-root@WIN-OJQRIHLM3VR ~/fio/fio-fio-2.15
-$
-
-Cheers,
-Bjoern
 
