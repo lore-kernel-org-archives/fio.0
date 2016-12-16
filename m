@@ -1,36 +1,70 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:61730 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752430AbcLGAGG (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 6 Dec 2016 19:06:06 -0500
-Subject: [PATCH] fio: add device dax engine
-From: Dave Jiang <dave.jiang@intel.com>
-Date: Tue, 06 Dec 2016 17:05:43 -0700
-Message-ID: <148106914371.151212.12117076560989404157.stgit@djiang5-desk3.ch.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Received: from bombadil.infradead.org ([198.137.202.9]:49725 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934179AbcLPNAE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 16 Dec 2016 08:00:04 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.85_2 #1 (Red Hat Linux))
+        id 1cHs7I-0008TJ-11
+        for fio@vger.kernel.org; Fri, 16 Dec 2016 13:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20161216130002.175832C00E7@kernel.dk>
+Date: Fri, 16 Dec 2016 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: ross.zwisler@linux.intel.com, dan.j.williams@intel.com
 
-Adding an ioengine that access DAX device directly. Very similar to the
-mmap engine. Uses the libpmem's pmem_memcpy_persist() call for writes.
+The following changes since commit 13e0f06b805eb0bb3a100ed710c7da18684c8950:
 
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
----
- Makefile          |    3 
- configure         |   11 ++
- engines/dev-dax.c |  370 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 384 insertions(+)
+  Change misleading error message for invalid size= value (2016-12-13 09:32:59 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 0d60927f167d318a685b9e5309bb392c624776e4:
+
+  fio: move _FORTIFY_SOURCE to only when optimization is turned on (2016-12-15 14:55:00 -0700)
+
+----------------------------------------------------------------
+Dave Jiang (2):
+      fio: add device dax engine
+      fio: move _FORTIFY_SOURCE to only when optimization is turned on
+
+ Makefile          |   7 +-
+ configure         |  11 ++
+ engines/dev-dax.c | 368 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 384 insertions(+), 2 deletions(-)
  create mode 100644 engines/dev-dax.c
 
+---
+
+Diff of recent changes:
+
 diff --git a/Makefile b/Makefile
-index 4e7a0b4..5d7a83e 100644
+index b3a12dd..d27380b 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -129,6 +129,9 @@ endif
+@@ -20,7 +20,7 @@ all:
+ include config-host.mak
+ endif
+ 
+-DEBUGFLAGS = -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -DFIO_INC_DEBUG
++DEBUGFLAGS = -DFIO_INC_DEBUG
+ CPPFLAGS= -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DFIO_INTERNAL $(DEBUGFLAGS)
+ OPTFLAGS= -g -ffast-math
+ CFLAGS	= -std=gnu99 -Wwrite-strings -Wall -Wdeclaration-after-statement $(OPTFLAGS) $(EXTFLAGS) $(BUILD_CFLAGS) -I. -I$(SRCDIR)
+@@ -29,7 +29,7 @@ PROGS	= fio
+ SCRIPTS = $(addprefix $(SRCDIR)/,tools/fio_generate_plots tools/plot/fio2gnuplot tools/genfio tools/fiologparser.py tools/fio_latency2csv.py tools/hist/fiologparser_hist.py)
+ 
+ ifndef CONFIG_FIO_NO_OPT
+-  CFLAGS += -O3
++  CFLAGS += -O3 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+ endif
+ 
+ ifdef CONFIG_GFIO
+@@ -127,6 +127,9 @@ endif
  ifdef CONFIG_PMEMBLK
    SOURCE += engines/pmemblk.c
  endif
@@ -92,10 +126,10 @@ index 833b6d3..03bed3b 100755
    if test "$yacc_is_bison" = "yes" ; then
 diff --git a/engines/dev-dax.c b/engines/dev-dax.c
 new file mode 100644
-index 0000000..27c62da
+index 0000000..6372576
 --- /dev/null
 +++ b/engines/dev-dax.c
-@@ -0,0 +1,370 @@
+@@ -0,0 +1,368 @@
 +/*
 + * device DAX engine
 + *
@@ -189,10 +223,8 @@ index 0000000..27c62da
 +	if (fdd->devdax_ptr == MAP_FAILED) {
 +		fdd->devdax_ptr = NULL;
 +		td_verror(td, errno, "mmap");
-+		goto err;
 +	}
 +
-+err:
 +	if (td->error && fdd->devdax_ptr)
 +		munmap(fdd->devdax_ptr, length);
 +
@@ -208,7 +240,7 @@ index 0000000..27c62da
 +	struct fio_devdax_data *fdd = FILE_ENG_DATA(f);
 +
 +	if (io_u->buflen > f->real_file_size) {
-+		log_err("fio: bs too big for mmap engine\n");
++		log_err("fio: bs too big for dev-dax engine\n");
 +		return EIO;
 +	}
 +
@@ -466,4 +498,3 @@ index 0000000..27c62da
 +{
 +	unregister_ioengine(&ioengine);
 +}
-
