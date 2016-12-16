@@ -1,43 +1,24 @@
-Return-Path: <elliott@hpe.com>
-From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Subject: RE: [PATCH] fio: add additional support for dev-dax ioengine
-Date: Mon, 19 Dec 2016 20:08:03 +0000
-Message-ID: <CS1PR84MB0165239238258EDF42E762A1AB910@CS1PR84MB0165.NAMPRD84.PROD.OUTLOOK.COM>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] fio: add additional support for dev-dax ioengine
 References: <148192914644.212226.6107445930190025121.stgit@djiang5-desk3.ch.intel.com>
-In-Reply-To: <148192914644.212226.6107445930190025121.stgit@djiang5-desk3.ch.intel.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <ea69300a-cd92-594a-5c10-8807af6ac2ef@kernel.dk>
+Date: Fri, 16 Dec 2016 16:06:56 -0700
 MIME-Version: 1.0
-To: Dave Jiang <dave.jiang@intel.com>, "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <148192914644.212226.6107445930190025121.stgit@djiang5-desk3.ch.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+To: Dave Jiang <dave.jiang@intel.com>
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
-a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uDQo+IEJlaGFs
-ZiBPZiBEYXZlIEppYW5nDQo+IFNlbnQ6IEZyaWRheSwgRGVjZW1iZXIgMTYsIDIwMTYgNDo1OSBQ
-TQ0KPiBTdWJqZWN0OiBbUEFUQ0hdIGZpbzogYWRkIGFkZGl0aW9uYWwgc3VwcG9ydCBmb3IgZGV2
-LWRheCBpb2VuZ2luZQ0KPiANCj4gRml4dXAgb3B0aW9ucy5jIHRvIGFkZCB0aGUgZGV2LWRheCB0
-byBpb2VuZ2luZSBsaXN0LiBVcGRhdGUgZmlvLjEgYW5kDQo+IEhPV1RPIGFzIHdlbGwuIEFsc28g
-YWRkaW5nIGV4YW1wbGUgZmlvIGpvYiBmaWxlLg0KPiANCi4uLg0KPiBkaWZmIC0tZ2l0IGEvZXhh
-bXBsZXMvZGV2LWRheC5maW8gYi9leGFtcGxlcy9kZXYtZGF4LmZpbw0KPiArYnM9Mm0NCj4gK2lv
-ZW5naW5lPWRldi1kYXgNCi4uLg0KPiArIyBUaGUgZGV2LWRheCBlbmdpbmUgZG9lcyBJTyB0byBE
-QVggZGV2aWNlIHRoYXQgYXJlIHNwZWNpYWwgY2hhcmFjdGVyDQo+ICsjIGRldmljZXMgZXhwb3J0
-ZWQgYnkgdGhlIGtlcm5lbCAoZS5nLiAvZGV2L2RheDAuMCkuIFRoZSBkZXZpY2UgaXMNCj4gKyMg
-b3BlbmVkIG5vcm1hbGx5IGFuZCB0aGVuIHRoZSByZWdpb24gaXMgYWNjZXNzaWJsZSB2aWEgbW1h
-cC4gV2UgZG8NCj4gKyMgbm90IHVzZSB0aGUgT19ESVJFQ1QgZmxhZyBiZWNhdXNlIHRoZSBkZXZp
-Y2UgaXMgbmF0dXJhbGx5IGRpcmVjdA0KPiArIyBhY2Nlc3MuIFRoZSBPX0RJUkVDVCBmbGFncyB3
-aWxsIHJlc3VsdCBpbiBmYWlsdXJlLiBUaGUgZW5naW5lDQo+ICsjIGFjY2VzcyB0aGUgdW5kZXJs
-eWluZyBOVkRJTU0gZGlyZWN0bHkgb25jZSB0aGUgbW1hcHBpbmcgaXMgc2V0dXAuDQo+ICsjDQo+
-ICsjIENoZWNrIHRoZSBhbGlnbm1lbnQgcmVxdWlyZW1lbnQgb2YgeW91ciBEQVggZGV2aWNlLiBD
-dXJyZW50bHkgdGhlIGRlZmF1bHQNCj4gKyMgc2hvdWxkIGJlIDJNLiBCbG9ja3NpemUgKGJzKSBz
-aG91bGQgbWVldCBhbGlnbm1lbnQgcmVxdWlyZW1lbnQuDQoNCkFsdGhvdWdoIC9kZXYvZGF4IG5l
-ZWRzIHRoZSBtbWFwKCkgY2FsbHMgYWxpZ25lZCBhbmQgb2YgYSBjZXJ0YWluIHNpemUsIA0KdGhl
-IHJlYWRzIGFuZCB3cml0ZXMgd2l0aGluIHRob3NlIG1hcHBlZCByZWdpb25zIGRvbid0IG5lZWQg
-dG8gYmUuICBDYW4NCnRoZXNlIGNvbmNlcHRzIGJlIHNlcGFyYXRlZCwgd2l0aCBicz0gY29udGlu
-dWluZyB0byBqdXN0IHNwZWNpZnkgdGhlIA0KcmVhZC93cml0ZSBzaXplPw0KDQpTaW5jZSBub3Qg
-ZXZlcnkgd3JpdGUgbmVlZHMgdG8gcGVyc2lzdCwgY291bGQgeW91IGluY2x1ZGUgYSBwYXJhbWV0
-ZXINCnRvIHVzZSBwbWVtX21lbWNweV9ub2RyYWluKCkgZm9yIHRoZSB3cml0ZXMsIHBsdXMgY2Fs
-bCBwbWVtX3BlcnNpc3QoKQ0KYXQgYSBkaWZmZXJlbnQgc3BlY2lmaWVkIHJhdGU/DQoNCg0KDQoN
-Cg0KDQo=
+On 12/16/2016 03:59 PM, Dave Jiang wrote:
+> Fixup options.c to add the dev-dax to ioengine list. Update fio.1 and
+> HOWTO as well. Also adding example fio job file.
+
+Thanks, applied.
+
+-- 
+Jens Axboe
+
 
