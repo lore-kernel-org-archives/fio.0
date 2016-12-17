@@ -1,75 +1,41 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qt0-f176.google.com ([209.85.216.176]:33013 "EHLO
-        mail-qt0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752729AbcLQKlk (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 17 Dec 2016 05:41:40 -0500
-Received: by mail-qt0-f176.google.com with SMTP id p16so106553501qta.0
-        for <fio@vger.kernel.org>; Sat, 17 Dec 2016 02:41:40 -0800 (PST)
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-From: Saju Nair <saju.mad.nair@gmail.com>
-Date: Sat, 17 Dec 2016 16:11:39 +0530
-Message-ID: <CAKV1nBY2cmm4_QFRJg3AG6RUwux1qk1eHO1OFbjQAZi8--FAoA@mail.gmail.com>
-Subject: 
+In-Reply-To: <CAE7O3TeXoojLZey-pskumfEx_6zh3D+NSnvVO+wyKju4K__bUA@mail.gmail.com>
+References: <20161215202937.GD29056@kernel.dk> <CAE7O3TeXoojLZey-pskumfEx_6zh3D+NSnvVO+wyKju4K__bUA@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 17 Dec 2016 16:34:50 +0000
+Message-ID: <CALjAwxhoEp=VCM3=YqLcKGJTQmGArnATKrniQiX3HKdXrv-gBA@mail.gmail.com>
+Subject: Re: "fio --server" on Windows -> "fio: waitpid: Function not implemented"
 Content-Type: text/plain; charset=UTF-8
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: contactme@olausson.de
+Cc: Jens Axboe <axboe@kernel.dk>, fio <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi FIO users,
-I am a new user of FIO, and had a few basic questions.
-I tried to search the existing QA in archives, and have not found an
-exact answer.
-Apologies, for the length of the mail and also if this is already
-addressed (if so, kindly point me to that archive article).
+On 16 December 2016 at 14:09,  <contactme@olausson.de> wrote:
+> Hello Jens,
+>
+> bad news, but good to know.
+>
+> Is there any way to run "fio --server" on Windows? Maybe "native" cygwin?
+> If that would be possible, how would I compile it?
+>
+> When I run "configure" it automatically detects Windows and tries to
+> use mingw32 (which I don't want to use)
+>
+> root@WIN-OJQRIHLM3VR ~/fio/fio-fio-2.15
+> $ make
+> FIO_VERSION = fio-2.15
+>     CC crc/crc64.o
+> /bin/sh: x86_64-w64-mingw32-gcc: command not found
+> make: *** [Makefile:314: crc/crc64.o] Error 127
 
-Referred to:
-https://github.com/axboe/fio/issues/163
-http://www.spinics.net/lists/fio/msg04104.html
-http://www.spinics.net/lists/fio/msg03424.html
+Fixing the configure script to default to a different compiler will
+only be the start - you will also need to add code to teach the fio
+build about the "cygwin" platform. This will involve multiple changes
+such as including different headers, linking against the different
+libraries and calling cygwin functions (such as fork) rather than the
+current Windows stubs...
 
-We are trying to do Data Integrity checks using FIO, while performing
-Sequential & Random Writes/Reads.
+-- 
+Sitsofe | http://sucs.org/~sits/
 
-1. Basic Write/Read and offline comparison for Data Integrity:
-   a. Is it possible to perform Random Writes to a portion of the disk
-(using --offset, --size options), and read back from those locations.
-   b. Is it possible to force FIO to access the same LBAs during
-Writes and Reads, when it is random.
-   c. Is there a way to control the "randomness" using any seeds ?
-   d. Is there a need to use the "state" files ?
-
-   The intent was to get the data read back to a file, and then
-compare against expected.
-
-2. FIO comparison using *verify* options:
-    We tried to do an FIO with
-     --do_verify=1
-     --verify=pattern
-     --verify_pattern=TEST_PATTERN
-     --rw=randwrite (or write - for sequential)
-
-    In this case, again a few follow-on Questions:
-    a. Does FIO perform writes completely, ie based on --size, or --runtime
-        and then do the read access to verify.
-        What parameters are used (for blk-size, numjobs, qdepth etc.)
-during the Reads operation.
-
-    b. is there a way to get the results of the verify step into an
-output file ?
-    c. The above questions on control of random accesses still exist.
-    d. We tried a run of the above kind, and the FIO run passed, ie
-there were no obvious errors reported.
-    e. In order to ensure that the verification was correct - we did a
-2 step process:
-        [similar to one of the reference articles]
-        FIO#1 - with Writes (--do_verify=0, --verify_pattern=PAT1)
-        FIO#2 - for read/verify (--do_verify=1, --verify_pattern=PAT2)
-       and got some errors..
-       But, we are not yet sure if that has flagged ALL the locations
-in error or not.
-       Is there a way to ascertain this ?
-
-    f. Are there any restrictions in the usage of --num_jobs in such a check..
-
-Regards,
-- Saju
