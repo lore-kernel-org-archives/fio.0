@@ -1,103 +1,165 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f172.google.com ([209.85.217.172]:33992 "EHLO
-        mail-ua0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752529AbcLSUet (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 19 Dec 2016 15:34:49 -0500
-Received: by mail-ua0-f172.google.com with SMTP id y13so66422300uay.1
-        for <fio@vger.kernel.org>; Mon, 19 Dec 2016 12:34:48 -0800 (PST)
+Received: from mail-qk0-f178.google.com ([209.85.220.178]:34419 "EHLO
+        mail-qk0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752398AbcLSRPp (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 19 Dec 2016 12:15:45 -0500
+Received: by mail-qk0-f178.google.com with SMTP id q68so22000843qki.1
+        for <fio@vger.kernel.org>; Mon, 19 Dec 2016 09:15:45 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CAKV1nBaM=Cj4qHcyQSJuBmTB4htAupp4Uyh1TEAF_bjk8XJtqQ@mail.gmail.com>
+In-Reply-To: <CALjAwxhoGyBt9=pzzOijtzu3RqRJnoZ3r2fV5pntOqvOgMYhZw@mail.gmail.com>
 References: <CAKV1nBbOg6k3teSbeZkVJ5APhkrmNRYxOQL1UUhdOsqrLejbiQ@mail.gmail.com>
  <CALjAwxip9NM8_=3Vj1xEDWRPnrRVFCELYKhuSr4YMxdkO0ksgQ@mail.gmail.com>
  <CAKV1nBYMEWt0P6jXZvUijcZtMuP7hJ16MBhBFcKszwqt-7OwOA@mail.gmail.com>
  <CALjAwxht_q0WRvJGBA_wxT+0p-yPfmQy8C3k5vwYv2pRtcdSfA@mail.gmail.com>
- <CAKV1nBZ1F1g2t-H5NS4Po9huXnpZ1wfKNQCUXekMCdLmLE-Vig@mail.gmail.com>
- <CALjAwxhoGyBt9=pzzOijtzu3RqRJnoZ3r2fV5pntOqvOgMYhZw@mail.gmail.com> <CAKV1nBaM=Cj4qHcyQSJuBmTB4htAupp4Uyh1TEAF_bjk8XJtqQ@mail.gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Mon, 19 Dec 2016 20:34:47 +0000
-Message-ID: <CALjAwxgKQ7sPKOszrkjSXtDMiHf+BepyrFZXv=chTdoyFF7cQw@mail.gmail.com>
+ <CAKV1nBZ1F1g2t-H5NS4Po9huXnpZ1wfKNQCUXekMCdLmLE-Vig@mail.gmail.com> <CALjAwxhoGyBt9=pzzOijtzu3RqRJnoZ3r2fV5pntOqvOgMYhZw@mail.gmail.com>
+From: Saju Nair <saju.mad.nair@gmail.com>
+Date: Mon, 19 Dec 2016 22:45:43 +0530
+Message-ID: <CAKV1nBaM=Cj4qHcyQSJuBmTB4htAupp4Uyh1TEAF_bjk8XJtqQ@mail.gmail.com>
 Subject: Re: FIO -- A few basic questions on Data Integrity.
 Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Saju Nair <saju.mad.nair@gmail.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi,
-
-On 19 December 2016 at 17:15, Saju Nair <saju.mad.nair@gmail.com> wrote:
->
-> On the possible data-verify error,
-> 1. Yes, the config file is what I used.
-> 2. Did not get the verify : bad header info. but got a line as below.
-> write-and-verify: (groupid=0, jobs=1): err=84 (file:io_u.c:1979,
-> func=io_u_queued_complete, error=Invalid or incomplete multibyte or
-> wide character): pid=9067: Mon Dec 19 03:47:40 2016
->     Wish that the response was more intuitive!.
-
-Yeah.. the error message is a bit strange (see
-http://www.spinics.net/lists/fio/msg04977.html for why),
-
-> 3. Below message shows
->
-> Run status group 0 (all jobs):
->    READ: io=264KB, aggrb=XXXXKB/s, minb=XXXXKB/s, maxb=XXXXKB/s,
-> mint=tmsec, maxt=tmsec
->   WRITE: io=4096.0MB, aggrb=YYYYYKB/s, minb=YYYYYKB/s, maxb=YYYYYKB/s,
-> mint=t2msec, maxt=t2msec
->
-> Appears to indicate that 4GB had been written to, but, reads happened
-> only upto 264KB, by when we possibly got  an error ?
-> Is there a way to get additional info - like what was expected, and
-> what was actually written, which sector (address) is in error ?
-
-Normally whenever fio has hit mismatches information about the problem
-offset is printed to stderr. I've just run a quick check on a device
-that always returns zeros and here's what I got:
-
-write-and-verify: (g=0): rw=randwrite, bs=4K-4K/4K-4K/4K-4K,
-ioengine=libaio, iodepth=16
-fio-2.15-25-gea8d
-Starting 1 process
-verify: bad magic header 0, wanted acca at file /dev/mapper/fake
-offset 259043328, length 4096
-verify: bad magic header 0, wanted acca at file /dev/mapper/fake
-offset 3179520000, length 4096
-fio: pid=15333, err=84/file:io_u.c:1983, func=io_u_queued_complete,
-error=Invalid or incomplete multibyte or wide character
-
-write-and-verify: (groupid=0, jobs=1): err=84 (file:io_u.c:1983,
+Hi Sitsofe,
+Thanks.
+On the possible data-verify error,
+1. Yes, the config file is what I used.
+2. Did not get the verify : bad header info. but got a line as below.
+write-and-verify: (groupid=0, jobs=1): err=84 (file:io_u.c:1979,
 func=io_u_queued_complete, error=Invalid or incomplete multibyte or
-wide character): pid=15333: Mon Dec 19 19:10:01 2016
+wide character): pid=9067: Mon Dec 19 03:47:40 2016
+    Wish that the response was more intuitive!.
+3. Below message shows
 
-Are you doing something like redirecting stdout to a file but not
-doing anything with stderr? It would help if you include the command
-line you are using to run fio in your reply.
+Run status group 0 (all jobs):
+   READ: io=264KB, aggrb=XXXXKB/s, minb=XXXXKB/s, maxb=XXXXKB/s,
+mint=tmsec, maxt=tmsec
+  WRITE: io=4096.0MB, aggrb=YYYYYKB/s, minb=YYYYYKB/s, maxb=YYYYYKB/s,
+mint=t2msec, maxt=t2msec
 
-See the HOWTO (I say that a lot right?) for information on the
-verify_dump= job option which will cause the contents of failing
-blocks to be recorded within files within the current working
-directory. If the verification header is correct but the contents is
-wrong you will also get a dump of the expected data in a separate
-file. You might want to try this out before you enable the following
-option because if there are a lot of distinct blocks that mismatch a
-lot of files will be generated...
+Appears to indicate that 4GB had been written to, but, reads happened
+only upto 264KB, by when we possibly got  an error ?
+Is there a way to get additional info - like what was expected, and
+what was actually written, which sector (address) is in error ?
+Can we set the
+--continue_on_error=verify, to get all the errors ?
 
-> Can we set the
-> --continue_on_error=verify, to get all the errors ?
+-------------------------------------
 
-Yes - I was mistaken earlier about all errors being printed by default
-with verify_fatal=0 so perhaps the HOWTO needs to be updated.
-continue_on_error is actually a job option so it can go into the job
-file if you prefer.
+On the Data Integrity @ performance-
+our thought was that for us to ensure that the max performance also is
+backed up by having data integrity to pass..
+Let me think through the suggestions that you have provided for the same..
+Many thanks, really appreciate your valuable support & suggestions.
 
-> -------------------------------------
+Regards,
+- Saju
+
+
+
+On Mon, Dec 19, 2016 at 7:32 PM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+> Hi,
 >
-> On the Data Integrity @ performance-
-> our thought was that for us to ensure that the max performance also is
-> backed up by having data integrity to pass..
-> Let me think through the suggestions that you have provided for the same..
-> Many thanks, really appreciate your valuable support & suggestions.
-
--- 
-Sitsofe | http://sucs.org/~sits/
+> On 19 December 2016 at 12:29, Saju Nair <saju.mad.nair@gmail.com> wrote:
+>>
+>> We tried with the sample [write-and-verify] in the link you specified..
+>>
+>> [write-and-verify]
+>> rw=randwrite
+>> bs=4k
+>> direct=1
+>> ioengine=libaio
+>> iodepth=16
+>> size=4g                  <-- added this line
+>> verify=crc32c
+>> filename=/dev/XXXX
+>>
+>> Unfortunately, we get an error from FIO (both 2.12 and 2.15- latest).
+>> fio-2.15
+>> Starting 1 process
+>> Jobs: 1 (f=1)^MJobs: 1 (f=1)
+>> Jobs: 1 (f=1): [w(1)] [30.0% done] [nnnMB/mKB/0KB /s] [xxxK/yyyK/0
+>> iops] [eta mm:ss]
+>> Jobs: 1 (f=1): [w(1)] [45.5% done] [nnnMB/mKB/0KB /s] [xxxK/yyyK/0
+>> iops] [eta mm:ss]
+>> Jobs: 1 (f=1): [w(1)] [54.5% done] [nnnMB/mKB/0KB /s] [xxxK/yyyK/0
+>> iops] [eta mm:ss]
+>> fio: pid=9067, err=84/file:io_u.c:1979, func=io_u_queued_complete,
+>> error=Invalid or incomplete multibyte or wide character
+>>
+>> From a search, this error has been faced by folks before, but, looks
+>> like it got fixed with "numjobs=1".
+>>
+>> We are already using numjobs=1.
+>> Are there any pointers on how to get around this issue.
+>> We hope that with the above fixed, we will be able to run regular data
+>> integrity checks.
+>
+> Assuming the fio jobfile you posted above was complete (i.e. no global
+> section no other jobs etc) it looks like what you've hit is the error
+> message you get when a bad verification header is found during the
+> verify phase (i.e. there's been a mismatch between the expected and
+> read back data). fio normally goes on to print a message about
+> "verify: bad header [...]". Did you get that too (if so what did it
+> say) and do you get the same error on other disks that you know are
+> good (i.e. are you sure the disk isn't suffering a problem)?
+>
+>> Now, onto the data-integrity checks at performance...
+>> Our device under test (DUT) is an SSD disk.
+>> Our standalone write and read performance is achieved at a num_jobs >
+>> 1, and qdepth > 1.
+>> This is validated in standalone "randwrite" and "randread" FIO runs.
+>
+> Ah I see. I will note that highest possible performance is a bit at
+> odds with proving data integrity though because if I only care about
+> performance I can write any old junk and just throw the data I read
+> away (I've never known benchmark claims to be limited to verified data
+> runs)...
+>
+>> We wanted to develop a strategy to be able to perform data-integrity
+>> checks @ performance.
+>> Wanted to check if it is feasible to do this check using FIO.
+>> Approach#1:
+>>  Extend the -do_verify approach, and do a write followed by verify in
+>> a single FIO run.
+>>  But, as you clarified - this will not be feasible with numjobs > 1.
+>>
+>> Approach#2:
+>> FIO job#1 - do FIO writes, with settings for full performance
+>> FIO job#2 - wait for job#1 and then, do FIO reads at performance.
+>
+> A few ideas spring to mind:
+> 1. Try the usual methods that speed up a "normal" single fio job - if
+> a single process/thread submits as much I/O as multiple ones it isn't
+> going to look different from the disk's perspective (assuming that it
+> sheer amount of simultaneous I/O triggering a problem). Things like
+> reducing calls that cost CPU, doing things in bigger batches to
+> amortize the cost etc should also help verification speed (but I'll
+> leave you to find those elsewhere). You can also look at the HOWTO
+> information related to verify_async= option to try and allow more
+> parallelism.
+> 2. Split the disk into different regions and write/verify each region
+> separately from any other region. See offset_increment= in the HOWTO
+> for something that might help achieve this if you use numjobs. More
+> fiddly but a good exercise in learning how to create fio job files.
+>
+>> Is there any inbuilt way to do an at-speed comparison in FIO.
+>
+> Personally I'd start with 1. from above and after I got that going I'd
+> give 2. a go. If 1. can be made to get similar disk I/O numbers to
+> using multiple jobs then you might even stop there.
+>
+>> If not, we wanted to see if we can use FIO to read from our DUT, to
+>> the host's memory or any other storage disk, and then do a simple
+>> application that compares the data.
+>
+> fio isn't a copying tool so it won't "move" data for you (and doing so
+> would slow things down). However, if you somehow copied the contents
+> into a file fio could verify against the file. The problem you'll then
+> have to solve is finding a tool that copies the data faster than fio
+> does its verifying reads...
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
