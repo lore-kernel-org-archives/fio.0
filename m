@@ -1,76 +1,67 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-by2nam03on0129.outbound.protection.outlook.com ([104.47.42.129]:8016
-        "EHLO NAM03-BY2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751537AbcLUH5H (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 21 Dec 2016 02:57:07 -0500
-From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Subject: RE: [PATCH 2/2] pmemblk: Clarify fsize is in MiB not MB
-Date: Wed, 21 Dec 2016 07:57:05 +0000
-Message-ID: <DF4PR84MB0169B59A50990EE98783E56FAB930@DF4PR84MB0169.NAMPRD84.PROD.OUTLOOK.COM>
-References: <20161220235638.35477-1-elliott@hpe.com>
- <20161220235638.35477-2-elliott@hpe.com>
- <CALjAwxjFu6o4Eb+Vn4MEzKiRMYyLvYmWh6NEXQziNTYgWRh5hw@mail.gmail.com>
-In-Reply-To: <CALjAwxjFu6o4Eb+Vn4MEzKiRMYyLvYmWh6NEXQziNTYgWRh5hw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-ua0-f195.google.com ([209.85.217.195]:36422 "EHLO
+        mail-ua0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754151AbcLUGFR (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 21 Dec 2016 01:05:17 -0500
+Received: by mail-ua0-f195.google.com with SMTP id 2so7744940uax.3
+        for <fio@vger.kernel.org>; Tue, 20 Dec 2016 22:05:17 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <20161220235638.35477-2-elliott@hpe.com>
+References: <20161220235638.35477-1-elliott@hpe.com> <20161220235638.35477-2-elliott@hpe.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 21 Dec 2016 06:05:16 +0000
+Message-ID: <CALjAwxjFu6o4Eb+Vn4MEzKiRMYyLvYmWh6NEXQziNTYgWRh5hw@mail.gmail.com>
+Subject: Re: [PATCH 2/2] pmemblk: Clarify fsize is in MiB not MB
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Robert Elliott <elliott@hpe.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-DQo+ID4gICAqICAgV2hlbiBzcGVjaWZ5aW5nIHRoZSBmaWxlbmFtZSwgaWYgdGhlIGJsb2NrIHBv
-b2wgZmlsZSBkb2VzIG5vdA0KPiBhbHJlYWR5DQo+ID4gLSAqICAgZXhpc3QsIHRoZW4gdGhlIHBt
-ZW1ibGsgZW5naW5lIGNhbiBjcmVhdGUgdGhlIHBvb2wgZmlsZSBpZg0KPiB5b3Ugc3BlY2lmeQ0K
-PiA+ICsgKiAgIGV4aXN0LCB0aGVuIHRoZSBwbWVtYmxrIGVuZ2luZSBjcmVhdGVzIHRoZSBwb29s
-IGZpbGUgaWYgeW91DQo+IHNwZWNpZnkNCj4gPiAgICogICB0aGUgYmxvY2sgYW5kIGZpbGUgc2l6
-ZXMuICBCU0laRSBpcyB0aGUgYmxvY2sgc2l6ZSBpbiBieXRlcy4NCj4gPiAtICogICBGU0laRU1C
-IGlzIHRoZSBwb29sIGZpbGUgc2l6ZSBpbiBNQi4NCj4gPiArICogICBGU0laRU1pQiBpcyB0aGUg
-cG9vbCBmaWxlIHNpemUgaW4gTWlCLg0KPiANCj4gSXQgbWlnaHQgYmUgc2FmZXIgdG8gZXhwbGlj
-aXRseSBzYXkgImluIG1lZ2FieXRlcyIgcmF0aGVyIHRoYW4gImluDQo+IE1pQiIgaGVyZSBiZWNh
-dXNlIG9mIGZpbydzIGluZmFtb3VzIHJldmVyc2FsIG9mIHRoZSB0ZXJtcyBNKEIpL01pQg0KPiAo
-aHR0cHM6Ly9naXRodWIuY29tL2F4Ym9lL2Zpby9pc3N1ZXMvMTAzICkuIENhbiB0aGUgdXNlciBl
-eHBsaWNpdGx5DQo+IHNwZWNpZnkgdW5pdHMgYXMgaXMgZG9uZSBlbHNld2hlcmUgaW4gZmlvPw0K
-DQoibWVnYSIgaXMgc3RpbGwgdGhlIFNJIHBvd2VyIG9mIDEwIHByZWZpeDsgbWViaSB3b3VsZCBi
-ZSB0aGUgSUVDIA0KcG93ZXIgb2YgMiBwcmVmaXguDQoNCkknbSB3b3JraW5nIG9uIGEgYmlnIHBh
-dGNoIHNldCB0byBjbGVhbiB1cCB0aGUgdW5pdHMgdGhyb3VnaG91dCB0aGUgDQp3aG9sZSBjb2Rl
-YmFzZSwgYW5kIGhvcGUgdG8gcG9zdCBpdCB0b21vcnJvdy4NCg0KRm9yIGlucHV0cyAoZS5nLiwg
-cGFyYW1ldGVycyBpbiAuZmlvIGZpbGVzKSwga2JfYmFzZT0xMDAwIHdpbGwgDQpjYXVzZSBpdCB0
-byB1c2UgcHJvcGVyIHVuaXRzIGFuZCBrYl9iYXNlPTEwMjQgKHRoZSBkZWZhdWx0KSB3aWxsDQpj
-b250aW51ZSB0byB1c2Ugd3JvbmcgdW5pdHMgKGZvciBjb21wYXRpYmlsaXR5KS4gIEknbSBndWVz
-c2luZyB0aGF0DQprYl9iYXNlPTEwMDAgaGFzIGxpdHRsZSB1c2Ugc28gZmFyICh0aGVyZSBhcmUg
-c2V2ZXJhbCBidWdzIG1ha2luZw0KaXQgcHJldHR5IHVudXNhYmxlIHJpZ2h0IG5vdykgc28gd2Ug
-Y2FuIHRha2UgaXQgb3ZlciBmb3IgdGhpcw0KcHVycG9zZS4NCg0KRm9yIG91dHB1dHMsIHByb3Bl
-ciB1bml0cyB3aWxsIGFsd2F5cyBiZSBkaXNwbGF5ZWQgb25zY3JlZW4sDQpzb21ldGltZXMgd2l0
-aCBib3RoIHNpZGUtYnktc2lkZS4gDQoNClRoZSB0ZXJzZSBhbmQganNvbiBvdXRwdXQgZm9ybWF0
-cyBhcmUgbm90IGNoYW5nZWQgLSB0aGV5J2xsDQpjb250aW51ZSB0byByZXBvcnQgS2lCL3MgdmFs
-dWVzICh3aXRob3V0IHVuaXRzKS4NCg0KRXhhbXBsZSB0ZXh0IG91dHB1dDoNCg0KSm9iczogNTc2
-IChmPTU3NiksIDU0OU1pQi9zLTgwLjVHaUIvczogW3coMjg4KSxyKDI4OCldIFswLjAlIGRvbmVd
-IFtyPTMzMjAwTWlCL3Msdz0yNTU0NE1pQi9zLHQ9MEtpQi9zXSBbcj04NDk5ayx3PTY1MzlrLHQ9
-MCBpb3BzXSBbZXRhIDA2aDo1OW06NTNzXQ0KLi4uDQpkcml2ZV8wOiAoZ3JvdXBpZD0wLCBqb2Jz
-PTM2KTogZXJyPSAwOiBwaWQ9NTQxNTQ6IFR1ZSBEZWMgMjAgMDg6MTc6MzUgMjAxNg0KICB3cml0
-ZTogaW89NzUuN1RpQiwgYnc9MzE0NU1pQi9zICgzMjk4TUIvcyksIGlvcHM9ODA1aywgcnVudD0y
-NTIwMDAyM21zZWMNCiAgICBjbGF0IHBlcmNlbnRpbGVzICh1c2VjKToNCiAgICAgfCAgMS4wMHRo
-PVsgICAgMF0sICA1LjAwdGg9WyAgICAwXSwgMTAuMDB0aD1bICAgIDBdLCAyMC4wMHRoPVsgICAg
-MF0sDQogICAgIHwgMzAuMDB0aD1bICAgIDBdLCA0MC4wMHRoPVsgICAgMF0sIDUwLjAwdGg9WyAg
-ICAwXSwgNjAuMDB0aD1bICAgIDBdLA0KICAgICB8IDcwLjAwdGg9WyAgICAwXSwgODAuMDB0aD1b
-ICAgIDBdLCA5MC4wMHRoPVsgICAgMF0sIDk1LjAwdGg9WyAgICAwXSwNCiAgICAgfCA5OS4wMHRo
-PVsgICAgMF0sIDk5LjUwdGg9WyAgICAwXSwgOTkuOTB0aD1bICAgIDBdLCA5OS45NXRoPVsgICAg
-MF0sDQogICAgIHwgOTkuOTl0aD1bICAgIDBdDQogIGNwdSAgICAgICAgICA6IHVzcj0xLjgwJSwg
-c3lzPTEwLjcwJSwgY3R4PTMyMjU3NzE0LCBtYWpmPTAsIG1pbmY9NTk5Mg0KICBJTyBkZXB0aHMg
-ICAgOiAxPTE1LjMlLCAyPTAuMCUsIDQ9MC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCA+
-PTY0PTAuMCUNCiAgICAgc3VibWl0ICAgIDogMD0wLjAlLCA0PTE1LjMlLCA4PTAuMCUsIDE2PTAu
-MCUsIDMyPTAuMCUsIDY0PTAuMCUsID49NjQ9MC4wJQ0KICAgICBjb21wbGV0ZSAgOiAwPTAuMCUs
-IDQ9MTUuMyUsIDg9MC4wJSwgMTY9MC4wJSwgMzI9MC4wJSwgNjQ9MC4wJSwgPj02ND0wLjAlDQog
-ICAgIGlzc3VlZCAgICA6IHRvdGFsIHI9MCx3PTIwMjkwMjQwNDQwLHQ9MCwgc2hvcnQgcj0wLHc9
-MCx0PTAsIGRyb3BwZWQgcj0wLHc9MCx0PTANCiAgICAgbGF0ZW5jeSAgIDogdGFyZ2V0PTAsIHdp
-bmRvdz0wLCBwZXJjZW50aWxlPTEwMC4wMCUsIGRlcHRoPTENCi4uLg0KUnVuIHN0YXR1cyBncm91
-cCAwIChhbGwgam9icyk6DQogICBSRUFEOiBpbz04MzdHaUIgKDg5OUdCKSwgYWdncmJ3PTMxLjlH
-aUIvcyAoMzQuMkdCL3MpLCBtaW5idz0zMS45R2lCL3MgKDM0LjJHQi9zKSwgbWF4Ync9MzEuOUdp
-Qi9zICgzNC4yR0IvcyksIG1pbnQ9MjYyODdtc2VjLCBtYXh0PTI2Mjg3bXNlYw0KICBXUklURTog
-aW89NjQwR2lCICg2ODdHQiksIGFnZ3Jidz0yNC40R2lCL3MgKDI2LjJHQi9zKSwgbWluYnc9MjQu
-NEdpQi9zICgyNi4yR0IvcyksIG1heGJ3PTI0LjRHaUIvcyAoMjYuMkdCL3MpLCBtaW50PTI2MzAw
-bXNlYywgbWF4dD0yNjMwMG1zZWMNCg0KDQotLS0NClJvYmVydCBFbGxpb3R0LCBIUEUgUGVyc2lz
-dGVudCBNZW1vcnkNCg0KDQo=
+On 20 December 2016 at 23:56, Robert Elliott <elliott@hpe.com> wrote:
+> From: Robert Elliott <elliott@hpe.com>
+>
+> Clarify that the FSIZE argument is in MiB (power of 2) rather
+> than MB (power of 10) in comments and variable names.
+> ---
+>  engines/pmemblk.c | 39 ++++++++++++++++++++++++---------------
+>  1 file changed, 24 insertions(+), 15 deletions(-)
+>
+> diff --git a/engines/pmemblk.c b/engines/pmemblk.c
+> index 977a02b..62f3746 100644
+> --- a/engines/pmemblk.c
+> +++ b/engines/pmemblk.c
+[...]
+> @@ -39,22 +39,31 @@
+>   *   iodepth should be set to 1 as pmemblk is always synchronous.
+>   *   Use numjobs to scale up.
+>   *
+> - *   direct=1 is implied as pmemblk is always direct.
+> + *   direct=1 is implied as pmemblk is always direct. A warning message
+> + *   is printed if this is not specified.
+> + *
+> + *   unlink=1 removes the block pool file after testing, and is optional.
+> + *
+> + *   The pmem device must have a DAX-capable filesystem and be mounted
+> + *   with DAX enabled.  filename must point to a file on that filesystem.
+>   *
+> - *   Can set unlink to 1 to remove the block pool file after testing.
+> + *   Example:
+> + *     mkfs.xfs /dev/pmem0
+> + *     mkdir /mnt/pmem0
+> + *     mount -o dax /dev/pmem0 /mnt/pmem0
+>   *
+>   *   When specifying the filename, if the block pool file does not already
+> - *   exist, then the pmemblk engine can create the pool file if you specify
+> + *   exist, then the pmemblk engine creates the pool file if you specify
+>   *   the block and file sizes.  BSIZE is the block size in bytes.
+> - *   FSIZEMB is the pool file size in MB.
+> + *   FSIZEMiB is the pool file size in MiB.
+
+It might be safer to explicitly say "in megabytes" rather than "in
+MiB" here because of fio's infamous reversal of the terms M(B)/MiB
+(https://github.com/axboe/fio/issues/103 ). Can the user explicitly
+specify units as is done elsewhere in fio?
+
+-- 
+Sitsofe | http://sucs.org/~sits/
