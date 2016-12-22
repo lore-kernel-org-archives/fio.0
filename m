@@ -1,140 +1,57 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g4t3426.houston.hpe.com ([15.241.140.75]:14582 "EHLO
-        g4t3426.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S941600AbcLVUrs (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 22 Dec 2016 15:47:48 -0500
-Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
-        by g4t3426.houston.hpe.com (Postfix) with ESMTP id BC6E17A
-        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 20:47:46 +0000 (UTC)
-From: Robert Elliott <elliott@hpe.com>
-Subject: [PATCH v2 09/12] Convert group_run_stats to use bytes instead of KiB/KB
-Date: Thu, 22 Dec 2016 14:50:48 -0600
-Message-Id: <20161222205051.4677-9-elliott@hpe.com>
-In-Reply-To: <20161222205051.4677-1-elliott@hpe.com>
+Received: from mail-sn1nam02on0137.outbound.protection.outlook.com ([104.47.36.137]:28832
+        "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751294AbcLVPrI (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 22 Dec 2016 10:47:08 -0500
+From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+Subject: RE: [PATCH 09/12] Convert group_run_stats to use bytes instead of
+ KiB/KB
+Date: Thu, 22 Dec 2016 15:47:06 +0000
+Message-ID: <DF4PR84MB0169D1B04D99C6DFB85D77B7AB920@DF4PR84MB0169.NAMPRD84.PROD.OUTLOOK.COM>
 References: <20161222060853.64104-1-elliott@hpe.com>
- <20161222205051.4677-1-elliott@hpe.com>
+ <20161222060853.64104-10-elliott@hpe.com>
+ <CALjAwxhYJbJ7ToYQiFqW4Z1qyV5s_WCf+BNksqMcGeRua=ZzUQ@mail.gmail.com>
+In-Reply-To: <CALjAwxhYJbJ7ToYQiFqW4Z1qyV5s_WCf+BNksqMcGeRua=ZzUQ@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Robert Elliott <elliott@hpe.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-In group_run_stats, convert these fields:
-* io_kb (bytes transferred)
-* agg (aggregate average bandwidth)
-* min_bw
-* max_bw
-
-from tracking either KiB or KB depending on kb_base to simply tracking bytes.
-Rename io_kb to iobytes to match this new meaning.
-
-This will simplify computing quantities and bandwidth rates with both IEC
-binary and SI decimal unit prefixes (e.g., GiB/s and GB/s) in future patches.
----
- client.c |  2 +-
- server.c |  2 +-
- stat.c   | 23 +++++++++--------------
- stat.h   |  2 +-
- 4 files changed, 12 insertions(+), 17 deletions(-)
-
-diff --git a/client.c b/client.c
-index 48d4c52..1b4d3d7 100644
---- a/client.c
-+++ b/client.c
-@@ -972,7 +972,7 @@ static void convert_gs(struct group_run_stats *dst, struct group_run_stats *src)
- 		dst->min_run[i]		= le64_to_cpu(src->min_run[i]);
- 		dst->max_bw[i]		= le64_to_cpu(src->max_bw[i]);
- 		dst->min_bw[i]		= le64_to_cpu(src->min_bw[i]);
--		dst->io_kb[i]		= le64_to_cpu(src->io_kb[i]);
-+		dst->iobytes[i]		= le64_to_cpu(src->iobytes[i]);
- 		dst->agg[i]		= le64_to_cpu(src->agg[i]);
- 	}
- 
-diff --git a/server.c b/server.c
-index 2e05415..b7ebd63 100644
---- a/server.c
-+++ b/server.c
-@@ -1444,7 +1444,7 @@ static void convert_gs(struct group_run_stats *dst, struct group_run_stats *src)
- 		dst->min_run[i]		= cpu_to_le64(src->min_run[i]);
- 		dst->max_bw[i]		= cpu_to_le64(src->max_bw[i]);
- 		dst->min_bw[i]		= cpu_to_le64(src->min_bw[i]);
--		dst->io_kb[i]		= cpu_to_le64(src->io_kb[i]);
-+		dst->iobytes[i]		= cpu_to_le64(src->iobytes[i]);
- 		dst->agg[i]		= cpu_to_le64(src->agg[i]);
- 	}
- 
-diff --git a/stat.c b/stat.c
-index ebc5c78..f014e60 100644
---- a/stat.c
-+++ b/stat.c
-@@ -291,10 +291,10 @@ void show_group_stats(struct group_run_stats *rs, struct buf_output *out)
- 		if (!rs->max_run[i])
- 			continue;
- 
--		p1 = num2str(rs->io_kb[i], 6, rs->kb_base, i2p, 8);
--		p2 = num2str(rs->agg[i], 6, rs->kb_base, i2p, rs->unit_base);
--		p3 = num2str(rs->min_bw[i], 6, rs->kb_base, i2p, rs->unit_base);
--		p4 = num2str(rs->max_bw[i], 6, rs->kb_base, i2p, rs->unit_base);
-+		p1 = num2str(rs->iobytes[i], 6, 1, i2p, 8);
-+		p2 = num2str(rs->agg[i], 6, 1, i2p, rs->unit_base);
-+		p3 = num2str(rs->min_bw[i], 6, 1, i2p, rs->unit_base);
-+		p4 = num2str(rs->max_bw[i], 6, 1, i2p, rs->unit_base);
- 
- 		log_buf(out, "%s: io=%s, aggrb=%s/s, minb=%s/s, maxb=%s/s,"
- 			 " mint=%llumsec, maxt=%llumsec\n",
-@@ -1418,7 +1418,7 @@ void sum_group_stats(struct group_run_stats *dst, struct group_run_stats *src)
- 		if (dst->min_bw[i] && dst->min_bw[i] > src->min_bw[i])
- 			dst->min_bw[i] = src->min_bw[i];
- 
--		dst->io_kb[i] += src->io_kb[i];
-+		dst->iobytes[i] += src->iobytes[i];
- 		dst->agg[i] += src->agg[i];
- 	}
- 
-@@ -1696,19 +1696,14 @@ void __show_run_stats(void)
- 				rs->max_run[j] = ts->runtime[j];
- 
- 			bw = 0;
--			if (ts->runtime[j]) {
--				unsigned long runt = ts->runtime[j];
--				unsigned long long kb;
--
--				kb = ts->io_bytes[j] / rs->kb_base;
--				bw = kb * 1000 / runt;
--			}
-+			if (ts->runtime[j])
-+				bw = ts->io_bytes[j] * 1000 / ts->runtime[j];
- 			if (bw < rs->min_bw[j])
- 				rs->min_bw[j] = bw;
- 			if (bw > rs->max_bw[j])
- 				rs->max_bw[j] = bw;
- 
--			rs->io_kb[j] += ts->io_bytes[j] / rs->kb_base;
-+			rs->iobytes[j] += ts->io_bytes[j];
- 		}
- 	}
- 
-@@ -1719,7 +1714,7 @@ void __show_run_stats(void)
- 
- 		for (ddir = 0; ddir < DDIR_RWDIR_CNT; ddir++) {
- 			if (rs->max_run[ddir])
--				rs->agg[ddir] = (rs->io_kb[ddir] * 1000) /
-+				rs->agg[ddir] = (rs->iobytes[ddir] * 1000) /
- 						rs->max_run[ddir];
- 		}
- 	}
-diff --git a/stat.h b/stat.h
-index 22083da..aa4ad80 100644
---- a/stat.h
-+++ b/stat.h
-@@ -7,7 +7,7 @@
- struct group_run_stats {
- 	uint64_t max_run[DDIR_RWDIR_CNT], min_run[DDIR_RWDIR_CNT];
- 	uint64_t max_bw[DDIR_RWDIR_CNT], min_bw[DDIR_RWDIR_CNT];
--	uint64_t io_kb[DDIR_RWDIR_CNT];
-+	uint64_t iobytes[DDIR_RWDIR_CNT];
- 	uint64_t agg[DDIR_RWDIR_CNT];
- 	uint32_t kb_base;
- 	uint32_t unit_base;
--- 
-2.9.3
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU2l0c29mZSBXaGVlbGVy
+IFttYWlsdG86c2l0c29mZUBnbWFpbC5jb21dDQo+IFNlbnQ6IFRodXJzZGF5LCBEZWNlbWJlciAy
+MiwgMjAxNiAyOjM5IEFNDQo+IFRvOiBFbGxpb3R0LCBSb2JlcnQgKFBlcnNpc3RlbnQgTWVtb3J5
+KSA8ZWxsaW90dEBocGUuY29tPg0KPiBDYzogZmlvQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0
+OiBSZTogW1BBVENIIDA5LzEyXSBDb252ZXJ0IGdyb3VwX3J1bl9zdGF0cyB0byB1c2UgYnl0ZXMN
+Cj4gaW5zdGVhZCBvZiBLaUIvS0INCj4gDQo+IE9uIDIyIERlY2VtYmVyIDIwMTYgYXQgMDY6MDgs
+IFJvYmVydCBFbGxpb3R0IDxlbGxpb3R0QGhwZS5jb20+IHdyb3RlOg0KPiA+IEluIGdyb3VwX3J1
+bl9zdGF0cywgY29udmVydCB0aGVzZSBmaWVsZHM6DQo+ID4gKiBpb19rYiAoYnl0ZXMgdHJhbnNm
+ZXJyZWQpDQo+ID4gKiBhZ2cgKGFnZ3JlZ2F0ZSBhdmVyYWdlIGJhbmR3aWR0aCkNCj4gPiAqIG1p
+bl9idw0KPiA+ICogbWF4X2J3DQo+ID4NCj4gPiBmcm9tIHRyYWNraW5nIGVpdGhlciBLaUIgb3Ig
+S0IgZGVwZW5kaW5nIG9uIGtiX2Jhc2UgdG8gc2ltcGx5DQo+IHRyYWNraW5nIGJ5dGVzLg0KPiA+
+IFJlbmFtZSBpb19rYiB0byBpb2J5dGVzIHRvIG1hdGNoIHRoaXMgbmV3IG1lYW5pbmcuDQo+IA0K
+PiBJdCdzIGhvcGVmdWxseSB1bmxpa2VseSBidXQgaGF2ZSB5b3UgY2hlY2tlZCB0aGlzIGNoYW5n
+ZSB0byBzZWUgdGhhdA0KPiBvdmVyZmxvdyBpc24ndCBwcm92b2tlZCBkdXJpbmcgYXJpdGhtZXRp
+Yz8gSSBzcGVudCBhIGxpdHRsZSB3aGlsZQ0KPiBnZXR0aW5nIHJpZCBvZiBhIGZldyBjYXNlcyBw
+cmlvciB0byB0aGlzIHBhdGNoIGJ5IHVzaW5nIGNsYW5nJ3MNCj4gdW5kZWZpbmVkIGJlaGF2aW91
+ciBzYW5pdGl6ZXIgdmlhIC1mc2FuaXRpemU9aW50ZWdlciBhbmQgdGhleSB3ZXJlDQo+IG1vcmUg
+bGlrZWx5IHRvIG9jY3VyIG9uIDMyIGJpdCBwbGF0Zm9ybXMgKHdoaWNoIHdhcyBtb3JlIG9mIGEg
+cGFpbiBhcw0KPiBsaW5raW5nIHRoZSBzYW5pdGl6ZXIgb24gMzIgYml0IHg4NiBMaW51eCB3YXMg
+bW9yZSBkaWZmaWN1bHQpLg0KDQpJIHRoaW5rIHNvLCBidXQgSSdsbCByZXZpZXcgdGhlIGNvZGUg
+dG8gbWFrZSBzdXJlLiAgSSd2ZSBiZWVuIHJ1bm5pbmcNCm92ZXJuaWdodCBydW5zIG9uIE5WRElN
+TXMgd2hpY2ggcHVzaCBudW1iZXJzIHdlbGwgcGFzdCB0aGUgMzIgYml0DQpib3VuZGFyeToNCiog
+cmVhZCBJT3MgODQ3VEIgKDc3MFRpQikNCiogcmVhZCBCVyAzMy43R0IvcyAoMzEuNEdpQi9zKQ0K
+KiB3cml0ZSBJT3MgNDE5VEIgKDM4MVRpQikNCiogd3JpdGUgQlcgMTYuN0dCL3MgKDE1LjZHaUIv
+cykNCg0KSSBkaWQgbm90aWNlIHRoYXQgdGhlIG9wdGlvbnMgaW50ZWdlcnMgKGUuZy4sIEZJT19P
+UFRfSU5UKSBhcmUgMzIgYml0cywNCndoaWNoIHByZXZlbnRzIHNwZWNpZnlpbmcgYSByYXRlX21p
+biBncmVhdGVyIHRoYW4gNCBHaUIvcy4gIFRoYXQgbG9va3MNCm1vcmUgY29tcGxpY2F0ZWQgdG8g
+Zml4Lg0KDQoNCj4gQW5vdGhlcg0KPiBtaW5vciBwb2ludCBpcyBzaG91bGQgdGhlIHZhcmlhYmxl
+IHJlbmFtZSBoYXZlIGdvbmUgdG8gaW9fYnl0ZXMNCj4gcmF0aGVyDQo+IHRoYW4gaW9ieXRlcz8N
+Cg0KVGhlcmUncyBhbm90aGVyIHN0cnVjdHVyZSAodGhyZWFkX2RhdGEpIHVzaW5nIGlvX2J5dGVz
+LCBzbyBiZWluZw0Kc2xpZ2h0bHkgZGlmZmVyZW50IG1ha2VzIGl0IGVhc2llciB0byBkaXN0aW5n
+dWlzaCB0aGVtIHdpdGggZ3JlcC4NCg0KDQotLS0NClJvYmVydCBFbGxpb3R0LCBIUEUgUGVyc2lz
+dGVudCBNZW1vcnkNCg0KDQoNCg==
