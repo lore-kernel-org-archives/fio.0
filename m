@@ -1,57 +1,44 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-sn1nam02on0137.outbound.protection.outlook.com ([104.47.36.137]:28832
-        "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751294AbcLVPrI (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 22 Dec 2016 10:47:08 -0500
-From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Subject: RE: [PATCH 09/12] Convert group_run_stats to use bytes instead of
- KiB/KB
-Date: Thu, 22 Dec 2016 15:47:06 +0000
-Message-ID: <DF4PR84MB0169D1B04D99C6DFB85D77B7AB920@DF4PR84MB0169.NAMPRD84.PROD.OUTLOOK.COM>
-References: <20161222060853.64104-1-elliott@hpe.com>
- <20161222060853.64104-10-elliott@hpe.com>
- <CALjAwxhYJbJ7ToYQiFqW4Z1qyV5s_WCf+BNksqMcGeRua=ZzUQ@mail.gmail.com>
-In-Reply-To: <CALjAwxhYJbJ7ToYQiFqW4Z1qyV5s_WCf+BNksqMcGeRua=ZzUQ@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-ua0-f193.google.com ([209.85.217.193]:34798 "EHLO
+        mail-ua0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935111AbcLVIjU (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 22 Dec 2016 03:39:20 -0500
+Received: by mail-ua0-f193.google.com with SMTP id i68so4422131uad.1
+        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 00:39:20 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <20161222060853.64104-10-elliott@hpe.com>
+References: <20161222060853.64104-1-elliott@hpe.com> <20161222060853.64104-10-elliott@hpe.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Thu, 22 Dec 2016 08:39:19 +0000
+Message-ID: <CALjAwxhYJbJ7ToYQiFqW4Z1qyV5s_WCf+BNksqMcGeRua=ZzUQ@mail.gmail.com>
+Subject: Re: [PATCH 09/12] Convert group_run_stats to use bytes instead of KiB/KB
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Robert Elliott <elliott@hpe.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU2l0c29mZSBXaGVlbGVy
-IFttYWlsdG86c2l0c29mZUBnbWFpbC5jb21dDQo+IFNlbnQ6IFRodXJzZGF5LCBEZWNlbWJlciAy
-MiwgMjAxNiAyOjM5IEFNDQo+IFRvOiBFbGxpb3R0LCBSb2JlcnQgKFBlcnNpc3RlbnQgTWVtb3J5
-KSA8ZWxsaW90dEBocGUuY29tPg0KPiBDYzogZmlvQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0
-OiBSZTogW1BBVENIIDA5LzEyXSBDb252ZXJ0IGdyb3VwX3J1bl9zdGF0cyB0byB1c2UgYnl0ZXMN
-Cj4gaW5zdGVhZCBvZiBLaUIvS0INCj4gDQo+IE9uIDIyIERlY2VtYmVyIDIwMTYgYXQgMDY6MDgs
-IFJvYmVydCBFbGxpb3R0IDxlbGxpb3R0QGhwZS5jb20+IHdyb3RlOg0KPiA+IEluIGdyb3VwX3J1
-bl9zdGF0cywgY29udmVydCB0aGVzZSBmaWVsZHM6DQo+ID4gKiBpb19rYiAoYnl0ZXMgdHJhbnNm
-ZXJyZWQpDQo+ID4gKiBhZ2cgKGFnZ3JlZ2F0ZSBhdmVyYWdlIGJhbmR3aWR0aCkNCj4gPiAqIG1p
-bl9idw0KPiA+ICogbWF4X2J3DQo+ID4NCj4gPiBmcm9tIHRyYWNraW5nIGVpdGhlciBLaUIgb3Ig
-S0IgZGVwZW5kaW5nIG9uIGtiX2Jhc2UgdG8gc2ltcGx5DQo+IHRyYWNraW5nIGJ5dGVzLg0KPiA+
-IFJlbmFtZSBpb19rYiB0byBpb2J5dGVzIHRvIG1hdGNoIHRoaXMgbmV3IG1lYW5pbmcuDQo+IA0K
-PiBJdCdzIGhvcGVmdWxseSB1bmxpa2VseSBidXQgaGF2ZSB5b3UgY2hlY2tlZCB0aGlzIGNoYW5n
-ZSB0byBzZWUgdGhhdA0KPiBvdmVyZmxvdyBpc24ndCBwcm92b2tlZCBkdXJpbmcgYXJpdGhtZXRp
-Yz8gSSBzcGVudCBhIGxpdHRsZSB3aGlsZQ0KPiBnZXR0aW5nIHJpZCBvZiBhIGZldyBjYXNlcyBw
-cmlvciB0byB0aGlzIHBhdGNoIGJ5IHVzaW5nIGNsYW5nJ3MNCj4gdW5kZWZpbmVkIGJlaGF2aW91
-ciBzYW5pdGl6ZXIgdmlhIC1mc2FuaXRpemU9aW50ZWdlciBhbmQgdGhleSB3ZXJlDQo+IG1vcmUg
-bGlrZWx5IHRvIG9jY3VyIG9uIDMyIGJpdCBwbGF0Zm9ybXMgKHdoaWNoIHdhcyBtb3JlIG9mIGEg
-cGFpbiBhcw0KPiBsaW5raW5nIHRoZSBzYW5pdGl6ZXIgb24gMzIgYml0IHg4NiBMaW51eCB3YXMg
-bW9yZSBkaWZmaWN1bHQpLg0KDQpJIHRoaW5rIHNvLCBidXQgSSdsbCByZXZpZXcgdGhlIGNvZGUg
-dG8gbWFrZSBzdXJlLiAgSSd2ZSBiZWVuIHJ1bm5pbmcNCm92ZXJuaWdodCBydW5zIG9uIE5WRElN
-TXMgd2hpY2ggcHVzaCBudW1iZXJzIHdlbGwgcGFzdCB0aGUgMzIgYml0DQpib3VuZGFyeToNCiog
-cmVhZCBJT3MgODQ3VEIgKDc3MFRpQikNCiogcmVhZCBCVyAzMy43R0IvcyAoMzEuNEdpQi9zKQ0K
-KiB3cml0ZSBJT3MgNDE5VEIgKDM4MVRpQikNCiogd3JpdGUgQlcgMTYuN0dCL3MgKDE1LjZHaUIv
-cykNCg0KSSBkaWQgbm90aWNlIHRoYXQgdGhlIG9wdGlvbnMgaW50ZWdlcnMgKGUuZy4sIEZJT19P
-UFRfSU5UKSBhcmUgMzIgYml0cywNCndoaWNoIHByZXZlbnRzIHNwZWNpZnlpbmcgYSByYXRlX21p
-biBncmVhdGVyIHRoYW4gNCBHaUIvcy4gIFRoYXQgbG9va3MNCm1vcmUgY29tcGxpY2F0ZWQgdG8g
-Zml4Lg0KDQoNCj4gQW5vdGhlcg0KPiBtaW5vciBwb2ludCBpcyBzaG91bGQgdGhlIHZhcmlhYmxl
-IHJlbmFtZSBoYXZlIGdvbmUgdG8gaW9fYnl0ZXMNCj4gcmF0aGVyDQo+IHRoYW4gaW9ieXRlcz8N
-Cg0KVGhlcmUncyBhbm90aGVyIHN0cnVjdHVyZSAodGhyZWFkX2RhdGEpIHVzaW5nIGlvX2J5dGVz
-LCBzbyBiZWluZw0Kc2xpZ2h0bHkgZGlmZmVyZW50IG1ha2VzIGl0IGVhc2llciB0byBkaXN0aW5n
-dWlzaCB0aGVtIHdpdGggZ3JlcC4NCg0KDQotLS0NClJvYmVydCBFbGxpb3R0LCBIUEUgUGVyc2lz
-dGVudCBNZW1vcnkNCg0KDQoNCg==
+On 22 December 2016 at 06:08, Robert Elliott <elliott@hpe.com> wrote:
+> In group_run_stats, convert these fields:
+> * io_kb (bytes transferred)
+> * agg (aggregate average bandwidth)
+> * min_bw
+> * max_bw
+>
+> from tracking either KiB or KB depending on kb_base to simply tracking bytes.
+> Rename io_kb to iobytes to match this new meaning.
+
+It's hopefully unlikely but have you checked this change to see that
+overflow isn't provoked during arithmetic? I spent a little while
+getting rid of a few cases prior to this patch by using clang's
+undefined behaviour sanitizer via -fsanitize=integer and they were
+more likely to occur on 32 bit platforms (which was more of a pain as
+linking the sanitizer on 32 bit x86 Linux was more difficult). Another
+minor point is should the variable rename have gone to io_bytes rather
+than iobytes?
+
+> This will simplify computing quantities and bandwidth rates with both IEC
+> binary and SI decimal unit prefixes (e.g., GiB/s and GB/s) in future patches.
+
+-- 
+Sitsofe | http://sucs.org/~sits/
