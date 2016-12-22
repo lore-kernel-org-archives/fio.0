@@ -1,73 +1,98 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g2t1383g.austin.hpe.com ([15.233.16.89]:8415 "EHLO
-        g2t1383g.austin.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756919AbcLVGH3 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 22 Dec 2016 01:07:29 -0500
-Received: from g9t5009.houston.hpe.com (g9t5009.houston.hpe.com [15.241.48.73])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by g2t1383g.austin.hpe.com (Postfix) with ESMTPS id A8560CF7
-        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 06:07:27 +0000 (UTC)
-Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
-        by g9t5009.houston.hpe.com (Postfix) with ESMTP id D309067
-        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 06:06:26 +0000 (UTC)
-From: Robert Elliott <elliott@hpe.com>
-Subject: [PATCH 02/12] gfio: Improve IOPS textbox labels
-Date: Thu, 22 Dec 2016 00:08:43 -0600
-Message-Id: <20161222060853.64104-3-elliott@hpe.com>
-In-Reply-To: <20161222060853.64104-1-elliott@hpe.com>
+Received: from mail-sn1nam02on0093.outbound.protection.outlook.com ([104.47.36.93]:7824
+        "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1755200AbcLVUuk (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 22 Dec 2016 15:50:40 -0500
+From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+Subject: RE: [PATCH 11/12] Improve IEC binary and SI decimal prefix handling
+Date: Thu, 22 Dec 2016 20:50:38 +0000
+Message-ID: <DF4PR84MB0169B1B22E420D242971ECCEAB920@DF4PR84MB0169.NAMPRD84.PROD.OUTLOOK.COM>
 References: <20161222060853.64104-1-elliott@hpe.com>
+ <20161222060853.64104-12-elliott@hpe.com>
+In-Reply-To: <20161222060853.64104-12-elliott@hpe.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Robert Elliott <elliott@hpe.com>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Robert Elliott <elliott@hpe.com>
+> -----Original Message-----
+> From: Elliott, Robert (Persistent Memory)
+> Sent: Thursday, December 22, 2016 12:09 AM
+> Subject: [PATCH 11/12] Improve IEC binary and SI decimal prefix
+> handling
+> 
+...
+> diff --git a/parse.c b/parse.c
+> @@ -207,32 +207,50 @@ static unsigned long long
+> __get_mult_bytes(const char *p, void *data,
+>  		}
+>  	}
+> 
+> +	/* If kb_base is 1000, use true units.
+> +	 * If kb_base is 1024, use opposite units.
+> +	 */
+>  	if (!strncmp("pib", c, 3)) {
+>  		pow = 5;
+> -		mult = 1000;
+> +		if (kb_base == 1000)
+> +			mult = 1024;
+>  	} else if (!strncmp("tib", c, 3)) {
+>  		pow = 4;
+> -		mult = 1000;
+> +		if (kb_base == 1000)
+> +			mult = 1024;
+>  	} else if (!strncmp("gib", c, 3)) {
+>  		pow = 3;
+> -		mult = 1000;
+> +		if (kb_base == 1000)
+> +			mult = 1024;
+>  	} else if (!strncmp("mib", c, 3)) {
+>  		pow = 2;
+> -		mult = 1000;
+> +		if (kb_base == 1000)
+> +			mult = 1024;
+>  	} else if (!strncmp("kib", c, 3)) {
+>  		pow = 1;
+> -		mult = 1000;
 
-Change the three textboxes labeled IOPS to Read IOPS, Write IOPS,
-and Trim IOPS, add Trim to the Blocksize label, and fix Steve's
-last name in the Credits.
----
- gfio.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+The following added if statements are in the wrong place and really 
+belong above.  Corrected in v2.
 
-diff --git a/gfio.c b/gfio.c
-index ce18091..9ccf78c 100644
---- a/gfio.c
-+++ b/gfio.c
-@@ -1215,7 +1215,7 @@ static void about_dialog(GtkWidget *w, gpointer data)
- {
- 	const char *authors[] = {
- 		"Jens Axboe <axboe@kernel.dk>",
--		"Stephen Carmeron <stephenmcameron@gmail.com>",
-+		"Stephen Cameron <stephenmcameron@gmail.com>",
- 		NULL
- 	};
- 	const char *license[] = {
-@@ -1386,7 +1386,7 @@ static GtkWidget *new_client_page(struct gui_entry *ge)
- 	g_signal_connect(ge->eta.names, "changed", G_CALLBACK(combo_entry_changed), ge);
- 	g_signal_connect(ge->eta.names, "destroy", G_CALLBACK(combo_entry_destroy), ge);
- 	ge->eta.iotype.entry = new_info_entry_in_frame(probe_box, "IO");
--	ge->eta.bs.entry = new_info_entry_in_frame(probe_box, "Blocksize (Read/Write)");
-+	ge->eta.bs.entry = new_info_entry_in_frame(probe_box, "Blocksize (Read/Write/Trim)");
- 	ge->eta.ioengine.entry = new_info_entry_in_frame(probe_box, "IO Engine");
- 	ge->eta.iodepth.entry = new_info_entry_in_frame(probe_box, "IO Depth");
- 	ge->eta.jobs = new_info_entry_in_frame(probe_box, "Jobs");
-@@ -1395,11 +1395,11 @@ static GtkWidget *new_client_page(struct gui_entry *ge)
- 	probe_box = gtk_hbox_new(FALSE, 3);
- 	gtk_box_pack_start(GTK_BOX(probe_frame), probe_box, FALSE, FALSE, 3);
- 	ge->eta.read_bw = new_info_entry_in_frame_rgb(probe_box, "Read BW", GFIO_READ_R, GFIO_READ_G, GFIO_READ_B);
--	ge->eta.read_iops = new_info_entry_in_frame_rgb(probe_box, "IOPS", GFIO_READ_R, GFIO_READ_G, GFIO_READ_B);
-+	ge->eta.read_iops = new_info_entry_in_frame_rgb(probe_box, "Read IOPS", GFIO_READ_R, GFIO_READ_G, GFIO_READ_B);
- 	ge->eta.write_bw = new_info_entry_in_frame_rgb(probe_box, "Write BW", GFIO_WRITE_R, GFIO_WRITE_G, GFIO_WRITE_B);
--	ge->eta.write_iops = new_info_entry_in_frame_rgb(probe_box, "IOPS", GFIO_WRITE_R, GFIO_WRITE_G, GFIO_WRITE_B);
-+	ge->eta.write_iops = new_info_entry_in_frame_rgb(probe_box, "Write IOPS", GFIO_WRITE_R, GFIO_WRITE_G, GFIO_WRITE_B);
- 	ge->eta.trim_bw = new_info_entry_in_frame_rgb(probe_box, "Trim BW", GFIO_TRIM_R, GFIO_TRIM_G, GFIO_TRIM_B);
--	ge->eta.trim_iops = new_info_entry_in_frame_rgb(probe_box, "IOPS", GFIO_TRIM_R, GFIO_TRIM_G, GFIO_TRIM_B);
-+	ge->eta.trim_iops = new_info_entry_in_frame_rgb(probe_box, "Trim IOPS", GFIO_TRIM_R, GFIO_TRIM_G, GFIO_TRIM_B);
- 
- 	/*
- 	 * Only add this if we have a commit rate
--- 
-2.9.3
+> -	} else if (!strncmp("p", c, 1) || !strncmp("pb", c, 2))
+> +		if (kb_base == 1000)
+> +			mult = 1024;
+> +	} else if (!strncmp("p", c, 1) || !strncmp("pb", c, 2)) {
+>  		pow = 5;
+> -	else if (!strncmp("t", c, 1) || !strncmp("tb", c, 2))
+> +		if (kb_base == 1024)
+> +			mult = 1000;
+> +	} else if (!strncmp("t", c, 1) || !strncmp("tb", c, 2)) {
+>  		pow = 4;
+> -	else if (!strncmp("g", c, 1) || !strncmp("gb", c, 2))
+> +		if (kb_base == 1024)
+> +			mult = 1000;
+> +	} else if (!strncmp("g", c, 1) || !strncmp("gb", c, 2)) {
+>  		pow = 3;
+> -	else if (!strncmp("m", c, 1) || !strncmp("mb", c, 2))
+> +		if (kb_base == 1024)
+> +			mult = 1000;
+> +	} else if (!strncmp("m", c, 1) || !strncmp("mb", c, 2)) {
+>  		pow = 2;
+> -	else if (!strncmp("k", c, 1) || !strncmp("kb", c, 2))
+> +		if (kb_base == 1024)
+> +			mult = 1000;
+> +	} else if (!strncmp("k", c, 1) || !strncmp("kb", c, 2)) {
+>  		pow = 1;
+> -	else if (!strncmp("%", c, 1)) {
+> +		if (kb_base == 1024)
+> +			mult = 1000;
+> +	} else if (!strncmp("%", c, 1)) {
+>  		*percent = 1;
+>  		free(c);
+>  		return ret;
+
 
