@@ -1,55 +1,88 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g9t1613g.houston.hpe.com ([15.241.32.99]:60067 "EHLO
-        g9t1613g.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754899AbcLVGHa (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 22 Dec 2016 01:07:30 -0500
-Received: from g4t3427.houston.hpe.com (g4t3427.houston.hpe.com [15.241.140.73])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by g9t1613g.houston.hpe.com (Postfix) with ESMTPS id AC3FE60538
-        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 06:07:29 +0000 (UTC)
+Received: from g4t3425.houston.hpe.com ([15.241.140.78]:51631 "EHLO
+        g4t3425.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S936319AbcLVUrr (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 22 Dec 2016 15:47:47 -0500
 Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
-        by g4t3427.houston.hpe.com (Postfix) with ESMTP id 6F1BA7E
-        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 06:06:30 +0000 (UTC)
+        by g4t3425.houston.hpe.com (Postfix) with ESMTP id ABB3B74
+        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 20:47:46 +0000 (UTC)
 From: Robert Elliott <elliott@hpe.com>
-Subject: [PATCH 05/12] Fix unit_base kb_base mixup in thread option conversion functions
-Date: Thu, 22 Dec 2016 00:08:46 -0600
-Message-Id: <20161222060853.64104-6-elliott@hpe.com>
-In-Reply-To: <20161222060853.64104-1-elliott@hpe.com>
+Subject: [PATCH v2 07/12] gclient: Delete unused code
+Date: Thu, 22 Dec 2016 14:50:46 -0600
+Message-Id: <20161222205051.4677-7-elliott@hpe.com>
+In-Reply-To: <20161222205051.4677-1-elliott@hpe.com>
 References: <20161222060853.64104-1-elliott@hpe.com>
+ <20161222205051.4677-1-elliott@hpe.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 Cc: Robert Elliott <elliott@hpe.com>
 
-Don't set unit_base, which is 1 or 8, to kb_base, which is 1000
-or 1024, during the convert functions used by the initial cconv test.
+Delete two #if 0 blocks from pre-2012 that have old calls to
+num2str without the current number of arguments and hardcode
+"KB/s" units.
 ---
- cconv.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ gclient.c | 40 ----------------------------------------
+ 1 file changed, 40 deletions(-)
 
-diff --git a/cconv.c b/cconv.c
-index 336805b..0c11629 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -88,7 +88,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
- 	o->td_ddir = le32_to_cpu(top->td_ddir);
- 	o->rw_seq = le32_to_cpu(top->rw_seq);
- 	o->kb_base = le32_to_cpu(top->kb_base);
--	o->unit_base = le32_to_cpu(top->kb_base);
-+	o->unit_base = le32_to_cpu(top->unit_base);
- 	o->ddir_seq_nr = le32_to_cpu(top->ddir_seq_nr);
- 	o->ddir_seq_add = le64_to_cpu(top->ddir_seq_add);
- 	o->iodepth = le32_to_cpu(top->iodepth);
-@@ -336,7 +336,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	top->td_ddir = cpu_to_le32(o->td_ddir);
- 	top->rw_seq = cpu_to_le32(o->rw_seq);
- 	top->kb_base = cpu_to_le32(o->kb_base);
--	top->unit_base = cpu_to_le32(o->kb_base);
-+	top->unit_base = cpu_to_le32(o->unit_base);
- 	top->ddir_seq_nr = cpu_to_le32(o->ddir_seq_nr);
- 	top->iodepth = cpu_to_le32(o->iodepth);
- 	top->iodepth_low = cpu_to_le32(o->iodepth_low);
+diff --git a/gclient.c b/gclient.c
+index 23b0899..451d81c 100644
+--- a/gclient.c
++++ b/gclient.c
+@@ -364,26 +364,6 @@ static void gfio_update_client_eta(struct fio_client *client, struct jobs_eta *j
+ 	sprintf(tmp, "%u", je->files_open);
+ 	gtk_entry_set_text(GTK_ENTRY(ge->eta.files), tmp);
+ 
+-#if 0
+-	if (je->m_rate[0] || je->m_rate[1] || je->t_rate[0] || je->t_rate[1]) {
+-	if (je->m_rate || je->t_rate) {
+-		char *tr, *mr;
+-
+-		mr = num2str(je->m_rate, 4, 0, i2p);
+-		tr = num2str(je->t_rate, 4, 0, i2p);
+-		gtk_entry_set_text(GTK_ENTRY(ge->eta);
+-		p += sprintf(p, ", CR=%s/%s KB/s", tr, mr);
+-		free(tr);
+-		free(mr);
+-	} else if (je->m_iops || je->t_iops)
+-		p += sprintf(p, ", CR=%d/%d IOPS", je->t_iops, je->m_iops);
+-
+-	gtk_entry_set_text(GTK_ENTRY(ge->eta.cr_bw), "---");
+-	gtk_entry_set_text(GTK_ENTRY(ge->eta.cr_iops), "---");
+-	gtk_entry_set_text(GTK_ENTRY(ge->eta.cw_bw), "---");
+-	gtk_entry_set_text(GTK_ENTRY(ge->eta.cw_iops), "---");
+-#endif
+-
+ 	if (je->eta_sec != INT_MAX && je->nr_running) {
+ 		char *iops_str[DDIR_RWDIR_CNT];
+ 		char *rate_str[DDIR_RWDIR_CNT];
+@@ -457,26 +437,6 @@ static void gfio_update_all_eta(struct jobs_eta *je)
+ 		eta_to_str(eta_str, je->eta_sec);
+ 	}
+ 
+-#if 0
+-	if (je->m_rate[0] || je->m_rate[1] || je->t_rate[0] || je->t_rate[1]) {
+-	if (je->m_rate || je->t_rate) {
+-		char *tr, *mr;
+-
+-		mr = num2str(je->m_rate, 4, 0, i2p);
+-		tr = num2str(je->t_rate, 4, 0, i2p);
+-		gtk_entry_set_text(GTK_ENTRY(ui->eta);
+-		p += sprintf(p, ", CR=%s/%s KB/s", tr, mr);
+-		free(tr);
+-		free(mr);
+-	} else if (je->m_iops || je->t_iops)
+-		p += sprintf(p, ", CR=%d/%d IOPS", je->t_iops, je->m_iops);
+-
+-	gtk_entry_set_text(GTK_ENTRY(ui->eta.cr_bw), "---");
+-	gtk_entry_set_text(GTK_ENTRY(ui->eta.cr_iops), "---");
+-	gtk_entry_set_text(GTK_ENTRY(ui->eta.cw_bw), "---");
+-	gtk_entry_set_text(GTK_ENTRY(ui->eta.cw_iops), "---");
+-#endif
+-
+ 	entry_set_int_value(ui->eta.jobs, je->nr_running);
+ 
+ 	if (je->eta_sec != INT_MAX && je->nr_running) {
 -- 
 2.9.3
 
