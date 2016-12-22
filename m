@@ -1,70 +1,54 @@
-Return-Path: <Vincent.Fu@sandisk.com>
-From: Vincent Fu <Vincent.Fu@sandisk.com>
-Subject: steadystate job termination
-Date: Mon, 12 Dec 2016 16:25:23 +0000
-Message-ID: <BL2PR02MB19867DB3F155CE80CB07DEF08C980@BL2PR02MB1986.namprd02.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from g4t3425.houston.hpe.com ([15.241.140.78]:51628 "EHLO
+        g4t3425.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S941596AbcLVUrr (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 22 Dec 2016 15:47:47 -0500
+Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
+        by g4t3425.houston.hpe.com (Postfix) with ESMTP id A392271
+        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 20:47:46 +0000 (UTC)
+From: Robert Elliott <elliott@hpe.com>
+Subject: [PATCH v2 06/12] Line up colons across read, write, and trim thread stats
+Date: Thu, 22 Dec 2016 14:50:45 -0600
+Message-Id: <20161222205051.4677-6-elliott@hpe.com>
+In-Reply-To: <20161222205051.4677-1-elliott@hpe.com>
+References: <20161222060853.64104-1-elliott@hpe.com>
+ <20161222205051.4677-1-elliott@hpe.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
+Cc: Robert Elliott <elliott@hpe.com>
 
-Jens, at https://bitbucket.org/vincentfu/fio-steadystate/commits/all is
-a repo where I have committed patches to fio's steady-state branch that
-address the following TODO items:
+Line up the colons across the read, write, and trim
+thread stats rows.
 
-steadystate data is now transmitted over the wire in client/server mode
-steadystate summary data is included with --output-format=3Dnormal
-example steadystate job file added
-man page updated
+Example:
+drive_0: (groupid=0, jobs=576): err= 0: pid=42198: Wed Dec 21 19:51:35 2016
+  read : io=420642MB, bw=33953MB/s, iops=8289.3K, runt= 12389msec
+  write: io=325276MB, bw=26177MB/s, iops=6390.9K, runt= 12426msec
+  trim: io=0MB, bw=0MB/s, iops=0, runt= 12426msec
 
-Please let me know what feedback you have.
+becomes:
+drive_0: (groupid=0, jobs=576): err= 0: pid=42198: Wed Dec 21 19:51:35 2016
+   read: io=420642MB, bw=33953MB/s, iops=8289.3K, runt= 12389msec
+  write: io=325276MB, bw=26177MB/s, iops=6390.9K, runt= 12426msec
+   trim: io=0MB, bw=0MB/s, iops=0, runt= 12426msec
+---
+ stat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-With respect to client/server mode, I successfully tested the job file
-below on x86-64 hardware using the following server platforms with each
-of the listed client operating systems:
-servers: Ubuntu 64-bit, Ubuntu 32-bit, OSX 10.11
-clients: Ubuntu 64-bit, Ubuntu 32-bit, OSX 10.11, Windows 8.1 x64
-
-Vincent
-
-[iops_slope]
-filename=3D/dev/zero
-time_based=3D1
-runtime=3D300s
-size=3D8M
-ss=3Diops_slope:0.5%
-ss_dur=3D5
-ss_ramp=3D2
-numjobs=3D4
-group_reporting
-
-[bw_dev]
-stonewall
-filename=3D/dev/zero
-time_based=3D1
-runtime=3D300s
-size=3D8M
-ss=3Dbw:4%
-ss_dur=3D5
-ss_ramp=3D2
-numjobs=3D2
-
---
-Vincent Fu
-Software Dev Engr II
-SanDisk, a Western Digital brand
-Email: Vincent.Fu@SanDisk.com
-Office: 801 987 7079
-
-PLEASE NOTE: The information contained in this electronic mail message is i=
-ntended only for the use of the designated recipient(s) named above. If the=
- reader of this message is not the intended recipient, you are hereby notif=
-ied that you have received this message in error and that any review, disse=
-mination, distribution, or copying of this message is strictly prohibited. =
-If you have received this communication in error, please notify the sender =
-by telephone or e-mail (as shown above) immediately and destroy any and all=
- copies of this message in your possession (whether hard copies or electron=
-ically stored copies).
+diff --git a/stat.c b/stat.c
+index 3e57e54..ebc5c78 100644
+--- a/stat.c
++++ b/stat.c
+@@ -380,7 +380,7 @@ static void display_lat(const char *name, unsigned long min, unsigned long max,
+ static void show_ddir_status(struct group_run_stats *rs, struct thread_stat *ts,
+ 			     int ddir, struct buf_output *out)
+ {
+-	const char *str[] = { "read ", "write", "trim" };
++	const char *str[] = { " read", "write", " trim" };
+ 	unsigned long min, max, runt;
+ 	unsigned long long bw, iops;
+ 	double mean, dev;
+-- 
+2.9.3
 
