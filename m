@@ -1,15 +1,20 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g9t5009.houston.hpe.com ([15.241.48.73]:53263 "EHLO
-        g9t5009.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935636AbcLVUrr (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 22 Dec 2016 15:47:47 -0500
+Received: from g2t1383g.austin.hpe.com ([15.233.16.89]:8414 "EHLO
+        g2t1383g.austin.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756916AbcLVGH3 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 22 Dec 2016 01:07:29 -0500
+Received: from g9t5009.houston.hpe.com (g9t5009.houston.hpe.com [15.241.48.73])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by g2t1383g.austin.hpe.com (Postfix) with ESMTPS id 901E6C7D
+        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 06:07:25 +0000 (UTC)
 Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
-        by g9t5009.houston.hpe.com (Postfix) with ESMTP id 6968475
-        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 20:47:46 +0000 (UTC)
+        by g9t5009.houston.hpe.com (Postfix) with ESMTP id C28AE7C
+        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 06:06:24 +0000 (UTC)
 From: Robert Elliott <elliott@hpe.com>
-Subject: [PATCH v2 01/12] Avoid using units in option defaults
-Date: Thu, 22 Dec 2016 14:50:40 -0600
-Message-Id: <20161222205051.4677-1-elliott@hpe.com>
+Subject: [PATCH 01/12] Avoid using units in option defaults
+Date: Thu, 22 Dec 2016 00:08:42 -0600
+Message-Id: <20161222060853.64104-2-elliott@hpe.com>
 In-Reply-To: <20161222060853.64104-1-elliott@hpe.com>
 References: <20161222060853.64104-1-elliott@hpe.com>
 Sender: fio-owner@vger.kernel.org
