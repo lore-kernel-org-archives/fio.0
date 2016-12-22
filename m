@@ -1,18 +1,22 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g9t5009.houston.hpe.com ([15.241.48.73]:53267 "EHLO
-        g9t5009.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S941603AbcLVUrs (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 22 Dec 2016 15:47:48 -0500
+Received: from g2t1383g.austin.hpe.com ([15.233.16.89]:8421 "EHLO
+        g2t1383g.austin.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755993AbcLVGHb (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 22 Dec 2016 01:07:31 -0500
+Received: from g9t5008.houston.hpe.com (g9t5008.houston.hpe.com [15.241.48.72])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by g2t1383g.austin.hpe.com (Postfix) with ESMTPS id 21A19B80
+        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 06:07:30 +0000 (UTC)
 Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
-        by g9t5009.houston.hpe.com (Postfix) with ESMTP id D9A6885
-        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 20:47:46 +0000 (UTC)
+        by g9t5008.houston.hpe.com (Postfix) with ESMTP id D1AFD5E
+        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 06:06:37 +0000 (UTC)
 From: Robert Elliott <elliott@hpe.com>
-Subject: [PATCH v2 12/12] Documentation for IEC binary and SI decimal prefix handling
-Date: Thu, 22 Dec 2016 14:50:51 -0600
-Message-Id: <20161222205051.4677-12-elliott@hpe.com>
-In-Reply-To: <20161222205051.4677-1-elliott@hpe.com>
+Subject: [PATCH 12/12] Documentation for IEC binary and SI decimal prefix handling
+Date: Thu, 22 Dec 2016 00:08:53 -0600
+Message-Id: <20161222060853.64104-13-elliott@hpe.com>
+In-Reply-To: <20161222060853.64104-1-elliott@hpe.com>
 References: <20161222060853.64104-1-elliott@hpe.com>
- <20161222205051.4677-1-elliott@hpe.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
