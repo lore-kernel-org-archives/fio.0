@@ -1,47 +1,69 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:51086 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752071AbcKGLV0 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 7 Nov 2016 06:21:26 -0500
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 5B517AB03
-        for <fio@vger.kernel.org>; Mon,  7 Nov 2016 11:21:25 +0000 (UTC)
-From: Denis Polom <dpolom@suse.de>
-Subject: fio bug report
-Message-ID: <ee28d36c-8fd0-66cd-10c2-817a75f7d9c0@suse.de>
-Date: Mon, 7 Nov 2016 12:21:24 +0100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: from g4t3425.houston.hpe.com ([15.241.140.78]:51625 "EHLO
+        g4t3425.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S936176AbcLVUrr (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 22 Dec 2016 15:47:47 -0500
+Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
+        by g4t3425.houston.hpe.com (Postfix) with ESMTP id 70A1952
+        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 20:47:46 +0000 (UTC)
+From: Robert Elliott <elliott@hpe.com>
+Subject: [PATCH v2 02/12] gfio: Improve IOPS textbox labels
+Date: Thu, 22 Dec 2016 14:50:41 -0600
+Message-Id: <20161222205051.4677-2-elliott@hpe.com>
+In-Reply-To: <20161222205051.4677-1-elliott@hpe.com>
+References: <20161222060853.64104-1-elliott@hpe.com>
+ <20161222205051.4677-1-elliott@hpe.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
+Cc: Robert Elliott <elliott@hpe.com>
 
-Hi
+From: Robert Elliott <elliott@hpe.com>
 
-on version fio-2.13-1.25.x86_64 I found following bug:
+Change the three textboxes labeled IOPS to Read IOPS, Write IOPS,
+and Trim IOPS, add Trim to the Blocksize label, and fix Steve's
+last name in the Credits.
+---
+ gfio.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-when fio is executed with options to write to files (etc : 
---write_iops_log, --write_bw_log, --write_lat_log) it creates files with 
-wrong value for one of the coordinates. So creating the graphs by 
-gnuplot is not possible.
-
-file context example:
-
-341692, 0, 1, 1048576
-342510, 0, 1, 1048576
-343728, 0, 1, 1048576
-344551, 0, 1, 1048576
-
-In old fio version fio-2.8-1.34.x86_64 was everything fine:
-
-339208, 86, 1, 1048576
-340561, 26, 1, 1048576
-341692, 54, 1, 1048576
-342510, 72, 1, 1048576
-
-Thank you
-
-Denis
-
+diff --git a/gfio.c b/gfio.c
+index ce18091..9ccf78c 100644
+--- a/gfio.c
++++ b/gfio.c
+@@ -1215,7 +1215,7 @@ static void about_dialog(GtkWidget *w, gpointer data)
+ {
+ 	const char *authors[] = {
+ 		"Jens Axboe <axboe@kernel.dk>",
+-		"Stephen Carmeron <stephenmcameron@gmail.com>",
++		"Stephen Cameron <stephenmcameron@gmail.com>",
+ 		NULL
+ 	};
+ 	const char *license[] = {
+@@ -1386,7 +1386,7 @@ static GtkWidget *new_client_page(struct gui_entry *ge)
+ 	g_signal_connect(ge->eta.names, "changed", G_CALLBACK(combo_entry_changed), ge);
+ 	g_signal_connect(ge->eta.names, "destroy", G_CALLBACK(combo_entry_destroy), ge);
+ 	ge->eta.iotype.entry = new_info_entry_in_frame(probe_box, "IO");
+-	ge->eta.bs.entry = new_info_entry_in_frame(probe_box, "Blocksize (Read/Write)");
++	ge->eta.bs.entry = new_info_entry_in_frame(probe_box, "Blocksize (Read/Write/Trim)");
+ 	ge->eta.ioengine.entry = new_info_entry_in_frame(probe_box, "IO Engine");
+ 	ge->eta.iodepth.entry = new_info_entry_in_frame(probe_box, "IO Depth");
+ 	ge->eta.jobs = new_info_entry_in_frame(probe_box, "Jobs");
+@@ -1395,11 +1395,11 @@ static GtkWidget *new_client_page(struct gui_entry *ge)
+ 	probe_box = gtk_hbox_new(FALSE, 3);
+ 	gtk_box_pack_start(GTK_BOX(probe_frame), probe_box, FALSE, FALSE, 3);
+ 	ge->eta.read_bw = new_info_entry_in_frame_rgb(probe_box, "Read BW", GFIO_READ_R, GFIO_READ_G, GFIO_READ_B);
+-	ge->eta.read_iops = new_info_entry_in_frame_rgb(probe_box, "IOPS", GFIO_READ_R, GFIO_READ_G, GFIO_READ_B);
++	ge->eta.read_iops = new_info_entry_in_frame_rgb(probe_box, "Read IOPS", GFIO_READ_R, GFIO_READ_G, GFIO_READ_B);
+ 	ge->eta.write_bw = new_info_entry_in_frame_rgb(probe_box, "Write BW", GFIO_WRITE_R, GFIO_WRITE_G, GFIO_WRITE_B);
+-	ge->eta.write_iops = new_info_entry_in_frame_rgb(probe_box, "IOPS", GFIO_WRITE_R, GFIO_WRITE_G, GFIO_WRITE_B);
++	ge->eta.write_iops = new_info_entry_in_frame_rgb(probe_box, "Write IOPS", GFIO_WRITE_R, GFIO_WRITE_G, GFIO_WRITE_B);
+ 	ge->eta.trim_bw = new_info_entry_in_frame_rgb(probe_box, "Trim BW", GFIO_TRIM_R, GFIO_TRIM_G, GFIO_TRIM_B);
+-	ge->eta.trim_iops = new_info_entry_in_frame_rgb(probe_box, "IOPS", GFIO_TRIM_R, GFIO_TRIM_G, GFIO_TRIM_B);
++	ge->eta.trim_iops = new_info_entry_in_frame_rgb(probe_box, "Trim IOPS", GFIO_TRIM_R, GFIO_TRIM_G, GFIO_TRIM_B);
+ 
+ 	/*
+ 	 * Only add this if we have a commit rate
+-- 
+2.9.3
 
