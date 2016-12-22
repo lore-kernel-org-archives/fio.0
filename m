@@ -1,18 +1,22 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g4t3425.houston.hpe.com ([15.241.140.78]:51631 "EHLO
-        g4t3425.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S936319AbcLVUrr (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 22 Dec 2016 15:47:47 -0500
+Received: from g2t1383g.austin.hpe.com ([15.233.16.89]:8422 "EHLO
+        g2t1383g.austin.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756916AbcLVGHb (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 22 Dec 2016 01:07:31 -0500
+Received: from g9t5009.houston.hpe.com (g9t5009.houston.hpe.com [15.241.48.73])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by g2t1383g.austin.hpe.com (Postfix) with ESMTPS id 2C3791420
+        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 06:07:30 +0000 (UTC)
 Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
-        by g4t3425.houston.hpe.com (Postfix) with ESMTP id ABB3B74
-        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 20:47:46 +0000 (UTC)
+        by g9t5009.houston.hpe.com (Postfix) with ESMTP id 5FAC880
+        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 06:06:32 +0000 (UTC)
 From: Robert Elliott <elliott@hpe.com>
-Subject: [PATCH v2 07/12] gclient: Delete unused code
-Date: Thu, 22 Dec 2016 14:50:46 -0600
-Message-Id: <20161222205051.4677-7-elliott@hpe.com>
-In-Reply-To: <20161222205051.4677-1-elliott@hpe.com>
+Subject: [PATCH 07/12] gclient: Delete unused code
+Date: Thu, 22 Dec 2016 00:08:48 -0600
+Message-Id: <20161222060853.64104-8-elliott@hpe.com>
+In-Reply-To: <20161222060853.64104-1-elliott@hpe.com>
 References: <20161222060853.64104-1-elliott@hpe.com>
- <20161222205051.4677-1-elliott@hpe.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
