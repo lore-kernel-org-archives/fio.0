@@ -1,24 +1,26 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g9t5008.houston.hpe.com ([15.241.48.72]:49995 "EHLO
-        g9t5008.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S941604AbcLVUrs (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 22 Dec 2016 15:47:48 -0500
+Received: from g9t1613g.houston.hpe.com ([15.241.32.99]:60068 "EHLO
+        g9t1613g.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755509AbcLVGHa (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 22 Dec 2016 01:07:30 -0500
+Received: from g4t3427.houston.hpe.com (g4t3427.houston.hpe.com [15.241.140.73])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by g9t1613g.houston.hpe.com (Postfix) with ESMTPS id C7736606AB
+        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 06:07:29 +0000 (UTC)
 Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
-        by g9t5008.houston.hpe.com (Postfix) with ESMTP id CFBFC4F
-        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 20:47:46 +0000 (UTC)
+        by g4t3427.houston.hpe.com (Postfix) with ESMTP id DF3FF7D
+        for <fio@vger.kernel.org>; Thu, 22 Dec 2016 06:06:36 +0000 (UTC)
 From: Robert Elliott <elliott@hpe.com>
-Subject: [PATCH v2 11/12] Improve IEC binary and SI decimal prefix handling
-Date: Thu, 22 Dec 2016 14:50:50 -0600
-Message-Id: <20161222205051.4677-11-elliott@hpe.com>
-In-Reply-To: <20161222205051.4677-1-elliott@hpe.com>
+Subject: [PATCH 11/12] Improve IEC binary and SI decimal prefix handling
+Date: Thu, 22 Dec 2016 00:08:52 -0600
+Message-Id: <20161222060853.64104-12-elliott@hpe.com>
+In-Reply-To: <20161222060853.64104-1-elliott@hpe.com>
 References: <20161222060853.64104-1-elliott@hpe.com>
- <20161222205051.4677-1-elliott@hpe.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 Cc: Robert Elliott <elliott@hpe.com>
-
-From: Robert Elliott <elliott@hpe.com>
 
 Use kb_base=1000 to follow international standards for unit prefixes.
 
@@ -638,7 +640,7 @@ index 3830521..0d0d550 100644
  		.off1	= offsetof(struct thread_options, unit_base),
  		.prio	= 1,
 diff --git a/parse.c b/parse.c
-index 8ed4619..518c2df 100644
+index 8ed4619..f67cdf4 100644
 --- a/parse.c
 +++ b/parse.c
 @@ -207,32 +207,50 @@ static unsigned long long __get_mult_bytes(const char *p, void *data,
@@ -653,52 +655,52 @@ index 8ed4619..518c2df 100644
 -		mult = 1000;
 +		if (kb_base == 1000)
 +			mult = 1024;
-+		else if (kb_base == 1024)
-+			mult = 1000;
  	} else if (!strncmp("tib", c, 3)) {
  		pow = 4;
 -		mult = 1000;
 +		if (kb_base == 1000)
 +			mult = 1024;
-+		else if (kb_base == 1024)
-+			mult = 1000;
  	} else if (!strncmp("gib", c, 3)) {
  		pow = 3;
 -		mult = 1000;
 +		if (kb_base == 1000)
 +			mult = 1024;
-+		else if (kb_base == 1024)
-+			mult = 1000;
  	} else if (!strncmp("mib", c, 3)) {
  		pow = 2;
 -		mult = 1000;
 +		if (kb_base == 1000)
 +			mult = 1024;
-+		else if (kb_base == 1024)
-+			mult = 1000;
  	} else if (!strncmp("kib", c, 3)) {
  		pow = 1;
 -		mult = 1000;
 -	} else if (!strncmp("p", c, 1) || !strncmp("pb", c, 2))
 +		if (kb_base == 1000)
 +			mult = 1024;
-+		else if (kb_base == 1024)
-+			mult = 1000;
 +	} else if (!strncmp("p", c, 1) || !strncmp("pb", c, 2)) {
  		pow = 5;
 -	else if (!strncmp("t", c, 1) || !strncmp("tb", c, 2))
++		if (kb_base == 1024)
++			mult = 1000;
 +	} else if (!strncmp("t", c, 1) || !strncmp("tb", c, 2)) {
  		pow = 4;
 -	else if (!strncmp("g", c, 1) || !strncmp("gb", c, 2))
++		if (kb_base == 1024)
++			mult = 1000;
 +	} else if (!strncmp("g", c, 1) || !strncmp("gb", c, 2)) {
  		pow = 3;
 -	else if (!strncmp("m", c, 1) || !strncmp("mb", c, 2))
++		if (kb_base == 1024)
++			mult = 1000;
 +	} else if (!strncmp("m", c, 1) || !strncmp("mb", c, 2)) {
  		pow = 2;
 -	else if (!strncmp("k", c, 1) || !strncmp("kb", c, 2))
++		if (kb_base == 1024)
++			mult = 1000;
 +	} else if (!strncmp("k", c, 1) || !strncmp("kb", c, 2)) {
  		pow = 1;
 -	else if (!strncmp("%", c, 1)) {
++		if (kb_base == 1024)
++			mult = 1000;
 +	} else if (!strncmp("%", c, 1)) {
  		*percent = 1;
  		free(c);
