@@ -1,17 +1,17 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f169.google.com ([209.85.217.169]:35191 "EHLO
-        mail-ua0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752294AbcL0Uzz (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 27 Dec 2016 15:55:55 -0500
-Received: by mail-ua0-f169.google.com with SMTP id v2so16944195uac.2
-        for <fio@vger.kernel.org>; Tue, 27 Dec 2016 12:55:55 -0800 (PST)
+Received: from mail-ua0-f174.google.com ([209.85.217.174]:32805 "EHLO
+        mail-ua0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752189AbcL0Uus (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 27 Dec 2016 15:50:48 -0500
+Received: by mail-ua0-f174.google.com with SMTP id i68so87835960uad.0
+        for <fio@vger.kernel.org>; Tue, 27 Dec 2016 12:50:47 -0800 (PST)
 MIME-Version: 1.0
 In-Reply-To: <CAKV1nBZO1Ntun9LH0_mXbStrG14Rpv6B11zGgr7gZCMH-XoB8w@mail.gmail.com>
 References: <CALjAwxgdYU-QHdyRe3B=bgEU7-9zLjGs7ayOts_D-juAq_Uiig@mail.gmail.com>
  <CAKV1nBZO1Ntun9LH0_mXbStrG14Rpv6B11zGgr7gZCMH-XoB8w@mail.gmail.com>
 From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Tue, 27 Dec 2016 20:55:24 +0000
-Message-ID: <CALjAwxh=WpKYv_aXCrupHUn9QAZ11C7qnVf+xjF677ZqK_1dzA@mail.gmail.com>
+Date: Tue, 27 Dec 2016 20:44:15 +0000
+Message-ID: <CALjAwxh5G0wRmgM1OLUWs5fD32_7EcZ_0ppmSaLtqVVfMm8LUA@mail.gmail.com>
 Subject: Re: Faster fio verification
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
@@ -19,8 +19,6 @@ Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: Saju Nair <saju.mad.nair@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
-
-Hi,
 
 On 27 December 2016 at 15:15, Saju Nair <saju.mad.nair@gmail.com> wrote:
 > Hi,
@@ -43,13 +41,11 @@ On 27 December 2016 at 15:15, Saju Nair <saju.mad.nair@gmail.com> wrote:
 > }
 >
 > Would that result in each of the FIO reads any faster ?
-
-Not by default because the verifying happens inline after the read
-finishes and before that "slot" is reused so it doesn't matter how big
-the disk is - you only need memory of the order of iodepth's worth of
-maximum sized I/Os. Did I mention the verify_async option changes
-this? Check the HOWTO for more information.
-
+>
+> Regards,
+> - Saju.
+>
+>
 > On Tue, Dec 27, 2016 at 5:17 PM, Sitsofe Wheeler <sitsofe@gmail.com> wrot=
 e:
 >> Hi,
@@ -78,6 +74,11 @@ since the compare/verify is done on-the-fly.. Where does FIO store the data=
 >> of the HOWTO). For example the verify=3Dcrc32c checksum calculation will
 >> be hardware accelerated on recent x86 machines. Do either of these
 >> make a difference?
+>>
+>> --
+>> Sitsofe | http://sucs.org/~sits/
+
+
 
 --=20
 Sitsofe | http://sucs.org/~sits/
