@@ -1,62 +1,121 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from muon.bluestop.org ([74.50.51.35]:41638 "EHLO muon.cran.org.uk"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756964AbdACAYJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 2 Jan 2017 19:24:09 -0500
-Received: from muon.bluestop.org (localhost [127.0.0.1])
-        by muon.cran.org.uk (Postfix) with ESMTP id 96AC4383EB
-        for <fio@vger.kernel.org>; Tue,  3 Jan 2017 00:24:08 +0000 (UTC)
-Received: from muon.cran.org.uk ([127.0.0.1])
-        by muon.bluestop.org (muon.bluestop.org [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id dYlnDPLV2xJv for <fio@vger.kernel.org>;
-        Tue,  3 Jan 2017 00:24:07 +0000 (UTC)
-Received: from [IPv6:2601:681:4301:f47b:d9c7:5a7e:4ab7:bbeb] (unknown [IPv6:2601:681:4301:f47b:d9c7:5a7e:4ab7:bbeb])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by muon.cran.org.uk (Postfix) with ESMTPSA
-        for <fio@vger.kernel.org>; Tue,  3 Jan 2017 00:24:07 +0000 (UTC)
-From: Rebecca Cran <rebecca@bluestop.org>
-Subject: [PATCH] Update Windows maintainer contact details
-Message-ID: <e2622fe9-6581-e9af-ba09-582398d9ad35@bluestop.org>
-Date: Mon, 2 Jan 2017 17:24:07 -0700
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------2A4ADE8333FC2CC04006E723"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 3/7] Sync README with fio usage output
+Date: Tue,  3 Jan 2017 23:40:07 +0900
+Message-Id: <1483454411-14535-3-git-send-email-tkusumi@tuxera.com>
+In-Reply-To: <1483454411-14535-1-git-send-email-tkusumi@tuxera.com>
+References: <1483454411-14535-1-git-send-email-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------2A4ADE8333FC2CC04006E723
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-I've recently changed my name and email address. I've attached a patch 
-to update the README file.
+Some of the commits only update one of these.
 
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ README | 20 +++++++++++---------
+ init.c | 14 ++++++++------
+ 2 files changed, 19 insertions(+), 15 deletions(-)
 
+diff --git a/README b/README
+index a35842e..2fa8e1b 100644
+--- a/README
++++ b/README
+@@ -152,32 +152,32 @@ $ fio
+ 	--bandwidth-log		Generate aggregate bandwidth logs
+ 	--minimal		Minimal (terse) output
+ 	--output-format=type	Output format (terse,json,json+,normal)
+-	--terse-version=type	Terse version output format (default 3, or 2 or 4).
++	--terse-version=type	Set terse version output format (default 3, or 2 or 4)
+ 	--version		Print version info and exit
+ 	--help			Print this page
+ 	--cpuclock-test		Perform test/validation of CPU clock
+-	--crctest[=test]	Test speed of checksum functions
++	--crctest=type		Test speed of checksum functions
+ 	--cmdhelp=cmd		Print command help, "all" for all of them
+ 	--enghelp=engine	Print ioengine help, or list available ioengines
+ 	--enghelp=engine,cmd	Print help for an ioengine cmd
+ 	--showcmd		Turn a job file into command line options
+-	--readonly		Turn on safety read-only checks, preventing
+-				writes
+ 	--eta=when		When ETA estimate should be printed
+ 				May be "always", "never" or "auto"
+ 	--eta-newline=time	Force a new line for every 'time' period passed
+ 	--status-interval=t	Force full status dump every 't' period passed
++	--readonly		Turn on safety read-only checks, preventing writes
+ 	--section=name		Only run specified section in job file.
+ 				Multiple sections can be specified.
+ 	--alloc-size=kb		Set smalloc pool to this size in kb (def 16384)
+ 	--warnings-fatal	Fio parser warnings are fatal
+-	--max-jobs		Maximum number of threads/processes to support
+-	--server=args		Start backend server. See Client/Server section.
+-	--client=host		Connect to specified backend(s).
+-	--remote-config=file	Tell fio server to load this local file
++	--max-jobs=nr		Maximum number of threads/processes to support
++	--server=args		Start a backend fio server. See Client/Server section.
++	--client=hostname	Talk to remote backend(s) fio server at hostname
++	--daemonize=pidfile	Background fio server, write pid to file
++	--remote-config=file	Tell fio server to load this local job file
+ 	--idle-prof=option	Report cpu idleness on a system or percpu basis
+ 				(option=system,percpu) or run unit work
+-				calibration only (option=calibrate).
++				calibration only (option=calibrate)
+ 	--inflate-log=log	Inflate and output compressed log
+ 	--trigger-file=file	Execute trigger cmd when file exists
+ 	--trigger-timeout=t	Execute trigger af this time
+@@ -218,6 +218,8 @@ Currently, additional logging is available for:
+ 	net		Dump info related to networking connections
+ 	rate		Dump info related to IO rate switching
+ 	compress	Dump info related to log compress/decompress
++	steadystate	Dump info related to steady state detection
++	helperthread	Dump info related to helper thread
+ 	? or help	Show available debug options.
+ 
+ One can specify multiple debug options: e.g. --debug=file,mem will enable
+diff --git a/init.c b/init.c
+index 3c925a3..d12b75d 100644
+--- a/init.c
++++ b/init.c
+@@ -1995,12 +1995,13 @@ static void usage(const char *name)
+ 	printf("  --runtime\t\tRuntime in seconds\n");
+ 	printf("  --bandwidth-log\tGenerate aggregate bandwidth logs\n");
+ 	printf("  --minimal\t\tMinimal (terse) output\n");
+-	printf("  --output-format=x\tOutput format (terse,json,json+,normal)\n");
+-	printf("  --terse-version=x\tSet terse version output format to 'x'\n");
++	printf("  --output-format=type\tOutput format (terse,json,json+,normal)\n");
++	printf("  --terse-version=type\tSet terse version output format"
++		" (default 3, or 2 or 4)\n");
+ 	printf("  --version\t\tPrint version info and exit\n");
+ 	printf("  --help\t\tPrint this page\n");
+ 	printf("  --cpuclock-test\tPerform test/validation of CPU clock\n");
+-	printf("  --crctest\t\tTest speed of checksum functions\n");
++	printf("  --crctest=type\tTest speed of checksum functions\n");
+ 	printf("  --cmdhelp=cmd\t\tPrint command help, \"all\" for all of"
+ 		" them\n");
+ 	printf("  --enghelp=engine\tPrint ioengine help, or list"
+@@ -2016,14 +2017,15 @@ static void usage(const char *name)
+ 	printf(" 't' period passed\n");
+ 	printf("  --readonly\t\tTurn on safety read-only checks, preventing"
+ 		" writes\n");
+-	printf("  --section=name\tOnly run specified section in job file\n");
++	printf("  --section=name\tOnly run specified section in job file,"
++		" multiple sections can be specified\n");
+ 	printf("  --alloc-size=kb\tSet smalloc pool to this size in kb"
+-		" (def 1024)\n");
++		" (def 16384)\n");
+ 	printf("  --warnings-fatal\tFio parser warnings are fatal\n");
+ 	printf("  --max-jobs=nr\t\tMaximum number of threads/processes to support\n");
+ 	printf("  --server=args\t\tStart a backend fio server\n");
+ 	printf("  --daemonize=pidfile\tBackground fio server, write pid to file\n");
+-	printf("  --client=hostname\tTalk to remote backend fio server at hostname\n");
++	printf("  --client=hostname\tTalk to remote backend(s) fio server at hostname\n");
+ 	printf("  --remote-config=file\tTell fio server to load this local job file\n");
+ 	printf("  --idle-prof=option\tReport cpu idleness on a system or percpu basis\n"
+ 		"\t\t\t(option=system,percpu) or run unit work\n"
 -- 
-Rebecca
+2.5.5
 
 
---------------2A4ADE8333FC2CC04006E723
-Content-Type: text/plain; charset=UTF-8;
- name="0001-Update-Windows-maintainer-contact-details.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="0001-Update-Windows-maintainer-contact-details.patch"
-
-RnJvbSA4MDgyNzI2YTc0OGI4MzU1NTA5ZDhhOThmMGQ5MWE3MTMwNTJjYzg0IE1vbiBTZXAg
-MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBSZWJlY2NhIENyYW4gPHJlYmVjY2FAYmx1ZXN0b3Au
-b3JnPgpEYXRlOiBNb24sIDIgSmFuIDIwMTcgMTc6MjA6MDYgLTA3MDAKU3ViamVjdDogW1BB
-VENIXSBVcGRhdGUgV2luZG93cyBtYWludGFpbmVyIGNvbnRhY3QgZGV0YWlscwoKLS0tCiBS
-RUFETUUgfCAyICstCiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRp
-b24oLSkKCmRpZmYgLS1naXQgYS9SRUFETUUgYi9SRUFETUUKaW5kZXggYThhNGZkZi4uNDU3
-MGY1MyAxMDA2NDQKLS0tIGEvUkVBRE1FCisrKyBiL1JFQURNRQpAQCAtNjUsNyArNjUsNyBA
-QCB0b29sIChodHRwOi8vd3d3Lm9wZW5jc3cub3JnL2dldC1pdC9wa2d1dGlsLykgYW5kIHRo
-ZW4gaW5zdGFsbCBmaW8gdmlhCiAncGtndXRpbCAtaSBmaW8nLgogCiBXaW5kb3dzOgotQnJ1
-Y2UgQ3JhbiA8YnJ1Y2VAY3Jhbi5vcmcudWs+IGhhcyBmaW8gcGFja2FnZXMgZm9yIFdpbmRv
-d3MgYXQKK1JlYmVjY2EgQ3JhbiA8cmViZWNjYStmaW9AYmx1ZXN0b3Aub3JnPiBoYXMgZmlv
-IHBhY2thZ2VzIGZvciBXaW5kb3dzIGF0CiBodHRwOi8vd3d3LmJsdWVzdG9wLm9yZy9maW8v
-IC4KIAogCi0tIAoyLjkuMgoK
---------------2A4ADE8333FC2CC04006E723--
