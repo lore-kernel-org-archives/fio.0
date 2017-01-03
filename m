@@ -1,55 +1,93 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-by2nam03on0130.outbound.protection.outlook.com ([104.47.42.130]:7584
-        "EHLO NAM03-BY2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S932179AbdACVs0 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 3 Jan 2017 16:48:26 -0500
-From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Subject: RE: [PATCH v2] fio: add device dax engine
-Date: Tue, 3 Jan 2017 21:32:28 +0000
-Message-ID: <DF4PR84MB016932384C62DB5ED4CB2F7DAB6E0@DF4PR84MB0169.NAMPRD84.PROD.OUTLOOK.COM>
+Received: from mga01.intel.com ([192.55.52.88]:64083 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752828AbdACPrl (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 3 Jan 2017 10:47:41 -0500
+Subject: Re: [PATCH v2] fio: add device dax engine
 References: <148115127004.159869.15069122701228994037.stgit@djiang5-desk3.ch.intel.com>
  <DF4PR84MB01692BD912B381B8B9BDE3ADAB930@DF4PR84MB0169.NAMPRD84.PROD.OUTLOOK.COM>
- <c33c6bb4-519f-d7d6-1450-a15e38a03238@intel.com>
-In-Reply-To: <c33c6bb4-519f-d7d6-1450-a15e38a03238@intel.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Dave Jiang <dave.jiang@intel.com>
+Message-ID: <c33c6bb4-519f-d7d6-1450-a15e38a03238@intel.com>
+Date: Tue, 3 Jan 2017 08:42:46 -0700
 MIME-Version: 1.0
+In-Reply-To: <DF4PR84MB01692BD912B381B8B9BDE3ADAB930@DF4PR84MB0169.NAMPRD84.PROD.OUTLOOK.COM>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Dave Jiang <dave.jiang@intel.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 Cc: "ross.zwisler@linux.intel.com" <ross.zwisler@linux.intel.com>, "Williams, Dan J" <dan.j.williams@intel.com>
 
-DQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IERhdmUgSmlhbmcgW21haWx0
-bzpkYXZlLmppYW5nQGludGVsLmNvbV0NCj4gU2VudDogVHVlc2RheSwgSmFudWFyeSAwMywgMjAx
-NyA5OjQzIEFNDQouLi4NCj4gPiBTaG91bGQgdGhhdCBvcGVuIGxpYnBtZW0uc28uMSByYXRoZXIg
-dGhhbiBsaWJwbWVtLnNvPyAoc2FtZQ0KPiA+IHF1ZXN0aW9uIGZvciB0aGUgcG1lbWJsayBlbmdp
-bmUpDQo+IA0KPiBIbW1tLi4uLnNob3VsZCB3ZSBsb29rIGZvciBlaXRoZXI/IEkgaGF2ZSBub3Qg
-ZW5jb3VudGVyZWQgdGhpcyBpc3N1ZQ0KPiBvbiBteSBGMjUgaW5zdGFsbC4NCg0KQmFzZWQgb24N
-CiAgICBodHRwOi8vd3d3LmlibS5jb20vZGV2ZWxvcGVyd29ya3MvbGludXgvbGlicmFyeS9sLXNo
-bGlicy9pbmRleC5odG1sDQoNCkkgdGhpbmsgZmlvIHNob3VsZCBvbmx5IHRyeSB0byBvcGVuIHRo
-ZSAuc28uMSBmaWxlbmFtZXMuICBUaGlzIGVuc3VyZXMNCmNvbXBhdGliaWxpdHkgLSBpdCB3b24n
-dCBldmVyIGJlIG1hdGNoZWQgd2l0aCBhbiBpbmNvbXBhdGlibGUgdmVyc2lvbiAyLg0KDQpUaGUg
-bm9uLXZlcnNpb25lZCAuc28gZmlsZW5hbWUgaXMgYXBwYXJlbnRseSBpbnRlbmRlZCBvbmx5IGZv
-ciB1c2UgYnkNCnRoZSBjb21waWxlci9saW5rZXIgdG8gZmluZCB0aGUgbGF0ZXN0IHZlcnNpb24g
-ZHVyaW5nIGNvbXBpbGF0aW9uLg0KDQpmaW8gbGlua3MgdG8gc3BlY2lmaWMgdmVyc2lvbnMgb2Yg
-YWxsIHRoZSBsaWJyYXJpZXMgc2VsZWN0ZWQgYXQgDQpjb21waWxlIHRpbWUgLSBub25lIG9mIHRo
-ZXNlIHVzZSBub24tdmVyc2lvbmVkIGZpbGVuYW1lczoNCg0KJCBsZGQgZmlvDQogICAgICAgIGxp
-bnV4LXZkc28uc28uMSAoMHgwMDAwN2ZmYzQzYjVlMDAwKQ0KICAgICAgICBsaWJudW1hLnNvLjEg
-PT4gL2xpYjY0L2xpYm51bWEuc28uMSAoMHgwMDAwN2Y1NDk1N2RiMDAwKQ0KICAgICAgICBsaWJy
-dC5zby4xID0+IC9saWI2NC9saWJydC5zby4xICgweDAwMDA3ZjU0OTU1ZDMwMDApDQogICAgICAg
-IGxpYmFpby5zby4xID0+IC9saWI2NC9saWJhaW8uc28uMSAoMHgwMDAwN2Y1NDk1M2QxMDAwKQ0K
-ICAgICAgICBsaWJ6LnNvLjEgPT4gL2xpYjY0L2xpYnouc28uMSAoMHgwMDAwN2Y1NDk1MWJiMDAw
-KQ0KICAgICAgICBsaWJtLnNvLjYgPT4gL2xpYjY0L2xpYm0uc28uNiAoMHgwMDAwN2Y1NDk0ZWIy
-MDAwKQ0KICAgICAgICBsaWJwdGhyZWFkLnNvLjAgPT4gL2xpYjY0L2xpYnB0aHJlYWQuc28uMCAo
-MHgwMDAwN2Y1NDk0YzkyMDAwKQ0KICAgICAgICBsaWJkbC5zby4yID0+IC9saWI2NC9saWJkbC5z
-by4yICgweDAwMDA3ZjU0OTRhOGUwMDApDQogICAgICAgIGxpYmMuc28uNiA9PiAvbGliNjQvbGli
-Yy5zby42ICgweDAwMDA3ZjU0OTQ2YzgwMDApDQogICAgICAgIC9saWI2NC9sZC1saW51eC14ODYt
-NjQuc28uMiAoMHgwMDAwNTYyYjc3Y2VjMDAwKQ0KDQpQZXJoYXBzIHBtZW1ibGsgYW5kIGRldi1k
-YXggc2hvdWxkIGJlIHJlc3RydWN0dXJlZCB0byBsb2FkIHRoZSBsaWJwbWVtDQphbmQgbGlicG1l
-bWJsayBsaWJyYXJpZXMgYXQgc3RhcnR1cCB0aW1lIGxpa2UgdGhlIG90aGVycy4gIEkgdGhpbmsg
-dGhhdCANCnJlcXVpcmVzIGFkZGluZyAtbHBtZW0gYW5kIC1scG1lbWJsayB0byBMSUJTIGluIHRo
-ZSBjb25maWd1cmUgc2NyaXB0LCANCnNvIHRoZXkgZW5kIHVwIGluIGNvbmZpZy1ob3N0Lm1hayBs
-aWtlIHRoZSBvdGhlcnM6DQoNCkxJQlMrPS1sbCAtbG51bWEgLWxydCAtbGFpbyAtbHoNCg0KDQoN
-Ci0tLQ0KUm9iZXJ0IEVsbGlvdHQsIEhQRSBQZXJzaXN0ZW50IE1lbW9yeQ0KDQoNCg==
+
+
+On 12/20/2016 05:33 PM, Elliott, Robert (Persistent Memory) wrote:
+> 
+> 
+>> -----Original Message-----
+>> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
+>> Behalf Of Dave Jiang
+>> Sent: Wednesday, December 07, 2016 4:55 PM
+>> Subject: [PATCH v2] fio: add device dax engine
+>>
+> ...
+>> +static int fio_devdax_init(struct thread_data *td)
+>> +{
+>> +struct thread_options *o = &td->o;
+>> +const char *path;
+>> +void *dl;
+>> +
+>> +if ((o->rw_min_bs & page_mask) &&
+>> +    (o->fsync_blocks || o->fdatasync_blocks)) {
+>> +log_err("fio: mmap options dictate a minimum block size
+>> of "
+>> +"%llu bytes\n", (unsigned long long) page_size);
+>> +return 1;
+>> +}
+>> +
+>> +path = getenv("FIO_PMEM_LIB");
+>> +if (!path)
+>> +path = "libpmem.so";
+>> +
+>> +dl = dlopen(path, RTLD_NOW | RTLD_NODELETE);
+>> +if (!dl) {
+>> +log_err("fio: unable to open libpmem: %s\n", dlerror());
+>> +return 1;
+>> +}
+> 
+> Should that open libpmem.so.1 rather than libpmem.so? (same question
+> for the pmemblk engine)
+
+Hmmm....should we look for either? I have not encountered this issue on
+my F25 install.
+
+> 
+> Although my upstream nvml Makefile installs a libpmem.so symbolic link,
+> it looks like some or all of the distro packages (e.g. Fedora 25 and
+> SUSE Linux  Enterprise Server 12 SP2) are just installing so.1
+> symbolic links.  So, fio fails to find the library.
+> 
+> If I understand the version conventions correctly, including .1 would
+> ensure ABI compatibility.
+> 
+> distro library *pmem* files:
+> /usr/lib64/libpmemblk.so.1      /usr/lib64/libpmemobj.so.1
+> /usr/lib64/libpmemblk.so.1.0.0  /usr/lib64/libpmemobj.so.1.0.0
+> /usr/lib64/libpmemlog.so.1      /usr/lib64/libpmem.so.1
+> /usr/lib64/libpmemlog.so.1.0.0  /usr/lib64/libpmem.so.1.0.0
+> 
+> vs. upstream nvml installation:
+> /lib64/libpmem.a            /lib64/libpmemlog.so.1.0.0
+> /lib64/libpmemblk.a         /lib64/libpmemobj.a
+> /lib64/libpmemblk.so        /lib64/libpmemobj.so
+> /lib64/libpmemblk.so.1      /lib64/libpmemobj.so.1
+> /lib64/libpmemblk.so.1.0.0  /lib64/libpmemobj.so.1.0.0
+> /lib64/libpmemlog.a         /lib64/libpmem.so
+> /lib64/libpmemlog.so        /lib64/libpmem.so.1
+> /lib64/libpmemlog.so.1      /lib64/libpmem.so.1.0.0
+> 
+> 
+> ---
+> Robert Elliott, HPE Persistent Memory
+> 
+> 
+> 
