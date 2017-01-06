@@ -1,292 +1,249 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:55220 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750714AbdAXNAH (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 24 Jan 2017 08:00:07 -0500
+Received: from merlin.infradead.org ([205.233.59.134]:50606 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S936767AbdAFNAE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 6 Jan 2017 08:00:04 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1cW0hi-0005Xt-Ph
-        for fio@vger.kernel.org; Tue, 24 Jan 2017 13:00:06 +0000
+        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1cPU7n-0000ju-4D
+        for fio@vger.kernel.org; Fri, 06 Jan 2017 13:00:03 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170124130002.58B2A2C00E0@kernel.dk>
-Date: Tue, 24 Jan 2017 06:00:02 -0700 (MST)
+Message-Id: <20170106130002.341662C00B7@kernel.dk>
+Date: Fri,  6 Jan 2017 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 9cf163b0b3f69df8ef70d5a0799d9452e80ee2c4:
+The following changes since commit 847d544cce05157ec36f50b8214b26aff83aef01:
 
-  Add missing opt/cat group entries (2017-01-20 10:50:16 -0700)
+  Style cleanups for arm crc32c hw support (2017-01-04 19:44:35 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to bd4d9bdc5097c3b35b5172508e1a2828296e01c2:
+for you to fetch changes up to 8c4e634a44ca35a21387b79ae6e701f951e2cb0c:
 
-  Remove/Move Linux specific sysfs_root field from thread_data (2017-01-23 08:26:12 -0700)
+  init: cleaner gcd() (2017-01-05 10:38:41 -0700)
 
 ----------------------------------------------------------------
-Tomohiro Kusumi (8):
-      Define pointer alignment macro in fio.h
-      Use ARRAY_SIZE()
-      Fix wrong comment on exit condition of threads/processes
-      Remove unused io_u's priv union field
-      Remove unused disk_util's name field
-      Add missing free(td->sysfs_root);
-      Fix bad pointer du->sysfs_root
-      Remove/Move Linux specific sysfs_root field from thread_data
+Jens Axboe (5):
+      verify: use log_verify_failure() for pattern verifies
+      Remove '--runtime' command line option
+      verify: ensure that verify_interval is always a factor of min/max bs
+      verify: fill in vc->name for pattern verify
+      init: cleaner gcd()
 
- backend.c      | 14 ++++++++------
- diskutil.c     | 12 +++---------
- diskutil.h     |  1 -
- fio.h          |  7 +++++--
- gclient.c      |  2 +-
- gfio.c         |  2 +-
- ioengine.h     |  1 -
- lib/memalign.c |  4 +---
- lib/num2str.c  |  4 +---
- smalloc.c      |  3 ++-
- 10 files changed, 22 insertions(+), 28 deletions(-)
+Tomohiro Kusumi (2):
+      Fix invalid ioengine initialization for cpp_null
+      Don't malloc ioengine_ops for cpp_null
+
+ README         |  1 -
+ engines/null.c | 28 +++++++++++++---------------
+ init.c         | 47 +++++++++++++++++++++--------------------------
+ io_u.c         |  4 ----
+ verify.c       |  3 ++-
+ 5 files changed, 36 insertions(+), 47 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/backend.c b/backend.c
-index 4570d8d..1c1f2f9 100644
---- a/backend.c
-+++ b/backend.c
-@@ -76,9 +76,6 @@ int shm_id = 0;
- int temp_stall_ts;
- unsigned long done_secs = 0;
+diff --git a/README b/README
+index fdd5bec..875d2be 100644
+--- a/README
++++ b/README
+@@ -152,7 +152,6 @@ $ fio
+ 	--debug			Enable some debugging options (see below)
+ 	--parse-only		Parse options only, don't start any IO
+ 	--output		Write output to file
+-	--runtime		Runtime in seconds
+ 	--bandwidth-log		Generate aggregate bandwidth logs
+ 	--minimal		Minimal (terse) output
+ 	--output-format=type	Output format (terse,json,json+,normal)
+diff --git a/engines/null.c b/engines/null.c
+index f7ba370..812cadf 100644
+--- a/engines/null.c
++++ b/engines/null.c
+@@ -135,23 +135,21 @@ static void fio_exit fio_null_unregister(void)
  
--#define PAGE_ALIGN(buf)	\
--	(char *) (((uintptr_t) (buf) + page_mask) & ~page_mask)
+ #ifdef FIO_EXTERNAL_ENGINE
+ extern "C" {
++static struct ioengine_ops ioengine;
+ void get_ioengine(struct ioengine_ops **ioengine_ptr)
+ {
+-	struct ioengine_ops *ioengine;
 -
- #define JOB_START_TIMEOUT	(5 * 1000)
+-	*ioengine_ptr = (struct ioengine_ops *) malloc(sizeof(struct ioengine_ops));
+-	ioengine = *ioengine_ptr;
+-
+-	strcpy(ioengine->name, "cpp_null");
+-	ioengine->version        = FIO_IOOPS_VERSION;
+-	ioengine->queue          = fio_null_queue;
+-	ioengine->commit         = fio_null_commit;
+-	ioengine->getevents      = fio_null_getevents;
+-	ioengine->event          = fio_null_event;
+-	ioengine->init           = fio_null_init;
+-	ioengine->cleanup        = fio_null_cleanup;
+-	ioengine->open_file      = fio_null_open;
+-	ioengine->flags	         = FIO_DISKLESSIO | FIO_FAKEIO;
++	*ioengine_ptr = &ioengine;
++
++	ioengine.name           = "cpp_null";
++	ioengine.version        = FIO_IOOPS_VERSION;
++	ioengine.queue          = fio_null_queue;
++	ioengine.commit         = fio_null_commit;
++	ioengine.getevents      = fio_null_getevents;
++	ioengine.event          = fio_null_event;
++	ioengine.init           = fio_null_init;
++	ioengine.cleanup        = fio_null_cleanup;
++	ioengine.open_file      = fio_null_open;
++	ioengine.flags          = FIO_DISKLESSIO | FIO_FAKEIO;
+ }
+ }
+ #endif /* FIO_EXTERNAL_ENGINE */
+diff --git a/init.c b/init.c
+index 9889949..ae20d61 100644
+--- a/init.c
++++ b/init.c
+@@ -40,7 +40,6 @@ const char fio_version_string[] = FIO_VERSION;
+ static char **ini_file;
+ static int max_jobs = FIO_MAX_JOBS;
+ static int dump_cmdline;
+-static long long def_timeout;
+ static int parse_only;
  
- static void sig_int(int sig)
-@@ -1198,7 +1195,7 @@ static int init_io_u(struct thread_data *td)
- 
- 	if (td->o.odirect || td->o.mem_align || td->o.oatomic ||
- 	    td_ioengine_flagged(td, FIO_RAWIO))
--		p = PAGE_ALIGN(td->orig_buffer) + td->o.mem_align;
-+		p = PTR_ALIGN(td->orig_buffer, page_mask) + td->o.mem_align;
- 	else
- 		p = td->orig_buffer;
- 
-@@ -1264,6 +1261,10 @@ static int init_io_u(struct thread_data *td)
+ static struct thread_data def_thread;
+@@ -94,11 +93,6 @@ static struct option l_opts[FIO_NR_OPTIONS] = {
+ 		.val		= 'o' | FIO_CLIENT_FLAG,
+ 	},
+ 	{
+-		.name		= (char *) "runtime",
+-		.has_arg	= required_argument,
+-		.val		= 't' | FIO_CLIENT_FLAG,
+-	},
+-	{
+ 		.name		= (char *) "latency-log",
+ 		.has_arg	= required_argument,
+ 		.val		= 'l' | FIO_CLIENT_FLAG,
+@@ -373,14 +367,6 @@ static int setup_thread_area(void)
  	return 0;
  }
  
-+/*
-+ * This function is Linux specific.
-+ * FIO_HAVE_IOSCHED_SWITCH enabled currently means it's Linux.
-+ */
- static int switch_ioscheduler(struct thread_data *td)
+-static void set_cmd_options(struct thread_data *td)
+-{
+-	struct thread_options *o = &td->o;
+-
+-	if (!o->timeout)
+-		o->timeout = def_timeout;
+-}
+-
+ static void dump_print_option(struct print_option *p)
  {
- #ifdef FIO_HAVE_IOSCHED_SWITCH
-@@ -1274,7 +1275,8 @@ static int switch_ioscheduler(struct thread_data *td)
- 	if (td_ioengine_flagged(td, FIO_DISKLESSIO))
- 		return 0;
+ 	const char *delim;
+@@ -451,10 +437,8 @@ static struct thread_data *get_new_job(int global, struct thread_data *parent,
+ {
+ 	struct thread_data *td;
  
--	sprintf(tmp, "%s/queue/scheduler", td->sysfs_root);
-+	assert(td->files && td->files[0]);
-+	sprintf(tmp, "%s/queue/scheduler", td->files[0]->du->sysfs_root);
- 
- 	f = fopen(tmp, "r+");
- 	if (!f) {
-@@ -1362,7 +1364,7 @@ static bool keep_running(struct thread_data *td)
- 		uint64_t diff;
- 
- 		/*
--		 * If the difference is less than the minimum IO size, we
-+		 * If the difference is less than the maximum IO size, we
- 		 * are done.
- 		 */
- 		diff = limit - ddir_rw_sum(td->io_bytes);
-diff --git a/diskutil.c b/diskutil.c
-index 27ddb46..c3bcec9 100644
---- a/diskutil.c
-+++ b/diskutil.c
-@@ -37,6 +37,7 @@ static void disk_util_free(struct disk_util *du)
- 	}
- 
- 	fio_mutex_remove(du->lock);
-+	free(du->sysfs_root);
- 	sfree(du);
- }
- 
-@@ -305,7 +306,7 @@ static struct disk_util *disk_util_add(struct thread_data *td, int majdev,
- 		return NULL;
- 	}
- 	strncpy((char *) du->dus.name, basename(path), FIO_DU_NAME_SZ - 1);
--	du->sysfs_root = path;
-+	du->sysfs_root = strdup(path);
- 	du->major = majdev;
- 	du->minor = mindev;
- 	INIT_FLIST_HEAD(&du->slavelist);
-@@ -430,9 +431,6 @@ static struct disk_util *__init_per_file_disk_util(struct thread_data *td,
- 		sprintf(path, "%s", tmp);
- 	}
- 
--	if (td->o.ioscheduler && !td->sysfs_root)
--		td->sysfs_root = strdup(path);
--
- 	return disk_util_add(td, majdev, mindev, path);
- }
- 
-@@ -451,12 +449,8 @@ static struct disk_util *init_per_file_disk_util(struct thread_data *td,
- 			mindev);
- 
- 	du = disk_util_exists(majdev, mindev);
--	if (du) {
--		if (td->o.ioscheduler && !td->sysfs_root)
--			td->sysfs_root = strdup(du->sysfs_root);
--
-+	if (du)
- 		return du;
+-	if (global) {
+-		set_cmd_options(&def_thread);
++	if (global)
+ 		return &def_thread;
 -	}
+ 	if (setup_thread_area()) {
+ 		log_err("error: failed to setup shm segment\n");
+ 		return NULL;
+@@ -492,7 +476,6 @@ static struct thread_data *get_new_job(int global, struct thread_data *parent,
+ 	if (!parent->o.group_reporting || parent == &def_thread)
+ 		stat_number++;
  
- 	/*
- 	 * for an fs without a device, we will repeatedly stat through
-diff --git a/diskutil.h b/diskutil.h
-index ff8a5b0..04fdde2 100644
---- a/diskutil.h
-+++ b/diskutil.h
-@@ -46,7 +46,6 @@ struct disk_util {
- 	 */
- 	struct flist_head slavelist;
- 
--	char *name;
- 	char *sysfs_root;
- 	char path[PATH_MAX];
- 	int major, minor;
-diff --git a/fio.h b/fio.h
-index b2dade9..19ac0af 100644
---- a/fio.h
-+++ b/fio.h
-@@ -205,8 +205,6 @@ struct thread_data {
- 	void *iolog_buf;
- 	FILE *iolog_f;
- 
--	char *sysfs_root;
--
- 	unsigned long rand_seeds[FIO_RAND_NR_OFFS];
- 
- 	struct frand_state bsrange_state;
-@@ -619,6 +617,11 @@ extern int __must_check allocate_io_mem(struct thread_data *);
- extern void free_io_mem(struct thread_data *);
- extern void free_threads_shm(void);
- 
-+#ifdef FIO_INTERNAL
-+#define PTR_ALIGN(ptr, mask)	\
-+	(char *) (((uintptr_t) (ptr) + (mask)) & ~(mask))
-+#endif
-+
- /*
-  * Reset stats after ramp time completes
-  */
-diff --git a/gclient.c b/gclient.c
-index 5ce33d0..928a1b7 100644
---- a/gclient.c
-+++ b/gclient.c
-@@ -48,7 +48,7 @@ static GtkActionEntry results_menu_items[] = {
- 	{ "PrintFile", GTK_STOCK_PRINT, "Print", "<Control>P", NULL, G_CALLBACK(results_print) },
- 	{ "CloseFile", GTK_STOCK_CLOSE, "Close", "<Control>W", NULL, G_CALLBACK(results_close) },
- };
--static gint results_nmenu_items = sizeof(results_menu_items) / sizeof(results_menu_items[0]);
-+static gint results_nmenu_items = ARRAY_SIZE(results_menu_items);
- 
- static const gchar *results_ui_string = " \
- 	<ui> \
-diff --git a/gfio.c b/gfio.c
-index 9ccf78c..9c917cb 100644
---- a/gfio.c
-+++ b/gfio.c
-@@ -1271,7 +1271,7 @@ static GtkActionEntry menu_items[] = {
- 	{ "Quit", GTK_STOCK_QUIT, NULL,   "<Control>Q", NULL, G_CALLBACK(quit_clicked) },
- 	{ "About", GTK_STOCK_ABOUT, NULL,  NULL, NULL, G_CALLBACK(about_dialog) },
- };
--static gint nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
-+static gint nmenu_items = ARRAY_SIZE(menu_items);
- 
- static const gchar *ui_string = " \
- 	<ui> \
-diff --git a/ioengine.h b/ioengine.h
-index 89873e7..7249df6 100644
---- a/ioengine.h
-+++ b/ioengine.h
-@@ -123,7 +123,6 @@ struct io_u {
- 		struct ibv_mr *mr;
- #endif
- 		void *mmap_data;
--		uint64_t null;
- 	};
- };
- 
-diff --git a/lib/memalign.c b/lib/memalign.c
-index cfd6e46..1d1ba9b 100644
---- a/lib/memalign.c
-+++ b/lib/memalign.c
-@@ -3,14 +3,12 @@
- #include <inttypes.h>
- 
- #include "memalign.h"
-+#include "../fio.h"
- 
- struct align_footer {
- 	unsigned int offset;
- };
- 
--#define PTR_ALIGN(ptr, mask)	\
--	(char *) (((uintptr_t) ((ptr) + (mask)) & ~(mask)))
--
- void *fio_memalign(size_t alignment, size_t size)
- {
- 	struct align_footer *f;
-diff --git a/lib/num2str.c b/lib/num2str.c
-index 940d4a5..ed3545d 100644
---- a/lib/num2str.c
-+++ b/lib/num2str.c
-@@ -4,8 +4,6 @@
- 
- #include "../fio.h"
- 
--#define ARRAY_LENGTH(arr)	sizeof(arr) / sizeof((arr)[0])
--
- /**
-  * num2str() - Cheesy number->string conversion, complete with carry rounding error.
-  * @num: quantity (e.g., number of blocks, bytes or bits)
-@@ -75,7 +73,7 @@ char *num2str(uint64_t num, int maxlen, int base, int pow2, int units)
- 
- 	if (modulo == -1U) {
- done:
--		if (post_index >= ARRAY_LENGTH(sistr))
-+		if (post_index >= ARRAY_SIZE(sistr))
- 			post_index = 0;
- 
- 		sprintf(buf, "%llu%s%s", (unsigned long long) num,
-diff --git a/smalloc.c b/smalloc.c
-index d038ac6..e48cfe8 100644
---- a/smalloc.c
-+++ b/smalloc.c
-@@ -13,6 +13,7 @@
- #include <limits.h>
- #include <fcntl.h>
- 
-+#include "fio.h"
- #include "mutex.h"
- #include "arch/arch.h"
- #include "os/os.h"
-@@ -248,7 +249,7 @@ static void *postred_ptr(struct block_hdr *hdr)
- 	uintptr_t ptr;
- 
- 	ptr = (uintptr_t) hdr + hdr->size - sizeof(unsigned int);
--	ptr = (ptr + int_mask) & ~int_mask;
-+	ptr = (uintptr_t) PTR_ALIGN(ptr, int_mask);
- 
- 	return (void *) ptr;
+-	set_cmd_options(td);
+ 	return td;
  }
+ 
+@@ -582,6 +565,17 @@ static unsigned long long get_rand_start_delay(struct thread_data *td)
+ }
+ 
+ /*
++ * <3 Johannes
++ */
++static unsigned int gcd(unsigned int m, unsigned int n)
++{
++	if (!n)
++		return m;
++
++	return gcd(n, m % n);
++}
++
++/*
+  * Lazy way of fixing up options that depend on each other. We could also
+  * define option callback handlers, but this is easier.
+  */
+@@ -756,6 +750,15 @@ static int fixup_options(struct thread_data *td)
+ 			o->verify_interval = o->min_bs[DDIR_WRITE];
+ 		else if (td_read(td) && o->verify_interval > o->min_bs[DDIR_READ])
+ 			o->verify_interval = o->min_bs[DDIR_READ];
++
++		/*
++		 * Verify interval must be a factor or both min and max
++		 * write size
++		 */
++		if (o->verify_interval % o->min_bs[DDIR_WRITE] ||
++		    o->verify_interval % o->max_bs[DDIR_WRITE])
++			o->verify_interval = gcd(o->min_bs[DDIR_WRITE],
++							o->max_bs[DDIR_WRITE]);
+ 	}
+ 
+ 	if (o->pre_read) {
+@@ -1997,7 +2000,6 @@ static void usage(const char *name)
+ 	show_debug_categories();
+ 	printf("  --parse-only\t\tParse options only, don't start any IO\n");
+ 	printf("  --output\t\tWrite output to file\n");
+-	printf("  --runtime\t\tRuntime in seconds\n");
+ 	printf("  --bandwidth-log\tGenerate aggregate bandwidth logs\n");
+ 	printf("  --minimal\t\tMinimal (terse) output\n");
+ 	printf("  --output-format=type\tOutput format (terse,json,json+,normal)\n");
+@@ -2313,13 +2315,6 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ 			smalloc_pool_size <<= 10;
+ 			sinit();
+ 			break;
+-		case 't':
+-			if (check_str_time(optarg, &def_timeout, 1)) {
+-				log_err("fio: failed parsing time %s\n", optarg);
+-				do_exit++;
+-				exit_val = 1;
+-			}
+-			break;
+ 		case 'l':
+ 			log_err("fio: --latency-log is deprecated. Use per-job latency log options.\n");
+ 			do_exit++;
+diff --git a/io_u.c b/io_u.c
+index 7420629..1daaf7b 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -576,10 +576,6 @@ static unsigned int __get_next_buflen(struct thread_data *td, struct io_u *io_u,
+ 			}
+ 		}
+ 
+-		if (td->o.verify != VERIFY_NONE)
+-			buflen = (buflen + td->o.verify_interval - 1) &
+-				~(td->o.verify_interval - 1);
+-
+ 		if (!td->o.bs_unaligned && is_power_of_2(minbs))
+ 			buflen &= ~(minbs - 1);
+ 
+diff --git a/verify.c b/verify.c
+index 8733feb..02cd3a4 100644
+--- a/verify.c
++++ b/verify.c
+@@ -393,7 +393,8 @@ static int verify_io_u_pattern(struct verify_header *hdr, struct vcont *vc)
+ 				(unsigned char)pattern[mod],
+ 				bits);
+ 			log_err("fio: bad pattern block offset %u\n", i);
+-			dump_verify_buffers(hdr, vc);
++			vc->name = "pattern";
++			log_verify_failure(hdr, vc);
+ 			return EILSEQ;
+ 		}
+ 		mod++;
