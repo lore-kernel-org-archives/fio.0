@@ -1,9 +1,9 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 6/6] Fix compile time errors for skeleton_external ioengine
-Date: Mon,  9 Jan 2017 23:42:03 +0900
-Message-Id: <1483972923-13662-6-git-send-email-tkusumi@tuxera.com>
+Subject: [PATCH 2/6] Staticize pmemblk ioengine_ops
+Date: Mon,  9 Jan 2017 23:41:59 +0900
+Message-Id: <1483972923-13662-2-git-send-email-tkusumi@tuxera.com>
 In-Reply-To: <1483972923-13662-1-git-send-email-tkusumi@tuxera.com>
 References: <1483972923-13662-1-git-send-email-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
@@ -12,40 +12,40 @@ List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-though this file is not compiled by default.
+Inbox engines can have static ops.
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- engines/skeleton_external.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ engines/pmemblk.c           | 2 +-
+ engines/skeleton_external.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/engines/pmemblk.c b/engines/pmemblk.c
+index ca72697..5439da0 100644
+--- a/engines/pmemblk.c
++++ b/engines/pmemblk.c
+@@ -482,7 +482,7 @@ static int fio_pmemblk_unlink_file(struct thread_data *td, struct fio_file *f)
+ 	return 0;
+ }
+ 
+-struct ioengine_ops ioengine = {
++static struct ioengine_ops ioengine = {
+ 	.name = "pmemblk",
+ 	.version = FIO_IOOPS_VERSION,
+ 	.queue = fio_pmemblk_queue,
 diff --git a/engines/skeleton_external.c b/engines/skeleton_external.c
-index 5d6a9ed..4bebcc4 100644
+index 63a6f8d..5d6a9ed 100644
 --- a/engines/skeleton_external.c
 +++ b/engines/skeleton_external.c
-@@ -109,11 +109,11 @@ static void fio_skeleton_cleanup(struct thread_data *td)
+@@ -126,7 +126,7 @@ static int fio_skeleton_close(struct thread_data *td, struct fio_file *f)
  
  /*
-  * Hook for opening the given file. Unless the engine has special
-- * needs, it usually just provides generic_file_open() as the handler.
-+ * needs, it usually just provides generic_open_file() as the handler.
+  * Note that the structure is exported, so that fio can get it via
+- * dlsym(..., "ioengine");
++ * dlsym(..., "ioengine"); for (and only for) external engines.
   */
- static int fio_skeleton_open(struct thread_data *td, struct fio_file *f)
- {
--	return generic_file_open(td, f);
-+	return generic_open_file(td, f);
- }
- 
- /*
-@@ -121,7 +121,7 @@ static int fio_skeleton_open(struct thread_data *td, struct fio_file *f)
-  */
- static int fio_skeleton_close(struct thread_data *td, struct fio_file *f)
- {
--	generic_file_close(td, f);
-+	return generic_close_file(td, f);
- }
- 
- /*
+ struct ioengine_ops ioengine = {
+ 	.name		= "engine_name",
 -- 
 2.5.5
 
