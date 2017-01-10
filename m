@@ -1,57 +1,89 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 7/8] Fix bad pointer du->sysfs_root
-Date: Tue, 24 Jan 2017 00:13:10 +0900
-Message-Id: <1485184391-11036-7-git-send-email-tkusumi@tuxera.com>
-In-Reply-To: <1485184391-11036-1-git-send-email-tkusumi@tuxera.com>
-References: <1485184391-11036-1-git-send-email-tkusumi@tuxera.com>
+Subject: [PATCH 4/4] Python style/portability fix
+Date: Wed, 11 Jan 2017 02:39:47 +0900
+Message-Id: <1484069987-13105-4-git-send-email-tkusumi@tuxera.com>
+In-Reply-To: <1484069987-13105-1-git-send-email-tkusumi@tuxera.com>
+References: <1484069987-13105-1-git-send-email-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-There are two call paths for disk_util_add() (usually the second one)
-which assigns ->sysfs_root for a newly allocated disk_util*, but both
-temppath/foo are local char[] within their stack, so strdup/free it.
+In practice, one would normally explicitly derive a class from
+object class (was called new-style class back then).
+https://docs.python.org/release/2.5.2/ref/node33.html
+https://wiki.python.org/moin/NewClassVsClassicClass
 
--> find_add_disk_slaves(...)
-  -> __init_per_file_disk_util(..., temppath)
-    -> disk_util_add(..., path)
-      -> du->sysfs_root = path; /* == &temppath[0] */
+print needs parentheses for portability with Python3.x.
 
--> init_per_file_disk_util(...)
-  -> __init_per_file_disk_util(..., foo)
-    -> disk_util_add(..., path)
-      -> du->sysfs_root = path; /* == &foo[0] */
+xrange() only exists in Python2.x (i.e. breaks on Python3.x).
+Using range() (which pre-allocates a whole list in Python2.x)
+won't be a problem unless len(averages) is huge enough to give
+any pressure to vm subsystem.
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- diskutil.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/fiologparser.py | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/diskutil.c b/diskutil.c
-index 27ddb46..c34841a 100644
---- a/diskutil.c
-+++ b/diskutil.c
-@@ -37,6 +37,7 @@ static void disk_util_free(struct disk_util *du)
- 	}
+diff --git a/tools/fiologparser.py b/tools/fiologparser.py
+index 685f419..5a95009 100755
+--- a/tools/fiologparser.py
++++ b/tools/fiologparser.py
+@@ -45,7 +45,7 @@ def print_full(ctx, series):
+     while (start < ftime):
+         end = ftime if ftime < end else end
+         results = [ts.get_value(start, end) for ts in series]
+-        print "%s, %s" % (end, ', '.join(["%0.3f" % i for i in results]))
++        print("%s, %s" % (end, ', '.join(["%0.3f" % i for i in results])))
+         start += ctx.interval
+         end += ctx.interval
  
- 	fio_mutex_remove(du->lock);
-+	free(du->sysfs_root);
- 	sfree(du);
- }
+@@ -57,7 +57,7 @@ def print_sums(ctx, series):
+     while (start < ftime):
+         end = ftime if ftime < end else end
+         results = [ts.get_value(start, end) for ts in series]
+-        print "%s, %0.3f" % (end, sum(results))
++        print("%s, %0.3f" % (end, sum(results)))
+         start += ctx.interval
+         end += ctx.interval
  
-@@ -305,7 +306,7 @@ static struct disk_util *disk_util_add(struct thread_data *td, int majdev,
- 		return NULL;
- 	}
- 	strncpy((char *) du->dus.name, basename(path), FIO_DU_NAME_SZ - 1);
--	du->sysfs_root = path;
-+	du->sysfs_root = strdup(path);
- 	du->major = majdev;
- 	du->minor = mindev;
- 	INIT_FLIST_HEAD(&du->slavelist);
+@@ -69,7 +69,7 @@ def print_averages(ctx, series):
+     while (start < ftime):
+         end = ftime if ftime < end else end
+         results = [ts.get_value(start, end) for ts in series]
+-        print "%s, %0.3f" % (end, float(sum(results))/len(results))
++        print("%s, %0.3f" % (end, float(sum(results))/len(results)))
+         start += ctx.interval
+         end += ctx.interval
+ 
+@@ -147,11 +147,11 @@ def print_default(ctx, series):
+         end += ctx.interval
+ 
+     total = 0
+-    for i in xrange(0, len(averages)):
++    for i in range(0, len(averages)):
+         total += averages[i]*weights[i]
+-    print '%0.3f' % (total/sum(weights))
++    print('%0.3f' % (total/sum(weights)))
+  
+-class TimeSeries():
++class TimeSeries(object):
+     def __init__(self, ctx, fn):
+         self.ctx = ctx
+         self.last = None 
+@@ -185,7 +185,7 @@ class TimeSeries():
+             value += sample.get_contribution(start, end)
+         return value
+ 
+-class Sample():
++class Sample(object):
+     def __init__(self, ctx, start, end, value):
+        self.ctx = ctx
+        self.start = start
 -- 
 2.5.5
 
