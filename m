@@ -1,93 +1,126 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:64083 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752828AbdACPrl (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 3 Jan 2017 10:47:41 -0500
-Subject: Re: [PATCH v2] fio: add device dax engine
-References: <148115127004.159869.15069122701228994037.stgit@djiang5-desk3.ch.intel.com>
- <DF4PR84MB01692BD912B381B8B9BDE3ADAB930@DF4PR84MB0169.NAMPRD84.PROD.OUTLOOK.COM>
-From: Dave Jiang <dave.jiang@intel.com>
-Message-ID: <c33c6bb4-519f-d7d6-1450-a15e38a03238@intel.com>
-Date: Tue, 3 Jan 2017 08:42:46 -0700
-MIME-Version: 1.0
-In-Reply-To: <DF4PR84MB01692BD912B381B8B9BDE3ADAB930@DF4PR84MB0169.NAMPRD84.PROD.OUTLOOK.COM>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Received: from g9t1613g.houston.hpe.com ([15.241.32.99]:15700 "EHLO
+        g9t1613g.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752416AbdAJVRx (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 10 Jan 2017 16:17:53 -0500
+Received: from g2t2354.austin.hpe.com (g2t2354.austin.hpe.com [15.233.44.27])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by g9t1613g.houston.hpe.com (Postfix) with ESMTPS id 560BE606BB
+        for <fio@vger.kernel.org>; Tue, 10 Jan 2017 21:17:52 +0000 (UTC)
+Received: from g2t2360.austin.hpecorp.net (g2t2360.austin.hpecorp.net [16.196.225.135])
+        by g2t2354.austin.hpe.com (Postfix) with ESMTP id 56AA14E
+        for <fio@vger.kernel.org>; Tue, 10 Jan 2017 21:17:51 +0000 (UTC)
+From: Robert Elliott <elliott@hpe.com>
+Subject: [PATCH v2 4/4] pmemblk: Clarify fsize is in MiB not MB
+Date: Tue, 10 Jan 2017 15:21:27 -0600
+Message-Id: <20170110212127.64926-4-elliott@hpe.com>
+In-Reply-To: <20170110212127.64926-1-elliott@hpe.com>
+References: <20170104065453.15106-1-elliott@hpe.com>
+ <20170110212127.64926-1-elliott@hpe.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: "ross.zwisler@linux.intel.com" <ross.zwisler@linux.intel.com>, "Williams, Dan J" <dan.j.williams@intel.com>
+To: fio@vger.kernel.org
+Cc: Robert Elliott <elliott@hpe.com>
 
+From: Robert Elliott <elliott@hpe.com>
 
+Clarify that the FSIZE argument is in MiB (power of 2) rather
+than MB (power of 10) in comments and variable names.
+---
+ engines/pmemblk.c | 31 ++++++++++++++++++++-----------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
 
-On 12/20/2016 05:33 PM, Elliott, Robert (Persistent Memory) wrote:
-> 
-> 
->> -----Original Message-----
->> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
->> Behalf Of Dave Jiang
->> Sent: Wednesday, December 07, 2016 4:55 PM
->> Subject: [PATCH v2] fio: add device dax engine
->>
-> ...
->> +static int fio_devdax_init(struct thread_data *td)
->> +{
->> +struct thread_options *o = &td->o;
->> +const char *path;
->> +void *dl;
->> +
->> +if ((o->rw_min_bs & page_mask) &&
->> +    (o->fsync_blocks || o->fdatasync_blocks)) {
->> +log_err("fio: mmap options dictate a minimum block size
->> of "
->> +"%llu bytes\n", (unsigned long long) page_size);
->> +return 1;
->> +}
->> +
->> +path = getenv("FIO_PMEM_LIB");
->> +if (!path)
->> +path = "libpmem.so";
->> +
->> +dl = dlopen(path, RTLD_NOW | RTLD_NODELETE);
->> +if (!dl) {
->> +log_err("fio: unable to open libpmem: %s\n", dlerror());
->> +return 1;
->> +}
-> 
-> Should that open libpmem.so.1 rather than libpmem.so? (same question
-> for the pmemblk engine)
+diff --git a/engines/pmemblk.c b/engines/pmemblk.c
+index 7c609cf..c70015b 100644
+--- a/engines/pmemblk.c
++++ b/engines/pmemblk.c
+@@ -27,11 +27,11 @@
+  *   ioengine=pmemblk
+  *
+  * Other relevant settings:
++ *   thread=1   REQUIRED
+  *   iodepth=1
+  *   direct=1
+- *   thread=1   REQUIRED
+  *   unlink=1
+- *   filename=/pmem0/fiotestfile,BSIZE,FSIZEMB
++ *   filename=/mnt/pmem0/fiotestfile,BSIZE,FSIZEMiB
+  *
+  *   thread must be set to 1 for pmemblk as multiple processes cannot
+  *     open the same block pool file.
+@@ -39,14 +39,23 @@
+  *   iodepth should be set to 1 as pmemblk is always synchronous.
+  *   Use numjobs to scale up.
+  *
+- *   direct=1 is implied as pmemblk is always direct.
++ *   direct=1 is implied as pmemblk is always direct. A warning message
++ *   is printed if this is not specified.
++ *
++ *   unlink=1 removes the block pool file after testing, and is optional.
++ *
++ *   The pmem device must have a DAX-capable filesystem and be mounted
++ *   with DAX enabled.  filename must point to a file on that filesystem.
+  *
+- *   Can set unlink to 1 to remove the block pool file after testing.
++ *   Example:
++ *     mkfs.xfs /dev/pmem0
++ *     mkdir /mnt/pmem0
++ *     mount -o dax /dev/pmem0 /mnt/pmem0
+  *
+  *   When specifying the filename, if the block pool file does not already
+- *   exist, then the pmemblk engine can create the pool file if you specify
++ *   exist, then the pmemblk engine creates the pool file if you specify
+  *   the block and file sizes.  BSIZE is the block size in bytes.
+- *   FSIZEMB is the pool file size in MB.
++ *   FSIZEMB is the pool file size in MiB.
+  *
+  *   See examples/pmemblk.fio for more.
+  *
+@@ -128,7 +137,7 @@ static void fio_pmemblk_cache_remove(fio_pmemblk_file_t pmb)
+  * level, we allow the block size and file size to be appended
+  * to the file name:
+  *
+- *   path[,bsize,fsizemb]
++ *   path[,bsize,fsizemib]
+  *
+  * note that we do not use the fio option "filesize" to dictate
+  * the file size because we can only give libpmemblk the gross
+@@ -138,7 +147,7 @@ static void fio_pmemblk_cache_remove(fio_pmemblk_file_t pmb)
+  * the final path without the parameters is returned in ppath.
+  * the block size and file size are returned in pbsize and fsize.
+  *
+- * note that the user should specify the file size in MiB, but
++ * note that the user specifies the file size in MiB, but
+  * we return bytes from here.
+  */
+ static void pmb_parse_path(const char *pathspec, char **ppath, uint64_t *pbsize,
+@@ -147,7 +156,7 @@ static void pmb_parse_path(const char *pathspec, char **ppath, uint64_t *pbsize,
+ 	char *path;
+ 	char *s;
+ 	uint64_t bsize;
+-	uint64_t fsizemb;
++	uint64_t fsizemib;
+ 
+ 	path = strdup(pathspec);
+ 	if (!path) {
+@@ -157,14 +166,14 @@ static void pmb_parse_path(const char *pathspec, char **ppath, uint64_t *pbsize,
+ 
+ 	/* extract sizes, if given */
+ 	s = strrchr(path, ',');
+-	if (s && (fsizemb = strtoull(s + 1, NULL, 10))) {
++	if (s && (fsizemib = strtoull(s + 1, NULL, 10))) {
+ 		*s = 0;
+ 		s = strrchr(path, ',');
+ 		if (s && (bsize = strtoull(s + 1, NULL, 10))) {
+ 			*s = 0;
+ 			*ppath = path;
+ 			*pbsize = bsize;
+-			*pfsize = fsizemb << 20;
++			*pfsize = fsizemib << 20;
+ 			return;
+ 		}
+ 	}
+-- 
+2.9.3
 
-Hmmm....should we look for either? I have not encountered this issue on
-my F25 install.
-
-> 
-> Although my upstream nvml Makefile installs a libpmem.so symbolic link,
-> it looks like some or all of the distro packages (e.g. Fedora 25 and
-> SUSE Linux  Enterprise Server 12 SP2) are just installing so.1
-> symbolic links.  So, fio fails to find the library.
-> 
-> If I understand the version conventions correctly, including .1 would
-> ensure ABI compatibility.
-> 
-> distro library *pmem* files:
-> /usr/lib64/libpmemblk.so.1      /usr/lib64/libpmemobj.so.1
-> /usr/lib64/libpmemblk.so.1.0.0  /usr/lib64/libpmemobj.so.1.0.0
-> /usr/lib64/libpmemlog.so.1      /usr/lib64/libpmem.so.1
-> /usr/lib64/libpmemlog.so.1.0.0  /usr/lib64/libpmem.so.1.0.0
-> 
-> vs. upstream nvml installation:
-> /lib64/libpmem.a            /lib64/libpmemlog.so.1.0.0
-> /lib64/libpmemblk.a         /lib64/libpmemobj.a
-> /lib64/libpmemblk.so        /lib64/libpmemobj.so
-> /lib64/libpmemblk.so.1      /lib64/libpmemobj.so.1
-> /lib64/libpmemblk.so.1.0.0  /lib64/libpmemobj.so.1.0.0
-> /lib64/libpmemlog.a         /lib64/libpmem.so
-> /lib64/libpmemlog.so        /lib64/libpmem.so.1
-> /lib64/libpmemlog.so.1      /lib64/libpmem.so.1.0.0
-> 
-> 
-> ---
-> Robert Elliott, HPE Persistent Memory
-> 
-> 
-> 
