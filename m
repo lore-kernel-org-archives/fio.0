@@ -1,132 +1,78 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:33062 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754799AbdA0NAF (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 27 Jan 2017 08:00:05 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1cX68K-00077x-MG
-        for fio@vger.kernel.org; Fri, 27 Jan 2017 13:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170127130002.5F5F42C0167@kernel.dk>
-Date: Fri, 27 Jan 2017 06:00:02 -0700 (MST)
+Received: from g9t1613g.houston.hpe.com ([15.241.32.99]:15697 "EHLO
+        g9t1613g.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752416AbdAJVRu (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 10 Jan 2017 16:17:50 -0500
+Received: from g2t2354.austin.hpe.com (g2t2354.austin.hpe.com [15.233.44.27])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by g9t1613g.houston.hpe.com (Postfix) with ESMTPS id 637D2606BB
+        for <fio@vger.kernel.org>; Tue, 10 Jan 2017 21:17:49 +0000 (UTC)
+Received: from g2t2360.austin.hpecorp.net (g2t2360.austin.hpecorp.net [16.196.225.135])
+        by g2t2354.austin.hpe.com (Postfix) with ESMTP id 7B22650
+        for <fio@vger.kernel.org>; Tue, 10 Jan 2017 21:17:48 +0000 (UTC)
+From: Robert Elliott <elliott@hpe.com>
+Subject: [PATCH v2 2/4] pmemblk, dev-dax: Update descriptions
+Date: Tue, 10 Jan 2017 15:21:25 -0600
+Message-Id: <20170110212127.64926-2-elliott@hpe.com>
+In-Reply-To: <20170110212127.64926-1-elliott@hpe.com>
+References: <20170104065453.15106-1-elliott@hpe.com>
+ <20170110212127.64926-1-elliott@hpe.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
+Cc: Robert Elliott <elliott@hpe.com>
 
-The following changes since commit bd4d9bdc5097c3b35b5172508e1a2828296e01c2:
+From: Robert Elliott <elliott@hpe.com>
 
-  Remove/Move Linux specific sysfs_root field from thread_data (2017-01-23 08:26:12 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to f0ac17190989b4ada1d4d74be8d7a4ef3a76dfbb:
-
-  Merge branch 'shm_rm' of https://github.com/sitsofe/fio (2017-01-26 10:07:48 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (2):
-      Merge branch 'sphinx-doc' of https://github.com/termim/fio
-      Merge branch 'shm_rm' of https://github.com/sitsofe/fio
-
-Mikhail Terekhov (1):
-      fix manpage heading issue
-
-Sitsofe Wheeler (1):
-      shm: have os remove shared memory if fio dies unexpectedly
-
- doc/fio_man.rst   | 3 ++-
- init.c            | 3 +++
- os/os-dragonfly.h | 2 ++
- os/os-freebsd.h   | 3 +++
- os/os-linux.h     | 1 +
- os/os-openbsd.h   | 3 +++
- 6 files changed, 14 insertions(+), 1 deletion(-)
-
+Make the descriptions of the pmemblk and dev-dax ioengines
+more symmetric.
 ---
+ HOWTO | 10 ++++++----
+ fio.1 |  6 ++++--
+ 2 files changed, 10 insertions(+), 6 deletions(-)
 
-Diff of recent changes:
+diff --git a/HOWTO b/HOWTO
+index 4354e46..9e1ffa6 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -903,11 +903,13 @@ ioengine=str	Defines how the job issues io to the file. The following
+ 				overwriting. The writetrim mode works well
+ 				for this constraint.
+ 
+-			pmemblk	Read and write through the NVML libpmemblk
+-				interface.
++			pmemblk	Read and write using filesystem DAX to a file
++				on a filesystem mounted with DAX on a persistent
++				memory device through the NVML libpmemblk library.
+ 
+-			dev-dax Read and write through a DAX device exposed
+-				from persistent memory.
++			dev-dax Read and write using device DAX to a persistent
++				memory device (e.g., /dev/dax0.0) through the
++				NVML libpmem library.
+ 
+ 			external Prefix to specify loading an external
+ 				IO engine object file. Append the engine
+diff --git a/fio.1 b/fio.1
+index f486276..56f2d11 100644
+--- a/fio.1
++++ b/fio.1
+@@ -811,10 +811,12 @@ and discarding before overwriting. The trimwrite mode works well for this
+ constraint.
+ .TP
+ .B pmemblk
+-Read and write through the NVML libpmemblk interface.
++Read and write using filesystem DAX to a file on a filesystem mounted with
++DAX on a persistent memory device through the NVML libpmemblk library.
+ .TP
+ .B dev-dax
+-Read and write through a DAX device exposed from persistent memory.
++Read and write using device DAX to a persistent memory device
++(e.g., /dev/dax0.0) through the NVML libpmem library.
+ .RE
+ .P
+ .RE
+-- 
+2.9.3
 
-diff --git a/doc/fio_man.rst b/doc/fio_man.rst
-index 7eae05e..c6a6438 100644
---- a/doc/fio_man.rst
-+++ b/doc/fio_man.rst
-@@ -1,6 +1,7 @@
- :orphan:
- 
--
-+Fio Manpage
-+===========
- 
- (rev. |release|)
- 
-diff --git a/init.c b/init.c
-index c3cc3e5..34ed20f 100644
---- a/init.c
-+++ b/init.c
-@@ -356,6 +356,9 @@ static int setup_thread_area(void)
- 		perror("shmat");
- 		return 1;
- 	}
-+#ifdef FIO_HAVE_SHM_ATTACH_REMOVED
-+	shmctl(shm_id, IPC_RMID, NULL);
-+#endif
- #endif
- 
- 	memset(threads, 0, max_jobs * sizeof(struct thread_data));
-diff --git a/os/os-dragonfly.h b/os/os-dragonfly.h
-index c799817..5e94855 100644
---- a/os/os-dragonfly.h
-+++ b/os/os-dragonfly.h
-@@ -24,6 +24,8 @@
- #define FIO_HAVE_GETTID
- #define FIO_HAVE_CPU_AFFINITY
- #define FIO_HAVE_IOPRIO
-+/* Only have attach-to-open-removed when kern.ipc.shm_allow_removed is 1 */
-+#undef  FIO_HAVE_SHM_ATTACH_REMOVED
- 
- #define OS_MAP_ANON		MAP_ANON
- 
-diff --git a/os/os-freebsd.h b/os/os-freebsd.h
-index ac408c9..aa90954 100644
---- a/os/os-freebsd.h
-+++ b/os/os-freebsd.h
-@@ -22,6 +22,9 @@
- #define FIO_HAVE_TRIM
- #define FIO_HAVE_GETTID
- #define FIO_HAVE_CPU_AFFINITY
-+/* Only have attach-to-open-removed when kern.ipc.shm_allow_removed is 1 */
-+#undef  FIO_HAVE_SHM_ATTACH_REMOVED
-+
- 
- #define OS_MAP_ANON		MAP_ANON
- 
-diff --git a/os/os-linux.h b/os/os-linux.h
-index 06235ab..1829829 100644
---- a/os/os-linux.h
-+++ b/os/os-linux.h
-@@ -41,6 +41,7 @@
- #define FIO_HAVE_GETTID
- #define FIO_USE_GENERIC_INIT_RANDOM_STATE
- #define FIO_HAVE_PWRITEV2
-+#define FIO_HAVE_SHM_ATTACH_REMOVED
- 
- #ifdef MAP_HUGETLB
- #define FIO_HAVE_MMAP_HUGE
-diff --git a/os/os-openbsd.h b/os/os-openbsd.h
-index 3343cbd..4700572 100644
---- a/os/os-openbsd.h
-+++ b/os/os-openbsd.h
-@@ -25,6 +25,9 @@
- 
- #undef	FIO_HAVE_CPU_AFFINITY	/* XXX notyet */
- 
-+/* Only OpenBSD 5.1 and above have attach-to-open-removed semantics */
-+#undef  FIO_HAVE_SHM_ATTACH_REMOVED
-+
- #define OS_MAP_ANON		MAP_ANON
- 
- #ifndef PTHREAD_STACK_MIN
