@@ -1,210 +1,351 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:38668 "EHLO
-        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750732AbdAWQ1X (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 23 Jan 2017 11:27:23 -0500
-Received: by mail-wm0-f54.google.com with SMTP id r144so163804719wme.1
-        for <fio@vger.kernel.org>; Mon, 23 Jan 2017 08:26:51 -0800 (PST)
-Received: from [192.168.1.211] (ppp-212-114-239-131.dynamic.mnet-online.de. [212.114.239.131])
-        by smtp.googlemail.com with ESMTPSA id q4sm15482278wrc.35.2017.01.23.08.26.48
-        for <fio@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 23 Jan 2017 08:26:49 -0800 (PST)
-From: Tobias Oberstein <tobias.oberstein@gmail.com>
-Subject: 4x lower IOPS: Linux MD vs indiv. devices - why?
-Message-ID: <90865544-f790-513c-97df-7e6a6af20ca8@gmail.com>
-Date: Mon, 23 Jan 2017 17:26:48 +0100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: base64
+Received: from bombadil.infradead.org ([198.137.202.9]:37390 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933649AbdAKNAE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 11 Jan 2017 08:00:04 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1cRIVX-0002Bw-VE
+        for fio@vger.kernel.org; Wed, 11 Jan 2017 13:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170111130002.743782C1D77@kernel.dk>
+Date: Wed, 11 Jan 2017 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-SGksDQoNCkkgaGF2ZSBhIHF1ZXN0aW9uIHJnZCBMaW51eCBzb2Z0d2FyZSBSQUlEIChNRCkg
-YXMgdGVzdGVkIHdpdGggRklPIC0gc28gDQp0aGlzIGlzIHNsaWdodGx5IE9ULCBidXQgSSBh
-bSBob3BpbmcgZm9yIGV4cGVydCBhZHZpY2Ugb3IgcmVkaXJlY3Rpb24gdG8gDQphIG1vcmUg
-YXBwcm9wcmlhdGUgcGxhY2UgKGlmIHRoaXMgaXMgdW53ZWxjb21lIGhlcmUpLg0KDQpJIGhh
-dmUgYSBib3ggd2l0aCB0aGlzIEhXOg0KDQotIDg4IGNvcmVzIFhlb24gRTcgKDE3NiBIVHMp
-ICsgM1RCIFJBTQ0KLSA4IHggSW50ZWwgUDM2MDggNFRCIE5WTWUgKHdoaWNoIGlzIGxvZ2lj
-YWxsIDE2IE5WTWVzKQ0KDQpXaXRoIHJhbmRvbSA0a0IgcmVhZCBsb2FkLCBJIGFtIGFibGUg
-dG8gbWF4IGl0IG91dCBhdCA3IG1pbGxpb24gSU9QUyAtIA0KYnV0IG9ubHkgaWYgSSBydW4g
-RklPIG9uIHRoZSBfaW5kaXZpZHVhbF8gTlZNZSBkZXZpY2VzLg0KDQpbZ2xvYmFsXQ0KZ3Jv
-dXBfcmVwb3J0aW5nDQpmaWxlbmFtZT0vZGV2L252bWUwbjE6L2Rldi9udm1lMW4xOi9kZXYv
-bnZtZTJuMTovZGV2L252bWUzbjE6L2Rldi9udm1lNG4xOi9kZXYvbnZtZTVuMTovZGV2L252
-bWU2bjE6L2Rldi9udm1lN24xOi9kZXYvbnZtZThuMTovZGV2L252bWU5bjE6L2Rldi9udm1l
-MTBuMTovZGV2L252bWUxMW4xOi9kZXYvbnZtZTEybjE6L2Rldi9udm1lMTNuMTovZGV2L252
-bWUxNG4xOi9kZXYvbnZtZTE1bjENCnNpemU9MzBHDQppb2VuZ2luZT1zeW5jDQppb2RlcHRo
-PTENCnRocmVhZD0xDQpkaXJlY3Q9MQ0KdGltZV9iYXNlZD0xDQpyYW5kcmVwZWF0PTANCm5v
-cmFuZG9tbWFwPTENCmJzPTRrDQpydW50aW1lPTEyMA0KDQpbcmFuZHJlYWRdDQpzdG9uZXdh
-bGwNCnJ3PXJhbmRyZWFkDQpudW1qb2JzPTI1NjANCg0KV2hlbiBJIGNyZWF0ZSBhIHN0cmlw
-ZSBzZXQgb3ZlciBhbGwgZGV2aWNlczoNCg0Kc3VkbyBtZGFkbSAtLWNyZWF0ZSAvZGV2L21k
-MSAtLWNodW5rPTggLS1sZXZlbD0wIC0tcmFpZC1kZXZpY2VzPTE2IFwNCiAgICAvZGV2L252
-bWUwbjEgXA0KICAgIC9kZXYvbnZtZTFuMSBcDQogICAgL2Rldi9udm1lMm4xIFwNCiAgICAv
-ZGV2L252bWUzbjEgXA0KICAgIC9kZXYvbnZtZTRuMSBcDQogICAgL2Rldi9udm1lNW4xIFwN
-CiAgICAvZGV2L252bWU2bjEgXA0KICAgIC9kZXYvbnZtZTduMSBcDQogICAgL2Rldi9udm1l
-OG4xIFwNCiAgICAvZGV2L252bWU5bjEgXA0KICAgIC9kZXYvbnZtZTEwbjEgXA0KICAgIC9k
-ZXYvbnZtZTExbjEgXA0KICAgIC9kZXYvbnZtZTEybjEgXA0KICAgIC9kZXYvbnZtZTEzbjEg
-XA0KICAgIC9kZXYvbnZtZTE0bjEgXA0KICAgIC9kZXYvbnZtZTE1bjENCg0KSSBvbmx5IGdl
-dCAxLjYgbWlsbGlvbiBJT1BTLiBEZXRhaWwgcmVzdWx0cyBkb3duIGJlbG93Lg0KDQpOb3Rl
-OiB0aGUgYXJyYXkgaXMgY3JlYXRlZCB3aXRoIGNodW5rIHNpemUgOEsgYmVjYXVzZSB0aGlz
-IGlzIGZvciANCmRhdGFiYXNlIHdvcmtsb2FkLiBIZXJlIEkgdGVzdGVkIHdpdGggNGsgYmxv
-Y2sgc2l6ZSwgYnV0IHRoZSBpdCdzIA0Kc2ltaWxhciAobG93ZXIgcGVyZiBvbiBNRCkgd2l0
-aCA4aw0KDQpBbnkgaGVscHMgb3IgaGludHMgd291bGQgYmUgZ3JlYXRseSBhcHByZWNpYXRl
-ZCENCg0KQ2hlZXJzLA0KL1RvYmlhcw0KDQoNCg0KNyBtaWxsaW9uIElPUFMgb24gcmF3LCBp
-bmRpdmlkdWFsIE5WTWUgZGV2aWNlcw0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PQ0KDQpvYmVyc3RldEBzdnItcHNxbDE5On4vc2NtL3BhcmNpdC9S
-QS9hZHIvc3lzdGVtL2RvY3MkIHN1ZG8gDQovb3B0L2Zpby9iaW4vZmlvIHBvc3RncmVzcWxf
-c3RvcmFnZV93b3JrbG9hZC5maW8NCnJhbmRyZWFkOiAoZz0wKTogcnc9cmFuZHJlYWQsIGJz
-PTQwOTZCLTQwOTZCLDQwOTZCLTQwOTZCLDQwOTZCLTQwOTZCLCANCmlvZW5naW5lPXN5bmMs
-IGlvZGVwdGg9MQ0KLi4uDQpmaW8tMi4xNy0xNy1nOWNmMQ0KU3RhcnRpbmcgMjU2MCB0aHJl
-YWRzDQpKb2JzOiAyMzY3IChmPTI5ODk2KTogDQpbXygyKSxmKDMpLF8oMiksZigxMSksXygy
-KSxmKDIpLF8oOSksZigxKSxfKDEpLGYoMSksXygzKSxmKDEpLF8oMSksZigxKSxfKDEzKSxm
-KDEpLF8oOCksZigxKSxfKDEpLGYoNCksXygyKSxmKDEpLF8oMSksZigxKSxfKDMpLGYoMiks
-XygzKSxmKDMpLF8oOCksZigyKSxfKDEpLGYoMyksXygzKSxmKDYwKSxfKDEpLGYoMjApLF8o
-MSksZigzMyksXygxKSxmKDE0KSxfKDEpLGYoMTgpLF8oNCksZig2KSxfKDEpLGYoNiksXygx
-KSxmKDEpLF8oMSksZigxKSxfKDEpLGYoNCksXygxKSxmKDIpLF8oMSksZigxMSksXygxKSxm
-KDExKSxfKDQpLGYoNzQpLF8oMSksZig4KSxfKDEpLGYoMTEpLF8oMSksZig4KSxfKDEpLGYo
-NjEpLF8oMSksZigzOCksXygxKSxmKDMxKSxfKDEpLGYoNSksXygxKSxmKDEwMyksXygxKSxm
-KDI0KSxFKDEpLGYoMjcpLF8oMSksZigyOCksXygxKSxmKDEpLF8oMSksZigxMzQpLF8oMSks
-Zig2MiksXygxKSxmKDQ4KSxfKDEpLGYoMjcpLF8oMSksZig1OSksXygxKSxmKDMwKSxfKDEp
-LGYoMTQpLF8oMSksZigyNSksXygxKSxmKDIpLF8oMSksZigyNSksXygxKSxmKDMxKSxfKDEp
-LGYoOSksXygxKSxmKDcpLF8oMSksZig4KSxfKDEpLGYoMTMpLF8oMSksZigyOCksXygxKSxm
-KDcpLF8oMSksZig4NCksXygxKSxmKDQyKSxfKDEpLGYoNSksXygxKSxmKDgpLF8oMSksZigy
-MCksXygxKSxmKDE1KSxfKDEpLGYoMTkpLF8oMSksZigzKSxfKDEpLGYoMTkpLF8oMSksZig3
-KSxfKDEpLGYoMTcpLF8oMSksZigzNCksXygxKSxmKDEpLF8oMSksZig0KSxfKDEpLGYoMSks
-XygxKSxmKDEpLF8oMiksZigzKSxfKDEpLGYoMSksXygxKSxmKDEpLF8oMSksZig4KSxfKDEp
-LGYoNiksXygxKSxmKDMpLF8oMSksZigzKSxfKDEpLGYoNTMpLF8oMSksZig3KSxfKDEpLGYo
-MTkpLF8oMSksZig2KSxfKDEpLGYoNSksXygxKSxmKDIyKSxfKDEpLGYoMTEpLF8oMSksZigx
-MiksXygxKSxmKDMpLF8oMSksZigxNiksXygxKSxmKDE0OSksXygxKSxmKDIwKSxfKDEpLGYo
-MjcpLF8oMSksZig3KSxfKDEpLGYoMjkpLF8oMSksZigyKSxfKDEpLGYoMTEpLF8oMSksZig0
-NiksXygxKSxmKDgpLF8oMiksZigxKSxfKDEpLGYoMSksXygxKSxmKDE0KSxFKDEpLGYoNCks
-XygxKSxmKDIyKSxfKDEpLGYoMTEpLF8oMSksZig3MCksXygyKSxmKDExKSxfKDEpLGYoMiks
-XygxKSxmKDEpLF8oMSksZigxKSxfKDEpLGYoMjEpLF8oMSksZig4KSxfKDEpLGYoNCksXygx
-KSxmKDQ1KSxfKDIpLGYoMSksXygxKSxmKDE4KSxfKDEpLGYoMTIpLF8oMSksZig2KSxfKDEp
-LGYoNSksXygxKSxmKDI3KSxfKDEpLGYoMyksXygxKSxmKDMpLF8oMSksZigxOSksXygxKSxm
-KDQpLF8oMSksZigyNSksXygxKSxmKDQpLF8oMSksZigxKSxfKDEpLGYoMiksXygxKSxmKDEp
-LF8oMSksZigxMyksXygxKSxmKDE4KSxfKDEpLGYoMSksXygxKSxmKDEpLF8oMSksZigyOSks
-XygxKSxmKDI3KV1bMTAwLjAlXVtyPTIxLjFHaUIvcyx3PTBLaUIvc11bcj01NzUxayx3PTAg
-DQpJT1BTXVtldGEgMDBtOjAwc10NCnJhbmRyZWFkOiAoZ3JvdXBpZD0wLCBqb2JzPTI1NjAp
-OiBlcnI9IDA6IHBpZD0xMTQ0MzU6IE1vbiBKYW4gMjMgDQoxNTo0NzoxNyAyMDE3DQogICAg
-cmVhZDogSU9QUz02OTY1aywgQlc9MjYuNkdpQi9zICgyOC42R0IvcykoMzE4OUdpQi8xMjAw
-MDdtc2VjKQ0KICAgICBjbGF0ICh1c2VjKTogbWluPTM4LCBtYXg9MzMyNjIsIGF2Zz0zNjAu
-MTEsIHN0ZGV2PTQ2NS4zNg0KICAgICAgbGF0ICh1c2VjKTogbWluPTM4LCBtYXg9MzMyNjIs
-IGF2Zz0zNjAuMjAsIHN0ZGV2PTQ2NS40MA0KICAgICBjbGF0IHBlcmNlbnRpbGVzICh1c2Vj
-KToNCiAgICAgIHwgIDEuMDB0aD1bICAxMTRdLCAgNS4wMHRoPVsgIDEzNV0sIDEwLjAwdGg9
-WyAgMTQ5XSwgMjAuMDB0aD1bICAxNzFdLA0KICAgICAgfCAzMC4wMHRoPVsgIDE5MV0sIDQw
-LjAwdGg9WyAgMjEzXSwgNTAuMDB0aD1bICAyMzldLCA2MC4wMHRoPVsgIDI3MF0sDQogICAg
-ICB8IDcwLjAwdGg9WyAgMzE0XSwgODAuMDB0aD1bICAzNzhdLCA5MC4wMHRoPVsgIDU1Nl0s
-IDk1LjAwdGg9WyAgOTgwXSwNCiAgICAgIHwgOTkuMDB0aD1bIDI3MDRdLCA5OS41MHRoPVsg
-MzMxMl0sIDk5LjkwdGg9WyA0NTc2XSwgOTkuOTV0aD1bIDUyMTZdLA0KICAgICAgfCA5OS45
-OXRoPVsgODA5Nl0NCiAgICAgbGF0ICh1c2VjKSA6IDUwPTAuMDElLCAxMDA9MC4xMSUsIDI1
-MD01My43NSUsIDUwMD0zNC4yMyUsIDc1MD01LjIzJQ0KICAgICBsYXQgKHVzZWMpIDogMTAw
-MD0xLjc5JQ0KICAgICBsYXQgKG1zZWMpIDogMj0yLjg4JSwgND0xLjgxJSwgMTA9MC4yMCUs
-IDIwPTAuMDElLCA1MD0wLjAxJQ0KICAgY3B1ICAgICAgICAgIDogdXNyPTAuNjMlLCBzeXM9
-NC44OSUsIGN0eD04Mzc0MzQ0MDAsIG1hamY9MCwgbWluZj0yNTU3DQogICBJTyBkZXB0aHMg
-ICAgOiAxPTEwMC4wJSwgMj0wLjAlLCA0PTAuMCUsIDg9MC4wJSwgMTY9MC4wJSwgMzI9MC4w
-JSwgDQogPj02ND0wLjAlDQogICAgICBzdWJtaXQgICAgOiAwPTAuMCUsIDQ9MTAwLjAlLCA4
-PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsIDY0PTAuMCUsIA0KID49NjQ9MC4wJQ0KICAgICAg
-Y29tcGxldGUgIDogMD0wLjAlLCA0PTEwMC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAl
-LCA2ND0wLjAlLCANCiA+PTY0PTAuMCUNCiAgICAgIGlzc3VlZCByd3Q6IHRvdGFsPTgzNTg1
-MjI2NiwwLDAsIHNob3J0PTAsMCwwLCBkcm9wcGVkPTAsMCwwDQogICAgICBsYXRlbmN5ICAg
-OiB0YXJnZXQ9MCwgd2luZG93PTAsIHBlcmNlbnRpbGU9MTAwLjAwJSwgZGVwdGg9MQ0KDQpS
-dW4gc3RhdHVzIGdyb3VwIDAgKGFsbCBqb2JzKToNCiAgICBSRUFEOiBidz0yNi42R2lCL3Mg
-KDI4LjZHQi9zKSwgMjYuNkdpQi9zLTI2LjZHaUIvcyANCigyOC42R0Ivcy0yOC42R0Ivcyks
-IGlvPTMxODlHaUIgKDM0MjRHQiksIHJ1bj0xMjAwMDctMTIwMDA3bXNlYw0KDQpEaXNrIHN0
-YXRzIChyZWFkL3dyaXRlKToNCiAgIG52bWUwbjE6IGlvcz01MjE5MTM3Ny8wLCBtZXJnZT0w
-LzAsIHRpY2tzPTE0NDAwNTY4LzAsIA0KaW5fcXVldWU9MTQ4MDI0MDAsIHV0aWw9MTAwLjAw
-JQ0KICAgbnZtZTFuMTogaW9zPTUyMjQxNjg0LzAsIG1lcmdlPTAvMCwgdGlja3M9MTM5MTk3
-NDQvMCwgDQppbl9xdWV1ZT0xNTEwMTI3NiwgdXRpbD0xMDAuMDAlDQogICBudm1lMm4xOiBp
-b3M9NTIyNDE1MzcvMCwgbWVyZ2U9MC8wLCB0aWNrcz0xMTE0Njk1Mi8wLCANCmluX3F1ZXVl
-PTEyMDUzMTEyLCB1dGlsPTEwMC4wMCUNCiAgIG52bWUzbjE6IGlvcz01MjI0MTQxNi8wLCBt
-ZXJnZT0wLzAsIHRpY2tzPTEwODA2NjI0LzAsIA0KaW5fcXVldWU9MTExMzUwMDQsIHV0aWw9
-MTAwLjAwJQ0KICAgbnZtZTRuMTogaW9zPTUyMjQxMjg1LzAsIG1lcmdlPTAvMCwgdGlja3M9
-MTkzMjA0NDgvMCwgDQppbl9xdWV1ZT0yMTA3OTU3NiwgdXRpbD0xMDAuMDAlDQogICBudm1l
-NW4xOiBpb3M9NTIyNDExNDIvMCwgbWVyZ2U9MC8wLCB0aWNrcz0xODc4Njk2OC8wLCANCmlu
-X3F1ZXVlPTE5MzkzMDI0LCB1dGlsPTEwMC4wMCUNCiAgIG52bWU2bjE6IGlvcz01MjI0MTAw
-MC8wLCBtZXJnZT0wLzAsIHRpY2tzPTE5NjEwODkyLzAsIA0KaW5fcXVldWU9MjAxNDAxMDQs
-IHV0aWw9MTAwLjAwJQ0KICAgbnZtZTduMTogaW9zPTUyMjQwODc0LzAsIG1lcmdlPTAvMCwg
-dGlja3M9MjA0ODI5MjAvMCwgDQppbl9xdWV1ZT0yMTA5MDA0OCwgdXRpbD0xMDAuMDAlDQog
-ICBudm1lOG4xOiBpb3M9NTIyNDA3MzEvMCwgbWVyZ2U9MC8wLCB0aWNrcz0xNDUzMzk5Mi8w
-LCANCmluX3F1ZXVlPTE0OTI5MTcyLCB1dGlsPTEwMC4wMCUNCiAgIG52bWU5bjE6IGlvcz01
-MjI0MDU4Ny8wLCBtZXJnZT0wLzAsIHRpY2tzPTEyODU0OTU2LzAsIA0KaW5fcXVldWU9MTM5
-MTkyODgsIHV0aWw9MTAwLjAwJQ0KICAgbnZtZTEwbjE6IGlvcz01MjI0MDQ0Ny8wLCBtZXJn
-ZT0wLzAsIHRpY2tzPTExMDg1NTA4LzAsIA0KaW5fcXVldWU9MTEzOTAzOTIsIHV0aWw9MTAw
-LjAwJQ0KICAgbnZtZTExbjE6IGlvcz01MjI0MDMwMS8wLCBtZXJnZT0wLzAsIHRpY2tzPTE4
-NDkwMjYwLzAsIA0KaW5fcXVldWU9MjAxMTAyODgsIHV0aWw9MTAwLjAwJQ0KICAgbnZtZTEy
-bjE6IGlvcz01MjI0MDA5Ny8wLCBtZXJnZT0wLzAsIHRpY2tzPTExMzc3ODg0LzAsIA0KaW5f
-cXVldWU9MTE2ODM1NjgsIHV0aWw9MTAwLjAwJQ0KICAgbnZtZTEzbjE6IGlvcz01MjIzOTk1
-Ni8wLCBtZXJnZT0wLzAsIHRpY2tzPTE1MjA1MzA0LzAsIA0KaW5fcXVldWU9MTYzMTQ2Mjgs
-IHV0aWw9MTAwLjAwJQ0KICAgbnZtZTE0bjE6IGlvcz01MjIzOTc2Ni8wLCBtZXJnZT0wLzAs
-IHRpY2tzPTI3MDAzNzg4LzAsIA0KaW5fcXVldWU9Mjc2NTk5MjAsIHV0aWw9MTAwLjAwJQ0K
-ICAgbnZtZTE1bjE6IGlvcz01MjIzOTYyMC8wLCBtZXJnZT0wLzAsIHRpY2tzPTE3MzUyNjI0
-LzAsIA0KaW5fcXVldWU9MTc5MTA2MzYsIHV0aWw9MTAwLjAwJQ0KDQoNCjEuNiBtaWxsaW9u
-cyBJT1BTIG9uIExpbnV4IE1EIG92ZXIgMTYgTlZNZSBkZXZpY2VzDQo9PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KDQpvYmVyc3RldEBzdnIt
-cHNxbDE5On4vc2NtL3BhcmNpdC9SQS9hZHIvc3lzdGVtL2RvY3MkIHN1ZG8gDQovb3B0L2Zp
-by9iaW4vZmlvIHBvc3RncmVzcWxfc3RvcmFnZV93b3JrbG9hZC5maW8NCnJhbmRyZWFkOiAo
-Zz0wKTogcnc9cmFuZHJlYWQsIGJzPTQwOTZCLTQwOTZCLDQwOTZCLTQwOTZCLDQwOTZCLTQw
-OTZCLCANCmlvZW5naW5lPXN5bmMsIGlvZGVwdGg9MQ0KLi4uDQpmaW8tMi4xNy0xNy1nOWNm
-MQ0KU3RhcnRpbmcgMjU2MCB0aHJlYWRzDQpKb2JzOiAyNTYwIChmPTI1NjApOiBbcigyNTYw
-KV1bMTAwLjAlXVtyPTYyMTJNaUIvcyx3PTBLaUIvc11bcj0xNTkwayx3PTAgDQpJT1BTXVtl
-dGEgMDBtOjAwc10NCnJhbmRyZWFkOiAoZ3JvdXBpZD0wLCBqb2JzPTI1NjApOiBlcnI9IDA6
-IHBpZD0xNDYwNzA6IE1vbiBKYW4gMjMgDQoxNzoyMToxNSAyMDE3DQogICAgcmVhZDogSU9Q
-Uz0xNTg4aywgQlc9NjIwNE1pQi9zICg2NTA1TUIvcykoNzI4R2lCLzEyMDA5OG1zZWMpDQog
-ICAgIGNsYXQgKHVzZWMpOiBtaW49MjcsIG1heD0yODQ5OCwgYXZnPTEyNC41MSwgc3RkZXY9
-MTEzLjEwDQogICAgICBsYXQgKHVzZWMpOiBtaW49MjcsIG1heD0yODQ5OCwgYXZnPTEyNC41
-OCwgc3RkZXY9MTEzLjEwDQogICAgIGNsYXQgcGVyY2VudGlsZXMgKHVzZWMpOg0KICAgICAg
-fCAgMS4wMHRoPVsgICA3OF0sICA1LjAwdGg9WyAgIDg0XSwgMTAuMDB0aD1bICAgODZdLCAy
-MC4wMHRoPVsgICA4OV0sDQogICAgICB8IDMwLjAwdGg9WyAgIDk1XSwgNDAuMDB0aD1bICAx
-MDJdLCA1MC4wMHRoPVsgIDEwNV0sIDYwLjAwdGg9WyAgMTA4XSwNCiAgICAgIHwgNzAuMDB0
-aD1bICAxMThdLCA4MC4wMHRoPVsgIDEzM10sIDkwLjAwdGg9WyAgMTczXSwgOTUuMDB0aD1b
-ICAyMjFdLA0KICAgICAgfCA5OS4wMHRoPVsgIDM1OF0sIDk5LjUwdGg9WyAgNTA2XSwgOTku
-OTB0aD1bIDIxOTJdLCA5OS45NXRoPVsgMjYwOF0sDQogICAgICB8IDk5Ljk5dGg9WyAyOTYw
-XQ0KICAgICBsYXQgKHVzZWMpIDogNTA9MC4wNiUsIDEwMD0zNS4xNCUsIDI1MD02MS44MyUs
-IDUwMD0yLjQ2JSwgNzUwPTAuMTklDQogICAgIGxhdCAodXNlYykgOiAxMDAwPTAuMDclDQog
-ICAgIGxhdCAobXNlYykgOiAyPTAuMTMlLCA0PTAuMTIlLCAxMD0wLjAxJSwgMjA9MC4wMSUs
-IDUwPTAuMDElDQogICBjcHUgICAgICAgICAgOiB1c3I9MC4wOCUsIHN5cz00LjQ5JSwgY3R4
-PTIwMDQzMTk5MywgbWFqZj0wLCBtaW5mPTI1NTcNCiAgIElPIGRlcHRocyAgICA6IDE9MTAw
-LjAlLCAyPTAuMCUsIDQ9MC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCANCiA+PTY0
-PTAuMCUNCiAgICAgIHN1Ym1pdCAgICA6IDA9MC4wJSwgND0xMDAuMCUsIDg9MC4wJSwgMTY9
-MC4wJSwgMzI9MC4wJSwgNjQ9MC4wJSwgDQogPj02ND0wLjAlDQogICAgICBjb21wbGV0ZSAg
-OiAwPTAuMCUsIDQ9MTAwLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsIDY0PTAuMCUs
-IA0KID49NjQ9MC4wJQ0KICAgICAgaXNzdWVkIHJ3dDogdG90YWw9MTkwNzMwNDYzLDAsMCwg
-c2hvcnQ9MCwwLDAsIGRyb3BwZWQ9MCwwLDANCiAgICAgIGxhdGVuY3kgICA6IHRhcmdldD0w
-LCB3aW5kb3c9MCwgcGVyY2VudGlsZT0xMDAuMDAlLCBkZXB0aD0xDQoNClJ1biBzdGF0dXMg
-Z3JvdXAgMCAoYWxsIGpvYnMpOg0KICAgIFJFQUQ6IGJ3PTYyMDRNaUIvcyAoNjUwNU1CL3Mp
-LCA2MjA0TWlCL3MtNjIwNE1pQi9zIA0KKDY1MDVNQi9zLTY1MDVNQi9zKSwgaW89NzI4R2lC
-ICg3ODFHQiksIHJ1bj0xMjAwOTgtMTIwMDk4bXNlYw0KDQpEaXNrIHN0YXRzIChyZWFkL3dy
-aXRlKToNCiAgICAgbWQxOiBpb3M9MTkwNjMyNjEyLzAsIG1lcmdlPTAvMCwgdGlja3M9MC8w
-LCBpbl9xdWV1ZT0wLCB1dGlsPTAuMDAlLCANCmFnZ3Jpb3M9MTE5MjA2NTMvMCwgYWdncm1l
-cmdlPTAvMCwgYWdncnRpY2tzPTEyMjgyODcvMCwgDQphZ2dyaW5fcXVldWU9MTI0NzYwMSwg
-YWdncnV0aWw9MTAwLjAwJQ0KICAgbnZtZTE1bjE6IGlvcz0xMTkxOTg1MC8wLCBtZXJnZT0w
-LzAsIHRpY2tzPTEyMTQ5MjQvMCwgDQppbl9xdWV1ZT0xMjI1ODk2LCB1dGlsPTEwMC4wMCUN
-CiAgIG52bWU2bjE6IGlvcz0xMTkyMTE2Mi8wLCBtZXJnZT0wLzAsIHRpY2tzPTExODI3MTYv
-MCwgDQppbl9xdWV1ZT0xMTkxNDUyLCB1dGlsPTEwMC4wMCUNCiAgIG52bWU5bjE6IGlvcz0x
-MTkxNjMxMy8wLCBtZXJnZT0wLzAsIHRpY2tzPTEyNjUwNjAvMCwgDQppbl9xdWV1ZT0xMjk2
-NzI4LCB1dGlsPTEwMC4wMCUNCiAgIG52bWUxMW4xOiBpb3M9MTE5MjIxNzQvMCwgbWVyZ2U9
-MC8wLCB0aWNrcz0xMjA2MDg0LzAsIA0KaW5fcXVldWU9MTIzOTgwOCwgdXRpbD0xMDAuMDAl
-DQogICBudm1lMm4xOiBpb3M9MTE5MjE1NDcvMCwgbWVyZ2U9MC8wLCB0aWNrcz0xMjM4OTU2
-LzAsIA0KaW5fcXVldWU9MTI3MjkxNiwgdXRpbD0xMDAuMDAlDQogICBudm1lMTRuMTogaW9z
-PTExOTIzMTc2LzAsIG1lcmdlPTAvMCwgdGlja3M9MTE2ODY4OC8wLCANCmluX3F1ZXVlPTEx
-NzgzNjAsIHV0aWw9MTAwLjAwJQ0KICAgbnZtZTVuMTogaW9zPTExOTIzMTQyLzAsIG1lcmdl
-PTAvMCwgdGlja3M9MTE5MjY1Ni8wLCANCmluX3F1ZXVlPTEyMDc4MDgsIHV0aWw9MTAwLjAw
-JQ0KICAgbnZtZThuMTogaW9zPTExOTIxNTA3LzAsIG1lcmdlPTAvMCwgdGlja3M9MTI1MDE2
-NC8wLCANCmluX3F1ZXVlPTEyNTg5NTYsIHV0aWw9MTAwLjAwJQ0KICAgbnZtZTEwbjE6IGlv
-cz0xMTkxOTA1OC8wLCBtZXJnZT0wLzAsIHRpY2tzPTEyOTQwMjgvMCwgDQppbl9xdWV1ZT0x
-MzA0NTM2LCB1dGlsPTEwMC4wMCUNCiAgIG52bWUxbjE6IGlvcz0xMTkyMzEyOS8wLCBtZXJn
-ZT0wLzAsIHRpY2tzPTEyNDY4OTIvMCwgDQppbl9xdWV1ZT0xMjgxOTUyLCB1dGlsPTEwMC4w
-MCUNCiAgIG52bWUxM24xOiBpb3M9MTE5MjMzNTQvMCwgbWVyZ2U9MC8wLCB0aWNrcz0xMjQx
-NTQwLzAsIA0KaW5fcXVldWU9MTI3MTgyMCwgdXRpbD0xMDAuMDAlDQogICBudm1lNG4xOiBp
-b3M9MTE5MjY5MzYvMCwgbWVyZ2U9MC8wLCB0aWNrcz0xMTkwMzg0LzAsIA0KaW5fcXVldWU9
-MTIyNDE5MiwgdXRpbD0xMDAuMDAlDQogICBudm1lN24xOiBpb3M9MTE5MjExMzkvMCwgbWVy
-Z2U9MC8wLCB0aWNrcz0xMjAwNjI0LzAsIA0KaW5fcXVldWU9MTIxNDI0MCwgdXRpbD0xMDAu
-MDAlDQogICBudm1lMG4xOiBpb3M9MTE5MTY2MTQvMCwgbWVyZ2U9MC8wLCB0aWNrcz0xMjMw
-OTE2LzAsIA0KaW5fcXVldWU9MTI0MjM3MiwgdXRpbD0xMDAuMDAlDQogICBudm1lMTJuMTog
-aW9zPTExOTE2OTYzLzAsIG1lcmdlPTAvMCwgdGlja3M9MTI2Njg0MC8wLCANCmluX3F1ZXVl
-PTEyNzc2MDAsIHV0aWw9MTAwLjAwJQ0KICAgbnZtZTNuMTogaW9zPTExOTE0Mzk5LzAsIG1l
-cmdlPTAvMCwgdGlja3M9MTI2MjEyOC8wLCANCmluX3F1ZXVlPTEyNzI5ODgsIHV0aWw9MTAw
-LjAwJQ0Kb2JlcnN0ZXRAc3ZyLXBzcWwxOTp+L3NjbS9wYXJjaXQvUkEvYWRyL3N5c3RlbS9k
-b2NzJA0K
+The following changes since commit 28c43a89ae13b648dd37269d288fbbea2550faa8:
+
+  Fix comment on SCSI commands (2017-01-06 11:26:04 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 9bae252254d0ce37a144cb4c8d2cb4222d539a9e:
+
+  Python style/portability fix (2017-01-10 13:20:30 -0700)
+
+----------------------------------------------------------------
+Tomohiro Kusumi (10):
+      Bring in additional sg error cases from Linux kernel (and sg3) header
+      Staticize pmemblk ioengine_ops
+      Fix conditional/message for max lba for sg ioengine
+      Non functional fixup for 16 bytes read capacity for sg ioengine
+      Mention sg ioengine requires filename option
+      Fix compile time errors for skeleton_external ioengine
+      Partly revert 8172fe97 in 2008 (A few debug debug log fixes)
+      Add missing trailing \n in dprint()
+      Fix README regarding fio snapshots
+      Python style/portability fix
+
+ HOWTO                       |  3 ++-
+ README                      |  5 +++--
+ engines/pmemblk.c           |  2 +-
+ engines/sg.c                | 48 ++++++++++++++++++++++++++++++++-------------
+ engines/skeleton_external.c |  8 ++++----
+ ioengine.h                  |  9 +++------
+ iolog.c                     |  2 +-
+ tools/fiologparser.py       | 14 ++++++-------
+ 8 files changed, 55 insertions(+), 36 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/HOWTO b/HOWTO
+index 4cc733f..33f8718 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -819,7 +819,8 @@ ioengine=str	Defines how the job issues io to the file. The following
+ 				synchronous using the SG_IO ioctl, or if
+ 				the target is an sg character device
+ 				we use read(2) and write(2) for asynchronous
+-				io.
++				io. Requires filename option to specify either
++				block or character devices.
+ 
+ 			null	Doesn't transfer any data, just pretends
+ 				to. This is mainly used to exercise fio
+diff --git a/README b/README
+index 875d2be..31d53fe 100644
+--- a/README
++++ b/README
+@@ -21,7 +21,8 @@ If git:// does not work, use the http protocol instead:
+ 
+ 	http://git.kernel.dk/fio.git
+ 
+-Snapshots are frequently generated and include the git meta data as well.
++Snapshots are frequently generated and fio-git-*.tar.gz include the git
++meta data as well. Other tarballs are archives of official fio releases.
+ Snapshots can download from:
+ 
+ 	http://brick.kernel.dk/snaps/
+@@ -262,7 +263,7 @@ the copyright and license requirements currently apply to examples/ files.
+ 
+ 
+ Client/server
+-------------
++-------------
+ 
+ Normally fio is invoked as a stand-alone application on the machine
+ where the IO workload should be generated. However, the frontend and
+diff --git a/engines/pmemblk.c b/engines/pmemblk.c
+index ca72697..5439da0 100644
+--- a/engines/pmemblk.c
++++ b/engines/pmemblk.c
+@@ -482,7 +482,7 @@ static int fio_pmemblk_unlink_file(struct thread_data *td, struct fio_file *f)
+ 	return 0;
+ }
+ 
+-struct ioengine_ops ioengine = {
++static struct ioengine_ops ioengine = {
+ 	.name = "pmemblk",
+ 	.version = FIO_IOOPS_VERSION,
+ 	.queue = fio_pmemblk_queue,
+diff --git a/engines/sg.c b/engines/sg.c
+index 2ad3394..3f7d911 100644
+--- a/engines/sg.c
++++ b/engines/sg.c
+@@ -20,7 +20,7 @@
+ #define MAX_SB 64               // sense block maximum return size
+ 
+ struct sgio_cmd {
+-	unsigned char cdb[16];  	// increase to support 16 byte commands
++	unsigned char cdb[16];      // enhanced from 10 to support 16 byte commands
+ 	unsigned char sb[MAX_SB];   // add sense block to commands
+ 	int nr;
+ };
+@@ -32,7 +32,6 @@ struct sgio_data {
+ 	int *fd_flags;
+ 	void *sgbuf;
+ 	unsigned int bs;
+-	long long max_lba;
+ 	int type_checked;
+ };
+ 
+@@ -309,7 +308,6 @@ static int fio_sgio_prep(struct thread_data *td, struct io_u *io_u)
+ 	 * blocks on medium.
+ 	 */
+ 	if (hdr->dxfer_direction != SG_DXFER_NONE) {
+-
+ 		if (lba < MAX_10B_LBA) {
+ 			hdr->cmdp[2] = (unsigned char) ((lba >> 24) & 0xff);
+ 			hdr->cmdp[3] = (unsigned char) ((lba >> 16) & 0xff);
+@@ -416,12 +414,11 @@ static int fio_sgio_read_capacity(struct thread_data *td, unsigned int *bs,
+ 	}
+ 
+ 	*bs	 = (buf[4] << 24) | (buf[5] << 16) | (buf[6] << 8) | buf[7];
+-	*max_lba = ((buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3]) & 0x00000000FFFFFFFFULL;  // for some reason max_lba is being sign extended even though unsigned.
+-
++	*max_lba = ((buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3]) & MAX_10B_LBA;  // for some reason max_lba is being sign extended even though unsigned.
+ 
+ 	/*
+-	 * If max lba is 0xFFFFFFFF, then need to retry with
+-	 * 16 byteread capacity
++	 * If max lba masked by MAX_10B_LBA equals MAX_10B_LBA,
++	 * then need to retry with 16 byte Read Capacity command.
+ 	 */
+ 	if (*max_lba == MAX_10B_LBA) {
+ 		hdr.cmd_len = 16;
+@@ -507,7 +504,6 @@ static int fio_sgio_type_check(struct thread_data *td, struct fio_file *f)
+ 	unsigned int bs = 0;
+ 	unsigned long long max_lba = 0;
+ 
+-
+ 	if (f->filetype == FIO_TYPE_BD) {
+ 		if (ioctl(f->fd, BLKSSZGET, &bs) < 0) {
+ 			td_verror(td, errno, "ioctl");
+@@ -529,18 +525,18 @@ static int fio_sgio_type_check(struct thread_data *td, struct fio_file *f)
+ 		}
+ 	} else {
+ 		td_verror(td, EINVAL, "wrong file type");
+-		log_err("ioengine sg only works on block devices\n");
++		log_err("ioengine sg only works on block or character devices\n");
+ 		return 1;
+ 	}
+ 
+ 	sd->bs = bs;
+ 	// Determine size of commands needed based on max_lba
+-	sd->max_lba = max_lba;
+-	if (max_lba > MAX_10B_LBA) {
+-		dprint(FD_IO, "sgio_type_check: using 16 byte operations: max_lba = 0x%016llx\n", max_lba);
++	if (max_lba >= MAX_10B_LBA) {
++		dprint(FD_IO, "sgio_type_check: using 16 byte read/write "
++			"commands for lba above 0x%016llx/0x%016llx\n",
++			MAX_10B_LBA, max_lba);
+ 	}
+ 
+-
+ 	if (f->filetype == FIO_TYPE_BD) {
+ 		td->io_ops->getevents = NULL;
+ 		td->io_ops->event = NULL;
+@@ -630,6 +626,24 @@ static char *fio_sgio_errdetails(struct io_u *io_u)
+ 			case 0x0d:
+ 				strlcat(msg, "SG_ERR_DID_REQUEUE", MAXERRDETAIL);
+ 				break;
++			case 0x0e:
++				strlcat(msg, "SG_ERR_DID_TRANSPORT_DISRUPTED", MAXERRDETAIL);
++				break;
++			case 0x0f:
++				strlcat(msg, "SG_ERR_DID_TRANSPORT_FAILFAST", MAXERRDETAIL);
++				break;
++			case 0x10:
++				strlcat(msg, "SG_ERR_DID_TARGET_FAILURE", MAXERRDETAIL);
++				break;
++			case 0x11:
++				strlcat(msg, "SG_ERR_DID_NEXUS_FAILURE", MAXERRDETAIL);
++				break;
++			case 0x12:
++				strlcat(msg, "SG_ERR_DID_ALLOC_FAILURE", MAXERRDETAIL);
++				break;
++			case 0x13:
++				strlcat(msg, "SG_ERR_DID_MEDIUM_ERROR", MAXERRDETAIL);
++				break;
+ 			default:
+ 				strlcat(msg, "Unknown", MAXERRDETAIL);
+ 				break;
+@@ -775,6 +789,12 @@ static int fio_sgio_get_file_size(struct thread_data *td, struct fio_file *f)
+ 	if (fio_file_size_known(f))
+ 		return 0;
+ 
++	if (f->filetype != FIO_TYPE_BD && f->filetype != FIO_TYPE_CHAR) {
++		td_verror(td, EINVAL, "wrong file type");
++		log_err("ioengine sg only works on block or character devices\n");
++		return 1;
++	}
++
+ 	ret = fio_sgio_read_capacity(td, &bs, &max_lba);
+ 	if (ret ) {
+ 		td_verror(td, td->error, "fio_sgio_read_capacity");
+@@ -800,7 +820,7 @@ static struct ioengine_ops ioengine = {
+ 	.cleanup	= fio_sgio_cleanup,
+ 	.open_file	= fio_sgio_open,
+ 	.close_file	= generic_close_file,
+-	.get_file_size	= fio_sgio_get_file_size, // generic_get_file_size
++	.get_file_size	= fio_sgio_get_file_size,
+ 	.flags		= FIO_SYNCIO | FIO_RAWIO,
+ };
+ 
+diff --git a/engines/skeleton_external.c b/engines/skeleton_external.c
+index 63a6f8d..4bebcc4 100644
+--- a/engines/skeleton_external.c
++++ b/engines/skeleton_external.c
+@@ -109,11 +109,11 @@ static void fio_skeleton_cleanup(struct thread_data *td)
+ 
+ /*
+  * Hook for opening the given file. Unless the engine has special
+- * needs, it usually just provides generic_file_open() as the handler.
++ * needs, it usually just provides generic_open_file() as the handler.
+  */
+ static int fio_skeleton_open(struct thread_data *td, struct fio_file *f)
+ {
+-	return generic_file_open(td, f);
++	return generic_open_file(td, f);
+ }
+ 
+ /*
+@@ -121,12 +121,12 @@ static int fio_skeleton_open(struct thread_data *td, struct fio_file *f)
+  */
+ static int fio_skeleton_close(struct thread_data *td, struct fio_file *f)
+ {
+-	generic_file_close(td, f);
++	return generic_close_file(td, f);
+ }
+ 
+ /*
+  * Note that the structure is exported, so that fio can get it via
+- * dlsym(..., "ioengine");
++ * dlsym(..., "ioengine"); for (and only for) external engines.
+  */
+ struct ioengine_ops ioengine = {
+ 	.name		= "engine_name",
+diff --git a/ioengine.h b/ioengine.h
+index 08e8fab..89873e7 100644
+--- a/ioengine.h
++++ b/ioengine.h
+@@ -238,12 +238,9 @@ static inline void dprint_io_u(struct io_u *io_u, const char *p)
+ 	dprint(FD_IO, "%s: io_u %p: off=%llu/len=%lu/ddir=%d", p, io_u,
+ 					(unsigned long long) io_u->offset,
+ 					io_u->buflen, io_u->ddir);
+-	if (fio_debug & (1 << FD_IO)) {
+-		if (f)
+-			log_info("/%s", f->file_name);
+-
+-		log_info("\n");
+-	}
++	if (f)
++		dprint(FD_IO, "/%s", f->file_name);
++	dprint(FD_IO, "\n");
+ }
+ #else
+ #define dprint_io_u(io_u, p)
+diff --git a/iolog.c b/iolog.c
+index 25d8dd0..2e8da13 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -277,7 +277,7 @@ restart:
+ 			overlap = 1;
+ 
+ 		if (overlap) {
+-			dprint(FD_IO, "iolog: overlap %llu/%lu, %llu/%lu",
++			dprint(FD_IO, "iolog: overlap %llu/%lu, %llu/%lu\n",
+ 				__ipo->offset, __ipo->len,
+ 				ipo->offset, ipo->len);
+ 			td->io_hist_len--;
+diff --git a/tools/fiologparser.py b/tools/fiologparser.py
+index 685f419..5a95009 100755
+--- a/tools/fiologparser.py
++++ b/tools/fiologparser.py
+@@ -45,7 +45,7 @@ def print_full(ctx, series):
+     while (start < ftime):
+         end = ftime if ftime < end else end
+         results = [ts.get_value(start, end) for ts in series]
+-        print "%s, %s" % (end, ', '.join(["%0.3f" % i for i in results]))
++        print("%s, %s" % (end, ', '.join(["%0.3f" % i for i in results])))
+         start += ctx.interval
+         end += ctx.interval
+ 
+@@ -57,7 +57,7 @@ def print_sums(ctx, series):
+     while (start < ftime):
+         end = ftime if ftime < end else end
+         results = [ts.get_value(start, end) for ts in series]
+-        print "%s, %0.3f" % (end, sum(results))
++        print("%s, %0.3f" % (end, sum(results)))
+         start += ctx.interval
+         end += ctx.interval
+ 
+@@ -69,7 +69,7 @@ def print_averages(ctx, series):
+     while (start < ftime):
+         end = ftime if ftime < end else end
+         results = [ts.get_value(start, end) for ts in series]
+-        print "%s, %0.3f" % (end, float(sum(results))/len(results))
++        print("%s, %0.3f" % (end, float(sum(results))/len(results)))
+         start += ctx.interval
+         end += ctx.interval
+ 
+@@ -147,11 +147,11 @@ def print_default(ctx, series):
+         end += ctx.interval
+ 
+     total = 0
+-    for i in xrange(0, len(averages)):
++    for i in range(0, len(averages)):
+         total += averages[i]*weights[i]
+-    print '%0.3f' % (total/sum(weights))
++    print('%0.3f' % (total/sum(weights)))
+  
+-class TimeSeries():
++class TimeSeries(object):
+     def __init__(self, ctx, fn):
+         self.ctx = ctx
+         self.last = None 
+@@ -185,7 +185,7 @@ class TimeSeries():
+             value += sample.get_contribution(start, end)
+         return value
+ 
+-class Sample():
++class Sample(object):
+     def __init__(self, ctx, start, end, value):
+        self.ctx = ctx
+        self.start = start
