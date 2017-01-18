@@ -1,54 +1,39 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 3/6] Fix conditional/message for max lba for sg ioengine
-Date: Mon,  9 Jan 2017 23:42:00 +0900
-Message-Id: <1483972923-13662-3-git-send-email-tkusumi@tuxera.com>
-In-Reply-To: <1483972923-13662-1-git-send-email-tkusumi@tuxera.com>
-References: <1483972923-13662-1-git-send-email-tkusumi@tuxera.com>
+Subject: [PATCH 5/5] Change td_var() to take void* for the first arg
+Date: Thu, 19 Jan 2017 02:38:27 +0900
+Message-Id: <1484761107-21387-5-git-send-email-tkusumi@tuxera.com>
+In-Reply-To: <1484761107-21387-1-git-send-email-tkusumi@tuxera.com>
+References: <1484761107-21387-1-git-send-email-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-Whether sg ioengine uses 10 or 16 bytes read/write command (by 5ad7be56)
-is determined by ->prep() depending on lba to read/write vs 0xFFFFFFFFULL,
-so let the message show it depends.
-
-Also remove unused sgio_data::max_lba which is essentially the same
-(divide by bs minus 1) as fio_file::real_file_size.
+Callers don't always pass thread_options* to td_var(),
+nor is it dependent on a certain structure type,
+so just take void* without pointless cast.
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- engines/sg.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ parse.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/engines/sg.c b/engines/sg.c
-index c9a1448..00bf303 100644
---- a/engines/sg.c
-+++ b/engines/sg.c
-@@ -32,7 +32,6 @@ struct sgio_data {
- 	int *fd_flags;
- 	void *sgbuf;
- 	unsigned int bs;
--	long long max_lba;
- 	int type_checked;
- };
+diff --git a/parse.h b/parse.h
+index 54e3948..fb6abd1 100644
+--- a/parse.h
++++ b/parse.h
+@@ -107,8 +107,7 @@ typedef int (fio_opt_str_val_fn)(void *, long long *);
+ typedef int (fio_opt_int_fn)(void *, int *);
  
-@@ -535,9 +534,10 @@ static int fio_sgio_type_check(struct thread_data *td, struct fio_file *f)
- 
- 	sd->bs = bs;
- 	// Determine size of commands needed based on max_lba
--	sd->max_lba = max_lba;
--	if (max_lba > MAX_10B_LBA) {
--		dprint(FD_IO, "sgio_type_check: using 16 byte operations: max_lba = 0x%016llx\n", max_lba);
-+	if (max_lba >= MAX_10B_LBA) {
-+		dprint(FD_IO, "sgio_type_check: using 16 byte read/write "
-+			"commands for lba above 0x%016llx/0x%016llx\n",
-+			MAX_10B_LBA, max_lba);
- 	}
- 
+ struct thread_options;
+-static inline void *td_var(struct thread_options *to, struct fio_option *o,
+-			   unsigned int offset)
++static inline void *td_var(void *to, struct fio_option *o, unsigned int offset)
+ {
+ 	void *ret;
  
 -- 
 2.5.5
