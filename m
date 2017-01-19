@@ -1,41 +1,54 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm0-f44.google.com ([74.125.82.44]:36313 "EHLO
-        mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750703AbdAWNRz (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 23 Jan 2017 08:17:55 -0500
-Received: by mail-wm0-f44.google.com with SMTP id c85so132057986wmi.1
-        for <fio@vger.kernel.org>; Mon, 23 Jan 2017 05:17:55 -0800 (PST)
-Received: from [192.168.1.211] (ppp-212-114-239-131.dynamic.mnet-online.de. [212.114.239.131])
-        by smtp.googlemail.com with ESMTPSA id x69sm7168650wma.15.2017.01.23.05.17.53
-        for <fio@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 23 Jan 2017 05:17:53 -0800 (PST)
-From: Tobias Oberstein <tobias.oberstein@gmail.com>
-Subject: hitting 2048 threads/jobs limit
-Message-ID: <71c37fa9-61da-c3dc-fdc1-67d254845b46@gmail.com>
-Date: Mon, 23 Jan 2017 14:17:53 +0100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: from imslp-west.kjsl.com ([65.50.211.133]:54312 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+        with ESMTP id S1752434AbdASNTQ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 19 Jan 2017 08:19:16 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1cUCJx-0006SL-JT
+        for fio@vger.kernel.org; Thu, 19 Jan 2017 13:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170119130001.BE20D2C02A3@kernel.dk>
+Date: Thu, 19 Jan 2017 06:00:01 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hi,
+The following changes since commit d7ea5a89fa2745f5bd743187b62bd05120c44c30:
 
-is there a way to increase the 2048 threads/jobs limit in FIO?
+  Fio 2.17 (2017-01-17 08:51:31 -0700)
 
-I am hitting a wall trying to saturate a storage on random 8kB reads .. 
-can't get over 5 mio IOPS.
+are available in the git repository at:
 
-Please see the top most / right most IOPS value 4.597.700 in here:
+  git://git.kernel.dk/fio.git master
 
-https://github.com/oberstet/scratchbox/raw/master/cruncher/sql19/Performance%20Results%20-%20NVMe%20Scaling%20with%20IO%20Concurrency.pdf
+for you to fetch changes up to 54441e7b5f44d3786ee12b3fede90c4bb2c2c260:
 
-The box has still more CPU cycles avail .. and the IOPS over IO 
-concurrency seems to indicate there is more room ..
+  init: fix double free of pid_file (2017-01-18 08:18:28 -0700)
 
-Cheers,
-/Tobias
+----------------------------------------------------------------
+Jens Axboe (1):
+      init: fix double free of pid_file
 
-PS: thanks for an _awesome_ tool!
+ init.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/init.c b/init.c
+index ae20d61..324dc7b 100644
+--- a/init.c
++++ b/init.c
+@@ -2717,9 +2717,6 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ 	}
+ 
+ out_free:
+-	if (pid_file)
+-		free(pid_file);
+-
+ 	return ini_idx;
+ }
+ 
