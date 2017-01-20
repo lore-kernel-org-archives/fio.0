@@ -1,99 +1,104 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qt0-f176.google.com ([209.85.216.176]:35765 "EHLO
-        mail-qt0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751948AbdA0WHh (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 27 Jan 2017 17:07:37 -0500
-Received: by mail-qt0-f176.google.com with SMTP id x49so158120051qtc.2
-        for <fio@vger.kernel.org>; Fri, 27 Jan 2017 14:07:32 -0800 (PST)
-MIME-Version: 1.0
-From: Prabhakaran <prabhugce@gmail.com>
-Date: Fri, 27 Jan 2017 14:58:59 -0700
-Message-ID: <CAPqbHXh4m_UgDRtj1Htb8DByZu2JJxQFB-w8wNZthOJkX64tHA@mail.gmail.com>
-Subject: Offset in percentage rather than in LBA
-Content-Type: text/plain; charset=UTF-8
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 2/2] Add missing opt/cat group entries
+Date: Sat, 21 Jan 2017 02:46:43 +0900
+Message-Id: <1484934403-16963-2-git-send-email-tkusumi@tuxera.com>
+In-Reply-To: <1484934403-16963-1-git-send-email-tkusumi@tuxera.com>
+References: <1484934403-16963-1-git-send-email-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-Can offset be specified in percentage rather than in capacity value
-like gb or mb?
-I have a config file which fills a drive once randomly. I got 4 jobs
-running in parallel (4*64qd=256qd) with lba space divided among them.
-I want to specify in percentage, so that all the jobs are equally
-used, rather than hard-coding the capacity.
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ optgroup.c | 53 ++++++++++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 46 insertions(+), 7 deletions(-)
 
-The following example configuration is designed for 450GB NVMe drive.
+diff --git a/optgroup.c b/optgroup.c
+index 5f9ca96..122d24e 100644
+--- a/optgroup.c
++++ b/optgroup.c
+@@ -31,16 +31,16 @@ static const struct opt_group fio_opt_groups[] = {
+ 		.mask	= FIO_OPT_C_PROFILE,
+ 	},
+ 	{
++		.name	= "I/O engines",
++		.mask	= FIO_OPT_C_ENGINE,
++	},
++	{
+ 		.name	= NULL,
+ 	},
+ };
+ 
+ static const struct opt_group fio_opt_cat_groups[] = {
+ 	{
+-		.name	= "Latency profiling",
+-		.mask	= FIO_OPT_G_LATPROF,
+-	},
+-	{
+ 		.name	= "Rate",
+ 		.mask	= FIO_OPT_G_RATE,
+ 	},
+@@ -125,13 +125,52 @@ static const struct opt_group fio_opt_cat_groups[] = {
+ 		.mask	= FIO_OPT_G_TIOBENCH,
+ 	},
+ 	{
+-		.name	= "MTD",
++		.name	= "Error handling",
++		.mask	= FIO_OPT_G_ERR,
++	},
++	{
++		.name	= "Ext4 defrag I/O engine", /* e4defrag */
++		.mask	= FIO_OPT_G_E4DEFRAG,
++	},
++	{
++		.name	= "Network I/O engine", /* net */
++		.mask	= FIO_OPT_G_NETIO,
++	},
++	{
++		.name	= "RDMA I/O engine", /* rdma */
++		.mask	= FIO_OPT_G_RDMA,
++	},
++	{
++		.name	= "libaio I/O engine", /* libaio */
++		.mask	= FIO_OPT_G_LIBAIO,
++	},
++	{
++		.name	= "ACT Aerospike like benchmark profile",
++		.mask	= FIO_OPT_G_ACT,
++	},
++	{
++		.name	= "Latency profiling",
++		.mask	= FIO_OPT_G_LATPROF,
++	},
++	{
++		.name	= "RBD I/O engine", /* rbd */
++		.mask	= FIO_OPT_G_RBD,
++	},
++	{
++		.name	= "GlusterFS I/O engine", /* gfapi,gfapi_async */
++		.mask	= FIO_OPT_G_GFAPI,
++	},
++	{
++		.name	= "MTD I/O engine", /* mtd */
+ 		.mask	= FIO_OPT_G_MTD,
+ 	},
+-
++	{
++		.name	= "libhdfs I/O engine", /* libhdfs */
++		.mask	= FIO_OPT_G_HDFS,
++	},
+ 	{
+ 		.name	= NULL,
+-	}
++	},
+ };
+ 
+ static const struct opt_group *group_from_mask(const struct opt_group *ogs,
+-- 
+2.5.5
 
 
-#################################################
-[global]
-ioengine=libaio
-thread
-cpus_allowed=0-7
-cpus_allowed_policy=split
-direct=1
-size=100g
-loops=6
-
-[4k-4k_randwrite_0_rd_qd256_numjob1]
-bs=4k
-ba=4k
-iodepth=64
-offset=0
-rw=randwrite
-randrepeat=0
-norandommap
-refill_buffers
-log_avg_msec=1000
-unified_rw_reporting=1
-write_bw_log=4k-4k_randwrite_0_rd_qd256_numjob1
-write_iops_log=4k-4k_randwrite_0_rd_qd256_numjob1
-
-[4k-4k_randwrite_0_rd_qd256_numjob2]
-bs=4k
-ba=4k
-iodepth=64
-offset=100g
-rw=randwrite
-randrepeat=0
-norandommap
-refill_buffers
-log_avg_msec=1000
-unified_rw_reporting=1
-write_bw_log=4k-4k_randwrite_0_rd_qd256_numjob2
-write_iops_log=4k-4k_randwrite_0_rd_qd256_numjob2
-
-[4k-4k_randwrite_0_rd_qd256_numjob3]
-bs=4k
-ba=4k
-iodepth=64
-offset=200g
-rw=randwrite
-randrepeat=0
-norandommap
-refill_buffers
-log_avg_msec=1000
-unified_rw_reporting=1
-write_bw_log=4k-4k_randwrite_0_rd_qd256_numjob3
-write_iops_log=4k-4k_randwrite_0_rd_qd256_numjob3
-
-[4k-4k_randwrite_0_rd_qd256_numjob4]
-bs=4k
-ba=4k
-iodepth=64
-offset=300g
-rw=randwrite
-randrepeat=0
-norandommap
-refill_buffers
-log_avg_msec=1000
-unified_rw_reporting=1
-write_bw_log=4k-4k_randwrite_0_rd_qd256_numjob4
-write_iops_log=4k-4k_randwrite_0_rd_qd256_numjob4
-#################################################
-
-
-Thanks,
-Prabhu
