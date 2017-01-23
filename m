@@ -1,62 +1,58 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk0-f54.google.com ([209.85.213.54]:33433 "EHLO
-        mail-vk0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750714AbdAWUZK (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 23 Jan 2017 15:25:10 -0500
-Received: by mail-vk0-f54.google.com with SMTP id k127so98453703vke.0
-        for <fio@vger.kernel.org>; Mon, 23 Jan 2017 12:25:10 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <15418080-0bf6-ab40-c05f-69a3fb3d9cc3@gmail.com>
+Received: from mail-wm0-f54.google.com ([74.125.82.54]:37617 "EHLO
+        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750714AbdAWUU6 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 23 Jan 2017 15:20:58 -0500
+Received: by mail-wm0-f54.google.com with SMTP id c206so175132445wme.0
+        for <fio@vger.kernel.org>; Mon, 23 Jan 2017 12:20:57 -0800 (PST)
+Subject: Re: 4x lower IOPS: Linux MD vs indiv. devices - why?
 References: <90865544-f790-513c-97df-7e6a6af20ca8@gmail.com>
  <CANvN+en2ihATNgrbgzwNXAK87wNh+6jXHinmg2-VmHon31AJzA@mail.gmail.com>
- <061acabe-dbd0-ae07-cd69-772eccd15b21@gmail.com> <CANvN+em0cjWRnQWccdORKFEJk0OSeQOrZq+XE6kzPmqMPB--4g@mail.gmail.com>
- <49ef9d71-8e52-26e4-76f7-ea03fb331a38@gmail.com> <CALjAwxjmW-NgWEcH7+nKNN8U_oUxFoYa23dui9wM6WDqiShWhw@mail.gmail.com>
- <15418080-0bf6-ab40-c05f-69a3fb3d9cc3@gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Mon, 23 Jan 2017 20:24:39 +0000
-Message-ID: <CALjAwxhsvfH0-D=4U6nkjFg109Z1ZgVRsOx37X+Lb-EqTf_jOA@mail.gmail.com>
-Subject: Re: 4x lower IOPS: Linux MD vs indiv. devices - why?
-Content-Type: text/plain; charset=UTF-8
+ <061acabe-dbd0-ae07-cd69-772eccd15b21@gmail.com>
+ <CANvN+em0cjWRnQWccdORKFEJk0OSeQOrZq+XE6kzPmqMPB--4g@mail.gmail.com>
+ <49ef9d71-8e52-26e4-76f7-ea03fb331a38@gmail.com>
+ <CANvN+emM2xeKtEgVofOyKri6WBtjqc_o1LMT8Sfawb_RMRXT0g@mail.gmail.com>
+ <4b7ca744-9b23-5f55-b3f7-354aa618288a@gmail.com>
+ <CANvN+e=ityWtQj_TJ3yZgTM7mr17VB=3OeyQEEQvdb5tR5AGLA@mail.gmail.com>
+ <CANvN+emUGQ=voye=E6g4jFRxbp5eS8cGVJb3vTSn-bD5Db2Ycw@mail.gmail.com>
+From: Tobias Oberstein <tobias.oberstein@gmail.com>
+Message-ID: <f6c73185-beae-604b-5fa7-0a66a582a41e@gmail.com>
+Date: Mon, 23 Jan 2017 21:20:55 +0100
+MIME-Version: 1.0
+In-Reply-To: <CANvN+emUGQ=voye=E6g4jFRxbp5eS8cGVJb3vTSn-bD5Db2Ycw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Tobias Oberstein <tobias.oberstein@gmail.com>
-Cc: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Cc: fio@vger.kernel.org
 
-On 23 January 2017 at 19:40, Tobias Oberstein
-<tobias.oberstein@gmail.com> wrote:
-> Am 23.01.2017 um 20:13 schrieb Sitsofe Wheeler:
->>
->> On 23 January 2017 at 18:33, Tobias Oberstein
->> <tobias.oberstein@gmail.com> wrote:
->>>
->>> libaio is nowhere near what I get with engine=sync and high job counts.
->>> Mmh.
->>> Plus the strange behavior.
->>
->> Have you tried batching the IOs and controlling how much are you
->> reaping at any one time? See
->>
->> http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-iodepth_batch_submit
->> for some of the options for controlling this...
+> Are the CPU load numbers reported by FIO reliable?
 >
-> Thanks! Nice.
 >
-> For libaio, and with all the hints applied (no 4k sectors yet), I get (4k
-> randread)
->
-> Individual NVMes: iops=7350.4K
-> MD (RAID-0) over NVMes: iops=4112.8K
->
-> The going up and down of IOPS is gone.
->
-> It's becoming more apparent I'd say, that tthere is a MD bottleneck though.
+> Yes, they're quite solid, just keep in mind that cpu is being reported on a
+> thread basis.
 
-If you're "just" trying for higher IOPS you can also try gtod_reduce
-(see http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-gtod_reduce
-). This subsumes things like disable_lat but you'll get fewer and less
-accurate measurement stats back. With libaio userspace reap
-(http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-userspace_reap
-) can sometimes nudge numbers up but at the cost of CPU.
 
--- 
-Sitsofe | http://sucs.org/~sits/
+Ahhh =)
+
+That explains that
+
+http://picpaste.com/pics/Bildschirmfoto_vom_2017-01-23_21-15-59-MEHOP3ZW.1485202585.png
+
+Which is engine=psync on MD
+
+and
+
+http://picpaste.com/pics/Bildschirmfoto_vom_2017-01-23_21-19-56-9ieRvRZy.1485202817.png
+
+which is engine=libaio on MD
+
+--
+
+Ha. And I thought for a second the machine is now going into "full magic 
+mode" ;)
+
+Thanks,
+Tobias
+
