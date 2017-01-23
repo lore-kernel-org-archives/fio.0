@@ -1,84 +1,86 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:41573 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750705AbdAWTGC (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 23 Jan 2017 14:06:02 -0500
-From: "Kudryavtsev, Andrey O" <andrey.o.kudryavtsev@intel.com>
+Received: from mail-wm0-f41.google.com ([74.125.82.41]:38007 "EHLO
+        mail-wm0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750705AbdAWSxb (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 23 Jan 2017 13:53:31 -0500
+Received: by mail-wm0-f41.google.com with SMTP id r144so170902705wme.1
+        for <fio@vger.kernel.org>; Mon, 23 Jan 2017 10:53:30 -0800 (PST)
 Subject: Re: 4x lower IOPS: Linux MD vs indiv. devices - why?
-Date: Mon, 23 Jan 2017 19:06:00 +0000
-Message-ID: <9D5B6947-2DF8-46B9-AEAD-62132C19A0D3@intel.com>
 References: <90865544-f790-513c-97df-7e6a6af20ca8@gmail.com>
  <974E4982-D808-4CAF-ACCF-85866C0050A7@intel.com>
- <c7fc722c-f3ca-4abe-7202-8ca67b5e59a0@gmail.com>
-In-Reply-To: <c7fc722c-f3ca-4abe-7202-8ca67b5e59a0@gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <36B71D3AE772D34B9C9D8A3385B605C8@intel.com>
-Content-Transfer-Encoding: base64
+From: Tobias Oberstein <tobias.oberstein@gmail.com>
+Message-ID: <c7fc722c-f3ca-4abe-7202-8ca67b5e59a0@gmail.com>
+Date: Mon, 23 Jan 2017 19:53:28 +0100
 MIME-Version: 1.0
+In-Reply-To: <974E4982-D808-4CAF-ACCF-85866C0050A7@intel.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Tobias Oberstein <tobias.oberstein@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: "Kudryavtsev, Andrey O" <andrey.o.kudryavtsev@intel.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-SGkgVG9iaWFzLCANClllcywg4oCcaW1zbeKAnSBpcyBpbiBnZW5lcmljIHJlbGVhc2UsIHlvdSBk
-b27igJl0IG5lZWQgdG8gZ28gdG8gdGhlIGxhdGVzdCBvciBzcGVjaWFsIGJ1aWxkIHRoZW4gaWYg
-eW91IHdhbnQgdG8gc3RheSBjb21wbGlhbnQuIEl04oCZcyBtYWlubHkgYSBkaWZmZXJlbnQgbGF5
-b3V0IG9mIGEgcmFpZCBtZXRhZGF0YS4gDQoNCllvdXIgZmluZGluZ3MgZm9sbG93IG15IGV4cGVj
-dGF0aW9ucywgZm9yIFFEMSBzeW5jIGVuZ2luZSBkb2VzIGdvb2QgcmVzdWx0cy4gQ2FuIHlvdSB0
-cnkgbGliaW8gd2l0aCBRRDQgYW5kIDI4MDAvNCBqb2JzPw0KTW9zdCBvZiB0aGUgdGltZSBJ4oCZ
-bSBydW5uaW5nIENlbnRvczcgZWl0aGVyIHdpdGggMy4xMCBvciBsYXRlc3Qga2VybmVsIGRlcGVu
-ZHMgb2YgdGhlIHNjb3BlIG9mIHRoZSB0ZXN0aW5nLiANCg0KQ2hhbmdpbmcgc2VjdG9yIHRvIDRr
-IGlzIGVhc3ksIHRoaXMgY2FuIHJlYWxseSBoZWxwLiBzZWUgRENUIG1hbnVhbCwgaXTigJlzIHRo
-ZXJlLiANClRoaXMgY2FuIGJlIHJlbGV2YW50IGZvciB5b3UgaHR0cHM6Ly9pdHBlZXJuZXR3b3Jr
-LmludGVsLmNvbS9ob3ctdG8tY29uZmlndXJlLW9yYWNsZS1yZWRvLW9uLXRoZS1pbnRlbC1wY2ll
-LXNzZC1kYy1wMzcwMC8NCg0KDQotLSANCkFuZHJleSBLdWRyeWF2dHNldiwgDQoNClNTRCBTb2x1
-dGlvbiBBcmNoaXRlY3QNCkludGVsIENvcnAuIA0KaW5ldDogODM1NjQzNTMNCndvcms6ICsxLTkx
-Ni0zNTYtNDM1Mw0KbW9iaWxlOiArMS05MTYtMjIxLTIyODENCg0KT24gMS8yMy8xNywgMTA6NTMg
-QU0sICJUb2JpYXMgT2JlcnN0ZWluIiA8dG9iaWFzLm9iZXJzdGVpbkBnbWFpbC5jb20+IHdyb3Rl
-Og0KDQogICAgSGkgQW5kcmV5LA0KICAgIA0KICAgIHRoYW5rcyBmb3IgeW91ciB0aXBzIQ0KICAg
-IA0KICAgIEFtIDIzLjAxLjIwMTcgdW0gMTk6MTggc2NocmllYiBLdWRyeWF2dHNldiwgQW5kcmV5
-IE86DQogICAgPiBIaSBUb2JpYXMsDQogICAgPiBNRFJBSUQgb3ZlcmhlYWQgaXMgYWx3YXlzIHRo
-ZXJlLCBidXQgeW91IGNhbiBwbGF5IHdpdGggc29tZSB0dW5pbmcga25vYnMuDQogICAgPiBJIHJl
-Y29tbWVuZCBmb2xsb3dpbmc6DQogICAgPiAxLiBZb3UgbXVzdCB1c2UgbWFueSB0aHJlYWQvam9i
-IHdpdGggcXVpdGUgaGlnaCBRRCBjb25maWd1cmF0aW9uLiBIaWdoZXN0IElPUFMgZm9yIEludGVs
-IFAzeHh4IGRyaXZlcyBhY2hpZXZlZCBpZiB5b3Ugc2F0dXJhdGUgdGhlbSB3aXRoIDEyOCAqNGsg
-SU8gcGVyIGRyaXZlLiBUaGlzIGNhbiBiZSBkb25lIGluIDMyIGpvYnMgYW5kIFFENCBvciAxNkov
-OFFEIGFuZCBzbyBvbi4gV2l0aCBNRFJBSUQgb24gdG9wIG9mIHRoYXQsIHlvdSBzaG91bGQgbXVs
-dGlwbHkgYnkgdGhlIG51bWJlciBvZiBkcml2ZXMgaW4gdGhlIGFycmF5LiBTbywgSSB0aGluayBj
-dXJyZW50bHkgdGhlIHByb2JsZW0sIHRoYXQgeW914oCZcmUgc2ltcGx5IG5vdCBzdWJtaXR0aW5n
-IGVub3VnaCBJT3MuDQogICAgDQogICAgSSBnZXQgbmVhcmx5IDcgbWlvIHJhbmRvbSA0ayBJT1BT
-IHdpdGggZW5naW5lPXN5bmMgYW5kIHRocmVhZHM9MjgwMCBvbiANCiAgICB0aGUgMTYgbG9naWNh
-bCBOVk1lIGJsb2NrIGRldmljZXMgKGZyb20gOCBwaHlzaWNhbCBQMzYwOCA0VEIpLg0KICAgIA0K
-ICAgIFRoZSB2YWx1ZXMgSSBnZXQgd2l0aCBsaWJhaW8gYXJlIG11Y2ggbG93ZXIgKHNlZSBteSBv
-dGhlciByZXBseSkuDQogICAgDQogICAgTXkgY29uY3JldGUgcHJvYmxlbSBpczogSSBjYW4ndCBn
-ZXQgdGhlc2UgNyBtaW8gSU9QUyB0aHJvdWdoIE1EIChzdHJpcGVkIA0KICAgIG92ZXIgYWxsIDE2
-IE5WTWUgbG9naWNhbCBkZXZpY2VzKSAuLiBNRCBoaXRzIGEgd2FsbCBhdCAxLjYgbWlvDQogICAg
-DQogICAgTm90ZTogSSBhbHNvIHRyaWVkIExWTSBzdHJpcGVkIHZvbHVtZXMuIFNsdWdnaXNoIHBl
-cmYuLCBtdWNoIGhpZ2hlciANCiAgICBzeXN0ZW0gbG9hZC4NCiAgICANCiAgICA+IDIuIGNoYW5n
-aW5nIGEgSFcgU1NEIHNlY3RvciBzaXplIHRvIDRrIG1heSBhbHNvIGhlbHAgaWYgeW914oCZcmUg
-c3VyZSB0aGF0IHlvdXIgd29ya2xvYWQgaXMgYWx3YXlzIDRrIGdyYW51bGFyDQogICAgDQogICAg
-QmFja2dyb3VuZDogbXkgd29ya2xvYWQgaXMgMTAwJSA4a0IgYW5kIGN1cnJlbnQgcmVzdWx0cyBh
-cmUgaGVyZQ0KICAgIA0KICAgIGh0dHBzOi8vZ2l0aHViLmNvbS9vYmVyc3RldC9zY3JhdGNoYm94
-L3Jhdy9tYXN0ZXIvY3J1bmNoZXIvc3FsMTkvUGVyZm9ybWFuY2UlMjBSZXN1bHRzJTIwLSUyME5W
-TWUlMjBTY2FsaW5nJTIwd2l0aCUyMElPJTIwQ29uY3VycmVuY3kucGRmDQogICAgDQogICAgVGhl
-IHNlY3RvciBzaXplIG9uIHRoZSBOVk1lcyBjdXJyZW50bHkgaXMNCiAgICANCiAgICBvYmVyc3Rl
-dEBzdnItcHNxbDE5On4vc2NtL3BhcmNpdC9SQS9hZHIvc3lzdGVtL2RvY3MkIHN1ZG8gaXNkY3Qg
-c2hvdyAtYSANCiAgICAtaW50ZWxzc2QgMCB8IGdyZXAgU2VjdG9yU2l6ZQ0KICAgIFNlY3RvclNp
-emUgOiA1MTINCiAgICANCiAgICBEbyB5b3UgcmVjb21tZW5kIGNoYW5naW5nIHRoYXQgaW4gbXkg
-Y2FzZT8NCiAgICANCiAgICA+IDMuIGFuZCBmaW5hbGx5IHVzaW5nIOKAnGltc23igJ0gTURSQUlE
-IGV4dGVuc2lvbnMgYW5kIGxhdGVzdCBNREFETSBidWlsZC4NCiAgICANCiAgICBXaGF0IGlzIGlt
-c20/DQogICAgDQogICAgSXMgdGhhdCAiSW50ZWwgTWF0cml4IFN0b3JhZ2UgQXJyYXkiPw0KICAg
-IA0KICAgIElzIHRoYXQgZnVsbHkgb3Blbi1zb3VyY2UgYW5kIGluLXRyZWUga2VybmVsPw0KICAg
-IA0KICAgIElmIG5vdCwgSSB3b24ndCB1c2UgaXQgYW55d2F5LCBzb3JyeSwgY29tcGFueSBwb2xp
-Y3kuDQogICAgDQogICAgV2UncmUgcnVubmluZyBEZWJpYW4gOCAvIEtlcm5lbCA0LjggZnJvbSBi
-YWNrcG9ydHMgKGFuZCBzb29uaXNoIERlYmlhbiA5KS4NCiAgICANCiAgICA+IFNlZSBzb21lIG90
-aGVyIGhpbnRzIHRoZXJlOg0KICAgID4gaHR0cDovL3d3dy5zbGlkZXNlYXJjaGVuZ2luZS5jb20v
-c2xpZGUvaGFuZHMtb24tbGFiLWhvdy10by11bmxlYXNoLXlvdXItc3RvcmFnZS1wZXJmb3JtYW5j
-ZS1ieS11c2luZy1udm0tZXhwcmVzcy1iYXNlZC1wY2ktZXhwcmVzcy1zb2xpZC1zdGF0ZS1kcml2
-ZXMNCiAgICA+DQogICAgPiBzb21lIGNvbmZpZyBleGFtcGxlcyBmb3IgTlZNZSBhcmUgaGVyZToN
-CiAgICA+IGh0dHBzOi8vZ2l0aHViLmNvbS8wMW9yZy9maW92aXN1YWxpemVyL3RyZWUvbWFzdGVy
-L1dvcmtsb2Fkcw0KICAgID4NCiAgICA+DQogICAgDQogICAgV2hhdCdzIHlvdXIgcGxhdGZvcm0/
-DQogICAgDQogICAgRWcgb24gV2luZG93cywgYXN5bmMgSU8gaXMgYXdlc29tZS4gT24gKm5peCAu
-LiBub3QuIEF0IGxlYXN0IGluIG15IA0KICAgIGV4cGVyaWVuY2UuDQogICAgDQogICAgQW5kIHRo
-ZW4sIG15IHRhcmdldCB3b3JrbG9hZCAoUG9zdGdyZVNRTCkgaXNuJ3QgZG9pbmcgQUlPIGF0IGFs
-bCAuLg0KICAgIA0KICAgIENoZWVycywNCiAgICAvVG9iaWFzDQogICAgDQogICAgDQoNCg==
+Hi Andrey,
+
+thanks for your tips!
+
+Am 23.01.2017 um 19:18 schrieb Kudryavtsev, Andrey O:
+> Hi Tobias,
+> MDRAID overhead is always there, but you can play with some tuning knobs.
+> I recommend following:
+> 1. You must use many thread/job with quite high QD configuration. Highest IOPS for Intel P3xxx drives achieved if you saturate them with 128 *4k IO per drive. This can be done in 32 jobs and QD4 or 16J/8QD and so on. With MDRAID on top of that, you should multiply by the number of drives in the array. So, I think currently the problem, that you’re simply not submitting enough IOs.
+
+I get nearly 7 mio random 4k IOPS with engine=sync and threads=2800 on 
+the 16 logical NVMe block devices (from 8 physical P3608 4TB).
+
+The values I get with libaio are much lower (see my other reply).
+
+My concrete problem is: I can't get these 7 mio IOPS through MD (striped 
+over all 16 NVMe logical devices) .. MD hits a wall at 1.6 mio
+
+Note: I also tried LVM striped volumes. Sluggish perf., much higher 
+system load.
+
+> 2. changing a HW SSD sector size to 4k may also help if you’re sure that your workload is always 4k granular
+
+Background: my workload is 100% 8kB and current results are here
+
+https://github.com/oberstet/scratchbox/raw/master/cruncher/sql19/Performance%20Results%20-%20NVMe%20Scaling%20with%20IO%20Concurrency.pdf
+
+The sector size on the NVMes currently is
+
+oberstet@svr-psql19:~/scm/parcit/RA/adr/system/docs$ sudo isdct show -a 
+-intelssd 0 | grep SectorSize
+SectorSize : 512
+
+Do you recommend changing that in my case?
+
+> 3. and finally using “imsm” MDRAID extensions and latest MDADM build.
+
+What is imsm?
+
+Is that "Intel Matrix Storage Array"?
+
+Is that fully open-source and in-tree kernel?
+
+If not, I won't use it anyway, sorry, company policy.
+
+We're running Debian 8 / Kernel 4.8 from backports (and soonish Debian 9).
+
+> See some other hints there:
+> http://www.slidesearchengine.com/slide/hands-on-lab-how-to-unleash-your-storage-performance-by-using-nvm-express-based-pci-express-solid-state-drives
+>
+> some config examples for NVMe are here:
+> https://github.com/01org/fiovisualizer/tree/master/Workloads
+>
+>
+
+What's your platform?
+
+Eg on Windows, async IO is awesome. On *nix .. not. At least in my 
+experience.
+
+And then, my target workload (PostgreSQL) isn't doing AIO at all ..
+
+Cheers,
+/Tobias
+
