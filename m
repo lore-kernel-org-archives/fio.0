@@ -1,128 +1,76 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from g4t3425.houston.hpe.com ([15.241.140.78]:47676 "EHLO
-        g4t3425.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752358AbdADGvZ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 4 Jan 2017 01:51:25 -0500
-Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
-        by g4t3425.houston.hpe.com (Postfix) with ESMTP id ACDA960
-        for <fio@vger.kernel.org>; Wed,  4 Jan 2017 06:51:24 +0000 (UTC)
-From: Robert Elliott <elliott@hpe.com>
-Subject: [PATCH 3/4] pmemblk,dev-dax: clean up error logs
-Date: Wed,  4 Jan 2017 00:54:52 -0600
-Message-Id: <20170104065453.15106-4-elliott@hpe.com>
-In-Reply-To: <20170104065453.15106-1-elliott@hpe.com>
-References: <20170104065453.15106-1-elliott@hpe.com>
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Robert Elliott <elliott@hpe.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 2/8] Use ARRAY_SIZE()
+Date: Tue, 24 Jan 2017 00:13:05 +0900
+Message-Id: <1485184391-11036-2-git-send-email-tkusumi@tuxera.com>
+In-Reply-To: <1485184391-11036-1-git-send-email-tkusumi@tuxera.com>
+References: <1485184391-11036-1-git-send-email-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-Print the errno string rather than the number, and prefix
-all log_err prints with pmemblk or dev-dax rather than fio.
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
+
+They can assume ARRAY_SIZE() is defined and usable as far as fio's
+internal code is concerned (i.e. FIO_INTERNAL defined).
+
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- engines/dev-dax.c | 22 +++++++++++-----------
- engines/pmemblk.c |  9 ++++-----
- 2 files changed, 15 insertions(+), 16 deletions(-)
+ gclient.c     | 2 +-
+ gfio.c        | 2 +-
+ lib/num2str.c | 4 +---
+ 3 files changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/engines/dev-dax.c b/engines/dev-dax.c
-index 45aca4e..235a31e 100644
---- a/engines/dev-dax.c
-+++ b/engines/dev-dax.c
-@@ -106,7 +106,7 @@ static int fio_devdax_prep_limited(struct thread_data *td, struct io_u *io_u)
- 	struct fio_devdax_data *fdd = FILE_ENG_DATA(f);
+diff --git a/gclient.c b/gclient.c
+index 5ce33d0..928a1b7 100644
+--- a/gclient.c
++++ b/gclient.c
+@@ -48,7 +48,7 @@ static GtkActionEntry results_menu_items[] = {
+ 	{ "PrintFile", GTK_STOCK_PRINT, "Print", "<Control>P", NULL, G_CALLBACK(results_print) },
+ 	{ "CloseFile", GTK_STOCK_CLOSE, "Close", "<Control>W", NULL, G_CALLBACK(results_close) },
+ };
+-static gint results_nmenu_items = sizeof(results_menu_items) / sizeof(results_menu_items[0]);
++static gint results_nmenu_items = ARRAY_SIZE(results_menu_items);
  
- 	if (io_u->buflen > f->real_file_size) {
--		log_err("fio: bs too big for dev-dax engine\n");
-+		log_err("dev-dax: bs too big for dev-dax engine\n");
- 		return EIO;
- 	}
+ static const gchar *results_ui_string = " \
+ 	<ui> \
+diff --git a/gfio.c b/gfio.c
+index 9ccf78c..9c917cb 100644
+--- a/gfio.c
++++ b/gfio.c
+@@ -1271,7 +1271,7 @@ static GtkActionEntry menu_items[] = {
+ 	{ "Quit", GTK_STOCK_QUIT, NULL,   "<Control>Q", NULL, G_CALLBACK(quit_clicked) },
+ 	{ "About", GTK_STOCK_ABOUT, NULL,  NULL, NULL, G_CALLBACK(about_dialog) },
+ };
+-static gint nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
++static gint nmenu_items = ARRAY_SIZE(menu_items);
  
-@@ -213,8 +213,8 @@ static int fio_devdax_init(struct thread_data *td)
+ static const gchar *ui_string = " \
+ 	<ui> \
+diff --git a/lib/num2str.c b/lib/num2str.c
+index 940d4a5..ed3545d 100644
+--- a/lib/num2str.c
++++ b/lib/num2str.c
+@@ -4,8 +4,6 @@
  
- 	if ((o->rw_min_bs & page_mask) &&
- 	    (o->fsync_blocks || o->fdatasync_blocks)) {
--		log_err("fio: mmap options dictate a minimum block size of "
--			"%llu bytes\n", (unsigned long long) page_size);
-+		log_err("dev-dax: mmap options dictate a minimum block size of %llu bytes\n",
-+			(unsigned long long) page_size);
- 		return 1;
- 	}
+ #include "../fio.h"
  
-@@ -272,8 +272,8 @@ fio_devdax_get_file_size(struct thread_data *td, struct fio_file *f)
+-#define ARRAY_LENGTH(arr)	sizeof(arr) / sizeof((arr)[0])
+-
+ /**
+  * num2str() - Cheesy number->string conversion, complete with carry rounding error.
+  * @num: quantity (e.g., number of blocks, bytes or bits)
+@@ -75,7 +73,7 @@ char *num2str(uint64_t num, int maxlen, int base, int pow2, int units)
  
- 	rc = stat(f->file_name, &st);
- 	if (rc < 0) {
--		log_err("%s: failed to stat file %s: %d\n",
--			td->o.name, f->file_name, errno);
-+		log_err("%s: failed to stat file %s (%s)\n",
-+			td->o.name, f->file_name, strerror(errno));
- 		return -errno;
- 	}
+ 	if (modulo == -1U) {
+ done:
+-		if (post_index >= ARRAY_LENGTH(sistr))
++		if (post_index >= ARRAY_SIZE(sistr))
+ 			post_index = 0;
  
-@@ -282,8 +282,8 @@ fio_devdax_get_file_size(struct thread_data *td, struct fio_file *f)
- 
- 	rpath = realpath(spath, npath);
- 	if (!rpath) {
--		log_err("%s: realpath on %s failed: %d\n",
--			td->o.name, spath, errno);
-+		log_err("%s: realpath on %s failed (%s)\n",
-+			td->o.name, spath, strerror(errno));
- 		return -errno;
- 	}
- 
-@@ -298,15 +298,15 @@ fio_devdax_get_file_size(struct thread_data *td, struct fio_file *f)
- 
- 	sfile = fopen(spath, "r");
- 	if (!sfile) {
--		log_err("%s: fopen on %s failed: %d\n",
--			td->o.name, spath, errno);
-+		log_err("%s: fopen on %s failed (%s)\n",
-+			td->o.name, spath, strerror(errno));
- 		return 1;
- 	}
- 
- 	rc = fscanf(sfile, "%lu", &size);
- 	if (rc < 0) {
--		log_err("%s: fscanf on %s failed: %d\n",
--			td->o.name, spath, errno);
-+		log_err("%s: fscanf on %s failed (%s)\n",
-+			td->o.name, spath, strerror(errno));
- 		return 1;
- 	}
- 
-diff --git a/engines/pmemblk.c b/engines/pmemblk.c
-index 7b1affa..7c609cf 100644
---- a/engines/pmemblk.c
-+++ b/engines/pmemblk.c
-@@ -203,9 +203,8 @@ static fio_pmemblk_file_t pmb_open(const char *pathspec, int flags)
- 			    pmemblk_create(path, bsize, fsize, 0644);
- 		}
- 		if (!pmb->pmb_pool) {
--			log_err
--			    ("fio: enable to open pmemblk pool file (errno %d)\n",
--			     errno);
-+			log_err("pmemblk: unable to open pmemblk pool file %s (%s)\n",
-+			     path, strerror(errno));
- 			goto error;
- 		}
- 
-@@ -267,14 +266,14 @@ static int pmb_get_flags(struct thread_data *td, uint64_t *pflags)
- 	if (!td->o.use_thread) {
- 		if (!thread_warned) {
- 			thread_warned = 1;
--			log_err("fio: must set thread=1 for pmemblk engine\n");
-+			log_err("pmemblk: must set thread=1 for pmemblk engine\n");
- 		}
- 		return 1;
- 	}
- 
- 	if (!td->o.odirect && !odirect_warned) {
- 		odirect_warned = 1;
--		log_info("fio: direct == 0, but pmemblk is always direct\n");
-+		log_info("pmemblk: direct == 0, but pmemblk is always direct\n");
- 	}
- 
- 	if (td->o.allow_create)
+ 		sprintf(buf, "%llu%s%s", (unsigned long long) num,
 -- 
-2.9.3
+2.5.5
+
 
