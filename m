@@ -1,66 +1,94 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:35182 "EHLO
-        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750723AbdAWNNu (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 23 Jan 2017 08:13:50 -0500
-Received: by mail-wm0-f54.google.com with SMTP id r126so132248125wmr.0
-        for <fio@vger.kernel.org>; Mon, 23 Jan 2017 05:13:50 -0800 (PST)
-Subject: Re: Removing *.py ending from python script filenames
-References: <2172844.j6hkAc7SIx@merkaba>
-From: Tobias Oberstein <tobias.oberstein@gmail.com>
-Message-ID: <9434c258-a14b-aba7-4093-71cf560f00a3@gmail.com>
-Date: Mon, 23 Jan 2017 14:13:47 +0100
+Return-Path: <martin.steigerwald@teamix.de>
+From: Martin Steigerwald <martin.steigerwald@teamix.de>
+Subject: Removing *.py ending from python script filenames
+Date: Mon, 23 Jan 2017 13:16:53 +0100
+Message-ID: <2172844.j6hkAc7SIx@merkaba>
 MIME-Version: 1.0
-In-Reply-To: <2172844.j6hkAc7SIx@merkaba>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Martin Steigerwald <martin.steigerwald@teamix.de>, fio@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
+To: fio@vger.kernel.org
 Cc: Vincent Fu <vincent.fu@sandisk.com>, Mark Nelson <mnelson@redhat.com>, Ben England <bengland@redhat.com>, Karl Cronburg <karl.cronburg@gmail.com>, Jens Axboe <axboe@kernel.dk>, Sven Hoexter <hoexter@debian.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+=EF=BB=BFHello Vincent, Mark, Ben, Karl, Jens,
 
-just subscribed here for other reasons and stumbled across this, but 
-since I know about Python packaging:
+I just prepared packaging for fio-2.17 and as I added some of the new Pytho=
+n=20
+script I again came across the issues the file name ending "*.py" creates=20
+within Debian.
 
-The "right way" (in as, understood and common to the Python community) 
-to distribute Python scripts that are supposed to be installed and run 
-from command line is to first package up the Python stuff as a proper 
-Python package and then follow
+1) As per Debian policy files in /usr/bin or /usr/sbin or any of the other =
+bin=20
+directory may not have such a file ending. Thus I may not put the files in=
+=20
+$PATH.
 
-http://python-packaging.readthedocs.io/en/latest/command-line-scripts.html#the-console-scripts-entry-point
+2) Man or the manpage integration debhelper script do not like this file en=
+ding=20
+either:
 
-For example
+[=E2=80=A6]/usr/share/doc/fio> dpkg -L fio | grep man =20
+[=E2=80=A6]
+/usr/share/man/py
+/usr/share/man/py/man1
+/usr/share/man/py/man1/fiologparser_hist.1.gz
 
-https://github.com/crossbario/crossbar/blob/master/setup.py#L98
+(the section here is complete crap)
 
-This will install a proper wrapper with no extension. It will also allow 
-to use the Python stuff from Python by mere importing the wrapped function.
+And=E2=80=A6 well all ways to rename files *just* prior to the packaging ru=
+n=E2=80=A6 are as=20
+far as I know=E2=80=A6 quite ugly =E2=80=93 like preparing modified upstrea=
+m tarball and things=20
+like that.
 
-(cpy3_1) oberstet@thinkpad-t430s:~/scm/crossbario/crossbario-organize$ 
-which crossbar
-/home/oberstet/python/cpy3_1/bin/crossbar
+Now I wonder whether you would be okay with just removing the "*.py" filena=
+me=20
+ending from the script and manpage filenames.
 
-(cpy3_1) oberstet@thinkpad-t430s:~/scm/crossbario/crossbario-organize$ 
-cat `which crossbar`
-#!/home/oberstet/python/cpy3_1/bin/python3
-# EASY-INSTALL-ENTRY-SCRIPT: 'crossbar','console_scripts','crossbar'
-__requires__ = 'crossbar'
-import re
-import sys
-from pkg_resources import load_entry_point
+[=E2=80=A6]fio-upstream> find -iname "*.py*" | grep -v unit_tests
+./tools/fio_latency2csv.py
+./tools/fiologparser.py
+./tools/hist/fiologparser_hist.py
+./tools/hist/fiologparser_hist.py.1
+./tools/hist/half-bins.py
 
-if __name__ == '__main__':
-     sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
-     sys.exit(
-         load_entry_point('crossbar', 'console_scripts', 'crossbar')()
-     )
-(cpy3_1) oberstet@thinkpad-t430s:~/scm/crossbario/crossbario-organize$
+This would be the easiest solution for me as a packager, would allow to put=
+=20
+scripts into $PATH and I think the "*.py" doesn=C2=B4t really add much valu=
+e.=20
+Actually the user of such a script can still see whether its a python scrip=
+t=20
+by looking at the file.
 
-Cheers,
-/Tobias
+Also for putting things in $PATH it might make sense to add "fio" to the=20
+scriptname "half-bins.py" maybe "fio-half-bins.py".
 
-PS: Also, please consider publishing the Python package to PyPI too (eg 
-for people that find distro packages annoying, eg because they use 
-virtualenv or what)
+I could prepare an upstream patch for that one=E2=80=A6  if you are okay wi=
+th the name=20
+change.
+
+And PS: Any intention to write some manpages for the scripts where they are=
+=20
+missing? :)
+
+Thank you,
+
+--=20
+Martin Steigerwald  | Trainer
+
+teamix GmbH
+S=C3=BCdwestpark 43
+90449 N=C3=BCrnberg
+
+Tel.:  +49 911 30999 55 | Fax: +49 911 30999 99
+mail: martin.steigerwald@teamix.de | web:  http://www.teamix.de | blog: htt=
+p://blog.teamix.de
+
+Amtsgericht N=C3=BCrnberg, HRB 18320 | Gesch=C3=A4ftsf=C3=BChrer: Oliver K=
+=C3=BCgow, Richard M=C3=BCller, Jakob H=C3=B8holdt
+
+teamix Support Hotline: +49 911 30999-112
+=20
+ *** Bitte liken Sie uns auf Facebook: facebook.com/teamix ***
+
+
