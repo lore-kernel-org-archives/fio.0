@@ -1,86 +1,60 @@
-Return-Path: <tobias.oberstein@gmail.com>
-Return-Path: <tobias.oberstein@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-wm0-f44.google.com ([74.125.82.44]:37955 "EHLO
+        mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751770AbdAWVtu (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 23 Jan 2017 16:49:50 -0500
+Received: by mail-wm0-f44.google.com with SMTP id r144so178280529wme.1
+        for <fio@vger.kernel.org>; Mon, 23 Jan 2017 13:49:50 -0800 (PST)
 Subject: Re: 4x lower IOPS: Linux MD vs indiv. devices - why?
 References: <90865544-f790-513c-97df-7e6a6af20ca8@gmail.com>
  <CANvN+en2ihATNgrbgzwNXAK87wNh+6jXHinmg2-VmHon31AJzA@mail.gmail.com>
  <061acabe-dbd0-ae07-cd69-772eccd15b21@gmail.com>
  <CANvN+em0cjWRnQWccdORKFEJk0OSeQOrZq+XE6kzPmqMPB--4g@mail.gmail.com>
  <49ef9d71-8e52-26e4-76f7-ea03fb331a38@gmail.com>
- <CALjAwxjmW-NgWEcH7+nKNN8U_oUxFoYa23dui9wM6WDqiShWhw@mail.gmail.com>
- <15418080-0bf6-ab40-c05f-69a3fb3d9cc3@gmail.com>
- <CALjAwxhsvfH0-D=4U6nkjFg109Z1ZgVRsOx37X+Lb-EqTf_jOA@mail.gmail.com>
- <6b2cacaf-2946-6046-51c2-b909c6ee0784@gmail.com>
- <CANvN+emLjb9idri9r42V3W9ia6v0EDGdJYFfhzq6rAuzGWec8Q@mail.gmail.com>
- <CANvN+emJBzMeUmjBw5PBSZc66LmjG8-Pz+39dBeL5GseMCdo6g@mail.gmail.com>
+ <CANvN+emM2xeKtEgVofOyKri6WBtjqc_o1LMT8Sfawb_RMRXT0g@mail.gmail.com>
+ <4b7ca744-9b23-5f55-b3f7-354aa618288a@gmail.com>
+ <CANvN+e=ASW14ShvY6dmVvUDY3PJVWwY9oQSbOT9EiOnQbSZHzA@mail.gmail.com>
+ <CANvN+ek0DgHF4gFAVep9ygdi=4pi9O9Fp5u3-VOd0iEVCSS0=Q@mail.gmail.com>
 From: Tobias Oberstein <tobias.oberstein@gmail.com>
-Message-ID: <fca1cdb1-aa66-b21f-d1a0-029ba895d3f2@gmail.com>
-Date: Tue, 24 Jan 2017 00:51:15 +0100
+Message-ID: <14bc36ca-83ea-484e-152b-9856d2e528ac@gmail.com>
+Date: Mon, 23 Jan 2017 22:49:48 +0100
 MIME-Version: 1.0
-In-Reply-To: <CANvN+emJBzMeUmjBw5PBSZc66LmjG8-Pz+39dBeL5GseMCdo6g@mail.gmail.com>
+In-Reply-To: <CANvN+ek0DgHF4gFAVep9ygdi=4pi9O9Fp5u3-VOd0iEVCSS0=Q@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
 To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
-Cc: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Cc: fio@vger.kernel.org
 
-> The root cause behind the high cpu utilization is the IRQ load your eight
-> NVMe drives generate, although context switching your 2048 threads also add
-> a lot.
+Hi Andrey,
 
-Indeed, the ctx switches and interrupts are in the millions/sec.
-
-With engine=sync and numjobs=2048, I have
-
-ctx_sw: 8828446
-inter:  5780374
-
-It's astonishing that this is even possible.
-
-> To cope with the unsustainable interrupt rate, you might want to give a
-> shot to the psync engine with RWF_HIPRI option set, which turns on polling
-> mode in the block layer (Jens has been very much behind it, so he's the guy
-> in the know of the details).
+> Thanks again for your tips .. the psync thingy in particular. I need to
+> verify if that applies to PostgreSQL, because it brings huge gains compared
+> to sync!
 >
-> Polling avoids interrupts at the price of the somewhat inflated latency,
-> but reduces the cpu load noticeably, so it may turn out a good option for
-> your box specifically. Notice you'll need preadv2/pwrirev2 syscall support
-> in your kernel.
+>
+> That's easy to explain, it just does one syscall less per IO. It should
+> indeed bring home a measurable gain as, with synchronous I/O, I believe
+> you're cpu-limited.
 
-I have run an exhaustive number of 30 tests using the different engines, 
-including pvsync2 + hipri.
+Sadly, it seems PostgreSQL currently does lseek/read/write. (I'll double 
+check tomorrow running perf against an active PostgreSQL instance).
 
-Please find everything here
+There was a patch discussed here using pread/pwrite when avail
 
-https://github.com/oberstet/scratchbox/blob/master/cruncher/sync-engines/README.md
+https://www.postgresql.org/message-id/flat/CABUevEzZ%3DCGdmwSZwW9oNuf4pQZMExk33jcNO7rseqrAgKzj5Q%40mail.gmail.com#CABUevEzZ=CGdmwSZwW9oNuf4pQZMExk33jcNO7rseqrAgKzj5Q@mail.gmail.com
 
-and in the containing folder there.
+which ends with a comment by Tom Lane (PostgreSQL core developer)
 
-Using pvsync2 + hipri indeed changes the picture .. but not to the better =(
+"Well, my point remains that I see little value in messing with
+long-established code if you can't demonstrate a benefit that's clearly
+above the noise level."
 
-The machine completely bogs down and the IOPS doesn't get higher.
+=(
 
-Sidenote: would nice if FIO logged the total CPU and interrupt rates ..
-
-Here is a screenshot while running pvsync2+hipri
-
-http://picpaste.com/pics/Bildschirmfoto_vom_2017-01-23_23-52-10-55NJYHu2.1485215076.png
-
---
-
-My current preliminary conclusions on this box / workload:
-
-- running psync is much better than sync
-- all engines "above" psync only bring minor perf. gains
-- Linux MD (pure striping, RAID-0) comes with rougly 45% overhead
-- saturing the storage subsystem consumes nearly all CPU
+I will post the findings from our discussion here to the PG hackers 
+list. Maybe ...
 
 Cheers,
 /Tobias
-
-PS: I have a small time window left (days) until this box goes into 
-further setup for production (which means, I cannot scratch the storage 
-anymore) - if you have anything you want me to try, let me know. I do my 
-best to get it tested. The hardware is probably not mainstream ..
-
-
-
