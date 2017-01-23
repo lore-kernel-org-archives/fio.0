@@ -1,239 +1,303 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:37989 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751124AbdAWSSy (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 23 Jan 2017 13:18:54 -0500
-From: "Kudryavtsev, Andrey O" <andrey.o.kudryavtsev@intel.com>
+Received: from mail-wm0-f45.google.com ([74.125.82.45]:38227 "EHLO
+        mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750957AbdAWRwi (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 23 Jan 2017 12:52:38 -0500
+Received: by mail-wm0-f45.google.com with SMTP id r144so168030502wme.1
+        for <fio@vger.kernel.org>; Mon, 23 Jan 2017 09:52:14 -0800 (PST)
 Subject: Re: 4x lower IOPS: Linux MD vs indiv. devices - why?
-Date: Mon, 23 Jan 2017 18:18:52 +0000
-Message-ID: <974E4982-D808-4CAF-ACCF-85866C0050A7@intel.com>
 References: <90865544-f790-513c-97df-7e6a6af20ca8@gmail.com>
-In-Reply-To: <90865544-f790-513c-97df-7e6a6af20ca8@gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <8E2A15B313BBCB47B895253CF3A165BB@intel.com>
-Content-Transfer-Encoding: base64
+ <CANvN+en2ihATNgrbgzwNXAK87wNh+6jXHinmg2-VmHon31AJzA@mail.gmail.com>
+From: Tobias Oberstein <tobias.oberstein@gmail.com>
+Message-ID: <061acabe-dbd0-ae07-cd69-772eccd15b21@gmail.com>
+Date: Mon, 23 Jan 2017 18:52:01 +0100
 MIME-Version: 1.0
+In-Reply-To: <CANvN+en2ihATNgrbgzwNXAK87wNh+6jXHinmg2-VmHon31AJzA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Tobias Oberstein <tobias.oberstein@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>, fio@vger.kernel.org
 
-SGkgVG9iaWFzLCANCk1EUkFJRCBvdmVyaGVhZCBpcyBhbHdheXMgdGhlcmUsIGJ1dCB5b3UgY2Fu
-IHBsYXkgd2l0aCBzb21lIHR1bmluZyBrbm9icy4gDQpJIHJlY29tbWVuZCBmb2xsb3dpbmc6IA0K
-MS4gWW91IG11c3QgdXNlIG1hbnkgdGhyZWFkL2pvYiB3aXRoIHF1aXRlIGhpZ2ggUUQgY29uZmln
-dXJhdGlvbi4gSGlnaGVzdCBJT1BTIGZvciBJbnRlbCBQM3h4eCBkcml2ZXMgYWNoaWV2ZWQgaWYg
-eW91IHNhdHVyYXRlIHRoZW0gd2l0aCAxMjggKjRrIElPIHBlciBkcml2ZS4gVGhpcyBjYW4gYmUg
-ZG9uZSBpbiAzMiBqb2JzIGFuZCBRRDQgb3IgMTZKLzhRRCBhbmQgc28gb24uIFdpdGggTURSQUlE
-IG9uIHRvcCBvZiB0aGF0LCB5b3Ugc2hvdWxkIG11bHRpcGx5IGJ5IHRoZSBudW1iZXIgb2YgZHJp
-dmVzIGluIHRoZSBhcnJheS4gU28sIEkgdGhpbmsgY3VycmVudGx5IHRoZSBwcm9ibGVtLCB0aGF0
-IHlvdeKAmXJlIHNpbXBseSBub3Qgc3VibWl0dGluZyBlbm91Z2ggSU9zLiANCjIuIGNoYW5naW5n
-IGEgSFcgU1NEIHNlY3RvciBzaXplIHRvIDRrIG1heSBhbHNvIGhlbHAgaWYgeW914oCZcmUgc3Vy
-ZSB0aGF0IHlvdXIgd29ya2xvYWQgaXMgYWx3YXlzIDRrIGdyYW51bGFyDQozLiBhbmQgZmluYWxs
-eSB1c2luZyDigJxpbXNt4oCdIE1EUkFJRCBleHRlbnNpb25zIGFuZCBsYXRlc3QgTURBRE0gYnVp
-bGQuIA0KDQpTZWUgc29tZSBvdGhlciBoaW50cyB0aGVyZToNCmh0dHA6Ly93d3cuc2xpZGVzZWFy
-Y2hlbmdpbmUuY29tL3NsaWRlL2hhbmRzLW9uLWxhYi1ob3ctdG8tdW5sZWFzaC15b3VyLXN0b3Jh
-Z2UtcGVyZm9ybWFuY2UtYnktdXNpbmctbnZtLWV4cHJlc3MtYmFzZWQtcGNpLWV4cHJlc3Mtc29s
-aWQtc3RhdGUtZHJpdmVzDQogDQpzb21lIGNvbmZpZyBleGFtcGxlcyBmb3IgTlZNZSBhcmUgaGVy
-ZToNCmh0dHBzOi8vZ2l0aHViLmNvbS8wMW9yZy9maW92aXN1YWxpemVyL3RyZWUvbWFzdGVyL1dv
-cmtsb2Fkcw0KDQoNCi0tIA0KQW5kcmV5IEt1ZHJ5YXZ0c2V2LCANCg0KU1NEIFNvbHV0aW9uIEFy
-Y2hpdGVjdA0KSW50ZWwgQ29ycC4gDQppbmV0OiA4MzU2NDM1Mw0Kd29yazogKzEtOTE2LTM1Ni00
-MzUzDQptb2JpbGU6ICsxLTkxNi0yMjEtMjI4MQ0KDQpPbiAxLzIzLzE3LCA4OjI2IEFNLCAiZmlv
-LW93bmVyQHZnZXIua2VybmVsLm9yZyBvbiBiZWhhbGYgb2YgVG9iaWFzIE9iZXJzdGVpbiIgPGZp
-by1vd25lckB2Z2VyLmtlcm5lbC5vcmcgb24gYmVoYWxmIG9mIHRvYmlhcy5vYmVyc3RlaW5AZ21h
-aWwuY29tPiB3cm90ZToNCg0KICAgIEhpLA0KICAgIA0KICAgIEkgaGF2ZSBhIHF1ZXN0aW9uIHJn
-ZCBMaW51eCBzb2Z0d2FyZSBSQUlEIChNRCkgYXMgdGVzdGVkIHdpdGggRklPIC0gc28gDQogICAg
-dGhpcyBpcyBzbGlnaHRseSBPVCwgYnV0IEkgYW0gaG9waW5nIGZvciBleHBlcnQgYWR2aWNlIG9y
-IHJlZGlyZWN0aW9uIHRvIA0KICAgIGEgbW9yZSBhcHByb3ByaWF0ZSBwbGFjZSAoaWYgdGhpcyBp
-cyB1bndlbGNvbWUgaGVyZSkuDQogICAgDQogICAgSSBoYXZlIGEgYm94IHdpdGggdGhpcyBIVzoN
-CiAgICANCiAgICAtIDg4IGNvcmVzIFhlb24gRTcgKDE3NiBIVHMpICsgM1RCIFJBTQ0KICAgIC0g
-OCB4IEludGVsIFAzNjA4IDRUQiBOVk1lICh3aGljaCBpcyBsb2dpY2FsbCAxNiBOVk1lcykNCiAg
-ICANCiAgICBXaXRoIHJhbmRvbSA0a0IgcmVhZCBsb2FkLCBJIGFtIGFibGUgdG8gbWF4IGl0IG91
-dCBhdCA3IG1pbGxpb24gSU9QUyAtIA0KICAgIGJ1dCBvbmx5IGlmIEkgcnVuIEZJTyBvbiB0aGUg
-X2luZGl2aWR1YWxfIE5WTWUgZGV2aWNlcy4NCiAgICANCiAgICBbZ2xvYmFsXQ0KICAgIGdyb3Vw
-X3JlcG9ydGluZw0KICAgIGZpbGVuYW1lPS9kZXYvbnZtZTBuMTovZGV2L252bWUxbjE6L2Rldi9u
-dm1lMm4xOi9kZXYvbnZtZTNuMTovZGV2L252bWU0bjE6L2Rldi9udm1lNW4xOi9kZXYvbnZtZTZu
-MTovZGV2L252bWU3bjE6L2Rldi9udm1lOG4xOi9kZXYvbnZtZTluMTovZGV2L252bWUxMG4xOi9k
-ZXYvbnZtZTExbjE6L2Rldi9udm1lMTJuMTovZGV2L252bWUxM24xOi9kZXYvbnZtZTE0bjE6L2Rl
-di9udm1lMTVuMQ0KICAgIHNpemU9MzBHDQogICAgaW9lbmdpbmU9c3luYw0KICAgIGlvZGVwdGg9
-MQ0KICAgIHRocmVhZD0xDQogICAgZGlyZWN0PTENCiAgICB0aW1lX2Jhc2VkPTENCiAgICByYW5k
-cmVwZWF0PTANCiAgICBub3JhbmRvbW1hcD0xDQogICAgYnM9NGsNCiAgICBydW50aW1lPTEyMA0K
-ICAgIA0KICAgIFtyYW5kcmVhZF0NCiAgICBzdG9uZXdhbGwNCiAgICBydz1yYW5kcmVhZA0KICAg
-IG51bWpvYnM9MjU2MA0KICAgIA0KICAgIFdoZW4gSSBjcmVhdGUgYSBzdHJpcGUgc2V0IG92ZXIg
-YWxsIGRldmljZXM6DQogICAgDQogICAgc3VkbyBtZGFkbSAtLWNyZWF0ZSAvZGV2L21kMSAtLWNo
-dW5rPTggLS1sZXZlbD0wIC0tcmFpZC1kZXZpY2VzPTE2IFwNCiAgICAgICAgL2Rldi9udm1lMG4x
-IFwNCiAgICAgICAgL2Rldi9udm1lMW4xIFwNCiAgICAgICAgL2Rldi9udm1lMm4xIFwNCiAgICAg
-ICAgL2Rldi9udm1lM24xIFwNCiAgICAgICAgL2Rldi9udm1lNG4xIFwNCiAgICAgICAgL2Rldi9u
-dm1lNW4xIFwNCiAgICAgICAgL2Rldi9udm1lNm4xIFwNCiAgICAgICAgL2Rldi9udm1lN24xIFwN
-CiAgICAgICAgL2Rldi9udm1lOG4xIFwNCiAgICAgICAgL2Rldi9udm1lOW4xIFwNCiAgICAgICAg
-L2Rldi9udm1lMTBuMSBcDQogICAgICAgIC9kZXYvbnZtZTExbjEgXA0KICAgICAgICAvZGV2L252
-bWUxMm4xIFwNCiAgICAgICAgL2Rldi9udm1lMTNuMSBcDQogICAgICAgIC9kZXYvbnZtZTE0bjEg
-XA0KICAgICAgICAvZGV2L252bWUxNW4xDQogICAgDQogICAgSSBvbmx5IGdldCAxLjYgbWlsbGlv
-biBJT1BTLiBEZXRhaWwgcmVzdWx0cyBkb3duIGJlbG93Lg0KICAgIA0KICAgIE5vdGU6IHRoZSBh
-cnJheSBpcyBjcmVhdGVkIHdpdGggY2h1bmsgc2l6ZSA4SyBiZWNhdXNlIHRoaXMgaXMgZm9yIA0K
-ICAgIGRhdGFiYXNlIHdvcmtsb2FkLiBIZXJlIEkgdGVzdGVkIHdpdGggNGsgYmxvY2sgc2l6ZSwg
-YnV0IHRoZSBpdCdzIA0KICAgIHNpbWlsYXIgKGxvd2VyIHBlcmYgb24gTUQpIHdpdGggOGsNCiAg
-ICANCiAgICBBbnkgaGVscHMgb3IgaGludHMgd291bGQgYmUgZ3JlYXRseSBhcHByZWNpYXRlZCEN
-CiAgICANCiAgICBDaGVlcnMsDQogICAgL1RvYmlhcw0KICAgIA0KICAgIA0KICAgIA0KICAgIDcg
-bWlsbGlvbiBJT1BTIG9uIHJhdywgaW5kaXZpZHVhbCBOVk1lIGRldmljZXMNCiAgICA9PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQogICAgDQogICAgb2JlcnN0
-ZXRAc3ZyLXBzcWwxOTp+L3NjbS9wYXJjaXQvUkEvYWRyL3N5c3RlbS9kb2NzJCBzdWRvIA0KICAg
-IC9vcHQvZmlvL2Jpbi9maW8gcG9zdGdyZXNxbF9zdG9yYWdlX3dvcmtsb2FkLmZpbw0KICAgIHJh
-bmRyZWFkOiAoZz0wKTogcnc9cmFuZHJlYWQsIGJzPTQwOTZCLTQwOTZCLDQwOTZCLTQwOTZCLDQw
-OTZCLTQwOTZCLCANCiAgICBpb2VuZ2luZT1zeW5jLCBpb2RlcHRoPTENCiAgICAuLi4NCiAgICBm
-aW8tMi4xNy0xNy1nOWNmMQ0KICAgIFN0YXJ0aW5nIDI1NjAgdGhyZWFkcw0KICAgIEpvYnM6IDIz
-NjcgKGY9Mjk4OTYpOiANCiAgICBbXygyKSxmKDMpLF8oMiksZigxMSksXygyKSxmKDIpLF8oOSks
-ZigxKSxfKDEpLGYoMSksXygzKSxmKDEpLF8oMSksZigxKSxfKDEzKSxmKDEpLF8oOCksZigxKSxf
-KDEpLGYoNCksXygyKSxmKDEpLF8oMSksZigxKSxfKDMpLGYoMiksXygzKSxmKDMpLF8oOCksZigy
-KSxfKDEpLGYoMyksXygzKSxmKDYwKSxfKDEpLGYoMjApLF8oMSksZigzMyksXygxKSxmKDE0KSxf
-KDEpLGYoMTgpLF8oNCksZig2KSxfKDEpLGYoNiksXygxKSxmKDEpLF8oMSksZigxKSxfKDEpLGYo
-NCksXygxKSxmKDIpLF8oMSksZigxMSksXygxKSxmKDExKSxfKDQpLGYoNzQpLF8oMSksZig4KSxf
-KDEpLGYoMTEpLF8oMSksZig4KSxfKDEpLGYoNjEpLF8oMSksZigzOCksXygxKSxmKDMxKSxfKDEp
-LGYoNSksXygxKSxmKDEwMyksXygxKSxmKDI0KSxFKDEpLGYoMjcpLF8oMSksZigyOCksXygxKSxm
-KDEpLF8oMSksZigxMzQpLF8oMSksZig2MiksXygxKSxmKDQ4KSxfKDEpLGYoMjcpLF8oMSksZig1
-OSksXygxKSxmKDMwKSxfKDEpLGYoMTQpLF8oMSksZigyNSksXygxKSxmKDIpLF8oMSksZigyNSks
-XygxKSxmKDMxKSxfKDEpLGYoOSksXygxKSxmKDcpLF8oMSksZig4KSxfKDEpLGYoMTMpLF8oMSks
-ZigyOCksXygxKSxmKDcpLF8oMSksZig4NCksXygxKSxmKDQyKSxfKDEpLGYoNSksXygxKSxmKDgp
-LF8oMSksZigyMCksXygxKSxmKDE1KSxfKDEpLGYoMTkpLF8oMSksZigzKSxfKDEpLGYoMTkpLF8o
-MSksZig3KSxfKDEpLGYoMTcpLF8oMSksZigzNCksXygxKSxmKDEpLF8oMSksZig0KSxfKDEpLGYo
-MSksXygxKSxmKDEpLF8oMiksZigzKSxfKDEpLGYoMSksXygxKSxmKDEpLF8oMSksZig4KSxfKDEp
-LGYoNiksXygxKSxmKDMpLF8oMSksZigzKSxfKDEpLGYoNTMpLF8oMSksZig3KSxfKDEpLGYoMTkp
-LF8oMSksZig2KSxfKDEpLGYoNSksXygxKSxmKDIyKSxfKDEpLGYoMTEpLF8oMSksZigxMiksXygx
-KSxmKDMpLF8oMSksZigxNiksXygxKSxmKDE0OSksXygxKSxmKDIwKSxfKDEpLGYoMjcpLF8oMSks
-Zig3KSxfKDEpLGYoMjkpLF8oMSksZigyKSxfKDEpLGYoMTEpLF8oMSksZig0NiksXygxKSxmKDgp
-LF8oMiksZigxKSxfKDEpLGYoMSksXygxKSxmKDE0KSxFKDEpLGYoNCksXygxKSxmKDIyKSxfKDEp
-LGYoMTEpLF8oMSksZig3MCksXygyKSxmKDExKSxfKDEpLGYoMiksXygxKSxmKDEpLF8oMSksZigx
-KSxfKDEpLGYoMjEpLF8oMSksZig4KSxfKDEpLGYoNCksXygxKSxmKDQ1KSxfKDIpLGYoMSksXygx
-KSxmKDE4KSxfKDEpLGYoMTIpLF8oMSksZig2KSxfKDEpLGYoNSksXygxKSxmKDI3KSxfKDEpLGYo
-MyksXygxKSxmKDMpLF8oMSksZigxOSksXygxKSxmKDQpLF8oMSksZigyNSksXygxKSxmKDQpLF8o
-MSksZigxKSxfKDEpLGYoMiksXygxKSxmKDEpLF8oMSksZigxMyksXygxKSxmKDE4KSxfKDEpLGYo
-MSksXygxKSxmKDEpLF8oMSksZigyOSksXygxKSxmKDI3KV1bMTAwLjAlXVtyPTIxLjFHaUIvcyx3
-PTBLaUIvc11bcj01NzUxayx3PTAgDQogICAgSU9QU11bZXRhIDAwbTowMHNdDQogICAgcmFuZHJl
-YWQ6IChncm91cGlkPTAsIGpvYnM9MjU2MCk6IGVycj0gMDogcGlkPTExNDQzNTogTW9uIEphbiAy
-MyANCiAgICAxNTo0NzoxNyAyMDE3DQogICAgICAgIHJlYWQ6IElPUFM9Njk2NWssIEJXPTI2LjZH
-aUIvcyAoMjguNkdCL3MpKDMxODlHaUIvMTIwMDA3bXNlYykNCiAgICAgICAgIGNsYXQgKHVzZWMp
-OiBtaW49MzgsIG1heD0zMzI2MiwgYXZnPTM2MC4xMSwgc3RkZXY9NDY1LjM2DQogICAgICAgICAg
-bGF0ICh1c2VjKTogbWluPTM4LCBtYXg9MzMyNjIsIGF2Zz0zNjAuMjAsIHN0ZGV2PTQ2NS40MA0K
-ICAgICAgICAgY2xhdCBwZXJjZW50aWxlcyAodXNlYyk6DQogICAgICAgICAgfCAgMS4wMHRoPVsg
-IDExNF0sICA1LjAwdGg9WyAgMTM1XSwgMTAuMDB0aD1bICAxNDldLCAyMC4wMHRoPVsgIDE3MV0s
-DQogICAgICAgICAgfCAzMC4wMHRoPVsgIDE5MV0sIDQwLjAwdGg9WyAgMjEzXSwgNTAuMDB0aD1b
-ICAyMzldLCA2MC4wMHRoPVsgIDI3MF0sDQogICAgICAgICAgfCA3MC4wMHRoPVsgIDMxNF0sIDgw
-LjAwdGg9WyAgMzc4XSwgOTAuMDB0aD1bICA1NTZdLCA5NS4wMHRoPVsgIDk4MF0sDQogICAgICAg
-ICAgfCA5OS4wMHRoPVsgMjcwNF0sIDk5LjUwdGg9WyAzMzEyXSwgOTkuOTB0aD1bIDQ1NzZdLCA5
-OS45NXRoPVsgNTIxNl0sDQogICAgICAgICAgfCA5OS45OXRoPVsgODA5Nl0NCiAgICAgICAgIGxh
-dCAodXNlYykgOiA1MD0wLjAxJSwgMTAwPTAuMTElLCAyNTA9NTMuNzUlLCA1MDA9MzQuMjMlLCA3
-NTA9NS4yMyUNCiAgICAgICAgIGxhdCAodXNlYykgOiAxMDAwPTEuNzklDQogICAgICAgICBsYXQg
-KG1zZWMpIDogMj0yLjg4JSwgND0xLjgxJSwgMTA9MC4yMCUsIDIwPTAuMDElLCA1MD0wLjAxJQ0K
-ICAgICAgIGNwdSAgICAgICAgICA6IHVzcj0wLjYzJSwgc3lzPTQuODklLCBjdHg9ODM3NDM0NDAw
-LCBtYWpmPTAsIG1pbmY9MjU1Nw0KICAgICAgIElPIGRlcHRocyAgICA6IDE9MTAwLjAlLCAyPTAu
-MCUsIDQ9MC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCANCiAgICAgPj02ND0wLjAlDQog
-ICAgICAgICAgc3VibWl0ICAgIDogMD0wLjAlLCA0PTEwMC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAz
-Mj0wLjAlLCA2ND0wLjAlLCANCiAgICAgPj02ND0wLjAlDQogICAgICAgICAgY29tcGxldGUgIDog
-MD0wLjAlLCA0PTEwMC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCA2ND0wLjAlLCANCiAg
-ICAgPj02ND0wLjAlDQogICAgICAgICAgaXNzdWVkIHJ3dDogdG90YWw9ODM1ODUyMjY2LDAsMCwg
-c2hvcnQ9MCwwLDAsIGRyb3BwZWQ9MCwwLDANCiAgICAgICAgICBsYXRlbmN5ICAgOiB0YXJnZXQ9
-MCwgd2luZG93PTAsIHBlcmNlbnRpbGU9MTAwLjAwJSwgZGVwdGg9MQ0KICAgIA0KICAgIFJ1biBz
-dGF0dXMgZ3JvdXAgMCAoYWxsIGpvYnMpOg0KICAgICAgICBSRUFEOiBidz0yNi42R2lCL3MgKDI4
-LjZHQi9zKSwgMjYuNkdpQi9zLTI2LjZHaUIvcyANCiAgICAoMjguNkdCL3MtMjguNkdCL3MpLCBp
-bz0zMTg5R2lCICgzNDI0R0IpLCBydW49MTIwMDA3LTEyMDAwN21zZWMNCiAgICANCiAgICBEaXNr
-IHN0YXRzIChyZWFkL3dyaXRlKToNCiAgICAgICBudm1lMG4xOiBpb3M9NTIxOTEzNzcvMCwgbWVy
-Z2U9MC8wLCB0aWNrcz0xNDQwMDU2OC8wLCANCiAgICBpbl9xdWV1ZT0xNDgwMjQwMCwgdXRpbD0x
-MDAuMDAlDQogICAgICAgbnZtZTFuMTogaW9zPTUyMjQxNjg0LzAsIG1lcmdlPTAvMCwgdGlja3M9
-MTM5MTk3NDQvMCwgDQogICAgaW5fcXVldWU9MTUxMDEyNzYsIHV0aWw9MTAwLjAwJQ0KICAgICAg
-IG52bWUybjE6IGlvcz01MjI0MTUzNy8wLCBtZXJnZT0wLzAsIHRpY2tzPTExMTQ2OTUyLzAsIA0K
-ICAgIGluX3F1ZXVlPTEyMDUzMTEyLCB1dGlsPTEwMC4wMCUNCiAgICAgICBudm1lM24xOiBpb3M9
-NTIyNDE0MTYvMCwgbWVyZ2U9MC8wLCB0aWNrcz0xMDgwNjYyNC8wLCANCiAgICBpbl9xdWV1ZT0x
-MTEzNTAwNCwgdXRpbD0xMDAuMDAlDQogICAgICAgbnZtZTRuMTogaW9zPTUyMjQxMjg1LzAsIG1l
-cmdlPTAvMCwgdGlja3M9MTkzMjA0NDgvMCwgDQogICAgaW5fcXVldWU9MjEwNzk1NzYsIHV0aWw9
-MTAwLjAwJQ0KICAgICAgIG52bWU1bjE6IGlvcz01MjI0MTE0Mi8wLCBtZXJnZT0wLzAsIHRpY2tz
-PTE4Nzg2OTY4LzAsIA0KICAgIGluX3F1ZXVlPTE5MzkzMDI0LCB1dGlsPTEwMC4wMCUNCiAgICAg
-ICBudm1lNm4xOiBpb3M9NTIyNDEwMDAvMCwgbWVyZ2U9MC8wLCB0aWNrcz0xOTYxMDg5Mi8wLCAN
-CiAgICBpbl9xdWV1ZT0yMDE0MDEwNCwgdXRpbD0xMDAuMDAlDQogICAgICAgbnZtZTduMTogaW9z
-PTUyMjQwODc0LzAsIG1lcmdlPTAvMCwgdGlja3M9MjA0ODI5MjAvMCwgDQogICAgaW5fcXVldWU9
-MjEwOTAwNDgsIHV0aWw9MTAwLjAwJQ0KICAgICAgIG52bWU4bjE6IGlvcz01MjI0MDczMS8wLCBt
-ZXJnZT0wLzAsIHRpY2tzPTE0NTMzOTkyLzAsIA0KICAgIGluX3F1ZXVlPTE0OTI5MTcyLCB1dGls
-PTEwMC4wMCUNCiAgICAgICBudm1lOW4xOiBpb3M9NTIyNDA1ODcvMCwgbWVyZ2U9MC8wLCB0aWNr
-cz0xMjg1NDk1Ni8wLCANCiAgICBpbl9xdWV1ZT0xMzkxOTI4OCwgdXRpbD0xMDAuMDAlDQogICAg
-ICAgbnZtZTEwbjE6IGlvcz01MjI0MDQ0Ny8wLCBtZXJnZT0wLzAsIHRpY2tzPTExMDg1NTA4LzAs
-IA0KICAgIGluX3F1ZXVlPTExMzkwMzkyLCB1dGlsPTEwMC4wMCUNCiAgICAgICBudm1lMTFuMTog
-aW9zPTUyMjQwMzAxLzAsIG1lcmdlPTAvMCwgdGlja3M9MTg0OTAyNjAvMCwgDQogICAgaW5fcXVl
-dWU9MjAxMTAyODgsIHV0aWw9MTAwLjAwJQ0KICAgICAgIG52bWUxMm4xOiBpb3M9NTIyNDAwOTcv
-MCwgbWVyZ2U9MC8wLCB0aWNrcz0xMTM3Nzg4NC8wLCANCiAgICBpbl9xdWV1ZT0xMTY4MzU2OCwg
-dXRpbD0xMDAuMDAlDQogICAgICAgbnZtZTEzbjE6IGlvcz01MjIzOTk1Ni8wLCBtZXJnZT0wLzAs
-IHRpY2tzPTE1MjA1MzA0LzAsIA0KICAgIGluX3F1ZXVlPTE2MzE0NjI4LCB1dGlsPTEwMC4wMCUN
-CiAgICAgICBudm1lMTRuMTogaW9zPTUyMjM5NzY2LzAsIG1lcmdlPTAvMCwgdGlja3M9MjcwMDM3
-ODgvMCwgDQogICAgaW5fcXVldWU9Mjc2NTk5MjAsIHV0aWw9MTAwLjAwJQ0KICAgICAgIG52bWUx
-NW4xOiBpb3M9NTIyMzk2MjAvMCwgbWVyZ2U9MC8wLCB0aWNrcz0xNzM1MjYyNC8wLCANCiAgICBp
-bl9xdWV1ZT0xNzkxMDYzNiwgdXRpbD0xMDAuMDAlDQogICAgDQogICAgDQogICAgMS42IG1pbGxp
-b25zIElPUFMgb24gTGludXggTUQgb3ZlciAxNiBOVk1lIGRldmljZXMNCiAgICA9PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KICAgIA0KICAgIG9iZXJz
-dGV0QHN2ci1wc3FsMTk6fi9zY20vcGFyY2l0L1JBL2Fkci9zeXN0ZW0vZG9jcyQgc3VkbyANCiAg
-ICAvb3B0L2Zpby9iaW4vZmlvIHBvc3RncmVzcWxfc3RvcmFnZV93b3JrbG9hZC5maW8NCiAgICBy
-YW5kcmVhZDogKGc9MCk6IHJ3PXJhbmRyZWFkLCBicz00MDk2Qi00MDk2Qiw0MDk2Qi00MDk2Qiw0
-MDk2Qi00MDk2QiwgDQogICAgaW9lbmdpbmU9c3luYywgaW9kZXB0aD0xDQogICAgLi4uDQogICAg
-ZmlvLTIuMTctMTctZzljZjENCiAgICBTdGFydGluZyAyNTYwIHRocmVhZHMNCiAgICBKb2JzOiAy
-NTYwIChmPTI1NjApOiBbcigyNTYwKV1bMTAwLjAlXVtyPTYyMTJNaUIvcyx3PTBLaUIvc11bcj0x
-NTkwayx3PTAgDQogICAgSU9QU11bZXRhIDAwbTowMHNdDQogICAgcmFuZHJlYWQ6IChncm91cGlk
-PTAsIGpvYnM9MjU2MCk6IGVycj0gMDogcGlkPTE0NjA3MDogTW9uIEphbiAyMyANCiAgICAxNzoy
-MToxNSAyMDE3DQogICAgICAgIHJlYWQ6IElPUFM9MTU4OGssIEJXPTYyMDRNaUIvcyAoNjUwNU1C
-L3MpKDcyOEdpQi8xMjAwOThtc2VjKQ0KICAgICAgICAgY2xhdCAodXNlYyk6IG1pbj0yNywgbWF4
-PTI4NDk4LCBhdmc9MTI0LjUxLCBzdGRldj0xMTMuMTANCiAgICAgICAgICBsYXQgKHVzZWMpOiBt
-aW49MjcsIG1heD0yODQ5OCwgYXZnPTEyNC41OCwgc3RkZXY9MTEzLjEwDQogICAgICAgICBjbGF0
-IHBlcmNlbnRpbGVzICh1c2VjKToNCiAgICAgICAgICB8ICAxLjAwdGg9WyAgIDc4XSwgIDUuMDB0
-aD1bICAgODRdLCAxMC4wMHRoPVsgICA4Nl0sIDIwLjAwdGg9WyAgIDg5XSwNCiAgICAgICAgICB8
-IDMwLjAwdGg9WyAgIDk1XSwgNDAuMDB0aD1bICAxMDJdLCA1MC4wMHRoPVsgIDEwNV0sIDYwLjAw
-dGg9WyAgMTA4XSwNCiAgICAgICAgICB8IDcwLjAwdGg9WyAgMTE4XSwgODAuMDB0aD1bICAxMzNd
-LCA5MC4wMHRoPVsgIDE3M10sIDk1LjAwdGg9WyAgMjIxXSwNCiAgICAgICAgICB8IDk5LjAwdGg9
-WyAgMzU4XSwgOTkuNTB0aD1bICA1MDZdLCA5OS45MHRoPVsgMjE5Ml0sIDk5Ljk1dGg9WyAyNjA4
-XSwNCiAgICAgICAgICB8IDk5Ljk5dGg9WyAyOTYwXQ0KICAgICAgICAgbGF0ICh1c2VjKSA6IDUw
-PTAuMDYlLCAxMDA9MzUuMTQlLCAyNTA9NjEuODMlLCA1MDA9Mi40NiUsIDc1MD0wLjE5JQ0KICAg
-ICAgICAgbGF0ICh1c2VjKSA6IDEwMDA9MC4wNyUNCiAgICAgICAgIGxhdCAobXNlYykgOiAyPTAu
-MTMlLCA0PTAuMTIlLCAxMD0wLjAxJSwgMjA9MC4wMSUsIDUwPTAuMDElDQogICAgICAgY3B1ICAg
-ICAgICAgIDogdXNyPTAuMDglLCBzeXM9NC40OSUsIGN0eD0yMDA0MzE5OTMsIG1hamY9MCwgbWlu
-Zj0yNTU3DQogICAgICAgSU8gZGVwdGhzICAgIDogMT0xMDAuMCUsIDI9MC4wJSwgND0wLjAlLCA4
-PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsIA0KICAgICA+PTY0PTAuMCUNCiAgICAgICAgICBzdWJt
-aXQgICAgOiAwPTAuMCUsIDQ9MTAwLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsIDY0PTAu
-MCUsIA0KICAgICA+PTY0PTAuMCUNCiAgICAgICAgICBjb21wbGV0ZSAgOiAwPTAuMCUsIDQ9MTAw
-LjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsIDY0PTAuMCUsIA0KICAgICA+PTY0PTAuMCUN
-CiAgICAgICAgICBpc3N1ZWQgcnd0OiB0b3RhbD0xOTA3MzA0NjMsMCwwLCBzaG9ydD0wLDAsMCwg
-ZHJvcHBlZD0wLDAsMA0KICAgICAgICAgIGxhdGVuY3kgICA6IHRhcmdldD0wLCB3aW5kb3c9MCwg
-cGVyY2VudGlsZT0xMDAuMDAlLCBkZXB0aD0xDQogICAgDQogICAgUnVuIHN0YXR1cyBncm91cCAw
-IChhbGwgam9icyk6DQogICAgICAgIFJFQUQ6IGJ3PTYyMDRNaUIvcyAoNjUwNU1CL3MpLCA2MjA0
-TWlCL3MtNjIwNE1pQi9zIA0KICAgICg2NTA1TUIvcy02NTA1TUIvcyksIGlvPTcyOEdpQiAoNzgx
-R0IpLCBydW49MTIwMDk4LTEyMDA5OG1zZWMNCiAgICANCiAgICBEaXNrIHN0YXRzIChyZWFkL3dy
-aXRlKToNCiAgICAgICAgIG1kMTogaW9zPTE5MDYzMjYxMi8wLCBtZXJnZT0wLzAsIHRpY2tzPTAv
-MCwgaW5fcXVldWU9MCwgdXRpbD0wLjAwJSwgDQogICAgYWdncmlvcz0xMTkyMDY1My8wLCBhZ2dy
-bWVyZ2U9MC8wLCBhZ2dydGlja3M9MTIyODI4Ny8wLCANCiAgICBhZ2dyaW5fcXVldWU9MTI0NzYw
-MSwgYWdncnV0aWw9MTAwLjAwJQ0KICAgICAgIG52bWUxNW4xOiBpb3M9MTE5MTk4NTAvMCwgbWVy
-Z2U9MC8wLCB0aWNrcz0xMjE0OTI0LzAsIA0KICAgIGluX3F1ZXVlPTEyMjU4OTYsIHV0aWw9MTAw
-LjAwJQ0KICAgICAgIG52bWU2bjE6IGlvcz0xMTkyMTE2Mi8wLCBtZXJnZT0wLzAsIHRpY2tzPTEx
-ODI3MTYvMCwgDQogICAgaW5fcXVldWU9MTE5MTQ1MiwgdXRpbD0xMDAuMDAlDQogICAgICAgbnZt
-ZTluMTogaW9zPTExOTE2MzEzLzAsIG1lcmdlPTAvMCwgdGlja3M9MTI2NTA2MC8wLCANCiAgICBp
-bl9xdWV1ZT0xMjk2NzI4LCB1dGlsPTEwMC4wMCUNCiAgICAgICBudm1lMTFuMTogaW9zPTExOTIy
-MTc0LzAsIG1lcmdlPTAvMCwgdGlja3M9MTIwNjA4NC8wLCANCiAgICBpbl9xdWV1ZT0xMjM5ODA4
-LCB1dGlsPTEwMC4wMCUNCiAgICAgICBudm1lMm4xOiBpb3M9MTE5MjE1NDcvMCwgbWVyZ2U9MC8w
-LCB0aWNrcz0xMjM4OTU2LzAsIA0KICAgIGluX3F1ZXVlPTEyNzI5MTYsIHV0aWw9MTAwLjAwJQ0K
-ICAgICAgIG52bWUxNG4xOiBpb3M9MTE5MjMxNzYvMCwgbWVyZ2U9MC8wLCB0aWNrcz0xMTY4Njg4
-LzAsIA0KICAgIGluX3F1ZXVlPTExNzgzNjAsIHV0aWw9MTAwLjAwJQ0KICAgICAgIG52bWU1bjE6
-IGlvcz0xMTkyMzE0Mi8wLCBtZXJnZT0wLzAsIHRpY2tzPTExOTI2NTYvMCwgDQogICAgaW5fcXVl
-dWU9MTIwNzgwOCwgdXRpbD0xMDAuMDAlDQogICAgICAgbnZtZThuMTogaW9zPTExOTIxNTA3LzAs
-IG1lcmdlPTAvMCwgdGlja3M9MTI1MDE2NC8wLCANCiAgICBpbl9xdWV1ZT0xMjU4OTU2LCB1dGls
-PTEwMC4wMCUNCiAgICAgICBudm1lMTBuMTogaW9zPTExOTE5MDU4LzAsIG1lcmdlPTAvMCwgdGlj
-a3M9MTI5NDAyOC8wLCANCiAgICBpbl9xdWV1ZT0xMzA0NTM2LCB1dGlsPTEwMC4wMCUNCiAgICAg
-ICBudm1lMW4xOiBpb3M9MTE5MjMxMjkvMCwgbWVyZ2U9MC8wLCB0aWNrcz0xMjQ2ODkyLzAsIA0K
-ICAgIGluX3F1ZXVlPTEyODE5NTIsIHV0aWw9MTAwLjAwJQ0KICAgICAgIG52bWUxM24xOiBpb3M9
-MTE5MjMzNTQvMCwgbWVyZ2U9MC8wLCB0aWNrcz0xMjQxNTQwLzAsIA0KICAgIGluX3F1ZXVlPTEy
-NzE4MjAsIHV0aWw9MTAwLjAwJQ0KICAgICAgIG52bWU0bjE6IGlvcz0xMTkyNjkzNi8wLCBtZXJn
-ZT0wLzAsIHRpY2tzPTExOTAzODQvMCwgDQogICAgaW5fcXVldWU9MTIyNDE5MiwgdXRpbD0xMDAu
-MDAlDQogICAgICAgbnZtZTduMTogaW9zPTExOTIxMTM5LzAsIG1lcmdlPTAvMCwgdGlja3M9MTIw
-MDYyNC8wLCANCiAgICBpbl9xdWV1ZT0xMjE0MjQwLCB1dGlsPTEwMC4wMCUNCiAgICAgICBudm1l
-MG4xOiBpb3M9MTE5MTY2MTQvMCwgbWVyZ2U9MC8wLCB0aWNrcz0xMjMwOTE2LzAsIA0KICAgIGlu
-X3F1ZXVlPTEyNDIzNzIsIHV0aWw9MTAwLjAwJQ0KICAgICAgIG52bWUxMm4xOiBpb3M9MTE5MTY5
-NjMvMCwgbWVyZ2U9MC8wLCB0aWNrcz0xMjY2ODQwLzAsIA0KICAgIGluX3F1ZXVlPTEyNzc2MDAs
-IHV0aWw9MTAwLjAwJQ0KICAgICAgIG52bWUzbjE6IGlvcz0xMTkxNDM5OS8wLCBtZXJnZT0wLzAs
-IHRpY2tzPTEyNjIxMjgvMCwgDQogICAgaW5fcXVldWU9MTI3Mjk4OCwgdXRpbD0xMDAuMDAlDQog
-ICAgb2JlcnN0ZXRAc3ZyLXBzcWwxOTp+L3NjbS9wYXJjaXQvUkEvYWRyL3N5c3RlbS9kb2NzJA0K
-ICAgIE7vv73vv73vv73vv73vv71y77+977+9ee+/ve+/ve+/vWLvv71Y77+977+9x6d277+9Xu+/
-vSneunsubu+/vSvvv73vv73vv73vv73vv73vv73vv70/77+977+93Kh977+977+977+9xqB677+9
-Jmo6K3bvv73vv73vv70/77+977+977+977+9elor77+977+9K3pm77+977+977+9aO+/ve+/ve+/
-vX7vv73vv73vv73vv71p77+977+977+9eu+/vT/vv71377+977+977+9P++/ve+/ve+/ve+/vSbv
-v70p36I/Zg0KDQo=
+Am 23.01.2017 um 18:03 schrieb Andrey Kuzmin:
+ > Why don't you just 'perf' your md run and find out where it spends (an
+ > awful lot if extra) time?
+
+Good idea!
+
+I ran with threads=1024 (to account for perf overhead). At that 
+concurrency, Linux MD reaches 25% lower IOPS and has higher system load.
+
+Please see here:
+
+https://github.com/oberstet/scratchbox/tree/master/cruncher/sql19/linux-md-bottleneck
+
+With higher concurrency, the discrepancy gets wider up to 7 mio vs 1.6 
+mio IOPS.
+
+I am not a kernel hacker.
+
+What is osq_lock?
+
+FWIW, this is a NUMA machine with 4 x E7 (88 cores / 176 HT) and 8 x 
+Intel P3608 NVMe.
+
+Any hints or anything I should try / measure?
+
+Thanks a lot for your tips and assistence!
+
+Cheers,
+/Tobias
+
+>
+> On Jan 23, 2017 19:28, "Tobias Oberstein" <tobias.oberstein@gmail.com>
+> wrote:
+>
+>> Hi,
+>>
+>> I have a question rgd Linux software RAID (MD) as tested with FIO - so
+>> this is slightly OT, but I am hoping for expert advice or redirection to a
+>> more appropriate place (if this is unwelcome here).
+>>
+>> I have a box with this HW:
+>>
+>> - 88 cores Xeon E7 (176 HTs) + 3TB RAM
+>> - 8 x Intel P3608 4TB NVMe (which is logicall 16 NVMes)
+>>
+>> With random 4kB read load, I am able to max it out at 7 million IOPS - but
+>> only if I run FIO on the _individual_ NVMe devices.
+>>
+>> [global]
+>> group_reporting
+>> filename=/dev/nvme0n1:/dev/nvme1n1:/dev/nvme2n1:/dev/nvme3n1
+>> :/dev/nvme4n1:/dev/nvme5n1:/dev/nvme6n1:/dev/nvme7n1:/dev/
+>> nvme8n1:/dev/nvme9n1:/dev/nvme10n1:/dev/nvme11n1:/dev/
+>> nvme12n1:/dev/nvme13n1:/dev/nvme14n1:/dev/nvme15n1
+>> size=30G
+>> ioengine=sync
+>> iodepth=1
+>> thread=1
+>> direct=1
+>> time_based=1
+>> randrepeat=0
+>> norandommap=1
+>> bs=4k
+>> runtime=120
+>>
+>> [randread]
+>> stonewall
+>> rw=randread
+>> numjobs=2560
+>>
+>> When I create a stripe set over all devices:
+>>
+>> sudo mdadm --create /dev/md1 --chunk=8 --level=0 --raid-devices=16 \
+>>    /dev/nvme0n1 \
+>>    /dev/nvme1n1 \
+>>    /dev/nvme2n1 \
+>>    /dev/nvme3n1 \
+>>    /dev/nvme4n1 \
+>>    /dev/nvme5n1 \
+>>    /dev/nvme6n1 \
+>>    /dev/nvme7n1 \
+>>    /dev/nvme8n1 \
+>>    /dev/nvme9n1 \
+>>    /dev/nvme10n1 \
+>>    /dev/nvme11n1 \
+>>    /dev/nvme12n1 \
+>>    /dev/nvme13n1 \
+>>    /dev/nvme14n1 \
+>>    /dev/nvme15n1
+>>
+>> I only get 1.6 million IOPS. Detail results down below.
+>>
+>> Note: the array is created with chunk size 8K because this is for database
+>> workload. Here I tested with 4k block size, but the it's similar (lower
+>> perf on MD) with 8k
+>>
+>> Any helps or hints would be greatly appreciated!
+>>
+>> Cheers,
+>> /Tobias
+>>
+>>
+>>
+>> 7 million IOPS on raw, individual NVMe devices
+>> ==============================================
+>>
+>> oberstet@svr-psql19:~/scm/parcit/RA/adr/system/docs$ sudo
+>> /opt/fio/bin/fio postgresql_storage_workload.fio
+>> randread: (g=0): rw=randread, bs=4096B-4096B,4096B-4096B,4096B-4096B,
+>> ioengine=sync, iodepth=1
+>> ...
+>> fio-2.17-17-g9cf1
+>> Starting 2560 threads
+>> Jobs: 2367 (f=29896): [_(2),f(3),_(2),f(11),_(2),f(2
+>> ),_(9),f(1),_(1),f(1),_(3),f(1),_(1),f(1),_(13),f(1),_(8),f(
+>> 1),_(1),f(4),_(2),f(1),_(1),f(1),_(3),f(2),_(3),f(3),_(8),f(
+>> 2),_(1),f(3),_(3),f(60),_(1),f(20),_(1),f(33),_(1),f(14),_(
+>> 1),f(18),_(4),f(6),_(1),f(6),_(1),f(1),_(1),f(1),_(1),f(4),_
+>> (1),f(2),_(1),f(11),_(1),f(11),_(4),f(74),_(1),f(8),_(1),f(
+>> 11),_(1),f(8),_(1),f(61),_(1),f(38),_(1),f(31),_(1),f(5),_(
+>> 1),f(103),_(1),f(24),E(1),f(27),_(1),f(28),_(1),f(1),_(1),f(
+>> 134),_(1),f(62),_(1),f(48),_(1),f(27),_(1),f(59),_(1),f(30)
+>> ,_(1),f(14),_(1),f(25),_(1),f(2),_(1),f(25),_(1),f(31),_(1),
+>> f(9),_(1),f(7),_(1),f(8),_(1),f(13),_(1),f(28),_(1),f(7),_(
+>> 1),f(84),_(1),f(42),_(1),f(5),_(1),f(8),_(1),f(20),_(1),f(
+>> 15),_(1),f(19),_(1),f(3),_(1),f(19),_(1),f(7),_(1),f(17),_(
+>> 1),f(34),_(1),f(1),_(1),f(4),_(1),f(1),_(1),f(1),_(2),f(3),_
+>> (1),f(1),_(1),f(1),_(1),f(8),_(1),f(6),_(1),f(3),_(1),f(3),_
+>> (1),f(53),_(1),f(7),_(1),f(19),_(1),f(6),_(1),f(5),_(1),f(
+>> 22),_(1),f(11),_(1),f(12),_(1),f(3),_(1),f(16),_(1),f(149),_
+>> (1),f(20),_(1),f(27),_(1),f(7),_(1),f(29),_(1),f(2),_(1),f(
+>> 11),_(1),f(46),_(1),f(8),_(2),f(1),_(1),f(1),_(1),f(14),E(1)
+>> ,f(4),_(1),f(22),_(1),f(11),_(1),f(70),_(2),f(11),_(1),f(2),
+>> _(1),f(1),_(1),f(1),_(1),f(21),_(1),f(8),_(1),f(4),_(1),f(
+>> 45),_(2),f(1),_(1),f(18),_(1),f(12),_(1),f(6),_(1),f(5),_(1)
+>> ,f(27),_(1),f(3),_(1),f(3),_(1),f(19),_(1),f(4),_(1),f(25),
+>> _(1),f(4),_(1),f(1),_(1),f(2),_(1),f(1),_(1),f(13),_(1),f(
+>> 18),_(1),f(1),_(1),f(1),_(1),f(29),_(1),f(27)][100.0%][r=
+>> 21.1GiB/s,w=0KiB/s][r=5751k,w=0 IOPS][eta 00m:00s]
+>> randread: (groupid=0, jobs=2560): err= 0: pid=114435: Mon Jan 23 15:47:17
+>> 2017
+>>    read: IOPS=6965k, BW=26.6GiB/s (28.6GB/s)(3189GiB/120007msec)
+>>     clat (usec): min=38, max=33262, avg=360.11, stdev=465.36
+>>      lat (usec): min=38, max=33262, avg=360.20, stdev=465.40
+>>     clat percentiles (usec):
+>>      |  1.00th=[  114],  5.00th=[  135], 10.00th=[  149], 20.00th=[  171],
+>>      | 30.00th=[  191], 40.00th=[  213], 50.00th=[  239], 60.00th=[  270],
+>>      | 70.00th=[  314], 80.00th=[  378], 90.00th=[  556], 95.00th=[  980],
+>>      | 99.00th=[ 2704], 99.50th=[ 3312], 99.90th=[ 4576], 99.95th=[ 5216],
+>>      | 99.99th=[ 8096]
+>>     lat (usec) : 50=0.01%, 100=0.11%, 250=53.75%, 500=34.23%, 750=5.23%
+>>     lat (usec) : 1000=1.79%
+>>     lat (msec) : 2=2.88%, 4=1.81%, 10=0.20%, 20=0.01%, 50=0.01%
+>>   cpu          : usr=0.63%, sys=4.89%, ctx=837434400, majf=0, minf=2557
+>>   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%,
+>>> =64=0.0%
+>>      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
+>>> =64=0.0%
+>>      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
+>>> =64=0.0%
+>>      issued rwt: total=835852266,0,0, short=0,0,0, dropped=0,0,0
+>>      latency   : target=0, window=0, percentile=100.00%, depth=1
+>>
+>> Run status group 0 (all jobs):
+>>    READ: bw=26.6GiB/s (28.6GB/s), 26.6GiB/s-26.6GiB/s (28.6GB/s-28.6GB/s),
+>> io=3189GiB (3424GB), run=120007-120007msec
+>>
+>> Disk stats (read/write):
+>>   nvme0n1: ios=52191377/0, merge=0/0, ticks=14400568/0, in_queue=14802400,
+>> util=100.00%
+>>   nvme1n1: ios=52241684/0, merge=0/0, ticks=13919744/0, in_queue=15101276,
+>> util=100.00%
+>>   nvme2n1: ios=52241537/0, merge=0/0, ticks=11146952/0, in_queue=12053112,
+>> util=100.00%
+>>   nvme3n1: ios=52241416/0, merge=0/0, ticks=10806624/0, in_queue=11135004,
+>> util=100.00%
+>>   nvme4n1: ios=52241285/0, merge=0/0, ticks=19320448/0, in_queue=21079576,
+>> util=100.00%
+>>   nvme5n1: ios=52241142/0, merge=0/0, ticks=18786968/0, in_queue=19393024,
+>> util=100.00%
+>>   nvme6n1: ios=52241000/0, merge=0/0, ticks=19610892/0, in_queue=20140104,
+>> util=100.00%
+>>   nvme7n1: ios=52240874/0, merge=0/0, ticks=20482920/0, in_queue=21090048,
+>> util=100.00%
+>>   nvme8n1: ios=52240731/0, merge=0/0, ticks=14533992/0, in_queue=14929172,
+>> util=100.00%
+>>   nvme9n1: ios=52240587/0, merge=0/0, ticks=12854956/0, in_queue=13919288,
+>> util=100.00%
+>>   nvme10n1: ios=52240447/0, merge=0/0, ticks=11085508/0,
+>> in_queue=11390392, util=100.00%
+>>   nvme11n1: ios=52240301/0, merge=0/0, ticks=18490260/0,
+>> in_queue=20110288, util=100.00%
+>>   nvme12n1: ios=52240097/0, merge=0/0, ticks=11377884/0,
+>> in_queue=11683568, util=100.00%
+>>   nvme13n1: ios=52239956/0, merge=0/0, ticks=15205304/0,
+>> in_queue=16314628, util=100.00%
+>>   nvme14n1: ios=52239766/0, merge=0/0, ticks=27003788/0,
+>> in_queue=27659920, util=100.00%
+>>   nvme15n1: ios=52239620/0, merge=0/0, ticks=17352624/0,
+>> in_queue=17910636, util=100.00%
+>>
+>>
+>> 1.6 millions IOPS on Linux MD over 16 NVMe devices
+>> ==================================================
+>>
+>> oberstet@svr-psql19:~/scm/parcit/RA/adr/system/docs$ sudo
+>> /opt/fio/bin/fio postgresql_storage_workload.fio
+>> randread: (g=0): rw=randread, bs=4096B-4096B,4096B-4096B,4096B-4096B,
+>> ioengine=sync, iodepth=1
+>> ...
+>> fio-2.17-17-g9cf1
+>> Starting 2560 threads
+>> Jobs: 2560 (f=2560): [r(2560)][100.0%][r=6212MiB/s,w=0KiB/s][r=1590k,w=0
+>> IOPS][eta 00m:00s]
+>> randread: (groupid=0, jobs=2560): err= 0: pid=146070: Mon Jan 23 17:21:15
+>> 2017
+>>    read: IOPS=1588k, BW=6204MiB/s (6505MB/s)(728GiB/120098msec)
+>>     clat (usec): min=27, max=28498, avg=124.51, stdev=113.10
+>>      lat (usec): min=27, max=28498, avg=124.58, stdev=113.10
+>>     clat percentiles (usec):
+>>      |  1.00th=[   78],  5.00th=[   84], 10.00th=[   86], 20.00th=[   89],
+>>      | 30.00th=[   95], 40.00th=[  102], 50.00th=[  105], 60.00th=[  108],
+>>      | 70.00th=[  118], 80.00th=[  133], 90.00th=[  173], 95.00th=[  221],
+>>      | 99.00th=[  358], 99.50th=[  506], 99.90th=[ 2192], 99.95th=[ 2608],
+>>      | 99.99th=[ 2960]
+>>     lat (usec) : 50=0.06%, 100=35.14%, 250=61.83%, 500=2.46%, 750=0.19%
+>>     lat (usec) : 1000=0.07%
+>>     lat (msec) : 2=0.13%, 4=0.12%, 10=0.01%, 20=0.01%, 50=0.01%
+>>   cpu          : usr=0.08%, sys=4.49%, ctx=200431993, majf=0, minf=2557
+>>   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%,
+>>> =64=0.0%
+>>      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
+>>> =64=0.0%
+>>      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
+>>> =64=0.0%
+>>      issued rwt: total=190730463,0,0, short=0,0,0, dropped=0,0,0
+>>      latency   : target=0, window=0, percentile=100.00%, depth=1
+>>
+>> Run status group 0 (all jobs):
+>>    READ: bw=6204MiB/s (6505MB/s), 6204MiB/s-6204MiB/s (6505MB/s-6505MB/s),
+>> io=728GiB (781GB), run=120098-120098msec
+>>
+>> Disk stats (read/write):
+>>     md1: ios=190632612/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%,
+>> aggrios=11920653/0, aggrmerge=0/0, aggrticks=1228287/0,
+>> aggrin_queue=1247601, aggrutil=100.00%
+>>   nvme15n1: ios=11919850/0, merge=0/0, ticks=1214924/0, in_queue=1225896,
+>> util=100.00%
+>>   nvme6n1: ios=11921162/0, merge=0/0, ticks=1182716/0, in_queue=1191452,
+>> util=100.00%
+>>   nvme9n1: ios=11916313/0, merge=0/0, ticks=1265060/0, in_queue=1296728,
+>> util=100.00%
+>>   nvme11n1: ios=11922174/0, merge=0/0, ticks=1206084/0, in_queue=1239808,
+>> util=100.00%
+>>   nvme2n1: ios=11921547/0, merge=0/0, ticks=1238956/0, in_queue=1272916,
+>> util=100.00%
+>>   nvme14n1: ios=11923176/0, merge=0/0, ticks=1168688/0, in_queue=1178360,
+>> util=100.00%
+>>   nvme5n1: ios=11923142/0, merge=0/0, ticks=1192656/0, in_queue=1207808,
+>> util=100.00%
+>>   nvme8n1: ios=11921507/0, merge=0/0, ticks=1250164/0, in_queue=1258956,
+>> util=100.00%
+>>   nvme10n1: ios=11919058/0, merge=0/0, ticks=1294028/0, in_queue=1304536,
+>> util=100.00%
+>>   nvme1n1: ios=11923129/0, merge=0/0, ticks=1246892/0, in_queue=1281952,
+>> util=100.00%
+>>   nvme13n1: ios=11923354/0, merge=0/0, ticks=1241540/0, in_queue=1271820,
+>> util=100.00%
+>>   nvme4n1: ios=11926936/0, merge=0/0, ticks=1190384/0, in_queue=1224192,
+>> util=100.00%
+>>   nvme7n1: ios=11921139/0, merge=0/0, ticks=1200624/0, in_queue=1214240,
+>> util=100.00%
+>>   nvme0n1: ios=11916614/0, merge=0/0, ticks=1230916/0, in_queue=1242372,
+>> util=100.00%
+>>   nvme12n1: ios=11916963/0, merge=0/0, ticks=1266840/0, in_queue=1277600,
+>> util=100.00%
+>>   nvme3n1: ios=11914399/0, merge=0/0, ticks=1262128/0, in_queue=1272988,
+>> util=100.00%
+>> oberstet@svr-psql19:~/scm/parcit/RA/adr/system/docs$
+>>
+>
+
