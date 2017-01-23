@@ -1,54 +1,72 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from imslp-west.kjsl.com ([65.50.211.133]:54312 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
-        with ESMTP id S1752434AbdASNTQ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 19 Jan 2017 08:19:16 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1cUCJx-0006SL-JT
-        for fio@vger.kernel.org; Thu, 19 Jan 2017 13:00:05 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170119130001.BE20D2C02A3@kernel.dk>
-Date: Thu, 19 Jan 2017 06:00:01 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <andrey.v.kuzmin@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <eee7c54a-2357-d437-1bbc-df0c467fe7e5@kernel.dk>
+References: <1485184391-11036-1-git-send-email-tkusumi@tuxera.com>
+ <1485184391-11036-4-git-send-email-tkusumi@tuxera.com> <CANvN+e=SsCxGCcMNktU88+uSS5_TrZ+jNG1K+gLcgS5vH1ZDDA@mail.gmail.com>
+ <eee7c54a-2357-d437-1bbc-df0c467fe7e5@kernel.dk>
+From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Date: Mon, 23 Jan 2017 21:08:12 +0300
+Message-ID: <CANvN+ekVrMHtHDLyOCjBaThpxY-61rwe8RfZ51kCDaX_1GXahw@mail.gmail.com>
+Subject: Re: [PATCH 4/8] Remove unused io_u's priv union field
+Content-Type: multipart/alternative; boundary=94eb2c115a9e05df2c0546c6e26d
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>, fio@vger.kernel.org, Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit d7ea5a89fa2745f5bd743187b62bd05120c44c30:
+--94eb2c115a9e05df2c0546c6e26d
+Content-Type: text/plain; charset=UTF-8
 
-  Fio 2.17 (2017-01-17 08:51:31 -0700)
+On Jan 23, 2017 21:01, "Jens Axboe" <axboe@kernel.dk> wrote:
 
-are available in the git repository at:
+On 01/23/2017 09:06 AM, Andrey Kuzmin wrote:
+> This may break some I/O engines.
 
-  git://git.kernel.dk/fio.git master
+Are you using it? I'm happy to revert that change, it's not like
+it's gaining us back some memory. It is annoying to have no in-tree
+users of a "feature", though.
 
-for you to fetch changes up to 54441e7b5f44d3786ee12b3fede90c4bb2c2c260:
 
-  init: fix double free of pid_file (2017-01-18 08:18:28 -0700)
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      init: fix double free of pid_file
+That's likely my bad as, from my (now apparently wrong) recollection, some
+in-tree engines were utilizing it. I'm fine with the removal otherwise,
+although it's a nice generic place-holder that avoids casting.
 
- init.c | 3 ---
- 1 file changed, 3 deletions(-)
+Regards,
+Andfey
 
----
 
-Diff of recent changes:
+--
+Jens Axboe
 
-diff --git a/init.c b/init.c
-index ae20d61..324dc7b 100644
---- a/init.c
-+++ b/init.c
-@@ -2717,9 +2717,6 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 	}
- 
- out_free:
--	if (pid_file)
--		free(pid_file);
--
- 	return ini_idx;
- }
- 
+--94eb2c115a9e05df2c0546c6e26d
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"auto"><div><br><div class=3D"gmail_extra"><br><div class=3D"gma=
+il_quote">On Jan 23, 2017 21:01, &quot;Jens Axboe&quot; &lt;<a href=3D"mail=
+to:axboe@kernel.dk">axboe@kernel.dk</a>&gt; wrote:<br type=3D"attribution">=
+<blockquote class=3D"quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc=
+ solid;padding-left:1ex"><div class=3D"quoted-text">On 01/23/2017 09:06 AM,=
+ Andrey Kuzmin wrote:<br>
+&gt; This may break some I/O engines.<br>
+<br>
+</div>Are you using it? I&#39;m happy to revert that change, it&#39;s not l=
+ike<br>
+it&#39;s gaining us back some memory. It is annoying to have no in-tree<br>
+users of a &quot;feature&quot;, though.<br></blockquote></div></div></div><=
+div dir=3D"auto"><br></div><div dir=3D"auto"><br></div><div dir=3D"auto">Th=
+at&#39;s likely my bad as, from my (now apparently wrong) recollection, som=
+e in-tree engines were utilizing it. I&#39;m fine with the removal otherwis=
+e, although it&#39;s a nice generic place-holder that avoids casting.</div>=
+<div dir=3D"auto"><br></div><div dir=3D"auto">Regards,</div><div dir=3D"aut=
+o">Andfey</div><div dir=3D"auto"><br></div><div dir=3D"auto"><div class=3D"=
+gmail_extra"><div class=3D"gmail_quote"><blockquote class=3D"quote" style=
+=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
+<font color=3D"#888888"><br>
+--<br>
+Jens Axboe<br>
+<br>
+</font></blockquote></div><br></div></div></div>
+
+--94eb2c115a9e05df2c0546c6e26d--
+
