@@ -1,18 +1,18 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm0-f50.google.com ([74.125.82.50]:33628 "EHLO
-        mail-wm0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750707AbdAXKDF (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 24 Jan 2017 05:03:05 -0500
-Received: by mail-wm0-f50.google.com with SMTP id d140so41322808wmd.0
-        for <fio@vger.kernel.org>; Tue, 24 Jan 2017 02:03:04 -0800 (PST)
+Received: from mail-wm0-f53.google.com ([74.125.82.53]:35022 "EHLO
+        mail-wm0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750732AbdAXJzl (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 24 Jan 2017 04:55:41 -0500
+Received: by mail-wm0-f53.google.com with SMTP id r126so173104221wmr.0
+        for <fio@vger.kernel.org>; Tue, 24 Jan 2017 01:55:31 -0800 (PST)
 Subject: Re: 4x lower IOPS: Linux MD vs indiv. devices - why?
 References: <90865544-f790-513c-97df-7e6a6af20ca8@gmail.com>
  <974E4982-D808-4CAF-ACCF-85866C0050A7@intel.com>
  <c7fc722c-f3ca-4abe-7202-8ca67b5e59a0@gmail.com>
  <9D5B6947-2DF8-46B9-AEAD-62132C19A0D3@intel.com>
 From: Tobias Oberstein <tobias.oberstein@gmail.com>
-Message-ID: <652647e7-94f2-d897-2eff-72c0d73b09e8@gmail.com>
-Date: Tue, 24 Jan 2017 11:03:02 +0100
+Message-ID: <db74d7bd-78ea-cdf2-2446-ec57054952b6@gmail.com>
+Date: Tue, 24 Jan 2017 10:55:29 +0100
 MIME-Version: 1.0
 In-Reply-To: <9D5B6947-2DF8-46B9-AEAD-62132C19A0D3@intel.com>
 Content-Type: text/plain; charset="utf-8"; format="flowed"
@@ -33,11 +33,12 @@ Am 23.01.2017 um 20:06 schrieb Kudryavtsev, Andrey O:
 >
 >
 
-It doesn't work with LBAFormat=3 either:
+It doesn't work =(
+
 
 oberstet@svr-psql19:~/scm/parcit/RA/user/oberstet$ sudo isdct start 
 -nvmeformat -intelssd 0 \
- >   LBAFormat=3 \
+ >   LBAFormat=4 \
  >   SecureEraseSetting=0 \
  >   ProtectionInformation=0 \
  >   MetaDataSettings=0
@@ -47,51 +48,80 @@ Formatting...
 
 - Intel SSD DC P3608 Series CVF8551400324P0DGN-1 -
 
-Status : Interrupted system call
-
-oberstet@svr-psql19:~/scm/parcit/RA/user/oberstet$
+Status : NVMe command reported a problem.
 
 oberstet@svr-psql19:~/scm/parcit/RA/user/oberstet$ sudo isdct show -all 
--intelssd 0 | grep LBA
-LBAFormat : 0
-MaximumLBA : 3907029167
-NativeMaxLBA : 3907029167
-NumLBAFormats : 6
-
------
-
-And using exactly the same parameters as the article above:
-
-oberstet@svr-psql19:~/scm/parcit/RA/user/oberstet$ time sudo isdct start 
--nvmeformat -intelssd 0 \
- >   LBAFormat=3 \
- >   SecureEraseSetting=2 \
- >   ProtectionInformation=0 \
- >   MetaDataSettings=0
-WARNING! You have selected to format the drive!
-Proceed with the format? (Y|N): y
-Formatting...
+-intelssd 0
 
 - Intel SSD DC P3608 Series CVF8551400324P0DGN-1 -
 
-Status : Interrupted system call
+AggregationThreshold : 0
+AggregationTime : 0
+ArbitrationBurst : 0
+Bootloader : 8B1B0133
+CoalescingDisable : 1
+DevicePath : /dev/nvme0n1
+DeviceStatus : Healthy
+EndToEndDataProtCapabilities : 17
+EnduranceAnalyzer : Media Workload Indicators have reset values. Run 60+ 
+minute workload prior to running the endurance analyzer.
+ErrorString :
+Firmware : 8DV101F0
+FirmwareUpdateAvailable : The selected Intel SSD contains current 
+firmware as of this tool release.
+HighPriorityWeightArbitration : 0
+IOCompletionQueuesRequested : 30
+IOSubmissionQueuesRequested : 30
+Index : 0
+Intel : True
+IntelGen3SATA : False
+IntelNVMe : True
+InterruptVector : 0
+LBAFormat : 0
+LatencyTrackingEnabled : False
+LowPriorityWeightArbitration : 0
+MaximumLBA : 3907029167
+MediumPriorityWeightArbitration : 0
+MetadataSetting : 0
+ModelNumber : INTEL SSDPECME040T4
+NVMeControllerID : 0
+NVMeMajorVersion : 1
+NVMeMinorVersion : 0
+NVMePowerState : 0
+NVMeTertiaryVersion : 0
+NamespaceId : 1
+NativeMaxLBA : 3907029167
+NumErrorLogPageEntries : 63
+NumLBAFormats : 6
+OEM : Generic
+PCILinkGenSpeed : 3
+PCILinkWidth : 4
+PowerGovernorMode : 0 40W for 8 Lane Slot power
+Product : Fultondale X8
+ProductFamily : Intel SSD DC P3608 Series
+ProductProtocol : NVME
+ProtectionInformation : 0
+ProtectionInformationLocation : 0
+SMARTEnabled : True
+SMARTHealthCriticalWarningsConfiguration : 0
+SMBusAddress : 106
+SectorSize : 512
+SerialNumber : CVF8551400324P0DGN-1
+TCGSupported : False
+TempThreshold : 85
+TimeLimitedErrorRecovery : 0
+TrimSupported : True
+VolatileWriteCacheEnabled : False
+WriteAtomicityDisableNormal : 0
+
+oberstet@svr-psql19:~/scm/parcit/RA/user/oberstet$ isdct --version
+Syntax Error: Invalid command. Error at or around '--version'.
+oberstet@svr-psql19:~/scm/parcit/RA/user/oberstet$ isdct version
+- Version Information -
+Name: Intel(R) Data Center Tool
+Version: 3.0.2
+Description: Interact and configure Intel SSDs.
 
 
-real	0m26.901s
-user	0m0.048s
-sys	0m0.032s
 oberstet@svr-psql19:~/scm/parcit/RA/user/oberstet$
 
-
-----
-
-I see the following in kernel log:
-
-[417528.128501] nvme nvme0: I/O 0 QID 0 timeout, reset controller
-[417786.440977] nvme nvme0: I/O 0 QID 0 timeout, reset controller
-
-
-What should I do?
-
-Thanks alot,
-/Tobias
