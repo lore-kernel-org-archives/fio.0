@@ -1,75 +1,181 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm0-f44.google.com ([74.125.82.44]:36858 "EHLO
-        mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750730AbdAXJqp (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 24 Jan 2017 04:46:45 -0500
-Received: by mail-wm0-f44.google.com with SMTP id c85so172263347wmi.1
-        for <fio@vger.kernel.org>; Tue, 24 Jan 2017 01:46:45 -0800 (PST)
-Subject: Re: 4x lower IOPS: Linux MD vs indiv. devices - why?
-References: <90865544-f790-513c-97df-7e6a6af20ca8@gmail.com>
- <974E4982-D808-4CAF-ACCF-85866C0050A7@intel.com>
- <c7fc722c-f3ca-4abe-7202-8ca67b5e59a0@gmail.com>
- <9D5B6947-2DF8-46B9-AEAD-62132C19A0D3@intel.com>
-From: Tobias Oberstein <tobias.oberstein@gmail.com>
-Message-ID: <3a817d19-a507-9ddc-f16d-6bc83dbbd0eb@gmail.com>
-Date: Tue, 24 Jan 2017 10:46:42 +0100
+Return-Path: <andrey.v.kuzmin@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <9D5B6947-2DF8-46B9-AEAD-62132C19A0D3@intel.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "Kudryavtsev, Andrey O" <andrey.o.kudryavtsev@intel.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <a0dc59e7-9c81-ab5d-45b6-d1d252179837@gmail.com>
+References: <90865544-f790-513c-97df-7e6a6af20ca8@gmail.com>
+ <CANvN+en2ihATNgrbgzwNXAK87wNh+6jXHinmg2-VmHon31AJzA@mail.gmail.com>
+ <061acabe-dbd0-ae07-cd69-772eccd15b21@gmail.com> <CANvN+em0cjWRnQWccdORKFEJk0OSeQOrZq+XE6kzPmqMPB--4g@mail.gmail.com>
+ <49ef9d71-8e52-26e4-76f7-ea03fb331a38@gmail.com> <CALjAwxjmW-NgWEcH7+nKNN8U_oUxFoYa23dui9wM6WDqiShWhw@mail.gmail.com>
+ <15418080-0bf6-ab40-c05f-69a3fb3d9cc3@gmail.com> <CALjAwxhsvfH0-D=4U6nkjFg109Z1ZgVRsOx37X+Lb-EqTf_jOA@mail.gmail.com>
+ <6b2cacaf-2946-6046-51c2-b909c6ee0784@gmail.com> <CANvN+emLjb9idri9r42V3W9ia6v0EDGdJYFfhzq6rAuzGWec8Q@mail.gmail.com>
+ <CANvN+emJBzMeUmjBw5PBSZc66LmjG8-Pz+39dBeL5GseMCdo6g@mail.gmail.com>
+ <fca1cdb1-aa66-b21f-d1a0-029ba895d3f2@gmail.com> <CANvN+emQ0AYPgT0e6KMKphDTZAY=cW6FyroLw=smReHGpd-=TA@mail.gmail.com>
+ <a0dc59e7-9c81-ab5d-45b6-d1d252179837@gmail.com>
+From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Date: Tue, 24 Jan 2017 12:40:35 +0300
+Message-ID: <CANvN+e=qsexdU6Pp4kKQXy-jQKixZhR-WWLQb=713NNAA0ziVg@mail.gmail.com>
+Subject: Re: 4x lower IOPS: Linux MD vs indiv. devices - why?
+Content-Type: multipart/alternative; boundary=001a113fc3028982b70546d3e850
+To: Tobias Oberstein <tobias.oberstein@gmail.com>
+Cc: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-Hi Andrey,
+--001a113fc3028982b70546d3e850
+Content-Type: text/plain; charset=UTF-8
 
-Am 23.01.2017 um 20:06 schrieb Kudryavtsev, Andrey O:
-> Hi Tobias,
-> Yes, “imsm” is in generic release, you don’t need to go to the latest or special build then if you want to stay compliant. It’s mainly a different layout of a raid metadata.
+On Jan 24, 2017 12:28, "Tobias Oberstein" <tobias.oberstein@gmail.com>
+wrote:
+
+My current preliminary conclusions on this box / workload:
 >
-> Your findings follow my expectations, for QD1 sync engine does good results. Can you try libio with QD4 and 2800/4 jobs?
-> Most of the time I’m running Centos7 either with 3.10 or latest kernel depends of the scope of the testing.
+> - running psync is much better than sync
 >
-> Changing sector to 4k is easy, this can really help. see DCT manual, it’s there.
-> This can be relevant for you https://itpeernetwork.intel.com/how-to-configure-oracle-redo-on-the-intel-pcie-ssd-dc-p3700/
->
+> So you likely have a convincing case for Postgres guys to switch over to
+> pread/pwrite.
 >
 
-I have gone through the whole manual, but I cannot find info about the 
-meaning of different LBAFormats.
+I will approach them, but I want to make sure I did all my homework first.
 
-The Oracle article above uses
+One question that bugs me:
 
-LBAFormat=3
+the difference in performance between sync and psync engines only surface
+with MD, _not_ when running over individual devices.
 
-which I presume means 4k secor size.
 
-The P3608 seams to support a value up to 6:
 
-oberstet@svr-psql19:~/scm/parcit/RA/user/oberstet$ sudo isdct show -all 
--intelssd 0 | grep LBA
-LBAFormat : 0
-MaximumLBA : 3907029167
-NativeMaxLBA : 3907029167
-NumLBAFormats : 6
+My guess is, with individual devices there's no cpu headroom for press
+savings to show up. Once MD bottleneck gets in, you're not bound by cpu
+anymore and the difference between doing a single syscall vs. two shows up.
 
-So is this the correct mapping for the value?
 
-LBAFormat	Sector Size
-0	512
-1	1024
-2	2048
-3	4096
-4	8192
-5	16384
-6	32768
+---
 
-In this case, I'd use
+I ran Linux perf with these results:
 
-LBAFormat=4
+https://github.com/oberstet/scratchbox/blob/master/cruncher/
+sync-engines-perf/individual-nvmes-sync.md
 
-to get 8k sectors, sine my workload is purely 8k.
+https://github.com/oberstet/scratchbox/blob/master/cruncher/
+sync-engines-perf/individual-nvmes-psync.md
+
+https://github.com/oberstet/scratchbox/blob/master/cruncher/
+sync-engines-perf/md-nvmes-sync.md
+
+https://github.com/oberstet/scratchbox/blob/master/cruncher/
+sync-engines-perf/md-nvmes-psync.md
+
+---
+
+md-nvmes-sync shows the "issue":
+
+Overhead  Command  Shared Object       Symbol
+  73.48%  fio      [kernel.kallsyms]   [k] osq_lock
+
+
+So while I think it would be good in general if PostgreSQL used
+pread/pwrite instead of lseek/read/write when available, I am afraid there
+might be a bottleneck in MD.
+
+What do you think?
+
+And if so, where should I raise this rgd MD? I have no clue where the
+hackers of MD hang out ..
+
+
+Yup, I believe it makes sense to post to the md mail list.
+
+Regards,
+Andrey
+
 
 Cheers,
 /Tobias
+
+--001a113fc3028982b70546d3e850
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"auto"><div><br><div class=3D"gmail_extra"><br><div class=3D"gma=
+il_quote">On Jan 24, 2017 12:28, &quot;Tobias Oberstein&quot; &lt;<a href=
+=3D"mailto:tobias.oberstein@gmail.com">tobias.oberstein@gmail.com</a>&gt; w=
+rote:<br type=3D"attribution"><blockquote class=3D"quote" style=3D"margin:0=
+ 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><div class=3D"quoted=
+-text"><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-=
+left:1px #ccc solid;padding-left:1ex">
+My current preliminary conclusions on this box / workload:<br>
+<br>
+- running psync is much better than sync<br>
+<br>
+So you likely have a convincing case for Postgres guys to switch over to<br=
+>
+pread/pwrite.<br>
+</blockquote>
+<br></div>
+I will approach them, but I want to make sure I did all my homework first.<=
+br>
+<br>
+One question that bugs me:<br>
+<br>
+the difference in performance between sync and psync engines only surface w=
+ith MD, _not_ when running over individual devices.<br></blockquote></div><=
+/div></div><div dir=3D"auto"><br></div><div dir=3D"auto"><br></div><div dir=
+=3D"auto">My guess is, with individual devices there&#39;s no cpu headroom =
+for press savings to show up. Once MD bottleneck gets in, you&#39;re not bo=
+und by cpu anymore and the difference between doing a single syscall vs. tw=
+o shows up.</div><div dir=3D"auto"><br></div><div dir=3D"auto"><div class=
+=3D"gmail_extra"><div class=3D"gmail_quote"><blockquote class=3D"quote" sty=
+le=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
+<br>
+---<br>
+<br>
+I ran Linux perf with these results:<br>
+<br>
+<a href=3D"https://github.com/oberstet/scratchbox/blob/master/cruncher/sync=
+-engines-perf/individual-nvmes-sync.md" rel=3D"noreferrer" target=3D"_blank=
+">https://github.com/oberstet/sc<wbr>ratchbox/blob/master/cruncher/<wbr>syn=
+c-engines-perf/individual-<wbr>nvmes-sync.md</a><br>
+<br>
+<a href=3D"https://github.com/oberstet/scratchbox/blob/master/cruncher/sync=
+-engines-perf/individual-nvmes-psync.md" rel=3D"noreferrer" target=3D"_blan=
+k">https://github.com/oberstet/sc<wbr>ratchbox/blob/master/cruncher/<wbr>sy=
+nc-engines-perf/individual-<wbr>nvmes-psync.md</a><br>
+<br>
+<a href=3D"https://github.com/oberstet/scratchbox/blob/master/cruncher/sync=
+-engines-perf/md-nvmes-sync.md" rel=3D"noreferrer" target=3D"_blank">https:=
+//github.com/oberstet/sc<wbr>ratchbox/blob/master/cruncher/<wbr>sync-engine=
+s-perf/md-nvmes-<wbr>sync.md</a><br>
+<br>
+<a href=3D"https://github.com/oberstet/scratchbox/blob/master/cruncher/sync=
+-engines-perf/md-nvmes-psync.md" rel=3D"noreferrer" target=3D"_blank">https=
+://github.com/oberstet/sc<wbr>ratchbox/blob/master/cruncher/<wbr>sync-engin=
+es-perf/md-nvmes-<wbr>psync.md</a><br>
+<br>
+---<br>
+<br>
+md-nvmes-sync shows the &quot;issue&quot;:<br>
+<br>
+Overhead=C2=A0 Command=C2=A0 Shared Object=C2=A0 =C2=A0 =C2=A0 =C2=A0Symbol=
+<br>
+=C2=A0 73.48%=C2=A0 fio=C2=A0 =C2=A0 =C2=A0 [kernel.kallsyms]=C2=A0 =C2=A0[=
+k] osq_lock<br>
+<br>
+<br>
+So while I think it would be good in general if PostgreSQL used pread/pwrit=
+e instead of lseek/read/write when available, I am afraid there might be a =
+bottleneck in MD.<br>
+<br>
+What do you think?<br>
+<br>
+And if so, where should I raise this rgd MD? I have no clue where the hacke=
+rs of MD hang out ..<br></blockquote></div></div></div><div dir=3D"auto"><b=
+r></div><div dir=3D"auto">Yup, I believe it makes sense to post to the md m=
+ail list.</div><div dir=3D"auto"><br></div><div dir=3D"auto">Regards,</div>=
+<div dir=3D"auto">Andrey</div><div dir=3D"auto"><div class=3D"gmail_extra">=
+<div class=3D"gmail_quote"><blockquote class=3D"quote" style=3D"margin:0 0 =
+0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
+<br>
+Cheers,<br>
+/Tobias<br>
+</blockquote></div><br></div></div></div>
+
+--001a113fc3028982b70546d3e850--
 
