@@ -1,105 +1,59 @@
-Return-Path: <tobias.oberstein@gmail.com>
-Return-Path: <tobias.oberstein@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-wm0-f47.google.com ([74.125.82.47]:36455 "EHLO
+        mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750933AbdAXPTe (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 24 Jan 2017 10:19:34 -0500
+Received: by mail-wm0-f47.google.com with SMTP id c85so186712236wmi.1
+        for <fio@vger.kernel.org>; Tue, 24 Jan 2017 07:19:23 -0800 (PST)
 Subject: Re: 4x lower IOPS: Linux MD vs indiv. devices - why?
 References: <90865544-f790-513c-97df-7e6a6af20ca8@gmail.com>
- <CANvN+en2ihATNgrbgzwNXAK87wNh+6jXHinmg2-VmHon31AJzA@mail.gmail.com>
- <061acabe-dbd0-ae07-cd69-772eccd15b21@gmail.com>
- <CANvN+em0cjWRnQWccdORKFEJk0OSeQOrZq+XE6kzPmqMPB--4g@mail.gmail.com>
- <49ef9d71-8e52-26e4-76f7-ea03fb331a38@gmail.com>
- <CALjAwxjmW-NgWEcH7+nKNN8U_oUxFoYa23dui9wM6WDqiShWhw@mail.gmail.com>
- <15418080-0bf6-ab40-c05f-69a3fb3d9cc3@gmail.com>
- <CALjAwxhsvfH0-D=4U6nkjFg109Z1ZgVRsOx37X+Lb-EqTf_jOA@mail.gmail.com>
- <6b2cacaf-2946-6046-51c2-b909c6ee0784@gmail.com>
- <CANvN+emLjb9idri9r42V3W9ia6v0EDGdJYFfhzq6rAuzGWec8Q@mail.gmail.com>
- <CANvN+emJBzMeUmjBw5PBSZc66LmjG8-Pz+39dBeL5GseMCdo6g@mail.gmail.com>
- <fca1cdb1-aa66-b21f-d1a0-029ba895d3f2@gmail.com>
- <CANvN+emQ0AYPgT0e6KMKphDTZAY=cW6FyroLw=smReHGpd-=TA@mail.gmail.com>
- <a0dc59e7-9c81-ab5d-45b6-d1d252179837@gmail.com>
- <CANvN+e=qsexdU6Pp4kKQXy-jQKixZhR-WWLQb=713NNAA0ziVg@mail.gmail.com>
+ <974E4982-D808-4CAF-ACCF-85866C0050A7@intel.com>
+ <c7fc722c-f3ca-4abe-7202-8ca67b5e59a0@gmail.com>
+ <9D5B6947-2DF8-46B9-AEAD-62132C19A0D3@intel.com>
 From: Tobias Oberstein <tobias.oberstein@gmail.com>
-Message-ID: <68e44114-5d14-a714-09a6-d80358d10118@gmail.com>
-Date: Tue, 24 Jan 2017 23:51:52 +0100
+Message-ID: <48506f17-d810-117b-2d70-e4a788907a72@gmail.com>
+Date: Tue, 24 Jan 2017 16:19:21 +0100
 MIME-Version: 1.0
-In-Reply-To: <CANvN+e=qsexdU6Pp4kKQXy-jQKixZhR-WWLQb=713NNAA0ziVg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
-Cc: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+In-Reply-To: <9D5B6947-2DF8-46B9-AEAD-62132C19A0D3@intel.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "Kudryavtsev, Andrey O" <andrey.o.kudryavtsev@intel.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-> My current preliminary conclusions on this box / workload:
->>
->> - running psync is much better than sync
->>
->> So you likely have a convincing case for Postgres guys to switch over to
->> pread/pwrite.
+Hi Andrey,
 
-I did raise it on the PG hackers mailing list, but I couldn't convince 
-them =(
+> Changing sector to 4k is easy, this can really help. see DCT manual, it’s there.
+> This can be relevant for you https://itpeernetwork.intel.com/how-to-configure-oracle-redo-on-the-intel-pcie-ssd-dc-p3700/
 
-Pity, since there even was a patch in the past (the change seems to be 
-easy, but was rejected).
+After overcoming my issues with isdct, and reformatting the NVMes to 4k 
+sector size, success!
 
-They say, I would need to come up with a real world PostgreSQL database 
-workload that shows this effect is above the noise level.
+9.5 mio IOPS =)
 
-And since PostgreSQL is such a CPU hog anyway, and since I don't have 
-time for a full research project, I leave it.
+This is another 34% faster than before.
 
----
-
-But, I did more FIO level benchmarking to compare the efficiency of 
-different IO methods:
-
-Here are more numbers that quantify the differences of the IO method used.
-
-ioengine	sync	psync	vsync	pvsync	pvsync2	pvsync2+hipri
-iodepth		1	1	1	1	1	1
-numjobs		1024	1024	1024	1024	1024	1024
-						
-						
-concurrency	1024	1024	1024	1024	1024	1024
-iops (k)	9171	9390	9196	9473	9527	9516
-user		7,7	9,3	8,6	9,0	9,3	2,6
-system		86,8	77,0	85,8	76,3	77,3	97,4
-total		94,5	86,3	94,4	85,3	86,6	100,0
-						
-iops/system	105,7	121,9	107,2	124,2	123,2	97,7
-
-
-As can be seen, the kIOPS normalized to system CPU load (last line) for 
-psync (pread/pwrite) is significantly higher than for sync 
-(lseek/read/write).
-
-Now here is AIO:
-
-ioengine	libaio	libaio	libaio
-iodepth		32	32	32
-numjobs		128	64	32
-			
-			
-concurrency	4096	2048	1024
-iops (k)	9485,6	9479,4	8718,1
-user		6,7	3,4	2,4
-system		59,2	30,0	16,7
-total		65,9	33,4	19,1
-			
-iops/system	160,2	316,0	522,0
-
-The highest kIOPS/system is reached at a concurrency of 1024.
-
-However, during my tests, I get this in kernel log:
-
-[459346.155564] NMI watchdog: BUG: soft lockup - CPU#46 stuck for 22s! 
-[swapper/46:0]
-[461040.530959] NMI watchdog: BUG: soft lockup - CPU#26 stuck for 22s! 
-[swapper/26:0]
-[461044.279081] NMI watchdog: BUG: soft lockup - CPU#23 stuck for 22s! 
-[swapper/23:0]
-
-I wild guess: these lockups are actually deadlocks. AIO seems to be 
-tricky for the kernel too.
+So: thanks a bunch for your tip!
 
 Cheers,
 /Tobias
+
+
+Next steps:
+
+- approach MD developers about bottlenecks there
+- approach PostgreSQL about using pread/pwrite (instead of lseek/read/write)
+
+
+randread-individual-nvmes: (g=0): rw=randread, bs=4K-4K/4K-4K/4K-4K, 
+ioengine=libaio, iodepth=128
+...
+fio-2.1.11
+Starting 128 threads
+Jobs: 128 (f=2048): [r(128)] [100.0% done] [37244MB/0KB/0KB /s] 
+[9534K/0/0 iops] [eta 00m:00s]
+randread-individual-nvmes: (groupid=0, jobs=128): err= 0: pid=25406: Tue 
+Jan 24 15:57:19 2017
+   read : io=1083.9GB, bw=36964MB/s, iops=9462.8K, runt= 30026msec
+   cpu          : usr=9.00%, sys=77.01%, ctx=49252920, majf=0, minf=16512
 
