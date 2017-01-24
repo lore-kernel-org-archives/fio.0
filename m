@@ -1,13 +1,6 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-bl2nam02on0092.outbound.protection.outlook.com ([104.47.38.92]:45339
-        "EHLO NAM02-BL2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750858AbdAYQXD (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 25 Jan 2017 11:23:03 -0500
-From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Subject: RE: 4x lower IOPS: Linux MD vs indiv. devices - why?
-Date: Wed, 25 Jan 2017 16:23:01 +0000
-Message-ID: <DF4PR84MB0169A885870EDAED7BDB0C23AB740@DF4PR84MB0169.NAMPRD84.PROD.OUTLOOK.COM>
+Return-Path: <tobias.oberstein@gmail.com>
+Return-Path: <tobias.oberstein@gmail.com>
+Subject: Re: 4x lower IOPS: Linux MD vs indiv. devices - why?
 References: <90865544-f790-513c-97df-7e6a6af20ca8@gmail.com>
  <CANvN+en2ihATNgrbgzwNXAK87wNh+6jXHinmg2-VmHon31AJzA@mail.gmail.com>
  <061acabe-dbd0-ae07-cd69-772eccd15b21@gmail.com>
@@ -23,43 +16,90 @@ References: <90865544-f790-513c-97df-7e6a6af20ca8@gmail.com>
  <CANvN+emQ0AYPgT0e6KMKphDTZAY=cW6FyroLw=smReHGpd-=TA@mail.gmail.com>
  <a0dc59e7-9c81-ab5d-45b6-d1d252179837@gmail.com>
  <CANvN+e=qsexdU6Pp4kKQXy-jQKixZhR-WWLQb=713NNAA0ziVg@mail.gmail.com>
- <68e44114-5d14-a714-09a6-d80358d10118@gmail.com>
-In-Reply-To: <68e44114-5d14-a714-09a6-d80358d10118@gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Tobias Oberstein <tobias.oberstein@gmail.com>
+Message-ID: <68e44114-5d14-a714-09a6-d80358d10118@gmail.com>
+Date: Tue, 24 Jan 2017 23:51:52 +0100
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Tobias Oberstein <tobias.oberstein@gmail.com>, Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <CANvN+e=qsexdU6Pp4kKQXy-jQKixZhR-WWLQb=713NNAA0ziVg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Cc: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
-a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uDQo+IEJlaGFs
-ZiBPZiBUb2JpYXMgT2JlcnN0ZWluDQo+IFNlbnQ6IFR1ZXNkYXksIEphbnVhcnkgMjQsIDIwMTcg
-NDo1MiBQTQ0KPiBUbzogQW5kcmV5IEt1em1pbiA8YW5kcmV5LnYua3V6bWluQGdtYWlsLmNvbT4N
-Cj4gQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmc7IEplbnMgQXhib2UgPGF4Ym9lQGtlcm5lbC5kaz4N
-Cj4gU3ViamVjdDogUmU6IDR4IGxvd2VyIElPUFM6IExpbnV4IE1EIHZzIGluZGl2LiBkZXZpY2Vz
-IC0gd2h5Pw0KPiANCj4gSG93ZXZlciwgZHVyaW5nIG15IHRlc3RzLCBJIGdldCB0aGlzIGluIGtl
-cm5lbCBsb2c6DQo+IA0KPiBbNDU5MzQ2LjE1NTU2NF0gTk1JIHdhdGNoZG9nOiBCVUc6IHNvZnQg
-bG9ja3VwIC0gQ1BVIzQ2IHN0dWNrIGZvcg0KPiAyMnMhDQo+IFtzd2FwcGVyLzQ2OjBdDQo+IFs0
-NjEwNDAuNTMwOTU5XSBOTUkgd2F0Y2hkb2c6IEJVRzogc29mdCBsb2NrdXAgLSBDUFUjMjYgc3R1
-Y2sgZm9yDQo+IDIycyENCj4gW3N3YXBwZXIvMjY6MF0NCj4gWzQ2MTA0NC4yNzkwODFdIE5NSSB3
-YXRjaGRvZzogQlVHOiBzb2Z0IGxvY2t1cCAtIENQVSMyMyBzdHVjayBmb3INCj4gMjJzIQ0KPiBb
-c3dhcHBlci8yMzowXQ0KPiANCj4gSSB3aWxkIGd1ZXNzOiB0aGVzZSBsb2NrdXBzIGFyZSBhY3R1
-YWxseSBkZWFkbG9ja3MuIEFJTyBzZWVtcyB0byBiZQ0KPiB0cmlja3kgZm9yIHRoZSBrZXJuZWwg
-dG9vLg0KPiANCg0KUHJvYmFibHkgbm90IGRlYWRsb2Nrcy4gIE9uZSBlYXN5IHRvIHdheSB0cmln
-Z2VyIHRob3NlIGlzIHRvIHN1Ym1pdA0KSU9zIG9uIG9uZSBzZXQgb2YgQ1BVcyBhbmQgZXhwZWN0
-IGEgZGlmZmVyZW50IHNldCBvZiBDUFVzIHRvIGhhbmRsZQ0KdGhlIGludGVycnVwdHMgYW5kIGNv
-bXBsZXRpb25zLiAgVGhlIGxhdHRlciBDUFVzIGNhbiBlYXNpbHkgYmVjb21lDQpvdmVyd2hlbG1l
-ZC4gIFRoZSBiZXN0IHJlbWVkeSBJJ3ZlIGZvdW5kIGlzIHRvIHJlcXVpcmUgQ1BVcyB0byBoYW5k
-bGUNCnRoZWlyIG93biBJT3MsIHdoaWNoIHNlbGYtdGhyb3R0bGVzIHRoZW0gZnJvbSBzdWJtaXR0
-aW5nIG1vcmUgSU9zDQp0aGFuIHRoZXkgY2FuIGhhbmRsZS4NCg0KVGhlIHN0b3JhZ2UgZGV2aWNl
-IGRyaXZlciBuZWVkcyB0byBzZXQgdXAgaXRzIGhhcmR3YXJlIGludGVycnVwdHMNCnRoYXQgd2F5
-LiAgVGhlbiwgcnFfYWZmaW5pdHk9MiBlbnN1cmVzIHRoZSBibG9jayBsYXllciBjb21wbGV0aW9u
-cw0KYXJlIGhhbmRsZWQgb24gdGhlIHN1Ym1pdHRpbmcgQ1BVLg0KDQpZb3UgY2FuIGFkZCB0aGlz
-IHRvIHRoZSBrZXJuZWwgY29tbWFuZCBsaW5lIChlLmcuLCBpbiANCi9ib290L2dydWIvZ3J1Yi5j
-b25mKSB0byBzcXVlbGNoIHRob3NlIGNoZWNrczoNCglub3NvZnRsb2NrdXANCg0KVGhvc2UgcHJp
-bnRzIHRoZW1zZWx2ZXMgY2FuIGluZHVjZSBtb3JlIHNvZnQgbG9ja3VwcyBpZiB5b3UgaGF2ZSBh
-DQpsaXZlIHNlcmlhbCBwb3J0LCBiZWNhdXNlIHByaW50aW5nIHRvIHRoZSBzZXJpYWwgcG9ydCBp
-cyBzbG93DQphbmQgYmxvY2tpbmcuDQoNCg==
+> My current preliminary conclusions on this box / workload:
+>>
+>> - running psync is much better than sync
+>>
+>> So you likely have a convincing case for Postgres guys to switch over to
+>> pread/pwrite.
+
+I did raise it on the PG hackers mailing list, but I couldn't convince 
+them =(
+
+Pity, since there even was a patch in the past (the change seems to be 
+easy, but was rejected).
+
+They say, I would need to come up with a real world PostgreSQL database 
+workload that shows this effect is above the noise level.
+
+And since PostgreSQL is such a CPU hog anyway, and since I don't have 
+time for a full research project, I leave it.
+
+---
+
+But, I did more FIO level benchmarking to compare the efficiency of 
+different IO methods:
+
+Here are more numbers that quantify the differences of the IO method used.
+
+ioengine	sync	psync	vsync	pvsync	pvsync2	pvsync2+hipri
+iodepth		1	1	1	1	1	1
+numjobs		1024	1024	1024	1024	1024	1024
+						
+						
+concurrency	1024	1024	1024	1024	1024	1024
+iops (k)	9171	9390	9196	9473	9527	9516
+user		7,7	9,3	8,6	9,0	9,3	2,6
+system		86,8	77,0	85,8	76,3	77,3	97,4
+total		94,5	86,3	94,4	85,3	86,6	100,0
+						
+iops/system	105,7	121,9	107,2	124,2	123,2	97,7
+
+
+As can be seen, the kIOPS normalized to system CPU load (last line) for 
+psync (pread/pwrite) is significantly higher than for sync 
+(lseek/read/write).
+
+Now here is AIO:
+
+ioengine	libaio	libaio	libaio
+iodepth		32	32	32
+numjobs		128	64	32
+			
+			
+concurrency	4096	2048	1024
+iops (k)	9485,6	9479,4	8718,1
+user		6,7	3,4	2,4
+system		59,2	30,0	16,7
+total		65,9	33,4	19,1
+			
+iops/system	160,2	316,0	522,0
+
+The highest kIOPS/system is reached at a concurrency of 1024.
+
+However, during my tests, I get this in kernel log:
+
+[459346.155564] NMI watchdog: BUG: soft lockup - CPU#46 stuck for 22s! 
+[swapper/46:0]
+[461040.530959] NMI watchdog: BUG: soft lockup - CPU#26 stuck for 22s! 
+[swapper/26:0]
+[461044.279081] NMI watchdog: BUG: soft lockup - CPU#23 stuck for 22s! 
+[swapper/23:0]
+
+I wild guess: these lockups are actually deadlocks. AIO seems to be 
+tricky for the kernel too.
+
+Cheers,
+/Tobias
+
