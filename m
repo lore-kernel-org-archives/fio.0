@@ -1,73 +1,76 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailout.micron.com ([137.201.242.129]:55853 "EHLO
-        mailout.micron.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751788AbdBAXFf (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 1 Feb 2017 18:05:35 -0500
-From: "Prabhu Murugesan (pmurugesan)" <pmurugesan@micron.com>
-Subject: RE: not all the jobs running at equal speed
-Date: Wed, 1 Feb 2017 23:05:30 +0000
-Message-ID: <ec99c46fa7a7476da9246c74ae90fab6@bowex36c.micron.com>
+Received: from mail-ua0-f169.google.com ([209.85.217.169]:35046 "EHLO
+        mail-ua0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753673AbdBAWNn (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 1 Feb 2017 17:13:43 -0500
+Received: by mail-ua0-f169.google.com with SMTP id y9so308642922uae.2
+        for <fio@vger.kernel.org>; Wed, 01 Feb 2017 14:13:42 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <0e2fb8e4543f4a6ba48c04d261f78e5a@bowex36c.micron.com>
 References: <cd5deac3ce8b4c6da58b3f720f88941c@bowex36c.micron.com>
  <CALjAwxh6X_oMyCrAR43xXwtzQmyEw5Mwf9rX5kCtj09SbeCYJQ@mail.gmail.com>
- <CALjAwxhQottB9wjeUeCLR+5g_R8DFWHghtBgXWFdWjcC0v54Mw@mail.gmail.com>
- <0e2fb8e4543f4a6ba48c04d261f78e5a@bowex36c.micron.com>
- <CALjAwxg2oDWyYJ3YSK-i9EVZJeUxt_mK34=uUca6SAcUqMJb5Q@mail.gmail.com>
-In-Reply-To: <CALjAwxg2oDWyYJ3YSK-i9EVZJeUxt_mK34=uUca6SAcUqMJb5Q@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+ <CALjAwxhQottB9wjeUeCLR+5g_R8DFWHghtBgXWFdWjcC0v54Mw@mail.gmail.com> <0e2fb8e4543f4a6ba48c04d261f78e5a@bowex36c.micron.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 1 Feb 2017 22:13:11 +0000
+Message-ID: <CALjAwxg2oDWyYJ3YSK-i9EVZJeUxt_mK34=uUca6SAcUqMJb5Q@mail.gmail.com>
+Subject: Re: not all the jobs running at equal speed
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: "Prabhu Murugesan (pmurugesan)" <pmurugesan@micron.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Tm8sIHdpdGggb3Igd2l0aG91dCBzdG9uZXdhbGwsIEkgYW0gc2VlaW5nIHVuZXF1YWwgc3BlZWRz
-LiBFdmVuIHdpdGggJ29mZnNldF9pbmNyZW1lbnQnLCBJIGFtIHNlZWluZyB0aGUgc2FtZS4gSXQg
-ZXhhY3RseSBiZWhhdmVzIHRoZSBzYW1lIHdheSBhcyBteSB2ZXJ5IGZpcnN0IGNvbmZpZ3VyYXRp
-b24gd2l0aCBvZmZzZXQuDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBTaXRz
-b2ZlIFdoZWVsZXIgW21haWx0bzpzaXRzb2ZlQGdtYWlsLmNvbV0gDQpTZW50OiBXZWRuZXNkYXks
-IEZlYnJ1YXJ5IDAxLCAyMDE3IDM6MTMgUE0NClRvOiBQcmFiaHUgTXVydWdlc2FuIChwbXVydWdl
-c2FuKSA8cG11cnVnZXNhbkBtaWNyb24uY29tPg0KQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmcNClN1
-YmplY3Q6IFJlOiBub3QgYWxsIHRoZSBqb2JzIHJ1bm5pbmcgYXQgZXF1YWwgc3BlZWQNCg0KSXQg
-ZG9lc24ndCBzdXJwcmlzZSBtZSB0aGF0IHJ1biB0aW1lIGluY3JlYXNlcyBidXQgZG9lcyB0aGF0
-ICJtYWtlIg0KYWxsIHRoZSBqb2JzIGhhdmUgZXF1YWwgc3BlZWQ/IElmIHNvLCBkbyB5b3Ugc2Vl
-IHVuZXF1YWwgc3BlZWRzIHdoZW4geW91IHJlbW92ZSB0aGUgc3RvbmV3YWxsIGZyb20gdGhlIG51
-bWpvYnMgc2V0dXA/IFBTIGFmdGVyIGNoZWNraW5nIHRoYXQgeW91IG1pZ2h0IHdhbnQgdG8gaW52
-ZXN0aWdhdGUgdGhlIG9mZnNldF9pbmNyZW1lbnQgb3B0aW9uIChodHRwOi8vZmlvLnJlYWR0aGVk
-b2NzLmlvL2VuL3NwaGlueC1kb2MvZmlvX2RvYy5odG1sI2NtZG9wdGlvbi1hcmctb2Zmc2V0X2lu
-Y3JlbWVudA0KKS4NCg0KT24gMSBGZWJydWFyeSAyMDE3IGF0IDIxOjQ4LCBQcmFiaHUgTXVydWdl
-c2FuIChwbXVydWdlc2FuKSA8cG11cnVnZXNhbkBtaWNyb24uY29tPiB3cm90ZToNCj4gQWN0dWFs
-bHksIEkgd2FudGVkIGFsbCB0aGUgZm91ciBqb2JzIHRvIHJ1biBpbiBwYXJhbGxlbCBhcyBvcHBv
-c2VkIHRvIHJ1bm5pbmcgdGhlbSBpbiBzZXF1ZW5jZS4gSXQgaXMgc2ltaWxhciB0byB0aGUgJ251
-bWpvYnMnIGNvbmNlcHQuIEJ1dCwgSSB3YW50ZWQgdG8gbGltaXQgdGhlIGFtb3VudCBvZiBkYXRh
-IGJlaW5nIHdyaXR0ZW4gYW5kIHRoZSBsYmEgcmFuZ2UsIHNvIHRoYXQgbm90IG1vcmUgdGhhbiBv
-bmUgbGJhIGlzIGJlaW5nIHdyaXR0ZW4uDQo+DQo+IFRoZSB3YXkgeW91IHN1Z2dlc3RlZCBpbmNy
-ZWFzZXMgcnVudGltZSBmcm9tIG9yaWdpbmFsIDMwIG1pbnMgdG8gNDUgbWlucyBub3cuDQo+DQo+
-IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IFNpdHNvZmUgV2hlZWxlciBbbWFp
-bHRvOnNpdHNvZmVAZ21haWwuY29tXQ0KPiBTZW50OiBXZWRuZXNkYXksIEZlYnJ1YXJ5IDAxLCAy
-MDE3IDEyOjIxIFBNDQo+IFRvOiBQcmFiaHUgTXVydWdlc2FuIChwbXVydWdlc2FuKSA8cG11cnVn
-ZXNhbkBtaWNyb24uY29tPg0KPiBDYzogZmlvQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBS
-ZTogbm90IGFsbCB0aGUgam9icyBydW5uaW5nIGF0IGVxdWFsIHNwZWVkDQo+DQo+IExvb2tpbmcg
-YSBiaXQgY2xvc2VyOg0KPg0KPiBUaGUgam9icyBpbiB0aGUgZmlyc3QgcnVuIGhhdmUgbm8gc3Rv
-bmV3YWxsIHNvIGFsbCA0IGpvYnMgd2lsbCBydW4gc2ltdWx0YW5lb3VzbHkuIFRoZSBqb2JzIGlu
-IHRoZSBzZWNvbmQgcnVuIGhhdmUgc3RvbmV3YWxsIHNvIGF0IGFueSBnaXZlbiB0aW1lIG9ubHkg
-b25lIG9mIHRoZSBqb2JzIHdpbGwgYmUgcnVubmluZy4gRG9lcyBhZGRpbmcgc3RvbmV3YWxsIHRv
-IHRoZSB0aGUgZ2xvYmFsIG9mIHRoZSBmaXJzdCBydW4gZ2l2ZSBzaW1pbGFyIHJlc3VsdHMgdG8g
-dGhlIHNlY29uZCBydW4/DQo+DQo+IE9uIDEgRmVicnVhcnkgMjAxNyBhdCAxOTowNCwgU2l0c29m
-ZSBXaGVlbGVyIDxzaXRzb2ZlQGdtYWlsLmNvbT4gd3JvdGU6DQo+PiBIaSwNCj4+DQo+PiBPbiAx
-IEZlYnJ1YXJ5IDIwMTcgYXQgMTY6NDYsIFByYWJodSBNdXJ1Z2VzYW4gKHBtdXJ1Z2VzYW4pIA0K
-Pj4gPHBtdXJ1Z2VzYW5AbWljcm9uLmNvbT4gd3JvdGU6DQo+Pj4NCj4+PiBJIGFtIHRyeWluZyB0
-byBydW4gNCBqb2JzIGluIHBhcmFsbGVsIGluIG9yZGVyIHRvIGZpbGwgYSBkcml2ZSBvbmNlIA0K
-Pj4+IHJhbmRvbWx5LiBUaGUgZHV0IHRoYXQgSSBhbSB1c2luZyBpcyBhIDQ1MEdCIE5WTWUgZHJp
-dmUuIFRoZSBwcm9ibGVtIA0KPj4+IGlzLCBub3QgYWxsIHRoZSBqb2JzIGFyZSBydW5uaW5nIGF0
-IGVxdWFsIHNwZWVkLiBZb3UgY2FuIGZpbmQgaW9wcyANCj4+PiBsb2cgZmlsZSBkYXRhIGZvciBh
-bGwgdGhlIGpvYnMgYmVsb3cNCj4+DQo+PiBUaGUgbnVtam9icyBydW4gaXMgZ29pbmcgdG8gbWFr
-ZSBhbGwgZm91ciBqb2JzIHNjcmliYmxlIG92ZXIgdGhlIA0KPj4gInNhbWUiIHJhbmdlIGNvbXBh
-cmVkIHRvIHlvdXIgY2FyZWZ1bGx5IGNyYWZ0ZWQgZmlyc3QgcnVuLiBXaGF0IA0KPj4gaGFwcGVu
-cyBpZiB5b3Ugc2V0IHRoZSBvZmZzZXQgdG8gYmUgMCBmb3IgYWxsIHlvdXIgam9icyBpbiB5b3Vy
-IGZpcnN0IA0KPj4gcnVuIGFuZCBsZXQgdGhlIHNpemUgYmUgMTAwJT8NCj4+DQo+PiBQUzogaXQg
-aGVscHMgaWYgeW91IHJlZHVjZSB0aGUgdGhlIG51bWJlciBvZiBwYXJhbWV0ZXJzIHRvIHRoZSBi
-YXJlIA0KPj4gbWluaW11bSB0aGF0IHN0aWxsIHNob3cgdGhlIHByb2JsZW0gYXMgaXQncyBsZXNz
-IHRvIGxvb2sgdGhyb3VnaC4NCg0KLS0NClNpdHNvZmUgfCBodHRwOi8vc3Vjcy5vcmcvfnNpdHMv
-DQo=
+It doesn't surprise me that run time increases but does that "make"
+all the jobs have equal speed? If so, do you see unequal speeds when
+you remove the stonewall from the numjobs setup? PS after checking
+that you might want to investigate the offset_increment option
+(http://fio.readthedocs.io/en/sphinx-doc/fio_doc.html#cmdoption-arg-offset_=
+increment
+).
+
+On 1 February 2017 at 21:48, Prabhu Murugesan (pmurugesan)
+<pmurugesan@micron.com> wrote:
+> Actually, I wanted all the four jobs to run in parallel as opposed to run=
+ning them in sequence. It is similar to the 'numjobs' concept. But, I wante=
+d to limit the amount of data being written and the lba range, so that not =
+more than one lba is being written.
+>
+> The way you suggested increases runtime from original 30 mins to 45 mins =
+now.
+>
+> -----Original Message-----
+> From: Sitsofe Wheeler [mailto:sitsofe@gmail.com]
+> Sent: Wednesday, February 01, 2017 12:21 PM
+> To: Prabhu Murugesan (pmurugesan) <pmurugesan@micron.com>
+> Cc: fio@vger.kernel.org
+> Subject: Re: not all the jobs running at equal speed
+>
+> Looking a bit closer:
+>
+> The jobs in the first run have no stonewall so all 4 jobs will run simult=
+aneously. The jobs in the second run have stonewall so at any given time on=
+ly one of the jobs will be running. Does adding stonewall to the the global=
+ of the first run give similar results to the second run?
+>
+> On 1 February 2017 at 19:04, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>> Hi,
+>>
+>> On 1 February 2017 at 16:46, Prabhu Murugesan (pmurugesan)
+>> <pmurugesan@micron.com> wrote:
+>>>
+>>> I am trying to run 4 jobs in parallel in order to fill a drive once
+>>> randomly. The dut that I am using is a 450GB NVMe drive. The problem
+>>> is, not all the jobs are running at equal speed. You can find iops
+>>> log file data for all the jobs below
+>>
+>> The numjobs run is going to make all four jobs scribble over the
+>> "same" range compared to your carefully crafted first run. What
+>> happens if you set the offset to be 0 for all your jobs in your first
+>> run and let the size be 100%?
+>>
+>> PS: it helps if you reduce the the number of parameters to the bare
+>> minimum that still show the problem as it's less to look through.
+
+--=20
+Sitsofe | http://sucs.org/~sits/
