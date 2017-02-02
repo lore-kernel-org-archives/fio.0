@@ -1,99 +1,115 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailout.micron.com ([137.201.242.129]:43104 "EHLO
-        mailout.micron.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751785AbdBBXOC (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 2 Feb 2017 18:14:02 -0500
-From: "Prabhu Murugesan (pmurugesan)" <pmurugesan@micron.com>
-Subject: RE: not all the jobs running at equal speed
-Date: Thu, 2 Feb 2017 23:13:59 +0000
-Message-ID: <a6dfe8b3143f4d1db87d1c2388d3b64b@bowex36c.micron.com>
+Received: from mail-vk0-f46.google.com ([209.85.213.46]:36811 "EHLO
+        mail-vk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750907AbdBBHNu (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 2 Feb 2017 02:13:50 -0500
+Received: by mail-vk0-f46.google.com with SMTP id t8so4925058vke.3
+        for <fio@vger.kernel.org>; Wed, 01 Feb 2017 23:13:50 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <ec99c46fa7a7476da9246c74ae90fab6@bowex36c.micron.com>
 References: <cd5deac3ce8b4c6da58b3f720f88941c@bowex36c.micron.com>
  <CALjAwxh6X_oMyCrAR43xXwtzQmyEw5Mwf9rX5kCtj09SbeCYJQ@mail.gmail.com>
  <CALjAwxhQottB9wjeUeCLR+5g_R8DFWHghtBgXWFdWjcC0v54Mw@mail.gmail.com>
- <0e2fb8e4543f4a6ba48c04d261f78e5a@bowex36c.micron.com>
- <CALjAwxg2oDWyYJ3YSK-i9EVZJeUxt_mK34=uUca6SAcUqMJb5Q@mail.gmail.com>
+ <0e2fb8e4543f4a6ba48c04d261f78e5a@bowex36c.micron.com> <CALjAwxg2oDWyYJ3YSK-i9EVZJeUxt_mK34=uUca6SAcUqMJb5Q@mail.gmail.com>
  <ec99c46fa7a7476da9246c74ae90fab6@bowex36c.micron.com>
- <CALjAwxhqb7A=DkKsMHhAKsrGsSc4h08kia+BZdOZZBZ104OrwA@mail.gmail.com>
-In-Reply-To: <CALjAwxhqb7A=DkKsMHhAKsrGsSc4h08kia+BZdOZZBZ104OrwA@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Thu, 2 Feb 2017 07:13:19 +0000
+Message-ID: <CALjAwxhqb7A=DkKsMHhAKsrGsSc4h08kia+BZdOZZBZ104OrwA@mail.gmail.com>
+Subject: Re: not all the jobs running at equal speed
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: "Prabhu Murugesan (pmurugesan)" <pmurugesan@micron.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-VGhhdCdzIGEgdmVyeSBnb29kIGNhdGNoLiBBZnRlciBJIGNoYW5nZWQgdGhlIHNpemUgdG8gYSBu
-dW1iZXIgbXVsdGlwbGUgb2YgNDA5NiwgaXQgd29ya2VkLiBBbGwgdGhlIGpvYnMgYXJlIHJ1bm5p
-bmcgYXQgYWxtb3N0IGVxdWFsIHNwZWVkIG5vdy4NCg0KVGhhbmtzIGEgbG90IGZvciB5b3VyIGhl
-bHAgOikgWW91ciBwYXRpZW5jZSBhbmQgc3VwcG9ydCBpcyBhbWF6aW5nISENCg0KDQotLS0tLU9y
-aWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogU2l0c29mZSBXaGVlbGVyIFttYWlsdG86c2l0c29m
-ZUBnbWFpbC5jb21dIA0KU2VudDogVGh1cnNkYXksIEZlYnJ1YXJ5IDAyLCAyMDE3IDEyOjEzIEFN
-DQpUbzogUHJhYmh1IE11cnVnZXNhbiAocG11cnVnZXNhbikgPHBtdXJ1Z2VzYW5AbWljcm9uLmNv
-bT4NCkNjOiBmaW9Admdlci5rZXJuZWwub3JnDQpTdWJqZWN0OiBSZTogbm90IGFsbCB0aGUgam9i
-cyBydW5uaW5nIGF0IGVxdWFsIHNwZWVkDQoNCkhpLA0KDQpJIHN0cm9uZ2x5IHJlY29tbWVuZCB5
-b3UgcmVkdWNlIHRoZSBvcHRpb25zIGluIHlvdXIgY29uZmlndXJhdGlvbiBzdWNoIHRoYXQgeW91
-IHN0aWxsIHNlZSB0aGUgcHJvYmxlbSBhbmQgdGhlbiB1cGRhdGUgdXMgd2l0aCB0aGUgY29uZmln
-dXJhdGlvbiB0aGF0IHN0aWxsIHNob3dzIHRoZSBwcm9ibGVtLg0KDQpTb21ldGhpbmcgZWxzZSB0
-byBsb29rIGF0IGlzIGFkanVzdGluZyB5b3VyIHNpemUgYW5kIG9mZnNldCBwYXJhbWV0ZXJzIHRv
-IGJlIG11bHRpcGxlcyBvZiB5b3VyIGJsb2Nrc2l6ZToNCmJzPTRrDQpiYT00aw0KWy4uLl0NCnNp
-emU9MTEyNTI0NTM5OTA0DQpbLi4uXQ0Kb2Zmc2V0PTExMjUyNDUzOTkwNA0KMTEyNTI0NTM5OTA0
-ICUgNDA5NiBkb2Vzbid0IGVxdWFsIDAgc28geW91IGFyZSBwb3RlbnRpYWxseSBmb3JjaW5nIGZp
-byB0byBkbyBleHRyYSB3b3JrIHRvIGtlZXAgcmVhbGlnbmluZyB5b3VyIEkvTyAoeW91IGhhdmUg
-YmE9NGsgaW4gdGhlcmUgd2hpY2ggaWRlYWxseSB3b3VsZG4ndCBiZSBpZiB0aGUgSS9PcyB3ZXJl
-IHRvIG5hdHVyYWxseSBhbGlnbikuIE5vdGUgdGhhdCAwICUgNDA5NiBhbmQgMjI1MDQ5MDc5ODA4
-ICUgNDA5NiBkbyBlcXVhbCAwIHNvIHRoZXJlJ3MgbGVzcyBhbGlnbm1lbnQgZml4aW5nIHRha2lu
-ZyBwbGFjZSB0aGVyZS4uLg0KDQpPbiAxIEZlYnJ1YXJ5IDIwMTcgYXQgMjM6MDUsIFByYWJodSBN
-dXJ1Z2VzYW4gKHBtdXJ1Z2VzYW4pIDxwbXVydWdlc2FuQG1pY3Jvbi5jb20+IHdyb3RlOg0KPiBO
-bywgd2l0aCBvciB3aXRob3V0IHN0b25ld2FsbCwgSSBhbSBzZWVpbmcgdW5lcXVhbCBzcGVlZHMu
-IEV2ZW4gd2l0aCAnb2Zmc2V0X2luY3JlbWVudCcsIEkgYW0gc2VlaW5nIHRoZSBzYW1lLiBJdCBl
-eGFjdGx5IGJlaGF2ZXMgdGhlIHNhbWUgd2F5IGFzIG15IHZlcnkgZmlyc3QgY29uZmlndXJhdGlv
-biB3aXRoIG9mZnNldC4NCj4NCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTog
-U2l0c29mZSBXaGVlbGVyIFttYWlsdG86c2l0c29mZUBnbWFpbC5jb21dDQo+IFNlbnQ6IFdlZG5l
-c2RheSwgRmVicnVhcnkgMDEsIDIwMTcgMzoxMyBQTQ0KPiBUbzogUHJhYmh1IE11cnVnZXNhbiAo
-cG11cnVnZXNhbikgPHBtdXJ1Z2VzYW5AbWljcm9uLmNvbT4NCj4gQ2M6IGZpb0B2Z2VyLmtlcm5l
-bC5vcmcNCj4gU3ViamVjdDogUmU6IG5vdCBhbGwgdGhlIGpvYnMgcnVubmluZyBhdCBlcXVhbCBz
-cGVlZA0KPg0KPiBJdCBkb2Vzbid0IHN1cnByaXNlIG1lIHRoYXQgcnVuIHRpbWUgaW5jcmVhc2Vz
-IGJ1dCBkb2VzIHRoYXQgIm1ha2UiDQo+IGFsbCB0aGUgam9icyBoYXZlIGVxdWFsIHNwZWVkPyBJ
-ZiBzbywgZG8geW91IHNlZSB1bmVxdWFsIHNwZWVkcyB3aGVuIA0KPiB5b3UgcmVtb3ZlIHRoZSBz
-dG9uZXdhbGwgZnJvbSB0aGUgbnVtam9icyBzZXR1cD8gUFMgYWZ0ZXIgY2hlY2tpbmcgDQo+IHRo
-YXQgeW91IG1pZ2h0IHdhbnQgdG8gaW52ZXN0aWdhdGUgdGhlIG9mZnNldF9pbmNyZW1lbnQgb3B0
-aW9uIA0KPiAoaHR0cDovL2Zpby5yZWFkdGhlZG9jcy5pby9lbi9zcGhpbngtZG9jL2Zpb19kb2Mu
-aHRtbCNjbWRvcHRpb24tYXJnLW9mDQo+IGZzZXRfaW5jcmVtZW50DQo+ICkuDQo+DQo+IE9uIDEg
-RmVicnVhcnkgMjAxNyBhdCAyMTo0OCwgUHJhYmh1IE11cnVnZXNhbiAocG11cnVnZXNhbikgPHBt
-dXJ1Z2VzYW5AbWljcm9uLmNvbT4gd3JvdGU6DQo+PiBBY3R1YWxseSwgSSB3YW50ZWQgYWxsIHRo
-ZSBmb3VyIGpvYnMgdG8gcnVuIGluIHBhcmFsbGVsIGFzIG9wcG9zZWQgdG8gcnVubmluZyB0aGVt
-IGluIHNlcXVlbmNlLiBJdCBpcyBzaW1pbGFyIHRvIHRoZSAnbnVtam9icycgY29uY2VwdC4gQnV0
-LCBJIHdhbnRlZCB0byBsaW1pdCB0aGUgYW1vdW50IG9mIGRhdGEgYmVpbmcgd3JpdHRlbiBhbmQg
-dGhlIGxiYSByYW5nZSwgc28gdGhhdCBub3QgbW9yZSB0aGFuIG9uZSBsYmEgaXMgYmVpbmcgd3Jp
-dHRlbi4NCj4+DQo+PiBUaGUgd2F5IHlvdSBzdWdnZXN0ZWQgaW5jcmVhc2VzIHJ1bnRpbWUgZnJv
-bSBvcmlnaW5hbCAzMCBtaW5zIHRvIDQ1IG1pbnMgbm93Lg0KPj4NCj4+IC0tLS0tT3JpZ2luYWwg
-TWVzc2FnZS0tLS0tDQo+PiBGcm9tOiBTaXRzb2ZlIFdoZWVsZXIgW21haWx0bzpzaXRzb2ZlQGdt
-YWlsLmNvbV0NCj4+IFNlbnQ6IFdlZG5lc2RheSwgRmVicnVhcnkgMDEsIDIwMTcgMTI6MjEgUE0N
-Cj4+IFRvOiBQcmFiaHUgTXVydWdlc2FuIChwbXVydWdlc2FuKSA8cG11cnVnZXNhbkBtaWNyb24u
-Y29tPg0KPj4gQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmcNCj4+IFN1YmplY3Q6IFJlOiBub3QgYWxs
-IHRoZSBqb2JzIHJ1bm5pbmcgYXQgZXF1YWwgc3BlZWQNCj4+DQo+PiBMb29raW5nIGEgYml0IGNs
-b3NlcjoNCj4+DQo+PiBUaGUgam9icyBpbiB0aGUgZmlyc3QgcnVuIGhhdmUgbm8gc3RvbmV3YWxs
-IHNvIGFsbCA0IGpvYnMgd2lsbCBydW4gc2ltdWx0YW5lb3VzbHkuIFRoZSBqb2JzIGluIHRoZSBz
-ZWNvbmQgcnVuIGhhdmUgc3RvbmV3YWxsIHNvIGF0IGFueSBnaXZlbiB0aW1lIG9ubHkgb25lIG9m
-IHRoZSBqb2JzIHdpbGwgYmUgcnVubmluZy4gRG9lcyBhZGRpbmcgc3RvbmV3YWxsIHRvIHRoZSB0
-aGUgZ2xvYmFsIG9mIHRoZSBmaXJzdCBydW4gZ2l2ZSBzaW1pbGFyIHJlc3VsdHMgdG8gdGhlIHNl
-Y29uZCBydW4/DQo+Pg0KPj4gT24gMSBGZWJydWFyeSAyMDE3IGF0IDE5OjA0LCBTaXRzb2ZlIFdo
-ZWVsZXIgPHNpdHNvZmVAZ21haWwuY29tPiB3cm90ZToNCj4+PiBIaSwNCj4+Pg0KPj4+IE9uIDEg
-RmVicnVhcnkgMjAxNyBhdCAxNjo0NiwgUHJhYmh1IE11cnVnZXNhbiAocG11cnVnZXNhbikgDQo+
-Pj4gPHBtdXJ1Z2VzYW5AbWljcm9uLmNvbT4gd3JvdGU6DQo+Pj4+DQo+Pj4+IEkgYW0gdHJ5aW5n
-IHRvIHJ1biA0IGpvYnMgaW4gcGFyYWxsZWwgaW4gb3JkZXIgdG8gZmlsbCBhIGRyaXZlIG9uY2Ug
-DQo+Pj4+IHJhbmRvbWx5LiBUaGUgZHV0IHRoYXQgSSBhbSB1c2luZyBpcyBhIDQ1MEdCIE5WTWUg
-ZHJpdmUuIFRoZSANCj4+Pj4gcHJvYmxlbSBpcywgbm90IGFsbCB0aGUgam9icyBhcmUgcnVubmlu
-ZyBhdCBlcXVhbCBzcGVlZC4gWW91IGNhbiANCj4+Pj4gZmluZCBpb3BzIGxvZyBmaWxlIGRhdGEg
-Zm9yIGFsbCB0aGUgam9icyBiZWxvdw0KPj4+DQo+Pj4gVGhlIG51bWpvYnMgcnVuIGlzIGdvaW5n
-IHRvIG1ha2UgYWxsIGZvdXIgam9icyBzY3JpYmJsZSBvdmVyIHRoZSANCj4+PiAic2FtZSIgcmFu
-Z2UgY29tcGFyZWQgdG8geW91ciBjYXJlZnVsbHkgY3JhZnRlZCBmaXJzdCBydW4uIFdoYXQgDQo+
-Pj4gaGFwcGVucyBpZiB5b3Ugc2V0IHRoZSBvZmZzZXQgdG8gYmUgMCBmb3IgYWxsIHlvdXIgam9i
-cyBpbiB5b3VyIA0KPj4+IGZpcnN0IHJ1biBhbmQgbGV0IHRoZSBzaXplIGJlIDEwMCU/DQo+Pj4N
-Cj4+PiBQUzogaXQgaGVscHMgaWYgeW91IHJlZHVjZSB0aGUgdGhlIG51bWJlciBvZiBwYXJhbWV0
-ZXJzIHRvIHRoZSBiYXJlIA0KPj4+IG1pbmltdW0gdGhhdCBzdGlsbCBzaG93IHRoZSBwcm9ibGVt
-IGFzIGl0J3MgbGVzcyB0byBsb29rIHRocm91Z2guDQo+DQo+IC0tDQo+IFNpdHNvZmUgfCBodHRw
-Oi8vc3Vjcy5vcmcvfnNpdHMvDQoNCg0KDQotLQ0KU2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9yZy9+
-c2l0cy8NCg==
+Hi,
+
+I strongly recommend you reduce the options in your configuration such
+that you still see the problem and then update us with the
+configuration that still shows the problem.
+
+Something else to look at is adjusting your size and offset parameters
+to be multiples of your blocksize:
+bs=3D4k
+ba=3D4k
+[...]
+size=3D112524539904
+[...]
+offset=3D112524539904
+112524539904 % 4096 doesn't equal 0 so you are potentially forcing fio
+to do extra work to keep realigning your I/O (you have ba=3D4k in there
+which ideally wouldn't be if the I/Os were to naturally align). Note
+that 0 % 4096 and 225049079808 % 4096 do equal 0 so there's less
+alignment fixing taking place there...
+
+On 1 February 2017 at 23:05, Prabhu Murugesan (pmurugesan)
+<pmurugesan@micron.com> wrote:
+> No, with or without stonewall, I am seeing unequal speeds. Even with 'off=
+set_increment', I am seeing the same. It exactly behaves the same way as my=
+ very first configuration with offset.
+>
+> -----Original Message-----
+> From: Sitsofe Wheeler [mailto:sitsofe@gmail.com]
+> Sent: Wednesday, February 01, 2017 3:13 PM
+> To: Prabhu Murugesan (pmurugesan) <pmurugesan@micron.com>
+> Cc: fio@vger.kernel.org
+> Subject: Re: not all the jobs running at equal speed
+>
+> It doesn't surprise me that run time increases but does that "make"
+> all the jobs have equal speed? If so, do you see unequal speeds when you =
+remove the stonewall from the numjobs setup? PS after checking that you mig=
+ht want to investigate the offset_increment option (http://fio.readthedocs.=
+io/en/sphinx-doc/fio_doc.html#cmdoption-arg-offset_increment
+> ).
+>
+> On 1 February 2017 at 21:48, Prabhu Murugesan (pmurugesan) <pmurugesan@mi=
+cron.com> wrote:
+>> Actually, I wanted all the four jobs to run in parallel as opposed to ru=
+nning them in sequence. It is similar to the 'numjobs' concept. But, I want=
+ed to limit the amount of data being written and the lba range, so that not=
+ more than one lba is being written.
+>>
+>> The way you suggested increases runtime from original 30 mins to 45 mins=
+ now.
+>>
+>> -----Original Message-----
+>> From: Sitsofe Wheeler [mailto:sitsofe@gmail.com]
+>> Sent: Wednesday, February 01, 2017 12:21 PM
+>> To: Prabhu Murugesan (pmurugesan) <pmurugesan@micron.com>
+>> Cc: fio@vger.kernel.org
+>> Subject: Re: not all the jobs running at equal speed
+>>
+>> Looking a bit closer:
+>>
+>> The jobs in the first run have no stonewall so all 4 jobs will run simul=
+taneously. The jobs in the second run have stonewall so at any given time o=
+nly one of the jobs will be running. Does adding stonewall to the the globa=
+l of the first run give similar results to the second run?
+>>
+>> On 1 February 2017 at 19:04, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>>> Hi,
+>>>
+>>> On 1 February 2017 at 16:46, Prabhu Murugesan (pmurugesan)
+>>> <pmurugesan@micron.com> wrote:
+>>>>
+>>>> I am trying to run 4 jobs in parallel in order to fill a drive once
+>>>> randomly. The dut that I am using is a 450GB NVMe drive. The problem
+>>>> is, not all the jobs are running at equal speed. You can find iops
+>>>> log file data for all the jobs below
+>>>
+>>> The numjobs run is going to make all four jobs scribble over the
+>>> "same" range compared to your carefully crafted first run. What
+>>> happens if you set the offset to be 0 for all your jobs in your first
+>>> run and let the size be 100%?
+>>>
+>>> PS: it helps if you reduce the the number of parameters to the bare
+>>> minimum that still show the problem as it's less to look through.
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
+
+
+
+--=20
+Sitsofe | http://sucs.org/~sits/
