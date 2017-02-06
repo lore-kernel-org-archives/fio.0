@@ -1,53 +1,56 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:40311 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751958AbdBCNAH (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 3 Feb 2017 08:00:07 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1cZdTC-0001s0-Bc
-        for fio@vger.kernel.org; Fri, 03 Feb 2017 13:00:06 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170203130002.5D68A2C019D@kernel.dk>
-Date: Fri,  3 Feb 2017 06:00:02 -0700 (MST)
+Received: from mailout.teamix.de ([194.150.191.118]:51704 "EHLO
+        mailout.teamix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750949AbdBFKdo (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 6 Feb 2017 05:33:44 -0500
+From: Martin Steigerwald <martin.steigerwald@teamix.de>
+Subject: Re: Removing *.py ending from python script filenames
+Date: Mon, 6 Feb 2017 11:33:38 +0100
+Message-ID: <1981963.mbOk0xVDbe@merkaba>
+In-Reply-To: <8697CBF0E1940C48BC792ECE899B66420D15907E@ULS-OP-MBXIP05.sdcorp.global.sandisk.com>
+References: <2172844.j6hkAc7SIx@merkaba> <8697CBF0E1940C48BC792ECE899B66420D15907E@ULS-OP-MBXIP05.sdcorp.global.sandisk.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Vincent Fu <Vincent.Fu@sandisk.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Mark Nelson <mnelson@redhat.com>, Ben England <bengland@redhat.com>, Karl Cronburg <karl.cronburg@gmail.com>, Jens Axboe <axboe@kernel.dk>, Sven Hoexter <hoexter@debian.org>
 
-The following changes since commit f75ede1d8fe9a255be06f1bf0bde4b99b75acef9:
+﻿Am Montag, 23. Januar 2017, 14:47:31 CET schrieb Vincent Fu:
+> On 2017-1-23 7:17 AM, Martin Steigerwald wrote:
+> > Hello Vincent, Mark, Ben, Karl, Jens,
+> > 
+> > I just prepared packaging for fio-2.17 and as I added some of the new
+> > Python script I again came across the issues the file name ending "*.py"
+> > creates within Debian.
+> > 
+> > ...
+> 
+> Martin, my ultimate intention is to provide a fio patch to eliminate the
+> need for fio_latency2csv.py.
 
-  doc: document profiles, minor fixes (2017-01-30 13:25:52 +0000)
+Okay, thank you.
 
-are available in the git repository at:
+Well for Debian Stretch I will settle with fio 2.16, so there is time… I may 
+keep the current solution as is – i.e. stuffing it all into /usr/share/doc/fio –
+especially as you plan to implement the script functionality into fio.
 
-  git://git.kernel.dk/fio.git master
+Thanks,
 
-for you to fetch changes up to 3dd2e8aa0519225da5ccc100aa02e55306bcc2f3:
+-- 
+Martin Steigerwald  | Trainer
 
-  fix to replay_align on iolog previous code was rejecting all positive alignment values and only accepting align to 0 value, opposite of what it should be doing (2017-02-02 10:37:00 -0800)
+teamix GmbH
+Südwestpark 43
+90449 Nürnberg
 
-----------------------------------------------------------------
-Dylan Fairchild (1):
-      fix to replay_align on iolog     previous code was rejecting all positive alignment values and     only accepting align to 0 value, opposite of what it should be doing
+Tel.:  +49 911 30999 55 | Fax: +49 911 30999 99
+mail: martin.steigerwald@teamix.de | web:  http://www.teamix.de | blog: http://blog.teamix.de
 
- iolog.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Amtsgericht Nürnberg, HRB 18320 | Geschäftsführer: Oliver Kügow, Richard Müller, Jakob Høholdt
 
----
-
-Diff of recent changes:
-
-diff --git a/iolog.h b/iolog.h
-index 60ee3e9..37f27bc 100644
---- a/iolog.h
-+++ b/iolog.h
-@@ -271,7 +271,7 @@ static inline bool inline_log(struct io_log *log)
+teamix Support Hotline: +49 911 30999-112
  
- static inline void ipo_bytes_align(unsigned int replay_align, struct io_piece *ipo)
- {
--	if (replay_align)
-+	if (!replay_align)
- 		return;
- 
- 	ipo->offset &= ~(replay_align - (uint64_t)1);
+ *** Bitte liken Sie uns auf Facebook: facebook.com/teamix ***
+
