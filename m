@@ -1,44 +1,42 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 5/6] Acquire file ->lock while the lock itself is being copied
-Date: Mon, 13 Feb 2017 18:32:38 +0200
-Message-Id: <20170213163239.46188-5-tkusumi@tuxera.com>
-In-Reply-To: <20170213163239.46188-1-tkusumi@tuxera.com>
-References: <20170213163239.46188-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from [195.159.176.226] ([195.159.176.226]:45755 "EHLO
+        blaine.gmane.org" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
+        with ESMTP id S1752115AbdBFWFN (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 6 Feb 2017 17:05:13 -0500
+Received: from list by blaine.gmane.org with local (Exim 4.84_2)
+        (envelope-from <gcsf-fio@m.gmane.org>)
+        id 1carPE-0004ZA-SO
+        for fio@vger.kernel.org; Mon, 06 Feb 2017 23:05:04 +0100
+From: Slow bucks <frankwhitebe@gmail.com>
+Subject: Re: fio exit run on timeout of device?
+Date: Mon, 6 Feb 2017 16:01:45 -0600
+Message-ID: <o7aro3$gmq$1@blaine.gmane.org>
+References: <o72kkc$v07$2@blaine.gmane.org> <CALjAwxiuMVc3tMpb6U5Jw=i+szdj+hwY1gsV_5HmcW1mRr=AaA@mail.gmail.com> <o72pn8$7ip$1@blaine.gmane.org> <CALjAwxgStfwH=9kP95g+JctZpunRZ_+zWN2kbzLgXBXLD7ytwQ@mail.gmail.com> <o73g1o$ioa$1@blaine.gmane.org> <CALjAwxiBCU0a0TMFGNO1-55W2c-ohXwOdX92K4s0_YMvT_hHbw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+        format=flowed
+Content-Transfer-Encoding: 7BIT
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+Thanks!
+On 2017-02-04 07:41:33 +0000, Sitsofe Wheeler said:
 
-to the destination file pointer.
-The ones in dup_files() doesn't seem to require locking from
-the way it's been called.
+> Hi,
+> 
+> The answer to that is within the value "1s" itself :-) See
+> http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-max_latency
+> and http://fio.readthedocs.io/en/latest/fio_doc.html#parameter-types
+> for why.
+> 
+> On 4 February 2017 at 02:59, Slow bucks 
+> <frankwhitebe@gmail.com> wrote:
+>> max_latency=1s -> Is that in seconds or milliseconds?
+>> 
+>> On 2017-02-03 22:44:31 +0000, Sitsofe Wheeler said:
+>> 
+>>> max_latency=1s
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- filesetup.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/filesetup.c b/filesetup.c
-index 3fa8b32..7a67fe6 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -501,9 +501,11 @@ int file_lookup_open(struct fio_file *f, int flags)
- 	if (__f) {
- 		dprint(FD_FILE, "found file in hash %s\n", f->file_name);
- 		/*
--		 * racy, need the __f->lock locked
-+		 * get __f->lock while it gets copied to f.
- 		 */
-+		fio_mutex_down(__f->lock);
- 		f->lock = __f->lock;
-+		fio_mutex_up(__f->lock);
- 		from_hash = 1;
- 	} else {
- 		dprint(FD_FILE, "file not found in hash %s\n", f->file_name);
--- 
-2.9.3
 
 
