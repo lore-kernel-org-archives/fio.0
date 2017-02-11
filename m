@@ -1,26 +1,35 @@
-Return-Path: <axboe@kernel.dk>
-Date: Mon, 13 Feb 2017 08:41:47 -0700
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH 2/3] Add a comment to clarify 941bda94
-Message-ID: <20170213154147.GB4585@kernel.dk>
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 2/3] Add a comment to clarify 941bda94
+Date: Sat, 11 Feb 2017 16:28:53 +0200
+Message-Id: <20170211142854.23620-2-tkusumi@tuxera.com>
+In-Reply-To: <20170211142854.23620-1-tkusumi@tuxera.com>
 References: <20170211142854.23620-1-tkusumi@tuxera.com>
- <20170211142854.23620-2-tkusumi@tuxera.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20170211142854.23620-2-tkusumi@tuxera.com>
-To: kusumi.tomohiro@gmail.com
-Cc: fio@vger.kernel.org, Tomohiro Kusumi <tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
-On Sat, Feb 11 2017, kusumi.tomohiro@gmail.com wrote:
-> From: Tomohiro Kusumi <tkusumi@tuxera.com>
-> 
-> Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-Applied this, and 3/3.
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ diskutil.h | 1 +
+ 1 file changed, 1 insertion(+)
 
+diff --git a/diskutil.h b/diskutil.h
+index 04fdde2..f773066 100644
+--- a/diskutil.h
++++ b/diskutil.h
+@@ -114,6 +114,7 @@ extern int update_io_ticks(void);
+ extern void setup_disk_util(void);
+ extern void disk_util_prune_entries(void);
+ #else
++/* keep this as a function to avoid a warning in handle_du() */
+ static inline void print_disk_util(struct disk_util_stat *du,
+ 				   struct disk_util_agg *agg, int terse,
+ 				   struct buf_output *out)
 -- 
-Jens Axboe
+2.9.3
 
 
