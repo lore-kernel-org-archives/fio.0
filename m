@@ -1,59 +1,45 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-dm3nam03on0072.outbound.protection.outlook.com ([104.47.41.72]:40984
-        "EHLO NAM03-DM3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752061AbdBOW2N (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 15 Feb 2017 17:28:13 -0500
-From: Todd Lawall <tlawall@pivot3.com>
-Subject: Has anyone run into write_bw_log and write_io_log recording segments
- of low numbers?
-Date: Wed, 15 Feb 2017 22:28:09 +0000
-Message-ID: <DM5PR10MB1625AEDC8488B039FBE439BF9D5B0@DM5PR10MB1625.namprd10.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 3/3] steadystate: Use calloc(3)
+Date: Sat, 11 Feb 2017 16:28:54 +0200
+Message-Id: <20170211142854.23620-3-tkusumi@tuxera.com>
+In-Reply-To: <20170211142854.23620-1-tkusumi@tuxera.com>
+References: <20170211142854.23620-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-I've been running fio on an iSCSI volume where I can monitor things like th=
-e network traffic (to ensure that indeed it is flowing) as well as on the m=
-achine the volume is hosted on.  I'm seeing a steady state of 300MB/s, but =
-when I stop the FIO process and writes the detailed bandwidth and iops logs=
-, there's segments where iops drop to 0, but bandwidth for the same time po=
-int is somewhere around the single digits or teens. =20
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-Has anyone else seen this behavior?  Does anyone have an idea why I might b=
-e seeing this?  Here is the job file I ran:
+which guarantees zero clear.
 
-[global]
-ioengine=3Dwindowsaio
-do_verify=3D0
-offset=3D0
-write_bw_log=3DC:\\haggis\\manualfio\\stats-running
-write_iops_log=3DC:\\haggis\\manualfio\\stats-running
-write_lat_log=3DC:\\haggis\\manualfio\\stats-running
-verify=3Dcrc32c-intel
-runtime=3D292000
-thread
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ steadystate.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-[fio-0]
-filename=3D\\.\PhysicalDrive1
-iodepth=3D1
-blocksize=3D256k
-readwrite=3Dwrite
+diff --git a/steadystate.c b/steadystate.c
+index 951376f..43c715c 100644
+--- a/steadystate.c
++++ b/steadystate.c
+@@ -8,13 +8,8 @@ bool steadystate_enabled = false;
+ 
+ static void steadystate_alloc(struct thread_data *td)
+ {
+-	int i;
+-
+-	td->ss.bw_data = malloc(td->ss.dur * sizeof(uint64_t));
+-	td->ss.iops_data = malloc(td->ss.dur * sizeof(uint64_t));
+-	/* initialize so that it is obvious if the cache is not full in the output */
+-	for (i = 0; i < td->ss.dur; i++)
+-		td->ss.iops_data[i] = td->ss.bw_data[i] = 0;
++	td->ss.bw_data = calloc(td->ss.dur, sizeof(uint64_t));
++	td->ss.iops_data = calloc(td->ss.dur, sizeof(uint64_t));
+ 
+ 	td->ss.state |= __FIO_SS_DATA;
+ }
+-- 
+2.9.3
 
-[fio-1]                                                                    =
-                                                                           =
-     =20
-filename=3D\\.\PhysicalDrive2                                              =
-                                                                           =
-       =20
-iodepth=3D1                                                                =
-                                                                           =
-       =20
-blocksize=3D256k                                                           =
-                                                                           =
-       =20
-readwrite=3Dwrite        =
+
