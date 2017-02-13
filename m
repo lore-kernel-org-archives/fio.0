@@ -1,74 +1,46 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:47521 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752100AbdBUNAN (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 21 Feb 2017 08:00:13 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1cgA3B-0005yn-2b
-        for fio@vger.kernel.org; Tue, 21 Feb 2017 13:00:13 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170221130002.35F452C227F@kernel.dk>
-Date: Tue, 21 Feb 2017 06:00:02 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 4/6] Always set ->real_file_size to -1 when failed to get file size
+Date: Mon, 13 Feb 2017 18:32:37 +0200
+Message-Id: <20170213163239.46188-4-tkusumi@tuxera.com>
+In-Reply-To: <20170213163239.46188-1-tkusumi@tuxera.com>
+References: <20170213163239.46188-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit dbd39049ca473de7dc031cd9bf3efe992834323f:
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-  Revert "configure: Drop default CONFIG_LITTLE_ENDIAN for Cygwin" (2017-02-19 17:57:43 -0700)
+In some cases it's set to -1, but on others it's not,
+while the existing code (e.g. get_fs_free_counts(), setup_files(), etc)
+seem to expect ->real_file_size to be -1 in case of any error.
 
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 349cdc89ffebb8f3a9cf3ff5be6a9934b94f1b05:
-
-  appveyor: add CI building of the Windows version of fio (2017-02-20 07:19:20 +0000)
-
-----------------------------------------------------------------
-Sitsofe Wheeler (1):
-      appveyor: add CI building of the Windows version of fio
-
- appveyor.yml | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
- create mode 100644 appveyor.yml
-
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
+ filesetup.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Diff of recent changes:
+diff --git a/filesetup.c b/filesetup.c
+index eb28826..3fa8b32 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -375,10 +375,12 @@ static int get_file_size(struct thread_data *td, struct fio_file *f)
+ 	else if (f->filetype == FIO_TYPE_CHAR)
+ 		ret = char_size(td, f);
+ 	else
+-		f->real_file_size = -1;
++		f->real_file_size = -1ULL;
+ 
+-	if (ret)
++	if (ret) {
++		f->real_file_size = -1ULL;
+ 		return ret;
++	}
+ 
+ 	if (f->file_offset > f->real_file_size) {
+ 		log_err("%s: offset extends end (%llu > %llu)\n", td->o.name,
+-- 
+2.9.3
 
-diff --git a/appveyor.yml b/appveyor.yml
-new file mode 100644
-index 0000000..7543393
---- /dev/null
-+++ b/appveyor.yml
-@@ -0,0 +1,27 @@
-+clone_depth: 50
-+environment:
-+  MAKEFLAGS: -j 2
-+  matrix:
-+    - platform: x86_64
-+      BUILD_ARCH: x64
-+      CYG_ROOT: C:\cygwin64
-+      CONFIGURE_OPTIONS:
-+    - platform: x86
-+      BUILD_ARCH: x86
-+      CYG_ROOT: C:\cygwin
-+      CONFIGURE_OPTIONS: --build-32bit-win
-+
-+build_script:
-+  - SET PATH=%CYG_ROOT%\bin;%PATH%
-+  - 'bash.exe -lc "cd \"${APPVEYOR_BUILD_FOLDER}\" && ./configure ${CONFIGURE_OPTIONS} && make.exe'
-+
-+after_build:
-+  - cd os\windows && dobuild.cmd %BUILD_ARCH%
-+
-+test_script:
-+  - SET PATH=%CYG_ROOT%\bin;%PATH%
-+  - 'bash.exe -lc "cd \"${APPVEYOR_BUILD_FOLDER}\" && file.exe fio.exe && make.exe test'
-+
-+artifacts:
-+  - path: os\windows\*.msi
-+    name: msi
+
