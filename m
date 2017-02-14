@@ -1,9 +1,9 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH v2 1/7] configure: Drop default CONFIG_LITTLE_ENDIAN for Cygwin
-Date: Tue, 14 Feb 2017 17:19:42 +0200
-Message-Id: <20170214151948.16460-2-tkusumi@tuxera.com>
+Subject: [PATCH v2 2/7] configure: Use x86 instead of i386 for $cpu for IA32
+Date: Tue, 14 Feb 2017 17:19:43 +0200
+Message-Id: <20170214151948.16460-3-tkusumi@tuxera.com>
 In-Reply-To: <20170214151948.16460-1-tkusumi@tuxera.com>
 References: <20170214151948.16460-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
@@ -12,32 +12,38 @@ List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-It's a bit strange that Cygwin is assumed to be le by default when
-no other platforms have such assumption even if they only target
-a single or certain arch (e.g. non-Android Linux often runs on x86,
-DragonFlyBSD only runs on x86, and so on..).
+fio internally uses "x86" for any sort of IA32, so use x86 for $cpu
+as well which gets printed on ./configure.
 
-Endianness will be detected by pointer arithmetic anyway, and it's
-better to rely on it to handle any sort of newly supported archs
-in the future.
+This change should have been a part of e12f4ede in 2016.
+
+ # grep i386 . -rI
+ ./arch/arch.h:#if defined(__i386__)
+ ./configure:elif check_define __i386__ ; then
+ ./configure:  cpu="i386"
+ ./configure:  i386|i486|i586|i686|i86pc|BePC)
+ ./configure:    cpu="i386"
+ ./crc/sha1.c:#if defined(__i386__) || defined(__x86_64__)
+ ./crc/xxhash.c:#if defined(__ARM_FEATURE_UNALIGNED) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- configure | 1 -
- 1 file changed, 1 deletion(-)
+ configure | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/configure b/configure
-index 4f17cf8..cba81af 100755
+index cba81af..3f5386f 100755
 --- a/configure
 +++ b/configure
-@@ -306,7 +306,6 @@ CYGWIN*)
-       fi
-     fi
-   fi
--  output_sym "CONFIG_LITTLE_ENDIAN"
-   if test ! -z "$build_32bit_win" && test "$build_32bit_win" = "yes"; then
-     output_sym "CONFIG_32BIT"
-   else
+@@ -377,7 +377,7 @@ case "$cpu" in
+     cpu="$cpu"
+   ;;
+   i386|i486|i586|i686|i86pc|BePC)
+-    cpu="i386"
++    cpu="x86"
+   ;;
+   x86_64|amd64)
+     cpu="x86_64"
 -- 
 2.9.3
 
