@@ -1,219 +1,159 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from muon.bluestop.org ([74.50.51.35]:35606 "EHLO muon.cran.org.uk"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754539AbdBFQUy (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 6 Feb 2017 11:20:54 -0500
-Received: from muon.bluestop.org (localhost [127.0.0.1])
-        by muon.cran.org.uk (Postfix) with ESMTP id 2F22C34564
-        for <fio@vger.kernel.org>; Mon,  6 Feb 2017 16:20:53 +0000 (UTC)
-Received: from muon.cran.org.uk ([127.0.0.1])
-        by muon.bluestop.org (muon.bluestop.org [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id gMF-oqM1ZVZI for <fio@vger.kernel.org>;
-        Mon,  6 Feb 2017 16:20:51 +0000 (UTC)
-Received: from [10.50.2.188] (63-158-132-10.dia.static.qwest.net [63.158.132.10])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by muon.cran.org.uk (Postfix) with ESMTPSA
-        for <fio@vger.kernel.org>; Mon,  6 Feb 2017 16:20:50 +0000 (UTC)
-From: Rebecca Cran <rebecca@bluestop.org>
-Subject: [PATCH] Windows: Update the EULA year and add more examples to the
- installer
-Message-ID: <c03536dd-5738-d217-b46c-eb5dd9cd69ce@bluestop.org>
-Date: Mon, 6 Feb 2017 16:20:47 +0000
+Received: from mail-ua0-f170.google.com ([209.85.217.170]:35035 "EHLO
+        mail-ua0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752609AbdBPFx5 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 16 Feb 2017 00:53:57 -0500
+Received: by mail-ua0-f170.google.com with SMTP id y9so4655490uae.2
+        for <fio@vger.kernel.org>; Wed, 15 Feb 2017 21:53:57 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------5B26AF9B5E57057A8F52D6B5"
+In-Reply-To: <DM5PR10MB16252D3CAB3A3F949AD3F6B09D5B0@DM5PR10MB1625.namprd10.prod.outlook.com>
+References: <DM5PR10MB1625AEDC8488B039FBE439BF9D5B0@DM5PR10MB1625.namprd10.prod.outlook.com>
+ <DM5PR10MB16252D3CAB3A3F949AD3F6B09D5B0@DM5PR10MB1625.namprd10.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Thu, 16 Feb 2017 05:53:26 +0000
+Message-ID: <CALjAwxiZVynB8VtcYtxGy6iTwwh0GLg5DmAunSuhA2H18__3dQ@mail.gmail.com>
+Subject: Re: Has anyone run into write_bw_log and write_io_log recording
+ segments of low numbers?
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Todd Lawall <tlawall@pivot3.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------5B26AF9B5E57057A8F52D6B5
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Also, fix the FIO repo URL to be http://git.kernel.dk/cgit/fio/ instead 
-of http://git.kernel.dk/?p=fio.git .
+Something to investigate is the latency at the problem point - I'm
+going to guess you see latencies above 1 second in your fio log. Don't
+forget you're not using direct=3D1 so you also have your operating
+system's write buffering in the mix too.
 
---------------5B26AF9B5E57057A8F52D6B5
-Content-Type: text/plain; charset=UTF-8;
- name="0001-Windows-Update-the-EULA-year-and-add-more-examples-t.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename*0="0001-Windows-Update-the-EULA-year-and-add-more-examples-t.pa";
- filename*1="tch"
+Imagine I do a run where I lose network connectivity to my iSCSI
+target for two seconds. During that point any I/O I was doing will now
+take at least two seconds to complete. Let's pretend that the
+I/O that happened took exactly two seconds to complete and was for a
+256Kbytes block. This means that particular I/O's "I/Os per second" is
+0 ((1 IO)/2 seconds gives 0 because we don't have fractional iops) but
+its bandwidth is 128Kbytes/s (256Kbytes/2 seconds). This is
+simplification because you still have your operating system's write
+buffering but if that totally fills up this effect will come in to
+play.
 
-RnJvbSA3OTc3YzY3N2U0NTA0MWRlY2UxNDdlNzU0ZThmZmE2ZGUzN2E5OGE2IE1vbiBTZXAg
-MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBSZWJlY2NhIENyYW4gPGJydWNlLmNyYW5Ac2FuZGlz
-ay5jb20+CkRhdGU6IE1vbiwgNiBGZWIgMjAxNyAxNjoxNzoyNCArMDAwMApTdWJqZWN0OiBb
-UEFUQ0hdIFdpbmRvd3M6IFVwZGF0ZSB0aGUgRVVMQSB5ZWFyIGFuZCBhZGQgbW9yZSBleGFt
-cGxlcyB0byB0aGUKIGluc3RhbGxlcgoKLS0tCiBvcy93aW5kb3dzL2V1bGEucnRmICAgICB8
-IEJpbiAxMDYwIC0+IDEwNzIgYnl0ZXMKIG9zL3dpbmRvd3MvZXhhbXBsZXMud3hzIHwgMTEy
-ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLQogb3Mv
-d2luZG93cy9pbnN0YWxsLnd4cyAgfCAgIDIgKy0KIDMgZmlsZXMgY2hhbmdlZCwgOTkgaW5z
-ZXJ0aW9ucygrKSwgMTUgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvb3Mvd2luZG93cy9l
-dWxhLnJ0ZiBiL29zL3dpbmRvd3MvZXVsYS5ydGYKaW5kZXggY2M3YmU3ZmIyMTZhMjMyYmM1
-MGFkOGY2ZGFmNjViMGQ5ZmUxOWJlMy4uMWM5MjkzMjFkNjg3NWRjZTNmZTA5MDg0YjJmNjU5
-YWVhMDQxNTFmMiAxMDA3NTUKR0lUIGJpbmFyeSBwYXRjaApkZWx0YSAxMjcKemNtWjMmdjRM
-WlBFTyQmXmVyYVpNZXJgY3gkd2IrQil1N0Rlak1OaygwfGkzXkpwKDtNNkp0eGArTCpHOyli
-aX1pCnp5Y0NtfChxdXlnVWFwQT9CWUQjZFYkekNAM31TSzteVV5JUnZvbzQ5bnMyc2NPbDZ3
-OWtYZCV9MldBO3doMSVOYwpkbjYjWGZxVC15QVlMRXpMT2xnaW1PbWRuKj9QTU1uMj4/KkRE
-SW92PQoKZGVsdGEgMTM1CnpjbWRuTXY0bXJTPl9tLXRSb34qWWxHSyNVNShRSHw2R0peQ0FU
-bCpIdSYjfE0lUzxpTCZkZl9PaTc4RHNvVlheRQp6SHp6U0stNytUNEFTU0tZJFk4UCVxYlp+
-RFcpSD94cnBmRD1XZit3dnBKSjh+UUwzJTJqIURaJkRKc3E+c2c1YmwKZ2lBaGN+b1AzZzVS
-LSg0SDdOJTF7S2AqOHR2NTEkZW1ZMGhHMEc2TEItfmEjcwoKZGlmZiAtLWdpdCBhL29zL3dp
-bmRvd3MvZXhhbXBsZXMud3hzIGIvb3Mvd2luZG93cy9leGFtcGxlcy53eHMKaW5kZXggYTIx
-MTgyYS4uY2MyZmY1YyAxMDA3NTUKLS0tIGEvb3Mvd2luZG93cy9leGFtcGxlcy53eHMKKysr
-IGIvb3Mvd2luZG93cy9leGFtcGxlcy53eHMKQEAgLTksNDggKzksMTExIEBACiAgICAgICAg
-ICAgICAgICAgICAgIDxGaWxlIFNvdXJjZT0iLi5cLi5cZXhhbXBsZXNcYWlvLXJlYWQuZmlv
-IiAvPgogICAgICAgICAgICAgICAgIDwvQ29tcG9uZW50PgogICAgICAgICAgICAgICAgIDxD
-b21wb25lbnQ+CisgICAgICAgICAgICAgICAgICAgIDxGaWxlIFNvdXJjZT0iLi5cLi5cZXhh
-bXBsZXNcYmFja3dhcmRzLXJlYWQuZmlvIiAvPgorICAgICAgICAgICAgICAgIDwvQ29tcG9u
-ZW50PgorICAgICAgICAgICAgICAgIDxDb21wb25lbnQ+CisgICAgICAgICAgICAgICAgICAg
-IDxGaWxlIFNvdXJjZT0iLi5cLi5cZXhhbXBsZXNcYmFzaWMtdmVyaWZ5LmZpbyIgLz4KKyAg
-ICAgICAgICAgICAgICA8L0NvbXBvbmVudD4KKyAgICAgICAgICAgICAgICA8Q29tcG9uZW50
-PgorICAgICAgICAgICAgICAgICAgPEZpbGUgU291cmNlPSIuLlwuLlxleGFtcGxlc1xjcHVp
-by5maW8iIC8+CisgICAgICAgICAgICAgICAgPC9Db21wb25lbnQ+CisgICAgICAgICAgICAg
-ICAgPENvbXBvbmVudD4KKyAgICAgICAgICAgICAgICAgIDxGaWxlIFNvdXJjZT0iLi5cLi5c
-ZXhhbXBsZXNcZGV2LWRheC5maW8iIC8+CisgICAgICAgICAgICAgICAgPC9Db21wb25lbnQ+
-CisgICAgICAgICAgICAgICAgPENvbXBvbmVudD4KICAgICAgICAgICAgICAgICAgICAgPEZp
-bGUgU291cmNlPSIuLlwuLlxleGFtcGxlc1xkaXNrLXpvbmUtcHJvZmlsZS5maW8iIC8+CiAg
-ICAgICAgICAgICAgICAgPC9Db21wb25lbnQ+CiAgICAgICAgICAgICAgICAgPENvbXBvbmVu
-dD4KKyAgICAgICAgICAgICAgICAgIDxGaWxlIFNvdXJjZT0iLi5cLi5cZXhhbXBsZXNcZTRk
-ZWZyYWcuZmlvIiAvPgorICAgICAgICAgICAgICAgIDwvQ29tcG9uZW50PgorICAgICAgICAg
-ICAgICAgIDxDb21wb25lbnQ+CisgICAgICAgICAgICAgICAgICA8RmlsZSBTb3VyY2U9Ii4u
-XC4uXGV4YW1wbGVzXGU0ZGVmcmFnMi5maW8iIC8+CisgICAgICAgICAgICAgICAgPC9Db21w
-b25lbnQ+CisgICAgICAgICAgICAgICAgPENvbXBvbmVudD4KKyAgICAgICAgICAgICAgICAg
-IDxGaWxlIFNvdXJjZT0iLi5cLi5cZXhhbXBsZXNcZW5vc3BjLXByZXNzdXJlLmZpbyIgLz4K
-KyAgICAgICAgICAgICAgICA8L0NvbXBvbmVudD4KKyAgICAgICAgICAgICAgICA8Q29tcG9u
-ZW50PgorICAgICAgICAgICAgICAgICAgPEZpbGUgU291cmNlPSIuLlwuLlxleGFtcGxlc1xm
-YWxsb2MuZmlvIiAvPgorICAgICAgICAgICAgICAgIDwvQ29tcG9uZW50PgorICAgICAgICAg
-ICAgICAgIDxDb21wb25lbnQ+CisgICAgICAgICAgICAgICAgICA8RmlsZSBTb3VyY2U9Ii4u
-XC4uXGV4YW1wbGVzXGZpeGVkLXJhdGUtc3VibWlzc2lvbi5maW8iIC8+CisgICAgICAgICAg
-ICAgICAgPC9Db21wb25lbnQ+CisgICAgICAgICAgICAgICAgPENvbXBvbmVudD4KKyAgICAg
-ICAgICAgICAgICAgIDxGaWxlIFNvdXJjZT0iLi5cLi5cZXhhbXBsZXNcZmxvdy5maW8iIC8+
-CisgICAgICAgICAgICAgICAgPC9Db21wb25lbnQ+CisgICAgICAgICAgICAgICAgPENvbXBv
-bmVudD4KICAgICAgICAgICAgICAgICAgICAgPEZpbGUgU291cmNlPSIuLlwuLlxleGFtcGxl
-c1xmc3guZmlvIiAvPgogICAgICAgICAgICAgICAgIDwvQ29tcG9uZW50PgogICAgICAgICAg
-ICAgICAgIDxDb21wb25lbnQ+CisgICAgICAgICAgICAgICAgICA8RmlsZSBTb3VyY2U9Ii4u
-XC4uXGV4YW1wbGVzXGZ1c2lvbi1hdy1zeW5jLmZpbyIgLz4KKyAgICAgICAgICAgICAgICA8
-L0NvbXBvbmVudD4KKyAgICAgICAgICAgICAgICA8Q29tcG9uZW50PgorICAgICAgICAgICAg
-ICAgICAgPEZpbGUgU291cmNlPSIuLlwuLlxleGFtcGxlc1xnZmFwaS5maW8iIC8+CisgICAg
-ICAgICAgICAgICAgPC9Db21wb25lbnQ+CisgICAgICAgICAgICAgICAgPENvbXBvbmVudD4K
-ICAgICAgICAgICAgICAgICAgICAgPEZpbGUgU291cmNlPSIuLlwuLlxleGFtcGxlc1xpb21l
-dGVyLWZpbGUtYWNjZXNzLXNlcnZlci5maW8iIC8+CiAgICAgICAgICAgICAgICAgPC9Db21w
-b25lbnQ+CiAgICAgICAgICAgICAgICAgPENvbXBvbmVudD4KKyAgICAgICAgICAgICAgICAg
-IDxGaWxlIFNvdXJjZT0iLi5cLi5cZXhhbXBsZXNcamVzZDIxOS5maW8iIC8+CisgICAgICAg
-ICAgICAgICAgPC9Db21wb25lbnQ+CisgICAgICAgICAgICAgICAgPENvbXBvbmVudD4KKyAg
-ICAgICAgICAgICAgICAgIDxGaWxlIFNvdXJjZT0iLi5cLi5cZXhhbXBsZXNcbGF0ZW5jeS1w
-cm9maWxlLmZpbyIgLz4KKyAgICAgICAgICAgICAgICA8L0NvbXBvbmVudD4KKyAgICAgICAg
-ICAgICAgICA8Q29tcG9uZW50PgorICAgICAgICAgICAgICAgICAgPEZpbGUgU291cmNlPSIu
-LlwuLlxleGFtcGxlc1xsaWJoZGZzLmZpbyIgLz4KKyAgICAgICAgICAgICAgICA8L0NvbXBv
-bmVudD4KKyAgICAgICAgICAgICAgICA8Q29tcG9uZW50PgorICAgICAgICAgICAgICAgICAg
-PEZpbGUgU291cmNlPSIuLlwuLlxleGFtcGxlc1xtdGQuZmlvIiAvPgorICAgICAgICAgICAg
-ICAgIDwvQ29tcG9uZW50PgorICAgICAgICAgICAgICAgIDxDb21wb25lbnQ+CiAgICAgICAg
-ICAgICAgICAgICAgIDxGaWxlIFNvdXJjZT0iLi5cLi5cZXhhbXBsZXNcbmV0aW8uZmlvIiAv
-PgogICAgICAgICAgICAgICAgIDwvQ29tcG9uZW50PgogICAgICAgICAgICAgICAgIDxDb21w
-b25lbnQ+CiAgICAgICAgICAgICAgICAgICAgIDxGaWxlIFNvdXJjZT0iLi5cLi5cZXhhbXBs
-ZXNcbmV0aW9fbXVsdGljYXN0LmZpbyIgLz4KICAgICAgICAgICAgICAgICA8L0NvbXBvbmVu
-dD4KICAgICAgICAgICAgICAgICA8Q29tcG9uZW50PgotICAgICAgICAgICAgICAgICAgICA8
-RmlsZSBTb3VyY2U9Ii4uXC4uXGV4YW1wbGVzXHNzZC10ZXN0LmZpbyIgLz4KKyAgICAgICAg
-ICAgICAgICAgIDxGaWxlIFNvdXJjZT0iLi5cLi5cZXhhbXBsZXNcbnVsbC5maW8iIC8+CiAg
-ICAgICAgICAgICAgICAgPC9Db21wb25lbnQ+CiAgICAgICAgICAgICAgICAgPENvbXBvbmVu
-dD4KLSAgICAgICAgICAgICAgICAgICAgPEZpbGUgU291cmNlPSIuLlwuLlxleGFtcGxlc1xz
-dXJmYWNlLXNjYW4uZmlvIiAvPgorICAgICAgICAgICAgICAgICAgPEZpbGUgU291cmNlPSIu
-LlwuLlxleGFtcGxlc1xudW1hLmZpbyIgLz4KICAgICAgICAgICAgICAgICA8L0NvbXBvbmVu
-dD4KICAgICAgICAgICAgICAgICA8Q29tcG9uZW50PgotICAgICAgICAgICAgICAgICAgICA8
-RmlsZSBTb3VyY2U9Ii4uXC4uXGV4YW1wbGVzXHRpb2JlbmNoLWV4YW1wbGUuZmlvIiAvPgor
-ICAgICAgICAgICAgICAgICAgPEZpbGUgU291cmNlPSIuLlwuLlxleGFtcGxlc1xwbWVtYmxr
-LmZpbyIgLz4KICAgICAgICAgICAgICAgICA8L0NvbXBvbmVudD4KICAgICAgICAgICAgICAg
-ICA8Q29tcG9uZW50PgotICAgICAgICAgICAgICAgICAgPEZpbGUgU291cmNlPSIuLlwuLlxl
-eGFtcGxlc1xudWxsLmZpbyIgLz4KKyAgICAgICAgICAgICAgICAgIDxGaWxlIFNvdXJjZT0i
-Li5cLi5cZXhhbXBsZXNccG9pc3Nvbi1yYXRlLXN1Ym1pc3Npb24uZmlvIiAvPgogICAgICAg
-ICAgICAgICAgIDwvQ29tcG9uZW50PgogICAgICAgICAgICAgICAgIDxDb21wb25lbnQ+Ci0g
-ICAgICAgICAgICAgICAgICA8RmlsZSBTb3VyY2U9Ii4uXC4uXGV4YW1wbGVzXGZsb3cuZmlv
-IiAvPgorICAgICAgICAgICAgICAgICAgPEZpbGUgU291cmNlPSIuLlwuLlxleGFtcGxlc1xy
-YW5kLXpvbmVzLmZpbyIgLz4KICAgICAgICAgICAgICAgICA8L0NvbXBvbmVudD4KICAgICAg
-ICAgICAgICAgICA8Q29tcG9uZW50PgotICAgICAgICAgICAgICAgICAgPEZpbGUgU291cmNl
-PSIuLlwuLlxleGFtcGxlc1xjcHVpby5maW8iIC8+CisgICAgICAgICAgICAgICAgICA8Rmls
-ZSBTb3VyY2U9Ii4uXC4uXGV4YW1wbGVzXHJiZC5maW8iIC8+CiAgICAgICAgICAgICAgICAg
-PC9Db21wb25lbnQ+CiAgICAgICAgICAgICAgICAgPENvbXBvbmVudD4KLSAgICAgICAgICAg
-ICAgICAgIDxGaWxlIFNvdXJjZT0iLi5cLi5cZXhhbXBsZXNcZmFsbG9jLmZpbyIgLz4KKyAg
-ICAgICAgICAgICAgICAgIDxGaWxlIFNvdXJjZT0iLi5cLi5cZXhhbXBsZXNccmRtYWlvLWNs
-aWVudC5maW8iIC8+CiAgICAgICAgICAgICAgICAgPC9Db21wb25lbnQ+CiAgICAgICAgICAg
-ICAgICAgPENvbXBvbmVudD4KLSAgICAgICAgICAgICAgICAgIDxGaWxlIFNvdXJjZT0iLi5c
-Li5cZXhhbXBsZXNcZnVzaW9uLWF3LXN5bmMuZmlvIiAvPgorICAgICAgICAgICAgICAgICAg
-PEZpbGUgU291cmNlPSIuLlwuLlxleGFtcGxlc1xyZG1haW8tc2VydmVyLmZpbyIgLz4KICAg
-ICAgICAgICAgICAgICA8L0NvbXBvbmVudD4KICAgICAgICAgICAgICAgICA8Q29tcG9uZW50
-PgogICAgICAgICAgICAgICAgICAgPEZpbGUgU291cmNlPSIuLlwuLlxleGFtcGxlc1xzc2Qt
-c3RlYWR5c3RhdGUuZmlvIiAvPgogICAgICAgICAgICAgICAgIDwvQ29tcG9uZW50PgogICAg
-ICAgICAgICAgICAgIDxDb21wb25lbnQ+CisgICAgICAgICAgICAgICAgICAgIDxGaWxlIFNv
-dXJjZT0iLi5cLi5cZXhhbXBsZXNcc3NkLXRlc3QuZmlvIiAvPgorICAgICAgICAgICAgICAg
-IDwvQ29tcG9uZW50PgorICAgICAgICAgICAgICAgIDxDb21wb25lbnQ+CisgICAgICAgICAg
-ICAgICAgICA8RmlsZSBTb3VyY2U9Ii4uXC4uXGV4YW1wbGVzXHN0ZWFkeXN0YXRlLmZpbyIg
-Lz4KKyAgICAgICAgICAgICAgICA8L0NvbXBvbmVudD4KKyAgICAgICAgICAgICAgICA8Q29t
-cG9uZW50PgorICAgICAgICAgICAgICAgICAgICA8RmlsZSBTb3VyY2U9Ii4uXC4uXGV4YW1w
-bGVzXHN1cmZhY2Utc2Nhbi5maW8iIC8+CisgICAgICAgICAgICAgICAgPC9Db21wb25lbnQ+
-CisgICAgICAgICAgICAgICAgPENvbXBvbmVudD4KKyAgICAgICAgICAgICAgICAgICAgPEZp
-bGUgU291cmNlPSIuLlwuLlxleGFtcGxlc1x0aW9iZW5jaC1leGFtcGxlLmZpbyIgLz4KKyAg
-ICAgICAgICAgICAgICA8L0NvbXBvbmVudD4KKyAgICAgICAgICAgICAgICA8Q29tcG9uZW50
-PgorICAgICAgICAgICAgICAgICAgPEZpbGUgU291cmNlPSIuLlwuLlxleGFtcGxlc1x3YWl0
-Zm9yLmZpbyIgLz4KKyAgICAgICAgICAgICAgICA8L0NvbXBvbmVudD4KKyAgICAgICAgICAg
-ICAgICA8Q29tcG9uZW50PgogICAgICAgICAgICAgICAgICAgPEZpbGUgU291cmNlPSIuLlwu
-LlxleGFtcGxlc1x6aXBmLmZpbyIgLz4KICAgICAgICAgICAgICAgICA8L0NvbXBvbmVudD4K
-ICAgICAgICAgPC9EaXJlY3RvcnlSZWY+CkBAIC01OSwyMCArMTIyLDQxIEBACiAgICAgICAg
-IDxDb21wb25lbnRHcm91cCBJZD0iZXhhbXBsZXMiPgogICAgICAgICAgICAgPENvbXBvbmVu
-dFJlZiBJZD0iXzFtYnNfY2xpZW50cy5maW8iIC8+CiAgICAgICAgICAgICA8Q29tcG9uZW50
-UmVmIElkPSJhaW9fcmVhZC5maW8iIC8+CisgICAgICAgICAgICA8Q29tcG9uZW50UmVmIElk
-PSJiYWNrd2FyZHNfcmVhZC5maW8iIC8+CisgICAgICAgICAgICA8Q29tcG9uZW50UmVmIElk
-PSJiYXNpY192ZXJpZnkuZmlvIiAvPgorICAgICAgICAgICAgPENvbXBvbmVudFJlZiBJZD0i
-Y3B1aW8uZmlvIiAvPgorICAgICAgICAgICAgPENvbXBvbmVudFJlZiBJZD0iZGV2X2RheC5m
-aW8iIC8+CiAgICAgICAgICAgICA8Q29tcG9uZW50UmVmIElkPSJkaXNrX3pvbmVfcHJvZmls
-ZS5maW8iIC8+CisgICAgICAgICAgICA8Q29tcG9uZW50UmVmIElkPSJlNGRlZnJhZy5maW8i
-IC8+CisgICAgICAgICAgICA8Q29tcG9uZW50UmVmIElkPSJlNGRlZnJhZzIuZmlvIiAvPgor
-ICAgICAgICAgICAgPENvbXBvbmVudFJlZiBJZD0iZW5vc3BjX3ByZXNzdXJlLmZpbyIgLz4K
-KyAgICAgICAgICAgIDxDb21wb25lbnRSZWYgSWQ9ImZhbGxvYy5maW8iIC8+CisgICAgICAg
-ICAgICA8Q29tcG9uZW50UmVmIElkPSJmaXhlZF9yYXRlX3N1Ym1pc3Npb24uZmlvIiAvPgor
-ICAgICAgICAgICAgPENvbXBvbmVudFJlZiBJZD0iZmxvdy5maW8iIC8+CiAgICAgICAgICAg
-ICA8Q29tcG9uZW50UmVmIElkPSJmc3guZmlvIiAvPgorICAgICAgICAgICAgPENvbXBvbmVu
-dFJlZiBJZD0iZnVzaW9uX2F3X3N5bmMuZmlvIiAvPgorICAgICAgICAgICAgPENvbXBvbmVu
-dFJlZiBJZD0iZ2ZhcGkuZmlvIiAvPgogICAgICAgICAgICAgPENvbXBvbmVudFJlZiBJZD0i
-aW9tZXRlcl9maWxlX2FjY2Vzc19zZXJ2ZXIuZmlvIiAvPgorICAgICAgICAgICAgPENvbXBv
-bmVudFJlZiBJZD0iamVzZDIxOS5maW8iIC8+CisgICAgICAgICAgICA8Q29tcG9uZW50UmVm
-IElkPSJsYXRlbmN5X3Byb2ZpbGUuZmlvIiAvPgorICAgICAgICAgICAgPENvbXBvbmVudFJl
-ZiBJZD0ibGliaGRmcy5maW8iIC8+CisgICAgICAgICAgICA8Q29tcG9uZW50UmVmIElkPSJt
-dGQuZmlvIiAvPgogICAgICAgICAgICAgPENvbXBvbmVudFJlZiBJZD0ibmV0aW8uZmlvIiAv
-PgogICAgICAgICAgICAgPENvbXBvbmVudFJlZiBJZD0ibmV0aW9fbXVsdGljYXN0LmZpbyIg
-Lz4KKyAgICAgICAgICAgIDxDb21wb25lbnRSZWYgSWQ9Im51bGwuZmlvIiAvPgorICAgICAg
-ICAgICAgPENvbXBvbmVudFJlZiBJZD0ibnVtYS5maW8iIC8+CisgICAgICAgICAgICA8Q29t
-cG9uZW50UmVmIElkPSJwbWVtYmxrLmZpbyIgLz4KKyAgICAgICAgICAgIDxDb21wb25lbnRS
-ZWYgSWQ9InBvaXNzb25fcmF0ZV9zdWJtaXNzaW9uLmZpbyIgLz4KKyAgICAgICAgICAgIDxD
-b21wb25lbnRSZWYgSWQ9InJhbmRfem9uZXMuZmlvIiAvPgorICAgICAgICAgICAgPENvbXBv
-bmVudFJlZiBJZD0icmJkLmZpbyIgLz4KKyAgICAgICAgICAgIDxDb21wb25lbnRSZWYgSWQ9
-InJkbWFpb19jbGllbnQuZmlvIiAvPgorICAgICAgICAgICAgPENvbXBvbmVudFJlZiBJZD0i
-cmRtYWlvX3NlcnZlci5maW8iIC8+CisgICAgICAgICAgICA8Q29tcG9uZW50UmVmIElkPSJz
-c2Rfc3RlYWR5c3RhdGUuZmlvIiAvPgogICAgICAgICAgICAgPENvbXBvbmVudFJlZiBJZD0i
-c3NkX3Rlc3QuZmlvIiAvPgorICAgICAgICAgICAgPENvbXBvbmVudFJlZiBJZD0ic3RlYWR5
-c3RhdGUuZmlvIiAvPgogICAgICAgICAgICAgPENvbXBvbmVudFJlZiBJZD0ic3VyZmFjZV9z
-Y2FuLmZpbyIgLz4KICAgICAgICAgICAgIDxDb21wb25lbnRSZWYgSWQ9InRpb2JlbmNoX2V4
-YW1wbGUuZmlvIiAvPgotICAgICAgICAgICAgPENvbXBvbmVudFJlZiBJZD0ibnVsbC5maW8i
-IC8+Ci0gICAgICAgICAgICA8Q29tcG9uZW50UmVmIElkPSJmbG93LmZpbyIgLz4KLSAgICAg
-ICAgICAgIDxDb21wb25lbnRSZWYgSWQ9ImNwdWlvLmZpbyIgLz4KLSAgICAgICAgICAgIDxD
-b21wb25lbnRSZWYgSWQ9ImZhbGxvYy5maW8iIC8+Ci0gICAgICAgICAgICA8Q29tcG9uZW50
-UmVmIElkPSJmdXNpb25fYXdfc3luYy5maW8iIC8+Ci0gICAgICAgICAgICA8Q29tcG9uZW50
-UmVmIElkPSJzc2Rfc3RlYWR5c3RhdGUuZmlvIiAvPgorICAgICAgICAgICAgPENvbXBvbmVu
-dFJlZiBJZD0id2FpdGZvci5maW8iIC8+CiAgICAgICAgICAgICA8Q29tcG9uZW50UmVmIElk
-PSJ6aXBmLmZpbyIgLz4KICAgICAgICAgPC9Db21wb25lbnRHcm91cD4KICAgICA8L0ZyYWdt
-ZW50PgpkaWZmIC0tZ2l0IGEvb3Mvd2luZG93cy9pbnN0YWxsLnd4cyBiL29zL3dpbmRvd3Mv
-aW5zdGFsbC53eHMKaW5kZXggMjJiN2Y3ZS4uOWU3NzZkZSAxMDA3NTUKLS0tIGEvb3Mvd2lu
-ZG93cy9pbnN0YWxsLnd4cworKysgYi9vcy93aW5kb3dzL2luc3RhbGwud3hzCkBAIC01OCw3
-ICs1OCw3IEBACiAJCTxDb21wb25lbnRHcm91cFJlZiBJZD0iZXhhbXBsZXMiLz4KIAk8L0Zl
-YXR1cmU+CiAKLQk8UHJvcGVydHkgSWQ9IkFSUFVSTElORk9BQk9VVCIgVmFsdWU9Imh0dHA6
-Ly9naXQua2VybmVsLmRrLz9wPWZpby5naXQiIC8+CisJPFByb3BlcnR5IElkPSJBUlBVUkxJ
-TkZPQUJPVVQiIFZhbHVlPSJodHRwOi8vZ2l0Lmtlcm5lbC5kay9jZ2l0L2Zpby8iIC8+CiAJ
-PFByb3BlcnR5IElkPSdBUlBDT05UQUNUJz5maW9Admdlci5rZXJuZWwub3JnPC9Qcm9wZXJ0
-eT4KIAk8UHJvcGVydHkgSWQ9J0FSUEhFTFBMSU5LJz5odHRwOi8vd3d3LnNwaW5pY3MubmV0
-L2xpc3RzL2Zpby88L1Byb3BlcnR5PgogCTxQcm9wZXJ0eSBJZD0nQVJQVVJMVVBEQVRFSU5G
-Tyc+aHR0cDovL2JsdWVzdG9wLm9yZy9maW8vPC9Qcm9wZXJ0eT4KLS0gCjIuOS4zLndpbmRv
-d3MuMgoK
---------------5B26AF9B5E57057A8F52D6B5--
+On Linux I have a slow device that delay's I/Os for 2000 milliseconds made =
+with
+dmsetup create zero1g --table '0 2097152 zero'
+dmsetup create slow --table '0 2097152 delay /dev/mapper/zero1g 0 2000'
+
+I ran fio against it
+fio --name=3Dslowtest --rw=3Dread --filename /dev/mapper/slow --runtime=3D5=
+s
+--write_bw_log=3Dslowtest --write_iops_log=3Dslowtest
+--write_lat_log=3Dslowtest --bs=3D64k --direct=3D1
+slowtest: (g=3D0): rw=3Dread,
+bs=3D64.0KiB-64.0KiB,64.0KiB-64.0KiB,64.0KiB-64.0KiB, ioengine=3Dpsync,
+iodepth=3D1
+fio-2.17-48-g93f58-dirty
+Starting 1 process
+Jobs: 1 (f=3D1): [R(1)][0.0%][r=3D0KiB/s,w=3D0KiB/s][r=3D0,w=3D0 IOPS][eta =
+13h:39m:06s]
+slowtest: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D21804: Thu Feb 16 05:46:=
+49 2017
+   read: IOPS=3D0, BW=3D31.1KiB/s (32.8kB/s)(192KiB/6012msec)
+    clat (usec): min=3D2003.9k, max=3D2003.1k, avg=3D2003914.67, stdev=3D46=
+.20
+     lat (usec): min=3D2003.9k, max=3D2003.1k, avg=3D2003916.33, stdev=3D45=
+.62
+    clat percentiles (msec):
+     |  1.00th=3D[ 2008],  5.00th=3D[ 2008], 10.00th=3D[ 2008], 20.00th=3D[=
+ 2008],
+     | 30.00th=3D[ 2008], 40.00th=3D[ 2008], 50.00th=3D[ 2008], 60.00th=3D[=
+ 2008],
+     | 70.00th=3D[ 2008], 80.00th=3D[ 2008], 90.00th=3D[ 2008], 95.00th=3D[=
+ 2008],
+     | 99.00th=3D[ 2008], 99.50th=3D[ 2008], 99.90th=3D[ 2008], 99.95th=3D[=
+ 2008],
+     | 99.99th=3D[ 2008]
+   bw (  KiB/s): min=3D   32, max=3D   32, per=3D0.10%, avg=3D32.00, stdev=
+=3D 0.00
+    lat (msec) : >=3D2000=3D100.00%
+  cpu          : usr=3D0.00%, sys=3D0.00%, ctx=3D3, majf=3D0, minf=3D32
+  IO depths    : 1=3D100.0%, 2=3D0.0%, 4=3D0.0%, 8=3D0.0%, 16=3D0.0%, 32=3D=
+0.0%, >=3D64=3D0.0%
+     submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
+=3D0.0%, >=3D64=3D0.0%
+     complete  : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
+=3D0.0%, >=3D64=3D0.0%
+     issued rwt: total=3D3,0,0, short=3D0,0,0, dropped=3D0,0,0
+     latency   : target=3D0, window=3D0, percentile=3D100.00%, depth=3D1
+
+Run status group 0 (all jobs):
+   READ: bw=3D31.1KiB/s (32.8kB/s), 31.1KiB/s-31.1KiB/s
+(32.8kB/s-32.8kB/s), io=3D192KiB (197kB), run=3D6012-6012msec
+
+Examining the files I see this:
+# head slowtest_*
+=3D=3D> slowtest_bw.1.log <=3D=3D
+2004, 32, 0, 65536
+4007, 32, 0, 65536
+6011, 32, 0, 65536
+
+=3D=3D> slowtest_clat.1.log <=3D=3D
+2003, 2003887, 0, 65536
+4007, 2003889, 0, 65536
+6011, 2003968, 0, 65536
+
+=3D=3D> slowtest_iops.1.log <=3D=3D
+2004, 1, 0, 65536
+4007, 1, 0, 65536
+6011, 1, 0, 65536
+
+=3D=3D> slowtest_lat.1.log <=3D=3D
+2003, 2003889, 0, 65536
+4007, 2003891, 0, 65536
+6011, 2003969, 0, 65536
+
+On 15 February 2017 at 22:57, Todd Lawall <tlawall@pivot3.com> wrote:
+> Sorry, forgot to mention that this is on a windows client, running versio=
+n fio-2.16-1-g3ab9.
+>
+>
+> From: fio-owner@vger.kernel.org <fio-owner@vger.kernel.org> on behalf of =
+Todd Lawall <tlawall@pivot3.com>
+> Subject: Has anyone run into write_bw_log and write_io_log recording segm=
+ents of low numbers?
+>
+> I've been running fio on an iSCSI volume where I can monitor things like =
+the network traffic (to ensure that indeed it is flowing) as well as on the=
+ machine the volume is hosted on.  I'm seeing a steady state of 300MB/s, bu=
+t when I stop  the FIO process and writes the detailed bandwidth and iops l=
+ogs, there's segments where iops drop to 0, but bandwidth for the same time=
+ point is somewhere around the single digits or teens.
+>
+> Has anyone else seen this behavior?  Does anyone have an idea why I might=
+ be seeing this?  Here is the job file I ran:
+>
+> [global]
+> ioengine=3Dwindowsaio
+> do_verify=3D0
+> offset=3D0
+> write_bw_log=3DC:\\haggis\\manualfio\\stats-running
+> write_iops_log=3DC:\\haggis\\manualfio\\stats-running
+> write_lat_log=3DC:\\haggis\\manualfio\\stats-running
+> verify=3Dcrc32c-intel
+> runtime=3D292000
+> thread
+>
+> [fio-0]
+> filename=3D\\.\PhysicalDrive1
+> iodepth=3D1
+> blocksize=3D256k
+> readwrite=3Dwrite
+>
+> [fio-1]
+> filename=3D\\.\PhysicalDrive2
+> iodepth=3D1
+> blocksize=3D256k
+> readwrite=3Dwrite
+
+--=20
+Sitsofe | http://sucs.org/~sits/
