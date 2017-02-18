@@ -1,63 +1,59 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from smtp.gentoo.org ([140.211.166.183]:35350 "EHLO smtp.gentoo.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752208AbdCAFkR (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 1 Mar 2017 00:40:17 -0500
-Received: from localhost.localdomain (localhost [127.0.0.1])
-        by smtp.gentoo.org (Postfix) with ESMTP id 356BB33BF43
-        for <fio@vger.kernel.org>; Wed,  1 Mar 2017 05:31:02 +0000 (UTC)
-From: Mike Frysinger <vapier@gentoo.org>
-Subject: [PATCH] configure: add a --disable-rdma flag to control rdma deps
-Date: Tue, 28 Feb 2017 22:30:58 -0700
-Message-Id: <20170301053058.9758-1-vapier@gentoo.org>
+Received: from bombadil.infradead.org ([65.50.211.133]:52404 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751162AbdBRNAG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 18 Feb 2017 08:00:06 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1cf4cP-0007zd-LR
+        for fio@vger.kernel.org; Sat, 18 Feb 2017 13:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170218130001.D2C2F2C0218@kernel.dk>
+Date: Sat, 18 Feb 2017 06:00:01 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+The following changes since commit b3e7e59290577696dc76c08651cce1e121cff64a:
+
+  Merge branch 'travis_osx' of https://github.com/sitsofe/fio (2017-02-16 09:00:08 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to a0cb220bbb28c68fab0b175d01dcfce38a6f835c:
+
+  Revert "Always set ->real_file_size to -1 when failed to get file size" (2017-02-17 13:30:43 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Revert "Always set ->real_file_size to -1 when failed to get file size"
+
+ filesetup.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
 ---
- configure | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/configure b/configure
-index 15b87fac0e4c..187ac3583805 100755
---- a/configure
-+++ b/configure
-@@ -166,6 +166,8 @@ for opt do
-   ;;
-   --disable-numa) disable_numa="yes"
-   ;;
-+  --disable-rdma) disable_rdma="yes"
-+  ;;
-   --disable-rbd) disable_rbd="yes"
-   ;;
-   --disable-rbd-blkin) disable_rbd_blkin="yes"
-@@ -204,6 +206,7 @@ if test "$show_help" = "yes" ; then
-   echo "--esx                  Configure build options for esx"
-   echo "--enable-gfio          Enable building of gtk gfio"
-   echo "--disable-numa         Disable libnuma even if found"
-+  echo "--disable-rdma         Disable RDMA support even if found"
-   echo "--disable-gfapi        Disable gfapi"
-   echo "--enable-libhdfs       Enable hdfs support"
-   echo "--disable-lex          Disable use of lex/yacc for math"
-@@ -642,7 +645,7 @@ int main(int argc, char **argv)
-   return 0;
- }
- EOF
--if compile_prog "" "-libverbs" "libverbs" ; then
-+if test "$disable_rdma" != "yes" && compile_prog "" "-libverbs" "libverbs" ; then
-     libverbs="yes"
-     LIBS="-libverbs $LIBS"
- fi
-@@ -660,7 +663,7 @@ int main(int argc, char **argv)
-   return 0;
- }
- EOF
--if compile_prog "" "-lrdmacm" "rdma"; then
-+if test "$disable_rdma" != "yes" && compile_prog "" "-lrdmacm" "rdma"; then
-     rdmacm="yes"
-     LIBS="-lrdmacm $LIBS"
- fi
--- 
-2.11.1
+Diff of recent changes:
 
+diff --git a/filesetup.c b/filesetup.c
+index e9976eb..e2585ee 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -375,12 +375,10 @@ static int get_file_size(struct thread_data *td, struct fio_file *f)
+ 	else if (f->filetype == FIO_TYPE_CHAR)
+ 		ret = char_size(td, f);
+ 	else
+-		f->real_file_size = -1ULL;
++		f->real_file_size = -1;
+ 
+-	if (ret) {
+-		f->real_file_size = -1ULL;
++	if (ret)
+ 		return ret;
+-	}
+ 
+ 	if (f->file_offset > f->real_file_size) {
+ 		log_err("%s: offset extends end (%llu > %llu)\n", td->o.name,
