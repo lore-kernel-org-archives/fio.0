@@ -1,62 +1,52 @@
 Return-Path: <tkusumi@tuxera.com>
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
-Subject: [PATCH 3/3] configure: Align help messages
-Date: Fri, 24 Feb 2017 18:35:23 +0200
-Message-ID: <20170224163523.6608-3-tkusumi@tuxera.com>
-In-Reply-To: <20170224163523.6608-1-tkusumi@tuxera.com>
-References: <20170224163523.6608-1-tkusumi@tuxera.com>
+Subject: [PATCH 6/6] Revert "configure: Drop default CONFIG_LITTLE_ENDIAN for Cygwin"
+Date: Sun, 19 Feb 2017 20:24:44 +0200
+Message-ID: <20170219182444.120609-1-tkusumi@tuxera.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
+This reverts commit d0f2828f6e49613d944a980e018cbfc02901264b
+to unbreak on Cygwin.
+
+As mentioned at below, it also needed to remove "exit 0",
+but I'd rather like to revert this commit for now since there are
+some other small niche to be fixed if we remove "exit 0".
+
+https://github.com/axboe/fio/issues/314
+
+The orginal commit was to get rid of redundant config setup on
+endianness on Cygwin, but it turned out many of the unconditional
+output_sym() calls in this CYGWIN*) case were done under Cygwin
+specific way without going through regular configure procedure
+(see "Forcing known good options on Windows" part for details),
+although there are some unconditional output_sym() calls that need
+to be there (e.g. CONFIG_WINDOWSAIO).
+
+Since fixing endianness alone (by removing "exit 0") doesn't
+have much meaning as a whole, it makes more sense to just revert
+this for the time being.
+
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- configure | 30 +++++++++++++++---------------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+ configure | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/configure b/configure
-index 15b87fa..8124467 100755
+index 584ebc2..44d215f 100755
 --- a/configure
 +++ b/configure
-@@ -195,21 +195,21 @@ for opt do
- done
- 
- if test "$show_help" = "yes" ; then
--  echo "--prefix=              Use this directory as installation prefix"
--  echo "--cpu=                 Specify target CPU if auto-detect fails"
--  echo "--cc=                  Specify compiler to use"
--  echo "--extra-cflags=        Specify extra CFLAGS to pass to compiler"
--  echo "--build-32bit-win      Enable 32-bit build on Windows"
--  echo "--build-static         Build a static fio"
--  echo "--esx                  Configure build options for esx"
--  echo "--enable-gfio          Enable building of gtk gfio"
--  echo "--disable-numa         Disable libnuma even if found"
--  echo "--disable-gfapi        Disable gfapi"
--  echo "--enable-libhdfs       Enable hdfs support"
--  echo "--disable-lex          Disable use of lex/yacc for math"
--  echo "--disable-pmem         Disable pmem based engines even if found"
--  echo "--enable-lex           Enable use of lex/yacc for math"
--  echo "--disable-shm          Disable SHM support"
-+  echo "--prefix=               Use this directory as installation prefix"
-+  echo "--cpu=                  Specify target CPU if auto-detect fails"
-+  echo "--cc=                   Specify compiler to use"
-+  echo "--extra-cflags=         Specify extra CFLAGS to pass to compiler"
-+  echo "--build-32bit-win       Enable 32-bit build on Windows"
-+  echo "--build-static          Build a static fio"
-+  echo "--esx                   Configure build options for esx"
-+  echo "--enable-gfio           Enable building of gtk gfio"
-+  echo "--disable-numa          Disable libnuma even if found"
-+  echo "--disable-gfapi         Disable gfapi"
-+  echo "--enable-libhdfs        Enable hdfs support"
-+  echo "--disable-lex           Disable use of lex/yacc for math"
-+  echo "--disable-pmem          Disable pmem based engines even if found"
-+  echo "--enable-lex            Enable use of lex/yacc for math"
-+  echo "--disable-shm           Disable SHM support"
-   echo "--disable-optimizations Don't enable compiler optimizations"
-   exit $exit_val
- fi
+@@ -306,6 +306,7 @@ CYGWIN*)
+       fi
+     fi
+   fi
++  output_sym "CONFIG_LITTLE_ENDIAN"
+   if test ! -z "$build_32bit_win" && test "$build_32bit_win" = "yes"; then
+     output_sym "CONFIG_32BIT"
+   else
 -- 
 2.9.3
 
