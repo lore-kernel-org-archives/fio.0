@@ -1,28 +1,51 @@
-Return-Path: <rebecca@bluestop.org>
-Subject: Re: [PATCH 5/6] Silence Cygwin warning "'vsprintf_s' redeclared
- without dllimport..."
+Return-Path: <tkusumi@tuxera.com>
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
+Subject: [PATCH 5/6] Silence Cygwin warning "'vsprintf_s' redeclared without dllimport..."
+Date: Sun, 19 Feb 2017 20:22:22 +0200
+Message-ID: <20170219182223.120559-5-tkusumi@tuxera.com>
+In-Reply-To: <20170219182223.120559-1-tkusumi@tuxera.com>
 References: <20170219182223.120559-1-tkusumi@tuxera.com>
- <20170219182223.120559-5-tkusumi@tuxera.com>
-From: Rebecca Cran <rebecca@bluestop.org>
-Message-ID: <a291dd06-c42e-45d4-e39a-a6da42d3250f@bluestop.org>
-Date: Sun, 19 Feb 2017 12:07:51 -0700
 MIME-Version: 1.0
-In-Reply-To: <20170219182223.120559-5-tkusumi@tuxera.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-To: Tomohiro Kusumi <tkusumi@tuxera.com>, axboe@kernel.dk, fio@vger.kernel.org
+Content-Type: text/plain
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
-On 2/19/17 11:22 AM, Tomohiro Kusumi wrote:
-> Silence a compiler warning which used to didn't show up with some
-> old version of Cygwin. ad9c0fbc in 2012 added this, but it seems
-> this prototype should have been declared by an appropriate header
-> that's already been included here, so drop this prototype.
-> It also sounds what this message means according to Google.
+Silence a compiler warning which used to didn't show up with some
+old version of Cygwin. ad9c0fbc in 2012 added this, but it seems
+this prototype should have been declared by an appropriate header
+that's already been included here, so drop this prototype.
+It also sounds what this message means according to Google.
 
-Thanks, I've been meaning to make the same change.
+Feel free to drop this if this is really needed for some reason.
 
+  os/windows/posix.c:43:5: warning: 'vsprintf_s' redeclared without dllimport attribute: previous dllimport ignored [-Wattributes]
+   int vsprintf_s(
+       ^
+
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ os/windows/posix.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/os/windows/posix.c b/os/windows/posix.c
+index f468cbf..eae8c86 100755
+--- a/os/windows/posix.c
++++ b/os/windows/posix.c
+@@ -40,12 +40,6 @@ HRESULT WINAPI StringCchPrintfA(
+   const char *pszFormat,
+   ...);
+ 
+-int vsprintf_s(
+-  char *buffer,
+-  size_t numberOfElements,
+-  const char *format,
+-  va_list argptr);
+-
+ int win_to_posix_error(DWORD winerr)
+ {
+ 	switch (winerr)
 -- 
-Rebecca
+2.9.3
 
 
