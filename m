@@ -1,53 +1,74 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:34718 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751214AbdBYNAN (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 25 Feb 2017 08:00:13 -0500
+Received: from bombadil.infradead.org ([65.50.211.133]:47521 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752100AbdBUNAN (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 21 Feb 2017 08:00:13 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1chbxL-00088o-Hb
-        for fio@vger.kernel.org; Sat, 25 Feb 2017 13:00:11 +0000
+        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1cgA3B-0005yn-2b
+        for fio@vger.kernel.org; Tue, 21 Feb 2017 13:00:13 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170225130001.81A542C0086@kernel.dk>
-Date: Sat, 25 Feb 2017 06:00:01 -0700 (MST)
+Message-Id: <20170221130002.35F452C227F@kernel.dk>
+Date: Tue, 21 Feb 2017 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit c9057434a99a85f643ce433c7fec9b8f7fad9761:
+The following changes since commit dbd39049ca473de7dc031cd9bf3efe992834323f:
 
-  Fio 2.18 (2017-02-23 08:44:32 -0700)
+  Revert "configure: Drop default CONFIG_LITTLE_ENDIAN for Cygwin" (2017-02-19 17:57:43 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 4ed22fe532123f81e618269e9a77b7b41e0e9cad:
+for you to fetch changes up to 349cdc89ffebb8f3a9cf3ff5be6a9934b94f1b05:
 
-  fio: fix overflow trying to use 'd' suffix (2017-02-24 01:45:07 +0000)
+  appveyor: add CI building of the Windows version of fio (2017-02-20 07:19:20 +0000)
 
 ----------------------------------------------------------------
 Sitsofe Wheeler (1):
-      fio: fix overflow trying to use 'd' suffix
+      appveyor: add CI building of the Windows version of fio
 
- parse.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ appveyor.yml | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+ create mode 100644 appveyor.yml
 
 ---
 
 Diff of recent changes:
 
-diff --git a/parse.c b/parse.c
-index fc508b6..fd5605f 100644
---- a/parse.c
-+++ b/parse.c
-@@ -167,7 +167,7 @@ static unsigned long long get_mult_time(const char *str, int len,
- 	else if (!strcmp("h", c))
- 		mult = 60 * 60 * 1000000UL;
- 	else if (!strcmp("d", c))
--		mult = 24 * 60 * 60 * 1000000UL;
-+		mult = 24 * 60 * 60 * 1000000ULL;
- 
- 	free(c);
- 	return mult;
+diff --git a/appveyor.yml b/appveyor.yml
+new file mode 100644
+index 0000000..7543393
+--- /dev/null
++++ b/appveyor.yml
+@@ -0,0 +1,27 @@
++clone_depth: 50
++environment:
++  MAKEFLAGS: -j 2
++  matrix:
++    - platform: x86_64
++      BUILD_ARCH: x64
++      CYG_ROOT: C:\cygwin64
++      CONFIGURE_OPTIONS:
++    - platform: x86
++      BUILD_ARCH: x86
++      CYG_ROOT: C:\cygwin
++      CONFIGURE_OPTIONS: --build-32bit-win
++
++build_script:
++  - SET PATH=%CYG_ROOT%\bin;%PATH%
++  - 'bash.exe -lc "cd \"${APPVEYOR_BUILD_FOLDER}\" && ./configure ${CONFIGURE_OPTIONS} && make.exe'
++
++after_build:
++  - cd os\windows && dobuild.cmd %BUILD_ARCH%
++
++test_script:
++  - SET PATH=%CYG_ROOT%\bin;%PATH%
++  - 'bash.exe -lc "cd \"${APPVEYOR_BUILD_FOLDER}\" && file.exe fio.exe && make.exe test'
++
++artifacts:
++  - path: os\windows\*.msi
++    name: msi
