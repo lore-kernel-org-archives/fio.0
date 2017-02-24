@@ -1,75 +1,70 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-sn1nam01on0082.outbound.protection.outlook.com ([104.47.32.82]:43663
-        "EHLO NAM01-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751665AbdB1BDa (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 27 Feb 2017 20:03:30 -0500
-From: Chris Taylor <ctaylor@pivot3.com>
-Subject: RE: FIO log averaging issue with --write_bw_log and --write_iops_log
- using > 1000 log_avg_msec values
-Date: Tue, 28 Feb 2017 00:47:48 +0000
-Message-ID: <CY4PR10MB1494958C30757B38661B3B4F8C560@CY4PR10MB1494.namprd10.prod.outlook.com>
-References: <CY4PR10MB1494804E84709ACA355AE6AE8C530@CY4PR10MB1494.namprd10.prod.outlook.com>
- <CALjAwxjoaJpLoFxW9YO2C=RSnzbZK_pm9QadRJzLcJbBKkUkmA@mail.gmail.com>
-In-Reply-To: <CALjAwxjoaJpLoFxW9YO2C=RSnzbZK_pm9QadRJzLcJbBKkUkmA@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-ua0-f181.google.com ([209.85.217.181]:34612 "EHLO
+        mail-ua0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751242AbdBXBY4 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 23 Feb 2017 20:24:56 -0500
+Received: by mail-ua0-f181.google.com with SMTP id 60so3132959uah.1
+        for <fio@vger.kernel.org>; Thu, 23 Feb 2017 17:24:55 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <CY4PR10MB1494804E84709ACA355AE6AE8C530@CY4PR10MB1494.namprd10.prod.outlook.com>
+References: <CY4PR10MB1494804E84709ACA355AE6AE8C530@CY4PR10MB1494.namprd10.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Fri, 24 Feb 2017 01:24:24 +0000
+Message-ID: <CALjAwxjoaJpLoFxW9YO2C=RSnzbZK_pm9QadRJzLcJbBKkUkmA@mail.gmail.com>
+Subject: Re: FIO log averaging issue with --write_bw_log and --write_iops_log
+ using > 1000 log_avg_msec values
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Chris Taylor <ctaylor@pivot3.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-SGkgU2l0c29mZSwNCkxvb2tzIGxpa2UgdGhpcyBpcyBoYW5kbGVkIGluIGNvbW1pdCBiZTZiYjJi
-NzI2MDhkN2VmYmVjMTNkMDZjNjc0NDZlMjI5MTM2YWZhLiANCkkgYW0gbm8gbG9uZ2VyIGFibGUg
-dG8gcmVwcm9kdWNlIHRoZSBpc3N1ZSB3aXRoIGxhdGVzdCB2ZXJzaW9uIG9mIEZJTyAyLjE3LCB3
-aXRoIHRoYXQgY2hhbmdlIGFzIHVzZWNzIHdpbGwgbm93IGJlIDAuICBDb3VsZCB0aGlzIHBvdGVu
-dGlhbGx5IGNhdXNlIHNvbWUgdGltaW5nIGlzc3Vlcz8NCg0KUHJpb3IgdG8gdGhhdCBjb21taXQu
-Li4NClRoZSBqb2IgYmVsb3cgd291bGQgcmVzdWx0IGluIGJ3X2xvZ3MgYW5kIGlvcHNfbG9nIHRo
-YXQgaGF2ZSBza2V3ZWQgcmVzdWx0cyBib3RoIHRoZSBhZGRfaW9wc19zYW1wbGVzIGFuZCBhZGRf
-Yndfc2FtcGxlcyBtYWtlcyBhIGNhbGwgdG8gbXRpbWVfc2luY2Ugd2l0aCBzdGFydCB0aW1lIGFz
-IHRoZSBfc2FtcGxlX3RpbWUgDQouL3N0YXQuYzoyNDM1OiAgc3BlbnQgPSBtdGltZV9zaW5jZSgm
-dGQtPmJ3X3NhbXBsZV90aW1lLCB0KQ0KLi9zdGF0LmM6MjUxMDogIHNwZW50ID0gbXRpbWVfc2lu
-Y2UoJnRkLT5pb3BzX3NhbXBsZV90aW1lLCB0KTsNCg0KLi9zdGF0LmM6MjQ3MzogIHRpbWV2YWxf
-YWRkX21zZWMoJnRkLT5id19zYW1wbGVfdGltZSwgdGQtPm8uYndfYXZnX3RpbWUpOw0KLi9zdGF0
-LmM6MjU0ODogIHRpbWV2YWxfYWRkX21zZWMoJnRkLT5pb3BzX3NhbXBsZV90aW1lLCB0ZC0+by5p
-b3BzX2F2Z190aW1lKTsNCg0Kc3RhdC5jOjI0ODA6Mjc6IHJ1bnRpbWUgZXJyb3I6IHVuc2lnbmVk
-IGludGVnZXIgb3ZlcmZsb3c6IDIwMDAgLSAxODQ0Njc0NDA3MzcwODQ0OSBjYW5ub3QgYmUgcmVw
-cmVzZW50ZWQgaW4gdHlwZSAndW5zaWduZWQgbG9uZycNCnN0YXQuYzoyNTU1OjI5OiBydW50aW1l
-IGVycm9yOiB1bnNpZ25lZCBpbnRlZ2VyIG92ZXJmbG93OiAyMDAwIC0gMTg0NDY3NDQwNzM3MDg0
-NDkgY2Fubm90IGJlIHJlcHJlc2VudGVkIGluIHR5cGUgJ3Vuc2lnbmVkIGxvbmcnDQoNClRoZSBv
-dmVyZmxvdyBhdCBzdGF0LmM6MjI2NSBpcyBhIGRpZmZlcmVudCBpc3N1ZSBwb3NzaWJseSBhIHJv
-dW5kaW5nIHByb2JsZW0gd2l0aCBtc2VjIGFuZCB1c2Vjcy4gDQoNCg0KVGhhbmtzLA0KQ2hyaXMN
-Cg0KT24gMjMgRmVicnVhcnkgMjAxNyBhdCAyMDo1NSwgQ2hyaXMgVGF5bG9yIDxjdGF5bG9yQHBp
-dm90My5jb20+IHdyb3RlOg0KPiBUaGVyZSBpcyBhbiBpc3N1ZSBpbiBGSU8gd2hlbiB1c2luZyB0
-aGUgZGV0YWlsZWQgYmFuZHdpZHRoIGFuZCBpb3BzIGxvZ2dpbmcgd2l0aCBhdmVyYWdpbmcgb3Zl
-ciBhIHBlcmlvZCBvZiB0aW1lID4gMSBzZWNvbmQuDQo+IEl0IHNlZW1zIHRoYXQgdXNlY3Mgb3Zl
-cmZsb3dzIHdoaWNoIGxhdGVyIGNhdXNlcyBuZWdhdGl2ZSB0aW1lIGRpZmYgdmFsdWVzIHJlc3Vs
-dGluZyBpbiBza2V3ZWQgdG93YXJkIDAgcmVzdWx0cy4NCj4gSSBoYXZlIGF0dGFjaGVkIGEgcG90
-ZW50aWFsIGZpeCB0aGF0IHNob3VsZCBwcmV2ZW50IHVzZWNzIGZyb20gZ29pbmcgYmV5b25kIDEw
-MDAwMDAuDQoNCklzIHRoaXMgcHJvYmxlbSBzaG93biBieSB0aGUgZm9sbG93aW5nIGpvYjoNCg0K
-Li9maW8gLS1pb2VuZ2luZT1udWxsIC0td3JpdGVfYndfbG9nPS9kZXYvbnVsbCAtLWxvZ19hdmdf
-bXNlYz0yMDAwIC0tc2l6ZT0xMDBNIC0tcnVudGltZT0xMHMgLS10aW1lX2Jhc2VkIC0tbmFtZT1v
-dmVyZmxvdw0KDQpBbW9uZyBDbGFuZydzIHVuZGVmaW5lZCBiZWhhdmlvdXIgc2FuaXRpemVyIG91
-dHB1dCB3YXMgdGhpcyBmb3IgdGhlIGFib3ZlOg0Kc3RhdC5jOjIyNjU6NDM6IHJ1bnRpbWUgZXJy
-b3I6IHVuc2lnbmVkIGludGVnZXIgb3ZlcmZsb3c6IDE5OTkgLSAyMDAwIGNhbm5vdCBiZSByZXBy
-ZXNlbnRlZCBpbiB0eXBlICd1bnNpZ25lZCBsb25nJw0Kc3RhdC5jOjIyNjU6Mjg6IHJ1bnRpbWUg
-ZXJyb3I6IHVuc2lnbmVkIGludGVnZXIgb3ZlcmZsb3c6IDM5OTkgLQ0KNDI5NDk2NzI5NSBjYW5u
-b3QgYmUgcmVwcmVzZW50ZWQgaW4gdHlwZSAndW5zaWduZWQgbG9uZycNCg0KPiBkaWZmIC0tZ2l0
-IGEvdGltZS5jIGIvdGltZS5jDQo+IGluZGV4IGY1ZGMwNDkuLmM3NDhiZWUgMTAwNjQ0DQo+IC0t
-LSBhL3RpbWUuYw0KPiArKysgYi90aW1lLmMNCj4gQEAgLTgsMTEgKzgsMTggQEAgc3RhdGljIHVu
-c2lnbmVkIGxvbmcgbnNfZ3JhbnVsYXJpdHk7DQo+DQo+IHZvaWQgdGltZXZhbF9hZGRfbXNlYyhz
-dHJ1Y3QgdGltZXZhbCAqdHYsIHVuc2lnbmVkIGludCBtc2VjKSB7DQo+IC0gICAgICAgdHYtPnR2
-X3VzZWMgKz0gMTAwMCAqIG1zZWM7DQo+IC0gICAgICAgaWYgKHR2LT50dl91c2VjID49IDEwMDAw
-MDApIHsNCj4gLSAgICAgICAgICAgICAgIHR2LT50dl91c2VjIC09IDEwMDAwMDA7DQo+IC0gICAg
-ICAgICAgICAgICB0di0+dHZfc2VjKys7DQo+IC0gICAgICAgfQ0KPiArICAgICAgIGludCBhZGpf
-dXNlYyA9IDEwMDAgKiBtc2VjOw0KPiArICAgICAgIGludCBhZGpfc2VjID0gMDsNCj4gKyAgICAg
-ICB0di0+dHZfdXNlYyArPSAgYWRqX3VzZWM7DQo+ICsgICAgICAgaWYgKGFkal91c2VjID49IDEw
-MDAwMDApIHsNCj4gKyAgICAgICAgICAgICAgIGFkal9zZWMgPSBhZGpfdXNlYyAvIDEwMDAwMDA7
-DQo+ICsgICAgICAgICAgICAgICB0di0+dHZfdXNlYyAtPSAgYWRqX3NlYyAqIDEwMDAwMDA7DQo+
-ICsgICAgICAgICAgICAgICB0di0+dHZfc2VjICs9IGFkal9zZWM7DQo+ICsgICAgfQ0KPiArICAg
-IGlmICh0di0+dHZfdXNlYyA+PSAxMDAwMDAwKXsNCj4gKyAgICAgICAgICAgIHR2LT50dl91c2Vj
-IC09IDEwMDAwMDA7DQo+ICsgICAgICAgICAgICB0di0+dHZfc2VjKys7DQo+ICsgICAgfQ0KPiB9
-DQoNCklzIGl0IHN0aWxsIHNhZmUgdG8gdXNlIGludCBpZiB5b3UncmUgdGFyZ2V0aW5nIGEgMzIg
-Yml0IHBsYXRmb3JtPw0KLS0NClNpdHNvZmUgfCBodHRwOi8vc3Vjcy5vcmcvfnNpdHMvDQo=
+Hi,
+
+On 23 February 2017 at 20:55, Chris Taylor <ctaylor@pivot3.com> wrote:
+> There is an issue in FIO when using the detailed bandwidth and iops logging with averaging over a period of time > 1 second.
+> It seems that usecs overflows which later causes negative time diff values resulting in skewed toward 0 results.
+> I have attached a potential fix that should prevent usecs from going beyond 1000000.
+
+Is this problem shown by the following job:
+
+./fio --ioengine=null --write_bw_log=/dev/null --log_avg_msec=2000
+--size=100M --runtime=10s --time_based --name=overflow
+
+Among Clang's undefined behaviour sanitizer output was this for the above:
+stat.c:2265:43: runtime error: unsigned integer overflow: 1999 - 2000
+cannot be represented in type 'unsigned long'
+stat.c:2265:28: runtime error: unsigned integer overflow: 3999 -
+4294967295 cannot be represented in type 'unsigned long'
+
+> diff --git a/time.c b/time.c
+> index f5dc049..c748bee 100644
+> --- a/time.c
+> +++ b/time.c
+> @@ -8,11 +8,18 @@ static unsigned long ns_granularity;
+>
+> void timeval_add_msec(struct timeval *tv, unsigned int msec)
+> {
+> -       tv->tv_usec += 1000 * msec;
+> -       if (tv->tv_usec >= 1000000) {
+> -               tv->tv_usec -= 1000000;
+> -               tv->tv_sec++;
+> -       }
+> +       int adj_usec = 1000 * msec;
+> +       int adj_sec = 0;
+> +       tv->tv_usec +=  adj_usec;
+> +       if (adj_usec >= 1000000) {
+> +               adj_sec = adj_usec / 1000000;
+> +               tv->tv_usec -=  adj_sec * 1000000;
+> +               tv->tv_sec += adj_sec;
+> +    }
+> +    if (tv->tv_usec >= 1000000){
+> +            tv->tv_usec -= 1000000;
+> +            tv->tv_sec++;
+> +    }
+> }
+
+Is it still safe to use int if you're targeting a 32 bit platform?
+
+-- 
+Sitsofe | http://sucs.org/~sits/
