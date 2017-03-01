@@ -1,67 +1,63 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:57100 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751239AbdBXNoC (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 24 Feb 2017 08:44:02 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1chFTf-0003Eq-Cy
-        for fio@vger.kernel.org; Fri, 24 Feb 2017 13:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170224130001.753562C0086@kernel.dk>
-Date: Fri, 24 Feb 2017 06:00:01 -0700 (MST)
+Received: from smtp.gentoo.org ([140.211.166.183]:35350 "EHLO smtp.gentoo.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752208AbdCAFkR (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 1 Mar 2017 00:40:17 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+        by smtp.gentoo.org (Postfix) with ESMTP id 356BB33BF43
+        for <fio@vger.kernel.org>; Wed,  1 Mar 2017 05:31:02 +0000 (UTC)
+From: Mike Frysinger <vapier@gentoo.org>
+Subject: [PATCH] configure: add a --disable-rdma flag to control rdma deps
+Date: Tue, 28 Feb 2017 22:30:58 -0700
+Message-Id: <20170301053058.9758-1-vapier@gentoo.org>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 484817a95764dc7ba83b9f16c417bd727813043a:
-
-  configure: disable compile time asserts for !opt and !static_assert (2017-02-22 09:00:06 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to c9057434a99a85f643ce433c7fec9b8f7fad9761:
-
-  Fio 2.18 (2017-02-23 08:44:32 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Fio 2.18
-
- FIO-VERSION-GEN        | 2 +-
- os/windows/install.wxs | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
 ---
+ configure | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-Diff of recent changes:
+diff --git a/configure b/configure
+index 15b87fac0e4c..187ac3583805 100755
+--- a/configure
++++ b/configure
+@@ -166,6 +166,8 @@ for opt do
+   ;;
+   --disable-numa) disable_numa="yes"
+   ;;
++  --disable-rdma) disable_rdma="yes"
++  ;;
+   --disable-rbd) disable_rbd="yes"
+   ;;
+   --disable-rbd-blkin) disable_rbd_blkin="yes"
+@@ -204,6 +206,7 @@ if test "$show_help" = "yes" ; then
+   echo "--esx                  Configure build options for esx"
+   echo "--enable-gfio          Enable building of gtk gfio"
+   echo "--disable-numa         Disable libnuma even if found"
++  echo "--disable-rdma         Disable RDMA support even if found"
+   echo "--disable-gfapi        Disable gfapi"
+   echo "--enable-libhdfs       Enable hdfs support"
+   echo "--disable-lex          Disable use of lex/yacc for math"
+@@ -642,7 +645,7 @@ int main(int argc, char **argv)
+   return 0;
+ }
+ EOF
+-if compile_prog "" "-libverbs" "libverbs" ; then
++if test "$disable_rdma" != "yes" && compile_prog "" "-libverbs" "libverbs" ; then
+     libverbs="yes"
+     LIBS="-libverbs $LIBS"
+ fi
+@@ -660,7 +663,7 @@ int main(int argc, char **argv)
+   return 0;
+ }
+ EOF
+-if compile_prog "" "-lrdmacm" "rdma"; then
++if test "$disable_rdma" != "yes" && compile_prog "" "-lrdmacm" "rdma"; then
+     rdmacm="yes"
+     LIBS="-lrdmacm $LIBS"
+ fi
+-- 
+2.11.1
 
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index e2d8a43..570e21f 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-2.17
-+DEF_VER=fio-2.18
- 
- LF='
- '
-diff --git a/os/windows/install.wxs b/os/windows/install.wxs
-index 9e776de..bb2b90b 100755
---- a/os/windows/install.wxs
-+++ b/os/windows/install.wxs
-@@ -10,7 +10,7 @@
- 	<Product Id="*"
- 	  Codepage="1252" Language="1033"
- 	  Manufacturer="fio" Name="fio"
--	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.17">
-+	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.18">
- 		<Package
- 		  Description="Flexible IO Tester"
- 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
