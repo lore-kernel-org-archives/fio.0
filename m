@@ -1,60 +1,38 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:45608 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754356AbdCTPpc (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 20 Mar 2017 11:45:32 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1cpvym-00053m-A0
-        for fio@vger.kernel.org; Mon, 20 Mar 2017 12:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170320120002.74DC92C27A6@kernel.dk>
-Date: Mon, 20 Mar 2017 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 05/17] Fix debug print format of file ->file_name
+Date: Tue,  7 Mar 2017 22:12:56 +0200
+Message-Id: <20170307201308.66814-6-tkusumi@tuxera.com>
+In-Reply-To: <20170307201308.66814-1-tkusumi@tuxera.com>
+References: <20170307201308.66814-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit d9bb03d475e918e08c38bd882032ff788daa297f:
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-  is_power_of_2() should return bool (2017-03-17 10:39:42 -0600)
+This should be %s.
 
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to cee3ddfee4d39ec9ba31b7329a343053af057914:
-
-  Merge branch 'wip-fix-bs-title' of https://github.com/liupan1111/fio (2017-03-19 19:49:04 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'wip-fix-bs-title' of https://github.com/liupan1111/fio
-
-Pan Liu (1):
-      make the bs info output clearer.
-
- init.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
+ filesetup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Diff of recent changes:
+diff --git a/filesetup.c b/filesetup.c
+index edc56a3..ae7f817 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -693,7 +693,7 @@ static int get_file_sizes(struct thread_data *td)
+ 	int err = 0;
+ 
+ 	for_each_file(td, f, i) {
+-		dprint(FD_FILE, "get file size for %p/%d/%p\n", f, i,
++		dprint(FD_FILE, "get file size for %p/%d/%s\n", f, i,
+ 								f->file_name);
+ 
+ 		if (td_io_get_file_size(td, f)) {
+-- 
+2.9.3
 
-diff --git a/init.c b/init.c
-index 54fdb92..b4b0974 100644
---- a/init.c
-+++ b/init.c
-@@ -1534,10 +1534,10 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
- 							ddir_str(o->td_ddir));
- 
- 				if (o->bs_is_seq_rand)
--					log_info("bs=%s-%s,%s-%s, bs_is_seq_rand, ",
-+					log_info("bs=(R) %s-%s, (W) %s-%s, bs_is_seq_rand, ",
- 							c1, c2, c3, c4);
- 				else
--					log_info("bs=%s-%s,%s-%s,%s-%s, ",
-+					log_info("bs=(R) %s-%s, (W) %s-%s, (T) %s-%s, ",
- 							c1, c2, c3, c4, c5, c6);
- 
- 				log_info("ioengine=%s, iodepth=%u\n",
+
