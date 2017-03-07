@@ -1,86 +1,201 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:54068 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751320AbdCRNpP (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 18 Mar 2017 09:45:15 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1cpD1r-0005Ox-O9
-        for fio@vger.kernel.org; Sat, 18 Mar 2017 12:00:15 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170318120002.099902C27A6@kernel.dk>
-Date: Sat, 18 Mar 2017 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 01/17] Add runtime handlers for 97900ebf for FreeBSD/DragonFlyBSD
+Date: Tue,  7 Mar 2017 22:12:52 +0200
+Message-Id: <20170307201308.66814-2-tkusumi@tuxera.com>
+In-Reply-To: <20170307201308.66814-1-tkusumi@tuxera.com>
+References: <20170307201308.66814-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 8243be59aa35aa016fcbeee99353b08376953911:
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-  Add 'stats' option (2017-03-16 14:43:37 -0600)
+As 97900ebf itself explains, this is a runtime tunable on FreeBSD
+and DragonFlyBSD, so they need to check the sysctl on runtime.
 
-are available in the git repository at:
+Not sure if OpenBSD has any tunable for this as the original commit
+only says about >=5.1, but afaik recent versions of OpenBSD can't
+even compile fio anyway. Also not sure how it works on NetBSD, and
+the original commit said nothing about it too. Also see below url.
 
-  git://git.kernel.dk/fio.git master
+http://www.spinics.net/lists/fio/msg05586.html
+http://www.spinics.net/lists/fio/msg05588.html
 
-for you to fetch changes up to d9bb03d475e918e08c38bd882032ff788daa297f:
-
-  is_power_of_2() should return bool (2017-03-17 10:39:42 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (2):
-      io_u: we don't need to set power_2 to false
-      is_power_of_2() should return bool
-
-Pan Liu (1):
-      fixed the error=invalid argument when the lower bound of bsrange is not power of 2.
-
- io_u.c     | 7 +++++--
- lib/pow2.h | 3 ++-
- 2 files changed, 7 insertions(+), 3 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/io_u.c b/io_u.c
-index f6efae0..5f01c1b 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -533,6 +533,7 @@ static unsigned int __get_next_buflen(struct thread_data *td, struct io_u *io_u,
- 	unsigned int buflen = 0;
- 	unsigned int minbs, maxbs;
- 	uint64_t frand_max, r;
-+	bool power_2;
- 
- 	assert(ddir_rw(ddir));
- 
-@@ -577,9 +578,11 @@ static unsigned int __get_next_buflen(struct thread_data *td, struct io_u *io_u,
- 			}
- 		}
- 
--		if (!td->o.bs_unaligned && is_power_of_2(minbs))
-+		power_2 = is_power_of_2(minbs);
-+		if (!td->o.bs_unaligned && power_2)
- 			buflen &= ~(minbs - 1);
--
-+		else if (!td->o.bs_unaligned && !power_2) 
-+			buflen -= buflen % minbs; 
- 	} while (!io_u_fits(td, io_u, buflen));
- 
- 	return buflen;
-diff --git a/lib/pow2.h b/lib/pow2.h
-index f3ca4d7..2cbca1a 100644
---- a/lib/pow2.h
-+++ b/lib/pow2.h
-@@ -2,8 +2,9 @@
- #define FIO_POW2_H
- 
- #include <inttypes.h>
-+#include "types.h"
- 
--static inline int is_power_of_2(uint64_t val)
-+static inline bool is_power_of_2(uint64_t val)
- {
- 	return (val != 0 && ((val & (val - 1)) == 0));
+--
+ # uname -r
+ 11.0-RELEASE-p1
+ # cat ./test1.c
+ #include <stdio.h>
+ #include "./os/os-freebsd.h"
+ int main(void) {
+         printf("%d\n", shm_attach_to_open_removed());
+         return 0;
  }
+ # clang -Wall -g ./test1.c
+ # sysctl kern.ipc.shm_allow_removed
+ kern.ipc.shm_allow_removed: 1
+ # ./a.out
+ 1
+ # sysctl kern.ipc.shm_allow_removed=123
+ kern.ipc.shm_allow_removed: 1 -> 123
+ # ./a.out
+ 1
+ # sysctl kern.ipc.shm_allow_removed=0
+ kern.ipc.shm_allow_removed: 123 -> 0
+ # ./a.out
+ 0
+
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ init.c            |  5 ++---
+ os/os-dragonfly.h | 14 ++++++++++++--
+ os/os-freebsd.h   | 15 ++++++++++++---
+ os/os-linux.h     |  5 +++++
+ os/os-openbsd.h   | 12 +++++++++---
+ os/os.h           |  7 +++++++
+ 6 files changed, 47 insertions(+), 11 deletions(-)
+
+diff --git a/init.c b/init.c
+index fabc887..acdc659 100644
+--- a/init.c
++++ b/init.c
+@@ -356,9 +356,8 @@ static int setup_thread_area(void)
+ 		perror("shmat");
+ 		return 1;
+ 	}
+-#ifdef FIO_HAVE_SHM_ATTACH_REMOVED
+-	shmctl(shm_id, IPC_RMID, NULL);
+-#endif
++	if (shm_attach_to_open_removed())
++		shmctl(shm_id, IPC_RMID, NULL);
+ #endif
+ 
+ 	memset(threads, 0, max_jobs * sizeof(struct thread_data));
+diff --git a/os/os-dragonfly.h b/os/os-dragonfly.h
+index 5e94855..97452ca 100644
+--- a/os/os-dragonfly.h
++++ b/os/os-dragonfly.h
+@@ -24,8 +24,7 @@
+ #define FIO_HAVE_GETTID
+ #define FIO_HAVE_CPU_AFFINITY
+ #define FIO_HAVE_IOPRIO
+-/* Only have attach-to-open-removed when kern.ipc.shm_allow_removed is 1 */
+-#undef  FIO_HAVE_SHM_ATTACH_REMOVED
++#define FIO_HAVE_SHM_ATTACH_REMOVED
+ 
+ #define OS_MAP_ANON		MAP_ANON
+ 
+@@ -234,4 +233,15 @@ static inline int os_trim(int fd, unsigned long long start,
+ #define FIO_MADV_FREE	MADV_FREE
+ #endif
+ 
++static inline int shm_attach_to_open_removed(void)
++{
++	int x;
++	size_t len = sizeof(x);
++
++	if (sysctlbyname("kern.ipc.shm_allow_removed", &x, &len, NULL, 0) < 0)
++		return 0;
++
++	return x > 0 ? 1 : 0;
++}
++
+ #endif
+diff --git a/os/os-freebsd.h b/os/os-freebsd.h
+index aa90954..9d1af3b 100644
+--- a/os/os-freebsd.h
++++ b/os/os-freebsd.h
+@@ -22,9 +22,7 @@
+ #define FIO_HAVE_TRIM
+ #define FIO_HAVE_GETTID
+ #define FIO_HAVE_CPU_AFFINITY
+-/* Only have attach-to-open-removed when kern.ipc.shm_allow_removed is 1 */
+-#undef  FIO_HAVE_SHM_ATTACH_REMOVED
+-
++#define FIO_HAVE_SHM_ATTACH_REMOVED
+ 
+ #define OS_MAP_ANON		MAP_ANON
+ 
+@@ -136,4 +134,15 @@ static inline int os_trim(int fd, unsigned long long start,
+ #define FIO_MADV_FREE	MADV_FREE
+ #endif
+ 
++static inline int shm_attach_to_open_removed(void)
++{
++	int x;
++	size_t len = sizeof(x);
++
++	if (sysctlbyname("kern.ipc.shm_allow_removed", &x, &len, NULL, 0) < 0)
++		return 0;
++
++	return x > 0 ? 1 : 0;
++}
++
+ #endif
+diff --git a/os/os-linux.h b/os/os-linux.h
+index 1829829..7be833b 100644
+--- a/os/os-linux.h
++++ b/os/os-linux.h
+@@ -350,4 +350,9 @@ static inline ssize_t pwritev2(int fd, const struct iovec *iov, int iovcnt,
+ #endif /* __NR_preadv2 */
+ #endif /* CONFIG_PWRITEV2 */
+ 
++static inline int shm_attach_to_open_removed(void)
++{
++	return 1;
++}
++
+ #endif
+diff --git a/os/os-openbsd.h b/os/os-openbsd.h
+index 4700572..3b19483 100644
+--- a/os/os-openbsd.h
++++ b/os/os-openbsd.h
+@@ -22,12 +22,10 @@
+ #define FIO_USE_GENERIC_INIT_RANDOM_STATE
+ #define FIO_HAVE_FS_STAT
+ #define FIO_HAVE_GETTID
++#define FIO_HAVE_SHM_ATTACH_REMOVED
+ 
+ #undef	FIO_HAVE_CPU_AFFINITY	/* XXX notyet */
+ 
+-/* Only OpenBSD 5.1 and above have attach-to-open-removed semantics */
+-#undef  FIO_HAVE_SHM_ATTACH_REMOVED
+-
+ #define OS_MAP_ANON		MAP_ANON
+ 
+ #ifndef PTHREAD_STACK_MIN
+@@ -90,4 +88,12 @@ static inline unsigned long long get_fs_free_size(const char *path)
+ #define FIO_MADV_FREE	MADV_FREE
+ #endif
+ 
++static inline int shm_attach_to_open_removed(void)
++{
++	/*
++	 * XXX: Return 1 if >= OpenBSD 5.1 according to 97900ebf.
++	 */
++	return 0;
++}
++
+ #endif
+diff --git a/os/os.h b/os/os.h
+index 4178e6f..5e3c813 100644
+--- a/os/os.h
++++ b/os/os.h
+@@ -386,4 +386,11 @@ static inline int gettid(void)
+ }
+ #endif
+ 
++#ifndef FIO_HAVE_SHM_ATTACH_REMOVED
++static inline int shm_attach_to_open_removed(void)
++{
++	return 0;
++}
++#endif
++
+ #endif
+-- 
+2.9.3
+
+
