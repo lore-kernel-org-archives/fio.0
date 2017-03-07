@@ -1,71 +1,65 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 2/7] HOWTO: Add note/exception on allow_mounted_write=
-Date: Mon, 13 Mar 2017 20:14:58 +0200
-Message-Id: <20170313181503.33322-2-tkusumi@tuxera.com>
-In-Reply-To: <20170313181503.33322-1-tkusumi@tuxera.com>
-References: <20170313181503.33322-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mx4-phx2.redhat.com ([209.132.183.25]:60805 "EHLO
+        mx4-phx2.redhat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932184AbdCGOkO (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 7 Mar 2017 09:40:14 -0500
+Date: Tue, 7 Mar 2017 09:40:13 -0500 (EST)
+From: Ben England <bengland@redhat.com>
+Message-ID: <1654928993.43134723.1488897613235.JavaMail.zimbra@redhat.com>
+In-Reply-To: <CAKwzdDptpE_Z7wzS7JOi4057UWABu2Dsik16sc8VovGB3vvi0Q@mail.gmail.com>
+References: <CAKwzdDptpE_Z7wzS7JOi4057UWABu2Dsik16sc8VovGB3vvi0Q@mail.gmail.com>
+Subject: Re: fio output-format=json+ and latency histogram buckets ~1200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: abhishek koundal <akoundal@gmail.com>
+Cc: fio@vger.kernel.org
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+Abhishek,
 
-allow_mounted_write= is useful on Linux, but some platforms
-just return some error on open(2) for mounted devices.
+For a good explanation of how fio histograms work:
 
- # uname
- Linux
- # mkfs.ext4 /dev/loop0 > /dev/null
- mke2fs 1.43.3 (04-Sep-2016)
- # mount /dev/loop0 /mnt
- # mount | grep /dev/loop0
- /dev/loop0 on /mnt type ext4 (rw,relatime,seclabel,data=ordered)
- # fio --name=xxxxx --ioengine=sync --rw=write --bs=32k --size=1m --filename=/dev/loop0
- xxxxx: (g=0): rw=write, bs=32.0KiB-32.0KiB,32.0KiB-32.0KiB,32.0KiB-32.0KiB, ioengine=sync, iodepth=1
- fio-2.18-21-gca205
- fio: /dev/loop0 appears mounted, and 'allow_mounted_write' isn't set. Aborting.
- Run status group 0 (all jobs):
- # fio --name=xxxxx --ioengine=sync --rw=write --bs=32k --size=1m --filename=/dev/loop0 --allow_mounted_write=1 > /dev/null; echo $?
- 0
+https://github.com/axboe/fio/blob/master/stat.h#L30
 
- # uname
- FreeBSD
- # newfs /dev/da1 > /dev/null
- # mount /dev/da1 /mnt
- # mount | grep /dev/da1
- /dev/da1 on /mnt (ufs, local)
- # fio --name=xxxxx --ioengine=sync --rw=write --bs=32k --size=1m --filename=/dev/da1 --allow_mounted_write=1
- fio: this platform does not support process shared mutexes, forcing use of threads. Use the 'thread' option to get rid of this warning.
- xxxxx: (g=0): rw=write, bs=32.0KiB-32.0KiB,32.0KiB-32.0KiB,32.0KiB-32.0KiB, ioengine=sync, iodepth=1
- fio-2.18-21-gca205
- Starting 1 thread
- fio: failed opening chardev /dev/da1 for size check
- file:filesetup.c:654, func=open(/dev/da1), error=Operation not permitted
- fio: pid=0, err=1/file:filesetup.c:654, func=open(/dev/da1), error=Operation not permitted
- Run status group 0 (all jobs)
+I really like the approach that allows you to trade off accuracy and latency range, where there is a potentially enormous latency range.  Bucket latency range doubles for successive bucket groups.  For buckets in each bucket group, latency range is fixed.
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- HOWTO | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+There is a compile-time limit on the number of buckets at present.  you can recompile fio and change FIO_IO_U_PLAT_GROUP_NR.  The limit of 16 seconds comes from this compile time limit.  
 
-diff --git a/HOWTO b/HOWTO
-index c2c6509..e376ea5 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -886,7 +886,8 @@ Target file/device
- 	If this isn't set, fio will abort jobs that are destructive (e.g. that write)
- 	to what appears to be a mounted device or partition. This should help catch
- 	creating inadvertently destructive tests, not realizing that the test will
--	destroy data on the mounted file system. Default: false.
-+	destroy data on the mounted file system. Note that some platforms don't allow
-+	writing against a mounted device regardless of this option. Default: false.
- 
- .. option:: pre_read=bool
- 
--- 
-2.9.3
+Would be nice if row 1 of the histogram log contained the upper bound of each histogram bucket's latency range.  You can parse the histogram logs and generate latency percentiles as a function of time from them with fiologparser_hist.py.  
+
+HTH
+
+-ben
 
 
+----- Original Message -----
+> From: "abhishek koundal" <akoundal@gmail.com>
+> To: fio@vger.kernel.org
+> Sent: Tuesday, March 7, 2017 1:49:17 AM
+> Subject: fio output-format=json+ and latency histogram buckets ~1200
+> 
+> Hi,
+> Can someone please explain what is the detailed latency buckets using
+> --output-format=json+ depict? The are always ~16 buckets populated. I
+> am not able to figure out the # iops per latency buckets and what the
+> units of latency are?
+> 
+> Another question:
+> For the histogram latency there are ~1200 buckets which can track
+> 16sec for max latency. Can someone please explain what each bucket
+> interval. e.g. assuming each is 10us increment.
+> 0-10us [#IOPS]
+> 10-20us[#IOPS]
+> 20-30us..[#IOPS]
+> ......
+> 15-16sec
+> --
+> Life is too short for silly things so invest your time in some
+> productive outputs!!
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
