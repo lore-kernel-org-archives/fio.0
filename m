@@ -1,57 +1,81 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qt0-f178.google.com ([209.85.216.178]:36754 "EHLO
-        mail-qt0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750820AbdCaCZ5 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 30 Mar 2017 22:25:57 -0400
-Received: by mail-qt0-f178.google.com with SMTP id r45so55006087qte.3
-        for <fio@vger.kernel.org>; Thu, 30 Mar 2017 19:25:56 -0700 (PDT)
-MIME-Version: 1.0
-From: Guruganesh Hegde <guruhegde4u@gmail.com>
-Date: Fri, 31 Mar 2017 07:55:55 +0530
-Message-ID: <CACqzM2CTN9w45owkjvoTR+Ca4QJFvM_MnOZE9+BU+dCxo2nuEQ@mail.gmail.com>
-Subject: numberio failure with numjobs=1
-Content-Type: text/plain; charset=UTF-8
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 04/17] Avoid irrelevant "offset extend ends" error message for chrdev
+Date: Tue,  7 Mar 2017 22:12:55 +0200
+Message-Id: <20170307201308.66814-5-tkusumi@tuxera.com>
+In-Reply-To: <20170307201308.66814-1-tkusumi@tuxera.com>
+References: <20170307201308.66814-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-I am using fio version 2.12 and using following configuration to
-perform data integrity check
---------------------------------------------------------------------
-[write-phase]
-group_reporting
-rw=randwrite
-bs=4k
-direct=1
-ioengine=libaio
+This commit expands 957c81b9 to chrdev as well when char_size()
+is configured (i.e. FIO_HAVE_CHARDEV_SIZE disabled) to just return
+0 with ->real_file_size set to -1.
 
-iodepth=32
-numjobs=1
+Platforms without FIO_HAVE_CHARDEV_SIZE enabled basically means
+block devices are blkdev as a file type, so having this change
+or not most likely makes no difference. If an I/O engine needs
+to use chrdev (e.g. sgio) it usually has its own .get_file_size.
 
-size=32G
-randseed=40964096
-verify=crc32c
+Also add a dprint(FD_FILE) message since ->file_offset is normally
+0 at this point regardless of offset option value, despite having
+a conditional to check this against ->real_file_size.
 
-verify_dump=1
-refill_buffers
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ filesetup.c | 26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
 
-filename=/dev/nvme0n1
+diff --git a/filesetup.c b/filesetup.c
+index 793b08d..edc56a3 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -377,12 +377,8 @@ static int get_file_size(struct thread_data *td, struct fio_file *f)
+ 		ret = bdev_size(td, f);
+ 	else if (f->filetype == FIO_TYPE_CHAR)
+ 		ret = char_size(td, f);
+-	else {
+-		f->real_file_size = -1;
+-		log_info("%s: failed to get file size of %s\n", td->o.name,
+-					f->file_name);
+-		return 1; /* avoid offset extends end error message */
+-	}
++	else
++		f->real_file_size = -1ULL;
+ 
+ 	/*
+ 	 * Leave ->real_file_size with 0 since it could be expectation
+@@ -392,10 +388,22 @@ static int get_file_size(struct thread_data *td, struct fio_file *f)
+ 		return ret;
+ 
+ 	/*
++	 * If ->real_file_size is -1, a conditional for the message
++	 * "offset extends end" is always true, but it makes no sense,
++	 * so just return the same value here.
++	 */
++	if (f->real_file_size == -1ULL) {
++		log_info("%s: failed to get file size of %s\n", td->o.name,
++					f->file_name);
++		return 1;
++	}
++
++	if (td->o.start_offset && f->file_offset == 0)
++		dprint(FD_FILE, "offset of file %s not initialized yet\n",
++					f->file_name);
++	/*
+ 	 * ->file_offset normally hasn't been initialized yet, so this
+-	 * is basically always false unless ->real_file_size is -1, but
+-	 * if ->real_file_size is -1 this message doesn't make sense.
+-	 * As a result, this message is basically useless.
++	 * is basically always false.
+ 	 */
+ 	if (f->file_offset > f->real_file_size) {
+ 		log_err("%s: offset extends end (%llu > %llu)\n", td->o.name,
+-- 
+2.9.3
 
-loops=10
-----------------------------------------------------------------------------------
 
-What I am seeing is fio fails for numberio with mismatch.
-"verify: bad header numberio x wanted y"
-
-I have modified fio 'verify.c' to continue on numberio mismatch error.
-All other header checks like header crc & data crcs are verified.
-
-After the above changes fio reports only few numberio errors and there
-seem to no other data integrity error.
-
-Is there anything I am missing in fio configuration?
-
-Best Regards,
-Gruu
