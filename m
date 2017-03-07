@@ -1,9 +1,9 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 08/17] Drop redundant td_rw(td) tests
-Date: Tue,  7 Mar 2017 22:12:59 +0200
-Message-Id: <20170307201308.66814-9-tkusumi@tuxera.com>
+Subject: [PATCH 16/17] Use union for per file engine private data storage
+Date: Tue,  7 Mar 2017 22:13:07 +0200
+Message-Id: <20170307201308.66814-17-tkusumi@tuxera.com>
 In-Reply-To: <20170307201308.66814-1-tkusumi@tuxera.com>
 References: <20170307201308.66814-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
@@ -12,76 +12,162 @@ List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-Since TD_DDIR_READ is 1, TD_DDIR_WRITE is 1<<1, and td_rw() requires
-both TD_DDIR_READ/WRITE bits set, testing (td_read(td) || td_rw(td))
-turns out to be
+fio_file::engine_data has been used by i/o engines to either keep
+the offset or point to engine specific private data with casts.
 
-if td_read(td) is false, td_rw(td) is always false,
-if td_read(td) is true, td_rw(td) won't be tested,
-thus the result equals that of td_read(td).
+This commit changes it to a union consists of void* and uint64_t
+so get/set of offset/pointer can be done without casts (which is
+a common technique used even within this same struct).
 
-It's the same for td_write(td) as well.
+This may break external engines on compile time, but fio generally
+doesn't care about breakage on external engines (no guarantees on
+api/abi compatibility) anyway.
+
+Also confirmed this compiles with pmemblk enabled.
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- backend.c | 2 +-
- fio.h     | 2 +-
- init.c    | 2 +-
- verify.c  | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ engines/glusterfs_sync.c |  2 +-
+ engines/pmemblk.c        | 16 ++++++----------
+ engines/sync.c           |  2 +-
+ file.h                   | 12 +++++++-----
+ filesetup.c              |  2 +-
+ 5 files changed, 16 insertions(+), 18 deletions(-)
 
-diff --git a/backend.c b/backend.c
-index 4bc00e6..2e8a994 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1693,7 +1693,7 @@ static void *thread_main(void *data)
+diff --git a/engines/glusterfs_sync.c b/engines/glusterfs_sync.c
+index 05e184c..25d05b2 100644
+--- a/engines/glusterfs_sync.c
++++ b/engines/glusterfs_sync.c
+@@ -7,7 +7,7 @@
  
- 		prune_io_piece_log(td);
+ #include "gfapi.h"
  
--		if (td->o.verify_only && (td_write(td) || td_rw(td)))
-+		if (td->o.verify_only && td_write(td))
- 			verify_bytes = do_dry_run(td);
- 		else {
- 			uint64_t bytes_done[DDIR_RWDIR_CNT];
-diff --git a/fio.h b/fio.h
-index b2f0e2f..b573ac5 100644
---- a/fio.h
-+++ b/fio.h
-@@ -490,7 +490,7 @@ static inline int should_fsync(struct thread_data *td)
+-#define LAST_POS(f)	((f)->engine_data)
++#define LAST_POS(f)	((f)->engine_pos)
+ static int fio_gf_prep(struct thread_data *td, struct io_u *io_u)
  {
- 	if (td->last_was_sync)
- 		return 0;
--	if (td_write(td) || td_rw(td) || td->o.override_sync)
-+	if (td_write(td) || td->o.override_sync)
+ 	struct fio_file *f = io_u->file;
+diff --git a/engines/pmemblk.c b/engines/pmemblk.c
+index e8476f9..52af9ed 100644
+--- a/engines/pmemblk.c
++++ b/engines/pmemblk.c
+@@ -86,10 +86,6 @@ struct fio_pmemblk_file {
+ 	size_t pmb_bsize;
+ 	size_t pmb_nblocks;
+ };
+-#define FIOFILEPMBSET(_f, _v)  do {                 \
+-	(_f)->engine_data = (uint64_t)(uintptr_t)(_v);  \
+-} while(0)
+-#define FIOFILEPMBGET(_f)  ((fio_pmemblk_file_t)((_f)->engine_data))
+ 
+ static fio_pmemblk_file_t Cache;
+ 
+@@ -304,26 +300,26 @@ static int fio_pmemblk_open_file(struct thread_data *td, struct fio_file *f)
+ 	if (!pmb)
  		return 1;
  
+-	FIOFILEPMBSET(f, pmb);
++	FILE_SET_ENG_DATA(f, pmb);
  	return 0;
-diff --git a/init.c b/init.c
-index acdc659..5353890 100644
---- a/init.c
-+++ b/init.c
-@@ -619,7 +619,7 @@ static int fixup_options(struct thread_data *td)
- 	/*
- 	 * Reads can do overwrites, we always need to pre-create the file
- 	 */
--	if (td_read(td) || td_rw(td))
-+	if (td_read(td))
- 		o->overwrite = 1;
+ }
  
- 	if (!o->min_bs[DDIR_READ])
-diff --git a/verify.c b/verify.c
-index 5c7e43d..f2841c7 100644
---- a/verify.c
-+++ b/verify.c
-@@ -760,7 +760,7 @@ static int verify_header(struct io_u *io_u, struct thread_data *td,
- 	 * state of numberio, that would have been written to each block
- 	 * in a previous run of fio, has been reached.
+ static int fio_pmemblk_close_file(struct thread_data fio_unused *td,
+ 				  struct fio_file *f)
+ {
+-	fio_pmemblk_file_t pmb = FIOFILEPMBGET(f);
++	fio_pmemblk_file_t pmb = FILE_ENG_DATA(f);
+ 
+ 	if (pmb)
+ 		pmb_close(pmb, false);
+ 
+-	FIOFILEPMBSET(f, NULL);
++	FILE_SET_ENG_DATA(f, NULL);
+ 	return 0;
+ }
+ 
+ static int fio_pmemblk_get_file_size(struct thread_data *td, struct fio_file *f)
+ {
+ 	uint64_t flags = 0;
+-	fio_pmemblk_file_t pmb = FIOFILEPMBGET(f);
++	fio_pmemblk_file_t pmb = FILE_ENG_DATA(f);
+ 
+ 	if (fio_file_size_known(f))
+ 		return 0;
+@@ -340,7 +336,7 @@ static int fio_pmemblk_get_file_size(struct thread_data *td, struct fio_file *f)
+ 
+ 	fio_file_set_size_known(f);
+ 
+-	if (!FIOFILEPMBGET(f))
++	if (!FILE_ENG_DATA(f))
+ 		pmb_close(pmb, true);
+ 
+ 	return 0;
+@@ -349,7 +345,7 @@ static int fio_pmemblk_get_file_size(struct thread_data *td, struct fio_file *f)
+ static int fio_pmemblk_queue(struct thread_data *td, struct io_u *io_u)
+ {
+ 	struct fio_file *f = io_u->file;
+-	fio_pmemblk_file_t pmb = FIOFILEPMBGET(f);
++	fio_pmemblk_file_t pmb = FILE_ENG_DATA(f);
+ 
+ 	unsigned long long off;
+ 	unsigned long len;
+diff --git a/engines/sync.c b/engines/sync.c
+index 1726b8e..e76bbbb 100644
+--- a/engines/sync.c
++++ b/engines/sync.c
+@@ -18,7 +18,7 @@
+ /*
+  * Sync engine uses engine_data to store last offset
+  */
+-#define LAST_POS(f)	((f)->engine_data)
++#define LAST_POS(f)	((f)->engine_pos)
+ 
+ struct syncio_data {
+ 	struct iovec *iovecs;
+diff --git a/file.h b/file.h
+index c403b17..9801bb5 100644
+--- a/file.h
++++ b/file.h
+@@ -113,9 +113,12 @@ struct fio_file {
+ 	unsigned int last_write_idx;
+ 
+ 	/*
+-	 * For use by the io engine
++	 * For use by the io engine for offset or private data storage
  	 */
--	if ((td_write(td) || td_rw(td)) && (td_min_bs(td) == td_max_bs(td)) &&
-+	if (td_write(td) && (td_min_bs(td) == td_max_bs(td)) &&
- 	    !td->o.time_based)
- 		if (!td->o.verify_only || td->o.loops == 0)
- 			if (hdr->numberio != io_u->numberio) {
+-	uint64_t engine_data;
++	union {
++		uint64_t engine_pos;
++		void *engine_data;
++	};
+ 
+ 	/*
+ 	 * if io is protected by a semaphore, this is set
+@@ -147,9 +150,8 @@ struct fio_file {
+ 	struct disk_util *du;
+ };
+ 
+-#define FILE_ENG_DATA(f)	((void *) (uintptr_t) (f)->engine_data)
+-#define FILE_SET_ENG_DATA(f, data)	\
+-	((f)->engine_data = (uintptr_t) (data))
++#define FILE_ENG_DATA(f)		((f)->engine_data)
++#define FILE_SET_ENG_DATA(f, data)	((f)->engine_data = (data))
+ 
+ #define FILE_FLAG_FNS(name)						\
+ static inline void fio_file_set_##name(struct fio_file *f)		\
+diff --git a/filesetup.c b/filesetup.c
+index 68a3ab9..4d0b127 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -519,7 +519,7 @@ int generic_close_file(struct thread_data fio_unused *td, struct fio_file *f)
+ 		f->shadow_fd = -1;
+ 	}
+ 
+-	f->engine_data = 0;
++	f->engine_pos = 0;
+ 	return ret;
+ }
+ 
 -- 
 2.9.3
 
