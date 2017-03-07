@@ -1,52 +1,46 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 02/13] Use GOLDEN_RATIO_PRIME
-Date: Tue, 28 Mar 2017 23:02:50 +0300
-Message-Id: <20170328200301.8622-2-tkusumi@tuxera.com>
-In-Reply-To: <20170328200301.8622-1-tkusumi@tuxera.com>
-References: <20170328200301.8622-1-tkusumi@tuxera.com>
+Subject: [PATCH 12/17] Don't set FIO_FILE_extend when create_on_open= option is set
+Date: Tue,  7 Mar 2017 22:13:03 +0200
+Message-Id: <20170307201308.66814-13-tkusumi@tuxera.com>
+In-Reply-To: <20170307201308.66814-1-tkusumi@tuxera.com>
+References: <20170307201308.66814-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-Using this macro (originally for hash in Linux kernel) for rand seed
-instead of hard-coded value should make sense. rdma ioengine uses
-this for the seed as well.
+FIO_FILE_extend gets set and later cleared only when create_on_open=
+is disabled (which is default). If create_on_open=1 is set this flag
+could be set for the entire runtime, but this flag is basically
+designed to be enabled only during setup time.
+
+(If there's no "Layint out IO file..." message, both FIO_FILE_extend
+and need_extend probably aren't even needed, as files can be extended
+at the moment when these flag/variable are set)
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- init.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ filesetup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/init.c b/init.c
-index 6af6c45..eef5150 100644
---- a/init.c
-+++ b/init.c
-@@ -26,6 +26,7 @@
- #include "idletime.h"
- #include "filelock.h"
- #include "steadystate.h"
-+#include "hash.h"
- 
- #include "oslib/getopt.h"
- #include "oslib/strcasestr.h"
-@@ -1083,11 +1084,11 @@ static int setup_random_seeds(struct thread_data *td)
- 
- 	seed = td->o.rand_seed;
- 	for (i = 0; i < 4; i++)
--		seed *= 0x9e370001UL;
-+		seed *= GOLDEN_RATIO_PRIME;
- 
- 	for (i = 0; i < FIO_RAND_NR_OFFS; i++) {
- 		td->rand_seeds[i] = seed * td->thread_number + i;
--		seed *= 0x9e370001UL;
-+		seed *= GOLDEN_RATIO_PRIME;
+diff --git a/filesetup.c b/filesetup.c
+index fab9c5d..f42f5d8 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -966,9 +966,9 @@ int setup_files(struct thread_data *td)
+ 			if (!o->create_on_open) {
+ 				need_extend++;
+ 				extend_size += (f->io_size + f->file_offset);
++				fio_file_set_extend(f);
+ 			} else
+ 				f->real_file_size = f->io_size + f->file_offset;
+-			fio_file_set_extend(f);
+ 		}
  	}
  
- 	td_fill_rand_seeds(td);
 -- 
 2.9.3
 
