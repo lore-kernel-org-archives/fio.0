@@ -1,31 +1,42 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:55421 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1755788AbdCLSvd (ORCPT
-        <rfc822;fio@vger.kernel.org>); Sun, 12 Mar 2017 14:51:33 -0400
-Subject: Re: [PATCH] Only enable arm64 CRC32 acceleration if the required
- header files are there
-References: <20170312171612.32247-1-tytso@mit.edu>
-From: Jens Axboe <axboe@fb.com>
-Message-ID: <45312e9d-a04b-9b34-4144-132c8d91ca54@fb.com>
-Date: Sun, 12 Mar 2017 12:50:56 -0600
-MIME-Version: 1.0
-In-Reply-To: <20170312171612.32247-1-tytso@mit.edu>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Received: from imap.thunk.org ([74.207.234.97]:36432 "EHLO imap.thunk.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933837AbdCLRQZ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 12 Mar 2017 13:16:25 -0400
+From: Theodore Ts'o <tytso@mit.edu>
+Subject: [PATCH] Only enable arm64 CRC32 acceleration if the required header files are there
+Date: Sun, 12 Mar 2017 13:16:12 -0400
+Message-Id: <20170312171612.32247-1-tytso@mit.edu>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Theodore Ts'o <tytso@mit.edu>, fio@vger.kernel.org
-Cc: wei.xiao@arm.com
+To: fio@vger.kernel.org
+Cc: wei.xiao@arm.com, axboe@fb.com, Theodore Ts'o <tytso@mit.edu>
 
-On 03/12/2017 11:16 AM, Theodore Ts'o wrote:
-> If the necessary header files are missing, then fio will bomb out when
-> building on arm64.  So disable the hardware acceleration option in
-> that case, since it's only performance improvement and not a
-> functional regression to turn it off.
+If the necessary header files are missing, then fio will bomb out when
+building on arm64.  So disable the hardware acceleration option in
+that case, since it's only performance improvement and not a
+functional regression to turn it off.
 
-Thanks Ted, applied.
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+---
+ configure | 4 ++++
+ 1 file changed, 4 insertions(+)
 
+diff --git a/configure b/configure
+index d0c2173f..fa6f8acb 100755
+--- a/configure
++++ b/configure
+@@ -1807,6 +1807,10 @@ echo "bool                          $have_bool"
+ march_armv8_a_crc_crypto="no"
+ if test "$cpu" = "arm64" ; then
+   cat > $TMPC <<EOF
++#include <sys/auxv.h>
++#include <arm_acle.h>
++#include <arm_neon.h>
++
+ int main(void)
+ {
+   return 0;
 -- 
-Jens Axboe
+2.11.0.rc0.7.gbe5a750
 
