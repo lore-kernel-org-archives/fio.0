@@ -1,55 +1,32 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from [195.159.176.226] ([195.159.176.226]:38314 "EHLO
-        blaine.gmane.org" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-        with ESMTP id S1750819AbdCOWKS (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 15 Mar 2017 18:10:18 -0400
-Received: from list by blaine.gmane.org with local (Exim 4.84_2)
-        (envelope-from <gcsf-fio@m.gmane.org>)
-        id 1coH7L-0005pw-0B
-        for fio@vger.kernel.org; Wed, 15 Mar 2017 23:10:03 +0100
-From: Antoine Beaupre <anarcat@orangeseeds.org>
-Subject: could fio be used to wipe disks?
-Date: Wed, 15 Mar 2017 17:42:55 -0400
-Message-ID: <87fuie2p40.fsf@curie.anarc.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <axboe@kernel.dk>
+Subject: Re: fio: forcing file /dev/nvme0n1 size to 4286578688
+References: <838dc940-5a0b-fda7-2610-615e3a700c3c@kernel.dk>
+ <CAHndrB=YeE6-U2s+STbiXhMPpUt3stJ0PyPFOiriBVQ3XZTU4g@mail.gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <ad189fe1-798a-673f-2ee5-f77d352221e9@kernel.dk>
+Date: Thu, 16 Mar 2017 14:54:01 -0600
+MIME-Version: 1.0
+In-Reply-To: <CAHndrB=YeE6-U2s+STbiXhMPpUt3stJ0PyPFOiriBVQ3XZTU4g@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+To: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+On 03/16/2017 02:50 PM, Tomohiro Kusumi wrote:
+> Hi
+> 
+> I added this because I happened to see file(s) with unexpected size
+> due to this behavior, but I think it should be logged only for
+> regfiles.
+> Using cpuio also shows this which does not make much sense just like
+> it doesn't with block device without size=.
 
-I'm writing a stress-testing tool and i'm looking at using fio to
-stress-test disks. The point is not exactly to benchmark the disks, but
-put sustained load on the disks to make sure they are generally in
-working order.
+Yeah, it doesn't make sense for most files, just regular ones. Feel
+free to re-instate it (I killed it) for just regular files.
 
-Right now, I came up with something like this:
-
-      fio --name=stressant --readwrite=randrw  --filename=/dev/sdX \
-          --size=100% --numjob=4 --sync=1 --direct=1 --group_reporting
-
-My question is:
-
- 1. will this reliably wipe the whole drive? i know that some data can
-    remain due to magnetic properties of the drive or nasty SSD tricks,
-    but assume we don't do crazy forensics
-
- 2. if not, is there a way to directly test write I/O directly through
-    the device (to ignore filesystem-related issues) non-destructively?
-
-Thanks!
-
-A.
-
-PS: for those curious, my prototype is available here:
-
-https://gitlab.com/anarcat/stressant/blob/master/stressant.py
-
-Nothing serious so far...
 
 -- 
-La publicité est la dictature invisible de notre société.
-                        - Jacques Ellul
+Jens Axboe
+
 
