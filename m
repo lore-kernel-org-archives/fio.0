@@ -1,69 +1,86 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 3/7] Minor fixup for page cache invalidation debug prints
-Date: Mon, 13 Mar 2017 20:14:59 +0200
-Message-Id: <20170313181503.33322-3-tkusumi@tuxera.com>
-In-Reply-To: <20170313181503.33322-1-tkusumi@tuxera.com>
-References: <20170313181503.33322-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:54068 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751320AbdCRNpP (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 18 Mar 2017 09:45:15 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1cpD1r-0005Ox-O9
+        for fio@vger.kernel.org; Sat, 18 Mar 2017 12:00:15 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170318120002.099902C27A6@kernel.dk>
+Date: Sat, 18 Mar 2017 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+The following changes since commit 8243be59aa35aa016fcbeee99353b08376953911:
 
-offset/length is used only for posix_fadvise(2), and each invalidation
-method has its own meaning, so use different messages for them.
+  Add 'stats' option (2017-03-16 14:43:37 -0600)
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to d9bb03d475e918e08c38bd882032ff788daa297f:
+
+  is_power_of_2() should return bool (2017-03-17 10:39:42 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (2):
+      io_u: we don't need to set power_2 to false
+      is_power_of_2() should return bool
+
+Pan Liu (1):
+      fixed the error=invalid argument when the lower bound of bsrange is not power of 2.
+
+ io_u.c     | 7 +++++--
+ lib/pow2.h | 3 ++-
+ 2 files changed, 7 insertions(+), 3 deletions(-)
+
 ---
- filesetup.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/filesetup.c b/filesetup.c
-index 4d0b127..085d0c8 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -442,20 +442,22 @@ static int __file_invalidate_cache(struct thread_data *td, struct fio_file *f,
- 	if (len == -1ULL || off == -1ULL)
- 		return 0;
+Diff of recent changes:
+
+diff --git a/io_u.c b/io_u.c
+index f6efae0..5f01c1b 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -533,6 +533,7 @@ static unsigned int __get_next_buflen(struct thread_data *td, struct io_u *io_u,
+ 	unsigned int buflen = 0;
+ 	unsigned int minbs, maxbs;
+ 	uint64_t frand_max, r;
++	bool power_2;
  
--	dprint(FD_IO, "invalidate cache %s: %llu/%llu\n", f->file_name, off,
--								len);
--
- 	if (td->io_ops->invalidate) {
-+		dprint(FD_IO, "invalidate %s cache %s\n", td->io_ops->name,
-+			f->file_name);
- 		ret = td->io_ops->invalidate(td, f);
- 		if (ret < 0)
- 			errval = ret;
- 	} else if (f->filetype == FIO_TYPE_FILE) {
-+		dprint(FD_IO, "declare unneeded cache %s: %llu/%llu\n",
-+			f->file_name, off, len);
- 		ret = posix_fadvise(f->fd, off, len, POSIX_FADV_DONTNEED);
- 		if (ret)
- 			errval = ret;
- 	} else if (f->filetype == FIO_TYPE_BLOCK) {
- 		int retry_count = 0;
+ 	assert(ddir_rw(ddir));
  
-+		dprint(FD_IO, "drop page cache %s\n", f->file_name);
- 		ret = blockdev_invalidate_cache(f);
- 		while (ret < 0 && errno == EAGAIN && retry_count++ < 25) {
- 			/*
-@@ -477,8 +479,11 @@ static int __file_invalidate_cache(struct thread_data *td, struct fio_file *f,
+@@ -577,9 +578,11 @@ static unsigned int __get_next_buflen(struct thread_data *td, struct io_u *io_u,
+ 			}
  		}
- 		if (ret < 0)
- 			errval = errno;
--	} else if (f->filetype == FIO_TYPE_CHAR || f->filetype == FIO_TYPE_PIPE)
-+	} else if (f->filetype == FIO_TYPE_CHAR ||
-+		   f->filetype == FIO_TYPE_PIPE) {
-+		dprint(FD_IO, "invalidate not supported %s\n", f->file_name);
- 		ret = 0;
-+	}
  
- 	/*
- 	 * Cache flushing isn't a fatal condition, and we know it will
--- 
-2.9.3
-
-
+-		if (!td->o.bs_unaligned && is_power_of_2(minbs))
++		power_2 = is_power_of_2(minbs);
++		if (!td->o.bs_unaligned && power_2)
+ 			buflen &= ~(minbs - 1);
+-
++		else if (!td->o.bs_unaligned && !power_2) 
++			buflen -= buflen % minbs; 
+ 	} while (!io_u_fits(td, io_u, buflen));
+ 
+ 	return buflen;
+diff --git a/lib/pow2.h b/lib/pow2.h
+index f3ca4d7..2cbca1a 100644
+--- a/lib/pow2.h
++++ b/lib/pow2.h
+@@ -2,8 +2,9 @@
+ #define FIO_POW2_H
+ 
+ #include <inttypes.h>
++#include "types.h"
+ 
+-static inline int is_power_of_2(uint64_t val)
++static inline bool is_power_of_2(uint64_t val)
+ {
+ 	return (val != 0 && ((val & (val - 1)) == 0));
+ }
