@@ -1,40 +1,46 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 01/13] Fix return value of make_filename() when no filename_format
-Date: Tue, 28 Mar 2017 23:02:49 +0300
-Message-Id: <20170328200301.8622-1-tkusumi@tuxera.com>
+Subject: [PATCH 5/7] Fix a comment after f227e2b6
+Date: Mon, 20 Mar 2017 23:28:45 +0200
+Message-Id: <20170320212847.71404-5-tkusumi@tuxera.com>
+In-Reply-To: <20170320212847.71404-1-tkusumi@tuxera.com>
+References: <20170320212847.71404-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-This is unlikely to happen in the first place since ->filename_format
-has a default value, and option parser can also detect an empty string,
-but it should return buf which is sprintf'd right before returning.
-
-A caller expects this function to return filename string (which is
-buf arg itself in this case), and it also doesn't handle NULL return.
+Add "for regular files" since it's true only on regfiles.
+Also see below.
+http://www.spinics.net/lists/fio/msg05646.html
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ filesetup.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/init.c b/init.c
-index 4a72255..6af6c45 100644
---- a/init.c
-+++ b/init.c
-@@ -1121,7 +1121,7 @@ static char *make_filename(char *buf, size_t buf_size,struct thread_options *o,
+diff --git a/filesetup.c b/filesetup.c
+index c9f2b5f..bcf95bd 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -932,10 +932,11 @@ int setup_files(struct thread_data *td)
+ 			}
  
- 	if (!o->filename_format || !strlen(o->filename_format)) {
- 		sprintf(buf, "%s.%d.%d", jobname, jobnum, filenum);
--		return NULL;
-+		return buf;
- 	}
- 
- 	for (f = &fpre_keywords[0]; f->keyword; f++)
+ 			/*
+-			 * We normally don't come here, but if the result is 0,
+-			 * set it to the real file size. This could be size of
+-			 * the existing one if it already exists, but otherwise
+-			 * will be set to 0. A new file won't be created because
++			 * We normally don't come here for regular files, but
++			 * if the result is 0 for a regular file, set it to the
++			 * real file size. This could be size of the existing
++			 * one if it already exists, but otherwise will be set
++			 * to 0. A new file won't be created because
+ 			 * ->io_size + ->file_offset equals ->real_file_size.
+ 			 */
+ 			if (!f->io_size) {
 -- 
 2.9.3
 
