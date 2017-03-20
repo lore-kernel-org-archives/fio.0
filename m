@@ -1,47 +1,77 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 13/17] Minor fixup for "Layint out IO file..." message
-Date: Tue,  7 Mar 2017 22:13:04 +0200
-Message-Id: <20170307201308.66814-14-tkusumi@tuxera.com>
-In-Reply-To: <20170307201308.66814-1-tkusumi@tuxera.com>
-References: <20170307201308.66814-1-tkusumi@tuxera.com>
+Subject: [PATCH 7/7] Test fsync/fdatasync/sync_file_range for the next i/o only if should_fsync(td)
+Date: Mon, 20 Mar 2017 23:28:47 +0200
+Message-Id: <20170320212847.71404-7-tkusumi@tuxera.com>
+In-Reply-To: <20170320212847.71404-1-tkusumi@tuxera.com>
+References: <20170320212847.71404-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-This is the same as what run_threads() does for threads/processes.
+Checking an inline function should_fsync() first is better since
+should_fsync() itself contains td_write() as a condition to return true,
+and there's no need for non-write td to go through the rest of checks
+when they result in false due to td->io_issues[DDIR_WRITE] being 0.
+
+(This commit directly goes on top of the previous one)
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- filesetup.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ io_u.c | 36 +++++++++++++++---------------------
+ 1 file changed, 15 insertions(+), 21 deletions(-)
 
-diff --git a/filesetup.c b/filesetup.c
-index f42f5d8..b240891 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -1008,9 +1008,15 @@ int setup_files(struct thread_data *td)
- 	 */
- 	if (need_extend) {
- 		temp_stall_ts = 1;
--		if (output_format & FIO_OUTPUT_NORMAL)
--			log_info("%s: Laying out IO file(s) (%u file(s) / %lluMiB)\n",
--				 o->name, need_extend, extend_size >> 20);
-+		if (output_format & FIO_OUTPUT_NORMAL) {
-+			log_info("%s: Laying out IO file%s (%u file%s / %s%lluMiB)\n",
-+				 o->name,
-+				 need_extend > 1 ? "s" : "",
-+				 need_extend,
-+				 need_extend > 1 ? "s" : "",
-+				 need_extend > 1 ? "total " : "",
-+				 extend_size >> 20);
-+		}
+diff --git a/io_u.c b/io_u.c
+index 1de35c8..c6d814b 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -717,28 +717,22 @@ static enum fio_ddir get_rw_ddir(struct thread_data *td)
+ 	enum fio_ddir ddir;
  
- 		for_each_file(td, f, i) {
- 			unsigned long long old_len = -1ULL, extend_len = -1ULL;
+ 	/*
+-	 * see if it's time to fsync
++	 * See if it's time to fsync/fdatasync/sync_file_range first,
++	 * and if not then move on to check regular I/Os.
+ 	 */
+-	if (td->o.fsync_blocks && td->io_issues[DDIR_WRITE] &&
+-	    !(td->io_issues[DDIR_WRITE] % td->o.fsync_blocks) &&
+-	    should_fsync(td))
+-		return DDIR_SYNC;
+-
+-	/*
+-	 * see if it's time to fdatasync
+-	 */
+-	if (td->o.fdatasync_blocks && td->io_issues[DDIR_WRITE] &&
+-	    !(td->io_issues[DDIR_WRITE] % td->o.fdatasync_blocks) &&
+-	    should_fsync(td))
+-		return DDIR_DATASYNC;
+-
+-	/*
+-	 * see if it's time to sync_file_range
+-	 */
+-	if (td->sync_file_range_nr && td->io_issues[DDIR_WRITE] &&
+-	    !(td->io_issues[DDIR_WRITE] % td->sync_file_range_nr) &&
+-	    should_fsync(td))
+-		return DDIR_SYNC_FILE_RANGE;
++	if (should_fsync(td)) {
++		if (td->o.fsync_blocks && td->io_issues[DDIR_WRITE] &&
++		    !(td->io_issues[DDIR_WRITE] % td->o.fsync_blocks))
++			return DDIR_SYNC;
++
++		if (td->o.fdatasync_blocks && td->io_issues[DDIR_WRITE] &&
++		    !(td->io_issues[DDIR_WRITE] % td->o.fdatasync_blocks))
++			return DDIR_DATASYNC;
++
++		if (td->sync_file_range_nr && td->io_issues[DDIR_WRITE] &&
++		    !(td->io_issues[DDIR_WRITE] % td->sync_file_range_nr))
++			return DDIR_SYNC_FILE_RANGE;
++	}
+ 
+ 	if (td_rw(td)) {
+ 		/*
 -- 
 2.9.3
 
