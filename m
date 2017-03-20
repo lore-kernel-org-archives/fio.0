@@ -1,47 +1,60 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 5/7] Fix a comment after f227e2b6
-Date: Mon, 20 Mar 2017 23:28:45 +0200
-Message-Id: <20170320212847.71404-5-tkusumi@tuxera.com>
-In-Reply-To: <20170320212847.71404-1-tkusumi@tuxera.com>
-References: <20170320212847.71404-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:45608 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754356AbdCTPpc (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 20 Mar 2017 11:45:32 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1cpvym-00053m-A0
+        for fio@vger.kernel.org; Mon, 20 Mar 2017 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170320120002.74DC92C27A6@kernel.dk>
+Date: Mon, 20 Mar 2017 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+The following changes since commit d9bb03d475e918e08c38bd882032ff788daa297f:
 
-Add "for regular files" since it's true only on regfiles.
-Also see below.
-http://www.spinics.net/lists/fio/msg05646.html
+  is_power_of_2() should return bool (2017-03-17 10:39:42 -0600)
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to cee3ddfee4d39ec9ba31b7329a343053af057914:
+
+  Merge branch 'wip-fix-bs-title' of https://github.com/liupan1111/fio (2017-03-19 19:49:04 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'wip-fix-bs-title' of https://github.com/liupan1111/fio
+
+Pan Liu (1):
+      make the bs info output clearer.
+
+ init.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
 ---
- filesetup.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/filesetup.c b/filesetup.c
-index c9f2b5f..bcf95bd 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -932,10 +932,11 @@ int setup_files(struct thread_data *td)
- 			}
+Diff of recent changes:
+
+diff --git a/init.c b/init.c
+index 54fdb92..b4b0974 100644
+--- a/init.c
++++ b/init.c
+@@ -1534,10 +1534,10 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
+ 							ddir_str(o->td_ddir));
  
- 			/*
--			 * We normally don't come here, but if the result is 0,
--			 * set it to the real file size. This could be size of
--			 * the existing one if it already exists, but otherwise
--			 * will be set to 0. A new file won't be created because
-+			 * We normally don't come here for regular files, but
-+			 * if the result is 0 for a regular file, set it to the
-+			 * real file size. This could be size of the existing
-+			 * one if it already exists, but otherwise will be set
-+			 * to 0. A new file won't be created because
- 			 * ->io_size + ->file_offset equals ->real_file_size.
- 			 */
- 			if (!f->io_size) {
--- 
-2.9.3
-
-
+ 				if (o->bs_is_seq_rand)
+-					log_info("bs=%s-%s,%s-%s, bs_is_seq_rand, ",
++					log_info("bs=(R) %s-%s, (W) %s-%s, bs_is_seq_rand, ",
+ 							c1, c2, c3, c4);
+ 				else
+-					log_info("bs=%s-%s,%s-%s,%s-%s, ",
++					log_info("bs=(R) %s-%s, (W) %s-%s, (T) %s-%s, ",
+ 							c1, c2, c3, c4, c5, c6);
+ 
+ 				log_info("ioengine=%s, iodepth=%u\n",
