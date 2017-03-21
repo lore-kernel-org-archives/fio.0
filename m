@@ -1,38 +1,35 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 05/17] Fix debug print format of file ->file_name
-Date: Tue,  7 Mar 2017 22:12:56 +0200
-Message-Id: <20170307201308.66814-6-tkusumi@tuxera.com>
-In-Reply-To: <20170307201308.66814-1-tkusumi@tuxera.com>
-References: <20170307201308.66814-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+Return-Path: <axboe@kernel.dk>
+Date: Tue, 21 Mar 2017 07:16:28 -0600
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH 1/7] Replace redundant TD_F_NOIO flag with td->io_ops_init
+Message-ID: <20170321131628.GA16024@kernel.dk>
+References: <20170320212847.71404-1-tkusumi@tuxera.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170320212847.71404-1-tkusumi@tuxera.com>
+To: kusumi.tomohiro@gmail.com
+Cc: fio@vger.kernel.org, Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+On Mon, Mar 20 2017, kusumi.tomohiro@gmail.com wrote:
+> From: Tomohiro Kusumi <tkusumi@tuxera.com>
+> 
+> The only reason TD_F_NOIO exists in addition to FIO_NOIO is because
+> fio_running_or_pending_io_threads() needs to know whether td has
+> successfully initialized ioengine, whereas FIO_NOIO is statically
+> set regardless of ioengines's ->init() result.
+> 
+> This commit adds a new td field ->io_ops_init to inidicate ->init()
+> result, so that td needs no extra bit field for each ioengine like
+> TD_F_NOIO. It was rather odd that td was unable to tell ->init()
+> result afterward when ->init() failure (returning non zero) doesn't
+> mean aborting fio itself. This commit also changes TD_F_NOIO to
+> TD_F_RESERVED as it's no longer used.
 
-This should be %s.
+Thanks, applied 1-7.
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- filesetup.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/filesetup.c b/filesetup.c
-index edc56a3..ae7f817 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -693,7 +693,7 @@ static int get_file_sizes(struct thread_data *td)
- 	int err = 0;
- 
- 	for_each_file(td, f, i) {
--		dprint(FD_FILE, "get file size for %p/%d/%p\n", f, i,
-+		dprint(FD_FILE, "get file size for %p/%d/%s\n", f, i,
- 								f->file_name);
- 
- 		if (td_io_get_file_size(td, f)) {
 -- 
-2.9.3
+Jens Axboe
 
 
