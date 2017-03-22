@@ -1,82 +1,42 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 04/13] Don't malloc more than necessary on extending/prereading file
-Date: Tue, 28 Mar 2017 23:02:52 +0300
-Message-Id: <20170328200301.8622-4-tkusumi@tuxera.com>
-In-Reply-To: <20170328200301.8622-1-tkusumi@tuxera.com>
-References: <20170328200301.8622-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-it0-f43.google.com ([209.85.214.43]:38011 "EHLO
+        mail-it0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1758908AbdCVIMf (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 22 Mar 2017 04:12:35 -0400
+Received: by mail-it0-f43.google.com with SMTP id y18so21347314itc.1
+        for <fio@vger.kernel.org>; Wed, 22 Mar 2017 01:12:34 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <8709584e-1ea6-e031-a0dc-5a9d8ec915ce@fb.com>
+References: <20170321211632.38104-1-gwendal@chromium.org> <8709584e-1ea6-e031-a0dc-5a9d8ec915ce@fb.com>
+From: Gwendal Grignou <gwendal@chromium.org>
+Date: Wed, 22 Mar 2017 01:12:13 -0700
+Message-ID: <CAMHSBOV3YTGiWjN4EMyFVD4DT4XnzMWmnBTA+zsgWziaf8EABA@mail.gmail.com>
+Subject: Re: [PATCH] Ensure all json field keys do not have ' ' in them
+Content-Type: text/plain; charset=UTF-8
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Jens Axboe <axboe@fb.com>
+Cc: fio@vger.kernel.org
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
-
-If td->o.max_bs[DDIR_XXX] were larger than file size to extend/preread,
-it only needs to malloc the file size.
-
-Given that td->o.max_bs[DDIR_XXX] are tunable parameters, it's better
-not to malloc whatever size specified if needed size is smaller than
-that. Users could specify as large as maximum of uint.
-
-I dropped "bs = td->o.max_bs[DDIR_WRITE];" inside the first while loop
-since now it works the same with or without this.
-
-(This commit directly goes on top of the previous one)
-
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- filesetup.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
-
-diff --git a/filesetup.c b/filesetup.c
-index ce19cf0..9335dcd 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -159,15 +159,18 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
- 		}
- 	}
- 
--	b = malloc(td->o.max_bs[DDIR_WRITE]);
-+	left = f->real_file_size;
-+	bs = td->o.max_bs[DDIR_WRITE];
-+	if (bs > left)
-+		bs = left;
-+
-+	b = malloc(bs);
- 	if (!b) {
- 		td_verror(td, errno, "malloc");
- 		goto err;
- 	}
- 
--	left = f->real_file_size;
- 	while (left && !td->terminate) {
--		bs = td->o.max_bs[DDIR_WRITE];
- 		if (bs > left)
- 			bs = left;
- 
-@@ -245,7 +248,11 @@ static int pre_read_file(struct thread_data *td, struct fio_file *f)
- 
- 	old_runstate = td_bump_runstate(td, TD_PRE_READING);
- 
-+	left = f->io_size;
- 	bs = td->o.max_bs[DDIR_READ];
-+	if (bs > left)
-+		bs = left;
-+
- 	b = malloc(bs);
- 	if (!b) {
- 		td_verror(td, errno, "malloc");
-@@ -261,8 +268,6 @@ static int pre_read_file(struct thread_data *td, struct fio_file *f)
- 		goto error;
- 	}
- 
--	left = f->io_size;
--
- 	while (left && !td->terminate) {
- 		if (bs > left)
- 			bs = left;
--- 
-2.9.3
-
-
+On Tue, Mar 21, 2017 at 8:51 PM, Jens Axboe <axboe@fb.com> wrote:
+> On 03/21/2017 05:16 PM, Gwendal Grignou wrote:
+>> So far, fio key names use '_' instead of ' '.
+>> Fix keys with 'job options' and 'global options' to match the naming
+>> convention.
+>
+> Is there a problem with the outputted json?
+No the json file is correct, and it is acceptable to have spaces in keys.
+> I agree it would be
+> cleaner to have the underscore instead of the space, but this
+> change might also break scripts that parse the existing
+> output. So we need a good reason to change it, which isn't
+> just a cosmetic concern.
+Most cosmetic: the spaces were breaking a script around older version
+of fio, but it is a script issue, no a fio issue.
+>
+> Just curious what your motivations are for the change.
+>
+I understand it is too late to change fio, so ignore the patch.
+> --
+> Jens Axboe
+>
