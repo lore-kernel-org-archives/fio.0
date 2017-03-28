@@ -1,77 +1,53 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 7/7] Test fsync/fdatasync/sync_file_range for the next i/o only if should_fsync(td)
-Date: Mon, 20 Mar 2017 23:28:47 +0200
-Message-Id: <20170320212847.71404-7-tkusumi@tuxera.com>
-In-Reply-To: <20170320212847.71404-1-tkusumi@tuxera.com>
-References: <20170320212847.71404-1-tkusumi@tuxera.com>
+Subject: [PATCH 03/13] Test malloc result when allocation size is tunable
+Date: Tue, 28 Mar 2017 23:02:51 +0300
+Message-Id: <20170328200301.8622-3-tkusumi@tuxera.com>
+In-Reply-To: <20170328200301.8622-1-tkusumi@tuxera.com>
+References: <20170328200301.8622-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-Checking an inline function should_fsync() first is better since
-should_fsync() itself contains td_write() as a condition to return true,
-and there's no need for non-write td to go through the rest of checks
-when they result in false due to td->io_issues[DDIR_WRITE] being 0.
-
-(This commit directly goes on top of the previous one)
+The allocation size td->o.max_bs[DDIR_XXX] can be specified by user,
+so test the result although it can be over committed on some platforms.
+In theory allocation size could be as large as maximum of uint.
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- io_u.c | 36 +++++++++++++++---------------------
- 1 file changed, 15 insertions(+), 21 deletions(-)
+ filesetup.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/io_u.c b/io_u.c
-index 1de35c8..c6d814b 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -717,28 +717,22 @@ static enum fio_ddir get_rw_ddir(struct thread_data *td)
- 	enum fio_ddir ddir;
+diff --git a/filesetup.c b/filesetup.c
+index bcf95bd..ce19cf0 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -160,6 +160,10 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
+ 	}
  
- 	/*
--	 * see if it's time to fsync
-+	 * See if it's time to fsync/fdatasync/sync_file_range first,
-+	 * and if not then move on to check regular I/Os.
- 	 */
--	if (td->o.fsync_blocks && td->io_issues[DDIR_WRITE] &&
--	    !(td->io_issues[DDIR_WRITE] % td->o.fsync_blocks) &&
--	    should_fsync(td))
--		return DDIR_SYNC;
--
--	/*
--	 * see if it's time to fdatasync
--	 */
--	if (td->o.fdatasync_blocks && td->io_issues[DDIR_WRITE] &&
--	    !(td->io_issues[DDIR_WRITE] % td->o.fdatasync_blocks) &&
--	    should_fsync(td))
--		return DDIR_DATASYNC;
--
--	/*
--	 * see if it's time to sync_file_range
--	 */
--	if (td->sync_file_range_nr && td->io_issues[DDIR_WRITE] &&
--	    !(td->io_issues[DDIR_WRITE] % td->sync_file_range_nr) &&
--	    should_fsync(td))
--		return DDIR_SYNC_FILE_RANGE;
-+	if (should_fsync(td)) {
-+		if (td->o.fsync_blocks && td->io_issues[DDIR_WRITE] &&
-+		    !(td->io_issues[DDIR_WRITE] % td->o.fsync_blocks))
-+			return DDIR_SYNC;
-+
-+		if (td->o.fdatasync_blocks && td->io_issues[DDIR_WRITE] &&
-+		    !(td->io_issues[DDIR_WRITE] % td->o.fdatasync_blocks))
-+			return DDIR_DATASYNC;
-+
-+		if (td->sync_file_range_nr && td->io_issues[DDIR_WRITE] &&
-+		    !(td->io_issues[DDIR_WRITE] % td->sync_file_range_nr))
-+			return DDIR_SYNC_FILE_RANGE;
+ 	b = malloc(td->o.max_bs[DDIR_WRITE]);
++	if (!b) {
++		td_verror(td, errno, "malloc");
++		goto err;
 +	}
  
- 	if (td_rw(td)) {
- 		/*
+ 	left = f->real_file_size;
+ 	while (left && !td->terminate) {
+@@ -243,6 +247,11 @@ static int pre_read_file(struct thread_data *td, struct fio_file *f)
+ 
+ 	bs = td->o.max_bs[DDIR_READ];
+ 	b = malloc(bs);
++	if (!b) {
++		td_verror(td, errno, "malloc");
++		ret = 1;
++		goto error;
++	}
+ 	memset(b, 0, bs);
+ 
+ 	if (lseek(f->fd, f->file_offset, SEEK_SET) < 0) {
 -- 
 2.9.3
 
