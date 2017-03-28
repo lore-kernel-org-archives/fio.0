@@ -1,56 +1,50 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 14/17] HOWTO: Add some details for invalidate=
-Date: Tue,  7 Mar 2017 22:13:05 +0200
-Message-Id: <20170307201308.66814-15-tkusumi@tuxera.com>
-In-Reply-To: <20170307201308.66814-1-tkusumi@tuxera.com>
-References: <20170307201308.66814-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-vk0-f47.google.com ([209.85.213.47]:35958 "EHLO
+        mail-vk0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751603AbdC1TJx (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 28 Mar 2017 15:09:53 -0400
+Received: by mail-vk0-f47.google.com with SMTP id s68so100001902vke.3
+        for <fio@vger.kernel.org>; Tue, 28 Mar 2017 12:09:52 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <020F9C88-1E06-4EC4-A83D-B7CAA1B54F37@cisco.com>
+References: <020F9C88-1E06-4EC4-A83D-B7CAA1B54F37@cisco.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Tue, 28 Mar 2017 20:09:21 +0100
+Message-ID: <CALjAwxifGothL1Sx0PFqYKsQ02sTbX8ur_ZCZpaB8bL=Q5r3gw@mail.gmail.com>
+Subject: Re: How does FIO detect write errors when ioengine is libaio
+Content-Type: text/plain; charset=UTF-8
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "Scott Forman (scforman)" <scforman@cisco.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+Hi,
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- HOWTO  | 4 +++-
- init.c | 6 +++++-
- 2 files changed, 8 insertions(+), 2 deletions(-)
+I might be mistaken but isn't the result being put into r and r is
+later checked: https://github.com/axboe/fio/blob/565e784df05c2529479eed8a38701a33b01894bd/engines/libaio.c#L164
+?
 
-diff --git a/HOWTO b/HOWTO
-index 018800a..af6cd71 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1426,7 +1426,9 @@ Buffers and memory
- .. option:: invalidate=bool
- 
- 	Invalidate the buffer/page cache parts for this file prior to starting
--	I/O. Defaults to true.
-+	I/O if the platform and file type support it. Defaults to true.
-+	This will be ignored if :option:`pre_read` is also specified for the
-+	same job.
- 
- .. option:: sync=bool
- 
-diff --git a/init.c b/init.c
-index 5353890..18538de 100644
---- a/init.c
-+++ b/init.c
-@@ -764,7 +764,11 @@ static int fixup_options(struct thread_data *td)
- 	}
- 
- 	if (o->pre_read) {
--		o->invalidate_cache = 0;
-+		if (o->invalidate_cache) {
-+			log_info("fio: ignore invalidate option for %s\n",
-+				 o->name);
-+			o->invalidate_cache = 0;
-+		}
- 		if (td_ioengine_flagged(td, FIO_PIPEIO)) {
- 			log_info("fio: cannot pre-read files with an IO engine"
- 				 " that isn't seekable. Pre-read disabled.\n");
+On 28 March 2017 at 19:03, Scott Forman (scforman) <scforman@cisco.com> wrote:
+> Hi,
+>
+> I am trying to determine how fio detects write errors when the ioengine is set to libaio.
+>
+> From a code example on stack overflow, linux-kernel-aio-functionality, it appears that they can be detected by examining the events returned from io_getevents().
+>
+> But I do not see any code in libaio.c that examines the events returned from io_getevents().
+>
+> Can you verify that fio does check for write errors for engine libaio, and if so, where that error checking is done?
+>
+> Thanks in advance!
+>
+> Sincerely,
+>
+> Scott Forman
+>
+>
+>
+
+
+
 -- 
-2.9.3
-
-
+Sitsofe | http://sucs.org/~sits/
