@@ -1,40 +1,56 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 3/7] HOWTO: Mention cpuload= is mandatory for cpuio
-Date: Mon, 20 Mar 2017 23:28:43 +0200
-Message-Id: <20170320212847.71404-3-tkusumi@tuxera.com>
-In-Reply-To: <20170320212847.71404-1-tkusumi@tuxera.com>
-References: <20170320212847.71404-1-tkusumi@tuxera.com>
+Subject: [PATCH 08/13] Don't proceed with error set when failed to pre-read files/devices
+Date: Tue, 28 Mar 2017 23:02:56 +0300
+Message-Id: <20170328200301.8622-8-tkusumi@tuxera.com>
+In-Reply-To: <20170328200301.8622-1-tkusumi@tuxera.com>
+References: <20170328200301.8622-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-fio jobs using cpuio fail without this option value specified,
-so mention it's mandatory (or have default value for this ?).
+pre_read_files() never fails (never returns negative), and because
+of this behavior, fio threads can continue regardless of td_verror()
+call while prereading, and results in statistics with error in it,
+which is quite confusing as to how it should be interpreted for regular
+users.
 
-fio: pid=9320, err=22/file:engines/cpu.c:75, func=cpuio, error=cpu thread needs rate (cpuload=)
+This commit makes pre_read_files() return -1 if preread fails, and
+eventually aborts fio, which is also the case with some other options.
+It also changes non error return from 1 to 0, since all it matters
+is if it's <0 or not, and fio normally uses 0 for success.
+
+Not sure what the proper way of fixing this is if it legitimately
+failed for some error on prereading though. Some options just print
+a message to indicate it's unsupported and continue normally withtout
+any error set.
+
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- HOWTO | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ filesetup.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/HOWTO b/HOWTO
-index 5d378f3..1ce1b0c 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1748,7 +1748,8 @@ caveat that when used on the command line, they must come after the
+diff --git a/filesetup.c b/filesetup.c
+index bd971e8..cd486ea 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -1119,10 +1119,11 @@ int pre_read_files(struct thread_data *td)
+ 	dprint(FD_FILE, "pre_read files\n");
  
- .. option:: cpuload=int : [cpuio]
+ 	for_each_file(td, f, i) {
+-		pre_read_file(td, f);
++		if (pre_read_file(td, f))
++			return -1;
+ 	}
  
--	Attempt to use the specified percentage of CPU cycles.
-+	Attempt to use the specified percentage of CPU cycles. This is a mandatory
-+	option when using cpuio I/O engine.
+-	return 1;
++	return 0;
+ }
  
- .. option:: cpuchunks=int : [cpuio]
- 
+ static int __init_rand_distribution(struct thread_data *td, struct fio_file *f)
 -- 
 2.9.3
 
