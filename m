@@ -1,38 +1,35 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 10/17] Drop fio_unused attribute from used variable
-Date: Tue,  7 Mar 2017 22:13:01 +0200
-Message-Id: <20170307201308.66814-11-tkusumi@tuxera.com>
-In-Reply-To: <20170307201308.66814-1-tkusumi@tuxera.com>
-References: <20170307201308.66814-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:44012 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753973AbdC2Lzu (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 29 Mar 2017 07:55:50 -0400
+Date: Wed, 29 Mar 2017 07:55:49 -0400 (EDT)
+From: Ben England <bengland@redhat.com>
+Message-ID: <90086366.8069670.1490788549015.JavaMail.zimbra@redhat.com>
+In-Reply-To: <CAKwzdDqvezUQyAvXzh72DW0awAQx5Ct7UwB9ocxuFOWi6Qj-Lg@mail.gmail.com>
+References: <CAKwzdDqvezUQyAvXzh72DW0awAQx5Ct7UwB9ocxuFOWi6Qj-Lg@mail.gmail.com>
+Subject: Re: Input help for fiologparser.py script in fio/tools/
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: abhishek koundal <akoundal@gmail.com>
+Cc: fio@vger.kernel.org
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+Abhishek, fiologparser.py is intended for use with latency, bandwidth and IOPS logs, not the JSON output from fio on stdout.
 
-This is actually used.
+# ./fiologparser.py -h
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- io_u.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+if you want something to parse the standard fio json output, you could try this:
 
-diff --git a/io_u.c b/io_u.c
-index 46d9731..8d520ab 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -643,7 +643,7 @@ int io_u_quiesce(struct thread_data *td)
- 	}
- 
- 	while (td->io_u_in_flight) {
--		int fio_unused ret;
-+		int ret;
- 
- 		ret = io_u_queued_complete(td, 1);
- 		if (ret > 0)
--- 
-2.9.3
+https://github.com/bengland2/cbt/blob/master2/tools/fio-parse-json.py
 
-
+----- Original Message -----
+> From: "abhishek koundal" <akoundal@gmail.com>
+> To: fio@vger.kernel.org
+> Sent: Wednesday, March 29, 2017 12:15:35 AM
+> Subject: Input help for fiologparser.py script in fio/tools/
+> 
+> Hi,
+> Can anyone please help in the usage on the fiologparser.py file?
