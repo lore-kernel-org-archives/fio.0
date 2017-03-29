@@ -1,35 +1,27 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:44012 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753973AbdC2Lzu (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 29 Mar 2017 07:55:50 -0400
-Date: Wed, 29 Mar 2017 07:55:49 -0400 (EDT)
-From: Ben England <bengland@redhat.com>
-Message-ID: <90086366.8069670.1490788549015.JavaMail.zimbra@redhat.com>
-In-Reply-To: <CAKwzdDqvezUQyAvXzh72DW0awAQx5Ct7UwB9ocxuFOWi6Qj-Lg@mail.gmail.com>
-References: <CAKwzdDqvezUQyAvXzh72DW0awAQx5Ct7UwB9ocxuFOWi6Qj-Lg@mail.gmail.com>
-Subject: Re: Input help for fiologparser.py script in fio/tools/
+Received: from mail-vk0-f44.google.com ([209.85.213.44]:33847 "EHLO
+        mail-vk0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751329AbdC2EQR (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 29 Mar 2017 00:16:17 -0400
+Received: by mail-vk0-f44.google.com with SMTP id z204so4542636vkd.1
+        for <fio@vger.kernel.org>; Tue, 28 Mar 2017 21:16:16 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: abhishek koundal <akoundal@gmail.com>
+Date: Tue, 28 Mar 2017 21:15:35 -0700
+Message-ID: <CAKwzdDqvezUQyAvXzh72DW0awAQx5Ct7UwB9ocxuFOWi6Qj-Lg@mail.gmail.com>
+Subject: Input help for fiologparser.py script in fio/tools/
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: abhishek koundal <akoundal@gmail.com>
-Cc: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Abhishek, fiologparser.py is intended for use with latency, bandwidth and IOPS logs, not the JSON output from fio on stdout.
+Hi,
+Can anyone please help in the usage on the fiologparser.py file?
+I tried using with standard json output log and it gives error.
+e.g.
+fiologparser.py  -c <json_summary.log>
+Any feedback ins appreciated.
 
-# ./fiologparser.py -h
-
-if you want something to parse the standard fio json output, you could try this:
-
-https://github.com/bengland2/cbt/blob/master2/tools/fio-parse-json.py
-
------ Original Message -----
-> From: "abhishek koundal" <akoundal@gmail.com>
-> To: fio@vger.kernel.org
-> Sent: Wednesday, March 29, 2017 12:15:35 AM
-> Subject: Input help for fiologparser.py script in fio/tools/
-> 
-> Hi,
-> Can anyone please help in the usage on the fiologparser.py file?
+-- 
+Life is too short for silly things so invest your time in some
+productive outputs!!
