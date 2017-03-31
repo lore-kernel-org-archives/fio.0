@@ -1,169 +1,231 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-co1nam03on0042.outbound.protection.outlook.com ([104.47.40.42]:11680
-        "EHLO NAM03-CO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1754944AbdDABc2 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 31 Mar 2017 21:32:28 -0400
-From: Chris Taylor <ctaylor@pivot3.com>
-Subject: RE: FIO log averaging issue with --write_bw_log and --write_iops_log
- using > 1000 log_avg_msec values
-Date: Sat, 1 Apr 2017 01:32:25 +0000
-Message-ID: <CY4PR10MB14942012DEB923224A03FAE28C360@CY4PR10MB1494.namprd10.prod.outlook.com>
+Received: from mail-vk0-f44.google.com ([209.85.213.44]:36565 "EHLO
+        mail-vk0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751347AbdCaGfK (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 31 Mar 2017 02:35:10 -0400
+Received: by mail-vk0-f44.google.com with SMTP id s68so80299610vke.3
+        for <fio@vger.kernel.org>; Thu, 30 Mar 2017 23:35:09 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CY4PR10MB1494E32B79F27E052200698F8C280@CY4PR10MB1494.namprd10.prod.outlook.com>
 References: <CY4PR10MB1494804E84709ACA355AE6AE8C530@CY4PR10MB1494.namprd10.prod.outlook.com>
  <CALjAwxjoaJpLoFxW9YO2C=RSnzbZK_pm9QadRJzLcJbBKkUkmA@mail.gmail.com>
  <CY4PR10MB1494958C30757B38661B3B4F8C560@CY4PR10MB1494.namprd10.prod.outlook.com>
- <CALjAwxhvLBAaYyJk9hTfUXVTWfdkHwLJ4-fKPqNOgZYPV7WbFg@mail.gmail.com>
- <CY4PR10MB1494E32B79F27E052200698F8C280@CY4PR10MB1494.namprd10.prod.outlook.com>
- <CALjAwxiwMA89bJHs9-_MN9eNNibJTtPUBqrMCN6LbMD+kF_Ddw@mail.gmail.com>
-In-Reply-To: <CALjAwxiwMA89bJHs9-_MN9eNNibJTtPUBqrMCN6LbMD+kF_Ddw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+ <CALjAwxhvLBAaYyJk9hTfUXVTWfdkHwLJ4-fKPqNOgZYPV7WbFg@mail.gmail.com> <CY4PR10MB1494E32B79F27E052200698F8C280@CY4PR10MB1494.namprd10.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Fri, 31 Mar 2017 07:34:38 +0100
+Message-ID: <CALjAwxiwMA89bJHs9-_MN9eNNibJTtPUBqrMCN6LbMD+kF_Ddw@mail.gmail.com>
+Subject: Re: FIO log averaging issue with --write_bw_log and --write_iops_log
+ using > 1000 log_avg_msec values
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Chris Taylor <ctaylor@pivot3.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-SGkgU2l0c29mZSwNClllcywgdGhhdCBpcyBjb3JyZWN0Lg0KDQoNCi0tLS0tT3JpZ2luYWwgTWVz
-c2FnZS0tLS0tDQpGcm9tOiBTaXRzb2ZlIFdoZWVsZXIgW21haWx0bzpzaXRzb2ZlQGdtYWlsLmNv
-bV0gDQpTZW50OiBGcmlkYXksIE1hcmNoIDMxLCAyMDE3IDEyOjM1IEFNDQpUbzogQ2hyaXMgVGF5
-bG9yIDxjdGF5bG9yQHBpdm90My5jb20+DQpDYzogZmlvQHZnZXIua2VybmVsLm9yZw0KU3ViamVj
-dDogUmU6IEZJTyBsb2cgYXZlcmFnaW5nIGlzc3VlIHdpdGggLS13cml0ZV9id19sb2cgYW5kIC0t
-d3JpdGVfaW9wc19sb2cgdXNpbmcgPiAxMDAwIGxvZ19hdmdfbXNlYyB2YWx1ZXMNCg0KSGkgQ2hy
-aXMsDQoNClNvcnJ5IGZvciB0aGUgc2xvdyByZXBseS4gU28gdGhpcyBjaGFuZ2UgaXMgdG8gZGVh
-bCB3aXRoIHRoZSBjYXNlIHdoZXJlIHRoZSB0aW1lIGJlaW5nIGFkZGVkIGlzIHR3byBtb3JlIHNl
-Y29uZHMgaW4gc2l6ZT8NCg0KT24gMiBNYXJjaCAyMDE3IGF0IDIxOjUyLCBDaHJpcyBUYXlsb3Ig
-PGN0YXlsb3JAcGl2b3QzLmNvbT4gd3JvdGU6DQo+IEhpLA0KPiBJIGFtIGxlc3MgY29uY2VybmVk
-IGFib3V0IGFueSBwb3NzaWJsZSB0aW1pbmcgaXNzdWVzIGFzIHRoZXkgYXJlIHByb2JhYmx5IG1p
-bmlzY3VsZSBhbmQgSSBjYW4ndCB0aGluayBvZiB0aGUgc2NlbmFyaW8gd2hlcmUgaXQgd291bGQg
-YmUgYSBwcm9ibGVtIGFuZCBjYXVzZSBsZXNzIGFjY3VyYXRlIHJlc3VsdHMgdG8gcmVhbGx5IGJl
-IGNvbmNlcm5lZCBhYm91dC4NCj4gVGVzdHMgcHJldHR5IG11Y2ggcHJvdmUgd2UgYXJlIGdldHRp
-bmcgY2xvc2UgdG8gd2hhdCB3ZSBleHBlY3Q6DQo+IGZpbyAtLWV0YT1uZXZlciAtLWlvZW5naW5l
-PWxpYmFpbyAtLXJlYWR3cml0ZT13cml0ZSAtLXRpbWVfYmFzZWQ9MSANCj4gLS1ydW50aW1lPTYw
-IC0tZmlsZW5hbWU9L3RtcC9maW8gLS1zaXplPTFNIC0tZGlyZWN0PTEgLS1uYW1lPXRlc3QgDQo+
-IC0td3JpdGVfaW9wc19sb2c9L3RtcC90ZXN0IC0tbG9nX2F2Z19tc2VjPTU1MDAgLS1sb2dfdW5p
-eF9lcG9jaD0xIA0KPiAxNDg4NDg5MTM3NjMyLCA2NDEzLCAxLCAwIDE0ODg0ODkxNDMxMzEsIDU1
-MDMsIDEsIDAgMTQ4ODQ4OTE0ODYzMSwgDQo+IDU1ODUsIDEsIDAgMTQ4ODQ4OTE1NDEzMSwgNTg4
-MywgMSwgMCAxNDg4NDg5MTU5NjMxLCA1NzI2LCAxLCAwIA0KPiAxNDg4NDg5MTY1MTMxLCA1MzMx
-LCAxLCAwIDE0ODg0ODkxNzA2MzEsIDU3NzIsIDEsIDAgMTQ4ODQ4OTE3NjEzMSwgDQo+IDU2NjEs
-IDEsIDAgMTQ4ODQ4OTE4MTYzMSwgNTk3MCwgMSwgMCAxNDg4NDg5MTg3MTMxLCA1Nzc2LCAxLCAw
-IFs1NDk5LCANCj4gNTUwMCwgNTUwMCwgNTUwMCwgNTUwMCwgNTUwMCwgNTUwMCwgNTUwMCwgNTUw
-MF0NCj4NCj4gSG93ZXZlciwgdGhlIHByb2JsZW0gc3RpbGwgZXhpc3RzIHdoZXJlIGluIHRpbWV2
-YWxfYWRkX21zZWMgZ2V0cyBhIA0KPiB2YWx1ZSBncmVhdGVyIHRoYW4gMTAwMCBtc2VjcyB0aGUg
-dHYtPnR2X3VzZWMgaXQgd2lsbCBncm93IGJleW9uZCANCj4gdXNlY3MgKDEwMDAwMDApIGFuZCBj
-YXVzZXMgdW5leHBlY3RlZCBiZWhhdmlvci4gIFBvc3NpYmx5IHRoaXMgaXMgdGhlIA0KPiBiZXR0
-ZXIgZml4IHRvIGF2b2lkIG90aGVyIGNhbGxlcnMgaGF2aW5nIHRvIGFkanVzdCBmb3IgIHRoZSBv
-dmVyZmxvdyANCj4gaW4gdGltZXZhbF9hZGRfbXNlY3M/XCBkaWZmIC0tZ2l0IGEvdGltZS5jIGIv
-dGltZS5jIGluZGV4IA0KPiBmNWRjMDQ5Li5hMzE4YWQ1IDEwMDY0NA0KPiAtLS0gYS90aW1lLmMN
-Cj4gKysrIGIvdGltZS5jDQo+IEBAIC05LDEwICs5LDkgQEAgc3RhdGljIHVuc2lnbmVkIGxvbmcg
-bnNfZ3JhbnVsYXJpdHk7ICB2b2lkIA0KPiB0aW1ldmFsX2FkZF9tc2VjKHN0cnVjdCB0aW1ldmFs
-ICp0diwgdW5zaWduZWQgaW50IG1zZWMpICB7DQo+ICAgICAgICAgdHYtPnR2X3VzZWMgKz0gMTAw
-MCAqIG1zZWM7DQo+IC0gICAgICAgaWYgKHR2LT50dl91c2VjID49IDEwMDAwMDApIHsNCj4gLSAg
-ICAgICAgICAgICAgIHR2LT50dl91c2VjIC09IDEwMDAwMDA7DQo+IC0gICAgICAgICAgICAgICB0
-di0+dHZfc2VjKys7DQo+IC0gICAgICAgfQ0KPiArICAgIHR2LT50dl9zZWMgKz0gdHYtPnR2X3Vz
-ZWMgLyAxMDAwMDAwOw0KPiArICAgIHR2LT50dl91c2VjICU9IDEwMDAwMDA7DQo+ICsNCj4gIH0N
-Cj4NCj4gIC8qDQo+IFJ1bm5pbmcgdGhlIHNhbWUgam9iIGFzIGFib3ZlIHdpdGggdGhlIGNoYW5n
-ZToNCj4gMTQ4ODQ4OTc2MzA5OSwgNTc3MywgMSwgMA0KPiAxNDg4NDg5NzY4NTk5LCA1ODUyLCAx
-LCAwDQo+IDE0ODg0ODk3NzQwOTksIDU2NTQsIDEsIDANCj4gMTQ4ODQ4OTc3OTU5OSwgNTQ4Miwg
-MSwgMA0KPiAxNDg4NDg5Nzg1MDk5LCA1NjUwLCAxLCAwDQo+IDE0ODg0ODk3OTA1OTksIDU3NTIs
-IDEsIDANCj4gMTQ4ODQ4OTc5NjA5OSwgNTM5MCwgMSwgMA0KPiAxNDg4NDg5ODAxNTk5LCA1NzQ2
-LCAxLCAwDQo+IDE0ODg0ODk4MDcwOTksIDU2MTAsIDEsIDANCj4gMTQ4ODQ4OTgxMjU5OSwgNTM2
-MSwgMSwgMA0KPiBbNTUwMCwgNTUwMCwgNTUwMCwgNTUwMCwgNTUwMCwgNTUwMCwgNTUwMCwgNTUw
-MCwgNTUwMF0NCj4NCj4gVGhhbmtzLA0KPiBDaHJpcw0KPg0KPiAtLS0tLU9yaWdpbmFsIE1lc3Nh
-Z2UtLS0tLQ0KPiBGcm9tOiBTaXRzb2ZlIFdoZWVsZXIgW21haWx0bzpzaXRzb2ZlQGdtYWlsLmNv
-bV0NCj4gU2VudDogVHVlc2RheSwgRmVicnVhcnkgMjgsIDIwMTcgMTE6NTAgQU0NCj4gVG86IENo
-cmlzIFRheWxvciA8Y3RheWxvckBwaXZvdDMuY29tPg0KPiBDYzogZmlvQHZnZXIua2VybmVsLm9y
-Zw0KPiBTdWJqZWN0OiBSZTogRklPIGxvZyBhdmVyYWdpbmcgaXNzdWUgd2l0aCAtLXdyaXRlX2J3
-X2xvZyBhbmQgDQo+IC0td3JpdGVfaW9wc19sb2cgdXNpbmcgPiAxMDAwIGxvZ19hdmdfbXNlYyB2
-YWx1ZXMNCj4NCj4gSGksDQo+DQo+IFJlIHRpbWluZyBpc3N1ZXM6IGRvIHlvdSBtZWFuIGJlY2F1
-c2Ugb2YgdXNlYyAvPSAxMDAwOyBvbiBsaW5lIDQyOD8gQXMgbXRpbWVfc2luY2UoKSByZXR1cm5z
-IG1pbGxpc2Vjb25kcyBpdCB3b3VsZCBtZWFuIGFsbCBmcmFjdGlvbmFsIG1pbGxpc2Vjb25kIGFt
-b3VudHMgd291bGQgYmUgcHVzaGVkIGRvd253YXJkIHNvIHBvdGVudGlhbGx5IHRoaW5ncyBjb3Vs
-ZCBiZSBiZSB1bmRlciBieSBhIG1pbGxpc2Vjb25kLiBJZiB0aGF0J3Mgd2hhdCB5b3UncmUgdGhp
-bmtpbmcgb2YgSSBndWVzcyBob3cgYmFkIHRoYXQgaXMgZGVwZW5kcyBvbiBob3cgbXVjaCBhY2N1
-cmFjeSB5b3UgbmVlZCBhbmQgaG93IG11Y2ggaml0dGVyIHRoZXJlIGlzIHdpdGhpbiB0aGUgc3lz
-dGVtIGFscmVhZHkuIFBlcmhhcHMgeW91IGNhbiBkZW1vbnN0cmF0ZSBhIHByb2JsZW0gc2NlbmFy
-aW8gc28gZm9sa3MgbnVtZXJhdGUgdGhhbiBJIHdpbGwgc2VlIHRoZSBwcm9ibGVtIHRvby4uLg0K
-Pg0KPiBSZSByb3VuZGluZyBwcm9ibGVtIC0gZmFpciBlbm91Z2guDQo+DQo+IE9uIDI4IEZlYnJ1
-YXJ5IDIwMTcgYXQgMDA6NDcsIENocmlzIFRheWxvciA8Y3RheWxvckBwaXZvdDMuY29tPiB3cm90
-ZToNCj4+IEhpIFNpdHNvZmUsDQo+PiBMb29rcyBsaWtlIHRoaXMgaXMgaGFuZGxlZCBpbiBjb21t
-aXQgYmU2YmIyYjcyNjA4ZDdlZmJlYzEzZDA2YzY3NDQ2ZTIyOTEzNmFmYS4NCj4+IEkgYW0gbm8g
-bG9uZ2VyIGFibGUgdG8gcmVwcm9kdWNlIHRoZSBpc3N1ZSB3aXRoIGxhdGVzdCB2ZXJzaW9uIG9m
-IEZJTyAyLjE3LCB3aXRoIHRoYXQgY2hhbmdlIGFzIHVzZWNzIHdpbGwgbm93IGJlIDAuICBDb3Vs
-ZCB0aGlzIHBvdGVudGlhbGx5IGNhdXNlIHNvbWUgdGltaW5nIGlzc3Vlcz8NCj4+DQo+PiBQcmlv
-ciB0byB0aGF0IGNvbW1pdC4uLg0KPj4gVGhlIGpvYiBiZWxvdyB3b3VsZCByZXN1bHQgaW4gYndf
-bG9ncyBhbmQgaW9wc19sb2cgdGhhdCBoYXZlIHNrZXdlZCANCj4+IHJlc3VsdHMgYm90aCB0aGUg
-YWRkX2lvcHNfc2FtcGxlcyBhbmQgYWRkX2J3X3NhbXBsZXMgbWFrZXMgYSBjYWxsIHRvIA0KPj4g
-bXRpbWVfc2luY2Ugd2l0aCBzdGFydCB0aW1lIGFzIHRoZSBfc2FtcGxlX3RpbWUNCj4+IC4vc3Rh
-dC5jOjI0MzU6ICBzcGVudCA9IG10aW1lX3NpbmNlKCZ0ZC0+Yndfc2FtcGxlX3RpbWUsIHQpDQo+
-PiAuL3N0YXQuYzoyNTEwOiAgc3BlbnQgPSBtdGltZV9zaW5jZSgmdGQtPmlvcHNfc2FtcGxlX3Rp
-bWUsIHQpOw0KPj4NCj4+IC4vc3RhdC5jOjI0NzM6ICB0aW1ldmFsX2FkZF9tc2VjKCZ0ZC0+Yndf
-c2FtcGxlX3RpbWUsDQo+PiB0ZC0+by5id19hdmdfdGltZSk7DQo+PiAuL3N0YXQuYzoyNTQ4OiAg
-dGltZXZhbF9hZGRfbXNlYygmdGQtPmlvcHNfc2FtcGxlX3RpbWUsDQo+PiB0ZC0+by5pb3BzX2F2
-Z190aW1lKTsNCj4+DQo+PiBzdGF0LmM6MjQ4MDoyNzogcnVudGltZSBlcnJvcjogdW5zaWduZWQg
-aW50ZWdlciBvdmVyZmxvdzogMjAwMCAtIDE4NDQ2NzQ0MDczNzA4NDQ5IGNhbm5vdCBiZSByZXBy
-ZXNlbnRlZCBpbiB0eXBlICd1bnNpZ25lZCBsb25nJw0KPj4gc3RhdC5jOjI1NTU6Mjk6IHJ1bnRp
-bWUgZXJyb3I6IHVuc2lnbmVkIGludGVnZXIgb3ZlcmZsb3c6IDIwMDAgLSAxODQ0Njc0NDA3Mzcw
-ODQ0OSBjYW5ub3QgYmUgcmVwcmVzZW50ZWQgaW4gdHlwZSAndW5zaWduZWQgbG9uZycNCj4+DQo+
-PiBUaGUgb3ZlcmZsb3cgYXQgc3RhdC5jOjIyNjUgaXMgYSBkaWZmZXJlbnQgaXNzdWUgcG9zc2li
-bHkgYSByb3VuZGluZyBwcm9ibGVtIHdpdGggbXNlYyBhbmQgdXNlY3MuDQo+DQo+IC0tDQo+IFNp
-dHNvZmUgfCBodHRwOi8vc3Vjcy5vcmcvfnNpdHMvDQo+DQo+IE9uIDI4IEZlYnJ1YXJ5IDIwMTcg
-YXQgMDA6NDcsIENocmlzIFRheWxvciA8Y3RheWxvckBwaXZvdDMuY29tPiB3cm90ZToNCj4+IEhp
-IFNpdHNvZmUsDQo+PiBMb29rcyBsaWtlIHRoaXMgaXMgaGFuZGxlZCBpbiBjb21taXQgYmU2YmIy
-YjcyNjA4ZDdlZmJlYzEzZDA2YzY3NDQ2ZTIyOTEzNmFmYS4NCj4+IEkgYW0gbm8gbG9uZ2VyIGFi
-bGUgdG8gcmVwcm9kdWNlIHRoZSBpc3N1ZSB3aXRoIGxhdGVzdCB2ZXJzaW9uIG9mIEZJTyAyLjE3
-LCB3aXRoIHRoYXQgY2hhbmdlIGFzIHVzZWNzIHdpbGwgbm93IGJlIDAuICBDb3VsZCB0aGlzIHBv
-dGVudGlhbGx5IGNhdXNlIHNvbWUgdGltaW5nIGlzc3Vlcz8NCj4+DQo+PiBQcmlvciB0byB0aGF0
-IGNvbW1pdC4uLg0KPj4gVGhlIGpvYiBiZWxvdyB3b3VsZCByZXN1bHQgaW4gYndfbG9ncyBhbmQg
-aW9wc19sb2cgdGhhdCBoYXZlIHNrZXdlZCANCj4+IHJlc3VsdHMgYm90aCB0aGUgYWRkX2lvcHNf
-c2FtcGxlcyBhbmQgYWRkX2J3X3NhbXBsZXMgbWFrZXMgYSBjYWxsIHRvIA0KPj4gbXRpbWVfc2lu
-Y2Ugd2l0aCBzdGFydCB0aW1lIGFzIHRoZSBfc2FtcGxlX3RpbWUNCj4+IC4vc3RhdC5jOjI0MzU6
-ICBzcGVudCA9IG10aW1lX3NpbmNlKCZ0ZC0+Yndfc2FtcGxlX3RpbWUsIHQpDQo+PiAuL3N0YXQu
-YzoyNTEwOiAgc3BlbnQgPSBtdGltZV9zaW5jZSgmdGQtPmlvcHNfc2FtcGxlX3RpbWUsIHQpOw0K
-Pj4NCj4+IC4vc3RhdC5jOjI0NzM6ICB0aW1ldmFsX2FkZF9tc2VjKCZ0ZC0+Yndfc2FtcGxlX3Rp
-bWUsDQo+PiB0ZC0+by5id19hdmdfdGltZSk7DQo+PiAuL3N0YXQuYzoyNTQ4OiAgdGltZXZhbF9h
-ZGRfbXNlYygmdGQtPmlvcHNfc2FtcGxlX3RpbWUsDQo+PiB0ZC0+by5pb3BzX2F2Z190aW1lKTsN
-Cj4+DQo+PiBzdGF0LmM6MjQ4MDoyNzogcnVudGltZSBlcnJvcjogdW5zaWduZWQgaW50ZWdlciBv
-dmVyZmxvdzogMjAwMCAtIDE4NDQ2NzQ0MDczNzA4NDQ5IGNhbm5vdCBiZSByZXByZXNlbnRlZCBp
-biB0eXBlICd1bnNpZ25lZCBsb25nJw0KPj4gc3RhdC5jOjI1NTU6Mjk6IHJ1bnRpbWUgZXJyb3I6
-IHVuc2lnbmVkIGludGVnZXIgb3ZlcmZsb3c6IDIwMDAgLSAxODQ0Njc0NDA3MzcwODQ0OSBjYW5u
-b3QgYmUgcmVwcmVzZW50ZWQgaW4gdHlwZSAndW5zaWduZWQgbG9uZycNCj4+DQo+PiBUaGUgb3Zl
-cmZsb3cgYXQgc3RhdC5jOjIyNjUgaXMgYSBkaWZmZXJlbnQgaXNzdWUgcG9zc2libHkgYSByb3Vu
-ZGluZyBwcm9ibGVtIHdpdGggbXNlYyBhbmQgdXNlY3MuDQo+Pg0KPj4NCj4+IFRoYW5rcywNCj4+
-IENocmlzDQo+Pg0KPj4gT24gMjMgRmVicnVhcnkgMjAxNyBhdCAyMDo1NSwgQ2hyaXMgVGF5bG9y
-IDxjdGF5bG9yQHBpdm90My5jb20+IHdyb3RlOg0KPj4+IFRoZXJlIGlzIGFuIGlzc3VlIGluIEZJ
-TyB3aGVuIHVzaW5nIHRoZSBkZXRhaWxlZCBiYW5kd2lkdGggYW5kIGlvcHMgbG9nZ2luZyB3aXRo
-IGF2ZXJhZ2luZyBvdmVyIGEgcGVyaW9kIG9mIHRpbWUgPiAxIHNlY29uZC4NCj4+PiBJdCBzZWVt
-cyB0aGF0IHVzZWNzIG92ZXJmbG93cyB3aGljaCBsYXRlciBjYXVzZXMgbmVnYXRpdmUgdGltZSBk
-aWZmIHZhbHVlcyByZXN1bHRpbmcgaW4gc2tld2VkIHRvd2FyZCAwIHJlc3VsdHMuDQo+Pj4gSSBo
-YXZlIGF0dGFjaGVkIGEgcG90ZW50aWFsIGZpeCB0aGF0IHNob3VsZCBwcmV2ZW50IHVzZWNzIGZy
-b20gZ29pbmcgYmV5b25kIDEwMDAwMDAuDQo+Pg0KPj4gSXMgdGhpcyBwcm9ibGVtIHNob3duIGJ5
-IHRoZSBmb2xsb3dpbmcgam9iOg0KPj4NCj4+IC4vZmlvIC0taW9lbmdpbmU9bnVsbCAtLXdyaXRl
-X2J3X2xvZz0vZGV2L251bGwgLS1sb2dfYXZnX21zZWM9MjAwMCANCj4+IC0tc2l6ZT0xMDBNIC0t
-cnVudGltZT0xMHMgLS10aW1lX2Jhc2VkIC0tbmFtZT1vdmVyZmxvdw0KPj4NCj4+IEFtb25nIENs
-YW5nJ3MgdW5kZWZpbmVkIGJlaGF2aW91ciBzYW5pdGl6ZXIgb3V0cHV0IHdhcyB0aGlzIGZvciB0
-aGUgYWJvdmU6DQo+PiBzdGF0LmM6MjI2NTo0MzogcnVudGltZSBlcnJvcjogdW5zaWduZWQgaW50
-ZWdlciBvdmVyZmxvdzogMTk5OSAtIDIwMDAgY2Fubm90IGJlIHJlcHJlc2VudGVkIGluIHR5cGUg
-J3Vuc2lnbmVkIGxvbmcnDQo+PiBzdGF0LmM6MjI2NToyODogcnVudGltZSBlcnJvcjogdW5zaWdu
-ZWQgaW50ZWdlciBvdmVyZmxvdzogMzk5OSAtDQo+PiA0Mjk0OTY3Mjk1IGNhbm5vdCBiZSByZXBy
-ZXNlbnRlZCBpbiB0eXBlICd1bnNpZ25lZCBsb25nJw0KPj4NCj4+PiBkaWZmIC0tZ2l0IGEvdGlt
-ZS5jIGIvdGltZS5jDQo+Pj4gaW5kZXggZjVkYzA0OS4uYzc0OGJlZSAxMDA2NDQNCj4+PiAtLS0g
-YS90aW1lLmMNCj4+PiArKysgYi90aW1lLmMNCj4+PiBAQCAtOCwxMSArOCwxOCBAQCBzdGF0aWMg
-dW5zaWduZWQgbG9uZyBuc19ncmFudWxhcml0eTsNCj4+Pg0KPj4+IHZvaWQgdGltZXZhbF9hZGRf
-bXNlYyhzdHJ1Y3QgdGltZXZhbCAqdHYsIHVuc2lnbmVkIGludCBtc2VjKSB7DQo+Pj4gLSAgICAg
-ICB0di0+dHZfdXNlYyArPSAxMDAwICogbXNlYzsNCj4+PiAtICAgICAgIGlmICh0di0+dHZfdXNl
-YyA+PSAxMDAwMDAwKSB7DQo+Pj4gLSAgICAgICAgICAgICAgIHR2LT50dl91c2VjIC09IDEwMDAw
-MDA7DQo+Pj4gLSAgICAgICAgICAgICAgIHR2LT50dl9zZWMrKzsNCj4+PiAtICAgICAgIH0NCj4+
-PiArICAgICAgIGludCBhZGpfdXNlYyA9IDEwMDAgKiBtc2VjOw0KPj4+ICsgICAgICAgaW50IGFk
-al9zZWMgPSAwOw0KPj4+ICsgICAgICAgdHYtPnR2X3VzZWMgKz0gIGFkal91c2VjOw0KPj4+ICsg
-ICAgICAgaWYgKGFkal91c2VjID49IDEwMDAwMDApIHsNCj4+PiArICAgICAgICAgICAgICAgYWRq
-X3NlYyA9IGFkal91c2VjIC8gMTAwMDAwMDsNCj4+PiArICAgICAgICAgICAgICAgdHYtPnR2X3Vz
-ZWMgLT0gIGFkal9zZWMgKiAxMDAwMDAwOw0KPj4+ICsgICAgICAgICAgICAgICB0di0+dHZfc2Vj
-ICs9IGFkal9zZWM7DQo+Pj4gKyAgICB9DQo+Pj4gKyAgICBpZiAodHYtPnR2X3VzZWMgPj0gMTAw
-MDAwMCl7DQo+Pj4gKyAgICAgICAgICAgIHR2LT50dl91c2VjIC09IDEwMDAwMDA7DQo+Pj4gKyAg
-ICAgICAgICAgIHR2LT50dl9zZWMrKzsNCj4+PiArICAgIH0NCj4+PiB9DQo+Pg0KPj4gSXMgaXQg
-c3RpbGwgc2FmZSB0byB1c2UgaW50IGlmIHlvdSdyZSB0YXJnZXRpbmcgYSAzMiBiaXQgcGxhdGZv
-cm0/DQo+PiAtLQ0KPj4gU2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9yZy9+c2l0cy8NCj4NCj4NCj4N
-Cj4gLS0NCj4gU2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9yZy9+c2l0cy8NCg0KDQoNCi0tDQpTaXRz
-b2ZlIHwgaHR0cDovL3N1Y3Mub3JnL35zaXRzLw0K
+Hi Chris,
+
+Sorry for the slow reply. So this change is to deal with the case
+where the time being added is two more seconds in size?
+
+On 2 March 2017 at 21:52, Chris Taylor <ctaylor@pivot3.com> wrote:
+> Hi,
+> I am less concerned about any possible timing issues as they are probably=
+ miniscule and I can't think of the scenario where it would be a problem an=
+d cause less accurate results to really be concerned about.
+> Tests pretty much prove we are getting close to what we expect:
+> fio --eta=3Dnever --ioengine=3Dlibaio --readwrite=3Dwrite --time_based=3D=
+1 --runtime=3D60 --filename=3D/tmp/fio --size=3D1M --direct=3D1 --name=3Dte=
+st --write_iops_log=3D/tmp/test --log_avg_msec=3D5500 --log_unix_epoch=3D1
+> 1488489137632, 6413, 1, 0
+> 1488489143131, 5503, 1, 0
+> 1488489148631, 5585, 1, 0
+> 1488489154131, 5883, 1, 0
+> 1488489159631, 5726, 1, 0
+> 1488489165131, 5331, 1, 0
+> 1488489170631, 5772, 1, 0
+> 1488489176131, 5661, 1, 0
+> 1488489181631, 5970, 1, 0
+> 1488489187131, 5776, 1, 0
+> [5499, 5500, 5500, 5500, 5500, 5500, 5500, 5500, 5500]
+>
+> However, the problem still exists where in timeval_add_msec gets a value =
+greater than 1000 msecs the tv->tv_usec it will grow beyond usecs (1000000)=
+ and causes unexpected behavior.  Possibly this is the better fix to avoid =
+other callers having to adjust for  the overflow in timeval_add_msecs?\
+> diff --git a/time.c b/time.c
+> index f5dc049..a318ad5 100644
+> --- a/time.c
+> +++ b/time.c
+> @@ -9,10 +9,9 @@ static unsigned long ns_granularity;
+>  void timeval_add_msec(struct timeval *tv, unsigned int msec)
+>  {
+>         tv->tv_usec +=3D 1000 * msec;
+> -       if (tv->tv_usec >=3D 1000000) {
+> -               tv->tv_usec -=3D 1000000;
+> -               tv->tv_sec++;
+> -       }
+> +    tv->tv_sec +=3D tv->tv_usec / 1000000;
+> +    tv->tv_usec %=3D 1000000;
+> +
+>  }
+>
+>  /*
+> Running the same job as above with the change:
+> 1488489763099, 5773, 1, 0
+> 1488489768599, 5852, 1, 0
+> 1488489774099, 5654, 1, 0
+> 1488489779599, 5482, 1, 0
+> 1488489785099, 5650, 1, 0
+> 1488489790599, 5752, 1, 0
+> 1488489796099, 5390, 1, 0
+> 1488489801599, 5746, 1, 0
+> 1488489807099, 5610, 1, 0
+> 1488489812599, 5361, 1, 0
+> [5500, 5500, 5500, 5500, 5500, 5500, 5500, 5500, 5500]
+>
+> Thanks,
+> Chris
+>
+> -----Original Message-----
+> From: Sitsofe Wheeler [mailto:sitsofe@gmail.com]
+> Sent: Tuesday, February 28, 2017 11:50 AM
+> To: Chris Taylor <ctaylor@pivot3.com>
+> Cc: fio@vger.kernel.org
+> Subject: Re: FIO log averaging issue with --write_bw_log and --write_iops=
+_log using > 1000 log_avg_msec values
+>
+> Hi,
+>
+> Re timing issues: do you mean because of usec /=3D 1000; on line 428? As =
+mtime_since() returns milliseconds it would mean all fractional millisecond=
+ amounts would be pushed downward so potentially things could be be under b=
+y a millisecond. If that's what you're thinking of I guess how bad that is =
+depends on how much accuracy you need and how much jitter there is within t=
+he system already. Perhaps you can demonstrate a problem scenario so folks =
+numerate than I will see the problem too...
+>
+> Re rounding problem - fair enough.
+>
+> On 28 February 2017 at 00:47, Chris Taylor <ctaylor@pivot3.com> wrote:
+>> Hi Sitsofe,
+>> Looks like this is handled in commit be6bb2b72608d7efbec13d06c67446e2291=
+36afa.
+>> I am no longer able to reproduce the issue with latest version of FIO 2.=
+17, with that change as usecs will now be 0.  Could this potentially cause =
+some timing issues?
+>>
+>> Prior to that commit...
+>> The job below would result in bw_logs and iops_log that have skewed
+>> results both the add_iops_samples and add_bw_samples makes a call to
+>> mtime_since with start time as the _sample_time
+>> ./stat.c:2435:  spent =3D mtime_since(&td->bw_sample_time, t)
+>> ./stat.c:2510:  spent =3D mtime_since(&td->iops_sample_time, t);
+>>
+>> ./stat.c:2473:  timeval_add_msec(&td->bw_sample_time,
+>> td->o.bw_avg_time);
+>> ./stat.c:2548:  timeval_add_msec(&td->iops_sample_time,
+>> td->o.iops_avg_time);
+>>
+>> stat.c:2480:27: runtime error: unsigned integer overflow: 2000 - 1844674=
+4073708449 cannot be represented in type 'unsigned long'
+>> stat.c:2555:29: runtime error: unsigned integer overflow: 2000 - 1844674=
+4073708449 cannot be represented in type 'unsigned long'
+>>
+>> The overflow at stat.c:2265 is a different issue possibly a rounding pro=
+blem with msec and usecs.
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
+>
+> On 28 February 2017 at 00:47, Chris Taylor <ctaylor@pivot3.com> wrote:
+>> Hi Sitsofe,
+>> Looks like this is handled in commit be6bb2b72608d7efbec13d06c67446e2291=
+36afa.
+>> I am no longer able to reproduce the issue with latest version of FIO 2.=
+17, with that change as usecs will now be 0.  Could this potentially cause =
+some timing issues?
+>>
+>> Prior to that commit...
+>> The job below would result in bw_logs and iops_log that have skewed
+>> results both the add_iops_samples and add_bw_samples makes a call to
+>> mtime_since with start time as the _sample_time
+>> ./stat.c:2435:  spent =3D mtime_since(&td->bw_sample_time, t)
+>> ./stat.c:2510:  spent =3D mtime_since(&td->iops_sample_time, t);
+>>
+>> ./stat.c:2473:  timeval_add_msec(&td->bw_sample_time,
+>> td->o.bw_avg_time);
+>> ./stat.c:2548:  timeval_add_msec(&td->iops_sample_time,
+>> td->o.iops_avg_time);
+>>
+>> stat.c:2480:27: runtime error: unsigned integer overflow: 2000 - 1844674=
+4073708449 cannot be represented in type 'unsigned long'
+>> stat.c:2555:29: runtime error: unsigned integer overflow: 2000 - 1844674=
+4073708449 cannot be represented in type 'unsigned long'
+>>
+>> The overflow at stat.c:2265 is a different issue possibly a rounding pro=
+blem with msec and usecs.
+>>
+>>
+>> Thanks,
+>> Chris
+>>
+>> On 23 February 2017 at 20:55, Chris Taylor <ctaylor@pivot3.com> wrote:
+>>> There is an issue in FIO when using the detailed bandwidth and iops log=
+ging with averaging over a period of time > 1 second.
+>>> It seems that usecs overflows which later causes negative time diff val=
+ues resulting in skewed toward 0 results.
+>>> I have attached a potential fix that should prevent usecs from going be=
+yond 1000000.
+>>
+>> Is this problem shown by the following job:
+>>
+>> ./fio --ioengine=3Dnull --write_bw_log=3D/dev/null --log_avg_msec=3D2000
+>> --size=3D100M --runtime=3D10s --time_based --name=3Doverflow
+>>
+>> Among Clang's undefined behaviour sanitizer output was this for the abov=
+e:
+>> stat.c:2265:43: runtime error: unsigned integer overflow: 1999 - 2000 ca=
+nnot be represented in type 'unsigned long'
+>> stat.c:2265:28: runtime error: unsigned integer overflow: 3999 -
+>> 4294967295 cannot be represented in type 'unsigned long'
+>>
+>>> diff --git a/time.c b/time.c
+>>> index f5dc049..c748bee 100644
+>>> --- a/time.c
+>>> +++ b/time.c
+>>> @@ -8,11 +8,18 @@ static unsigned long ns_granularity;
+>>>
+>>> void timeval_add_msec(struct timeval *tv, unsigned int msec) {
+>>> -       tv->tv_usec +=3D 1000 * msec;
+>>> -       if (tv->tv_usec >=3D 1000000) {
+>>> -               tv->tv_usec -=3D 1000000;
+>>> -               tv->tv_sec++;
+>>> -       }
+>>> +       int adj_usec =3D 1000 * msec;
+>>> +       int adj_sec =3D 0;
+>>> +       tv->tv_usec +=3D  adj_usec;
+>>> +       if (adj_usec >=3D 1000000) {
+>>> +               adj_sec =3D adj_usec / 1000000;
+>>> +               tv->tv_usec -=3D  adj_sec * 1000000;
+>>> +               tv->tv_sec +=3D adj_sec;
+>>> +    }
+>>> +    if (tv->tv_usec >=3D 1000000){
+>>> +            tv->tv_usec -=3D 1000000;
+>>> +            tv->tv_sec++;
+>>> +    }
+>>> }
+>>
+>> Is it still safe to use int if you're targeting a 32 bit platform?
+>> --
+>> Sitsofe | http://sucs.org/~sits/
+>
+>
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
+
+
+
+--=20
+Sitsofe | http://sucs.org/~sits/
