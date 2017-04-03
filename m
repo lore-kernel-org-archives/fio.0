@@ -1,63 +1,41 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: Vincent Fu <vincentfu@gmail.com>
-Subject: [PATCH 4/6] stat: reset_io_stats: fix a problem, rearrange some code
-Date: Sun, 16 Apr 2017 15:04:26 -0400
-Message-Id: <1492369468-29448-4-git-send-email-vincentfu@gmail.com>
-In-Reply-To: <1492369468-29448-1-git-send-email-vincentfu@gmail.com>
-References: <1492369468-29448-1-git-send-email-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <Vincent.Fu@sandisk.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-vk0-f44.google.com ([209.85.213.44]:36214 "EHLO
+        mail-vk0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752490AbdDCSHh (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 3 Apr 2017 14:07:37 -0400
+Received: by mail-vk0-f44.google.com with SMTP id s68so148265837vke.3
+        for <fio@vger.kernel.org>; Mon, 03 Apr 2017 11:07:37 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <6929A3FC-5D4B-4121-BC36-5E83B563CCC7@cisco.com>
+References: <CA74E5D5-1CEF-4605-BE90-809B55465C79@cisco.com> <6929A3FC-5D4B-4121-BC36-5E83B563CCC7@cisco.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Mon, 3 Apr 2017 19:07:01 +0100
+Message-ID: <CALjAwxidLY8Tm85P9yvUtuXwetNrr8pANz-bQab+_wNknraU5A@mail.gmail.com>
+Subject: Re: fio seems to calls functions which are not defined
+ (ffio_file_open, io_file_done, ...)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "Scott Forman (scforman)" <scforman@cisco.com>
+Cc: "andrey.v.kuzmin@gmail.com" <andrey.v.kuzmin@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Vincent Fu <Vincent.Fu@sandisk.com>
+Hi,
 
-1) Make sure all the io_u_lat_u/m are reset
-2) Only need to zero out total_submit/complete once
-3) Reset total/short/drop_io_u inside the other loop that iterates over data directions
----
- stat.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+On 2 April 2017 at 23:11, Scott Forman (scforman) <scforman@cisco.com> wrot=
+e:
+>
+> I see there are a number of functions that are called, but I cannot find =
+where they are defined.  Some of the functions are:
+> =C2=B7         fio_file_open
+> =C2=B7         fio_file_done
+> =C2=B7         fio_file_closing
+> =C2=B7         fio_file_axmap
+>
+> Can you point me to where these functions are defined?
 
-diff --git a/stat.c b/stat.c
-index 4a6e1b9..5061bea 100644
---- a/stat.c
-+++ b/stat.c
-@@ -2171,6 +2171,9 @@ void reset_io_stats(struct thread_data *td)
- 
- 		ts->io_bytes[i] = 0;
- 		ts->runtime[i] = 0;
-+		ts->total_io_u[i] = 0;
-+		ts->short_io_u[i] = 0;
-+		ts->drop_io_u[i] = 0;
- 
- 		for (j = 0; j < FIO_IO_U_PLAT_NR; j++)
- 			ts->io_u_plat[i][j] = 0;
-@@ -2180,17 +2183,15 @@ void reset_io_stats(struct thread_data *td)
- 		ts->io_u_map[i] = 0;
- 		ts->io_u_submit[i] = 0;
- 		ts->io_u_complete[i] = 0;
-+	}
-+
-+	for (i = 0; i < FIO_IO_U_LAT_U_NR; i++)
- 		ts->io_u_lat_u[i] = 0;
-+	for (i = 0; i < FIO_IO_U_LAT_M_NR; i++)
- 		ts->io_u_lat_m[i] = 0;
--		ts->total_submit = 0;
--		ts->total_complete = 0;
--	}
- 
--	for (i = 0; i < 3; i++) {
--		ts->total_io_u[i] = 0;
--		ts->short_io_u[i] = 0;
--		ts->drop_io_u[i] = 0;
--	}
-+	ts->total_submit = 0;
-+	ts->total_complete = 0;
- }
- 
- static void __add_stat_to_log(struct io_log *iolog, enum fio_ddir ddir,
--- 
-2.7.4
+See file.h (https://github.com/axboe/fio/blob/fio-2.18/file.h#L159 )
+for the FILE_FLAG_FNS macro that builds these functions.
 
-
+--=20
+Sitsofe | http://sucs.org/~sits/
