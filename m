@@ -1,55 +1,66 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from alln-iport-7.cisco.com ([173.37.142.94]:44795 "EHLO
-        alln-iport-7.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752176AbdDDAsK (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 3 Apr 2017 20:48:10 -0400
-From: "Scott Forman (scforman)" <scforman@cisco.com>
-Subject: Error handling in fio_libaio_event()
-Date: Tue, 4 Apr 2017 00:48:08 +0000
-Message-ID: <62746C96-1A2C-4D10-9A5F-ACA6092086CA@cisco.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <79A63072BADAB74AB1A87CEC41C71606@emea.cisco.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+Received: from bombadil.infradead.org ([65.50.211.133]:38268 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751168AbdDCMAG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 3 Apr 2017 08:00:06 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1cv0eU-0005NU-8P
+        for fio@vger.kernel.org; Mon, 03 Apr 2017 12:00:06 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170403120001.A42D82C319A@kernel.dk>
+Date: Mon,  3 Apr 2017 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-SGkgQW5kcmV5LA0KDQpJbiBsb29raW5nIGZ1cnRoZXIgYXQgZmlvX2xpYmFpb19ldmVudCgpLCBJ
-IGFtIHdvbmRlcmluZyBpZiBpdCBpcyBwb3NzaWJsZSB0byBnZXQgdGhlIGVycm5vIHZhbHVlIGlm
-IG9uZSBvZiB0aGUgZXZlbnRzIGhhdmUgYW4gZXJyb3IgKGkuZS4gaWYgZXYtPnJlcyAhPSBpb191
-LT54ZmVyX2J1ZmxlbikuDQoNCkkgc2VlIHRoYXQgaW9fdS0+ZXJyb3IgaXMgc2V0IHRvIOKAk2V2
-LT5yZXMgaWYgZXYtPnJlcyBpcyBncmVhdGVyIHRoYW4gaW9fdS0+eGZlcl9idWZsZW4uICBCdXQg
-c2luY2UgbXkgaW9fdS0+eGZlcl9idWZsZW4gaXMgYSBsYXJnZSB2YWx1ZSwgSSBhbSBndWVzc2lu
-ZyB0aGF0IHRoaXMgaXMgbm90IHRoZSBlcnJubyB2YWx1ZSB0aGF0IGNhdXNlZCB0aGUgZXJyb3Iu
-ICBJcyB0aGF0IHRydWU/DQoJDQpBbHNvLCBpZiBldi0+cmVzIGlzIGxlc3MgdGhhbiBpb191LT54
-ZmVyX2J1ZmxlbiwgdGhlbiBpb191LT5yZXNpZCBpcyBzZXQgdG8gKGlvX3UtPnhmZXJfYnVmbGVu
-IC0gZXYtPnJlcykuICBEb2VzIHRoYXQgbWVhbiB0aGF0IHRoZXJlIHdpbGwgYmUgYW5vdGhlciBh
-dHRlbXB0IHRvIHdyaXRlIG91dCB0aGUgaW9fdS0+cmVzaWQgYnl0ZXM/DQoNCkFnYWluLCB0aGFu
-a3MgdG8geW91IGFuZCB0aGUgb3RoZXJzIG9uIHRoZSBmaW8gbWFpbGluZyBsaXN0IGZvciBhbnkg
-Z3VpZGFuY2UgeW91IGNhbiBnaXZlLg0KDQpTaW5jZXJlbHksDQpTY290dA0KDQoNCkZyb206IEFu
-ZHJleSBLdXptaW4gPGFuZHJleS52Lmt1em1pbkBnbWFpbC5jb20+DQpEYXRlOiBUdWVzZGF5LCBN
-YXJjaCAyOCwgMjAxNyBhdCAxMToyMiBBTQ0KVG86ICJTY290dCBGb3JtYW4gKHNjZm9ybWFuKSIg
-PHNjZm9ybWFuQGNpc2NvLmNvbT4sICJmaW9Admdlci5rZXJuZWwub3JnIiA8ZmlvQHZnZXIua2Vy
-bmVsLm9yZz4NClN1YmplY3Q6IFJlOiBIb3cgZG9lcyBGSU8gZGV0ZWN0IHdyaXRlIGVycm9ycyB3
-aGVuIGlvZW5naW5lIGlzIGxpYmFpbw0KDQoNCk9uIFR1ZSwgTWFyIDI4LCAyMDE3LCAyMToxMyBT
-Y290dCBGb3JtYW4gKHNjZm9ybWFuKSA8c2Nmb3JtYW5AY2lzY28uY29tPiB3cm90ZToNCkhpLA0K
-DQpJIGFtIHRyeWluZyB0byBkZXRlcm1pbmUgaG93IGZpbyBkZXRlY3RzIHdyaXRlIGVycm9ycyB3
-aGVuIHRoZSBpb2VuZ2luZSBpcyBzZXQgdG8gbGliYWlvLg0KDQpGcm9tIGEgY29kZSBleGFtcGxl
-IG9uIHN0YWNrIG92ZXJmbG93LMKgbGludXgta2VybmVsLWFpby1mdW5jdGlvbmFsaXR5LMKgaXQg
-YXBwZWFycyB0aGF0IHRoZXkgY2FuIGJlIGRldGVjdGVkIGJ5IGV4YW1pbmluZyB0aGUgZXZlbnRz
-IHJldHVybmVkIGZyb20gaW9fZ2V0ZXZlbnRzKCkuDQoNCkJ1dCBJIGRvIG5vdCBzZWUgYW55IGNv
-ZGUgaW4gbGliYWlvLmMgdGhhdCBleGFtaW5lcyB0aGUgZXZlbnRzIHJldHVybmVkIGZyb20gaW9f
-Z2V0ZXZlbnRzKCkuDQoNCnN0YXRpYyBzdHJ1Y3QgaW9fdSAqZmlvX2xpYmFpb19ldmVudChzdHJ1
-Y3QgdGhyZWFkX2RhdGEgKnRkLCBpbnQgZXZlbnQpDQp7DQpzdHJ1Y3QgbGliYWlvX2RhdGEgKmxk
-ID0gdGQtPmlvX29wc19kYXRhOw0Kc3RydWN0IGlvX2V2ZW50ICpldjsNCnN0cnVjdCBpb191ICpp
-b191Ow0KDQpldiA9IGxkLT5haW9fZXZlbnRzICsgZXZlbnQ7DQppb191ID0gY29udGFpbmVyX29m
-KGV2LT5vYmosIHN0cnVjdCBpb191LCBpb2NiKTsNCg0KaWYgKGV2LT5yZXMgIT0gaW9fdS0+eGZl
-cl9idWZsZW4pIHsNCmlmIChldi0+cmVzID4gaW9fdS0+eGZlcl9idWZsZW4pDQppb191LT5lcnJv
-ciA9IC1ldi0+cmVzOw0KZWxzZQ0KaW9fdS0+cmVzaWQgPSBpb191LT54ZmVyX2J1ZmxlbiAtIGV2
-LT5yZXM7DQp9IGVsc2UNCmlvX3UtPmVycm9yID0gMDsNClJlZ2FyZHMsDQpBbmRyZXkNCg0KQ2Fu
-IHlvdSB2ZXJpZnkgdGhhdCBmaW8gZG9lcyBjaGVjayBmb3Igd3JpdGUgZXJyb3JzIGZvciBlbmdp
-bmUgbGliYWlvLCBhbmQgaWYgc28sIHdoZXJlIHRoYXQgZXJyb3IgY2hlY2tpbmcgaXMgZG9uZT8N
-Cg0KVGhhbmtzIGluIGFkdmFuY2UhDQoNClNpbmNlcmVseSwNCg0KU2NvdHQgRm9ybWFuDQoNCg0K
-LS0gDQpSZWdhcmRzLA0KQW5kcmV5DQoNCg0KDQoNCg==
+The following changes since commit 618ee94c319c46c670d29c7cf71538ca2ace13b7:
+
+  Separate io_u from ioengine [3/3] - rename ioengine.h to ioengines.h (2017-03-28 15:14:20 -0600)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 249ad5bfaded90c0431041b4a3816e7371c2d403:
+
+  time: use correct size type for usecs (2017-04-02 16:01:18 -0600)
+
+----------------------------------------------------------------
+Chris Taylor (1):
+      time: fix overflow in timeval_add_msec()
+
+Jens Axboe (1):
+      time: use correct size type for usecs
+
+ time.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/time.c b/time.c
+index f5dc049..279ee48 100644
+--- a/time.c
++++ b/time.c
+@@ -8,8 +8,16 @@ static unsigned long ns_granularity;
+ 
+ void timeval_add_msec(struct timeval *tv, unsigned int msec)
+ {
+-	tv->tv_usec += 1000 * msec;
+-	if (tv->tv_usec >= 1000000) {
++	unsigned long adj_usec = 1000 * msec;
++
++	tv->tv_usec += adj_usec;
++	if (adj_usec >= 1000000) {
++		unsigned long adj_sec = adj_usec / 1000000;
++
++		tv->tv_usec -=  adj_sec * 1000000;
++		tv->tv_sec += adj_sec;
++	}
++	if (tv->tv_usec >= 1000000){
+ 		tv->tv_usec -= 1000000;
+ 		tv->tv_sec++;
+ 	}
