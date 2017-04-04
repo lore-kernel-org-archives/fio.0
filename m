@@ -1,59 +1,55 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk0-f41.google.com ([209.85.213.41]:35951 "EHLO
-        mail-vk0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751082AbdDDGRf (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 4 Apr 2017 02:17:35 -0400
-Received: by mail-vk0-f41.google.com with SMTP id s68so163821076vke.3
-        for <fio@vger.kernel.org>; Mon, 03 Apr 2017 23:17:35 -0700 (PDT)
+Received: from alln-iport-7.cisco.com ([173.37.142.94]:44795 "EHLO
+        alln-iport-7.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752176AbdDDAsK (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 3 Apr 2017 20:48:10 -0400
+From: "Scott Forman (scforman)" <scforman@cisco.com>
+Subject: Error handling in fio_libaio_event()
+Date: Tue, 4 Apr 2017 00:48:08 +0000
+Message-ID: <62746C96-1A2C-4D10-9A5F-ACA6092086CA@cisco.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <79A63072BADAB74AB1A87CEC41C71606@emea.cisco.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <62746C96-1A2C-4D10-9A5F-ACA6092086CA@cisco.com>
-References: <62746C96-1A2C-4D10-9A5F-ACA6092086CA@cisco.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Tue, 4 Apr 2017 07:17:04 +0100
-Message-ID: <CALjAwxjNw9AzSi1wFAZTsO94g-svQKRS+LNg_zetbQ8jgneFPg@mail.gmail.com>
-Subject: Re: Error handling in fio_libaio_event()
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Scott Forman (scforman)" <scforman@cisco.com>
-Cc: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi Scott,
-
-You might find https://www.fsl.cs.sunysb.edu/~vass/linux-aio.txt useful...
-
-On 4 April 2017 at 01:48, Scott Forman (scforman) <scforman@cisco.com> wrot=
-e:
->
-> In looking further at fio_libaio_event(), I am wondering if it is possibl=
-e to get the errno value if one of the events have an error (i.e. if ev->re=
-s !=3D io_u->xfer_buflen).
-
-Note this handles one type of error - the case where the I/O was
-accepted at submission time but for some reason when it completed it
-was short or too long(?). As alluded to, errors can also be returned
-at submission time. It's also sensible to check that io_getevents
-hasn't errored too.
-
-> I see that io_u->error is set to =E2=80=93ev->res if ev->res is greater t=
-han io_u->xfer_buflen.  But since my io_u->xfer_buflen is a large value, I =
-am guessing that this is not the errno value that caused the error.  Is tha=
-t true?
-
-This isn't a true errno but rather is a synthesized fio error - I
-guess this is fio checking that it hasn't asked to store more than it
-allocated space for and trying to indicate that it's an error if this
-were to happen.
-
-> Also, if ev->res is less than io_u->xfer_buflen, then io_u->resid is set =
-to (io_u->xfer_buflen - ev->res).  Does that mean that there will be anothe=
-r attempt to write out the io_u->resid bytes?
-
-Not necessarily. For example what happens if you perform a write that
-goes past the end of the file - would you want to retry that even
-though it returned back as being short? Is the fact it came back short
-a definite error?
-
---=20
-Sitsofe | http://sucs.org/~sits/
+SGkgQW5kcmV5LA0KDQpJbiBsb29raW5nIGZ1cnRoZXIgYXQgZmlvX2xpYmFpb19ldmVudCgpLCBJ
+IGFtIHdvbmRlcmluZyBpZiBpdCBpcyBwb3NzaWJsZSB0byBnZXQgdGhlIGVycm5vIHZhbHVlIGlm
+IG9uZSBvZiB0aGUgZXZlbnRzIGhhdmUgYW4gZXJyb3IgKGkuZS4gaWYgZXYtPnJlcyAhPSBpb191
+LT54ZmVyX2J1ZmxlbikuDQoNCkkgc2VlIHRoYXQgaW9fdS0+ZXJyb3IgaXMgc2V0IHRvIOKAk2V2
+LT5yZXMgaWYgZXYtPnJlcyBpcyBncmVhdGVyIHRoYW4gaW9fdS0+eGZlcl9idWZsZW4uICBCdXQg
+c2luY2UgbXkgaW9fdS0+eGZlcl9idWZsZW4gaXMgYSBsYXJnZSB2YWx1ZSwgSSBhbSBndWVzc2lu
+ZyB0aGF0IHRoaXMgaXMgbm90IHRoZSBlcnJubyB2YWx1ZSB0aGF0IGNhdXNlZCB0aGUgZXJyb3Iu
+ICBJcyB0aGF0IHRydWU/DQoJDQpBbHNvLCBpZiBldi0+cmVzIGlzIGxlc3MgdGhhbiBpb191LT54
+ZmVyX2J1ZmxlbiwgdGhlbiBpb191LT5yZXNpZCBpcyBzZXQgdG8gKGlvX3UtPnhmZXJfYnVmbGVu
+IC0gZXYtPnJlcykuICBEb2VzIHRoYXQgbWVhbiB0aGF0IHRoZXJlIHdpbGwgYmUgYW5vdGhlciBh
+dHRlbXB0IHRvIHdyaXRlIG91dCB0aGUgaW9fdS0+cmVzaWQgYnl0ZXM/DQoNCkFnYWluLCB0aGFu
+a3MgdG8geW91IGFuZCB0aGUgb3RoZXJzIG9uIHRoZSBmaW8gbWFpbGluZyBsaXN0IGZvciBhbnkg
+Z3VpZGFuY2UgeW91IGNhbiBnaXZlLg0KDQpTaW5jZXJlbHksDQpTY290dA0KDQoNCkZyb206IEFu
+ZHJleSBLdXptaW4gPGFuZHJleS52Lmt1em1pbkBnbWFpbC5jb20+DQpEYXRlOiBUdWVzZGF5LCBN
+YXJjaCAyOCwgMjAxNyBhdCAxMToyMiBBTQ0KVG86ICJTY290dCBGb3JtYW4gKHNjZm9ybWFuKSIg
+PHNjZm9ybWFuQGNpc2NvLmNvbT4sICJmaW9Admdlci5rZXJuZWwub3JnIiA8ZmlvQHZnZXIua2Vy
+bmVsLm9yZz4NClN1YmplY3Q6IFJlOiBIb3cgZG9lcyBGSU8gZGV0ZWN0IHdyaXRlIGVycm9ycyB3
+aGVuIGlvZW5naW5lIGlzIGxpYmFpbw0KDQoNCk9uIFR1ZSwgTWFyIDI4LCAyMDE3LCAyMToxMyBT
+Y290dCBGb3JtYW4gKHNjZm9ybWFuKSA8c2Nmb3JtYW5AY2lzY28uY29tPiB3cm90ZToNCkhpLA0K
+DQpJIGFtIHRyeWluZyB0byBkZXRlcm1pbmUgaG93IGZpbyBkZXRlY3RzIHdyaXRlIGVycm9ycyB3
+aGVuIHRoZSBpb2VuZ2luZSBpcyBzZXQgdG8gbGliYWlvLg0KDQpGcm9tIGEgY29kZSBleGFtcGxl
+IG9uIHN0YWNrIG92ZXJmbG93LMKgbGludXgta2VybmVsLWFpby1mdW5jdGlvbmFsaXR5LMKgaXQg
+YXBwZWFycyB0aGF0IHRoZXkgY2FuIGJlIGRldGVjdGVkIGJ5IGV4YW1pbmluZyB0aGUgZXZlbnRz
+IHJldHVybmVkIGZyb20gaW9fZ2V0ZXZlbnRzKCkuDQoNCkJ1dCBJIGRvIG5vdCBzZWUgYW55IGNv
+ZGUgaW4gbGliYWlvLmMgdGhhdCBleGFtaW5lcyB0aGUgZXZlbnRzIHJldHVybmVkIGZyb20gaW9f
+Z2V0ZXZlbnRzKCkuDQoNCnN0YXRpYyBzdHJ1Y3QgaW9fdSAqZmlvX2xpYmFpb19ldmVudChzdHJ1
+Y3QgdGhyZWFkX2RhdGEgKnRkLCBpbnQgZXZlbnQpDQp7DQpzdHJ1Y3QgbGliYWlvX2RhdGEgKmxk
+ID0gdGQtPmlvX29wc19kYXRhOw0Kc3RydWN0IGlvX2V2ZW50ICpldjsNCnN0cnVjdCBpb191ICpp
+b191Ow0KDQpldiA9IGxkLT5haW9fZXZlbnRzICsgZXZlbnQ7DQppb191ID0gY29udGFpbmVyX29m
+KGV2LT5vYmosIHN0cnVjdCBpb191LCBpb2NiKTsNCg0KaWYgKGV2LT5yZXMgIT0gaW9fdS0+eGZl
+cl9idWZsZW4pIHsNCmlmIChldi0+cmVzID4gaW9fdS0+eGZlcl9idWZsZW4pDQppb191LT5lcnJv
+ciA9IC1ldi0+cmVzOw0KZWxzZQ0KaW9fdS0+cmVzaWQgPSBpb191LT54ZmVyX2J1ZmxlbiAtIGV2
+LT5yZXM7DQp9IGVsc2UNCmlvX3UtPmVycm9yID0gMDsNClJlZ2FyZHMsDQpBbmRyZXkNCg0KQ2Fu
+IHlvdSB2ZXJpZnkgdGhhdCBmaW8gZG9lcyBjaGVjayBmb3Igd3JpdGUgZXJyb3JzIGZvciBlbmdp
+bmUgbGliYWlvLCBhbmQgaWYgc28sIHdoZXJlIHRoYXQgZXJyb3IgY2hlY2tpbmcgaXMgZG9uZT8N
+Cg0KVGhhbmtzIGluIGFkdmFuY2UhDQoNClNpbmNlcmVseSwNCg0KU2NvdHQgRm9ybWFuDQoNCg0K
+LS0gDQpSZWdhcmRzLA0KQW5kcmV5DQoNCg0KDQoNCg==
