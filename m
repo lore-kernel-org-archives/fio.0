@@ -1,47 +1,59 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 0/9]
-Date: Sat, 15 Apr 2017 00:06:17 +0300
-Message-Id: <20170414210626.32763-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-vk0-f41.google.com ([209.85.213.41]:35951 "EHLO
+        mail-vk0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751082AbdDDGRf (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 4 Apr 2017 02:17:35 -0400
+Received: by mail-vk0-f41.google.com with SMTP id s68so163821076vke.3
+        for <fio@vger.kernel.org>; Mon, 03 Apr 2017 23:17:35 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <62746C96-1A2C-4D10-9A5F-ACA6092086CA@cisco.com>
+References: <62746C96-1A2C-4D10-9A5F-ACA6092086CA@cisco.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Tue, 4 Apr 2017 07:17:04 +0100
+Message-ID: <CALjAwxjNw9AzSi1wFAZTsO94g-svQKRS+LNg_zetbQ8jgneFPg@mail.gmail.com>
+Subject: Re: Error handling in fio_libaio_event()
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "Scott Forman (scforman)" <scforman@cisco.com>
+Cc: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+Hi Scott,
 
-"Fix num2str() output when modulo != -1U" is a resend of below,
-which I believe has been neither acked nor nacked.
-http://www.spinics.net/lists/fio/msg05719.html
+You might find https://www.fsl.cs.sunysb.edu/~vass/linux-aio.txt useful...
 
-The patch is the same, but added a link to below comment to the commit message.
-http://www.spinics.net/lists/fio/msg05720.html
+On 4 April 2017 at 01:48, Scott Forman (scforman) <scforman@cisco.com> wrot=
+e:
+>
+> In looking further at fio_libaio_event(), I am wondering if it is possibl=
+e to get the errno value if one of the events have an error (i.e. if ev->re=
+s !=3D io_u->xfer_buflen).
 
-All the rest are new ones.
+Note this handles one type of error - the case where the I/O was
+accepted at submission time but for some reason when it completed it
+was short or too long(?). As alluded to, errors can also be returned
+at submission time. It's also sensible to check that io_getevents
+hasn't errored too.
 
-Tomohiro Kusumi (9):
-  Fix num2str() output when modulo != -1U
-  Drop the only local variable declaration within a for-loop (C99)
-  Make lib/strntol.c a stand-alone library
-  Make lib/pattern.c a stand-alone library
-  Make lib/rand.c a stand-alone library
-  Make lib/zipf.c a stand-alone library
-  Make lib/mountcheck.c a stand-alone library
-  Make oslib/strlcat.c a stand-alone library
-  Make oslib/linux-dev-lookup.c a stand-alone library
+> I see that io_u->error is set to =E2=80=93ev->res if ev->res is greater t=
+han io_u->xfer_buflen.  But since my io_u->xfer_buflen is a large value, I =
+am guessing that this is not the errno value that caused the error.  Is tha=
+t true?
 
- lib/mountcheck.c         |  2 +-
- lib/num2str.c            | 34 +++++++++++++++++++++-------------
- lib/pattern.c            |  9 ++++++++-
- lib/rand.c               |  2 +-
- lib/strntol.c            |  2 +-
- lib/zipf.c               |  1 -
- oslib/linux-dev-lookup.c |  3 +--
- oslib/strlcat.c          |  2 +-
- parse.c                  |  3 ++-
- 9 files changed, 36 insertions(+), 22 deletions(-)
+This isn't a true errno but rather is a synthesized fio error - I
+guess this is fio checking that it hasn't asked to store more than it
+allocated space for and trying to indicate that it's an error if this
+were to happen.
 
--- 
-2.9.3
+> Also, if ev->res is less than io_u->xfer_buflen, then io_u->resid is set =
+to (io_u->xfer_buflen - ev->res).  Does that mean that there will be anothe=
+r attempt to write out the io_u->resid bytes?
 
+Not necessarily. For example what happens if you perform a write that
+goes past the end of the file - would you want to retry that even
+though it returned back as being short? Is the fact it came back short
+a definite error?
 
+--=20
+Sitsofe | http://sucs.org/~sits/
