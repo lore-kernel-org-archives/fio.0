@@ -1,57 +1,63 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 2/8] dump_td_info() doesn't really need to be a function
-Date: Tue,  4 Apr 2017 23:22:12 +0300
-Message-Id: <20170404202218.52260-2-tkusumi@tuxera.com>
-In-Reply-To: <20170404202218.52260-1-tkusumi@tuxera.com>
-References: <20170404202218.52260-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:54208 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753109AbdDDMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 4 Apr 2017 08:00:09 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1cvN84-0002pT-IU
+        for fio@vger.kernel.org; Tue, 04 Apr 2017 12:00:08 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170404120002.2619E2C319A@kernel.dk>
+Date: Tue,  4 Apr 2017 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+The following changes since commit 249ad5bfaded90c0431041b4a3816e7371c2d403:
 
-since it's short enough, and too specific to be called as dump_td_info().
+  time: use correct size type for usecs (2017-04-02 16:01:18 -0600)
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 5ba01402d96e113ac451441f45d0c8b4dd281f4d:
+
+  backend: move freeing of td->mutex to main thread (2017-04-03 08:46:34 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      backend: move freeing of td->mutex to main thread
+
+ backend.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
 ---
- backend.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+
+Diff of recent changes:
 
 diff --git a/backend.c b/backend.c
-index e5be187..67b4c6b 100644
+index b61de7c..38ef348 100644
 --- a/backend.c
 +++ b/backend.c
-@@ -1861,14 +1861,6 @@ err:
- 	return (void *) (uintptr_t) td->error;
- }
+@@ -1836,9 +1836,6 @@ err:
+ 	if (o->write_iolog_file)
+ 		write_iolog_close(td);
  
--static void dump_td_info(struct thread_data *td)
--{
--	log_err("fio: job '%s' (state=%d) hasn't exited in %lu seconds, it "
--		"appears to be stuck. Doing forceful exit of this job.\n",
--			td->o.name, td->runstate,
--			(unsigned long) time_since_now(&td->terminate_time));
--}
+-	fio_mutex_remove(td->mutex);
+-	td->mutex = NULL;
 -
- /*
-  * Run over the job map and reap the threads that have exited, if any.
-  */
-@@ -1953,7 +1945,11 @@ static void reap_threads(unsigned int *nr_running, uint64_t *t_rate,
- 		if (td->terminate &&
- 		    td->runstate < TD_FSYNCING &&
- 		    time_since_now(&td->terminate_time) >= FIO_REAP_TIMEOUT) {
--			dump_td_info(td);
-+			log_err("fio: job '%s' (state=%d) hasn't exited in "
-+				"%lu seconds, it appears to be stuck. Doing "
-+				"forceful exit of this job.\n",
-+				td->o.name, td->runstate,
-+				(unsigned long) time_since_now(&td->terminate_time));
- 			td_set_runstate(td, TD_REAPED);
- 			goto reaped;
+ 	td_set_runstate(td, TD_EXITED);
+ 
+ 	/*
+@@ -2435,6 +2432,8 @@ int fio_backend(struct sk_out *sk_out)
+ 			fio_mutex_remove(td->rusage_sem);
+ 			td->rusage_sem = NULL;
  		}
--- 
-2.9.3
-
-
++		fio_mutex_remove(td->mutex);
++		td->mutex = NULL;
+ 	}
+ 
+ 	free_disk_util();
