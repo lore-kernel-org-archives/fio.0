@@ -1,47 +1,36 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 2/9] Drop the only local variable declaration within a for-loop (C99)
-Date: Sat, 15 Apr 2017 00:06:19 +0300
-Message-Id: <20170414210626.32763-3-tkusumi@tuxera.com>
-In-Reply-To: <20170414210626.32763-1-tkusumi@tuxera.com>
-References: <20170414210626.32763-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
+Return-Path: <elliott@hpe.com>
+From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+Subject: RE: [PATCH 8/8] Fix num2str() output when modulo != -1U
+Date: Tue, 4 Apr 2017 20:46:46 +0000
+Message-ID: <TU4PR84MB01760F9E5030FAF73E7B14BDAB0B0@TU4PR84MB0176.NAMPRD84.PROD.OUTLOOK.COM>
+References: <20170404202218.52260-1-tkusumi@tuxera.com>
+ <20170404202218.52260-8-tkusumi@tuxera.com>
+In-Reply-To: <20170404202218.52260-8-tkusumi@tuxera.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+To: "kusumi.tomohiro@gmail.com" <kusumi.tomohiro@gmail.com>, "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-Nothing happens at least with gcc by default, but this is the only
-C99 (or after) specific declaration, so change it to normal style.
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- parse.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+> -----Original Message-----
+> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
+> Behalf Of kusumi.tomohiro@gmail.com
+> Sent: Tuesday, April 4, 2017 3:22 PM
+> Subject: [PATCH 8/8] Fix num2str() output when modulo !=3D -1U
+...
+> @@ -62,6 +62,9 @@ char *num2str(uint64_t num, int maxlen, int base, int
+> pow2, int units)
+>  		break;
+...
+> +	sprintf(fmt, "%%.%df", (int)(maxlen - strlen(tmp) - 1));
+> +	sprintf(tmp, fmt, (double)modulo / (double)thousand[!!pow2]);
 
-diff --git a/parse.c b/parse.c
-index fd5605f..4d4fddd 100644
---- a/parse.c
-+++ b/parse.c
-@@ -135,6 +135,7 @@ static unsigned long long get_mult_time(const char *str, int len,
- 	const char *p = str;
- 	char *c;
- 	unsigned long long mult = 1;
-+	int i;
- 
- 	/*
-          * Go forward until we hit a non-digit, or +/- sign
-@@ -153,7 +154,7 @@ static unsigned long long get_mult_time(const char *str, int len,
- 	}
- 
- 	c = strdup(p);
--	for (int i = 0; i < strlen(c); i++)
-+	for (i = 0; i < strlen(c); i++)
- 		c[i] = tolower(c[i]);
- 
- 	if (!strncmp("us", c, 2) || !strncmp("usec", c, 4))
--- 
-2.9.3
+I suspect one of the goals of that function was to restrict itself
+to integer math and avoid invoking the floating point unit (which
+might not even exist on some CPUs).
 
 
