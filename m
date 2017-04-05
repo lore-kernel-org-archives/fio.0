@@ -1,100 +1,67 @@
-Return-Path: <sitsofe@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <CY4PR10MB14942012DEB923224A03FAE28C360@CY4PR10MB1494.namprd10.prod.outlook.com>
-References: <CY4PR10MB1494804E84709ACA355AE6AE8C530@CY4PR10MB1494.namprd10.prod.outlook.com>
- <CALjAwxjoaJpLoFxW9YO2C=RSnzbZK_pm9QadRJzLcJbBKkUkmA@mail.gmail.com>
- <CY4PR10MB1494958C30757B38661B3B4F8C560@CY4PR10MB1494.namprd10.prod.outlook.com>
- <CALjAwxhvLBAaYyJk9hTfUXVTWfdkHwLJ4-fKPqNOgZYPV7WbFg@mail.gmail.com>
- <CY4PR10MB1494E32B79F27E052200698F8C280@CY4PR10MB1494.namprd10.prod.outlook.com>
- <CALjAwxiwMA89bJHs9-_MN9eNNibJTtPUBqrMCN6LbMD+kF_Ddw@mail.gmail.com> <CY4PR10MB14942012DEB923224A03FAE28C360@CY4PR10MB1494.namprd10.prod.outlook.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Sun, 2 Apr 2017 09:07:21 +0100
-Message-ID: <CALjAwxjQD_U0M67Ty0LNt3fqo+ccALPv+ww9eADvfpHu0Sxj1g@mail.gmail.com>
-Subject: Re: FIO log averaging issue with --write_bw_log and --write_iops_log
- using > 1000 log_avg_msec values
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Chris Taylor <ctaylor@pivot3.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([65.50.211.133]:53524 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932625AbdDEMAF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 5 Apr 2017 08:00:05 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1cvjbX-0005og-JX
+        for fio@vger.kernel.org; Wed, 05 Apr 2017 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170405120001.D84A82C351A@kernel.dk>
+Date: Wed,  5 Apr 2017 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Hi Jens,
+The following changes since commit 5ba01402d96e113ac451441f45d0c8b4dd281f4d:
 
-Chris has found that timing inaccuracy creeps when adding times
-results in a two or more second overflow:
+  backend: move freeing of td->mutex to main thread (2017-04-03 08:46:34 -0600)
 
-On 2 March 2017 at 21:52, Chris Taylor <ctaylor@pivot3.com> wrote:
-> Tests pretty much prove we are getting close to what we expect:
-> fio --eta=3Dnever --ioengine=3Dlibaio --readwrite=3Dwrite --time_based=3D=
-1 --runtime=3D60 --filename=3D/tmp/fio --size=3D1M --direct=3D1 --name=3Dte=
-st --write_iops_log=3D/tmp/test --log_avg_msec=3D5500 --log_unix_epoch=3D1
-> 1488489137632, 6413, 1, 0
-> 1488489143131, 5503, 1, 0
-> 1488489148631, 5585, 1, 0
-> 1488489154131, 5883, 1, 0
-> 1488489159631, 5726, 1, 0
-> 1488489165131, 5331, 1, 0
-> 1488489170631, 5772, 1, 0
-> 1488489176131, 5661, 1, 0
-> 1488489181631, 5970, 1, 0
-> 1488489187131, 5776, 1, 0
-> [5499, 5500, 5500, 5500, 5500, 5500, 5500, 5500, 5500]
->
-> However, the problem still exists where in timeval_add_msec gets a value =
-greater than 1000 msecs the tv->tv_usec it will grow beyond usecs (1000000)=
- and causes unexpected behavior.  Possibly this is the better fix to avoid =
-other callers having to adjust for  the overflow in timeval_add_msecs?\
-> diff --git a/time.c b/time.c
-> index f5dc049..a318ad5 100644
-> --- a/time.c
-> +++ b/time.c
-> @@ -9,10 +9,9 @@ static unsigned long ns_granularity;
->  void timeval_add_msec(struct timeval *tv, unsigned int msec)
->  {
->         tv->tv_usec +=3D 1000 * msec;
-> -       if (tv->tv_usec >=3D 1000000) {
-> -               tv->tv_usec -=3D 1000000;
-> -               tv->tv_sec++;
-> -       }
-> +    tv->tv_sec +=3D tv->tv_usec / 1000000;
-> +    tv->tv_usec %=3D 1000000;
-> +
->  }
->  /*
-> Running the same job as above with the change:
-> 1488489763099, 5773, 1, 0
-> 1488489768599, 5852, 1, 0
-> 1488489774099, 5654, 1, 0
-> 1488489779599, 5482, 1, 0
-> 1488489785099, 5650, 1, 0
-> 1488489790599, 5752, 1, 0
-> 1488489796099, 5390, 1, 0
-> 1488489801599, 5746, 1, 0
-> 1488489807099, 5610, 1, 0
-> 1488489812599, 5361, 1, 0
-> [5500, 5500, 5500, 5500, 5500, 5500, 5500, 5500, 5500]
+are available in the git repository at:
 
-Something like the proposed patch looks necessary because you need to
-know how many seconds need to be deducted from tv->tv_usec and added
-to tv->sec . The only snag I see is with the patch is the introduction
-a division and a modulus (https://godbolt.org/g/xrhz7X suggests it's
-the division that's most costly). I tried rearranging the code to look
-like https://www.dovecot.org/list/dovecot-cvs/2014-September/024976.html
-but that actually seemed slower.
+  git://git.kernel.dk/fio.git master
 
-Looking at some cachegrind results over on
-https://gist.github.com/sitsofe/45fa767f72439cd1f8c148794382003b
-suggests the existing code takes the branch 25% of the time and the
-branch is mis-predicted around 25% of the time. Looking only at
-instructions retired shows the patch doubles the number of
-instructions that need to be retired but eliminates branch
-mis-predictions. You could reintroduce the if thus skipping the extra
-work 75% of the time but whether doing so is a win depends on the cost
-of mis-predicting a branch. If you assume a mis-predict costs nothing
-there's a difference of 3000 cycles over one minute and
-since mis-predictions will reduce the difference I think the patch should
-go in as is.
+for you to fetch changes up to e07a8a2281c7a5a0ec4eb8e8e66601ca1f9f71bb:
 
---=20
-Sitsofe | http://sucs.org/~sits/
+  Fio 2.19 (2017-04-04 08:30:59 -0600)
 
+----------------------------------------------------------------
+Jens Axboe (1):
+      Fio 2.19
+
+ FIO-VERSION-GEN        | 2 +-
+ os/windows/install.wxs | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index 570e21f..4cc903f 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-2.18
++DEF_VER=fio-2.19
+ 
+ LF='
+ '
+diff --git a/os/windows/install.wxs b/os/windows/install.wxs
+index bb2b90b..ffaed8e 100755
+--- a/os/windows/install.wxs
++++ b/os/windows/install.wxs
+@@ -10,7 +10,7 @@
+ 	<Product Id="*"
+ 	  Codepage="1252" Language="1033"
+ 	  Manufacturer="fio" Name="fio"
+-	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.18">
++	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.19">
+ 		<Package
+ 		  Description="Flexible IO Tester"
+ 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
