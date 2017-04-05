@@ -1,61 +1,72 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-by2nam01on0122.outbound.protection.outlook.com ([104.47.34.122]:39520
-        "EHLO NAM01-BY2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1754150AbdDFVNE (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 6 Apr 2017 17:13:04 -0400
-From: GV Govindasamy <gv.govindasamy@nutanix.com>
+Received: from mail-vk0-f41.google.com ([209.85.213.41]:34212 "EHLO
+        mail-vk0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754199AbdDETrY (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 5 Apr 2017 15:47:24 -0400
+Received: by mail-vk0-f41.google.com with SMTP id z204so17905303vkd.1
+        for <fio@vger.kernel.org>; Wed, 05 Apr 2017 12:47:24 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <BL2PR02MB19714074E460C8EA219FFA85810A0@BL2PR02MB1971.namprd02.prod.outlook.com>
+References: <BL2PR02MB19714074E460C8EA219FFA85810A0@BL2PR02MB1971.namprd02.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 5 Apr 2017 20:46:53 +0100
+Message-ID: <CALjAwxgrt8byoEsSkjaSNbPiXg69+P2bH=+yGpoFs3ZKpJNnRg@mail.gmail.com>
 Subject: Re: FIO achieves only 50:50 of read:write IOPS when rwmix is not
  50:50 and achieves only about 40% of total IOPS
-Date: Thu, 6 Apr 2017 21:13:01 +0000
-Message-ID: <E2F79123-964F-43E9-BEC3-E5BCE287BFE3@nutanix.com>
-References: <BL2PR02MB19714074E460C8EA219FFA85810A0@BL2PR02MB1971.namprd02.prod.outlook.com>
- <CALjAwxgrt8byoEsSkjaSNbPiXg69+P2bH=+yGpoFs3ZKpJNnRg@mail.gmail.com>
-In-Reply-To: <CALjAwxgrt8byoEsSkjaSNbPiXg69+P2bH=+yGpoFs3ZKpJNnRg@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <D983DEDA7C03B847ADAA03EFE0829C85@namprd02.prod.outlook.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: GV Govindasamy <gv.govindasamy@nutanix.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-VGhhbmtzIFNpdHNvZmUuIEFmdGVyIHJlbW92aW5nIOKAnHJhdGVfcHJvY2Vzcz1wb2lzc29u4oCd
-IGFuZCBnaXZpbmcg4oCccmF0ZT08aW4tYnl0ZXM+4oCdLCBJIGNhbiBzZWUgdGhlIElPUFMgSSBo
-YXZlIGNhbGN1bGF0ZWQgZm9yLiBJbiB0aGlzIGNhc2UsIDkwIHJlYWQgb3BzIGFuZCAxMCB3cml0
-ZSBvcHMuDQoNCuKAnHJhdGVfcHJvY2Vzcz1wb2lzc29u4oCdIGlzIGEgYnVnIGluIHRoaXMgY2Fz
-ZSB0aGVuPw0KDQpUaGFua3MNCitHVg0KDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0K
-W2dsb2JhbF0NCmlvZW5naW5lPWxpYmFpbw0KZGlyZWN0PTENCnRpbWVfYmFzZWQNCm5vcmFuZG9t
-bWFwDQpncm91cF9yZXBvcnRpbmcNCmRpc2tfdXRpbD0wDQpjb250aW51ZV9vbl9lcnJvcj1hbGwN
-CjtyYXRlX3Byb2Nlc3M9cG9pc3Nvbg0KDQpbZGItb2x0cC13XQ0KYnNzcGxpdD04ay85MDoxNmsv
-MTANCjticz04aw0Kc2l6ZT0xMjhHDQpmaWxlbmFtZT0vZGV2L3NkZw0Kcnc9cmFuZHJ3DQppb2Rl
-cHRoPTgNCnJ3bWl4cmVhZD05MA0KcndtaXh3cml0ZT0xMA0Kd3JpdGVfaW9sb2c9cndtaXguY3N2
-DQo7cmF0ZV9pb3BzPTkwLDEwLA0KcmF0ZT04MTEwMDgsOTAxMTIsDQo9PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09DQoNCk9uIDQvNS8xNywgMzo0NiBQTSwgIlNpdHNvZmUgV2hlZWxlciIg
-PHNpdHNvZmVAZ21haWwuY29tPiB3cm90ZToNCg0KICAgIEhpLA0KICAgIA0KICAgIE9uIDUgQXBy
-aWwgMjAxNyBhdCAxNzoyNSwgR1YgR292aW5kYXNhbXkgPGd2LmdvdmluZGFzYW15QG51dGFuaXgu
-Y29tPiB3cm90ZToNCiAgICA+DQogICAgPiBJbiB0aGUgZm9sbG93aW5nIGV4YW1wbGUsIEkgd291
-bGQgbGlrZSA5MCByZWFkIG9wcyBhbmQgMTAgd3JpdGUgb3BzLiBSZWdhcmRsZXNzIG9mIHRoZSB2
-YWx1ZXMgaW4gImJzc3BsaXQiIG9yICJicyIgYW5kICJyd21peHJlYWQvcndtaXh3cml0ZSIgdmFs
-dWVzLCBub3QgYWJsZSB0byBzZWUgRklPIGRvaW5nIDkwOjEwIHJlYWQ6d3JpdGVzIGFuZCB0b3Rh
-bCBvcHMgdHVybnMgb3V0IHRvIGJlIH4yMCt+MjAgPSB+NDAgSU9QUyBpbnN0ZWFkIG9mIDEwMC4N
-CiAgICA+DQogICAgPiBBbSBJIG1pc3Npbmcgc29tZXRoaW5nIGhlcmU/DQogICAgPg0KICAgID4g
-VGhhbmtzDQogICAgPiArR1YNCiAgICA+DQogICAgPiA9PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT0NCiAgICA+ICQgLi9maW8tMi4xOSAtLXZlcnNpb24gKGNvbXBp
-bGVkIHdpdGg6IC4vY29uZmlndXJlIC0tYnVpbGQtc3RhdGljOyBtYWtlIG9uIENlbnRPUyByZWxl
-YXNlIDYuNy8zLjEwLjAtMjI5KQ0KICAgID4gZmlvLTIuMTkNCiAgICA+DQogICAgPiA9PT09PT09
-PT09PT09PT09PT09PT09PT09PQ0KICAgID4gJCBjYXQgb3V0cHV0L2Zpby9ic3NwbGl0X3J3bWl4
-LmZpbw0KICAgID4gW2dsb2JhbF0NCiAgICA+IGlvZW5naW5lPWxpYmFpbw0KICAgID4gZGlyZWN0
-PTENCiAgICA+IHRpbWVfYmFzZWQNCiAgICA+IG5vcmFuZG9tbWFwDQogICAgPiBncm91cF9yZXBv
-cnRpbmcNCiAgICA+IGRpc2tfdXRpbD0wDQogICAgPiBjb250aW51ZV9vbl9lcnJvcj1hbGwNCiAg
-ICA+IHJhdGVfcHJvY2Vzcz1wb2lzc29uDQogICAgPg0KICAgID4gW2RiLW9sdHAtd10NCiAgICA+
-IGJzc3BsaXQ9OGsvOTA6MTZrLzEwDQogICAgPiBzaXplPTEyOEcNCiAgICA+IGZpbGVuYW1lPS9k
-ZXYvc2RnDQogICAgPiBydz1yYW5kcncNCiAgICA+IGlvZGVwdGg9OA0KICAgID4gcndtaXhyZWFk
-PTkwDQogICAgPiByd21peHdyaXRlPTEwDQogICAgPiByYXRlX2lvcHM9OTAsMTAsMA0KICAgIA0K
-ICAgIEkgdGhpbmsgdGhlIHByb2JsZW0gbWF5IGxpZSB3aXRoIHJhdGVfcHJvY2Vzcz1wb2lzc29u
-IC0gaWYgeW91IHJlbW92ZQ0KICAgIHRoYXQgZG9lcyB0aGUgd29ya2xvYWQgcGVyZm9ybSBiZXR0
-ZXI/IFBlcmhhcHMgaXQgaXMgbm90IHRyZWF0aW5nIHRoZQ0KICAgIHJlYWQgYW5kIHdyaXRlIHJh
-dGVzIGluZGVwZW5kZW50bHkuLi4NCiAgICANCiAgICAtLSANCiAgICBTaXRzb2ZlIHwgaHR0cDov
-L3N1Y3Mub3JnL35zaXRzLw0KICAgIA0KDQo=
+Hi,
+
+On 5 April 2017 at 17:25, GV Govindasamy <gv.govindasamy@nutanix.com> wrote=
+:
+>
+> In the following example, I would like 90 read ops and 10 write ops. Rega=
+rdless of the values in "bssplit" or "bs" and "rwmixread/rwmixwrite" values=
+, not able to see FIO doing 90:10 read:writes and total ops turns out to be=
+ ~20+~20 =3D ~40 IOPS instead of 100.
+>
+> Am I missing something here?
+>
+> Thanks
+> +GV
+>
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> $ ./fio-2.19 --version (compiled with: ./configure --build-static; make o=
+n CentOS release 6.7/3.10.0-229)
+> fio-2.19
+>
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D
+> $ cat output/fio/bssplit_rwmix.fio
+> [global]
+> ioengine=3Dlibaio
+> direct=3D1
+> time_based
+> norandommap
+> group_reporting
+> disk_util=3D0
+> continue_on_error=3Dall
+> rate_process=3Dpoisson
+>
+> [db-oltp-w]
+> bssplit=3D8k/90:16k/10
+> size=3D128G
+> filename=3D/dev/sdg
+> rw=3Drandrw
+> iodepth=3D8
+> rwmixread=3D90
+> rwmixwrite=3D10
+> rate_iops=3D90,10,0
+
+I think the problem may lie with rate_process=3Dpoisson - if you remove
+that does the workload perform better? Perhaps it is not treating the
+read and write rates independently...
+
+--=20
+Sitsofe | http://sucs.org/~sits/
