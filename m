@@ -1,208 +1,266 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-by2nam03on0100.outbound.protection.outlook.com ([104.47.42.100]:45184
-        "EHLO NAM03-BY2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1754038AbdDFQqS (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 6 Apr 2017 12:46:18 -0400
-From: GV Govindasamy <gv.govindasamy@nutanix.com>
-Subject: Re: FIO does 2x IOPS with 'bssplit' option and 'rw=randwrite or
- rw=randread'
-Date: Thu, 6 Apr 2017 16:46:14 +0000
-Message-ID: <8A97F2CE-0E54-4E15-8C11-DA4E09558107@nutanix.com>
-References: <b83e861c86f9423b947b12336d08e75b9e6d80d437aa41ab8775f7673db0ecf8BL2PR02MB19712B5A9DD0B600FC59ABC8810A0@BL2PR02MB1971.namprd02.prod.outlook.com>
- <CABtFm2UGCb55eCivd9rG6f8Nz7h0HNTK+cCFY-BwoCo3q8+bYA@mail.gmail.com>
-In-Reply-To: <CABtFm2UGCb55eCivd9rG6f8Nz7h0HNTK+cCFY-BwoCo3q8+bYA@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <9297C502671CBD49951F09AEFC958A2C@namprd02.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Received: from mail-oi0-f51.google.com ([209.85.218.51]:35553 "EHLO
+        mail-oi0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932659AbdDFGNM (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 6 Apr 2017 02:13:12 -0400
+Received: by mail-oi0-f51.google.com with SMTP id f193so40444386oib.2
+        for <fio@vger.kernel.org>; Wed, 05 Apr 2017 23:13:12 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <b83e861c86f9423b947b12336d08e75b9e6d80d437aa41ab8775f7673db0ecf8BL2PR02MB19712B5A9DD0B600FC59ABC8810A0@BL2PR02MB1971.namprd02.prod.outlook.com>
+References: <b83e861c86f9423b947b12336d08e75b9e6d80d437aa41ab8775f7673db0ecf8BL2PR02MB19712B5A9DD0B600FC59ABC8810A0@BL2PR02MB1971.namprd02.prod.outlook.com>
+From: Srinivasa Chamarthy <chamarthy.raju@gmail.com>
+Date: Thu, 6 Apr 2017 14:13:10 +0800
+Message-ID: <CABtFm2UGCb55eCivd9rG6f8Nz7h0HNTK+cCFY-BwoCo3q8+bYA@mail.gmail.com>
+Subject: Re: FIO does 2x IOPS with 'bssplit' option and 'rw=randwrite or rw=randread'
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Srinivasa Chamarthy <chamarthy.raju@gmail.com>
+To: GV Govindasamy <gv.govindasamy@nutanix.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-VGhhbmsgeW91LCBZZXMuIHdoZW4gSSByZW1vdmUg4oCccmF0ZV9wcm9jZXNzPXBvaXNzb27igJ0s
-IHRoZSBJT1BTIGFyZSBkb3duIHRvIGFib3V0IDg1JSAtIDkwJS4gDQoNCkkgY2hlY2tlZCB3aXRo
-IHJhdGVfaW9wcz0xMDAgYW5kIHJhdGVfaW9wcz0xMDAwLiBJbiBib3RoIGNhc2VzLCBJIGdvdCA4
-NSUtOTAlIG9mIHJhdGVfaW9wcyBnaXZlbi4gDQoNCkhvdyBkbyBJIGFjY29tcGxpc2ggMTAwJSBv
-ZiBJT1BTPw0KDQpUaGFua3MNCitHVg0KDQpPbiA0LzYvMTcsIDI6MTMgQU0sICJTcmluaXZhc2Eg
-Q2hhbWFydGh5IiA8Y2hhbWFydGh5LnJhanVAZ21haWwuY29tPiB3cm90ZToNCg0KICAgIENvdWxk
-IHlvdSByZW1vdmUgcmF0ZV9wcm9jZXNzPXBvaXNzb24gYW5kIHRyeSwgd2l0aCB0aGUgc2FtZSBw
-cm9maWxlDQogICAgd2l0aG91dCByYXRlX3BvaXNzb24sIGkgYW0gZ2V0dGluZyBhIGJpdCBsZXNz
-IHRoYW4gMTAwIElPUFMgZXhwZWN0ZWQuDQogICAgDQogICAgIyBmaW8gLW5hbWU9cmF0ZQ0KICAg
-IC0tZmlsZW5hbWU9L2Rldi9tYXBwZXIvMzYwMDYwMTYwMmQwMDNlMDAwMmNkZTU1ODAwMTFjOGZi
-DQogICAgLS1pb2VuZ2luZT1saWJhaW8gLS1kaXJlY3Q9MSAtLWZpbGxfZGV2aWNlPTEgLS1ncm91
-cF9yZXBvcnRpbmcNCiAgICAtLXJ3PXJhbmR3cml0ZSAtLXJhdGVfaW9wcz0xMDAgLS1pb2RlcHRo
-PTggLS1ub3JhbmRvbW1hcA0KICAgIC0tYnNyYW5nZT04ay0xNmsgLS0NCiAgICBic3NwbGl0PThr
-LzkwOjE2ay8xMA0KICAgIA0KICAgIGF2Zy1jcHU6ICAldXNlciAgICVuaWNlICVzeXN0ZW0gJWlv
-d2FpdCAgJXN0ZWFsICAgJWlkbGUNCiAgICAgICAgICAgICAgIDAuMjUgICAgMC4wMCAgICAwLjM4
-ICAgIDEuMTMgICAgMC4wMCAgIDk4LjI0DQogICAgDQogICAgRGV2aWNlOiAgICAgICAgIHJycW0v
-cyAgIHdycW0vcyAgICAgci9zICAgICB3L3MgICAgcmtCL3MgICAgd2tCL3MNCiAgICBhdmdycS1z
-eiBhdmdxdS1zeiAgIGF3YWl0IHJfYXdhaXQgd19hd2FpdCAgc3ZjdG0gICV1dGlsDQogICAgZG0t
-MTggICAgICAgICAgICAgMC4wMCAgICAgMC4wMCAgICAwLjAwICAgOTEuMDAgICAgIDAuMDAgICA4
-MDAuMDANCiAgICAxNy41OCAgICAgMC4zOCAgICA0LjIwICAgIDAuMDAgICAgNC4yMCAgIDMuOTYg
-IDM2LjAwDQogICAgDQogICAgLS0NCiAgICBTcmluaXZhc2EgUiBDaGFtYXJ0aHkNCiAgICANCiAg
-ICANCiAgICBPbiBUaHUsIEFwciA2LCAyMDE3IGF0IDEyOjA5IEFNLCBHViBHb3ZpbmRhc2FteQ0K
-ICAgIDxndi5nb3ZpbmRhc2FteUBudXRhbml4LmNvbT4gd3JvdGU6DQogICAgPg0KICAgID4gSGVs
-bG8gQWxsDQogICAgPg0KICAgID4gSSB3b3VsZCBsaWtlIHRvIGtub3cgd2hhdCBJIG9ic2VydmUg
-aXMgYSBidWcgb3IgYnkgZGVzaWduIHRoYXQgSSBkb24ndCB1bmRlcnN0YW5kLiBJIGV4cGVjdCB0
-byBnZW5lcmF0ZSAxMDAgcmFuZG9tIHJlYWQgb3BzIG9yIDEwMCByYW5kb20gd3JpdGUgb3BzIGlu
-IHRoZSBmb2xsb3dpbmcgZXhhbXBsZXMgd2l0aCA5MCUgOGsgYW5kIDEwJSAxNmsuIEZJTyBhbHNv
-IGFwcGVhcnMgdG8gdGFyZ2V0ICBmb3IgMTAwIElPUFMsIGJ1dCBlbmRlZCB1cCBkb2luZyAyeCBp
-biBhY3R1YWwgd29ya2xvYWQuDQogICAgPg0KICAgID4gVGhhbmtzLA0KICAgID4gK0dWDQogICAg
-Pg0KICAgID4gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQog
-ICAgPiAkIC4vZmlvLTIuMTkgLS12ZXJzaW9uIChjb21waWxlZCB3aXRoOiAuL2NvbmZpZ3VyZSAt
-LWJ1aWxkLXN0YXRpYzsgbWFrZSBvbiBDZW50T1MgcmVsZWFzZSA2LjcvMy4xMC4wLTIyOSkNCiAg
-ICA+IGZpby0yLjE5DQogICAgPg0KICAgID4gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09DQogICAgPiAkIGNhdCBvdXRwdXQvZmlvL2Jzc3BsaXRfcmVhZHRlc3Qu
-ZmlvDQogICAgPiBbZ2xvYmFsXQ0KICAgID4gaW9lbmdpbmU9bGliYWlvDQogICAgPiBkaXJlY3Q9
-MQ0KICAgID4gdGltZV9iYXNlZA0KICAgID4gbm9yYW5kb21tYXANCiAgICA+IGdyb3VwX3JlcG9y
-dGluZw0KICAgID4gZGlza191dGlsPTANCiAgICA+IGNvbnRpbnVlX29uX2Vycm9yPWFsbA0KICAg
-ID4gcmF0ZV9wcm9jZXNzPXBvaXNzb24NCiAgICA+DQogICAgPg0KICAgID4gW2RiLW9sdHAtd10N
-CiAgICA+IGJzc3BsaXQ9OGsvOTA6MTZrLzEwLCwNCiAgICA+IHNpemU9MTI4Rw0KICAgID4gZmls
-ZW5hbWU9L2Rldi9zZGcNCiAgICA+IHJ3PXJhbmRyZWFkDQogICAgPiBpb2RlcHRoPTgNCiAgICA+
-IHJhdGVfaW9wcz0xMDANCiAgICA+DQogICAgPiA9PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PQ0KICAgID4gJCBpb3N0YXQgLXggMiBzZGcNCiAgICA+DQogICAgPiBhdmct
-Y3B1OiAgJXVzZXIgICAlbmljZSAlc3lzdGVtICVpb3dhaXQgICVzdGVhbCAgICVpZGxlDQogICAg
-PiAgICAgICAgICAgIDAuMTMgICAgMC4wMCAgICAwLjEzICAgIDEuNjMgICAgMC4wMCAgIDk4LjEy
-DQogICAgPiBEZXZpY2U6ICAgICAgICAgcnJxbS9zICAgd3JxbS9zICAgICByL3MgICAgIHcvcyAg
-IHJzZWMvcyAgIHdzZWMvcyBhdmdycS1zeiBhdmdxdS1zeiAgIGF3YWl0IHJfYXdhaXQgd19hd2Fp
-dCAgc3ZjdG0gICV1dGlsDQogICAgPiBzZGcgICAgICAgICAgICAgICAwLjAwICAgICAwLjAwICAx
-OTEuMDAgICAgMC4wMCAgMzM5Mi4wMCAgICAgMC4wMCAgICAxNy43NiAgICAgMC4wOSAgICAwLjQ1
-ICAgIDAuNDUgICAgMC4wMCAgIDAuNDEgICA3Ljc1DQogICAgPg0KICAgID4gYXZnLWNwdTogICV1
-c2VyICAgJW5pY2UgJXN5c3RlbSAlaW93YWl0ICAlc3RlYWwgICAlaWRsZQ0KICAgID4gICAgICAg
-ICAgICAwLjI1ICAgIDAuMDAgICAgMC4yNSAgICAxLjc1ICAgIDAuMDAgICA5Ny43NA0KICAgID4g
-RGV2aWNlOiAgICAgICAgIHJycW0vcyAgIHdycW0vcyAgICAgci9zICAgICB3L3MgICByc2VjL3Mg
-ICB3c2VjL3MgYXZncnEtc3ogYXZncXUtc3ogICBhd2FpdCByX2F3YWl0IHdfYXdhaXQgIHN2Y3Rt
-ICAldXRpbA0KICAgID4gc2RnICAgICAgICAgICAgICAgMC4wMCAgICAgMC4wMCAgMTkzLjAwICAg
-IDAuMDAgIDM0MjQuMDAgICAgIDAuMDAgICAgMTcuNzQgICAgIDAuMDggICAgMC40MiAgICAwLjQy
-ICAgIDAuMDAgICAwLjM5ICAgNy41MA0KICAgID4NCiAgICA+IGF2Zy1jcHU6ICAldXNlciAgICVu
-aWNlICVzeXN0ZW0gJWlvd2FpdCAgJXN0ZWFsICAgJWlkbGUNCiAgICA+ICAgICAgICAgICAgMC4x
-MyAgICAwLjAwICAgIDAuMjUgICAgMS44OCAgICAwLjAwICAgOTcuNzQNCiAgICA+IERldmljZTog
-ICAgICAgICBycnFtL3MgICB3cnFtL3MgICAgIHIvcyAgICAgdy9zICAgcnNlYy9zICAgd3NlYy9z
-IGF2Z3JxLXN6IGF2Z3F1LXN6ICAgYXdhaXQgcl9hd2FpdCB3X2F3YWl0ICBzdmN0bSAgJXV0aWwN
-CiAgICA+IHNkZyAgICAgICAgICAgICAgIDAuMDAgICAgIDAuMDAgIDIxMy41MCAgICAwLjAwICAz
-NjcyLjAwICAgICAwLjAwICAgIDE3LjIwICAgICAwLjEwICAgIDAuNDUgICAgMC40NSAgICAwLjAw
-ICAgMC40MCAgIDguNDUgPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0N
-CiAgICA+DQogICAgPiAkIHN1ZG8gLi9maW8tMi4xOSAtLXJ1bnRpbWUgMTIwIC0tZXRhLW5ld2xp
-bmU9MzAgb3V0cHV0L2Zpby9ic3NwbGl0X3JlYWR0ZXN0LmZpbw0KICAgID4gZGItb2x0cC13OiAo
-Zz0wKTogcnc9cmFuZHJlYWQsIGJzPShSKSA4MTkyQi0xNi4wS2lCLCAoVykgNDA5NkItNDA5NkIs
-IChUKSA0MDk2Qi00MDk2QiwgaW9lbmdpbmU9bGliYWlvLCBpb2RlcHRoPTgNCiAgICA+IGZpby0y
-LjE5DQogICAgPiBTdGFydGluZyAxIHByb2Nlc3MNCiAgICA+IEpvYnM6IDEgKGY9MSksIDAtMTAw
-IElPUFM6IFtyKDEpXVsyNi40JV1bcj0xNjMyS2lCL3Msdz0wS2lCL3NdW3I9MTk0LHc9MCBJT1BT
-XVtldGEgMDFtOjI5c10NCiAgICA+IEpvYnM6IDEgKGY9MSksIDAtMTAwIElPUFM6IFtyKDEpXVs1
-MS4yJV1bcj0xNjQ4S2lCL3Msdz0wS2lCL3NdW3I9MTkwLHc9MCBJT1BTXVtldGEgMDBtOjU5c10N
-CiAgICA+IEpvYnM6IDEgKGY9MSksIDAtMTAwIElPUFM6IFtyKDEpXVs3Ni4wJV1bcj0xNzYwS2lC
-L3Msdz0wS2lCL3NdW3I9MTkzLHc9MCBJT1BTXVtldGEgMDBtOjI5c10NCiAgICA+IEpvYnM6IDEg
-KGY9MSksIDAtMTAwIElPUFM6IFtyKDEpXVsxMDAuMCVdW3I9MTgxNktpQi9zLHc9MEtpQi9zXVty
-PTIwMix3PTAgSU9QU11bZXRhIDAwbTowMHNdDQogICAgPiBkYi1vbHRwLXc6IChncm91cGlkPTAs
-IGpvYnM9MSk6IGVycj0gMDogcGlkPTE2MDU6IFdlZCBBcHIgIDUgMTU6NTM6MDAgMjAxNw0KICAg
-ID4gICAgcmVhZDogSU9QUz0yMDAsIEJXPTE3NjVLaUIvcyAoMTgwOGtCL3MpKDIwN01pQi8xMjAw
-MTNtc2VjKQ0KICAgID4gICAgIHNsYXQgKHVzZWMpOiBtaW49MywgbWF4PTExNywgYXZnPTMwLjUz
-LCBzdGRldj0xMS4yMA0KICAgID4gICAgIGNsYXQgKHVzZWMpOiBtaW49MTIwLCBtYXg9ODY1OCwg
-YXZnPTQxMy44MSwgc3RkZXY9MjE2LjY3DQogICAgPiAgICAgIGxhdCAodXNlYyk6IG1pbj0xMzks
-IG1heD04Njk3LCBhdmc9NDQ0LjM0LCBzdGRldj0yMTguNzENCiAgICA+ICAgICBjbGF0IHBlcmNl
-bnRpbGVzICh1c2VjKToNCiAgICA+ICAgICAgfCAgMS4wMHRoPVsgIDE3NV0sICA1LjAwdGg9WyAg
-MjIxXSwgMTAuMDB0aD1bICAyNTFdLCAyMC4wMHRoPVsgIDI5MF0sDQogICAgPiAgICAgIHwgMzAu
-MDB0aD1bICAzMzhdLCA0MC4wMHRoPVsgIDM4Ml0sIDUwLjAwdGg9WyAgNDA2XSwgNjAuMDB0aD1b
-ICA0MzRdLA0KICAgID4gICAgICB8IDcwLjAwdGg9WyAgNDYyXSwgODAuMDB0aD1bICA0OThdLCA5
-MC4wMHRoPVsgIDU1Nl0sIDk1LjAwdGg9WyAgNjIwXSwNCiAgICA+ICAgICAgfCA5OS4wMHRoPVsg
-IDc1Nl0sIDk5LjUwdGg9WyAgOTMyXSwgOTkuOTB0aD1bIDM2MzJdLCA5OS45NXRoPVsgNDcwNF0s
-DQogICAgPiAgICAgIHwgOTkuOTl0aD1bIDYzNjhdDQogICAgPiAgICAgbGF0ICh1c2VjKSA6IDI1
-MD05Ljg0JSwgNTAwPTcwLjc1JSwgNzUwPTE4LjM0JSwgMTAwMD0wLjYwJQ0KICAgID4gICAgIGxh
-dCAobXNlYykgOiAyPTAuMjYlLCA0PTAuMTIlLCAxMD0wLjA4JQ0KICAgID4gICBjcHUgICAgICAg
-ICAgOiB1c3I9MC4zNyUsIHN5cz0wLjg0JSwgY3R4PTQ0MTQwLCBtYWpmPTAsIG1pbmY9NjANCiAg
-ICA+ICAgSU8gZGVwdGhzICAgIDogMT05MS4zJSwgMj04LjYlLCA0PTAuMSUsIDg9MC4xJSwgMTY9
-MC4wJSwgMzI9MC4wJSwgPj02ND0wLjAlDQogICAgPiAgICAgIHN1Ym1pdCAgICA6IDA9MC4wJSwg
-ND0xMDAuMCUsIDg9MC4wJSwgMTY9MC4wJSwgMzI9MC4wJSwgNjQ9MC4wJSwgPj02ND0wLjAlDQog
-ICAgPiAgICAgIGNvbXBsZXRlICA6IDA9MC4wJSwgND0xMDAuMCUsIDg9MC4wJSwgMTY9MC4wJSwg
-MzI9MC4wJSwgNjQ9MC4wJSwgPj02ND0wLjAlDQogICAgPiAgICAgIGlzc3VlZCByd3Q6IHRvdGFs
-PTI0MDcyLDAsMCwgc2hvcnQ9MCwwLDAsIGRyb3BwZWQ9MCwwLDANCiAgICA+ICAgICAgZXJyb3Jz
-ICAgIDogdG90YWw9MCwgZmlyc3RfZXJyb3I9MC88U3VjY2Vzcz4NCiAgICA+ICAgICAgbGF0ZW5j
-eSAgIDogdGFyZ2V0PTAsIHdpbmRvdz0wLCBwZXJjZW50aWxlPTEwMC4wMCUsIGRlcHRoPTgNCiAg
-ICA+DQogICAgPiBSdW4gc3RhdHVzIGdyb3VwIDAgKGFsbCBqb2JzKToNCiAgICA+ICAgIFJFQUQ6
-IGJ3PTE3NjVLaUIvcyAoMTgwOGtCL3MpLCAxNzY1S2lCL3MtMTc2NUtpQi9zICgxODA4a0Ivcy0x
-ODA4a0IvcyksIGlvPTIwN01pQiAoMjE3TUIpLCBydW49MTIwMDEzLTEyMDAxM21zZWMNCiAgICA+
-ID09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCiAgICA+DQogICAgPiAk
-IGNhdCBvdXRwdXQvZmlvL2Jzc3BsaXRfd3JpdGV0ZXN0LmZpbw0KICAgID4gW2dsb2JhbF0NCiAg
-ICA+IGlvZW5naW5lPWxpYmFpbw0KICAgID4gZGlyZWN0PTENCiAgICA+IHRpbWVfYmFzZWQNCiAg
-ICA+IG5vcmFuZG9tbWFwDQogICAgPiBncm91cF9yZXBvcnRpbmcNCiAgICA+IGRpc2tfdXRpbD0w
-DQogICAgPiBjb250aW51ZV9vbl9lcnJvcj1hbGwNCiAgICA+IHJhdGVfcHJvY2Vzcz1wb2lzc29u
-DQogICAgPg0KICAgID4gW2RiLW9sdHAtd10NCiAgICA+IGJzc3BsaXQ9LDhrLzkwOjE2ay8xMCwN
-CiAgICA+IHNpemU9MTI4Rw0KICAgID4gZmlsZW5hbWU9L2Rldi9zZGcNCiAgICA+IHJ3PXJhbmR3
-cml0ZQ0KICAgID4gaW9kZXB0aD04DQogICAgPiByYXRlX2lvcHM9MTAwDQogICAgPiA9PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KICAgID4gJCBpb3N0YXQgLXggMiBz
-ZGcNCiAgICA+DQogICAgPiBhdmctY3B1OiAgJXVzZXIgICAlbmljZSAlc3lzdGVtICVpb3dhaXQg
-ICVzdGVhbCAgICVpZGxlDQogICAgPiAgICAgICAgICAgIDAuMTMgICAgMC4wMCAgICAwLjI1ICAg
-IDQuODkgICAgMC4wMCAgIDk0Ljc0DQogICAgPiBEZXZpY2U6ICAgICAgICAgcnJxbS9zICAgd3Jx
-bS9zICAgICByL3MgICAgIHcvcyAgIHJzZWMvcyAgIHdzZWMvcyBhdmdycS1zeiBhdmdxdS1zeiAg
-IGF3YWl0IHJfYXdhaXQgd19hd2FpdCAgc3ZjdG0gICV1dGlsDQogICAgPiBzZGcgICAgICAgICAg
-ICAgICAwLjAwICAgICAwLjAwICAgIDAuMDAgIDE5NS4wMCAgICAgMC4wMCAgMzQ4MC4wMCAgICAx
-Ny44NSAgICAgMC4yOCAgICAxLjQzICAgIDAuMDAgICAgMS40MyAgIDEuMDYgIDIwLjY1DQogICAg
-Pg0KICAgID4gYXZnLWNwdTogICV1c2VyICAgJW5pY2UgJXN5c3RlbSAlaW93YWl0ICAlc3RlYWwg
-ICAlaWRsZQ0KICAgID4gICAgICAgICAgICAwLjEzICAgIDAuMDAgICAgMC4zOCAgICA0LjM4ICAg
-IDAuMDAgICA5NS4xMg0KICAgID4gRGV2aWNlOiAgICAgICAgIHJycW0vcyAgIHdycW0vcyAgICAg
-ci9zICAgICB3L3MgICByc2VjL3MgICB3c2VjL3MgYXZncnEtc3ogYXZncXUtc3ogICBhd2FpdCBy
-X2F3YWl0IHdfYXdhaXQgIHN2Y3RtICAldXRpbA0KICAgID4gc2RnICAgICAgICAgICAgICAgMC4w
-MCAgICAgMC4wMCAgICAwLjAwICAyMDIuNTAgICAgIDAuMDAgIDM2MzIuMDAgICAgMTcuOTQgICAg
-IDAuMjQgICAgMS4xOCAgICAwLjAwICAgIDEuMTggICAwLjkyICAxOC42MA0KICAgID4NCiAgICA+
-IGF2Zy1jcHU6ICAldXNlciAgICVuaWNlICVzeXN0ZW0gJWlvd2FpdCAgJXN0ZWFsICAgJWlkbGUN
-CiAgICA+ICAgICAgICAgICAgMC4wMCAgICAwLjAwICAgIDAuMjUgICAgMy43NiAgICAwLjAwICAg
-OTUuOTgNCiAgICA+IERldmljZTogICAgICAgICBycnFtL3MgICB3cnFtL3MgICAgIHIvcyAgICAg
-dy9zICAgcnNlYy9zICAgd3NlYy9zIGF2Z3JxLXN6IGF2Z3F1LXN6ICAgYXdhaXQgcl9hd2FpdCB3
-X2F3YWl0ICBzdmN0bSAgJXV0aWwNCiAgICA+IHNkZyAgICAgICAgICAgICAgIDAuMDAgICAgIDAu
-MDAgICAgMC4wMCAgMTc5LjAwICAgICAwLjAwICAzMDcyLjAwICAgIDE3LjE2ICAgICAwLjIxICAg
-IDEuMTUgICAgMC4wMCAgICAxLjE1ICAgMC45MiAgMTYuNDUNCiAgICA+DQogICAgPiBhdmctY3B1
-OiAgJXVzZXIgICAlbmljZSAlc3lzdGVtICVpb3dhaXQgICVzdGVhbCAgICVpZGxlDQogICAgPiAg
-ICAgICAgICAgIDAuMTMgICAgMC4wMCAgICAwLjI1ICAgIDQuNTIgICAgMC4wMCAgIDk1LjExDQog
-ICAgPiBEZXZpY2U6ICAgICAgICAgcnJxbS9zICAgd3JxbS9zICAgICByL3MgICAgIHcvcyAgIHJz
-ZWMvcyAgIHdzZWMvcyBhdmdycS1zeiBhdmdxdS1zeiAgIGF3YWl0IHJfYXdhaXQgd19hd2FpdCAg
-c3ZjdG0gICV1dGlsDQogICAgPiBzZGcgICAgICAgICAgICAgICAwLjAwICAgICAwLjAwICAgIDAu
-MDAgIDE5OS41MCAgICAgMC4wMCAgMzQ3Mi4wMCAgICAxNy40MCAgICAgMC4yNSAgICAxLjI0ICAg
-IDAuMDAgICAgMS4yNCAgIDAuOTggIDE5LjU1DQogICAgPiA9PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT0NCiAgICA+DQogICAgPiAkIHN1ZG8gLi9maW8tMi4xOSAtLXJ1
-bnRpbWUgMTIwIC0tZXRhLW5ld2xpbmU9MzAgb3V0cHV0L2Zpby9ic3NwbGl0X3dyaXRldGVzdC5m
-aW8NCiAgICA+IGRiLW9sdHAtdzogKGc9MCk6IHJ3PXJhbmR3cml0ZSwgYnM9KFIpIDQwOTZCLTQw
-OTZCLCAoVykgODE5MkItMTYuMEtpQiwgKFQpIDQwOTZCLTQwOTZCLCBpb2VuZ2luZT1saWJhaW8s
-IGlvZGVwdGg9OA0KICAgID4gZmlvLTIuMTkNCiAgICA+IFN0YXJ0aW5nIDEgcHJvY2Vzcw0KICAg
-ID4gSm9iczogMSAoZj0xKSwgMC0xMDAgSU9QUzogW3coMSldWzI2LjQlXVtyPTBLaUIvcyx3PTE2
-MzJLaUIvc11bcj0wLHc9MTk0IElPUFNdW2V0YSAwMW06MjlzXQ0KICAgID4gSm9iczogMSAoZj0x
-KSwgMC0xMDAgSU9QUzogW3coMSldWzUxLjIlXVtyPTBLaUIvcyx3PTE2NDhLaUIvc11bcj0wLHc9
-MTkwIElPUFNdW2V0YSAwMG06NTlzXQ0KICAgID4gSm9iczogMSAoZj0xKSwgMC0xMDAgSU9QUzog
-W3coMSldWzc2LjAlXVtyPTBLaUIvcyx3PTE3NjBLaUIvc11bcj0wLHc9MTkzIElPUFNdW2V0YSAw
-MG06MjlzXQ0KICAgID4gSm9iczogMSAoZj0xKSwgMC0xMDAgSU9QUzogW3coMSldWzEwMC4wJV1b
-cj0wS2lCL3Msdz0xODE2S2lCL3NdW3I9MCx3PTIwMiBJT1BTXVtldGEgMDBtOjAwc10NCiAgICA+
-IGRiLW9sdHAtdzogKGdyb3VwaWQ9MCwgam9icz0xKTogZXJyPSAwOiBwaWQ9MTYxNjogV2VkIEFw
-ciAgNSAxNTo1NzowNCAyMDE3DQogICAgPiAgIHdyaXRlOiBJT1BTPTIwMCwgQlc9MTc2NUtpQi9z
-ICgxODA3a0IvcykoMjA3TWlCLzEyMDAxNG1zZWMpDQogICAgPiAgICAgc2xhdCAodXNlYyk6IG1p
-bj01LCBtYXg9MTI1LCBhdmc9MzEuOTEsIHN0ZGV2PTEyLjIwDQogICAgPiAgICAgY2xhdCAodXNl
-Yyk6IG1pbj01MDAsIG1heD0yNjQzNywgYXZnPTExNzAuOTYsIHN0ZGV2PTg0OS44MQ0KICAgID4g
-ICAgICBsYXQgKHVzZWMpOiBtaW49NTE2LCBtYXg9MjY0NDgsIGF2Zz0xMjAyLjg3LCBzdGRldj04
-NDkuNTUNCiAgICA+ICAgICBjbGF0IHBlcmNlbnRpbGVzICh1c2VjKToNCiAgICA+ICAgICAgfCAg
-MS4wMHRoPVsgIDY0NF0sICA1LjAwdGg9WyAgNzMyXSwgMTAuMDB0aD1bICA3ODhdLCAyMC4wMHRo
-PVsgIDg2OF0sDQogICAgPiAgICAgIHwgMzAuMDB0aD1bICA5MzJdLCA0MC4wMHRoPVsgIDk5Nl0s
-IDUwLjAwdGg9WyAxMDQ4XSwgNjAuMDB0aD1bIDExMjhdLA0KICAgID4gICAgICB8IDcwLjAwdGg9
-WyAxMTkyXSwgODAuMDB0aD1bIDEyODhdLCA5MC4wMHRoPVsgMTQ0OF0sIDk1LjAwdGg9WyAxNjA4
-XSwNCiAgICA+ICAgICAgfCA5OS4wMHRoPVsgNDgzMl0sIDk5LjUwdGg9WyA1OTIwXSwgOTkuOTB0
-aD1bMTI0ODBdLCA5OS45NXRoPVsxMzc2MF0sDQogICAgPiAgICAgIHwgOTkuOTl0aD1bMjY0OTZd
-DQogICAgPiAgICAgbGF0ICh1c2VjKSA6IDc1MD02LjE1JSwgMTAwMD0zNC45MyUNCiAgICA+ICAg
-ICBsYXQgKG1zZWMpIDogMj01Ni4zNSUsIDQ9MS4xNSUsIDEwPTEuMjclLCAyMD0wLjExJSwgNTA9
-MC4wMyUNCiAgICA+ICAgY3B1ICAgICAgICAgIDogdXNyPTAuMzklLCBzeXM9MC43OSUsIGN0eD0z
-ODU2MiwgbWFqZj0wLCBtaW5mPTM0DQogICAgPiAgIElPIGRlcHRocyAgICA6IDE9ODAuMiUsIDI9
-MTkuMyUsIDQ9MC40JSwgOD0wLjElLCAxNj0wLjAlLCAzMj0wLjAlLCA+PTY0PTAuMCUNCiAgICA+
-ICAgICAgc3VibWl0ICAgIDogMD0wLjAlLCA0PTEwMC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0w
-LjAlLCA2ND0wLjAlLCA+PTY0PTAuMCUNCiAgICA+ICAgICAgY29tcGxldGUgIDogMD0wLjAlLCA0
-PTEwMC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCA2ND0wLjAlLCA+PTY0PTAuMCUNCiAg
-ICA+ICAgICAgaXNzdWVkIHJ3dDogdG90YWw9MCwyNDA3MiwwLCBzaG9ydD0wLDAsMCwgZHJvcHBl
-ZD0wLDAsMA0KICAgID4gICAgICBlcnJvcnMgICAgOiB0b3RhbD0wLCBmaXJzdF9lcnJvcj0wLzxT
-dWNjZXNzPg0KICAgID4gICAgICBsYXRlbmN5ICAgOiB0YXJnZXQ9MCwgd2luZG93PTAsIHBlcmNl
-bnRpbGU9MTAwLjAwJSwgZGVwdGg9OA0KICAgID4NCiAgICA+IFJ1biBzdGF0dXMgZ3JvdXAgMCAo
-YWxsIGpvYnMpOg0KICAgID4gICBXUklURTogYnc9MTc2NUtpQi9zICgxODA3a0IvcyksIDE3NjVL
-aUIvcy0xNzY1S2lCL3MgKDE4MDdrQi9zLTE4MDdrQi9zKSwgaW89MjA3TWlCICgyMTdNQiksIHJ1
-bj0xMjAwMTQtMTIwMDE0bXNlYw0KICAgID4gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09LS0NCiAgICA+IFRvIHVuc3Vic2NyaWJlIGZyb20gdGhpcyBsaXN0OiBzZW5k
-IHRoZSBsaW5lICJ1bnN1YnNjcmliZSBmaW8iIGluDQogICAgPiB0aGUgYm9keSBvZiBhIG1lc3Nh
-Z2UgdG8gbWFqb3Jkb21vQHZnZXIua2VybmVsLm9yZw0KICAgID4gTW9yZSBtYWpvcmRvbW8gaW5m
-byBhdCAgaHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpvcmRvbW8taW5mby5odG1sDQogICAgDQoN
-Cg==
+Could you remove rate_process=3Dpoisson and try, with the same profile
+without rate_poisson, i am getting a bit less than 100 IOPS expected.
+
+# fio -name=3Drate
+--filename=3D/dev/mapper/3600601602d003e0002cde5580011c8fb
+--ioengine=3Dlibaio --direct=3D1 --fill_device=3D1 --group_reporting
+--rw=3Drandwrite --rate_iops=3D100 --iodepth=3D8 --norandommap
+--bsrange=3D8k-16k --
+bssplit=3D8k/90:16k/10
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.25    0.00    0.38    1.13    0.00   98.24
+
+Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s
+avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
+dm-18             0.00     0.00    0.00   91.00     0.00   800.00
+17.58     0.38    4.20    0.00    4.20   3.96  36.00
+
+--
+Srinivasa R Chamarthy
+
+
+On Thu, Apr 6, 2017 at 12:09 AM, GV Govindasamy
+<gv.govindasamy@nutanix.com> wrote:
+>
+> Hello All
+>
+> I would like to know what I observe is a bug or by design that I don't un=
+derstand. I expect to generate 100 random read ops or 100 random write ops =
+in the following examples with 90% 8k and 10% 16k. FIO also appears to targ=
+et  for 100 IOPS, but ended up doing 2x in actual workload.
+>
+> Thanks,
+> +GV
+>
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> $ ./fio-2.19 --version (compiled with: ./configure --build-static; make o=
+n CentOS release 6.7/3.10.0-229)
+> fio-2.19
+>
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> $ cat output/fio/bssplit_readtest.fio
+> [global]
+> ioengine=3Dlibaio
+> direct=3D1
+> time_based
+> norandommap
+> group_reporting
+> disk_util=3D0
+> continue_on_error=3Dall
+> rate_process=3Dpoisson
+>
+>
+> [db-oltp-w]
+> bssplit=3D8k/90:16k/10,,
+> size=3D128G
+> filename=3D/dev/sdg
+> rw=3Drandread
+> iodepth=3D8
+> rate_iops=3D100
+>
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> $ iostat -x 2 sdg
+>
+> avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+>            0.13    0.00    0.13    1.63    0.00   98.12
+> Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-s=
+z avgqu-sz   await r_await w_await  svctm  %util
+> sdg               0.00     0.00  191.00    0.00  3392.00     0.00    17.7=
+6     0.09    0.45    0.45    0.00   0.41   7.75
+>
+> avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+>            0.25    0.00    0.25    1.75    0.00   97.74
+> Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-s=
+z avgqu-sz   await r_await w_await  svctm  %util
+> sdg               0.00     0.00  193.00    0.00  3424.00     0.00    17.7=
+4     0.08    0.42    0.42    0.00   0.39   7.50
+>
+> avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+>            0.13    0.00    0.25    1.88    0.00   97.74
+> Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-s=
+z avgqu-sz   await r_await w_await  svctm  %util
+> sdg               0.00     0.00  213.50    0.00  3672.00     0.00    17.2=
+0     0.10    0.45    0.45    0.00   0.40   8.45 =3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> $ sudo ./fio-2.19 --runtime 120 --eta-newline=3D30 output/fio/bssplit_rea=
+dtest.fio
+> db-oltp-w: (g=3D0): rw=3Drandread, bs=3D(R) 8192B-16.0KiB, (W) 4096B-4096=
+B, (T) 4096B-4096B, ioengine=3Dlibaio, iodepth=3D8
+> fio-2.19
+> Starting 1 process
+> Jobs: 1 (f=3D1), 0-100 IOPS: [r(1)][26.4%][r=3D1632KiB/s,w=3D0KiB/s][r=3D=
+194,w=3D0 IOPS][eta 01m:29s]
+> Jobs: 1 (f=3D1), 0-100 IOPS: [r(1)][51.2%][r=3D1648KiB/s,w=3D0KiB/s][r=3D=
+190,w=3D0 IOPS][eta 00m:59s]
+> Jobs: 1 (f=3D1), 0-100 IOPS: [r(1)][76.0%][r=3D1760KiB/s,w=3D0KiB/s][r=3D=
+193,w=3D0 IOPS][eta 00m:29s]
+> Jobs: 1 (f=3D1), 0-100 IOPS: [r(1)][100.0%][r=3D1816KiB/s,w=3D0KiB/s][r=
+=3D202,w=3D0 IOPS][eta 00m:00s]
+> db-oltp-w: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D1605: Wed Apr  5 15:5=
+3:00 2017
+>    read: IOPS=3D200, BW=3D1765KiB/s (1808kB/s)(207MiB/120013msec)
+>     slat (usec): min=3D3, max=3D117, avg=3D30.53, stdev=3D11.20
+>     clat (usec): min=3D120, max=3D8658, avg=3D413.81, stdev=3D216.67
+>      lat (usec): min=3D139, max=3D8697, avg=3D444.34, stdev=3D218.71
+>     clat percentiles (usec):
+>      |  1.00th=3D[  175],  5.00th=3D[  221], 10.00th=3D[  251], 20.00th=
+=3D[  290],
+>      | 30.00th=3D[  338], 40.00th=3D[  382], 50.00th=3D[  406], 60.00th=
+=3D[  434],
+>      | 70.00th=3D[  462], 80.00th=3D[  498], 90.00th=3D[  556], 95.00th=
+=3D[  620],
+>      | 99.00th=3D[  756], 99.50th=3D[  932], 99.90th=3D[ 3632], 99.95th=
+=3D[ 4704],
+>      | 99.99th=3D[ 6368]
+>     lat (usec) : 250=3D9.84%, 500=3D70.75%, 750=3D18.34%, 1000=3D0.60%
+>     lat (msec) : 2=3D0.26%, 4=3D0.12%, 10=3D0.08%
+>   cpu          : usr=3D0.37%, sys=3D0.84%, ctx=3D44140, majf=3D0, minf=3D=
+60
+>   IO depths    : 1=3D91.3%, 2=3D8.6%, 4=3D0.1%, 8=3D0.1%, 16=3D0.0%, 32=
+=3D0.0%, >=3D64=3D0.0%
+>      submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
+=3D0.0%, >=3D64=3D0.0%
+>      complete  : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
+=3D0.0%, >=3D64=3D0.0%
+>      issued rwt: total=3D24072,0,0, short=3D0,0,0, dropped=3D0,0,0
+>      errors    : total=3D0, first_error=3D0/<Success>
+>      latency   : target=3D0, window=3D0, percentile=3D100.00%, depth=3D8
+>
+> Run status group 0 (all jobs):
+>    READ: bw=3D1765KiB/s (1808kB/s), 1765KiB/s-1765KiB/s (1808kB/s-1808kB/=
+s), io=3D207MiB (217MB), run=3D120013-120013msec
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> $ cat output/fio/bssplit_writetest.fio
+> [global]
+> ioengine=3Dlibaio
+> direct=3D1
+> time_based
+> norandommap
+> group_reporting
+> disk_util=3D0
+> continue_on_error=3Dall
+> rate_process=3Dpoisson
+>
+> [db-oltp-w]
+> bssplit=3D,8k/90:16k/10,
+> size=3D128G
+> filename=3D/dev/sdg
+> rw=3Drandwrite
+> iodepth=3D8
+> rate_iops=3D100
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> $ iostat -x 2 sdg
+>
+> avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+>            0.13    0.00    0.25    4.89    0.00   94.74
+> Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-s=
+z avgqu-sz   await r_await w_await  svctm  %util
+> sdg               0.00     0.00    0.00  195.00     0.00  3480.00    17.8=
+5     0.28    1.43    0.00    1.43   1.06  20.65
+>
+> avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+>            0.13    0.00    0.38    4.38    0.00   95.12
+> Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-s=
+z avgqu-sz   await r_await w_await  svctm  %util
+> sdg               0.00     0.00    0.00  202.50     0.00  3632.00    17.9=
+4     0.24    1.18    0.00    1.18   0.92  18.60
+>
+> avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+>            0.00    0.00    0.25    3.76    0.00   95.98
+> Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-s=
+z avgqu-sz   await r_await w_await  svctm  %util
+> sdg               0.00     0.00    0.00  179.00     0.00  3072.00    17.1=
+6     0.21    1.15    0.00    1.15   0.92  16.45
+>
+> avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+>            0.13    0.00    0.25    4.52    0.00   95.11
+> Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-s=
+z avgqu-sz   await r_await w_await  svctm  %util
+> sdg               0.00     0.00    0.00  199.50     0.00  3472.00    17.4=
+0     0.25    1.24    0.00    1.24   0.98  19.55
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> $ sudo ./fio-2.19 --runtime 120 --eta-newline=3D30 output/fio/bssplit_wri=
+tetest.fio
+> db-oltp-w: (g=3D0): rw=3Drandwrite, bs=3D(R) 4096B-4096B, (W) 8192B-16.0K=
+iB, (T) 4096B-4096B, ioengine=3Dlibaio, iodepth=3D8
+> fio-2.19
+> Starting 1 process
+> Jobs: 1 (f=3D1), 0-100 IOPS: [w(1)][26.4%][r=3D0KiB/s,w=3D1632KiB/s][r=3D=
+0,w=3D194 IOPS][eta 01m:29s]
+> Jobs: 1 (f=3D1), 0-100 IOPS: [w(1)][51.2%][r=3D0KiB/s,w=3D1648KiB/s][r=3D=
+0,w=3D190 IOPS][eta 00m:59s]
+> Jobs: 1 (f=3D1), 0-100 IOPS: [w(1)][76.0%][r=3D0KiB/s,w=3D1760KiB/s][r=3D=
+0,w=3D193 IOPS][eta 00m:29s]
+> Jobs: 1 (f=3D1), 0-100 IOPS: [w(1)][100.0%][r=3D0KiB/s,w=3D1816KiB/s][r=
+=3D0,w=3D202 IOPS][eta 00m:00s]
+> db-oltp-w: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D1616: Wed Apr  5 15:5=
+7:04 2017
+>   write: IOPS=3D200, BW=3D1765KiB/s (1807kB/s)(207MiB/120014msec)
+>     slat (usec): min=3D5, max=3D125, avg=3D31.91, stdev=3D12.20
+>     clat (usec): min=3D500, max=3D26437, avg=3D1170.96, stdev=3D849.81
+>      lat (usec): min=3D516, max=3D26448, avg=3D1202.87, stdev=3D849.55
+>     clat percentiles (usec):
+>      |  1.00th=3D[  644],  5.00th=3D[  732], 10.00th=3D[  788], 20.00th=
+=3D[  868],
+>      | 30.00th=3D[  932], 40.00th=3D[  996], 50.00th=3D[ 1048], 60.00th=
+=3D[ 1128],
+>      | 70.00th=3D[ 1192], 80.00th=3D[ 1288], 90.00th=3D[ 1448], 95.00th=
+=3D[ 1608],
+>      | 99.00th=3D[ 4832], 99.50th=3D[ 5920], 99.90th=3D[12480], 99.95th=
+=3D[13760],
+>      | 99.99th=3D[26496]
+>     lat (usec) : 750=3D6.15%, 1000=3D34.93%
+>     lat (msec) : 2=3D56.35%, 4=3D1.15%, 10=3D1.27%, 20=3D0.11%, 50=3D0.03=
+%
+>   cpu          : usr=3D0.39%, sys=3D0.79%, ctx=3D38562, majf=3D0, minf=3D=
+34
+>   IO depths    : 1=3D80.2%, 2=3D19.3%, 4=3D0.4%, 8=3D0.1%, 16=3D0.0%, 32=
+=3D0.0%, >=3D64=3D0.0%
+>      submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
+=3D0.0%, >=3D64=3D0.0%
+>      complete  : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
+=3D0.0%, >=3D64=3D0.0%
+>      issued rwt: total=3D0,24072,0, short=3D0,0,0, dropped=3D0,0,0
+>      errors    : total=3D0, first_error=3D0/<Success>
+>      latency   : target=3D0, window=3D0, percentile=3D100.00%, depth=3D8
+>
+> Run status group 0 (all jobs):
+>   WRITE: bw=3D1765KiB/s (1807kB/s), 1765KiB/s-1765KiB/s (1807kB/s-1807kB/=
+s), io=3D207MiB (217MB), run=3D120014-120014msec
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D--
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
