@@ -1,77 +1,44 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 3/8] Add assert(0) to DDIR_DATASYNC sync path if fdatasync(2) is unsupported
-Date: Tue,  4 Apr 2017 23:22:13 +0300
-Message-Id: <20170404202218.52260-3-tkusumi@tuxera.com>
-In-Reply-To: <20170404202218.52260-1-tkusumi@tuxera.com>
-References: <20170404202218.52260-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-by2nam01on0130.outbound.protection.outlook.com ([104.47.34.130]:9447
+        "EHLO NAM01-BY2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751608AbdDFVOO (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 6 Apr 2017 17:14:14 -0400
+From: GV Govindasamy <gv.govindasamy@nutanix.com>
+Subject: Re: FIO does 2x IOPS with 'bssplit' option and 'rw=randwrite or
+ rw=randread'
+Date: Thu, 6 Apr 2017 21:14:12 +0000
+Message-ID: <899BF8B1-07F4-4A77-9922-7FC6868D0DF8@nutanix.com>
+References: <b83e861c86f9423b947b12336d08e75b9e6d80d437aa41ab8775f7673db0ecf8BL2PR02MB19712B5A9DD0B600FC59ABC8810A0@BL2PR02MB1971.namprd02.prod.outlook.com>
+ <CABtFm2UGCb55eCivd9rG6f8Nz7h0HNTK+cCFY-BwoCo3q8+bYA@mail.gmail.com>
+ <8A97F2CE-0E54-4E15-8C11-DA4E09558107@nutanix.com>
+ <CALjAwxhc8d9_2pacEoZrJVjZAy_AiNn_QrCKooZCuz=OYiMPCg@mail.gmail.com>
+In-Reply-To: <CALjAwxhc8d9_2pacEoZrJVjZAy_AiNn_QrCKooZCuz=OYiMPCg@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <90AB2D4E50F7284DA3B20F8FE1427A07@namprd02.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: Srinivasa Chamarthy <chamarthy.raju@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
-
-If ddir is DDIR_DATASYNC, it means fio supports fdatasync(2), or it
-at least compiled on ./configure. If a platform without fdatasync(2)
-happens to take DDIR_DATASYNC path in do_io_u_sync(), it's simply wrong
-(because ddir should never be DDIR_DATASYNC due to td->o.fdatasync_blocks == 0)
-thus should be aborted rather than continue with EINVAL.
-
-This commit also leaves the existing code from #else path to avoid
-compilers complain for uninitialized ret variable.
-
-Tested on FreeBSD and DragonFlyBSD.
-
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- HOWTO  | 3 ++-
- init.c | 4 ++++
- io_u.c | 1 +
- 3 files changed, 7 insertions(+), 1 deletion(-)
-
-diff --git a/HOWTO b/HOWTO
-index 80b9e75..b9114b4 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1109,7 +1109,8 @@ I/O type
- 
- 	Like :option:`fsync` but uses :manpage:`fdatasync(2)` to only sync data and
- 	not metadata blocks.  In Windows, FreeBSD, and DragonFlyBSD there is no
--	:manpage:`fdatasync(2)`, this falls back to using :manpage:`fsync(2)`.
-+	:manpage:`fdatasync(2)`, this falls back to using :manpage:`fsync(2)`
-+	by overwriting :manpage:`fsync(2)` value with this option.
- 	Defaults to 0, which means no sync data every certain number of writes.
- 
- .. option:: write_barrier=int
-diff --git a/init.c b/init.c
-index 2f9433b..90aaea3 100644
---- a/init.c
-+++ b/init.c
-@@ -782,6 +782,10 @@ static int fixup_options(struct thread_data *td)
- 	}
- 
- #ifndef CONFIG_FDATASYNC
-+	/*
-+	 * If the platform doesn't support fdatasync(2) (e.g. FreeBSD),
-+	 * force fsync= using fdatasync= value specified.
-+	 */
- 	if (o->fdatasync_blocks) {
- 		log_info("fio: this platform does not support fdatasync()"
- 			 " falling back to using fsync().  Use the 'fsync'"
-diff --git a/io_u.c b/io_u.c
-index 88f35c9..86c5fc1 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -2115,6 +2115,7 @@ int do_io_u_sync(const struct thread_data *td, struct io_u *io_u)
- #else
- 		ret = io_u->xfer_buflen;
- 		io_u->error = EINVAL;
-+		assert(0); /* should be falling back to fsync(2) */
- #endif
- 	} else if (io_u->ddir == DDIR_SYNC_FILE_RANGE)
- 		ret = do_sync_file_range(td, io_u->file);
--- 
-2.9.3
-
-
+WWVzLCB0aGFua3MgU2l0c29mZS4gTWFudWFsIGNhbGN1bGF0aW9uIG9mIHRoZSBzaXplIGluIGJ5
+dGVzIGFzIGlucHV0IHRvIOKAnHJhdGXigJ0gaGVscHMuDQoNClRoYW5rcw0KK0dWDQoNCk9uIDQv
+Ni8xNywgNDoxNyBQTSwgIlNpdHNvZmUgV2hlZWxlciIgPHNpdHNvZmVAZ21haWwuY29tPiB3cm90
+ZToNCg0KICAgIEhJLA0KICAgIA0KICAgIE9uIDYgQXByaWwgMjAxNyBhdCAxNzo0NiwgR1YgR292
+aW5kYXNhbXkgPGd2LmdvdmluZGFzYW15QG51dGFuaXguY29tPiB3cm90ZToNCiAgICA+IFRoYW5r
+IHlvdSwgWWVzLiB3aGVuIEkgcmVtb3ZlIOKAnHJhdGVfcHJvY2Vzcz1wb2lzc29u4oCdLCB0aGUg
+SU9QUyBhcmUgZG93biB0byBhYm91dCA4NSUgLSA5MCUuDQogICAgPg0KICAgID4gSSBjaGVja2Vk
+IHdpdGggcmF0ZV9pb3BzPTEwMCBhbmQgcmF0ZV9pb3BzPTEwMDAuIEluIGJvdGggY2FzZXMsIEkg
+Z290IDg1JS05MCUgb2YgcmF0ZV9pb3BzIGdpdmVuLg0KICAgID4NCiAgICA+IEhvdyBkbyBJIGFj
+Y29tcGxpc2ggMTAwJSBvZiBJT1BTPw0KICAgIA0KICAgID4gICAgID4gW2RiLW9sdHAtd10NCiAg
+ICA+ICAgICA+IGJzc3BsaXQ9OGsvOTA6MTZrLzEwLCwNCiAgICA+ICAgICA+IHNpemU9MTI4Rw0K
+ICAgID4gICAgID4gZmlsZW5hbWU9L2Rldi9zZGcNCiAgICA+ICAgICA+IHJ3PXJhbmRyZWFkDQog
+ICAgPiAgICAgPiBpb2RlcHRoPTgNCiAgICA+ICAgICA+IHJhdGVfaW9wcz0xMDANCiAgICANCiAg
+ICBJdCBzZWVtcyB0byBiZSBhIHF1aXJrIG9mIHVzaW5nIGJzcGxpdCB3aXRoIHJhdGVfaW9wcy4g
+SWYgdGhlDQogICAgZGlmZmVyZW5jZSBiZXR3ZWVuIHRoZSBic3BsaXQgc2l6ZXMgaXMgbGFyZ2Vy
+IHRoZW4gdGhlIGRyb3AgaW4gdGhlDQogICAgaW9wcyBhY2hpZXZlZCB3aWxsIGJlIGV2ZW4gaGln
+aGVyLi4uDQogICAgDQogICAgLS0gDQogICAgU2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9yZy9+c2l0
+cy8NCiAgICANCg0K
