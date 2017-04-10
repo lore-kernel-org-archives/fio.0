@@ -1,153 +1,64 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f170.google.com ([209.85.217.170]:34865 "EHLO
-        mail-ua0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754178AbdDKJGR (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 11 Apr 2017 05:06:17 -0400
-Received: by mail-ua0-f170.google.com with SMTP id 49so54411312uau.2
-        for <fio@vger.kernel.org>; Tue, 11 Apr 2017 02:06:17 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <a57ca9a46da448c18611264ee149a9d1@bowex36b.micron.com>
+Received: from mailout.micron.com ([137.201.242.129]:11378 "EHLO
+        mailout.micron.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751514AbdDJVar (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 10 Apr 2017 17:30:47 -0400
+From: "Deyoung Hong (dhong)" <dhong@micron.com>
+Subject: RE: Adding IO engine
+Date: Mon, 10 Apr 2017 21:30:45 +0000
+Message-ID: <e912bacd91594f61b7980512c35dcda9@bowex36b.micron.com>
 References: <72a0d7083a3e46b4a4369c19d73c62fc@bowex36b.micron.com>
- <CANvN+ekzXJLBYU+N0b-UCg=StSQDeoPRgYpD8TyS_WB_xLgSbw@mail.gmail.com>
- <00494c90cb794f3989606f3cb6fabe53@bowex36b.micron.com> <CANvN+enoDFUpXTpj8HQw2cu8PUbQRV-6yttNUaGn7ovfMNQPsg@mail.gmail.com>
- <CANvN+ekVsscY4adJyns3tup57Fuhg3ixw-u_4Ny9DWDcB5ymHQ@mail.gmail.com>
- <CANvN+e=m-Kt68SjT_iUNTLcjPLWWjOSYPeJiE-w54ASBv+F+DQ@mail.gmail.com> <a57ca9a46da448c18611264ee149a9d1@bowex36b.micron.com>
-From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
-Date: Tue, 11 Apr 2017 12:05:56 +0300
-Message-ID: <CANvN+e=5NQ-rOHa+aWL4JWmW-=aTmD_NQHYReWL4H1+NqTArSQ@mail.gmail.com>
-Subject: Re: Adding IO engine
-Content-Type: text/plain; charset=UTF-8
+ <CALjAwxgBDhiG2fftHGyDJUhEn=CAVGN_YsykttSbk-NoTUXHWw@mail.gmail.com>
+In-Reply-To: <CALjAwxgBDhiG2fftHGyDJUhEn=CAVGN_YsykttSbk-NoTUXHWw@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Deyoung Hong (dhong)" <dhong@micron.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On Tue, Apr 11, 2017 at 8:22 AM, Deyoung Hong (dhong) <dhong@micron.com> wrote:
-> I would think both ->setup and ->get_file_size should be called before
-
-get_file_size is not being called if the engine provides setup()
-method. If it doesn't, fio calls get_file_size too early, to my
-recollection even before the engine has been properly initialized, and
-that's why setup() workaround exists.
-
-> ->iomem_alloc, but I have an fio job file (case problem reported by the
-> user) where ->iomem_alloc is called before ->setup.
-
-if you see this happening (although, from my year-old recollection,
-that's not the case with setup()), just submit a bug report showing
-your job file and call sequence.
-
-Regards,
-Andrey
-
-> My main question is
-> that an fio bug (minor)?  If someone would like to fix it, I can send a test
-> job file.
->
->
->
-> Thanks,
->
-> Deyoung
->
->
->
->
->
-> From: Andrey Kuzmin [mailto:andrey.v.kuzmin@gmail.com]
-> Sent: Monday, April 10, 2017 2:40 PM
-> To: Deyoung Hong (dhong) <dhong@micron.com>
-> Cc: fio@vger.kernel.org
-> Subject: RE: Adding IO engine
->
->
->
->
->
->
->
-> On Apr 11, 2017 00:21, "Deyoung Hong (dhong)" <dhong@micron.com> wrote:
->
-> The concept of "file" can represent a special device and driver unknown to
-> the system, and get_file_size() and/or setup() are usually the first APIs
-> that fio should call where the device will be initialized and set its max
-> size so that fio can know the device "file" capacity.  Such device has to be
-> initialized prior to IO (DMA) buffer allocation/free that is specific only
-> to that device.   There isn't any other fio plugin APIs that precede
-> iomem_alloc, and I think iomem_alloc/free were added specifically to support
-> that special device.
->
->
->
->
->
-> No, the API was added to support I/O engines with special requirements re
-> I/O buffer memory, with no relation to special files. If you have specific
-> file setup requirements, your engine should provide setup method. As far as
-> I recall, it occurs before iomem initialization.
->
->
->
-> Regards,
->
-> Andrey
->
->
-> How is that a misconception?
->
->
->
-> -----Original Message-----
-> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Behalf
-> Of Andrey Kuzmin
-> Sent: Monday, April 10, 2017 12:44 PM
-> To: Deyoung Hong (dhong) <dhong@micron.com>
-> Cc: fio@vger.kernel.org
-> Subject: Re: Adding IO engine
->
-> On Mon, Apr 10, 2017 at 8:45 PM, Deyoung Hong (dhong) <dhong@micron.com>
-> wrote:
->> Hi Jens,
->>
->> I have a couple basic questions:
->>
->> 1)  If I want to submit a new IO engine with fio and it has a dependency
->> on an external library, how does that work when fio is compiled?  Please
->> also point me to info how to submit a new IO engine to be packaged with fio?
->>
->> 2)  I've seen cases where the ->iomem_alloc() function (i.e. for a custom
->> IO engine) is invoked first by fio before ->get_file_size() or ->setup().
->> This causes an issue since IO memory allocation can have dependency on
->> certain initialization (for the custom IO engine) that is done in
->> ->get_file_size().   I just wonder if that's an fio bug or how it should be?
->
-> It sounds more like a misconception re iomem_{alloc,free} API. It is
-> about buffers I/O goes to/from, not files. As an example (and the root
-> cause behind the API proposal), I wanted to be able to allocate
-> buffers in DMAable memory as my engine required that to interact with
-> hardware directly.
->
-> Being unrelated to files by design, buffer initialization occurs way
-> before file setup as it did in fio before iomem_* API was introduced.
->
-> Regards,
-> Andrey
->
->
->
->>   My current work around is to check in ->iomem_alloc() each time and do
->> initializion first if has not.
->>
->> Thanks,
->> Deyoung
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe fio" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> --
-> To unsubscribe from this list: send the line "unsubscribe fio" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->
+T24geW91ciByZXNwb25zZSBvZiAyKQ0KDQpObywgLT5pb191X2luaXQoKSBpcyBhbHdheXMgY2Fs
+bGVkIGFmdGVyIC0+Z2V0X2ZpbGVfc2l6ZSgpLCB3aGVyZWFzIC0+aW9tZW1fYWxsb2MoKSBpcyBj
+YWxsZWQgYmVmb3JlIC0+Z2V0X2ZpbGVfc2l6ZSgpIG9ubHkgaW4gc29tZSBwZWN1bGlhciBjYXNl
+cy4NCg0KSSdkIGxpa2UgSmVucyB0byBleHBsYWluIGlmIGJ5IGRlc2lnbiBvciBpbiB3aGljaCBj
+YXNlIHRoYXQgIC0+aW9tZW1fYWxsb2MoKSBpcyBjYWxsZWQgYmVmb3JlICAtPmdldF9maWxlX3Np
+emU/DQoNCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IGZpby1vd25lckB2Z2Vy
+Lmtlcm5lbC5vcmcgW21haWx0bzpmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnXSBPbiBCZWhhbGYg
+T2YgU2l0c29mZSBXaGVlbGVyDQpTZW50OiBNb25kYXksIEFwcmlsIDEwLCAyMDE3IDE6MzEgUE0N
+ClRvOiBEZXlvdW5nIEhvbmcgKGRob25nKSA8ZGhvbmdAbWljcm9uLmNvbT4NCkNjOiBmaW9Admdl
+ci5rZXJuZWwub3JnDQpTdWJqZWN0OiBSZTogQWRkaW5nIElPIGVuZ2luZQ0KDQpIaSwNCg0KT24g
+MTAgQXByaWwgMjAxNyBhdCAxODo0NSwgRGV5b3VuZyBIb25nIChkaG9uZykgPGRob25nQG1pY3Jv
+bi5jb20+IHdyb3RlOg0KPg0KPiBJIGhhdmUgYSBjb3VwbGUgYmFzaWMgcXVlc3Rpb25zOg0KPg0K
+PiAxKSAgSWYgSSB3YW50IHRvIHN1Ym1pdCBhIG5ldyBJTyBlbmdpbmUgd2l0aCBmaW8gYW5kIGl0
+IGhhcyBhIGRlcGVuZGVuY3kgb24gYW4gZXh0ZXJuYWwgbGlicmFyeSwgaG93IGRvZXMgdGhhdCB3
+b3JrIHdoZW4gZmlvIGlzIGNvbXBpbGVkPyAgUGxlYXNlIGFsc28gcG9pbnQgbWUgdG8gaW5mbyBo
+b3cgdG8gc3VibWl0IGEgbmV3IElPIGVuZ2luZSB0byBiZSBwYWNrYWdlZCB3aXRoIGZpbz8NCg0K
+Tm9ybWFsbHkgeW91IGNoZWNrIGZvciB0aGUgZGVwZW5kZW5jaWVzIGluIC4vY29uZmlndXJlIGFu
+ZCBvbmx5IG91dHB1dA0KYSBzeW1ib2wgaWYgdGhlIHJlcXVpcmVtZW50cyBmb3IgY29tcGlsaW5n
+IGEgdGVzdCBwcm9ncmFtIGFyZSBhbGwNCnNhdGlzZmllZC4gQSBjb21tb24gdHJlbmQgaXMgdG8g
+YWRkIGEgLS1kaXNhYmxlLSogZmxhZyB0byBlbnN1cmUgeW91cg0KZW5naW5lIGlzIG5vdCBidWls
+dCBldmVuIGlmIGFsbCBpdHMgZGVwZW5kZW5jaWVzIGFyZSBhdmFpbGFibGUuIFlvdQ0KY2FuIHRo
+ZW4gY2hlY2sgZm9yIHRoZSBzeW1ib2wgaW4gYSB2YXJpZXR5IG9mIHBsYWNlcyBpbiB0aGUgY29k
+ZSBhbmQNCmluIHRoZSBNYWtlZmlsZSB0byBkZWNpZGUgd2hhdCB0byBidWlsZCBhbmQgd2hlbi4g
+V2hlbiBzdWJtaXR0aW5nIGENCm5ldyBlbmdpbmUgaXQgaXMgYWxzbyBpbXBvcnRhbnQgdG8gc3Vi
+bWl0IGRvY3VtZW50YXRpb24gYWJvdXQgdGhlDQplbmdpbmUgdG8gYXQgbGVhc3QgdGhlIEhPV1RP
+IGFuZCBpbmNsdWRlIGFuIGV4YW1wbGUgam9iZmlsZSB0aGF0DQpkZW1vbnN0cmF0ZXMgaG93IHRv
+IHVzZSB0aGUgSU8gZW5naW5lLiBBbiBleGFtcGxlIG9mIGEgcmVjZW50bHkgbWVyZ2VkDQpJTyBl
+bmdpbmUgY2FuIGJlIGZvdW5kIG92ZXIgb24gaHR0cHM6Ly9naXRodWIuY29tL2F4Ym9lL2Zpby9w
+dWxsLzI0MyAuDQpPdGhlciBJTyBlbmdpbmVzIHRoYXQgYXJlbid0IHRoYXQgb2xkIGFyZSBlbmdp
+bmVzL3BtZW1ibGsuYyBhbmQNCmVuZ2luZXMvZGV2LWRheC5jICwNCg0KPiAyKSAgSSd2ZSBzZWVu
+IGNhc2VzIHdoZXJlIHRoZSAtPmlvbWVtX2FsbG9jKCkgZnVuY3Rpb24gKGkuZS4gZm9yIGEgY3Vz
+dG9tIElPIGVuZ2luZSkgaXMgaW52b2tlZCBmaXJzdCBieSBmaW8gYmVmb3JlIC0+Z2V0X2ZpbGVf
+c2l6ZSgpIG9yIC0+c2V0dXAoKS4gIFRoaXMgY2F1c2VzIGFuIGlzc3VlIHNpbmNlIElPIG1lbW9y
+eSBhbGxvY2F0aW9uIGNhbiBoYXZlIGRlcGVuZGVuY3kgb24gY2VydGFpbiBpbml0aWFsaXphdGlv
+biAoZm9yIHRoZSBjdXN0b20gSU8gZW5naW5lKSB0aGF0IGlzIGRvbmUgaW4gLT5nZXRfZmlsZV9z
+aXplKCkuICAgSSBqdXN0IHdvbmRlciBpZiB0aGF0J3MgYW4gZmlvIGJ1ZyBvciBob3cgaXQgc2hv
+dWxkIGJlPyAgIE15IGN1cnJlbnQgd29yayBhcm91bmQgaXMgdG8gY2hlY2sgaW4gLT5pb21lbV9h
+bGxvYygpIGVhY2ggdGltZSBhbmQgZG8gaW5pdGlhbGl6aW9uIGZpcnN0IGlmIGhhcyBub3QuDQoN
+ClBlcmhhcHMgeW91IGNvdWxkIGRvIGl0IGluIC0+aW9fdV9pbml0KCkgPw0KDQotLSANClNpdHNv
+ZmUgfCBodHRwOi8vc3Vjcy5vcmcvfnNpdHMvDQotLQ0KVG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlz
+IGxpc3Q6IHNlbmQgdGhlIGxpbmUgInVuc3Vic2NyaWJlIGZpbyIgaW4NCnRoZSBib2R5IG9mIGEg
+bWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnDQpNb3JlIG1ham9yZG9tbyBpbmZv
+IGF0ICBodHRwOi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwNCg==
