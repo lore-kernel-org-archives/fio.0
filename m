@@ -1,67 +1,56 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mailout.micron.com ([137.201.242.129]:47394 "EHLO
-        mailout.micron.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751585AbdDJVVf (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 10 Apr 2017 17:21:35 -0400
-From: "Deyoung Hong (dhong)" <dhong@micron.com>
-Subject: RE: Adding IO engine
-Date: Mon, 10 Apr 2017 21:21:33 +0000
-Message-ID: <00494c90cb794f3989606f3cb6fabe53@bowex36b.micron.com>
-References: <72a0d7083a3e46b4a4369c19d73c62fc@bowex36b.micron.com>
- <CANvN+ekzXJLBYU+N0b-UCg=StSQDeoPRgYpD8TyS_WB_xLgSbw@mail.gmail.com>
-In-Reply-To: <CANvN+ekzXJLBYU+N0b-UCg=StSQDeoPRgYpD8TyS_WB_xLgSbw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-vk0-f53.google.com ([209.85.213.53]:34630 "EHLO
+        mail-vk0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752746AbdDJUbR (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 10 Apr 2017 16:31:17 -0400
+Received: by mail-vk0-f53.google.com with SMTP id z204so102521793vkd.1
+        for <fio@vger.kernel.org>; Mon, 10 Apr 2017 13:31:17 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <72a0d7083a3e46b4a4369c19d73c62fc@bowex36b.micron.com>
+References: <72a0d7083a3e46b4a4369c19d73c62fc@bowex36b.micron.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Mon, 10 Apr 2017 21:30:46 +0100
+Message-ID: <CALjAwxgBDhiG2fftHGyDJUhEn=CAVGN_YsykttSbk-NoTUXHWw@mail.gmail.com>
+Subject: Re: Adding IO engine
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+To: "Deyoung Hong (dhong)" <dhong@micron.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-VGhlIGNvbmNlcHQgb2YgImZpbGUiIGNhbiByZXByZXNlbnQgYSBzcGVjaWFsIGRldmljZSBhbmQg
-ZHJpdmVyIHVua25vd24gdG8gdGhlIHN5c3RlbSwgYW5kIGdldF9maWxlX3NpemUoKSBhbmQvb3Ig
-c2V0dXAoKSBhcmUgdXN1YWxseSB0aGUgZmlyc3QgQVBJcyB0aGF0IGZpbyBzaG91bGQgY2FsbCB3
-aGVyZSB0aGUgZGV2aWNlIHdpbGwgYmUgaW5pdGlhbGl6ZWQgYW5kIHNldCBpdHMgbWF4IHNpemUg
-c28gdGhhdCBmaW8gY2FuIGtub3cgdGhlIGRldmljZSAiZmlsZSIgY2FwYWNpdHkuICBTdWNoIGRl
-dmljZSBoYXMgdG8gYmUgaW5pdGlhbGl6ZWQgcHJpb3IgdG8gSU8gKERNQSkgYnVmZmVyIGFsbG9j
-YXRpb24vZnJlZSB0aGF0IGlzIHNwZWNpZmljIG9ubHkgdG8gdGhhdCBkZXZpY2UuICAgVGhlcmUg
-aXNuJ3QgYW55IG90aGVyIGZpbyBwbHVnaW4gQVBJcyB0aGF0IHByZWNlZGUgaW9tZW1fYWxsb2Ms
-IGFuZCBJIHRoaW5rIGlvbWVtX2FsbG9jL2ZyZWUgd2VyZSBhZGRlZCBzcGVjaWZpY2FsbHkgdG8g
-c3VwcG9ydCB0aGF0IHNwZWNpYWwgZGV2aWNlLg0KDQpIb3cgaXMgdGhhdCBhIG1pc2NvbmNlcHRp
-b24/DQoNCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IGZpby1vd25lckB2Z2Vy
-Lmtlcm5lbC5vcmcgW21haWx0bzpmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnXSBPbiBCZWhhbGYg
-T2YgQW5kcmV5IEt1em1pbg0KU2VudDogTW9uZGF5LCBBcHJpbCAxMCwgMjAxNyAxMjo0NCBQTQ0K
-VG86IERleW91bmcgSG9uZyAoZGhvbmcpIDxkaG9uZ0BtaWNyb24uY29tPg0KQ2M6IGZpb0B2Z2Vy
-Lmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBBZGRpbmcgSU8gZW5naW5lDQoNCk9uIE1vbiwgQXBy
-IDEwLCAyMDE3IGF0IDg6NDUgUE0sIERleW91bmcgSG9uZyAoZGhvbmcpIDxkaG9uZ0BtaWNyb24u
-Y29tPiB3cm90ZToNCj4gSGkgSmVucywNCj4NCj4gSSBoYXZlIGEgY291cGxlIGJhc2ljIHF1ZXN0
-aW9uczoNCj4NCj4gMSkgIElmIEkgd2FudCB0byBzdWJtaXQgYSBuZXcgSU8gZW5naW5lIHdpdGgg
-ZmlvIGFuZCBpdCBoYXMgYSBkZXBlbmRlbmN5IG9uIGFuIGV4dGVybmFsIGxpYnJhcnksIGhvdyBk
-b2VzIHRoYXQgd29yayB3aGVuIGZpbyBpcyBjb21waWxlZD8gIFBsZWFzZSBhbHNvIHBvaW50IG1l
-IHRvIGluZm8gaG93IHRvIHN1Ym1pdCBhIG5ldyBJTyBlbmdpbmUgdG8gYmUgcGFja2FnZWQgd2l0
-aCBmaW8/DQo+DQo+IDIpICBJJ3ZlIHNlZW4gY2FzZXMgd2hlcmUgdGhlIC0+aW9tZW1fYWxsb2Mo
-KSBmdW5jdGlvbiAoaS5lLiBmb3IgYSBjdXN0b20gSU8gZW5naW5lKSBpcyBpbnZva2VkIGZpcnN0
-IGJ5IGZpbyBiZWZvcmUgLT5nZXRfZmlsZV9zaXplKCkgb3IgLT5zZXR1cCgpLiAgVGhpcyBjYXVz
-ZXMgYW4gaXNzdWUgc2luY2UgSU8gbWVtb3J5IGFsbG9jYXRpb24gY2FuIGhhdmUgZGVwZW5kZW5j
-eSBvbiBjZXJ0YWluIGluaXRpYWxpemF0aW9uIChmb3IgdGhlIGN1c3RvbSBJTyBlbmdpbmUpIHRo
-YXQgaXMgZG9uZSBpbiAtPmdldF9maWxlX3NpemUoKS4gICBJIGp1c3Qgd29uZGVyIGlmIHRoYXQn
-cyBhbiBmaW8gYnVnIG9yIGhvdyBpdCBzaG91bGQgYmU/DQoNCkl0IHNvdW5kcyBtb3JlIGxpa2Ug
-YSBtaXNjb25jZXB0aW9uIHJlIGlvbWVtX3thbGxvYyxmcmVlfSBBUEkuIEl0IGlzDQphYm91dCBi
-dWZmZXJzIEkvTyBnb2VzIHRvL2Zyb20sIG5vdCBmaWxlcy4gQXMgYW4gZXhhbXBsZSAoYW5kIHRo
-ZSByb290DQpjYXVzZSBiZWhpbmQgdGhlIEFQSSBwcm9wb3NhbCksIEkgd2FudGVkIHRvIGJlIGFi
-bGUgdG8gYWxsb2NhdGUNCmJ1ZmZlcnMgaW4gRE1BYWJsZSBtZW1vcnkgYXMgbXkgZW5naW5lIHJl
-cXVpcmVkIHRoYXQgdG8gaW50ZXJhY3Qgd2l0aA0KaGFyZHdhcmUgZGlyZWN0bHkuDQoNCkJlaW5n
-IHVucmVsYXRlZCB0byBmaWxlcyBieSBkZXNpZ24sIGJ1ZmZlciBpbml0aWFsaXphdGlvbiBvY2N1
-cnMgd2F5DQpiZWZvcmUgZmlsZSBzZXR1cCBhcyBpdCBkaWQgaW4gZmlvIGJlZm9yZSBpb21lbV8q
-IEFQSSB3YXMgaW50cm9kdWNlZC4NCg0KUmVnYXJkcywNCkFuZHJleQ0KDQoNCg0KPiAgIE15IGN1
-cnJlbnQgd29yayBhcm91bmQgaXMgdG8gY2hlY2sgaW4gLT5pb21lbV9hbGxvYygpIGVhY2ggdGlt
-ZSBhbmQgZG8gaW5pdGlhbGl6aW9uIGZpcnN0IGlmIGhhcyBub3QuDQo+DQo+IFRoYW5rcywNCj4g
-RGV5b3VuZw0KPg0KPiAtLQ0KPiBUbyB1bnN1YnNjcmliZSBmcm9tIHRoaXMgbGlzdDogc2VuZCB0
-aGUgbGluZSAidW5zdWJzY3JpYmUgZmlvIiBpbg0KPiB0aGUgYm9keSBvZiBhIG1lc3NhZ2UgdG8g
-bWFqb3Jkb21vQHZnZXIua2VybmVsLm9yZw0KPiBNb3JlIG1ham9yZG9tbyBpbmZvIGF0ICBodHRw
-Oi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwNCi0tDQpUbyB1bnN1YnNjcmli
-ZSBmcm9tIHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgZmlvIiBpbg0KdGhl
-IGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2VyLmtlcm5lbC5vcmcNCk1vcmUgbWFq
-b3Jkb21vIGluZm8gYXQgIGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFqb3Jkb21vLWluZm8uaHRt
-bA0K
+Hi,
+
+On 10 April 2017 at 18:45, Deyoung Hong (dhong) <dhong@micron.com> wrote:
+>
+> I have a couple basic questions:
+>
+> 1)  If I want to submit a new IO engine with fio and it has a dependency =
+on an external library, how does that work when fio is compiled?  Please al=
+so point me to info how to submit a new IO engine to be packaged with fio?
+
+Normally you check for the dependencies in ./configure and only output
+a symbol if the requirements for compiling a test program are all
+satisfied. A common trend is to add a --disable-* flag to ensure your
+engine is not built even if all its dependencies are available. You
+can then check for the symbol in a variety of places in the code and
+in the Makefile to decide what to build and when. When submitting a
+new engine it is also important to submit documentation about the
+engine to at least the HOWTO and include an example jobfile that
+demonstrates how to use the IO engine. An example of a recently merged
+IO engine can be found over on https://github.com/axboe/fio/pull/243 .
+Other IO engines that aren't that old are engines/pmemblk.c and
+engines/dev-dax.c ,
+
+> 2)  I've seen cases where the ->iomem_alloc() function (i.e. for a custom=
+ IO engine) is invoked first by fio before ->get_file_size() or ->setup(). =
+ This causes an issue since IO memory allocation can have dependency on cer=
+tain initialization (for the custom IO engine) that is done in ->get_file_s=
+ize().   I just wonder if that's an fio bug or how it should be?   My curre=
+nt work around is to check in ->iomem_alloc() each time and do initializion=
+ first if has not.
+
+Perhaps you could do it in ->io_u_init() ?
+
+--=20
+Sitsofe | http://sucs.org/~sits/
