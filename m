@@ -1,42 +1,23 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from v150-95-18-100.b001.p.han1.static.cnode.io ([150.95.18.100]:55698
-        "EHLO citigomail.webstarterz.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751349AbdDNDRF (ORCPT
-        <rfc822;fio@vger.kernel.org>); Thu, 13 Apr 2017 23:17:05 -0400
-From: "Son Chu" <son.ct@citigo.com.vn>
-References: <001b01d2b403$1aa072b0$4fe15810$@citigo.com.vn> <562d58d8-9c5c-3205-e624-df75b155c058@bluestop.org> <CALjAwxhY1LVWMDwiaRt6U=GTXBP=6o0yHeRJnbhBfR34GbQ9zQ@mail.gmail.com>
-In-Reply-To: <CALjAwxhY1LVWMDwiaRt6U=GTXBP=6o0yHeRJnbhBfR34GbQ9zQ@mail.gmail.com>
-Subject: RE: RE: FIo version 2.1.8 with write_iops_log option doesn't work as expected
-Date: Fri, 14 Apr 2017 09:14:35 +0700
-Message-ID: <000301d2b4c4$dc9b2330$95d16990$@citigo.com.vn>
+Received: from mail-ua0-f172.google.com ([209.85.217.172]:34940 "EHLO
+        mail-ua0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755809AbdDMU4T (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 13 Apr 2017 16:56:19 -0400
+Received: by mail-ua0-f172.google.com with SMTP id f10so19046959uaa.2
+        for <fio@vger.kernel.org>; Thu, 13 Apr 2017 13:56:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="UTF-8"
+In-Reply-To: <562d58d8-9c5c-3205-e624-df75b155c058@bluestop.org>
+References: <001b01d2b403$1aa072b0$4fe15810$@citigo.com.vn> <562d58d8-9c5c-3205-e624-df75b155c058@bluestop.org>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Thu, 13 Apr 2017 21:55:48 +0100
+Message-ID: <CALjAwxhY1LVWMDwiaRt6U=GTXBP=6o0yHeRJnbhBfR34GbQ9zQ@mail.gmail.com>
+Subject: Re: RE: FIo version 2.1.8 with write_iops_log option doesn't work as expected
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-Content-Language: en-us
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: 'Sitsofe Wheeler' <sitsofe@gmail.com>
-Cc: fio@vger.kernel.org, 'Rebecca Cran' <rebecca@bluestop.org>
-
-Hi Sitsofe,
-
-Thank you very much for your help. I got the same result as you and =
-Rebecca said after upgrade fio to version 2.19 . My version was too old =
-(2.2.10).=20
-
-Thank you all for the helping.
-
-Best Regards,
-Son
-
------Original Message-----
-From: Sitsofe Wheeler [mailto:sitsofe@gmail.com]=20
-Sent: Friday, April 14, 2017 3:56 AM
 To: Son Chu <son.ct@citigo.com.vn>
-Cc: fio@vger.kernel.org; Rebecca Cran <rebecca@bluestop.org>
-Subject: Re: RE: FIo version 2.1.8 with write_iops_log option doesn't =
-work as expected
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Rebecca Cran <rebecca@bluestop.org>
 
 Hi Son,
 
@@ -67,8 +48,7 @@ On 13 April 2017 at 16:59, Rebecca Cran <rebecca@bluestop.org> wrote:
 > I'm seeing the same thing on Linux and Windows. Can somebody help Son?
 >
 > -------- Forwarded Message --------
-> Subject:        RE: FIo version 2.1.8 with write_iops_log option =
-doesn't
+> Subject:        RE: FIo version 2.1.8 with write_iops_log option doesn't
 > work as expected
 > Date:   Thu, 13 Apr 2017 10:07:36 +0700
 > From:   Son Chu <son.ct@citigo.com.vn>
@@ -78,8 +58,8 @@ doesn't
 >
 > Hi Rebecca,
 >
-> So to get more detail, I will list what I did on both Linux and =
-Windows to
+> So to get more detail, I will list what I did on both Linux and Windows t=
+o
 > let you see what is my issue:
 >
 > -Linux Ubuntu 16.04:
@@ -90,10 +70,10 @@ Windows to
 >
 > oCommand
 >
-> =C2=A7fio --randrepeat=3D1 --ioengine=3Dlibaio --direct=3D1 =
---name=3Dtest --filename=3Dtest
-> --bs=3D4k --iodepth=3D64 --size=3D100M --readwrite=3Drandrw =
---rwmixread=3D75
+> =C2=A7fio --randrepeat=3D1 --ioengine=3Dlibaio --direct=3D1 --name=3Dtest=
+ --filename=3Dtest
+> --bs=3D4k --iodepth=3D64 --size=3D100M --readwrite=3Drandrw --rwmixread=
+=3D75
 > --write_iops_log=3Drandrw
 >
 > oOutput
@@ -108,10 +88,10 @@ Windows to
 >
 > oCommand
 >
-> =C2=A7fio.exe --randrepeat=3D1 --ioengine=3Dwindowsaio --direct=3D1 =
---name=3Dtest
-> --filename=3Dtest --bs=3D4k --iodepth=3D64 --size=3D100M =
---readwrite=3Drandrw
+> =C2=A7fio.exe --randrepeat=3D1 --ioengine=3Dwindowsaio --direct=3D1 --nam=
+e=3Dtest
+> --filename=3Dtest --bs=3D4k --iodepth=3D64 --size=3D100M --readwrite=3Dra=
+ndrw
 > --rwmixread=3D75 --write_iops_log=3Drandrw
 >
 > oOutput
@@ -146,10 +126,9 @@ Windows to
 >
 > 98, 1, 0, 4096
 >
-> From these result I wonder why the second column from Windows Server =
-is
-> different from Linux???? It should be the IOPS like 844,289 from Linux =
-than
+> From these result I wonder why the second column from Windows Server is
+> different from Linux???? It should be the IOPS like 844,289 from Linux th=
+an
 > 1 from Windows.
 >
 > Can you help me on this please?
@@ -163,12 +142,12 @@ than
 > *From:*Rebecca Cran [mailto:rebecca@bluestop.org]
 > *Sent:* Wednesday, April 12, 2017 10:53 PM
 > *To:* Son Chu <son.ct@citigo.com.vn>
-> *Subject:* Re: FIo version 2.1.8 with write_iops_log option doesn't =
-work as
+> *Subject:* Re: FIo version 2.1.8 with write_iops_log option doesn't work =
+as
 > expected
 >
-> I'm seeing exactly the same on Linux. What commandline are you using =
-there?
+> I'm seeing exactly the same on Linux. What commandline are you using ther=
+e?
 >
 > Rebecca
 >
@@ -177,15 +156,15 @@ there?
 >    Hi Rebecca,
 >
 >    I am using FIO version 2.1.8 on Windows Server 2012 R2. When I was
->    trying to write iops log with option write_iops_log follow this =
-command:
+>    trying to write iops log with option write_iops_log follow this comman=
+d:
 >
 >    fio --directory=3DC\:\fio --ioengine=3Dwindowsaio --direct=3D1
->    --name=3Drandwin --filename=3Drandwin --bs=3D4k --iodepth=3D16 =
---size=3D4G
+>    --name=3Drandwin --filename=3Drandwin --bs=3D4k --iodepth=3D16 --size=
+=3D4G
 >    --readwrite=3Drandrw --rwmixread=3D75 --write_bw_log=3Drandwin
->    --write_iops_log=3Drandwin --write_lat_log=3Drandwin =
---per_job_logs=3D0
+>    --write_iops_log=3Drandwin --write_lat_log=3Drandwin --per_job_logs=3D=
+0
 >
 >    I got a log file with example content below:
 >
@@ -241,8 +220,8 @@ command:
 >
 >    I have wondered why the second colume was 1 (iops) instead of the
 > expected iops per second (milisecond). If I used command with option:
-> log_avg_msec=3D1000 then I got expected iops value. This is not like =
-Linux.
+> log_avg_msec=3D1000 then I got expected iops value. This is not like Linu=
+x.
 >
 >
 >    Can you please help on this?
@@ -260,4 +239,3 @@ Linux.
 
 --=20
 Sitsofe | http://sucs.org/~sits/
-
