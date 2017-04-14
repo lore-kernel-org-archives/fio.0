@@ -1,52 +1,55 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-lf0-f65.google.com ([209.85.215.65]:34010 "EHLO
+        mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752397AbdDNVHU (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 14 Apr 2017 17:07:20 -0400
+Received: by mail-lf0-f65.google.com with SMTP id x72so11004284lfb.1
+        for <fio@vger.kernel.org>; Fri, 14 Apr 2017 14:07:19 -0700 (PDT)
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 5/9] Make lib/rand.c a stand-alone library
-Date: Sat, 15 Apr 2017 00:06:22 +0300
-Message-Id: <20170414210626.32763-6-tkusumi@tuxera.com>
+Subject: [PATCH 8/9] Make oslib/strlcat.c a stand-alone library
+Date: Sat, 15 Apr 2017 00:06:25 +0300
+Message-Id: <20170414210626.32763-9-tkusumi@tuxera.com>
 In-Reply-To: <20170414210626.32763-1-tkusumi@tuxera.com>
 References: <20170414210626.32763-1-tkusumi@tuxera.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-It needs to include pattern.h from local directory where rand.c
+It needs to include strlcat.h from local directory where strlcat.c
 is also located, to be able to use this as a stand-alone library,
 which is useful for debugging purpose. In fact, most of the files
-under lib/ directory do things this way.
+under oslib/ directory do things this way.
 
 --
- # cat ./test7.c
+ # cat ./test9.c
  #include <stdio.h>
- #include "lib/rand.h"
+ #include "oslib/strlcat.h"
  int main(void) {
          /* just to see if it compiles */
-         init_rand(NULL, 0);
+         strlcat(NULL, NULL, 0);
          return 0;
  }
- # gcc -Wall -g -DBITS_PER_LONG=64 ./test7.c ./lib/rand.c ./lib/pattern.c ./lib/strntol.c
+ # gcc -Wall -g ./test9.c ./oslib/strlcat.c
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- lib/rand.c | 2 +-
+ oslib/strlcat.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/rand.c b/lib/rand.c
-index 9c3e0d6..3f60a67 100644
---- a/lib/rand.c
-+++ b/lib/rand.c
-@@ -36,7 +36,7 @@
+diff --git a/oslib/strlcat.c b/oslib/strlcat.c
+index 3329b83..3b33d0e 100644
+--- a/oslib/strlcat.c
++++ b/oslib/strlcat.c
+@@ -1,5 +1,5 @@
  #include <string.h>
- #include <assert.h>
- #include "rand.h"
--#include "lib/pattern.h"
-+#include "pattern.h"
- #include "../hash.h"
+-#include "oslib/strlcat.h"
++#include "strlcat.h"
  
- int arch_random;
+ size_t strlcat(char *dst, const char *src, size_t size)
+ {
 -- 
 2.9.3
-
 
