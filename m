@@ -1,70 +1,57 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:57020 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2999140AbdDZMAR (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 26 Apr 2017 08:00:17 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1d3LcB-0004Tl-Bj
-        for fio@vger.kernel.org; Wed, 26 Apr 2017 12:00:11 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170426120001.D9AD12C1710@kernel.dk>
-Date: Wed, 26 Apr 2017 06:00:01 -0600 (MDT)
+Received: from mail-lf0-f66.google.com ([209.85.215.66]:35512 "EHLO
+        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752402AbdDNVHQ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 14 Apr 2017 17:07:16 -0400
+Received: by mail-lf0-f66.google.com with SMTP id i3so11016453lfh.2
+        for <fio@vger.kernel.org>; Fri, 14 Apr 2017 14:07:15 -0700 (PDT)
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 3/9] Make lib/strntol.c a stand-alone library
+Date: Sat, 15 Apr 2017 00:06:20 +0300
+Message-Id: <20170414210626.32763-4-tkusumi@tuxera.com>
+In-Reply-To: <20170414210626.32763-1-tkusumi@tuxera.com>
+References: <20170414210626.32763-1-tkusumi@tuxera.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-The following changes since commit d7658cedd1f31d1285f1f1e1cfe42fabb7cd6c8f:
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-  Return non-negtive error in order to print right error msg (2017-04-19 20:34:19 +0800)
+It needs to include strntol.h from local directory where strntol.c
+is also located, to be able to use this as a stand-alone library,
+which is useful for debugging purpose. In fact, most of the files
+under lib/ directory do things this way.
 
-are available in the git repository at:
+--
+ # cat ./test5.c
+ #include <stdio.h>
+ #include "lib/strntol.h"
+ int main(void) {
+         /* just to see if it compiles */
+         strntol(NULL, 0, NULL, 0);
+         return 0;
+ }
+ # gcc -Wall -g ./test5.c ./lib/strntol.c
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 306fea38fa61c305703d0269b1fc8e7da3b91a1f:
-
-  stat: make next log time decision cleaner (2017-04-25 18:14:00 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      stat: make next log time decision cleaner
-
- stat.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
+ lib/strntol.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Diff of recent changes:
+diff --git a/lib/strntol.c b/lib/strntol.c
+index adf45bd..f622c8d 100644
+--- a/lib/strntol.c
++++ b/lib/strntol.c
+@@ -2,7 +2,7 @@
+ #include <stdlib.h>
+ #include <limits.h>
+ 
+-#include "lib/strntol.h"
++#include "strntol.h"
+ 
+ long strntol(const char *str, size_t sz, char **end, int base)
+ {
+-- 
+2.9.3
 
-diff --git a/stat.c b/stat.c
-index fde7af2..27d1fea 100644
---- a/stat.c
-+++ b/stat.c
-@@ -2479,9 +2479,10 @@ static int add_bw_samples(struct thread_data *td, struct timeval *t)
- 	td_io_u_unlock(td);
- 
- 	if (spent <= td->o.bw_avg_time)
--		return min(next_log, td->o.bw_avg_time);
-+		next = td->o.bw_avg_time;
-+	else
-+		next = td->o.bw_avg_time - (1 + spent - td->o.bw_avg_time);
- 
--	next = td->o.bw_avg_time - (1 + spent - td->o.bw_avg_time);
- 	return min(next, next_log);
- }
- 
-@@ -2554,9 +2555,10 @@ static int add_iops_samples(struct thread_data *td, struct timeval *t)
- 	td_io_u_unlock(td);
- 
- 	if (spent <= td->o.iops_avg_time)
--		return min(next_log, td->o.iops_avg_time);
-+		next = td->o.iops_avg_time;
-+	else
-+		next = td->o.iops_avg_time - (1 + spent - td->o.iops_avg_time);
- 
--	next = td->o.iops_avg_time - (1 + spent - td->o.iops_avg_time);
- 	return min(next, next_log);
- }
- 
