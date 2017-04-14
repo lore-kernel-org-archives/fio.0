@@ -1,63 +1,71 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:54208 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753109AbdDDMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 4 Apr 2017 08:00:09 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1cvN84-0002pT-IU
-        for fio@vger.kernel.org; Tue, 04 Apr 2017 12:00:08 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170404120002.2619E2C319A@kernel.dk>
-Date: Tue,  4 Apr 2017 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 7/9] Make lib/mountcheck.c a stand-alone library
+Date: Sat, 15 Apr 2017 00:06:24 +0300
+Message-Id: <20170414210626.32763-8-tkusumi@tuxera.com>
+In-Reply-To: <20170414210626.32763-1-tkusumi@tuxera.com>
+References: <20170414210626.32763-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 249ad5bfaded90c0431041b4a3816e7371c2d403:
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-  time: use correct size type for usecs (2017-04-02 16:01:18 -0600)
+It needs to include mountcheck.h from local directory where
+mountcheck.c is also located, to be able to use this as
+a stand-alone library, which is useful for debugging purpose.
+In fact, most of the files under lib/ directory do things this way.
 
-are available in the git repository at:
+--
+ # cat ./test11.c
+ #include <stdio.h>
+ #include "lib/mountcheck.h"
+ int main(int argc, char **argv) {
+         printf("%d\n", device_is_mounted(argv[1]));
+         return 0;
+ }
 
-  git://git.kernel.dk/fio.git master
+--
+ # uname
+ Linux
+ # gcc -Wall -g -DCONFIG_GETMNTENT ./test11.c ./lib/mountcheck.c
+ # ./a.out /dev/sda1
+ 1
 
-for you to fetch changes up to 5ba01402d96e113ac451441f45d0c8b4dd281f4d:
+--
+ # uname
+ DragonFly
+ # gcc -Wall -g -DCONFIG_GETMNTINFO ./test11.c ./lib/mountcheck.c
+ # ./a.out /dev/da0s1a
+ 1
 
-  backend: move freeing of td->mutex to main thread (2017-04-03 08:46:34 -0600)
+--
+ # uname
+ NetBSD
+ # gcc -Wall -g -DCONFIG_GETMNTINFO_STATVFS ./test11.c ./lib/mountcheck.c
+ # ./a.out /dev/sd0a
+ 1
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      backend: move freeing of td->mutex to main thread
-
- backend.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
-
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
+ lib/mountcheck.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Diff of recent changes:
+diff --git a/lib/mountcheck.c b/lib/mountcheck.c
+index 0aec744..2fb6fe7 100644
+--- a/lib/mountcheck.c
++++ b/lib/mountcheck.c
+@@ -4,7 +4,7 @@
+ #ifdef CONFIG_GETMNTENT
+ #include <mntent.h>
+ 
+-#include "lib/mountcheck.h"
++#include "mountcheck.h"
+ 
+ #define MTAB	"/etc/mtab"
+ 
+-- 
+2.9.3
 
-diff --git a/backend.c b/backend.c
-index b61de7c..38ef348 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1836,9 +1836,6 @@ err:
- 	if (o->write_iolog_file)
- 		write_iolog_close(td);
- 
--	fio_mutex_remove(td->mutex);
--	td->mutex = NULL;
--
- 	td_set_runstate(td, TD_EXITED);
- 
- 	/*
-@@ -2435,6 +2432,8 @@ int fio_backend(struct sk_out *sk_out)
- 			fio_mutex_remove(td->rusage_sem);
- 			td->rusage_sem = NULL;
- 		}
-+		fio_mutex_remove(td->mutex);
-+		td->mutex = NULL;
- 	}
- 
- 	free_disk_util();
+
