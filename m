@@ -1,59 +1,50 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 4/9] Make lib/pattern.c a stand-alone library
-Date: Sat, 15 Apr 2017 00:06:21 +0300
-Message-Id: <20170414210626.32763-5-tkusumi@tuxera.com>
-In-Reply-To: <20170414210626.32763-1-tkusumi@tuxera.com>
-References: <20170414210626.32763-1-tkusumi@tuxera.com>
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+From: Vincent Fu <vincentfu@gmail.com>
+Subject: [PATCH 1/6] stat: change json+ output format so that instead of printing the raw clat data structure, use actual durations instead of array indices and print only bins with nonzero counts
+Date: Sun, 16 Apr 2017 15:04:23 -0400
+Message-Id: <1492369468-29448-1-git-send-email-vincentfu@gmail.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+Cc: Vincent Fu <Vincent.Fu@sandisk.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+From: Vincent Fu <Vincent.Fu@sandisk.com>
 
-lib/pattern.c not having dependency on fio.h enables it to be
-a stand-alone library, which is useful for debugging purpose.
-In fact, most of the files under lib/ directory do things this way.
-
-This requires the previous commit.
-
---
- # cat ./test6.c
- #include <stdio.h>
- #include "lib/pattern.h"
- int main(void) {
-         /* just to see if it compiles */
-         paste_format_inplace(NULL, 0, NULL, 0, NULL);
-         return 0;
- }
- # gcc -Wall -g ./test6.c ./lib/pattern.c ./lib/strntol.c
-
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- lib/pattern.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ stat.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/lib/pattern.c b/lib/pattern.c
-index b8ae809..0aeb935 100644
---- a/lib/pattern.c
-+++ b/lib/pattern.c
-@@ -1,6 +1,13 @@
--#include "fio.h"
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <limits.h>
-+#include <errno.h>
-+#include <assert.h>
-+
- #include "strntol.h"
- #include "pattern.h"
-+#include "../minmax.h"
- #include "../oslib/strcasestr.h"
+diff --git a/stat.c b/stat.c
+index fde7af2..4a6e1b9 100644
+--- a/stat.c
++++ b/stat.c
+@@ -98,7 +98,7 @@ static unsigned int plat_val_to_idx(unsigned int val)
+  * Convert the given index of the bucket array to the value
+  * represented by the bucket
+  */
+-static unsigned int plat_idx_to_val(unsigned int idx)
++static unsigned long long plat_idx_to_val(unsigned int idx)
+ {
+ 	unsigned int error_bits, k, base;
  
- /**
+@@ -972,12 +972,11 @@ static void add_ddir_status_json(struct thread_stat *ts,
+ 		clat_bins_object = json_create_object();
+ 		json_object_add_value_object(tmp_object, "bins", clat_bins_object);
+ 		for(i = 0; i < FIO_IO_U_PLAT_NR; i++) {
+-			snprintf(buf, sizeof(buf), "%d", i);
+-			json_object_add_value_int(clat_bins_object, (const char *)buf, ts->io_u_plat[ddir][i]);
++			if (ts->io_u_plat[ddir][i]) {
++				snprintf(buf, sizeof(buf), "%llu", plat_idx_to_val(i));
++				json_object_add_value_int(clat_bins_object, (const char *)buf, ts->io_u_plat[ddir][i]);
++			}
+ 		}
+-		json_object_add_value_int(clat_bins_object, "FIO_IO_U_PLAT_BITS", FIO_IO_U_PLAT_BITS);
+-		json_object_add_value_int(clat_bins_object, "FIO_IO_U_PLAT_VAL", FIO_IO_U_PLAT_VAL);
+-		json_object_add_value_int(clat_bins_object, "FIO_IO_U_PLAT_NR", FIO_IO_U_PLAT_NR);
+ 	}
+ 
+ 	if (!calc_lat(&ts->lat_stat[ddir], &min, &max, &mean, &dev)) {
 -- 
-2.9.3
+2.7.4
 
 
