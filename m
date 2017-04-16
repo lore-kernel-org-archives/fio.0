@@ -1,98 +1,63 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 5/6] Implement shm_attach_to_open_removed() for OpenBSD
-Date: Sun, 30 Apr 2017 20:35:10 +0300
-Message-Id: <20170430173511.44593-6-tkusumi@tuxera.com>
-In-Reply-To: <20170430173511.44593-1-tkusumi@tuxera.com>
-References: <20170430173511.44593-1-tkusumi@tuxera.com>
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+From: Vincent Fu <vincentfu@gmail.com>
+Subject: [PATCH 4/6] stat: reset_io_stats: fix a problem, rearrange some code
+Date: Sun, 16 Apr 2017 15:04:26 -0400
+Message-Id: <1492369468-29448-4-git-send-email-vincentfu@gmail.com>
+In-Reply-To: <1492369468-29448-1-git-send-email-vincentfu@gmail.com>
+References: <1492369468-29448-1-git-send-email-vincentfu@gmail.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+Cc: Vincent Fu <Vincent.Fu@sandisk.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+From: Vincent Fu <Vincent.Fu@sandisk.com>
 
-Add implementation which had been left by
-0cfe2089 (Add runtime handlers for 97900ebf for FreeBSD/DragonFlyBSD).
-
-This implementation is based on what
-97900ebf (shm: have os remove shared memory if fio dies unexpectedly)
-says. There seems to be no easy way to statically test versions like
-KERNEL_VERSION() in Linux kernel.
-
-The code assumes major/minor are both < 10. The minor has never been
-10 or above. The major won't be 10 anytime soon based on the past
-release cycle (current version is 6.1 after more than 2 decades).
-https://en.wikipedia.org/wiki/OpenBSD_version_history
-
---
- # uname
- OpenBSD
- # uname -r
- 6.1
- # cat ./test1.c
- #include <stdio.h>
- #include "./os/os.h"
- #include "./os/os-openbsd.h"
- int main(void) {
-         printf("%d\n", shm_attach_to_open_removed());
-         return 0;
- }
- # gcc -Wall -g ./test1.c
- # ./a.out
- 1
-
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+1) Make sure all the io_u_lat_u/m are reset
+2) Only need to zero out total_submit/complete once
+3) Reset total/short/drop_io_u inside the other loop that iterates over data directions
 ---
- os/os-openbsd.h | 25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ stat.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/os/os-openbsd.h b/os/os-openbsd.h
-index 9c7092c..670892b 100644
---- a/os/os-openbsd.h
-+++ b/os/os-openbsd.h
-@@ -9,6 +9,7 @@
- #include <sys/ioctl.h>
- #include <sys/dkio.h>
- #include <sys/disklabel.h>
-+#include <sys/utsname.h>
- /* XXX hack to avoid conflicts between rbtree.h and <sys/tree.h> */
- #include <sys/sysctl.h>
- #undef RB_BLACK
-@@ -90,9 +91,31 @@ static inline unsigned long long get_fs_free_size(const char *path)
+diff --git a/stat.c b/stat.c
+index 4a6e1b9..5061bea 100644
+--- a/stat.c
++++ b/stat.c
+@@ -2171,6 +2171,9 @@ void reset_io_stats(struct thread_data *td)
  
- static inline int shm_attach_to_open_removed(void)
- {
-+	struct utsname uts;
-+	int major, minor;
+ 		ts->io_bytes[i] = 0;
+ 		ts->runtime[i] = 0;
++		ts->total_io_u[i] = 0;
++		ts->short_io_u[i] = 0;
++		ts->drop_io_u[i] = 0;
+ 
+ 		for (j = 0; j < FIO_IO_U_PLAT_NR; j++)
+ 			ts->io_u_plat[i][j] = 0;
+@@ -2180,17 +2183,15 @@ void reset_io_stats(struct thread_data *td)
+ 		ts->io_u_map[i] = 0;
+ 		ts->io_u_submit[i] = 0;
+ 		ts->io_u_complete[i] = 0;
++	}
 +
-+	if (uname(&uts) == -1)
-+		return 0;
-+
- 	/*
--	 * XXX: Return 1 if >= OpenBSD 5.1 according to 97900ebf.
-+	 * Return 1 if >= OpenBSD 5.1 according to 97900ebf,
-+	 * assuming both major/minor versions are < 10.
- 	 */
-+	if (uts.release[0] > '9' || uts.release[0] < '0')
-+		return 0;
-+	if (uts.release[1] != '.')
-+		return 0;
-+	if (uts.release[2] > '9' || uts.release[2] < '0')
-+		return 0;
-+
-+	major = uts.release[0] - '0';
-+	minor = uts.release[2] - '0';
-+
-+	if (major > 5)
-+		return 1;
-+	if (major == 5 && minor >= 1)
-+		return 1;
-+
- 	return 0;
++	for (i = 0; i < FIO_IO_U_LAT_U_NR; i++)
+ 		ts->io_u_lat_u[i] = 0;
++	for (i = 0; i < FIO_IO_U_LAT_M_NR; i++)
+ 		ts->io_u_lat_m[i] = 0;
+-		ts->total_submit = 0;
+-		ts->total_complete = 0;
+-	}
+ 
+-	for (i = 0; i < 3; i++) {
+-		ts->total_io_u[i] = 0;
+-		ts->short_io_u[i] = 0;
+-		ts->drop_io_u[i] = 0;
+-	}
++	ts->total_submit = 0;
++	ts->total_complete = 0;
  }
  
+ static void __add_stat_to_log(struct io_log *iolog, enum fio_ddir ddir,
 -- 
-2.9.3
+2.7.4
 
 
