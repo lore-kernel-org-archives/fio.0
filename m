@@ -1,57 +1,147 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pf0-f182.google.com ([209.85.192.182]:35488 "EHLO
-        mail-pf0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2997758AbdD1XBK (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 28 Apr 2017 19:01:10 -0400
-Received: by mail-pf0-f182.google.com with SMTP id v14so54495080pfd.2
-        for <fio@vger.kernel.org>; Fri, 28 Apr 2017 16:01:09 -0700 (PDT)
-Received: from host-14-225.miancou.clients.pavlovmedia.com (host-14-225.miancou.clients.pavlovmedia.com. [76.10.14.225])
-        by smtp.gmail.com with ESMTPSA id 17sm10770510pgg.48.2017.04.28.16.01.08
-        for <fio@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 28 Apr 2017 16:01:08 -0700 (PDT)
-From: Omri Mor <omor1@asu.edu>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Mime-Version: 1.0 (Mac OS X Mail 10.3 \(3273\))
-Subject: Compiling on Android using ndk-r15 or higher
-Message-Id: <E09D8C27-9FE6-4BD6-B751-92BD34AD66D5@asu.edu>
-Date: Fri, 28 Apr 2017 16:01:07 -0700
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+From: Vincent Fu <vincentfu@gmail.com>
+Subject: [PATCH 2/6] Revert "tools/fio_latency2csv.py: add tool that converts json+ to CSV"
+Date: Sun, 16 Apr 2017 15:04:24 -0400
+Message-Id: <1492369468-29448-2-git-send-email-vincentfu@gmail.com>
+In-Reply-To: <1492369468-29448-1-git-send-email-vincentfu@gmail.com>
+References: <1492369468-29448-1-git-send-email-vincentfu@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Vincent Fu <Vincent.Fu@sandisk.com>
+List-ID: <fio@vger.kernel.org>
 
-Description
-Building using ndk-r15 will result in a build failure:
-./os/os-android.h:87:7: error: redefinition of 'key' with a different =
-type: 'char [11]' vs 'key_t' (aka 'int=E2=80=99)
+From: Vincent Fu <Vincent.Fu@sandisk.com>
 
-Environment
-Targeting Android API level 21 for arm-linux-androideabi with a =
-standalone toolchain from ndk-r14 with a patched <sys/ipc.h> (backported =
-from  ndk-r15).
+This reverts commit 6cd4d583c75042bf1edd3d2d5c6626883755bfe4.
+The script is no longer needed because the json+ output format now
+automatically does the transformation carried out by the script.
+---
+ Makefile                 |   2 +-
+ tools/fio_latency2csv.py | 101 -----------------------------------------------
+ 2 files changed, 1 insertion(+), 102 deletions(-)
+ delete mode 100755 tools/fio_latency2csv.py
 
-Version
-fio-2.19
+diff --git a/Makefile b/Makefile
+index 66083ff..1f0f5d0 100644
+--- a/Makefile
++++ b/Makefile
+@@ -26,7 +26,7 @@ OPTFLAGS= -g -ffast-math
+ CFLAGS	= -std=gnu99 -Wwrite-strings -Wall -Wdeclaration-after-statement $(OPTFLAGS) $(EXTFLAGS) $(BUILD_CFLAGS) -I. -I$(SRCDIR)
+ LIBS	+= -lm $(EXTLIBS)
+ PROGS	= fio
+-SCRIPTS = $(addprefix $(SRCDIR)/,tools/fio_generate_plots tools/plot/fio2gnuplot tools/genfio tools/fiologparser.py tools/fio_latency2csv.py tools/hist/fiologparser_hist.py)
++SCRIPTS = $(addprefix $(SRCDIR)/,tools/fio_generate_plots tools/plot/fio2gnuplot tools/genfio tools/fiologparser.py tools/hist/fiologparser_hist.py)
+ 
+ ifndef CONFIG_FIO_NO_OPT
+   CFLAGS += -O3 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+diff --git a/tools/fio_latency2csv.py b/tools/fio_latency2csv.py
+deleted file mode 100755
+index 93586d2..0000000
+--- a/tools/fio_latency2csv.py
++++ /dev/null
+@@ -1,101 +0,0 @@
+-#!/usr/bin/python
+-#
+-# fio_latency2csv.py
+-#
+-# This tool converts fio's json+ completion latency data to CSV format.
+-# For example:
+-#
+-# fio_latency2csv.py fio-jsonplus.output fio-latency.csv
+-#
+-
+-import os
+-import json
+-import argparse
+-
+-
+-def parse_args():
+-    parser = argparse.ArgumentParser()
+-    parser.add_argument('source',
+-                        help='fio json+ output file containing completion '
+-                             'latency data')
+-    parser.add_argument('dest',
+-                        help='destination file stub for latency data in CSV '
+-                             'format. job number will be appended to filename')
+-    args = parser.parse_args()
+-
+-    return args
+-
+-
+-# from stat.c
+-def plat_idx_to_val(idx, FIO_IO_U_PLAT_BITS=6, FIO_IO_U_PLAT_VAL=64):
+-    # MSB <= (FIO_IO_U_PLAT_BITS-1), cannot be rounded off. Use
+-    # all bits of the sample as index
+-    if (idx < (FIO_IO_U_PLAT_VAL << 1)):
+-        return idx
+-
+-    # Find the group and compute the minimum value of that group
+-    error_bits = (idx >> FIO_IO_U_PLAT_BITS) - 1
+-    base = 1 << (error_bits + FIO_IO_U_PLAT_BITS)
+-
+-    # Find its bucket number of the group
+-    k = idx % FIO_IO_U_PLAT_VAL
+-
+-    # Return the mean of the range of the bucket
+-    return (base + ((k + 0.5) * (1 << error_bits)))
+-
+-
+-def percentile(idx, run_total):
+-    total = run_total[len(run_total)-1]
+-    if total == 0:
+-        return 0
+-
+-    return float(run_total[x]) / total
+-
+-
+-if __name__ == '__main__':
+-    args = parse_args()
+-
+-    with open(args.source, 'r') as source:
+-        jsondata = json.loads(source.read())
+-
+-    bins = {}
+-    bin_const = {}
+-    run_total = {}
+-    ddir_list = ['read', 'write', 'trim']
+-    const_list = ['FIO_IO_U_PLAT_NR', 'FIO_IO_U_PLAT_BITS',
+-                  'FIO_IO_U_PLAT_VAL']
+-
+-    for jobnum in range(0,len(jsondata['jobs'])):
+-        prev_ddir = None
+-        for ddir in ddir_list:
+-            bins[ddir] = jsondata['jobs'][jobnum][ddir]['clat']['bins']
+-
+-            bin_const[ddir] = {}
+-            for const in const_list:
+-                bin_const[ddir][const] = bins[ddir].pop(const)
+-                if prev_ddir:
+-                    assert bin_const[ddir][const] == bin_const[prev_ddir][const]
+-            prev_ddir = ddir
+-
+-            run_total[ddir] = [0 for x in
+-                               range(bin_const[ddir]['FIO_IO_U_PLAT_NR'])]
+-            run_total[ddir][0] = bins[ddir]['0']
+-            for x in range(1, bin_const[ddir]['FIO_IO_U_PLAT_NR']):
+-                run_total[ddir][x] = run_total[ddir][x-1] + bins[ddir][str(x)]
+-        
+-        stub, ext = os.path.splitext(args.dest)
+-        outfile = stub + '_job' + str(jobnum) + ext
+-
+-        with open(outfile, 'w') as output:
+-            output.write("clat (usec),")
+-            for ddir in ddir_list:
+-                output.write("{0},".format(ddir))
+-            output.write("\n")
+-
+-            for x in range(bin_const['read']['FIO_IO_U_PLAT_NR']):
+-                output.write("{0},".format(plat_idx_to_val(x,
+-                                          bin_const['read']['FIO_IO_U_PLAT_BITS'],
+-                                          bin_const['read']['FIO_IO_U_PLAT_VAL'])))
+-                for ddir in ddir_list:
+-                    output.write("{0},".format(percentile(x, run_total[ddir])))
+-                output.write("\n")
+-- 
+2.7.4
 
-Reproduction
-Compile for Android using ndk-r15 or higher (or at least a patched =
-<sys/ipc.h>).
 
-More Information
-Bionic in Android ndk-r15 makes changes to <sys/ipc.h> to work around =
-inconsistencies between glibc and kernel declarations in struct =
-ipc64_perm. See =
-https://sourceforge.net/p/strace/mailman/message/35628355/ for more =
-information on why the change was necessary.
-<sys/ipc.h> now defines __key as key and __seq as seq
-In os/os-android.h, shmget is declared as: static inline int shmget =
-(key_t __key, size_t __size, int __shmflg)
-Inside the function the variable char key[11] is declared.
-With the new definitions in <sys/ipc.h>, the __key parameter and the key =
-variable conflict (as __key is replaced by key).
-The fix is simply renaming key to some other name.
-I haven=E2=80=99t formally tested using ndk-r15 as it is still in beta, =
-but I am using the same fix for <sys/ipc.h>. See =
-https://android.googlesource.com/platform/bionic/+/a29821bb455e6c23b2c9fe1=
-3bf1436610c4eb412%5E%21/#F0 for the patch to Bionic.=
