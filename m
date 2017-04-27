@@ -1,30 +1,34 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from alln-iport-4.cisco.com ([173.37.142.91]:56081 "EHLO
-        alln-iport-4.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750953AbdDBWLs (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 2 Apr 2017 18:11:48 -0400
-From: "Scott Forman (scforman)" <scforman@cisco.com>
-Subject: fio seems to calls functions which are not defined (ffio_file_open,
- io_file_done, ...)
-Date: Sun, 2 Apr 2017 22:11:46 +0000
-Message-ID: <6929A3FC-5D4B-4121-BC36-5E83B563CCC7@cisco.com>
-References: <CA74E5D5-1CEF-4605-BE90-809B55465C79@cisco.com>
-In-Reply-To: <CA74E5D5-1CEF-4605-BE90-809B55465C79@cisco.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <1DADD0BF60075648AF2C456FEAB4A77A@emea.cisco.com>
-Content-Transfer-Encoding: base64
+Received: from mail-wm0-f54.google.com ([74.125.82.54]:37371 "EHLO
+        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S938549AbdD0XM7 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 27 Apr 2017 19:12:59 -0400
+Received: by mail-wm0-f54.google.com with SMTP id m123so32034799wma.0
+        for <fio@vger.kernel.org>; Thu, 27 Apr 2017 16:12:59 -0700 (PDT)
 MIME-Version: 1.0
+From: Andy Wolin <andywolin@gmail.com>
+Date: Thu, 27 Apr 2017 17:12:57 -0600
+Message-ID: <CABfA-bWxeM5wHmwqowzjQhE30vwx3K0ncLxiHb6mGGsNgZzCxQ@mail.gmail.com>
+Subject: Realtime access to performance data
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "andrey.v.kuzmin@gmail.com" <andrey.v.kuzmin@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-SGkgQW5kcmV5LA0KwqANClRoYW5rcyBmb3IgeW91ciBhbnN3ZXIgdG8gdGhlIHF1ZXN0aW9uIGJl
-bG93Lg0KwqANCkkgaGF2ZSBhbm90aGVyIGhvcGVmdWxseSBxdWljayBxdWVzdGlvbiBmb3IgeW91
-Lg0KwqANCkkgc2VlIHRoZXJlIGFyZSBhIG51bWJlciBvZiBmdW5jdGlvbnMgdGhhdCBhcmUgY2Fs
-bGVkLCBidXQgSSBjYW5ub3QgZmluZCB3aGVyZSB0aGV5IGFyZSBkZWZpbmVkLsKgIFNvbWUgb2Yg
-dGhlIGZ1bmN0aW9ucyBhcmU6DQrCt8KgwqDCoMKgwqDCoMKgwqDCoGZpb19maWxlX29wZW4NCsK3
-wqDCoMKgwqDCoMKgwqDCoMKgZmlvX2ZpbGVfZG9uZQ0KwrfCoMKgwqDCoMKgwqDCoMKgwqBmaW9f
-ZmlsZV9jbG9zaW5nDQrCt8KgwqDCoMKgwqDCoMKgwqDCoGZpb19maWxlX2F4bWFwDQrCoA0KQ2Fu
-IHlvdSBwb2ludCBtZSB0byB3aGVyZSB0aGVzZSBmdW5jdGlvbnMgYXJlIGRlZmluZWQ/DQrCoA0K
-VGhhbmtzIG11Y2gsDQpTY290dA0KDQoNCg==
+After fio completes the _bw.log is created.  I am wondering how I can
+access this log data realtime so that I can time correlate other data
+points such as power and temperature.  I tried the following:
+
+1) send SIGUSR1 and get the 'bw=value' from the output.  That would
+work but that value seems to be the running average over the entire
+duration
+2) I modified eta.c to write the bandwidth to a log file, but that
+only updates about every second.
+
+If a native solution does not exist I am open to quick and dirty
+solutions.  I tried to find out where the log buffer gets updated so
+that I could hack in a file write of that data (accepting the
+performance hit) but wasn't able to figure that out.
+
+Thanks,
+Andy
