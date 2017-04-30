@@ -1,54 +1,33 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 6/9] Make lib/zipf.c a stand-alone library
-Date: Sat, 15 Apr 2017 00:06:23 +0300
-Message-Id: <20170414210626.32763-7-tkusumi@tuxera.com>
-In-Reply-To: <20170414210626.32763-1-tkusumi@tuxera.com>
-References: <20170414210626.32763-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+Return-Path: <axboe@kernel.dk>
+Date: Sun, 30 Apr 2017 16:52:15 -0600
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH 0/6] make fio work on OpenBSD again
+Message-ID: <20170430225213.GA10051@kernel.dk>
+References: <20170430173511.44593-1-tkusumi@tuxera.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20170430173511.44593-1-tkusumi@tuxera.com>
+To: kusumi.tomohiro@gmail.com
+Cc: fio@vger.kernel.org, Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+On Sun, Apr 30 2017, kusumi.tomohiro@gmail.com wrote:
+> From: Tomohiro Kusumi <tkusumi@tuxera.com>
+> 
+> This series of patches fix compile time errors recent OpenBSD
+> versions have had. Now fio compiles and runs on recent versions,
+> at least on the latest one which is 6.1.
+> 
+> It still shows warnings on sprintf() and strxxx() variants,
+> but I didn't fix these. There are simply way too many sprintf()
+> calls, and strlxxx() variants which OpenBSD suggests to use have
+> their own problems (and that's why glibc doesn't have them,
+> although fio has its own strlcat() for some reason).
 
-lib/zipf.c not having dependency on fio header (log.h) enables it
-to be a stand-alone library, which is useful for debugging purpose.
-In fact, most of the files under lib/ directory do things this way.
+Thanks, applied.
 
-lib/zipf.c doesn't use log.h (log(3) is apparently from -lm).
-
-This requires the previous commit.
-
---
- # cat ./test8.c
- #include <stdio.h>
- #include "lib/zipf.h"
- int main(void) {
-         /* just to see if it compiles */
-         zipf_init(NULL, 0, 0, 0);
-         return 0;
- }
- # gcc -Wall -g -lm -DBITS_PER_LONG=64 ./test8.c ./lib/zipf.c ./lib/rand.c ./lib/pattern.c ./lib/strntol.c
-
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- lib/zipf.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/lib/zipf.c b/lib/zipf.c
-index 681df70..3d535c7 100644
---- a/lib/zipf.c
-+++ b/lib/zipf.c
-@@ -6,7 +6,6 @@
- #include <sys/types.h>
- #include <fcntl.h>
- #include "ieee754.h"
--#include "../log.h"
- #include "zipf.h"
- #include "../minmax.h"
- #include "../hash.h"
 -- 
-2.9.3
+Jens Axboe
 
 
