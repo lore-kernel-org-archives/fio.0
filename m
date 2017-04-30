@@ -1,34 +1,54 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:37371 "EHLO
-        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S938549AbdD0XM7 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 27 Apr 2017 19:12:59 -0400
-Received: by mail-wm0-f54.google.com with SMTP id m123so32034799wma.0
-        for <fio@vger.kernel.org>; Thu, 27 Apr 2017 16:12:59 -0700 (PDT)
-MIME-Version: 1.0
-From: Andy Wolin <andywolin@gmail.com>
-Date: Thu, 27 Apr 2017 17:12:57 -0600
-Message-ID: <CABfA-bWxeM5wHmwqowzjQhE30vwx3K0ncLxiHb6mGGsNgZzCxQ@mail.gmail.com>
-Subject: Realtime access to performance data
-Content-Type: text/plain; charset=UTF-8
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 3/6] Fix "'RB_ROOT' undeclared" error on OpenBSD
+Date: Sun, 30 Apr 2017 20:35:08 +0300
+Message-Id: <20170430173511.44593-4-tkusumi@tuxera.com>
+In-Reply-To: <20170430173511.44593-1-tkusumi@tuxera.com>
+References: <20170430173511.44593-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-After fio completes the _bw.log is created.  I am wondering how I can
-access this log data realtime so that I can time correlate other data
-points such as power and temperature.  I tried the following:
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-1) send SIGUSR1 and get the 'bw=value' from the output.  That would
-work but that value seems to be the running average over the entire
-duration
-2) I modified eta.c to write the bandwidth to a log file, but that
-only updates about every second.
+OpenBSD has below compiler error due to RB_ROOT name conflict between
+lib/rbtree.h and OpenBSD header. os/os-{net,open}bsd.h actually have
+had a workaround for this by undefing their RB_XXX macros (which fio
+doesn't use) for possible conflicts, but then "lib/rbtree.h" needs
+to be included after os/os.h which includes os/os-openbsd.h.
 
-If a native solution does not exist I am open to quick and dirty
-solutions.  I tried to find out where the log buffer gets updated so
-that I could hack in a file write of that data (accepting the
-performance hit) but wasn't able to figure that out.
+t/dedupe.c: In function 'main':
+t/dedupe.c:583: error: 'RB_ROOT' undeclared (first use in this function)
+t/dedupe.c:583: error: (Each undeclared identifier is reported only once
+t/dedupe.c:583: error: for each function it appears in.)
 
-Thanks,
-Andy
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ t/dedupe.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/t/dedupe.c b/t/dedupe.c
+index c0e9a69..1f172a2 100644
+--- a/t/dedupe.c
++++ b/t/dedupe.c
+@@ -14,7 +14,6 @@
+ #include <fcntl.h>
+ #include <string.h>
+ 
+-#include "../lib/rbtree.h"
+ #include "../flist.h"
+ #include "../log.h"
+ #include "../mutex.h"
+@@ -25,6 +24,7 @@
+ #include "../os/os.h"
+ #include "../gettime.h"
+ #include "../fio_time.h"
++#include "../lib/rbtree.h"
+ 
+ #include "../lib/bloom.h"
+ #include "debug.h"
+-- 
+2.9.3
+
+
