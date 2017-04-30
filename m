@@ -1,9 +1,9 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 3/6] Fix "'RB_ROOT' undeclared" error on OpenBSD
-Date: Sun, 30 Apr 2017 20:35:08 +0300
-Message-Id: <20170430173511.44593-4-tkusumi@tuxera.com>
+Subject: [PATCH 1/6] Fix "cast from pointer to integer of different size" warning on OpenBSD
+Date: Sun, 30 Apr 2017 20:35:06 +0300
+Message-Id: <20170430173511.44593-2-tkusumi@tuxera.com>
 In-Reply-To: <20170430173511.44593-1-tkusumi@tuxera.com>
 References: <20170430173511.44593-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
@@ -12,42 +12,50 @@ List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-OpenBSD has below compiler error due to RB_ROOT name conflict between
-lib/rbtree.h and OpenBSD header. os/os-{net,open}bsd.h actually have
-had a workaround for this by undefing their RB_XXX macros (which fio
-doesn't use) for possible conflicts, but then "lib/rbtree.h" needs
-to be included after os/os.h which includes os/os-openbsd.h.
+OpenBSD has below compiler warning due to pthread_t being typedef'd
+to struct pthread*.
 
-t/dedupe.c: In function 'main':
-t/dedupe.c:583: error: 'RB_ROOT' undeclared (first use in this function)
-t/dedupe.c:583: error: (Each undeclared identifier is reported only once
-t/dedupe.c:583: error: for each function it appears in.)
+ os/os-openbsd.h: In function 'gettid':
+ os/os-openbsd.h:71: warning: cast from pointer to integer of different size
+
+--
+ # uname
+ OpenBSD
+ # grep pthread_t /usr/include -rI | grep typedef | head -1
+ /usr/include/pthread.h:typedef struct   pthread                 *pthread_t;
+ # cat ./p1.c
+ #include <stdio.h>
+ #include <pthread.h>
+ int main(void) {
+         pthread_t id = 1234;
+         printf("%d\n", (int)id);
+         return 0;
+ }
+ # gcc -Wall -g ./p1.c
+ ./p1.c: In function 'main':
+ ./p1.c:4: warning: initialization makes pointer from integer without a cast
+ ./p1.c:5: warning: cast from pointer to integer of different size
+ # ./a.out
+ 1234
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- t/dedupe.c | 2 +-
+ os/os-openbsd.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/t/dedupe.c b/t/dedupe.c
-index c0e9a69..1f172a2 100644
---- a/t/dedupe.c
-+++ b/t/dedupe.c
-@@ -14,7 +14,6 @@
- #include <fcntl.h>
- #include <string.h>
+diff --git a/os/os-openbsd.h b/os/os-openbsd.h
+index 7def432..9c7092c 100644
+--- a/os/os-openbsd.h
++++ b/os/os-openbsd.h
+@@ -68,7 +68,7 @@ static inline unsigned long long os_phys_mem(void)
  
--#include "../lib/rbtree.h"
- #include "../flist.h"
- #include "../log.h"
- #include "../mutex.h"
-@@ -25,6 +24,7 @@
- #include "../os/os.h"
- #include "../gettime.h"
- #include "../fio_time.h"
-+#include "../lib/rbtree.h"
+ static inline int gettid(void)
+ {
+-	return (int) pthread_self();
++	return (int)(intptr_t) pthread_self();
+ }
  
- #include "../lib/bloom.h"
- #include "debug.h"
+ static inline unsigned long long get_fs_free_size(const char *path)
 -- 
 2.9.3
 
