@@ -1,53 +1,68 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:40531 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752084AbdEJMAD (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 10 May 2017 08:00:03 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1d8QHj-0000CS-5x
-        for fio@vger.kernel.org; Wed, 10 May 2017 12:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170510120002.61A152C0099@kernel.dk>
-Date: Wed, 10 May 2017 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <5a084345-a8bf-3373-cc78-3d5d50acb13b@kernel.dk>
+References: <20170501184820.31025-1-tkusumi@tuxera.com> <20170501204421.GA13925@kernel.dk>
+ <CAHndrBmB7X6rzNtB8n+eK_qxOFpYkbPf+vegKFVcOCQFinG1Yw@mail.gmail.com> <5a084345-a8bf-3373-cc78-3d5d50acb13b@kernel.dk>
+From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Date: Tue, 2 May 2017 00:10:55 +0300
+Message-ID: <CAHndrB=ZVvQ7xjM2w2wg4UJFT84RQNAm-sXBRfEk8hmR8ywp7A@mail.gmail.com>
+Subject: Re: [PATCH 01/11] configure: Disable CONFIG_POSIX_FALLOCATE on NetBSD
+ even if posix_fallocate(3) compiles
+Content-Type: text/plain; charset=UTF-8
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org, Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit c55fae03f7d5c0981e55241fc9003d762f7a5fd9:
+2017-05-01 23:57 GMT+03:00 Jens Axboe <axboe@kernel.dk>:
+> On 05/01/2017 02:54 PM, Tomohiro Kusumi wrote:
+>> Hi
+>>
+>> 2017-05-01 23:44 GMT+03:00 Jens Axboe <axboe@kernel.dk>:
+>>> On Mon, May 01 2017, kusumi.tomohiro@gmail.com wrote:
+>>>> From: Tomohiro Kusumi <tkusumi@tuxera.com>
+>>>>
+>>>> fio on NetBSD may have CONFIG_POSIX_FALLOCATE configuration enabled
+>>>> since posix_fallocate(3) compiles (at least on recent versions),
+>>>> but this is actually not supported on UFS as mentioned in below wiki
+>>>> and fio result.
+>>>>
+>>>> https://wiki.netbsd.org/projects/project/ffs-fallocate/
+>>>>> This functionality is not currently implemented for FFS;
+>>>>
+>>>> compile_prog() during ./configure fails to catch this as it doesn't
+>>>> run the test code after compilation (and it needs to use a valid fd
+>>>> in order to do runtime test).
+>>>>
+>>>> This commit simply disables CONFIG_POSIX_FALLOCATE on NetBSD regardless
+>>>> of compilation result on ./configure. It doesn't check the fs type,
+>>>> but it should be enough provided that UFS is the fs used by majority
+>>>> of users and there's also no real alternative for disk fs.
+>>>
+>>> I'd much rather we just avoid it if we get EOPNOTSUPP at runtime. That
+>>> way we don't have to change anything later on, when/if NetBSD does get
+>>> support for fallocate.
+>>
+>> Yes, so the next one 2/11 actually mostly reverts this, and replace it
+>> with runtime check, so that it works not only with this specific
+>> NetBSD/UFS case, but also for e.g. Linux fs (something other than
+>> ext4, XFS, etc).
+>> I wasn't sure if runtime check (execute $TMPE) is preferred.
+>
+> Let's just drop 1/11 then, and have the first patch cover the runtime of
+> it. But don't do that from configure. Whatever fs is hosting configure
+> is less interesting. Maybe that doesn't support fallocate, but whatever
+> you end up running on does. Or vice versa.
 
-  options: force refill_buffers with pattern and any reads (2017-05-04 08:43:27 -0600)
+Thanks.
+Yes, you're right.
+They could certainly be different fs...
 
-are available in the git repository at:
+>
+>> Any how, I'll resend the 1,2,3,4,11 with --cover-letter as you commented.
+>
+> Thanks!
+>
+> --
+> Jens Axboe
+>
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to c78997bf625ffcca49c18e11ab0f5448b26d7452:
-
-  man page: include reference to version 4 of the terse format (2017-05-09 21:08:12 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      man page: include reference to version 4 of the terse format
-
- fio.1 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/fio.1 b/fio.1
-index 138bcbb..0167c23 100644
---- a/fio.1
-+++ b/fio.1
-@@ -43,7 +43,7 @@ Deprecated, use \-\-output-format instead to select multiple formats.
- Display version information and exit.
- .TP
- .BI \-\-terse\-version \fR=\fPversion
--Set terse version output format (Current version 3, or older version 2).
-+Set terse version output format (default 3, or 2 or 4)
- .TP
- .B \-\-help
- Display usage information and exit.
