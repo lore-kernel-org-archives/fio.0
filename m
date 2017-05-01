@@ -1,60 +1,50 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:49854 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753225AbdESMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 19 May 2017 08:00:09 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1dBgZk-0003iB-Os
-        for fio@vger.kernel.org; Fri, 19 May 2017 12:00:08 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170519120002.7943B2C246B@kernel.dk>
-Date: Fri, 19 May 2017 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 04/11] configure: Use compile_exec_prog() for s390_z196_facilities
+Date: Mon,  1 May 2017 21:48:13 +0300
+Message-Id: <20170501184820.31025-4-tkusumi@tuxera.com>
+In-Reply-To: <20170501184820.31025-1-tkusumi@tuxera.com>
+References: <20170501184820.31025-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit c78997bf625ffcca49c18e11ab0f5448b26d7452:
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-  man page: include reference to version 4 of the terse format (2017-05-09 21:08:12 -0600)
+The existing compile_prog() for s390_z196_facilities can be replaced
+with compile_exec_prog() since what this does is
 
-are available in the git repository at:
+ if (s390_z196_facilities test code compiles)
+     if (s390_z196_facilities test code returns 0)
+         s390_z196_facilities = "yes";
 
-  git://git.kernel.dk/fio.git master
+and this is what compile_exec_prog() does too.
 
-for you to fetch changes up to dd3805d49995e59fdf61e2560c3fec5b7f5c71b6:
-
-  Remove leftover warnings (2017-05-18 12:53:38 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (2):
-      Fix wrap issue with 64-bit pwritev2/preadv2
-      Remove leftover warnings
-
- os/os-linux.h | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
+ configure | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-Diff of recent changes:
-
-diff --git a/os/os-linux.h b/os/os-linux.h
-index 911f7e7..ba53590 100644
---- a/os/os-linux.h
-+++ b/os/os-linux.h
-@@ -314,9 +314,13 @@ static inline int fio_set_sched_idle(void)
- static inline void make_pos_h_l(unsigned long *pos_h, unsigned long *pos_l,
- 				off_t offset)
- {
-+#if BITS_PER_LONG == 64
-+	*pos_l = offset;
-+	*pos_h = 0;
-+#else
- 	*pos_l = offset & 0xffffffff;
- 	*pos_h = ((uint64_t) offset) >> 32;
--
-+#endif
+diff --git a/configure b/configure
+index 09c5f60..0b72f45 100755
+--- a/configure
++++ b/configure
+@@ -1708,11 +1708,8 @@ int main(int argc, char **argv)
+       return -1;
  }
- static inline ssize_t preadv2(int fd, const struct iovec *iov, int iovcnt,
- 			      off_t offset, unsigned int flags)
+ EOF
+-if compile_prog "" "" "s390_z196_facilities"; then
+-  $TMPE
+-  if [ $? -eq 0 ]; then
+-  	s390_z196_facilities="yes"
+-  fi
++if compile_exec_prog "" "" "s390_z196_facilities"; then
++  s390_z196_facilities="yes"
+ fi
+ echo "s390_z196_facilities          $s390_z196_facilities"
+ 
+-- 
+2.9.3
+
+
