@@ -1,67 +1,36 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:53524 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932625AbdDEMAF (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 5 Apr 2017 08:00:05 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1cvjbX-0005og-JX
-        for fio@vger.kernel.org; Wed, 05 Apr 2017 12:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170405120001.D84A82C351A@kernel.dk>
-Date: Wed,  5 Apr 2017 06:00:01 -0600 (MDT)
+Received: from mail-ua0-f169.google.com ([209.85.217.169]:34382 "EHLO
+        mail-ua0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2999706AbdEAGY7 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 1 May 2017 02:24:59 -0400
+Received: by mail-ua0-f169.google.com with SMTP id g49so2665122uaa.1
+        for <fio@vger.kernel.org>; Sun, 30 Apr 2017 23:24:59 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <E09D8C27-9FE6-4BD6-B751-92BD34AD66D5@asu.edu>
+References: <E09D8C27-9FE6-4BD6-B751-92BD34AD66D5@asu.edu>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Mon, 1 May 2017 07:24:28 +0100
+Message-ID: <CALjAwxhV0TgvwM1xhgY=iJV7E5-p+wJ7GCiNRMg4MUO4L6EBGQ@mail.gmail.com>
+Subject: Re: Compiling on Android using ndk-r15 or higher
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Omri Mor <omor1@asu.edu>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit 5ba01402d96e113ac451441f45d0c8b4dd281f4d:
+On 29 April 2017 at 00:01, Omri Mor <omor1@asu.edu> wrote:
+> Description
+> Building using ndk-r15 will result in a build failure:
+> ./os/os-android.h:87:7: error: redefinition of 'key' with a different typ=
+e: 'char [11]' vs 'key_t' (aka 'int=E2=80=99)
 
-  backend: move freeing of td->mutex to main thread (2017-04-03 08:46:34 -0600)
+I'm not sure why this took so long for this to be deliver to GMail but
+for the benefit of those browsing the mailing list Omri submitted a
+fix for this in
+https://github.com/axboe/fio/pull/350/commits/91f643461babe7ee83870e28f6b61=
+20d2b52c742
+.
 
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to e07a8a2281c7a5a0ec4eb8e8e66601ca1f9f71bb:
-
-  Fio 2.19 (2017-04-04 08:30:59 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Fio 2.19
-
- FIO-VERSION-GEN        | 2 +-
- os/windows/install.wxs | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index 570e21f..4cc903f 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-2.18
-+DEF_VER=fio-2.19
- 
- LF='
- '
-diff --git a/os/windows/install.wxs b/os/windows/install.wxs
-index bb2b90b..ffaed8e 100755
---- a/os/windows/install.wxs
-+++ b/os/windows/install.wxs
-@@ -10,7 +10,7 @@
- 	<Product Id="*"
- 	  Codepage="1252" Language="1033"
- 	  Manufacturer="fio" Name="fio"
--	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.18">
-+	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.19">
- 		<Package
- 		  Description="Flexible IO Tester"
- 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
+--=20
+Sitsofe | http://sucs.org/~sits/
