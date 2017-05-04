@@ -1,63 +1,21 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa5.hgst.iphmx.com ([216.71.153.144]:28041 "EHLO
-        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753490AbdEDQNh (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 4 May 2017 12:13:37 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
+Received: from esa2.dell-outbound.iphmx.com ([68.232.149.220]:18098 "EHLO
+        esa2.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S932081AbdEDFwh (ORCPT
+        <rfc822;fio@vger.kernel.org>); Thu, 4 May 2017 01:52:37 -0400
+From: "Ruvinsky, Konstantin" <Konstantin.Ruvinsky@dell.com>
 Subject: RE: fio output parameter
-Date: Thu, 4 May 2017 16:13:35 +0000
-Message-ID: <BN3PR0401MB1457AC7436AA6C34F61B33228FEA0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Date: Thu, 4 May 2017 05:42:42 +0000
+Message-ID: <923FC40148D42D44A828D320CE66E06A72E56FDC@MX204CL01.corp.emc.com>
 References: <BN3PR0401MB1457A4FAC025F769611F69268F160@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <923FC40148D42D44A828D320CE66E06A72E56FDC@MX204CL01.corp.emc.com>
-In-Reply-To: <923FC40148D42D44A828D320CE66E06A72E56FDC@MX204CL01.corp.emc.com>
+In-Reply-To: <BN3PR0401MB1457A4FAC025F769611F69268F160@BN3PR0401MB1457.namprd04.prod.outlook.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Ruvinsky, Konstantin" <Konstantin.Ruvinsky@dell.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-
-Thanks.  Using --output on the command line will work for my simple example=
-.  However, if I make two jobs in one file, then the --output parameter for=
-ces all output into one file.
-
-[test_job]
-ioengine=3Dlibaio
-direct=3D1
-rw=3Drandread
-iodepth=3D1
-size=3D100%
-numjobs=3D1
-bs=3D4k
-filename=3D/dev/nvme0n1
-runtime=3D10s
-time_based
-output=3Dtest_job
-[test_job2]
-ioengine=3Dlibaio
-direct=3D1
-rw=3Drandread
-iodepth=3D2
-size=3D100%
-numjobs=3D1
-bs=3D4k
-filename=3D/dev/nvme0n1
-runtime=3D10s
-time_based
-output=3Dtest_job2
-
-Maybe it's best to make one job file per fio job.
-
-Regards,
-Jeff
-
-
------Original Message-----
-From: Ruvinsky, Konstantin [mailto:Konstantin.Ruvinsky@dell.com]=20
-Sent: Wednesday, May 3, 2017 10:43 PM
-To: Jeff Furlong <jeff.furlong@wdc.com>; fio@vger.kernel.org
-Subject: RE: fio output parameter
+To: Jeff Furlong <jeff.furlong@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
 Hi,
 
