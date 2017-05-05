@@ -1,49 +1,63 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 05/11] configure: output_sym CONFIG_GFIO
-Date: Mon,  1 May 2017 21:48:14 +0300
-Message-Id: <20170501184820.31025-5-tkusumi@tuxera.com>
-In-Reply-To: <20170501184820.31025-1-tkusumi@tuxera.com>
-References: <20170501184820.31025-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:36914 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751460AbdEEMAK (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 5 May 2017 08:00:10 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1d6bu5-0004jz-R2
+        for fio@vger.kernel.org; Fri, 05 May 2017 12:00:09 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170505120002.104D42C1712@kernel.dk>
+Date: Fri,  5 May 2017 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+The following changes since commit f52e919826839eaba90903b67fe02042159a0023:
 
-No reason not to output_sym CONFIG_GFIO, when all others do this.
-Having CONFIG_GFIO in config-host.h doesn't harm anything.
+  gettime: make utime_since_now and mtime_since_now consistent in how they record the caller and put this all behind FIO_DEBUG_TIME (2017-05-03 08:49:37 -0600)
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to c55fae03f7d5c0981e55241fc9003d762f7a5fd9:
+
+  options: force refill_buffers with pattern and any reads (2017-05-04 08:43:27 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      options: force refill_buffers with pattern and any reads
+
+ options.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
 ---
- configure | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/configure b/configure
-index 0b72f45..b2120ec 100755
---- a/configure
-+++ b/configure
-@@ -180,8 +180,7 @@ for opt do
-   ;;
-   --build-static) build_static="yes"
-   ;;
--  --enable-gfio)
--  gfio_check="yes"
-+  --enable-gfio) gfio_check="yes"
-   ;;
-   --disable-numa) disable_numa="yes"
-   ;;
-@@ -2153,7 +2152,7 @@ if test "$rusage_thread" = "yes" ; then
-   output_sym "CONFIG_RUSAGE_THREAD"
- fi
- if test "$gfio" = "yes" ; then
--  echo "CONFIG_GFIO=y" >> $config_host_mak
-+  output_sym "CONFIG_GFIO"
- fi
- if test "$esx" = "yes" ; then
-   output_sym "CONFIG_ESX"
--- 
-2.9.3
+Diff of recent changes:
 
-
+diff --git a/options.c b/options.c
+index 85574d7..b489e90 100644
+--- a/options.c
++++ b/options.c
+@@ -1306,8 +1306,17 @@ static int str_buffer_pattern_cb(void *data, const char *input)
+ 
+ 	assert(ret != 0);
+ 	td->o.buffer_pattern_bytes = ret;
+-	if (!td->o.compress_percentage)
++
++	/*
++	 * If this job is doing any reading or has compression set,
++	 * ensure that we refill buffers for writes or we could be
++	 * invalidating the pattern through reads.
++	 */
++	if (!td->o.compress_percentage && !td_read(td))
+ 		td->o.refill_buffers = 0;
++	else
++		td->o.refill_buffers = 1;
++
+ 	td->o.scramble_buffers = 0;
+ 	td->o.zero_buffers = 0;
+ 
