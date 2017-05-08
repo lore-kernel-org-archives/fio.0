@@ -1,14 +1,14 @@
 Return-Path: <phoulihan9@gmail.com>
 MIME-Version: 1.0
 From: paul houlihan <phoulihan9@gmail.com>
-Date: Sun, 7 May 2017 21:49:26 -0400
-Message-ID: <CAB8+yyUoVHAym2nJsv4Wg0Yx9z2S_MsPk_0rRm2Qgqq6sN1QXw@mail.gmail.com>
+Date: Sun, 7 May 2017 21:26:13 -0400
+Message-ID: <CAB8+yyUGT_52a4nGYu3Nh--5Q5HTvpbFeZ9qBmxYcwaaufxCTw@mail.gmail.com>
 Subject: Fio Checksum tracking and enhanced trim workloads
-Content-Type: multipart/alternative; boundary=001a1148d4540af877054ef973f6
+Content-Type: multipart/alternative; boundary=f403045d5af0fb4e36054ef91ff7
 To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
---001a1148d4540af877054ef973f6
+--f403045d5af0fb4e36054ef91ff7
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
@@ -18,7 +18,6 @@ absolute guarantees. I would like the changes at
 https://github.com/phoulihan9/fio/pull/1/commits to be reviewed and
 considered for inclusion to fio. A quick review would be helpful as I am
 losing access to test systems shortly.
-
 
 These changes were used by a Virtual Machine caching company to assure data
 integrity. Most testing was on Linux 64 bits and windows 32/64 bits. The
@@ -31,15 +30,12 @@ indows.
 No testing on all other fio supported OSes was done, although the changes
 are almost exclusively to OS independent code.
 
-
-
 The absolute guarantees are brought about by tracking checksums to prevent
 a stale but intact prior version of a block being returned and by verifying
 all reads. I was surprised to learn about the number of times fio performed
 concurrent I/O to the same blocks which yields indeterminate results that
 prevent data integrity verification. Thus a number of options are not
 supported when tracking is enabled.
-
 
 Finally I have enhanced the usage of trims and am able to verify data
 integrity of these operations in an integrated fashion.
@@ -370,7 +366,7 @@ the tracking log is restored from the time of the snapshot then checksum
 context is again preserved. There is a tracking log for each data file.
 
 
-Tracking log filename format is: [dir] / [filename].tracking.log
+Tracking log filename format is: <dir>/<filename>.tracking.log
 
 where:
 
@@ -514,7 +510,7 @@ So there are scaling implications for memory usage and log file size.
 
 However blocks are only tracked for the active I/O range from:
 
-offset - (offset+size-1).
+offset-<offset+size-1>.
 
 
 The performance impact of the few extra I/Os to read and write the tracking
@@ -533,7 +529,6 @@ is disabled and no extra I/Os when verify_track_log is disabled.
 Data Corruption Troubleshooting
 
 -------------------------------
-
 
 When a corruption occurs immediate analysis can reveal many clues as to the
 
@@ -679,7 +674,7 @@ checksum
 
 for each data block that has been read or written to a log named
 
-(datafilename).tracking.log. If set when fio reopens this data file and a
+<datafilename>.tracking.log. If set when fio reopens this data file and a
 tracking
 
 log exists then the checksums are read into the tracking table and used to
@@ -882,7 +877,7 @@ result may still be skewed a bit, since the speed may be different. It is
 
 possible to specify a number of I/O's to do before getting a new offset,
 
-this is done by appending a ``:[nr]`` to the end of the string given.  For =
+this is done by appending a ``:<nr>`` to the end of the string given.  For =
 a
 
 random read, it would look like ``rw=3Drandread:8`` for passing in an offse=
@@ -919,7 +914,7 @@ of 50,50,0. If a trailing comma isn't given, the remainder will inherit
 
 the last value set.
 
---001a1148d4540af877054ef973f6
+--f403045d5af0fb4e36054ef91ff7
 Content-Type: text/html; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
@@ -938,7 +933,6 @@ d like the changes at <a href=3D"https://github.com/phoulihan9/fio/pull/1/c=
 ommits">https://github.com/phoulihan9/fio/pull/1/commits</a>=C2=A0to be rev=
 iewed and considered for inclusion to fio. A quick review would be helpful =
 as I am losing access to test systems shortly.</span></p>
-<p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1">These changes were used by a=
  Virtual Machine caching company to assure data integrity. Most testing was=
  on Linux 64 bits and windows 32/64 bits. The windows build still had an is=
@@ -948,8 +942,7 @@ d be researched more. The initial development was on version fio 2.2.10 sou=
 rces and I just ported the changes to fio latest sources and tested on linu=
 x but haven=E2=80=99t yet test on windows. No testing on all other fio supp=
 orted OSes was done, although the changes are almost exclusively to OS inde=
-pendent code.</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0<br>
+pendent code. <br>
 </span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1">The absolute guarantees are =
 brought about by tracking checksums to prevent a stale but intact prior ver=
@@ -958,7 +951,6 @@ to learn about the number of times fio performed concurrent I/O to the same=
  blocks which yields indeterminate results that prevent data integrity veri=
 fication. Thus a number of options are not supported when tracking is enabl=
 ed.=C2=A0</span></p>
-<p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1">Finally I have enhanced the =
 usage of trims and am able to verify data integrity of these operations in =
 an integrated fashion.</span></p>
@@ -1301,7 +1293,7 @@ s. On revert of a virtual machine snapshot if</span></p>
 There is a tracking log for each data file.</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1">Tracking log filename format=
- is: [dir] / [filename].tracking.log</span></p>
+ is: &lt;dir&gt;/&lt;filename&gt;.tracking.log</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1">where:</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0=C2=A0 filename - is n=
 ame of file system file or block device name like =E2=80=9Csdb=E2=80=9D</sp=
@@ -1426,8 +1418,8 @@ vice as specified by 4*(size/verify_interval).</span></p>
 tions for memory usage and log file size.</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1">However blocks are only trac=
 ked for the active I/O range from:</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">offset - (offset+size-1).</s=
-pan></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1">offset-&lt;offset+size-1&gt;=
+.</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1">The performance impact of th=
 e few extra I/Os to read and write the tracking log</span></p>
@@ -1443,7 +1435,6 @@ s when verify_track_log is disabled.</span></p>
 ing</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1">----------------------------=
 ---</span></p>
-<p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1">When a corruption occurs imm=
 ediate analysis can reveal many clues as to the</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1">source of the corruption. Is=
@@ -1604,8 +1595,8 @@ fio writes the checksum</span></p>
 ab-span">	</span>for each data block that has been read or written to a log=
  named</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>(datafilename).tracking.log. If set when fio reopens this =
-data file and a tracking</span></p>
+ab-span">	</span>&lt;datafilename&gt;.tracking.log. If set when fio reopens=
+ this data file and a tracking</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span>log exists then the checksums are read into the tracking t=
 able and used to validate</span></p>
@@ -1873,8 +1864,8 @@ ifferent. It is</span></p>
 ab-span">	</span>possible to specify a number of I/O&#39;s to do before get=
 ting a new offset,</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>this is done by appending a ``:[nr]`` to the end of the st=
-ring given.=C2=A0 For a</span></p>
+ab-span">	</span>this is done by appending a ``:&lt;nr&gt;`` to the end of =
+the string given.=C2=A0 For a</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span>random read, it would look like ``rw=3Drandread:8`` for pa=
 ssing in an offset</span></p>
@@ -1915,7 +1906,8 @@ rom rwmix* arguments</span></p>
 ab-span">	</span>of 50,50,0. If a trailing comma isn&#39;t given, the remai=
 nder will inherit</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>the last value set.</span></p></div>
+ab-span">	</span>the last value set.</span></p>
+<p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p></div>
 
---001a1148d4540af877054ef973f6--
+--f403045d5af0fb4e36054ef91ff7--
 
