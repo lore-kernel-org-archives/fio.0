@@ -1,460 +1,205 @@
-Return-Path: <phoulihan9@gmail.com>
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CALjAwxgN=+PPByGL_ZQhq9RjTgzYE8h83NEapYtDDSSUAqDuuw@mail.gmail.com>
+In-Reply-To: <8e8a7151-9329-cdee-2100-3f94c5dd1b1f@kernel.dk>
 References: <CAB8+yyVB8vaG6Vco21qcJie0+OkDNwOkqOxS-MyvQLYrqRzuWg@mail.gmail.com>
- <8e8a7151-9329-cdee-2100-3f94c5dd1b1f@kernel.dk> <CALjAwxgN=+PPByGL_ZQhq9RjTgzYE8h83NEapYtDDSSUAqDuuw@mail.gmail.com>
-From: paul houlihan <phoulihan9@gmail.com>
-Date: Mon, 8 May 2017 21:01:46 -0400
-Message-ID: <CAB8+yyU-uZoyQgx_P0U=xhi9dA5y6D+bOW2BaQzDfEFH4j9+LA@mail.gmail.com>
+ <8e8a7151-9329-cdee-2100-3f94c5dd1b1f@kernel.dk>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Mon, 8 May 2017 21:05:41 +0100
+Message-ID: <CALjAwxgN=+PPByGL_ZQhq9RjTgzYE8h83NEapYtDDSSUAqDuuw@mail.gmail.com>
 Subject: Re: Fio Checksum tracking and enhanced trim workloads
-Content-Type: multipart/alternative; boundary=001a1148d4546c70f7054f0ce657
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+To: paul houlihan <phoulihan9@gmail.com>
 Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
---001a1148d4546c70f7054f0ce657
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-The second sentence was incorrect.
-
-It should read: I would like the changes at
-https://github.com/phoulihan9/fio/pull/1/commits  to be reviewed and
-considered for inclusion to fio.
-
-On Mon, May 8, 2017 at 4:05 PM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
-
-> > -------- Forwarded Message --------
-> > Subject:        Fio Checksum tracking and enhanced trim workloads
-> > Date:   Sun, 7 May 2017 23:54:16 -0400
-> > From:   paul houlihan <phoulihan9@gmail.com>
-> > To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-> >
-> > I have a submission for fio that enhances the data corruption detection
-> and diagnosis capabilities taking fio from pretty good corruption detecti=
-on
-> to absolute guarantees. I would like these changes on the tracking
-> branch???? to be reviewed and considered for inclusion to fio. A quick
-> review would be helpful as I am losing access to test systems shortly.
-> >
-> >
-> > These changes were used by a Virtual Machine caching company to assure
-> data integrity. Most testing was on Linux 64 bits and windows 32/64 bits.
-> The windows build still had an issue with compile time asserts in libfio.=
-c
-> that I worked around by commenting out the asserts as this looked like a
-> performance restriction. This should be researched more. The initial
-> development was on version fio 2.2.10 sources and I just ported the chang=
-es
-> to fio latest sources and tested on linux but haven=E2=80=99t yet test on=
- windows.
-> No testing on all other fio supported OSes was done, although the changes
-> are almost exclusively to OS independent code.
-> >
-> >
-> > The absolute guarantees are brought about by tracking checksums to
-> prevent a stale but intact prior version of a block being returned and by
-> verifying all reads. I was surprised to learn about the number of times f=
-io
-> performed concurrent I/O to the same blocks which yields indeterminate
-> results that prevent data integrity verification. Thus a number of option=
-s
-> are not supported when tracking is enabled.
+> -------- Forwarded Message --------
+> Subject:        Fio Checksum tracking and enhanced trim workloads
+> Date:   Sun, 7 May 2017 23:54:16 -0400
+> From:   paul houlihan <phoulihan9@gmail.com>
+> To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 >
-> Sounds interesting! Are the patches available on Github or otherwise
-> published?
+> I have a submission for fio that enhances the data corruption detection a=
+nd diagnosis capabilities taking fio from pretty good corruption detection =
+to absolute guarantees. I would like these changes on the tracking branch??=
+?? to be reviewed and considered for inclusion to fio. A quick review would=
+ be helpful as I am losing access to test systems shortly.
 >
-> I have a couple of patches related to overlapping I/Os (see
-> https://github.com/axboe/fio/pull/343 and
-> https://github.com/sitsofe/fio/commit/6b4cfeb95fca2d75a291c54ca20162
-> 470c837a38
-> ) because I can't afford for such I/O to be sent to the storage.
-> Perhaps it would be possible to amend your work to detect the overlaps
-> in a more efficient manner?
 >
-> How does this work play with varying blocksizes (bsrange etc)?
+> These changes were used by a Virtual Machine caching company to assure da=
+ta integrity. Most testing was on Linux 64 bits and windows 32/64 bits. The=
+ windows build still had an issue with compile time asserts in libfio.c tha=
+t I worked around by commenting out the asserts as this looked like a perfo=
+rmance restriction. This should be researched more. The initial development=
+ was on version fio 2.2.10 sources and I just ported the changes to fio lat=
+est sources and tested on linux but haven=E2=80=99t yet test on windows. No=
+ testing on all other fio supported OSes was done, although the changes are=
+ almost exclusively to OS independent code.
 >
-> > These limitations can be addressed by setting the verify_track option
-> which
-> >
-> > allocates a memory array to track the header and data checksums to assu=
-re
-> >
-> > data integrity is absolute. The array starts out empty at the beginning
-> of
-> >
-> > each fio job and is filled in as reads or writes occur, once defined th=
+>
+> The absolute guarantees are brought about by tracking checksums to preven=
+t a stale but intact prior version of a block being returned and by verifyi=
+ng all reads. I was surprised to learn about the number of times fio perfor=
+med concurrent I/O to the same blocks which yields indeterminate results th=
+at prevent data integrity verification. Thus a number of options are not su=
+pported when tracking is enabled.
+
+Sounds interesting! Are the patches available on Github or otherwise publis=
+hed?
+
+I have a couple of patches related to overlapping I/Os (see
+https://github.com/axboe/fio/pull/343 and
+https://github.com/sitsofe/fio/commit/6b4cfeb95fca2d75a291c54ca20162470c837=
+a38
+) because I can't afford for such I/O to be sent to the storage.
+Perhaps it would be possible to amend your work to detect the overlaps
+in a more efficient manner?
+
+How does this work play with varying blocksizes (bsrange etc)?
+
+> These limitations can be addressed by setting the verify_track option whi=
+ch
+>
+> allocates a memory array to track the header and data checksums to assure
+>
+> data integrity is absolute. The array starts out empty at the beginning o=
+f
+>
+> each fio job and is filled in as reads or writes occur, once defined the
+>
+> checksums from succeeding I/Os must all match. This option extends checks=
+um
+>
+> verification to all reads in all workloads, not just the read-only worklo=
+ads.
+
+Are you sure? I thought readwrite verifying workloads caused the reads
+to be verifying if the block had been written in the same workload?
+
+> fio_header.py - a python script that displays the contents of the block h=
+eader
+>
+>               in a corrupt data file.
+
+Many would find this useful. Perhaps it could be ported to C like
+t/verify-state.c ?
+
+> Here are the related parameter descriptions from HOWTO:
+>
+>
+> option verify_track=3Dbool
+>
+>
+> Fio normally verifies data within a verify_intervalwith checksums and fil=
 e
-> >
-> > checksums from succeeding I/Os must all match. This option extends
-> checksum
-> >
-> > verification to all reads in all workloads, not just the read-only
-> workloads.
 >
-> Are you sure? I thought readwrite verifying workloads caused the reads
-> to be verifying if the block had been written in the same workload?
+> offsets embedded in the data. However a prior version of a block could be
 >
-> > fio_header.py - a python script that displays the contents of the block
-> header
-> >
-> >               in a corrupt data file.
+> returned and verified successfully. When verify_track is enabled the chec=
+ksum
 >
-> Many would find this useful. Perhaps it could be ported to C like
-> t/verify-state.c ?
+> for every verify_interval in the file is stored in a table and all read d=
+ata
 >
-> > Here are the related parameter descriptions from HOWTO:
-> >
-> >
-> > option verify_track=3Dbool
-> >
-> >
-> > Fio normally verifies data within a verify_intervalwith checksums and
-> file
-> >
-> > offsets embedded in the data. However a prior version of a block could =
-be
-> >
-> > returned and verified successfully. When verify_track is enabled the
-> checksum
-> >
-> > for every verify_interval in the file is stored in a table and all read
-> data
-> >
-> > must match the checksums in the table. The tracking table is sized as
-> >
-> > (size / verify_interval) * 4 bytes. For very large size=3D option setti=
-ngs,
-> >
-> > such a large memory allocation may impact testing. Reads assume that th=
+> must match the checksums in the table. The tracking table is sized as
+>
+> (size / verify_interval) * 4 bytes. For very large size=3D option setting=
+s,
+>
+> such a large memory allocation may impact testing. Reads assume that the =
+entire
+>
+> file has been previously written with a verification format using the sam=
 e
-> entire
-> >
-> > file has been previously written with a verification format using the
-> same
-> >
-> > verify_interval. When verify_track is enabled, all reads are verified,
-> whether
-> >
-> > writes are present in the workload or not. Sharing files by threads
-> within a job
-> >
-> > is supported but not between jobs running concurrently so use the
-> stonewall
-> >
-> > option when more than one non-global job is present. Verify of trimmed
-> blocks
-> >
-> > is described for the verify_track_trim_zero option. When disabled, fio
-> falls
-> >
-> > back on verification described under the verify option. The restriction=
-s
-> when
-> >
-> > enabling the verify_track option are:
-> >
-> > - randommap is required
-> >
-> > - softrandommap is not supported
-> >
-> > - lfsr random generator not supported when using multiple block sizes
-> >
-> > - stonewall option required when more than one job present
-> >
-> > - file size must be an even multiple of the block size when iodepth > 1
-> >
-> > - verify_backlog not supported when iodepth > 1
-> >
-> > - verify_async is not supported
-> >
-> > - file sharing between concurrent jobs not supported
-> >
-> > - numjobs must be 1
-> >
-> > - io_submit_mode must be set to "inline"
 >
-> Yeah I've noticed a number of issues trying to verify with
-> io_submit_mode=3Doffload ...
+> verify_interval. When verify_track is enabled, all reads are verified, wh=
+ether
 >
-> > option verify_track_log=3Dbool
-> >
-> >
-> > If set when verify_track is set then on a clean shutdown, fio writes th=
-e
-> checksum
-> >
-> > for each data block that has been read or written to a log named
-> >
-> > (datafilename).tracking.log. If set when fio reopens this data file and
-> a tracking
-> >
-> > log exists then the checksums are read into the tracking table and used
-> to validate
-> >
-> > every subsequent read. This allows rigorous validation of data integrit=
-y
-> as data
-> >
-> > files are passed between fio jobs or over the termination of fio and
-> restart on
-> >
-> > the same system or on another system or after an OS reboot. Reverting a
-> virtual
-> >
-> > machine to a snapshot can be tested by saving the tracking log after a
-> successful
-> >
-> > fio run and later restoring the saved log after reverting the virtual
-> machine.
-> >
-> > The log is deleted after being read in, so on abnormal termination no
-> stale
-> >
-> > checksums can be used. This option, the data file size and
-> verify_interval
-> >
-> > parameters should not change between jobs in the same run or on restart
-> of fio.
-> >
-> > Defaults to off. verify_track_dir defines the tracking log's directory.
+> writes are present in the workload or not. Sharing files by threads withi=
+n a job
 >
-> How does this interact with verify_state_*
-> (http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-
-> arg-verify-state-load
-> ) ?
+> is supported but not between jobs running concurrently so use the stonewa=
+ll
 >
-> --
-> Sitsofe | http://sucs.org/~sits/
+> option when more than one non-global job is present. Verify of trimmed bl=
+ocks
 >
+> is described for the verify_track_trim_zero option. When disabled, fio fa=
+lls
+>
+> back on verification described under the verify option. The restrictions =
+when
+>
+> enabling the verify_track option are:
+>
+> - randommap is required
+>
+> - softrandommap is not supported
+>
+> - lfsr random generator not supported when using multiple block sizes
+>
+> - stonewall option required when more than one job present
+>
+> - file size must be an even multiple of the block size when iodepth > 1
+>
+> - verify_backlog not supported when iodepth > 1
+>
+> - verify_async is not supported
+>
+> - file sharing between concurrent jobs not supported
+>
+> - numjobs must be 1
+>
+> - io_submit_mode must be set to "inline"
 
---001a1148d4546c70f7054f0ce657
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Yeah I've noticed a number of issues trying to verify with
+io_submit_mode=3Doffload ...
 
-<div dir=3D"ltr">The second sentence was incorrect.=C2=A0<div><br></div><di=
-v>It should read:=C2=A0<span style=3D"color:rgb(80,0,80);font-size:12.8px">=
-I would like the changes at=C2=A0</span><font color=3D"#500050"><span style=
-=3D"font-size:12.8px"><a href=3D"https://github.com/phoulihan9/fio/pull/1/c=
-ommits">https://github.com/phoulihan9/fio/pull/1/commits</a>=C2=A0</span></=
-font><span style=3D"color:rgb(80,0,80);font-size:12.8px">=C2=A0to be review=
-ed and considered for inclusion to fio.</span>=C2=A0</div></div><div class=
-=3D"gmail_extra"><br><div class=3D"gmail_quote">On Mon, May 8, 2017 at 4:05=
- PM, Sitsofe Wheeler <span dir=3D"ltr">&lt;<a href=3D"mailto:sitsofe@gmail.=
-com" target=3D"_blank">sitsofe@gmail.com</a>&gt;</span> wrote:<br><blockquo=
-te class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc so=
-lid;padding-left:1ex"><span class=3D"">&gt; -------- Forwarded Message ----=
-----<br>
-&gt; Subject:=C2=A0 =C2=A0 =C2=A0 =C2=A0 Fio Checksum tracking and enhanced=
- trim workloads<br>
-&gt; Date:=C2=A0 =C2=A0Sun, 7 May 2017 23:54:16 -0400<br>
-&gt; From:=C2=A0 =C2=A0paul houlihan &lt;<a href=3D"mailto:phoulihan9@gmail=
-.com">phoulihan9@gmail.com</a>&gt;<br>
-&gt; To:=C2=A0 =C2=A0 =C2=A0<a href=3D"mailto:fio@vger.kernel.org">fio@vger=
-.kernel.org</a>, Jens Axboe &lt;<a href=3D"mailto:axboe@kernel.dk">axboe@ke=
-rnel.dk</a>&gt;<br>
-&gt;<br>
-&gt; I have a submission for fio that enhances the data corruption detectio=
-n and diagnosis capabilities taking fio from pretty good corruption detecti=
-on to absolute guarantees. I would like these changes on the tracking branc=
-h???? to be reviewed and considered for inclusion to fio. A quick review wo=
-uld be helpful as I am losing access to test systems shortly.<br>
-&gt;<br>
-&gt;<br>
-&gt; These changes were used by a Virtual Machine caching company to assure=
- data integrity. Most testing was on Linux 64 bits and windows 32/64 bits. =
-The windows build still had an issue with compile time asserts in libfio.c =
-that I worked around by commenting out the asserts as this looked like a pe=
-rformance restriction. This should be researched more. The initial developm=
-ent was on version fio 2.2.10 sources and I just ported the changes to fio =
-latest sources and tested on linux but haven=E2=80=99t yet test on windows.=
- No testing on all other fio supported OSes was done, although the changes =
-are almost exclusively to OS independent code.<br>
-&gt;<br>
-&gt;<br>
-&gt; The absolute guarantees are brought about by tracking checksums to pre=
-vent a stale but intact prior version of a block being returned and by veri=
-fying all reads. I was surprised to learn about the number of times fio per=
-formed concurrent I/O to the same blocks which yields indeterminate results=
- that prevent data integrity verification. Thus a number of options are not=
- supported when tracking is enabled.<br>
-<br>
-</span>Sounds interesting! Are the patches available on Github or otherwise=
- published?<br>
-<br>
-I have a couple of patches related to overlapping I/Os (see<br>
-<a href=3D"https://github.com/axboe/fio/pull/343" rel=3D"noreferrer" target=
-=3D"_blank">https://github.com/axboe/fio/<wbr>pull/343</a> and<br>
-<a href=3D"https://github.com/sitsofe/fio/commit/6b4cfeb95fca2d75a291c54ca2=
-0162470c837a38" rel=3D"noreferrer" target=3D"_blank">https://github.com/sit=
-sofe/<wbr>fio/commit/<wbr>6b4cfeb95fca2d75a291c54ca20162<wbr>470c837a38</a>=
-<br>
-) because I can&#39;t afford for such I/O to be sent to the storage.<br>
-Perhaps it would be possible to amend your work to detect the overlaps<br>
-in a more efficient manner?<br>
-<br>
-How does this work play with varying blocksizes (bsrange etc)?<br>
-<span class=3D""><br>
-&gt; These limitations can be addressed by setting the verify_track option =
-which<br>
-&gt;<br>
-&gt; allocates a memory array to track the header and data checksums to ass=
-ure<br>
-&gt;<br>
-&gt; data integrity is absolute. The array starts out empty at the beginnin=
-g of<br>
-&gt;<br>
-&gt; each fio job and is filled in as reads or writes occur, once defined t=
-he<br>
-&gt;<br>
-&gt; checksums from succeeding I/Os must all match. This option extends che=
-cksum<br>
-&gt;<br>
-&gt; verification to all reads in all workloads, not just the read-only wor=
-kloads.<br>
-<br>
-</span>Are you sure? I thought readwrite verifying workloads caused the rea=
-ds<br>
-to be verifying if the block had been written in the same workload?<br>
-<span class=3D""><br>
-&gt; fio_header.py - a python script that displays the contents of the bloc=
-k header<br>
-&gt;<br>
-&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0in a corrupt dat=
-a file.<br>
-<br>
-</span>Many would find this useful. Perhaps it could be ported to C like<br=
+> option verify_track_log=3Dbool
 >
-t/verify-state.c ?<br>
-<div><div class=3D"h5"><br>
-&gt; Here are the related parameter descriptions from HOWTO:<br>
-&gt;<br>
-&gt;<br>
-&gt; option verify_track=3Dbool<br>
-&gt;<br>
-&gt;<br>
-&gt; Fio normally verifies data within a verify_intervalwith checksums and =
-file<br>
-&gt;<br>
-&gt; offsets embedded in the data. However a prior version of a block could=
- be<br>
-&gt;<br>
-&gt; returned and verified successfully. When verify_track is enabled the c=
-hecksum<br>
-&gt;<br>
-&gt; for every verify_interval in the file is stored in a table and all rea=
-d data<br>
-&gt;<br>
-&gt; must match the checksums in the table. The tracking table is sized as<=
-br>
-&gt;<br>
-&gt; (size / verify_interval) * 4 bytes. For very large size=3D option sett=
-ings,<br>
-&gt;<br>
-&gt; such a large memory allocation may impact testing. Reads assume that t=
-he entire<br>
-&gt;<br>
-&gt; file has been previously written with a verification format using the =
-same<br>
-&gt;<br>
-&gt; verify_interval. When verify_track is enabled, all reads are verified,=
- whether<br>
-&gt;<br>
-&gt; writes are present in the workload or not. Sharing files by threads wi=
-thin a job<br>
-&gt;<br>
-&gt; is supported but not between jobs running concurrently so use the ston=
-ewall<br>
-&gt;<br>
-&gt; option when more than one non-global job is present. Verify of trimmed=
- blocks<br>
-&gt;<br>
-&gt; is described for the verify_track_trim_zero option. When disabled, fio=
- falls<br>
-&gt;<br>
-&gt; back on verification described under the verify option. The restrictio=
-ns when<br>
-&gt;<br>
-&gt; enabling the verify_track option are:<br>
-&gt;<br>
-&gt; - randommap is required<br>
-&gt;<br>
-&gt; - softrandommap is not supported<br>
-&gt;<br>
-&gt; - lfsr random generator not supported when using multiple block sizes<=
-br>
-&gt;<br>
-&gt; - stonewall option required when more than one job present<br>
-&gt;<br>
-&gt; - file size must be an even multiple of the block size when iodepth &g=
-t; 1<br>
-&gt;<br>
-&gt; - verify_backlog not supported when iodepth &gt; 1<br>
-&gt;<br>
-&gt; - verify_async is not supported<br>
-&gt;<br>
-&gt; - file sharing between concurrent jobs not supported<br>
-&gt;<br>
-&gt; - numjobs must be 1<br>
-&gt;<br>
-&gt; - io_submit_mode must be set to &quot;inline&quot;<br>
-<br>
-</div></div>Yeah I&#39;ve noticed a number of issues trying to verify with<=
-br>
-io_submit_mode=3Doffload ...<br>
-<span class=3D""><br>
-&gt; option verify_track_log=3Dbool<br>
-&gt;<br>
-&gt;<br>
-&gt; If set when verify_track is set then on a clean shutdown, fio writes t=
-he checksum<br>
-&gt;<br>
-&gt; for each data block that has been read or written to a log named<br>
-&gt;<br>
-&gt; (datafilename).tracking.log. If set when fio reopens this data file an=
-d a tracking<br>
-&gt;<br>
-&gt; log exists then the checksums are read into the tracking table and use=
-d to validate<br>
-&gt;<br>
-&gt; every subsequent read. This allows rigorous validation of data integri=
-ty as data<br>
-&gt;<br>
-&gt; files are passed between fio jobs or over the termination of fio and r=
-estart on<br>
-&gt;<br>
-&gt; the same system or on another system or after an OS reboot. Reverting =
-a virtual<br>
-&gt;<br>
-&gt; machine to a snapshot can be tested by saving the tracking log after a=
- successful<br>
-&gt;<br>
-&gt; fio run and later restoring the saved log after reverting the virtual =
-machine.<br>
-&gt;<br>
-&gt; The log is deleted after being read in, so on abnormal termination no =
-stale<br>
-&gt;<br>
-&gt; checksums can be used. This option, the data file size and verify_inte=
-rval<br>
-&gt;<br>
-&gt; parameters should not change between jobs in the same run or on restar=
-t of fio.<br>
-&gt;<br>
-&gt; Defaults to off. verify_track_dir defines the tracking log&#39;s direc=
-tory.<br>
-<br>
-</span>How does this interact with verify_state_*<br>
-(<a href=3D"http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-=
-verify-state-load" rel=3D"noreferrer" target=3D"_blank">http://fio.readthed=
-ocs.io/en/<wbr>latest/fio_doc.html#cmdoption-<wbr>arg-verify-state-load</a>=
-<br>
-) ?<br>
-<span class=3D"HOEnZb"><font color=3D"#888888"><br>
---<br>
-Sitsofe | <a href=3D"http://sucs.org/~sits/" rel=3D"noreferrer" target=3D"_=
-blank">http://sucs.org/~sits/</a><br>
-</font></span></blockquote></div><br></div>
+>
+> If set when verify_track is set then on a clean shutdown, fio writes the =
+checksum
+>
+> for each data block that has been read or written to a log named
+>
+> (datafilename).tracking.log. If set when fio reopens this data file and a=
+ tracking
+>
+> log exists then the checksums are read into the tracking table and used t=
+o validate
+>
+> every subsequent read. This allows rigorous validation of data integrity =
+as data
+>
+> files are passed between fio jobs or over the termination of fio and rest=
+art on
+>
+> the same system or on another system or after an OS reboot. Reverting a v=
+irtual
+>
+> machine to a snapshot can be tested by saving the tracking log after a su=
+ccessful
+>
+> fio run and later restoring the saved log after reverting the virtual mac=
+hine.
+>
+> The log is deleted after being read in, so on abnormal termination no sta=
+le
+>
+> checksums can be used. This option, the data file size and verify_interva=
+l
+>
+> parameters should not change between jobs in the same run or on restart o=
+f fio.
+>
+> Defaults to off. verify_track_dir defines the tracking log's directory.
 
---001a1148d4546c70f7054f0ce657--
+How does this interact with verify_state_*
+(http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-verify-stat=
+e-load
+) ?
+
+--=20
+Sitsofe | http://sucs.org/~sits/
 
