@@ -1,22 +1,23 @@
 Return-Path: <phoulihan9@gmail.com>
 MIME-Version: 1.0
 From: paul houlihan <phoulihan9@gmail.com>
-Date: Sun, 7 May 2017 23:54:16 -0400
-Message-ID: <CAB8+yyVB8vaG6Vco21qcJie0+OkDNwOkqOxS-MyvQLYrqRzuWg@mail.gmail.com>
+Date: Sun, 7 May 2017 21:49:26 -0400
+Message-ID: <CAB8+yyUoVHAym2nJsv4Wg0Yx9z2S_MsPk_0rRm2Qgqq6sN1QXw@mail.gmail.com>
 Subject: Fio Checksum tracking and enhanced trim workloads
-Content-Type: multipart/alternative; boundary=f403045f55da6cfc27054efb318f
+Content-Type: multipart/alternative; boundary=001a1148d4540af877054ef973f6
 To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
---f403045f55da6cfc27054efb318f
+--001a1148d4540af877054ef973f6
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
 I have a submission for fio that enhances the data corruption detection and
 diagnosis capabilities taking fio from pretty good corruption detection to
-absolute guarantees. I would like these changes on the tracking branch????
-to be reviewed and considered for inclusion to fio. A quick review would be
-helpful as I am losing access to test systems shortly.
+absolute guarantees. I would like the changes at
+https://github.com/phoulihan9/fio/pull/1/commits to be reviewed and
+considered for inclusion to fio. A quick review would be helpful as I am
+losing access to test systems shortly.
 
 
 These changes were used by a Virtual Machine caching company to assure data
@@ -29,6 +30,7 @@ to fio latest sources and tested on linux but haven=E2=80=99t yet test on w=
 indows.
 No testing on all other fio supported OSes was done, although the changes
 are almost exclusively to OS independent code.
+
 
 
 The absolute guarantees are brought about by tracking checksums to prevent
@@ -45,40 +47,46 @@ integrity of these operations in an integrated fashion.
 
 Here is a list of changes in this submission:
 
- * Bug where expected version of verify_interval is not generated
-correctly, dummy io_u not setup correctly
+=E2=80=A2 Bug where expected version of verify_interval is not generated co=
+rrectly,
+dummy io_u not setup correctly
 
- * Bug where unknown header_interval referenced in HOWTO, fixed a bunch of
+=E2=80=A2 Bug where unknown header_interval referenced in HOWTO, fixed a bu=
+nch of
 typos.
 
- * Bug where windows hangs on nano sleep in windows 7.
+=E2=80=A2 Bug where windows hangs on nano sleep in windows 7.
 
- * Also stonewall=3D option does not seem to work on windows 7, seems fixed
-in later releases so painfully worked around this by having separate init
-and run fio scripts. No change was made here but just mentioning this in
+=E2=80=A2 Also stonewall=3D option does not seem to work on windows 7, seem=
+s fixed in
+later releases so painfully worked around this by having separate init and
+run fio scripts. No change was made here but just mentioning this in
 passing.
 
- * Fixed bug where FD_IO logging was screwed up in io_c.h. Here is example
+=E2=80=A2 Fixed bug where FD_IO logging was screwed up in io_c.h. Here is e=
+xample
 of logging problem:
 
-io       2212  io complete: io_u 0x787280: off=3D1048576/len=3D2097152/ddir=
-=3D0io
+=E2=80=A2 io       2212  io complete: io_u 0x787280:
+off=3D1048576/len=3D2097152/ddir=3D0io       2212  /b.datio       2212
+
+=E2=80=A2 io       2212  fill_io_u: io_u 0x787280: off=3D3145728/len=3D2097=
+152/ddir=3D1io
       2212  /b.datio       2212
 
-io       2212  fill_io_u: io_u 0x787280: off=3D3145728/len=3D2097152/ddir=
-=3D1io
-    2212  /b.datio       2212
+=E2=80=A2 io       2212  prep: io_u 0x787280: off=3D3145728/len=3D2097152/d=
+dir=3D1io
+  2212  /b.datio       2212
 
-io       2212  prep: io_u 0x787280: off=3D3145728/len=3D2097152/ddir=3D1io
-2212  /b.datio       2212
+=E2=80=A2 io       2212  ->prep(0x787280)=3D0
 
-io       2212  ->prep(0x787280)=3D0
+=E2=80=A2 io       2212  queue: io_u 0x787280: off=3D3145728/len=3D2097152/=
+ddir=3D1io
+  2212  /b.datio       2212
 
-io       2212  queue: io_u 0x787280: off=3D3145728/len=3D2097152/ddir=3D1io
-2212  /b.datio       2212
-
- * In order to make fio into an superb data integrity test tool, a number
-of shortcomings were addressed. New verify_track switch enables in memory
+=E2=80=A2 In order to make fio into an superb data integrity test tool, a n=
+umber of
+shortcomings were addressed. New verify_track switch enables in memory
 tracking of checksums within each fio job, preventing a block from rolling
 back to prior version. The in memory checksums can be written to a tracking
 log file to provide an absolute checksum guarantees between fio jobs or
@@ -87,27 +95,34 @@ integrated fashion. See HOWTO description of verify_tracking.
 verify_tacking_log, verify_tracking_required, verify_tracking_dir,
 verify_trim_zero
 
- * Enhanced description surrounding corruption added to HOWTO as well as
+=E2=80=A2 Enhanced description surrounding corruption added to HOWTO as wel=
+l as
 providing some corruption analyze tools.
 
- * Bad header will dump received buffer into *.received before you gave you
+=E2=80=A2 Bad header will dump received buffer into *.received before you g=
+ave you
 an error message
 
- * If verify_interval is less than the block size, fio will now always dump
+=E2=80=A2 If verify_interval is less than the block size, fio will now alwa=
+ys dump
 the complete buffer in an additional file called *.complete. Seeing whole
 buffer can reveal more about the corruption pattern.
 
- * Changed the printing of the hex checksum to display in MSB to LSB order
+=E2=80=A2 Changed the printing of the hex checksum to display in MSB to LSB=
+ order
 to facilitate compares to memory dumps and debug logging
 
- * Added a dump of the complete return buffer on trim write verification
+=E2=80=A2 Added a dump of the complete return buffer on trim write verifica=
+tion
 failure.
 
- * Debug logging was being truncated at the end of a job so you could not
+=E2=80=A2 Debug logging was being truncated at the end of a job so you coul=
+d not
 see the full set of debug log messages, so added a log flush at the end of
 each job if debug=3D switch is used.
 
- * rw=3Dreadwrite seems to have independent last_pos read/write pointers as
+=E2=80=A2 rw=3Dreadwrite seems to have independent last_pos read/write poin=
+ters as
 you sequentially access the file. If the mix is 50/50 then you could have
 fio reading and writing the same block as the read and write pointer cross
 each other which is not reliably verifiable. This pattern result is chaos
@@ -132,40 +147,44 @@ use the right last_pos. However we retained the old behavior for single
 operation workloads and for trimwrite which operates like a single
 operation workload.
 
- * Synchronous Trim I/O completions were not updating bytes_issued in
+=E2=80=A2 Synchronous Trim I/O completions were not updating bytes_issued i=
+n
 backend.c and thus trimwrite was actually making 2 passes of the file.
 
- * I kept the new verify_tracking verification entirely separate from the
+=E2=80=A2 I kept the new verify_tracking verification entirely separate fro=
+m the
 experimental_verify code. These new tracking changes provides fully
 persistent verification of trims integrated into standard verify, so we
 might want to consider deprecating support for experimental_verify. Note
 that verify_track and experimental_verify cannot both be enabled.
 
- * With the wide adoption of thin LUN datastores and recent expanded OS
+=E2=80=A2 With the wide adoption of thin LUN datastores and recent expanded=
+ OS
 support for trim operations to reclaim unused space, testing trim
 operations in a wide variety of contexts has been a necessity. Added some
 new trim I/O workloads to the existing trim workloads, that require use of
 verify_tracking option to verify:
 
-trim Sequential trims
+=E2=80=A2 trim                Sequential trims
 
-readtrim Sequential mixed reads and trims
+=E2=80=A2 readtrim         Sequential mixed reads and trims
 
-writetrim Sequential mixed writes and trims.
+=E2=80=A2 writetrim        Sequential mixed writes and trims.
 
-Each block will be trimmed or written.
+=E2=80=A2                       Each block will be trimmed or written.
 
-readwritetrim Sequential mixed reads/writes/trims
+=E2=80=A2 readwritetrim Sequential mixed reads/writes/trims
 
-randtrim Random trims
+=E2=80=A2 randtrim         Random trims
 
-randreadtrim Random mixed reads and trims
+=E2=80=A2 randreadtrim  Random mixed reads and trims
 
-randwritetrim Random mixed writes and trims
+=E2=80=A2 randwritetrim Random mixed writes and trims
 
-randrwt Random mixed reads/writes/trims
+=E2=80=A2 randrwt          Random mixed reads/writes/trims
 
- * A second change to existing fio functionality involves an inconsistency
+=E2=80=A2 A second change to existing fio functionality involves an inconsi=
+stency
 of counting read verification bytes against the size=3D argument. Some rw=
 =3D
 workloads count read verification I/Os or bytes against size=3D values (lik=
@@ -185,13 +204,16 @@ this_io_bytes never records verification reads for the dry_run and we need
 dry_run and do_io to be in synch. Note this explains why I removed code to
 add extra bytes to total_bytes in do_io for verify_backlog.
 
- * Seems like the processing of TD_F_VER_NONE is backwards from its name.
-If verify !=3D VERIFY_NONE then the bit is set but the name implies it shou=
-ld
-be clear. So now it sets the bit only if verify =3D=3D VERIFY_NONE to avoid
-this very confusing state.
+=E2=80=A2 Seems like the processing of TD_F_VER_NONE is backwards from its =
+name. If
+verify !=3D VERIFY_NONE then the bit is set but the name implies it should =
+be
+clear. So now it sets the bit only if verify =3D=3D VERIFY_NONE to avoid th=
+is
+very confusing state.
 
- * Added a sync and invalidate after the close in iolog.c ipo_special().
+=E2=80=A2 Added a sync and invalidate after the close in iolog.c ipo_specia=
+l().
 This is needed if you capture checksums in the tracking log and there is a
 close followed immediately by an open. The close is not immediate if you
 have iodepth set to a large number. The file is still marked =E2=80=9Copen=
@@ -201,29 +223,32 @@ er the last I/O
 completes. The sync avoids the assert on trying to open an already open
 file which has a close pending.
 
- * =E2=80=94read_iolog does not support trims at this time.
+=E2=80=A2 =E2=80=94read_iolog does not support trims at this time.
 
- * io_u.c get_next_seq_offset() seems to suggest that ddir_seq_add can be
+=E2=80=A2 io_u.c get_next_seq_offset() seems to suggest that ddir_seq_add c=
+an be
 negative but there are a number of unhandled cases with such a setting. Add
 TODOs to document issues. I have a number of reservations about the
 correctness of get_next_seq_offset(). Note whenever I saw a possible
 problem in the code but did not have time to research it, I added a TODO
 comment.
 
- * io_u.c get_next_seq_offset() has a problem when it uses fixed value when
+=E2=80=A2 io_u.c get_next_seq_offset() has a problem when it uses fixed val=
+ue when
 relative values are what is being manipulated, so this code:
 
-if (pos >=3D f->real_file_size)
+=E2=80=A2 if (pos >=3D f->real_file_size)
 
-pos =3D f->file_offset;
+=E2=80=A2 pos =3D f->file_offset;
 
-should be:
+=E2=80=A2 should be:
 
-if (pos >=3D f->io_size)
+=E2=80=A2 if (pos >=3D f->io_size)
 
-pos =3D 0;
+=E2=80=A2 pos =3D 0;
 
- * Given there are a couple of changes to existing fio workload behavior,
+=E2=80=A2 Given there are a couple of changes to existing fio workload beha=
+vior,
 you might want to consider going to a V3.0.
 
 
@@ -560,7 +585,7 @@ header
 Here are the related parameter descriptions from HOWTO:
 
 
-option verify_track=3Dbool
+.. option:: verify_track=3Dbool
 
 
 Fio normally verifies data within a verify_interval with checksums and file
@@ -646,7 +671,7 @@ checksums
 between jobs or fio runs, see verify_track_log.
 
 
-option verify_track_log=3Dbool
+.. option:: verify_track_log=3Dbool
 
 
 If set when verify_track is set then on a clean shutdown, fio writes the
@@ -685,7 +710,7 @@ fio.
 Defaults to off. verify_track_dir defines the tracking log's directory.
 
 
-option verify_track_required=3Dbool
+.. option:: verify_track_required=3Dbool
 
 
 If set when verify_track_log is set then the tracking log for each file
@@ -706,7 +731,7 @@ tracking log for the data file then all jobs can require use of the
 tracking log.
 
 
-option verify_track_dir=3Dstr
+.. option:: verify_track_dir=3Dstr
 
 
 If verify_track_log is set then this defines the single directory for all
@@ -730,7 +755,7 @@ checksums on
 a different, more trusted device.
 
 
-option verify_track_trim_zero=3Dbool
+.. option:: verify_track_trim_zero=3Dbool
 
 
 Typically a read of a trimmed block that has not been re-written will
@@ -757,33 +782,33 @@ a prior
 fio job or run had performed trims.
 
 
-option readwrite=3Dstr, rw=3Dstr
+.. option:: readwrite=3Dstr, rw=3Dstr
 
 
 Type of I/O pattern. Accepted values are:
 
 
-read
+**read**
 
 Sequential reads.
 
-write
+**write**
 
 Sequential writes.
 
-randwrite
+**randwrite**
 
 Random writes.
 
-randread
+**randread**
 
 Random reads.
 
-rw,readwrite
+**rw,readwrite**
 
 Sequential mixed reads or writes.
 
-randrw
+**randrw**
 
 Random mixed reads or writes.
 
@@ -808,43 +833,43 @@ Trim I/O has several requirements:
 Trim I/O patterns are:
 
 
-trim
+**trim**
 
 Sequential trims
 
-readtrim
+**readtrim**
 
 Sequential mixed reads or trims
 
-trimwrite
+**trimwrite**
 
 Sequential mixed trim then write. Each block
 
 will be trimmed first, then written to.
 
-writetrim
+**writetrim**
 
 Sequential mixed writes or trims.
 
 Each block will be trimmed or written.
 
-rwt,readwritetrim
+**rwt,readwritetrim**
 
 Sequential mixed reads/writes/trims
 
-randtrim
+**randtrim**
 
 Random trims
 
-randreadtrim
+**randreadtrim**
 
 Random mixed reads or trims
 
-randwritetrim
+**randwritetrim**
 
 Random mixed writes or trims
 
-randrwt
+**randrwt**
 
 Random mixed reads/writes/trims
 
@@ -876,7 +901,7 @@ write. It turns sequential I/O into sequential I/O with holes.  See the
 trims to use a minimum block size.
 
 
-option rwtmix=3Dint[,int][,int]
+.. option:: rwtmix=3Dint[,int][,int]
 
 
 When trims along with reads and/or writes are specified in the rw option
@@ -894,7 +919,7 @@ of 50,50,0. If a trailing comma isn't given, the remainder will inherit
 
 the last value set.
 
---f403045f55da6cfc27054efb318f
+--001a1148d4540af877054ef973f6
 Content-Type: text/html; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
@@ -909,9 +934,10 @@ Content-Transfer-Encoding: quoted-printable
 <p class=3D"gmail-p1"><span class=3D"gmail-s1">I have a submission for fio =
 that enhances the data corruption detection and diagnosis capabilities taki=
 ng fio from pretty good corruption detection to absolute guarantees. I woul=
-d like these changes on the tracking branch???? to be reviewed and consider=
-ed for inclusion to fio. A quick review would be helpful as I am losing acc=
-ess to test systems shortly.</span></p>
+d like the changes at <a href=3D"https://github.com/phoulihan9/fio/pull/1/c=
+ommits">https://github.com/phoulihan9/fio/pull/1/commits</a>=C2=A0to be rev=
+iewed and considered for inclusion to fio. A quick review would be helpful =
+as I am losing access to test systems shortly.</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1">These changes were used by a=
  Virtual Machine caching company to assure data integrity. Most testing was=
@@ -923,7 +949,8 @@ rces and I just ported the changes to fio latest sources and tested on linu=
 x but haven=E2=80=99t yet test on windows. No testing on all other fio supp=
 orted OSes was done, although the changes are almost exclusively to OS inde=
 pendent code.</span></p>
-<p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0<br>
+</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1">The absolute guarantees are =
 brought about by tracking checksums to prevent a stale but intact prior ver=
 sion of a block being returned and by verifying all reads. I was surprised =
@@ -938,203 +965,236 @@ an integrated fashion.</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1">Here is a list of changes in=
  this submission:</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* Bug where expected v=
-ersion of verify_interval is not generated correctly, dummy io_u not setup =
-correctly</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* Bug where unknown he=
-ader_interval referenced in HOWTO, fixed a bunch of typos.</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* Bug where windows ha=
-ngs on nano sleep in windows 7.</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* Also stonewall=3D op=
-tion does not seem to work on windows 7, seems fixed in later releases so p=
-ainfully worked around this by having separate init and run fio scripts. No=
- change was made here but just mentioning this in passing.</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* Fixed bug where FD_I=
-O logging was screwed up in io_c.h. Here is example of logging problem:</sp=
-an></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>io =C2=A0 =C2=A0 =C2=A0 2212=C2=A0 io complete: io_u 0x787=
-280: off=3D1048576/len=3D2097152/ddir=3D0io =C2=A0 =C2=A0 =C2=A0 2212=C2=A0=
- /b.datio =C2=A0 =C2=A0 =C2=A0 2212 =C2=A0</span></p>
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>Bug =
+where expected version of verify_interval is not generated correctly, dummy=
+ io_u not setup correctly</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>io =C2=A0 =C2=A0 =C2=A0 2212=C2=A0 fill_io_u: io_u 0x78728=
-0: off=3D3145728/len=3D2097152/ddir=3D1io =C2=A0 =C2=A0 =C2=A0 2212=C2=A0 /=
-b.datio =C2=A0 =C2=A0 =C2=A0 2212 =C2=A0</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>io =C2=A0 =C2=A0 =C2=A0 2212=C2=A0 prep: io_u 0x787280: of=
-f=3D3145728/len=3D2097152/ddir=3D1io =C2=A0 =C2=A0 =C2=A0 2212=C2=A0 /b.dat=
-io =C2=A0 =C2=A0 =C2=A0 2212 =C2=A0</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>io =C2=A0 =C2=A0 =C2=A0 2212=C2=A0 -&gt;prep(0x787280)=3D0=
-</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>io =C2=A0 =C2=A0 =C2=A0 2212=C2=A0 queue: io_u 0x787280: o=
-ff=3D3145728/len=3D2097152/ddir=3D1io =C2=A0 =C2=A0 =C2=A0 2212=C2=A0 /b.da=
-tio =C2=A0 =C2=A0 =C2=A0 2212 =C2=A0</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* In order to make fio=
- into an superb data integrity test tool, a number of shortcomings were add=
-ressed. New verify_track switch enables in memory tracking of checksums wit=
-hin each fio job, preventing a block from rolling back to prior version. Th=
-e in memory checksums can be written to a tracking log file to provide an a=
-bsolute checksum guarantees between fio jobs or between fio runs. Verificat=
-ion of trim operations is supported in an integrated fashion. See HOWTO des=
-cription of verify_tracking. verify_tacking_log, verify_tracking_required, =
-verify_tracking_dir, verify_trim_zero</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* Enhanced description=
- surrounding corruption added to HOWTO=C2=A0as well as providing some corru=
-ption analyze tools.</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* Bad header will dump=
- received buffer into *.received before you gave you an error message=C2=A0=
-</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* If verify_interval i=
-s less than the block size, fio will now always dump the complete buffer in=
- an additional file called *.complete. Seeing whole buffer can reveal more =
-about the corruption pattern.</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* Changed the printing=
- of the hex checksum to display in MSB to LSB order to facilitate compares =
-to memory dumps and debug logging</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* Added a dump of the =
-complete return buffer on trim write verification failure.=C2=A0</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* Debug logging was be=
-ing truncated at the end of a job so you could not see the full set of debu=
-g log messages, so added a log flush at the end of each job if debug=3D swi=
-tch is used.</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* rw=3Dreadwrite seems=
- to have independent last_pos read/write pointers as you sequentially acces=
-s the file. If the mix is 50/50 then you could have fio reading and writing=
- the same block as the read and write pointer cross each other which is not=
- reliably verifiable. This pattern result is chaos and contradicts all the =
-other sequential patterns and even randrw. Overlapping I/O makes little sen=
-se and is usually a sign of a broken application. Moreover readwrite worklo=
-ad would not complete a sequential pass over the entire file which everyone=
- I spoke to assumed it was doing. So a change was made to the existing read=
-/write workload functionality. Now the max of the file=E2=80=99s last_pos p=
-ointers for DDIR_READ and DDIR_WRITE are used for selecting the next offset=
- as we sequentially scan a file. If the old behavior is somehow useful then=
- an option can be added to preserve it. If preserved, it should never be th=
-e default and should disable verification.</span></p>
-<p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">My changes revolve around ma=
-intaining the last_pos array in a special way. When multiple operations (re=
-ad/write/trim) are requested by a workload then as the last position is cha=
-nged, the changes are reflected in all three entries in the array. This way=
- a randomly selected next operation always use the right last_pos. However =
-we retained the old behavior for single operation workloads and for trimwri=
-te which operates like a single operation workload.</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* Synchronous Trim I/O=
- completions were not updating bytes_issued in backend.c and thus trimwrite=
- was actually making 2 passes of the file.</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* I kept the new verif=
-y_tracking verification entirely separate from the experimental_verify code=
-. These new tracking changes provides fully persistent verification of trim=
-s integrated into standard verify, so we might want to consider deprecating=
- support for experimental_verify. Note that verify_track and experimental_v=
-erify cannot both be enabled.</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* With the wide adopti=
-on of thin LUN datastores and recent expanded OS support for trim operation=
-s to reclaim unused space, testing trim operations in a wide variety of con=
-texts has been a necessity. Added some new trim I/O workloads to the existi=
-ng trim workloads, that require use of verify_tracking option to verify:</s=
-pan></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>trim<span class=3D"gmail-Apple-tab-span">	</span><span cla=
-ss=3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	<=
-/span>Sequential trims</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>readtrim<span class=3D"gmail-Apple-tab-span">	</span><span=
- class=3D"gmail-Apple-tab-span">	</span>Sequential mixed reads and trims</s=
-pan></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>writetrim<span class=3D"gmail-Apple-tab-span">	</span><spa=
-n class=3D"gmail-Apple-tab-span">	</span>Sequential mixed writes and trims.=
-</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
-=3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
-pan>Each block will be trimmed or written.</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>readwritetrim<span class=3D"gmail-Apple-tab-span">	</span>=
-<span class=3D"gmail-Apple-tab-span">	</span>Sequential mixed reads/writes/=
-trims</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>randtrim<span class=3D"gmail-Apple-tab-span">	</span><span=
- class=3D"gmail-Apple-tab-span">	</span>Random trims</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>randreadtrim<span class=3D"gmail-Apple-tab-span">	</span><=
-span class=3D"gmail-Apple-tab-span">	</span>Random mixed reads and trims</s=
-pan></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>randwritetrim<span class=3D"gmail-Apple-tab-span">	</span>=
-<span class=3D"gmail-Apple-tab-span">	</span>Random mixed writes and trims<=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>Bug =
+where unknown header_interval referenced in HOWTO, fixed a bunch of typos.<=
 /span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>randrwt<span class=3D"gmail-Apple-tab-span">	</span><span =
-class=3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span"=
->	</span>Random mixed reads/writes/trims</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* A second change to e=
-xisting fio functionality involves an inconsistency of counting read verifi=
-cation bytes against the size=3D argument. Some rw=3D workloads count read =
-verification I/Os or bytes against size=3D values (like readwrite and randr=
-w) and some do not=C2=A0 like write, trim and trimwrite. Counting read veri=
-fications bytes makes it hard to predict the number of bytes or I/Os that w=
-ill be performed in the readwrite workload and the new rw=3D workloads incr=
-eases the unpredictability with even more read verifications in a readwrite=
-trim workload. Normally I expect that fio should process all the bytes in a=
- file pass but when the bytes from read verifies count towards the total by=
-tes to process in size=3D, only part of the file is processed. So I made it=
- consistent for size and io_limit by not counting read verify bytes. One co=
-uld argue that number_os=3D could also be similarly changed but I left this=
- alone and it still uses raw I/O counts which include read verification I/O=
-s. Another justification is that this_io_bytes never records verification r=
-eads for the dry_run and we need dry_run and do_io to be in synch. Note thi=
-s explains why I removed code to add extra bytes to total_bytes in do_io fo=
-r verify_backlog.=C2=A0</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* Seems like the proce=
-ssing of TD_F_VER_NONE is backwards from its name. If verify !=3D VERIFY_NO=
-NE then the bit is set but the name implies it should be clear. So now it s=
-ets the bit only if verify =3D=3D VERIFY_NONE to avoid this very confusing =
-state.</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* Added a sync and inv=
-alidate after the close in iolog.c ipo_special(). This is needed if you cap=
-ture checksums in the tracking log and there is a close followed immediatel=
-y by an open. The close is not immediate if you have iodepth set to a large=
- number. The file is still marked =E2=80=9Copen=E2=80=9D but =E2=80=9Cclosi=
-ng=E2=80=9D on return from the close=C2=A0 and will close only after the la=
-st I/O completes. The sync avoids the assert on trying to open an already o=
-pen file which has a close pending.</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* =E2=80=94read_iolog =
-does not support trims at this time.</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* io_u.c get_next_seq_=
-offset() seems to suggest that ddir_seq_add can be negative but there are a=
- number of unhandled cases with such a setting. Add TODOs to document issue=
-s. I have a number of reservations about the correctness of get_next_seq_of=
-fset(). Note whenever I saw a possible problem in the code but did not have=
- time to research it, I added a TODO comment.</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* io_u.c get_next_seq_=
-offset() has a problem when it uses fixed value when relative values are wh=
-at is being manipulated, so this code:</span></p>
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>Bug =
+where windows hangs on nano sleep in windows 7.</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
-=3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
-pan>if (pos &gt;=3D f-&gt;real_file_size)</span></p>
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>Also=
+ stonewall=3D option does not seem to work on windows 7, seems fixed in lat=
+er releases so painfully worked around this by having separate init and run=
+ fio scripts. No change was made here but just mentioning this in passing.<=
+/span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
-=3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
-pan><span class=3D"gmail-Apple-tab-span">	</span>pos =3D f-&gt;file_offset;=
-</span></p>
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>Fixe=
+d bug where FD_IO logging was screwed up in io_c.h. Here is example of logg=
+ing problem:</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span>should be:</span></p>
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>io =
+=C2=A0 =C2=A0 =C2=A0 2212=C2=A0 io complete: io_u 0x787280: off=3D1048576/l=
+en=3D2097152/ddir=3D0io =C2=A0 =C2=A0 =C2=A0 2212=C2=A0 /b.datio =C2=A0 =C2=
+=A0 =C2=A0 2212 =C2=A0</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
-=3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
-pan>if (pos &gt;=3D f-&gt;io_size)</span></p>
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>io =
+=C2=A0 =C2=A0 =C2=A0 2212=C2=A0 fill_io_u: io_u 0x787280: off=3D3145728/len=
+=3D2097152/ddir=3D1io =C2=A0 =C2=A0 =C2=A0 2212=C2=A0 /b.datio =C2=A0 =C2=
+=A0 =C2=A0 2212 =C2=A0</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
-=3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
-pan><span class=3D"gmail-Apple-tab-span">	</span>pos =3D 0;</span></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">=C2=A0* Given there are a co=
-uple of changes to existing fio workload behavior, you might want to consid=
-er going to a V3.0.=C2=A0</span></p>
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>io =
+=C2=A0 =C2=A0 =C2=A0 2212=C2=A0 prep: io_u 0x787280: off=3D3145728/len=3D20=
+97152/ddir=3D1io =C2=A0 =C2=A0 =C2=A0 2212=C2=A0 /b.datio =C2=A0 =C2=A0 =C2=
+=A0 2212 =C2=A0</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>io =
+=C2=A0 =C2=A0 =C2=A0 2212=C2=A0 -&gt;prep(0x787280)=3D0</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>io =
+=C2=A0 =C2=A0 =C2=A0 2212=C2=A0 queue: io_u 0x787280: off=3D3145728/len=3D2=
+097152/ddir=3D1io =C2=A0 =C2=A0 =C2=A0 2212=C2=A0 /b.datio =C2=A0 =C2=A0 =
+=C2=A0 2212 =C2=A0</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>In o=
+rder to make fio into an superb data integrity test tool, a number of short=
+comings were addressed. New verify_track switch enables in memory tracking =
+of checksums within each fio job, preventing a block from rolling back to p=
+rior version. The in memory checksums can be written to a tracking log file=
+ to provide an absolute checksum guarantees between fio jobs or between fio=
+ runs. Verification of trim operations is supported in an integrated fashio=
+n. See HOWTO description of verify_tracking. verify_tacking_log, verify_tra=
+cking_required, verify_tracking_dir, verify_trim_zero</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>Enha=
+nced description surrounding corruption added to HOWTO=C2=A0as well as prov=
+iding some corruption analyze tools.</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>Bad =
+header will dump received buffer into *.received before you gave you an err=
+or message=C2=A0</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>If v=
+erify_interval is less than the block size, fio will now always dump the co=
+mplete buffer in an additional file called *.complete. Seeing whole buffer =
+can reveal more about the corruption pattern.</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>Chan=
+ged the printing of the hex checksum to display in MSB to LSB order to faci=
+litate compares to memory dumps and debug logging</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>Adde=
+d a dump of the complete return buffer on trim write verification failure.=
+=C2=A0</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>Debu=
+g logging was being truncated at the end of a job so you could not see the =
+full set of debug log messages, so added a log flush at the end of each job=
+ if debug=3D switch is used.</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>rw=
+=3Dreadwrite seems to have independent last_pos read/write pointers as you =
+sequentially access the file. If the mix is 50/50 then you could have fio r=
+eading and writing the same block as the read and write pointer cross each =
+other which is not reliably verifiable. This pattern result is chaos and co=
+ntradicts all the other sequential patterns and even randrw. Overlapping I/=
+O makes little sense and is usually a sign of a broken application. Moreove=
+r readwrite workload would not complete a sequential pass over the entire f=
+ile which everyone I spoke to assumed it was doing. So a change was made to=
+ the existing read/write workload functionality. Now the max of the file=E2=
+=80=99s last_pos pointers for DDIR_READ and DDIR_WRITE are used for selecti=
+ng the next offset as we sequentially scan a file. If the old behavior is s=
+omehow useful then an option can be added to preserve it. If preserved, it =
+should never be the default and should disable verification.</span></p>
+<p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>My changes re=
+volve around maintaining the last_pos array in a special way. When multiple=
+ operations (read/write/trim) are requested by a workload then as the last =
+position is changed, the changes are reflected in all three entries in the =
+array. This way a randomly selected next operation always use the right las=
+t_pos. However we retained the old behavior for single operation workloads =
+and for trimwrite which operates like a single operation workload.</span></=
+p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>Sync=
+hronous Trim I/O completions were not updating bytes_issued in backend.c an=
+d thus trimwrite was actually making 2 passes of the file.</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>I ke=
+pt the new verify_tracking verification entirely separate from the experime=
+ntal_verify code. These new tracking changes provides fully persistent veri=
+fication of trims integrated into standard verify, so we might want to cons=
+ider deprecating support for experimental_verify. Note that verify_track an=
+d experimental_verify cannot both be enabled.</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>With=
+ the wide adoption of thin LUN datastores and recent expanded OS support fo=
+r trim operations to reclaim unused space, testing trim operations in a wid=
+e variety of contexts has been a necessity. Added some new trim I/O workloa=
+ds to the existing trim workloads, that require use of verify_tracking opti=
+on to verify:</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>trim=
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 Sequential trims</s=
+pan></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>read=
+trim =C2=A0 =C2=A0 =C2=A0 =C2=A0 Sequential mixed reads and trims</span></p=
+>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>writ=
+etrim=C2=A0 =C2=A0 =C2=A0 =C2=A0 Sequential mixed writes and trims.</span><=
+/p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>=C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 E=
+ach block will be trimmed or written.</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>read=
+writetrim Sequential mixed reads/writes/trims</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>rand=
+trim =C2=A0 =C2=A0 =C2=A0 =C2=A0 Random trims</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>rand=
+readtrim=C2=A0 Random mixed reads and trims</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>rand=
+writetrim Random mixed writes and trims</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>rand=
+rwt=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 Random mixed reads/writes/trims</span=
+></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>A se=
+cond change to existing fio functionality involves an inconsistency of coun=
+ting read verification bytes against the size=3D argument. Some rw=3D workl=
+oads count read verification I/Os or bytes against size=3D values (like rea=
+dwrite and randrw) and some do not=C2=A0 like write, trim and trimwrite. Co=
+unting read verifications bytes makes it hard to predict the number of byte=
+s or I/Os that will be performed in the readwrite workload and the new rw=
+=3D workloads increases the unpredictability with even more read verificati=
+ons in a readwritetrim workload. Normally I expect that fio should process =
+all the bytes in a file pass but when the bytes from read verifies count to=
+wards the total bytes to process in size=3D, only part of the file is proce=
+ssed. So I made it consistent for size and io_limit by not counting read ve=
+rify bytes. One could argue that number_os=3D could also be similarly chang=
+ed but I left this alone and it still uses raw I/O counts which include rea=
+d verification I/Os. Another justification is that this_io_bytes never reco=
+rds verification reads for the dry_run and we need dry_run and do_io to be =
+in synch. Note this explains why I removed code to add extra bytes to total=
+_bytes in do_io for verify_backlog.=C2=A0</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>Seem=
+s like the processing of TD_F_VER_NONE is backwards from its name. If verif=
+y !=3D VERIFY_NONE then the bit is set but the name implies it should be cl=
+ear. So now it sets the bit only if verify =3D=3D VERIFY_NONE to avoid this=
+ very confusing state.</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>Adde=
+d a sync and invalidate after the close in iolog.c ipo_special(). This is n=
+eeded if you capture checksums in the tracking log and there is a close fol=
+lowed immediately by an open. The close is not immediate if you have iodept=
+h set to a large number. The file is still marked =E2=80=9Copen=E2=80=9D bu=
+t =E2=80=9Cclosing=E2=80=9D on return from the close=C2=A0 and will close o=
+nly after the last I/O completes. The sync avoids the assert on trying to o=
+pen an already open file which has a close pending.</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>=E2=
+=80=94read_iolog does not support trims at this time.</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>io_u=
+.c get_next_seq_offset() seems to suggest that ddir_seq_add can be negative=
+ but there are a number of unhandled cases with such a setting. Add TODOs t=
+o document issues. I have a number of reservations about the correctness of=
+ get_next_seq_offset(). Note whenever I saw a possible problem in the code =
+but did not have time to research it, I added a TODO comment.</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>io_u=
+.c get_next_seq_offset() has a problem when it uses fixed value when relati=
+ve values are what is being manipulated, so this code:</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span><spa=
+n class=3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-spa=
+n">	</span><span class=3D"gmail-Apple-tab-span">	</span>if (pos &gt;=3D f-&=
+gt;real_file_size)</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span><spa=
+n class=3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-spa=
+n">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=3D"gmai=
+l-Apple-tab-span">	</span>pos =3D f-&gt;file_offset;</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>shou=
+ld be:</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span><spa=
+n class=3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-spa=
+n">	</span><span class=3D"gmail-Apple-tab-span">	</span>if (pos &gt;=3D f-&=
+gt;io_size)</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span><spa=
+n class=3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-spa=
+n">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=3D"gmai=
+l-Apple-tab-span">	</span>pos =3D 0;</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
+ab-span">	</span>=E2=80=A2<span class=3D"gmail-Apple-tab-span">	</span>Give=
+n there are a couple of changes to existing fio workload behavior, you migh=
+t want to consider going to a V3.0.=C2=A0</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
@@ -1427,8 +1487,8 @@ ipt that displays the contents of the block header</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1">Here are the related paramet=
 er descriptions from HOWTO:</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">option verify_track=3Dbool</=
-span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1">.. option:: verify_track=3Db=
+ool</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span>Fio normally verifies data within a verify_interval<span c=
@@ -1534,8 +1594,8 @@ t tracking of checksums</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span>between jobs or fio runs, see verify_track_log.</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">option verify_track_log=3Dbo=
-ol</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1">.. option:: verify_track_log=
+=3Dbool</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span>If set when verify_track is set then on a clean shutdown, =
@@ -1577,8 +1637,8 @@ or on restart of fio.</span></p>
 ab-span">	</span>Defaults to off. verify_track_dir defines the tracking log=
 &#39;s directory.</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">option verify_track_required=
-=3Dbool</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1">.. option:: verify_track_req=
+uired=3Dbool</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span>If set when verify_track_log is set then the tracking log =
@@ -1599,8 +1659,8 @@ ab-span">	</span>used otherwise an empty tracking table is used. If a prior=
 ab-span">	</span>tracking log for the data file then all jobs can require u=
 se of the tracking log.</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">option verify_track_dir=3Dst=
-r</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1">.. option:: verify_track_dir=
+=3Dstr</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span>If verify_track_log is set then this defines the single di=
@@ -1623,8 +1683,8 @@ containing checksums on</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span>a different, more trusted device.</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">option verify_track_trim_zer=
-o=3Dbool</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1">.. option:: verify_track_tri=
+m_zero=3Dbool</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span>Typically a read of a trimmed block that has not been re-w=
@@ -1650,50 +1710,50 @@ ab-span">	</span>verify_tracking is enabled, trims are not specified in the=
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span>fio job or run had performed trims.</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">option readwrite=3Dstr, rw=
-=3Dstr</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1">.. option:: readwrite=3Dstr,=
+ rw=3Dstr</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span>Type of I/O pattern. Accepted values are:</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>read</span></=
-p>
+ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>**read**</spa=
+n></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
 pan>Sequential reads.</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>write</span><=
-/p>
+ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>**write**</sp=
+an></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
 pan>Sequential writes.</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>randwrite</sp=
-an></p>
+ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>**randwrite**=
+</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
 pan>Random writes.</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>randread</spa=
-n></p>
+ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>**randread**<=
+/span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
 pan>Random reads.</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>rw,readwrite<=
-/span></p>
+ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>**rw,readwrit=
+e**</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
 pan>Sequential mixed reads or writes.</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>randrw</span>=
-</p>
+ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>**randrw**</s=
+pan></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
@@ -1729,22 +1789,22 @@ ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>Trim I/O patt=
 erns are:</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>trim</span></=
-p>
+ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>**trim**</spa=
+n></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
 pan>Sequential trims</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>readtrim</spa=
-n></p>
+ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>**readtrim**<=
+/span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
 pan>Sequential mixed reads or trims</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>trimwrite</sp=
-an></p>
+ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>**trimwrite**=
+</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
@@ -1754,8 +1814,8 @@ ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
 pan>will be trimmed first, then written to.</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>writetrim</sp=
-an></p>
+ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>**writetrim**=
+</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
@@ -1765,36 +1825,36 @@ ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
 pan>Each block will be trimmed or written.</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>rwt,readwrite=
-trim</span></p>
+ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>**rwt,readwri=
+tetrim**</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
 pan>Sequential mixed reads/writes/trims</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>randtrim</spa=
-n></p>
+ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>**randtrim**<=
+/span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
 pan>Random trims</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>randreadtrim<=
-/span></p>
+ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>**randreadtri=
+m**</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
 pan>Random mixed reads or trims</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>randwritetrim=
-</span></p>
+ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>**randwritetr=
+im**</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
 pan>Random mixed writes or trims</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
-ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>randrwt</span=
-></p>
+ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span>**randrwt**</=
+span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span><span class=3D"gmail-Apple-tab-span">	</span><span class=
 =3D"gmail-Apple-tab-span">	</span><span class=3D"gmail-Apple-tab-span">	</s=
@@ -1836,8 +1896,8 @@ ab-span">	</span>:option:`rw_sequencer` option. Storage array vendors often=
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span>trims to use a minimum block size.</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
-<p class=3D"gmail-p1"><span class=3D"gmail-s1">option rwtmix=3Dint[,int][,i=
-nt]</span></p>
+<p class=3D"gmail-p1"><span class=3D"gmail-s1">.. option:: rwtmix=3Dint[,in=
+t][,int]</span></p>
 <p class=3D"gmail-p2"><span class=3D"gmail-s1"></span><br></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span>When trims along with reads and/or writes are specified in=
@@ -1857,5 +1917,5 @@ nder will inherit</span></p>
 <p class=3D"gmail-p1"><span class=3D"gmail-s1"><span class=3D"gmail-Apple-t=
 ab-span">	</span>the last value set.</span></p></div>
 
---f403045f55da6cfc27054efb318f--
+--001a1148d4540af877054ef973f6--
 
