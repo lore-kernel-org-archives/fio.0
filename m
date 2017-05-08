@@ -1,51 +1,32 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:1041 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750716AbdECU7C (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 3 May 2017 16:59:02 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: fio output parameter
-Date: Wed, 3 May 2017 20:58:57 +0000
-Message-ID: <BN3PR0401MB1457A4FAC025F769611F69268F160@BN3PR0401MB1457.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <axboe@kernel.dk>
+Subject: Re: Writing buffers allocated by numa_alloc_onnode to files opened
+ with O_DIRECT
+References: <E12F3002-0737-4C94-8E43-D2E4B449ED0A@cisco.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <2c218e4d-d618-a068-459e-b4c7e7ced87d@kernel.dk>
+Date: Mon, 8 May 2017 08:33:32 -0600
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <E12F3002-0737-4C94-8E43-D2E4B449ED0A@cisco.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+To: "Scott Forman (scforman)" <scforman@cisco.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi All,
-When in command line mode, the output parameter dumps the output to a file.=
-  When in job mode, the output parameter cannot be used, so all output goes=
- to stdout.  Can the output parameter be used with job files?  Consider bel=
-ow:
+On 05/02/2017 08:44 PM, Scott Forman (scforman) wrote:
+> Hi,
+> 
+> I am wondering if someone on this mailing list would know if the
+> numa_alloc_onnode() function properly aligns memory buffers so that
+> they can be written to a file opened with the O_DIRECT flag.
+> 
+> I have seen some conflicting information on the web about this, so I
+> would appreciate any input you might have.
 
-# fio -version
-fio-2.19-59-gf52e9
+The man page says that it rounds the size to the nearest page size, so I
+think you can safely assume that then the alignment will also be fine
+for O_DIRECT.
 
-#fio --name=3Dtest_job --ioengine=3Dlibaio --direct=3D1 --rw=3Drandread --i=
-odepth=3D1 --size=3D100% --numjobs=3D1 --bs=3D4k --filename=3D/dev/nvme0n1 =
---runtime=3D10s --time_based --output=3Dtest_job
+-- 
+Jens Axboe
 
-#cat text.txt
-[test_job]
-ioengine=3Dlibaio
-direct=3D1
-rw=3Drandread
-iodepth=3D1
-size=3D100%
-numjobs=3D1
-bs=3D4k
-filename=3D/dev/nvme0n1
-runtime=3D10s
-time_based
-output=3Dtest_job
-
-# fio test.txt
-Bad option <output=3Dtest_job>
-
-
-Regards,
-Jeff
 
