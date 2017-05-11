@@ -1,63 +1,48 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:36914 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751460AbdEEMAK (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 5 May 2017 08:00:10 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1d6bu5-0004jz-R2
-        for fio@vger.kernel.org; Fri, 05 May 2017 12:00:09 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170505120002.104D42C1712@kernel.dk>
-Date: Fri,  5 May 2017 06:00:02 -0600 (MDT)
+Received: from mail-ua0-f169.google.com ([209.85.217.169]:35571 "EHLO
+        mail-ua0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753303AbdEKIEO (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 11 May 2017 04:04:14 -0400
+Received: by mail-ua0-f169.google.com with SMTP id e55so21325936uaa.2
+        for <fio@vger.kernel.org>; Thu, 11 May 2017 01:04:14 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CACqzM2CQsTnY-1d=hZ-e6d7HD9on8_3OXTtySB1nk3Kjb2-qAg@mail.gmail.com>
+References: <CACqzM2CQsTnY-1d=hZ-e6d7HD9on8_3OXTtySB1nk3Kjb2-qAg@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Thu, 11 May 2017 09:03:43 +0100
+Message-ID: <CALjAwxhEbtgZoyZ5V3+HNaqkvbKMS7hwnYrD6KUZAC7j0gSzpw@mail.gmail.com>
+Subject: Re: FIO Latency and IOPS variation with blktrace
+Content-Type: text/plain; charset=UTF-8
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Guruganesh Hegde <guruhegde4u@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit f52e919826839eaba90903b67fe02042159a0023:
+Hi,
 
-  gettime: make utime_since_now and mtime_since_now consistent in how they record the caller and put this all behind FIO_DEBUG_TIME (2017-05-03 08:49:37 -0600)
+On 11 May 2017 at 08:27, Guruganesh Hegde <guruhegde4u@gmail.com> wrote:
+>
+> When fio is run with blktrace,
+> IOPS drops by 8%, average clat increased by 9% and max clat is5 times
+> more compared to the test run without running blktrace.
+>
+> Is this expected overhead when blktrace is run?
+> Wondering why max latency is 5 time more!!
 
-are available in the git repository at:
+This isn't an easy question to answer as there are too many variables:
+How much CPU is left when fio is running by itself? How much is left
+when you are running it and blktrace together?
+What sort of IOPs are you seeing without blktrace?
+Are you saving your blktrace log to a completely different disk on a
+completely different controller to the ones being used by fio or
+otherwise storing the entirety of the trace entirely in RAM? If you
+generate competing I/O towards the same disk(s) you'll hurt your
+speeds.
 
-  git://git.kernel.dk/fio.git master
+Also this isn't so much an fio question as a blktrace one so it might
+also be useful to ask on the blktrace mailing list (see the bottom of
+http://git.kernel.dk/?p=blktrace.git;a=blob;f=README;h=f52f48d8d621f916d7b940bbe5ed2b9b92f4c836;hb=43fc870ce04e963def45dfc0d1ed4ea21ef10d4b#l172
+).
 
-for you to fetch changes up to c55fae03f7d5c0981e55241fc9003d762f7a5fd9:
-
-  options: force refill_buffers with pattern and any reads (2017-05-04 08:43:27 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      options: force refill_buffers with pattern and any reads
-
- options.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/options.c b/options.c
-index 85574d7..b489e90 100644
---- a/options.c
-+++ b/options.c
-@@ -1306,8 +1306,17 @@ static int str_buffer_pattern_cb(void *data, const char *input)
- 
- 	assert(ret != 0);
- 	td->o.buffer_pattern_bytes = ret;
--	if (!td->o.compress_percentage)
-+
-+	/*
-+	 * If this job is doing any reading or has compression set,
-+	 * ensure that we refill buffers for writes or we could be
-+	 * invalidating the pattern through reads.
-+	 */
-+	if (!td->o.compress_percentage && !td_read(td))
- 		td->o.refill_buffers = 0;
-+	else
-+		td->o.refill_buffers = 1;
-+
- 	td->o.scramble_buffers = 0;
- 	td->o.zero_buffers = 0;
- 
+-- 
+Sitsofe | http://sucs.org/~sits/
