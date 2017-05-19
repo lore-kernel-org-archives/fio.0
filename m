@@ -1,61 +1,60 @@
-Return-Path: <sitsofe@gmail.com>
-MIME-Version: 1.0
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Sat, 27 May 2017 09:27:12 +0100
-Message-ID: <CALjAwxjZ=WWs9VEUR=685v+fuytgNrydJ9ntkx96tzjz-sz+qQ@mail.gmail.com>
-Subject: Change of fio homepage
-Content-Type: text/plain; charset="UTF-8"
-To: Jens Axboe <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:49854 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753225AbdESMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 19 May 2017 08:00:09 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1dBgZk-0003iB-Os
+        for fio@vger.kernel.org; Fri, 19 May 2017 12:00:08 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170519120002.7943B2C246B@kernel.dk>
+Date: Fri, 19 May 2017 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-(follow up to "Re: [PATCH] Windows: Update the EULA year and add more
-examples to the installer"
-http://www.spinics.net/lists/fio/msg05510.html )
+The following changes since commit c78997bf625ffcca49c18e11ab0f5448b26d7452:
 
-As the noted in the recent commit
-https://github.com/axboe/fio/commit/e5123c4ad9b0626e25d9b243f1111fa89082308b
-the old gitweb fio repo browser has gone away and only the cgit
-browser (http://git.kernel.dk/cgit/fio/ ) remains. Unfortunately there
-are huge numbers of links out there that still point to fio's gitweb
-URL which will now become broken. Typically such links look like:
+  man page: include reference to version 4 of the terse format (2017-05-09 21:08:12 -0600)
 
-http://git.kernel.dk/?p=fio.git
-http://git.kernel.dk/?p=fio.git;a=summary
+are available in the git repository at:
 
-Is there any chance that a redirect for the two URLs above could be
-put in to bounce the visitor to http://git.kernel.dk/cgit/fio/ ?
+  git://git.kernel.dk/fio.git master
 
-Also going forwards is http://git.kernel.dk/cgit/fio/ the "official"
-homepage? If it too is subject to change would people just be better
-off pointing to https://github.com/axboe/fio mirror in a similar way
-to what happened in the freshmeat era?
+for you to fetch changes up to dd3805d49995e59fdf61e2560c3fec5b7f5c71b6:
 
-Here's a quick list of resources referring to fio's "homepage":
-https://github.com/Ponce/slackbuilds/blob/current/system/fio/fio.info
-(has http://git.kernel.dk/cgit/fio/ as the HOMEPAGE)
-https://anonscm.debian.org/cgit/collab-maint/fio.git/tree/debian/control
-(has https://github.com/axboe/fio as the Homepage)
-https://git.archlinux.org/svntogit/community.git/tree/trunk/PKGBUILD?h=packages/fio
-(has https://github.com/axboe/fio as the url)
-https://gitweb.gentoo.org/repo/gentoo.git/tree/sys-block/fio/fio-2.16.ebuild
-(has http://brick.kernel.dk/snaps/ as the HOMEPAGE)
-http://pkgs.fedoraproject.org/cgit/rpms/fio.git/tree/fio.spec (has
-http://git.kernel.dk/?p=fio.git;a=summary as the URL)
-https://svnweb.freebsd.org/ports/head/benchmarks/fio/pkg-descr?revision=340718&view=markup
-(has http://git.kernel.dk/?p=fio.git as the WWW)
-https://www.openhub.net/p/fio (has
-http://git.kernel.dk/?p=fio.git;a=summary as the Homepage)
-http://freecode.com/projects/fio (aka
-http://freshmeat.net/projects/fio , clicking website goes to
-http://git.kernel.dk/?p=fio.git;a=summary )
-https://github.com/Homebrew/homebrew-core/blob/master/Formula/fio.rb
-(has http://freecode.com/projects/fio as the homepage)
-https://www.opencsw.org/package/fio/ (has
-http://freshmeat.net/projects/fio as the Source URL)
-https://build.opensuse.org/package/view_file/benchmark/fio/fio.spec
-(has http://freshmeat.net/projects/fio/ as the Url)
+  Remove leftover warnings (2017-05-18 12:53:38 -0600)
 
--- 
-Sitsofe | http://sucs.org/~sits/
+----------------------------------------------------------------
+Jens Axboe (2):
+      Fix wrap issue with 64-bit pwritev2/preadv2
+      Remove leftover warnings
 
+ os/os-linux.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/os/os-linux.h b/os/os-linux.h
+index 911f7e7..ba53590 100644
+--- a/os/os-linux.h
++++ b/os/os-linux.h
+@@ -314,9 +314,13 @@ static inline int fio_set_sched_idle(void)
+ static inline void make_pos_h_l(unsigned long *pos_h, unsigned long *pos_l,
+ 				off_t offset)
+ {
++#if BITS_PER_LONG == 64
++	*pos_l = offset;
++	*pos_h = 0;
++#else
+ 	*pos_l = offset & 0xffffffff;
+ 	*pos_h = ((uint64_t) offset) >> 32;
+-
++#endif
+ }
+ static inline ssize_t preadv2(int fd, const struct iovec *iov, int iovcnt,
+ 			      off_t offset, unsigned int flags)
