@@ -1,116 +1,128 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 01/11] configure: Disable CONFIG_POSIX_FALLOCATE on NetBSD even if posix_fallocate(3) compiles
-Date: Mon,  1 May 2017 21:48:10 +0300
-Message-Id: <20170501184820.31025-1-tkusumi@tuxera.com>
+Subject: [PATCH 2/5] Drop struct thread_data dependency from os headers
+Date: Tue, 23 May 2017 21:44:46 +0300
+Message-Id: <20170523184449.48134-3-tkusumi@tuxera.com>
+In-Reply-To: <20170523184449.48134-1-tkusumi@tuxera.com>
+References: <20170523184449.48134-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-fio on NetBSD may have CONFIG_POSIX_FALLOCATE configuration enabled
-since posix_fallocate(3) compiles (at least on recent versions),
-but this is actually not supported on UFS as mentioned in below wiki
-and fio result.
+Since os/os.h is included by fio.h before other functions/structures
+are even defined, it's better for os/os*.h not to have dependency on
+those (in this case it's struct thread_data and duplicated td_fill_
+rand_seeds() prototypes) unless really needed. os/os*.h are basically
+collections of small wrappers over syscalls/etc whose idea is similar
+but with difference interface among supported platforms, thus they
+normally don't need to have dependency on fio functions/structures,
+and in fact they're normally designed that way.
 
-https://wiki.netbsd.org/projects/project/ffs-fallocate/
-> This functionality is not currently implemented for FFS;
+This commit gets rid of struct thread_data argument from an inlined
+function init_random_state(), which was needed only to call another
+function td_fill_rand_seeds(td). This can simply be called from
+setup_random_seeds() after init_random_state() without making any
+functional difference. Also rename init_random_state() to
+init_random_seeds() as it only initializes random seeds now.
 
-compile_prog() during ./configure fails to catch this as it doesn't
-run the test code after compilation (and it needs to use a valid fd
-in order to do runtime test).
-
-This commit simply disables CONFIG_POSIX_FALLOCATE on NetBSD regardless
-of compilation result on ./configure. It doesn't check the fs type,
-but it should be enough provided that UFS is the fs used by majority
-of users and there's also no real alternative for disk fs.
-
--- yes for posix_fallocate(3), but EOPNOTSUPP on runtime
- # uname
- NetBSD
- # gmake clean >/dev/null 2>&1
- # ./configure | grep "POSIX fallocate"
- POSIX fallocate               yes
- # grep -A1 posix_fallocate ./config.log
- Compiling test case posix_fallocate
- gcc -D_GNU_SOURCE -include config-host.h -o /tmp/fio-conf--23834-.exe /tmp/fio-conf--23834-.c -lrt -lz
- # gmake -j8 >/dev/null 2>&1
- # ./fio --name=xxxxx --ioengine=sync --rw=read --bs=2k --size=1m --unlink=1 | grep posix_fallocate
- fio: posix_fallocate fails: Operation not supported
-
--- try posix_fallocate(3) test in ./configure with a valid fd
- # uname
- NetBSD
- # cat ./test2.c
- #include <stdio.h>
- #include <unistd.h>
- #include <fcntl.h>
- #include <errno.h>
- #include <sys/types.h>
- #include <sys/stat.h>
- int main(int argc, char **argv)
- {
-   int r, fd;
-   fd = open(argv[1], O_WRONLY | O_CREAT, 0644);
-   if (fd < 0)
-           return errno;
-   r = posix_fallocate(fd, 0, 1024);
-   close(fd);
-   return r;
- }
- # gcc -Wall -g ./test2.c
- # ./a.out xxx; echo $?
- 45
-
--- try above on Linux
- # uname
- Linux
- # gcc -Wall -g ./test2.c
- # ./a.out xxx; echo $?
- 0
+With this commit, struct thread_data is completely gone from os/.
+struct fio_file is still there, but this is needed by Windows where
+the idea of fd differs from unix like in general.
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- configure   | 5 +++++
- filesetup.c | 6 +++++-
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ init.c          | 10 +++++++---
+ os/os-windows.h |  4 +---
+ os/os.h         |  8 +-------
+ 3 files changed, 9 insertions(+), 13 deletions(-)
 
-diff --git a/configure b/configure
-index bcb898a..c3e06cd 100755
---- a/configure
-+++ b/configure
-@@ -781,6 +781,11 @@ EOF
- if compile_prog "" "" "posix_fallocate"; then
-     posix_fallocate="yes"
- fi
-+# Ignore the result for NetBSD since it's not supported at least on UFS,
-+# which is what people basically use on NetBSD.
-+if test "$targetos" = "NetBSD"; then
-+    posix_fallocate="no"
-+fi
- echo "POSIX fallocate               $posix_fallocate"
+diff --git a/init.c b/init.c
+index 52a5f03..d224bd6 100644
+--- a/init.c
++++ b/init.c
+@@ -1080,8 +1080,12 @@ static int setup_random_seeds(struct thread_data *td)
+ 	unsigned long seed;
+ 	unsigned int i;
  
- ##########################################
-diff --git a/filesetup.c b/filesetup.c
-index 612e794..23fd537 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -109,7 +109,11 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
- 			dprint(FD_FILE, "posix_fallocate file %s size %llu\n",
- 				 f->file_name,
- 				 (unsigned long long) f->real_file_size);
--
-+			/*
-+			 * Note that some OS/filesystem, for e.g. UFS on NetBSD
-+			 * doesn't support posix_fallocate(3) even if it compiles.
-+			 * Try to avoid it on ./configure if it's a known issue.
-+			 */
- 			r = posix_fallocate(f->fd, 0, f->real_file_size);
- 			if (r > 0) {
- 				log_err("fio: posix_fallocate fails: %s\n",
+-	if (!td->o.rand_repeatable && !fio_option_is_set(&td->o, rand_seed))
+-		return init_random_state(td, td->rand_seeds, sizeof(td->rand_seeds));
++	if (!td->o.rand_repeatable && !fio_option_is_set(&td->o, rand_seed)) {
++		int ret = init_random_seeds(td->rand_seeds, sizeof(td->rand_seeds));
++		if (!ret)
++			td_fill_rand_seeds(td);
++		return ret;
++	}
+ 
+ 	seed = td->o.rand_seed;
+ 	for (i = 0; i < 4; i++)
+@@ -1376,7 +1380,7 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
+ 	prev_group_jobs++;
+ 
+ 	if (setup_random_seeds(td)) {
+-		td_verror(td, errno, "init_random_state");
++		td_verror(td, errno, "setup_random_seeds");
+ 		goto err;
+ 	}
+ 
+diff --git a/os/os-windows.h b/os/os-windows.h
+index 0c8c42d..36b421e 100644
+--- a/os/os-windows.h
++++ b/os/os-windows.h
+@@ -116,7 +116,6 @@ int nanosleep(const struct timespec *rqtp, struct timespec *rmtp);
+ ssize_t pread(int fildes, void *buf, size_t nbyte, off_t offset);
+ ssize_t pwrite(int fildes, const void *buf, size_t nbyte,
+ 		off_t offset);
+-extern void td_fill_rand_seeds(struct thread_data *);
+ 
+ static inline int blockdev_size(struct fio_file *f, unsigned long long *bytes)
+ {
+@@ -239,7 +238,7 @@ static inline int fio_cpuset_exit(os_cpu_mask_t *mask)
+ 	return 0;
+ }
+ 
+-static inline int init_random_state(struct thread_data *td, unsigned long *rand_seeds, int size)
++static inline int init_random_seeds(unsigned long *rand_seeds, int size)
+ {
+ 	HCRYPTPROV hCryptProv;
+ 
+@@ -258,7 +257,6 @@ static inline int init_random_state(struct thread_data *td, unsigned long *rand_
+ 	}
+ 
+ 	CryptReleaseContext(hCryptProv, 0);
+-	td_fill_rand_seeds(td);
+ 	return 0;
+ }
+ 
+diff --git a/os/os.h b/os/os.h
+index c25cc36..21b7a9d 100644
+--- a/os/os.h
++++ b/os/os.h
+@@ -303,12 +303,7 @@ static inline long os_random_long(os_random_state_t *rs)
+ #endif
+ 
+ #ifdef FIO_USE_GENERIC_INIT_RANDOM_STATE
+-extern void td_fill_rand_seeds(struct thread_data *td);
+-/*
+- * Initialize the various random states we need (random io, block size ranges,
+- * read/write mix, etc).
+- */
+-static inline int init_random_state(struct thread_data *td, unsigned long *rand_seeds, int size)
++static inline int init_random_seeds(unsigned long *rand_seeds, int size)
+ {
+ 	int fd;
+ 
+@@ -323,7 +318,6 @@ static inline int init_random_state(struct thread_data *td, unsigned long *rand_
+ 	}
+ 
+ 	close(fd);
+-	td_fill_rand_seeds(td);
+ 	return 0;
+ }
+ #endif
 -- 
-2.9.3
+2.9.4
 
 
