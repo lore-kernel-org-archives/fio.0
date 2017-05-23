@@ -1,29 +1,80 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-it0-f51.google.com ([209.85.214.51]:37922 "EHLO
-        mail-it0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750733AbdE3Gqt (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 30 May 2017 02:46:49 -0400
-Received: by mail-it0-f51.google.com with SMTP id r63so36413031itc.1
-        for <fio@vger.kernel.org>; Mon, 29 May 2017 23:46:48 -0700 (PDT)
-MIME-Version: 1.0
-From: qingwei wei <tchengwee@gmail.com>
-Date: Tue, 30 May 2017 14:46:47 +0800
-Message-ID: <CAGjEAhu9xnC4rbAyc60gb8UNfecy=S+D3UmG+1vqQsuCFqaxiA@mail.gmail.com>
-Subject: fio zipfian random_distribution offset selection
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 5/5] Move Linux/ppc64 specific cpu_online() to os/os-linux.h
+Date: Tue, 23 May 2017 21:44:49 +0300
+Message-Id: <20170523184449.48134-6-tkusumi@tuxera.com>
+In-Reply-To: <20170523184449.48134-1-tkusumi@tuxera.com>
+References: <20170523184449.48134-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-I would like to validate my understanding on fio zipfian
-random_distribution. Form my understanding, a zipfian 1.2 means ~95%
-of IO access will be concentrated on 5% offset location (Do correct me
-if i am wrong). So if i have a file with 100 offsets, i cold have
-offset 1, offset 5, offset 20, offset 86, offset 99 get repeatedly
-access. So my question is, is this offset being chosen randomly? Or is
-it possible to specify based on spatial locality, where nearby offset
-tend to be accessed together? Thanks.
+cpu_online() implementation for ppc64 added to os/os.h by c5dd5d97
+(powerpc: fix cpus_online() to get correct max CPU number for powerpc64)
+seems Linux specific, thus it should be moved to os/os-linux.h.
 
-Cw
+For example, non standard sysconf values _SC_NPROCESSORS_ONLN and
+_SC_NPROCESSORS_CONF do the same thing with libc in FreeBSD, whereas
+they aren't always the same with glibc. This implies c5dd5d97 is about
+Linux, and wouldn't be a general solution that needs to be in os/os.h.
+
+sysconf(3) in FreeBSD
+https://github.com/freebsd/freebsd/blob/master/lib/libc/gen/sysconf.c#L588
+
+Another possibility is AIX in addition to Linux, but below website
+has an example of both _SC_NPROCESSORS_ONLN and _SC_NPROCESSORS_CONF
+having the same value under SMT.
+
+Topic: prtconf and sysconf produce different numbers of processors
+https://www.ibm.com/developerworks/community/forums/html/topic?id=77777777-0000-0000-0000-000014250083
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ os/os-linux.h | 8 ++++++++
+ os/os.h       | 8 --------
+ 2 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/os/os-linux.h b/os/os-linux.h
+index 0e6246e..008ce2d 100644
+--- a/os/os-linux.h
++++ b/os/os-linux.h
+@@ -260,6 +260,14 @@ static inline int arch_cache_line_size(void)
+ 		return atoi(size);
+ }
+ 
++#ifdef __powerpc64__
++#define FIO_HAVE_CPU_ONLINE_SYSCONF
++static inline unsigned int cpus_online(void)
++{
++        return sysconf(_SC_NPROCESSORS_CONF);
++}
++#endif
++
+ static inline unsigned long long get_fs_free_size(const char *path)
+ {
+ 	unsigned long long ret;
+diff --git a/os/os.h b/os/os.h
+index 3c96b4d..1d400c8 100644
+--- a/os/os.h
++++ b/os/os.h
+@@ -324,14 +324,6 @@ static inline unsigned long long get_fs_free_size(const char *path)
+ }
+ #endif
+ 
+-#ifdef __powerpc64__
+-#define FIO_HAVE_CPU_ONLINE_SYSCONF
+-static inline unsigned int cpus_online(void)
+-{
+-        return sysconf(_SC_NPROCESSORS_CONF);
+-}
+-#endif
+-
+ #ifndef FIO_HAVE_CPU_ONLINE_SYSCONF
+ static inline unsigned int cpus_online(void)
+ {
+-- 
+2.9.4
+
+
