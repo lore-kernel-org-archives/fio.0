@@ -1,39 +1,40 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 1/2] configure: Use single square brackets (POSIX)
-Date: Tue, 23 May 2017 21:43:57 +0300
-Message-Id: <20170523184358.48088-2-tkusumi@tuxera.com>
-In-Reply-To: <20170523184358.48088-1-tkusumi@tuxera.com>
-References: <20170523184358.48088-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa2.hgst.iphmx.com ([68.232.143.124]:57614 "EHLO
+        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1760479AbdEXAex (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 23 May 2017 20:34:53 -0400
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: SSD Test Recommendation
+Date: Wed, 24 May 2017 00:34:36 +0000
+Message-ID: <BN3PR0401MB1457718D031C1B5192A2D5938FFE0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+References: <CAF+0mvkqR953QypN3dRxuiG4fgbQxoMsGfft2YpZezfc0M4spg@mail.gmail.com>
+In-Reply-To: <CAF+0mvkqR953QypN3dRxuiG4fgbQxoMsGfft2YpZezfc0M4spg@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Matthew Eaton <m.eaton82@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
-
-Avoid "if [[...]]" format which seems to be bash extension.
-The script uses "if [...]" except for this one.
-
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- configure | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/configure b/configure
-index 0327578..9ac9701 100755
---- a/configure
-+++ b/configure
-@@ -1682,7 +1682,7 @@ int main(int argc, char **argv)
- EOF
- if compile_prog "" "" "s390_z196_facilities"; then
-   $TMPE
--  if [[ $? -eq 0 ]]; then
-+  if [ $? -eq 0 ]; then
-   	s390_z196_facilities="yes"
-   fi
- fi
--- 
-2.9.4
-
-
+R2VuZXJhbGx5IHNwZWFraW5nLCBpdCBpcyBiZXN0IHRvIHByZWNvbmRpdG9uIHdpdGggdGhlIGJs
+b2NrIHNpemUgeW91IGludGVuZCB0byB0ZXN0LiAgVGhlcmUgYXJlIHNvbWUgZXhjZXB0aW9ucyBi
+dXQgdGhleSBhcmUgZGV2aWNlIGRlcGVuZGVudCBhbmQgdmFyeSBmcm9tIG9uZSBTU0QgdG8gYW5v
+dGhlci4gIERlcGVuZGluZyB1cG9uIHlvdXIgcXVhbGl0eSBvZiBzZXJ2aWNlIHRlc3QgKGFyZSB5
+b3UgbWVhc3VyaW5nIHN0ZWFkeSBzdGF0ZSBJT1BzIG9yIGxhdGVuY3kgb3Igc29tZXRoaW5nIGVs
+c2U/KSwgeW91IG1heSBub3RpY2UgdGhlc2UgZGlmZmVyZW5jZXMgaW4geW91ciA4ayByZXN1bHRz
+Lg0KDQpSZWdhcmRzLA0KSmVmZg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTog
+ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5v
+cmddIE9uIEJlaGFsZiBPZiBNYXR0aGV3IEVhdG9uDQpTZW50OiBNb25kYXksIE1heSAyMiwgMjAx
+NyAzOjMyIFBNDQpUbzogZmlvQHZnZXIua2VybmVsLm9yZw0KU3ViamVjdDogU1NEIFRlc3QgUmVj
+b21tZW5kYXRpb24NCg0KSGkgZ3V5cywNCg0KSSB3YW50IHRvIHJ1biBhIHF1YWxpdHkgb2Ygc2Vy
+dmljZSB0ZXN0IG9uIFNTRHMgd2l0aCBicz00ayBhbmQgYnM9OGsgYnV0IEkgbmVlZCBzb21lIGhl
+bHAuDQpJJ20gd29uZGVyaW5nIGlmIGl0J3Mgb2theSB0byB0ZXN0IGJvdGggNGsgdGhlbiA4ayBs
+aWtlIHRoaXM6DQoNCnB1cmdlDQpwcmVjb25kaXRpb24gd2l0aCAxMjhrIHdyaXRlDQpydW4gNGsg
+cmVhZCB0ZXN0DQpydW4gOGsgcmVhZCB0ZXN0DQpwcmVjb25kaXRpb24gdG8gc3RlYWR5IHN0YXRl
+IHdpdGggNGsgd3JpdGUgcnVuIDRrIHdyaXRlIHRlc3QgcnVuIDhrIHdyaXRlIHRlc3QNCg0KV2ls
+bCB0aGUgOGsgdGVzdCByZXN1bHRzIGJlIGludmFsaWQgZHVlIHRvIHRoZSA0ayB3cml0ZSBoaXN0
+b3J5Pw0KDQpUaGFua3MhDQotLQ0KVG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQg
+dGhlIGxpbmUgInVuc3Vic2NyaWJlIGZpbyIgaW4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1h
+am9yZG9tb0B2Z2VyLmtlcm5lbC5vcmcgTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3Zn
+ZXIua2VybmVsLm9yZy9tYWpvcmRvbW8taW5mby5odG1sDQo=
