@@ -1,24 +1,33 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH 1/3] verify: add missing free(ptr);
-References: <20170526192511.31502-1-tkusumi@tuxera.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <14697de7-e4c5-4902-e5a7-14b38a942dbc@kernel.dk>
-Date: Fri, 26 May 2017 13:29:15 -0600
-MIME-Version: 1.0
-In-Reply-To: <20170526192511.31502-1-tkusumi@tuxera.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: kusumi.tomohiro@gmail.com, fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 1/3] verify: add missing free(ptr);
+Date: Fri, 26 May 2017 22:25:09 +0300
+Message-Id: <20170526192511.31502-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
-On 05/26/2017 01:25 PM, kusumi.tomohiro@gmail.com wrote:
-> From: Tomohiro Kusumi <tkusumi@tuxera.com>
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-Applied 1-3, thanks.
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ verify.c | 1 +
+ 1 file changed, 1 insertion(+)
 
+diff --git a/verify.c b/verify.c
+index cadfe9c..1c39fa2 100644
+--- a/verify.c
++++ b/verify.c
+@@ -271,6 +271,7 @@ static void dump_buf(char *buf, unsigned int len, unsigned long long offset,
+ 	fd = open(fname, O_CREAT | O_TRUNC | O_WRONLY, 0644);
+ 	if (fd < 0) {
+ 		perror("open verify buf file");
++		free(ptr);
+ 		return;
+ 	}
+ 
 -- 
-Jens Axboe
+2.9.4
 
 
