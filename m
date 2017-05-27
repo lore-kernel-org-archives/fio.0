@@ -1,41 +1,47 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 0/5]
-Date: Tue, 23 May 2017 21:44:44 +0300
-Message-Id: <20170523184449.48134-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-vk0-f48.google.com ([209.85.213.48]:35752 "EHLO
+        mail-vk0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752536AbdE0IjT (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 27 May 2017 04:39:19 -0400
+Received: by mail-vk0-f48.google.com with SMTP id h16so14369454vkd.2
+        for <fio@vger.kernel.org>; Sat, 27 May 2017 01:39:19 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <DM5PR12MB1643E902C68ABB37FC033212F1FD0@DM5PR12MB1643.namprd12.prod.outlook.com>
+References: <MWHPR12MB16488DDE399E6157B36217EEF1FF0@MWHPR12MB1648.namprd12.prod.outlook.com>
+ <CALjAwxj-k_QPWp2ULyVSEScNQNgc-cBZMz38RC5R4HiEKRv0jw@mail.gmail.com> <DM5PR12MB1643E902C68ABB37FC033212F1FD0@DM5PR12MB1643.namprd12.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 27 May 2017 09:38:48 +0100
+Message-ID: <CALjAwxgmtdndmdpD4-KO=VYmeJCB1K7g86mBRSL7UXO=A90=2w@mail.gmail.com>
+Subject: Re: Running multiple jobs on a raw drive
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "Ratn, Prasun" <Prasun.Ratn@amd.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+On 27 May 2017 at 08:06, Ratn, Prasun <Prasun.Ratn@amd.com> wrote:
+> Thanks!
 
-These are another cleanup patches to make it less OS dependent
-(less Linux dependent).
+You're welcome!
 
-Tomohiro Kusumi (5):
-  Move {is,load}_blktrace() to a new header blktrace.h
-  Drop struct thread_data dependency from os headers
-  Drop circular dependency in log.c and lib/output_buffer.c
-  Move Linux/ppc64 specific cpu_online() to os/os-linux.h
-  Include sg headers in os/os-linux.h
+>> fio --rw=randwrite --bs=4k --filename=/dev/nvme0n1 --runtime=10
+>> --direct=1 --ioengine=libaio --iodepth=4 --numjobs=2
+>> --offset_increment=81920m --name=randomwrites
+>>
+>> (all the job parameters were global) or
+>>
+>> fio --rw=randwrite --bs=4k --name=randomwrites --filename=/dev/nvme0n1
+>> --runtime=10 --direct=1 --ioengine=libaio --iodepth=4 --numjobs=2
+>> --offset_increment=81920m
+>>
+>> (two parameters were global but achieving an identical effect)
+>
+> Just to clarify everything that follows '--name' is local, and rw, bs are
+> global in the above example?
 
- blktrace.c          |  1 +
- blktrace.h          | 23 +++++++++++++++++++++++
- fio.h               |  8 --------
- init.c              | 10 +++++++---
- iolog.c             |  1 +
- lib/output_buffer.c |  8 +-------
- lib/output_buffer.h |  2 +-
- log.c               |  6 ++++++
- os/os-linux.h       | 10 ++++++++++
- os/os-windows.h     |  4 +---
- os/os.h             | 34 +---------------------------------
- stat.c              |  6 ++++--
- 12 files changed, 56 insertions(+), 57 deletions(-)
- create mode 100644 blktrace.h
+Correct - in the second example everything that follows --name is
+local to the randomwrites job but as rw/bs precede any name they are
+considered global.
 
 -- 
-2.9.4
-
-
+Sitsofe | http://sucs.org/~sits/
