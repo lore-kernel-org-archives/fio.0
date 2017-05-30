@@ -1,86 +1,29 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from smtp.nue.novell.com ([195.135.221.5]:47026 "EHLO
-        smtp.nue.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755208AbdESKjq (ORCPT
-        <rfc822;groupwise-fio@vger.kernel.org:0:0>);
-        Fri, 19 May 2017 06:39:46 -0400
-Date: Fri, 19 May 2017 12:39:22 +0200
-From: Andreas Herrmann <aherrmann@suse.com>
-Subject: [PATCH]
-Message-ID: <20170519103922.GA27082@suselix.suse.de>
+Received: from mail-it0-f51.google.com ([209.85.214.51]:37922 "EHLO
+        mail-it0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750733AbdE3Gqt (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 30 May 2017 02:46:49 -0400
+Received: by mail-it0-f51.google.com with SMTP id r63so36413031itc.1
+        for <fio@vger.kernel.org>; Mon, 29 May 2017 23:46:48 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+From: qingwei wei <tchengwee@gmail.com>
+Date: Tue, 30 May 2017 14:46:47 +0800
+Message-ID: <CAGjEAhu9xnC4rbAyc60gb8UNfecy=S+D3UmG+1vqQsuCFqaxiA@mail.gmail.com>
+Subject: fio zipfian random_distribution offset selection
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jens Axboe <axboe@fb.com>
-Cc: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
+Hi,
 
-Starting with 9e4438f ("stat: don't trust per_unit_log() if log is
-NULL") fio no longer provides basic bw information (e.g. min, max,
-p_agg, mean, stdev) when write_bw_log is not used. Thus you have to
-write a bw_log to obtain these values. (But in this case you can
-compute those values yourself.) I think this doesn't make sense.  Not
-writing entire bw log shouldn't prevent general sampling and
-calculation of bw stats.
+I would like to validate my understanding on fio zipfian
+random_distribution. Form my understanding, a zipfian 1.2 means ~95%
+of IO access will be concentrated on 5% offset location (Do correct me
+if i am wrong). So if i have a file with 100 offsets, i cold have
+offset 1, offset 5, offset 20, offset 86, offset 99 get repeatedly
+access. So my question is, is this offset being chosen randomly? Or is
+it possible to specify based on spatial locality, where nearby offset
+tend to be accessed together? Thanks.
 
-This patch reactivates sampling for bw and iops to be able to
-calculate basic stats for both independend of writing of entire
-{bw,iops}_logs.
-
-Also check for log that is really of interest in __add_samples() it
-doesn't make sense to check for bw_log if iops information needs to be
-written.
-
-Signed-off-by: Andreas Herrmann <aherrmann@suse.com>
----
- stat.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
-
-I don't know the background why the original fix was required in its
-form and at which exact point the sigbus error happened on sparc. Was
-it in per_unit_log(td->bw_log) or somewhere in add_bw_samples or
-add_iops_samples? Maybe the original code version (just using
-!per_unit_log(td->bw_log)) was fine and the sigbus happened due to the
-bug in __add_samples (checking for the wrong log file)?
-
-
-Regards,
-
-Andreas
-
-
-diff --git a/stat.c b/stat.c
-index 6e47c34..5b48413 100644
---- a/stat.c
-+++ b/stat.c
-@@ -2465,7 +2465,7 @@ static int __add_samples(struct thread_data *td, struct timeval *parent_tv,
- 
- 		add_stat_sample(&stat[ddir], rate);
- 
--		if (td->bw_log) {
-+		if (log) {
- 			unsigned int bs = 0;
- 
- 			if (td->o.min_bs[ddir] == td->o.max_bs[ddir])
-@@ -2541,12 +2541,14 @@ int calc_log_samples(void)
- 			next = min(td->o.iops_avg_time, td->o.bw_avg_time);
- 			continue;
- 		}
--		if (td->bw_log && !per_unit_log(td->bw_log)) {
-+		if (!td->bw_log ||
-+			(td->bw_log && !per_unit_log(td->bw_log))) {
- 			tmp = add_bw_samples(td, &now);
- 			if (tmp < next)
- 				next = tmp;
- 		}
--		if (td->iops_log && !per_unit_log(td->iops_log)) {
-+		if (!td->iops_log ||
-+			(td->iops_log && !per_unit_log(td->iops_log))) {
- 			tmp = add_iops_samples(td, &now);
- 			if (tmp < next)
- 				next = tmp;
--- 
-2.7.4
-
+Cw
