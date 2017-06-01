@@ -1,74 +1,75 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from prvmx01.microfocus.com ([130.57.1.216]:15259 "EHLO
-        prvmx01.microfocus.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752078AbdFMOUA (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 13 Jun 2017 10:20:00 -0400
-From: David Byte <dbyte@suse.com>
-Subject: iops log is not capturing iops
-Date: Tue, 13 Jun 2017 14:04:42 +0000
-Message-ID: <A41AF6BF-E759-4C70-BC4B-4BEFEA0FA170@suse.com>
-References: <27D739B2-8C23-4785-8A89-D27E91045796@suse.com>
-In-Reply-To: <27D739B2-8C23-4785-8A89-D27E91045796@suse.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <99F44E8546178448ADA83CB1F4128065@microfocus.com>
-Content-Transfer-Encoding: base64
+Received: from mail-vk0-f46.google.com ([209.85.213.46]:35172 "EHLO
+        mail-vk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751162AbdFARm4 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 1 Jun 2017 13:42:56 -0400
+Received: by mail-vk0-f46.google.com with SMTP id w1so28672792vkd.2
+        for <fio@vger.kernel.org>; Thu, 01 Jun 2017 10:42:55 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <BN3PR0401MB1457718D031C1B5192A2D5938FFE0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+References: <CAF+0mvkqR953QypN3dRxuiG4fgbQxoMsGfft2YpZezfc0M4spg@mail.gmail.com>
+ <BN3PR0401MB1457718D031C1B5192A2D5938FFE0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+From: Matthew Eaton <m.eaton82@gmail.com>
+Date: Thu, 1 Jun 2017 10:42:54 -0700
+Message-ID: <CAF+0mvnGttvUja=NfW-0iiq-tvdc9d_OLJNAzmdUuuE=biGjCg@mail.gmail.com>
+Subject: Re: SSD Test Recommendation
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Jeff Furlong <jeff.furlong@wdc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-DQogICAgSSB0cmllZCB0aGlzIHdpdGggYm90aCAyLjEzICh0aGUgdmVyc2lvbiB0aGF0IGlzIGF2
-YWlsYWJsZSB3aXRoIFNVU0UgRW50ZXJwcmlzZSBTdG9yYWdlIGFuZCB3aXRoIGEgZnJlc2hseSBi
-dWlsdCAyLjIwLTUzIHRoYXQgSSBidWlsdCAxMiBob3VycyBhZ28uICBOZWl0aGVyIHByaW50cyB0
-aGUgYWN0dWFsIGlvcHMgdmFsdWUgdG8gdGhlIGlvcHMgbG9nLiAgQW55IGNsdWUgYXMgdG8gd2hl
-cmUgdGhlIHByb2JsZW0gbGllcz8NCiAgICANCiAgICBSYXcgZGF0YSBmb2xsb3dzLg0KICAgIA0K
-ICAgIGxpbnV4On4vYmVuY2ggIyAuL2ZpbyAtLWZpbGVuYW1lPS9yb290L3Rlc3QuZmlsIC0tc2l6
-ZT0xRyAtLXJ1bnRpbWU9MzAgLS1ydz1yYW5kd3JpdGUgLS13cml0ZV9pb3BzX2xvZz00a3czIC0t
-bmFtZT10ZXN0DQogICAgdGVzdDogKGc9MCk6IHJ3PXJhbmR3cml0ZSwgYnM9KFIpIDQwOTZCLTQw
-OTZCLCAoVykgNDA5NkItNDA5NkIsIChUKSA0MDk2Qi00MDk2QiwgaW9lbmdpbmU9cHN5bmMsIGlv
-ZGVwdGg9MQ0KICAgIGZpby0yLjIwLTUzLWc4NWM3DQogICAgU3RhcnRpbmcgMSBwcm9jZXNzDQog
-ICAgSm9iczogMSAoZj0xKTogW3coMSldWzEwMC4wJV1bcj0wS2lCL3Msdz0zMC41TWlCL3NdW3I9
-MCx3PTc4MDIgSU9QU11bZXRhIDAwbTowMHNdDQogICAgdGVzdDogKGdyb3VwaWQ9MCwgam9icz0x
-KTogZXJyPSAwOiBwaWQ9NDM2MjogRnJpIEp1biAgOSAxOTo1NDoxMyAyMDE3DQogICAgICB3cml0
-ZTogSU9QUz04NTYzLCBCVz0zMy41TWlCL3MgKDM1LjFNQi9zKSgxMDA0TWlCLzMwMDAxbXNlYykN
-CiAgICAgICAgY2xhdCAodXNlYyk6IG1pbj0xLCBtYXg9MjIyNDcsIGF2Zz0xMDcuMjEsIHN0ZGV2
-PTgzMi4wOA0KICAgICAgICAgbGF0ICh1c2VjKTogbWluPTEsIG1heD0yMjI0NywgYXZnPTEwOC4y
-MCwgc3RkZXY9ODMyLjQ5DQogICAgICAgIGNsYXQgcGVyY2VudGlsZXMgKHVzZWMpOg0KICAgICAg
-ICAgfCAgMS4wMHRoPVsgICAgMV0sICA1LjAwdGg9WyAgICAxXSwgMTAuMDB0aD1bICAgIDJdLCAy
-MC4wMHRoPVsgICAgMl0sDQogICAgICAgICB8IDMwLjAwdGg9WyAgICAyXSwgNDAuMDB0aD1bICAg
-IDNdLCA1MC4wMHRoPVsgICAgM10sIDYwLjAwdGg9WyAgICAzXSwNCiAgICAgICAgIHwgNzAuMDB0
-aD1bICAgIDRdLCA4MC4wMHRoPVsgICAgNl0sIDkwLjAwdGg9WyAgMTEzXSwgOTUuMDB0aD1bICAx
-NjFdLA0KICAgICAgICAgfCA5OS4wMHRoPVsgMjkyOF0sIDk5LjUwdGg9WyA3NjQ4XSwgOTkuOTB0
-aD1bMTEyMDBdLCA5OS45NXRoPVsxMTU4NF0sDQogICAgICAgICB8IDk5Ljk5dGg9WzEyNjA4XQ0K
-ICAgICAgIGJ3ICggIEtpQi9zKTogbWluPTIzMzEyLCBtYXg9MTY3Mzg0LCBwZXI9MC4xMCUsIGF2
-Zz0zNDI3OS4yOCwgc3RkZXY9MTg2NTAuMDkNCiAgICAgICAgbGF0ICh1c2VjKSA6IDI9NS41NCUs
-IDQ9NjAuNDYlLCAxMD0xOC43OCUsIDIwPTIuMjQlLCA1MD0xLjEzJQ0KICAgICAgICBsYXQgKHVz
-ZWMpIDogMTAwPTAuMzglLCAyNTA9OC41MyUsIDUwMD0xLjMzJSwgNzUwPTAuMjIlLCAxMDAwPTAu
-MDglDQogICAgICAgIGxhdCAobXNlYykgOiAyPTAuMjQlLCA0PTAuMTElLCAxMD0wLjc3JSwgMjA9
-MC4yMiUsIDUwPTAuMDElDQogICAgICBjcHUgICAgICAgICAgOiB1c3I9Mi4zOCUsIHN5cz0yMy4x
-MiUsIGN0eD01NzI4LCBtYWpmPTAsIG1pbmY9MTEyNg0KICAgICAgSU8gZGVwdGhzICAgIDogMT0x
-MDAuMCUsIDI9MC4wJSwgND0wLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsID49NjQ9MC4w
-JQ0KICAgICAgICAgc3VibWl0ICAgIDogMD0wLjAlLCA0PTEwMC4wJSwgOD0wLjAlLCAxNj0wLjAl
-LCAzMj0wLjAlLCA2ND0wLjAlLCA+PTY0PTAuMCUNCiAgICAgICAgIGNvbXBsZXRlICA6IDA9MC4w
-JSwgND0xMDAuMCUsIDg9MC4wJSwgMTY9MC4wJSwgMzI9MC4wJSwgNjQ9MC4wJSwgPj02ND0wLjAl
-DQogICAgICAgICBpc3N1ZWQgcnd0OiB0b3RhbD0wLDI1NjkwOSwwLCBzaG9ydD0wLDAsMCwgZHJv
-cHBlZD0wLDAsMA0KICAgICAgICAgbGF0ZW5jeSAgIDogdGFyZ2V0PTAsIHdpbmRvdz0wLCBwZXJj
-ZW50aWxlPTEwMC4wMCUsIGRlcHRoPTENCiAgICANCiAgICBSdW4gc3RhdHVzIGdyb3VwIDAgKGFs
-bCBqb2JzKToNCiAgICAgIFdSSVRFOiBidz0zMy41TWlCL3MgKDM1LjFNQi9zKSwgMzMuNU1pQi9z
-LTMzLjVNaUIvcyAoMzUuMU1CL3MtMzUuMU1CL3MpLCBpbz0xMDA0TWlCICgxMDUyTUIpLCBydW49
-MzAwMDEtMzAwMDFtc2VjDQogICAgDQogICAgRGlzayBzdGF0cyAocmVhZC93cml0ZSk6DQogICAg
-ICBzZGE6IGlvcz0wLzE1MjkxNywgbWVyZ2U9MC8xNSwgdGlja3M9MC80MjI2OTAwLCBpbl9xdWV1
-ZT00MjI4MTA4LCB1dGlsPTk5LjI0JQ0KICAgIA0KICAgIGxpbnV4On4vYmVuY2ggIyB0YWlsIDRr
-dzNfaW9wcy4xLmxvZyANCiAgICAyOTk4NiwgMSwgMSwgNDA5Ng0KICAgIDI5OTg2LCAxLCAxLCA0
-MDk2DQogICAgMjk5ODYsIDEsIDEsIDQwOTYNCiAgICAyOTk4NiwgMSwgMSwgNDA5Ng0KICAgIDI5
-OTg2LCAxLCAxLCA0MDk2DQogICAgMjk5OTgsIDEsIDEsIDQwOTYNCiAgICAyOTk5OSwgMSwgMSwg
-NDA5Ng0KICAgIDI5OTk5LCAxLCAxLCA0MDk2DQogICAgMjk5OTksIDEsIDEsIDQwOTYNCiAgICAz
-MDAwMCwgMSwgMSwgNDA5Ng0KICAgIGxpbnV4On4vYmVuY2ggIyBoZWFkIDRrdzNfaW9wcy4xLmxv
-ZyANCiAgICAxMjksIDEsIDEsIDQwOTYNCiAgICAxMjksIDEsIDEsIDQwOTYNCiAgICAxMjksIDEs
-IDEsIDQwOTYNCiAgICAxMjksIDEsIDEsIDQwOTYNCiAgICAxMjksIDEsIDEsIDQwOTYNCiAgICAx
-MjksIDEsIDEsIDQwOTYNCiAgICAxMjksIDEsIDEsIDQwOTYNCiAgICAxMjksIDEsIDEsIDQwOTYN
-CiAgICAxMjksIDEsIDEsIDQwOTYNCiAgICAxMjksIDEsIDEsIDQwOTYNCiAgICANCiAgICANCiAg
-ICANCiAgICBEYXZpZCBCeXRlDQogICAgU3IuIFRlY2hub2xvZ3kgU3RyYXRlZ2lzdA0KICAgIEFs
-bGlhbmNlcyBhbmQgU1VTRSBFbWJlZGRlZA0KICAgIGRieXRlQHN1c2UuY29tDQogICAgOTE4LjUy
-OC40NDIyDQogICAgDQoNCg==
+On Tue, May 23, 2017 at 5:34 PM, Jeff Furlong <jeff.furlong@wdc.com> wrote:
+> Generally speaking, it is best to preconditon with the block size you int=
+end to test.  There are some exceptions but they are device dependent and v=
+ary from one SSD to another.  Depending upon your quality of service test (=
+are you measuring steady state IOPs or latency or something else?), you may=
+ notice these differences in your 8k results.
+>
+> Regards,
+> Jeff
+>
+> -----Original Message-----
+> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Beh=
+alf Of Matthew Eaton
+> Sent: Monday, May 22, 2017 3:32 PM
+> To: fio@vger.kernel.org
+> Subject: SSD Test Recommendation
+>
+> Hi guys,
+>
+> I want to run a quality of service test on SSDs with bs=3D4k and bs=3D8k =
+but I need some help.
+> I'm wondering if it's okay to test both 4k then 8k like this:
+>
+> purge
+> precondition with 128k write
+> run 4k read test
+> run 8k read test
+> precondition to steady state with 4k write run 4k write test run 8k write=
+ test
+>
+> Will the 8k test results be invalid due to the 4k write history?
+>
+> Thanks!
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in the bod=
+y of a message to majordomo@vger.kernel.org More majordomo info at  http://=
+vger.kernel.org/majordomo-info.html
+> Western Digital Corporation (and its subsidiaries) E-mail Confidentiality=
+ Notice & Disclaimer:
+>
+> This e-mail and any files transmitted with it may contain confidential or=
+ legally privileged information of WDC and/or its affiliates, and are inten=
+ded solely for the use of the individual or entity to which they are addres=
+sed. If you are not the intended recipient, any disclosure, copying, distri=
+bution or any action taken or omitted to be taken in reliance on it, is pro=
+hibited. If you have received this e-mail in error, please notify the sende=
+r immediately and delete the e-mail in its entirety from your system.
+
+
+Hi Jeff,
+
+Thanks for your insight. I was leaning the same way but figured I
+would consult the experts first. :)
