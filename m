@@ -1,30 +1,49 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH 1/2] use true/false for bool type
-References: <20170602192127.6930-1-tkusumi@tuxera.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <a8e92a10-700b-ed7b-f26b-b1c57a1101b1@kernel.dk>
-Date: Fri, 2 Jun 2017 12:39:25 -0700
-MIME-Version: 1.0
-In-Reply-To: <20170602192127.6930-1-tkusumi@tuxera.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: kusumi.tomohiro@gmail.com, fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 1/2] use true/false for bool type
+Date: Fri,  2 Jun 2017 22:21:26 +0300
+Message-Id: <20170602192127.6930-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
-On 06/02/2017 12:21 PM, kusumi.tomohiro@gmail.com wrote:
-> From: Tomohiro Kusumi <tkusumi@tuxera.com>
-> 
-> Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-Thanks, applied 1-2.
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ init.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-I think I've mentioned this before, but please include a cover letter
-for a patch series, so there's a parent to reply to for the whole
-series.
-
+diff --git a/init.c b/init.c
+index d224bd6..2b7768a 100644
+--- a/init.c
++++ b/init.c
+@@ -909,9 +909,9 @@ void td_fill_verify_state_seed(struct thread_data *td)
+ 	bool use64;
+ 
+ 	if (td->o.random_generator == FIO_RAND_GEN_TAUSWORTHE64)
+-		use64 = 1;
++		use64 = true;
+ 	else
+-		use64 = 0;
++		use64 = false;
+ 
+ 	init_rand_seed(&td->verify_state, td->rand_seeds[FIO_RAND_VER_OFF],
+ 		use64);
+@@ -967,9 +967,9 @@ void td_fill_rand_seeds(struct thread_data *td)
+ 	}
+ 
+ 	if (td->o.random_generator == FIO_RAND_GEN_TAUSWORTHE64)
+-		use64 = 1;
++		use64 = true;
+ 	else
+-		use64 = 0;
++		use64 = false;
+ 
+ 	td_fill_rand_seeds_internal(td, use64);
+ 
 -- 
-Jens Axboe
+2.9.4
 
 
