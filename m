@@ -1,40 +1,83 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 1/5] fix wrong malloc size for ignore_error buffer
-Date: Wed,  7 Jun 2017 23:18:45 +0300
-Message-Id: <20170607201849.9448-2-tkusumi@tuxera.com>
-In-Reply-To: <20170607201849.9448-1-tkusumi@tuxera.com>
-References: <20170607201849.9448-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:48976 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750832AbdFCMAE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 3 Jun 2017 08:00:04 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1dH7it-0000cq-VG
+        for fio@vger.kernel.org; Sat, 03 Jun 2017 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170603120002.673832C0083@kernel.dk>
+Date: Sat,  3 Jun 2017 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+The following changes since commit e5123c4ad9b0626e25d9b243f1111fa89082308b:
 
-This is supposed to be allocating the initial buffer which consists
-of 4 integers to store errno values to ignore.
-Also explicitly zero clear the buffer.
+  manpage: update URL links to HOWTO/README (2017-05-26 13:29:00 -0600)
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 9af5a2450a555a725dd18e6845967cd7cf3aad64:
+
+  use correct syscall name in log_err() (2017-06-02 13:38:43 -0600)
+
+----------------------------------------------------------------
+Tomohiro Kusumi (2):
+      use true/false for bool type
+      use correct syscall name in log_err()
+
+ init.c   | 8 ++++----
+ server.c | 2 +-
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
 ---
- options.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/options.c b/options.c
-index 2daa983..864e778 100644
---- a/options.c
-+++ b/options.c
-@@ -282,7 +282,7 @@ static int ignore_error_type(struct thread_data *td, int etype, char *str)
+Diff of recent changes:
+
+diff --git a/init.c b/init.c
+index d224bd6..2b7768a 100644
+--- a/init.c
++++ b/init.c
+@@ -909,9 +909,9 @@ void td_fill_verify_state_seed(struct thread_data *td)
+ 	bool use64;
+ 
+ 	if (td->o.random_generator == FIO_RAND_GEN_TAUSWORTHE64)
+-		use64 = 1;
++		use64 = true;
+ 	else
+-		use64 = 0;
++		use64 = false;
+ 
+ 	init_rand_seed(&td->verify_state, td->rand_seeds[FIO_RAND_VER_OFF],
+ 		use64);
+@@ -967,9 +967,9 @@ void td_fill_rand_seeds(struct thread_data *td)
  	}
  
- 	td->o.ignore_error_nr[etype] = 4;
--	error = malloc(4 * sizeof(struct bssplit));
-+	error = calloc(4, sizeof(int));
+ 	if (td->o.random_generator == FIO_RAND_GEN_TAUSWORTHE64)
+-		use64 = 1;
++		use64 = true;
+ 	else
+-		use64 = 0;
++		use64 = false;
  
- 	i = 0;
- 	while ((fname = strsep(&str, ":")) != NULL) {
--- 
-2.9.4
-
-
+ 	td_fill_rand_seeds_internal(td, use64);
+ 
+diff --git a/server.c b/server.c
+index 1e269c2..8a5e75d 100644
+--- a/server.c
++++ b/server.c
+@@ -1279,7 +1279,7 @@ static int get_my_addr_str(int sk)
+ 
+ 	ret = getsockname(sk, sockaddr_p, &len);
+ 	if (ret) {
+-		log_err("fio: getsockaddr: %s\n", strerror(errno));
++		log_err("fio: getsockname: %s\n", strerror(errno));
+ 		return -1;
+ 	}
+ 
