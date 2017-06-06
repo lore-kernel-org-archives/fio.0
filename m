@@ -1,36 +1,20 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 2/2] use correct syscall name in log_err()
-Date: Fri,  2 Jun 2017 22:21:27 +0300
-Message-Id: <20170602192127.6930-2-tkusumi@tuxera.com>
-In-Reply-To: <20170602192127.6930-1-tkusumi@tuxera.com>
-References: <20170602192127.6930-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-eopbgr670096.outbound.protection.outlook.com ([40.107.67.96]:6336
+        "EHLO CAN01-TO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751247AbdFFVeM (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 6 Jun 2017 17:34:12 -0400
+From: "Stephen  Bates" <sbates@raithlin.com>
+Subject: <no subject>
+Date: Tue, 6 Jun 2017 21:34:05 +0000
+Message-ID: <E886F29F-E1FA-411C-B8FE-F049DF59BED0@raithlin.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <777AB187CAFE96458A55E332E792B57A@CANPRD01.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
-
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- server.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/server.c b/server.c
-index 1e269c2..8a5e75d 100644
---- a/server.c
-+++ b/server.c
-@@ -1279,7 +1279,7 @@ static int get_my_addr_str(int sk)
- 
- 	ret = getsockname(sk, sockaddr_p, &len);
- 	if (ret) {
--		log_err("fio: getsockaddr: %s\n", strerror(errno));
-+		log_err("fio: getsockname: %s\n", strerror(errno));
- 		return -1;
- 	}
- 
--- 
-2.9.4
-
-
+c3Vic2NyaWJlIGZpbw0KDQoNCg==
