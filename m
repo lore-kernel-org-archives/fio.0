@@ -1,41 +1,50 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 1/6] sg: add missing free(msg); in ->errdetails() handler
-Date: Mon, 12 Jun 2017 23:02:06 +0300
-Message-Id: <20170612200211.17022-2-tkusumi@tuxera.com>
-In-Reply-To: <20170612200211.17022-1-tkusumi@tuxera.com>
-References: <20170612200211.17022-1-tkusumi@tuxera.com>
+Subject: [PATCH 5/5] HOWTO: mention some details of ignore_error= option
+Date: Wed,  7 Jun 2017 23:18:49 +0300
+Message-Id: <20170607201849.9448-6-tkusumi@tuxera.com>
+In-Reply-To: <20170607201849.9448-1-tkusumi@tuxera.com>
+References: <20170607201849.9448-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-msg gets malloc'd unconditionally, so we need to free msg if we're
-not using msg for ret (strdup isn't really needed here to begin with).
+ignore_error= and continue_on_error= are related in their
+implementation, and easier to understand how they differ by
+mentioning to it.
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- engines/sg.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ HOWTO | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/engines/sg.c b/engines/sg.c
-index 2148e87..9d339bd 100644
---- a/engines/sg.c
-+++ b/engines/sg.c
-@@ -759,8 +759,10 @@ static char *fio_sgio_errdetails(struct io_u *io_u)
- 		}
- 	}
+diff --git a/HOWTO b/HOWTO
+index ea9466a..289c518 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -2836,7 +2836,8 @@ Error handling
+ .. option:: ignore_error=str
  
--	if (!ret)
-+	if (!ret) {
- 		ret = strdup("SG Driver did not report a Host, Driver or Device check");
-+		free(msg);
-+	}
+ 	Sometimes you want to ignore some errors during test in that case you can
+-	specify error list for each error type.
++	specify error list for each error type, instead of only being able to
++	ignore the default 'non-fatal error' using :option:`continue_on_error`.
+ 	``ignore_error=READ_ERR_LIST,WRITE_ERR_LIST,VERIFY_ERR_LIST`` errors for
+ 	given error type is separated with ':'. Error may be symbol ('ENOSPC',
+ 	'ENOMEM') or integer.  Example::
+@@ -2844,7 +2845,8 @@ Error handling
+ 		ignore_error=EAGAIN,ENOSPC:122
  
- 	return ret;
- }
+ 	This option will ignore EAGAIN from READ, and ENOSPC and 122(EDQUOT) from
+-	WRITE.
++	WRITE. This option works by overriding :option:`continue_on_error` with
++	the list of errors for each error type if any.
+ 
+ .. option:: error_dump=bool
+ 
 -- 
 2.9.4
 
