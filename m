@@ -1,81 +1,122 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f179.google.com ([209.85.217.179]:35451 "EHLO
-        mail-ua0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752154AbdFNGNz (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 14 Jun 2017 02:13:55 -0400
-Received: by mail-ua0-f179.google.com with SMTP id q15so88601408uaa.2
-        for <fio@vger.kernel.org>; Tue, 13 Jun 2017 23:13:54 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <BN3PR0401MB14572E293EAA4723BE2750058FC90@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Received: from esa2.hgst.iphmx.com ([68.232.143.124]:2467 "EHLO
+        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751510AbdFHVxw (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 8 Jun 2017 17:53:52 -0400
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: fio server errors
+Date: Thu, 8 Jun 2017 21:53:46 +0000
+Message-ID: <BN3PR0401MB14572E293EAA4723BE2750058FC90@BN3PR0401MB1457.namprd04.prod.outlook.com>
 References: <BN3PR0401MB1457EFC8350E7DAB393315B28FCB0@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <CALjAwxjKwFty9C42YcBkb7NStRMZrKRPKda5_gFejd358mCi_g@mail.gmail.com> <BN3PR0401MB14572E293EAA4723BE2750058FC90@BN3PR0401MB1457.namprd04.prod.outlook.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Wed, 14 Jun 2017 07:13:23 +0100
-Message-ID: <CALjAwxjxvwMDn722Zg10VjNVd5t+6GcE1UOi9ams4Lh-UV9WzQ@mail.gmail.com>
-Subject: Re: fio server errors
-Content-Type: text/plain; charset="UTF-8"
+ <CALjAwxjKwFty9C42YcBkb7NStRMZrKRPKda5_gFejd358mCi_g@mail.gmail.com>
+In-Reply-To: <CALjAwxjKwFty9C42YcBkb7NStRMZrKRPKda5_gFejd358mCi_g@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jeff Furlong <jeff.furlong@wdc.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 8 June 2017 at 22:53, Jeff Furlong <jeff.furlong@wdc.com> wrote:
-> Using fio 2.19 I can reproduce the SEND_ETA issue.  With debug=all, indeed there is a ton of output, but it finishes with roughly:
->
-> <server1> diskutil 30748 update io ticks
-> <server1> diskutil 30748 open stat file: /sys/block/nvme0n1/stat
-> <server1> diskutil 30748 /sys/block/nvme0n1/stat: 1299576802        0 54165895270 1333065028 863486453        0 63615892884 3819260095        0 57718711 859646548
-> <server1> diskutil 30748 /sys/block/nvme0n1/stat: stat read ok? 0
-> <server1> helperthread 30748 since_ss: 0, next_ss: 1000, next_log: 250, msec_to_next_event: 250
-> <server1> diskutil 30748 update io ticks
-> <server1> diskutil 30748 open stat file: /sys/block/nvme0n1/stat
-> <server1> diskutil 30748 /sys/block/nvme0n1/stat: 1299576802        0 54165895270 1333065028 863486453        0 63615892884 3819260095        0 57718711 859646548
-> <server1> diskutil 30748 /sys/block/nvme0n1/stat: stat read ok? 0
-> <server1> helperthread 30748 since_ss: 0, next_ss: 1000, next_log: 250, msec_to_next_event: 250
-> <server1> fio: pid=30750, got signal=11
-> <server1> process  30748 pid=30750: runstate RUNNING -> REAPED
-> <server1> process  30748 terminate group_id=-1
-> <server1> process  30748 setting terminate on test_job/30750
-> <server1> diskutil 30748 update io ticks
-> <server1> diskutil 30748 open stat file: /sys/block/nvme0n1/stat
-> <server1> diskutil 30748 /sys/block/nvme0n1/stat: 1299576802        0 54165895270 1333065028 863486453        0 63615892884 3819260095        0 57718711 859646548
-> <server1> diskutil 30748 /sys/block/nvme0n1/stat: stat read ok? 0
-> <server1> helperthread 30748 since_ss: 0, next_ss: 1000, next_log: 500, msec_to_next_event: 157
-> <server1> process  30748 pid=30750: runstate REAPED -> FINISHING
-> <server1> process  30748 pid=30750: runstate FINISHING -> REAPED
-> <server1> net      30748 server sending end stats
-> <server1> net      30748 ts->ss_state = 0
-> <server1> net      30748 server sending group run stats
-> <server1> net      30748 server: sending disk_util 1
-> <server1>
-> <server1> parse    30748 free options
-> <server1> parse    30748 free options
-> <server1> net      30707 pid 30748 exited, sig=0, exitval=0
-> <server1> net      30707 server: sending stop (0, 0)
-> <server1> net      30707 server: sending quit
-> <server1> net      30707 server: got op [SEND_ETA], pdu=0, tag=dceae0
-> <server1> net      30707 server sending status
-> <server1> net      30707 server: got op [SEND_ETA], pdu=0, tag=dcea50
-> <server1> net      30707 server sending status
-> <server1> net      30707 server: got op [SEND_ETA], pdu=0, tag=dcea50
-> <server1> net      30707 server sending status
-> <server1> net      30707 server: got op [SEND_ETA], pdu=0, tag=dceae0
-> <server1> net      30707 server sending status
-> <server1> net      30707 server: got op [SEND_ETA], pdu=0, tag=dceae0
-> <server1> net      30707 server sending status
-> <server1> net      30707 server: got op [SEND_ETA], pdu=0, tag=dceae0
-> <server1> net      30707 server sending status
-> <server1> net      30707 server: got op [SEND_ETA], pdu=0, tag=dcea50
-> <server1> net      30707 server sending status
-> parse    30706 free options
-
-OK so it's not a newly introduced issue. This looks like the client is
-continuing to send SEND_ETA messages even though the server has sent
-back a "I've quit" message...
-
-If you whittle the job file as much as possible (e.g. no
-write_lat_log, smaller iodepth etc) do the symptoms change? What's the
-smallest job file that still reproduces this problem?
-
--- 
-Sitsofe | http://sucs.org/~sits/
+VXNpbmcgZmlvIDIuMTkgSSBjYW4gcmVwcm9kdWNlIHRoZSBTRU5EX0VUQSBpc3N1ZS4gIFdpdGgg
+ZGVidWc9YWxsLCBpbmRlZWQgdGhlcmUgaXMgYSB0b24gb2Ygb3V0cHV0LCBidXQgaXQgZmluaXNo
+ZXMgd2l0aCByb3VnaGx5Og0KDQo8c2VydmVyMT4gZGlza3V0aWwgMzA3NDggdXBkYXRlIGlvIHRp
+Y2tzDQo8c2VydmVyMT4gZGlza3V0aWwgMzA3NDggb3BlbiBzdGF0IGZpbGU6IC9zeXMvYmxvY2sv
+bnZtZTBuMS9zdGF0DQo8c2VydmVyMT4gZGlza3V0aWwgMzA3NDggL3N5cy9ibG9jay9udm1lMG4x
+L3N0YXQ6IDEyOTk1NzY4MDIgICAgICAgIDAgNTQxNjU4OTUyNzAgMTMzMzA2NTAyOCA4NjM0ODY0
+NTMgICAgICAgIDAgNjM2MTU4OTI4ODQgMzgxOTI2MDA5NSAgICAgICAgMCA1NzcxODcxMSA4NTk2
+NDY1NDgNCjxzZXJ2ZXIxPiBkaXNrdXRpbCAzMDc0OCAvc3lzL2Jsb2NrL252bWUwbjEvc3RhdDog
+c3RhdCByZWFkIG9rPyAwDQo8c2VydmVyMT4gaGVscGVydGhyZWFkIDMwNzQ4IHNpbmNlX3NzOiAw
+LCBuZXh0X3NzOiAxMDAwLCBuZXh0X2xvZzogMjUwLCBtc2VjX3RvX25leHRfZXZlbnQ6IDI1MA0K
+PHNlcnZlcjE+IGRpc2t1dGlsIDMwNzQ4IHVwZGF0ZSBpbyB0aWNrcw0KPHNlcnZlcjE+IGRpc2t1
+dGlsIDMwNzQ4IG9wZW4gc3RhdCBmaWxlOiAvc3lzL2Jsb2NrL252bWUwbjEvc3RhdA0KPHNlcnZl
+cjE+IGRpc2t1dGlsIDMwNzQ4IC9zeXMvYmxvY2svbnZtZTBuMS9zdGF0OiAxMjk5NTc2ODAyICAg
+ICAgICAwIDU0MTY1ODk1MjcwIDEzMzMwNjUwMjggODYzNDg2NDUzICAgICAgICAwIDYzNjE1ODky
+ODg0IDM4MTkyNjAwOTUgICAgICAgIDAgNTc3MTg3MTEgODU5NjQ2NTQ4DQo8c2VydmVyMT4gZGlz
+a3V0aWwgMzA3NDggL3N5cy9ibG9jay9udm1lMG4xL3N0YXQ6IHN0YXQgcmVhZCBvaz8gMA0KPHNl
+cnZlcjE+IGhlbHBlcnRocmVhZCAzMDc0OCBzaW5jZV9zczogMCwgbmV4dF9zczogMTAwMCwgbmV4
+dF9sb2c6IDI1MCwgbXNlY190b19uZXh0X2V2ZW50OiAyNTANCjxzZXJ2ZXIxPiBmaW86IHBpZD0z
+MDc1MCwgZ290IHNpZ25hbD0xMQ0KPHNlcnZlcjE+IHByb2Nlc3MgIDMwNzQ4IHBpZD0zMDc1MDog
+cnVuc3RhdGUgUlVOTklORyAtPiBSRUFQRUQNCjxzZXJ2ZXIxPiBwcm9jZXNzICAzMDc0OCB0ZXJt
+aW5hdGUgZ3JvdXBfaWQ9LTENCjxzZXJ2ZXIxPiBwcm9jZXNzICAzMDc0OCBzZXR0aW5nIHRlcm1p
+bmF0ZSBvbiB0ZXN0X2pvYi8zMDc1MA0KPHNlcnZlcjE+IGRpc2t1dGlsIDMwNzQ4IHVwZGF0ZSBp
+byB0aWNrcw0KPHNlcnZlcjE+IGRpc2t1dGlsIDMwNzQ4IG9wZW4gc3RhdCBmaWxlOiAvc3lzL2Js
+b2NrL252bWUwbjEvc3RhdA0KPHNlcnZlcjE+IGRpc2t1dGlsIDMwNzQ4IC9zeXMvYmxvY2svbnZt
+ZTBuMS9zdGF0OiAxMjk5NTc2ODAyICAgICAgICAwIDU0MTY1ODk1MjcwIDEzMzMwNjUwMjggODYz
+NDg2NDUzICAgICAgICAwIDYzNjE1ODkyODg0IDM4MTkyNjAwOTUgICAgICAgIDAgNTc3MTg3MTEg
+ODU5NjQ2NTQ4DQo8c2VydmVyMT4gZGlza3V0aWwgMzA3NDggL3N5cy9ibG9jay9udm1lMG4xL3N0
+YXQ6IHN0YXQgcmVhZCBvaz8gMA0KPHNlcnZlcjE+IGhlbHBlcnRocmVhZCAzMDc0OCBzaW5jZV9z
+czogMCwgbmV4dF9zczogMTAwMCwgbmV4dF9sb2c6IDUwMCwgbXNlY190b19uZXh0X2V2ZW50OiAx
+NTcNCjxzZXJ2ZXIxPiBwcm9jZXNzICAzMDc0OCBwaWQ9MzA3NTA6IHJ1bnN0YXRlIFJFQVBFRCAt
+PiBGSU5JU0hJTkcNCjxzZXJ2ZXIxPiBwcm9jZXNzICAzMDc0OCBwaWQ9MzA3NTA6IHJ1bnN0YXRl
+IEZJTklTSElORyAtPiBSRUFQRUQNCjxzZXJ2ZXIxPiBuZXQgICAgICAzMDc0OCBzZXJ2ZXIgc2Vu
+ZGluZyBlbmQgc3RhdHMNCjxzZXJ2ZXIxPiBuZXQgICAgICAzMDc0OCB0cy0+c3Nfc3RhdGUgPSAw
+DQo8c2VydmVyMT4gbmV0ICAgICAgMzA3NDggc2VydmVyIHNlbmRpbmcgZ3JvdXAgcnVuIHN0YXRz
+DQo8c2VydmVyMT4gbmV0ICAgICAgMzA3NDggc2VydmVyOiBzZW5kaW5nIGRpc2tfdXRpbCAxDQo8
+c2VydmVyMT4NCjxzZXJ2ZXIxPiBwYXJzZSAgICAzMDc0OCBmcmVlIG9wdGlvbnMNCjxzZXJ2ZXIx
+PiBwYXJzZSAgICAzMDc0OCBmcmVlIG9wdGlvbnMNCjxzZXJ2ZXIxPiBuZXQgICAgICAzMDcwNyBw
+aWQgMzA3NDggZXhpdGVkLCBzaWc9MCwgZXhpdHZhbD0wDQo8c2VydmVyMT4gbmV0ICAgICAgMzA3
+MDcgc2VydmVyOiBzZW5kaW5nIHN0b3AgKDAsIDApDQo8c2VydmVyMT4gbmV0ICAgICAgMzA3MDcg
+c2VydmVyOiBzZW5kaW5nIHF1aXQNCjxzZXJ2ZXIxPiBuZXQgICAgICAzMDcwNyBzZXJ2ZXI6IGdv
+dCBvcCBbU0VORF9FVEFdLCBwZHU9MCwgdGFnPWRjZWFlMA0KPHNlcnZlcjE+IG5ldCAgICAgIDMw
+NzA3IHNlcnZlciBzZW5kaW5nIHN0YXR1cw0KPHNlcnZlcjE+IG5ldCAgICAgIDMwNzA3IHNlcnZl
+cjogZ290IG9wIFtTRU5EX0VUQV0sIHBkdT0wLCB0YWc9ZGNlYTUwDQo8c2VydmVyMT4gbmV0ICAg
+ICAgMzA3MDcgc2VydmVyIHNlbmRpbmcgc3RhdHVzDQo8c2VydmVyMT4gbmV0ICAgICAgMzA3MDcg
+c2VydmVyOiBnb3Qgb3AgW1NFTkRfRVRBXSwgcGR1PTAsIHRhZz1kY2VhNTANCjxzZXJ2ZXIxPiBu
+ZXQgICAgICAzMDcwNyBzZXJ2ZXIgc2VuZGluZyBzdGF0dXMNCjxzZXJ2ZXIxPiBuZXQgICAgICAz
+MDcwNyBzZXJ2ZXI6IGdvdCBvcCBbU0VORF9FVEFdLCBwZHU9MCwgdGFnPWRjZWFlMA0KPHNlcnZl
+cjE+IG5ldCAgICAgIDMwNzA3IHNlcnZlciBzZW5kaW5nIHN0YXR1cw0KPHNlcnZlcjE+IG5ldCAg
+ICAgIDMwNzA3IHNlcnZlcjogZ290IG9wIFtTRU5EX0VUQV0sIHBkdT0wLCB0YWc9ZGNlYWUwDQo8
+c2VydmVyMT4gbmV0ICAgICAgMzA3MDcgc2VydmVyIHNlbmRpbmcgc3RhdHVzDQo8c2VydmVyMT4g
+bmV0ICAgICAgMzA3MDcgc2VydmVyOiBnb3Qgb3AgW1NFTkRfRVRBXSwgcGR1PTAsIHRhZz1kY2Vh
+ZTANCjxzZXJ2ZXIxPiBuZXQgICAgICAzMDcwNyBzZXJ2ZXIgc2VuZGluZyBzdGF0dXMNCjxzZXJ2
+ZXIxPiBuZXQgICAgICAzMDcwNyBzZXJ2ZXI6IGdvdCBvcCBbU0VORF9FVEFdLCBwZHU9MCwgdGFn
+PWRjZWE1MA0KPHNlcnZlcjE+IG5ldCAgICAgIDMwNzA3IHNlcnZlciBzZW5kaW5nIHN0YXR1cw0K
+cGFyc2UgICAgMzA3MDYgZnJlZSBvcHRpb25zDQoNCklmIEkga2VlcCBzaXplPTEwMCUgYW5kIHJ1
+bnRpbWUgYXQgMW0sIEkgY2FuIHJlcHJvZHVjZSB0aGUgaXNzdWUuICBJZiBJIGNoYW5nZSBzaXpl
+IHRvIDRHIChhbmQgZG9u4oCZdCB1c2UgdGltZV9iYXNlZCkgdGhlbiBpdCBydW5zIHdpdGhvdXQg
+YW55IGlzc3VlLiAgSSBzdXNwZWN0IGl0J3MgYWJvdXQgdGhlIHNpemUgb2YgdGhlIHNhdmVkIGxv
+ZyBmaWxlcywgd2hpY2ggYXJlIHJvdWdobHkgNDAwTUIgZWFjaC4gDQoNClJlZ2FyZHMsDQpKZWZm
+IA0KDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBTaXRzb2ZlIFdoZWVsZXIg
+W21haWx0bzpzaXRzb2ZlQGdtYWlsLmNvbV0gDQpTZW50OiBUdWVzZGF5LCBKdW5lIDYsIDIwMTcg
+MTE6MTkgUE0NClRvOiBKZWZmIEZ1cmxvbmcgPGplZmYuZnVybG9uZ0B3ZGMuY29tPg0KQ2M6IGZp
+b0B2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBmaW8gc2VydmVyIGVycm9ycw0KDQpPbiA2
+IEp1bmUgMjAxNyBhdCAxODozOSwgSmVmZiBGdXJsb25nIDxqZWZmLmZ1cmxvbmdAd2RjLmNvbT4g
+d3JvdGU6DQo+DQo+IFdoZW4gdXNpbmcgdGhlIGNsaWVudC9zZXJ2ZXIgbW9kZSwgSSdtIGhhdmlu
+ZyB0d28gaXNzdWVzLiAgRmlyc3QsIEkgc2VlbWluZ2x5IHJhbmRvbWx5IGdldCBhbiBpbmZsYXRl
+IGVycm9yLCB3aGljaCBoYXBwZW5zIGFmdGVyIHNldmVyYWwgaG91cnMsIGFuZCByZXByb2R1Y2lu
+ZyBpdCBpcyBjaGFsbGVuZ2luZzoNCj4NCj4gZmlvOiBpbmZsYXRlIGVycm9yIC01DQo+IGZpbzog
+ZmFpbGVkIGRlY29tcHJlc3NpbmcgbG9nDQo+IGZpbzogZmFpbGVkIGNvbnZlcnRpbmcgSU8gbG9n
+DQo+DQo+IEkgaGF2ZSAtLXdyaXRlX2lvcHNfbG9nIHR1cm5lZCBvbiBzbyBndWVzc2luZyB0aGUg
+SU8gbG9nIHRyYW5zZmVycmVkIGFjcm9zcyB0aGUgbmV0d29yayBpcyBub3Qgd29ya2luZyBzbW9v
+dGhseS4gIEkgZG9uJ3QgaGF2ZSBhIHJlbGlhYmxlIGpvYiBmaWxlIHRoYXQgcmVwcm9kdWNlcyB0
+aGUgaXNzdWUsIHVuZm9ydHVuYXRlbHkuDQoNCkhtbSAtNSBpcyBnb2luZyB0byBiZSBaX0JVRl9F
+UlJPUiBzbyB0aGUgc3VnZ2VzdGlvbiBpcyB3ZSBkaWRuJ3QgaGF2ZSBlbm91Z2ggc3BhY2UgdG8g
+c3RvcmUgdGhlIGRlY29tcHJlc3NlZCBkYXRhLiBEbyB5b3UgZ2V0IHRoaXMgcHJvYmxlbSB3aXRo
+IG9sZGVyIHZlcnNpb25zIChlLmcuIDIuMTkpIG9mIGZpbyB0b28/IFlvdSdsbCBwcm9iYWJseSBu
+ZWVkIHRvIGFkZCBkZWJ1Z2dpbmcgdG8gdHJhY2UgbnJfc2FtcGxlcyBhbmQgd2hlcmUgcG9zc2li
+bGUgdG90YWwgKGUuZy4NCmFyb3VuZCBodHRwczovL2dpdGh1Yi5jb20vYXhib2UvZmlvL2Jsb2Iv
+bWFzdGVyL2NsaWVudC5jI0wxNDY3IGFuZA0KaHR0cHM6Ly9naXRodWIuY29tL2F4Ym9lL2Zpby9i
+bG9iLzlhZjVhMjQ1MGE1NTVhNzI1ZGQxOGU2ODQ1OTY3Y2Q3Y2YzYWFkNjQvc2VydmVyLmMjTDE5
+MjcNCikuDQoNCj4gU2Vjb25kLCBJIGFsc28gZ2V0IChsZXNzIHJhbmRvbWx5KSBhIHRpbWVvdXQg
+b24gU0VORF9FVEEuICBIZXJlIGFyZSB0aGUgZGV0YWlsczoNCj4NCj4gIyBmaW8gLXZlcnNpb24N
+Cj4gZmlvLTIuMjAtMzktZ2MxMmQNCj4NCj4gIyBmaW8gLS1jbGllbnQ9c2VydmVyMSB0ZXN0Lmpv
+YiAtLWNsaWVudD1zZXJ2ZXIyIHRlc3Quam9iIGNsaWVudCANCj4gPHNlcnZlcjI+OiB0aW1lb3V0
+IG9uIFNFTkRfRVRBIGNsaWVudCA8c2VydmVyMT46IHRpbWVvdXQgb24gU0VORF9FVEENCj4gZmlv
+OiBjbGllbnQ6IHVuYWJsZSB0byBmaW5kIG1hdGNoaW5nIHRhZyAoNzZmNjgwKQ0KPg0KPiAjIGNh
+dCB0ZXN0LmpvYg0KPiBbdGVzdF9qb2JdDQo+IGlvZW5naW5lPWxpYmFpbw0KPiBkaXJlY3Q9MQ0K
+PiBydz1yYW5kcmVhZA0KPiBub3JhbmRvbW1hcA0KPiByYW5kcmVwZWF0PTANCj4gaW9kZXB0aD0y
+NTYNCj4gc2l6ZT0xMDAlDQo+IG51bWpvYnM9MQ0KPiBicz00aw0KPiBmaWxlbmFtZT0vZGV2L252
+bWUwbjENCj4gZ3JvdXBfcmVwb3J0aW5nDQo+IHdyaXRlX2xhdF9sb2c9dGVzdF9qb2INCj4gcnVu
+dGltZT0zbQ0KDQpBZ2FpbiBjYW4geW91IHJlcHJvZHVjZSB0aGlzIG9uZSB3aXRoIHRoZSBwcmV2
+aW91cyBmaW8gcmVsZWFzZT8gT3RoZXIgdGhpbmdzIHRoYXQgd291bGQgaGVscCBpcyBpZiB5b3Ug
+Y3V0IHRoZSBqb2IgZG93biB0byB0aGUgZmV3ZXN0IGxpbmVzIHRoYXQgc3RpbGwgYWxsb3cgdGhl
+IHByb2JsZW0gdG8gcmVwcm9kdWNlIGFuZCByZWR1Y2UgdmFsdWVzIChzdWNoIGFzIGlvZGVwdGgs
+IHJ1bnRpbWUgYW5kIHNpemUpIGFzIGZhciBhcyBwb3NzaWJsZSB0aGF0IGFnYWluIHN0aWxsIGFs
+bG93IHRoZSBwcm9ibGVtIHRvIG9jY3VyIChlLmcuIGlmIHNpemU9NEcgc3RpbGwgbWFrZXMgaXQg
+aGFwcGVuIHRoYXQncyB1c2VmdWwgdG8ga25vdykuIElmIGl0IGhhcHBlbnMgcmVsYXRpdmVseSBx
+dWlja2x5IHlvdSBtYXkgYmUgYWJsZSB0byB1c2UgLS1kZWJ1Zz1hbGwgdG8gbmFycm93IGRvd24g
+dGhlIGxhc3QgdGhpbmcgdGhlIGNsaWVudCBkaWQgYnV0IGJlIGF3YXJlIHRoaXMgZ2VuZXJhdGVz
+IGEgbG90IG9mIG91dHB1dC4uLg0KDQotLQ0KU2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9yZy9+c2l0
+cy8NCg==
