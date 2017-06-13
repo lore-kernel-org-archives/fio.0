@@ -1,54 +1,74 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f174.google.com ([209.85.217.174]:34528 "EHLO
-        mail-ua0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752168AbdFMU6W (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 13 Jun 2017 16:58:22 -0400
-Received: by mail-ua0-f174.google.com with SMTP id m31so83232385uam.1
-        for <fio@vger.kernel.org>; Tue, 13 Jun 2017 13:58:21 -0700 (PDT)
+Received: from prvmx01.microfocus.com ([130.57.1.216]:15259 "EHLO
+        prvmx01.microfocus.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752078AbdFMOUA (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 13 Jun 2017 10:20:00 -0400
+From: David Byte <dbyte@suse.com>
+Subject: iops log is not capturing iops
+Date: Tue, 13 Jun 2017 14:04:42 +0000
+Message-ID: <A41AF6BF-E759-4C70-BC4B-4BEFEA0FA170@suse.com>
+References: <27D739B2-8C23-4785-8A89-D27E91045796@suse.com>
+In-Reply-To: <27D739B2-8C23-4785-8A89-D27E91045796@suse.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <99F44E8546178448ADA83CB1F4128065@microfocus.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <A41AF6BF-E759-4C70-BC4B-4BEFEA0FA170@suse.com>
-References: <27D739B2-8C23-4785-8A89-D27E91045796@suse.com> <A41AF6BF-E759-4C70-BC4B-4BEFEA0FA170@suse.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Tue, 13 Jun 2017 21:57:50 +0100
-Message-ID: <CALjAwxgEO0=Wt7XtMLWUzs0AZWFSNX=R6a1SJ2G=TawxTZeKBA@mail.gmail.com>
-Subject: Re: iops log is not capturing iops
-Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: David Byte <dbyte@suse.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 13 June 2017 at 15:04, David Byte <dbyte@suse.com> wrote:
->
->     I tried this with both 2.13 (the version that is available with SUSE Enterprise Storage and with a freshly built 2.20-53 that I built 12 hours ago.  Neither prints the actual iops value to the iops log.  Any clue as to where the problem lies?
->
->     Raw data follows.
->
->     linux:~/bench # ./fio --filename=/root/test.fil --size=1G --runtime=30 --rw=randwrite --write_iops_log=4kw3 --name=test
->     test: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
->     fio-2.20-53-g85c7
->     Starting 1 process
->     Jobs: 1 (f=1): [w(1)][100.0%][r=0KiB/s,w=30.5MiB/s][r=0,w=7802 IOPS][eta 00m:00s]
->     test: (groupid=0, jobs=1): err= 0: pid=4362: Fri Jun  9 19:54:13 2017
->       write: IOPS=8563, BW=33.5MiB/s (35.1MB/s)(1004MiB/30001msec)
-[...]
-
->     linux:~/bench # tail 4kw3_iops.1.log
->     29986, 1, 1, 4096
->     29986, 1, 1, 4096
->     29986, 1, 1, 4096
->     29986, 1, 1, 4096
-
-That looks like it's printing logging information for each individual I/O
-rather than averaging them over a given period (so you've gained
-precision but you'd have to post process the result to work out the
-IOPS). In fact this looks like a similar question to that of another
-SUSE engineer (who was looking at Ceph) over on
-https://github.com/axboe/fio/issues/337 ...
-
-Just to check, have you seen the log_avg_msec option
-(http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-log-avg-msec
-) and are you aware it defaults to 0?
-
--- 
-Sitsofe | http://sucs.org/~sits/
+DQogICAgSSB0cmllZCB0aGlzIHdpdGggYm90aCAyLjEzICh0aGUgdmVyc2lvbiB0aGF0IGlzIGF2
+YWlsYWJsZSB3aXRoIFNVU0UgRW50ZXJwcmlzZSBTdG9yYWdlIGFuZCB3aXRoIGEgZnJlc2hseSBi
+dWlsdCAyLjIwLTUzIHRoYXQgSSBidWlsdCAxMiBob3VycyBhZ28uICBOZWl0aGVyIHByaW50cyB0
+aGUgYWN0dWFsIGlvcHMgdmFsdWUgdG8gdGhlIGlvcHMgbG9nLiAgQW55IGNsdWUgYXMgdG8gd2hl
+cmUgdGhlIHByb2JsZW0gbGllcz8NCiAgICANCiAgICBSYXcgZGF0YSBmb2xsb3dzLg0KICAgIA0K
+ICAgIGxpbnV4On4vYmVuY2ggIyAuL2ZpbyAtLWZpbGVuYW1lPS9yb290L3Rlc3QuZmlsIC0tc2l6
+ZT0xRyAtLXJ1bnRpbWU9MzAgLS1ydz1yYW5kd3JpdGUgLS13cml0ZV9pb3BzX2xvZz00a3czIC0t
+bmFtZT10ZXN0DQogICAgdGVzdDogKGc9MCk6IHJ3PXJhbmR3cml0ZSwgYnM9KFIpIDQwOTZCLTQw
+OTZCLCAoVykgNDA5NkItNDA5NkIsIChUKSA0MDk2Qi00MDk2QiwgaW9lbmdpbmU9cHN5bmMsIGlv
+ZGVwdGg9MQ0KICAgIGZpby0yLjIwLTUzLWc4NWM3DQogICAgU3RhcnRpbmcgMSBwcm9jZXNzDQog
+ICAgSm9iczogMSAoZj0xKTogW3coMSldWzEwMC4wJV1bcj0wS2lCL3Msdz0zMC41TWlCL3NdW3I9
+MCx3PTc4MDIgSU9QU11bZXRhIDAwbTowMHNdDQogICAgdGVzdDogKGdyb3VwaWQ9MCwgam9icz0x
+KTogZXJyPSAwOiBwaWQ9NDM2MjogRnJpIEp1biAgOSAxOTo1NDoxMyAyMDE3DQogICAgICB3cml0
+ZTogSU9QUz04NTYzLCBCVz0zMy41TWlCL3MgKDM1LjFNQi9zKSgxMDA0TWlCLzMwMDAxbXNlYykN
+CiAgICAgICAgY2xhdCAodXNlYyk6IG1pbj0xLCBtYXg9MjIyNDcsIGF2Zz0xMDcuMjEsIHN0ZGV2
+PTgzMi4wOA0KICAgICAgICAgbGF0ICh1c2VjKTogbWluPTEsIG1heD0yMjI0NywgYXZnPTEwOC4y
+MCwgc3RkZXY9ODMyLjQ5DQogICAgICAgIGNsYXQgcGVyY2VudGlsZXMgKHVzZWMpOg0KICAgICAg
+ICAgfCAgMS4wMHRoPVsgICAgMV0sICA1LjAwdGg9WyAgICAxXSwgMTAuMDB0aD1bICAgIDJdLCAy
+MC4wMHRoPVsgICAgMl0sDQogICAgICAgICB8IDMwLjAwdGg9WyAgICAyXSwgNDAuMDB0aD1bICAg
+IDNdLCA1MC4wMHRoPVsgICAgM10sIDYwLjAwdGg9WyAgICAzXSwNCiAgICAgICAgIHwgNzAuMDB0
+aD1bICAgIDRdLCA4MC4wMHRoPVsgICAgNl0sIDkwLjAwdGg9WyAgMTEzXSwgOTUuMDB0aD1bICAx
+NjFdLA0KICAgICAgICAgfCA5OS4wMHRoPVsgMjkyOF0sIDk5LjUwdGg9WyA3NjQ4XSwgOTkuOTB0
+aD1bMTEyMDBdLCA5OS45NXRoPVsxMTU4NF0sDQogICAgICAgICB8IDk5Ljk5dGg9WzEyNjA4XQ0K
+ICAgICAgIGJ3ICggIEtpQi9zKTogbWluPTIzMzEyLCBtYXg9MTY3Mzg0LCBwZXI9MC4xMCUsIGF2
+Zz0zNDI3OS4yOCwgc3RkZXY9MTg2NTAuMDkNCiAgICAgICAgbGF0ICh1c2VjKSA6IDI9NS41NCUs
+IDQ9NjAuNDYlLCAxMD0xOC43OCUsIDIwPTIuMjQlLCA1MD0xLjEzJQ0KICAgICAgICBsYXQgKHVz
+ZWMpIDogMTAwPTAuMzglLCAyNTA9OC41MyUsIDUwMD0xLjMzJSwgNzUwPTAuMjIlLCAxMDAwPTAu
+MDglDQogICAgICAgIGxhdCAobXNlYykgOiAyPTAuMjQlLCA0PTAuMTElLCAxMD0wLjc3JSwgMjA9
+MC4yMiUsIDUwPTAuMDElDQogICAgICBjcHUgICAgICAgICAgOiB1c3I9Mi4zOCUsIHN5cz0yMy4x
+MiUsIGN0eD01NzI4LCBtYWpmPTAsIG1pbmY9MTEyNg0KICAgICAgSU8gZGVwdGhzICAgIDogMT0x
+MDAuMCUsIDI9MC4wJSwgND0wLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsID49NjQ9MC4w
+JQ0KICAgICAgICAgc3VibWl0ICAgIDogMD0wLjAlLCA0PTEwMC4wJSwgOD0wLjAlLCAxNj0wLjAl
+LCAzMj0wLjAlLCA2ND0wLjAlLCA+PTY0PTAuMCUNCiAgICAgICAgIGNvbXBsZXRlICA6IDA9MC4w
+JSwgND0xMDAuMCUsIDg9MC4wJSwgMTY9MC4wJSwgMzI9MC4wJSwgNjQ9MC4wJSwgPj02ND0wLjAl
+DQogICAgICAgICBpc3N1ZWQgcnd0OiB0b3RhbD0wLDI1NjkwOSwwLCBzaG9ydD0wLDAsMCwgZHJv
+cHBlZD0wLDAsMA0KICAgICAgICAgbGF0ZW5jeSAgIDogdGFyZ2V0PTAsIHdpbmRvdz0wLCBwZXJj
+ZW50aWxlPTEwMC4wMCUsIGRlcHRoPTENCiAgICANCiAgICBSdW4gc3RhdHVzIGdyb3VwIDAgKGFs
+bCBqb2JzKToNCiAgICAgIFdSSVRFOiBidz0zMy41TWlCL3MgKDM1LjFNQi9zKSwgMzMuNU1pQi9z
+LTMzLjVNaUIvcyAoMzUuMU1CL3MtMzUuMU1CL3MpLCBpbz0xMDA0TWlCICgxMDUyTUIpLCBydW49
+MzAwMDEtMzAwMDFtc2VjDQogICAgDQogICAgRGlzayBzdGF0cyAocmVhZC93cml0ZSk6DQogICAg
+ICBzZGE6IGlvcz0wLzE1MjkxNywgbWVyZ2U9MC8xNSwgdGlja3M9MC80MjI2OTAwLCBpbl9xdWV1
+ZT00MjI4MTA4LCB1dGlsPTk5LjI0JQ0KICAgIA0KICAgIGxpbnV4On4vYmVuY2ggIyB0YWlsIDRr
+dzNfaW9wcy4xLmxvZyANCiAgICAyOTk4NiwgMSwgMSwgNDA5Ng0KICAgIDI5OTg2LCAxLCAxLCA0
+MDk2DQogICAgMjk5ODYsIDEsIDEsIDQwOTYNCiAgICAyOTk4NiwgMSwgMSwgNDA5Ng0KICAgIDI5
+OTg2LCAxLCAxLCA0MDk2DQogICAgMjk5OTgsIDEsIDEsIDQwOTYNCiAgICAyOTk5OSwgMSwgMSwg
+NDA5Ng0KICAgIDI5OTk5LCAxLCAxLCA0MDk2DQogICAgMjk5OTksIDEsIDEsIDQwOTYNCiAgICAz
+MDAwMCwgMSwgMSwgNDA5Ng0KICAgIGxpbnV4On4vYmVuY2ggIyBoZWFkIDRrdzNfaW9wcy4xLmxv
+ZyANCiAgICAxMjksIDEsIDEsIDQwOTYNCiAgICAxMjksIDEsIDEsIDQwOTYNCiAgICAxMjksIDEs
+IDEsIDQwOTYNCiAgICAxMjksIDEsIDEsIDQwOTYNCiAgICAxMjksIDEsIDEsIDQwOTYNCiAgICAx
+MjksIDEsIDEsIDQwOTYNCiAgICAxMjksIDEsIDEsIDQwOTYNCiAgICAxMjksIDEsIDEsIDQwOTYN
+CiAgICAxMjksIDEsIDEsIDQwOTYNCiAgICAxMjksIDEsIDEsIDQwOTYNCiAgICANCiAgICANCiAg
+ICANCiAgICBEYXZpZCBCeXRlDQogICAgU3IuIFRlY2hub2xvZ3kgU3RyYXRlZ2lzdA0KICAgIEFs
+bGlhbmNlcyBhbmQgU1VTRSBFbWJlZGRlZA0KICAgIGRieXRlQHN1c2UuY29tDQogICAgOTE4LjUy
+OC40NDIyDQogICAgDQoNCg==
