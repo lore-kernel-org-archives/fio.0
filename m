@@ -1,29 +1,59 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from smtp.nue.novell.com ([195.135.221.5]:39732 "EHLO
-        smtp.nue.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932285AbdFLPtJ (ORCPT
-        <rfc822;groupwise-fio@vger.kernel.org:0:0>);
-        Mon, 12 Jun 2017 11:49:09 -0400
-Date: Mon, 12 Jun 2017 17:48:53 +0200
-From: Andreas Herrmann <aherrmann@suse.com>
-Subject: [PATCH v2 0/2] stat: Modify info for bw and iops stats in
- normal/json output
-Message-ID: <20170612154853.GH15590@suselix.suse.de>
+Received: from prvmx02.microfocus.com ([130.57.1.217]:15758 "EHLO
+        prvmx02.microfocus.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753217AbdFMWmK (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 13 Jun 2017 18:42:10 -0400
+From: David Byte <dbyte@suse.com>
+Subject: Re: iops log is not capturing iops
+Date: Tue, 13 Jun 2017 22:42:08 +0000
+Message-ID: <9414ABD1-79F6-41B5-A3FB-674A9F60B819@suse.com>
+References: <27D739B2-8C23-4785-8A89-D27E91045796@suse.com>
+ <A41AF6BF-E759-4C70-BC4B-4BEFEA0FA170@suse.com>
+ <CALjAwxgEO0=Wt7XtMLWUzs0AZWFSNX=R6a1SJ2G=TawxTZeKBA@mail.gmail.com>
+In-Reply-To: <CALjAwxgEO0=Wt7XtMLWUzs0AZWFSNX=R6a1SJ2G=TawxTZeKBA@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <818306C6CF13C647AA919B313B54F785@microfocus.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jens Axboe <axboe@fb.com>
-Cc: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Andreas Herrmann <aherrmann@suse.com>
-
-Andreas Herrmann (2):
-      stat: Provide iops statistics
-      stat: Print number of samples in bw and iops statistics
-
- init.c   |  1 +
- server.c |  1 +
- stat.c   | 27 +++++++++++++++++++++++++--
- 3 files changed, 27 insertions(+), 2 deletions(-)
+VGhhbmsgeW91LCBJIHNlYXJjaGVkIGhpZ2ggYW5kIGxvdyBhbmQgbWlzc2VkIHRoYXQgdGhyZWFk
+Lg0KDQpEYXZpZCBCeXRlDQpTci4gVGVjaG5vbG9neSBTdHJhdGVnaXN0DQpBbGxpYW5jZXMgYW5k
+IFNVU0UgRW1iZWRkZWQNCmRieXRlQHN1c2UuY29tDQo5MTguNTI4LjQ0MjINCg0KT24gNi8xMy8x
+NywgMzo1NyBQTSwgIlNpdHNvZmUgV2hlZWxlciIgPHNpdHNvZmVAZ21haWwuY29tPiB3cm90ZToN
+Cg0KICAgIE9uIDEzIEp1bmUgMjAxNyBhdCAxNTowNCwgRGF2aWQgQnl0ZSA8ZGJ5dGVAc3VzZS5j
+b20+IHdyb3RlOg0KICAgID4NCiAgICA+ICAgICBJIHRyaWVkIHRoaXMgd2l0aCBib3RoIDIuMTMg
+KHRoZSB2ZXJzaW9uIHRoYXQgaXMgYXZhaWxhYmxlIHdpdGggU1VTRSBFbnRlcnByaXNlIFN0b3Jh
+Z2UgYW5kIHdpdGggYSBmcmVzaGx5IGJ1aWx0IDIuMjAtNTMgdGhhdCBJIGJ1aWx0IDEyIGhvdXJz
+IGFnby4gIE5laXRoZXIgcHJpbnRzIHRoZSBhY3R1YWwgaW9wcyB2YWx1ZSB0byB0aGUgaW9wcyBs
+b2cuICBBbnkgY2x1ZSBhcyB0byB3aGVyZSB0aGUgcHJvYmxlbSBsaWVzPw0KICAgID4NCiAgICA+
+ICAgICBSYXcgZGF0YSBmb2xsb3dzLg0KICAgID4NCiAgICA+ICAgICBsaW51eDp+L2JlbmNoICMg
+Li9maW8gLS1maWxlbmFtZT0vcm9vdC90ZXN0LmZpbCAtLXNpemU9MUcgLS1ydW50aW1lPTMwIC0t
+cnc9cmFuZHdyaXRlIC0td3JpdGVfaW9wc19sb2c9NGt3MyAtLW5hbWU9dGVzdA0KICAgID4gICAg
+IHRlc3Q6IChnPTApOiBydz1yYW5kd3JpdGUsIGJzPShSKSA0MDk2Qi00MDk2QiwgKFcpIDQwOTZC
+LTQwOTZCLCAoVCkgNDA5NkItNDA5NkIsIGlvZW5naW5lPXBzeW5jLCBpb2RlcHRoPTENCiAgICA+
+ICAgICBmaW8tMi4yMC01My1nODVjNw0KICAgID4gICAgIFN0YXJ0aW5nIDEgcHJvY2Vzcw0KICAg
+ID4gICAgIEpvYnM6IDEgKGY9MSk6IFt3KDEpXVsxMDAuMCVdW3I9MEtpQi9zLHc9MzAuNU1pQi9z
+XVtyPTAsdz03ODAyIElPUFNdW2V0YSAwMG06MDBzXQ0KICAgID4gICAgIHRlc3Q6IChncm91cGlk
+PTAsIGpvYnM9MSk6IGVycj0gMDogcGlkPTQzNjI6IEZyaSBKdW4gIDkgMTk6NTQ6MTMgMjAxNw0K
+ICAgID4gICAgICAgd3JpdGU6IElPUFM9ODU2MywgQlc9MzMuNU1pQi9zICgzNS4xTUIvcykoMTAw
+NE1pQi8zMDAwMW1zZWMpDQogICAgWy4uLl0NCiAgICANCiAgICA+ICAgICBsaW51eDp+L2JlbmNo
+ICMgdGFpbCA0a3czX2lvcHMuMS5sb2cNCiAgICA+ICAgICAyOTk4NiwgMSwgMSwgNDA5Ng0KICAg
+ID4gICAgIDI5OTg2LCAxLCAxLCA0MDk2DQogICAgPiAgICAgMjk5ODYsIDEsIDEsIDQwOTYNCiAg
+ICA+ICAgICAyOTk4NiwgMSwgMSwgNDA5Ng0KICAgIA0KICAgIFRoYXQgbG9va3MgbGlrZSBpdCdz
+IHByaW50aW5nIGxvZ2dpbmcgaW5mb3JtYXRpb24gZm9yIGVhY2ggaW5kaXZpZHVhbCBJL08NCiAg
+ICByYXRoZXIgdGhhbiBhdmVyYWdpbmcgdGhlbSBvdmVyIGEgZ2l2ZW4gcGVyaW9kIChzbyB5b3Un
+dmUgZ2FpbmVkDQogICAgcHJlY2lzaW9uIGJ1dCB5b3UnZCBoYXZlIHRvIHBvc3QgcHJvY2VzcyB0
+aGUgcmVzdWx0IHRvIHdvcmsgb3V0IHRoZQ0KICAgIElPUFMpLiBJbiBmYWN0IHRoaXMgbG9va3Mg
+bGlrZSBhIHNpbWlsYXIgcXVlc3Rpb24gdG8gdGhhdCBvZiBhbm90aGVyDQogICAgU1VTRSBlbmdp
+bmVlciAod2hvIHdhcyBsb29raW5nIGF0IENlcGgpIG92ZXIgb24NCiAgICBodHRwczovL2dpdGh1
+Yi5jb20vYXhib2UvZmlvL2lzc3Vlcy8zMzcgLi4uDQogICAgDQogICAgSnVzdCB0byBjaGVjaywg
+aGF2ZSB5b3Ugc2VlbiB0aGUgbG9nX2F2Z19tc2VjIG9wdGlvbg0KICAgIChodHRwOi8vZmlvLnJl
+YWR0aGVkb2NzLmlvL2VuL2xhdGVzdC9maW9fZG9jLmh0bWwjY21kb3B0aW9uLWFyZy1sb2ctYXZn
+LW1zZWMNCiAgICApIGFuZCBhcmUgeW91IGF3YXJlIGl0IGRlZmF1bHRzIHRvIDA/DQogICAgDQog
+ICAgLS0gDQogICAgU2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9yZy9+c2l0cy8NCiAgICANCiAgICAN
+Cg0K
