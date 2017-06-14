@@ -1,117 +1,81 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa2.hgst.iphmx.com ([68.232.143.124]:60137 "EHLO
-        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752699AbdFNWVN (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 14 Jun 2017 18:21:13 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: RE: fio server errors
-Date: Wed, 14 Jun 2017 22:20:58 +0000
-Message-ID: <BN3PR0401MB1457210A285884036121C7F38FC30@BN3PR0401MB1457.namprd04.prod.outlook.com>
-References: <BN3PR0401MB1457EFC8350E7DAB393315B28FCB0@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <CALjAwxjKwFty9C42YcBkb7NStRMZrKRPKda5_gFejd358mCi_g@mail.gmail.com>
- <BN3PR0401MB14572E293EAA4723BE2750058FC90@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <CALjAwxjxvwMDn722Zg10VjNVd5t+6GcE1UOi9ams4Lh-UV9WzQ@mail.gmail.com>
-In-Reply-To: <CALjAwxjxvwMDn722Zg10VjNVd5t+6GcE1UOi9ams4Lh-UV9WzQ@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-ua0-f179.google.com ([209.85.217.179]:35451 "EHLO
+        mail-ua0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752154AbdFNGNz (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 14 Jun 2017 02:13:55 -0400
+Received: by mail-ua0-f179.google.com with SMTP id q15so88601408uaa.2
+        for <fio@vger.kernel.org>; Tue, 13 Jun 2017 23:13:54 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <BN3PR0401MB14572E293EAA4723BE2750058FC90@BN3PR0401MB1457.namprd04.prod.outlook.com>
+References: <BN3PR0401MB1457EFC8350E7DAB393315B28FCB0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+ <CALjAwxjKwFty9C42YcBkb7NStRMZrKRPKda5_gFejd358mCi_g@mail.gmail.com> <BN3PR0401MB14572E293EAA4723BE2750058FC90@BN3PR0401MB1457.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 14 Jun 2017 07:13:23 +0100
+Message-ID: <CALjAwxjxvwMDn722Zg10VjNVd5t+6GcE1UOi9ams4Lh-UV9WzQ@mail.gmail.com>
+Subject: Re: fio server errors
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Jeff Furlong <jeff.furlong@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-T24gaXNzdWUgb25lIChpbmZsYXRlIGVycm9yKSwgSSd2ZSBnb25lIHRocm91Z2ggc29tZSBvZiB0
-aGUgY29kZSBhbmQgSSB0aGluayBucl9zYW1wbGVzIHNob3VsZCBiZSBkZWNsYXJlZCBhcyB1aW50
-NjRfdCwgbm90IHVpbnQzMl90LCBhdCBodHRwczovL2dpdGh1Yi5jb20vYXhib2UvZmlvL2Jsb2Iv
-bWFzdGVyL2NsaWVudC5jI0wxNDUxICBJJ3ZlIGNoYW5nZWQgaXQgb24gbXkgbWFjaGluZSBhbmQg
-cmVyYW4gdGhlIHByaW9yIHRlc3QgYnV0IGFmdGVyIDI1IGhvdXJzIHRoZSBzYW1lIGlzc3VlIG9j
-Y3VycmVkIGFnYWluLiAgSXQncyBzdGlsbCBkaWZmaWN1bHQgdG8gc2F5IHdoYXQgdHlwZSBvZiBq
-b2IgaXMgY2F1c2luZyB0aGUgaXNzdWUuDQoNCk9uIGlzc3VlIHR3byAoU0VORF9FVEEpLCBJIGNh
-biByZXByb2R1Y2Ugd2l0aCBhIHNsaWdodGx5IHNtYWxsZXIgam9iIGZpbGU6DQoNCiNmaW8gLS1j
-bGllbnQ9c2VydmVyMSB0ZXN0LmpvYiAtLWNsaWVudD1zZXJ2ZXIyIHRlc3Quam9iDQoNCiMgY2F0
-IHRlc3Quam9iDQpbdGVzdF9qb2JdDQppb2VuZ2luZT1saWJhaW8NCmRpcmVjdD0xDQpydz1yYW5k
-cmVhZA0KaW9kZXB0aD0yNTYNCnNpemU9MTAwJQ0KbnVtam9icz0xDQpicz00aw0KZmlsZW5hbWU9
-L2Rldi9udm1lMG4xDQpncm91cF9yZXBvcnRpbmcNCndyaXRlX2xhdF9sb2c9dGVzdF9qb2INCnJ1
-bnRpbWU9MW0NCg0KSWYgSSByZW1vdmUgd3JpdGVfbGF0X2xvZz10ZXN0X2pvYiB0aGVuIHRoZXJl
-IGlzIG5vIFNFTkRfRVRBIGlzc3VlLiAgT25seSB3aGVuIGxvZ2dpbmcgKHRoZSBsYXRlbmN5KSBk
-b2VzIHRoaXMgaXNzdWUgb2NjdXIuICBBbmQsIGlmIEkgZW5hYmxlIHdyaXRlX2xhdF9sb2c9dGVz
-dF9qb2IgYnV0IHJlZHVjZSBydW50aW1lPTMwcywgdGhlbiB0aGUgaXNzdWUgZG9lcyBub3Qgb2Nj
-dXIuICBJIG11c3QgaGF2ZSB3cml0ZV9sYXRfbG9nPXRlc3Rfam9iIGFuZCBydW50aW1lPTFtIHRv
-IHByb2R1Y2UgdGhlIGlzc3VlLiAgSSBpbWFnaW5lIHNvbWUgY291bnQgbXVzdCBiZSBleGNlZWRl
-ZCBvciB0aGUgcGF1c2UgaW4gbW92aW5nIHRoZSBsYXQgZGF0YSBmcm9tIG1lbW9yeSB0byBmaWxl
-IGF0IHRoZSBlbmQgb2YgdGhlIGpvYiBpcyBjYXVzaW5nIGEgdGltaW5nIGNvbmZsaWN0IChTRU5E
-X0VUQSBtc2cgdnMgIkkndmUgcXVpdCIgbXNnKS4NCg0KUmVnYXJkcywNCkplZmYNCg0KLS0tLS1P
-cmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IGZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmcgW21h
-aWx0bzpmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnXSBPbiBCZWhhbGYgT2YgU2l0c29mZSBXaGVl
-bGVyDQpTZW50OiBUdWVzZGF5LCBKdW5lIDEzLCAyMDE3IDExOjEzIFBNDQpUbzogSmVmZiBGdXJs
-b25nIDxqZWZmLmZ1cmxvbmdAd2RjLmNvbT4NCkNjOiBmaW9Admdlci5rZXJuZWwub3JnDQpTdWJq
-ZWN0OiBSZTogZmlvIHNlcnZlciBlcnJvcnMNCg0KT24gOCBKdW5lIDIwMTcgYXQgMjI6NTMsIEpl
-ZmYgRnVybG9uZyA8amVmZi5mdXJsb25nQHdkYy5jb20+IHdyb3RlOg0KPiBVc2luZyBmaW8gMi4x
-OSBJIGNhbiByZXByb2R1Y2UgdGhlIFNFTkRfRVRBIGlzc3VlLiAgV2l0aCBkZWJ1Zz1hbGwsIGlu
-ZGVlZCB0aGVyZSBpcyBhIHRvbiBvZiBvdXRwdXQsIGJ1dCBpdCBmaW5pc2hlcyB3aXRoIHJvdWdo
-bHk6DQo+DQo+IDxzZXJ2ZXIxPiBkaXNrdXRpbCAzMDc0OCB1cGRhdGUgaW8gdGlja3MgPHNlcnZl
-cjE+IGRpc2t1dGlsIDMwNzQ4IG9wZW4gDQo+IHN0YXQgZmlsZTogL3N5cy9ibG9jay9udm1lMG4x
-L3N0YXQNCj4gPHNlcnZlcjE+IGRpc2t1dGlsIDMwNzQ4IC9zeXMvYmxvY2svbnZtZTBuMS9zdGF0
-OiAxMjk5NTc2ODAyICAgICAgICAwIDU0MTY1ODk1MjcwIDEzMzMwNjUwMjggODYzNDg2NDUzICAg
-ICAgICAwIDYzNjE1ODkyODg0IDM4MTkyNjAwOTUgICAgICAgIDAgNTc3MTg3MTEgODU5NjQ2NTQ4
-DQo+IDxzZXJ2ZXIxPiBkaXNrdXRpbCAzMDc0OCAvc3lzL2Jsb2NrL252bWUwbjEvc3RhdDogc3Rh
-dCByZWFkIG9rPyAwIA0KPiA8c2VydmVyMT4gaGVscGVydGhyZWFkIDMwNzQ4IHNpbmNlX3NzOiAw
-LCBuZXh0X3NzOiAxMDAwLCBuZXh0X2xvZzogDQo+IDI1MCwgbXNlY190b19uZXh0X2V2ZW50OiAy
-NTAgPHNlcnZlcjE+IGRpc2t1dGlsIDMwNzQ4IHVwZGF0ZSBpbyB0aWNrcyANCj4gPHNlcnZlcjE+
-IGRpc2t1dGlsIDMwNzQ4IG9wZW4gc3RhdCBmaWxlOiAvc3lzL2Jsb2NrL252bWUwbjEvc3RhdA0K
-PiA8c2VydmVyMT4gZGlza3V0aWwgMzA3NDggL3N5cy9ibG9jay9udm1lMG4xL3N0YXQ6IDEyOTk1
-NzY4MDIgICAgICAgIDAgNTQxNjU4OTUyNzAgMTMzMzA2NTAyOCA4NjM0ODY0NTMgICAgICAgIDAg
-NjM2MTU4OTI4ODQgMzgxOTI2MDA5NSAgICAgICAgMCA1NzcxODcxMSA4NTk2NDY1NDgNCj4gPHNl
-cnZlcjE+IGRpc2t1dGlsIDMwNzQ4IC9zeXMvYmxvY2svbnZtZTBuMS9zdGF0OiBzdGF0IHJlYWQg
-b2s/IDAgDQo+IDxzZXJ2ZXIxPiBoZWxwZXJ0aHJlYWQgMzA3NDggc2luY2Vfc3M6IDAsIG5leHRf
-c3M6IDEwMDAsIG5leHRfbG9nOiANCj4gMjUwLCBtc2VjX3RvX25leHRfZXZlbnQ6IDI1MCA8c2Vy
-dmVyMT4gZmlvOiBwaWQ9MzA3NTAsIGdvdCBzaWduYWw9MTEgDQo+IDxzZXJ2ZXIxPiBwcm9jZXNz
-ICAzMDc0OCBwaWQ9MzA3NTA6IHJ1bnN0YXRlIFJVTk5JTkcgLT4gUkVBUEVEIA0KPiA8c2VydmVy
-MT4gcHJvY2VzcyAgMzA3NDggdGVybWluYXRlIGdyb3VwX2lkPS0xIDxzZXJ2ZXIxPiBwcm9jZXNz
-ICANCj4gMzA3NDggc2V0dGluZyB0ZXJtaW5hdGUgb24gdGVzdF9qb2IvMzA3NTAgPHNlcnZlcjE+
-IGRpc2t1dGlsIDMwNzQ4IA0KPiB1cGRhdGUgaW8gdGlja3MgPHNlcnZlcjE+IGRpc2t1dGlsIDMw
-NzQ4IG9wZW4gc3RhdCBmaWxlOiANCj4gL3N5cy9ibG9jay9udm1lMG4xL3N0YXQNCj4gPHNlcnZl
-cjE+IGRpc2t1dGlsIDMwNzQ4IC9zeXMvYmxvY2svbnZtZTBuMS9zdGF0OiAxMjk5NTc2ODAyICAg
-ICAgICAwIDU0MTY1ODk1MjcwIDEzMzMwNjUwMjggODYzNDg2NDUzICAgICAgICAwIDYzNjE1ODky
-ODg0IDM4MTkyNjAwOTUgICAgICAgIDAgNTc3MTg3MTEgODU5NjQ2NTQ4DQo+IDxzZXJ2ZXIxPiBk
-aXNrdXRpbCAzMDc0OCAvc3lzL2Jsb2NrL252bWUwbjEvc3RhdDogc3RhdCByZWFkIG9rPyAwIA0K
-PiA8c2VydmVyMT4gaGVscGVydGhyZWFkIDMwNzQ4IHNpbmNlX3NzOiAwLCBuZXh0X3NzOiAxMDAw
-LCBuZXh0X2xvZzogDQo+IDUwMCwgbXNlY190b19uZXh0X2V2ZW50OiAxNTcgPHNlcnZlcjE+IHBy
-b2Nlc3MgIDMwNzQ4IHBpZD0zMDc1MDogDQo+IHJ1bnN0YXRlIFJFQVBFRCAtPiBGSU5JU0hJTkcg
-PHNlcnZlcjE+IHByb2Nlc3MgIDMwNzQ4IHBpZD0zMDc1MDogcnVuc3RhdGUgRklOSVNISU5HIC0+
-IFJFQVBFRA0KPiA8c2VydmVyMT4gbmV0ICAgICAgMzA3NDggc2VydmVyIHNlbmRpbmcgZW5kIHN0
-YXRzDQo+IDxzZXJ2ZXIxPiBuZXQgICAgICAzMDc0OCB0cy0+c3Nfc3RhdGUgPSAwDQo+IDxzZXJ2
-ZXIxPiBuZXQgICAgICAzMDc0OCBzZXJ2ZXIgc2VuZGluZyBncm91cCBydW4gc3RhdHMNCj4gPHNl
-cnZlcjE+IG5ldCAgICAgIDMwNzQ4IHNlcnZlcjogc2VuZGluZyBkaXNrX3V0aWwgMQ0KPiA8c2Vy
-dmVyMT4NCj4gPHNlcnZlcjE+IHBhcnNlICAgIDMwNzQ4IGZyZWUgb3B0aW9ucw0KPiA8c2VydmVy
-MT4gcGFyc2UgICAgMzA3NDggZnJlZSBvcHRpb25zDQo+IDxzZXJ2ZXIxPiBuZXQgICAgICAzMDcw
-NyBwaWQgMzA3NDggZXhpdGVkLCBzaWc9MCwgZXhpdHZhbD0wDQo+IDxzZXJ2ZXIxPiBuZXQgICAg
-ICAzMDcwNyBzZXJ2ZXI6IHNlbmRpbmcgc3RvcCAoMCwgMCkNCj4gPHNlcnZlcjE+IG5ldCAgICAg
-IDMwNzA3IHNlcnZlcjogc2VuZGluZyBxdWl0DQo+IDxzZXJ2ZXIxPiBuZXQgICAgICAzMDcwNyBz
-ZXJ2ZXI6IGdvdCBvcCBbU0VORF9FVEFdLCBwZHU9MCwgdGFnPWRjZWFlMA0KPiA8c2VydmVyMT4g
-bmV0ICAgICAgMzA3MDcgc2VydmVyIHNlbmRpbmcgc3RhdHVzDQo+IDxzZXJ2ZXIxPiBuZXQgICAg
-ICAzMDcwNyBzZXJ2ZXI6IGdvdCBvcCBbU0VORF9FVEFdLCBwZHU9MCwgdGFnPWRjZWE1MA0KPiA8
-c2VydmVyMT4gbmV0ICAgICAgMzA3MDcgc2VydmVyIHNlbmRpbmcgc3RhdHVzDQo+IDxzZXJ2ZXIx
-PiBuZXQgICAgICAzMDcwNyBzZXJ2ZXI6IGdvdCBvcCBbU0VORF9FVEFdLCBwZHU9MCwgdGFnPWRj
-ZWE1MA0KPiA8c2VydmVyMT4gbmV0ICAgICAgMzA3MDcgc2VydmVyIHNlbmRpbmcgc3RhdHVzDQo+
-IDxzZXJ2ZXIxPiBuZXQgICAgICAzMDcwNyBzZXJ2ZXI6IGdvdCBvcCBbU0VORF9FVEFdLCBwZHU9
-MCwgdGFnPWRjZWFlMA0KPiA8c2VydmVyMT4gbmV0ICAgICAgMzA3MDcgc2VydmVyIHNlbmRpbmcg
-c3RhdHVzDQo+IDxzZXJ2ZXIxPiBuZXQgICAgICAzMDcwNyBzZXJ2ZXI6IGdvdCBvcCBbU0VORF9F
-VEFdLCBwZHU9MCwgdGFnPWRjZWFlMA0KPiA8c2VydmVyMT4gbmV0ICAgICAgMzA3MDcgc2VydmVy
-IHNlbmRpbmcgc3RhdHVzDQo+IDxzZXJ2ZXIxPiBuZXQgICAgICAzMDcwNyBzZXJ2ZXI6IGdvdCBv
-cCBbU0VORF9FVEFdLCBwZHU9MCwgdGFnPWRjZWFlMA0KPiA8c2VydmVyMT4gbmV0ICAgICAgMzA3
-MDcgc2VydmVyIHNlbmRpbmcgc3RhdHVzDQo+IDxzZXJ2ZXIxPiBuZXQgICAgICAzMDcwNyBzZXJ2
-ZXI6IGdvdCBvcCBbU0VORF9FVEFdLCBwZHU9MCwgdGFnPWRjZWE1MA0KPiA8c2VydmVyMT4gbmV0
-ICAgICAgMzA3MDcgc2VydmVyIHNlbmRpbmcgc3RhdHVzDQo+IHBhcnNlICAgIDMwNzA2IGZyZWUg
-b3B0aW9ucw0KDQpPSyBzbyBpdCdzIG5vdCBhIG5ld2x5IGludHJvZHVjZWQgaXNzdWUuIFRoaXMg
-bG9va3MgbGlrZSB0aGUgY2xpZW50IGlzIGNvbnRpbnVpbmcgdG8gc2VuZCBTRU5EX0VUQSBtZXNz
-YWdlcyBldmVuIHRob3VnaCB0aGUgc2VydmVyIGhhcyBzZW50IGJhY2sgYSAiSSd2ZSBxdWl0IiBt
-ZXNzYWdlLi4uDQoNCklmIHlvdSB3aGl0dGxlIHRoZSBqb2IgZmlsZSBhcyBtdWNoIGFzIHBvc3Np
-YmxlIChlLmcuIG5vIHdyaXRlX2xhdF9sb2csIHNtYWxsZXIgaW9kZXB0aCBldGMpIGRvIHRoZSBz
-eW1wdG9tcyBjaGFuZ2U/IFdoYXQncyB0aGUgc21hbGxlc3Qgam9iIGZpbGUgdGhhdCBzdGlsbCBy
-ZXByb2R1Y2VzIHRoaXMgcHJvYmxlbT8NCg0KLS0NClNpdHNvZmUgfCBodHRwOi8vc3Vjcy5vcmcv
-fnNpdHMvDQotLQ0KVG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhlIGxpbmUg
-InVuc3Vic2NyaWJlIGZpbyIgaW4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2
-Z2VyLmtlcm5lbC5vcmcgTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2VybmVs
-Lm9yZy9tYWpvcmRvbW8taW5mby5odG1sDQo=
+On 8 June 2017 at 22:53, Jeff Furlong <jeff.furlong@wdc.com> wrote:
+> Using fio 2.19 I can reproduce the SEND_ETA issue.  With debug=all, indeed there is a ton of output, but it finishes with roughly:
+>
+> <server1> diskutil 30748 update io ticks
+> <server1> diskutil 30748 open stat file: /sys/block/nvme0n1/stat
+> <server1> diskutil 30748 /sys/block/nvme0n1/stat: 1299576802        0 54165895270 1333065028 863486453        0 63615892884 3819260095        0 57718711 859646548
+> <server1> diskutil 30748 /sys/block/nvme0n1/stat: stat read ok? 0
+> <server1> helperthread 30748 since_ss: 0, next_ss: 1000, next_log: 250, msec_to_next_event: 250
+> <server1> diskutil 30748 update io ticks
+> <server1> diskutil 30748 open stat file: /sys/block/nvme0n1/stat
+> <server1> diskutil 30748 /sys/block/nvme0n1/stat: 1299576802        0 54165895270 1333065028 863486453        0 63615892884 3819260095        0 57718711 859646548
+> <server1> diskutil 30748 /sys/block/nvme0n1/stat: stat read ok? 0
+> <server1> helperthread 30748 since_ss: 0, next_ss: 1000, next_log: 250, msec_to_next_event: 250
+> <server1> fio: pid=30750, got signal=11
+> <server1> process  30748 pid=30750: runstate RUNNING -> REAPED
+> <server1> process  30748 terminate group_id=-1
+> <server1> process  30748 setting terminate on test_job/30750
+> <server1> diskutil 30748 update io ticks
+> <server1> diskutil 30748 open stat file: /sys/block/nvme0n1/stat
+> <server1> diskutil 30748 /sys/block/nvme0n1/stat: 1299576802        0 54165895270 1333065028 863486453        0 63615892884 3819260095        0 57718711 859646548
+> <server1> diskutil 30748 /sys/block/nvme0n1/stat: stat read ok? 0
+> <server1> helperthread 30748 since_ss: 0, next_ss: 1000, next_log: 500, msec_to_next_event: 157
+> <server1> process  30748 pid=30750: runstate REAPED -> FINISHING
+> <server1> process  30748 pid=30750: runstate FINISHING -> REAPED
+> <server1> net      30748 server sending end stats
+> <server1> net      30748 ts->ss_state = 0
+> <server1> net      30748 server sending group run stats
+> <server1> net      30748 server: sending disk_util 1
+> <server1>
+> <server1> parse    30748 free options
+> <server1> parse    30748 free options
+> <server1> net      30707 pid 30748 exited, sig=0, exitval=0
+> <server1> net      30707 server: sending stop (0, 0)
+> <server1> net      30707 server: sending quit
+> <server1> net      30707 server: got op [SEND_ETA], pdu=0, tag=dceae0
+> <server1> net      30707 server sending status
+> <server1> net      30707 server: got op [SEND_ETA], pdu=0, tag=dcea50
+> <server1> net      30707 server sending status
+> <server1> net      30707 server: got op [SEND_ETA], pdu=0, tag=dcea50
+> <server1> net      30707 server sending status
+> <server1> net      30707 server: got op [SEND_ETA], pdu=0, tag=dceae0
+> <server1> net      30707 server sending status
+> <server1> net      30707 server: got op [SEND_ETA], pdu=0, tag=dceae0
+> <server1> net      30707 server sending status
+> <server1> net      30707 server: got op [SEND_ETA], pdu=0, tag=dceae0
+> <server1> net      30707 server sending status
+> <server1> net      30707 server: got op [SEND_ETA], pdu=0, tag=dcea50
+> <server1> net      30707 server sending status
+> parse    30706 free options
+
+OK so it's not a newly introduced issue. This looks like the client is
+continuing to send SEND_ETA messages even though the server has sent
+back a "I've quit" message...
+
+If you whittle the job file as much as possible (e.g. no
+write_lat_log, smaller iodepth etc) do the symptoms change? What's the
+smallest job file that still reproduces this problem?
+
+-- 
+Sitsofe | http://sucs.org/~sits/
