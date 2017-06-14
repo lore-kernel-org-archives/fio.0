@@ -1,111 +1,132 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:48052 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752393AbdFOMAM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 15 Jun 2017 08:00:12 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1dLTRb-0006l9-J7
-        for fio@vger.kernel.org; Thu, 15 Jun 2017 12:00:11 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: unit testing for fio?
+References: <CANKF+jinANtsmA0XEP_dZ9F-sLxq+QE5zH-i2urEPotm+6W3WQ@mail.gmail.com>
+ <CALjAwxijEdKcRWM_+OfDsouOJoeTcL0h47ci+QzvVxp7CQRbAA@mail.gmail.com>
+ <CAHndrBnbkstq5L01Qi2Fhb5BoG_E=UbWPMM6=J8Rqk3h6d3uqQ@mail.gmail.com>
+ <CANKF+jiVEr9kwVQNc8k80mPgcj=tcoSnP85Tj_0m=8X=xz4HeQ@mail.gmail.com>
+ <CALjAwxh04SMjgGhb-9FqLC6mqfS6tRoELerJQen4BVZ-3pDzZA@mail.gmail.com>
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170615120001.F1F762C0120@kernel.dk>
-Date: Thu, 15 Jun 2017 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <bb253480-4da5-b8bb-9789-894c62e24410@kernel.dk>
+Date: Wed, 14 Jun 2017 08:31:08 -0600
+MIME-Version: 1.0
+In-Reply-To: <CALjAwxh04SMjgGhb-9FqLC6mqfS6tRoELerJQen4BVZ-3pDzZA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: Brantley West <cbwest@gmail.com>, Tomohiro Kusumi <kusumi.tomohiro@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 052046a1e92bff19ecae277670a59fb726a66b86:
+I'm just going to top reply, since I can't address everything below
+and the thread is already somewhat of a mess :-)
 
-  binject: don't use void* for pointer arithmetic (gcc) (2017-06-12 14:51:01 -0600)
+I'd welcome any efforts into adding unit tests. I've never had time
+to do that myself, but I think it would be a huge win for fio to have
+that. Back when I had a bit more time, I sometimes added a job that
+would demonstrate a bug when I committed a fix. There's a couple
+in t/jobs/. But I wasn't very persistent in doing that, unfortunately.
 
-are available in the git repository at:
+But I'd love to be able to commit code that looks a little scary,
+and run the unit tests and at least have a bit more confidence that
+we didn't break strange corner cases or re-introduced a regression.
+In many ways, I think this is the most important thing that fio is
+missing right now.
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 72cd4146e538450b8789095b910ffce2b397a06c:
+On 06/14/2017 12:17 AM, Sitsofe Wheeler wrote:
+> Resending thread explicitly to Jens (thread may be difficult to read
+> because we have both top and bottom posting)...
+> 
+> On 7 June 2017 at 21:52, Brantley West <cbwest@gmail.com> wrote:
+>> @vincentfu I'm in the same boat, not familiar with the features and
+>> caveats of the different options to make an informed recommendation at
+>> present.
+>>
+>> @sitsofe I agree, I think a `make unittest` that is incorporated into
+>> CI would be wonderful.  Even better - if it generates a code/branch
+>> coverage report.  Other projects I'm involved with require unit
+>> testing to provide code & branch coverage for any modified code before
+>> being merged.  I think a similar strategy would be beneficial,
+>> however, I'm the least likely to be impacted by such a change in a
+>> process.  At Nutanix different groups use different tools for
+>> performance testing and validation, and it depends on who you talk to.
+>> I've been a heavy Vdbench user (great tool), but am at a crossroads
+>> where I'm reevaluating tools for a future project.  fio's open
+>> development process is very appealing to me.
+>>
+>> If time allows, I'll test drive a few unit testing frameworks and
+>> respond on thread w/ my branch.
+>>
+>> Jens, do you have any thoughts you can share?
+>>
+>> -bw
+>> C. Brantley West, III
+>> cbwest@gmail.com
+>>
+>>
+>> On Sat, Jun 3, 2017 at 9:29 AM, Tomohiro Kusumi
+>> <kusumi.tomohiro@gmail.com> wrote:
+>>> Hi
+>>>
+>>> 2017-06-03 16:07 GMT+03:00 Sitsofe Wheeler <sitsofe@gmail.com>:
+>>>> On 2 June 2017 at 20:30, Brantley West <cbwest@gmail.com> wrote:
+>>>>>
+>>>>> I'm looking to adopt fio for some storage testing in the near future
+>>>>> and have noticed a few issues (#377, #378) that seem to be
+>>>>> math-related.  Assuming these issues get fixed, it seems like unit
+>>>>> testing would help ensure they stay fixed.  Additionally, fio has a
+>>>>> lot of useful configuration options, and unit tests seem like a good
+>>>>> way to test for expected operation when multiple configuration
+>>>>> parameters are present.
+>>>>>
+>>>>> Is a unit test framework something that is worth considering for fio?
+>>>>> If so, are there any preferences?  It seems there are multiple options
+>>>>> (check, cunit, unity, etc).
+>>>>
+>>>> I think it would be useful if there was an explicit make selftest
+>>>> target for fio which could do more rigorous checks than my "does it
+>>>> run?" make test. fio has the odd adhoc test (e.g.
+>>>> https://github.com/axboe/fio/tree/master/unit_tests ) and now I look I
+>>>> spy the odd test for checking certain job files for regressions too
+>>>> (see https://github.com/axboe/fio/tree/master/t/jobs ). It would be
+>>>> nice to run these and more via CI (travis/appveyor) on commit though
+>>>> (assuming they finish quickly)...
+>>>>
+>>>> Some pieces of fio have been broken out into standalone programs (see
+>>>> some of them in https://github.com/axboe/fio/tree/master/t/ ) which
+>>>> might make testing for correctness easier. Perhaps Tomohiro Kusumi
+>>>> (who has made pieces of fio more standalone) will be able to make
+>>>> suggestions?
+>>>
+>>> Yes.
+>>> Things under os/ arch/ lib/ oslib/ are mostly stand-alone utility
+>>> functions now (i.e. you can include them or link to them via your
+>>> main()), so those are probably easy to do unit testing using cunit or
+>>> variants.
+>>>
+>>> Others more or less have dependencies on fio itself (and there isn't
+>>> anything wrong with that too), so those are not as easy, or maybe
+>>> depends on what you mean by unit testing.
+>>>
+>>>>
+>>>> Personally I've used cunit (via the libiscsi project) but I've never
+>>>> compared all C unit test frameworks. Further, the fio build doesn't
+>>>> seem to add many dependencies on other libraries (other than for I/O
+>>>> engines)...
+>>>>
+>>>> Way back in 2008 there was a proposal to add a "make check" to fio
+>>>> (http://maillist.kernel.dk/fio-devel/0584.html ) which looked like it
+>>>> was readily accepted but it's unclear whether something was actually
+>>>> produced...
+>>>>
+>>>> If you've got any pre-existing checks please post/link them!
+>>>>
+>>>> PS: Do you find fio useful at Nutanix and are there any other public
+>>>> I/O exercisers you folks use?
+> 
 
-  sync: add support for write life time hint (2017-06-14 09:55:40 -0600)
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      sync: add support for write life time hint
+-- 
+Jens Axboe
 
- engines/sync.c | 26 ++++++++++++++++++++++++++
- os/os-linux.h  |  8 ++++++++
- 2 files changed, 34 insertions(+)
 
----
-
-Diff of recent changes:
-
-diff --git a/engines/sync.c b/engines/sync.c
-index e76bbbb..69d5e21 100644
---- a/engines/sync.c
-+++ b/engines/sync.c
-@@ -36,6 +36,7 @@ struct syncio_data {
- struct psyncv2_options {
- 	void *pad;
- 	unsigned int hipri;
-+	unsigned int stream;
- };
- 
- static struct fio_option options[] = {
-@@ -49,6 +50,29 @@ static struct fio_option options[] = {
- 		.group	= FIO_OPT_G_INVALID,
- 	},
- 	{
-+		.name	= "stream",
-+		.lname	= "Stream ID",
-+		.type	= FIO_OPT_STR,
-+		.off1	= offsetof(struct psyncv2_options, stream),
-+		.help	= "Set expected write life time",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_INVALID,
-+		.posval = {
-+			  { .ival = "short",
-+			    .oval = RWF_WRITE_LIFE_SHORT,
-+			  },
-+			  { .ival = "medium",
-+			    .oval = RWF_WRITE_LIFE_MEDIUM,
-+			  },
-+			  { .ival = "long",
-+			    .oval = RWF_WRITE_LIFE_LONG,
-+			  },
-+			  { .ival = "extreme",
-+			    .oval = RWF_WRITE_LIFE_EXTREME,
-+			  },
-+		},
-+	},
-+	{
- 		.name	= NULL,
- 	},
- };
-@@ -134,6 +158,8 @@ static int fio_pvsyncio2_queue(struct thread_data *td, struct io_u *io_u)
- 
- 	if (o->hipri)
- 		flags |= RWF_HIPRI;
-+	if (o->stream)
-+		flags |= o->stream;
- 
- 	iov->iov_base = io_u->xfer_buf;
- 	iov->iov_len = io_u->xfer_buflen;
-diff --git a/os/os-linux.h b/os/os-linux.h
-index 008ce2d..09e7413 100644
---- a/os/os-linux.h
-+++ b/os/os-linux.h
-@@ -319,6 +319,14 @@ static inline int fio_set_sched_idle(void)
- #define RWF_SYNC	0x00000004
- #endif
- 
-+#ifndef RWF_WRITE_LIFE_SHIFT
-+#define RWF_WRITE_LIFE_SHIFT		4
-+#define RWF_WRITE_LIFE_SHORT		(1 << RWF_WRITE_LIFE_SHIFT)
-+#define RWF_WRITE_LIFE_MEDIUM		(2 << RWF_WRITE_LIFE_SHIFT)
-+#define RWF_WRITE_LIFE_LONG		(3 << RWF_WRITE_LIFE_SHIFT)
-+#define RWF_WRITE_LIFE_EXTREME		(4 << RWF_WRITE_LIFE_SHIFT)
-+#endif
-+
- #ifndef CONFIG_PWRITEV2
- #ifdef __NR_preadv2
- static inline void make_pos_h_l(unsigned long *pos_h, unsigned long *pos_l,
