@@ -1,106 +1,122 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa5.hgst.iphmx.com ([216.71.153.144]:31738 "EHLO
-        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750820AbdFOW73 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 15 Jun 2017 18:59:29 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: RE: fio server errors
-Date: Thu, 15 Jun 2017 22:59:26 +0000
-Message-ID: <BN3PR0401MB1457F218B137A1F7D7EFEABF8FC00@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Received: from mail-vk0-f46.google.com ([209.85.213.46]:33795 "EHLO
+        mail-vk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751016AbdFOGvF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 15 Jun 2017 02:51:05 -0400
+Received: by mail-vk0-f46.google.com with SMTP id g66so2305932vki.1
+        for <fio@vger.kernel.org>; Wed, 14 Jun 2017 23:51:05 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <BN3PR0401MB1457210A285884036121C7F38FC30@BN3PR0401MB1457.namprd04.prod.outlook.com>
 References: <BN3PR0401MB1457EFC8350E7DAB393315B28FCB0@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <CALjAwxjKwFty9C42YcBkb7NStRMZrKRPKda5_gFejd358mCi_g@mail.gmail.com>
  <BN3PR0401MB14572E293EAA4723BE2750058FC90@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <CALjAwxjxvwMDn722Zg10VjNVd5t+6GcE1UOi9ams4Lh-UV9WzQ@mail.gmail.com>
- <BN3PR0401MB1457210A285884036121C7F38FC30@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <CALjAwxinwLmEjEmQaY0Rpg4VQLLO1DQNGyjrDHfiSdV0jBwRqg@mail.gmail.com>
-In-Reply-To: <CALjAwxinwLmEjEmQaY0Rpg4VQLLO1DQNGyjrDHfiSdV0jBwRqg@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+ <CALjAwxjxvwMDn722Zg10VjNVd5t+6GcE1UOi9ams4Lh-UV9WzQ@mail.gmail.com> <BN3PR0401MB1457210A285884036121C7F38FC30@BN3PR0401MB1457.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Thu, 15 Jun 2017 07:50:34 +0100
+Message-ID: <CALjAwxinwLmEjEmQaY0Rpg4VQLLO1DQNGyjrDHfiSdV0jBwRqg@mail.gmail.com>
+Subject: Re: fio server errors
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Jeff Furlong <jeff.furlong@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-R29vZCBjYXRjaC4gIEkndmUgZml4ZWQgdGhlIHNlY29uZCBkZWNsYXJhdGlvbiBvZiB1aW50MzJf
-dCBucnNhbXBsZXMgaW4gaW9sb2cuYyAgSXQncyBydW5uaW5nIHNvIGZhciwgYnV0IHNlZW1zIHRv
-IHRha2UgYSB3aGlsZSB0byBmYWlsIGV2ZW4gaW4gdGhlIGJhZCBjYXNlLiAgSSBoYXZlIHByaW50
-ZWQgdGhlIHZhbHVlIG9mIG5yX3NhbXBsZXMgaW4gdmFyaW91cyB0ZXN0cywgYnV0IHVuZm9ydHVu
-YXRlbHkgbm90IGV4YWN0bHkgd2hlbiB0aGUgaW5mbGF0ZSBlcnJvciBjYXVzZWQgZmlvIHRvIGV4
-aXQuICBJJ20gcnVubmluZyBhZ2FpbiBzbyBzaG91bGQgYmUgYSBtYXR0ZXIgb2YgdGltZSB0byBk
-ZXRlcm1pbmUgaWYgY2hhbmdpbmcgdG8gdW5pdDY0X3Qgc29sdmVzIGl0Lg0KDQpHbGFkIHlvdSBj
-YW4gcmVwcm9kdWNlIHRoZSBTRU5EX0VUQSBpc3N1ZS4gIE5vdCBzdXJlIGhvdyB0byBkZWFsIHdp
-dGggaXRzIHVucmVzcG9uc2l2ZW5lc3MgZHVyaW5nIElPTE9HLg0KDQpSZWdhcmRzLA0KSmVmZg0K
-DQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogU2l0c29mZSBXaGVlbGVyIFttYWls
-dG86c2l0c29mZUBnbWFpbC5jb21dIA0KU2VudDogV2VkbmVzZGF5LCBKdW5lIDE0LCAyMDE3IDEx
-OjUxIFBNDQpUbzogSmVmZiBGdXJsb25nIDxqZWZmLmZ1cmxvbmdAd2RjLmNvbT4NCkNjOiBmaW9A
-dmdlci5rZXJuZWwub3JnDQpTdWJqZWN0OiBSZTogZmlvIHNlcnZlciBlcnJvcnMNCg0KT24gMTQg
-SnVuZSAyMDE3IGF0IDIzOjIwLCBKZWZmIEZ1cmxvbmcgPGplZmYuZnVybG9uZ0B3ZGMuY29tPiB3
-cm90ZToNCj4gT24gaXNzdWUgb25lIChpbmZsYXRlIGVycm9yKSwgSSd2ZSBnb25lIHRocm91Z2gg
-c29tZSBvZiB0aGUgY29kZSBhbmQgSSB0aGluayBucl9zYW1wbGVzIHNob3VsZCBiZSBkZWNsYXJl
-ZCBhcyB1aW50NjRfdCwgbm90IHVpbnQzMl90LCBhdCBodHRwczovL2dpdGh1Yi5jb20vYXhib2Uv
-ZmlvL2Jsb2IvbWFzdGVyL2NsaWVudC5jI0wxNDUxICBJJ3ZlIGNoYW5nZWQgaXQgb24gbXkgbWFj
-aGluZSBhbmQgcmVyYW4gdGhlIHByaW9yIHRlc3QgYnV0IGFmdGVyIDI1IGhvdXJzIHRoZSBzYW1l
-IGlzc3VlIG9jY3VycmVkIGFnYWluLiAgSXQncyBzdGlsbCBkaWZmaWN1bHQgdG8gc2F5IHdoYXQg
-dHlwZSBvZiBqb2IgaXMgY2F1c2luZyB0aGUgaXNzdWUuDQoNCkkgc2VlIHRoZXJlIGlzIGFub3Ro
-ZXIgdWludDMyX3QgbnJfc2FtcGxlcyBvdmVyIGluDQpodHRwczovL2dpdGh1Yi5jb20vYXhib2Uv
-ZmlvL2Jsb2IvbWFzdGVyL2lvbG9nLmMjTDgwMSAtIGRvIHlvdSB0aGluayB0aGF0IHdvdWxkIG5l
-ZWQgY2hhbmdpbmcgdG9vPyBJcyBucl9zYW1wbGVzIHNsb3dseSBncm93aW5nIG92ZXIgdGltZSBh
-bmQgaGF2ZSB5b3UgbWFuYWdlZCB0byBwcmludCBpdHMgdmFsdWUgYXQgdGhlIHBvaW50IG9mIHRo
-ZSBpbmZsYXRlIGVycm9yPw0KDQo+IE9uIGlzc3VlIHR3byAoU0VORF9FVEEpLCBJIGNhbiByZXBy
-b2R1Y2Ugd2l0aCBhIHNsaWdodGx5IHNtYWxsZXIgam9iIGZpbGU6DQo+DQo+ICNmaW8gLS1jbGll
-bnQ9c2VydmVyMSB0ZXN0LmpvYiAtLWNsaWVudD1zZXJ2ZXIyIHRlc3Quam9iDQo+DQo+ICMgY2F0
-IHRlc3Quam9iDQo+IFt0ZXN0X2pvYl0NCj4gaW9lbmdpbmU9bGliYWlvDQo+IGRpcmVjdD0xDQo+
-IHJ3PXJhbmRyZWFkDQo+IGlvZGVwdGg9MjU2DQo+IHNpemU9MTAwJQ0KPiBudW1qb2JzPTENCj4g
-YnM9NGsNCj4gZmlsZW5hbWU9L2Rldi9udm1lMG4xDQo+IGdyb3VwX3JlcG9ydGluZw0KPiB3cml0
-ZV9sYXRfbG9nPXRlc3Rfam9iDQo+IHJ1bnRpbWU9MW0NCj4NCj4gSWYgSSByZW1vdmUgd3JpdGVf
-bGF0X2xvZz10ZXN0X2pvYiB0aGVuIHRoZXJlIGlzIG5vIFNFTkRfRVRBIGlzc3VlLiAgT25seSB3
-aGVuIGxvZ2dpbmcgKHRoZSBsYXRlbmN5KSBkb2VzIHRoaXMgaXNzdWUgb2NjdXIuICBBbmQsIGlm
-IEkgZW5hYmxlIHdyaXRlX2xhdF9sb2c9dGVzdF9qb2IgYnV0IHJlZHVjZSBydW50aW1lPTMwcywg
-dGhlbiB0aGUgaXNzdWUgZG9lcyBub3Qgb2NjdXIuICBJIG11c3QgaGF2ZSB3cml0ZV9sYXRfbG9n
-PXRlc3Rfam9iIGFuZCBydW50aW1lPTFtIHRvIHByb2R1Y2UgdGhlIGlzc3VlLiAgSSBpbWFnaW5l
-IHNvbWUgY291bnQgbXVzdCBiZSBleGNlZWRlZCBvciB0aGUgcGF1c2UgaW4gbW92aW5nIHRoZSBs
-YXQgZGF0YSBmcm9tIG1lbW9yeSB0byBmaWxlIGF0IHRoZSBlbmQgb2YgdGhlIGpvYiBpcyBjYXVz
-aW5nIGEgdGltaW5nIGNvbmZsaWN0IChTRU5EX0VUQSBtc2cgdnMgIkkndmUgcXVpdCIgbXNnKS4N
-Cg0KSSBjYW4gcmVwcm9kdWNlIHRoZSBwcm9ibGVtIGhlcmUgdXNpbmcgdGhpcyBqb2I6DQpbc2Vu
-ZGV0YV0NCmlvZW5naW5lPWxpYmFpbw0KZGlyZWN0PTENCnJ3PXJlYWQNCmJzPTUxMg0KZmlsZW5h
-bWU9L2Rldi9udWxsYjANCndyaXRlX2xhdF9sb2c9dGVzdF9qb2INCmRpc2FibGVfY2xhdD0xDQpk
-aXNhYmxlX3NsYXQ9MQ0KaW9kZXB0aD01MTINCm51bWJlcl9pb3M9MTYwMDAwMDANCg0KYW5kIHJ1
-bm5pbmcNCmZpbyAtLWRlYnVnPW5ldCAtLWNsaWVudD1sb2NhbGhvc3Qgc2VuZGV0YS5maW8gLS1j
-bGllbnQ9MTI3LjAuMC4xIHNlbmRldGEuZmlvDQoNClVzaW5nIG51bWJlcl9pb3Mgc2VlbXMgdG8g
-bWFrZSB0aGUgam9iIHJ1biBmb3IgYXMgbG9uZyBhcyBuZWVkZWQgdG8gc2hvdyB0aGUgcHJvYmxl
-bSByZWdhcmRsZXNzIG9mIHdoYXQgdGhlIGlvZGVwdGggaXMgaW4gbXkgY2FzZS4gRnJvbSB3aGF0
-IEkgY2FuIHNlZSB0aGUgY2xpZW50IGlzIGZvcmNlZCB0byBzcGVuZCB0aW1lIG9uIHRoZSBJT0xP
-RyBvcCB3aGljaCBpbiB0dXJuIG1ha2VzIGl0IHVucmVzcG9uc2l2ZSB0byBvdGhlciBhY3Rpb25z
-Og0KDQpuZXQgICAgICAxNzA5ICBjbGllbnQ6IGdvdCBjbWQgb3AgRVRBIGZyb20gMTI3LjAuMC4x
-IChwZHU9MTYxKQ0KbmV0ICAgICAgMTcwOSAgY2xpZW50OiBnb3QgZXRhIHRhZyAweDI0NDJkOTAs
-IDINCm5ldCAgICAgIDE3MDkgIGNsaWVudDogaGFuZGxlIGxvY2FsaG9zdA0KbmV0ICAgICAgMTcw
-OSAgY2xpZW50OiBnb3QgY21kIG9wIEVUQSBmcm9tIGxvY2FsaG9zdCAocGR1PTE2MSkNCm5ldCAg
-ICAgIDE3MDkgIGNsaWVudDogZ290IGV0YSB0YWcgMHgyNDQyZDkwLCAxDQpuZXQgICAgICAxNzA5
-ICBjbGllbnQ6IHJlcXVlc3QgZXRhICgyKWtdW3I9NDIzayx3PTAgSU9QU11bZXRhIDI3bTowOXNd
-DQpuZXQgICAgICAxNzA5ICBjbGllbnQ6IHJlcXVlc3RlZCBldGEgdGFnIDB4MjQ0MmQ5MA0KbmV0
-ICAgICAgMTcwOSAgY2xpZW50OiBoYW5kbGUgbG9jYWxob3N0DQpuZXQgICAgICAxNzA5ICBjbGll
-bnQ6IGdvdCBjbWQgb3AgRVRBIGZyb20gbG9jYWxob3N0IChwZHU9MTYxKQ0KbmV0ICAgICAgMTcw
-OSAgY2xpZW50OiBnb3QgZXRhIHRhZyAweDI0NDJkOTAsIDINCm5ldCAgICAgIDE3MDkgIGNsaWVu
-dDogaGFuZGxlIDEyNy4wLjAuMQ0KbmV0ICAgICAgMTcwOSAgY2xpZW50OiBnb3QgY21kIG9wIElP
-TE9HIGZyb20gMTI3LjAuMC4xIChwZHU9MjkwKQ0KbmV0ICAgICAgMTcwOSAgY2xpZW50OiBoYW5k
-bGUgMTI3LjAuMC4xDQpuZXQgICAgICAxNzA5ICBjbGllbnQ6IGdvdCBjbWQgb3AgSU9MT0cgZnJv
-bSAxMjcuMC4wLjEgKHBkdT0yOTApDQpuZXQgICAgICAxNzA5ICBjbGllbnQ6IGhhbmRsZSAxMjcu
-MC4wLjENCm5ldCAgICAgIDE3MDkgIGNsaWVudDogZ290IGNtZCBvcCBFVEEgZnJvbSAxMjcuMC4w
-LjEgKHBkdT0xNjEpDQpuZXQgICAgICAxNzA5ICBjbGllbnQ6IGdvdCBldGEgdGFnIDB4MjQ0MmQ5
-MCwgMQ0KbmV0ICAgICAgMTcwOSAgY2xpZW50OiBoYW5kbGUgbG9jYWxob3N0MGtdW3I9Mzg3ayx3
-PTAgSU9QU11bZXRhIDAwbTowMHNdDQpuZXQgICAgICAxNzA5ICBjbGllbnQ6IGdvdCBjbWQgb3Ag
-SU9MT0cgZnJvbSBsb2NhbGhvc3QgKHBkdT0xMTI5NzUwMikNCm5ldCAgICAgIDE3MDkgIGNsaWVu
-dDogcmVxdWVzdCBldGEgKDIpDQpuZXQgICAgICAxNzA5ICBjbGllbnQ6IHJlcXVlc3RlZCBldGEg
-dGFnIDB4MjQ0MmQ5MA0KbmV0ICAgICAgMTcwOSAgY2xpZW50OiBoYW5kbGUgMTI3LjAuMC4xDQpu
-ZXQgICAgICAxNzA5ICBjbGllbnQ6IGdvdCBjbWQgb3AgSU9MT0cgZnJvbSAxMjcuMC4wLjEgKHBk
-dT0xMTI5NzMzMCkNCm5ldCAgICAgIDE3MDkgIGNsaWVudDogaGFuZGxlIGxvY2FsaG9zdA0KbmV0
-ICAgICAgMTcwOSAgY2xpZW50OiBnb3QgY21kIG9wIElPTE9HIGZyb20gbG9jYWxob3N0IChwZHU9
-MjkwKQ0KbmV0ICAgICAgMTcwOSAgY2xpZW50OiByZXF1ZXN0IGV0YSAoMikNCm5ldCAgICAgIDE3
-MDkgIGNsaWVudDogcmVxdWVzdGVkIGV0YSB0YWcgMHgyNDQ5ZGYwDQpjbGllbnQgPDEyNy4wLjAu
-MT46IHRpbWVvdXQgb24gU0VORF9FVEENCmNsaWVudCA8bG9jYWxob3N0PjogdGltZW91dCBvbiBT
-RU5EX0VUQQ0KbmV0ICAgICAgMTcwOSAgY2xpZW50OiBoYW5kbGUgMTI3LjAuMC4xDQpuZXQgICAg
-ICAxNzA5ICBjbGllbnQ6IGdvdCBjbWQgb3AgRVRBIGZyb20gMTI3LjAuMC4xIChwZHU9MTYxKQ0K
-ZmlvOiBjbGllbnQ6IHVuYWJsZSB0byBmaW5kIG1hdGNoaW5nIHRhZyAoMjQ0MmM4MCkNCg0KLS0N
-ClNpdHNvZmUgfCBodHRwOi8vc3Vjcy5vcmcvfnNpdHMvDQo=
+On 14 June 2017 at 23:20, Jeff Furlong <jeff.furlong@wdc.com> wrote:
+> On issue one (inflate error), I've gone through some of the code and I th=
+ink nr_samples should be declared as uint64_t, not uint32_t, at https://git=
+hub.com/axboe/fio/blob/master/client.c#L1451  I've changed it on my machine=
+ and reran the prior test but after 25 hours the same issue occurred again.=
+  It's still difficult to say what type of job is causing the issue.
+
+I see there is another uint32_t nr_samples over in
+https://github.com/axboe/fio/blob/master/iolog.c#L801 - do you think
+that would need changing too? Is nr_samples slowly growing over time
+and have you managed to print its value at the point of the inflate
+error?
+
+> On issue two (SEND_ETA), I can reproduce with a slightly smaller job file=
+:
+>
+> #fio --client=3Dserver1 test.job --client=3Dserver2 test.job
+>
+> # cat test.job
+> [test_job]
+> ioengine=3Dlibaio
+> direct=3D1
+> rw=3Drandread
+> iodepth=3D256
+> size=3D100%
+> numjobs=3D1
+> bs=3D4k
+> filename=3D/dev/nvme0n1
+> group_reporting
+> write_lat_log=3Dtest_job
+> runtime=3D1m
+>
+> If I remove write_lat_log=3Dtest_job then there is no SEND_ETA issue.  On=
+ly when logging (the latency) does this issue occur.  And, if I enable writ=
+e_lat_log=3Dtest_job but reduce runtime=3D30s, then the issue does not occu=
+r.  I must have write_lat_log=3Dtest_job and runtime=3D1m to produce the is=
+sue.  I imagine some count must be exceeded or the pause in moving the lat =
+data from memory to file at the end of the job is causing a timing conflict=
+ (SEND_ETA msg vs "I've quit" msg).
+
+I can reproduce the problem here using this job:
+[sendeta]
+ioengine=3Dlibaio
+direct=3D1
+rw=3Dread
+bs=3D512
+filename=3D/dev/nullb0
+write_lat_log=3Dtest_job
+disable_clat=3D1
+disable_slat=3D1
+iodepth=3D512
+number_ios=3D16000000
+
+and running
+fio --debug=3Dnet --client=3Dlocalhost sendeta.fio --client=3D127.0.0.1 sen=
+deta.fio
+
+Using number_ios seems to make the job run for as long as needed to
+show the problem regardless of what the iodepth is in my case. From
+what I can see the client is forced to spend time on the IOLOG op
+which in turn makes it unresponsive to other actions:
+
+net      1709  client: got cmd op ETA from 127.0.0.1 (pdu=3D161)
+net      1709  client: got eta tag 0x2442d90, 2
+net      1709  client: handle localhost
+net      1709  client: got cmd op ETA from localhost (pdu=3D161)
+net      1709  client: got eta tag 0x2442d90, 1
+net      1709  client: request eta (2)k][r=3D423k,w=3D0 IOPS][eta 27m:09s]
+net      1709  client: requested eta tag 0x2442d90
+net      1709  client: handle localhost
+net      1709  client: got cmd op ETA from localhost (pdu=3D161)
+net      1709  client: got eta tag 0x2442d90, 2
+net      1709  client: handle 127.0.0.1
+net      1709  client: got cmd op IOLOG from 127.0.0.1 (pdu=3D290)
+net      1709  client: handle 127.0.0.1
+net      1709  client: got cmd op IOLOG from 127.0.0.1 (pdu=3D290)
+net      1709  client: handle 127.0.0.1
+net      1709  client: got cmd op ETA from 127.0.0.1 (pdu=3D161)
+net      1709  client: got eta tag 0x2442d90, 1
+net      1709  client: handle localhost0k][r=3D387k,w=3D0 IOPS][eta 00m:00s=
+]
+net      1709  client: got cmd op IOLOG from localhost (pdu=3D11297502)
+net      1709  client: request eta (2)
+net      1709  client: requested eta tag 0x2442d90
+net      1709  client: handle 127.0.0.1
+net      1709  client: got cmd op IOLOG from 127.0.0.1 (pdu=3D11297330)
+net      1709  client: handle localhost
+net      1709  client: got cmd op IOLOG from localhost (pdu=3D290)
+net      1709  client: request eta (2)
+net      1709  client: requested eta tag 0x2449df0
+client <127.0.0.1>: timeout on SEND_ETA
+client <localhost>: timeout on SEND_ETA
+net      1709  client: handle 127.0.0.1
+net      1709  client: got cmd op ETA from 127.0.0.1 (pdu=3D161)
+fio: client: unable to find matching tag (2442c80)
+
+--=20
+Sitsofe | http://sucs.org/~sits/
