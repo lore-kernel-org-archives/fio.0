@@ -1,44 +1,67 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 6/6] binject: don't use void* for pointer arithmetic (gcc)
-Date: Mon, 12 Jun 2017 23:02:11 +0300
-Message-Id: <20170612200211.17022-7-tkusumi@tuxera.com>
-In-Reply-To: <20170612200211.17022-1-tkusumi@tuxera.com>
-References: <20170612200211.17022-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:60584 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752619AbdFPMAM (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 16 Jun 2017 08:00:12 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1dLpv9-0003ao-GN
+        for fio@vger.kernel.org; Fri, 16 Jun 2017 12:00:11 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170616120001.BE6722C0120@kernel.dk>
+Date: Fri, 16 Jun 2017 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+The following changes since commit 72cd4146e538450b8789095b910ffce2b397a06c:
 
-I think gcc extension should be avoided when it can be done by
-just changing a pointer type.
+  sync: add support for write life time hint (2017-06-14 09:55:40 -0600)
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to e5aaf1e677d1413125ffaf7aae48b1e8f4ce9ebc:
+
+  Fio 2.21 (2017-06-15 12:25:03 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Fio 2.21
+
+ FIO-VERSION-GEN        | 2 +-
+ os/windows/install.wxs | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
 ---
- engines/binject.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/engines/binject.c b/engines/binject.c
-index 932534a..792dbbd 100644
---- a/engines/binject.c
-+++ b/engines/binject.c
-@@ -59,11 +59,12 @@ static int pollin_events(struct pollfd *pfds, int fds)
- 	return 0;
- }
+Diff of recent changes:
+
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index a9ddb31..3b4f206 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
  
--static unsigned int binject_read_commands(struct thread_data *td, void *p,
-+static unsigned int binject_read_commands(struct thread_data *td, void *buf,
- 					  int left, int *err)
- {
- 	struct fio_file *f;
- 	int i, ret, events;
-+	char *p = buf;
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-2.20
++DEF_VER=fio-2.21
  
- one_more:
- 	events = 0;
--- 
-2.9.4
-
-
+ LF='
+ '
+diff --git a/os/windows/install.wxs b/os/windows/install.wxs
+index 05d2a83..860570a 100755
+--- a/os/windows/install.wxs
++++ b/os/windows/install.wxs
+@@ -10,7 +10,7 @@
+ 	<Product Id="*"
+ 	  Codepage="1252" Language="1033"
+ 	  Manufacturer="fio" Name="fio"
+-	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.20">
++	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.21">
+ 		<Package
+ 		  Description="Flexible IO Tester"
+ 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
