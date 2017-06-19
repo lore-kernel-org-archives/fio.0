@@ -1,77 +1,58 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:47157 "EHLO
+Received: from bombadil.infradead.org ([65.50.211.133]:33388 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751391AbdFZMAG (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 26 Jun 2017 08:00:06 -0400
+        with ESMTP id S1753845AbdFSMAD (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 19 Jun 2017 08:00:03 -0400
 Received: from [216.160.245.99] (helo=kernel.dk)
         by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1dPSgX-0005nC-Qv
-        for fio@vger.kernel.org; Mon, 26 Jun 2017 12:00:05 +0000
+        id 1dMvLe-0001y1-Mr
+        for fio@vger.kernel.org; Mon, 19 Jun 2017 12:00:02 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170626120002.061F62C0235@kernel.dk>
-Date: Mon, 26 Jun 2017 06:00:02 -0600 (MDT)
+Message-Id: <20170619120001.C7D352C016D@kernel.dk>
+Date: Mon, 19 Jun 2017 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit a2c95580b468a1ddd72ecb5532aca7d94f6efa5b:
+The following changes since commit e5aaf1e677d1413125ffaf7aae48b1e8f4ce9ebc:
 
-  stat: Add iops stat and sample number information to terse format (2017-06-23 16:31:02 -0600)
+  Fio 2.21 (2017-06-15 12:25:03 -0600)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 036a159982656aaa98b0a0490defc36c6065aa93:
+for you to fetch changes up to 594f7abb0c3e5ea4174b1d450959305f827cbdfd:
 
-  Android: fix missing sysmacros.h include (2017-06-25 09:51:13 -0600)
+  Merge branch 'dev/doc/pkg' of https://github.com/bobsaintcool/fio (2017-06-18 10:32:11 -0600)
 
 ----------------------------------------------------------------
 Jens Axboe (1):
-      Android: fix missing sysmacros.h include
+      Merge branch 'dev/doc/pkg' of https://github.com/bobsaintcool/fio
 
- diskutil.c               | 1 +
- os/os-android.h          | 1 +
- oslib/linux-dev-lookup.c | 1 +
- 3 files changed, 3 insertions(+)
+Quentin Bourgeois (1):
+      <README/pkg: Add reference to Arch Linux package>
+
+ README | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/diskutil.c b/diskutil.c
-index 4fe554f..618cae8 100644
---- a/diskutil.c
-+++ b/diskutil.c
-@@ -3,6 +3,7 @@
- #include <sys/time.h>
- #include <sys/types.h>
- #include <sys/stat.h>
-+#include <sys/sysmacros.h>
- #include <dirent.h>
- #include <libgen.h>
- #include <math.h>
-diff --git a/os/os-android.h b/os/os-android.h
-index c56d682..b217daa 100644
---- a/os/os-android.h
-+++ b/os/os-android.h
-@@ -7,6 +7,7 @@
- #include <sys/mman.h>
- #include <sys/uio.h>
- #include <sys/syscall.h>
-+#include <sys/sysmacros.h>
- #include <sys/vfs.h>
- #include <unistd.h>
- #include <fcntl.h>
-diff --git a/oslib/linux-dev-lookup.c b/oslib/linux-dev-lookup.c
-index 54017ff..1dda93f 100644
---- a/oslib/linux-dev-lookup.c
-+++ b/oslib/linux-dev-lookup.c
-@@ -1,5 +1,6 @@
- #include <sys/types.h>
- #include <sys/stat.h>
-+#include <sys/sysmacros.h>
- #include <dirent.h>
- #include <string.h>
- #include <stdio.h>
+diff --git a/README b/README
+index 951550b..6bff82b 100644
+--- a/README
++++ b/README
+@@ -108,6 +108,10 @@ Mandriva:
+ 	Mandriva has integrated fio into their package repository, so installing
+ 	on that distro should be as easy as typing ``urpmi fio``.
+ 
++Arch Linux:
++        An Arch Linux package is provided under the Community sub-repository:
++        https://www.archlinux.org/packages/?sort=&q=fio
++
+ Solaris:
+ 	Packages for Solaris are available from OpenCSW. Install their pkgutil
+ 	tool (http://www.opencsw.org/get-it/pkgutil/) and then install fio via
