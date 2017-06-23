@@ -1,15 +1,15 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from smtp.nue.novell.com ([195.135.221.5]:34383 "EHLO
+Received: from smtp.nue.novell.com ([195.135.221.5]:49216 "EHLO
         smtp.nue.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753849AbdFWW2J (ORCPT
+        with ESMTP id S1754654AbdFWRng (ORCPT
         <rfc822;groupwise-fio@vger.kernel.org:0:0>);
-        Fri, 23 Jun 2017 18:28:09 -0400
+        Fri, 23 Jun 2017 13:43:36 -0400
 From: Andreas Herrmann <aherrmann@suse.com>
 Subject: [PATCH 3/4] stat: Merge show_thread_status_terse_* functions
-Date: Sat, 24 Jun 2017 00:27:37 +0200
-Message-Id: <20170623222738.5146-4-aherrmann@suse.com>
-In-Reply-To: <20170623222738.5146-1-aherrmann@suse.com>
-References: <20170623222738.5146-1-aherrmann@suse.com>
+Date: Fri, 23 Jun 2017 19:42:59 +0200
+Message-Id: <20170623174300.7937-4-aherrmann@suse.com>
+In-Reply-To: <20170623174300.7937-1-aherrmann@suse.com>
+References: <20170623174300.7937-1-aherrmann@suse.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: Jens Axboe <axboe@fb.com>
