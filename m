@@ -1,48 +1,76 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 0/8] option/Makefile fix and void* fixups
-Date: Sat, 24 Jun 2017 01:07:53 +0300
-Message-Id: <20170623220801.38178-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from smtp.nue.novell.com ([195.135.221.5]:58285 "EHLO
+        smtp.nue.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754109AbdFWW2I (ORCPT
+        <rfc822;groupwise-fio@vger.kernel.org:0:0>);
+        Fri, 23 Jun 2017 18:28:08 -0400
+From: Andreas Herrmann <aherrmann@suse.com>
+Subject: [PATCH 2/4] stat: Print number of samples in bw and iops stats
+Date: Sat, 24 Jun 2017 00:27:36 +0200
+Message-Id: <20170623222738.5146-3-aherrmann@suse.com>
+In-Reply-To: <20170623222738.5146-1-aherrmann@suse.com>
+References: <20170623222738.5146-1-aherrmann@suse.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Jens Axboe <axboe@fb.com>
+Cc: fio@vger.kernel.org
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+This adds the actual number of samples for bw and iops stats printed
+in normal and json fio output. Example for normal output:
 
-3/8 to 8/8 are the continuation of void* fixups from below,
-but this time in non-ioengine code.
-This is it and no more of this void* patches...
+   bw (  MiB/s): min=  120, max= 3304, per=0.10%, avg=2659.34, stdev=1085.25, samples=  109
+   iops        : min=102776, max=830416, avg=675639.05, stdev=280619.99, samples=   21
 
-http://www.spinics.net/lists/fio/msg05912.html
->   sg: don't use void* for pointer arithmetic (gcc)
->   splice: don't use void* for pointer arithmetic (gcc)
->   binject: don't use void* for pointer arithmetic (gcc)
+Note: This example was created using options
+"--write_bw_log=... --log_avg_msec=100 --runtime=11s" (ie. no iops log
+written). That is why number of samples differs for IOPs and BW.
 
-Tomohiro Kusumi (8):
-  ignore directory= if the given path is absolute
-  Makefile: use fmt(1) rather than tr(1) on NetBSD/etc
-  server: don't use void* for pointer arithmetic (gcc)
-  io_u: don't use void* for pointer arithmetic (gcc)
-  init: don't use void* for pointer arithmetic (gcc)
-  client: don't use void* for pointer arithmetic (gcc)
-  verify: don't use void* for pointer arithmetic (gcc)
-  smalloc: don't use void* for pointer arithmetic (gcc)
+Signed-off-by: Andreas Herrmann <aherrmann@suse.com>
+---
+ stat.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
- HOWTO            |  3 ++-
- Makefile         | 10 ++++++++++
- client.c         | 12 ++++++------
- filesetup.c      | 10 +++++++---
- init.c           |  2 +-
- io_u.c           |  2 +-
- server.c         |  5 +++--
- smalloc.c        |  2 +-
- t/verify-state.c |  3 ++-
- verify-state.h   |  2 +-
- verify.c         |  7 ++++---
- 11 files changed, 38 insertions(+), 20 deletions(-)
-
+diff --git a/stat.c b/stat.c
+index d519ee9e..369f9696 100644
+--- a/stat.c
++++ b/stat.c
+@@ -496,12 +496,15 @@ static void show_ddir_status(struct group_run_stats *rs, struct thread_stat *ts,
+ 			bw_str = (rs->unit_base == 1 ? "Mibit" : "MiB");
+ 		}
+ 
+-		log_buf(out, "   bw (%5s/s): min=%5llu, max=%5llu, per=%3.2f%%, avg=%5.02f, stdev=%5.02f\n",
+-			bw_str, min, max, p_of_agg, mean, dev);
++		log_buf(out, "   bw (%5s/s): min=%5llu, max=%5llu, per=%3.2f%%, "
++			"avg=%5.02f, stdev=%5.02f, samples=%5lu\n",
++			bw_str, min, max, p_of_agg, mean, dev,
++			(&ts->bw_stat[ddir])->samples);
+ 	}
+ 	if (calc_lat(&ts->iops_stat[ddir], &min, &max, &mean, &dev)) {
+ 		log_buf(out, "   iops : min=%5llu, max=%5llu, avg=%5.02f, "
+-			"stdev=%5.02f\n", min, max, mean, dev);
++			"stdev=%5.02f, samples=%5lu\n",
++			min, max, mean, dev, (&ts->iops_stat[ddir])->samples);
+ 	}
+ }
+ 
+@@ -1051,6 +1054,8 @@ static void add_ddir_status_json(struct thread_stat *ts,
+ 	json_object_add_value_float(dir_object, "bw_agg", p_of_agg);
+ 	json_object_add_value_float(dir_object, "bw_mean", mean);
+ 	json_object_add_value_float(dir_object, "bw_dev", dev);
++	json_object_add_value_int(dir_object, "bw_samples",
++				(&ts->bw_stat[ddir])->samples);
+ 
+ 	if (!calc_lat(&ts->iops_stat[ddir], &min, &max, &mean, &dev)) {
+ 		min = max = 0;
+@@ -1060,6 +1065,8 @@ static void add_ddir_status_json(struct thread_stat *ts,
+ 	json_object_add_value_int(dir_object, "iops_max", max);
+ 	json_object_add_value_float(dir_object, "iops_mean", mean);
+ 	json_object_add_value_float(dir_object, "iops_stddev", dev);
++	json_object_add_value_int(dir_object, "iops_samples",
++				(&ts->iops_stat[ddir])->samples);
+ }
+ 
+ static void show_thread_status_terse_v2(struct thread_stat *ts,
 -- 
-2.9.4
-
+2.12.0
 
