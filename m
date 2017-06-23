@@ -1,15 +1,15 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from smtp.nue.novell.com ([195.135.221.5]:58285 "EHLO
+Received: from smtp.nue.novell.com ([195.135.221.5]:38480 "EHLO
         smtp.nue.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754109AbdFWW2I (ORCPT
+        with ESMTP id S1754663AbdFWRng (ORCPT
         <rfc822;groupwise-fio@vger.kernel.org:0:0>);
-        Fri, 23 Jun 2017 18:28:08 -0400
+        Fri, 23 Jun 2017 13:43:36 -0400
 From: Andreas Herrmann <aherrmann@suse.com>
 Subject: [PATCH 2/4] stat: Print number of samples in bw and iops stats
-Date: Sat, 24 Jun 2017 00:27:36 +0200
-Message-Id: <20170623222738.5146-3-aherrmann@suse.com>
-In-Reply-To: <20170623222738.5146-1-aherrmann@suse.com>
-References: <20170623222738.5146-1-aherrmann@suse.com>
+Date: Fri, 23 Jun 2017 19:42:58 +0200
+Message-Id: <20170623174300.7937-3-aherrmann@suse.com>
+In-Reply-To: <20170623174300.7937-1-aherrmann@suse.com>
+References: <20170623174300.7937-1-aherrmann@suse.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: Jens Axboe <axboe@fb.com>
