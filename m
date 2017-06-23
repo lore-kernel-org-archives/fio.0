@@ -1,62 +1,43 @@
-Return-Path: <sbates130272@gmail.com>
-Return-Path: <sbates130272@gmail.com>
-From: sbates@raithlin.com
-Subject: [PATCH] man: Update buffer_pattern entry in man pages
-Date: Thu,  8 Jun 2017 12:10:10 -0600
-Message-Id: <1496945410-14579-1-git-send-email-sbates@raithlin.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: sagi@grimberg.me, logang@deltatee.com, muli@lightbitslabs.com, Stephen Bates <sbates@raithlin.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 2/8] Makefile: use fmt(1) rather than tr(1) on NetBSD/etc
+References: <20170623220801.38178-1-tkusumi@tuxera.com>
+ <20170623220801.38178-3-tkusumi@tuxera.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <cba12c06-e24f-2af9-f97e-37bd2ebd583d@kernel.dk>
+Date: Fri, 23 Jun 2017 16:18:59 -0600
+MIME-Version: 1.0
+In-Reply-To: <20170623220801.38178-3-tkusumi@tuxera.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: kusumi.tomohiro@gmail.com, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Stephen Bates <sbates@raithlin.com>
+On 06/23/2017 04:07 PM, kusumi.tomohiro@gmail.com wrote:
+> From: Tomohiro Kusumi <tkusumi@tuxera.com>
+> 
+> e291cff1 (Use fmt -w WIDTH option instead of -WIDTH) changed the
+> command option to a common one to suppress an error, but it only
+> fixed the unknown option error without being functional on NetBSD.
+> 
+> This change is taken from NetBSD's pkgsrc. It may work against
+> other platforms that don't work with fmt(1), but only enabled for
+> NetBSD at the moment. FreeBSD/DragonFlyBSD/OpenBSD work with fmt(1).
+> 
+> (This actually works on Linux too, but the existing one should be
+> kept for Linux (and other platforms) provided it has been used on
+> various distros for years)
+> 
+> https://github.com/NetBSD/pkgsrc/blob/trunk/benchmarks/fio/patches/patch-Makefile
+> 
+>> Convert the fmt(1) command to a tr(1) one (the fmt(1) old syntax
+>> command is not supported on all Unix systems).
 
-Update the fio man page to reflect the new usage of buffer_pattern.
+Not crazy about the target dependency on netbsd for using tr. But I
+guess it's better we have it working.
 
-Signed-off-by: Stephen Bates <sbates@raithlin.com>
----
- fio.1 | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
-
-diff --git a/fio.1 b/fio.1
-index e153d46..96eceaf 100644
---- a/fio.1
-+++ b/fio.1
-@@ -611,13 +611,20 @@ the remaining zeroed. With this set to some chunk size smaller than the block
- size, fio can alternate random and zeroed data throughout the IO buffer.
- .TP
- .BI buffer_pattern \fR=\fPstr
--If set, fio will fill the IO buffers with this pattern. If not set, the contents
--of IO buffers is defined by the other options related to buffer contents. The
--setting can be any pattern of bytes, and can be prefixed with 0x for hex
--values. It may also be a string, where the string must then be wrapped with
--"", e.g.:
-+If set, fio will fill the I/O buffers with this pattern or with the contents
-+of a file. If not set, the contents of I/O buffers are defined by the other
-+options related to buffer contents. The setting can be any pattern of bytes,
-+and can be prefixed with 0x for hex values. It may also be a string, where
-+the string must then be wrapped with ``""``. Or it may also be a filename,
-+where the filename must be wrapped with ``''`` in which case the file is
-+opened and read. Note that not all the file contents will be read if that
-+would cause the buffers to overflow. So, for example:
- .RS
- .RS
-+\fBbuffer_pattern\fR='filename'
-+.RS
-+or
-+.RE
- \fBbuffer_pattern\fR="abcd"
- .RS
- or
-@@ -632,7 +639,7 @@ or
- Also you can combine everything together in any order:
- .LP
- .RS
--\fBbuffer_pattern\fR=0xdeadface"abcd"-12
-+\fBbuffer_pattern\fR=0xdeadface"abcd"-12'filename'
- .RE
- .RE
- .TP
 -- 
-2.7.4
+Jens Axboe
 
 
