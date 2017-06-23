@@ -1,56 +1,51 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-it0-f53.google.com ([209.85.214.53]:38820 "EHLO
-        mail-it0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751047AbdFAHUw (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 1 Jun 2017 03:20:52 -0400
-Received: by mail-it0-f53.google.com with SMTP id r63so26038570itc.1
-        for <fio@vger.kernel.org>; Thu, 01 Jun 2017 00:20:52 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CAGjEAhu9xnC4rbAyc60gb8UNfecy=S+D3UmG+1vqQsuCFqaxiA@mail.gmail.com>
-References: <CAGjEAhu9xnC4rbAyc60gb8UNfecy=S+D3UmG+1vqQsuCFqaxiA@mail.gmail.com>
-From: qingwei wei <tchengwee@gmail.com>
-Date: Thu, 1 Jun 2017 15:20:51 +0800
-Message-ID: <CAGjEAhvxrjvs_WZXOozXRK9yAGa0S63Gw8BNtFW6_pqzVLHoig@mail.gmail.com>
-Subject: Re: fio zipfian random_distribution offset selection
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 3/8] server: don't use void* for pointer arithmetic (gcc)
+Date: Sat, 24 Jun 2017 01:07:56 +0300
+Message-Id: <20170623220801.38178-4-tkusumi@tuxera.com>
+In-Reply-To: <20170623220801.38178-1-tkusumi@tuxera.com>
+References: <20170623220801.38178-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-I did a trial run (small data set size of 400KB) with iolog enable so
-to capture the offset. From what i can see, the offset is indeed
-randomly selected.
+I think gcc extension should be avoided when it can be done by
+just changing a pointer type.
 
-occurrence | offset
-     10   16384
-      1    45056
-     13   77824
-      4   110592
-      2   139264
-     47   172032
-      5   204800
-      1   233472
-      1   266240
-     11  299008
-      2   331776
-      3   393216
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ server.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Do correct me if i am wrong.
+diff --git a/server.c b/server.c
+index 8b36e38..2d17df6 100644
+--- a/server.c
++++ b/server.c
+@@ -252,9 +252,10 @@ static int fio_send_data(int sk, const void *p, unsigned int len)
+ 	return fio_sendv_data(sk, &iov, 1);
+ }
+ 
+-static int fio_recv_data(int sk, void *p, unsigned int len, bool wait)
++static int fio_recv_data(int sk, void *buf, unsigned int len, bool wait)
+ {
+ 	int flags;
++	char *p = buf;
+ 
+ 	if (wait)
+ 		flags = MSG_WAITALL;
+@@ -377,7 +378,7 @@ struct fio_net_cmd *fio_net_recv_cmd(int sk, bool wait)
+ 			break;
+ 
+ 		/* There's payload, get it */
+-		pdu = (void *) cmdret->payload + pdu_offset;
++		pdu = (char *) cmdret->payload + pdu_offset;
+ 		ret = fio_recv_data(sk, pdu, cmd.pdu_len, wait);
+ 		if (ret)
+ 			break;
+-- 
+2.9.4
 
-Cw
 
-On Tue, May 30, 2017 at 2:46 PM, qingwei wei <tchengwee@gmail.com> wrote:
-> Hi,
->
-> I would like to validate my understanding on fio zipfian
-> random_distribution. Form my understanding, a zipfian 1.2 means ~95%
-> of IO access will be concentrated on 5% offset location (Do correct me
-> if i am wrong). So if i have a file with 100 offsets, i cold have
-> offset 1, offset 5, offset 20, offset 86, offset 99 get repeatedly
-> access. So my question is, is this offset being chosen randomly? Or is
-> it possible to specify based on spatial locality, where nearby offset
-> tend to be accessed together? Thanks.
->
-> Cw
