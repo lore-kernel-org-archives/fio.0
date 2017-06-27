@@ -1,28 +1,30 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 0/2] updates for offset= in percentage
-Date: Wed, 28 Jun 2017 17:21:04 +0300
-Message-Id: <20170628142106.31846-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] man page: add offset unit info for offset= option
+References: <20170627152007.14839-1-tkusumi@tuxera.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <48e88972-b85e-19dd-3ae2-83b399d671a4@kernel.dk>
+Date: Tue, 27 Jun 2017 09:45:25 -0600
+MIME-Version: 1.0
+In-Reply-To: <20170627152007.14839-1-tkusumi@tuxera.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: kusumi.tomohiro@gmail.com, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+On 06/27/2017 09:20 AM, kusumi.tomohiro@gmail.com wrote:
+> From: Tomohiro Kusumi <tkusumi@tuxera.com>
+> 
+> Apply below commit to fio(1) man page.
+> 82dbb8cb (HOWTO: add offset unit info for offset= option)
+> 
+> Certain sections/options of the man page are not in sync with HOWTO,
+> but this one was identical, thus the changes are the same as above.
 
-due to the fact that str_to_decimal() supports conversion from
-'%' format to low-level format.
-
-Tomohiro Kusumi (2):
-  HOWTO/manpage: update percentage explanation using '%'
-  add FD_PARSE debug print for size= option (which exists in offset=)
-
- HOWTO     | 4 ++--
- fio.1     | 6 +++---
- options.c | 2 ++
- 3 files changed, 7 insertions(+), 5 deletions(-)
+Added, thanks.
 
 -- 
-2.9.4
+Jens Axboe
 
 
