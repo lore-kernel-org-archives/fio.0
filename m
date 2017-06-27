@@ -1,26 +1,27 @@
-Return-Path: <elliott@hpe.com>
-From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Subject: RE: [PATCH] HOWTO: add offset unit info for offset= option
-Date: Tue, 27 Jun 2017 14:56:00 +0000
-Message-ID: <DF4PR84MB0089AED8D23E0A1B625C5F21ABDC0@DF4PR84MB0089.NAMPRD84.PROD.OUTLOOK.COM>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] HOWTO: add offset unit info for offset= option
 References: <20170627102103.13288-1-tkusumi@tuxera.com>
-In-Reply-To: <20170627102103.13288-1-tkusumi@tuxera.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <4c1bfd15-6b39-d040-632c-6a1d77f36d29@kernel.dk>
+Date: Tue, 27 Jun 2017 08:20:24 -0600
 MIME-Version: 1.0
-To: "kusumi.tomohiro@gmail.com" <kusumi.tomohiro@gmail.com>, "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <20170627102103.13288-1-tkusumi@tuxera.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: kusumi.tomohiro@gmail.com, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
->  HOWTO | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+On 06/27/2017 04:21 AM, kusumi.tomohiro@gmail.com wrote:
+> From: Tomohiro Kusumi <tkusumi@tuxera.com>
+> 
+> Add "in bytes" and "A percentage can be specified by ...",
+> based on an email post titled "in what units is offset option?".
 
-The manpage (fio.1) should be updated as well - that's more visible to user=
-s.
+Applied, thanks.
 
----
-Robert Elliott, HPE Persistent Memory
-
+-- 
+Jens Axboe
 
 
