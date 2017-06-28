@@ -1,20 +1,31 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-eopbgr670096.outbound.protection.outlook.com ([40.107.67.96]:6336
-        "EHLO CAN01-TO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751247AbdFFVeM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 6 Jun 2017 17:34:12 -0400
-From: "Stephen  Bates" <sbates@raithlin.com>
-Subject: <no subject>
-Date: Tue, 6 Jun 2017 21:34:05 +0000
-Message-ID: <E886F29F-E1FA-411C-B8FE-F049DF59BED0@raithlin.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <777AB187CAFE96458A55E332E792B57A@CANPRD01.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: base64
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 0/2] updates for offset= in percentage
+References: <20170628142106.31846-1-tkusumi@tuxera.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <522c7810-0de0-f152-b1e3-bf6462bb9f93@kernel.dk>
+Date: Wed, 28 Jun 2017 08:31:05 -0600
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <20170628142106.31846-1-tkusumi@tuxera.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: kusumi.tomohiro@gmail.com, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-c3Vic2NyaWJlIGZpbw0KDQoNCg==
+On 06/28/2017 08:21 AM, kusumi.tomohiro@gmail.com wrote:
+> From: Tomohiro Kusumi <tkusumi@tuxera.com>
+> 
+> due to the fact that str_to_decimal() supports conversion from
+> '%' format to low-level format.
+> 
+> Tomohiro Kusumi (2):
+>   HOWTO/manpage: update percentage explanation using '%'
+>   add FD_PARSE debug print for size= option (which exists in offset=)
+
+Applied, thanks.
+
+-- 
+Jens Axboe
+
+
