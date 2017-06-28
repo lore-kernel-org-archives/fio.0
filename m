@@ -1,41 +1,72 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk0-f45.google.com ([209.85.213.45]:36322 "EHLO
-        mail-vk0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751130AbdFATQ3 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 1 Jun 2017 15:16:29 -0400
-Received: by mail-vk0-f45.google.com with SMTP id p85so29920924vkd.3
-        for <fio@vger.kernel.org>; Thu, 01 Jun 2017 12:16:28 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CAAEM5qL=tDUS66n-G-y8d4-gFGLCwRtRw_O2vr7d-PeZw_Fung@mail.gmail.com>
-References: <CAAEM5qL=tDUS66n-G-y8d4-gFGLCwRtRw_O2vr7d-PeZw_Fung@mail.gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Thu, 1 Jun 2017 20:15:57 +0100
-Message-ID: <CALjAwxiDVks+KYx0yTUQX7mUGJ56x44w1=ABcj0R3_x-ocM99w@mail.gmail.com>
-Subject: Re: exitall_on_error - Unrecognised option
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: siha lawrence <sihaj33@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 1/2] HOWTO/manpage: update percentage explanation using '%'
+Date: Wed, 28 Jun 2017 17:21:05 +0300
+Message-Id: <20170628142106.31846-2-tkusumi@tuxera.com>
+In-Reply-To: <20170628142106.31846-1-tkusumi@tuxera.com>
+References: <20170628142106.31846-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-Please don't send fio mail to me directly- send it to the fio mailing
-list (see https://github.com/axboe/fio/blob/fio-2.20/README#L58 for
-details). You'll most likely get a faster/better reply and it will
-also be in the archives so people using web searches will see the
-answer too...
+82dbb8cb (HOWTO: add offset unit info for offset= option) added
+how to specify offset= option in percentage format based on below post,
+which was technically correct, but str_to_decimal() invoked via
+option parser can convert '%' format to low-level representation.
 
-On 1 June 2017 at 16:19, siha lawrence <sihaj33@gmail.com> wrote:
->
-> I'm getting unrecognised option when using the exitall_on_error option in
-> fio version 2.2.8.
+This commit replaces 82dbb8cb using '%' syntax since this is
+considered better for documentation. Note that size= option which
+also supports percentage uses '%' in documentation.
 
-That option wasn't introduced until fio 2.2.13 - see
-https://github.com/axboe/fio/commit/f9cafb12834f84aeff4f255e8c9e5c5d6b5e3bf5
-. I'd strongly recommend upgrading - we're up to fio 2.20 at the time
-of writing!
+in what units is offset option?
+http://www.spinics.net/lists/fio/msg05969.html
 
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ HOWTO | 4 ++--
+ fio.1 | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
+diff --git a/HOWTO b/HOWTO
+index 37caa3c..a07c5f2 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -1095,8 +1095,8 @@ I/O type
+ 	offset will be used. Data before the given offset will not be touched. This
+ 	effectively caps the file size at `real_size - offset`. Can be combined with
+ 	:option:`size` to constrain the start and end range of the I/O workload.
+-	A percentage can be specified by the percentage number plus 1 with preceding '-'.
+-	For example, -1 is parsed as 0%, -10 is parsed as 9%, -101 is parsed as 100%.
++	A percentage can be specified by a number between 1 and 100 followed by '%',
++	for example, ``offset=20%`` to specify 20%.
+ 
+ .. option:: offset_increment=int
+ 
+diff --git a/fio.1 b/fio.1
+index ac87c9d..ca99ad7 100644
+--- a/fio.1
++++ b/fio.1
+@@ -1,4 +1,4 @@
+-.TH fio 1 "May 2017" "User Manual"
++.TH fio 1 "June 2017" "User Manual"
+ .SH NAME
+ fio \- flexible I/O tester
+ .SH SYNOPSIS
+@@ -916,8 +916,8 @@ bytes or a percentage. If a percentage is given, the next \fBblockalign\fR-ed
+ offset will be used. Data before the given offset will not be touched. This
+ effectively caps the file size at (real_size - offset). Can be combined with
+ \fBsize\fR to constrain the start and end range of the I/O workload. A percentage
+-can be specified by the percentage number plus 1 with preceding '-'. For example,
+--1 is parsed as 0%, -10 is parsed as 9%, -101 is parsed as 100%.
++can be specified by a number between 1 and 100 followed by '%', for example,
++offset=20% to specify 20%.
+ .TP
+ .BI offset_increment \fR=\fPint
+ If this is provided, then the real offset becomes the
 -- 
-Sitsofe | http://sucs.org/~sits/
+2.9.4
+
+
