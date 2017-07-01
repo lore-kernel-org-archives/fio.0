@@ -1,51 +1,74 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:35106 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751745AbdGFJCh (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 6 Jul 2017 05:02:37 -0400
-Received: by mail-pg0-f65.google.com with SMTP id d193so2082971pgc.2
-        for <fio@vger.kernel.org>; Thu, 06 Jul 2017 02:02:31 -0700 (PDT)
-From: Oliver O'Halloran <oohall@gmail.com>
-Subject: [PATCH] arch/ppc: Fix get_cpu_clock asm clobber list
-Date: Thu,  6 Jul 2017 19:02:14 +1000
-Message-Id: <20170706090214.26270-1-oohall@gmail.com>
+Received: from mail-ua0-f176.google.com ([209.85.217.176]:36841 "EHLO
+        mail-ua0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752218AbdGAI6B (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 1 Jul 2017 04:58:01 -0400
+Received: by mail-ua0-f176.google.com with SMTP id g40so87518367uaa.3
+        for <fio@vger.kernel.org>; Sat, 01 Jul 2017 01:57:56 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CAO5fCYuoONsRSYaTgausucKNbSO5AvkXvHLDJp20EOsMm7GUhQ@mail.gmail.com>
+References: <CAO5fCYu2OhNo_FbwjGVk0rBZMpMx1VUn8WPppc+rBVr10nAEmg@mail.gmail.com>
+ <CALjAwxgu_fpRz_Fou-WX4ER-c6jVdTwkc=guUHNwQcswryuSrg@mail.gmail.com>
+ <CAO5fCYutXku8UKOy6r3FaeL_mMQoPmdscWMJsQxeZRM-Dh35qQ@mail.gmail.com>
+ <CALjAwxhoX6TvTjpMeyisCst1wZaJQ_iohD1k+4DTw_-+KNk-yA@mail.gmail.com> <CAO5fCYuoONsRSYaTgausucKNbSO5AvkXvHLDJp20EOsMm7GUhQ@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 1 Jul 2017 09:57:25 +0100
+Message-ID: <CALjAwxjP7kxSpetgS1WmdyZXEs0rwmxNAP1mERrboXgoyGs+CQ@mail.gmail.com>
+Subject: Re: --minimal does not work in client/server mode
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Oliver O'Halloran <oohall@gmail.com>
+To: Nisha Miller <nisha43222@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Mark condition register 0 (cr0) as being clobbered by the inline asm in
-get_cpu_clock(). Not doing this results in strange behaviour due to GCC
-optimising away some checking. For example e.g:
+Hi,
 
-  $ ./fio examples/null.fio --output-format=json
-  time     5500  cycles_start=8085227422910      <--- bad!
-  {
-    "fio version" : "fio-2.21-89-gb034",
-    <snip>
+I'm guessing because I'm not familiar with the code in question:
+Over in server.c (e.g.
+https://github.com/axboe/fio/blob/a2c95580b468a1ddd72ecb5532aca7d94f6efa5b/server.c#L986
+) you will need to add a new command (e.g. FIO_NET_CMD_SEND_STATUS).
+You will need to have the client send this command to the server
+periodically when the status interval times out (e.g.
+https://github.com/axboe/fio/blob/a2c95580b468a1ddd72ecb5532aca7d94f6efa5b/client.c#L1929
+) presumably by adding something like request_client_statuses that
+does has timing logic similar to that in check_for_running_stats
+https://github.com/axboe/fio/blob/b2f4b559a3bc69c384f6c83ee7d8efca7712adc8/stat.c#L1970
+. That's the easy part...
 
-The extra output is due to the flag checking in dprint being removed
-at higher optimisation levels.
+When the server receives that command you need to actually summarise
+the appropriate stats and send them back to the client. Hopefully the
+server fio has been keeping a running cumulative totals somewhere so
+you can just look at those and send them back without having to do
+further calculation (regular fio seems to do the heavy lifting in a
+helper thread that runs __show_running_run_stats -
+https://github.com/axboe/fio/blob/b2f4b559a3bc69c384f6c83ee7d8efca7712adc8/stat.c#L1878
+).
 
-Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
----
- arch/arch-ppc.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+A drawback with the approach I'm outlining is that each server will
+send stats back to the client so the client may print stats info for
+different servers at different offsets to others but I think that
+simplifies this task.
 
-diff --git a/arch/arch-ppc.h b/arch/arch-ppc.h
-index ba452b15b1ff..804d596aecc6 100644
---- a/arch/arch-ppc.h
-+++ b/arch/arch-ppc.h
-@@ -62,7 +62,8 @@ static inline unsigned long long get_cpu_clock(void)
- 		"	cmpwi %0,0;\n"
- 		"	beq-  90b;\n"
- 	: "=r" (rval)
--	: "i" (SPRN_TBRL));
-+	: "i" (SPRN_TBRL)
-+	: "cr0");
- 
- 	return rval;
- }
+Good luck!
+
+On 1 July 2017 at 01:05, Nisha Miller <nisha43222@gmail.com> wrote:
+> If you can summarize what needs to be done to add this new command, I
+> can have a go at it.
+>
+> On Fri, Jun 30, 2017 at 4:46 PM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>>
+>> You're right - that patch doesn't solve the problem. Looking closer,
+>> the way that client/server mode operates suggests you'd need to add a
+>> brand new client/server command to arrange for each client to send the
+>> cumulative information you're after to the server so it can print it
+>> out. If so that work looks more involved than I have spare time for...
+>>
+>> On 1 July 2017 at 00:06, Nisha Miller <nisha43222@gmail.com> wrote:
+>>> Sorry, my previous reply was a bit confusing.
+>>>
+>>> I made the changes to client.c as per the patch. But that did not
+>>> solve the problem. I still get just one terse output at the end of the
+>>> test.
+
 -- 
-2.9.4
-
+Sitsofe | http://sucs.org/~sits/
