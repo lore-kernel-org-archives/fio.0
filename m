@@ -1,50 +1,38 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 1/4] HOWTO: fix "should be to to"
-Date: Tue, 25 Jul 2017 22:05:41 +0300
-Message-Id: <20170725190544.66919-2-tkusumi@tuxera.com>
-In-Reply-To: <20170725190544.66919-1-tkusumi@tuxera.com>
-References: <20170725190544.66919-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-vk0-f41.google.com ([209.85.213.41]:35527 "EHLO
+        mail-vk0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754257AbdGCSdL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 3 Jul 2017 14:33:11 -0400
+Received: by mail-vk0-f41.google.com with SMTP id 191so99638171vko.2
+        for <fio@vger.kernel.org>; Mon, 03 Jul 2017 11:33:11 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CAFOWsvuubBs4YOb9BKmpZPRwHo1cV+HGscGWv3TGqKFLis=-Aw@mail.gmail.com>
+References: <CAFOWsvt5joru9mNN3VM65spn77VQDvCQp-OPwAXrtfi4SSbEJA@mail.gmail.com>
+ <CAFOWsvuubBs4YOb9BKmpZPRwHo1cV+HGscGWv3TGqKFLis=-Aw@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Mon, 3 Jul 2017 19:32:40 +0100
+Message-ID: <CALjAwxhtY12di5pACk=AAJ1_aM=Coryf6OuemsKiHda8nd=ttQ@mail.gmail.com>
+Subject: Re: Inverted test in fio ipo_bytes_align()
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Keith Owens <kaos.ocs@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+Hi,
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- HOWTO | 2 +-
- fio.1 | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+On 3 July 2017 at 08:08, Keith Owens <kaos.ocs@gmail.com> wrote:
+> Ignore that, fixed in February - Debian/Ubuntu have not picked up the fix.
+>
+> On 3 July 2017 at 16:39, Keith Owens <kaos.ocs@gmail.com> wrote:
+>> ipo_bytes_align() does nothing when replay_align is set, when
+>> replay_align is 0 it incorrectly masks all replay offsets to 0. The
+>> test is inverted.
 
-diff --git a/HOWTO b/HOWTO
-index e544634..5a9cda5 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1255,7 +1255,7 @@ I/O type
- 
- 	* 60% of accesses should be to the first 10%
- 	* 30% of accesses should be to the next 20%
--	* 8% of accesses should be to to the next 30%
-+	* 8% of accesses should be to the next 30%
- 	* 2% of accesses should be to the next 40%
- 
- 	we can define that through zoning of the random accesses. For the above
-diff --git a/fio.1 b/fio.1
-index 7fe96e0..0badda1 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1143,7 +1143,7 @@ given a criteria of:
- 30% of accesses should be to the next 20%
- .RE
- .RS
--8% of accesses should be to to the next 30%
-+8% of accesses should be to the next 30%
- .RE
- .RS
- 2% of accesses should be to the next 40%
+Sorry that mistake was my doing. It was found and fixed over in
+https://github.com/axboe/fio/pull/302 (commit
+https://github.com/axboe/fio/commit/3dd2e8aa0519225da5ccc100aa02e55306bcc2f3
+which went into fio-2.18).
+
 -- 
-2.9.4
-
-
+Sitsofe | http://sucs.org/~sits/
