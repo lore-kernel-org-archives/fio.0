@@ -1,138 +1,78 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:54001 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750907AbdGHMAM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 8 Jul 2017 08:00:12 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1dToPD-0004Pa-Nh
-        for fio@vger.kernel.org; Sat, 08 Jul 2017 12:00:11 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170708120002.5C46D2C0098@kernel.dk>
-Date: Sat,  8 Jul 2017 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 3/7] man: sync "JOB FILE PARAMETERS" section with HOWTO
+Date: Tue,  4 Jul 2017 21:08:12 +0300
+Message-Id: <20170704180816.39585-4-tkusumi@tuxera.com>
+In-Reply-To: <20170704180816.39585-1-tkusumi@tuxera.com>
+References: <20170704180816.39585-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit f25f4ef6d123173d7669553ec712419f95c1a3ea:
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-  oslib/libmtd: kill dead code (2017-07-06 08:09:22 -0600)
+This commit replaces the entire section with the corresponding section
+in HOWTO, since the man page is only slightly different from HOWTO
+regarding this section.
 
-are available in the git repository at:
+It also renames the following section names to sync with HOWTO.
+  "JOB PARAMETERS" to "JOB FILE PARAMETERS"
+  "JOB PARAMETERS"'s sub section "Types" to non-sub section "PARAMETER TYPES"
+  "JOB PARAMETERS"'s sub section "Parameter List" to non-sub section "JOB DESCRIPTION"
 
-  git://git.kernel.dk/fio.git master
+Since section names aren't following the typical man page convention
+(man-pages(7) in Linux) to begin with, changing the section names
+to conform to HOWTO does no harm unless there's a reason to keep names
+that were once made.
 
-for you to fetch changes up to 6210cf66316e25498ab2e445731b3bb6b886c363:
-
-  Fio 2.99 (2017-07-07 12:45:04 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (3):
-      io_u: sequence random buflen generation individually
-      init: add comment as to how we seed read/write/trim generators
-      Fio 2.99
-
- FIO-VERSION-GEN        |  2 +-
- fio.h                  |  4 +++-
- init.c                 | 17 ++++++++++++++++-
- io_u.c                 |  4 ++--
- os/windows/install.wxs |  2 +-
- 5 files changed, 23 insertions(+), 6 deletions(-)
-
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
+ fio.1 | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-Diff of recent changes:
+diff --git a/fio.1 b/fio.1
+index b22989a..629ab01 100644
+--- a/fio.1
++++ b/fio.1
+@@ -184,11 +184,10 @@ argument, \-\-cmdhelp will detail the given `option`.
+ See the `examples/` directory in the fio source for inspiration on how to write
+ job files. Note the copyright and license requirements currently apply to
+ `examples/` files.
+-.SH "JOB PARAMETERS"
+-.SS Types
+-Some parameters may take arguments of a specific type.
+-Anywhere a numeric value is required, an arithmetic expression may be used,
+-provided it is surrounded by parentheses. Supported operators are:
++.SH "JOB FILE PARAMETERS"
++Some parameters take an option of a given type, such as an integer or a
++string. Anywhere a numeric value is required, an arithmetic expression may be
++used, provided it is surrounded by parentheses. Supported operators are:
+ .RS
+ .RS
+ .TP
+@@ -208,7 +207,9 @@ provided it is surrounded by parentheses. Supported operators are:
+ .P
+ For time values in expressions, units are microseconds by default. This is
+ different than for time values not in expressions (not enclosed in
+-parentheses). The types used are:
++parentheses).
++.SH "PARAMETER TYPES"
++The following parameter types are used.
+ .TP
+ .I str
+ String: a sequence of alphanumeric characters.
+@@ -299,7 +300,8 @@ sets of ranges, they are separated with a `,' or `/' character. For example:
+ .I float_list
+ List of floating numbers: A list of floating numbers, separated by
+ a ':' character.
+-.SS "Parameter List"
++.SH "JOB DESCRIPTION"
++With the above in mind, here follows the complete list of fio job parameters.
+ .TP
+ .BI name \fR=\fPstr
+ May be used to override the job name.  On the command line, this parameter
+-- 
+2.9.4
 
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index 3b4f206..f82aeee 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-2.21
-+DEF_VER=fio-2.99
- 
- LF='
- '
-diff --git a/fio.h b/fio.h
-index d5d6bfe..39d775c 100644
---- a/fio.h
-+++ b/fio.h
-@@ -91,6 +91,8 @@ enum {
- 
- enum {
- 	FIO_RAND_BS_OFF		= 0,
-+	FIO_RAND_BS1_OFF,
-+	FIO_RAND_BS2_OFF,
- 	FIO_RAND_VER_OFF,
- 	FIO_RAND_MIX_OFF,
- 	FIO_RAND_FILE_OFF,
-@@ -214,7 +216,7 @@ struct thread_data {
- 
- 	unsigned long rand_seeds[FIO_RAND_NR_OFFS];
- 
--	struct frand_state bsrange_state;
-+	struct frand_state bsrange_state[DDIR_RWDIR_CNT];
- 	struct frand_state verify_state;
- 	struct frand_state trim_state;
- 	struct frand_state delay_state;
-diff --git a/init.c b/init.c
-index a4b5adb..9b2b63d 100644
---- a/init.c
-+++ b/init.c
-@@ -921,7 +921,22 @@ static void td_fill_rand_seeds_internal(struct thread_data *td, bool use64)
- {
- 	int i;
- 
--	init_rand_seed(&td->bsrange_state, td->rand_seeds[FIO_RAND_BS_OFF], use64);
-+	/*
-+	 * trimwrite is special in that we need to generate the same
-+	 * offsets to get the "write after trim" effect. If we are
-+	 * using bssplit to set buffer length distributions, ensure that
-+	 * we seed the trim and write generators identically.
-+	 */
-+	if (td_trimwrite(td)) {
-+		init_rand_seed(&td->bsrange_state[DDIR_READ], td->rand_seeds[FIO_RAND_BS_OFF], use64);
-+		init_rand_seed(&td->bsrange_state[DDIR_WRITE], td->rand_seeds[FIO_RAND_BS1_OFF], use64);
-+		init_rand_seed(&td->bsrange_state[DDIR_TRIM], td->rand_seeds[FIO_RAND_BS1_OFF], use64);
-+	} else {
-+		init_rand_seed(&td->bsrange_state[DDIR_READ], td->rand_seeds[FIO_RAND_BS_OFF], use64);
-+		init_rand_seed(&td->bsrange_state[DDIR_WRITE], td->rand_seeds[FIO_RAND_BS1_OFF], use64);
-+		init_rand_seed(&td->bsrange_state[DDIR_TRIM], td->rand_seeds[FIO_RAND_BS2_OFF], use64);
-+	}
-+
- 	td_fill_verify_state_seed(td);
- 	init_rand_seed(&td->rwmix_state, td->rand_seeds[FIO_RAND_MIX_OFF], false);
- 
-diff --git a/io_u.c b/io_u.c
-index 8d42d65..ed8e84a 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -552,9 +552,9 @@ static unsigned int __get_next_buflen(struct thread_data *td, struct io_u *io_u,
- 	if (!io_u_fits(td, io_u, minbs))
- 		return 0;
- 
--	frand_max = rand_max(&td->bsrange_state);
-+	frand_max = rand_max(&td->bsrange_state[ddir]);
- 	do {
--		r = __rand(&td->bsrange_state);
-+		r = __rand(&td->bsrange_state[ddir]);
- 
- 		if (!td->o.bssplit_nr[ddir]) {
- 			buflen = 1 + (unsigned int) ((double) maxbs *
-diff --git a/os/windows/install.wxs b/os/windows/install.wxs
-index 860570a..500d64c 100755
---- a/os/windows/install.wxs
-+++ b/os/windows/install.wxs
-@@ -10,7 +10,7 @@
- 	<Product Id="*"
- 	  Codepage="1252" Language="1033"
- 	  Manufacturer="fio" Name="fio"
--	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.21">
-+	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.99">
- 		<Package
- 		  Description="Flexible IO Tester"
- 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
+
