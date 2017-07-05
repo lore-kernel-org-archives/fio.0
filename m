@@ -1,32 +1,36 @@
-Return-Path: <sitsofe@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from muon.bluestop.org ([74.50.51.35]:24535 "EHLO muon.cran.org.uk"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752317AbdGEDZH (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 4 Jul 2017 23:25:07 -0400
+Received: from muon.bluestop.org (localhost [127.0.0.1])
+        by muon.cran.org.uk (Postfix) with ESMTP id 613E1331AC
+        for <fio@vger.kernel.org>; Wed,  5 Jul 2017 03:16:53 +0000 (UTC)
+Received: from muon.cran.org.uk ([127.0.0.1])
+        by muon.bluestop.org (muon.bluestop.org [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id LkW4j4bU1joE for <fio@vger.kernel.org>;
+        Wed,  5 Jul 2017 03:16:52 +0000 (UTC)
+Received: from My-MBP.int.bluestop.org (c-73-20-20-155.hsd1.ut.comcast.net [73.20.20.155])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by muon.cran.org.uk (Postfix) with ESMTPSA
+        for <fio@vger.kernel.org>; Wed,  5 Jul 2017 03:16:52 +0000 (UTC)
+From: Rebecca Cran <rebecca@bluestop.org>
+Subject: fio docs web page (generated html from HOWTO, README etc.)
+Message-ID: <b858addb-328f-99ae-5519-347f9808ea8f@bluestop.org>
+Date: Tue, 4 Jul 2017 21:16:51 -0600
 MIME-Version: 1.0
-In-Reply-To: <b858addb-328f-99ae-5519-347f9808ea8f@bluestop.org>
-References: <b858addb-328f-99ae-5519-347f9808ea8f@bluestop.org>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Wed, 5 Jul 2017 06:05:44 +0100
-Message-ID: <CALjAwxjsErjmB2cFKa4Uo703a0Z_uH5yLcfhphbb1VGA1vu=gQ@mail.gmail.com>
-Subject: Re: fio docs web page (generated html from HOWTO, README etc.)
-Content-Type: text/plain; charset="UTF-8"
-To: Rebecca Cran <rebecca@bluestop.org>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>, Mikhail Terekhov <Mikhail.Terekhov@dell.com>
-List-ID: <fio@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Hi,
-
-On 5 July 2017 at 04:16, Rebecca Cran <rebecca@bluestop.org> wrote:
-> I noticed the fio documentation files HOWTO, README etc. have been converted
-> to reStructured text, so since they're not so readable as plain text now
-> I've generated the html versions and uploaded the 2.21 version to
-> http://bluestop.org/files/fio/doc .
-
-Others have mentioned the reduced readability too -
-https://github.com/axboe/fio/pull/330 .
-
-There is also an (unofficial) generated version of docs over on
-http://fio.readthedocs.io/en/latest/ but this is currently only
-re-generated manually. Perhaps we should make it more official and
-include a link to it?
+I noticed the fio documentation files HOWTO, README etc. have been 
+converted to reStructured text, so since they're not so readable as 
+plain text now I've generated the html versions and uploaded the 2.21 
+version to http://bluestop.org/files/fio/doc .
 
 -- 
-Sitsofe | http://sucs.org/~sits/
-
+Rebecca
