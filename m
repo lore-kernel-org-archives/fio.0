@@ -1,58 +1,34 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 5/7] man: refer to REPORTING-BUGS for bug reporting
-Date: Tue,  4 Jul 2017 21:08:14 +0300
-Message-Id: <20170704180816.39585-6-tkusumi@tuxera.com>
-In-Reply-To: <20170704180816.39585-1-tkusumi@tuxera.com>
-References: <20170704180816.39585-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+Return-Path: <Mikhail.Terekhov@dell.com>
+Subject: Re: fio docs web page (generated html from HOWTO, README etc.)
+References: <b858addb-328f-99ae-5519-347f9808ea8f@bluestop.org>
+ <CALjAwxjsErjmB2cFKa4Uo703a0Z_uH5yLcfhphbb1VGA1vu=gQ@mail.gmail.com>
+From: Mikhail Terekhov <Mikhail.Terekhov@dell.com>
+Message-ID: <8e227c05-d8ff-0615-d6d4-1afa4df9f72c@dell.com>
+Date: Wed, 5 Jul 2017 10:58:17 -0400
+MIME-Version: 1.0
+In-Reply-To: <CALjAwxjsErjmB2cFKa4Uo703a0Z_uH5yLcfhphbb1VGA1vu=gQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+To: Sitsofe Wheeler <sitsofe@gmail.com>, Rebecca Cran <rebecca@bluestop.org>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>, Mikhail Terekhov <Mikhail.Terekhov@dell.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
-
-REPORTING-BUGS should be mentioned here rather than README, provided
-REPORTING-BUGS also mentions to see README for the mailing list
-in addition to details of bug reporting.
-
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- README | 3 ++-
- fio.1  | 5 ++++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/README b/README
-index ec3e9c0..a6eba8f 100644
---- a/README
-+++ b/README
-@@ -59,7 +59,8 @@ Mailing list
- ------------
- 
- The fio project mailing list is meant for anything related to fio including
--general discussion, bug reporting, questions, and development.
-+general discussion, bug reporting, questions, and development. For bug reporting,
-+see REPORTING-BUGS.
- 
- An automated mail detailing recent commits is automatically sent to the list at
- most daily. The list address is fio@vger.kernel.org, subscribe by sending an
-diff --git a/fio.1 b/fio.1
-index 1fd928f..bc477a2 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2713,7 +2713,10 @@ This man page was written by Aaron Carroll <aaronc@cse.unsw.edu.au> based
- on documentation by Jens Axboe.
- .SH "REPORTING BUGS"
- Report bugs to the \fBfio\fR mailing list <fio@vger.kernel.org>.
--See \fBREADME\fR.
-+.br
-+See \fBREPORTING-BUGS\fR.
-+
-+\fBREPORTING-BUGS\fR: http://git.kernel.dk/cgit/fio/plain/REPORTING-BUGS
- .SH "SEE ALSO"
- For further documentation see \fBHOWTO\fR and \fBREADME\fR.
- .br
--- 
-2.9.4
-
+On 07/05/17 01:05, Sitsofe Wheeler wrote:
+> Hi,
+>
+> On 5 July 2017 at 04:16, Rebecca Cran <rebecca@bluestop.org> wrote:
+>> I noticed the fio documentation files HOWTO, README etc. have been converted
+>> to reStructured text, so since they're not so readable as plain text now
+>> I've generated the html versions and uploaded the 2.21 version to
+>> http://bluestop.org/files/fio/doc .
+> Others have mentioned the reduced readability too -
+> https://github.com/axboe/fio/pull/330 .
+>
+> There is also an (unofficial) generated version of docs over on
+> http://fio.readthedocs.io/en/latest/ but this is currently only
+> re-generated manually. Perhaps we should make it more official and
+> include a link to it?
+>
+It is updated automatically by readthedocs.io, there is a delay though.
 
