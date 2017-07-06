@@ -1,35 +1,51 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qt0-f180.google.com ([209.85.216.180]:33133 "EHLO
-        mail-qt0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752108AbdGCGjM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 3 Jul 2017 02:39:12 -0400
-Received: by mail-qt0-f180.google.com with SMTP id r30so136142096qtc.0
-        for <fio@vger.kernel.org>; Sun, 02 Jul 2017 23:39:11 -0700 (PDT)
-MIME-Version: 1.0
-From: Keith Owens <kaos.ocs@gmail.com>
-Date: Mon, 3 Jul 2017 16:39:10 +1000
-Message-ID: <CAFOWsvt5joru9mNN3VM65spn77VQDvCQp-OPwAXrtfi4SSbEJA@mail.gmail.com>
-Subject: Inverted test in fio ipo_bytes_align()
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:35106 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751745AbdGFJCh (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 6 Jul 2017 05:02:37 -0400
+Received: by mail-pg0-f65.google.com with SMTP id d193so2082971pgc.2
+        for <fio@vger.kernel.org>; Thu, 06 Jul 2017 02:02:31 -0700 (PDT)
+From: Oliver O'Halloran <oohall@gmail.com>
+Subject: [PATCH] arch/ppc: Fix get_cpu_clock asm clobber list
+Date: Thu,  6 Jul 2017 19:02:14 +1000
+Message-Id: <20170706090214.26270-1-oohall@gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
+Cc: Oliver O'Halloran <oohall@gmail.com>
 
-ipo_bytes_align() does nothing when replay_align is set, when
-replay_align is 0 it incorrectly masks all replay offsets to 0. The
-test is inverted.
+Mark condition register 0 (cr0) as being clobbered by the inline asm in
+get_cpu_clock(). Not doing this results in strange behaviour due to GCC
+optimising away some checking. For example e.g:
 
-diff --git a/iolog.h b/iolog.h
-index 60ee3e9..37f27bc 100644
---- a/iolog.h
-+++ b/iolog.h
-@@ -271,7 +271,7 @@ static inline bool inline_log(struct io_log *log)
+  $ ./fio examples/null.fio --output-format=json
+  time     5500  cycles_start=8085227422910      <--- bad!
+  {
+    "fio version" : "fio-2.21-89-gb034",
+    <snip>
 
- static inline void ipo_bytes_align(unsigned int replay_align, struct
-io_piece *ipo)
- {
--    if (replay_align)
-+    if (!replay_align)
-         return;
+The extra output is due to the flag checking in dprint being removed
+at higher optimisation levels.
 
-     ipo->offset &= ~(replay_align - (uint64_t)1);
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+---
+ arch/arch-ppc.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arch-ppc.h b/arch/arch-ppc.h
+index ba452b15b1ff..804d596aecc6 100644
+--- a/arch/arch-ppc.h
++++ b/arch/arch-ppc.h
+@@ -62,7 +62,8 @@ static inline unsigned long long get_cpu_clock(void)
+ 		"	cmpwi %0,0;\n"
+ 		"	beq-  90b;\n"
+ 	: "=r" (rval)
+-	: "i" (SPRN_TBRL));
++	: "i" (SPRN_TBRL)
++	: "cr0");
+ 
+ 	return rval;
+ }
+-- 
+2.9.4
+
