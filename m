@@ -1,142 +1,138 @@
-Return-Path: <sbates@raithlin.com>
-From: sbates@raithlin.com
-Subject: [PATCH v3] pvsync2: Add hipri_percentage option
-Date: Thu, 27 Jul 2017 12:08:51 -0600
-Message-Id: <1501178931-9691-1-git-send-email-sbates@raithlin.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-Return-Path: sbates@raithlin.com
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Stephen Bates <sbates@raithlin.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([65.50.211.133]:54001 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750907AbdGHMAM (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 8 Jul 2017 08:00:12 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1dToPD-0004Pa-Nh
+        for fio@vger.kernel.org; Sat, 08 Jul 2017 12:00:11 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170708120002.5C46D2C0098@kernel.dk>
+Date: Sat,  8 Jul 2017 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Stephen Bates <sbates@raithlin.com>
+The following changes since commit f25f4ef6d123173d7669553ec712419f95c1a3ea:
 
-Allow the user to set the probability of a pvsync2 IO being high
-priority. Add a new option for the pvsync2 engine called
---hipri_percentage will takes values in the range (0, 100) and use
-that as a probability for setting RWF_HIPRI. The default for this
-option is 100 so exisiting users of --hirpi are unaffected.
+  oslib/libmtd: kill dead code (2017-07-06 08:09:22 -0600)
 
-Changes since v2:
-  s/_probability/_percentage/
+are available in the git repository at:
 
-Changes since v1:
-  Use --hipri_probability rather than impacting --hipri
-  Correct the random number generator call
+  git://git.kernel.dk/fio.git master
 
-Signed-off-by: Stephen Bates <sbates@raithlin.com>
+for you to fetch changes up to 6210cf66316e25498ab2e445731b3bb6b886c363:
+
+  Fio 2.99 (2017-07-07 12:45:04 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (3):
+      io_u: sequence random buflen generation individually
+      init: add comment as to how we seed read/write/trim generators
+      Fio 2.99
+
+ FIO-VERSION-GEN        |  2 +-
+ fio.h                  |  4 +++-
+ init.c                 | 17 ++++++++++++++++-
+ io_u.c                 |  4 ++--
+ os/windows/install.wxs |  2 +-
+ 5 files changed, 23 insertions(+), 6 deletions(-)
+
 ---
- HOWTO          |  5 +++++
- engines/sync.c | 28 +++++++++++++++++++++++++++-
- fio.1          |  4 ++++
- 3 files changed, 36 insertions(+), 1 deletion(-)
 
-diff --git a/HOWTO b/HOWTO
-index 2fa8fc2..a1202f1 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1819,6 +1819,11 @@ caveat that when used on the command line, they must come after the
- 	Set RWF_HIPRI on I/O, indicating to the kernel that it's of higher priority
- 	than normal.
- 
-+.. option:: hipri_percentage : [pvsync2]
-+
-+	When hipri is set this determines the probability of a pvsync2 IO being high
-+	priority. The default is 100%.
-+
- .. option:: cpuload=int : [cpuio]
- 
- 	Attempt to use the specified percentage of CPU cycles. This is a mandatory
-diff --git a/engines/sync.c b/engines/sync.c
-index e76bbbb..9744d2b 100644
---- a/engines/sync.c
-+++ b/engines/sync.c
-@@ -14,6 +14,9 @@
- 
- #include "../fio.h"
- #include "../optgroup.h"
-+#ifdef FIO_HAVE_PWRITEV2
-+#include "../lib/rand.h"
-+#endif
- 
- /*
-  * Sync engine uses engine_data to store last offset
-@@ -30,12 +33,18 @@ struct syncio_data {
- 	unsigned long long last_offset;
- 	struct fio_file *last_file;
- 	enum fio_ddir last_ddir;
-+
-+#ifdef FIO_HAVE_PWRITEV2
-+	struct frand_state rand_state;
-+#endif
-+
- };
- 
- #ifdef FIO_HAVE_PWRITEV2
- struct psyncv2_options {
- 	void *pad;
- 	unsigned int hipri;
-+	unsigned int hipri_percentage;
- };
- 
- static struct fio_option options[] = {
-@@ -49,6 +58,18 @@ static struct fio_option options[] = {
- 		.group	= FIO_OPT_G_INVALID,
- 	},
- 	{
-+		.name	= "hipri_percentage",
-+		.lname	= "RWF_HIPRI_PERCENTAGE",
-+		.type	= FIO_OPT_INT,
-+		.off1	= offsetof(struct psyncv2_options, hipri_percentage),
-+		.minval	= 0,
-+		.maxval	= 100,
-+		.def    = "100",
-+		.help	= "Probabilistically set RWF_HIPRI for pwritev2/preadv2",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_INVALID,
-+	},
-+	{
- 		.name	= NULL,
- 	},
- };
-@@ -132,7 +153,8 @@ static int fio_pvsyncio2_queue(struct thread_data *td, struct io_u *io_u)
- 
- 	fio_ro_check(td, io_u);
- 
--	if (o->hipri)
-+	if (o->hipri &&
-+	    (rand32_between(&sd->rand_state, 1, 100) <= o->hipri_percentage))
- 		flags |= RWF_HIPRI;
- 
- 	iov->iov_base = io_u->xfer_buf;
-@@ -364,6 +386,10 @@ static int fio_vsyncio_init(struct thread_data *td)
- 	sd->iovecs = malloc(td->o.iodepth * sizeof(struct iovec));
- 	sd->io_us = malloc(td->o.iodepth * sizeof(struct io_u *));
- 
-+#ifdef FIO_HAVE_PWRITEV2
-+	init_rand(&sd->rand_state, 0);
-+#endif
-+
- 	td->io_ops_data = sd;
- 	return 0;
- }
-diff --git a/fio.1 b/fio.1
-index 768b209..a63c308 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2017,6 +2017,10 @@ iodepth_batch_complete=0).
- Set RWF_HIPRI on IO, indicating to the kernel that it's of
- higher priority than normal.
- .TP
-+.BI (pvsync2)hipri_percentage
-+When hipri is set this determines the probability of a pvsync2 IO being high
-+priority. The default is 100%.
-+.TP
- .BI (net,netsplice)hostname \fR=\fPstr
- The host name or IP address to use for TCP or UDP based IO.
- If the job is a TCP listener or UDP reader, the hostname is not
--- 
-1.9.1
+Diff of recent changes:
 
-
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index 3b4f206..f82aeee 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-2.21
++DEF_VER=fio-2.99
+ 
+ LF='
+ '
+diff --git a/fio.h b/fio.h
+index d5d6bfe..39d775c 100644
+--- a/fio.h
++++ b/fio.h
+@@ -91,6 +91,8 @@ enum {
+ 
+ enum {
+ 	FIO_RAND_BS_OFF		= 0,
++	FIO_RAND_BS1_OFF,
++	FIO_RAND_BS2_OFF,
+ 	FIO_RAND_VER_OFF,
+ 	FIO_RAND_MIX_OFF,
+ 	FIO_RAND_FILE_OFF,
+@@ -214,7 +216,7 @@ struct thread_data {
+ 
+ 	unsigned long rand_seeds[FIO_RAND_NR_OFFS];
+ 
+-	struct frand_state bsrange_state;
++	struct frand_state bsrange_state[DDIR_RWDIR_CNT];
+ 	struct frand_state verify_state;
+ 	struct frand_state trim_state;
+ 	struct frand_state delay_state;
+diff --git a/init.c b/init.c
+index a4b5adb..9b2b63d 100644
+--- a/init.c
++++ b/init.c
+@@ -921,7 +921,22 @@ static void td_fill_rand_seeds_internal(struct thread_data *td, bool use64)
+ {
+ 	int i;
+ 
+-	init_rand_seed(&td->bsrange_state, td->rand_seeds[FIO_RAND_BS_OFF], use64);
++	/*
++	 * trimwrite is special in that we need to generate the same
++	 * offsets to get the "write after trim" effect. If we are
++	 * using bssplit to set buffer length distributions, ensure that
++	 * we seed the trim and write generators identically.
++	 */
++	if (td_trimwrite(td)) {
++		init_rand_seed(&td->bsrange_state[DDIR_READ], td->rand_seeds[FIO_RAND_BS_OFF], use64);
++		init_rand_seed(&td->bsrange_state[DDIR_WRITE], td->rand_seeds[FIO_RAND_BS1_OFF], use64);
++		init_rand_seed(&td->bsrange_state[DDIR_TRIM], td->rand_seeds[FIO_RAND_BS1_OFF], use64);
++	} else {
++		init_rand_seed(&td->bsrange_state[DDIR_READ], td->rand_seeds[FIO_RAND_BS_OFF], use64);
++		init_rand_seed(&td->bsrange_state[DDIR_WRITE], td->rand_seeds[FIO_RAND_BS1_OFF], use64);
++		init_rand_seed(&td->bsrange_state[DDIR_TRIM], td->rand_seeds[FIO_RAND_BS2_OFF], use64);
++	}
++
+ 	td_fill_verify_state_seed(td);
+ 	init_rand_seed(&td->rwmix_state, td->rand_seeds[FIO_RAND_MIX_OFF], false);
+ 
+diff --git a/io_u.c b/io_u.c
+index 8d42d65..ed8e84a 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -552,9 +552,9 @@ static unsigned int __get_next_buflen(struct thread_data *td, struct io_u *io_u,
+ 	if (!io_u_fits(td, io_u, minbs))
+ 		return 0;
+ 
+-	frand_max = rand_max(&td->bsrange_state);
++	frand_max = rand_max(&td->bsrange_state[ddir]);
+ 	do {
+-		r = __rand(&td->bsrange_state);
++		r = __rand(&td->bsrange_state[ddir]);
+ 
+ 		if (!td->o.bssplit_nr[ddir]) {
+ 			buflen = 1 + (unsigned int) ((double) maxbs *
+diff --git a/os/windows/install.wxs b/os/windows/install.wxs
+index 860570a..500d64c 100755
+--- a/os/windows/install.wxs
++++ b/os/windows/install.wxs
+@@ -10,7 +10,7 @@
+ 	<Product Id="*"
+ 	  Codepage="1252" Language="1033"
+ 	  Manufacturer="fio" Name="fio"
+-	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.21">
++	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="2.99">
+ 		<Package
+ 		  Description="Flexible IO Tester"
+ 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
