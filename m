@@ -1,9 +1,12 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.dell-outbound.iphmx.com ([68.232.153.90]:37502 "EHLO
-        esa1.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1750788AbdGNSdd (ORCPT
-        <rfc822;fio@vger.kernel.org>); Fri, 14 Jul 2017 14:33:33 -0400
-Subject: Re: Mixed seq+random worload thread
+Received: from mail-ua0-f170.google.com ([209.85.217.170]:36224 "EHLO
+        mail-ua0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751038AbdGNSaw (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 14 Jul 2017 14:30:52 -0400
+Received: by mail-ua0-f170.google.com with SMTP id 35so9633301uax.3
+        for <fio@vger.kernel.org>; Fri, 14 Jul 2017 11:30:51 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CAKwzdDrY6rGM2xZNkhtx5jyTb7Jh6fsW8+B=GzAvOhr7RVc-Gg@mail.gmail.com>
 References: <CAKwzdDqKXE3VF=q-Ms3UwLLMjCUpnVZ_cgBwaY3W4sEx4r-X7Q@mail.gmail.com>
  <CALjAwxi0aH0JH-dpemwA7F4k=D3TdE+kwmZkke77S=zZmYjtog@mail.gmail.com>
  <CAKwzdDqC_Ha0FzBNQMZK6MBcaZQXBZpTP0kKe3a5T6UTpZoYdw@mail.gmail.com>
@@ -11,47 +14,20 @@ References: <CAKwzdDqKXE3VF=q-Ms3UwLLMjCUpnVZ_cgBwaY3W4sEx4r-X7Q@mail.gmail.com>
  <CAKwzdDrT1+=sp+apFvqfokbgTXLMa+RQ3qg9aamrt+Wtx-b1rQ@mail.gmail.com>
  <CALjAwxj3y37fKgTNooFSFqyyOURYwpMKu1_mWE_x3yichHmAXg@mail.gmail.com>
  <CAKwzdDrwFQ2QAqw4t9Er2QVf2mP3BaGKXGFWZ69opLfv+Vx8uA@mail.gmail.com>
- <CALjAwxhV4uf_Wps_SQOEuFqUL3b+10dZbhJHEp6DU7dKZyrM-Q@mail.gmail.com>
- <CAKwzdDrY6rGM2xZNkhtx5jyTb7Jh6fsW8+B=GzAvOhr7RVc-Gg@mail.gmail.com>
-From: Mikhail Terekhov <Mikhail.Terekhov@dell.com>
-Message-ID: <3d6621d9-8933-4af5-4f82-f04b120074fc@dell.com>
-Date: Fri, 14 Jul 2017 14:20:22 -0400
-MIME-Version: 1.0
-In-Reply-To: <CAKwzdDrY6rGM2xZNkhtx5jyTb7Jh6fsW8+B=GzAvOhr7RVc-Gg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+ <CALjAwxhV4uf_Wps_SQOEuFqUL3b+10dZbhJHEp6DU7dKZyrM-Q@mail.gmail.com> <CAKwzdDrY6rGM2xZNkhtx5jyTb7Jh6fsW8+B=GzAvOhr7RVc-Gg@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Fri, 14 Jul 2017 19:30:20 +0100
+Message-ID: <CALjAwxj5J==qwQDsZ+AaNKDaONMbfkj2k+6KFsPMRBgKPPPapA@mail.gmail.com>
+Subject: Re: Mixed seq+random worload thread
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: abhishek koundal <akoundal@gmail.com>, Sitsofe Wheeler <sitsofe@gmail.com>
+To: abhishek koundal <akoundal@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
 Hi,
-IMHO you mix absolute and relative caps. Here is my take on what StorScor
-does in this recipe:
 
-1. Run undisturbed RND_RD test and determine $read_tput_KBps from it.
-
-2. Calculate absolute cap for (RND|SEQ)_WR as 10% from the above:
-        $write_tput_KBps = int ( ( $write_pct / 100 ) * $read_tput_KBps );
-
-3. Run (RND|SEQ)_WR test in background with this _absolute_ cap
-
-4. Run RND_RD test _without_ any cap
-
-Please try the following fio job:
-
-[write_impact_check]
-rate=,4m
-bs=4k,128K
-percentage_random=100,0
-rw=randrw
-
-
-Regards, Mikhail
-
-
-On 07/14/17 12:25, abhishek koundal wrote:
+On 14 July 2017 at 17:25, abhishek koundal <akoundal@gmail.com> wrote:
 > Hi,
 > We have run multiple instances with the StorScor and yes there is a
 > reason MSFT is doing it and mostly every big cloud vendor caps the
@@ -77,15 +53,66 @@ On 07/14/17 12:25, abhishek koundal wrote:
 > Write Bytes %: 8.75%
 > <----------------------------------------------------------Tells me
 > ~10% SEQ_RD
->
+
+I disagree that the StoreScore recipe will alway give you that split -
+there's nothing in it that will cap the reads to 90% of all possible
+I/Os if the writes turn out to do less than 10% of the I/Os. That's
+the crux of my complaint and why I keep saying "you've asked for a
+10/90 split between SEQ_WR and RND_RD but that's not what the
+StoreScore recipe does". I think you have to let go of the idea that
+the jobs are in any way balanced against each other even if it often
+looks like they are. Of course it's up to you as to whether you feel
+that's close enough for your purposes :-)
+
 > In case of FIO theRND_RD also get impacted with the rate capping.
->
+
+Yes, because fio really is maintaining the ratio while both jobs
+*while they are running* - if one side slows down the other will slow
+down too so the ratio continues to be maintained.
+
 > My simple question is : Is the above MSFT receipe to model the mixed
 > workload with controlling the throuput in FIO possible?  I tried what
 > i can figure from the documentation and your feedback and looks like
 > FIO has limitation in this front.
->
->
+
+Sure but you have to program it exactly the same way the recipe did:
+i.e. write a program than runs the only the read part using fio, grabs
+the bandwidth achieved and then does the same StoreScore recipe
+calculations to set the rate of the each of the fio jobs independently
+e.g.:
+
+Run fio job that does
+[RND_RD]
+bs=4k
+rw=randread
+
+Grab the bandwidth that was achieved (e.g. by parsing the json
+output). Let's say I find that my disk had a read throughput of
+100MBytes/s:
+
+10/100*100=10
+
+OK I now have my program generate an fio job file (or command line
+that does this):
+
+[SEQ_WR]
+rate=10M
+bs=128K
+rw=write
+[RND_RD]
+rate=100M
+bs=4k
+rw=randread
+
+There's no flow and I've calculated the rate caps the same way the
+StoreScore recipe does. I have to do this because the recipe is NOT
+actively preserving a ratio between SEQ_WR and RND_RD. The ratio it is
+doing is SEQ_WR against the *original* read throughput, RND_RD against
+the *original* read throughput.
+
+I'm afraid I don't know a better way to describe my thoughts on this
+but perhaps someone else has some insight?
+
 > On Thu, Jul 13, 2017 at 11:20 PM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
 >> Hi,
 >>
@@ -93,22 +120,22 @@ On 07/14/17 12:25, abhishek koundal wrote:
 >> the reads *must* be being capped otherwise what purpose does
 >> $read_tput_KBps have? See the following:
 >>
->>          # Run the workload once undisturbed as a baseline.
->>          my %baseline =
->>              test( %workload, description => "$desc Baseline" );
+>>         # Run the workload once undisturbed as a baseline.
+>>         my %baseline =
+>>             test( %workload, description => "$desc Baseline" );
 >>
->>          my $read_tput_KBps = $baseline{'MB/sec Total'} * 1000;
+>>         my $read_tput_KBps = $baseline{'MB/sec Total'} * 1000;
 >> [...]
 >>
->>          # Run again, this time with an aggressor process injecting
->>          # writes in the background.  The aggressor is rate-limited
->>          # to a fraction of the baseline read throughput.
->>          foreach my $write_workload ( @write_workloads )
->>          {
+>>         # Run again, this time with an aggressor process injecting
+>>         # writes in the background.  The aggressor is rate-limited
+>>         # to a fraction of the baseline read throughput.
+>>         foreach my $write_workload ( @write_workloads )
+>>         {
 >> [...]
 >>
->>              my $write_tput_KBps =
->>                  int ( ( $write_pct / 100 ) * $read_tput_KBps );
+>>             my $write_tput_KBps =
+>>                 int ( ( $write_pct / 100 ) * $read_tput_KBps );
 >>
 >> The comment explains where the read "cap" came from. Briefly the
 >> StoreScore program seems to be doing this:
@@ -164,15 +191,15 @@ On 07/14/17 12:25, abhishek koundal wrote:
 >>>>
 >>>> My Perl is a bit rusty but look at how the write throughput is calculated:
 >>>>
->>>>          # Run again, this time with an aggressor process injecting
->>>>          # writes in the background.  The aggressor is rate-limited
->>>>          # to a fraction of the baseline read throughput.
->>>>          foreach my $write_workload ( @write_workloads )
->>>>          {
->>>>              my ($write_pattern, $write_pct) = @$write_workload;
+>>>>         # Run again, this time with an aggressor process injecting
+>>>>         # writes in the background.  The aggressor is rate-limited
+>>>>         # to a fraction of the baseline read throughput.
+>>>>         foreach my $write_workload ( @write_workloads )
+>>>>         {
+>>>>             my ($write_pattern, $write_pct) = @$write_workload;
 >>>>
->>>>              my $write_tput_KBps =
->>>>                  int ( ( $write_pct / 100 ) * $read_tput_KBps );
+>>>>             my $write_tput_KBps =
+>>>>                 int ( ( $write_pct / 100 ) * $read_tput_KBps );
 >>>>
 >>>> So it is accounting for the fact that the write throughput will be
 >>>> limited to a percentage of the read throughput.
@@ -209,10 +236,6 @@ On 07/14/17 12:25, abhishek koundal wrote:
 >>>>> to be capped and should run to it closest potential like I am see in
 >>>>> storScor.
 >>>>> Really appreciate for the support and helping me understand the limitations.
->>>> --
->>>> Sitsofe | http://sucs.org/~sits/
->> --
->> Sitsofe | http://sucs.org/~sits/
->
->
 
+-- 
+Sitsofe | http://sucs.org/~sits/
