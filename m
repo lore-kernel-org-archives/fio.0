@@ -1,38 +1,27 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f179.google.com ([209.85.217.179]:38860 "EHLO
-        mail-ua0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750746AbdGYHRR (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 25 Jul 2017 03:17:17 -0400
-Received: by mail-ua0-f179.google.com with SMTP id w45so96232473uac.5
-        for <fio@vger.kernel.org>; Tue, 25 Jul 2017 00:17:17 -0700 (PDT)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] man: fix wrong info on sync_file_range=
+References: <20170714072403.45658-1-tkusumi@tuxera.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <0ee0edf9-0846-e2ee-9c63-b9e906d725e0@kernel.dk>
+Date: Fri, 14 Jul 2017 08:25:39 -0600
 MIME-Version: 1.0
-From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Date: Tue, 25 Jul 2017 10:16:35 +0300
-Message-ID: <CAHndrBkV55xWU0yioqqYARdE3SzVpjxxnp9e8qoxxF+-Y_5F+A@mail.gmail.com>
-Subject: The commit 'filesetup: add native fallocate' breaks on Cygwin
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <20170714072403.45658-1-tkusumi@tuxera.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: kusumi.tomohiro@gmail.com, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi
-It seems the recent commit 2c3e17be ('filesetup: add native
-fallocate') breaks on Cygwin.
-It works on FreeBSD by the way.
+On 07/14/2017 01:24 AM, kusumi.tomohiro@gmail.com wrote:
+> From: Tomohiro Kusumi <tkusumi@tuxera.com>
+> 
+> This part isn't in sync with HOWTO, but also simply wrong.  HOWTO as
+> well as the actual option have SYNC_FILE_RANGE_WAIT_AFTER for this.
 
----
-$ uname
-CYGWIN_NT-10.0
-$ ./fio --name=xxx --ioengine=sync --rw=read --bs=4k --size=1m
-fio: this platform does not support process shared mutexes, forcing
-use of threads. Use the 'thread' option to get rid of this warning.
-xxx: (g=0): rw=read, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T)
-4096B-4096B, ioengine=sync, iodepth=1
-fio-2.21-80-g2c3e
-Starting 1 thread
+Applied, thanks.
 
-This application has requested the Runtime to terminate it in an unusual way.
-Please contact the application's support team for more information.
-xxx: Laying out IO file (1 file / 1MiB)
-fio: unknown fallocate mode: 0
-Assertion failed!
+-- 
+Jens Axboe
+
+
