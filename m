@@ -1,31 +1,266 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qt0-f175.google.com ([209.85.216.175]:32859 "EHLO
-        mail-qt0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752399AbdGECaY (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 4 Jul 2017 22:30:24 -0400
-Received: by mail-qt0-f175.google.com with SMTP id r30so176251457qtc.0
-        for <fio@vger.kernel.org>; Tue, 04 Jul 2017 19:30:24 -0700 (PDT)
+Received: from mail-qk0-f171.google.com ([209.85.220.171]:34857 "EHLO
+        mail-qk0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751185AbdGOA0I (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 14 Jul 2017 20:26:08 -0400
+Received: by mail-qk0-f171.google.com with SMTP id p73so24120221qka.2
+        for <fio@vger.kernel.org>; Fri, 14 Jul 2017 17:26:08 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <CALjAwxj5J==qwQDsZ+AaNKDaONMbfkj2k+6KFsPMRBgKPPPapA@mail.gmail.com>
+References: <CAKwzdDqKXE3VF=q-Ms3UwLLMjCUpnVZ_cgBwaY3W4sEx4r-X7Q@mail.gmail.com>
+ <CALjAwxi0aH0JH-dpemwA7F4k=D3TdE+kwmZkke77S=zZmYjtog@mail.gmail.com>
+ <CAKwzdDqC_Ha0FzBNQMZK6MBcaZQXBZpTP0kKe3a5T6UTpZoYdw@mail.gmail.com>
+ <CALjAwxgHOCfP-7=7V4bVRs5im0EbtXDbv3--P4wpaQNfFdb0eA@mail.gmail.com>
+ <CAKwzdDrT1+=sp+apFvqfokbgTXLMa+RQ3qg9aamrt+Wtx-b1rQ@mail.gmail.com>
+ <CALjAwxj3y37fKgTNooFSFqyyOURYwpMKu1_mWE_x3yichHmAXg@mail.gmail.com>
+ <CAKwzdDrwFQ2QAqw4t9Er2QVf2mP3BaGKXGFWZ69opLfv+Vx8uA@mail.gmail.com>
+ <CALjAwxhV4uf_Wps_SQOEuFqUL3b+10dZbhJHEp6DU7dKZyrM-Q@mail.gmail.com>
+ <CAKwzdDrY6rGM2xZNkhtx5jyTb7Jh6fsW8+B=GzAvOhr7RVc-Gg@mail.gmail.com> <CALjAwxj5J==qwQDsZ+AaNKDaONMbfkj2k+6KFsPMRBgKPPPapA@mail.gmail.com>
 From: abhishek koundal <akoundal@gmail.com>
-Date: Tue, 4 Jul 2017 19:29:43 -0700
-Message-ID: <CAKwzdDr12fxuw8UYPcoaR8a7U0v3k-DgZw26gdE2-xwbwFO9Yw@mail.gmail.com>
-Subject: fio sequential workload with zoned distribution
+Date: Fri, 14 Jul 2017 17:25:27 -0700
+Message-ID: <CAKwzdDpSUfGYXV4RH-8P1cktuM+BQeg1qT7-FtaN5dp1U-YZog@mail.gmail.com>
+Subject: Re: Mixed seq+random worload thread
 Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-All,
-I want to look at options of doing zoned access but using "sequential" workload.
-Does the below profile achieve that? I want to make sure that using
-the random_distribution wont cause the i/o to behave as random.
+Sitsofe,
+I think you are correct that it cant guarantee if the storScor can do
+it always hence they have ~ values of the break down. I think the
+confusion was that i got stuck with the 10/90(flow) and then rate, but
+lowering the rate will ~ give the same expected flow%  that I am
+looking for. I spent good amount of time today with different patterns
+and looks like just the rate should be good to control the desired
+"rate". I am in touch with the MSFT  folks and looks like they are
+confirming from there internal team to confirm that its only rate that
+picks the % split not each of them uniquely.
 
-rw=write
-random_distribution= 60/10:30/30:10/60
-i.e
-60% seq wr = first 10% of drive
-30% seq wr = next 30% of drive
-10% seq wr = next 60% of drive
+yes the above mentioned flow i had tried before with different options
+so I think it will work. :) , i wasn't sure if i am doing it correct,
+hence i initiated this discussion for brain storming.
+
+thanks Mikhail for your feedback and yes your way also should be able
+to achieve the same steps as done by StorScor.
+
+On Fri, Jul 14, 2017 at 11:30 AM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+> Hi,
+>
+> On 14 July 2017 at 17:25, abhishek koundal <akoundal@gmail.com> wrote:
+>> Hi,
+>> We have run multiple instances with the StorScor and yes there is a
+>> reason MSFT is doing it and mostly every big cloud vendor caps the
+>> drive max throughput.
+>> I am completely in alignment with your breakdown of the code and there
+>> is no confusion there as that is how I started to model the behavior
+>> in FIO.
+>> They are surely capping the reads when they do this e.g. 10% SEQ_WR ,
+>> 90% RND_RD (mixed WL), you can see that your default b/w for 90% will
+>> close enough to 100% PURE RND_RD but still not apple to apple.
+>> Still following the same process using MSFT recipe, In storScor  I can
+>> clearly see that 90%RND_RD b/w is not capped as per the capping of the
+>> SEQ_WR throughput.
+>> e.g. StorScor output.
+>> perfmon_physicaldisk_1_d:_disk_reads/sec : 6,173.32
+>> <-------------RND_RD is not capped but will surely get impacted as its
+>> not pure RND_RD
+>> perfmon_physicaldisk_1_d:_disk_writes/sec : 18.49
+>> <---------------SEQ_WR is capped based on the %/100*rd_throughput.
+>> Read Bytes % :91.25%
+>> <-------------------------------------------------------Tells me ~90%
+>> RND_RD
+>> Write Bytes %: 8.75%
+>> <----------------------------------------------------------Tells me
+>> ~10% SEQ_RD
+>
+> I disagree that the StoreScore recipe will alway give you that split -
+> there's nothing in it that will cap the reads to 90% of all possible
+> I/Os if the writes turn out to do less than 10% of the I/Os. That's
+> the crux of my complaint and why I keep saying "you've asked for a
+> 10/90 split between SEQ_WR and RND_RD but that's not what the
+> StoreScore recipe does". I think you have to let go of the idea that
+> the jobs are in any way balanced against each other even if it often
+> looks like they are. Of course it's up to you as to whether you feel
+> that's close enough for your purposes :-)
+>
+>> In case of FIO theRND_RD also get impacted with the rate capping.
+>
+> Yes, because fio really is maintaining the ratio while both jobs
+> *while they are running* - if one side slows down the other will slow
+> down too so the ratio continues to be maintained.
+>
+>> My simple question is : Is the above MSFT receipe to model the mixed
+>> workload with controlling the throuput in FIO possible?  I tried what
+>> i can figure from the documentation and your feedback and looks like
+>> FIO has limitation in this front.
+>
+> Sure but you have to program it exactly the same way the recipe did:
+> i.e. write a program than runs the only the read part using fio, grabs
+> the bandwidth achieved and then does the same StoreScore recipe
+> calculations to set the rate of the each of the fio jobs independently
+> e.g.:
+>
+> Run fio job that does
+> [RND_RD]
+> bs=4k
+> rw=randread
+>
+> Grab the bandwidth that was achieved (e.g. by parsing the json
+> output). Let's say I find that my disk had a read throughput of
+> 100MBytes/s:
+>
+> 10/100*100=10
+>
+> OK I now have my program generate an fio job file (or command line
+> that does this):
+>
+> [SEQ_WR]
+> rate=10M
+> bs=128K
+> rw=write
+> [RND_RD]
+> rate=100M
+> bs=4k
+> rw=randread
+>
+> There's no flow and I've calculated the rate caps the same way the
+> StoreScore recipe does. I have to do this because the recipe is NOT
+> actively preserving a ratio between SEQ_WR and RND_RD. The ratio it is
+> doing is SEQ_WR against the *original* read throughput, RND_RD against
+> the *original* read throughput.
+>
+> I'm afraid I don't know a better way to describe my thoughts on this
+> but perhaps someone else has some insight?
+>
+>> On Thu, Jul 13, 2017 at 11:20 PM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>>> Hi,
+>>>
+>>> Over on https://github.com/Microsoft/StorScore/blob/master/recipes/write_impact_check.rcp
+>>> the reads *must* be being capped otherwise what purpose does
+>>> $read_tput_KBps have? See the following:
+>>>
+>>>         # Run the workload once undisturbed as a baseline.
+>>>         my %baseline =
+>>>             test( %workload, description => "$desc Baseline" );
+>>>
+>>>         my $read_tput_KBps = $baseline{'MB/sec Total'} * 1000;
+>>> [...]
+>>>
+>>>         # Run again, this time with an aggressor process injecting
+>>>         # writes in the background.  The aggressor is rate-limited
+>>>         # to a fraction of the baseline read throughput.
+>>>         foreach my $write_workload ( @write_workloads )
+>>>         {
+>>> [...]
+>>>
+>>>             my $write_tput_KBps =
+>>>                 int ( ( $write_pct / 100 ) * $read_tput_KBps );
+>>>
+>>> The comment explains where the read "cap" came from. Briefly the
+>>> StoreScore program seems to be doing this:
+>>> 1. Run DISKSPD briefly to find the random read throughput of the disk
+>>> and put this value into the prev_rand_read_tput variable.
+>>> 2. seq_write_tput = prev_rand_read_tput * 10 / 100.
+>>> 3. rand_read_tput = prev_rand_read_tput.
+>>> 4. Run a detached DISKSPD at the same time as 4 that does sequential
+>>> writes but with a throughput cap of seq_write_tput.
+>>> 6. Run a detached DISKSPD that does random writes but with a
+>>> throughput cap of rand_read_tput.
+>>>
+>>> This strikes me as different to what you were proposing:
+>>> a) You said: "I want fio to do 10% 'this' / 90% 'that'"
+>>> b) That StorScore program does: "100% of 'that' capped to what I've
+>>> 'previously measured that' can do, and 'this' capped to 10% of the
+>>> 'previously measured that'".
+>>>
+>>> "Previously measured" becomes fixed and won't be changing as the
+>>> subsequent DISKSPD processes are running. Further, the ratio in a)
+>>> isn't between the same things as the ratio in b) and the even the
+>>> ratio itself isn't the same!
+>>>
+>>> For example, in the StorScore program imagine the baseline is
+>>> 100MBytes/s. You start running 4. and 5. together and the DISKSPD
+>>> process at 4. immediately falls to 0 (e.g. the disk is weird and can't
+>>> do reads and writes simultaneously). That does not mean the step 5.
+>>> DISKSPD will limit its throughput to 0 and continues chugging away at
+>>> 10MBytes/s. Thus the ratio between the step 4 DISKSPD and the step 5
+>>> DISKSPD quickly becomes 10:0.
+>>>
+>>> You would have to talk to Microsoft as to why their StoreScore recipe
+>>> was written the way it is but the comments do suggest it was
+>>> intentional. It's worth noting DISKSPD itself can't balance entire
+>>> running "jobs" against each other but as previously mentioned that's
+>>> not what the StorScore program you linked is trying to do anyway...
+>>>
+>>> On 13 July 2017 at 21:55, abhishek koundal <akoundal@gmail.com> wrote:
+>>>> Yes that is correct.
+>>>> So e.g. if you have RND_RD  b/w 45MBps and had 10%SEQ_WR 90%RND_RD the
+>>>> write throughput will be:
+>>>> =10/100 *45MBs = ~4.5MB/s
+>>>>
+>>>> Now if you try to cap the write throughput (rate =5m) to this in
+>>>> Linux, the RND_RD also gets impacted and wont run to its full
+>>>> potential.
+>>>>
+>>>> In StorScor reads thread will not get capped and only writes thread
+>>>> will be capped, hence deliver the expected results.
+>>>>
+>>>> On Thu, Jul 13, 2017 at 1:33 PM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>>>>> Hey,
+>>>>>
+>>>>> My Perl is a bit rusty but look at how the write throughput is calculated:
+>>>>>
+>>>>>         # Run again, this time with an aggressor process injecting
+>>>>>         # writes in the background.  The aggressor is rate-limited
+>>>>>         # to a fraction of the baseline read throughput.
+>>>>>         foreach my $write_workload ( @write_workloads )
+>>>>>         {
+>>>>>             my ($write_pattern, $write_pct) = @$write_workload;
+>>>>>
+>>>>>             my $write_tput_KBps =
+>>>>>                 int ( ( $write_pct / 100 ) * $read_tput_KBps );
+>>>>>
+>>>>> So it is accounting for the fact that the write throughput will be
+>>>>> limited to a percentage of the read throughput.
+>>>>>
+>>>>> On 13 July 2017 at 20:02, abhishek koundal <akoundal@gmail.com> wrote:
+>>>>>> Hi,
+>>>>>> The main thing that i am trying to do is to model the storScor in
+>>>>>> linux enviornment
+>>>>>> (https://github.com/Microsoft/StorScore/blob/master/recipes/write_impact_check.rcp).
+>>>>>> So there you can control the rate of the of the writes as per the %
+>>>>>> that is required. While running that on windows i can see that i can
+>>>>>> have different BS and rate defined for the runs achieving expected
+>>>>>> output.
+>>>>>>
+>>>>>> In the above mentioned case the RND_RD will be unconstrained (i.e.
+>>>>>> full BW they can achieve) but writes will be slowed to x% of RND_RD.
+>>>>>> In fio when
+>>>>>> e.g.
+>>>>>> SEQ_WR 10% and RND_RD 90%, with seq_wr rate capped at 10% of rnd rd
+>>>>>> (if rnd_rd was 40m)
+>>>>>> [SEQ_WR]
+>>>>>> rate=4m
+>>>>>> bs=128K
+>>>>>> rw=write
+>>>>>> flow=9
+>>>>>> [RND_RD]
+>>>>>> rate=40m
+>>>>>> bs=4k
+>>>>>> rw=randread
+>>>>>> flow=-1
+>>>>>> When i run this the output that comes back shows that SEQ_WR b/w is
+>>>>>> capped ~ 4m but RND_RD also gets severely hit for the IOPS+BW as it
+>>>>>> tried to put the total BW under <45m>. I want that RND_RD doesn't need
+>>>>>> to be capped and should run to it closest potential like I am see in
+>>>>>> storScor.
+>>>>>> Really appreciate for the support and helping me understand the limitations.
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
+
+
 
 -- 
 Life is too short for silly things so invest your time in some
