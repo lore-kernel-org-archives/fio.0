@@ -1,54 +1,27 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-oi0-f50.google.com ([209.85.218.50]:36192 "EHLO
-        mail-oi0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755283AbdGLFNh (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 12 Jul 2017 01:13:37 -0400
-Received: by mail-oi0-f50.google.com with SMTP id x187so10627408oig.3
-        for <fio@vger.kernel.org>; Tue, 11 Jul 2017 22:13:37 -0700 (PDT)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] man: add missing \ for fcntl(2) in write_hint option
+References: <20170716124020.2585-1-tkusumi@tuxera.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <5012f6cb-61f9-adbc-64c5-7ebafe34ad6c@kernel.dk>
+Date: Sun, 16 Jul 2017 08:11:33 -0600
 MIME-Version: 1.0
-From: Ido Ben-Tsion <idob@infinidat.com>
-Date: Wed, 12 Jul 2017 08:13:16 +0300
-Message-ID: <CAMHrwcRkq0vEiuqgqgZwN7djaJDS6=U1f6QPRWH2YDQpWf588w@mail.gmail.com>
-Subject: unexpected stonewall parsing led jobs separated by stonewall to run concurrently
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <20170716124020.2585-1-tkusumi@tuxera.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: kusumi.tomohiro@gmail.com, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-fio version: fio-2.21-37-ga2c9
+On 07/16/2017 06:40 AM, kusumi.tomohiro@gmail.com wrote:
+> From: Tomohiro Kusumi <tkusumi@tuxera.com>
+> 
+> 8f4b9f24 ('Update documentation for write_hint') was missing \.
+> Without this '|' becomes visible.
 
-fio file excerpt:
-[global]
-ioengine=sg
-invalidate=1
-ramp_time=5
-iodepth=16
-runtime=300
-time_based
-bs=64k
-norandommap
-loops=5
+Oops, my fault. Thanks, applied.
 
-[seq_read-2-jobs]
-rw=read
-numjobs=2
-stonewall
-
-[randread]
-rw=randread
-[seq_write]
-rw=write
-stonewall
-...
-
-In the report, I see jobs with groupid 0 which are not supposed to be
-on same group:
-...,jobname,groupid,...
-...,seq_read-2-jobs,0,...
-...,seq_read-2-jobs,0,...
-...,randread,0,...
-...,seq_write,1,...
+-- 
+Jens Axboe
 
 
-thanks,
-Ido Ben-Tsion
