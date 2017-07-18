@@ -1,93 +1,43 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:59497 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752021AbdGGMAI (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 7 Jul 2017 08:00:08 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1dTRvb-00020m-SZ
-        for fio@vger.kernel.org; Fri, 07 Jul 2017 12:00:07 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170707120001.D71A42C008E@kernel.dk>
-Date: Fri,  7 Jul 2017 06:00:01 -0600 (MDT)
+Received: from mail-ua0-f178.google.com ([209.85.217.178]:34955 "EHLO
+        mail-ua0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751203AbdGRGMn (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 18 Jul 2017 02:12:43 -0400
+Received: by mail-ua0-f178.google.com with SMTP id 64so11947138uae.2
+        for <fio@vger.kernel.org>; Mon, 17 Jul 2017 23:12:43 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <D2DBB427-CB0C-4959-9266-9940D2254A51@bluestop.org>
+References: <68e2387b-4010-aadf-4df8-1f7f434b6258@bluestop.org>
+ <CALjAwxik+EZL1WrB01ye_OaiELE44HmCm2NTC_hKX2v2rxvHmw@mail.gmail.com> <D2DBB427-CB0C-4959-9266-9940D2254A51@bluestop.org>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Tue, 18 Jul 2017 07:12:12 +0100
+Message-ID: <CALjAwxjvXhsvzoCcQK0RzWYM67YMYoEM+zwkmdQR8kkjMgp-wg@mail.gmail.com>
+Subject: Re: pmemblk ioengine broken (pmemblk_bsize unknown)
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Rebecca Cran <rebecca@bluestop.org>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit b034c0dd2cdb27d3523b300c1b4b93a1c5b84b3c:
+Hi,
 
-  HOWTO: fix indentation for options and job parameters (2017-07-04 16:07:50 -0600)
+On 18 July 2017 at 07:10, Rebecca Cran <rebecca@bluestop.org> wrote:
+>
+> Sent from my iPhone
+>> On Jul 18, 2017, at 12:03 AM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>>
+>> Looks like pmemblk_bsize didn't show up until
+>> https://github.com/pmem/nvml/commit/463aa6bbae83942ca7819c3eb1a698f3dfcafd59#diff-753ccabb0b5b2cc0453fb0bb1ef10bf8
+>> which github says only went into 0.2+b3 and then subsequently
+>> 0.3...
+>
+> Ah, thanks. I hadn't realized how outdated some packages in OpenSUSE Leap 42.2 are.
 
-are available in the git repository at:
+The API reported by libpmemblk.h seems perpetually stuck at 1.0 so
+perhaps everything pre-1.0 was considered unreleased? At any rate, it
+might be good to change the configure script to check / use
+pmemblk_bsize (e.g. volatile pmemblk_bsize bsize + a comment saying
+0.3+) so that "old" versions are quietly rejected...
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to f25f4ef6d123173d7669553ec712419f95c1a3ea:
-
-  oslib/libmtd: kill dead code (2017-07-06 08:09:22 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      oslib/libmtd: kill dead code
-
- oslib/libmtd_common.h | 42 ------------------------------------------
- 1 file changed, 42 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/oslib/libmtd_common.h b/oslib/libmtd_common.h
-index 3f9e1b8..35628fe 100644
---- a/oslib/libmtd_common.h
-+++ b/oslib/libmtd_common.h
-@@ -119,48 +119,6 @@ extern "C" {
- 	fprintf(stderr, "%s: warning!: " fmt "\n", PROGRAM_NAME, ##__VA_ARGS__); \
- } while(0)
- 
--static inline int mtd_rpmatch(const char *resp)
--{
--    return (resp[0] == 'y' || resp[0] == 'Y') ? 1 :
--	(resp[0] == 'n' || resp[0] == 'N') ? 0 : -1;
--}
--
--/**
-- * prompt the user for confirmation
-- */
--static inline bool prompt(const char *msg, bool def)
--{
--	char *line = NULL;
--	size_t len;
--	bool ret = def;
--
--	do {
--		normsg_cont("%s (%c/%c) ", msg, def ? 'Y' : 'y', def ? 'n' : 'N');
--		fflush(stdout);
--
--		while (getline(&line, &len, stdin) == -1) {
--			printf("failed to read prompt; assuming '%s'\n",
--				def ? "yes" : "no");
--			break;
--		}
--
--		if (strcmp("\n", line) != 0) {
--			switch (mtd_rpmatch(line)) {
--			case 0: ret = false; break;
--			case 1: ret = true; break;
--			case -1:
--				puts("unknown response; please try again");
--				continue;
--			}
--		}
--		break;
--	} while (1);
--
--	free(line);
--
--	return ret;
--}
--
- static inline int is_power_of_2(unsigned long long n)
- {
- 	return (n != 0 && ((n & (n - 1)) == 0));
+-- 
+Sitsofe | http://sucs.org/~sits/
