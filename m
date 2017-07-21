@@ -1,44 +1,82 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from wp188.webpack.hosteurope.de ([80.237.132.195]:44712 "EHLO
-        wp188.webpack.hosteurope.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1754143AbdGSRyX (ORCPT
-        <rfc822;fio@vger.kernel.org>); Wed, 19 Jul 2017 13:54:23 -0400
-From: Danny Al-Gaaf <danny.al-gaaf@bisect.de>
-Subject: iSCSI write performance issues
-Reply-To: Danny Al-Gaaf <danny.al-gaaf@bisect.de>
-Message-ID: <8b6ac1f2-a6e6-54a2-a439-339df8860e55@bisect.de>
-Date: Wed, 19 Jul 2017 19:22:16 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Received: from merlin.infradead.org ([205.233.59.134]:60788 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750835AbdGUMAM (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 21 Jul 2017 08:00:12 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1dYWbL-0005uw-Oa
+        for fio@vger.kernel.org; Fri, 21 Jul 2017 12:00:12 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170721120001.CBAB62C009A@kernel.dk>
+Date: Fri, 21 Jul 2017 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hi,
+The following changes since commit 785e49c659023df1735bff195ad4ba133ebd23a7:
 
-I'm running into an issue with performance measurements on an iSCSI
-volume. The volume has set a QoS value of max. 30.000 iops.
+  build: Sort file list (2017-07-16 14:02:51 -0600)
 
-I run tests with the libaio engine against the volume with the following
-base parameter:
+are available in the git repository at:
 
-fio --filename=/dev/sde --ioengine=libaio --direct=1 --buffered=0
---atomic=1 --bs=4k --invalidate=0
---readwrite=[read,write,randwrite,randread] --iodepth=128 --time_based
---runtime=1200  --name=ft --write_iops_log=w_iops_log
---write_bw_log=w_bw_log --write_lat_log=w_lat_log --output=fio_log
+  git://git.kernel.dk/fio.git master
 
-With randread/randwrite everything is as expected. The volume reaches
-the QoS max value and not more. But with write/read/readwrite I can get
-over the max QoS IOPs: ~41k iops.
+for you to fetch changes up to 800334db17a22029553488b41a5ede8af909c66d:
 
-After some investigation with wireshark it seems with seq r/w packages
-are aggregated (e.g. 8k TCP packages instead of 4k), which they are not
-with randwrite.
+  Correctly detect whether ioengine_load can exit early (2017-07-19 12:27:57 -0700)
 
-Is there an issue in libaio or in fio? Or is it an expected behavior
-from the kernel?
+----------------------------------------------------------------
+Ben Walker (1):
+      Correctly detect whether ioengine_load can exit early
 
-Danny
+ init.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/init.c b/init.c
+index 9b2b63d..90cc0bc 100644
+--- a/init.c
++++ b/init.c
+@@ -1000,16 +1000,24 @@ int ioengine_load(struct thread_data *td)
+ {
+ 	const char *engine;
+ 
+-	/*
+-	 * Engine has already been loaded.
+-	 */
+-	if (td->io_ops)
+-		return 0;
+ 	if (!td->o.ioengine) {
+ 		log_err("fio: internal fault, no IO engine specified\n");
+ 		return 1;
+ 	}
+ 
++	if (td->io_ops) {
++		/* An engine is loaded, but the requested ioengine
++		 * may have changed.
++		 */
++		if (!strcmp(td->io_ops->name, td->o.ioengine)) {
++			/* The right engine is already loaded */
++			return 0;
++		}
++
++		/* Unload the old engine. */
++		free_ioengine(td);
++	}
++
+ 	engine = get_engine_name(td->o.ioengine);
+ 	td->io_ops = load_ioengine(td, engine);
+ 	if (!td->io_ops) {
+@@ -2530,7 +2538,6 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ 			}
+ 
+ 			if (!ret && !strcmp(opt, "ioengine")) {
+-				free_ioengine(td);
+ 				if (ioengine_load(td)) {
+ 					put_job(td);
+ 					td = NULL;
