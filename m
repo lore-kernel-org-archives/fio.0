@@ -1,45 +1,41 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:54109 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756050AbdGXRM6 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 24 Jul 2017 13:12:58 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: RE: Number of Significant Figures
-Date: Mon, 24 Jul 2017 17:12:04 +0000
-Message-ID: <BN3PR0401MB1457774DB5457D0DC75C1A898FBB0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-References: <CY1PR0401MB1466818EED73F47951D660798FA40@CY1PR0401MB1466.namprd04.prod.outlook.com>
- <CALjAwxjyxN0g2NQL06P69Pko5GCS=chk-S3m_GJtTenk0QobLg@mail.gmail.com>
-In-Reply-To: <CALjAwxjyxN0g2NQL06P69Pko5GCS=chk-S3m_GJtTenk0QobLg@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-ua0-f178.google.com ([209.85.217.178]:37054 "EHLO
+        mail-ua0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753111AbdGVBgQ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 21 Jul 2017 21:36:16 -0400
+Received: by mail-ua0-f178.google.com with SMTP id f9so55433379uaf.4
+        for <fio@vger.kernel.org>; Fri, 21 Jul 2017 18:36:15 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <CY1PR0401MB1466818EED73F47951D660798FA40@CY1PR0401MB1466.namprd04.prod.outlook.com>
+References: <CY1PR0401MB1466818EED73F47951D660798FA40@CY1PR0401MB1466.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 22 Jul 2017 02:35:44 +0100
+Message-ID: <CALjAwxjyxN0g2NQL06P69Pko5GCS=chk-S3m_GJtTenk0QobLg@mail.gmail.com>
+Subject: Re: Number of Significant Figures
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Jeff Furlong <jeff.furlong@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-SGkgU2l0c29mZSwNCkluZGVlZCBpdCBpcyBub3JtYWwgb3V0cHV0LiAgRXZlbiB3aGVuIHVzaW5n
-IGV5ZWJhbGxzIG9ubHksIGlmIHRoZSBibG9ja3NpemUgaXMgbGFyZ2UsIGEgZmV3IGh1bmRyZWQg
-SU9QcyBvZiByb3VuZGluZyBtYWtlcyBmb3Igc29tZSBjb25mdXNpbmcgZGlmZmVyZW5jZXMuICBB
-Z3JlZWQgaXQgd291bGQgYmUgaGVscGZ1bCB0byBhZGQgYSBub3RlIGluIHRoZSBkb2NzLiAgVGhh
-bmtzLg0KDQpSZWdhcmRzLA0KSmVmZg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJv
-bTogU2l0c29mZSBXaGVlbGVyIFttYWlsdG86c2l0c29mZUBnbWFpbC5jb21dIA0KU2VudDogRnJp
-ZGF5LCBKdWx5IDIxLCAyMDE3IDY6MzYgUE0NClRvOiBKZWZmIEZ1cmxvbmcgPGplZmYuZnVybG9u
-Z0B3ZGMuY29tPg0KQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBOdW1iZXIg
-b2YgU2lnbmlmaWNhbnQgRmlndXJlcw0KDQpIaSBKZWZmLA0KDQpPbiAyMiBKdWx5IDIwMTcgYXQg
-MDA6MDksIEplZmYgRnVybG9uZyA8amVmZi5mdXJsb25nQHdkYy5jb20+IHdyb3RlOg0KPg0KPiBJ
-biBjb21taXQgZDY5NGE2YTdjMDJmNTc3YjJiYjVkMGFkMjQzMzFiNzc1YWNmNjg2OSB0aGUgcmVw
-b3J0ZWQgSU9QcyBjaGFuZ2VkIGZyb20gNiBzaWduaWZpY2FudCBmaWd1cmVzIHRvIDQgc2lnbmlm
-aWNhbnQgZmlndXJlcy4gIFNvIGEgZmlvIHN1bW1hcnkgZmlsZSBtYXkgY2hhbmdlIGZyb20gMTIz
-NDUgSU9QcyB0byAxMi4zayBJT1BzLiAgVGhlIGF0dGFjaGVkIHBhdGNoIHdpbGwgcmVzdG9yZSB0
-aGUgb3JpZ2luYWwgNiBzaWduaWZpY2FudCBmaWd1cmVzIChvciBtYXhsZW4gaW4gbnVtMnN0ci5j
-KS4NCg0KV2hpY2ggb3V0cHV0IGlzIHRoaXMgaW4gcmVsYXRpb24gdG8gLSBub3JtYWwsIHRlcnNl
-IG9yIGpzb24/DQoNCk5vdGUgdGhhdCBpZiB5b3UncmUgcmVmZXJyaW5nIHRvIG5vcm1hbCB0aGVu
-IEknbSBhZnJhaWQgdGhhdCBvdXRwdXQgZm9ybWF0IGlzIG5vdCBjb25zaWRlcmVkIHN0YWJsZSBh
-bmQgY2FuIGFyYml0cmFyaWx5IGNoYW5nZSAodGhlIGN1cnJlbnQgY2hhbmdlIHdhcyBtYWRlIGZv
-ciBjb21wYWN0bmVzcykuIFRoZSB2aWV3IGlzIHJlZ3VsYXIgb3V0cHV0IGlzIG1lYW50IGZvciBl
-eWViYWxscyBhbmQgdXNlcnMgc2hvdWxkIHVzZSB0aGUganNvbiAob3IgbGVzcyBmbGV4aWJsZQ0K
-dGVyc2UpIG91dHB1dCBmb3IgbWFjaGluZSBwYXJzaW5nIHB1cnBvc2VzLiBOb3cgSSBsb29rIHBl
-cmhhcHMgdGhpcyBuZWVkcyB0byBiZSBtYWRlIG1vcmUgZXhwbGljaXQgaW4gdGhlIGRvY3VtZW50
-YXRpb24uLi4NCg0KLS0NClNpdHNvZmUgfCBodHRwOi8vc3Vjcy5vcmcvfnNpdHMvDQo=
+Hi Jeff,
+
+On 22 July 2017 at 00:09, Jeff Furlong <jeff.furlong@wdc.com> wrote:
+>
+> In commit d694a6a7c02f577b2bb5d0ad24331b775acf6869 the reported IOPs chan=
+ged from 6 significant figures to 4 significant figures.  So a fio summary =
+file may change from 12345 IOPs to 12.3k IOPs.  The attached patch will res=
+tore the original 6 significant figures (or maxlen in num2str.c).
+
+Which output is this in relation to - normal, terse or json?
+
+Note that if you're referring to normal then I'm afraid that output
+format is not considered stable and can arbitrarily change (the
+current change was made for compactness). The view is regular output
+is meant for eyeballs and users should use the json (or less flexible
+terse) output for machine parsing purposes. Now I look perhaps this
+needs to be made more explicit in the documentation...
+
+--=20
+Sitsofe | http://sucs.org/~sits/
