@@ -1,78 +1,45 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 3/7] man: sync "JOB FILE PARAMETERS" section with HOWTO
-Date: Tue,  4 Jul 2017 21:08:12 +0300
-Message-Id: <20170704180816.39585-4-tkusumi@tuxera.com>
-In-Reply-To: <20170704180816.39585-1-tkusumi@tuxera.com>
-References: <20170704180816.39585-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:54109 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756050AbdGXRM6 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 24 Jul 2017 13:12:58 -0400
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: Number of Significant Figures
+Date: Mon, 24 Jul 2017 17:12:04 +0000
+Message-ID: <BN3PR0401MB1457774DB5457D0DC75C1A898FBB0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+References: <CY1PR0401MB1466818EED73F47951D660798FA40@CY1PR0401MB1466.namprd04.prod.outlook.com>
+ <CALjAwxjyxN0g2NQL06P69Pko5GCS=chk-S3m_GJtTenk0QobLg@mail.gmail.com>
+In-Reply-To: <CALjAwxjyxN0g2NQL06P69Pko5GCS=chk-S3m_GJtTenk0QobLg@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
-
-This commit replaces the entire section with the corresponding section
-in HOWTO, since the man page is only slightly different from HOWTO
-regarding this section.
-
-It also renames the following section names to sync with HOWTO.
-  "JOB PARAMETERS" to "JOB FILE PARAMETERS"
-  "JOB PARAMETERS"'s sub section "Types" to non-sub section "PARAMETER TYPES"
-  "JOB PARAMETERS"'s sub section "Parameter List" to non-sub section "JOB DESCRIPTION"
-
-Since section names aren't following the typical man page convention
-(man-pages(7) in Linux) to begin with, changing the section names
-to conform to HOWTO does no harm unless there's a reason to keep names
-that were once made.
-
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- fio.1 | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
-
-diff --git a/fio.1 b/fio.1
-index b22989a..629ab01 100644
---- a/fio.1
-+++ b/fio.1
-@@ -184,11 +184,10 @@ argument, \-\-cmdhelp will detail the given `option`.
- See the `examples/` directory in the fio source for inspiration on how to write
- job files. Note the copyright and license requirements currently apply to
- `examples/` files.
--.SH "JOB PARAMETERS"
--.SS Types
--Some parameters may take arguments of a specific type.
--Anywhere a numeric value is required, an arithmetic expression may be used,
--provided it is surrounded by parentheses. Supported operators are:
-+.SH "JOB FILE PARAMETERS"
-+Some parameters take an option of a given type, such as an integer or a
-+string. Anywhere a numeric value is required, an arithmetic expression may be
-+used, provided it is surrounded by parentheses. Supported operators are:
- .RS
- .RS
- .TP
-@@ -208,7 +207,9 @@ provided it is surrounded by parentheses. Supported operators are:
- .P
- For time values in expressions, units are microseconds by default. This is
- different than for time values not in expressions (not enclosed in
--parentheses). The types used are:
-+parentheses).
-+.SH "PARAMETER TYPES"
-+The following parameter types are used.
- .TP
- .I str
- String: a sequence of alphanumeric characters.
-@@ -299,7 +300,8 @@ sets of ranges, they are separated with a `,' or `/' character. For example:
- .I float_list
- List of floating numbers: A list of floating numbers, separated by
- a ':' character.
--.SS "Parameter List"
-+.SH "JOB DESCRIPTION"
-+With the above in mind, here follows the complete list of fio job parameters.
- .TP
- .BI name \fR=\fPstr
- May be used to override the job name.  On the command line, this parameter
--- 
-2.9.4
-
-
+SGkgU2l0c29mZSwNCkluZGVlZCBpdCBpcyBub3JtYWwgb3V0cHV0LiAgRXZlbiB3aGVuIHVzaW5n
+IGV5ZWJhbGxzIG9ubHksIGlmIHRoZSBibG9ja3NpemUgaXMgbGFyZ2UsIGEgZmV3IGh1bmRyZWQg
+SU9QcyBvZiByb3VuZGluZyBtYWtlcyBmb3Igc29tZSBjb25mdXNpbmcgZGlmZmVyZW5jZXMuICBB
+Z3JlZWQgaXQgd291bGQgYmUgaGVscGZ1bCB0byBhZGQgYSBub3RlIGluIHRoZSBkb2NzLiAgVGhh
+bmtzLg0KDQpSZWdhcmRzLA0KSmVmZg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJv
+bTogU2l0c29mZSBXaGVlbGVyIFttYWlsdG86c2l0c29mZUBnbWFpbC5jb21dIA0KU2VudDogRnJp
+ZGF5LCBKdWx5IDIxLCAyMDE3IDY6MzYgUE0NClRvOiBKZWZmIEZ1cmxvbmcgPGplZmYuZnVybG9u
+Z0B3ZGMuY29tPg0KQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBOdW1iZXIg
+b2YgU2lnbmlmaWNhbnQgRmlndXJlcw0KDQpIaSBKZWZmLA0KDQpPbiAyMiBKdWx5IDIwMTcgYXQg
+MDA6MDksIEplZmYgRnVybG9uZyA8amVmZi5mdXJsb25nQHdkYy5jb20+IHdyb3RlOg0KPg0KPiBJ
+biBjb21taXQgZDY5NGE2YTdjMDJmNTc3YjJiYjVkMGFkMjQzMzFiNzc1YWNmNjg2OSB0aGUgcmVw
+b3J0ZWQgSU9QcyBjaGFuZ2VkIGZyb20gNiBzaWduaWZpY2FudCBmaWd1cmVzIHRvIDQgc2lnbmlm
+aWNhbnQgZmlndXJlcy4gIFNvIGEgZmlvIHN1bW1hcnkgZmlsZSBtYXkgY2hhbmdlIGZyb20gMTIz
+NDUgSU9QcyB0byAxMi4zayBJT1BzLiAgVGhlIGF0dGFjaGVkIHBhdGNoIHdpbGwgcmVzdG9yZSB0
+aGUgb3JpZ2luYWwgNiBzaWduaWZpY2FudCBmaWd1cmVzIChvciBtYXhsZW4gaW4gbnVtMnN0ci5j
+KS4NCg0KV2hpY2ggb3V0cHV0IGlzIHRoaXMgaW4gcmVsYXRpb24gdG8gLSBub3JtYWwsIHRlcnNl
+IG9yIGpzb24/DQoNCk5vdGUgdGhhdCBpZiB5b3UncmUgcmVmZXJyaW5nIHRvIG5vcm1hbCB0aGVu
+IEknbSBhZnJhaWQgdGhhdCBvdXRwdXQgZm9ybWF0IGlzIG5vdCBjb25zaWRlcmVkIHN0YWJsZSBh
+bmQgY2FuIGFyYml0cmFyaWx5IGNoYW5nZSAodGhlIGN1cnJlbnQgY2hhbmdlIHdhcyBtYWRlIGZv
+ciBjb21wYWN0bmVzcykuIFRoZSB2aWV3IGlzIHJlZ3VsYXIgb3V0cHV0IGlzIG1lYW50IGZvciBl
+eWViYWxscyBhbmQgdXNlcnMgc2hvdWxkIHVzZSB0aGUganNvbiAob3IgbGVzcyBmbGV4aWJsZQ0K
+dGVyc2UpIG91dHB1dCBmb3IgbWFjaGluZSBwYXJzaW5nIHB1cnBvc2VzLiBOb3cgSSBsb29rIHBl
+cmhhcHMgdGhpcyBuZWVkcyB0byBiZSBtYWRlIG1vcmUgZXhwbGljaXQgaW4gdGhlIGRvY3VtZW50
+YXRpb24uLi4NCg0KLS0NClNpdHNvZmUgfCBodHRwOi8vc3Vjcy5vcmcvfnNpdHMvDQo=
