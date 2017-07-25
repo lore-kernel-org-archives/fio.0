@@ -1,9 +1,9 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 4/4] drop logging when blkdev invalidation failed on unsupported platforms
-Date: Tue, 25 Jul 2017 22:05:44 +0300
-Message-Id: <20170725190544.66919-5-tkusumi@tuxera.com>
+Subject: [PATCH 2/4] man: fix broken ioengine specific option format
+Date: Tue, 25 Jul 2017 22:05:42 +0300
+Message-Id: <20170725190544.66919-3-tkusumi@tuxera.com>
 In-Reply-To: <20170725190544.66919-1-tkusumi@tuxera.com>
 References: <20170725190544.66919-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
@@ -12,36 +12,48 @@ List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-22de5d77('Use ENOTSUP if OS doesn't support blkdev page cache invalidation')
-changed errno values being used on supported platforms to ENOTSUP,
-and also log_info'd it via strerror(), but strerror() isn't working
-on some platform and instead prints irrelevant string.
-
-Re: fio Windows Invalidate
-http://www.spinics.net/lists/fio/msg06084.html
-
-The logging of ENOTSUP could just be dropped since this isn't a real
-failure, as many platforms either don't have the idea of invalidating
-blkdev's page cache mapping, or use chrdev for block devices.
+The parentheses here are supposed to be for the name of ioengines,
+but not for the name of options, according to other correct ones.
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- filesetup.c | 2 --
- 1 file changed, 2 deletions(-)
+ fio.1 | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/filesetup.c b/filesetup.c
-index 38ad9ed..3b2ebd9 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -528,8 +528,6 @@ static int __file_invalidate_cache(struct thread_data *td, struct fio_file *f,
- 		}
- 		if (ret < 0)
- 			errval = errno;
--		else if (ret) /* probably not supported */
--			errval = ret;
- 	} else if (f->filetype == FIO_TYPE_CHAR ||
- 		   f->filetype == FIO_TYPE_PIPE) {
- 		dprint(FD_IO, "invalidate not supported %s\n", f->file_name);
+diff --git a/fio.1 b/fio.1
+index 0badda1..84bd466 100644
+--- a/fio.1
++++ b/fio.1
+@@ -2069,7 +2069,7 @@ For TCP network connections, tell fio to listen for incoming
+ connections rather than initiating an outgoing connection. The
+ hostname must be omitted if this option is used.
+ .TP
+-.BI (net, pingpong) \fR=\fPbool
++.BI (net)pingpong \fR=\fPbool
+ Normally a network writer will just continue writing data, and a network reader
+ will just consume packets. If pingpong=1 is set, a writer will send its normal
+ payload to the reader, then wait for the reader to send the same payload back.
+@@ -2079,16 +2079,16 @@ completion latency measures how long it took for the other end to receive and
+ send back. For UDP multicast traffic pingpong=1 should only be set for a single
+ reader when multiple readers are listening to the same address.
+ .TP
+-.BI (net, window_size) \fR=\fPint
++.BI (net)window_size \fR=\fPint
+ Set the desired socket buffer size for the connection.
+ .TP
+-.BI (net, mss) \fR=\fPint
++.BI (net)mss \fR=\fPint
+ Set the TCP maximum segment size (TCP_MAXSEG).
+ .TP
+-.BI (e4defrag,donorname) \fR=\fPstr
++.BI (e4defrag)donorname \fR=\fPstr
+ File will be used as a block donor (swap extents between files)
+ .TP
+-.BI (e4defrag,inplace) \fR=\fPint
++.BI (e4defrag)inplace \fR=\fPint
+ Configure donor file block allocation strategy
+ .RS
+ .BI 0(default) :
 -- 
 2.9.4
 
