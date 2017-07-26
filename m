@@ -1,137 +1,144 @@
-Return-Path: <sbates@raithlin.com>
-From: sbates@raithlin.com
-Subject: [PATCH v4] pvsync2: Add hipri_percentage option
-Date: Thu, 27 Jul 2017 14:02:15 -0600
-Message-Id: <1501185735-9828-1-git-send-email-sbates@raithlin.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-Return-Path: sbates@raithlin.com
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Stephen Bates <sbates@raithlin.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([65.50.211.133]:51786 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751089AbdGZMAG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 26 Jul 2017 08:00:06 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1daKyz-0003vB-Pu
+        for fio@vger.kernel.org; Wed, 26 Jul 2017 12:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170726120001.946E32C1196@kernel.dk>
+Date: Wed, 26 Jul 2017 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Stephen Bates <sbates@raithlin.com>
+The following changes since commit 800334db17a22029553488b41a5ede8af909c66d:
 
-Allow the user to set the probability of a pvsync2 IO being high
-priority. Add a new option for the pvsync2 engine called
---hipri_percentage will takes values in the range (0, 100) and use
-that as a probability for setting RWF_HIPRI. The default for this
-option is 100 so exisiting users of --hirpi are unaffected.
+  Correctly detect whether ioengine_load can exit early (2017-07-19 12:27:57 -0700)
 
-Changes since v3:
-  Remove unwanted #ifdefs
+are available in the git repository at:
 
-Changes since v2:
-  s/_probability/_percentage/
+  git://git.kernel.dk/fio.git master
 
-Changes since v1:
-  Use --hipri_probability rather than impacting --hipri
-  Correct the random number generator call
+for you to fetch changes up to e1933299ed9f1525e010e0489f0185c063d6d129:
 
-Signed-off-by: Stephen Bates <sbates@raithlin.com>
+  drop logging when blkdev invalidation failed on unsupported platforms (2017-07-25 13:56:21 -0600)
+
+----------------------------------------------------------------
+Tomohiro Kusumi (4):
+      HOWTO: fix "should be to to"
+      man: fix broken ioengine specific option format
+      HOWTO: add missing [netsplice] for ioengine specific options
+      drop logging when blkdev invalidation failed on unsupported platforms
+
+ HOWTO       | 10 +++++-----
+ filesetup.c |  2 --
+ fio.1       | 12 ++++++------
+ 3 files changed, 11 insertions(+), 13 deletions(-)
+
 ---
- HOWTO          |  5 +++++
- engines/sync.c | 20 +++++++++++++++++++-
- fio.1          |  4 ++++
- 3 files changed, 28 insertions(+), 1 deletion(-)
+
+Diff of recent changes:
 
 diff --git a/HOWTO b/HOWTO
-index 2fa8fc2..a1202f1 100644
+index e544634..2fa8fc2 100644
 --- a/HOWTO
 +++ b/HOWTO
-@@ -1819,6 +1819,11 @@ caveat that when used on the command line, they must come after the
- 	Set RWF_HIPRI on I/O, indicating to the kernel that it's of higher priority
- 	than normal.
+@@ -1255,7 +1255,7 @@ I/O type
  
-+.. option:: hipri_percentage : [pvsync2]
-+
-+	When hipri is set this determines the probability of a pvsync2 IO being high
-+	priority. The default is 100%.
-+
- .. option:: cpuload=int : [cpuio]
+ 	* 60% of accesses should be to the first 10%
+ 	* 30% of accesses should be to the next 20%
+-	* 8% of accesses should be to to the next 30%
++	* 8% of accesses should be to the next 30%
+ 	* 2% of accesses should be to the next 40%
  
- 	Attempt to use the specified percentage of CPU cycles. This is a mandatory
-diff --git a/engines/sync.c b/engines/sync.c
-index e76bbbb..26b98b6 100644
---- a/engines/sync.c
-+++ b/engines/sync.c
-@@ -14,6 +14,7 @@
+ 	we can define that through zoning of the random accesses. For the above
+@@ -1889,13 +1889,13 @@ caveat that when used on the command line, they must come after the
+ 	hostname if the job is a TCP listener or UDP reader. For unix sockets, the
+ 	normal filename option should be used and the port is invalid.
  
- #include "../fio.h"
- #include "../optgroup.h"
-+#include "../lib/rand.h"
+-.. option:: listen : [net]
++.. option:: listen : [netsplice] [net]
  
- /*
-  * Sync engine uses engine_data to store last offset
-@@ -30,12 +31,15 @@ struct syncio_data {
- 	unsigned long long last_offset;
- 	struct fio_file *last_file;
- 	enum fio_ddir last_ddir;
-+
-+	struct frand_state rand_state;
- };
+ 	For TCP network connections, tell fio to listen for incoming connections
+ 	rather than initiating an outgoing connection. The :option:`hostname` must
+ 	be omitted if this option is used.
  
- #ifdef FIO_HAVE_PWRITEV2
- struct psyncv2_options {
- 	void *pad;
- 	unsigned int hipri;
-+	unsigned int hipri_percentage;
- };
+-.. option:: pingpong : [net]
++.. option:: pingpong : [netsplice] [net]
  
- static struct fio_option options[] = {
-@@ -49,6 +53,18 @@ static struct fio_option options[] = {
- 		.group	= FIO_OPT_G_INVALID,
- 	},
- 	{
-+		.name	= "hipri_percentage",
-+		.lname	= "RWF_HIPRI_PERCENTAGE",
-+		.type	= FIO_OPT_INT,
-+		.off1	= offsetof(struct psyncv2_options, hipri_percentage),
-+		.minval	= 0,
-+		.maxval	= 100,
-+		.def    = "100",
-+		.help	= "Probabilistically set RWF_HIPRI for pwritev2/preadv2",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_INVALID,
-+	},
-+	{
- 		.name	= NULL,
- 	},
- };
-@@ -132,7 +148,8 @@ static int fio_pvsyncio2_queue(struct thread_data *td, struct io_u *io_u)
+ 	Normally a network writer will just continue writing data, and a network
+ 	reader will just consume packages. If ``pingpong=1`` is set, a writer will
+@@ -1907,11 +1907,11 @@ caveat that when used on the command line, they must come after the
+ 	``pingpong=1`` should only be set for a single reader when multiple readers
+ 	are listening to the same address.
  
- 	fio_ro_check(td, io_u);
+-.. option:: window_size : [net]
++.. option:: window_size : [netsplice] [net]
  
--	if (o->hipri)
-+	if (o->hipri &&
-+	    (rand32_between(&sd->rand_state, 1, 100) <= o->hipri_percentage))
- 		flags |= RWF_HIPRI;
+ 	Set the desired socket buffer size for the connection.
  
- 	iov->iov_base = io_u->xfer_buf;
-@@ -363,6 +380,7 @@ static int fio_vsyncio_init(struct thread_data *td)
- 	sd->last_offset = -1ULL;
- 	sd->iovecs = malloc(td->o.iodepth * sizeof(struct iovec));
- 	sd->io_us = malloc(td->o.iodepth * sizeof(struct io_u *));
-+	init_rand(&sd->rand_state, 0);
+-.. option:: mss : [net]
++.. option:: mss : [netsplice] [net]
  
- 	td->io_ops_data = sd;
- 	return 0;
+ 	Set the TCP maximum segment size (TCP_MAXSEG).
+ 
+diff --git a/filesetup.c b/filesetup.c
+index 38ad9ed..3b2ebd9 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -528,8 +528,6 @@ static int __file_invalidate_cache(struct thread_data *td, struct fio_file *f,
+ 		}
+ 		if (ret < 0)
+ 			errval = errno;
+-		else if (ret) /* probably not supported */
+-			errval = ret;
+ 	} else if (f->filetype == FIO_TYPE_CHAR ||
+ 		   f->filetype == FIO_TYPE_PIPE) {
+ 		dprint(FD_IO, "invalidate not supported %s\n", f->file_name);
 diff --git a/fio.1 b/fio.1
-index 768b209..a63c308 100644
+index 7fe96e0..768b209 100644
 --- a/fio.1
 +++ b/fio.1
-@@ -2017,6 +2017,10 @@ iodepth_batch_complete=0).
- Set RWF_HIPRI on IO, indicating to the kernel that it's of
- higher priority than normal.
+@@ -1143,7 +1143,7 @@ given a criteria of:
+ 30% of accesses should be to the next 20%
+ .RE
+ .RS
+-8% of accesses should be to to the next 30%
++8% of accesses should be to the next 30%
+ .RE
+ .RS
+ 2% of accesses should be to the next 40%
+@@ -2069,7 +2069,7 @@ For TCP network connections, tell fio to listen for incoming
+ connections rather than initiating an outgoing connection. The
+ hostname must be omitted if this option is used.
  .TP
-+.BI (pvsync2)hipri_percentage
-+When hipri is set this determines the probability of a pvsync2 IO being high
-+priority. The default is 100%.
-+.TP
- .BI (net,netsplice)hostname \fR=\fPstr
- The host name or IP address to use for TCP or UDP based IO.
- If the job is a TCP listener or UDP reader, the hostname is not
--- 
-1.9.1
-
-
+-.BI (net, pingpong) \fR=\fPbool
++.BI (net,netsplice)pingpong \fR=\fPbool
+ Normally a network writer will just continue writing data, and a network reader
+ will just consume packets. If pingpong=1 is set, a writer will send its normal
+ payload to the reader, then wait for the reader to send the same payload back.
+@@ -2079,16 +2079,16 @@ completion latency measures how long it took for the other end to receive and
+ send back. For UDP multicast traffic pingpong=1 should only be set for a single
+ reader when multiple readers are listening to the same address.
+ .TP
+-.BI (net, window_size) \fR=\fPint
++.BI (net,netsplice)window_size \fR=\fPint
+ Set the desired socket buffer size for the connection.
+ .TP
+-.BI (net, mss) \fR=\fPint
++.BI (net,netsplice)mss \fR=\fPint
+ Set the TCP maximum segment size (TCP_MAXSEG).
+ .TP
+-.BI (e4defrag,donorname) \fR=\fPstr
++.BI (e4defrag)donorname \fR=\fPstr
+ File will be used as a block donor (swap extents between files)
+ .TP
+-.BI (e4defrag,inplace) \fR=\fPint
++.BI (e4defrag)inplace \fR=\fPint
+ Configure donor file block allocation strategy
+ .RS
+ .BI 0(default) :
