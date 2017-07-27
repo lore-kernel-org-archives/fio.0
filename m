@@ -1,28 +1,33 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-eopbgr660124.outbound.protection.outlook.com ([40.107.66.124]:14947
-        "EHLO CAN01-QB1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751421AbdG0CUD (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 26 Jul 2017 22:20:03 -0400
-From: "Stephen  Bates" <sbates@raithlin.com>
+Return-Path: <axboe@kernel.dk>
 Subject: Re: [PATCH] pvsync2: Make hipri option probabilistic
-Date: Thu, 27 Jul 2017 02:20:01 +0000
-Message-ID: <18CE30C5-51B1-498A-A6DA-51F6DACDD8A8@raithlin.com>
 References: <1501110306-8531-1-git-send-email-sbates@raithlin.com>
- <4bcff119-bff0-3763-f9ca-a208e4b493a0@kernel.dk>
-In-Reply-To: <4bcff119-bff0-3763-f9ca-a208e4b493a0@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <75792EF2BB1D9F4DBE50464E97B1E2CE@CANPRD01.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: base64
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <4bcff119-bff0-3763-f9ca-a208e4b493a0@kernel.dk>
+Date: Wed, 26 Jul 2017 20:17:25 -0600
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <1501110306-8531-1-git-send-email-sbates@raithlin.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: sbates@raithlin.com, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-DQo+IFlvdSBhcmUgcG90ZW50aWFsbHkgYnJlYWtpbmcgZXhpc3Rpbmcgc2NyaXB0cyB3aXRoIHRo
-aXMgY2hhbmdlLiBJZg0KPiBzb21lb25lIGN1cnJlbnRseSBoYXM6DQoNCj4gaGlwcmk9MQ0KDQo+
-IGluIHRoZWlyIGpvYiBmaWxlLCBpdCdsbCB3b3JrIGZpbmUuIEFmdGVyIHRoaXMgY2hhbmdlLCBp
-dCdsbCBiZSAxJQ0KPiBwb2xsZWQgSU8uDQoNCkZhaXIgcG9pbnQuIEhvdyBhYm91dCBJIG1ha2Ug
-aXQgYSBmbG9hdCBhbmQgdXNlIHZhbHVlcyBiZXR3ZWVuIDAgYW5kIDE/IFRoYXQgd2F5IGV4aXN0
-aW5nIHNjcmlwdHMgd2lsbCBjb250aW51ZSB0byB3b3JrLg0KDQpTdGVwaGVuDQoNCg0KDQo=
+On 07/26/2017 05:05 PM, sbates@raithlin.com wrote:
+> From: Stephen Bates <sbates@raithlin.com>
+> 
+> Allow the user to set the probability of a pvsync2 IO being high
+> priority. This allows the user to investigate performance when there
+> is a mix of higher and lower priority IO.
+
+You are potentially breaking existing scripts with this change. If
+someone currently has:
+
+hipri=1
+
+in their job file, it'll work fine. After this change, it'll be 1%
+polled IO.
+
+-- 
+Jens Axboe
+
+
