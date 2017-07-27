@@ -1,33 +1,38 @@
-Return-Path: <sitsofe@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <1501110306-8531-1-git-send-email-sbates@raithlin.com>
-References: <1501110306-8531-1-git-send-email-sbates@raithlin.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Thu, 27 Jul 2017 05:06:45 +0100
-Message-ID: <CALjAwxigYf==ysoHfO8JSmo6O2YDrNzczh3zocSS0U8+jZazqA@mail.gmail.com>
+Return-Path: <axboe@kernel.dk>
 Subject: Re: [PATCH] pvsync2: Make hipri option probabilistic
-Content-Type: text/plain; charset="UTF-8"
-To: sbates@raithlin.com
-Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+References: <1501110306-8531-1-git-send-email-sbates@raithlin.com>
+ <4bcff119-bff0-3763-f9ca-a208e4b493a0@kernel.dk>
+ <18CE30C5-51B1-498A-A6DA-51F6DACDD8A8@raithlin.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <911b448f-fd82-a53f-492c-c2ae2b47612a@kernel.dk>
+Date: Wed, 26 Jul 2017 20:22:16 -0600
+MIME-Version: 1.0
+In-Reply-To: <18CE30C5-51B1-498A-A6DA-51F6DACDD8A8@raithlin.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Stephen Bates <sbates@raithlin.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-Hi,
+On 07/26/2017 08:20 PM, Stephen  Bates wrote:
+> 
+>> You are potentially breaking existing scripts with this change. If
+>> someone currently has:
+> 
+>> hipri=1
+> 
+>> in their job file, it'll work fine. After this change, it'll be 1%
+>> polled IO.
+> 
+> Fair point. How about I make it a float and use values between 0 and
+> 1? That way existing scripts will continue to work.
 
-On 27 July 2017 at 00:05,  <sbates@raithlin.com> wrote:
-> From: Stephen Bates <sbates@raithlin.com>
->
-> Allow the user to set the probability of a pvsync2 IO being high
-> priority. This allows the user to investigate performance when there
-> is a mix of higher and lower priority IO.
-
-I'll just note this seems to be a feature that people are reluctant to
-send upstream. I'm aware of at least one fio fork
-(https://github.com/Seagate/fio/commits/master ) that adds this
-feature and it's been asked about on the mailing list
-(https://www.spinics.net/lists/fio/msg05487.html ) so even if it takes
-a few rounds of polishing for you to get it in I wish you the best of
-luck!
+That's kind of horrible from a usability point of view. Other percentage
+options take 0..100. Since it's just an IO engine option, just add a
+hipri_percentage or something option instead, which takes 0..100 as the
+input.
 
 -- 
-Sitsofe | http://sucs.org/~sits/
+Jens Axboe
+
 
