@@ -1,33 +1,20 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 0/4] documentation fix
-Date: Tue, 25 Jul 2017 22:05:40 +0300
-Message-Id: <20170725190544.66919-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+Return-Path: <sbates@raithlin.com>
+From: "Stephen  Bates" <sbates@raithlin.com>
+Subject: Re: [PATCH v2] pvsync2: Add hipri_probability option
+Date: Thu, 27 Jul 2017 17:51:01 +0000
+Message-ID: <F4F22D56-AC6E-464A-A87B-592FE6C56184@raithlin.com>
+References: <1501173847-9433-1-git-send-email-sbates@raithlin.com>
+ <e2ab8120-9a35-766d-8490-79bab4c1cf7b@kernel.dk>
+In-Reply-To: <e2ab8120-9a35-766d-8490-79bab4c1cf7b@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <9DA0F5BD2B69FE449D6427915A820D40@CANPRD01.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
-
-The first 3 are the ones I found while syncing the man page with HOWTO.
-(I'm at around L2000 of HOWTO, but still takes a bit of time)
-
-The last one is from
-http://www.spinics.net/lists/fio/msg06083.html
-
-Tomohiro Kusumi (4):
-  HOWTO: fix "should be to to"
-  man: fix broken ioengine specific option format
-  HOWTO: add missing [netsplice] for ioengine specific options
-  drop logging when blkdev invalidation failed on unsupported platforms
-
- HOWTO       | 10 +++++-----
- filesetup.c |  2 --
- fio.1       | 12 ++++++------
- 3 files changed, 11 insertions(+), 13 deletions(-)
-
--- 
-2.9.4
-
+PiBhbmQgc2luY2Ugd2UgaGF2ZSBvdGhlciBvcHRpb25zIGxpa2UgdGhhdCwgSSB0aGluayB3ZSBz
+aG91bGQNCj4gbWFrZSBpdCBoaXByaV9wZXJjZW50YWdlIGluc3RlYWQuDQoNCk5vIHdvcnJpZXMg
+YWJvdXQgbml0cGljay4gU291bmRzIGdvb2QuIHYzIGNvbWluZyBzb29uIQ0KDQoNCg0KDQo=
 
