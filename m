@@ -1,20 +1,35 @@
-Return-Path: <sbates@raithlin.com>
-From: "Stephen  Bates" <sbates@raithlin.com>
+Return-Path: <axboe@kernel.dk>
 Subject: Re: [PATCH v2] pvsync2: Add hipri_probability option
-Date: Thu, 27 Jul 2017 17:51:01 +0000
-Message-ID: <F4F22D56-AC6E-464A-A87B-592FE6C56184@raithlin.com>
 References: <1501173847-9433-1-git-send-email-sbates@raithlin.com>
- <e2ab8120-9a35-766d-8490-79bab4c1cf7b@kernel.dk>
-In-Reply-To: <e2ab8120-9a35-766d-8490-79bab4c1cf7b@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <9DA0F5BD2B69FE449D6427915A820D40@CANPRD01.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: base64
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <e2ab8120-9a35-766d-8490-79bab4c1cf7b@kernel.dk>
+Date: Thu, 27 Jul 2017 11:46:44 -0600
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <1501173847-9433-1-git-send-email-sbates@raithlin.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: sbates@raithlin.com, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-PiBhbmQgc2luY2Ugd2UgaGF2ZSBvdGhlciBvcHRpb25zIGxpa2UgdGhhdCwgSSB0aGluayB3ZSBz
-aG91bGQNCj4gbWFrZSBpdCBoaXByaV9wZXJjZW50YWdlIGluc3RlYWQuDQoNCk5vIHdvcnJpZXMg
-YWJvdXQgbml0cGljay4gU291bmRzIGdvb2QuIHYzIGNvbWluZyBzb29uIQ0KDQoNCg0KDQo=
+On 07/27/2017 10:44 AM, sbates@raithlin.com wrote:
+> From: Stephen Bates <sbates@raithlin.com>
+> 
+> Allow the user to set the probability of a pvsync2 IO being high
+> priority. Add a new option for the pvsync2 engine called
+> --hipri_probability will takes values in the range (0, 100) and use
+> that as a probability for setting RWF_HIPRI. The default for this
+> option is 100 so exisiting users of --hirpi are unaffected by
+> default.
+
+Sorry to keep nit picking on this, but the reason I suggested
+_percentage instead of _probability is that the former is in
+the 0..100 range whereas the latter I would assume would be in
+the 0..1 range. Since you've implemented it as a percentage,
+and since we have other options like that, I think we should
+make it hipri_percentage instead.
+
+-- 
+Jens Axboe
+
 
