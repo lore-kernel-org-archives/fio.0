@@ -1,47 +1,57 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f179.google.com ([209.85.217.179]:34176 "EHLO
-        mail-ua0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750944AbdGaGSV (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 31 Jul 2017 02:18:21 -0400
-Received: by mail-ua0-f179.google.com with SMTP id q25so167738204uah.1
-        for <fio@vger.kernel.org>; Sun, 30 Jul 2017 23:18:21 -0700 (PDT)
+Received: from mail-ua0-f172.google.com ([209.85.217.172]:34411 "EHLO
+        mail-ua0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751531AbdG1GcF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 28 Jul 2017 02:32:05 -0400
+Received: by mail-ua0-f172.google.com with SMTP id q25so138050635uah.1
+        for <fio@vger.kernel.org>; Thu, 27 Jul 2017 23:32:04 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <D2D93BA8.1CCD9%Antonio.Jose.Rodrigues.Neto@netapp.com>
-References: <D2D93BA8.1CCD9%Antonio.Jose.Rodrigues.Neto@netapp.com>
+In-Reply-To: <BN3PR0401MB145790BF6F19F8F52E278C908FB90@BN3PR0401MB1457.namprd04.prod.outlook.com>
+References: <BN3PR0401MB145790BF6F19F8F52E278C908FB90@BN3PR0401MB1457.namprd04.prod.outlook.com>
 From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Mon, 31 Jul 2017 07:17:50 +0100
-Message-ID: <CALjAwxjvjTHOqCzDM5BiABn_EDyf=H1StyuBwD_gY1Kg4cxeRw@mail.gmail.com>
-Subject: Re: FIO and replay_redirect
+Date: Fri, 28 Jul 2017 07:31:33 +0100
+Message-ID: <CALjAwxiDDUy2Ra-7dT3hmXrTwXKj=joQNtsV3eCvtpqFmGE5DA@mail.gmail.com>
+Subject: Re: fio Windows Time
 Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: neto from Brazil <Antonio.Jose.Rodrigues.Neto@netapp.com>
+To: Jeff Furlong <jeff.furlong@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-(This is one I meant to reply to but didn't get around to for some reason)
+Hi,
 
-On 4 February 2016 at 22:32, neto from Brazil
-<Antonio.Jose.Rodrigues.Neto@netapp.com> wrote:
+On 27 July 2017 at 00:45, Jeff Furlong <jeff.furlong@wdc.com> wrote:
 >
-> 1) The workload that I capture, all DM devices have 200GB size. My devices
-> where I want to replay have 100GB. I believe I will need to match the size
-> of all disks (where I captured the workload) with the destination where I
-> am going to replay. For example: If I capture a workload with 18 LUNs
-> 200GB, to replay I need to have 18 LUNs with 200GB minimum.
+> When fio prints a summary output in Linux, the timestamp appears correct with the Linux system date/time.  However, on Windows, the time reported seems to be incorrect (wrong time zone)?
 >
-> 2) I need to replay to more than one device. How can I do that with fio?
-> Seems to me replay_redirect is for a single specified device.
+>     test_job: (groupid=0, jobs=1): err= 0: pid=1928: Tue Jul 25 21:24:23 2017
 >
-> 3) Any help why I am getting that error? fio: ioengines.c:422:
-> td_io_open_file: Assertion `!fio_file_open(f)' failed.
+> It looks like the fio timestamp is reported by stat.c, show_thread_status_normal():
+>
+>     memset(time_buf, 0, sizeof(time_buf));
+>
+>     time(&time_p);
+>     os_ctime_r((const time_t *) &time_p, time_buf, sizeof(time_buf));
+>
+>     if (!ts->error) {
+>         log_buf(out, "%s: (groupid=%d, jobs=%d): err=%2d: pid=%d: %s",
+>             ts->name, ts->groupid, ts->members,
+>             ts->error, (int) ts->pid, time_buf);
+>
+> Is there a better way to query system time on Windows platforms?  Thanks.
 
-1) You should be able to use replay_scale
-(http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-replay-scale
-)..
-2) This still can't be done with fio.
-3) Should be fixed since
-https://github.com/axboe/fio/commit/96d663ad34f1def5c41a8fe656c15d5c312dffe2
-(e.g. 2.16 and later).
+What time were you expecting, what time was printed, what timezone are
+you in, which version of fio and which version of Windows? I've just
+done a quick run with fio-2.99 Windows 2012 R2 and found the time fio
+prints on Windows appears to be UTC.
+
+The Windows code that constructs the string is ctime_r in
+os/windows/posix.h
+(https://github.com/axboe/fio/blob/fio-2.99/os/windows/posix.c#L239 ).
+If you wanted to print timezone information at a guess this would
+involve getting and parsing GetTimeZoneInformation
+(https://msdn.microsoft.com/en-us/library/windows/desktop/ms724421(v=vs.85).aspx
+) and ensuring the time you retrieved was the local system one.
 
 -- 
 Sitsofe | http://sucs.org/~sits/
