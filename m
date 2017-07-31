@@ -1,156 +1,47 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 6/7] HOWTO: minor backports from the man page
-Date: Tue,  4 Jul 2017 21:08:15 +0300
-Message-Id: <20170704180816.39585-7-tkusumi@tuxera.com>
-In-Reply-To: <20170704180816.39585-1-tkusumi@tuxera.com>
-References: <20170704180816.39585-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-ua0-f179.google.com ([209.85.217.179]:34176 "EHLO
+        mail-ua0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750944AbdGaGSV (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 31 Jul 2017 02:18:21 -0400
+Received: by mail-ua0-f179.google.com with SMTP id q25so167738204uah.1
+        for <fio@vger.kernel.org>; Sun, 30 Jul 2017 23:18:21 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <D2D93BA8.1CCD9%Antonio.Jose.Rodrigues.Neto@netapp.com>
+References: <D2D93BA8.1CCD9%Antonio.Jose.Rodrigues.Neto@netapp.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Mon, 31 Jul 2017 07:17:50 +0100
+Message-ID: <CALjAwxjvjTHOqCzDM5BiABn_EDyf=H1StyuBwD_gY1Kg4cxeRw@mail.gmail.com>
+Subject: Re: FIO and replay_redirect
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: neto from Brazil <Antonio.Jose.Rodrigues.Neto@netapp.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+(This is one I meant to reply to but didn't get around to for some reason)
 
-This commit mainly backports some minor fixups from the man page
-sections covered in the several previous commits.
+On 4 February 2016 at 22:32, neto from Brazil
+<Antonio.Jose.Rodrigues.Neto@netapp.com> wrote:
+>
+> 1) The workload that I capture, all DM devices have 200GB size. My devices
+> where I want to replay have 100GB. I believe I will need to match the size
+> of all disks (where I captured the workload) with the destination where I
+> am going to replay. For example: If I capture a workload with 18 LUNs
+> 200GB, to replay I need to have 18 LUNs with 200GB minimum.
+>
+> 2) I need to replay to more than one device. How can I do that with fio?
+> Seems to me replay_redirect is for a single specified device.
+>
+> 3) Any help why I am getting that error? fio: ioengines.c:422:
+> td_io_open_file: Assertion `!fio_file_open(f)' failed.
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- HOWTO | 41 ++++++++++++++++++++++-------------------
- 1 file changed, 22 insertions(+), 19 deletions(-)
+1) You should be able to use replay_scale
+(http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-replay-scale
+)..
+2) This still can't be done with fio.
+3) Should be fixed since
+https://github.com/axboe/fio/commit/96d663ad34f1def5c41a8fe656c15d5c312dffe2
+(e.g. 2.16 and later).
 
-diff --git a/HOWTO b/HOWTO
-index 92c3b73..e982b1a 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -104,6 +104,16 @@ Command line options
- 
- 	Write output to file `filename`.
- 
-+.. option:: --output-format=type
-+
-+	Set the reporting format to `normal`, `terse`, `json`, or `json+`.  Multiple
-+	formats can be selected, separated by a comma.  `terse` is a CSV based
-+	format.  `json+` is like `json`, except it adds a full dump of the latency
-+	buckets.
-+
-+.. option:: --runtime
-+	Limit run time to runtime seconds.
-+
- .. option:: --bandwidth-log
- 
- 	Generate aggregate bandwidth logs.
-@@ -115,23 +125,16 @@ Command line options
- .. option:: --append-terse
- 
-     Print statistics in selected mode AND terse, semicolon-delimited format.
--    **deprecated**, use :option:`--output-format` instead to select multiple
-+    **Deprecated**, use :option:`--output-format` instead to select multiple
-     formats.
- 
--.. option:: --output-format=type
--
--	Set the reporting format to `normal`, `terse`, `json`, or `json+`.  Multiple
--	formats can be selected, separated by a comma.  `terse` is a CSV based
--	format.  `json+` is like `json`, except it adds a full dump of the latency
--	buckets.
--
- .. option:: --terse-version=type
- 
- 	Set terse version output format (default 3, or 2 or 4 or 5).
- 
- .. option:: --version
- 
--	Print version info and exit.
-+	Print version information and exit.
- 
- .. option:: --help
- 
-@@ -144,7 +147,7 @@ Command line options
- .. option:: --crctest=[test]
- 
-     Test the speed of the built-in checksumming functions. If no argument is
--    given all of them are tested. Alternatively, a comma separated list can be passed, in
-+    given, all of them are tested. Alternatively, a comma separated list can be passed, in
-     which case the given ones are tested.
- 
- .. option:: --cmdhelp=command
-@@ -159,7 +162,7 @@ Command line options
- 
- .. option:: --showcmd=jobfile
- 
--	Turn a job file into command line options.
-+	Convert `jobfile` to a set of command-line options.
- 
- .. option:: --readonly
- 
-@@ -172,8 +175,8 @@ Command line options
- 
- .. option:: --eta=when
- 
--	When real-time ETA estimate should be printed.  May be `always`, `never` or
--	`auto`.
-+	Specifies when real-time ETA estimate should be printed.  `when` may be
-+	`always`, `never` or `auto`.
- 
- .. option:: --eta-newline=time
- 
-@@ -187,7 +190,7 @@ Command line options
- 
- .. option:: --section=name
- 
--    Only run specified section in job file.  Multiple sections can be specified.
-+    Only run specified section `name` in job file.  Multiple sections can be specified.
-     The ``--section`` option allows one to combine related jobs into one file.
-     E.g. one job file could define light, moderate, and heavy sections. Tell
-     fio to run only the "heavy" section by giving ``--section=heavy``
-@@ -198,7 +201,7 @@ Command line options
- 
- .. option:: --alloc-size=kb
- 
--    Set the internal smalloc pool to this size in KiB.  The
-+    Set the internal smalloc pool size to `kb` in KiB.  The
-     ``--alloc-size`` switch allows one to use a larger pool size for smalloc.
-     If running large jobs with randommap enabled, fio can run out of memory.
-     Smalloc is an internal allocator for shared structures from a fixed size
-@@ -214,7 +217,7 @@ Command line options
- 
- .. option:: --max-jobs=nr
- 
--	Maximum number of threads/processes to support.
-+	Set the maximum number of threads/processes to support.
- 
- .. option:: --server=args
- 
-@@ -236,7 +239,7 @@ Command line options
- 
- .. option:: --idle-prof=option
- 
--	Report CPU idleness. *option* is one of the following:
-+	Report CPU idleness. `option` is one of the following:
- 
- 		**calibrate**
- 			Run unit work calibration only and exit.
-@@ -521,7 +524,7 @@ Parameter types
- 	compatibility with old scripts.  For example, 4k means 4096.
- 
- 	For quantities of data, an optional unit of 'B' may be included
--	(e.g.,  'kB' is the same as 'k').
-+	(e.g., 'kB' is the same as 'k').
- 
- 	The *integer suffix* is not case sensitive (e.g., m/mi mean mebi/mega,
- 	not milli). 'b' and 'B' both mean byte, not bit.
-@@ -3542,7 +3545,7 @@ If windowed logging is enabled and :option:`log_max_value` is set, then fio logs
- maximum values in that window instead of averages.  Since 'data direction' and
- 'offset' are per-I/O values, they aren't applicable if windowed logging is enabled.
- 
--Client/server
-+Client/Server
- -------------
- 
- Normally fio is invoked as a stand-alone application on the machine where the
 -- 
-2.9.4
-
-
+Sitsofe | http://sucs.org/~sits/
