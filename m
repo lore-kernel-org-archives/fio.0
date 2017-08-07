@@ -1,63 +1,77 @@
-Return-Path: <sitsofe@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <BN3PR0401MB1457526C9EAFA64BE7FEA14D8FB50@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Return-Path: <jeff.furlong@wdc.com>
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: Pending fio 3.0 release
+Date: Mon, 7 Aug 2017 22:02:10 +0000
+Message-ID: <BN3PR0401MB1457526C9EAFA64BE7FEA14D8FB50@BN3PR0401MB1457.namprd04.prod.outlook.com>
 References: <2bbf3bdf-e11b-2f58-a222-1e284b7d0cee@kernel.dk>
  <CALjAwxizNpBTAWLR4eTixM0QfgLrkvEEJzWmi_88_k_KKp5dUg@mail.gmail.com>
- <336d0c1b-2382-1037-2eac-e34b78242340@kernel.dk> <BN3PR0401MB1457526C9EAFA64BE7FEA14D8FB50@BN3PR0401MB1457.namprd04.prod.outlook.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Mon, 7 Aug 2017 23:25:28 +0100
-Message-ID: <CALjAwxgO5jadJwG6mxNhsnxqLyfU4QiDvCEYwAd8zj8BZF5yNA@mail.gmail.com>
-Subject: Re: Pending fio 3.0 release
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-To: Jeff Furlong <jeff.furlong@wdc.com>
-Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Rebecca Cran <rebecca@bluestop.org>, Tomohiro Kusumi <tkusumi@tuxera.com>
+ <336d0c1b-2382-1037-2eac-e34b78242340@kernel.dk>
+In-Reply-To: <336d0c1b-2382-1037-2eac-e34b78242340@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Rebecca Cran <rebecca@bluestop.org>, Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
-On 7 August 2017 at 23:02, Jeff Furlong <jeff.furlong@wdc.com> wrote:
-> Are the 3 serialize changes (pull requests  343/345/359) controversial or=
- not complete?  I hit the same issue in April with a similar workload:
-
-A fair question Jeff.
-
-If memory serves https://github.com/axboe/fio/pull/343 ("Add
-serialize_overlap option") is controversial because it took a heavy
-handed with potentially high overhead due to checking every I/O
-against every other inflight I/O to determine if it should flush to
-avoid generating two in-flight I/Os that cover overlapping regions. To
-use it you had to set an explicit option (which defaulted to off) and
-did the job though...
-
-https://github.com/axboe/fio/pull/345 is hopefully uncontroversial as
-it just removes an optimisation that could turn off overlap checking
-when it really needed for jobs that can write the same region twice
-and would otherwise lead to spurious mismatches at verification time.
-
-https://github.com/axboe/fio/pull/359 narrowed the window that was
-creating a double free situation when two overlapping inflight writes
-occurred. It's imperfect but it made the problem I was seeing go away
-even if I can theorise it won't prevent the problem in every case.
-
->
-> # fio --name=3DDI_Stress --ioengine=3Dlibaio --direct=3D1 --rw=3Drandwrit=
-e --norandommap --randrepeat=3D0 --iodepth=3D16 --size=3D100% --numjobs=3D1=
- --bs=3D2048k --filename=3D/dev/nvme1n1 --output=3DDI_Stress --verify=3Dcrc=
-32c-intel --verify_fatal=3D1 --verify_dump=3D1 --verify_backlog=3D32768
->
-> I tried again now with fio 2.99 and reproduced after a few minutes:
->
-> verify: bad header numberio 4531, wanted 4532 at file /dev/nvme1n1 offset=
- 2643506233344, length 2097152
->        hdr_fail data dumped as nvme1n1.2643506233344.hdr_fail
->
-> So any large block random write seems to be at risk (larger the block, hi=
-gher the risk).  If there are other parameters I should be setting to avoid=
- the issue, please let me know.  Thanks.
-
-If you set --overwrite=3D1 does the problem you're seeing go away? If so
-it sounds like you're hitting https://github.com/axboe/fio/issues/335
-...
-
---=20
-Sitsofe | http://sucs.org/~sits/
+QXJlIHRoZSAzIHNlcmlhbGl6ZSBjaGFuZ2VzIChwdWxsIHJlcXVlc3RzICAzNDMvMzQ1LzM1OSkg
+Y29udHJvdmVyc2lhbCBvciBub3QgY29tcGxldGU/ICBJIGhpdCB0aGUgc2FtZSBpc3N1ZSBpbiBB
+cHJpbCB3aXRoIGEgc2ltaWxhciB3b3JrbG9hZDoNCg0KIyBmaW8gLS1uYW1lPURJX1N0cmVzcyAt
+LWlvZW5naW5lPWxpYmFpbyAtLWRpcmVjdD0xIC0tcnc9cmFuZHdyaXRlIC0tbm9yYW5kb21tYXAg
+LS1yYW5kcmVwZWF0PTAgLS1pb2RlcHRoPTE2IC0tc2l6ZT0xMDAlIC0tbnVtam9icz0xIC0tYnM9
+MjA0OGsgLS1maWxlbmFtZT0vZGV2L252bWUxbjEgLS1vdXRwdXQ9RElfU3RyZXNzIC0tdmVyaWZ5
+PWNyYzMyYy1pbnRlbCAtLXZlcmlmeV9mYXRhbD0xIC0tdmVyaWZ5X2R1bXA9MSAtLXZlcmlmeV9i
+YWNrbG9nPTMyNzY4DQoNCkkgdHJpZWQgYWdhaW4gbm93IHdpdGggZmlvIDIuOTkgYW5kIHJlcHJv
+ZHVjZWQgYWZ0ZXIgYSBmZXcgbWludXRlczoNCg0KdmVyaWZ5OiBiYWQgaGVhZGVyIG51bWJlcmlv
+IDQ1MzEsIHdhbnRlZCA0NTMyIGF0IGZpbGUgL2Rldi9udm1lMW4xIG9mZnNldCAyNjQzNTA2MjMz
+MzQ0LCBsZW5ndGggMjA5NzE1Mg0KICAgICAgIGhkcl9mYWlsIGRhdGEgZHVtcGVkIGFzIG52bWUx
+bjEuMjY0MzUwNjIzMzM0NC5oZHJfZmFpbA0KDQpTbyBhbnkgbGFyZ2UgYmxvY2sgcmFuZG9tIHdy
+aXRlIHNlZW1zIHRvIGJlIGF0IHJpc2sgKGxhcmdlciB0aGUgYmxvY2ssIGhpZ2hlciB0aGUgcmlz
+aykuICBJZiB0aGVyZSBhcmUgb3RoZXIgcGFyYW1ldGVycyBJIHNob3VsZCBiZSBzZXR0aW5nIHRv
+IGF2b2lkIHRoZSBpc3N1ZSwgcGxlYXNlIGxldCBtZSBrbm93LiAgVGhhbmtzLg0KDQpSZWdhcmRz
+LA0KSmVmZg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogZmlvLW93bmVyQHZn
+ZXIua2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFs
+ZiBPZiBKZW5zIEF4Ym9lDQpTZW50OiBNb25kYXksIEF1Z3VzdCA3LCAyMDE3IDEyOjQ3IFBNDQpU
+bzogU2l0c29mZSBXaGVlbGVyIDxzaXRzb2ZlQGdtYWlsLmNvbT4NCkNjOiBmaW9Admdlci5rZXJu
+ZWwub3JnOyBSZWJlY2NhIENyYW4gPHJlYmVjY2FAYmx1ZXN0b3Aub3JnPjsgVG9tb2hpcm8gS3Vz
+dW1pIDx0a3VzdW1pQHR1eGVyYS5jb20+DQpTdWJqZWN0OiBSZTogUGVuZGluZyBmaW8gMy4wIHJl
+bGVhc2UNCg0KT24gMDgvMDcvMjAxNyAwMTowNSBQTSwgU2l0c29mZSBXaGVlbGVyIHdyb3RlOg0K
+PiBIaSBKZW5zLA0KPiANCj4gT24gNyBBdWd1c3QgMjAxNyBhdCAxNzoxMCwgSmVucyBBeGJvZSA8
+YXhib2VAa2VybmVsLmRrPiB3cm90ZToNCj4+DQo+PiBDQydpbmcgYSBmZXcga2V5IHBlb3BsZSBo
+ZXJlIC0gSSB3YW50IHRvIHJlbGVhc2UgZmlvIDMuMCBzaG9ydGx5LCANCj4+IHdoaWNoIGlzIHdo
+eSB0aGUgbGFzdCByZWxlYXNlZCBqdW1wZWQgdG8gMi45OS4gSG93ZXZlciwgYmVmb3JlIGRvaW5n
+IA0KPj4gc28sIEknZCBsaWtlIHRvIGVuc3VyZSB0aGF0IHdlIGFyZSB1cHRvZGF0ZSBvbiBwbGF0
+Zm9ybXMuIFJlYmVjY2EsIGlzIA0KPj4gV2luZG93cyBjdXJyZW50bHkgYnVpbGRpbmcgZmluZSB3
+aXRoIGN1cnJlbnQgLWdpdD8gSSBzdXNwZWN0IGl0IGlzLCANCj4+IGJ1dCB3b3VsZCBiZSBuaWNl
+IHRvIGtub3cgZm9yIHN1cmUuDQo+Pg0KPj4gQW55IG90aGVyIGltcG9ydGFudCBwZW5kaW5nIGZp
+eGVzIHRoYXQgc2hvdWxkIGdvIGluIGJlZm9yZSAzLjAgaXMgDQo+PiByZWxlYXNlZD8NCj4gDQo+
+IFRoZXJlIGFyZSBhIGZldyBwdWxsIHJlcXVlc3RzIHF1ZXVlZCB1cCBvdmVyIG9uIA0KPiBodHRw
+czovL2dpdGh1Yi5jb20vYXhib2UvZmlvL3B1bGxzIChqc29uKyBwYXRjaGVzLCBpbmZsaWdodCBv
+dmVybGFwIA0KPiB1c2UgYWZ0ZXIgZnJlZSBmaXgsIEMrKyBpb2VuZ2luZSBjaGFuZ2VzLCBzZXJp
+YWxpc2Ugb3ZlcmxhcCBjaGFuZ2VzLCANCj4gc2hlZXBkb2cgaW9lbmdpbmUsIGNoYW5nZSBzb21l
+IG91dHB1dCB0byBkZWJ1Z2dpbmcgb25seSBldGMuKS4NCg0KSnVzdCBwdWxsZWQgdGhhdCBpbiwg
+aXQncyBmaW5lIG5vdyB0aGF0IHRoZSBtb3JlIGNvbnRyb3ZlcnNpYWwgYml0cyBhcmUgb3V0Lg0K
+DQo+IExvY2FsbHksIEkgaGF2ZSBhbiBleHBlcmltZW50YWwgbGliaXNjc2kgaW9lbmdpbmUsIHN1
+cHBvcnQgZm9yIA0KPiB2ZXJpZnlfc3RhdGUgd2hlbiB2ZXJpZnlpbmcgYSByZWFkd3JpdGUgd29y
+a2xvYWQsIHNvbWUgSE9XVE8gDQo+IHJlb3JkZXJpbmcgdG8gaW1wcm92ZSB0aGUgbWFuIHBhZ2Ug
+Y29udmVyc2lvbiBhbmQgc29tZSBpbml0aWFsIA0KPiBpbnZlc3RpZ2F0aW9ucyBpbnRvIGludmFs
+aWRhdGlvbiBvbiBXaW5kb3dzLiBUaGUgb25seSBvbmUgSSdkIGhhdmUgDQo+IGxvdmVkIHRvIHNl
+ZSBnbyBpbiBpcyB0aGUgbGliaXNjc2kgZW5naW5lIGJ1dCBpdCdzIGtpbmRhIHJhdyBhbmQgbmVl
+ZHMgDQo+IGZpeGluZyB1cCBhbmQgSSBkb24ndCBrbm93IHdoZW4gSSdsbCBoYXZlIHRpbWUgdG8g
+ZmluaXNoIGl0Li4uDQoNCkZvciBuZXcgZW5naW5lcywgSSBkb24ndCBtaW5kIG1lcmdpbmcgdGhl
+bSBlYXJseSwgYXMgbG9uZyBhcyB0aGUgcGVvcGxlIGJlaGluZCB0aGVtIGFyZSBtb3RpdmF0ZWQg
+dG8gYnJpbmcgdGhlbSB1cCB0byBzbnVmZi4gVXAgdG8geW91Lg0KDQp2ZXJpZnlfc3RhdGUgc3Vw
+cG9ydCBmb3IgcmVhZC93cml0ZSBzb3VuZHMgbGlrZSBzb21ldGhpbmcgdGhhdCB3b3VsZCBiZSBu
+aWNlIHRvIGhhdmUsIGJ1dCBpc24ndCBhIG11c3QgZm9yIDMuMC4NCg0KQW55d2F5LCBJJ2xsIGxp
+a2VseSBjdXQgMy4wIG5leHQgd2Vlaywgc28gdGhlcmUncyBzdGlsbCB0aW1lIGZvciB3aGF0ZXZl
+ciBjaGFuZ2VzIHdlIG5lZWQuIEJ1dCB0aGV5IGhhdmUgdG8gYmUgbG93IHJpc2sgYXQgdGhpcyBw
+b2ludCwgSSdkIGhhdGUgdG8gZG8gYSAzLjAgdGhhdCBicm9rZSBhbnl0aGluZyByZWNlbnQuDQoN
+Cj4gV2l0aCByZWdhcmQgdG8gV2luZG93cywgaXQgc2VlbXMgdG8gYXQgbGVhc3QgYmUgYnVpbGRp
+bmcNCj4gKGh0dHBzOi8vY2kuYXBwdmV5b3IuY29tL3Byb2plY3QvYXhib2UvZmlvL2J1aWxkLzEu
+MC4yNDUgKSBhbmQgcnVubmluZyANCj4gYmFzaWMgd29ya2xvYWRzIGZvciBtZS4uLg0KDQpBaCB5
+ZXMsIHRoYW5rcyENCg0KLS0NCkplbnMgQXhib2UNCg0KLS0NClRvIHVuc3Vic2NyaWJlIGZyb20g
+dGhpcyBsaXN0OiBzZW5kIHRoZSBsaW5lICJ1bnN1YnNjcmliZSBmaW8iIGluIHRoZSBib2R5IG9m
+IGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnIE1vcmUgbWFqb3Jkb21vIGlu
+Zm8gYXQgIGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFqb3Jkb21vLWluZm8uaHRtbA0K
 
