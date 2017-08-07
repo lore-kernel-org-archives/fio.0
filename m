@@ -1,122 +1,124 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 1/5] skeleton: add option example
-Date: Thu, 31 Aug 2017 23:13:04 +0300
-Message-Id: <20170831201308.47933-2-tkusumi@tuxera.com>
-In-Reply-To: <20170831201308.47933-1-tkusumi@tuxera.com>
-References: <20170831201308.47933-1-tkusumi@tuxera.com>
+Subject: [PATCH 3/4] HOWTO: use proper (or drop wrong usage of) option type =bool
+Date: Mon,  7 Aug 2017 20:37:53 +0300
+Message-Id: <20170807173754.80126-4-tkusumi@tuxera.com>
+In-Reply-To: <20170807173754.80126-1-tkusumi@tuxera.com>
+References: <20170807173754.80126-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-Add an example of ioengine specific options, which can/should exist
-within each ioengine code. Also fix/add documentation.
+There are options whose .type field are FIO_OPT_BOOL, but not using
+=bool for arg type. Likewise there are options whose .type field
+are not FIO_OPT_BOOL, but using =bool for arg type.
 
-Also see e59b9e11('move skip_bad= option to engines/mtd.c').
+The options without explicit arg types in HOWTO seem to be for
+FIO_OPT_STR_SET, which is not the same as FIO_OPT_BOOL.
+
+The man page also has these, but not the same as the ones in HOWTO.
+Also fix a typo "(mtd)skipbad=bool" in the man page which should be
+"(mtd)skip_bad=bool".
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- HOWTO                       |  4 +++-
- engines/skeleton_external.c | 32 +++++++++++++++++++++++++++++++-
- fio.1                       |  4 +++-
- 3 files changed, 37 insertions(+), 3 deletions(-)
+ HOWTO |  8 ++++----
+ fio.1 | 10 +++++-----
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
 diff --git a/HOWTO b/HOWTO
-index 3a720c3..2a70b7c 100644
+index cad9500..b535177 100644
 --- a/HOWTO
 +++ b/HOWTO
-@@ -1791,7 +1791,9 @@ I/O engine
- 		**external**
- 			Prefix to specify loading an external I/O engine object file. Append
- 			the engine filename, e.g. ``ioengine=external:/tmp/foo.o`` to load
--			ioengine :file:`foo.o` in :file:`/tmp`.
-+			ioengine :file:`foo.o` in :file:`/tmp`. The path can be either
-+			absolute or relative. See :file:`engines/skeleton_external.c` for
-+			details of writing an external I/O engine.
+@@ -1392,7 +1392,7 @@ Block size
+ 	typically won't work with direct I/O, as that normally requires sector
+ 	alignment.
  
+-.. option:: bs_is_seq_rand
++.. option:: bs_is_seq_rand=bool
  
- I/O engine specific parameters
-diff --git a/engines/skeleton_external.c b/engines/skeleton_external.c
-index 4bebcc4..56f89f9 100644
---- a/engines/skeleton_external.c
-+++ b/engines/skeleton_external.c
-@@ -3,7 +3,8 @@
-  *
-  * Should be compiled with:
-  *
-- * gcc -Wall -O2 -g -shared -rdynamic -fPIC -o engine.o engine.c
-+ * gcc -Wall -O2 -g -shared -rdynamic -fPIC -o skeleton_external.o skeleton_external.c
-+ * (also requires -D_GNU_SOURCE -DCONFIG_STRSEP on Linux)
-  *
-  */
- #include <stdio.h>
-@@ -13,6 +14,7 @@
- #include <assert.h>
+ 	If this option is set, fio will use the normal read,write blocksize settings
+ 	as sequential,random blocksize settings instead. Any random read or write
+@@ -2166,7 +2166,7 @@ I/O replay
+ 	replay, the file needs to be turned into a blkparse binary data file first
+ 	(``blkparse <device> -o /dev/null -d file_for_fio.bin``).
  
- #include "../fio.h"
-+#include "../optgroup.h"
+-.. option:: replay_no_stall=int
++.. option:: replay_no_stall=bool
  
- /*
-  * The core of the module is identical to the ones included with fio,
-@@ -21,6 +23,32 @@
-  */
+ 	When replaying I/O with :option:`read_iolog` the default behavior is to
+ 	attempt to respect the timestamps within the log and replay them with the
+@@ -2680,7 +2680,7 @@ Measurements and reporting
+ 	all jobs in a file will be part of the same reporting group, unless
+ 	separated by a :option:`stonewall`.
  
- /*
-+ * The io engine can define its own options within the io engine source.
-+ * The option member must not be at offset 0, due to the way fio parses
-+ * the given option. Just add a padding pointer unless the io engine has
-+ * something usable.
-+ */
-+struct fio_skeleton_options {
-+	void *pad; /* avoid ->off1 of fio_option becomes 0 */
-+	unsigned int dummy;
-+};
-+
-+static struct fio_option options[] = {
-+	{
-+		.name	= "dummy",
-+		.lname	= "ldummy",
-+		.type	= FIO_OPT_STR_SET,
-+		.off1	= offsetof(struct fio_skeleton_options, dummy),
-+		.help	= "Set dummy",
-+		.category = FIO_OPT_C_ENGINE, /* always use this */
-+		.group	= FIO_OPT_G_INVALID, /* this can be different */
-+	},
-+	{
-+		.name	= NULL,
-+	},
-+};
-+
-+/*
-  * The ->event() hook is called to match an event number with an io_u.
-  * After the core has called ->getevents() and it has returned eg 3,
-  * the ->event() hook must return the 3 events that have completed for
-@@ -140,4 +168,6 @@ struct ioengine_ops ioengine = {
- 	.cleanup	= fio_skeleton_cleanup,
- 	.open_file	= fio_skeleton_open,
- 	.close_file	= fio_skeleton_close,
-+	.options	= options,
-+	.option_struct_size	= sizeof(struct fio_skeleton_options),
- };
+-.. option:: stats
++.. option:: stats=bool
+ 
+ 	By default, fio collects and shows final output results for all jobs
+ 	that run. If this option is set to 0, then fio will ignore it in
+@@ -2763,7 +2763,7 @@ Measurements and reporting
+ 	you instead want to log the maximum value, set this option to 1. Defaults to
+ 	0, meaning that averaged values are logged.
+ 
+-.. option:: log_offset=int
++.. option:: log_offset=bool
+ 
+ 	If this is set, the iolog options will include the byte offset for the I/O
+ 	entry as well as the other data values. Defaults to 0 meaning that
 diff --git a/fio.1 b/fio.1
-index 5b63dfd..97133da 100644
+index 2919686..093889e 100644
 --- a/fio.1
 +++ b/fio.1
-@@ -1572,7 +1572,9 @@ Read and write using device DAX to a persistent memory device (e.g.,
- .B external
- Prefix to specify loading an external I/O engine object file. Append
- the engine filename, e.g. `ioengine=external:/tmp/foo.o' to load
--ioengine `foo.o' in `/tmp'.
-+ioengine `foo.o' in `/tmp'. The path can be either
-+absolute or relative. See `engines/skeleton_external.c' in the fio source for
-+details of writing an external I/O engine.
- .SS "I/O engine specific parameters"
- In addition, there are some parameters which are only valid when a specific
- \fBioengine\fR is in use. These are used identically to normal parameters,
+@@ -1510,7 +1510,7 @@ Should be a multiple of 1MiB. Default: 4MiB.
+ .B exitall
+ Terminate all jobs when one finishes.  Default: wait for each job to finish.
+ .TP
+-.B exitall_on_error \fR=\fPbool
++.B exitall_on_error
+ Terminate all jobs if one job finishes in error.  Default: wait for each job
+ to finish.
+ .TP
+@@ -1566,7 +1566,7 @@ Unlink job files after each iteration or loop.  Default: false.
+ Specifies the number of iterations (runs of the same workload) of this job.
+ Default: 1.
+ .TP
+-.BI verify_only \fR=\fPbool
++.BI verify_only
+ Do not perform the specified workload, only verify data still matches previous
+ invocation of this workload. This option allows one to check data multiple
+ times at a later date without overwriting it. This option makes sense only for
+@@ -1756,7 +1756,7 @@ corrupt.
+ Replay the I/O patterns contained in the specified file generated by
+ \fBwrite_iolog\fR, or may be a \fBblktrace\fR binary file.
+ .TP
+-.BI replay_no_stall \fR=\fPint
++.BI replay_no_stall \fR=\fPbool
+ While replaying I/O patterns using \fBread_iolog\fR the default behavior
+ attempts to respect timing information between I/Os.  Enabling
+ \fBreplay_no_stall\fR causes I/Os to be replayed as fast as possible while
+@@ -2120,7 +2120,7 @@ For TCP network connections, tell fio to listen for incoming
+ connections rather than initiating an outgoing connection. The
+ hostname must be omitted if this option is used.
+ .TP
+-.BI (net,netsplice)pingpong \fR=\fPbool
++.BI (net,netsplice)pingpong
+ Normally a network writer will just continue writing data, and a network reader
+ will just consume packets. If pingpong=1 is set, a writer will send its normal
+ payload to the reader, then wait for the reader to send the same payload back.
+@@ -2163,7 +2163,7 @@ Specifies the username (without the 'client.' prefix) used to access the Ceph
+ cluster. If the clustername is specified, the clientname shall be the full
+ type.id string. If no type. prefix is given, fio will add 'client.' by default.
+ .TP
+-.BI (mtd)skipbad \fR=\fPbool
++.BI (mtd)skip_bad \fR=\fPbool
+ Skip operations against known bad blocks.
+ .SH OUTPUT
+ While running, \fBfio\fR will display the status of the created jobs.  For
 -- 
-2.9.5
+2.9.4
 
 
