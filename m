@@ -1,131 +1,195 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-lf0-f66.google.com ([209.85.215.66]:33661 "EHLO
-        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751249AbdH2VMe (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 29 Aug 2017 17:12:34 -0400
-Received: by mail-lf0-f66.google.com with SMTP id y15so2850914lfd.0
-        for <fio@vger.kernel.org>; Tue, 29 Aug 2017 14:12:33 -0700 (PDT)
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 4/6] filesetup: add non O_DIRECT direct I/O support for initial layout setup
-Date: Wed, 30 Aug 2017 00:12:14 +0300
-Message-Id: <20170829211216.42347-5-tkusumi@tuxera.com>
-In-Reply-To: <20170829211216.42347-1-tkusumi@tuxera.com>
-References: <20170829211216.42347-1-tkusumi@tuxera.com>
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
+Subject: [PATCH 1/4] man: add proper indentation to "PARAMETER TYPES" section
+Date: Mon,  7 Aug 2017 20:37:51 +0300
+Message-Id: <20170807173754.80126-2-tkusumi@tuxera.com>
+In-Reply-To: <20170807173754.80126-1-tkusumi@tuxera.com>
+References: <20170807173754.80126-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-8c43ba62('filesetup: align layout buffer') and
-6e344dc3('filesetup: keep OS_O_DIRECT flag when pre-allocating file')
-only consider OS with open(O_DIRECT).
+This commit fixes "int" subsection of "PARAMETER TYPES" section
+which had no indentation, while other sections normally do have
+proper indentation.
 
-This commit adds fio_set_directio() since now OS specific direct I/O
-initialization is needed by both real ->fd and temporary ->fd while in
-extend_file() to equally support the feature.
+The corresponding section in HOWTO also has indentation.
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- file.h      |  1 +
- filesetup.c | 31 +++++++++++++++++++++++++++++++
- ioengines.c | 25 ++-----------------------
- 3 files changed, 34 insertions(+), 23 deletions(-)
+ fio.1 | 108 +++++++++++++++++++++++++++++++++++++++++++++++-------------------
+ 1 file changed, 77 insertions(+), 31 deletions(-)
 
-diff --git a/file.h b/file.h
-index 84daa5f..ad8802d 100644
---- a/file.h
-+++ b/file.h
-@@ -211,5 +211,6 @@ extern void filesetup_mem_free(void);
- extern void fio_file_reset(struct thread_data *, struct fio_file *);
- extern bool fio_files_done(struct thread_data *);
- extern bool exists_and_not_regfile(const char *);
-+extern int fio_set_directio(struct thread_data *, struct fio_file *);
- 
- #endif
-diff --git a/filesetup.c b/filesetup.c
-index a6a94ee..4ceaef6 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -196,6 +196,9 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
- 		}
- 	}
- 
-+	if (td->o.odirect && !OS_O_DIRECT && fio_set_directio(td, f))
-+		goto err;
-+
- 	left = f->real_file_size;
- 	bs = td->o.max_bs[DDIR_WRITE];
- 	if (bs > left)
-@@ -1852,3 +1855,31 @@ void filesetup_mem_free(void)
- {
- 	free_already_allocated();
- }
-+
-+/*
-+ * This function is for platforms which support direct I/O but not O_DIRECT.
-+ */
-+int fio_set_directio(struct thread_data *td, struct fio_file *f)
-+{
-+#ifdef FIO_OS_DIRECTIO
-+	int ret = fio_set_odirect(f->fd);
-+
-+	if (ret) {
-+		td_verror(td, ret, "fio_set_directio");
-+#if defined(__sun__)
-+		if (ret == ENOTTY) { /* ENOTTY suggests RAW device or ZFS */
-+			log_err("fio: doing directIO to RAW devices or ZFS not supported\n");
-+		} else {
-+			log_err("fio: the file system does not seem to support direct IO\n");
-+		}
-+#else
-+		log_err("fio: the file system does not seem to support direct IO\n");
-+#endif
-+		return -1;
-+	}
-+
-+	return 0;
-+#else
-+	return -1;
-+#endif
-+}
-diff --git a/ioengines.c b/ioengines.c
-index 6e135af..919781c 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -495,29 +495,8 @@ int td_io_open_file(struct thread_data *td, struct fio_file *f)
- 	}
- #endif
- 
--#ifdef FIO_OS_DIRECTIO
--	/*
--	 * Some OS's have a distinct call to mark the file non-buffered,
--	 * instead of using O_DIRECT (Solaris)
--	 */
--	if (td->o.odirect) {
--		int ret = fio_set_odirect(f->fd);
+diff --git a/fio.1 b/fio.1
+index a5ec199..2919686 100644
+--- a/fio.1
++++ b/fio.1
+@@ -223,84 +223,130 @@ hours, 'm' for minutes, 's' for seconds, 'ms' (or 'msec') for milliseconds and '
+ .I int
+ Integer. A whole number value, which may contain an integer prefix
+ and an integer suffix.
 -
--		if (ret) {
--			td_verror(td, ret, "fio_set_odirect");
--#if defined(__sun__)
--			if (ret == ENOTTY) { /* ENOTTY suggests RAW device or ZFS */
--				log_err("fio: doing directIO to RAW devices or ZFS not supported\n");
--			} else {
--				log_err("fio: the file system does not seem to support direct IO\n");
--			}
--#else
--			log_err("fio: the file system does not seem to support direct IO\n");
--#endif
--			goto err;
--		}
--	}
--#endif
-+	if (td->o.odirect && !OS_O_DIRECT && fio_set_directio(td, f))
-+		goto err;
- 
- done:
- 	log_file(td, f, FIO_LOG_OPEN_FILE);
++.RS
++.RS
++.P
+ [*integer prefix*] **number** [*integer suffix*]
+-
++.RE
++.P
+ The optional *integer prefix* specifies the number's base. The default
+ is decimal. *0x* specifies hexadecimal.
+-
++.P
+ The optional *integer suffix* specifies the number's units, and includes an
+ optional unit prefix and an optional unit. For quantities of data, the
+ default unit is bytes. For quantities of time, the default unit is seconds
+ unless otherwise specified.
+-
+-With \fBkb_base=1000\fR, fio follows international standards for unit
++.P
++With `kb_base=1000', fio follows international standards for unit
+ prefixes. To specify power-of-10 decimal values defined in the
+ International System of Units (SI):
+-
+-.nf
++.RS
++.P
+ ki means kilo (K) or 1000
++.RE
++.RS
+ mi means mega (M) or 1000**2
++.RE
++.RS
+ gi means giga (G) or 1000**3
++.RE
++.RS
+ ti means tera (T) or 1000**4
++.RE
++.RS
+ pi means peta (P) or 1000**5
+-.fi
+-
++.RE
++.P
+ To specify power-of-2 binary values defined in IEC 80000-13:
+-
+-.nf
++.RS
++.P
+ k means kibi (Ki) or 1024
++.RE
++.RS
+ m means mebi (Mi) or 1024**2
++.RE
++.RS
+ g means gibi (Gi) or 1024**3
++.RE
++.RS
+ t means tebi (Ti) or 1024**4
++.RE
++.RS
+ p means pebi (Pi) or 1024**5
+-.fi
+-
+-With \fBkb_base=1024\fR (the default), the unit prefixes are opposite
++.RE
++.P
++With `kb_base=1024' (the default), the unit prefixes are opposite
+ from those specified in the SI and IEC 80000-13 standards to provide
+ compatibility with old scripts. For example, 4k means 4096.
+-
++.P
+ For quantities of data, an optional unit of 'B' may be included
+ (e.g., 'kB' is the same as 'k').
+-
++.P
+ The *integer suffix* is not case sensitive (e.g., m/mi mean mebi/mega,
+ not milli). 'b' and 'B' both mean byte, not bit.
+-
+-Examples with \fBkb_base=1000\fR:
+-
+-.nf
++.P
++Examples with `kb_base=1000':
++.RS
++.P
+ 4 KiB: 4096, 4096b, 4096B, 4k, 4kb, 4kB, 4K, 4KB
++.RE
++.RS
+ 1 MiB: 1048576, 1m, 1024k
++.RE
++.RS
+ 1 MB: 1000000, 1mi, 1000ki
++.RE
++.RS
+ 1 TiB: 1073741824, 1t, 1024m, 1048576k
++.RE
++.RS
+ 1 TB: 1000000000, 1ti, 1000mi, 1000000ki
+-.fi
+-
+-Examples with \fBkb_base=1024\fR (default):
+-
+-.nf
++.RE
++.P
++Examples with `kb_base=1024' (default):
++.RS
++.P
+ 4 KiB: 4096, 4096b, 4096B, 4k, 4kb, 4kB, 4K, 4KB
++.RE
++.RS
+ 1 MiB: 1048576, 1m, 1024k
++.RE
++.RS
+ 1 MB: 1000000, 1mi, 1000ki
++.RE
++.RS
+ 1 TiB: 1073741824, 1t, 1024m, 1048576k
++.RE
++.RS
+ 1 TB: 1000000000, 1ti, 1000mi, 1000000ki
+-.fi
+-
++.RE
++.P
+ To specify times (units are not case sensitive):
+-
+-.nf
++.RS
++.P
+ D means days
++.RE
++.RS
+ H means hours
++.RE
++.RS
+ M mean minutes
++.RE
++.RS
+ s or sec means seconds (default)
++.RE
++.RS
+ ms or msec means milliseconds
++.RE
++.RS
+ us or usec means microseconds
+-.fi
+-
++.RE
++.P
+ If the option accepts an upper and lower range, use a colon ':' or
+ minus '-' to separate such values. See `irange` parameter type.
+ If the lower value specified happens to be larger than the upper value
+ the two values are swapped.
++.RE
+ .TP
+ .I bool
+ Boolean. Usually parsed as an integer, however only defined for
 -- 
-2.9.5
+2.9.4
+
 
