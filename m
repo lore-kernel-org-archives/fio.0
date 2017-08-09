@@ -1,94 +1,86 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 4/5] fix load_ioengine() not to support no "external:" prefix
-Date: Thu, 31 Aug 2017 23:13:07 +0300
-Message-Id: <20170831201308.47933-5-tkusumi@tuxera.com>
-In-Reply-To: <20170831201308.47933-1-tkusumi@tuxera.com>
-References: <20170831201308.47933-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:50380 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752403AbdHIMAK (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 9 Aug 2017 08:00:10 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1dfPej-0004JC-TC
+        for fio@vger.kernel.org; Wed, 09 Aug 2017 12:00:10 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170809120001.B89B92C289E@kernel.dk>
+Date: Wed,  9 Aug 2017 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+The following changes since commit d4a507c17533f05bcf6d6eeb8d00f3dad1a020a1:
 
-To load ioengines, it should be done by either
- 1) find the ioengine from the existing (static linked) ioengines or
- 2) dlopen the path in case of external ioengine,
+  Merge branch 'fio-jsonplus-patches' of https://github.com/vincentkfu/fio (2017-08-07 13:44:01 -0600)
 
-but not to do 2 if 1 failed, as fio doesn't expect an ioengine to be
-dynamically loaded unless with "external:" prefix by design.
+are available in the git repository at:
 
-The current implementation (i.e. do 2 if 1 failed) happened to have
-been able to load an external ioengine with below syntax without
-"external:" prefix, but this is a bug rather than a feature.
+  git://git.kernel.dk/fio.git master
 
-(--)ioengine=./engines/skeleton_external.so
+for you to fetch changes up to f9cfc7d44a80638f81810416385136c35ad34658:
 
-The design of the external ioengine option since below commits in 2007
- 7b395ca5('Prefix external io engine loading with 'external'')
- 8a7bd877('Document loading external io engines')
-is to use "external:/path/to/so" syntax.
+  Add ability to keep memory-mapped files (2017-08-08 14:26:56 -0600)
 
-This commit fixes above bug, which also potentially avoids the case
-where "/path/to/so" within the given "external:/path/to/so" happens
-to match the existing name, though this is normally unlikely to happen.
+----------------------------------------------------------------
+Stephen Bates (1):
+      Add ability to keep memory-mapped files
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+ fio.h    | 1 +
+ memory.c | 8 ++++++--
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
 ---
- ioengines.c | 33 ++++++++++++++++++---------------
- 1 file changed, 18 insertions(+), 15 deletions(-)
 
-diff --git a/ioengines.c b/ioengines.c
-index 54aa5a6..0c631e8 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -125,26 +125,29 @@ static struct ioengine_ops *dlopen_ioengine(struct thread_data *td,
- 
- struct ioengine_ops *load_ioengine(struct thread_data *td)
- {
--	struct ioengine_ops *ops;
--	char engine[64];
--	char *name;
--
--	name = td->o.ioengine_so_path ?: td->o.ioengine;
-+	struct ioengine_ops *ops = NULL;
-+	const char *name = NULL;
- 
--	dprint(FD_IO, "load ioengine %s\n", name);
-+	if (strcmp(td->o.ioengine, "external")) {
-+		char engine[64];
- 
--	engine[sizeof(engine) - 1] = '\0';
--	strncpy(engine, name, sizeof(engine) - 1);
-+		name = td->o.ioengine;
-+		engine[sizeof(engine) - 1] = '\0';
-+		strncpy(engine, name, sizeof(engine) - 1);
- 
--	/*
--	 * linux libaio has alias names, so convert to what we want
--	 */
--	if (!strncmp(engine, "linuxaio", 8) || !strncmp(engine, "aio", 3))
--		strcpy(engine, "libaio");
-+		/*
-+		 * linux libaio has alias names, so convert to what we want
-+		 */
-+		if (!strncmp(engine, "linuxaio", 8) || !strncmp(engine, "aio", 3))
-+			strcpy(engine, "libaio");
- 
--	ops = find_ioengine(engine);
--	if (!ops)
-+		dprint(FD_IO, "load ioengine %s\n", engine);
-+		ops = find_ioengine(engine);
-+	} else if (td->o.ioengine_so_path) {
-+		name = td->o.ioengine_so_path;
- 		ops = dlopen_ioengine(td, name);
-+	} else
-+		log_err("fio: missing external ioengine path\n");
- 
- 	if (!ops) {
- 		log_err("fio: engine %s not loadable\n", name);
--- 
-2.9.5
+Diff of recent changes:
 
-
+diff --git a/fio.h b/fio.h
+index 39d775c..da950ef 100644
+--- a/fio.h
++++ b/fio.h
+@@ -87,6 +87,7 @@ enum {
+ 	TD_F_CHILD		= 1U << 12,
+ 	TD_F_NO_PROGRESS        = 1U << 13,
+ 	TD_F_REGROW_LOGS	= 1U << 14,
++	TD_F_MMAP_KEEP		= 1U << 15,
+ };
+ 
+ enum {
+diff --git a/memory.c b/memory.c
+index 22a7f5d..04dc3be 100644
+--- a/memory.c
++++ b/memory.c
+@@ -138,6 +138,9 @@ static int alloc_mem_mmap(struct thread_data *td, size_t total_mem)
+ 	}
+ 
+ 	if (td->o.mmapfile) {
++		if (access(td->o.mmapfile, F_OK) == 0)
++			td->flags |= TD_F_MMAP_KEEP;
++
+ 		td->mmapfd = open(td->o.mmapfile, O_RDWR|O_CREAT, 0644);
+ 
+ 		if (td->mmapfd < 0) {
+@@ -169,7 +172,7 @@ static int alloc_mem_mmap(struct thread_data *td, size_t total_mem)
+ 		td->orig_buffer = NULL;
+ 		if (td->mmapfd != 1 && td->mmapfd != -1) {
+ 			close(td->mmapfd);
+-			if (td->o.mmapfile)
++			if (td->o.mmapfile && !(td->flags & TD_F_MMAP_KEEP))
+ 				unlink(td->o.mmapfile);
+ 		}
+ 
+@@ -187,7 +190,8 @@ static void free_mem_mmap(struct thread_data *td, size_t total_mem)
+ 	if (td->o.mmapfile) {
+ 		if (td->mmapfd != -1)
+ 			close(td->mmapfd);
+-		unlink(td->o.mmapfile);
++		if (!(td->flags & TD_F_MMAP_KEEP))
++			unlink(td->o.mmapfile);
+ 		free(td->o.mmapfile);
+ 	}
+ }
