@@ -4,8 +4,8 @@ In-Reply-To: <CALjAwxiE-xi=Bfaomen-XFbP-B+1WBSYfXcE0T=UCXN3uxO_HQ@mail.gmail.com
 References: <20170813191901.33195-1-tkusumi@tuxera.com> <20170813191901.33195-5-tkusumi@tuxera.com>
  <CALjAwxiE-xi=Bfaomen-XFbP-B+1WBSYfXcE0T=UCXN3uxO_HQ@mail.gmail.com>
 From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Date: Mon, 14 Aug 2017 00:30:29 +0300
-Message-ID: <CAHndrBmXewKthugSnibDQmFY=TEhB5k0qNY+HEBHSv3a=r+CRw@mail.gmail.com>
+Date: Mon, 14 Aug 2017 00:15:17 +0300
+Message-ID: <CAHndrBkeEQDH2=tT1FE7CjWCvaRmYgzUf5zRCD0Co0QcxfZSWA@mail.gmail.com>
 Subject: Re: [PATCH 4/4] HOWTO: minor fixes and backports from man page
 Content-Type: text/plain; charset="UTF-8"
 To: Sitsofe Wheeler <sitsofe@gmail.com>
@@ -23,7 +23,9 @@ List-ID: <fio@vger.kernel.org>
 > I've got a commit to just throw this away. The lack of an empty line
 > makes the formatting go weird and it's actually been removed from fio.
 > See https://github.com/axboe/fio/pull/423 .
->
+
+Ah ok, it no longer exists.
+
 >>
 >>  .. option:: --bandwidth-log
 >>
@@ -50,6 +52,11 @@ List-ID: <fio@vger.kernel.org>
 >>         available ioengines.
 >
 > Why remove the link to the ioengine section?
+
+This "ioengine" here refers to the argument string, like "command" is
+an argument and not :option:'ed.
+But could be option'ed, depends on how you take this.
+
 >
 >> @@ -296,8 +296,8 @@ override a *global* section parameter, and a job file may even have several
 >>  *global* sections if so desired. A job is only affected by a *global* section
@@ -60,8 +67,9 @@ List-ID: <fio@vger.kernel.org>
 >> +The :option:`--cmdhelp` option also lists all options. If used with an `command`
 >
 > "a command" rather than "an command"?
->
->
+
+Right, should be 'a'.
+
 >>
 >> -.. option:: hostname=str : [netsplice] [net]
 >> -
@@ -71,7 +79,11 @@ List-ID: <fio@vger.kernel.org>
 >> -
 >
 > Was this moved elsewhere?
->
+
+Yes.
+Putting net/netsplice options in one place makes man page easier, and
+looks more clear.
+
 >>  .. option:: namenode=str : [libhdfs]
 >>
 >>         The hostname or IP address of a HDFS cluster namenode to contact.
@@ -127,7 +139,11 @@ List-ID: <fio@vger.kernel.org>
 >> +       eye on the I/O depths distribution in the fio output to verify that the
 >
 > I think the original version was correct.
->
+
+This refers to "IO depths" line in fio output if I read this part right,
+and others are "depths" too.
+
+
 >>         achieved depth is as expected. Default: 1.
 >>
 >>  .. option:: iodepth_batch_submit=int, iodepth_batch=int
@@ -174,7 +190,9 @@ List-ID: <fio@vger.kernel.org>
 >> +       is the index of the job (1..N, where N is the number of jobs). If
 >
 > Perhaps this should be italicized?
->
+
+I don't care about this. They just didn't have the consistent ``.
+
 >>
 >> @@ -3194,7 +3191,7 @@ writes in the example above).  In the order listed, they denote:
 >>                 entry denotes that amount and below, until the previous entry -- e.g.,
@@ -185,10 +203,6 @@ List-ID: <fio@vger.kernel.org>
 >
 > Again not sure depth should be pluralized because they're part of a
 > distribution
-
-OK, missed this last one.
-Then this and the one above should be in singular.
-
 >
 > --
 > Sitsofe | http://sucs.org/~sits/
