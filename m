@@ -1,22 +1,35 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-yw0-f173.google.com ([209.85.161.173]:34488 "EHLO
-        mail-yw0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753480AbdHUCcU (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 20 Aug 2017 22:32:20 -0400
-Received: by mail-yw0-f173.google.com with SMTP id s143so84388248ywg.1
-        for <fio@vger.kernel.org>; Sun, 20 Aug 2017 19:32:20 -0700 (PDT)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 0/3] reduce normal output lat (nsec/usec/msec)
+ indentation, update latency documentation
+From: Jens Axboe <axboe@kernel.dk>
+References: <1502737184-25885-1-git-send-email-vincentfu@gmail.com>
+ <306fc363-4fc7-ff46-32b7-854e0a62b508@kernel.dk>
+Message-ID: <a162b306-73cd-9cd8-4cbf-611ee827c73e@kernel.dk>
+Date: Mon, 14 Aug 2017 13:06:29 -0600
 MIME-Version: 1.0
-From: siha lawrence <sihaj33@gmail.com>
-Date: Mon, 21 Aug 2017 10:32:19 +0800
-Message-ID: <CAAEM5qL7Ze0fwDrohz7Mn-kjWzV3G3BKST0BvYFRpW+2bB38Ag@mail.gmail.com>
-Subject: exitall_on_error option with stats
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <306fc363-4fc7-ff46-32b7-854e0a62b508@kernel.dk>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Vincent Fu <vincentfu@gmail.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-I'm using fio version 2.20 with the option exitall_on_error. On error,
-it exits and reports all stats as zero.
-How can this be modified so that we can get partial stats and not zeros?
+On 08/14/2017 01:03 PM, Jens Axboe wrote:
+> On 08/14/2017 12:59 PM, Vincent Fu wrote:
+>> Jens, please consider this patch series.
+>>
+>> The patches reduce the indentation of the normal output lat (nsec/usec/msec) lines and update the description of the latency output in the HOWTO and man page.
+>>
+>> The man page changes apply on top of the patches from kusumi.tomohiro@gmail.com.
+> 
+> But those aren't in yet, since they don't apply to the current
+> tree. I have applied 1-2, I'll check #3 once Tomohiro resends
+> his series. Or you can resend when that happens.
 
-Thank you.
+I missed the v3 update - I have applied that, and your #3 as well.
+Thanks!
+
+-- 
+Jens Axboe
+
+
