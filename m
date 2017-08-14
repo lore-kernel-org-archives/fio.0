@@ -1,11 +1,11 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH v3 2/4] man: sync "OUTPUT" section and after with HOWTO
-Date: Mon, 14 Aug 2017 18:30:24 +0300
-Message-Id: <20170814153026.44260-3-tkusumi@tuxera.com>
-In-Reply-To: <20170814153026.44260-1-tkusumi@tuxera.com>
-References: <20170814153026.44260-1-tkusumi@tuxera.com>
+Subject: [PATCH v2 2/4] man: sync "OUTPUT" section and after with HOWTO
+Date: Mon, 14 Aug 2017 17:54:56 +0300
+Message-Id: <20170814145458.41333-3-tkusumi@tuxera.com>
+In-Reply-To: <20170814145458.41333-1-tkusumi@tuxera.com>
+References: <20170814145458.41333-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
@@ -30,10 +30,10 @@ Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
  1 file changed, 554 insertions(+), 423 deletions(-)
 
 diff --git a/fio.1 b/fio.1
-index 7ef1bc7..4b4b111 100644
+index fce6b80..7110b3c 100644
 --- a/fio.1
 +++ b/fio.1
-@@ -2691,27 +2691,33 @@ Test directory.
+@@ -2677,27 +2677,33 @@ Test directory.
  .BI threads\fR=\fPint
  Number of threads.
  .SH OUTPUT
@@ -78,7 +78,7 @@ index 7ef1bc7..4b4b111 100644
  .TP
  .B R
  Running, doing sequential reads.
-@@ -2731,96 +2737,200 @@ Running, doing mixed sequential reads/writes.
+@@ -2717,96 +2723,200 @@ Running, doing mixed sequential reads/writes.
  .B m
  Running, doing mixed random reads/writes.
  .TP
@@ -335,7 +335,7 @@ index 7ef1bc7..4b4b111 100644
  .RS
  .TP
  .B ios
-@@ -2832,517 +2942,538 @@ Number of merges performed by the I/O scheduler.
+@@ -2818,517 +2928,538 @@ Number of merges performed by the I/O scheduler.
  .B ticks
  Number of ticks we kept the disk busy.
  .TP
