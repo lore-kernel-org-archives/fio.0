@@ -1,11 +1,11 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH v3 1/4] man: sync "JOB PARAMETERS" section with HOWTO
-Date: Mon, 14 Aug 2017 18:30:23 +0300
-Message-Id: <20170814153026.44260-2-tkusumi@tuxera.com>
-In-Reply-To: <20170814153026.44260-1-tkusumi@tuxera.com>
-References: <20170814153026.44260-1-tkusumi@tuxera.com>
+Subject: [PATCH v2 1/4] man: sync "JOB PARAMETERS" section with HOWTO
+Date: Mon, 14 Aug 2017 17:54:55 +0300
+Message-Id: <20170814145458.41333-2-tkusumi@tuxera.com>
+In-Reply-To: <20170814145458.41333-1-tkusumi@tuxera.com>
+References: <20170814145458.41333-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
@@ -25,11 +25,11 @@ page has consistent style.
 
 Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
- fio.1 | 3115 ++++++++++++++++++++++++++++++++++++++---------------------------
- 1 file changed, 1813 insertions(+), 1302 deletions(-)
+ fio.1 | 3089 ++++++++++++++++++++++++++++++++++++++---------------------------
+ 1 file changed, 1800 insertions(+), 1289 deletions(-)
 
 diff --git a/fio.1 b/fio.1
-index 14359e6..7ef1bc7 100644
+index a3fba65..fce6b80 100644
 --- a/fio.1
 +++ b/fio.1
 @@ -1,4 +1,4 @@
@@ -1408,7 +1408,7 @@ index 14359e6..7ef1bc7 100644
  .TP
  .B solarisaio
  Solaris native asynchronous I/O.
-@@ -882,482 +1463,552 @@ Solaris native asynchronous I/O.
+@@ -882,468 +1463,538 @@ Solaris native asynchronous I/O.
  Windows native asynchronous I/O. Default on Windows.
  .TP
  .B mmap
@@ -1595,7 +1595,10 @@ index 14359e6..7ef1bc7 100644
 -.RE
 -.P
 -.RE
--.TP
++.B dev\-dax
++Read and write using device DAX to a persistent memory device (e.g.,
++/dev/dax0.0) through the NVML libpmem library.
+ .TP
 -.BI iodepth \fR=\fPint
 -Number of I/O units to keep in flight against the file. Note that increasing
 -iodepth beyond 1 will not affect synchronous ioengines (except for small
@@ -1610,17 +1613,6 @@ index 14359e6..7ef1bc7 100644
 -which means that we submit each IO as soon as it is available, but can
 -be raised to submit bigger batches of IO at the time. If it is set to 0
 -the \fBiodepth\fR value will be used.
-+.B dev\-dax
-+Read and write using device DAX to a persistent memory device (e.g.,
-+/dev/dax0.0) through the NVML libpmem library.
- .TP
--.BI iodepth_batch_complete_min \fR=\fPint "\fR,\fP iodepth_batch_complete" \fR=\fPint
--This defines how many pieces of IO to retrieve at once. It defaults to 1 which
-- means that we'll ask for a minimum of 1 IO in the retrieval process from the
--kernel. The IO retrieval will go on until we hit the limit set by
--\fBiodepth_low\fR. If this variable is set to 0, then fio will always check for
--completed events before queuing more IO. This helps reduce IO latency, at the
--cost of more retrieval system calls.
 +.B external
 +Prefix to specify loading an external I/O engine object file. Append
 +the engine filename, e.g. `ioengine=external:/tmp/foo.o' to load
@@ -1630,6 +1622,20 @@ index 14359e6..7ef1bc7 100644
 +\fBioengine\fR is in use. These are used identically to normal parameters,
 +with the caveat that when used on the command line, they must come after the
 +\fBioengine\fR that defines them is selected.
+ .TP
+-.BI iodepth_batch_complete_min \fR=\fPint "\fR,\fP iodepth_batch_complete" \fR=\fPint
+-This defines how many pieces of IO to retrieve at once. It defaults to 1 which
+- means that we'll ask for a minimum of 1 IO in the retrieval process from the
+-kernel. The IO retrieval will go on until we hit the limit set by
+-\fBiodepth_low\fR. If this variable is set to 0, then fio will always check for
+-completed events before queuing more IO. This helps reduce IO latency, at the
+-cost of more retrieval system calls.
++.BI (libaio)userspace_reap
++Normally, with the libaio engine in use, fio will use the
++\fBio_getevents\fR\|(3) system call to reap newly returned events. With
++this flag turned on, the AIO ring will be read directly from user\-space to
++reap events. The reaping mode is only enabled when polling for a minimum of
++0 events (e.g. when `iodepth_batch_complete=0').
  .TP
 -.BI iodepth_batch_complete_max \fR=\fPint
 -This defines maximum pieces of IO to
@@ -1662,33 +1668,13 @@ index 14359e6..7ef1bc7 100644
 -NOT wait and immediately exit the system call. In this example
 -we simply do polling.
 -.RE
-+.BI (libaio)userspace_reap
-+Normally, with the libaio engine in use, fio will use the
-+\fBio_getevents\fR\|(3) system call to reap newly returned events. With
-+this flag turned on, the AIO ring will be read directly from user\-space to
-+reap events. The reaping mode is only enabled when polling for a minimum of
-+0 events (e.g. when `iodepth_batch_complete=0').
- .TP
--.BI iodepth_low \fR=\fPint
--Low watermark indicating when to start filling the queue again.  Default:
--\fBiodepth\fR.
 +.BI (pvsync2)hipri
 +Set RWF_HIPRI on I/O, indicating to the kernel that it's of higher priority
 +than normal.
  .TP
--.BI serialize_overlap \fR=\fPbool
--Serialize in-flight I/Os that might otherwise cause or suffer from data races.
--When two or more I/Os are submitted simultaneously, there is no guarantee that
--the I/Os will be processed or completed in the submitted order. Further, if
--two or more of those I/Os are writes, any overlapping region between them can
--become indeterminate/undefined on certain storage. These issues can cause
--verification to fail erratically when at least one of the racing I/Os is
--changing data and the overlapping region has a non-zero size. Setting
--\fBserialize_overlap\fR tells fio to avoid provoking this behavior by explicitly
--serializing in-flight I/Os that have a non-zero overlap. Note that setting
--this option can reduce both performance and the \fBiodepth\fR achieved.
--Additionally this option does not work when \fBio_submit_mode\fR is set to
--offload. Default: false.
+-.BI iodepth_low \fR=\fPint
+-Low watermark indicating when to start filling the queue again.  Default:
+-\fBiodepth\fR.
 +.BI (pvsync2)hipri_percentage
 +When hipri is set this determines the probability of a pvsync2 I/O being high
 +priority. The default is 100%.
@@ -1915,9 +1901,6 @@ index 14359e6..7ef1bc7 100644
 -.RS
 -60% of accesses should be to the first 10%
 -.RE
--.RS
--30% of accesses should be to the next 20%
--.RE
 +.BI (rbd)clientname \fR=\fPstr
 +Specifies the username (without the 'client.' prefix) used to access the
 +Ceph cluster. If the \fBclustername\fR is specified, the \fBclientname\fR shall be
@@ -1965,9 +1948,12 @@ index 14359e6..7ef1bc7 100644
 +retrieved. By default it is equal to \fBiodepth_batch_complete_min\fR
 +value. Example #1:
  .RS
--8% of accesses should be to the next 30%
+-30% of accesses should be to the next 20%
 -.RE
  .RS
+-8% of accesses should be to the next 30%
+-.RE
+-.RS
 -2% of accesses should be to the next 40%
 -.RE
  .P
@@ -2038,13 +2024,17 @@ index 14359e6..7ef1bc7 100644
 -workload, fio may read or write some blocks multiple times. The default
 -value is tausworthe, unless the required space exceeds 2^32 blocks. If it does,
 -then tausworthe64 is selected automatically.
+-.TP
+-.BI nice \fR=\fPint
+-Run job with given nice value.  See \fBnice\fR\|(2).
 +which means that we can retrieve up to the whole submitted queue depth, but
 +if none of I/O has been completed yet, we will NOT wait and immediately exit
 +the system call. In this example we simply do polling.
 +.RE
  .TP
--.BI nice \fR=\fPint
--Run job with given nice value.  See \fBnice\fR\|(2).
+-.BI prio \fR=\fPint
+-Set I/O priority value of this job between 0 (highest) and 7 (lowest).  See
+-\fBionice\fR\|(1).
 +.BI iodepth_low \fR=\fPint
 +The low water mark indicating when to start filling the queue
 +again. Defaults to the same as \fBiodepth\fR, meaning that fio will
@@ -2052,23 +2042,6 @@ index 14359e6..7ef1bc7 100644
 +e.g. 16 and \fBiodepth_low\fR is set to 4, then after fio has filled the queue of
 +16 requests, it will let the depth drain down to 4 before starting to fill
 +it again.
- .TP
--.BI prio \fR=\fPint
--Set I/O priority value of this job between 0 (highest) and 7 (lowest).  See
--\fBionice\fR\|(1).
-+.BI serialize_overlap \fR=\fPbool
-+Serialize in-flight I/Os that might otherwise cause or suffer from data races.
-+When two or more I/Os are submitted simultaneously, there is no guarantee that
-+the I/Os will be processed or completed in the submitted order. Further, if
-+two or more of those I/Os are writes, any overlapping region between them can
-+become indeterminate/undefined on certain storage. These issues can cause
-+verification to fail erratically when at least one of the racing I/Os is
-+changing data and the overlapping region has a non-zero size. Setting
-+\fBserialize_overlap\fR tells fio to avoid provoking this behavior by explicitly
-+serializing in-flight I/Os that have a non-zero overlap. Note that setting
-+this option can reduce both performance and the \fBiodepth\fR achieved.
-+Additionally this option does not work when \fBio_submit_mode\fR is set to
-+offload. Default: false.
  .TP
 -.BI prioclass \fR=\fPint
 -Set I/O priority class.  See \fBionice\fR\|(1).
@@ -2223,7 +2196,10 @@ index 14359e6..7ef1bc7 100644
 +Write the issued I/O patterns to the specified file. See
 +\fBread_iolog\fR. Specify a separate file for each job, otherwise the
 +iologs will be interspersed and the file may be corrupt.
-+.TP
+ .TP
+-.BI max_latency \fR=\fPint
+-If set, fio will exit the job if it exceeds this maximum latency. It will exit
+-with an ETIME error.
 +.BI read_iolog \fR=\fPstr
 +Open an iolog with the specified filename and replay the I/O patterns it
 +contains. This can be used to store a workload and replay it sometime
@@ -2257,10 +2233,7 @@ index 14359e6..7ef1bc7 100644
 +into separate traces and replay them with independent fio invocations.
 +Unfortunately this also breaks the strict time ordering between multiple
 +device accesses.
- .TP
--.BI max_latency \fR=\fPint
--If set, fio will exit the job if it exceeds this maximum latency. It will exit
--with an ETIME error.
++.TP
 +.BI replay_align \fR=\fPint
 +Force alignment of I/O offsets and lengths in a trace to this power of 2
 +value.
@@ -2327,7 +2300,7 @@ index 14359e6..7ef1bc7 100644
  .RS
  .RS
  .TP
-@@ -1368,817 +2019,677 @@ All jobs will share the CPU set specified.
+@@ -1354,817 +2005,677 @@ All jobs will share the CPU set specified.
  Each job will get a unique CPU from the CPU set.
  .RE
  .P
