@@ -1,11 +1,11 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH v3 4/4] HOWTO: minor fixes and backports from man page
-Date: Mon, 14 Aug 2017 18:30:26 +0300
-Message-Id: <20170814153026.44260-5-tkusumi@tuxera.com>
-In-Reply-To: <20170814153026.44260-1-tkusumi@tuxera.com>
-References: <20170814153026.44260-1-tkusumi@tuxera.com>
+Subject: [PATCH v2 4/4] HOWTO: minor fixes and backports from man page
+Date: Mon, 14 Aug 2017 17:54:58 +0300
+Message-Id: <20170814145458.41333-5-tkusumi@tuxera.com>
+In-Reply-To: <20170814145458.41333-1-tkusumi@tuxera.com>
+References: <20170814145458.41333-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
@@ -40,7 +40,7 @@ Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
  1 file changed, 94 insertions(+), 99 deletions(-)
 
 diff --git a/HOWTO b/HOWTO
-index 8a7cb1a..57d4a39 100644
+index fc173f0..8aa6859 100644
 --- a/HOWTO
 +++ b/HOWTO
 @@ -54,7 +54,7 @@ Command line options
@@ -371,7 +371,7 @@ index 8a7cb1a..57d4a39 100644
  
  .. option:: listen : [netsplice] [net]
  
-@@ -2078,10 +2075,10 @@ I/O rate
+@@ -2063,10 +2060,10 @@ I/O rate
  .. option:: thinktime_blocks=int
  
  	Only valid if :option:`thinktime` is set - control how many blocks to issue,
@@ -385,7 +385,7 @@ index 8a7cb1a..57d4a39 100644
  	setting effectively caps the queue depth if the latter is larger.
  
  .. option:: rate=int[,int][,int]
-@@ -2586,7 +2583,7 @@ Verification
+@@ -2571,7 +2568,7 @@ Verification
  	state is loaded for the verify read phase. The format of the filename is,
  	roughly::
  
@@ -394,7 +394,7 @@ index 8a7cb1a..57d4a39 100644
  
  	<type> is "local" for a local run, "sock" for a client/server socket
  	connection, and "ip" (192.168.0.1, for instance) for a networked
-@@ -2722,8 +2719,8 @@ Measurements and reporting
+@@ -2708,8 +2705,8 @@ Measurements and reporting
  		write_lat_log=foo
  
  	The actual log names will be :file:`foo_slat.x.log`, :file:`foo_clat.x.log`,
@@ -405,7 +405,7 @@ index 8a7cb1a..57d4a39 100644
  	logs automatically. If :option:`per_job_logs` is false, then the filename
  	will not include the job index.  See `Log File Formats`_.
  
-@@ -2732,7 +2729,7 @@ Measurements and reporting
+@@ -2718,7 +2715,7 @@ Measurements and reporting
  	Same as :option:`write_lat_log`, but writes I/O completion latency
  	histograms. If no filename is given with this option, the default filename
  	of :file:`jobname_clat_hist.x.log` is used, where `x` is the index of the
@@ -414,7 +414,7 @@ index 8a7cb1a..57d4a39 100644
  	fio will still append the type of log.  If :option:`per_job_logs` is false,
  	then the filename will not include the job index. See `Log File Formats`_.
  
-@@ -2740,7 +2737,7 @@ Measurements and reporting
+@@ -2726,7 +2723,7 @@ Measurements and reporting
  
  	Same as :option:`write_bw_log`, but writes IOPS. If no filename is given
  	with this option, the default filename of :file:`jobname_type.x.log` is
@@ -423,7 +423,7 @@ index 8a7cb1a..57d4a39 100644
  	jobs). Even if the filename is given, fio will still append the type of
  	log. If :option:`per_job_logs` is false, then the filename will not include
  	the job index. See `Log File Formats`_.
-@@ -2855,7 +2852,7 @@ Measurements and reporting
+@@ -2841,7 +2838,7 @@ Measurements and reporting
  .. option:: disable_slat=bool
  
  	Disable measurements of submission latency numbers. See
@@ -432,7 +432,7 @@ index 8a7cb1a..57d4a39 100644
  
  .. option:: disable_bw_measurement=bool, disable_bw=bool
  
-@@ -2959,7 +2956,7 @@ other tools.
+@@ -2945,7 +2942,7 @@ other tools.
  To view a profile's additional options use :option:`--cmdhelp` after specifying
  the profile.  For example::
  
@@ -441,7 +441,7 @@ index 8a7cb1a..57d4a39 100644
  
  Act profile options
  ~~~~~~~~~~~~~~~~~~~
-@@ -2983,7 +2980,7 @@ Act profile options
+@@ -2969,7 +2966,7 @@ Act profile options
  .. option:: threads-per-queue=int
  	:noindex:
  
@@ -450,7 +450,7 @@ index 8a7cb1a..57d4a39 100644
  
  .. option:: read-req-num-512-blocks=int
  	:noindex:
-@@ -3006,7 +3003,7 @@ Tiobench profile options
+@@ -2992,7 +2989,7 @@ Tiobench profile options
  .. option:: size=str
  	:noindex:
  
@@ -459,7 +459,7 @@ index 8a7cb1a..57d4a39 100644
  
  .. option:: block=int
  	:noindex:
-@@ -3109,9 +3106,9 @@ are readers and 11--20 are writers.
+@@ -3095,9 +3092,9 @@ are readers and 11--20 are writers.
  The other values are fairly self explanatory -- number of threads currently
  running and doing I/O, the number of currently open files (f=), the estimated
  completion percentage, the rate of I/O since last check (read speed listed first,
@@ -472,7 +472,7 @@ index 8a7cb1a..57d4a39 100644
  
  ..
  	Example output was based on the following:
-@@ -3251,7 +3248,7 @@ For each data direction it prints:
+@@ -3237,7 +3234,7 @@ For each data direction it prints:
  **run**
  		The smallest and longest runtimes of the threads in this group.
  
@@ -481,7 +481,7 @@ index 8a7cb1a..57d4a39 100644
  
    Disk stats (read/write):
      sda: ios=16398/16511, merge=30/162, ticks=6853/819634, in_queue=826487, util=100.00%
-@@ -3302,7 +3299,7 @@ field was introduced or whether it's specific to some terse version):
+@@ -3288,7 +3285,7 @@ field was introduced or whether it's specific to some terse version):
  
      ::
  
@@ -490,7 +490,7 @@ index 8a7cb1a..57d4a39 100644
  
      READ status::
  
-@@ -3311,8 +3308,8 @@ field was introduced or whether it's specific to some terse version):
+@@ -3297,8 +3294,8 @@ field was introduced or whether it's specific to some terse version):
          Completion latency: min, max, mean, stdev (usec)
          Completion latency percentiles: 20 fields (see below)
          Total latency: min, max, mean, stdev (usec)
@@ -501,7 +501,7 @@ index 8a7cb1a..57d4a39 100644
  
      WRITE status:
  
-@@ -3323,12 +3320,12 @@ field was introduced or whether it's specific to some terse version):
+@@ -3309,12 +3306,12 @@ field was introduced or whether it's specific to some terse version):
          Completion latency: min, max, mean, stdev (usec)
          Completion latency percentiles: 20 fields (see below)
          Total latency: min, max, mean, stdev (usec)
@@ -517,7 +517,7 @@ index 8a7cb1a..57d4a39 100644
  
      CPU usage::
  
-@@ -3348,10 +3345,8 @@ field was introduced or whether it's specific to some terse version):
+@@ -3334,10 +3331,8 @@ field was introduced or whether it's specific to some terse version):
  
      Disk utilization [v3]::
  
@@ -530,7 +530,7 @@ index 8a7cb1a..57d4a39 100644
  
      Additional Info (dependent on continue_on_error, default off)::
  
-@@ -3364,17 +3359,17 @@ field was introduced or whether it's specific to some terse version):
+@@ -3350,17 +3345,17 @@ field was introduced or whether it's specific to some terse version):
  Completion latency percentiles can be a grouping of up to 20 sets, so for the
  terse output fio writes all of them. Each field will look like this::
  
@@ -551,7 +551,7 @@ index 8a7cb1a..57d4a39 100644
  
  
  JSON+ output
-@@ -3395,7 +3390,7 @@ Also included with fio is a Python script `fio_jsonplus_clat2csv` that takes
+@@ -3381,7 +3376,7 @@ Also included with fio is a Python script `fio_jsonplus_clat2csv` that takes
  json+ output and generates CSV-formatted latency data suitable for plotting.
  
  The latency durations actually represent the midpoints of latency intervals.
@@ -560,7 +560,7 @@ index 8a7cb1a..57d4a39 100644
  
  
  Trace file format
-@@ -3415,7 +3410,7 @@ Each line represents a single I/O action in the following format::
+@@ -3401,7 +3396,7 @@ Each line represents a single I/O action in the following format::
  
  	rw, offset, length
  
@@ -569,7 +569,7 @@ index 8a7cb1a..57d4a39 100644
  
  This format is not supported in fio versions >= 1.20-rc3.
  
-@@ -3437,15 +3432,15 @@ The file management format::
+@@ -3423,15 +3418,15 @@ The file management format::
  
      filename action
  
@@ -589,7 +589,7 @@ index 8a7cb1a..57d4a39 100644
  		opened before.
  
  
-@@ -3528,8 +3523,8 @@ will then execute the trigger.
+@@ -3514,8 +3509,8 @@ will then execute the trigger.
  Verification trigger example
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
@@ -600,7 +600,7 @@ index 8a7cb1a..57d4a39 100644
  some point during the run, and we'll run this test from the safety or our local
  machine, 'localbox'. On the server, we'll start the fio backend normally::
  
-@@ -3616,7 +3611,7 @@ Under Test" while being controlled by a client on another machine.
+@@ -3602,7 +3597,7 @@ Under Test" while being controlled by a client on another machine.
  
  Start the server on the machine which has access to the storage DUT::
  
