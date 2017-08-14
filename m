@@ -1,11 +1,11 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH v3 3/4] man: minor fixes for sections before "JOB PARAMETERS" for consistency
-Date: Mon, 14 Aug 2017 18:30:25 +0300
-Message-Id: <20170814153026.44260-4-tkusumi@tuxera.com>
-In-Reply-To: <20170814153026.44260-1-tkusumi@tuxera.com>
-References: <20170814153026.44260-1-tkusumi@tuxera.com>
+Subject: [PATCH v2 3/4] man: minor fixes for sections before "JOB PARAMETERS" for consistency
+Date: Mon, 14 Aug 2017 17:54:57 +0300
+Message-Id: <20170814145458.41333-4-tkusumi@tuxera.com>
+In-Reply-To: <20170814145458.41333-1-tkusumi@tuxera.com>
+References: <20170814145458.41333-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
@@ -28,7 +28,7 @@ Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
  1 file changed, 106 insertions(+), 116 deletions(-)
 
 diff --git a/fio.1 b/fio.1
-index 4b4b111..74eae8a 100644
+index 7110b3c..3c9b2c6 100644
 --- a/fio.1
 +++ b/fio.1
 @@ -13,72 +13,73 @@ one wants to simulate.
