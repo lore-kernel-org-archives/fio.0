@@ -1,89 +1,83 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx142.netapp.com ([216.240.21.19]:21625 "EHLO mx142.netapp.com"
+Received: from mga04.intel.com ([192.55.52.120]:32067 "EHLO mga04.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753144AbdHQSqm (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 17 Aug 2017 14:46:42 -0400
-From: neto from Brazil <Antonio.Jose.Rodrigues.Neto@netapp.com>
-Subject: Re: IOPS Log Incorrect?
-Date: Thu, 17 Aug 2017 18:46:40 +0000
-Message-ID: <FA2D9B8E-F7EB-48EA-A05B-E7F365A8767C@netapp.com>
-References: <DE927C68B458BE418D582EC97927A9287FCAD035@ORSMSX113.amr.corp.intel.com>
-In-Reply-To: <DE927C68B458BE418D582EC97927A9287FCAD035@ORSMSX113.amr.corp.intel.com>
+        id S1752403AbdHQSiC (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 17 Aug 2017 14:38:02 -0400
+From: "Gruher, Joseph R" <joseph.r.gruher@intel.com>
+Subject: IOPS Log Incorrect?
+Date: Thu, 17 Aug 2017 18:38:00 +0000
+Message-ID: <DE927C68B458BE418D582EC97927A9287FCAD035@ORSMSX113.amr.corp.intel.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <4F05BF4DED99D34A8F565955C234A15B@namprd06.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Gruher, Joseph R" <joseph.r.gruher@intel.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-SGkgSm9zZXBoLA0KDQpUaGlzIGlzIG5ldG8gZnJvbSBCcmF6aWwNCg0KSG93IGFyZSB5b3U/DQoN
-CkNvdWxkIHlvdSB0cnkgdG8gcmUtcnVuIHdpdGhvdXQgbG9nX2F2Z19tc2VjPTUwMDA/DQoNClRo
-YW5rcywNCg0KbmV0bw0KDQpPbiA4LzE3LzE3LCAyOjM4IFBNLCAiZmlvLW93bmVyQHZnZXIua2Vy
-bmVsLm9yZyBvbiBiZWhhbGYgb2YgR3J1aGVyLCBKb3NlcGggUiIgPGZpby1vd25lckB2Z2VyLmtl
-cm5lbC5vcmcgb24gYmVoYWxmIG9mIGpvc2VwaC5yLmdydWhlckBpbnRlbC5jb20+IHdyb3RlOg0K
-DQogICAgSGksIEknbSB1c2luZyBGSU8gMy4wIG9uIFVidW50dSAxNi4xMCB3aXRoIDQuMTIuNyBr
-ZXJuZWwgKGFsc28gcmVwcm9kdWNlZCBwcm9ibGVtIHdpdGggZGVmYXVsdCA0LjguMC01OSBrZXJu
-ZWwpLiBJJ20gcnVubmluZyBhIDRLQiByYW5kb20gSU8gcGF0dGVybiBhZ2FpbnN0IGFuIEludGVs
-IFAzNzAwIDQwMEdCIE5WTWUgU1NELiBJJ20gdHJ5aW5nIHRvIHZpZXcgdGhlIElPUFMvQlcgb3Zl
-ciB0aW1lIHVzaW5nIHRoZSB3cml0ZV9id19sb2cgYW5kIHdyaXRlX2lvcHNfbG9nIHBhcmFtZXRl
-cnMuIEZJTyBpcyB3cml0aW5nIHRoZSBsb2dzIGJ1dCB0aGUgdmFsdWVzIGluIHRoZSBsb2dzIGRv
-bid0IGFsaWduIHdpdGggdGhlIHN1bW1hcnkgZm9yIHRoZSBydW4uICBIZXJlJ3MgYSBzaW1wbGUg
-ZXhhbXBsZS4gIE5vdGljZSBGSU8gcmVwb3J0cyAzOThLIElPUFMgZm9yIHRoZSBydW4gb3ZlcmFs
-bCwgYnV0IHRoZSBJT1BTIGxvZyBmaWxlIHNob3dzIDM4M0sgZm9yIHRoZSBmaXJzdCBlbnRyeSBh
-bmQgdGhlbiB2YWx1ZXMgYXJvdW5kIDU2SyBmb3IgdGhlIHJlc3Qgb2YgdGhlIHJ1biwgc28gb25l
-IG9yIHRoZSBvdGhlciBtdXN0IGJlIGluY29ycmVjdCAocHJlc3VtYWJseSB0aGUgbG9nIGZpbGUp
-LiAgVGhlIGJhbmR3aWR0aCBsb2cgaGFzIGEgc2ltaWxhciBpc3N1ZS4NCiAgICANCiAgICANCiAg
-ICByb290QG52bWZqdDAxOi9ob21lL252bWYvanJnOS9jaGFuZGxlciMgY2F0IDRrLXJyLTAxLmlu
-aQ0KICAgIFtnbG9iYWxdDQogICAgYnM9NGsNCiAgICBydz1yYW5kcmVhZA0KICAgIG51bWpvYnM9
-MQ0KICAgIGlvZGVwdGg9MTI4DQogICAgaW9lbmdpbmU9bGliYWlvDQogICAgZGlyZWN0PTENCiAg
-ICBydW50aW1lPTMwDQogICAgd3JpdGVfaW9wc19sb2c9am9lMg0KICAgIGxvZ19hdmdfbXNlYz01
-MDAwDQogICAgW2pvYjAwXQ0KICAgIGZpbGVuYW1lPS9kZXYvbnZtZTBuMQ0KICAgIA0KICAgIA0K
-ICAgIHJvb3RAbnZtZmp0MDE6L2hvbWUvbnZtZi9qcmc5L2NoYW5kbGVyIyBmaW8gNGstcnItMDEu
-aW5pDQogICAgam9iMDA6IChnPTApOiBydz1yYW5kcmVhZCwgYnM9KFIpIDQwOTZCLTQwOTZCLCAo
-VykgNDA5NkItNDA5NkIsIChUKSA0MDk2Qi00MDk2QiwgaW9lbmdpbmU9bGliYWlvLCBpb2RlcHRo
-PTEyOA0KICAgIGZpby0zLjANCiAgICBTdGFydGluZyAxIHByb2Nlc3MNCiAgICBKb2JzOiAxIChm
-PTEpOiBbcigxKV1bMTAwLjAlXVtyPTE1OTVNaUIvcyx3PTBLaUIvc11bcj00MDhrLHc9MCBJT1BT
-XVtldGEgMDBtOjAwc10NCiAgICBqb2IwMDogKGdyb3VwaWQ9MCwgam9icz0xKTogZXJyPSAwOiBw
-aWQ9Mjc2NzogVGh1IEF1ZyAxNyAxMDozNDowOSAyMDE3DQogICAgcmVhZDogSU9QUz0zOThrLCBC
-Vz0xNTU1TWlCL3MgKDE2MzBNQi9zKSg0NS42R2lCLzMwMDAxbXNlYykNCiAgICBzbGF0IChuc2Vj
-KTogbWluPTgyNCwgbWF4PTExNzUzNCwgYXZnPTE2ODIuMzYsIHN0ZGV2PTEyOTAuNDUNCiAgICBj
-bGF0ICh1c2VjKTogbWluPTk2LCBtYXg9Mjg5OSwgYXZnPTMxOS4yOSwgc3RkZXY9NjkuMzYNCiAg
-ICBsYXQgKHVzZWMpOiBtaW49OTcsIG1heD0yOTAwLCBhdmc9MzIxLjA4LCBzdGRldj02OS4zOQ0K
-ICAgIGNsYXQgcGVyY2VudGlsZXMgKHVzZWMpOg0KICAgIHwgMS4wMHRoPVsgMjIxXSwgNS4wMHRo
-PVsgMjQzXSwgMTAuMDB0aD1bIDI1NV0sIDIwLjAwdGg9WyAyNjldLA0KICAgIHwgMzAuMDB0aD1b
-IDI4MV0sIDQwLjAwdGg9WyAyODldLCA1MC4wMHRoPVsgMzAyXSwgNjAuMDB0aD1bIDMxOF0sDQog
-ICAgfCA3MC4wMHRoPVsgMzM0XSwgODAuMDB0aD1bIDM2M10sIDkwLjAwdGg9WyA0MTJdLCA5NS4w
-MHRoPVsgNDUzXSwNCiAgICB8IDk5LjAwdGg9WyA1NjJdLCA5OS41MHRoPVsgNjExXSwgOTkuOTB0
-aD1bIDcyNV0sIDk5Ljk1dGg9WyA3NzVdLA0KICAgIHwgOTkuOTl0aD1bIDkwNl0NCiAgICBidyAo
-IE1pQi9zKTogbWluPSAxMDgxLCBtYXg9IDE1OTQsIHBlcj05OS45NiUsIGF2Zz0xNTU0LjExLCBz
-dGRldj02OC4zMywgc2FtcGxlcz01OQ0KICAgIGlvcHMgOiBtaW49NTYyOTMsIG1heD0zODMwNDYs
-IGF2Zz02NTYwMy43NSwgc3RkZXY9NTQ0MTkuNzcsIHNhbXBsZXM9MzYNCiAgICBsYXQgKHVzZWMp
-IDogMTAwPTAuMDElLCAyNTA9Ny43MyUsIDUwMD04OS44MiUsIDc1MD0yLjM4JSwgMTAwMD0wLjA3
-JQ0KICAgIGxhdCAobXNlYykgOiAyPTAuMDElLCA0PTAuMDElDQogICAgY3B1IDogdXNyPTMyLjUx
-JSwgc3lzPTY3LjUwJSwgY3R4PTEwNSwgbWFqZj0wLCBtaW5mPTE1Mw0KICAgIElPIGRlcHRocyA6
-IDE9MC4xJSwgMj0wLjElLCA0PTAuMSUsIDg9MC4xJSwgMTY9MC4xJSwgMzI9MC4xJSwgPj02ND0x
-MDAuMCUNCiAgICBzdWJtaXQgOiAwPTAuMCUsIDQ9MTAwLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMy
-PTAuMCUsIDY0PTAuMCUsID49NjQ9MC4wJQ0KICAgIGNvbXBsZXRlIDogMD0wLjAlLCA0PTEwMC4w
-JSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCA2ND0wLjAlLCA+PTY0PTAuMSUNCiAgICBpc3N1
-ZWQgcnd0OiB0b3RhbD0xMTk0MTIwOCwwLDAsIHNob3J0PTAsMCwwLCBkcm9wcGVkPTAsMCwwDQog
-ICAgbGF0ZW5jeSA6IHRhcmdldD0wLCB3aW5kb3c9MCwgcGVyY2VudGlsZT0xMDAuMDAlLCBkZXB0
-aD0xMjgNCiAgICBSdW4gc3RhdHVzIGdyb3VwIDAgKGFsbCBqb2JzKToNCiAgICBSRUFEOiBidz0x
-NTU1TWlCL3MgKDE2MzBNQi9zKSwgMTU1NU1pQi9zLTE1NTVNaUIvcyAoMTYzME1CL3MtMTYzME1C
-L3MpLCBpbz00NS42R2lCICg0OC45R0IpLCBydW49MzAwMDEtMzAwMDFtc2VjDQogICAgRGlzayBz
-dGF0cyAocmVhZC93cml0ZSk6DQogICAgbnZtZTBuMTogaW9zPTExODkwNjU0LzAsIG1lcmdlPTAv
-MCwgdGlja3M9MTkyMzA3Ni8wLCBpbl9xdWV1ZT0xOTI1MjA0LCB1dGlsPTk5LjY5JQ0KICAgIA0K
-ICAgIA0KICAgIHJvb3RAbnZtZmp0MDE6L2hvbWUvbnZtZi9qcmc5L2NoYW5kbGVyIyBjYXQgam9l
-Ml9pb3BzLjEubG9nDQogICAgNTAwMCwgMzgzMDQ2LCAwLCAwDQogICAgMTA2NDAsIDU2NDEyLCAw
-LCAwDQogICAgMTU1NzYsIDU2NDEwLCAwLCAwDQogICAgMjA1MTEsIDU2NDI1LCAwLCAwDQogICAg
-MjU0NDYsIDU2Mzk0LCAwLCAwDQogICAgMzAwNDAsIDU3MTMxLCAwLCAwDQogICAgDQogICAgDQog
-ICAgcm9vdEBudm1manQwMTovaG9tZS9udm1mL2pyZzkvY2hhbmRsZXIjIGZpbyAtLXZlcnNpb24N
-CiAgICBmaW8tMy4wDQogICAgDQogICAgDQogICAgcm9vdEBudm1manQwMTovaG9tZS9udm1mL2py
-ZzkvY2hhbmRsZXIjIHVuYW1lIC1hDQogICAgTGludXggbnZtZmp0MDEgNC4xMi43LTA0MTIwNy1n
-ZW5lcmljICMyMDE3MDgxNjA4NTYgU01QIFdlZCBBdWcgMTYgMTI6NTk6MjUgVVRDIDIwMTcgeDg2
-XzY0IHg4Nl82NCB4ODZfNjQgR05VL0xpbnV4DQogICAgDQogICAgLS0NCiAgICBUbyB1bnN1YnNj
-cmliZSBmcm9tIHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgZmlvIiBpbg0K
-ICAgIHRoZSBib2R5IG9mIGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnDQog
-ICAgTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpvcmRv
-bW8taW5mby5odG1sDQogICAgDQoNCg==
+Hi, I'm using FIO 3.0 on Ubuntu 16.10 with 4.12.7 kernel (also reproduced problem with default 4.8.0-59 kernel). I'm running a 4KB random IO pattern against an Intel P3700 400GB NVMe SSD. I'm trying to view the IOPS/BW over time using the write_bw_log and write_iops_log parameters. FIO is writing the logs but the values in the logs don't align with the summary for the run.  Here's a simple example.  Notice FIO reports 398K IOPS for the run overall, but the IOPS log file shows 383K for the first entry and then values around 56K for the rest of the run, so one or the other must be incorrect (presumably the log file).  The bandwidth log has a similar issue.
+
+
+root@nvmfjt01:/home/nvmf/jrg9/chandler# cat 4k-rr-01.ini
+[global]
+bs=4k
+rw=randread
+numjobs=1
+iodepth=128
+ioengine=libaio
+direct=1
+runtime=30
+write_iops_log=joe2
+log_avg_msec=5000
+[job00]
+filename=/dev/nvme0n1
+
+
+root@nvmfjt01:/home/nvmf/jrg9/chandler# fio 4k-rr-01.ini
+job00: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=128
+fio-3.0
+Starting 1 process
+Jobs: 1 (f=1): [r(1)][100.0%][r=1595MiB/s,w=0KiB/s][r=408k,w=0 IOPS][eta 00m:00s]
+job00: (groupid=0, jobs=1): err= 0: pid=2767: Thu Aug 17 10:34:09 2017
+read: IOPS=398k, BW=1555MiB/s (1630MB/s)(45.6GiB/30001msec)
+slat (nsec): min=824, max=117534, avg=1682.36, stdev=1290.45
+clat (usec): min=96, max=2899, avg=319.29, stdev=69.36
+lat (usec): min=97, max=2900, avg=321.08, stdev=69.39
+clat percentiles (usec):
+| 1.00th=[ 221], 5.00th=[ 243], 10.00th=[ 255], 20.00th=[ 269],
+| 30.00th=[ 281], 40.00th=[ 289], 50.00th=[ 302], 60.00th=[ 318],
+| 70.00th=[ 334], 80.00th=[ 363], 90.00th=[ 412], 95.00th=[ 453],
+| 99.00th=[ 562], 99.50th=[ 611], 99.90th=[ 725], 99.95th=[ 775],
+| 99.99th=[ 906]
+bw ( MiB/s): min= 1081, max= 1594, per=99.96%, avg=1554.11, stdev=68.33, samples=59
+iops : min=56293, max=383046, avg=65603.75, stdev=54419.77, samples=36
+lat (usec) : 100=0.01%, 250=7.73%, 500=89.82%, 750=2.38%, 1000=0.07%
+lat (msec) : 2=0.01%, 4=0.01%
+cpu : usr=32.51%, sys=67.50%, ctx=105, majf=0, minf=153
+IO depths : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=100.0%
+submit : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+complete : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.1%
+issued rwt: total=11941208,0,0, short=0,0,0, dropped=0,0,0
+latency : target=0, window=0, percentile=100.00%, depth=128
+Run status group 0 (all jobs):
+READ: bw=1555MiB/s (1630MB/s), 1555MiB/s-1555MiB/s (1630MB/s-1630MB/s), io=45.6GiB (48.9GB), run=30001-30001msec
+Disk stats (read/write):
+nvme0n1: ios=11890654/0, merge=0/0, ticks=1923076/0, in_queue=1925204, util=99.69%
+
+
+root@nvmfjt01:/home/nvmf/jrg9/chandler# cat joe2_iops.1.log
+5000, 383046, 0, 0
+10640, 56412, 0, 0
+15576, 56410, 0, 0
+20511, 56425, 0, 0
+25446, 56394, 0, 0
+30040, 57131, 0, 0
+
+
+root@nvmfjt01:/home/nvmf/jrg9/chandler# fio --version
+fio-3.0
+
+
+root@nvmfjt01:/home/nvmf/jrg9/chandler# uname -a
+Linux nvmfjt01 4.12.7-041207-generic #201708160856 SMP Wed Aug 16 12:59:25 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+
