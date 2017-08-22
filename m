@@ -1,86 +1,162 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:50380 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752403AbdHIMAK (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 9 Aug 2017 08:00:10 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1dfPej-0004JC-TC
-        for fio@vger.kernel.org; Wed, 09 Aug 2017 12:00:10 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170809120001.B89B92C289E@kernel.dk>
-Date: Wed,  9 Aug 2017 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 2/4] fix broken external ioengine option
+Date: Tue, 22 Aug 2017 21:00:27 +0300
+Message-Id: <20170822180029.17084-3-tkusumi@tuxera.com>
+In-Reply-To: <20170822180029.17084-1-tkusumi@tuxera.com>
+References: <20170822180029.17084-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit d4a507c17533f05bcf6d6eeb8d00f3dad1a020a1:
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-  Merge branch 'fio-jsonplus-patches' of https://github.com/vincentkfu/fio (2017-08-07 13:44:01 -0600)
+get_engine_name() function added for "external:" ioengine option by
+below commits in 2007 has been broken by __handle_option() stripping
+':' and after while parsing the option.
+ 7b395ca5('Prefix external io engine loading with 'external'')
+ 8a7bd877('Document loading external io engines')
 
-are available in the git repository at:
+It seems below commit in 2011 broke it.
+ c44b1ff5('Add sub-option support (sort-of) and convert libaio_userspace_reap')
 
-  git://git.kernel.dk/fio.git master
+Above change made fio dlopen "external" instead of the path located
+after "external:", since the path had already been stripped by
+__handle_option() by the time get_engine_name() was called. This commit
+fixes it by adding ->ioengine_so_path pointer to keep the path while
+parsing using sub-option callback.
 
-for you to fetch changes up to f9cfc7d44a80638f81810416385136c35ad34658:
+Note that removing get_engine_name() doesn't affect non "external:"
+ioengine options. The option strings have been stripped by the parser.
 
-  Add ability to keep memory-mapped files (2017-08-08 14:26:56 -0600)
+-- before this commit
+ # ./fio --name=xxx --ioengine=external:./engines/skeleton_external.so
+ fio: engine external not loadable
+ fio: failed to load engine external
+ fio: file:ioengines.c:91, func=dlopen, error=external: cannot open shared object file: No such file or directory
 
-----------------------------------------------------------------
-Stephen Bates (1):
-      Add ability to keep memory-mapped files
+-- with this commit
+ # ./fio --name=xxx --ioengine=external:./engines/skeleton_external.so
+ xxx: (g=0): rw=read, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=engine_name, iodepth=1
+ fio-3.0-7-g75f05
+ Starting 1 process
+ xxx: you need to specify size=
+ fio: pid=0, err=22/file:filesetup.c:963, func=total_file_size, error=Invalid argument
 
- fio.h    | 1 +
- memory.c | 8 ++++++--
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ Run status group 0 (all jobs):
 
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
+ init.c           | 21 ++++++---------------
+ options.c        | 34 ++++++++++++++++++++++++++++++++++
+ thread_options.h |  1 +
+ 3 files changed, 41 insertions(+), 15 deletions(-)
 
-Diff of recent changes:
-
-diff --git a/fio.h b/fio.h
-index 39d775c..da950ef 100644
---- a/fio.h
-+++ b/fio.h
-@@ -87,6 +87,7 @@ enum {
- 	TD_F_CHILD		= 1U << 12,
- 	TD_F_NO_PROGRESS        = 1U << 13,
- 	TD_F_REGROW_LOGS	= 1U << 14,
-+	TD_F_MMAP_KEEP		= 1U << 15,
- };
- 
- enum {
-diff --git a/memory.c b/memory.c
-index 22a7f5d..04dc3be 100644
---- a/memory.c
-+++ b/memory.c
-@@ -138,6 +138,9 @@ static int alloc_mem_mmap(struct thread_data *td, size_t total_mem)
- 	}
- 
- 	if (td->o.mmapfile) {
-+		if (access(td->o.mmapfile, F_OK) == 0)
-+			td->flags |= TD_F_MMAP_KEEP;
-+
- 		td->mmapfd = open(td->o.mmapfile, O_RDWR|O_CREAT, 0644);
- 
- 		if (td->mmapfd < 0) {
-@@ -169,7 +172,7 @@ static int alloc_mem_mmap(struct thread_data *td, size_t total_mem)
- 		td->orig_buffer = NULL;
- 		if (td->mmapfd != 1 && td->mmapfd != -1) {
- 			close(td->mmapfd);
--			if (td->o.mmapfile)
-+			if (td->o.mmapfile && !(td->flags & TD_F_MMAP_KEEP))
- 				unlink(td->o.mmapfile);
- 		}
- 
-@@ -187,7 +190,8 @@ static void free_mem_mmap(struct thread_data *td, size_t total_mem)
- 	if (td->o.mmapfile) {
- 		if (td->mmapfd != -1)
- 			close(td->mmapfd);
--		unlink(td->o.mmapfile);
-+		if (!(td->flags & TD_F_MMAP_KEEP))
-+			unlink(td->o.mmapfile);
- 		free(td->o.mmapfile);
- 	}
+diff --git a/init.c b/init.c
+index 164e411..a2342a6 100644
+--- a/init.c
++++ b/init.c
+@@ -895,20 +895,6 @@ static int fixup_options(struct thread_data *td)
+ 	return ret;
  }
+ 
+-/* External engines are specified by "external:name.o") */
+-static const char *get_engine_name(const char *str)
+-{
+-	char *p = strstr(str, ":");
+-
+-	if (!p)
+-		return str;
+-
+-	p++;
+-	strip_blank_front(&p);
+-	strip_blank_end(p);
+-	return p;
+-}
+-
+ static void init_rand_file_service(struct thread_data *td)
+ {
+ 	unsigned long nranges = td->o.nr_files << FIO_FSERVICE_SHIFT;
+@@ -1040,7 +1026,12 @@ int ioengine_load(struct thread_data *td)
+ 		free_ioengine(td);
+ 	}
+ 
+-	engine = get_engine_name(td->o.ioengine);
++	/*
++	 * If an external ioengine is specified, use ->ioengine_so_path which
++	 * points to the so path. Otherwise use ->ioengine which points to the
++	 * name of the ioengine.
++	 */
++	engine = td->o.ioengine_so_path ?: td->o.ioengine;
+ 	td->io_ops = load_ioengine(td, engine);
+ 	if (!td->io_ops) {
+ 		log_err("fio: failed to load engine %s\n", engine);
+diff --git a/options.c b/options.c
+index 443791a..54fa4ee 100644
+--- a/options.c
++++ b/options.c
+@@ -1462,6 +1462,39 @@ static int str_write_hist_log_cb(void *data, const char *str)
+ 	return 0;
+ }
+ 
++/*
++ * str is supposed to be a substring of the strdup'd original string,
++ * and is valid only if it's a regular file path.
++ * This function keeps the pointer to the path as needed later.
++ *
++ * "external:/path/to/so\0" <- original pointer updated with strdup'd
++ * "external\0"             <- above pointer after parsed, i.e. ->ioengine
++ *          "/path/to/so\0" <- str argument, i.e. ->ioengine_so_path
++ */
++static int str_ioengine_external_cb(void *data, const char *str)
++{
++	struct thread_data *td = cb_data_to_td(data);
++	struct stat sb;
++	char *p;
++
++	if (!str) {
++		log_err("fio: null external ioengine path\n");
++		return 1;
++	}
++
++	p = (char *)str; /* str is mutable */
++	strip_blank_front(&p);
++	strip_blank_end(p);
++
++	if (stat(p, &sb) || !S_ISREG(sb.st_mode)) {
++		log_err("fio: invalid external ioengine path \"%s\"\n", p);
++		return 1;
++	}
++
++	td->o.ioengine_so_path = p;
++	return 0;
++}
++
+ static int rw_verify(struct fio_option *o, void *data)
+ {
+ 	struct thread_data *td = cb_data_to_td(data);
+@@ -1812,6 +1845,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ #endif
+ 			  { .ival = "external",
+ 			    .help = "Load external engine (append name)",
++			    .cb = str_ioengine_external_cb,
+ 			  },
+ 		},
+ 	},
+diff --git a/thread_options.h b/thread_options.h
+index 26a3e0e..fd6576e 100644
+--- a/thread_options.h
++++ b/thread_options.h
+@@ -53,6 +53,7 @@ struct thread_options {
+ 	char *filename_format;
+ 	char *opendir;
+ 	char *ioengine;
++	char *ioengine_so_path;
+ 	char *mmapfile;
+ 	enum td_ddir td_ddir;
+ 	unsigned int rw_seq;
+-- 
+2.9.5
+
+
