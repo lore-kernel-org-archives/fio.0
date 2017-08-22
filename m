@@ -1,42 +1,122 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa5.hgst.iphmx.com ([216.71.153.144]:21815 "EHLO
-        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750814AbdH3W20 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 30 Aug 2017 18:28:26 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: fio patch question on filesetup: align layout buffer
-Date: Wed, 30 Aug 2017 22:27:38 +0000
-Message-ID: <BN3PR0401MB1457AD82F545E4C85F2CA5858F9C0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 1/4] skeleton: add option example
+Date: Tue, 22 Aug 2017 21:00:26 +0300
+Message-Id: <20170822180029.17084-2-tkusumi@tuxera.com>
+In-Reply-To: <20170822180029.17084-1-tkusumi@tuxera.com>
+References: <20170822180029.17084-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi All,
-I see the patch at http://git.kernel.dk/cgit/fio/commit/?id=3D8c43ba6259409=
-244de64f0b1d388a029e38cf3e5 and just wondered if it is still compatible wit=
-h:
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-.. option:: iomem_align=3Dint, mem_align=3Dint
+Add an example of ioengine specific options, which can/should exist
+within each ioengine code. Also fix/add documentation.
 
-	This indicates the memory alignment of the I/O memory buffers.  Note that
-	the given alignment is applied to the first I/O unit buffer, if using
-	:option:`iodepth` the alignment of the following buffers are given by the
-	:option:`bs` used. In other words, if using a :option:`bs` that is a
-	multiple of the page sized in the system, all buffers will be aligned to
-	this value. If using a :option:`bs` that is not page aligned, the alignmen=
-t
-	of subsequent I/O memory buffers is the sum of the :option:`iomem_align` a=
-nd
-	:option:`bs` used.
+Also see e59b9e11('move skip_bad= option to engines/mtd.c').
 
-For example, if we set mem_align to something larger than page_size or bs, =
-what does fio_memalign use?  And if we set mem_align to something between p=
-age_size and bs, what does fio_memalign use?  Thanks.
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ HOWTO                       |  4 +++-
+ engines/skeleton_external.c | 32 +++++++++++++++++++++++++++++++-
+ fio.1                       |  4 +++-
+ 3 files changed, 37 insertions(+), 3 deletions(-)
 
-Regards,
-Jeff
+diff --git a/HOWTO b/HOWTO
+index 4192ac7..34949a2 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -1794,7 +1794,9 @@ I/O engine
+ 		**external**
+ 			Prefix to specify loading an external I/O engine object file. Append
+ 			the engine filename, e.g. ``ioengine=external:/tmp/foo.o`` to load
+-			ioengine :file:`foo.o` in :file:`/tmp`.
++			ioengine :file:`foo.o` in :file:`/tmp`. The path can be either
++			absolute or relative. See :file:`engines/skeleton_external.c` for
++			details of writing an external I/O engine.
+ 
+ 
+ I/O engine specific parameters
+diff --git a/engines/skeleton_external.c b/engines/skeleton_external.c
+index 4bebcc4..56f89f9 100644
+--- a/engines/skeleton_external.c
++++ b/engines/skeleton_external.c
+@@ -3,7 +3,8 @@
+  *
+  * Should be compiled with:
+  *
+- * gcc -Wall -O2 -g -shared -rdynamic -fPIC -o engine.o engine.c
++ * gcc -Wall -O2 -g -shared -rdynamic -fPIC -o skeleton_external.o skeleton_external.c
++ * (also requires -D_GNU_SOURCE -DCONFIG_STRSEP on Linux)
+  *
+  */
+ #include <stdio.h>
+@@ -13,6 +14,7 @@
+ #include <assert.h>
+ 
+ #include "../fio.h"
++#include "../optgroup.h"
+ 
+ /*
+  * The core of the module is identical to the ones included with fio,
+@@ -21,6 +23,32 @@
+  */
+ 
+ /*
++ * The io engine can define its own options within the io engine source.
++ * The option member must not be at offset 0, due to the way fio parses
++ * the given option. Just add a padding pointer unless the io engine has
++ * something usable.
++ */
++struct fio_skeleton_options {
++	void *pad; /* avoid ->off1 of fio_option becomes 0 */
++	unsigned int dummy;
++};
++
++static struct fio_option options[] = {
++	{
++		.name	= "dummy",
++		.lname	= "ldummy",
++		.type	= FIO_OPT_STR_SET,
++		.off1	= offsetof(struct fio_skeleton_options, dummy),
++		.help	= "Set dummy",
++		.category = FIO_OPT_C_ENGINE, /* always use this */
++		.group	= FIO_OPT_G_INVALID, /* this can be different */
++	},
++	{
++		.name	= NULL,
++	},
++};
++
++/*
+  * The ->event() hook is called to match an event number with an io_u.
+  * After the core has called ->getevents() and it has returned eg 3,
+  * the ->event() hook must return the 3 events that have completed for
+@@ -140,4 +168,6 @@ struct ioengine_ops ioengine = {
+ 	.cleanup	= fio_skeleton_cleanup,
+ 	.open_file	= fio_skeleton_open,
+ 	.close_file	= fio_skeleton_close,
++	.options	= options,
++	.option_struct_size	= sizeof(struct fio_skeleton_options),
+ };
+diff --git a/fio.1 b/fio.1
+index a0f1a24..433f648 100644
+--- a/fio.1
++++ b/fio.1
+@@ -1575,7 +1575,9 @@ Read and write using device DAX to a persistent memory device (e.g.,
+ .B external
+ Prefix to specify loading an external I/O engine object file. Append
+ the engine filename, e.g. `ioengine=external:/tmp/foo.o' to load
+-ioengine `foo.o' in `/tmp'.
++ioengine `foo.o' in `/tmp'. The path can be either
++absolute or relative. See `engines/skeleton_external.c' in the fio source for
++details of writing an external I/O engine.
+ .SS "I/O engine specific parameters"
+ In addition, there are some parameters which are only valid when a specific
+ \fBioengine\fR is in use. These are used identically to normal parameters,
+-- 
+2.9.5
+
 
