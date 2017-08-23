@@ -1,82 +1,70 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 1/6] cleanup NetBSD/OpenBSD header
-Date: Wed, 30 Aug 2017 00:12:11 +0300
-Message-Id: <20170829211216.42347-2-tkusumi@tuxera.com>
-In-Reply-To: <20170829211216.42347-1-tkusumi@tuxera.com>
-References: <20170829211216.42347-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:36926 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753828AbdHWMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 23 Aug 2017 08:00:09 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1dkUKP-0004IV-6Z
+        for fio@vger.kernel.org; Wed, 23 Aug 2017 12:00:09 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170823120001.EAB962C0094@kernel.dk>
+Date: Wed, 23 Aug 2017 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+The following changes since commit 168bb5875da97004163c6b755de162ad481134c4:
 
-* NetBSD's <sys/rb.h> was renamed to <sys/rbtree.h> 7 years ago.
-* Drop unneeded undefs.
+  doc: latency log unit is nsec (2017-08-17 15:39:56 -0600)
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to deeb3c11c212e99e8d1162e03e0ef734bd0d01a7:
+
+  Merge branch 'timespec_add_msec_overflow' of https://github.com/sitsofe/fio (2017-08-22 10:32:18 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'timespec_add_msec_overflow' of https://github.com/sitsofe/fio
+
+Sitsofe Wheeler (1):
+      time: fix overflow in timespec_add_msec
+
+ time.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
 ---
- os/os-netbsd.h  | 6 ++----
- os/os-openbsd.h | 6 ++----
- 2 files changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/os/os-netbsd.h b/os/os-netbsd.h
-index eac76cf..682a11c 100644
---- a/os/os-netbsd.h
-+++ b/os/os-netbsd.h
-@@ -11,9 +11,9 @@
- #include <sys/dkio.h>
- #include <sys/disklabel.h>
- #include <sys/endian.h>
--/* XXX hack to avoid confilcts between rbtree.h and <sys/rb.h> */
--#define	rb_node	_rb_node
- #include <sys/sysctl.h>
-+
-+/* XXX hack to avoid confilcts between rbtree.h and <sys/rbtree.h> */
- #undef rb_node
- #undef rb_left
- #undef rb_right
-@@ -26,8 +26,6 @@
- #define FIO_HAVE_FS_STAT
- #define FIO_HAVE_GETTID
- 
--#undef	FIO_HAVE_CPU_AFFINITY	/* doesn't exist */
--
- #define OS_MAP_ANON		MAP_ANON
- 
- #ifndef PTHREAD_STACK_MIN
-diff --git a/os/os-openbsd.h b/os/os-openbsd.h
-index 675bf89..b4c02c9 100644
---- a/os/os-openbsd.h
-+++ b/os/os-openbsd.h
-@@ -11,23 +11,21 @@
- #include <sys/disklabel.h>
- #include <sys/endian.h>
- #include <sys/utsname.h>
--/* XXX hack to avoid conflicts between rbtree.h and <sys/tree.h> */
- #include <sys/sysctl.h>
-+
-+/* XXX hack to avoid conflicts between rbtree.h and <sys/tree.h> */
- #undef RB_BLACK
- #undef RB_RED
- #undef RB_ROOT
- 
- #include "../file.h"
- 
--#undef  FIO_HAVE_ODIRECT
- #define FIO_USE_GENERIC_RAND
- #define FIO_USE_GENERIC_INIT_RANDOM_STATE
- #define FIO_HAVE_FS_STAT
- #define FIO_HAVE_GETTID
- #define FIO_HAVE_SHM_ATTACH_REMOVED
- 
--#undef	FIO_HAVE_CPU_AFFINITY	/* doesn't exist */
--
- #define OS_MAP_ANON		MAP_ANON
- 
- #ifndef PTHREAD_STACK_MIN
--- 
-2.9.5
+Diff of recent changes:
 
-
+diff --git a/time.c b/time.c
+index edfe779..0798419 100644
+--- a/time.c
++++ b/time.c
+@@ -8,17 +8,17 @@ static unsigned long ns_granularity;
+ 
+ void timespec_add_msec(struct timespec *ts, unsigned int msec)
+ {
+-	unsigned long adj_nsec = 1000000 * msec;
++	uint64_t adj_nsec = 1000000ULL * msec;
+ 
+ 	ts->tv_nsec += adj_nsec;
+ 	if (adj_nsec >= 1000000000) {
+-		unsigned long adj_sec = adj_nsec / 1000000000UL;
++		uint64_t adj_sec = adj_nsec / 1000000000;
+ 
+-		ts->tv_nsec -=  adj_sec * 1000000000UL;
++		ts->tv_nsec -= adj_sec * 1000000000;
+ 		ts->tv_sec += adj_sec;
+ 	}
+-	if (ts->tv_nsec >= 1000000000UL){
+-		ts->tv_nsec -= 1000000000UL;
++	if (ts->tv_nsec >= 1000000000){
++		ts->tv_nsec -= 1000000000;
+ 		ts->tv_sec++;
+ 	}
+ }
