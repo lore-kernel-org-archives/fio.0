@@ -1,45 +1,38 @@
-Return-Path: <elliott@hpe.com>
-From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Subject: RE: Optimizing mmap_queue on AVX/AVX2 CPUs
-Date: Wed, 30 Aug 2017 20:57:46 +0000
-Message-ID: <AT5PR84MB00821736D3451DB8249D72EBAB9C0@AT5PR84MB0082.NAMPRD84.PROD.OUTLOOK.COM>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: Optimizing mmap_queue on AVX/AVX2 CPUs
 References: <a4e3f9d8-3e1b-5a50-63fe-a704e9bb0fdf@bluestop.org>
- <c4080594-ec00-8cd7-2eb6-ba843c3219c9@kernel.dk>
-In-Reply-To: <c4080594-ec00-8cd7-2eb6-ba843c3219c9@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <c4080594-ec00-8cd7-2eb6-ba843c3219c9@kernel.dk>
+Date: Tue, 29 Aug 2017 09:33:07 -0600
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, Rebecca Cran <rebecca@bluestop.org>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <a4e3f9d8-3e1b-5a50-63fe-a704e9bb0fdf@bluestop.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Rebecca Cran <rebecca@bluestop.org>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
-a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZg0K
-PiBPZiBKZW5zIEF4Ym9lDQo+IFNlbnQ6IFR1ZXNkYXksIEF1Z3VzdCAyOSwgMjAxNyAxMDozMyBB
-TQ0KPiBUbzogUmViZWNjYSBDcmFuIDxyZWJlY2NhQGJsdWVzdG9wLm9yZz47IGZpb0B2Z2VyLmtl
-cm5lbC5vcmcNCj4gU3ViamVjdDogUmU6IE9wdGltaXppbmcgbW1hcF9xdWV1ZSBvbiBBVlgvQVZY
-MiBDUFVzDQo+IA0KPiBPbiAwOC8yNS8yMDE3IDA3OjQ2IFBNLCBSZWJlY2NhIENyYW4gd3JvdGU6
-DQo+ID4gSSdtIG5vdCBzdXJlIGhvdyBmYXIgd2Ugd2FudCB0byBnZXQgaW50byBvcHRpbWl6aW5n
-IGZpbyBmb3Igc3BlY2lmaWMgQ1BVcz8NCj4gPg0KPiA+IEkndmUgZG9uZSBzb21lIHRlc3Rpbmcg
-YW5kIGZvdW5kIHRoYXQgd2hlbiBydW5uaW5nIHRoZSBtbWFwIGlvZW5naW5lDQo+ID4gYWdhaW5z
-dCBhbiBOVkRJTU0tTiBvbiBhIG1vZGVybiBJbnRlbCBDUFUgSSBjYW4gZ2FpbiBhIGZldyBodW5k
-cmVkIE1CL3MNCj4gPiBieSBvcHRpbWl6aW5nIHRoZSBtZW1vcnkgY29weSB1c2luZyBhdngvYXZ4
-MiB2ZXJzdXMgdGhlIHN5c3RlbSdzIG1lbWNweQ0KPiA+IGltcGxlbWVudGF0aW9uLg0KPiA+DQo+
-ID4NCj4gPiBTaG91bGQgSSBwcm9jZWVkIHdpdGggc3VibWl0dGluZyBhIHBhdGNoLCBvciBkbyB3
-ZSB3YW50IHRvIGF2b2lkIGdldHRpbmcNCj4gPiBpbnRvIHRoZXNlIHNvcnQgb2Ygb3B0aW1pemF0
-aW9ucz8NCj4gDQo+IElmIHdlIGNhbiBkbyBpdCBjbGVhbmx5LCB0aGF0J3MgZmluZS4gU2VlIGZv
-ciBpbnN0YW5jZSBob3cgd2UgZGV0ZWN0DQo+IHByZXNlbmNlIG9mIGNyYzMyYyBodyBhc3Npc3Qg
-YXQgaW5pdCB0aW1lLg0KPiANCj4gRm9yIG1lbWNweSgpLCB0aGUgbGliYyBmdW5jdGlvbnMgc2hv
-dWxkIHJlYWxseSBiZSBkb2luZyB0aGlzLCBob3dldmVyLg0KDQpVbmZvcnR1bmF0ZWx5LCB0aGUg
-Z2xpYmMgbWVtY3B5KCkgaW1wbGVtZW50YXRpb24gY2hhbmdlcyBmYWlybHkgb2Z0ZW47DQpzb21l
-IHZlcnNpb25zIHVzZSByZXAgbW92c2IsIG90aGVycyBoYXZlIGF0dGVtcHRlZCB0byB1c2UgeG1t
-LCB5bW0sDQphbmQgem1tIHJlZ2lzdGVycy4gIFNvLCBoYXZpbmcgbW9yZSBjb250cm9sIGluIGZp
-byB3b3VsZCBoZWxwIHNpbXVsYXRlDQptZXRob2RzIChib3RoIGdvb2QgYW5kIGJhZCkgdGhhdCBh
-cmUgdXNlZCBieSBkaWZmZXJlbnQgYXBwbGljYXRpb25zDQphbmQgbGlicmFyeSB2ZXJzaW9ucy4N
-Cg0KVGhlcmUncyBldmVuIGEgbmV3IHBhdGNoIHNldCB0byB1c2UgdGhlIEludGVsIFF1aWNrRGF0
-YSBETUEgZW5naW5lcyANCmZvciB0cmFuc2ZlcnMgcmF0aGVyIHRoYW4gdGhlIENQVSAoYSAiYmxr
-bXEiIHBtZW0gZHJpdmVyKS4gIEl0J2QgYmUNCmludGVyZXN0aW5nIGlmIGZpbyBjb3VsZCB1c2Ug
-dGhhdCBoYXJkd2FyZSB0b28gKHdpdGggZGlyZWN0IGFjY2VzcyBieQ0KZmlvLCBub3QgcmVzb3J0
-aW5nIHRvIGtlcm5lbCByZWFkKCkvd3JpdGUoKSBjYWxscykuDQoNCg0KLS0tDQpSb2JlcnQgRWxs
-aW90dCwgSFBFIFBlcnNpc3RlbnQgTWVtb3J5DQoNCg0K
+On 08/25/2017 07:46 PM, Rebecca Cran wrote:
+> I'm not sure how far we want to get into optimizing fio for specific CPUs?
+> 
+> I've done some testing and found that when running the mmap ioengine 
+> against an NVDIMM-N on a modern Intel CPU I can gain a few hundred MB/s 
+> by optimizing the memory copy using avx/avx2 versus the system's memcpy 
+> implementation.
+> 
+> 
+> Should I proceed with submitting a patch, or do we want to avoid getting 
+> into these sort of optimizations?
+
+If we can do it cleanly, that's fine. See for instance how we detect
+presence of crc32c hw assist at init time.
+
+For memcpy(), the libc functions should really be doing this, however.
+
+That said, let's see a patch, it's easier to discuss concrete patches
+than just ideas.
+
+-- 
+Jens Axboe
+
 
