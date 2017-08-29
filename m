@@ -1,47 +1,82 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from muon.bluestop.org ([74.50.51.35]:45411 "EHLO muon.cran.org.uk"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751346AbdGRDqC (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 17 Jul 2017 23:46:02 -0400
-Received: from muon.bluestop.org (localhost [127.0.0.1])
-        by muon.cran.org.uk (Postfix) with ESMTP id BF7763381A
-        for <fio@vger.kernel.org>; Tue, 18 Jul 2017 03:46:01 +0000 (UTC)
-Received: from muon.cran.org.uk ([127.0.0.1])
-        by muon.bluestop.org (muon.bluestop.org [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id jF0BT8ORYnuq for <fio@vger.kernel.org>;
-        Tue, 18 Jul 2017 03:46:01 +0000 (UTC)
-Received: from [10.50.2.106] (63-158-132-10.dia.static.qwest.net [63.158.132.10])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by muon.cran.org.uk (Postfix) with ESMTPSA
-        for <fio@vger.kernel.org>; Tue, 18 Jul 2017 03:46:01 +0000 (UTC)
-From: Rebecca Cran <rebecca@bluestop.org>
-Subject: pmemblk ioengine broken (pmemblk_bsize unknown)
-Message-ID: <68e2387b-4010-aadf-4df8-1f7f434b6258@bluestop.org>
-Date: Mon, 17 Jul 2017 21:46:00 -0600
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 1/6] cleanup NetBSD/OpenBSD header
+Date: Wed, 30 Aug 2017 00:12:11 +0300
+Message-Id: <20170829211216.42347-2-tkusumi@tuxera.com>
+In-Reply-To: <20170829211216.42347-1-tkusumi@tuxera.com>
+References: <20170829211216.42347-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-I noticed the pmemblk ioengine is broken - I've tested with commit 
-785e49c659023df1735bff195ad4ba133ebd23a7 (i.e. git master as of today).
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-engines/pmemblk.c: In function ‘pmb_open’:
-engines/pmemblk.c:219:3: warning: implicit declaration of function 
-‘pmemblk_bsize’ [-Wimplicit-function-declaration]
-    pmb->pmb_bsize = pmemblk_bsize(pmb->pmb_pool);
-    ^
-...
-engines/pmemblk.o: In function `pmb_open':
-/home/bcran/workspace/fio/engines/pmemblk.c:219: undefined reference to 
-`pmemblk_bsize'
-collect2: error: ld returned 1 exit status
+* NetBSD's <sys/rb.h> was renamed to <sys/rbtree.h> 7 years ago.
+* Drop unneeded undefs.
 
-I have libpmemblk 0.2 installed.
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ os/os-netbsd.h  | 6 ++----
+ os/os-openbsd.h | 6 ++----
+ 2 files changed, 4 insertions(+), 8 deletions(-)
 
+diff --git a/os/os-netbsd.h b/os/os-netbsd.h
+index eac76cf..682a11c 100644
+--- a/os/os-netbsd.h
++++ b/os/os-netbsd.h
+@@ -11,9 +11,9 @@
+ #include <sys/dkio.h>
+ #include <sys/disklabel.h>
+ #include <sys/endian.h>
+-/* XXX hack to avoid confilcts between rbtree.h and <sys/rb.h> */
+-#define	rb_node	_rb_node
+ #include <sys/sysctl.h>
++
++/* XXX hack to avoid confilcts between rbtree.h and <sys/rbtree.h> */
+ #undef rb_node
+ #undef rb_left
+ #undef rb_right
+@@ -26,8 +26,6 @@
+ #define FIO_HAVE_FS_STAT
+ #define FIO_HAVE_GETTID
+ 
+-#undef	FIO_HAVE_CPU_AFFINITY	/* doesn't exist */
+-
+ #define OS_MAP_ANON		MAP_ANON
+ 
+ #ifndef PTHREAD_STACK_MIN
+diff --git a/os/os-openbsd.h b/os/os-openbsd.h
+index 675bf89..b4c02c9 100644
+--- a/os/os-openbsd.h
++++ b/os/os-openbsd.h
+@@ -11,23 +11,21 @@
+ #include <sys/disklabel.h>
+ #include <sys/endian.h>
+ #include <sys/utsname.h>
+-/* XXX hack to avoid conflicts between rbtree.h and <sys/tree.h> */
+ #include <sys/sysctl.h>
++
++/* XXX hack to avoid conflicts between rbtree.h and <sys/tree.h> */
+ #undef RB_BLACK
+ #undef RB_RED
+ #undef RB_ROOT
+ 
+ #include "../file.h"
+ 
+-#undef  FIO_HAVE_ODIRECT
+ #define FIO_USE_GENERIC_RAND
+ #define FIO_USE_GENERIC_INIT_RANDOM_STATE
+ #define FIO_HAVE_FS_STAT
+ #define FIO_HAVE_GETTID
+ #define FIO_HAVE_SHM_ATTACH_REMOVED
+ 
+-#undef	FIO_HAVE_CPU_AFFINITY	/* doesn't exist */
+-
+ #define OS_MAP_ANON		MAP_ANON
+ 
+ #ifndef PTHREAD_STACK_MIN
 -- 
-Rebecca
+2.9.5
+
+
