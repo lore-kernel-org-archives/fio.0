@@ -1,66 +1,138 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:51310 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751270AbdHXMAW (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 24 Aug 2017 08:00:22 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1dkqo9-0008PM-4k
-        for fio@vger.kernel.org; Thu, 24 Aug 2017 12:00:21 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170824120002.5FB4B2C0094@kernel.dk>
-Date: Thu, 24 Aug 2017 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 6/6] change os_trim() prototype not to use int fd
+Date: Wed, 30 Aug 2017 00:12:16 +0300
+Message-Id: <20170829211216.42347-7-tkusumi@tuxera.com>
+In-Reply-To: <20170829211216.42347-1-tkusumi@tuxera.com>
+References: <20170829211216.42347-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit deeb3c11c212e99e8d1162e03e0ef734bd0d01a7:
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-  Merge branch 'timespec_add_msec_overflow' of https://github.com/sitsofe/fio (2017-08-22 10:32:18 -0600)
+This is the same as the previous commit. The offset and length are
+universal regardless of platforms, but int fd is not, thus it should
+take struct fio_file*.
 
-are available in the git repository at:
+In fact, other fd related functions under os/ don't take int fd for
+portability even if some of them work fine with int fd at the moment.
 
-  git://git.kernel.dk/fio.git master
+(OS headers basically (should)have no dependencies on fio functions
+and structures, but struct fio_file is the only exception.)
 
-for you to fetch changes up to b427f2e12beba7b0c9a655f8ecbd19187c0b6029:
-
-  Merge branch 'stat_base_overflow' of https://github.com/football1222/fio (2017-08-23 08:34:37 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'stat_base_overflow' of https://github.com/football1222/fio
-
-Richard Liu (1):
-      stat: increase the size of base to avoid overflow
-
- stat.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
+ io_u.c            | 2 +-
+ os/os-android.h   | 4 ++--
+ os/os-dragonfly.h | 4 ++--
+ os/os-freebsd.h   | 4 ++--
+ os/os-linux.h     | 4 ++--
+ 5 files changed, 9 insertions(+), 9 deletions(-)
 
-Diff of recent changes:
-
-diff --git a/stat.c b/stat.c
-index 4aa9cb8..91c74ab 100644
---- a/stat.c
-+++ b/stat.c
-@@ -100,7 +100,8 @@ static unsigned int plat_val_to_idx(unsigned long long val)
-  */
- static unsigned long long plat_idx_to_val(unsigned int idx)
+diff --git a/io_u.c b/io_u.c
+index ed8e84a..db043e4 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -2188,7 +2188,7 @@ int do_io_u_trim(const struct thread_data *td, struct io_u *io_u)
+ 	struct fio_file *f = io_u->file;
+ 	int ret;
+ 
+-	ret = os_trim(f->fd, io_u->offset, io_u->xfer_buflen);
++	ret = os_trim(f, io_u->offset, io_u->xfer_buflen);
+ 	if (!ret)
+ 		return io_u->xfer_buflen;
+ 
+diff --git a/os/os-android.h b/os/os-android.h
+index b217daa..bb590e4 100644
+--- a/os/os-android.h
++++ b/os/os-android.h
+@@ -274,7 +274,7 @@ static inline unsigned long long get_fs_free_size(const char *path)
+ 	return ret;
+ }
+ 
+-static inline int os_trim(int fd, unsigned long long start,
++static inline int os_trim(struct fio_file *f, unsigned long long start,
+ 			  unsigned long long len)
  {
--	unsigned int error_bits, k, base;
-+	unsigned int error_bits;
-+	unsigned long long k, base;
+ 	uint64_t range[2];
+@@ -282,7 +282,7 @@ static inline int os_trim(int fd, unsigned long long start,
+ 	range[0] = start;
+ 	range[1] = len;
  
- 	assert(idx < FIO_IO_U_PLAT_NR);
+-	if (!ioctl(fd, BLKDISCARD, range))
++	if (!ioctl(f->fd, BLKDISCARD, range))
+ 		return 0;
  
-@@ -111,7 +112,7 @@ static unsigned long long plat_idx_to_val(unsigned int idx)
+ 	return errno;
+diff --git a/os/os-dragonfly.h b/os/os-dragonfly.h
+index 8d15833..423b236 100644
+--- a/os/os-dragonfly.h
++++ b/os/os-dragonfly.h
+@@ -216,7 +216,7 @@ static inline unsigned long long get_fs_free_size(const char *path)
+ 	return ret;
+ }
  
- 	/* Find the group and compute the minimum value of that group */
- 	error_bits = (idx >> FIO_IO_U_PLAT_BITS) - 1;
--	base = 1 << (error_bits + FIO_IO_U_PLAT_BITS);
-+	base = ((unsigned long long) 1) << (error_bits + FIO_IO_U_PLAT_BITS);
+-static inline int os_trim(int fd, unsigned long long start,
++static inline int os_trim(struct fio_file *f, unsigned long long start,
+ 			  unsigned long long len)
+ {
+ 	off_t range[2];
+@@ -224,7 +224,7 @@ static inline int os_trim(int fd, unsigned long long start,
+ 	range[0] = start;
+ 	range[1] = len;
  
- 	/* Find its bucket number of the group */
- 	k = idx % FIO_IO_U_PLAT_VAL;
+-	if (!ioctl(fd, IOCTLTRIM, range))
++	if (!ioctl(f->fd, IOCTLTRIM, range))
+ 		return 0;
+ 
+ 	return errno;
+diff --git a/os/os-freebsd.h b/os/os-freebsd.h
+index e6da286..4a7cdeb 100644
+--- a/os/os-freebsd.h
++++ b/os/os-freebsd.h
+@@ -117,7 +117,7 @@ static inline unsigned long long get_fs_free_size(const char *path)
+ 	return ret;
+ }
+ 
+-static inline int os_trim(int fd, unsigned long long start,
++static inline int os_trim(struct fio_file *f, unsigned long long start,
+ 			  unsigned long long len)
+ {
+ 	off_t range[2];
+@@ -125,7 +125,7 @@ static inline int os_trim(int fd, unsigned long long start,
+ 	range[0] = start;
+ 	range[1] = len;
+ 
+-	if (!ioctl(fd, DIOCGDELETE, range))
++	if (!ioctl(f->fd, DIOCGDELETE, range))
+ 		return 0;
+ 
+ 	return errno;
+diff --git a/os/os-linux.h b/os/os-linux.h
+index e7d600d..1ad6ebd 100644
+--- a/os/os-linux.h
++++ b/os/os-linux.h
+@@ -281,7 +281,7 @@ static inline unsigned long long get_fs_free_size(const char *path)
+ 	return ret;
+ }
+ 
+-static inline int os_trim(int fd, unsigned long long start,
++static inline int os_trim(struct fio_file *f, unsigned long long start,
+ 			  unsigned long long len)
+ {
+ 	uint64_t range[2];
+@@ -289,7 +289,7 @@ static inline int os_trim(int fd, unsigned long long start,
+ 	range[0] = start;
+ 	range[1] = len;
+ 
+-	if (!ioctl(fd, BLKDISCARD, range))
++	if (!ioctl(f->fd, BLKDISCARD, range))
+ 		return 0;
+ 
+ 	return errno;
+-- 
+2.9.5
+
+
