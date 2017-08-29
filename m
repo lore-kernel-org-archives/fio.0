@@ -1,136 +1,131 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:48135 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750846AbdHRMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 18 Aug 2017 08:00:09 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1difwf-0001uS-4x
-        for fio@vger.kernel.org; Fri, 18 Aug 2017 12:00:09 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170818120002.2C7692C008B@kernel.dk>
-Date: Fri, 18 Aug 2017 06:00:02 -0600 (MDT)
+Received: from mail-lf0-f66.google.com ([209.85.215.66]:33661 "EHLO
+        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751249AbdH2VMe (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 29 Aug 2017 17:12:34 -0400
+Received: by mail-lf0-f66.google.com with SMTP id y15so2850914lfd.0
+        for <fio@vger.kernel.org>; Tue, 29 Aug 2017 14:12:33 -0700 (PDT)
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 4/6] filesetup: add non O_DIRECT direct I/O support for initial layout setup
+Date: Wed, 30 Aug 2017 00:12:14 +0300
+Message-Id: <20170829211216.42347-5-tkusumi@tuxera.com>
+In-Reply-To: <20170829211216.42347-1-tkusumi@tuxera.com>
+References: <20170829211216.42347-1-tkusumi@tuxera.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-The following changes since commit bdadbb83ba3611a09888600830b8539bf3d19794:
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-  Fio 3.0 (2017-08-16 14:12:33 -0600)
+8c43ba62('filesetup: align layout buffer') and
+6e344dc3('filesetup: keep OS_O_DIRECT flag when pre-allocating file')
+only consider OS with open(O_DIRECT).
 
-are available in the git repository at:
+This commit adds fio_set_directio() since now OS specific direct I/O
+initialization is needed by both real ->fd and temporary ->fd while in
+extend_file() to equally support the feature.
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 168bb5875da97004163c6b755de162ad481134c4:
-
-  doc: latency log unit is nsec (2017-08-17 15:39:56 -0600)
-
-----------------------------------------------------------------
-Sitsofe Wheeler (4):
-      rbd: fixup format specifier
-      fio2gnuplot: minor man page heading fix
-      configure: fail rbd configure check on wrong rados_create2 signature
-      travis: install additional development libraries
-
-Vincent Fu (1):
-      doc: latency log unit is nsec
-
- .travis.yml              | 2 +-
- HOWTO                    | 2 +-
- configure                | 8 ++++++--
- engines/rbd.c            | 2 +-
- fio.1                    | 2 +-
- tools/plot/fio2gnuplot.1 | 2 +-
- 6 files changed, 11 insertions(+), 7 deletions(-)
-
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
+ file.h      |  1 +
+ filesetup.c | 31 +++++++++++++++++++++++++++++++
+ ioengines.c | 25 ++-----------------------
+ 3 files changed, 34 insertions(+), 23 deletions(-)
 
-Diff of recent changes:
-
-diff --git a/.travis.yml b/.travis.yml
-index 4cdda12..795c0fc 100644
---- a/.travis.yml
-+++ b/.travis.yml
-@@ -25,6 +25,6 @@ matrix:
-       compiler: gcc
- before_install:
-   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update; fi
--  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -qq -y libaio-dev libnuma-dev libz-dev; fi
-+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -qq -y libaio-dev libnuma-dev libz-dev librbd-dev glusterfs-common libibverbs-dev librdmacm-dev; fi
- script:
-   - ./configure --extra-cflags="-Werror" && make && make test
-diff --git a/HOWTO b/HOWTO
-index 16ae708..4192ac7 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -3584,7 +3584,7 @@ and IOPS. The logs share a common format, which looks like this:
- on the type of log, it will be one of the following:
+diff --git a/file.h b/file.h
+index 84daa5f..ad8802d 100644
+--- a/file.h
++++ b/file.h
+@@ -211,5 +211,6 @@ extern void filesetup_mem_free(void);
+ extern void fio_file_reset(struct thread_data *, struct fio_file *);
+ extern bool fio_files_done(struct thread_data *);
+ extern bool exists_and_not_regfile(const char *);
++extern int fio_set_directio(struct thread_data *, struct fio_file *);
  
-     **Latency log**
--		Value is latency in usecs
-+		Value is latency in nsecs
-     **Bandwidth log**
- 		Value is in KiB/sec
-     **IOPS log**
-diff --git a/configure b/configure
-index afb88ca..59af1b6 100755
---- a/configure
-+++ b/configure
-@@ -1483,12 +1483,16 @@ int main(int argc, char **argv)
- {
-   rados_t cluster;
-   rados_ioctx_t io_ctx;
-+  const char cluster_name[] = "ceph";
-+  const char user_name[] = "client.admin";
-   const char pool[] = "rbd";
--
-   int major, minor, extra;
--  rbd_version(&major, &minor, &extra);
- 
-+  rbd_version(&major, &minor, &extra);
-+  /* The rados_create2 signature required was only introduced in ceph 0.65 */
-+  rados_create2(&cluster, cluster_name, user_name, 0);
-   rados_ioctx_create(cluster, pool, &io_ctx);
-+
-   return 0;
- }
- EOF
-diff --git a/engines/rbd.c b/engines/rbd.c
-index 5b51a39..39501eb 100644
---- a/engines/rbd.c
-+++ b/engines/rbd.c
-@@ -605,7 +605,7 @@ static int fio_rbd_setup(struct thread_data *td)
- 		goto cleanup;
+ #endif
+diff --git a/filesetup.c b/filesetup.c
+index a6a94ee..4ceaef6 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -196,6 +196,9 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
+ 		}
  	}
  
--	dprint(FD_IO, "rbd-engine: image size: %lu\n", info.size);
-+	dprint(FD_IO, "rbd-engine: image size: %" PRIu64 "\n", info.size);
++	if (td->o.odirect && !OS_O_DIRECT && fio_set_directio(td, f))
++		goto err;
++
+ 	left = f->real_file_size;
+ 	bs = td->o.max_bs[DDIR_WRITE];
+ 	if (bs > left)
+@@ -1852,3 +1855,31 @@ void filesetup_mem_free(void)
+ {
+ 	free_already_allocated();
+ }
++
++/*
++ * This function is for platforms which support direct I/O but not O_DIRECT.
++ */
++int fio_set_directio(struct thread_data *td, struct fio_file *f)
++{
++#ifdef FIO_OS_DIRECTIO
++	int ret = fio_set_odirect(f->fd);
++
++	if (ret) {
++		td_verror(td, ret, "fio_set_directio");
++#if defined(__sun__)
++		if (ret == ENOTTY) { /* ENOTTY suggests RAW device or ZFS */
++			log_err("fio: doing directIO to RAW devices or ZFS not supported\n");
++		} else {
++			log_err("fio: the file system does not seem to support direct IO\n");
++		}
++#else
++		log_err("fio: the file system does not seem to support direct IO\n");
++#endif
++		return -1;
++	}
++
++	return 0;
++#else
++	return -1;
++#endif
++}
+diff --git a/ioengines.c b/ioengines.c
+index 6e135af..919781c 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -495,29 +495,8 @@ int td_io_open_file(struct thread_data *td, struct fio_file *f)
+ 	}
+ #endif
  
- 	/* taken from "net" engine. Pretend we deal with files,
- 	 * even if we do not have any ideas about files.
-diff --git a/fio.1 b/fio.1
-index 792bc9d..a0f1a24 100644
---- a/fio.1
-+++ b/fio.1
-@@ -3317,7 +3317,7 @@ on the type of log, it will be one of the following:
- .RS
- .TP
- .B Latency log
--Value is latency in usecs
-+Value is latency in nsecs
- .TP
- .B Bandwidth log
- Value is in KiB/sec
-diff --git a/tools/plot/fio2gnuplot.1 b/tools/plot/fio2gnuplot.1
-index 1a33167..6fb1283 100644
---- a/tools/plot/fio2gnuplot.1
-+++ b/tools/plot/fio2gnuplot.1
-@@ -1,5 +1,5 @@
- .\" Text automatically generated by txt2man
--.TH fio2gnuplot  "07 ao��t 2013" "" ""
-+.TH fio2gnuplot 1 "August 2013"
- .SH NAME
- \fBfio2gnuplot \fP- Render fio's output files with gnuplot
- .SH SYNOPSIS
+-#ifdef FIO_OS_DIRECTIO
+-	/*
+-	 * Some OS's have a distinct call to mark the file non-buffered,
+-	 * instead of using O_DIRECT (Solaris)
+-	 */
+-	if (td->o.odirect) {
+-		int ret = fio_set_odirect(f->fd);
+-
+-		if (ret) {
+-			td_verror(td, ret, "fio_set_odirect");
+-#if defined(__sun__)
+-			if (ret == ENOTTY) { /* ENOTTY suggests RAW device or ZFS */
+-				log_err("fio: doing directIO to RAW devices or ZFS not supported\n");
+-			} else {
+-				log_err("fio: the file system does not seem to support direct IO\n");
+-			}
+-#else
+-			log_err("fio: the file system does not seem to support direct IO\n");
+-#endif
+-			goto err;
+-		}
+-	}
+-#endif
++	if (td->o.odirect && !OS_O_DIRECT && fio_set_directio(td, f))
++		goto err;
+ 
+ done:
+ 	log_file(td, f, FIO_LOG_OPEN_FILE);
+-- 
+2.9.5
+
