@@ -1,62 +1,42 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 2/4] HOWTO: fix unit type suffix in "Parameter types" section
-Date: Mon,  7 Aug 2017 20:37:52 +0300
-Message-Id: <20170807173754.80126-3-tkusumi@tuxera.com>
-In-Reply-To: <20170807173754.80126-1-tkusumi@tuxera.com>
-References: <20170807173754.80126-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa5.hgst.iphmx.com ([216.71.153.144]:21815 "EHLO
+        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750814AbdH3W20 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 30 Aug 2017 18:28:26 -0400
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: fio patch question on filesetup: align layout buffer
+Date: Wed, 30 Aug 2017 22:27:38 +0000
+Message-ID: <BN3PR0401MB1457AD82F545E4C85F2CA5858F9C0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+Hi All,
+I see the patch at http://git.kernel.dk/cgit/fio/commit/?id=3D8c43ba6259409=
+244de64f0b1d388a029e38cf3e5 and just wondered if it is still compatible wit=
+h:
 
-These should be all in lower case or all in upper case, but not both.
-Given the examples of these are mostly in lower case, this commit
-uses lower.
+.. option:: iomem_align=3Dint, mem_align=3Dint
 
-The man page already has these in lower case.
+	This indicates the memory alignment of the I/O memory buffers.  Note that
+	the given alignment is applied to the first I/O unit buffer, if using
+	:option:`iodepth` the alignment of the following buffers are given by the
+	:option:`bs` used. In other words, if using a :option:`bs` that is a
+	multiple of the page sized in the system, all buffers will be aligned to
+	this value. If using a :option:`bs` that is not page aligned, the alignmen=
+t
+	of subsequent I/O memory buffers is the sum of the :option:`iomem_align` a=
+nd
+	:option:`bs` used.
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- HOWTO | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+For example, if we set mem_align to something larger than page_size or bs, =
+what does fio_memalign use?  And if we set mem_align to something between p=
+age_size and bs, what does fio_memalign use?  Thanks.
 
-diff --git a/HOWTO b/HOWTO
-index ee2b996..cad9500 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -505,19 +505,19 @@ Parameter types
- 	prefixes.  To specify power-of-10 decimal values defined in the
- 	International System of Units (SI):
- 
--		* *Ki* -- means kilo (K) or 1000
--		* *Mi* -- means mega (M) or 1000**2
--		* *Gi* -- means giga (G) or 1000**3
--		* *Ti* -- means tera (T) or 1000**4
--		* *Pi* -- means peta (P) or 1000**5
-+		* *ki* -- means kilo (K) or 1000
-+		* *mi* -- means mega (M) or 1000**2
-+		* *gi* -- means giga (G) or 1000**3
-+		* *ti* -- means tera (T) or 1000**4
-+		* *pi* -- means peta (P) or 1000**5
- 
- 	To specify power-of-2 binary values defined in IEC 80000-13:
- 
- 		* *k* -- means kibi (Ki) or 1024
--		* *M* -- means mebi (Mi) or 1024**2
--		* *G* -- means gibi (Gi) or 1024**3
--		* *T* -- means tebi (Ti) or 1024**4
--		* *P* -- means pebi (Pi) or 1024**5
-+		* *m* -- means mebi (Mi) or 1024**2
-+		* *g* -- means gibi (Gi) or 1024**3
-+		* *t* -- means tebi (Ti) or 1024**4
-+		* *p* -- means pebi (Pi) or 1024**5
- 
- 	With :option:`kb_base`\=1024 (the default), the unit prefixes are opposite
- 	from those specified in the SI and IEC 80000-13 standards to provide
--- 
-2.9.4
-
+Regards,
+Jeff
 
