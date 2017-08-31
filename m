@@ -1,43 +1,122 @@
 Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
-Subject: [PATCH v3 0/4] Sync fio(1) man page with HOWTO (remaining sections)
-Date: Mon, 14 Aug 2017 18:30:22 +0300
-Message-Id: <20170814153026.44260-1-tkusumi@tuxera.com>
+Subject: [PATCH 1/5] skeleton: add option example
+Date: Thu, 31 Aug 2017 23:13:04 +0300
+Message-Id: <20170831201308.47933-2-tkusumi@tuxera.com>
+In-Reply-To: <20170831201308.47933-1-tkusumi@tuxera.com>
+References: <20170831201308.47933-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
 
 From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-2017-08-14 17:59 GMT+03:00 Jens Axboe <axboe@kernel.dk>:
->> Sync fio(1) man page with HOWTO (remaining sections)
->> http://www.spinics.net/lists/fio/msg06158.html
->
-> Patch #1 is throwing rejects now, I pulled in a few fixes this morning.
-> Since those are big hunks, can you double check and send a v3? Bad
-> timing, sorry...
+Add an example of ioengine specific options, which can/should exist
+within each ioengine code. Also fix/add documentation.
 
-Sure, sorry I didn't notice you committed changes, while I made v2 a few hours ago.
+Also see e59b9e11('move skip_bad= option to engines/mtd.c').
 
-These are v3 of below series of patches, which resolves above merge conflicts
-with recently committed 997b5680d139ce82c2034ba3a0d602cfd778b89b
-which added serialize_overlap= to fio.1 and HOWTO.
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ HOWTO                       |  4 +++-
+ engines/skeleton_external.c | 32 +++++++++++++++++++++++++++++++-
+ fio.1                       |  4 +++-
+ 3 files changed, 37 insertions(+), 3 deletions(-)
 
-[PATCH 0/4] Sync fio(1) man page with HOWTO (remaining sections)
-http://www.spinics.net/lists/fio/msg06158.html
-
-Tomohiro Kusumi (4):
-  man: sync "JOB PARAMETERS" section with HOWTO
-  man: sync "OUTPUT" section and after with HOWTO
-  man: minor fixes for sections before "JOB PARAMETERS" for consistency
-  HOWTO: minor fixes and backports from man page
-
- HOWTO |  193 ++-
- fio.1 | 4258 +++++++++++++++++++++++++++++++++++++----------------------------
- 2 files changed, 2539 insertions(+), 1912 deletions(-)
-
+diff --git a/HOWTO b/HOWTO
+index 3a720c3..2a70b7c 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -1791,7 +1791,9 @@ I/O engine
+ 		**external**
+ 			Prefix to specify loading an external I/O engine object file. Append
+ 			the engine filename, e.g. ``ioengine=external:/tmp/foo.o`` to load
+-			ioengine :file:`foo.o` in :file:`/tmp`.
++			ioengine :file:`foo.o` in :file:`/tmp`. The path can be either
++			absolute or relative. See :file:`engines/skeleton_external.c` for
++			details of writing an external I/O engine.
+ 
+ 
+ I/O engine specific parameters
+diff --git a/engines/skeleton_external.c b/engines/skeleton_external.c
+index 4bebcc4..56f89f9 100644
+--- a/engines/skeleton_external.c
++++ b/engines/skeleton_external.c
+@@ -3,7 +3,8 @@
+  *
+  * Should be compiled with:
+  *
+- * gcc -Wall -O2 -g -shared -rdynamic -fPIC -o engine.o engine.c
++ * gcc -Wall -O2 -g -shared -rdynamic -fPIC -o skeleton_external.o skeleton_external.c
++ * (also requires -D_GNU_SOURCE -DCONFIG_STRSEP on Linux)
+  *
+  */
+ #include <stdio.h>
+@@ -13,6 +14,7 @@
+ #include <assert.h>
+ 
+ #include "../fio.h"
++#include "../optgroup.h"
+ 
+ /*
+  * The core of the module is identical to the ones included with fio,
+@@ -21,6 +23,32 @@
+  */
+ 
+ /*
++ * The io engine can define its own options within the io engine source.
++ * The option member must not be at offset 0, due to the way fio parses
++ * the given option. Just add a padding pointer unless the io engine has
++ * something usable.
++ */
++struct fio_skeleton_options {
++	void *pad; /* avoid ->off1 of fio_option becomes 0 */
++	unsigned int dummy;
++};
++
++static struct fio_option options[] = {
++	{
++		.name	= "dummy",
++		.lname	= "ldummy",
++		.type	= FIO_OPT_STR_SET,
++		.off1	= offsetof(struct fio_skeleton_options, dummy),
++		.help	= "Set dummy",
++		.category = FIO_OPT_C_ENGINE, /* always use this */
++		.group	= FIO_OPT_G_INVALID, /* this can be different */
++	},
++	{
++		.name	= NULL,
++	},
++};
++
++/*
+  * The ->event() hook is called to match an event number with an io_u.
+  * After the core has called ->getevents() and it has returned eg 3,
+  * the ->event() hook must return the 3 events that have completed for
+@@ -140,4 +168,6 @@ struct ioengine_ops ioengine = {
+ 	.cleanup	= fio_skeleton_cleanup,
+ 	.open_file	= fio_skeleton_open,
+ 	.close_file	= fio_skeleton_close,
++	.options	= options,
++	.option_struct_size	= sizeof(struct fio_skeleton_options),
+ };
+diff --git a/fio.1 b/fio.1
+index 5b63dfd..97133da 100644
+--- a/fio.1
++++ b/fio.1
+@@ -1572,7 +1572,9 @@ Read and write using device DAX to a persistent memory device (e.g.,
+ .B external
+ Prefix to specify loading an external I/O engine object file. Append
+ the engine filename, e.g. `ioengine=external:/tmp/foo.o' to load
+-ioengine `foo.o' in `/tmp'.
++ioengine `foo.o' in `/tmp'. The path can be either
++absolute or relative. See `engines/skeleton_external.c' in the fio source for
++details of writing an external I/O engine.
+ .SS "I/O engine specific parameters"
+ In addition, there are some parameters which are only valid when a specific
+ \fBioengine\fR is in use. These are used identically to normal parameters,
 -- 
-2.9.4
+2.9.5
 
 
