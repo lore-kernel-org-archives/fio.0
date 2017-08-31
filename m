@@ -1,61 +1,107 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-it0-f53.google.com ([209.85.214.53]:37482 "EHLO
-        mail-it0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932833AbdHYWLp (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 25 Aug 2017 18:11:45 -0400
-Received: by mail-it0-f53.google.com with SMTP id 77so1087760itj.0
-        for <fio@vger.kernel.org>; Fri, 25 Aug 2017 15:11:45 -0700 (PDT)
-MIME-Version: 1.0
-From: Matthew Eaton <m.eaton82@gmail.com>
-Date: Fri, 25 Aug 2017 15:11:44 -0700
-Message-ID: <CAF+0mvk-1dfYeJ2XBFoi7afSPVAb1r0w=sDF0Eb-c5KvRtbeEQ@mail.gmail.com>
-Subject: File Servicing
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: kusumi.tomohiro@gmail.com
+Subject: [PATCH 5/5] add __load_ioengine() to separate ioengine loading from td context
+Date: Thu, 31 Aug 2017 23:13:08 +0300
+Message-Id: <20170831201308.47933-6-tkusumi@tuxera.com>
+In-Reply-To: <20170831201308.47933-1-tkusumi@tuxera.com>
+References: <20170831201308.47933-1-tkusumi@tuxera.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+List-ID: <fio@vger.kernel.org>
 
-Hello fio group.
+From: Tomohiro Kusumi <tkusumi@tuxera.com>
 
-I have a volume with 3573 files and I am trying to write to them 10 at
-a time in sequential order so I have:
+Add a sub function __load_ioengine(), which only takes name argument,
+to be called from load_ioengine(). No functional changes.
 
-[job]
-direct=1
-bs=128k
-rw=write
-refill_buffers
-opendir=/media/sped/rmfs
-openfiles=10
-file_service_type=sequential
+This lets fio_show_ioengine_help() get rid of a local variable td
+which only existed to call load_ioengine(&td, ...) while this td had
+no actual thread context thus unneeded.
 
-The above is close to what I want. Fio sees all 3573 files but only
-services 1 file at a time.
+Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+---
+ ioengines.c | 39 +++++++++++++++++++--------------------
+ 1 file changed, 19 insertions(+), 20 deletions(-)
 
-If I remove file_service_type=sequential fio services 10 files at a
-time but using lsof I see only the last file incrementing:
+diff --git a/ioengines.c b/ioengines.c
+index 0c631e8..e78b4f7 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -123,26 +123,31 @@ static struct ioengine_ops *dlopen_ioengine(struct thread_data *td,
+ 	return ops;
+ }
+ 
++static struct ioengine_ops *__load_ioengine(const char *name)
++{
++	char engine[64];
++
++	engine[sizeof(engine) - 1] = '\0';
++	strncpy(engine, name, sizeof(engine) - 1);
++
++	/*
++	 * linux libaio has alias names, so convert to what we want
++	 */
++	if (!strncmp(engine, "linuxaio", 8) || !strncmp(engine, "aio", 3))
++		strcpy(engine, "libaio");
++
++	dprint(FD_IO, "load ioengine %s\n", engine);
++	return find_ioengine(engine);
++}
++
+ struct ioengine_ops *load_ioengine(struct thread_data *td)
+ {
+ 	struct ioengine_ops *ops = NULL;
+ 	const char *name = NULL;
+ 
+ 	if (strcmp(td->o.ioengine, "external")) {
+-		char engine[64];
+-
+ 		name = td->o.ioengine;
+-		engine[sizeof(engine) - 1] = '\0';
+-		strncpy(engine, name, sizeof(engine) - 1);
+-
+-		/*
+-		 * linux libaio has alias names, so convert to what we want
+-		 */
+-		if (!strncmp(engine, "linuxaio", 8) || !strncmp(engine, "aio", 3))
+-			strcpy(engine, "libaio");
+-
+-		dprint(FD_IO, "load ioengine %s\n", engine);
+-		ops = find_ioengine(engine);
++		ops = __load_ioengine(name);
+ 	} else if (td->o.ioengine_so_path) {
+ 		name = td->o.ioengine_so_path;
+ 		ops = dlopen_ioengine(td, name);
+@@ -558,7 +563,6 @@ int td_io_get_file_size(struct thread_data *td, struct fio_file *f)
+ int fio_show_ioengine_help(const char *engine)
+ {
+ 	struct flist_head *entry;
+-	struct thread_data td;
+ 	struct ioengine_ops *io_ops;
+ 	char *sep;
+ 	int ret = 1;
+@@ -577,10 +581,7 @@ int fio_show_ioengine_help(const char *engine)
+ 		sep++;
+ 	}
+ 
+-	memset(&td, 0, sizeof(td));
+-
+-	td.o.ioengine = (char *)engine;
+-	io_ops = load_ioengine(&td);
++	io_ops = __load_ioengine(engine);
+ 	if (!io_ops) {
+ 		log_info("IO engine %s not found\n", engine);
+ 		return 1;
+@@ -591,7 +592,5 @@ int fio_show_ioengine_help(const char *engine)
+ 	else
+ 		log_info("IO engine %s has no options\n", io_ops->name);
+ 
+-	free_ioengine(&td);
+-
+ 	return ret;
+ }
+-- 
+2.9.5
 
-fio       6003                  root    3u      REG               8,17
-134217728      84934 /media/sped/rmfs/0001
-fio       6003                  root    4u      REG               8,17
-134217728      84935 /media/sped/rmfs/0002
-fio       6003                  root    5u      REG               8,17
-134217728      84936 /media/sped/rmfs/0003
-fio       6003                  root    6u      REG               8,17
-134217728      84937 /media/sped/rmfs/0004
-fio       6003                  root    7u      REG               8,17
-134217728      84938 /media/sped/rmfs/0005
-fio       6003                  root    8u      REG               8,17
-134217728      84939 /media/sped/rmfs/0006
-fio       6003                  root    9u      REG               8,17
-134217728      84940 /media/sped/rmfs/0007
-fio       6003                  root   10u      REG               8,17
-134217728      84941 /media/sped/rmfs/0008
-fio       6003                  root   11u      REG               8,17
-134217728      84942 /media/sped/rmfs/0009
-fio       6003                  root   12u      REG               8,17
-134217728      90617 /media/sped/rmfs/0058
 
-Fio version is latest from git: fio-3.0-9-gb427
-
-Is this the correct behavior?
