@@ -1,88 +1,95 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-it0-f53.google.com ([209.85.214.53]:37319 "EHLO
-        mail-it0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752143AbdIESpn (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 5 Sep 2017 14:45:43 -0400
-Received: by mail-it0-f53.google.com with SMTP id k189so4266624itk.0
-        for <fio@vger.kernel.org>; Tue, 05 Sep 2017 11:45:43 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CALjAwxjR+fcBy9=E6bwMHf9Ns0+Z8UAQxUcGczLimNU4cV3UCg@mail.gmail.com>
-References: <CADAGN7VvUH5nQcBK40-x-sizZDchG_kYWH2KvWY0Vt8QxoPU2g@mail.gmail.com>
- <CALjAwxgQVhaviwg0wEqsqqHCsyksf0ES+E6-S3ON7HhUMn17ng@mail.gmail.com>
- <CADAGN7UzGuCBbTs3URhqi6RiwNrOs-jLu0VtVRmT6nWvMnjPHg@mail.gmail.com>
- <CALjAwxjv2LXhnBEXn5R3pw2KfapvEu7FKojbjxWKhBUMJJEPhg@mail.gmail.com> <CALjAwxjR+fcBy9=E6bwMHf9Ns0+Z8UAQxUcGczLimNU4cV3UCg@mail.gmail.com>
-From: Brandon Schwartz <schwartz.xn@gmail.com>
-Date: Tue, 5 Sep 2017 12:45:12 -0600
-Message-ID: <CADAGN7XhtCCJotMXjimEYYR47YAshyP=ymDNaFNSaNhF_00wEg@mail.gmail.com>
-Subject: Re: NCQ Priority Support and FIO
-Content-Type: text/plain; charset="UTF-8"
+Received: from bombadil.infradead.org ([65.50.211.133]:46981 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751649AbdICMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 3 Sep 2017 08:00:09 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1doTZR-0007Ih-65
+        for fio@vger.kernel.org; Sun, 03 Sep 2017 12:00:09 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170903120002.22A352C0167@kernel.dk>
+Date: Sun,  3 Sep 2017 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hi Sitsofe,
+The following changes since commit ba872a0beb498740f076e19299bb7388b82ad4d6:
 
-Building off of the above change to control the priority bit, I'm
-trying to add the ability to track completion latencies for high and
-low prio read commands separately, but I'm not sure what I added to FIO is
-exactly correct.  It seems to be very accurate for qdepths up to 8,
-but at 16 and 32 I start seeing the FIO output for the high prio
-commands be higher than what I see when I take a bus trace and parse
-that (low prio latencies are what I would expect however).  What I am
-trying to do is track the priority of the IO when it is set in
-libaio.c via the following (notice the io_us[0]->priorityBit
-additions):
+  revert/rework 81647a9a('fix load_ioengine() not to support no "external:" prefix') (2017-09-01 13:58:35 -0600)
 
-https://github.com/brschwartz/fio/blob/10fdb93663e52beefa1f5dd836927d1e85c354d7/engines/libaio.c#L280
+are available in the git repository at:
 
-And then I grab that value again when the IO is complete and add the
-associated latency to high and low prio read data structures which
-then get outputted in the json output.
+  git://git.kernel.dk/fio.git master
 
-https://github.com/brschwartz/fio/commit/b7ad9003feb83fca57ec7438f5532426f597cec6
-https://github.com/brschwartz/fio/blob/10fdb93663e52beefa1f5dd836927d1e85c354d7/stat.c#L1056
+for you to fetch changes up to 07dff7d1d614b33e3a6d3e3ade38ce648b53a632:
 
-Does this seem right?  Or should I be tracking it a different way?
-Thanks for any help/input!
+  Merge branch 'shifted_logging' of https://github.com/sitsofe/fio (2017-09-02 17:00:24 -0600)
 
-Regards,
-Brandon
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'shifted_logging' of https://github.com/sitsofe/fio
 
+Sitsofe Wheeler (1):
+      stat: fix shifted windowed logging when using multiple directions
 
+ iolog.h |  2 +-
+ stat.c  | 12 ++++++------
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-On Sat, Apr 8, 2017 at 3:06 AM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
->
-> Hi Brandon,
->
-> Looks like someone went on to implement a design based on what you
-> were after https://github.com/xahmad/fio/commit/c45abdaa857bd30ccf4f20ed59340686fc3e9103
-> . It's not in mainline fio but perhaps if it was cleaned up it could
-> be submitted for inclusion?
->
-> On 4 February 2017 at 07:37, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
-> >
-> > I can't think of anything if you mean "I want the same thread/single
-> > job to send both normal AND high priority commands" so perhaps it
-> > would have to be done as new patch to the pvsync2 ioengine...
-> >
-> > On 4 February 2017 at 00:03, Brandon Schwartz <schwartz.xn@gmail.com> wrote:
-> >> Thanks for the info, I'll play around with that option and see if I
-> >> can make that work.  Is there anything that would allow me to control
-> >> the amount of priority commands from within a single thread?
-> >>
-> >> On Thu, Feb 2, 2017 at 3:36 PM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
-> >>>
-> >>> Perhaps you could use multiple threads and utilise the flow
-> >>> (http://fio.readthedocs.io/en/sphinx-doc/fio_doc.html#cmdoption-arg-flow
-> >>> ) control on pairs of threads?
-> >>>
-> >>> On 2 February 2017 at 22:29, Brandon Schwartz <schwartz.xn@gmail.com> wrote:
-> >>>>
-> >>>> 60% RandomRead / 40% RandomWrite but of those reads, have 15% be high priority
-> >>>>
-> >>>> Or is there a way to get this sort of priority testing done with
-> >>>> current FIO?
->
-> --
-> Sitsofe | http://sucs.org/~sits/
+---
+
+Diff of recent changes:
+
+diff --git a/iolog.h b/iolog.h
+index d157fa2..bc3a0b5 100644
+--- a/iolog.h
++++ b/iolog.h
+@@ -117,7 +117,7 @@ struct io_log {
+ 	 */
+ 	struct io_stat avg_window[DDIR_RWDIR_CNT];
+ 	unsigned long avg_msec;
+-	unsigned long avg_last;
++	unsigned long avg_last[DDIR_RWDIR_CNT];
+ 
+ 	/*
+ 	 * Windowed latency histograms, for keeping track of when we need to
+diff --git a/stat.c b/stat.c
+index 91c74ab..63353cc 100644
+--- a/stat.c
++++ b/stat.c
+@@ -2159,7 +2159,7 @@ static void __add_log_sample(struct io_log *iolog, union io_sample_data data,
+ 	if (iolog->disabled)
+ 		return;
+ 	if (flist_empty(&iolog->io_logs))
+-		iolog->avg_last = t;
++		iolog->avg_last[ddir] = t;
+ 
+ 	cur_log = get_cur_log(iolog);
+ 	if (cur_log) {
+@@ -2290,9 +2290,9 @@ static long add_log_sample(struct thread_data *td, struct io_log *iolog,
+ 	 * If period hasn't passed, adding the above sample is all we
+ 	 * need to do.
+ 	 */
+-	this_window = elapsed - iolog->avg_last;
+-	if (elapsed < iolog->avg_last)
+-		return iolog->avg_last - elapsed;
++	this_window = elapsed - iolog->avg_last[ddir];
++	if (elapsed < iolog->avg_last[ddir])
++		return iolog->avg_last[ddir] - elapsed;
+ 	else if (this_window < iolog->avg_msec) {
+ 		int diff = iolog->avg_msec - this_window;
+ 
+@@ -2300,9 +2300,9 @@ static long add_log_sample(struct thread_data *td, struct io_log *iolog,
+ 			return diff;
+ 	}
+ 
+-	_add_stat_to_log(iolog, elapsed, td->o.log_max != 0);
++	__add_stat_to_log(iolog, ddir, elapsed, td->o.log_max != 0);
+ 
+-	iolog->avg_last = elapsed - (this_window - iolog->avg_msec);
++	iolog->avg_last[ddir] = elapsed - (this_window - iolog->avg_msec);
+ 	return iolog->avg_msec;
+ }
+ 
