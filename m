@@ -1,44 +1,38 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa3.hgst.iphmx.com ([216.71.153.141]:28290 "EHLO
-        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751413AbdIES6I (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 5 Sep 2017 14:58:08 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: RE: fio patch question on filesetup: align layout buffer
-Date: Tue, 5 Sep 2017 18:57:20 +0000
-Message-ID: <BN3PR0401MB1457E83E1425DFC38C6151048F960@BN3PR0401MB1457.namprd04.prod.outlook.com>
-References: <BN3PR0401MB1457AD82F545E4C85F2CA5858F9C0@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <CALjAwxikXWD2WTE5d6+8U3=AQz+G7Wq1+FwBxdrHXeRK1+oDsA@mail.gmail.com>
-In-Reply-To: <CALjAwxikXWD2WTE5d6+8U3=AQz+G7Wq1+FwBxdrHXeRK1+oDsA@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-ua0-f178.google.com ([209.85.217.178]:35442 "EHLO
+        mail-ua0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751358AbdIDVsD (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 4 Sep 2017 17:48:03 -0400
+Received: by mail-ua0-f178.google.com with SMTP id c27so4167928uah.2
+        for <fio@vger.kernel.org>; Mon, 04 Sep 2017 14:48:02 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <BN3PR0401MB1457AD82F545E4C85F2CA5858F9C0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+References: <BN3PR0401MB1457AD82F545E4C85F2CA5858F9C0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Mon, 4 Sep 2017 22:47:31 +0100
+Message-ID: <CALjAwxikXWD2WTE5d6+8U3=AQz+G7Wq1+FwBxdrHXeRK1+oDsA@mail.gmail.com>
+Subject: Re: fio patch question on filesetup: align layout buffer
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Jeff Furlong <jeff.furlong@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-UmlnaHQuICBBIGNoZWNrIG9mIG1lbWFsaWduIG9yIHBhZ2Ugc2l6ZSBjYW4gaGVscC4gIEJ1dCB0
-aGUgcGF0Y2ggaXMgbm8gbG9uZ2VyIGNvbXBhdGlibGUgd2l0aCB0aGUgbGF0ZXN0IGdpdCwgZ2l2
-ZW4gdGhlIHJlY2VudCByZXZlcnQuICBIb3dldmVyLCBteSBjb25jZXJuIGZvciBtZW1fYWxpZ24g
-c3RpbGwgcmVtYWlucy4gIEhvdyBkb2VzIHRoZSBjdXJyZW50IGdpdCB1c2UgdGhlIG1lbV9hbGln
-biBwYXJhbWV0ZXIgaW4gZmlsbF9pb19idWZmZXIodGQsIGIsIGJzLCBicyk/ICBPciBpcyBpdCBj
-b21wbGV0bGV5IGhhbmRsZWQgZWxzZXdoZXJlLCBuYW1lbHkgaW5pdF9pb191KCkgYW5kIGFsbG9j
-YXRlX2lvX21lbSgpPw0KDQpSZWdhcmRzLA0KSmVmZg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2Ut
-LS0tLQ0KRnJvbTogU2l0c29mZSBXaGVlbGVyIFttYWlsdG86c2l0c29mZUBnbWFpbC5jb21dIA0K
-U2VudDogTW9uZGF5LCBTZXB0ZW1iZXIgNCwgMjAxNyAyOjQ4IFBNDQpUbzogSmVmZiBGdXJsb25n
-IDxqZWZmLmZ1cmxvbmdAd2RjLmNvbT4NCkNjOiBmaW9Admdlci5rZXJuZWwub3JnDQpTdWJqZWN0
-OiBSZTogZmlvIHBhdGNoIHF1ZXN0aW9uIG9uIGZpbGVzZXR1cDogYWxpZ24gbGF5b3V0IGJ1ZmZl
-cg0KDQpIaSwNCg0KT24gMzAgQXVndXN0IDIwMTcgYXQgMjM6MjcsIEplZmYgRnVybG9uZyA8amVm
-Zi5mdXJsb25nQHdkYy5jb20+IHdyb3RlOg0KPg0KPiBJIHNlZSB0aGUgcGF0Y2ggYXQgaHR0cDov
-L2dpdC5rZXJuZWwuZGsvY2dpdC9maW8vY29tbWl0Lz9pZD04YzQzYmE2MjU5NDA5MjQ0ZGU2NGYw
-YjFkMzg4YTAyOWUzOGNmM2U1IGFuZCBqdXN0IHdvbmRlcmVkIGlmIGl0IGlzIHN0aWxsIGNvbXBh
-dGlibGUgd2l0aDoNCj4NCj4gLi4gb3B0aW9uOjogaW9tZW1fYWxpZ249aW50LCBtZW1fYWxpZ249
-aW50DQo+DQpbLi4uXQ0KPg0KPiBGb3IgZXhhbXBsZSwgaWYgd2Ugc2V0IG1lbV9hbGlnbiB0byBz
-b21ldGhpbmcgbGFyZ2VyIHRoYW4gcGFnZV9zaXplIG9yIGJzLCB3aGF0IGRvZXMgZmlvX21lbWFs
-aWduIHVzZT8gIEFuZCBpZiB3ZSBzZXQgbWVtX2FsaWduIHRvIHNvbWV0aGluZyBiZXR3ZWVuIHBh
-Z2Vfc2l6ZSBhbmQgYnMsIHdoYXQgZG9lcyBmaW9fbWVtYWxpZ24gdXNlPyAgVGhhbmtzLg0KDQpX
-aGF0IGRvIHlvdSB0aGluayBvZg0KaHR0cHM6Ly9naXRodWIuY29tL3NpdHNvZmUvZmlvL2NvbW1p
-dC84ZmVkNGNjYzg3ZTM5MTQ0NjQzYjFlMzJjYWRkZDg4MmU2MTk3ZTU4DQo/DQoNCi0tIA0KU2l0
-c29mZSB8IGh0dHA6Ly9zdWNzLm9yZy9+c2l0cy8NCg==
+Hi,
+
+On 30 August 2017 at 23:27, Jeff Furlong <jeff.furlong@wdc.com> wrote:
+>
+> I see the patch at http://git.kernel.dk/cgit/fio/commit/?id=8c43ba6259409244de64f0b1d388a029e38cf3e5 and just wondered if it is still compatible with:
+>
+> .. option:: iomem_align=int, mem_align=int
+>
+[...]
+>
+> For example, if we set mem_align to something larger than page_size or bs, what does fio_memalign use?  And if we set mem_align to something between page_size and bs, what does fio_memalign use?  Thanks.
+
+What do you think of
+https://github.com/sitsofe/fio/commit/8fed4ccc87e39144643b1e32caddd882e6197e58
+?
+
+-- 
+Sitsofe | http://sucs.org/~sits/
