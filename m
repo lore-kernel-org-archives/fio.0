@@ -1,77 +1,56 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH 4/5] fix load_ioengine() not to support no "external:"
- prefix
-References: <20170831201308.47933-1-tkusumi@tuxera.com>
- <20170831201308.47933-5-tkusumi@tuxera.com>
- <CALjAwxg4aQn=EbeB23Df2=srYOWhFEtKtuufy7qZZ9iirZWRHw@mail.gmail.com>
- <CAHndrBmTyx2sz5gwBefEU8FV5T0NfyKo-jhWm-b-xe+jRHFGeg@mail.gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <937cb14c-7187-61d5-1fcb-fe1eb6086555@kernel.dk>
-Date: Fri, 1 Sep 2017 08:43:53 -0600
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-ua0-f179.google.com ([209.85.217.179]:37913 "EHLO
+        mail-ua0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753953AbdIDToQ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 4 Sep 2017 15:44:16 -0400
+Received: by mail-ua0-f179.google.com with SMTP id l24so3574566uaa.5
+        for <fio@vger.kernel.org>; Mon, 04 Sep 2017 12:44:15 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAHndrBmTyx2sz5gwBefEU8FV5T0NfyKo-jhWm-b-xe+jRHFGeg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>, Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+In-Reply-To: <CAOfm_=WPcxuUQyV1HSBkE07vJhtKfseQiZ2JEG81bVpYV7GENw@mail.gmail.com>
+References: <CAOfm_=VLQ0cVZPwDHtnzNO1Hj395z+2rq4AQvzhCyT9j75EqWw@mail.gmail.com>
+ <CAOfm_=WPcxuUQyV1HSBkE07vJhtKfseQiZ2JEG81bVpYV7GENw@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Mon, 4 Sep 2017 20:43:44 +0100
+Message-ID: <CALjAwxj_SpfuX7XmLiSy3i7pUCv4gtC=ywr8gbN0jY6pQLx+KQ@mail.gmail.com>
+Subject: Re: Corrupted json file
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Udi-Yehuda Tamar <udi@excelero.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 08/31/2017 11:38 PM, Tomohiro Kusumi wrote:
-> 2017-09-01 7:52 GMT+03:00 Sitsofe Wheeler <sitsofe@gmail.com>:
->> On 31 August 2017 at 21:13,  <kusumi.tomohiro@gmail.com> wrote:
->>> From: Tomohiro Kusumi <tkusumi@tuxera.com>
->>>
->>> To load ioengines, it should be done by either
->>>  1) find the ioengine from the existing (static linked) ioengines or
->>>  2) dlopen the path in case of external ioengine,
->>>
->>> but not to do 2 if 1 failed, as fio doesn't expect an ioengine to be
->>> dynamically loaded unless with "external:" prefix by design.
->>>
->>> The current implementation (i.e. do 2 if 1 failed) happened to have
->>> been able to load an external ioengine with below syntax without
->>> "external:" prefix, but this is a bug rather than a feature.
->>>
->>> (--)ioengine=./engines/skeleton_external.so
->>>
->>> The design of the external ioengine option since below commits in 2007
->>>  7b395ca5('Prefix external io engine loading with 'external'')
->>>  8a7bd877('Document loading external io engines')
->>> is to use "external:/path/to/so" syntax.
->>>
->>> This commit fixes above bug, which also potentially avoids the case
->>> where "/path/to/so" within the given "external:/path/to/so" happens
->>> to match the existing name, though this is normally unlikely to happen.
->>
->> People have already started depending on the "wrong" behaviour e.g.
->> ioengine=libfio_ceph_objectstore.so # must be found in your LD_LIBRARY_PATH
->> from https://github.com/ceph/ceph/blob/master/src/test/fio/ceph-bluestore.fio
->> . Because they're external it's hard to find out just how prevalent
->> this behaviour is.
-> 
-> Then they can add "external:".
-> If it has ever been official (in docs/etc), then the program should
-> maintain such behavior, like fio keeps kb_base=1024 by default.
-> 
-> This isn't the first time fio broke external ioengines to begin with,
-> and fio doesn't guarantee external ioengines.
-> e.g. this commit more than a year ago broke ABI.
-> 565e784df05c2529479eed8a38701a33b01894bd
-> 
-> It's essentially the same as non mainline'd kernel modules are on
-> their own to be uptodate with upstream.
+Hi,
 
-No, those two are VERY different. Fio doesn't make any guarantees wrt
-keeping the same ABI (or API, even) for external engines. If they break,
-then you get to keep the pieces and glue them back together. We have
-the engine version number as well to guard against those kinds of
-changes.
+On 4 September 2017 at 10:29, Udi-Yehuda Tamar <udi@excelero.com> wrote:
+>
+> we're using the latest stable 2.99GA FIO for our product testing ,
+> when trying to setup fio to write on ext4 mount we got a line that
+> failing our code to load the json file .
+> mt exe cmd:
+>
+> fio --verify=md5 --randrepeat 0 --direct=1 --rw write --thread=32
 
-But we don't break job files, at least not knowingly, and definitely
-not just in the name of a cleanup.
+Thread doesn't take a parameter (see
+http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-thread
+)...
+
+>  --exitall_on_error=1 --directory /mnt/v1 --verify_interval=4096
+> --buffered 0 --output-format=json --size 1M --iodepth 1 --name FioJob
+> --rwmixread 100 --verify_dump=1 --norandommap --verify_fatal=1
+> --output /var/opt/executions/None/FioFS_f12f9c_1504448587_None.log
+> --runtime 0 --fill_fs 0 --do_verify=1 --numjobs 20 --blocksize 4K
+> --verify_pattern=0xaa --time_based=0 --ioengine libaio
+>
+>
+> output file:
+>
+> Multiple writers may overwrite blocks that belong to other jobs. This
+> can cause verification failures.
+
+Does git fio still generate this warning? If it's gone it mean the
+general problem of warnings interfering with json has been solved but
+it might mean you don't trigger that particular warning with this
+particular job...
 
 -- 
-Jens Axboe
-
-
+Sitsofe | http://sucs.org/~sits/
