@@ -1,34 +1,44 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk0-f44.google.com ([209.85.213.44]:33775 "EHLO
-        mail-vk0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753845AbdIETCv (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 5 Sep 2017 15:02:51 -0400
-Received: by mail-vk0-f44.google.com with SMTP id t10so8661556vke.0
-        for <fio@vger.kernel.org>; Tue, 05 Sep 2017 12:02:51 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <BN3PR0401MB1457E83E1425DFC38C6151048F960@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:28290 "EHLO
+        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751413AbdIES6I (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 5 Sep 2017 14:58:08 -0400
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: fio patch question on filesetup: align layout buffer
+Date: Tue, 5 Sep 2017 18:57:20 +0000
+Message-ID: <BN3PR0401MB1457E83E1425DFC38C6151048F960@BN3PR0401MB1457.namprd04.prod.outlook.com>
 References: <BN3PR0401MB1457AD82F545E4C85F2CA5858F9C0@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <CALjAwxikXWD2WTE5d6+8U3=AQz+G7Wq1+FwBxdrHXeRK1+oDsA@mail.gmail.com> <BN3PR0401MB1457E83E1425DFC38C6151048F960@BN3PR0401MB1457.namprd04.prod.outlook.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Tue, 5 Sep 2017 20:02:20 +0100
-Message-ID: <CALjAwxi2dZQemhi67nnsgtJOH9-Vdy=Qo08tgrQ+cw92onNJag@mail.gmail.com>
-Subject: Re: fio patch question on filesetup: align layout buffer
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+ <CALjAwxikXWD2WTE5d6+8U3=AQz+G7Wq1+FwBxdrHXeRK1+oDsA@mail.gmail.com>
+In-Reply-To: <CALjAwxikXWD2WTE5d6+8U3=AQz+G7Wq1+FwBxdrHXeRK1+oDsA@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jeff Furlong <jeff.furlong@wdc.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 5 September 2017 at 19:57, Jeff Furlong <jeff.furlong@wdc.com> wrote:
-> Right.  A check of memalign or page size can help.  But the patch is no l=
-onger compatible with the latest git, given the recent revert.  However, my=
- concern for mem_align still remains.  How does the current git use the mem=
-_align parameter in fill_io_buffer(td, b, bs, bs)?  Or is it completley han=
-dled elsewhere, namely init_io_u() and allocate_io_mem()?
-
-When the I/O is normal and uncached won't it all be taken care of in the ke=
-rnel?
-
---=20
-Sitsofe | http://sucs.org/~sits/
+UmlnaHQuICBBIGNoZWNrIG9mIG1lbWFsaWduIG9yIHBhZ2Ugc2l6ZSBjYW4gaGVscC4gIEJ1dCB0
+aGUgcGF0Y2ggaXMgbm8gbG9uZ2VyIGNvbXBhdGlibGUgd2l0aCB0aGUgbGF0ZXN0IGdpdCwgZ2l2
+ZW4gdGhlIHJlY2VudCByZXZlcnQuICBIb3dldmVyLCBteSBjb25jZXJuIGZvciBtZW1fYWxpZ24g
+c3RpbGwgcmVtYWlucy4gIEhvdyBkb2VzIHRoZSBjdXJyZW50IGdpdCB1c2UgdGhlIG1lbV9hbGln
+biBwYXJhbWV0ZXIgaW4gZmlsbF9pb19idWZmZXIodGQsIGIsIGJzLCBicyk/ICBPciBpcyBpdCBj
+b21wbGV0bGV5IGhhbmRsZWQgZWxzZXdoZXJlLCBuYW1lbHkgaW5pdF9pb191KCkgYW5kIGFsbG9j
+YXRlX2lvX21lbSgpPw0KDQpSZWdhcmRzLA0KSmVmZg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2Ut
+LS0tLQ0KRnJvbTogU2l0c29mZSBXaGVlbGVyIFttYWlsdG86c2l0c29mZUBnbWFpbC5jb21dIA0K
+U2VudDogTW9uZGF5LCBTZXB0ZW1iZXIgNCwgMjAxNyAyOjQ4IFBNDQpUbzogSmVmZiBGdXJsb25n
+IDxqZWZmLmZ1cmxvbmdAd2RjLmNvbT4NCkNjOiBmaW9Admdlci5rZXJuZWwub3JnDQpTdWJqZWN0
+OiBSZTogZmlvIHBhdGNoIHF1ZXN0aW9uIG9uIGZpbGVzZXR1cDogYWxpZ24gbGF5b3V0IGJ1ZmZl
+cg0KDQpIaSwNCg0KT24gMzAgQXVndXN0IDIwMTcgYXQgMjM6MjcsIEplZmYgRnVybG9uZyA8amVm
+Zi5mdXJsb25nQHdkYy5jb20+IHdyb3RlOg0KPg0KPiBJIHNlZSB0aGUgcGF0Y2ggYXQgaHR0cDov
+L2dpdC5rZXJuZWwuZGsvY2dpdC9maW8vY29tbWl0Lz9pZD04YzQzYmE2MjU5NDA5MjQ0ZGU2NGYw
+YjFkMzg4YTAyOWUzOGNmM2U1IGFuZCBqdXN0IHdvbmRlcmVkIGlmIGl0IGlzIHN0aWxsIGNvbXBh
+dGlibGUgd2l0aDoNCj4NCj4gLi4gb3B0aW9uOjogaW9tZW1fYWxpZ249aW50LCBtZW1fYWxpZ249
+aW50DQo+DQpbLi4uXQ0KPg0KPiBGb3IgZXhhbXBsZSwgaWYgd2Ugc2V0IG1lbV9hbGlnbiB0byBz
+b21ldGhpbmcgbGFyZ2VyIHRoYW4gcGFnZV9zaXplIG9yIGJzLCB3aGF0IGRvZXMgZmlvX21lbWFs
+aWduIHVzZT8gIEFuZCBpZiB3ZSBzZXQgbWVtX2FsaWduIHRvIHNvbWV0aGluZyBiZXR3ZWVuIHBh
+Z2Vfc2l6ZSBhbmQgYnMsIHdoYXQgZG9lcyBmaW9fbWVtYWxpZ24gdXNlPyAgVGhhbmtzLg0KDQpX
+aGF0IGRvIHlvdSB0aGluayBvZg0KaHR0cHM6Ly9naXRodWIuY29tL3NpdHNvZmUvZmlvL2NvbW1p
+dC84ZmVkNGNjYzg3ZTM5MTQ0NjQzYjFlMzJjYWRkZDg4MmU2MTk3ZTU4DQo/DQoNCi0tIA0KU2l0
+c29mZSB8IGh0dHA6Ly9zdWNzLm9yZy9+c2l0cy8NCg==
