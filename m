@@ -1,261 +1,268 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:49638 "EHLO
+Received: from merlin.infradead.org ([205.233.59.134]:34358 "EHLO
         merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751184AbdIOMAL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 15 Sep 2017 08:00:11 -0400
+        with ESMTP id S1752666AbdIFMAQ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 6 Sep 2017 08:00:16 -0400
 Received: from [216.160.245.99] (helo=kernel.dk)
         by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1dspI2-0002fV-9n
-        for fio@vger.kernel.org; Fri, 15 Sep 2017 12:00:10 +0000
+        id 1dpZ0B-00089T-DP
+        for fio@vger.kernel.org; Wed, 06 Sep 2017 12:00:15 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170915120002.6C3F12C0128@kernel.dk>
-Date: Fri, 15 Sep 2017 06:00:02 -0600 (MDT)
+Message-Id: <20170906120002.42A442C0167@kernel.dk>
+Date: Wed,  6 Sep 2017 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit b599759ba565e7f2f573af364e6da4fe6d556a90:
+The following changes since commit 07dff7d1d614b33e3a6d3e3ade38ce648b53a632:
 
-  Add support for doing total latency percentiles (2017-09-13 22:07:31 -0600)
+  Merge branch 'shifted_logging' of https://github.com/sitsofe/fio (2017-09-02 17:00:24 -0600)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 9acb08a9957b1111a06fbca6af113fa0c98dbd7c:
+for you to fetch changes up to 83a9e706745e5a5affd5475b884e42d0100f783f:
 
-  Merge branch 'doc-patches' of https://github.com/vincentkfu/fio (2017-09-14 11:37:34 -0600)
+  Merge branch 'windows_io_hint' of https://github.com/sitsofe/fio (2017-09-05 15:37:36 -0600)
 
 ----------------------------------------------------------------
-Jens Axboe (2):
-      stat: some bool conversions
-      Merge branch 'doc-patches' of https://github.com/vincentkfu/fio
+Jens Axboe (4):
+      filesetup: revert O_DIRECT for layout mess
+      Merge branch 'gluster_printf' of https://github.com/sitsofe/fio
+      Merge branch 'travis_32bit' of https://github.com/sitsofe/fio
+      Merge branch 'windows_io_hint' of https://github.com/sitsofe/fio
 
-Vincent Fu (2):
-      doc: provide more detail regarding the --status-interval option
-      doc: provide some documentation for the json output format
+Sitsofe Wheeler (3):
+      travis: add 32 bit build, minor updates and cleanups
+      glusterfs: silence printf specifier warnings
+      windowsaio: obey sequential/random I/O hinting
 
- HOWTO  | 15 +++++++++++++--
- fio.1  | 12 ++++++++++--
- stat.c | 42 ++++++++++++++++++++++--------------------
- 3 files changed, 45 insertions(+), 24 deletions(-)
+ .travis.yml               | 29 +++++++++++++++++++++++++----
+ engines/glusterfs.c       |  8 ++++----
+ engines/glusterfs_async.c |  2 +-
+ engines/windowsaio.c      | 23 ++++++++++++++++++-----
+ filesetup.c               | 25 ++++++-------------------
+ 5 files changed, 54 insertions(+), 33 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/HOWTO b/HOWTO
-index bfaa054..8fad2ce 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -182,8 +182,10 @@ Command line options
+diff --git a/.travis.yml b/.travis.yml
+index 795c0fc..94f69fb 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -5,12 +5,16 @@ compiler:
+   - clang
+   - gcc
+ env:
++  matrix:
++    - BUILD_ARCH="x86"
++    - BUILD_ARCH="x86_64"
+   global:
+     - MAKEFLAGS="-j 2"
+ matrix:
+   include:
+     - os: osx
+       compiler: clang # Workaround travis setting CC=["clang", "gcc"]
++      env: BUILD_ARCH="x86_64"
+     # Build using the 10.12 SDK but target and run on OSX 10.11
+ #   - os: osx
+ #     compiler: clang
+@@ -19,12 +23,29 @@ matrix:
+     # Build on the latest OSX version (will eventually become obsolete)
+     - os: osx
+       compiler: clang
+-      osx_image: xcode8.2
++      osx_image: xcode8.3
++      env: BUILD_ARCH="x86_64"
+   exclude:
+     - os: osx
+       compiler: gcc
++  exclude:
++    - os: linux
++      compiler: clang
++      env: BUILD_ARCH="x86" # Only do the gcc x86 build to reduce clutter
+ before_install:
+-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update; fi
+-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -qq -y libaio-dev libnuma-dev libz-dev librbd-dev glusterfs-common libibverbs-dev librdmacm-dev; fi
++  - EXTRA_CFLAGS="-Werror"
++  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
++        pkgs=(libaio-dev libnuma-dev libz-dev librbd-dev libibverbs-dev librdmacm-dev);
++        if [[ "$BUILD_ARCH" == "x86" ]]; then
++            pkgs=("${pkgs[@]/%/:i386}");
++            pkgs+=(gcc-multilib);
++            EXTRA_CFLAGS="${EXTRA_CFLAGS} -m32";
++        else
++            pkgs+=(glusterfs-common);
++        fi;
++        sudo apt-get -qq update;
++        sudo apt-get install --no-install-recommends -qq -y "${pkgs[@]}";
++    fi
+ script:
+-  - ./configure --extra-cflags="-Werror" && make && make test
++  - ./configure --extra-cflags="${EXTRA_CFLAGS}" && make
++  - make test
+diff --git a/engines/glusterfs.c b/engines/glusterfs.c
+index 2abc283..981dfa3 100644
+--- a/engines/glusterfs.c
++++ b/engines/glusterfs.c
+@@ -165,11 +165,11 @@ int fio_gf_open_file(struct thread_data *td, struct fio_file *f)
+ 	if (td_read(td)) {
+ 		if (glfs_lstat(g->fs, f->file_name, &sb)
+ 		    || sb.st_size < f->real_file_size) {
+-			dprint(FD_FILE, "fio extend file %s from %ld to %ld\n",
+-			       f->file_name, sb.st_size, f->real_file_size);
++			dprint(FD_FILE, "fio extend file %s from %jd to %" PRIu64 "\n",
++			       f->file_name, (intmax_t) sb.st_size, f->real_file_size);
+ 			ret = glfs_ftruncate(g->fd, f->real_file_size);
+ 			if (ret) {
+-				log_err("failed fio extend file %s to %ld\n",
++				log_err("failed fio extend file %s to %" PRIu64 "\n",
+ 					f->file_name, f->real_file_size);
+ 			} else {
+ 				unsigned long long left;
+@@ -190,7 +190,7 @@ int fio_gf_open_file(struct thread_data *td, struct fio_file *f)
  
- .. option:: --status-interval=time
+ 					r = glfs_write(g->fd, b, bs, 0);
+ 					dprint(FD_IO,
+-					       "fio write %d of %ld file %s\n",
++					       "fio write %d of %" PRIu64 " file %s\n",
+ 					       r, f->real_file_size,
+ 					       f->file_name);
  
--	Force full status dump every `time` period passed.  When the unit is
--	omitted, the value is interpreted in seconds.
-+	Force a full status dump of cumulative (from job start) values at `time`
-+	intervals. This option does *not* provide per-period measurements. So
-+	values such as bandwidth are running averages. When the time unit is omitted,
-+	`time` is interpreted in seconds.
+diff --git a/engines/glusterfs_async.c b/engines/glusterfs_async.c
+index f46cb26..97271d6 100644
+--- a/engines/glusterfs_async.c
++++ b/engines/glusterfs_async.c
+@@ -92,7 +92,7 @@ static void gf_async_cb(glfs_fd_t * fd, ssize_t ret, void *data)
+ 	struct io_u *io_u = data;
+ 	struct fio_gf_iou *iou = io_u->engine_data;
  
- .. option:: --section=name
+-	dprint(FD_IO, "%s ret %lu\n", __FUNCTION__, ret);
++	dprint(FD_IO, "%s ret %zd\n", __FUNCTION__, ret);
+ 	iou->io_complete = 1;
+ }
  
-@@ -3389,6 +3391,15 @@ minimal output v3, separated by semicolons::
-         terse_version_3;fio_version;jobname;groupid;error;read_kb;read_bandwidth;read_iops;read_runtime_ms;read_slat_min;read_slat_max;read_slat_mean;read_slat_dev;read_clat_min;read_clat_max;read_clat_mean;read_clat_dev;read_clat_pct01;read_clat_pct02;read_clat_pct03;read_clat_pct04;read_clat_pct05;read_clat_pct06;read_clat_pct07;read_clat_pct08;read_clat_pct09;read_clat_pct10;read_clat_pct11;read_clat_pct12;read_clat_pct13;read_clat_pct14;read_clat_pct15;read_clat_pct16;read_clat_pct17;read_clat_pct18;read_clat_pct19;read_clat_pct20;read_tlat_min;read_lat_max;read_lat_mean;read_lat_dev;read_bw_min;read_bw_max;read_bw_agg_pct;read_bw_mean;read_bw_dev;write_kb;write_bandwidth;write_iops;write_runtime_ms;write_slat_min;write_slat_max;write_slat_mean;write_slat_dev;write_clat_min;write_clat_max;write_clat_mean;write_clat_dev;write_clat_pct01;write_clat_pct02;write_clat_pct03;write_clat_pct04;write_clat_pct05;write_clat_pct06;write_clat_pct07;write_clat_pct08;write_clat_pct09;write_cla
- t_pct10;write_clat_pct11;write_clat_pct12;write_clat_pct13;write_clat_pct14;write_clat_pct15;write_clat_pct16;write_clat_pct17;write_clat_pct18;write_clat_pct19;write_clat_pct20;write_tlat_min;write_lat_max;write_lat_mean;write_lat_dev;write_bw_min;write_bw_max;write_bw_agg_pct;write_bw_mean;write_bw_dev;cpu_user;cpu_sys;cpu_csw;cpu_mjf;cpu_minf;iodepth_1;iodepth_2;iodepth_4;iodepth_8;iodepth_16;iodepth_32;iodepth_64;lat_2us;lat_4us;lat_10us;lat_20us;lat_50us;lat_100us;lat_250us;lat_500us;lat_750us;lat_1000us;lat_2ms;lat_4ms;lat_10ms;lat_20ms;lat_50ms;lat_100ms;lat_250ms;lat_500ms;lat_750ms;lat_1000ms;lat_2000ms;lat_over_2000ms;disk_name;disk_read_iops;disk_write_iops;disk_read_merges;disk_write_merges;disk_read_ticks;write_ticks;disk_queue_time;disk_util
+diff --git a/engines/windowsaio.c b/engines/windowsaio.c
+index c4c5abd..314eaad 100644
+--- a/engines/windowsaio.c
++++ b/engines/windowsaio.c
+@@ -169,13 +169,26 @@ static int fio_windowsaio_open_file(struct thread_data *td, struct fio_file *f)
  
- 
-+JSON output
-+------------
-+
-+The `json` output format is intended to be both human readable and convenient
-+for automated parsing. For the most part its sections mirror those of the
-+`normal` output. The `runtime` value is reported in msec and the `bw` value is
-+reported in 1024 bytes per second units.
-+
-+
- JSON+ output
- ------------
- 
-diff --git a/fio.1 b/fio.1
-index 63e1c2e..b943db2 100644
---- a/fio.1
-+++ b/fio.1
-@@ -84,8 +84,10 @@ Force a new line for every \fItime\fR period passed. When the unit is omitted,
- the value is interpreted in seconds.
- .TP
- .BI \-\-status\-interval \fR=\fPtime
--Force full status dump every \fItime\fR period passed. When the unit is omitted,
--the value is interpreted in seconds.
-+Force a full status dump of cumulative (from job start) values at \fItime\fR
-+intervals. This option does *not* provide per-period measurements. So
-+values such as bandwidth are running averages. When the time unit is omitted,
-+\fItime\fR is interpreted in seconds.
- .TP
- .BI \-\-section \fR=\fPname
- Only run specified section \fIname\fR in job file. Multiple sections can be specified.
-@@ -3106,6 +3108,12 @@ minimal output v3, separated by semicolons:
- .nf
- 		terse_version_3;fio_version;jobname;groupid;error;read_kb;read_bandwidth;read_iops;read_runtime_ms;read_slat_min;read_slat_max;read_slat_mean;read_slat_dev;read_clat_min;read_clat_max;read_clat_mean;read_clat_dev;read_clat_pct01;read_clat_pct02;read_clat_pct03;read_clat_pct04;read_clat_pct05;read_clat_pct06;read_clat_pct07;read_clat_pct08;read_clat_pct09;read_clat_pct10;read_clat_pct11;read_clat_pct12;read_clat_pct13;read_clat_pct14;read_clat_pct15;read_clat_pct16;read_clat_pct17;read_clat_pct18;read_clat_pct19;read_clat_pct20;read_tlat_min;read_lat_max;read_lat_mean;read_lat_dev;read_bw_min;read_bw_max;read_bw_agg_pct;read_bw_mean;read_bw_dev;write_kb;write_bandwidth;write_iops;write_runtime_ms;write_slat_min;write_slat_max;write_slat_mean;write_slat_dev;write_clat_min;write_clat_max;write_clat_mean;write_clat_dev;write_clat_pct01;write_clat_pct02;write_clat_pct03;write_clat_pct04;write_clat_pct05;write_clat_pct06;write_clat_pct07;write_clat_pct08;write_clat_pct09;write_clat_pct1
- 0;write_clat_pct11;write_clat_pct12;write_clat_pct13;write_clat_pct14;write_clat_pct15;write_clat_pct16;write_clat_pct17;write_clat_pct18;write_clat_pct19;write_clat_pct20;write_tlat_min;write_lat_max;write_lat_mean;write_lat_dev;write_bw_min;write_bw_max;write_bw_agg_pct;write_bw_mean;write_bw_dev;cpu_user;cpu_sys;cpu_csw;cpu_mjf;cpu_minf;iodepth_1;iodepth_2;iodepth_4;iodepth_8;iodepth_16;iodepth_32;iodepth_64;lat_2us;lat_4us;lat_10us;lat_20us;lat_50us;lat_100us;lat_250us;lat_500us;lat_750us;lat_1000us;lat_2ms;lat_4ms;lat_10ms;lat_20ms;lat_50ms;lat_100ms;lat_250ms;lat_500ms;lat_750ms;lat_1000ms;lat_2000ms;lat_over_2000ms;disk_name;disk_read_iops;disk_write_iops;disk_read_merges;disk_write_merges;disk_read_ticks;write_ticks;disk_queue_time;disk_util
- .fi
-+.SH JSON OUTPUT
-+The \fBjson\fR output format is intended to be both human readable and convenient
-+for automated parsing. For the most part its sections mirror those of the
-+\fBnormal\fR output. The \fBruntime\fR value is reported in msec and the \fBbw\fR value is
-+reported in 1024 bytes per second units.
-+.fi
- .SH JSON+ OUTPUT
- The \fBjson+\fR output format is identical to the \fBjson\fR output format except that it
- adds a full dump of the completion latency bins. Each \fBbins\fR object contains a
-diff --git a/stat.c b/stat.c
-index 9828d15..09afa5b 100644
---- a/stat.c
-+++ b/stat.c
-@@ -143,7 +143,7 @@ unsigned int calc_clat_percentiles(unsigned int *io_u_plat, unsigned long nr,
- 	unsigned int len, i, j = 0;
- 	unsigned int oval_len = 0;
- 	unsigned long long *ovals = NULL;
--	int is_last;
-+	bool is_last;
- 
- 	*minv = -1ULL;
- 	*maxv = 0;
-@@ -166,7 +166,7 @@ unsigned int calc_clat_percentiles(unsigned int *io_u_plat, unsigned long nr,
  	/*
- 	 * Calculate bucket values, note down max and min values
+ 	 * Inform Windows whether we're going to be doing sequential or
+-	 * random io so it can tune the Cache Manager
++	 * random IO so it can tune the Cache Manager
  	 */
--	is_last = 0;
-+	is_last = false;
- 	for (i = 0; i < FIO_IO_U_PLAT_NR && !is_last; i++) {
- 		sum += io_u_plat[i];
- 		while (sum >= (plist[j].u.f / 100.0 * nr)) {
-@@ -183,7 +183,7 @@ unsigned int calc_clat_percentiles(unsigned int *io_u_plat, unsigned long nr,
- 			if (ovals[j] > *maxv)
- 				*maxv = ovals[j];
+-	if (td->o.td_ddir == TD_DDIR_READ  ||
+-		td->o.td_ddir == TD_DDIR_WRITE)
+-		flags |= FILE_FLAG_SEQUENTIAL_SCAN;
+-	else
++	switch (td->o.fadvise_hint) {
++	case F_ADV_TYPE:
++		if (td_random(td))
++			flags |= FILE_FLAG_RANDOM_ACCESS;
++		else
++			flags |= FILE_FLAG_SEQUENTIAL_SCAN;
++		break;
++	case F_ADV_RANDOM:
+ 		flags |= FILE_FLAG_RANDOM_ACCESS;
++		break;
++	case F_ADV_SEQUENTIAL:
++		flags |= FILE_FLAG_SEQUENTIAL_SCAN;
++		break;
++	case F_ADV_NONE:
++		break;
++	default:
++		log_err("fio: unknown fadvise type %d\n", td->o.fadvise_hint);
++	}
  
--			is_last = (j == len - 1);
-+			is_last = (j == len - 1) != 0;
- 			if (is_last)
- 				break;
+ 	if (!td_write(td) || read_only)
+ 		access = GENERIC_READ;
+diff --git a/filesetup.c b/filesetup.c
+index 5e8ea35..b51ab35 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -15,7 +15,6 @@
+ #include "os/os.h"
+ #include "hash.h"
+ #include "lib/axmap.h"
+-#include "lib/memalign.h"
  
-@@ -205,8 +205,9 @@ static void show_clat_percentiles(unsigned int *io_u_plat, unsigned long nr,
- 	unsigned int divisor, len, i, j = 0;
- 	unsigned long long minv, maxv;
- 	unsigned long long *ovals;
--	int is_last, per_line, scale_down, time_width;
-+	int per_line, scale_down, time_width;
- 	const char *pre = is_clat ? "clat" : " lat";
-+	bool is_last;
- 	char fmt[32];
- 
- 	len = calc_clat_percentiles(io_u_plat, nr, plist, &ovals, &maxv, &minv);
-@@ -244,7 +245,7 @@ static void show_clat_percentiles(unsigned int *io_u_plat, unsigned long nr,
- 			log_buf(out, "     |");
- 
- 		/* end of the list */
--		is_last = (j == len - 1);
-+		is_last = (j == len - 1) != 0;
- 
- 		for (i = 0; i < scale_down; i++)
- 			ovals[j] = (ovals[j] + 999) / 1000;
-@@ -511,20 +512,21 @@ static void show_ddir_status(struct group_run_stats *rs, struct thread_stat *ts,
- 	}
- }
- 
--static int show_lat(double *io_u_lat, int nr, const char **ranges,
--		    const char *msg, struct buf_output *out)
-+static bool show_lat(double *io_u_lat, int nr, const char **ranges,
-+		     const char *msg, struct buf_output *out)
+ #ifdef CONFIG_LINUX_FALLOCATE
+ #include <linux/falloc.h>
+@@ -110,7 +109,7 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
  {
--	int new_line = 1, i, line = 0, shown = 0;
-+	bool new_line = true, shown = false;
-+	int i, line = 0;
+ 	int new_layout = 0, unlink_file = 0, flags;
+ 	unsigned long long left;
+-	unsigned int bs, alloc_size = 0;
++	unsigned int bs;
+ 	char *b = NULL;
  
- 	for (i = 0; i < nr; i++) {
- 		if (io_u_lat[i] <= 0.0)
- 			continue;
--		shown = 1;
-+		shown = true;
- 		if (new_line) {
- 			if (line)
- 				log_buf(out, "\n");
- 			log_buf(out, "  lat (%s)   : ", msg);
--			new_line = 0;
-+			new_line = false;
- 			line = 0;
- 		}
- 		if (line)
-@@ -532,13 +534,13 @@ static int show_lat(double *io_u_lat, int nr, const char **ranges,
- 		log_buf(out, "%s%3.2f%%", ranges[i], io_u_lat[i]);
- 		line++;
- 		if (line == 5)
--			new_line = 1;
-+			new_line = true;
+ 	if (read_only) {
+@@ -147,8 +146,6 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
+ 		flags |= O_CREAT;
+ 	if (new_layout)
+ 		flags |= O_TRUNC;
+-	if (td->o.odirect)
+-		flags |= OS_O_DIRECT;
+ 
+ #ifdef WIN32
+ 	flags |= _O_BINARY;
+@@ -162,14 +159,8 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
+ 		if (err == ENOENT && !td->o.allow_create)
+ 			log_err("fio: file creation disallowed by "
+ 					"allow_file_create=0\n");
+-		else {
+-			if (err == EINVAL && (flags & OS_O_DIRECT))
+-				log_err("fio: looks like your filesystem "
+-					"does not support "
+-					"direct=1/buffered=0\n");
+-
++		else
+ 			td_verror(td, err, "open");
+-		}
+ 		return 1;
  	}
  
- 	if (shown)
- 		log_buf(out, "\n");
- 
--	return shown;
-+	return true;
- }
- 
- static void show_lat_n(double *io_u_lat_n, struct buf_output *out)
-@@ -1590,8 +1592,8 @@ void __show_run_stats(void)
- 	struct thread_data *td;
- 	struct thread_stat *threadstats, *ts;
- 	int i, j, k, nr_ts, last_ts, idx;
--	int kb_base_warned = 0;
--	int unit_base_warned = 0;
-+	bool kb_base_warned = false;
-+	bool unit_base_warned = false;
- 	struct json_object *root = NULL;
- 	struct json_array *array = NULL;
- 	struct buf_output output[FIO_OUTPUT_NR];
-@@ -1684,11 +1686,11 @@ void __show_run_stats(void)
- 		} else if (ts->kb_base != td->o.kb_base && !kb_base_warned) {
- 			log_info("fio: kb_base differs for jobs in group, using"
- 				 " %u as the base\n", ts->kb_base);
--			kb_base_warned = 1;
-+			kb_base_warned = true;
- 		} else if (ts->unit_base != td->o.unit_base && !unit_base_warned) {
- 			log_info("fio: unit_base differs for jobs in group, using"
- 				 " %u as the base\n", ts->unit_base);
--			unit_base_warned = 1;
-+			unit_base_warned = true;
+@@ -196,18 +187,14 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
  		}
- 
- 		ts->continue_on_error = td->o.continue_on_error;
-@@ -1932,9 +1934,9 @@ void __show_running_run_stats(void)
- 	fio_mutex_up(stat_mutex);
- }
- 
--static int status_interval_init;
-+static bool status_interval_init;
- static struct timespec status_time;
--static int status_file_disabled;
-+static bool status_file_disabled;
- 
- #define FIO_STATUS_FILE		"fio-dump-status"
- 
-@@ -1965,7 +1967,7 @@ static int check_status_file(void)
- 		log_err("fio: failed to unlink %s: %s\n", fio_status_file_path,
- 							strerror(errno));
- 		log_err("fio: disabling status file updates\n");
--		status_file_disabled = 1;
-+		status_file_disabled = true;
  	}
  
+-	if (td->o.odirect && !OS_O_DIRECT && fio_set_directio(td, f))
+-		goto err;
+-
+ 	left = f->real_file_size;
+ 	bs = td->o.max_bs[DDIR_WRITE];
+ 	if (bs > left)
+ 		bs = left;
+ 
+-	alloc_size = bs;
+-	b = fio_memalign(page_size, alloc_size);
++	b = malloc(bs);
+ 	if (!b) {
+-		td_verror(td, errno, "fio_memalign");
++		td_verror(td, errno, "malloc");
+ 		goto err;
+ 	}
+ 
+@@ -260,14 +247,14 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
+ 			f->io_size = f->real_file_size;
+ 	}
+ 
+-	fio_memfree(b, alloc_size);
++	free(b);
+ done:
+ 	return 0;
+ err:
+ 	close(f->fd);
+ 	f->fd = -1;
+ 	if (b)
+-		fio_memfree(b, alloc_size);
++		free(b);
  	return 1;
-@@ -1976,7 +1978,7 @@ void check_for_running_stats(void)
- 	if (status_interval) {
- 		if (!status_interval_init) {
- 			fio_gettime(&status_time, NULL);
--			status_interval_init = 1;
-+			status_interval_init = true;
- 		} else if (mtime_since_now(&status_time) >= status_interval) {
- 			show_running_run_stats();
- 			fio_gettime(&status_time, NULL);
+ }
+ 
