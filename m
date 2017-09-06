@@ -1,66 +1,62 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa3.hgst.iphmx.com ([216.71.153.141]:9581 "EHLO
-        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755779AbdIGSOv (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 7 Sep 2017 14:14:51 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: RE: fio patch question on filesetup: align layout buffer
-Date: Thu, 7 Sep 2017 18:14:03 +0000
-Message-ID: <BN3PR0401MB145710702375D517F76163C48F940@BN3PR0401MB1457.namprd04.prod.outlook.com>
-References: <BN3PR0401MB1457AD82F545E4C85F2CA5858F9C0@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <CAHndrB=HBqHEUT-5u5JXzQaLTzfwMDsvKT7rvvWO3wvShaAPGg@mail.gmail.com>
-In-Reply-To: <CAHndrB=HBqHEUT-5u5JXzQaLTzfwMDsvKT7rvvWO3wvShaAPGg@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-ua0-f195.google.com ([209.85.217.195]:38417 "EHLO
+        mail-ua0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751212AbdIFR4b (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 6 Sep 2017 13:56:31 -0400
+Received: by mail-ua0-f195.google.com with SMTP id l24so2425627uaa.5
+        for <fio@vger.kernel.org>; Wed, 06 Sep 2017 10:56:31 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <BN3PR0401MB1457AD82F545E4C85F2CA5858F9C0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+References: <BN3PR0401MB1457AD82F545E4C85F2CA5858F9C0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Date: Wed, 6 Sep 2017 20:55:50 +0300
+Message-ID: <CAHndrB=HBqHEUT-5u5JXzQaLTzfwMDsvKT7rvvWO3wvShaAPGg@mail.gmail.com>
+Subject: Re: fio patch question on filesetup: align layout buffer
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+To: Jeff Furlong <jeff.furlong@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-VGhhbmtzIGZvciB0aGUgY2xhcmlmaWNhdGlvbi4NCg0KUmVnYXJkcywNCkplZmYNCg0KLS0tLS1P
-cmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IFRvbW9oaXJvIEt1c3VtaSBbbWFpbHRvOmt1c3Vt
-aS50b21vaGlyb0BnbWFpbC5jb21dIA0KU2VudDogV2VkbmVzZGF5LCBTZXB0ZW1iZXIgNiwgMjAx
-NyAxMDo1NiBBTQ0KVG86IEplZmYgRnVybG9uZyA8amVmZi5mdXJsb25nQHdkYy5jb20+DQpDYzog
-ZmlvQHZnZXIua2VybmVsLm9yZw0KU3ViamVjdDogUmU6IGZpbyBwYXRjaCBxdWVzdGlvbiBvbiBm
-aWxlc2V0dXA6IGFsaWduIGxheW91dCBidWZmZXINCg0KMjAxNy0wOC0zMSAxOjI3IEdNVCswMzow
-MCBKZWZmIEZ1cmxvbmcgPGplZmYuZnVybG9uZ0B3ZGMuY29tPjoNCj4gSGkgQWxsLA0KPiBJIHNl
-ZSB0aGUgcGF0Y2ggYXQgaHR0cDovL2dpdC5rZXJuZWwuZGsvY2dpdC9maW8vY29tbWl0Lz9pZD04
-YzQzYmE2MjU5NDA5MjQ0ZGU2NGYwYjFkMzg4YTAyOWUzOGNmM2U1IGFuZCBqdXN0IHdvbmRlcmVk
-IGlmIGl0IGlzIHN0aWxsIGNvbXBhdGlibGUgd2l0aDoNCj4NCj4gLi4gb3B0aW9uOjogaW9tZW1f
-YWxpZ249aW50LCBtZW1fYWxpZ249aW50DQo+DQo+ICAgICAgICAgVGhpcyBpbmRpY2F0ZXMgdGhl
-IG1lbW9yeSBhbGlnbm1lbnQgb2YgdGhlIEkvTyBtZW1vcnkgYnVmZmVycy4gIE5vdGUgdGhhdA0K
-PiAgICAgICAgIHRoZSBnaXZlbiBhbGlnbm1lbnQgaXMgYXBwbGllZCB0byB0aGUgZmlyc3QgSS9P
-IHVuaXQgYnVmZmVyLCBpZiB1c2luZw0KPiAgICAgICAgIDpvcHRpb246YGlvZGVwdGhgIHRoZSBh
-bGlnbm1lbnQgb2YgdGhlIGZvbGxvd2luZyBidWZmZXJzIGFyZSBnaXZlbiBieSB0aGUNCj4gICAg
-ICAgICA6b3B0aW9uOmBic2AgdXNlZC4gSW4gb3RoZXIgd29yZHMsIGlmIHVzaW5nIGEgOm9wdGlv
-bjpgYnNgIHRoYXQgaXMgYQ0KPiAgICAgICAgIG11bHRpcGxlIG9mIHRoZSBwYWdlIHNpemVkIGlu
-IHRoZSBzeXN0ZW0sIGFsbCBidWZmZXJzIHdpbGwgYmUgYWxpZ25lZCB0bw0KPiAgICAgICAgIHRo
-aXMgdmFsdWUuIElmIHVzaW5nIGEgOm9wdGlvbjpgYnNgIHRoYXQgaXMgbm90IHBhZ2UgYWxpZ25l
-ZCwgdGhlIGFsaWdubWVudA0KPiAgICAgICAgIG9mIHN1YnNlcXVlbnQgSS9PIG1lbW9yeSBidWZm
-ZXJzIGlzIHRoZSBzdW0gb2YgdGhlIDpvcHRpb246YGlvbWVtX2FsaWduYCBhbmQNCj4gICAgICAg
-ICA6b3B0aW9uOmBic2AgdXNlZC4NCj4NCj4gRm9yIGV4YW1wbGUsIGlmIHdlIHNldCBtZW1fYWxp
-Z24gdG8gc29tZXRoaW5nIGxhcmdlciB0aGFuIHBhZ2Vfc2l6ZSBvciBicywgd2hhdCBkb2VzIGZp
-b19tZW1hbGlnbiB1c2U/ICBBbmQgaWYgd2Ugc2V0IG1lbV9hbGlnbiB0byBzb21ldGhpbmcgYmV0
-d2VlbiBwYWdlX3NpemUgYW5kIGJzLCB3aGF0IGRvZXMgZmlvX21lbWFsaWduIHVzZT8gIFRoYW5r
-cy4NCg0KbWVtX2FsaWduIHdhc24ndCB1c2VkIGluIHRoZSBsYXlvdXQgdGhpbmcsIGFuZCBuZXZl
-ciBuZWVkZWQuDQpmaW9fbWVtYWxpZ24oKSBpcyBhbiBhbHRlcm5hdGl2ZSBmb3IgcG9zaXhfbWVt
-YWxpZ24oKSByYXRoZXIgdGhhbiBzb21ldGhpbmcgdG8gZG8gd2l0aCB0aGF0IG9wdGlvbi4gZmlv
-X21lbWFsaWduKCkgdGFrZXMgYW4gYWxpZ25tZW50IGJ5IGFyZ3VtZW50LCBhbmQgdGhlIGFyZ3Vt
-ZW50IGZvciB0aGlzIHdhcyBwYWdlX3NpemUuIHBhZ2Vfc2l6ZSB3b3JrcyBmb3IgZGlyZWN0IGkv
-bywgYXMgaXQgbWVldHMgc2VjdG9yIHNpemUgYWxpZ25tZW50IChhdCBsZWFzdCBmb3IgNTEyLCAy
-SywgNEsgb24gYWxsIHN1cHBvcnRlZCBhcmNocyksIHdoaWNoIGlzIHdoYXQgTGludXggYW5kIG1h
-bnkgb3RoZXJzIHJlcXVpcmUuDQoNCkJ0dywgSSdtIG5vdCBjb21wbGV0ZWx5IHN1cmUgd2h5IGZp
-b19tZW1hbGlnbigpIGFsbG9jYXRlcyBkb3VibGVkIGBzaXplJy4gU29tZSBvZiB0aGUgYWxpZ25l
-ZCBtYWxsb2MgaW1wbGVtZW50YXRpb25zIEkndmUgc2VlbiBkaWQgdGFrZSBvZiBzaXplKjIgb3Ig
-YWxpZ25tZW50KjIsIGJ1dCB0aG9zZSBkaWRuJ3QgZXhwbGljaXRseSB0YWtlIHRoZSBmb290ZXIg
-KG9yIGhlYWRlcikgc2l6ZSwgd2hlcmVhcyBpbiBmaW8gaXQgZXhwbGljaXRseSBoYXMgc2l6ZW9m
-KCpmKSBhZnRlciB0aGUgZGF0YSBzaXplIGFuZCBtYXggcG9zc2libGUgc3BhY2UgZm9yIGFsaWdu
-bWVudC4gU2luY2UgZi0+b2Zmc2V0IGlzIGFsd2F5cyBzbWFsbGVyIHRoYW4gdGhlIGFsaWdubWVu
-dCBzaXplLCBpdCBzZWVtcyB0byBtZSBzaXplKjEgaXMgZW5vdWdoLCBidXQgSSBtaWdodCBiZSBt
-aXNzaW5nIHNvbWV0aGluZy4NCg0KDQo+DQo+IFJlZ2FyZHMsDQo+IEplZmYNCj4NCj4gLS0NCj4g
-VG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhlIGxpbmUgInVuc3Vic2NyaWJl
-IGZpbyIgaW4gdGhlIA0KPiBib2R5IG9mIGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJu
-ZWwub3JnIE1vcmUgbWFqb3Jkb21vIGluZm8gYXQgIA0KPiBodHRwOi8vdmdlci5rZXJuZWwub3Jn
-L21ham9yZG9tby1pbmZvLmh0bWwNCg==
+2017-08-31 1:27 GMT+03:00 Jeff Furlong <jeff.furlong@wdc.com>:
+> Hi All,
+> I see the patch at http://git.kernel.dk/cgit/fio/commit/?id=8c43ba6259409244de64f0b1d388a029e38cf3e5 and just wondered if it is still compatible with:
+>
+> .. option:: iomem_align=int, mem_align=int
+>
+>         This indicates the memory alignment of the I/O memory buffers.  Note that
+>         the given alignment is applied to the first I/O unit buffer, if using
+>         :option:`iodepth` the alignment of the following buffers are given by the
+>         :option:`bs` used. In other words, if using a :option:`bs` that is a
+>         multiple of the page sized in the system, all buffers will be aligned to
+>         this value. If using a :option:`bs` that is not page aligned, the alignment
+>         of subsequent I/O memory buffers is the sum of the :option:`iomem_align` and
+>         :option:`bs` used.
+>
+> For example, if we set mem_align to something larger than page_size or bs, what does fio_memalign use?  And if we set mem_align to something between page_size and bs, what does fio_memalign use?  Thanks.
+
+mem_align wasn't used in the layout thing, and never needed.
+fio_memalign() is an alternative for posix_memalign() rather than
+something to do with that option. fio_memalign() takes an alignment by
+argument, and the argument for this was page_size. page_size works for
+direct i/o, as it meets sector size alignment (at least for 512, 2K,
+4K on all supported archs), which is what Linux and many others
+require.
+
+Btw, I'm not completely sure why fio_memalign() allocates doubled
+`size'. Some of the aligned malloc implementations I've seen did take
+of size*2 or alignment*2, but those didn't explicitly take the footer
+(or header) size, whereas in fio it explicitly has sizeof(*f) after
+the data size and max possible space for alignment. Since f->offset is
+always smaller than the alignment size, it seems to me size*1 is
+enough, but I might be missing something.
+
+
+>
+> Regards,
+> Jeff
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
