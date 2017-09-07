@@ -1,90 +1,66 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:42754 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751920AbdI2MAM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 29 Sep 2017 08:00:12 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1dxtxk-0001oC-95
-        for fio@vger.kernel.org; Fri, 29 Sep 2017 12:00:12 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20170929120002.52F2E2C0111@kernel.dk>
-Date: Fri, 29 Sep 2017 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <sitsofe@gmail.com>
+MIME-Version: 1.0
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Thu, 7 Sep 2017 07:35:50 +0100
+Message-ID: <CALjAwxgccGY6rvxqWQgtF8Mn0hp9V56Wch51_1Q+WbwuyvnkwQ@mail.gmail.com>
+Subject: madvise and FIO_MADV_FREE
+Content-Type: text/plain; charset="UTF-8"
+To: Jens Axboe <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit b6b662b64c70bf043bbafd654f9bf98513ea5dc9:
+Hi,
 
-  Fio 3.1 (2017-09-28 04:23:20 -0600)
+I've just been looking at the following in engines/mmap.c:
+ 69 #ifdef FIO_MADV_FREE
+ 70         if (f->filetype == FIO_TYPE_BLOCK)
+ 71                 (void) posix_madvise(fmd->mmap_ptr, fmd->mmap_sz,
+FIO_MADV_FREE);
+ 72 #endif
 
-are available in the git repository at:
+I'm wondering about the rationale. On Linux FIO_MADV_FREE maps to
+MADV_REMOVE which worryingly has this to say (from
+http://man7.org/linux/man-pages/man2/madvise.2.html ):
+"MADV_REMOVE (since Linux 2.6.16)
 
-  git://git.kernel.dk/fio.git master
+              Free up a given range of pages and its associated backing
+              store.  This is equivalent to punching a hole in the
+              corresponding byte range of the backing store (see
+              fallocate(2)). [...]"
 
-for you to fetch changes up to c16035aadd600a3a4c4b241339e3d3099f56c4b2:
+So it's basically saying "this does a TRIM operation".
+https://github.com/axboe/fio/commit/3e10fb832645e3ab3ef006f589f0459dc567cb53
+added the guard for only block devices because it was noticed that the
+posix_madvise call was punching holes but nonetheless do we still want
+to keep it for block devices. Things get even tricker on other
+platforms. On Solaris FIO_MADV_FREE maps to MADV_FREE and the man page
+from https://docs.oracle.com/cd/E36784_01/html/E36874/madvise-3c.html
+says this:
 
-  backend: fix a case where we complain about no IO being done (2017-09-28 06:58:23 -0600)
+"MADV_FREE
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      backend: fix a case where we complain about no IO being done
+Tell the kernel that contents in the specified address range are no
+longer important and the range will be overwritten. [...]
 
- backend.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+This value cannot be used on mappings that have underlying file objects."
 
----
+So we really shouldn't be making this call on that platform. If you
+look at Linux's implementation of MADV_FREE it says this:
 
-Diff of recent changes:
+MADV_FREE (since Linux 4.5)
 
-diff --git a/backend.c b/backend.c
-index 6198c3d..e4eff37 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1505,7 +1505,7 @@ static void *thread_main(void *data)
- 	struct sk_out *sk_out = fd->sk_out;
- 	uint64_t bytes_done[DDIR_RWDIR_CNT];
- 	int deadlock_loop_cnt;
--	int clear_state;
-+	bool clear_state, did_some_io;
- 	int ret;
- 
- 	sk_out_assign(sk_out);
-@@ -1726,7 +1726,8 @@ static void *thread_main(void *data)
- 	}
- 
- 	memset(bytes_done, 0, sizeof(bytes_done));
--	clear_state = 0;
-+	clear_state = false;
-+	did_some_io = false;
- 
- 	while (keep_running(td)) {
- 		uint64_t verify_bytes;
-@@ -1765,7 +1766,7 @@ static void *thread_main(void *data)
- 		if (td->runstate >= TD_EXITED)
- 			break;
- 
--		clear_state = 1;
-+		clear_state = true;
- 
- 		/*
- 		 * Make sure we've successfully updated the rusage stats
-@@ -1804,6 +1805,9 @@ static void *thread_main(void *data)
- 		    td_ioengine_flagged(td, FIO_UNIDIR))
- 			continue;
- 
-+		if (ddir_rw_sum(bytes_done))
-+			did_some_io = true;
-+
- 		clear_io_state(td, 0);
- 
- 		fio_gettime(&td->start, NULL);
-@@ -1830,6 +1834,7 @@ static void *thread_main(void *data)
- 	 * (Are we not missing other flags that can be ignored ?)
- 	 */
- 	if ((td->o.size || td->o.io_size) && !ddir_rw_sum(bytes_done) &&
-+	    !did_some_io &&
- 	    !(td_ioengine_flagged(td, FIO_NOIO) ||
- 	      td_ioengine_flagged(td, FIO_DISKLESSIO)))
- 		log_err("%s: No I/O performed by %s, "
+[...]
+
+The MADV_FREE operation can be applied only to private
+              anonymous pages (see mmap(2)). [...]
+
+which seems to back up the warning it shouldn't be used with backing files.
+
+For the record this piece of code seems to have arrived with
+https://github.com/axboe/fio/commit/a1c58075279454a91ec43366846b93e8dcf9753c
+("Add strong madvise() hint for cache pruning"). Would a patch just
+removing it be sensible?
+
+-- 
+Sitsofe | http://sucs.org/~sits/
+
