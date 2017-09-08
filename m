@@ -1,34 +1,35 @@
-Return-Path: <rebecca@bluestop.org>
-Subject: Re: Optimizing mmap_queue on AVX/AVX2 CPUs
-References: <a4e3f9d8-3e1b-5a50-63fe-a704e9bb0fdf@bluestop.org>
- <c4080594-ec00-8cd7-2eb6-ba843c3219c9@kernel.dk>
- <AT5PR84MB00821736D3451DB8249D72EBAB9C0@AT5PR84MB0082.NAMPRD84.PROD.OUTLOOK.COM>
-From: Rebecca Cran <rebecca@bluestop.org>
-Message-ID: <8ed561b4-4adb-b864-6f97-78f77388395d@bluestop.org>
-Date: Wed, 6 Sep 2017 12:31:08 -0600
+Return-Path: <jagata.samal@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <AT5PR84MB00821736D3451DB8249D72EBAB9C0@AT5PR84MB0082.NAMPRD84.PROD.OUTLOOK.COM>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>, Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+From: Jagatananda Samal <jagata.samal@gmail.com>
+Date: Fri, 8 Sep 2017 08:10:30 -0700
+Message-ID: <CAP0A3FUxLwY3fUaD0_P2k0KeXs+WB=ct7Akgb1h4SebTAzpXyw@mail.gmail.com>
+Subject: aggregated client/server numbers
+Content-Type: multipart/alternative; boundary="94eb2c03691c53df760558aefae5"
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-On 8/30/2017 2:57 PM, Elliott, Robert (Persistent Memory) wrote:
-> There's even a new patch set to use the Intel QuickData DMA engines
-> for transfers rather than the CPU (a "blkmq" pmem driver).  It'd be
-> interesting if fio could use that hardware too (with direct access by
-> fio, not resorting to kernel read()/write() calls).
+--94eb2c03691c53df760558aefae5
+Content-Type: text/plain; charset="UTF-8"
 
-I build the example performance tester program from Intel that compares 
-memcpy with QuickData for various buffer and block sizes, and the best 
-result was QuickData being the same speed as memcpy; otherwise, 
-QuickData was between a tenth and half the speed.
-Given that, I'm planning to focus on just adding SSE (not sure about 
-this one yet, since all x86_64 systems support it, so memcpy should be 
-using it already), AVX, AVX-512 and A64 Advanced SIMD (for ARM64) to FIO.
+Hi,
+I was trying to use FIO in  client/server mode. I have about 200+ clients
+on my setup where I want to run the tests.
+Is there any way I can get the aggregated results from all the clients or
+at least reduce the amount of output from each client to a bare minimal.
 
--- 
-Rebecca
+Thanks,
+Jagat
 
+--94eb2c03691c53df760558aefae5
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi,<div>I was trying to use FIO in =C2=A0client/server mod=
+e. I have about 200+ clients on my setup where I want to run the tests.</di=
+v><div>Is there any way I can get the aggregated results from all the clien=
+ts or at least reduce the amount of output from each client to a bare minim=
+al.</div><div><br></div><div>Thanks,</div><div>Jagat</div><div><br></div></=
+div>
+
+--94eb2c03691c53df760558aefae5--
 
