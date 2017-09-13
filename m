@@ -1,40 +1,53 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 1/4] add "invalid IO size" to "first direct IO errored." message
-Date: Mon, 18 Sep 2017 20:53:47 +0300
-Message-Id: <20170918175350.38471-2-tkusumi@tuxera.com>
-In-Reply-To: <20170918175350.38471-1-tkusumi@tuxera.com>
-References: <20170918175350.38471-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([65.50.211.133]:53806 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750949AbdIMMAR (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 13 Sep 2017 08:00:17 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1ds6L3-0005cS-JB
+        for fio@vger.kernel.org; Wed, 13 Sep 2017 12:00:17 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170913120002.9185D2C0128@kernel.dk>
+Date: Wed, 13 Sep 2017 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+The following changes since commit c6fa271e32f08f35d7fc25272e77c0f7ee17bfec:
 
-It could fail due to bs not multiple of sector size.
+  Merge branch 'solaris-clock-setaffinity' of https://github.com/szaydel/fio (2017-09-11 14:26:01 -0600)
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 956e60eade2bddb8aadfb54b58030e0b88fd03b2:
+
+  io_u: fix trimming of mixed block size randommap (2017-09-12 14:02:34 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      io_u: fix trimming of mixed block size randommap
+
+ io_u.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 ---
- ioengines.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/ioengines.c b/ioengines.c
-index fa4acab..b8a31a8 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -342,8 +342,8 @@ int td_io_queue(struct thread_data *td, struct io_u *io_u)
- 	    td->o.odirect) {
- 
- 		log_info("fio: first direct IO errored. File system may not "
--			 "support direct IO, or iomem_align= is bad. Try "
--			 "setting direct=0.\n");
-+			 "support direct IO, or iomem_align= is bad, or "
-+			 "invalid IO size. Try setting direct=0.\n");
- 	}
- 
- 	if (!td->io_ops->commit || io_u->ddir == DDIR_TRIM) {
--- 
-2.9.5
+Diff of recent changes:
 
-
+diff --git a/io_u.c b/io_u.c
+index db043e4..e98cd31 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -37,7 +37,7 @@ static bool random_map_free(struct fio_file *f, const uint64_t block)
+  */
+ static void mark_random_map(struct thread_data *td, struct io_u *io_u)
+ {
+-	unsigned int min_bs = td->o.rw_min_bs;
++	unsigned int min_bs = td->o.min_bs[io_u->ddir];
+ 	struct fio_file *f = io_u->file;
+ 	unsigned int nr_blocks;
+ 	uint64_t block;
