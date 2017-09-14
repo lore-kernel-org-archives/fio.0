@@ -1,66 +1,52 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: fio and total latency percentile
+Return-Path: <dave.jiang@intel.com>
+From: "Jiang, Dave" <dave.jiang@intel.com>
+Subject: RE: fio and total latency percentile
+Date: Thu, 14 Sep 2017 16:45:10 +0000
+Message-ID: <112A412BB11A1242B37129D931BCE534734BD274@fmsmsx116.amr.corp.intel.com>
 References: <53cbc635-d9a3-6ef3-3634-309db0fe03d5@intel.com>
  <0c340072-33cc-2171-c149-1ef0b8f94fce@kernel.dk>
  <2fea8192-2373-a27e-c484-07fe5854aab7@kernel.dk>
  <cbb3e16a-2f98-a39d-a821-932b32a81b19@kernel.dk>
- <112A412BB11A1242B37129D931BCE534734BD274@fmsmsx116.amr.corp.intel.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <296b0e8b-2612-d29a-d739-ae829b4adcb1@kernel.dk>
-Date: Thu, 14 Sep 2017 10:46:08 -0600
-MIME-Version: 1.0
-In-Reply-To: <112A412BB11A1242B37129D931BCE534734BD274@fmsmsx116.amr.corp.intel.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <cbb3e16a-2f98-a39d-a821-932b32a81b19@kernel.dk>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: "Jiang, Dave" <dave.jiang@intel.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+Return-Path: dave.jiang@intel.com
+To: Jens Axboe <axboe@kernel.dk>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "Williams, Dan J" <dan.j.williams@intel.com>
 List-ID: <fio@vger.kernel.org>
 
-On 09/14/2017 10:45 AM, Jiang, Dave wrote:
-> 
-> 
->> -----Original Message-----
->> From: Jens Axboe [mailto:axboe@kernel.dk]
->> Sent: Wednesday, September 13, 2017 9:09 PM
->> To: Jiang, Dave <dave.jiang@intel.com>
->> Cc: fio@vger.kernel.org; Williams, Dan J <dan.j.williams@intel.com>
->> Subject: Re: fio and total latency percentile
->>
->> On 09/13/2017 10:03 PM, Jens Axboe wrote:
->>> On 09/13/2017 04:59 PM, Jens Axboe wrote:
->>>> On 09/07/2017 01:59 PM, Dave Jiang wrote:
->>>>> Jens,
->>>>> fio can display completion latency percentages via the percentile_list
->>>>> parameter. I can get p90 and p99 numbers for clat via
->>>>> percentile_list=90:99. Is there a way to get the overall latency for
->>>>> percentile? I'm interested in the total latency measurements for p90 and
->>>>> p99 while doing some measurements on the persistent memory block driver
->>>>> and playing around using DMA engines for transfer.
->>>>
->>>> If I understand correctly, you are using an IO engine that is async, and
->>>> you want the latency percentiles to reflect total IO time
->>>> (submission+completion), not just completion time?
->>>>
->>>> We can't currently do that, but it'd be trivial to do with an option of
->>>> some sort. Currently the percentile enable option is clat_percentile,
->>>> and it defaults to on. We could have a lat_percentile option that, if
->>>> enabled, would change the reporting to being total IO time. IOW:
->>>>
->>>> clat_percentile=1	Latency percentiles are completion latencies
->>>> lat_percentile=1	Latency percentiles are total IO time
->>>>
->>>> and have them be mutually exclusive.
->>>
->>> Something like the below. Please try it out and see if it works for you.
->>
->> Or just try current -git. I got cocky and just committed it.
-> 
-> Works great! Exactly what I need. Thanks Jens!
-
-Good to hear! Thanks for testing.
-
--- 
-Jens Axboe
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmVucyBBeGJvZSBbbWFp
+bHRvOmF4Ym9lQGtlcm5lbC5ka10NCj4gU2VudDogV2VkbmVzZGF5LCBTZXB0ZW1iZXIgMTMsIDIw
+MTcgOTowOSBQTQ0KPiBUbzogSmlhbmcsIERhdmUgPGRhdmUuamlhbmdAaW50ZWwuY29tPg0KPiBD
+YzogZmlvQHZnZXIua2VybmVsLm9yZzsgV2lsbGlhbXMsIERhbiBKIDxkYW4uai53aWxsaWFtc0Bp
+bnRlbC5jb20+DQo+IFN1YmplY3Q6IFJlOiBmaW8gYW5kIHRvdGFsIGxhdGVuY3kgcGVyY2VudGls
+ZQ0KPiANCj4gT24gMDkvMTMvMjAxNyAxMDowMyBQTSwgSmVucyBBeGJvZSB3cm90ZToNCj4gPiBP
+biAwOS8xMy8yMDE3IDA0OjU5IFBNLCBKZW5zIEF4Ym9lIHdyb3RlOg0KPiA+PiBPbiAwOS8wNy8y
+MDE3IDAxOjU5IFBNLCBEYXZlIEppYW5nIHdyb3RlOg0KPiA+Pj4gSmVucywNCj4gPj4+IGZpbyBj
+YW4gZGlzcGxheSBjb21wbGV0aW9uIGxhdGVuY3kgcGVyY2VudGFnZXMgdmlhIHRoZSBwZXJjZW50
+aWxlX2xpc3QNCj4gPj4+IHBhcmFtZXRlci4gSSBjYW4gZ2V0IHA5MCBhbmQgcDk5IG51bWJlcnMg
+Zm9yIGNsYXQgdmlhDQo+ID4+PiBwZXJjZW50aWxlX2xpc3Q9OTA6OTkuIElzIHRoZXJlIGEgd2F5
+IHRvIGdldCB0aGUgb3ZlcmFsbCBsYXRlbmN5IGZvcg0KPiA+Pj4gcGVyY2VudGlsZT8gSSdtIGlu
+dGVyZXN0ZWQgaW4gdGhlIHRvdGFsIGxhdGVuY3kgbWVhc3VyZW1lbnRzIGZvciBwOTAgYW5kDQo+
+ID4+PiBwOTkgd2hpbGUgZG9pbmcgc29tZSBtZWFzdXJlbWVudHMgb24gdGhlIHBlcnNpc3RlbnQg
+bWVtb3J5IGJsb2NrIGRyaXZlcg0KPiA+Pj4gYW5kIHBsYXlpbmcgYXJvdW5kIHVzaW5nIERNQSBl
+bmdpbmVzIGZvciB0cmFuc2Zlci4NCj4gPj4NCj4gPj4gSWYgSSB1bmRlcnN0YW5kIGNvcnJlY3Rs
+eSwgeW91IGFyZSB1c2luZyBhbiBJTyBlbmdpbmUgdGhhdCBpcyBhc3luYywgYW5kDQo+ID4+IHlv
+dSB3YW50IHRoZSBsYXRlbmN5IHBlcmNlbnRpbGVzIHRvIHJlZmxlY3QgdG90YWwgSU8gdGltZQ0K
+PiA+PiAoc3VibWlzc2lvbitjb21wbGV0aW9uKSwgbm90IGp1c3QgY29tcGxldGlvbiB0aW1lPw0K
+PiA+Pg0KPiA+PiBXZSBjYW4ndCBjdXJyZW50bHkgZG8gdGhhdCwgYnV0IGl0J2QgYmUgdHJpdmlh
+bCB0byBkbyB3aXRoIGFuIG9wdGlvbiBvZg0KPiA+PiBzb21lIHNvcnQuIEN1cnJlbnRseSB0aGUg
+cGVyY2VudGlsZSBlbmFibGUgb3B0aW9uIGlzIGNsYXRfcGVyY2VudGlsZSwNCj4gPj4gYW5kIGl0
+IGRlZmF1bHRzIHRvIG9uLiBXZSBjb3VsZCBoYXZlIGEgbGF0X3BlcmNlbnRpbGUgb3B0aW9uIHRo
+YXQsIGlmDQo+ID4+IGVuYWJsZWQsIHdvdWxkIGNoYW5nZSB0aGUgcmVwb3J0aW5nIHRvIGJlaW5n
+IHRvdGFsIElPIHRpbWUuIElPVzoNCj4gPj4NCj4gPj4gY2xhdF9wZXJjZW50aWxlPTEJTGF0ZW5j
+eSBwZXJjZW50aWxlcyBhcmUgY29tcGxldGlvbiBsYXRlbmNpZXMNCj4gPj4gbGF0X3BlcmNlbnRp
+bGU9MQlMYXRlbmN5IHBlcmNlbnRpbGVzIGFyZSB0b3RhbCBJTyB0aW1lDQo+ID4+DQo+ID4+IGFu
+ZCBoYXZlIHRoZW0gYmUgbXV0dWFsbHkgZXhjbHVzaXZlLg0KPiA+DQo+ID4gU29tZXRoaW5nIGxp
+a2UgdGhlIGJlbG93LiBQbGVhc2UgdHJ5IGl0IG91dCBhbmQgc2VlIGlmIGl0IHdvcmtzIGZvciB5
+b3UuDQo+IA0KPiBPciBqdXN0IHRyeSBjdXJyZW50IC1naXQuIEkgZ290IGNvY2t5IGFuZCBqdXN0
+IGNvbW1pdHRlZCBpdC4NCg0KV29ya3MgZ3JlYXQhIEV4YWN0bHkgd2hhdCBJIG5lZWQuIFRoYW5r
+cyBKZW5zIQ0K
 
