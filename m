@@ -1,59 +1,114 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm0-f52.google.com ([74.125.82.52]:35034 "EHLO
-        mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753359AbdIDJ3Y (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 4 Sep 2017 05:29:24 -0400
-Received: by mail-wm0-f52.google.com with SMTP id v2so1312246wmf.0
-        for <fio@vger.kernel.org>; Mon, 04 Sep 2017 02:29:24 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CAOfm_=VLQ0cVZPwDHtnzNO1Hj395z+2rq4AQvzhCyT9j75EqWw@mail.gmail.com>
-References: <CAOfm_=VLQ0cVZPwDHtnzNO1Hj395z+2rq4AQvzhCyT9j75EqWw@mail.gmail.com>
-From: Udi-Yehuda Tamar <udi@excelero.com>
-Date: Mon, 4 Sep 2017 12:29:22 +0300
-Message-ID: <CAOfm_=WPcxuUQyV1HSBkE07vJhtKfseQiZ2JEG81bVpYV7GENw@mail.gmail.com>
-Subject: Fwd: Corrupted json file
-Content-Type: text/plain; charset="UTF-8"
+Received: from bombadil.infradead.org ([65.50.211.133]:45680 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751458AbdISMAR (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 19 Sep 2017 08:00:17 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1duHCL-0008SD-2H
+        for fio@vger.kernel.org; Tue, 19 Sep 2017 12:00:17 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20170919120002.493B12C0128@kernel.dk>
+Date: Tue, 19 Sep 2017 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hello guys,
+The following changes since commit 9acb08a9957b1111a06fbca6af113fa0c98dbd7c:
 
-we're using the latest stable 2.99GA FIO for our product testing ,
-when trying to setup fio to write on ext4 mount we got a line that
-failing our code to load the json file .
-mt exe cmd:
+  Merge branch 'doc-patches' of https://github.com/vincentkfu/fio (2017-09-14 11:37:34 -0600)
 
-fio --verify=md5 --randrepeat 0 --direct=1 --rw write --thread=32
- --exitall_on_error=1 --directory /mnt/v1 --verify_interval=4096
---buffered 0 --output-format=json --size 1M --iodepth 1 --name FioJob
---rwmixread 100 --verify_dump=1 --norandommap --verify_fatal=1
---output /var/opt/executions/None/FioFS_f12f9c_1504448587_None.log
---runtime 0 --fill_fs 0 --do_verify=1 --numjobs 20 --blocksize 4K
---verify_pattern=0xaa --time_based=0 --ioengine libaio
+are available in the git repository at:
 
+  git://git.kernel.dk/fio.git master
 
-output file:
+for you to fetch changes up to 51102e0d64a2ae08472ecb90a72737f08de942fb:
 
-Multiple writers may overwrite blocks that belong to other jobs. This
-can cause verification failures.
-{
-  "fio version" : "fio-2.99-40-ga94a",
-  "timestamp" : 1504449007,
-  "timestamp_ms" : 1504449007643,
-  "time" : "Sun Sep  3 17:30:07 2017",
-  "global options" : {
-    "verify" : "md5",
-    "randrepeat" : "0",
-    "direct" : "1",
-    "rw" : "write",
-    "thread" : "32"..........
-}
+  add fio_set_directio() error message for platforms without direct I/O (2017-09-18 12:43:27 -0600)
 
-I understated the message, but how can I avoid this line in the json output?
-it's breaking the json format
+----------------------------------------------------------------
+Tomohiro Kusumi (4):
+      lib/memalign: don't malloc size twice
+      fix strncpy(3) copy length
+      add "invalid block size" to "first direct IO errored." message
+      add fio_set_directio() error message for platforms without direct I/O
 
+ filesetup.c        | 1 +
+ ioengines.c        | 4 ++--
+ lib/memalign.c     | 2 +-
+ os/windows/posix.c | 3 ++-
+ server.c           | 2 +-
+ 5 files changed, 7 insertions(+), 5 deletions(-)
 
--- 
-Thanks,
-Udi-Yehuda Tamar.
+---
+
+Diff of recent changes:
+
+diff --git a/filesetup.c b/filesetup.c
+index b51ab35..891a55a 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -1868,6 +1868,7 @@ int fio_set_directio(struct thread_data *td, struct fio_file *f)
+ 
+ 	return 0;
+ #else
++	log_err("fio: direct IO is not supported on this host operating system\n");
+ 	return -1;
+ #endif
+ }
+diff --git a/ioengines.c b/ioengines.c
+index fa4acab..9638d80 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -342,8 +342,8 @@ int td_io_queue(struct thread_data *td, struct io_u *io_u)
+ 	    td->o.odirect) {
+ 
+ 		log_info("fio: first direct IO errored. File system may not "
+-			 "support direct IO, or iomem_align= is bad. Try "
+-			 "setting direct=0.\n");
++			 "support direct IO, or iomem_align= is bad, or "
++			 "invalid block size. Try setting direct=0.\n");
+ 	}
+ 
+ 	if (!td->io_ops->commit || io_u->ddir == DDIR_TRIM) {
+diff --git a/lib/memalign.c b/lib/memalign.c
+index 137cc8e..bfbd1e8 100644
+--- a/lib/memalign.c
++++ b/lib/memalign.c
+@@ -18,7 +18,7 @@ void *fio_memalign(size_t alignment, size_t size)
+ 
+ 	assert(!(alignment & (alignment - 1)));
+ 
+-	ptr = malloc(size + alignment + size + sizeof(*f) - 1);
++	ptr = malloc(size + alignment + sizeof(*f) - 1);
+ 	if (ptr) {
+ 		ret = PTR_ALIGN(ptr, alignment - 1);
+ 		f = ret + size;
+diff --git a/os/windows/posix.c b/os/windows/posix.c
+index 488d0ed..00f0335 100755
+--- a/os/windows/posix.c
++++ b/os/windows/posix.c
+@@ -584,7 +584,8 @@ char *basename(char *path)
+ 	while (path[i] != '\\' && path[i] != '/' && i >= 0)
+ 		i--;
+ 
+-	strncpy(name, path + i + 1, MAX_PATH);
++	name[MAX_PATH - 1] = '\0';
++	strncpy(name, path + i + 1, MAX_PATH - 1);
+ 
+ 	return name;
+ }
+diff --git a/server.c b/server.c
+index 0469cea..e6ea4cd 100644
+--- a/server.c
++++ b/server.c
+@@ -856,7 +856,7 @@ static int handle_probe_cmd(struct fio_net_cmd *cmd)
+ #ifdef CONFIG_BIG_ENDIAN
+ 	probe.bigendian = 1;
+ #endif
+-	strncpy((char *) probe.fio_version, fio_version_string, sizeof(probe.fio_version));
++	strncpy((char *) probe.fio_version, fio_version_string, sizeof(probe.fio_version) - 1);
+ 
+ 	probe.os	= FIO_OS;
+ 	probe.arch	= FIO_ARCH;
