@@ -1,107 +1,45 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 5/5] add __load_ioengine() to separate ioengine loading from td context
-Date: Thu, 31 Aug 2017 23:13:08 +0300
-Message-Id: <20170831201308.47933-6-tkusumi@tuxera.com>
-In-Reply-To: <20170831201308.47933-1-tkusumi@tuxera.com>
-References: <20170831201308.47933-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-ua0-f173.google.com ([209.85.217.173]:51871 "EHLO
+        mail-ua0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751296AbdI1GZJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 28 Sep 2017 02:25:09 -0400
+Received: by mail-ua0-f173.google.com with SMTP id 72so307161uas.8
+        for <fio@vger.kernel.org>; Wed, 27 Sep 2017 23:25:09 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CAKwzdDpb-vEKnC6r0PoAVo0_OdNJY-Ou7x1aZrpmX+-xS1Z_TQ@mail.gmail.com>
+References: <CAKwzdDpb-vEKnC6r0PoAVo0_OdNJY-Ou7x1aZrpmX+-xS1Z_TQ@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Thu, 28 Sep 2017 07:24:38 +0100
+Message-ID: <CALjAwxiYWT1E6rFObq+-yn51wQhXZNh_9_kk4t5ZrTN_XgJqCQ@mail.gmail.com>
+Subject: Re: json+ max latency logging for bins
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: abhishek koundal <akoundal@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+Hi,
 
-Add a sub function __load_ioengine(), which only takes name argument,
-to be called from load_ioengine(). No functional changes.
+On 28 September 2017 at 02:04, abhishek koundal <akoundal@gmail.com> wrote:
+> Can someone confirm if json+ format is used the latency reported in
+> the bins (~1200) are mid-point not the max?
 
-This lets fio_show_ioengine_help() get rid of a local variable td
-which only existed to call load_ioengine(&td, ...) while this td had
-no actual thread context thus unneeded.
+There's a brief description of the JSON+ format in the latest git
+version of the HOWTO (see the JSON+ output section of the HOWTO
+http://fio.readthedocs.io/en/latest/fio_doc.html#id3 ).
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- ioengines.c | 39 +++++++++++++++++++--------------------
- 1 file changed, 19 insertions(+), 20 deletions(-)
+>  Does the --status-interval=1sec makes reporting average value in bins.
 
-diff --git a/ioengines.c b/ioengines.c
-index 0c631e8..e78b4f7 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -123,26 +123,31 @@ static struct ioengine_ops *dlopen_ioengine(struct thread_data *td,
- 	return ops;
- }
- 
-+static struct ioengine_ops *__load_ioengine(const char *name)
-+{
-+	char engine[64];
-+
-+	engine[sizeof(engine) - 1] = '\0';
-+	strncpy(engine, name, sizeof(engine) - 1);
-+
-+	/*
-+	 * linux libaio has alias names, so convert to what we want
-+	 */
-+	if (!strncmp(engine, "linuxaio", 8) || !strncmp(engine, "aio", 3))
-+		strcpy(engine, "libaio");
-+
-+	dprint(FD_IO, "load ioengine %s\n", engine);
-+	return find_ioengine(engine);
-+}
-+
- struct ioengine_ops *load_ioengine(struct thread_data *td)
- {
- 	struct ioengine_ops *ops = NULL;
- 	const char *name = NULL;
- 
- 	if (strcmp(td->o.ioengine, "external")) {
--		char engine[64];
--
- 		name = td->o.ioengine;
--		engine[sizeof(engine) - 1] = '\0';
--		strncpy(engine, name, sizeof(engine) - 1);
--
--		/*
--		 * linux libaio has alias names, so convert to what we want
--		 */
--		if (!strncmp(engine, "linuxaio", 8) || !strncmp(engine, "aio", 3))
--			strcpy(engine, "libaio");
--
--		dprint(FD_IO, "load ioengine %s\n", engine);
--		ops = find_ioengine(engine);
-+		ops = __load_ioengine(name);
- 	} else if (td->o.ioengine_so_path) {
- 		name = td->o.ioengine_so_path;
- 		ops = dlopen_ioengine(td, name);
-@@ -558,7 +563,6 @@ int td_io_get_file_size(struct thread_data *td, struct fio_file *f)
- int fio_show_ioengine_help(const char *engine)
- {
- 	struct flist_head *entry;
--	struct thread_data td;
- 	struct ioengine_ops *io_ops;
- 	char *sep;
- 	int ret = 1;
-@@ -577,10 +581,7 @@ int fio_show_ioengine_help(const char *engine)
- 		sep++;
- 	}
- 
--	memset(&td, 0, sizeof(td));
--
--	td.o.ioengine = (char *)engine;
--	io_ops = load_ioengine(&td);
-+	io_ops = __load_ioengine(engine);
- 	if (!io_ops) {
- 		log_info("IO engine %s not found\n", engine);
- 		return 1;
-@@ -591,7 +592,5 @@ int fio_show_ioengine_help(const char *engine)
- 	else
- 		log_info("IO engine %s has no options\n", io_ops->name);
- 
--	free_ioengine(&td);
--
- 	return ret;
- }
+Averaged over what period? Bear in mind even with
+--status-interval=<time> fio is reporting cumulative data since the
+job started running ...
+
+> Does adding the log_max_value=1 , will ensure that always max is
+> recorded in the latency bin? I have used this for the non-json format
+> but then average latency reporting per interval is lost.
+
+I don't know for sure but I'd guess that value ONLY affects the logs
+produced by *_bw_log and not the JSON outputs.
+
 -- 
-2.9.5
-
-
+Sitsofe | http://sucs.org/~sits/
