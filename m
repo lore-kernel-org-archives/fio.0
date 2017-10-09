@@ -1,30 +1,67 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH] add an filecreate example file to examples/
-References: <1507581351-27797-1-git-send-email-josef@toxicpanda.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <5757c4d3-2af4-bcea-b199-cd98f1b1746d@kernel.dk>
-Date: Mon, 9 Oct 2017 14:44:03 -0600
-MIME-Version: 1.0
-In-Reply-To: <1507581351-27797-1-git-send-email-josef@toxicpanda.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Josef Bacik <josef@toxicpanda.com>, kernel-team@fb.com, fio@vger.kernel.org
+Return-Path: <josef@toxicpanda.com>
+Return-Path: <josef@toxicpanda.com>
+From: Josef Bacik <josef@toxicpanda.com>
+Subject: [PATCH] add an filecreate example file to examples/
+Date: Mon,  9 Oct 2017 16:35:51 -0400
+Message-Id: <1507581351-27797-1-git-send-email-josef@toxicpanda.com>
+To: axboe@kernel.dk, kernel-team@fb.com, fio@vger.kernel.org
 Cc: Josef Bacik <jbacik@fb.com>
 List-ID: <fio@vger.kernel.org>
 
-On 10/09/2017 02:35 PM, Josef Bacik wrote:
-> From: Josef Bacik <jbacik@fb.com>
-> 
-> This adds an example with some documentation on how to use
-> ioengine=filecreate.
+From: Josef Bacik <jbacik@fb.com>
 
-Applied, but killed the readwrite= line. We have to ensure that
-the engine and job both use reads, otherwise the stats might not
-display correctly (as zeroes). Might be an idea to fix this up
-in an ->init() hook for the engine, to make it more resilient.
+This adds an example with some documentation on how to use
+ioengine=filecreate.
 
+Signed-off-by: Josef Bacik <jbacik@fb.com>
+---
+ examples/filecreate-ioengine.fio | 36 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+ create mode 100644 examples/filecreate-ioengine.fio
+
+diff --git a/examples/filecreate-ioengine.fio b/examples/filecreate-ioengine.fio
+new file mode 100644
+index 000000000000..e1eb06cecb15
+--- /dev/null
++++ b/examples/filecreate-ioengine.fio
+@@ -0,0 +1,36 @@
++# Example filecreate job
++#
++# create_on_open is needed so that the open happens during the run and not the
++# setup.
++#
++# openfiles needs to be set so that you do not exceed the maximum allowed open
++# files.
++#
++# filesize needs to be set to a non zero value so fio will actually run, but the
++# IO will not really be done and the write latency numbers will only reflect the
++# open times.
++[global]
++create_on_open=1
++nrfiles=31250
++readwrite=write
++ioengine=filecreate
++fallocate=none
++filesize=4k
++openfiles=1
++
++[t0]
++[t1]
++[t2]
++[t3]
++[t4]
++[t5]
++[t6]
++[t7]
++[t8]
++[t9]
++[t10]
++[t11]
++[t12]
++[t13]
++[t14]
++[t15]
 -- 
-Jens Axboe
+2.7.4
 
 
