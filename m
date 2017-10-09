@@ -1,35 +1,26 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH 2/2] create subdirs if specified in the filename_format
-References: <1507748292-8941-1-git-send-email-josef@toxicpanda.com>
- <1507748292-8941-2-git-send-email-josef@toxicpanda.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <528f84d5-4b76-245a-a9b2-d989c2289fd9@kernel.dk>
-Date: Wed, 11 Oct 2017 13:05:08 -0600
-MIME-Version: 1.0
-In-Reply-To: <1507748292-8941-2-git-send-email-josef@toxicpanda.com>
-Content-Type: text/plain; charset=utf-8
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa5.hgst.iphmx.com ([216.71.153.144]:26117 "EHLO
+        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752400AbdJITZz (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 9 Oct 2017 15:25:55 -0400
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: fio add trim option
+Date: Mon, 9 Oct 2017 19:25:36 +0000
+Message-ID: <BN3PR0401MB1457D255502835FE71E990458F740@BN3PR0401MB1457.namprd04.prod.outlook.com>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Josef Bacik <josef@toxicpanda.com>, kernel-team@fb.com, fio@vger.kernel.org
-Cc: Josef Bacik <jbacik@fb.com>
-List-ID: <fio@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 10/11/2017 12:58 PM, Josef Bacik wrote:
-> From: Josef Bacik <jbacik@fb.com>
-> 
-> Currently there's no way for a user to specify a directory that doesn't
-> exist yet for a job.  Fix this by looking for paths in the file name
-> provided by the job and creating any subdirectories that may be
-> required.
+Hi All,
+Is it possible to allow --rw=3Drandrw to include a trim option?  We already=
+ have --rwmixread=3Dint and --rwmixwrite=3Dint, but perhaps we need --rwmix=
+trim=3Dint?  Most other parameters already seemed plumbed out for read/writ=
+e/trim, such as --bs=3Dint[,int][,int].  Or is there already another way to=
+ do a mix of read/write/trim from one job?  Thanks.
 
-Applied 1, and this one except I dropped the flag shift change which
-isn't needed.
-
-Would be nice with a documentation change as well for this, so it's
-clear that filename_format can take directory names as well, just
-so that's clear to users.
-
--- 
-Jens Axboe
-
-
+Regards,
+Jeff
