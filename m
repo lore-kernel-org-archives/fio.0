@@ -1,9 +1,9 @@
 Return-Path: <vincentfu@gmail.com>
 Return-Path: <vincentfu@gmail.com>
 From: Vincent Fu <vincentfu@gmail.com>
-Subject: [PATCH 2/2] stat: update json+ output format for --lat_percentiles option
-Date: Mon,  9 Oct 2017 10:47:12 -0400
-Message-Id: <1507560432-28946-3-git-send-email-vincentfu@gmail.com>
+Subject: [PATCH 1/2] stat: update description of clat accounting in stat.h
+Date: Mon,  9 Oct 2017 10:47:11 -0400
+Message-Id: <1507560432-28946-2-git-send-email-vincentfu@gmail.com>
 In-Reply-To: <1507560432-28946-1-git-send-email-vincentfu@gmail.com>
 References: <1507560432-28946-1-git-send-email-vincentfu@gmail.com>
 To: fio@vger.kernel.org, axboe@kernel.dk
@@ -12,81 +12,71 @@ List-ID: <fio@vger.kernel.org>
 
 From: Vincent Fu <vincent.fu@wdc.com>
 
-If --lat_percentiles is set to 1, change the json+ output format
-so that the bins are inside the 'lat_ns' object.
-
-Also update fio_jsonplus_clat2csv to look in the two possible
-locations.
+The description in stat.h of the data structure used for
+storing completion latency percentiles had not been updated
+to reflect the transition to nanosecond timing. This patch
+updates the description to be consistent with the nanosecond
+changes. There have been a few instances on github and the
+mailing list where this had caused confusion.
 ---
- stat.c                      |  9 +++++++--
- tools/fio_jsonplus_clat2csv | 12 ++++++++++--
- 2 files changed, 17 insertions(+), 4 deletions(-)
+ stat.h | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/stat.c b/stat.c
-index 09afa5b..c5a68ad 100644
---- a/stat.c
-+++ b/stat.c
-@@ -962,7 +962,7 @@ static void add_ddir_status_json(struct thread_stat *ts,
- 	unsigned int len;
- 	int i;
- 	const char *ddirname[] = {"read", "write", "trim"};
--	struct json_object *dir_object, *tmp_object, *percentile_object, *clat_bins_object;
-+	struct json_object *dir_object, *tmp_object, *percentile_object, *clat_bins_object = NULL;
- 	char buf[120];
- 	double p_of_agg = 100.0;
+diff --git a/stat.h b/stat.h
+index 848331b..3fda084 100644
+--- a/stat.h
++++ b/stat.h
+@@ -24,6 +24,16 @@ struct group_run_stats {
+ #define FIO_IO_U_LAT_M_NR 12
  
-@@ -1036,7 +1036,9 @@ static void add_ddir_status_json(struct thread_stat *ts,
- 
- 	if (output_format & FIO_OUTPUT_JSON_PLUS) {
- 		clat_bins_object = json_create_object();
--		json_object_add_value_object(tmp_object, "bins", clat_bins_object);
-+		if (ts->clat_percentiles)
-+			json_object_add_value_object(tmp_object, "bins", clat_bins_object);
+ /*
++ * Constants for clat percentiles
++ */
++#define FIO_IO_U_PLAT_BITS 6
++#define FIO_IO_U_PLAT_VAL (1 << FIO_IO_U_PLAT_BITS)
++#define FIO_IO_U_PLAT_GROUP_NR 29
++#define FIO_IO_U_PLAT_NR (FIO_IO_U_PLAT_GROUP_NR * FIO_IO_U_PLAT_VAL)
++#define FIO_IO_U_LIST_MAX_LEN 20 /* The size of the default and user-specified
++					list of percentiles */
 +
- 		for(i = 0; i < FIO_IO_U_PLAT_NR; i++) {
- 			if (ts->io_u_plat[ddir][i]) {
- 				snprintf(buf, sizeof(buf), "%llu", plat_idx_to_val(i));
-@@ -1055,6 +1057,9 @@ static void add_ddir_status_json(struct thread_stat *ts,
- 	json_object_add_value_int(tmp_object, "max", max);
- 	json_object_add_value_float(tmp_object, "mean", mean);
- 	json_object_add_value_float(tmp_object, "stddev", dev);
-+	if (output_format & FIO_OUTPUT_JSON_PLUS && ts->lat_percentiles)
-+		json_object_add_value_object(tmp_object, "bins", clat_bins_object);
-+
- 	if (ovals)
- 		free(ovals);
++/*
+  * Aggregate clat samples to report percentile(s) of them.
+  *
+  * EXECUTIVE SUMMARY
+@@ -34,7 +44,7 @@ struct group_run_stats {
+  *
+  * FIO_IO_U_PLAT_GROUP_NR and FIO_IO_U_PLAT_BITS determine the maximum
+  * range being tracked for latency samples. The maximum value tracked
+- * accurately will be 2^(GROUP_NR + PLAT_BITS -1) microseconds.
++ * accurately will be 2^(GROUP_NR + PLAT_BITS - 1) nanoseconds.
+  *
+  * FIO_IO_U_PLAT_GROUP_NR and FIO_IO_U_PLAT_BITS determine the memory
+  * requirement of storing those aggregate counts. The memory used will
+@@ -98,22 +108,15 @@ struct group_run_stats {
+  *	3	8	2		[256,511]		64
+  *	4	9	3		[512,1023]		64
+  *	...	...	...		[...,...]		...
+- *	18	23	17		[8838608,+inf]**	64
++ *	28	33	27		[8589934592,+inf]**	64
+  *
+  *  * Special cases: when n < (M-1) or when n == (M-1), in both cases,
+  *    the value cannot be rounded off. Use all bits of the sample as
+  *    index.
+  *
+- *  ** If a sample's MSB is greater than 23, it will be counted as 23.
++ *  ** If a sample's MSB is greater than 33, it will be counted as 33.
+  */
  
-diff --git a/tools/fio_jsonplus_clat2csv b/tools/fio_jsonplus_clat2csv
-index d4ac16e..64fdc9f 100755
---- a/tools/fio_jsonplus_clat2csv
-+++ b/tools/fio_jsonplus_clat2csv
-@@ -107,8 +107,16 @@ def main():
- 
-         prev_ddir = None
-         for ddir in ddir_set:
-+            if 'bins' in jsondata['jobs'][jobnum][ddir]['clat_ns']:
-+                bins_loc = 'clat_ns'
-+            elif 'bins' in jsondata['jobs'][jobnum][ddir]['lat_ns']:
-+                bins_loc = 'lat_ns'
-+            else:
-+                raise RuntimeError("Latency bins not found. "
-+                                   "Are you sure you are using json+ output?")
-+
-             bins[ddir] = [[int(key), value] for key, value in
--                          jsondata['jobs'][jobnum][ddir]['clat_ns']
-+                          jsondata['jobs'][jobnum][ddir][bins_loc]
-                           ['bins'].iteritems()]
-             bins[ddir] = sorted(bins[ddir], key=lambda bin: bin[0])
- 
-@@ -123,7 +131,7 @@ def main():
-         outfile = stub + '_job' + str(jobnum) + ext
- 
-         with open(outfile, 'w') as output:
--            output.write("clat_nsec, ")
-+            output.write("{0}ec, ".format(bins_loc))
-             ddir_list = list(ddir_set)
-             for ddir in ddir_list:
-                 output.write("{0}_count, {0}_cumulative, {0}_percentile, ".
+-#define FIO_IO_U_PLAT_BITS 6
+-#define FIO_IO_U_PLAT_VAL (1 << FIO_IO_U_PLAT_BITS)
+-#define FIO_IO_U_PLAT_GROUP_NR 29
+-#define FIO_IO_U_PLAT_NR (FIO_IO_U_PLAT_GROUP_NR * FIO_IO_U_PLAT_VAL)
+-#define FIO_IO_U_LIST_MAX_LEN 20 /* The size of the default and user-specified
+-					list of percentiles */
+-
+ /*
+  * Trim cycle count measurements
+  */
 -- 
 2.7.4
 
