@@ -1,33 +1,35 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f175.google.com ([209.85.217.175]:49524 "EHLO
-        mail-ua0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751154AbdI1Qzg (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 28 Sep 2017 12:55:36 -0400
-Received: by mail-ua0-f175.google.com with SMTP id 97so1304202uai.6
-        for <fio@vger.kernel.org>; Thu, 28 Sep 2017 09:55:36 -0700 (PDT)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 2/2] create subdirs if specified in the filename_format
+References: <1507748292-8941-1-git-send-email-josef@toxicpanda.com>
+ <1507748292-8941-2-git-send-email-josef@toxicpanda.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <528f84d5-4b76-245a-a9b2-d989c2289fd9@kernel.dk>
+Date: Wed, 11 Oct 2017 13:05:08 -0600
 MIME-Version: 1.0
-From: Andrzej Jakowski <andrzej.jakowski@gmail.com>
-Date: Thu, 28 Sep 2017 09:55:35 -0700
-Message-ID: <CAOmo8DYM7JGSqFVB1tyicUMUk=HxfMFTAAZfRAz_PoQMPZd6JQ@mail.gmail.com>
-Subject: Question on source code
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <1507748292-8941-2-git-send-email-josef@toxicpanda.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Josef Bacik <josef@toxicpanda.com>, kernel-team@fb.com, fio@vger.kernel.org
+Cc: Josef Bacik <jbacik@fb.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+On 10/11/2017 12:58 PM, Josef Bacik wrote:
+> From: Josef Bacik <jbacik@fb.com>
+> 
+> Currently there's no way for a user to specify a directory that doesn't
+> exist yet for a job.  Fix this by looking for paths in the file name
+> provided by the job and creating any subdirectories that may be
+> required.
 
-I'm checking source code for percentile calculation:
-There is a descrption, showing there is 19 groups:
-https://github.com/axboe/fio/blob/master/stat.h#L89
+Applied 1, and this one except I dropped the flag shift change which
+isn't needed.
 
-Below it there is macro showing group number to be 29.
-#define FIO_IO_U_PLAT_GROUP_NR 29
-https://github.com/axboe/fio/blob/master/stat.h#L112
+Would be nice with a documentation change as well for this, so it's
+clear that filename_format can take directory names as well, just
+so that's clear to users.
 
-I'm wondering if the original intent for setting
-FIO_IO_U_PLAT_GROUP_NR was to 19 and what I see there is just a typo.
-Please let me know.
+-- 
+Jens Axboe
 
-Thx,
-Andrzej
+
