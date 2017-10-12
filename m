@@ -1,113 +1,25 @@
 Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH] Fix overflow in percentile calculation for Windows
-References: <20171010212710.12526-1-andrzej.jakowski@intel.com>
- <CALjAwxhFr84M6p3SUmJuu8novyP+Wq7fiyPrTd=qGn4ubHwC1w@mail.gmail.com>
- <cf6c368d-110e-7776-bcc8-76e9d024914a@kernel.dk>
- <28cd47ad-913c-0eaa-ec2d-84ab47763029@gmail.com>
- <CAOmo8DbWZTT=yZE1rDrGBabji83-SwH+p0M5TpFk9awNdvMdGw@mail.gmail.com>
- <CALjAwxi7cd4RFG7WSz+XWHkouKwvX7iFnU3tNri-MgR1RTstZw@mail.gmail.com>
- <CALjAwxg=GCVbpNhOu1b7zpR-7Rexc1ttzWoUHqmNMfnDk2sZhw@mail.gmail.com>
+Subject: Re: [PATCH v2] Fix overflow in percentile calculation for Windows
+References: <CAOmo8DbWZTT=yZE1rDrGBabji83-SwH+p0M5TpFk9awNdvMdGw@mail.gmail.com>
+ <20171012055758.11167-1-andrzej.jakowski@intel.com>
 From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <79c9569e-707c-6cd8-2bc0-2e774e09448f@kernel.dk>
-Date: Thu, 12 Oct 2017 08:36:27 -0600
+Message-ID: <630dc1b4-a749-a572-95ca-094274dc6b00@kernel.dk>
+Date: Thu, 12 Oct 2017 08:32:18 -0600
 MIME-Version: 1.0
-In-Reply-To: <CALjAwxg=GCVbpNhOu1b7zpR-7Rexc1ttzWoUHqmNMfnDk2sZhw@mail.gmail.com>
+In-Reply-To: <20171012055758.11167-1-andrzej.jakowski@intel.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-To: Sitsofe Wheeler <sitsofe@gmail.com>, Andrzej Jakowski <andrzej.jakowski@gmail.com>
-Cc: Vincent Fu <vincentfu@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Andrzej Jakowski <andrzej.jakowski@intel.com>
+To: Andrzej Jakowski <andrzej.jakowski@intel.com>, fio@vger.kernel.org
+Cc: vincentfu@gmail.com
 List-ID: <fio@vger.kernel.org>
 
-On 10/12/2017 06:36 AM, Sitsofe Wheeler wrote:
-> On 12 October 2017 at 07:06, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
->> On 12 October 2017 at 06:28, Andrzej Jakowski
->> <andrzej.jakowski@gmail.com> wrote:
->>> On Wed, Oct 11, 2017 at 4:36 PM, Vincent Fu <vincentfu@gmail.com> wrote:
->>>> Andrzej, does this actually resolve the problem you observed? unsigned long
->>>> nr in the parameter list of calc_clat_percentiles() and
->>>> show_clat_percentiles() also looks like it will overflow when you have more
->>>> than 2^32 IOs.
->>> Yes you are right. That original patch is not sufficient. Will get it
->>> fixed and post new version soon.
->>
->> I've got a feeling there are few other 32 bit platform integer
->> overflows lurking around. I'm trying a clang sanitizer run...
-> 
-> The following results are from a 32 bit Linux build without your patch:
-> gettime.c:313:28: runtime error: unsigned integer overflow: 3600 *
-> 2600730 cannot be represented in type 'unsigned long'
-> gettime.c:353:53: runtime error: unsigned integer overflow:
-> 8796093022208 * 12901928 cannot be represented in type 'unsigned long
-> long'
-> overflow: (g=0): rw=read, bs=(R) 32B-32B, (W) 32B-32B, (T) 32B-32B,
-> ioengine=null, iodepth=32
-> ...
-> fio-3.1-50-g2b6f
-> Starting 4 threads
-> io_u.c:1272:28: runtime error: unsigned integer overflow: 0 - 1 cannot
-> be represented in type 'unsigned int'
-> gettime.c:197:35: runtime error: unsigned integer overflow:
-> 1429766471724 * 12901928 cannot be represented in type 'unsigned long
-> long'
-> backend.c:345:7: runtime error: unsigned integer overflow: 4294967295
-> + 1 cannot be represented in type 'unsigned int'
-> io_u.c:989:23: runtime error: unsigned integer overflow: 4294967288 +
-> 8 cannot be represented in type 'unsigned int'
-> io_u.c:1071:24: runtime error: unsigned integer overflow: 4294967295 +
-> 1 cannot be represented in type 'uint32_t' (aka 'unsigned int')
-> Jobs: 4 (f=4): [R(4)][26.9%][r=102MiB/s,w=0KiB/s][r=3358k,w=0 IOPS][eta 43m:52s]
-> 
-> ^C
-> fio: terminating on signal 2
-> ioengines.c:270:22: runtime error: unsigned integer overflow: 0 - 7
-> cannot be represented in type 'unsigned int'
-> stat.c:1452:18: runtime error: unsigned integer overflow: 12246275151
-> * 12220497954 cannot be represented in type 'unsigned long long'
-> stat.c:1529:20: runtime error: unsigned integer overflow: 3656340552 +
-> 3630563360 cannot be represented in type 'unsigned int'
-> stat.c:1537:22: runtime error: unsigned integer overflow: 3002030688 +
-> 2989903763 cannot be represented in type 'unsigned int'
-> stat.c:1531:23: runtime error: unsigned integer overflow: 3058346638 +
-> 1520207785 cannot be represented in type 'unsigned int'
-> stat.c:1533:25: runtime error: unsigned integer overflow: 3058346638 +
-> 1520207785 cannot be represented in type 'unsigned int'
-> 
-> (I've manually removed most of the warnings that look like unsigned
-> wraparound was expected/desired such as when hashing is being done)
+On 10/11/2017 11:57 PM, Andrzej Jakowski wrote:
+> This patch fixes percentile calculation for Windows where overflow
+> on 32 bit type happened while calculating actual percentiles.
 
-Yikes
-
-> The first gettime.c problem looks like it's easily fixed with "static
-> unsigned long long cycles_per_msec".
-> The next gettime.c:353:53 looks more problematic. That value is
-> gigantic and would need a 128 bit variable to fit. I don't know if
-> this is spurious because I'm running a VM and manually set
-> --clocksource=cpu but it would be nice to know for sure.
-> io_u.c:1272 looks like the standard decrementing counter whose value
-> is taken before being negated so it's a harmless warning.
-> backend.c:345:7 I think ts_cache_nr is expected to just keep wrapping
-> around so this is harmless?
-> io_u.c:989:23 io_u_map is a uint32_t which means we can only store
-> 2^32 latency entries before we wraparound - this sounds problematic
-> but I don't know how to handle it (periodically scale everything?).
-> io_u.c:1071:24 see above but for io_u_lat_u .
-> stat.c:1452:18 - too many samples means (no pun intended) we have an overflow.
-> The rest of the stat.c errors appear to be down to to trying to
-> combine samples when both values are already close to their 32 bit
-> value maximums and the result can't be kept in 32 bits.
-> 
-> Any thoughts?
-
-Just go through them one-by-one. I think some of these were likely
-introduced with the nsec conversion, which I guess isn't too
-surprising...
-
-In any case, just fix them up individually, that's much better than
-trying to do one big patch that fixes everything. Or create a mail for
-each particular case that you don't see an easy fix for, then we can go
-over them. The easy case are just making counters or values 64-bit,
-regardless of platform.
+I already applied the previous one, so I hand edited this one and
+massaged the changelog somewhat.
 
 -- 
 Jens Axboe
