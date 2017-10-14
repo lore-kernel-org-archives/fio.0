@@ -1,46 +1,66 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qt0-f176.google.com ([209.85.216.176]:53462 "EHLO
-        mail-qt0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751451AbdJMUb4 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 13 Oct 2017 16:31:56 -0400
-Received: by mail-qt0-f176.google.com with SMTP id n61so21796603qte.10
-        for <fio@vger.kernel.org>; Fri, 13 Oct 2017 13:31:56 -0700 (PDT)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] Fix overflow in percentile calculation for Windows
+References: <20171010212710.12526-1-andrzej.jakowski@intel.com>
+ <CALjAwxhFr84M6p3SUmJuu8novyP+Wq7fiyPrTd=qGn4ubHwC1w@mail.gmail.com>
+ <cf6c368d-110e-7776-bcc8-76e9d024914a@kernel.dk>
+ <28cd47ad-913c-0eaa-ec2d-84ab47763029@gmail.com>
+ <CAOmo8DbWZTT=yZE1rDrGBabji83-SwH+p0M5TpFk9awNdvMdGw@mail.gmail.com>
+ <CALjAwxi7cd4RFG7WSz+XWHkouKwvX7iFnU3tNri-MgR1RTstZw@mail.gmail.com>
+ <CALjAwxg=GCVbpNhOu1b7zpR-7Rexc1ttzWoUHqmNMfnDk2sZhw@mail.gmail.com>
+ <79c9569e-707c-6cd8-2bc0-2e774e09448f@kernel.dk>
+ <CALjAwxjbDkQxP2eH=287GmfJvnoADre+5DHsXjsJhZf_7GhCGQ@mail.gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <dd2307d4-2a84-fcde-7265-261d9292d0d5@kernel.dk>
+Date: Sat, 14 Oct 2017 09:56:20 -0600
 MIME-Version: 1.0
-From: abhishek koundal <akoundal@gmail.com>
-Date: Fri, 13 Oct 2017 13:31:14 -0700
-Message-ID: <CAKwzdDo7ub14AmQBmJu9J5rOuSDnxEAVp1w2gkDo=5stkzS31A@mail.gmail.com>
-Subject: fio LBA span query
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <CALjAwxjbDkQxP2eH=287GmfJvnoADre+5DHsXjsJhZf_7GhCGQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: Andrzej Jakowski <andrzej.jakowski@gmail.com>, Vincent Fu <vincentfu@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Andrzej Jakowski <andrzej.jakowski@intel.com>
+List-ID: <fio@vger.kernel.org>
 
-All,
-I want  to ensure that unique thread targeted the given LBA span, is
-there a way to achieve it using "raw" drive
+On 10/12/2017 02:51 PM, Sitsofe Wheeler wrote:
+> On 12 October 2017 at 15:36, Jens Axboe <axboe@kernel.dk> wrote:
+>>
+>> Just go through them one-by-one. I think some of these were likely
+>> introduced with the nsec conversion, which I guess isn't too
+>> surprising...
+> 
+> With all the latest patches applied these are the only warnings which
+> look faintly legitimate:
+> 
+> io_u.c:1272:28: runtime error: unsigned integer overflow: 0 - 1 cannot
+> be represented in type 'unsigned int'
+> 
+> Might be harmless because we goto out just after td->file_service_left
+> has wrapped around.
 
-[thread1]
-size= LBA 0-50%
+Might be worth it to clean up, I'll do that.
 
-[thread2]
-size= LBA 51-80%
+> ioengines.c:270:22: runtime error: unsigned integer overflow: 59 - 63
+> cannot be represented in type 'unsigned int'
+> 
+> It does look like td->io_u_in_flight is over decremented but it's not
+> clear how I/Os that weren't already in flight somehow completed...
 
-[thread3]
-size= 80-20%
+Hmm that is odd. I'll look into that.
 
-Another thing:
-When FIO start a workload e.g. Random Read does it always starts from LBA0
-i.e.
-random_wr = size 100% (dirve written in a given pattern)
-then.
+> stat.c:1529:20: runtime error: unsigned integer overflow: 3370715872 +
+> 1125639672 cannot be represented in type 'unsigned int'
+> stat.c:1531:23: runtime error: unsigned integer overflow: 3370715859 +
+> 1125639668 cannot be represented in type 'unsigned int'
+> stat.c:1533:25: runtime error: unsigned integer overflow: 3370715862 +
+> 1125639669 cannot be represented in type 'unsigned int'
+> 
+> The last three are all down to io_u_* structure members being 32 bit.
+> Would we want to make them 64 bit and bump the protocol version?
 
-random rd 4k [ LBA 0 ....]
-stonewall
-random rd 8k  [ Will this also start from LBA 0 or pick some random
-offset for start]
-
-Appreciate your support here .
+Yes, I think we should make them 64-bit and just bump the protocol
+version.
 
 -- 
-Life is too short for silly things so invest your time in some
-productive outputs!!
+Jens Axboe
+
+
