@@ -1,32 +1,42 @@
-Return-Path: <rebecca@bluestop.org>
-From: Rebecca Cran <rebecca@bluestop.org>
-Subject: [PATCH] Fix 'nice' parameter range: should be -20 to 19, not -19 to 20.
-Date: Thu, 26 Oct 2017 15:28:23 -0600
-Message-Id: <20171026212823.86536-1-rebecca@bluestop.org>
-To: fio@vger.kernel.org
-Cc: axboe@kernel.dk, Rebecca Cran <rebecca@bluestop.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-vk0-f41.google.com ([209.85.213.41]:53907 "EHLO
+        mail-vk0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750970AbdJNHdj (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 14 Oct 2017 03:33:39 -0400
+Received: by mail-vk0-f41.google.com with SMTP id c76so5326604vkd.10
+        for <fio@vger.kernel.org>; Sat, 14 Oct 2017 00:33:38 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CAKwzdDo7ub14AmQBmJu9J5rOuSDnxEAVp1w2gkDo=5stkzS31A@mail.gmail.com>
+References: <CAKwzdDo7ub14AmQBmJu9J5rOuSDnxEAVp1w2gkDo=5stkzS31A@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 14 Oct 2017 08:33:07 +0100
+Message-ID: <CALjAwxh0Zrm0AviKpTMsTN8Mj27tdRB4=nVhTAh4r0j+P=unoA@mail.gmail.com>
+Subject: Re: fio LBA span query
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: abhishek koundal <akoundal@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
----
- options.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Hi,
 
-diff --git a/options.c b/options.c
-index 8ee986a7..5813a66b 100644
---- a/options.c
-+++ b/options.c
-@@ -3252,8 +3252,8 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.type	= FIO_OPT_INT,
- 		.off1	= offsetof(struct thread_options, nice),
- 		.help	= "Set job CPU nice value",
--		.minval	= -19,
--		.maxval	= 20,
-+		.minval	= -20,
-+		.maxval	= 19,
- 		.def	= "0",
- 		.interval = 1,
- 		.category = FIO_OPT_C_GENERAL,
+On 13 October 2017 at 21:31, abhishek koundal <akoundal@gmail.com> wrote:
+>
+> I want  to ensure that unique thread targeted the given LBA span, is
+> there a way to achieve it using "raw" drive
+>
+> [thread1]
+> size= LBA 0-50%
+>
+> [thread2]
+> size= LBA 51-80%
+
+Fio uses size and offset to constrain where I/O is done. With recent
+fio versions you can use percentages with size and offset too, e.g.
+offset=51% size=80% . See the documentation for size and offset -
+http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-size
+and http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-offset
+(there's sentence talking about range).
+
 -- 
-2.14.1
-
-
+Sitsofe | http://sucs.org/~sits/
