@@ -1,78 +1,67 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f179.google.com ([209.85.217.179]:46708 "EHLO
-        mail-ua0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751935AbdJQFtT (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 17 Oct 2017 01:49:19 -0400
-Received: by mail-ua0-f179.google.com with SMTP id w45so373549uac.3
-        for <fio@vger.kernel.org>; Mon, 16 Oct 2017 22:49:19 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <F4AD05DA-7571-4A39-A2EC-4C1DB2BE2436@cisco.com>
-References: <62746C96-1A2C-4D10-9A5F-ACA6092086CA@cisco.com>
- <CALjAwxjNw9AzSi1wFAZTsO94g-svQKRS+LNg_zetbQ8jgneFPg@mail.gmail.com> <F4AD05DA-7571-4A39-A2EC-4C1DB2BE2436@cisco.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Tue, 17 Oct 2017 06:48:48 +0100
-Message-ID: <CALjAwxihtXT+QEO6J=Yzhb06jij6z6+nOJgL23VbMkWnQk1myQ@mail.gmail.com>
+Received: from rcdn-iport-9.cisco.com ([173.37.86.80]:13936 "EHLO
+        rcdn-iport-9.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753947AbdJPXyG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 16 Oct 2017 19:54:06 -0400
+From: "Scott Forman (scforman)" <scforman@cisco.com>
 Subject: Re: Error handling in fio_libaio_event()
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Date: Mon, 16 Oct 2017 23:44:10 +0000
+Message-ID: <F4AD05DA-7571-4A39-A2EC-4C1DB2BE2436@cisco.com>
+References: <62746C96-1A2C-4D10-9A5F-ACA6092086CA@cisco.com>
+ <CALjAwxjNw9AzSi1wFAZTsO94g-svQKRS+LNg_zetbQ8jgneFPg@mail.gmail.com>
+In-Reply-To: <CALjAwxjNw9AzSi1wFAZTsO94g-svQKRS+LNg_zetbQ8jgneFPg@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <F1B7198F49312E4A8BFF2E3AEAD75085@emea.cisco.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Scott Forman (scforman)" <scforman@cisco.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi,
-
-On 17 October 2017 at 00:44, Scott Forman (scforman) <scforman@cisco.com> w=
-rote:
->
-> I am running into a new problem when I check for write errors after calli=
-ng io_getevents() that I am hoping you can help me out with.
->
-> Comparing it to your function fio_libaio_event() in engines/libaio.c, I a=
-m finding that  (ev->res !=3D io_u->xfer_buflen) and that (ev->res > io_u->=
-xfer_buflen).   The value of ev->res, which I believe is the result of the =
-write, is equal to the value of the count parameter passed to io_prep_pwrit=
-e(), so it seems like the write succeeded.
-
-This sounds strange - a long write? I'd expect ev->res to be less than
-or equal to the length of the buffer you passed in for that I/O but
-you're saying that it's greater? Are you sure you've got the ev->res
-you're looking at matches to the I/O you're checking against? Or was
-that a typo?
-
-> So I was surprised to find the io_u->xfer_buflen value (or in my case, th=
-e struct iocb.u.c.nbytes value) less than what it was set to in io_prep_pwr=
-ite().  Do you know what might be causing this?
-
-If ev->res is LESS than io_u->xfer_buflen then you have a short I/O
-which happens when less I/O than you wanted is serviced. I actually
-gave an example of when this could happen originally:
-
-> On 4/3/17, 11:17 PM, "Sitsofe Wheeler" <sitsofe@gmail.com> wrote:
->
->     On 4 April 2017 at 01:48, Scott Forman (scforman) <scforman@cisco.com=
-> wrote:
->     >
->     > In looking further at fio_libaio_event(), I am wondering if it is p=
-ossible to get the errno value if one of the events have an error (i.e. if =
-ev->res !=3D io_u->xfer_buflen).
->
-[...]
->
->     > Also, if ev->res is less than io_u->xfer_buflen, then io_u->resid i=
-s set to (io_u->xfer_buflen - ev->res).  Does that mean that there will be =
-another attempt to write out the io_u->resid bytes?
->
->     Not necessarily. For example what happens if you *perform a write tha=
-t
->     goes past the end of the file* [emphasis added] - would you want to r=
-etry that even
->     though it returned back as being short? Is the fact it came back shor=
-t
->     a definite error?
-
-You may also find https://github.com/littledan/linux-aio handy if very
-C++ oriented.
-
---=20
-Sitsofe | http://sucs.org/~sits/
+SGkgU2l0c29mZSwgQW5kcmV5IGFuZCBmaW8gbWFpbGluZyBsaXN0LA0KDQpUaGFua3MgYWdhaW4g
+Zm9yIHlvdXIgcGFzdCBoZWxwIQ0KDQpJIGFtIHJ1bm5pbmcgaW50byBhIG5ldyBwcm9ibGVtIHdo
+ZW4gSSBjaGVjayBmb3Igd3JpdGUgZXJyb3JzIGFmdGVyIGNhbGxpbmcgaW9fZ2V0ZXZlbnRzKCkg
+dGhhdCBJIGFtIGhvcGluZyB5b3UgY2FuIGhlbHAgbWUgb3V0IHdpdGguDQoNCkNvbXBhcmluZyBp
+dCB0byB5b3VyIGZ1bmN0aW9uIGZpb19saWJhaW9fZXZlbnQoKSBpbiBlbmdpbmVzL2xpYmFpby5j
+LCBJIGFtIGZpbmRpbmcgdGhhdCAgKGV2LT5yZXMgIT0gaW9fdS0+eGZlcl9idWZsZW4pIGFuZCB0
+aGF0IChldi0+cmVzID4gaW9fdS0+eGZlcl9idWZsZW4pLiAgIFRoZSB2YWx1ZSBvZiBldi0+cmVz
+LCB3aGljaCBJIGJlbGlldmUgaXMgdGhlIHJlc3VsdCBvZiB0aGUgd3JpdGUsIGlzIGVxdWFsIHRv
+IHRoZSB2YWx1ZSBvZiB0aGUgY291bnQgcGFyYW1ldGVyIHBhc3NlZCB0byBpb19wcmVwX3B3cml0
+ZSgpLCBzbyBpdCBzZWVtcyBsaWtlIHRoZSB3cml0ZSBzdWNjZWVkZWQuICANCg0KU28gSSB3YXMg
+c3VycHJpc2VkIHRvIGZpbmQgdGhlIGlvX3UtPnhmZXJfYnVmbGVuIHZhbHVlIChvciBpbiBteSBj
+YXNlLCB0aGUgc3RydWN0IGlvY2IudS5jLm5ieXRlcyB2YWx1ZSkgbGVzcyB0aGFuIHdoYXQgaXQg
+d2FzIHNldCB0byBpbiBpb19wcmVwX3B3cml0ZSgpLiAgRG8geW91IGtub3cgd2hhdCBtaWdodCBi
+ZSBjYXVzaW5nIHRoaXM/DQoNClRoYW5rcywNClNjb3R0DQoNCg0KDQpPbiA0LzMvMTcsIDExOjE3
+IFBNLCAiU2l0c29mZSBXaGVlbGVyIiA8c2l0c29mZUBnbWFpbC5jb20+IHdyb3RlOg0KDQogICAg
+SGkgU2NvdHQsDQogICAgDQogICAgWW91IG1pZ2h0IGZpbmQgaHR0cHM6Ly93d3cuZnNsLmNzLnN1
+bnlzYi5lZHUvfnZhc3MvbGludXgtYWlvLnR4dCB1c2VmdWwuLi4NCiAgICANCiAgICBPbiA0IEFw
+cmlsIDIwMTcgYXQgMDE6NDgsIFNjb3R0IEZvcm1hbiAoc2Nmb3JtYW4pIDxzY2Zvcm1hbkBjaXNj
+by5jb20+IHdyb3RlOg0KICAgID4NCiAgICA+IEluIGxvb2tpbmcgZnVydGhlciBhdCBmaW9fbGli
+YWlvX2V2ZW50KCksIEkgYW0gd29uZGVyaW5nIGlmIGl0IGlzIHBvc3NpYmxlIHRvIGdldCB0aGUg
+ZXJybm8gdmFsdWUgaWYgb25lIG9mIHRoZSBldmVudHMgaGF2ZSBhbiBlcnJvciAoaS5lLiBpZiBl
+di0+cmVzICE9IGlvX3UtPnhmZXJfYnVmbGVuKS4NCiAgICANCiAgICBOb3RlIHRoaXMgaGFuZGxl
+cyBvbmUgdHlwZSBvZiBlcnJvciAtIHRoZSBjYXNlIHdoZXJlIHRoZSBJL08gd2FzDQogICAgYWNj
+ZXB0ZWQgYXQgc3VibWlzc2lvbiB0aW1lIGJ1dCBmb3Igc29tZSByZWFzb24gd2hlbiBpdCBjb21w
+bGV0ZWQgaXQNCiAgICB3YXMgc2hvcnQgb3IgdG9vIGxvbmcoPykuIEFzIGFsbHVkZWQgdG8sIGVy
+cm9ycyBjYW4gYWxzbyBiZSByZXR1cm5lZA0KICAgIGF0IHN1Ym1pc3Npb24gdGltZS4gSXQncyBh
+bHNvIHNlbnNpYmxlIHRvIGNoZWNrIHRoYXQgaW9fZ2V0ZXZlbnRzDQogICAgaGFzbid0IGVycm9y
+ZWQgdG9vLg0KICAgIA0KICAgID4gSSBzZWUgdGhhdCBpb191LT5lcnJvciBpcyBzZXQgdG8g4oCT
+ZXYtPnJlcyBpZiBldi0+cmVzIGlzIGdyZWF0ZXIgdGhhbiBpb191LT54ZmVyX2J1Zmxlbi4gIEJ1
+dCBzaW5jZSBteSBpb191LT54ZmVyX2J1ZmxlbiBpcyBhIGxhcmdlIHZhbHVlLCBJIGFtIGd1ZXNz
+aW5nIHRoYXQgdGhpcyBpcyBub3QgdGhlIGVycm5vIHZhbHVlIHRoYXQgY2F1c2VkIHRoZSBlcnJv
+ci4gIElzIHRoYXQgdHJ1ZT8NCiAgICANCiAgICBUaGlzIGlzbid0IGEgdHJ1ZSBlcnJubyBidXQg
+cmF0aGVyIGlzIGEgc3ludGhlc2l6ZWQgZmlvIGVycm9yIC0gSQ0KICAgIGd1ZXNzIHRoaXMgaXMg
+ZmlvIGNoZWNraW5nIHRoYXQgaXQgaGFzbid0IGFza2VkIHRvIHN0b3JlIG1vcmUgdGhhbiBpdA0K
+ICAgIGFsbG9jYXRlZCBzcGFjZSBmb3IgYW5kIHRyeWluZyB0byBpbmRpY2F0ZSB0aGF0IGl0J3Mg
+YW4gZXJyb3IgaWYgdGhpcw0KICAgIHdlcmUgdG8gaGFwcGVuLg0KICAgIA0KICAgID4gQWxzbywg
+aWYgZXYtPnJlcyBpcyBsZXNzIHRoYW4gaW9fdS0+eGZlcl9idWZsZW4sIHRoZW4gaW9fdS0+cmVz
+aWQgaXMgc2V0IHRvIChpb191LT54ZmVyX2J1ZmxlbiAtIGV2LT5yZXMpLiAgRG9lcyB0aGF0IG1l
+YW4gdGhhdCB0aGVyZSB3aWxsIGJlIGFub3RoZXIgYXR0ZW1wdCB0byB3cml0ZSBvdXQgdGhlIGlv
+X3UtPnJlc2lkIGJ5dGVzPw0KICAgIA0KICAgIE5vdCBuZWNlc3NhcmlseS4gRm9yIGV4YW1wbGUg
+d2hhdCBoYXBwZW5zIGlmIHlvdSBwZXJmb3JtIGEgd3JpdGUgdGhhdA0KICAgIGdvZXMgcGFzdCB0
+aGUgZW5kIG9mIHRoZSBmaWxlIC0gd291bGQgeW91IHdhbnQgdG8gcmV0cnkgdGhhdCBldmVuDQog
+ICAgdGhvdWdoIGl0IHJldHVybmVkIGJhY2sgYXMgYmVpbmcgc2hvcnQ/IElzIHRoZSBmYWN0IGl0
+IGNhbWUgYmFjayBzaG9ydA0KICAgIGEgZGVmaW5pdGUgZXJyb3I/DQogICAgDQogICAgLS0gDQog
+ICAgU2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9yZy9+c2l0cy8NCiAgICANCg0K
