@@ -1,99 +1,71 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa6.hgst.iphmx.com ([216.71.154.45]:40615 "EHLO
-        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752896AbdJUAN4 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 20 Oct 2017 20:13:56 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: RE: fio offset with ba
-Date: Sat, 21 Oct 2017 00:13:52 +0000
-Message-ID: <BN3PR0401MB14573713E0FDB73C2E788A9B8F400@BN3PR0401MB1457.namprd04.prod.outlook.com>
-References: <BN3PR0401MB145727ED714B57825C91A8E78F430@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <CALjAwxiXzC8ar21smWAOMadiAUSqeLECNpu1ZzTvc2t1e20VXg@mail.gmail.com>
-In-Reply-To: <CALjAwxiXzC8ar21smWAOMadiAUSqeLECNpu1ZzTvc2t1e20VXg@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-ua0-f181.google.com ([209.85.217.181]:50815 "EHLO
+        mail-ua0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751837AbdJTVBm (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 20 Oct 2017 17:01:42 -0400
+Received: by mail-ua0-f181.google.com with SMTP id v27so9204101uav.7
+        for <fio@vger.kernel.org>; Fri, 20 Oct 2017 14:01:41 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <BN3PR0401MB145727ED714B57825C91A8E78F430@BN3PR0401MB1457.namprd04.prod.outlook.com>
+References: <BN3PR0401MB145727ED714B57825C91A8E78F430@BN3PR0401MB1457.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Fri, 20 Oct 2017 22:01:10 +0100
+Message-ID: <CALjAwxiXzC8ar21smWAOMadiAUSqeLECNpu1ZzTvc2t1e20VXg@mail.gmail.com>
+Subject: Re: fio offset with ba
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Jeff Furlong <jeff.furlong@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-WWVzLCB0aGUgYml0cyBhcm91bmQgbGluZSA4NDUgc2hvdyB0aGUgbWluKCkgYmVpbmcgdXNlZC4g
-IEl0IHNlZW1zIGdldF9zdGFydF9vZmZzZXQoKSBpcyB1c2VkIGZvciB0aGUgZmlyc3QgSU8gYW5k
-IHN1YnNlcXVlbnQgSU8ncywgbWFraW5nIHRoaW5ncyBkaWZmaWN1bHQuICBJIGJlbGlldmUgdGhl
-IGNvcnJlY3QgZml4IGhlcmUgd291bGQgYmUgdG8gc2V0IHRoZSBiYSBzcGVjaWZpYyB0byB0aGUg
-aW8gdHlwZS4gIFRoZSBiYSBwYXJhbWV0ZXIgYWxsb3dzIGZvciByZWFkL3dyaXRlL3RyaW0gYWxp
-Z25tZW50cy4gIFNvIGlmIGlvX3UtPmRkaXI9PURESVJfUkVBRCB0aGVuIHdlIGNvdWxkIGp1c3Qg
-YWxpZ24gdG8gby0+YmFbRERJUl9SRUFEXS4gIEJ1dCBJIGRvbid0IHNlZSBob3cgd2Ugd291bGQg
-YWNjZXNzIGlvX3UgYXQgdGhpcyBwb2ludCwgd2UgZG9uJ3Qga25vdyBvZiB0aGUgcG90ZW50aWFs
-IGlvX3UgYXQgdGhpcyB0aW1lPyAgSXQgY291bGQgYmUgYSBtaXhlZCByZWFkL3dyaXRlL3RyaW0u
-DQoNCkxhY2tpbmcgdGhhdCwgYnJ1dGUgZm9yY2Ugd291bGQgc3VnZ2VzdDoNCg0KCQlpZiAoZmlv
-X29wdGlvbl9pc19zZXQobywgYmEpKSB7CQ0KCQkJYWxpZ25fYnMgPSAodW5zaWduZWQgbG9uZyBs
-b25nKSBvLT5iYVtERElSX1JFQURdOw0KCQkJaWYoby0+YmFbRERJUl9SRUFEXSAhPSBvLT5iYVtE
-RElSX1dSSVRFXSkNCgkJCQlhbGlnbl9icyA9ICh1bnNpZ25lZCBsb25nIGxvbmcpIG8tPmJhW0RE
-SVJfUkVBRF0gKiAodW5zaWduZWQgbG9uZyBsb25nKSBvLT5iYVtERElSX1dSSVRFXTsNCgkJCWlm
-KGFsaWduX2JzICE9ICh1bnNpZ25lZCBsb25nIGxvbmcpIG8tPmJhW0RESVJfVFJJTV0pDQoJCQkJ
-YWxpZ25fYnMgPSBhbGlnbl9icyAqICh1bnNpZ25lZCBsb25nIGxvbmcpIG8tPmJhW0RESVJfVFJJ
-TV07DQoNCkJ1dCBJIHNlZSBhbm90aGVyIHByb2JsZW0gaW4gdGhhdCBvLT5iYVtERElSX1JFQURd
-IGlzIG5vdCBzZXQgZm9yIHNlcXVlbnRpYWwgd29ya2xvYWRzLiAgSW4gZml4dXBfb3B0aW9ucygp
-IHdlIGhhdmU6DQoNCglpZiAoIW8tPmJhW0RESVJfUkVBRF0gfHwgIXRkX3JhbmRvbSh0ZCkpDQoJ
-CW8tPmJhW0RESVJfUkVBRF0gPSBvLT5taW5fYnNbRERJUl9SRUFEXTsNCglpZiAoIW8tPmJhW0RE
-SVJfV1JJVEVdIHx8ICF0ZF9yYW5kb20odGQpKQ0KCQlvLT5iYVtERElSX1dSSVRFXSA9IG8tPm1p
-bl9ic1tERElSX1dSSVRFXTsNCglpZiAoIW8tPmJhW0RESVJfVFJJTV0gfHwgIXRkX3JhbmRvbSh0
-ZCkpDQoJCW8tPmJhW0RESVJfVFJJTV0gPSBvLT5taW5fYnNbRERJUl9UUklNXTsNCg0KSSBkb24n
-dCBmb2xsb3cgdGhhdCBjb2RlLCBvdGhlciB0aGFuIGlmIHNlcXVlbnRpYWwsIHNldCBiYSB0byBt
-aW5fYnM/ICBJZiB3ZSByZW1vdmUgdGhhdCBjb2RlIGFuZCB1c2UgYWJvdmUgY2hhbmdlLCB3ZSBj
-YW4gZ2V0IHRoZSBzdGFydGluZyBMQkEgdG8gYmUgYWxpZ25lZCB0byB0aGUgYmEgaW4gdGhlIGNh
-c2Ugb2YgDQoNCmZpbyAtLW5hbWU9dGVzdF9qb2IgLS1pb2VuZ2luZT1saWJhaW8gLS1kaXJlY3Q9
-MSAtLXJ3PXJlYWQgLS1pb2RlcHRoPTEgLS1zaXplPTEwMCUgLS1icz00ayAtLWZpbGVuYW1lPS9k
-ZXYvbnZtZTFuMSAtLW51bWJlcl9pb3M9OCAtLW9mZnNldD01MCUgLS1sb2dfb2Zmc2V0PTEgLS13
-cml0ZV9pb3BzX2xvZz10ZXN0X2pvYiAtLWJhPThrDQoNCiMgY2F0IHRlc3Rfam9iX2lvcHMuMS5s
-b2cNCjAsIDEsIDAsIDQwOTYsIDE2MDAzMTU4OTk5MDQNCg0KSXQgc2VlbXMgdG8gYmUgYSBoYWNr
-LCBzbyBJIGRpZG4ndCBjcmVhdGUgYSBwYXRjaCBmb3IgaXQuICBXb3VsZCBsaWtlIHRvIGJldHRl
-ciB1bmRlcnN0YW5kIHdoYXQgSSdtIG1pc3NpbmcgYmVmb3JlIGJyZWFraW5nIHNvbWV0aGluZy4N
-Cg0KVGhhbmtzLg0KDQpSZWdhcmRzLA0KSmVmZg0KDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0t
-LS0tDQpGcm9tOiBTaXRzb2ZlIFdoZWVsZXIgW21haWx0bzpzaXRzb2ZlQGdtYWlsLmNvbV0gDQpT
-ZW50OiBGcmlkYXksIE9jdG9iZXIgMjAsIDIwMTcgMjowMSBQTQ0KVG86IEplZmYgRnVybG9uZyA8
-amVmZi5mdXJsb25nQHdkYy5jb20+DQpDYzogZmlvQHZnZXIua2VybmVsLm9yZw0KU3ViamVjdDog
-UmU6IGZpbyBvZmZzZXQgd2l0aCBiYQ0KDQpIaSwNCg0KT24gMjAgT2N0b2JlciAyMDE3IGF0IDIw
-OjA4LCBKZWZmIEZ1cmxvbmcgPGplZmYuZnVybG9uZ0B3ZGMuY29tPiB3cm90ZToNCj4NCj4gSSBk
-b24ndCBxdWl0ZSBmb2xsb3cgdGhlIGxvZ2ljIGluIHRoZSBjYWxjdWxhdGUgb2Zmc2V0IGZ1bmN0
-aW9uLiAgVGhlIG9mZnNldCBwYXJhbWV0ZXIgcmVjZW50bHkgYWxsb3dzIGEgcGVyY2VudGFnZS4g
-IFN1cHBvc2Ugd2Ugc2V0IGl0IHRvIDUwJSBhbmQgd2FudCB0byBibG9jayBhbGlnbiB0aGUgSU8n
-cyBzdGFydGluZyBhdCA1MCUgb2YgZGV2aWNlIGNhcGFjaXR5LCB0aGVuIGJsb2NrIGFsaWduZWQg
-dG8gOEtCLg0KPg0KPiAjIGZpbyAtdmVyc2lvbg0KPiBmaW8tMy4xLTYwLWc3MWFhDQo+DQo+ICMg
-YmxvY2tkZXYgLS1nZXRzaXplNjQgL2Rldi9udm1lMW4xDQo+IDMyMDA2MzE3OTE2MTYNCj4NCj4g
-IyBmaW8gLS1uYW1lPXRlc3Rfam9iIC0taW9lbmdpbmU9bGliYWlvIC0tZGlyZWN0PTEgLS1ydz1y
-ZWFkIA0KPiAtLWlvZGVwdGg9MSAtLXNpemU9MTAwJSAtLWJzPTRrIC0tZmlsZW5hbWU9L2Rldi9u
-dm1lMW4xIC0tcnVudGltZT0xcyANCj4gLS1vZmZzZXQ9NTAlIC0tbG9nX29mZnNldD0xIC0td3Jp
-dGVfaW9wc19sb2c9dGVzdF9qb2IgLS1iYT04aw0KPg0KPiAjIGNhdCB0ZXN0X2pvYl9pb3BzLjEu
-bG9nDQo+IDAsIDEsIDAsIDQwOTYsIDE2MDAzMTU4OTU4MDgNCj4gMCwgMSwgMCwgNDA5NiwgMTYw
-MDMxNTg5OTkwNA0KPiAwLCAxLCAwLCA0MDk2LCAxNjAwMzE1OTA0MDAwDQo+IDAsIDEsIDAsIDQw
-OTYsIDE2MDAzMTU5MDgwOTYNCj4NCj4gU28gd2UgY2FuIHNlZSB0aGUgZGV2aWNlIGhhcyAzMjAw
-NjMxNzkxNjE2IGJ5dGVzLCA1MCUgb2Ygd2hpY2ggaXMgDQo+IDE2MDAzMTU4OTU4MDggYnl0ZXMs
-IHdoaWNoIGhhcHBlbnMgdG8gYmUgNEtCIGFsaWduZWQsIGJ1dCBub3QgOEtCIA0KPiBhbGlnbmVk
-LiAgRXZlbiB0aG91Z2ggd2Ugc2V0IHRoZSAtLWJhPThrIHBhcmFtZXRlciwgdGhlIG9mZnNldCBM
-QkEgYXMgDQo+IGxvZ2dlZCBpbiB0aGUgaW9wcy4xLmxvZyBzaG93cw0KDQpIbW0gSSBzZWUgdGhl
-IHNhbWUgcHJvYmxlbSB3aXRoIHRoaXMgam9iOg0KZmlvIC0tbmFtZT10ZXN0X2pvYiAtLWlvZW5n
-aW5lPW51bGwgLS1ydz1yZWFkIC0taW9kZXB0aD0xDQotLXNpemU9MzIwMDYzMTc5MTYxNiAtLWJz
-PTRrIC0tbnVtYmVyX2lvcz0xIC0tb2Zmc2V0PTUwJSAtLWJhPThrIC0tZGVidWc9aW8NCg0KWy4u
-Ll0NCmlvICAgICAgIDE1MDEzIGZpbGxfaW9fdTogaW9fdSAweDIzNmFkODA6DQpvZmY9MTYwMDMx
-NTg5NTgwOC9sZW49NDA5Ni9kZGlyPTBpbyAgICAgICAxNTAxMyAvdGVzdF9qb2IuMC4waW8NCjE1
-MDEzDQoNCkkgdGhpbmsgeW91ciBndWVzcyBhYm91dCBvbmx5IGltcGFjdGluZyByYW5kb20gSS9P
-IGlzIHByb2JhYmx5IHJpZ2h0IGJlY2F1c2UgZmlvIC0tbmFtZT10ZXN0X2pvYiAtLXJhbmRyZXBl
-YXQ9MCAtLWlvZW5naW5lPW51bGwgLS1ydz1yYW5kcmVhZA0KLS1pb2RlcHRoPTEgLS1zaXplPTMy
-MDA2MzE3OTE2MTYgLS1icz00ayAtLW51bWJlcl9pb3M9MSAtLW9mZnNldD01MCUgLS1iYT04ayAt
-LWRlYnVnPWlvDQoNCnBpY2tzIG9mZnNldHMgdGhhdCBhcmUgOGsgYWxpZ25lZC4NCg0KPiA0S0Ig
-YWxpZ25tZW50LiAgRG9lcyAtLWJhIHdvcmsgZm9yIGFsbCBJTydzIG9yIG9ubHkgcmFuZG9tIElP
-J3M/ICBJZiBhbGwsIGRvZXMgZ2V0X3N0YXJ0X29mZnNldCgpIGNvbnRyb2wgdGhlIHJhdyBvZmZz
-ZXQgdmFsdWU/ICBJIGRvbid0IHNlZSB3aHkgdGhlIG1pbihiYSwgYnMpIGlzIHVzZWQgaW4gdGhl
-IGNhbGN1bGF0aW9uLCBidXQgcGVyaGFwcyBJIGFtIG1pc3Npbmcgc29tZXRoaW5nLiAgVGhhbmtz
-Lg0KDQpXaGVyZSBpcyBtaW4oYmEsIGJzKSBkb25lIC0gZG8geW91IG1lYW4gdGhlIGJpdHMgYXJv
-dW5kIGh0dHBzOi8vZ2l0aHViLmNvbS9heGJvZS9maW8vY29tbWl0Lzg5OTc4YTZiMjZmODFiZGJk
-NjMyMjhlMmUyYTg2ZjYwNGVlNDZjNTYjZGlmZi00YWJiZjAzNzI0NmRkMmU0NTBkYzNmNmEyYWM3
-NzE4MFI4NDU/DQpJIGFncmVlIHlvdSBwcm9iYWJseSB3YW50IHRvIHRha2UgdGhlIG1heGltdW0g
-b2YgYWxsIHRoZSBibG9jayBhbGlnbm1lbnRzIGJ1dCB3aGF0IGlmIG9uZSBvZiB0aGUgc21hbGxl
-ciBvbmVzIGlzIG5vdCBhIG11bHRpcGxlIG9mIHRoZSBsYXJnZXN0IG9uZT8NCg0KV291bGQgeW91
-IGxpa2UgdG8gcHJvcG9zZSBhIHBhdGNoPw0KDQotLQ0KU2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9y
-Zy9+c2l0cy8NCg==
+Hi,
+
+On 20 October 2017 at 20:08, Jeff Furlong <jeff.furlong@wdc.com> wrote:
+>
+> I don't quite follow the logic in the calculate offset function.  The offset parameter recently allows a percentage.  Suppose we set it to 50% and want to block align the IO's starting at 50% of device capacity, then block aligned to 8KB.
+>
+> # fio -version
+> fio-3.1-60-g71aa
+>
+> # blockdev --getsize64 /dev/nvme1n1
+> 3200631791616
+>
+> # fio --name=test_job --ioengine=libaio --direct=1 --rw=read --iodepth=1 --size=100% --bs=4k --filename=/dev/nvme1n1 --runtime=1s --offset=50% --log_offset=1 --write_iops_log=test_job --ba=8k
+>
+> # cat test_job_iops.1.log
+> 0, 1, 0, 4096, 1600315895808
+> 0, 1, 0, 4096, 1600315899904
+> 0, 1, 0, 4096, 1600315904000
+> 0, 1, 0, 4096, 1600315908096
+>
+> So we can see the device has 3200631791616 bytes, 50% of which is 1600315895808 bytes, which happens to be 4KB aligned, but not 8KB aligned.  Even though we set the --ba=8k parameter, the offset LBA as logged in the iops.1.log shows
+
+Hmm I see the same problem with this job:
+fio --name=test_job --ioengine=null --rw=read --iodepth=1
+--size=3200631791616 --bs=4k --number_ios=1 --offset=50% --ba=8k
+--debug=io
+
+[...]
+io       15013 fill_io_u: io_u 0x236ad80:
+off=1600315895808/len=4096/ddir=0io       15013 /test_job.0.0io
+15013
+
+I think your guess about only impacting random I/O is probably right because
+fio --name=test_job --randrepeat=0 --ioengine=null --rw=randread
+--iodepth=1 --size=3200631791616 --bs=4k --number_ios=1 --offset=50%
+--ba=8k --debug=io
+
+picks offsets that are 8k aligned.
+
+> 4KB alignment.  Does --ba work for all IO's or only random IO's?  If all, does get_start_offset() control the raw offset value?  I don't see why the min(ba, bs) is used in the calculation, but perhaps I am missing something.  Thanks.
+
+Where is min(ba, bs) done - do you mean the bits around
+https://github.com/axboe/fio/commit/89978a6b26f81bdbd63228e2e2a86f604ee46c56#diff-4abbf037246dd2e450dc3f6a2ac77180R845?
+I agree you probably want to take the maximum of all the block
+alignments but what if one of the smaller ones is not a multiple of
+the largest one?
+
+Would you like to propose a patch?
+
+-- 
+Sitsofe | http://sucs.org/~sits/
