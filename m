@@ -1,139 +1,158 @@
-Return-Path: <prvs=462a3ed8c=jeff.furlong@wdc.com>
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: RE: fio offset with ba
-Date: Mon, 23 Oct 2017 23:56:13 +0000
-Message-ID: <BN3PR0401MB145769A64E51418B320209ED8F460@BN3PR0401MB1457.namprd04.prod.outlook.com>
-References: <BN3PR0401MB145727ED714B57825C91A8E78F430@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <CALjAwxiXzC8ar21smWAOMadiAUSqeLECNpu1ZzTvc2t1e20VXg@mail.gmail.com>
- <BN3PR0401MB14573713E0FDB73C2E788A9B8F400@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <CALjAwxiXinxTL6jeSNNoMCmu5--5CKBdWapSX-hOQ2+KYCJ6Ng@mail.gmail.com>
-In-Reply-To: <CALjAwxiXinxTL6jeSNNoMCmu5--5CKBdWapSX-hOQ2+KYCJ6Ng@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+In-Reply-To: <BN3PR0401MB14573713E0FDB73C2E788A9B8F400@BN3PR0401MB1457.namprd04.prod.outlook.com>
+References: <BN3PR0401MB145727ED714B57825C91A8E78F430@BN3PR0401MB1457.namprd04.prod.outlook.com>
+ <CALjAwxiXzC8ar21smWAOMadiAUSqeLECNpu1ZzTvc2t1e20VXg@mail.gmail.com> <BN3PR0401MB14573713E0FDB73C2E788A9B8F400@BN3PR0401MB1457.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 21 Oct 2017 05:21:39 +0100
+Message-ID: <CALjAwxiXinxTL6jeSNNoMCmu5--5CKBdWapSX-hOQ2+KYCJ6Ng@mail.gmail.com>
+Subject: Re: fio offset with ba
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+To: Jeff Furlong <jeff.furlong@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-PkhtbSwNCj4NCj5JIHNlZSBhIGZldyBjaG9pY2VzIGZvciB0cnlpbmcgdG8gc29sdmUgYWxpZ25t
-ZW50IG9mIHRoZSBvZmZzZXQgYW5kIGZvcmNlZCBhbGlnbm1lbnQgb2Ygc2VxdWVudGlhbCBibG9j
-a3M6DQo+KiBJbnRyb2R1Y2UgYW4gIm9mZnNldF9hbGlnbiIgb3B0aW9uIHNvbGVseSBmb3IgYWxp
-Z25pbmcgdGhlICJpbml0aWFsIg0KPm9mZnNldCBhbmQgc3RvcCB0cnlpbmcgdG8gdXNlIGJsb2Nr
-YWxpZ24gaW4gdGhlIG9mZnNldC4gRG9jdW1lbnQgaXQgd2VsbCB0byBzdG9wIGNvbmZ1c2lvbiB3
-aXRoIGJsb2NrYWxpZ24uDQo+KiBEb2N1bWVudCBibG9ja2FsaWduIGFzIE9OTFkgd29ya2luZyBm
-b3IgcmFuZG9tIEkvTyBvcg0KPiogRG8gYmxvY2thbGlnbiBmb3Igc2VxdWVudGlhbCBJL08gb24g
-YSBwZXIgSS9PIGJhc2lzIChwb3RlbnRpYWxseSBjcmVhdGluZyBnYXBweSBJL08pLiBUaGlzIGlz
-IGFsc28gdGhlIHJlcXVlc3QgZnJvbQ0KPmh0dHBzOi8vZ2l0aHViLmNvbS9heGJvZS9maW8vaXNz
-dWVzLzM0MSAuIFRlY2huaWNhbGx5IHRoaXMgaXMgaGFzIGEgYmlnIG92ZXJsYXAgd2l0aCB6b25l
-ZCBJL08gYW5kIHRoZSBleGlzdGluZyAiZ2VuZXJhdGVkIG9mZnNldCIgdXNlZCBpbiBydyA+b3B0
-aW9uIGJ1dCBwZXJoYXBzIGl0J3MganVzdCBkaWZmZXJlbnQgZW5vdWdoIHRvIGJlIGp1c3RpZmll
-ZD8NCj4NCj5UaG91Z2h0cz8NCg0KSSB0cmllZCB0aGUgZmlyc3QgYXBwcm9hY2guICBTZWNvbmQg
-YXBwcm9hY2ggc2VlbXMgc2V0IG9uIHJhbmRvbSBJL08gYWxyZWFkeS4gIFRoaXJkIGFwcHJvYWNo
-IHNlZW1zIHByb2JsZW1hdGljIHdpdGggZ2FwcHkgSS9PLCB1bmxlc3MgeW91IHJlYWxseSB3YW50
-IHRvIHNraXAgc29tZSBMQkFzIChwb3NzaWJsZSwganVzdCBub3QgbXkgaW50ZW50aW9uIG9uIHRo
-aXMgd29ya2xvYWQpLg0KDQojIGZpbyAtLW5hbWU9dGVzdF9qb2IgLS1pb2VuZ2luZT1saWJhaW8g
-LS1kaXJlY3Q9MSAtLXJ3PXJlYWQgLS1pb2RlcHRoPTEgLS1zaXplPTEwMCUgLS1icz00ayAtLWZp
-bGVuYW1lPS9kZXYvbnZtZTFuMSAtLW51bWJlcl9pb3M9OCAtLW9mZnNldD01MCUgLS1sb2dfb2Zm
-c2V0PTEgLS13cml0ZV9pb3BzX2xvZz10ZXN0X2pvYiAtLW9mZnNldF9hbGlnbj04aw0KDQojIGNh
-dCB0ZXN0X2pvYl9pb3BzLjEubG9nIA0KMCwgMSwgMCwgNDA5NiwgMTYwMDMxNTg5OTkwNA0KMCwg
-MSwgMCwgNDA5NiwgMTYwMDMxNTkwNDAwMA0KMCwgMSwgMCwgNDA5NiwgMTYwMDMxNTkwODA5Ng0K
-MCwgMSwgMCwgNDA5NiwgMTYwMDMxNTkxMjE5Mg0KMCwgMSwgMCwgNDA5NiwgMTYwMDMxNTkxNjI4
-OA0KMCwgMSwgMCwgNDA5NiwgMTYwMDMxNTkyMDM4NA0KMCwgMSwgMCwgNDA5NiwgMTYwMDMxNTky
-NDQ4MA0KMCwgMSwgMCwgNDA5NiwgMTYwMDMxNTkyODU3Ng0KDQoNCg0KZGlmZiAtLWdpdCBhL0hP
-V1RPIGIvSE9XVE8NCmluZGV4IDIyYTU4NDkuLmM2MTFmYWUgMTAwNjQ0DQotLS0gYS9IT1dUTw0K
-KysrIGIvSE9XVE8NCkBAIC0xMTI4LDEzICsxMTI4LDE5IEBAIEkvTyB0eXBlDQogLi4gb3B0aW9u
-Ojogb2Zmc2V0PWludA0KIA0KIAlTdGFydCBJL08gYXQgdGhlIHByb3ZpZGVkIG9mZnNldCBpbiB0
-aGUgZmlsZSwgZ2l2ZW4gYXMgZWl0aGVyIGEgZml4ZWQgc2l6ZSBpbg0KLQlieXRlcyBvciBhIHBl
-cmNlbnRhZ2UuIElmIGEgcGVyY2VudGFnZSBpcyBnaXZlbiwgdGhlIG5leHQgYGBibG9ja2FsaWdu
-YGAtZWQNCisJYnl0ZXMgb3IgYSBwZXJjZW50YWdlLiBJZiBhIHBlcmNlbnRhZ2UgaXMgZ2l2ZW4s
-IHRoZSBuZXh0IGBgYnNgYCBgYGJsb2NrYWxpZ25gYC1lZA0KIAlvZmZzZXQgd2lsbCBiZSB1c2Vk
-LiBEYXRhIGJlZm9yZSB0aGUgZ2l2ZW4gb2Zmc2V0IHdpbGwgbm90IGJlIHRvdWNoZWQuIFRoaXMN
-CiAJZWZmZWN0aXZlbHkgY2FwcyB0aGUgZmlsZSBzaXplIGF0IGByZWFsX3NpemUgLSBvZmZzZXRg
-LiBDYW4gYmUgY29tYmluZWQgd2l0aA0KIAk6b3B0aW9uOmBzaXplYCB0byBjb25zdHJhaW4gdGhl
-IHN0YXJ0IGFuZCBlbmQgcmFuZ2Ugb2YgdGhlIEkvTyB3b3JrbG9hZC4NCiAJQSBwZXJjZW50YWdl
-IGNhbiBiZSBzcGVjaWZpZWQgYnkgYSBudW1iZXIgYmV0d2VlbiAxIGFuZCAxMDAgZm9sbG93ZWQg
-YnkgJyUnLA0KIAlmb3IgZXhhbXBsZSwgYGBvZmZzZXQ9MjAlYGAgdG8gc3BlY2lmeSAyMCUuDQog
-DQorLi4gb3B0aW9uOjogb2Zmc2V0X2FsaWduPWludA0KKw0KKwlJZiBhIHByZWNlbnRhZ2Ugb2Zm
-c2V0IGlzIGdpdmVuLCB0aGUgcHJvdmlkZWQgb2Zmc2V0IGlzIGBgYmxvY2thbGlnbmBgLWVkIHRv
-DQorCXRoZSBgYGJsb2Nrc2l6ZWBgLiBUaGlzIHZhbHVlIHdpbGwgYWxpZ24gdGhlIGluaXRpYWwg
-SS9PIHRvIGEgbmV3IGFsaWdubWVudC4NCisJQXBwbGllcyB0byBzZXF1ZW50aWFsIHdvcmtsb2Fk
-cyBvbmx5Lg0KKw0KIC4uIG9wdGlvbjo6IG9mZnNldF9pbmNyZW1lbnQ9aW50DQogDQogCUlmIHRo
-aXMgaXMgcHJvdmlkZWQsIHRoZW4gdGhlIHJlYWwgb2Zmc2V0IGJlY29tZXMgYG9mZnNldCArIG9m
-ZnNldF9pbmNyZW1lbnQNCmRpZmYgLS1naXQgYS9jY29udi5jIGIvY2NvbnYuYw0KaW5kZXggZjgw
-OWZkNS4uZGMzYzRlNiAxMDA2NDQNCi0tLSBhL2Njb252LmMNCisrKyBiL2Njb252LmMNCkBAIC0x
-MDUsNiArMTA1LDcgQEAgdm9pZCBjb252ZXJ0X3RocmVhZF9vcHRpb25zX3RvX2NwdShzdHJ1Y3Qg
-dGhyZWFkX29wdGlvbnMgKm8sDQogCW8tPmZpbGVfc2l6ZV9sb3cgPSBsZTY0X3RvX2NwdSh0b3At
-PmZpbGVfc2l6ZV9sb3cpOw0KIAlvLT5maWxlX3NpemVfaGlnaCA9IGxlNjRfdG9fY3B1KHRvcC0+
-ZmlsZV9zaXplX2hpZ2gpOw0KIAlvLT5zdGFydF9vZmZzZXQgPSBsZTY0X3RvX2NwdSh0b3AtPnN0
-YXJ0X29mZnNldCk7DQorCW8tPnN0YXJ0X29mZnNldF9hbGlnbiA9IGxlNjRfdG9fY3B1KHRvcC0+
-c3RhcnRfb2Zmc2V0X2FsaWduKTsNCiAJby0+c3RhcnRfb2Zmc2V0X3BlcmNlbnQgPSBsZTMyX3Rv
-X2NwdSh0b3AtPnN0YXJ0X29mZnNldF9wZXJjZW50KTsNCiANCiAJZm9yIChpID0gMDsgaSA8IERE
-SVJfUldESVJfQ05UOyBpKyspIHsNCkBAIC01NDgsNiArNTQ5LDcgQEAgdm9pZCBjb252ZXJ0X3Ro
-cmVhZF9vcHRpb25zX3RvX25ldChzdHJ1Y3QgdGhyZWFkX29wdGlvbnNfcGFjayAqdG9wLA0KIAl0
-b3AtPmZpbGVfc2l6ZV9sb3cgPSBfX2NwdV90b19sZTY0KG8tPmZpbGVfc2l6ZV9sb3cpOw0KIAl0
-b3AtPmZpbGVfc2l6ZV9oaWdoID0gX19jcHVfdG9fbGU2NChvLT5maWxlX3NpemVfaGlnaCk7DQog
-CXRvcC0+c3RhcnRfb2Zmc2V0ID0gX19jcHVfdG9fbGU2NChvLT5zdGFydF9vZmZzZXQpOw0KKwl0
-b3AtPnN0YXJ0X29mZnNldF9hbGlnbiA9IF9fY3B1X3RvX2xlNjQoby0+c3RhcnRfb2Zmc2V0X2Fs
-aWduKTsNCiAJdG9wLT5zdGFydF9vZmZzZXRfcGVyY2VudCA9IF9fY3B1X3RvX2xlMzIoby0+c3Rh
-cnRfb2Zmc2V0X3BlcmNlbnQpOw0KIAl0b3AtPnRyaW1fYmFja2xvZyA9IF9fY3B1X3RvX2xlNjQo
-by0+dHJpbV9iYWNrbG9nKTsNCiAJdG9wLT5vZmZzZXRfaW5jcmVtZW50ID0gX19jcHVfdG9fbGU2
-NChvLT5vZmZzZXRfaW5jcmVtZW50KTsNCmRpZmYgLS1naXQgYS9maWxlc2V0dXAuYyBiL2ZpbGVz
-ZXR1cC5jDQppbmRleCA3YTYwMmQ0Li45NzUzNWU3IDEwMDY0NA0KLS0tIGEvZmlsZXNldHVwLmMN
-CisrKyBiL2ZpbGVzZXR1cC5jDQpAQCAtODY5LDEwICs4NjksMTUgQEAgdWludDY0X3QgZ2V0X3N0
-YXJ0X29mZnNldChzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBzdHJ1Y3QgZmlvX2ZpbGUgKmYpDQog
-DQogCWlmIChvLT5zdGFydF9vZmZzZXRfcGVyY2VudCA+IDApIHsNCiAJCS8qDQorCQkgKiBpZiBv
-ZmZzZXRfYWxpZ24gaXMgcHJvdmlkZWQsIHNldCBpbml0aWFsIG9mZnNldA0KKwkJICovDQorCQlp
-ZiAoZmlvX29wdGlvbl9pc19zZXQobywgc3RhcnRfb2Zmc2V0X2FsaWduKSkgew0KKwkJCWFsaWdu
-X2JzID0gby0+c3RhcnRfb2Zmc2V0X2FsaWduOw0KKwkJLyoNCiAJCSAqIGlmIGJsb2NrYWxpZ24g
-aXMgcHJvdmlkZWQsIGZpbmQgdGhlIG1pbiBhY3Jvc3MgcmVhZCwgd3JpdGUsDQogCQkgKiBhbmQg
-dHJpbQ0KIAkJICovDQotCQlpZiAoZmlvX29wdGlvbl9pc19zZXQobywgYmEpKSB7DQorCQl9IGVs
-c2UgaWYgKGZpb19vcHRpb25faXNfc2V0KG8sIGJhKSkgew0KIAkJCWFsaWduX2JzID0gKHVuc2ln
-bmVkIGxvbmcgbG9uZykgbWluKG8tPmJhW0RESVJfUkVBRF0sIG8tPmJhW0RESVJfV1JJVEVdKTsN
-CiAJCQlhbGlnbl9icyA9IG1pbigodW5zaWduZWQgbG9uZyBsb25nKSBvLT5iYVtERElSX1RSSU1d
-LCBhbGlnbl9icyk7DQogCQl9IGVsc2Ugew0KZGlmZiAtLWdpdCBhL2Zpby4xIGIvZmlvLjENCmlu
-ZGV4IDc3ODdlZjIuLjA5OGNhMmUgMTAwNjQ0DQotLS0gYS9maW8uMQ0KKysrIGIvZmlvLjENCkBA
-IC05MTMsMTMgKzkxMywxOCBAQCBzaG91bGQgYmUgYXNzb2NpYXRlZCB3aXRoIHRoZW0uDQogLlRQ
-DQogLkJJIG9mZnNldCBcZlI9XGZQaW50DQogU3RhcnQgSS9PIGF0IHRoZSBwcm92aWRlZCBvZmZz
-ZXQgaW4gdGhlIGZpbGUsIGdpdmVuIGFzIGVpdGhlciBhIGZpeGVkIHNpemUgaW4NCi1ieXRlcyBv
-ciBhIHBlcmNlbnRhZ2UuIElmIGEgcGVyY2VudGFnZSBpcyBnaXZlbiwgdGhlIG5leHQgXGZCYmxv
-Y2thbGlnblxmUlwtZWQNCitieXRlcyBvciBhIHBlcmNlbnRhZ2UuIElmIGEgcGVyY2VudGFnZSBp
-cyBnaXZlbiwgdGhlIG5leHQgXGZCYnNcZlIgXGZCYmxvY2thbGlnblxmUlwtZWQNCiBvZmZzZXQg
-d2lsbCBiZSB1c2VkLiBEYXRhIGJlZm9yZSB0aGUgZ2l2ZW4gb2Zmc2V0IHdpbGwgbm90IGJlIHRv
-dWNoZWQuIFRoaXMNCiBlZmZlY3RpdmVseSBjYXBzIHRoZSBmaWxlIHNpemUgYXQgYHJlYWxfc2l6
-ZSBcLSBvZmZzZXQnLiBDYW4gYmUgY29tYmluZWQgd2l0aA0KIFxmQnNpemVcZlIgdG8gY29uc3Ry
-YWluIHRoZSBzdGFydCBhbmQgZW5kIHJhbmdlIG9mIHRoZSBJL08gd29ya2xvYWQuDQogQSBwZXJj
-ZW50YWdlIGNhbiBiZSBzcGVjaWZpZWQgYnkgYSBudW1iZXIgYmV0d2VlbiAxIGFuZCAxMDAgZm9s
-bG93ZWQgYnkgJyUnLA0KIGZvciBleGFtcGxlLCBgb2Zmc2V0PTIwJScgdG8gc3BlY2lmeSAyMCUu
-DQogLlRQDQorLkJJIG9mZnNldF9hbGlnbiBcZlI9XGZQaW50DQorSWYgYSBwcmVjZW50YWdlIG9m
-ZnNldCBpcyBnaXZlbiwgdGhlIHByb3ZpZGVkIG9mZnNldCBpcyBcZkJibG9ja2FsaWduXGZSXC1l
-ZCB0bw0KK3RoZSBcZkJibG9ja3NpemVcZlIuIFRoaXMgdmFsdWUgd2lsbCBhbGlnbiB0aGUgaW5p
-dGlhbCBJL08gdG8gYSBuZXcgYWxpZ25tZW50Lg0KK0FwcGxpZXMgdG8gc2VxdWVudGlhbCB3b3Jr
-bG9hZHMgb25seS4NCisuVFANCiAuQkkgb2Zmc2V0X2luY3JlbWVudCBcZlI9XGZQaW50DQogSWYg
-dGhpcyBpcyBwcm92aWRlZCwgdGhlbiB0aGUgcmVhbCBvZmZzZXQgYmVjb21lcyBgXGZCb2Zmc2V0
-XGZSICsgXGZCb2Zmc2V0X2luY3JlbWVudFxmUg0KICogdGhyZWFkX251bWJlcicsIHdoZXJlIHRo
-ZSB0aHJlYWQgbnVtYmVyIGlzIGEgY291bnRlciB0aGF0IHN0YXJ0cyBhdCAwIGFuZA0KZGlmZiAt
-LWdpdCBhL29wdGlvbnMuYyBiL29wdGlvbnMuYw0KaW5kZXggZGRjYzRlNS4uYTc4MjFkNyAxMDA2
-NDQNCi0tLSBhL29wdGlvbnMuYw0KKysrIGIvb3B0aW9ucy5jDQpAQCAtMjAxOSw2ICsyMDE5LDE3
-IEBAIHN0cnVjdCBmaW9fb3B0aW9uIGZpb19vcHRpb25zW0ZJT19NQVhfT1BUU10gPSB7DQogCQku
-Z3JvdXAJPSBGSU9fT1BUX0dfSU5WQUxJRCwNCiAJfSwNCiAJew0KKwkJLm5hbWUJPSAib2Zmc2V0
-X2FsaWduIiwNCisJCS5sbmFtZQk9ICJJTyBvZmZzZXQgYWxpZ25tZW50IiwNCisJCS50eXBlCT0g
-RklPX09QVF9TVFJfVkFMLA0KKwkJLm9mZjEJPSBvZmZzZXRvZihzdHJ1Y3QgdGhyZWFkX29wdGlv
-bnMsIHN0YXJ0X29mZnNldF9hbGlnbiksDQorCQkuaGVscAk9ICJTdGFydCBJTyBmcm9tIHRoaXMg
-b2Zmc2V0IGFsaWdubWVudCIsDQorCQkuZGVmCT0gIjAiLA0KKwkJLmludGVydmFsID0gMTAyNCAq
-IDEwMjQsDQorCQkuY2F0ZWdvcnkgPSBGSU9fT1BUX0NfSU8sDQorCQkuZ3JvdXAJPSBGSU9fT1BU
-X0dfSU5WQUxJRCwNCisJfSwNCisJew0KIAkJLm5hbWUJPSAib2Zmc2V0X2luY3JlbWVudCIsDQog
-CQkubG5hbWUJPSAiSU8gb2Zmc2V0IGluY3JlbWVudCIsDQogCQkudHlwZQk9IEZJT19PUFRfU1RS
-X1ZBTCwNCmRpZmYgLS1naXQgYS90aHJlYWRfb3B0aW9ucy5oIGIvdGhyZWFkX29wdGlvbnMuaA0K
-aW5kZXggMTgxM2NkYy4uNWEwMzdiZiAxMDA2NDQNCi0tLSBhL3RocmVhZF9vcHRpb25zLmgNCisr
-KyBiL3RocmVhZF9vcHRpb25zLmgNCkBAIC03OCw2ICs3OCw3IEBAIHN0cnVjdCB0aHJlYWRfb3B0
-aW9ucyB7DQogCXVuc2lnbmVkIGxvbmcgbG9uZyBmaWxlX3NpemVfbG93Ow0KIAl1bnNpZ25lZCBs
-b25nIGxvbmcgZmlsZV9zaXplX2hpZ2g7DQogCXVuc2lnbmVkIGxvbmcgbG9uZyBzdGFydF9vZmZz
-ZXQ7DQorCXVuc2lnbmVkIGxvbmcgbG9uZyBzdGFydF9vZmZzZXRfYWxpZ247DQogDQogCXVuc2ln
-bmVkIGludCBic1tERElSX1JXRElSX0NOVF07DQogCXVuc2lnbmVkIGludCBiYVtERElSX1JXRElS
-X0NOVF07DQpAQCAtMzU1LDYgKzM1Niw3IEBAIHN0cnVjdCB0aHJlYWRfb3B0aW9uc19wYWNrIHsN
-CiAJdWludDY0X3QgZmlsZV9zaXplX2xvdzsNCiAJdWludDY0X3QgZmlsZV9zaXplX2hpZ2g7DQog
-CXVpbnQ2NF90IHN0YXJ0X29mZnNldDsNCisJdWludDY0X3Qgc3RhcnRfb2Zmc2V0X2FsaWduOw0K
-IA0KIAl1aW50MzJfdCBic1tERElSX1JXRElSX0NOVF07DQogCXVpbnQzMl90IGJhW0RESVJfUldE
-SVJfQ05UXTsNCg0KDQoNClJlZ2FyZHMsDQpKZWZmDQo=
+Hmm,
+
+I see a few choices for trying to solve alignment of the offset and
+forced alignment of sequential blocks:
+* Introduce an "offset_align" option solely for aligning the "initial"
+offset and stop trying to use blockalign in the offset. Document it
+well to stop confusion with blockalign.
+* Document blockalign as ONLY working for random I/O or
+* Do blockalign for sequential I/O on a per I/O basis (potentially
+creating gappy I/O). This is also the request from
+https://github.com/axboe/fio/issues/341 . Technically this is has a
+big overlap with zoned I/O and the existing "generated offset" used in
+rw option but perhaps it's just different enough to be justified?
+
+Thoughts?
+
+On 21 October 2017 at 01:13, Jeff Furlong <jeff.furlong@wdc.com> wrote:
+> Yes, the bits around line 845 show the min() being used.  It seems get_st=
+art_offset() is used for the first IO and subsequent IO's, making things di=
+fficult.  I believe the correct fix here would be to set the ba specific to=
+ the io type.  The ba parameter allows for read/write/trim alignments.  So =
+if io_u->ddir=3D=3DDDIR_READ then we could just align to o->ba[DDIR_READ]. =
+ But I don't see how we would access io_u at this point, we don't know of t=
+he potential io_u at this time?  It could be a mixed read/write/trim.
+>
+> Lacking that, brute force would suggest:
+>
+>                 if (fio_option_is_set(o, ba)) {
+>                         align_bs =3D (unsigned long long) o->ba[DDIR_READ=
+];
+>                         if(o->ba[DDIR_READ] !=3D o->ba[DDIR_WRITE])
+>                                 align_bs =3D (unsigned long long) o->ba[D=
+DIR_READ] * (unsigned long long) o->ba[DDIR_WRITE];
+>                         if(align_bs !=3D (unsigned long long) o->ba[DDIR_=
+TRIM])
+>                                 align_bs =3D align_bs * (unsigned long lo=
+ng) o->ba[DDIR_TRIM];
+>
+> But I see another problem in that o->ba[DDIR_READ] is not set for sequent=
+ial workloads.  In fixup_options() we have:
+>
+>         if (!o->ba[DDIR_READ] || !td_random(td))
+>                 o->ba[DDIR_READ] =3D o->min_bs[DDIR_READ];
+>         if (!o->ba[DDIR_WRITE] || !td_random(td))
+>                 o->ba[DDIR_WRITE] =3D o->min_bs[DDIR_WRITE];
+>         if (!o->ba[DDIR_TRIM] || !td_random(td))
+>                 o->ba[DDIR_TRIM] =3D o->min_bs[DDIR_TRIM];
+>
+> I don't follow that code, other than if sequential, set ba to min_bs?  If=
+ we remove that code and use above change, we can get the starting LBA to b=
+e aligned to the ba in the case of
+>
+> fio --name=3Dtest_job --ioengine=3Dlibaio --direct=3D1 --rw=3Dread --iode=
+pth=3D1 --size=3D100% --bs=3D4k --filename=3D/dev/nvme1n1 --number_ios=3D8 =
+--offset=3D50% --log_offset=3D1 --write_iops_log=3Dtest_job --ba=3D8k
+>
+> # cat test_job_iops.1.log
+> 0, 1, 0, 4096, 1600315899904
+>
+> It seems to be a hack, so I didn't create a patch for it.  Would like to =
+better understand what I'm missing before breaking something.
+>
+> Thanks.
+>
+> Regards,
+> Jeff
+>
+>
+> -----Original Message-----
+> From: Sitsofe Wheeler [mailto:sitsofe@gmail.com]
+> Sent: Friday, October 20, 2017 2:01 PM
+> To: Jeff Furlong <jeff.furlong@wdc.com>
+> Cc: fio@vger.kernel.org
+> Subject: Re: fio offset with ba
+>
+> Hi,
+>
+> On 20 October 2017 at 20:08, Jeff Furlong <jeff.furlong@wdc.com> wrote:
+>>
+>> I don't quite follow the logic in the calculate offset function.  The of=
+fset parameter recently allows a percentage.  Suppose we set it to 50% and =
+want to block align the IO's starting at 50% of device capacity, then block=
+ aligned to 8KB.
+>>
+>> # fio -version
+>> fio-3.1-60-g71aa
+>>
+>> # blockdev --getsize64 /dev/nvme1n1
+>> 3200631791616
+>>
+>> # fio --name=3Dtest_job --ioengine=3Dlibaio --direct=3D1 --rw=3Dread
+>> --iodepth=3D1 --size=3D100% --bs=3D4k --filename=3D/dev/nvme1n1 --runtim=
+e=3D1s
+>> --offset=3D50% --log_offset=3D1 --write_iops_log=3Dtest_job --ba=3D8k
+>>
+>> # cat test_job_iops.1.log
+>> 0, 1, 0, 4096, 1600315895808
+>> 0, 1, 0, 4096, 1600315899904
+>> 0, 1, 0, 4096, 1600315904000
+>> 0, 1, 0, 4096, 1600315908096
+>>
+>> So we can see the device has 3200631791616 bytes, 50% of which is
+>> 1600315895808 bytes, which happens to be 4KB aligned, but not 8KB
+>> aligned.  Even though we set the --ba=3D8k parameter, the offset LBA as
+>> logged in the iops.1.log shows
+>
+> Hmm I see the same problem with this job:
+> fio --name=3Dtest_job --ioengine=3Dnull --rw=3Dread --iodepth=3D1
+> --size=3D3200631791616 --bs=3D4k --number_ios=3D1 --offset=3D50% --ba=3D8=
+k --debug=3Dio
+>
+> [...]
+> io       15013 fill_io_u: io_u 0x236ad80:
+> off=3D1600315895808/len=3D4096/ddir=3D0io       15013 /test_job.0.0io
+> 15013
+>
+> I think your guess about only impacting random I/O is probably right beca=
+use fio --name=3Dtest_job --randrepeat=3D0 --ioengine=3Dnull --rw=3Drandrea=
+d
+> --iodepth=3D1 --size=3D3200631791616 --bs=3D4k --number_ios=3D1 --offset=
+=3D50% --ba=3D8k --debug=3Dio
+>
+> picks offsets that are 8k aligned.
+>
+>> 4KB alignment.  Does --ba work for all IO's or only random IO's?  If all=
+, does get_start_offset() control the raw offset value?  I don't see why th=
+e min(ba, bs) is used in the calculation, but perhaps I am missing somethin=
+g.  Thanks.
+>
+> Where is min(ba, bs) done - do you mean the bits around https://github.co=
+m/axboe/fio/commit/89978a6b26f81bdbd63228e2e2a86f604ee46c56#diff-4abbf03724=
+6dd2e450dc3f6a2ac77180R845?
+> I agree you probably want to take the maximum of all the block alignments=
+ but what if one of the smaller ones is not a multiple of the largest one?
+>
+> Would you like to propose a patch?
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
+
+--=20
+Sitsofe | http://sucs.org/~sits/
 
