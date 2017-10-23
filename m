@@ -1,164 +1,53 @@
-Return-Path: <josef@toxicpanda.com>
-Return-Path: <josef@toxicpanda.com>
-From: Josef Bacik <josef@toxicpanda.com>
-Subject: [PATCH] add a filecreate engine
-Date: Fri,  6 Oct 2017 15:43:14 -0400
-Message-Id: <1507318994-8341-1-git-send-email-jbacik@fb.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-vk0-f51.google.com ([209.85.213.51]:49860 "EHLO
+        mail-vk0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751573AbdJWSrn (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 23 Oct 2017 14:47:43 -0400
+Received: by mail-vk0-f51.google.com with SMTP id r82so11771218vke.6
+        for <fio@vger.kernel.org>; Mon, 23 Oct 2017 11:47:42 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CAGjEAhugzO6y4K2426xcnyFmOvTLH+mw5BU3ofA6DNiw1Rjn2w@mail.gmail.com>
+References: <CAGjEAhugzO6y4K2426xcnyFmOvTLH+mw5BU3ofA6DNiw1Rjn2w@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Mon, 23 Oct 2017 19:47:11 +0100
+Message-ID: <CALjAwxjy9jpfQ=eci9OWJx7PyztYRRRfVrZ30PncsGr=Hu5wWQ@mail.gmail.com>
+Subject: Re: FIO workload profile for VMS Server
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: qingwei wei <tchengwee@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-This is for doing empty file creation jobs much like what we do with
-fs_mark.  You still need to specify a filesize so that fio will pretend
-to do something, but the IO won't actually be done on the file.
+Hi,
 
-Signed-off-by: Josef Bacik <jbacik@fb.com>
----
- HOWTO                |  4 +++
- Makefile             |  2 +-
- engines/filecreate.c | 89 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- fio.1                |  4 +++
- 4 files changed, 98 insertions(+), 1 deletion(-)
- create mode 100644 engines/filecreate.c
+On 23 October 2017 at 06:59, qingwei wei <tchengwee@gmail.com> wrote:
+>
+> I am currently looking at simulating IO workload for VMS server. I
+> read that usually VMS has recording server and each recording server
+> can support up to a number of IP camera. For example, if recording
+> server can support up to 150 IP cameras, does it means i will need to
+> configure 150 jobs in FIO to simulate that? And what is the typical
+> file size for the recorded video stream? Thanks.
 
-diff --git a/HOWTO b/HOWTO
-index 8fad2ce6f4d8..df79e2dffb30 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1797,6 +1797,10 @@ I/O engine
- 			absolute or relative. See :file:`engines/skeleton_external.c` for
- 			details of writing an external I/O engine.
- 
-+		**filecreate**
-+			Simply create the files and do no IO to them.  You still need to
-+			set  `filesize` so that all the accounting still occurs, but no
-+			actual IO will be done other than creating the file.
- 
- I/O engine specific parameters
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-diff --git a/Makefile b/Makefile
-index 3764da550851..76243ffb056e 100644
---- a/Makefile
-+++ b/Makefile
-@@ -42,7 +42,7 @@ SOURCE :=	$(sort $(patsubst $(SRCDIR)/%,%,$(wildcard $(SRCDIR)/crc/*.c)) \
- 		eta.c verify.c memory.c io_u.c parse.c mutex.c options.c \
- 		smalloc.c filehash.c profile.c debug.c engines/cpu.c \
- 		engines/mmap.c engines/sync.c engines/null.c engines/net.c \
--		engines/ftruncate.c \
-+		engines/ftruncate.c engines/filecreate.c \
- 		server.c client.c iolog.c backend.c libfio.c flow.c cconv.c \
- 		gettime-thread.c helpers.c json.c idletime.c td_error.c \
- 		profiles/tiobench.c profiles/act.c io_u_queue.c filelock.c \
-diff --git a/engines/filecreate.c b/engines/filecreate.c
-new file mode 100644
-index 000000000000..284aaf398328
---- /dev/null
-+++ b/engines/filecreate.c
-@@ -0,0 +1,89 @@
-+/*
-+ * filecreate engine
-+ *
-+ * IO engine that doesn't do any IO, just creates files and tracks the latency
-+ * of the file creation.
-+ */
-+#include <stdio.h>
-+#include <unistd.h>
-+#include <fcntl.h>
-+#include <errno.h>
-+
-+#include "../fio.h"
-+#include "../filehash.h"
-+
-+static int open_file(struct thread_data *td, struct fio_file *f)
-+{
-+	struct timespec start, end;
-+	int from_hash = 0;
-+	int do_lat = !td->o.disable_lat;
-+
-+	dprint(FD_FILE, "fd open %s\n", f->file_name);
-+
-+	if (f->filetype != FIO_TYPE_FILE) {
-+		log_err("fio: only files are supported fallocate \n");
-+		return 1;
-+	}
-+	if (!strcmp(f->file_name, "-")) {
-+		log_err("fio: can't read/write to stdin/out\n");
-+		return 1;
-+	}
-+
-+open_again:
-+	if (do_lat)
-+		fio_gettime(&start, NULL);
-+	from_hash = file_lookup_open(f, O_CREAT|O_RDWR);
-+	if (do_lat) {
-+		unsigned long long nsec;
-+
-+		fio_gettime(&end, NULL);
-+		nsec = ntime_since(&start, &end);
-+		add_lat_sample(td, DDIR_WRITE, nsec, 0, 0);
-+	}
-+
-+	if (f->fd == -1) {
-+		char buf[FIO_VERROR_SIZE];
-+		int e = errno;
-+
-+		snprintf(buf, sizeof(buf), "open(%s)", f->file_name);
-+		td_verror(td, e, buf);
-+	}
-+
-+	if (!from_hash && f->fd != -1) {
-+		if (add_file_hash(f)) {
-+			int fio_unused ret;
-+
-+			/*
-+			 * OK to ignore, we haven't done anything with it
-+			 */
-+			ret = generic_close_file(td, f);
-+			goto open_again;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int queue_io(struct thread_data *td, struct io_u fio_unused *io_u)
-+{
-+	return FIO_Q_COMPLETED;
-+}
-+
-+static struct ioengine_ops ioengine = {
-+	.name		= "filecreate",
-+	.version	= FIO_IOOPS_VERSION,
-+	.open_file	= open_file,
-+	.queue		= queue_io,
-+	.close_file	= generic_close_file,
-+	.flags		= FIO_DISKLESSIO | FIO_SYNCIO | FIO_FAKEIO,
-+};
-+
-+static void fio_init fio_filecreate_register(void)
-+{
-+	register_ioengine(&ioengine);
-+}
-+
-+static void fio_exit fio_filecreate_unregister(void)
-+{
-+	unregister_ioengine(&ioengine);
-+}
-diff --git a/fio.1 b/fio.1
-index b943db2289d6..68ed3ba457b9 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1577,6 +1577,10 @@ the engine filename, e.g. `ioengine=external:/tmp/foo.o' to load
- ioengine `foo.o' in `/tmp'. The path can be either
- absolute or relative. See `engines/skeleton_external.c' in the fio source for
- details of writing an external I/O engine.
-+.TP
-+.B filecreate
-+Create empty files only.  \fBfilesize\fR still needs to be specified so that fio
-+will run and grab latency results, but no IO will actually be done on the files.
- .SS "I/O engine specific parameters"
- In addition, there are some parameters which are only valid when a specific
- \fBioengine\fR is in use. These are used identically to normal parameters,
+Workload modelling is a huge topic in and of itself and there are few
+easy answers - every approach has tradeoffs. I'm afraid I have no
+insight into the typical file size of IP cameras. I'd imagine it's
+highly dependent on the scene, the size of the picture, the FPS, the
+CPU you have available, the level of compression you're asking it to
+do etc.
+
+One approach is to record your all your workloads being generated
+together with blktrace
+(https://www.cse.unsw.edu.au/~aaronc/iosched/doc/blktrace.html ) and
+then use btreplay
+(http://www.cse.unsw.edu.au/~aaronc/iosched/doc/btreplay.html ) or
+fio's read_iolog (see
+http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-read-iolog
+).
+
+It's hard to say if 150 jobs is good or not. It could be your system
+does some sort of multiplexing so only one stream is actually saved to
+disk...
+
 -- 
-2.7.4
-
-
+Sitsofe | http://sucs.org/~sits/
