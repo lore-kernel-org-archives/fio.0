@@ -1,8 +1,8 @@
-Return-Path: <martin.steigerwald@proact.de>
+Return-Path: <Martin.Steigerwald@proact.de>
 From: Martin Steigerwald <martin.steigerwald@proact.de>
 Subject: Re: fio: uses the opposite symbol for kibibytes/kilobytes (Kb/KiB) than ISO 80000-1
-Date: Tue, 24 Oct 2017 10:13:11 +0200
-Message-ID: <1714288.mpFKz9OknG@merkaba>
+Date: Tue, 24 Oct 2017 10:06:57 +0200
+Message-ID: <6373845.SOZOToCyQ8@merkaba>
 In-Reply-To: <7412967.4hxrjql1Vb@merkaba>
 References: <7412967.4hxrjql1Vb@merkaba>
 MIME-Version: 1.0
@@ -12,10 +12,7 @@ To: FIO mailing list <fio@vger.kernel.org>
 Cc: Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-Send again without that long and misleading mail signature. Sorry for noise.
-
-
-Hello Jens, hello fio community.
+=EF=BB=BFHello Jens, hello fio community.
 
 Anything? Anything at all?
 
@@ -91,7 +88,8 @@ ty
 > rand-read: Laying out IO file(s) (1 file(s) / 953MiB)
 > [=E2=80=A6]
 >=20
-> which is just as broken as it can become. Seriously, 1 GiB is not 953 MiB.
+> which is just as broken as it can become. Seriously, 1 GiB is not 953 MiB=
+.
 > Period.
 >=20
 >=20
@@ -103,5 +101,39 @@ really
 > NEWS.Debian and README.Debian about the broken behavior tough.
 >=20
 > Thanks,
+
+
+
+
+Mit freundlichen Gr=C3=BC=C3=9Fen / With kind regards
+
+Martin Steigerwald =E2=80=A2 Proact Deutschland GmbH
+Trainer
+
+Telefon: +49 911 30999 55 =E2=80=A2 Fax: +49 911 30999 99
+S=C3=BCdwestpark 43=C2=A0=E2=80=A2=C2=A090449 N=C3=BCrnberg=C2=A0=E2=80=A2=
+=C2=A0Germany
+Martin.Steigerwald@proact.de=C2=A0=E2=80=A2=C2=A0www.proact.de
+
+Amtsgericht N=C3=BCrnberg =E2=80=A2=C2=A0HRB 18320
+Gesch=C3=A4ftsf=C3=BChrer: Oliver K=C3=BCgow =E2=80=A2=C2=A0Richard M=C3=BC=
+ller =E2=80=A2=C2=A0Jason Clark =E2=80=A2=C2=A0Jakob H=C3=B8holdt
+
+This email and its attachments may be confidential and are intended solely=
+=20
+for the use of the individual to whom it is addressed fio@vger.kernel.org, =
+axboe@kernel.dk. Any views or opinions=20
+expressed are solely those of the author=C2=A0Martin Steigerwald and do not=
+ necessarily=20
+represent those of Proact Deutschland GmbH. If you have received this messa=
+ge in error,=20
+please notify us immediately by replying to the message and deleting it fro=
+m=20
+your computer. We do not accept responsibility for any errors or omissions =
+that=20
+are present in this message, or any attachment, that have arisen as a resul=
+t of=20
+email transmission.
+
 
 
