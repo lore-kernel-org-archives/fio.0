@@ -1,32 +1,23 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: "nice" parameter bug (-19 to 20) and out of range message bug
-References: <b7782a91-a5a0-458a-d931-768d13fdb4ac@bluestop.org>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <f9ea3407-26b9-6e98-43c4-955322aee84f@kernel.dk>
-Date: Wed, 25 Oct 2017 12:07:21 -0700
+Return-Path: <rebecca@bluestop.org>
+From: Rebecca Cran <rebecca@bluestop.org>
+Subject: "nice" parameter bug (-19 to 20) and out of range message bug
+Message-ID: <b7782a91-a5a0-458a-d931-768d13fdb4ac@bluestop.org>
+Date: Wed, 25 Oct 2017 13:02:57 -0600
 MIME-Version: 1.0
-In-Reply-To: <b7782a91-a5a0-458a-d931-768d13fdb4ac@bluestop.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-To: Rebecca Cran <rebecca@bluestop.org>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Language: en-US
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-On 10/25/2017 12:02 PM, Rebecca Cran wrote:
-> If I set the job parameter "nice" to -20 in Linux using FIO 3.1, I get 
-> the warning:
-> 
-> min value out of range: 18446744073709551596 (4294967277 min)
-> 
-> The error is clearly wrong, but in options.c the min and max values are 
-> also: 'nice' ranges from -20 to 19, whereas FIO allows -19 to 20.
+If I set the job parameter "nice" to -20 in Linux using FIO 3.1, I get 
+the warning:
 
-Yeah that looks like a bug, care to send a patch?
+min value out of range: 18446744073709551596 (4294967277 min)
 
-I'll fix the parser min value reporting, that's also a bug... Should be
-signed.
+The error is clearly wrong, but in options.c the min and max values are 
+also: 'nice' ranges from -20 to 19, whereas FIO allows -19 to 20.
 
 -- 
-Jens Axboe
-
+Rebecca
 
