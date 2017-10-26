@@ -1,6 +1,5 @@
-Return-Path: <sitsofe@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <09b5336f-ab73-ee27-1db7-17085e42da39@kernel.dk>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: fio offset with ba
 References: <BN3PR0401MB145727ED714B57825C91A8E78F430@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <CALjAwxiXzC8ar21smWAOMadiAUSqeLECNpu1ZzTvc2t1e20VXg@mail.gmail.com>
  <BN3PR0401MB14573713E0FDB73C2E788A9B8F400@BN3PR0401MB1457.namprd04.prod.outlook.com>
@@ -8,62 +7,55 @@ References: <BN3PR0401MB145727ED714B57825C91A8E78F430@BN3PR0401MB1457.namprd04.p
  <BN3PR0401MB145769A64E51418B320209ED8F460@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <CALjAwxjQwWo=SC7z4E6ma7oGK=o+mBwyYxFJTCRh6oOZacB=iA@mail.gmail.com>
  <BN3PR0401MB14579E96B1AF5FB2D72883308F450@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <09b5336f-ab73-ee27-1db7-17085e42da39@kernel.dk>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Thu, 26 Oct 2017 07:27:21 +0100
-Message-ID: <CALjAwxjkGNPQrT0A4eZz2zFzU=UhDyzZg1z71G65PhAu-H04CA@mail.gmail.com>
-Subject: Re: fio offset with ba
-Content-Type: text/plain; charset="UTF-8"
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Jeff Furlong <jeff.furlong@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <09b5336f-ab73-ee27-1db7-17085e42da39@kernel.dk>
+Date: Wed, 25 Oct 2017 21:24:45 -0700
+MIME-Version: 1.0
+In-Reply-To: <BN3PR0401MB14579E96B1AF5FB2D72883308F450@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Jeff Furlong <jeff.furlong@wdc.com>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 26 October 2017 at 05:24, Jens Axboe <axboe@kernel.dk> wrote:
-> On 10/25/2017 05:27 PM, Jeff Furlong wrote:
->>> Actually here's a question - what does .interval do?
->> Looks like it is used to override the default value of 1 in gopt_new_int():
->>       interval = 1.0;
->>       if (o->interval)
->>               interval = o->interval;
->>       i->spin = gtk_spin_button_new_with_range(o->minval, maxval, interval);
->>
->> But your larger question may be why do some options have interval
->> (e.g. offset) and some not have interval (e.g. ioengine).
+On 10/25/2017 05:27 PM, Jeff Furlong wrote:
+>> Actually here's a question - what does .interval do?
+> Looks like it is used to override the default value of 1 in gopt_new_int():
+> 	interval = 1.0;
+> 	if (o->interval)
+> 		interval = o->interval;
+> 	i->spin = gtk_spin_button_new_with_range(o->minval, maxval, interval);
 >
-> It's for the GUI, where you want to specify in which increments a value
-> is adjusted when you use the up and down arrows to change it. It's only
-> applicable to numberical values, it would not make sense to apply to
-> something like ioengine or similar.
+> But your larger question may be why do some options have interval
+> (e.g. offset) and some not have interval (e.g. ioengine).
 
-You were right Jeff - it was a larger question. Jens thanks for
-clearing up its purpose - I missed it was used by the GUI.
+It's for the GUI, where you want to specify in which increments a value
+is adjusted when you use the up and down arrows to change it. It's only
+applicable to numberical values, it would not make sense to apply to
+something like ioengine or similar.
 
->> diff --git a/filesetup.c b/filesetup.c
->> index 7a602d4..5d7ea5c 100644
->> --- a/filesetup.c
->> +++ b/filesetup.c
->> @@ -869,12 +869,10 @@ uint64_t get_start_offset(struct thread_data *td, struct fio_file *f)
->>
->>       if (o->start_offset_percent > 0) {
->>               /*
->> -              * if blockalign is provided, find the min across read, write,
->> -              * and trim
->> +              * if offset_align is provided, set initial offset
->>                */
->> -             if (fio_option_is_set(o, ba)) {
->> -                     align_bs = (unsigned long long) min(o->ba[DDIR_READ], o->ba[DDIR_WRITE]);
->> -                     align_bs = min((unsigned long long) o->ba[DDIR_TRIM], align_bs);
->> +             if (fio_option_is_set(o, start_offset_align)) {
->> +                     align_bs = o->start_offset_align;
->
-> I'm curious why this drops the 'ba' part?
+> diff --git a/filesetup.c b/filesetup.c
+> index 7a602d4..5d7ea5c 100644
+> --- a/filesetup.c
+> +++ b/filesetup.c
+> @@ -869,12 +869,10 @@ uint64_t get_start_offset(struct thread_data *td, struct fio_file *f)
+>  
+>  	if (o->start_offset_percent > 0) {
+>  		/*
+> -		 * if blockalign is provided, find the min across read, write,
+> -		 * and trim
+> +		 * if offset_align is provided, set initial offset
+>  		 */
+> -		if (fio_option_is_set(o, ba)) {
+> -			align_bs = (unsigned long long) min(o->ba[DDIR_READ], o->ba[DDIR_WRITE]);
+> -			align_bs = min((unsigned long long) o->ba[DDIR_TRIM], align_bs);
+> +		if (fio_option_is_set(o, start_offset_align)) {
+> +			align_bs = o->start_offset_align;
 
-blockalign actually only impacts random I/O (see
-https://github.com/axboe/fio/issues/341 for someone requesting it to
-affect sequential I/O but that's a separate issue). Since each random
-I/O will "blockalign itself" we gain nothing from trying to align the
-offset generated by offset percentage to it.
+I'm curious why this drops the 'ba' part?
 
 -- 
-Sitsofe | http://sucs.org/~sits/
+Jens Axboe
+
 
