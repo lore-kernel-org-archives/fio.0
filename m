@@ -1,85 +1,125 @@
-Return-Path: <rebecca@bluestop.org>
-Content-Type: text/plain;
-	charset=utf-8
-Mime-Version: 1.0 (1.0)
-Subject: Re: FIO windows
-From: Rebecca Cran <rebecca@bluestop.org>
-In-Reply-To: <MWHPR11MB2045F7391F74443E8F332EE0875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
-Date: Tue, 31 Oct 2017 13:43:08 -0600
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <769FA433-A623-4304-B600-627D0D897FBB@bluestop.org>
-References: <MWHPR11MB2045B4FFEB905261E1FAFD1E875E0@MWHPR11MB2045.namprd11.prod.outlook.com> <863271c2-eeb4-b770-bdfa-89746d4d9c70@kernel.dk> <MWHPR11MB2045DFA579DB2BDC5B1EA466875E0@MWHPR11MB2045.namprd11.prod.outlook.com> <2feebb78-c436-3187-f28d-588f18b9dfc4@kernel.dk> <688A9DAC-6CE9-400C-B054-F3CF7128AD9A@bluestop.org> <MWHPR11MB2045F7391F74443E8F332EE0875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
-To: David Hare <david.hare@primarydata.com>
-Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Return-Path: <david.hare@primarydata.com>
+From: David Hare <david.hare@primarydata.com>
+Subject: RE: FIO windows
+Date: Tue, 31 Oct 2017 19:07:52 +0000
+Message-ID: <MWHPR11MB2045F7391F74443E8F332EE0875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+References: <MWHPR11MB2045B4FFEB905261E1FAFD1E875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <863271c2-eeb4-b770-bdfa-89746d4d9c70@kernel.dk>
+ <MWHPR11MB2045DFA579DB2BDC5B1EA466875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <2feebb78-c436-3187-f28d-588f18b9dfc4@kernel.dk>
+ <688A9DAC-6CE9-400C-B054-F3CF7128AD9A@bluestop.org>
+In-Reply-To: <688A9DAC-6CE9-400C-B054-F3CF7128AD9A@bluestop.org>
+Content-Language: en-US
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="MCBoundary=_11710311507570191"
+To: Rebecca Cran <rebecca@bluestop.org>, Jens Axboe <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-The Windows installers and zip files for 3.1 are available from http://blues=
-top.org/fio .
+--MCBoundary=_11710311507570191
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 
-=E2=80=94=20
-Rebecca
+VGhhbmtzIFJlYmVjY2EhDQoNCldvdWxkIHlvdSBtaW5kIHBpbmdpbmcgbWUgd2l0aCBhIGxpbmsg
+d2hlbiB5b3UgYXJlIGRvbmU/DQoNCg0KRGF2ZSBIYXJlDQpTZW5pb3IgU29sdXRpb25zIFNwZWNp
+YWxpc3QgTSZFDQpQcmltYXJ5IERhdGEgDQp3d3cucHJpbWFyeWRhdGEuY29tDQpNb2JpbGUgKDgx
+OCkgNjg3LTQ0MDENCsKgDQoNCg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTog
+UmViZWNjYSBDcmFuIFttYWlsdG86cmViZWNjYUBibHVlc3RvcC5vcmddIA0KU2VudDogVHVlc2Rh
+eSwgT2N0b2JlciAzMSwgMjAxNyAxMjowMCBQTQ0KVG86IEplbnMgQXhib2UgPGF4Ym9lQGtlcm5l
+bC5kaz4NCkNjOiBEYXZpZCBIYXJlIDxkYXZpZC5oYXJlQHByaW1hcnlkYXRhLmNvbT47IGZpb0B2
+Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBGSU8gd2luZG93cw0KDQpJ4oCZbGwgYnVpbGQg
+dGhlIGluc3RhbGxlciBsYXRlciB0b2RheS4NCg0KU2VudCBmcm9tIG15IGlQaG9uZQ0KDQo+IE9u
+IE9jdCAzMSwgMjAxNywgYXQgMTI6NTEgUE0sIEplbnMgQXhib2UgPGF4Ym9lQGtlcm5lbC5kaz4g
+d3JvdGU6DQo+IA0KPiBOb3Qgc3VyZSwgSSBnZW5lcmFsbHkgZG9uJ3QgdG91Y2ggdGhhdCBzaWRl
+IG9mIHRoaW5ncy4gSSBrbm93IHRoYXQgDQo+IGFwcHZleW9yIGJ1aWxkcyBhbGwgb2YgdGhlbSwg
+YnV0IEkgZG9uJ3Qga25vdyBpZiB0aGV5IG1ha2UgdGhlIGJ1aWxkIA0KPiBhdmFpbGFibGUuDQo+
+IA0KPiBDQydpbmcgdGhlIGxpc3QsIGZvbGtzIHRoZXJlIHdvdWxkIGtub3cuLi4NCj4gDQo+PiBP
+biAxMC8zMS8yMDE3IDEyOjQ3IFBNLCBEYXZpZCBIYXJlIHdyb3RlOg0KPj4gSGkgSmVucywNCj4+
+IA0KPj4gQ2FuJ3QgZmluZCBhbiBpbnN0YWxsZXIgZm9yIDMuMSBmb3Igd2luZG93cy4gTm90IHN1
+cmUgaWYgYW55b25lIGNvbXBpbGVkIGl0IHlldD8NCj4+IC1EYXZlDQo+PiANCj4gDQo+IC0tDQo+
+IEplbnMgQXhib2UNCj4gDQo+IC0tDQo+IFRvIHVuc3Vic2NyaWJlIGZyb20gdGhpcyBsaXN0OiBz
+ZW5kIHRoZSBsaW5lICJ1bnN1YnNjcmliZSBmaW8iIGluIHRoZSANCj4gYm9keSBvZiBhIG1lc3Nh
+Z2UgdG8gbWFqb3Jkb21vQHZnZXIua2VybmVsLm9yZyBNb3JlIG1ham9yZG9tbyBpbmZvIGF0ICAN
+Cj4gaHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpvcmRvbW8taW5mby5odG1sDQoNCkRpc2NsYWlt
+ZXINCg0KVGhlIGluZm9ybWF0aW9uIGNvbnRhaW5lZCBpbiB0aGlzIGNvbW11bmljYXRpb24gZnJv
+bSB0aGUgc2VuZGVyIGlzIGNvbmZpZGVudGlhbC4gSXQgaXMgaW50ZW5kZWQgc29sZWx5IGZvciB1
+c2UgYnkgdGhlIHJlY2lwaWVudCBhbmQgb3RoZXJzIGF1dGhvcml6ZWQgdG8gcmVjZWl2ZSBpdC4g
+SWYgeW91IGFyZSBub3QgdGhlIHJlY2lwaWVudCwgeW91IGFyZSBoZXJlYnkgbm90aWZpZWQgdGhh
+dCBhbnkgZGlzY2xvc3VyZSwgY29weWluZywgZGlzdHJpYnV0aW9uIG9yIHRha2luZyBhY3Rpb24g
+aW4gcmVsYXRpb24gb2YgdGhlIGNvbnRlbnRzIG9mIHRoaXMgaW5mb3JtYXRpb24gaXMgc3RyaWN0
+bHkgcHJvaGliaXRlZCBhbmQgbWF5IGJlIHVubGF3ZnVsLg0K
+--MCBoundary=_11710311507570191
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset=UTF-8
 
-Sent from my iPhone
+<html><head><style type=3D"text/css">.style1 {font-family: "Times New Roman=
+";}</style></head><body>Thanks Rebecca!<BR>
+<BR>
+Would you mind pinging me with a link when you are done?<BR>
+<BR>
+<BR>
+Dave Hare<BR>
+Senior Solutions Specialist M&amp;E<BR>
+Primary Data <BR>
+<a href=3D"http://www.primarydata.com" target=3D"_blank">www.primarydata.co=
+m</a><BR>
+Mobile (818) 687-4401<BR>
+&nbsp;<BR>
+<BR>
+<BR>
+<BR>
+-----Original Message-----<BR>
+From: Rebecca Cran [mailto:rebecca@bluestop.org] <BR>
+Sent: Tuesday, October 31, 2017 12:00 PM<BR>
+To: Jens Axboe &lt;axboe@kernel.dk&gt;<BR>
+Cc: David Hare &lt;david.hare@primarydata.com&gt;; <a href=3D"mailto:fio@vg=
+er.kernel.org">fio@vger.kernel.org</a><BR>
+Subject: Re: FIO windows<BR>
+<BR>
+I=E2=80=99ll build the installer later today.<BR>
+<BR>
+Sent from my iPhone<BR>
+<BR>
+&gt; On Oct 31, 2017, at 12:51 PM, Jens Axboe &lt;axboe@kernel.dk&gt; wrote=
+:<BR>
+&gt; <BR>
+&gt; Not sure, I generally don't touch that side of things. I know that <BR=
+>
+&gt; appveyor builds all of them, but I don't know if they make the build <=
+BR>
+&gt; available.<BR>
+&gt; <BR>
+&gt; CC'ing the list, folks there would know...<BR>
+&gt; <BR>
+&gt;&gt; On 10/31/2017 12:47 PM, David Hare wrote:<BR>
+&gt;&gt; Hi Jens,<BR>
+&gt;&gt; <BR>
+&gt;&gt; Can't find an installer for 3.1 for windows. Not sure if anyone co=
+mpiled it yet?<BR>
+&gt;&gt; -Dave<BR>
+&gt;&gt; <BR>
+&gt; <BR>
+&gt; --<BR>
+&gt; Jens Axboe<BR>
+&gt; <BR>
+&gt; --<BR>
+&gt; To unsubscribe from this list: send the line &quot;unsubscribe fio&quo=
+t; in the <BR>
+&gt; body of a message to <a href=3D"mailto:majordomo@vger.kernel.org">majo=
+rdomo@vger.kernel.org</a> More majordomo info at<BR>
+&gt; <a href=3D"http://vger.kernel.org/majordomo-info.html" target=3D"_blan=
+k">http://vger.kernel.org/majordomo-info.html</a><BR>
 
-> On Oct 31, 2017, at 1:07 PM, David Hare <david.hare@primarydata.com> wrote=
-:
->=20
-> Thanks Rebecca!
->=20
-> Would you mind pinging me with a link when you are done?
->=20
->=20
-> Dave Hare
-> Senior Solutions Specialist M&E
-> Primary Data=20
-> www.primarydata.com
-> Mobile (818) 687-4401
-> =C3=82=20
->=20
->=20
->=20
-> -----Original Message-----
-> From: Rebecca Cran [mailto:rebecca@bluestop.org]=20
-> Sent: Tuesday, October 31, 2017 12:00 PM
-> To: Jens Axboe <axboe@kernel.dk>
-> Cc: David Hare <david.hare@primarydata.com>; fio@vger.kernel.org
-> Subject: Re: FIO windows
->=20
-> I=C3=A2=E2=82=AC=E2=84=A2ll build the installer later today.
->=20
-> Sent from my iPhone
->=20
->> On Oct 31, 2017, at 12:51 PM, Jens Axboe <axboe@kernel.dk> wrote:
->>=20
->> Not sure, I generally don't touch that side of things. I know that=20
->> appveyor builds all of them, but I don't know if they make the build=20
->> available.
->>=20
->> CC'ing the list, folks there would know...
->>=20
->>> On 10/31/2017 12:47 PM, David Hare wrote:
->>> Hi Jens,
->>>=20
->>> Can't find an installer for 3.1 for windows. Not sure if anyone compiled=
- it yet?
->>> -Dave
->>>=20
->>=20
->> --
->> Jens Axboe
->>=20
->> --
->> To unsubscribe from this list: send the line "unsubscribe fio" in the=20
->> body of a message to majordomo@vger.kernel.org More majordomo info at =20=
+<br /><br /><p style=3D"font-family: Verdana; font-size:10pt; color:#666666=
+;"><b>Disclaimer</b></p><p style=3D"font-family: Verdana; font-size:8pt; co=
+lor:#666666;">The information contained in this communication from the send=
+er is confidential. It is intended solely for use by the recipient and othe=
+rs authorized to receive it. If you are not the recipient, you are hereby n=
+otified that any disclosure, copying, distribution or taking action in rela=
+tion of the contents of this information is strictly prohibited and may be =
+unlawful.<br /></p></body></html>
 
->> http://vger.kernel.org/majordomo-info.html
->=20
-> =04=C3=A8=C2=BA{.n=C3=87+=E2=80=B0=C2=B7=C5=B8=C2=AE=E2=80=B0=C2=AD=E2=80=A0=
-+%=C5=A0=C3=8Blzwm=E2=80=A6=C3=A9b=C2=9D=C3=AB=C2=A7=C2=B2=C3=A6=C3=ACr=C2=B8=
-=E2=80=BAy=C3=B8=C2=A8=C5=A0{ay=C2=BA=1D=C3=8A=E2=80=A1=C3=9A=E2=84=A2=C3=AB=
-,j=07=C2=AD=C2=A2f=C2=A3=C2=A2=C2=B7h=C5=A1=E2=80=B9=C3=A0z=C2=B9=1E=C2=AEw=C2=
-=A5=C2=A2=C2=B8=0C=C2=A2=C2=B7=C2=A6j:+v=E2=80=B0=C2=A8=C5=A0w=C3=A8j=C3=98m=
-=C2=B6=C5=B8=C3=BF=C2=BE=07=C2=AB=E2=80=98=C3=AA=C3=A7zZ+=C6=92=C3=B9=C5=A1=C5=
-=BD=C5=A0=C3=9D=C2=A2j"=C2=9D=C3=BA!=C2=B6i
+--MCBoundary=_11710311507570191--
 
 
