@@ -1,19 +1,10 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from us-smtp-delivery-194.mimecast.com ([63.128.21.194]:42966 "EHLO
-        us-smtp-delivery-194.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753619AbdJaW3D (ORCPT
-        <rfc822;fio@vger.kernel.org>); Tue, 31 Oct 2017 18:29:03 -0400
-From: David Hare <david.hare@primarydata.com>
-Subject: RE: FIO windows
-Date: Tue, 31 Oct 2017 22:28:56 +0000
-Message-ID: <MWHPR11MB2045C4FF772091D12DD966AA875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+Return-Path: <sitsofe@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <MWHPR11MB2045A9D5365FF57AC31CC87D875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
 References: <MWHPR11MB2045B4FFEB905261E1FAFD1E875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
- <863271c2-eeb4-b770-bdfa-89746d4d9c70@kernel.dk>
- <MWHPR11MB2045DFA579DB2BDC5B1EA466875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
- <2feebb78-c436-3187-f28d-588f18b9dfc4@kernel.dk>
- <CALjAwxiwWDghXZpsN9vzR7AjwTgHU-g+iYeogbWvO5p6itMd6A@mail.gmail.com>
- <ddbb5d83-cc30-db5f-5c98-0b5809a15d76@kernel.dk>
- <MWHPR11MB2045095AA21ED4BF8BA38021875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <863271c2-eeb4-b770-bdfa-89746d4d9c70@kernel.dk> <MWHPR11MB2045DFA579DB2BDC5B1EA466875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <2feebb78-c436-3187-f28d-588f18b9dfc4@kernel.dk> <CALjAwxiwWDghXZpsN9vzR7AjwTgHU-g+iYeogbWvO5p6itMd6A@mail.gmail.com>
+ <ddbb5d83-cc30-db5f-5c98-0b5809a15d76@kernel.dk> <MWHPR11MB2045095AA21ED4BF8BA38021875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
  <CALjAwxhx45=uTivppp3A1ACdGmon-oaH9S4b41MJQ6TfQCP7ZA@mail.gmail.com>
  <MWHPR11MB204527783F0D03DE6DE3556D875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
  <CALjAwxjO0i34McDkRRoeYCxW=CD4WG_=2Aohh=UA34tLL8w3AQ@mail.gmail.com>
@@ -22,142 +13,125 @@ References: <MWHPR11MB2045B4FFEB905261E1FAFD1E875E0@MWHPR11MB2045.namprd11.prod.
  <MWHPR11MB204592682060845766230A8D875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
  <CALjAwxiNeLuF2QSf6rg5wF4rLv47Fc=XreZR1pQf6V9zjiTy6A@mail.gmail.com>
  <MWHPR11MB2045F05DB9FFF9FA44A04E6F875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
- <CALjAwxgAOCNQbWUw+eTiu3J2ZprXpmxpezLe53eFno0s0oaFDQ@mail.gmail.com>
-In-Reply-To: <CALjAwxgAOCNQbWUw+eTiu3J2ZprXpmxpezLe53eFno0s0oaFDQ@mail.gmail.com>
-Content-Language: en-US
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-        boundary="_003_MWHPR11MB2045C4FF772091D12DD966AA875E0MWHPR11MB2045namp_"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+ <CALjAwxgAOCNQbWUw+eTiu3J2ZprXpmxpezLe53eFno0s0oaFDQ@mail.gmail.com> <MWHPR11MB2045A9D5365FF57AC31CC87D875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Tue, 31 Oct 2017 22:14:33 +0000
+Message-ID: <CALjAwxjsP=r87NXxurSXa86YUt7orCuPTAK=Gu3qfpUaUcCV5w@mail.gmail.com>
+Subject: Re: FIO windows
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+To: David Hare <david.hare@primarydata.com>
 Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
---_003_MWHPR11MB2045C4FF772091D12DD966AA875E0MWHPR11MB2045namp_
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+One idea is that you are seeing the effect of trying to do I/O to a
+file that is not a multiple of the blocksize. In theory if you have
+size=3D1g and you have 9 files then each file ends up being 1024**3/9.0
+~ 119304647.1111111 big (see
+http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-filename
+for where this is described). Could it be that Windows goes on to make
+a file that is smaller than what we were asking for?
 
-SXQgd29ya2VkIHdpdGggc2l6ZT0yNDkgYnV0IGZhaWxlZCB3aXRoIHNpemU9MjUwLCBzZWUgYXR0
-YWNoZWQuDQoNCg0KW2dsb2JhbF0NCg0KaW9lbmdpbmU9d2luZG93c2Fpbw0KYmxvY2tzaXplPTY0
-aw0KZGlyZWN0PTENCg0KDQp0aHJlYWQNCnNpemU9MjQ5bQ0KDQoNCg0KdGltZV9iYXNlZA0KcnVu
-dGltZT0xMA0KDQoNClthc2RmXQ0KZmlsZW5hbWU9Rlw6XFx0ZXN0ZmlsZTpHXDpcXHRlc3RmaWxl
-OkhcOlxcdGVzdGZpbGU6SVw6XFx0ZXN0ZmlsZTpKXDpcXHRlc3RmaWxlOktcOlxcdGVzdGZpbGU6
-TFw6XFx0ZXN0ZmlsZTpNXDpcXHRlc3RmaWxlOk5cOlxcdGVzdGZpbGUNCjs6T1w6XFx0ZXN0Zmls
-ZTpQXDpcXHRlc3RmaWxlOlFcOlxcdGVzdGZpbGUNCg0KDQoNCg0KDQotLS0tLU9yaWdpbmFsIE1l
-c3NhZ2UtLS0tLQ0KRnJvbTogU2l0c29mZSBXaGVlbGVyIFttYWlsdG86c2l0c29mZUBnbWFpbC5j
-b21dIA0KU2VudDogVHVlc2RheSwgT2N0b2JlciAzMSwgMjAxNyAzOjA1IFBNDQpUbzogRGF2aWQg
-SGFyZSA8ZGF2aWQuaGFyZUBwcmltYXJ5ZGF0YS5jb20+DQpDYzogSmVucyBBeGJvZSA8YXhib2VA
-a2VybmVsLmRrPjsgZmlvQHZnZXIua2VybmVsLm9yZw0KU3ViamVjdDogUmU6IEZJTyB3aW5kb3dz
-DQoNClllcyB0aGF0J3MgcmlnaHQuIEFsc28gcHJldmlvdXNseSBkaWQgeW91IG1lYW4geW91IGhh
-ZCBzZXQgc2l6ZT01MTJtDQpldmVuIHRob3VnaCB5b3Ugd3JvdGUgc2l6ZT01MTJnID8NCg0KT24g
-MzEgT2N0b2JlciAyMDE3IGF0IDIyOjAzLCBEYXZpZCBIYXJlIDxkYXZpZC5oYXJlQHByaW1hcnlk
-YXRhLmNvbT4gd3JvdGU6DQo+IEkgYXNzdW1lIHlvdSB3YW50IG1lIHRvIGNoYW5nZSB0aGUgc2l6
-ZSBwYXJhbWV0ZXIgd2l0aCBhIDY0ayBibG9ja3NpemUgYXMNCj4gZXZlcnl0aGluZyBpcyB3b3Jr
-aW5nIHdpdGggMTZrIGJsb2Nrc2l6ZT8NCj4NCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0N
-Cj4gRnJvbTogU2l0c29mZSBXaGVlbGVyIFttYWlsdG86c2l0c29mZUBnbWFpbC5jb21dDQo+IFNl
-bnQ6IFR1ZXNkYXksIE9jdG9iZXIgMzEsIDIwMTcgMjo1NCBQTQ0KPiBUbzogRGF2aWQgSGFyZSA8
-ZGF2aWQuaGFyZUBwcmltYXJ5ZGF0YS5jb20+DQo+IENjOiBKZW5zIEF4Ym9lIDxheGJvZUBrZXJu
-ZWwuZGs+OyBmaW9Admdlci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IFJlOiBGSU8gd2luZG93cw0K
-Pg0KPiBIaSwNCj4NCj4gQ2FuIHlvdSBhZGQgdW5saW5rPTEgYW5kIGtlZXAgcmVkdWNpbmcgdGhl
-IHNpemUgcGFyYW1ldGVyIChlLmcuIGRvd24gdG8gMTI4bQ0KPiB0aGVuIGRvd24gdG8gMTZtIHRo
-ZW4gZG93biB0byA0bSB0aGVuIGRvd24gdG8gMW0gdGhlbiBkb3duIHRvIDUxMmsgZXRjKT8NCj4N
-Cj4gQ2FuIHlvdSBhdHRhY2ggdGhlIGZ1bGwgb3V0cHV0IHRoYXQncyBwcm9kdWNlZCBpdCBmYWls
-cyB3aXRoIHRoaXMgcmVkdWNlZA0KPiBqb2I/DQo+DQo+IElGIHlvdSBhcmUgbWFrZSB0aGUgcHJv
-YmxlbSBoYXBwZW4gd2l0aCB2ZXJ5IGxpdHRsZSBJL08gYmVpbmcgZG9uZSAoaS5lLiB0aGUNCj4g
-am9iIGJvbWJzIG91dCBhZnRlciBkb2luZyBsZXNzIHRoYW4gMU1pQnl0ZXMgd29ydGggb2YgSS9P
-KSB5b3UgY2FuIHRyeQ0KPiBhZGRpbmcgLS1kZWJ1Zz1hbGwgdG8gdGhlIGpvYiBhbmQgc2VlaW5n
-IGlmIHRoYXQgb2ZmZXJzIGFueSBjbHVlcyBhcyB0byB3aGF0DQo+IHRoZSBsYXN0IHRoaW5nIGl0
-IHdhcyBkb2luZyB3YXM/DQo+DQo+IE9uIDMxIE9jdG9iZXIgMjAxNyBhdCAyMTo0NiwgRGF2aWQg
-SGFyZSA8ZGF2aWQuaGFyZUBwcmltYXJ5ZGF0YS5jb20+IHdyb3RlOg0KPj4gSXQgd2FzIG9rIHdp
-dGggb3Igd2l0aG91dCB0aGUgY29sb24sIHRoZSBzaXplIGRpZG7igJl0IHNlZW0gdG8gbWFrZSBh
-DQo+PiBkaWZmZXJlbmNlLCBidXQgYmxvY2tzaXplIGRpZC4uIHNlZSB0aGUgY29tbWVudGVkIGJs
-b2NrIHNpemVzIGJlbG93Lg0KPj4NCj4+IGZpbzIuZmlvDQo+PiBbZ2xvYmFsXQ0KPj4NCj4+IGlv
-ZW5naW5lPXdpbmRvd3NhaW8NCj4+DQo+PiA7YmxvY2tzaXplPTY0ayAtIGVycm9yDQo+PiA7Ymxv
-Y2tzaXplPTMyayAtIGVycm9yDQo+PiA7YmxvY2tzaXplPTE2ayAtIG5vIGVycm9yDQo+Pg0KPj4g
-YmxvY2tzaXplPTE2aw0KPj4NCj4+IGRpcmVjdD0xDQo+Pg0KPj4gdGhyZWFkDQo+Pg0KPj4gc2l6
-ZT01MTJnDQo+Pg0KPj4NCj4+DQo+PiB0aW1lX2Jhc2VkDQo+PiBydW50aW1lPTEwDQo+Pg0KPj4g
-W2FzZGZdDQo+PiBmaWxlbmFtZT1GXDpcXHRlc3RmaWxlOkdcOlxcdGVzdGZpbGU6SFw6XFx0ZXN0
-ZmlsZTpJXDpcXHRlc3RmaWxlOkpcOlxcDQo+PiB0ZXN0ZmlsZTpLXDpcXHRlc3RmaWxlOkxcOlxc
-dGVzdGZpbGU6TVw6XFx0ZXN0ZmlsZTpQXDpcXHRlc3RmaWxlDQo+Pg0KPj4gUmVzdWx0czoNCj4+
-IFJ1biBzdGF0dXMgZ3JvdXAgMCAoYWxsIGpvYnMpOg0KPj4gUkVBRDogYnc9MTQxTWlCL3MgKDE0
-OE1CL3MpLCAxNDFNaUIvcy0xNDFNaUIvcyAoMTQ4TUIvcy0xNDhNQi9zKSwNCj4+IGlvPTE0MTNN
-aUIgKDE0ODFNQiksIHJ1bj0xMDAwMS0xMDAwMW1zZWMNCj4+DQo+Pg0KPj4gLURhdmUNCg0KLS0g
-DQpTaXRzb2ZlIHwgaHR0cDovL3N1Y3Mub3JnL35zaXRzLw0KDQo=
---_003_MWHPR11MB2045C4FF772091D12DD966AA875E0MWHPR11MB2045namp_
-Content-Type: text/plain; name=output.249m.txt
-Content-Description: output.249m.txt
-Content-Disposition: attachment; filename="output.249m.txt"; size=1638;
-	creation-date="Tue, 31 Oct 2017 22:28:34 GMT";
-	modification-date="Tue, 31 Oct 2017 22:28:34 GMT"
-Content-Transfer-Encoding: base64
+If this theory were right you might see a similar problem if you were
+only using 3 files.
 
-YXNkZjogKGc9MCk6IHJ3PXJlYWQsIGJzPShSKSA2NC4wS2lCLTY0LjBLaUIsIChXKSA2NC4wS2lC
-LTY0LjBLaUIsIChUKSA2NC4wS2lCLTY0LjBLaUIsIGlvZW5naW5lPXdpbmRvd3NhaW8sIGlvZGVw
-dGg9MQ0KZmlvLTMuMQ0KU3RhcnRpbmcgMSB0aHJlYWQNCg0KYXNkZjogKGdyb3VwaWQ9MCwgam9i
-cz0xKTogZXJyPSAwOiBwaWQ9MTI2ODogVHVlIE9jdCAzMSAyMjoyNzowOSAyMDE3DQogICByZWFk
-OiBJT1BTPTU4ODcsIEJXPTM2OE1pQi9zICgzODZNQi9zKSgzNjgwTWlCLzEwMDAxbXNlYykNCiAg
-ICBzbGF0ICh1c2VjKTogbWluPTIxLCBtYXg9MjEyNCwgYXZnPTIzLjU1LCBzdGRldj0yNy4yMA0K
-ICAgIGNsYXQgKHVzZWMpOiBtaW49MTEzLCBtYXg9MTk5NiwgYXZnPTE0NC40MCwgc3RkZXY9Mzcu
-MDMNCiAgICAgbGF0ICh1c2VjKTogbWluPTEzNiwgbWF4PTIzNDcsIGF2Zz0xNjcuOTUsIHN0ZGV2
-PTQ2LjYwDQogICAgY2xhdCBwZXJjZW50aWxlcyAodXNlYyk6DQogICAgIHwgIDEuMDB0aD1bICAx
-MTZdLCAgNS4wMHRoPVsgIDExOV0sIDEwLjAwdGg9WyAgMTIxXSwgMjAuMDB0aD1bICAxMjNdLA0K
-ICAgICB8IDMwLjAwdGg9WyAgMTI2XSwgNDAuMDB0aD1bICAxMzBdLCA1MC4wMHRoPVsgIDE1NV0s
-IDYwLjAwdGg9WyAgMTU3XSwNCiAgICAgfCA3MC4wMHRoPVsgIDE1N10sIDgwLjAwdGg9WyAgMTU5
-XSwgOTAuMDB0aD1bICAxNjFdLCA5NS4wMHRoPVsgIDE2MV0sDQogICAgIHwgOTkuMDB0aD1bICAx
-ODBdLCA5OS41MHRoPVsgIDIxN10sIDk5LjkwdGg9WyAgMzUxXSwgOTkuOTV0aD1bICAzNzFdLA0K
-ICAgICB8IDk5Ljk5dGg9WyAxOTI2XQ0KICAgYncgKCAgS2lCL3MpOiBtaW49MzYxMTMzLCBtYXg9
-Mzc5MDM3LCBwZXI9OTguNTglLCBhdmc9MzcxNDc2Ljc5LCBzdGRldj00NjY1LjY5LCBzYW1wbGVz
-PTE5DQogICBpb3BzICAgICAgICA6IG1pbj0gNTY0MiwgbWF4PSA1OTIyLCBhdmc9NTgwMy44OSwg
-c3RkZXY9NzIuODcsIHNhbXBsZXM9MTkNCiAgbGF0ICh1c2VjKSAgIDogMjUwPTk5LjY5JSwgNTAw
-PTAuMjglDQogIGxhdCAobXNlYykgICA6IDI9MC4wMyUNCiAgY3B1ICAgICAgICAgIDogdXNyPTAu
-MDAlLCBzeXM9MTAuMDAlLCBjdHg9MCwgbWFqZj0wLCBtaW5mPTANCiAgSU8gZGVwdGhzICAgIDog
-MT0xMDAuMCUsIDI9MC4wJSwgND0wLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsID49NjQ9
-MC4wJQ0KICAgICBzdWJtaXQgICAgOiAwPTAuMCUsIDQ9MTAwLjAlLCA4PTAuMCUsIDE2PTAuMCUs
-IDMyPTAuMCUsIDY0PTAuMCUsID49NjQ9MC4wJQ0KICAgICBjb21wbGV0ZSAgOiAwPTAuMCUsIDQ9
-MTAwLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsIDY0PTAuMCUsID49NjQ9MC4wJQ0KICAg
-ICBpc3N1ZWQgcnd0OiB0b3RhbD01ODg4NSwwLDAsIHNob3J0PTAsMCwwLCBkcm9wcGVkPTAsMCww
-DQogICAgIGxhdGVuY3kgICA6IHRhcmdldD0wLCB3aW5kb3c9MCwgcGVyY2VudGlsZT0xMDAuMDAl
-LCBkZXB0aD0xDQoNClJ1biBzdGF0dXMgZ3JvdXAgMCAoYWxsIGpvYnMpOg0KICAgUkVBRDogYnc9
-MzY4TWlCL3MgKDM4Nk1CL3MpLCAzNjhNaUIvcy0zNjhNaUIvcyAoMzg2TUIvcy0zODZNQi9zKSwg
-aW89MzY4ME1pQiAoMzg1OU1CKSwgcnVuPTEwMDAxLTEwMDAxbXNlYw0K
---_003_MWHPR11MB2045C4FF772091D12DD966AA875E0MWHPR11MB2045namp_
-Content-Type: text/plain; name=output.250m.txt
-Content-Description: output.250m.txt
-Content-Disposition: attachment; filename="output.250m.txt"; size=1749;
-	creation-date="Tue, 31 Oct 2017 22:28:34 GMT";
-	modification-date="Tue, 31 Oct 2017 22:28:34 GMT"
-Content-Transfer-Encoding: base64
+On 31 October 2017 at 22:06, David Hare <david.hare@primarydata.com> wrote:
+> Yes.. I made a typo when I changed it back, sorry.
+>
+> -----Original Message-----
+> From: Sitsofe Wheeler [mailto:sitsofe@gmail.com]
+> Sent: Tuesday, October 31, 2017 3:05 PM
+> To: David Hare <david.hare@primarydata.com>
+> Cc: Jens Axboe <axboe@kernel.dk>; fio@vger.kernel.org
+> Subject: Re: FIO windows
+>
+> Yes that's right. Also previously did you mean you had set size=3D512m ev=
+en
+> though you wrote size=3D512g ?
+>
+> On 31 October 2017 at 22:03, David Hare <david.hare@primarydata.com> wrot=
+e:
+>> I assume you want me to change the size parameter with a 64k blocksize
+>> as everything is working with 16k blocksize?
+>>
+>> -----Original Message-----
+>> From: Sitsofe Wheeler [mailto:sitsofe@gmail.com]
+>> Sent: Tuesday, October 31, 2017 2:54 PM
+>> To: David Hare <david.hare@primarydata.com>
+>> Cc: Jens Axboe <axboe@kernel.dk>; fio@vger.kernel.org
+>> Subject: Re: FIO windows
+>>
+>> Hi,
+>>
+>> Can you add unlink=3D1 and keep reducing the size parameter (e.g. down
+>> to 128m then down to 16m then down to 4m then down to 1m then down to 51=
+2k
+>> etc)?
+>>
+>> Can you attach the full output that's produced it fails with this
+>> reduced job?
+>>
+>> IF you are make the problem happen with very little I/O being done
+>> (i.e. the job bombs out after doing less than 1MiBytes worth of I/O)
+>> you can try adding --debug=3Dall to the job and seeing if that offers
+>> any clues as to what the last thing it was doing was?
+>>
+>> On 31 October 2017 at 21:46, David Hare <david.hare@primarydata.com>
+>> wrote:
+>>> It was ok with or without the colon, the size didn=E2=80=99t seem to ma=
+ke a
+>>> difference, but blocksize did.. see the commented block sizes below.
+>>>
+>>> fio2.fio
+>>> [global]
+>>>
+>>> ioengine=3Dwindowsaio
+>>>
+>>> ;blocksize=3D64k - error
+>>> ;blocksize=3D32k - error
+>>> ;blocksize=3D16k - no error
+>>>
+>>> blocksize=3D16k
+>>>
+>>> direct=3D1
+>>>
+>>> thread
+>>>
+>>> size=3D512g
+>>>
+>>>
+>>>
+>>> time_based
+>>> runtime=3D10
+>>>
+>>> [asdf]
+>>> filename=3DF\:\\testfile:G\:\\testfile:H\:\\testfile:I\:\\testfile:J\:\
+>>> \ testfile:K\:\\testfile:L\:\\testfile:M\:\\testfile:P\:\\testfile
+>>>
+>>> Results:
+>>> Run status group 0 (all jobs):
+>>> READ: bw=3D141MiB/s (148MB/s), 141MiB/s-141MiB/s (148MB/s-148MB/s),
+>>> io=3D1413MiB (1481MB), run=3D10001-10001msec
+>>>
+>>>
+>>> -Dave
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
+>
+>
+> Disclaimer
+>
+> The information contained in this communication from the sender is
+> confidential. It is intended solely for use by the recipient and others
+> authorized to receive it. If you are not the recipient, you are hereby
+> notified that any disclosure, copying, distribution or taking action in
+> relation of the contents of this information is strictly prohibited and m=
+ay
+> be unlawful.
 
-YXNkZjogKGc9MCk6IHJ3PXJlYWQsIGJzPShSKSA2NC4wS2lCLTY0LjBLaUIsIChXKSA2NC4wS2lC
-LTY0LjBLaUIsIChUKSA2NC4wS2lCLTY0LjBLaUIsIGlvZW5naW5lPXdpbmRvd3NhaW8sIGlvZGVw
-dGg9MQ0KZmlvLTMuMQ0KU3RhcnRpbmcgMSB0aHJlYWQNCmZpbzogcGlkPTMyMjQsIGVycj0yMi9m
-aWxlOmlvZW5naW5lcy5jOjMzMywgZnVuYz10ZF9pb19xdWV1ZSwgZXJyb3I9SW52YWxpZCBhcmd1
-bWVudA0KDQphc2RmOiAoZ3JvdXBpZD0wLCBqb2JzPTEpOiBlcnI9MjIgKGZpbGU6aW9lbmdpbmVz
-LmM6MzMzLCBmdW5jPXRkX2lvX3F1ZXVlLCBlcnJvcj1JbnZhbGlkIGFyZ3VtZW50KTogcGlkPTMy
-MjQ6IFR1ZSBPY3QgMzEgMjI6MjY6MzggMjAxNw0KICAgcmVhZDogSU9QUz01NDI4LCBCVz0zMzlN
-aUIvcyAoMzU2TUIvcykoMjUwTWlCLzczOG1zZWMpDQogICAgc2xhdCAodXNlYyk6IG1pbj0yMSwg
-bWF4PTIxMjQsIGF2Zz0yNy4zMiwgc3RkZXY9MTAwLjI2DQogICAgY2xhdCAodXNlYyk6IG1pbj0x
-MTcsIG1heD00MjQsIGF2Zz0xNTQuNzQsIHN0ZGV2PTEzLjYwDQogICAgIGxhdCAodXNlYyk6IG1p
-bj0xNDAsIG1heD0yMzgwLCBhdmc9MTgyLjA2LCBzdGRldj0xMDUuMTUNCiAgICBjbGF0IHBlcmNl
-bnRpbGVzICh1c2VjKToNCiAgICAgfCAgMS4wMHRoPVsgIDEyMF0sICA1LjAwdGg9WyAgMTI1XSwg
-MTAuMDB0aD1bICAxNTNdLCAyMC4wMHRoPVsgIDE1M10sDQogICAgIHwgMzAuMDB0aD1bICAxNTVd
-LCA0MC4wMHRoPVsgIDE1NV0sIDUwLjAwdGg9WyAgMTU3XSwgNjAuMDB0aD1bICAxNTddLA0KICAg
-ICB8IDcwLjAwdGg9WyAgMTU3XSwgODAuMDB0aD1bICAxNTldLCA5MC4wMHRoPVsgIDE2MV0sIDk1
-LjAwdGg9WyAgMTYzXSwNCiAgICAgfCA5OS4wMHRoPVsgIDE4Ml0sIDk5LjUwdGg9WyAgMjI3XSwg
-OTkuOTB0aD1bICAyNjVdLCA5OS45NXRoPVsgIDM1MV0sDQogICAgIHwgOTkuOTl0aD1bICA0MjRd
-DQogICBidyAoICBLaUIvcyk6IG1pbj0zNDE5OTYsIG1heD0zNDE5OTYsIHBlcj05OC40NyUsIGF2
-Zz0zNDE5OTYuMDAsIHN0ZGV2PSAwLjAwLCBzYW1wbGVzPTENCiAgIGlvcHMgICAgICAgIDogbWlu
-PSA1MzQzLCBtYXg9IDUzNDMsIGF2Zz01MzQzLjAwLCBzdGRldj0gMC4wMCwgc2FtcGxlcz0xDQog
-IGxhdCAodXNlYykgICA6IDI1MD05OS44MCUsIDUwMD0wLjE3JQ0KICBjcHUgICAgICAgICAgOiB1
-c3I9MC4wMCUsIHN5cz0wLjAwJSwgY3R4PTAsIG1hamY9MCwgbWluZj0wDQogIElPIGRlcHRocyAg
-ICA6IDE9MTAwLjAlLCAyPTAuMCUsIDQ9MC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCA+
-PTY0PTAuMCUNCiAgICAgc3VibWl0ICAgIDogMD0wLjAlLCA0PTEwMC4wJSwgOD0wLjAlLCAxNj0w
-LjAlLCAzMj0wLjAlLCA2ND0wLjAlLCA+PTY0PTAuMCUNCiAgICAgY29tcGxldGUgIDogMD0wLjEl
-LCA0PTEwMC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCA2ND0wLjAlLCA+PTY0PTAuMCUN
-CiAgICAgaXNzdWVkIHJ3dDogdG90YWw9NDAwNiwwLDAsIHNob3J0PTAsMCwwLCBkcm9wcGVkPTAs
-MCwwDQogICAgIGxhdGVuY3kgICA6IHRhcmdldD0wLCB3aW5kb3c9MCwgcGVyY2VudGlsZT0xMDAu
-MDAlLCBkZXB0aD0xDQoNClJ1biBzdGF0dXMgZ3JvdXAgMCAoYWxsIGpvYnMpOg0KICAgUkVBRDog
-Ync9MzM5TWlCL3MgKDM1Nk1CL3MpLCAzMzlNaUIvcy0zMzlNaUIvcyAoMzU2TUIvcy0zNTZNQi9z
-KSwgaW89MjUwTWlCICgyNjJNQiksIHJ1bj03MzgtNzM4bXNlYw0K
---_003_MWHPR11MB2045C4FF772091D12DD966AA875E0MWHPR11MB2045namp_--
+
+
+--=20
+Sitsofe | http://sucs.org/~sits/
 
