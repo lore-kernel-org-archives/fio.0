@@ -1,287 +1,135 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:58484 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753320AbdJMMAU (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 13 Oct 2017 08:00:20 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1e2ydX-00089O-Mi
-        for fio@vger.kernel.org; Fri, 13 Oct 2017 12:00:19 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20171013120001.E955A2C234E@kernel.dk>
-Date: Fri, 13 Oct 2017 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <david.hare@primarydata.com>
+From: David Hare <david.hare@primarydata.com>
+Subject: RE: FIO windows
+Date: Tue, 31 Oct 2017 23:39:25 +0000
+Message-ID: <BN6PR11MB20343E0E041EB05C1888A6A9875E0@BN6PR11MB2034.namprd11.prod.outlook.com>
+References: <MWHPR11MB2045B4FFEB905261E1FAFD1E875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <863271c2-eeb4-b770-bdfa-89746d4d9c70@kernel.dk>
+ <MWHPR11MB2045DFA579DB2BDC5B1EA466875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <2feebb78-c436-3187-f28d-588f18b9dfc4@kernel.dk>
+ <CALjAwxiwWDghXZpsN9vzR7AjwTgHU-g+iYeogbWvO5p6itMd6A@mail.gmail.com>
+ <ddbb5d83-cc30-db5f-5c98-0b5809a15d76@kernel.dk>
+ <MWHPR11MB2045095AA21ED4BF8BA38021875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <CALjAwxhx45=uTivppp3A1ACdGmon-oaH9S4b41MJQ6TfQCP7ZA@mail.gmail.com>
+ <MWHPR11MB204527783F0D03DE6DE3556D875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <CALjAwxjO0i34McDkRRoeYCxW=CD4WG_=2Aohh=UA34tLL8w3AQ@mail.gmail.com>
+ <MWHPR11MB20457601992059B3E7C48865875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <CALjAwxi+1Djmm_0SqEDTYV_Oc5yBDZYyak1Vd3S6Bsr8BNjjqg@mail.gmail.com>
+ <MWHPR11MB204592682060845766230A8D875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <CALjAwxiNeLuF2QSf6rg5wF4rLv47Fc=XreZR1pQf6V9zjiTy6A@mail.gmail.com>
+ <MWHPR11MB2045F05DB9FFF9FA44A04E6F875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <CALjAwxgAOCNQbWUw+eTiu3J2ZprXpmxpezLe53eFno0s0oaFDQ@mail.gmail.com>
+ <MWHPR11MB2045A9D5365FF57AC31CC87D875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <CALjAwxjsP=r87NXxurSXa86YUt7orCuPTAK=Gu3qfpUaUcCV5w@mail.gmail.com>
+ <MWHPR11MB2045A939088A8133BB30CDEB875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <CALjAwxiS8XOFhwweHRND3ocJFY2FH_aud=9_OXtbWAM7-b1LJQ@mail.gmail.com>
+ <BN6PR11MB2034645770AE02D7AC6D4350875E0@BN6PR11MB2034.namprd11.prod.outlook.com>
+ <CALjAwxiYOyX7UOGRpFs7ydx9RqnZ2JtOtg-pUupLUexY4bpqXw@mail.gmail.com>
+In-Reply-To: <CALjAwxiYOyX7UOGRpFs7ydx9RqnZ2JtOtg-pUupLUexY4bpqXw@mail.gmail.com>
+Content-Language: en-US
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="MCBoundary=_11710311939281501"
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 447b94e10bddab8078f35c423ca1e3c3f0b1be38:
+--MCBoundary=_11710311939281501
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 
-  Fix overflow in percentile calculation for Windows (2017-10-11 16:26:00 -0600)
+VGhhbmtzIGZvciB0aGUgcG9pbnRlciENCi1EYXZlDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0t
+LS0tDQpGcm9tOiBTaXRzb2ZlIFdoZWVsZXIgW21haWx0bzpzaXRzb2ZlQGdtYWlsLmNvbV0gDQpT
+ZW50OiBUdWVzZGF5LCBPY3RvYmVyIDMxLCAyMDE3IDQ6MjcgUE0NClRvOiBEYXZpZCBIYXJlIDxk
+YXZpZC5oYXJlQHByaW1hcnlkYXRhLmNvbT4NCkNjOiBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwu
+ZGs+OyBmaW9Admdlci5rZXJuZWwub3JnDQpTdWJqZWN0OiBSZTogRklPIHdpbmRvd3MNCg0KSGks
+DQoNCllvdSBtaWdodCBmaW5kIHNvbWUgdXNlZnVsIHRpcHMgaW4gcHJldmlvdXMgImdvIGZhc3Rl
+ciIgZmlvIG1haWxpbmcgbGlzdCB0aHJlYWRzIGxpa2UgaHR0cHM6Ly93d3cuc3Bpbmljcy5uZXQv
+bGlzdHMvZmlvL21zZzA1OTg0Lmh0bWwgIC4NCg0KT24gMzEgT2N0b2JlciAyMDE3IGF0IDIzOjA3
+LCBEYXZpZCBIYXJlIDxkYXZpZC5oYXJlQHByaW1hcnlkYXRhLmNvbT4gd3JvdGU6DQo+IEp1c3Qg
+YSBsaXR0bGUgYmFjayBzdG9yeSwgSSBhbSB0ZXN0aW5nIGEgODhjb3JlIERlbGwgUjkzMCB3aXRo
+IDMwIE5WTWUgDQo+IGRyaXZlcywgKDYpIEtpbmdzdG9uIFBDSWUgTlZNZSBlYWNoIGhhcyA0IG0u
+MiBkcml2ZSBpZS4gMjQgZHJpdmVzLiANCj4gVGhlbiB0aGVyZSBpcyAoNikgMi41IiBOVk1lIHUu
+MiBkcml2ZXMuDQo+DQo+IEkgc3RhcnRlZCBvdXQgd2l0aCBteSB1c3VhbCB0b29scyBiZW5jaG1h
+cmsgdG9vbHMgYW5kIHdhcyBub3QgYWJsZSB0byANCj4gZ2V0IGFueXRoaW5nIGFib3ZlIDM2R0Iv
+cyBhbmQgSSBoYWQgdG8gcnVuIHRoZSBtdWx0aXBsZSB2ZXJzaW9uIG9mIHRoZSANCj4gdG9vbHMg
+YXQgdGhlIHNhbWUgdGltZS4NCj4NCj4gSSBmb3VuZCBEaXNrc3BkIGZvciB3aW5kb3dzIGFuZCBp
+dCBoYXMgYSBsb3Qgb2YgY29udHJvbCB3aXRoIHRocmVhZHMgDQo+IGFuZCBhZmZpbml0eSBJIHdh
+cyBhYmxlIHRvIHJlYWNoIDUyLjdHQi9zIHdoaWNoIGlzIHByZXR0eSBjbG9zZSB0byANCj4gdGhl
+b3JldGljYWwgbWF4IG9mIHRoZSBkcml2ZXMgb2YgYWJvdXQgNTZHQi9zLg0KPg0KPiBJIGFtIHRy
+eWluZyB0byBhY2hpZXZlIHRoZSBzYW1lIHJlc3VsdHMgb3IgY2xvc2Ugd2l0aCBGSU8gc28gSSBj
+YW4gDQo+IGNvbXBhcmVzIFdpbmRvd3Mgd2l0aCBDZW50b3MgYW5kIHVsdGltYXRlbHkgb3VyIHZl
+cnNpb24gb2YgUmVkaGF0LiBJIA0KPiBhbSBoYXZpbmcgaXNzdWUgdHVuaW5nIEZJTyBtdWNoIGFi
+b3ZlIDE0R0Ivcw0KDQotLQ0KU2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9yZy9+c2l0cy8NCg0KRGlz
+Y2xhaW1lcg0KDQpUaGUgaW5mb3JtYXRpb24gY29udGFpbmVkIGluIHRoaXMgY29tbXVuaWNhdGlv
+biBmcm9tIHRoZSBzZW5kZXIgaXMgY29uZmlkZW50aWFsLiBJdCBpcyBpbnRlbmRlZCBzb2xlbHkg
+Zm9yIHVzZSBieSB0aGUgcmVjaXBpZW50IGFuZCBvdGhlcnMgYXV0aG9yaXplZCB0byByZWNlaXZl
+IGl0LiBJZiB5b3UgYXJlIG5vdCB0aGUgcmVjaXBpZW50LCB5b3UgYXJlIGhlcmVieSBub3RpZmll
+ZCB0aGF0IGFueSBkaXNjbG9zdXJlLCBjb3B5aW5nLCBkaXN0cmlidXRpb24gb3IgdGFraW5nIGFj
+dGlvbiBpbiByZWxhdGlvbiBvZiB0aGUgY29udGVudHMgb2YgdGhpcyBpbmZvcm1hdGlvbiBpcyBz
+dHJpY3RseSBwcm9oaWJpdGVkIGFuZCBtYXkgYmUgdW5sYXdmdWwuDQo=
+--MCBoundary=_11710311939281501
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset=UTF-8
 
-are available in the git repository at:
+<html><head><style type=3D"text/css">.style1 {font-family: "Times New Roman=
+";}</style></head><body>Thanks for the pointer!<BR>
+-Dave<BR>
+<BR>
+-----Original Message-----<BR>
+From: Sitsofe Wheeler [mailto:sitsofe@gmail.com] <BR>
+Sent: Tuesday, October 31, 2017 4:27 PM<BR>
+To: David Hare &lt;david.hare@primarydata.com&gt;<BR>
+Cc: Jens Axboe &lt;axboe@kernel.dk&gt;; <a href=3D"mailto:fio@vger.kernel.o=
+rg">fio@vger.kernel.org</a><BR>
+Subject: Re: FIO windows<BR>
+<BR>
+Hi,<BR>
+<BR>
+You might find some useful tips in previous &quot;go faster&quot; fio maili=
+ng list threads like <a href=3D"https://www.spinics.net/lists/fio/msg05984.=
+html" target=3D"_blank">https://www.spinics.net/lists/fio/msg05984.html</a>=
+  .<BR>
+<BR>
+On 31 October 2017 at 23:07, David Hare &lt;david.hare@primarydata.com&gt; =
+wrote:<BR>
+&gt; Just a little back story, I am testing a 88core Dell R930 with 30 NVMe=
+ <BR>
+&gt; drives, (6) Kingston PCIe NVMe each has 4 m.2 drive ie. 24 drives. <BR=
+>
+&gt; Then there is (6) 2.5&quot; NVMe u.2 drives.<BR>
+&gt;<BR>
+&gt; I started out with my usual tools benchmark tools and was not able to =
+<BR>
+&gt; get anything above 36GB/s and I had to run the multiple version of the=
+ <BR>
+&gt; tools at the same time.<BR>
+&gt;<BR>
+&gt; I found Diskspd for windows and it has a lot of control with threads <=
+BR>
+&gt; and affinity I was able to reach 52.7GB/s which is pretty close to <BR=
+>
+&gt; theoretical max of the drives of about 56GB/s.<BR>
+&gt;<BR>
+&gt; I am trying to achieve the same results or close with FIO so I can <BR=
+>
+&gt; compares Windows with Centos and ultimately our version of Redhat. I <=
+BR>
+&gt; am having issue tuning FIO much above 14GB/s<BR>
+<BR>
+--<BR>
+Sitsofe | <a href=3D"http://sucs.org/~sits/" target=3D"_blank">http://sucs.=
+org/~sits/</a><BR>
 
-  git://git.kernel.dk/fio.git master
+<br /><br /><p style=3D"font-family: Verdana; font-size:10pt; color:#666666=
+;"><b>Disclaimer</b></p><p style=3D"font-family: Verdana; font-size:8pt; co=
+lor:#666666;">The information contained in this communication from the send=
+er is confidential. It is intended solely for use by the recipient and othe=
+rs authorized to receive it. If you are not the recipient, you are hereby n=
+otified that any disclosure, copying, distribution or taking action in rela=
+tion of the contents of this information is strictly prohibited and may be =
+unlawful.<br /></p></body></html>
 
-for you to fetch changes up to c13a60ce72aaf5b07b93977ab86e7522d167ec28:
+--MCBoundary=_11710311939281501--
 
-  flow: fix bad overflowing math (2017-10-12 10:54:27 -0600)
 
-----------------------------------------------------------------
-Andrzej Jakowski (1):
-      Fix more overflows in percentile calculation for Windows
-
-Jens Axboe (3):
-      Merge branch 'overflow_fix' of https://github.com/sitsofe/fio
-      Merge branch 'master' of https://github.com/Venutiwa/fio
-      flow: fix bad overflowing math
-
-Sitsofe Wheeler (1):
-      gettime: fix cycles_per_msec overflow when using 32 bit longs
-
-Venu (1):
-      Adding support for multiple jobs for fio test
-
- examples/fio-rand-RW.job    | 18 ++++++++++++++++++
- examples/fio-rand-read.job  | 16 ++++++++++++++++
- examples/fio-rand-write.job | 16 ++++++++++++++++
- examples/fio-seq-RW.job     | 18 ++++++++++++++++++
- examples/fio-seq-read.job   | 14 ++++++++++++++
- examples/fio-seq-write.job  | 16 ++++++++++++++++
- flow.c                      | 10 +++++++---
- gclient.c                   |  2 +-
- gettime.c                   |  2 +-
- stat.c                      |  4 ++--
- stat.h                      |  2 +-
- 11 files changed, 110 insertions(+), 8 deletions(-)
- create mode 100644 examples/fio-rand-RW.job
- create mode 100644 examples/fio-rand-read.job
- create mode 100644 examples/fio-rand-write.job
- create mode 100644 examples/fio-seq-RW.job
- create mode 100644 examples/fio-seq-read.job
- create mode 100644 examples/fio-seq-write.job
-
----
-
-Diff of recent changes:
-
-diff --git a/examples/fio-rand-RW.job b/examples/fio-rand-RW.job
-new file mode 100644
-index 0000000..0df0bc1
---- /dev/null
-+++ b/examples/fio-rand-RW.job
-@@ -0,0 +1,18 @@
-+; fio-rand-RW.job for fiotest
-+
-+[global]
-+name=fio-rand-RW
-+filename=fio-rand-RW
-+rw=randrw
-+rwmixread=60
-+rwmixwrite=40
-+bs=4K
-+direct=0
-+numjobs=4
-+time_based=1
-+runtime=900
-+
-+[file1]
-+size=10G
-+ioengine=libaio
-+iodepth=16
-diff --git a/examples/fio-rand-read.job b/examples/fio-rand-read.job
-new file mode 100644
-index 0000000..bc15466
---- /dev/null
-+++ b/examples/fio-rand-read.job
-@@ -0,0 +1,16 @@
-+; fio-rand-read.job for fiotest
-+
-+[global]
-+name=fio-rand-read
-+filename=fio-rand-read
-+rw=randread
-+bs=4K
-+direct=0
-+numjobs=1
-+time_based=1
-+runtime=900
-+
-+[file1]
-+size=10G
-+ioengine=libaio
-+iodepth=16
-diff --git a/examples/fio-rand-write.job b/examples/fio-rand-write.job
-new file mode 100644
-index 0000000..bd1b73a
---- /dev/null
-+++ b/examples/fio-rand-write.job
-@@ -0,0 +1,16 @@
-+; fio-rand-write.job for fiotest
-+
-+[global]
-+name=fio-rand-write
-+filename=fio-rand-write
-+rw=randwrite
-+bs=4K
-+direct=0
-+numjobs=4
-+time_based=1
-+runtime=900
-+
-+[file1]
-+size=10G
-+ioengine=libaio
-+iodepth=16
-diff --git a/examples/fio-seq-RW.job b/examples/fio-seq-RW.job
-new file mode 100644
-index 0000000..8f7090f
---- /dev/null
-+++ b/examples/fio-seq-RW.job
-@@ -0,0 +1,18 @@
-+; fio-seq-RW.job for fiotest
-+
-+[global]
-+name=fio-seq-RW
-+filename=fio-seq-RW
-+rw=rw
-+rwmixread=60
-+rwmixwrite=40
-+bs=256K
-+direct=0
-+numjobs=4
-+time_based=1
-+runtime=900
-+
-+[file1]
-+size=10G
-+ioengine=libaio
-+iodepth=16
-diff --git a/examples/fio-seq-read.job b/examples/fio-seq-read.job
-new file mode 100644
-index 0000000..74b1b30
---- /dev/null
-+++ b/examples/fio-seq-read.job
-@@ -0,0 +1,14 @@
-+[global]
-+name=fio-seq-reads
-+filename=fio-seq-reads
-+rw=read
-+bs=256K
-+direct=0
-+numjobs=1
-+time_based=1
-+runtime=900
-+
-+[file1]
-+size=10G
-+ioengine=libaio
-+iodepth=16
-diff --git a/examples/fio-seq-write.job b/examples/fio-seq-write.job
-new file mode 100644
-index 0000000..b291a15
---- /dev/null
-+++ b/examples/fio-seq-write.job
-@@ -0,0 +1,16 @@
-+; fio-seq-write.job for fiotest
-+
-+[global]
-+name=fio-seq-write
-+filename=fio-seq-write
-+rw=write
-+bs=256K
-+direct=0
-+numjobs=1
-+time_based=1
-+runtime=900
-+
-+[file1]
-+size=10G
-+ioengine=libaio
-+iodepth=16
-diff --git a/flow.c b/flow.c
-index 42b6dd7..384187e 100644
---- a/flow.c
-+++ b/flow.c
-@@ -16,13 +16,17 @@ static struct fio_mutex *flow_lock;
- int flow_threshold_exceeded(struct thread_data *td)
- {
- 	struct fio_flow *flow = td->flow;
--	int sign;
-+	long long flow_counter;
- 
- 	if (!flow)
- 		return 0;
- 
--	sign = td->o.flow > 0 ? 1 : -1;
--	if (sign * flow->flow_counter > td->o.flow_watermark) {
-+	if (td->o.flow > 0)
-+		flow_counter = flow->flow_counter;
-+	else
-+		flow_counter = -flow->flow_counter;
-+
-+	if (flow_counter > td->o.flow_watermark) {
- 		if (td->o.flow_sleep) {
- 			io_u_quiesce(td);
- 			usleep(td->o.flow_sleep);
-diff --git a/gclient.c b/gclient.c
-index 43c8a08..daa9153 100644
---- a/gclient.c
-+++ b/gclient.c
-@@ -1099,7 +1099,7 @@ static void gfio_show_clat_percentiles(struct gfio_client *gc,
- 				       int ddir)
- {
- 	unsigned int *io_u_plat = ts->io_u_plat[ddir];
--	unsigned long nr = ts->clat_stat[ddir].samples;
-+	unsigned long long nr = ts->clat_stat[ddir].samples;
- 	fio_fp64_t *plist = ts->percentile_list;
- 	unsigned int len, scale_down;
- 	unsigned long long *ovals, minv, maxv;
-diff --git a/gettime.c b/gettime.c
-index 7945528..1cbef84 100644
---- a/gettime.c
-+++ b/gettime.c
-@@ -15,7 +15,7 @@
- 
- #if defined(ARCH_HAVE_CPU_CLOCK)
- #ifndef ARCH_CPU_CLOCK_CYCLES_PER_USEC
--static unsigned long cycles_per_msec;
-+static unsigned long long cycles_per_msec;
- static unsigned long long cycles_start;
- static unsigned long long clock_mult;
- static unsigned long long max_cycles_mask;
-diff --git a/stat.c b/stat.c
-index 5c75868..c8a45db 100644
---- a/stat.c
-+++ b/stat.c
-@@ -135,7 +135,7 @@ static int double_cmp(const void *a, const void *b)
- 	return cmp;
- }
- 
--unsigned int calc_clat_percentiles(unsigned int *io_u_plat, unsigned long nr,
-+unsigned int calc_clat_percentiles(unsigned int *io_u_plat, unsigned long long nr,
- 				   fio_fp64_t *plist, unsigned long long **output,
- 				   unsigned long long *maxv, unsigned long long *minv)
- {
-@@ -198,7 +198,7 @@ unsigned int calc_clat_percentiles(unsigned int *io_u_plat, unsigned long nr,
- /*
-  * Find and display the p-th percentile of clat
-  */
--static void show_clat_percentiles(unsigned int *io_u_plat, unsigned long nr,
-+static void show_clat_percentiles(unsigned int *io_u_plat, unsigned long long nr,
- 				  fio_fp64_t *plist, unsigned int precision,
- 				  bool is_clat, struct buf_output *out)
- {
-diff --git a/stat.h b/stat.h
-index 3fda084..6ddcad2 100644
---- a/stat.h
-+++ b/stat.h
-@@ -293,7 +293,7 @@ extern void init_thread_stat(struct thread_stat *ts);
- extern void init_group_run_stat(struct group_run_stats *gs);
- extern void eta_to_str(char *str, unsigned long eta_sec);
- extern bool calc_lat(struct io_stat *is, unsigned long long *min, unsigned long long *max, double *mean, double *dev);
--extern unsigned int calc_clat_percentiles(unsigned int *io_u_plat, unsigned long nr, fio_fp64_t *plist, unsigned long long **output, unsigned long long *maxv, unsigned long long *minv);
-+extern unsigned int calc_clat_percentiles(unsigned int *io_u_plat, unsigned long long nr, fio_fp64_t *plist, unsigned long long **output, unsigned long long *maxv, unsigned long long *minv);
- extern void stat_calc_lat_n(struct thread_stat *ts, double *io_u_lat);
- extern void stat_calc_lat_m(struct thread_stat *ts, double *io_u_lat);
- extern void stat_calc_lat_u(struct thread_stat *ts, double *io_u_lat);
