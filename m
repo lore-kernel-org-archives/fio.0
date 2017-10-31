@@ -1,54 +1,62 @@
-Return-Path: <sitsofe@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <2feebb78-c436-3187-f28d-588f18b9dfc4@kernel.dk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from us-smtp-delivery-194.mimecast.com ([216.205.24.194]:22125 "EHLO
+        us-smtp-delivery-194.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S932583AbdJaToN (ORCPT
+        <rfc822;fio@vger.kernel.org>); Tue, 31 Oct 2017 15:44:13 -0400
+From: David Hare <david.hare@primarydata.com>
+Subject: RE: FIO windows
+Date: Tue, 31 Oct 2017 19:44:08 +0000
+Message-ID: <MWHPR11MB2045CF13E940668A8C5B42AE875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
 References: <MWHPR11MB2045B4FFEB905261E1FAFD1E875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
- <863271c2-eeb4-b770-bdfa-89746d4d9c70@kernel.dk> <MWHPR11MB2045DFA579DB2BDC5B1EA466875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <863271c2-eeb4-b770-bdfa-89746d4d9c70@kernel.dk>
+ <MWHPR11MB2045DFA579DB2BDC5B1EA466875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
  <2feebb78-c436-3187-f28d-588f18b9dfc4@kernel.dk>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Tue, 31 Oct 2017 19:46:51 +0000
-Message-ID: <CALjAwxiwWDghXZpsN9vzR7AjwTgHU-g+iYeogbWvO5p6itMd6A@mail.gmail.com>
-Subject: Re: FIO windows
-Content-Type: text/plain; charset="UTF-8"
-To: Jens Axboe <axboe@kernel.dk>
-Cc: David Hare <david.hare@primarydata.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+ <688A9DAC-6CE9-400C-B054-F3CF7128AD9A@bluestop.org>
+ <MWHPR11MB2045F7391F74443E8F332EE0875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <769FA433-A623-4304-B600-627D0D897FBB@bluestop.org>
+In-Reply-To: <769FA433-A623-4304-B600-627D0D897FBB@bluestop.org>
+Content-Language: en-US
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Rebecca Cran <rebecca@bluestop.org>
+Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi,
-
-Yes, AppVeyor makes the builds it does available for download. For
-example if you look at the latest master version of fio over on
-https://github.com/axboe/fio/commits/1de80624466405bccdbc4607d71cd249320da3f1
-, click the green tick and choose Details for AppVeyor you'll end up
-on https://ci.appveyor.com/project/axboe/fio/build/1.0.380 . You can
-then select a build like the x86_64 one and the click the Artifacts
-tab taking you to a page like
-https://ci.appveyor.com/project/axboe/fio/build/1.0.380/job/ooua768a53epnxeu/artifacts
-and you can then download the msi on that page.
-
-On 31 October 2017 at 18:51, Jens Axboe <axboe@kernel.dk> wrote:
-> Not sure, I generally don't touch that side of things. I know that
-> appveyor builds all of them, but I don't know if they make the build
-> available.
->
-> CC'ing the list, folks there would know...
->
-> On 10/31/2017 12:47 PM, David Hare wrote:
->> Hi Jens,
->>
->> Can't find an installer for 3.1 for windows. Not sure if anyone compiled it yet?
->> -Dave
->>
->
-> --
-> Jens Axboe
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe fio" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
-
--- 
-Sitsofe | http://sucs.org/~sits/
+VGhhbmtzIFJlYmVjY2EhDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBSZWJl
+Y2NhIENyYW4gW21haWx0bzpyZWJlY2NhQGJsdWVzdG9wLm9yZ10gDQpTZW50OiBUdWVzZGF5LCBP
+Y3RvYmVyIDMxLCAyMDE3IDEyOjQzIFBNDQpUbzogRGF2aWQgSGFyZSA8ZGF2aWQuaGFyZUBwcmlt
+YXJ5ZGF0YS5jb20+DQpDYzogSmVucyBBeGJvZSA8YXhib2VAa2VybmVsLmRrPjsgZmlvQHZnZXIu
+a2VybmVsLm9yZw0KU3ViamVjdDogUmU6IEZJTyB3aW5kb3dzDQoNClRoZSBXaW5kb3dzIGluc3Rh
+bGxlcnMgYW5kIHppcCBmaWxlcyBmb3IgMy4xIGFyZSBhdmFpbGFibGUgZnJvbSBodHRwOi8vYmx1
+ZXN0b3Aub3JnL2ZpbyAuDQoNCuKAlA0KUmViZWNjYQ0KDQpTZW50IGZyb20gbXkgaVBob25lDQoN
+Cj4gT24gT2N0IDMxLCAyMDE3LCBhdCAxOjA3IFBNLCBEYXZpZCBIYXJlIDxkYXZpZC5oYXJlQHBy
+aW1hcnlkYXRhLmNvbT4gd3JvdGU6DQo+IA0KPiBUaGFua3MgUmViZWNjYSENCj4gDQo+IFdvdWxk
+IHlvdSBtaW5kIHBpbmdpbmcgbWUgd2l0aCBhIGxpbmsgd2hlbiB5b3UgYXJlIGRvbmU/DQo+IA0K
+PiANCj4gRGF2ZSBIYXJlDQo+IFNlbmlvciBTb2x1dGlvbnMgU3BlY2lhbGlzdCBNJkUNCj4gUHJp
+bWFyeSBEYXRhDQo+IHd3dy5wcmltYXJ5ZGF0YS5jb20NCj4gTW9iaWxlICg4MTgpIDY4Ny00NDAx
+DQo+IMOCDQo+IA0KPiANCj4gDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206
+IFJlYmVjY2EgQ3JhbiBbbWFpbHRvOnJlYmVjY2FAYmx1ZXN0b3Aub3JnXQ0KPiBTZW50OiBUdWVz
+ZGF5LCBPY3RvYmVyIDMxLCAyMDE3IDEyOjAwIFBNDQo+IFRvOiBKZW5zIEF4Ym9lIDxheGJvZUBr
+ZXJuZWwuZGs+DQo+IENjOiBEYXZpZCBIYXJlIDxkYXZpZC5oYXJlQHByaW1hcnlkYXRhLmNvbT47
+IGZpb0B2Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDogUmU6IEZJTyB3aW5kb3dzDQo+IA0KPiBJ
+w6LigqzihKJsbCBidWlsZCB0aGUgaW5zdGFsbGVyIGxhdGVyIHRvZGF5Lg0KPiANCj4gU2VudCBm
+cm9tIG15IGlQaG9uZQ0KPiANCj4+IE9uIE9jdCAzMSwgMjAxNywgYXQgMTI6NTEgUE0sIEplbnMg
+QXhib2UgPGF4Ym9lQGtlcm5lbC5kaz4gd3JvdGU6DQo+PiANCj4+IE5vdCBzdXJlLCBJIGdlbmVy
+YWxseSBkb24ndCB0b3VjaCB0aGF0IHNpZGUgb2YgdGhpbmdzLiBJIGtub3cgdGhhdCANCj4+IGFw
+cHZleW9yIGJ1aWxkcyBhbGwgb2YgdGhlbSwgYnV0IEkgZG9uJ3Qga25vdyBpZiB0aGV5IG1ha2Ug
+dGhlIGJ1aWxkIA0KPj4gYXZhaWxhYmxlLg0KPj4gDQo+PiBDQydpbmcgdGhlIGxpc3QsIGZvbGtz
+IHRoZXJlIHdvdWxkIGtub3cuLi4NCj4+IA0KPj4+IE9uIDEwLzMxLzIwMTcgMTI6NDcgUE0sIERh
+dmlkIEhhcmUgd3JvdGU6DQo+Pj4gSGkgSmVucywNCj4+PiANCj4+PiBDYW4ndCBmaW5kIGFuIGlu
+c3RhbGxlciBmb3IgMy4xIGZvciB3aW5kb3dzLiBOb3Qgc3VyZSBpZiBhbnlvbmUgY29tcGlsZWQg
+aXQgeWV0Pw0KPj4+IC1EYXZlDQo+Pj4gDQo+PiANCj4+IC0tDQo+PiBKZW5zIEF4Ym9lDQo+PiAN
+Cj4+IC0tDQo+PiBUbyB1bnN1YnNjcmliZSBmcm9tIHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAi
+dW5zdWJzY3JpYmUgZmlvIiBpbiB0aGUgDQo+PiBib2R5IG9mIGEgbWVzc2FnZSB0byBtYWpvcmRv
+bW9Admdlci5rZXJuZWwub3JnIE1vcmUgbWFqb3Jkb21vIGluZm8gYXQgDQo+PiBodHRwOi8vdmdl
+ci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwNCj4gDQo+IATDqMK6ey5uw4cr4oCwwrfF
+uMKu4oCwwq3igKArJcWgw4tsendt4oCmw6liwp3Dq8KnwrLDpsOscsK44oC6ecO4wqjFoHthecK6
+HcOK4oChw5rihKLDqyxqIMKtwqJmwqPCosK3aMWh4oC5w6B6wrkewq53wqXCosK4DQrCosK3wqZq
+Oit24oCwwqjFoHfDqGrDmG3CtsW4w7/CviDCq+KAmMOqw6d6WivGksO5xaHFvcWgw53Comoiwp3D
+uiHCtmkNCg0K
 
