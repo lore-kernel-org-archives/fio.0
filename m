@@ -1,6 +1,6 @@
 Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <BN6PR11MB2034A5144B912434C9363D90875E0@BN6PR11MB2034.namprd11.prod.outlook.com>
+In-Reply-To: <BN6PR11MB2034645770AE02D7AC6D4350875E0@BN6PR11MB2034.namprd11.prod.outlook.com>
 References: <MWHPR11MB2045B4FFEB905261E1FAFD1E875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
  <863271c2-eeb4-b770-bdfa-89746d4d9c70@kernel.dk> <MWHPR11MB2045DFA579DB2BDC5B1EA466875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
  <2feebb78-c436-3187-f28d-588f18b9dfc4@kernel.dk> <CALjAwxiwWDghXZpsN9vzR7AjwTgHU-g+iYeogbWvO5p6itMd6A@mail.gmail.com>
@@ -17,89 +17,224 @@ References: <MWHPR11MB2045B4FFEB905261E1FAFD1E875E0@MWHPR11MB2045.namprd11.prod.
  <MWHPR11MB2045A9D5365FF57AC31CC87D875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
  <CALjAwxjsP=r87NXxurSXa86YUt7orCuPTAK=Gu3qfpUaUcCV5w@mail.gmail.com>
  <MWHPR11MB2045A939088A8133BB30CDEB875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
- <CALjAwxiS8XOFhwweHRND3ocJFY2FH_aud=9_OXtbWAM7-b1LJQ@mail.gmail.com>
- <BN6PR11MB2034DE8B819C36DCD434DD22875E0@BN6PR11MB2034.namprd11.prod.outlook.com>
- <CALjAwxh7+MaSkamGrxS5u6Vkv7eZYu-mAWW4pDnQmP-WpK+KJw@mail.gmail.com> <BN6PR11MB2034A5144B912434C9363D90875E0@BN6PR11MB2034.namprd11.prod.outlook.com>
+ <CALjAwxiS8XOFhwweHRND3ocJFY2FH_aud=9_OXtbWAM7-b1LJQ@mail.gmail.com> <BN6PR11MB2034645770AE02D7AC6D4350875E0@BN6PR11MB2034.namprd11.prod.outlook.com>
 From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Tue, 31 Oct 2017 23:19:48 +0000
-Message-ID: <CALjAwxhf-5Ly3TqggABacLjUAg+y47LoTo17BaND7qVP=Lnxkw@mail.gmail.com>
+Date: Tue, 31 Oct 2017 23:13:44 +0000
+Message-ID: <CALjAwxhDBvCHzDn3AkaRyeqzCTaMHMBO0CqQEVF6ihnQdKbDdg@mail.gmail.com>
 Subject: Re: FIO windows
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 To: David Hare <david.hare@primarydata.com>
 Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
 Hi,
 
-Feel free to switch - I think we've got enough to investigate the bug
-you were seeing.
+You might find that deleting any pre-existing testfile files before
+running fio works around the problem...
 
-On 31 October 2017 at 23:09, David Hare <david.hare@primarydata.com> wrote:
-> Ok, its easy for me to switch OS's let me know, when you have something
-> ready.
+On 31 October 2017 at 23:07, David Hare <david.hare@primarydata.com> wrote:
+> Just a little back story, I am testing a 88core Dell R930 with 30 NVMe
+> drives, (6) Kingston PCIe NVMe each has 4 m.2 drive ie. 24 drives. Then
+> there is (6) 2.5" NVMe u.2 drives.
+>
+> I started out with my usual tools benchmark tools and was not able to get
+> anything above 36GB/s and I had to run the multiple version of the tools =
+at
+> the same time.
+>
+> I found Diskspd for windows and it has a lot of control with threads and
+> affinity I was able to reach 52.7GB/s which is pretty close to theoretica=
+l
+> max of the drives of about 56GB/s.
+>
+> I am trying to achieve the same results or close with FIO so I can compar=
+es
+> Windows with Centos and ultimately our version of Redhat. I am having iss=
+ue
+> tuning FIO much above 14GB/s
+>
 > -Dave
 >
 > -----Original Message-----
 > From: Sitsofe Wheeler [mailto:sitsofe@gmail.com]
-> Sent: Tuesday, October 31, 2017 4:06 PM
+> Sent: Tuesday, October 31, 2017 3:45 PM
 > To: David Hare <david.hare@primarydata.com>
 > Cc: Jens Axboe <axboe@kernel.dk>; fio@vger.kernel.org
 > Subject: Re: FIO windows
 >
-> OK I see the problem too when using this on Windows:
-> $ ./fio --size=1g --filename
-> fio1.tmp:fio2.tmp:fio3.tmp:fio4.tmp:fio5.tmp:fio6.tmp:fio7.tmp:fio8.tmp:fio9.tmp
-> --name=go --create_only=1
-> $ ./fio --size=250m --filename fio1.tmp:fio2.tmp:fio3.tmp --name=go
-> --direct=1 --bs=64k --runtime=1m --time_based --thread
+> Hmm, I can't reproduce the problem here but still it's curious. Do you ge=
+t
+> the same problem with one file and if so after the job runs can you check
+> what size the file was?
 >
-> Using --debug=all shows the following:
-> io 2796 getevents: 1
-> io 2796 io complete: io_u 0000000007BD8F00:
-> off=87359488/len=65536/ddir=0io 2796 /fio3.tmpio 2796
-> file 2796 put file fio3.tmp, ref=2
-> file 2796 trying file fio1.tmp 11
-> file 2796 goodf=1, badf=2, ff=11
-> file 2796 get_next_file_rr: 00007FF5FEEA4610
-> file 2796 get_next_file: 00007FF5FEEA4610 [fio1.tmp]
-> file 2796 get file fio1.tmp, ref=1
-> io 2796 fill_io_u: io_u 0000000007BD8F00:
-> off=21846/len=65536/ddir=0io 2796 /fio1.tmpio 2796
-> io 2796 prep: io_u 0000000007BD8F00:
-> off=21846/len=65536/ddir=0io 2796 /fio1.tmpio 2796
-> io 2796 queue: io_u 0000000007BD8F00:
-> off=21846/len=65536/ddir=0io 2796 /fio1.tmpio
-> helperthread 2796
-> 2796 since_ss: 0, next_ss: 1000, next_log: 495, msec_to_next_event: 136
-> file 2796 put file fio1.tmp, ref=2
-> io 2796 io_u_queued_complete: min=0
-> io 2796 getevents: 0
-> process 2796 pid=2936: runstate RUNNING -> FINISHING
-> fio: pid=2936, err=22/file:ioengines.c:335, func=td_io_queue, error=Invalid
-> argument
+> Is there anything special about the filesystems? Are they local NTFS and
+> quite small (less than 16TBytes)? Do they have a custom cluster size?
 >
-> off=21846 is not a multiple of 512.
->
-> $ du -b fio*tmp
-> 119304647 fio1.tmp
-> 119304647 fio2.tmp
-> 119304647 fio3.tmp
-> 119304647 fio4.tmp
-> 119304647 fio5.tmp
-> 119304647 fio6.tmp
-> 119304647 fio7.tmp
-> 119304647 fio8.tmp
-> 119304647 fio9.tmp
->
-> I think this is all hinting at a bug in fio (perhaps when working with
-> multiple pre-existing files that are bigger than size specified) but I think
-> I'm done for the day...
->
-> On 31 October 2017 at 22:51, David Hare <david.hare@primarydata.com> wrote:
+> On 31 October 2017 at 22:33, David Hare <david.hare@primarydata.com> wrot=
+e:
+>> You may be on to something!
 >>
->> Not sure what you mean by one file? The drives are local NTFS
->> formatted with Allocation unit size of 64k, they range in size from with
->> are 186gb - 372gb.
+>> I tried 3 drives, got the exact same results. See attached.
+>>
+>>
+>>
+>> [global]
+>>
+>> ioengine=3Dwindowsaio
+>> blocksize=3D64k
+>> direct=3D1
+>>
+>>
+>> thread
+>> size=3D250m
+>>
+>>
+>>
+>> time_based
+>> runtime=3D10
+>>
+>>
+>> [asdf]
+>> filename=3DF\:\\testfile:G\:\\testfile:H\:\\testfile
+>>
+>> ;:I\:\\testfile:J\:\\testfile:K\:\\testfile:L\:\\testfile:M\:\\testfil
+>> e:N\:\\testfile ;:O\:\\testfile:P\:\\testfile:Q\:\\testfile
+>>
+>>
+>> -Dave
+>>
+>>
+>> -----Original Message-----
+>> From: Sitsofe Wheeler [mailto:sitsofe@gmail.com]
+>> Sent: Tuesday, October 31, 2017 3:15 PM
+>> To: David Hare <david.hare@primarydata.com>
+>> Cc: Jens Axboe <axboe@kernel.dk>; fio@vger.kernel.org
+>> Subject: Re: FIO windows
+>>
+>> One idea is that you are seeing the effect of trying to do I/O to a
+>> file that is not a multiple of the blocksize. In theory if you have
+>> size=3D1g and you have 9 files then each file ends up being 1024**3/9.0
+>> ~
+>> 119304647.1111111 big (see
+>> http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-filenam
+>> e for where this is described). Could it be that Windows goes on to
+>> make a file that is smaller than what we were asking for?
+>>
+>> If this theory were right you might see a similar problem if you were
+>> only using 3 files.
+>>
+>> On 31 October 2017 at 22:06, David Hare <david.hare@primarydata.com>
+>> wrote:
+>>> Yes.. I made a typo when I changed it back, sorry.
+>>>
+>>> -----Original Message-----
+>>> From: Sitsofe Wheeler [mailto:sitsofe@gmail.com]
+>>> Sent: Tuesday, October 31, 2017 3:05 PM
+>>> To: David Hare <david.hare@primarydata.com>
+>>> Cc: Jens Axboe <axboe@kernel.dk>; fio@vger.kernel.org
+>>> Subject: Re: FIO windows
+>>>
+>>> Yes that's right. Also previously did you mean you had set size=3D512m
+>>> even though you wrote size=3D512g ?
+>>>
+>>> On 31 October 2017 at 22:03, David Hare <david.hare@primarydata.com>
+>>> wrote:
+>>>> I assume you want me to change the size parameter with a 64k
+>>>> blocksize as everything is working with 16k blocksize?
+>>>>
+>>>> -----Original Message-----
+>>>> From: Sitsofe Wheeler [mailto:sitsofe@gmail.com]
+>>>> Sent: Tuesday, October 31, 2017 2:54 PM
+>>>> To: David Hare <david.hare@primarydata.com>
+>>>> Cc: Jens Axboe <axboe@kernel.dk>; fio@vger.kernel.org
+>>>> Subject: Re: FIO windows
+>>>>
+>>>> Hi,
+>>>>
+>>>> Can you add unlink=3D1 and keep reducing the size parameter (e.g. down
+>>>> to 128m then down to 16m then down to 4m then down to 1m then down
+>>>> to 512k etc)?
+>>>>
+>>>> Can you attach the full output that's produced it fails with this
+>>>> reduced job?
+>>>>
+>>>> IF you are make the problem happen with very little I/O being done
+>>>> (i.e. the job bombs out after doing less than 1MiBytes worth of I/O)
+>>>> you can try adding --debug=3Dall to the job and seeing if that offers
+>>>> any clues as to what the last thing it was doing was?
+>>>>
+>>>> On 31 October 2017 at 21:46, David Hare <david.hare@primarydata.com>
+>>>> wrote:
+>>>>> It was ok with or without the colon, the size didn=E2=80=99t seem to =
+make a
+>>>>> difference, but blocksize did.. see the commented block sizes below.
+>>>>>
+>>>>> fio2.fio
+>>>>> [global]
+>>>>>
+>>>>> ioengine=3Dwindowsaio
+>>>>>
+>>>>> ;blocksize=3D64k - error
+>>>>> ;blocksize=3D32k - error
+>>>>> ;blocksize=3D16k - no error
+>>>>>
+>>>>> blocksize=3D16k
+>>>>>
+>>>>> direct=3D1
+>>>>>
+>>>>> thread
+>>>>>
+>>>>> size=3D512g
+>>>>>
+>>>>>
+>>>>>
+>>>>> time_based
+>>>>> runtime=3D10
+>>>>>
+>>>>> [asdf]
+>>>>> filename=3DF\:\\testfile:G\:\\testfile:H\:\\testfile:I\:\\testfile:J\=
+:
+>>>>> \ \
+>>>>> testfile:K\:\\testfile:L\:\\testfile:M\:\\testfile:P\:\\testfile
+>>>>>
+>>>>> Results:
+>>>>> Run status group 0 (all jobs):
+>>>>> READ: bw=3D141MiB/s (148MB/s), 141MiB/s-141MiB/s (148MB/s-148MB/s),
+>>>>> io=3D1413MiB (1481MB), run=3D10001-10001msec
+>>>>>
+>>>>>
+>>>>> -Dave
+>>>
+>>> --
+>>> Sitsofe | http://sucs.org/~sits/
+>>>
+>>>
+>>> Disclaimer
+>>>
+>>> The information contained in this communication from the sender is
+>>> confidential. It is intended solely for use by the recipient and
+>>> others authorized to receive it. If you are not the recipient, you
+>>> are hereby notified that any disclosure, copying, distribution or
+>>> taking action in relation of the contents of this information is
+>>> strictly prohibited and may be unlawful.
+>>
+>>
+>>
+>> --
+>> Sitsofe | http://sucs.org/~sits/
+>>
+>>
+>> Disclaimer
+>>
+>> The information contained in this communication from the sender is
+>> confidential. It is intended solely for use by the recipient and
+>> others authorized to receive it. If you are not the recipient, you are
+>> hereby notified that any disclosure, copying, distribution or taking
+>> action in relation of the contents of this information is strictly
+>> prohibited and may be unlawful.
+>
+>
 >
 > --
 > Sitsofe | http://sucs.org/~sits/
@@ -111,11 +246,12 @@ On 31 October 2017 at 23:09, David Hare <david.hare@primarydata.com> wrote:
 > confidential. It is intended solely for use by the recipient and others
 > authorized to receive it. If you are not the recipient, you are hereby
 > notified that any disclosure, copying, distribution or taking action in
-> relation of the contents of this information is strictly prohibited and may
+> relation of the contents of this information is strictly prohibited and m=
+ay
 > be unlawful.
 
 
 
--- 
+--=20
 Sitsofe | http://sucs.org/~sits/
 
