@@ -1,56 +1,115 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:60402 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751967AbdKGNAS (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 7 Nov 2017 08:00:18 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1eC3UI-0006xI-0Y
-        for fio@vger.kernel.org; Tue, 07 Nov 2017 13:00:18 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20171107130002.632BF2C02AF@kernel.dk>
-Date: Tue,  7 Nov 2017 06:00:02 -0700 (MST)
+Received: from us-smtp-delivery-194.mimecast.com ([216.205.24.194]:36325 "EHLO
+        us-smtp-delivery-194.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1754821AbdKARjG (ORCPT
+        <rfc822;fio@vger.kernel.org>); Wed, 1 Nov 2017 13:39:06 -0400
+From: David Hare <david.hare@primarydata.com>
+Subject: RE: FIO windows
+Date: Wed, 1 Nov 2017 17:39:00 +0000
+Message-ID: <MWHPR11MB20451864DC07D7D2C1FD2920875F0@MWHPR11MB2045.namprd11.prod.outlook.com>
+References: <MWHPR11MB2045B4FFEB905261E1FAFD1E875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <CALjAwxi+1Djmm_0SqEDTYV_Oc5yBDZYyak1Vd3S6Bsr8BNjjqg@mail.gmail.com>
+ <MWHPR11MB204592682060845766230A8D875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <CALjAwxiNeLuF2QSf6rg5wF4rLv47Fc=XreZR1pQf6V9zjiTy6A@mail.gmail.com>
+ <MWHPR11MB2045F05DB9FFF9FA44A04E6F875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <CALjAwxgAOCNQbWUw+eTiu3J2ZprXpmxpezLe53eFno0s0oaFDQ@mail.gmail.com>
+ <MWHPR11MB2045A9D5365FF57AC31CC87D875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <CALjAwxjsP=r87NXxurSXa86YUt7orCuPTAK=Gu3qfpUaUcCV5w@mail.gmail.com>
+ <MWHPR11MB2045A939088A8133BB30CDEB875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
+ <CALjAwxiS8XOFhwweHRND3ocJFY2FH_aud=9_OXtbWAM7-b1LJQ@mail.gmail.com>
+ <BN6PR11MB2034DE8B819C36DCD434DD22875E0@BN6PR11MB2034.namprd11.prod.outlook.com>
+ <CALjAwxh7+MaSkamGrxS5u6Vkv7eZYu-mAWW4pDnQmP-WpK+KJw@mail.gmail.com>
+ <e5107a87-6560-00b0-ed5d-98539fc7bad8@kernel.dk>
+ <77b1e402-8c21-592e-0f11-f7310fd24067@kernel.dk>
+In-Reply-To: <77b1e402-8c21-592e-0f11-f7310fd24067@kernel.dk>
+Content-Language: en-US
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit 9f50b4106bd1d6fa1c325900d1fb286832ccc5e8:
+DQpPaywgdGhhbmtzLg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogSmVucyBB
+eGJvZSBbbWFpbHRvOmF4Ym9lQGtlcm5lbC5ka10gDQpTZW50OiBXZWRuZXNkYXksIE5vdmVtYmVy
+IDEsIDIwMTcgMTA6MDUgQU0NClRvOiBTaXRzb2ZlIFdoZWVsZXIgPHNpdHNvZmVAZ21haWwuY29t
+PjsgRGF2aWQgSGFyZSA8ZGF2aWQuaGFyZUBwcmltYXJ5ZGF0YS5jb20+DQpDYzogZmlvQHZnZXIu
+a2VybmVsLm9yZw0KU3ViamVjdDogUmU6IEZJTyB3aW5kb3dzDQoNClNlZW1zIHRvIG1lIHRoYXQg
+d2Ugc2hvdWxkIGp1c3QgcmVzZXQgYmFjayB0byB6ZXJvLCBhbmQgbm90IHdvcnJ5IGFib3V0IHRo
+ZSBpb19zaXplIGF0IGFsbC4gVGhpcyBpcyB3aGF0IGlzIHNjcmV3aW5nIHRoaW5ncyB1cCwgYW5k
+IEkgY2FuJ3QgdGhpbmsgb2Ygd2h5IHdlIHdvdWxkIGF0dGVtcHQgdG8gYmUgbW9yZSBjbGV2ZXIg
+aW4gd3JhcHBpbmcgYXJvdW5kLiBUaGUgYmVsb3cgc2hvdWxkIGRvIHRoZSB0cmljay4NCg0KRGF2
+aWQsIG9uY2UgYXBwdmV5b3IgZmluaXNoZXMsIHlvdSBzaG91bGQgYmUgYWJsZSB0byBkb3dubG9h
+ZCB0aGUgYnVpbGQgaGVyZSBhbmQgcmUtdGVzdDoNCg0KaHR0cHM6Ly9jaS5hcHB2ZXlvci5jb20v
+cHJvamVjdC9heGJvZS9maW8vYnVpbGQvam9iL3AwbWlzcDRlaGU5NnRpN2QvYXJ0aWZhY3RzDQoN
+CmRpZmYgLS1naXQgYS9pb191LmMgYi9pb191LmMNCmluZGV4IDQyNDZlZGZmMGIyZi4uYWFjNzRi
+ZjZmN2FkIDEwMDY0NA0KLS0tIGEvaW9fdS5jDQorKysgYi9pb191LmMNCkBAIC0zNjMsMTQgKzM2
+Myw3IEBAIHN0YXRpYyBpbnQgZ2V0X25leHRfc2VxX29mZnNldChzdHJ1Y3QgdGhyZWFkX2RhdGEg
+KnRkLCBzdHJ1Y3QgZmlvX2ZpbGUgKmYsDQogDQogCWlmIChmLT5sYXN0X3Bvc1tkZGlyXSA+PSBm
+LT5pb19zaXplICsgZ2V0X3N0YXJ0X29mZnNldCh0ZCwgZikgJiYNCiAJICAgIG8tPnRpbWVfYmFz
+ZWQpIHsNCi0JCXN0cnVjdCB0aHJlYWRfb3B0aW9ucyAqbyA9ICZ0ZC0+bzsNCi0JCXVpbnQ2NF90
+IGlvX3NpemUgPSBmLT5pb19zaXplICsgKGYtPmlvX3NpemUgJSBvLT5taW5fYnNbZGRpcl0pOw0K
+LQ0KLQkJaWYgKGlvX3NpemUgPiBmLT5sYXN0X3Bvc1tkZGlyXSkNCi0JCQlmLT5sYXN0X3Bvc1tk
+ZGlyXSA9IDA7DQotCQllbHNlDQotCQkJZi0+bGFzdF9wb3NbZGRpcl0gPSBmLT5sYXN0X3Bvc1tk
+ZGlyXSAtIGlvX3NpemU7DQotDQorCQlmLT5sYXN0X3Bvc1tkZGlyXSA9IDA7DQogCQlsb29wX2Nh
+Y2hlX2ludmFsaWRhdGUodGQsIGYpOw0KIAl9DQogDQoNCg0KT24gMTEvMDEvMjAxNyAxMDo0NCBB
+TSwgSmVucyBBeGJvZSB3cm90ZToNCj4gSSBqdXN0IHRyaWVkIHRvIHJlcHJvZHVjZSBvbiBMaW51
+eCwgYW5kIEkgY2FuLiBJZiB0aGUgZmlsZXMgZG9uJ3QgDQo+IGV4aXN0IGFuZCBJIHJ1biB0aGlz
+IGpvYjoNCj4gDQo+IFtnbG9iYWxdDQo+IGJsb2Nrc2l6ZT02NGsNCj4gZGlyZWN0PTENCj4gZ3Jv
+dXBfcmVwb3J0aW5nDQo+IHJ3PXJlYWQNCj4gc2l6ZT01MTJtDQo+IA0KPiBbYXNkZl0NCj4gZmls
+ZW5hbWU9dGVzdGZpbGUxOnRlc3RmaWxlMjp0ZXN0ZmlsZTMNCj4gDQo+IGl0IHdvcmtzIGZpbmUu
+IFRoZW4gSSBjaGFuZ2UgdGhlIHNpemUgdG8gYmUgMjUwbSBBTkQgYWRkIHRpbWVfYmFzZWQgDQo+
+IGFuZCBhIGxvbmdlciBydW50aW1lIHRvIGVuc3VyZSB3ZSBoaXQgdGhlIHJvbGwtYXJvdW5kLCBh
+bmQgaXQgZmFpbHM6DQo+IA0KPiBmaW8gd2luLmZpbw0KPiBhc2RmOiAoZz0wKTogcnc9cmVhZCwg
+YnM9KFIpIDY0LjBLaUItNjQuMEtpQiwgKFcpIDY0LjBLaUItNjQuMEtpQiwgKFQpIA0KPiA2NC4w
+S2lCLTY0LjBLaUIsIGlvZW5naW5lPXBzeW5jLCBpb2RlcHRoPTEgZmlvLTMuMS03Ni1nMDhiZC1k
+aXJ0eSANCj4gU3RhcnRpbmcgMSBwcm9jZXNzDQo+IGZpbzogaW9fdSBlcnJvciBvbiBmaWxlIHRl
+c3RmaWxlMTogSW52YWxpZCBhcmd1bWVudDogcmVhZCANCj4gb2Zmc2V0PTIxODQ2LCBidWZsZW49
+NjU1MzYNCj4gZmlvOiBwaWQ9MTgxOTgsIGVycj0yMi9maWxlOmlvX3UuYzoxNzcwLCBmdW5jPWlv
+X3UgZXJyb3IsIA0KPiBlcnJvcj1JbnZhbGlkIGFyZ3VtZW50DQo+IA0KPiBTbyBsb29rcyBsaWtl
+IGEgYnVnIGluIHRoZSByZXNldCBwYXJ0LiBJJ2xsIHRha2UgYSBsb29rLg0KPiANCj4gDQo+IE9u
+IDEwLzMxLzIwMTcgMDU6MDYgUE0sIFNpdHNvZmUgV2hlZWxlciB3cm90ZToNCj4+IE9LIEkgc2Vl
+IHRoZSBwcm9ibGVtIHRvbyB3aGVuIHVzaW5nIHRoaXMgb24gV2luZG93czoNCj4+ICQgLi9maW8g
+LS1zaXplPTFnIC0tZmlsZW5hbWUNCj4+IGZpbzEudG1wOmZpbzIudG1wOmZpbzMudG1wOmZpbzQu
+dG1wOmZpbzUudG1wOmZpbzYudG1wOmZpbzcudG1wOmZpbzgudA0KPj4gbXA6ZmlvOS50bXANCj4+
+IC0tbmFtZT1nbyAtLWNyZWF0ZV9vbmx5PTENCj4+ICQgLi9maW8gLS1zaXplPTI1MG0gLS1maWxl
+bmFtZSBmaW8xLnRtcDpmaW8yLnRtcDpmaW8zLnRtcCAtLW5hbWU9Z28NCj4+IC0tZGlyZWN0PTEg
+LS1icz02NGsgLS1ydW50aW1lPTFtIC0tdGltZV9iYXNlZCAtLXRocmVhZA0KPj4NCj4+IFVzaW5n
+IC0tZGVidWc9YWxsIHNob3dzIHRoZSBmb2xsb3dpbmc6DQo+PiBpbyAgICAgICAyNzk2ICBnZXRl
+dmVudHM6IDENCj4+IGlvICAgICAgIDI3OTYgIGlvIGNvbXBsZXRlOiBpb191IDAwMDAwMDAwMDdC
+RDhGMDA6DQo+PiBvZmY9ODczNTk0ODgvbGVuPTY1NTM2L2RkaXI9MGlvICAgICAgIDI3OTYgIC9m
+aW8zLnRtcGlvICAgICAgIDI3OTYNCj4+IGZpbGUgICAgIDI3OTYgIHB1dCBmaWxlIGZpbzMudG1w
+LCByZWY9Mg0KPj4gZmlsZSAgICAgMjc5NiAgdHJ5aW5nIGZpbGUgZmlvMS50bXAgMTENCj4+IGZp
+bGUgICAgIDI3OTYgIGdvb2RmPTEsIGJhZGY9MiwgZmY9MTENCj4+IGZpbGUgICAgIDI3OTYgIGdl
+dF9uZXh0X2ZpbGVfcnI6IDAwMDA3RkY1RkVFQTQ2MTANCj4+IGZpbGUgICAgIDI3OTYgIGdldF9u
+ZXh0X2ZpbGU6IDAwMDA3RkY1RkVFQTQ2MTAgW2ZpbzEudG1wXQ0KPj4gZmlsZSAgICAgMjc5NiAg
+Z2V0IGZpbGUgZmlvMS50bXAsIHJlZj0xDQo+PiBpbyAgICAgICAyNzk2ICBmaWxsX2lvX3U6IGlv
+X3UgMDAwMDAwMDAwN0JEOEYwMDoNCj4+IG9mZj0yMTg0Ni9sZW49NjU1MzYvZGRpcj0waW8gICAg
+ICAgMjc5NiAgL2ZpbzEudG1waW8gICAgICAgMjc5Ng0KPj4gaW8gICAgICAgMjc5NiAgcHJlcDog
+aW9fdSAwMDAwMDAwMDA3QkQ4RjAwOg0KPj4gb2ZmPTIxODQ2L2xlbj02NTUzNi9kZGlyPTBpbyAg
+ICAgICAyNzk2ICAvZmlvMS50bXBpbyAgICAgICAyNzk2DQo+PiBpbyAgICAgICAyNzk2ICBxdWV1
+ZTogaW9fdSAwMDAwMDAwMDA3QkQ4RjAwOg0KPj4gb2ZmPTIxODQ2L2xlbj02NTUzNi9kZGlyPTBp
+byAgICAgICAyNzk2ICAvZmlvMS50bXBpbw0KPj4gaGVscGVydGhyZWFkIDI3OTYNCj4+IDI3OTYg
+IHNpbmNlX3NzOiAwLCBuZXh0X3NzOiAxMDAwLCBuZXh0X2xvZzogNDk1LCBtc2VjX3RvX25leHRf
+ZXZlbnQ6IDEzNg0KPj4gZmlsZSAgICAgMjc5NiAgcHV0IGZpbGUgZmlvMS50bXAsIHJlZj0yDQo+
+PiBpbyAgICAgICAyNzk2ICBpb191X3F1ZXVlZF9jb21wbGV0ZTogbWluPTANCj4+IGlvICAgICAg
+IDI3OTYgIGdldGV2ZW50czogMA0KPj4gcHJvY2VzcyAgMjc5NiAgcGlkPTI5MzY6IHJ1bnN0YXRl
+IFJVTk5JTkcgLT4gRklOSVNISU5HDQo+PiBmaW86IHBpZD0yOTM2LCBlcnI9MjIvZmlsZTppb2Vu
+Z2luZXMuYzozMzUsIGZ1bmM9dGRfaW9fcXVldWUsIA0KPj4gZXJyb3I9SW52YWxpZCBhcmd1bWVu
+dA0KPj4NCj4+IG9mZj0yMTg0NiBpcyBub3QgYSBtdWx0aXBsZSBvZiA1MTIuDQo+Pg0KPj4gJCBk
+dSAtYiBmaW8qdG1wDQo+PiAxMTkzMDQ2NDcgICAgICAgZmlvMS50bXANCj4+IDExOTMwNDY0NyAg
+ICAgICBmaW8yLnRtcA0KPj4gMTE5MzA0NjQ3ICAgICAgIGZpbzMudG1wDQo+PiAxMTkzMDQ2NDcg
+ICAgICAgZmlvNC50bXANCj4+IDExOTMwNDY0NyAgICAgICBmaW81LnRtcA0KPj4gMTE5MzA0NjQ3
+ICAgICAgIGZpbzYudG1wDQo+PiAxMTkzMDQ2NDcgICAgICAgZmlvNy50bXANCj4+IDExOTMwNDY0
+NyAgICAgICBmaW84LnRtcA0KPj4gMTE5MzA0NjQ3ICAgICAgIGZpbzkudG1wDQo+Pg0KPj4gSSB0
+aGluayB0aGlzIGlzIGFsbCBoaW50aW5nIGF0IGEgYnVnIGluIGZpbyAocGVyaGFwcyB3aGVuIHdv
+cmtpbmcgDQo+PiB3aXRoIG11bHRpcGxlIHByZS1leGlzdGluZyBmaWxlcyB0aGF0IGFyZSBiaWdn
+ZXIgdGhhbiBzaXplIHNwZWNpZmllZCkgDQo+PiBidXQgSSB0aGluayBJJ20gZG9uZSBmb3IgdGhl
+IGRheS4uLg0KPj4NCj4+IE9uIDMxIE9jdG9iZXIgMjAxNyBhdCAyMjo1MSwgRGF2aWQgSGFyZSA8
+ZGF2aWQuaGFyZUBwcmltYXJ5ZGF0YS5jb20+IHdyb3RlOg0KPj4+DQo+Pj4gTm90IHN1cmUgd2hh
+dCB5b3UgbWVhbiBieSBvbmUgZmlsZT8gVGhlIGRyaXZlcyBhcmUgbG9jYWwgTlRGUyANCj4+PiBm
+b3JtYXR0ZWQgd2l0aCBBbGxvY2F0aW9uIHVuaXQgc2l6ZSBvZiA2NGssIHRoZXkgcmFuZ2UgaW4g
+c2l6ZSBmcm9tIHdpdGggYXJlIDE4NmdiIC0gMzcyZ2IuDQo+Pg0KPiANCj4gDQoNCg0KLS0NCkpl
+bnMgQXhib2UNCg0K
 
-  Fio 3.2 (2017-11-03 15:23:49 -0600)
-
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 3b973af558aa0802e2c8193e9afac4cd49af3ca0:
-
-  Merge branch 'fix-libhdfs' of https://github.com/follitude/fio (2017-11-06 09:11:07 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'fix-libhdfs' of https://github.com/follitude/fio
-
-follitude (1):
-      Makefile: tiny fix of libhdfs
-
- Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/Makefile b/Makefile
-index 76243ff..2893348 100644
---- a/Makefile
-+++ b/Makefile
-@@ -51,7 +51,7 @@ SOURCE :=	$(sort $(patsubst $(SRCDIR)/%,%,$(wildcard $(SRCDIR)/crc/*.c)) \
- 
- ifdef CONFIG_LIBHDFS
-   HDFSFLAGS= -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/linux -I $(FIO_LIBHDFS_INCLUDE)
--  HDFSLIB= -Wl,-rpath $(JAVA_HOME)/jre/lib/$(FIO_HDFS_CPU)/server -L$(JAVA_HOME)/jre/lib/$(FIO_HDFS_CPU)/server -ljvm $(FIO_LIBHDFS_LIB)/libhdfs.a
-+  HDFSLIB= -Wl,-rpath $(JAVA_HOME)/jre/lib/$(FIO_HDFS_CPU)/server -L$(JAVA_HOME)/jre/lib/$(FIO_HDFS_CPU)/server $(FIO_LIBHDFS_LIB)/libhdfs.a -ljvm
-   CFLAGS += $(HDFSFLAGS)
-   SOURCE += engines/libhdfs.c
- endif
