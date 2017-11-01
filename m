@@ -1,12 +1,6 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from us-smtp-delivery-194.mimecast.com ([216.205.24.194]:36325 "EHLO
-        us-smtp-delivery-194.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1754821AbdKARjG (ORCPT
-        <rfc822;fio@vger.kernel.org>); Wed, 1 Nov 2017 13:39:06 -0400
-From: David Hare <david.hare@primarydata.com>
-Subject: RE: FIO windows
-Date: Wed, 1 Nov 2017 17:39:00 +0000
-Message-ID: <MWHPR11MB20451864DC07D7D2C1FD2920875F0@MWHPR11MB2045.namprd11.prod.outlook.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: FIO windows
+From: Jens Axboe <axboe@kernel.dk>
 References: <MWHPR11MB2045B4FFEB905261E1FAFD1E875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
  <CALjAwxi+1Djmm_0SqEDTYV_Oc5yBDZYyak1Vd3S6Bsr8BNjjqg@mail.gmail.com>
  <MWHPR11MB204592682060845766230A8D875E0@MWHPR11MB2045.namprd11.prod.outlook.com>
@@ -20,96 +14,136 @@ References: <MWHPR11MB2045B4FFEB905261E1FAFD1E875E0@MWHPR11MB2045.namprd11.prod.
  <BN6PR11MB2034DE8B819C36DCD434DD22875E0@BN6PR11MB2034.namprd11.prod.outlook.com>
  <CALjAwxh7+MaSkamGrxS5u6Vkv7eZYu-mAWW4pDnQmP-WpK+KJw@mail.gmail.com>
  <e5107a87-6560-00b0-ed5d-98539fc7bad8@kernel.dk>
- <77b1e402-8c21-592e-0f11-f7310fd24067@kernel.dk>
-In-Reply-To: <77b1e402-8c21-592e-0f11-f7310fd24067@kernel.dk>
-Content-Language: en-US
+Message-ID: <77b1e402-8c21-592e-0f11-f7310fd24067@kernel.dk>
+Date: Wed, 1 Nov 2017 11:05:06 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Jens Axboe <axboe@kernel.dk>, Sitsofe Wheeler <sitsofe@gmail.com>
+In-Reply-To: <e5107a87-6560-00b0-ed5d-98539fc7bad8@kernel.dk>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Sitsofe Wheeler <sitsofe@gmail.com>, David Hare <david.hare@primarydata.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-DQpPaywgdGhhbmtzLg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogSmVucyBB
-eGJvZSBbbWFpbHRvOmF4Ym9lQGtlcm5lbC5ka10gDQpTZW50OiBXZWRuZXNkYXksIE5vdmVtYmVy
-IDEsIDIwMTcgMTA6MDUgQU0NClRvOiBTaXRzb2ZlIFdoZWVsZXIgPHNpdHNvZmVAZ21haWwuY29t
-PjsgRGF2aWQgSGFyZSA8ZGF2aWQuaGFyZUBwcmltYXJ5ZGF0YS5jb20+DQpDYzogZmlvQHZnZXIu
-a2VybmVsLm9yZw0KU3ViamVjdDogUmU6IEZJTyB3aW5kb3dzDQoNClNlZW1zIHRvIG1lIHRoYXQg
-d2Ugc2hvdWxkIGp1c3QgcmVzZXQgYmFjayB0byB6ZXJvLCBhbmQgbm90IHdvcnJ5IGFib3V0IHRo
-ZSBpb19zaXplIGF0IGFsbC4gVGhpcyBpcyB3aGF0IGlzIHNjcmV3aW5nIHRoaW5ncyB1cCwgYW5k
-IEkgY2FuJ3QgdGhpbmsgb2Ygd2h5IHdlIHdvdWxkIGF0dGVtcHQgdG8gYmUgbW9yZSBjbGV2ZXIg
-aW4gd3JhcHBpbmcgYXJvdW5kLiBUaGUgYmVsb3cgc2hvdWxkIGRvIHRoZSB0cmljay4NCg0KRGF2
-aWQsIG9uY2UgYXBwdmV5b3IgZmluaXNoZXMsIHlvdSBzaG91bGQgYmUgYWJsZSB0byBkb3dubG9h
-ZCB0aGUgYnVpbGQgaGVyZSBhbmQgcmUtdGVzdDoNCg0KaHR0cHM6Ly9jaS5hcHB2ZXlvci5jb20v
-cHJvamVjdC9heGJvZS9maW8vYnVpbGQvam9iL3AwbWlzcDRlaGU5NnRpN2QvYXJ0aWZhY3RzDQoN
-CmRpZmYgLS1naXQgYS9pb191LmMgYi9pb191LmMNCmluZGV4IDQyNDZlZGZmMGIyZi4uYWFjNzRi
-ZjZmN2FkIDEwMDY0NA0KLS0tIGEvaW9fdS5jDQorKysgYi9pb191LmMNCkBAIC0zNjMsMTQgKzM2
-Myw3IEBAIHN0YXRpYyBpbnQgZ2V0X25leHRfc2VxX29mZnNldChzdHJ1Y3QgdGhyZWFkX2RhdGEg
-KnRkLCBzdHJ1Y3QgZmlvX2ZpbGUgKmYsDQogDQogCWlmIChmLT5sYXN0X3Bvc1tkZGlyXSA+PSBm
-LT5pb19zaXplICsgZ2V0X3N0YXJ0X29mZnNldCh0ZCwgZikgJiYNCiAJICAgIG8tPnRpbWVfYmFz
-ZWQpIHsNCi0JCXN0cnVjdCB0aHJlYWRfb3B0aW9ucyAqbyA9ICZ0ZC0+bzsNCi0JCXVpbnQ2NF90
-IGlvX3NpemUgPSBmLT5pb19zaXplICsgKGYtPmlvX3NpemUgJSBvLT5taW5fYnNbZGRpcl0pOw0K
-LQ0KLQkJaWYgKGlvX3NpemUgPiBmLT5sYXN0X3Bvc1tkZGlyXSkNCi0JCQlmLT5sYXN0X3Bvc1tk
-ZGlyXSA9IDA7DQotCQllbHNlDQotCQkJZi0+bGFzdF9wb3NbZGRpcl0gPSBmLT5sYXN0X3Bvc1tk
-ZGlyXSAtIGlvX3NpemU7DQotDQorCQlmLT5sYXN0X3Bvc1tkZGlyXSA9IDA7DQogCQlsb29wX2Nh
-Y2hlX2ludmFsaWRhdGUodGQsIGYpOw0KIAl9DQogDQoNCg0KT24gMTEvMDEvMjAxNyAxMDo0NCBB
-TSwgSmVucyBBeGJvZSB3cm90ZToNCj4gSSBqdXN0IHRyaWVkIHRvIHJlcHJvZHVjZSBvbiBMaW51
-eCwgYW5kIEkgY2FuLiBJZiB0aGUgZmlsZXMgZG9uJ3QgDQo+IGV4aXN0IGFuZCBJIHJ1biB0aGlz
-IGpvYjoNCj4gDQo+IFtnbG9iYWxdDQo+IGJsb2Nrc2l6ZT02NGsNCj4gZGlyZWN0PTENCj4gZ3Jv
-dXBfcmVwb3J0aW5nDQo+IHJ3PXJlYWQNCj4gc2l6ZT01MTJtDQo+IA0KPiBbYXNkZl0NCj4gZmls
-ZW5hbWU9dGVzdGZpbGUxOnRlc3RmaWxlMjp0ZXN0ZmlsZTMNCj4gDQo+IGl0IHdvcmtzIGZpbmUu
-IFRoZW4gSSBjaGFuZ2UgdGhlIHNpemUgdG8gYmUgMjUwbSBBTkQgYWRkIHRpbWVfYmFzZWQgDQo+
-IGFuZCBhIGxvbmdlciBydW50aW1lIHRvIGVuc3VyZSB3ZSBoaXQgdGhlIHJvbGwtYXJvdW5kLCBh
-bmQgaXQgZmFpbHM6DQo+IA0KPiBmaW8gd2luLmZpbw0KPiBhc2RmOiAoZz0wKTogcnc9cmVhZCwg
-YnM9KFIpIDY0LjBLaUItNjQuMEtpQiwgKFcpIDY0LjBLaUItNjQuMEtpQiwgKFQpIA0KPiA2NC4w
-S2lCLTY0LjBLaUIsIGlvZW5naW5lPXBzeW5jLCBpb2RlcHRoPTEgZmlvLTMuMS03Ni1nMDhiZC1k
-aXJ0eSANCj4gU3RhcnRpbmcgMSBwcm9jZXNzDQo+IGZpbzogaW9fdSBlcnJvciBvbiBmaWxlIHRl
-c3RmaWxlMTogSW52YWxpZCBhcmd1bWVudDogcmVhZCANCj4gb2Zmc2V0PTIxODQ2LCBidWZsZW49
-NjU1MzYNCj4gZmlvOiBwaWQ9MTgxOTgsIGVycj0yMi9maWxlOmlvX3UuYzoxNzcwLCBmdW5jPWlv
-X3UgZXJyb3IsIA0KPiBlcnJvcj1JbnZhbGlkIGFyZ3VtZW50DQo+IA0KPiBTbyBsb29rcyBsaWtl
-IGEgYnVnIGluIHRoZSByZXNldCBwYXJ0LiBJJ2xsIHRha2UgYSBsb29rLg0KPiANCj4gDQo+IE9u
-IDEwLzMxLzIwMTcgMDU6MDYgUE0sIFNpdHNvZmUgV2hlZWxlciB3cm90ZToNCj4+IE9LIEkgc2Vl
-IHRoZSBwcm9ibGVtIHRvbyB3aGVuIHVzaW5nIHRoaXMgb24gV2luZG93czoNCj4+ICQgLi9maW8g
-LS1zaXplPTFnIC0tZmlsZW5hbWUNCj4+IGZpbzEudG1wOmZpbzIudG1wOmZpbzMudG1wOmZpbzQu
-dG1wOmZpbzUudG1wOmZpbzYudG1wOmZpbzcudG1wOmZpbzgudA0KPj4gbXA6ZmlvOS50bXANCj4+
-IC0tbmFtZT1nbyAtLWNyZWF0ZV9vbmx5PTENCj4+ICQgLi9maW8gLS1zaXplPTI1MG0gLS1maWxl
-bmFtZSBmaW8xLnRtcDpmaW8yLnRtcDpmaW8zLnRtcCAtLW5hbWU9Z28NCj4+IC0tZGlyZWN0PTEg
-LS1icz02NGsgLS1ydW50aW1lPTFtIC0tdGltZV9iYXNlZCAtLXRocmVhZA0KPj4NCj4+IFVzaW5n
-IC0tZGVidWc9YWxsIHNob3dzIHRoZSBmb2xsb3dpbmc6DQo+PiBpbyAgICAgICAyNzk2ICBnZXRl
-dmVudHM6IDENCj4+IGlvICAgICAgIDI3OTYgIGlvIGNvbXBsZXRlOiBpb191IDAwMDAwMDAwMDdC
-RDhGMDA6DQo+PiBvZmY9ODczNTk0ODgvbGVuPTY1NTM2L2RkaXI9MGlvICAgICAgIDI3OTYgIC9m
-aW8zLnRtcGlvICAgICAgIDI3OTYNCj4+IGZpbGUgICAgIDI3OTYgIHB1dCBmaWxlIGZpbzMudG1w
-LCByZWY9Mg0KPj4gZmlsZSAgICAgMjc5NiAgdHJ5aW5nIGZpbGUgZmlvMS50bXAgMTENCj4+IGZp
-bGUgICAgIDI3OTYgIGdvb2RmPTEsIGJhZGY9MiwgZmY9MTENCj4+IGZpbGUgICAgIDI3OTYgIGdl
-dF9uZXh0X2ZpbGVfcnI6IDAwMDA3RkY1RkVFQTQ2MTANCj4+IGZpbGUgICAgIDI3OTYgIGdldF9u
-ZXh0X2ZpbGU6IDAwMDA3RkY1RkVFQTQ2MTAgW2ZpbzEudG1wXQ0KPj4gZmlsZSAgICAgMjc5NiAg
-Z2V0IGZpbGUgZmlvMS50bXAsIHJlZj0xDQo+PiBpbyAgICAgICAyNzk2ICBmaWxsX2lvX3U6IGlv
-X3UgMDAwMDAwMDAwN0JEOEYwMDoNCj4+IG9mZj0yMTg0Ni9sZW49NjU1MzYvZGRpcj0waW8gICAg
-ICAgMjc5NiAgL2ZpbzEudG1waW8gICAgICAgMjc5Ng0KPj4gaW8gICAgICAgMjc5NiAgcHJlcDog
-aW9fdSAwMDAwMDAwMDA3QkQ4RjAwOg0KPj4gb2ZmPTIxODQ2L2xlbj02NTUzNi9kZGlyPTBpbyAg
-ICAgICAyNzk2ICAvZmlvMS50bXBpbyAgICAgICAyNzk2DQo+PiBpbyAgICAgICAyNzk2ICBxdWV1
-ZTogaW9fdSAwMDAwMDAwMDA3QkQ4RjAwOg0KPj4gb2ZmPTIxODQ2L2xlbj02NTUzNi9kZGlyPTBp
-byAgICAgICAyNzk2ICAvZmlvMS50bXBpbw0KPj4gaGVscGVydGhyZWFkIDI3OTYNCj4+IDI3OTYg
-IHNpbmNlX3NzOiAwLCBuZXh0X3NzOiAxMDAwLCBuZXh0X2xvZzogNDk1LCBtc2VjX3RvX25leHRf
-ZXZlbnQ6IDEzNg0KPj4gZmlsZSAgICAgMjc5NiAgcHV0IGZpbGUgZmlvMS50bXAsIHJlZj0yDQo+
-PiBpbyAgICAgICAyNzk2ICBpb191X3F1ZXVlZF9jb21wbGV0ZTogbWluPTANCj4+IGlvICAgICAg
-IDI3OTYgIGdldGV2ZW50czogMA0KPj4gcHJvY2VzcyAgMjc5NiAgcGlkPTI5MzY6IHJ1bnN0YXRl
-IFJVTk5JTkcgLT4gRklOSVNISU5HDQo+PiBmaW86IHBpZD0yOTM2LCBlcnI9MjIvZmlsZTppb2Vu
-Z2luZXMuYzozMzUsIGZ1bmM9dGRfaW9fcXVldWUsIA0KPj4gZXJyb3I9SW52YWxpZCBhcmd1bWVu
-dA0KPj4NCj4+IG9mZj0yMTg0NiBpcyBub3QgYSBtdWx0aXBsZSBvZiA1MTIuDQo+Pg0KPj4gJCBk
-dSAtYiBmaW8qdG1wDQo+PiAxMTkzMDQ2NDcgICAgICAgZmlvMS50bXANCj4+IDExOTMwNDY0NyAg
-ICAgICBmaW8yLnRtcA0KPj4gMTE5MzA0NjQ3ICAgICAgIGZpbzMudG1wDQo+PiAxMTkzMDQ2NDcg
-ICAgICAgZmlvNC50bXANCj4+IDExOTMwNDY0NyAgICAgICBmaW81LnRtcA0KPj4gMTE5MzA0NjQ3
-ICAgICAgIGZpbzYudG1wDQo+PiAxMTkzMDQ2NDcgICAgICAgZmlvNy50bXANCj4+IDExOTMwNDY0
-NyAgICAgICBmaW84LnRtcA0KPj4gMTE5MzA0NjQ3ICAgICAgIGZpbzkudG1wDQo+Pg0KPj4gSSB0
-aGluayB0aGlzIGlzIGFsbCBoaW50aW5nIGF0IGEgYnVnIGluIGZpbyAocGVyaGFwcyB3aGVuIHdv
-cmtpbmcgDQo+PiB3aXRoIG11bHRpcGxlIHByZS1leGlzdGluZyBmaWxlcyB0aGF0IGFyZSBiaWdn
-ZXIgdGhhbiBzaXplIHNwZWNpZmllZCkgDQo+PiBidXQgSSB0aGluayBJJ20gZG9uZSBmb3IgdGhl
-IGRheS4uLg0KPj4NCj4+IE9uIDMxIE9jdG9iZXIgMjAxNyBhdCAyMjo1MSwgRGF2aWQgSGFyZSA8
-ZGF2aWQuaGFyZUBwcmltYXJ5ZGF0YS5jb20+IHdyb3RlOg0KPj4+DQo+Pj4gTm90IHN1cmUgd2hh
-dCB5b3UgbWVhbiBieSBvbmUgZmlsZT8gVGhlIGRyaXZlcyBhcmUgbG9jYWwgTlRGUyANCj4+PiBm
-b3JtYXR0ZWQgd2l0aCBBbGxvY2F0aW9uIHVuaXQgc2l6ZSBvZiA2NGssIHRoZXkgcmFuZ2UgaW4g
-c2l6ZSBmcm9tIHdpdGggYXJlIDE4NmdiIC0gMzcyZ2IuDQo+Pg0KPiANCj4gDQoNCg0KLS0NCkpl
-bnMgQXhib2UNCg0K
+Seems to me that we should just reset back to zero, and not worry
+about the io_size at all. This is what is screwing things up, and
+I can't think of why we would attempt to be more clever in
+wrapping around. The below should do the trick.
+
+David, once appveyor finishes, you should be able to download the build
+here and re-test:
+
+https://ci.appveyor.com/project/axboe/fio/build/job/p0misp4ehe96ti7d/artifacts
+
+diff --git a/io_u.c b/io_u.c
+index 4246edff0b2f..aac74bf6f7ad 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -363,14 +363,7 @@ static int get_next_seq_offset(struct thread_data *td, struct fio_file *f,
+ 
+ 	if (f->last_pos[ddir] >= f->io_size + get_start_offset(td, f) &&
+ 	    o->time_based) {
+-		struct thread_options *o = &td->o;
+-		uint64_t io_size = f->io_size + (f->io_size % o->min_bs[ddir]);
+-
+-		if (io_size > f->last_pos[ddir])
+-			f->last_pos[ddir] = 0;
+-		else
+-			f->last_pos[ddir] = f->last_pos[ddir] - io_size;
+-
++		f->last_pos[ddir] = 0;
+ 		loop_cache_invalidate(td, f);
+ 	}
+ 
+
+
+On 11/01/2017 10:44 AM, Jens Axboe wrote:
+> I just tried to reproduce on Linux, and I can. If the files don't exist and
+> I run this job:
+> 
+> [global]
+> blocksize=64k
+> direct=1
+> group_reporting
+> rw=read
+> size=512m
+> 
+> [asdf]
+> filename=testfile1:testfile2:testfile3
+> 
+> it works fine. Then I change the size to be 250m AND add time_based
+> and a longer runtime to ensure we hit the roll-around, and it fails:
+> 
+> fio win.fio 
+> asdf: (g=0): rw=read, bs=(R) 64.0KiB-64.0KiB, (W) 64.0KiB-64.0KiB, (T) 64.0KiB-64.0KiB, ioengine=psync, iodepth=1
+> fio-3.1-76-g08bd-dirty
+> Starting 1 process
+> fio: io_u error on file testfile1: Invalid argument: read offset=21846, buflen=65536
+> fio: pid=18198, err=22/file:io_u.c:1770, func=io_u error, error=Invalid argument
+> 
+> So looks like a bug in the reset part. I'll take a look.
+> 
+> 
+> On 10/31/2017 05:06 PM, Sitsofe Wheeler wrote:
+>> OK I see the problem too when using this on Windows:
+>> $ ./fio --size=1g --filename
+>> fio1.tmp:fio2.tmp:fio3.tmp:fio4.tmp:fio5.tmp:fio6.tmp:fio7.tmp:fio8.tmp:fio9.tmp
+>> --name=go --create_only=1
+>> $ ./fio --size=250m --filename fio1.tmp:fio2.tmp:fio3.tmp --name=go
+>> --direct=1 --bs=64k --runtime=1m --time_based --thread
+>>
+>> Using --debug=all shows the following:
+>> io       2796  getevents: 1
+>> io       2796  io complete: io_u 0000000007BD8F00:
+>> off=87359488/len=65536/ddir=0io       2796  /fio3.tmpio       2796
+>> file     2796  put file fio3.tmp, ref=2
+>> file     2796  trying file fio1.tmp 11
+>> file     2796  goodf=1, badf=2, ff=11
+>> file     2796  get_next_file_rr: 00007FF5FEEA4610
+>> file     2796  get_next_file: 00007FF5FEEA4610 [fio1.tmp]
+>> file     2796  get file fio1.tmp, ref=1
+>> io       2796  fill_io_u: io_u 0000000007BD8F00:
+>> off=21846/len=65536/ddir=0io       2796  /fio1.tmpio       2796
+>> io       2796  prep: io_u 0000000007BD8F00:
+>> off=21846/len=65536/ddir=0io       2796  /fio1.tmpio       2796
+>> io       2796  queue: io_u 0000000007BD8F00:
+>> off=21846/len=65536/ddir=0io       2796  /fio1.tmpio
+>> helperthread 2796
+>> 2796  since_ss: 0, next_ss: 1000, next_log: 495, msec_to_next_event: 136
+>> file     2796  put file fio1.tmp, ref=2
+>> io       2796  io_u_queued_complete: min=0
+>> io       2796  getevents: 0
+>> process  2796  pid=2936: runstate RUNNING -> FINISHING
+>> fio: pid=2936, err=22/file:ioengines.c:335, func=td_io_queue,
+>> error=Invalid argument
+>>
+>> off=21846 is not a multiple of 512.
+>>
+>> $ du -b fio*tmp
+>> 119304647       fio1.tmp
+>> 119304647       fio2.tmp
+>> 119304647       fio3.tmp
+>> 119304647       fio4.tmp
+>> 119304647       fio5.tmp
+>> 119304647       fio6.tmp
+>> 119304647       fio7.tmp
+>> 119304647       fio8.tmp
+>> 119304647       fio9.tmp
+>>
+>> I think this is all hinting at a bug in fio (perhaps when working with
+>> multiple pre-existing files that are bigger than size specified) but I
+>> think I'm done for the day...
+>>
+>> On 31 October 2017 at 22:51, David Hare <david.hare@primarydata.com> wrote:
+>>>
+>>> Not sure what you mean by one file? The drives are local NTFS formatted with
+>>> Allocation unit size of 64k, they range in size from with are 186gb - 372gb.
+>>
+> 
+> 
+
+
+-- 
+Jens Axboe
+
 
