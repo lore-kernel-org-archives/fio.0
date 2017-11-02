@@ -1,77 +1,67 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g2t1383g.austin.hpe.com ([15.233.16.89]:33754 "EHLO
-        g2t1383g.austin.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751240AbdKNAtv (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 13 Nov 2017 19:49:51 -0500
-Received: from g4t3427.houston.hpe.com (g4t3427.houston.hpe.com [15.241.140.73])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by g2t1383g.austin.hpe.com (Postfix) with ESMTPS id C5A3835F8
-        for <fio@vger.kernel.org>; Tue, 14 Nov 2017 00:49:50 +0000 (UTC)
-Received: from g4t3433.houston.hpecorp.net (g4t3433.houston.hpecorp.net [16.208.49.245])
-        by g4t3427.houston.hpe.com (Postfix) with ESMTP id 1CF5F57
-        for <fio@vger.kernel.org>; Tue, 14 Nov 2017 00:49:50 +0000 (UTC)
-From: Robert Elliott <elliott@hpe.com>
-Subject: [PATCH] os-windows: fix cpumask operations
-Date: Mon, 13 Nov 2017 19:00:40 -0600
-Message-Id: <20171114010040.72921-1-elliott@hpe.com>
+Received: from merlin.infradead.org ([205.233.59.134]:56192 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752377AbdKBMAS (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 2 Nov 2017 08:00:18 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1eAEAT-0000om-DC
+        for fio@vger.kernel.org; Thu, 02 Nov 2017 12:00:17 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20171102120002.1F59A2C23D1@kernel.dk>
+Date: Thu,  2 Nov 2017 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: Robert Elliott <elliott@hpe.com>
 
-Fix cpumask manipulation on (64-bit) Windows systems.
+The following changes since commit 1633aa61a68593b4a4cc5dbb621129303a7c3049:
 
-cpus_allowed=nn values greater than 32 does not work, due
-to the compiler not promoting expressions like "1 << cpu" to
-64 bits, the clear function clearing the wrong bit (using "cpu - 1"),
-and the clear function using XOR to clear (which only works if the
-bit was previously set).
+  engines/windowsaio: style fixups (2017-10-31 14:01:16 -0600)
 
-Example problems (from extra debug prints):
-* setting CPU 32 really sets bit 1 (CPU 0)
-	Set mask of 0000000000000000 to add 0000000000000001 (32)
+are available in the git repository at:
 
-* setting CPU 63 really sets bit 31 (CPU 32)
-	Set mask of 0000000000000000 to add 0000000080000000 (63)
+  git://git.kernel.dk/fio.git master
 
-* clearing CPU 0 really clears bit 63 (CPU 64)
-	Clear mask of 0000000055555555 to remove 8000000000000000 (0)
+for you to fetch changes up to c89daa4a98e6f3749ffc75b727a77cc061a0a454:
 
-* clearing CPU 2 really clears bit 2 (CPU 1)
-	Clear mask of 0000000055555555 to remove 0000000000000002 (2)
+  io_u: reset file to initial offset (2017-11-01 14:51:03 -0600)
 
-Tested with x86_64-w64-mingw32-gcc 6.4.0 from cygwin on a system
-with 64 CPU cores (all fitting in one Windows processor group).
+----------------------------------------------------------------
+Jens Axboe (2):
+      io_u: wrap to beginning when end-of-file is reached for time_based
+      io_u: reset file to initial offset
+
+ io_u.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+
 ---
- os/os-windows.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/os/os-windows.h b/os/os-windows.h
-index 520da19..c7941f4 100644
---- a/os/os-windows.h
-+++ b/os/os-windows.h
-@@ -209,17 +209,17 @@ static inline int fio_getaffinity(int pid, os_cpu_mask_t *mask)
- 
- static inline void fio_cpu_clear(os_cpu_mask_t *mask, int cpu)
- {
--	*mask ^= 1 << (cpu-1);
-+	*mask &= ~(1ULL << cpu);
- }
- 
- static inline void fio_cpu_set(os_cpu_mask_t *mask, int cpu)
- {
--	*mask |= 1 << cpu;
-+	*mask |= 1ULL << cpu;
- }
- 
- static inline int fio_cpu_isset(os_cpu_mask_t *mask, int cpu)
- {
--	return (*mask & (1U << cpu));
-+	return (*mask & (1ULL << cpu));
- }
- 
- static inline int fio_cpu_count(os_cpu_mask_t *mask)
--- 
-2.9.3
+Diff of recent changes:
 
+diff --git a/io_u.c b/io_u.c
+index 4246edf..81ee724 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -361,16 +361,13 @@ static int get_next_seq_offset(struct thread_data *td, struct fio_file *f,
+ 
+ 	assert(ddir_rw(ddir));
+ 
++	/*
++	 * If we reach the end for a time based run, reset us back to 0
++	 * and invalidate the cache, if we need to.
++	 */
+ 	if (f->last_pos[ddir] >= f->io_size + get_start_offset(td, f) &&
+ 	    o->time_based) {
+-		struct thread_options *o = &td->o;
+-		uint64_t io_size = f->io_size + (f->io_size % o->min_bs[ddir]);
+-
+-		if (io_size > f->last_pos[ddir])
+-			f->last_pos[ddir] = 0;
+-		else
+-			f->last_pos[ddir] = f->last_pos[ddir] - io_size;
+-
++		f->last_pos[ddir] = f->file_offset;
+ 		loop_cache_invalidate(td, f);
+ 	}
+ 
