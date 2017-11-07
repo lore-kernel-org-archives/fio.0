@@ -1,67 +1,56 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:56192 "EHLO
+Received: from merlin.infradead.org ([205.233.59.134]:60402 "EHLO
         merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752377AbdKBMAS (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 2 Nov 2017 08:00:18 -0400
+        with ESMTP id S1751967AbdKGNAS (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 7 Nov 2017 08:00:18 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
         by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1eAEAT-0000om-DC
-        for fio@vger.kernel.org; Thu, 02 Nov 2017 12:00:17 +0000
+        id 1eC3UI-0006xI-0Y
+        for fio@vger.kernel.org; Tue, 07 Nov 2017 13:00:18 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20171102120002.1F59A2C23D1@kernel.dk>
-Date: Thu,  2 Nov 2017 06:00:02 -0600 (MDT)
+Message-Id: <20171107130002.632BF2C02AF@kernel.dk>
+Date: Tue,  7 Nov 2017 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 1633aa61a68593b4a4cc5dbb621129303a7c3049:
+The following changes since commit 9f50b4106bd1d6fa1c325900d1fb286832ccc5e8:
 
-  engines/windowsaio: style fixups (2017-10-31 14:01:16 -0600)
+  Fio 3.2 (2017-11-03 15:23:49 -0600)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to c89daa4a98e6f3749ffc75b727a77cc061a0a454:
+for you to fetch changes up to 3b973af558aa0802e2c8193e9afac4cd49af3ca0:
 
-  io_u: reset file to initial offset (2017-11-01 14:51:03 -0600)
+  Merge branch 'fix-libhdfs' of https://github.com/follitude/fio (2017-11-06 09:11:07 -0700)
 
 ----------------------------------------------------------------
-Jens Axboe (2):
-      io_u: wrap to beginning when end-of-file is reached for time_based
-      io_u: reset file to initial offset
+Jens Axboe (1):
+      Merge branch 'fix-libhdfs' of https://github.com/follitude/fio
 
- io_u.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+follitude (1):
+      Makefile: tiny fix of libhdfs
+
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/io_u.c b/io_u.c
-index 4246edf..81ee724 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -361,16 +361,13 @@ static int get_next_seq_offset(struct thread_data *td, struct fio_file *f,
+diff --git a/Makefile b/Makefile
+index 76243ff..2893348 100644
+--- a/Makefile
++++ b/Makefile
+@@ -51,7 +51,7 @@ SOURCE :=	$(sort $(patsubst $(SRCDIR)/%,%,$(wildcard $(SRCDIR)/crc/*.c)) \
  
- 	assert(ddir_rw(ddir));
- 
-+	/*
-+	 * If we reach the end for a time based run, reset us back to 0
-+	 * and invalidate the cache, if we need to.
-+	 */
- 	if (f->last_pos[ddir] >= f->io_size + get_start_offset(td, f) &&
- 	    o->time_based) {
--		struct thread_options *o = &td->o;
--		uint64_t io_size = f->io_size + (f->io_size % o->min_bs[ddir]);
--
--		if (io_size > f->last_pos[ddir])
--			f->last_pos[ddir] = 0;
--		else
--			f->last_pos[ddir] = f->last_pos[ddir] - io_size;
--
-+		f->last_pos[ddir] = f->file_offset;
- 		loop_cache_invalidate(td, f);
- 	}
- 
+ ifdef CONFIG_LIBHDFS
+   HDFSFLAGS= -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/linux -I $(FIO_LIBHDFS_INCLUDE)
+-  HDFSLIB= -Wl,-rpath $(JAVA_HOME)/jre/lib/$(FIO_HDFS_CPU)/server -L$(JAVA_HOME)/jre/lib/$(FIO_HDFS_CPU)/server -ljvm $(FIO_LIBHDFS_LIB)/libhdfs.a
++  HDFSLIB= -Wl,-rpath $(JAVA_HOME)/jre/lib/$(FIO_HDFS_CPU)/server -L$(JAVA_HOME)/jre/lib/$(FIO_HDFS_CPU)/server $(FIO_LIBHDFS_LIB)/libhdfs.a -ljvm
+   CFLAGS += $(HDFSFLAGS)
+   SOURCE += engines/libhdfs.c
+ endif
