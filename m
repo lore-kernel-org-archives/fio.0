@@ -1,45 +1,158 @@
-Return-Path: <logang@deltatee.com>
-References: <1510096473-2397-1-git-send-email-sbates@raithlin.com>
-From: Logan Gunthorpe <logang@deltatee.com>
-Message-ID: <05d890f7-5f61-4e4a-3753-b904ce54efc8@deltatee.com>
-Date: Tue, 7 Nov 2017 17:02:21 -0700
+Return-Path: <sbates@raithlin.com>
+From: sbates@raithlin.com
+Subject: [PATCH] rmda: Add bind option
+Date: Tue,  7 Nov 2017 16:14:33 -0700
+Message-Id: <1510096473-2397-1-git-send-email-sbates@raithlin.com>
 MIME-Version: 1.0
-In-Reply-To: <1510096473-2397-1-git-send-email-sbates@raithlin.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH] rmda: Add bind option
-To: sbates@raithlin.com, axboe@kernel.dk, fio@vger.kernel.org, renyufei83@yahoo.com.cn
+Content-Type: text/plain
+Return-Path: sbates@raithlin.com
+To: axboe@kernel.dk, fio@vger.kernel.org, logang@deltatee.com, renyufei83@yahoo.com.cn
+Cc: Stephen Bates <sbates@raithlin.com>
 List-ID: <fio@vger.kernel.org>
 
-Hey,
+From: Stephen Bates <sbates@raithlin.com>
 
-This looks good to me except for one nit below.
+In certain configurations it can be useful to bind a rdma_cm to a
+particular network interface. For example in multi-path or loopback.
 
+Add a bindname option that the local rdma_cm will try and bind too.
 
-On 07/11/17 04:14 PM, sbates@raithlin.com wrote:
-> Signed-off-by: Stephen Bates <sbates@raithlin.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+The bind code is based off that used in rping [1].
 
+[1] https://github.com/linux-rdma/rdma-core/blob/ \
+    master/librdmacm/examples/rping.c
 
-> +static int ntoa(struct thread_data *td, const char *host,
-> +		     struct sockaddr_in *addr)
-> +{
-> +	if (inet_aton(host, &addr->sin_addr) != 1) {
-> +		struct hostent *hent;
-> +
-> +		hent = gethostbyname(host);
-> +		if (!hent) {
-> +			td_verror(td, errno, "gethostbyname");
-> +			return 1;
-> +		}
-> +
-> +		memcpy(&addr->sin_addr, hent->h_addr, 4);
-> +	}
-> +	return 0;
-> +}
+Signed-off-by: Stephen Bates <sbates@raithlin.com>
+---
+ engines/rdma.c | 64 +++++++++++++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 52 insertions(+), 12 deletions(-)
 
-Why is this function called ntoa when it seems to be doing aton? Typo?
+diff --git a/engines/rdma.c b/engines/rdma.c
+index da00cba..a3cb057 100644
+--- a/engines/rdma.c
++++ b/engines/rdma.c
+@@ -59,6 +59,7 @@ struct rdmaio_options {
+ 	struct thread_data *td;
+ 	unsigned int port;
+ 	enum rdma_io_mode verb;
++	char *bindname;
+ };
+ 
+ static int str_hostname_cb(void *data, const char *input)
+@@ -82,6 +83,16 @@ static struct fio_option options[] = {
+ 		.group	= FIO_OPT_G_RDMA,
+ 	},
+ 	{
++		.name	= "bindname",
++		.lname	= "rdma engine bindname",
++		.type	= FIO_OPT_STR_STORE,
++		.off1	= offsetof(struct rdmaio_options, bindname),
++		.help	= "Bind for RDMA IO engine",
++		.def    = "",
++		.category = FIO_OPT_C_ENGINE,
++		.group	= FIO_OPT_G_RDMA,
++	},
++	{
+ 		.name	= "port",
+ 		.lname	= "rdma engine port",
+ 		.type	= FIO_OPT_INT,
+@@ -1004,30 +1015,53 @@ static int fio_rdmaio_close_file(struct thread_data *td, struct fio_file *f)
+ 	return 0;
+ }
+ 
++static int ntoa(struct thread_data *td, const char *host,
++		     struct sockaddr_in *addr)
++{
++	if (inet_aton(host, &addr->sin_addr) != 1) {
++		struct hostent *hent;
++
++		hent = gethostbyname(host);
++		if (!hent) {
++			td_verror(td, errno, "gethostbyname");
++			return 1;
++		}
++
++		memcpy(&addr->sin_addr, hent->h_addr, 4);
++	}
++	return 0;
++}
++
+ static int fio_rdmaio_setup_connect(struct thread_data *td, const char *host,
+ 				    unsigned short port)
+ {
+ 	struct rdmaio_data *rd = td->io_ops_data;
++	struct rdmaio_options *o = td->eo;
++	struct sockaddr_storage addrb;
+ 	struct ibv_recv_wr *bad_wr;
+ 	int err;
+ 
+ 	rd->addr.sin_family = AF_INET;
+ 	rd->addr.sin_port = htons(port);
+ 
+-	if (inet_aton(host, &rd->addr.sin_addr) != 1) {
+-		struct hostent *hent;
++	err = ntoa(td, host, &rd->addr);
++	if (err)
++		return err;
+ 
+-		hent = gethostbyname(host);
+-		if (!hent) {
+-			td_verror(td, errno, "gethostbyname");
+-			return 1;
+-		}
++	/* resolve route */
++	if (strcmp(o->bindname, "") != 0) {
++		addrb.ss_family = AF_INET;
++		err = ntoa(td, o->bindname, (struct sockaddr_in *)&addrb);
++		if (err)
++			return err;
++		err = rdma_resolve_addr(rd->cm_id, (struct sockaddr *)&addrb,
++					(struct sockaddr *)&rd->addr, 2000);
+ 
+-		memcpy(&rd->addr.sin_addr, hent->h_addr, 4);
++	} else {
++		err = rdma_resolve_addr(rd->cm_id, NULL,
++					(struct sockaddr *)&rd->addr, 2000);
+ 	}
+ 
+-	/* resolve route */
+-	err = rdma_resolve_addr(rd->cm_id, NULL, (struct sockaddr *)&rd->addr, 2000);
+ 	if (err != 0) {
+ 		log_err("fio: rdma_resolve_addr: %d\n", err);
+ 		return 1;
+@@ -1072,15 +1106,20 @@ static int fio_rdmaio_setup_connect(struct thread_data *td, const char *host,
+ static int fio_rdmaio_setup_listen(struct thread_data *td, short port)
+ {
+ 	struct rdmaio_data *rd = td->io_ops_data;
++	struct rdmaio_options *o = td->eo;
+ 	struct ibv_recv_wr *bad_wr;
+ 	int state = td->runstate;
+ 
+ 	td_set_runstate(td, TD_SETTING_UP);
+ 
+ 	rd->addr.sin_family = AF_INET;
+-	rd->addr.sin_addr.s_addr = htonl(INADDR_ANY);
+ 	rd->addr.sin_port = htons(port);
+ 
++	if (strcmp(o->bindname, "") == 0)
++		rd->addr.sin_addr.s_addr = htonl(INADDR_ANY);
++	else
++		rd->addr.sin_addr.s_addr = htonl(*o->bindname);
++
+ 	/* rdma_listen */
+ 	if (rdma_bind_addr(rd->cm_id, (struct sockaddr *)&rd->addr) != 0) {
+ 		log_err("fio: rdma_bind_addr fail: %m\n");
+@@ -1155,7 +1194,8 @@ static int compat_options(struct thread_data *td)
+ {
+ 	// The original RDMA engine had an ugly / seperator
+ 	// on the filename for it's options. This function
+-	// retains backwards compatibility with it.100
++	// retains backwards compatibility with it. Note we do not
++	// support setting the bindname option is this legacy mode.
+ 
+ 	struct rdmaio_options *o = td->eo;
+ 	char *modep, *portp;
+-- 
+2.7.4
 
-Logan
 
