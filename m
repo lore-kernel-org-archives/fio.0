@@ -1,98 +1,62 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-yb0-f177.google.com ([209.85.213.177]:44023 "EHLO
-        mail-yb0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751577AbdKTRBJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 20 Nov 2017 12:01:09 -0500
-Received: by mail-yb0-f177.google.com with SMTP id q84so121644ybc.10
-        for <fio@vger.kernel.org>; Mon, 20 Nov 2017 09:01:09 -0800 (PST)
-MIME-Version: 1.0
-Reply-To: dillaman@redhat.com
-In-Reply-To: <034AAD465C6CBE4F96D9FB98573A79A62C2C933C@FMSMSX108.amr.corp.intel.com>
+Received: from mga01.intel.com ([192.55.52.88]:19081 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751492AbdKTRAG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 20 Nov 2017 12:00:06 -0500
+From: "Moreno, Orlando" <orlando.moreno@intel.com>
+Subject: RE: [ceph-users] Poor libRBD write performance
+Date: Mon, 20 Nov 2017 17:00:04 +0000
+Message-ID: <034AAD465C6CBE4F96D9FB98573A79A62C2C933C@FMSMSX108.amr.corp.intel.com>
 References: <034AAD465C6CBE4F96D9FB98573A79A62C2C92E0@FMSMSX108.amr.corp.intel.com>
- <CA+aFP1Bugm_HjOh=EusFSasx1rZucs7e7KHKD3Gq9o5VmnZ+Aw@mail.gmail.com> <034AAD465C6CBE4F96D9FB98573A79A62C2C933C@FMSMSX108.amr.corp.intel.com>
-From: Jason Dillaman <jdillama@redhat.com>
-Date: Mon, 20 Nov 2017 12:01:05 -0500
-Message-ID: <CA+aFP1D03CVHACckU+M0LU0jP=CQNpFph8Ks+V1o+_aoskHE5Q@mail.gmail.com>
-Subject: Re: [ceph-users] Poor libRBD write performance
+ <CA+aFP1Bugm_HjOh=EusFSasx1rZucs7e7KHKD3Gq9o5VmnZ+Aw@mail.gmail.com>
+In-Reply-To: <CA+aFP1Bugm_HjOh=EusFSasx1rZucs7e7KHKD3Gq9o5VmnZ+Aw@mail.gmail.com>
+Content-Language: en-US
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Moreno, Orlando" <orlando.moreno@intel.com>
+To: "dillaman@redhat.com" <dillaman@redhat.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "ceph-users@lists.ceph.com" <ceph-users@lists.ceph.com>, "cbt@lists.ceph.com" <cbt@lists.ceph.com>
 
-On Mon, Nov 20, 2017 at 12:00 PM, Moreno, Orlando
-<orlando.moreno@intel.com> wrote:
-> Hi Jason,
->
-> You're right, thanks for pointing that out. I could've sworn I saw the same problem with exclusive-lock disabled, but after trying it again, disabling the feature does fix the write performance :)
->
-> So does this mean that when an RBD is attached to a VM, it is considered a single client connection?
-
-Yes, the VM (QEMU) is a single client to librbd.
-
-> Thanks,
-> Orlando
->
-> -----Original Message-----
-> From: Jason Dillaman [mailto:jdillama@redhat.com]
-> Sent: Monday, November 20, 2017 9:10 AM
-> To: Moreno, Orlando <orlando.moreno@intel.com>
-> Cc: fio@vger.kernel.org; ceph-users@lists.ceph.com; cbt@lists.ceph.com
-> Subject: Re: [ceph-users] Poor libRBD write performance
->
-> I suspect you are seeing this issue [1]. TL;DR: never use "numjobs" >
-> 1 against an RBD image that has the exclusive-lock feature enabled.
->
-> [1] http://lists.ceph.com/pipermail/ceph-users-ceph.com/2016-August/012123.html
->
-> On Mon, Nov 20, 2017 at 11:06 AM, Moreno, Orlando <orlando.moreno@intel.com> wrote:
->> Hi all,
->>
->>
->>
->> I’ve been experiencing weird performance behavior when using FIO RBD
->> engine directly to an RBD volume with numjobs > 1. For a 4KB random
->> write test at
->> 32 QD and 1 numjob, I can get about 40K IOPS, but when I increase the
->> numjobs to 4, it plummets to 2800 IOPS. I tried running the same exact
->> test on a VM using FIO libaio targeting a block device (volume)
->> attached through QEMU/RBD and I get ~35K-40K IOPS in both situations.
->> In all cases, CPU was not fully utilized and there were no signs of
->> any hardware bottlenecks. I did not disable any RBD features and most
->> of the Ceph parameters are default (besides auth, debug, pool size, etc).
->>
->>
->>
->> My Ceph cluster is running on 6 nodes, all-NVMe, 22-core, 376GB mem,
->> Luminous 12.2.1, Ubuntu 16.04, and clients running FIO job/VM on
->> similar HW/SW spec. The VM has 16 vCPU, 64GB mem, and the root disk is
->> locally stored while the persistent disk comes from an RBD volume
->> serviced by the Ceph cluster.
->>
->>
->>
->> If anyone has seen this issue or have any suggestions please let me know.
->>
->>
->>
->> Thanks,
->>
->> Orlando
->>
->>
->> _______________________________________________
->> ceph-users mailing list
->> ceph-users@lists.ceph.com
->> http://lists.ceph.com/listinfo.cgi/ceph-users-ceph.com
->>
->
->
->
-> --
-> Jason
-
-
-
--- 
-Jason
+SGkgSmFzb24sDQoNCllvdSdyZSByaWdodCwgdGhhbmtzIGZvciBwb2ludGluZyB0aGF0IG91dC4g
+SSBjb3VsZCd2ZSBzd29ybiBJIHNhdyB0aGUgc2FtZSBwcm9ibGVtIHdpdGggZXhjbHVzaXZlLWxv
+Y2sgZGlzYWJsZWQsIGJ1dCBhZnRlciB0cnlpbmcgaXQgYWdhaW4sIGRpc2FibGluZyB0aGUgZmVh
+dHVyZSBkb2VzIGZpeCB0aGUgd3JpdGUgcGVyZm9ybWFuY2UgOikNCg0KU28gZG9lcyB0aGlzIG1l
+YW4gdGhhdCB3aGVuIGFuIFJCRCBpcyBhdHRhY2hlZCB0byBhIFZNLCBpdCBpcyBjb25zaWRlcmVk
+IGEgc2luZ2xlIGNsaWVudCBjb25uZWN0aW9uPw0KDQpUaGFua3MsDQpPcmxhbmRvDQoNCi0tLS0t
+T3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBKYXNvbiBEaWxsYW1hbiBbbWFpbHRvOmpkaWxs
+YW1hQHJlZGhhdC5jb21dIA0KU2VudDogTW9uZGF5LCBOb3ZlbWJlciAyMCwgMjAxNyA5OjEwIEFN
+DQpUbzogTW9yZW5vLCBPcmxhbmRvIDxvcmxhbmRvLm1vcmVub0BpbnRlbC5jb20+DQpDYzogZmlv
+QHZnZXIua2VybmVsLm9yZzsgY2VwaC11c2Vyc0BsaXN0cy5jZXBoLmNvbTsgY2J0QGxpc3RzLmNl
+cGguY29tDQpTdWJqZWN0OiBSZTogW2NlcGgtdXNlcnNdIFBvb3IgbGliUkJEIHdyaXRlIHBlcmZv
+cm1hbmNlDQoNCkkgc3VzcGVjdCB5b3UgYXJlIHNlZWluZyB0aGlzIGlzc3VlIFsxXS4gVEw7RFI6
+IG5ldmVyIHVzZSAibnVtam9icyIgPg0KMSBhZ2FpbnN0IGFuIFJCRCBpbWFnZSB0aGF0IGhhcyB0
+aGUgZXhjbHVzaXZlLWxvY2sgZmVhdHVyZSBlbmFibGVkLg0KDQpbMV0gaHR0cDovL2xpc3RzLmNl
+cGguY29tL3BpcGVybWFpbC9jZXBoLXVzZXJzLWNlcGguY29tLzIwMTYtQXVndXN0LzAxMjEyMy5o
+dG1sDQoNCk9uIE1vbiwgTm92IDIwLCAyMDE3IGF0IDExOjA2IEFNLCBNb3Jlbm8sIE9ybGFuZG8g
+PG9ybGFuZG8ubW9yZW5vQGludGVsLmNvbT4gd3JvdGU6DQo+IEhpIGFsbCwNCj4NCj4NCj4NCj4g
+SeKAmXZlIGJlZW4gZXhwZXJpZW5jaW5nIHdlaXJkIHBlcmZvcm1hbmNlIGJlaGF2aW9yIHdoZW4g
+dXNpbmcgRklPIFJCRCANCj4gZW5naW5lIGRpcmVjdGx5IHRvIGFuIFJCRCB2b2x1bWUgd2l0aCBu
+dW1qb2JzID4gMS4gRm9yIGEgNEtCIHJhbmRvbSANCj4gd3JpdGUgdGVzdCBhdA0KPiAzMiBRRCBh
+bmQgMSBudW1qb2IsIEkgY2FuIGdldCBhYm91dCA0MEsgSU9QUywgYnV0IHdoZW4gSSBpbmNyZWFz
+ZSB0aGUgDQo+IG51bWpvYnMgdG8gNCwgaXQgcGx1bW1ldHMgdG8gMjgwMCBJT1BTLiBJIHRyaWVk
+IHJ1bm5pbmcgdGhlIHNhbWUgZXhhY3QgDQo+IHRlc3Qgb24gYSBWTSB1c2luZyBGSU8gbGliYWlv
+IHRhcmdldGluZyBhIGJsb2NrIGRldmljZSAodm9sdW1lKSANCj4gYXR0YWNoZWQgdGhyb3VnaCBR
+RU1VL1JCRCBhbmQgSSBnZXQgfjM1Sy00MEsgSU9QUyBpbiBib3RoIHNpdHVhdGlvbnMuIA0KPiBJ
+biBhbGwgY2FzZXMsIENQVSB3YXMgbm90IGZ1bGx5IHV0aWxpemVkIGFuZCB0aGVyZSB3ZXJlIG5v
+IHNpZ25zIG9mIA0KPiBhbnkgaGFyZHdhcmUgYm90dGxlbmVja3MuIEkgZGlkIG5vdCBkaXNhYmxl
+IGFueSBSQkQgZmVhdHVyZXMgYW5kIG1vc3QgDQo+IG9mIHRoZSBDZXBoIHBhcmFtZXRlcnMgYXJl
+IGRlZmF1bHQgKGJlc2lkZXMgYXV0aCwgZGVidWcsIHBvb2wgc2l6ZSwgZXRjKS4NCj4NCj4NCj4N
+Cj4gTXkgQ2VwaCBjbHVzdGVyIGlzIHJ1bm5pbmcgb24gNiBub2RlcywgYWxsLU5WTWUsIDIyLWNv
+cmUsIDM3NkdCIG1lbSwgDQo+IEx1bWlub3VzIDEyLjIuMSwgVWJ1bnR1IDE2LjA0LCBhbmQgY2xp
+ZW50cyBydW5uaW5nIEZJTyBqb2IvVk0gb24gDQo+IHNpbWlsYXIgSFcvU1cgc3BlYy4gVGhlIFZN
+IGhhcyAxNiB2Q1BVLCA2NEdCIG1lbSwgYW5kIHRoZSByb290IGRpc2sgaXMgDQo+IGxvY2FsbHkg
+c3RvcmVkIHdoaWxlIHRoZSBwZXJzaXN0ZW50IGRpc2sgY29tZXMgZnJvbSBhbiBSQkQgdm9sdW1l
+IA0KPiBzZXJ2aWNlZCBieSB0aGUgQ2VwaCBjbHVzdGVyLg0KPg0KPg0KPg0KPiBJZiBhbnlvbmUg
+aGFzIHNlZW4gdGhpcyBpc3N1ZSBvciBoYXZlIGFueSBzdWdnZXN0aW9ucyBwbGVhc2UgbGV0IG1l
+IGtub3cuDQo+DQo+DQo+DQo+IFRoYW5rcywNCj4NCj4gT3JsYW5kbw0KPg0KPg0KPiBfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXw0KPiBjZXBoLXVzZXJzIG1h
+aWxpbmcgbGlzdA0KPiBjZXBoLXVzZXJzQGxpc3RzLmNlcGguY29tDQo+IGh0dHA6Ly9saXN0cy5j
+ZXBoLmNvbS9saXN0aW5mby5jZ2kvY2VwaC11c2Vycy1jZXBoLmNvbQ0KPg0KDQoNCg0KLS0NCkph
+c29uDQo=
