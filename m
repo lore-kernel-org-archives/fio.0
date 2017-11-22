@@ -1,25 +1,39 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pl0-f46.google.com ([209.85.160.46]:46633 "EHLO
-        mail-pl0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753342AbdKVWqi (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 22 Nov 2017 17:46:38 -0500
-Received: by mail-pl0-f46.google.com with SMTP id k7so1564985pln.13
-        for <fio@vger.kernel.org>; Wed, 22 Nov 2017 14:46:38 -0800 (PST)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH v3] rdma: Add bind option
+References: <1510181253-7632-1-git-send-email-sbates@raithlin.com>
+ <CF527084-479C-4085-8C3F-2F6D5F607825@raithlin.com>
+ <CALjAwxjW3grF90L-5tksdtK4u-6fM5_2Y2Cqf7e02Hz0yjBa4w@mail.gmail.com>
+ <9142459b-2a3e-bedb-794d-c150a64598fd@kernel.dk>
+ <11D0CCCF-50BC-483C-B37E-3C67A0377843@raithlin.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <07bcb2d3-8e4c-84e4-2acf-25a20eb62662@kernel.dk>
+Date: Wed, 22 Nov 2017 13:25:46 -0700
 MIME-Version: 1.0
-From: Prabhakaran <prabhugce@gmail.com>
-Date: Wed, 22 Nov 2017 15:46:37 -0700
-Message-ID: <CAPqbHXh=+CXA1+Y0mmHbDmJauu53h6AmFNWW8ASWViP-LxKiEw@mail.gmail.com>
-Subject: Running for a specific number of IOs
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <11D0CCCF-50BC-483C-B37E-3C67A0377843@raithlin.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Stephen Bates <sbates@raithlin.com>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "logang@deltatee.com" <logang@deltatee.com>, "elliott@hpe.com" <elliott@hpe.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+On 11/22/2017 01:22 PM, Stephen  Bates wrote:
+>>> One quick suggestion - any chance you could update the HOWTO and fio.1
+>>> documentation to include the new ioengine parameter?
+>>
+>> Thanks Sitsofe, I somehow missed this. Yes, those options should be added
+>> to the engine specific options in both those files.
+> 
+> I did look at this but saw that there was no description for any of
+> the existing rdma ioengine options. If you like I can submit a
+> follow-on patch adding some information for both the new bind option
+> and the older options for rdma ioengine? I will try and get that in
+> the next couple of days.
 
-Is there a parameter in FIO that can be used to run for a specific
-number of IOs? I thought 'number_ios' might to this, but actually it
-does fill 1x of the drive usable space and exits.
+That'd be awesome, that's definitely an oversight. The engine private
+options should all be documented in there.
 
-Thanks,
-Prabhu
+-- 
+Jens Axboe
+
+
