@@ -1,46 +1,26 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 2/3] solaris: add os_phys_mem() implementation
-Date: Fri,  3 Nov 2017 18:46:02 +0200
-Message-Id: <20171103164603.31819-3-tkusumi@tuxera.com>
-In-Reply-To: <20171103164603.31819-1-tkusumi@tuxera.com>
-References: <20171103164603.31819-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] docs: Add documention for RDMA ioengine options.
+References: <1511464916-26186-1-git-send-email-sbates@raithlin.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <62fad910-6b86-a187-53e9-7cf6df7a717e@kernel.dk>
+Date: Thu, 23 Nov 2017 22:09:11 -0700
+MIME-Version: 1.0
+In-Reply-To: <1511464916-26186-1-git-send-email-sbates@raithlin.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: sbates@raithlin.com, fio@vger.kernel.org, logang@deltatee.com, elliott@hpe.com, sitsofe@gmail.com
 List-ID: <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
+On 11/23/2017 12:21 PM, sbates@raithlin.com wrote:
+> From: Stephen Bates <sbates@raithlin.com>
+> 
+> Add documentation to HOWTO and the man page for the RDMA ioengine
+> options as these were missing.
 
-Copied from os/os-linux.h. The standard sysconf(3C) names work on
-Solaris (actually compiled/tested on illumos) as well.
+Thanks Stephen, applied.
 
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- os/os-solaris.h | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
-
-diff --git a/os/os-solaris.h b/os/os-solaris.h
-index a6cd376..644807c 100644
---- a/os/os-solaris.h
-+++ b/os/os-solaris.h
-@@ -66,7 +66,14 @@ static inline int blockdev_invalidate_cache(struct fio_file *f)
- 
- static inline unsigned long long os_phys_mem(void)
- {
--	return 0;
-+	long pagesize, pages;
-+
-+	pagesize = sysconf(_SC_PAGESIZE);
-+	pages = sysconf(_SC_PHYS_PAGES);
-+	if (pages == -1 || pagesize == -1)
-+		return 0;
-+
-+	return (unsigned long long) pages * (unsigned long long) pagesize;
- }
- 
- static inline void os_random_seed(unsigned long seed, os_random_state_t *rs)
 -- 
-2.9.5
+Jens Axboe
 
 
