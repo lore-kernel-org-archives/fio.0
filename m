@@ -1,117 +1,83 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g9t1613g.houston.hpe.com ([15.241.32.99]:28839 "EHLO
-        g9t1613g.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751727AbdK0Mj6 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 27 Nov 2017 07:39:58 -0500
-Received: from g2t2352.austin.hpe.com (g2t2352.austin.hpe.com [15.233.44.25])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by g9t1613g.houston.hpe.com (Postfix) with ESMTPS id 84E63616B9
-        for <fio@vger.kernel.org>; Mon, 27 Nov 2017 12:39:57 +0000 (UTC)
-From: "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>
-Subject: RE: fio 3.2
-Date: Mon, 27 Nov 2017 12:39:54 +0000
-Message-ID: <TU4PR8401MB099189C195BE973BED0D0C15EC250@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
-References: <TU4PR8401MB099112614914A9232A07490DEC270@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
- <903d418b-bac4-104b-28e5-3c529efab7f5@kernel.dk>
- <TU4PR8401MB0991DC48F1741A8F8F1DEF20EC240@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
- <CALjAwxh9bP38Uqsy=OmxqZKRxpKYEArYuT1RYC76jL6oqF3daQ@mail.gmail.com>
-In-Reply-To: <CALjAwxh9bP38Uqsy=OmxqZKRxpKYEArYuT1RYC76jL6oqF3daQ@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-vk0-f48.google.com ([209.85.213.48]:33639 "EHLO
+        mail-vk0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752218AbdKZP2k (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 26 Nov 2017 10:28:40 -0500
+Received: by mail-vk0-f48.google.com with SMTP id o145so15976312vkd.0
+        for <fio@vger.kernel.org>; Sun, 26 Nov 2017 07:28:40 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <TU4PR8401MB0991DC48F1741A8F8F1DEF20EC240@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+References: <TU4PR8401MB099112614914A9232A07490DEC270@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <903d418b-bac4-104b-28e5-3c529efab7f5@kernel.dk> <TU4PR8401MB0991DC48F1741A8F8F1DEF20EC240@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sun, 26 Nov 2017 15:28:09 +0000
+Message-ID: <CALjAwxh9bP38Uqsy=OmxqZKRxpKYEArYuT1RYC76jL6oqF3daQ@mail.gmail.com>
+Subject: Re: fio 3.2
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-SSdtIHRyeWluZyB0byB0ZXN0IFBNRU0gdXNpbmcgREFYL21tYXAoKSwgYnV0IHRoZXJlJ3JlIG5v
-IG91dHB1dHMgJiBlcnJvcnMsDQoNCmRsNTYwZzEwc3BtZW0wMTp+L0ZJTy1QTUVNX1Rlc3RTY3Jp
-cHRzL0RBWCAjIGxsIC9kZXZ8Z3JlcCBwbWVtDQpicnctcnctLS0tICAxIHJvb3QgZGlzayAgICAy
-NTksICAgMCBOb3YgMjcgMDU6NTAgcG1lbTENCmJydy1ydy0tLS0gIDEgcm9vdCBkaXNrICAgIDI1
-OSwgICAxIE5vdiAyNyAwNTo1MCBwbWVtMg0KYnJ3LXJ3LS0tLSAgMSByb290IGRpc2sgICAgMjU5
-LCAgIDIgTm92IDI3IDA1OjUwIHBtZW0zDQpkbDU2MGcxMHNwbWVtMDE6fi9GSU8tUE1FTV9UZXN0
-U2NyaXB0cy9EQVggIyBsbCAvZGV2fGdyZXAgZGF4DQpjcnctLS0tLS0tICAxIHJvb3Qgcm9vdCAg
-ICAyNDMsICAgMCBOb3YgMjcgMDU6NTAgZGF4MC4wDQpkbDU2MGcxMHNwbWVtMDE6fi9GSU8tUE1F
-TV9UZXN0U2NyaXB0cy9EQVggIyBsbA0KdG90YWwgMzYNCi1yd3hyd3hyd3ggMSByb290IHJvb3Qg
-MTEwIE5vdiAyMyAyMDo0NCBjbGVhbnVwREFYLnNoDQotcnd4cnd4cnd4IDEgcm9vdCByb290IDM4
-MSBOb3YgMjcgMDU6NTUgcnVuLWZpby1kYi02NGtydy5zaA0KLXJ3eHIteHIteCAxIHJvb3Qgcm9v
-dCAzNjEgTm92IDIzIDIwOjUxIHJ1bi1maW8tZGItNjRrc3ctbnVtYW9wdC5zaA0KLXJ3eHJ3eHJ3
-eCAxIHJvb3Qgcm9vdCAzNjEgTm92IDIzIDIwOjQ3IHJ1bi1maW8tZGItNjRrc3cuc2gNCi1yd3hy
-d3hyd3ggMSByb290IHJvb3QgMzc1IE5vdiAyMyAyMDo0OSBydW4tZmlvLWRiLThrcnIuc2gNCi1y
-d3hyd3hyd3ggMSByb290IHJvb3QgNjM2IE5vdiAyMyAyMDo0OSBydW4tZmlvLWRiLThrcnJ3LnNo
-DQotcnd4cnd4cnd4IDEgcm9vdCByb290IDMzOSBOb3YgMjMgMjA6NDUgcnVuLWl0REFYLnNoDQot
-cnd4cnd4cnd4IDEgcm9vdCByb290IDEzMiBOb3YgMjMgMjA6NDYgc2V0dXBEQVguc2gNCi1ydy1y
-LS1yLS0gMSByb290IHJvb3QgMTE3IE5vdiAyMyAyMDoxNiB0ZXN0REFYLm91dA0KZGw1NjBnMTBz
-cG1lbTAxOn4vRklPLVBNRU1fVGVzdFNjcmlwdHMvREFYICMNCmRsNTYwZzEwc3BtZW0wMTp+L0ZJ
-Ty1QTUVNX1Rlc3RTY3JpcHRzL0RBWCAjIGNhdCBydW4tZmlvLWRiLTY0a3J3LnNoDQojISAvYmlu
-L3NoDQoNCmVjaG8gIlJ1bm5pbmcgcmFuZG9tIHdyaXRlIDY0ayAzMiBJTyAxMDI0bSBmaWxlIDgg
-dGhyZWFkcyBvbiBEQVggUE1FTSINCnJlc3VsdD0kKGZpbyAtLW5hbWU9cmFuZG9tLXdyaXRlcnMg
-LS1pb2VuZ2luZT1tbWFwIC0taW9kZXB0aD0zMiAtLXJ3PXJhbmR3cml0ZSAtLWJzPTY0ayAtLXNp
-emU9MTAyNG0gLS1udW1qb2JzPTggLS1ncm91cF9yZXBvcnRpbmc9MSAtLWV0YT1uZXZlciAtLXRp
-bWVfYmFzZWQgLS1ydW50aW1lPTYwIC0tZmlsZW5hbWU9L2Rldi9kYXgwLjAgfCBncmVwIFdSSVRF
-KQ0KYWdnPSQoZWNobyAkcmVzdWx0fGN1dCAtZCcsJyAtZjIpDQpzcGVlZD0iJHthZ2cvYWdncmI9
-L1dyaXRlIFNwZWVkOn0iDQplY2hvICRzcGVlZA0KZWNobyAiIg0KDQpkbDU2MGcxMHNwbWVtMDE6
-fi9GSU8tUE1FTV9UZXN0U2NyaXB0cy9EQVggIyAuL3J1bi1maW8tZGItNjRrcncuc2gNClJ1bm5p
-bmcgcmFuZG9tIHdyaXRlIDY0ayAzMiBJTyAxMDI0bSBmaWxlIDggdGhyZWFkcyBvbiBEQVggUE1F
-TQ0KDQoNCg0KDQoNCg0KDQoNCg0KDQpkbDU2MGcxMHNwbWVtMDE6fi9GSU8tUE1FTV9UZXN0U2Ny
-aXB0cy9EQVggIyAuL3J1bi1maW8tZGItNjRrc3ctbnVtYW9wdC5zaA0KUnVubmluZyBzZXEgd3Jp
-dGUgNjRrIDEgSU8gM2cgZmlsZSA0IHRocmVhZHMgb24gREFYIFBNRU0NCg0KDQoNCg0KDQoNCmRs
-NTYwZzEwc3BtZW0wMTp+L0ZJTy1QTUVNX1Rlc3RTY3JpcHRzL0RBWCAjIC4vcnVuLWZpby1kYi02
-NGtzdy5zaA0KUnVubmluZyBzZXEgd3JpdGUgNjRrIDEgSU8gM2cgZmlsZSA0IHRocmVhZHMgb24g
-REFYIFBNRU0NCg0KDQoNCg0KDQoNCmRsNTYwZzEwc3BtZW0wMTp+L0ZJTy1QTUVNX1Rlc3RTY3Jp
-cHRzL0RBWCAjIC4vcnVuLWZpby1kYi04a3JyLnNoDQpSdW5uaW5nIHJhbmRvbSByZWFkIDhrIDMy
-IElPIDEwMjRtIGZpbGUgOCB0aHJlYWRzIG9uIERBWCBQTUVNDQoNCg0KDQoNCg0KDQoNCg0KDQoN
-CmRsNTYwZzEwc3BtZW0wMTp+L0ZJTy1QTUVNX1Rlc3RTY3JpcHRzL0RBWCAjIC4vcnVuLWZpby1k
-Yi04a3Jydy5zaA0KUnVubmluZyByYW5kb20gcmVhZC93cml0ZSA2MC80MCA4ayAzMiBJTyAxMDI0
-bSBmaWxlIDggdGhyZWFkcyBvbiBEQVggUE1FTQ0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCmRsNTYw
-ZzEwc3BtZW0wMTp+L0ZJTy1QTUVNX1Rlc3RTY3JpcHRzL0RBWCAjDQoNCi0tLS0tT3JpZ2luYWwg
-TWVzc2FnZS0tLS0tDQpGcm9tOiBTaXRzb2ZlIFdoZWVsZXIgW21haWx0bzpzaXRzb2ZlQGdtYWls
-LmNvbV0gDQpTZW50OiBTdW5kYXksIE5vdmVtYmVyIDI2LCAyMDE3IDU6MjggUE0NClRvOiBHYXZy
-aWxpdWssIEFudG9uIChIUFMgVWtyYWluZSkgPGFudG9uLmdhdnJpbGl1a0BocGUuY29tPg0KQ2M6
-IGZpb0B2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBmaW8gMy4yDQoNCk9uIDI2IE5vdmVt
-YmVyIDIwMTcgYXQgMDU6MzAsIEdhdnJpbGl1aywgQW50b24gKEhQUyBVa3JhaW5lKSA8YW50b24u
-Z2F2cmlsaXVrQGhwZS5jb20+IHdyb3RlOg0KPiBPSywgSSByZWJ1aWxkIDMuMiB3aXRoIGxpYmFp
-byAmIGxpYnBtZW0gbGlicmFyaWVzLA0KPg0KPiBkbDU2MGcxMHNwbWVtMDE6L3Zhci93b3JrL2Zp
-by0zLjIgIyBycG0gLXFhfGdyZXAgbGlicG1lbQ0KPiBsaWJwbWVtYmxrLTEuMy0zLmZjMjcueDg2
-XzY0DQo+IGxpYnBtZW1wb29sLWRldmVsLTEuMy0zLmZjMjcuDQoNCltzbmlwXQ0KDQo+IGxpYnBt
-ZW0gICAgICAgICAgICAgICAgICAgICAgIHllcw0KPiBsaWJwbWVtYmxrICAgICAgICAgICAgICAg
-ICAgICB5ZXMNCj4gTlZNTCBwbWVtYmxrIGVuZ2luZSAgICAgICAgICAgeWVzDQo+IE5WTUwgZGV2
-LWRheCBlbmdpbmUgICAgICAgICAgIHllcw0KDQpPSyBzbyBmaW8gaGFzIGJlZW4gYnVpbHQgd2l0
-aCBwbWVtIHN1cHBvcnQuDQoNClsuLi5dDQoNCj4gZGw1NjBnMTBzcG1lbTAxOi92YXIvd29yay9m
-aW8tMy4yICMgL3Vzci9sb2NhbC9iaW4vZmlvIA0KPiAtLWZpbGVuYW1lPS9kZXYvZGF4MC4wIC0t
-cnc9cmFuZHJ3IC0tcmVmaWxsX2J1ZmZlcnMgLS1ub3JhbmRvbW1hcCANCj4gLS1yYW5kcmVwZWF0
-PTAgLS1pb2VuZ2luZT1kZXYtZGF4IA0KPiAtLWJzc3BsaXQ9NGsvNDo4ay83OjE2ay83OjMyay8x
-NTo2NGsvNjU6MTI4ay8xOjI1NmsvMSAtLXJ3bWl4cmVhZD01IA0KPiAtLWlvZGVwdGg9MSAtLW51
-bWpvYnM9MSAtLXJ1bnRpbWU9MTgwMCAtLWdyb3VwX3JlcG9ydGluZyANCj4gLS1uYW1lPTQtcmFu
-ZC1ydy0zeHggLS1zaXplPTMwMEdiIC0tbmFtZT00LXJhbmQtcnctM3h4DQo+IDQtcmFuZC1ydy0z
-eHg6IChnPTApOiBydz1yYW5kcncsIGJzPShSKSA0MDk2Qi0yNTZLaUIsIChXKSANCj4gNDA5NkIt
-MjU2S2lCLCAoVCkgNDA5NkItMjU2S2lCLCBpb2VuZ2luZT1kZXYtZGF4LCBpb2RlcHRoPTENCj4g
-NC1yYW5kLXJ3LTN4eDogKGc9MCk6IHJ3PXJhbmRydywgYnM9KFIpIDQwOTZCLTI1NktpQiwgKFcp
-IA0KPiA0MDk2Qi0yNTZLaUIsIChUKSA0MDk2Qi0yNTZLaUIsIGlvZW5naW5lPWRldi1kYXgsIGlv
-ZGVwdGg9MQ0KPiBmaW8tMy4yDQo+IFN0YXJ0aW5nIDIgcHJvY2Vzc2VzDQo+DQo+IFJ1biBzdGF0
-dXMgZ3JvdXAgMCAoYWxsIGpvYnMpOg0KDQpXaGVyZSdzIHRoZSBvdXRwdXQgb2YgdGhpcyBqb2I/
-IERpZCBpdCB3b3JrPw0KDQo+IGRsNTYwZzEwc3BtZW0wMTovdmFyL3dvcmsvZmlvLTMuMiAjDQo+
-DQo+IC9kZXYvcG1lbTEgb24gL3BtZW0gdHlwZSB4ZnMgKHJ3LHJlbGF0aW1lLGF0dHIyLGRheCxp
-bm9kZTY0LG5vcXVvdGEpDQpeXl4gU28geW91ciBkYXggZmlsZXN5c3RlbSBhcHBlYXJzIGF0IC9w
-bWVtIC4uLg0KDQo+IGRsNTYwZzEwc3BtZW0wMTovdmFyL3dvcmsvZmlvLTMuMiAjIC91c3IvbG9j
-YWwvYmluL2ZpbyANCj4gLS1maWxlbmFtZT0vZGV2L3BtZW0xIC0tcnc9cmFuZHJ3IC0tcmVmaWxs
-X2J1ZmZlcnMgLS1ub3JhbmRvbW1hcCANCj4gLS1yYW5kcmVwZWF0PTAgLS1pb2VuZ2luZT1wbWVt
-YmxrIA0KPiAtLWJzc3BsaXQ9NGsvNDo4ay83OjE2ay83OjMyay8xNTo2NGsvNjU6MTI4ay8xOjI1
-NmsvMSAtLXJ3bWl4cmVhZD01IA0KPiAtLWlvZGVwdGg9MSAtLW51bWpvYnM9MSAtLXJ1bnRpbWU9
-MTgwMCAtLWdyb3VwX3JlcG9ydGluZyANCj4gLS1uYW1lPTQtcmFuZC1ydy0zeHggLS1hbGxvd19t
-b3VudGVkX3dyaXRlPTEgLS10aHJlYWQ9MSAtLWRpcmVjdD0xDQo+IDQtcmFuZC1ydy0zeHg6IChn
-PTApOiBydz1yYW5kcncsIGJzPShSKSA0MDk2Qi0yNTZLaUIsIChXKSANCj4gNDA5NkItMjU2S2lC
-LCAoVCkgNDA5NkItMjU2S2lCLCBpb2VuZ2luZT1wbWVtYmxrLCBpb2RlcHRoPTENCj4gZmlvLTMu
-Mg0KPiBTdGFydGluZyAxIHRocmVhZA0KPiBwbWVtYmxrOiB1bmFibGUgdG8gb3BlbiBwbWVtYmxr
-IHBvb2wgZmlsZSAvZGV2L3BtZW0xIChJbnZhbGlkIA0KPiBhcmd1bWVudCkNCg0KLi4uYnV0IHlv
-dSdyZSB1c2luZyBmaWxlbmFtZT0vZGV2L3BtZW0xIHdpdGggcG1lbWJsaz8gQXQgbGVhc3QgdGhl
-IGZpbGVuYW1lIG9wdGlvbiB5b3UgdXNlZCBsb29rcyBpbmNvcnJlY3QgZm9yIHRoaXMgaW9lbmdp
-bmUgLSBoYXZlIHlvdSBzZWVuIHRoZSBjb21tZW50cyBhbmQgZmlsZW5hbWVzIGluIHRoZSBleGFt
-cGxlIG92ZXIgb24gaHR0cHM6Ly9naXRodWIuY29tL2F4Ym9lL2Zpby9ibG9iL2Zpby0zLjIvZXhh
-bXBsZXMvcG1lbWJsay5maW8gPyBBbHNvIGFyZSB5b3Ugc3VyZSB5b3Ugd2FudCB0byBiZSBzZXR0
-aW5nIGFsbG93X21vdW50ZWRfd3JpdGU9MSBpbiB0aGlzIGNhc2UNCi0gd2hhdCBzaG91bGQgYmUg
-bW91bnRlZCB3aGVyZSB0aGUgSS9PIGhhcHBlbnMgLSB3b24ndCBwbWVtYmxrIGNyZWF0ZSB0aGUg
-ImRldmljZSIgaXRzZWxmPw0KDQotLQ0KU2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9yZy9+c2l0cy8N
-Cg==
+On 26 November 2017 at 05:30, Gavriliuk, Anton (HPS Ukraine)
+<anton.gavriliuk@hpe.com> wrote:
+> OK, I rebuild 3.2 with libaio & libpmem libraries,
+>
+> dl560g10spmem01:/var/work/fio-3.2 # rpm -qa|grep libpmem
+> libpmemblk-1.3-3.fc27.x86_64
+> libpmempool-devel-1.3-3.fc27.
+
+[snip]
+
+> libpmem                       yes
+> libpmemblk                    yes
+> NVML pmemblk engine           yes
+> NVML dev-dax engine           yes
+
+OK so fio has been built with pmem support.
+
+[...]
+
+> dl560g10spmem01:/var/work/fio-3.2 # /usr/local/bin/fio --filename=3D/dev/=
+dax0.0 --rw=3Drandrw --refill_buffers --norandommap --randrepeat=3D0 --ioen=
+gine=3Ddev-dax --bssplit=3D4k/4:8k/7:16k/7:32k/15:64k/65:128k/1:256k/1 --rw=
+mixread=3D5 --iodepth=3D1 --numjobs=3D1 --runtime=3D1800 --group_reporting =
+--name=3D4-rand-rw-3xx --size=3D300Gb --name=3D4-rand-rw-3xx
+> 4-rand-rw-3xx: (g=3D0): rw=3Drandrw, bs=3D(R) 4096B-256KiB, (W) 4096B-256=
+KiB, (T) 4096B-256KiB, ioengine=3Ddev-dax, iodepth=3D1
+> 4-rand-rw-3xx: (g=3D0): rw=3Drandrw, bs=3D(R) 4096B-256KiB, (W) 4096B-256=
+KiB, (T) 4096B-256KiB, ioengine=3Ddev-dax, iodepth=3D1
+> fio-3.2
+> Starting 2 processes
+>
+> Run status group 0 (all jobs):
+
+Where's the output of this job? Did it work?
+
+> dl560g10spmem01:/var/work/fio-3.2 #
+>
+> /dev/pmem1 on /pmem type xfs (rw,relatime,attr2,dax,inode64,noquota)
+^^^ So your dax filesystem appears at /pmem ...
+
+> dl560g10spmem01:/var/work/fio-3.2 # /usr/local/bin/fio --filename=3D/dev/=
+pmem1 --rw=3Drandrw --refill_buffers --norandommap --randrepeat=3D0 --ioeng=
+ine=3Dpmemblk --bssplit=3D4k/4:8k/7:16k/7:32k/15:64k/65:128k/1:256k/1 --rwm=
+ixread=3D5 --iodepth=3D1 --numjobs=3D1 --runtime=3D1800 --group_reporting -=
+-name=3D4-rand-rw-3xx --allow_mounted_write=3D1 --thread=3D1 --direct=3D1
+> 4-rand-rw-3xx: (g=3D0): rw=3Drandrw, bs=3D(R) 4096B-256KiB, (W) 4096B-256=
+KiB, (T) 4096B-256KiB, ioengine=3Dpmemblk, iodepth=3D1
+> fio-3.2
+> Starting 1 thread
+> pmemblk: unable to open pmemblk pool file /dev/pmem1 (Invalid argument)
+
+...but you're using filename=3D/dev/pmem1 with pmemblk? At least the
+filename option you used looks incorrect for this ioengine - have you
+seen the comments and filenames in the example over on
+https://github.com/axboe/fio/blob/fio-3.2/examples/pmemblk.fio ? Also
+are you sure you want to be setting allow_mounted_write=3D1 in this case
+- what should be mounted where the I/O happens - won't pmemblk create
+the "device" itself?
+
+--=20
+Sitsofe | http://sucs.org/~sits/
