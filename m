@@ -1,83 +1,93 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g2t2352.austin.hpe.com ([15.233.44.25]:13535 "EHLO
-        g2t2352.austin.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752452AbdK1BMu (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 27 Nov 2017 20:12:50 -0500
-From: "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>
-Subject: RE: fio 3.2
-Date: Tue, 28 Nov 2017 01:12:47 +0000
-Message-ID: <TU4PR8401MB0991F4C4CAD9858A3BF2AE9DEC3A0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+Received: from muon.bluestop.org ([74.50.51.35]:42709 "EHLO muon.bluestop.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752614AbdK0WsE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 27 Nov 2017 17:48:04 -0500
+From: Rebecca Cran <rebecca@bluestop.org>
+Subject: Re: fio 3.2
 References: <TU4PR8401MB099112614914A9232A07490DEC270@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
  <903d418b-bac4-104b-28e5-3c529efab7f5@kernel.dk>
  <TU4PR8401MB0991DC48F1741A8F8F1DEF20EC240@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
  <CALjAwxh9bP38Uqsy=OmxqZKRxpKYEArYuT1RYC76jL6oqF3daQ@mail.gmail.com>
  <TU4PR8401MB099189C195BE973BED0D0C15EC250@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
  <CALjAwxiQU=C4ye2gN4-9S6D75f3HQ7q7w2TpE0O+fH6C+MXLHg@mail.gmail.com>
- <b9bce0b0-9683-59b6-4c08-62f29d80935a@bluestop.org>
-In-Reply-To: <b9bce0b0-9683-59b6-4c08-62f29d80935a@bluestop.org>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Message-ID: <b9bce0b0-9683-59b6-4c08-62f29d80935a@bluestop.org>
+Date: Mon, 27 Nov 2017 15:48:02 -0700
 MIME-Version: 1.0
+In-Reply-To: <CALjAwxiQU=C4ye2gN4-9S6D75f3HQ7q7w2TpE0O+fH6C+MXLHg@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Rebecca Cran <rebecca@bluestop.org>, Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Brian Boylston <brian.boylston@hpe.com>, "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Brian Boylston <brian.boylston@hpe.com>, Robert Elliott <elliott@hpe.com>
 
-Tm8sIEkgaGF2ZSB0cnVlIDQgcG1lbSBkZXZpY2VzIHJpZ2h0IG5vdywgMzAwR2IgZWFjaCwNCg0K
-ZGw1NjBnMTBzcG1lbTAxOn4gIyBsbCAvZGV2fGdyZXAgZGF4DQpjcnctLS0tLS0tICAxIHJvb3Qg
-cm9vdCAgICAyNDMsICAgMCBOb3YgMjcgMDU6NTAgZGF4MC4wDQpkbDU2MGcxMHNwbWVtMDE6fiAj
-IGxsIC9kZXZ8Z3JlcCBwbWVtDQpicnctcnctLS0tICAxIHJvb3QgZGlzayAgICAyNTksICAgMCBO
-b3YgMjcgMTE6MzggcG1lbTENCmJydy1ydy0tLS0gIDEgcm9vdCBkaXNrICAgIDI1OSwgICAxIE5v
-diAyNyAxMjozOSBwbWVtMg0KYnJ3LXJ3LS0tLSAgMSByb290IGRpc2sgICAgMjU5LCAgIDIgTm92
-IDI3IDA1OjUwIHBtZW0zDQoNCkFudG9uDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpG
-cm9tOiBSZWJlY2NhIENyYW4gW21haWx0bzpyZWJlY2NhQGJsdWVzdG9wLm9yZ10gDQpTZW50OiBU
-dWVzZGF5LCBOb3ZlbWJlciAyOCwgMjAxNyAxMjo0OCBBTQ0KVG86IFNpdHNvZmUgV2hlZWxlciA8
-c2l0c29mZUBnbWFpbC5jb20+DQpDYzogR2F2cmlsaXVrLCBBbnRvbiAoSFBTIFVrcmFpbmUpIDxh
-bnRvbi5nYXZyaWxpdWtAaHBlLmNvbT47IGZpb0B2Z2VyLmtlcm5lbC5vcmc7IEJyaWFuIEJveWxz
-dG9uIDxicmlhbi5ib3lsc3RvbkBocGUuY29tPjsgRWxsaW90dCwgUm9iZXJ0IChQZXJzaXN0ZW50
-IE1lbW9yeSkgPGVsbGlvdHRAaHBlLmNvbT4NClN1YmplY3Q6IFJlOiBmaW8gMy4yDQoNCklmIHlv
-dSBkb27igJl0IGhhdmUgYSBwbWVtIGRldmljZSwgTGludXggY2FuIGVtdWxhdGUgb25lIHVzaW5n
-IFJBTSBhbmQgdGhlIOKAmG1lbW1hcOKAmSBrZXJuZWwgcGFyYW1ldGVyLiBTZWUgaHR0cDovL3Bt
-ZW0uaW8vMjAxNi8wMi8yMi9wbS1lbXVsYXRpb24uaHRtbMKgZm9yIG1vcmUgaW5mby4NCg0KUmVi
-ZWNjYQ0KDQpTZW50IGZyb20gbXkgaVBob25lDQoNCk9uIE5vdiAyNywgMjAxNywgYXQgMTI6Mzgg
-UE0sIFNpdHNvZmUgV2hlZWxlciA8c2l0c29mZUBnbWFpbC5jb20gPG1haWx0bzpzaXRzb2ZlQGdt
-YWlsLmNvbT4+IHdyb3RlOg0KDQo+IFVuZm9ydHVuYXRlbHkgSSBkb24ndCBoYXZlIGFjY2VzcyB0
-byBhIHBtZW0gZGV2aWNlIGJ1dCBsZXQncyBzZWUgaG93IA0KPiBmYXIgd2UgZ2V0Og0KPg0KPiBP
-biAyNyBOb3ZlbWJlciAyMDE3IGF0IDEyOjM5LCBHYXZyaWxpdWssIEFudG9uIChIUFMgVWtyYWlu
-ZSkgDQo+IDxhbnRvbi5nYXZyaWxpdWtAaHBlLmNvbSA8bWFpbHRvOmFudG9uLmdhdnJpbGl1a0Bo
-cGUuY29tPj4gd3JvdGU6DQo+Pg0KPj4gcmVzdWx0PSQoZmlvIC0tbmFtZT1yYW5kb20td3JpdGVy
-cyAtLWlvZW5naW5lPW1tYXAgLS1pb2RlcHRoPTMyIA0KPj4gLS1ydz1yYW5kd3JpdGUgLS1icz02
-NGsgLS1zaXplPTEwMjRtIC0tbnVtam9icz04IC0tZ3JvdXBfcmVwb3J0aW5nPTEgDQo+PiAtLWV0
-YT1uZXZlciAtLXRpbWVfYmFzZWQgLS1ydW50aW1lPTYwIC0tZmlsZW5hbWU9L2Rldi9kYXgwLjAg
-fCBncmVwDQo+PiBXUklURSkNCj4NCj4gUGxlYXNlIG1ha2UgeW91ciBwcm9ibGVtIHNjZW5hcmlv
-cyBhcyBzaW1wbGUgYXMgcG9zc2libGU6DQo+IDEuIEp1c3QgcnVuIGZpbyBub3JtYWxseSBzbyB3
-ZSBjYW4gc2VlIHRoZSBvdXRwdXQgaXQgcHJvZHVjZXMgb24gYm90aCANCj4gc3Rkb3V0IGFuZCBz
-dGRlcnIgbm9ybWFsbHkuDQo+IDIuIFJlZHVjZSB0aGUgam9iIGJhY2sgc28gaXQgdGhlcmUgYXJl
-IG9ubHkgdGhlIGJhcmUgbWluaW11bSBvcHRpb25zIA0KPiB0aGF0IHJlcHJvZHVjZSB0aGUgcHJv
-YmxlbS4NCj4gMy4gVHJ5IHRvIGF2b2lkIGNoYW5naW5nIGxvdHMgb2YgdGhpbmdzLg0KPg0KPiBI
-ZXJlIHlvdSd2ZSBzd2l0Y2hlZCBpb2VuZ2luZSBpbnRyb2R1Y2luZyBhbm90aGVyIHBsYWNlIHRv
-IGxvb2suDQo+IEluc3RlYWQgaG93IGFib3V0IHRoaXM6DQo+DQo+IFdhcyB5b3VyIC9kZXYvZGF4
-MC4wIGRldmljZSBtYWRlIHVzaW5nIG5kY3RsPyBBc3N1bWluZyB5ZXM6DQo+DQo+IGZpbyAtLW5h
-bWU9ZGF4LW1tYXAgLS1pb2VuZ2luZT1tbWFwIC0tcnc9d3JpdGUgLS1icz02NGsgLS1ldGE9bmV2
-ZXIgDQo+IC0tdGltZV9iYXNlZCAtLXJ1bnRpbWU9NjAgLS1maWxlbmFtZT0vZGV2L2RheDAuMCAt
-LXNpemU9MmcNCj4NCj4gKGFwcGFyZW50bHkgYSBzaXplIGhhcyB0byBiZSBzcGVjaWZpZWQgd2hl
-biB5b3UgdHJ5IHRvIHVzZSBhIGNoYXJhY3RlciANCj4gZGV2aWNlIC0gc2VlIGh0dHBzOi8vbnZk
-aW1tLndpa2kua2VybmVsLm9yZy8gKQ0KPg0KPiBJZiB5b3UgcnVuIGp1c3QgdGhhdCBieSBpdHNl
-bGYgd2hhdCBkbyB5b3Ugc2VlPw0KPg0KPiBOZXh0IHVwOg0KPg0KPiBmaW8gLS1uYW1lPWRheC1k
-YXggLS1pb2VuZ2luZT1kZXYtZGF4IC0tcnc9d3JpdGUgLS1icz02NGsgLS1ldGE9bmV2ZXIgDQo+
-IC0tdGltZV9iYXNlZCAtLXJ1bnRpbWU9NjAgLS1maWxlbmFtZT0vZGV2L2RheDAuMCAtLXNpemU9
-MmcNCj4NCj4gSWYgeW91IHJ1biBqdXN0IHRoYXQgYnkgaXRzZWxmIHdoYXQgZG8geW91IHNlZT8N
-Cj4NCj4gRmluYWxseToNCj4gQXNzdW1pbmcgYSAtbyBkYXggbW91bnRlZCBmaWxlc3lzdGVtIG9u
-IC9wbWVtMC8gOg0KPg0KPiBmaW8gLS1uYW1lPWxpYnBtZW1ibGsgLS1pb2VuZ2luZT1wbWVtYmxr
-IC0tcnc9d3JpdGUgLS1icz02NGsgDQo+IC0tZXRhPW5ldmVyIC0tdGltZV9iYXNlZCAtLXJ1bnRp
-bWU9NjANCj4gLS1maWxlbmFtZT0vcG1lbTAvZmlvLXRlc3QsNDA5NiwxMDI0IC0tdGhyZWFkPTEN
-Cj4NCj4gSWYgeW91IHJ1biBqdXN0IHRoYXQgYnkgaXRzZWxmIHdoYXQgZG8geW91IHNlZT8NCj4N
-Cj4gKFBlcmhhcHMgdGhlIGRvY3VtZW50YXRpb24gZm9yIHRoZXNlIGlvZW5naW5lcyBhbmQgcG1l
-bSBkZXZpY2VzIG5lZWRzIA0KPiB0byBiZSBpbXByb3ZlZD8pDQo+DQo+IC0tDQo+IFNpdHNvZmUg
-fCBodHRwOi8vc3Vjcy5vcmcvfnNpdHMvIDxodHRwOi8vc3Vjcy5vcmcvJTdFc2l0cy8+DQo+IC0t
-DQo+IFRvIHVuc3Vic2NyaWJlIGZyb20gdGhpcyBsaXN0OiBzZW5kIHRoZSBsaW5lICJ1bnN1YnNj
-cmliZSBmaW8iIGluIHRoZSANCj4gYm9keSBvZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21vQHZnZXIu
-a2VybmVsLm9yZyANCj4gPG1haWx0bzptYWpvcmRvbW9Admdlci5rZXJuZWwub3JnPg0KPiBNb3Jl
-IG1ham9yZG9tbyBpbmZvIGF0IGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFqb3Jkb21vLWluZm8u
-aHRtbA0K
+If you don’t have a pmem device, Linux can emulate one using RAM and the 
+‘memmap’ kernel parameter. See 
+http://pmem.io/2016/02/22/pm-emulation.html for more info.
+
+Rebecca
+
+Sent from my iPhone
+
+On Nov 27, 2017, at 12:38 PM, Sitsofe Wheeler <sitsofe@gmail.com 
+<mailto:sitsofe@gmail.com>> wrote:
+
+> Unfortunately I don't have access to a pmem device but let's see how 
+> far we get:
+>
+> On 27 November 2017 at 12:39, Gavriliuk, Anton (HPS Ukraine)
+> <anton.gavriliuk@hpe.com <mailto:anton.gavriliuk@hpe.com>> wrote:
+>>
+>> result=$(fio --name=random-writers --ioengine=mmap --iodepth=32 
+>> --rw=randwrite --bs=64k --size=1024m --numjobs=8 --group_reporting=1 
+>> --eta=never --time_based --runtime=60 --filename=/dev/dax0.0 | grep 
+>> WRITE)
+>
+> Please make your problem scenarios as simple as possible:
+> 1. Just run fio normally so we can see the output it produces on both
+> stdout and stderr normally.
+> 2. Reduce the job back so it there are only the bare minimum options
+> that reproduce the problem.
+> 3. Try to avoid changing lots of things.
+>
+> Here you've switched ioengine introducing another place to look.
+> Instead how about this:
+>
+> Was your /dev/dax0.0 device made using ndctl? Assuming yes:
+>
+> fio --name=dax-mmap --ioengine=mmap --rw=write --bs=64k --eta=never
+> --time_based --runtime=60 --filename=/dev/dax0.0 --size=2g
+>
+> (apparently a size has to be specified when you try to use a character
+> device - see https://nvdimm.wiki.kernel.org/ )
+>
+> If you run just that by itself what do you see?
+>
+> Next up:
+>
+> fio --name=dax-dax --ioengine=dev-dax --rw=write --bs=64k --eta=never
+> --time_based --runtime=60 --filename=/dev/dax0.0 --size=2g
+>
+> If you run just that by itself what do you see?
+>
+> Finally:
+> Assuming a -o dax mounted filesystem on /pmem0/ :
+>
+> fio --name=libpmemblk --ioengine=pmemblk --rw=write --bs=64k
+> --eta=never --time_based --runtime=60
+> --filename=/pmem0/fio-test,4096,1024 --thread=1
+>
+> If you run just that by itself what do you see?
+>
+> (Perhaps the documentation for these ioengines and pmem devices needs
+> to be improved?)
+>
+> -- 
+> Sitsofe | http://sucs.org/~sits/ <http://sucs.org/%7Esits/>
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org 
+> <mailto:majordomo@vger.kernel.org>
+> More majordomo info at http://vger.kernel.org/majordomo-info.html
