@@ -1,210 +1,203 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f173.google.com ([209.85.217.173]:35857 "EHLO
-        mail-ua0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751427AbdK2AFC (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 28 Nov 2017 19:05:02 -0500
-Received: by mail-ua0-f173.google.com with SMTP id w47so2134538uah.3
-        for <fio@vger.kernel.org>; Tue, 28 Nov 2017 16:05:02 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <TU4PR8401MB09915861B45D074FF2218C4FEC3A0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+Received: from g4t3426.houston.hpe.com ([15.241.140.75]:49530 "EHLO
+        g4t3426.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751889AbdK1OZX (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 28 Nov 2017 09:25:23 -0500
+From: "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>
+Subject: RE: fio 3.2
+Date: Tue, 28 Nov 2017 14:25:13 +0000
+Message-ID: <TU4PR8401MB09915861B45D074FF2218C4FEC3A0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
 References: <TU4PR8401MB099112614914A9232A07490DEC270@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
- <903d418b-bac4-104b-28e5-3c529efab7f5@kernel.dk> <TU4PR8401MB0991DC48F1741A8F8F1DEF20EC240@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <903d418b-bac4-104b-28e5-3c529efab7f5@kernel.dk>
+ <TU4PR8401MB0991DC48F1741A8F8F1DEF20EC240@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
  <CALjAwxh9bP38Uqsy=OmxqZKRxpKYEArYuT1RYC76jL6oqF3daQ@mail.gmail.com>
  <TU4PR8401MB099189C195BE973BED0D0C15EC250@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
- <CALjAwxiQU=C4ye2gN4-9S6D75f3HQ7q7w2TpE0O+fH6C+MXLHg@mail.gmail.com> <TU4PR8401MB09915861B45D074FF2218C4FEC3A0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Wed, 29 Nov 2017 00:04:31 +0000
-Message-ID: <CALjAwxgea5mo0671vb8mry+_RJQ_LCKVfyOR9ePjLSQiXLrALA@mail.gmail.com>
-Subject: Re: fio 3.2
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+ <CALjAwxiQU=C4ye2gN4-9S6D75f3HQ7q7w2TpE0O+fH6C+MXLHg@mail.gmail.com>
+In-Reply-To: <CALjAwxiQU=C4ye2gN4-9S6D75f3HQ7q7w2TpE0O+fH6C+MXLHg@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Brian Boylston <brian.boylston@hpe.com>, "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
 
-Anton,
-
-Did you see Elliot's suggestions (i.e. point 4) in his previous email
-(http://www.spinics.net/lists/fio/msg06561.html ) for speeding things
-up and how you are at the mercy of glibc?
-
-On 28 November 2017 at 14:25, Gavriliuk, Anton (HPS Ukraine)
-<anton.gavriliuk@hpe.com> wrote:
-> Ok, now I fixed that.  Seems to be sequence of the keys is important.  I =
-fixed that.  Now I have next issue :-)
->
-> I trying to speed up customer=E2=80=99s script.
-[snip]
->      lat (usec): min=3D1, max=3D77, avg=3D10.57, stdev=3D 6.01
->     clat percentiles (usec):
->      |  1.00th=3D[    0],  5.00th=3D[    0], 10.00th=3D[    0], 20.00th=
-=3D[    0],
->      | 30.00th=3D[    0], 40.00th=3D[    0], 50.00th=3D[    0], 60.00th=
-=3D[    0],
->      | 70.00th=3D[    0], 80.00th=3D[    1], 90.00th=3D[    1], 95.00th=
-=3D[    1],
->      | 99.00th=3D[    1], 99.50th=3D[    1], 99.90th=3D[    1], 99.95th=
-=3D[    1],
->      | 99.99th=3D[    1]
->     bw (KB  /s): min=3D38528, max=3D118396, per=3D6.36%, avg=3D103720.16,=
- stdev=3D8779.81
->   write: io=3D4559.9GB, bw=3D30234MB/s, iops=3D594518, runt=3D154436msec
->     slat (usec): min=3D1, max=3D787, avg=3D16.46, stdev=3D10.00
->     clat (usec): min=3D0, max=3D680, avg=3D 0.20, stdev=3D 0.41
->      lat (usec): min=3D1, max=3D789, avg=3D16.69, stdev=3D10.00
->     clat percentiles (usec):
->      |  1.00th=3D[    0],  5.00th=3D[    0], 10.00th=3D[    0], 20.00th=
-=3D[    0],
->      | 30.00th=3D[    0], 40.00th=3D[    0], 50.00th=3D[    0], 60.00th=
-=3D[    0],
->      | 70.00th=3D[    0], 80.00th=3D[    1], 90.00th=3D[    1], 95.00th=
-=3D[    1],
->      | 99.00th=3D[    1], 99.50th=3D[    1], 99.90th=3D[    1], 99.95th=
-=3D[    1],
->      | 99.99th=3D[    1]
->     bw (MB  /s): min=3D  731, max=3D 2015, per=3D6.36%, avg=3D1922.69, st=
-dev=3D146.41
->     lat (usec) : 2=3D100.00%, 4=3D0.01%, 10=3D0.01%, 20=3D0.01%, 50=3D0.0=
-1%
->     lat (usec) : 250=3D0.01%, 750=3D0.01%
->   cpu          : usr=3D35.61%, sys=3D64.37%, ctx=3D2509, majf=3D0, minf=
-=3D930
->   IO depths    : 1=3D100.0%, 2=3D0.0%, 4=3D0.0%, 8=3D0.0%, 16=3D0.0%, 32=
-=3D0.0%, >=3D64=3D0.0%
->      submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
-=3D0.0%, >=3D64=3D0.0%
->      complete  : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
-=3D0.0%, >=3D64=3D0.0%
->      issued    : total=3Dr=3D4836244/w=3D91815119/d=3D0, short=3Dr=3D0/w=
-=3D0/d=3D0, drop=3Dr=3D0/w=3D0/d=3D0
->      latency   : target=3D0, window=3D0, percentile=3D100.00%, depth=3D1
->
-> Run status group 0 (all jobs):
->    READ: io=3D245977MB, aggrb=3D1592.8MB/s, minb=3D1592.8MB/s, maxb=3D159=
-2.8MB/s, mint=3D154436msec, maxt=3D154436msec
->   WRITE: io=3D4559.9GB, aggrb=3D30234MB/s, minb=3D30234MB/s, maxb=3D30234=
-MB/s, mint=3D154436msec, maxt=3D154436msec
->
-> Now I want saving customer=E2=80=99s I/O pattern, but switch to the DAX a=
-ccess (/dev/dax0.0 raw device) with mmap engine, trying to bypass OS block =
-device & system call layers.  So I modified script,
->
-> dl560g10spmem01:~/FIO-PMEM_TestScripts/DAX # /usr/bin/fio --name=3D4-rand=
--rw-3xx --ioengine=3Dmmap --iodepth=3D1 --rw=3Drandrw --refill_buffers --no=
-randommap --randrepeat=3D0 --bssplit=3D4k/4:8k/7:16k/7:32k/15:64k/65:128k/1=
-:256k/1 --rwmixread=3D5 --size=3D290g --numjobs=3D16 --group_reporting --ru=
-ntime=3D120 --filename=3D/dev/dax0.0
-> 4-rand-rw-3xx: (g=3D0): rw=3Drandrw, bs=3D4K-256K/4K-256K/4K-256K, ioengi=
-ne=3Dmmap, iodepth=3D1
-> ...
-> fio-2.12
-> Starting 16 processes
-> Jobs: 12 (f=3D12): [m(3),_(2),m(1),_(1),m(6),_(1),m(2)] [78.6% done] [130=
-4MB/24907MB/0KB /s] [25.7K/490K/0 iops] [eta 00m:33s]
-> 4-rand-rw-3xx: (groupid=3D0, jobs=3D16): err=3D 0: pid=3D65032: Tue Nov 2=
-8 06:58:09 2017
->   read : io=3D202831MB, bw=3D1690.3MB/s, iops=3D33231, runt=3D120001msec
->     clat (usec): min=3D0, max=3D211, avg=3D 8.88, stdev=3D 5.23
->      lat (usec): min=3D0, max=3D211, avg=3D 8.92, stdev=3D 5.23
->     clat percentiles (usec):
->      |  1.00th=3D[    1],  5.00th=3D[    1], 10.00th=3D[    2], 20.00th=
-=3D[    4],
->      | 30.00th=3D[    6], 40.00th=3D[    8], 50.00th=3D[   10], 60.00th=
-=3D[   11],
->      | 70.00th=3D[   11], 80.00th=3D[   12], 90.00th=3D[   13], 95.00th=
-=3D[   14],
->      | 99.00th=3D[   29], 99.50th=3D[   43], 99.90th=3D[   48], 99.95th=
-=3D[   49],
->      | 99.99th=3D[   53]
->     bw (KB  /s): min=3D86408, max=3D159184, per=3D6.36%, avg=3D110086.50,=
- stdev=3D19409.13
->   write: io=3D3764.3GB, bw=3D32121MB/s, iops=3D631607, runt=3D120001msec
->     clat (usec): min=3D0, max=3D744, avg=3D15.16, stdev=3D10.09
->      lat (usec): min=3D0, max=3D744, avg=3D15.21, stdev=3D10.09
->     clat percentiles (usec):
->      |  1.00th=3D[    1],  5.00th=3D[    2], 10.00th=3D[    3], 20.00th=
-=3D[    6],
->      | 30.00th=3D[   11], 40.00th=3D[   12], 50.00th=3D[   12], 60.00th=
-=3D[   20],
->      | 70.00th=3D[   21], 80.00th=3D[   22], 90.00th=3D[   23], 95.00th=
-=3D[   24],
->      | 99.00th=3D[   46], 99.50th=3D[   86], 99.90th=3D[   91], 99.95th=
-=3D[   92],
->      | 99.99th=3D[   96]
->     bw (MB  /s): min=3D 1760, max=3D 2737, per=3D6.36%, avg=3D2043.01, st=
-dev=3D353.05
->     lat (usec) : 2=3D4.63%, 4=3D8.45%, 10=3D11.27%, 20=3D32.41%, 50=3D42.=
-58%
->     lat (usec) : 100=3D0.66%, 250=3D0.01%, 500=3D0.01%, 750=3D0.01%
->   cpu          : usr=3D99.74%, sys=3D0.24%, ctx=3D2791, majf=3D0, minf=3D=
-2822710
->   IO depths    : 1=3D100.0%, 2=3D0.0%, 4=3D0.0%, 8=3D0.0%, 16=3D0.0%, 32=
-=3D0.0%, >=3D64=3D0.0%
->      submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
-=3D0.0%, >=3D64=3D0.0%
->      complete  : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
-=3D0.0%, >=3D64=3D0.0%
->      issued    : total=3Dr=3D3987782/w=3D75793478/d=3D0, short=3Dr=3D0/w=
-=3D0/d=3D0, drop=3Dr=3D0/w=3D0/d=3D0
->      latency   : target=3D0, window=3D0, percentile=3D100.00%, depth=3D1
->
-> Run status group 0 (all jobs):
->    READ: io=3D202831MB, aggrb=3D1690.3MB/s, minb=3D1690.3MB/s, maxb=3D169=
-0.3MB/s, mint=3D120001msec, maxt=3D120001msec
->   WRITE: io=3D3764.3GB, aggrb=3D32121MB/s, minb=3D32121MB/s, maxb=3D32121=
-MB/s, mint=3D120001msec, maxt=3D120001msec
->
-> No huge growth detected =E2=80=93 lat 16.69 vs 15.21, write bw =E2=80=93 =
-30234Mb/s vs 32121Mb/s.
->
-> Looking to the performance traces,
->
-> PID 65043  /usr/bin/fio
->
->     HARDCLOCK entries
->        Count     Pct  State  Function
->         2210  66.29%  USER   __memcpy_avx_unaligned [/lib64/libc-2.22.so]
->         1122  33.65%  USER   UNKNOWN
->            2   0.06%  SYS    pagerange_is_ram_callback
->
->        Count     Pct  HARDCLOCK Stack trace
->        =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
->            2   0.06%  pagerange_is_ram_callback  walk_system_ram_range  p=
-at_pagerange_is_ram  lookup_memtype  track_pfn_insert  vmf_insert_pfn_pmd  =
-dax_dev_pmd_fault  handle_mm_fault  __do_page_fault  do_page_fault  page_fa=
-ult  unknown  |  __memcpy_avx_unaligned
->
->    25.620925 cpu=3D51 pid=3D65043 tgid=3D65043 hardclock state=3DUSER  [l=
-ibc-2.22.so]:__memcpy_avx_unaligned+0x2b6
->    25.644924 cpu=3D51 pid=3D65043 tgid=3D65043 hardclock state=3DUSER  [l=
-ibc-2.22.so]:__memcpy_avx_unaligned+0x2b6
->    25.656923 cpu=3D51 pid=3D65043 tgid=3D65043 hardclock state=3DUSER  [l=
-ibc-2.22.so]:__memcpy_avx_unaligned+0x2b6
->    25.680925 cpu=3D51 pid=3D65043 tgid=3D65043 hardclock state=3DUSER  [l=
-ibc-2.22.so]:__memcpy_avx_unaligned+0x2b6
->    25.692924 cpu=3D51 pid=3D65043 tgid=3D65043 hardclock state=3DUSER  [l=
-ibc-2.22.so]:__memcpy_avx_unaligned+0x2b6
->    25.704925 cpu=3D51 pid=3D65043 tgid=3D65043 hardclock state=3DUSER  [l=
-ibc-2.22.so]:__memcpy_avx_unaligned+0x2b6
->    25.716925 cpu=3D51 pid=3D65043 tgid=3D65043 hardclock state=3DUSER  [l=
-ibc-2.22.so]:__memcpy_avx_unaligned+0x2b6
->    25.728923 cpu=3D51 pid=3D65043 tgid=3D65043 hardclock state=3DUSER  [l=
-ibc-2.22.so]:__memcpy_avx_unaligned+0x2b6
->    25.764924 cpu=3D51 pid=3D65043 tgid=3D65043 hardclock state=3DUSER  [l=
-ibc-2.22.so]:__memcpy_avx_unaligned+0x2b6
->    25.776924 cpu=3D51 pid=3D65043 tgid=3D65043 hardclock state=3DUSER  [l=
-ibc-2.22.so]:__memcpy_avx_unaligned+0x2b6
->
-> Seems to be there lot's unaligned memory access, any ideas ?
->
-> You could also look at the source code for fio to see what it=E2=80=99s d=
-oing or put in some printf() statements so you can understand what the actu=
-al alignment is.
->
-> Anton
-
---=20
-Sitsofe | http://sucs.org/~sits/
+T2ssIG5vdyBJIGZpeGVkIHRoYXQuICBTZWVtcyB0byBiZSBzZXF1ZW5jZSBvZiB0aGUga2V5cyBp
+cyBpbXBvcnRhbnQuICBJIGZpeGVkIHRoYXQuICBOb3cgSSBoYXZlIG5leHQgaXNzdWUgOi0pDQoN
+CkkgdHJ5aW5nIHRvIHNwZWVkIHVwIGN1c3RvbWVy4oCZcyBzY3JpcHQuDQoNCkluaXRpYWxseSBp
+dCB3YXMgd2l0aCAvZGV2L3BtZW0gJiBsaWJhaW8gZW5naW5lLA0KDQpkbDU2MGcxMHNwbWVtMDE6
+fi9GSU8tUE1FTV9UZXN0U2NyaXB0cy9EQVggIyAvdXNyL2Jpbi9maW8gLS1maWxlbmFtZT0vZGV2
+L3BtZW0xIC0tZGlyZWN0PTEgLS1ydz1yYW5kcncgLS1yZWZpbGxfYnVmZmVycyAtLW5vcmFuZG9t
+bWFwIC0tcmFuZHJlcGVhdD0wIC0taW9lbmdpbmU9bGliYWlvIC0tYnNzcGxpdD00ay80OjhrLzc6
+MTZrLzc6MzJrLzE1OjY0ay82NToxMjhrLzE6MjU2ay8xIC0tcndtaXhyZWFkPTUgLS1pb2RlcHRo
+PTEgLS1udW1qb2JzPTE2IC0tcnVudGltZT0xODAwIC0tZ3JvdXBfcmVwb3J0aW5nIC0tbmFtZT00
+LXJhbmQtcnctM3h4IDQtcmFuZC1ydy0zeHg6IChnPTApOiBydz1yYW5kcncsIGJzPTRLLTI1Nksv
+NEstMjU2Sy80Sy0yNTZLLCBpb2VuZ2luZT1saWJhaW8sIGlvZGVwdGg9MQ0KLi4uDQpmaW8tMi4x
+Mg0KU3RhcnRpbmcgMTYgcHJvY2Vzc2VzDQpKb2JzOiAyIChmPTIpOiBbXyg1KSxtKDEpLF8oNyks
+bSgxKSxfKDIpXSBbMTAwLjAlIGRvbmVdIFszNTcuNE1CLzY5OTBNQi8wS0IgL3NdIFs3MDY2LzEz
+N0svMCBpb3BzXSBbZXRhIDAwbTowMHNdDQo0LXJhbmQtcnctM3h4OiAoZ3JvdXBpZD0wLCBqb2Jz
+PTE2KTogZXJyPSAwOiBwaWQ9MjMxNDQ6IE1vbiBOb3YgMjcgMTk6NTY6MDQgMjAxNw0KICByZWFk
+IDogaW89MjQ1OTc3TUIsIGJ3PTE1OTIuOE1CL3MsIGlvcHM9MzEzMTUsIHJ1bnQ9MTU0NDM2bXNl
+Yw0KICAgIHNsYXQgKHVzZWMpOiBtaW49MSwgbWF4PTc3LCBhdmc9MTAuMzQsIHN0ZGV2PSA2LjAw
+DQogICAgY2xhdCAodXNlYyk6IG1pbj0wLCBtYXg9NiwgYXZnPSAwLjIwLCBzdGRldj0gMC40MA0K
+ICAgICBsYXQgKHVzZWMpOiBtaW49MSwgbWF4PTc3LCBhdmc9MTAuNTcsIHN0ZGV2PSA2LjAxDQog
+ICAgY2xhdCBwZXJjZW50aWxlcyAodXNlYyk6DQogICAgIHwgIDEuMDB0aD1bICAgIDBdLCAgNS4w
+MHRoPVsgICAgMF0sIDEwLjAwdGg9WyAgICAwXSwgMjAuMDB0aD1bICAgIDBdLA0KICAgICB8IDMw
+LjAwdGg9WyAgICAwXSwgNDAuMDB0aD1bICAgIDBdLCA1MC4wMHRoPVsgICAgMF0sIDYwLjAwdGg9
+WyAgICAwXSwNCiAgICAgfCA3MC4wMHRoPVsgICAgMF0sIDgwLjAwdGg9WyAgICAxXSwgOTAuMDB0
+aD1bICAgIDFdLCA5NS4wMHRoPVsgICAgMV0sDQogICAgIHwgOTkuMDB0aD1bICAgIDFdLCA5OS41
+MHRoPVsgICAgMV0sIDk5LjkwdGg9WyAgICAxXSwgOTkuOTV0aD1bICAgIDFdLA0KICAgICB8IDk5
+Ljk5dGg9WyAgICAxXQ0KICAgIGJ3IChLQiAgL3MpOiBtaW49Mzg1MjgsIG1heD0xMTgzOTYsIHBl
+cj02LjM2JSwgYXZnPTEwMzcyMC4xNiwgc3RkZXY9ODc3OS44MQ0KICB3cml0ZTogaW89NDU1OS45
+R0IsIGJ3PTMwMjM0TUIvcywgaW9wcz01OTQ1MTgsIHJ1bnQ9MTU0NDM2bXNlYw0KICAgIHNsYXQg
+KHVzZWMpOiBtaW49MSwgbWF4PTc4NywgYXZnPTE2LjQ2LCBzdGRldj0xMC4wMA0KICAgIGNsYXQg
+KHVzZWMpOiBtaW49MCwgbWF4PTY4MCwgYXZnPSAwLjIwLCBzdGRldj0gMC40MQ0KICAgICBsYXQg
+KHVzZWMpOiBtaW49MSwgbWF4PTc4OSwgYXZnPTE2LjY5LCBzdGRldj0xMC4wMA0KICAgIGNsYXQg
+cGVyY2VudGlsZXMgKHVzZWMpOg0KICAgICB8ICAxLjAwdGg9WyAgICAwXSwgIDUuMDB0aD1bICAg
+IDBdLCAxMC4wMHRoPVsgICAgMF0sIDIwLjAwdGg9WyAgICAwXSwNCiAgICAgfCAzMC4wMHRoPVsg
+ICAgMF0sIDQwLjAwdGg9WyAgICAwXSwgNTAuMDB0aD1bICAgIDBdLCA2MC4wMHRoPVsgICAgMF0s
+DQogICAgIHwgNzAuMDB0aD1bICAgIDBdLCA4MC4wMHRoPVsgICAgMV0sIDkwLjAwdGg9WyAgICAx
+XSwgOTUuMDB0aD1bICAgIDFdLA0KICAgICB8IDk5LjAwdGg9WyAgICAxXSwgOTkuNTB0aD1bICAg
+IDFdLCA5OS45MHRoPVsgICAgMV0sIDk5Ljk1dGg9WyAgICAxXSwNCiAgICAgfCA5OS45OXRoPVsg
+ICAgMV0NCiAgICBidyAoTUIgIC9zKTogbWluPSAgNzMxLCBtYXg9IDIwMTUsIHBlcj02LjM2JSwg
+YXZnPTE5MjIuNjksIHN0ZGV2PTE0Ni40MQ0KICAgIGxhdCAodXNlYykgOiAyPTEwMC4wMCUsIDQ9
+MC4wMSUsIDEwPTAuMDElLCAyMD0wLjAxJSwgNTA9MC4wMSUNCiAgICBsYXQgKHVzZWMpIDogMjUw
+PTAuMDElLCA3NTA9MC4wMSUNCiAgY3B1ICAgICAgICAgIDogdXNyPTM1LjYxJSwgc3lzPTY0LjM3
+JSwgY3R4PTI1MDksIG1hamY9MCwgbWluZj05MzANCiAgSU8gZGVwdGhzICAgIDogMT0xMDAuMCUs
+IDI9MC4wJSwgND0wLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsID49NjQ9MC4wJQ0KICAg
+ICBzdWJtaXQgICAgOiAwPTAuMCUsIDQ9MTAwLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUs
+IDY0PTAuMCUsID49NjQ9MC4wJQ0KICAgICBjb21wbGV0ZSAgOiAwPTAuMCUsIDQ9MTAwLjAlLCA4
+PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsIDY0PTAuMCUsID49NjQ9MC4wJQ0KICAgICBpc3N1ZWQg
+ICAgOiB0b3RhbD1yPTQ4MzYyNDQvdz05MTgxNTExOS9kPTAsIHNob3J0PXI9MC93PTAvZD0wLCBk
+cm9wPXI9MC93PTAvZD0wDQogICAgIGxhdGVuY3kgICA6IHRhcmdldD0wLCB3aW5kb3c9MCwgcGVy
+Y2VudGlsZT0xMDAuMDAlLCBkZXB0aD0xDQoNClJ1biBzdGF0dXMgZ3JvdXAgMCAoYWxsIGpvYnMp
+Og0KICAgUkVBRDogaW89MjQ1OTc3TUIsIGFnZ3JiPTE1OTIuOE1CL3MsIG1pbmI9MTU5Mi44TUIv
+cywgbWF4Yj0xNTkyLjhNQi9zLCBtaW50PTE1NDQzNm1zZWMsIG1heHQ9MTU0NDM2bXNlYw0KICBX
+UklURTogaW89NDU1OS45R0IsIGFnZ3JiPTMwMjM0TUIvcywgbWluYj0zMDIzNE1CL3MsIG1heGI9
+MzAyMzRNQi9zLCBtaW50PTE1NDQzNm1zZWMsIG1heHQ9MTU0NDM2bXNlYw0KDQpOb3cgSSB3YW50
+IHNhdmluZyBjdXN0b21lcuKAmXMgSS9PIHBhdHRlcm4sIGJ1dCBzd2l0Y2ggdG8gdGhlIERBWCBh
+Y2Nlc3MgKC9kZXYvZGF4MC4wIHJhdyBkZXZpY2UpIHdpdGggbW1hcCBlbmdpbmUsIHRyeWluZyB0
+byBieXBhc3MgT1MgYmxvY2sgZGV2aWNlICYgc3lzdGVtIGNhbGwgbGF5ZXJzLiAgU28gSSBtb2Rp
+ZmllZCBzY3JpcHQsDQoNCmRsNTYwZzEwc3BtZW0wMTp+L0ZJTy1QTUVNX1Rlc3RTY3JpcHRzL0RB
+WCAjIC91c3IvYmluL2ZpbyAtLW5hbWU9NC1yYW5kLXJ3LTN4eCAtLWlvZW5naW5lPW1tYXAgLS1p
+b2RlcHRoPTEgLS1ydz1yYW5kcncgLS1yZWZpbGxfYnVmZmVycyAtLW5vcmFuZG9tbWFwIC0tcmFu
+ZHJlcGVhdD0wIC0tYnNzcGxpdD00ay80OjhrLzc6MTZrLzc6MzJrLzE1OjY0ay82NToxMjhrLzE6
+MjU2ay8xIC0tcndtaXhyZWFkPTUgLS1zaXplPTI5MGcgLS1udW1qb2JzPTE2IC0tZ3JvdXBfcmVw
+b3J0aW5nIC0tcnVudGltZT0xMjAgLS1maWxlbmFtZT0vZGV2L2RheDAuMA0KNC1yYW5kLXJ3LTN4
+eDogKGc9MCk6IHJ3PXJhbmRydywgYnM9NEstMjU2Sy80Sy0yNTZLLzRLLTI1NkssIGlvZW5naW5l
+PW1tYXAsIGlvZGVwdGg9MQ0KLi4uDQpmaW8tMi4xMg0KU3RhcnRpbmcgMTYgcHJvY2Vzc2VzDQpK
+b2JzOiAxMiAoZj0xMik6IFttKDMpLF8oMiksbSgxKSxfKDEpLG0oNiksXygxKSxtKDIpXSBbNzgu
+NiUgZG9uZV0gWzEzMDRNQi8yNDkwN01CLzBLQiAvc10gWzI1LjdLLzQ5MEsvMCBpb3BzXSBbZXRh
+IDAwbTozM3NdDQo0LXJhbmQtcnctM3h4OiAoZ3JvdXBpZD0wLCBqb2JzPTE2KTogZXJyPSAwOiBw
+aWQ9NjUwMzI6IFR1ZSBOb3YgMjggMDY6NTg6MDkgMjAxNw0KICByZWFkIDogaW89MjAyODMxTUIs
+IGJ3PTE2OTAuM01CL3MsIGlvcHM9MzMyMzEsIHJ1bnQ9MTIwMDAxbXNlYw0KICAgIGNsYXQgKHVz
+ZWMpOiBtaW49MCwgbWF4PTIxMSwgYXZnPSA4Ljg4LCBzdGRldj0gNS4yMw0KICAgICBsYXQgKHVz
+ZWMpOiBtaW49MCwgbWF4PTIxMSwgYXZnPSA4LjkyLCBzdGRldj0gNS4yMw0KICAgIGNsYXQgcGVy
+Y2VudGlsZXMgKHVzZWMpOg0KICAgICB8ICAxLjAwdGg9WyAgICAxXSwgIDUuMDB0aD1bICAgIDFd
+LCAxMC4wMHRoPVsgICAgMl0sIDIwLjAwdGg9WyAgICA0XSwNCiAgICAgfCAzMC4wMHRoPVsgICAg
+Nl0sIDQwLjAwdGg9WyAgICA4XSwgNTAuMDB0aD1bICAgMTBdLCA2MC4wMHRoPVsgICAxMV0sDQog
+ICAgIHwgNzAuMDB0aD1bICAgMTFdLCA4MC4wMHRoPVsgICAxMl0sIDkwLjAwdGg9WyAgIDEzXSwg
+OTUuMDB0aD1bICAgMTRdLA0KICAgICB8IDk5LjAwdGg9WyAgIDI5XSwgOTkuNTB0aD1bICAgNDNd
+LCA5OS45MHRoPVsgICA0OF0sIDk5Ljk1dGg9WyAgIDQ5XSwNCiAgICAgfCA5OS45OXRoPVsgICA1
+M10NCiAgICBidyAoS0IgIC9zKTogbWluPTg2NDA4LCBtYXg9MTU5MTg0LCBwZXI9Ni4zNiUsIGF2
+Zz0xMTAwODYuNTAsIHN0ZGV2PTE5NDA5LjEzDQogIHdyaXRlOiBpbz0zNzY0LjNHQiwgYnc9MzIx
+MjFNQi9zLCBpb3BzPTYzMTYwNywgcnVudD0xMjAwMDFtc2VjDQogICAgY2xhdCAodXNlYyk6IG1p
+bj0wLCBtYXg9NzQ0LCBhdmc9MTUuMTYsIHN0ZGV2PTEwLjA5DQogICAgIGxhdCAodXNlYyk6IG1p
+bj0wLCBtYXg9NzQ0LCBhdmc9MTUuMjEsIHN0ZGV2PTEwLjA5DQogICAgY2xhdCBwZXJjZW50aWxl
+cyAodXNlYyk6DQogICAgIHwgIDEuMDB0aD1bICAgIDFdLCAgNS4wMHRoPVsgICAgMl0sIDEwLjAw
+dGg9WyAgICAzXSwgMjAuMDB0aD1bICAgIDZdLA0KICAgICB8IDMwLjAwdGg9WyAgIDExXSwgNDAu
+MDB0aD1bICAgMTJdLCA1MC4wMHRoPVsgICAxMl0sIDYwLjAwdGg9WyAgIDIwXSwNCiAgICAgfCA3
+MC4wMHRoPVsgICAyMV0sIDgwLjAwdGg9WyAgIDIyXSwgOTAuMDB0aD1bICAgMjNdLCA5NS4wMHRo
+PVsgICAyNF0sDQogICAgIHwgOTkuMDB0aD1bICAgNDZdLCA5OS41MHRoPVsgICA4Nl0sIDk5Ljkw
+dGg9WyAgIDkxXSwgOTkuOTV0aD1bICAgOTJdLA0KICAgICB8IDk5Ljk5dGg9WyAgIDk2XQ0KICAg
+IGJ3IChNQiAgL3MpOiBtaW49IDE3NjAsIG1heD0gMjczNywgcGVyPTYuMzYlLCBhdmc9MjA0My4w
+MSwgc3RkZXY9MzUzLjA1DQogICAgbGF0ICh1c2VjKSA6IDI9NC42MyUsIDQ9OC40NSUsIDEwPTEx
+LjI3JSwgMjA9MzIuNDElLCA1MD00Mi41OCUNCiAgICBsYXQgKHVzZWMpIDogMTAwPTAuNjYlLCAy
+NTA9MC4wMSUsIDUwMD0wLjAxJSwgNzUwPTAuMDElDQogIGNwdSAgICAgICAgICA6IHVzcj05OS43
+NCUsIHN5cz0wLjI0JSwgY3R4PTI3OTEsIG1hamY9MCwgbWluZj0yODIyNzEwDQogIElPIGRlcHRo
+cyAgICA6IDE9MTAwLjAlLCAyPTAuMCUsIDQ9MC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAl
+LCA+PTY0PTAuMCUNCiAgICAgc3VibWl0ICAgIDogMD0wLjAlLCA0PTEwMC4wJSwgOD0wLjAlLCAx
+Nj0wLjAlLCAzMj0wLjAlLCA2ND0wLjAlLCA+PTY0PTAuMCUNCiAgICAgY29tcGxldGUgIDogMD0w
+LjAlLCA0PTEwMC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCA2ND0wLjAlLCA+PTY0PTAu
+MCUNCiAgICAgaXNzdWVkICAgIDogdG90YWw9cj0zOTg3NzgyL3c9NzU3OTM0NzgvZD0wLCBzaG9y
+dD1yPTAvdz0wL2Q9MCwgZHJvcD1yPTAvdz0wL2Q9MA0KICAgICBsYXRlbmN5ICAgOiB0YXJnZXQ9
+MCwgd2luZG93PTAsIHBlcmNlbnRpbGU9MTAwLjAwJSwgZGVwdGg9MQ0KDQpSdW4gc3RhdHVzIGdy
+b3VwIDAgKGFsbCBqb2JzKToNCiAgIFJFQUQ6IGlvPTIwMjgzMU1CLCBhZ2dyYj0xNjkwLjNNQi9z
+LCBtaW5iPTE2OTAuM01CL3MsIG1heGI9MTY5MC4zTUIvcywgbWludD0xMjAwMDFtc2VjLCBtYXh0
+PTEyMDAwMW1zZWMNCiAgV1JJVEU6IGlvPTM3NjQuM0dCLCBhZ2dyYj0zMjEyMU1CL3MsIG1pbmI9
+MzIxMjFNQi9zLCBtYXhiPTMyMTIxTUIvcywgbWludD0xMjAwMDFtc2VjLCBtYXh0PTEyMDAwMW1z
+ZWMNCg0KTm8gaHVnZSBncm93dGggZGV0ZWN0ZWQg4oCTIGxhdCAxNi42OSB2cyAxNS4yMSwgd3Jp
+dGUgYncg4oCTIDMwMjM0TWIvcyB2cyAzMjEyMU1iL3MuDQoNCkxvb2tpbmcgdG8gdGhlIHBlcmZv
+cm1hbmNlIHRyYWNlcywNCg0KUElEIDY1MDQzICAvdXNyL2Jpbi9maW8NCg0KICAgIEhBUkRDTE9D
+SyBlbnRyaWVzDQogICAgICAgQ291bnQgICAgIFBjdCAgU3RhdGUgIEZ1bmN0aW9uDQogICAgICAg
+IDIyMTAgIDY2LjI5JSAgVVNFUiAgIF9fbWVtY3B5X2F2eF91bmFsaWduZWQgWy9saWI2NC9saWJj
+LTIuMjIuc29dDQogICAgICAgIDExMjIgIDMzLjY1JSAgVVNFUiAgIFVOS05PV04NCiAgICAgICAg
+ICAgMiAgIDAuMDYlICBTWVMgICAgcGFnZXJhbmdlX2lzX3JhbV9jYWxsYmFjaw0KDQogICAgICAg
+Q291bnQgICAgIFBjdCAgSEFSRENMT0NLIFN0YWNrIHRyYWNlDQogICAgICAgPT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQogICAgICAg
+ICAgIDIgICAwLjA2JSAgcGFnZXJhbmdlX2lzX3JhbV9jYWxsYmFjayAgd2Fsa19zeXN0ZW1fcmFt
+X3JhbmdlICBwYXRfcGFnZXJhbmdlX2lzX3JhbSAgbG9va3VwX21lbXR5cGUgIHRyYWNrX3Bmbl9p
+bnNlcnQgIHZtZl9pbnNlcnRfcGZuX3BtZCAgZGF4X2Rldl9wbWRfZmF1bHQgIGhhbmRsZV9tbV9m
+YXVsdCAgX19kb19wYWdlX2ZhdWx0ICBkb19wYWdlX2ZhdWx0ICBwYWdlX2ZhdWx0ICB1bmtub3du
+ICB8ICBfX21lbWNweV9hdnhfdW5hbGlnbmVkDQoNCiAgIDI1LjYyMDkyNSBjcHU9NTEgcGlkPTY1
+MDQzIHRnaWQ9NjUwNDMgaGFyZGNsb2NrIHN0YXRlPVVTRVIgIFtsaWJjLTIuMjIuc29dOl9fbWVt
+Y3B5X2F2eF91bmFsaWduZWQrMHgyYjYNCiAgIDI1LjY0NDkyNCBjcHU9NTEgcGlkPTY1MDQzIHRn
+aWQ9NjUwNDMgaGFyZGNsb2NrIHN0YXRlPVVTRVIgIFtsaWJjLTIuMjIuc29dOl9fbWVtY3B5X2F2
+eF91bmFsaWduZWQrMHgyYjYNCiAgIDI1LjY1NjkyMyBjcHU9NTEgcGlkPTY1MDQzIHRnaWQ9NjUw
+NDMgaGFyZGNsb2NrIHN0YXRlPVVTRVIgIFtsaWJjLTIuMjIuc29dOl9fbWVtY3B5X2F2eF91bmFs
+aWduZWQrMHgyYjYNCiAgIDI1LjY4MDkyNSBjcHU9NTEgcGlkPTY1MDQzIHRnaWQ9NjUwNDMgaGFy
+ZGNsb2NrIHN0YXRlPVVTRVIgIFtsaWJjLTIuMjIuc29dOl9fbWVtY3B5X2F2eF91bmFsaWduZWQr
+MHgyYjYNCiAgIDI1LjY5MjkyNCBjcHU9NTEgcGlkPTY1MDQzIHRnaWQ9NjUwNDMgaGFyZGNsb2Nr
+IHN0YXRlPVVTRVIgIFtsaWJjLTIuMjIuc29dOl9fbWVtY3B5X2F2eF91bmFsaWduZWQrMHgyYjYN
+CiAgIDI1LjcwNDkyNSBjcHU9NTEgcGlkPTY1MDQzIHRnaWQ9NjUwNDMgaGFyZGNsb2NrIHN0YXRl
+PVVTRVIgIFtsaWJjLTIuMjIuc29dOl9fbWVtY3B5X2F2eF91bmFsaWduZWQrMHgyYjYNCiAgIDI1
+LjcxNjkyNSBjcHU9NTEgcGlkPTY1MDQzIHRnaWQ9NjUwNDMgaGFyZGNsb2NrIHN0YXRlPVVTRVIg
+IFtsaWJjLTIuMjIuc29dOl9fbWVtY3B5X2F2eF91bmFsaWduZWQrMHgyYjYNCiAgIDI1LjcyODky
+MyBjcHU9NTEgcGlkPTY1MDQzIHRnaWQ9NjUwNDMgaGFyZGNsb2NrIHN0YXRlPVVTRVIgIFtsaWJj
+LTIuMjIuc29dOl9fbWVtY3B5X2F2eF91bmFsaWduZWQrMHgyYjYNCiAgIDI1Ljc2NDkyNCBjcHU9
+NTEgcGlkPTY1MDQzIHRnaWQ9NjUwNDMgaGFyZGNsb2NrIHN0YXRlPVVTRVIgIFtsaWJjLTIuMjIu
+c29dOl9fbWVtY3B5X2F2eF91bmFsaWduZWQrMHgyYjYNCiAgIDI1Ljc3NjkyNCBjcHU9NTEgcGlk
+PTY1MDQzIHRnaWQ9NjUwNDMgaGFyZGNsb2NrIHN0YXRlPVVTRVIgIFtsaWJjLTIuMjIuc29dOl9f
+bWVtY3B5X2F2eF91bmFsaWduZWQrMHgyYjYNCg0KU2VlbXMgdG8gYmUgdGhlcmUgbG90J3MgdW5h
+bGlnbmVkIG1lbW9yeSBhY2Nlc3MsIGFueSBpZGVhcyA/DQoNCllvdSBjb3VsZCBhbHNvIGxvb2sg
+YXQgdGhlIHNvdXJjZSBjb2RlIGZvciBmaW8gdG8gc2VlIHdoYXQgaXTigJlzIGRvaW5nIG9yIHB1
+dCBpbiBzb21lIHByaW50ZigpIHN0YXRlbWVudHMgc28geW91IGNhbiB1bmRlcnN0YW5kIHdoYXQg
+dGhlIGFjdHVhbCBhbGlnbm1lbnQgaXMuDQoNCkFudG9uDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2Fn
+ZS0tLS0tDQpGcm9tOiBTaXRzb2ZlIFdoZWVsZXIgW21haWx0bzpzaXRzb2ZlQGdtYWlsLmNvbV0g
+DQpTZW50OiBNb25kYXksIE5vdmVtYmVyIDI3LCAyMDE3IDk6MzggUE0NClRvOiBHYXZyaWxpdWss
+IEFudG9uIChIUFMgVWtyYWluZSkgPGFudG9uLmdhdnJpbGl1a0BocGUuY29tPg0KQ2M6IGZpb0B2
+Z2VyLmtlcm5lbC5vcmc7IEJyaWFuIEJveWxzdG9uIDxicmlhbi5ib3lsc3RvbkBocGUuY29tPjsg
+RWxsaW90dCwgUm9iZXJ0IChQZXJzaXN0ZW50IE1lbW9yeSkgPGVsbGlvdHRAaHBlLmNvbT4NClN1
+YmplY3Q6IFJlOiBmaW8gMy4yDQoNClVuZm9ydHVuYXRlbHkgSSBkb24ndCBoYXZlIGFjY2VzcyB0
+byBhIHBtZW0gZGV2aWNlIGJ1dCBsZXQncyBzZWUgaG93IGZhciB3ZSBnZXQ6DQoNCk9uIDI3IE5v
+dmVtYmVyIDIwMTcgYXQgMTI6MzksIEdhdnJpbGl1aywgQW50b24gKEhQUyBVa3JhaW5lKSA8YW50
+b24uZ2F2cmlsaXVrQGhwZS5jb20+IHdyb3RlOg0KPg0KPiByZXN1bHQ9JChmaW8gLS1uYW1lPXJh
+bmRvbS13cml0ZXJzIC0taW9lbmdpbmU9bW1hcCAtLWlvZGVwdGg9MzIgDQo+IC0tcnc9cmFuZHdy
+aXRlIC0tYnM9NjRrIC0tc2l6ZT0xMDI0bSAtLW51bWpvYnM9OCAtLWdyb3VwX3JlcG9ydGluZz0x
+IA0KPiAtLWV0YT1uZXZlciAtLXRpbWVfYmFzZWQgLS1ydW50aW1lPTYwIC0tZmlsZW5hbWU9L2Rl
+di9kYXgwLjAgfCBncmVwIA0KPiBXUklURSkNCg0KUGxlYXNlIG1ha2UgeW91ciBwcm9ibGVtIHNj
+ZW5hcmlvcyBhcyBzaW1wbGUgYXMgcG9zc2libGU6DQoxLiBKdXN0IHJ1biBmaW8gbm9ybWFsbHkg
+c28gd2UgY2FuIHNlZSB0aGUgb3V0cHV0IGl0IHByb2R1Y2VzIG9uIGJvdGggc3Rkb3V0IGFuZCBz
+dGRlcnIgbm9ybWFsbHkuDQoyLiBSZWR1Y2UgdGhlIGpvYiBiYWNrIHNvIGl0IHRoZXJlIGFyZSBv
+bmx5IHRoZSBiYXJlIG1pbmltdW0gb3B0aW9ucyB0aGF0IHJlcHJvZHVjZSB0aGUgcHJvYmxlbS4N
+CjMuIFRyeSB0byBhdm9pZCBjaGFuZ2luZyBsb3RzIG9mIHRoaW5ncy4NCg0KSGVyZSB5b3UndmUg
+c3dpdGNoZWQgaW9lbmdpbmUgaW50cm9kdWNpbmcgYW5vdGhlciBwbGFjZSB0byBsb29rLg0KSW5z
+dGVhZCBob3cgYWJvdXQgdGhpczoNCg0KV2FzIHlvdXIgL2Rldi9kYXgwLjAgZGV2aWNlIG1hZGUg
+dXNpbmcgbmRjdGw/IEFzc3VtaW5nIHllczoNCg0KZmlvIC0tbmFtZT1kYXgtbW1hcCAtLWlvZW5n
+aW5lPW1tYXAgLS1ydz13cml0ZSAtLWJzPTY0ayAtLWV0YT1uZXZlciAtLXRpbWVfYmFzZWQgLS1y
+dW50aW1lPTYwIC0tZmlsZW5hbWU9L2Rldi9kYXgwLjAgLS1zaXplPTJnDQoNCihhcHBhcmVudGx5
+IGEgc2l6ZSBoYXMgdG8gYmUgc3BlY2lmaWVkIHdoZW4geW91IHRyeSB0byB1c2UgYSBjaGFyYWN0
+ZXIgZGV2aWNlIC0gc2VlIGh0dHBzOi8vbnZkaW1tLndpa2kua2VybmVsLm9yZy8gKQ0KDQpJZiB5
+b3UgcnVuIGp1c3QgdGhhdCBieSBpdHNlbGYgd2hhdCBkbyB5b3Ugc2VlPw0KDQpOZXh0IHVwOg0K
+DQpmaW8gLS1uYW1lPWRheC1kYXggLS1pb2VuZ2luZT1kZXYtZGF4IC0tcnc9d3JpdGUgLS1icz02
+NGsgLS1ldGE9bmV2ZXIgLS10aW1lX2Jhc2VkIC0tcnVudGltZT02MCAtLWZpbGVuYW1lPS9kZXYv
+ZGF4MC4wIC0tc2l6ZT0yZw0KDQpJZiB5b3UgcnVuIGp1c3QgdGhhdCBieSBpdHNlbGYgd2hhdCBk
+byB5b3Ugc2VlPw0KDQpGaW5hbGx5Og0KQXNzdW1pbmcgYSAtbyBkYXggbW91bnRlZCBmaWxlc3lz
+dGVtIG9uIC9wbWVtMC8gOg0KDQpmaW8gLS1uYW1lPWxpYnBtZW1ibGsgLS1pb2VuZ2luZT1wbWVt
+YmxrIC0tcnc9d3JpdGUgLS1icz02NGsgLS1ldGE9bmV2ZXIgLS10aW1lX2Jhc2VkIC0tcnVudGlt
+ZT02MA0KLS1maWxlbmFtZT0vcG1lbTAvZmlvLXRlc3QsNDA5NiwxMDI0IC0tdGhyZWFkPTENCg0K
+SWYgeW91IHJ1biBqdXN0IHRoYXQgYnkgaXRzZWxmIHdoYXQgZG8geW91IHNlZT8NCg0KKFBlcmhh
+cHMgdGhlIGRvY3VtZW50YXRpb24gZm9yIHRoZXNlIGlvZW5naW5lcyBhbmQgcG1lbSBkZXZpY2Vz
+IG5lZWRzIHRvIGJlIGltcHJvdmVkPykNCg0KLS0NClNpdHNvZmUgfCBodHRwOi8vc3Vjcy5vcmcv
+fnNpdHMvDQo=
