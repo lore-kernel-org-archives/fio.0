@@ -1,149 +1,117 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from muon.bluestop.org ([74.50.51.35]:18821 "EHLO muon.bluestop.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751395AbdK2Eom (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 28 Nov 2017 23:44:42 -0500
+Received: from g2t2353.austin.hpe.com ([15.233.44.26]:42568 "EHLO
+        g2t2353.austin.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751867AbdK2EN5 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 28 Nov 2017 23:13:57 -0500
+From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+Subject: RE: fio 3.2
+Date: Wed, 29 Nov 2017 04:13:53 +0000
+Message-ID: <AT5PR8401MB03875F6DB61311D1D8B40419AB3B0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
+References: <TU4PR8401MB099112614914A9232A07490DEC270@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <903d418b-bac4-104b-28e5-3c529efab7f5@kernel.dk>
+ <TU4PR8401MB0991DC48F1741A8F8F1DEF20EC240@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <CALjAwxh9bP38Uqsy=OmxqZKRxpKYEArYuT1RYC76jL6oqF3daQ@mail.gmail.com>
+ <TU4PR8401MB099189C195BE973BED0D0C15EC250@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <CALjAwxiQU=C4ye2gN4-9S6D75f3HQ7q7w2TpE0O+fH6C+MXLHg@mail.gmail.com>
+ <b9bce0b0-9683-59b6-4c08-62f29d80935a@bluestop.org>
+ <TU4PR8401MB0991F4C4CAD9858A3BF2AE9DEC3A0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <AT5PR8401MB0387489EC42684D7FACF3E1EAB3A0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
+ <TU4PR8401MB0991EBEF27D16271CD5361AAEC3B0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+In-Reply-To: <TU4PR8401MB0991EBEF27D16271CD5361AAEC3B0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+Content-Language: en-US
 Content-Type: text/plain; charset="utf-8"
-Mime-Version: 1.0 (1.0)
-Subject: Re: fio 3.2
-From: Rebecca Cran <rebecca@bluestop.org>
-In-Reply-To: <AT5PR8401MB03875F6DB61311D1D8B40419AB3B0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
-Date: Tue, 28 Nov 2017 21:44:39 -0700
-Content-Transfer-Encoding: 8bit
-Message-Id: <B51AE08B-A0D4-457B-8DF5-E1CD3DC2A271@bluestop.org>
-References: <TU4PR8401MB099112614914A9232A07490DEC270@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM> <903d418b-bac4-104b-28e5-3c529efab7f5@kernel.dk> <TU4PR8401MB0991DC48F1741A8F8F1DEF20EC240@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM> <CALjAwxh9bP38Uqsy=OmxqZKRxpKYEArYuT1RYC76jL6oqF3daQ@mail.gmail.com> <TU4PR8401MB099189C195BE973BED0D0C15EC250@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM> <CALjAwxiQU=C4ye2gN4-9S6D75f3HQ7q7w2TpE0O+fH6C+MXLHg@mail.gmail.com> <b9bce0b0-9683-59b6-4c08-62f29d80935a@bluestop.org> <TU4PR8401MB0991F4C4CAD9858A3BF2AE9DEC3A0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM> <AT5PR8401MB0387489EC42684D7FACF3E1EAB3A0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM> <TU4PR8401MB0991EBEF27D16271CD5361AAEC3B0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM> <AT5PR8401MB03875F6DB61311D1D8B40419AB3B0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Cc: "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>, Sitsofe Wheeler <sitsofe@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, "Kani, Toshimitsu" <toshi.kani@hpe.com>
+To: "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>, Rebecca Cran <rebecca@bluestop.org>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "Kani, Toshimitsu" <toshi.kani@hpe.com>
 
-I’ve not followed the whole discussion, but I did some tests a couple of months ago replacing the calls to memcpy in the memmap engine with a new fio_memcpy function, rebuilding fio with the -ftree-vectorize flag along with -msse2, -mavx etc. 
-I saw an improvement of a few hundred MB/sec on my openSUSE system.
-
-— 
-Rebecca 
-
-Sent from my iPhone
-
-> On Nov 28, 2017, at 9:13 PM, Elliott, Robert (Persistent Memory) <elliott@hpe.com> wrote:
-> 
-> 
->> -----Original Message-----
->> From: Gavriliuk, Anton (HPS Ukraine)
->> Sent: Tuesday, November 28, 2017 9:35 PM
->> To: Elliott, Robert (Persistent Memory) <elliott@hpe.com>; Rebecca Cran
->> <rebecca@bluestop.org>; Sitsofe Wheeler <sitsofe@gmail.com>
->> Cc: fio@vger.kernel.org; Kani, Toshimitsu <toshi.kani@hpe.com>
->> Subject: RE: fio 3.2
-> 
-> 
->> 4. The CPU instructions used by fio depend on the glibc library version.
->> As mentioned in an earlier fio thread, that changes a lot. With
->> libc2.24.so, random reads seem to be done with rep movsb.
->> 
->> The test box SLES12 SP3 has glibc2.22, so we have to update. But I can't
->> understand what does it mean - " random reads seem to be done with rep
->> movsb "
-> 
-> While the test is running, run
->    perf top
-> 
-> and select one of the busiest functions (hopefully a memcpy function):
-> 
->  90.14%  libc-2.24.so         [.] __memmove_avx_unaligned_erms
->   3.85%  [unknown]            [k] 0x00007f7414f5c4ff
->   0.53%  [kernel]             [k] wait_consider_task
->   0.33%  fio                  [.] get_io_u
->   0.29%  fio                  [.] td_io_queue
->   0.26%  fio                  [.] io_u_sync_complete
-> 
-> Hit enter twice to get to the assembly language code.  This shows you
-> the amount of time the CPUs are spending in each instruction (based on
-> sampling):
-> 
->  0.03 â”‚ 2b:   cmp    __x86_shared_non_temporal_threshold,%rdx
->  0.01 â”‚     â†“ jae    15d
->       â”‚       cmp    %rsi,%rdi
->  0.00 â”‚     â†“ jb     4c
->       â”‚     â†“ je     51
->       â”‚       lea    (%rsi,%rdx,1),%r9
->       â”‚       cmp    %r9,%rdi
->       â”‚     â†“ jb     211
->       â”‚ 4c:   mov    %rdx,%rcx
-> 99.88 â”‚       rep    movsb %ds:(%rsi),%es:(%rdi)
->  0.08 â”‚ 51: â† retq
->       â”‚ 52:   cmp    $0x10,%dl
-> 
-> That means 99.88% of 90.14% of the time is spend on rep movsb, presumably
-> reading from persistent memory (and writing to regular memory, but to
-> a buffer that's entirely in the CPU caches).
-> 
-> Some more examples of how to analyze the results:
-> 
-> If I remove the norandommap option, fio spends about 1% of the CPU time 
-> in a function maintaining the list of which LBAs it has read:
->  89.63%  libc-2.24.so                [.] __memmove_avx_unaligned_erms
->   3.28%  [unknown]                   [k] 0x00007f34da4824ff
->   0.87%  fio                         [.] axmap_isset 
->   0.58%  [kernel]                    [k] wait_consider_task
->   0.38%  fio                         [.] get_io_u
->   0.34%  fio                         [.] io_u_sync_complete
-> 
-> 
-> If I switch to random writes and remove the zerobuffers option, fio spends
-> about 7% of the CPU time creating non-zero write data (to then write
-> into persistent memory):
->  79.04%  libc-2.24.so        [.] __memmove_avx_unaligned_erms
->   6.98%  fio                 [.] get_io_u
->   4.24%  [unknown]           [k] 0x00007f8ee86d34ff
->   0.85%  fio                 [.] io_queue_event
->   0.82%  fio                 [.] axmap_isset
->   0.62%  fio                 [.] io_u_sync_complete
->   0.62%  [kernel]            [k] wait_consider_task
->   0.58%  fio                 [.] td_io_queue
->   0.45%  fio                 [.] thread_main
-> 
-> get_io_u calls small_content_scramble which calls memcpy for 8
-> bytes at a time.  On my system, gcc chose to inline memcpy
-> rather than call the glibc library version, and it ends up just
-> using regular mov instructions:
-> 
->       â”‚      memcpy():
->       â”‚
->       â”‚      __fortify_function void *
->       â”‚      __NTH (memcpy (void *__restrict __dest, const void *__restrict __src,
->       â”‚                     size_t __len))
->       â”‚      {
->       â”‚        return __builtin___memcpy_chk (__dest, __src, __len, __bos0 (__dest));
-> 32.56 â”‚        mov    %rax,-0x200(%rcx,%rsi,1)
->  5.18 â”‚        mov    0x0(%rbp),%rsi
->       â”‚      small_content_scramble():
->       â”‚                              get_verify = 1;
->  2.49 â”‚        add    $0x200,%rax
->  2.81 â”‚        mov    0x8(%rbp),%rdi
->       â”‚      memcpy():
-> 32.91 â”‚        mov    %rsi,-0x10(%rcx)
->  3.45 â”‚        mov    %rdi,-0x8(%rcx)
->       â”‚      small_content_scramble():
->       â”‚                                      td->trim_batch = td->o.trim_backlog;
->       â”‚                              get_trim = 1;
->       â”‚                      }
->       â”‚
->       â”‚                      if (get_trim && get_next_trim(td, io_u))
->       â”‚                              return true;
-> 
-> small_content_scramble has hardly been touched since 2011, so it probably
-> hasn't had much performance analysis.  
-> 
-> One of the few changes made was to add an integer divide by 1000, which 
-> is always slow (painfully slow on some CPUs):
-> 
->    offset = ((io_u->start_time.tv_nsec/1000) ^ boffset) & 511;
-> 
-> perf top doesn't show that taking time - I think the compiler realized
-> it could pull that calculation out of the loop and just do it once.  Different
-> compilers and compiler options might not realize that.
-> 
-> 
-> èº{.nÇ+‰·Ÿ®‰­†+%ŠËlzwm…ébë§²æìr¸›yø¨Š{ayºÊ‡Ú™ë,j­¢f£¢·hš‹àz¹®w¥¢¸¢·¦j:+v‰¨ŠwèjØm¶Ÿÿ¾«‘êçzZ+ƒùšŽŠÝ¢j"ú!¶i
-
+DQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IEdhdnJpbGl1aywgQW50b24g
+KEhQUyBVa3JhaW5lKQ0KPiBTZW50OiBUdWVzZGF5LCBOb3ZlbWJlciAyOCwgMjAxNyA5OjM1IFBN
+DQo+IFRvOiBFbGxpb3R0LCBSb2JlcnQgKFBlcnNpc3RlbnQgTWVtb3J5KSA8ZWxsaW90dEBocGUu
+Y29tPjsgUmViZWNjYSBDcmFuDQo+IDxyZWJlY2NhQGJsdWVzdG9wLm9yZz47IFNpdHNvZmUgV2hl
+ZWxlciA8c2l0c29mZUBnbWFpbC5jb20+DQo+IENjOiBmaW9Admdlci5rZXJuZWwub3JnOyBLYW5p
+LCBUb3NoaW1pdHN1IDx0b3NoaS5rYW5pQGhwZS5jb20+DQo+IFN1YmplY3Q6IFJFOiBmaW8gMy4y
+DQoNCg0KPiA0LiBUaGUgQ1BVIGluc3RydWN0aW9ucyB1c2VkIGJ5IGZpbyBkZXBlbmQgb24gdGhl
+IGdsaWJjIGxpYnJhcnkgdmVyc2lvbi4NCj4gQXMgbWVudGlvbmVkIGluIGFuIGVhcmxpZXIgZmlv
+IHRocmVhZCwgdGhhdCBjaGFuZ2VzIGEgbG90LiBXaXRoDQo+IGxpYmMyLjI0LnNvLCByYW5kb20g
+cmVhZHMgc2VlbSB0byBiZSBkb25lIHdpdGggcmVwIG1vdnNiLg0KPiANCj4gVGhlIHRlc3QgYm94
+IFNMRVMxMiBTUDMgaGFzIGdsaWJjMi4yMiwgc28gd2UgaGF2ZSB0byB1cGRhdGUuIEJ1dCBJIGNh
+bid0DQo+IHVuZGVyc3RhbmQgd2hhdCBkb2VzIGl0IG1lYW4gLSAiIHJhbmRvbSByZWFkcyBzZWVt
+IHRvIGJlIGRvbmUgd2l0aCByZXANCj4gbW92c2IgIg0KDQpXaGlsZSB0aGUgdGVzdCBpcyBydW5u
+aW5nLCBydW4NCglwZXJmIHRvcA0KDQphbmQgc2VsZWN0IG9uZSBvZiB0aGUgYnVzaWVzdCBmdW5j
+dGlvbnMgKGhvcGVmdWxseSBhIG1lbWNweSBmdW5jdGlvbik6DQoNCiAgOTAuMTQlICBsaWJjLTIu
+MjQuc28gICAgICAgICBbLl0gX19tZW1tb3ZlX2F2eF91bmFsaWduZWRfZXJtcw0KICAgMy44NSUg
+IFt1bmtub3duXSAgICAgICAgICAgIFtrXSAweDAwMDA3Zjc0MTRmNWM0ZmYNCiAgIDAuNTMlICBb
+a2VybmVsXSAgICAgICAgICAgICBba10gd2FpdF9jb25zaWRlcl90YXNrDQogICAwLjMzJSAgZmlv
+ICAgICAgICAgICAgICAgICAgWy5dIGdldF9pb191DQogICAwLjI5JSAgZmlvICAgICAgICAgICAg
+ICAgICAgWy5dIHRkX2lvX3F1ZXVlDQogICAwLjI2JSAgZmlvICAgICAgICAgICAgICAgICAgWy5d
+IGlvX3Vfc3luY19jb21wbGV0ZQ0KDQpIaXQgZW50ZXIgdHdpY2UgdG8gZ2V0IHRvIHRoZSBhc3Nl
+bWJseSBsYW5ndWFnZSBjb2RlLiAgVGhpcyBzaG93cyB5b3UNCnRoZSBhbW91bnQgb2YgdGltZSB0
+aGUgQ1BVcyBhcmUgc3BlbmRpbmcgaW4gZWFjaCBpbnN0cnVjdGlvbiAoYmFzZWQgb24NCnNhbXBs
+aW5nKToNCg0KICAwLjAzIOKUgiAyYjogICBjbXAgICAgX194ODZfc2hhcmVkX25vbl90ZW1wb3Jh
+bF90aHJlc2hvbGQsJXJkeA0KICAwLjAxIOKUgiAgICAg4oaTIGphZSAgICAxNWQNCiAgICAgICDi
+lIIgICAgICAgY21wICAgICVyc2ksJXJkaQ0KICAwLjAwIOKUgiAgICAg4oaTIGpiICAgICA0Yw0K
+ICAgICAgIOKUgiAgICAg4oaTIGplICAgICA1MQ0KICAgICAgIOKUgiAgICAgICBsZWEgICAgKCVy
+c2ksJXJkeCwxKSwlcjkNCiAgICAgICDilIIgICAgICAgY21wICAgICVyOSwlcmRpDQogICAgICAg
+4pSCICAgICDihpMgamIgICAgIDIxMQ0KICAgICAgIOKUgiA0YzogICBtb3YgICAgJXJkeCwlcmN4
+DQogOTkuODgg4pSCICAgICAgIHJlcCAgICBtb3ZzYiAlZHM6KCVyc2kpLCVlczooJXJkaSkNCiAg
+MC4wOCDilIIgNTE6IOKGkCByZXRxDQogICAgICAg4pSCIDUyOiAgIGNtcCAgICAkMHgxMCwlZGwN
+Cg0KVGhhdCBtZWFucyA5OS44OCUgb2YgOTAuMTQlIG9mIHRoZSB0aW1lIGlzIHNwZW5kIG9uIHJl
+cCBtb3ZzYiwgcHJlc3VtYWJseQ0KcmVhZGluZyBmcm9tIHBlcnNpc3RlbnQgbWVtb3J5IChhbmQg
+d3JpdGluZyB0byByZWd1bGFyIG1lbW9yeSwgYnV0IHRvDQphIGJ1ZmZlciB0aGF0J3MgZW50aXJl
+bHkgaW4gdGhlIENQVSBjYWNoZXMpLg0KDQpTb21lIG1vcmUgZXhhbXBsZXMgb2YgaG93IHRvIGFu
+YWx5emUgdGhlIHJlc3VsdHM6DQoNCklmIEkgcmVtb3ZlIHRoZSBub3JhbmRvbW1hcCBvcHRpb24s
+IGZpbyBzcGVuZHMgYWJvdXQgMSUgb2YgdGhlIENQVSB0aW1lIA0KaW4gYSBmdW5jdGlvbiBtYWlu
+dGFpbmluZyB0aGUgbGlzdCBvZiB3aGljaCBMQkFzIGl0IGhhcyByZWFkOg0KICA4OS42MyUgIGxp
+YmMtMi4yNC5zbyAgICAgICAgICAgICAgICBbLl0gX19tZW1tb3ZlX2F2eF91bmFsaWduZWRfZXJt
+cw0KICAgMy4yOCUgIFt1bmtub3duXSAgICAgICAgICAgICAgICAgICBba10gMHgwMDAwN2YzNGRh
+NDgyNGZmDQogICAwLjg3JSAgZmlvICAgICAgICAgICAgICAgICAgICAgICAgIFsuXSBheG1hcF9p
+c3NldCANCiAgIDAuNTglICBba2VybmVsXSAgICAgICAgICAgICAgICAgICAgW2tdIHdhaXRfY29u
+c2lkZXJfdGFzaw0KICAgMC4zOCUgIGZpbyAgICAgICAgICAgICAgICAgICAgICAgICBbLl0gZ2V0
+X2lvX3UNCiAgIDAuMzQlICBmaW8gICAgICAgICAgICAgICAgICAgICAgICAgWy5dIGlvX3Vfc3lu
+Y19jb21wbGV0ZQ0KDQoNCklmIEkgc3dpdGNoIHRvIHJhbmRvbSB3cml0ZXMgYW5kIHJlbW92ZSB0
+aGUgemVyb2J1ZmZlcnMgb3B0aW9uLCBmaW8gc3BlbmRzDQphYm91dCA3JSBvZiB0aGUgQ1BVIHRp
+bWUgY3JlYXRpbmcgbm9uLXplcm8gd3JpdGUgZGF0YSAodG8gdGhlbiB3cml0ZQ0KaW50byBwZXJz
+aXN0ZW50IG1lbW9yeSk6DQogIDc5LjA0JSAgbGliYy0yLjI0LnNvICAgICAgICBbLl0gX19tZW1t
+b3ZlX2F2eF91bmFsaWduZWRfZXJtcw0KICAgNi45OCUgIGZpbyAgICAgICAgICAgICAgICAgWy5d
+IGdldF9pb191DQogICA0LjI0JSAgW3Vua25vd25dICAgICAgICAgICBba10gMHgwMDAwN2Y4ZWU4
+NmQzNGZmDQogICAwLjg1JSAgZmlvICAgICAgICAgICAgICAgICBbLl0gaW9fcXVldWVfZXZlbnQN
+CiAgIDAuODIlICBmaW8gICAgICAgICAgICAgICAgIFsuXSBheG1hcF9pc3NldA0KICAgMC42MiUg
+IGZpbyAgICAgICAgICAgICAgICAgWy5dIGlvX3Vfc3luY19jb21wbGV0ZQ0KICAgMC42MiUgIFtr
+ZXJuZWxdICAgICAgICAgICAgW2tdIHdhaXRfY29uc2lkZXJfdGFzaw0KICAgMC41OCUgIGZpbyAg
+ICAgICAgICAgICAgICAgWy5dIHRkX2lvX3F1ZXVlDQogICAwLjQ1JSAgZmlvICAgICAgICAgICAg
+ICAgICBbLl0gdGhyZWFkX21haW4NCg0KZ2V0X2lvX3UgY2FsbHMgc21hbGxfY29udGVudF9zY3Jh
+bWJsZSB3aGljaCBjYWxscyBtZW1jcHkgZm9yIDgNCmJ5dGVzIGF0IGEgdGltZS4gIE9uIG15IHN5
+c3RlbSwgZ2NjIGNob3NlIHRvIGlubGluZSBtZW1jcHkNCnJhdGhlciB0aGFuIGNhbGwgdGhlIGds
+aWJjIGxpYnJhcnkgdmVyc2lvbiwgYW5kIGl0IGVuZHMgdXAganVzdA0KdXNpbmcgcmVndWxhciBt
+b3YgaW5zdHJ1Y3Rpb25zOg0KDQogICAgICAg4pSCICAgICAgbWVtY3B5KCk6DQogICAgICAg4pSC
+DQogICAgICAg4pSCICAgICAgX19mb3J0aWZ5X2Z1bmN0aW9uIHZvaWQgKg0KICAgICAgIOKUgiAg
+ICAgIF9fTlRIIChtZW1jcHkgKHZvaWQgKl9fcmVzdHJpY3QgX19kZXN0LCBjb25zdCB2b2lkICpf
+X3Jlc3RyaWN0IF9fc3JjLA0KICAgICAgIOKUgiAgICAgICAgICAgICAgICAgICAgIHNpemVfdCBf
+X2xlbikpDQogICAgICAg4pSCICAgICAgew0KICAgICAgIOKUgiAgICAgICAgcmV0dXJuIF9fYnVp
+bHRpbl9fX21lbWNweV9jaGsgKF9fZGVzdCwgX19zcmMsIF9fbGVuLCBfX2JvczAgKF9fZGVzdCkp
+Ow0KIDMyLjU2IOKUgiAgICAgICAgbW92ICAgICVyYXgsLTB4MjAwKCVyY3gsJXJzaSwxKQ0KICA1
+LjE4IOKUgiAgICAgICAgbW92ICAgIDB4MCglcmJwKSwlcnNpDQogICAgICAg4pSCICAgICAgc21h
+bGxfY29udGVudF9zY3JhbWJsZSgpOg0KICAgICAgIOKUgiAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIGdldF92ZXJpZnkgPSAxOw0KICAyLjQ5IOKUgiAgICAgICAgYWRkICAgICQweDIwMCwl
+cmF4DQogIDIuODEg4pSCICAgICAgICBtb3YgICAgMHg4KCVyYnApLCVyZGkNCiAgICAgICDilIIg
+ICAgICBtZW1jcHkoKToNCiAzMi45MSDilIIgICAgICAgIG1vdiAgICAlcnNpLC0weDEwKCVyY3gp
+DQogIDMuNDUg4pSCICAgICAgICBtb3YgICAgJXJkaSwtMHg4KCVyY3gpDQogICAgICAg4pSCICAg
+ICAgc21hbGxfY29udGVudF9zY3JhbWJsZSgpOg0KICAgICAgIOKUgiAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgdGQtPnRyaW1fYmF0Y2ggPSB0ZC0+by50cmltX2JhY2tsb2c7
+DQogICAgICAg4pSCICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZ2V0X3RyaW0gPSAxOw0K
+ICAgICAgIOKUgiAgICAgICAgICAgICAgICAgICAgICB9DQogICAgICAg4pSCDQogICAgICAg4pSC
+ICAgICAgICAgICAgICAgICAgICAgIGlmIChnZXRfdHJpbSAmJiBnZXRfbmV4dF90cmltKHRkLCBp
+b191KSkNCiAgICAgICDilIIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICByZXR1cm4gdHJ1
+ZTsNCg0Kc21hbGxfY29udGVudF9zY3JhbWJsZSBoYXMgaGFyZGx5IGJlZW4gdG91Y2hlZCBzaW5j
+ZSAyMDExLCBzbyBpdCBwcm9iYWJseQ0KaGFzbid0IGhhZCBtdWNoIHBlcmZvcm1hbmNlIGFuYWx5
+c2lzLiAgDQoNCk9uZSBvZiB0aGUgZmV3IGNoYW5nZXMgbWFkZSB3YXMgdG8gYWRkIGFuIGludGVn
+ZXIgZGl2aWRlIGJ5IDEwMDAsIHdoaWNoIA0KaXMgYWx3YXlzIHNsb3cgKHBhaW5mdWxseSBzbG93
+IG9uIHNvbWUgQ1BVcyk6DQoNCglvZmZzZXQgPSAoKGlvX3UtPnN0YXJ0X3RpbWUudHZfbnNlYy8x
+MDAwKSBeIGJvZmZzZXQpICYgNTExOw0KDQpwZXJmIHRvcCBkb2Vzbid0IHNob3cgdGhhdCB0YWtp
+bmcgdGltZSAtIEkgdGhpbmsgdGhlIGNvbXBpbGVyIHJlYWxpemVkDQppdCBjb3VsZCBwdWxsIHRo
+YXQgY2FsY3VsYXRpb24gb3V0IG9mIHRoZSBsb29wIGFuZCBqdXN0IGRvIGl0IG9uY2UuICBEaWZm
+ZXJlbnQNCmNvbXBpbGVycyBhbmQgY29tcGlsZXIgb3B0aW9ucyBtaWdodCBub3QgcmVhbGl6ZSB0
+aGF0Lg0KDQoNCg==
