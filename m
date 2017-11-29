@@ -1,5 +1,12 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: fio 3.2
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from g4t3425.houston.hpe.com ([15.241.140.78]:38225 "EHLO
+        g4t3425.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752626AbdK2UY0 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 29 Nov 2017 15:24:26 -0500
+From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+Subject: RE: fio 3.2
+Date: Wed, 29 Nov 2017 20:24:23 +0000
+Message-ID: <AT5PR8401MB0387E40A720C1C8A0047D836AB3B0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
 References: <TU4PR8401MB099112614914A9232A07490DEC270@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
  <903d418b-bac4-104b-28e5-3c529efab7f5@kernel.dk>
  <TU4PR8401MB0991DC48F1741A8F8F1DEF20EC240@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
@@ -11,31 +18,46 @@ References: <TU4PR8401MB099112614914A9232A07490DEC270@TU4PR8401MB0991.NAMPRD84.P
  <AT5PR8401MB0387489EC42684D7FACF3E1EAB3A0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
  <TU4PR8401MB0991EBEF27D16271CD5361AAEC3B0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
  <AT5PR8401MB03875F6DB61311D1D8B40419AB3B0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
- <B51AE08B-A0D4-457B-8DF5-E1CD3DC2A271@bluestop.org>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <40a7b698-e78f-4b82-cdb5-4629d19dff3f@kernel.dk>
-Date: Wed, 29 Nov 2017 21:04:13 -0700
-MIME-Version: 1.0
-In-Reply-To: <B51AE08B-A0D4-457B-8DF5-E1CD3DC2A271@bluestop.org>
-Content-Type: text/plain; charset="utf-8"
+ <DF4PR8401MB0985819C0E99668DFDE30734EC3B0@DF4PR8401MB0985.NAMPRD84.PROD.OUTLOOK.COM>
+ <AT5PR8401MB0387907183BC5CA6AE94289EAB3B0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
+ <TU4PR8401MB0991FC9A2875B323D06B678FEC3B0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <CALjAwxhEs81ejDg+9OP5xHwSMMYCCh85STbBYxR13i8V=KMvww@mail.gmail.com>
+In-Reply-To: <CALjAwxhEs81ejDg+9OP5xHwSMMYCCh85STbBYxR13i8V=KMvww@mail.gmail.com>
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-To: Rebecca Cran <rebecca@bluestop.org>, "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Cc: "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>, Sitsofe Wheeler <sitsofe@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, "Kani, Toshimitsu" <toshi.kani@hpe.com>
-List-ID: <fio@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>, "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>
+Cc: Rebecca Cran <rebecca@bluestop.org>, Tomohiro Kusumi <tkusumi@tuxera.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, "Kani, Toshimitsu" <toshi.kani@hpe.com>
 
-On 11/28/2017 09:44 PM, Rebecca Cran wrote:
-> I’ve not followed the whole discussion, but I did some tests a couple
-> of months ago replacing the calls to memcpy in the memmap engine with
-> a new fio_memcpy function, rebuilding fio with the -ftree-vectorize
-> flag along with -msse2, -mavx etc.  I saw an improvement of a few
-> hundred MB/sec on my openSUSE system.
-
-Care to send a patch for that? I think it'd be nice for fio to pack it's
-own, especially when the performance varies so wildly and is platform
-(and even version) dependent.
-
--- 
-Jens Axboe
-
-
+DQoNCj4gRnJvbTogZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2
+Z2VyLmtlcm5lbC5vcmddIE9uDQo+IEJlaGFsZiBPZiBTaXRzb2ZlIFdoZWVsZXINCi4uLg0KPiBP
+biAyOSBOb3ZlbWJlciAyMDE3IGF0IDEzOjEyLCBHYXZyaWxpdWssIEFudG9uIChIUFMgVWtyYWlu
+ZSkNCj4gPGFudG9uLmdhdnJpbGl1a0BocGUuY29tPiB3cm90ZToNCj4gPiBMYXRlc3QgZmluZGlu
+Z3MuLi4NCj4gPg0KPiA+IFdpdGggdGhlIGZpbzIuMTIgL2Rldi9kYXggJiBtbWFwKCkuICBJIHJ1
+biB0cmFjZSBiZWZvcmUgc3RhcnQgdGVzdC4gIFdlDQo+IGNhbiBzZWUgYWJvdmUgb3BlbigpLCBt
+bWFwKCkNCj4gPg0KLi4uDQo+ID4gICAgIDUuNjMwODM3IGNwdT02NSBwaWQ9NDUxNTQgdGdpZD00
+NTE1NCBtYWR2aXNlIFsyOF0gcmV0PTB4MA0KPiBzeXNjYWxsYmVnPSAgICAwLjAwMDAwMSAqYWRk
+cj0weDdmMWEwMDIwMDAwMCBsZW5ndGg9LTIxNDc0ODM2NDggYWR2aXNlPTB4MQ0KPiA+DQo+ID4g
+SG93IGl0IGNvdWxkIGJlIHRoYXQgbW1hcCgpIGxlbmd0aCBzaXplIC0yR2IgPz8/IChsZW5ndGg9
+LTIxNDc0ODM2NDgpLg0KPiA+IEkgcG9pbnRlZCArMjkwZywNCj4NCj4gVW5zaWduZWQgbnVtYmVy
+IGJlaW5nIHByaW50ZWQgYXMgc2lnbmVkPw0KDQpZZXMsIHRoYXQncyAweDgwMDAwMDAwIGluIGhl
+eC4NCg0KVGhlIHNpemVfdCBhcmd1bWVudCBpcyBpbmRlZWQgdW5zaWduZWQgKHNzaXplX3QgaXMg
+c2lnbmVkKToNCiAgICAgICBpbnQgbWFkdmlzZSh2b2lkICphZGRyLCBzaXplX3QgbGVuZ3RoLCBp
+bnQgYWR2aWNlKTsNCg0KVGhpcyBwcmludCBpcyBhcHBhcmVudGx5IGZyb206DQoJaHR0cHM6Ly9n
+aXRodWIuY29tL0hld2xldHRQYWNrYXJkL0xpbnV4S0kNCg0KaW4gc3JjL2tpaW5mby9zeXNjYWxs
+cy5jIHByaW50X3N5c2NhbGxfYXJncygpOgkNCglzd2l0Y2ggKGZvcm1hdCkgew0KCQljYXNlIFNL
+SVA6ICAgIGJyZWFrOw0KCQljYXNlIERFQ0lNQUw6IHByaW50ZiAoIiVjJXM9JWkiLCBmc2VwLCBs
+YWJlbCwgIChpbnQzMilhcmd2YWwpOyBicmVhazsNCgkJY2FzZSBIRVg6ICAgICBwcmludGYgKCIl
+YyVzPTB4JWxseCIsIGZzZXAsIGxhYmVsLCAgYXJndmFsKTsgYnJlYWs7DQoJCWNhc2UgT0NUQUw6
+ICAgcHJpbnRmICgiJWMlcz0wJWxsbyIsIGZzZXAsIGxhYmVsLCBhcmd2YWwpOyBicmVhazsNCg0K
+cHJpbnRlZCBhcyBhIHNpZ25lZCAzMi1iaXQgdmFsdWUgYmVjYXVzZSBvZiBzcmMva2lpbmZvL2ds
+b2JhbHMuYzoNCgl7Im1hZHZpc2UiLCAicmV0IiwgSEVYLCAiKmFkZHIiLCBIRVgsICJsZW5ndGgi
+LCBERUNJTUFMLCAiYWR2aXNlIiwgSEVYLCBOVUxMLCBTS0lQLCBOVUxMLCBTS0lQLCBOVUxMLCBT
+S0lQfSwNCgl7Im1tYXAiLCAicmV0IiwgSEVYLCAiKmFkZHIiLCBIRVgsICJsZW5ndGgiLCBERUNJ
+TUFMLCAicHJvdCIsIE1NQVBfUFJPVCwgImZsYWdzIiwgTU1BUF9GTEFHUywgImZkIiwgREVDSU1B
+TCwgIm9mZnNldCIsIEhFWH0sDQoNClRoYXQgcHJvamVjdCBzaG91bGQgZGlmZmVyZW50aWF0ZSBi
+ZXR3ZWVuIHNpZ25lZCBhbmQgdW5zaWduZWQgYXJndW1lbnRzLA0KYW5kIGFkZCBzdXBwb3J0IGZv
+ciA2NC1iaXQgc2lnbmVkIGFuZCB1bnNpZ25lZCBhcmd1bWVudHMgYXMgd2VsbC4NCg0KDQoNCg0K
