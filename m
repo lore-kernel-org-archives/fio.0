@@ -1,167 +1,206 @@
-Return-Path: <sbates@raithlin.com>
-From: sbates@raithlin.com
-Subject: [PATCH v3] rdma: Add bind option
-Date: Wed,  8 Nov 2017 15:47:33 -0700
-Message-Id: <1510181253-7632-1-git-send-email-sbates@raithlin.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-Return-Path: sbates@raithlin.com
-To: axboe@kernel.dk, fio@vger.kernel.org, logang@deltatee.com, elliott@hpe.com
-Cc: Stephen Bates <sbates@raithlin.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:40410 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752694AbdK2NAT (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 29 Nov 2017 08:00:19 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1eK1yM-0008En-8B
+        for fio@vger.kernel.org; Wed, 29 Nov 2017 13:00:18 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20171129130002.4FE3B2C011A@kernel.dk>
+Date: Wed, 29 Nov 2017 06:00:02 -0700 (MST)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Stephen Bates <sbates@raithlin.com>
+The following changes since commit 609ac152d5a7d0bc5c645f8c50bf2415e7b2d4d3:
 
-In certain configurations it can be useful to bind a rdma_cm to a
-particular network interface. For example in multi-path or loopback.
+  docs: Add documention for RDMA ioengine options. (2017-11-23 22:08:48 -0700)
 
-Add a bindname option that the local rdma_cm will try and bind too.
+are available in the git repository at:
 
-The bind code is based off that used in rping [1].
+  git://git.kernel.dk/fio.git master
 
-[1] https://github.com/linux-rdma/rdma-core/blob/ \
-    master/librdmacm/examples/rping.c
+for you to fetch changes up to 1201b24acd347d6daaad969e6abfe0975cb86bc8:
 
-Signed-off-by: Stephen Bates <sbates@raithlin.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>>
+  init: did_arg cleanup (2017-11-28 16:00:22 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (3):
+      init: check and fail status-interval settings that are too small
+      init: remove dead code
+      init: did_arg cleanup
+
+ init.c | 46 +++++++++++++++++++++++-----------------------
+ 1 file changed, 23 insertions(+), 23 deletions(-)
+
 ---
-Changes since v2
-  Correct rmda mis-spelling in subject line
 
-Changes since v1
-  Renamed ntoa to the more correct aton
-  Added reviewed-by tag from Logan
-  Removed renyufei83@yahoo.com.cn due to email bounce
+Diff of recent changes:
 
- engines/rdma.c | 64 +++++++++++++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 52 insertions(+), 12 deletions(-)
-
-diff --git a/engines/rdma.c b/engines/rdma.c
-index da00cba..6b173a8 100644
---- a/engines/rdma.c
-+++ b/engines/rdma.c
-@@ -59,6 +59,7 @@ struct rdmaio_options {
- 	struct thread_data *td;
- 	unsigned int port;
- 	enum rdma_io_mode verb;
-+	char *bindname;
- };
+diff --git a/init.c b/init.c
+index b7e9c0e..acbbd48 100644
+--- a/init.c
++++ b/init.c
+@@ -78,7 +78,7 @@ unsigned int fio_debug_jobno = -1;
+ unsigned int *fio_debug_jobp = NULL;
  
- static int str_hostname_cb(void *data, const char *input)
-@@ -82,6 +83,16 @@ static struct fio_option options[] = {
- 		.group	= FIO_OPT_G_RDMA,
- 	},
- 	{
-+		.name	= "bindname",
-+		.lname	= "rdma engine bindname",
-+		.type	= FIO_OPT_STR_STORE,
-+		.off1	= offsetof(struct rdmaio_options, bindname),
-+		.help	= "Bind for RDMA IO engine",
-+		.def    = "",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_RDMA,
-+	},
-+	{
- 		.name	= "port",
- 		.lname	= "rdma engine port",
- 		.type	= FIO_OPT_INT,
-@@ -1004,30 +1015,53 @@ static int fio_rdmaio_close_file(struct thread_data *td, struct fio_file *f)
- 	return 0;
- }
+ static char cmd_optstr[256];
+-static int did_arg;
++static bool did_arg;
  
-+static int aton(struct thread_data *td, const char *host,
-+		     struct sockaddr_in *addr)
-+{
-+	if (inet_aton(host, &addr->sin_addr) != 1) {
-+		struct hostent *hent;
-+
-+		hent = gethostbyname(host);
-+		if (!hent) {
-+			td_verror(td, errno, "gethostbyname");
-+			return 1;
-+		}
-+
-+		memcpy(&addr->sin_addr, hent->h_addr, 4);
-+	}
-+	return 0;
-+}
-+
- static int fio_rdmaio_setup_connect(struct thread_data *td, const char *host,
- 				    unsigned short port)
- {
- 	struct rdmaio_data *rd = td->io_ops_data;
-+	struct rdmaio_options *o = td->eo;
-+	struct sockaddr_storage addrb;
- 	struct ibv_recv_wr *bad_wr;
- 	int err;
+ #define FIO_CLIENT_FLAG		(1 << 16)
  
- 	rd->addr.sin_family = AF_INET;
- 	rd->addr.sin_port = htons(port);
+@@ -2430,35 +2430,35 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ 			output_format |= FIO_OUTPUT_TERSE;
+ 			break;
+ 		case 'h':
+-			did_arg = 1;
++			did_arg = true;
+ 			if (!cur_client) {
+ 				usage(argv[0]);
+ 				do_exit++;
+ 			}
+ 			break;
+ 		case 'c':
+-			did_arg = 1;
++			did_arg = true;
+ 			if (!cur_client) {
+ 				fio_show_option_help(optarg);
+ 				do_exit++;
+ 			}
+ 			break;
+ 		case 'i':
+-			did_arg = 1;
++			did_arg = true;
+ 			if (!cur_client) {
+ 				fio_show_ioengine_help(optarg);
+ 				do_exit++;
+ 			}
+ 			break;
+ 		case 's':
+-			did_arg = 1;
++			did_arg = true;
+ 			dump_cmdline = 1;
+ 			break;
+ 		case 'r':
+ 			read_only = 1;
+ 			break;
+ 		case 'v':
+-			did_arg = 1;
++			did_arg = true;
+ 			if (!cur_client) {
+ 				log_info("%s\n", fio_version_string);
+ 				do_exit++;
+@@ -2494,7 +2494,7 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ 				do_exit++;
+ 			break;
+ 		case 'P':
+-			did_arg = 1;
++			did_arg = true;
+ 			parse_only = 1;
+ 			break;
+ 		case 'x': {
+@@ -2516,12 +2516,12 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ #ifdef CONFIG_ZLIB
+ 		case 'X':
+ 			exit_val = iolog_file_inflate(optarg);
+-			did_arg++;
++			did_arg = true;
+ 			do_exit++;
+ 			break;
+ #endif
+ 		case 'p':
+-			did_arg = 1;
++			did_arg = true;
+ 			if (exec_profile)
+ 				free(exec_profile);
+ 			exec_profile = strdup(optarg);
+@@ -2535,7 +2535,7 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ 				if (ret)
+ 					goto out_free;
+ 				td = NULL;
+-				did_arg = 1;
++				did_arg = true;
+ 			}
+ 			if (!td) {
+ 				int is_section = !strncmp(opt, "name", 4);
+@@ -2610,7 +2610,7 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ 			}
+ 			break;
+ 		case 'S':
+-			did_arg = 1;
++			did_arg = true;
+ #ifndef CONFIG_NO_SHM
+ 			if (nr_clients) {
+ 				log_err("fio: can't be both client and server\n");
+@@ -2636,14 +2636,14 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ 		case 'I':
+ 			if ((ret = fio_idle_prof_parse_opt(optarg))) {
+ 				/* exit on error and calibration only */
+-				did_arg = 1;
++				did_arg = true;
+ 				do_exit++;
+ 				if (ret == -1)
+ 					exit_val = 1;
+ 			}
+ 			break;
+ 		case 'C':
+-			did_arg = 1;
++			did_arg = true;
+ 			if (is_backend) {
+ 				log_err("fio: can't be both client and server\n");
+ 				do_exit++;
+@@ -2700,19 +2700,19 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ 			}
+ 			break;
+ 		case 'R':
+-			did_arg = 1;
++			did_arg = true;
+ 			if (fio_client_add_ini_file(cur_client, optarg, true)) {
+ 				do_exit++;
+ 				exit_val = 1;
+ 			}
+ 			break;
+ 		case 'T':
+-			did_arg = 1;
++			did_arg = true;
+ 			do_exit++;
+ 			exit_val = fio_monotonic_clocktest(1);
+ 			break;
+ 		case 'G':
+-			did_arg = 1;
++			did_arg = true;
+ 			do_exit++;
+ 			exit_val = fio_crctest(optarg);
+ 			break;
+@@ -2725,6 +2725,11 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ 				exit_val = 1;
+ 				break;
+ 			}
++			if (val < 1000) {
++				log_err("fio: status interval too small\n");
++				do_exit++;
++				exit_val = 1;
++			}
+ 			status_interval = val / 1000;
+ 			break;
+ 			}
+@@ -2865,13 +2870,8 @@ int parse_options(int argc, char *argv[])
+ 			return 0;
  
--	if (inet_aton(host, &rd->addr.sin_addr) != 1) {
--		struct hostent *hent;
-+	err = aton(td, host, &rd->addr);
-+	if (err)
-+		return err;
- 
--		hent = gethostbyname(host);
--		if (!hent) {
--			td_verror(td, errno, "gethostbyname");
+ 		log_err("No job(s) defined\n\n");
+-
+-		if (!did_arg) {
+-			usage(argv[0]);
 -			return 1;
 -		}
-+	/* resolve route */
-+	if (strcmp(o->bindname, "") != 0) {
-+		addrb.ss_family = AF_INET;
-+		err = aton(td, o->bindname, (struct sockaddr_in *)&addrb);
-+		if (err)
-+			return err;
-+		err = rdma_resolve_addr(rd->cm_id, (struct sockaddr *)&addrb,
-+					(struct sockaddr *)&rd->addr, 2000);
- 
--		memcpy(&rd->addr.sin_addr, hent->h_addr, 4);
-+	} else {
-+		err = rdma_resolve_addr(rd->cm_id, NULL,
-+					(struct sockaddr *)&rd->addr, 2000);
+-
+-		return 0;
++		usage(argv[0]);
++		return 1;
  	}
  
--	/* resolve route */
--	err = rdma_resolve_addr(rd->cm_id, NULL, (struct sockaddr *)&rd->addr, 2000);
- 	if (err != 0) {
- 		log_err("fio: rdma_resolve_addr: %d\n", err);
- 		return 1;
-@@ -1072,15 +1106,20 @@ static int fio_rdmaio_setup_connect(struct thread_data *td, const char *host,
- static int fio_rdmaio_setup_listen(struct thread_data *td, short port)
- {
- 	struct rdmaio_data *rd = td->io_ops_data;
-+	struct rdmaio_options *o = td->eo;
- 	struct ibv_recv_wr *bad_wr;
- 	int state = td->runstate;
- 
- 	td_set_runstate(td, TD_SETTING_UP);
- 
- 	rd->addr.sin_family = AF_INET;
--	rd->addr.sin_addr.s_addr = htonl(INADDR_ANY);
- 	rd->addr.sin_port = htons(port);
- 
-+	if (strcmp(o->bindname, "") == 0)
-+		rd->addr.sin_addr.s_addr = htonl(INADDR_ANY);
-+	else
-+		rd->addr.sin_addr.s_addr = htonl(*o->bindname);
-+
- 	/* rdma_listen */
- 	if (rdma_bind_addr(rd->cm_id, (struct sockaddr *)&rd->addr) != 0) {
- 		log_err("fio: rdma_bind_addr fail: %m\n");
-@@ -1155,7 +1194,8 @@ static int compat_options(struct thread_data *td)
- {
- 	// The original RDMA engine had an ugly / seperator
- 	// on the filename for it's options. This function
--	// retains backwards compatibility with it.100
-+	// retains backwards compatibility with it. Note we do not
-+	// support setting the bindname option is this legacy mode.
- 
- 	struct rdmaio_options *o = td->eo;
- 	char *modep, *portp;
--- 
-2.7.4
-
-
+ 	if (output_format & FIO_OUTPUT_NORMAL)
