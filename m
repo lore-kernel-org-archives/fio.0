@@ -11,36 +11,29 @@ References: <TU4PR8401MB099112614914A9232A07490DEC270@TU4PR8401MB0991.NAMPRD84.P
  <AT5PR8401MB0387489EC42684D7FACF3E1EAB3A0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
  <TU4PR8401MB0991EBEF27D16271CD5361AAEC3B0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
  <AT5PR8401MB03875F6DB61311D1D8B40419AB3B0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
+ <B51AE08B-A0D4-457B-8DF5-E1CD3DC2A271@bluestop.org>
 From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <aa9efb3f-9fd5-5322-7614-aa8c773dfa29@kernel.dk>
-Date: Wed, 29 Nov 2017 21:21:30 -0700
+Message-ID: <40a7b698-e78f-4b82-cdb5-4629d19dff3f@kernel.dk>
+Date: Wed, 29 Nov 2017 21:04:13 -0700
 MIME-Version: 1.0
-In-Reply-To: <AT5PR8401MB03875F6DB61311D1D8B40419AB3B0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <B51AE08B-A0D4-457B-8DF5-E1CD3DC2A271@bluestop.org>
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>, "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>, Rebecca Cran <rebecca@bluestop.org>, Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "Kani, Toshimitsu" <toshi.kani@hpe.com>
+Content-Transfer-Encoding: 8bit
+To: Rebecca Cran <rebecca@bluestop.org>, "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+Cc: "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>, Sitsofe Wheeler <sitsofe@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, "Kani, Toshimitsu" <toshi.kani@hpe.com>
 List-ID: <fio@vger.kernel.org>
 
-On 11/28/2017 09:13 PM, Elliott, Robert (Persistent Memory) wrote:
-> small_content_scramble has hardly been touched since 2011, so it probably
-> hasn't had much performance analysis.  
+On 11/28/2017 09:44 PM, Rebecca Cran wrote:
+> I’ve not followed the whole discussion, but I did some tests a couple
+> of months ago replacing the calls to memcpy in the memmap engine with
+> a new fio_memcpy function, rebuilding fio with the -ftree-vectorize
+> flag along with -msse2, -mavx etc.  I saw an improvement of a few
+> hundred MB/sec on my openSUSE system.
 
-That's fair, would be a good thing to look at, especially since it's on
-by default.
-
-> One of the few changes made was to add an integer divide by 1000, which 
-> is always slow (painfully slow on some CPUs):
-> 
-> 	offset = ((io_u->start_time.tv_nsec/1000) ^ boffset) & 511;
-> 
-> perf top doesn't show that taking time - I think the compiler realized
-> it could pull that calculation out of the loop and just do it once.  Different
-> compilers and compiler options might not realize that.
-
-Yeah, int divides suck. This didn't used to be like this, it got added
-with the nsec conversion. I have fixed this up now.
+Care to send a patch for that? I think it'd be nice for fio to pack it's
+own, especially when the performance varies so wildly and is platform
+(and even version) dependent.
 
 -- 
 Jens Axboe
