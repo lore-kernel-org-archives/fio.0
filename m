@@ -8,11 +8,10 @@ References: <CAODBMzm2qZu=gcpDKLyQ27zyFgkDD1ieaw2b4=A869_zuQE7HA@mail.gmail.com>
  <ca7a2874-4f42-22c9-7d0b-04e251ab2532@kernel.dk>
  <CAODBMzkEkk8xqPFsEeFGSYL-dtJW5Q010ojuHRAcL=o71YcU7g@mail.gmail.com>
  <ad78196d-0e0b-bbf8-4c9f-02ce877b4051@kernel.dk>
- <b352de81-8175-87fa-be5e-3c5ceda20b23@kernel.dk>
-Message-ID: <ec439e5c-5df3-06ff-c21a-22c22b90ebff@kernel.dk>
-Date: Wed, 29 Nov 2017 19:16:04 -0700
+Message-ID: <b352de81-8175-87fa-be5e-3c5ceda20b23@kernel.dk>
+Date: Wed, 29 Nov 2017 18:37:29 -0700
 MIME-Version: 1.0
-In-Reply-To: <b352de81-8175-87fa-be5e-3c5ceda20b23@kernel.dk>
+In-Reply-To: <ad78196d-0e0b-bbf8-4c9f-02ce877b4051@kernel.dk>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -20,132 +19,28 @@ To: Phillip Chen <phillip.a.chen@seagate.com>
 Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-On 11/29/2017 06:37 PM, Jens Axboe wrote:
-> On 11/29/2017 01:58 PM, Jens Axboe wrote:
->> I'll take a look at adding absolute zoning, should be pretty
->> trivial.
-> 
-> Quick and dirty here, can you see if this works with your magic
-> script?
-> 
-> Basically you just do:
-> 
-> random_distribution=zoned_abs:60/100m:10/200m:30/700m                           
-> 
-> like you would for 'zoned' - the first is a percentage, the
-> other part is a size. So the above would be:
-> 
-> - 60% of accesss to the first 100M
-> - 10% of access to the next 200M
-> - 30% of access to the next 700m
-> 
-> No checking for whether or not we exceed device/file size or anything
-> like that in this version, but everything else should work with the
-> existing code pretty nicely. Not tested...
+On 11/29/2017 01:58 PM, Jens Axboe wrote:
+> I'll take a look at adding absolute zoning, should be pretty
+> trivial.
 
-Added documentation, and modified your script do have:
+Quick and dirty here, can you see if this works with your magic
+script?
 
-dist_str = "zoned_abs:50/35770m:10/286166m:40/35770m"                           
+Basically you just do:
 
-for a 375G nvme drive I have, this yields:
+random_distribution=zoned_abs:60/100m:10/200m:30/700m                           
 
-histogram percents = [25.011592135525543, 25.014596077621864, 0.6177337336535484, 0.6206606515935528, 0.6198133858740779, 0.6175796853409167, 0.6187350476856551, 0.6266685357861933, 0.6370667968888403, 0.6393004974220015, 0.6279009222872477, 0.6302886711330408, 0.6230484004393458, 0.6274387773493523, 0.6131122842745942, 0.6258982942230342, 0.614036574150385, 0.6185809993730234, 19.971208370369116, 20.02474015900867]
-histogram edges = [36629084.0, 73258168.0, 109887252.0, 146516336.0, 183145420.0, 219774504.0, 256403588.0, 293032672.0, 329661756.0, 366290840.0, 402919924.0, 439549008.0, 476178092.0, 512807176.0, 549436260.0, 586065344.0, 622694428.0, 659323512.0, 695952596.0, 732581680.0]
-zoned_abs:50/35770m:10/286166m:40/35770m
+like you would for 'zoned' - the first is a percentage, the
+other part is a size. So the above would be:
 
-which looks correct to me - 50% in the first two buckets, which is defined as
-the first 10% of the drive. 40% in the last two buckets, which is the last 10%
-of the drive. And the rest in the middle, which should add up to 10 (quick
-eyeballing says it does).
+- 60% of accesss to the first 100M
+- 10% of access to the next 200M
+- 30% of access to the next 700m
 
-Updated patch below. Only change is the added documentation, and a check
-for exceeding device/file size.
+No checking for whether or not we exceed device/file size or anything
+like that in this version, but everything else should work with the
+existing code pretty nicely. Not tested...
 
-
-diff --git a/HOWTO b/HOWTO
-index 164ba2bbdea2..dc99e9989a47 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1254,6 +1254,9 @@ I/O type
- 		**zoned**
- 				Zoned random distribution
- 
-+		**zoned_abs**
-+				Zone absolute random distribution
-+
- 	When using a **zipf** or **pareto** distribution, an input value is also
- 	needed to define the access pattern. For **zipf**, this is the `Zipf
- 	theta`. For **pareto**, it's the `Pareto power`. Fio includes a test
-@@ -1278,10 +1281,23 @@ I/O type
- 
- 		random_distribution=zoned:60/10:30/20:8/30:2/40
- 
--	similarly to how :option:`bssplit` works for setting ranges and percentages
--	of block sizes. Like :option:`bssplit`, it's possible to specify separate
--	zones for reads, writes, and trims. If just one set is given, it'll apply to
--	all of them.
-+	A **zoned_abs** distribution works exactly like the **zoned**, except
-+	that it takes absolute sizes. For example, let's say you wanted to
-+	define access according to the following criteria:
-+
-+		* 60% of accesses should be to the first 20G
-+		* 30% of accesses should be to the next 100G
-+		* 10% of accesses should be to the next 500G
-+
-+	we can define an absolute zoning distribution with:
-+
-+		random_distribution=zoned_abs=60/20G:30/100G:10/500g
-+
-+	Similarly to how :option:`bssplit` works for setting ranges and
-+	percentages of block sizes. Like :option:`bssplit`, it's possible to
-+	specify separate zones for reads, writes, and trims. If just one set
-+	is given, it'll apply to all of them. This goes for both **zoned**
-+	**zoned_abs** distributions.
- 
- .. option:: percentage_random=int[,int][,int]
- 
-diff --git a/fio.1 b/fio.1
-index a4b0ea6af750..01b4db6f8c9e 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1033,6 +1033,8 @@ Normal (Gaussian) distribution
- .TP
- .B zoned
- Zoned random distribution
-+.B zoned_abs
-+Zoned absolute random distribution
- .RE
- .P
- When using a \fBzipf\fR or \fBpareto\fR distribution, an input value is also
-@@ -1068,7 +1070,27 @@ example, the user would do:
- random_distribution=zoned:60/10:30/20:8/30:2/40
- .RE
- .P
--similarly to how \fBbssplit\fR works for setting ranges and percentages
-+A \fBzoned_abs\fR distribution works exactly like the\fBzoned\fR, except that
-+it takes absolute sizes. For example, let's say you wanted to define access
-+according to the following criteria:
-+.RS
-+.P
-+.PD 0
-+60% of accesses should be to the first 20G
-+.P
-+30% of accesses should be to the next 100G
-+.P
-+10% of accesses should be to the next 500G
-+.PD
-+.RE
-+.P
-+we can define an absolute zoning distribution with:
-+.RS
-+.P
-+random_distribution=zoned:60/10:30/20:8/30:2/40
-+.RE
-+.P
-+Similarly to how \fBbssplit\fR works for setting ranges and percentages
- of block sizes. Like \fBbssplit\fR, it's possible to specify separate
- zones for reads, writes, and trims. If just one set is given, it'll apply to
- all of them.
 diff --git a/fio.h b/fio.h
 index 8ca934d14a4c..a44f1aae4721 100644
 --- a/fio.h
@@ -168,10 +63,10 @@ index 8ca934d14a4c..a44f1aae4721 100644
  
  #define FIO_DEF_ZIPF		1.1
 diff --git a/io_u.c b/io_u.c
-index 81ee724b7357..6ec04fa30607 100644
+index 81ee724b7357..0a4ba435fb65 100644
 --- a/io_u.c
 +++ b/io_u.c
-@@ -157,6 +157,80 @@ static int __get_next_rand_offset_gauss(struct thread_data *td,
+@@ -157,6 +157,72 @@ static int __get_next_rand_offset_gauss(struct thread_data *td,
  	return 0;
  }
  
@@ -212,14 +107,6 @@ index 81ee724b7357..6ec04fa30607 100644
 +			warned = 1;
 +		}
 +		goto bail;
-+	} else if (send > lastb) {
-+		/*
-+		 * This happens if the user specifies ranges that exceed
-+		 * the file/device size. We can't handle that gracefully,
-+		 * so error and exit.
-+		 */
-+		log_err("fio: zoned_abs sizes exceed file size\n");
-+		return 1;
 +	}
 +
 +	/*
@@ -252,7 +139,7 @@ index 81ee724b7357..6ec04fa30607 100644
  static int __get_next_rand_offset_zoned(struct thread_data *td,
  					struct fio_file *f, enum fio_ddir ddir,
  					uint64_t *b)
-@@ -249,6 +323,8 @@ static int get_off_from_method(struct thread_data *td, struct fio_file *f,
+@@ -249,6 +315,8 @@ static int get_off_from_method(struct thread_data *td, struct fio_file *f,
  		return __get_next_rand_offset_gauss(td, f, ddir, b);
  	else if (td->o.random_distribution == FIO_RAND_DIST_ZONED)
  		return __get_next_rand_offset_zoned(td, f, ddir, b);
@@ -262,7 +149,7 @@ index 81ee724b7357..6ec04fa30607 100644
  	log_err("fio: unknown random distribution: %d\n", td->o.random_distribution);
  	return 1;
 diff --git a/options.c b/options.c
-index 4bea8f781304..d979f804d76c 100644
+index 4bea8f781304..b49674217e2b 100644
 --- a/options.c
 +++ b/options.c
 @@ -54,16 +54,19 @@ static int bs_cmp(const void *p1, const void *p2)
@@ -560,7 +447,7 @@ index 4bea8f781304..d979f804d76c 100644
 -
 +			  { .ival = "zoned_abs",
 +			    .oval = FIO_RAND_DIST_ZONED_ABS,
-+			    .help = "Zoned absolute random distribution",
++			    .help = "Zoned random absolute distribution",
 +			  },
  		},
  		.category = FIO_OPT_C_IO,
