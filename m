@@ -1,39 +1,57 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: kusumi.tomohiro@gmail.com
-Subject: [PATCH 1/3] solaris: #include <pthread.h>
-Date: Fri,  3 Nov 2017 18:46:01 +0200
-Message-Id: <20171103164603.31819-2-tkusumi@tuxera.com>
-In-Reply-To: <20171103164603.31819-1-tkusumi@tuxera.com>
-References: <20171103164603.31819-1-tkusumi@tuxera.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
+Return-Path: <elliott@hpe.com>
+From: "Robert Elliott (Persistent Memory)" <elliott@hpe.com>
+Subject: RE: fio 3.2
+Date: Fri, 1 Dec 2017 07:15:02 +0000
+Message-ID: <AT5PR8401MB0387D41B891BF12A39A81FD1AB390@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
+References: <TU4PR8401MB099112614914A9232A07490DEC270@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <903d418b-bac4-104b-28e5-3c529efab7f5@kernel.dk>
+ <TU4PR8401MB0991DC48F1741A8F8F1DEF20EC240@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <CALjAwxh9bP38Uqsy=OmxqZKRxpKYEArYuT1RYC76jL6oqF3daQ@mail.gmail.com>
+ <TU4PR8401MB099189C195BE973BED0D0C15EC250@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <CALjAwxiQU=C4ye2gN4-9S6D75f3HQ7q7w2TpE0O+fH6C+MXLHg@mail.gmail.com>
+ <b9bce0b0-9683-59b6-4c08-62f29d80935a@bluestop.org>
+ <TU4PR8401MB0991F4C4CAD9858A3BF2AE9DEC3A0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <AT5PR8401MB0387489EC42684D7FACF3E1EAB3A0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
+ <TU4PR8401MB0991EBEF27D16271CD5361AAEC3B0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <AT5PR8401MB03875F6DB61311D1D8B40419AB3B0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
+ <aa9efb3f-9fd5-5322-7614-aa8c773dfa29@kernel.dk>
+ <TU4PR8401MB099144F611F2DA95262312F4EC380@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <0e2efc36-3c1b-ac51-4baf-044276cc51e9@kernel.dk>
+ <DF4PR8401MB0985A5C6D31650967F15CE1EEC390@DF4PR8401MB0985.NAMPRD84.PROD.OUTLOOK.COM>
+In-Reply-To: <DF4PR8401MB0985A5C6D31650967F15CE1EEC390@DF4PR8401MB0985.NAMPRD84.PROD.OUTLOOK.COM>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>, Jens Axboe <axboe@kernel.dk>, Rebecca Cran <rebecca@bluestop.org>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "Kani, Toshimitsu" <toshi.kani@hpe.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Tomohiro Kusumi <tkusumi@tuxera.com>
-
-os/os-solaris.h header uses pthread, but doesn't include <pthread.h>
-which should be to be able to include this header alone.
-Needed for unittesting of OS specific stuff.
-
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
----
- os/os-solaris.h | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/os/os-solaris.h b/os/os-solaris.h
-index 45268b2..a6cd376 100644
---- a/os/os-solaris.h
-+++ b/os/os-solaris.h
-@@ -12,6 +12,7 @@
- #include <sys/mman.h>
- #include <sys/dkio.h>
- #include <sys/byteorder.h>
-+#include <pthread.h>
- 
- #include "../file.h"
- 
--- 
-2.9.5
-
+PiBGaW8gbnVtYSBwbGFjZW1lbnQgZG9lc24ndCB3b3JrLCB3aGVuIEkgcmVtb3ZlIHRhc2tzZXQg
+YW5kIGFkZA0KPiBudW1hX2NwdV9ub2Rlcw0KPg0KDQo+IGRsNTYwZzEwc3BtZW0wMTovdmFyL3dv
+cmsvZmlvICMgdGFza3NldCAtYyAwLTE5IC91c3IvbG9jYWwvYmluL2ZpbyAtLWZpbGVuYW1lPS9k
+ZXYvZGF4MC4wIC0tcnc9cmFuZHJ3IC0tcmVmaWxsX2J1ZmZlcnMgLS1ub3JhbmRvbW1hcCAtLXJh
+bmRyZXBlYXQ9MCAtLWlvZW5naW5lPW1tYXAgLS1ic3NwbGl0PTRrLzQ6OGsvNzoxNmsvNzozMmsv
+MTU6NjRrLzY1OjEyOGsvMToyNTZrLzEgLS1yd21peHJlYWQ9NSAtLWlvZGVwdGg9MSAtLW51bWpv
+YnM9MTYgLS1ydW50aW1lPTE4MDAgLS1ncm91cF9yZXBvcnRpbmcgLS1uYW1lPTQtcmFuZC1ydy0z
+eHggLS1zaXplPTI5MGcNCg0KPiBkbDU2MGcxMHNwbWVtMDE6L3Zhci93b3JrL2ZpbyAjIC91c3Iv
+bG9jYWwvYmluL2ZpbyAtLQ0KPiBmaWxlbmFtZT0vZGV2L2RheDAuMCAtLXJ3PXJhbmRydyAtLXJl
+ZmlsbF9idWZmZXJzIC0tbm9yYW5kb21tYXAgLS0NCj4gcmFuZHJlcGVhdD0wIC0taW9lbmdpbmU9
+bW1hcCAtLQ0KPiBic3NwbGl0PTRrLzQ6OGsvNzoxNmsvNzozMmsvMTU6NjRrLzY1OjEyOGsvMToy
+NTZrLzEgLS1yd21peHJlYWQ9NSAtLQ0KPiBpb2RlcHRoPTEgLS1udW1qb2JzPTE2IC0tcnVudGlt
+ZT0xODAwIC0tZ3JvdXBfcmVwb3J0aW5nIC0tbmFtZT00LQ0KPiByYW5kLXJ3LTN4eCAtLXNpemU9
+MzAwZyAtLW51bWFfY3B1X25vZGVzPTANCj4gU3RhcnRpbmcgMTYgcHJvY2Vzc2VzDQo+IGZpbzog
+cGlkPTY3NDc0LCBnb3Qgc2lnbmFsPTcNCg0Kc2lnbmFsPTcgb2NjdXJzIGlmIHRoZSBzaXplIGlz
+IHRvbyBiaWc7IHlvdSBpbmNyZWFzZWQgdGhlIHNpemUgYnkgMTAgR2lCIGFuZA0KcHJvYmFibHkg
+aGl0IHRoZSBsaW1pdCAobm90IGFjY291bnRpbmcgZm9yIHRoZSBuZGN0bCBtZXRhZGF0YSBvdmVy
+aGVhZCkuDQpJdCdzIHByb2JhYmx5IGEgMzAwIEdpQiBjYXBhY2l0eSANCg0KV2hpbGUgZGlzY3Vz
+c2luZyBOVU1BLCBJJ2xsIG1lbnRpb24gc29tZXRoaW5nIGVsc2UgSSBzYXcgaW4gV2luZG93cyAN
+CndoaWxlIGZpeGluZyB0aGUgdGhyZWFkIGFmZmluaXRpZXMgdGhlcmUuDQoNCkF0IHN0YXJ0dXAs
+IGZpbyBzcGF3bnMgdGhyZWFkcyBvbiBhbGwgQ1BVcyB0byBtZWFzdXJlIHRoZSBjbG9ja3MNCihm
+aW9fbW9ub3RvbmljX2Nsb2NrdGVzdCkuICBJZiB5b3UndmUgY29uc3RyYWluZWQgdGhlIENQVSBh
+ZmZpbml0eQ0Kb3V0c2lkZSBmaW8sIHNvbWUgb2YgdGhvc2Ugd2lsbCBmYWlsLiAgSW4gV2luZG93
+cywgc29tZXRoaW5nIGxpa2UNClNUQVJUIC9BRkZJTklUWSAweDU1NTU1NTU1IGZpbyAuLi4NCmNh
+biBjYXVzZSBoYWxmIG9mIHRoZSBjbG9jayB0aHJlYWRzIHRvIGZhaWwuDQoNCk15IFdpbmRvd3Mg
+bWFjaGluZSBzdG9wcGVkIHdvcmtpbmcgYXJvdW5kIHRoZW4sIHNvIEkgaGF2ZW4ndCBnb3R0ZW4N
+CmFyb3VuZCB0byB0cnlpbmcgYSBmaXggZm9yIHRoYXQgeWV0Lg0KDQoNCg==
 
