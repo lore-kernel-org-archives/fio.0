@@ -1,121 +1,76 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: memcpy test
+Return-Path: <elliott@hpe.com>
+From: "Robert Elliott (Persistent Memory)" <elliott@hpe.com>
+Subject: RE: memcpy test
+Date: Fri, 1 Dec 2017 20:45:54 +0000
+Message-ID: <AT5PR8401MB038721B93CF3CF3DE4361A7AAB390@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
 References: <0aa59e33-54d4-cd80-350a-0f13bfa74a98@kernel.dk>
- <AT5PR8401MB038721B93CF3CF3DE4361A7AAB390@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <aba29420-0049-5537-7efe-c6f5f7093b4f@kernel.dk>
-Date: Fri, 1 Dec 2017 13:50:37 -0700
-MIME-Version: 1.0
-In-Reply-To: <AT5PR8401MB038721B93CF3CF3DE4361A7AAB390@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <0aa59e33-54d4-cd80-350a-0f13bfa74a98@kernel.dk>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: "Robert Elliott (Persistent Memory)" <elliott@hpe.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 Cc: Rebecca Cran <rebecca@bluestop.org>, Sitsofe Wheeler <sitsofe@gmail.com>
 List-ID: <fio@vger.kernel.org>
 
-On 12/01/2017 01:45 PM, Robert Elliott (Persistent Memory) wrote:
-> 
-> 
->> -----Original Message-----
->> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
->> Behalf Of Jens Axboe
->> Sent: Friday, December 1, 2017 12:20 PM
->> To: fio@vger.kernel.org
->> Cc: Rebecca Cran <rebecca@bluestop.org>; Sitsofe Wheeler
->> <sitsofe@gmail.com>; Robert Elliott (Persistent Memory) <elliott@hpe.com>
->> Subject: memcpy test
->>
->> Hi,
->>
->> Reviving this topic, since I think it's interesting in the presence
->> of persistent memory engines that rely heavily on optimized memcpy
->> to be fast.
->>
->> Similar to how we have --crctest, I added --memcpytest. Very basic,
->> just wanted to get the ball rolling. Basically it just copies between
->> two 32MB chunks, using whatever implementation you would like, and in
->> increments of some defined size. This is what it spits out on my
->> laptop:
->>
->> memcpy
->> 	8 bytes:	 3360.94 MiB/sec
->> 	16 bytes:	 4363.47 MiB/sec
->> 	96 bytes:	 6804.46 MiB/sec
->> 	128 bytes:	 6391.39 MiB/sec
->> 	256 bytes:	 6571.09 MiB/sec
->> 	512 bytes:	 6962.77 MiB/sec
->> 	2048 bytes:	 6212.73 MiB/sec
->> 	8192 bytes:	 6465.14 MiB/sec
->> 	131072 bytes:	 6412.24 MiB/sec
->> 	262144 bytes:	 6607.03 MiB/sec
->> 	524288 bytes:	 6372.90 MiB/sec
->> memmove
->> 	8 bytes:	 2503.90 MiB/sec
->> 	16 bytes:	 4311.81 MiB/sec
->> 	96 bytes:	 6734.74 MiB/sec
->> 	128 bytes:	 6080.16 MiB/sec
->> 	256 bytes:	 6162.92 MiB/sec
->> 	512 bytes:	 7309.80 MiB/sec
->> 	2048 bytes:	 6931.94 MiB/sec
->> 	8192 bytes:	 6878.97 MiB/sec
->> 	131072 bytes:	 6787.05 MiB/sec
->> 	262144 bytes:	 6877.77 MiB/sec
->> 	524288 bytes:	 6695.26 MiB/sec
->> simple
->> 	8 bytes:	 1813.59 MiB/sec
->> 	16 bytes:	 2191.63 MiB/sec
->> 	96 bytes:	 7360.76 MiB/sec
->> 	128 bytes:	 7192.63 MiB/sec
->> 	256 bytes:	 7340.00 MiB/sec
->> 	512 bytes:	 7158.04 MiB/sec
->> 	2048 bytes:	 7495.96 MiB/sec
->> 	8192 bytes:	 7315.30 MiB/sec
->> 	131072 bytes:	 7565.82 MiB/sec
->> 	262144 bytes:	 7410.95 MiB/sec
->> 	524288 bytes:	 7537.09 MiB/sec
->>
->> which is kind of depressing, since the fastest for larger sizes is the
->> very dumb and basic implementation that you'll find in any text book
->> under the section of "my first memcpy".
->>
->> Anyway, for evaluating implementations, we need a way to test them,
->> and now we have. I'll be happy to take input/patches on the test
->> itself.
-> 
-> Some considerations/points:
-> * lock down the thread to a CPU core so the kernel doesn't move it around
-> * ensure the memory buffer is allocated on the local node (unless intentionally
->   testing remote bandwidth)
-
-You can do that when invoking fio, we don't have to support that.
-
-> * CPU caches will distort results; it's important to flush both source and
->   destination addresses out of the caches before starting, then start the timer,
->   do the copy, flush the caches again, then stop the timer.
->   If the copy function uses non-temporal stores, though, the second cache
->   flush is not needed and would unfairly penalize it.
-
-I'm not looking to micro benchmark to that extreme, it's just a basic test
-to see if there are massive differences between implementations.
-
-> * one CPU will be limited to about 10 GB/s for various interesting reasons;
->   you need multiple CPUs active to saturate memory channels
-
-Ditto, this isn't a full memory copying framework, it's just a simple memcpy
-test.
-
-> * integrating Agner Fog's assembly language memory function library might
->   be a good option, if fio can take GPLv3 code.  That way fio would show
->   what the processors are capable of achieving, for comparison to what
->   the installed system libraries do. See http://www.agner.org/optimize -
->   section 17.9 of "Optimizing assembly"  discusses the memcpy functions.
-
-My goal would be to find if there's something simple we can do to provide
-a fairly optimized version we can use for larger copies, which is
-essentially just for mmap and libpmem/dev-dax and friends. 
-
--- 
-Jens Axboe
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
+a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uDQo+IEJlaGFs
+ZiBPZiBKZW5zIEF4Ym9lDQo+IFNlbnQ6IEZyaWRheSwgRGVjZW1iZXIgMSwgMjAxNyAxMjoyMCBQ
+TQ0KPiBUbzogZmlvQHZnZXIua2VybmVsLm9yZw0KPiBDYzogUmViZWNjYSBDcmFuIDxyZWJlY2Nh
+QGJsdWVzdG9wLm9yZz47IFNpdHNvZmUgV2hlZWxlcg0KPiA8c2l0c29mZUBnbWFpbC5jb20+OyBS
+b2JlcnQgRWxsaW90dCAoUGVyc2lzdGVudCBNZW1vcnkpIDxlbGxpb3R0QGhwZS5jb20+DQo+IFN1
+YmplY3Q6IG1lbWNweSB0ZXN0DQo+IA0KPiBIaSwNCj4gDQo+IFJldml2aW5nIHRoaXMgdG9waWMs
+IHNpbmNlIEkgdGhpbmsgaXQncyBpbnRlcmVzdGluZyBpbiB0aGUgcHJlc2VuY2UNCj4gb2YgcGVy
+c2lzdGVudCBtZW1vcnkgZW5naW5lcyB0aGF0IHJlbHkgaGVhdmlseSBvbiBvcHRpbWl6ZWQgbWVt
+Y3B5DQo+IHRvIGJlIGZhc3QuDQo+IA0KPiBTaW1pbGFyIHRvIGhvdyB3ZSBoYXZlIC0tY3JjdGVz
+dCwgSSBhZGRlZCAtLW1lbWNweXRlc3QuIFZlcnkgYmFzaWMsDQo+IGp1c3Qgd2FudGVkIHRvIGdl
+dCB0aGUgYmFsbCByb2xsaW5nLiBCYXNpY2FsbHkgaXQganVzdCBjb3BpZXMgYmV0d2Vlbg0KPiB0
+d28gMzJNQiBjaHVua3MsIHVzaW5nIHdoYXRldmVyIGltcGxlbWVudGF0aW9uIHlvdSB3b3VsZCBs
+aWtlLCBhbmQgaW4NCj4gaW5jcmVtZW50cyBvZiBzb21lIGRlZmluZWQgc2l6ZS4gVGhpcyBpcyB3
+aGF0IGl0IHNwaXRzIG91dCBvbiBteQ0KPiBsYXB0b3A6DQo+IA0KPiBtZW1jcHkNCj4gCTggYnl0
+ZXM6CSAzMzYwLjk0IE1pQi9zZWMNCj4gCTE2IGJ5dGVzOgkgNDM2My40NyBNaUIvc2VjDQo+IAk5
+NiBieXRlczoJIDY4MDQuNDYgTWlCL3NlYw0KPiAJMTI4IGJ5dGVzOgkgNjM5MS4zOSBNaUIvc2Vj
+DQo+IAkyNTYgYnl0ZXM6CSA2NTcxLjA5IE1pQi9zZWMNCj4gCTUxMiBieXRlczoJIDY5NjIuNzcg
+TWlCL3NlYw0KPiAJMjA0OCBieXRlczoJIDYyMTIuNzMgTWlCL3NlYw0KPiAJODE5MiBieXRlczoJ
+IDY0NjUuMTQgTWlCL3NlYw0KPiAJMTMxMDcyIGJ5dGVzOgkgNjQxMi4yNCBNaUIvc2VjDQo+IAky
+NjIxNDQgYnl0ZXM6CSA2NjA3LjAzIE1pQi9zZWMNCj4gCTUyNDI4OCBieXRlczoJIDYzNzIuOTAg
+TWlCL3NlYw0KPiBtZW1tb3ZlDQo+IAk4IGJ5dGVzOgkgMjUwMy45MCBNaUIvc2VjDQo+IAkxNiBi
+eXRlczoJIDQzMTEuODEgTWlCL3NlYw0KPiAJOTYgYnl0ZXM6CSA2NzM0Ljc0IE1pQi9zZWMNCj4g
+CTEyOCBieXRlczoJIDYwODAuMTYgTWlCL3NlYw0KPiAJMjU2IGJ5dGVzOgkgNjE2Mi45MiBNaUIv
+c2VjDQo+IAk1MTIgYnl0ZXM6CSA3MzA5LjgwIE1pQi9zZWMNCj4gCTIwNDggYnl0ZXM6CSA2OTMx
+Ljk0IE1pQi9zZWMNCj4gCTgxOTIgYnl0ZXM6CSA2ODc4Ljk3IE1pQi9zZWMNCj4gCTEzMTA3MiBi
+eXRlczoJIDY3ODcuMDUgTWlCL3NlYw0KPiAJMjYyMTQ0IGJ5dGVzOgkgNjg3Ny43NyBNaUIvc2Vj
+DQo+IAk1MjQyODggYnl0ZXM6CSA2Njk1LjI2IE1pQi9zZWMNCj4gc2ltcGxlDQo+IAk4IGJ5dGVz
+OgkgMTgxMy41OSBNaUIvc2VjDQo+IAkxNiBieXRlczoJIDIxOTEuNjMgTWlCL3NlYw0KPiAJOTYg
+Ynl0ZXM6CSA3MzYwLjc2IE1pQi9zZWMNCj4gCTEyOCBieXRlczoJIDcxOTIuNjMgTWlCL3NlYw0K
+PiAJMjU2IGJ5dGVzOgkgNzM0MC4wMCBNaUIvc2VjDQo+IAk1MTIgYnl0ZXM6CSA3MTU4LjA0IE1p
+Qi9zZWMNCj4gCTIwNDggYnl0ZXM6CSA3NDk1Ljk2IE1pQi9zZWMNCj4gCTgxOTIgYnl0ZXM6CSA3
+MzE1LjMwIE1pQi9zZWMNCj4gCTEzMTA3MiBieXRlczoJIDc1NjUuODIgTWlCL3NlYw0KPiAJMjYy
+MTQ0IGJ5dGVzOgkgNzQxMC45NSBNaUIvc2VjDQo+IAk1MjQyODggYnl0ZXM6CSA3NTM3LjA5IE1p
+Qi9zZWMNCj4gDQo+IHdoaWNoIGlzIGtpbmQgb2YgZGVwcmVzc2luZywgc2luY2UgdGhlIGZhc3Rl
+c3QgZm9yIGxhcmdlciBzaXplcyBpcyB0aGUNCj4gdmVyeSBkdW1iIGFuZCBiYXNpYyBpbXBsZW1l
+bnRhdGlvbiB0aGF0IHlvdSdsbCBmaW5kIGluIGFueSB0ZXh0IGJvb2sNCj4gdW5kZXIgdGhlIHNl
+Y3Rpb24gb2YgIm15IGZpcnN0IG1lbWNweSIuDQo+IA0KPiBBbnl3YXksIGZvciBldmFsdWF0aW5n
+IGltcGxlbWVudGF0aW9ucywgd2UgbmVlZCBhIHdheSB0byB0ZXN0IHRoZW0sDQo+IGFuZCBub3cg
+d2UgaGF2ZS4gSSdsbCBiZSBoYXBweSB0byB0YWtlIGlucHV0L3BhdGNoZXMgb24gdGhlIHRlc3QN
+Cj4gaXRzZWxmLg0KDQpTb21lIGNvbnNpZGVyYXRpb25zL3BvaW50czoNCiogbG9jayBkb3duIHRo
+ZSB0aHJlYWQgdG8gYSBDUFUgY29yZSBzbyB0aGUga2VybmVsIGRvZXNuJ3QgbW92ZSBpdCBhcm91
+bmQNCiogZW5zdXJlIHRoZSBtZW1vcnkgYnVmZmVyIGlzIGFsbG9jYXRlZCBvbiB0aGUgbG9jYWwg
+bm9kZSAodW5sZXNzIGludGVudGlvbmFsbHkNCiAgdGVzdGluZyByZW1vdGUgYmFuZHdpZHRoKQ0K
+KiBDUFUgY2FjaGVzIHdpbGwgZGlzdG9ydCByZXN1bHRzOyBpdCdzIGltcG9ydGFudCB0byBmbHVz
+aCBib3RoIHNvdXJjZSBhbmQNCiAgZGVzdGluYXRpb24gYWRkcmVzc2VzIG91dCBvZiB0aGUgY2Fj
+aGVzIGJlZm9yZSBzdGFydGluZywgdGhlbiBzdGFydCB0aGUgdGltZXIsDQogIGRvIHRoZSBjb3B5
+LCBmbHVzaCB0aGUgY2FjaGVzIGFnYWluLCB0aGVuIHN0b3AgdGhlIHRpbWVyLg0KICBJZiB0aGUg
+Y29weSBmdW5jdGlvbiB1c2VzIG5vbi10ZW1wb3JhbCBzdG9yZXMsIHRob3VnaCwgdGhlIHNlY29u
+ZCBjYWNoZQ0KICBmbHVzaCBpcyBub3QgbmVlZGVkIGFuZCB3b3VsZCB1bmZhaXJseSBwZW5hbGl6
+ZSBpdC4NCiogb25lIENQVSB3aWxsIGJlIGxpbWl0ZWQgdG8gYWJvdXQgMTAgR0IvcyBmb3IgdmFy
+aW91cyBpbnRlcmVzdGluZyByZWFzb25zOw0KICB5b3UgbmVlZCBtdWx0aXBsZSBDUFVzIGFjdGl2
+ZSB0byBzYXR1cmF0ZSBtZW1vcnkgY2hhbm5lbHMNCiogaW50ZWdyYXRpbmcgQWduZXIgRm9nJ3Mg
+YXNzZW1ibHkgbGFuZ3VhZ2UgbWVtb3J5IGZ1bmN0aW9uIGxpYnJhcnkgbWlnaHQNCiAgYmUgYSBn
+b29kIG9wdGlvbiwgaWYgZmlvIGNhbiB0YWtlIEdQTHYzIGNvZGUuICBUaGF0IHdheSBmaW8gd291
+bGQgc2hvdw0KICB3aGF0IHRoZSBwcm9jZXNzb3JzIGFyZSBjYXBhYmxlIG9mIGFjaGlldmluZywg
+Zm9yIGNvbXBhcmlzb24gdG8gd2hhdA0KICB0aGUgaW5zdGFsbGVkIHN5c3RlbSBsaWJyYXJpZXMg
+ZG8uIFNlZSBodHRwOi8vd3d3LmFnbmVyLm9yZy9vcHRpbWl6ZSAtDQogIHNlY3Rpb24gMTcuOSBv
+ZiAiT3B0aW1pemluZyBhc3NlbWJseSIgIGRpc2N1c3NlcyB0aGUgbWVtY3B5IGZ1bmN0aW9ucy4N
+Cg0KDQo=
 
