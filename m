@@ -1,290 +1,137 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:51653 "EHLO
+Received: from bombadil.infradead.org ([65.50.211.133]:36327 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754243AbdLGNAG (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 7 Dec 2017 08:00:06 -0500
+        with ESMTP id S1751157AbdLCNAG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 3 Dec 2017 08:00:06 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
         by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1eMvmX-0002W0-UN
-        for fio@vger.kernel.org; Thu, 07 Dec 2017 13:00:06 +0000
+        id 1eLTsM-0005tK-3n
+        for fio@vger.kernel.org; Sun, 03 Dec 2017 13:00:06 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20171207130001.DD5822C0098@kernel.dk>
-Date: Thu,  7 Dec 2017 06:00:01 -0700 (MST)
+Message-Id: <20171203130001.CCF2B2C0137@kernel.dk>
+Date: Sun,  3 Dec 2017 06:00:01 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 67bfebe6af2e6d030ec739fa45ccb211f3e50a0e:
+The following changes since commit e0409d5ffe6127961ddc4c495ec32b72a65e11bf:
 
-  Merge branch 'wip-cleanup' of https://github.com/ZVampirEM77/fio (2017-12-03 10:11:53 -0700)
+  thread_options: drop fadvise_stream from thread_options (2017-12-01 14:54:49 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 395feabb53806d5cff2e0b73b6c94048f05b5aae:
+for you to fetch changes up to af7fb4aa2835b82847701237783c9ebe8ec8239a:
 
-  io_u: rate cleanup and spelling error (2017-12-06 12:30:20 -0700)
+  steadystate: style cleanup (2017-12-02 16:29:44 -0700)
 
 ----------------------------------------------------------------
 Jens Axboe (2):
-      Add option to ignore thinktime for rated IO
-      io_u: rate cleanup and spelling error
+      steadystate: add free helper
+      steadystate: style cleanup
 
- HOWTO            |  7 +++++++
- backend.c        | 61 +++++++++++++++++++++++++++++++++++---------------------
- cconv.c          |  2 ++
- fio.1            |  6 ++++++
- io_u.c           |  9 ++++-----
- options.c        | 10 ++++++++++
- server.h         |  2 +-
- thread_options.h |  3 +++
- 8 files changed, 71 insertions(+), 29 deletions(-)
+ backend.c       |  7 +------
+ helper_thread.c |  3 +--
+ steadystate.c   | 16 +++++++++++-----
+ steadystate.h   |  1 +
+ 4 files changed, 14 insertions(+), 13 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/HOWTO b/HOWTO
-index 4caaf54..563ca93 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -2208,6 +2208,13 @@ I/O rate
- 	(https://en.wikipedia.org/wiki/Poisson_point_process). The lambda will be
- 	10^6 / IOPS for the given workload.
- 
-+.. option:: rate_ignore_thinktime=bool
-+
-+	By default, fio will attempt to catch up to the specified rate setting,
-+	if any kind of thinktime setting was used. If this option is set, then
-+	fio will ignore the thinktime and continue doing IO at the specified
-+	rate, instead of entering a catch-up mode after thinktime is done.
-+
- 
- I/O latency
- ~~~~~~~~~~~
 diff --git a/backend.c b/backend.c
-index 6c805c7..69f03dc 100644
+index 10eb90e..6c805c7 100644
 --- a/backend.c
 +++ b/backend.c
-@@ -844,14 +844,13 @@ static bool io_complete_bytes_exceeded(struct thread_data *td)
-  */
- static long long usec_for_io(struct thread_data *td, enum fio_ddir ddir)
- {
--	uint64_t secs, remainder, bps, bytes, iops;
-+	uint64_t bps = td->rate_bps[ddir];
- 
- 	assert(!(td->flags & TD_F_CHILD));
--	bytes = td->rate_io_issue_bytes[ddir];
--	bps = td->rate_bps[ddir];
- 
- 	if (td->o.rate_process == RATE_PROCESS_POISSON) {
--		uint64_t val;
-+		uint64_t val, iops;
-+
- 		iops = bps / td->o.bs[ddir];
- 		val = (int64_t) (1000000 / iops) *
- 				-logf(__rand_0_1(&td->poisson_state[ddir]));
-@@ -863,14 +862,44 @@ static long long usec_for_io(struct thread_data *td, enum fio_ddir ddir)
- 		td->last_usec[ddir] += val;
- 		return td->last_usec[ddir];
- 	} else if (bps) {
--		secs = bytes / bps;
--		remainder = bytes % bps;
-+		uint64_t bytes = td->rate_io_issue_bytes[ddir];
-+		uint64_t secs = bytes / bps;
-+		uint64_t remainder = bytes % bps;
-+
- 		return remainder * 1000000 / bps + secs * 1000000;
+@@ -2480,12 +2480,7 @@ int fio_backend(struct sk_out *sk_out)
  	}
  
- 	return 0;
- }
- 
-+static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
-+{
-+	unsigned long long b;
-+	uint64_t total;
-+	int left;
-+
-+	b = ddir_rw_sum(td->io_blocks);
-+	if (b % td->o.thinktime_blocks)
-+		return;
-+
-+	io_u_quiesce(td);
-+
-+	total = 0;
-+	if (td->o.thinktime_spin)
-+		total = usec_spin(td->o.thinktime_spin);
-+
-+	left = td->o.thinktime - total;
-+	if (left)
-+		total += usec_sleep(td, left);
-+
-+	/*
-+	 * If we're ignoring thinktime for the rate, add the number of bytes
-+	 * we would have done while sleeping.
-+	 */
-+	if (total && td->rate_bps[ddir] && td->o.rate_ign_think)
-+		td->rate_io_issue_bytes[ddir] += (td->rate_bps[ddir] * 1000000) / total;
-+}
-+
- /*
-  * Main IO worker function. It retrieves io_u's to process and queues
-  * and reaps them, checking for rate and errors along the way.
-@@ -955,6 +984,7 @@ static void do_io(struct thread_data *td, uint64_t *bytes_done)
- 			int err = PTR_ERR(io_u);
- 
- 			io_u = NULL;
-+			ddir = DDIR_INVAL;
- 			if (err == -EBUSY) {
- 				ret = FIO_Q_BUSY;
- 				goto reap;
-@@ -1062,23 +1092,8 @@ reap:
- 		if (!in_ramp_time(td) && td->o.latency_target)
- 			lat_target_check(td);
- 
--		if (td->o.thinktime) {
--			unsigned long long b;
--
--			b = ddir_rw_sum(td->io_blocks);
--			if (!(b % td->o.thinktime_blocks)) {
--				int left;
--
--				io_u_quiesce(td);
--
--				if (td->o.thinktime_spin)
--					usec_spin(td->o.thinktime_spin);
--
--				left = td->o.thinktime - td->o.thinktime_spin;
--				if (left)
--					usec_sleep(td, left);
+ 	for_each_td(td, i) {
+-		if (td->ss.dur) {
+-			if (td->ss.iops_data != NULL) {
+-				free(td->ss.iops_data);
+-				free(td->ss.bw_data);
 -			}
 -		}
-+		if (ddir_rw(ddir) && td->o.thinktime)
-+			handle_thinktime(td, ddir);
++		steadystate_free(td);
+ 		fio_options_free(td);
+ 		if (td->rusage_sem) {
+ 			fio_mutex_remove(td->rusage_sem);
+diff --git a/helper_thread.c b/helper_thread.c
+index 9c6e0a2..64e5a3c 100644
+--- a/helper_thread.c
++++ b/helper_thread.c
+@@ -134,8 +134,7 @@ static void *helper_thread_main(void *data)
+ 					next_ss = STEADYSTATE_MSEC - (since_ss - STEADYSTATE_MSEC);
+ 				else
+ 					next_ss = STEADYSTATE_MSEC;
+-			}
+-			else
++			} else
+ 				next_ss = STEADYSTATE_MSEC - since_ss;
+                 }
+ 
+diff --git a/steadystate.c b/steadystate.c
+index 05ce029..2017ca6 100644
+--- a/steadystate.c
++++ b/steadystate.c
+@@ -6,6 +6,14 @@
+ 
+ bool steadystate_enabled = false;
+ 
++void steadystate_free(struct thread_data *td)
++{
++	free(td->ss.iops_data);
++	free(td->ss.bw_data);
++	td->ss.iops_data = NULL;
++	td->ss.bw_data = NULL;
++}
++
+ static void steadystate_alloc(struct thread_data *td)
+ {
+ 	td->ss.bw_data = calloc(td->ss.dur, sizeof(uint64_t));
+@@ -16,8 +24,8 @@ static void steadystate_alloc(struct thread_data *td)
+ 
+ void steadystate_setup(void)
+ {
+-	int i, prev_groupid;
+ 	struct thread_data *td, *prev_td;
++	int i, prev_groupid;
+ 
+ 	if (!steadystate_enabled)
+ 		return;
+@@ -39,17 +47,15 @@ void steadystate_setup(void)
+ 		}
+ 
+ 		if (prev_groupid != td->groupid) {
+-			if (prev_td != NULL) {
++			if (prev_td)
+ 				steadystate_alloc(prev_td);
+-			}
+ 			prev_groupid = td->groupid;
+ 		}
+ 		prev_td = td;
  	}
  
- 	check_update_rusage(td);
-diff --git a/cconv.c b/cconv.c
-index 5ed4640..92996b1 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -298,6 +298,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
- 
- 	o->trim_backlog = le64_to_cpu(top->trim_backlog);
- 	o->rate_process = le32_to_cpu(top->rate_process);
-+	o->rate_ign_think = le32_to_cpu(top->rate_ign_think);
- 
- 	for (i = 0; i < FIO_IO_U_LIST_MAX_LEN; i++)
- 		o->percentile_list[i].u.f = fio_uint64_to_double(le64_to_cpu(top->percentile_list[i].u.i));
-@@ -557,6 +558,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	top->offset_increment = __cpu_to_le64(o->offset_increment);
- 	top->number_ios = __cpu_to_le64(o->number_ios);
- 	top->rate_process = cpu_to_le32(o->rate_process);
-+	top->rate_ign_think = cpu_to_le32(o->rate_ign_think);
- 
- 	for (i = 0; i < FIO_IO_U_LIST_MAX_LEN; i++)
- 		top->percentile_list[i].u.i = __cpu_to_le64(fio_double_to_uint64(o->percentile_list[i].u.f));
-diff --git a/fio.1 b/fio.1
-index 54d1b0f..80abc14 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1955,6 +1955,12 @@ I/Os that gets adjusted based on I/O completion rates. If this is set to
- flow, known as the Poisson process
- (\fIhttps://en.wikipedia.org/wiki/Poisson_point_process\fR). The lambda will be
- 10^6 / IOPS for the given workload.
-+.TP
-+.BI rate_ignore_thinktime \fR=\fPbool
-+By default, fio will attempt to catch up to the specified rate setting, if any
-+kind of thinktime setting was used. If this option is set, then fio will
-+ignore the thinktime and continue doing IO at the specified rate, instead of
-+entering a catch-up mode after thinktime is done.
- .SS "I/O latency"
- .TP
- .BI latency_target \fR=\fPtime
-diff --git a/io_u.c b/io_u.c
-index 44933a1..42d98eb 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -759,11 +759,11 @@ static enum fio_ddir rate_ddir(struct thread_data *td, enum fio_ddir ddir)
- 			return odir;
- 
- 		/*
--		 * Both directions are ahead of rate. sleep the min
--		 * switch if necissary
-+		 * Both directions are ahead of rate. sleep the min,
-+		 * switch if necessary
- 		 */
- 		if (td->rate_next_io_time[ddir] <=
--			td->rate_next_io_time[odir]) {
-+		    td->rate_next_io_time[odir]) {
- 			usec = td->rate_next_io_time[ddir] - now;
- 		} else {
- 			usec = td->rate_next_io_time[odir] - now;
-@@ -775,8 +775,7 @@ static enum fio_ddir rate_ddir(struct thread_data *td, enum fio_ddir ddir)
- 	if (td->o.io_submit_mode == IO_MODE_INLINE)
- 		io_u_quiesce(td);
- 
--	usec = usec_sleep(td, usec);
--
-+	usec_sleep(td, usec);
- 	return ddir;
+-	if (prev_td != NULL && prev_td->o.group_reporting) {
++	if (prev_td && prev_td->o.group_reporting)
+ 		steadystate_alloc(prev_td);
+-	}
  }
  
-diff --git a/options.c b/options.c
-index 3fa646c..9a3431d 100644
---- a/options.c
-+++ b/options.c
-@@ -3460,6 +3460,16 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.group	= FIO_OPT_G_RATE,
- 	},
- 	{
-+		.name	= "rate_ignore_thinktime",
-+		.lname	= "Rate ignore thinktime",
-+		.type	= FIO_OPT_BOOL,
-+		.off1	= offsetof(struct thread_options, rate_ign_think),
-+		.help	= "Rated IO ignores thinktime settings",
-+		.parent = "rate",
-+		.category = FIO_OPT_C_IO,
-+		.group	= FIO_OPT_G_RATE,
-+	},
-+	{
- 		.name	= "max_latency",
- 		.lname	= "Max Latency (usec)",
- 		.type	= FIO_OPT_STR_VAL_TIME,
-diff --git a/server.h b/server.h
-index 438a6c3..1a9b650 100644
---- a/server.h
-+++ b/server.h
-@@ -49,7 +49,7 @@ struct fio_net_cmd_reply {
- };
+ static bool steadystate_slope(uint64_t iops, uint64_t bw,
+diff --git a/steadystate.h b/steadystate.h
+index eaba0d7..9fd88ee 100644
+--- a/steadystate.h
++++ b/steadystate.h
+@@ -5,6 +5,7 @@
+ #include "thread_options.h"
+ #include "lib/ieee754.h"
  
- enum {
--	FIO_SERVER_VER			= 68,
-+	FIO_SERVER_VER			= 69,
- 
- 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
- 	FIO_SERVER_MAX_CMD_MB		= 2048,
-diff --git a/thread_options.h b/thread_options.h
-index 793df8a..dc290b0 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -273,6 +273,7 @@ struct thread_options {
- 	unsigned int rate_iops[DDIR_RWDIR_CNT];
- 	unsigned int rate_iops_min[DDIR_RWDIR_CNT];
- 	unsigned int rate_process;
-+	unsigned int rate_ign_think;
- 
- 	char *ioscheduler;
- 
-@@ -547,6 +548,8 @@ struct thread_options_pack {
- 	uint32_t rate_iops[DDIR_RWDIR_CNT];
- 	uint32_t rate_iops_min[DDIR_RWDIR_CNT];
- 	uint32_t rate_process;
-+	uint32_t rate_ign_think;
-+	uint32_t pad;
- 
- 	uint8_t ioscheduler[FIO_TOP_STR_MAX];
- 
++extern void steadystate_free(struct thread_data *);
+ extern void steadystate_check(void);
+ extern void steadystate_setup(void);
+ extern int td_steadystate_init(struct thread_data *);
