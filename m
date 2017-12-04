@@ -1,8 +1,8 @@
-Return-Path: <anton.gavriliuk@hpe.com>
-From: "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>
+Return-Path: <prvs=5042ab57c=jeff.furlong@wdc.com>
+From: Jeff Furlong <jeff.furlong@wdc.com>
 Subject: RE: fio 3.2
-Date: Mon, 4 Dec 2017 19:29:20 +0000
-Message-ID: <TU4PR8401MB099160340F1A9A35AB2F357CEC3C0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+Date: Mon, 4 Dec 2017 19:17:45 +0000
+Message-ID: <BN3PR0401MB14573E8D82BB098ABFCF5B398F3C0@BN3PR0401MB1457.namprd04.prod.outlook.com>
 References: <TU4PR8401MB099112614914A9232A07490DEC270@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
  <CALjAwxiQU=C4ye2gN4-9S6D75f3HQ7q7w2TpE0O+fH6C+MXLHg@mail.gmail.com>
  <b9bce0b0-9683-59b6-4c08-62f29d80935a@bluestop.org>
@@ -17,39 +17,18 @@ References: <TU4PR8401MB099112614914A9232A07490DEC270@TU4PR8401MB0991.NAMPRD84.P
  <AT5PR8401MB0387A1F5A8EA5A0B614FC3CDAB3C0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
  <TU4PR8401MB0991C9F5A29FFDA3FB05B315EC3C0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
  <3e4ea31d-b7ff-f696-207d-76c478406421@kernel.dk>
- <BN3PR0401MB14573E8D82BB098ABFCF5B398F3C0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-In-Reply-To: <BN3PR0401MB14573E8D82BB098ABFCF5B398F3C0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+In-Reply-To: <3e4ea31d-b7ff-f696-207d-76c478406421@kernel.dk>
 Content-Language: en-US
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: Jeff Furlong <jeff.furlong@wdc.com>, Jens Axboe <axboe@kernel.dk>, "Robert Elliott  <elliott@hpe.com>, Rebecca Cran (Persistent Memory)" <rebecca@bluestop.org>, Sitsofe Wheeler <sitsofe@gmail.com>
+To: Jens Axboe <axboe@kernel.dk>, "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>, "Robert Elliott (Persistent Memory)" <elliott@hpe.com>, Rebecca Cran <rebecca@bluestop.org>, Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "Kani, Toshimitsu" <toshi.kani@hpe.com>
 List-ID: <fio@vger.kernel.org>
 
-WWVzLCBpdCBtYWtlcyBzZW5jZS4gIEkgYWxzbyBydW4gcGVyZiB0b3AgMTUtMjAgc2VjcyBsYXRl
-ciBhZnRlciBmaW8uDQoNClNhbXBsZXM6IDEzOEsgb2YgZXZlbnQgJ2N5Y2xlczpwcHAnLCBFdmVu
-dCBjb3VudCAoYXBwcm94Lik6IDk1NDEwNDMzODI2DQpPdmVyaGVhZCAgU2hhcmVkIE9iamVjdCAg
-ICAgU3ltYm9sDQogIDkzLjQxJSAgbGliYy0yLjIyLnNvICAgICAgWy5dIF9fbWVtY3B5X2F2eF91
-bmFsaWduZWQNCiAgIDIuMzYlICBmaW8gICAgICAgICAgICAgICBbLl0gZ2V0X2lvX3UNCiAgIDAu
-NjUlICBmaW8gICAgICAgICAgICAgICBbLl0gcmFtcF90aW1lX292ZXINCiAgIDAuNjMlICBmaW8g
-ICAgICAgICAgICAgICBbLl0gaW9fdV9zeW5jX2NvbXBsZXRlDQogICAwLjM0JSAgZmlvICAgICAg
-ICAgICAgICAgWy5dIHRkX2lvX3F1ZXVlDQogICAwLjMzJSAgW3Vua25vd25dICAgICAgICAgW2td
-IDB4MDAwMDdmNTNmOGE4MmIwNg0KICAgMC4zMyUgIGZpbyAgICAgICAgICAgICAgIFsuXSBfX2Zp
-b19nZXR0aW1lDQoNCl9fbWVtY3B5X2F2eF91bmFsaWduZWQgIC9saWI2NC9saWJjLTIuMjIuc28N
-Ckh1aD8gTm8gc2VsZWN0aW9uLiBSZXBvcnQgdG8gbGludXgta2VybmVsQHZnZXIua2VybmVsLm9y
-Zw0KDQpJdCdzIGEgdHJlbWVuZG91cyByZXN1bHRzLiAgQnV0IEknbSBzdGlsbCB0aGlua2luZyBp
-cyB0aGVyZSBhbnkgY2hhbmNlIGZvciBmdXJ0aGVyIEkvTyBwZXJmIGJvb3N0Lg0KDQpBbnRvbg0K
-DQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogSmVmZiBGdXJsb25nIFttYWlsdG86
-amVmZi5mdXJsb25nQHdkYy5jb21dIA0KU2VudDogTW9uZGF5LCBEZWNlbWJlciAwNCwgMjAxNyA5
-OjE4IFBNDQpUbzogSmVucyBBeGJvZSA8YXhib2VAa2VybmVsLmRrPjsgR2F2cmlsaXVrLCBBbnRv
-biAoSFBTIFVrcmFpbmUpIDxhbnRvbi5nYXZyaWxpdWtAaHBlLmNvbT47IFJvYmVydCBFbGxpb3R0
-IChQZXJzaXN0ZW50IE1lbW9yeSkgPGVsbGlvdHRAaHBlLmNvbT47IFJlYmVjY2EgQ3JhbiA8cmVi
-ZWNjYUBibHVlc3RvcC5vcmc+OyBTaXRzb2ZlIFdoZWVsZXIgPHNpdHNvZmVAZ21haWwuY29tPg0K
-Q2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmc7IEthbmksIFRvc2hpbWl0c3UgPHRvc2hpLmthbmlAaHBl
-LmNvbT4NClN1YmplY3Q6IFJFOiBmaW8gMy4yDQoNCj5UaGF0IHNlZW1zIHNvIG9kZCwgaXQgbWFr
-ZXMgbm8gc2Vuc2UuIC0tbm8tY2hpbGRyZW4gYWRkZWQgdG8gcGVyZiByZXBvcnQ/DQo+SSB0aGlu
-ayB0aGlzIGlzIHNrZXdlZCBiZWNhdXNlIHRoZSBjb2RlIGlzIHNvIGhvdCBmb3Igc3RhcnR1cC4N
-Cg0KUGVyaGFwcyB5b3Ugd2FudCB0byBhZGQgLS1yYW1wX3RpbWU9NXMgdG8gcmVtb3ZlIHN0YXJ0
-dXAgaml0dGVyIGZyb20gaG9zdC9kZXZpY2U/DQoNClJlZ2FyZHMsDQpKZWZmDQoNCg==
+PlRoYXQgc2VlbXMgc28gb2RkLCBpdCBtYWtlcyBubyBzZW5zZS4gLS1uby1jaGlsZHJlbiBhZGRl
+ZCB0byBwZXJmIHJlcG9ydD8NCj5JIHRoaW5rIHRoaXMgaXMgc2tld2VkIGJlY2F1c2UgdGhlIGNv
+ZGUgaXMgc28gaG90IGZvciBzdGFydHVwLg0KDQpQZXJoYXBzIHlvdSB3YW50IHRvIGFkZCAtLXJh
+bXBfdGltZT01cyB0byByZW1vdmUgc3RhcnR1cCBqaXR0ZXIgZnJvbSBob3N0L2RldmljZT8NCg0K
+UmVnYXJkcywNCkplZmYNCg0K
 
