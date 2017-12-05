@@ -1,52 +1,78 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:55330 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751297AbdLNNAM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 14 Dec 2017 08:00:12 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1ePT7T-0001Pm-Jj
-        for fio@vger.kernel.org; Thu, 14 Dec 2017 13:00:11 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20171214130001.A270A2C00C4@kernel.dk>
-Date: Thu, 14 Dec 2017 06:00:01 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <elliott@hpe.com>
+From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+Subject: RE: fio 3.2
+Date: Tue, 5 Dec 2017 20:29:22 +0000
+Message-ID: <AT5PR8401MB03872264DB24625BED823C28AB3D0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
+References: <TU4PR8401MB099112614914A9232A07490DEC270@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <CALjAwxiQU=C4ye2gN4-9S6D75f3HQ7q7w2TpE0O+fH6C+MXLHg@mail.gmail.com>
+ <b9bce0b0-9683-59b6-4c08-62f29d80935a@bluestop.org>
+ <TU4PR8401MB0991F4C4CAD9858A3BF2AE9DEC3A0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <AT5PR8401MB0387489EC42684D7FACF3E1EAB3A0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
+ <TU4PR8401MB0991EBEF27D16271CD5361AAEC3B0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <AT5PR8401MB03875F6DB61311D1D8B40419AB3B0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
+ <aa9efb3f-9fd5-5322-7614-aa8c773dfa29@kernel.dk>
+ <TU4PR8401MB099144F611F2DA95262312F4EC380@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
+ <0e2efc36-3c1b-ac51-4baf-044276cc51e9@kernel.dk>
+ <DF4PR8401MB0985A5C6D31650967F15CE1EEC390@DF4PR8401MB0985.NAMPRD84.PROD.OUTLOOK.COM>
+ <AT5PR8401MB0387D41B891BF12A39A81FD1AB390@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
+ <CALjAwxh6Xhy63jwhrNoB470mBv_owguh66yC3J4XbBnW-tJDFA@mail.gmail.com>
+ <5b1cd1e7-8a7a-033d-e962-e0df334a02d6@kernel.dk>
+In-Reply-To: <5b1cd1e7-8a7a-033d-e962-e0df334a02d6@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>, Rebecca Cran <rebecca@bluestop.org>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Kani,
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit e80d780108fd33350f7c4a3032a8d2d06d7b102f:
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
+a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uDQo+IEJlaGFs
+ZiBPZiBKZW5zIEF4Ym9lDQo+IFNlbnQ6IFN1bmRheSwgRGVjZW1iZXIgMywgMjAxNyAxMToxMSBB
+TQ0KPiBUbzogU2l0c29mZSBXaGVlbGVyIDxzaXRzb2ZlQGdtYWlsLmNvbT47IFJvYmVydCBFbGxp
+b3R0IChQZXJzaXN0ZW50DQo+IE1lbW9yeSkgPGVsbGlvdHRAaHBlLmNvbT4NCj4gQ2M6IEdhdnJp
+bGl1aywgQW50b24gKEhQUyBVa3JhaW5lKSA8YW50b24uZ2F2cmlsaXVrQGhwZS5jb20+OyBSZWJl
+Y2NhIENyYW4NCj4gPHJlYmVjY2FAYmx1ZXN0b3Aub3JnPjsgZmlvQHZnZXIua2VybmVsLm9yZzsg
+S2FuaSwgVG9zaGltaXRzdQ0KPiA8dG9zaGkua2FuaUBocGUuY29tPg0KPiBTdWJqZWN0OiBSZTog
+ZmlvIDMuMg0KPiANCj4gT24gMTIvMDMvMjAxNyAwMjozNSBBTSwgU2l0c29mZSBXaGVlbGVyIHdy
+b3RlOg0KPiA+IE9uIDEgRGVjZW1iZXIgMjAxNyBhdCAwNzoxNSwgUm9iZXJ0IEVsbGlvdHQgKFBl
+cnNpc3RlbnQgTWVtb3J5KQ0KPiA+IDxlbGxpb3R0QGhwZS5jb20+IHdyb3RlOg0KPiA+PiBXaGls
+ZSBkaXNjdXNzaW5nIE5VTUEsIEknbGwgbWVudGlvbiBzb21ldGhpbmcgZWxzZSBJIHNhdyBpbiBX
+aW5kb3dzDQo+ID4+IHdoaWxlIGZpeGluZyB0aGUgdGhyZWFkIGFmZmluaXRpZXMgdGhlcmUuDQo+
+ID4+DQo+ID4+IEF0IHN0YXJ0dXAsIGZpbyBzcGF3bnMgdGhyZWFkcyBvbiBhbGwgQ1BVcyB0byBt
+ZWFzdXJlIHRoZSBjbG9ja3MNCj4gPj4gKGZpb19tb25vdG9uaWNfY2xvY2t0ZXN0KS4gIElmIHlv
+dSd2ZSBjb25zdHJhaW5lZCB0aGUgQ1BVIGFmZmluaXR5DQo+ID4+IG91dHNpZGUgZmlvLCBzb21l
+IG9mIHRob3NlIHdpbGwgZmFpbC4gIEluIFdpbmRvd3MsIHNvbWV0aGluZyBsaWtlDQo+ID4+IFNU
+QVJUIC9BRkZJTklUWSAweDU1NTU1NTU1IGZpbyAuLi4NCj4gPj4gY2FuIGNhdXNlIGhhbGYgb2Yg
+dGhlIGNsb2NrIHRocmVhZHMgdG8gZmFpbC4NCj4gPg0KPiA+IFRoaXMgaXMgdmVyeSB3ZWlyZCBh
+bmQgZG9lc24ndCBtYWtlIGFueSBzZW5zZSAoYnV0IEkgYmVsaWV2ZSB5b3UpOiBpZg0KPiA+IHlv
+dSBoYXZlIG11bHRpcGxlIHRocmVhZHMgY3JhbW1lZCBvbiB0byB0aGUgc2FtZSBDUFVzIHRoZSBU
+U0Mgbm8NCj4gPiBsb25nZXIgbG9va3MgbGlrZSBpdCBtb25vdG9uaWNhbGx5IGluY3JlYXNlcz8g
+U3VyZWx5IGl0IHNob3VsZCBiZSBNT1JFDQo+ID4gbGlrZWx5IHRvIGluY3JlYXNlIGJlY2F1c2Ug
+YSB0aHJlYWQgaXMgbGlrZWx5IHRvIGJlIG9uIHRoZSBzYW1lIENQVSBhcw0KPiA+IGFub3RoZXIg
+YW5kIGNhbid0IGFjdHVhbGx5IGJlIHJ1bm5pbmcgYXQgdGhlIHNhbWUgdGltZSBhcyB0aGUgb3Ro
+ZXI/DQo+IA0KPiBUaGUgdGhyZWFkcyBmYWlsIHRvIHN0YXJ0LCBpdCdzIG5vdCBhIFRTQyBmYWls
+dXJlLiBJJ20gZ3Vlc3NpbmcgaXQncw0KPiBiZWNhdXNlIGZpbyBnZXRzIGxpbWl0ZWQgdG8gYSBz
+dWJzZXQgb2YgdGhlIGF2YWlsYWJsZSBDUFVzLCBhbmQgdGhhdA0KPiBjYXVzZXMgZmlvIHRvIGZh
+aWwgZG9pbmcgdGhlIGNsb2NrIGNoZWNrIHdoZW4gZmlvX3NldGFmZmluaXR5KCkgaW4NCj4gY2xv
+Y2tfdGhyZWFkX2ZuKCkgZmFpbHMuDQoNCkknbGwgd29yayBvbiBhIHBhdGNoIHRvIGxpbWl0IGFs
+bCB0aHJlYWRzIChpbmNsdWRpbmcgY2xvY2t0ZXN0DQp0aHJlYWRzIGF0IHN0YXJ0dXAgYW5kIEkv
+TyB0aHJlYWRzKSB0byB0aGUgcGFyZW50J3MgYWZmaW5pdHkNCm1hc2sgaW4gV2luZG93cy4NCg0K
+SW4gbGludXgsIHByb2Nlc3NlcyBhbmQgdGhyZWFkcyBhcmUgbm90IHJlc3RyaWN0ZWQgdG8gdGhl
+aXIgcGFyZW50J3MNCmFmZmluaXR5IG1hc2suICBBbHRob3VnaCB0aGV5IGluaGVyaXQgYnkgZGVm
+YXVsdCwgdGhleSBtYXkgY2FsbA0Kc2NoZWRfc2V0YWZmaW5pdHkgd2l0aCBhbnkgdmFsdWVzLiBU
+aGUgdGFza3NldCBhbmQgbnVtYWN0bCBtYW5wYWdlcw0KZG9uJ3QgbWVudGlvbiB0aGF0IHByb2dy
+YW1zIG1heSBvdmVycmlkZSB0aGUgc2V0dGluZ3MgcmVxdWVzdGVkDQpieSB0aGUgdXNlci4NCg0K
+RXhhbXBsZToNCiAgICQgbnVtYWN0bCAtYSAtQyA1IGZpbyAtLWRlYnVnPXByb2Nlc3MgLWRheF9t
+bWFwLmZpbw0KaW5jbHVkaW5nOg0KICAgY3B1c19hbGxvd2VkX3BvbGljeT1zcGxpdA0KICAgY3B1
+c19hbGxvd2VkPTAtMTcsMzYtNTMNCiAgIHRocmVhZA0KZmlvIGlzIGFsbG93ZWQgdG8gcGxhY2Ug
+dGhyZWFkcyBvbiBhbGwgdGhlIENQVXM6DQogICBST0I6IHByb2Nlc3MgMjAzNTggY3B1PTUgdGhy
+ZWFkIGFmZmluaXR5X2NvdW50PTENCiAgIFJPQjogcHJvY2VzcyAyMDM1MyBjcHU9MCB0aHJlYWQg
+YWZmaW5pdHlfY291bnQ9MQ0KICAgUk9COiBwcm9jZXNzIDIwMzU1IGNwdT0yIHRocmVhZCBhZmZp
+bml0eV9jb3VudD0xDQogICBST0I6IHByb2Nlc3MgMjAzNTQgY3B1PTEgdGhyZWFkIGFmZmluaXR5
+X2NvdW50PTENCiAgIFJPQjogcHJvY2VzcyAyMDM1NiBjcHU9MyB0aHJlYWQgYWZmaW5pdHlfY291
+bnQ9MQ0KICAgLi4uDQoNClNob3VsZCBmaW8gYXBwbHkgdGhlIHNhbWUgZmlsdGVyaW5nIGluIGxp
+bnV4Pw0KDQpJZiBub3QsIHNob3VsZCBpdCBwcmludCBhbiBpbmZvIG9yIHdhcm5pbmcgbWVzc2Fn
+ZSB3aGVuIA0KY3JlYXRpbmcgdGhyZWFkcyB0aGF0IHZpb2xhdGUgdGhlIHBhcmVudCBtYXNrPw0K
+DQoNCi0tLQ0KUm9iZXJ0IEVsbGlvdHQsIEhQRSBQZXJzaXN0ZW50IE1lbW9yeQ0KDQoNCg0K
 
-  fio: kill td->nr_normal_files (2017-12-08 12:50:28 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to c20c361255683ee138f0c239e48b315e25725f7e:
-
-  server: initialize first iolog header properly (2017-12-13 08:44:34 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      server: initialize first iolog header properly
-
- server.c | 1 +
- 1 file changed, 1 insertion(+)
-
----
-
-Diff of recent changes:
-
-diff --git a/server.c b/server.c
-index 76d662d..6225614 100644
---- a/server.c
-+++ b/server.c
-@@ -1933,6 +1933,7 @@ int fio_send_iolog(struct thread_data *td, struct io_log *log, const char *name)
- 	struct flist_head *entry;
- 	int ret = 0;
- 
-+	memset(&pdu, 0, sizeof(pdu));
- 	pdu.nr_samples = cpu_to_le64(iolog_nr_samples(log));
- 	pdu.thread_number = cpu_to_le32(td->thread_number);
- 	pdu.log_type = cpu_to_le32(log->log_type);
