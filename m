@@ -1,217 +1,290 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:54054 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753278AbdLPNAM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 16 Dec 2017 08:00:12 -0500
+Received: from bombadil.infradead.org ([65.50.211.133]:51653 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754243AbdLGNAG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 7 Dec 2017 08:00:06 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1eQC4Z-0006Xx-8V
-        for fio@vger.kernel.org; Sat, 16 Dec 2017 13:00:11 +0000
+        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1eMvmX-0002W0-UN
+        for fio@vger.kernel.org; Thu, 07 Dec 2017 13:00:06 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20171216130001.A9A962C009F@kernel.dk>
-Date: Sat, 16 Dec 2017 06:00:01 -0700 (MST)
+Message-Id: <20171207130001.DD5822C0098@kernel.dk>
+Date: Thu,  7 Dec 2017 06:00:01 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit db37d89074ed204c9c2bd010e72f63dcf4725715:
+The following changes since commit 67bfebe6af2e6d030ec739fa45ccb211f3e50a0e:
 
-  Allow configurable ETA intervals (2017-12-14 11:51:41 -0700)
+  Merge branch 'wip-cleanup' of https://github.com/ZVampirEM77/fio (2017-12-03 10:11:53 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 9b50942ecec9c79fa82050c503fe313cfd87ac96:
+for you to fetch changes up to 395feabb53806d5cff2e0b73b6c94048f05b5aae:
 
-  ioengines: clear out ->td_ops_dlhandle if we close it (2017-12-15 13:35:56 -0700)
+  io_u: rate cleanup and spelling error (2017-12-06 12:30:20 -0700)
 
 ----------------------------------------------------------------
-Jens Axboe (5):
-      parse: dump option type when using --debug=parse
-      ioengines: improve "is this the same IO engine" check
-      parse: don't check for < 0 on an unsigned type
-      init: fix missing dlhandle reference put
-      ioengines: clear out ->td_ops_dlhandle if we close it
+Jens Axboe (2):
+      Add option to ignore thinktime for rated IO
+      io_u: rate cleanup and spelling error
 
- compiler/compiler.h |  5 +++++
- fio.h               |  5 -----
- init.c              | 20 ++++++++++++++++++++
- ioengines.c         |  4 +++-
- parse.c             | 32 ++++++++++++++++++++++++++++++--
- parse.h             |  2 +-
- 6 files changed, 59 insertions(+), 9 deletions(-)
+ HOWTO            |  7 +++++++
+ backend.c        | 61 +++++++++++++++++++++++++++++++++++---------------------
+ cconv.c          |  2 ++
+ fio.1            |  6 ++++++
+ io_u.c           |  9 ++++-----
+ options.c        | 10 ++++++++++
+ server.h         |  2 +-
+ thread_options.h |  3 +++
+ 8 files changed, 71 insertions(+), 29 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/compiler/compiler.h b/compiler/compiler.h
-index 20df21d..91a9883 100644
---- a/compiler/compiler.h
-+++ b/compiler/compiler.h
-@@ -69,4 +69,9 @@
+diff --git a/HOWTO b/HOWTO
+index 4caaf54..563ca93 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -2208,6 +2208,13 @@ I/O rate
+ 	(https://en.wikipedia.org/wiki/Poisson_point_process). The lambda will be
+ 	10^6 / IOPS for the given workload.
  
- #endif
- 
-+#ifdef FIO_INTERNAL
-+#define ARRAY_SIZE(x)    (sizeof((x)) / (sizeof((x)[0])))
-+#define FIELD_SIZE(s, f) (sizeof(((typeof(s))0)->f))
-+#endif
++.. option:: rate_ignore_thinktime=bool
 +
- #endif
-diff --git a/fio.h b/fio.h
-index b3b95ef..334f203 100644
---- a/fio.h
-+++ b/fio.h
-@@ -800,11 +800,6 @@ static inline void td_flags_set(struct thread_data *td, unsigned int *flags,
- extern const char *fio_get_arch_string(int);
- extern const char *fio_get_os_string(int);
++	By default, fio will attempt to catch up to the specified rate setting,
++	if any kind of thinktime setting was used. If this option is set, then
++	fio will ignore the thinktime and continue doing IO at the specified
++	rate, instead of entering a catch-up mode after thinktime is done.
++
  
--#ifdef FIO_INTERNAL
--#define ARRAY_SIZE(x)    (sizeof((x)) / (sizeof((x)[0])))
--#define FIELD_SIZE(s, f) (sizeof(((typeof(s))0)->f))
--#endif
--
- enum {
- 	__FIO_OUTPUT_TERSE	= 0,
- 	__FIO_OUTPUT_JSON	= 1,
-diff --git a/init.c b/init.c
-index b9da713..f7d79c1 100644
---- a/init.c
-+++ b/init.c
-@@ -11,6 +11,7 @@
- #include <sys/ipc.h>
- #include <sys/types.h>
- #include <sys/stat.h>
-+#include <dlfcn.h>
+ I/O latency
+ ~~~~~~~~~~~
+diff --git a/backend.c b/backend.c
+index 6c805c7..69f03dc 100644
+--- a/backend.c
++++ b/backend.c
+@@ -844,14 +844,13 @@ static bool io_complete_bytes_exceeded(struct thread_data *td)
+  */
+ static long long usec_for_io(struct thread_data *td, enum fio_ddir ddir)
+ {
+-	uint64_t secs, remainder, bps, bytes, iops;
++	uint64_t bps = td->rate_bps[ddir];
  
- #include "fio.h"
- #ifndef FIO_NO_HAVE_SHM_H
-@@ -1064,6 +1065,9 @@ int ioengine_load(struct thread_data *td)
+ 	assert(!(td->flags & TD_F_CHILD));
+-	bytes = td->rate_io_issue_bytes[ddir];
+-	bps = td->rate_bps[ddir];
+ 
+ 	if (td->o.rate_process == RATE_PROCESS_POISSON) {
+-		uint64_t val;
++		uint64_t val, iops;
++
+ 		iops = bps / td->o.bs[ddir];
+ 		val = (int64_t) (1000000 / iops) *
+ 				-logf(__rand_0_1(&td->poisson_state[ddir]));
+@@ -863,14 +862,44 @@ static long long usec_for_io(struct thread_data *td, enum fio_ddir ddir)
+ 		td->last_usec[ddir] += val;
+ 		return td->last_usec[ddir];
+ 	} else if (bps) {
+-		secs = bytes / bps;
+-		remainder = bytes % bps;
++		uint64_t bytes = td->rate_io_issue_bytes[ddir];
++		uint64_t secs = bytes / bps;
++		uint64_t remainder = bytes % bps;
++
+ 		return remainder * 1000000 / bps + secs * 1000000;
  	}
  
- 	if (td->io_ops) {
-+		struct ioengine_ops *ops;
-+		void *dlhandle;
-+
- 		/* An engine is loaded, but the requested ioengine
- 		 * may have changed.
- 		 */
-@@ -1072,6 +1076,22 @@ int ioengine_load(struct thread_data *td)
- 			return 0;
- 		}
- 
-+		/*
-+		 * Name of file and engine may be different, load ops
-+		 * for this name and see if they match. If they do, then
-+		 * the engine is unchanged.
-+		 */
-+		dlhandle = td->io_ops_dlhandle;
-+		ops = load_ioengine(td);
-+		if (ops == td->io_ops && dlhandle == td->io_ops_dlhandle) {
-+			if (dlhandle)
-+				dlclose(dlhandle);
-+			return 0;
-+		}
-+
-+		if (dlhandle && dlhandle != td->io_ops_dlhandle)
-+			dlclose(dlhandle);
-+
- 		/* Unload the old engine. */
- 		free_ioengine(td);
- 	}
-diff --git a/ioengines.c b/ioengines.c
-index 7951ff3..cec0c76 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -194,8 +194,10 @@ void free_ioengine(struct thread_data *td)
- 		td->eo = NULL;
- 	}
- 
--	if (td->io_ops_dlhandle)
-+	if (td->io_ops_dlhandle) {
- 		dlclose(td->io_ops_dlhandle);
-+		td->io_ops_dlhandle = NULL;
-+	}
- 
- 	td->io_ops = NULL;
+ 	return 0;
  }
-diff --git a/parse.c b/parse.c
-index 68229d0..a9ee1ce 100644
---- a/parse.c
-+++ b/parse.c
-@@ -12,6 +12,7 @@
- #include <math.h>
- #include <float.h>
  
-+#include "compiler/compiler.h"
- #include "parse.h"
- #include "debug.h"
- #include "options.h"
-@@ -24,6 +25,22 @@
- #include "y.tab.h"
- #endif
- 
-+static const char *opt_type_names[] = {
-+	"OPT_INVALID",
-+	"OPT_STR",
-+	"OPT_STR_MULTI",
-+	"OPT_STR_VAL",
-+	"OPT_STR_VAL_TIME",
-+	"OPT_STR_STORE",
-+	"OPT_RANGE",
-+	"OPT_INT",
-+	"OPT_BOOL",
-+	"OPT_FLOAT_LIST",
-+	"OPT_STR_SET",
-+	"OPT_DEPRECATED",
-+	"OPT_UNSUPPORTED",
-+};
-+
- static struct fio_option *__fio_options;
- 
- static int vp_cmp(const void *p1, const void *p2)
-@@ -469,6 +486,17 @@ static int str_match_len(const struct value_pair *vp, const char *str)
- 			*ptr = (val);			\
- 	} while (0)
- 
-+static const char *opt_type_name(struct fio_option *o)
++static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
 +{
-+	compiletime_assert(ARRAY_SIZE(opt_type_names) - 1 == FIO_OPT_UNSUPPORTED,
-+				"opt_type_names[] index");
++	unsigned long long b;
++	uint64_t total;
++	int left;
 +
-+	if (o->type <= FIO_OPT_UNSUPPORTED)
-+		return opt_type_names[o->type];
++	b = ddir_rw_sum(td->io_blocks);
++	if (b % td->o.thinktime_blocks)
++		return;
 +
-+	return "OPT_UNKNOWN?";
++	io_u_quiesce(td);
++
++	total = 0;
++	if (td->o.thinktime_spin)
++		total = usec_spin(td->o.thinktime_spin);
++
++	left = td->o.thinktime - total;
++	if (left)
++		total += usec_sleep(td, left);
++
++	/*
++	 * If we're ignoring thinktime for the rate, add the number of bytes
++	 * we would have done while sleeping.
++	 */
++	if (total && td->rate_bps[ddir] && td->o.rate_ign_think)
++		td->rate_io_issue_bytes[ddir] += (td->rate_bps[ddir] * 1000000) / total;
 +}
 +
- static int __handle_option(struct fio_option *o, const char *ptr, void *data,
- 			   int first, int more, int curr)
- {
-@@ -483,8 +511,8 @@ static int __handle_option(struct fio_option *o, const char *ptr, void *data,
- 	struct value_pair posval[PARSE_MAX_VP];
- 	int i, all_skipped = 1;
+ /*
+  * Main IO worker function. It retrieves io_u's to process and queues
+  * and reaps them, checking for rate and errors along the way.
+@@ -955,6 +984,7 @@ static void do_io(struct thread_data *td, uint64_t *bytes_done)
+ 			int err = PTR_ERR(io_u);
  
--	dprint(FD_PARSE, "__handle_option=%s, type=%d, ptr=%s\n", o->name,
--							o->type, ptr);
-+	dprint(FD_PARSE, "__handle_option=%s, type=%s, ptr=%s\n", o->name,
-+							opt_type_name(o), ptr);
+ 			io_u = NULL;
++			ddir = DDIR_INVAL;
+ 			if (err == -EBUSY) {
+ 				ret = FIO_Q_BUSY;
+ 				goto reap;
+@@ -1062,23 +1092,8 @@ reap:
+ 		if (!in_ramp_time(td) && td->o.latency_target)
+ 			lat_target_check(td);
  
- 	if (!ptr && o->type != FIO_OPT_STR_SET && o->type != FIO_OPT_STR) {
- 		log_err("Option %s requires an argument\n", o->name);
-diff --git a/parse.h b/parse.h
-index dfe7f16..d05236b 100644
---- a/parse.h
-+++ b/parse.h
-@@ -20,7 +20,7 @@ enum fio_opt_type {
- 	FIO_OPT_FLOAT_LIST,
- 	FIO_OPT_STR_SET,
- 	FIO_OPT_DEPRECATED,
--	FIO_OPT_UNSUPPORTED,
-+	FIO_OPT_UNSUPPORTED,	/* keep this last */
+-		if (td->o.thinktime) {
+-			unsigned long long b;
+-
+-			b = ddir_rw_sum(td->io_blocks);
+-			if (!(b % td->o.thinktime_blocks)) {
+-				int left;
+-
+-				io_u_quiesce(td);
+-
+-				if (td->o.thinktime_spin)
+-					usec_spin(td->o.thinktime_spin);
+-
+-				left = td->o.thinktime - td->o.thinktime_spin;
+-				if (left)
+-					usec_sleep(td, left);
+-			}
+-		}
++		if (ddir_rw(ddir) && td->o.thinktime)
++			handle_thinktime(td, ddir);
+ 	}
+ 
+ 	check_update_rusage(td);
+diff --git a/cconv.c b/cconv.c
+index 5ed4640..92996b1 100644
+--- a/cconv.c
++++ b/cconv.c
+@@ -298,6 +298,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
+ 
+ 	o->trim_backlog = le64_to_cpu(top->trim_backlog);
+ 	o->rate_process = le32_to_cpu(top->rate_process);
++	o->rate_ign_think = le32_to_cpu(top->rate_ign_think);
+ 
+ 	for (i = 0; i < FIO_IO_U_LIST_MAX_LEN; i++)
+ 		o->percentile_list[i].u.f = fio_uint64_to_double(le64_to_cpu(top->percentile_list[i].u.i));
+@@ -557,6 +558,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
+ 	top->offset_increment = __cpu_to_le64(o->offset_increment);
+ 	top->number_ios = __cpu_to_le64(o->number_ios);
+ 	top->rate_process = cpu_to_le32(o->rate_process);
++	top->rate_ign_think = cpu_to_le32(o->rate_ign_think);
+ 
+ 	for (i = 0; i < FIO_IO_U_LIST_MAX_LEN; i++)
+ 		top->percentile_list[i].u.i = __cpu_to_le64(fio_double_to_uint64(o->percentile_list[i].u.f));
+diff --git a/fio.1 b/fio.1
+index 54d1b0f..80abc14 100644
+--- a/fio.1
++++ b/fio.1
+@@ -1955,6 +1955,12 @@ I/Os that gets adjusted based on I/O completion rates. If this is set to
+ flow, known as the Poisson process
+ (\fIhttps://en.wikipedia.org/wiki/Poisson_point_process\fR). The lambda will be
+ 10^6 / IOPS for the given workload.
++.TP
++.BI rate_ignore_thinktime \fR=\fPbool
++By default, fio will attempt to catch up to the specified rate setting, if any
++kind of thinktime setting was used. If this option is set, then fio will
++ignore the thinktime and continue doing IO at the specified rate, instead of
++entering a catch-up mode after thinktime is done.
+ .SS "I/O latency"
+ .TP
+ .BI latency_target \fR=\fPtime
+diff --git a/io_u.c b/io_u.c
+index 44933a1..42d98eb 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -759,11 +759,11 @@ static enum fio_ddir rate_ddir(struct thread_data *td, enum fio_ddir ddir)
+ 			return odir;
+ 
+ 		/*
+-		 * Both directions are ahead of rate. sleep the min
+-		 * switch if necissary
++		 * Both directions are ahead of rate. sleep the min,
++		 * switch if necessary
+ 		 */
+ 		if (td->rate_next_io_time[ddir] <=
+-			td->rate_next_io_time[odir]) {
++		    td->rate_next_io_time[odir]) {
+ 			usec = td->rate_next_io_time[ddir] - now;
+ 		} else {
+ 			usec = td->rate_next_io_time[odir] - now;
+@@ -775,8 +775,7 @@ static enum fio_ddir rate_ddir(struct thread_data *td, enum fio_ddir ddir)
+ 	if (td->o.io_submit_mode == IO_MODE_INLINE)
+ 		io_u_quiesce(td);
+ 
+-	usec = usec_sleep(td, usec);
+-
++	usec_sleep(td, usec);
+ 	return ddir;
+ }
+ 
+diff --git a/options.c b/options.c
+index 3fa646c..9a3431d 100644
+--- a/options.c
++++ b/options.c
+@@ -3460,6 +3460,16 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.group	= FIO_OPT_G_RATE,
+ 	},
+ 	{
++		.name	= "rate_ignore_thinktime",
++		.lname	= "Rate ignore thinktime",
++		.type	= FIO_OPT_BOOL,
++		.off1	= offsetof(struct thread_options, rate_ign_think),
++		.help	= "Rated IO ignores thinktime settings",
++		.parent = "rate",
++		.category = FIO_OPT_C_IO,
++		.group	= FIO_OPT_G_RATE,
++	},
++	{
+ 		.name	= "max_latency",
+ 		.lname	= "Max Latency (usec)",
+ 		.type	= FIO_OPT_STR_VAL_TIME,
+diff --git a/server.h b/server.h
+index 438a6c3..1a9b650 100644
+--- a/server.h
++++ b/server.h
+@@ -49,7 +49,7 @@ struct fio_net_cmd_reply {
  };
  
- /*
+ enum {
+-	FIO_SERVER_VER			= 68,
++	FIO_SERVER_VER			= 69,
+ 
+ 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
+ 	FIO_SERVER_MAX_CMD_MB		= 2048,
+diff --git a/thread_options.h b/thread_options.h
+index 793df8a..dc290b0 100644
+--- a/thread_options.h
++++ b/thread_options.h
+@@ -273,6 +273,7 @@ struct thread_options {
+ 	unsigned int rate_iops[DDIR_RWDIR_CNT];
+ 	unsigned int rate_iops_min[DDIR_RWDIR_CNT];
+ 	unsigned int rate_process;
++	unsigned int rate_ign_think;
+ 
+ 	char *ioscheduler;
+ 
+@@ -547,6 +548,8 @@ struct thread_options_pack {
+ 	uint32_t rate_iops[DDIR_RWDIR_CNT];
+ 	uint32_t rate_iops_min[DDIR_RWDIR_CNT];
+ 	uint32_t rate_process;
++	uint32_t rate_ign_think;
++	uint32_t pad;
+ 
+ 	uint8_t ioscheduler[FIO_TOP_STR_MAX];
+ 
