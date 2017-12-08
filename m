@@ -1,91 +1,60 @@
-Return-Path: <anton.gavriliuk@hpe.com>
-From: "Gavriliuk, Anton (HPS Ukraine)" <anton.gavriliuk@hpe.com>
-Subject: RE: fio 3.2
-Date: Sun, 3 Dec 2017 03:24:07 +0000
-Message-ID: <TU4PR8401MB099199A3238E9BB7270F5F12EC3F0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
-References: <TU4PR8401MB099112614914A9232A07490DEC270@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
- <903d418b-bac4-104b-28e5-3c529efab7f5@kernel.dk>
- <TU4PR8401MB0991DC48F1741A8F8F1DEF20EC240@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
- <CALjAwxh9bP38Uqsy=OmxqZKRxpKYEArYuT1RYC76jL6oqF3daQ@mail.gmail.com>
- <TU4PR8401MB099189C195BE973BED0D0C15EC250@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
- <CALjAwxiQU=C4ye2gN4-9S6D75f3HQ7q7w2TpE0O+fH6C+MXLHg@mail.gmail.com>
- <b9bce0b0-9683-59b6-4c08-62f29d80935a@bluestop.org>
- <TU4PR8401MB0991F4C4CAD9858A3BF2AE9DEC3A0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
- <AT5PR8401MB0387489EC42684D7FACF3E1EAB3A0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
- <TU4PR8401MB0991EBEF27D16271CD5361AAEC3B0@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
- <AT5PR8401MB03875F6DB61311D1D8B40419AB3B0@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
- <aa9efb3f-9fd5-5322-7614-aa8c773dfa29@kernel.dk>
- <TU4PR8401MB099144F611F2DA95262312F4EC380@TU4PR8401MB0991.NAMPRD84.PROD.OUTLOOK.COM>
- <0e2efc36-3c1b-ac51-4baf-044276cc51e9@kernel.dk>
-In-Reply-To: <0e2efc36-3c1b-ac51-4baf-044276cc51e9@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, "Robert Elliott (Persistent Memory)" <elliott@hpe.com>, Rebecca Cran <rebecca@bluestop.org>, Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "Kani, Toshimitsu" <toshi.kani@hpe.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([65.50.211.133]:53455 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752990AbdLHNAG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 8 Dec 2017 08:00:06 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1eNIG6-0004p8-Cl
+        for fio@vger.kernel.org; Fri, 08 Dec 2017 13:00:06 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20171208130002.8A22D2C00A1@kernel.dk>
+Date: Fri,  8 Dec 2017 06:00:02 -0700 (MST)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-T2ssIHRoYW5rcy4gIE5vdyBJIGJ1aWx0IGxhdGVzdCBmaW8gYXZhaWxhYmxlIDotKQ0KDQpkbDU2
-MGcxMHNwbWVtMDE6fiAjIC91c3IvbG9jYWwvYmluL2ZpbyAtLWZpbGVuYW1lPS9kZXYvZGF4MC4w
-IC0tcnc9cmFuZHJ3IC0tbm9yYW5kb21tYXAgLS1yYW5kcmVwZWF0PTAgLS1pb2VuZ2luZT1tbWFw
-IC0tYnNzcGxpdD00ay80OjhrLzc6MTZrLzc6MzJrLzE1OjY0ay82NToxMjhrLzE6MjU2ay8xIC0t
-cndtaXhyZWFkPTUgLS1pb2RlcHRoPTEgLS1udW1qb2JzPTE2IC0tcnVudGltZT0xODAwIC0tZ3Jv
-dXBfcmVwb3J0aW5nIC0tbmFtZT00LXJhbmQtcnctM3h4IC0tc2l6ZT0yOTBnIC0tbnVtYV9jcHVf
-bm9kZXM9MA0KNC1yYW5kLXJ3LTN4eDogKGc9MCk6IHJ3PXJhbmRydywgYnM9KFIpIDQwOTZCLTI1
-NktpQiwgKFcpIDQwOTZCLTI1NktpQiwgKFQpIDQwOTZCLTI1NktpQiwgaW9lbmdpbmU9bW1hcCwg
-aW9kZXB0aD0xDQouLi4NCmZpby0zLjItNjQtZ2FmN2ZiDQpTdGFydGluZyAxNiBwcm9jZXNzZXMN
-CkpvYnM6IDE2IChmPTE2KTogW20oMTYpXVs4LjAlXVtyPTIxMzhNaUIvcyx3PTM5LjdHaUIvc11b
-cj00Mi4yayx3PTc5OWsgSU9QU11bZXRhIDAxbTo0NHNdDQogICAgICAgDQogICAgICAgRnJvbSBw
-ZXJmIHRvcCwNCiAgICAgICANClNhbXBsZXM6IDFNIG9mIGV2ZW50ICdjeWNsZXM6cHBwJywgRXZl
-bnQgY291bnQgKGFwcHJveC4pOiA1MDM5Nzg4NDg2MTMNCk92ZXJoZWFkICBTaGFyZWQgT2JqZWN0
-ICAgICAgIFN5bWJvbCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIOKXhg0KICA5My4zNCUgIGxpYmMtMi4yMi5zbyAgICAgICAgWy5d
-IF9fbWVtY3B5X2F2eF91bmFsaWduZWQgICAgICANCg0KSnVzdCBjYW4ndCBkcmlsbCBpdCBkb3du
-LA0KDQpfX21lbWNweV9hdnhfdW5hbGlnbmVkICAvbGliNjQvbGliYy0yLjIyLnNvDQpIdWg/IE5v
-IHNlbGVjdGlvbi4gUmVwb3J0IHRvIGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcgDQoNCldo
-aWxlIG90aGVyIGZ1bmN0aW9ucyBjYW4sDQoNCmdldF9pb191ICAvdXNyL2xvY2FsL2Jpbi9maW8N
-CiAgMC4wOCDilIIgICAgICAgIHhvciAgICAlZWF4LCVlc2kNCiAgMC4wMSDilIIgICAgICAgIHNo
-bCAgICAkMHg2LCVyc2kNCiAgMC4wMiDilIIgICAgICAgIGFuZCAgICAkMHgxYzAsJWVzaQ0KICAw
-LjAwIOKUgiAgICAgICAgc3ViICAgICVyYXgsJXJzaQ0KICAwLjEyIOKUgiAgICAgICAgYWRkICAg
-ICVyZHgsJXJzaQ0KICAwLjAwIOKUgiAgICAgICAgc3ViICAgICVyYXgsJXJkeA0KICAgICAgIOKU
-giAgICAgICAgbm9wDQogICAgICAg4pSCICAgICAgICAgICAgICAgICAgICAgIC8qDQogICAgICAg
-4pSCICAgICAgICAgICAgICAgICAgICAgICAqIEZpbGwgb2Zmc2V0IGludG8gc3RhcnQgb2YgY2Fj
-aGVsaW5lLCB0aW1lIGludG8gZW5kDQogICAgICAg4pSCICAgICAgICAgICAgICAgICAgICAgICAq
-IG9mIGNhY2hlbGluZQ0KICAgICAgIOKUgiAgICAgICAgICAgICAgICAgICAgICAgKi8NCiAgICAg
-ICDilIIgICAgICAgICAgICAgICAgICAgICAgaXB0ciA9ICh2b2lkICopIHAgKyAob2Zmc2V0IDw8
-IDYpOw0KICAgICAgIOKUgiAgICAgICAgICAgICAgICAgICAgICAqaXB0ciA9IGJvZmZzZXQ7DQog
-MTYuMDEg4pSCIDIzMDogICBtb3YgICAgJXJheCwoJXJzaSwlcmF4LDEpDQogICAgICAg4pSCDQog
-ICAgICAg4pSCICAgICAgICAgICAgICAgICAgICAgIGlwdHIgPSAodm9pZCAqKSBwICsgNjQgLSAy
-ICogc2l6ZW9mKHVpbnQ2NF90KTsNCiAgICAgICDilIIgICAgICAgICAgICAgICAgICAgICAgaXB0
-clswXSA9IGlvX3UtPnN0YXJ0X3RpbWUudHZfc2VjOw0KICA3LjAzIOKUgiAgICAgICAgbW92ICAg
-IDB4MCglcmJwKSwlcmN4DQogMTMuNTIg4pSCICAgICAgICBtb3YgICAgJXJjeCwweDMwKCVyZHgs
-JXJheCwxKSAgICAgICAgICAgICAgICAgICANCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0N
-CkZyb206IEplbnMgQXhib2UgW21haWx0bzpheGJvZUBrZXJuZWwuZGtdIA0KU2VudDogVGh1cnNk
-YXksIE5vdmVtYmVyIDMwLCAyMDE3IDExOjI0IFBNDQpUbzogR2F2cmlsaXVrLCBBbnRvbiAoSFBT
-IFVrcmFpbmUpIDxhbnRvbi5nYXZyaWxpdWtAaHBlLmNvbT47IFJvYmVydCBFbGxpb3R0IChQZXJz
-aXN0ZW50IE1lbW9yeSkgPGVsbGlvdHRAaHBlLmNvbT47IFJlYmVjY2EgQ3JhbiA8cmViZWNjYUBi
-bHVlc3RvcC5vcmc+OyBTaXRzb2ZlIFdoZWVsZXIgPHNpdHNvZmVAZ21haWwuY29tPg0KQ2M6IGZp
-b0B2Z2VyLmtlcm5lbC5vcmc7IEthbmksIFRvc2hpbWl0c3UgPHRvc2hpLmthbmlAaHBlLmNvbT4N
-ClN1YmplY3Q6IFJlOiBmaW8gMy4yDQoNCk9uIDExLzMwLzIwMTcgMDc6MTcgQU0sIEdhdnJpbGl1
-aywgQW50b24gKEhQUyBVa3JhaW5lKSB3cm90ZToNCj4gSXQncyB0aGVyZSBhbnkgY2hhbmNlIHRv
-IGZpeCBpdCA/DQo+IA0KPiBkbDU2MGcxMHNwbWVtMDE6L3Zhci93b3JrICMgL3Vzci9sb2NhbC9i
-aW4vZmlvIC0tZmlsZW5hbWU9L2Rldi9kYXgwLjAgDQo+IC0tcnc9cmFuZHJ3IC0tcmVmaWxsX2J1
-ZmZlcnMgLS1yYW5kcmVwZWF0PTAgLS1pb2VuZ2luZT1tbWFwIA0KPiAtLWJzc3BsaXQ9NGsvNDo4
-ay83OjE2ay83OjMyay8xNTo2NGsvNjU6MTI4ay8xOjI1NmsvMSAtLXJ3bWl4cmVhZD01IA0KPiAt
-LWlvZGVwdGg9MSAtLW51bWpvYnM9MTYgLS1ydW50aW1lPTE4MDAgLS1ncm91cF9yZXBvcnRpbmcg
-DQo+IC0tbmFtZT00LXJhbmQtcnctM3h4IC0tc2l6ZT0yOTBnDQo+IDQtcmFuZC1ydy0zeHg6IChn
-PTApOiBydz1yYW5kcncsIGJzPShSKSA0MDk2Qi0yNTZLaUIsIChXKSANCj4gNDA5NkItMjU2S2lC
-LCAoVCkgNDA5NkItMjU2S2lCLCBpb2VuZ2luZT1tbWFwLCBpb2RlcHRoPTEgLi4uDQo+IGZpby0y
-Ljk5DQo+IFN0YXJ0aW5nIDE2IHByb2Nlc3Nlcw0KPiA0LXJhbmQtcnctM3h4OiBmYWlsZWQgdG8g
-Z2V0IGZpbGUgc2l6ZSBvZiAvZGV2L2RheDAuMA0KPiANCj4gNC1yYW5kLXJ3LTN4eDogZmFpbGVk
-IHRvIGdldCBmaWxlIHNpemUgb2YgL2Rldi9kYXgwLjANCj4gDQo+IDQtcmFuZC1ydy0zeHg6IGZh
-aWxlZCB0byBnZXQgZmlsZSBzaXplIG9mIC9kZXYvZGF4MC4wDQo+IA0KPiA0LXJhbmQtcnctM3h4
-OiBmYWlsZWQgdG8gZ2V0IGZpbGUgc2l6ZSBvZiAvZGV2L2RheDAuMA0KPiANCj4gNC1yYW5kLXJ3
-LTN4eDogZmFpbGVkIHRvIGdldCBmaWxlIHNpemUgb2YgL2Rldi9kYXgwLjANCj4gDQo+IDQtcmFu
-ZC1ydy0zeHg6IGZhaWxlZCB0byBnZXQgZmlsZSBzaXplIG9mIC9kZXYvZGF4MC4wDQo+IA0KPiA0
-LXJhbmQtcnctM3h4OiBmYWlsZWQgdG8gZ2V0IGZpbGUgc2l6ZSBvZiAvZGV2L2RheDAuMA0KDQpT
-aG91bGQgYWxyZWFkeSBiZSBmaXhlZCBhcyBvZiB5ZXN0ZXJkYXkgbW9ybmluZy4NCg0KLS0NCkpl
-bnMgQXhib2UNCg0K
+The following changes since commit 395feabb53806d5cff2e0b73b6c94048f05b5aae:
 
+  io_u: rate cleanup and spelling error (2017-12-06 12:30:20 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 1aa39b0ce447f228460e6d0af601fee88fd5f4b4:
+
+  rate: ensure IO issue restarts right after sleep (2017-12-07 09:06:04 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      rate: ensure IO issue restarts right after sleep
+
+ backend.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/backend.c b/backend.c
+index 69f03dc..5304ddc 100644
+--- a/backend.c
++++ b/backend.c
+@@ -894,10 +894,13 @@ static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
+ 
+ 	/*
+ 	 * If we're ignoring thinktime for the rate, add the number of bytes
+-	 * we would have done while sleeping.
++	 * we would have done while sleeping, minus one block to ensure we
++	 * start issuing immediately after the sleep.
+ 	 */
+-	if (total && td->rate_bps[ddir] && td->o.rate_ign_think)
++	if (total && td->rate_bps[ddir] && td->o.rate_ign_think) {
+ 		td->rate_io_issue_bytes[ddir] += (td->rate_bps[ddir] * 1000000) / total;
++		td->rate_io_issue_bytes[ddir] -= td->o.min_bs[ddir];
++	}
+ }
+ 
+ /*
