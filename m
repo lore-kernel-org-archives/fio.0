@@ -1,447 +1,404 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:50176 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751683AbdLBNAS (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 2 Dec 2017 08:00:18 -0500
+Received: from bombadil.infradead.org ([65.50.211.133]:52695 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755747AbdLONAM (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 15 Dec 2017 08:00:12 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1eL7Oz-0007VJ-6X
-        for fio@vger.kernel.org; Sat, 02 Dec 2017 13:00:17 +0000
+        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
+        id 1ePpb1-0004V9-7k
+        for fio@vger.kernel.org; Fri, 15 Dec 2017 13:00:11 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20171202130002.2E3F12C0137@kernel.dk>
-Date: Sat,  2 Dec 2017 06:00:02 -0700 (MST)
+Message-Id: <20171215130002.2E62E2C009F@kernel.dk>
+Date: Fri, 15 Dec 2017 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit e1c325d25dd977c28c9489c542a51ee05dfc620e:
+The following changes since commit c20c361255683ee138f0c239e48b315e25725f7e:
 
-  io_u: don't account io issue blocks for verify backlog (2017-11-30 21:48:12 -0700)
+  server: initialize first iolog header properly (2017-12-13 08:44:34 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to e0409d5ffe6127961ddc4c495ec32b72a65e11bf:
+for you to fetch changes up to db37d89074ed204c9c2bd010e72f63dcf4725715:
 
-  thread_options: drop fadvise_stream from thread_options (2017-12-01 14:54:49 -0700)
+  Allow configurable ETA intervals (2017-12-14 11:51:41 -0700)
 
 ----------------------------------------------------------------
-Jens Axboe (5):
-      Add basic memcpy test
-      fio_time: should include time.h
-      memcpy: use malloc
-      memcpy: free buffer in case of failure
-      memcpy: add hybrid
+Jeff Furlong (1):
+      Fix Windows local time
 
-Vincent Fu (1):
-      thread_options: drop fadvise_stream from thread_options
+Jens Axboe (4):
+      server: cleanup iolog pdu prep
+      server: convert more memset to on-stack initialization
+      client: respect --eta=never for networked connections
+      Allow configurable ETA intervals
 
- fio_time.h       |   1 +
- init.c           |  11 +++
- lib/memcpy.c     | 286 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
- lib/memcpy.h     |   6 ++
- server.h         |   2 +-
- thread_options.h |   3 -
- 6 files changed, 305 insertions(+), 4 deletions(-)
- create mode 100644 lib/memcpy.c
- create mode 100644 lib/memcpy.h
+Robert Elliott (1):
+      .gitignore: ignore tags files and additional output binaries
+
+ .gitignore         | 12 ++++++++++
+ HOWTO              | 11 ++++++++-
+ client.c           |  5 +++-
+ eta.c              | 13 +++++++----
+ fio.1              |  9 +++++++-
+ fio.h              |  3 +++
+ init.c             | 29 +++++++++++++++++++++++
+ os/windows/posix.c |  4 +++-
+ server.c           | 68 +++++++++++++++++++++++++-----------------------------
+ 9 files changed, 110 insertions(+), 44 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/fio_time.h b/fio_time.h
-index c7c3dbb..ee8087e 100644
---- a/fio_time.h
-+++ b/fio_time.h
-@@ -1,6 +1,7 @@
- #ifndef FIO_TIME_H
- #define FIO_TIME_H
+diff --git a/.gitignore b/.gitignore
+index 463b53a..0c8cb7c 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -8,7 +8,19 @@
+ /config.log
+ /cscope.out
+ /fio
++/gfio
++/t/axmap
++/t/fio-btrace2fio
++/t/fio-dedupe
++/t/fio-genzipf
++/t/fio-verify-state
++/t/gen-rand
++/t/ieee754
++/t/lfsr-test
++/t/stest
+ y.tab.*
+ lex.yy.c
+ *.un~
+ doc/output
++/tags
++/TAGS
+diff --git a/HOWTO b/HOWTO
+index 563ca93..78fa6cc 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -173,7 +173,16 @@ Command line options
+ .. option:: --eta=when
  
-+#include <time.h>
- #include "lib/types.h"
+ 	Specifies when real-time ETA estimate should be printed.  `when` may be
+-	`always`, `never` or `auto`.
++	`always`, `never` or `auto`. `auto` is the default, it prints ETA
++	when requested if the output is a TTY. `always` disregards the output
++	type, and prints ETA when requested. `never` never prints ETA.
++
++.. option:: --eta-interval=time
++
++	By default, fio requests client ETA status roughly every second. With
++	this option, the interval is configurable. Fio imposes a minimum
++	allowed time to avoid flooding the console, less than 250 msec is
++	not supported.
  
- struct thread_data;
+ .. option:: --eta-newline=time
+ 
+diff --git a/client.c b/client.c
+index 2b136a0..18247ef 100644
+--- a/client.c
++++ b/client.c
+@@ -1834,6 +1834,9 @@ static void request_client_etas(struct client_ops *ops)
+ 	struct client_eta *eta;
+ 	int skipped = 0;
+ 
++	if (eta_print == FIO_ETA_NEVER)
++		return;
++
+ 	dprint(FD_NET, "client: request eta (%d)\n", nr_clients);
+ 
+ 	eta = calloc(1, sizeof(*eta) + __THREAD_RUNSTR_SZ(REAL_MAX_JOBS));
+@@ -1997,7 +2000,7 @@ int fio_handle_clients(struct client_ops *ops)
+ 			int timeout;
+ 
+ 			fio_gettime(&ts, NULL);
+-			if (mtime_since(&eta_ts, &ts) >= 900) {
++			if (eta_time_within_slack(mtime_since(&eta_ts, &ts))) {
+ 				request_client_etas(ops);
+ 				memcpy(&eta_ts, &ts, sizeof(ts));
+ 
+diff --git a/eta.c b/eta.c
+index 1b0b000..8b77daf 100644
+--- a/eta.c
++++ b/eta.c
+@@ -348,6 +348,14 @@ static void calc_iops(int unified_rw_rep, unsigned long mtime,
+ }
+ 
+ /*
++ * Allow a little slack - if we're within 95% of the time, allow ETA.
++ */
++bool eta_time_within_slack(unsigned int time)
++{
++	return time > ((eta_interval_msec * 95) / 100);
++}
++
++/*
+  * Print status of the jobs we know about. This includes rate estimates,
+  * ETA, thread state, etc.
+  */
+@@ -489,10 +497,7 @@ bool calc_thread_status(struct jobs_eta *je, int force)
+ 
+ 	disp_time = mtime_since(&disp_prev_time, &now);
+ 
+-	/*
+-	 * Allow a little slack, the target is to print it every 1000 msecs
+-	 */
+-	if (!force && disp_time < 900)
++	if (!force && !eta_time_within_slack(disp_time))
+ 		return false;
+ 
+ 	calc_rate(unified_rw_rep, disp_time, io_bytes, disp_io_bytes, je->rate);
+diff --git a/fio.1 b/fio.1
+index 57ab665..70eeeb0 100644
+--- a/fio.1
++++ b/fio.1
+@@ -77,7 +77,14 @@ the I/O engine core to prevent writes due to unknown user space bug(s).
+ .TP
+ .BI \-\-eta \fR=\fPwhen
+ Specifies when real\-time ETA estimate should be printed. \fIwhen\fR may
+-be `always', `never' or `auto'.
++be `always', `never' or `auto'. `auto' is the default, it prints ETA when
++requested if the output is a TTY. `always' disregards the output type, and
++prints ETA when requested. `never' never prints ETA.
++.TP
++.BI \-\-eta\-interval \fR=\fPtime
++By default, fio requests client ETA status roughly every second. With this
++option, the interval is configurable. Fio imposes a minimum allowed time to
++avoid flooding the console, less than 250 msec is not supported.
+ .TP
+ .BI \-\-eta\-newline \fR=\fPtime
+ Force a new line for every \fItime\fR period passed. When the unit is omitted,
+diff --git a/fio.h b/fio.h
+index 8a65646..b3b95ef 100644
+--- a/fio.h
++++ b/fio.h
+@@ -505,6 +505,7 @@ extern uintptr_t page_mask, page_size;
+ extern int read_only;
+ extern int eta_print;
+ extern int eta_new_line;
++extern unsigned int eta_interval_msec;
+ extern unsigned long done_secs;
+ extern int fio_gtod_offload;
+ extern int fio_gtod_cpu;
+@@ -525,6 +526,8 @@ extern char *aux_path;
+ 
+ extern struct thread_data *threads;
+ 
++extern bool eta_time_within_slack(unsigned int time);
++
+ static inline void fio_ro_check(const struct thread_data *td, struct io_u *io_u)
+ {
+ 	assert(!(io_u->ddir == DDIR_WRITE && !td_write(td)));
 diff --git a/init.c b/init.c
-index 607f7e0..c34bd15 100644
+index b77b299..b9da713 100644
 --- a/init.c
 +++ b/init.c
-@@ -32,6 +32,7 @@
- 
- #include "crc/test.h"
- #include "lib/pow2.h"
-+#include "lib/memcpy.h"
- 
- const char fio_version_string[] = FIO_VERSION;
- 
-@@ -234,6 +235,11 @@ static struct option l_opts[FIO_NR_OPTIONS] = {
- 		.val		= 'G',
+@@ -51,6 +51,7 @@ static int nr_job_sections;
+ int exitall_on_terminate = 0;
+ int output_format = FIO_OUTPUT_NORMAL;
+ int eta_print = FIO_ETA_AUTO;
++unsigned int eta_interval_msec = 1000;
+ int eta_new_line = 0;
+ FILE *f_out = NULL;
+ FILE *f_err = NULL;
+@@ -154,6 +155,11 @@ static struct option l_opts[FIO_NR_OPTIONS] = {
+ 		.val		= 'e' | FIO_CLIENT_FLAG,
  	},
  	{
-+		.name		= (char *) "memcpytest",
-+		.has_arg	= optional_argument,
-+		.val		= 'M',
++		.name		= (char *) "eta-interval",
++		.has_arg	= required_argument,
++		.val		= 'O' | FIO_CLIENT_FLAG,
 +	},
 +	{
- 		.name		= (char *) "idle-prof",
+ 		.name		= (char *) "eta-newline",
  		.has_arg	= required_argument,
- 		.val		= 'I',
-@@ -2731,6 +2737,11 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 			do_exit++;
- 			exit_val = fio_crctest(optarg);
- 			break;
-+		case 'M':
-+			did_arg = true;
-+			do_exit++;
-+			exit_val = fio_memcpy_test(optarg);
+ 		.val		= 'E' | FIO_CLIENT_FLAG,
+@@ -2504,8 +2510,31 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
+ 				log_err("fio: failed parsing eta time %s\n", optarg);
+ 				exit_val = 1;
+ 				do_exit++;
++				break;
+ 			}
+ 			eta_new_line = t / 1000;
++			if (!eta_new_line) {
++				log_err("fio: eta new line time too short\n");
++				exit_val = 1;
++				do_exit++;
++			}
 +			break;
- 		case 'L': {
- 			long long val;
- 
-diff --git a/lib/memcpy.c b/lib/memcpy.c
-new file mode 100644
-index 0000000..00e65aa
---- /dev/null
-+++ b/lib/memcpy.c
-@@ -0,0 +1,286 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
++			}
++		case 'O': {
++			long long t = 0;
 +
-+#include "memcpy.h"
-+#include "rand.h"
-+#include "../fio_time.h"
-+#include "../gettime.h"
-+#include "../fio.h"
-+
-+#define BUF_SIZE	32 * 1024 * 1024ULL
-+
-+#define NR_ITERS	64
-+
-+struct memcpy_test {
-+	const char *name;
-+	void *src;
-+	void *dst;
-+	size_t size;
-+};
-+
-+static struct memcpy_test tests[] = {
-+	{
-+		.name		= "8 bytes",
-+		.size		= 8,
-+	},
-+	{
-+		.name		= "16 bytes",
-+		.size		= 16,
-+	},
-+	{
-+		.name		= "96 bytes",
-+		.size		= 96,
-+	},
-+	{
-+		.name		= "128 bytes",
-+		.size		= 128,
-+	},
-+	{
-+		.name		= "256 bytes",
-+		.size		= 256,
-+	},
-+	{
-+		.name		= "512 bytes",
-+		.size		= 512,
-+	},
-+	{
-+		.name		= "2048 bytes",
-+		.size		= 2048,
-+	},
-+	{
-+		.name		= "8192 bytes",
-+		.size		= 8192,
-+	},
-+	{
-+		.name		= "131072 bytes",
-+		.size		= 131072,
-+	},
-+	{
-+		.name		= "262144 bytes",
-+		.size		= 262144,
-+	},
-+	{
-+		.name		= "524288 bytes",
-+		.size		= 524288,
-+	},
-+	{
-+		.name		= NULL,
-+	},
-+};
-+
-+struct memcpy_type {
-+	const char *name;
-+	unsigned int mask;
-+	void (*fn)(struct memcpy_test *);
-+};
-+
-+enum {
-+	T_MEMCPY	= 1U << 0,
-+	T_MEMMOVE	= 1U << 1,
-+	T_SIMPLE	= 1U << 2,
-+	T_HYBRID	= 1U << 3,
-+};
-+
-+#define do_test(test, fn)	do {					\
-+	size_t left, this;						\
-+	void *src, *dst;						\
-+	int i;								\
-+									\
-+	for (i = 0; i < NR_ITERS; i++) {				\
-+		left = BUF_SIZE;					\
-+		src = test->src;					\
-+		dst = test->dst;					\
-+		while (left) {						\
-+			this = test->size;				\
-+			if (this > left)				\
-+				this = left;				\
-+			(fn)(dst, src, this);				\
-+			left -= this;					\
-+			src += this;					\
-+			dst += this;					\
-+		}							\
-+	}								\
-+} while (0)
-+
-+static void t_memcpy(struct memcpy_test *test)
-+{
-+	do_test(test, memcpy);
-+}
-+
-+static void t_memmove(struct memcpy_test *test)
-+{
-+	do_test(test, memmove);
-+}
-+
-+static void simple_memcpy(void *dst, void const *src, size_t len)
-+{
-+ 	char *d = dst;
-+	const char *s = src;
-+
-+	while (len--)
-+		*d++ = *s++;
-+}
-+
-+static void t_simple(struct memcpy_test *test)
-+{
-+	do_test(test, simple_memcpy);
-+}
-+
-+static void t_hybrid(struct memcpy_test *test)
-+{
-+	if (test->size >= 64)
-+		do_test(test, simple_memcpy);
-+	else
-+		do_test(test, memcpy);
-+}
-+
-+static struct memcpy_type t[] = {
-+	{
-+		.name = "memcpy",
-+		.mask = T_MEMCPY,
-+		.fn = t_memcpy,
-+	},
-+	{
-+		.name = "memmove",
-+		.mask = T_MEMMOVE,
-+		.fn = t_memmove,
-+	},
-+	{
-+		.name = "simple",
-+		.mask = T_SIMPLE,
-+		.fn = t_simple,
-+	},
-+	{
-+		.name = "hybrid",
-+		.mask = T_HYBRID,
-+		.fn = t_hybrid,
-+	},
-+	{
-+		.name = NULL,
-+	},
-+};
-+
-+static unsigned int get_test_mask(const char *type)
-+{
-+	char *ostr, *str = strdup(type);
-+	unsigned int mask;
-+	char *name;
-+	int i;
-+
-+	ostr = str;
-+	mask = 0;
-+	while ((name = strsep(&str, ",")) != NULL) {
-+		for (i = 0; t[i].name; i++) {
-+			if (!strcmp(t[i].name, name)) {
-+				mask |= t[i].mask;
++			if (check_str_time(optarg, &t, 1)) {
++				log_err("fio: failed parsing eta interval %s\n", optarg);
++				exit_val = 1;
++				do_exit++;
 +				break;
 +			}
-+		}
-+	}
-+
-+	free(ostr);
-+	return mask;
-+}
-+
-+static int list_types(void)
-+{
-+	int i;
-+
-+	for (i = 0; t[i].name; i++)
-+		printf("%s\n", t[i].name);
-+
-+	return 1;
-+}
-+
-+static int setup_tests(void)
-+{
-+	struct memcpy_test *test;
-+	struct frand_state state;
-+	void *src, *dst;
-+	int i;
-+
-+	src = malloc(BUF_SIZE);
-+	dst = malloc(BUF_SIZE);
-+	if (!src || !dst) {
-+		free(src);
-+		free(dst);
-+		return 1;
-+	}
-+
-+	init_rand_seed(&state, 0x8989, 0);
-+	fill_random_buf(&state, src, BUF_SIZE);
-+
-+	for (i = 0; tests[i].name; i++) {
-+		test = &tests[i];
-+		test->src = src;
-+		test->dst = dst;
-+	}
-+
-+	return 0;
-+}
-+
-+static void free_tests(void)
-+{
-+	free(tests[0].src);
-+	free(tests[0].dst);
-+}
-+
-+int fio_memcpy_test(const char *type)
-+{
-+	unsigned int test_mask = 0;
-+	int j, i;
-+
-+	if (!type)
-+		test_mask = ~0U;
-+	else if (!strcmp(type, "help") || !strcmp(type, "list"))
-+		return list_types();
-+	else
-+		test_mask = get_test_mask(type);
-+
-+	if (!test_mask) {
-+		fprintf(stderr, "fio: unknown hash `%s`. Available:\n", type);
-+		return list_types();
-+	}
-+
-+	if (setup_tests()) {
-+		fprintf(stderr, "setting up mem regions failed\n");
-+		return 1;
-+	}
-+
-+	for (i = 0; t[i].name; i++) {
-+		struct timespec ts;
-+		double mb_sec;
-+		uint64_t usec;
-+
-+		if (!(t[i].mask & test_mask))
-+			continue;
-+
-+		/*
-+		 * For first run, make sure CPUs are spun up and that
-+		 * we've touched the data.
-+		 */
-+		usec_spin(100000);
-+		t[i].fn(&tests[0]);
-+
-+		printf("%s\n", t[i].name);
-+
-+		for (j = 0; tests[j].name; j++) {
-+			fio_gettime(&ts, NULL);
-+			t[i].fn(&tests[j]);
-+			usec = utime_since_now(&ts);
-+
-+			if (usec) {
-+				unsigned long long mb = NR_ITERS * BUF_SIZE;
-+
-+				mb_sec = (double) mb / (double) usec;
-+				mb_sec /= (1.024 * 1.024);
-+				printf("\t%s:\t%8.2f MiB/sec\n", tests[j].name, mb_sec);
-+			} else
-+				printf("\t%s:inf MiB/sec\n", tests[j].name);
-+		}
-+	}
-+
-+	free_tests();
-+	return 0;
-+}
-diff --git a/lib/memcpy.h b/lib/memcpy.h
-new file mode 100644
-index 0000000..f61a4a0
---- /dev/null
-+++ b/lib/memcpy.h
-@@ -0,0 +1,6 @@
-+#ifndef FIO_MEMCPY_H
-+#define FIO_MEMCPY_H
-+
-+int fio_memcpy_test(const char *type);
-+
++			eta_interval_msec = t / 1000;
++			if (eta_interval_msec < DISK_UTIL_MSEC) {
++				log_err("fio: eta interval time too short (%umsec min)\n", DISK_UTIL_MSEC);
++				exit_val = 1;
++				do_exit++;
++			}
+ 			break;
+ 			}
+ 		case 'd':
+diff --git a/os/windows/posix.c b/os/windows/posix.c
+index 00f0335..17e18a1 100755
+--- a/os/windows/posix.c
++++ b/os/windows/posix.c
+@@ -228,12 +228,14 @@ void Time_tToSystemTime(time_t dosTime, SYSTEMTIME *systemTime)
+ {
+     FILETIME utcFT;
+     LONGLONG jan1970;
++	SYSTEMTIME tempSystemTime;
+ 
+     jan1970 = Int32x32To64(dosTime, 10000000) + 116444736000000000;
+     utcFT.dwLowDateTime = (DWORD)jan1970;
+     utcFT.dwHighDateTime = jan1970 >> 32;
+ 
+-    FileTimeToSystemTime((FILETIME*)&utcFT, systemTime);
++    FileTimeToSystemTime((FILETIME*)&utcFT, &tempSystemTime);
++	SystemTimeToTzSpecificLocalTime(NULL, &tempSystemTime, systemTime);
+ }
+ 
+ char* ctime_r(const time_t *t, char *buf)
+diff --git a/server.c b/server.c
+index 6225614..54d703d 100644
+--- a/server.c
++++ b/server.c
+@@ -844,25 +844,24 @@ static int handle_jobline_cmd(struct fio_net_cmd *cmd)
+ static int handle_probe_cmd(struct fio_net_cmd *cmd)
+ {
+ 	struct cmd_client_probe_pdu *pdu = (struct cmd_client_probe_pdu *) cmd->payload;
+-	struct cmd_probe_reply_pdu probe;
+ 	uint64_t tag = cmd->tag;
++	struct cmd_probe_reply_pdu probe = {
++#ifdef CONFIG_BIG_ENDIAN
++		.bigendian	= 1,
 +#endif
-diff --git a/server.h b/server.h
-index dbd5c27..438a6c3 100644
---- a/server.h
-+++ b/server.h
-@@ -49,7 +49,7 @@ struct fio_net_cmd_reply {
- };
++		.os		= FIO_OS,
++		.arch		= FIO_ARCH,
++		.bpp		= sizeof(void *),
++		.cpus		= __cpu_to_le32(cpus_online()),
++	};
  
- enum {
--	FIO_SERVER_VER			= 67,
-+	FIO_SERVER_VER			= 68,
+ 	dprint(FD_NET, "server: sending probe reply\n");
  
- 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
- 	FIO_SERVER_MAX_CMD_MB		= 2048,
-diff --git a/thread_options.h b/thread_options.h
-index a9c3bee..793df8a 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -218,7 +218,6 @@ struct thread_options {
- 	unsigned int group_reporting;
- 	unsigned int stats;
- 	unsigned int fadvise_hint;
--	unsigned int fadvise_stream;
- 	enum fio_fallocate_mode fallocate_mode;
- 	unsigned int zero_buffers;
- 	unsigned int refill_buffers;
-@@ -494,7 +493,6 @@ struct thread_options_pack {
- 	uint32_t group_reporting;
- 	uint32_t stats;
- 	uint32_t fadvise_hint;
--	uint32_t fadvise_stream;
- 	uint32_t fallocate_mode;
- 	uint32_t zero_buffers;
- 	uint32_t refill_buffers;
-@@ -520,7 +518,6 @@ struct thread_options_pack {
- 	uint64_t trim_backlog;
- 	uint32_t clat_percentiles;
- 	uint32_t percentile_precision;
--	uint32_t pad;
- 	fio_fp64_t percentile_list[FIO_IO_U_LIST_MAX_LEN];
+ 	strcpy(me, (char *) pdu->server);
  
- 	uint8_t read_iolog_file[FIO_TOP_STR_MAX];
+-	memset(&probe, 0, sizeof(probe));
+ 	gethostname((char *) probe.hostname, sizeof(probe.hostname));
+-#ifdef CONFIG_BIG_ENDIAN
+-	probe.bigendian = 1;
+-#endif
+ 	strncpy((char *) probe.fio_version, fio_version_string, sizeof(probe.fio_version) - 1);
+ 
+-	probe.os	= FIO_OS;
+-	probe.arch	= FIO_ARCH;
+-	probe.bpp	= sizeof(void *);
+-	probe.cpus	= __cpu_to_le32(cpus_online());
+-
+ 	/*
+ 	 * If the client supports compression and we do too, then enable it
+ 	 */
+@@ -1826,13 +1825,12 @@ static int __fio_append_iolog_gz(struct sk_entry *first, struct io_log *log,
+ 
+ static int fio_append_iolog_gz(struct sk_entry *first, struct io_log *log)
+ {
++	z_stream stream = {
++		.zalloc	= Z_NULL,
++		.zfree	= Z_NULL,
++		.opaque	= Z_NULL,
++	};
+ 	int ret = 0;
+-	z_stream stream;
+-
+-	memset(&stream, 0, sizeof(stream));
+-	stream.zalloc = Z_NULL;
+-	stream.zfree = Z_NULL;
+-	stream.opaque = Z_NULL;
+ 
+ 	if (deflateInit(&stream, Z_DEFAULT_COMPRESSION) != Z_OK)
+ 		return 1;
+@@ -1928,17 +1926,16 @@ static int fio_append_text_log(struct sk_entry *first, struct io_log *log)
+ 
+ int fio_send_iolog(struct thread_data *td, struct io_log *log, const char *name)
+ {
+-	struct cmd_iolog_pdu pdu;
++	struct cmd_iolog_pdu pdu = {
++		.nr_samples		= cpu_to_le64(iolog_nr_samples(log)),
++		.thread_number		= cpu_to_le32(td->thread_number),
++		.log_type		= cpu_to_le32(log->log_type),
++		.log_hist_coarseness	= cpu_to_le32(log->hist_coarseness),
++	};
+ 	struct sk_entry *first;
+ 	struct flist_head *entry;
+ 	int ret = 0;
+ 
+-	memset(&pdu, 0, sizeof(pdu));
+-	pdu.nr_samples = cpu_to_le64(iolog_nr_samples(log));
+-	pdu.thread_number = cpu_to_le32(td->thread_number);
+-	pdu.log_type = cpu_to_le32(log->log_type);
+-	pdu.log_hist_coarseness = cpu_to_le32(log->hist_coarseness);
+-
+ 	if (!flist_empty(&log->chunk_list))
+ 		pdu.compressed = __cpu_to_le32(STORE_COMPRESSED);
+ 	else if (use_zlib)
+@@ -1999,11 +1996,11 @@ int fio_send_iolog(struct thread_data *td, struct io_log *log, const char *name)
+ 
+ void fio_server_send_add_job(struct thread_data *td)
+ {
+-	struct cmd_add_job_pdu pdu;
++	struct cmd_add_job_pdu pdu = {
++		.thread_number = cpu_to_le32(td->thread_number),
++		.groupid = cpu_to_le32(td->groupid),
++	};
+ 
+-	memset(&pdu, 0, sizeof(pdu));
+-	pdu.thread_number = cpu_to_le32(td->thread_number);
+-	pdu.groupid = cpu_to_le32(td->groupid);
+ 	convert_thread_options_to_net(&pdu.top, &td->o);
+ 
+ 	fio_net_queue_cmd(FIO_NET_CMD_ADD_JOB, &pdu, sizeof(pdu), NULL,
+@@ -2241,11 +2238,10 @@ int fio_server_parse_host(const char *host, int ipv6, struct in_addr *inp,
+ 		ret = inet_pton(AF_INET, host, inp);
+ 
+ 	if (ret != 1) {
+-		struct addrinfo hints, *res;
+-
+-		memset(&hints, 0, sizeof(hints));
+-		hints.ai_family = ipv6 ? AF_INET6 : AF_INET;
+-		hints.ai_socktype = SOCK_STREAM;
++		struct addrinfo *res, hints = {
++			.ai_family = ipv6 ? AF_INET6 : AF_INET,
++			.ai_socktype = SOCK_STREAM,
++		};
+ 
+ 		ret = getaddrinfo(host, NULL, &hints, &res);
+ 		if (ret) {
+@@ -2404,11 +2400,11 @@ static void sig_int(int sig)
+ 
+ static void set_sig_handlers(void)
+ {
+-	struct sigaction act;
++	struct sigaction act = {
++		.sa_handler = sig_int,
++		.sa_flags = SA_RESTART,
++	};
+ 
+-	memset(&act, 0, sizeof(act));
+-	act.sa_handler = sig_int;
+-	act.sa_flags = SA_RESTART;
+ 	sigaction(SIGINT, &act, NULL);
+ }
+ 
