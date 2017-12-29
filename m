@@ -1,59 +1,76 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from g2t1383g.austin.hpe.com ([15.233.16.89]:22753 "EHLO
-        g2t1383g.austin.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752197AbdLDUxU (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 4 Dec 2017 15:53:20 -0500
-Received: from g9t5008.houston.hpe.com (g9t5008.houston.hpe.com [15.241.48.72])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by g2t1383g.austin.hpe.com (Postfix) with ESMTPS id D5A18210E
-        for <fio@vger.kernel.org>; Mon,  4 Dec 2017 20:53:19 +0000 (UTC)
-Received: from g4t3433.houston.hpecorp.net (g4t3433.houston.hpecorp.net [16.208.49.245])
-        by g9t5008.houston.hpe.com (Postfix) with ESMTP id 1B92575
-        for <fio@vger.kernel.org>; Mon,  4 Dec 2017 20:53:19 +0000 (UTC)
-From: Robert Elliott <elliott@hpe.com>
-Subject: [PATCH] .gitignore: ignore tags files and additional output binaries
-Date: Mon,  4 Dec 2017 14:53:16 -0600
-Message-Id: <20171204205316.23312-1-elliott@hpe.com>
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Robert Elliott <elliott@hpe.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] debug: make debug=io readable with multiple threads
+References: <20171221011219.780-1-elliott@hpe.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <5c009455-61dc-a948-e457-3d7a7952a66b@kernel.dk>
+Date: Fri, 29 Dec 2017 08:15:25 -0700
+MIME-Version: 1.0
+In-Reply-To: <20171221011219.780-1-elliott@hpe.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Robert Elliott <elliott@hpe.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-From: Robert Elliott <elliott@hpe.com>
+On 12/20/17 6:12 PM, Robert Elliott wrote:
+> From: Robert Elliott <elliott@hpe.com>
+> 
+> When multiple threads are active, debug=io prints are unreadable as the output
+> is interleaved. Multiple log_info_buf() calls are used to construct each line,
+> but there is no mutual exclusion covering multiple calls.
+> 
+> Change the dprint call tree to construct the entire line before passing it to
+> log_info_buf(), rather than make several calls.
+> 
+> Other nits:
+> * print the thread ID rather than the process ID
+> * change offset and length from decimal to hex
+> * separate offset, length, ddir, and file with , rather than / since the
+>   filename on the same line likely has / of its own
+> * change "fill_io_u" to "fill" to match the others
+> * change "io complete" to "complete" to match the others
+> * change "->prep()=%d" to "prep: io_u %p: ret=%d" to resemble the others
+> * change offset/buflen in an error print to better resemble the normal prints
+> * add "file=" prefix for the filename
+> * check the calloc() return values inside the valist_to_buf functions
+> 
+> Old:
+> fill_io_u: io_u 0x7feeac010b80: off=720896/len=65536/ddir=1
+> 
+> io       50692io       50692//dev/dax0.0io       50692fill_io_u: io_u 0x7fee98010b80: off=196608/len=65536/ddir=1io       50692io       50692
+> io       50692->prep(0x7fef10010b80)=0
+> //dev/dax0.0//dev/dax1.0io       50692io       50692io       50692io       50692->prep(0x7feeec010b80)=0
+> io       50692prep: io_u 0x7feec4010b80: off=1966080/len=65536/ddir=1io       50692io complete: io_u 0x7feedc010b80: off=393216/len=65536/ddir=1io
+> 50692io       50692prep: io_u 0x7feef4010b80: off=720896/len=65536/ddir=1io       50692io       50692
+> io       50692io       50692prep: io_u 0x7feef0010b80: off=851968/len=65536/ddir=1//dev/dax0.0io       50692//dev/dax0.0
+> 
+> //dev/dax0.0
+> io       50692io       50692//dev/dax0.0//dev/dax0.0io       50692
+> 
+> New:
+> io       71400 queue: io_u 0x7fd0f0010b80: off=0x2f0000,len=0x10000,ddir=1,file=/dev/dax0.0
+> io       71395 fill: io_u 0x7fd0fc010b80: off=0x80000,len=0x10000,ddir=1,file=/dev/dax0.0
+> io       71395 prep: io_u 0x7fd0fc010b80: off=0x80000,len=0x10000,ddir=1,file=/dev/dax0.0
+> io       71395 prep: io_u 0x7fd0fc010b80: ret=0
+> io       71395 queue: io_u 0x7fd0fc010b80: off=0x80000,len=0x10000,ddir=1,file=/dev/dax0.0
+> io       71430 complete: io_u 0x7fd05c010b80: off=0x180000,len=0x10000,ddir=1,file=/dev/dax1.0
+> io       71400 complete: io_u 0x7fd0f0010b80: off=0x2f0000,len=0x10000,ddir=1,file=/dev/dax0.0
+> io       71430 fill: io_u 0x7fd05c010b80: off=0x190000,len=0x10000,ddir=1,file=/dev/dax1.0
+> io       71400 fill: io_u 0x7fd0f0010b80: off=0x300000,len=0x10000,ddir=1,file=/dev/dax0.0
+> io       71400 prep: io_u 0x7fd0f0010b80: off=0x300000,len=0x10000,ddir=1,file=/dev/dax0.0
+> io       71400 prep: io_u 0x7fd0f0010b80: ret=0
+> io       71400 queue: io_u 0x7fd0f0010b80: off=0x300000,len=0x10000,ddir=1,file=/dev/dax0.0
+> io       71430 prep: io_u 0x7fd05c010b80: off=0x190000,len=0x10000,ddir=1,file=/dev/dax1.0
+> io       71395 complete: io_u 0x7fd0fc010b80: off=0x80000,len=0x10000,ddir=1,file=/dev/dax0.0
+> io       71430 prep: io_u 0x7fd05c010b80: ret=0
+> io       71430 queue: io_u 0x7fd05c010b80: off=0x190000,len=0x10000,ddir=1,file=/dev/dax1.0
+> io       71421 complete: io_u 0x7fd090010b80: off=0x320000,len=0x10000,ddir=1,file=/dev/dax0.0
+> io       71419 complete: io_u 0x7fd098010b80: off=0x320000,len=0x10000,ddir=1,file=/dev/dax0.0
+> io       71404 complete: io_u 0x7fd0d0010b80: off=0x0,len=0x10000,ddir=1,file=/dev/dax0.0
 
-Ignore tags files used by emacs and ctags/vim.
+Looks good, thanks for doing this! Applied.
 
-Ignore the additional output binaries alongside fio, such as gfio
-and all the programs in t/.
----
- .gitignore | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
-diff --git a/.gitignore b/.gitignore
-index 463b53a7..0c8cb7c3 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -8,7 +8,19 @@
- /config.log
- /cscope.out
- /fio
-+/gfio
-+/t/axmap
-+/t/fio-btrace2fio
-+/t/fio-dedupe
-+/t/fio-genzipf
-+/t/fio-verify-state
-+/t/gen-rand
-+/t/ieee754
-+/t/lfsr-test
-+/t/stest
- y.tab.*
- lex.yy.c
- *.un~
- doc/output
-+/tags
-+/TAGS
 -- 
-2.14.3
+Jens Axboe
+
 
