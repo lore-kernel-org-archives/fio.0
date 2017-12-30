@@ -1,211 +1,253 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:47600 "EHLO
+Received: from merlin.infradead.org ([205.233.59.134]:60634 "EHLO
         merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934522AbdKQNAM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 17 Nov 2017 08:00:12 -0500
+        with ESMTP id S1750759AbdL3NAM (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 30 Dec 2017 08:00:12 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1eFgFd-0000AJ-Om
-        for fio@vger.kernel.org; Fri, 17 Nov 2017 13:00:09 +0000
+        by merlin.infradead.org with esmtpsa (Exim 4.89 #1 (Red Hat Linux))
+        id 1eVGkF-0001ZN-8L
+        for fio@vger.kernel.org; Sat, 30 Dec 2017 13:00:11 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20171117130002.EC2F32C009D@kernel.dk>
-Date: Fri, 17 Nov 2017 06:00:02 -0700 (MST)
+Message-Id: <20171230130001.C7D3F2C009D@kernel.dk>
+Date: Sat, 30 Dec 2017 06:00:01 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 522c29f69a31542170d94611e05e1780e4c08dbd:
+The following changes since commit e38feac48ffb7a45c847cabd31ab5eab7fe05a4e:
 
-  man page: fix bad case for 'pre-reading file' state (2017-11-15 09:53:14 -0700)
+  Merge branch 'master' of https://github.com/yashi/fio (2017-12-28 08:35:11 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to adf075fa89a7f3bbb45237f1440de0583833bd80:
+for you to fetch changes up to df4bf1178ed773986129da6038961388af926971:
 
-  ioengines: remove pointless list initializations (2017-11-16 20:03:15 -0700)
+  log: fix bad < 0 check for unsigned (2017-12-29 08:45:22 -0700)
 
 ----------------------------------------------------------------
-Jens Axboe (2):
-      os: make fio_cpu_isset() return a bool
-      ioengines: remove pointless list initializations
+Jens Axboe (1):
+      log: fix bad < 0 check for unsigned
 
-Robert Elliott (2):
-      .gitignore: ignore .exe files (for Windows)
-      os-windows: fix cpumask operations
+Robert Elliott (1):
+      debug: make debug=io readable with multiple threads
 
- .gitignore        |  1 +
- ioengines.c       |  4 +---
- os/os-dragonfly.h |  8 +++-----
- os/os-freebsd.h   |  2 +-
- os/os-linux.h     |  2 +-
- os/os-solaris.h   | 12 +++++++-----
- os/os-windows.h   |  7 ++++---
- 7 files changed, 18 insertions(+), 18 deletions(-)
+Tomohiro Kusumi (1):
+      lib/memcpy: fix warning on FreeBSD
+
+ debug.c     | 11 +----------
+ fio_time.h  |  1 +
+ io_u.c      |  9 ++++-----
+ io_u.h      | 15 ++++++++++-----
+ ioengines.c |  3 ++-
+ log.c       | 51 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ log.h       |  1 +
+ 7 files changed, 70 insertions(+), 21 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/.gitignore b/.gitignore
-index a07a324..463b53a 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -1,5 +1,6 @@
- *.d
- *.o
-+*.exe
- /.depend
- /FIO-VERSION-FILE
- /config-host.h
+diff --git a/debug.c b/debug.c
+index 013cd53..2bee507 100644
+--- a/debug.c
++++ b/debug.c
+@@ -7,20 +7,11 @@
+ void __dprint(int type, const char *str, ...)
+ {
+ 	va_list args;
+-	pid_t pid;
+ 
+ 	assert(type < FD_DEBUG_MAX);
+ 
+-	pid = getpid();
+-	if (fio_debug_jobp && *fio_debug_jobp != -1U
+-	    && pid != *fio_debug_jobp)
+-		return;
+-
+-	log_info("%-8s ", debug_levels[type].name);
+-	log_info("%-5u ", (int) pid);
+-
+ 	va_start(args, str);
+-	log_valist(str, args);
++	log_prevalist(type, str, args);
+ 	va_end(args);
+ }
+ #endif
+diff --git a/fio_time.h b/fio_time.h
+index ee8087e..8b4bb25 100644
+--- a/fio_time.h
++++ b/fio_time.h
+@@ -2,6 +2,7 @@
+ #define FIO_TIME_H
+ 
+ #include <time.h>
++#include <sys/time.h>
+ #include "lib/types.h"
+ 
+ struct thread_data;
+diff --git a/io_u.c b/io_u.c
+index 42d98eb..852b98e 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -971,9 +971,8 @@ static int fill_io_u(struct thread_data *td, struct io_u *io_u)
+ 	}
+ 
+ 	if (io_u->offset + io_u->buflen > io_u->file->real_file_size) {
+-		dprint(FD_IO, "io_u %p, offset + buflen exceeds file size\n",
+-			io_u);
+-		dprint(FD_IO, "  offset=%llu/buflen=%lu > %llu\n",
++		dprint(FD_IO, "io_u %p, off=0x%llx + len=0x%lx exceeds file size=0x%llx\n",
++			io_u,
+ 			(unsigned long long) io_u->offset, io_u->buflen,
+ 			(unsigned long long) io_u->file->real_file_size);
+ 		return 1;
+@@ -986,7 +985,7 @@ static int fill_io_u(struct thread_data *td, struct io_u *io_u)
+ 		mark_random_map(td, io_u);
+ 
+ out:
+-	dprint_io_u(io_u, "fill_io_u");
++	dprint_io_u(io_u, "fill");
+ 	td->zone_bytes += io_u->buflen;
+ 	return 0;
+ }
+@@ -1939,7 +1938,7 @@ static void io_completed(struct thread_data *td, struct io_u **io_u_ptr,
+ 	enum fio_ddir ddir = io_u->ddir;
+ 	struct fio_file *f = io_u->file;
+ 
+-	dprint_io_u(io_u, "io complete");
++	dprint_io_u(io_u, "complete");
+ 
+ 	assert(io_u->flags & IO_U_F_FLIGHT);
+ 	io_u_clear(td, io_u, IO_U_F_FLIGHT | IO_U_F_BUSY_OK);
+diff --git a/io_u.h b/io_u.h
+index b228e2e..da25efb 100644
+--- a/io_u.h
++++ b/io_u.h
+@@ -152,12 +152,17 @@ static inline void dprint_io_u(struct io_u *io_u, const char *p)
+ {
+ 	struct fio_file *f = io_u->file;
+ 
+-	dprint(FD_IO, "%s: io_u %p: off=%llu/len=%lu/ddir=%d", p, io_u,
+-					(unsigned long long) io_u->offset,
+-					io_u->buflen, io_u->ddir);
+ 	if (f)
+-		dprint(FD_IO, "/%s", f->file_name);
+-	dprint(FD_IO, "\n");
++		dprint(FD_IO, "%s: io_u %p: off=0x%llx,len=0x%lx,ddir=%d,file=%s\n",
++				p, io_u,
++				(unsigned long long) io_u->offset,
++				io_u->buflen, io_u->ddir,
++				f->file_name);
++	else
++		dprint(FD_IO, "%s: io_u %p: off=0x%llx,len=0x%lx,ddir=%d\n",
++				p, io_u,
++				(unsigned long long) io_u->offset,
++				io_u->buflen, io_u->ddir);
+ }
+ #else
+ #define dprint_io_u(io_u, p)
 diff --git a/ioengines.c b/ioengines.c
-index 1bfc06f..02eaee8 100644
+index cec0c76..fb475e9 100644
 --- a/ioengines.c
 +++ b/ioengines.c
-@@ -52,14 +52,12 @@ static bool check_engine_ops(struct ioengine_ops *ops)
- void unregister_ioengine(struct ioengine_ops *ops)
- {
- 	dprint(FD_IO, "ioengine %s unregistered\n", ops->name);
--	flist_del(&ops->list);
--	INIT_FLIST_HEAD(&ops->list);
-+	flist_del_init(&ops->list);
+@@ -224,7 +224,8 @@ int td_io_prep(struct thread_data *td, struct io_u *io_u)
+ 	if (td->io_ops->prep) {
+ 		int ret = td->io_ops->prep(td, io_u);
+ 
+-		dprint(FD_IO, "->prep(%p)=%d\n", io_u, ret);
++		dprint(FD_IO, "prep: io_u %p: ret=%d\n", io_u, ret);
++
+ 		if (ret)
+ 			unlock_file(td, io_u->file);
+ 		return ret;
+diff --git a/log.c b/log.c
+index 95351d5..a327f6a 100644
+--- a/log.c
++++ b/log.c
+@@ -36,6 +36,8 @@ static size_t valist_to_buf(char **buffer, const char *fmt, va_list src_args)
+ 
+ 	do {
+ 		*buffer = calloc(1, cur);
++		if (!*buffer)
++			return 0;
+ 
+ 		va_copy(args, src_args);
+ 		len = vsnprintf(*buffer, cur, fmt, args);
+@@ -51,6 +53,33 @@ static size_t valist_to_buf(char **buffer, const char *fmt, va_list src_args)
+ 	return len;
  }
  
- void register_ioengine(struct ioengine_ops *ops)
++/* allocate buffer, fill with prefix string followed by vararg string */
++static size_t prevalist_to_buf(char **buffer, const char *pre, int prelen,
++		const char *fmt, va_list src_args)
++{
++	size_t len, cur = LOG_START_SZ;
++	va_list args;
++
++	do {
++		*buffer = calloc(1, cur);
++		if (!*buffer)
++			return 0;
++
++		va_copy(args, src_args);
++		memcpy(*buffer, pre, prelen);
++		len = prelen + vsnprintf(*buffer + prelen, cur - prelen, fmt, args);
++		va_end(args);
++
++		if (len < cur)
++			break;
++
++		cur = len + 1;
++		free(*buffer);
++	} while (1);
++
++	return len;
++}
++
+ size_t log_valist(const char *fmt, va_list args)
  {
- 	dprint(FD_IO, "ioengine %s registered\n", ops->name);
--	INIT_FLIST_HEAD(&ops->list);
- 	flist_add_tail(&ops->list, &engine_list);
+ 	char *buffer;
+@@ -63,6 +92,28 @@ size_t log_valist(const char *fmt, va_list args)
+ 	return len;
  }
  
-diff --git a/os/os-dragonfly.h b/os/os-dragonfly.h
-index 423b236..713046f 100644
---- a/os/os-dragonfly.h
-+++ b/os/os-dragonfly.h
-@@ -15,6 +15,7 @@
- #include <sys/resource.h>
- 
- #include "../file.h"
-+#include "../lib/types.h"
- 
- #define FIO_HAVE_ODIRECT
- #define FIO_USE_GENERIC_RAND
-@@ -107,12 +108,9 @@ static inline void fio_cpu_set(os_cpu_mask_t *mask, int cpu)
- 	CPUMASK_ORBIT(*mask, cpu);
- }
- 
--static inline int fio_cpu_isset(os_cpu_mask_t *mask, int cpu)
-+static inline bool fio_cpu_isset(os_cpu_mask_t *mask, int cpu)
++/* add prefix for the specified type in front of the valist */
++void log_prevalist(int type, const char *fmt, va_list args)
++{
++	char pre[32];
++	char *buffer;
++	size_t len;
++	int prelen;
++	pid_t pid;
++
++	pid = gettid();
++	if (fio_debug_jobp && *fio_debug_jobp != -1U
++	    && pid != *fio_debug_jobp)
++		return;
++
++	prelen = snprintf(pre, sizeof pre, "%-8s %-5u ", debug_levels[type].name, (int) pid);
++	if (prelen > 0) {
++		len = prevalist_to_buf(&buffer, pre, prelen, fmt, args);
++		len = log_info_buf(buffer, len);
++		free(buffer);
++	}
++}
++
+ size_t log_info(const char *format, ...)
  {
--	if (CPUMASK_TESTBIT(*mask, cpu))
--		return 1;
--
--	return 0;
-+	return CPUMASK_TESTBIT(*mask, cpu) != 0;
- }
+ 	va_list args;
+diff --git a/log.h b/log.h
+index 66546c4..8163f97 100644
+--- a/log.h
++++ b/log.h
+@@ -13,6 +13,7 @@ extern size_t log_err(const char *format, ...) __attribute__ ((__format__ (__pri
+ extern size_t log_info(const char *format, ...) __attribute__ ((__format__ (__printf__, 1, 2)));
+ extern size_t __log_buf(struct buf_output *, const char *format, ...) __attribute__ ((__format__ (__printf__, 2, 3)));
+ extern size_t log_valist(const char *str, va_list);
++extern void log_prevalist(int type, const char *str, va_list);
+ extern size_t log_info_buf(const char *buf, size_t len);
+ extern int log_info_flush(void);
  
- static inline int fio_setaffinity(int pid, os_cpu_mask_t mask)
-diff --git a/os/os-freebsd.h b/os/os-freebsd.h
-index 4a7cdeb..97bc8ae 100644
---- a/os/os-freebsd.h
-+++ b/os/os-freebsd.h
-@@ -37,7 +37,7 @@ typedef cpuset_t os_cpu_mask_t;
- 
- #define fio_cpu_clear(mask, cpu)        (void) CPU_CLR((cpu), (mask))
- #define fio_cpu_set(mask, cpu)          (void) CPU_SET((cpu), (mask))
--#define fio_cpu_isset(mask, cpu)	CPU_ISSET((cpu), (mask))
-+#define fio_cpu_isset(mask, cpu)	(CPU_ISSET((cpu), (mask)) != 0)
- #define fio_cpu_count(mask)		CPU_COUNT((mask))
- 
- static inline int fio_cpuset_init(os_cpu_mask_t *mask)
-diff --git a/os/os-linux.h b/os/os-linux.h
-index 1ad6ebd..894dc85 100644
---- a/os/os-linux.h
-+++ b/os/os-linux.h
-@@ -71,7 +71,7 @@ typedef struct drand48_data os_random_state_t;
- 
- #define fio_cpu_clear(mask, cpu)	(void) CPU_CLR((cpu), (mask))
- #define fio_cpu_set(mask, cpu)		(void) CPU_SET((cpu), (mask))
--#define fio_cpu_isset(mask, cpu)	CPU_ISSET((cpu), (mask))
-+#define fio_cpu_isset(mask, cpu)	(CPU_ISSET((cpu), (mask)) != 0)
- #define fio_cpu_count(mask)		CPU_COUNT((mask))
- 
- static inline int fio_cpuset_init(os_cpu_mask_t *mask)
-diff --git a/os/os-solaris.h b/os/os-solaris.h
-index 2f13723..db03546 100644
---- a/os/os-solaris.h
-+++ b/os/os-solaris.h
-@@ -16,6 +16,7 @@
- #include <pthread.h>
- 
- #include "../file.h"
-+#include "../lib/types.h"
- 
- #define FIO_HAVE_CPU_AFFINITY
- #define FIO_HAVE_CHARDEV_SIZE
-@@ -126,24 +127,25 @@ static inline int fio_set_odirect(struct fio_file *f)
- #define fio_cpu_clear(mask, cpu)	pset_assign(PS_NONE, (cpu), NULL)
- #define fio_cpu_set(mask, cpu)		pset_assign(*(mask), (cpu), NULL)
- 
--static inline int fio_cpu_isset(os_cpu_mask_t *mask, int cpu)
-+static inline bool fio_cpu_isset(os_cpu_mask_t *mask, int cpu)
- {
- 	const unsigned int max_cpus = sysconf(_SC_NPROCESSORS_ONLN);
- 	unsigned int num_cpus;
- 	processorid_t *cpus;
--	int i, ret;
-+	bool ret;
-+	int i;
- 
- 	cpus = malloc(sizeof(*cpus) * max_cpus);
- 
- 	if (pset_info(*mask, NULL, &num_cpus, cpus) < 0) {
- 		free(cpus);
--		return 0;
-+		return false;
- 	}
- 
--	ret = 0;
-+	ret = false;
- 	for (i = 0; i < num_cpus; i++) {
- 		if (cpus[i] == cpu) {
--			ret = 1;
-+			ret = true;
- 			break;
- 		}
- 	}
-diff --git a/os/os-windows.h b/os/os-windows.h
-index 520da19..9b04579 100644
---- a/os/os-windows.h
-+++ b/os/os-windows.h
-@@ -17,6 +17,7 @@
- #include "../log.h"
- #include "../lib/hweight.h"
- #include "../oslib/strcasestr.h"
-+#include "../lib/types.h"
- 
- #include "windows/posix.h"
- 
-@@ -209,17 +210,17 @@ static inline int fio_getaffinity(int pid, os_cpu_mask_t *mask)
- 
- static inline void fio_cpu_clear(os_cpu_mask_t *mask, int cpu)
- {
--	*mask ^= 1 << (cpu-1);
-+	*mask &= ~(1ULL << cpu);
- }
- 
- static inline void fio_cpu_set(os_cpu_mask_t *mask, int cpu)
- {
--	*mask |= 1 << cpu;
-+	*mask |= 1ULL << cpu;
- }
- 
- static inline int fio_cpu_isset(os_cpu_mask_t *mask, int cpu)
- {
--	return (*mask & (1U << cpu));
-+	return (*mask & (1ULL << cpu)) != 0;
- }
- 
- static inline int fio_cpu_count(os_cpu_mask_t *mask)
