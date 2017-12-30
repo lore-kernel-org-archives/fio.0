@@ -1,60 +1,54 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:53455 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752990AbdLHNAG (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 8 Dec 2017 08:00:06 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.87 #1 (Red Hat Linux))
-        id 1eNIG6-0004p8-Cl
-        for fio@vger.kernel.org; Fri, 08 Dec 2017 13:00:06 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20171208130002.8A22D2C00A1@kernel.dk>
-Date: Fri,  8 Dec 2017 06:00:02 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
+Return-Path: <sitsofe@gmail.com>
+MIME-Version: 1.0
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 30 Dec 2017 17:56:33 +0000
+Message-ID: <CALjAwxh+0x55c=Erok51RFD7YmnwxPeV1TFcAbYW8pD6xw66VA@mail.gmail.com>
+Subject: madvise(,, FIO_MADV_FREE) behaviour in mmap.c
+Content-Type: text/plain; charset="UTF-8"
 To: fio@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 395feabb53806d5cff2e0b73b6c94048f05b5aae:
+Hi,
 
-  io_u: rate cleanup and spelling error (2017-12-06 12:30:20 -0700)
+Over on https://github.com/axboe/fio/blob/df4bf1178ed773986129da6038961388af926971/engines/mmap.c#L71
+there is the following:
+ 30 static int fio_mmap_file(struct thread_data *td, struct fio_file *f,
+ 31                          size_t length, off_t off)
+ 32 {
+[...]
+ 69 #ifdef FIO_MADV_FREE
+ 70         if (f->filetype == FIO_TYPE_BLOCK)
+ 71                 (void) posix_madvise(fmd->mmap_ptr, fmd->mmap_sz,
+FIO_MADV_FREE);
+ 72 #endif
 
-are available in the git repository at:
+On Linux, FIO_MADV_FREE is defined as MADV_REMOVE. My understanding is
+that MADV_REMOVE will turn into a hole punch when used on files and
+this was the problem reported over on
+https://www.spinics.net/lists/fio/msg02324.html ("fio verify will
+actually punch a hole in a file"). However it looks like block devices
+have picked up support for fallocate punching and can issue
+blkdev_issue_zeroout() in response to it so while the above will
+invalidate the cached regions it looks like it could also end up
+generating writes of zero (or trims)...
 
-  git://git.kernel.dk/fio.git master
+If my reading above is correct then it looks like the best that you
+could define FIO_MADV_FREE to is MADV_FREE if it exists but even then
+is it needed? An madvise(,, MADV_DONTNEED) is done a few lines prior
+which will throw away away mmaped pages (dirty or clean) and isn't
+cache invalidation handled elsewhere in fio anyway for normal files?
 
-for you to fetch changes up to 1aa39b0ce447f228460e6d0af601fee88fd5f4b4:
+A secondary point is that POSIX doesn't actually define MADV_FREE (or
+MADV_REMOVE) for posix_madvise() so strictly speaking that
+posix_madvise() call should just be madvise() which should be OK as
+it's behind and ifdef guard.
 
-  rate: ensure IO issue restarts right after sleep (2017-12-07 09:06:04 -0700)
+FWIW it looks like this change originally landed with
+https://github.com/axboe/fio/commit/a1c58075279454a91ec43366846b93e8dcf9753c
+("Add strong madvise() hint for cache pruning") and has jumped around
+a bit to it's current location.
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      rate: ensure IO issue restarts right after sleep
+-- 
+Sitsofe | http://sucs.org/~sits/
 
- backend.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/backend.c b/backend.c
-index 69f03dc..5304ddc 100644
---- a/backend.c
-+++ b/backend.c
-@@ -894,10 +894,13 @@ static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
- 
- 	/*
- 	 * If we're ignoring thinktime for the rate, add the number of bytes
--	 * we would have done while sleeping.
-+	 * we would have done while sleeping, minus one block to ensure we
-+	 * start issuing immediately after the sleep.
- 	 */
--	if (total && td->rate_bps[ddir] && td->o.rate_ign_think)
-+	if (total && td->rate_bps[ddir] && td->o.rate_ign_think) {
- 		td->rate_io_issue_bytes[ddir] += (td->rate_bps[ddir] * 1000000) / total;
-+		td->rate_io_issue_bytes[ddir] -= td->o.min_bs[ddir];
-+	}
- }
- 
- /*
