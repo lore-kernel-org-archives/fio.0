@@ -1,59 +1,103 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f169.google.com ([209.85.217.169]:35332 "EHLO
-        mail-ua0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751788AbeADHDo (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 4 Jan 2018 02:03:44 -0500
-Received: by mail-ua0-f169.google.com with SMTP id g16so482437uak.2
-        for <fio@vger.kernel.org>; Wed, 03 Jan 2018 23:03:43 -0800 (PST)
+Received: from esa5.hgst.iphmx.com ([216.71.153.144]:20873 "EHLO
+        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750965AbeABUuR (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 2 Jan 2018 15:50:17 -0500
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: fio lat reporting
+Date: Tue, 2 Jan 2018 20:50:14 +0000
+Message-ID: <BN3PR0401MB14570B8A8B54BE60F5176FFD8F190@BN3PR0401MB1457.namprd04.prod.outlook.com>
+References: <CY1PR0401MB14666D5091EECA44B869957E8F3D0@CY1PR0401MB1466.namprd04.prod.outlook.com>
+ <CALjAwxjnWvD3-54jTSLKnTQ_U15WrVF2FaOeDhg3CQUqRJnzBw@mail.gmail.com>
+In-Reply-To: <CALjAwxjnWvD3-54jTSLKnTQ_U15WrVF2FaOeDhg3CQUqRJnzBw@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Thu, 4 Jan 2018 07:03:12 +0000
-Message-ID: <CALjAwxg0oUu7Lf235M-g1eZKJxCuSpnQJVBwTLYJ-ma0GJY+wg@mail.gmail.com>
-Subject: Re: Verify mismatch with buffer_pattern and verify_pattern
-Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Gnana Sekhar <kgsgnana2020@gmail.com>
-Cc: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi,
-
-Can you ensure fio questions are sent to the mailing list and not just
-me? Others often benefit from the answers when using search engines
-and it gives people other than myself a chance to answer your question
-too! :-)
-
-The value of verify_pattern is only used when verify=pattern (see
-http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-verify
-) is set. It's interesting that you got a verifying run without that
-option though :-) Also note you can arrange for runs with verify
-options to only do the write part by using do_verify=0 (see
-http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-do-verify
-).
-
-(PS: it would have also been nicer to have started a new mail thread
-for this continue the existing one)
-
-On 4 January 2018 at 06:44, Gnana Sekhar <kgsgnana2020@gmail.com> wrote:
->
-> I am running into error in verify after I do a write and verify. I am
-> running these commands from the shell and not in parallel. Below are
-> the parameters I am passing to FIO
-> Please let me know if you find something obvious
->
-> $ sudo fio --thread --direct=1 --minimal --ioengine=libaio --numjobs=1
-> --iodepth=1 --name=bs128k_rwread_rsmixr0_qd256 --bs=4096
-> --percentage_random=0 --rw=write --filename=/dev/nvme0n1 -o
-> /home/temp.log --buffer_pattern=1 --size=76815
->
->
-> $ sudo fio --thread --direct=1 --minimal --ioengine=libaio --numjobs=1
-> --iodepth=1 --bs=4096 --percentage_random=0 --filename=/dev/nvme0n1 -o
-> /home/temp.log --name=bs4096_rwverify_qd256 --size=76815 --rw=read
-> --verify_pattern=0x1 --debug=all
->
-> verify: bad magic header 101, wanted acca at file /dev/nvme0n1 offset
-> 0, length 4096
-
--- 
-Sitsofe | http://sucs.org/~sits/
+VGhhbmtzIFNpdHNvZmUuICBUaGUgZml4IG1ha2VzIHNlbnNlLiAgSXQgd2FzIGNhbW91ZmxhZ2Vk
+IGFyb3VuZCBhbGwgdGhvc2UgY2xhdCByZWZlcmVuY2VzLiAgTG9va3MgbGlrZSBKZW5zIGNvbW1p
+dHRlZCB0byBnaXQsIHNvIEkgdHJpZWQgdGhlIGxhdGVzdCBvbiBteSB3b3JrbG9hZHMgYW5kIGFs
+bCBhcHBlYXJzIGdvb2QuDQoNClJlZ2FyZHMsDQpKZWZmDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2Fn
+ZS0tLS0tDQpGcm9tOiBTaXRzb2ZlIFdoZWVsZXIgW21haWx0bzpzaXRzb2ZlQGdtYWlsLmNvbV0g
+DQpTZW50OiBTdW5kYXksIERlY2VtYmVyIDMxLCAyMDE3IDU6MDYgQU0NClRvOiBKZWZmIEZ1cmxv
+bmcgPGplZmYuZnVybG9uZ0B3ZGMuY29tPg0KQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmcNClN1Ympl
+Y3Q6IFJlOiBmaW8gbGF0IHJlcG9ydGluZw0KDQpIaSBKZWZmLA0KDQpPbiA1IERlY2VtYmVyIDIw
+MTcgYXQgMDA6MDEsIEplZmYgRnVybG9uZyA8amVmZi5mdXJsb25nQHdkYy5jb20+IHdyb3RlOg0K
+Pg0KPiBJbiBjb21taXQgIkFkZCBzdXBwb3J0IGZvciBkb2luZyB0b3RhbCBsYXRlbmN5IHBlcmNl
+bnRpbGVzIiAoYjU5OTc1OWJhNTY1ZTdmMmY1NzNhZjM2NGU2ZGE0ZmU2ZDU1NmE5MCksIHRoZSB0
+b3RhbCBsYXRlbmN5IHBlcmNlbnRpbGVzIG9wdGlvbiB3YXMgYWRkZWQuICBIb3dldmVyLCBzb21l
+IHdvcmtsb2FkcyBhcHBlYXIgYnJva2VuOg0KPg0KPiAjIGZpbyAtLW5hbWU9dGVzdCAtLWlvZW5n
+aW5lPWxpYmFpbyAtLWRpcmVjdD0xIC0tcnc9cmFuZHJlYWQgDQo+IC0taW9kZXB0aD0xIC0tc2l6
+ZT0xMDAlIC0tYnM9NGsgLS1maWxlbmFtZT0vZGV2L252bWUwbjEgLS1ydW50aW1lPTVzIA0KPiAt
+LXdyaXRlX2xhdF9sb2c9dGVzdCAtLWRpc2FibGVfbGF0PTAgLS1kaXNhYmxlX2NsYXQ9MSAtLWRp
+c2FibGVfc2xhdD0xIA0KPiAtLWxhdF9wZXJjZW50aWxlcz0xDQo+IHRlc3Q6IChnPTApOiBydz1y
+YW5kcmVhZCwgYnM9KFIpIDQwOTZCLTQwOTZCLCAoVykgNDA5NkItNDA5NkIsIChUKSANCj4gNDA5
+NkItNDA5NkIsIGlvZW5naW5lPWxpYmFpbywgaW9kZXB0aD0xIGZpby0zLjItNjYtZzY3YmZlIFN0
+YXJ0aW5nIDEgDQo+IHByb2Nlc3MNCj4gSm9iczogMSAoZj0xKTogW3IoMSldWzEwMC4wJV1bcj0z
+NTFNaUIvcyx3PTBLaUIvc11bcj04OS45ayx3PTAgDQo+IElPUFNdW2V0YSAwMG06MDBzXQ0KPiB0
+ZXN0OiAoZ3JvdXBpZD0wLCBqb2JzPTEpOiBlcnI9IDA6IHBpZD02ODc5OiBNb24gRGVjICA0IDE1
+OjQ2OjA0IDIwMTcNCj4gICAgcmVhZDogSU9QUz04OS43aywgQlc9MzUxTWlCL3MgKDM2OE1CL3Mp
+KDE3NTNNaUIvNTAwMW1zZWMpDQo+ICAgICAgbGF0ICh1c2VjKTogbWluPTksIG1heD0yMjU5LCBh
+dmc9MTAuNjcsIHN0ZGV2PSA3LjY2DQo+ICAgICAgbGF0IHBlcmNlbnRpbGVzIChuc2VjKToNCj4g
+ICAgICB8ICAxLjAwdGg9WyAgICAwXSwgIDUuMDB0aD1bICAgIDBdLCAxMC4wMHRoPVsgICAgMF0s
+IDIwLjAwdGg9WyAgICAwXSwNCj4gICAgICB8IDMwLjAwdGg9WyAgICAwXSwgNDAuMDB0aD1bICAg
+IDBdLCA1MC4wMHRoPVsgICAgMF0sIDYwLjAwdGg9WyAgICAwXSwNCj4gICAgICB8IDcwLjAwdGg9
+WyAgICAwXSwgODAuMDB0aD1bICAgIDBdLCA5MC4wMHRoPVsgICAgMF0sIDk1LjAwdGg9WyAgICAw
+XSwNCj4gICAgICB8IDk5LjAwdGg9WyAgICAwXSwgOTkuNTB0aD1bICAgIDBdLCA5OS45MHRoPVsg
+ICAgMF0sIDk5Ljk1dGg9WyAgICAwXSwNCj4gICAgICB8IDk5Ljk5dGg9WyAgICAwXQ0KPg0KPiBJ
+biB0aGUgYWJvdmUsIHdlIHRyeSB0byBlbmFibGUgb25seSBsYXQgbG9nLCBzbyBkaXNhYmxlIGNs
+YXQgYW5kIHNsYXQuICBUaGUgc3VtbWFyeSBvdXRwdXQgc2hvd3MgbGF0LCBidXQgdGhlIHZhbHVl
+cyBhcmUgemVyby4NCg0KSSBndWVzcyB0aGUgY29kZSB0aGF0IGNvbGxlY3RzIHRob3NlIHBlcmNl
+bnRpbGVzIGlzIGFsd2F5cyBsb29raW5nIGF0IHdoZXRoZXIgY2xhdCBpcyBlbmFibGVkLi4uDQoN
+Cj4gIyBmaW8gLS1uYW1lPXRlc3QgLS1pb2VuZ2luZT1saWJhaW8gLS1kaXJlY3Q9MSAtLXJ3PXJh
+bmRyZWFkIA0KPiAtLWlvZGVwdGg9MSAtLXNpemU9MTAwJSAtLWJzPTRrIC0tZmlsZW5hbWU9L2Rl
+di9udm1lMG4xIC0tcnVudGltZT01cyANCj4gLS13cml0ZV9sYXRfbG9nPXRlc3QgLS1kaXNhYmxl
+X2xhdD0wIC0tZGlzYWJsZV9jbGF0PTAgLS1kaXNhYmxlX3NsYXQ9MSANCj4gLS1sYXRfcGVyY2Vu
+dGlsZXM9MQ0KPiB0ZXN0OiAoZz0wKTogcnc9cmFuZHJlYWQsIGJzPShSKSA0MDk2Qi00MDk2Qiwg
+KFcpIDQwOTZCLTQwOTZCLCAoVCkgDQo+IDQwOTZCLTQwOTZCLCBpb2VuZ2luZT1saWJhaW8sIGlv
+ZGVwdGg9MSBmaW8tMy4yLTY2LWc2N2JmZSBTdGFydGluZyAxIA0KPiBwcm9jZXNzDQo+IEpvYnM6
+IDEgKGY9MSk6IFtyKDEpXVsxMDAuMCVdW3I9MzU2TWlCL3Msdz0wS2lCL3NdW3I9OTEuMWssdz0w
+IA0KPiBJT1BTXVtldGEgMDBtOjAwc10NCj4gdGVzdDogKGdyb3VwaWQ9MCwgam9icz0xKTogZXJy
+PSAwOiBwaWQ9Njk1NjogTW9uIERlYyAgNCAxNTo0Nzo0MyAyMDE3DQo+ICAgIHJlYWQ6IElPUFM9
+ODcuOGssIEJXPTM0M01pQi9zICgzNjBNQi9zKSgxNzE1TWlCLzUwMDFtc2VjKQ0KPiAgICAgY2xh
+dCAobnNlYyk6IG1pbj01NjEsIG1heD0yMjU4LjNrLCBhdmc9OTk0MS4zMCwgc3RkZXY9NjY2MC4z
+Nw0KPiAgICAgIGxhdCAodXNlYyk6IG1pbj05LCBtYXg9MjI1OSwgYXZnPTEwLjg4LCBzdGRldj0g
+Ny41Mg0KPiAgICAgIGxhdCBwZXJjZW50aWxlcyAobnNlYyk6DQo+ICAgICAgfCAgMS4wMHRoPVsx
+MDMwNF0sICA1LjAwdGg9WzEwMzA0XSwgMTAuMDB0aD1bMTAzMDRdLCAyMC4wMHRoPVsxMDMwNF0s
+DQo+ICAgICAgfCAzMC4wMHRoPVsxMDQzMl0sIDQwLjAwdGg9WzEwNDMyXSwgNTAuMDB0aD1bMTA0
+MzJdLCA2MC4wMHRoPVsxMDQzMl0sDQo+ICAgICAgfCA3MC4wMHRoPVsxMDQzMl0sIDgwLjAwdGg9
+WzEwOTQ0XSwgOTAuMDB0aD1bMTEwNzJdLCA5NS4wMHRoPVsxNDc4NF0sDQo+ICAgICAgfCA5OS4w
+MHRoPVsxNTI5Nl0sIDk5LjUwdGg9WzE1NDI0XSwgOTkuOTB0aD1bMTYwNjRdLCA5OS45NXRoPVsx
+NzAyNF0sDQo+ICAgICAgfCA5OS45OXRoPVsyNDcwNF0NCj4NCj4gSW4gdGhlIGFib3ZlLCB3ZSBm
+b3JjZSBjbGF0IG9uLCBhbmQgbm93IHRoZSBsYXQgdmFsdWVzIGFyZSBub24temVybyBpbiB0aGUg
+c3VtbWFyeSBvdXRwdXQuDQo+DQo+IEluIHRoZSBjb21taXQgZm9yIHN0YXQuYywgSSBzZWU6DQo+
+DQo+ICAgICAgICAgaWYgKHRzLT5sYXRfcGVyY2VudGlsZXMpDQo+ICAgICAgICAgICAgICAgICBh
+ZGRfY2xhdF9wZXJjZW50aWxlX3NhbXBsZSh0cywgbnNlYywgZGRpcik7DQo+DQo+IERvZXMgdGhh
+dCBzZWVtIGNvcnJlY3Q/DQoNClllcyBpdCBsb29rcyBjb3JyZWN0IC0gaXQncyBqdXN0IHRoZSBm
+dW5jdGlvbiBpcyBhIGJpdCBtaXNuYW1lZC4gZmlvIHN0b3JlcyBhbGwgaXRzIGxhdGVuY3kgcGVy
+Y2VudGlsZSBpbmZvcm1hdGlvbiBpbiB0aGUgc2FtZSBwbGFjZSBzaW5jZSB5b3UgY2FuIG9ubHkg
+aGF2ZSBlaXRoZXIgY29tcGxldGlvbiBwZXJjZW50aWxlcyBvciB0b3RhbCBwZXJjZW50aWxlcyBi
+dXQgbm90IGJvdGggYXQgdGhlIHNhbWUgdGltZS4NCg0KQWZ0ZXIgZGlnZ2luZyBhYm91dCBmb3Ig
+YSB3aGlsZSBpdCBsb29rcyBsaWtlIHRoZSBwcm9ibGVtIHN0ZW1zIGZyb20gdGhlIHdyb25nIHNh
+bXBsZSBjb3VudCBiZWluZyB1c2VkIGluIHN0YXQuYzoNCg0KIDQxOSBzdGF0aWMgdm9pZCBzaG93
+X2RkaXJfc3RhdHVzKHN0cnVjdCBncm91cF9ydW5fc3RhdHMgKnJzLCBzdHJ1Y3QgdGhyZWFkX3N0
+YXQgKnRzLA0KIDQyMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGludCBkZGlyLCBzdHJ1
+Y3QgYnVmX291dHB1dCAqb3V0KQ0KIDQyMSB7DQpbLi4uXQ0KIDQ2MQ0KIDQ2MiAgICAgICAgIGlm
+ICh0cy0+Y2xhdF9wZXJjZW50aWxlcyB8fCB0cy0+bGF0X3BlcmNlbnRpbGVzKSB7DQogNDYzICAg
+ICAgICAgICAgICAgICBzaG93X2NsYXRfcGVyY2VudGlsZXModHMtPmlvX3VfcGxhdFtkZGlyXSwN
+CiA0NjQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRzLT5jbGF0X3N0
+YXRbZGRpcl0uc2FtcGxlcywNCiA0NjUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIHRzLT5wZXJjZW50aWxlX2xpc3QsDQogNDY2ICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICB0cy0+cGVyY2VudGlsZV9wcmVjaXNpb24sDQogNDY3ICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB0cy0+Y2xhdF9wZXJjZW50aWxlcywgb3V0
+KTsNCg0KZmlvIGlzIGFsd2F5cyB1c2luZyB0aGUgY2xhdF9zdGF0IHNhbXBsZXMgY291bnQgcmF0
+aGVyIHRoYW4gY2hvb3NpbmcgdGhlIGNvdW50IGJhc2VkIG9uIHRoZSB0eXBlIG9mIHBlcmNlbnRp
+bGUgYmVpbmcgcmVxdWVzdGVkLg0KaHR0cHM6Ly9naXRodWIuY29tL2F4Ym9lL2Zpby9wdWxsLzUw
+NSBzaG91bGQgaG9wZWZ1bGx5IGFkZHJlc3MgdGhpcyAoYW5kIGRpc2FibGVzIHBlcmNlbnRpbGUg
+Z2F0aGVyaW5nIGlmIHRoYXQgdHlwZSBvZiBsYXRlbmN5IGhhcyBiZWVuIGRpc2FibGVkKS4NCg0K
+LS0NClNpdHNvZmUgfCBodHRwOi8vc3Vjcy5vcmcvfnNpdHMvDQo=
