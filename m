@@ -1,44 +1,74 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wr0-f172.google.com ([209.85.128.172]:45924 "EHLO
-        mail-wr0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751736AbeADEKH (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 3 Jan 2018 23:10:07 -0500
-Received: by mail-wr0-f172.google.com with SMTP id o15so355187wrf.12
-        for <fio@vger.kernel.org>; Wed, 03 Jan 2018 20:10:06 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <BN3PR0401MB1457B3B643C952B2B3F1C3EF8F1E0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Received: from esa8.dell-outbound.iphmx.com ([68.232.149.218]:29758 "EHLO
+        esa8.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750913AbeADAlp (ORCPT
+        <rfc822;fio@vger.kernel.org>); Wed, 3 Jan 2018 19:41:45 -0500
+From: "Fisak, Joel" <Joel.Fisak@dell.com>
+Subject: RE: LBA selection in FIO
+Date: Thu, 4 Jan 2018 00:41:20 +0000
+Message-ID: <DA25AD214E0DC84D8806DACE40975B14081B4ABB@MX203CL01.corp.emc.com>
 References: <CAPSTwmSgrDt1i2m0hzHpAh9ncM1vWWSQmjcOY6mkpik-c-vwxg@mail.gmail.com>
  <CALjAwxgT9ZPYAZbBQbwuqfpmBPLHSfK_kqE2mKMaMOmyF_Q6HA@mail.gmail.com>
  <CAPSTwmS=D=jJ=wXNZRc7QZr4kcCA31v+A-wsxGpz4XJgaxQ0_g@mail.gmail.com>
  <CALjAwxj5oinoiFhFp18C8CmthwX_OP3231+PMHbAs8EHMQeHJw@mail.gmail.com>
- <CAPSTwmT+iOh5+THJAnyBHMcRf6AqURTq+M=rwWc6NayuuxW5nA@mail.gmail.com> <BN3PR0401MB1457B3B643C952B2B3F1C3EF8F1E0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-From: Gnana Sekhar <kgsgnana2020@gmail.com>
-Date: Wed, 3 Jan 2018 21:10:05 -0700
-Message-ID: <CAPSTwmQ5a=sN26L3b6BVH8Cht0=44LW=FtmkbkVvMawSsXzgEw@mail.gmail.com>
-Subject: Re: LBA selection in FIO
-Content-Type: text/plain; charset="UTF-8"
+ <CAPSTwmT+iOh5+THJAnyBHMcRf6AqURTq+M=rwWc6NayuuxW5nA@mail.gmail.com>
+In-Reply-To: <CAPSTwmT+iOh5+THJAnyBHMcRf6AqURTq+M=rwWc6NayuuxW5nA@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jeff Furlong <jeff.furlong@wdc.com>
-Cc: Sitsofe Wheeler <sitsofe@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Gnana Sekhar <kgsgnana2020@gmail.com>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi Jeff,
-
-Thanks for the response. That's the exact command I am using in the
-script to get sector size and multiply sector size with no. of sectors
-to get the size in Bytes.
-The size in Bytes is passed to the FIO in --size parameter
-
-I wasn't sure if FIO has an option to pass in the LBA count as
-parameter so that the above logic can be skipped
-
-Regards,
-Gnana
-
-On Wed, Jan 3, 2018 at 4:37 PM, Jeff Furlong <jeff.furlong@wdc.com> wrote:
->> how will I arrive at block size of 4k
-> On Linux platforms, you may want to look at "blockdev --getss /dev/nvme0n1" to determine the sector size of your device.  Various other blockdev options will report various other device parameters.
->
-> Regards,
-> Jeff
->
+TEJBIFNpemUgaXNuJ3QgNGsgaXRzIDEgYmxvY2ssIGlzbid0IGl0PyBMQkEgPSBsb2dpY2FsIGJs
+b2NrIGFkZHJlc3MgKHNpbmdsZSBhZGRyZXNzIG9mIDEgYmxvY2sgbm90IHJhbmdlKS4NCg0KLS0t
+LS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IGZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmcg
+W21haWx0bzpmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnXSBPbiBCZWhhbGYgT2YgR25hbmEgU2Vr
+aGFyDQpTZW50OiBXZWRuZXNkYXksIEphbnVhcnkgMywgMjAxOCA0OjEyIFBNDQpUbzogU2l0c29m
+ZSBXaGVlbGVyIDxzaXRzb2ZlQGdtYWlsLmNvbT4NCkNjOiBmaW9Admdlci5rZXJuZWwub3JnDQpT
+dWJqZWN0OiBSZTogTEJBIHNlbGVjdGlvbiBpbiBGSU8NCg0KSGksDQoNClRoZSBodXJkbGUgSSBo
+YXZlIGlzLCBob3cgd2lsbCBJIGFycml2ZSBhdCBibG9jayBzaXplIG9mIDRrLg0KSWYgTEJBIHNp
+emUgaXMgNGssIHRoZW4gd3JpdGUgb2YgNCBMQkEgd2lsbCBiZSAxNmsuDQpTbyBpZiBJIHNheSBM
+QkEgY291bnQsIEkgZG9uJ3QgbmVlZCB0byBjYXJlIG9mIExCQSBzaXplLiBCdXQgdG8gc3BlY2lm
+eSB0aGUgc2l6ZSBpbiBieXRlcywgSSBuZWVkIHRvIGZldGNoIHRoZSBMQkEgc2l6ZShmb3IgZXhh
+bXBsZSA1MTIsIDUyMCwgNDA5NiBldGMuLCkgYW5kIGFycml2ZSBhdCB0aGUgYnl0ZXMgcmVxdWly
+ZWQNCg0KDQpJIGRpZCB0cnkgdGhlIGJ1ZmZlciBwYXR0ZXJuIG9mIDB4MCBhbmQgaXQgZG9lc24n
+dCB3b3JrIGZpbyB0aHJvd3Mgb3V0IGVycm9yIG9mICJmYWlsZWQgcGFyc2luZyBwYXR0ZXJuIGAw
+eDBgIg0KDQpSZWdhcmRzLA0KR25hbmENCg0KT24gV2VkLCBKYW4gMywgMjAxOCBhdCAxMjoxNyBQ
+TSwgU2l0c29mZSBXaGVlbGVyIDxzaXRzb2ZlQGdtYWlsLmNvbT4gd3JvdGU6DQo+IEhpIEduYW5h
+LA0KPg0KPiBPbiAzIEphbnVhcnkgMjAxOCBhdCAxNzo0NywgR25hbmEgU2VraGFyIDxrZ3NnbmFu
+YTIwMjBAZ21haWwuY29tPiB3cm90ZToNCj4+DQo+PiBCYXNpY2FsbHkgSSBhbSBsb29raW5nIHRv
+IHNlZSBpZiBGSU8gaGFzIHRoZSBiZWxvdyBvcHRpb24gMS4gUGFzcyB0aGUgDQo+PiBMQkEgY291
+bnQgYXMgYW4gYXJndW1lbnQuIEZyb20geW91ciBleHBsYW5hdGlvbiBteSB1bmRlcnN0YW5kaW5n
+IGlzIA0KPj4gY3VycmVudGx5IEZJTyBkb2Vzbid0IGhhdmUgdGhhdCBvcHRpb24NCj4NCj4gV2Vs
+bCBJJ20gc3RpbGwgdW5zdXJlIHdoYXQgTEJBIGNvdW50IG1lYW5zIGluIHRoaXMgY29udGV4dC4g
+SWYgbXkgDQo+IGJsb2NrcyBhcmUgNTEyIGJ5dGVzIGJpZyBhbmQgSSB3YW50IGEgc2luZ2xlIHdy
+aXRlIHRvIGNvdmVyIExCQSAwIC0gMyANCj4gdGhlbiBpc24ndCB0aGUgYmxvY2tzaXplIG9mIDRr
+IGNvbnRyb2xsaW5nIHRoZSBMQkEgY291bnQ/IFNvcnJ5IHRvIA0KPiBrZWVwIGFza2luZyBJIGp1
+c3QgZG9uJ3QgdW5kZXJzdGFuZCB0aGUgcmVxdWVzdC4NCj4NCj4+IDIuIE9uIHRoZSBidWZmZXIg
+cGF0dGVybiBJIHdhc24ndCBhYmxlIHRvIHNwZWNpZnkgdGhlIGJ1ZmZlciBwYXR0ZXJuIA0KPj4g
+dG8gYmUgYWxsIDAoemVybykgYnV0IC0tYnVmZmVyX3BhdHRlcm49MSB3b3JrcyBmaW5lLiBEbyBJ
+IGhhdmUgdG8gdXNlIA0KPj4gemVyb19idWZmZXJzIHRvIGZpbGwgYnVmZmVycyB3aXRoIHplcm8g
+YW5kIG5vdCBidWZmZXJfcGF0dGVybg0KPg0KPiBIbW0hIDAgaXMgZ29pbmcgdG8gYmUgaW50ZXJw
+cmV0ZWQgYXMgInRoaXMgb3B0aW9uIGlzIHVuc2V0Ii4gRG9lcyAweDAgd29yaz8NCj4NCj4+IEZv
+ciBvcHRpb24xLCBpZiBJIGNhbnQgcGFzcyBMQkEgY291bnQsIG15IHBsYW4gaXMgdG8gZ2V0IExC
+QSBzaXplIG9mIA0KPj4gdGhlIGRyaXZlLCBtdWx0aXBseSB0aGUgTEJBIHNpemUgd2l0aCBsYmEg
+Y291bnQgd2hpY2ggd2lsbCBnaXZlIG1lIA0KPj4gdGhlIHNpemUgaW4gYnl0ZXMgcGFzcyB0aGUg
+c2l6ZSB3aXRoIC0tc2l6ZT14IGIgIHdoZXJlIHggaXMgdGhlIHNpemUgDQo+PiBvYnRhaW5lZCBp
+biBhYm92ZSBzdGVwDQo+DQo+IEFyZSB5b3UgdHJ5aW5nIHRvIGRvIEkvTyAib24gdGhlIHNwb3Qi
+IChlLmcuIG9ubHkgZG8gSS9PIHRvIHRoZSBleGFjdCANCj4gc2FtZSByZWdpb24gZm9yIHRoZSB3
+aG9sZSBqb2IpPyBJZiBzbyB5b3UgY2FuDQo+DQo+ICogVXNlIG9mZnNldCANCj4gKGh0dHA6Ly9m
+aW8ucmVhZHRoZWRvY3MuaW8vZW4vbGF0ZXN0L2Zpb19kb2MuaHRtbCNjbWRvcHRpb24tYXJnLW9m
+ZnNldA0KPiApIGFuZCBzaXplIA0KPiAoaHR0cDovL2Zpby5yZWFkdGhlZG9jcy5pby9lbi9sYXRl
+c3QvZmlvX2RvYy5odG1sI2NtZG9wdGlvbi1hcmctc2l6ZQ0KPiApIHRvIGxpbWl0IHRoZSByZWdp
+b24geW91IGRvIEkvTyB3aXRoaW4NCj4gKiBIYXZlIGJsb2Nrc2l6ZSB1c2UgYSB2YWx1ZSBvZiA8
+eD4gYW5kIHRoZSBydz1yZWFkOjwteD4NCj4gKiBVc2Ugcndfc2VxdWVuY2VyPWlkZW50aWNhbCBh
+bmQgcnc9cmVhZDo8aGlnaG51bWJlcmhlcmU+IA0KPiAoaHR0cDovL2Zpby5yZWFkdGhlZG9jcy5p
+by9lbi9sYXRlc3QvZmlvX2RvYy5odG1sI2NtZG9wdGlvbi1hcmctcnctc2VxDQo+IHVlbmNlcg0K
+PiApDQo+DQo+ID8NCj4NCj4gLS0NCj4gU2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9yZy9+c2l0cy8N
+Ci0tDQpUbyB1bnN1YnNjcmliZSBmcm9tIHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJz
+Y3JpYmUgZmlvIiBpbiB0aGUgYm9keSBvZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21vQHZnZXIua2Vy
+bmVsLm9yZyBNb3JlIG1ham9yZG9tbyBpbmZvIGF0ICBodHRwOi8vdmdlci5rZXJuZWwub3JnL21h
+am9yZG9tby1pbmZvLmh0bWwNCg==
