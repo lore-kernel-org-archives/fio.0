@@ -1,50 +1,44 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk0-f42.google.com ([209.85.213.42]:37506 "EHLO
-        mail-vk0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752105AbeADGgP (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 4 Jan 2018 01:36:15 -0500
-Received: by mail-vk0-f42.google.com with SMTP id n2so383562vkf.4
-        for <fio@vger.kernel.org>; Wed, 03 Jan 2018 22:36:14 -0800 (PST)
+Received: from mail-wr0-f172.google.com ([209.85.128.172]:45924 "EHLO
+        mail-wr0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751736AbeADEKH (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 3 Jan 2018 23:10:07 -0500
+Received: by mail-wr0-f172.google.com with SMTP id o15so355187wrf.12
+        for <fio@vger.kernel.org>; Wed, 03 Jan 2018 20:10:06 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CAPSTwmQ5a=sN26L3b6BVH8Cht0=44LW=FtmkbkVvMawSsXzgEw@mail.gmail.com>
+In-Reply-To: <BN3PR0401MB1457B3B643C952B2B3F1C3EF8F1E0@BN3PR0401MB1457.namprd04.prod.outlook.com>
 References: <CAPSTwmSgrDt1i2m0hzHpAh9ncM1vWWSQmjcOY6mkpik-c-vwxg@mail.gmail.com>
  <CALjAwxgT9ZPYAZbBQbwuqfpmBPLHSfK_kqE2mKMaMOmyF_Q6HA@mail.gmail.com>
  <CAPSTwmS=D=jJ=wXNZRc7QZr4kcCA31v+A-wsxGpz4XJgaxQ0_g@mail.gmail.com>
  <CALjAwxj5oinoiFhFp18C8CmthwX_OP3231+PMHbAs8EHMQeHJw@mail.gmail.com>
- <CAPSTwmT+iOh5+THJAnyBHMcRf6AqURTq+M=rwWc6NayuuxW5nA@mail.gmail.com>
- <BN3PR0401MB1457B3B643C952B2B3F1C3EF8F1E0@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <CAPSTwmQ5a=sN26L3b6BVH8Cht0=44LW=FtmkbkVvMawSsXzgEw@mail.gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Thu, 4 Jan 2018 06:35:43 +0000
-Message-ID: <CALjAwxjSKx+rtBLPW5m292iLuz2Ege9Sih34YVcirTetuNUjUw@mail.gmail.com>
+ <CAPSTwmT+iOh5+THJAnyBHMcRf6AqURTq+M=rwWc6NayuuxW5nA@mail.gmail.com> <BN3PR0401MB1457B3B643C952B2B3F1C3EF8F1E0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+From: Gnana Sekhar <kgsgnana2020@gmail.com>
+Date: Wed, 3 Jan 2018 21:10:05 -0700
+Message-ID: <CAPSTwmQ5a=sN26L3b6BVH8Cht0=44LW=FtmkbkVvMawSsXzgEw@mail.gmail.com>
 Subject: Re: LBA selection in FIO
 Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Gnana Sekhar <kgsgnana2020@gmail.com>
-Cc: Jeff Furlong <jeff.furlong@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Jeff Furlong <jeff.furlong@wdc.com>
+Cc: Sitsofe Wheeler <sitsofe@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi Gnana,
+Hi Jeff,
 
-On 4 January 2018 at 04:10, Gnana Sekhar <kgsgnana2020@gmail.com> wrote:
+Thanks for the response. That's the exact command I am using in the
+script to get sector size and multiply sector size with no. of sectors
+to get the size in Bytes.
+The size in Bytes is passed to the FIO in --size parameter
+
+I wasn't sure if FIO has an option to pass in the LBA count as
+parameter so that the above logic can be skipped
+
+Regards,
+Gnana
+
+On Wed, Jan 3, 2018 at 4:37 PM, Jeff Furlong <jeff.furlong@wdc.com> wrote:
+>> how will I arrive at block size of 4k
+> On Linux platforms, you may want to look at "blockdev --getss /dev/nvme0n1" to determine the sector size of your device.  Various other blockdev options will report various other device parameters.
 >
-> Thanks for the response. That's the exact command I am using in the
-> script to get sector size and multiply sector size with no. of sectors
-> to get the size in Bytes.
-> The size in Bytes is passed to the FIO in --size parameter
+> Regards,
+> Jeff
 >
-> I wasn't sure if FIO has an option to pass in the LBA count as
-> parameter so that the above logic can be skipped
-
-Ah I understand now. No fio doesn't have generic code to deduce the
-underlying LBA size of a block device (although certain ioengines such
-as sg find it out for themselves for other purposes). Personally, I've
-found it's not easy to find out the block size a filesystem is using
-which would make such a feature less useful since fio works on files
-as well as block devices. Further if you actually need to do
-arithmetic with the value then it's nicer to do all of that upfront
-and no later than parsing time so  doing it outside of fio as you are
-doing seems preferable...
-
--- 
-Sitsofe | http://sucs.org/~sits/
