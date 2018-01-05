@@ -1,49 +1,41 @@
-Return-Path: <zhangweiping@didichuxing.com>
-Date: Tue, 30 Jan 2018 00:45:53 +0800
-From: weiping zhang <zhangweiping@didichuxing.com>
-Subject: [RFC PATCH] doc: add comments for the difference between iodepth and
- blkdev's inflight
-Message-ID: <20180129164548.GA7056@localhost.didichuxing.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] Fix client/server "all clients" reporting
+References: <BN3PR0401MB145797A13CE4C82EF8B131018F1E0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <70fe820b-b0cb-4e10-e867-95ca6f4b1f58@kernel.dk>
+Date: Fri, 5 Jan 2018 12:01:09 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-Return-Path: zhangweiping@didichuxing.com
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org
+In-Reply-To: <BN3PR0401MB145797A13CE4C82EF8B131018F1E0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Jeff Furlong <jeff.furlong@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-If user want control the inflight IOs for the tested block device, for
-example set iodepth=16, and we can get result like following:
+On 1/3/18 4:20 PM, Jeff Furlong wrote:
+> In commit e883cb3501de0f99297282c18842d50aaa7fa531, the default significant figures was added.  The default value was preserved for local jobs and when client/server was used if jobs=1, but not when client/server was used if jobs > 1.  This patch restores some reporting outputs ("all clients" output for IOPS and BW) when client/server is used if > 1 jobs, for example:
+> 
+> OLD:
+> All clients: (groupid=0, jobs=2): err= 0: pid=0: Wed Jan  3 14:30:13 2018
+>    read: IOPS=0, BW=0 (0)(0B/5001msec)                                               <--ZERO VALUES
+>     slat (nsec): min=762, max=108579, avg=1058.97, stdev=221.30
+>     clat (nsec): min=254, max=4544.2k, avg=11297.64, stdev=8284.14
+>      lat (usec): min=9, max=4545, avg=12.41, stdev= 8.30
+>    bw (  KiB/s): min=290192, max=347160, per=49.35%, avg=303613.33, stdev=11582.87, samples=18
+>    iops        : min=72548, max=86790, avg=75903.33, stdev=2895.72, samples=18
+> 
+> NEW:
+> All clients: (groupid=0, jobs=2): err= 0: pid=0: Wed Jan  3 15:08:33 2018
+>    read: IOPS=147k, BW=575Mi (603M)(2876MiB/5001msec)	<--CORRECT VALUES
+>     slat (nsec): min=841, max=61945, avg=1304.83, stdev=232.75
+>     clat (nsec): min=544, max=4487.2k, avg=11736.68, stdev=9123.64
+>      lat (usec): min=10, max=4489, avg=13.10, stdev= 9.13
+>    bw (  KiB/s): min=260945, max=305976, per=49.99%, avg=294350.22, stdev=9192.53, samples=18
+>    iops        : min=65236, max=76494, avg=73587.56, stdev=2298.13, samples=18
 
-IO depths: 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=100.0%, 32=0.0%, >=64=0.0%
+Applied, thanks Jeff.
 
-this result only means (16~31) IOs inflight, don't means requests inflight,
-if max_sectors_kb = 64KB, and we set bs=256KB, the number of inflight
-requests may reach to 64(if nr_request allow). So for user want to control
-the number of inflight requests, bs should less than max_sectors_kb.
-
-Signed-off-by: weiping zhang <zhangweiping@didichuxing.com>
----
- fio.1 | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/fio.1 b/fio.1
-index 54d1b0f..b7f4466 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1814,7 +1814,10 @@ engines may impose OS restrictions causing the desired depth not to be
- achieved. This may happen on Linux when using libaio and not setting
- `direct=1', since buffered I/O is not async on that OS. Keep an
- eye on the I/O depth distribution in the fio output to verify that the
--achieved depth is as expected. Default: 1.
-+achieved depth is as expected. The iodepth is not same as block device's
-+inflight. If you want control block device's inflight number by this parameter,
-+you should make sure bs less than max_sectors_kb of that block device, otherwise
-+bs will be splitted into multiple requests at block layer. Default: 1.
- .TP
- .BI iodepth_batch_submit \fR=\fPint "\fR,\fP iodepth_batch" \fR=\fPint
- This defines how many pieces of I/O to submit at once. It defaults to 1
 -- 
-2.9.4
+Jens Axboe
 
 
