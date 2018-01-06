@@ -1,289 +1,110 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa3.hgst.iphmx.com ([216.71.153.141]:34738 "EHLO
-        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752276AbeA3TNc (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 30 Jan 2018 14:13:32 -0500
-From: Kris Davis <Kris.Davis@wdc.com>
-Subject: fiologparser_hist.py script patch and enhancements?
-Date: Tue, 30 Jan 2018 19:13:29 +0000
-Message-ID: <CY1PR0401MB11162F0C6E0E0F952A92479B81E40@CY1PR0401MB1116.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Received: from mail-ua0-f193.google.com ([209.85.217.193]:44981 "EHLO
+        mail-ua0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751488AbeAFTQG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 6 Jan 2018 14:16:06 -0500
+Received: by mail-ua0-f193.google.com with SMTP id k4so4510137ual.11
+        for <fio@vger.kernel.org>; Sat, 06 Jan 2018 11:16:05 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <CAGjEAhsHnSXCJoO+wj8BZDdNi9yH3rQiMQisgFDWsm64P6DG9Q@mail.gmail.com>
+References: <CAGjEAhsHnSXCJoO+wj8BZDdNi9yH3rQiMQisgFDWsm64P6DG9Q@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 6 Jan 2018 19:15:34 +0000
+Message-ID: <CALjAwxg4e5URcZfeX73PKrGYZUHscdtdU8mhaEZYWJ6RBXWhaw@mail.gmail.com>
+Subject: Re: FIO and gfapi
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: "karl.cronburg@gmail.com" <karl.cronburg@gmail.com>
+To: qingwei wei <tchengwee@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, castor@egocast.org, hchen@redhat.com
 
-Greetings all,=20
+Hi,
 
-While working with the clat histogram log data, I ran into a few difficulti=
-es with the "fiologparser_hist.py" script. =20
-I've created a patch to address these, but of course need some discussion a=
-nd review.
+I don't use the gluster gfapi ioengine but this looks like a subtlety
+with ioengines that set .get_file_size() but don't set .setup().
 
-The issues:=20
+If you have an ioengine which defines its own .get_file_size(), it has
+to be prepared for that function to be called BEFORE the call to
+.init() is done when there is no .setup() (this happens prior to file
+layout in the scenario where the user doesn't explicitly set size with
+the fio job). So in your case because add_job() over in init.c does
+f->real_file_size = -1ULL for diskless ioengines and from
+get_file_sizes() fio ends up calling fio_gf_get_file_size() which
+returns 0 (making fio think the file_get_size call worked) and when
+fio gets to fio_gf_open_file(), f->real_file_size still has the
+maximum value and the ioengine goes on to extend the file.
 
-1) The fiologparser_hist script didn't support the new nanosecond bin value=
-s.  So I changed the operation to assume nanosecond=20
-histogram bins, and new "--usbin" option to allow user to override so same =
-script can still process older version histogram logs.
+I guess most are setting the size option when using the gfapi ioengine
+- notice how it is set in the example gfapi.fio job
+(https://github.com/axboe/fio/blob/master/examples/gfapi.fio ).
 
-2) The script asppeared hardcoded to only return 50% (median), 90%, 95%, an=
-d 99% values (along with min and max).=20
-I added "--percentiles" option to allow a request for more values ('median'=
- always printed, even if a duplicate 50% column is requested,=20
-for backward compatibility).
+On 24 November 2017 at 10:21, qingwei wei <tchengwee@gmail.com> wrote:
+> Hi,
+>
+> I am currently using glusterfs 3.12.2 and when i use FIO 3.2, the file
+> is extended automatically to 16E when doing read.
+>
+> Steps to produce
+>
+> 1. Perform sequential write
+> sudo fio -group_reporting -ioengine gfapi -volume test -brick
+> ubuntu24D -fallocate none -direct 1 -nrfiles 1 -filesize 1G -openfiles
+> 1 -bs 256k -numjobs 1 -iodepth 1 -name test6 -rw write
+>
+> 2. Perform sequential read
+> sudo fio -group_reporting -ioengine gfapi -volume test -brick
+> ubuntu24D -fallocate none -direct 1 -nrfiles 1 -filesize 1G -openfiles
+> 1 -bs 256k -numjobs 1 -iodepth 1 -name test6 -rw read
+>
+> 3. Mount the gluster volume using FUSE and can see the file size is now 16E
+> -rw-r--r--  1 root root  16E Nov 24 18:02 test6.0.0
+>
+>
+> I also run in debug mode and you can see the file is extended to 16E
+>
+> file     12546 fio file test8.0.0 open mode rw td rw read
+> file     12546 fio extend file test8.0.0 from 1073741824 to 18446744073709551615
+>
+> I also do some printf and i can see that f->real_file_size =
+> buf.st_size; is never executed and the function return on if (!g ||
+> !g->fs) {
+>
+> int fio_gf_get_file_size(struct thread_data *td, struct fio_file *f)
+> {
+>         struct stat buf;
+>         int ret;
+>         struct gf_data *g = td->io_ops_data;
+>
+>         dprint(FD_FILE, "get file size %s\n", f->file_name);
+>
+>         if (!g || !g->fs) {
+>                 return 0;
+>         }
+>         if (fio_file_size_known(f))
+>                 return 0;
+>
+>         ret = glfs_lstat(g->fs, f->file_name, &buf);
+>         if (ret < 0) {
+>                 log_err("glfs_lstat failed.\n");
+>                 return ret;
+>         }
+>
+>         f->real_file_size = buf.st_size;
+>         fio_file_set_size_known(f);
+>
+>         return 0;
+>
+> }
+>
+> Anyone can help to see what goes wrong? Thanks.
+>
+> Cw
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-3) I use python >3.4 almost exclusively in my environment, and it was relat=
-ively simple to alter script so would run with either python 2.7 or 3x .=20
-I added a check to make sure the python version is at least 2.7 or above, b=
-ut only actually tested with python 2.7.9 and 3.4.4=20
-I understand there are some minor python differences between 3.0 and 3.4 th=
-at might be an issue, but haven't tried.
-
-4) The process can be slow for large or combining many log files.  I have s=
-ome automation which will generically process many log files, and found
-I cut the process time in half if I loaded as a module rather than calling =
-as a command.  So, changed so can call main directly in a script, but neede=
-d to=20
-slightly alter the end of "guess_max_from_bins" to throw an exception on er=
-ror rather than exit, when called as a module. =20
-Someone might know of a better, more conventional pythonic design pattern t=
-o use, but it works.
-
-5) The script appears to assume that the log is never missing samples.  Tha=
-t is, weight samples to the requested intervals, I think with the=20
-assumption that the log samples are at longer intervals, or at least the sa=
-me interval length as the "--interval" value.  If the workload actually
-contains "thinktime" intervals (with missing sample when zero data), the sc=
-ript cannot know this, and assumes the logged operations should still be sp=
-read across=20
-all the intervals. =20
-
-In my case, I'm mostly interested in results at the same interval as gather=
-ed during logging, so I tweaked into an alternate version I named 'fiologpa=
-rser_hist_nw.py',
-which doesn't perform any weighting of samples.  It has an added advantage =
-of much better performance. For example, fiologparser_hist=20
-took about 1/2 hr to combine about 350 logs, but fiologparser_hist_nw took =
-45 seconds, way better for my automation.
-
-Of course, larger number of 9's percentiles would have additional inaccurac=
-ies when there are not enough operations in a sample period,=20
-but that is just user beware.
-
-I've listed a patch below for fiologparser_hist.py.  I'm not sure if can ac=
-tually "attach" files or would have included zipped copies of both fiologpa=
-rser_hist.py and fiologparser_hist_nw.py.  But, I could include them in a g=
-ithub issue.
-
-Thanks
-
-Kris
 
 
-
-diff --git a/tools/hist/fiologparser_hist.py b/tools/hist/fiologparser_hist=
-.py
-index 2e05b92..fe9a951
---- a/tools/hist/fiologparser_hist.py
-+++ b/tools/hist/fiologparser_hist.py
-@@ -1,4 +1,4 @@
--#!/usr/bin/python2.7
-+#!/usr/bin/python
- """=20
-     Utility for converting *_clat_hist* files generated by fio into latenc=
-y statistics.
-    =20
-@@ -16,7 +16,15 @@
- import os
- import sys
- import pandas
-+import re
- import numpy as np
-+
-+runascmd =3D False
-+
-+if (sys.version_info < (2, 7)):
-+    err("ERROR: Python version =3D %s; version 2.7 or greater is required.=
-\n")
-+    exit(1)
-+
-=20
- err =3D sys.stderr.write
-=20
-@@ -64,8 +72,20 @@
- def weighted_average(vs, ws):
-     return np.sum(vs * ws) / np.sum(ws)
-=20
--columns =3D ["end-time", "samples", "min", "avg", "median", "90%", "95%", =
-"99%", "max"]
--percs   =3D [50, 90, 95, 99]
-+
-+percs =3D None
-+columns =3D None
-+
-+def gen_output_columns(percentiles):
-+    global percs,columns
-+    strpercs =3D re.split('[,:]', percentiles)
-+    percs =3D [50.0]  # always print 50% in 'median' column
-+    percs.extend(list(map(float,strpercs)))
-+    columns =3D ["end-time", "samples", "min", "avg", "median"]
-+    columns.extend(list(map(lambda x: x+'%', strpercs)))
-+    columns.append("max")
-+       =20
-+
-=20
- def fmt_float_list(ctx, num=3D1):
-   """ Return a comma separated list of float formatters to the required nu=
-mber
-@@ -118,6 +138,7 @@
-=20
-     # Initial histograms from disk:
-     arrs =3D {fp: read_chunk(rdr, sz) for fp,rdr in rdrs.items()}
-+   =20
-     while True:
-=20
-         try:
-@@ -177,8 +198,12 @@
-=20
-     avg =3D weighted_average(vs, ws)
-     values =3D [mn, avg] + list(ps) + [mx]
--    row =3D [end, ss_cnt] + map(lambda x: float(x) / ctx.divisor, values)
--    fmt =3D "%d, %d, %d, " + fmt_float_list(ctx, 5) + ", %d"
-+    row =3D [end, ss_cnt] + list(map(lambda x: float(x) / ctx.divisor, val=
-ues))
-+    if ctx.divisor > 1:
-+        fmt =3D "%d, %d, " + fmt_float_list(ctx, len(percs)+3)
-+    else:
-+        # max and min are decimal values if no divisor
-+        fmt =3D "%d, %d, %d, " + fmt_float_list(ctx, len(percs)+1) + ", %d=
-"
-     print (fmt % tuple(row))
-=20
- def update_extreme(val, fncn, new_val):
-@@ -207,7 +232,7 @@
-            =20
-         # Only look at bins of the current histogram sample which
-         # started before the end of the current time interval [start,end]
--        start_times =3D (end_time - 0.5 * ctx.interval) - bin_vals / 1000.=
-0
-+        start_times =3D (end_time - 0.5 * ctx.interval) - bin_vals / ctx.t=
-ime_divisor
-         idx =3D np.where(start_times < iEnd)
-         s_ts, l_bvs, u_bvs, hs =3D start_times[idx], lower_bin_vals[idx], =
-upper_bin_vals[idx], hist[idx]
-=20
-@@ -241,7 +266,7 @@
-     idx =3D np.where(arr =3D=3D hist_cols)
-     if len(idx[1]) =3D=3D 0:
-         table =3D repr(arr.astype(int)).replace('-10', 'N/A').replace('arr=
-ay','     ')
--        err("Unable to determine bin values from input clat_hist files. Na=
-mely \n"
-+        errmsg =3D ("Unable to determine bin values from input clat_hist f=
-iles. Namely \n"
-             "the first line of file '%s' " % ctx.FILE[0] + "has %d \n" % (=
-__TOTAL_COLUMNS,) +
-             "columns of which we assume %d " % (hist_cols,) + "correspond =
-to histogram bins. \n"
-             "This number needs to be equal to one of the following numbers=
-:\n\n"
-@@ -250,7 +275,12 @@
-             "  - Input file(s) does not contain histograms.\n"
-             "  - You recompiled fio with a different GROUP_NR. If so pleas=
-e specify this\n"
-             "    new GROUP_NR on the command line with --group_nr\n")
--        exit(1)
-+        if runascmd:
-+            err(errmsg)
-+            exit(1)
-+        else:
-+            raise RuntimeError(errmsg)=20
-+       =20
-     return bins[idx[1][0]]
-=20
- def main(ctx):
-@@ -274,9 +304,18 @@
-                         ctx.interval =3D int(hist_msec)
-                 except NoOptionError:
-                     pass
-+   =20
-+    if not hasattr(ctx, 'percentiles'):
-+        ctx.percentiles =3D "90,95,99"
-+    gen_output_columns(ctx.percentiles)
-=20
-     if ctx.interval is None:
-         ctx.interval =3D 1000
-+
-+    if ctx.usbin:
-+        ctx.time_divisor =3D 1000.0        # bins are in us
-+    else:
-+        ctx.time_divisor =3D 1000000.0     # bins are in ns
-=20
-     # Automatically detect how many columns are in the input files,
-     # calculate the corresponding 'coarseness' parameter used to generate
-@@ -288,9 +327,9 @@
-=20
-         max_cols =3D guess_max_from_bins(ctx, __HIST_COLUMNS)
-         coarseness =3D int(np.log2(float(max_cols) / __HIST_COLUMNS))
--        bin_vals =3D np.array(map(lambda x: plat_idx_to_val_coarse(x, coar=
-seness), np.arange(__HIST_COLUMNS)), dtype=3Dfloat)
--        lower_bin_vals =3D np.array(map(lambda x: plat_idx_to_val_coarse(x=
-, coarseness, 0.0), np.arange(__HIST_COLUMNS)), dtype=3Dfloat)
--        upper_bin_vals =3D np.array(map(lambda x: plat_idx_to_val_coarse(x=
-, coarseness, 1.0), np.arange(__HIST_COLUMNS)), dtype=3Dfloat)
-+        bin_vals =3D np.array(list(map(lambda x: plat_idx_to_val_coarse(x,=
- coarseness), np.arange(__HIST_COLUMNS))), dtype=3Dfloat)
-+        lower_bin_vals =3D np.array(list(map(lambda x: plat_idx_to_val_coa=
-rse(x, coarseness, 0.0), np.arange(__HIST_COLUMNS))), dtype=3Dfloat)
-+        upper_bin_vals =3D np.array(list(map(lambda x: plat_idx_to_val_coa=
-rse(x, coarseness, 1.0), np.arange(__HIST_COLUMNS))), dtype=3Dfloat)
-=20
-     fps =3D [open(f, 'r') for f in ctx.FILE]
-     gen =3D histogram_generator(ctx, fps, ctx.buff_size)
-@@ -304,7 +343,7 @@
-         while more_data or len(arr) > 0:
-            =20
-             # Read up to ctx.max_latency (default 20 seconds) of data from=
- end of current interval.
--            while len(arr) =3D=3D 0 or arr[-1][0] < ctx.max_latency * 1000=
- + end:
-+            while len(arr) =3D=3D 0 or arr[-1][0] < ctx.max_latency + end:
-                 try:
-                     new_arr =3D next(gen)
-                 except StopIteration:
-@@ -338,6 +377,7 @@
-=20
- if __name__ =3D=3D '__main__':
-     import argparse
-+    runascmd =3D True
-     p =3D argparse.ArgumentParser()
-     arg =3D p.add_argument
-     arg("FILE", help=3D'space separated list of latency log filenames', na=
-rgs=3D'+')
-@@ -384,5 +424,18 @@
-              'given histogram files. Useful for auto-detecting --log_hist_=
-msec and '
-              '--log_unix_epoch (in fio) values.')
-=20
-+    arg('--percentiles',
-+        default=3D"90,95,99",
-+        type=3Dstr,
-+        help=3D'Optional argument of comma or colon separated percentiles =
-to print. '
-+             'The default is "90.0,95.0,99.0".  min, median(50%%) and max =
-percentiles are always printed')
-+   =20
-+    arg('--usbin',
-+        default=3DFalse,
-+        action=3D'store_true',
-+        help=3D'histogram bin latencies are in us (fio versions < 2.99. fi=
-o uses ns for version >=3D 2.99')
-+   =20
-+   =20
-+
-     main(p.parse_args())
-
+-- 
+Sitsofe | http://sucs.org/~sits/
