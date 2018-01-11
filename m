@@ -1,53 +1,55 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:48280 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933386AbeAKNAN (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 11 Jan 2018 08:00:13 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.89 #1 (Red Hat Linux))
-        id 1eZcSq-0004wl-Ok
-        for fio@vger.kernel.org; Thu, 11 Jan 2018 13:00:12 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH v2] ioengines: don't call munmap unless size boundary is
+ exceeded
+References: <20180110005517.14708-1-elliott@hpe.com>
+ <20180110155001.16037-1-elliott@hpe.com>
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180111130002.425D12C0098@kernel.dk>
-Date: Thu, 11 Jan 2018 06:00:02 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <5a1c714d-8ec6-bf1f-6dc7-24046086896d@kernel.dk>
+Date: Thu, 11 Jan 2018 12:14:42 -0700
+MIME-Version: 1.0
+In-Reply-To: <20180110155001.16037-1-elliott@hpe.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Robert Elliott <elliott@hpe.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 702bd977555105292f3d60dee896cd35ff8b11ef:
+On 1/10/18 8:50 AM, Robert Elliott wrote:
+> From: Robert Elliott <elliott@hpe.com>
+> 
+> In ioengines using mmap() and munmap(), don't call munmap() when doing an
+> IO that accesses the last byte of a file. This affects the dev-dax,
+> libpmem, and mmap ioengines.
+> 
+> Example:
+> io       12987 DEBUG fio_libpmem_prep
+> io       12987  io_u->offset 7516061696 : fdd->libpmem_off 0 : io_u->buflen 131072 : fdd->libpmem_sz 7516192768
+> io       12987 munmap addr=0x7f5600000000 size=0x1c0000000
+> 
+> That accesses the last 128 KiB of a 7 GiB file, triggering an munmap
+> because the comparison to 7 GiB fails:
+> 	7516061696 + 131072 < 7516192768
+> 
+> Change < to <= so that doesn't occur unless an overflow really
+> happens.
+> 
+> In one test in linux, this increases performance from 5 GB/s to 20 GB/s
+> as fio stops spending time in mmap() page table mapping spinlocks and
+> instead spends its time in memmove().  The perf top results improve from:
+>   36.81%  [kernel]             [k] queued_spin_lock_slowpath
+>   24.26%  libc-2.26.so         [.] __memmove_avx_unaligned_erms
+>    4.09%  [kernel]             [k] __radix_tree_lookup
+>    3.85%  [kernel]             [k] find_next_iomem_res
+>    3.70%  [kernel]             [k] _raw_spin_lock_irq
+>    3.48%  [kernel]             [k] down_read
+> 
+> to:
+>   79.76%  libc-2.26.so         [.] __memmove_avx_unaligned_erms
+>    3.23%  libc-2.26.so         [.] vfprintf
 
-  stat: don't add duplicate clat entries for json (2018-01-06 14:47:01 -0700)
+Good catch, thanks Rob! Applied.
 
-are available in the git repository at:
+-- 
+Jens Axboe
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 9d5fe300085759c0f764a62be27355fe80b5fd8f:
-
-  io/examples/fio-seq-read: use direct=1 (2018-01-10 08:30:07 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      io/examples/fio-seq-read: use direct=1
-
- examples/fio-seq-read.job | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/examples/fio-seq-read.job b/examples/fio-seq-read.job
-index 74b1b30..28de93c 100644
---- a/examples/fio-seq-read.job
-+++ b/examples/fio-seq-read.job
-@@ -3,7 +3,7 @@ name=fio-seq-reads
- filename=fio-seq-reads
- rw=read
- bs=256K
--direct=0
-+direct=1
- numjobs=1
- time_based=1
- runtime=900
