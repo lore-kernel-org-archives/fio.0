@@ -2,10 +2,10 @@ Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
 Subject: [PATCH 3/3] null: drop unneeded casts from void* to non-void*
-Date: Mon, 15 Jan 2018 21:52:12 +0200
-Message-Id: <20180115195212.1349-4-tkusumi@tuxera.com>
-In-Reply-To: <20180115195212.1349-1-tkusumi@tuxera.com>
-References: <20180115195212.1349-1-tkusumi@tuxera.com>
+Date: Mon, 15 Jan 2018 21:06:43 +0200
+Message-Id: <20180115190643.12105-3-tkusumi@tuxera.com>
+In-Reply-To: <20180115190643.12105-1-tkusumi@tuxera.com>
+References: <20180115190643.12105-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
@@ -15,8 +15,6 @@ From: Tomohiro Kusumi <tkusumi@tuxera.com>
 Some functions in null ioengine are used by C/C++ (e.g. null_init()
 which calls malloc(3)), but C specific ones (not __cplusplus) don't
 need explicit cast from void* to non-void*, and one usually doesn't.
-
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
  engines/null.c | 12 ++++++------
  1 file changed, 6 insertions(+), 6 deletions(-)
