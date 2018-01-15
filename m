@@ -2,10 +2,8 @@ Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
 Subject: [PATCH 1/3] null: fix compile time warning on OpenBSD
-Date: Mon, 15 Jan 2018 21:52:10 +0200
-Message-Id: <20180115195212.1349-2-tkusumi@tuxera.com>
-In-Reply-To: <20180115195212.1349-1-tkusumi@tuxera.com>
-References: <20180115195212.1349-1-tkusumi@tuxera.com>
+Date: Mon, 15 Jan 2018 21:06:41 +0200
+Message-Id: <20180115190643.12105-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
@@ -24,8 +22,6 @@ Compiles with regular make/gmake as well as
     CC engines/null.o
 engines/null.c: In function 'fio_null_init':
 engines/null.c:142: warning: dereferencing type-punned pointer will break strict-aliasing rules
-
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
  engines/null.c | 14 ++++++++------
  1 file changed, 8 insertions(+), 6 deletions(-)
