@@ -2,10 +2,10 @@ Return-Path: <kusumi.tomohiro@gmail.com>
 Return-Path: <kusumi.tomohiro@gmail.com>
 From: kusumi.tomohiro@gmail.com
 Subject: [PATCH 2/3] null: make *impl_ private
-Date: Mon, 15 Jan 2018 21:52:11 +0200
-Message-Id: <20180115195212.1349-3-tkusumi@tuxera.com>
-In-Reply-To: <20180115195212.1349-1-tkusumi@tuxera.com>
-References: <20180115195212.1349-1-tkusumi@tuxera.com>
+Date: Mon, 15 Jan 2018 21:06:42 +0200
+Message-Id: <20180115190643.12105-2-tkusumi@tuxera.com>
+In-Reply-To: <20180115190643.12105-1-tkusumi@tuxera.com>
+References: <20180115190643.12105-1-tkusumi@tuxera.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <tkusumi@tuxera.com>
 List-ID: <fio@vger.kernel.org>
@@ -15,8 +15,6 @@ From: Tomohiro Kusumi <tkusumi@tuxera.com>
 This can/should be private, given struct is default public in C++.
 The null ioengine only needs access to new'd NullData which
 encapsulates malloc'd null_data *impl_.
-
-Signed-off-by: Tomohiro Kusumi <tkusumi@tuxera.com>
 ---
  engines/null.c | 1 +
  1 file changed, 1 insertion(+)
