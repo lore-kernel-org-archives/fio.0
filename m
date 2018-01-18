@@ -1,319 +1,101 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx0a-00003501.pphosted.com ([67.231.144.15]:58770 "EHLO
-        mx0a-00003501.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1750992AbeACQlh (ORCPT
-        <rfc822;fio@vger.kernel.org>); Wed, 3 Jan 2018 11:41:37 -0500
-Received: from pps.filterd (m0075554.ppops.net [127.0.0.1])
-        by mx0a-000cda01.pphosted.com (8.16.0.21/8.16.0.21) with SMTP id w03GfLOg042280
-        for <fio@vger.kernel.org>; Wed, 3 Jan 2018 11:41:36 -0500
-Received: from mail-lf0-f70.google.com (mail-lf0-f70.google.com [209.85.215.70])
-        by mx0a-000cda01.pphosted.com with ESMTP id 2f90kh8e2q-3
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-        for <fio@vger.kernel.org>; Wed, 03 Jan 2018 11:41:36 -0500
-Received: by mail-lf0-f70.google.com with SMTP id m195so392354lfg.2
-        for <fio@vger.kernel.org>; Wed, 03 Jan 2018 08:41:35 -0800 (PST)
+Return-Path: <elliott@hpe.com>
+From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+Subject: RE: memcpy test: results from adding sse and avx tests
+Date: Thu, 18 Jan 2018 21:22:38 +0000
+Message-ID: <AT5PR8401MB03876BC5B3CC839ADB664BB9ABE80@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
+References: <04b051c0-85a6-d6c5-e20e-c9a765a8e22d@bluestop.org>
+ <a1e84eb8-5b0c-efa2-6234-555150a740cf@kernel.dk>
+In-Reply-To: <a1e84eb8-5b0c-efa2-6234-555150a740cf@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <CAODBMz=87eO_NGzZy3vudvvcG45xzt2EQ8qsaHON0umqdQQhDw@mail.gmail.com>
-References: <CAODBMz=eP9o0j_DeBtEzeULv49nSPCbMAjThrno8m8ns2ELdGg@mail.gmail.com>
- <CALjAwxiMLDOXm5bM7PKyOr1Z8y4P+AkP_ovZ3HZ6fdHOOsd=ZA@mail.gmail.com> <CAODBMz=87eO_NGzZy3vudvvcG45xzt2EQ8qsaHON0umqdQQhDw@mail.gmail.com>
-From: Phillip Chen <phillip.a.chen@seagate.com>
-Date: Wed, 3 Jan 2018 09:40:53 -0700
-Message-ID: <CAODBMzny3FoOTw_+iWrxXYfMRRFQHY6TsR4ua5A4_HFinW5nTQ@mail.gmail.com>
-Subject: Re: FLEX feature requests
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Jens Axboe <axboe@kernel.dk>, Rebecca Cran <rebecca@bluestop.org>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Whoops, forgot to send this in plain text the first time.
-Thanks for looking at this. A force_detected_size argument would work
-just as well, if that is easier. I'd love to get this argument as soon
-as possible so that I can start running FIO on the entirety of FLEX
-drives.
-As for the zoning:
-I can't help wondering whether the above requires a special "mode" (or
-profile) of it's own.
-Yes, I think these I/O modes are different enough they need their own
-specific mode, but I can't think of a better way than specifying it
-through the readwrite option. However, it might makes sense to do it
-another way.
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
+a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uDQo+IEJlaGFs
+ZiBPZiBKZW5zIEF4Ym9lDQo+IFNlbnQ6IFRodXJzZGF5LCBKYW51YXJ5IDE4LCAyMDE4IDExOjQ3
+IEFNDQo+IFRvOiBSZWJlY2NhIENyYW4gPHJlYmVjY2FAYmx1ZXN0b3Aub3JnPjsgZmlvQHZnZXIu
+a2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogbWVtY3B5IHRlc3Q6IHJlc3VsdHMgZnJvbSBhZGRp
+bmcgc3NlIGFuZCBhdnggdGVzdHMNCj4gDQo+IE9uIDEvMTgvMTggMTA6MzggQU0sIFJlYmVjY2Eg
+Q3JhbiB3cm90ZToNCj4gPiBJIGFkZGVkIGNvZGUgdG8gbGliL21lbWNweS5jIHRvIHRlc3Qgc3Nl
+IGFuZCBhdnggcGVyZm9ybWFuY2UsIGFuZCBmb3VuZA0KPiA+IHRoYXQgb24gbW9kZXJuIHN5c3Rl
+bXMgbWVtY3B5IG91dHBlcmZvcm1zIGJvdGggYnkgcXVpdGUgc29tZSBtYXJnaW4NCj4gPiAoR0Iv
+cykgb24gdGhlIGxhcmdlciBibG9jayBzaXplczogdGhlIG9ubHkgcGxhY2Ugc3NlL2F2eCBpcyBh
+bg0KPiA+IGltcHJvdmVtZW50IHdhcyBvbiBhbiBvbGRlciBTYW5keUJyaWRnZSBFUCBzeXN0ZW0g
+LSBJJ3ZlIGNvcGllZCB0aGUNCj4gPiBvdXRwdXQgYmVsb3cuDQo+ID4NCj4gPiBTaG91bGQgSSB3
+b3JrIG9uIGEgcGF0Y2ggdG8gY29tbWl0IHRoZSBjaGFuZ2VzLCBvciBqdXN0IGFiYW5kb24gdGhl
+bQ0KPiA+IHNpbmNlIGl0IHNlZW1zIHRoZSBjdXJyZW50IG1lbWNweSBpbXBsZW1lbnRhdGlvbiB1
+c2VkIGluIHRoZSBtbWFwIGVuZ2luZQ0KPiA+IGlzIHRoZSBiZXN0IHNvbHV0aW9uIG9uIG1vZGVy
+biBtYWNoaW5lcz8NCj4gDQo+IFRoZSB1cHNpZGUgd291bGQgYmUgaGF2aW5nIGFuIGltcGxlbWVu
+dGF0aW9uIHRoYXQgaXMgaW5kZXBlbmRlbnQgb2YNCj4gdGhlIE9TLCB0aGUgZG93bnNpZGUgaXMg
+dGhlIChzaWduaWZpY2FudCkgZXh0cmEgbWFpbnRlbmFuY2UgYnVyZGVuDQo+IGFuZCB0aGUgZGlm
+ZmVyaW5nIHJlc3VsdHMgb24gZGlmZmVyZW50IG1hY2hpbmVzLg0KPiANCj4gVGhlIHN5bnRoZXRp
+YyB0ZXN0IGNhc2UgaXMgYSBiaXQgbWlzbGVhZGluZywgSSB0aGluay4gYXZ4L3NzZSBtaWdodA0K
+PiB5aWVsZCBncmVhdCByZXN1bHRzIGZvciBzbWFsbCBzaXplcywgYnV0IGluIGFjdHVhbCB3b3Jr
+bG9hZHMsIGhhdmluZw0KPiB0byBzYXZlL3Jlc3RvcmUgc3RhdGUgYWNyb3NzIGNvbnRleHQgc3dp
+dGNoZXMgd2lsbCBhZGQgb3ZlcmhlYWQuIFRoZQ0KPiBzaW1wbGUgdGhyb3VnaHB1dCB0ZXN0IGNh
+c2UgZG9lc24ndCBpbmNsdWRlIHRoYXQuDQo+IA0KPiBBZGRpbmcgdGhlIG1lbWNweSBmb3IgYXZ4
+L3NzZSB0byB0aGUgdGVzdCBjYXNlIG1pZ2h0IGJlIGludGVyZXN0aW5nDQo+IHRob3VnaCwganVz
+dCB0byBiZSBhYmxlIHRvIGNvbXBhcmUgcGVyZm9ybWFuY2VzIHdpdGggYnVpbHRpbg0KPiBtZW1j
+cHkvbWVtbW92ZSBvbiBhIGdpdmVuIHN5c3RlbS4NCg0KZ2xpYmMgaGFzIGV2b2x2ZWQgdG8gY2hv
+b3NpbmcgdGhvc2UgY29kZSBwYXRocyBvbmx5IGZvciB0cmFuc2ZlcnMgdGhhdA0KYXJlIGxhcmdl
+ciB0aGFuIHNvbWUgcGVyY2VudGFnZSBvZiB0aGUgTDMgY2FjaGUgc2l6ZSAodGhlIGVxdWF0aW9u
+IGhhcw0KY2hhbmdlZCBvdmVyIHRpbWUpLCB1c2luZyBub24tdGVtcG9yYWwgc3RvcmVzIHRvIGF2
+b2lkIGZpbGxpbmcgdGhlIGNhY2hlDQp3aXRoIHRoZSBuZXcgZGF0YS4NCg0KRXhhbXBsZSByZXN1
+bHRzIG9uIGEgc3lzdGVtIHdpdGggNDUgTWlCIEwzIGNhY2hlOg0KDQptZW1jcHkNCiAgICAgICAg
+ICA0IGJ5dGVzOiAgICAgICAxMjE3Ljk5IE1pQi9zDQogICAgICAgICAgOCBieXRlczogICAgICAg
+MjQxNC4zNyBNaUIvcw0KICAgICAgICAgMTYgYnl0ZXM6ICAgICAgIDMxODUuNTIgTWlCL3MNCiAg
+ICAgICAgIDMyIGJ5dGVzOiAgICAgICAzNDQ1LjQ2IE1pQi9zDQogICAgICAgICA2NCBieXRlczog
+ICAgICAgMzY4Ny43MiBNaUIvcw0KICAgICAgICAgOTYgYnl0ZXM6ICAgICAgIDM4NzMuNDQgTWlC
+L3MNCiAgICAgICAgMTI4IGJ5dGVzOiAgICAgICA0MjAwLjQzIE1pQi9zDQogICAgICAgIDI1NiBi
+eXRlczogICAgICAgNDExNS43NCBNaUIvcw0KICAgICAgICA1MTIgYnl0ZXM6ICAgICAgIDQzNDgu
+MTQgTWlCL3MNCiAgICAgICAgICAyIEtpQjogICAgICAgICA0Mjk1LjYwIE1pQi9zDQogICAgICAg
+ICAgNCBLaUI6ICAgICAgICAgNDMyOC4zMCBNaUIvcw0KICAgICAgICAgIDggS2lCOiAgICAgICAg
+IDMyMzguNDggTWlCL3MNCiAgICAgICAgMTI4IEtpQjogICAgICAgICAzNjI4Ljg3IE1pQi9zDQog
+ICAgICAgIDI1NiBLaUI6ICAgICAgICAgMzM5Mi45NiBNaUIvcw0KICAgICAgICA1MTIgS2lCOiAg
+ICAgICAgIDM2MzguNDkgTWlCL3MNCiAgICAgICAgICA4IE1pQjogICAgICAgICAzNTk2LjI2IE1p
+Qi9zDQogICAgICAgIDZ4IDEuMzc1IE1pQjogICAgMzYzOS45NCBNaUIvcw0KICAgICAgICAgIDkg
+TWlCOiAgICAgICAgIDM2MzUuMDggTWlCL3MNCiAgICAgICAgIDE2IE1pQjogICAgICAgICAzNjM3
+LjE5IE1pQi9zDQogICAgICAgICAxNyBNaUI6ICAgICAgICAgMzYwMy4zMCBNaUIvcw0KICAgICAg
+ICAgMjIgTWlCOiAgICAgICAgIDM0MTQuNDcgTWlCL3MNCiAgICAgICAgIDMyIE1pQjogICAgICAg
+ICAzNjM5Ljc3IE1pQi9zDQogICAgICAgICA0MCBNaUI6ICAgICAgICAgNjUyOC4wNCBNaUIvcw0K
+ICAgICAgICAgNDggTWlCOiAgICAgICAgIDcyNTguNjkgTWlCL3MNCiAgICAgICAgMTI4IE1pQjog
+ICAgICAgICA3MjcxLjkyIE1pQi9zDQogICAgICAgIGZ1bGwgYnVmZmVyOiAgICAgNzI2MC4xMSBN
+aUIvcw0KDQpnbGliYy0yLjI2IGFkZGVkIHN1cHBvcnQgZm9yIGEgR0xJQkNfVFVOQUJMRVMgZW52
+aXJvbm1lbnQgdmFyaWFibGUNCnRoYXQgY2FuIGJlIHVzZWQgdG8gYWRqdXN0IHRoZSBub24tdGVt
+cG9yYWwgdGhyZXNob2xkIGZvciBzb21lIG9mDQp0aGUgbGlicmFyeSBmdW5jdGlvbnMgbGlrZSBt
+ZW1jcHkoKS4gIFRoZSBzeW50YXggbG9va3MgbGlrZToNCglHTElCQ19UVU5BQkxFUz1nbGliYy50
+dW5lLng4Nl9ub25fdGVtcG9yYWxfdGhyZXNob2xkPTIwOTcxNTINCm9yDQoJR0xJQkNfVFVOQUJM
+RVM9Z2xpYmMudHVuZS54ODZfbm9uX3RlbXBvcmFsX3RocmVzaG9sZD0xMzEwNzI6Z2xpYmMudHVu
+ZS5od2NhcHM9QVZYMl9Vc2FibGUsRVJNUywtUHJlZmVyX05vX1ZaRVJPVVBQRVIsQVZYX0Zhc3Rf
+VW5hbGlnbmVkX0xvYWQNCg0KRXhhbXBsZSByZXN1bHRzIHNldHRpbmcgdGhlIHRocmVzaG9sZCB2
+ZXJ5IGxvdyAoNCBLaUIpIHNob3dzDQpwZXJmb3JtYW5jZSBjb250aW51aW5nIHRvIHNjYWxlIGJh
+c2VkIG9uIHRyYW5zZmVyIHNpemU6DQoNCmV4cG9ydCBHTElCQ19UVU5BQkxFUz1nbGliYy50dW5l
+Lng4Nl9ub25fdGVtcG9yYWxfdGhyZXNob2xkPTQwOTYNCm51bWFjdGwgLUMgMSAtbSAwIC4vZmlv
+IC0tbWVtY3B5dGVzdA0KbWVtY3B5DQogICAgICAgICAgNCBieXRlczogICAgICAgMTIxMC4wOSBN
+aUIvcw0KICAgICAgICAgIDggYnl0ZXM6ICAgICAgIDI0MTMuMTIgTWlCL3MNCiAgICAgICAgIDE2
+IGJ5dGVzOiAgICAgICAzMTkyLjQzIE1pQi9zDQogICAgICAgICAzMiBieXRlczogICAgICAgMzQ3
+MS41NyBNaUIvcw0KICAgICAgICAgNjQgYnl0ZXM6ICAgICAgIDM1NzcuMzYgTWlCL3MNCiAgICAg
+ICAgIDk2IGJ5dGVzOiAgICAgICAzODk3LjUxIE1pQi9zDQogICAgICAgIDEyOCBieXRlczogICAg
+ICAgNDAzNS4wNCBNaUIvcw0KICAgICAgICAyNTYgYnl0ZXM6ICAgICAgIDQyNjMuOTMgTWlCL3MN
+CiAgICAgICAgNTEyIGJ5dGVzOiAgICAgICA0Mjc2Ljc0IE1pQi9zDQogICAgICAgICAgMiBLaUI6
+ICAgICAgICAgNDE5Ny4zMiBNaUIvcw0KICAgICAgICAgIDQgS2lCOiAgICAgICAgIDQyMjcuMjEg
+TWlCL3MNCiAgICAgICAgICA4IEtpQjogICAgICAgICA1MzYwLjMxIE1pQi9zDQogICAgICAgIDEy
+OCBLaUI6ICAgICAgICAgNjkwMy44MyBNaUIvcw0KICAgICAgICAyNTYgS2lCOiAgICAgICAgIDY5
+NzIuOTkgTWlCL3MNCiAgICAgICAgNTEyIEtpQjogICAgICAgICA3MDAwLjc5IE1pQi9zDQogICAg
+ICAgICAgOCBNaUI6ICAgICAgICAgNzAyNC42MCBNaUIvcw0KICAgICAgICA2eCAxLjM3NSBNaUI6
+ICAgIDcwMTguNDMgTWlCL3MNCiAgICAgICAgICA5IE1pQjogICAgICAgICA3MDIzLjUzIE1pQi9z
+DQogICAgICAgICAxNiBNaUI6ICAgICAgICAgNzAzMS4yMiBNaUIvcw0KICAgICAgICAgMTcgTWlC
+OiAgICAgICAgIDcwMjIuODUgTWlCL3MNCiAgICAgICAgIDIyIE1pQjogICAgICAgICA3MDE3LjM3
+IE1pQi9zDQogICAgICAgICAzMiBNaUI6ICAgICAgICAgNzAzNS4wMyBNaUIvcw0KICAgICAgICAg
+NDAgTWlCOiAgICAgICAgIDcwMjcuNzIgTWlCL3MNCiAgICAgICAgIDQ4IE1pQjogICAgICAgICA3
+MDIxLjE3IE1pQi9zDQogICAgICAgIDEyOCBNaUI6ICAgICAgICAgNzAzOC4wOSBNaUIvcw0KICAg
+ICAgICBmdWxsIGJ1ZmZlcjogICAgIDcwMjIuNTEgTWlCL3MNCg0KSSdtIHdvcmtpbmcgb24gYSBw
+YXRjaCBzZXQgdG8gcnVuIHRoZXNlIChhbmQgbW9yZSkgbWVtb3J5IHRlc3RzDQp3aXRoaW4gYW4g
+bW1hcCgpZWQgcmVnaW9uLCB3aGljaCBpcyBlc3BlY2lhbGx5IHVzZWZ1bCBmb3INCnBlcnNpc3Rl
+bnQgbWVtb3J5IHRoYXQgZG9lc24ndCBoYXZlIHRoZSBzYW1lIHBlcmZvcm1hbmNlIGFzDQpyZWd1
+bGFyIG1lbW9yeS4gIEknbGwgdHJ5IHRvIHBvc3QgYW4gUkZDIG9mIHRoYXQgc2VyaWVzIHNvb24u
+DQoNCi0tLQ0KUm9iZXJ0IEVsbGlvdHQsIEhQRSBQZXJzaXN0ZW50IE1lbW9yeQ0KDQoNCg0K
 
-Your bullet points on all that we need for the zoned I/O all seem spot
-on to me except I'm not sure about this one (this also answers your
-question on number of open zones):
-- There needs to be control of the next zone picked (e.g. sequential/random=
-).
-I don't know that the idea of a "next zone" really applies here.
-Ideally, all specified zones will be randomly issued I/O if they can
-be. So initially, all zones would receive I/O, and then if a zone is
-filled up it would no longer receive write I/O. Similarly, a readwrite
-zone that has not been written to yet will not receive any read I/O
-until it has received write I/O.
-
-As for your other questions:
-- Does a randommap for blocks still make sense when I no longer have
-total freedom over where my next I/O goes?
-randommap doesn't make sense for writes which must be written at the
-high water mark like you said. I can see randommap being difficult to
-implement for the reads, but I don't see any fundamental reason it
-couldn't work. However, we tend to run FIO with the norandommap flag
-anyway, so if this mode didn't run with randommap that would work for
-us.
-
-- What happens when there are more reads than writes? What does it
-mean to have a sequential "only reads" job?
-I'm not sure I understand the question here. Sequential reads would
-work the same as usual, I assume. If you issued a read workload to an
-area of the disk that hasn't yet been written, you'll get an abort,
-but I think it's the user's responsibility to make sure that doesn't
-happen. If you had a write_pointer_randrw workload with a rwmixread >
-50, you would need to make sure not to issue reads until at least one
-write had been issued. And then afterwards, all reads would need to be
-to sectors that have already been written which might result in the
-same few sectors being repeatedly read until more writes occur.
-
-- Following on from the above, can reads force a switch to a new zone?
-I/O should be distributed randomly among all the specified zones.
-
-Reading through your comments makes me think that maybe it would make
-sense when specifying zones for the write_pointer_randrw workload to
-specify not just the offset and zone size, but the write pointer (high
-water mark) as well.
-Thank you for considering this, let me know if I can help in any way.
-I would love to contribute to the FIO project if that would help.
-Phillip Chen
-
-On Wed, Jan 3, 2018 at 9:34 AM, Phillip Chen <phillip.a.chen@seagate.com> w=
-rote:
-> Thanks for looking at this. A force_detected_size argument would work jus=
-t
-> as well, if that is easier. I'd love to get this argument as soon as
-> possible so that I can start running FIO on the entirety of FLEX drives.
-> As for the zoning:
-> I can't help wondering whether the above requires a special "mode" (or
-> profile) of it's own.
-> Yes, I think these I/O modes are different enough they need their own
-> specific mode, but I can't think of a better way than specifying it throu=
-gh
-> the readwrite option. However, it might makes sense to do it another way.
->
-> Your bullet points on all that we need for the zoned I/O all seem spot on=
- to
-> me except I'm not sure about this one (this also answers your question on
-> number of open zones):
-> - There needs to be control of the next zone picked (e.g.
-> sequential/random).
-> I don't know that the idea of a "next zone" really applies here. Ideally,
-> all specified zones will be randomly issued I/O if they can be. So
-> initially, all zones would receive I/O, and then if a zone is filled up i=
-t
-> would no longer receive write I/O. Similarly, a readwrite zone that has n=
-ot
-> been written to yet will not receive any read I/O until it has received
-> write I/O.
->
-> As for your other questions:
-> - Does a randommap for blocks still make sense when I no longer have
-> total freedom over where my next I/O goes?
-> randommap doesn't make sense for writes which must be written at the high
-> water mark like you said. I can see randommap being difficult to implemen=
-t
-> for the reads, but I don't see any fundamental reason it couldn't work.
-> However, we tend to run FIO with the norandommap flag anyway, so if this
-> mode didn't run with randommap that would work for us.
->
-> - What happens when there are more reads than writes? What does it
-> mean to have a sequential "only reads" job?
-> I'm not sure I understand the question here. Sequential reads would work =
-the
-> same as usual, I assume. If you issued a read workload to an area of the
-> disk that hasn't yet been written, you'll get an abort, but I think it's =
-the
-> user's responsibility to make sure that doesn't happen. If you had a
-> write_pointer_randrw workload with a rwmixread > 50, you would need to ma=
-ke
-> sure not to issue reads until at least one write had been issued. And the=
-n
-> afterwards, all reads would need to be to sectors that have already been
-> written which might result in the same few sectors being repeatedly read
-> until more writes occur.
->
-> - Following on from the above, can reads force a switch to a new zone?
-> I/O should be distributed randomly among all the specified zones.
->
-> Reading through your comments makes me think that maybe it would make sen=
-se
-> when specifying zones for the write_pointer_randrw workload to specify no=
-t
-> just the offset and zone size, but the write pointer (high water mark) as
-> well.
-> Thank you for considering this, let me know if I can help in any way. I
-> would love to contribute to the FIO project if that would help.
-> Phillip Chen
->
->
-> On Fri, Dec 29, 2017 at 4:24 AM, Sitsofe Wheeler <sitsofe@gmail.com> wrot=
-e:
->>
->> Hi Philip,
->>
->> On 15 December 2017 at 21:29, Phillip Chen <phillip.a.chen@seagate.com>
->> wrote:
->> > Hello again,
->> > I've been working on getting FIO running on a FLEX drive and I've been
->> > accumulating a laundry list of features that would be nice to have and
->> > I've run into one that is necessary. I also found one bug while
->> > experimenting with various FIO options that I'll include in the list.
->> > Here are the changes I'd appreciate seeing starting with the most
->> > desired. I've included
->> >
->> > 1. --ignore_device_size
->> > The current FLEX protocol maps storage to sectors/bytes greater than
->> > the reported capacity of the drive. I'd like to run FIO on these out
->> > of bounds sectors, but right now I can't because I get the error "you
->> > need to specify valid offset=3D". Would it be possible to add a flag
->> > that would let users run IO outside of the reported device capacity?
->> > Without this I believe that FIO cannot run on the SMR portions of any
->> > FLEX drive.
->>
->> Perhaps a "--force_detected_size=3Dint" might be simpler because there
->> are all sorts of things that look at the file size and make some sort
->> of calculation based upon it (e.g. offset/size percentages)...
->>
->> > 2. --readwrite=3Dwrite_pointer_randwrite:offset,io_size:offset,io_size=
-...
->> > In write pointer zones, all writes must be at the write pointer, so
->> > random IO is not possible. However, it would be useful to run
->> > random-like workloads in which random zones are written to
->> > sequentially. This would be very similar to the
->> > random_distribution=3Dzoned_abs argument except for instead of writing
->> > randomly within a zone, it would write to a specific offset and then
->> > increment that offset by the amount written, but would stop writing to
->> > that zone entirely once the incrementing offset reached the end of the
->> > zone. So if I had 3 zones I wanted to write to that were each 128mb
->> > long, I could specify something like
->> > --readwrite=3Dwrite_pointer_randwrite:0,128m:128m,128m:256m,128m. It
->> > might also make sense to add distribution percentages like in the
->> > zoned_abs argument, although I'm not entirely sure what you would do
->> > with those percentages when a zone got fully written and thus could
->> > not be picked anymore.
->> >
->> > 3. --readwrite=3Dwrite_pointer_randrw:offset,io_size:offset,io_size...
->> > Additionally, in write pointer zones, all reads must be below the
->> > write pointer, so random read IO is restricted. This is why I
->> > requested the random_distribution:zoned_abs argument, because that can
->> > be used quite well for issuing random reads to write pointer zones.
->> > However, I would like to read and write "randomly" to write pointer
->> > zones so that I can more easily control the read/write ratio as well
->> > as being able to read data that was written during the same FIO run
->> > (currently I can use random_distribution:zoned_abs to read randomly
->> > from the beginning of the zone up to the write pointer at the
->> > beginning of the FIO run, but I cannot read further after FIO
->> > increments the write pointer). This workload would write randomly as
->> > described above, and read between the offset and the incremented
->> > offset. So before any writes went to the zone, you wouldn't be able to
->> > read randomly from that zone.
->> >
->> > 4. Automatic zone detection with the above two readwrite modes
->> > I believe this would be quite a bit of work, but it would nice to be
->> > able to specify the previous two workload types without specifically
->> > specifying the zones. Instead the user could specify offset and size
->> > as normal, and additionally specify the zone number (perhaps through a
->> > new option or perhaps with an extended syntax in the readwrite
->> > option), and FIO would get the zones and randomly perform write
->> > pointer legal IO within all the zones specified by the user using
->> > offset and size. And if the user specified a drive area that contains
->> > non-write pointer zones, FIO would just do normal IO. It might also be
->> > possible for me to help with the implementation of this, if that would
->> > be something you'd be interested in.
->>
->> I can't help wondering whether the above requires a special "mode" (or
->> profile) of it's own. It sounds like:
->> - There needs to be a semi-elaborate zone map. It needs to be possible
->> to specify the zone map either using a trivial algorithm (e.g. make a
->> zone every other 128MBytes) or statically (here's a string that
->> represents the mapping/here's a function that will return a mapping)
->> - It must be possible to specify the type of a zone (this zone is for
->> reading/writing/trimming or some combination of these).
->> - Zones must be able to change their type as a job runs (after a write
->> zone starts being used it could be useful if it could become a
->> read/write zone, after it's full only a read zone etc).
->> - There needs to be control of the next zone picked (e.g.
->> sequential/random).
->> - A write zone needs a high water write mark to allow write
->> continuation or to ensure reads from it are below a watermark.
->> - Certain behaviours in this mode would be blocked (no random writing
->> to a zone).
->>
->> If the above sounds along the right lines here are some questions off
->> the top of my head:
->> - Does a randommap for blocks still make sense when I no longer have
->> total freedom over where my next I/O goes?
->> - What happens when there are more reads than writes? What does it
->> mean to have a sequential "only reads" job?
->> - Following on from the above, can reads force a switch to a new zone?
->> - Do you have more than one write zone open at any one time?
->>
->> I'm not offering to implement anything but I'm just curious if there's
->> some sort of overall design that isn't too complicated to use.
->>
->> > 5. Bug report: --random_percentage sequential behaviour
->> > It seems that sequential IO is increasing but not sequential when
->> > using the --random_percentage option. Running the following FIO job:
->> > fio --name=3Drand_reads_seq_writes --ioengine=3Dlibaio --direct=3D1
->> > --exitall --thread --filename=3D/dev/sdf --runtime=3D30 --readwrite=3D=
-randrw
->> > --iodepth=3D1 --percentage_random=3D100,0 --norandommap
->> > --output-format=3Dterse
->> > results in an even distribution of reads as expected and writes that
->> > are increasing but not sequential. Here's an example of writes that I
->>
->> Hmm not sure on this one - it would be nice to see the reads
->> interspersed with the writes - it could be each read seeks to a bigger
->> offset and then the write follows on from it sequentially.
->>
->> You might be better able to achieve your goal with independent jobs
->> tied together using flow
->>
->> (https://urldefense.proofpoint.com/v2/url?u=3Dhttp-3A__fio.readthedocs.i=
-o_en_latest_fio-5Fman.html-23cmdoption-2Darg-2Dflow&d=3DDwIBaQ&c=3DIGDlg0lD=
-0b-nebmJJ0Kp8A&r=3DeNMOVQH16Aa4ThAFVwj-O7goG7k06cW3W6DO_yXnzSg&m=3D3A4x6YYo=
-q8wPWyaE7AA1n70Jy5344M-RPOb9UqbzurA&s=3De4BaL3RyaD0KPq_axlVnysn7VvtjQ51XHIb=
-NHwGGAK8&e=3D
->> ).
->>
->> > am seeing running this job:
->> > First 20 writes (sector, sectors written)
->> > [(0, 8), (3048, 8), (3056, 8), (3064, 8), (3072, 8), (3080, 8), (3088,
->> > 8), (6408, 8), (7000, 8), (13440, 8), (13496, 8), (13648, 8), (13768,
->> > 8), (13920, 8), (14288, 8), (14400, 8), (16376, 8), (18824, 8),
->> > (18936, 8), (19832, 8)]
->> > Here is my environment information:
->> > # cat /etc/centos-release
->> > CentOS Linux release 7.3.1611 (Core)
->> > # uname -r
->> > 3.10.0-514.21.1.el7.x86_64
->> > I saw the same behaviour on fio-3.2 and fio-3.2-81-g3e262 which was
->> > the newest version I could see as of today.
->> >
->> > So I see some bursts of sequential writes, but mostly it seems to be
->> > skipping around.
->> >
->> > I've attached a python 3.6 script that will run this workload and
->> > collect the IO information using blktrace/blkparse. To run the script,
->> > use the -h flag to see usage, but at a minimum you'll need to give the
->> > device handle to run on as the first argument.
->> >
->> > Thank you for your help, and let me know if you decide to add these
->> > features or if I need to provide any further information.
->>
->> --
->> Sitsofe |
->> https://urldefense.proofpoint.com/v2/url?u=3Dhttp-3A__sucs.org_-7Esits_&=
-d=3DDwIBaQ&c=3DIGDlg0lD0b-nebmJJ0Kp8A&r=3DeNMOVQH16Aa4ThAFVwj-O7goG7k06cW3W=
-6DO_yXnzSg&m=3D3A4x6YYoq8wPWyaE7AA1n70Jy5344M-RPOb9UqbzurA&s=3D8tMsxQjD_CtE=
-ZC28bh0sBO41uV9av9VPjO4dIy4lkAk&e=3D
->
->
