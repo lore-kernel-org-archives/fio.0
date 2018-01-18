@@ -1,101 +1,187 @@
-Return-Path: <elliott@hpe.com>
-From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Subject: RE: memcpy test: results from adding sse and avx tests
-Date: Thu, 18 Jan 2018 21:22:38 +0000
-Message-ID: <AT5PR8401MB03876BC5B3CC839ADB664BB9ABE80@AT5PR8401MB0387.NAMPRD84.PROD.OUTLOOK.COM>
+Return-Path: <rebecca@bluestop.org>
+Subject: Re: memcpy test: results from adding sse and avx tests
 References: <04b051c0-85a6-d6c5-e20e-c9a765a8e22d@bluestop.org>
  <a1e84eb8-5b0c-efa2-6234-555150a740cf@kernel.dk>
-In-Reply-To: <a1e84eb8-5b0c-efa2-6234-555150a740cf@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Rebecca Cran <rebecca@bluestop.org>
+Message-ID: <68527aaf-203d-8a43-560c-f9135f348b18@bluestop.org>
+Date: Thu, 18 Jan 2018 13:36:36 -0700
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, Rebecca Cran <rebecca@bluestop.org>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <a1e84eb8-5b0c-efa2-6234-555150a740cf@kernel.dk>
+Content-Type: multipart/mixed;
+ boundary="------------9C75A3BC47705DEC8EECD540"
+Content-Language: en-US
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
-a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uDQo+IEJlaGFs
-ZiBPZiBKZW5zIEF4Ym9lDQo+IFNlbnQ6IFRodXJzZGF5LCBKYW51YXJ5IDE4LCAyMDE4IDExOjQ3
-IEFNDQo+IFRvOiBSZWJlY2NhIENyYW4gPHJlYmVjY2FAYmx1ZXN0b3Aub3JnPjsgZmlvQHZnZXIu
-a2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogbWVtY3B5IHRlc3Q6IHJlc3VsdHMgZnJvbSBhZGRp
-bmcgc3NlIGFuZCBhdnggdGVzdHMNCj4gDQo+IE9uIDEvMTgvMTggMTA6MzggQU0sIFJlYmVjY2Eg
-Q3JhbiB3cm90ZToNCj4gPiBJIGFkZGVkIGNvZGUgdG8gbGliL21lbWNweS5jIHRvIHRlc3Qgc3Nl
-IGFuZCBhdnggcGVyZm9ybWFuY2UsIGFuZCBmb3VuZA0KPiA+IHRoYXQgb24gbW9kZXJuIHN5c3Rl
-bXMgbWVtY3B5IG91dHBlcmZvcm1zIGJvdGggYnkgcXVpdGUgc29tZSBtYXJnaW4NCj4gPiAoR0Iv
-cykgb24gdGhlIGxhcmdlciBibG9jayBzaXplczogdGhlIG9ubHkgcGxhY2Ugc3NlL2F2eCBpcyBh
-bg0KPiA+IGltcHJvdmVtZW50IHdhcyBvbiBhbiBvbGRlciBTYW5keUJyaWRnZSBFUCBzeXN0ZW0g
-LSBJJ3ZlIGNvcGllZCB0aGUNCj4gPiBvdXRwdXQgYmVsb3cuDQo+ID4NCj4gPiBTaG91bGQgSSB3
-b3JrIG9uIGEgcGF0Y2ggdG8gY29tbWl0IHRoZSBjaGFuZ2VzLCBvciBqdXN0IGFiYW5kb24gdGhl
-bQ0KPiA+IHNpbmNlIGl0IHNlZW1zIHRoZSBjdXJyZW50IG1lbWNweSBpbXBsZW1lbnRhdGlvbiB1
-c2VkIGluIHRoZSBtbWFwIGVuZ2luZQ0KPiA+IGlzIHRoZSBiZXN0IHNvbHV0aW9uIG9uIG1vZGVy
-biBtYWNoaW5lcz8NCj4gDQo+IFRoZSB1cHNpZGUgd291bGQgYmUgaGF2aW5nIGFuIGltcGxlbWVu
-dGF0aW9uIHRoYXQgaXMgaW5kZXBlbmRlbnQgb2YNCj4gdGhlIE9TLCB0aGUgZG93bnNpZGUgaXMg
-dGhlIChzaWduaWZpY2FudCkgZXh0cmEgbWFpbnRlbmFuY2UgYnVyZGVuDQo+IGFuZCB0aGUgZGlm
-ZmVyaW5nIHJlc3VsdHMgb24gZGlmZmVyZW50IG1hY2hpbmVzLg0KPiANCj4gVGhlIHN5bnRoZXRp
-YyB0ZXN0IGNhc2UgaXMgYSBiaXQgbWlzbGVhZGluZywgSSB0aGluay4gYXZ4L3NzZSBtaWdodA0K
-PiB5aWVsZCBncmVhdCByZXN1bHRzIGZvciBzbWFsbCBzaXplcywgYnV0IGluIGFjdHVhbCB3b3Jr
-bG9hZHMsIGhhdmluZw0KPiB0byBzYXZlL3Jlc3RvcmUgc3RhdGUgYWNyb3NzIGNvbnRleHQgc3dp
-dGNoZXMgd2lsbCBhZGQgb3ZlcmhlYWQuIFRoZQ0KPiBzaW1wbGUgdGhyb3VnaHB1dCB0ZXN0IGNh
-c2UgZG9lc24ndCBpbmNsdWRlIHRoYXQuDQo+IA0KPiBBZGRpbmcgdGhlIG1lbWNweSBmb3IgYXZ4
-L3NzZSB0byB0aGUgdGVzdCBjYXNlIG1pZ2h0IGJlIGludGVyZXN0aW5nDQo+IHRob3VnaCwganVz
-dCB0byBiZSBhYmxlIHRvIGNvbXBhcmUgcGVyZm9ybWFuY2VzIHdpdGggYnVpbHRpbg0KPiBtZW1j
-cHkvbWVtbW92ZSBvbiBhIGdpdmVuIHN5c3RlbS4NCg0KZ2xpYmMgaGFzIGV2b2x2ZWQgdG8gY2hv
-b3NpbmcgdGhvc2UgY29kZSBwYXRocyBvbmx5IGZvciB0cmFuc2ZlcnMgdGhhdA0KYXJlIGxhcmdl
-ciB0aGFuIHNvbWUgcGVyY2VudGFnZSBvZiB0aGUgTDMgY2FjaGUgc2l6ZSAodGhlIGVxdWF0aW9u
-IGhhcw0KY2hhbmdlZCBvdmVyIHRpbWUpLCB1c2luZyBub24tdGVtcG9yYWwgc3RvcmVzIHRvIGF2
-b2lkIGZpbGxpbmcgdGhlIGNhY2hlDQp3aXRoIHRoZSBuZXcgZGF0YS4NCg0KRXhhbXBsZSByZXN1
-bHRzIG9uIGEgc3lzdGVtIHdpdGggNDUgTWlCIEwzIGNhY2hlOg0KDQptZW1jcHkNCiAgICAgICAg
-ICA0IGJ5dGVzOiAgICAgICAxMjE3Ljk5IE1pQi9zDQogICAgICAgICAgOCBieXRlczogICAgICAg
-MjQxNC4zNyBNaUIvcw0KICAgICAgICAgMTYgYnl0ZXM6ICAgICAgIDMxODUuNTIgTWlCL3MNCiAg
-ICAgICAgIDMyIGJ5dGVzOiAgICAgICAzNDQ1LjQ2IE1pQi9zDQogICAgICAgICA2NCBieXRlczog
-ICAgICAgMzY4Ny43MiBNaUIvcw0KICAgICAgICAgOTYgYnl0ZXM6ICAgICAgIDM4NzMuNDQgTWlC
-L3MNCiAgICAgICAgMTI4IGJ5dGVzOiAgICAgICA0MjAwLjQzIE1pQi9zDQogICAgICAgIDI1NiBi
-eXRlczogICAgICAgNDExNS43NCBNaUIvcw0KICAgICAgICA1MTIgYnl0ZXM6ICAgICAgIDQzNDgu
-MTQgTWlCL3MNCiAgICAgICAgICAyIEtpQjogICAgICAgICA0Mjk1LjYwIE1pQi9zDQogICAgICAg
-ICAgNCBLaUI6ICAgICAgICAgNDMyOC4zMCBNaUIvcw0KICAgICAgICAgIDggS2lCOiAgICAgICAg
-IDMyMzguNDggTWlCL3MNCiAgICAgICAgMTI4IEtpQjogICAgICAgICAzNjI4Ljg3IE1pQi9zDQog
-ICAgICAgIDI1NiBLaUI6ICAgICAgICAgMzM5Mi45NiBNaUIvcw0KICAgICAgICA1MTIgS2lCOiAg
-ICAgICAgIDM2MzguNDkgTWlCL3MNCiAgICAgICAgICA4IE1pQjogICAgICAgICAzNTk2LjI2IE1p
-Qi9zDQogICAgICAgIDZ4IDEuMzc1IE1pQjogICAgMzYzOS45NCBNaUIvcw0KICAgICAgICAgIDkg
-TWlCOiAgICAgICAgIDM2MzUuMDggTWlCL3MNCiAgICAgICAgIDE2IE1pQjogICAgICAgICAzNjM3
-LjE5IE1pQi9zDQogICAgICAgICAxNyBNaUI6ICAgICAgICAgMzYwMy4zMCBNaUIvcw0KICAgICAg
-ICAgMjIgTWlCOiAgICAgICAgIDM0MTQuNDcgTWlCL3MNCiAgICAgICAgIDMyIE1pQjogICAgICAg
-ICAzNjM5Ljc3IE1pQi9zDQogICAgICAgICA0MCBNaUI6ICAgICAgICAgNjUyOC4wNCBNaUIvcw0K
-ICAgICAgICAgNDggTWlCOiAgICAgICAgIDcyNTguNjkgTWlCL3MNCiAgICAgICAgMTI4IE1pQjog
-ICAgICAgICA3MjcxLjkyIE1pQi9zDQogICAgICAgIGZ1bGwgYnVmZmVyOiAgICAgNzI2MC4xMSBN
-aUIvcw0KDQpnbGliYy0yLjI2IGFkZGVkIHN1cHBvcnQgZm9yIGEgR0xJQkNfVFVOQUJMRVMgZW52
-aXJvbm1lbnQgdmFyaWFibGUNCnRoYXQgY2FuIGJlIHVzZWQgdG8gYWRqdXN0IHRoZSBub24tdGVt
-cG9yYWwgdGhyZXNob2xkIGZvciBzb21lIG9mDQp0aGUgbGlicmFyeSBmdW5jdGlvbnMgbGlrZSBt
-ZW1jcHkoKS4gIFRoZSBzeW50YXggbG9va3MgbGlrZToNCglHTElCQ19UVU5BQkxFUz1nbGliYy50
-dW5lLng4Nl9ub25fdGVtcG9yYWxfdGhyZXNob2xkPTIwOTcxNTINCm9yDQoJR0xJQkNfVFVOQUJM
-RVM9Z2xpYmMudHVuZS54ODZfbm9uX3RlbXBvcmFsX3RocmVzaG9sZD0xMzEwNzI6Z2xpYmMudHVu
-ZS5od2NhcHM9QVZYMl9Vc2FibGUsRVJNUywtUHJlZmVyX05vX1ZaRVJPVVBQRVIsQVZYX0Zhc3Rf
-VW5hbGlnbmVkX0xvYWQNCg0KRXhhbXBsZSByZXN1bHRzIHNldHRpbmcgdGhlIHRocmVzaG9sZCB2
-ZXJ5IGxvdyAoNCBLaUIpIHNob3dzDQpwZXJmb3JtYW5jZSBjb250aW51aW5nIHRvIHNjYWxlIGJh
-c2VkIG9uIHRyYW5zZmVyIHNpemU6DQoNCmV4cG9ydCBHTElCQ19UVU5BQkxFUz1nbGliYy50dW5l
-Lng4Nl9ub25fdGVtcG9yYWxfdGhyZXNob2xkPTQwOTYNCm51bWFjdGwgLUMgMSAtbSAwIC4vZmlv
-IC0tbWVtY3B5dGVzdA0KbWVtY3B5DQogICAgICAgICAgNCBieXRlczogICAgICAgMTIxMC4wOSBN
-aUIvcw0KICAgICAgICAgIDggYnl0ZXM6ICAgICAgIDI0MTMuMTIgTWlCL3MNCiAgICAgICAgIDE2
-IGJ5dGVzOiAgICAgICAzMTkyLjQzIE1pQi9zDQogICAgICAgICAzMiBieXRlczogICAgICAgMzQ3
-MS41NyBNaUIvcw0KICAgICAgICAgNjQgYnl0ZXM6ICAgICAgIDM1NzcuMzYgTWlCL3MNCiAgICAg
-ICAgIDk2IGJ5dGVzOiAgICAgICAzODk3LjUxIE1pQi9zDQogICAgICAgIDEyOCBieXRlczogICAg
-ICAgNDAzNS4wNCBNaUIvcw0KICAgICAgICAyNTYgYnl0ZXM6ICAgICAgIDQyNjMuOTMgTWlCL3MN
-CiAgICAgICAgNTEyIGJ5dGVzOiAgICAgICA0Mjc2Ljc0IE1pQi9zDQogICAgICAgICAgMiBLaUI6
-ICAgICAgICAgNDE5Ny4zMiBNaUIvcw0KICAgICAgICAgIDQgS2lCOiAgICAgICAgIDQyMjcuMjEg
-TWlCL3MNCiAgICAgICAgICA4IEtpQjogICAgICAgICA1MzYwLjMxIE1pQi9zDQogICAgICAgIDEy
-OCBLaUI6ICAgICAgICAgNjkwMy44MyBNaUIvcw0KICAgICAgICAyNTYgS2lCOiAgICAgICAgIDY5
-NzIuOTkgTWlCL3MNCiAgICAgICAgNTEyIEtpQjogICAgICAgICA3MDAwLjc5IE1pQi9zDQogICAg
-ICAgICAgOCBNaUI6ICAgICAgICAgNzAyNC42MCBNaUIvcw0KICAgICAgICA2eCAxLjM3NSBNaUI6
-ICAgIDcwMTguNDMgTWlCL3MNCiAgICAgICAgICA5IE1pQjogICAgICAgICA3MDIzLjUzIE1pQi9z
-DQogICAgICAgICAxNiBNaUI6ICAgICAgICAgNzAzMS4yMiBNaUIvcw0KICAgICAgICAgMTcgTWlC
-OiAgICAgICAgIDcwMjIuODUgTWlCL3MNCiAgICAgICAgIDIyIE1pQjogICAgICAgICA3MDE3LjM3
-IE1pQi9zDQogICAgICAgICAzMiBNaUI6ICAgICAgICAgNzAzNS4wMyBNaUIvcw0KICAgICAgICAg
-NDAgTWlCOiAgICAgICAgIDcwMjcuNzIgTWlCL3MNCiAgICAgICAgIDQ4IE1pQjogICAgICAgICA3
-MDIxLjE3IE1pQi9zDQogICAgICAgIDEyOCBNaUI6ICAgICAgICAgNzAzOC4wOSBNaUIvcw0KICAg
-ICAgICBmdWxsIGJ1ZmZlcjogICAgIDcwMjIuNTEgTWlCL3MNCg0KSSdtIHdvcmtpbmcgb24gYSBw
-YXRjaCBzZXQgdG8gcnVuIHRoZXNlIChhbmQgbW9yZSkgbWVtb3J5IHRlc3RzDQp3aXRoaW4gYW4g
-bW1hcCgpZWQgcmVnaW9uLCB3aGljaCBpcyBlc3BlY2lhbGx5IHVzZWZ1bCBmb3INCnBlcnNpc3Rl
-bnQgbWVtb3J5IHRoYXQgZG9lc24ndCBoYXZlIHRoZSBzYW1lIHBlcmZvcm1hbmNlIGFzDQpyZWd1
-bGFyIG1lbW9yeS4gIEknbGwgdHJ5IHRvIHBvc3QgYW4gUkZDIG9mIHRoYXQgc2VyaWVzIHNvb24u
-DQoNCi0tLQ0KUm9iZXJ0IEVsbGlvdHQsIEhQRSBQZXJzaXN0ZW50IE1lbW9yeQ0KDQoNCg0K
+This is a multi-part message in MIME format.
+--------------9C75A3BC47705DEC8EECD540
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+On 01/18/2018 10:47 AM, Jens Axboe wrote:
+>
+> Adding the memcpy for avx/sse to the test case might be interesting
+> though, just to be able to compare performances with builtin
+> memcpy/memmove on a given system.
+
+I've attached the patch. I think it should work on all Intel systems 
+newer than 2012. It causes a segfault on my Atom E3826 (Baytrail) 
+because it doesn't support AVX.
+
+I've tested it using Clang 3.8, GCC 4.8 and 7.x on openSUSE, and Clang 
+4.0 on FreeBSD 11.1.
+
+
+-- 
+Rebecca
+
+
+--------------9C75A3BC47705DEC8EECD540
+Content-Type: text/x-patch;
+ name="0001-Add-SSE-and-AVX-tests-to-lib-memcpy.c-and-add-msse-a.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-Add-SSE-and-AVX-tests-to-lib-memcpy.c-and-add-msse-a.pa";
+ filename*1="tch"
+
+From f9fa5d6fc83d5d924ac2cf9532d51a3b1d81c9ff Mon Sep 17 00:00:00 2001
+From: Rebecca Cran <rebecca@bluestop.org>
+Date: Thu, 18 Jan 2018 12:07:11 -0700
+Subject: [PATCH] Add SSE and AVX tests to lib/memcpy.c and add -msse and -mavx
+ to compiler flags
+
+---
+ Makefile     |  2 +-
+ lib/memcpy.c | 65 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 64 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 3ce60646..4e32f269 100644
+--- a/Makefile
++++ b/Makefile
+@@ -23,7 +23,7 @@ endif
+ DEBUGFLAGS = -DFIO_INC_DEBUG
+ CPPFLAGS= -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DFIO_INTERNAL $(DEBUGFLAGS)
+ OPTFLAGS= -g -ffast-math
+-CFLAGS	= -std=gnu99 -Wwrite-strings -Wall -Wdeclaration-after-statement $(OPTFLAGS) $(EXTFLAGS) $(BUILD_CFLAGS) -I. -I$(SRCDIR)
++CFLAGS	= -msse -mavx -std=gnu99 -Wwrite-strings -Wall -Wdeclaration-after-statement $(OPTFLAGS) $(EXTFLAGS) $(BUILD_CFLAGS) -I. -I$(SRCDIR)
+ LIBS	+= -lm $(EXTLIBS)
+ PROGS	= fio
+ SCRIPTS = $(addprefix $(SRCDIR)/,tools/fio_generate_plots tools/plot/fio2gnuplot tools/genfio tools/fiologparser.py tools/hist/fiologparser_hist.py tools/fio_jsonplus_clat2csv)
+diff --git a/lib/memcpy.c b/lib/memcpy.c
+index 00e65aa7..1fb22dad 100644
+--- a/lib/memcpy.c
++++ b/lib/memcpy.c
+@@ -1,6 +1,8 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <xmmintrin.h>
++#include <immintrin.h>
+ 
+ #include "memcpy.h"
+ #include "rand.h"
+@@ -80,6 +82,8 @@ enum {
+ 	T_MEMMOVE	= 1U << 1,
+ 	T_SIMPLE	= 1U << 2,
+ 	T_HYBRID	= 1U << 3,
++	T_SSE		= 1U << 4,
++	T_AVX		= 1U << 5,
+ };
+ 
+ #define do_test(test, fn)	do {					\
+@@ -122,6 +126,43 @@ static void simple_memcpy(void *dst, void const *src, size_t len)
+ 		*d++ = *s++;
+ }
+ 
++static void sse_memcpy(void *dst, void const *src, size_t len)
++{
++	__m128 val;
++	float *d = dst;
++	float const *s = src;
++
++	if (len < sizeof(__m128))
++		return;
++
++
++	for (int i = 0; i < len; i += sizeof(__m128))
++	{
++		val = _mm_load_ps(s);
++		_mm_store_ps(d, val);
++		d += sizeof(__m128) / sizeof(float);
++		s += sizeof(__m128) / sizeof(float);
++	}
++}
++
++static void avx_memcpy(void *dst, void const *src, size_t len)
++{
++	__m256 val;
++	float *d = dst;
++	float const *s = src;
++
++	if (len < sizeof(__m256))
++		return;
++
++	for (int i = 0; i < len; i += sizeof(__m256))
++	{
++		val = _mm256_load_ps(s);
++		_mm256_store_ps(d, val);
++		d += sizeof(__m256) / sizeof(float);
++		s += sizeof(__m256) / sizeof(float);
++	}
++}
++
+ static void t_simple(struct memcpy_test *test)
+ {
+ 	do_test(test, simple_memcpy);
+@@ -135,6 +176,16 @@ static void t_hybrid(struct memcpy_test *test)
+ 		do_test(test, memcpy);
+ }
+ 
++static void t_sse(struct memcpy_test *test)
++{
++	do_test(test, sse_memcpy);
++}
++
++static void t_avx(struct memcpy_test *test)
++{
++	do_test(test, avx_memcpy);
++}
++
+ static struct memcpy_type t[] = {
+ 	{
+ 		.name = "memcpy",
+@@ -157,6 +208,16 @@ static struct memcpy_type t[] = {
+ 		.fn = t_hybrid,
+ 	},
+ 	{
++		.name = "sse",
++		.mask = T_SSE,
++		.fn = t_sse,
++	},
++	{
++		.name = "avx",
++		.mask = T_AVX,
++		.fn = t_avx,
++	},
++	{
+ 		.name = NULL,
+ 	},
+ };
+@@ -200,8 +261,8 @@ static int setup_tests(void)
+ 	void *src, *dst;
+ 	int i;
+ 
+-	src = malloc(BUF_SIZE);
+-	dst = malloc(BUF_SIZE);
++	src = aligned_alloc(64, BUF_SIZE);
++	dst = aligned_alloc(64, BUF_SIZE);
+ 	if (!src || !dst) {
+ 		free(src);
+ 		free(dst);
+-- 
+2.13.6
+
+
+--------------9C75A3BC47705DEC8EECD540--
 
