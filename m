@@ -1,105 +1,289 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g9t1613g.houston.hpe.com ([15.241.32.99]:17067 "EHLO
-        g9t1613g.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S965300AbeAJPuF (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 10 Jan 2018 10:50:05 -0500
-Received: from g4t3427.houston.hpe.com (g4t3427.houston.hpe.com [15.241.140.73])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by g9t1613g.houston.hpe.com (Postfix) with ESMTPS id 4084961DC0
-        for <fio@vger.kernel.org>; Wed, 10 Jan 2018 15:50:05 +0000 (UTC)
-Received: from g9t2301.houston.hpecorp.net (g9t2301.houston.hpecorp.net [16.220.97.129])
-        by g4t3427.houston.hpe.com (Postfix) with ESMTP id 84C207F
-        for <fio@vger.kernel.org>; Wed, 10 Jan 2018 15:50:04 +0000 (UTC)
-From: Robert Elliott <elliott@hpe.com>
-Subject: [PATCH v2] ioengines: don't call munmap unless size boundary is exceeded
-Date: Wed, 10 Jan 2018 09:50:01 -0600
-Message-Id: <20180110155001.16037-1-elliott@hpe.com>
-In-Reply-To: <20180110005517.14708-1-elliott@hpe.com>
-References: <20180110005517.14708-1-elliott@hpe.com>
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:34738 "EHLO
+        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752276AbeA3TNc (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 30 Jan 2018 14:13:32 -0500
+From: Kris Davis <Kris.Davis@wdc.com>
+Subject: fiologparser_hist.py script patch and enhancements?
+Date: Tue, 30 Jan 2018 19:13:29 +0000
+Message-ID: <CY1PR0401MB11162F0C6E0E0F952A92479B81E40@CY1PR0401MB1116.namprd04.prod.outlook.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Robert Elliott <elliott@hpe.com>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: "karl.cronburg@gmail.com" <karl.cronburg@gmail.com>
 
-From: Robert Elliott <elliott@hpe.com>
+Greetings all,=20
 
-In ioengines using mmap() and munmap(), don't call munmap() when doing an
-IO that accesses the last byte of a file. This affects the dev-dax,
-libpmem, and mmap ioengines.
+While working with the clat histogram log data, I ran into a few difficulti=
+es with the "fiologparser_hist.py" script. =20
+I've created a patch to address these, but of course need some discussion a=
+nd review.
 
-Example:
-io       12987 DEBUG fio_libpmem_prep
-io       12987  io_u->offset 7516061696 : fdd->libpmem_off 0 : io_u->buflen 131072 : fdd->libpmem_sz 7516192768
-io       12987 munmap addr=0x7f5600000000 size=0x1c0000000
+The issues:=20
 
-That accesses the last 128 KiB of a 7 GiB file, triggering an munmap
-because the comparison to 7 GiB fails:
-	7516061696 + 131072 < 7516192768
+1) The fiologparser_hist script didn't support the new nanosecond bin value=
+s.  So I changed the operation to assume nanosecond=20
+histogram bins, and new "--usbin" option to allow user to override so same =
+script can still process older version histogram logs.
 
-Change < to <= so that doesn't occur unless an overflow really
-happens.
+2) The script asppeared hardcoded to only return 50% (median), 90%, 95%, an=
+d 99% values (along with min and max).=20
+I added "--percentiles" option to allow a request for more values ('median'=
+ always printed, even if a duplicate 50% column is requested,=20
+for backward compatibility).
 
-In one test in linux, this increases performance from 5 GB/s to 20 GB/s
-as fio stops spending time in mmap() page table mapping spinlocks and
-instead spends its time in memmove().  The perf top results improve from:
-  36.81%  [kernel]             [k] queued_spin_lock_slowpath
-  24.26%  libc-2.26.so         [.] __memmove_avx_unaligned_erms
-   4.09%  [kernel]             [k] __radix_tree_lookup
-   3.85%  [kernel]             [k] find_next_iomem_res
-   3.70%  [kernel]             [k] _raw_spin_lock_irq
-   3.48%  [kernel]             [k] down_read
+3) I use python >3.4 almost exclusively in my environment, and it was relat=
+ively simple to alter script so would run with either python 2.7 or 3x .=20
+I added a check to make sure the python version is at least 2.7 or above, b=
+ut only actually tested with python 2.7.9 and 3.4.4=20
+I understand there are some minor python differences between 3.0 and 3.4 th=
+at might be an issue, but haven't tried.
 
-to:
-  79.76%  libc-2.26.so         [.] __memmove_avx_unaligned_erms
-   3.23%  libc-2.26.so         [.] vfprintf
----
-Changes in v2: applied same change to dev-dax.c which has the same pattern
+4) The process can be slow for large or combining many log files.  I have s=
+ome automation which will generically process many log files, and found
+I cut the process time in half if I loaded as a module rather than calling =
+as a command.  So, changed so can call main directly in a script, but neede=
+d to=20
+slightly alter the end of "guess_max_from_bins" to throw an exception on er=
+ror rather than exit, when called as a module. =20
+Someone might know of a better, more conventional pythonic design pattern t=
+o use, but it works.
 
- engines/dev-dax.c | 2 +-
- engines/libpmem.c | 2 +-
- engines/mmap.c    | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+5) The script appears to assume that the log is never missing samples.  Tha=
+t is, weight samples to the requested intervals, I think with the=20
+assumption that the log samples are at longer intervals, or at least the sa=
+me interval length as the "--interval" value.  If the workload actually
+contains "thinktime" intervals (with missing sample when zero data), the sc=
+ript cannot know this, and assumes the logged operations should still be sp=
+read across=20
+all the intervals. =20
 
-diff --git a/engines/dev-dax.c b/engines/dev-dax.c
-index b1f91a40..caae1e09 100644
---- a/engines/dev-dax.c
-+++ b/engines/dev-dax.c
-@@ -157,7 +157,7 @@ static int fio_devdax_prep(struct thread_data *td, struct io_u *io_u)
- 	 * It fits within existing mapping, use it
- 	 */
- 	if (io_u->offset >= fdd->devdax_off &&
--	    io_u->offset + io_u->buflen < fdd->devdax_off + fdd->devdax_sz)
-+	    io_u->offset + io_u->buflen <= fdd->devdax_off + fdd->devdax_sz)
- 		goto done;
- 
- 	/*
-diff --git a/engines/libpmem.c b/engines/libpmem.c
-index 3f4e44fb..30387845 100644
---- a/engines/libpmem.c
-+++ b/engines/libpmem.c
-@@ -430,7 +430,7 @@ static int fio_libpmem_prep(struct thread_data *td, struct io_u *io_u)
- 			io_u->buflen, fdd->libpmem_sz);
- 
- 	if (io_u->offset >= fdd->libpmem_off &&
--	    (io_u->offset + io_u->buflen <
-+	    (io_u->offset + io_u->buflen <=
- 	     fdd->libpmem_off + fdd->libpmem_sz))
- 		goto done;
- 
-diff --git a/engines/mmap.c b/engines/mmap.c
-index 51606e12..77556588 100644
---- a/engines/mmap.c
-+++ b/engines/mmap.c
-@@ -137,7 +137,7 @@ static int fio_mmapio_prep(struct thread_data *td, struct io_u *io_u)
- 	 * It fits within existing mapping, use it
- 	 */
- 	if (io_u->offset >= fmd->mmap_off &&
--	    io_u->offset + io_u->buflen < fmd->mmap_off + fmd->mmap_sz)
-+	    io_u->offset + io_u->buflen <= fmd->mmap_off + fmd->mmap_sz)
- 		goto done;
- 
- 	/*
--- 
-2.14.3
+In my case, I'm mostly interested in results at the same interval as gather=
+ed during logging, so I tweaked into an alternate version I named 'fiologpa=
+rser_hist_nw.py',
+which doesn't perform any weighting of samples.  It has an added advantage =
+of much better performance. For example, fiologparser_hist=20
+took about 1/2 hr to combine about 350 logs, but fiologparser_hist_nw took =
+45 seconds, way better for my automation.
+
+Of course, larger number of 9's percentiles would have additional inaccurac=
+ies when there are not enough operations in a sample period,=20
+but that is just user beware.
+
+I've listed a patch below for fiologparser_hist.py.  I'm not sure if can ac=
+tually "attach" files or would have included zipped copies of both fiologpa=
+rser_hist.py and fiologparser_hist_nw.py.  But, I could include them in a g=
+ithub issue.
+
+Thanks
+
+Kris
+
+
+
+diff --git a/tools/hist/fiologparser_hist.py b/tools/hist/fiologparser_hist=
+.py
+index 2e05b92..fe9a951
+--- a/tools/hist/fiologparser_hist.py
++++ b/tools/hist/fiologparser_hist.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2.7
++#!/usr/bin/python
+ """=20
+     Utility for converting *_clat_hist* files generated by fio into latenc=
+y statistics.
+    =20
+@@ -16,7 +16,15 @@
+ import os
+ import sys
+ import pandas
++import re
+ import numpy as np
++
++runascmd =3D False
++
++if (sys.version_info < (2, 7)):
++    err("ERROR: Python version =3D %s; version 2.7 or greater is required.=
+\n")
++    exit(1)
++
+=20
+ err =3D sys.stderr.write
+=20
+@@ -64,8 +72,20 @@
+ def weighted_average(vs, ws):
+     return np.sum(vs * ws) / np.sum(ws)
+=20
+-columns =3D ["end-time", "samples", "min", "avg", "median", "90%", "95%", =
+"99%", "max"]
+-percs   =3D [50, 90, 95, 99]
++
++percs =3D None
++columns =3D None
++
++def gen_output_columns(percentiles):
++    global percs,columns
++    strpercs =3D re.split('[,:]', percentiles)
++    percs =3D [50.0]  # always print 50% in 'median' column
++    percs.extend(list(map(float,strpercs)))
++    columns =3D ["end-time", "samples", "min", "avg", "median"]
++    columns.extend(list(map(lambda x: x+'%', strpercs)))
++    columns.append("max")
++       =20
++
+=20
+ def fmt_float_list(ctx, num=3D1):
+   """ Return a comma separated list of float formatters to the required nu=
+mber
+@@ -118,6 +138,7 @@
+=20
+     # Initial histograms from disk:
+     arrs =3D {fp: read_chunk(rdr, sz) for fp,rdr in rdrs.items()}
++   =20
+     while True:
+=20
+         try:
+@@ -177,8 +198,12 @@
+=20
+     avg =3D weighted_average(vs, ws)
+     values =3D [mn, avg] + list(ps) + [mx]
+-    row =3D [end, ss_cnt] + map(lambda x: float(x) / ctx.divisor, values)
+-    fmt =3D "%d, %d, %d, " + fmt_float_list(ctx, 5) + ", %d"
++    row =3D [end, ss_cnt] + list(map(lambda x: float(x) / ctx.divisor, val=
+ues))
++    if ctx.divisor > 1:
++        fmt =3D "%d, %d, " + fmt_float_list(ctx, len(percs)+3)
++    else:
++        # max and min are decimal values if no divisor
++        fmt =3D "%d, %d, %d, " + fmt_float_list(ctx, len(percs)+1) + ", %d=
+"
+     print (fmt % tuple(row))
+=20
+ def update_extreme(val, fncn, new_val):
+@@ -207,7 +232,7 @@
+            =20
+         # Only look at bins of the current histogram sample which
+         # started before the end of the current time interval [start,end]
+-        start_times =3D (end_time - 0.5 * ctx.interval) - bin_vals / 1000.=
+0
++        start_times =3D (end_time - 0.5 * ctx.interval) - bin_vals / ctx.t=
+ime_divisor
+         idx =3D np.where(start_times < iEnd)
+         s_ts, l_bvs, u_bvs, hs =3D start_times[idx], lower_bin_vals[idx], =
+upper_bin_vals[idx], hist[idx]
+=20
+@@ -241,7 +266,7 @@
+     idx =3D np.where(arr =3D=3D hist_cols)
+     if len(idx[1]) =3D=3D 0:
+         table =3D repr(arr.astype(int)).replace('-10', 'N/A').replace('arr=
+ay','     ')
+-        err("Unable to determine bin values from input clat_hist files. Na=
+mely \n"
++        errmsg =3D ("Unable to determine bin values from input clat_hist f=
+iles. Namely \n"
+             "the first line of file '%s' " % ctx.FILE[0] + "has %d \n" % (=
+__TOTAL_COLUMNS,) +
+             "columns of which we assume %d " % (hist_cols,) + "correspond =
+to histogram bins. \n"
+             "This number needs to be equal to one of the following numbers=
+:\n\n"
+@@ -250,7 +275,12 @@
+             "  - Input file(s) does not contain histograms.\n"
+             "  - You recompiled fio with a different GROUP_NR. If so pleas=
+e specify this\n"
+             "    new GROUP_NR on the command line with --group_nr\n")
+-        exit(1)
++        if runascmd:
++            err(errmsg)
++            exit(1)
++        else:
++            raise RuntimeError(errmsg)=20
++       =20
+     return bins[idx[1][0]]
+=20
+ def main(ctx):
+@@ -274,9 +304,18 @@
+                         ctx.interval =3D int(hist_msec)
+                 except NoOptionError:
+                     pass
++   =20
++    if not hasattr(ctx, 'percentiles'):
++        ctx.percentiles =3D "90,95,99"
++    gen_output_columns(ctx.percentiles)
+=20
+     if ctx.interval is None:
+         ctx.interval =3D 1000
++
++    if ctx.usbin:
++        ctx.time_divisor =3D 1000.0        # bins are in us
++    else:
++        ctx.time_divisor =3D 1000000.0     # bins are in ns
+=20
+     # Automatically detect how many columns are in the input files,
+     # calculate the corresponding 'coarseness' parameter used to generate
+@@ -288,9 +327,9 @@
+=20
+         max_cols =3D guess_max_from_bins(ctx, __HIST_COLUMNS)
+         coarseness =3D int(np.log2(float(max_cols) / __HIST_COLUMNS))
+-        bin_vals =3D np.array(map(lambda x: plat_idx_to_val_coarse(x, coar=
+seness), np.arange(__HIST_COLUMNS)), dtype=3Dfloat)
+-        lower_bin_vals =3D np.array(map(lambda x: plat_idx_to_val_coarse(x=
+, coarseness, 0.0), np.arange(__HIST_COLUMNS)), dtype=3Dfloat)
+-        upper_bin_vals =3D np.array(map(lambda x: plat_idx_to_val_coarse(x=
+, coarseness, 1.0), np.arange(__HIST_COLUMNS)), dtype=3Dfloat)
++        bin_vals =3D np.array(list(map(lambda x: plat_idx_to_val_coarse(x,=
+ coarseness), np.arange(__HIST_COLUMNS))), dtype=3Dfloat)
++        lower_bin_vals =3D np.array(list(map(lambda x: plat_idx_to_val_coa=
+rse(x, coarseness, 0.0), np.arange(__HIST_COLUMNS))), dtype=3Dfloat)
++        upper_bin_vals =3D np.array(list(map(lambda x: plat_idx_to_val_coa=
+rse(x, coarseness, 1.0), np.arange(__HIST_COLUMNS))), dtype=3Dfloat)
+=20
+     fps =3D [open(f, 'r') for f in ctx.FILE]
+     gen =3D histogram_generator(ctx, fps, ctx.buff_size)
+@@ -304,7 +343,7 @@
+         while more_data or len(arr) > 0:
+            =20
+             # Read up to ctx.max_latency (default 20 seconds) of data from=
+ end of current interval.
+-            while len(arr) =3D=3D 0 or arr[-1][0] < ctx.max_latency * 1000=
+ + end:
++            while len(arr) =3D=3D 0 or arr[-1][0] < ctx.max_latency + end:
+                 try:
+                     new_arr =3D next(gen)
+                 except StopIteration:
+@@ -338,6 +377,7 @@
+=20
+ if __name__ =3D=3D '__main__':
+     import argparse
++    runascmd =3D True
+     p =3D argparse.ArgumentParser()
+     arg =3D p.add_argument
+     arg("FILE", help=3D'space separated list of latency log filenames', na=
+rgs=3D'+')
+@@ -384,5 +424,18 @@
+              'given histogram files. Useful for auto-detecting --log_hist_=
+msec and '
+              '--log_unix_epoch (in fio) values.')
+=20
++    arg('--percentiles',
++        default=3D"90,95,99",
++        type=3Dstr,
++        help=3D'Optional argument of comma or colon separated percentiles =
+to print. '
++             'The default is "90.0,95.0,99.0".  min, median(50%%) and max =
+percentiles are always printed')
++   =20
++    arg('--usbin',
++        default=3DFalse,
++        action=3D'store_true',
++        help=3D'histogram bin latencies are in us (fio versions < 2.99. fi=
+o uses ns for version >=3D 2.99')
++   =20
++   =20
++
+     main(p.parse_args())
 
