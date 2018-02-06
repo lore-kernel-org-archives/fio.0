@@ -1,88 +1,41 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:56549 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753172AbeBFV3D (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 6 Feb 2018 16:29:03 -0500
-From: Kris Davis <Kris.Davis@wdc.com>
-Subject: RE: Curious randwrite results on raid10 md device
-Date: Tue, 6 Feb 2018 21:29:01 +0000
-Message-ID: <BN1PR0401MB1106AF7EE10537568DF571B681FD0@BN1PR0401MB1106.namprd04.prod.outlook.com>
+Received: from sv65.cmaisonneuve.qc.ca ([206.167.118.84]:24423 "EHLO
+        courriel.cmaisonneuve.qc.ca" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753482AbeBFUag (ORCPT
+        <rfc822;fio@vger.kernel.org>); Tue, 6 Feb 2018 15:30:36 -0500
+Subject: Re: Curious randwrite results on raid10 md device
 References: <a4f3cafa-dd28-28aa-551e-85cb27cf234d@cmaisonneuve.qc.ca>
  <CALjAwxhMC7wt6U+EKNvFeo8EoHKyZqkO5qiCac7TNg7ZJJPvLg@mail.gmail.com>
  <BN1PR0401MB1106A85FFAD6EC920540A9C781FD0@BN1PR0401MB1106.namprd04.prod.outlook.com>
- <65ee7bb8-d67e-26d4-d3ab-cc80bf2f2cdb@cmaisonneuve.qc.ca>
-In-Reply-To: <65ee7bb8-d67e-26d4-d3ab-cc80bf2f2cdb@cmaisonneuve.qc.ca>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: =?UTF-8?B?SsOpcsO0bWUgQ2hhcmFvdWk=?= <jcharaoui@cmaisonneuve.qc.ca>
+Message-ID: <65ee7bb8-d67e-26d4-d3ab-cc80bf2f2cdb@cmaisonneuve.qc.ca>
+Date: Tue, 6 Feb 2018 15:30:34 -0500
 MIME-Version: 1.0
+In-Reply-To: <BN1PR0401MB1106A85FFAD6EC920540A9C781FD0@BN1PR0401MB1106.namprd04.prod.outlook.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: fr
+Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: =?utf-8?B?SsOpcsO0bWUgQ2hhcmFvdWk=?= <jcharaoui@cmaisonneuve.qc.ca>, Sitsofe Wheeler <sitsofe@gmail.com>
+To: Kris Davis <Kris.Davis@wdc.com>, Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: fio <fio@vger.kernel.org>
 
-SmVyb21lDQoNClByZWNvbmRpdGlvbiBvZiBhbiBTU0QgZ2VuZXJhbGx5IHJlcXVpcmVzIHdyaXRp
-bmcgdGhlIGVudGlyZSBjYXBhY2l0eSBvZiB0aGUgZHJpdmUgdXAgdG8gMS41IHRvIDIgdGltZXMu
-ICBJZiBkb2luZyByYW5kb20gb3BlcmF0aW9ucywgeW91IHdvdWxkIHdyaXRlIHVzaW5nIHJhbmRv
-bSB3cml0ZXMgb2YgdGhlIHNhbWUgY2hhcmFjdGVyIChzaXplIGFuZCBtaXgpIGFzIHlvdXIgdGVz
-dC4gIElmIHNlcXVlbnRpYWwsIGxpa2V3aXNlLiAgVGhlIHBvaW50IGlzIHRoYXQgYW4gU1NEIGRv
-ZXMgZ2FyYmFnZSBjb2xsZWN0aW9uIGFuZCB3ZWFyLWxldmVsaW5nIG9wZXJhdGlvbnMgaW4gdGhl
-IGJhY2tncm91bmQuICBXaGlsZSB0aGUgYmFja2dyb3VuZCBvcGVyYXRpb25zIGV4ZWN1dGluZywg
-dGhlIHBlcmZvcm1hbmNlIG9mIHRoZSBkcml2ZSBpcyBtdWNoIHNsb3dlci4gICBQZXJmb3JtYW5j
-ZSBpcyB1bnN0YWJsZSB1bmxlc3MgdGhvc2UgYmFja2dyb3VuZCBmdW5jdGlvbnMgYXJlIHJ1bm5p
-bmcgY29udGludW91c2x5IHdoaWNoIGdpdmVzIHRoZSBzdXN0YWluZWQgcGVyZm9ybWFuY2UgdGhl
-IGRyaXZlLiAgIElmIHRoZSBkZXZpY2UgaXMgaWRsZSBmb3IgYSB3aGlsZSwgaXQncyBhYmxlIHRv
-IGNhdGNoIHVwIGFuZCB5b3UgcmV0dXJuIHRvIGNsb3NlIHRvIHRoZSBvdXQgb2YgYm94IHBlcmZv
-cm1hbmNlIG9mIHRoZSBkcml2ZS4gIA0KDQpXaGVuIHBlcmZvcm1pbmcgcHVyZSByZWFkIHRlc3Rz
-LCB0aGVuIHRoZSBkcml2ZSBzdGlsbCBuZWVkcyB0byBiZSBwcmVjb25kaXRpb25lZCBpbiB0aGUg
-c2FtZSBmYXNoaW9uIGFzIHRoZSB3cml0ZXMuIEJ1dCwgdW5sZXNzIHlvdXIgdGVzdCBtZWFzdXJl
-bWVudCBpcyBzaG9ydCBlbm91Z2ggc28gdGhlIGdhcmJhZ2UgY29sbGVjdGlvbiBpcyBzdGlsbCBy
-dW5uaW5nIHRocm91Z2hvdXQgdGhlIG1lYXN1cmVtZW50IHBlcmlvZCwgeW91IGNhbiBsZXQgYm94
-IGlkbGUgZm9yIGEgd2hpbGUsIGFuZCB0aGVuIHJ1biB0aGUgcmVhZCB0ZXN0IGFmdGVyIHRoZSBk
-cml2ZXMgaGF2ZSBzZXR0bGVkICh0aG91Z2ggdGhlIG1lYXN1cmVkIHBlcmZvcm1hbmNlIGNhbiBi
-ZSBkaWZmZXJlbnQgdGhhbiB3aGVuIGJhY2tncm91bmQgZnVuY3Rpb25zIGFyZSBydW5uaW5nLCBi
-dXQgc2hvdWxkIGJlIHN0YWJsZSkNCg0KVGh1cywgd3JpdGluZyBhIDEwRyBmaWxlIHdvbid0IGNs
-b3NlIHRvIGVub3VnaCBkYXRhLiAgWW91IHdvdWxkbid0IGhhdmUgcmVhY2hlZCBwYXN0IHRoZSB0
-cmFuc2l0aW9uIHBlcmlvZCBhbmQgYXJlIHByb2JhYmx5IGp1c3QgbWVhc3VyaW5nIHRoZSBjYWNo
-ZS4gSXQncyBub3QgdW51c3VhbCB0byBoYXZlIHByZWNvbmRpdGlvbmluZyBvcGVyYXRpb25zIHdo
-aWNoIHRha2Ugb3ZlciBhIGRheSBiZWZvcmUgcnVubmluZyB0aGUgcmVhbCB0ZXN0IChkZXAgb24g
-c2l6ZSBvZiBkZXZpY2UpLiAgU2luY2UgeW91IGFyZSByYWlkZWQsIGl0J3MgdGhlIHNpemUgb2Yg
-dGhlIHdob2xlIGFycmF5LiAgTm90IGZ1bi4NCg0KQW4gYWx0ZXJuYXRpdmUgdG8gcHJlY29uZGl0
-aW9uaW5nIGlzIHRvIGp1c3QgcnVuIHlvdXIgdGVzdCB1bnRpbCB0aGUgcmVzdWx0cyBzdGFiaWxp
-emUgKGV4cGVyaW1lbnQgdG8gZGV0ZXJtaW5lIHNvbWUgbWluaW11bSBhbW91bnQgb2YgZGF0YSBv
-ciB0aW1lIHRvIGdldCBwYXN0IHRoZSB0cmFuc2l0aW9uIHBlcmlvZCkuICBGb3IgZXhhbXBsZSwg
-cnVuIHdpdGhvdXQgYSByYW1wIHBlcmlvZCBhbmQgdXNlIGEgbG9uZyBydW50aW1lIHdpdGggdGhl
-IElPcHMgTG9nIGF2ZXJhZ2luZyBldmVyeSAxIHRvIDUgc2Vjb25kcy4gIFRoZW4gcGxvdCB0aGUg
-bG9nIHJlc3VsdHMgYWdhaW5zdCB0aW1lIHRvIGRldGVybWluZSBhYm91dCBob3cgbG9uZyBpdCB0
-YWtlcyB0aWxsIHRoZSByZXN1bHRzIHN0YWJpbGl6ZSwgYW5kIHRoZW4gc2V0IHlvdXIgcmFtcCB0
-aW1lIHRvIGdyZWF0ZXIgdGhhbiB0aGF0IGR1cmF0aW9uLiAgIEFsc28sIGFsd2F5cyBkbyB0aGUg
-SU9wcyBzYW1wbGluZyBpbiBhbnkgcmVncmVzc2lvbiB0ZXN0cywgaW4gb3JkZXIgdG8gdmVyaWZ5
-IHRoYXQgdGhlIHJlc3VsdHMgZGlkIG5vdCB2YXJ5IHRvbyBtdWNoIGR1cmluZyB0aGUgdGVzdCBh
-bmQgdGhlIHJlc3VsdHMgYXJlIHN0aWxsIHZhbGlkLg0KDQpTb3JyeSB0byBzYXkgdGhhdCBhbnkg
-c29saWQgc3RhdGUgc3RvcmFnZSBwZXJmb3JtYW5jZSBoYXMgY29tcGxpY2F0aW9ucyB0aGF0IGFy
-ZSB2ZXJ5IGRpZmZlcmVudCB0aGFuIEhERHMuIA0KSG9wZSB0aGF0IGhlbHBzLg0KDQpLcmlzIERh
-dmlzDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBKw6lyw7RtZSBDaGFyYW91
-aSBbbWFpbHRvOmpjaGFyYW91aUBjbWFpc29ubmV1dmUucWMuY2FdIA0KU2VudDogVHVlc2RheSwg
-RmVicnVhcnkgNiwgMjAxOCAyOjMxIFBNDQpUbzogS3JpcyBEYXZpcyA8S3Jpcy5EYXZpc0B3ZGMu
-Y29tPjsgU2l0c29mZSBXaGVlbGVyIDxzaXRzb2ZlQGdtYWlsLmNvbT4NCkNjOiBmaW8gPGZpb0B2
-Z2VyLmtlcm5lbC5vcmc+DQpTdWJqZWN0OiBSZTogQ3VyaW91cyByYW5kd3JpdGUgcmVzdWx0cyBv
-biByYWlkMTAgbWQgZGV2aWNlDQoNCkhpIEtyaXMsDQoNCkxlIDIwMTgtMDItMDYgw6AgMTA6MjQs
-IEtyaXMgRGF2aXMgYSDDqWNyaXTCoDoNCj4gVGhlIHBlcmZvcm1hbmNlIHZhcmlhdGlvbiB5b3Ug
-bWVudGlvbiBiZWxvdyBkb2Vzbid0IHNvdW5kIHVudXN1YWwgZm9yIGEgbm9uLXByZWNvbmRpdGlv
-bmVkIFNTRC4gIFlvdSBkaWRuJ3QgbWVudGlvbiB3aGF0IHNvcnQgb2YgInByZWNvbmRpdGlvbmlu
-ZyIgeW91IGRpZCB0byB0aGUgU1NEcyBwcmlvciB0byB5b3VyIG1lYXN1cmVtZW50cy4gICBZb3Ug
-bWF5IGJlIHVuYXdhcmUgdGhhdCBTU0RzIHJlcXVpcmUgc29tZSB1c3VhbGx5IGV4dGVuc2l2ZSBw
-cmVjb25kaXRpb25pbmcgb3BlcmF0aW9ucyB0byBvYnRhaW4gc3RhYmxlIHJlc3VsdHMuICBUYWtl
-IGEgbG9vayBhdCB0aGUgU05JQSB0ZXN0IG1ldGhvZG9sb2d5IGZvciBhIHByZXR0eSBnb29kIGV4
-cGxhbmF0aW9uIChodHRwOi8vd3d3LnNuaWEub3JnL3NpdGVzL2RlZmF1bHQvZmlsZXMvU1NTX1BU
-U19FbnRlcnByaXNlX3YxLjEucGRmKSBJIHRoaW5rIHN0YXJ0aW5nIGFyb3VuZCBwYWdlIDE4Lg0K
-DQpJIHRoaW5rIHlvdSBoaXQgdGhlIG5haWwgb24gdGhlIGhlYWQgaGVyZS4gSSBkaWRuJ3QgZG8g
-YW55IHNvcnQgb2YgcHJlY29uZGl0aW9uaW5nLCBhcyBJIGRpZG4ndCB0aGluayBpdCBuZWNlc3Nh
-cnkuIFRvIHRlc3QgdGhpcywgSSBjcmVhdGVkIGEgbG9naWNhbCB2b2x1bWUgYW5kIGFuIGV4dDQg
-ZmlsZXN5c3RlbSBvbiB0b3AgdGhlIHRoZSBtZCBkZXZpY2UgYW5kIHJhbiB0aGUgc2FtZSB0ZXN0
-IGV4Y2VwdCB3aXRoIGEgZml4ZWQtc2l6ZSBJTyBmaWxlIG9mIDEwRy4NCg0KSSBub3RpY2VkIHRo
-YXQgYXQgdGhlIGJlZ2lubmluZywgZmlvICJsYXlzIG91dCIgdGhpcyBmaWxlLCB3aGljaCBtYXkg
-YmUganVzdCBlbm91Z2ggInByZWNvbmRpdGlvbmluZyIgYmVjYXVzZSB0aGVuIHRoZSByYW5kb20g
-d3JpdGVzIGFyZSBtdWNoIG1vcmUgc3RhYmxlIGF0IHRoZSBiZWdpbm5pbmcgYW5kIHRoZSBjdXJ2
-ZSBvYnNlcnZlZCBpbiB0aGUgcHJldmlvdXMgdGVzdCBpcyBhYnNlbnQuDQoNClRoYW5rcywNCg0K
-LS0gSmVyb21lDQoNCg==
+Hi Kris,
+
+Le 2018-02-06 à 10:24, Kris Davis a écrit :
+> The performance variation you mention below doesn't sound unusual for a non-preconditioned SSD.  You didn't mention what sort of "preconditioning" you did to the SSDs prior to your measurements.   You may be unaware that SSDs require some usually extensive preconditioning operations to obtain stable results.  Take a look at the SNIA test methodology for a pretty good explanation (http://www.snia.org/sites/default/files/SSS_PTS_Enterprise_v1.1.pdf) I think starting around page 18.
+
+I think you hit the nail on the head here. I didn't do any sort of 
+preconditioning, as I didn't think it necessary. To test this, I created 
+a logical volume and an ext4 filesystem on top the the md device and ran 
+the same test except with a fixed-size IO file of 10G.
+
+I noticed that at the beginning, fio "lays out" this file, which may be 
+just enough "preconditioning" because then the random writes are much 
+more stable at the beginning and the curve observed in the previous test 
+is absent.
+
+Thanks,
+
+-- Jerome
+
