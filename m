@@ -1,71 +1,99 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wr0-f181.google.com ([209.85.128.181]:34692 "EHLO
-        mail-wr0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750950AbeBFFQB (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 6 Feb 2018 00:16:01 -0500
-Received: by mail-wr0-f181.google.com with SMTP id z6so605002wrb.1
-        for <fio@vger.kernel.org>; Mon, 05 Feb 2018 21:16:00 -0800 (PST)
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:54930 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752852AbeBFVbx (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 6 Feb 2018 16:31:53 -0500
+From: Kris Davis <Kris.Davis@wdc.com>
+Subject: RE: Curious randwrite results on raid10 md device
+Date: Tue, 6 Feb 2018 21:31:48 +0000
+Message-ID: <BN1PR0401MB1106AF696B726312C4C6C94981FD0@BN1PR0401MB1106.namprd04.prod.outlook.com>
+References: <a4f3cafa-dd28-28aa-551e-85cb27cf234d@cmaisonneuve.qc.ca>
+ <CALjAwxhMC7wt6U+EKNvFeo8EoHKyZqkO5qiCac7TNg7ZJJPvLg@mail.gmail.com>
+ <BN1PR0401MB1106A85FFAD6EC920540A9C781FD0@BN1PR0401MB1106.namprd04.prod.outlook.com>
+ <65ee7bb8-d67e-26d4-d3ab-cc80bf2f2cdb@cmaisonneuve.qc.ca>
+ <BN1PR0401MB1106AF7EE10537568DF571B681FD0@BN1PR0401MB1106.namprd04.prod.outlook.com>
+In-Reply-To: <BN1PR0401MB1106AF7EE10537568DF571B681FD0@BN1PR0401MB1106.namprd04.prod.outlook.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <CAPSTwmSKtMj5yGR2Wb3AY54_CGfWbdEqoWKYy1fKDBiQ3Uo4=Q@mail.gmail.com>
-References: <CAPSTwmSKtMj5yGR2Wb3AY54_CGfWbdEqoWKYy1fKDBiQ3Uo4=Q@mail.gmail.com>
-From: Gnana Sekhar <kgsgnana2020@gmail.com>
-Date: Mon, 5 Feb 2018 22:15:59 -0700
-Message-ID: <CAPSTwmRSGS2xrg=uTtWP-0mU8n0us_1QE8wAF7_tEkUPKJ8CnQ@mail.gmail.com>
-Subject: Fwd: Failures noticed in FIO run
-Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Kris Davis <Kris.Davis@wdc.com>, =?utf-8?B?SsOpcsO0bWUgQ2hhcmFvdWk=?= <jcharaoui@cmaisonneuve.qc.ca>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-Hi,
-
-Occasionally stepping into couple of failures with FIO with arguments
-captured below
-So wanted to get opinion on if I am missing something in parameters
-
-Failure 1:
-The arguments passed are: sudo fio --thread --direct=1 --minimal
---ioengine=libaio --numjobs=1 --filename=/dev/nvme0n1 -o
-/tmp/nvme0n1_temp.log --name=bs16384_rwwrite_qd256 --buffer_pattern=0
---iodepth=256 --size=409600 --percentage_random=0 --bs=256k
---offset=625181037 --rw=write
-
-Error in FIO run: fio: io_u error on file /dev/nvme0n1: Invalid
-argument: write offset=625181037, buflen=262144
-
-Error in FIO run: fio: io_u error on file /dev/nvme0n1: Invalid
-argument: write offset=625443181, buflen=262144
-
-
-
-Failure 2:
-
-Write followed by verify:
-sudo fio --thread --direct=1 --minimal --ioengine=libaio --numjobs=1
---filename=/dev/nvme0n1 -o /tmp/nvme0n1_temp.log
---name=bs16384_rwwrite_qd256 --buffer_pattern=1 --iodepth=256
---size=40960 --percentage_random=0 --bs=16384 --rw=write
-
-
-sudo fio --thread --direct=1 --minimal --ioengine=libaio --numjobs=1
---filename=/dev/nvme0n1 -o /tmp/nvme0n1_temp.log
---name=bs16384_rwverify_qd256 --buffer_pattern=1 --iodepth=256
---size=40960 --percentage_random=0 --bs=16384 --rw=read
---verify=pattern --verify_pattern=1
-
-Error in starting FIO: fio: got pattern '00', wanted '01'. Bad bits 1
-fio: bad pattern block offset 2048
-
-pattern: verify failed at file /dev/nvme0n1 offset 0, length 16843009
-fio: verify type mismatch (257 media, 18 given)
-fio: got pattern '00', wanted '01'. Bad bits 1
-fio: bad pattern block offset 2048
-pattern: verify failed at file /dev/nvme0n1 offset 16384, length 16843009
-fio: verify type mismatch (257 media, 18 given)
-fio: got pattern '00', wanted '01'. Bad bits 1
-fio: bad pattern block offset 2048
-pattern: verify failed at file /dev/nvme0n1 offset 32768, length 16843009
-fio: verify type mismatch (257 media, 18 given)
-
-Regards,
-Gnana
+U29ycnkgZm9sa3MsIEkgZm9yZ290IHRvIG1lbnRpb24sIGZ1cnRoZXIgZGlzY3Vzc2lvbiB3ZSBz
+aG91bGQgcHJvYmFibHkgdGFrZSBvZmYgbGluZSwgaXQncyBub3QgcmVhbGx5IGFuIGZpbyBpc3N1
+ZSwganVzdCB0ZXN0IG1ldGhvZG9sb2d5Lg0KDQpLcmlzIERhdmlzDQoNCi0tLS0tT3JpZ2luYWwg
+TWVzc2FnZS0tLS0tDQpGcm9tOiBmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86Zmlv
+LW93bmVyQHZnZXIua2VybmVsLm9yZ10gT24gQmVoYWxmIE9mIEtyaXMgRGF2aXMNClNlbnQ6IFR1
+ZXNkYXksIEZlYnJ1YXJ5IDYsIDIwMTggMzoyOSBQTQ0KVG86IErDqXLDtG1lIENoYXJhb3VpIDxq
+Y2hhcmFvdWlAY21haXNvbm5ldXZlLnFjLmNhPjsgU2l0c29mZSBXaGVlbGVyIDxzaXRzb2ZlQGdt
+YWlsLmNvbT4NCkNjOiBmaW8gPGZpb0B2Z2VyLmtlcm5lbC5vcmc+DQpTdWJqZWN0OiBSRTogQ3Vy
+aW91cyByYW5kd3JpdGUgcmVzdWx0cyBvbiByYWlkMTAgbWQgZGV2aWNlDQoNCkplcm9tZQ0KDQpQ
+cmVjb25kaXRpb24gb2YgYW4gU1NEIGdlbmVyYWxseSByZXF1aXJlcyB3cml0aW5nIHRoZSBlbnRp
+cmUgY2FwYWNpdHkgb2YgdGhlIGRyaXZlIHVwIHRvIDEuNSB0byAyIHRpbWVzLiAgSWYgZG9pbmcg
+cmFuZG9tIG9wZXJhdGlvbnMsIHlvdSB3b3VsZCB3cml0ZSB1c2luZyByYW5kb20gd3JpdGVzIG9m
+IHRoZSBzYW1lIGNoYXJhY3RlciAoc2l6ZSBhbmQgbWl4KSBhcyB5b3VyIHRlc3QuICBJZiBzZXF1
+ZW50aWFsLCBsaWtld2lzZS4gIFRoZSBwb2ludCBpcyB0aGF0IGFuIFNTRCBkb2VzIGdhcmJhZ2Ug
+Y29sbGVjdGlvbiBhbmQgd2Vhci1sZXZlbGluZyBvcGVyYXRpb25zIGluIHRoZSBiYWNrZ3JvdW5k
+LiAgV2hpbGUgdGhlIGJhY2tncm91bmQgb3BlcmF0aW9ucyBleGVjdXRpbmcsIHRoZSBwZXJmb3Jt
+YW5jZSBvZiB0aGUgZHJpdmUgaXMgbXVjaCBzbG93ZXIuICAgUGVyZm9ybWFuY2UgaXMgdW5zdGFi
+bGUgdW5sZXNzIHRob3NlIGJhY2tncm91bmQgZnVuY3Rpb25zIGFyZSBydW5uaW5nIGNvbnRpbnVv
+dXNseSB3aGljaCBnaXZlcyB0aGUgc3VzdGFpbmVkIHBlcmZvcm1hbmNlIHRoZSBkcml2ZS4gICBJ
+ZiB0aGUgZGV2aWNlIGlzIGlkbGUgZm9yIGEgd2hpbGUsIGl0J3MgYWJsZSB0byBjYXRjaCB1cCBh
+bmQgeW91IHJldHVybiB0byBjbG9zZSB0byB0aGUgb3V0IG9mIGJveCBwZXJmb3JtYW5jZSBvZiB0
+aGUgZHJpdmUuICANCg0KV2hlbiBwZXJmb3JtaW5nIHB1cmUgcmVhZCB0ZXN0cywgdGhlbiB0aGUg
+ZHJpdmUgc3RpbGwgbmVlZHMgdG8gYmUgcHJlY29uZGl0aW9uZWQgaW4gdGhlIHNhbWUgZmFzaGlv
+biBhcyB0aGUgd3JpdGVzLiBCdXQsIHVubGVzcyB5b3VyIHRlc3QgbWVhc3VyZW1lbnQgaXMgc2hv
+cnQgZW5vdWdoIHNvIHRoZSBnYXJiYWdlIGNvbGxlY3Rpb24gaXMgc3RpbGwgcnVubmluZyB0aHJv
+dWdob3V0IHRoZSBtZWFzdXJlbWVudCBwZXJpb2QsIHlvdSBjYW4gbGV0IGJveCBpZGxlIGZvciBh
+IHdoaWxlLCBhbmQgdGhlbiBydW4gdGhlIHJlYWQgdGVzdCBhZnRlciB0aGUgZHJpdmVzIGhhdmUg
+c2V0dGxlZCAodGhvdWdoIHRoZSBtZWFzdXJlZCBwZXJmb3JtYW5jZSBjYW4gYmUgZGlmZmVyZW50
+IHRoYW4gd2hlbiBiYWNrZ3JvdW5kIGZ1bmN0aW9ucyBhcmUgcnVubmluZywgYnV0IHNob3VsZCBi
+ZSBzdGFibGUpDQoNClRodXMsIHdyaXRpbmcgYSAxMEcgZmlsZSB3b24ndCBjbG9zZSB0byBlbm91
+Z2ggZGF0YS4gIFlvdSB3b3VsZG4ndCBoYXZlIHJlYWNoZWQgcGFzdCB0aGUgdHJhbnNpdGlvbiBw
+ZXJpb2QgYW5kIGFyZSBwcm9iYWJseSBqdXN0IG1lYXN1cmluZyB0aGUgY2FjaGUuIEl0J3Mgbm90
+IHVudXN1YWwgdG8gaGF2ZSBwcmVjb25kaXRpb25pbmcgb3BlcmF0aW9ucyB3aGljaCB0YWtlIG92
+ZXIgYSBkYXkgYmVmb3JlIHJ1bm5pbmcgdGhlIHJlYWwgdGVzdCAoZGVwIG9uIHNpemUgb2YgZGV2
+aWNlKS4gIFNpbmNlIHlvdSBhcmUgcmFpZGVkLCBpdCdzIHRoZSBzaXplIG9mIHRoZSB3aG9sZSBh
+cnJheS4gIE5vdCBmdW4uDQoNCkFuIGFsdGVybmF0aXZlIHRvIHByZWNvbmRpdGlvbmluZyBpcyB0
+byBqdXN0IHJ1biB5b3VyIHRlc3QgdW50aWwgdGhlIHJlc3VsdHMgc3RhYmlsaXplIChleHBlcmlt
+ZW50IHRvIGRldGVybWluZSBzb21lIG1pbmltdW0gYW1vdW50IG9mIGRhdGEgb3IgdGltZSB0byBn
+ZXQgcGFzdCB0aGUgdHJhbnNpdGlvbiBwZXJpb2QpLiAgRm9yIGV4YW1wbGUsIHJ1biB3aXRob3V0
+IGEgcmFtcCBwZXJpb2QgYW5kIHVzZSBhIGxvbmcgcnVudGltZSB3aXRoIHRoZSBJT3BzIExvZyBh
+dmVyYWdpbmcgZXZlcnkgMSB0byA1IHNlY29uZHMuICBUaGVuIHBsb3QgdGhlIGxvZyByZXN1bHRz
+IGFnYWluc3QgdGltZSB0byBkZXRlcm1pbmUgYWJvdXQgaG93IGxvbmcgaXQgdGFrZXMgdGlsbCB0
+aGUgcmVzdWx0cyBzdGFiaWxpemUsIGFuZCB0aGVuIHNldCB5b3VyIHJhbXAgdGltZSB0byBncmVh
+dGVyIHRoYW4gdGhhdCBkdXJhdGlvbi4gICBBbHNvLCBhbHdheXMgZG8gdGhlIElPcHMgc2FtcGxp
+bmcgaW4gYW55IHJlZ3Jlc3Npb24gdGVzdHMsIGluIG9yZGVyIHRvIHZlcmlmeSB0aGF0IHRoZSBy
+ZXN1bHRzIGRpZCBub3QgdmFyeSB0b28gbXVjaCBkdXJpbmcgdGhlIHRlc3QgYW5kIHRoZSByZXN1
+bHRzIGFyZSBzdGlsbCB2YWxpZC4NCg0KU29ycnkgdG8gc2F5IHRoYXQgYW55IHNvbGlkIHN0YXRl
+IHN0b3JhZ2UgcGVyZm9ybWFuY2UgaGFzIGNvbXBsaWNhdGlvbnMgdGhhdCBhcmUgdmVyeSBkaWZm
+ZXJlbnQgdGhhbiBIRERzLiANCkhvcGUgdGhhdCBoZWxwcy4NCg0KS3JpcyBEYXZpcw0KDQotLS0t
+LU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogSsOpcsO0bWUgQ2hhcmFvdWkgW21haWx0bzpq
+Y2hhcmFvdWlAY21haXNvbm5ldXZlLnFjLmNhXQ0KU2VudDogVHVlc2RheSwgRmVicnVhcnkgNiwg
+MjAxOCAyOjMxIFBNDQpUbzogS3JpcyBEYXZpcyA8S3Jpcy5EYXZpc0B3ZGMuY29tPjsgU2l0c29m
+ZSBXaGVlbGVyIDxzaXRzb2ZlQGdtYWlsLmNvbT4NCkNjOiBmaW8gPGZpb0B2Z2VyLmtlcm5lbC5v
+cmc+DQpTdWJqZWN0OiBSZTogQ3VyaW91cyByYW5kd3JpdGUgcmVzdWx0cyBvbiByYWlkMTAgbWQg
+ZGV2aWNlDQoNCkhpIEtyaXMsDQoNCkxlIDIwMTgtMDItMDYgw6AgMTA6MjQsIEtyaXMgRGF2aXMg
+YSDDqWNyaXTCoDoNCj4gVGhlIHBlcmZvcm1hbmNlIHZhcmlhdGlvbiB5b3UgbWVudGlvbiBiZWxv
+dyBkb2Vzbid0IHNvdW5kIHVudXN1YWwgZm9yIGEgbm9uLXByZWNvbmRpdGlvbmVkIFNTRC4gIFlv
+dSBkaWRuJ3QgbWVudGlvbiB3aGF0IHNvcnQgb2YgInByZWNvbmRpdGlvbmluZyIgeW91IGRpZCB0
+byB0aGUgU1NEcyBwcmlvciB0byB5b3VyIG1lYXN1cmVtZW50cy4gICBZb3UgbWF5IGJlIHVuYXdh
+cmUgdGhhdCBTU0RzIHJlcXVpcmUgc29tZSB1c3VhbGx5IGV4dGVuc2l2ZSBwcmVjb25kaXRpb25p
+bmcgb3BlcmF0aW9ucyB0byBvYnRhaW4gc3RhYmxlIHJlc3VsdHMuICBUYWtlIGEgbG9vayBhdCB0
+aGUgU05JQSB0ZXN0IG1ldGhvZG9sb2d5IGZvciBhIHByZXR0eSBnb29kIGV4cGxhbmF0aW9uICho
+dHRwOi8vd3d3LnNuaWEub3JnL3NpdGVzL2RlZmF1bHQvZmlsZXMvU1NTX1BUU19FbnRlcnByaXNl
+X3YxLjEucGRmKSBJIHRoaW5rIHN0YXJ0aW5nIGFyb3VuZCBwYWdlIDE4Lg0KDQpJIHRoaW5rIHlv
+dSBoaXQgdGhlIG5haWwgb24gdGhlIGhlYWQgaGVyZS4gSSBkaWRuJ3QgZG8gYW55IHNvcnQgb2Yg
+cHJlY29uZGl0aW9uaW5nLCBhcyBJIGRpZG4ndCB0aGluayBpdCBuZWNlc3NhcnkuIFRvIHRlc3Qg
+dGhpcywgSSBjcmVhdGVkIGEgbG9naWNhbCB2b2x1bWUgYW5kIGFuIGV4dDQgZmlsZXN5c3RlbSBv
+biB0b3AgdGhlIHRoZSBtZCBkZXZpY2UgYW5kIHJhbiB0aGUgc2FtZSB0ZXN0IGV4Y2VwdCB3aXRo
+IGEgZml4ZWQtc2l6ZSBJTyBmaWxlIG9mIDEwRy4NCg0KSSBub3RpY2VkIHRoYXQgYXQgdGhlIGJl
+Z2lubmluZywgZmlvICJsYXlzIG91dCIgdGhpcyBmaWxlLCB3aGljaCBtYXkgYmUganVzdCBlbm91
+Z2ggInByZWNvbmRpdGlvbmluZyIgYmVjYXVzZSB0aGVuIHRoZSByYW5kb20gd3JpdGVzIGFyZSBt
+dWNoIG1vcmUgc3RhYmxlIGF0IHRoZSBiZWdpbm5pbmcgYW5kIHRoZSBjdXJ2ZSBvYnNlcnZlZCBp
+biB0aGUgcHJldmlvdXMgdGVzdCBpcyBhYnNlbnQuDQoNClRoYW5rcywNCg0KLS0gSmVyb21lDQoN
+CgQgey5uICsgICAgICAgKyUgIGx6d20gIGIg66eyICByICB5ICAge2F5IB3Kh9qZICxqICAgZiAg
+IGggICB6IB4gdyAgICAgICBqOit2ICAgdyBqIG0gICAgICAgICB6WisgICAgIN2iaiIgICEgaQ0K
