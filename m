@@ -1,41 +1,65 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from sv65.cmaisonneuve.qc.ca ([206.167.118.84]:24423 "EHLO
-        courriel.cmaisonneuve.qc.ca" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753482AbeBFUag (ORCPT
-        <rfc822;fio@vger.kernel.org>); Tue, 6 Feb 2018 15:30:36 -0500
-Subject: Re: Curious randwrite results on raid10 md device
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:51647 "EHLO
+        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752358AbeBFPY5 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 6 Feb 2018 10:24:57 -0500
+From: Kris Davis <Kris.Davis@wdc.com>
+Subject: RE: Curious randwrite results on raid10 md device
+Date: Tue, 6 Feb 2018 15:24:51 +0000
+Message-ID: <BN1PR0401MB1106A85FFAD6EC920540A9C781FD0@BN1PR0401MB1106.namprd04.prod.outlook.com>
 References: <a4f3cafa-dd28-28aa-551e-85cb27cf234d@cmaisonneuve.qc.ca>
  <CALjAwxhMC7wt6U+EKNvFeo8EoHKyZqkO5qiCac7TNg7ZJJPvLg@mail.gmail.com>
- <BN1PR0401MB1106A85FFAD6EC920540A9C781FD0@BN1PR0401MB1106.namprd04.prod.outlook.com>
-From: =?UTF-8?B?SsOpcsO0bWUgQ2hhcmFvdWk=?= <jcharaoui@cmaisonneuve.qc.ca>
-Message-ID: <65ee7bb8-d67e-26d4-d3ab-cc80bf2f2cdb@cmaisonneuve.qc.ca>
-Date: Tue, 6 Feb 2018 15:30:34 -0500
+In-Reply-To: <CALjAwxhMC7wt6U+EKNvFeo8EoHKyZqkO5qiCac7TNg7ZJJPvLg@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <BN1PR0401MB1106A85FFAD6EC920540A9C781FD0@BN1PR0401MB1106.namprd04.prod.outlook.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Language: fr
-Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Kris Davis <Kris.Davis@wdc.com>, Sitsofe Wheeler <sitsofe@gmail.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>, =?utf-8?B?SsOpcsO0bWUgQ2hhcmFvdWk=?= <jcharaoui@cmaisonneuve.qc.ca>
 Cc: fio <fio@vger.kernel.org>
 
-Hi Kris,
-
-Le 2018-02-06 à 10:24, Kris Davis a écrit :
-> The performance variation you mention below doesn't sound unusual for a non-preconditioned SSD.  You didn't mention what sort of "preconditioning" you did to the SSDs prior to your measurements.   You may be unaware that SSDs require some usually extensive preconditioning operations to obtain stable results.  Take a look at the SNIA test methodology for a pretty good explanation (http://www.snia.org/sites/default/files/SSS_PTS_Enterprise_v1.1.pdf) I think starting around page 18.
-
-I think you hit the nail on the head here. I didn't do any sort of 
-preconditioning, as I didn't think it necessary. To test this, I created 
-a logical volume and an ext4 filesystem on top the the md device and ran 
-the same test except with a fixed-size IO file of 10G.
-
-I noticed that at the beginning, fio "lays out" this file, which may be 
-just enough "preconditioning" because then the random writes are much 
-more stable at the beginning and the curve observed in the previous test 
-is absent.
-
-Thanks,
-
--- Jerome
-
+SmVyb21lLCANCg0KVGhlIHBlcmZvcm1hbmNlIHZhcmlhdGlvbiB5b3UgbWVudGlvbiBiZWxvdyBk
+b2Vzbid0IHNvdW5kIHVudXN1YWwgZm9yIGEgbm9uLXByZWNvbmRpdGlvbmVkIFNTRC4gIFlvdSBk
+aWRuJ3QgbWVudGlvbiB3aGF0IHNvcnQgb2YgInByZWNvbmRpdGlvbmluZyIgeW91IGRpZCB0byB0
+aGUgU1NEcyBwcmlvciB0byB5b3VyIG1lYXN1cmVtZW50cy4gICBZb3UgbWF5IGJlIHVuYXdhcmUg
+dGhhdCBTU0RzIHJlcXVpcmUgc29tZSB1c3VhbGx5IGV4dGVuc2l2ZSBwcmVjb25kaXRpb25pbmcg
+b3BlcmF0aW9ucyB0byBvYnRhaW4gc3RhYmxlIHJlc3VsdHMuICBUYWtlIGEgbG9vayBhdCB0aGUg
+U05JQSB0ZXN0IG1ldGhvZG9sb2d5IGZvciBhIHByZXR0eSBnb29kIGV4cGxhbmF0aW9uIChodHRw
+Oi8vd3d3LnNuaWEub3JnL3NpdGVzL2RlZmF1bHQvZmlsZXMvU1NTX1BUU19FbnRlcnByaXNlX3Yx
+LjEucGRmKSBJIHRoaW5rIHN0YXJ0aW5nIGFyb3VuZCBwYWdlIDE4LiAgDQpBbHNvLCBJIHRoaW5r
+IGFsbCBTU0RzIGFyZSBhbHdheXMgd3JpdGUgY2FjaGUgZW5hYmxlZCwgdGhlIHdyaXRlIGNhY2hl
+IGJpdCBpcyBpZ25vcmVkLg0KDQpLcmlzIERhdmlzDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0t
+LS0tDQpGcm9tOiBmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86ZmlvLW93bmVyQHZn
+ZXIua2VybmVsLm9yZ10gT24gQmVoYWxmIE9mIFNpdHNvZmUgV2hlZWxlcg0KU2VudDogVHVlc2Rh
+eSwgRmVicnVhcnkgNiwgMjAxOCA4OjE3IEFNDQpUbzogSsOpcsO0bWUgQ2hhcmFvdWkgPGpjaGFy
+YW91aUBjbWFpc29ubmV1dmUucWMuY2E+DQpDYzogZmlvIDxmaW9Admdlci5rZXJuZWwub3JnPg0K
+U3ViamVjdDogUmU6IEN1cmlvdXMgcmFuZHdyaXRlIHJlc3VsdHMgb24gcmFpZDEwIG1kIGRldmlj
+ZQ0KDQpPbiA1IEZlYnJ1YXJ5IDIwMTggYXQgMDQ6MzMsIErDqXLDtG1lIENoYXJhb3VpIDxqY2hh
+cmFvdWlAY21haXNvbm5ldXZlLnFjLmNhPiB3cm90ZToNCj4NCj4gSSd2ZSBiZWVuIHJ1bm5pbmcg
+c29tZSB0ZXN0cyBvbiBhIGJ1bmNoIG9mIGRpc2tzIGxhdGVseSBhbmQgY2FtZSANCj4gYWNyb3Nz
+IGEgc3RyYW5nZSByZXN1bHQgdGhhdCBJJ20gc3RydWdnbGluZyB0byBleHBsYWluLg0KPg0KPiBJ
+IGJ1aWx0IGEgMjAtZGV2aWNlIHJhaWQxMCBtZCBhcnJheSB3aXRoIFNTRHMgYW5kIHJhbiBzZXZl
+cmFsIGZpbyANCj4gdGVzdHMgb24gaXQuIFRoZSByYW5kd3JpdGUgdGVzdCByZWFsbHkgc3RhbmRz
+IG91dCBiZWNhdXNlIHRoZSBJT1BTIA0KPiBzdGFydHMgb3V0IGZhaXJseSBsb3csIGFyb3VuZCA4
+MDAgSU9QUywgYnV0IHdpdGhpbiBhIGZldyBzZWNvbmRzIA0KPiBjbGltYnMgdXAgdG8gYWJvdXQg
+NzBLIElPUFMsIHdoaWNoIGlzIG5lYXJseSB0aHJlZSB0aW1lcyBoaWdoZXIgdGhhbiANCj4gdGhl
+IElPUFMgSSdtIGdldHRpbmcgd2l0aCB0aGUgcmFuZHJlYWQgdGVzdCAoMjVLKS4NCj4NCj4gSSB0
+cmllZCBkaXNhYmxpbmcgdGhlIGRyaXZlIGNhY2hlcyB1c2luZyBoZHBhcm0gLVcgMCwgYW5kIGFs
+c28gDQo+IGRpc2FibGluZyB0aGUgaW50ZXJuYWwgd3JpdGUtaW50ZW50IGJpdG1hcCBvbiB0aGUg
+bWQgYXJyYXksIGJ1dCB0aGUgDQo+IHJlc3VsdHMgYXJlIHRoZSBzYW1lLg0KDQpZb3UgZGlkbid0
+IGluY2x1ZGUgdGhlIGZpbyBqb2IgeW91J3JlIHVzaW5nIChzZWUgaHR0cHM6Ly9naXRodWIuY29t
+L2F4Ym9lL2Zpby9ibG9iL2Zpby0zLjMvUkVQT1JUSU5HLUJVR1MgKSBzbyBpdCdzIGltcG9zc2li
+bGUgdG8gc2F5IGFueXRoaW5nIHRvbyB1c2VmdWwuIEknZCBjaGVjayB3aGV0aGVyIGEgc29sbyBT
+U0QgYnkgaXRzZWxmIGV4aGliaXRzIHNpbWlsYXIgdmFyaWF0aW9uLiBJdCdzIGFsc28gd29ydGgg
+bm90aW5nIHRoZSBvcmRlciB5b3UgcmVhZCBkYXRhIGJhY2sgY29tcGFyZWQgdG8gaG93IGl0IHdh
+cyB3cml0dGVuIGNhbiBpbXBhY3QgYW4gU1NEIChzZWUgaHR0cDovL2NvZGVjYXBzdWxlLmNvbS8y
+MDE0LzAyLzEyL2NvZGluZy1mb3Itc3Nkcy1wYXJ0LTUtYWNjZXNzLXBhdHRlcm5zLWFuZC1zeXN0
+ZW0tb3B0aW1pemF0aW9ucy8NCikgYnV0IEkgd291bGRuJ3QgaGF2ZSB0aG91Z2h0IGl0IHNob3Vs
+ZCBiZSB0byBzdWNoIGEgZGVncmVlLiBQZXJoYXBzIGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvdmdl
+ci1saXN0cy5odG1sI2xpbnV4LXJhaWQgb3IgaHR0cDovL3ZnZXIua2VybmVsLm9yZy92Z2VyLWxp
+c3RzLmh0bWwjbGludXgtYmxvY2sgbWlnaHQgZ2l2ZSBiZXR0ZXIgcmVwbGllcy4uLg0KDQotLQ0K
+U2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9yZy9+c2l0cy8NCi0tDQpUbyB1bnN1YnNjcmliZSBmcm9t
+IHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgZmlvIiBpbiB0aGUgYm9keSBv
+ZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21vQHZnZXIua2VybmVsLm9yZyBNb3JlIG1ham9yZG9tbyBp
+bmZvIGF0ICBodHRwOi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwNCg==
