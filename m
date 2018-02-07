@@ -1,62 +1,121 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk0-f47.google.com ([209.85.213.47]:42081 "EHLO
-        mail-vk0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753856AbeBGRmQ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 7 Feb 2018 12:42:16 -0500
-Received: by mail-vk0-f47.google.com with SMTP id t4so1058401vkb.9
-        for <fio@vger.kernel.org>; Wed, 07 Feb 2018 09:42:16 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <f4456b3c-214b-ba74-d979-9ed143df9811@kcl.ac.uk>
-References: <f4456b3c-214b-ba74-d979-9ed143df9811@kcl.ac.uk>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Wed, 7 Feb 2018 17:41:45 +0000
-Message-ID: <CALjAwxjAB61v0aW_3hE8MpzBwjZ+y7kKbsKjzkEz1s7OQ2ThaQ@mail.gmail.com>
-Subject: Re: Possible bug in client/server mode - spurious lines leaking into
+Received: from mail-eopbgr20130.outbound.protection.outlook.com ([40.107.2.130]:57439
+        "EHLO EUR02-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1754399AbeBGQm6 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 7 Feb 2018 11:42:58 -0500
+From: Tim Watts <tim.j.watts@kcl.ac.uk>
+Subject: Possible bug in client/server mode - spurious lines leaking into
  logfile fio-3.3-39-g9025
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <f4456b3c-214b-ba74-d979-9ed143df9811@kcl.ac.uk>
+Date: Wed, 7 Feb 2018 16:42:52 +0000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Tim Watts <tim.j.watts@kcl.ac.uk>
-Cc: fio <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
 Hi,
 
-On 7 February 2018 at 16:42, Tim Watts <tim.j.watts@kcl.ac.uk> wrote:
->
-> The hostname=vmhost-21 is being generated on the fio server instance by
-> client.c lines 1416-1418, a log_info() statement
->
-> The other stuff looks like it is the result of the server instance
-> defaulting output_format to FIO_OUTPUT_NORMAL - and there's no option like
-> "--output_format=none" to be able to give to the server
->
-> At the end of the email is a hacky patch that "fixes" the problem - but
-> almost certainly, it's not done right.
->
->
-> The invocations were:
->
-> (Server)
-> fio --server
->
-> (Client)
-> fio --output=/test/logs/a.log --output-format=json --client=vmhost-21
-> /test/fio/a.fio
->
->
-> Before guessing if this is a bug or a user error, I thought I'd send it here
-> for your comment :)
+fio-3.3-39-g9025 built locally from git
 
-Looks like bugs to me:
+I do apologise if this is a n00b error, but running an fio client 
+against an fio server is resulting in spurious lines being emitted by 
+the fio server instance, and these are being fed back to the client and 
+mixed into the logfile.
 
-The client doesn't send the server the output-format it's currently
-using (bug 1, might be tricky to fix unless you take a big hammer
-style approach) and the "hostname=..." output should be suppressed
-when not using normal output (bug 2, easily solved with an if (not
-normal output)).
+eg: broken logfile (json, first few lines only)
+==========================================
+hostname=vmhost-21, be=0, 64-bit, os=Linux, arch=x86-64, 
+fio=fio-3.3-39-g9025, flags=1
+<vmhost-21> iops-4k-randrw: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 
+4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=64
+<vmhost-21> Starting 1 process
+<vmhost-21>
 
-Curiously, if you launch the server with --output-format=json some of
-the output is suppressed (bug 3?)...
+{
+   "fio version" : "fio-3.3-39-g9025",
+   "timestamp" : 1518020657,
+   "time" : "Wed Feb  7 16:24:17 2018",
+   "global options" : {
+     "ioengine" : "libaio",
+     "invalidate" : "1",
+...
+==========================================
+
+The hostname=vmhost-21 is being generated on the fio server instance by 
+client.c lines 1416-1418, a log_info() statement
+
+The other stuff looks like it is the result of the server instance 
+defaulting output_format to FIO_OUTPUT_NORMAL - and there's no option 
+like "--output_format=none" to be able to give to the server
+
+At the end of the email is a hacky patch that "fixes" the problem - but 
+almost certainly, it's not done right.
+
+
+The invocations were:
+
+(Server)
+fio --server
+
+(Client)
+fio --output=/test/logs/a.log --output-format=json --client=vmhost-21 
+/test/fio/a.fio
+
+
+Before guessing if this is a bug or a user error, I thought I'd send it 
+here for your comment :)
+
+All the best,
+
+Tim
+
+
+
+==================================================================
+diff --git a/client.c b/client.c
+index 6fe6d9f..57add86 100644
+--- a/client.c
++++ b/client.c
+@@ -1413,10 +1413,11 @@ static void handle_probe(struct fio_client 
+*client, struct fio_net_cmd *cmd)
+         sprintf(bit, "%d-bit", probe->bpp * 8);
+         probe->flags = le64_to_cpu(probe->flags);
+
++/*
+         log_info("hostname=%s, be=%u, %s, os=%s, arch=%s, fio=%s, 
+flags=%lx\n",
+                 probe->hostname, probe->bigendian, bit, os, arch,
+                 probe->fio_version, (unsigned long) probe->flags);
+-
++*/
+         if (!client->name)
+                 client->name = strdup((char *) probe->hostname);
+  }
+diff --git a/server.c b/server.c
+index ce9dca3..e2122d9 100644
+--- a/server.c
++++ b/server.c
+@@ -2523,6 +2523,11 @@ int fio_start_server(char *pidfile)
+         WSAStartup(MAKEWORD(2, 2), &wsd);
+  #endif
+
++/*
++* Disable logging if running as server
++*/
++       output_format = 0;
++
+         if (!pidfile)
+                 return fio_server();
+==================================================================
+
+
 
 -- 
-Sitsofe | http://sucs.org/~sits/
+Tim Watts                               Tel (VOIP): +44 (0)1580 848360
+Systems Manager        King's Digital Lab (KDL), King's College London
+Systems Messages and Notifications: https://systemsblog.cch.kcl.ac.uk/
+
