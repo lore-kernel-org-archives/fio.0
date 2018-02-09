@@ -1,59 +1,80 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk0-f46.google.com ([209.85.213.46]:34091 "EHLO
-        mail-vk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752892AbeBULUm (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 21 Feb 2018 06:20:42 -0500
-Received: by mail-vk0-f46.google.com with SMTP id z190so718948vkg.1
-        for <fio@vger.kernel.org>; Wed, 21 Feb 2018 03:20:42 -0800 (PST)
-MIME-Version: 1.0
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Wed, 21 Feb 2018 11:20:11 +0000
-Message-ID: <CALjAwxjUHo=ShAZrtPfLkQLRep3D8KEuByfrLkBNZUAeFqYuFA@mail.gmail.com>
-Subject: Re: [ Inquire FIO-butterfly test ] method concept and flow , notice
-Content-Type: text/plain; charset="UTF-8"
+Received: from bombadil.infradead.org ([65.50.211.133]:56377 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750925AbeBINAV (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 9 Feb 2018 08:00:21 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.89 #1 (Red Hat Linux))
+        id 1ek8Hs-00078x-M6
+        for fio@vger.kernel.org; Fri, 09 Feb 2018 13:00:20 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20180209130002.580772C00B7@kernel.dk>
+Date: Fri,  9 Feb 2018 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jacky Chen <jackyc423@gmail.com>
-Cc: fio <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hi,
+The following changes since commit c69f6bf3ed1b413562d7aab1aa9c476101348726:
 
-(First up please don't send fio requests directly to me as they'll get
-lost! Send them to the fio mailing list - see
-https://github.com/axboe/fio/blob/fio-3.4/README#L58 for details.
-Thanks!)
+  mmap: don't include MADV_FREE in fadvise_hint check (2018-02-07 11:30:59 -0700)
 
-On 21 February 2018 at 11:00, Jacky Chen <jackyc423@gmail.com> wrote:
->
-> One thing need your detail description related FIO butterfly test .
->
-> On URL i saw some commit as below : "FIO-butterfly example test" .
->
-> examples: add a butterfly seek job file
+are available in the git repository at:
 
-<snip>
+  git://git.kernel.dk/fio.git master
 
-> ============================== =====================
->
-> I am interesting at this fio test method - butterfly test .
->
-> Could you give me more detail description of "butterfly test" method  and
-> how do I do this experiment on my platform ?
->
-> On URL (https://github.com/axboe/fio/commit/8019f14b8f0538adffd8af39e06e5627b9c8773b ) i saw some commit as below : "FIO-butterfly example test" .
+for you to fetch changes up to 0cf542af81751d7b318afe4429001c1aab6baee5:
 
-Could you elaborate further - what extra detail are you after beyond
-what's already in the commit message?
+  Include 'numjobs' in global options output (2018-02-08 15:46:46 -0700)
 
-To run a job like this on your platform take the example file and
-modify the filename it runs against.
+----------------------------------------------------------------
+Jens Axboe (1):
+      Include 'numjobs' in global options output
 
-A quick note: if you're not familiar with fio and this is your first
-time using it I'd strongly recommend you start with the basic example
-in the HOWTO (see
-http://fio.readthedocs.io/en/latest/fio_doc.html#job-file-format ) and
-build your up from there rather than start with this particular
-example.
+ stat.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
--- 
-Sitsofe | http://sucs.org/~sits/
+---
+
+Diff of recent changes:
+
+diff --git a/stat.c b/stat.c
+index a980a1d..bd2c27d 100644
+--- a/stat.c
++++ b/stat.c
+@@ -1226,7 +1226,7 @@ static void show_thread_status_terse_all(struct thread_stat *ts,
+ }
+ 
+ static void json_add_job_opts(struct json_object *root, const char *name,
+-			      struct flist_head *opt_list, bool num_jobs)
++			      struct flist_head *opt_list)
+ {
+ 	struct json_object *dir_object;
+ 	struct flist_head *entry;
+@@ -1242,8 +1242,6 @@ static void json_add_job_opts(struct json_object *root, const char *name,
+ 		const char *pos = "";
+ 
+ 		p = flist_entry(entry, struct print_option, list);
+-		if (!num_jobs && !strcmp(p->name, "numjobs"))
+-			continue;
+ 		if (p->value)
+ 			pos = p->value;
+ 		json_object_add_value_string(dir_object, p->name, pos);
+@@ -1277,7 +1275,7 @@ static struct json_object *show_thread_status_json(struct thread_stat *ts,
+ 	}
+ 
+ 	if (opt_list)
+-		json_add_job_opts(root, "job options", opt_list, true);
++		json_add_job_opts(root, "job options", opt_list);
+ 
+ 	add_ddir_status_json(ts, rs, DDIR_READ, root);
+ 	add_ddir_status_json(ts, rs, DDIR_WRITE, root);
+@@ -1878,7 +1876,7 @@ void __show_run_stats(void)
+ 		json_object_add_value_int(root, "timestamp_ms", ms_since_epoch);
+ 		json_object_add_value_string(root, "time", time_buf);
+ 		global = get_global_options();
+-		json_add_job_opts(root, "global options", &global->opt_list, false);
++		json_add_job_opts(root, "global options", &global->opt_list);
+ 		array = json_create_array();
+ 		json_object_add_value_array(root, "jobs", array);
+ 	}
