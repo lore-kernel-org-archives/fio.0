@@ -1,63 +1,66 @@
 Return-Path: <prvs=57424972a=Kris.Davis@wdc.com>
 From: Kris Davis <Kris.Davis@wdc.com>
 Subject: fiologparser_hist.py script patch and enhancements?
-Date: Mon, 12 Feb 2018 21:38:46 +0000
-Message-ID: <CY1PR0401MB1116307F93264CDB7F09870981F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
+Date: Mon, 12 Feb 2018 20:36:29 +0000
+Message-ID: <CY1PR0401MB111689EE46B3839EB0675D7B81F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
 References: <CY1PR0401MB11163E6C999998E0A2F13F9E81F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CY1PR0401MB111689EE46B3839EB0675D7B81F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
-In-Reply-To: <CY1PR0401MB111689EE46B3839EB0675D7B81F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
+In-Reply-To: <CY1PR0401MB11163E6C999998E0A2F13F9E81F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+	boundary="_000_CY1PR0401MB111689EE46B3839EB0675D7B81F70CY1PR0401MB1116_"
 MIME-Version: 1.0
 To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 Cc: Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
+--_000_CY1PR0401MB111689EE46B3839EB0675D7B81F70CY1PR0401MB1116_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
 In light of some related commits, I am reposting my enhancements to fiologp=
 arser_hist.py, and a suggested addition of fiologparser_hist.nw.py
 I've included a patch at bottom.
 
-Reasons for the changes:=20
+Reasons for the changes:
 
 1) The fiologparser_hist script didn't support the new nanosecond bin value=
-s.=A0 So I changed the operation to assume nanosecond histogram bins, and n=
-ew "--usbin" option to allow user to override so same script can still proc=
-ess older version histogram logs.
+s.  So I changed the operation to assume nanosecond histogram bins, and new=
+ "--usbin" option to allow user to override so same script can still proces=
+s older version histogram logs.
 
 2) The script asppeared hardcoded to only return 50% (median), 90%, 95%, an=
-d 99% values (along with min and max).=20
+d 99% values (along with min and max).
 I added "--percentiles" option to allow a request for more values ('median'=
  always printed, even if a duplicate 50% column is requested, for backward =
 compatibility).
 
-3) A recent commit made some changes to support python3.=20
+3) A recent commit made some changes to support python3.
 I added a check to make sure the python version is at least 2.7 or above, a=
 nd changed the "shbang" to only call out "python" rather than "python2.7"
 
-4) The process can be slow for large or combining many log files.=A0 I have=
- some automation which will generically process many log files, and found I=
- cut the process time in half if I loaded as a module rather than calling a=
-s a command.=A0 So, changed so I can load as a module and call main directl=
-y, but needed to slightly alter the end of "guess_max_from_bins" to throw a=
-n exception on error rather than exit, when called as a module.=A0=20
+4) The process can be slow for large or combining many log files.  I have s=
+ome automation which will generically process many log files, and found I c=
+ut the process time in half if I loaded as a module rather than calling as =
+a command.  So, changed so I can load as a module and call main directly, b=
+ut needed to slightly alter the end of "guess_max_from_bins" to throw an ex=
+ception on error rather than exit, when called as a module.
 Someone might know of a better, more conventional pythonic design pattern t=
 o use, but it works.
 
-5) The script appears to assume that the log is never missing samples.=A0 T=
-hat is, weight samples to the requested intervals, I think with the assumpt=
-ion that the log samples are at longer intervals, or at least the same inte=
-rval length as the "--interval" value.=A0 If the workload actually contains=
- "thinktime" intervals (with missing sample when zero data), the script can=
-not know this, and assumes the logged operations should still be spread acr=
-oss all the intervals.=A0=20
+5) The script appears to assume that the log is never missing samples.  Tha=
+t is, weight samples to the requested intervals, I think with the assumptio=
+n that the log samples are at longer intervals, or at least the same interv=
+al length as the "--interval" value.  If the workload actually contains "th=
+inktime" intervals (with missing sample when zero data), the script cannot =
+know this, and assumes the logged operations should still be spread across =
+all the intervals.
 
 In my case, I'm mostly interested in results at the same interval as gather=
 ed during logging, so I tweaked into an alternate version I named 'fiologpa=
-rser_hist_nw.py', which doesn't perform any weighting of samples.=A0 It has=
- an added advantage of much quicker performance. For example, fiologparser_=
-hist took about 1/2 hr to combine about 350 logs, but fiologparser_hist_nw =
-took 45 seconds, way better for my automation.
+rser_hist_nw.py', which doesn't perform any weighting of samples.  It has a=
+n added advantage of much quicker performance. For example, fiologparser_hi=
+st took about 1/2 hr to combine about 350 logs, but fiologparser_hist_nw to=
+ok 45 seconds, way better for my automation.
 
 Of course, larger number of 9's percentiles would have additional inaccurac=
 ies when there are not enough operations in a sample period, but that is ju=
@@ -77,10 +80,10 @@ index 62a4eb4..c77bb11 100755
 @@ -1,4 +1,4 @@
 -#!/usr/bin/python2.7
 +#!/usr/bin/python
-"""=20
-=A0=A0=A0=A0=A0Utility for converting *_clat_hist* files generated by fio i=
-nto latency statistics.
-=A0=A0=A0=A0=20
+"""
+     Utility for converting *_clat_hist* files generated by fio into latenc=
+y statistics.
+
 @@ -16,8 +16,16 @@
 import os
 import sys
@@ -91,159 +94,146 @@ import numpy as np
 +runascmd =3D False
 +
 +if (sys.version_info < (2, 7)):
-+=A0=A0=A0 err("ERROR: Python version =3D %s; version 2.7 or greater is req=
-uired.\n")
-+=A0=A0=A0 exit(1)
++    err("ERROR: Python version =3D %s; version 2.7 or greater is required.=
+\n")
++    exit(1)
 +
 +
 err =3D sys.stderr.write
 
-=A0def weighted_percentile(percs, vs, ws):
+ def weighted_percentile(percs, vs, ws):
 @@ -64,8 +72,20 @@ def weights(start_ts, end_ts, start, end):
 def weighted_average(vs, ws):
-=A0=A0=A0=A0 return np.sum(vs * ws) / np.sum(ws)
+     return np.sum(vs * ws) / np.sum(ws)
 
 -columns =3D ["end-time", "samples", "min", "avg", "median", "90%", "95%", =
 "99%", "max"]
--percs=A0=A0 =3D [50, 90, 95, 99]
+-percs   =3D [50, 90, 95, 99]
 +
 +percs =3D None
 +columns =3D None
 +
 +def gen_output_columns(percentiles):
-+=A0=A0=A0 global percs,columns
-+=A0=A0=A0 strpercs =3D re.split('[,:]', percentiles)
-+=A0=A0=A0 percs =3D [50.0]=A0 # always print 50% in 'median' column
-+=A0=A0=A0 percs.extend(list(map(float,strpercs)))
-+=A0=A0=A0 columns =3D ["end-time", "samples", "min", "avg", "median"]
-+=A0=A0=A0 columns.extend(list(map(lambda x: x+'%', strpercs)))
-+=A0=A0=A0 columns.append("max")
-+=A0=A0=A0=A0=A0=A0=A0=20
++    global percs,columns
++    strpercs =3D re.split('[,:]', percentiles)
++    percs =3D [50.0]  # always print 50% in 'median' column
++    percs.extend(list(map(float,strpercs)))
++    columns =3D ["end-time", "samples", "min", "avg", "median"]
++    columns.extend(list(map(lambda x: x+'%', strpercs)))
++    columns.append("max")
++
 +
 
-=A0def fmt_float_list(ctx, num=3D1):
-=A0=A0 """ Return a comma separated list of float formatters to the require=
-d number
+ def fmt_float_list(ctx, num=3D1):
+   """ Return a comma separated list of float formatters to the required nu=
+mber
 @@ -178,7 +198,11 @@ def print_all_stats(ctx, end, mn, ss_cnt, vs, ws, mx):
-=A0=A0=A0=A0 avg =3D weighted_average(vs, ws)
-=A0=A0=A0=A0 values =3D [mn, avg] + list(ps) + [mx]
-=A0=A0=A0=A0 row =3D [end, ss_cnt] + [float(x) / ctx.divisor for x in value=
-s]
--=A0=A0=A0 fmt =3D "%d, %d, %d, " + fmt_float_list(ctx, 5) + ", %d"
-+=A0=A0=A0 if ctx.divisor > 1:
-+=A0=A0=A0=A0=A0=A0=A0 fmt =3D "%d, %d, " + fmt_float_list(ctx, len(percs)+=
-3)
-+=A0=A0=A0 else:
-+=A0=A0=A0=A0=A0=A0=A0 # max and min are decimal values if no divisor
-+=A0=A0=A0=A0=A0=A0=A0 fmt =3D "%d, %d, %d, " + fmt_float_list(ctx, len(per=
-cs)+1) + ", %d"
-=A0=A0=A0=A0 print (fmt % tuple(row))
+     avg =3D weighted_average(vs, ws)
+     values =3D [mn, avg] + list(ps) + [mx]
+     row =3D [end, ss_cnt] + [float(x) / ctx.divisor for x in values]
+-    fmt =3D "%d, %d, %d, " + fmt_float_list(ctx, 5) + ", %d"
++    if ctx.divisor > 1:
++        fmt =3D "%d, %d, " + fmt_float_list(ctx, len(percs)+3)
++    else:
++        # max and min are decimal values if no divisor
++        fmt =3D "%d, %d, %d, " + fmt_float_list(ctx, len(percs)+1) + ", %d=
+"
+     print (fmt % tuple(row))
 
-=A0def update_extreme(val, fncn, new_val):
+ def update_extreme(val, fncn, new_val):
 @@ -207,7 +231,7 @@ def process_interval(ctx, samples, iStart, iEnd):
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =A0
-=A0=A0=A0=A0=A0=A0=A0=A0=A0# Only look at bins of the current histogram sam=
-ple which
-=A0=A0=A0=A0=A0=A0=A0=A0 # started before the end of the current time inter=
-val [start,end]
--=A0=A0=A0=A0=A0=A0=A0 start_times =3D (end_time - 0.5 * ctx.interval) - bi=
-n_vals / 1000.0
-+=A0=A0=A0=A0=A0=A0=A0 start_times =3D (end_time - 0.5 * ctx.interval) - bi=
-n_vals / ctx.time_divisor
-=A0=A0=A0=A0=A0=A0=A0=A0 idx =3D np.where(start_times < iEnd)
-=A0=A0=A0=A0=A0=A0=A0=A0 s_ts, l_bvs, u_bvs, hs =3D start_times[idx], lower=
-_bin_vals[idx], upper_bin_vals[idx], hist[idx]
+
+         # Only look at bins of the current histogram sample which
+         # started before the end of the current time interval [start,end]
+-        start_times =3D (end_time - 0.5 * ctx.interval) - bin_vals / 1000.=
+0
++        start_times =3D (end_time - 0.5 * ctx.interval) - bin_vals / ctx.t=
+ime_divisor
+         idx =3D np.where(start_times < iEnd)
+         s_ts, l_bvs, u_bvs, hs =3D start_times[idx], lower_bin_vals[idx], =
+upper_bin_vals[idx], hist[idx]
 
 @@ -241,7 +265,7 @@ def guess_max_from_bins(ctx, hist_cols):
-=A0=A0=A0=A0 idx =3D np.where(arr =3D=3D hist_cols)
-=A0=A0=A0=A0 if len(idx[1]) =3D=3D 0:
-=A0=A0=A0=A0=A0=A0=A0=A0 table =3D repr(arr.astype(int)).replace('-10', 'N/=
-A').replace('array','=A0=A0=A0=A0 ')
--=A0=A0=A0=A0=A0=A0=A0 err("Unable to determine bin values from input clat_=
-hist files. Namely \n"
-+=A0=A0=A0=A0=A0=A0=A0 errmsg =3D ("Unable to determine bin values from inp=
-ut clat_hist files. Namely \n"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "the first line of file '%s' " % ctx.F=
-ILE[0] + "has %d \n" % (__TOTAL_COLUMNS,) +
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "columns of which we assume %d " % (hi=
-st_cols,) + "correspond to histogram bins. \n"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "This number needs to be equal to one =
-of the following numbers:\n\n"
+     idx =3D np.where(arr =3D=3D hist_cols)
+     if len(idx[1]) =3D=3D 0:
+         table =3D repr(arr.astype(int)).replace('-10', 'N/A').replace('arr=
+ay','     ')
+-        err("Unable to determine bin values from input clat_hist files. Na=
+mely \n"
++        errmsg =3D ("Unable to determine bin values from input clat_hist f=
+iles. Namely \n"
+             "the first line of file '%s' " % ctx.FILE[0] + "has %d \n" % (=
+__TOTAL_COLUMNS,) +
+             "columns of which we assume %d " % (hist_cols,) + "correspond =
+to histogram bins. \n"
+             "This number needs to be equal to one of the following numbers=
+:\n\n"
 @@ -250,7 +274,12 @@ def guess_max_from_bins(ctx, hist_cols):
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "=A0 - Input file(s) does not contain =
-histograms.\n"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "=A0 - You recompiled fio with a diffe=
-rent GROUP_NR. If so please specify this\n"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "=A0=A0=A0 new GROUP_NR on the command=
- line with --group_nr\n")
--=A0=A0=A0=A0=A0=A0=A0 exit(1)
-+=A0=A0=A0=A0=A0=A0=A0 if runascmd:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 err(errmsg)
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 exit(1)
-+=A0=A0=A0=A0=A0 =A0=A0else:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 raise RuntimeError(errmsg)=20
-+=A0=A0=A0=A0=A0=A0=A0=20
-=A0=A0=A0=A0=A0return bins[idx[1][0]]
-
-=A0def main(ctx):
-@@ -274,10 +303,19 @@ def main(ctx):
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ct=
-x.interval =3D int(hist_msec)
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 except NoOptionError:
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =A0pass
-+=A0=A0=A0=20
-+=A0=A0=A0 if not hasattr(ctx, 'percentiles'):
-+=A0=A0=A0=A0=A0=A0=A0 ctx.percentiles =3D "90,95,99"
-+=A0=A0=A0 gen_output_columns(ctx.percentiles)
-
-=A0=A0=A0=A0=A0if ctx.interval is None:
-=A0=A0=A0=A0=A0=A0=A0=A0 ctx.interval =3D 1000
-
-+=A0=A0=A0 if ctx.usbin:
-+=A0=A0=A0=A0=A0=A0=A0 ctx.time_divisor =3D 1000.0=A0=A0=A0=A0=A0=A0=A0 # b=
-ins are in us
-+=A0=A0=A0 else:
-+=A0=A0=A0=A0=A0=A0=A0 ctx.time_divisor =3D 1000000.0=A0=A0=A0=A0 # bins ar=
-e in ns
+             "  - Input file(s) does not contain histograms.\n"
+             "  - You recompiled fio with a different GROUP_NR. If so pleas=
+e specify this\n"
+             "    new GROUP_NR on the command line with --group_nr\n")
+-        exit(1)
++        if runascmd:
++            err(errmsg)
++            exit(1)
++        else:
++            raise RuntimeError(errmsg)
 +
-=A0=A0=A0=A0 # Automatically detect how many columns are in the input files=
-,
-=A0=A0=A0=A0 # calculate the corresponding 'coarseness' parameter used to g=
-enerate
-=A0=A0=A0=A0 # those files, and calculate the appropriate bin latency value=
-s:
+     return bins[idx[1][0]]
+
+ def main(ctx):
+@@ -274,10 +303,19 @@ def main(ctx):
+                         ctx.interval =3D int(hist_msec)
+                 except NoOptionError:
+                     pass
++
++    if not hasattr(ctx, 'percentiles'):
++        ctx.percentiles =3D "90,95,99"
++    gen_output_columns(ctx.percentiles)
+
+     if ctx.interval is None:
+         ctx.interval =3D 1000
+
++    if ctx.usbin:
++        ctx.time_divisor =3D 1000.0        # bins are in us
++    else:
++        ctx.time_divisor =3D 1000000.0     # bins are in ns
++
+     # Automatically detect how many columns are in the input files,
+     # calculate the corresponding 'coarseness' parameter used to generate
+     # those files, and calculate the appropriate bin latency values:
 @@ -339,6 +377,7 @@ def main(ctx):
 
-=A0if __name__ =3D=3D '__main__':
-=A0=A0=A0=A0 import argparse
-+=A0=A0=A0 runascmd =3D True
-=A0=A0=A0=A0 p =3D argparse.ArgumentParser()
-=A0=A0=A0=A0 arg =3D p.add_argument
-=A0=A0=A0=A0 arg("FILE", help=3D'space separated list of latency log filena=
-mes', nargs=3D'+')
+ if __name__ =3D=3D '__main__':
+     import argparse
++    runascmd =3D True
+     p =3D argparse.ArgumentParser()
+     arg =3D p.add_argument
+     arg("FILE", help=3D'space separated list of latency log filenames', na=
+rgs=3D'+')
 @@ -385,5 +424,18 @@ if __name__ =3D=3D '__main__':
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 'given histogram files. Useful for =
-auto-detecting --log_hist_msec and '
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 '--log_unix_epoch (in fio) values.'=
-)
+              'given histogram files. Useful for auto-detecting --log_hist_=
+msec and '
+              '--log_unix_epoch (in fio) values.')
 
-+=A0=A0=A0 arg('--percentiles',
-+=A0=A0=A0=A0=A0=A0=A0 default=3D"90:95:99",
-+=A0=A0=A0=A0=A0=A0=A0 type=3Dstr,
-+=A0=A0=A0=A0=A0=A0=A0 help=3D'Optional argument of comma or colon separate=
-d percentiles to print. '
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 'The default is "90.0:95.0:99.0".=A0 =
-min, median(50%%) and max percentiles are always printed')
-+=A0=A0=A0=20
-+=A0=A0=A0 arg('--usbin',
-+=A0=A0=A0=A0=A0=A0=A0 default=3DFalse,
-+=A0=A0=A0=A0=A0=A0=A0 action=3D'store_true',
-+=A0=A0=A0=A0=A0=A0=A0 help=3D'histogram bin latencies are in us (fio versi=
-ons < 2.99. fio uses ns for version >=3D 2.99')
-+=A0=A0=A0=20
-+=A0=A0=A0=20
++    arg('--percentiles',
++        default=3D"90:95:99",
++        type=3Dstr,
++        help=3D'Optional argument of comma or colon separated percentiles =
+to print. '
++             'The default is "90.0:95.0:99.0".  min, median(50%%) and max =
+percentiles are always printed')
 +
-=A0=A0=A0=A0 main(p.parse_args())
++    arg('--usbin',
++        default=3DFalse,
++        action=3D'store_true',
++        help=3D'histogram bin latencies are in us (fio versions < 2.99. fi=
+o uses ns for version >=3D 2.99')
++
++
++
+     main(p.parse_args())
 
 diff --git a/tools/hist/fiologparser_hist_nw.py b/tools/hist/fiologparser_h=
 ist_nw.py
@@ -253,24 +243,24 @@ index 0000000..98a378d
 +++ b/tools/hist/fiologparser_hist_nw.py
 @@ -0,0 +1,383 @@
 +#!/usr/bin/python
-+"""=20
-+=A0=A0=A0 Utility for converting *_clat_hist* files generated by fio into =
-latency statistics.
-+=A0=A0=A0=20
-+=A0=A0=A0 Example usage:
-+=A0=A0=A0=20
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 $ fiologparser_hist.py *_clat_hist*
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 end-time, samples, min, avg, median, 90%=
-, 95%, 99%, max
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 1000, 15, 192, 1678.107, 1788.859, 1856.=
-076, 1880.040, 1899.208, 1888.000
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 2000, 43, 152, 1642.368, 1714.099, 1816.=
-659, 1845.552, 1888.131, 1888.000
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 4000, 39, 1152, 1546.962, 1545.785, 1627=
-.192, 1640.019, 1691.204, 1744
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ...
-+=A0=A0=A0=20
-+=A0=A0=A0 @author Karl Cronburg <mailto:karl.cronburg@gmail.com>
++"""
++    Utility for converting *_clat_hist* files generated by fio into latenc=
+y statistics.
++
++    Example usage:
++
++            $ fiologparser_hist.py *_clat_hist*
++            end-time, samples, min, avg, median, 90%, 95%, 99%, max
++            1000, 15, 192, 1678.107, 1788.859, 1856.076, 1880.040, 1899.20=
+8, 1888.000
++            2000, 43, 152, 1642.368, 1714.099, 1816.659, 1845.552, 1888.13=
+1, 1888.000
++            4000, 39, 1152, 1546.962, 1545.785, 1627.192, 1640.019, 1691.2=
+04, 1744
++            ...
++
++    @author Karl Cronburg <karl.cronburg@gmail.com<mailto:karl.cronburg@gm=
+ail.com>>
 +"""
 +import os
 +import sys
@@ -280,106 +270,100 @@ latency statistics.
 +runascmd =3D False
 +
 +if (sys.version_info < (2, 7)):
-+=A0=A0=A0 err("ERROR: Python version =3D %s; version 2.7 or greater is req=
-uired.\n")
-+=A0=A0=A0 exit(1)
++    err("ERROR: Python version =3D %s; version 2.7 or greater is required.=
+\n")
++    exit(1)
 +
 +
 +err =3D sys.stderr.write
 +
 +class HistFileRdr():
-+=A0=A0=A0 """ Class to read a hist file line by line, buffering=20
-+=A0=A0=A0=A0=A0=A0=A0 a value array for the latest line, and allowing a pr=
-eview
-+=A0=A0=A0=A0=A0=A0=A0 of the next timestamp in next line
-+=A0=A0=A0=A0=A0=A0=A0 Note: this does not follow a generator pattern, but =
-must explicitly
-+=A0=A0=A0=A0=A0=A0=A0 get next bin array.
-+=A0=A0=A0 """
-+=A0=A0=A0 def __init__(self, file):
-+=A0=A0=A0=A0=A0=A0=A0 self.fp =3D open(file, 'r')
-+=A0=A0=A0=A0=A0=A0=A0 self.data =3D self.nextData()
-+=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0 def close(self):
-+=A0=A0=A0=A0=A0=A0=A0 self.fp.close()
-+=A0=A0=A0=A0=A0=A0=A0 self.fp =3D None
-+=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0 def nextData(self):
-+=A0=A0=A0=A0=A0=A0=A0 self.data =3D None
-+=A0=A0=A0=A0=A0=A0=A0 if self.fp:=20
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 line =3D self.fp.readline()
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if line =3D=3D "":
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 self.close()
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 else:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 self.data =3D [int(x) for x =
-in line.replace(' ', '').rstrip().split(',')]
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0=A0=A0=A0=A0 return self.data
-+=20
-+=A0=A0=A0 @property
-+=A0=A0=A0 def curTS(self):
-+=A0=A0=A0=A0=A0=A0=A0 ts =3D None
-+=A0=A0=A0=A0=A0=A0=A0 if self.data:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ts =3D self.data[0]
-+=A0=A0=A0=A0=A0=A0=A0 return ts
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0 @property
-+=A0=A0=A0 def curBins(self):
-+=A0=A0=A0=A0=A0=A0=A0 return self.data[3:]
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0=20
++    """ Class to read a hist file line by line, buffering
++        a value array for the latest line, and allowing a preview
++        of the next timestamp in next line
++        Note: this does not follow a generator pattern, but must explicitl=
+y
++        get next bin array.
++    """
++    def __init__(self, file):
++        self.fp =3D open(file, 'r')
++        self.data =3D self.nextData()
++
++    def close(self):
++        self.fp.close()
++        self.fp =3D None
++
++    def nextData(self):
++        self.data =3D None
++        if self.fp:
++            line =3D self.fp.readline()
++            if line =3D=3D "":
++                self.close()
++            else:
++                self.data =3D [int(x) for x in line.replace(' ', '').rstri=
+p().split(',')]
++
++        return self.data
++
++    @property
++    def curTS(self):
++        ts =3D None
++        if self.data:
++            ts =3D self.data[0]
++        return ts
++
++    @property
++    def curBins(self):
++        return self.data[3:]
++
++
 +
 +def weighted_percentile(percs, vs, ws):
-+=A0=A0=A0 """ Use linear interpolation to calculate the weighted percentil=
-e.
-+=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0=A0=A0=A0=A0 Value and weight arrays are first sorted by value. T=
-he cumulative
-+=A0=A0=A0=A0=A0=A0=A0 distribution function (cdf) is then computed, after =
-which np.interp
-+=A0=A0=A0=A0=A0=A0=A0 finds the two values closest to our desired weighted=
- percentile(s)
-+=A0=A0=A0=A0=A0=A0=A0 and linearly interpolates them.
-+=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0=A0=A0=A0=A0 percs=A0 :: List of percentiles we want to calculate
-+=A0=A0=A0=A0=A0=A0=A0 vs=A0=A0=A0=A0 :: Array of values we are computing t=
-he percentile of
-+=A0=A0=A0=A0=A0=A0=A0 ws=A0=A0=A0=A0 :: Array of weights for our correspon=
-ding values
-+=A0=A0=A0=A0=A0=A0=A0 return :: Array of percentiles
-+=A0=A0=A0 """
-+=A0=A0=A0 idx =3D np.argsort(vs)
-+=A0=A0=A0 vs, ws =3D vs[idx], ws[idx] # weights and values sorted by value
-+=A0=A0=A0 cdf =3D 100 * (ws.cumsum() - ws / 2.0) / ws.sum()
-+=A0=A0=A0 return np.interp(percs, cdf, vs) # linear interpolation
++    """ Use linear interpolation to calculate the weighted percentile.
++
++        Value and weight arrays are first sorted by value. The cumulative
++        distribution function (cdf) is then computed, after which np.inter=
+p
++        finds the two values closest to our desired weighted percentile(s)
++        and linearly interpolates them.
++
++        percs  :: List of percentiles we want to calculate
++        vs     :: Array of values we are computing the percentile of
++        ws     :: Array of weights for our corresponding values
++        return :: Array of percentiles
++    """
++    idx =3D np.argsort(vs)
++    vs, ws =3D vs[idx], ws[idx] # weights and values sorted by value
++    cdf =3D 100 * (ws.cumsum() - ws / 2.0) / ws.sum()
++    return np.interp(percs, cdf, vs) # linear interpolation
 +
 +def weighted_average(vs, ws):
-+=A0=A0=A0 return np.sum(vs * ws) / np.sum(ws)
++    return np.sum(vs * ws) / np.sum(ws)
 +
 +
 +percs =3D None
 +columns =3D None
 +
 +def gen_output_columns(percentiles):
-+=A0=A0=A0 global percs,columns
-+=A0=A0=A0 strpercs =3D re.split('[,:]', percentiles)
-+=A0=A0=A0 percs =3D [50.0]=A0 # always print 50% in 'median' column
-+=A0=A0=A0 percs.extend(list(map(float,strpercs)))
-+=A0=A0=A0 columns =3D ["end-time", "samples", "min", "avg", "median"]
-+=A0=A0=A0 columns.extend(list(map(lambda x: x+'%', strpercs)))
-+=A0=A0=A0 columns.append("max")
-+=A0=A0=A0=A0=A0=A0=A0=20
++    global percs,columns
++    strpercs =3D re.split('[,:]', percentiles)
++    percs =3D [50.0]  # always print 50% in 'median' column
++    percs.extend(list(map(float,strpercs)))
++    columns =3D ["end-time", "samples", "min", "avg", "median"]
++    columns.extend(list(map(lambda x: x+'%', strpercs)))
++    columns.append("max")
++
 +
 +
 +def fmt_float_list(ctx, num=3D1):
-+=A0 """ Return a comma separated list of float formatters to the required =
-number
-+=A0=A0=A0=A0=A0 of decimal places. For instance:
++  """ Return a comma separated list of float formatters to the required nu=
+mber
++      of decimal places. For instance:
 +
-+=A0=A0=A0=A0=A0=A0=A0 fmt_float_list(ctx.decimals=3D4, num=3D3) =3D=3D "%.=
-4f, %.4f, %.4f"
-+=A0 """
-+=A0 return ', '.join(["%%.%df" % ctx.decimals] * num)
++        fmt_float_list(ctx.decimals=3D4, num=3D3) =3D=3D "%.4f, %.4f, %.4f=
+"
++  """
++  return ', '.join(["%%.%df" % ctx.decimals] * num)
 +
 +# Default values - see beginning of main() for how we detect number column=
 s in
@@ -387,331 +371,1465 @@ s in
 +__HIST_COLUMNS =3D 1216
 +__NON_HIST_COLUMNS =3D 3
 +__TOTAL_COLUMNS =3D __HIST_COLUMNS + __NON_HIST_COLUMNS
-+=A0=A0=A0=20
++
 +def get_min(fps, arrs):
-+=A0=A0=A0 """ Find the file with the current first row with the smallest s=
-tart time """
-+=A0=A0=A0 return min([fp for fp in fps if not arrs[fp] is None], key=3Dlam=
-bda fp: arrs.get(fp)[0][0])
++    """ Find the file with the current first row with the smallest start t=
+ime """
++    return min([fp for fp in fps if not arrs[fp] is None], key=3Dlambda fp=
+: arrs.get(fp)[0][0])
 +
 +def _plat_idx_to_val(idx, edge=3D0.5, FIO_IO_U_PLAT_BITS=3D6, FIO_IO_U_PLA=
 T_VAL=3D64):
-+=A0=A0=A0 """ Taken from fio's stat.c for calculating the latency value of=
- a bin
-+=A0=A0=A0=A0=A0=A0=A0 from that bin's index.
-+=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 idx=A0 : the value of the index into the=
- histogram bins
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 edge : fractional value in the range [0,=
-1]** indicating how far into
-+=A0=A0=A0=A0 =A0=A0=A0=A0=A0=A0=A0the bin we wish to compute the latency v=
-alue of.
-+=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0=A0=A0=A0=A0 ** edge =3D 0.0 and 1.0 computes the lower and upper=
- latency bounds
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 respectively of the given bin index. """
++    """ Taken from fio's stat.c for calculating the latency value of a bin
++        from that bin's index.
 +
-+=A0=A0=A0 # MSB <=3D (FIO_IO_U_PLAT_BITS-1), cannot be rounded off. Use
-+=A0=A0=A0 # all bits of the sample as index
-+=A0=A0=A0 if (idx < (FIO_IO_U_PLAT_VAL << 1)):
-+=A0=A0=A0=A0=A0=A0=A0 return idx=20
++            idx  : the value of the index into the histogram bins
++            edge : fractional value in the range [0,1]** indicating how fa=
+r into
++            the bin we wish to compute the latency value of.
 +
-+=A0=A0=A0 # Find the group and compute the minimum value of that group
-+=A0=A0=A0 error_bits =3D (idx >> FIO_IO_U_PLAT_BITS) - 1=20
-+=A0=A0=A0 base =3D 1 << (error_bits + FIO_IO_U_PLAT_BITS)
++        ** edge =3D 0.0 and 1.0 computes the lower and upper latency bound=
+s
++           respectively of the given bin index. """
 +
-+=A0=A0=A0 # Find its bucket number of the group
-+=A0=A0=A0 k =3D idx % FIO_IO_U_PLAT_VAL
++    # MSB <=3D (FIO_IO_U_PLAT_BITS-1), cannot be rounded off. Use
++    # all bits of the sample as index
++    if (idx < (FIO_IO_U_PLAT_VAL << 1)):
++        return idx
 +
-+=A0=A0=A0 # Return the mean (if edge=3D0.5) of the range of the bucket
-+=A0=A0=A0 return base + ((k + edge) * (1 << error_bits))
-+=A0=A0=A0=20
++    # Find the group and compute the minimum value of that group
++    error_bits =3D (idx >> FIO_IO_U_PLAT_BITS) - 1
++    base =3D 1 << (error_bits + FIO_IO_U_PLAT_BITS)
++
++    # Find its bucket number of the group
++    k =3D idx % FIO_IO_U_PLAT_VAL
++
++    # Return the mean (if edge=3D0.5) of the range of the bucket
++    return base + ((k + edge) * (1 << error_bits))
++
 +def plat_idx_to_val_coarse(idx, coarseness, edge=3D0.5):
-+=A0=A0=A0 """ Converts the given *coarse* index into a non-coarse index as=
- used by fio
-+=A0=A0=A0=A0=A0=A0=A0 in stat.h:plat_idx_to_val(), subsequently computing =
-the appropriate
-+=A0=A0=A0=A0=A0=A0=A0 latency value for that bin.
-+=A0=A0=A0=A0=A0 =A0=A0"""
++    """ Converts the given *coarse* index into a non-coarse index as used =
+by fio
++        in stat.h:plat_idx_to_val(), subsequently computing the appropriat=
+e
++        latency value for that bin.
++        """
 +
-+=A0=A0=A0 # Multiply the index by the power of 2 coarseness to get the bin
-+=A0=A0=A0 # bin index with a max of 1536 bins (FIO_IO_U_PLAT_GROUP_NR =3D =
-24 in stat.h)
-+=A0=A0=A0 stride =3D 1 << coarseness
-+=A0=A0=A0 idx =3D idx * stride
-+=A0=A0=A0 lower =3D _plat_idx_to_val(idx, edge=3D0.0)
-+=A0=A0=A0 upper =3D _plat_idx_to_val(idx + stride, edge=3D1.0)
-+=A0=A0=A0 return lower + (upper - lower) * edge
++    # Multiply the index by the power of 2 coarseness to get the bin
++    # bin index with a max of 1536 bins (FIO_IO_U_PLAT_GROUP_NR =3D 24 in =
+stat.h)
++    stride =3D 1 << coarseness
++    idx =3D idx * stride
++    lower =3D _plat_idx_to_val(idx, edge=3D0.0)
++    upper =3D _plat_idx_to_val(idx + stride, edge=3D1.0)
++    return lower + (upper - lower) * edge
 +
 +def print_all_stats(ctx, end, mn, ss_cnt, vs, ws, mx):
-+=A0=A0=A0 ps =3D weighted_percentile(percs, vs, ws)
++    ps =3D weighted_percentile(percs, vs, ws)
 +
-+=A0=A0=A0 avg =3D weighted_average(vs, ws)
-+=A0=A0=A0 values =3D [mn, avg] + list(ps) + [mx]
-+=A0=A0=A0 row =3D [end, ss_cnt] + [float(x) / ctx.divisor for x in values]
-+=A0=A0=A0 if ctx.divisor > 1:
-+=A0=A0=A0=A0=A0=A0=A0 fmt =3D "%d, %d, " + fmt_float_list(ctx, len(percs)+=
-3)
-+=A0=A0=A0 else:
-+=A0=A0=A0=A0=A0=A0=A0 # max and min are decimal values if no divisor
-+=A0=A0=A0=A0=A0=A0=A0 fmt =3D "%d, %d, %d, " + fmt_float_list(ctx, len(per=
-cs)+1) + ", %d"
-+=A0=A0=A0 print (fmt % tuple(row))
++    avg =3D weighted_average(vs, ws)
++    values =3D [mn, avg] + list(ps) + [mx]
++    row =3D [end, ss_cnt] + [float(x) / ctx.divisor for x in values]
++    if ctx.divisor > 1:
++        fmt =3D "%d, %d, " + fmt_float_list(ctx, len(percs)+3)
++    else:
++        # max and min are decimal values if no divisor
++        fmt =3D "%d, %d, %d, " + fmt_float_list(ctx, len(percs)+1) + ", %d=
+"
++    print (fmt % tuple(row))
 +
 +def update_extreme(val, fncn, new_val):
-+=A0=A0=A0 """ Calculate min / max in the presence of None values """
-+=A0=A0=A0 if val is None: return new_val
-+=A0=A0=A0 else: return fncn(val, new_val)
++    """ Calculate min / max in the presence of None values """
++    if val is None: return new_val
++    else: return fncn(val, new_val)
 +
 +# See beginning of main() for how bin_vals are computed
 +bin_vals =3D []
 +lower_bin_vals =3D [] # lower edge of each bin
-+upper_bin_vals =3D [] # upper edge of each bin=20
++upper_bin_vals =3D [] # upper edge of each bin
 +
 +def process_interval(ctx, iHist, iEnd):
-+=A0=A0=A0 """ print estimated percentages for the given merged sample
-+=A0=A0=A0 """
-+=A0=A0=A0 ss_cnt =3D 0 # number of samples affecting this interval
-+=A0=A0=A0 mn_bin_val, mx_bin_val =3D None, None
-+=A0=A0=20
-+=A0=A0=A0 # Update total number of samples affecting current interval hist=
-ogram:
-+=A0=A0=A0 ss_cnt +=3D np.sum(iHist)
-+=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0 # Update min and max bin values
-+=A0=A0=A0 idxs =3D np.nonzero(iHist !=3D 0)[0]
-+=A0=A0=A0 if idxs.size > 0:
-+=A0=A0=A0=A0=A0=A0=A0 mn_bin_val =3D bin_vals[idxs[0]]
-+=A0=A0=A0=A0=A0=A0=A0 mx_bin_val =3D bin_vals[idxs[-1]]
++    """ print estimated percentages for the given merged sample
++    """
++    ss_cnt =3D 0 # number of samples affecting this interval
++    mn_bin_val, mx_bin_val =3D None, None
 +
-+=A0=A0=A0 if ss_cnt > 0: print_all_stats(ctx, iEnd, mn_bin_val, ss_cnt, bi=
-n_vals, iHist, mx_bin_val)
++    # Update total number of samples affecting current interval histogram:
++    ss_cnt +=3D np.sum(iHist)
++
++    # Update min and max bin values
++    idxs =3D np.nonzero(iHist !=3D 0)[0]
++    if idxs.size > 0:
++        mn_bin_val =3D bin_vals[idxs[0]]
++        mx_bin_val =3D bin_vals[idxs[-1]]
++
++    if ss_cnt > 0: print_all_stats(ctx, iEnd, mn_bin_val, ss_cnt, bin_vals=
+, iHist, mx_bin_val)
 +
 +def guess_max_from_bins(ctx, hist_cols):
-+=A0=A0=A0 """ Try to guess the GROUP_NR from given # of histogram
-+=A0=A0=A0=A0=A0=A0=A0 columns seen in an input file """
-+=A0=A0=A0 max_coarse =3D 8
-+=A0=A0=A0 if ctx.group_nr < 19 or ctx.group_nr > 26:
-+=A0=A0=A0=A0=A0=A0=A0 bins =3D [ctx.group_nr * (1 << 6)]
-+=A0=A0=A0 else:
-+=A0=A0=A0=A0=A0=A0=A0 bins =3D [1216,1280,1344,1408,1472,1536,1600,1664]
-+=A0=A0=A0 coarses =3D range(max_coarse + 1)
-+=A0=A0=A0 fncn =3D lambda z: list(map(lambda x: z/2**x if z % 2**x =3D=3D =
-0 else -10, coarses))
-+=A0=A0=A0=20
-+=A0=A0=A0 arr =3D np.transpose(list(map(fncn, bins)))
-+=A0=A0=A0 idx =3D np.where(arr =3D=3D hist_cols)
-+=A0=A0=A0 if len(idx[1]) =3D=3D 0:
-+=A0=A0=A0=A0=A0=A0=A0 table =3D repr(arr.astype(int)).replace('-10', 'N/A'=
-).replace('array','=A0=A0=A0=A0 ')
-+=A0=A0=A0=A0=A0=A0=A0 errmsg =3D ("Unable to determine bin values from inp=
-ut clat_hist files. Namely \n"
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "the first line of file '%s' " % ctx.FIL=
-E[0] + "has %d \n" % (__TOTAL_COLUMNS,) +
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "columns of which we assume %d " % (hist=
-_cols,) + "correspond to histogram bins. \n"
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "This number needs to be equal to one of=
- the following numbers:\n\n"
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 + table + "\n\n"
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "Possible reasons and corresponding solu=
-tions:\n"
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "=A0 - Input file(s) does not contain hi=
-stograms.\n"
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "=A0 - You recompiled fio with a differe=
-nt GROUP_NR. If so please specify this\n"
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "=A0=A0=A0 new GROUP_NR on the command l=
-ine with --group_nr\n")
-+=A0=A0=A0=A0=A0=A0=A0 if runascmd:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 err(errmsg)
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 exit(1)
-+=A0=A0=A0=A0=A0=A0=A0 else:
-+=A0=A0=A0=A0=A0=A0=A0 =A0=A0=A0=A0raise RuntimeError(errmsg)=20
-+=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0 return bins[idx[1][0]]
++    """ Try to guess the GROUP_NR from given # of histogram
++        columns seen in an input file """
++    max_coarse =3D 8
++    if ctx.group_nr < 19 or ctx.group_nr > 26:
++        bins =3D [ctx.group_nr * (1 << 6)]
++    else:
++        bins =3D [1216,1280,1344,1408,1472,1536,1600,1664]
++    coarses =3D range(max_coarse + 1)
++    fncn =3D lambda z: list(map(lambda x: z/2**x if z % 2**x =3D=3D 0 else=
+ -10, coarses))
++
++    arr =3D np.transpose(list(map(fncn, bins)))
++    idx =3D np.where(arr =3D=3D hist_cols)
++    if len(idx[1]) =3D=3D 0:
++        table =3D repr(arr.astype(int)).replace('-10', 'N/A').replace('arr=
+ay','     ')
++        errmsg =3D ("Unable to determine bin values from input clat_hist f=
+iles. Namely \n"
++            "the first line of file '%s' " % ctx.FILE[0] + "has %d \n" % (=
+__TOTAL_COLUMNS,) +
++            "columns of which we assume %d " % (hist_cols,) + "correspond =
+to histogram bins. \n"
++            "This number needs to be equal to one of the following numbers=
+:\n\n"
++            + table + "\n\n"
++            "Possible reasons and corresponding solutions:\n"
++            "  - Input file(s) does not contain histograms.\n"
++            "  - You recompiled fio with a different GROUP_NR. If so pleas=
+e specify this\n"
++            "    new GROUP_NR on the command line with --group_nr\n")
++        if runascmd:
++            err(errmsg)
++            exit(1)
++        else:
++            raise RuntimeError(errmsg)
++
++    return bins[idx[1][0]]
 +
 +def main(ctx):
 +
-+=A0=A0=A0 if ctx.job_file:
-+=A0=A0=A0=A0=A0=A0=A0 try:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 from configparser import SafeConfigParse=
-r, NoOptionError
-+=A0=A0=A0=A0=A0=A0=A0 except ImportError:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 from ConfigParser import SafeConfigParse=
-r, NoOptionError
++    if ctx.job_file:
++        try:
++            from configparser import SafeConfigParser, NoOptionError
++        except ImportError:
++            from ConfigParser import SafeConfigParser, NoOptionError
 +
-+=A0=A0=A0=A0=A0=A0=A0 cp =3D SafeConfigParser(allow_no_value=3DTrue)
-+=A0=A0=A0=A0=A0=A0=A0 with open(ctx.job_file, 'r') as fp:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 cp.readfp(fp)
++        cp =3D SafeConfigParser(allow_no_value=3DTrue)
++        with open(ctx.job_file, 'r') as fp:
++            cp.readfp(fp)
 +
-+=A0=A0=A0=A0=A0=A0=A0 if ctx.interval is None:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 # Auto detect --interval value
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0 =A0=A0for s in cp.sections():
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 try:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 hist_msec =3D cp=
-.get(s, 'log_hist_msec')
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if hist_msec is =
-not None:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ctx.=
-interval =3D int(hist_msec)
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 except NoOptionError:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 pass
-+=A0=A0=A0=20
-+=A0=A0=A0 if not hasattr(ctx, 'percentiles'):
-+=A0=A0=A0=A0=A0=A0=A0 ctx.percentiles =3D "90,95,99"
-+=A0=A0=A0 gen_output_columns(ctx.percentiles)
++        if ctx.interval is None:
++            # Auto detect --interval value
++            for s in cp.sections():
++                try:
++                    hist_msec =3D cp.get(s, 'log_hist_msec')
++                    if hist_msec is not None:
++                        ctx.interval =3D int(hist_msec)
++                except NoOptionError:
++                    pass
 +
-+=A0=A0=A0 if ctx.interval is None:
-+=A0=A0=A0=A0=A0=A0=A0 ctx.interval =3D 1000
-+=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0 # Automatically detect how many columns are in the input files,
-+=A0=A0=A0 # calculate the corresponding 'coarseness' parameter used to gen=
-erate
-+=A0=A0=A0 # those files, and calculate the appropriate bin latency values:
-+=A0=A0=A0 with open(ctx.FILE[0], 'r') as fp:
-+=A0=A0=A0=A0=A0=A0=A0 global bin_vals,lower_bin_vals,upper_bin_vals,__HIST=
-_COLUMNS,__TOTAL_COLUMNS
-+=A0=A0=A0=A0=A0=A0=A0 __TOTAL_COLUMNS =3D len(fp.readline().split(','))
-+=A0=A0=A0=A0=A0=A0=A0 __HIST_COLUMNS =3D __TOTAL_COLUMNS - __NON_HIST_COLU=
-MNS
++    if not hasattr(ctx, 'percentiles'):
++        ctx.percentiles =3D "90,95,99"
++    gen_output_columns(ctx.percentiles)
 +
-+=A0=A0=A0=A0=A0=A0=A0 max_cols =3D guess_max_from_bins(ctx, __HIST_COLUMNS=
-)
-+=A0=A0=A0=A0=A0=A0=A0 coarseness =3D int(np.log2(float(max_cols) / __HIST_=
-COLUMNS))
-+=A0=A0=A0=A0=A0=A0=A0 bin_vals =3D np.array([plat_idx_to_val_coarse(x, coa=
-rseness) for x in np.arange(__HIST_COLUMNS)], dtype=3Dfloat)
-+=A0=A0=A0=A0=A0=A0=A0 lower_bin_vals =3D np.array([plat_idx_to_val_coarse(=
-x, coarseness, 0.0) for x in np.arange(__HIST_COLUMNS)], dtype=3Dfloat)
-+=A0=A0=A0=A0=A0=A0=A0 upper_bin_vals =3D np.array([plat_idx_to_val_coarse(=
-x, coarseness, 1.0) for x in np.arange(__HIST_COLUMNS)], dtype=3Dfloat)
++    if ctx.interval is None:
++        ctx.interval =3D 1000
 +
-+=A0=A0=A0 fps =3D [HistFileRdr(f) for f in ctx.FILE]
++    # Automatically detect how many columns are in the input files,
++    # calculate the corresponding 'coarseness' parameter used to generate
++    # those files, and calculate the appropriate bin latency values:
++    with open(ctx.FILE[0], 'r') as fp:
++        global bin_vals,lower_bin_vals,upper_bin_vals,__HIST_COLUMNS,__TOT=
+AL_COLUMNS
++        __TOTAL_COLUMNS =3D len(fp.readline().split(','))
++        __HIST_COLUMNS =3D __TOTAL_COLUMNS - __NON_HIST_COLUMNS
 +
-+=A0=A0=A0 print(', '.join(columns))
++        max_cols =3D guess_max_from_bins(ctx, __HIST_COLUMNS)
++        coarseness =3D int(np.log2(float(max_cols) / __HIST_COLUMNS))
++        bin_vals =3D np.array([plat_idx_to_val_coarse(x, coarseness) for x=
+ in np.arange(__HIST_COLUMNS)], dtype=3Dfloat)
++        lower_bin_vals =3D np.array([plat_idx_to_val_coarse(x, coarseness,=
+ 0.0) for x in np.arange(__HIST_COLUMNS)], dtype=3Dfloat)
++        upper_bin_vals =3D np.array([plat_idx_to_val_coarse(x, coarseness,=
+ 1.0) for x in np.arange(__HIST_COLUMNS)], dtype=3Dfloat)
 +
-+=A0=A0=A0 start =3D 0
-+=A0=A0=A0 end =3D ctx.interval
-+=A0=A0=A0 while True:
-+=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0=A0=A0=A0=A0 more_data =3D False
-+=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0=A0=A0=A0=A0 # add bins from all files in target intervals
-+=A0=A0=A0=A0=A0=A0=A0 arr =3D None
-+=A0=A0=A0=A0=A0=A0=A0 numSamples =3D 0
-+=A0=A0=A0=A0=A0=A0=A0 while True:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 foundSamples =3D False
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 for fp in fps:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ts =3D fp.curTS
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if ts and ts+10 < end:=A0 # =
-shift sample time when very close to an end time=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 numSamples +=3D =
-1
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 foundSamples =3D=
- True
-+=A0=A0=A0=A0=A0=A0=A0=A0 =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if arr is None:=
-=20
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 arr =
-=3D np.zeros(shape=3D(__HIST_COLUMNS), dtype=3Dint)
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 arr =3D np.add(a=
-rr, fp.curBins)
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 more_data =3D Tr=
-ue
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 fp.nextData()
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 elif ts:
-+=A0 =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0more_data =3D Tr=
-ue
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 # reached end of all files
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 # or gone through all files without find=
-ing sample in interval=20
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if not more_data or not foundSamples:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 break
-+=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0=A0 =A0=A0=A0if arr is not None:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 #print("{} size({}) samples({}) nonzero(=
-{}):".format(end, arr.size, numSamples, np.count_nonzero(arr)), str(arr), )
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 process_interval(ctx, arr, end)=A0=A0=A0=
-=A0=A0=A0=A0=A0=20
-+=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0=A0=A0=A0=A0 # reach end of all files
-+=A0=A0=A0=A0=A0=A0=A0 if not more_data:
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 break
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0=A0=A0=A0=A0 start +=3D ctx.interval
-+=A0=A0=A0=A0=A0=A0=A0 end =3D start + ctx.interval
-+=A0=A0=A0=A0=A0=A0=A0=20
-+=A0=A0=A0=A0=A0=A0=A0 #if end > 20000: break
++    fps =3D [HistFileRdr(f) for f in ctx.FILE]
++
++    print(', '.join(columns))
++
++    start =3D 0
++    end =3D ctx.interval
++    while True:
++
++        more_data =3D False
++
++        # add bins from all files in target intervals
++        arr =3D None
++        numSamples =3D 0
++        while True:
++            foundSamples =3D False
++            for fp in fps:
++                ts =3D fp.curTS
++                if ts and ts+10 < end:  # shift sample time when very clos=
+e to an end time
++                    numSamples +=3D 1
++                    foundSamples =3D True
++                    if arr is None:
++                        arr =3D np.zeros(shape=3D(__HIST_COLUMNS), dtype=
+=3Dint)
++                    arr =3D np.add(arr, fp.curBins)
++                    more_data =3D True
++                    fp.nextData()
++                elif ts:
++                    more_data =3D True
++
++            # reached end of all files
++            # or gone through all files without finding sample in interval
++            if not more_data or not foundSamples:
++                break
++
++        if arr is not None:
++            #print("{} size({}) samples({}) nonzero({}):".format(end, arr.=
+size, numSamples, np.count_nonzero(arr)), str(arr), )
++            process_interval(ctx, arr, end)
++
++        # reach end of all files
++        if not more_data:
++            break
++
++        start +=3D ctx.interval
++        end =3D start + ctx.interval
++
++        #if end > 20000: break
 +
 +
 +if __name__ =3D=3D '__main__':
-+=A0=A0=A0 import argparse
-+=A0=A0=A0 runascmd =3D True
-+=A0=A0=A0 p =3D argparse.ArgumentParser()
-+=A0=A0=A0 arg =3D p.add_argument
-+=A0=A0=A0 arg("FILE", help=3D'space separated list of latency log filename=
-s', nargs=3D'+')
-+=A0=A0=A0 arg('--buff_size',
-+=A0=A0=A0=A0=A0=A0=A0 default=3D10000,
-+=A0=A0=A0=A0=A0=A0=A0 type=3Dint,
-+=A0=A0=A0=A0=A0=A0=A0 help=3D'number of samples to buffer into numpy at a =
-time')
++    import argparse
++    runascmd =3D True
++    p =3D argparse.ArgumentParser()
++    arg =3D p.add_argument
++    arg("FILE", help=3D'space separated list of latency log filenames', na=
+rgs=3D'+')
++    arg('--buff_size',
++        default=3D10000,
++        type=3Dint,
++        help=3D'number of samples to buffer into numpy at a time')
 +
-+=A0=A0=A0 arg('--max_latency',
-+=A0=A0=A0=A0=A0=A0=A0 default=3D20,
-+=A0=A0=A0=A0=A0=A0=A0 type=3Dfloat,
-+=A0=A0=A0=A0=A0=A0=A0 help=3D'number of seconds of data to process at a ti=
-me')
++    arg('--max_latency',
++        default=3D20,
++        type=3Dfloat,
++        help=3D'number of seconds of data to process at a time')
 +
-+=A0=A0=A0 arg('-i', '--interval',
-+=A0=A0=A0=A0=A0=A0=A0 type=3Dint,
-+=A0=A0=A0=A0=A0=A0=A0 help=3D'interval width (ms), default 1000 ms '
-+=A0=A0=A0=A0=A0=A0=A0 '(no weighting between samples performed, results re=
-present sample period only)')
++    arg('-i', '--interval',
++        type=3Dint,
++        help=3D'interval width (ms), default 1000 ms '
++        '(no weighting between samples performed, results represent sample=
+ period only)')
 +
-+=A0=A0=A0 arg('-d', '--divisor',
-+=A0=A0=A0=A0=A0=A0=A0 required=3DFalse,
-+=A0=A0=A0=A0=A0=A0=A0 type=3Dint,
-+=A0=A0=A0=A0=A0=A0=A0 default=3D1,
-+=A0=A0=A0=A0=A0=A0=A0 help=3D'divide the results by this value.')
++    arg('-d', '--divisor',
++        required=3DFalse,
++        type=3Dint,
++        default=3D1,
++        help=3D'divide the results by this value.')
 +
-+=A0=A0=A0 arg('--decimals',
-+=A0=A0=A0=A0=A0=A0=A0 default=3D3,
-+=A0=A0=A0=A0=A0=A0=A0 type=3Dint,
-+=A0=A0=A0=A0=A0=A0=A0 help=3D'number of decimal places to print floats to'=
-)
++    arg('--decimals',
++        default=3D3,
++        type=3Dint,
++        help=3D'number of decimal places to print floats to')
 +
-+=A0=A0=A0 arg('--warn',
-+=A0=A0=A0=A0=A0=A0=A0 dest=3D'warn',
-+=A0=A0=A0=A0=A0=A0=A0 action=3D'store_true',
-+=A0=A0=A0=A0=A0=A0=A0 default=3DFalse,
-+=A0=A0=A0=A0=A0=A0=A0 help=3D'print warning messages to stderr')
++    arg('--warn',
++        dest=3D'warn',
++        action=3D'store_true',
++        default=3DFalse,
++        help=3D'print warning messages to stderr')
 +
-+ =A0=A0=A0arg('--group_nr',
-+=A0=A0=A0=A0=A0=A0=A0 default=3D29,
-+=A0=A0=A0=A0=A0=A0=A0 type=3Dint,
-+=A0=A0=A0=A0=A0=A0=A0 help=3D'FIO_IO_U_PLAT_GROUP_NR as defined in stat.h'=
-)
++    arg('--group_nr',
++        default=3D29,
++        type=3Dint,
++        help=3D'FIO_IO_U_PLAT_GROUP_NR as defined in stat.h')
 +
-+=A0=A0=A0 arg('--job-file',
-+=A0=A0=A0=A0=A0=A0=A0 default=3DNone,
-+=A0=A0=A0=A0=A0=A0=A0 type=3Dstr,
-+=A0=A0=A0=A0=A0=A0=A0 help=3D'Optional argument pointing to the job file u=
-sed to create the '
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 'given histogram files. Useful for au=
-to-detecting --log_hist_msec and '
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 '--log_unix_epoch (in fio) values.')
++    arg('--job-file',
++        default=3DNone,
++        type=3Dstr,
++        help=3D'Optional argument pointing to the job file used to create =
+the '
++             'given histogram files. Useful for auto-detecting --log_hist_=
+msec and '
++             '--log_unix_epoch (in fio) values.')
 +
-+=A0=A0=A0 arg('--percentiles',
-+=A0=A0=A0=A0=A0=A0=A0 default=3D"90,95,99",
-+=A0=A0=A0=A0=A0=A0=A0 type=3Dstr,
-+=A0=A0=A0=A0=A0=A0=A0 help=3D'Optional argument of comma or colon separate=
-d percentiles to print. '
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 'The default is "90.0,95.0,99.0".=A0 =
-min, median(50%%) and max percentiles are always printed')
-+=A0=A0=A0=A0=A0=A0=A0=20
++    arg('--percentiles',
++        default=3D"90,95,99",
++        type=3Dstr,
++        help=3D'Optional argument of comma or colon separated percentiles =
+to print. '
++             'The default is "90.0,95.0,99.0".  min, median(50%%) and max =
+percentiles are always printed')
 +
-+=A0=A0=A0 main(p.parse_args())
++
++    main(p.parse_args())
 +
 
+
+--_000_CY1PR0401MB111689EE46B3839EB0675D7B81F70CY1PR0401MB1116_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+p.msonormal0, li.msonormal0, div.msonormal0
+	{mso-style-name:msonormal;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+span.EmailStyle18
+	{mso-style-type:personal;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+span.EmailStyle19
+	{mso-style-type:personal-reply;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-size:10.0pt;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"EN-US" link=3D"#0563C1" vlink=3D"#954F72">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal">In light of some related commits, I am reposting my =
+enhancements to fiologparser_hist.py, and a suggested addition of fiologpar=
+ser_hist.nw.py<o:p></o:p></p>
+<p class=3D"MsoNormal">I&#8217;ve included a patch at bottom.<o:p></o:p></p=
+>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">Reasons for the changes: <o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">1) The fiologparser_hist script didn't support the n=
+ew nanosecond bin values.&nbsp; So I changed the operation to assume nanose=
+cond histogram bins, and new &quot;--usbin&quot; option to allow user to ov=
+erride so same script can still process older version
+ histogram logs.<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">2) The script asppeared hardcoded to only return 50%=
+ (median), 90%, 95%, and 99% values (along with min and max).
+<o:p></o:p></p>
+<p class=3D"MsoNormal">I added &quot;--percentiles&quot; option to allow a =
+request for more values ('median' always printed, even if a duplicate 50% c=
+olumn is requested, for backward compatibility).<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">3) A recent commit made some changes to support pyth=
+on3. <o:p>
+</o:p></p>
+<p class=3D"MsoNormal">I added a check to make sure the python version is a=
+t least 2.7 or above, and changed the &#8220;shbang&#8221; to only call out=
+ &#8220;python&#8221; rather than &#8220;python2.7&#8221;<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">4) The process can be slow for large or combining ma=
+ny log files.&nbsp; I have some automation which will generically process m=
+any log files, and found I cut the process time in half if I loaded as a mo=
+dule rather than calling as a command.&nbsp;
+ So, changed so I can load as a module and call main directly, but needed t=
+o slightly alter the end of &quot;guess_max_from_bins&quot; to throw an exc=
+eption on error rather than exit, when called as a module.&nbsp;
+<o:p></o:p></p>
+<p class=3D"MsoNormal">Someone might know of a better, more conventional py=
+thonic design pattern to use, but it works.<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">5) The script appears to assume that the log is neve=
+r missing samples.&nbsp; That is, weight samples to the requested intervals=
+, I think with the assumption that the log samples are at longer intervals,=
+ or at least the same interval length as
+ the &quot;--interval&quot; value.&nbsp; If the workload actually contains =
+&quot;thinktime&quot; intervals (with missing sample when zero data), the s=
+cript cannot know this, and assumes the logged operations should still be s=
+pread across all the intervals.&nbsp;
+<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">In my case, I'm mostly interested in results at the =
+same interval as gathered during logging, so I tweaked into an alternate ve=
+rsion I named 'fiologparser_hist_nw.py', which doesn't perform any weightin=
+g of samples.&nbsp; It has an added advantage
+ of much quicker performance. For example, fiologparser_hist took about 1/2=
+ hr to combine about 350 logs, but fiologparser_hist_nw took 45 seconds, wa=
+y better for my automation.<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">Of course, larger number of 9's percentiles would ha=
+ve additional inaccuracies when there are not enough operations in a sample=
+ period, but that is just user beware.<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">Thanks<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">Kris<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">diff --git a/tools/hist/fiologparser_hist.py b/tools=
+/hist/fiologparser_hist.py<o:p></o:p></p>
+<p class=3D"MsoNormal">index 62a4eb4..c77bb11 100755<o:p></o:p></p>
+<p class=3D"MsoNormal">--- a/tools/hist/fiologparser_hist.py<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&#43;&#43; b/tools/hist/fiologparser_hist.py<o:=
+p></o:p></p>
+<p class=3D"MsoNormal">@@ -1,4 &#43;1,4 @@<o:p></o:p></p>
+<p class=3D"MsoNormal">-#!/usr/bin/python2.7<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;#!/usr/bin/python<o:p></o:p></p>
+<p class=3D"MsoNormal">&quot;&quot;&quot; <o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Utility for converting=
+ *_clat_hist* files generated by fio into latency statistics.<o:p></o:p></p=
+>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">@@ -16,8 &#43;16,16 @@<o:p></o:p></p>
+<p class=3D"MsoNormal">import os<o:p></o:p></p>
+<p class=3D"MsoNormal">import sys<o:p></o:p></p>
+<p class=3D"MsoNormal">import pandas<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;import re<o:p></o:p></p>
+<p class=3D"MsoNormal">import numpy as np<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">&#43;runascmd =3D False<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;if (sys.version_info &lt; (2, 7)):<o:p></o:p></=
+p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; err(&quot;ERROR: Python vers=
+ion =3D %s; version 2.7 or greater is required.\n&quot;)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; exit(1)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">err =3D sys.stderr.write<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">&nbsp;def weighted_percentile(percs, vs, ws):<o:p></=
+o:p></p>
+<p class=3D"MsoNormal">@@ -64,8 &#43;72,20 @@ def weights(start_ts, end_ts,=
+ start, end):<o:p></o:p></p>
+<p class=3D"MsoNormal">def weighted_average(vs, ws):<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; return np.sum(vs * ws) / np=
+.sum(ws)<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">-columns =3D [&quot;end-time&quot;, &quot;samples&qu=
+ot;, &quot;min&quot;, &quot;avg&quot;, &quot;median&quot;, &quot;90%&quot;,=
+ &quot;95%&quot;, &quot;99%&quot;, &quot;max&quot;]<o:p></o:p></p>
+<p class=3D"MsoNormal">-percs&nbsp;&nbsp; =3D [50, 90, 95, 99]<o:p></o:p></=
+p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;percs =3D None<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;columns =3D None<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;def gen_output_columns(percentiles):<o:p></o:p>=
+</p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; global percs,columns<o:p></o=
+:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; strpercs =3D re.split('[,:]'=
+, percentiles)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; percs =3D [50.0]&nbsp; # alw=
+ays print 50% in 'median' column<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; percs.extend(list(map(float,=
+strpercs)))<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; columns =3D [&quot;end-time&=
+quot;, &quot;samples&quot;, &quot;min&quot;, &quot;avg&quot;, &quot;median&=
+quot;]<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; columns.extend(list(map(lamb=
+da x: x&#43;'%', strpercs)))<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; columns.append(&quot;max&quo=
+t;)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">&nbsp;def fmt_float_list(ctx, num=3D1):<o:p></o:p></=
+p>
+<p class=3D"MsoNormal">&nbsp;&nbsp; &quot;&quot;&quot; Return a comma separ=
+ated list of float formatters to the required number<o:p></o:p></p>
+<p class=3D"MsoNormal">@@ -178,7 &#43;198,11 @@ def print_all_stats(ctx, en=
+d, mn, ss_cnt, vs, ws, mx):<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; avg =3D weighted_average(vs=
+, ws)<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; values =3D [mn, avg] &#43; =
+list(ps) &#43; [mx]<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; row =3D [end, ss_cnt] &#43;=
+ [float(x) / ctx.divisor for x in values]<o:p></o:p></p>
+<p class=3D"MsoNormal">-&nbsp;&nbsp;&nbsp; fmt =3D &quot;%d, %d, %d, &quot;=
+ &#43; fmt_float_list(ctx, 5) &#43; &quot;, %d&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; if ctx.divisor &gt; 1:<o:p><=
+/o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fmt =
+=3D &quot;%d, %d, &quot; &#43; fmt_float_list(ctx, len(percs)&#43;3)<o:p></=
+o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; else:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # ma=
+x and min are decimal values if no divisor<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fmt =
+=3D &quot;%d, %d, %d, &quot; &#43; fmt_float_list(ctx, len(percs)&#43;1) &#=
+43; &quot;, %d&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; print (fmt % tuple(row))<o:=
+p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">&nbsp;def update_extreme(val, fncn, new_val):<o:p></=
+o:p></p>
+<p class=3D"MsoNormal">@@ -207,7 &#43;231,7 @@ def process_interval(ctx, sa=
+mples, iStart, iEnd):<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp; &nbsp;<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;# Only look at bins of the current histogram sample which<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # s=
+tarted before the end of the current time interval [start,end]<o:p></o:p></=
+p>
+<p class=3D"MsoNormal">-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; start_ti=
+mes =3D (end_time - 0.5 * ctx.interval) - bin_vals / 1000.0<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; star=
+t_times =3D (end_time - 0.5 * ctx.interval) - bin_vals / ctx.time_divisor<o=
+:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; idx=
+ =3D np.where(start_times &lt; iEnd)<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; s_t=
+s, l_bvs, u_bvs, hs =3D start_times[idx], lower_bin_vals[idx], upper_bin_va=
+ls[idx], hist[idx]<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">@@ -241,7 &#43;265,7 @@ def guess_max_from_bins(ctx,=
+ hist_cols):<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; idx =3D np.where(arr =3D=3D=
+ hist_cols)<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; if len(idx[1]) =3D=3D 0:<o:=
+p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tab=
+le =3D repr(arr.astype(int)).replace('-10', 'N/A').replace('array','&nbsp;&=
+nbsp;&nbsp;&nbsp; ')<o:p></o:p></p>
+<p class=3D"MsoNormal">-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; err(&quo=
+t;Unable to determine bin values from input clat_hist files. Namely \n&quot=
+;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; errm=
+sg =3D (&quot;Unable to determine bin values from input clat_hist files. Na=
+mely \n&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp; &quot;the first line of file '%s' &quot; % ctx.FILE[0]=
+ &#43; &quot;has %d \n&quot; % (__TOTAL_COLUMNS,) &#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp; &quot;columns of which we assume %d &quot; % (hist_col=
+s,) &#43; &quot;correspond to histogram bins. \n&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp; &quot;This number needs to be equal to one of the foll=
+owing numbers:\n\n&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">@@ -250,7 &#43;274,12 @@ def guess_max_from_bins(ctx=
+, hist_cols):<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp; &quot;&nbsp; - Input file(s) does not contain histogra=
+ms.\n&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp; &quot;&nbsp; - You recompiled fio with a different GRO=
+UP_NR. If so please specify this\n&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp; &quot;&nbsp;&nbsp;&nbsp; new GROUP_NR on the command l=
+ine with --group_nr\n&quot;)<o:p></o:p></p>
+<p class=3D"MsoNormal">-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; exit(1)<=
+o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if r=
+unascmd:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; err(errmsg)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; exit(1)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;else=
+:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; raise RuntimeError(errmsg) <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return bins[idx[1][0]]=
+<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">&nbsp;def main(ctx):<o:p></o:p></p>
+<p class=3D"MsoNormal">@@ -274,10 &#43;303,19 @@ def main(ctx):<o:p></o:p><=
+/p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp; ctx.interval =3D int(hist_msec)<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; except NoOptionError:<o:p></o:=
+p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;pass<o=
+:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; if not hasattr(ctx, 'percent=
+iles'):<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ctx.=
+percentiles =3D &quot;90,95,99&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; gen_output_columns(ctx.perce=
+ntiles)<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ctx.interval is Non=
+e:<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ctx=
+.interval =3D 1000<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; if ctx.usbin:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ctx.=
+time_divisor =3D 1000.0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # bins ar=
+e in us<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; else:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ctx.=
+time_divisor =3D 1000000.0&nbsp;&nbsp;&nbsp;&nbsp; # bins are in ns<o:p></o=
+:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; # Automatically detect how =
+many columns are in the input files,<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; # calculate the correspondi=
+ng 'coarseness' parameter used to generate<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; # those files, and calculat=
+e the appropriate bin latency values:<o:p></o:p></p>
+<p class=3D"MsoNormal">@@ -339,6 &#43;377,7 @@ def main(ctx):<o:p></o:p></p=
+>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">&nbsp;if __name__ =3D=3D '__main__':<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; import argparse<o:p></o:p><=
+/p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; runascmd =3D True<o:p></o:p>=
+</p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; p =3D argparse.ArgumentPars=
+er()<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; arg =3D p.add_argument<o:p>=
+</o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; arg(&quot;FILE&quot;, help=
+=3D'space separated list of latency log filenames', nargs=3D'&#43;')<o:p></=
+o:p></p>
+<p class=3D"MsoNormal">@@ -385,5 &#43;424,18 @@ if __name__ =3D=3D '__main_=
+_':<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp; 'given histogram files. Useful for auto-detectin=
+g --log_hist_msec and '<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp; '--log_unix_epoch (in fio) values.')<o:p></o:p><=
+/p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; arg('--percentiles',<o:p></o=
+:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defa=
+ult=3D&quot;90:95:99&quot;,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type=
+=3Dstr,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; help=
+=3D'Optional argument of comma or colon separated percentiles to print. '<o=
+:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp; 'The default is &quot;90.0:95.0:99.0&quot;.&nbsp;=
+ min, median(50%%) and max percentiles are always printed')<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; arg('--usbin',<o:p></o:p></p=
+>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defa=
+ult=3DFalse,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; acti=
+on=3D'store_true',<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; help=
+=3D'histogram bin latencies are in us (fio versions &lt; 2.99. fio uses ns =
+for version &gt;=3D 2.99')<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; main(p.parse_args())<o:p></=
+o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">diff --git a/tools/hist/fiologparser_hist_nw.py b/to=
+ols/hist/fiologparser_hist_nw.py<o:p></o:p></p>
+<p class=3D"MsoNormal">new file mode 100644<o:p></o:p></p>
+<p class=3D"MsoNormal">index 0000000..98a378d<o:p></o:p></p>
+<p class=3D"MsoNormal">--- /dev/null<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&#43;&#43; b/tools/hist/fiologparser_hist_nw.py=
+<o:p></o:p></p>
+<p class=3D"MsoNormal">@@ -0,0 &#43;1,383 @@<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;#!/usr/bin/python<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&quot;&quot;&quot; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; Utility for converting *_cla=
+t_hist* files generated by fio into latency statistics.<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; Example usage:<o:p></o:p></p=
+>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; $ fiologparser_hist.py *_clat_hist*<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; end-time, samples, min, avg, median, 90%, 95%, 99%, max=
+<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; 1000, 15, 192, 1678.107, 1788.859, 1856.076, 1880.040, =
+1899.208, 1888.000<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; 2000, 43, 152, 1642.368, 1714.099, 1816.659, 1845.552, =
+1888.131, 1888.000<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; 4000, 39, 1152, 1546.962, 1545.785, 1627.192, 1640.019,=
+ 1691.204, 1744<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; ...<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; @author Karl Cronburg &lt;<a=
+ href=3D"mailto:karl.cronburg@gmail.com">karl.cronburg@gmail.com</a>&gt;<o:=
+p></o:p></p>
+<p class=3D"MsoNormal">&#43;&quot;&quot;&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;import os<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;import sys<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;import re<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;import numpy as np<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;runascmd =3D False<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;if (sys.version_info &lt; (2, 7)):<o:p></o:p></=
+p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; err(&quot;ERROR: Python vers=
+ion =3D %s; version 2.7 or greater is required.\n&quot;)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; exit(1)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;err =3D sys.stderr.write<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;class HistFileRdr():<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; &quot;&quot;&quot; Class to =
+read a hist file line by line, buffering <o:p>
+</o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a va=
+lue array for the latest line, and allowing a preview<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; of t=
+he next timestamp in next line<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Note=
+: this does not follow a generator pattern, but must explicitly<o:p></o:p><=
+/p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; get =
+next bin array.<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; &quot;&quot;&quot;<o:p></o:p=
+></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; def __init__(self, file):<o:=
+p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self=
+.fp =3D open(file, 'r')<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self=
+.data =3D self.nextData()<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; def close(self):<o:p></o:p><=
+/p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self=
+.fp.close()<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self=
+.fp =3D None<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; def nextData(self):<o:p></o:=
+p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self=
+.data =3D None<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if s=
+elf.fp: <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; line =3D self.fp.readline()<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; if line =3D=3D &quot;&quot;:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.close()<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; else:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.data =3D [int(x) for x in =
+line.replace(' ', '').rstrip().split(',')]<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; retu=
+rn self.data<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; @property<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; def curTS(self):<o:p></o:p><=
+/p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ts =
+=3D None<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if s=
+elf.data:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; ts =3D self.data[0]<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; retu=
+rn ts<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; @property<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; def curBins(self):<o:p></o:p=
+></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; retu=
+rn self.data[3:]<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;def weighted_percentile(percs, vs, ws):<o:p></o=
+:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; &quot;&quot;&quot; Use linea=
+r interpolation to calculate the weighted percentile.<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Valu=
+e and weight arrays are first sorted by value. The cumulative<o:p></o:p></p=
+>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dist=
+ribution function (cdf) is then computed, after which np.interp<o:p></o:p><=
+/p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; find=
+s the two values closest to our desired weighted percentile(s)<o:p></o:p></=
+p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; and =
+linearly interpolates them.<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; perc=
+s&nbsp; :: List of percentiles we want to calculate<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vs&n=
+bsp;&nbsp;&nbsp;&nbsp; :: Array of values we are computing the percentile o=
+f<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ws&n=
+bsp;&nbsp;&nbsp;&nbsp; :: Array of weights for our corresponding values<o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; retu=
+rn :: Array of percentiles<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; &quot;&quot;&quot;<o:p></o:p=
+></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; idx =3D np.argsort(vs)<o:p><=
+/o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; vs, ws =3D vs[idx], ws[idx] =
+# weights and values sorted by value<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; cdf =3D 100 * (ws.cumsum() -=
+ ws / 2.0) / ws.sum()<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; return np.interp(percs, cdf,=
+ vs) # linear interpolation<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;def weighted_average(vs, ws):<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; return np.sum(vs * ws) / np.=
+sum(ws)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;percs =3D None<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;columns =3D None<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;def gen_output_columns(percentiles):<o:p></o:p>=
+</p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; global percs,columns<o:p></o=
+:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; strpercs =3D re.split('[,:]'=
+, percentiles)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; percs =3D [50.0]&nbsp; # alw=
+ays print 50% in 'median' column<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; percs.extend(list(map(float,=
+strpercs)))<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; columns =3D [&quot;end-time&=
+quot;, &quot;samples&quot;, &quot;min&quot;, &quot;avg&quot;, &quot;median&=
+quot;]<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; columns.extend(list(map(lamb=
+da x: x&#43;'%', strpercs)))<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; columns.append(&quot;max&quo=
+t;)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;def fmt_float_list(ctx, num=3D1):<o:p></o:p></p=
+>
+<p class=3D"MsoNormal">&#43;&nbsp; &quot;&quot;&quot; Return a comma separa=
+ted list of float formatters to the required number<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; of decimal place=
+s. For instance:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fmt_=
+float_list(ctx.decimals=3D4, num=3D3) =3D=3D &quot;%.4f, %.4f, %.4f&quot;<o=
+:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp; &quot;&quot;&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp; return ', '.join([&quot;%%.%df&quot; % c=
+tx.decimals] * num)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;# Default values - see beginning of main() for =
+how we detect number columns in<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;# the input files:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;__HIST_COLUMNS =3D 1216<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;__NON_HIST_COLUMNS =3D 3<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;__TOTAL_COLUMNS =3D __HIST_COLUMNS &#43; __NON_=
+HIST_COLUMNS<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;def get_min(fps, arrs):<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; &quot;&quot;&quot; Find the =
+file with the current first row with the smallest start time &quot;&quot;&q=
+uot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; return min([fp for fp in fps=
+ if not arrs[fp] is None], key=3Dlambda fp: arrs.get(fp)[0][0])<o:p></o:p><=
+/p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;def _plat_idx_to_val(idx, edge=3D0.5, FIO_IO_U_=
+PLAT_BITS=3D6, FIO_IO_U_PLAT_VAL=3D64):<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; &quot;&quot;&quot; Taken fro=
+m fio's stat.c for calculating the latency value of a bin<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from=
+ that bin's index.<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; idx&nbsp; : the value of the index into the histogram b=
+ins<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; edge : fractional value in the range [0,1]** indicating=
+ how far into<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;the bin we wish to compute the latency value of.<o:p></=
+o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ** e=
+dge =3D 0.0 and 1.0 computes the lower and upper latency bounds<o:p></o:p><=
+/p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp; respectively of the given bin index. &quot;&quot;&quot;<o:p><=
+/o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; # MSB &lt;=3D (FIO_IO_U_PLAT=
+_BITS-1), cannot be rounded off. Use<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; # all bits of the sample as =
+index<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; if (idx &lt; (FIO_IO_U_PLAT_=
+VAL &lt;&lt; 1)):<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; retu=
+rn idx <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; # Find the group and compute=
+ the minimum value of that group<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; error_bits =3D (idx &gt;&gt;=
+ FIO_IO_U_PLAT_BITS) - 1 <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; base =3D 1 &lt;&lt; (error_b=
+its &#43; FIO_IO_U_PLAT_BITS)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; # Find its bucket number of =
+the group<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; k =3D idx % FIO_IO_U_PLAT_VA=
+L<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; # Return the mean (if edge=
+=3D0.5) of the range of the bucket<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; return base &#43; ((k &#43; =
+edge) * (1 &lt;&lt; error_bits))<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;def plat_idx_to_val_coarse(idx, coarseness, edg=
+e=3D0.5):<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; &quot;&quot;&quot; Converts =
+the given *coarse* index into a non-coarse index as used by fio<o:p></o:p><=
+/p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; in s=
+tat.h:plat_idx_to_val(), subsequently computing the appropriate<o:p></o:p><=
+/p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; late=
+ncy value for that bin.<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&quo=
+t;&quot;&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; # Multiply the index by the =
+power of 2 coarseness to get the bin<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; # bin index with a max of 15=
+36 bins (FIO_IO_U_PLAT_GROUP_NR =3D 24 in stat.h)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; stride =3D 1 &lt;&lt; coarse=
+ness<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; idx =3D idx * stride<o:p></o=
+:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; lower =3D _plat_idx_to_val(i=
+dx, edge=3D0.0)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; upper =3D _plat_idx_to_val(i=
+dx &#43; stride, edge=3D1.0)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; return lower &#43; (upper - =
+lower) * edge<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;def print_all_stats(ctx, end, mn, ss_cnt, vs, w=
+s, mx):<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; ps =3D weighted_percentile(p=
+ercs, vs, ws)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; avg =3D weighted_average(vs,=
+ ws)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; values =3D [mn, avg] &#43; l=
+ist(ps) &#43; [mx]<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; row =3D [end, ss_cnt] &#43; =
+[float(x) / ctx.divisor for x in values]<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; if ctx.divisor &gt; 1:<o:p><=
+/o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fmt =
+=3D &quot;%d, %d, &quot; &#43; fmt_float_list(ctx, len(percs)&#43;3)<o:p></=
+o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; else:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # ma=
+x and min are decimal values if no divisor<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fmt =
+=3D &quot;%d, %d, %d, &quot; &#43; fmt_float_list(ctx, len(percs)&#43;1) &#=
+43; &quot;, %d&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; print (fmt % tuple(row))<o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;def update_extreme(val, fncn, new_val):<o:p></o=
+:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; &quot;&quot;&quot; Calculate=
+ min / max in the presence of None values &quot;&quot;&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; if val is None: return new_v=
+al<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; else: return fncn(val, new_v=
+al)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;# See beginning of main() for how bin_vals are =
+computed<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;bin_vals =3D []<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;lower_bin_vals =3D [] # lower edge of each bin<=
+o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;upper_bin_vals =3D [] # upper edge of each bin =
+<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;def process_interval(ctx, iHist, iEnd):<o:p></o=
+:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; &quot;&quot;&quot; print est=
+imated percentages for the given merged sample<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; &quot;&quot;&quot;<o:p></o:p=
+></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; ss_cnt =3D 0 # number of sam=
+ples affecting this interval<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; mn_bin_val, mx_bin_val =3D N=
+one, None<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; # Update total number of sam=
+ples affecting current interval histogram:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; ss_cnt &#43;=3D np.sum(iHist=
+)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; # Update min and max bin val=
+ues<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; idxs =3D np.nonzero(iHist !=
+=3D 0)[0]<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; if idxs.size &gt; 0:<o:p></o=
+:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mn_b=
+in_val =3D bin_vals[idxs[0]]<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mx_b=
+in_val =3D bin_vals[idxs[-1]]<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; if ss_cnt &gt; 0: print_all_=
+stats(ctx, iEnd, mn_bin_val, ss_cnt, bin_vals, iHist, mx_bin_val)<o:p></o:p=
+></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;def guess_max_from_bins(ctx, hist_cols):<o:p></=
+o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; &quot;&quot;&quot; Try to gu=
+ess the GROUP_NR from given # of histogram<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colu=
+mns seen in an input file &quot;&quot;&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; max_coarse =3D 8<o:p></o:p><=
+/p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; if ctx.group_nr &lt; 19 or c=
+tx.group_nr &gt; 26:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bins=
+ =3D [ctx.group_nr * (1 &lt;&lt; 6)]<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; else:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bins=
+ =3D [1216,1280,1344,1408,1472,1536,1600,1664]<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; coarses =3D range(max_coarse=
+ &#43; 1)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; fncn =3D lambda z: list(map(=
+lambda x: z/2**x if z % 2**x =3D=3D 0 else -10, coarses))<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; arr =3D np.transpose(list(ma=
+p(fncn, bins)))<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; idx =3D np.where(arr =3D=3D =
+hist_cols)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; if len(idx[1]) =3D=3D 0:<o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tabl=
+e =3D repr(arr.astype(int)).replace('-10', 'N/A').replace('array','&nbsp;&n=
+bsp;&nbsp;&nbsp; ')<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; errm=
+sg =3D (&quot;Unable to determine bin values from input clat_hist files. Na=
+mely \n&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; &quot;the first line of file '%s' &quot; % ctx.FILE[0] =
+&#43; &quot;has %d \n&quot; % (__TOTAL_COLUMNS,) &#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; &quot;columns of which we assume %d &quot; % (hist_cols=
+,) &#43; &quot;correspond to histogram bins. \n&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; &quot;This number needs to be equal to one of the follo=
+wing numbers:\n\n&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; &#43; table &#43; &quot;\n\n&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; &quot;Possible reasons and corresponding solutions:\n&q=
+uot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; &quot;&nbsp; - Input file(s) does not contain histogram=
+s.\n&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; &quot;&nbsp; - You recompiled fio with a different GROU=
+P_NR. If so please specify this\n&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; &quot;&nbsp;&nbsp;&nbsp; new GROUP_NR on the command li=
+ne with --group_nr\n&quot;)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if r=
+unascmd:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; err(errmsg)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; exit(1)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else=
+:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbs=
+p;&nbsp;&nbsp;&nbsp;raise RuntimeError(errmsg) <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; return bins[idx[1][0]]<o:p><=
+/o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;def main(ctx):<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; if ctx.job_file:<o:p></o:p><=
+/p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try:=
+<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; from configparser import SafeConfigParser, NoOptionErro=
+r<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; exce=
+pt ImportError:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; from ConfigParser import SafeConfigParser, NoOptionErro=
+r<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cp =
+=3D SafeConfigParser(allow_no_value=3DTrue)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; with=
+ open(ctx.job_file, 'r') as fp:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; cp.readfp(fp)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if c=
+tx.interval is None:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; # Auto detect --interval value<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp; &nbsp;&nbsp;for s in cp.sections():<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; hist_ms=
+ec =3D cp.get(s, 'log_hist_msec')<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if hist=
+_msec is not None:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp; ctx.interval =3D int(hist_msec)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; except NoOptionError:<o:p></o:p=
+></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pass<o:=
+p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; if not hasattr(ctx, 'percent=
+iles'):<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ctx.=
+percentiles =3D &quot;90,95,99&quot;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; gen_output_columns(ctx.perce=
+ntiles)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; if ctx.interval is None:<o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ctx.=
+interval =3D 1000<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; # Automatically detect how m=
+any columns are in the input files,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; # calculate the correspondin=
+g 'coarseness' parameter used to generate<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; # those files, and calculate=
+ the appropriate bin latency values:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; with open(ctx.FILE[0], 'r') =
+as fp:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; glob=
+al bin_vals,lower_bin_vals,upper_bin_vals,__HIST_COLUMNS,__TOTAL_COLUMNS<o:=
+p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; __TO=
+TAL_COLUMNS =3D len(fp.readline().split(','))<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; __HI=
+ST_COLUMNS =3D __TOTAL_COLUMNS - __NON_HIST_COLUMNS<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; max_=
+cols =3D guess_max_from_bins(ctx, __HIST_COLUMNS)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; coar=
+seness =3D int(np.log2(float(max_cols) / __HIST_COLUMNS))<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bin_=
+vals =3D np.array([plat_idx_to_val_coarse(x, coarseness) for x in np.arange=
+(__HIST_COLUMNS)], dtype=3Dfloat)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lowe=
+r_bin_vals =3D np.array([plat_idx_to_val_coarse(x, coarseness, 0.0) for x i=
+n np.arange(__HIST_COLUMNS)], dtype=3Dfloat)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; uppe=
+r_bin_vals =3D np.array([plat_idx_to_val_coarse(x, coarseness, 1.0) for x i=
+n np.arange(__HIST_COLUMNS)], dtype=3Dfloat)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; fps =3D [HistFileRdr(f) for =
+f in ctx.FILE]<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; print(', '.join(columns))<o:=
+p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; start =3D 0<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; end =3D ctx.interval<o:p></o=
+:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; while True:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; more=
+_data =3D False<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # ad=
+d bins from all files in target intervals<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; arr =
+=3D None<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; numS=
+amples =3D 0<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; whil=
+e True:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; foundSamples =3D False<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; for fp in fps:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ts =3D fp.curTS<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ts and ts&#43;10 &lt; end:&n=
+bsp; # shift sample time when very close to an end time&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;
+<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; numSamp=
+les &#43;=3D 1<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; foundSa=
+mples =3D True<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if arr =
+is None: <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp; arr =3D np.zeros(shape=3D(__HIST_COLUMNS), dtype=3Dint)<o:=
+p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; arr =3D=
+ np.add(arr, fp.curBins)<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; more_da=
+ta =3D True<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fp.next=
+Data()<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elif ts:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;more_da=
+ta =3D True<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; # reached end of all files<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; # or gone through all files without finding sample in i=
+nterval
+<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; if not more_data or not foundSamples:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;if a=
+rr is not None:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; #print(&quot;{} size({}) samples({}) nonzero({}):&quot;=
+.format(end, arr.size, numSamples, np.count_nonzero(arr)), str(arr), )<o:p>=
+</o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; process_interval(ctx, arr, end)&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # re=
+ach end of all files<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if n=
+ot more_data:<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; break<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; star=
+t &#43;=3D ctx.interval<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; end =
+=3D start &#43; ctx.interval<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #if =
+end &gt; 20000: break<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;if __name__ =3D=3D '__main__':<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; import argparse<o:p></o:p></=
+p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; runascmd =3D True<o:p></o:p>=
+</p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; p =3D argparse.ArgumentParse=
+r()<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; arg =3D p.add_argument<o:p><=
+/o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; arg(&quot;FILE&quot;, help=
+=3D'space separated list of latency log filenames', nargs=3D'&#43;')<o:p></=
+o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; arg('--buff_size',<o:p></o:p=
+></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defa=
+ult=3D10000,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type=
+=3Dint,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; help=
+=3D'number of samples to buffer into numpy at a time')<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; arg('--max_latency',<o:p></o=
+:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defa=
+ult=3D20,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type=
+=3Dfloat,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; help=
+=3D'number of seconds of data to process at a time')<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; arg('-i', '--interval',<o:p>=
+</o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type=
+=3Dint,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; help=
+=3D'interval width (ms), default 1000 ms '<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; '(no=
+ weighting between samples performed, results represent sample period only)=
+')<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; arg('-d', '--divisor',<o:p><=
+/o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; requ=
+ired=3DFalse,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type=
+=3Dint,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defa=
+ult=3D1,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; help=
+=3D'divide the results by this value.')<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; arg('--decimals',<o:p></o:p>=
+</p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defa=
+ult=3D3,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type=
+=3Dint,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; help=
+=3D'number of decimal places to print floats to')<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; arg('--warn',<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dest=
+=3D'warn',<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; acti=
+on=3D'store_true',<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defa=
+ult=3DFalse,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; help=
+=3D'print warning messages to stderr')<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43; &nbsp;&nbsp;&nbsp;arg('--group_nr',<o:p></o:p>=
+</p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defa=
+ult=3D29,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type=
+=3Dint,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; help=
+=3D'FIO_IO_U_PLAT_GROUP_NR as defined in stat.h')<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; arg('--job-file',<o:p></o:p>=
+</p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defa=
+ult=3DNone,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type=
+=3Dstr,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; help=
+=3D'Optional argument pointing to the job file used to create the '<o:p></o=
+:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp; 'given histogram files. Useful for auto-detecting=
+ --log_hist_msec and '<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp; '--log_unix_epoch (in fio) values.')<o:p></o:p></=
+p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; arg('--percentiles',<o:p></o=
+:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defa=
+ult=3D&quot;90,95,99&quot;,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type=
+=3Dstr,<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; help=
+=3D'Optional argument of comma or colon separated percentiles to print. '<o=
+:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp; 'The default is &quot;90.0,95.0,99.0&quot;.&nbsp;=
+ min, median(50%%) and max percentiles are always printed')<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p=
+></o:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal">&#43;&nbsp;&nbsp;&nbsp; main(p.parse_args())<o:p></o=
+:p></p>
+<p class=3D"MsoNormal">&#43;<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+</body>
+</html>
+
+--_000_CY1PR0401MB111689EE46B3839EB0675D7B81F70CY1PR0401MB1116_--
 
