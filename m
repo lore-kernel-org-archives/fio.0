@@ -1,62 +1,68 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from m14-6.163.com ([220.181.14.6]:37922 "EHLO m14-6.163.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751694AbeAJLTV (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 10 Jan 2018 06:19:21 -0500
-Date: Wed, 10 Jan 2018 19:04:07 +0800
-From: "shadow_lin" <shadow_lin@163.com>
-Message-ID: <b0da74b.48c6.160dfbddb65.Coremail.shadow_lin@163.com>
-Subject: Newbie question about fio
-MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="UTF-8"
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:56269 "EHLO
+        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752984AbeBPAcr (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 15 Feb 2018 19:32:47 -0500
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: fio server/client disconnect bug
+Date: Fri, 16 Feb 2018 00:32:45 +0000
+Message-ID: <BN3PR0401MB1457692506FCB2E385AE2A2E8FCB0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi all,
-=09I am new to fio and I have some question about how to use fio that I can=
-'t find on google=E3=80=82
+Hi All,
+With the near latest fio version (fio-3.3-51-gf2cd) using server/client mod=
+e, I occasionally see one client get disconnected early.  Hence, the client=
+'s IO summary output does not get reported at the end of the job.  The issu=
+e seems to occur between 100 and 300 iterations of a job file.  Worse, the =
+conditions for the early disconnect may be tied to the complexity of the jo=
+b file (such as numjobs or IOPs of device).  Even worse, when using debug m=
+ode, the failure seems to reduce to around 1000 iterations of a job file.
 
-=091.For read test fio will lay out a file for the test. how the file is ge=
-nerated? will the block size or rw mode effect the file?
-=09  Can I use 4m seq write test to generate file for the 4k rand read test=
- as long as the file size is the same or larger than the read test and the =
-filename matches?
+When running with
 
-=09  If I ran fio on a block device(like /dev/sdb1),how would fio lay out d=
-ata for read test?
-       =09  In filesysterm i can change the filename to let fio lay out a n=
-ew file,but I can't do that with a block device.
-=09  I did some test to find that if I do some write test on a block device=
- then do read test if fio read beyond the data where write test has wrote,t=
-he result would be inaccurate(speed be much faster than it should be)
+fio --client=3Dhost1 test_job_a --client=3Dhost2 test_job_b --debug=3Dproce=
+ss,net
 
-=092.Fio can use filename and directory to set the where the test is perfor=
-med. For multi-thread test fio will only generate one file in filename mode=
- but many files if in directory mode.
+...
+net      5027  client: handle host2
+net      5027  client: got cmd op IOLOG from host2 (pdu=3D446)
+net      5027  client: handle host2
+client: host=3Dhost2 disconnected
+net      5027  client: removed <host2>
+net      5027  client: request eta (1)
+net      5027  client: requested eta tag 0x1b52c20
+net      5027  client: handle host1
+net      5027  client: got cmd op TEXT from host1 (pdu=3D85)
+<host1> net      5028  server: got op [SEND_ETA], pdu=3D0, tag=3D1b4a970
+net      5027  client: handle host1
+net      5027  client: got cmd op TEXT from host1 (pdu=3D61)
+<host1> net      5028  server sending status
+...
 
-=09If I want to test against a block device I can only use filename to tell=
- fio where to perform the test
+Then the normal output summary only shows the statistics from host1.  The h=
+ost2 throughput, latency, etc. are never displayed.  However, the iops, bw,=
+ and lat logs all seem to have been updated properly.  Sometimes host2 is d=
+isconnected early; sometimes host1 is disconnected early.
 
-=09I can understand in directory mode that each thread will read or write t=
-o a file and if i increase the numjobs to increase thread number
- =09the total filesize increased so the test will cost more time.
+Why might host2 be disconnected?  I see disconnects when using a switch wit=
+h one hop and also with directly connecting host1 to host2.  So dropping ne=
+twork packets seems unlikely.  Could the ETA update not be accurate?  Or is=
+ it possible host2 finishes the job faster than host1 and closes the connec=
+tion too early?
 
-=09But in filename mode there is only one file and if I increase the numjob=
-s to increase thread number the filesize won't change,
-         but the test still cost more time(I thought differernt thread woul=
-d write or read different part of the file so the time cost would be smalle=
-r,but the test result showed that I am wrong), how each thread read or writ=
-e to the same file?
+In the event host2's job file finishes early, should we still summarize the=
+ IO traffic in the output?  How is that condition handled?
 
-=09for the same enviroment would the result be different for using filename=
- or directory?which one would be more accurate?or It fully depend on how I =
-want to simluate the workload?
+If you have suggestions on other debug options, I would appreciate.  Thanks=
+.
 
-Thanks=20
+Regards,
+Jeff
 
 
-2018-01-10
-lin.yunfan
