@@ -1,147 +1,155 @@
-Return-Path: <prvs=583691f35=Kris.Davis@wdc.com>
-From: Kris Davis <Kris.Davis@wdc.com>
-Subject: RE: fiologparser_hist.py script patch and enhancements?
-Date: Wed, 21 Feb 2018 17:00:24 +0000
-Message-ID: <CY1PR0401MB11163A5F0CE792CC28A7252D81CE0@CY1PR0401MB1116.namprd04.prod.outlook.com>
+Return-Path: <sitsofe@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <CY1PR0401MB1116FC09283C22316161F3E381CE0@CY1PR0401MB1116.namprd04.prod.outlook.com>
 References: <CY1PR0401MB11163E6C999998E0A2F13F9E81F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CY1PR0401MB111689EE46B3839EB0675D7B81F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CY1PR0401MB1116307F93264CDB7F09870981F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CALjAwxhHoS62hDsz9cvwjYBJFODDZ6EvTry9u4nErXAC67JwKg@mail.gmail.com>
  <CY1PR0401MB111673C9DC353353BACFCE5B81F50@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CY1PR0401MB1116FC09283C22316161F3E381CE0@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CALjAwxgi-muVZ4XVF53amSHOzLjMEDSY2Z2GRmKso_VZ1sVazA@mail.gmail.com>
-In-Reply-To: <CALjAwxgi-muVZ4XVF53amSHOzLjMEDSY2Z2GRmKso_VZ1sVazA@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-To: Sitsofe Wheeler <sitsofe@gmail.com>, Vincent Fu <vincentfu@gmail.com>
-Cc: Vincent Fu <Vincent.Fu@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 21 Feb 2018 16:52:20 +0000
+Message-ID: <CALjAwxgi-muVZ4XVF53amSHOzLjMEDSY2Z2GRmKso_VZ1sVazA@mail.gmail.com>
+Subject: Re: fiologparser_hist.py script patch and enhancements?
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+To: Vincent Fu <vincentfu@gmail.com>
+Cc: Vincent Fu <vincent.fu@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>, Kris Davis <Kris.Davis@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-SSBoYWQgY2hhbmdlZCB0aGUgaW50ZXJwcmV0ZXIgdG8ganVzdCBiZSAicHl0aG9uIiByYXRoZXIg
-dGhhbiAicHl0aG9uMi43IiwgYW5kIGFkZGVkIGEgY2hlY2sgdG8gZW5zdXJlIHRoYXQgdGhlIHB5
-dGhvbiB2ZXJzaW9uIHdhcyBhdCBsZWFzdCAyLjcuICBUaGlzIGFsbG93cyBpdCB0byB1c2Ugd2hh
-dGV2ZXIgdmVyc2lvbiAoMi43IG9yIGFib3ZlKSB0aGF0IGhhcyBiZWVuIGFzc29jaWF0ZWQgd2l0
-aCAicHl0aG9uIiAodXN1YWxseSAyLjcrIGluIHJlY2VudCBsaW51eCBvcydzKS4gIFdoYXQgSSd2
-ZSBzZWUgKHVubGVzcyBhIHZpcnR1YWxlbnYgaXMgdXNlZCksIHB5dGhvbiAzKyBoYXMgYSBzeW1s
-aW5rIHNldCB0byBweXRob24zLiAgIA0KVGhlIHBvaW50IGlzLCBpZiB0aGUgaW50ZXJwcmV0ZXIg
-aXMgc2V0IHRvIHB5dGhvbjIuNywgdGhlIHVzZXIgaXMgZ2VuZXJhbGx5ICJmb3JjZWQiIHRvIHVz
-ZSAyLjcsIHVubGVzcyBhbGwgY29tbWFuZCBsaW5lcyBhcmUgcHJlcGVuZGVkIHdpdGggdGhlIHB5
-dGhvbj8/DQoNCkRvZXMgdGhhdCBhZGRyZXNzIHlvdXIgY29uY2Vybj8NCg0KS3JpcyBEYXZpcw0K
-DQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogZmlvLW93bmVyQHZnZXIua2VybmVs
-Lm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBPZiBTaXRz
-b2ZlIFdoZWVsZXINClNlbnQ6IFdlZG5lc2RheSwgRmVicnVhcnkgMjEsIDIwMTggMTA6NTIgQU0N
-ClRvOiBWaW5jZW50IEZ1IDx2aW5jZW50ZnVAZ21haWwuY29tPg0KQ2M6IFZpbmNlbnQgRnUgPFZp
-bmNlbnQuRnVAd2RjLmNvbT47IGZpb0B2Z2VyLmtlcm5lbC5vcmc7IEplbnMgQXhib2UgPGF4Ym9l
-QGtlcm5lbC5kaz47IEtyaXMgRGF2aXMgPEtyaXMuRGF2aXNAd2RjLmNvbT4NClN1YmplY3Q6IFJl
-OiBmaW9sb2dwYXJzZXJfaGlzdC5weSBzY3JpcHQgcGF0Y2ggYW5kIGVuaGFuY2VtZW50cz8NCg0K
-SGkgS3JpcywNCg0KRnJvbSB3aGF0IHlvdSdyZSBzYXlpbmcgaXQgc2VlbXMgdG8gbWFrZSBzZW5z
-ZSB0byBsZWF2ZSB0aGUgaW50ZXJwcmV0ZXIgbGluZSBhdCAyLjcgZm9yIG5vdy4gSWYgeW91IGNh
-biByZXBvc3QgeW91ciBwYXRjaCB3aXRoIHRoYXQgYW5kL29yIHNlbmQgYSBnaXRodWIgcHVsbCBy
-ZXF1ZXN0IHRvIEplbnMnIEdpdGh1YiByZXBvIHRoZSByZXN0IG9mIHRoZSBjaGFuZ2VzIHNvdW5k
-IGZpbmUgdG8gbWUuDQoNClZpbmNlbnQ6IGFueSBjb21tZW50IG9uIHRoZXNlIGNoYW5nZXM/DQoN
-Ck9uIDIxIEZlYnJ1YXJ5IDIwMTggYXQgMTQ6NDEsIEtyaXMgRGF2aXMgPEtyaXMuRGF2aXNAd2Rj
-LmNvbT4gd3JvdGU6DQo+IEFmdGVyIGRvaW5nIHNvbWUgbW9yZSByZXNlYXJjaCwgbXkgYmVzdCBn
-dWVzcyBpcyB0aGF0IHB5dGhvbjMuNCBiZWluZyBtdWNoIHNsb3dlciB0aGFuIHB5dGhvbjIuNyBp
-cyBkdWUgdG8gdGhlIGRpZmZlcmVuY2UgaW4gaW50ZWdlciBoYW5kbGluZywgc28gcHlweSAzIGRp
-ZG4ndCBkbyBhbnkgYmV0dGVyIHRoZW4gY3B5dGhvbiAzLjQuIEkgZG9uJ3QgcmVhbGx5IGhhdmUg
-YW55dGhpbmcgdG8gdmVyaWZ5IHRoYXQuDQo+DQo+IFNvLCBnaXZlbiBubyBmdXJ0aGVyIGZlZWRi
-YWNrLCBpcyB0aGVyZSBhbnkgcmVhc29uIG5vdCB0byBjb21taXQgdGhlIHN1Z2dlc3RlZCBjaGFu
-Z2VzPyAgIElzIHRoZXJlIGFueXRoaW5nIGVsc2UgSSBuZWVkIHRvIGRvPw0KPg0KPiBUaGFua3MN
-Cj4gS3JpcyBEYXZpcw0KPg0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBL
-cmlzIERhdmlzDQo+IFNlbnQ6IFdlZG5lc2RheSwgRmVicnVhcnkgMTQsIDIwMTggMTE6NTEgQU0N
-Cj4gVG86ICdTaXRzb2ZlIFdoZWVsZXInIDxzaXRzb2ZlQGdtYWlsLmNvbT4NCj4gQ2M6IGZpb0B2
-Z2VyLmtlcm5lbC5vcmc7IEplbnMgQXhib2UgPGF4Ym9lQGtlcm5lbC5kaz47IFZpbmNlbnQgRnUg
-DQo+IDx2aW5jZW50ZnVAZ21haWwuY29tPg0KPiBTdWJqZWN0OiBSRTogZmlvbG9ncGFyc2VyX2hp
-c3QucHkgc2NyaXB0IHBhdGNoIGFuZCBlbmhhbmNlbWVudHM/DQo+DQo+IEkgd2Fzbid0IGZhbWls
-aWFyIHdpdGggcHlweS4gIEkgdHJpZWQgaXQgb3V0LCBidXQgbmVlZGVkIHRvIGJ1aWxkIGxvY2Fs
-bHkgb24gbXkgQ2VudG9zIDcuMyBtYWNoaW5lLiAgSG93ZXZlciwgSSBmb3VuZCBzb21ldGhpbmcg
-aW50ZXJlc3RpbmcuLi4NCj4gSSByYW4gZmlvbG9ncGFyc2VyX2hpc3QucHkgaW4gbXVsdGlwbGUg
-dHJpYWxzIGFnYWluc3QgOSBsb2cgZmlsZXMgdG8gYmUgY29tYmluZWQuDQo+ICogIHdpdGggcHlw
-eSAgaXQgY29uc2lzdGVudGx5IHRvb2sgYWJvdXQgNTEtNTIgc2Vjb25kcy4NCj4gKiAgd2l0aCBw
-eXRob24zLjQuMywgaXQgYWxzbyBjb25zaXN0ZW50bHkgdG9vayBhYm91dCA1MS01MiBzZWNvbmRz
-Lg0KPiAqICB3aXRoIHB5dGhvbjIuNy41IGl0IGNvbnNpc3RlbnRseSB0b29rIDEwLTExIHNlY29u
-ZHMuDQo+DQo+IEkgYWxzbyBidWlsdCBweXRob24gMy40LjMgZnJvbSB0aGUgZGlzdHJpYnV0aW9u
-IGxvY2FsbHkgc29tZSBtb250aHMgZWFybGllci4gIFN1cmUgaXMgc3VzcGljaW91cy4NCj4gQnV0
-LCB0aGlzIGlzIG9mZiB0b3BpYywgc28gSSdsbCBpbnZlc3RpZ2F0ZSBmdXJ0aGVyIHdpdGhvdXQg
-ZnVydGhlciB1cGRhdGVzLiAgVGhhbmtzIGZvciB0aGUgcmVmZXJlbmNlIFNpdHNvZmUuDQo+DQo+
-IEtyaXMgRGF2aXMNCj4NCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU2l0
-c29mZSBXaGVlbGVyIFttYWlsdG86c2l0c29mZUBnbWFpbC5jb21dDQo+IFNlbnQ6IFR1ZXNkYXks
-IEZlYnJ1YXJ5IDEzLCAyMDE4IDE6MjcgQU0NCj4gVG86IEtyaXMgRGF2aXMgPEtyaXMuRGF2aXNA
-d2RjLmNvbT4NCj4gQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmc7IEplbnMgQXhib2UgPGF4Ym9lQGtl
-cm5lbC5kaz47IFZpbmNlbnQgRnUgDQo+IDx2aW5jZW50ZnVAZ21haWwuY29tPg0KPiBTdWJqZWN0
-OiBSZTogZmlvbG9ncGFyc2VyX2hpc3QucHkgc2NyaXB0IHBhdGNoIGFuZCBlbmhhbmNlbWVudHM/
-DQo+DQo+IChDQydpbmcgVmluY2VudCkNCj4NCj4gT24gMTIgRmVicnVhcnkgMjAxOCBhdCAyMToz
-OCwgS3JpcyBEYXZpcyA8S3Jpcy5EYXZpc0B3ZGMuY29tPiB3cm90ZToNCj4+IEluIGxpZ2h0IG9m
-IHNvbWUgcmVsYXRlZCBjb21taXRzLCBJIGFtIHJlcG9zdGluZyBteSBlbmhhbmNlbWVudHMgdG8g
-DQo+PiBmaW9sb2dwYXJzZXJfaGlzdC5weSwgYW5kIGEgc3VnZ2VzdGVkIGFkZGl0aW9uIG9mIGZp
-b2xvZ3BhcnNlcl9oaXN0Lm53LnB5IEkndmUgaW5jbHVkZWQgYSBwYXRjaCBhdCBib3R0b20uDQo+
-DQo+IEl0IG1pZ2h0IGJlIGFuIGlkZWEgdG8gcG9zdCB0aGlzIHVwIG9uIGdpdGh1YiB0b28gKGl0
-IG1pZ2h0IG1ha2UgaXQgZWFzaWVyIGZvciBvdGhlcnMgdG8gcHVsbCBkb3duKS4NCj4NCj4+IFJl
-YXNvbnMgZm9yIHRoZSBjaGFuZ2VzOg0KPj4NCj4+IDEpIFRoZSBmaW9sb2dwYXJzZXJfaGlzdCBz
-Y3JpcHQgZGlkbid0IHN1cHBvcnQgdGhlIG5ldyBuYW5vc2Vjb25kIGJpbiB2YWx1ZXMuICBTbyBJ
-IGNoYW5nZWQgdGhlIG9wZXJhdGlvbiB0byBhc3N1bWUgbmFub3NlY29uZCBoaXN0b2dyYW0gYmlu
-cywgYW5kIG5ldyAiLS11c2JpbiIgb3B0aW9uIHRvIGFsbG93IHVzZXIgdG8gb3ZlcnJpZGUgc28g
-c2FtZSBzY3JpcHQgY2FuIHN0aWxsIHByb2Nlc3Mgb2xkZXIgdmVyc2lvbiBoaXN0b2dyYW0gbG9n
-cy4NCj4+DQo+PiAyKSBUaGUgc2NyaXB0IGFzcHBlYXJlZCBoYXJkY29kZWQgdG8gb25seSByZXR1
-cm4gNTAlIChtZWRpYW4pLCA5MCUsIDk1JSwgYW5kIDk5JSB2YWx1ZXMgKGFsb25nIHdpdGggbWlu
-IGFuZCBtYXgpLg0KPj4gSSBhZGRlZCAiLS1wZXJjZW50aWxlcyIgb3B0aW9uIHRvIGFsbG93IGEg
-cmVxdWVzdCBmb3IgbW9yZSB2YWx1ZXMgKCdtZWRpYW4nIGFsd2F5cyBwcmludGVkLCBldmVuIGlm
-IGEgZHVwbGljYXRlIDUwJSBjb2x1bW4gaXMgcmVxdWVzdGVkLCBmb3IgYmFja3dhcmQgY29tcGF0
-aWJpbGl0eSkuDQo+DQo+IFRoZXNlIHNvdW5kIGdvb2QuDQo+DQo+PiAzKSBBIHJlY2VudCBjb21t
-aXQgbWFkZSBzb21lIGNoYW5nZXMgdG8gc3VwcG9ydCBweXRob24zLg0KPj4gSSBhZGRlZCBhIGNo
-ZWNrIHRvIG1ha2Ugc3VyZSB0aGUgcHl0aG9uIHZlcnNpb24gaXMgYXQgbGVhc3QgMi43IG9yIGFi
-b3ZlLCBhbmQgY2hhbmdlZCB0aGUgInNoYmFuZyIgdG8gb25seSBjYWxsIG91dCAicHl0aG9uIiBy
-YXRoZXIgdGhhbiAicHl0aG9uMi43Ig0KPg0KPiBTYWRseSB0aGUgc3dpdGNoIHRvIHB5dGhvbjIu
-NyB3YXMgZG9uZSBvbiBwdXJwb3NlOg0KPiBodHRwczovL2dpdGh1Yi5jb20vYXhib2UvZmlvL2Nv
-bW1pdC82MDAyM2FkZTQ3ZTc4MTdkYjFjMThkOWI3ZTUxMTgzOWRlDQo+IDVjMmM5OQ0KPiAtIExp
-bnV4IGRpc3Ryb3MgYXJlIGNsYW1waW5nIGRvd24gb24gcHl0aG9uIGFuZCBtYWNPUyBkb2Vzbid0
-IGhhdmUgDQo+IHB5dGhvbjIuIFRoZSB3aG9sZSBweXRob24gaW50ZXJwcmV0ZXIgbGluZSBidXNp
-bmVzcyBpcyBhIG1lc3MgYW5kIA0KPiB0aGVyZSdzIHNpbXBseSBubyBjb21tb24gYWdyZWVtZW50
-IC0gaWYgeW91IGxvb2sgeW91IGNhbiBmaW5kIA0KPiBjb25mbGljdGluZyBQRVBzIGFuZCBJJ20g
-c3RhcnRpbmcgdG8gdGhpbmsgcGFja2FnZXJzIHdpbGwganVzdCBoYXZlIHRvIA0KPiBpbmNsdWRl
-IGEgZnVuY3Rpb24gdG8gcmVuYW1lIGxpbmVzIHRvIHRoZWlyIHByZWZlcnJlZCBzdHlsZS4gTXkg
-aG9wZSANCj4gaXMgb25lIGRheSBhbGwgdGhlIHNjcmlwdHMgYXJlIGNvbnZlcnRlZCB0byBiZSBi
-b3RoIHB5dGhvbjIgYW5kDQo+IHB5dGhvbjMgY29tcGF0aWJsZSwgYWxsIE9TZXMgZmluYWxseSBn
-ZXQgYXJvdW5kIHRvIHNoaXBwaW5nIHB5dGhvbjMgYnkgZGVmYXVsdCBhbmQgdGhlbiB0aGUgaW50
-ZXJwcmV0ZXIgbGluZSBjYW4gYmUgc3dpdGNoZWQuDQo+DQo+PiA0KSBUaGUgcHJvY2VzcyBjYW4g
-YmUgc2xvdyBmb3IgbGFyZ2Ugb3IgY29tYmluaW5nIG1hbnkgbG9nIGZpbGVzLiAgSSBoYXZlIHNv
-bWUgYXV0b21hdGlvbiB3aGljaCB3aWxsIGdlbmVyaWNhbGx5IHByb2Nlc3MgbWFueSBsb2cgZmls
-ZXMsIGFuZCBmb3VuZCBJIGN1dCB0aGUgcHJvY2VzcyB0aW1lIGluIGhhbGYgaWYgSSBsb2FkZWQg
-YXMgYSBtb2R1bGUgcmF0aGVyIHRoYW4gY2FsbGluZyBhcyBhIGNvbW1hbmQuICBTbywgY2hhbmdl
-ZCBzbyBJIGNhbiBsb2FkIGFzIGEgbW9kdWxlIGFuZCBjYWxsIG1haW4gZGlyZWN0bHksIGJ1dCBu
-ZWVkZWQgdG8gc2xpZ2h0bHkgYWx0ZXIgdGhlIGVuZCBvZiAiZ3Vlc3NfbWF4X2Zyb21fYmlucyIg
-dG8gdGhyb3cgYW4gZXhjZXB0aW9uIG9uIGVycm9yIHJhdGhlciB0aGFuIGV4aXQsIHdoZW4gY2Fs
-bGVkIGFzIGEgbW9kdWxlLg0KPj4gU29tZW9uZSBtaWdodCBrbm93IG9mIGEgYmV0dGVyLCBtb3Jl
-IGNvbnZlbnRpb25hbCBweXRob25pYyBkZXNpZ24gcGF0dGVybiB0byB1c2UsIGJ1dCBpdCB3b3Jr
-cy4NCj4NCj4gSSd2ZSBubyBzdHJvbmcgZmVlbGluZyBvbiB0aGlzLg0KPg0KPj4gNSkgVGhlIHNj
-cmlwdCBhcHBlYXJzIHRvIGFzc3VtZSB0aGF0IHRoZSBsb2cgaXMgbmV2ZXIgbWlzc2luZyBzYW1w
-bGVzLiAgVGhhdCBpcywgd2VpZ2h0IHNhbXBsZXMgdG8gdGhlIHJlcXVlc3RlZCBpbnRlcnZhbHMs
-IEkgdGhpbmsgd2l0aCB0aGUgYXNzdW1wdGlvbiB0aGF0IHRoZSBsb2cgc2FtcGxlcyBhcmUgYXQg
-bG9uZ2VyIGludGVydmFscywgb3IgYXQgbGVhc3QgdGhlIHNhbWUgaW50ZXJ2YWwgbGVuZ3RoIGFz
-IHRoZSAiLS1pbnRlcnZhbCIgdmFsdWUuICBJZiB0aGUgd29ya2xvYWQgYWN0dWFsbHkgY29udGFp
-bnMgInRoaW5rdGltZSIgaW50ZXJ2YWxzICh3aXRoIG1pc3Npbmcgc2FtcGxlIHdoZW4gemVybyBk
-YXRhKSwgdGhlIHNjcmlwdCBjYW5ub3Qga25vdyB0aGlzLCBhbmQgYXNzdW1lcyB0aGUgbG9nZ2Vk
-IG9wZXJhdGlvbnMgc2hvdWxkIHN0aWxsIGJlIHNwcmVhZCBhY3Jvc3MgYWxsIHRoZSBpbnRlcnZh
-bHMuDQo+Pg0KPj4gSW4gbXkgY2FzZSwgSSdtIG1vc3RseSBpbnRlcmVzdGVkIGluIHJlc3VsdHMg
-YXQgdGhlIHNhbWUgaW50ZXJ2YWwgYXMgZ2F0aGVyZWQgZHVyaW5nIGxvZ2dpbmcsIHNvIEkgdHdl
-YWtlZCBpbnRvIGFuIGFsdGVybmF0ZSB2ZXJzaW9uIEkgbmFtZWQgJ2Zpb2xvZ3BhcnNlcl9oaXN0
-X253LnB5Jywgd2hpY2ggZG9lc24ndCBwZXJmb3JtIGFueSB3ZWlnaHRpbmcgb2Ygc2FtcGxlcy4g
-IEl0IGhhcyBhbiBhZGRlZCBhZHZhbnRhZ2Ugb2YgbXVjaCBxdWlja2VyIHBlcmZvcm1hbmNlLiBG
-b3IgZXhhbXBsZSwgZmlvbG9ncGFyc2VyX2hpc3QgdG9vayBhYm91dCAxLzIgaHIgdG8gY29tYmlu
-ZSBhYm91dCAzNTAgbG9ncywgYnV0IGZpb2xvZ3BhcnNlcl9oaXN0X253IHRvb2sgNDUgc2Vjb25k
-cywgd2F5IGJldHRlciBmb3IgbXkgYXV0b21hdGlvbi4NCj4NCj4gSnVzdCBvdXQgb2YgaW50ZXJl
-c3QgZG9lcyB1c2luZyBweXB5IGhlbHAgeW91IGF0IGFsbD8NCj4NCj4+IE9mIGNvdXJzZSwgbGFy
-Z2VyIG51bWJlciBvZiA5J3MgcGVyY2VudGlsZXMgd291bGQgaGF2ZSBhZGRpdGlvbmFsIGluYWNj
-dXJhY2llcyB3aGVuIHRoZXJlIGFyZSBub3QgZW5vdWdoIG9wZXJhdGlvbnMgaW4gYSBzYW1wbGUg
-cGVyaW9kLCBidXQgdGhhdCBpcyBqdXN0IHVzZXIgYmV3YXJlLg0KPj4NCj4+IGRpZmYgLS1naXQg
-YS90b29scy9oaXN0L2Zpb2xvZ3BhcnNlcl9oaXN0LnB5IA0KPj4gYi90b29scy9oaXN0L2Zpb2xv
-Z3BhcnNlcl9oaXN0LnB5IGluZGV4IDYyYTRlYjQuLmM3N2JiMTEgMTAwNzU1DQo+PiAtLS0gYS90
-b29scy9oaXN0L2Zpb2xvZ3BhcnNlcl9oaXN0LnB5DQo+PiArKysgYi90b29scy9oaXN0L2Zpb2xv
-Z3BhcnNlcl9oaXN0LnB5DQo+DQo+IDxzbmlwPg0KDQotLQ0KU2l0c29mZSB8IGh0dHA6Ly9zdWNz
-Lm9yZy9+c2l0cy8NCi0tDQpUbyB1bnN1YnNjcmliZSBmcm9tIHRoaXMgbGlzdDogc2VuZCB0aGUg
-bGluZSAidW5zdWJzY3JpYmUgZmlvIiBpbiB0aGUgYm9keSBvZiBhIG1lc3NhZ2UgdG8gbWFqb3Jk
-b21vQHZnZXIua2VybmVsLm9yZyBNb3JlIG1ham9yZG9tbyBpbmZvIGF0ICBodHRwOi8vdmdlci5r
-ZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwNCg==
+Hi Kris,
+
+From what you're saying it seems to make sense to leave the
+interpreter line at 2.7 for now. If you can repost your patch with
+that and/or send a github pull request to Jens' Github repo the rest of
+the changes sound fine to me.
+
+Vincent: any comment on these changes?
+
+On 21 February 2018 at 14:41, Kris Davis <Kris.Davis@wdc.com> wrote:
+> After doing some more research, my best guess is that python3.4 being muc=
+h slower than python2.7 is due to the difference in integer handling, so py=
+py 3 didn't do any better then cpython 3.4. I don't really have anything to=
+ verify that.
+>
+> So, given no further feedback, is there any reason not to commit the sugg=
+ested changes?   Is there anything else I need to do?
+>
+> Thanks
+> Kris Davis
+>
+> -----Original Message-----
+> From: Kris Davis
+> Sent: Wednesday, February 14, 2018 11:51 AM
+> To: 'Sitsofe Wheeler' <sitsofe@gmail.com>
+> Cc: fio@vger.kernel.org; Jens Axboe <axboe@kernel.dk>; Vincent Fu <vincen=
+tfu@gmail.com>
+> Subject: RE: fiologparser_hist.py script patch and enhancements?
+>
+> I wasn't familiar with pypy.  I tried it out, but needed to build locally=
+ on my Centos 7.3 machine.  However, I found something interesting...
+> I ran fiologparser_hist.py in multiple trials against 9 log files to be c=
+ombined.
+> *  with pypy  it consistently took about 51-52 seconds.
+> *  with python3.4.3, it also consistently took about 51-52 seconds.
+> *  with python2.7.5 it consistently took 10-11 seconds.
+>
+> I also built python 3.4.3 from the distribution locally some months earli=
+er.  Sure is suspicious.
+> But, this is off topic, so I'll investigate further without further updat=
+es.  Thanks for the reference Sitsofe.
+>
+> Kris Davis
+>
+> -----Original Message-----
+> From: Sitsofe Wheeler [mailto:sitsofe@gmail.com]
+> Sent: Tuesday, February 13, 2018 1:27 AM
+> To: Kris Davis <Kris.Davis@wdc.com>
+> Cc: fio@vger.kernel.org; Jens Axboe <axboe@kernel.dk>; Vincent Fu <vincen=
+tfu@gmail.com>
+> Subject: Re: fiologparser_hist.py script patch and enhancements?
+>
+> (CC'ing Vincent)
+>
+> On 12 February 2018 at 21:38, Kris Davis <Kris.Davis@wdc.com> wrote:
+>> In light of some related commits, I am reposting my enhancements to
+>> fiologparser_hist.py, and a suggested addition of fiologparser_hist.nw.p=
+y I've included a patch at bottom.
+>
+> It might be an idea to post this up on github too (it might make it easie=
+r for others to pull down).
+>
+>> Reasons for the changes:
+>>
+>> 1) The fiologparser_hist script didn't support the new nanosecond bin va=
+lues.  So I changed the operation to assume nanosecond histogram bins, and =
+new "--usbin" option to allow user to override so same script can still pro=
+cess older version histogram logs.
+>>
+>> 2) The script asppeared hardcoded to only return 50% (median), 90%, 95%,=
+ and 99% values (along with min and max).
+>> I added "--percentiles" option to allow a request for more values ('medi=
+an' always printed, even if a duplicate 50% column is requested, for backwa=
+rd compatibility).
+>
+> These sound good.
+>
+>> 3) A recent commit made some changes to support python3.
+>> I added a check to make sure the python version is at least 2.7 or above=
+, and changed the "shbang" to only call out "python" rather than "python2.7=
+"
+>
+> Sadly the switch to python2.7 was done on purpose:
+> https://github.com/axboe/fio/commit/60023ade47e7817db1c18d9b7e511839de5c2=
+c99
+> - Linux distros are clamping down on python and macOS doesn't have python=
+2. The whole python interpreter line business is a mess and there's simply =
+no common agreement - if you look you can find conflicting PEPs and I'm sta=
+rting to think packagers will just have to include a function to rename lin=
+es to their preferred style. My hope is one day all the scripts are convert=
+ed to be both python2 and
+> python3 compatible, all OSes finally get around to shipping python3 by de=
+fault and then the interpreter line can be switched.
+>
+>> 4) The process can be slow for large or combining many log files.  I hav=
+e some automation which will generically process many log files, and found =
+I cut the process time in half if I loaded as a module rather than calling =
+as a command.  So, changed so I can load as a module and call main directly=
+, but needed to slightly alter the end of "guess_max_from_bins" to throw an=
+ exception on error rather than exit, when called as a module.
+>> Someone might know of a better, more conventional pythonic design patter=
+n to use, but it works.
+>
+> I've no strong feeling on this.
+>
+>> 5) The script appears to assume that the log is never missing samples.  =
+That is, weight samples to the requested intervals, I think with the assump=
+tion that the log samples are at longer intervals, or at least the same int=
+erval length as the "--interval" value.  If the workload actually contains =
+"thinktime" intervals (with missing sample when zero data), the script cann=
+ot know this, and assumes the logged operations should still be spread acro=
+ss all the intervals.
+>>
+>> In my case, I'm mostly interested in results at the same interval as gat=
+hered during logging, so I tweaked into an alternate version I named 'fiolo=
+gparser_hist_nw.py', which doesn't perform any weighting of samples.  It ha=
+s an added advantage of much quicker performance. For example, fiologparser=
+_hist took about 1/2 hr to combine about 350 logs, but fiologparser_hist_nw=
+ took 45 seconds, way better for my automation.
+>
+> Just out of interest does using pypy help you at all?
+>
+>> Of course, larger number of 9's percentiles would have additional inaccu=
+racies when there are not enough operations in a sample period, but that is=
+ just user beware.
+>>
+>> diff --git a/tools/hist/fiologparser_hist.py
+>> b/tools/hist/fiologparser_hist.py index 62a4eb4..c77bb11 100755
+>> --- a/tools/hist/fiologparser_hist.py
+>> +++ b/tools/hist/fiologparser_hist.py
+>
+> <snip>
+
+--=20
+Sitsofe | http://sucs.org/~sits/
 
