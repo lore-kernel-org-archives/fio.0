@@ -1,6 +1,8 @@
-Return-Path: <sitsofe@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <CY1PR0401MB111641A66DF1AC0E016E97E181CE0@CY1PR0401MB1116.namprd04.prod.outlook.com>
+Return-Path: <prvs=583691f35=Kris.Davis@wdc.com>
+From: Kris Davis <Kris.Davis@wdc.com>
+Subject: RE: fiologparser_hist.py script patch and enhancements?
+Date: Wed, 21 Feb 2018 17:45:51 +0000
+Message-ID: <CY1PR0401MB111641A66DF1AC0E016E97E181CE0@CY1PR0401MB1116.namprd04.prod.outlook.com>
 References: <CY1PR0401MB11163E6C999998E0A2F13F9E81F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CY1PR0401MB111689EE46B3839EB0675D7B81F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CY1PR0401MB1116307F93264CDB7F09870981F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
@@ -9,35 +11,47 @@ References: <CY1PR0401MB11163E6C999998E0A2F13F9E81F70@CY1PR0401MB1116.namprd04.p
  <CY1PR0401MB1116FC09283C22316161F3E381CE0@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CALjAwxgi-muVZ4XVF53amSHOzLjMEDSY2Z2GRmKso_VZ1sVazA@mail.gmail.com>
  <CY1PR0401MB11163A5F0CE792CC28A7252D81CE0@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CALjAwxiso_3xAjP1CJ91=qXcsyKcwzN2XfBeGLvPzeMj45BLGQ@mail.gmail.com> <CY1PR0401MB111641A66DF1AC0E016E97E181CE0@CY1PR0401MB1116.namprd04.prod.outlook.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Wed, 21 Feb 2018 18:24:57 +0000
-Message-ID: <CALjAwxjmz4t_rbXuDwqPmiAPXUg_h88qvcRUGbXPCRAnDcw8Qg@mail.gmail.com>
-Subject: Re: fiologparser_hist.py script patch and enhancements?
-Content-Type: text/plain; charset="UTF-8"
-To: Kris Davis <Kris.Davis@wdc.com>
+ <CALjAwxiso_3xAjP1CJ91=qXcsyKcwzN2XfBeGLvPzeMj45BLGQ@mail.gmail.com>
+In-Reply-To: <CALjAwxiso_3xAjP1CJ91=qXcsyKcwzN2XfBeGLvPzeMj45BLGQ@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: Vincent Fu <vincentfu@gmail.com>, Vincent Fu <Vincent.Fu@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-For what it's worth I feel your pain and I think it's impossible to
-win until there's only one version of Python actively left. My hope is
-by making it consistent across all the fio scripts everyone will be
-the same jam and will at least be able to do a find/replace.
-
-Perhaps someone should suggest a PEP which is an interpreter line that
-is just a line like preferredpython[2,3] and everyone is just expected
-to run a small conversion tool before starting to use it. Said
-conversion tool can rewrite the line to be env based, absolute, prefer
-python 3 to python 2 if when it's a Sunday and the weather's good...
-
-On 21 February 2018 at 17:45, Kris Davis <Kris.Davis@wdc.com> wrote:
-> Sigh...
-> So much for trying to have it work for either python3 or python2.
->
-> The doc you referenced does say: "If the executables provide the same functionality independent of whether they are run on top of Python 2 or Python 3, then only the Python 3 version of the executable should be packaged."
->
-> However, since 2.7 runs so much faster, and 2.7 is still the default for the near future, I agree we should stay with 2.7.   I'll back out that tweak and create a new patch.
-
--- 
-Sitsofe | http://sucs.org/~sits/
+U2lnaC4uLg0KU28gbXVjaCBmb3IgdHJ5aW5nIHRvIGhhdmUgaXQgd29yayBmb3IgZWl0aGVyIHB5
+dGhvbjMgb3IgcHl0aG9uMi4gICANCg0KVGhlIGRvYyB5b3UgcmVmZXJlbmNlZCBkb2VzIHNheTog
+IklmIHRoZSBleGVjdXRhYmxlcyBwcm92aWRlIHRoZSBzYW1lIGZ1bmN0aW9uYWxpdHkgaW5kZXBl
+bmRlbnQgb2Ygd2hldGhlciB0aGV5IGFyZSBydW4gb24gdG9wIG9mIFB5dGhvbiAyIG9yIFB5dGhv
+biAzLCB0aGVuIG9ubHkgdGhlIFB5dGhvbiAzIHZlcnNpb24gb2YgdGhlIGV4ZWN1dGFibGUgc2hv
+dWxkIGJlIHBhY2thZ2VkLiINCg0KSG93ZXZlciwgc2luY2UgMi43IHJ1bnMgc28gbXVjaCBmYXN0
+ZXIsIGFuZCAyLjcgaXMgc3RpbGwgdGhlIGRlZmF1bHQgZm9yIHRoZSBuZWFyIGZ1dHVyZSwgSSBh
+Z3JlZSB3ZSBzaG91bGQgc3RheSB3aXRoIDIuNy4gICBJJ2xsIGJhY2sgb3V0IHRoYXQgdHdlYWsg
+YW5kIGNyZWF0ZSBhIG5ldyBwYXRjaC4NCg0KVGhhbmtzDQpLcmlzIERhdmlzDQoNCi0tLS0tT3Jp
+Z2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBTaXRzb2ZlIFdoZWVsZXIgW21haWx0bzpzaXRzb2Zl
+QGdtYWlsLmNvbV0gDQpTZW50OiBXZWRuZXNkYXksIEZlYnJ1YXJ5IDIxLCAyMDE4IDExOjI0IEFN
+DQpUbzogS3JpcyBEYXZpcyA8S3Jpcy5EYXZpc0B3ZGMuY29tPg0KQ2M6IFZpbmNlbnQgRnUgPHZp
+bmNlbnRmdUBnbWFpbC5jb20+OyBWaW5jZW50IEZ1IDxWaW5jZW50LkZ1QHdkYy5jb20+OyBmaW9A
+dmdlci5rZXJuZWwub3JnOyBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+DQpTdWJqZWN0OiBS
+ZTogZmlvbG9ncGFyc2VyX2hpc3QucHkgc2NyaXB0IHBhdGNoIGFuZCBlbmhhbmNlbWVudHM/DQoN
+CkhpLA0KDQpBbGFzIG5vLiBJdCdzIGxlc3Mgb2YgYSBjYXNlIG9mICJpcyB0aGUgUHl0aG9uIHZl
+cnNpb24gYXQgbGVhc3QgMi43Ig0KYW5kIG1vcmUgYSBjYXNlIG9mICJub3QgYWxsIHBsYXRmb3Jt
+cyBoYXZlIGEgInB5dGhvbjIiIGxpbmsgKHNlZQ0KbWFjT1MpIC8gZGlzdHJvcyBhcmUgYmFubmlu
+ZyBpbnRlcnByZXRlcnMgbGluZXMgdGhhdCBtZW50aW9uIGp1c3QgInB5dGhvbiIgKHNlZSBodHRw
+czovL2ZlZG9yYXByb2plY3Qub3JnL3dpa2kvUGFja2FnaW5nOlB5dGhvbiNNdWx0aXBsZV9QeXRo
+b25fUnVudGltZXMNCikuDQoNCk9uIDIxIEZlYnJ1YXJ5IDIwMTggYXQgMTc6MDAsIEtyaXMgRGF2
+aXMgPEtyaXMuRGF2aXNAd2RjLmNvbT4gd3JvdGU6DQo+IEkgaGFkIGNoYW5nZWQgdGhlIGludGVy
+cHJldGVyIHRvIGp1c3QgYmUgInB5dGhvbiIgcmF0aGVyIHRoYW4gInB5dGhvbjIuNyIsIGFuZCBh
+ZGRlZCBhIGNoZWNrIHRvIGVuc3VyZSB0aGF0IHRoZSBweXRob24gdmVyc2lvbiB3YXMgYXQgbGVh
+c3QgMi43LiAgVGhpcyBhbGxvd3MgaXQgdG8gdXNlIHdoYXRldmVyIHZlcnNpb24gKDIuNyBvciBh
+Ym92ZSkgdGhhdCBoYXMgYmVlbiBhc3NvY2lhdGVkIHdpdGggInB5dGhvbiIgKHVzdWFsbHkgMi43
+KyBpbiByZWNlbnQgbGludXggb3MncykuICBXaGF0IEkndmUgc2VlICh1bmxlc3MgYSB2aXJ0dWFs
+ZW52IGlzIHVzZWQpLCBweXRob24gMysgaGFzIGEgc3ltbGluayBzZXQgdG8gcHl0aG9uMy4NCj4g
+VGhlIHBvaW50IGlzLCBpZiB0aGUgaW50ZXJwcmV0ZXIgaXMgc2V0IHRvIHB5dGhvbjIuNywgdGhl
+IHVzZXIgaXMgZ2VuZXJhbGx5ICJmb3JjZWQiIHRvIHVzZSAyLjcsIHVubGVzcyBhbGwgY29tbWFu
+ZCBsaW5lcyBhcmUgcHJlcGVuZGVkIHdpdGggdGhlIHB5dGhvbj8/DQo+DQo+IERvZXMgdGhhdCBh
+ZGRyZXNzIHlvdXIgY29uY2Vybj8NCg0KLS0NClNpdHNvZmUgfCBodHRwOi8vc3Vjcy5vcmcvfnNp
+dHMvDQo=
 
