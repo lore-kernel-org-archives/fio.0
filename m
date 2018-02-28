@@ -1,67 +1,49 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:39192 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933019AbeBUNAS (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 21 Feb 2018 08:00:18 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.89 #1 (Red Hat Linux))
-        id 1eoU0P-0008Rj-Pq
-        for fio@vger.kernel.org; Wed, 21 Feb 2018 13:00:17 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180221130002.C52FB2C0131@kernel.dk>
-Date: Wed, 21 Feb 2018 06:00:02 -0700 (MST)
+Received: from mail-ua0-f172.google.com ([209.85.217.172]:40240 "EHLO
+        mail-ua0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750835AbeB1HMG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 28 Feb 2018 02:12:06 -0500
+Received: by mail-ua0-f172.google.com with SMTP id c14so901801uak.7
+        for <fio@vger.kernel.org>; Tue, 27 Feb 2018 23:12:05 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <CAGfUJcHTNy4PgTNiGt8-xpYXwgyw59ud_12nLoGA3J9_9grJwg@mail.gmail.com>
+References: <CAGfUJcHTNy4PgTNiGt8-xpYXwgyw59ud_12nLoGA3J9_9grJwg@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 28 Feb 2018 07:11:33 +0000
+Message-ID: <CALjAwxg8V5HUs--Qxbku1TOhXaBkJ--4zFrQgAMBE-YfvVwsPQ@mail.gmail.com>
+Subject: Re: question regarding queue depths and workers
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Jared Walton <jawalking@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-The following changes since commit 488468793d72297f7dccd42a7b50011e74de0688:
+On 28 February 2018 at 00:23, Jared Walton <jawalking@gmail.com> wrote:
+> If I correctly understand how fio spawns workers then: it takes the
+> given queue depth and splits it among workers such that a queue depth
+> of 32 with 16 workers results in 16 workers each maintaining a queue
+> depth of 2...
 
-  Merge branch 'wip-ifed-rados' of https://github.com/ifed01/fio (2018-02-14 12:43:04 -0700)
+I'm afraid this is incorrect. If I have something like
 
-are available in the git repository at:
+[global]
+filename=/dev/nullb0
+iodepth=32
+ioengine=libaio
+direct=1
 
-  git://git.kernel.dk/fio.git master
+[worker]
+numjobs=16
+rw=read
 
-for you to fetch changes up to cd174b909109e527e41ca42ac761c5f7d29f25e5:
+Each worker is trying to achieve a depth of 32 so if they are all
+running simultaneously etc. they will generate a total depth of 512 (32 * 16).
 
-  Fio 3.5 (2018-02-20 15:30:28 -0700)
+> But what happens when a queue depth of 16 is specified with 32 workers?
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      Fio 3.5
+In this case each worker is trying to achieve a depth of 16 so if all 32
+are running simultaneously etc. they will still generate a total depth
+of 512.
 
- FIO-VERSION-GEN        | 2 +-
- os/windows/install.wxs | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index 5aed535..7abd8ce 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-3.3
-+DEF_VER=fio-3.5
- 
- LF='
- '
-diff --git a/os/windows/install.wxs b/os/windows/install.wxs
-index 905addc..577af55 100755
---- a/os/windows/install.wxs
-+++ b/os/windows/install.wxs
-@@ -10,7 +10,7 @@
- 	<Product Id="*"
- 	  Codepage="1252" Language="1033"
- 	  Manufacturer="fio" Name="fio"
--	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="3.3">
-+	  UpgradeCode="2338A332-5511-43CF-B9BD-5C60496CCFCC" Version="3.5">
- 		<Package
- 		  Description="Flexible IO Tester"
- 		  InstallerVersion="301" Keywords="Installer,MSI,Database"
+-- 
+Sitsofe | http://sucs.org/~sits/
