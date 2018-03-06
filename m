@@ -1,117 +1,65 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:20242 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751413AbeCOQPk (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 15 Mar 2018 12:15:40 -0400
-From: Kris Davis <Kris.Davis@wdc.com>
-Subject: RE: ZBC/FLEX FIO addition ideas
-Date: Thu, 15 Mar 2018 16:15:36 +0000
-Message-ID: <CY1PR0401MB11166E39586E25D46B482E4581D00@CY1PR0401MB1116.namprd04.prod.outlook.com>
-References: <CAODBMz=rOy1kJGVGn3fyCGT78QUK0BH0rzw7cTRMxKZ6sdSF-Q@mail.gmail.com>
-In-Reply-To: <CAODBMz=rOy1kJGVGn3fyCGT78QUK0BH0rzw7cTRMxKZ6sdSF-Q@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mx0a-00003501.pphosted.com ([67.231.144.15]:32792 "EHLO
+        mx0a-00003501.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753071AbeCFS7x (ORCPT
+        <rfc822;fio@vger.kernel.org>); Tue, 6 Mar 2018 13:59:53 -0500
+Received: from pps.filterd (m0075553.ppops.net [127.0.0.1])
+        by mx0a-00003501.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w26Iws5u006861
+        for <fio@vger.kernel.org>; Tue, 6 Mar 2018 13:59:52 -0500
+Received: from mail-lf0-f71.google.com (mail-lf0-f71.google.com [209.85.215.71])
+        by mx0a-00003501.pphosted.com with ESMTP id 2ghxv0gfqu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+        for <fio@vger.kernel.org>; Tue, 06 Mar 2018 13:59:52 -0500
+Received: by mail-lf0-f71.google.com with SMTP id l7so6629731lfg.19
+        for <fio@vger.kernel.org>; Tue, 06 Mar 2018 10:59:51 -0800 (PST)
 MIME-Version: 1.0
+From: Phillip Chen <phillip.a.chen@seagate.com>
+Date: Tue, 6 Mar 2018 11:59:08 -0700
+Message-ID: <CAODBMz=rOy1kJGVGn3fyCGT78QUK0BH0rzw7cTRMxKZ6sdSF-Q@mail.gmail.com>
+Subject: ZBC/FLEX FIO addition ideas
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Phillip Chen <phillip.a.chen@seagate.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: Jason Jorgensen <jason.jorgensen@wdc.com>
+To: fio@vger.kernel.org
 
-RGVzcGl0ZSB0aGUgZGVzaXJlIHRvIGhhdmUgZmlvIHdvcmsgd2l0aCBIb3N0IE1hbmFnZWQgZGV2
-aWNlcyBpbmRlcGVuZGVudCBvZiB0aGUgZW5naW5lLCBhIEhvc3QgTWFuYWdlZCBkZXZpY2Ugb3Bl
-cmF0aW9uIGlzIGRpZmZlcmVudCB0aGFuIGEgdHJhZGl0aW9uYWwgYmxvY2sgZGV2aWNlLCBhbmQg
-dGhlIGtlcm5lbCBhbHNvIGhhcyB0byBtYW5hZ2UgaXQgZGlmZmVyZW50bHkuIFRodXMsIEkgd291
-bGQgc3RpbGwgcmVjb21tZW5kIGNyZWF0aW5nIGEgbmV3IElPIGVuZ2luZSBmb3IgdXNlIHdpdGgg
-SG9zdCBNYW5hZ2VkIGRldmljZXMsIHdlIHdvdWxkIG5vdCB3YW50IHRoZSBhZGRpdGlvbmFsIG92
-ZXJoZWFkIGFzc29jaWF0ZWQgd2l0aCBTTVIgdG8gaW1wYWN0IHRoZSBzdGFuZGFyZCBhaW8gZW5n
-aW5lLiAgV2UgaGF2ZSBtb3N0bHkgdXNlZCB0aGUgZmlvIFNHIGVuZ2luZSBhbG9uZyB3aXRoIGV4
-dGVybmFsIG9wZXJhdGlvbnMgaW4gdGVzdGluZyBvZiBTTVIuDQoNCkhlcmUgaXMgdGhlIHdheSB3
-ZSBlbnZpc2lvbiBhIG5ldyBmaW8gZW5naW5lIG1pZ2h0IHdvcmsgd2l0aCBIb3N0IE1hbmFnZWQg
-ZGV2aWNlczoNCg0KVGhlIFNNUiBkZXZpY2Ugc3VwcG9ydHMgcmVwb3J0IHpvbmUgb3BlcmF0aW9u
-cy4gIEZpbyBlbmdpbmUgcGVyZm9ybXMgcmVwb3J0IHpvbmVzIGZvciBhbGwgem9uZXMgb24gdGhl
-IGRyaXZlIHByaW9yIHRvIHRlc3RpbmcsIGFuZCBsb2FkcyB0aGUgZm9sbG93aW5nIGl0ZW1zIHRv
-IGEgbGlzdCBvciBkaWN0aW9uYXJ5IGZvciBlYWNoIHpvbmU6DQoJMS4gWm9uZSBzdGFydCBMQkEN
-CgkyLiBUeXBlIG9mIHpvbmUgDQoJCWEuIFJhbmRvbSBhbGxvd2VkIChjb252ZW50aW9uYWwgSERE
-IGZvcm1hdCkNCgkJYi4gU2VxdWVudGlhbCBvbmx5IChTTVIgZm9ybWF0KQ0KCQljLiBTZXF1ZW50
-aWFsIHByZWZlcnJlZCAoZm9yIGRldmljZSBtYW5hZ2VkIHByb2R1Y3RzKQ0KCTMuIFpvbmUgQ29u
-ZGl0aW9uOg0KCQlhLiBFbXB0eQ0KCQliLiBGdWxsDQoJCWMuIE9wZW5lZA0KCTQuIExlbmd0aCBv
-ZiB6b25lICh1c3VhbGx5IGlzIHRoZSBzYW1lIGZvciBhbGwgem9uZXMsIGJ1dCB3b3VsZCBuZWVk
-IHRoaXMgaW5mb3JtYXRpb24gZm9yIGNvbXBsZXRlbmVzcykNCgk1LiBDdXJyZW50IFdyaXRlIHBv
-aW50ZXINCg0KT3B0aW9uIGZvciByYW5kb20gcmVhZHM6IHNpbmNlIHRoZSByZWFkIExCQSBhbmQg
-bGVuZ3RoIG11c3QgYmUgbGVzcyB0aGFuIHRoZSBjdXJyZW50IHpvbmUgd3JpdGUgcG9pbnRlciwg
-YW5kIGNhbm5vdCBjcm9zcyB6b25lIGJvdW5kYXJpZXM6IA0KCVJhbmRvbWx5IGNob29zZSBmcm9t
-IG9wZW4gb3IgZnVsbCB6b25lcy4NCglUaGVuIGNob29zZSBhIHJhbmRvbSBMQkEgcHJpb3IgdG8g
-dGhlIHdyaXRlIHBvaW50ZXIgd2l0aGluIHRoZSB6b25lICh3aGlsZSBhY2NvdW50ZWQgZm9yIG9w
-ZXJhdGlvbiBzaXplIGFuZCB6b25lIGJvdW5kYXJ5KToNCgkgICAgMS4gSWYgem9uZSB0eXBlIGlz
-IHJhbmRvbSBhbGxvd2VkIHdpdGggYSB3cml0ZSBwb2ludGVyIG9mIDB4ZmZmZmZmZmZmZmZmIHRo
-ZW4gYXMgbG9uZyBhcyB0aGUgd3JpdGUgcG9pbnRlciBkb2VzIG5vdCBjcm9zcyB0aGUgem9uZSBi
-b3VuZGFyeSB0aGUgcmVhZCBpcyB2YWxpZCANCgkgICAgMi4gU2VxdWVudGlhbCBvbmx5IHpvbmVz
-DQoJCWEuIEZ1bGwgem9uZXMgY291bGQgYmUgcmVhZCBmcm9tIHdpdGhvdXQgcmVzdHJpY3Rpb25z
-IGFzIGxvbmcgYXMgcmVhZCBkb2VzIG5vdCBjcm9zcyB6b25lIGJvdW5kYXJpZXMNCgkJYi4gT3Bl
-bmVkIHpvbmVzIHdvdWxkIG5lZWQgdG8gdmVyaWZ5IHRoZSBmb2xsb3dpbmcNCgkJCWkuIFJlYWQg
-KyBsZW5ndGggb2YgY29tbWFuZCBpcyBsZXNzIHRoZW4gd3JpdGUgcG9pbnRlciBmb3Igem9uZQ0K
-CQkJaWkuIERvZXMgbm90IGNyb3NzIHpvbmUgYm91bmRhcnkNCg0KT3B0aW9uIGZvciByYW5kb20g
-d3JpdGVzOiANCglPbiBhIHdyaXRlIGNvbW1hbmQsICBBbGxvdyB0aGUgZW5naW5lIHRvIGNyZWF0
-ZSBhIHdyaXRlIGNvbW1hbmQgdG8gYSByYW5kb20gem9uZSwgdGhlbiBjaG9vc2UgYSBzb21ld2hh
-dCByYW5kb20gTEJBIGJhc2VkIG9uIHpvbmUgdHlwZSBhbmQgY3VycmVudCB3cml0ZSBwb2ludGVy
-DQoJQ2hlY2sgem9uZSB0eXBlOg0KCTEuIElmIHJhbmRvbSBhbGxvd2VkLCBhcyBsb25nIGFzIGxl
-bmd0aCBvZiBjb21tYW5kIGRvZXMgbm90IGNyb3NzIHpvbmUgYm91bmRhcnksIHByZWZvcm0gd3Jp
-dGUgdG8gcmFuZG9tIExCQQ0KCTIuIElmIHNlcXVlbnRpYWwsIGNoZWNrIExCQSBhZ2FpbnN0IHdy
-aXRlIHBvaW50ZXIgYW5kIGNoYW5nZSBMQkEgdG8gd3JpdGUgcG9pbnRlciBsb2NhdGlvbiB3aXRo
-aW4gc2FtZSB6b25lDQoJCWEuIElmIGxlbmd0aCBvZiB3cml0ZSBjcm9zc2VzIHpvbmUgYm91bmRh
-cnkgcmVzZXQgd3JpdGUgcG9pbnRlciB0byB6b25lIGFuZCBwZXJmb3JtIHdyaXRlIGF0IG5ldyB3
-cml0ZSBwb2ludGVyDQoJCWIuIFVwZGF0ZSBkaWN0aW9uYXJ5IHdpdGggbmV3IHdyaXRlIHBvaW50
-ZXINCg0KV2UgbWF5IHdhbnQgb3B0aW9ucyBmb3IgaG93L3doZW4gdGhlIHdyaXRlIHBvaW50ZXIg
-aXMgcmVzZXQgYWZ0ZXIgYSB6b25lIGlzIGZ1bGw6IA0KCUJ5IGRlZmF1bHQsIHdlIGV4cGVjdCB0
-aGUgd3JpdGUgcG9pbnRlciB0byBiZSByZXNldCBvbmx5IHdoZW4gYSBuZXcgd3JpdGUgaXMgY3Jl
-YXRlZCB0byBhIGZ1bGwgem9uZS4NCglXZSdyZSB1bnN1cmUgaWYgYW55b25lIG1pZ2h0IHdpc2gg
-Zm9yIG90aGVyIGhhbmRsaW5nLg0KDQpBbHNvIG5lZWQgYW4gb3B0aW9ucyBmb3IgaW1wbGljaXQg
-KGRyaXZlcyBoYW5kbGVzKSB2ZXJzdXMgZXhwbGljaXQgKGhvc3Qgc29mdHdhcmUgaGFuZGxlcykg
-b3Blbi9jbG9zZSBvZiB6b25lcw0KDQpLcmlzIERhdmlzDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2Fn
-ZS0tLS0tDQpGcm9tOiBmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86ZmlvLW93bmVy
-QHZnZXIua2VybmVsLm9yZ10gT24gQmVoYWxmIE9mIFBoaWxsaXAgQ2hlbg0KU2VudDogVHVlc2Rh
-eSwgTWFyY2ggNiwgMjAxOCAxMjo1OSBQTQ0KVG86IGZpb0B2Z2VyLmtlcm5lbC5vcmcNClN1Ympl
-Y3Q6IFpCQy9GTEVYIEZJTyBhZGRpdGlvbiBpZGVhcw0KDQpIZWxsbyBhZ2FpbiwNCldlIGFyZSBp
-bnRlcmVzdGVkIGluIG1ha2luZyBjaGFuZ2VzIHRvIHRoZSBTZWFnYXRlIGJyYW5jaCBvZiBGSU8g
-dGhhdCBpZGVhbGx5IHdvdWxkIGJlIHdpZGVseSBwaWNrZWQgdXAgdGhhdCB3b3VsZCBhbGxvdyBG
-SU8gdG8gcnVuIHdlbGwgb24gSG9zdCBNYW5hZ2VkL1pvbmVkIEJsb2NrIENvbW1hbmQgKFpCQykg
-ZHJpdmVzLiBIb3N0IE1hbmFnZWQgZHJpdmVzIGhhdmUgc29tZSBzaW1wbGUgcmVzdHJpY3Rpb25z
-IHdoaWNoIG1ha2UgcnVubmluZyB3b3JrbG9hZHMgb24gdGhlbSB2ZXJ5IGNoYWxsZW5naW5nLiBU
-aGUgbWFpbiBodXJkbGVzIHRvIG92ZXJjb21lIGFyZSBhbGwgd3JpdGVzIG11c3QgYmUgYXQgaXRz
-IHpvbmUgd3JpdGUgcG9pbnRlciwgYWxsIHJlYWRzIG11c3QgYmUgYmVsb3cgaXRzIHpvbmUgd3Jp
-dGUgcG9pbnRlciwgYW5kIHJlYWRzIG9yIHdyaXRlcyBjYW4gYmUgb3ZlciBtb3JlIHRoYW4gb25l
-IHpvbmUuIFRoZSBsYXJnZXN0IGRpZmZpY3VsdHkgaXMgdG8gZ2V0IHJhbmRvbSBwZXJmb3JtYW5j
-ZSBkYXRhLiBUbyBkbyB0aGlzIHdlIHdpbGwgbmVlZCB0byBhZGQgdGhlIGNhcGFiaWxpdHkgdG8g
-d3JpdGUgcmFuZG9tbHkgYmV0d2VlbiB6b25lcyAoYnV0IHNlcXVlbnRpYWxseSB3aXRoaW4gem9u
-ZXMpIGFuZCBvbmx5IHJlYWQgd2hhdCBoYXMgYmVlbiB3cml0dGVuLiBUaGVyZSBzZWVtIHRvIGJl
-IHR3byBhcHByb2FjaGVzIHRoYXQgY291bGQgd29yayBmb3IgdGhpcyBhbmQgSSdkIGFwcHJlY2lh
-dGUgYW55IGFkdmljZSBhcyB0byB3aGljaCBhcHByb2FjaCB0byBwdXJzdWUuDQpBcHByb2FjaCAx
-Og0KV2UgY291bGQgbGV0IEZJTyBwaWNrIEkvTyBvZmZzZXRzIGFzIGl0IHVzdWFsbHkgZG9lcywg
-YnV0IGNoYW5nZSB0aG9zZSBvZmZzZXRzIGludG8gbGVnYWwgb25lcyBiZWZvcmUgdGhleSByZWFj
-aCB0aGUgZHJpdmUuDQpBcHByb2FjaCAyOg0KV2UgY3JlYXRlIGEgcmFuZG9tIEhvc3QgTWFuYWdl
-ZCBzcGVjaWZpYyB3b3JrbG9hZCB3aGljaCB3aWxsIGJlIGF3YXJlIG9mIHdoZXJlIGl0IGlzIGxl
-Z2FsIHRvIHJlYWQgYW5kIHdyaXRlIGFuZCB3aWxsIG9ubHkgcGljayBvZmZzZXRzIHRoYXQgYXJl
-IHZhbGlkLiBBZGRpdGlvbmFsbHksIHdlIHdvdWxkIGxhdGVyIG1ha2Ugc29tZSBzbWFsbCBjaGFu
-Z2VzIHRvIHRoZSBleGlzdGluZyBzZXF1ZW50aWFsIHdvcmtsb2FkcyB0aGF0IHdvdWxkIHByZXZl
-bnQgSS9PIG92ZXIgem9uZSBib3VuZGFyaWVzIGFuZCBkbyBzb21lIHByZXBhcmF0aW9uICh3cml0
-aW5nIG92ZXIgem9uZXMgd2UgYXJlIHBsYW5uaW5nIHRvIHJlYWQgYW5kIHJlc2V0dGluZyB0aGUg
-d3JpdGUgcG9pbnRlcnMgb2Ygem9uZXMgd2Ugd2FudCB0byB3cml0ZSBvdmVyKS4gSSBhbSBsZWFu
-aW5nIHRvd2FyZHMgdGhpcyBhcHByb2FjaCBiZWNhdXNlIGl0IG1ha2VzIG1vcmUgc2Vuc2UgdG8g
-bWUuDQpFaXRoZXIgd2F5LCB3ZSB3aWxsIG5lZWQgdG8gaW1wbGVtZW50IHNvbWUgd2F5IG9mIGtl
-ZXBpbmcgdHJhY2sgb2Ygd2hlcmUgaXQgaXMgbGVnYWwgdG8gcmVhZCBhbmQgd3JpdGUgYXMgd2Vs
-bCBhcyBzZW5kIHNvbWUgbmV3IGNvbW1hbmRzIGxpa2UgZ2V0IHpvbmUgaW5mb3JtYXRpb24gYW5k
-IHJlc2V0IHdyaXRlIHBvaW50ZXIocykuIEFnYWluLCBpdCBzZWVtcyBsaWtlIHRoZXJlIGFyZSB0
-d28gdmlhYmxlIGFwcHJvYWNoZXMuDQpBcHByb2FjaCAxOg0KV2UgY2FuIGNyZWF0ZSBhIG5ldyBJ
-L08gZW5naW5lIHdoaWNoIGhhbmRsZXMgYWxsIHRoZSBJL08gYXMgd2VsbCBhcyBhbnkgYWRkaXRp
-b25hbCBaQkMgc3BlY2lmaWMgY29tbWFuZHMgbGlrZSBnZXQgem9uZSBpbmZvcm1hdGlvbiBhbmQg
-cmVzZXR0aW5nIHdyaXRlIHBvaW50ZXJzLiBIb3dldmVyLCB3ZSB3b3VsZCBsaWtlIHRvIGF2b2lk
-IHRoaXMgb3B0aW9uIGJlY2F1c2Ugb3VyIGN1c3RvbWVycyB0byB1c2UgdGhlIEkvTyBlbmdpbmUg
-dGhleSBhcmUgY29tZm9ydGFibGUgd2l0aC4NCkFwcHJvYWNoIDI6DQpXZSBjcmVhdGUgYSBsYXll
-ciBhYm92ZSB0aGUgSS9PIGVuZ2luZSB3aGljaCB3YXRjaGVzIGFsbCBvZiB0aGUgSS9PIGFuZCBr
-ZWVwcyB0cmFjayBvZiB0aGUgd3JpdGUgcG9pbnRlcnMgb24gdGhlIGRyaXZlIGFzIHdlbGwgYXMg
-aXNzdWluZyBhbnkgYWRkaXRpb25hbCBaQkMgY29tbWFuZHMgYXMgbmVjZXNzYXJ5Lg0KDQpUaGFu
-ayB5b3UsDQpQaGlsbGlwIENoZW4NCi0tDQpUbyB1bnN1YnNjcmliZSBmcm9tIHRoaXMgbGlzdDog
-c2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgZmlvIiBpbiB0aGUgYm9keSBvZiBhIG1lc3NhZ2Ug
-dG8gbWFqb3Jkb21vQHZnZXIua2VybmVsLm9yZyBNb3JlIG1ham9yZG9tbyBpbmZvIGF0ICBodHRw
-Oi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwNCg==
+Hello again,
+We are interested in making changes to the Seagate branch of FIO that
+ideally would be widely picked up that would allow FIO to run well on
+Host Managed/Zoned Block Command (ZBC) drives. Host Managed drives
+have some simple restrictions which make running workloads on them
+very challenging. The main hurdles to overcome are all writes must be
+at its zone write pointer, all reads must be below its zone write
+pointer, and reads or writes can be over more than one zone. The
+largest difficulty is to get random performance data. To do this we
+will need to add the capability to write randomly between zones (but
+sequentially within zones) and only read what has been written. There
+seem to be two approaches that could work for this and I'd appreciate
+any advice as to which approach to pursue.
+Approach 1:
+We could let FIO pick I/O offsets as it usually does, but change those
+offsets into legal ones before they reach the drive.
+Approach 2:
+We create a random Host Managed specific workload which will be aware
+of where it is legal to read and write and will only pick offsets that
+are valid. Additionally, we would later make some small changes to the
+existing sequential workloads that would prevent I/O over zone
+boundaries and do some preparation (writing over zones we are planning
+to read and resetting the write pointers of zones we want to write
+over). I am leaning towards this approach because it makes more sense
+to me.
+Either way, we will need to implement some way of keeping track of
+where it is legal to read and write as well as send some new commands
+like get zone information and reset write pointer(s). Again, it seems
+like there are two viable approaches.
+Approach 1:
+We can create a new I/O engine which handles all the I/O as well as
+any additional ZBC specific commands like get zone information and
+resetting write pointers. However, we would like to avoid this option
+because our customers to use the I/O engine they are comfortable with.
+Approach 2:
+We create a layer above the I/O engine which watches all of the I/O
+and keeps track of the write pointers on the drive as well as issuing
+any additional ZBC commands as necessary.
+
+Thank you,
+Phillip Chen
