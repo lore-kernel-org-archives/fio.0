@@ -1,115 +1,82 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx0b-002c1b01.pphosted.com ([148.163.155.12]:40238 "EHLO
-        mx0b-002c1b01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S933479AbeCGPme (ORCPT
-        <rfc822;fio@vger.kernel.org>); Wed, 7 Mar 2018 10:42:34 -0500
-From: David Knierim <knierim@nutanix.com>
-Subject: Re: Windows: FIO randomly hangs using attached script
-Date: Wed, 7 Mar 2018 15:33:24 +0000
-Message-ID: <BAE7B5AF-63F9-4E95-940D-7C84CE5AD92E@nutanix.com>
-References: <e044afaa-22ad-c7e2-d041-e2658f49bac8@bluestop.org>
- <CALjAwxjoTtRp1jVhfKMTcbn6wnmEmmCsjkpO7CkBgF5zj4B3Bg@mail.gmail.com>
- <9cf7d62a-5c4a-737a-d119-13763fb42c72@bluestop.org>
- <CALjAwxhxpLuLeysnp5kC-kQoWH++4hvehCWJxc9yA_Fcsy=pmw@mail.gmail.com>
-In-Reply-To: <CALjAwxhxpLuLeysnp5kC-kQoWH++4hvehCWJxc9yA_Fcsy=pmw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <29155CDCB2DE954AB2BA9B51125D8E91@namprd02.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Received: from mail-vk0-f45.google.com ([209.85.213.45]:34759 "EHLO
+        mail-vk0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750803AbeCGGBA (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 7 Mar 2018 01:01:00 -0500
+Received: by mail-vk0-f45.google.com with SMTP id z190so667895vkg.1
+        for <fio@vger.kernel.org>; Tue, 06 Mar 2018 22:00:59 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <9cf7d62a-5c4a-737a-d119-13763fb42c72@bluestop.org>
+References: <e044afaa-22ad-c7e2-d041-e2658f49bac8@bluestop.org>
+ <CALjAwxjoTtRp1jVhfKMTcbn6wnmEmmCsjkpO7CkBgF5zj4B3Bg@mail.gmail.com> <9cf7d62a-5c4a-737a-d119-13763fb42c72@bluestop.org>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 7 Mar 2018 06:00:28 +0000
+Message-ID: <CALjAwxhxpLuLeysnp5kC-kQoWH++4hvehCWJxc9yA_Fcsy=pmw@mail.gmail.com>
+Subject: Re: Windows: FIO randomly hangs using attached script
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>, Rebecca Cran <rebecca@bluestop.org>
-Cc: fio <fio@vger.kernel.org>, Rob Scheepens <rob.scheepens@nutanix.com>
+To: Rebecca Cran <rebecca@bluestop.org>
+Cc: fio <fio@vger.kernel.org>, Rob Scheepens <rob.scheepens@nutanix.com>, David Knierim <knierim@nutanix.com>
 
-U2l0c29mZSwNCiAgIFRoYW5rcyBmb3IgeW91ciBpbnRlcmVzdCBpbiByZXNvbHZpbmcgdGhpcyBp
-c3N1ZS4gIEkgbm8gbG9uZ2VyIGhhdmUgYSBzeXN0ZW0gdG8gZGlnIGludG8gdGhpcyBpc3N1ZSBh
-dCB0aGUgbW9tZW50LCBidXQgSSB3aWxsIGF0dGVtcHQgdG8gZ2V0IGJhY2sgdG8gdGhpcyBpc3N1
-ZSBzb29uLg0KICBUaGF0IGJlaW5nIHNhaWQsIEkgbGlrZSB5b3VyIHF1ZXN0aW9ucyBhbmQgSSBh
-bSBoYXBweSB0byBhbnN3ZXIgdGhlbToNCg0KPiAgY2FuIHlvdSBjaGVjayB3aGV0aGVyIGZpbyAz
-LjUgYWxzbyByZXByb2R1Y2VzIHRoZSBwcm9ibGVtPw0KV2hlbiBJIGdldCBhIHN5c3RlbSB0byBy
-dW4gb24sIEkgd2lsbCBhdHRlbXB0IHRvIHJlcHJvZHVjZSB0aGUgaXNzdWUgd2l0aCBmaW8gMy41
-Lg0KDQpZZXMsIHRoZSBleGFtcGxlIGZpbyBjb21tYW5kIGxpbmUgZXhhbXBsZXMgeW91IHNob3dl
-ZCBhcmUgaW5kZWVkIHdoYXQgdGhlIHNjcmlwdCBpcyBzdXBwb3NlZCB0byBiZSBkb2luZy4NCg0K
-SWYgaXQgaGVscHMsIEkgYWxzbyBoYXZlIGEgYmFzaCBzY3JpcHQgd2hpY2ggZ2VuZXJhdGVzIHRo
-ZSBzYW1lIGZpbyBjb21tYW5kcyBhcyB0aGUgcHl0aG9uIHNjcmlwdCB3aGljaCBhbHNvIHJlcHJv
-ZHVjZXMgdGhlIGlzc3VlLg0KDQpJIGhhdmUgbm90IGF0dGVtcHRlZCB0byByZXByb2R1Y2UgdGhl
-IGlzc3VlIHdpdGggZmlsZXMgb3IgbGVzcyByYXcgZGlza3MuICAgSSBjYW4gc2VlIHlvdXIgZGVz
-aXJlIGZvciBhIHNpbXBsaWZpZWQgcmVwcm9kdWNlci4gICBXaGVuIEkgZ2V0IGJhY2sgdG8gdGhp
-cyBpc3N1ZSwgSSB3aWxsIHNlZSB3aGF0IEkgY2FuIGNvbWUgdXAgd2l0aC4gICBJIGFtIHN1cmUg
-c29tZXRoaW5nIHNpbXBsZXIgd2lsbCByZXByb2R1Y2UgdGhlIGlzc3VlLCBidXQgSSBoYXZlIG5v
-dCBzcGVudCB0aGUgdGltZSB0byBmaW5kIHNvbWV0aGluZyBzaW1wbGVyIHRoYXQgd29ya3MuICBJ
-IHdpbGwgZXhwbG9yZSBudW1iZXIgb2YgZGlza3MvZmlsZXMsIG51bWpvYnMgYW5kIGFsc28gZGV0
-ZXJtaW5lIGlmIHRoZSB3b3JraW5nIHNldCBtYWtlcyBhbnkgZGlmZmVyZW5jZS4NCg0KSW4gbXkg
-ZXhwZXJpZW5jZSwgdGhlIHB5dGhvbiBzY3JpcHQgbmV2ZXIgY29tcGxldGVkIHdoZW4gcnVuIG9u
-IFdpbmRvd3MuICBSb2IgaGFkIGJldHRlciBsdWNrIHRoYW4gSSBkaWQgYW5kIHRoZSBzY3JpcHQg
-cmFuIHRvIGNvbXBsZXRpb24gZm9yIGhpbSBzZXZlcmFsIHRpbWVzLCBidXQgaXQgYWxzbyBzaG93
-ZWQgdGhlIGZhaWx1cmUgbXVsdGlwbGUgdGltZXMgYXMgd2VsbCwgYnV0IEkgZG9uJ3QgcmVtZW1i
-ZXIgd2hhdCB0aGUgcGFzcyBwZXJjZW50YWdlIHdhcyBmb3IgaGltLg0KDQpXaGVuIEkgcnVuIHRo
-ZSBzYW1lIHB5dGhvbiBvciBiYXNoIHNjcmlwdCBvbiBMaW51eCAoanVzdCB1cGRhdGluZyB0aGUg
-cGF0aCB0byB0aGUgcmF3IGRpc2tzIGFuZCB0aGUgaW9lbmdpbmUpLCBpdCBydW5zIDEwMCUgcmVs
-aWFibHkuDQoNClRoYW5rcyBhZ2FpbiwNCiAgIERhdmlkDQoNCu+7v09uIDMvNy8xOCwgMTowMSBB
-TSwgIlNpdHNvZmUgV2hlZWxlciIgPHNpdHNvZmVAZ21haWwuY29tPiB3cm90ZToNCg0KICAgIEhp
-IFJvYiwgRGF2aWQhDQogICAgDQogICAgT24gNiBNYXJjaCAyMDE4IGF0IDIwOjAxLCBSZWJlY2Nh
-IENyYW4gPHJlYmVjY2FAYmx1ZXN0b3Aub3JnPiB3cm90ZToNCiAgICA+IE9uIDMvNi8yMDE4IDk6
-MzUgQU0sIFNpdHNvZmUgV2hlZWxlciB3cm90ZToNCiAgICA+Pg0KICAgID4+DQogICAgPj4gSSB0
-cmllZCBvdXQgdGhlIHB5dGhvbiBzY3JpcHQgYnV0IGl0IHNlZW1lZCB0byBiZSBjb21wbGFpbmlu
-ZyBhYm91dCBhDQogICAgPj4gd2hpdGVzcGFjZSBpc3N1ZS4gQWZ0ZXIgZml4aW5nIHRoYXQgdXAg
-aXQncyB1bmNsZWFyIGV4YWN0bHkgd2hhdCBmaW8NCiAgICA+PiBjb21tYW5kIGxpbmVzIGl0IHJ1
-bnMuIEkgdGhpbmsgZm9yIG90aGVycyB0byBkaWcgaW4gd2UnZCBuZWVkDQogICAgPj4gc29tZXRo
-aW5nIGxlc3MgZmlkZGx5IGxpa2UgdGhlIHJhdyBmaW8gY29tbWFuZCBsaW5lcyB0aGF0IGdlbmVy
-YXRlIHRoZQ0KICAgID4+IGhhbmcuIElzIHRoZXJlIGFueSBjaGFuY2UgdGhlIG15c3RlcnkgdXNl
-ciBjb3VsZCBqb2luIHRoZSBtYWlsaW5nIGxpc3QNCiAgICA+PiBzbyB0aGV5IGNhbiBhbnN3ZXIg
-cXVlc3Rpb25zIGRpcmVjdGx5PyBJZGVhbGx5IHdlJ2QgbmVlZCBhIGpvYiB0aGF0DQogICAgPj4g
-d29ya3Mgb24gZmlsZXMgd2l0aGluIGEgZmlsZXN5c3RlbSBhbmQgaWRlYWxseSBuaWNlIHNtYWxs
-IGZpbGVzIHNvIGl0DQogICAgPj4gY291bGQgZ28gaW50byBhbiBBcHBWZXlvciBqb2IuLi4NCiAg
-ICA+Pg0KICAgID4NCiAgICA+IEkndmUgQ0MnZCBSb2IgYW5kIERhdmlkLg0KICAgID4gWW91IGNh
-biBmaW5kIHRoZSBGSU8gY29tbWFuZCBsaW5lcyB1c2VkIGJ5IHJ1bm5pbmcgdGhlIHNjcmlwdCBp
-biB2ZXJib3NlDQogICAgPiBtb2RlOiBpdCBsaXN0cyB0aGVtIGFsbCBhdCB0aGUgc3RhcnQsIHRo
-ZW4gc3RlcHMgdGhyb3VnaCB0aGVtIG9uZSBieSBvbmUuDQogICAgPiBVbmZvcnR1bmF0ZWx5IG5v
-Ym9keSdzIGhhZCBhbnkgbHVjayBpbiBuYXJyb3dpbmcgZG93biBhIHNpbmdsZSBydW4gdGhhdA0K
-ICAgID4gY2F1c2VzIHRoZSBoYW5nLg0KICAgID4gSSBmb3Jnb3QgdG8gc2F5IHRoYXQgdGhlIHBy
-b2JsZW0gaGFzIGJlZW4gc2VlbiBvbiBGSU8gMy4xIC0gSSBuZXZlciBnb3QNCiAgICA+IGFyb3Vu
-ZCB0byB0cnlpbmcgaXQgb24gdmVyc2lvbiAzLjUsIHdoaWNoIGlzIG5vdyBvbiBodHRwczovL3Vy
-bGRlZmVuc2UucHJvb2Zwb2ludC5jb20vdjIvdXJsP3U9aHR0cHMtM0FfX2JsdWVzdG9wLm9yZ19m
-aW8mZD1Ed0lCYVEmYz1zODgzR3BVQ09DaEtPSGlvY1l0R2NnJnI9QmcwenRoZElzenZrRzRuRmhE
-dFlGUFVHUWJRRk1BSW5kTXZYcUFCcUpqbyZtPThreUQ4Vy1BdEFMUGc1Zm1tQTNKZ0hpamVSZEYw
-a1g3SmMtMHI0UXlyakUmcz1aX0VMZ2RrQ1Vpb1RsRGgxeFNGLVNDZGRmQ2UyV0VvT0ZuRnFOY04t
-VHhRJmU9DQogICAgPiAuDQogICAgDQogICAgUmViZWNjYSBoYXMgYmVlbiBleHBsYWluaW5nIHlv
-dSd2ZSBnZW5lcmF0ZWQgYSByZXByb2R1Y2libGUgaGFuZyBvbg0KICAgIFdpbmRvd3MgZmlvLiBK
-dXN0IGZvciByZWZlcmVuY2UsIGNhbiB5b3UgY2hlY2sgd2hldGhlciBmaW8gMy41IGFsc28NCiAg
-ICByZXByb2R1Y2VzIHRoZSBwcm9ibGVtPw0KICAgIA0KICAgIEl0IGxvb2tzIGxpa2UgeW91ciBw
-eXRob24gc2NyaXB0IGdlbmVyYXRlcyBmaW8gbGluZXMgd2hpY2ggYXJlIGJhc2VkDQogICAgb2Zm
-IGNvbmZpZyBsaW5lcyBzaW1pbGFyIHRvIHRoZSBmb2xsb3dpbmc6DQogICAgDQogICAgY29uZmln
-OiB7J2JzJzogNDA5NiwgJ2ZpbGVuYW1lJzogJ1xcXFwuXFxQaHlzaWNhbERyaXZlMScsICdudW1q
-b2JzJzoNCiAgICAxLCAncnVudGltZSc6ICcyMCcsICdpb2RlcHRoJzogMSwgJ2Rpcic6ICdyYW5k
-cmVhZCcsICdzaXplJzogJzIwRyd9DQogICAgY29uZmlnOiB7J2JzJzogMTYzODQsICdmaWxlbmFt
-ZSc6DQogICAgJ1xcXFwuXFxQaHlzaWNhbERyaXZlMTpcXFxcLlxcUGh5c2ljYWxEcml2ZTI6XFxc
-XC5cXFBoeXNpY2FsRHJpdmUzOlxcXFwuXFxQaHlzaWNhbERyaXZlNDpcXFxcLlxcUGh5c2ljYWxE
-cml2ZTU6XFxcXC5cXFBoeXNpY2FsRHJpdmU2OlxcXFwuXFxQaHlzaWNhbERyaXZlNzpcXFxcLlxc
-UGh5c2ljYWxEcml2ZTgnLA0KICAgICdudW1qb2JzJzogMjQwLCAncnVudGltZSc6ICcyMCcsICdp
-b2RlcHRoJzogMSwgJ2Rpcic6ICdyYW5kcmVhZCcsDQogICAgJ3NpemUnOiAnMjBHJ30NCiAgICBj
-b25maWc6IHsnYnMnOiAxMDQ4NTc2LCAnZmlsZW5hbWUnOiAnXFxcXC5cXFBoeXNpY2FsRHJpdmUx
-JywNCiAgICAnbnVtam9icyc6IDMwLCAncnVudGltZSc6ICcyMCcsICdpb2RlcHRoJzogMSwgJ2Rp
-cic6ICdyYW5kcmVhZCcsDQogICAgJ3NpemUnOiAnMjBHJ30NCiAgICANCiAgICBJcyB0aGlzIGNv
-cnJlY3Q/IEknbSBhZnJhaWQgSSdtIG5vdCBpbiBhIHBvc2l0aW9uIHdoZXJlIEkgY2FuIGVhc2ls
-eQ0KICAgIGRlYnVnIHRoaXMgdXNpbmcgdGhlIFB5dGhvbiBzY3JpcHQgb24gV2luZG93cyAoc2Fk
-bHkgSSBoYXZlIG5vDQogICAgaW50ZXJhY3RpdmUgYWNjZXNzIHRvIFdpbmRvd3MgbWFjaGluZXMg
-YXQgdGhlIG1vbWVudCkgYnV0IGEgZmV3IHRoaW5ncw0KICAgIG1pZ2h0IGhlbHAgdG8gbmFycm93
-IGRvd24gdGhlIHByb2JsZW06DQogICAgDQogICAgSG93IGZyZXF1ZW50bHkgaXMgdGhlIHNjcmlw
-dCBhYmxlIHRvIHJlcHJvZHVjZSB0aGUgcHJvYmxlbT8NCiAgICBDYW4geW91IHN1YnN0aXR1dGUg
-ZmlsZXMgZm9yIGRpc2tzIGFuZCBzdGlsbCByZXByb2R1Y2UgdGhlIHByb2JsZW0/DQogICAgV2hh
-dCBhcmUgdGhlIG1pbmltdW0gbnVtYmVyIG9mIGZpbGVuYW1lcyBpbnZvbHZlZCB3aGVuIHlvdSd2
-ZSBzZWVuIGENCiAgICBoYW5nPyBEb2VzIGl0IGFsd2F5cyBuZWVkIG1vcmUgdGhhbiAxPw0KICAg
-IFdoYXQncyB0aGUgc21hbGxlc3Qgc2l6ZSB0aGF0IHlvdSBjYW4gdXNlIHRoYXQgc3RpbGwgcmVw
-cm9kdWNlcyB0aGUgcHJvYmxlbT8NCiAgICBXaGF0J3MgdGhlIHNtYWxsZXN0IGFtb3VudCBvZiBu
-dW1qb2JzIHRoYXQgcmVwcm9kdWNlIHRoZSBwcm9ibGVtPyBEb2VzDQogICAgaXQgYWx3YXlzIG5l
-ZWQgbW9yZSB0aGFuIDE/DQogICAgDQogICAgSWRlYWxseSBpZiB3ZSBjYW4gZ2V0IGRvd24gdG8g
-dGhlIHN0YWdlIHdoZXJlIHdlIHJ1biBzYXkgb25seSB0d28gZmlvDQogICAgbGluZXMgcmVwZWF0
-ZWRseSBpbiBhIGJhc2ggc2NyaXB0IGFuZCBtYWtlIHRoZSBwcm9ibGVtIGhhcHBlbiBpdCB3aWxs
-DQogICAgbWFrZSBpdCBlYXNpZXIgZm9yIG90aGVycyB0byBzZWUgdGhlIHByb2JsZW0gdG9vLi4u
-DQogICAgDQogICAgLS0gDQogICAgU2l0c29mZSB8IGh0dHBzOi8vdXJsZGVmZW5zZS5wcm9vZnBv
-aW50LmNvbS92Mi91cmw/dT1odHRwLTNBX19zdWNzLm9yZ18tN0VzaXRzXyZkPUR3SUJhUSZjPXM4
-ODNHcFVDT0NoS09IaW9jWXRHY2cmcj1CZzB6dGhkSXN6dmtHNG5GaER0WUZQVUdRYlFGTUFJbmRN
-dlhxQUJxSmpvJm09OGt5RDhXLUF0QUxQZzVmbW1BM0pnSGlqZVJkRjBrWDdKYy0wcjRReXJqRSZz
-PTMxZkJqTVI5Q2Q5NVBMN1NzbTdoVjJXOEtyNVdtZUhrcC1hbXBCS2dDZk0mZT0NCiAgICANCg0K
+Hi Rob, David!
+
+On 6 March 2018 at 20:01, Rebecca Cran <rebecca@bluestop.org> wrote:
+> On 3/6/2018 9:35 AM, Sitsofe Wheeler wrote:
+>>
+>>
+>> I tried out the python script but it seemed to be complaining about a
+>> whitespace issue. After fixing that up it's unclear exactly what fio
+>> command lines it runs. I think for others to dig in we'd need
+>> something less fiddly like the raw fio command lines that generate the
+>> hang. Is there any chance the mystery user could join the mailing list
+>> so they can answer questions directly? Ideally we'd need a job that
+>> works on files within a filesystem and ideally nice small files so it
+>> could go into an AppVeyor job...
+>>
+>
+> I've CC'd Rob and David.
+> You can find the FIO command lines used by running the script in verbose
+> mode: it lists them all at the start, then steps through them one by one.
+> Unfortunately nobody's had any luck in narrowing down a single run that
+> causes the hang.
+> I forgot to say that the problem has been seen on FIO 3.1 - I never got
+> around to trying it on version 3.5, which is now on https://bluestop.org/fio
+> .
+
+Rebecca has been explaining you've generated a reproducible hang on
+Windows fio. Just for reference, can you check whether fio 3.5 also
+reproduces the problem?
+
+It looks like your python script generates fio lines which are based
+off config lines similar to the following:
+
+config: {'bs': 4096, 'filename': '\\\\.\\PhysicalDrive1', 'numjobs':
+1, 'runtime': '20', 'iodepth': 1, 'dir': 'randread', 'size': '20G'}
+config: {'bs': 16384, 'filename':
+'\\\\.\\PhysicalDrive1:\\\\.\\PhysicalDrive2:\\\\.\\PhysicalDrive3:\\\\.\\PhysicalDrive4:\\\\.\\PhysicalDrive5:\\\\.\\PhysicalDrive6:\\\\.\\PhysicalDrive7:\\\\.\\PhysicalDrive8',
+'numjobs': 240, 'runtime': '20', 'iodepth': 1, 'dir': 'randread',
+'size': '20G'}
+config: {'bs': 1048576, 'filename': '\\\\.\\PhysicalDrive1',
+'numjobs': 30, 'runtime': '20', 'iodepth': 1, 'dir': 'randread',
+'size': '20G'}
+
+Is this correct? I'm afraid I'm not in a position where I can easily
+debug this using the Python script on Windows (sadly I have no
+interactive access to Windows machines at the moment) but a few things
+might help to narrow down the problem:
+
+How frequently is the script able to reproduce the problem?
+Can you substitute files for disks and still reproduce the problem?
+What are the minimum number of filenames involved when you've seen a
+hang? Does it always need more than 1?
+What's the smallest size that you can use that still reproduces the problem?
+What's the smallest amount of numjobs that reproduce the problem? Does
+it always need more than 1?
+
+Ideally if we can get down to the stage where we run say only two fio
+lines repeatedly in a bash script and make the problem happen it will
+make it easier for others to see the problem too...
+
+-- 
+Sitsofe | http://sucs.org/~sits/
