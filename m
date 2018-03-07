@@ -1,5 +1,12 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: FIO size parameter feedback
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-ua0-f178.google.com ([209.85.217.178]:37848 "EHLO
+        mail-ua0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S965016AbeCGUTv (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 7 Mar 2018 15:19:51 -0500
+Received: by mail-ua0-f178.google.com with SMTP id q12so2339751uae.4
+        for <fio@vger.kernel.org>; Wed, 07 Mar 2018 12:19:51 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <CAKwzdDqj81MK7i63idBLUnm22pXO9bK_2P5b-o7=JOOvKjcKYw@mail.gmail.com>
 References: <CAKwzdDrG3vgzMzttpZm4HgbziXUNsXiOgNP_PAty+KRasQ7szg@mail.gmail.com>
  <CALjAwxgH-QB_AUErVOu_zwWGLV-Zn1y1poOHXj0qQce_3tyCHw@mail.gmail.com>
  <CALjAwxjV5-GOzNpDHTJmMobyHExJD6Pkkpi=SBU04T=HQhHVLQ@mail.gmail.com>
@@ -11,51 +18,36 @@ References: <CAKwzdDrG3vgzMzttpZm4HgbziXUNsXiOgNP_PAty+KRasQ7szg@mail.gmail.com>
  <CAKwzdDoFAARSxVQYLzBqqqeAJvGe4dkVjwsipP6zkSPc1rwyTw@mail.gmail.com>
  <CALjAwxiXQYQR6CVJjs6AukG=PGTqit3THSxCA3RSUFo6TbRCEA@mail.gmail.com>
  <CAKwzdDr2z-Z7YQK0GpSX_syvFDtdZ_Px7k5Fd1G0eaE12cy7_A@mail.gmail.com>
- <CALjAwxgRN3i+ZQq92yJa9NMfdfAxuBrxqHOQTbn_9L7SoFCYsQ@mail.gmail.com>
- <CAKwzdDqj81MK7i63idBLUnm22pXO9bK_2P5b-o7=JOOvKjcKYw@mail.gmail.com>
- <CALjAwxia6L1SfuaZA4Vr_XrSJ9z7F6A1Xe=3p2zML0ADGaUstQ@mail.gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <12a5a0b9-3ad2-f5ab-7dd3-296ba0356f4d@kernel.dk>
-Date: Fri, 9 Mar 2018 12:54:51 -0700
-MIME-Version: 1.0
-In-Reply-To: <CALjAwxia6L1SfuaZA4Vr_XrSJ9z7F6A1Xe=3p2zML0ADGaUstQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Sitsofe Wheeler <sitsofe@gmail.com>, abhishek koundal <akoundal@gmail.com>
+ <CALjAwxgRN3i+ZQq92yJa9NMfdfAxuBrxqHOQTbn_9L7SoFCYsQ@mail.gmail.com> <CAKwzdDqj81MK7i63idBLUnm22pXO9bK_2P5b-o7=JOOvKjcKYw@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 7 Mar 2018 20:19:20 +0000
+Message-ID: <CALjAwxia6L1SfuaZA4Vr_XrSJ9z7F6A1Xe=3p2zML0ADGaUstQ@mail.gmail.com>
+Subject: Re: FIO size parameter feedback
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: abhishek koundal <akoundal@gmail.com>
 Cc: fio <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
 
-I think we should just skip the alignment/adjustment if
-size_percent is equal to 100. It doesn't make sense to
-change it for full size. I'd rather have consistent
-behavior here, and I think the risk is pretty low in
-this case.
+I'd argue that by now someone will have started depending on the
+rounding behaviour of a percentage size and someone else will be
+depending on the non-rounding behaviour when its specified without
+percentages so you'd need a strong reason to change. However
+documenting this quirk would be helpful...
 
-On 3/7/18 1:19 PM, Sitsofe Wheeler wrote:
-> I'd argue that by now someone will have started depending on the
-> rounding behaviour of a percentage size and someone else will be
-> depending on the non-rounding behaviour when its specified without
-> percentages so you'd need a strong reason to change. However
-> documenting this quirk would be helpful...
-> 
-> On 7 March 2018 at 19:07, abhishek koundal <akoundal@gmail.com> wrote:
->> So do we say its how the tool has to behave? (surely with added documentation)
->>
->> On Wed, Mar 7, 2018 at 10:38 AM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
->>> I'd say it's something that could be better documented (size as
->>> percentage rounds to the minimum blocksize) in the same way it's
->>> already documented for offset percentages. The problem is if size
->>> didn't do the rounding of percentages things would get tricky when you
->>> start trying to cut disks up using offset and size (think offset=0%
->>> size=25% then offset=25% size=25%). Plus you don't really want to do
->>> rounding when the user specifies an exact amount/doesn't set anything
->>> at all because you want to assume the user knows what they are
->>> doing...
-> 
-
+On 7 March 2018 at 19:07, abhishek koundal <akoundal@gmail.com> wrote:
+> So do we say its how the tool has to behave? (surely with added documentation)
+>
+> On Wed, Mar 7, 2018 at 10:38 AM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>> I'd say it's something that could be better documented (size as
+>> percentage rounds to the minimum blocksize) in the same way it's
+>> already documented for offset percentages. The problem is if size
+>> didn't do the rounding of percentages things would get tricky when you
+>> start trying to cut disks up using offset and size (think offset=0%
+>> size=25% then offset=25% size=25%). Plus you don't really want to do
+>> rounding when the user specifies an exact amount/doesn't set anything
+>> at all because you want to assume the user knows what they are
+>> doing...
 
 -- 
-Jens Axboe
-
-
+Sitsofe | http://sucs.org/~sits/
