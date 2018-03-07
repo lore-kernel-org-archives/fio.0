@@ -1,12 +1,9 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx0b-002c1b01.pphosted.com ([148.163.155.12]:58990 "EHLO
-        mx0b-002c1b01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S933533AbeCGQOD (ORCPT
-        <rfc822;fio@vger.kernel.org>); Wed, 7 Mar 2018 11:14:03 -0500
-From: Rob Scheepens <rob.scheepens@nutanix.com>
+Received: from muon.bluestop.org ([96.73.9.1]:53287 "EHLO muon.bluestop.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933409AbeCGQJx (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 7 Mar 2018 11:09:53 -0500
 Subject: Re: Windows: FIO randomly hangs using attached script
-Date: Wed, 7 Mar 2018 16:05:59 +0000
-Message-ID: <E3CFE209-94D9-42CB-967E-420CC4E6FC50@nutanix.com>
 References: <e044afaa-22ad-c7e2-d041-e2658f49bac8@bluestop.org>
  <CALjAwxjoTtRp1jVhfKMTcbn6wnmEmmCsjkpO7CkBgF5zj4B3Bg@mail.gmail.com>
  <9cf7d62a-5c4a-737a-d119-13763fb42c72@bluestop.org>
@@ -14,68 +11,27 @@ References: <e044afaa-22ad-c7e2-d041-e2658f49bac8@bluestop.org>
  <BAE7B5AF-63F9-4E95-940D-7C84CE5AD92E@nutanix.com>
  <36259BEC-1CF0-45A5-85AE-F557989EDF30@nutanix.com>
  <CALjAwxg0qObPUrZPxKF=34zHGx00QWGOKeHsjRR3c4=bdhB8dg@mail.gmail.com>
-In-Reply-To: <CALjAwxg0qObPUrZPxKF=34zHGx00QWGOKeHsjRR3c4=bdhB8dg@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <4C8E7A3D58675B45B3DDF18A918DA77D@namprd02.prod.outlook.com>
-Content-Transfer-Encoding: base64
+ <E3CFE209-94D9-42CB-967E-420CC4E6FC50@nutanix.com>
+From: Rebecca Cran <rebecca@bluestop.org>
+Message-ID: <2cf48fd6-53d9-123c-f7db-f279e77dfa07@bluestop.org>
+Date: Wed, 7 Mar 2018 09:09:51 -0700
 MIME-Version: 1.0
+In-Reply-To: <E3CFE209-94D9-42CB-967E-420CC4E6FC50@nutanix.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: David Knierim <knierim@nutanix.com>, Rebecca Cran <rebecca@bluestop.org>, fio <fio@vger.kernel.org>
+To: Rob Scheepens <rob.scheepens@nutanix.com>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: David Knierim <knierim@nutanix.com>, fio <fio@vger.kernel.org>
 
-TWVyZ2luZyBzaW5jZSBSZWJlY2NhJ3MgcmVwbHkgbG9zdCB0aGUgdGhyZWFkOg0KDQoNCkZyb20g
-bWVtb3J5LCBteSBydW5zIHdvdWxkIGFsc28gZ2V0IHNvbWV3aGVyZSBvdmVyICMxMDAsIGJ1dCBJ
-J2xsIGNvbmZpcm0gbmV4dCB3ZWVrLg0KDQpcUm9iDQoNCg0KT24gMDMvMDcvMjAxOCAwOTowMSBB
-TSwgU2l0c29mZSBXaGVlbGVyIHdyb3RlOg0KVGhhbmtzIGZvciBmb2xsb3dpbmcgdXAuDQoNCkRv
-IHlvdSBoYXBwZW4gdG8ga25vdyBob3cgZmFyIGl0IHdvdWxkIGdldCBvbiBydW5zIHdoZXJlIGl0
-IHdlbnQgb24gdG8NCmhhbmc/IFdvdWxkIGl0IGJlIGl0IGluIHRoZSBtaWRkbGUgb2YgYSBqb2Ig
-b3Igd2FzIGl0IHN0aWxsIGRvaW5nDQpzZXR1cCBvciB2YXJpZWQ/IFdvdWxkIGl0IHRha2UgaG91
-cnMgdG8gaGFwcGVuPw0KDQpJIHNhdyBoYW5ncyBhdCBqb2IgMTMwIGFuZCAxMzQuDQoNCi0tDQpS
-ZWJlY2NhDQoNCu+7v09uIDA3LzAzLzIwMTgsIDE4OjAxLCAiU2l0c29mZSBXaGVlbGVyIiA8c2l0
-c29mZUBnbWFpbC5jb20+IHdyb3RlOg0KDQogICAgVGhhbmtzIGZvciBmb2xsb3dpbmcgdXAuDQog
-ICAgDQogICAgRG8geW91IGhhcHBlbiB0byBrbm93IGhvdyBmYXIgaXQgd291bGQgZ2V0IG9uIHJ1
-bnMgd2hlcmUgaXQgd2VudCBvbiB0bw0KICAgIGhhbmc/IFdvdWxkIGl0IGJlIGl0IGluIHRoZSBt
-aWRkbGUgb2YgYSBqb2Igb3Igd2FzIGl0IHN0aWxsIGRvaW5nDQogICAgc2V0dXAgb3IgdmFyaWVk
-PyBXb3VsZCBpdCB0YWtlIGhvdXJzIHRvIGhhcHBlbj8NCiAgICANCiAgICBPbiA3IE1hcmNoIDIw
-MTggYXQgMTU6MzksIFJvYiBTY2hlZXBlbnMgPHJvYi5zY2hlZXBlbnNAbnV0YW5peC5jb20+IHdy
-b3RlOg0KICAgID4gQWRkaW5nIHRvIERhdmlkJ3MgY29tbWVudHM6IG15IHN1Y2Nlc3MgcGVyY2Vu
-dGFnZSB3YXMgcm91Z2hseSAzMCUuIE1vc3Qgb2YgdGhlIHRpbWUsIDIgb3V0IG9mIDMgcnVucyB3
-b3VsZCBoYW5nLg0KICAgID4NCiAgICA+IFRoYW5rcyBmb3IgeW91ciBpbnZvbHZlbWVudCBoZXJl
-IFNpdHNvZmUuDQogICAgPg0KICAgID4gXFJvYg0KICAgID4NCiAgICA+DQogICAgPiBPbiAwNy8w
-My8yMDE4LCAxNzozMywgIkRhdmlkIEtuaWVyaW0iIDxrbmllcmltQG51dGFuaXguY29tPiB3cm90
-ZToNCiAgICA+DQogICAgPiAgICAgU2l0c29mZSwNCiAgICA+ICAgICAgICBUaGFua3MgZm9yIHlv
-dXIgaW50ZXJlc3QgaW4gcmVzb2x2aW5nIHRoaXMgaXNzdWUuICBJIG5vIGxvbmdlciBoYXZlIGEg
-c3lzdGVtIHRvIGRpZyBpbnRvIHRoaXMgaXNzdWUgYXQgdGhlIG1vbWVudCwgYnV0IEkgd2lsbCBh
-dHRlbXB0IHRvIGdldCBiYWNrIHRvIHRoaXMgaXNzdWUgc29vbi4NCiAgICA+ICAgICAgIFRoYXQg
-YmVpbmcgc2FpZCwgSSBsaWtlIHlvdXIgcXVlc3Rpb25zIGFuZCBJIGFtIGhhcHB5IHRvIGFuc3dl
-ciB0aGVtOg0KICAgID4NCiAgICA+ICAgICA+ICBjYW4geW91IGNoZWNrIHdoZXRoZXIgZmlvIDMu
-NSBhbHNvIHJlcHJvZHVjZXMgdGhlIHByb2JsZW0/DQogICAgPiAgICAgV2hlbiBJIGdldCBhIHN5
-c3RlbSB0byBydW4gb24sIEkgd2lsbCBhdHRlbXB0IHRvIHJlcHJvZHVjZSB0aGUgaXNzdWUgd2l0
-aCBmaW8gMy41Lg0KICAgID4NCiAgICA+ICAgICBZZXMsIHRoZSBleGFtcGxlIGZpbyBjb21tYW5k
-IGxpbmUgZXhhbXBsZXMgeW91IHNob3dlZCBhcmUgaW5kZWVkIHdoYXQgdGhlIHNjcmlwdCBpcyBz
-dXBwb3NlZCB0byBiZSBkb2luZy4NCiAgICA+DQogICAgPiAgICAgSWYgaXQgaGVscHMsIEkgYWxz
-byBoYXZlIGEgYmFzaCBzY3JpcHQgd2hpY2ggZ2VuZXJhdGVzIHRoZSBzYW1lIGZpbyBjb21tYW5k
-cyBhcyB0aGUgcHl0aG9uIHNjcmlwdCB3aGljaCBhbHNvIHJlcHJvZHVjZXMgdGhlIGlzc3VlLg0K
-ICAgID4NCiAgICA+ICAgICBJIGhhdmUgbm90IGF0dGVtcHRlZCB0byByZXByb2R1Y2UgdGhlIGlz
-c3VlIHdpdGggZmlsZXMgb3IgbGVzcyByYXcgZGlza3MuICAgSSBjYW4gc2VlIHlvdXIgZGVzaXJl
-IGZvciBhIHNpbXBsaWZpZWQgcmVwcm9kdWNlci4gICBXaGVuIEkgZ2V0IGJhY2sgdG8gdGhpcyBp
-c3N1ZSwgSSB3aWxsIHNlZSB3aGF0IEkgY2FuIGNvbWUgdXAgd2l0aC4gICBJIGFtIHN1cmUgc29t
-ZXRoaW5nIHNpbXBsZXIgd2lsbCByZXByb2R1Y2UgdGhlIGlzc3VlLCBidXQgSSBoYXZlIG5vdCBz
-cGVudCB0aGUgdGltZSB0byBmaW5kIHNvbWV0aGluZyBzaW1wbGVyIHRoYXQgd29ya3MuICBJIHdp
-bGwgZXhwbG9yZSBudW1iZXIgb2YgZGlza3MvZmlsZXMsIG51bWpvYnMgYW5kIGFsc28gZGV0ZXJt
-aW5lIGlmIHRoZSB3b3JraW5nIHNldCBtYWtlcyBhbnkgZGlmZmVyZW5jZS4NCiAgICA+DQogICAg
-PiAgICAgSW4gbXkgZXhwZXJpZW5jZSwgdGhlIHB5dGhvbiBzY3JpcHQgbmV2ZXIgY29tcGxldGVk
-IHdoZW4gcnVuIG9uIFdpbmRvd3MuICBSb2IgaGFkIGJldHRlciBsdWNrIHRoYW4gSSBkaWQgYW5k
-IHRoZSBzY3JpcHQgcmFuIHRvIGNvbXBsZXRpb24gZm9yIGhpbSBzZXZlcmFsIHRpbWVzLCBidXQg
-aXQgYWxzbyBzaG93ZWQgdGhlIGZhaWx1cmUgbXVsdGlwbGUgdGltZXMgYXMgd2VsbCwgYnV0IEkg
-ZG9uJ3QgcmVtZW1iZXIgd2hhdCB0aGUgcGFzcyBwZXJjZW50YWdlIHdhcyBmb3IgaGltLg0KICAg
-ID4NCiAgICA+ICAgICBXaGVuIEkgcnVuIHRoZSBzYW1lIHB5dGhvbiBvciBiYXNoIHNjcmlwdCBv
-biBMaW51eCAoanVzdCB1cGRhdGluZyB0aGUgcGF0aCB0byB0aGUgcmF3IGRpc2tzIGFuZCB0aGUg
-aW9lbmdpbmUpLCBpdCBydW5zIDEwMCUgcmVsaWFibHkuDQogICAgDQogICAgLS0gDQogICAgU2l0
-c29mZSB8IGh0dHBzOi8vdXJsZGVmZW5zZS5wcm9vZnBvaW50LmNvbS92Mi91cmw/dT1odHRwLTNB
-X19zdWNzLm9yZ18tN0VzaXRzXyZkPUR3SUZhUSZjPXM4ODNHcFVDT0NoS09IaW9jWXRHY2cmcj1P
-TWdlZC10XzVJX2ZtZnBVYVQzdmFBMDZsZ0xMX2FsWW5EUUp4SG1YejY0Jm09OTI3czBTYXVjVVFG
-RlZxWGN1blAxX1BCbnIweEVIVUw4ZF9iS3QtVklVRSZzPXZENlpZWFdtQlJXejVrUjhSNFdLUUY3
-YjNsNEJtTGZWWWxfdUhSWkdLcTAmZT0NCiAgICANCg0K
+On 03/07/2018 09:05 AM, Rob Scheepens wrote:
+> Merging since Rebecca's reply lost the thread:
+
+Sorry, I trimmed my reply since people should have been seeing the 
+previous messages and so likely don't need new emails to contain all the 
+previous content. Though I understand it's not the normal style in 
+Outlook etc.
+
+-- 
+Rebecca
