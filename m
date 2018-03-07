@@ -1,76 +1,127 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk0-f46.google.com ([209.85.213.46]:45226 "EHLO
-        mail-vk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933502AbeCGQBu (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 7 Mar 2018 11:01:50 -0500
-Received: by mail-vk0-f46.google.com with SMTP id k187so1593546vke.12
-        for <fio@vger.kernel.org>; Wed, 07 Mar 2018 08:01:50 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <36259BEC-1CF0-45A5-85AE-F557989EDF30@nutanix.com>
+Received: from mx0a-002c1b01.pphosted.com ([148.163.151.68]:41382 "EHLO
+        mx0a-002c1b01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S933386AbeCGPrH (ORCPT
+        <rfc822;fio@vger.kernel.org>); Wed, 7 Mar 2018 10:47:07 -0500
+From: Rob Scheepens <rob.scheepens@nutanix.com>
+Subject: Re: Windows: FIO randomly hangs using attached script
+Date: Wed, 7 Mar 2018 15:39:18 +0000
+Message-ID: <36259BEC-1CF0-45A5-85AE-F557989EDF30@nutanix.com>
 References: <e044afaa-22ad-c7e2-d041-e2658f49bac8@bluestop.org>
  <CALjAwxjoTtRp1jVhfKMTcbn6wnmEmmCsjkpO7CkBgF5zj4B3Bg@mail.gmail.com>
- <9cf7d62a-5c4a-737a-d119-13763fb42c72@bluestop.org> <CALjAwxhxpLuLeysnp5kC-kQoWH++4hvehCWJxc9yA_Fcsy=pmw@mail.gmail.com>
- <BAE7B5AF-63F9-4E95-940D-7C84CE5AD92E@nutanix.com> <36259BEC-1CF0-45A5-85AE-F557989EDF30@nutanix.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Wed, 7 Mar 2018 16:01:18 +0000
-Message-ID: <CALjAwxg0qObPUrZPxKF=34zHGx00QWGOKeHsjRR3c4=bdhB8dg@mail.gmail.com>
-Subject: Re: Windows: FIO randomly hangs using attached script
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+ <9cf7d62a-5c4a-737a-d119-13763fb42c72@bluestop.org>
+ <CALjAwxhxpLuLeysnp5kC-kQoWH++4hvehCWJxc9yA_Fcsy=pmw@mail.gmail.com>
+ <BAE7B5AF-63F9-4E95-940D-7C84CE5AD92E@nutanix.com>
+In-Reply-To: <BAE7B5AF-63F9-4E95-940D-7C84CE5AD92E@nutanix.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <B245E5592B5EAE489DBB3C0FB8107E9C@namprd02.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Rob Scheepens <rob.scheepens@nutanix.com>
-Cc: David Knierim <knierim@nutanix.com>, Rebecca Cran <rebecca@bluestop.org>, fio <fio@vger.kernel.org>
+To: David Knierim <knierim@nutanix.com>, Sitsofe Wheeler <sitsofe@gmail.com>, Rebecca Cran <rebecca@bluestop.org>
+Cc: fio <fio@vger.kernel.org>
 
-Thanks for following up.
-
-Do you happen to know how far it would get on runs where it went on to
-hang? Would it be it in the middle of a job or was it still doing
-setup or varied? Would it take hours to happen?
-
-On 7 March 2018 at 15:39, Rob Scheepens <rob.scheepens@nutanix.com> wrote:
-> Adding to David's comments: my success percentage was roughly 30%. Most o=
-f the time, 2 out of 3 runs would hang.
->
-> Thanks for your involvement here Sitsofe.
->
-> \Rob
->
->
-> =EF=BB=BFOn 07/03/2018, 17:33, "David Knierim" <knierim@nutanix.com> wrot=
-e:
->
->     Sitsofe,
->        Thanks for your interest in resolving this issue.  I no longer hav=
-e a system to dig into this issue at the moment, but I will attempt to get =
-back to this issue soon.
->       That being said, I like your questions and I am happy to answer the=
-m:
->
->     >  can you check whether fio 3.5 also reproduces the problem?
->     When I get a system to run on, I will attempt to reproduce the issue =
-with fio 3.5.
->
->     Yes, the example fio command line examples you showed are indeed what=
- the script is supposed to be doing.
->
->     If it helps, I also have a bash script which generates the same fio c=
-ommands as the python script which also reproduces the issue.
->
->     I have not attempted to reproduce the issue with files or less raw di=
-sks.   I can see your desire for a simplified reproducer.   When I get back=
- to this issue, I will see what I can come up with.   I am sure something s=
-impler will reproduce the issue, but I have not spent the time to find some=
-thing simpler that works.  I will explore number of disks/files, numjobs an=
-d also determine if the working set makes any difference.
->
->     In my experience, the python script never completed when run on Windo=
-ws.  Rob had better luck than I did and the script ran to completion for hi=
-m several times, but it also showed the failure multiple times as well, but=
- I don't remember what the pass percentage was for him.
->
->     When I run the same python or bash script on Linux (just updating the=
- path to the raw disks and the ioengine), it runs 100% reliably.
-
---=20
-Sitsofe | http://sucs.org/~sits/
+QWRkaW5nIHRvIERhdmlkJ3MgY29tbWVudHM6IG15IHN1Y2Nlc3MgcGVyY2VudGFnZSB3YXMgcm91
+Z2hseSAzMCUuIE1vc3Qgb2YgdGhlIHRpbWUsIDIgb3V0IG9mIDMgcnVucyB3b3VsZCBoYW5nLg0K
+DQpUaGFua3MgZm9yIHlvdXIgaW52b2x2ZW1lbnQgaGVyZSBTaXRzb2ZlLg0KDQpcUm9iDQoNCg0K
+77u/T24gMDcvMDMvMjAxOCwgMTc6MzMsICJEYXZpZCBLbmllcmltIiA8a25pZXJpbUBudXRhbml4
+LmNvbT4gd3JvdGU6DQoNCiAgICBTaXRzb2ZlLA0KICAgICAgIFRoYW5rcyBmb3IgeW91ciBpbnRl
+cmVzdCBpbiByZXNvbHZpbmcgdGhpcyBpc3N1ZS4gIEkgbm8gbG9uZ2VyIGhhdmUgYSBzeXN0ZW0g
+dG8gZGlnIGludG8gdGhpcyBpc3N1ZSBhdCB0aGUgbW9tZW50LCBidXQgSSB3aWxsIGF0dGVtcHQg
+dG8gZ2V0IGJhY2sgdG8gdGhpcyBpc3N1ZSBzb29uLg0KICAgICAgVGhhdCBiZWluZyBzYWlkLCBJ
+IGxpa2UgeW91ciBxdWVzdGlvbnMgYW5kIEkgYW0gaGFwcHkgdG8gYW5zd2VyIHRoZW06DQogICAg
+DQogICAgPiAgY2FuIHlvdSBjaGVjayB3aGV0aGVyIGZpbyAzLjUgYWxzbyByZXByb2R1Y2VzIHRo
+ZSBwcm9ibGVtPw0KICAgIFdoZW4gSSBnZXQgYSBzeXN0ZW0gdG8gcnVuIG9uLCBJIHdpbGwgYXR0
+ZW1wdCB0byByZXByb2R1Y2UgdGhlIGlzc3VlIHdpdGggZmlvIDMuNS4NCiAgICANCiAgICBZZXMs
+IHRoZSBleGFtcGxlIGZpbyBjb21tYW5kIGxpbmUgZXhhbXBsZXMgeW91IHNob3dlZCBhcmUgaW5k
+ZWVkIHdoYXQgdGhlIHNjcmlwdCBpcyBzdXBwb3NlZCB0byBiZSBkb2luZy4NCiAgICANCiAgICBJ
+ZiBpdCBoZWxwcywgSSBhbHNvIGhhdmUgYSBiYXNoIHNjcmlwdCB3aGljaCBnZW5lcmF0ZXMgdGhl
+IHNhbWUgZmlvIGNvbW1hbmRzIGFzIHRoZSBweXRob24gc2NyaXB0IHdoaWNoIGFsc28gcmVwcm9k
+dWNlcyB0aGUgaXNzdWUuDQogICAgDQogICAgSSBoYXZlIG5vdCBhdHRlbXB0ZWQgdG8gcmVwcm9k
+dWNlIHRoZSBpc3N1ZSB3aXRoIGZpbGVzIG9yIGxlc3MgcmF3IGRpc2tzLiAgIEkgY2FuIHNlZSB5
+b3VyIGRlc2lyZSBmb3IgYSBzaW1wbGlmaWVkIHJlcHJvZHVjZXIuICAgV2hlbiBJIGdldCBiYWNr
+IHRvIHRoaXMgaXNzdWUsIEkgd2lsbCBzZWUgd2hhdCBJIGNhbiBjb21lIHVwIHdpdGguICAgSSBh
+bSBzdXJlIHNvbWV0aGluZyBzaW1wbGVyIHdpbGwgcmVwcm9kdWNlIHRoZSBpc3N1ZSwgYnV0IEkg
+aGF2ZSBub3Qgc3BlbnQgdGhlIHRpbWUgdG8gZmluZCBzb21ldGhpbmcgc2ltcGxlciB0aGF0IHdv
+cmtzLiAgSSB3aWxsIGV4cGxvcmUgbnVtYmVyIG9mIGRpc2tzL2ZpbGVzLCBudW1qb2JzIGFuZCBh
+bHNvIGRldGVybWluZSBpZiB0aGUgd29ya2luZyBzZXQgbWFrZXMgYW55IGRpZmZlcmVuY2UuDQog
+ICAgDQogICAgSW4gbXkgZXhwZXJpZW5jZSwgdGhlIHB5dGhvbiBzY3JpcHQgbmV2ZXIgY29tcGxl
+dGVkIHdoZW4gcnVuIG9uIFdpbmRvd3MuICBSb2IgaGFkIGJldHRlciBsdWNrIHRoYW4gSSBkaWQg
+YW5kIHRoZSBzY3JpcHQgcmFuIHRvIGNvbXBsZXRpb24gZm9yIGhpbSBzZXZlcmFsIHRpbWVzLCBi
+dXQgaXQgYWxzbyBzaG93ZWQgdGhlIGZhaWx1cmUgbXVsdGlwbGUgdGltZXMgYXMgd2VsbCwgYnV0
+IEkgZG9uJ3QgcmVtZW1iZXIgd2hhdCB0aGUgcGFzcyBwZXJjZW50YWdlIHdhcyBmb3IgaGltLg0K
+ICAgIA0KICAgIFdoZW4gSSBydW4gdGhlIHNhbWUgcHl0aG9uIG9yIGJhc2ggc2NyaXB0IG9uIExp
+bnV4IChqdXN0IHVwZGF0aW5nIHRoZSBwYXRoIHRvIHRoZSByYXcgZGlza3MgYW5kIHRoZSBpb2Vu
+Z2luZSksIGl0IHJ1bnMgMTAwJSByZWxpYWJseS4NCiAgICANCiAgICBUaGFua3MgYWdhaW4sDQog
+ICAgICAgRGF2aWQNCiAgICANCiAgICBPbiAzLzcvMTgsIDE6MDEgQU0sICJTaXRzb2ZlIFdoZWVs
+ZXIiIDxzaXRzb2ZlQGdtYWlsLmNvbT4gd3JvdGU6DQogICAgDQogICAgICAgIEhpIFJvYiwgRGF2
+aWQhDQogICAgICAgIA0KICAgICAgICBPbiA2IE1hcmNoIDIwMTggYXQgMjA6MDEsIFJlYmVjY2Eg
+Q3JhbiA8cmViZWNjYUBibHVlc3RvcC5vcmc+IHdyb3RlOg0KICAgICAgICA+IE9uIDMvNi8yMDE4
+IDk6MzUgQU0sIFNpdHNvZmUgV2hlZWxlciB3cm90ZToNCiAgICAgICAgPj4NCiAgICAgICAgPj4N
+CiAgICAgICAgPj4gSSB0cmllZCBvdXQgdGhlIHB5dGhvbiBzY3JpcHQgYnV0IGl0IHNlZW1lZCB0
+byBiZSBjb21wbGFpbmluZyBhYm91dCBhDQogICAgICAgID4+IHdoaXRlc3BhY2UgaXNzdWUuIEFm
+dGVyIGZpeGluZyB0aGF0IHVwIGl0J3MgdW5jbGVhciBleGFjdGx5IHdoYXQgZmlvDQogICAgICAg
+ID4+IGNvbW1hbmQgbGluZXMgaXQgcnVucy4gSSB0aGluayBmb3Igb3RoZXJzIHRvIGRpZyBpbiB3
+ZSdkIG5lZWQNCiAgICAgICAgPj4gc29tZXRoaW5nIGxlc3MgZmlkZGx5IGxpa2UgdGhlIHJhdyBm
+aW8gY29tbWFuZCBsaW5lcyB0aGF0IGdlbmVyYXRlIHRoZQ0KICAgICAgICA+PiBoYW5nLiBJcyB0
+aGVyZSBhbnkgY2hhbmNlIHRoZSBteXN0ZXJ5IHVzZXIgY291bGQgam9pbiB0aGUgbWFpbGluZyBs
+aXN0DQogICAgICAgID4+IHNvIHRoZXkgY2FuIGFuc3dlciBxdWVzdGlvbnMgZGlyZWN0bHk/IElk
+ZWFsbHkgd2UnZCBuZWVkIGEgam9iIHRoYXQNCiAgICAgICAgPj4gd29ya3Mgb24gZmlsZXMgd2l0
+aGluIGEgZmlsZXN5c3RlbSBhbmQgaWRlYWxseSBuaWNlIHNtYWxsIGZpbGVzIHNvIGl0DQogICAg
+ICAgID4+IGNvdWxkIGdvIGludG8gYW4gQXBwVmV5b3Igam9iLi4uDQogICAgICAgID4+DQogICAg
+ICAgID4NCiAgICAgICAgPiBJJ3ZlIENDJ2QgUm9iIGFuZCBEYXZpZC4NCiAgICAgICAgPiBZb3Ug
+Y2FuIGZpbmQgdGhlIEZJTyBjb21tYW5kIGxpbmVzIHVzZWQgYnkgcnVubmluZyB0aGUgc2NyaXB0
+IGluIHZlcmJvc2UNCiAgICAgICAgPiBtb2RlOiBpdCBsaXN0cyB0aGVtIGFsbCBhdCB0aGUgc3Rh
+cnQsIHRoZW4gc3RlcHMgdGhyb3VnaCB0aGVtIG9uZSBieSBvbmUuDQogICAgICAgID4gVW5mb3J0
+dW5hdGVseSBub2JvZHkncyBoYWQgYW55IGx1Y2sgaW4gbmFycm93aW5nIGRvd24gYSBzaW5nbGUg
+cnVuIHRoYXQNCiAgICAgICAgPiBjYXVzZXMgdGhlIGhhbmcuDQogICAgICAgID4gSSBmb3Jnb3Qg
+dG8gc2F5IHRoYXQgdGhlIHByb2JsZW0gaGFzIGJlZW4gc2VlbiBvbiBGSU8gMy4xIC0gSSBuZXZl
+ciBnb3QNCiAgICAgICAgPiBhcm91bmQgdG8gdHJ5aW5nIGl0IG9uIHZlcnNpb24gMy41LCB3aGlj
+aCBpcyBub3cgb24gaHR0cHM6Ly91cmxkZWZlbnNlLnByb29mcG9pbnQuY29tL3YyL3VybD91PWh0
+dHBzLTNBX19ibHVlc3RvcC5vcmdfZmlvJmQ9RHdJQmFRJmM9czg4M0dwVUNPQ2hLT0hpb2NZdEdj
+ZyZyPUJnMHp0aGRJc3p2a0c0bkZoRHRZRlBVR1FiUUZNQUluZE12WHFBQnFKam8mbT04a3lEOFct
+QXRBTFBnNWZtbUEzSmdIaWplUmRGMGtYN0pjLTByNFF5cmpFJnM9Wl9FTGdka0NVaW9UbERoMXhT
+Ri1TQ2RkZkNlMldFb09GbkZxTmNOLVR4USZlPQ0KICAgICAgICA+IC4NCiAgICAgICAgDQogICAg
+ICAgIFJlYmVjY2EgaGFzIGJlZW4gZXhwbGFpbmluZyB5b3UndmUgZ2VuZXJhdGVkIGEgcmVwcm9k
+dWNpYmxlIGhhbmcgb24NCiAgICAgICAgV2luZG93cyBmaW8uIEp1c3QgZm9yIHJlZmVyZW5jZSwg
+Y2FuIHlvdSBjaGVjayB3aGV0aGVyIGZpbyAzLjUgYWxzbw0KICAgICAgICByZXByb2R1Y2VzIHRo
+ZSBwcm9ibGVtPw0KICAgICAgICANCiAgICAgICAgSXQgbG9va3MgbGlrZSB5b3VyIHB5dGhvbiBz
+Y3JpcHQgZ2VuZXJhdGVzIGZpbyBsaW5lcyB3aGljaCBhcmUgYmFzZWQNCiAgICAgICAgb2ZmIGNv
+bmZpZyBsaW5lcyBzaW1pbGFyIHRvIHRoZSBmb2xsb3dpbmc6DQogICAgICAgIA0KICAgICAgICBj
+b25maWc6IHsnYnMnOiA0MDk2LCAnZmlsZW5hbWUnOiAnXFxcXC5cXFBoeXNpY2FsRHJpdmUxJywg
+J251bWpvYnMnOg0KICAgICAgICAxLCAncnVudGltZSc6ICcyMCcsICdpb2RlcHRoJzogMSwgJ2Rp
+cic6ICdyYW5kcmVhZCcsICdzaXplJzogJzIwRyd9DQogICAgICAgIGNvbmZpZzogeydicyc6IDE2
+Mzg0LCAnZmlsZW5hbWUnOg0KICAgICAgICAnXFxcXC5cXFBoeXNpY2FsRHJpdmUxOlxcXFwuXFxQ
+aHlzaWNhbERyaXZlMjpcXFxcLlxcUGh5c2ljYWxEcml2ZTM6XFxcXC5cXFBoeXNpY2FsRHJpdmU0
+OlxcXFwuXFxQaHlzaWNhbERyaXZlNTpcXFxcLlxcUGh5c2ljYWxEcml2ZTY6XFxcXC5cXFBoeXNp
+Y2FsRHJpdmU3OlxcXFwuXFxQaHlzaWNhbERyaXZlOCcsDQogICAgICAgICdudW1qb2JzJzogMjQw
+LCAncnVudGltZSc6ICcyMCcsICdpb2RlcHRoJzogMSwgJ2Rpcic6ICdyYW5kcmVhZCcsDQogICAg
+ICAgICdzaXplJzogJzIwRyd9DQogICAgICAgIGNvbmZpZzogeydicyc6IDEwNDg1NzYsICdmaWxl
+bmFtZSc6ICdcXFxcLlxcUGh5c2ljYWxEcml2ZTEnLA0KICAgICAgICAnbnVtam9icyc6IDMwLCAn
+cnVudGltZSc6ICcyMCcsICdpb2RlcHRoJzogMSwgJ2Rpcic6ICdyYW5kcmVhZCcsDQogICAgICAg
+ICdzaXplJzogJzIwRyd9DQogICAgICAgIA0KICAgICAgICBJcyB0aGlzIGNvcnJlY3Q/IEknbSBh
+ZnJhaWQgSSdtIG5vdCBpbiBhIHBvc2l0aW9uIHdoZXJlIEkgY2FuIGVhc2lseQ0KICAgICAgICBk
+ZWJ1ZyB0aGlzIHVzaW5nIHRoZSBQeXRob24gc2NyaXB0IG9uIFdpbmRvd3MgKHNhZGx5IEkgaGF2
+ZSBubw0KICAgICAgICBpbnRlcmFjdGl2ZSBhY2Nlc3MgdG8gV2luZG93cyBtYWNoaW5lcyBhdCB0
+aGUgbW9tZW50KSBidXQgYSBmZXcgdGhpbmdzDQogICAgICAgIG1pZ2h0IGhlbHAgdG8gbmFycm93
+IGRvd24gdGhlIHByb2JsZW06DQogICAgICAgIA0KICAgICAgICBIb3cgZnJlcXVlbnRseSBpcyB0
+aGUgc2NyaXB0IGFibGUgdG8gcmVwcm9kdWNlIHRoZSBwcm9ibGVtPw0KICAgICAgICBDYW4geW91
+IHN1YnN0aXR1dGUgZmlsZXMgZm9yIGRpc2tzIGFuZCBzdGlsbCByZXByb2R1Y2UgdGhlIHByb2Js
+ZW0/DQogICAgICAgIFdoYXQgYXJlIHRoZSBtaW5pbXVtIG51bWJlciBvZiBmaWxlbmFtZXMgaW52
+b2x2ZWQgd2hlbiB5b3UndmUgc2VlbiBhDQogICAgICAgIGhhbmc/IERvZXMgaXQgYWx3YXlzIG5l
+ZWQgbW9yZSB0aGFuIDE/DQogICAgICAgIFdoYXQncyB0aGUgc21hbGxlc3Qgc2l6ZSB0aGF0IHlv
+dSBjYW4gdXNlIHRoYXQgc3RpbGwgcmVwcm9kdWNlcyB0aGUgcHJvYmxlbT8NCiAgICAgICAgV2hh
+dCdzIHRoZSBzbWFsbGVzdCBhbW91bnQgb2YgbnVtam9icyB0aGF0IHJlcHJvZHVjZSB0aGUgcHJv
+YmxlbT8gRG9lcw0KICAgICAgICBpdCBhbHdheXMgbmVlZCBtb3JlIHRoYW4gMT8NCiAgICAgICAg
+DQogICAgICAgIElkZWFsbHkgaWYgd2UgY2FuIGdldCBkb3duIHRvIHRoZSBzdGFnZSB3aGVyZSB3
+ZSBydW4gc2F5IG9ubHkgdHdvIGZpbw0KICAgICAgICBsaW5lcyByZXBlYXRlZGx5IGluIGEgYmFz
+aCBzY3JpcHQgYW5kIG1ha2UgdGhlIHByb2JsZW0gaGFwcGVuIGl0IHdpbGwNCiAgICAgICAgbWFr
+ZSBpdCBlYXNpZXIgZm9yIG90aGVycyB0byBzZWUgdGhlIHByb2JsZW0gdG9vLi4uDQogICAgICAg
+IA0KICAgICAgICAtLSANCiAgICAgICAgU2l0c29mZSB8IGh0dHBzOi8vdXJsZGVmZW5zZS5wcm9v
+ZnBvaW50LmNvbS92Mi91cmw/dT1odHRwLTNBX19zdWNzLm9yZ18tN0VzaXRzXyZkPUR3SUJhUSZj
+PXM4ODNHcFVDT0NoS09IaW9jWXRHY2cmcj1CZzB6dGhkSXN6dmtHNG5GaER0WUZQVUdRYlFGTUFJ
+bmRNdlhxQUJxSmpvJm09OGt5RDhXLUF0QUxQZzVmbW1BM0pnSGlqZVJkRjBrWDdKYy0wcjRReXJq
+RSZzPTMxZkJqTVI5Q2Q5NVBMN1NzbTdoVjJXOEtyNVdtZUhrcC1hbXBCS2dDZk0mZT0NCiAgICAg
+ICAgDQogICAgDQogICAgDQoNCg==
