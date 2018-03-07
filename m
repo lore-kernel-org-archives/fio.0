@@ -1,465 +1,369 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:52876 "EHLO
+Received: from merlin.infradead.org ([205.233.59.134]:43856 "EHLO
         merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752370AbeCMMAP (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 13 Mar 2018 08:00:15 -0400
+        with ESMTP id S1754378AbeCGNAL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 7 Mar 2018 08:00:11 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1evibG-00031F-G4
-        for fio@vger.kernel.org; Tue, 13 Mar 2018 12:00:14 +0000
+        by merlin.infradead.org with esmtpsa (Exim 4.89 #1 (Red Hat Linux))
+        id 1etYfy-0004Vr-Ao
+        for fio@vger.kernel.org; Wed, 07 Mar 2018 13:00:10 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180313120001.DB41D2C1D65@kernel.dk>
-Date: Tue, 13 Mar 2018 06:00:01 -0600 (MDT)
+Message-Id: <20180307130002.2B6B22C1D65@kernel.dk>
+Date: Wed,  7 Mar 2018 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit e0b3258bde6f39ab3a9d178b56526b65e0e32a8d:
+The following changes since commit b979af5cba25e31dc2a8f2fd89ac5e40c24b6519:
 
-  filesetup: Initialize all members of struct fio_file (2018-03-09 21:34:44 -0700)
+  Merge branch 'howto_typos' of https://github.com/dirtyharrycallahan/fio (2018-03-05 10:29:39 -0700)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to c4bf91427a4fd1fbdb662667307189eabacf45b5:
+for you to fetch changes up to 674456bf7d0f775f774c8097c8bcb98b48cccc51:
 
-  Merge branch 'master' of https://github.com/bvanassche/fio (2018-03-12 18:13:10 -0600)
+  Reduce LOG_MSEC_SLACK (2018-03-06 17:53:20 -0700)
 
 ----------------------------------------------------------------
-Bart Van Assche (4):
-      configure: Disable lex on NetBSD
-      Rename struct rb_node into struct fio_rb_node
-      stat: Fix a compiler warning in __show_run_stats()
-      parse: Fix two compiler warnings
+Jason Dillaman (2):
+      rbd: fixed busy-loop when using eventfd polling
+      rbd: remove support for blkin tracing
 
-Jens Axboe (1):
-      Merge branch 'master' of https://github.com/bvanassche/fio
+Jeff Furlong (1):
+      Reduce LOG_MSEC_SLACK
 
- configure    |  4 +++-
- iolog.c      |  4 ++--
- iolog.h      |  2 +-
- lib/rbtree.c | 49 +++++++++++++++++++++++++------------------------
- lib/rbtree.h | 37 +++++++++++++++++++------------------
- parse.c      |  4 ++--
- stat.c       |  5 +++--
- t/dedupe.c   |  6 +++---
- verify.c     |  2 +-
- 9 files changed, 59 insertions(+), 54 deletions(-)
+Jens Axboe (3):
+      Don't make fadvise failure fatal
+      Default to building native code
+      Merge branch 'wip-rbd-engine' of https://github.com/dillaman/fio
+
+ Makefile      |  3 +++
+ configure     | 56 +++++++++++++++++++++-----------------------------------
+ debug.h       |  1 +
+ engines/rbd.c | 41 ++++++++++++++++++-----------------------
+ ioengines.c   |  4 ++--
+ stat.c        | 14 ++++++++------
+ 6 files changed, 53 insertions(+), 66 deletions(-)
 
 ---
 
 Diff of recent changes:
 
+diff --git a/Makefile b/Makefile
+index c25b422..19ba40a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -31,6 +31,9 @@ SCRIPTS = $(addprefix $(SRCDIR)/,tools/fio_generate_plots tools/plot/fio2gnuplot
+ ifndef CONFIG_FIO_NO_OPT
+   CFLAGS += -O3 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+ endif
++ifdef CONFIG_BUILD_NATIVE
++  CFLAGS += -march=native
++endif
+ 
+ ifdef CONFIG_GFIO
+   PROGS += gfio
 diff --git a/configure b/configure
-index aefd5bb..a73b61e 100755
+index 2e8eb18..589ff3f 100755
 --- a/configure
 +++ b/configure
-@@ -252,6 +252,8 @@ elif check_define __linux__ ; then
-   targetos="Linux"
- elif check_define __OpenBSD__ ; then
-   targetos='OpenBSD'
-+elif check_define __NetBSD__ ; then
-+  targetos='NetBSD'
- elif check_define __sun__ ; then
-   targetos='SunOS'
-   CFLAGS="$CFLAGS -D_REENTRANT"
-@@ -280,7 +282,7 @@ fi
- # cross-compiling to one of these OSes then you'll need to specify
- # the correct CPU with the --cpu option.
- case $targetos in
--AIX|OpenBSD)
-+AIX|*BSD)
-   # Unless explicitly enabled, turn off lex.
-   # OpenBSD will hit syntax error when enabled.
-   if test -z "$disable_lex" ; then
-diff --git a/iolog.c b/iolog.c
-index fc3dade..7d5a136 100644
---- a/iolog.c
-+++ b/iolog.c
-@@ -184,7 +184,7 @@ int read_iolog_get(struct thread_data *td, struct io_u *io_u)
- void prune_io_piece_log(struct thread_data *td)
- {
- 	struct io_piece *ipo;
--	struct rb_node *n;
-+	struct fio_rb_node *n;
+@@ -145,6 +145,7 @@ devdax="no"
+ pmem="no"
+ disable_lex=""
+ disable_pmem="no"
++disable_native="no"
+ prefix=/usr/local
  
- 	while ((n = rb_first(&td->io_hist_tree)) != NULL) {
- 		ipo = rb_entry(n, struct io_piece, rb_node);
-@@ -208,7 +208,7 @@ void prune_io_piece_log(struct thread_data *td)
-  */
- void log_io_piece(struct thread_data *td, struct io_u *io_u)
- {
--	struct rb_node **p, *parent;
-+	struct fio_rb_node **p, *parent;
- 	struct io_piece *ipo, *__ipo;
+ # parse options
+@@ -177,8 +178,6 @@ for opt do
+   ;;
+   --disable-rbd) disable_rbd="yes"
+   ;;
+-  --disable-rbd-blkin) disable_rbd_blkin="yes"
+-  ;;
+   --disable-gfapi) disable_gfapi="yes"
+   ;;
+   --enable-libhdfs) libhdfs="yes"
+@@ -195,6 +194,8 @@ for opt do
+   ;;
+   --enable-cuda) enable_cuda="yes"
+   ;;
++  --disable-native) disable_native="yes"
++  ;;
+   --help)
+     show_help="yes"
+     ;;
+@@ -224,6 +225,7 @@ if test "$show_help" = "yes" ; then
+   echo "--disable-shm           Disable SHM support"
+   echo "--disable-optimizations Don't enable compiler optimizations"
+   echo "--enable-cuda           Enable GPUDirect RDMA support"
++  echo "--disable-native        Don't build for native host"
+   exit $exit_val
+ fi
  
- 	ipo = malloc(sizeof(struct io_piece));
-diff --git a/iolog.h b/iolog.h
-index 2266617..70981f9 100644
---- a/iolog.h
-+++ b/iolog.h
-@@ -199,7 +199,7 @@ enum {
-  */
- struct io_piece {
- 	union {
--		struct rb_node rb_node;
-+		struct fio_rb_node rb_node;
- 		struct flist_head list;
- 	};
- 	struct flist_head trim_list;
-diff --git a/lib/rbtree.c b/lib/rbtree.c
-index 00a5a90..6f0feae 100644
---- a/lib/rbtree.c
-+++ b/lib/rbtree.c
-@@ -22,10 +22,10 @@
+@@ -1629,36 +1631,6 @@ print_config "rbd_invalidate_cache" "$rbd_inval"
+ fi
  
- #include "rbtree.h"
+ ##########################################
+-# check for blkin
+-if test "$rbd_blkin" != "yes" ; then
+-  rbd_blkin="no"
+-fi
+-cat > $TMPC << EOF
+-#include <rbd/librbd.h>
+-#include <zipkin_c.h>
+-
+-int main(int argc, char **argv)
+-{
+-  int r;
+-  struct blkin_trace_info t_info;
+-  blkin_init_trace_info(&t_info);
+-  rbd_completion_t completion;
+-  rbd_image_t image;
+-  uint64_t off;
+-  size_t len;
+-  const char *buf;
+-  r = rbd_aio_write_traced(image, off, len, buf, completion, &t_info);
+-  return 0;
+-}
+-EOF
+-if test "$disable_rbd" != "yes" && test "$disable_rbd_blkin" != "yes" \
+- && compile_prog "" "-lrbd -lrados -lblkin" "rbd_blkin"; then
+-  LIBS="-lblkin $LIBS"
+-  rbd_blkin="yes"
+-fi
+-print_config "rbd blkin tracing" "$rbd_blkin"
+-
+-##########################################
+ # Check whether we have setvbuf
+ if test "$setvbuf" != "yes" ; then
+   setvbuf="no"
+@@ -2131,6 +2103,20 @@ if compile_prog "" "" "mkdir(a, b)"; then
+ fi
+ print_config "mkdir(a, b)" "$mkdir_two"
  
--static void __rb_rotate_left(struct rb_node *node, struct rb_root *root)
-+static void __rb_rotate_left(struct fio_rb_node *node, struct rb_root *root)
- {
--	struct rb_node *right = node->rb_right;
--	struct rb_node *parent = rb_parent(node);
-+	struct fio_rb_node *right = node->rb_right;
-+	struct fio_rb_node *parent = rb_parent(node);
++##########################################
++# check for cc -march=native
++build_native="no"
++cat > $TMPC << EOF
++int main(int argc, char **argv)
++{
++  return 0;
++}
++EOF
++if test "$disable_native" = "no" && compile_prog "-march=native" "" "march=native"; then
++  build_native="yes"
++fi
++print_config "Build march=native" "$build_native"
++
+ #############################################################################
  
- 	if ((node->rb_right = right->rb_left))
- 		rb_set_parent(right->rb_left, node);
-@@ -45,10 +45,10 @@ static void __rb_rotate_left(struct rb_node *node, struct rb_root *root)
- 	rb_set_parent(node, right);
- }
+ if test "$wordsize" = "64" ; then
+@@ -2295,9 +2281,6 @@ fi
+ if test "$rbd_inval" = "yes" ; then
+   output_sym "CONFIG_RBD_INVAL"
+ fi
+-if test "$rbd_blkin" = "yes" ; then
+-  output_sym "CONFIG_RBD_BLKIN"
+-fi
+ if test "$setvbuf" = "yes" ; then
+   output_sym "CONFIG_SETVBUF"
+ fi
+@@ -2377,6 +2360,9 @@ fi
+ if test "$mkdir_two" = "yes" ; then
+   output_sym "CONFIG_HAVE_MKDIR_TWO"
+ fi
++if test "$build_native" = "yes" ; then
++  output_sym "CONFIG_BUILD_NATIVE"
++fi
  
--static void __rb_rotate_right(struct rb_node *node, struct rb_root *root)
-+static void __rb_rotate_right(struct fio_rb_node *node, struct rb_root *root)
- {
--	struct rb_node *left = node->rb_left;
--	struct rb_node *parent = rb_parent(node);
-+	struct fio_rb_node *left = node->rb_left;
-+	struct fio_rb_node *parent = rb_parent(node);
+ echo "LIBS+=$LIBS" >> $config_host_mak
+ echo "GFIO_LIBS+=$GFIO_LIBS" >> $config_host_mak
+diff --git a/debug.h b/debug.h
+index ba62214..ac5f2cc 100644
+--- a/debug.h
++++ b/debug.h
+@@ -43,6 +43,7 @@ enum {
+ 	FIO_WARN_VERIFY_BUF	= 2,
+ 	FIO_WARN_ZONED_BUG	= 4,
+ 	FIO_WARN_IOLOG_DROP	= 8,
++	FIO_WARN_FADVISE	= 16,
+ };
  
- 	if ((node->rb_left = left->rb_right))
- 		rb_set_parent(left->rb_right, node);
-@@ -68,9 +68,9 @@ static void __rb_rotate_right(struct rb_node *node, struct rb_root *root)
- 	rb_set_parent(node, left);
- }
+ #ifdef FIO_INC_DEBUG
+diff --git a/engines/rbd.c b/engines/rbd.c
+index 39501eb..6582b06 100644
+--- a/engines/rbd.c
++++ b/engines/rbd.c
+@@ -9,9 +9,6 @@
  
--void rb_insert_color(struct rb_node *node, struct rb_root *root)
-+void rb_insert_color(struct fio_rb_node *node, struct rb_root *root)
- {
--	struct rb_node *parent, *gparent;
-+	struct fio_rb_node *parent, *gparent;
+ #include "../fio.h"
+ #include "../optgroup.h"
+-#ifdef CONFIG_RBD_BLKIN
+-#include <zipkin_c.h>
+-#endif
  
- 	while ((parent = rb_parent(node)) && rb_is_red(parent))
- 	{
-@@ -79,7 +79,7 @@ void rb_insert_color(struct rb_node *node, struct rb_root *root)
- 		if (parent == gparent->rb_left)
- 		{
- 			{
--				register struct rb_node *uncle = gparent->rb_right;
-+				register struct fio_rb_node *uncle = gparent->rb_right;
- 				if (uncle && rb_is_red(uncle))
- 				{
- 					rb_set_black(uncle);
-@@ -92,7 +92,7 @@ void rb_insert_color(struct rb_node *node, struct rb_root *root)
+ #ifdef CONFIG_RBD_POLL
+ /* add for poll */
+@@ -24,9 +21,6 @@ struct fio_rbd_iou {
+ 	rbd_completion_t completion;
+ 	int io_seen;
+ 	int io_complete;
+-#ifdef CONFIG_RBD_BLKIN
+-	struct blkin_trace_info info;
+-#endif
+ };
  
- 			if (parent->rb_right == node)
- 			{
--				register struct rb_node *tmp;
-+				register struct fio_rb_node *tmp;
- 				__rb_rotate_left(parent, root);
- 				tmp = parent;
- 				parent = node;
-@@ -104,7 +104,7 @@ void rb_insert_color(struct rb_node *node, struct rb_root *root)
- 			__rb_rotate_right(gparent, root);
- 		} else {
- 			{
--				register struct rb_node *uncle = gparent->rb_left;
-+				register struct fio_rb_node *uncle = gparent->rb_left;
- 				if (uncle && rb_is_red(uncle))
- 				{
- 					rb_set_black(uncle);
-@@ -117,7 +117,7 @@ void rb_insert_color(struct rb_node *node, struct rb_root *root)
+ struct rbd_data {
+@@ -146,7 +140,7 @@ static bool _fio_rbd_setup_poll(struct rbd_data *rbd)
+ 	int r;
  
- 			if (parent->rb_left == node)
- 			{
--				register struct rb_node *tmp;
-+				register struct fio_rb_node *tmp;
- 				__rb_rotate_right(parent, root);
- 				tmp = parent;
- 				parent = node;
-@@ -133,10 +133,11 @@ void rb_insert_color(struct rb_node *node, struct rb_root *root)
- 	rb_set_black(root->rb_node);
- }
+ 	/* add for rbd poll */
+-	rbd->fd = eventfd(0, EFD_NONBLOCK);
++	rbd->fd = eventfd(0, EFD_SEMAPHORE);
+ 	if (rbd->fd < 0) {
+ 		log_err("eventfd failed.\n");
+ 		return false;
+@@ -366,25 +360,37 @@ static int rbd_iter_events(struct thread_data *td, unsigned int *events,
+ 	int event_num = 0;
+ 	struct fio_rbd_iou *fri = NULL;
+ 	rbd_completion_t comps[min_evts];
++	uint64_t counter;
++	bool completed;
  
--static void __rb_erase_color(struct rb_node *node, struct rb_node *parent,
-+static void __rb_erase_color(struct fio_rb_node *node,
-+			     struct fio_rb_node *parent,
- 			     struct rb_root *root)
- {
--	struct rb_node *other;
-+	struct fio_rb_node *other;
+ 	struct pollfd pfd;
+ 	pfd.fd = rbd->fd;
+ 	pfd.events = POLLIN;
  
- 	while ((!node || rb_is_black(node)) && node != root->rb_node)
- 	{
-@@ -161,7 +162,7 @@ static void __rb_erase_color(struct rb_node *node, struct rb_node *parent,
- 			{
- 				if (!other->rb_right || rb_is_black(other->rb_right))
- 				{
--					struct rb_node *o_left;
-+					struct fio_rb_node *o_left;
- 					if ((o_left = other->rb_left))
- 						rb_set_black(o_left);
- 					rb_set_red(other);
-@@ -198,7 +199,7 @@ static void __rb_erase_color(struct rb_node *node, struct rb_node *parent,
- 			{
- 				if (!other->rb_left || rb_is_black(other->rb_left))
- 				{
--					register struct rb_node *o_right;
-+					register struct fio_rb_node *o_right;
- 					if ((o_right = other->rb_right))
- 						rb_set_black(o_right);
- 					rb_set_red(other);
-@@ -219,9 +220,9 @@ static void __rb_erase_color(struct rb_node *node, struct rb_node *parent,
- 		rb_set_black(node);
- }
+-	ret = poll(&pfd, 1, -1);
++	ret = poll(&pfd, 1, wait ? -1 : 0);
+ 	if (ret <= 0)
+ 		return 0;
+-
+-	assert(pfd.revents & POLLIN);
++	if (!(pfd.revents & POLLIN))
++		return 0;
  
--void rb_erase(struct rb_node *node, struct rb_root *root)
-+void rb_erase(struct fio_rb_node *node, struct rb_root *root)
- {
--	struct rb_node *child, *parent;
-+	struct fio_rb_node *child, *parent;
- 	int color;
+ 	event_num = rbd_poll_io_events(rbd->image, comps, min_evts);
  
- 	if (!node->rb_left)
-@@ -230,7 +231,7 @@ void rb_erase(struct rb_node *node, struct rb_root *root)
- 		child = node->rb_left;
- 	else
- 	{
--		struct rb_node *old = node, *left;
-+		struct fio_rb_node *old = node, *left;
+ 	for (i = 0; i < event_num; i++) {
+ 		fri = rbd_aio_get_arg(comps[i]);
+ 		io_u = fri->io_u;
++
++		/* best effort to decrement the semaphore */
++		ret = read(rbd->fd, &counter, sizeof(counter));
++		if (ret <= 0)
++			log_err("rbd_iter_events failed to decrement semaphore.\n");
++
++		completed = fri_check_complete(rbd, io_u, events);
++		assert(completed);
++
++		this_events++;
++	}
+ #else
+ 	io_u_qiter(&td->io_u_all, io_u, i) {
+-#endif
+ 		if (!(io_u->flags & IO_U_F_FLIGHT))
+ 			continue;
+ 		if (rbd_io_u_seen(io_u))
+@@ -395,6 +401,7 @@ static int rbd_iter_events(struct thread_data *td, unsigned int *events,
+ 		else if (wait)
+ 			rbd->sort_events[sidx++] = io_u;
+ 	}
++#endif
  
- 		node = node->rb_right;
- 		while ((left = node->rb_left) != NULL)
-@@ -289,9 +290,9 @@ void rb_erase(struct rb_node *node, struct rb_root *root)
- /*
-  * This function returns the first node (in sort order) of the tree.
-  */
--struct rb_node *rb_first(struct rb_root *root)
-+struct fio_rb_node *rb_first(struct rb_root *root)
- {
--	struct rb_node	*n;
-+	struct fio_rb_node	*n;
- 
- 	n = root->rb_node;
- 	if (!n)
-@@ -301,9 +302,9 @@ struct rb_node *rb_first(struct rb_root *root)
- 	return n;
- }
- 
--struct rb_node *rb_next(const struct rb_node *node)
-+struct fio_rb_node *rb_next(const struct fio_rb_node *node)
- {
--	struct rb_node *parent;
-+	struct fio_rb_node *parent;
- 
- 	if (RB_EMPTY_NODE(node))
- 		return NULL;
-@@ -316,7 +317,7 @@ struct rb_node *rb_next(const struct rb_node *node)
- 		node = node->rb_right; 
- 		while (node->rb_left)
- 			node=node->rb_left;
--		return (struct rb_node *)node;
-+		return (struct fio_rb_node *)node;
+ 	if (!wait || !sidx)
+ 		return this_events;
+@@ -474,28 +481,16 @@ static int fio_rbd_queue(struct thread_data *td, struct io_u *io_u)
  	}
  
- 	/*
-diff --git a/lib/rbtree.h b/lib/rbtree.h
-index f31fc56..82ab97a 100644
---- a/lib/rbtree.h
-+++ b/lib/rbtree.h
-@@ -34,7 +34,7 @@
- static inline struct page * rb_search_page_cache(struct inode * inode,
- 						 unsigned long offset)
- {
--	struct rb_node * n = inode->i_rb_page_cache.rb_node;
-+	struct fio_rb_node * n = inode->i_rb_page_cache.rb_node;
- 	struct page * page;
+ 	if (io_u->ddir == DDIR_WRITE) {
+-#ifdef CONFIG_RBD_BLKIN
+-		blkin_init_trace_info(&fri->info);
+-		r = rbd_aio_write_traced(rbd->image, io_u->offset, io_u->xfer_buflen,
+-					 io_u->xfer_buf, fri->completion, &fri->info);
+-#else
+ 		r = rbd_aio_write(rbd->image, io_u->offset, io_u->xfer_buflen,
+ 					 io_u->xfer_buf, fri->completion);
+-#endif
+ 		if (r < 0) {
+ 			log_err("rbd_aio_write failed.\n");
+ 			goto failed_comp;
+ 		}
  
- 	while (n)
-@@ -53,10 +53,10 @@ static inline struct page * rb_search_page_cache(struct inode * inode,
+ 	} else if (io_u->ddir == DDIR_READ) {
+-#ifdef CONFIG_RBD_BLKIN
+-		blkin_init_trace_info(&fri->info);
+-		r = rbd_aio_read_traced(rbd->image, io_u->offset, io_u->xfer_buflen,
+-					io_u->xfer_buf, fri->completion, &fri->info);
+-#else
+ 		r = rbd_aio_read(rbd->image, io_u->offset, io_u->xfer_buflen,
+ 					io_u->xfer_buf, fri->completion);
+-#endif
  
- static inline struct page * __rb_insert_page_cache(struct inode * inode,
- 						   unsigned long offset,
--						   struct rb_node * node)
-+						   struct fio_rb_node * node)
- {
--	struct rb_node ** p = &inode->i_rb_page_cache.rb_node;
--	struct rb_node * parent = NULL;
-+	struct fio_rb_node ** p = &inode->i_rb_page_cache.rb_node;
-+	struct fio_rb_node * parent = NULL;
- 	struct page * page;
+ 		if (r < 0) {
+ 			log_err("rbd_aio_read failed.\n");
+diff --git a/ioengines.c b/ioengines.c
+index 5dd2311..965581a 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -498,8 +498,8 @@ int td_io_open_file(struct thread_data *td, struct fio_file *f)
+ 		}
  
- 	while (*p)
-@@ -79,7 +79,7 @@ static inline struct page * __rb_insert_page_cache(struct inode * inode,
- 
- static inline struct page * rb_insert_page_cache(struct inode * inode,
- 						 unsigned long offset,
--						 struct rb_node * node)
-+						 struct fio_rb_node * node)
- {
- 	struct page * ret;
- 	if ((ret = __rb_insert_page_cache(inode, offset, node)))
-@@ -97,34 +97,34 @@ static inline struct page * rb_insert_page_cache(struct inode * inode,
- #include <stdlib.h>
- #include <inttypes.h>
- 
--struct rb_node
-+struct fio_rb_node
- {
- 	intptr_t rb_parent_color;
- #define	RB_RED		0
- #define	RB_BLACK	1
--	struct rb_node *rb_right;
--	struct rb_node *rb_left;
-+	struct fio_rb_node *rb_right;
-+	struct fio_rb_node *rb_left;
- } __attribute__((aligned(sizeof(long))));
-     /* The alignment might seem pointless, but allegedly CRIS needs it */
- 
- struct rb_root
- {
--	struct rb_node *rb_node;
-+	struct fio_rb_node *rb_node;
- };
- 
- 
--#define rb_parent(r)   ((struct rb_node *)((r)->rb_parent_color & ~3))
-+#define rb_parent(r)   ((struct fio_rb_node *)((r)->rb_parent_color & ~3))
- #define rb_color(r)   ((r)->rb_parent_color & 1)
- #define rb_is_red(r)   (!rb_color(r))
- #define rb_is_black(r) rb_color(r)
- #define rb_set_red(r)  do { (r)->rb_parent_color &= ~1; } while (0)
- #define rb_set_black(r)  do { (r)->rb_parent_color |= 1; } while (0)
- 
--static inline void rb_set_parent(struct rb_node *rb, struct rb_node *p)
-+static inline void rb_set_parent(struct fio_rb_node *rb, struct fio_rb_node *p)
- {
- 	rb->rb_parent_color = (rb->rb_parent_color & 3) | (uintptr_t)p;
- }
--static inline void rb_set_color(struct rb_node *rb, int color)
-+static inline void rb_set_color(struct fio_rb_node *rb, int color)
- {
- 	rb->rb_parent_color = (rb->rb_parent_color & ~1) | color;
- }
-@@ -136,15 +136,16 @@ static inline void rb_set_color(struct rb_node *rb, int color)
- #define RB_EMPTY_NODE(node)	(rb_parent(node) == node)
- #define RB_CLEAR_NODE(node)	(rb_set_parent(node, node))
- 
--extern void rb_insert_color(struct rb_node *, struct rb_root *);
--extern void rb_erase(struct rb_node *, struct rb_root *);
-+extern void rb_insert_color(struct fio_rb_node *, struct rb_root *);
-+extern void rb_erase(struct fio_rb_node *, struct rb_root *);
- 
- /* Find logical next and previous nodes in a tree */
--extern struct rb_node *rb_first(struct rb_root *);
--extern struct rb_node *rb_next(const struct rb_node *);
-+extern struct fio_rb_node *rb_first(struct rb_root *);
-+extern struct fio_rb_node *rb_next(const struct fio_rb_node *);
- 
--static inline void rb_link_node(struct rb_node * node, struct rb_node * parent,
--				struct rb_node ** rb_link)
-+static inline void rb_link_node(struct fio_rb_node * node,
-+				struct fio_rb_node * parent,
-+				struct fio_rb_node ** rb_link)
- {
- 	node->rb_parent_color = (uintptr_t)parent;
- 	node->rb_left = node->rb_right = NULL;
-diff --git a/parse.c b/parse.c
-index a9ee1ce..fdb6611 100644
---- a/parse.c
-+++ b/parse.c
-@@ -172,7 +172,7 @@ static unsigned long long get_mult_time(const char *str, int len,
- 
- 	c = strdup(p);
- 	for (i = 0; i < strlen(c); i++)
--		c[i] = tolower(c[i]);
-+		c[i] = tolower((unsigned char)c[i]);
- 
- 	if (!strncmp("us", c, 2) || !strncmp("usec", c, 4))
- 		mult = 1;
-@@ -218,7 +218,7 @@ static unsigned long long __get_mult_bytes(const char *p, void *data,
- 	c = strdup(p);
- 
- 	for (i = 0; i < strlen(c); i++) {
--		c[i] = tolower(c[i]);
-+		c[i] = tolower((unsigned char)c[i]);
- 		if (is_separator(c[i])) {
- 			c[i] = '\0';
- 			break;
+ 		if (posix_fadvise(f->fd, f->file_offset, f->io_size, flags) < 0) {
+-			td_verror(td, errno, "fadvise");
+-			goto err;
++			if (!fio_did_warn(FIO_WARN_FADVISE))
++				log_err("fio: fadvise hint failed\n");
+ 		}
+ 	}
+ #ifdef FIO_HAVE_WRITE_HINT
 diff --git a/stat.c b/stat.c
-index f89913b..8a242c9 100644
+index 5bbc056..f89913b 100644
 --- a/stat.c
 +++ b/stat.c
-@@ -1860,13 +1860,14 @@ void __show_run_stats(void)
- 		char time_buf[32];
- 		struct timeval now;
- 		unsigned long long ms_since_epoch;
-+		time_t tv_sec;
+@@ -18,7 +18,7 @@
+ #include "helper_thread.h"
+ #include "smalloc.h"
  
- 		gettimeofday(&now, NULL);
- 		ms_since_epoch = (unsigned long long)(now.tv_sec) * 1000 +
- 		                 (unsigned long long)(now.tv_usec) / 1000;
+-#define LOG_MSEC_SLACK	10
++#define LOG_MSEC_SLACK	1
  
--		os_ctime_r((const time_t *) &now.tv_sec, time_buf,
--				sizeof(time_buf));
-+		tv_sec = now.tv_sec;
-+		os_ctime_r(&tv_sec, time_buf, sizeof(time_buf));
- 		if (time_buf[strlen(time_buf) - 1] == '\n')
- 			time_buf[strlen(time_buf) - 1] = '\0';
+ struct fio_mutex *stat_mutex;
  
-diff --git a/t/dedupe.c b/t/dedupe.c
-index c3b837f..9a50821 100644
---- a/t/dedupe.c
-+++ b/t/dedupe.c
-@@ -49,7 +49,7 @@ struct extent {
- };
+@@ -2340,9 +2340,11 @@ static void _add_stat_to_log(struct io_log *iolog, unsigned long elapsed,
+ 		__add_stat_to_log(iolog, ddir, elapsed, log_max);
+ }
  
- struct chunk {
--	struct rb_node rb_node;
-+	struct fio_rb_node rb_node;
- 	uint64_t count;
- 	uint32_t hash[MD5_HASH_WORDS];
- 	struct flist_head extent_list[0];
-@@ -194,7 +194,7 @@ static struct chunk *alloc_chunk(void)
- 
- static void insert_chunk(struct item *i)
+-static long add_log_sample(struct thread_data *td, struct io_log *iolog,
+-			   union io_sample_data data, enum fio_ddir ddir,
+-			   unsigned int bs, uint64_t offset)
++static unsigned long add_log_sample(struct thread_data *td,
++				    struct io_log *iolog,
++				    union io_sample_data data,
++				    enum fio_ddir ddir, unsigned int bs,
++				    uint64_t offset)
  {
--	struct rb_node **p, *parent;
-+	struct fio_rb_node **p, *parent;
- 	struct chunk *c;
- 	int diff;
+ 	unsigned long elapsed, this_window;
  
-@@ -497,7 +497,7 @@ static void show_stat(uint64_t nextents, uint64_t nchunks)
+@@ -2373,7 +2375,7 @@ static long add_log_sample(struct thread_data *td, struct io_log *iolog,
+ 	if (elapsed < iolog->avg_last[ddir])
+ 		return iolog->avg_last[ddir] - elapsed;
+ 	else if (this_window < iolog->avg_msec) {
+-		int diff = iolog->avg_msec - this_window;
++		unsigned long diff = iolog->avg_msec - this_window;
  
- static void iter_rb_tree(uint64_t *nextents, uint64_t *nchunks)
+ 		if (inline_log(iolog) || diff > LOG_MSEC_SLACK)
+ 			return diff;
+@@ -2562,7 +2564,7 @@ static int __add_samples(struct thread_data *td, struct timespec *parent_tv,
  {
--	struct rb_node *n;
-+	struct fio_rb_node *n;
+ 	unsigned long spent, rate;
+ 	enum fio_ddir ddir;
+-	unsigned int next, next_log;
++	unsigned long next, next_log;
  
- 	*nchunks = *nextents = 0;
- 
-diff --git a/verify.c b/verify.c
-index d070f33..17af3bb 100644
---- a/verify.c
-+++ b/verify.c
-@@ -1307,7 +1307,7 @@ int get_next_verify(struct thread_data *td, struct io_u *io_u)
- 		return 0;
- 
- 	if (!RB_EMPTY_ROOT(&td->io_hist_tree)) {
--		struct rb_node *n = rb_first(&td->io_hist_tree);
-+		struct fio_rb_node *n = rb_first(&td->io_hist_tree);
- 
- 		ipo = rb_entry(n, struct io_piece, rb_node);
+ 	next_log = avg_time;
  
