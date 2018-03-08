@@ -1,165 +1,139 @@
-Return-Path: <sitsofe@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <CALjAwxgF-2dK+Bc9iwkVsxA4sfWKYSmHe8k3YbpUyDmBWP34ow@mail.gmail.com>
+Return-Path: <rob.scheepens@nutanix.com>
+From: Rob Scheepens <rob.scheepens@nutanix.com>
+Subject: Re: Windows: FIO randomly hangs using attached script
+Date: Thu, 8 Mar 2018 15:45:48 +0000
+Message-ID: <9CF9520C-EA71-47FC-85FE-7EBEA84B406B@nutanix.com>
 References: <e044afaa-22ad-c7e2-d041-e2658f49bac8@bluestop.org>
  <CALjAwxjoTtRp1jVhfKMTcbn6wnmEmmCsjkpO7CkBgF5zj4B3Bg@mail.gmail.com>
- <9cf7d62a-5c4a-737a-d119-13763fb42c72@bluestop.org> <CALjAwxhxpLuLeysnp5kC-kQoWH++4hvehCWJxc9yA_Fcsy=pmw@mail.gmail.com>
- <BAE7B5AF-63F9-4E95-940D-7C84CE5AD92E@nutanix.com> <36259BEC-1CF0-45A5-85AE-F557989EDF30@nutanix.com>
- <2B8D69D8-05F3-4500-8A4E-F5DE21356676@nutanix.com> <CALjAwxiTX1=7pJKQ1Lz7nDkMXZqVJkMkNZDOA_XJYsEGP7wSfw@mail.gmail.com>
- <971ECD81-B100-4EEE-98CE-0E578A59BB02@nutanix.com> <7B5FFC71-BE67-435F-8DE6-8376E52754EB@nutanix.com>
+ <9cf7d62a-5c4a-737a-d119-13763fb42c72@bluestop.org>
+ <CALjAwxhxpLuLeysnp5kC-kQoWH++4hvehCWJxc9yA_Fcsy=pmw@mail.gmail.com>
+ <BAE7B5AF-63F9-4E95-940D-7C84CE5AD92E@nutanix.com>
+ <36259BEC-1CF0-45A5-85AE-F557989EDF30@nutanix.com>
+ <2B8D69D8-05F3-4500-8A4E-F5DE21356676@nutanix.com>
+ <CALjAwxiTX1=7pJKQ1Lz7nDkMXZqVJkMkNZDOA_XJYsEGP7wSfw@mail.gmail.com>
+ <971ECD81-B100-4EEE-98CE-0E578A59BB02@nutanix.com>
+ <7B5FFC71-BE67-435F-8DE6-8376E52754EB@nutanix.com>
  <CALjAwxgF-2dK+Bc9iwkVsxA4sfWKYSmHe8k3YbpUyDmBWP34ow@mail.gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Thu, 8 Mar 2018 15:46:21 +0000
-Message-ID: <CALjAwxirkjduZof+F3prrKX0wp9YS8apS-YdK8+ru1supg1dnA@mail.gmail.com>
-Subject: Re: Windows: FIO randomly hangs using attached script
-Content-Type: text/plain; charset="UTF-8"
-To: Rob Scheepens <rob.scheepens@nutanix.com>
+In-Reply-To: <CALjAwxgF-2dK+Bc9iwkVsxA4sfWKYSmHe8k3YbpUyDmBWP34ow@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <4C396B4CD8604745A69E58E842E43311@namprd02.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: David Knierim <knierim@nutanix.com>, Rebecca Cran <rebecca@bluestop.org>, fio <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-(I'm going to bottom post for now)
-
-On 8 March 2018 at 15:13, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
-> OK wow that was big.
->
-> The threads from 3 - 101 seem to be stuck with a backtrace that looks
-> similar to this:
->
-> Thread 3 (Thread 3784.0xd38):
-> #0  0x00007ff845d06124 in ntdll!ZwWaitForSingleObject () from
-> C:\Windows\SYSTEM32\ntdll.dll
-> #1  0x00007ff842633acf in WaitForSingleObjectEx () from
-> C:\Windows\System32\KernelBase.dll
-> #2  0x000000000046c0df in pthread_mutex_lock_intern
-> (timeout=4294967295, m=0x1e1880)
->     at /usr/src/debug/mingw64-x86_64-winpthreads-5.0.3-1/src/mutex.c:167
-> #3  pthread_mutex_lock (m=m@entry=0x1b0000) at
-> /usr/src/debug/mingw64-x86_64-winpthreads-5.0.3-1/src/mutex.c:188
-> #4  0x0000000000441213 in fio_mutex_down (mutex=0x1b0000) at mutex.c:220
-> #5  0x0000000000446eae in sfree_pool (ptr=0x2bc6060, pool=0x55c980
-> <mp>) at smalloc.c:312
-> #6  sfree (ptr=0x2bc6070) at smalloc.c:336
-> #7  0x000000000042df59 in close_and_free_files (td=td@entry=0xb0d2960)
-> at filesetup.c:1358
-> #8  0x000000000045992c in thread_main (data=<optimized out>) at backend.c:1901
-> #9  0x000000000046df74 in pthread_create_wrapper (args=0x0)
->     at /usr/src/debug/mingw64-x86_64-winpthreads-5.0.3-1/src/thread.c:1492
-> #10 0x00007ff845a9b2ba in msvcrt!_beginthreadex () from
-> C:\Windows\System32\msvcrt.dll
-> #11 0x00007ff845a9b38c in msvcrt!_endthreadex () from
-> C:\Windows\System32\msvcrt.dll
-> #12 0x00007ff8448d8364 in KERNEL32!BaseThreadInitThunk () from
-> C:\Windows\System32\kernel32.dll
-> #13 0x00007ff845cc7091 in ntdll!RtlUserThreadStart () from
-> C:\Windows\SYSTEM32\ntdll.dll
-> #14 0x0000000000000000 in ?? ()
-> Backtrace stopped: previous frame inner to this frame (corrupt stack?)
->
-> From thread 102 - 201 things look like this:
->
-> Thread 102 (Thread 3784.0x8d4):
-> #0  0x00007ff845d061c4 in ntdll!ZwRemoveIoCompletion () from
-> C:\Windows\SYSTEM32\ntdll.dll
-> #1  0x00007ff84264ac2f in KERNELBASE!GetQueuedCompletionStatus () from
-> C:\Windows\System32\KernelBase.dll
-> #2  0x00000000004686b0 in IoCompletionRoutine (lpParameter=0xb001bd0)
-> at engines/windowsaio.c:427
-> #3  0x00007ff8448d8364 in KERNEL32!BaseThreadInitThunk () from
-> C:\Windows\System32\kernel32.dll
-> #4  0x00007ff845cc7091 in ntdll!RtlUserThreadStart () from
-> C:\Windows\SYSTEM32\ntdll.dll
-> #5  0x0000000000000000 in ?? ()
-> Backtrace stopped: previous frame inner to this frame (corrupt stack?)
->
-> For completeness here's Thread 1 and 2:
->
-> Thread 2 (Thread 3784.0x1574):
-> #0  0x00007ff845d06bf4 in ntdll!ZwWaitForMultipleObjects () from
-> C:\Windows\SYSTEM32\ntdll.dll
-> #1  0x00007ff84264796f in WaitForMultipleObjectsEx () from
-> C:\Windows\System32\KernelBase.dll
-> #2  0x00007ff84264786e in WaitForMultipleObjects () from
-> C:\Windows\System32\KernelBase.dll
-> #3  0x000000000046b31f in do_sema_b_wait_intern
-> (sema=sema@entry=0x8cc, nointerrupt=nointerrupt@entry=0,
->     timeout=timeout@entry=500) at
-> /usr/src/debug/mingw64-x86_64-winpthreads-5.0.3-1/src/cond.c:625
-> #4  0x000000000046b60e in do_sema_b_wait (sema=0x8cc, nointerrupt=0,
-> timeout=500, cs=0xafc9a60, val=0xafc9a88)
->     at /usr/src/debug/mingw64-x86_64-winpthreads-5.0.3-1/src/cond.c:584
-> #5  0x000000000046be8e in pthread_cond_timedwait_impl (c=c@entry=0x2c2d0f8,
->     external_mutex=external_mutex@entry=0x2c2d0f0,
-> t=t@entry=0x1ce9fe30, rel=rel@entry=0)
->     at /usr/src/debug/mingw64-x86_64-winpthreads-5.0.3-1/src/cond.c:504
-> #6  0x000000000046bea8 in pthread_cond_timedwait (c=c@entry=0x2c2d0f8,
-> m=m@entry=0x2c2d0f0, t=t@entry=0x1ce9fe30)
->     at /usr/src/debug/mingw64-x86_64-winpthreads-5.0.3-1/src/cond.c:515
-> #7  0x0000000000466978 in helper_thread_main (data=0x2c2d0d0) at
-> helper_thread.c:95
-> #8  0x000000000046df74 in pthread_create_wrapper (args=0x0)
->     at /usr/src/debug/mingw64-x86_64-winpthreads-5.0.3-1/src/thread.c:1492
-> #9  0x00007ff845a9b2ba in msvcrt!_beginthreadex () from
-> C:\Windows\System32\msvcrt.dll
-> #10 0x00007ff845a9b38c in msvcrt!_endthreadex () from
-> C:\Windows\System32\msvcrt.dll
-> #11 0x00007ff8448d8364 in KERNEL32!BaseThreadInitThunk () from
-> C:\Windows\System32\kernel32.dll
-> #12 0x00007ff845cc7091 in ntdll!RtlUserThreadStart () from
-> C:\Windows\SYSTEM32\ntdll.dll
-> #13 0x0000000000000000 in ?? ()
-> Backtrace stopped: previous frame inner to this frame (corrupt stack?)
->
-> Thread 1 (Thread 3784.0x16fc):
-> #0  0x00007ff845d06724 in ntdll!ZwDelayExecution () from
-> C:\Windows\SYSTEM32\ntdll.dll
-> #1  0x00007ff842647b47 in SleepEx () from C:\Windows\System32\KernelBase.dll
-> #2  0x0000000000469fa8 in usleep (useconds=<optimized out>,
-> useconds@entry=10000) at os/windows/posix.c:572
-> #3  0x000000000045d03a in do_usleep (usecs=10000) at backend.c:2129
-> #4  run_threads (sk_out=sk_out@entry=0x0) at backend.c:2444
-> #5  0x000000000045d3da in fio_backend (sk_out=sk_out@entry=0x0) at
-> backend.c:2493
-> #6  0x0000000000480329 in main (argc=4, argv=0x1e13c0, envp=<optimized
-> out>) at fio.c:65
->
-> This could take a while to figure out!
-
-Here a thread in among the others that looks different:
-
-Thread 53 (Thread 3784.0xca0):
-#0  0x00007ff845d06124 in ntdll!ZwWaitForSingleObject () from
-C:\Windows\SYSTEM32\ntdll.dll
-#1  0x00007ff842633acf in WaitForSingleObjectEx () from
-C:\Windows\System32\KernelBase.dll
-#2  0x000000000046b4cc in do_sema_b_wait_intern (sema=sema@entry=0xa8,
-nointerrupt=nointerrupt@entry=1,
-    timeout=timeout@entry=4294967295) at
-/usr/src/debug/mingw64-x86_64-winpthreads-5.0.3-1/src/cond.c:601
-#3  0x000000000046b60e in do_sema_b_wait (sema=0xa8, nointerrupt=1,
-timeout=4294967295, cs=0x1e15f0, val=0x1e1618)
-    at /usr/src/debug/mingw64-x86_64-winpthreads-5.0.3-1/src/cond.c:584
-#4  0x000000000046b89f in pthread_cond_signal (c=<optimized out>)
-    at /usr/src/debug/mingw64-x86_64-winpthreads-5.0.3-1/src/cond.c:327
-#5  0x00000000004412c0 in fio_mutex_up (mutex=<optimized out>) at mutex.c:246
-#6  0x0000000000446feb in sfree_pool (ptr=<optimized out>,
-pool=<optimized out>) at smalloc.c:317
-#7  sfree (ptr=<optimized out>) at smalloc.c:336
-#8  0x000000000042df59 in close_and_free_files (td=td@entry=0xb4e02a0)
-at filesetup.c:1358
-#9  0x000000000045992c in thread_main (data=<optimized out>) at backend.c:1901
-#10 0x000000000046df74 in pthread_create_wrapper (args=0x0)
-    at /usr/src/debug/mingw64-x86_64-winpthreads-5.0.3-1/src/thread.c:1492
-#11 0x00007ff845a9b2ba in msvcrt!_beginthreadex () from
-C:\Windows\System32\msvcrt.dll
-#12 0x00007ff845a9b38c in msvcrt!_endthreadex () from
-C:\Windows\System32\msvcrt.dll
-#13 0x00007ff8448d8364 in KERNEL32!BaseThreadInitThunk () from
-C:\Windows\System32\kernel32.dll
-#14 0x00007ff845cc7091 in ntdll!RtlUserThreadStart () from
-C:\Windows\SYSTEM32\ntdll.dll
-#15 0x0000000000000000 in ?? ()
-Backtrace stopped: previous frame inner to this frame (corrupt stack?)
-
--- 
-Sitsofe | http://sucs.org/~sits/
+SnVzdCBjYW1lIGFjcm9zcyB3aGF0IHNlZW1zIHRvIGJlIGFuIChvbGQpIHNpbWlsYXIgaXNzdWUs
+IHdoZXJlIG5vIHJlc29sdXRpb24gaXMgbWVudGlvbmVkIChsYXN0IHJlcGx5IDQgeWVhcnMgYWdv
+KToNCg0KZGVhZGxvY2sgaW4gZmlvLi4gY2xpZW50L3NlcnZlcjoNCmh0dHBzOi8vd3d3LnNwaW5p
+Y3MubmV0L2xpc3RzL2Zpby9tc2cwMzMyNS5odG1sDQoNClxSb2INCg0K77u/T24gMDgvMDMvMjAx
+OCwgMTc6MTMsICJTaXRzb2ZlIFdoZWVsZXIiIDxzaXRzb2ZlQGdtYWlsLmNvbT4gd3JvdGU6DQoN
+CiAgICBPSyB3b3cgdGhhdCB3YXMgYmlnLg0KICAgIA0KICAgIFRoZSB0aHJlYWRzIGZyb20gMyAt
+IDEwMSBzZWVtIHRvIGJlIHN0dWNrIHdpdGggYSBiYWNrdHJhY2UgdGhhdCBsb29rcw0KICAgIHNp
+bWlsYXIgdG8gdGhpczoNCiAgICANCiAgICBUaHJlYWQgMyAoVGhyZWFkIDM3ODQuMHhkMzgpOg0K
+ICAgICMwICAweDAwMDA3ZmY4NDVkMDYxMjQgaW4gbnRkbGwhWndXYWl0Rm9yU2luZ2xlT2JqZWN0
+ICgpIGZyb20NCiAgICBDOlxXaW5kb3dzXFNZU1RFTTMyXG50ZGxsLmRsbA0KICAgICMxICAweDAw
+MDA3ZmY4NDI2MzNhY2YgaW4gV2FpdEZvclNpbmdsZU9iamVjdEV4ICgpIGZyb20NCiAgICBDOlxX
+aW5kb3dzXFN5c3RlbTMyXEtlcm5lbEJhc2UuZGxsDQogICAgIzIgIDB4MDAwMDAwMDAwMDQ2YzBk
+ZiBpbiBwdGhyZWFkX211dGV4X2xvY2tfaW50ZXJuDQogICAgKHRpbWVvdXQ9NDI5NDk2NzI5NSwg
+bT0weDFlMTg4MCkNCiAgICAgICAgYXQgL3Vzci9zcmMvZGVidWcvbWluZ3c2NC14ODZfNjQtd2lu
+cHRocmVhZHMtNS4wLjMtMS9zcmMvbXV0ZXguYzoxNjcNCiAgICAjMyAgcHRocmVhZF9tdXRleF9s
+b2NrIChtPW1AZW50cnk9MHgxYjAwMDApIGF0DQogICAgL3Vzci9zcmMvZGVidWcvbWluZ3c2NC14
+ODZfNjQtd2lucHRocmVhZHMtNS4wLjMtMS9zcmMvbXV0ZXguYzoxODgNCiAgICAjNCAgMHgwMDAw
+MDAwMDAwNDQxMjEzIGluIGZpb19tdXRleF9kb3duIChtdXRleD0weDFiMDAwMCkgYXQgbXV0ZXgu
+YzoyMjANCiAgICAjNSAgMHgwMDAwMDAwMDAwNDQ2ZWFlIGluIHNmcmVlX3Bvb2wgKHB0cj0weDJi
+YzYwNjAsIHBvb2w9MHg1NWM5ODANCiAgICA8bXA+KSBhdCBzbWFsbG9jLmM6MzEyDQogICAgIzYg
+IHNmcmVlIChwdHI9MHgyYmM2MDcwKSBhdCBzbWFsbG9jLmM6MzM2DQogICAgIzcgIDB4MDAwMDAw
+MDAwMDQyZGY1OSBpbiBjbG9zZV9hbmRfZnJlZV9maWxlcyAodGQ9dGRAZW50cnk9MHhiMGQyOTYw
+KQ0KICAgIGF0IGZpbGVzZXR1cC5jOjEzNTgNCiAgICAjOCAgMHgwMDAwMDAwMDAwNDU5OTJjIGlu
+IHRocmVhZF9tYWluIChkYXRhPTxvcHRpbWl6ZWQgb3V0PikgYXQgYmFja2VuZC5jOjE5MDENCiAg
+ICAjOSAgMHgwMDAwMDAwMDAwNDZkZjc0IGluIHB0aHJlYWRfY3JlYXRlX3dyYXBwZXIgKGFyZ3M9
+MHgwKQ0KICAgICAgICBhdCAvdXNyL3NyYy9kZWJ1Zy9taW5ndzY0LXg4Nl82NC13aW5wdGhyZWFk
+cy01LjAuMy0xL3NyYy90aHJlYWQuYzoxNDkyDQogICAgIzEwIDB4MDAwMDdmZjg0NWE5YjJiYSBp
+biBtc3ZjcnQhX2JlZ2ludGhyZWFkZXggKCkgZnJvbQ0KICAgIEM6XFdpbmRvd3NcU3lzdGVtMzJc
+bXN2Y3J0LmRsbA0KICAgICMxMSAweDAwMDA3ZmY4NDVhOWIzOGMgaW4gbXN2Y3J0IV9lbmR0aHJl
+YWRleCAoKSBmcm9tDQogICAgQzpcV2luZG93c1xTeXN0ZW0zMlxtc3ZjcnQuZGxsDQogICAgIzEy
+IDB4MDAwMDdmZjg0NDhkODM2NCBpbiBLRVJORUwzMiFCYXNlVGhyZWFkSW5pdFRodW5rICgpIGZy
+b20NCiAgICBDOlxXaW5kb3dzXFN5c3RlbTMyXGtlcm5lbDMyLmRsbA0KICAgICMxMyAweDAwMDA3
+ZmY4NDVjYzcwOTEgaW4gbnRkbGwhUnRsVXNlclRocmVhZFN0YXJ0ICgpIGZyb20NCiAgICBDOlxX
+aW5kb3dzXFNZU1RFTTMyXG50ZGxsLmRsbA0KICAgICMxNCAweDAwMDAwMDAwMDAwMDAwMDAgaW4g
+Pz8gKCkNCiAgICBCYWNrdHJhY2Ugc3RvcHBlZDogcHJldmlvdXMgZnJhbWUgaW5uZXIgdG8gdGhp
+cyBmcmFtZSAoY29ycnVwdCBzdGFjaz8pDQogICAgDQogICAgRnJvbSB0aHJlYWQgMTAyIC0gMjAx
+IHRoaW5ncyBsb29rIGxpa2UgdGhpczoNCiAgICANCiAgICBUaHJlYWQgMTAyIChUaHJlYWQgMzc4
+NC4weDhkNCk6DQogICAgIzAgIDB4MDAwMDdmZjg0NWQwNjFjNCBpbiBudGRsbCFad1JlbW92ZUlv
+Q29tcGxldGlvbiAoKSBmcm9tDQogICAgQzpcV2luZG93c1xTWVNURU0zMlxudGRsbC5kbGwNCiAg
+ICAjMSAgMHgwMDAwN2ZmODQyNjRhYzJmIGluIEtFUk5FTEJBU0UhR2V0UXVldWVkQ29tcGxldGlv
+blN0YXR1cyAoKSBmcm9tDQogICAgQzpcV2luZG93c1xTeXN0ZW0zMlxLZXJuZWxCYXNlLmRsbA0K
+ICAgICMyICAweDAwMDAwMDAwMDA0Njg2YjAgaW4gSW9Db21wbGV0aW9uUm91dGluZSAobHBQYXJh
+bWV0ZXI9MHhiMDAxYmQwKQ0KICAgIGF0IGVuZ2luZXMvd2luZG93c2Fpby5jOjQyNw0KICAgICMz
+ICAweDAwMDA3ZmY4NDQ4ZDgzNjQgaW4gS0VSTkVMMzIhQmFzZVRocmVhZEluaXRUaHVuayAoKSBm
+cm9tDQogICAgQzpcV2luZG93c1xTeXN0ZW0zMlxrZXJuZWwzMi5kbGwNCiAgICAjNCAgMHgwMDAw
+N2ZmODQ1Y2M3MDkxIGluIG50ZGxsIVJ0bFVzZXJUaHJlYWRTdGFydCAoKSBmcm9tDQogICAgQzpc
+V2luZG93c1xTWVNURU0zMlxudGRsbC5kbGwNCiAgICAjNSAgMHgwMDAwMDAwMDAwMDAwMDAwIGlu
+ID8/ICgpDQogICAgQmFja3RyYWNlIHN0b3BwZWQ6IHByZXZpb3VzIGZyYW1lIGlubmVyIHRvIHRo
+aXMgZnJhbWUgKGNvcnJ1cHQgc3RhY2s/KQ0KICAgIA0KICAgIEZvciBjb21wbGV0ZW5lc3MgaGVy
+ZSdzIFRocmVhZCAxIGFuZCAyOg0KICAgIA0KICAgIFRocmVhZCAyIChUaHJlYWQgMzc4NC4weDE1
+NzQpOg0KICAgICMwICAweDAwMDA3ZmY4NDVkMDZiZjQgaW4gbnRkbGwhWndXYWl0Rm9yTXVsdGlw
+bGVPYmplY3RzICgpIGZyb20NCiAgICBDOlxXaW5kb3dzXFNZU1RFTTMyXG50ZGxsLmRsbA0KICAg
+ICMxICAweDAwMDA3ZmY4NDI2NDc5NmYgaW4gV2FpdEZvck11bHRpcGxlT2JqZWN0c0V4ICgpIGZy
+b20NCiAgICBDOlxXaW5kb3dzXFN5c3RlbTMyXEtlcm5lbEJhc2UuZGxsDQogICAgIzIgIDB4MDAw
+MDdmZjg0MjY0Nzg2ZSBpbiBXYWl0Rm9yTXVsdGlwbGVPYmplY3RzICgpIGZyb20NCiAgICBDOlxX
+aW5kb3dzXFN5c3RlbTMyXEtlcm5lbEJhc2UuZGxsDQogICAgIzMgIDB4MDAwMDAwMDAwMDQ2YjMx
+ZiBpbiBkb19zZW1hX2Jfd2FpdF9pbnRlcm4NCiAgICAoc2VtYT1zZW1hQGVudHJ5PTB4OGNjLCBu
+b2ludGVycnVwdD1ub2ludGVycnVwdEBlbnRyeT0wLA0KICAgICAgICB0aW1lb3V0PXRpbWVvdXRA
+ZW50cnk9NTAwKSBhdA0KICAgIC91c3Ivc3JjL2RlYnVnL21pbmd3NjQteDg2XzY0LXdpbnB0aHJl
+YWRzLTUuMC4zLTEvc3JjL2NvbmQuYzo2MjUNCiAgICAjNCAgMHgwMDAwMDAwMDAwNDZiNjBlIGlu
+IGRvX3NlbWFfYl93YWl0IChzZW1hPTB4OGNjLCBub2ludGVycnVwdD0wLA0KICAgIHRpbWVvdXQ9
+NTAwLCBjcz0weGFmYzlhNjAsIHZhbD0weGFmYzlhODgpDQogICAgICAgIGF0IC91c3Ivc3JjL2Rl
+YnVnL21pbmd3NjQteDg2XzY0LXdpbnB0aHJlYWRzLTUuMC4zLTEvc3JjL2NvbmQuYzo1ODQNCiAg
+ICAjNSAgMHgwMDAwMDAwMDAwNDZiZThlIGluIHB0aHJlYWRfY29uZF90aW1lZHdhaXRfaW1wbCAo
+Yz1jQGVudHJ5PTB4MmMyZDBmOCwNCiAgICAgICAgZXh0ZXJuYWxfbXV0ZXg9ZXh0ZXJuYWxfbXV0
+ZXhAZW50cnk9MHgyYzJkMGYwLA0KICAgIHQ9dEBlbnRyeT0weDFjZTlmZTMwLCByZWw9cmVsQGVu
+dHJ5PTApDQogICAgICAgIGF0IC91c3Ivc3JjL2RlYnVnL21pbmd3NjQteDg2XzY0LXdpbnB0aHJl
+YWRzLTUuMC4zLTEvc3JjL2NvbmQuYzo1MDQNCiAgICAjNiAgMHgwMDAwMDAwMDAwNDZiZWE4IGlu
+IHB0aHJlYWRfY29uZF90aW1lZHdhaXQgKGM9Y0BlbnRyeT0weDJjMmQwZjgsDQogICAgbT1tQGVu
+dHJ5PTB4MmMyZDBmMCwgdD10QGVudHJ5PTB4MWNlOWZlMzApDQogICAgICAgIGF0IC91c3Ivc3Jj
+L2RlYnVnL21pbmd3NjQteDg2XzY0LXdpbnB0aHJlYWRzLTUuMC4zLTEvc3JjL2NvbmQuYzo1MTUN
+CiAgICAjNyAgMHgwMDAwMDAwMDAwNDY2OTc4IGluIGhlbHBlcl90aHJlYWRfbWFpbiAoZGF0YT0w
+eDJjMmQwZDApIGF0DQogICAgaGVscGVyX3RocmVhZC5jOjk1DQogICAgIzggIDB4MDAwMDAwMDAw
+MDQ2ZGY3NCBpbiBwdGhyZWFkX2NyZWF0ZV93cmFwcGVyIChhcmdzPTB4MCkNCiAgICAgICAgYXQg
+L3Vzci9zcmMvZGVidWcvbWluZ3c2NC14ODZfNjQtd2lucHRocmVhZHMtNS4wLjMtMS9zcmMvdGhy
+ZWFkLmM6MTQ5Mg0KICAgICM5ICAweDAwMDA3ZmY4NDVhOWIyYmEgaW4gbXN2Y3J0IV9iZWdpbnRo
+cmVhZGV4ICgpIGZyb20NCiAgICBDOlxXaW5kb3dzXFN5c3RlbTMyXG1zdmNydC5kbGwNCiAgICAj
+MTAgMHgwMDAwN2ZmODQ1YTliMzhjIGluIG1zdmNydCFfZW5kdGhyZWFkZXggKCkgZnJvbQ0KICAg
+IEM6XFdpbmRvd3NcU3lzdGVtMzJcbXN2Y3J0LmRsbA0KICAgICMxMSAweDAwMDA3ZmY4NDQ4ZDgz
+NjQgaW4gS0VSTkVMMzIhQmFzZVRocmVhZEluaXRUaHVuayAoKSBmcm9tDQogICAgQzpcV2luZG93
+c1xTeXN0ZW0zMlxrZXJuZWwzMi5kbGwNCiAgICAjMTIgMHgwMDAwN2ZmODQ1Y2M3MDkxIGluIG50
+ZGxsIVJ0bFVzZXJUaHJlYWRTdGFydCAoKSBmcm9tDQogICAgQzpcV2luZG93c1xTWVNURU0zMlxu
+dGRsbC5kbGwNCiAgICAjMTMgMHgwMDAwMDAwMDAwMDAwMDAwIGluID8/ICgpDQogICAgQmFja3Ry
+YWNlIHN0b3BwZWQ6IHByZXZpb3VzIGZyYW1lIGlubmVyIHRvIHRoaXMgZnJhbWUgKGNvcnJ1cHQg
+c3RhY2s/KQ0KICAgIA0KICAgIFRocmVhZCAxIChUaHJlYWQgMzc4NC4weDE2ZmMpOg0KICAgICMw
+ICAweDAwMDA3ZmY4NDVkMDY3MjQgaW4gbnRkbGwhWndEZWxheUV4ZWN1dGlvbiAoKSBmcm9tDQog
+ICAgQzpcV2luZG93c1xTWVNURU0zMlxudGRsbC5kbGwNCiAgICAjMSAgMHgwMDAwN2ZmODQyNjQ3
+YjQ3IGluIFNsZWVwRXggKCkgZnJvbSBDOlxXaW5kb3dzXFN5c3RlbTMyXEtlcm5lbEJhc2UuZGxs
+DQogICAgIzIgIDB4MDAwMDAwMDAwMDQ2OWZhOCBpbiB1c2xlZXAgKHVzZWNvbmRzPTxvcHRpbWl6
+ZWQgb3V0PiwNCiAgICB1c2Vjb25kc0BlbnRyeT0xMDAwMCkgYXQgb3Mvd2luZG93cy9wb3NpeC5j
+OjU3Mg0KICAgICMzICAweDAwMDAwMDAwMDA0NWQwM2EgaW4gZG9fdXNsZWVwICh1c2Vjcz0xMDAw
+MCkgYXQgYmFja2VuZC5jOjIxMjkNCiAgICAjNCAgcnVuX3RocmVhZHMgKHNrX291dD1za19vdXRA
+ZW50cnk9MHgwKSBhdCBiYWNrZW5kLmM6MjQ0NA0KICAgICM1ICAweDAwMDAwMDAwMDA0NWQzZGEg
+aW4gZmlvX2JhY2tlbmQgKHNrX291dD1za19vdXRAZW50cnk9MHgwKSBhdA0KICAgIGJhY2tlbmQu
+YzoyNDkzDQogICAgIzYgIDB4MDAwMDAwMDAwMDQ4MDMyOSBpbiBtYWluIChhcmdjPTQsIGFyZ3Y9
+MHgxZTEzYzAsIGVudnA9PG9wdGltaXplZA0KICAgIG91dD4pIGF0IGZpby5jOjY1DQogICAgDQog
+ICAgVGhpcyBjb3VsZCB0YWtlIGEgd2hpbGUgdG8gZmlndXJlIG91dCENCiAgICANCiAgICBPbiA4
+IE1hcmNoIDIwMTggYXQgMTQ6MzUsIFJvYiBTY2hlZXBlbnMgPHJvYi5zY2hlZXBlbnNAbnV0YW5p
+eC5jb20+IHdyb3RlOg0KICAgID4gU2l0c29mZSwNCiAgICA+DQogICAgPiBTZWUgYXR0YWNoZWQg
+Zm9yIHRoZSBmaW8gdGhyZWFkcycgYmFja3RyYWNlcy4NCiAgICA+DQogICAgPiBcUm9iDQogICAg
+Pg0KICAgID4NCiAgICA+IE9uIDA4LzAzLzIwMTgsIDE0OjM5LCAiUm9iIFNjaGVlcGVucyIgPHJv
+Yi5zY2hlZXBlbnNAbnV0YW5peC5jb20+IHdyb3RlOg0KICAgID4NCiAgICA+ICAgICBJJ2xsIHNl
+ZSBpZiBJIGNhbiBnZXQgZ2RiIHNldHVwIGxpa2UgdGhhdC4NCiAgICA+DQogICAgPiAgICAgQmVs
+b3cgb3V0cHV0IHNob3dzIHNwZWMgMTc2IHdhcyB0aGUgbGFzdCBqb2IgdGhhdCByYW4gb2ssIHNv
+IHlvdSBjb3VsZCB0cnkgaWYgaXQgcmVwcm9kdWNlcyB3aXRoIDE3Ny4gSG93ZXZlciwgdGhlIGpv
+YiBudW1iZXIgZXhoaWJpdGluZyB0aGUgaGFuZyB1c3VhbGx5IGlzIGRpZmZlcmVudCBldmVyeSB0
+aW1lLg0KICAgIA0KICAgIC0tIA0KICAgIFNpdHNvZmUgfCBodHRwczovL3VybGRlZmVuc2UucHJv
+b2Zwb2ludC5jb20vdjIvdXJsP3U9aHR0cC0zQV9fc3Vjcy5vcmdfLTdFc2l0c18mZD1Ed0lGYVEm
+Yz1zODgzR3BVQ09DaEtPSGlvY1l0R2NnJnI9T01nZWQtdF81SV9mbWZwVWFUM3ZhQTA2bGdMTF9h
+bFluRFFKeEhtWHo2NCZtPWtsbWRseDYxTDUtUUZLS05GZ2J1dXdnUUt0d3Npb0NyNGJaY1RvdW5V
+UU0mcz1mcVNuRVFYWnowaE5YcVJNbGFJRURDT2ZtYzE1ZGJJMFlGeFh4cjVhSHJnJmU9DQogICAg
+DQoNCg==
 
