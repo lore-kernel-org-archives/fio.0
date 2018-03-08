@@ -1,62 +1,57 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx0b-002c1b01.pphosted.com ([148.163.155.12]:45510 "EHLO
-        mx0b-002c1b01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1754806AbeCHMkC (ORCPT
-        <rfc822;fio@vger.kernel.org>); Thu, 8 Mar 2018 07:40:02 -0500
-From: Rob Scheepens <rob.scheepens@nutanix.com>
-Subject: Re: Windows: FIO randomly hangs using attached script
-Date: Thu, 8 Mar 2018 12:39:55 +0000
-Message-ID: <971ECD81-B100-4EEE-98CE-0E578A59BB02@nutanix.com>
+Received: from mail-ua0-f170.google.com ([209.85.217.170]:35773 "EHLO
+        mail-ua0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751355AbeCHM3C (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 8 Mar 2018 07:29:02 -0500
+Received: by mail-ua0-f170.google.com with SMTP id c40so3773883uae.2
+        for <fio@vger.kernel.org>; Thu, 08 Mar 2018 04:29:02 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <2B8D69D8-05F3-4500-8A4E-F5DE21356676@nutanix.com>
 References: <e044afaa-22ad-c7e2-d041-e2658f49bac8@bluestop.org>
  <CALjAwxjoTtRp1jVhfKMTcbn6wnmEmmCsjkpO7CkBgF5zj4B3Bg@mail.gmail.com>
- <9cf7d62a-5c4a-737a-d119-13763fb42c72@bluestop.org>
- <CALjAwxhxpLuLeysnp5kC-kQoWH++4hvehCWJxc9yA_Fcsy=pmw@mail.gmail.com>
- <BAE7B5AF-63F9-4E95-940D-7C84CE5AD92E@nutanix.com>
- <36259BEC-1CF0-45A5-85AE-F557989EDF30@nutanix.com>
+ <9cf7d62a-5c4a-737a-d119-13763fb42c72@bluestop.org> <CALjAwxhxpLuLeysnp5kC-kQoWH++4hvehCWJxc9yA_Fcsy=pmw@mail.gmail.com>
+ <BAE7B5AF-63F9-4E95-940D-7C84CE5AD92E@nutanix.com> <36259BEC-1CF0-45A5-85AE-F557989EDF30@nutanix.com>
  <2B8D69D8-05F3-4500-8A4E-F5DE21356676@nutanix.com>
- <CALjAwxiTX1=7pJKQ1Lz7nDkMXZqVJkMkNZDOA_XJYsEGP7wSfw@mail.gmail.com>
-In-Reply-To: <CALjAwxiTX1=7pJKQ1Lz7nDkMXZqVJkMkNZDOA_XJYsEGP7wSfw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <ED66B53076572049916FB7BD5698E76C@namprd02.prod.outlook.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Thu, 8 Mar 2018 12:28:31 +0000
+Message-ID: <CALjAwxiTX1=7pJKQ1Lz7nDkMXZqVJkMkNZDOA_XJYsEGP7wSfw@mail.gmail.com>
+Subject: Re: Windows: FIO randomly hangs using attached script
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Rob Scheepens <rob.scheepens@nutanix.com>
 Cc: David Knierim <knierim@nutanix.com>, Rebecca Cran <rebecca@bluestop.org>, fio <fio@vger.kernel.org>
 
-SSdsbCBzZWUgaWYgSSBjYW4gZ2V0IGdkYiBzZXR1cCBsaWtlIHRoYXQuDQoNCkJlbG93IG91dHB1
-dCBzaG93cyBzcGVjIDE3NiB3YXMgdGhlIGxhc3Qgam9iIHRoYXQgcmFuIG9rLCBzbyB5b3UgY291
-bGQgdHJ5IGlmIGl0IHJlcHJvZHVjZXMgd2l0aCAxNzcuIEhvd2V2ZXIsIHRoZSBqb2IgbnVtYmVy
-IGV4aGliaXRpbmcgdGhlIGhhbmcgdXN1YWxseSBpcyBkaWZmZXJlbnQgZXZlcnkgdGltZS4NCg0K
-XFJvYg0KDQoNCu+7v09uIDA4LzAzLzIwMTgsIDE0OjI5LCAiU2l0c29mZSBXaGVlbGVyIiA8c2l0
-c29mZUBnbWFpbC5jb20+IHdyb3RlOg0KDQogICAgQSBiYWNrdHJhY2Ugd291bGQgYmUgYSBnb29k
-IHN0YXJ0aW5nIHBvaW50IGJ1dCB3ZSBuZWVkIHlvdXIgZ2RiIHRvIGJlDQogICAgYWJsZSB0byBi
-ZSBhYmxlIHRvIHByb2R1Y2UgdGhhdC4uLiBJZiB5b3UndmUgbWFuYWdlZCB0byBzdWNjZXNzZnVs
-bHkNCiAgICBhdHRhY2ggZ2RiIHRvIGZpbyBydW5uaW5nIHNvbWV0aGluZyBsaWtlDQogICAgDQog
-ICAgc2V0IGxvZ2dpbmcgZmlsZSBmaW9iYWNrdHJhY2UudHh0DQogICAgc2V0IGxvZ2dpbmcgb24N
-CiAgICB0aHJlYWQgYXBwbHkgYWxsIGJ0DQogICAgc2V0IGxvZ2dpbmcgb2ZmDQogICAgDQogICAg
-YW5kIGNvcHlpbmcgdGhlIGNvbnRlbnRzIG9mIGZpb2JhY2t0cmFjZS50eHQgdG8gaGVyZSB3b3Vs
-ZCBiZSBoZWxwZnVsLg0KICAgIElmIHBvc3NpYmxlIGFsc28gdGFrZSBhIG5vdGUgb2YgdGhlIGV4
-YWN0IGpvYiB0aGF0IGZhaWxlZCBhbmQgc2VuZCBpdA0KICAgIG92ZXIgYXMgcHJlc3VtYWJseSB3
-ZSBjYW4ganVzdCBrZWVwIHJlcnVubmluZyB0aGF0IHRvIHByb2R1Y2UgdGhlDQogICAgcHJvYmxl
-bS4NCiAgICANCiAgICBPbiA4IE1hcmNoIDIwMTggYXQgMTA6NTEsIFJvYiBTY2hlZXBlbnMgPHJv
-Yi5zY2hlZXBlbnNAbnV0YW5peC5jb20+IHdyb3RlOg0KICAgID4gSnVzdCB0ZXN0ZWQgdXNpbmcg
-ZmlvLTMuNTogdGhlIGZpcnN0IGF0dGVtcHQgYWxyZWFkeSBodW5nLCBhdDoNCiAgICA+DQogICAg
-PiBQUyBDOlxQeXRob24yNz4gcHl0aG9uIC5ccHJvZmlsZXJfd2luX2RrLnB5DQogICAgPiAqIFJ1
-bm5pbmcgam9iOiAnY29uZmlnJyAoMjAgc2VjcyAvIHNwZWMpDQogICAgPiAqKiBFeGVjdXRpbmcg
-c3BlYyAxNzYvNDA1IGF0IDIwMTgtMDMtMDggMDI6MTA6MjUuMzYwMDAwDQogICAgPg0KICAgID4g
-SW5zdGVhZCBvZiB0cnlpbmcgYW4gbGFyZ2UgYW1vdW50IG9mIHZhcmlhdGlvbnMgdG8gcmVwcm9k
-dWNlLCB3aGljaCB3aWxsIGJlIHRpbWUtY29uc3VtaW5nLCBpcyB0aGVyZSBhIHdheSB0byBjYXB0
-dXJlIGEgZHVtcCB1c2luZyBnZGIgYW5kIGRlYnVnIHRoYXQ/IEkgaGF2ZSB2ZXJ5IGxpbWl0ZWQg
-Z2RiIHNraWxscyBhbmQgd2hlbiBJIHJlY2VudGx5IHRyaWVkIHRvIHNhdmUgaXQgb2ZmLCBpdCBn
-YXZlIG1lIGFuIGVycm9yIHRoYXQgc2VlbWVkIHRvIGltcGxpY2F0ZSBzb21lIGxpYiB3YXMgbm90
-IGltcGxlbWVudGVkIG9uIFdpbmRvd3MuDQogICAgPg0KICAgID4gSSBsZWZ0IHRoZSB2bSBpbiB0
-aGUgY3VycmVudCBzdGF0ZSwgaW4gY2FzZSBhbnlvbmUgd2FudHMgbWUgdG8gZ2V0IHNvbWV0aGlu
-ZyBmcm9tIGl0Lg0KICAgIA0KICAgIC0tIA0KICAgIFNpdHNvZmUgfCBodHRwczovL3VybGRlZmVu
-c2UucHJvb2Zwb2ludC5jb20vdjIvdXJsP3U9aHR0cC0zQV9fc3Vjcy5vcmdfLTdFc2l0c18mZD1E
-d0lGYVEmYz1zODgzR3BVQ09DaEtPSGlvY1l0R2NnJnI9T01nZWQtdF81SV9mbWZwVWFUM3ZhQTA2
-bGdMTF9hbFluRFFKeEhtWHo2NCZtPV9qLW82TFctT19HNk9rTy12eTdIZEU3VUpEc3k4V19jc1F5
-dHppMlZnN0kmcz11MTdtTkR2NW1pT2xrNkFnc01vaEhMNDFhSWFtZUNtekxCMXZoelRseEpjJmU9
-DQogICAgDQoNCg==
+A backtrace would be a good starting point but we need your gdb to be
+able to be able to produce that... If you've managed to successfully
+attach gdb to fio running something like
+
+set logging file fiobacktrace.txt
+set logging on
+thread apply all bt
+set logging off
+
+and copying the contents of fiobacktrace.txt to here would be helpful.
+If possible also take a note of the exact job that failed and send it
+over as presumably we can just keep rerunning that to produce the
+problem.
+
+On 8 March 2018 at 10:51, Rob Scheepens <rob.scheepens@nutanix.com> wrote:
+> Just tested using fio-3.5: the first attempt already hung, at:
+>
+> PS C:\Python27> python .\profiler_win_dk.py
+> * Running job: 'config' (20 secs / spec)
+> ** Executing spec 176/405 at 2018-03-08 02:10:25.360000
+>
+> Instead of trying an large amount of variations to reproduce, which will =
+be time-consuming, is there a way to capture a dump using gdb and debug tha=
+t? I have very limited gdb skills and when I recently tried to save it off,=
+ it gave me an error that seemed to implicate some lib was not implemented =
+on Windows.
+>
+> I left the vm in the current state, in case anyone wants me to get someth=
+ing from it.
+
+--=20
+Sitsofe | http://sucs.org/~sits/
