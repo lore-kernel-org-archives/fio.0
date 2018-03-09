@@ -1,27 +1,26 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-io0-f170.google.com ([209.85.223.170]:43286 "EHLO
-        mail-io0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753881AbeCFSxj (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 6 Mar 2018 13:53:39 -0500
-Received: by mail-io0-f170.google.com with SMTP id l12so92396ioc.10
-        for <fio@vger.kernel.org>; Tue, 06 Mar 2018 10:53:39 -0800 (PST)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] Remove prof_io_ops.fill_io_u_off(), .fill_io_u_size() and
+ .get_next_file()
+References: <20180309171623.19487-1-bart.vanassche@wdc.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <1e5e7dbc-fdf5-df8d-ebea-7826414fc1cb@kernel.dk>
+Date: Fri, 9 Mar 2018 10:21:07 -0700
 MIME-Version: 1.0
-From: abhishek koundal <akoundal@gmail.com>
-Date: Tue, 6 Mar 2018 10:52:57 -0800
-Message-ID: <CAKwzdDrG3vgzMzttpZm4HgbziXUNsXiOgNP_PAty+KRasQ7szg@mail.gmail.com>
-Subject: FIO size parameter feedback
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <20180309171623.19487-1-bart.vanassche@wdc.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Bart Van Assche <bart.vanassche@wdc.com>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-All
-If the size parameter is not given for the runs, how does the tool
-decide what % (LBA span) needs to be written on the drive?
+On 3/9/18 10:16 AM, Bart Van Assche wrote:
+> Remove the struct prof_io_ops methods for which no implementations
+> have been defined. This patch does not change any functionality.
 
-Reason I am asking as I see different data for the same workloads when
-size=100% and no size parameter used.
+Thanks Bart, applied.
 
 -- 
-Life is too short for silly things so invest your time in some
-productive outputs!!
+Jens Axboe
+
+
