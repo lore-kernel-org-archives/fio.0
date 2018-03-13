@@ -1,111 +1,132 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:24880 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750921AbeCPSpa (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 16 Mar 2018 14:45:30 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: RE: random_generator=lfsr overhead with more disks?
-Date: Fri, 16 Mar 2018 18:45:24 +0000
-Message-ID: <BN3PR0401MB145797FEFD095957854800088FD70@BN3PR0401MB1457.namprd04.prod.outlook.com>
-References: <9FD577EB-5F83-4AB3-9FBA-704094437C15@gmail.com>
-In-Reply-To: <9FD577EB-5F83-4AB3-9FBA-704094437C15@gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+Received: from mail-wm0-f42.google.com ([74.125.82.42]:36828 "EHLO
+        mail-wm0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751534AbeCMTX5 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 13 Mar 2018 15:23:57 -0400
+Received: by mail-wm0-f42.google.com with SMTP id i194so7263wmg.1
+        for <fio@vger.kernel.org>; Tue, 13 Mar 2018 12:23:56 -0700 (PDT)
+Received: from [192.168.29.142] (24-151-137-62.dhcp.oxfr.ma.charter.com. [24.151.137.62])
+        by smtp.gmail.com with ESMTPSA id 7sm1368220wry.18.2018.03.13.12.23.53
+        for <fio@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 13 Mar 2018 12:23:54 -0700 (PDT)
+From: Michael Green <mishagreen@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0 (Mac OS X Mail 10.3 \(3273\))
+Subject: random_generator=lfsr overhead with more disks?
+Message-Id: <9FD577EB-5F83-4AB3-9FBA-704094437C15@gmail.com>
+Date: Tue, 13 Mar 2018 15:23:51 -0400
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Michael Green <mishagreen@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-QSBmZXcgY29tbWVudHM6DQoNCi1Ib3cgZG9lcyB0aGUgY3B1IHV0aWxpemF0aW9uIGxvb2sgY29t
-cGFyZWQgYmV0d2VlbiB0aGUgbGZzciBhbmQgZGVmYXVsdCB0YXVzd29ydGhlIGdlbmVyYXRvcnM/
-ICBJcyB0aGUgY3B1IHV0aWwgYWN0dWFsbHkgaGlnaGVyIG9uIGxmc3I/ICBJZiBpdCBpcyBuZWFy
-IHNhdHVyYXRlZCBvbiAxNiBkZXZpY2VzLCB0aGVuIG5hdHVyYWxseSB0aHJvdWdocHV0IHdvdWxk
-IGRlY3JlYXNlLg0KDQotSXQgc2VlbXMgeW91IGFyZSBpbnRlbnRpb25hbGx5IHRyeWluZyB0byB3
-cml0ZSBlYWNoIGJsb2NrIG9uY2UuICBTbyBub3QgdXNpbmcgdGhlIG5vcmFuZG9tbWFwIHBhcmFt
-ZXRlci4NCg0KLURvZXMgYSBydW50aW1lIG9mIDIgbWludXRlcyBjb2xsZWN0IGVub3VnaCBkYXRh
-IHBvaW50cyB0byBhc3Nlc3MgdGhlIGNvbmRpdGlvbj8gIFdoYXQgaGFwcGVucyBpZiB5b3UgZXh0
-ZW5kIHRoZSBydW50aW1lPw0KDQpSZWdhcmRzLA0KSmVmZg0KDQotLS0tLU9yaWdpbmFsIE1lc3Nh
-Z2UtLS0tLQ0KRnJvbTogZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25l
-ckB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBPZiBNaWNoYWVsIEdyZWVuDQpTZW50OiBUdWVz
-ZGF5LCBNYXJjaCAxMywgMjAxOCAxMjoyNCBQTQ0KVG86IGZpb0B2Z2VyLmtlcm5lbC5vcmcNClN1
-YmplY3Q6IHJhbmRvbV9nZW5lcmF0b3I9bGZzciBvdmVyaGVhZCB3aXRoIG1vcmUgZGlza3M/DQoN
-CkhlbGxvIGNvbGxlY3RpdmUgd2lzZG9tLA0KDQpGaXJzdCBwb3N0IGhlcmUsIGFwb2xvZ2l6ZSBp
-ZiB0aGlzIGhhcyBiZWVuIGFza2VkIGJlZm9yZSBhbmQgd291bGQgYXBwcmVjaWF0ZSBhcHByb3By
-aWF0ZSBwb2ludGVycyBvciB0aXBzIGhvdyB0byBzZWFyY2ggdGhlIGFyY2hpdmVzIG1vcmUgZWZm
-ZWN0aXZlbHkuDQoNCkkgd29yayBmb3IgRTggU3RvcmFnZSBhbmQgYmVlbiB0ZXN0aW5nIG91ciBw
-cm9kdWN0IHdpdGggRklPIGZvciBxdWl0ZSBzb21lIHRpbWUgbm93LiBJ4oCZdmUgZW5jb3VudGVy
-ZWQgdGhpcyBpbnRlcmVzdGluZyBhZmZlY3QgdGhhdCByYW5kb21fZ2VuZXJhdG9yPWxmc3Igc2Vl
-bXMgdG8gaGF2ZSBvbiB0aGUgcmVzdWx0cy4gV291bGQgYXBwcmVjaWF0ZSB5b3VyIHRob3VnaHRz
-Lg0KDQpIZXJlIGFyZSB0d28gam9icy4gQm90aCBhcmUgNGsgMTAwIFJSLCBhdHRhY2tpbmcgMSB2
-b2x1bWUuIFRoZSBmaXJzdCBqb2IgaXMgd2l0aCBsZnNyLCB0aGUgc2Vjb25kIHdpdGhvdXQuDQoN
-Cltyb290QHNtMjggY3N2XSMgIC9vcHQvRTgvYmluL2ZpbyAtLW5hbWU9Z2xvYmFsIC0tdGhyZWFk
-PTEgLS1kaXJlY3Q9MSAtLWdyb3VwX3JlcG9ydGluZz0xIC0taW9tZW1fYWxpZ249NGsgLS1uYW1l
-PVBUNyAtLXJ3PXJhbmRydyAtLXJ3bWl4cmVhZD0xMDAgLS1pb2RlcHRoPTQwIC0tbnVtam9icz04
-IC0tYnM9NDA5NiAtLXNpemU9NDUwR2lCIC0tcnVudGltZT0xMjAgLS1maWxlbmFtZT0nL2Rldi9l
-OGIwJyAtLWlvZW5naW5lPWxpYmFpbyAtLW51bWFfY3B1X25vZGVzPTAgLS1yYW5kb21fZ2VuZXJh
-dG9yPWxmc3INClBUNzogKGc9MCk6IHJ3PXJhbmRydywgYnM9NEstNEsvNEstNEsvNEstNEssIGlv
-ZW5naW5lPWxpYmFpbywgaW9kZXB0aD00MCAuLi4NCmZpby0yLjIuMTENClN0YXJ0aW5nIDggdGhy
-ZWFkcw0KSm9iczogOCAoZj04KTogW3IoOCldIFsxMDAuMCUgZG9uZV0gWzM3NzRNQi8wS0IvMEtC
-IC9zXSBbOTY2Sy8wLzAgaW9wc10gW2V0YSAwMG06MDBzXQ0KUFQ3OiAoZ3JvdXBpZD0wLCBqb2Jz
-PTgpOiBlcnI9IDA6IHBpZD0yNTk3NjogVHVlIE1hciAxMyAyMDo1Njo0OCAyMDE4DQogIHJlYWQg
-OiBpbz00NDczNTBNQiwgYnc9MzcyNy4xTUIvcywgaW9wcz05NTQzMzksIHJ1bnQ9MTIwMDAxbXNl
-Yw0KICAgIHNsYXQgKHVzZWMpOiBtaW49MSwgbWF4PTU0MCwgYXZnPSAzLjgxLCBzdGRldj0gNC4x
-NA0KICAgIGNsYXQgKHVzZWMpOiBtaW49NDYsIG1heD00NzkzLCBhdmc9MzMwLjY3LCBzdGRldj03
-Ni4zOQ0KICAgICBsYXQgKHVzZWMpOiBtaW49NTAsIG1heD00ODM4LCBhdmc9MzM0LjY1LCBzdGRl
-dj03Ni40Nw0KDQoNCg0KW3Jvb3RAc20yOCBjc3ZdIyAgL29wdC9FOC9iaW4vZmlvIC0tbmFtZT1n
-bG9iYWwgLS10aHJlYWQ9MSAtLWRpcmVjdD0xIC0tZ3JvdXBfcmVwb3J0aW5nPTEgLS1pb21lbV9h
-bGlnbj00ayAtLW5hbWU9UFQ3IC0tcnc9cmFuZHJ3IC0tcndtaXhyZWFkPTEwMCAtLWlvZGVwdGg9
-NDAgLS1udW1qb2JzPTggLS1icz00MDk2IC0tc2l6ZT00NTBHaUIgLS1ydW50aW1lPTEyMCAtLWZp
-bGVuYW1lPScvZGV2L2U4YjAnIC0taW9lbmdpbmU9bGliYWlvIC0tbnVtYV9jcHVfbm9kZXM9MA0K
-UFQ3OiAoZz0wKTogcnc9cmFuZHJ3LCBicz00Sy00Sy80Sy00Sy80Sy00SywgaW9lbmdpbmU9bGli
-YWlvLCBpb2RlcHRoPTQwIC4uLg0KZmlvLTIuMi4xMQ0KU3RhcnRpbmcgOCB0aHJlYWRzDQpKb2Jz
-OiA4IChmPTgpOiBbcig4KV0gWzEwMC4wJSBkb25lXSBbMzcyOU1CLzBLQi8wS0IgL3NdIFs5NTVL
-LzAvMCBpb3BzXSBbZXRhIDAwbTowMHNdDQpQVDc6IChncm91cGlkPTAsIGpvYnM9OCk6IGVycj0g
-MDogcGlkPTE4NjA1OiBUdWUgTWFyIDEzIDIwOjE3OjI3IDIwMTgNCiAgcmVhZCA6IGlvPTQ0NzI0
-M01CLCBidz0zNzI2LjJNQi9zLCBpb3BzPTk1NDExMCwgcnVudD0xMjAwMDFtc2VjDQogICAgc2xh
-dCAodXNlYyk6IG1pbj0xLCBtYXg9NjI5LCBhdmc9IDMuNzMsIHN0ZGV2PSA0LjA4DQogICAgY2xh
-dCAodXNlYyk6IG1pbj00NSwgbWF4PTQzMjcsIGF2Zz0zMzAuNjYsIHN0ZGV2PTc3LjYxDQogICAg
-IGxhdCAodXNlYyk6IG1pbj00NywgbWF4PTQzMjksIGF2Zz0zMzQuNTUsIHN0ZGV2PTc3LjY1DQoN
-Cg0KTm93IHRoZSBzYW1lIHdpdGggMTYgdm9sdW1lcy4gTm90aWNlIGhvdyBsYXRlbmN5IHdlbnQg
-dXAgYW5kIElPUFMgZG93biB3aXRoIGxmc3IgZ2VuZXJhdG9yOg0KDQpbcm9vdEBzbTI4IGNzdl0j
-ICAvb3B0L0U4L2Jpbi9maW8gLS1uYW1lPWdsb2JhbCAtLXRocmVhZD0xIC0tZGlyZWN0PTEgLS1n
-cm91cF9yZXBvcnRpbmc9MSAtLWlvbWVtX2FsaWduPTRrIC0tbmFtZT1QVDcgLS1ydz1yYW5kcncg
-LS1yd21peHJlYWQ9MTAwIC0taW9kZXB0aD00MCAtLW51bWpvYnM9OCAtLWJzPTQwOTYgLS1zaXpl
-PTQ1MEdpQiAtLXJ1bnRpbWU9MTIwIC0tZmlsZW5hbWU9Jy9kZXYvZThiMDovZGV2L2U4YjE6L2Rl
-di9lOGIyOi9kZXYvZThiMzovZGV2L2U4YjQ6L2Rldi9lOGI1Oi9kZXYvZThiNjovZGV2L2U4Yjc6
-L2Rldi9lOGI4Oi9kZXYvZThiOTovZGV2L2U4YjEwOi9kZXYvZThiMTE6L2Rldi9lOGIxMjovZGV2
-L2U4YjEzOi9kZXYvZThiMTQ6L2Rldi9lOGIxNScgLS1pb2VuZ2luZT1saWJhaW8gLS1udW1hX2Nw
-dV9ub2Rlcz0wDQpQVDc6IChnPTApOiBydz1yYW5kcncsIGJzPTRLLTRLLzRLLTRLLzRLLTRLLCBp
-b2VuZ2luZT1saWJhaW8sIGlvZGVwdGg9NDAgLi4uDQpmaW8tMi4yLjExDQpTdGFydGluZyA4IHRo
-cmVhZHMNCkpvYnM6IDggKGY9MCk6IFtyKDgpXSBbMTIuNyUgZG9uZV0gWzM2NDFNQi8wS0IvMEtC
-IC9zXSBbOTMySy8wLzAgaW9wc10gW2V0YSAxM206NTBzXSBzXQ0KUFQ3OiAoZ3JvdXBpZD0wLCBq
-b2JzPTgpOiBlcnI9IDA6IHBpZD0yNzY0NDogVHVlIE1hciAxMyAyMTowNDoyNCAyMDE4DQogIHJl
-YWQgOiBpbz00NDMxMzZNQiwgYnc9MzY5Mi44TUIvcywgaW9wcz05NDUzNDksIHJ1bnQ9MTIwMDAx
-bXNlYw0KICAgIHNsYXQgKHVzZWMpOiBtaW49MSwgbWF4PTE0MDksIGF2Zz0gNC40MSwgc3RkZXY9
-IDYuOTANCiAgICBjbGF0ICh1c2VjKTogbWluPTI0LCBtYXg9NTIyMiwgYXZnPTMzMi45NSwgc3Rk
-ZXY9MTEzLjc0DQogICAgIGxhdCAodXNlYyk6IG1pbj0zOCwgbWF4PTUyNTAsIGF2Zz0zMzcuNTMs
-IHN0ZGV2PTExMy4xMQ0KDQpbcm9vdEBzbTI4IGNzdl0jICAvb3B0L0U4L2Jpbi9maW8gLS1uYW1l
-PWdsb2JhbCAtLXRocmVhZD0xIC0tZGlyZWN0PTEgLS1ncm91cF9yZXBvcnRpbmc9MSAtLWlvbWVt
-X2FsaWduPTRrIC0tbmFtZT1QVDcgLS1ydz1yYW5kcncgLS1yd21peHJlYWQ9MTAwIC0taW9kZXB0
-aD00MCAtLW51bWpvYnM9OCAtLWJzPTQwOTYgLS1zaXplPTQ1MEdpQiAtLXJ1bnRpbWU9MTIwIC0t
-ZmlsZW5hbWU9Jy9kZXYvZThiMDovZGV2L2U4YjE6L2Rldi9lOGIyOi9kZXYvZThiMzovZGV2L2U4
-YjQ6L2Rldi9lOGI1Oi9kZXYvZThiNjovZGV2L2U4Yjc6L2Rldi9lOGI4Oi9kZXYvZThiOTovZGV2
-L2U4YjEwOi9kZXYvZThiMTE6L2Rldi9lOGIxMjovZGV2L2U4YjEzOi9kZXYvZThiMTQ6L2Rldi9l
-OGIxNScgLS1pb2VuZ2luZT1saWJhaW8gLS1udW1hX2NwdV9ub2Rlcz0wIC0tcmFuZG9tX2dlbmVy
-YXRvcj1sZnNyDQpQVDc6IChnPTApOiBydz1yYW5kcncsIGJzPTRLLTRLLzRLLTRLLzRLLTRLLCBp
-b2VuZ2luZT1saWJhaW8sIGlvZGVwdGg9NDAgLi4uDQpmaW8tMi4yLjExDQpTdGFydGluZyA4IHRo
-cmVhZHMNCkpvYnM6IDggKGY9MTI4KTogW3IoOCldIFsxMDAuMCUgZG9uZV0gWzMxOTlNQi8wS0Iv
-MEtCIC9zXSBbODE5Sy8wLzAgaW9wc10gW2V0YSAwMG06MDBzXQ0KUFQ3OiAoZ3JvdXBpZD0wLCBq
-b2JzPTgpOiBlcnI9IDA6IHBpZD0yOTcxMTogVHVlIE1hciAxMyAyMToxNjoxMyAyMDE4DQogIHJl
-YWQgOiBpbz0zODI5MjBNQiwgYnc9MzE5MC4xTUIvcywgaW9wcz04MTY4ODgsIHJ1bnQ9MTIwMDAx
-bXNlYw0KICAgIHNsYXQgKHVzZWMpOiBtaW49MSwgbWF4PTEwNjksIGF2Zz0gMy43Nywgc3RkZXY9
-IDQuMzMNCiAgICBjbGF0ICh1c2VjKTogbWluPTE2LCBtYXg9MzU5MywgYXZnPTM4Ny4xMiwgc3Rk
-ZXY9MTg5LjA5DQogICAgIGxhdCAodXNlYyk6IG1pbj0zNiwgbWF4PTM2MTMsIGF2Zz0zOTEuMDYs
-IHN0ZGV2PTE4OS4wNQ0KDQpCZXR3ZWVuIDEgYW5kIDE2LCBJ4oCZdmUgdHJpZWQgNCwgOCBhbmQg
-MTIgdm9sdW1lcy4gVGhlIHBlcmZvcm1hbmNlIGdyYWR1YWxseSB3b3JzZW5zIHdpdGggTEZTUiBh
-cyB0aGUgbnVtYmVyIG9mIHZvbHVtZXMgaW5jcmVhc2VzLCBidXQgc3RheXMgZmxhdCB3aXRob3V0
-IExGU1IuDQotLQ0KVGhhbmtzLA0KTWljaGFlbCBHcmVlbi0tDQpUbyB1bnN1YnNjcmliZSBmcm9t
-IHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgZmlvIiBpbiB0aGUgYm9keSBv
-ZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21vQHZnZXIua2VybmVsLm9yZyBNb3JlIG1ham9yZG9tbyBp
-bmZvIGF0ICBodHRwOi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwNCg==
+Hello collective wisdom,
+
+First post here, apologize if this has been asked before and would =
+appreciate appropriate pointers or tips how to search the archives more =
+effectively.
+
+I work for E8 Storage and been testing our product with FIO for quite =
+some time now. I=E2=80=99ve encountered this interesting affect that =
+random_generator=3Dlfsr seems to have on the results. Would appreciate =
+your thoughts.
+
+Here are two jobs. Both are 4k 100 RR, attacking 1 volume. The first job =
+is with lfsr, the second without.
+
+[root@sm28 csv]#  /opt/E8/bin/fio --name=3Dglobal --thread=3D1 =
+--direct=3D1 --group_reporting=3D1 --iomem_align=3D4k --name=3DPT7 =
+--rw=3Drandrw --rwmixread=3D100 --iodepth=3D40 --numjobs=3D8 --bs=3D4096 =
+--size=3D450GiB --runtime=3D120 --filename=3D'/dev/e8b0' =
+--ioengine=3Dlibaio --numa_cpu_nodes=3D0 --random_generator=3Dlfsr
+PT7: (g=3D0): rw=3Drandrw, bs=3D4K-4K/4K-4K/4K-4K, ioengine=3Dlibaio, =
+iodepth=3D40
+...
+fio-2.2.11
+Starting 8 threads
+Jobs: 8 (f=3D8): [r(8)] [100.0% done] [3774MB/0KB/0KB /s] [966K/0/0 =
+iops] [eta 00m:00s]
+PT7: (groupid=3D0, jobs=3D8): err=3D 0: pid=3D25976: Tue Mar 13 20:56:48 =
+2018
+  read : io=3D447350MB, bw=3D3727.1MB/s, iops=3D954339, runt=3D120001msec
+    slat (usec): min=3D1, max=3D540, avg=3D 3.81, stdev=3D 4.14
+    clat (usec): min=3D46, max=3D4793, avg=3D330.67, stdev=3D76.39
+     lat (usec): min=3D50, max=3D4838, avg=3D334.65, stdev=3D76.47
+
+
+
+[root@sm28 csv]#  /opt/E8/bin/fio --name=3Dglobal --thread=3D1 =
+--direct=3D1 --group_reporting=3D1 --iomem_align=3D4k --name=3DPT7 =
+--rw=3Drandrw --rwmixread=3D100 --iodepth=3D40 --numjobs=3D8 --bs=3D4096 =
+--size=3D450GiB --runtime=3D120 --filename=3D'/dev/e8b0' =
+--ioengine=3Dlibaio --numa_cpu_nodes=3D0
+PT7: (g=3D0): rw=3Drandrw, bs=3D4K-4K/4K-4K/4K-4K, ioengine=3Dlibaio, =
+iodepth=3D40
+...
+fio-2.2.11
+Starting 8 threads
+Jobs: 8 (f=3D8): [r(8)] [100.0% done] [3729MB/0KB/0KB /s] [955K/0/0 =
+iops] [eta 00m:00s]
+PT7: (groupid=3D0, jobs=3D8): err=3D 0: pid=3D18605: Tue Mar 13 20:17:27 =
+2018
+  read : io=3D447243MB, bw=3D3726.2MB/s, iops=3D954110, runt=3D120001msec
+    slat (usec): min=3D1, max=3D629, avg=3D 3.73, stdev=3D 4.08
+    clat (usec): min=3D45, max=3D4327, avg=3D330.66, stdev=3D77.61
+     lat (usec): min=3D47, max=3D4329, avg=3D334.55, stdev=3D77.65
+
+
+Now the same with 16 volumes. Notice how latency went up and IOPS down =
+with lfsr generator:
+
+[root@sm28 csv]#  /opt/E8/bin/fio --name=3Dglobal --thread=3D1 =
+--direct=3D1 --group_reporting=3D1 --iomem_align=3D4k --name=3DPT7 =
+--rw=3Drandrw --rwmixread=3D100 --iodepth=3D40 --numjobs=3D8 --bs=3D4096 =
+--size=3D450GiB --runtime=3D120
+=
+--filename=3D'/dev/e8b0:/dev/e8b1:/dev/e8b2:/dev/e8b3:/dev/e8b4:/dev/e8b5:=
+/dev/e8b6:/dev/e8b7:/dev/e8b8:/dev/e8b9:/dev/e8b10:/dev/e8b11:/dev/e8b12:/=
+dev/e8b13:/dev/e8b14:/dev/e8b15' --ioengine=3Dlibaio --numa_cpu_nodes=3D0
+PT7: (g=3D0): rw=3Drandrw, bs=3D4K-4K/4K-4K/4K-4K, ioengine=3Dlibaio, =
+iodepth=3D40
+...
+fio-2.2.11
+Starting 8 threads
+Jobs: 8 (f=3D0): [r(8)] [12.7% done] [3641MB/0KB/0KB /s] [932K/0/0 iops] =
+[eta 13m:50s] s]
+PT7: (groupid=3D0, jobs=3D8): err=3D 0: pid=3D27644: Tue Mar 13 21:04:24 =
+2018
+  read : io=3D443136MB, bw=3D3692.8MB/s, iops=3D945349, runt=3D120001msec
+    slat (usec): min=3D1, max=3D1409, avg=3D 4.41, stdev=3D 6.90
+    clat (usec): min=3D24, max=3D5222, avg=3D332.95, stdev=3D113.74
+     lat (usec): min=3D38, max=3D5250, avg=3D337.53, stdev=3D113.11
+
+[root@sm28 csv]#  /opt/E8/bin/fio --name=3Dglobal --thread=3D1 =
+--direct=3D1 --group_reporting=3D1 --iomem_align=3D4k --name=3DPT7 =
+--rw=3Drandrw --rwmixread=3D100 --iodepth=3D40 --numjobs=3D8 --bs=3D4096 =
+--size=3D450GiB --runtime=3D120
+=
+--filename=3D'/dev/e8b0:/dev/e8b1:/dev/e8b2:/dev/e8b3:/dev/e8b4:/dev/e8b5:=
+/dev/e8b6:/dev/e8b7:/dev/e8b8:/dev/e8b9:/dev/e8b10:/dev/e8b11:/dev/e8b12:/=
+dev/e8b13:/dev/e8b14:/dev/e8b15' --ioengine=3Dlibaio --numa_cpu_nodes=3D0 =
+--random_generator=3Dlfsr
+PT7: (g=3D0): rw=3Drandrw, bs=3D4K-4K/4K-4K/4K-4K, ioengine=3Dlibaio, =
+iodepth=3D40
+...
+fio-2.2.11
+Starting 8 threads
+Jobs: 8 (f=3D128): [r(8)] [100.0% done] [3199MB/0KB/0KB /s] [819K/0/0 =
+iops] [eta 00m:00s]
+PT7: (groupid=3D0, jobs=3D8): err=3D 0: pid=3D29711: Tue Mar 13 21:16:13 =
+2018
+  read : io=3D382920MB, bw=3D3190.1MB/s, iops=3D816888, runt=3D120001msec
+    slat (usec): min=3D1, max=3D1069, avg=3D 3.77, stdev=3D 4.33
+    clat (usec): min=3D16, max=3D3593, avg=3D387.12, stdev=3D189.09
+     lat (usec): min=3D36, max=3D3613, avg=3D391.06, stdev=3D189.05
+
+Between 1 and 16, I=E2=80=99ve tried 4, 8 and 12 volumes. The =
+performance gradually worsens with LFSR as the number of volumes =
+increases, but stays flat without LFSR.
+--
+Thanks,
+Michael Green=
