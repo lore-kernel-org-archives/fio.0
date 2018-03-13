@@ -1,133 +1,75 @@
-Return-Path: <304702903@qq.com>
-In-Reply-To: <b5f70d74-236f-ae85-bc03-75c3b262d387@kernel.dk>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: question about fio write offset
 References: <tencent_E24C0F8C628C11E92A4A21798A161CE7E207@qq.com>
-	<b5f70d74-236f-ae85-bc03-75c3b262d387@kernel.dk>
-From: "=?ISO-8859-1?B?d2s=?=" <304702903@qq.com>
-Subject: Re:  question about fio write offset
-Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_5AA89352_08FE33D0_155BB17D"
-Content-Transfer-Encoding: 8Bit
-Date: Wed, 14 Mar 2018 11:13:22 +0800
-Message-ID: <tencent_E870AB1685B0282E70DC8B013D148B354609@qq.com>
-To: =?ISO-8859-1?B?SmVucyBBeGJvZQ==?= <axboe@kernel.dk>, =?ISO-8859-1?B?ZmlvQHZnZXIua2VybmVsLm9yZw==?= <fio@vger.kernel.org>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <b5f70d74-236f-ae85-bc03-75c3b262d387@kernel.dk>
+Date: Tue, 13 Mar 2018 10:51:52 -0700
+MIME-Version: 1.0
+In-Reply-To: <tencent_E24C0F8C628C11E92A4A21798A161CE7E207@qq.com>
+Content-Type: text/plain; charset="windows-1252"
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+To: wk <304702903@qq.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-This is a multi-part message in MIME format.
+On 3/12/18 7:59 PM, wk wrote:
+> Hi, axboe:
+>=20
+> =EF=BF=BD =EF=BF=BDSorry for write email to you directly.
+>=20
+> =EF=BF=BD =EF=BF=BD I have a question about fio. I want generate a =EF=BF=
+=BDwrite sequence:
+> =EF=BF=BD =EF=BF=BD first write: =EF=BF=BD =EF=BF=BD 0-8KB
+> =EF=BF=BD =EF=BF=BD second write: 4-12KB
+> =EF=BF=BD =EF=BF=BD third write : =EF=BF=BD =EF=BF=BD8-16KB
+> =EF=BF=BD =EF=BF=BD forth wirte: =EF=BF=BD =EF=BF=BD 12-20KB
+> =EF=BF=BD =EF=BF=BD fifth write: =EF=BF=BD =EF=BF=BD =EF=BF=BD 16KB-24KB
+>=20
+> =EF=BF=BD =EF=BF=BD Each io is 8KB, and next io offset is 4KB. How to wri=
+te the fio command?
+> =EF=BF=BD =EF=BF=BD I test "fio --ioengine=3Dlibaio --direct=3D1 --rw=3Dr=
+andwrite --number_ios=3D4 =EF=BF=BD--norandommap --randrepeat=3D0 --iodepth=
+=3D1 --size=3D100% --numjobs=3D1 --bs=3D8k =EF=BF=BD--filename=3D/dev/nvme0=
+n1 --loops=3D1 =EF=BF=BD--blockalign=3D4096 --debug=3Dio --name=3DDI_Stress=
+", but it seems each io offset is multiple of 4KB.But it is =EF=BF=BDnot ov=
+erlap last 8KB =EF=BF=BDwrited block.
+>=20
+> =EF=BF=BD =EF=BF=BD =EF=BF=BDI also test "fio --ioengine=3Dlibaio --direc=
+t=3D1 --rw=3Dwrite --number_ios=3D4 =EF=BF=BD--norandommap --randrepeat=3D0=
+ --iodepth=3D1 --size=3D100% --numjobs=3D1 --bs=3D8k =EF=BF=BD--filename=3D=
+/dev/nvme0n1 --loops=3D1 =EF=BF=BD--blockalign=3D4096 --debug=3Dio --name=
+=3DDI_Stress", but it seems each io offset is multiple of 4KB.But it is =EF=
+=BF=BDnot overlap IO. Some fio log is below:
+> =EF=BF=BD =EF=BF=BD io complete: io_u 0x1f21600: off=3D0/len=3D8192/ddir=
+=3D1io
+> =EF=BF=BD =EF=BF=BD io complete: io_u 0x1f21600: off=3D8192/len=3D8192/dd=
+ir=3D1io
+> =EF=BF=BD =EF=BF=BD io complete: io_u 0x1f21600: off=3D16384/len=3D8192/d=
+dir=3D1io
+> =EF=BF=BD =EF=BF=BD io complete: io_u 0x1f21600: off=3D24576/len=3D8192/d=
+dir=3D1io
+> I want change the red offset address '0/8192/16384/24576' to '0/4096/8192=
+/12288' by change my FIO command.
 
-------=_NextPart_5AA89352_08FE33D0_155BB17D
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: base64
+Don't email me directly, I've CC'ed the proper list.
 
-VGhhbmsgeW91IHZlcnkgbXVjaC4gSXQgd29ya3MgdmVyeSB3ZWxsLg0KDQoNCi0tLS0tLS0t
-LS0tLS0tLS0tLSBPcmlnaW5hbCAtLS0tLS0tLS0tLS0tLS0tLS0NCkZyb206ICAiSmVucyBB
-eGJvZSI8YXhib2VAa2VybmVsLmRrPjsNCkRhdGU6ICBXZWQsIE1hciAxNCwgMjAxOCAwMTo1
-MSBBTQ0KVG86ICAid2siPDMwNDcwMjkwM0BxcS5jb20+OyJmaW9Admdlci5rZXJuZWwub3Jn
-IjxmaW9Admdlci5rZXJuZWwub3JnPjsNCg0KU3ViamVjdDogIFJlOiBxdWVzdGlvbiBhYm91
-dCBmaW8gd3JpdGUgb2Zmc2V0DQoNCg0KDQpPbiAzLzEyLzE4IDc6NTkgUE0sIHdrIHdyb3Rl
-Og0KPiBIaSwgYXhib2U6DQo+IA0KPiAgICBTb3JyeSBmb3Igd3JpdGUgZW1haWwgdG8geW91
-IGRpcmVjdGx5Lg0KPiANCj4gICAgIEkgaGF2ZSBhIHF1ZXN0aW9uIGFib3V0IGZpby4gSSB3
-YW50IGdlbmVyYXRlIGEgIHdyaXRlIHNlcXVlbmNlOg0KPiAgICAgZmlyc3Qgd3JpdGU6ICAg
-ICAwLThLQg0KPiAgICAgc2Vjb25kIHdyaXRlOiA0LTEyS0INCj4gICAgIHRoaXJkIHdyaXRl
-IDogICAgOC0xNktCDQo+ICAgICBmb3J0aCB3aXJ0ZTogICAgIDEyLTIwS0INCj4gICAgIGZp
-ZnRoIHdyaXRlOiAgICAgICAxNktCLTI0S0INCj4gDQo+ICAgICBFYWNoIGlvIGlzIDhLQiwg
-YW5kIG5leHQgaW8gb2Zmc2V0IGlzIDRLQi4gSG93IHRvIHdyaXRlIHRoZSBmaW8gY29tbWFu
-ZD8NCj4gICAgIEkgdGVzdCAiZmlvIC0taW9lbmdpbmU9bGliYWlvIC0tZGlyZWN0PTEgLS1y
-dz1yYW5kd3JpdGUgLS1udW1iZXJfaW9zPTQgIC0tbm9yYW5kb21tYXAgLS1yYW5kcmVwZWF0
-PTAgLS1pb2RlcHRoPTEgLS1zaXplPTEwMCUgLS1udW1qb2JzPTEgLS1icz04ayAgLS1maWxl
-bmFtZT0vZGV2L252bWUwbjEgLS1sb29wcz0xICAtLWJsb2NrYWxpZ249NDA5NiAtLWRlYnVn
-PWlvIC0tbmFtZT1ESV9TdHJlc3MiLCBidXQgaXQgc2VlbXMgZWFjaCBpbyBvZmZzZXQgaXMg
-bXVsdGlwbGUgb2YgNEtCLkJ1dCBpdCBpcyAgbm90IG92ZXJsYXAgbGFzdCA4S0IgIHdyaXRl
-ZCBibG9jay4NCj4gDQo+ICAgICAgSSBhbHNvIHRlc3QgImZpbyAtLWlvZW5naW5lPWxpYmFp
-byAtLWRpcmVjdD0xIC0tcnc9d3JpdGUgLS1udW1iZXJfaW9zPTQgIC0tbm9yYW5kb21tYXAg
-LS1yYW5kcmVwZWF0PTAgLS1pb2RlcHRoPTEgLS1zaXplPTEwMCUgLS1udW1qb2JzPTEgLS1i
-cz04ayAgLS1maWxlbmFtZT0vZGV2L252bWUwbjEgLS1sb29wcz0xICAtLWJsb2NrYWxpZ249
-NDA5NiAtLWRlYnVnPWlvIC0tbmFtZT1ESV9TdHJlc3MiLCBidXQgaXQgc2VlbXMgZWFjaCBp
-byBvZmZzZXQgaXMgbXVsdGlwbGUgb2YgNEtCLkJ1dCBpdCBpcyAgbm90IG92ZXJsYXAgSU8u
-IFNvbWUgZmlvIGxvZyBpcyBiZWxvdzoNCj4gICAgIGlvIGNvbXBsZXRlOiBpb191IDB4MWYy
-MTYwMDogb2ZmPTAvbGVuPTgxOTIvZGRpcj0xaW8NCj4gICAgIGlvIGNvbXBsZXRlOiBpb191
-IDB4MWYyMTYwMDogb2ZmPTgxOTIvbGVuPTgxOTIvZGRpcj0xaW8NCj4gICAgIGlvIGNvbXBs
-ZXRlOiBpb191IDB4MWYyMTYwMDogb2ZmPTE2Mzg0L2xlbj04MTkyL2RkaXI9MWlvDQo+ICAg
-ICBpbyBjb21wbGV0ZTogaW9fdSAweDFmMjE2MDA6IG9mZj0yNDU3Ni9sZW49ODE5Mi9kZGly
-PTFpbw0KPiBJIHdhbnQgY2hhbmdlIHRoZSByZWQgb2Zmc2V0IGFkZHJlc3MgJzAvODE5Mi8x
-NjM4NC8yNDU3NicgdG8gJzAvNDA5Ni84MTkyLzEyMjg4JyBieSBjaGFuZ2UgbXkgRklPIGNv
-bW1hbmQuDQoNCkRvbid0IGVtYWlsIG1lIGRpcmVjdGx5LCBJJ3ZlIENDJ2VkIHRoZSBwcm9w
-ZXIgbGlzdC4NCg0KWW91J3JlIHN1cHBvc2VkIHRvIGJlIGFibGUgdG8gZG8gdGhhdCB3aXRo
-Og0KDQpicz04aw0Kcnc9d3JpdGU6LTRrDQoNCndoaWNoIHdpbGwgd3JpdGUgMC4uOGssIDQu
-LjEyaywgZXRjLiBCdXQgdGhlcmUncyBhIGJ1ZyB0aGVyZSwgc28geW91IG5lZWQgdG8NCnVw
-ZGF0ZSB0byBsYXRlc3QgLWdpdCBmaXJzdCwgaXQgbmVlZHMgdGhpcyBjb21taXQ6DQoNCmNv
-bW1pdCA2OWI5OGYxMWQ2MmNiMTI0ODIxMzBmYWM3OWI4ZWJmMDBjMGJiMTM5DQpBdXRob3I6
-IEplbnMgQXhib2UgPGF4Ym9lQGtlcm5lbC5kaz4NCkRhdGU6ICAgVHVlIE1hciAxMyAxMTo0
-OTo1NSAyMDE4IC0wNjAwDQoNCiAgICBpb191OiBvbmx5IHJld2luZCBmaWxlIHBvc2l0aW9u
-IGlmIGl0J3Mgbm9uLXplcm8NCg0KYW5kIGl0IHNob3VsZCB3b3JrIGZvciB5b3UuDQoNCi0t
-IA0KSmVucyBBeGJvZQ==
+You're supposed to be able to do that with:
 
-------=_NextPart_5AA89352_08FE33D0_155BB17D
-Content-Type: text/html;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: base64
+bs=3D8k
+rw=3Dwrite:-4k
 
-PGRpdj48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6ICdsdWNpZGEgR3JhbmRlJywgVmVyZGFu
-YSwgJ01pY3Jvc29mdCBZYUhlaSc7Ij5UaGFuayB5b3UgdmVyeSBtdWNoLiBJdCB3b3JrcyB2
-ZXJ5IHdlbGwuPC9zcGFuPjwvZGl2PjxkaXY+PGRpdj48YnI+PC9kaXY+PGRpdiBzdHlsZT0i
-Zm9udC1zaXplOiAxMnB4O2ZvbnQtZmFtaWx5OiBBcmlhbCBOYXJyb3c7cGFkZGluZzoycHgg
-MCAycHggMDsiPi0tLS0tLS0tLS0tLS0tLS0tLSZuYnNwO09yaWdpbmFsJm5ic3A7LS0tLS0t
-LS0tLS0tLS0tLS0tPC9kaXY+PGRpdiBzdHlsZT0iZm9udC1zaXplOiAxMnB4O2JhY2tncm91
-bmQ6I2VmZWZlZjtwYWRkaW5nOjhweDsiPjxkaXY+PGI+RnJvbTogPC9iPiZuYnNwOyJKZW5z
-IEF4Ym9lIiZsdDtheGJvZUBrZXJuZWwuZGsmZ3Q7OzwvZGl2PjxkaXY+PGI+RGF0ZTogPC9i
-PiZuYnNwO1dlZCwgTWFyIDE0LCAyMDE4IDAxOjUxIEFNPC9kaXY+PGRpdj48Yj5UbzogPC9i
-PiZuYnNwOyJ3ayImbHQ7MzA0NzAyOTAzQHFxLmNvbSZndDs7ImZpb0B2Z2VyLmtlcm5lbC5v
-cmciJmx0O2Zpb0B2Z2VyLmtlcm5lbC5vcmcmZ3Q7Ozx3YnI+PC9kaXY+PGRpdj48L2Rpdj48
-ZGl2PjxiPlN1YmplY3Q6IDwvYj4mbmJzcDtSZTogcXVlc3Rpb24gYWJvdXQgZmlvIHdyaXRl
-IG9mZnNldDwvZGl2PjwvZGl2PjxkaXY+PGJyPjwvZGl2Pk9uIDMvMTIvMTggNzo1OSBQTSwg
-d2sgd3JvdGU6PGJyPiZndDsgSGksIGF4Ym9lOjxicj4mZ3Q7IDxicj4mZ3Q7ICZuYnNwOyAm
-bmJzcDtTb3JyeSBmb3Igd3JpdGUgZW1haWwgdG8geW91IGRpcmVjdGx5Ljxicj4mZ3Q7IDxi
-cj4mZ3Q7ICZuYnNwOyAmbmJzcDsgSSBoYXZlIGEgcXVlc3Rpb24gYWJvdXQgZmlvLiBJIHdh
-bnQgZ2VuZXJhdGUgYSAmbmJzcDt3cml0ZSBzZXF1ZW5jZTo8YnI+Jmd0OyAmbmJzcDsgJm5i
-c3A7IGZpcnN0IHdyaXRlOiAmbmJzcDsgJm5ic3A7IDAtOEtCPGJyPiZndDsgJm5ic3A7ICZu
-YnNwOyBzZWNvbmQgd3JpdGU6IDQtMTJLQjxicj4mZ3Q7ICZuYnNwOyAmbmJzcDsgdGhpcmQg
-d3JpdGUgOiAmbmJzcDsgJm5ic3A7OC0xNktCPGJyPiZndDsgJm5ic3A7ICZuYnNwOyBmb3J0
-aCB3aXJ0ZTogJm5ic3A7ICZuYnNwOyAxMi0yMEtCPGJyPiZndDsgJm5ic3A7ICZuYnNwOyBm
-aWZ0aCB3cml0ZTogJm5ic3A7ICZuYnNwOyAmbmJzcDsgMTZLQi0yNEtCPGJyPiZndDsgPGJy
-PiZndDsgJm5ic3A7ICZuYnNwOyBFYWNoIGlvIGlzIDhLQiwgYW5kIG5leHQgaW8gb2Zmc2V0
-IGlzIDRLQi4gSG93IHRvIHdyaXRlIHRoZSBmaW8gY29tbWFuZD88YnI+Jmd0OyAmbmJzcDsg
-Jm5ic3A7IEkgdGVzdCAiZmlvIC0taW9lbmdpbmU9bGliYWlvIC0tZGlyZWN0PTEgLS1ydz1y
-YW5kd3JpdGUgLS1udW1iZXJfaW9zPTQgJm5ic3A7LS1ub3JhbmRvbW1hcCAtLXJhbmRyZXBl
-YXQ9MCAtLWlvZGVwdGg9MSAtLXNpemU9MTAwJSAtLW51bWpvYnM9MSAtLWJzPThrICZuYnNw
-Oy0tZmlsZW5hbWU9L2Rldi9udm1lMG4xIC0tbG9vcHM9MSAmbmJzcDstLWJsb2NrYWxpZ249
-NDA5NiAtLWRlYnVnPWlvIC0tbmFtZT1ESV9TdHJlc3MiLCBidXQgaXQgc2VlbXMgZWFjaCBp
-byBvZmZzZXQgaXMgbXVsdGlwbGUgb2YgNEtCLkJ1dCBpdCBpcyAmbmJzcDtub3Qgb3Zlcmxh
-cCBsYXN0IDhLQiAmbmJzcDt3cml0ZWQgYmxvY2suPGJyPiZndDsgPGJyPiZndDsgJm5ic3A7
-ICZuYnNwOyAmbmJzcDtJIGFsc28gdGVzdCAiZmlvIC0taW9lbmdpbmU9bGliYWlvIC0tZGly
-ZWN0PTEgLS1ydz13cml0ZSAtLW51bWJlcl9pb3M9NCAmbmJzcDstLW5vcmFuZG9tbWFwIC0t
-cmFuZHJlcGVhdD0wIC0taW9kZXB0aD0xIC0tc2l6ZT0xMDAlIC0tbnVtam9icz0xIC0tYnM9
-OGsgJm5ic3A7LS1maWxlbmFtZT0vZGV2L252bWUwbjEgLS1sb29wcz0xICZuYnNwOy0tYmxv
-Y2thbGlnbj00MDk2IC0tZGVidWc9aW8gLS1uYW1lPURJX1N0cmVzcyIsIGJ1dCBpdCBzZWVt
-cyBlYWNoIGlvIG9mZnNldCBpcyBtdWx0aXBsZSBvZiA0S0IuQnV0IGl0IGlzICZuYnNwO25v
-dCBvdmVybGFwIElPLiBTb21lIGZpbyBsb2cgaXMgYmVsb3c6PGJyPiZndDsgJm5ic3A7ICZu
-YnNwOyBpbyBjb21wbGV0ZTogaW9fdSAweDFmMjE2MDA6IG9mZj0wL2xlbj04MTkyL2RkaXI9
-MWlvPGJyPiZndDsgJm5ic3A7ICZuYnNwOyBpbyBjb21wbGV0ZTogaW9fdSAweDFmMjE2MDA6
-IG9mZj04MTkyL2xlbj04MTkyL2RkaXI9MWlvPGJyPiZndDsgJm5ic3A7ICZuYnNwOyBpbyBj
-b21wbGV0ZTogaW9fdSAweDFmMjE2MDA6IG9mZj0xNjM4NC9sZW49ODE5Mi9kZGlyPTFpbzxi
-cj4mZ3Q7ICZuYnNwOyAmbmJzcDsgaW8gY29tcGxldGU6IGlvX3UgMHgxZjIxNjAwOiBvZmY9
-MjQ1NzYvbGVuPTgxOTIvZGRpcj0xaW88YnI+Jmd0OyBJIHdhbnQgY2hhbmdlIHRoZSByZWQg
-b2Zmc2V0IGFkZHJlc3MgJzAvODE5Mi8xNjM4NC8yNDU3NicgdG8gJzAvNDA5Ni84MTkyLzEy
-Mjg4JyBieSBjaGFuZ2UgbXkgRklPIGNvbW1hbmQuPGJyPjxicj5Eb24ndCBlbWFpbCBtZSBk
-aXJlY3RseSwgSSd2ZSBDQydlZCB0aGUgcHJvcGVyIGxpc3QuPGJyPjxicj5Zb3UncmUgc3Vw
-cG9zZWQgdG8gYmUgYWJsZSB0byBkbyB0aGF0IHdpdGg6PGJyPjxicj5icz04azxicj5ydz13
-cml0ZTotNGs8YnI+PGJyPndoaWNoIHdpbGwgd3JpdGUgMC4uOGssIDQuLjEyaywgZXRjLiBC
-dXQgdGhlcmUncyBhIGJ1ZyB0aGVyZSwgc28geW91IG5lZWQgdG88YnI+dXBkYXRlIHRvIGxh
-dGVzdCAtZ2l0IGZpcnN0LCBpdCBuZWVkcyB0aGlzIGNvbW1pdDo8YnI+PGJyPmNvbW1pdCA2
-OWI5OGYxMWQ2MmNiMTI0ODIxMzBmYWM3OWI4ZWJmMDBjMGJiMTM5PGJyPkF1dGhvcjogSmVu
-cyBBeGJvZSAmbHQ7YXhib2VAa2VybmVsLmRrJmd0Ozxicj5EYXRlOiZuYnNwOyZuYnNwOyBU
-dWUgTWFyIDEzIDExOjQ5OjU1IDIwMTggLTA2MDA8YnI+PGJyPiZuYnNwOyZuYnNwOyZuYnNw
-OyBpb191OiBvbmx5IHJld2luZCBmaWxlIHBvc2l0aW9uIGlmIGl0J3Mgbm9uLXplcm88YnI+
-PGJyPmFuZCBpdCBzaG91bGQgd29yayBmb3IgeW91Ljxicj48YnI+LS0gPGJyPkplbnMgQXhi
-b2U8YnI+PGJyPjwvZGl2Pg==
+which will write 0..8k, 4..12k, etc. But there's a bug there, so you need to
+update to latest -git first, it needs this commit:
 
-------=_NextPart_5AA89352_08FE33D0_155BB17D--
+commit 69b98f11d62cb12482130fac79b8ebf00c0bb139
+Author: Jens Axboe <axboe@kernel.dk>
+Date:   Tue Mar 13 11:49:55 2018 -0600
 
+    io_u: only rewind file position if it's non-zero
 
+and it should work for you.
+
+--=20
+Jens Axboe
 
 
