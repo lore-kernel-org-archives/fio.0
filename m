@@ -1,39 +1,34 @@
 Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <e06182ba-6ac7-57b1-5f32-67c8756401b9@kernel.dk>
-References: <CAH6SkxpsXtS3AFCkOwKPG-JeZB_aH7yf3LgepYB=cAfg3fbvbQ@mail.gmail.com>
- <e06182ba-6ac7-57b1-5f32-67c8756401b9@kernel.dk>
 From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Sat, 17 Mar 2018 08:48:06 +0000
-Message-ID: <CALjAwxhy81B+Q7SJUnpfaiQMaHUDZVonUUT=+UH7F+Ey3aLP1A@mail.gmail.com>
-Subject: Re: FIO's rdma engine...
+Date: Wed, 14 Mar 2018 16:05:59 +0000
+Message-ID: <CALjAwxjgJW4+LV3X_hOm2+ELKiS7RfJUg1HLCN_bnfXUYyuVsQ@mail.gmail.com>
+Subject: Unneeded read_barrier() in fio_mutex_up?
 Content-Type: text/plain; charset="UTF-8"
 To: Jens Axboe <axboe@kernel.dk>
-Cc: Kip Ingram <kip.ingram@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Stephen Bates <sbates@raithlin.com>, logang@deltatee.com
+Cc: fio <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 23 January 2018 at 17:50, Jens Axboe <axboe@kernel.dk> wrote:
-> On 1/23/18 10:48 AM, Kip Ingram wrote:
->> Hi Jens.  I'm trying to do some NVME over IB testing, and it seemed
->> appropriate to use the rdma engine in FIO.  However, it's complaining
->> in various ways:
->>
->> 1. It says I have to specify the device size.  That's not a
->> show-stopper, but it surprised me.
->> 2. It says I have to use either read or write traffic - not mixed.
->> That is a problem.
->> 3. It says I can't use random addressing.  That's also a problem.
->>
->> Colleagues have set up devices this way and used one of our internal
->> tools to do mixed and random traffic.
->>
->> I don't see anything in the documents that imply mixed and random
->> shouldn't work - is there something I'm overlooking?
->
-> CC'ing the fio list, please direct questions there and not to me
-> directly.
+I've just been going to fio code to see if I can add a wrapper to
+variables being protected by read_barrier() and write_barrier() and I
+came across this:
 
-CC'ing some RDMA folks.
+mutex.c:
+242 void fio_mutex_up(struct fio_mutex *mutex)
+243 {
+244         int do_wake = 0;
+245
+246         assert(mutex->magic == FIO_MUTEX_MAGIC);
+247
+248         pthread_mutex_lock(&mutex->lock);
+249         read_barrier();
+250         if (!mutex->value && mutex->waiters)
+251                 do_wake = 1;
+252         mutex->value++;
+
+What is this read_barrier() protecting? From what I can the only time
+we manipulate mutex->value and mutex->waiters without being under
+mutex->lock is __fio_mutex_init()...
 
 -- 
 Sitsofe | http://sucs.org/~sits/
