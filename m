@@ -1,173 +1,133 @@
-Return-Path: <prvs=605f62c37=Kris.Davis@wdc.com>
-From: Kris Davis <Kris.Davis@wdc.com>
-Subject: Patch to add read and write fua bit options to the SG engine
-Date: Thu, 15 Mar 2018 03:59:52 +0000
-Message-ID: <CY1PR0401MB1116B5FBEFE751DAE8A07A3C81D00@CY1PR0401MB1116.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>
+Return-Path: <304702903@qq.com>
+In-Reply-To: <b5f70d74-236f-ae85-bc03-75c3b262d387@kernel.dk>
+References: <tencent_E24C0F8C628C11E92A4A21798A161CE7E207@qq.com>
+	<b5f70d74-236f-ae85-bc03-75c3b262d387@kernel.dk>
+From: "=?ISO-8859-1?B?d2s=?=" <304702903@qq.com>
+Subject: Re:  question about fio write offset
+Mime-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_5AA89352_08FE33D0_155BB17D"
+Content-Transfer-Encoding: 8Bit
+Date: Wed, 14 Mar 2018 11:13:22 +0800
+Message-ID: <tencent_E870AB1685B0282E70DC8B013D148B354609@qq.com>
+To: =?ISO-8859-1?B?SmVucyBBeGJvZQ==?= <axboe@kernel.dk>, =?ISO-8859-1?B?ZmlvQHZnZXIua2VybmVsLm9yZw==?= <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-I like to submit the patch below to add read and write fua bit options to t=
-he SG engine.  It adds a readfua=3Dbool, and writefua=3Dbool options in the=
- SG engine, which causes the "force unit access" bits to be set in the read=
- and write operations respectively.  I patterned the code changes from what=
- I found in the libaio engine option code.  So, I also added a "__FIO_OPT_G=
-_SG" enum to optgroup.h, which seemed to follow the pattern - but I really =
-don't understand where or how the enum settings values in the options are u=
-sed, so I'm unsure.
-Thanks
-Kris Davis
+This is a multi-part message in MIME format.
 
+------=_NextPart_5AA89352_08FE33D0_155BB17D
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: base64
 
+VGhhbmsgeW91IHZlcnkgbXVjaC4gSXQgd29ya3MgdmVyeSB3ZWxsLg0KDQoNCi0tLS0tLS0t
+LS0tLS0tLS0tLSBPcmlnaW5hbCAtLS0tLS0tLS0tLS0tLS0tLS0NCkZyb206ICAiSmVucyBB
+eGJvZSI8YXhib2VAa2VybmVsLmRrPjsNCkRhdGU6ICBXZWQsIE1hciAxNCwgMjAxOCAwMTo1
+MSBBTQ0KVG86ICAid2siPDMwNDcwMjkwM0BxcS5jb20+OyJmaW9Admdlci5rZXJuZWwub3Jn
+IjxmaW9Admdlci5rZXJuZWwub3JnPjsNCg0KU3ViamVjdDogIFJlOiBxdWVzdGlvbiBhYm91
+dCBmaW8gd3JpdGUgb2Zmc2V0DQoNCg0KDQpPbiAzLzEyLzE4IDc6NTkgUE0sIHdrIHdyb3Rl
+Og0KPiBIaSwgYXhib2U6DQo+IA0KPiAgICBTb3JyeSBmb3Igd3JpdGUgZW1haWwgdG8geW91
+IGRpcmVjdGx5Lg0KPiANCj4gICAgIEkgaGF2ZSBhIHF1ZXN0aW9uIGFib3V0IGZpby4gSSB3
+YW50IGdlbmVyYXRlIGEgIHdyaXRlIHNlcXVlbmNlOg0KPiAgICAgZmlyc3Qgd3JpdGU6ICAg
+ICAwLThLQg0KPiAgICAgc2Vjb25kIHdyaXRlOiA0LTEyS0INCj4gICAgIHRoaXJkIHdyaXRl
+IDogICAgOC0xNktCDQo+ICAgICBmb3J0aCB3aXJ0ZTogICAgIDEyLTIwS0INCj4gICAgIGZp
+ZnRoIHdyaXRlOiAgICAgICAxNktCLTI0S0INCj4gDQo+ICAgICBFYWNoIGlvIGlzIDhLQiwg
+YW5kIG5leHQgaW8gb2Zmc2V0IGlzIDRLQi4gSG93IHRvIHdyaXRlIHRoZSBmaW8gY29tbWFu
+ZD8NCj4gICAgIEkgdGVzdCAiZmlvIC0taW9lbmdpbmU9bGliYWlvIC0tZGlyZWN0PTEgLS1y
+dz1yYW5kd3JpdGUgLS1udW1iZXJfaW9zPTQgIC0tbm9yYW5kb21tYXAgLS1yYW5kcmVwZWF0
+PTAgLS1pb2RlcHRoPTEgLS1zaXplPTEwMCUgLS1udW1qb2JzPTEgLS1icz04ayAgLS1maWxl
+bmFtZT0vZGV2L252bWUwbjEgLS1sb29wcz0xICAtLWJsb2NrYWxpZ249NDA5NiAtLWRlYnVn
+PWlvIC0tbmFtZT1ESV9TdHJlc3MiLCBidXQgaXQgc2VlbXMgZWFjaCBpbyBvZmZzZXQgaXMg
+bXVsdGlwbGUgb2YgNEtCLkJ1dCBpdCBpcyAgbm90IG92ZXJsYXAgbGFzdCA4S0IgIHdyaXRl
+ZCBibG9jay4NCj4gDQo+ICAgICAgSSBhbHNvIHRlc3QgImZpbyAtLWlvZW5naW5lPWxpYmFp
+byAtLWRpcmVjdD0xIC0tcnc9d3JpdGUgLS1udW1iZXJfaW9zPTQgIC0tbm9yYW5kb21tYXAg
+LS1yYW5kcmVwZWF0PTAgLS1pb2RlcHRoPTEgLS1zaXplPTEwMCUgLS1udW1qb2JzPTEgLS1i
+cz04ayAgLS1maWxlbmFtZT0vZGV2L252bWUwbjEgLS1sb29wcz0xICAtLWJsb2NrYWxpZ249
+NDA5NiAtLWRlYnVnPWlvIC0tbmFtZT1ESV9TdHJlc3MiLCBidXQgaXQgc2VlbXMgZWFjaCBp
+byBvZmZzZXQgaXMgbXVsdGlwbGUgb2YgNEtCLkJ1dCBpdCBpcyAgbm90IG92ZXJsYXAgSU8u
+IFNvbWUgZmlvIGxvZyBpcyBiZWxvdzoNCj4gICAgIGlvIGNvbXBsZXRlOiBpb191IDB4MWYy
+MTYwMDogb2ZmPTAvbGVuPTgxOTIvZGRpcj0xaW8NCj4gICAgIGlvIGNvbXBsZXRlOiBpb191
+IDB4MWYyMTYwMDogb2ZmPTgxOTIvbGVuPTgxOTIvZGRpcj0xaW8NCj4gICAgIGlvIGNvbXBs
+ZXRlOiBpb191IDB4MWYyMTYwMDogb2ZmPTE2Mzg0L2xlbj04MTkyL2RkaXI9MWlvDQo+ICAg
+ICBpbyBjb21wbGV0ZTogaW9fdSAweDFmMjE2MDA6IG9mZj0yNDU3Ni9sZW49ODE5Mi9kZGly
+PTFpbw0KPiBJIHdhbnQgY2hhbmdlIHRoZSByZWQgb2Zmc2V0IGFkZHJlc3MgJzAvODE5Mi8x
+NjM4NC8yNDU3NicgdG8gJzAvNDA5Ni84MTkyLzEyMjg4JyBieSBjaGFuZ2UgbXkgRklPIGNv
+bW1hbmQuDQoNCkRvbid0IGVtYWlsIG1lIGRpcmVjdGx5LCBJJ3ZlIENDJ2VkIHRoZSBwcm9w
+ZXIgbGlzdC4NCg0KWW91J3JlIHN1cHBvc2VkIHRvIGJlIGFibGUgdG8gZG8gdGhhdCB3aXRo
+Og0KDQpicz04aw0Kcnc9d3JpdGU6LTRrDQoNCndoaWNoIHdpbGwgd3JpdGUgMC4uOGssIDQu
+LjEyaywgZXRjLiBCdXQgdGhlcmUncyBhIGJ1ZyB0aGVyZSwgc28geW91IG5lZWQgdG8NCnVw
+ZGF0ZSB0byBsYXRlc3QgLWdpdCBmaXJzdCwgaXQgbmVlZHMgdGhpcyBjb21taXQ6DQoNCmNv
+bW1pdCA2OWI5OGYxMWQ2MmNiMTI0ODIxMzBmYWM3OWI4ZWJmMDBjMGJiMTM5DQpBdXRob3I6
+IEplbnMgQXhib2UgPGF4Ym9lQGtlcm5lbC5kaz4NCkRhdGU6ICAgVHVlIE1hciAxMyAxMTo0
+OTo1NSAyMDE4IC0wNjAwDQoNCiAgICBpb191OiBvbmx5IHJld2luZCBmaWxlIHBvc2l0aW9u
+IGlmIGl0J3Mgbm9uLXplcm8NCg0KYW5kIGl0IHNob3VsZCB3b3JrIGZvciB5b3UuDQoNCi0t
+IA0KSmVucyBBeGJvZQ==
 
-diff --git a/HOWTO b/HOWTO
-index acb9e97..4f9d26a 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1747,6 +1747,7 @@
- 			:manpage:`read(2)` and :manpage:`write(2)` for asynchronous
- 			I/O. Requires :option:`filename` option to specify either block or
- 			character devices.
-+			The sg engine includes engine specific options.
-=20
- 		**null**
- 			Doesn't transfer any data, just pretends to.  This is mainly used to
-@@ -2068,6 +2069,17 @@
- 	multiple paths exist between the client and the server or in certain loop=
-back
- 	configurations.
-=20
-+.. option:: readfua=3Dbool : [sg]
-+
-+	With readfua option set to 1, read operations include the=20
-+	the force unit access (fua) flag.
-+
-+.. option:: writefua=3Dbool : [sg]
-+
-+	With writefua option set to 1, write operations include the=20
-+	the force unit access (fua) flag.
-+
-+
- I/O depth
- ~~~~~~~~~
-=20
-diff --git a/engines/sg.c b/engines/sg.c
-index 4540b57..f240755 100644
---- a/engines/sg.c
-+++ b/engines/sg.c
-@@ -12,8 +12,42 @@
- #include <sys/poll.h>
-=20
- #include "../fio.h"
-+#include "../optgroup.h"
-=20
- #ifdef FIO_HAVE_SGIO
-+
-+
-+struct sg_options {
-+	void *pad;
-+	unsigned int readfua;
-+	unsigned int writefua;
-+};
-+
-+static struct fio_option options[] =3D {
-+	{
-+		.name	=3D "readfua",
-+		.lname	=3D "sg engine read fua flag support",
-+		.type	=3D FIO_OPT_BOOL,
-+		.off1	=3D offsetof(struct sg_options, readfua),
-+		.help	=3D "Set FUA flag (force unit access) for all Read operations",
-+		.def	=3D "0",
-+		.category =3D FIO_OPT_C_ENGINE,
-+		.group	=3D FIO_OPT_G_SG,
-+	},
-+	{
-+		.name	=3D "writefua",
-+		.lname	=3D "sg engine write fua flag support",
-+		.type	=3D FIO_OPT_BOOL,
-+		.off1	=3D offsetof(struct sg_options, writefua),
-+		.help	=3D "Set FUA flag (force unit access) for all Write operations",
-+		.def	=3D "0",
-+		.category =3D FIO_OPT_C_ENGINE,
-+		.group	=3D FIO_OPT_G_SG,
-+	},
-+	{
-+		.name	=3D NULL,
-+	},
-+};
-=20
- #define MAX_10B_LBA  0xFFFFFFFFULL
- #define SCSI_TIMEOUT_MS 30000   // 30 second timeout; currently no method =
-to override
-@@ -267,6 +301,7 @@
- static int fio_sgio_prep(struct thread_data *td, struct io_u *io_u)
- {
- 	struct sg_io_hdr *hdr =3D &io_u->hdr;
-+	struct sg_options *o =3D td->eo;
- 	struct sgio_data *sd =3D td->io_ops_data;
- 	long long nr_blocks, lba;
-=20
-@@ -286,6 +321,10 @@
- 			hdr->cmdp[0] =3D 0x28; // read(10)
- 		else
- 			hdr->cmdp[0] =3D 0x88; // read(16)
-+
-+		if (o->readfua)
-+			hdr->cmdp[1] |=3D 0x08;
-+
- 	} else if (io_u->ddir =3D=3D DDIR_WRITE) {
- 		sgio_hdr_init(sd, hdr, io_u, 1);
-=20
-@@ -294,6 +333,10 @@
- 			hdr->cmdp[0] =3D 0x2a; // write(10)
- 		else
- 			hdr->cmdp[0] =3D 0x8a; // write(16)
-+
-+		if (o->writefua)
-+			hdr->cmdp[1] |=3D 0x08;
-+
- 	} else {
- 		sgio_hdr_init(sd, hdr, io_u, 0);
- 		hdr->dxfer_direction =3D SG_DXFER_NONE;
-@@ -822,6 +865,8 @@
- 	.close_file	=3D generic_close_file,
- 	.get_file_size	=3D fio_sgio_get_file_size,
- 	.flags		=3D FIO_SYNCIO | FIO_RAWIO,
-+	.options	=3D options,
-+	.option_struct_size	=3D sizeof(struct sg_options)
- };
-=20
- #else /* FIO_HAVE_SGIO */
-diff --git a/optgroup.h b/optgroup.h
-index 815ac16..d5e968d 100644
---- a/optgroup.h
-+++ b/optgroup.h
-@@ -55,10 +55,11 @@
- 	__FIO_OPT_G_LIBAIO,
- 	__FIO_OPT_G_ACT,
- 	__FIO_OPT_G_LATPROF,
--        __FIO_OPT_G_RBD,
--        __FIO_OPT_G_GFAPI,
--        __FIO_OPT_G_MTD,
-+	__FIO_OPT_G_RBD,
-+	__FIO_OPT_G_GFAPI,
-+	__FIO_OPT_G_MTD,
- 	__FIO_OPT_G_HDFS,
-+	__FIO_OPT_G_SG,
- 	__FIO_OPT_G_NR,
-=20
- 	FIO_OPT_G_RATE		=3D (1ULL << __FIO_OPT_G_RATE),
-@@ -93,6 +94,7 @@
- 	FIO_OPT_G_GFAPI		=3D (1ULL << __FIO_OPT_G_GFAPI),
- 	FIO_OPT_G_MTD		=3D (1ULL << __FIO_OPT_G_MTD),
- 	FIO_OPT_G_HDFS		=3D (1ULL << __FIO_OPT_G_HDFS),
-+	FIO_OPT_G_SG		=3D (1ULL << __FIO_OPT_G_SG),
- 	FIO_OPT_G_INVALID	=3D (1ULL << __FIO_OPT_G_NR),
- };
+------=_NextPart_5AA89352_08FE33D0_155BB17D
+Content-Type: text/html;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: base64
+
+PGRpdj48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6ICdsdWNpZGEgR3JhbmRlJywgVmVyZGFu
+YSwgJ01pY3Jvc29mdCBZYUhlaSc7Ij5UaGFuayB5b3UgdmVyeSBtdWNoLiBJdCB3b3JrcyB2
+ZXJ5IHdlbGwuPC9zcGFuPjwvZGl2PjxkaXY+PGRpdj48YnI+PC9kaXY+PGRpdiBzdHlsZT0i
+Zm9udC1zaXplOiAxMnB4O2ZvbnQtZmFtaWx5OiBBcmlhbCBOYXJyb3c7cGFkZGluZzoycHgg
+MCAycHggMDsiPi0tLS0tLS0tLS0tLS0tLS0tLSZuYnNwO09yaWdpbmFsJm5ic3A7LS0tLS0t
+LS0tLS0tLS0tLS0tPC9kaXY+PGRpdiBzdHlsZT0iZm9udC1zaXplOiAxMnB4O2JhY2tncm91
+bmQ6I2VmZWZlZjtwYWRkaW5nOjhweDsiPjxkaXY+PGI+RnJvbTogPC9iPiZuYnNwOyJKZW5z
+IEF4Ym9lIiZsdDtheGJvZUBrZXJuZWwuZGsmZ3Q7OzwvZGl2PjxkaXY+PGI+RGF0ZTogPC9i
+PiZuYnNwO1dlZCwgTWFyIDE0LCAyMDE4IDAxOjUxIEFNPC9kaXY+PGRpdj48Yj5UbzogPC9i
+PiZuYnNwOyJ3ayImbHQ7MzA0NzAyOTAzQHFxLmNvbSZndDs7ImZpb0B2Z2VyLmtlcm5lbC5v
+cmciJmx0O2Zpb0B2Z2VyLmtlcm5lbC5vcmcmZ3Q7Ozx3YnI+PC9kaXY+PGRpdj48L2Rpdj48
+ZGl2PjxiPlN1YmplY3Q6IDwvYj4mbmJzcDtSZTogcXVlc3Rpb24gYWJvdXQgZmlvIHdyaXRl
+IG9mZnNldDwvZGl2PjwvZGl2PjxkaXY+PGJyPjwvZGl2Pk9uIDMvMTIvMTggNzo1OSBQTSwg
+d2sgd3JvdGU6PGJyPiZndDsgSGksIGF4Ym9lOjxicj4mZ3Q7IDxicj4mZ3Q7ICZuYnNwOyAm
+bmJzcDtTb3JyeSBmb3Igd3JpdGUgZW1haWwgdG8geW91IGRpcmVjdGx5Ljxicj4mZ3Q7IDxi
+cj4mZ3Q7ICZuYnNwOyAmbmJzcDsgSSBoYXZlIGEgcXVlc3Rpb24gYWJvdXQgZmlvLiBJIHdh
+bnQgZ2VuZXJhdGUgYSAmbmJzcDt3cml0ZSBzZXF1ZW5jZTo8YnI+Jmd0OyAmbmJzcDsgJm5i
+c3A7IGZpcnN0IHdyaXRlOiAmbmJzcDsgJm5ic3A7IDAtOEtCPGJyPiZndDsgJm5ic3A7ICZu
+YnNwOyBzZWNvbmQgd3JpdGU6IDQtMTJLQjxicj4mZ3Q7ICZuYnNwOyAmbmJzcDsgdGhpcmQg
+d3JpdGUgOiAmbmJzcDsgJm5ic3A7OC0xNktCPGJyPiZndDsgJm5ic3A7ICZuYnNwOyBmb3J0
+aCB3aXJ0ZTogJm5ic3A7ICZuYnNwOyAxMi0yMEtCPGJyPiZndDsgJm5ic3A7ICZuYnNwOyBm
+aWZ0aCB3cml0ZTogJm5ic3A7ICZuYnNwOyAmbmJzcDsgMTZLQi0yNEtCPGJyPiZndDsgPGJy
+PiZndDsgJm5ic3A7ICZuYnNwOyBFYWNoIGlvIGlzIDhLQiwgYW5kIG5leHQgaW8gb2Zmc2V0
+IGlzIDRLQi4gSG93IHRvIHdyaXRlIHRoZSBmaW8gY29tbWFuZD88YnI+Jmd0OyAmbmJzcDsg
+Jm5ic3A7IEkgdGVzdCAiZmlvIC0taW9lbmdpbmU9bGliYWlvIC0tZGlyZWN0PTEgLS1ydz1y
+YW5kd3JpdGUgLS1udW1iZXJfaW9zPTQgJm5ic3A7LS1ub3JhbmRvbW1hcCAtLXJhbmRyZXBl
+YXQ9MCAtLWlvZGVwdGg9MSAtLXNpemU9MTAwJSAtLW51bWpvYnM9MSAtLWJzPThrICZuYnNw
+Oy0tZmlsZW5hbWU9L2Rldi9udm1lMG4xIC0tbG9vcHM9MSAmbmJzcDstLWJsb2NrYWxpZ249
+NDA5NiAtLWRlYnVnPWlvIC0tbmFtZT1ESV9TdHJlc3MiLCBidXQgaXQgc2VlbXMgZWFjaCBp
+byBvZmZzZXQgaXMgbXVsdGlwbGUgb2YgNEtCLkJ1dCBpdCBpcyAmbmJzcDtub3Qgb3Zlcmxh
+cCBsYXN0IDhLQiAmbmJzcDt3cml0ZWQgYmxvY2suPGJyPiZndDsgPGJyPiZndDsgJm5ic3A7
+ICZuYnNwOyAmbmJzcDtJIGFsc28gdGVzdCAiZmlvIC0taW9lbmdpbmU9bGliYWlvIC0tZGly
+ZWN0PTEgLS1ydz13cml0ZSAtLW51bWJlcl9pb3M9NCAmbmJzcDstLW5vcmFuZG9tbWFwIC0t
+cmFuZHJlcGVhdD0wIC0taW9kZXB0aD0xIC0tc2l6ZT0xMDAlIC0tbnVtam9icz0xIC0tYnM9
+OGsgJm5ic3A7LS1maWxlbmFtZT0vZGV2L252bWUwbjEgLS1sb29wcz0xICZuYnNwOy0tYmxv
+Y2thbGlnbj00MDk2IC0tZGVidWc9aW8gLS1uYW1lPURJX1N0cmVzcyIsIGJ1dCBpdCBzZWVt
+cyBlYWNoIGlvIG9mZnNldCBpcyBtdWx0aXBsZSBvZiA0S0IuQnV0IGl0IGlzICZuYnNwO25v
+dCBvdmVybGFwIElPLiBTb21lIGZpbyBsb2cgaXMgYmVsb3c6PGJyPiZndDsgJm5ic3A7ICZu
+YnNwOyBpbyBjb21wbGV0ZTogaW9fdSAweDFmMjE2MDA6IG9mZj0wL2xlbj04MTkyL2RkaXI9
+MWlvPGJyPiZndDsgJm5ic3A7ICZuYnNwOyBpbyBjb21wbGV0ZTogaW9fdSAweDFmMjE2MDA6
+IG9mZj04MTkyL2xlbj04MTkyL2RkaXI9MWlvPGJyPiZndDsgJm5ic3A7ICZuYnNwOyBpbyBj
+b21wbGV0ZTogaW9fdSAweDFmMjE2MDA6IG9mZj0xNjM4NC9sZW49ODE5Mi9kZGlyPTFpbzxi
+cj4mZ3Q7ICZuYnNwOyAmbmJzcDsgaW8gY29tcGxldGU6IGlvX3UgMHgxZjIxNjAwOiBvZmY9
+MjQ1NzYvbGVuPTgxOTIvZGRpcj0xaW88YnI+Jmd0OyBJIHdhbnQgY2hhbmdlIHRoZSByZWQg
+b2Zmc2V0IGFkZHJlc3MgJzAvODE5Mi8xNjM4NC8yNDU3NicgdG8gJzAvNDA5Ni84MTkyLzEy
+Mjg4JyBieSBjaGFuZ2UgbXkgRklPIGNvbW1hbmQuPGJyPjxicj5Eb24ndCBlbWFpbCBtZSBk
+aXJlY3RseSwgSSd2ZSBDQydlZCB0aGUgcHJvcGVyIGxpc3QuPGJyPjxicj5Zb3UncmUgc3Vw
+cG9zZWQgdG8gYmUgYWJsZSB0byBkbyB0aGF0IHdpdGg6PGJyPjxicj5icz04azxicj5ydz13
+cml0ZTotNGs8YnI+PGJyPndoaWNoIHdpbGwgd3JpdGUgMC4uOGssIDQuLjEyaywgZXRjLiBC
+dXQgdGhlcmUncyBhIGJ1ZyB0aGVyZSwgc28geW91IG5lZWQgdG88YnI+dXBkYXRlIHRvIGxh
+dGVzdCAtZ2l0IGZpcnN0LCBpdCBuZWVkcyB0aGlzIGNvbW1pdDo8YnI+PGJyPmNvbW1pdCA2
+OWI5OGYxMWQ2MmNiMTI0ODIxMzBmYWM3OWI4ZWJmMDBjMGJiMTM5PGJyPkF1dGhvcjogSmVu
+cyBBeGJvZSAmbHQ7YXhib2VAa2VybmVsLmRrJmd0Ozxicj5EYXRlOiZuYnNwOyZuYnNwOyBU
+dWUgTWFyIDEzIDExOjQ5OjU1IDIwMTggLTA2MDA8YnI+PGJyPiZuYnNwOyZuYnNwOyZuYnNw
+OyBpb191OiBvbmx5IHJld2luZCBmaWxlIHBvc2l0aW9uIGlmIGl0J3Mgbm9uLXplcm88YnI+
+PGJyPmFuZCBpdCBzaG91bGQgd29yayBmb3IgeW91Ljxicj48YnI+LS0gPGJyPkplbnMgQXhi
+b2U8YnI+PGJyPjwvZGl2Pg==
+
+------=_NextPart_5AA89352_08FE33D0_155BB17D--
+
 
 
 
