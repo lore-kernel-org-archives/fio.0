@@ -1,150 +1,209 @@
-Return-Path: <prvs=605f62c37=Kris.Davis@wdc.com>
-From: Kris Davis <Kris.Davis@wdc.com>
-Subject: RE: Patch to add read and write fua bit options to the SG engine
-Date: Thu, 15 Mar 2018 14:52:30 +0000
-Message-ID: <CY1PR0401MB1116D03152A52BDA269387E981D00@CY1PR0401MB1116.namprd04.prod.outlook.com>
-References: <CY1PR0401MB1116B5FBEFE751DAE8A07A3C81D00@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CALjAwxhS++UF+LG166gR_tQNBsJHa-pTUJfHck_FjcN8DUtY2g@mail.gmail.com>
-In-Reply-To: <CALjAwxhS++UF+LG166gR_tQNBsJHa-pTUJfHck_FjcN8DUtY2g@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+In-Reply-To: <CY1PR0401MB1116B5FBEFE751DAE8A07A3C81D00@CY1PR0401MB1116.namprd04.prod.outlook.com>
+References: <CY1PR0401MB1116B5FBEFE751DAE8A07A3C81D00@CY1PR0401MB1116.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Thu, 15 Mar 2018 06:36:03 +0000
+Message-ID: <CALjAwxhS++UF+LG166gR_tQNBsJHa-pTUJfHck_FjcN8DUtY2g@mail.gmail.com>
+Subject: Re: Patch to add read and write fua bit options to the SG engine
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+To: Kris Davis <Kris.Davis@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-V2UgZGVmaW5pdGVseSBkbyBuZWVkIHNlcGFyYXRlIGNvbnRyb2wgYmV0d2VlbiByZWFkIGFuZCB3
-cml0ZSBmdWEsIGFuZCBvbmx5IHRoZSByZWFkIGFuZCB3cml0ZSBzY3NpIGNvbW1hbmRzIGFjdHVh
-bGx5IHN1cHBvcnQgYSBmdWEgYml0LiAgQWxzbywgSSBkb24ndCB0aGluayB0aGUgc2cgZW5naW5l
-IGNhbiBhY3R1YWxseSBiZSBjb25zaWRlcmVkIGdlbmVyYWwgcHVycG9zZSwgYXMgaXQgcmVhbGx5
-IG9ubHkgc3VwcG9ydHMgdGhlIHJlYWQvd3JpdGUvc3luYyBvcGVyYXRpb25zIGN1cnJlbnRseS4g
-IA0KDQpJIGFsc28gdGhpbmsgb3ZlcmxvYWRpbmcgdGhlIG1lYW5pbmcgb2YgdGhlICJkaXJlY3Qi
-IG9wdGlvbiB3b3VsZCBzZXQgYSBiYWQgcHJlY2VkZW50IC0gZXZlbiB0aG91Z2ggaXQncyBub3Qg
-dXNlZCBieSB0aGUgc2cgZW5naW5lLiAgVGhlICJkaXJlY3QiIGJpdCBjaGFuZ2VzIGJlaGF2aW9y
-IG9mIHRoZSBrZXJuZWwgb3IgZHJpdmVyLCBidXQgZnVhIGJpdCBpcyBhIGRldmljZSBvcGVyYXRp
-b24uDQoNClRoYW5rcw0KDQpLcmlzIERhdmlzDQpXZXN0ZXJuIERpZ2l0YWwgQ29wb3JhdGlvbg0K
-RW1haWw6IGtyaXMuZGF2aXNAd2RjLmNvbQ0KT2ZmaWNlOjogKzEtNTA3LTMyMi0yMzc2DQoNCi0t
-LS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBTaXRzb2ZlIFdoZWVsZXIgW21haWx0bzpz
-aXRzb2ZlQGdtYWlsLmNvbV0gDQpTZW50OiBUaHVyc2RheSwgTWFyY2ggMTUsIDIwMTggMTozNiBB
-TQ0KVG86IEtyaXMgRGF2aXMgPEtyaXMuRGF2aXNAd2RjLmNvbT4NCkNjOiBmaW9Admdlci5rZXJu
-ZWwub3JnOyBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+DQpTdWJqZWN0OiBSZTogUGF0Y2gg
-dG8gYWRkIHJlYWQgYW5kIHdyaXRlIGZ1YSBiaXQgb3B0aW9ucyB0byB0aGUgU0cgZW5naW5lDQoN
-CkhpLA0KDQpPbiAxNSBNYXJjaCAyMDE4IGF0IDAzOjU5LCBLcmlzIERhdmlzIDxLcmlzLkRhdmlz
-QHdkYy5jb20+IHdyb3RlOg0KPiBJIGxpa2UgdG8gc3VibWl0IHRoZSBwYXRjaCBiZWxvdyB0byBh
-ZGQgcmVhZCBhbmQgd3JpdGUgZnVhIGJpdCBvcHRpb25zIHRvIHRoZSBTRyBlbmdpbmUuICBJdCBh
-ZGRzIGEgcmVhZGZ1YT1ib29sLCBhbmQgd3JpdGVmdWE9Ym9vbCBvcHRpb25zIGluIHRoZSBTRyBl
-bmdpbmUsIHdoaWNoIGNhdXNlcyB0aGUgImZvcmNlIHVuaXQgYWNjZXNzIiBiaXRzIHRvIGJlIHNl
-dCBpbiB0aGUgcmVhZCBhbmQgd3JpdGUgb3BlcmF0aW9ucyByZXNwZWN0aXZlbHkuICBJIHBhdHRl
-cm5lZCB0aGUgY29kZSBjaGFuZ2VzIGZyb20gd2hhdCBJIGZvdW5kIGluIHRoZSBsaWJhaW8gZW5n
-aW5lIG9wdGlvbiBjb2RlLiAgU28sIEkgYWxzbyBhZGRlZCBhICJfX0ZJT19PUFRfR19TRyIgZW51
-bSB0byBvcHRncm91cC5oLCB3aGljaCBzZWVtZWQgdG8gZm9sbG93IHRoZSBwYXR0ZXJuIC0gYnV0
-IEkgcmVhbGx5IGRvbid0IHVuZGVyc3RhbmQgd2hlcmUgb3IgaG93IHRoZSBlbnVtIHNldHRpbmdz
-IHZhbHVlcyBpbiB0aGUgb3B0aW9ucyBhcmUgdXNlZCwgc28gSSdtIHVuc3VyZS4NCg0KSWYgeW91
-IGRvbid0IG5lZWQgZGlmZmVyZW50IEkvT3MgdG8gaGF2ZSBkaWZmZXJlbnQgRlVBIHN0YXRlcyAo
-aWYgdGhleSB3ZXJlIGV2ZXIgc3VwcG9ydGVkIGluIHRoZSBzZyBpb2VuZ2luZSBjb3VsZCB0cmlt
-cyB2aWEgdW5tYXBzL3dyaXRlX3NhbWVzIGJlIEZVQSdkPykgY291bGQgeW91IG92ZXJsb2FkIGRp
-cmVjdD0xIGZvciB0aGlzIHB1cnBvc2U/DQoNCi0tDQpTaXRzb2ZlIHwgaHR0cDovL3N1Y3Mub3Jn
-L35zaXRzLw0KDQpPbiAxNSBNYXJjaCAyMDE4IGF0IDAzOjU5LCBLcmlzIERhdmlzIDxLcmlzLkRh
-dmlzQHdkYy5jb20+IHdyb3RlOg0KPiBJIGxpa2UgdG8gc3VibWl0IHRoZSBwYXRjaCBiZWxvdyB0
-byBhZGQgcmVhZCBhbmQgd3JpdGUgZnVhIGJpdCBvcHRpb25zIHRvIHRoZSBTRyBlbmdpbmUuICBJ
-dCBhZGRzIGEgcmVhZGZ1YT1ib29sLCBhbmQgd3JpdGVmdWE9Ym9vbCBvcHRpb25zIGluIHRoZSBT
-RyBlbmdpbmUsIHdoaWNoIGNhdXNlcyB0aGUgImZvcmNlIHVuaXQgYWNjZXNzIiBiaXRzIHRvIGJl
-IHNldCBpbiB0aGUgcmVhZCBhbmQgd3JpdGUgb3BlcmF0aW9ucyByZXNwZWN0aXZlbHkuICBJIHBh
-dHRlcm5lZCB0aGUgY29kZSBjaGFuZ2VzIGZyb20gd2hhdCBJIGZvdW5kIGluIHRoZSBsaWJhaW8g
-ZW5naW5lIG9wdGlvbiBjb2RlLiAgU28sIEkgYWxzbyBhZGRlZCBhICJfX0ZJT19PUFRfR19TRyIg
-ZW51bSB0byBvcHRncm91cC5oLCB3aGljaCBzZWVtZWQgdG8gZm9sbG93IHRoZSBwYXR0ZXJuIC0g
-YnV0IEkgcmVhbGx5IGRvbid0IHVuZGVyc3RhbmQgd2hlcmUgb3IgaG93IHRoZSBlbnVtIHNldHRp
-bmdzIHZhbHVlcyBpbiB0aGUgb3B0aW9ucyBhcmUgdXNlZCwgc28gSSdtIHVuc3VyZS4NCj4gVGhh
-bmtzDQo+IEtyaXMgRGF2aXMNCj4NCj4NCj4NCj4gZGlmZiAtLWdpdCBhL0hPV1RPIGIvSE9XVE8N
-Cj4gaW5kZXggYWNiOWU5Ny4uNGY5ZDI2YSAxMDA2NDQNCj4gLS0tIGEvSE9XVE8NCj4gKysrIGIv
-SE9XVE8NCj4gQEAgLTE3NDcsNiArMTc0Nyw3IEBADQo+ICAgICAgICAgICAgICAgICAgICAgICAg
-IDptYW5wYWdlOmByZWFkKDIpYCBhbmQgOm1hbnBhZ2U6YHdyaXRlKDIpYCBmb3IgYXN5bmNocm9u
-b3VzDQo+ICAgICAgICAgICAgICAgICAgICAgICAgIEkvTy4gUmVxdWlyZXMgOm9wdGlvbjpgZmls
-ZW5hbWVgIG9wdGlvbiB0byBzcGVjaWZ5IGVpdGhlciBibG9jayBvcg0KPiAgICAgICAgICAgICAg
-ICAgICAgICAgICBjaGFyYWN0ZXIgZGV2aWNlcy4NCj4gKyAgICAgICAgICAgICAgICAgICAgICAg
-VGhlIHNnIGVuZ2luZSBpbmNsdWRlcyBlbmdpbmUgc3BlY2lmaWMgb3B0aW9ucy4NCj4NCj4gICAg
-ICAgICAgICAgICAgICoqbnVsbCoqDQo+ICAgICAgICAgICAgICAgICAgICAgICAgIERvZXNuJ3Qg
-dHJhbnNmZXIgYW55IGRhdGEsIGp1c3QgcHJldGVuZHMgdG8uICANCj4gVGhpcyBpcyBtYWlubHkg
-dXNlZCB0byBAQCAtMjA2OCw2ICsyMDY5LDE3IEBADQo+ICAgICAgICAgbXVsdGlwbGUgcGF0aHMg
-ZXhpc3QgYmV0d2VlbiB0aGUgY2xpZW50IGFuZCB0aGUgc2VydmVyIG9yIGluIGNlcnRhaW4gbG9v
-cGJhY2sNCj4gICAgICAgICBjb25maWd1cmF0aW9ucy4NCj4NCj4gKy4uIG9wdGlvbjo6IHJlYWRm
-dWE9Ym9vbCA6IFtzZ10NCj4gKw0KPiArICAgICAgIFdpdGggcmVhZGZ1YSBvcHRpb24gc2V0IHRv
-IDEsIHJlYWQgb3BlcmF0aW9ucyBpbmNsdWRlIHRoZQ0KPiArICAgICAgIHRoZSBmb3JjZSB1bml0
-IGFjY2VzcyAoZnVhKSBmbGFnLg0KPiArDQo+ICsuLiBvcHRpb246OiB3cml0ZWZ1YT1ib29sIDog
-W3NnXQ0KPiArDQo+ICsgICAgICAgV2l0aCB3cml0ZWZ1YSBvcHRpb24gc2V0IHRvIDEsIHdyaXRl
-IG9wZXJhdGlvbnMgaW5jbHVkZSB0aGUNCj4gKyAgICAgICB0aGUgZm9yY2UgdW5pdCBhY2Nlc3Mg
-KGZ1YSkgZmxhZy4NCj4gKw0KPiArDQo+ICBJL08gZGVwdGgNCj4gIH5+fn5+fn5+fg0KPg0KPiBk
-aWZmIC0tZ2l0IGEvZW5naW5lcy9zZy5jIGIvZW5naW5lcy9zZy5jIGluZGV4IDQ1NDBiNTcuLmYy
-NDA3NTUgMTAwNjQ0DQo+IC0tLSBhL2VuZ2luZXMvc2cuYw0KPiArKysgYi9lbmdpbmVzL3NnLmMN
-Cj4gQEAgLTEyLDggKzEyLDQyIEBADQo+ICAjaW5jbHVkZSA8c3lzL3BvbGwuaD4NCj4NCj4gICNp
-bmNsdWRlICIuLi9maW8uaCINCj4gKyNpbmNsdWRlICIuLi9vcHRncm91cC5oIg0KPg0KPiAgI2lm
-ZGVmIEZJT19IQVZFX1NHSU8NCj4gKw0KPiArDQo+ICtzdHJ1Y3Qgc2dfb3B0aW9ucyB7DQo+ICsg
-ICAgICAgdm9pZCAqcGFkOw0KPiArICAgICAgIHVuc2lnbmVkIGludCByZWFkZnVhOw0KPiArICAg
-ICAgIHVuc2lnbmVkIGludCB3cml0ZWZ1YTsNCj4gK307DQo+ICsNCj4gK3N0YXRpYyBzdHJ1Y3Qg
-ZmlvX29wdGlvbiBvcHRpb25zW10gPSB7DQo+ICsgICAgICAgew0KPiArICAgICAgICAgICAgICAg
-Lm5hbWUgICA9ICJyZWFkZnVhIiwNCj4gKyAgICAgICAgICAgICAgIC5sbmFtZSAgPSAic2cgZW5n
-aW5lIHJlYWQgZnVhIGZsYWcgc3VwcG9ydCIsDQo+ICsgICAgICAgICAgICAgICAudHlwZSAgID0g
-RklPX09QVF9CT09MLA0KPiArICAgICAgICAgICAgICAgLm9mZjEgICA9IG9mZnNldG9mKHN0cnVj
-dCBzZ19vcHRpb25zLCByZWFkZnVhKSwNCj4gKyAgICAgICAgICAgICAgIC5oZWxwICAgPSAiU2V0
-IEZVQSBmbGFnIChmb3JjZSB1bml0IGFjY2VzcykgZm9yIGFsbCBSZWFkIG9wZXJhdGlvbnMiLA0K
-PiArICAgICAgICAgICAgICAgLmRlZiAgICA9ICIwIiwNCj4gKyAgICAgICAgICAgICAgIC5jYXRl
-Z29yeSA9IEZJT19PUFRfQ19FTkdJTkUsDQo+ICsgICAgICAgICAgICAgICAuZ3JvdXAgID0gRklP
-X09QVF9HX1NHLA0KPiArICAgICAgIH0sDQo+ICsgICAgICAgew0KPiArICAgICAgICAgICAgICAg
-Lm5hbWUgICA9ICJ3cml0ZWZ1YSIsDQo+ICsgICAgICAgICAgICAgICAubG5hbWUgID0gInNnIGVu
-Z2luZSB3cml0ZSBmdWEgZmxhZyBzdXBwb3J0IiwNCj4gKyAgICAgICAgICAgICAgIC50eXBlICAg
-PSBGSU9fT1BUX0JPT0wsDQo+ICsgICAgICAgICAgICAgICAub2ZmMSAgID0gb2Zmc2V0b2Yoc3Ry
-dWN0IHNnX29wdGlvbnMsIHdyaXRlZnVhKSwNCj4gKyAgICAgICAgICAgICAgIC5oZWxwICAgPSAi
-U2V0IEZVQSBmbGFnIChmb3JjZSB1bml0IGFjY2VzcykgZm9yIGFsbCBXcml0ZSBvcGVyYXRpb25z
-IiwNCj4gKyAgICAgICAgICAgICAgIC5kZWYgICAgPSAiMCIsDQo+ICsgICAgICAgICAgICAgICAu
-Y2F0ZWdvcnkgPSBGSU9fT1BUX0NfRU5HSU5FLA0KPiArICAgICAgICAgICAgICAgLmdyb3VwICA9
-IEZJT19PUFRfR19TRywNCj4gKyAgICAgICB9LA0KPiArICAgICAgIHsNCj4gKyAgICAgICAgICAg
-ICAgIC5uYW1lICAgPSBOVUxMLA0KPiArICAgICAgIH0sDQo+ICt9Ow0KPg0KPiAgI2RlZmluZSBN
-QVhfMTBCX0xCQSAgMHhGRkZGRkZGRlVMTA0KPiAgI2RlZmluZSBTQ1NJX1RJTUVPVVRfTVMgMzAw
-MDAgICAvLyAzMCBzZWNvbmQgdGltZW91dDsgY3VycmVudGx5IG5vIG1ldGhvZCB0byBvdmVycmlk
-ZQ0KPiBAQCAtMjY3LDYgKzMwMSw3IEBADQo+ICBzdGF0aWMgaW50IGZpb19zZ2lvX3ByZXAoc3Ry
-dWN0IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGlvX3UgKmlvX3UpICANCj4gew0KPiAgICAgICAg
-IHN0cnVjdCBzZ19pb19oZHIgKmhkciA9ICZpb191LT5oZHI7DQo+ICsgICAgICAgc3RydWN0IHNn
-X29wdGlvbnMgKm8gPSB0ZC0+ZW87DQo+ICAgICAgICAgc3RydWN0IHNnaW9fZGF0YSAqc2QgPSB0
-ZC0+aW9fb3BzX2RhdGE7DQo+ICAgICAgICAgbG9uZyBsb25nIG5yX2Jsb2NrcywgbGJhOw0KPg0K
-PiBAQCAtMjg2LDYgKzMyMSwxMCBAQA0KPiAgICAgICAgICAgICAgICAgICAgICAgICBoZHItPmNt
-ZHBbMF0gPSAweDI4OyAvLyByZWFkKDEwKQ0KPiAgICAgICAgICAgICAgICAgZWxzZQ0KPiAgICAg
-ICAgICAgICAgICAgICAgICAgICBoZHItPmNtZHBbMF0gPSAweDg4OyAvLyByZWFkKDE2KQ0KPiAr
-DQo+ICsgICAgICAgICAgICAgICBpZiAoby0+cmVhZGZ1YSkNCj4gKyAgICAgICAgICAgICAgICAg
-ICAgICAgaGRyLT5jbWRwWzFdIHw9IDB4MDg7DQo+ICsNCj4gICAgICAgICB9IGVsc2UgaWYgKGlv
-X3UtPmRkaXIgPT0gRERJUl9XUklURSkgew0KPiAgICAgICAgICAgICAgICAgc2dpb19oZHJfaW5p
-dChzZCwgaGRyLCBpb191LCAxKTsNCj4NCj4gQEAgLTI5NCw2ICszMzMsMTAgQEANCj4gICAgICAg
-ICAgICAgICAgICAgICAgICAgaGRyLT5jbWRwWzBdID0gMHgyYTsgLy8gd3JpdGUoMTApDQo+ICAg
-ICAgICAgICAgICAgICBlbHNlDQo+ICAgICAgICAgICAgICAgICAgICAgICAgIGhkci0+Y21kcFsw
-XSA9IDB4OGE7IC8vIHdyaXRlKDE2KQ0KPiArDQo+ICsgICAgICAgICAgICAgICBpZiAoby0+d3Jp
-dGVmdWEpDQo+ICsgICAgICAgICAgICAgICAgICAgICAgIGhkci0+Y21kcFsxXSB8PSAweDA4Ow0K
-PiArDQo+ICAgICAgICAgfSBlbHNlIHsNCj4gICAgICAgICAgICAgICAgIHNnaW9faGRyX2luaXQo
-c2QsIGhkciwgaW9fdSwgMCk7DQo+ICAgICAgICAgICAgICAgICBoZHItPmR4ZmVyX2RpcmVjdGlv
-biA9IFNHX0RYRkVSX05PTkU7IEBAIC04MjIsNiArODY1LDggDQo+IEBADQo+ICAgICAgICAgLmNs
-b3NlX2ZpbGUgICAgID0gZ2VuZXJpY19jbG9zZV9maWxlLA0KPiAgICAgICAgIC5nZXRfZmlsZV9z
-aXplICA9IGZpb19zZ2lvX2dldF9maWxlX3NpemUsDQo+ICAgICAgICAgLmZsYWdzICAgICAgICAg
-ID0gRklPX1NZTkNJTyB8IEZJT19SQVdJTywNCj4gKyAgICAgICAub3B0aW9ucyAgICAgICAgPSBv
-cHRpb25zLA0KPiArICAgICAgIC5vcHRpb25fc3RydWN0X3NpemUgICAgID0gc2l6ZW9mKHN0cnVj
-dCBzZ19vcHRpb25zKQ0KPiAgfTsNCj4NCj4gICNlbHNlIC8qIEZJT19IQVZFX1NHSU8gKi8NCj4g
-ZGlmZiAtLWdpdCBhL29wdGdyb3VwLmggYi9vcHRncm91cC5oDQo+IGluZGV4IDgxNWFjMTYuLmQ1
-ZTk2OGQgMTAwNjQ0DQo+IC0tLSBhL29wdGdyb3VwLmgNCj4gKysrIGIvb3B0Z3JvdXAuaA0KPiBA
-QCAtNTUsMTAgKzU1LDExIEBADQo+ICAgICAgICAgX19GSU9fT1BUX0dfTElCQUlPLA0KPiAgICAg
-ICAgIF9fRklPX09QVF9HX0FDVCwNCj4gICAgICAgICBfX0ZJT19PUFRfR19MQVRQUk9GLA0KPiAt
-ICAgICAgICBfX0ZJT19PUFRfR19SQkQsDQo+IC0gICAgICAgIF9fRklPX09QVF9HX0dGQVBJLA0K
-PiAtICAgICAgICBfX0ZJT19PUFRfR19NVEQsDQo+ICsgICAgICAgX19GSU9fT1BUX0dfUkJELA0K
-PiArICAgICAgIF9fRklPX09QVF9HX0dGQVBJLA0KPiArICAgICAgIF9fRklPX09QVF9HX01URCwN
-Cj4gICAgICAgICBfX0ZJT19PUFRfR19IREZTLA0KPiArICAgICAgIF9fRklPX09QVF9HX1NHLA0K
-PiAgICAgICAgIF9fRklPX09QVF9HX05SLA0KPg0KPiAgICAgICAgIEZJT19PUFRfR19SQVRFICAg
-ICAgICAgID0gKDFVTEwgPDwgX19GSU9fT1BUX0dfUkFURSksDQo+IEBAIC05Myw2ICs5NCw3IEBA
-DQo+ICAgICAgICAgRklPX09QVF9HX0dGQVBJICAgICAgICAgPSAoMVVMTCA8PCBfX0ZJT19PUFRf
-R19HRkFQSSksDQo+ICAgICAgICAgRklPX09QVF9HX01URCAgICAgICAgICAgPSAoMVVMTCA8PCBf
-X0ZJT19PUFRfR19NVEQpLA0KPiAgICAgICAgIEZJT19PUFRfR19IREZTICAgICAgICAgID0gKDFV
-TEwgPDwgX19GSU9fT1BUX0dfSERGUyksDQo+ICsgICAgICAgRklPX09QVF9HX1NHICAgICAgICAg
-ICAgPSAoMVVMTCA8PCBfX0ZJT19PUFRfR19TRyksDQo+ICAgICAgICAgRklPX09QVF9HX0lOVkFM
-SUQgICAgICAgPSAoMVVMTCA8PCBfX0ZJT19PUFRfR19OUiksDQo+ICB9Ow0KPg0KPg0KPiAtLQ0K
-PiBUbyB1bnN1YnNjcmliZSBmcm9tIHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3Jp
-YmUgZmlvIiBpbiB0aGUgDQo+IGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2VyLmtl
-cm5lbC5vcmcgTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgDQo+IGh0dHA6Ly92Z2VyLmtlcm5lbC5v
-cmcvbWFqb3Jkb21vLWluZm8uaHRtbA0KDQoNCg0KLS0NClNpdHNvZmUgfCBodHRwOi8vc3Vjcy5v
-cmcvfnNpdHMvDQo=
+Hi,
+
+On 15 March 2018 at 03:59, Kris Davis <Kris.Davis@wdc.com> wrote:
+> I like to submit the patch below to add read and write fua bit options to=
+ the SG engine.  It adds a readfua=3Dbool, and writefua=3Dbool options in t=
+he SG engine, which causes the "force unit access" bits to be set in the re=
+ad and write operations respectively.  I patterned the code changes from wh=
+at I found in the libaio engine option code.  So, I also added a "__FIO_OPT=
+_G_SG" enum to optgroup.h, which seemed to follow the pattern - but I reall=
+y don't understand where or how the enum settings values in the options are=
+ used, so I'm unsure.
+
+If you don't need different I/Os to have different FUA states (if they
+were ever supported in the sg ioengine could trims via
+unmaps/write_sames be FUA'd?) could you overload direct=3D1 for this
+purpose?
+
+--=20
+Sitsofe | http://sucs.org/~sits/
+
+On 15 March 2018 at 03:59, Kris Davis <Kris.Davis@wdc.com> wrote:
+> I like to submit the patch below to add read and write fua bit options to=
+ the SG engine.  It adds a readfua=3Dbool, and writefua=3Dbool options in t=
+he SG engine, which causes the "force unit access" bits to be set in the re=
+ad and write operations respectively.  I patterned the code changes from wh=
+at I found in the libaio engine option code.  So, I also added a "__FIO_OPT=
+_G_SG" enum to optgroup.h, which seemed to follow the pattern - but I reall=
+y don't understand where or how the enum settings values in the options are=
+ used, so I'm unsure.
+> Thanks
+> Kris Davis
+>
+>
+>
+> diff --git a/HOWTO b/HOWTO
+> index acb9e97..4f9d26a 100644
+> --- a/HOWTO
+> +++ b/HOWTO
+> @@ -1747,6 +1747,7 @@
+>                         :manpage:`read(2)` and :manpage:`write(2)` for as=
+ynchronous
+>                         I/O. Requires :option:`filename` option to specif=
+y either block or
+>                         character devices.
+> +                       The sg engine includes engine specific options.
+>
+>                 **null**
+>                         Doesn't transfer any data, just pretends to.  Thi=
+s is mainly used to
+> @@ -2068,6 +2069,17 @@
+>         multiple paths exist between the client and the server or in cert=
+ain loopback
+>         configurations.
+>
+> +.. option:: readfua=3Dbool : [sg]
+> +
+> +       With readfua option set to 1, read operations include the
+> +       the force unit access (fua) flag.
+> +
+> +.. option:: writefua=3Dbool : [sg]
+> +
+> +       With writefua option set to 1, write operations include the
+> +       the force unit access (fua) flag.
+> +
+> +
+>  I/O depth
+>  ~~~~~~~~~
+>
+> diff --git a/engines/sg.c b/engines/sg.c
+> index 4540b57..f240755 100644
+> --- a/engines/sg.c
+> +++ b/engines/sg.c
+> @@ -12,8 +12,42 @@
+>  #include <sys/poll.h>
+>
+>  #include "../fio.h"
+> +#include "../optgroup.h"
+>
+>  #ifdef FIO_HAVE_SGIO
+> +
+> +
+> +struct sg_options {
+> +       void *pad;
+> +       unsigned int readfua;
+> +       unsigned int writefua;
+> +};
+> +
+> +static struct fio_option options[] =3D {
+> +       {
+> +               .name   =3D "readfua",
+> +               .lname  =3D "sg engine read fua flag support",
+> +               .type   =3D FIO_OPT_BOOL,
+> +               .off1   =3D offsetof(struct sg_options, readfua),
+> +               .help   =3D "Set FUA flag (force unit access) for all Rea=
+d operations",
+> +               .def    =3D "0",
+> +               .category =3D FIO_OPT_C_ENGINE,
+> +               .group  =3D FIO_OPT_G_SG,
+> +       },
+> +       {
+> +               .name   =3D "writefua",
+> +               .lname  =3D "sg engine write fua flag support",
+> +               .type   =3D FIO_OPT_BOOL,
+> +               .off1   =3D offsetof(struct sg_options, writefua),
+> +               .help   =3D "Set FUA flag (force unit access) for all Wri=
+te operations",
+> +               .def    =3D "0",
+> +               .category =3D FIO_OPT_C_ENGINE,
+> +               .group  =3D FIO_OPT_G_SG,
+> +       },
+> +       {
+> +               .name   =3D NULL,
+> +       },
+> +};
+>
+>  #define MAX_10B_LBA  0xFFFFFFFFULL
+>  #define SCSI_TIMEOUT_MS 30000   // 30 second timeout; currently no metho=
+d to override
+> @@ -267,6 +301,7 @@
+>  static int fio_sgio_prep(struct thread_data *td, struct io_u *io_u)
+>  {
+>         struct sg_io_hdr *hdr =3D &io_u->hdr;
+> +       struct sg_options *o =3D td->eo;
+>         struct sgio_data *sd =3D td->io_ops_data;
+>         long long nr_blocks, lba;
+>
+> @@ -286,6 +321,10 @@
+>                         hdr->cmdp[0] =3D 0x28; // read(10)
+>                 else
+>                         hdr->cmdp[0] =3D 0x88; // read(16)
+> +
+> +               if (o->readfua)
+> +                       hdr->cmdp[1] |=3D 0x08;
+> +
+>         } else if (io_u->ddir =3D=3D DDIR_WRITE) {
+>                 sgio_hdr_init(sd, hdr, io_u, 1);
+>
+> @@ -294,6 +333,10 @@
+>                         hdr->cmdp[0] =3D 0x2a; // write(10)
+>                 else
+>                         hdr->cmdp[0] =3D 0x8a; // write(16)
+> +
+> +               if (o->writefua)
+> +                       hdr->cmdp[1] |=3D 0x08;
+> +
+>         } else {
+>                 sgio_hdr_init(sd, hdr, io_u, 0);
+>                 hdr->dxfer_direction =3D SG_DXFER_NONE;
+> @@ -822,6 +865,8 @@
+>         .close_file     =3D generic_close_file,
+>         .get_file_size  =3D fio_sgio_get_file_size,
+>         .flags          =3D FIO_SYNCIO | FIO_RAWIO,
+> +       .options        =3D options,
+> +       .option_struct_size     =3D sizeof(struct sg_options)
+>  };
+>
+>  #else /* FIO_HAVE_SGIO */
+> diff --git a/optgroup.h b/optgroup.h
+> index 815ac16..d5e968d 100644
+> --- a/optgroup.h
+> +++ b/optgroup.h
+> @@ -55,10 +55,11 @@
+>         __FIO_OPT_G_LIBAIO,
+>         __FIO_OPT_G_ACT,
+>         __FIO_OPT_G_LATPROF,
+> -        __FIO_OPT_G_RBD,
+> -        __FIO_OPT_G_GFAPI,
+> -        __FIO_OPT_G_MTD,
+> +       __FIO_OPT_G_RBD,
+> +       __FIO_OPT_G_GFAPI,
+> +       __FIO_OPT_G_MTD,
+>         __FIO_OPT_G_HDFS,
+> +       __FIO_OPT_G_SG,
+>         __FIO_OPT_G_NR,
+>
+>         FIO_OPT_G_RATE          =3D (1ULL << __FIO_OPT_G_RATE),
+> @@ -93,6 +94,7 @@
+>         FIO_OPT_G_GFAPI         =3D (1ULL << __FIO_OPT_G_GFAPI),
+>         FIO_OPT_G_MTD           =3D (1ULL << __FIO_OPT_G_MTD),
+>         FIO_OPT_G_HDFS          =3D (1ULL << __FIO_OPT_G_HDFS),
+> +       FIO_OPT_G_SG            =3D (1ULL << __FIO_OPT_G_SG),
+>         FIO_OPT_G_INVALID       =3D (1ULL << __FIO_OPT_G_NR),
+>  };
+>
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe fio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+
+--=20
+Sitsofe | http://sucs.org/~sits/
 
