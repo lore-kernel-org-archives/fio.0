@@ -1,61 +1,23 @@
-Return-Path: <axboe@kernel.dk>
-From: Jens Axboe <axboe@kernel.dk>
-Subject: valgrind spews
-Message-ID: <a7527854-7ed3-a074-278e-e75f75cec4e7@kernel.dk>
-Date: Thu, 22 Mar 2018 10:14:15 -0600
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Return-Path: <prvs=605f3e7a8=Bart.VanAssche@wdc.com>
+From: Bart Van Assche <Bart.VanAssche@wdc.com>
+Subject: Re: [PATCH v3] block: Move SECTOR_SIZE and SECTOR_SHIFT definitions
+ into <linux/blkdev.h>
+Date: Thu, 15 Mar 2018 00:42:34 +0000
+Message-ID: <1521074553.2869.0.camel@wdc.com>
+References: <20180314224339.22192-1-bart.vanassche@wdc.com>
+In-Reply-To: <20180314224339.22192-1-bart.vanassche@wdc.com>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Bart Van Assche <bart.vanassche@sandisk.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <E3135F43C0B3284492C8343EF927172B@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: "axboe@kernel.dk" <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "sergey.senozhatsky.work@gmail.com" <sergey.senozhatsky.work@gmail.com>, "davem@davemloft.net" <davem@davemloft.net>, "dan.j.williams@intel.com" <dan.j.williams@intel.com>, "ngupta@vflare.org" <ngupta@vflare.org>, "minchan@kernel.org" <minchan@kernel.org>, "snitzer@redhat.com" <snitzer@redhat.com>
 List-ID: <fio@vger.kernel.org>
 
-Hi Bart,
-
-After your commit:
-
-commit 0ffccc21fcd67d1e1d2a360e90f3fe8efc0d6b52
-Author: Bart Van Assche <bart.vanassche@wdc.com>
-Date:   Thu Mar 8 13:41:36 2018 -0800
-
-    Improve Valgrind instrumentation of memory allocations
-
-running valgrind on a fio spews a lot of warnings:
-
-==14331== Invalid write of size 8
-==14331==    at 0x4C3451F: memset (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==14331==    by 0x4595F8: memset (string3.h:90)
-==14331==    by 0x4595F8: smalloc_pool (smalloc.c:434)
-==14331==    by 0x4595F8: __smalloc (smalloc.c:452)
-==14331==    by 0x4727CD: flow_init (flow.c:112)
-==14331==    by 0x421886: setup_thread_area (init.c:391)
-==14331==    by 0x42552A: get_new_job (init.c:468)
-==14331==    by 0x42552A: __parse_jobs_ini (init.c:1928)
-==14331==    by 0x42585F: parse_jobs_ini (init.c:2082)
-[...]
-
-Basically off any path that ends up in smalloc, on the memset()
-that we do:
-
-        ptr = __smalloc_pool(pool, alloc_size);
-        if (ptr) {
-                struct block_hdr *hdr = ptr;
-
-                hdr->size = alloc_size;
-                fill_redzone(hdr);
-
-                ptr += sizeof(*hdr);
-                memset(ptr, 0, size);
-		^^^
-        }
-
-for every alloc. From configure:
-
-Valgrind headers              yes
-
-
--- 
-Jens Axboe
-
+T24gV2VkLCAyMDE4LTAzLTE0IGF0IDE1OjQzIC0wNzAwLCBCYXJ0IFZhbiBBc3NjaGUgd3JvdGU6
+DQo+IEl0IGhhcHBlbnMgb2Z0ZW4gd2hpbGUgSSdtIHByZXBhcmluZyBhIHBhdGNoIGZvciBhIGJs
+b2NrIGRyaXZlciB0aGF0DQoNClBsZWFzZSBpZ25vcmUgdGhpcyBjb3B5IG9mIHRoaXMgcGF0Y2gg
+c2luY2UgaXQgd2FzIHNlbnQgdG8gdGhlIHdyb25nIG1haWxpbmcNCmxpc3QuDQoNCkJhcnQuDQoN
+Cg0KDQoNCg==
 
