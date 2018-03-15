@@ -1,101 +1,69 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx0a-00003501.pphosted.com ([67.231.144.15]:42400 "EHLO
-        mx0a-00003501.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751414AbeCOTlF (ORCPT
-        <rfc822;fio@vger.kernel.org>); Thu, 15 Mar 2018 15:41:05 -0400
-Received: from pps.filterd (m0075551.ppops.net [127.0.0.1])
-        by mx0a-000cda01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w2FJdGpX018989
-        for <fio@vger.kernel.org>; Thu, 15 Mar 2018 15:41:05 -0400
-Received: from mail-lf0-f70.google.com (mail-lf0-f70.google.com [209.85.215.70])
-        by mx0a-000cda01.pphosted.com with ESMTP id 2gqr2a1ygw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-        for <fio@vger.kernel.org>; Thu, 15 Mar 2018 15:41:04 -0400
-Received: by mail-lf0-f70.google.com with SMTP id g13-v6so2683502lfl.15
-        for <fio@vger.kernel.org>; Thu, 15 Mar 2018 12:41:04 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1521139102.2834.26.camel@wdc.com>
-References: <CAODBMz=rOy1kJGVGn3fyCGT78QUK0BH0rzw7cTRMxKZ6sdSF-Q@mail.gmail.com>
- <CY1PR0401MB11166E39586E25D46B482E4581D00@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CALjAwxgn-yxPf5noENrdbhPKS7T3BVsArSa8wG50e0r88DPr-A@mail.gmail.com>
- <1521132231.2834.4.camel@wdc.com> <CAODBMznzVriS6kL5aFddKZBfdLfBLYOk=Chfas4+Xn6LjOxveQ@mail.gmail.com>
- <1521139102.2834.26.camel@wdc.com>
-From: Phillip Chen <phillip.a.chen@seagate.com>
-Date: Thu, 15 Mar 2018 13:40:20 -0600
-Message-ID: <CAODBMzk6+f0Hjn-uuzz6rmS0idH1oSD21D8rd21rd9Qhqv+-VQ@mail.gmail.com>
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:64974 "EHLO
+        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751492AbeCOSi1 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 15 Mar 2018 14:38:27 -0400
+From: Bart Van Assche <Bart.VanAssche@wdc.com>
 Subject: Re: ZBC/FLEX FIO addition ideas
-Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 15 Mar 2018 18:38:23 +0000
+Message-ID: <1521139102.2834.26.camel@wdc.com>
+References: <CAODBMz=rOy1kJGVGn3fyCGT78QUK0BH0rzw7cTRMxKZ6sdSF-Q@mail.gmail.com>
+         <CY1PR0401MB11166E39586E25D46B482E4581D00@CY1PR0401MB1116.namprd04.prod.outlook.com>
+         <CALjAwxgn-yxPf5noENrdbhPKS7T3BVsArSa8wG50e0r88DPr-A@mail.gmail.com>
+         <1521132231.2834.4.camel@wdc.com>
+         <CAODBMznzVriS6kL5aFddKZBfdLfBLYOk=Chfas4+Xn6LjOxveQ@mail.gmail.com>
+In-Reply-To: <CAODBMznzVriS6kL5aFddKZBfdLfBLYOk=Chfas4+Xn6LjOxveQ@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <81CCD8359573E24689F818C9C30E8F7C@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Bart Van Assche <Bart.VanAssche@wdc.com>
+To: "phillip.a.chen@seagate.com" <phillip.a.chen@seagate.com>
 Cc: "sitsofe@gmail.com" <sitsofe@gmail.com>, Kris Davis <Kris.Davis@wdc.com>, Jason Jorgensen <jason.jorgensen@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-I haven't used the profile argument for FIO before, so when I read
-profile I thought it was being used as a synonym I/O profile or
-workload. So I think you're right that we shouldn't be creating a new
-profile for ZBC but rather focusing on the existing FIO generated
-workloads.
-When I was talking about valid I meant that get_next_block() would
-generate IO that would not cause errors or read filler data past the
-write pointer rather than having zbc_adjust_block() modify the IO
-afterwards.
-You make a good point that the two approaches can easily coexist. If
-you get your changes added I would like to try and build the
-additional workloads on top of your existing changes so that I can
-leverage your write pointer tracking code.
-Thank you,
-Phillip
-
-On Thu, Mar 15, 2018 at 12:38 PM, Bart Van Assche
-<Bart.VanAssche@wdc.com> wrote:
-> On Thu, 2018-03-15 at 12:06 -0600, Phillip Chen wrote:
->> Would creating new profiles for all the I/O patterns be particularly
->> difficult? I'm sure you're much more familiar with the FIO codebase
->> than I am, but it seems to me that all you'd need to do for randoms is
->> move the logic from the zbc_adjust_block cases upstream into the
->> various methods called by get_off_from_method(), or possibly modify
->> the existing methods to work differently when working on a ZBC drive.
->> For sequentials it seems like you'd just have to move the logic into
->> get_next_seq_offset().
->
-> Hello Phillip,
->
-> Adding support for ZBC drives through creation of a new profile has the
-> following disadvantages:
-> - It makes it impossible to use another profile (act or tiobench) for the
->   generation of a workload.
-> - It will lead to code duplication. fio already has code for supporting a
->   large number of I/O patterns (sequential, random, ...). If we can avoid
->   code duplication I think we should avoid it.
->
->> It also seems to me that it might be better to have get_next_block()
->> pick a valid area to begin with.
->
-> What does "valid" mean in this context? Have you noticed that
-> zbc_adjust_block() modifies the I/O request offset and length such that
-> neither write errors nor reads past the end of the write pointer are
-> triggered?
->
->> The main benefit to doing this that I
->> can see would be to allow much more control over the number of open
->> zones, which I think will be of particular interest in testing ZBC
->> drive performance. Additionally, it might be worthwhile to have an
->> option allows the workload to pick a new zone instead of resetting the
->> write pointer of a zone when writing to a full zone. This would also
->> be made easier with a more upstream approach, because you wouldn't
->> need to retry and get a new offset, you could just avoid full zones
->> entirely. Or you could keep track of which zones are open and
->> add/replace open zones as necessary.
->
-> With the approach I proposed it is already possible to control the number of
-> open zones, namely by setting the I/O offset (--offset=) to the start of a
-> zone and by setting the I/O size (--io_size=) to (number of zones to test) *
-> (zone size). But I agree with you that the kind of workload that you
-> described would best be implemented as an I/O profile. How about starting
-> with the approach I proposed and adding profile(s) for more advanced ZBC I/O
-> patterns later?
->
-> Thanks,
->
-> Bart.
->
->
+T24gVGh1LCAyMDE4LTAzLTE1IGF0IDEyOjA2IC0wNjAwLCBQaGlsbGlwIENoZW4gd3JvdGU6DQo+
+IFdvdWxkIGNyZWF0aW5nIG5ldyBwcm9maWxlcyBmb3IgYWxsIHRoZSBJL08gcGF0dGVybnMgYmUg
+cGFydGljdWxhcmx5DQo+IGRpZmZpY3VsdD8gSSdtIHN1cmUgeW91J3JlIG11Y2ggbW9yZSBmYW1p
+bGlhciB3aXRoIHRoZSBGSU8gY29kZWJhc2UNCj4gdGhhbiBJIGFtLCBidXQgaXQgc2VlbXMgdG8g
+bWUgdGhhdCBhbGwgeW91J2QgbmVlZCB0byBkbyBmb3IgcmFuZG9tcyBpcw0KPiBtb3ZlIHRoZSBs
+b2dpYyBmcm9tIHRoZSB6YmNfYWRqdXN0X2Jsb2NrIGNhc2VzIHVwc3RyZWFtIGludG8gdGhlDQo+
+IHZhcmlvdXMgbWV0aG9kcyBjYWxsZWQgYnkgZ2V0X29mZl9mcm9tX21ldGhvZCgpLCBvciBwb3Nz
+aWJseSBtb2RpZnkNCj4gdGhlIGV4aXN0aW5nIG1ldGhvZHMgdG8gd29yayBkaWZmZXJlbnRseSB3
+aGVuIHdvcmtpbmcgb24gYSBaQkMgZHJpdmUuDQo+IEZvciBzZXF1ZW50aWFscyBpdCBzZWVtcyBs
+aWtlIHlvdSdkIGp1c3QgaGF2ZSB0byBtb3ZlIHRoZSBsb2dpYyBpbnRvDQo+IGdldF9uZXh0X3Nl
+cV9vZmZzZXQoKS4NCg0KSGVsbG8gUGhpbGxpcCwNCg0KQWRkaW5nIHN1cHBvcnQgZm9yIFpCQyBk
+cml2ZXMgdGhyb3VnaCBjcmVhdGlvbiBvZiBhIG5ldyBwcm9maWxlIGhhcyB0aGUNCmZvbGxvd2lu
+ZyBkaXNhZHZhbnRhZ2VzOg0KLSBJdCBtYWtlcyBpdCBpbXBvc3NpYmxlIHRvIHVzZSBhbm90aGVy
+IHByb2ZpbGUgKGFjdCBvciB0aW9iZW5jaCkgZm9yIHRoZQ0KICBnZW5lcmF0aW9uIG9mIGEgd29y
+a2xvYWQuDQotIEl0IHdpbGwgbGVhZCB0byBjb2RlIGR1cGxpY2F0aW9uLiBmaW8gYWxyZWFkeSBo
+YXMgY29kZSBmb3Igc3VwcG9ydGluZyBhDQogIGxhcmdlIG51bWJlciBvZiBJL08gcGF0dGVybnMg
+KHNlcXVlbnRpYWwsIHJhbmRvbSwgLi4uKS4gSWYgd2UgY2FuIGF2b2lkDQogIGNvZGUgZHVwbGlj
+YXRpb24gSSB0aGluayB3ZSBzaG91bGQgYXZvaWQgaXQuDQoNCj4gSXQgYWxzbyBzZWVtcyB0byBt
+ZSB0aGF0IGl0IG1pZ2h0IGJlIGJldHRlciB0byBoYXZlIGdldF9uZXh0X2Jsb2NrKCkNCj4gcGlj
+ayBhIHZhbGlkIGFyZWEgdG8gYmVnaW4gd2l0aC4NCg0KV2hhdCBkb2VzICJ2YWxpZCIgbWVhbiBp
+biB0aGlzIGNvbnRleHQ/IEhhdmUgeW91IG5vdGljZWQgdGhhdA0KemJjX2FkanVzdF9ibG9jaygp
+IG1vZGlmaWVzIHRoZSBJL08gcmVxdWVzdCBvZmZzZXQgYW5kIGxlbmd0aCBzdWNoIHRoYXQNCm5l
+aXRoZXIgd3JpdGUgZXJyb3JzIG5vciByZWFkcyBwYXN0IHRoZSBlbmQgb2YgdGhlIHdyaXRlIHBv
+aW50ZXIgYXJlDQp0cmlnZ2VyZWQ/DQoNCj4gVGhlIG1haW4gYmVuZWZpdCB0byBkb2luZyB0aGlz
+IHRoYXQgSQ0KPiBjYW4gc2VlIHdvdWxkIGJlIHRvIGFsbG93IG11Y2ggbW9yZSBjb250cm9sIG92
+ZXIgdGhlIG51bWJlciBvZiBvcGVuDQo+IHpvbmVzLCB3aGljaCBJIHRoaW5rIHdpbGwgYmUgb2Yg
+cGFydGljdWxhciBpbnRlcmVzdCBpbiB0ZXN0aW5nIFpCQw0KPiBkcml2ZSBwZXJmb3JtYW5jZS4g
+QWRkaXRpb25hbGx5LCBpdCBtaWdodCBiZSB3b3J0aHdoaWxlIHRvIGhhdmUgYW4NCj4gb3B0aW9u
+IGFsbG93cyB0aGUgd29ya2xvYWQgdG8gcGljayBhIG5ldyB6b25lIGluc3RlYWQgb2YgcmVzZXR0
+aW5nIHRoZQ0KPiB3cml0ZSBwb2ludGVyIG9mIGEgem9uZSB3aGVuIHdyaXRpbmcgdG8gYSBmdWxs
+IHpvbmUuIFRoaXMgd291bGQgYWxzbw0KPiBiZSBtYWRlIGVhc2llciB3aXRoIGEgbW9yZSB1cHN0
+cmVhbSBhcHByb2FjaCwgYmVjYXVzZSB5b3Ugd291bGRuJ3QNCj4gbmVlZCB0byByZXRyeSBhbmQg
+Z2V0IGEgbmV3IG9mZnNldCwgeW91IGNvdWxkIGp1c3QgYXZvaWQgZnVsbCB6b25lcw0KPiBlbnRp
+cmVseS4gT3IgeW91IGNvdWxkIGtlZXAgdHJhY2sgb2Ygd2hpY2ggem9uZXMgYXJlIG9wZW4gYW5k
+DQo+IGFkZC9yZXBsYWNlIG9wZW4gem9uZXMgYXMgbmVjZXNzYXJ5Lg0KDQpXaXRoIHRoZSBhcHBy
+b2FjaCBJIHByb3Bvc2VkIGl0IGlzIGFscmVhZHkgcG9zc2libGUgdG8gY29udHJvbCB0aGUgbnVt
+YmVyIG9mDQpvcGVuIHpvbmVzLCBuYW1lbHkgYnkgc2V0dGluZyB0aGUgSS9PIG9mZnNldCAoLS1v
+ZmZzZXQ9KSB0byB0aGUgc3RhcnQgb2YgYQ0Kem9uZSBhbmQgYnkgc2V0dGluZyB0aGUgSS9PIHNp
+emUgKC0taW9fc2l6ZT0pIHRvIChudW1iZXIgb2Ygem9uZXMgdG8gdGVzdCkgKg0KKHpvbmUgc2l6
+ZSkuIEJ1dCBJIGFncmVlIHdpdGggeW91IHRoYXQgdGhlIGtpbmQgb2Ygd29ya2xvYWQgdGhhdCB5
+b3UNCmRlc2NyaWJlZCB3b3VsZCBiZXN0IGJlIGltcGxlbWVudGVkIGFzIGFuIEkvTyBwcm9maWxl
+LiBIb3cgYWJvdXQgc3RhcnRpbmcNCndpdGggdGhlIGFwcHJvYWNoIEkgcHJvcG9zZWQgYW5kIGFk
+ZGluZyBwcm9maWxlKHMpIGZvciBtb3JlIGFkdmFuY2VkIFpCQyBJL08NCnBhdHRlcm5zIGxhdGVy
+Pw0KDQpUaGFua3MsDQoNCkJhcnQuDQoNCg0K
