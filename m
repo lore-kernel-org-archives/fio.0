@@ -1,111 +1,47 @@
 Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CY1PR0401MB1116F8AD0CBB303383918EA481C10@CY1PR0401MB1116.namprd04.prod.outlook.com>
-References: <CY1PR0401MB11163E6C999998E0A2F13F9E81F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CY1PR0401MB111689EE46B3839EB0675D7B81F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CY1PR0401MB1116307F93264CDB7F09870981F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CALjAwxhHoS62hDsz9cvwjYBJFODDZ6EvTry9u4nErXAC67JwKg@mail.gmail.com>
- <CY1PR0401MB111673C9DC353353BACFCE5B81F50@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CY1PR0401MB1116FC09283C22316161F3E381CE0@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CALjAwxgi-muVZ4XVF53amSHOzLjMEDSY2Z2GRmKso_VZ1sVazA@mail.gmail.com>
- <CY1PR0401MB11163A5F0CE792CC28A7252D81CE0@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CALjAwxiso_3xAjP1CJ91=qXcsyKcwzN2XfBeGLvPzeMj45BLGQ@mail.gmail.com>
- <CY1PR0401MB111641A66DF1AC0E016E97E181CE0@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CALjAwxjmz4t_rbXuDwqPmiAPXUg_h88qvcRUGbXPCRAnDcw8Qg@mail.gmail.com> <CY1PR0401MB1116F8AD0CBB303383918EA481C10@CY1PR0401MB1116.namprd04.prod.outlook.com>
+In-Reply-To: <406902be-f4ce-c4f4-4e16-ee9caf8c0bcf@kernel.dk>
+References: <e044afaa-22ad-c7e2-d041-e2658f49bac8@bluestop.org>
+ <CALjAwxjoTtRp1jVhfKMTcbn6wnmEmmCsjkpO7CkBgF5zj4B3Bg@mail.gmail.com>
+ <9cf7d62a-5c4a-737a-d119-13763fb42c72@bluestop.org> <CALjAwxhxpLuLeysnp5kC-kQoWH++4hvehCWJxc9yA_Fcsy=pmw@mail.gmail.com>
+ <BAE7B5AF-63F9-4E95-940D-7C84CE5AD92E@nutanix.com> <36259BEC-1CF0-45A5-85AE-F557989EDF30@nutanix.com>
+ <2B8D69D8-05F3-4500-8A4E-F5DE21356676@nutanix.com> <CALjAwxiTX1=7pJKQ1Lz7nDkMXZqVJkMkNZDOA_XJYsEGP7wSfw@mail.gmail.com>
+ <971ECD81-B100-4EEE-98CE-0E578A59BB02@nutanix.com> <7B5FFC71-BE67-435F-8DE6-8376E52754EB@nutanix.com>
+ <CALjAwxgF-2dK+Bc9iwkVsxA4sfWKYSmHe8k3YbpUyDmBWP34ow@mail.gmail.com>
+ <CALjAwxirkjduZof+F3prrKX0wp9YS8apS-YdK8+ru1supg1dnA@mail.gmail.com>
+ <CALjAwxjPGXSOGwLOSMfVdrmxXsr8ObT6W6E1UBs2LkjttSnduw@mail.gmail.com>
+ <e85db28f-da18-e6cc-7eda-1b04d2cc95eb@kernel.dk> <CALjAwxg1SzQV9ss9jjqry8_MLgDfPYq9QdbA5eVZi-PkmSEAKA@mail.gmail.com>
+ <406902be-f4ce-c4f4-4e16-ee9caf8c0bcf@kernel.dk>
 From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Thu, 1 Mar 2018 14:39:34 +0000
-Message-ID: <CALjAwxg0pNhmSnvRGDL7um-KhX8eqwHfk1T8CSaQYih2c8p33Q@mail.gmail.com>
-Subject: Re: fiologparser_hist.py script patch and enhancements?
+Date: Fri, 16 Mar 2018 08:13:50 +0000
+Message-ID: <CALjAwxgr10F9X0n=7Scugz1yO48XPW5ANYGoD4JAss6Y3Egbcw@mail.gmail.com>
+Subject: Re: Windows: FIO randomly hangs using attached script
 Content-Type: text/plain; charset="UTF-8"
-To: Kris Davis <Kris.Davis@wdc.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Rob Scheepens <rob.scheepens@nutanix.com>, David Knierim <knierim@nutanix.com>, Rebecca Cran <rebecca@bluestop.org>, fio <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-Hi I've been going over this:
-
-On 26 February 2018 at 21:56, Kris Davis <Kris.Davis@wdc.com> wrote:
-> Here is an updated patch against 'master' without a change to the shabang:
+On 9 March 2018 at 14:55, Jens Axboe <axboe@kernel.dk> wrote:
 >
+> In some implementations it's actually mandated to have the wakeup
+> within the lock, which seems to be the case here. It's a shame,
+> since it's clearly suboptimal (from a scalability point of view)
+> to have to hold the lock while issuing a wakeup for a process
+> that's going to grab the same lock.
 >
-> diff --git a/tools/hist/fiologparser_hist.py b/tools/hist/fiologparser_hist.py
-> index 62a4eb4..f71e6d0
-> --- a/tools/hist/fiologparser_hist.py
-> +++ b/tools/hist/fiologparser_hist.py
-> @@ -16,7 +16,10 @@
->  import os
->  import sys
->  import pandas
-> +import re
->  import numpy as np
-> +
-> +runascmd = False
->
->  err = sys.stderr.write
->
-> @@ -64,8 +67,20 @@
->  def weighted_average(vs, ws):
->      return np.sum(vs * ws) / np.sum(ws)
->
-> -columns = ["end-time", "samples", "min", "avg", "median", "90%", "95%", "99%", "max"]
-> -percs   = [50, 90, 95, 99]
-> +
-> +percs = None
-> +columns = None
-> +
-> +def gen_output_columns(percentiles):
-> +    global percs,columns
-> +    strpercs = re.split('[,:]', percentiles)
-> +    percs = [50.0]  # always print 50% in 'median' column
-> +    percs.extend(list(map(float,strpercs)))
-> +    columns = ["end-time", "samples", "min", "avg", "median"]
-> +    columns.extend(list(map(lambda x: x+'%', strpercs)))
-> +    columns.append("max")
-> +
+> I'll commit the patch. Thanks a lot for all your hard work on this
+> one, let's hope that was it...
 
-Allegedly there's trailing whitespace here but it's hard to tell if
-that's just how the patch was transferred...
+FWIW this has been accepted as a bug in the mingw-w64 project's
+winpthreads library. The standalone program on
+https://gist.github.com/sitsofe/abd99efec507b18234e7cc042d1baff1
+reliably triggers the deadlock for me when using a mingw build on both
+real Windows and under Wine but not when built for Linux with glibc.
+See https://sourceforge.net/p/mingw-w64/bugs/710/ for the "Deadlock in
+winpthreads' pthread_cond_signal()" bug.
 
-> +
->
->  def fmt_float_list(ctx, num=1):
->    """ Return a comma separated list of float formatters to the required number
-> @@ -178,7 +193,11 @@
->      avg = weighted_average(vs, ws)
->      values = [mn, avg] + list(ps) + [mx]
->      row = [end, ss_cnt] + [float(x) / ctx.divisor for x in values]
-> -    fmt = "%d, %d, %d, " + fmt_float_list(ctx, 5) + ", %d"
-> +    if ctx.divisor > 1:
-> +        fmt = "%d, %d, " + fmt_float_list(ctx, len(percs)+3)
-
-Does the + need space around it?
-
-> +    else:
-> +        # max and min are decimal values if no divisor
-> +        fmt = "%d, %d, %d, " + fmt_float_list(ctx, len(percs)+1) + ", %d"
-
-Same here - space around the "+" of +1?
-
-<snip>
-
-> diff --git a/tools/hist/fiologparser_hist_nw.py b/tools/hist/fiologparser_hist_nw.py
-> new file mode 100755
-> index 0000000..3e1be32
-> --- /dev/null
-> +++ b/tools/hist/fiologparser_hist_nw.py
-
-It just seems a shame there's no way to just optionally skip the
-weighting step in fiologparser_hist.py... So much of the code is the
-same between these two files it's going to be a maintenance burden
-keeping them in sync going forwards. I see two approaches:
-
-1. Refactor the common code into a library and write two different
-frontends that use the common library code.
-2. Keep one script but somehow let it contain non-weighted vs weighted paths.
-
-Thoughts?
-
-At a minimum it would be good to land the changes to
-fiologparser_hist.py as they seem good and not controversial...
+Rob, David, Rebecca: do you know if the current git fio cures the
+deadlock you were seeing?
 
 -- 
 Sitsofe | http://sucs.org/~sits/
