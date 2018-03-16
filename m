@@ -1,43 +1,96 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wr0-f181.google.com ([209.85.128.181]:44716 "EHLO
-        mail-wr0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751454AbeCPWcH (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 16 Mar 2018 18:32:07 -0400
-Received: by mail-wr0-f181.google.com with SMTP id v65so12989308wrc.11
-        for <fio@vger.kernel.org>; Fri, 16 Mar 2018 15:32:07 -0700 (PDT)
+Received: from mail-wm0-f50.google.com ([74.125.82.50]:52231 "EHLO
+        mail-wm0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751269AbeCPVRD (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 16 Mar 2018 17:17:03 -0400
+Received: by mail-wm0-f50.google.com with SMTP id t3so5489338wmc.2
+        for <fio@vger.kernel.org>; Fri, 16 Mar 2018 14:17:02 -0700 (PDT)
 From: Michael Green <mishagreen@gmail.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Mime-Version: 1.0 (Mac OS X Mail 10.3 \(3273\))
 Subject: Re: random_generator=lfsr overhead with more disks?
-Date: Fri, 16 Mar 2018 18:32:03 -0400
+Date: Fri, 16 Mar 2018 17:16:56 -0400
 References: <9FD577EB-5F83-4AB3-9FBA-704094437C15@gmail.com>
  <BN3PR0401MB145797FEFD095957854800088FD70@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <13EF5126-4D32-4706-8495-B193C124826B@gmail.com>
- <BN3PR0401MB145715070B7B9F0C71A902318FD70@BN3PR0401MB1457.namprd04.prod.outlook.com>
- <902A0A2A-8708-4A94-A09E-5D3C9BFB48FF@gmail.com>
- <SN6PR04MB4064D865EBEB79DE2219218D8FD70@SN6PR04MB4064.namprd04.prod.outlook.com>
-In-Reply-To: <SN6PR04MB4064D865EBEB79DE2219218D8FD70@SN6PR04MB4064.namprd04.prod.outlook.com>
-Message-Id: <54DB864B-BBFF-4276-B86F-A069F22367F8@gmail.com>
+In-Reply-To: <BN3PR0401MB145797FEFD095957854800088FD70@BN3PR0401MB1457.namprd04.prod.outlook.com>
+Message-Id: <EB5DCCCC-6FFC-4FE5-93FF-4701520AB78A@gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jeff Furlong <jeff.furlong@wdc.com>, fio@vger.kernel.org
+To: Jeff Furlong <jeff.furlong@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Possibly.  Who can have a look at the code?
+> -How does the cpu utilization look compared between the lfsr and =
+default tausworthe generators?  Is the cpu util actually higher on lfsr? =
+=20
 
-> On Mar 16, 2018, at 6:30 PM, Jeff Furlong <jeff.furlong@wdc.com> =
-wrote:
->=20
-> OK, 61% cpu with lfsr and 82% cpu without lfsr.  But the throughput is =
-propositionally higher without lfsr, so perhaps that's why cpu util is =
-higher.
->=20
-> I'm wondering if the lfsr code is single threaded in nature or stuck =
-waiting on a mutex, thereby slowing down the throughput and hence the =
-lower latency.
->=20
-> Regards,
-> Jeff
->=20
->=20
+It is actually less when using LFSR with 16 volumes:
+
+Without LFSR (CPU utilization is 5th column):
+[root@sm28 ~]# ps -eLo ppid,pid,pri,psr,pcpu,stat,wchan:14,comm | grep =
+fio
+ PPID   PID PRI PSR %CPU STAT WCHAN          COMMAND
+ 2239 24684  19   0  0.7 Sl+  hrtimer_nanosl fio
+ 2239 24684  19   0  0.2 Sl+  futex_wait_que fio
+ 2239 24684  19   3 60.4 Rl+  -              fio
+ 2239 24684  19   6 60.5 Sl+  -              fio
+ 2239 24684  19   1 61.2 Rl+  -              fio
+ 2239 24684  19  23 62.5 Sl+  -              fio
+ 2239 24684  19   7 60.6 Rl+  -              fio
+ 2239 24684  19  18 61.0 Rl+  -              fio
+ 2239 24684  19  16 61.0 Rl+  -              fio
+ 2239 24684  19   4 62.0 Rl+  -              fio
+
+With LFSR:
+[root@sm28 ~]# ps -eLo ppid,pid,pri,psr,pcpu,stat,wchan:14,comm | grep =
+fio
+ 2239 25589  19  20  2.7 Sl+  hrtimer_nanosl fio
+ 2239 25589  19  25  0.3 Sl+  futex_wait_que fio
+ 2239 25589  19  16 80.1 Rl+  -              fio
+ 2239 25589  19  22 78.0 Rl+  -              fio
+ 2239 25589  19   5 82.6 Rl+  -              fio
+ 2239 25589  19   4 78.0 Rl+  -              fio
+ 2239 25589  19  18 82.7 Rl+  -              fio
+ 2239 25589  19  17 80.7 Sl+  14051005663345 fio
+ 2239 25589  19  23 76.6 Sl+  -              fio
+ 2239 25589  19   0 77.6 Rl+  -              fio
+
+
+But almost the same with 1 volume:
+
+Without LFSR
+[root@sm28 ~]# ps -eLo ppid,pid,pri,psr,pcpu,stat,wchan:14,comm | grep =
+fio
+ 2239 27559  19   7  4.0 Sl+  hrtimer_nanosl fio
+ 2239 27559  19   2  0.0 Sl+  futex_wait_que fio
+ 2239 27559  19  18 79.4 Rl+  -              fio
+ 2239 27559  19  17 79.0 Rl+  -              fio
+ 2239 27559  19   6 78.6 Rl+  -              fio
+ 2239 27559  19   5 77.6 Rl+  -              fio
+ 2239 27559  19  23 82.6 Rl+  -              fio
+ 2239 27559  19   3 77.4 Rl+  -              fio
+ 2239 27559  19   4 77.1 Sl+  -              fio
+ 2239 27559  19  16 75.9 Rl+  -              fio
+
+With LFSR:
+[root@sm28 ~]# ps -eLo ppid,pid,pri,psr,pcpu,stat,wchan:14,comm | grep =
+fio
+ 2239 27174  19  20  2.0 Sl+  hrtimer_nanosl fio
+ 2239 27174  19  25  0.0 Sl+  futex_wait_que fio
+ 2239 27174  19  16 80.0 Rl+  -              fio
+ 2239 27174  19   6 78.4 Rl+  -              fio
+ 2239 27174  19   3 77.5 Rl+  -              fio
+ 2239 27174  19   5 76.4 Sl+  -              fio
+ 2239 27174  19  19 77.1 Rl+  -              fio
+ 2239 27174  19   4 76.4 Rl+  -              fio
+ 2239 27174  19   7 77.0 Rl+  -              fio
+ 2239 27174  19   1 75.8 Rl+  -              fio
+
+
+
+> -Does a runtime of 2 minutes collect enough data points to assess the =
+condition?  What happens if you extend the runtime?
+
+Yes, it does. Shortening the test to 20 sec or extending to 10 min, =
+doesn=E2=80=99t change a thing.
+
 
