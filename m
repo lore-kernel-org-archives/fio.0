@@ -1,88 +1,63 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa6.hgst.iphmx.com ([216.71.154.45]:52905 "EHLO
-        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751084AbeCTCV5 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 19 Mar 2018 22:21:57 -0400
-From: Bart Van Assche <Bart.VanAssche@wdc.com>
-Subject: Re: ZBC/FLEX FIO addition ideas
-Date: Tue, 20 Mar 2018 02:21:55 +0000
-Message-ID: <43e52a9bf270dd6a36dd7b46f6015314d93f076f.camel@wdc.com>
-References: <CAODBMz=rOy1kJGVGn3fyCGT78QUK0BH0rzw7cTRMxKZ6sdSF-Q@mail.gmail.com>
-         <CY1PR0401MB11166E39586E25D46B482E4581D00@CY1PR0401MB1116.namprd04.prod.outlook.com>
-         <CALjAwxgn-yxPf5noENrdbhPKS7T3BVsArSa8wG50e0r88DPr-A@mail.gmail.com>
-         <1521132231.2834.4.camel@wdc.com>
-         <CALjAwxj+zGcw0o2uDPd6ZbW2fHJ99vMt0hZsRh1jgxgcrTOnsw@mail.gmail.com>
-In-Reply-To: <CALjAwxj+zGcw0o2uDPd6ZbW2fHJ99vMt0hZsRh1jgxgcrTOnsw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <54569056F4D1DB48A51BA3F2514C1F01@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Received: from mail-vk0-f46.google.com ([209.85.213.46]:35025 "EHLO
+        mail-vk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752071AbeCQHzi (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 17 Mar 2018 03:55:38 -0400
+Received: by mail-vk0-f46.google.com with SMTP id r197so6935763vke.2
+        for <fio@vger.kernel.org>; Sat, 17 Mar 2018 00:55:38 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <1521132231.2834.4.camel@wdc.com>
+References: <CAODBMz=rOy1kJGVGn3fyCGT78QUK0BH0rzw7cTRMxKZ6sdSF-Q@mail.gmail.com>
+ <CY1PR0401MB11166E39586E25D46B482E4581D00@CY1PR0401MB1116.namprd04.prod.outlook.com>
+ <CALjAwxgn-yxPf5noENrdbhPKS7T3BVsArSa8wG50e0r88DPr-A@mail.gmail.com> <1521132231.2834.4.camel@wdc.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 17 Mar 2018 07:55:07 +0000
+Message-ID: <CALjAwxj+zGcw0o2uDPd6ZbW2fHJ99vMt0hZsRh1jgxgcrTOnsw@mail.gmail.com>
+Subject: Re: ZBC/FLEX FIO addition ideas
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "sitsofe@gmail.com" <sitsofe@gmail.com>
+To: Bart Van Assche <Bart.VanAssche@wdc.com>
 Cc: Kris Davis <Kris.Davis@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jason Jorgensen <jason.jorgensen@wdc.com>, "phillip.a.chen@seagate.com" <phillip.a.chen@seagate.com>
 
-T24gU2F0LCAyMDE4LTAzLTE3IGF0IDA3OjU1ICswMDAwLCBTaXRzb2ZlIFdoZWVsZXIgd3JvdGU6
-DQo+IEkgZG9uJ3QgaGF2ZSBhY2Nlc3MgdG8gYW55IFpCQyBkZXZpY2VzIGJ1dCBJIGxvb2tlZCBv
-dmVyIHRoZSBwYXRjaC4NCj4gVGhpcyBzZWVtcyB0byBiZSBhIGJsZW5kIG9mIGJvdGggYm90aCBv
-ZiBQaGlsaXAncyBzdWdnZXN0aW9ucyBhbmQgSQ0KPiBxdWl0ZSBsaWtlIGl0IGJlY2F1c2UgaXQg
-Y2VudHJhbGl6ZWQgbW9zdCBvZiB0aGUgbG9naWMgd2l0aGluIHRoZQ0KPiBlbmdpbmUgaXRzZWxm
-IGJhciB0aGUgb2Zmc2V0IGZpeGluZy4NCg0KVGhhbmtzIGZvciBoYXZpbmcgdGFrZW4gYSBsb29r
-IDotKQ0KDQo+IFNvbWV0aGluZyB0aGF0IGNvdWxkIGhlbHAgaXMNCj4gaWYgaW9lbmdpbmVzIHdl
-cmUgYWJsZSB0byBzcGVjaWZ5IGEgY2FsbGJhY2tzIHRvIHNheSB3aGV0aGVyIGFuIG9mZnNldA0K
-PiArIHNpemUgaXMgdmFsaWQgb3Igd2hldGhlciB0aGUgaW9lbmdpbmUgd2FudHMgdG8gImZpeCIg
-dGhlbS4gSWYgaXQNCj4gc2F5cyB0aGUgb2Zmc2V0IGlzIGludmFsaWQgd2UganVzdCBxdWlldGx5
-IHByZXRlbmQgd2UgZGlkIHRoZSBJL08sDQo+IHJlZHVjZSB0aGUgYW1vdW50IG9mIEkvTyB3ZSBo
-YXZlIHRvIGRvIG9uIHRoaXMgbG9vcCBhbmQgZ2VuZXJhdGUgdGhlDQo+IG5leHQgb2Zmc2V0ICsg
-c2l6ZS4gSWYgaXQgY2hvb3NlcyB0byBqdXN0IGZpeCBpdCB0aGVuIHdlIGp1c3QgdXNlIHRoZQ0K
-PiBkaWZmZXJlbnQgdmFsdWVzIGl0IGZpeGVkIHRoZSBJL08gdG8gKGFzc3VtaW5nIGl0IGZpdHMg
-YWxpZ25tZW50LA0KPiBtaW5pbXVtIGJsb2NrIHNpemVzIGV0YykuIEhvdyBkbyBwZW9wbGUgc2Vl
-IGZpeCBtb2RlIGludGVyYWN0aW5nIHdpdGgNCj4gdGhpbmdzIGxpa2UgYnNzcGxpdD8gRG8gd2Ug
-anVzdCBiYW4gYnNzcGxpdCB3aGVuIGluIHRoaXMgbW9kZSBmb3Igbm93Pw0KPiANCj4gTW9zdCBl
-bmdpbmVzIGNvdWxkIGxlYXZlIHRoZXNlIHVuc2V0IGJ1dCBpdCB3b3VsZCBiZSBwZXJmZWN0IGZv
-ciB0aGlzDQo+IG9uZSBhbmQgaXQgd291bGQgc3RvcCB0aGUgdHlwaWNhbCBwYXRoIGhhdmluZyB0
-byBkZXBlbmQgb24gdGhpcw0KPiBwYXJ0aWN1bGFyIGlvZW5naW5lIGJlaW5nIGNvbmZpZ3VyZWQg
-aW4uIElmIGZpeCB0aGluZ3MgdXAgbW9kZSBpcyBzZXQNCj4gdGhlbiBJIHN1cHBvc2UgZmlvIGNv
-dWxkIHRoZW4gZ28gb24gdG8gYmFuIHRoaW5ncyBsaWtlIGxzZnIsIHJhbmRvbW1hcA0KPiBhbmQg
-cmFuZG9tX2Rpc3RyaWJ1dGlvbi4gSSBndWVzcyBvbmUgc25hZyB3aXRoIHJlLXJvbGxpbmcgaW4g
-InZhbGlkIg0KPiBtb2RlIGlzIHRoYXQgeW91IGNvdWxkIGVuZCB1cCByZS1yb2xsaW5nIGZvcmV2
-ZXIuIEknbSBubyBleHBlcnQgYnV0DQo+IEknbSBob3BpbmcgZG9pbmcgYW5vdGhlciBpZiAoZW5n
-aW5lIGRlZmluZXMgYmxvY2tfY2hlY2tpbmcpIG9uIGV2ZXJ5DQo+IEkvTyB3b24ndCBoYXZlIHRv
-byBtdWNoIG9mIGEgaGl0Lg0KPiANCj4gUGVyaGFwcyB3ZSBqdXN0IHN0YXJ0IHdpdGggImZpeCIg
-bW9kZSBzZWUgaG93IHRoYXQgZ29lcyBhbmQgbW92ZSBvbg0KPiBmcm9tIHRoZXJlPyBTb21ldGhp
-bmcgZWxzZSB0aGF0IGNvdWxkIGdldCBoYWlyeSBhcmUgdmVyaWZ5IGpvYnMgdGhhdA0KPiBhcmUg
-c2VwZXJhdGUgZnJvbSB0aGVpciB3cml0ZSBqb2IgYmVjYXVzZSB0aGUgb2Zmc2V0cyBnZW5lcmF0
-ZWQgZHVyaW5nDQo+IGEgc3Vic2VxdWVudCB2ZXJpZnkgd2lsbCBub3QgbmVjZXNzYXJpbHkgYmUg
-aW52YWxpZCBhdCB0aGUgc2FtZSBwb2ludHMNCj4gb3IgY2hhbmdlZCB0aGUgc2FtZSB3YXkuIEkg
-c3VwcG9zZSBpbmxpbmUgdmVyaWZ5IHNob3VsZCB3b3JrIGFzc3VtaW5nDQo+IHdyaXRlIHJlZ2lv
-bnMgaGF2ZW4ndCBiZWVuIHJlc2V0IGR1ZSB0byBiZWNvbWluZyBmdWxsLg0KDQpJdCdzIG5vdCBj
-bGVhciB0byBtZSB3aHkgeW91IHdvdWxkIGxpa2UgdG8gYWRkIHN1Y2ggbG9naWMgaW4gdGhlIEkv
-Tw0KZW5naW5lcz8gU2hvdWxkbid0IHN1Y2ggbG9naWMgcmF0aGVyIGJlIGFkZGVkIGluIGEgbmV3
-IEkvTyBwcm9maWxlIHN1Y2ggdGhhdA0KdXNlcnMgd2hvIHdhbnQgdG8gcnVuIFpCQyB0ZXN0cyBo
-YXZlIHRoZSBmcmVlZG9tIG9mIGNob3NpbmcgYW4gSS9PIGVuZ2luZT8NCg0KSSdtIG5vdCBzdXJl
-IHRoYXQgYSAiZml4IiBtb2RlIHdvdWxkIHdvcmsgYmVzdC4gUGhpbGxpcCBDaGVuIGhhcw0KbWVu
-dGlvbmVkIHRoYXQgd2UgbmVlZCBhIG1vZGUgaW4gd2hpY2ggdGhlIHVzZXIgY2FuIGNvbnRyb2wg
-dGhlIG51bWJlciBvZg0Kb3BlbiB6b25lcy4gSWYgYSByYW5kb20gYmxvY2tzIHdvdWxkIGJlIGdl
-bmVyYXRlZCBmaXJzdCBhbmQgdGhlIG9wZW4gem9uZQ0KbGltaXQgd291bGQgYmUgYXBwbGllZCBh
-ZmVyIHRoYXQgb2Zmc2V0IGhhcyBiZWVuIGdlbmVyYXRlZCB0aGVuIG1vc3Qgb2YNCnRoZSBnZW5l
-cmF0ZWQgcmFuZG9tIGJsb2NrcyB3b3VsZCBoYXZlIHRvIGJlIGRpc2NhcmRlZCBzaW5jZSB0aGUg
-bnVtYmVyDQpvZiBvcGVuIHpvbmVzIGlzIHR5cGljYWxseSBtdWNoIHNtYWxsZXIgdGhhbiB0aGUg
-bnVtYmVyIG9mIHpvbmVzDQpzdXBwb3J0ZWQgYnkgYSBkaXNrLiBJJ20gY3VycmVudGx5IGxvb2tp
-bmcgYXQgaG93IHRvIGxldCBJL08gcHJvZmlsZXMNCmluZmx1ZW5jZSB0aGUgYmVoYXZpb3Igb2Yg
-Z2V0X25leHRfYmxvY2soKSBpbiBzdWNoIGEgd2F5IHRoYXQgdGhlIG51bWJlcg0Kb2Ygb3BlbiB6
-b25lcyBjYW4gYmUgbGltaXRlZCBieSBhbiBJL08gcHJvZmlsZSB3aXRob3V0IGhhdmluZyB0byBy
-ZWltcGxlbWVudA0KZmlvIGNvcmUgbG9naWMgaW4gYW4gSS9PIHByb2ZpbGUuDQoNClJlZ2FyZGlu
-ZyBpbXBsZW1lbnRpbmcgd3JpdGUgdmVyaWZ5OiB0aGUgY29kZSB0aGF0IEkgcG9zdGVkIGRvZXMg
-bm90IHlldA0Kc3VwcG9ydCB2ZXJpZnlpbmcgd3JpdHRlbiBkYXRhLiBIb3dldmVyLCBpdCdzIG5v
-dCB0aGF0IGhhcmQgdG8gbW9kaWZ5IHRoYXQNCmNvZGUgc3VjaCB0aGF0IHZlcmlmeWluZyB3cml0
-dGVuIGRhdGEgYmVjb21lcyBwb3NzaWJsZS4gTXkgcHJvcG9zYWwgaXMgdG8NCnVzZSB0aGUgZm9s
-bG93aW5nIGFwcHJvYWNoOg0KLSBCZWZvcmUgd3JpdGluZyBzdGFydHMsIHJlc2V0IHRoZSB6b25l
-cyB0aGF0IGZpbyB3aWxsIHdyaXRlIHRvIHRvIGF2b2lkDQogIHRoYXQgYSB6b25lIGhhcyB0byBi
-ZSByZXNldCBpbiB0aGUgbWlkZGxlIG9mIHRoZSB3cml0ZSBwaGFzZSwgc29tZXRoaW5nDQogIHRo
-YXQgd291bGQgcmVzdWx0IGluIGRhdGEgbG9zcy4NCi0gSW4gYSBzaW5nbGUgem9uZSwgd3JpdGUg
-YXQgdGhlIHdyaXRlIHBvaW50ZXIuIFRoaXMgd2lsbCByZXN1bHQgaW4NCiAgc2VxdWVudGlhbCB3
-cml0ZXMgcGVyIHpvbmUgZnJvbSB0aGUgc3RhcnQgdG8gdGhlIGVuZCBvZiB0aGUgem9uZS4NCi0g
-V2hlbiB2ZXJpZnlpbmcgZGF0YSwgcmVhZCB0aGUgem9uZSBmcm9tIHN0YXJ0IHRvIGVuZCBzdWNo
-IHRoYXQgcmVhZCBhbmQNCiAgd3JpdGUgb2Zmc2V0cyBtYXRjaC4NCg0KVGhhbmtzLA0KDQpCYXJ0
-Lg0KDQoNCg0K
+On 15 March 2018 at 16:43, Bart Van Assche <Bart.VanAssche@wdc.com> wrote:
+>
+> Adding support for ZBC drives as a profile has a significant disadvantage,
+> namely that the different I/O patterns (sequential read, sequential write,
+> random read, random write, ...) all have to be reimplemented. That's why I'm
+> considering to add ZBC support by modifying what get_next_block() produces.
+> Can you have a look at the (barely tested) patch below?
+
+I don't have access to any ZBC devices but I looked over the patch.
+This seems to be a blend of both both of Philip's suggestions and I
+quite like it because it centralized most of the logic within the
+engine itself bar the offset fixing.
+
+Something that could help is
+if ioengines were able to specify a callbacks to say whether an offset
++ size is valid or whether the ioengine wants to "fix" them. If it
+says the offset is invalid we just quietly pretend we did the I/O,
+reduce the amount of I/O we have to do on this loop and generate the
+next offset + size. If it chooses to just fix it then we just use the
+different values it fixed the I/O to (assuming it fits alignment,
+minimum block sizes etc). How do people see fix mode interacting with
+things like bssplit? Do we just ban bssplit when in this mode for now?
+
+Most engines could leave these unset but it would be perfect for this
+one and it would stop the typical path having to depend on this
+particular ioengine being configured in. If fix things up mode is set
+then I suppose fio could then go on to ban things like lsfr, randommap
+and random_distribution. I guess one snag with re-rolling in "valid"
+mode is that you could end up re-rolling forever. I'm no expert but
+I'm hoping doing another if (engine defines block_checking) on every
+I/O won't have too much of a hit.
+
+Perhaps we just start with "fix" mode see how that goes and move on
+from there? Something else that could get hairy are verify jobs that
+are seperate from their write job because the offsets generated during
+a subsequent verify will not necessarily be invalid at the same points
+or changed the same way. I suppose inline verify should work assuming
+write regions haven't been reset due to becoming full.
+
+-- 
+Sitsofe | http://sucs.org/~sits/
