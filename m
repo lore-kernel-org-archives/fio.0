@@ -1,8 +1,12 @@
-Return-Path: <prvs=6092bf709=Kris.Davis@wdc.com>
-From: Kris Davis <Kris.Davis@wdc.com>
-Subject: RE: fiologparser_hist.py script patch and enhancements?
-Date: Mon, 19 Mar 2018 15:45:28 +0000
-Message-ID: <CY1PR0401MB1116782C9FD301E23D24A4A281D40@CY1PR0401MB1116.namprd04.prod.outlook.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-ua0-f172.google.com ([209.85.217.172]:33045 "EHLO
+        mail-ua0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750888AbeCQKBD (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 17 Mar 2018 06:01:03 -0400
+Received: by mail-ua0-f172.google.com with SMTP id f6so8155531ual.0
+        for <fio@vger.kernel.org>; Sat, 17 Mar 2018 03:01:03 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CY1PR0401MB111655928AE4688373702CEB81D00@CY1PR0401MB1116.namprd04.prod.outlook.com>
 References: <CY1PR0401MB11163E6C999998E0A2F13F9E81F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CY1PR0401MB111689EE46B3839EB0675D7B81F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CY1PR0401MB1116307F93264CDB7F09870981F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
@@ -15,85 +19,62 @@ References: <CY1PR0401MB11163E6C999998E0A2F13F9E81F70@CY1PR0401MB1116.namprd04.p
  <CY1PR0401MB111641A66DF1AC0E016E97E181CE0@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CALjAwxjmz4t_rbXuDwqPmiAPXUg_h88qvcRUGbXPCRAnDcw8Qg@mail.gmail.com>
  <CY1PR0401MB1116F8AD0CBB303383918EA481C10@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CALjAwxg0pNhmSnvRGDL7um-KhX8eqwHfk1T8CSaQYih2c8p33Q@mail.gmail.com>
- <CY1PR0401MB111655928AE4688373702CEB81D00@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CALjAwxgtTM--wW-NwkDe_5RWGeZQ=FUQUH_HXK8hOsci5pDpxA@mail.gmail.com>
-In-Reply-To: <CALjAwxgtTM--wW-NwkDe_5RWGeZQ=FUQUH_HXK8hOsci5pDpxA@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+ <CALjAwxg0pNhmSnvRGDL7um-KhX8eqwHfk1T8CSaQYih2c8p33Q@mail.gmail.com> <CY1PR0401MB111655928AE4688373702CEB81D00@CY1PR0401MB1116.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 17 Mar 2018 10:00:31 +0000
+Message-ID: <CALjAwxgtTM--wW-NwkDe_5RWGeZQ=FUQUH_HXK8hOsci5pDpxA@mail.gmail.com>
+Subject: Re: fiologparser_hist.py script patch and enhancements?
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Kris Davis <Kris.Davis@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
 
-U2l0c29mZSwgDQoNClRoYW5rcyBmb3IgYmVpbmcgZGlsaWdlbnQgd2l0aCB0aGlzIG9uZS4gIEkg
-aGF2ZW4ndCBydW4gaW50byBncnVtYmxlcyBhYm91dCB3aGl0ZXNwYWNlIGJlZm9yZSwgc28gSSdt
-IHVuY2xlYXIgd2hhdCB5b3UgYXJlIHNlZWluZy4gIEhvd2V2ZXIsIEknbGwgdHJ5IHRvIHNldCB1
-cCBhIGdpdGh1YiBjbG9uZSBhbmQgc3VibWl0IGNoYW5nZXMgdGhlcmUuICBJJ3ZlIG5vdCByZWFs
-bHkgdXNlZCBnaXRodWIgZm9yIGFueSB0aGluZyBvdGhlciB0aGFuIHNvbWUgY291cnNld29yayBi
-ZWZvcmUsIG5vdGhpbmcgY29sbGFib3JhdGl2ZS4gICBJJ3ZlIG9ubHkgYmVlbiBzdWJtaXR0aW5n
-IHBhdGNoZXMgaW4gdGhlIGVtYWlsIGJlY2F1c2Ugb2YgdGhlIHN1Z2dlc3Rpb24gb2Ygb3RoZXJz
-LCBhbmQgaXQgc2VlbWVkIHRvIGJlIHdoYXQgb3RoZXJzIGhhdmUgZG9uZS4NCg0KSSdtIHVuY2xl
-YXIgYWJvdXQgdGhlIF9fSElTVF9DT0xVTU5TLiAgVGhlIGFjdHVhbCB2YWx1ZXMgYXBwZWFycyB0
-byBiZSBkaXNjb3ZlcmVkIGZyb20gdGhlIGlucHV0IGxvZyBmaWxlcy4gIEhvd2V2ZXIsIHRoZSAt
-LWdyb3VwX25yIG9wdGlvbiB3YXMgaW4gdGhlIG9yaWdpbmFsIHNjcmlwdCB0byBvdmVycmlkZSB0
-aGUgZXhwZWN0ZWQgRklPX0lPX1VfUExBVF9HUk9VUF9OUiB2YWx1ZS4gIEkgZG9uJ3QgcmVhbGx5
-IHVuZGVyc3RhbmQgdGhlIHJlbGF0aW9uc2hpcCBiZXR3ZWVuIHRoZSBGSU9fSU9fVV9QTEFUX0dS
-T1VQX05SIHZhbHVlLCB0aGUgSElTVF9DT0xVTU5zIGFuZCB3aGV0aGVyIHRoZSBCSU5TIGFyZSBp
-biBtaWxsaXNlY29uZHMgb3IgbWljcm9zZWNvbmRzLiAgIElmIHRoZXJlIGlzIGEga25vd24gY29u
-c2lzdGVudCByZWxhdGlvbnNoaXAsIG1heWJlIHRoZSBvcHRpb25zIGNhbiBiZSBtYWRlIHNpbXBs
-ZXIuDQoNCkkndmUgdXBkYXRlZCB0aGUgbWFuIHBhZ2UsIG5vdyB0aGF0IEkgdW5kZXJzdGFuZCBo
-b3cgdGhlIG5lZWQgZm9yIG1hbnVhbCBlZGl0aW5nLiAgIEkndmUgYWxzbyBpbXBsZW1lbnRlZCB5
-ZXQgYW5vdGhlciBvcHRpb24uICBJIGZvdW5kIHRoZSBwZXJzb25hbCBuZWVkIHRvIGZvciBnZXR0
-aW5nIHNlcGFyYXRlIHJlc3VsdHMgZm9yIHRoZSByZWFkcyBhbmQgd3JpdGVzLiAgU28gSSBhZGRl
-ZCBhbm90aGVyICItLWRpcmVjdGlvbnM9cnd0bSIgb3B0aW9uIHRvIGFsbG93IGEgcGVyc29uIHRv
-IHNwZWNpZnkgd2hpY2ggZGlyZWN0aW9ucyB0aGV5IHdhbnQgb3V0cHV0LiAgIElmIHRoZSAtLWRp
-cmVjdGlvbnMgb3B0aW9uIGlzIG5vdCBwcm92aWRlLCB0aGUgb3V0cHV0IGlzIHRoZSBub3JtYWwg
-bWl4ZWQvY29tYmluZWQgcmVzdWx0cy4gIElmIC0tZGlyZWN0aW9ucyBzcGVjaWZpZWQsIGl0IHVz
-ZXMgdGhlIGNoYXJhY3RlcnMgdG8gaW5kaWNhdGUgd2hpY2ggZGlyZWN0aW9ucyByZXN1bHRzIHRv
-IGNyZWF0ZWQsIGFuZCBhZGRzIGEgImRpciIgY29sdW1uIHRvIHRoZSBvdXRwdXQuICBZb3UgY2Fu
-IGhhdmUgYm90aCBkaXJlY3Rpb25hbCBhbmQgJ21peGVkJyByb3dzIGFzIGRlc2lyZWQuDQoNCkkn
-dmUgaW1wbGVtZW50ZWQgYW5kIGRpZCBzb21lIHF1aWNrIHRlc3RzLCBidXQgd2FudCB0byBkbyBz
-b21lIG1vcmUgY2FyZWZ1bCB2YXJpYXRpb25zIC0gdG8gbWFrZSBzdXJlIHRoYXQgZGlyZWN0aW9u
-YWwgcmVzdWx0cyBhcmUgY29ycmVjdCwgdGhvdWdoIHRoZSBtaXhlZCByZXN1bHRzIGFyZSBwcmV0
-dHkgZWFzaWx5IGNvbXBhcmUgb2xkIHJlc3VsdHMuDQoNClNvLCBiZSBwYXRpZW50IGZvciB0aGUg
-bmV4dCBjaGFwdGVyIGluIHRoZSBlcGljIGZpb2xvZ3BhcnNlcl9oaXN0IHBhdGNoZXMuLi4NClRo
-YW5rcyBNdWNoDQpLcmlzIERhdmlzDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9t
-OiBTaXRzb2ZlIFdoZWVsZXIgW21haWx0bzpzaXRzb2ZlQGdtYWlsLmNvbV0gDQpTZW50OiBTYXR1
-cmRheSwgTWFyY2ggMTcsIDIwMTggNTowMSBBTQ0KVG86IEtyaXMgRGF2aXMgPEtyaXMuRGF2aXNA
-d2RjLmNvbT4NCkNjOiBmaW9Admdlci5rZXJuZWwub3JnOyBKZW5zIEF4Ym9lIDxheGJvZUBrZXJu
-ZWwuZGs+DQpTdWJqZWN0OiBSZTogZmlvbG9ncGFyc2VyX2hpc3QucHkgc2NyaXB0IHBhdGNoIGFu
-ZCBlbmhhbmNlbWVudHM/DQoNCkhpLA0KDQpPbiAxNSBNYXJjaCAyMDE4IGF0IDE3OjAyLCBLcmlz
-IERhdmlzIDxLcmlzLkRhdmlzQHdkYy5jb20+IHdyb3RlOg0KPiBTb3JyeSBJJ3ZlIGJlZW4gdW5h
-dmFpbGFibGUgZm9yIGEgY291cGxlIG9mIHdlZWtzLg0KPg0KPiBDaG9zZSAjMjoNCj4gMi4gS2Vl
-cCBvbmUgc2NyaXB0IGJ1dCBzb21laG93IGxldCBpdCBjb250YWluIG5vbi13ZWlnaHRlZCB2cyB3
-ZWlnaHRlZCBwYXRocy4NCj4NCj4gSSBtZXJnZWQgdGhlIGNoYW5nZXMgZnJvbSBteSAibm8gd2Vp
-Z2h0ZWQiIHZlcnNpb24gd2l0aCB0aGUgb3JpZ2luYWwgc2NyaXB0LCBhbmQgYWRkZWQgYSAiLS1u
-b3dlaWdodCIgb3B0aW9uLiAgICBJIGRpZG4ndCB0cnkgdG8gY29tYmluZWQgdGhlIGZpbGUgaS9v
-IG1ldGhvZHMsIGJ1dCBqdXN0IHNwbGl0IHRoZSAibWFpbiIgZnVuY3Rpb24gbGF0dGVyIG9wZXJh
-dGlvbiBpbnRvICJvdXRwdXRfaW50ZXJ2YWxfZGF0YSIgYW5kICJvdXRwdXRfd2VpZ2h0ZWRfaW50
-ZXJ2YWxfZGF0YSIsIGZvciBsYWNrIG9mIG1vcmUgY3JlYXRpdmUgbmFtZXMgOikuDQo+DQo+IEJl
-bG93IGlzIHRoZSBuZXcgcGF0Y2gNCg0KQnkgc29tZSBjaGFuY2UgeW91IHdvdWxkbid0IGhhdmUg
-dGhpcyB1cCBpbiBhIGdpdGh1YiByZXBvIHRvbz8gR01haWwncyB3ZWIgY2xpZW50IHNlZW1zIHRv
-IGRvIHVuc3BlYWthYmxlIHdoaXRlc3BhY2UgY2hhbmdlcyB0byBwYXRjaGVzIChJIHdvdW5kIHVw
-IGNvcHlpbmcgYW5kIHBhc3RpbmcgZnJvbSBodHRwczovL3d3dy5zcGluaWNzLm5ldC9saXN0cy9m
-aW8vbXNnMDY4NzIuaHRtbCBpbiB0aGUgZW5kKS4gSSBzdGlsbCBnZXQgZ3J1bWJsZXMgYWJvdXQg
-dHJhaWxpbmcgd2hpdGVzcGFjZSBmcm9tIGdpdCBidXQgYWdhaW4gSSBkb24ndCBrbm93IGlmIHRo
-YXQncyBqdXN0IGhvdyBJIGdvdCB0aGUgcGF0Y2guDQoNCkNvdWxkIHlvdSB1cGRhdGUgdGhlIHRv
-b2wncyBtYW5wYWdlDQoodG9vbHMvaGlzdC9maW9sb2dwYXJzZXJfaGlzdC5weS4xKSB3aXRoIHlv
-dXIgY2hhbmdlcyB0b28/DQoNClNob3VsZG4ndCBfX0hJU1RfQ09MVU1OUyBiZSBjaGFuZ2VkIGRl
-cGVuZGluZyBvbiB3aGV0aGVyIG1pY3JvIG9yIG5hbm9zZWNvbmRzIGFyZSBiZWluZyB1c2VkPyBJ
-dCBsb29rcyBsaWtlIGl0IG1hdGNoZXMgRklPX0lPX1VfUExBVF9OUiB3aGljaCBpcyBjYWxjdWxh
-dGVkIGJ5ICgxIDw8IEZJT19JT19VX1BMQVRfQklUUykgKiBGSU9fSU9fVV9QTEFUX0dST1VQX05S
-IHdoaWNoIGZvciBmaW8tMy41IGlzICgxIDw8IDYpICogMjkgID0gMTg1NiAuDQpDb21taXQgaHR0
-cHM6Ly9naXRodWIuY29tL2F4Ym9lL2Zpby9jb21taXQvZDZiYjYyNmVmMzdkMzkwNTIyMWFkZTI4
-ODdiNDIyNzE3YTA3YWYwOQ0Kc2VlbXMgdG8gYmUgdGhlIG9uZSB0aGF0IGNoYW5nZWQgdGhlIHZh
-bHVlIG9mIEZJT19JT19VX1BMQVRfR1JPVVBfTlIgLi4uDQoNCkJleW9uZCB0aGF0IGEgc2ltcGxl
-IHJ1biB3b3JrZWQgZm9yIG1lIHdpdGggdGhlIGZvbGxvd2luZzoNCg0KY2QgL3RtcC8NCmZpbyAt
-LW5hbWU9dGVzdCAtLXJ3PXJlYWQgLS1ydW50aW1lPTVzIC0tdGltZV9iYXNlZCAtLWZpbGVuYW1l
-PS90bXAvZmlvLnRtcCAtLXNpemU9MU0gLS13cml0ZV9oaXN0X2xvZz10ZXN0DQotLWxvZ19oaXN0
-X21zZWM9MTAwDQpmaW9sb2dwYXJzZXJfaGlzdC5weSB0ZXN0X2NsYXRfaGlzdC4xLmxvZyBmaW9s
-b2dwYXJzZXJfaGlzdC5weSAtLW5vd2VpZ2h0IC0tcGVyY2VudGlsZXMgMCwxLDUwIHRlc3RfY2xh
-dF9oaXN0LjEubG9nDQoNCi0tDQpTaXRzb2ZlIHwgaHR0cDovL3N1Y3Mub3JnL35zaXRzLw0K
+Hi,
 
+On 15 March 2018 at 17:02, Kris Davis <Kris.Davis@wdc.com> wrote:
+> Sorry I've been unavailable for a couple of weeks.
+>
+> Chose #2:
+> 2. Keep one script but somehow let it contain non-weighted vs weighted pa=
+ths.
+>
+> I merged the changes from my "no weighted" version with the original scri=
+pt, and added a "--noweight" option.    I didn't try to combined the file i=
+/o methods, but just split the "main" function latter operation into "outpu=
+t_interval_data" and "output_weighted_interval_data", for lack of more crea=
+tive names :).
+>
+> Below is the new patch
+
+By some chance you wouldn't have this up in a github repo too? GMail's
+web client seems to do unspeakable whitespace changes to patches (I
+wound up copying and pasting from
+https://www.spinics.net/lists/fio/msg06872.html in the end). I still
+get grumbles about trailing whitespace from git but again I don't know
+if that's just how I got the patch.
+
+Could you update the tool's manpage
+(tools/hist/fiologparser_hist.py.1) with your changes too?
+
+Shouldn't __HIST_COLUMNS be changed depending on whether micro or
+nanoseconds are being used? It looks like it matches FIO_IO_U_PLAT_NR
+which is calculated by (1 << FIO_IO_U_PLAT_BITS) *
+FIO_IO_U_PLAT_GROUP_NR which for fio-3.5 is (1 << 6) * 29  =3D 1856 .
+Commit https://github.com/axboe/fio/commit/d6bb626ef37d3905221ade2887b42271=
+7a07af09
+seems to be the one that changed the value of FIO_IO_U_PLAT_GROUP_NR
+...
+
+Beyond that a simple run worked for me with the following:
+
+cd /tmp/
+fio --name=3Dtest --rw=3Dread --runtime=3D5s --time_based
+--filename=3D/tmp/fio.tmp --size=3D1M --write_hist_log=3Dtest
+--log_hist_msec=3D100
+fiologparser_hist.py test_clat_hist.1.log
+fiologparser_hist.py --noweight --percentiles 0,1,50 test_clat_hist.1.log
+
+--=20
+Sitsofe | http://sucs.org/~sits/
