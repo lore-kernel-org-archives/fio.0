@@ -1,81 +1,62 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from act-MTAout3.csiro.au ([150.229.7.39]:7975 "EHLO
-        act-MTAout3.csiro.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751776AbeC0AJA (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 26 Mar 2018 20:09:00 -0400
-Received: from mayhem.atnf.CSIRO.AU (mayhem.atnf.csiro.au [130.155.194.144])
-        by crux.atnf.csiro.au (Postfix) with ESMTP id 43D79199F7
-        for <fio@vger.kernel.org>; Tue, 27 Mar 2018 10:58:24 +1100 (AEDT)
-Received: from mci156 by mayhem.atnf.CSIRO.AU with local (Exim 4.84_2)
-        (envelope-from <mci156@mayhem.atnf.csiro.au>)
-        id 1f0c0O-00007f-64
-        for fio@vger.kernel.org; Tue, 27 Mar 2018 10:58:24 +1100
-Date: Tue, 27 Mar 2018 10:58:24 +1100
-From: Vincent McIntyre <vincent.mcintyre@csiro.au>
-Subject: help constructing job file
-Message-ID: <20180326235824.GC30981@mayhem.atnf.CSIRO.AU>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [RFC PATCH] doc: add comments for the difference between iodepth
+ and blkdev's inflight
+References: <20180129164548.GA7056@localhost.didichuxing.com>
+ <CALjAwxgNXU41zLyXsSrZ+JxDdx1Td=_1ju5v73O8wdm5sPKBqA@mail.gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <6ab36d79-30d7-46b6-25cc-de96e48721ec@kernel.dk>
+Date: Mon, 19 Mar 2018 10:13:23 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <CALjAwxgNXU41zLyXsSrZ+JxDdx1Td=_1ju5v73O8wdm5sPKBqA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Sitsofe Wheeler <sitsofe@gmail.com>, weiping zhang <zhangweiping@didichuxing.com>
+Cc: fio <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi
+On 3/17/18 2:44 AM, Sitsofe Wheeler wrote:
+> (I know this one is old but I seem to have had a reply rolling around
+> in my draft folder for a while)
+> 
+> On 29 January 2018 at 16:45, weiping zhang <zhangweiping@didichuxing.com> wrote:
+>> If user want control the inflight IOs for the tested block device, for
+>> example set iodepth=16, and we can get result like following:
+>>
+>> IO depths: 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=100.0%, 32=0.0%, >=64=0.0%
+>>
+>> this result only means (16~31) IOs inflight, don't means requests inflight,
+>> if max_sectors_kb = 64KB, and we set bs=256KB, the number of inflight
+>> requests may reach to 64(if nr_request allow). So for user want to control
+>> the number of inflight requests, bs should less than max_sectors_kb.
+> 
+> You have a point but that's very Linux platform specific information
+> (then again so is the libaio warning so there's a precedent there
+> already). Additionally, dependent on a device's I/O scheduler and its
+> options etc. just because you submitted smaller blocks doesn't mean those
+> I/Os won't be merged together thus the amount of requests inflight down to
+> a device can still be different to what fio is submitting to the
+> kernel. Further, there may also be different layers in the strack
+> between userspace and the device that transform the I/Os (e.g. md RAID
+> etc.) before they turn into device requests so there are lots of
+> caveats.
 
-(newbie alert)
+I'm certain that this can happen on other platforms too, if the
+application IO size is bigger than what the hardware can support.
+The numbers that fio list are viewed from the application side,
+an application has no real way of knowing what the depth on the
+hardware side will be. This is true even if IOs aren't being
+split, if an IO scheduler decides to limit the depth, for
+example.
 
-I am struggling with how to model a particular workload:
- - there are two groups of processes (8 writers and 8 readers),
-   that run concurrently, writing to a single RAID unit
+For most cases, the two numbers are roughly identical, however.
+So stating that "the iodepth is not same as block device's inflight"
+is misleading, as it will often be the same.
 
- - each of the writers
-   - opens 36 files
-   - appends to the files in 1M chunks until they reach 100G
-   - closes those files and opens a new set
+If anything, the documentation should just reflect that it's
+application queue depth. That's platform agnostic.
 
- - each of the readers
-   - reads a group of 36 contemporaneous files from beginning to end
-   - moves on to the next group
+-- 
+Jens Axboe
 
-My goal is not to maximise numbers from fio tests but rather
-to model the system and how it is likely to scale up or down.
-In particular I want to observe the system behaviour over an
-extended period (up to 24h) with readers & writers hammering away.
 
-Below is my initial sketch which isn't right; in my tests (with
-smaller filesize, numjobs, nrfiles) it runs the file layout fine
-but I never seem to get a prolonged period of read operations
-in parallel with writes.
-
-[global]
-direct=0
-fsync=0
-bs=4k
-size=1M
-ioengine=posixaio
-rwmixread=50
-rwmixwrite=50
-group_reporting=1
-per_job_logs=0
-filesize=100G
-file_append=1
-invalidate=1
-refill_buffers=1
-
-[writer]
-name=writer
-readwrite=write
-numjobs=8
-nrfiles=36
-file_service_type=roundrobin
-
-[reader]
-name=reader
-readwrite=read
-numjobs=8
-nrfiles=36
-file_service_type=roundrobin
-
-Any pointers would be most welcome.
-Vince
