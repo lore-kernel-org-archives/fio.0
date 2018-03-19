@@ -1,271 +1,45 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:48710 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751432AbeCaMAU (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 31 Mar 2018 08:00:20 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1f2FBD-0002tF-EJ
-        for fio@vger.kernel.org; Sat, 31 Mar 2018 12:00:19 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180331120002.9D0822C00D1@kernel.dk>
-Date: Sat, 31 Mar 2018 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <prvs=609d84ff1=Bart.VanAssche@wdc.com>
+From: Bart Van Assche <Bart.VanAssche@wdc.com>
+Subject: Re: FIO's rdma engine...
+Date: Mon, 19 Mar 2018 21:55:10 +0000
+Message-ID: <1521496509.2776.39.camel@wdc.com>
+References: <CAH6SkxpsXtS3AFCkOwKPG-JeZB_aH7yf3LgepYB=cAfg3fbvbQ@mail.gmail.com>
+	 <e06182ba-6ac7-57b1-5f32-67c8756401b9@kernel.dk>
+	 <CALjAwxhy81B+Q7SJUnpfaiQMaHUDZVonUUT=+UH7F+Ey3aLP1A@mail.gmail.com>
+In-Reply-To: <CALjAwxhy81B+Q7SJUnpfaiQMaHUDZVonUUT=+UH7F+Ey3aLP1A@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <CCBD7A076DFBDC4C8F44F2BE5714A0F7@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: "sitsofe@gmail.com" <sitsofe@gmail.com>, "axboe@kernel.dk" <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "logang@deltatee.com" <logang@deltatee.com>, "kip.ingram@gmail.com" <kip.ingram@gmail.com>, "sbates@raithlin.com" <sbates@raithlin.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit d6d74886759e3f268a6a3b12a47872865b867023:
+T24gU2F0LCAyMDE4LTAzLTE3IGF0IDA4OjQ4ICswMDAwLCBTaXRzb2ZlIFdoZWVsZXIgd3JvdGU6
+DQo+IE9uIDIzIEphbnVhcnkgMjAxOCBhdCAxNzo1MCwgSmVucyBBeGJvZSA8YXhib2VAa2VybmVs
+LmRrPiB3cm90ZToNCj4gPiBPbiAxLzIzLzE4IDEwOjQ4IEFNLCBLaXAgSW5ncmFtIHdyb3RlOg0K
+PiA+ID4gSGkgSmVucy4gIEknbSB0cnlpbmcgdG8gZG8gc29tZSBOVk1FIG92ZXIgSUIgdGVzdGlu
+ZywgYW5kIGl0IHNlZW1lZA0KPiA+ID4gYXBwcm9wcmlhdGUgdG8gdXNlIHRoZSByZG1hIGVuZ2lu
+ZSBpbiBGSU8uICBIb3dldmVyLCBpdCdzIGNvbXBsYWluaW5nDQo+ID4gPiBpbiB2YXJpb3VzIHdh
+eXM6DQo+ID4gPiANCj4gPiA+IDEuIEl0IHNheXMgSSBoYXZlIHRvIHNwZWNpZnkgdGhlIGRldmlj
+ZSBzaXplLiAgVGhhdCdzIG5vdCBhDQo+ID4gPiBzaG93LXN0b3BwZXIsIGJ1dCBpdCBzdXJwcmlz
+ZWQgbWUuDQo+ID4gPiAyLiBJdCBzYXlzIEkgaGF2ZSB0byB1c2UgZWl0aGVyIHJlYWQgb3Igd3Jp
+dGUgdHJhZmZpYyAtIG5vdCBtaXhlZC4NCj4gPiA+IFRoYXQgaXMgYSBwcm9ibGVtLg0KPiA+ID4g
+My4gSXQgc2F5cyBJIGNhbid0IHVzZSByYW5kb20gYWRkcmVzc2luZy4gIFRoYXQncyBhbHNvIGEg
+cHJvYmxlbS4NCj4gPiA+IA0KPiA+ID4gQ29sbGVhZ3VlcyBoYXZlIHNldCB1cCBkZXZpY2VzIHRo
+aXMgd2F5IGFuZCB1c2VkIG9uZSBvZiBvdXIgaW50ZXJuYWwNCj4gPiA+IHRvb2xzIHRvIGRvIG1p
+eGVkIGFuZCByYW5kb20gdHJhZmZpYy4NCj4gPiA+IA0KPiA+ID4gSSBkb24ndCBzZWUgYW55dGhp
+bmcgaW4gdGhlIGRvY3VtZW50cyB0aGF0IGltcGx5IG1peGVkIGFuZCByYW5kb20NCj4gPiA+IHNo
+b3VsZG4ndCB3b3JrIC0gaXMgdGhlcmUgc29tZXRoaW5nIEknbSBvdmVybG9va2luZz8NCj4gPiAN
+Cj4gPiBDQydpbmcgdGhlIGZpbyBsaXN0LCBwbGVhc2UgZGlyZWN0IHF1ZXN0aW9ucyB0aGVyZSBh
+bmQgbm90IHRvIG1lDQo+ID4gZGlyZWN0bHkuDQo+IA0KPiBDQydpbmcgc29tZSBSRE1BIGZvbGtz
+Lg0KDQpIZWxsbyBLaXAsDQoNCk15IHVuZGVyc3RhbmRpbmcgaXMgdGhhdCB0aGUgcHVycG9zZSBv
+ZiB0aGUgZmlvIFJETUEgZW5naW5lIGlzIHRvIHRlc3QgUkRNQQ0KUkVBRCBhbmQgV1JJVEUgYW5k
+IGFsc28gdGhhdCB0aGUgZmlvIFJETUEgZW5naW5lIGNhbm5vdCBiZSB1c2VkIHRvIG1lYXN1cmUN
+Ck5WTWVPRiBwZXJmb3JtYW5jZS4gSWYgeW91IHdhbnQgdG8gdGVzdCBOVk1lT0YgdGhlbiB5b3Ug
+bmVlZCB0byBsb2FkIHRoZQ0KTlZNZU9GIGluaXRpYXRvciBkcml2ZXIsIHRlbGwgdGhhdCBkcml2
+ZXIgdG8gY29ubmVjdCB0byBhbiBOVk1lT0YgdGFyZ2V0IGFuZA0KcnVuIGZpbyBhZ2FpbnN0IHRo
+ZSBibG9jayBkZXZpY2UgY3JlYXRlZCBieSB0aGUgTlZNZU9GIGluaXRpYXRvciBkcml2ZXIuDQoN
+CkJhcnQuDQoNCg0K
 
-  Merge branch 'master' of https://github.com/bvanassche/fio (2018-03-29 10:02:25 -0600)
-
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to cefd2a94b408b9c3be0300edb1270a546e7f09fe:
-
-  Merge branch 'aarch64-crc32c' of https://github.com/sitsofe/fio (2018-03-30 10:16:27 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'aarch64-crc32c' of https://github.com/sitsofe/fio
-
-Sitsofe Wheeler (2):
-      aarch64: refactor HW ARM CRC32c detection
-      Minor style changes
-
- arch/arch-aarch64.h |  4 ----
- configure           | 18 +++++++++++++-----
- crc/crc32c-arm64.c  | 21 +++++++--------------
- crc/crc32c-intel.c  |  2 +-
- crc/crc32c.h        |  6 +++---
- os/os-linux.h       | 27 +++++++++++++++++++++++++++
- os/os.h             | 11 +++++++++++
- 7 files changed, 62 insertions(+), 27 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/arch/arch-aarch64.h b/arch/arch-aarch64.h
-index 0912a86..2a86cc5 100644
---- a/arch/arch-aarch64.h
-+++ b/arch/arch-aarch64.h
-@@ -27,8 +27,4 @@ static inline int arch_ffz(unsigned long bitmask)
- 
- #define ARCH_HAVE_FFZ
- 
--#ifdef ARCH_HAVE_CRC_CRYPTO
--#define ARCH_HAVE_ARM64_CRC_CRYPTO
--#endif
--
- #endif
-diff --git a/configure b/configure
-index f635863..38706a9 100755
---- a/configure
-+++ b/configure
-@@ -600,7 +600,7 @@ int main(void)
- EOF
- if compile_prog "" "" "posixaio" ; then
-   posix_aio="yes"
--elif compile_prog "" "-lrt" "posixaio"; then
-+elif compile_prog "" "-lrt" "posixaio -lrt"; then
-   posix_aio="yes"
-   posix_aio_lrt="yes"
-   LIBS="-lrt $LIBS"
-@@ -2108,18 +2108,23 @@ if test "$march_armv8_a_crc_crypto" != "yes" ; then
- fi
- if test "$cpu" = "arm64" ; then
-   cat > $TMPC <<EOF
--#include <sys/auxv.h>
- #include <arm_acle.h>
- #include <arm_neon.h>
-+#include <sys/auxv.h>
- 
- int main(void)
- {
--  return 0;
-+  /* Can we also do a runtime probe? */
-+#if __linux__
-+  return getauxval(AT_HWCAP);
-+#else
-+# error "Don't know how to do runtime probe for ARM CRC32c"
-+#endif
- }
- EOF
--  if compile_prog "-march=armv8-a+crc+crypto" "" ""; then
-+  if compile_prog "-march=armv8-a+crc+crypto" "" "ARM CRC32c"; then
-     march_armv8_a_crc_crypto="yes"
--    CFLAGS="$CFLAGS -march=armv8-a+crc+crypto -DARCH_HAVE_CRC_CRYPTO"
-+    CFLAGS="$CFLAGS -march=armv8-a+crc+crypto"
-     march_set="yes"
-   fi
- fi
-@@ -2421,6 +2426,9 @@ if test "$zlib" = "no" ; then
-     echo "Note that some distros have separate packages for static libraries."
-   fi
- fi
-+if test "$march_armv8_a_crc_crypto" = "yes" ; then
-+  output_sym "ARCH_HAVE_CRC_CRYPTO"
-+fi
- if test "$cuda" = "yes" ; then
-   output_sym "CONFIG_CUDA"
- fi
-diff --git a/crc/crc32c-arm64.c b/crc/crc32c-arm64.c
-index 08177ba..11bfe5d 100644
---- a/crc/crc32c-arm64.c
-+++ b/crc/crc32c-arm64.c
-@@ -1,4 +1,9 @@
- #include "crc32c.h"
-+#include "../os/os.h"
-+
-+bool crc32c_arm64_available = false;
-+
-+#ifdef ARCH_HAVE_CRC_CRYPTO
- 
- #define CRC32C3X8(ITR) \
- 	crc1 = __crc32cd(crc1, *((const uint64_t *)data + 42*1 + (ITR)));\
-@@ -15,15 +20,6 @@
- 	CRC32C3X8((ITR)*7+6) \
- 	} while(0)
- 
--#ifndef HWCAP_CRC32
--#define HWCAP_CRC32             (1 << 7)
--#endif /* HWCAP_CRC32 */
--
--bool crc32c_arm64_available = false;
--
--#ifdef ARCH_HAVE_ARM64_CRC_CRYPTO
--
--#include <sys/auxv.h>
- #include <arm_acle.h>
- #include <arm_neon.h>
- 
-@@ -102,13 +98,10 @@ uint32_t crc32c_arm64(unsigned char const *data, unsigned long length)
- 
- void crc32c_arm64_probe(void)
- {
--	unsigned long hwcap;
--
- 	if (!crc32c_probed) {
--		hwcap = getauxval(AT_HWCAP);
--		crc32c_arm64_available = (hwcap & HWCAP_CRC32) != 0;
-+		crc32c_arm64_available = os_cpu_has(CPU_ARM64_CRC32C);
- 		crc32c_probed = true;
- 	}
- }
- 
--#endif /* ARCH_HAVE_ARM64_CRC_CRYPTO */
-+#endif /* ARCH_HAVE_CRC_CRYPTO */
-diff --git a/crc/crc32c-intel.c b/crc/crc32c-intel.c
-index 9a2cefd..6e810a2 100644
---- a/crc/crc32c-intel.c
-+++ b/crc/crc32c-intel.c
-@@ -84,4 +84,4 @@ void crc32c_intel_probe(void)
- 	}
- }
- 
--#endif /* ARCH_HAVE_SSE */
-+#endif /* ARCH_HAVE_SSE4_2 */
-diff --git a/crc/crc32c.h b/crc/crc32c.h
-index 60f6014..18f1161 100644
---- a/crc/crc32c.h
-+++ b/crc/crc32c.h
-@@ -27,7 +27,7 @@ extern uint32_t crc32c_sw(unsigned char const *, unsigned long);
- extern bool crc32c_arm64_available;
- extern bool crc32c_intel_available;
- 
--#ifdef ARCH_HAVE_ARM64_CRC_CRYPTO
-+#ifdef ARCH_HAVE_CRC_CRYPTO
- extern uint32_t crc32c_arm64(unsigned char const *, unsigned long);
- extern void crc32c_arm64_probe(void);
- #else
-@@ -35,7 +35,7 @@ extern void crc32c_arm64_probe(void);
- static inline void crc32c_arm64_probe(void)
- {
- }
--#endif
-+#endif /* ARCH_HAVE_CRC_CRYPTO */
- 
- #ifdef ARCH_HAVE_SSE4_2
- extern uint32_t crc32c_intel(unsigned char const *, unsigned long);
-@@ -45,7 +45,7 @@ extern void crc32c_intel_probe(void);
- static inline void crc32c_intel_probe(void)
- {
- }
--#endif
-+#endif /* ARCH_HAVE_SSE4_2 */
- 
- static inline uint32_t fio_crc32c(unsigned char const *buf, unsigned long len)
- {
-diff --git a/os/os-linux.h b/os/os-linux.h
-index 894dc85..1d400a0 100644
---- a/os/os-linux.h
-+++ b/os/os-linux.h
-@@ -19,6 +19,13 @@
- #include <linux/fs.h>
- #include <scsi/sg.h>
- 
-+#ifdef ARCH_HAVE_CRC_CRYPTO
-+#include <sys/auxv.h>
-+#ifndef HWCAP_CRC32
-+#define HWCAP_CRC32             (1 << 7)
-+#endif /* HWCAP_CRC32 */
-+#endif /* ARCH_HAVE_CRC_CRYPTO */
-+
- #include "./os-linux-syscall.h"
- #include "binject.h"
- #include "../file.h"
-@@ -410,4 +417,24 @@ static inline bool fio_fallocate(struct fio_file *f, uint64_t offset,
- }
- #endif
- 
-+#define FIO_HAVE_CPU_HAS
-+static inline bool os_cpu_has(cpu_features feature)
-+{
-+	bool have_feature;
-+	unsigned long fio_unused hwcap;
-+
-+	switch (feature) {
-+#ifdef ARCH_HAVE_CRC_CRYPTO
-+	case CPU_ARM64_CRC32C:
-+		hwcap = getauxval(AT_HWCAP);
-+		have_feature = (hwcap & HWCAP_CRC32) != 0;
-+		break;
-+#endif
-+	default:
-+		have_feature = false;
-+	}
-+
-+	return have_feature;
-+}
-+
- #endif
-diff --git a/os/os.h b/os/os.h
-index 95ed7cf..becc410 100644
---- a/os/os.h
-+++ b/os/os.h
-@@ -27,6 +27,10 @@ enum {
- 	os_nr,
- };
- 
-+typedef enum {
-+        CPU_ARM64_CRC32C,
-+} cpu_features;
-+
- /* IWYU pragma: begin_exports */
- #if defined(__ANDROID__)
- #include "os-android.h"
-@@ -387,4 +391,11 @@ static inline bool fio_fallocate(struct fio_file *f, uint64_t offset, uint64_t l
- # define FIO_HAVE_ANY_FALLOCATE
- #endif
- 
-+#ifndef FIO_HAVE_CPU_HAS
-+static inline bool os_cpu_has(cpu_features feature)
-+{
-+	return false;
-+}
-+#endif
-+
- #endif
