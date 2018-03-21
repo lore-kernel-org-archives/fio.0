@@ -1,5 +1,8 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: fio server/client disconnect bug
+Return-Path: <prvs=611231c00=jeff.furlong@wdc.com>
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: fio server/client disconnect bug
+Date: Wed, 21 Mar 2018 18:16:59 +0000
+Message-ID: <SN6PR04MB40649D252EA6B8B0E16BE8E18FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
 References: <BN3PR0401MB1457692506FCB2E385AE2A2E8FCB0@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <SN6PR04MB4064CEF242E2091737402D268FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
  <47cd0e78-d881-a776-7f2d-c292b35e8211@kernel.dk>
@@ -9,459 +12,530 @@ References: <BN3PR0401MB1457692506FCB2E385AE2A2E8FCB0@BN3PR0401MB1457.namprd04.p
  <7ea6910f-dc7b-d141-432e-62c2ee9f16ee@kernel.dk>
  <SN6PR04MB4064FBCCCA9542C6550E99668FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
  <4f5b0878-83fc-a224-e6b0-06896cd2155b@kernel.dk>
- <SN6PR04MB40649D252EA6B8B0E16BE8E18FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <590553ff-0e9c-b679-1bcc-be9ae3a840ef@kernel.dk>
-Date: Wed, 21 Mar 2018 12:38:46 -0600
-MIME-Version: 1.0
-In-Reply-To: <SN6PR04MB40649D252EA6B8B0E16BE8E18FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <4f5b0878-83fc-a224-e6b0-06896cd2155b@kernel.dk>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Jeff Furlong <jeff.furlong@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 3/21/18 12:16 PM, Jeff Furlong wrote:
-> Here's the failing case where host1 does not print:
-> 
-> back=1, groupid=0, nr_ts=1
-> client: got cmd op PROBE from host2 (pdu=112)
-> client host2 removed 2
-> client: got cmd op PROBE from host1 (pdu=112)
-> client host1 removed 2
-> client: got cmd op START from host2 (pdu=8)
-> client host2 removed 2
-> client: got cmd op START from host1 (pdu=8)
-> client host1 removed 2
-> client: got cmd op ADD_JOB from host2 (pdu=23204)
-> client host2 removed 2
-> client: got cmd op TEXT from host2 (pdu=70)
-> client host2 removed 2
-> client: got cmd op TEXT from host2 (pdu=90)
-> client host2 removed 2
-> client: got cmd op ADD_JOB from host1 (pdu=23204)
-> client host1 removed 2
-> client: got cmd op TEXT from host2 (pdu=51)
-> client host2 removed 2
-> client: got cmd op TEXT from host1 (pdu=70)
-> client host1 removed 2
-> client: got cmd op START from host2 (pdu=8)
-> client host2 removed 2
-> client: got cmd op TEXT from host1 (pdu=90)
-> client host1 removed 2
-> client: got cmd op TEXT from host1 (pdu=51)
-> client host1 removed 2
-> client: got cmd op START from host1 (pdu=8)
-> client host1 removed 2
-> client: got cmd op TEXT from host2 (pdu=33)
-> client host2 removed 2
-> client: got cmd op TEXT from host2 (pdu=33)
-> client host2 removed 2
-> client: got cmd op TEXT from host2 (pdu=25)
-> client host2 removed 2
-> client: got cmd op TEXT from host1 (pdu=33)
-> client host1 removed 2
-> client: got cmd op TEXT from host1 (pdu=33)
-> client host1 removed 2
-> client: got cmd op TEXT from host1 (pdu=25)
-> client host1 removed 2
-> client: got cmd op SERVER_START from host2 (pdu=0)
-> client host2 removed 2
-> client: got cmd op SERVER_START from host1 (pdu=0)
-> client host1 removed 2
-> client: got cmd op ETA from host2 (pdu=165)
-> client host2 removed 2
-> client: got cmd op ETA from host1 (pdu=165)
-> client host1 removed 2
-> client: got cmd op ETA from host2 (pdu=165)
-> client host2 removed 2
-> client: got cmd op ETA from host1 (pdu=165)
-> client host1 removed 2
-> client: got cmd op ETA from host2 (pdu=165)
-> client host2 removed 2
-> client: got cmd op ETA from host1 (pdu=165)
-> client host1 removed 25.0%][r=2667M,w=0k][r=41.7k,w=0 IOPS][eta 00m:02s]
-> client: got cmd op ETA from host2 (pdu=165)
-> client host2 removed 2
-> client: got cmd op ETA from host1 (pdu=165)
-> client host1 removed 28.9%][r=2661M,w=0k][r=41.6k,w=0 IOPS][eta 00m:01s]
-> client: got cmd op ETA from host2 (pdu=165)
-> client host2 removed 2
-> client: got cmd op ETA from host1 (pdu=165)
-> client host1 removed 200.0%][r=2669M,w=0k][r=41.7k,w=0 IOPS][eta 00m:00s]
-> client: got cmd op IOLOG from host2 (pdu=338)
-> client host2 removed 2
-> client: got cmd op IOLOG from host2 (pdu=327)
-> client host2 removed 2
-> client: got cmd op IOLOG from host2 (pdu=337)
-> client host2 removed 2
-> client: got cmd op IOLOG from host1 (pdu=338)
-> client host1 removed 2
-> client: got cmd op IOLOG from host1 (pdu=325)
-> client host1 removed 2
-> client: got cmd op IOLOG from host1 (pdu=337)
-> client host1 removed 2
-> client: got cmd op IOLOG from host1 (pdu=323)
-> client host1 removed 2
-> client: got cmd op IOLOG from host1 (pdu=320)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op STOP from host1 (pdu=8)
-> client host1 removed 2
-> client: got cmd op QUIT from host1 (pdu=0)
-> client host1 removed 2
-> client host1 removed 1
-> client: got cmd op IOLOG from host2 (pdu=331)
-> client host2 removed 2
-> client: got cmd op IOLOG from host2 (pdu=327)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op TS from host2 (pdu=94888)
-> client host2 removed 2
-> client: got cmd op GS from host2 (pdu=164)
-> client host2 removed 2
-> client: got cmd op DISK_UTIL from host2 (pdu=256)
-> client host2 removed 2
-> client: got cmd op TEXT from host2 (pdu=25)
-> client host2 removed 2
-> client: got cmd op STOP from host2 (pdu=8)
-> client host2 removed 2
-> client: got cmd op QUIT from host2 (pdu=0)
-> client host2 removed 2
-> client host2 removed 1
-> 
-> And here's a good case:
-> 
-> client: got cmd op PROBE from host2 (pdu=112)
-> client host2 removed 2
-> client: got cmd op PROBE from host1 (pdu=112)
-> client host1 removed 2
-> client: got cmd op START from host2 (pdu=8)
-> client host2 removed 2
-> client: got cmd op START from host1 (pdu=8)
-> client host1 removed 2
-> client: got cmd op ADD_JOB from host2 (pdu=23204)
-> client host2 removed 2
-> client: got cmd op TEXT from host2 (pdu=70)
-> client host2 removed 2
-> client: got cmd op TEXT from host2 (pdu=90)
-> client host2 removed 2
-> client: got cmd op TEXT from host2 (pdu=51)
-> client host2 removed 2
-> client: got cmd op START from host2 (pdu=8)
-> client host2 removed 2
-> client: got cmd op ADD_JOB from host1 (pdu=23204)
-> client host1 removed 2
-> client: got cmd op TEXT from host1 (pdu=70)
-> client host1 removed 2
-> client: got cmd op TEXT from host1 (pdu=90)
-> client host1 removed 2
-> client: got cmd op TEXT from host1 (pdu=51)
-> client host1 removed 2
-> client: got cmd op START from host1 (pdu=8)
-> client host1 removed 2
-> client: got cmd op TEXT from host2 (pdu=33)
-> client host2 removed 2
-> client: got cmd op TEXT from host2 (pdu=33)
-> client host2 removed 2
-> client: got cmd op TEXT from host2 (pdu=25)
-> client host2 removed 2
-> client: got cmd op SERVER_START from host2 (pdu=0)
-> client host2 removed 2
-> client: got cmd op TEXT from host1 (pdu=33)
-> client host1 removed 2
-> client: got cmd op TEXT from host1 (pdu=33)
-> client host1 removed 2
-> client: got cmd op TEXT from host1 (pdu=25)
-> client host1 removed 2
-> client: got cmd op SERVER_START from host1 (pdu=0)
-> client host1 removed 2
-> client: got cmd op ETA from host2 (pdu=165)
-> client host2 removed 2
-> client: got cmd op ETA from host1 (pdu=165)
-> client host1 removed 2
-> client: got cmd op ETA from host2 (pdu=165)
-> client host2 removed 2
-> client: got cmd op ETA from host1 (pdu=165)
-> client host1 removed 2
-> client: got cmd op ETA from host2 (pdu=165)
-> client host2 removed 2
-> client: got cmd op ETA from host1 (pdu=165)
-> client host1 removed 25.0%][r=2667M,w=0k][r=41.7k,w=0 IOPS][eta 00m:02s]
-> client: got cmd op ETA from host2 (pdu=165)
-> client host2 removed 2
-> client: got cmd op ETA from host1 (pdu=165)
-> client host1 removed 28.9%][r=2669M,w=0k][r=41.7k,w=0 IOPS][eta 00m:01s]
-> client: got cmd op ETA from host2 (pdu=165)
-> client host2 removed 2
-> client: got cmd op ETA from host1 (pdu=165)
-> client host1 removed 200.0%][r=2675M,w=0k][r=41.8k,w=0 IOPS][eta 00m:00s]
-> client: got cmd op IOLOG from host2 (pdu=336)
-> client host2 removed 2
-> client: got cmd op IOLOG from host2 (pdu=327)
-> client host2 removed 2
-> client: got cmd op IOLOG from host2 (pdu=337)
-> client host2 removed 2
-> client: got cmd op IOLOG from host1 (pdu=338)
-> client host1 removed 2
-> client: got cmd op IOLOG from host1 (pdu=327)
-> client host1 removed 2
-> client: got cmd op IOLOG from host1 (pdu=338)
-> client host1 removed 2
-> client: got cmd op IOLOG from host2 (pdu=330)
-> client host2 removed 2
-> client: got cmd op IOLOG from host2 (pdu=327)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op JOB_OPT from host2 (pdu=200)
-> client host2 removed 2
-> client: got cmd op TS from host2 (pdu=94888)
-> client host2 removed 2
-> client: got cmd op GS from host2 (pdu=164)
-> client host2 removed 2
-> client: got cmd op DISK_UTIL from host2 (pdu=256)
-> client host2 removed 2
-> client: got cmd op TEXT from host2 (pdu=25)
-> client host2 removed 2
-> client: got cmd op STOP from host2 (pdu=8)
-> client host2 removed 2
-> client: got cmd op QUIT from host2 (pdu=0)
-> client host2 removed 2
-> client host2 removed 1
-> client: got cmd op IOLOG from host1 (pdu=330)
-> client host1 removed 2
-> client: got cmd op IOLOG from host1 (pdu=327)
-> back=1, groupid=0, nr_ts=1
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op JOB_OPT from host1 (pdu=200)
-> client host1 removed 2
-> client: got cmd op TS from host1 (pdu=94888)
-> client host1 removed 2
-> client: got cmd op GS from host1 (pdu=164)
-> client host1 removed 2
-> client: got cmd op DISK_UTIL from host1 (pdu=256)
-> client host1 removed 2
-> client: got cmd op TEXT from host1 (pdu=25)
-> client host1 removed 2
-> client: got cmd op STOP from host1 (pdu=8)
-> client host1 removed 2
-> client: got cmd op QUIT from host1 (pdu=0)
-> client host1 removed 2
-> client host1 removed 1
+Here's the failing case where host1 does not print:
 
-So puzzling... It prints all the right things, but for some reason we
-are not doing the ts/gs/disk_util send for the host in some cases.
-For the life of me, I can't see how that would happen! We just go
-straight from the job option sends, and then don't do the rest in
-__show_run_stats().
+back=3D1, groupid=3D0, nr_ts=3D1
+client: got cmd op PROBE from host2 (pdu=3D112)
+client host2 removed 2
+client: got cmd op PROBE from host1 (pdu=3D112)
+client host1 removed 2
+client: got cmd op START from host2 (pdu=3D8)
+client host2 removed 2
+client: got cmd op START from host1 (pdu=3D8)
+client host1 removed 2
+client: got cmd op ADD_JOB from host2 (pdu=3D23204)
+client host2 removed 2
+client: got cmd op TEXT from host2 (pdu=3D70)
+client host2 removed 2
+client: got cmd op TEXT from host2 (pdu=3D90)
+client host2 removed 2
+client: got cmd op ADD_JOB from host1 (pdu=3D23204)
+client host1 removed 2
+client: got cmd op TEXT from host2 (pdu=3D51)
+client host2 removed 2
+client: got cmd op TEXT from host1 (pdu=3D70)
+client host1 removed 2
+client: got cmd op START from host2 (pdu=3D8)
+client host2 removed 2
+client: got cmd op TEXT from host1 (pdu=3D90)
+client host1 removed 2
+client: got cmd op TEXT from host1 (pdu=3D51)
+client host1 removed 2
+client: got cmd op START from host1 (pdu=3D8)
+client host1 removed 2
+client: got cmd op TEXT from host2 (pdu=3D33)
+client host2 removed 2
+client: got cmd op TEXT from host2 (pdu=3D33)
+client host2 removed 2
+client: got cmd op TEXT from host2 (pdu=3D25)
+client host2 removed 2
+client: got cmd op TEXT from host1 (pdu=3D33)
+client host1 removed 2
+client: got cmd op TEXT from host1 (pdu=3D33)
+client host1 removed 2
+client: got cmd op TEXT from host1 (pdu=3D25)
+client host1 removed 2
+client: got cmd op SERVER_START from host2 (pdu=3D0)
+client host2 removed 2
+client: got cmd op SERVER_START from host1 (pdu=3D0)
+client host1 removed 2
+client: got cmd op ETA from host2 (pdu=3D165)
+client host2 removed 2
+client: got cmd op ETA from host1 (pdu=3D165)
+client host1 removed 2
+client: got cmd op ETA from host2 (pdu=3D165)
+client host2 removed 2
+client: got cmd op ETA from host1 (pdu=3D165)
+client host1 removed 2
+client: got cmd op ETA from host2 (pdu=3D165)
+client host2 removed 2
+client: got cmd op ETA from host1 (pdu=3D165)
+client host1 removed 25.0%][r=3D2667M,w=3D0k][r=3D41.7k,w=3D0 IOPS][eta 00m=
+:02s]
+client: got cmd op ETA from host2 (pdu=3D165)
+client host2 removed 2
+client: got cmd op ETA from host1 (pdu=3D165)
+client host1 removed 28.9%][r=3D2661M,w=3D0k][r=3D41.6k,w=3D0 IOPS][eta 00m=
+:01s]
+client: got cmd op ETA from host2 (pdu=3D165)
+client host2 removed 2
+client: got cmd op ETA from host1 (pdu=3D165)
+client host1 removed 200.0%][r=3D2669M,w=3D0k][r=3D41.7k,w=3D0 IOPS][eta 00=
+m:00s]
+client: got cmd op IOLOG from host2 (pdu=3D338)
+client host2 removed 2
+client: got cmd op IOLOG from host2 (pdu=3D327)
+client host2 removed 2
+client: got cmd op IOLOG from host2 (pdu=3D337)
+client host2 removed 2
+client: got cmd op IOLOG from host1 (pdu=3D338)
+client host1 removed 2
+client: got cmd op IOLOG from host1 (pdu=3D325)
+client host1 removed 2
+client: got cmd op IOLOG from host1 (pdu=3D337)
+client host1 removed 2
+client: got cmd op IOLOG from host1 (pdu=3D323)
+client host1 removed 2
+client: got cmd op IOLOG from host1 (pdu=3D320)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op STOP from host1 (pdu=3D8)
+client host1 removed 2
+client: got cmd op QUIT from host1 (pdu=3D0)
+client host1 removed 2
+client host1 removed 1
+client: got cmd op IOLOG from host2 (pdu=3D331)
+client host2 removed 2
+client: got cmd op IOLOG from host2 (pdu=3D327)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op TS from host2 (pdu=3D94888)
+client host2 removed 2
+client: got cmd op GS from host2 (pdu=3D164)
+client host2 removed 2
+client: got cmd op DISK_UTIL from host2 (pdu=3D256)
+client host2 removed 2
+client: got cmd op TEXT from host2 (pdu=3D25)
+client host2 removed 2
+client: got cmd op STOP from host2 (pdu=3D8)
+client host2 removed 2
+client: got cmd op QUIT from host2 (pdu=3D0)
+client host2 removed 2
+client host2 removed 1
 
-And thanks for the quick turn-around on the debugging, it's key
-to getting this resolved since I can't reproduce this myself. Can you
-run with this one? Backout the previous one first.
+And here's a good case:
+
+client: got cmd op PROBE from host2 (pdu=3D112)
+client host2 removed 2
+client: got cmd op PROBE from host1 (pdu=3D112)
+client host1 removed 2
+client: got cmd op START from host2 (pdu=3D8)
+client host2 removed 2
+client: got cmd op START from host1 (pdu=3D8)
+client host1 removed 2
+client: got cmd op ADD_JOB from host2 (pdu=3D23204)
+client host2 removed 2
+client: got cmd op TEXT from host2 (pdu=3D70)
+client host2 removed 2
+client: got cmd op TEXT from host2 (pdu=3D90)
+client host2 removed 2
+client: got cmd op TEXT from host2 (pdu=3D51)
+client host2 removed 2
+client: got cmd op START from host2 (pdu=3D8)
+client host2 removed 2
+client: got cmd op ADD_JOB from host1 (pdu=3D23204)
+client host1 removed 2
+client: got cmd op TEXT from host1 (pdu=3D70)
+client host1 removed 2
+client: got cmd op TEXT from host1 (pdu=3D90)
+client host1 removed 2
+client: got cmd op TEXT from host1 (pdu=3D51)
+client host1 removed 2
+client: got cmd op START from host1 (pdu=3D8)
+client host1 removed 2
+client: got cmd op TEXT from host2 (pdu=3D33)
+client host2 removed 2
+client: got cmd op TEXT from host2 (pdu=3D33)
+client host2 removed 2
+client: got cmd op TEXT from host2 (pdu=3D25)
+client host2 removed 2
+client: got cmd op SERVER_START from host2 (pdu=3D0)
+client host2 removed 2
+client: got cmd op TEXT from host1 (pdu=3D33)
+client host1 removed 2
+client: got cmd op TEXT from host1 (pdu=3D33)
+client host1 removed 2
+client: got cmd op TEXT from host1 (pdu=3D25)
+client host1 removed 2
+client: got cmd op SERVER_START from host1 (pdu=3D0)
+client host1 removed 2
+client: got cmd op ETA from host2 (pdu=3D165)
+client host2 removed 2
+client: got cmd op ETA from host1 (pdu=3D165)
+client host1 removed 2
+client: got cmd op ETA from host2 (pdu=3D165)
+client host2 removed 2
+client: got cmd op ETA from host1 (pdu=3D165)
+client host1 removed 2
+client: got cmd op ETA from host2 (pdu=3D165)
+client host2 removed 2
+client: got cmd op ETA from host1 (pdu=3D165)
+client host1 removed 25.0%][r=3D2667M,w=3D0k][r=3D41.7k,w=3D0 IOPS][eta 00m=
+:02s]
+client: got cmd op ETA from host2 (pdu=3D165)
+client host2 removed 2
+client: got cmd op ETA from host1 (pdu=3D165)
+client host1 removed 28.9%][r=3D2669M,w=3D0k][r=3D41.7k,w=3D0 IOPS][eta 00m=
+:01s]
+client: got cmd op ETA from host2 (pdu=3D165)
+client host2 removed 2
+client: got cmd op ETA from host1 (pdu=3D165)
+client host1 removed 200.0%][r=3D2675M,w=3D0k][r=3D41.8k,w=3D0 IOPS][eta 00=
+m:00s]
+client: got cmd op IOLOG from host2 (pdu=3D336)
+client host2 removed 2
+client: got cmd op IOLOG from host2 (pdu=3D327)
+client host2 removed 2
+client: got cmd op IOLOG from host2 (pdu=3D337)
+client host2 removed 2
+client: got cmd op IOLOG from host1 (pdu=3D338)
+client host1 removed 2
+client: got cmd op IOLOG from host1 (pdu=3D327)
+client host1 removed 2
+client: got cmd op IOLOG from host1 (pdu=3D338)
+client host1 removed 2
+client: got cmd op IOLOG from host2 (pdu=3D330)
+client host2 removed 2
+client: got cmd op IOLOG from host2 (pdu=3D327)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op JOB_OPT from host2 (pdu=3D200)
+client host2 removed 2
+client: got cmd op TS from host2 (pdu=3D94888)
+client host2 removed 2
+client: got cmd op GS from host2 (pdu=3D164)
+client host2 removed 2
+client: got cmd op DISK_UTIL from host2 (pdu=3D256)
+client host2 removed 2
+client: got cmd op TEXT from host2 (pdu=3D25)
+client host2 removed 2
+client: got cmd op STOP from host2 (pdu=3D8)
+client host2 removed 2
+client: got cmd op QUIT from host2 (pdu=3D0)
+client host2 removed 2
+client host2 removed 1
+client: got cmd op IOLOG from host1 (pdu=3D330)
+client host1 removed 2
+client: got cmd op IOLOG from host1 (pdu=3D327)
+back=3D1, groupid=3D0, nr_ts=3D1
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op JOB_OPT from host1 (pdu=3D200)
+client host1 removed 2
+client: got cmd op TS from host1 (pdu=3D94888)
+client host1 removed 2
+client: got cmd op GS from host1 (pdu=3D164)
+client host1 removed 2
+client: got cmd op DISK_UTIL from host1 (pdu=3D256)
+client host1 removed 2
+client: got cmd op TEXT from host1 (pdu=3D25)
+client host1 removed 2
+client: got cmd op STOP from host1 (pdu=3D8)
+client host1 removed 2
+client: got cmd op QUIT from host1 (pdu=3D0)
+client host1 removed 2
+client host1 removed 1
+
+Regards,
+Jeff
+
+
+-----Original Message-----
+From: Jens Axboe [mailto:axboe@kernel.dk]=20
+Sent: Wednesday, March 21, 2018 10:12 AM
+To: Jeff Furlong <jeff.furlong@wdc.com>; fio@vger.kernel.org
+Subject: Re: fio server/client disconnect bug
+
+On 3/21/18 10:58 AM, Jeff Furlong wrote:
+> Patch applied to latest git.  Failed after 26 iterations.  The host1 did =
+not print output to the summary file.
+>=20
+> client: got cmd op PROBE from host2 (pdu=3D112)
+> client: got cmd op PROBE from host1 (pdu=3D112)
+> client: got cmd op START from host2 (pdu=3D8)
+> client: got cmd op START from host1 (pdu=3D8)
+> client: got cmd op ADD_JOB from host2 (pdu=3D23204)
+> client: got cmd op TEXT from host2 (pdu=3D70)
+> client: got cmd op TEXT from host2 (pdu=3D90)
+> client: got cmd op TEXT from host2 (pdu=3D51)
+> client: got cmd op ADD_JOB from host1 (pdu=3D23204)
+> client: got cmd op START from host2 (pdu=3D8)
+> client: got cmd op TEXT from host1 (pdu=3D70)
+> client: got cmd op TEXT from host1 (pdu=3D90)
+> client: got cmd op TEXT from host1 (pdu=3D51)
+> client: got cmd op START from host1 (pdu=3D8)
+> client: got cmd op TEXT from host2 (pdu=3D33)
+> client: got cmd op TEXT from host2 (pdu=3D33)
+> client: got cmd op TEXT from host2 (pdu=3D25)
+> client: got cmd op TEXT from host1 (pdu=3D33)
+> client: got cmd op TEXT from host1 (pdu=3D33)
+> client: got cmd op TEXT from host1 (pdu=3D25)
+> client: got cmd op SERVER_START from host2 (pdu=3D0)
+> client: got cmd op SERVER_START from host1 (pdu=3D0)
+> client: got cmd op ETA from host2 (pdu=3D165)
+> client: got cmd op ETA from host1 (pdu=3D165)
+> client: got cmd op ETA from host2 (pdu=3D165)
+> client: got cmd op ETA from host1 (pdu=3D165)
+> client: got cmd op ETA from host2 (pdu=3D165)
+> client: got cmd op ETA from host1 (pdu=3D165)
+> client: got cmd op ETA from host2 (pdu=3D165)=3D41.6k,w=3D0 IOPS][eta=20
+> 00m:02s]
+> client: got cmd op ETA from host1 (pdu=3D165)
+> client: got cmd op ETA from host2 (pdu=3D165)=3D41.6k,w=3D0 IOPS][eta=20
+> 00m:01s]
+> client: got cmd op ETA from host1 (pdu=3D165)
+> client: got cmd op IOLOG from host2 (pdu=3D338)41.6k,w=3D0 IOPS][eta=20
+> 00m:00s]
+> client: got cmd op IOLOG from host2 (pdu=3D327)
+> client: got cmd op IOLOG from host2 (pdu=3D338)
+> client: got cmd op IOLOG from host1 (pdu=3D337)
+> client: got cmd op IOLOG from host1 (pdu=3D328)
+> client: got cmd op IOLOG from host1 (pdu=3D336)
+> client: got cmd op IOLOG from host2 (pdu=3D330)
+> client: got cmd op IOLOG from host2 (pdu=3D327)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op JOB_OPT from host2 (pdu=3D200)
+> client: got cmd op TS from host2 (pdu=3D94888)
+> client: got cmd op GS from host2 (pdu=3D164)
+> client: got cmd op IOLOG from host1 (pdu=3D324)
+> client: got cmd op DISK_UTIL from host2 (pdu=3D256)
+> client: got cmd op IOLOG from host1 (pdu=3D320)
+> client: got cmd op TEXT from host2 (pdu=3D25)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op STOP from host2 (pdu=3D8)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op QUIT from host2 (pdu=3D0)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op JOB_OPT from host1 (pdu=3D200)
+> client: got cmd op STOP from host1 (pdu=3D8)
+> client: got cmd op QUIT from host1 (pdu=3D0)
+
+So this is weird, after the JOB_OPT it should have send the gs/ts and so on=
+ summary. Which is what triggers the stat display. Can you remove the previ=
+ous patch, and add this debug patch with some more printf goodness in it?
 
 
 diff --git a/client.c b/client.c
-index bff0adc0d972..76c89a496964 100644
+index bff0adc0d972..0f740b5f3057 100644
 --- a/client.c
 +++ b/client.c
-@@ -1664,7 +1664,7 @@ int fio_handle_client(struct fio_client *client)
+@@ -179,6 +179,8 @@ static struct fio_client *find_client_by_fd(int fd)
+=20
+ void fio_put_client(struct fio_client *client)  {
++	printf("client %s removed %d\n", client->hostname, client->refs);
++
+ 	if (--client->refs)
+ 		return;
+=20
+@@ -1664,7 +1666,7 @@ int fio_handle_client(struct fio_client *client)
  	if (!cmd)
  		return 0;
- 
--	dprint(FD_NET, "client: got cmd op %s from %s (pdu=%u)\n",
-+	printf("client: got cmd op %s from %s (pdu=%u)\n",
+=20
+-	dprint(FD_NET, "client: got cmd op %s from %s (pdu=3D%u)\n",
++	printf("client: got cmd op %s from %s (pdu=3D%u)\n",
  		fio_server_op(cmd->opcode), client->hostname, cmd->pdu_len);
- 
- 	client->last_cmd = cmd->opcode;
-diff --git a/server.c b/server.c
-index 65d4484edae5..e78f6f64824d 100644
---- a/server.c
-+++ b/server.c
-@@ -551,6 +551,8 @@ static void fio_net_queue_entry(struct sk_entry *entry)
- {
- 	struct sk_out *sk_out = pthread_getspecific(sk_out_key);
- 
-+	printf("queue cmd op=%x, sock=%d\n", entry->opcode, sk_out->sk);
-+
- 	if (entry->flags & SK_F_INLINE)
- 		handle_sk_entry(sk_out, entry);
- 	else {
-@@ -1177,6 +1179,7 @@ static int handle_xmits(struct sk_out *sk_out)
- 	while (!flist_empty(&list)) {
- 		entry = flist_entry(list.next, struct sk_entry, list);
- 		flist_del(&entry->list);
-+		printf("xmit op %x\n", entry->opcode);
- 		ret += handle_sk_entry(sk_out, entry);
- 	}
- 
+=20
+ 	client->last_cmd =3D cmd->opcode;
 diff --git a/stat.c b/stat.c
-index 98ab63893900..558786f52751 100644
+index 98ab63893900..c23a3c9ddabc 100644
 --- a/stat.c
 +++ b/stat.c
-@@ -1891,6 +1891,7 @@ void __show_run_stats(void)
- 
- 		if (is_backend) {
- 			fio_server_send_job_options(opt_lists[i], i);
-+			printf("should send TS\n");
- 			fio_server_send_ts(ts, rs);
- 		} else {
- 			if (output_format & FIO_OUTPUT_TERSE)
-@@ -1905,6 +1906,7 @@ void __show_run_stats(void)
+@@ -1882,6 +1882,8 @@ void __show_run_stats(void)
+ 		json_object_add_value_array(root, "jobs", array);
  	}
- 	if (!is_backend && (output_format & FIO_OUTPUT_JSON)) {
- 		/* disk util stats, if any */
-+		printf("should send DU\n");
- 		show_disk_util(1, root, &output[__FIO_OUTPUT_JSON]);
- 
- 		show_idle_prof_stats(FIO_OUTPUT_JSON, root, &output[__FIO_OUTPUT_JSON]);
-@@ -1917,6 +1919,8 @@ void __show_run_stats(void)
- 	for (i = 0; i < groupid + 1; i++) {
- 		rs = &runstats[i];
- 
-+		printf("should send GS\n");
+=20
++	printf("back=3D%d, groupid=3D%d, nr_ts=3D%d\n", is_backend, groupid, nr_t=
+s);
 +
- 		rs->groupid = i;
- 		if (is_backend)
- 			fio_server_send_gs(rs);
+ 	if (is_backend)
+ 		fio_server_send_job_options(&get_global_options()->opt_list, -1U);
+=20
 
--- 
+--
 Jens Axboe
 
 
