@@ -1,30 +1,127 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f177.google.com ([209.85.217.177]:35878 "EHLO
-        mail-ua0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750948AbeC0UOb (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 27 Mar 2018 16:14:31 -0400
-Received: by mail-ua0-f177.google.com with SMTP id v9so114690uaj.3
-        for <fio@vger.kernel.org>; Tue, 27 Mar 2018 13:14:31 -0700 (PDT)
+Return-Path: <prvs=611231c00=jeff.furlong@wdc.com>
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: fio server/client disconnect bug
+Date: Wed, 21 Mar 2018 21:58:15 +0000
+Message-ID: <SN6PR04MB406431F3792DC3422036246D8FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
+References: <BN3PR0401MB1457692506FCB2E385AE2A2E8FCB0@BN3PR0401MB1457.namprd04.prod.outlook.com>
+ <47cd0e78-d881-a776-7f2d-c292b35e8211@kernel.dk>
+ <5d0275d2-889e-314e-63bd-240d326beb47@kernel.dk>
+ <33d87376-bbd9-69d9-83e0-120d93bd843d@kernel.dk>
+ <SN6PR04MB4064961E38329062931640B68FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
+ <7ea6910f-dc7b-d141-432e-62c2ee9f16ee@kernel.dk>
+ <SN6PR04MB4064FBCCCA9542C6550E99668FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
+ <4f5b0878-83fc-a224-e6b0-06896cd2155b@kernel.dk>
+ <SN6PR04MB40649D252EA6B8B0E16BE8E18FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
+ <590553ff-0e9c-b679-1bcc-be9ae3a840ef@kernel.dk>
+ <027c68c5-549d-8b4e-f606-84f8b321eb04@kernel.dk>
+ <920b95c9-070a-b3ba-1da3-8b28cf9a82d9@kernel.dk>
+ <SN6PR04MB4064F083D89C0947AB30857A8FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
+ <82ede445-cba9-8611-0d28-0f21aaab3875@kernel.dk>
+ <SN6PR04MB406466E455A80B33C8F6B1958FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
+ <edd3e654-56fb-bb87-af68-0853c8ab003a@kernel.dk>
+ <b720d1a8-f258-7605-8ba8-f0f3d2b39c91@kernel.dk>
+In-Reply-To: <b720d1a8-f258-7605-8ba8-f0f3d2b39c91@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Tue, 27 Mar 2018 21:13:57 +0100
-Message-ID: <CALjAwxgErjdsMQ60SOgoAdfTCvdTh_TwKY2DhgcV0OeOA36FjQ@mail.gmail.com>
-Subject: Windows fio build processor group support testing
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
-Cc: Rebecca Cran <rebecca@bluestop.org>, "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-I have a git tree (https://github.com/sitsofe/fio/commits/proc_group )
-that adds processor group support to fio CPU setting but to do so it
-introduces a flag to target the build to Windows 7 and sets it to be
-the default. If this change goes in it will mean if you would need to
-explicitly set a flag to have an fio that will work for
-WinXP/Vista/2003/2008 (before R2) etc. If you have time, any feedback
-would be useful.
+Great.  Makes sense.  Thanks for the help here.
 
-If I don't hear any complaints I'll send a pull request to Jens in a day or two.
+Regards,
+Jeff
 
--- 
-Sitsofe | http://sucs.org/~sits/
+
+-----Original Message-----
+From: Jens Axboe [mailto:axboe@kernel.dk]=20
+Sent: Wednesday, March 21, 2018 2:51 PM
+To: Jeff Furlong <jeff.furlong@wdc.com>; fio@vger.kernel.org
+Subject: Re: fio server/client disconnect bug
+
+Done: http://git.kernel.dk/cgit/fio/commit/?id=3Db647a293d70949b8c401772936=
+a8000d10eb1bb9
+
+
+On 3/21/18 3:47 PM, Jens Axboe wrote:
+> OK good, I will commit the fix.
+>=20
+> The summary is not to do those commands inline. Usually we don't have=20
+> issues with inline vs out-of-line ordering, since we don't queue=20
+> deeply or depend on ordering. But for this specific case, it's pretty=20
+> unfortunate if commands we already queued up are not processed, before=20
+> the client sends a stop/quit and finishes.
+>=20
+>=20
+> On 3/21/18 3:45 PM, Jeff Furlong wrote:
+>> Ran over 600 iterations so far without issue.  Will keep running to get =
+a higher confidence.  That way this issue will be fresh in our minds, given=
+ the fun sequence we just traced through.
+>>
+>> So the summary is to not add the QUIT command to the inline queue, and j=
+ust process it like most other typical commands?  The only thing that gets =
+processed separately are errors or triggers?
+>>
+>> Regards,
+>> Jeff
+>>
+>>
+>> -----Original Message-----
+>> From: Jens Axboe [mailto:axboe@kernel.dk]
+>> Sent: Wednesday, March 21, 2018 12:50 PM
+>> To: Jeff Furlong <jeff.furlong@wdc.com>; fio@vger.kernel.org
+>> Subject: Re: fio server/client disconnect bug
+>>
+>> On 3/21/18 1:45 PM, Jeff Furlong wrote:
+>>> There is noticeable slowdown with this patch.  Seems some iterations (e=
+ven successful) are taking several seconds of usleep().  Eventually hit a n=
+ew issue:
+>>>
+>>> fio: client host1, timeout on cmd SEND_ETA
+>>> fio: client host1 timed out
+>>>
+>>> But host1 still logged the iops/bw/lat logs, but did not send summary t=
+o output.
+>>
+>> Can you try this one?
+>>
+>>
+>> diff --git a/server.c b/server.c
+>> index 65d4484edae5..6064d8172a3b 100644
+>> --- a/server.c
+>> +++ b/server.c
+>> @@ -616,7 +616,7 @@ static int fio_net_queue_quit(void)  {
+>>  	dprint(FD_NET, "server: sending quit\n");
+>> =20
+>> -	return fio_net_queue_cmd(FIO_NET_CMD_QUIT, NULL, 0, NULL, SK_F_SIMPLE =
+| SK_F_INLINE);
+>> +	return fio_net_queue_cmd(FIO_NET_CMD_QUIT, NULL, 0, NULL,=20
+>> +SK_F_SIMPLE);
+>>  }
+>> =20
+>>  int fio_net_send_quit(int sk)
+>> @@ -636,7 +636,7 @@ static int fio_net_send_ack(struct fio_net_cmd=20
+>> *cmd, int error, int signal)
+>> =20
+>>  	epdu.error =3D __cpu_to_le32(error);
+>>  	epdu.signal =3D __cpu_to_le32(signal);
+>> -	return fio_net_queue_cmd(FIO_NET_CMD_STOP, &epdu, sizeof(epdu), &tag, =
+SK_F_COPY | SK_F_INLINE);
+>> +	return fio_net_queue_cmd(FIO_NET_CMD_STOP, &epdu, sizeof(epdu),=20
+>> +&tag, SK_F_COPY);
+>>  }
+>> =20
+>>  static int fio_net_queue_stop(int error, int signal)
+>>
+>> --
+>> Jens Axboe
+>>
+>=20
+>=20
+
+
+--
+Jens Axboe
+
+
