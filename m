@@ -12,52 +12,23 @@ References: <BN3PR0401MB1457692506FCB2E385AE2A2E8FCB0@BN3PR0401MB1457.namprd04.p
  <4f5b0878-83fc-a224-e6b0-06896cd2155b@kernel.dk>
  <SN6PR04MB40649D252EA6B8B0E16BE8E18FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
  <590553ff-0e9c-b679-1bcc-be9ae3a840ef@kernel.dk>
- <027c68c5-549d-8b4e-f606-84f8b321eb04@kernel.dk>
-Message-ID: <920b95c9-070a-b3ba-1da3-8b28cf9a82d9@kernel.dk>
-Date: Wed, 21 Mar 2018 13:10:09 -0600
+Message-ID: <027c68c5-549d-8b4e-f606-84f8b321eb04@kernel.dk>
+Date: Wed, 21 Mar 2018 13:03:48 -0600
 MIME-Version: 1.0
-In-Reply-To: <027c68c5-549d-8b4e-f606-84f8b321eb04@kernel.dk>
+In-Reply-To: <590553ff-0e9c-b679-1bcc-be9ae3a840ef@kernel.dk>
 Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 To: Jeff Furlong <jeff.furlong@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 3/21/18 1:03 PM, Jens Axboe wrote:
-> Shoot, I think I see what it is. Some commands we punt to out-of-line
-> sending, others we do inline. STOP/QUIT are inline, whereas the ts/gs/du
-> are not. So we could potentially have a situation where we queue up the
-> ts/gs/du, but then process the STOP/QUIT first. If we do that, then we
-> don't get any output...
-> 
-> Let me think about this for a bit, and see what I can come up with.
+Shoot, I think I see what it is. Some commands we punt to out-of-line
+sending, others we do inline. STOP/QUIT are inline, whereas the ts/gs/du
+are not. So we could potentially have a situation where we queue up the
+ts/gs/du, but then process the STOP/QUIT first. If we do that, then we
+don't get any output...
 
-Can you try with this? Can be improved to have the thread signal us,
-but it should be a rare occurrence and a 1ms stall from this context
-isn't a concern.
-
-diff --git a/server.c b/server.c
-index 65d4484edae5..52bcf7bf44c6 100644
---- a/server.c
-+++ b/server.c
-@@ -551,9 +551,15 @@ static void fio_net_queue_entry(struct sk_entry *entry)
- {
- 	struct sk_out *sk_out = pthread_getspecific(sk_out_key);
- 
--	if (entry->flags & SK_F_INLINE)
-+	if (entry->flags & SK_F_INLINE) {
-+		/*
-+		 * Honor ordering - if the out-of-line queue isn't empty,
-+		 * wait for it to drain before proceeding.
-+		 */
-+		while (!flist_empty(&sk_out->list))
-+			usleep(1000);
- 		handle_sk_entry(sk_out, entry);
--	else {
-+	} else {
- 		sk_lock(sk_out);
- 		flist_add_tail(&entry->list, &sk_out->list);
- 		sk_unlock(sk_out);
+Let me think about this for a bit, and see what I can come up with.
 
 -- 
 Jens Axboe
