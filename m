@@ -1,122 +1,63 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-io0-f180.google.com ([209.85.223.180]:42867 "EHLO
-        mail-io0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753029AbeCUUqy (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 21 Mar 2018 16:46:54 -0400
-Received: by mail-io0-f180.google.com with SMTP id d5so8267282iob.9
-        for <fio@vger.kernel.org>; Wed, 21 Mar 2018 13:46:54 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CY1PR0401MB11165355ED1A3A585208B0B081AA0@CY1PR0401MB1116.namprd04.prod.outlook.com>
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:1577 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752637AbeCUTRy (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 21 Mar 2018 15:17:54 -0400
+From: Kris Davis <Kris.Davis@wdc.com>
+Subject: RE: FIO latency bin midpoint vs upper limit capture
+Date: Wed, 21 Mar 2018 19:17:52 +0000
+Message-ID: <CY1PR0401MB11165355ED1A3A585208B0B081AA0@CY1PR0401MB1116.namprd04.prod.outlook.com>
 References: <CAKwzdDrOufV5HjdN3=+Hvr1vbnUrgM8U5G=9Wuk1Lh_kjAiFCw@mail.gmail.com>
  <CAKwzdDqnZE_cEe61Hx-GCzTuc+MDwzpqD_JVwTZF4ky_znNnFA@mail.gmail.com>
  <CY1PR0401MB1116B7900CB55CC67D8CF9F781AA0@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CAKwzdDqnvbRchbKBQ8RK4HMeaDs_qNYYyEcPogna-kcHKhNb6Q@mail.gmail.com> <CY1PR0401MB11165355ED1A3A585208B0B081AA0@CY1PR0401MB1116.namprd04.prod.outlook.com>
-From: abhishek koundal <akoundal@gmail.com>
-Date: Wed, 21 Mar 2018 13:46:13 -0700
-Message-ID: <CAKwzdDotMCruY0XS-xEF6BsJxpXvLE-NpO_i5GyZ+dK1NkgkHg@mail.gmail.com>
-Subject: Re: FIO latency bin midpoint vs upper limit capture
-Content-Type: text/plain; charset="UTF-8"
+ <CAKwzdDqnvbRchbKBQ8RK4HMeaDs_qNYYyEcPogna-kcHKhNb6Q@mail.gmail.com>
+In-Reply-To: <CAKwzdDqnvbRchbKBQ8RK4HMeaDs_qNYYyEcPogna-kcHKhNb6Q@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Kris Davis <Kris.Davis@wdc.com>
+To: abhishek koundal <akoundal@gmail.com>
 Cc: fio <fio@vger.kernel.org>
 
-Hi Kris,
-I am mentioning for the bins that get generated in the json+ fille or
-the clat_hist files. Clat_hit still has all the bins listed even if
-they are empty while JSON+ now just fills/reports which are being seen
-for a given run.
-
-FIO 3.1+.
-bins
-6816 = 1  ==> 6816ns  1 IOP took.
-7817 = 10 ==> 7817ns 10 IOP took ..
-.......
-
-FIO2.18
-bins
-0 = 1  ==> 1us 1 IOP took
-1 = 50 ==> 2us 50 IO took
-......
-1216 = x
-
-When the tool reports the IOP completion latency for the given bin, it
-will report it as the "median" value of time not the "max" value of
-the time. So when you are plotting or reporting the data that is not
-the "max" value of the latency for that reported bin.
-
-This will result in two things:
-1) multiple runs on the same workload config will have deviations .
-2) higher deviation will be observed for the 5-9s + if you use the
-"max" value wrt to "median".
-
-I hope this helps in clearing the things and clear the confusion.
-
-On Wed, Mar 21, 2018 at 12:17 PM, Kris Davis <Kris.Davis@wdc.com> wrote:
-> I'm sorry, I don't think I'm on the same page...  Are you referring to the latency percentages given in the summary output, or the latency log files, or the clat hist log file?
-> Thanks
->
-> Kris Davis
-> Western Digital Coporation
-> Email: kris.davis@wdc.com
-> Office:: +1-507-322-2376
->
-> -----Original Message-----
-> From: abhishek koundal [mailto:akoundal@gmail.com]
-> Sent: Wednesday, March 21, 2018 2:00 PM
-> To: Kris Davis <Kris.Davis@wdc.com>
-> Cc: fio <fio@vger.kernel.org>
-> Subject: Re: FIO latency bin midpoint vs upper limit capture
->
-> That is how the tool does by default unless it has been changed in the 3.0+ versions where there are no bins but  completion time vs iops landing in that zone.
-> If I recall prior to 3.0, it was bins -> 0 , 1 ...12xx.
->
-> On Wed, Mar 21, 2018 at 10:59 AM, Kris Davis <Kris.Davis@wdc.com> wrote:
->> What are you doing to see a "report" of the mid latency?
->>
->> Kris Davis
->>
->> -----Original Message-----
->> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
->> Behalf Of abhishek koundal
->> Sent: Wednesday, March 21, 2018 12:55 PM
->> To: fio <fio@vger.kernel.org>
->> Subject: Re: FIO latency bin midpoint vs upper limit capture
->>
->> Checking back if there is any feedback on the above request for reporting max latency in the bins.
->> Appreciate the support.
->>
->> On Wed, Mar 14, 2018 at 2:07 PM, abhishek koundal <akoundal@gmail.com> wrote:
->>> All,
->>> Currently the FIO latency  bins does the i/o count and but then as
->>> per Lower bound, midpoint (rounded off), upper limit
->>>
->>> The reported latency is the based on the "midpoint".
->>> Is there a way to report it based on the "upper limit"? e.g. compile
->>> fio with some switch etc.
->>>
->>> Appreciate your support always :).
->>>
->>> --
->>> Life is too short for silly things so invest your time in some
->>> productive outputs!!
->>
->>
->>
->> --
->> Life is too short for silly things so invest your time in some productive outputs!!
->> --
->> To unsubscribe from this list: send the line "unsubscribe fio" in the
->> body of a message to majordomo@vger.kernel.org More majordomo info at
->> http://vger.kernel.org/majordomo-info.html
->
->
->
-> --
-> Life is too short for silly things so invest your time in some productive outputs!!
-
-
-
--- 
-Life is too short for silly things so invest your time in some
-productive outputs!!
+SSdtIHNvcnJ5LCBJIGRvbid0IHRoaW5rIEknbSBvbiB0aGUgc2FtZSBwYWdlLi4uICBBcmUgeW91
+IHJlZmVycmluZyB0byB0aGUgbGF0ZW5jeSBwZXJjZW50YWdlcyBnaXZlbiBpbiB0aGUgc3VtbWFy
+eSBvdXRwdXQsIG9yIHRoZSBsYXRlbmN5IGxvZyBmaWxlcywgb3IgdGhlIGNsYXQgaGlzdCBsb2cg
+ZmlsZT8NClRoYW5rcw0KDQpLcmlzIERhdmlzDQpXZXN0ZXJuIERpZ2l0YWwgQ29wb3JhdGlvbg0K
+RW1haWw6IGtyaXMuZGF2aXNAd2RjLmNvbQ0KT2ZmaWNlOjogKzEtNTA3LTMyMi0yMzc2DQoNCi0t
+LS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBhYmhpc2hlayBrb3VuZGFsIFttYWlsdG86
+YWtvdW5kYWxAZ21haWwuY29tXSANClNlbnQ6IFdlZG5lc2RheSwgTWFyY2ggMjEsIDIwMTggMjow
+MCBQTQ0KVG86IEtyaXMgRGF2aXMgPEtyaXMuRGF2aXNAd2RjLmNvbT4NCkNjOiBmaW8gPGZpb0B2
+Z2VyLmtlcm5lbC5vcmc+DQpTdWJqZWN0OiBSZTogRklPIGxhdGVuY3kgYmluIG1pZHBvaW50IHZz
+IHVwcGVyIGxpbWl0IGNhcHR1cmUNCg0KVGhhdCBpcyBob3cgdGhlIHRvb2wgZG9lcyBieSBkZWZh
+dWx0IHVubGVzcyBpdCBoYXMgYmVlbiBjaGFuZ2VkIGluIHRoZSAzLjArIHZlcnNpb25zIHdoZXJl
+IHRoZXJlIGFyZSBubyBiaW5zIGJ1dCAgY29tcGxldGlvbiB0aW1lIHZzIGlvcHMgbGFuZGluZyBp
+biB0aGF0IHpvbmUuDQpJZiBJIHJlY2FsbCBwcmlvciB0byAzLjAsIGl0IHdhcyBiaW5zIC0+IDAg
+LCAxIC4uLjEyeHguDQoNCk9uIFdlZCwgTWFyIDIxLCAyMDE4IGF0IDEwOjU5IEFNLCBLcmlzIERh
+dmlzIDxLcmlzLkRhdmlzQHdkYy5jb20+IHdyb3RlOg0KPiBXaGF0IGFyZSB5b3UgZG9pbmcgdG8g
+c2VlIGEgInJlcG9ydCIgb2YgdGhlIG1pZCBsYXRlbmN5Pw0KPg0KPiBLcmlzIERhdmlzDQo+DQo+
+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IGZpby1vd25lckB2Z2VyLmtlcm5l
+bC5vcmcgW21haWx0bzpmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnXSBPbiANCj4gQmVoYWxmIE9m
+IGFiaGlzaGVrIGtvdW5kYWwNCj4gU2VudDogV2VkbmVzZGF5LCBNYXJjaCAyMSwgMjAxOCAxMjo1
+NSBQTQ0KPiBUbzogZmlvIDxmaW9Admdlci5rZXJuZWwub3JnPg0KPiBTdWJqZWN0OiBSZTogRklP
+IGxhdGVuY3kgYmluIG1pZHBvaW50IHZzIHVwcGVyIGxpbWl0IGNhcHR1cmUNCj4NCj4gQ2hlY2tp
+bmcgYmFjayBpZiB0aGVyZSBpcyBhbnkgZmVlZGJhY2sgb24gdGhlIGFib3ZlIHJlcXVlc3QgZm9y
+IHJlcG9ydGluZyBtYXggbGF0ZW5jeSBpbiB0aGUgYmlucy4NCj4gQXBwcmVjaWF0ZSB0aGUgc3Vw
+cG9ydC4NCj4NCj4gT24gV2VkLCBNYXIgMTQsIDIwMTggYXQgMjowNyBQTSwgYWJoaXNoZWsga291
+bmRhbCA8YWtvdW5kYWxAZ21haWwuY29tPiB3cm90ZToNCj4+IEFsbCwNCj4+IEN1cnJlbnRseSB0
+aGUgRklPIGxhdGVuY3kgIGJpbnMgZG9lcyB0aGUgaS9vIGNvdW50IGFuZCBidXQgdGhlbiBhcyAN
+Cj4+IHBlciBMb3dlciBib3VuZCwgbWlkcG9pbnQgKHJvdW5kZWQgb2ZmKSwgdXBwZXIgbGltaXQN
+Cj4+DQo+PiBUaGUgcmVwb3J0ZWQgbGF0ZW5jeSBpcyB0aGUgYmFzZWQgb24gdGhlICJtaWRwb2lu
+dCIuDQo+PiBJcyB0aGVyZSBhIHdheSB0byByZXBvcnQgaXQgYmFzZWQgb24gdGhlICJ1cHBlciBs
+aW1pdCI/IGUuZy4gY29tcGlsZSANCj4+IGZpbyB3aXRoIHNvbWUgc3dpdGNoIGV0Yy4NCj4+DQo+
+PiBBcHByZWNpYXRlIHlvdXIgc3VwcG9ydCBhbHdheXMgOikuDQo+Pg0KPj4gLS0NCj4+IExpZmUg
+aXMgdG9vIHNob3J0IGZvciBzaWxseSB0aGluZ3Mgc28gaW52ZXN0IHlvdXIgdGltZSBpbiBzb21l
+IA0KPj4gcHJvZHVjdGl2ZSBvdXRwdXRzISENCj4NCj4NCj4NCj4gLS0NCj4gTGlmZSBpcyB0b28g
+c2hvcnQgZm9yIHNpbGx5IHRoaW5ncyBzbyBpbnZlc3QgeW91ciB0aW1lIGluIHNvbWUgcHJvZHVj
+dGl2ZSBvdXRwdXRzISENCj4gLS0NCj4gVG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNl
+bmQgdGhlIGxpbmUgInVuc3Vic2NyaWJlIGZpbyIgaW4gdGhlIA0KPiBib2R5IG9mIGEgbWVzc2Fn
+ZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnIE1vcmUgbWFqb3Jkb21vIGluZm8gYXQgIA0K
+PiBodHRwOi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwNCg0KDQoNCi0tDQpM
+aWZlIGlzIHRvbyBzaG9ydCBmb3Igc2lsbHkgdGhpbmdzIHNvIGludmVzdCB5b3VyIHRpbWUgaW4g
+c29tZSBwcm9kdWN0aXZlIG91dHB1dHMhIQ0K
