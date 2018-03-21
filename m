@@ -1,6 +1,5 @@
 Return-Path: <axboe@kernel.dk>
 Subject: Re: fio server/client disconnect bug
-From: Jens Axboe <axboe@kernel.dk>
 References: <BN3PR0401MB1457692506FCB2E385AE2A2E8FCB0@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <47cd0e78-d881-a776-7f2d-c292b35e8211@kernel.dk>
  <5d0275d2-889e-314e-63bd-240d326beb47@kernel.dk>
@@ -16,84 +15,78 @@ References: <BN3PR0401MB1457692506FCB2E385AE2A2E8FCB0@BN3PR0401MB1457.namprd04.p
  <SN6PR04MB4064F083D89C0947AB30857A8FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
  <82ede445-cba9-8611-0d28-0f21aaab3875@kernel.dk>
  <SN6PR04MB406466E455A80B33C8F6B1958FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
- <edd3e654-56fb-bb87-af68-0853c8ab003a@kernel.dk>
-Message-ID: <b720d1a8-f258-7605-8ba8-f0f3d2b39c91@kernel.dk>
-Date: Wed, 21 Mar 2018 15:51:07 -0600
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <edd3e654-56fb-bb87-af68-0853c8ab003a@kernel.dk>
+Date: Wed, 21 Mar 2018 15:47:19 -0600
 MIME-Version: 1.0
-In-Reply-To: <edd3e654-56fb-bb87-af68-0853c8ab003a@kernel.dk>
+In-Reply-To: <SN6PR04MB406466E455A80B33C8F6B1958FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
 Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 To: Jeff Furlong <jeff.furlong@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-Done: http://git.kernel.dk/cgit/fio/commit/?id=b647a293d70949b8c401772936a8000d10eb1bb9
+OK good, I will commit the fix.
+
+The summary is not to do those commands inline. Usually we don't have
+issues with inline vs out-of-line ordering, since we don't queue
+deeply or depend on ordering. But for this specific case, it's pretty
+unfortunate if commands we already queued up are not processed, before
+the client sends a stop/quit and finishes.
 
 
-On 3/21/18 3:47 PM, Jens Axboe wrote:
-> OK good, I will commit the fix.
+On 3/21/18 3:45 PM, Jeff Furlong wrote:
+> Ran over 600 iterations so far without issue.  Will keep running to get a higher confidence.  That way this issue will be fresh in our minds, given the fun sequence we just traced through.
 > 
-> The summary is not to do those commands inline. Usually we don't have
-> issues with inline vs out-of-line ordering, since we don't queue
-> deeply or depend on ordering. But for this specific case, it's pretty
-> unfortunate if commands we already queued up are not processed, before
-> the client sends a stop/quit and finishes.
+> So the summary is to not add the QUIT command to the inline queue, and just process it like most other typical commands?  The only thing that gets processed separately are errors or triggers?
+> 
+> Regards,
+> Jeff
 > 
 > 
-> On 3/21/18 3:45 PM, Jeff Furlong wrote:
->> Ran over 600 iterations so far without issue.  Will keep running to get a higher confidence.  That way this issue will be fresh in our minds, given the fun sequence we just traced through.
->>
->> So the summary is to not add the QUIT command to the inline queue, and just process it like most other typical commands?  The only thing that gets processed separately are errors or triggers?
->>
->> Regards,
->> Jeff
->>
->>
->> -----Original Message-----
->> From: Jens Axboe [mailto:axboe@kernel.dk] 
->> Sent: Wednesday, March 21, 2018 12:50 PM
->> To: Jeff Furlong <jeff.furlong@wdc.com>; fio@vger.kernel.org
->> Subject: Re: fio server/client disconnect bug
->>
->> On 3/21/18 1:45 PM, Jeff Furlong wrote:
->>> There is noticeable slowdown with this patch.  Seems some iterations (even successful) are taking several seconds of usleep().  Eventually hit a new issue:
->>>
->>> fio: client host1, timeout on cmd SEND_ETA
->>> fio: client host1 timed out
->>>
->>> But host1 still logged the iops/bw/lat logs, but did not send summary to output.
->>
->> Can you try this one?
->>
->>
->> diff --git a/server.c b/server.c
->> index 65d4484edae5..6064d8172a3b 100644
->> --- a/server.c
->> +++ b/server.c
->> @@ -616,7 +616,7 @@ static int fio_net_queue_quit(void)  {
->>  	dprint(FD_NET, "server: sending quit\n");
->>  
->> -	return fio_net_queue_cmd(FIO_NET_CMD_QUIT, NULL, 0, NULL, SK_F_SIMPLE | SK_F_INLINE);
->> +	return fio_net_queue_cmd(FIO_NET_CMD_QUIT, NULL, 0, NULL, 
->> +SK_F_SIMPLE);
->>  }
->>  
->>  int fio_net_send_quit(int sk)
->> @@ -636,7 +636,7 @@ static int fio_net_send_ack(struct fio_net_cmd *cmd, int error, int signal)
->>  
->>  	epdu.error = __cpu_to_le32(error);
->>  	epdu.signal = __cpu_to_le32(signal);
->> -	return fio_net_queue_cmd(FIO_NET_CMD_STOP, &epdu, sizeof(epdu), &tag, SK_F_COPY | SK_F_INLINE);
->> +	return fio_net_queue_cmd(FIO_NET_CMD_STOP, &epdu, sizeof(epdu), &tag, 
->> +SK_F_COPY);
->>  }
->>  
->>  static int fio_net_queue_stop(int error, int signal)
->>
->> --
->> Jens Axboe
->>
+> -----Original Message-----
+> From: Jens Axboe [mailto:axboe@kernel.dk] 
+> Sent: Wednesday, March 21, 2018 12:50 PM
+> To: Jeff Furlong <jeff.furlong@wdc.com>; fio@vger.kernel.org
+> Subject: Re: fio server/client disconnect bug
 > 
+> On 3/21/18 1:45 PM, Jeff Furlong wrote:
+>> There is noticeable slowdown with this patch.  Seems some iterations (even successful) are taking several seconds of usleep().  Eventually hit a new issue:
+>>
+>> fio: client host1, timeout on cmd SEND_ETA
+>> fio: client host1 timed out
+>>
+>> But host1 still logged the iops/bw/lat logs, but did not send summary to output.
+> 
+> Can you try this one?
+> 
+> 
+> diff --git a/server.c b/server.c
+> index 65d4484edae5..6064d8172a3b 100644
+> --- a/server.c
+> +++ b/server.c
+> @@ -616,7 +616,7 @@ static int fio_net_queue_quit(void)  {
+>  	dprint(FD_NET, "server: sending quit\n");
+>  
+> -	return fio_net_queue_cmd(FIO_NET_CMD_QUIT, NULL, 0, NULL, SK_F_SIMPLE | SK_F_INLINE);
+> +	return fio_net_queue_cmd(FIO_NET_CMD_QUIT, NULL, 0, NULL, 
+> +SK_F_SIMPLE);
+>  }
+>  
+>  int fio_net_send_quit(int sk)
+> @@ -636,7 +636,7 @@ static int fio_net_send_ack(struct fio_net_cmd *cmd, int error, int signal)
+>  
+>  	epdu.error = __cpu_to_le32(error);
+>  	epdu.signal = __cpu_to_le32(signal);
+> -	return fio_net_queue_cmd(FIO_NET_CMD_STOP, &epdu, sizeof(epdu), &tag, SK_F_COPY | SK_F_INLINE);
+> +	return fio_net_queue_cmd(FIO_NET_CMD_STOP, &epdu, sizeof(epdu), &tag, 
+> +SK_F_COPY);
+>  }
+>  
+>  static int fio_net_queue_stop(int error, int signal)
+> 
+> --
+> Jens Axboe
 > 
 
 
