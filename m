@@ -1,8 +1,6 @@
-Return-Path: <prvs=611231c00=jeff.furlong@wdc.com>
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: RE: fio server/client disconnect bug
-Date: Wed, 21 Mar 2018 19:45:13 +0000
-Message-ID: <SN6PR04MB4064F083D89C0947AB30857A8FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: fio server/client disconnect bug
+From: Jens Axboe <axboe@kernel.dk>
 References: <BN3PR0401MB1457692506FCB2E385AE2A2E8FCB0@BN3PR0401MB1457.namprd04.prod.outlook.com>
  <SN6PR04MB4064CEF242E2091737402D268FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
  <47cd0e78-d881-a776-7f2d-c292b35e8211@kernel.dk>
@@ -16,70 +14,60 @@ References: <BN3PR0401MB1457692506FCB2E385AE2A2E8FCB0@BN3PR0401MB1457.namprd04.p
  <590553ff-0e9c-b679-1bcc-be9ae3a840ef@kernel.dk>
  <027c68c5-549d-8b4e-f606-84f8b321eb04@kernel.dk>
  <920b95c9-070a-b3ba-1da3-8b28cf9a82d9@kernel.dk>
-In-Reply-To: <920b95c9-070a-b3ba-1da3-8b28cf9a82d9@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Message-ID: <8a03a9db-37cc-4079-b726-6cc96f7d516a@kernel.dk>
+Date: Wed, 21 Mar 2018 13:44:33 -0600
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <920b95c9-070a-b3ba-1da3-8b28cf9a82d9@kernel.dk>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Jeff Furlong <jeff.furlong@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-There is noticeable slowdown with this patch.  Seems some iterations (even =
-successful) are taking several seconds of usleep().  Eventually hit a new i=
-ssue:
+On 3/21/18 1:10 PM, Jens Axboe wrote:
+> On 3/21/18 1:03 PM, Jens Axboe wrote:
+>> Shoot, I think I see what it is. Some commands we punt to out-of-line
+>> sending, others we do inline. STOP/QUIT are inline, whereas the ts/gs/du
+>> are not. So we could potentially have a situation where we queue up the
+>> ts/gs/du, but then process the STOP/QUIT first. If we do that, then we
+>> don't get any output...
+>>
+>> Let me think about this for a bit, and see what I can come up with.
+> 
+> Can you try with this? Can be improved to have the thread signal us,
+> but it should be a rare occurrence and a 1ms stall from this context
+> isn't a concern.
+> 
+> diff --git a/server.c b/server.c
+> index 65d4484edae5..52bcf7bf44c6 100644
+> --- a/server.c
+> +++ b/server.c
+> @@ -551,9 +551,15 @@ static void fio_net_queue_entry(struct sk_entry *entry)
+>  {
+>  	struct sk_out *sk_out = pthread_getspecific(sk_out_key);
+>  
+> -	if (entry->flags & SK_F_INLINE)
+> +	if (entry->flags & SK_F_INLINE) {
+> +		/*
+> +		 * Honor ordering - if the out-of-line queue isn't empty,
+> +		 * wait for it to drain before proceeding.
+> +		 */
+> +		while (!flist_empty(&sk_out->list))
+> +			usleep(1000);
+>  		handle_sk_entry(sk_out, entry);
+> -	else {
+> +	} else {
+>  		sk_lock(sk_out);
+>  		flist_add_tail(&entry->list, &sk_out->list);
+>  		sk_unlock(sk_out);
 
-fio: client host1, timeout on cmd SEND_ETA
-fio: client host1 timed out
+Actually, this probably won't work since we also end up doing
+inline commands from the loop that handles the out-of-line
+commands. So the above can deadlock in that scenario.
 
-But host1 still logged the iops/bw/lat logs, but did not send summary to ou=
-tput.
+Back to the drawing board...
 
-Regards,
-Jeff
-
------Original Message-----
-From: Jens Axboe [mailto:axboe@kernel.dk]=20
-Sent: Wednesday, March 21, 2018 12:10 PM
-To: Jeff Furlong <jeff.furlong@wdc.com>; fio@vger.kernel.org
-Subject: Re: fio server/client disconnect bug
-
-On 3/21/18 1:03 PM, Jens Axboe wrote:
-> Shoot, I think I see what it is. Some commands we punt to out-of-line=20
-> sending, others we do inline. STOP/QUIT are inline, whereas the=20
-> ts/gs/du are not. So we could potentially have a situation where we=20
-> queue up the ts/gs/du, but then process the STOP/QUIT first. If we do=20
-> that, then we don't get any output...
->=20
-> Let me think about this for a bit, and see what I can come up with.
-
-Can you try with this? Can be improved to have the thread signal us, but it=
- should be a rare occurrence and a 1ms stall from this context isn't a conc=
-ern.
-
-diff --git a/server.c b/server.c
-index 65d4484edae5..52bcf7bf44c6 100644
---- a/server.c
-+++ b/server.c
-@@ -551,9 +551,15 @@ static void fio_net_queue_entry(struct sk_entry *entry=
-)  {
- 	struct sk_out *sk_out =3D pthread_getspecific(sk_out_key);
-=20
--	if (entry->flags & SK_F_INLINE)
-+	if (entry->flags & SK_F_INLINE) {
-+		/*
-+		 * Honor ordering - if the out-of-line queue isn't empty,
-+		 * wait for it to drain before proceeding.
-+		 */
-+		while (!flist_empty(&sk_out->list))
-+			usleep(1000);
- 		handle_sk_entry(sk_out, entry);
--	else {
-+	} else {
- 		sk_lock(sk_out);
- 		flist_add_tail(&entry->list, &sk_out->list);
- 		sk_unlock(sk_out);
-
---
+-- 
 Jens Axboe
 
 
