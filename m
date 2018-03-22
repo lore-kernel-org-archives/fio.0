@@ -1,67 +1,47 @@
-Return-Path: <axboe@kernel.dk>
+Return-Path: <prvs=6124e0dd9=Bart.VanAssche@wdc.com>
+From: Bart Van Assche <Bart.VanAssche@wdc.com>
 Subject: Re: valgrind spews
+Date: Thu, 22 Mar 2018 17:12:09 +0000
+Message-ID: <1521738727.2637.14.camel@sandisk.com>
 References: <a7527854-7ed3-a074-278e-e75f75cec4e7@kernel.dk>
- <CALjAwxgaVddxmgzkM6S7d6SP0FTdBT9y6QeO58L870qxBYDqAg@mail.gmail.com>
- <ed74b20d-cd3b-2b0a-89d1-188be58a5dae@kernel.dk>
- <1521738727.2637.14.camel@sandisk.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <3e6568da-0dfe-7d4a-138d-f04e43a3dd7b@kernel.dk>
-Date: Thu, 22 Mar 2018 11:23:21 -0600
-MIME-Version: 1.0
-In-Reply-To: <1521738727.2637.14.camel@sandisk.com>
-Content-Type: text/plain; charset=utf-8
+	 <CALjAwxgaVddxmgzkM6S7d6SP0FTdBT9y6QeO58L870qxBYDqAg@mail.gmail.com>
+	 <ed74b20d-cd3b-2b0a-89d1-188be58a5dae@kernel.dk>
+In-Reply-To: <ed74b20d-cd3b-2b0a-89d1-188be58a5dae@kernel.dk>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Bart Van Assche <Bart.VanAssche@wdc.com>, "sitsofe@gmail.com" <sitsofe@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <51FB2388A0ED434F8D0415F4EE9BB96D@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: "sitsofe@gmail.com" <sitsofe@gmail.com>, "axboe@kernel.dk" <axboe@kernel.dk>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 3/22/18 11:12 AM, Bart Van Assche wrote:
-> On Thu, 2018-03-22 at 11:01 -0600, Jens Axboe wrote:
->> Run it as a server:
->>
->> $ valgrind ./fio --server
->> $ ./fio --client=localhost null.fio
->>
->> $ cat null.fio
->> [null]
->> bs=4k
->> ioengine=null
->> size=1g
->> rw=read
->>
->> The above was supposed to say "fio server", but apparently I missed
->> putting that in...
-> 
-> If I run that test, Valgrind only reports the following on my laptop:
-> 
-> ==17458== Conditional jump or move depends on uninitialised value(s)
-> ==17458==    at 0x463FFD: __sk_out_drop (server.c:142)
-> ==17458==    by 0x463FFD: handle_connection (server.c:1257)
-> ==17458==    by 0x463FFD: accept_loop (server.c:1389)
-> ==17458==    by 0x463FFD: fio_server (server.c:2468)
-> ==17458==    by 0x464894: fio_start_server (server.c:2552)
-> ==17458==    by 0x426F8E: parse_cmd_line (init.c:2880)
-> ==17458==    by 0x427602: parse_options (init.c:2931)
-> ==17458==    by 0x41134A: main (fio.c:42)
-> ==17458== 
-> ==17458== Conditional jump or move depends on uninitialised value(s)
-> ==17458==    at 0x46400F: __sk_out_drop (server.c:146)
-> ==17458==    by 0x46400F: handle_connection (server.c:1257)
-> ==17458==    by 0x46400F: accept_loop (server.c:1389)
-> ==17458==    by 0x46400F: fio_server (server.c:2468)
-> ==17458==    by 0x464894: fio_start_server (server.c:2552)
-> ==17458==    by 0x426F8E: parse_cmd_line (init.c:2880)
-> ==17458==    by 0x427602: parse_options (init.c:2931)
-> ==17458==    by 0x41134A: main (fio.c:42)
-> 
-> Where is the sk_out structure allocated? Can Valgrind know whether or not
-> that structure has been initialized?
-
-In server.c:accept_loop() and that structure is memset at alloc
-time as it's coming out of smalloc().
-
--- 
-Jens Axboe
-
+T24gVGh1LCAyMDE4LTAzLTIyIGF0IDExOjAxIC0wNjAwLCBKZW5zIEF4Ym9lIHdyb3RlOg0KPiBS
+dW4gaXQgYXMgYSBzZXJ2ZXI6DQo+IA0KPiAkIHZhbGdyaW5kIC4vZmlvIC0tc2VydmVyDQo+ICQg
+Li9maW8gLS1jbGllbnQ9bG9jYWxob3N0IG51bGwuZmlvDQo+IA0KPiAkIGNhdCBudWxsLmZpbw0K
+PiBbbnVsbF0NCj4gYnM9NGsNCj4gaW9lbmdpbmU9bnVsbA0KPiBzaXplPTFnDQo+IHJ3PXJlYWQN
+Cj4gDQo+IFRoZSBhYm92ZSB3YXMgc3VwcG9zZWQgdG8gc2F5ICJmaW8gc2VydmVyIiwgYnV0IGFw
+cGFyZW50bHkgSSBtaXNzZWQNCj4gcHV0dGluZyB0aGF0IGluLi4uDQoNCklmIEkgcnVuIHRoYXQg
+dGVzdCwgVmFsZ3JpbmQgb25seSByZXBvcnRzIHRoZSBmb2xsb3dpbmcgb24gbXkgbGFwdG9wOg0K
+DQo9PTE3NDU4PT0gQ29uZGl0aW9uYWwganVtcCBvciBtb3ZlIGRlcGVuZHMgb24gdW5pbml0aWFs
+aXNlZCB2YWx1ZShzKQ0KPT0xNzQ1OD09ICAgIGF0IDB4NDYzRkZEOiBfX3NrX291dF9kcm9wIChz
+ZXJ2ZXIuYzoxNDIpDQo9PTE3NDU4PT0gICAgYnkgMHg0NjNGRkQ6IGhhbmRsZV9jb25uZWN0aW9u
+IChzZXJ2ZXIuYzoxMjU3KQ0KPT0xNzQ1OD09ICAgIGJ5IDB4NDYzRkZEOiBhY2NlcHRfbG9vcCAo
+c2VydmVyLmM6MTM4OSkNCj09MTc0NTg9PSAgICBieSAweDQ2M0ZGRDogZmlvX3NlcnZlciAoc2Vy
+dmVyLmM6MjQ2OCkNCj09MTc0NTg9PSAgICBieSAweDQ2NDg5NDogZmlvX3N0YXJ0X3NlcnZlciAo
+c2VydmVyLmM6MjU1MikNCj09MTc0NTg9PSAgICBieSAweDQyNkY4RTogcGFyc2VfY21kX2xpbmUg
+KGluaXQuYzoyODgwKQ0KPT0xNzQ1OD09ICAgIGJ5IDB4NDI3NjAyOiBwYXJzZV9vcHRpb25zIChp
+bml0LmM6MjkzMSkNCj09MTc0NTg9PSAgICBieSAweDQxMTM0QTogbWFpbiAoZmlvLmM6NDIpDQo9
+PTE3NDU4PT0gDQo9PTE3NDU4PT0gQ29uZGl0aW9uYWwganVtcCBvciBtb3ZlIGRlcGVuZHMgb24g
+dW5pbml0aWFsaXNlZCB2YWx1ZShzKQ0KPT0xNzQ1OD09ICAgIGF0IDB4NDY0MDBGOiBfX3NrX291
+dF9kcm9wIChzZXJ2ZXIuYzoxNDYpDQo9PTE3NDU4PT0gICAgYnkgMHg0NjQwMEY6IGhhbmRsZV9j
+b25uZWN0aW9uIChzZXJ2ZXIuYzoxMjU3KQ0KPT0xNzQ1OD09ICAgIGJ5IDB4NDY0MDBGOiBhY2Nl
+cHRfbG9vcCAoc2VydmVyLmM6MTM4OSkNCj09MTc0NTg9PSAgICBieSAweDQ2NDAwRjogZmlvX3Nl
+cnZlciAoc2VydmVyLmM6MjQ2OCkNCj09MTc0NTg9PSAgICBieSAweDQ2NDg5NDogZmlvX3N0YXJ0
+X3NlcnZlciAoc2VydmVyLmM6MjU1MikNCj09MTc0NTg9PSAgICBieSAweDQyNkY4RTogcGFyc2Vf
+Y21kX2xpbmUgKGluaXQuYzoyODgwKQ0KPT0xNzQ1OD09ICAgIGJ5IDB4NDI3NjAyOiBwYXJzZV9v
+cHRpb25zIChpbml0LmM6MjkzMSkNCj09MTc0NTg9PSAgICBieSAweDQxMTM0QTogbWFpbiAoZmlv
+LmM6NDIpDQoNCldoZXJlIGlzIHRoZSBza19vdXQgc3RydWN0dXJlIGFsbG9jYXRlZD8gQ2FuIFZh
+bGdyaW5kIGtub3cgd2hldGhlciBvciBub3QNCnRoYXQgc3RydWN0dXJlIGhhcyBiZWVuIGluaXRp
+YWxpemVkPw0KDQpUaGFua3MsDQoNCkJhcnQuDQoNCg0K
 
