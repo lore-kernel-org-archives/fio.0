@@ -1,38 +1,67 @@
-Return-Path: <prvs=6124e0dd9=Bart.VanAssche@wdc.com>
-From: Bart Van Assche <Bart.VanAssche@wdc.com>
+Return-Path: <axboe@kernel.dk>
 Subject: Re: valgrind spews
-Date: Thu, 22 Mar 2018 17:27:59 +0000
-Message-ID: <1521739678.2637.16.camel@wdc.com>
 References: <a7527854-7ed3-a074-278e-e75f75cec4e7@kernel.dk>
-	 <CALjAwxgaVddxmgzkM6S7d6SP0FTdBT9y6QeO58L870qxBYDqAg@mail.gmail.com>
-	 <ed74b20d-cd3b-2b0a-89d1-188be58a5dae@kernel.dk>
-	 <1521738727.2637.14.camel@sandisk.com>
-	 <3e6568da-0dfe-7d4a-138d-f04e43a3dd7b@kernel.dk>
-In-Reply-To: <3e6568da-0dfe-7d4a-138d-f04e43a3dd7b@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <24874A13D9989F4D9A8EADB5C13CD128@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+ <CALjAwxgaVddxmgzkM6S7d6SP0FTdBT9y6QeO58L870qxBYDqAg@mail.gmail.com>
+ <ed74b20d-cd3b-2b0a-89d1-188be58a5dae@kernel.dk>
+ <1521738727.2637.14.camel@sandisk.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <3e6568da-0dfe-7d4a-138d-f04e43a3dd7b@kernel.dk>
+Date: Thu, 22 Mar 2018 11:23:21 -0600
 MIME-Version: 1.0
-To: "sitsofe@gmail.com" <sitsofe@gmail.com>, "axboe@kernel.dk" <axboe@kernel.dk>
+In-Reply-To: <1521738727.2637.14.camel@sandisk.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Bart Van Assche <Bart.VanAssche@wdc.com>, "sitsofe@gmail.com" <sitsofe@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-T24gVGh1LCAyMDE4LTAzLTIyIGF0IDExOjIzIC0wNjAwLCBKZW5zIEF4Ym9lIHdyb3RlOg0KPiBP
-biAzLzIyLzE4IDExOjEyIEFNLCBCYXJ0IFZhbiBBc3NjaGUgd3JvdGU6DQo+ID4gV2hlcmUgaXMg
-dGhlIHNrX291dCBzdHJ1Y3R1cmUgYWxsb2NhdGVkPyBDYW4gVmFsZ3JpbmQga25vdyB3aGV0aGVy
-IG9yIG5vdA0KPiA+IHRoYXQgc3RydWN0dXJlIGhhcyBiZWVuIGluaXRpYWxpemVkPw0KPiANCj4g
-SW4gc2VydmVyLmM6YWNjZXB0X2xvb3AoKSBhbmQgdGhhdCBzdHJ1Y3R1cmUgaXMgbWVtc2V0IGF0
-IGFsbG9jDQo+IHRpbWUgYXMgaXQncyBjb21pbmcgb3V0IG9mIHNtYWxsb2MoKS4NCg0KV291bGQg
-eW91IGJlIE9LIHdpdGggY2hhbmdpbmcgdGhhdCBzbWFsbG9jKCkgY2FsbCBpbnRvIHNjYWxsb2Mo
-KSBzdWNoIHRoYXQNClZhbGdyaW5kIGtub3dzIHRoYXQgdGhhdCBzdHJ1Y3R1cmUgaXMgaW5pdGlh
-bGl6ZWQ/IE9uIG15IGxhcHRvcCB0aGUgZm9sbG93aW5nDQppcyBzdWZmaWNpZW50IHRvIHN1cHBy
-ZXNzIHRoZSBjb21wbGFpbnRzIG1lbnRpb25lZCBpbiBteSBwcmV2aW91cyBlLW1haWw6DQoNCmRp
-ZmYgLS1naXQgYS9zZXJ2ZXIuYyBiL3NlcnZlci5jDQppbmRleCAxNWRjMmM0YjM4YmEuLmQzZjY5
-Nzc0MTY1ZiAxMDA2NDQNCi0tLSBhL3NlcnZlci5jDQorKysgYi9zZXJ2ZXIuYw0KQEAgLTEzNTks
-NyArMTM1OSw3IEBAIHN0YXRpYyBpbnQgYWNjZXB0X2xvb3AoaW50IGxpc3Rlbl9zaykNCiANCiAJ
-CWRwcmludChGRF9ORVQsICJzZXJ2ZXI6IGNvbm5lY3QgZnJvbSAlc1xuIiwgZnJvbSk7DQogDQot
-CQlza19vdXQgPSBzbWFsbG9jKHNpemVvZigqc2tfb3V0KSk7DQorCQlza19vdXQgPSBzY2FsbG9j
-KDEsIHNpemVvZigqc2tfb3V0KSk7DQogCQlpZiAoIXNrX291dCkgew0KIAkJCWNsb3NlKHNrKTsN
-CiAJCQlyZXR1cm4gLTE7DQoNClRoYW5rcywNCg0KQmFydC4NCg0K
+On 3/22/18 11:12 AM, Bart Van Assche wrote:
+> On Thu, 2018-03-22 at 11:01 -0600, Jens Axboe wrote:
+>> Run it as a server:
+>>
+>> $ valgrind ./fio --server
+>> $ ./fio --client=localhost null.fio
+>>
+>> $ cat null.fio
+>> [null]
+>> bs=4k
+>> ioengine=null
+>> size=1g
+>> rw=read
+>>
+>> The above was supposed to say "fio server", but apparently I missed
+>> putting that in...
+> 
+> If I run that test, Valgrind only reports the following on my laptop:
+> 
+> ==17458== Conditional jump or move depends on uninitialised value(s)
+> ==17458==    at 0x463FFD: __sk_out_drop (server.c:142)
+> ==17458==    by 0x463FFD: handle_connection (server.c:1257)
+> ==17458==    by 0x463FFD: accept_loop (server.c:1389)
+> ==17458==    by 0x463FFD: fio_server (server.c:2468)
+> ==17458==    by 0x464894: fio_start_server (server.c:2552)
+> ==17458==    by 0x426F8E: parse_cmd_line (init.c:2880)
+> ==17458==    by 0x427602: parse_options (init.c:2931)
+> ==17458==    by 0x41134A: main (fio.c:42)
+> ==17458== 
+> ==17458== Conditional jump or move depends on uninitialised value(s)
+> ==17458==    at 0x46400F: __sk_out_drop (server.c:146)
+> ==17458==    by 0x46400F: handle_connection (server.c:1257)
+> ==17458==    by 0x46400F: accept_loop (server.c:1389)
+> ==17458==    by 0x46400F: fio_server (server.c:2468)
+> ==17458==    by 0x464894: fio_start_server (server.c:2552)
+> ==17458==    by 0x426F8E: parse_cmd_line (init.c:2880)
+> ==17458==    by 0x427602: parse_options (init.c:2931)
+> ==17458==    by 0x41134A: main (fio.c:42)
+> 
+> Where is the sk_out structure allocated? Can Valgrind know whether or not
+> that structure has been initialized?
+
+In server.c:accept_loop() and that structure is memset at alloc
+time as it's coming out of smalloc().
+
+-- 
+Jens Axboe
+
 
