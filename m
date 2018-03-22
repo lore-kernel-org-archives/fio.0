@@ -1,8 +1,6 @@
-Return-Path: <prvs=61395e13e=Kris.Davis@wdc.com>
-From: Kris Davis <Kris.Davis@wdc.com>
-Subject: RE: fiologparser_hist.py script patch and enhancements?
-Date: Fri, 23 Mar 2018 17:22:55 +0000
-Message-ID: <CY1PR0401MB1116E3DFC544CB0B0B30C6D981A80@CY1PR0401MB1116.namprd04.prod.outlook.com>
+Return-Path: <sitsofe@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <CY1PR0401MB1116D372A224C01B8CEED04281AB0@CY1PR0401MB1116.namprd04.prod.outlook.com>
 References: <CY1PR0401MB11163E6C999998E0A2F13F9E81F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CY1PR0401MB111689EE46B3839EB0675D7B81F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CY1PR0401MB1116307F93264CDB7F09870981F70@CY1PR0401MB1116.namprd04.prod.outlook.com>
@@ -20,103 +18,129 @@ References: <CY1PR0401MB11163E6C999998E0A2F13F9E81F70@CY1PR0401MB1116.namprd04.p
  <CALjAwxgtTM--wW-NwkDe_5RWGeZQ=FUQUH_HXK8hOsci5pDpxA@mail.gmail.com>
  <CY1PR0401MB1116782C9FD301E23D24A4A281D40@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CY1PR0401MB1116D372A224C01B8CEED04281AB0@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CALjAwxgyTBM3C09bGJ5ivqxCh2ghDCVy=U-tVOudL5uN6Y1zsA@mail.gmail.com>
-In-Reply-To: <CALjAwxgyTBM3C09bGJ5ivqxCh2ghDCVy=U-tVOudL5uN6Y1zsA@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Thu, 22 Mar 2018 14:47:16 +0000
+Message-ID: <CALjAwxgyTBM3C09bGJ5ivqxCh2ghDCVy=U-tVOudL5uN6Y1zsA@mail.gmail.com>
+Subject: Re: fiologparser_hist.py script patch and enhancements?
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+To: Kris Davis <Kris.Davis@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-U2l0c29mZSwNCg0KV293ISAgSXQgbG9va3MgbGlrZSB5b3Ugd2VudCB0aGUgZXh0cmEgbWlsZSBj
-aGVja2luZyB0aGlzIG91dC4gIEl0J3MgZ29pbmcgdG8gdGFrZSBtZSBhIGJpdCB0byBncm9rIHRo
-aXMsIEknbGwgaGF2ZSB0byBnZXQgYmFjayB0byB5b3UuDQoNClRoYW5rcyBtdWNoDQoNCktyaXMg
-RGF2aXMNCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IGZpby1vd25lckB2Z2Vy
-Lmtlcm5lbC5vcmcgW21haWx0bzpmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnXSBPbiBCZWhhbGYg
-T2YgU2l0c29mZSBXaGVlbGVyDQpTZW50OiBUaHVyc2RheSwgTWFyY2ggMjIsIDIwMTggOTo0NyBB
-TQ0KVG86IEtyaXMgRGF2aXMgPEtyaXMuRGF2aXNAd2RjLmNvbT4NCkNjOiBmaW9Admdlci5rZXJu
-ZWwub3JnOyBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+DQpTdWJqZWN0OiBSZTogZmlvbG9n
-cGFyc2VyX2hpc3QucHkgc2NyaXB0IHBhdGNoIGFuZCBlbmhhbmNlbWVudHM/DQoNCk9uIDIwIE1h
-cmNoIDIwMTggYXQgMDU6NTcsIEtyaXMgRGF2aXMgPEtyaXMuRGF2aXNAd2RjLmNvbT4gd3JvdGU6
-DQo+IEkgY3JlYXRlZCBhIHB1bGwgcmVxdWVzdCBmcm9tIGdpdGh1YiB3aXRoIHRoZSBsYXRlc3Qg
-Y2hhbmdlcywgYm90aCB0byBmaW9sb2dwYXJzZXJfaGlzdC5weSBhbmQgdGhlIGFzc29jaWF0ZWQg
-bWFuIHBhZ2UuICAgVGhpcyBpbmNsdWRlcyBhIG5ldyAiLS1kaXJlY3Rpb25zPXJ3dG0iIG9wdGlv
-biB0byBhbGxvdyBpbmRlcGVuZGVudCBkaXJlY3Rpb25hbCByZXN1bHRzIHRvIGJlIHByaW50ZWQg
-KHdpdGggYW4gYWRkZWQgJ2RpcicgY29sdW1uKS4NCg0KSSBzZWUgSmVucyBwdWxsZWQgaXQgaW4g
-c28gY29uZ3JhdHMgb24gc3RheWluZyB0aGUgY291cnNlIQ0KDQo+IElmIHRoZXJlIGlzIGEgd2F5
-IHRvIGluZmVyIHdoZXRoZXIgdGhlIGhpc3RvZ3JhbSByZXN1bHRzIGFyZSBpbiAnbnMnIG9yICdt
-cycgZnJvbSB0aGUgbnVtYmVyIG9mIGNvbHVtbnMsIHBsZWFzZSBsZXQgbWUga25vdy4gIEkgd29u
-ZGVyIGlmIHRoZSAnY29hcnNlbmVzcycgb3B0aW9uIG1pZ2h0IGJlIGEgZmFjdG9yIHRoZXkgbWln
-aHQgY29tcGxpY2F0ZSB0aGluZ3MuICBJJ20gbW9zdGx5IHJlbHlpbmcgb24gdGhlIG9yaWdpbmFs
-IHNjcmlwdCBvcGVyYXRpb24sIHJhdGhlciB0aGFuIGhhdmluZyBhIG1vcmUgY29tcGxldGUgdW5k
-ZXJzdGFuZGluZyBvZiB0aGUgZGVwZW5kZW5jaWVzLg0KDQpUaGUgY29hcnNlbmVzcyBkZWZpbml0
-ZWx5IGNvbXBsaWNhdGVzIHRoaW5ncyBidXQgaGVyZSBhcmUgbXkgdGhvdWdodHM6DQoNCklmIHlv
-dSBrbm93IHRoZSB0b3RhbCBjb2x1bW5zIGFuZCB5b3UncmUgd2lsbGluZyB0byBhc3N1bWUgZmlv
-IGNvbXBpbGUgZGVmYXVsdHMgeW91IGNhbiB0cnkgYW5kIGd1ZXNzIHdoZXRoZXIgRklPX0lPX1Vf
-UExBVF9HUk9VUF9OUiBpcyAxOSAoaW4gd2hpY2ggY2FzZSB5b3UgYXNzdW1lIHVzZWMpIG9yIDI5
-IChpbiB3aGljaCBjYXNlIHlvdSBhc3N1bWUgbnNlYykuDQoNCkZyb20gaW9sb2cuYzoNCiA3MjMg
-ICAgICAgICBpbnQgc3RyaWRlID0gMSA8PCBoaXN0X2NvYXJzZW5lc3M7DQpbLi4uXQ0KIDczNCAg
-ICAgICAgICAgICAgICAgcyA9IF9fZ2V0X3NhbXBsZShzYW1wbGVzLCBsb2dfb2Zmc2V0LCBpKTsN
-CiA3MzUNCiA3MzYgICAgICAgICAgICAgICAgIGVudHJ5ID0gcy0+ZGF0YS5wbGF0X2VudHJ5Ow0K
-IDczNyAgICAgICAgICAgICAgICAgaW9fdV9wbGF0ID0gZW50cnktPmlvX3VfcGxhdDsNCiA3MzgN
-CiA3MzkgICAgICAgICAgICAgICAgIGVudHJ5X2JlZm9yZSA9IGZsaXN0X2ZpcnN0X2VudHJ5KCZl
-bnRyeS0+bGlzdCwNCnN0cnVjdCBpb191X3BsYXRfZW50cnksIGxpc3QpOw0KIDc0MCAgICAgICAg
-ICAgICAgICAgaW9fdV9wbGF0X2JlZm9yZSA9IGVudHJ5X2JlZm9yZS0+aW9fdV9wbGF0Ow0KIDc0
-MQ0KIDc0MiAgICAgICAgICAgICAgICAgZnByaW50ZihmLCAiJWx1LCAldSwgJXUsICIsICh1bnNp
-Z25lZCBsb25nKSBzLT50aW1lLA0KIDc0MyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICBpb19zYW1wbGVfZGRpcihzKSwgcy0+YnMpOw0KIDc0NCAgICAgICAg
-ICAgICAgICAgZm9yIChqID0gMDsgaiA8IEZJT19JT19VX1BMQVRfTlIgLSBzdHJpZGU7IGogKz0g
-c3RyaWRlKSB7DQogNzQ1ICAgICAgICAgICAgICAgICAgICAgICAgIGZwcmludGYoZiwgIiVsbHUs
-ICIsICh1bnNpZ25lZCBsb25nIGxvbmcpDQogNzQ2ICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgaGlzdF9zdW0oaiwgc3RyaWRlLCBpb191X3BsYXQsDQppb191X3BsYXRfYmVmb3JlKSk7
-DQogNzQ3ICAgICAgICAgICAgICAgICB9DQogNzQ4ICAgICAgICAgICAgICAgICBmcHJpbnRmKGYs
-ICIlbGx1XG4iLCAodW5zaWduZWQgbG9uZyBsb25nKQ0KIDc0OSAgICAgICAgICAgICAgICAgICAg
-ICAgICBoaXN0X3N1bShGSU9fSU9fVV9QTEFUX05SIC0gc3RyaWRlLA0Kc3RyaWRlLCBpb191X3Bs
-YXQsDQogNzUwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBpb191X3Bs
-YXRfYmVmb3JlKSk7DQoNClNvIHdlIGNhbiB0ZWxsIHRoZSBudW1iZXIgb2YgY29sdW1ucyBpcyBy
-ZWxhdGVkIHRvIHRoZSAzICsgKEZJT19JT19VX1BMQVRfTlIgLyAoMiBeIGNvYXJzZW5lc3MpKSAr
-IDEuIFRoZSAzIGNvbWVzIGZyb20gcHJpbnRpbmcgdGhlIHRpbWUsIHRoZSBkYXRhIGRpcmVjdGlv
-biBhbmQgdGhlIGJsb2Nrc2l6ZSBjb2x1bW5zLiBJbiBweXRob24NCg0KZGVmIG1haW4oKToNCiAg
-ICBmb3IgcGduIGluIFsxOSwgMjldOg0KICAgICAgICBwcmludCgicGduPSVkOiIgJSAocGduKSks
-DQogICAgICAgIGZvciBjIGluIHJhbmdlKDcpOg0KICAgICAgICAgICAgcG4gPSAoMSA8PCA2KSAq
-IHBnbg0KICAgICAgICAgICAgcyA9ICgxIDw8IGMpDQogICAgICAgICAgICBwcmludCgoKHBuIC0g
-cykgLyBzKSArIDQpLA0KICAgICAgICBwcmludCgiIikNCg0KaWYgX19uYW1lX18gPT0gIl9fbWFp
-bl9fIjoNCiAgICBtYWluKCkNCg0KcHJpbnRzIHRoZSBmb2xsb3dpbmc6DQpwZ249MTk6IDEyMTkg
-NjExIDMwNyAxNTUgNzkgNDEgMjINCnBnbj0yOTogMTg1OSA5MzEgNDY3IDIzNSAxMTkgNjEgMzIN
-Cg0KUXVpY2sgY29tcGFyaXNvbjoNCiQgLi9maW8gLS12ZXJzaW9uDQpmaW8tMy41LTcwLWc0MGYx
-DQokIC4vZmlvIC0tbmFtZT10ZXN0IC0tcnc9cmVhZCAtLXJ1bnRpbWU9MjAwbXMgLS10aW1lX2Jh
-c2VkIC0tZmlsZW5hbWU9L3RtcC9maW8udG1wIC0tc2l6ZT0xTSAtLXdyaXRlX2hpc3RfbG9nPXRl
-c3QNCi0tbG9nX2hpc3RfbXNlYz0xMDAgLS1sb2dfaGlzdF9jb2Fyc2VuZXNzPTAgJCBoZWFkIC0x
-IHRlc3RfY2xhdF9oaXN0LjEubG9nIHwgYXdrIC1GJywnICd7cHJpbnQgTkZ9Jw0KMTg1OQ0KLi9m
-aW8gLS1uYW1lPXRlc3QgLS1ydz1yZWFkIC0tcnVudGltZT0yMDBtcyAtLXRpbWVfYmFzZWQgLS1m
-aWxlbmFtZT0vdG1wL2Zpby50bXAgLS1zaXplPTFNIC0td3JpdGVfaGlzdF9sb2c9dGVzdA0KLS1s
-b2dfaGlzdF9tc2VjPTEwMCAtLWxvZ19oaXN0X2NvYXJzZW5lc3M9NiAkIGhlYWQgLTEgdGVzdF9j
-bGF0X2hpc3QuMS5sb2cgfCBhd2sgLUYnLCcgJ3twcmludCBORn0nDQozMg0KDQpJZiB3ZSBhcHBy
-b3hpbWF0ZSB0aGUgZXF1YXRpb24gd2UgZ2V0DQooKDY0ICogRklPX0lPX1VfUExBVF9HUk9VUF9O
-UikgLyAoMiBeIGNvYXJzZW5lc3MpKSArIDQgPSB0b3RhbF9jb2x1bW5zOyB3aGljaCBjYW4gYmUg
-cmVhcnJhbmdlZCB0bw0KKDY0ICogRklPX0lPX1VfUExBVF9HUk9VUF9OUikgLyAodG90YWxfY29s
-dW1ucyAtIDQpID0gKDIgXiBjb2Fyc2VuZXNzKQ0KbG9nMigoNjQgKiBGSU9fSU9fVV9QTEFUX0dS
-T1VQX05SKSAvICh0b3RhbF9jb2x1bW5zIC0gNCkgPSBjb2Fyc2VuZXNzDQoNClRoaXMgYWxsb3dz
-IHVzIHRvIGd1ZXNzIGFuZCBjaGVjayBhIGJpdCBxdWlja2VyLiBGb3IgZXhhbXBsZSB3aXRoIEZJ
-T19JT19VX1BMQVRfR1JPVVBfTlI9MTksIGNvbHVtbnM9NjExDQoNCmltcG9ydCBtYXRoDQoNCmRl
-ZiBjaGVja19jb2x1bW5zKGNvbHVtbl9hY3R1YWwsIHBnbl9ndWVzcyk6DQogICAgYXBwcm94X2Nv
-YXJzZV9ndWVzcyA9IGludChtYXRoLmxvZygoNjQgKiBwZ25fZ3Vlc3MpIC8gZmxvYXQoY29sdW1u
-X2FjdHVhbCAtIDQpLCAyKSkNCiAgICBzdHJpZGVfZ3Vlc3MgPSAxIDw8IGFwcHJveF9jb2Fyc2Vf
-Z3Vlc3MNCiAgICBjb2x1bW5fZ3Vlc3MgPSAoKDY0ICogcGduX2d1ZXNzIC0gc3RyaWRlX2d1ZXNz
-KSAvIHN0cmlkZV9ndWVzcykgKyA0DQogICAgcmV0dXJuIGNvbHVtbl9ndWVzcyA9PSBjb2x1bW5f
-YWN0dWFsDQoNCj4+PiBjaGVja19jb2x1bW5zKDYxMSwgMTkpDQpUcnVlDQoNCkEgYmlnZ2VyIHRl
-c3Q6DQo+Pj4gW2NoZWNrX2NvbHVtbnMoeCwgMTkpIGZvciB4IGluICgxMjE5LCA2MTEsIDMwNywg
-MTU1LCA3OSwgNDEsIDIyKV0NCltUcnVlLCBUcnVlLCBUcnVlLCBUcnVlLCBUcnVlLCBUcnVlLCBU
-cnVlXQ0KPj4+IFtjaGVja19jb2x1bW5zKHgsIDE5KSBmb3IgeCBpbiAoMTg1OSwgOTMxLCA0Njcs
-IDIzNSwgMTE5LCA2MSwgMzIpXQ0KW0ZhbHNlLCBGYWxzZSwgRmFsc2UsIEZhbHNlLCBGYWxzZSwg
-RmFsc2UsIEZhbHNlXQ0KDQpJZiBzb21lb25lIGV4cGxpY2l0bHkgc2V0cyAtLWdyb3VwX25yIHRo
-ZXkgb3VnaHQgdG8gc2V0IHdoZXRoZXIgdGhlIHRpbWUgaXMgaW4gdXNlYyBvciBuc2VjIChvciBn
-ZW5lcmFsbHkgb3ZlcnJpZGUgdGhlIGRlZmF1bHQpIGFzIHdlIGNhbid0IHJlYWxseSBndWVzcyBh
-bnkgbW9yZS4NCg0KV2hhdCBkbyB5b3UgdGhpbms/DQoNCi0tDQpTaXRzb2ZlIHwgaHR0cDovL3N1
-Y3Mub3JnL35zaXRzLw0KLS0NClRvIHVuc3Vic2NyaWJlIGZyb20gdGhpcyBsaXN0OiBzZW5kIHRo
-ZSBsaW5lICJ1bnN1YnNjcmliZSBmaW8iIGluIHRoZSBib2R5IG9mIGEgbWVzc2FnZSB0byBtYWpv
-cmRvbW9Admdlci5rZXJuZWwub3JnIE1vcmUgbWFqb3Jkb21vIGluZm8gYXQgIGh0dHA6Ly92Z2Vy
-Lmtlcm5lbC5vcmcvbWFqb3Jkb21vLWluZm8uaHRtbA0K
+On 20 March 2018 at 05:57, Kris Davis <Kris.Davis@wdc.com> wrote:
+> I created a pull request from github with the latest changes, both to fio=
+logparser_hist.py and the associated man page.   This includes a new "--dir=
+ections=3Drwtm" option to allow independent directional results to be print=
+ed (with an added 'dir' column).
+
+I see Jens pulled it in so congrats on staying the course!
+
+> If there is a way to infer whether the histogram results are in 'ns' or '=
+ms' from the number of columns, please let me know.  I wonder if the 'coars=
+eness' option might be a factor they might complicate things.  I'm mostly r=
+elying on the original script operation, rather than having a more complete=
+ understanding of the dependencies.
+
+The coarseness definitely complicates things but here are my thoughts:
+
+If you know the total columns and you're willing to assume fio compile
+defaults you can try and guess whether FIO_IO_U_PLAT_GROUP_NR is 19
+(in which case you assume usec) or 29 (in which case you assume nsec).
+
+From iolog.c:
+ 723         int stride =3D 1 << hist_coarseness;
+[...]
+ 734                 s =3D __get_sample(samples, log_offset, i);
+ 735
+ 736                 entry =3D s->data.plat_entry;
+ 737                 io_u_plat =3D entry->io_u_plat;
+ 738
+ 739                 entry_before =3D flist_first_entry(&entry->list,
+struct io_u_plat_entry, list);
+ 740                 io_u_plat_before =3D entry_before->io_u_plat;
+ 741
+ 742                 fprintf(f, "%lu, %u, %u, ", (unsigned long) s->time,
+ 743                                                 io_sample_ddir(s), s->=
+bs);
+ 744                 for (j =3D 0; j < FIO_IO_U_PLAT_NR - stride; j +=3D st=
+ride) {
+ 745                         fprintf(f, "%llu, ", (unsigned long long)
+ 746                                 hist_sum(j, stride, io_u_plat,
+io_u_plat_before));
+ 747                 }
+ 748                 fprintf(f, "%llu\n", (unsigned long long)
+ 749                         hist_sum(FIO_IO_U_PLAT_NR - stride,
+stride, io_u_plat,
+ 750                                         io_u_plat_before));
+
+So we can tell the number of columns is related to the 3 +
+(FIO_IO_U_PLAT_NR / (2 ^ coarseness)) + 1. The 3 comes from printing
+the time, the data direction and the blocksize columns. In python
+
+def main():
+    for pgn in [19, 29]:
+        print("pgn=3D%d:" % (pgn)),
+        for c in range(7):
+            pn =3D (1 << 6) * pgn
+            s =3D (1 << c)
+            print(((pn - s) / s) + 4),
+        print("")
+
+if __name__ =3D=3D "__main__":
+    main()
+
+prints the following:
+pgn=3D19: 1219 611 307 155 79 41 22
+pgn=3D29: 1859 931 467 235 119 61 32
+
+Quick comparison:
+$ ./fio --version
+fio-3.5-70-g40f1
+$ ./fio --name=3Dtest --rw=3Dread --runtime=3D200ms --time_based
+--filename=3D/tmp/fio.tmp --size=3D1M --write_hist_log=3Dtest
+--log_hist_msec=3D100 --log_hist_coarseness=3D0
+$ head -1 test_clat_hist.1.log | awk -F',' '{print NF}'
+1859
+./fio --name=3Dtest --rw=3Dread --runtime=3D200ms --time_based
+--filename=3D/tmp/fio.tmp --size=3D1M --write_hist_log=3Dtest
+--log_hist_msec=3D100 --log_hist_coarseness=3D6
+$ head -1 test_clat_hist.1.log | awk -F',' '{print NF}'
+32
+
+If we approximate the equation we get
+((64 * FIO_IO_U_PLAT_GROUP_NR) / (2 ^ coarseness)) + 4 =3D total_columns;
+which can be rearranged to
+(64 * FIO_IO_U_PLAT_GROUP_NR) / (total_columns - 4) =3D (2 ^ coarseness)
+log2((64 * FIO_IO_U_PLAT_GROUP_NR) / (total_columns - 4) =3D coarseness
+
+This allows us to guess and check a bit quicker. For example with
+FIO_IO_U_PLAT_GROUP_NR=3D19, columns=3D611
+
+import math
+
+def check_columns(column_actual, pgn_guess):
+    approx_coarse_guess =3D int(math.log((64 * pgn_guess) /
+float(column_actual - 4), 2))
+    stride_guess =3D 1 << approx_coarse_guess
+    column_guess =3D ((64 * pgn_guess - stride_guess) / stride_guess) + 4
+    return column_guess =3D=3D column_actual
+
+>>> check_columns(611, 19)
+True
+
+A bigger test:
+>>> [check_columns(x, 19) for x in (1219, 611, 307, 155, 79, 41, 22)]
+[True, True, True, True, True, True, True]
+>>> [check_columns(x, 19) for x in (1859, 931, 467, 235, 119, 61, 32)]
+[False, False, False, False, False, False, False]
+
+If someone explicitly sets --group_nr they ought to set whether the
+time is in usec or nsec (or generally override the default) as we
+can't really guess any more.
+
+What do you think?
+
+--=20
+Sitsofe | http://sucs.org/~sits/
 
