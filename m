@@ -1,47 +1,96 @@
-Return-Path: <prvs=6124e0dd9=Bart.VanAssche@wdc.com>
-From: Bart Van Assche <Bart.VanAssche@wdc.com>
+Return-Path: <axboe@kernel.dk>
 Subject: Re: valgrind spews
-Date: Thu, 22 Mar 2018 17:08:08 +0000
-Message-ID: <1521738486.2637.11.camel@sandisk.com>
 References: <a7527854-7ed3-a074-278e-e75f75cec4e7@kernel.dk>
-In-Reply-To: <a7527854-7ed3-a074-278e-e75f75cec4e7@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <0C3871257606A64E96D1F7913A51D1F3@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+ <CALjAwxgaVddxmgzkM6S7d6SP0FTdBT9y6QeO58L870qxBYDqAg@mail.gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <ed74b20d-cd3b-2b0a-89d1-188be58a5dae@kernel.dk>
+Date: Thu, 22 Mar 2018 11:01:18 -0600
 MIME-Version: 1.0
-To: "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <CALjAwxgaVddxmgzkM6S7d6SP0FTdBT9y6QeO58L870qxBYDqAg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: Bart Van Assche <bart.vanassche@sandisk.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-T24gVGh1LCAyMDE4LTAzLTIyIGF0IDEwOjE0IC0wNjAwLCBKZW5zIEF4Ym9lIHdyb3RlOg0KPiBI
-aSBCYXJ0LA0KPiANCj4gQWZ0ZXIgeW91ciBjb21taXQ6DQo+IA0KPiBjb21taXQgMGZmY2NjMjFm
-Y2Q2N2QxZTFkMmEzNjBlOTBmM2ZlOGVmYzBkNmI1Mg0KPiBBdXRob3I6IEJhcnQgVmFuIEFzc2No
-ZSA8YmFydC52YW5hc3NjaGVAd2RjLmNvbT4NCj4gRGF0ZTogICBUaHUgTWFyIDggMTM6NDE6MzYg
-MjAxOCAtMDgwMA0KPiANCj4gICAgIEltcHJvdmUgVmFsZ3JpbmQgaW5zdHJ1bWVudGF0aW9uIG9m
-IG1lbW9yeSBhbGxvY2F0aW9ucw0KPiANCj4gcnVubmluZyB2YWxncmluZCBvbiBhIGZpbyBzcGV3
-cyBhIGxvdCBvZiB3YXJuaW5nczoNCj4gDQo+ID09MTQzMzE9PSBJbnZhbGlkIHdyaXRlIG9mIHNp
-emUgOA0KPiA9PTE0MzMxPT0gICAgYXQgMHg0QzM0NTFGOiBtZW1zZXQgKGluIC91c3IvbGliL3Zh
-bGdyaW5kL3ZncHJlbG9hZF9tZW1jaGVjay1hbWQ2NC1saW51eC5zbykNCj4gPT0xNDMzMT09ICAg
-IGJ5IDB4NDU5NUY4OiBtZW1zZXQgKHN0cmluZzMuaDo5MCkNCj4gPT0xNDMzMT09ICAgIGJ5IDB4
-NDU5NUY4OiBzbWFsbG9jX3Bvb2wgKHNtYWxsb2MuYzo0MzQpDQo+ID09MTQzMzE9PSAgICBieSAw
-eDQ1OTVGODogX19zbWFsbG9jIChzbWFsbG9jLmM6NDUyKQ0KPiA9PTE0MzMxPT0gICAgYnkgMHg0
-NzI3Q0Q6IGZsb3dfaW5pdCAoZmxvdy5jOjExMikNCj4gPT0xNDMzMT09ICAgIGJ5IDB4NDIxODg2
-OiBzZXR1cF90aHJlYWRfYXJlYSAoaW5pdC5jOjM5MSkNCj4gPT0xNDMzMT09ICAgIGJ5IDB4NDI1
-NTJBOiBnZXRfbmV3X2pvYiAoaW5pdC5jOjQ2OCkNCj4gPT0xNDMzMT09ICAgIGJ5IDB4NDI1NTJB
-OiBfX3BhcnNlX2pvYnNfaW5pIChpbml0LmM6MTkyOCkNCj4gPT0xNDMzMT09ICAgIGJ5IDB4NDI1
-ODVGOiBwYXJzZV9qb2JzX2luaSAoaW5pdC5jOjIwODIpDQo+IFsuLi5dDQo+IA0KPiBCYXNpY2Fs
-bHkgb2ZmIGFueSBwYXRoIHRoYXQgZW5kcyB1cCBpbiBzbWFsbG9jLCBvbiB0aGUgbWVtc2V0KCkN
-Cj4gdGhhdCB3ZSBkbzoNCj4gDQo+ICAgICAgICAgcHRyID0gX19zbWFsbG9jX3Bvb2wocG9vbCwg
-YWxsb2Nfc2l6ZSk7DQo+ICAgICAgICAgaWYgKHB0cikgew0KPiAgICAgICAgICAgICAgICAgc3Ry
-dWN0IGJsb2NrX2hkciAqaGRyID0gcHRyOw0KPiANCj4gICAgICAgICAgICAgICAgIGhkci0+c2l6
-ZSA9IGFsbG9jX3NpemU7DQo+ICAgICAgICAgICAgICAgICBmaWxsX3JlZHpvbmUoaGRyKTsNCj4g
-DQo+ICAgICAgICAgICAgICAgICBwdHIgKz0gc2l6ZW9mKCpoZHIpOw0KPiAgICAgICAgICAgICAg
-ICAgbWVtc2V0KHB0ciwgMCwgc2l6ZSk7DQo+IAkJXl5eDQo+ICAgICAgICAgfQ0KPiANCj4gZm9y
-IGV2ZXJ5IGFsbG9jLiBGcm9tIGNvbmZpZ3VyZToNCj4gDQo+IFZhbGdyaW5kIGhlYWRlcnMgICAg
-ICAgICAgICAgIHllcw0KDQpUaGF0J3Mgd2VpcmQuIFRoZSBvbmx5IGV4cGxhbmF0aW9uIEkgY2Fu
-IHRoaW5rIG9mIGlzIHRoYXQgVmFsZ3JpbmQgZmFpbGVkDQp0byBpbnRlcmNlcHQgdGhlIG1tYXAo
-KSBjYWxsIGluIGFkZF9wb29sKCkuIENhbiB5b3UgY2hlY2sgd2l0aCB0aGUNClZhbGdyaW5kIG9w
-dGlvbiAtLXRyYWNlLXN5c2NhbGxzPXllcyB3aGV0aGVyIFZhbGdyaW5kIGlzIGFibGUgb24geW91
-cg0Kc3lzdGVtIHRvIGludGVyY2VwdCBtbWFwKCk/DQoNClRoYW5rcywNCg0KQmFydC4NCg0KDQo=
+On 3/22/18 10:53 AM, Sitsofe Wheeler wrote:
+> On 22 March 2018 at 16:14, Jens Axboe <axboe@kernel.dk> wrote:
+>> Hi Bart,
+>>
+>> After your commit:
+>>
+>> commit 0ffccc21fcd67d1e1d2a360e90f3fe8efc0d6b52
+>> Author: Bart Van Assche <bart.vanassche@wdc.com>
+>> Date:   Thu Mar 8 13:41:36 2018 -0800
+>>
+>>     Improve Valgrind instrumentation of memory allocations
+>>
+>> running valgrind on a fio spews a lot of warnings:
+>>
+>> ==14331== Invalid write of size 8
+>> ==14331==    at 0x4C3451F: memset (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+>> ==14331==    by 0x4595F8: memset (string3.h:90)
+>> ==14331==    by 0x4595F8: smalloc_pool (smalloc.c:434)
+>> ==14331==    by 0x4595F8: __smalloc (smalloc.c:452)
+>> ==14331==    by 0x4727CD: flow_init (flow.c:112)
+>> ==14331==    by 0x421886: setup_thread_area (init.c:391)
+>> ==14331==    by 0x42552A: get_new_job (init.c:468)
+>> ==14331==    by 0x42552A: __parse_jobs_ini (init.c:1928)
+>> ==14331==    by 0x42585F: parse_jobs_ini (init.c:2082)
+>> [...]
+>>
+>> Basically off any path that ends up in smalloc, on the memset()
+>> that we do:
+>>
+>>         ptr = __smalloc_pool(pool, alloc_size);
+>>         if (ptr) {
+>>                 struct block_hdr *hdr = ptr;
+>>
+>>                 hdr->size = alloc_size;
+>>                 fill_redzone(hdr);
+>>
+>>                 ptr += sizeof(*hdr);
+>>                 memset(ptr, 0, size);
+>>                 ^^^
+>>         }
+>>
+>> for every alloc. From configure:
+>>
+>> Valgrind headers              yes
+> 
+> I can't reproduce that one here with the following:
+> 
+> valgrind ./fio --ioengine=libaio --thread --rw=read
+> --filename=/tmp/fio.tmp --size=1M  --flow=2 --stonewall --name=test
+> --name=test2
+> 
+> My configure says this:
+> 
+> Valgrind headers              yes
+> 
+> Additionally after a
+> make clean
+> do you find that
+> git clean -xn
+> still finds built files to remove?
+
+Run it as a server:
+
+$ valgrind ./fio --server
+$ ./fio --client=localhost null.fio
+
+$ cat null.fio
+[null]
+bs=4k
+ioengine=null
+size=1g
+rw=read
+
+The above was supposed to say "fio server", but apparently I missed
+putting that in...
+
+-- 
+Jens Axboe
+
 
