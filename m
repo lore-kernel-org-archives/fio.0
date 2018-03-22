@@ -1,40 +1,38 @@
-Return-Path: <axboe@kernel.dk>
+Return-Path: <prvs=6124e0dd9=Bart.VanAssche@wdc.com>
+From: Bart Van Assche <Bart.VanAssche@wdc.com>
 Subject: Re: valgrind spews
+Date: Thu, 22 Mar 2018 17:27:59 +0000
+Message-ID: <1521739678.2637.16.camel@wdc.com>
 References: <a7527854-7ed3-a074-278e-e75f75cec4e7@kernel.dk>
- <CALjAwxgaVddxmgzkM6S7d6SP0FTdBT9y6QeO58L870qxBYDqAg@mail.gmail.com>
- <ed74b20d-cd3b-2b0a-89d1-188be58a5dae@kernel.dk>
- <1521738727.2637.14.camel@sandisk.com>
- <3e6568da-0dfe-7d4a-138d-f04e43a3dd7b@kernel.dk>
- <1521739678.2637.16.camel@wdc.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <baec1170-03fc-7b43-85e6-8e80f2d11006@kernel.dk>
-Date: Thu, 22 Mar 2018 11:29:49 -0600
-MIME-Version: 1.0
-In-Reply-To: <1521739678.2637.16.camel@wdc.com>
-Content-Type: text/plain; charset=utf-8
+	 <CALjAwxgaVddxmgzkM6S7d6SP0FTdBT9y6QeO58L870qxBYDqAg@mail.gmail.com>
+	 <ed74b20d-cd3b-2b0a-89d1-188be58a5dae@kernel.dk>
+	 <1521738727.2637.14.camel@sandisk.com>
+	 <3e6568da-0dfe-7d4a-138d-f04e43a3dd7b@kernel.dk>
+In-Reply-To: <3e6568da-0dfe-7d4a-138d-f04e43a3dd7b@kernel.dk>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Bart Van Assche <Bart.VanAssche@wdc.com>, "sitsofe@gmail.com" <sitsofe@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <24874A13D9989F4D9A8EADB5C13CD128@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: "sitsofe@gmail.com" <sitsofe@gmail.com>, "axboe@kernel.dk" <axboe@kernel.dk>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 3/22/18 11:27 AM, Bart Van Assche wrote:
-> On Thu, 2018-03-22 at 11:23 -0600, Jens Axboe wrote:
->> On 3/22/18 11:12 AM, Bart Van Assche wrote:
->>> Where is the sk_out structure allocated? Can Valgrind know whether or not
->>> that structure has been initialized?
->>
->> In server.c:accept_loop() and that structure is memset at alloc
->> time as it's coming out of smalloc().
-> 
-> Would you be OK with changing that smalloc() call into scalloc() such that
-> Valgrind knows that that structure is initialized? On my laptop the following
-> is sufficient to suppress the complaints mentioned in my previous e-mail:
-
-Sure, done.
-
-
--- 
-Jens Axboe
-
+T24gVGh1LCAyMDE4LTAzLTIyIGF0IDExOjIzIC0wNjAwLCBKZW5zIEF4Ym9lIHdyb3RlOg0KPiBP
+biAzLzIyLzE4IDExOjEyIEFNLCBCYXJ0IFZhbiBBc3NjaGUgd3JvdGU6DQo+ID4gV2hlcmUgaXMg
+dGhlIHNrX291dCBzdHJ1Y3R1cmUgYWxsb2NhdGVkPyBDYW4gVmFsZ3JpbmQga25vdyB3aGV0aGVy
+IG9yIG5vdA0KPiA+IHRoYXQgc3RydWN0dXJlIGhhcyBiZWVuIGluaXRpYWxpemVkPw0KPiANCj4g
+SW4gc2VydmVyLmM6YWNjZXB0X2xvb3AoKSBhbmQgdGhhdCBzdHJ1Y3R1cmUgaXMgbWVtc2V0IGF0
+IGFsbG9jDQo+IHRpbWUgYXMgaXQncyBjb21pbmcgb3V0IG9mIHNtYWxsb2MoKS4NCg0KV291bGQg
+eW91IGJlIE9LIHdpdGggY2hhbmdpbmcgdGhhdCBzbWFsbG9jKCkgY2FsbCBpbnRvIHNjYWxsb2Mo
+KSBzdWNoIHRoYXQNClZhbGdyaW5kIGtub3dzIHRoYXQgdGhhdCBzdHJ1Y3R1cmUgaXMgaW5pdGlh
+bGl6ZWQ/IE9uIG15IGxhcHRvcCB0aGUgZm9sbG93aW5nDQppcyBzdWZmaWNpZW50IHRvIHN1cHBy
+ZXNzIHRoZSBjb21wbGFpbnRzIG1lbnRpb25lZCBpbiBteSBwcmV2aW91cyBlLW1haWw6DQoNCmRp
+ZmYgLS1naXQgYS9zZXJ2ZXIuYyBiL3NlcnZlci5jDQppbmRleCAxNWRjMmM0YjM4YmEuLmQzZjY5
+Nzc0MTY1ZiAxMDA2NDQNCi0tLSBhL3NlcnZlci5jDQorKysgYi9zZXJ2ZXIuYw0KQEAgLTEzNTks
+NyArMTM1OSw3IEBAIHN0YXRpYyBpbnQgYWNjZXB0X2xvb3AoaW50IGxpc3Rlbl9zaykNCiANCiAJ
+CWRwcmludChGRF9ORVQsICJzZXJ2ZXI6IGNvbm5lY3QgZnJvbSAlc1xuIiwgZnJvbSk7DQogDQot
+CQlza19vdXQgPSBzbWFsbG9jKHNpemVvZigqc2tfb3V0KSk7DQorCQlza19vdXQgPSBzY2FsbG9j
+KDEsIHNpemVvZigqc2tfb3V0KSk7DQogCQlpZiAoIXNrX291dCkgew0KIAkJCWNsb3NlKHNrKTsN
+CiAJCQlyZXR1cm4gLTE7DQoNClRoYW5rcywNCg0KQmFydC4NCg0K
 
