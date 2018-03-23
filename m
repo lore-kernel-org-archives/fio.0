@@ -1,137 +1,59 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:52506 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751861AbeCXMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 24 Mar 2018 08:00:09 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1ezhqD-0005Ab-2K
-        for fio@vger.kernel.org; Sat, 24 Mar 2018 12:00:09 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Content-Type: text/plain;
+	charset=utf-8
+Mime-Version: 1.0 (1.0)
+Subject: Re: valgrind spews
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180324120001.C596B2C00CF@kernel.dk>
-Date: Sat, 24 Mar 2018 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <CALjAwxiC_OVeVYjq=dV1pNM2iTvK0NzVKVe=3L=M=Rz-wt+qYw@mail.gmail.com>
+Date: Fri, 23 Mar 2018 16:53:54 -0600
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <15125202-A23D-4862-9C5F-FFE58A78E027@kernel.dk>
+References: <a7527854-7ed3-a074-278e-e75f75cec4e7@kernel.dk> <CALjAwxgaVddxmgzkM6S7d6SP0FTdBT9y6QeO58L870qxBYDqAg@mail.gmail.com> <ed74b20d-cd3b-2b0a-89d1-188be58a5dae@kernel.dk> <1521738727.2637.14.camel@sandisk.com> <3e6568da-0dfe-7d4a-138d-f04e43a3dd7b@kernel.dk> <1521739678.2637.16.camel@wdc.com> <baec1170-03fc-7b43-85e6-8e80f2d11006@kernel.dk> <CALjAwxhOT1NJX556Y19_mMoY53sOf6V=-Q79FVfa8eX39vBJew@mail.gmail.com> <afb83e62-4b15-358f-c54e-012a80e7aa95@kernel.dk> <1521818158.2535.0.camel@wdc.com> <CALjAwxiWMRznn==MR=NGRDVsa1LtiR1EWthKgXzsO1MBADYzOg@mail.gmail.com> <1521841789.2535.21.camel@wdc.com> <CALjAwxiC_OVeVYjq=dV1pNM2iTvK0NzVKVe=3L=M=Rz-wt+qYw@mail.gmail.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: Bart Van Assche <Bart.VanAssche@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 87c6f22bf24da4679849ccf778451b8432c2b368:
 
-  server: use scalloc() for sk_out allocation (2018-03-22 11:29:25 -0600)
+> On Mar 23, 2018, at 4:18 PM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>=20
+>> On 23 March 2018 at 21:49, Bart Van Assche <Bart.VanAssche@wdc.com> wrote=
+:
+>>> On Fri, 2018-03-23 at 21:43 +0000, Sitsofe Wheeler wrote:
+>>>> On 23 March 2018 at 15:15, Bart Van Assche <Bart.VanAssche@wdc.com> wro=
+te:
+>>>>> On Fri, 2018-03-23 at 08:49 -0600, Jens Axboe wrote:
+>>>>> Right, this is identical to what I reported. I get tons of these with
+>>>>> the patch, not without.
+>>>>=20
+>>>> Since I can reproduce this I will have a look at what is going on.
+>>>=20
+>>> I wonder if the manner that fio allocates redzones is incompatible
+>>> with valgrind's due to fio's redzone's potentially being smaller than
+>>> the size of a pointer and the pre-redzone being partially inside the
+>>> header structure. I'm attaching a patch I made but it still seems to
+>>> generate valgrind warnings that aren't there when falling back to
+>>> malloc/free without pools...
+>>=20
+>> Hello Sitsofe,
+>>=20
+>> Have you enabled github's feature to send an e-mail every time a pull req=
+uest
+>> is created or a comment is added? This issue should have been resolved by=
+ a
+>> pull request I submitted this morning. That pull request has been accepte=
+d by
+>> Jens.
+>=20
+> Ah thanks Bart - I see it now over on
+> https://github.com/axboe/fio/pull/567 (my GitHub email goes to a
+> different email account that I check less frequently). Kind of a shame
+> valgrind can't track malloc/free across a fork but also
+> understandable. Anyone up for enabling thread mode for fio's --server
+> ? ;-)
 
-are available in the git repository at:
+That would actually be awesome for other reasons, like enabling duo server s=
+upport on platforms like Windows that don=E2=80=99t support fork().
 
-  git://git.kernel.dk/fio.git master
+Not easy, but highly encouraged :-)
 
-for you to fetch changes up to b348b7c7a1a6278d793698fc23993620ae9c588a:
 
-  Merge branch 'master' of https://github.com/bvanassche/fio (2018-03-23 09:58:51 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (2):
-      smalloc: Remove Valgrind instrumentation
-      Merge branch 'master' of https://github.com/bvanassche/fio
-
- smalloc.c | 34 ++--------------------------------
- 1 file changed, 2 insertions(+), 32 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/smalloc.c b/smalloc.c
-index 7b1690a..a2ad25a 100644
---- a/smalloc.c
-+++ b/smalloc.c
-@@ -5,13 +5,6 @@
- #include <sys/mman.h>
- #include <assert.h>
- #include <string.h>
--#ifdef CONFIG_VALGRIND_DEV
--#include <valgrind/valgrind.h>
--#else
--#define RUNNING_ON_VALGRIND 0
--#define VALGRIND_MALLOCLIKE_BLOCK(addr, size, rzB, is_zeroed) do { } while (0)
--#define VALGRIND_FREELIKE_BLOCK(addr, rzB) do { } while (0)
--#endif
- 
- #include "fio.h"
- #include "fio_sem.h"
-@@ -48,12 +41,6 @@ struct pool {
- 	size_t mmap_size;
- };
- 
--#ifdef SMALLOC_REDZONE
--#define REDZONE_SIZE sizeof(unsigned int)
--#else
--#define REDZONE_SIZE 0
--#endif
--
- struct block_hdr {
- 	size_t size;
- #ifdef SMALLOC_REDZONE
-@@ -263,10 +250,6 @@ static void fill_redzone(struct block_hdr *hdr)
- {
- 	unsigned int *postred = postred_ptr(hdr);
- 
--	/* Let Valgrind fill the red zones. */
--	if (RUNNING_ON_VALGRIND)
--		return;
--
- 	hdr->prered = SMALLOC_PRE_RED;
- 	*postred = SMALLOC_POST_RED;
- }
-@@ -275,10 +258,6 @@ static void sfree_check_redzone(struct block_hdr *hdr)
- {
- 	unsigned int *postred = postred_ptr(hdr);
- 
--	/* Let Valgrind check the red zones. */
--	if (RUNNING_ON_VALGRIND)
--		return;
--
- 	if (hdr->prered != SMALLOC_PRE_RED) {
- 		log_err("smalloc pre redzone destroyed!\n"
- 			" ptr=%p, prered=%x, expected %x\n",
-@@ -346,7 +325,6 @@ void sfree(void *ptr)
- 	}
- 
- 	if (pool) {
--		VALGRIND_FREELIKE_BLOCK(ptr, REDZONE_SIZE);
- 		sfree_pool(pool, ptr);
- 		return;
- 	}
-@@ -437,7 +415,7 @@ static void *smalloc_pool(struct pool *pool, size_t size)
- 	return ptr;
- }
- 
--static void *__smalloc(size_t size, bool is_zeroed)
-+void *smalloc(size_t size)
- {
- 	unsigned int i, end_pool;
- 
-@@ -453,9 +431,6 @@ static void *__smalloc(size_t size, bool is_zeroed)
- 
- 			if (ptr) {
- 				last_pool = i;
--				VALGRIND_MALLOCLIKE_BLOCK(ptr, size,
--							  REDZONE_SIZE,
--							  is_zeroed);
- 				return ptr;
- 			}
- 		}
-@@ -473,14 +448,9 @@ static void *__smalloc(size_t size, bool is_zeroed)
- 	return NULL;
- }
- 
--void *smalloc(size_t size)
--{
--	return __smalloc(size, false);
--}
--
- void *scalloc(size_t nmemb, size_t size)
- {
--	return __smalloc(nmemb * size, true);
-+	return smalloc(nmemb * size);
- }
- 
- char *smalloc_strdup(const char *str)
