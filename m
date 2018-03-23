@@ -1,194 +1,182 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa6.hgst.iphmx.com ([216.71.154.45]:50429 "EHLO
-        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751018AbeCUAQb (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 20 Mar 2018 20:16:31 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: RE: fio server/client disconnect bug
-Date: Wed, 21 Mar 2018 00:16:28 +0000
-Message-ID: <SN6PR04MB4064CEF242E2091737402D268FAA0@SN6PR04MB4064.namprd04.prod.outlook.com>
-References: <BN3PR0401MB1457692506FCB2E385AE2A2E8FCB0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-In-Reply-To: <BN3PR0401MB1457692506FCB2E385AE2A2E8FCB0@BN3PR0401MB1457.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+Received: from merlin.infradead.org ([205.233.59.134]:42200 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753605AbeCWMAS (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 23 Mar 2018 08:00:18 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1ezLMn-0003df-DL
+        for fio@vger.kernel.org; Fri, 23 Mar 2018 12:00:17 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20180323120002.165182C0119@kernel.dk>
+Date: Fri, 23 Mar 2018 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
-
-Revisiting this issue.  It seems the call stack is:
-
-fio_handle_clients()
-    fio_handle_client()
-        case FIO_NET_CMD_TS:
-            ops->thread_status(client, cmd);
-            .thread_status    =3D handle_ts
-                static void handle_ts(struct fio_client *client, struct fio=
-_net_cmd *cmd)
-                {
-                    struct cmd_ts_pdu *p =3D (struct cmd_ts_pdu *) cmd->pay=
-load;
-                    struct flist_head *opt_list =3D NULL;
-                    struct json_object *tsobj;
-
-                    if (client->opt_lists && p->ts.thread_number <=3D clien=
-t->jobs)
-                        opt_list =3D &client->opt_lists[p->ts.thread_number=
- - 1];
-
-                    tsobj =3D show_thread_status(&p->ts, &p->rs, opt_list, =
-NULL);
-                    client->did_stat =3D true;
-                    if (tsobj) {
-                        json_object_add_client_info(tsobj, client);
-                        json_array_add_value_object(clients_array, tsobj);
-                    }
-
-                    if (sum_stat_clients <=3D 1)
-                        return;
-
-                    sum_thread_stats(&client_ts, &p->ts, sum_stat_nr =3D=3D=
- 1);
-                    sum_group_stats(&client_gs, &p->rs);
-
-                    client_ts.members++;
-                    client_ts.thread_number =3D p->ts.thread_number;
-                    client_ts.groupid =3D p->ts.groupid;
-                    client_ts.unified_rw_rep =3D p->ts.unified_rw_rep;
-                    client_ts.sig_figs =3D p->ts.sig_figs;
-
-                    if (++sum_stat_nr =3D=3D sum_stat_clients) {
-                        strcpy(client_ts.name, "All clients");
-                        tsobj =3D show_thread_status(&client_ts, &client_gs=
-, NULL, NULL);
-                        if (tsobj) {
-                            json_object_add_client_info(tsobj, client);
-                            json_array_add_value_object(clients_array, tsob=
-j);
-                        }
-                    }
-                }
-
-And when sum_stat_clients <=3D 1, we never print "All clients" summary.  Ac=
-tually, we miss an entire client, so neither the individual client summary =
-is output nor the "all clients" summary is output.  It seems one client fin=
-ishes just slightly before the other but we remove from the list of clients=
- too quickly.  I tried adjusting the timeout and such, but didn't completel=
-y remove the issue.  Any specific thoughts?
-
-I cut down the job files to the smallest I could find to reliably reproduce=
- the issue.  It seems we need to log a few items to reproduce, but the job =
-runtime itself can be quite small.
-
-
-# cat test_job_a
-[test_job_a]
-description=3Dtest_job_a
-ioengine=3Dlibaio
-direct=3D1
-rw=3Drandread
-iodepth=3D8
-bs=3D64k
-filename=3D/dev/nvme0n1
-group_reporting
-write_bw_log=3Dtest_job_a
-write_iops_log=3Dtest_job_a
-write_lat_log=3Dtest_job_a
-log_avg_msec=3D1000
-unified_rw_reporting=3D1
-disable_lat=3D0
-disable_clat=3D0
-disable_slat=3D0
-runtime=3D5s
-time_based
-
-
-# cat test_job_b
-[test_job_b]
-description=3Dtest_job_b
-ioengine=3Dlibaio
-direct=3D1
-rw=3Drandread
-iodepth=3D8
-bs=3D64k
-filename=3D/dev/nvme0n1
-group_reporting
-write_bw_log=3Dtest_job_b
-write_iops_log=3Dtest_job_b
-write_lat_log=3Dtest_job_b
-log_avg_msec=3D1000
-unified_rw_reporting=3D1
-disable_lat=3D0
-disable_clat=3D0
-disable_slat=3D0
-runtime=3D5s
-time_based
-
-
-# fio --client=3Dhost1 test_job_a --client=3Dhost2 test_job_b --output=3Dte=
-st_job
-
-
-Regards,
-Jeff
-
-
------Original Message-----
-From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Behal=
-f Of Jeff Furlong
-Sent: Thursday, February 15, 2018 4:33 PM
 To: fio@vger.kernel.org
-Subject: fio server/client disconnect bug
 
-Hi All,
-With the near latest fio version (fio-3.3-51-gf2cd) using server/client mod=
-e, I occasionally see one client get disconnected early.  Hence, the client=
-'s IO summary output does not get reported at the end of the job.  The issu=
-e seems to occur between 100 and 300 iterations of a job file.  Worse, the =
-conditions for the early disconnect may be tied to the complexity of the jo=
-b file (such as numjobs or IOPs of device).  Even worse, when using debug m=
-ode, the failure seems to reduce to around 1000 iterations of a job file.
+The following changes since commit 7ad2ddffe2bdc5e47fb86cab276db1db9e350f1b:
 
-When running with
+  sg: fix sign extension (2018-03-21 20:09:36 -0600)
 
-fio --client=3Dhost1 test_job_a --client=3Dhost2 test_job_b --debug=3Dproce=
-ss,net
+are available in the git repository at:
 
-...
-net      5027  client: handle host2
-net      5027  client: got cmd op IOLOG from host2 (pdu=3D446)
-net      5027  client: handle host2
-client: host=3Dhost2 disconnected
-net      5027  client: removed <host2>
-net      5027  client: request eta (1)
-net      5027  client: requested eta tag 0x1b52c20
-net      5027  client: handle host1
-net      5027  client: got cmd op TEXT from host1 (pdu=3D85)
-<host1> net      5028  server: got op [SEND_ETA], pdu=3D0, tag=3D1b4a970
-net      5027  client: handle host1
-net      5027  client: got cmd op TEXT from host1 (pdu=3D61)
-<host1> net      5028  server sending status
-...
+  git://git.kernel.dk/fio.git master
 
-Then the normal output summary only shows the statistics from host1.  The h=
-ost2 throughput, latency, etc. are never displayed.  However, the iops, bw,=
- and lat logs all seem to have been updated properly.  Sometimes host2 is d=
-isconnected early; sometimes host1 is disconnected early.
+for you to fetch changes up to 87c6f22bf24da4679849ccf778451b8432c2b368:
 
-Why might host2 be disconnected?  I see disconnects when using a switch wit=
-h one hop and also with directly connecting host1 to host2.  So dropping ne=
-twork packets seems unlikely.  Could the ETA update not be accurate?  Or is=
- it possible host2 finishes the job faster than host1 and closes the connec=
-tion too early?
+  server: use scalloc() for sk_out allocation (2018-03-22 11:29:25 -0600)
 
-In the event host2's job file finishes early, should we still summarize the=
- IO traffic in the output?  How is that condition handled?
+----------------------------------------------------------------
+Jens Axboe (3):
+      smalloc: oom cleanups
+      Merge branch 'gcc' of https://github.com/sitsofe/fio
+      server: use scalloc() for sk_out allocation
 
-If you have suggestions on other debug options, I would appreciate.  Thanks=
-.
+Sitsofe Wheeler (1):
+      compiler: set minimum compiler version to GCC 4.1.0
 
-Regards,
-Jeff
+ backend.c                |  9 ++++++---
+ cgroup.c                 |  3 +++
+ compiler/compiler-gcc3.h | 10 ----------
+ compiler/compiler.h      |  6 ++----
+ filesetup.c              |  9 +++++----
+ gettime-thread.c         |  2 --
+ server.c                 |  2 +-
+ 7 files changed, 17 insertions(+), 24 deletions(-)
+ delete mode 100644 compiler/compiler-gcc3.h
 
+---
 
+Diff of recent changes:
+
+diff --git a/backend.c b/backend.c
+index a92b1e3..fc83ed1 100644
+--- a/backend.c
++++ b/backend.c
+@@ -2477,7 +2477,8 @@ int fio_backend(struct sk_out *sk_out)
+ 	helper_thread_create(startup_sem, sk_out);
+ 
+ 	cgroup_list = smalloc(sizeof(*cgroup_list));
+-	INIT_FLIST_HEAD(cgroup_list);
++	if (cgroup_list)
++		INIT_FLIST_HEAD(cgroup_list);
+ 
+ 	run_threads(sk_out);
+ 
+@@ -2507,8 +2508,10 @@ int fio_backend(struct sk_out *sk_out)
+ 	}
+ 
+ 	free_disk_util();
+-	cgroup_kill(cgroup_list);
+-	sfree(cgroup_list);
++	if (cgroup_list) {
++		cgroup_kill(cgroup_list);
++		sfree(cgroup_list);
++	}
+ 	sfree(cgroup_mnt);
+ 
+ 	fio_sem_remove(startup_sem);
+diff --git a/cgroup.c b/cgroup.c
+index 380e37e..629047b 100644
+--- a/cgroup.c
++++ b/cgroup.c
+@@ -147,6 +147,9 @@ int cgroup_setup(struct thread_data *td, struct flist_head *clist, char **mnt)
+ {
+ 	char *root;
+ 
++	if (!clist)
++		return 1;
++
+ 	if (!*mnt) {
+ 		*mnt = find_cgroup_mnt(td);
+ 		if (!*mnt)
+diff --git a/compiler/compiler-gcc3.h b/compiler/compiler-gcc3.h
+deleted file mode 100644
+index 566987a..0000000
+--- a/compiler/compiler-gcc3.h
++++ /dev/null
+@@ -1,10 +0,0 @@
+-#ifndef FIO_COMPILER_GCC3_H
+-#define FIO_COMPILER_GCC3_H
+-
+-#if __GNUC_MINOR__ >= 4
+-#ifndef __must_check
+-#define __must_check		__attribute__((warn_unused_result))
+-#endif
+-#endif
+-
+-#endif
+diff --git a/compiler/compiler.h b/compiler/compiler.h
+index 4d92ac4..dacb737 100644
+--- a/compiler/compiler.h
++++ b/compiler/compiler.h
+@@ -2,12 +2,10 @@
+ #define FIO_COMPILER_H
+ 
+ /* IWYU pragma: begin_exports */
+-#if __GNUC__ >= 4
++#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)
+ #include "compiler-gcc4.h"
+-#elif __GNUC__ == 3
+-#include "compiler-gcc3.h"
+ #else
+-#error Compiler too old, need gcc at least gcc 3.x
++#error Compiler too old, need at least gcc 4.1.0
+ #endif
+ /* IWYU pragma: end_exports */
+ 
+diff --git a/filesetup.c b/filesetup.c
+index c115f7b..b246e0f 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -1608,8 +1608,9 @@ int add_file(struct thread_data *td, const char *fname, int numjob, int inc)
+ 		f->file_name = strdup(file_name);
+ 	else
+ 		f->file_name = smalloc_strdup(file_name);
+-	if (!f->file_name)
+-		assert(0);
++
++	/* can't handle smalloc failure from here */
++	assert(f->file_name);
+ 
+ 	get_file_type(f);
+ 
+@@ -1814,9 +1815,9 @@ void dup_files(struct thread_data *td, struct thread_data *org)
+ 				__f->file_name = strdup(f->file_name);
+ 			else
+ 				__f->file_name = smalloc_strdup(f->file_name);
+-			if (!__f->file_name)
+-				assert(0);
+ 
++			/* can't handle smalloc failure from here */
++			assert(__f->file_name);
+ 			__f->filetype = f->filetype;
+ 		}
+ 
+diff --git a/gettime-thread.c b/gettime-thread.c
+index eb535a0..0a2cc6c 100644
+--- a/gettime-thread.c
++++ b/gettime-thread.c
+@@ -15,8 +15,6 @@ void fio_gtod_init(void)
+ 		return;
+ 
+ 	fio_ts = smalloc(sizeof(*fio_ts));
+-	if (!fio_ts)
+-		log_err("fio: smalloc pool exhausted\n");
+ }
+ 
+ static void fio_gtod_update(void)
+diff --git a/server.c b/server.c
+index 15dc2c4..d3f6977 100644
+--- a/server.c
++++ b/server.c
+@@ -1359,7 +1359,7 @@ static int accept_loop(int listen_sk)
+ 
+ 		dprint(FD_NET, "server: connect from %s\n", from);
+ 
+-		sk_out = smalloc(sizeof(*sk_out));
++		sk_out = scalloc(1, sizeof(*sk_out));
+ 		if (!sk_out) {
+ 			close(sk);
+ 			return -1;
