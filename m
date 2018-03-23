@@ -1,46 +1,90 @@
-Return-Path: <prvs=613d30558=Bart.VanAssche@wdc.com>
-From: Bart Van Assche <Bart.VanAssche@wdc.com>
-Subject: Re: valgrind spews
-Date: Fri, 23 Mar 2018 21:49:50 +0000
-Message-ID: <1521841789.2535.21.camel@wdc.com>
-References: <a7527854-7ed3-a074-278e-e75f75cec4e7@kernel.dk>
-	 <CALjAwxgaVddxmgzkM6S7d6SP0FTdBT9y6QeO58L870qxBYDqAg@mail.gmail.com>
-	 <ed74b20d-cd3b-2b0a-89d1-188be58a5dae@kernel.dk>
-	 <1521738727.2637.14.camel@sandisk.com>
-	 <3e6568da-0dfe-7d4a-138d-f04e43a3dd7b@kernel.dk>
-	 <1521739678.2637.16.camel@wdc.com>
-	 <baec1170-03fc-7b43-85e6-8e80f2d11006@kernel.dk>
-	 <CALjAwxhOT1NJX556Y19_mMoY53sOf6V=-Q79FVfa8eX39vBJew@mail.gmail.com>
-	 <afb83e62-4b15-358f-c54e-012a80e7aa95@kernel.dk>
-	 <1521818158.2535.0.camel@wdc.com>
-	 <CALjAwxiWMRznn==MR=NGRDVsa1LtiR1EWthKgXzsO1MBADYzOg@mail.gmail.com>
-In-Reply-To: <CALjAwxiWMRznn==MR=NGRDVsa1LtiR1EWthKgXzsO1MBADYzOg@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <3FF73318D4D3E641AD1EE833EBAD22A3@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-To: "sitsofe@gmail.com" <sitsofe@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>
+In-Reply-To: <1521818158.2535.0.camel@wdc.com>
+References: <a7527854-7ed3-a074-278e-e75f75cec4e7@kernel.dk>
+ <CALjAwxgaVddxmgzkM6S7d6SP0FTdBT9y6QeO58L870qxBYDqAg@mail.gmail.com>
+ <ed74b20d-cd3b-2b0a-89d1-188be58a5dae@kernel.dk> <1521738727.2637.14.camel@sandisk.com>
+ <3e6568da-0dfe-7d4a-138d-f04e43a3dd7b@kernel.dk> <1521739678.2637.16.camel@wdc.com>
+ <baec1170-03fc-7b43-85e6-8e80f2d11006@kernel.dk> <CALjAwxhOT1NJX556Y19_mMoY53sOf6V=-Q79FVfa8eX39vBJew@mail.gmail.com>
+ <afb83e62-4b15-358f-c54e-012a80e7aa95@kernel.dk> <1521818158.2535.0.camel@wdc.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Fri, 23 Mar 2018 21:43:42 +0000
+Message-ID: <CALjAwxiWMRznn==MR=NGRDVsa1LtiR1EWthKgXzsO1MBADYzOg@mail.gmail.com>
+Subject: Re: valgrind spews
+Content-Type: multipart/mixed; boundary="001a114dd41836533505681b53b7"
+To: Bart Van Assche <Bart.VanAssche@wdc.com>
+Cc: "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-T24gRnJpLCAyMDE4LTAzLTIzIGF0IDIxOjQzICswMDAwLCBTaXRzb2ZlIFdoZWVsZXIgd3JvdGU6
-DQo+IE9uIDIzIE1hcmNoIDIwMTggYXQgMTU6MTUsIEJhcnQgVmFuIEFzc2NoZSA8QmFydC5WYW5B
-c3NjaGVAd2RjLmNvbT4gd3JvdGU6DQo+ID4gT24gRnJpLCAyMDE4LTAzLTIzIGF0IDA4OjQ5IC0w
-NjAwLCBKZW5zIEF4Ym9lIHdyb3RlOg0KPiA+ID4gUmlnaHQsIHRoaXMgaXMgaWRlbnRpY2FsIHRv
-IHdoYXQgSSByZXBvcnRlZC4gSSBnZXQgdG9ucyBvZiB0aGVzZSB3aXRoDQo+ID4gPiB0aGUgcGF0
-Y2gsIG5vdCB3aXRob3V0Lg0KPiA+IA0KPiA+IFNpbmNlIEkgY2FuIHJlcHJvZHVjZSB0aGlzIEkg
-d2lsbCBoYXZlIGEgbG9vayBhdCB3aGF0IGlzIGdvaW5nIG9uLg0KPiANCj4gSSB3b25kZXIgaWYg
-dGhlIG1hbm5lciB0aGF0IGZpbyBhbGxvY2F0ZXMgcmVkem9uZXMgaXMgaW5jb21wYXRpYmxlDQo+
-IHdpdGggdmFsZ3JpbmQncyBkdWUgdG8gZmlvJ3MgcmVkem9uZSdzIHBvdGVudGlhbGx5IGJlaW5n
-IHNtYWxsZXIgdGhhbg0KPiB0aGUgc2l6ZSBvZiBhIHBvaW50ZXIgYW5kIHRoZSBwcmUtcmVkem9u
-ZSBiZWluZyBwYXJ0aWFsbHkgaW5zaWRlIHRoZQ0KPiBoZWFkZXIgc3RydWN0dXJlLiBJJ20gYXR0
-YWNoaW5nIGEgcGF0Y2ggSSBtYWRlIGJ1dCBpdCBzdGlsbCBzZWVtcyB0bw0KPiBnZW5lcmF0ZSB2
-YWxncmluZCB3YXJuaW5ncyB0aGF0IGFyZW4ndCB0aGVyZSB3aGVuIGZhbGxpbmcgYmFjayB0bw0K
-PiBtYWxsb2MvZnJlZSB3aXRob3V0IHBvb2xzLi4uDQoNCkhlbGxvIFNpdHNvZmUsDQoNCkhhdmUg
-eW91IGVuYWJsZWQgZ2l0aHViJ3MgZmVhdHVyZSB0byBzZW5kIGFuIGUtbWFpbCBldmVyeSB0aW1l
-IGEgcHVsbCByZXF1ZXN0DQppcyBjcmVhdGVkIG9yIGEgY29tbWVudCBpcyBhZGRlZD8gVGhpcyBp
-c3N1ZSBzaG91bGQgaGF2ZSBiZWVuIHJlc29sdmVkIGJ5IGENCnB1bGwgcmVxdWVzdCBJIHN1Ym1p
-dHRlZCB0aGlzIG1vcm5pbmcuIFRoYXQgcHVsbCByZXF1ZXN0IGhhcyBiZWVuIGFjY2VwdGVkIGJ5
-DQpKZW5zLg0KDQpCYXJ0Lg0KDQoNCg==
+--001a114dd41836533505681b53b7
+Content-Type: text/plain; charset="UTF-8"
+
+On 23 March 2018 at 15:15, Bart Van Assche <Bart.VanAssche@wdc.com> wrote:
+> On Fri, 2018-03-23 at 08:49 -0600, Jens Axboe wrote:
+>> Right, this is identical to what I reported. I get tons of these with
+>> the patch, not without.
+>
+> Since I can reproduce this I will have a look at what is going on.
+
+I wonder if the manner that fio allocates redzones is incompatible
+with valgrind's due to fio's redzone's potentially being smaller than
+the size of a pointer and the pre-redzone being partially inside the
+header structure. I'm attaching a patch I made but it still seems to
+generate valgrind warnings that aren't there when falling back to
+malloc/free without pools...
+
+-- 
+Sitsofe | http://sucs.org/~sits/
+
+--001a114dd41836533505681b53b7
+Content-Type: application/octet-stream; name="smalloc.patch"
+Content-Disposition: attachment; filename="smalloc.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_jf4h0z1o0
+
+ZGlmZiAtLWdpdCBhL3NtYWxsb2MuYyBiL3NtYWxsb2MuYwppbmRleCA3YjE2OTBhZC4uMzZjNjZi
+OTYgMTAwNjQ0Ci0tLSBhL3NtYWxsb2MuYworKysgYi9zbWFsbG9jLmMKQEAgLTcsNiArNyw3IEBA
+CiAjaW5jbHVkZSA8c3RyaW5nLmg+CiAjaWZkZWYgQ09ORklHX1ZBTEdSSU5EX0RFVgogI2luY2x1
+ZGUgPHZhbGdyaW5kL3ZhbGdyaW5kLmg+CisjaW5jbHVkZSA8dmFsZ3JpbmQvbWVtY2hlY2suaD4K
+ICNlbHNlCiAjZGVmaW5lIFJVTk5JTkdfT05fVkFMR1JJTkQgMAogI2RlZmluZSBWQUxHUklORF9N
+QUxMT0NMSUtFX0JMT0NLKGFkZHIsIHNpemUsIHJ6QiwgaXNfemVyb2VkKSBkbyB7IH0gd2hpbGUg
+KDApCkBAIC0yNjEsMjQgKzI2MiwyOCBAQCBzdGF0aWMgdm9pZCAqcG9zdHJlZF9wdHIoc3RydWN0
+IGJsb2NrX2hkciAqaGRyKQogCiBzdGF0aWMgdm9pZCBmaWxsX3JlZHpvbmUoc3RydWN0IGJsb2Nr
+X2hkciAqaGRyKQogewotCXVuc2lnbmVkIGludCAqcG9zdHJlZCA9IHBvc3RyZWRfcHRyKGhkcik7
+CisJdW5zaWduZWQgaW50ICpwb3N0cmVkOwogCiAJLyogTGV0IFZhbGdyaW5kIGZpbGwgdGhlIHJl
+ZCB6b25lcy4gKi8KIAlpZiAoUlVOTklOR19PTl9WQUxHUklORCkKIAkJcmV0dXJuOwogCisJcG9z
+dHJlZCA9IHBvc3RyZWRfcHRyKGhkcik7CisKIAloZHItPnByZXJlZCA9IFNNQUxMT0NfUFJFX1JF
+RDsKIAkqcG9zdHJlZCA9IFNNQUxMT0NfUE9TVF9SRUQ7CiB9CiAKIHN0YXRpYyB2b2lkIHNmcmVl
+X2NoZWNrX3JlZHpvbmUoc3RydWN0IGJsb2NrX2hkciAqaGRyKQogewotCXVuc2lnbmVkIGludCAq
+cG9zdHJlZCA9IHBvc3RyZWRfcHRyKGhkcik7CisJdW5zaWduZWQgaW50ICpwb3N0cmVkOwogCiAJ
+LyogTGV0IFZhbGdyaW5kIGNoZWNrIHRoZSByZWQgem9uZXMuICovCiAJaWYgKFJVTk5JTkdfT05f
+VkFMR1JJTkQpCiAJCXJldHVybjsKIAorCXBvc3RyZWQgPSBwb3N0cmVkX3B0cihoZHIpOworCiAJ
+aWYgKGhkci0+cHJlcmVkICE9IFNNQUxMT0NfUFJFX1JFRCkgewogCQlsb2dfZXJyKCJzbWFsbG9j
+IHByZSByZWR6b25lIGRlc3Ryb3llZCFcbiIKIAkJCSIgcHRyPSVwLCBwcmVyZWQ9JXgsIGV4cGVj
+dGVkICV4XG4iLApAQCAtMzE2LDYgKzMyMSw3IEBAIHN0YXRpYyB2b2lkIHNmcmVlX3Bvb2woc3Ry
+dWN0IHBvb2wgKnBvb2wsIHZvaWQgKnB0cikKIAogCWFzc2VydChwdHJfdmFsaWQocG9vbCwgcHRy
+KSk7CiAKKwlWQUxHUklORF9NQUtFX01FTV9ERUZJTkVEKGhkciwgc2l6ZW9mKHN0cnVjdCBibG9j
+a19oZHIpKTsKIAlzZnJlZV9jaGVja19yZWR6b25lKGhkcik7CiAKIAlvZmZzZXQgPSBwdHIgLSBw
+b29sLT5tYXA7CkBAIC0zMjcsNiArMzMzLDcgQEAgc3RhdGljIHZvaWQgc2ZyZWVfcG9vbChzdHJ1
+Y3QgcG9vbCAqcG9vbCwgdm9pZCAqcHRyKQogCWlmIChpIDwgcG9vbC0+bmV4dF9ub25fZnVsbCkK
+IAkJcG9vbC0+bmV4dF9ub25fZnVsbCA9IGk7CiAJcG9vbC0+ZnJlZV9ibG9ja3MgKz0gc2l6ZV90
+b19ibG9ja3MoaGRyLT5zaXplKTsKKwlWQUxHUklORF9NQUtFX01FTV9OT0FDQ0VTUyhoZHIsIHNp
+emVvZihzdHJ1Y3QgYmxvY2tfaGRyKSk7CiAJZmlvX3NlbV91cChwb29sLT5sb2NrKTsKIH0KIApA
+QCAtMzQ2LDcgKzM1Myw3IEBAIHZvaWQgc2ZyZWUodm9pZCAqcHRyKQogCX0KIAogCWlmIChwb29s
+KSB7Ci0JCVZBTEdSSU5EX0ZSRUVMSUtFX0JMT0NLKHB0ciwgUkVEWk9ORV9TSVpFKTsKKwkJVkFM
+R1JJTkRfRlJFRUxJS0VfQkxPQ0socHRyIC0gUkVEWk9ORV9TSVpFLCBSRURaT05FX1NJWkUpOwog
+CQlzZnJlZV9wb29sKHBvb2wsIHB0cik7CiAJCXJldHVybjsKIAl9CkBAIC00MjcsMTAgKzQzNCwx
+NiBAQCBzdGF0aWMgdm9pZCAqc21hbGxvY19wb29sKHN0cnVjdCBwb29sICpwb29sLCBzaXplX3Qg
+c2l6ZSkKIAlpZiAocHRyKSB7CiAJCXN0cnVjdCBibG9ja19oZHIgKmhkciA9IHB0cjsKIAorCQlW
+QUxHUklORF9NQUtFX01FTV9ERUZJTkVEKGhkciwgc2l6ZW9mKHN0cnVjdCBibG9ja19oZHIpKTsK
+IAkJaGRyLT5zaXplID0gYWxsb2Nfc2l6ZTsKIAkJZmlsbF9yZWR6b25lKGhkcik7CisJCVZBTEdS
+SU5EX01BS0VfTUVNX05PQUNDRVNTKGhkciwgc2l6ZW9mKHN0cnVjdCBibG9ja19oZHIpKTsKIAog
+CQlwdHIgKz0gc2l6ZW9mKCpoZHIpOworCisJCVZBTEdSSU5EX01BTExPQ0xJS0VfQkxPQ0socHRy
+IC0gUkVEWk9ORV9TSVpFLCBzaXplICsgUkVEWk9ORV9TSVpFLAorCQkJCQkgIFJFRFpPTkVfU0la
+RSwKKwkJCQkJICAwKTsKIAkJbWVtc2V0KHB0ciwgMCwgc2l6ZSk7CiAJfQogCkBAIC00NTMsOSAr
+NDY2LDYgQEAgc3RhdGljIHZvaWQgKl9fc21hbGxvYyhzaXplX3Qgc2l6ZSwgYm9vbCBpc196ZXJv
+ZWQpCiAKIAkJCWlmIChwdHIpIHsKIAkJCQlsYXN0X3Bvb2wgPSBpOwotCQkJCVZBTEdSSU5EX01B
+TExPQ0xJS0VfQkxPQ0socHRyLCBzaXplLAotCQkJCQkJCSAgUkVEWk9ORV9TSVpFLAotCQkJCQkJ
+CSAgaXNfemVyb2VkKTsKIAkJCQlyZXR1cm4gcHRyOwogCQkJfQogCQl9Cg==
+--001a114dd41836533505681b53b7--
 
