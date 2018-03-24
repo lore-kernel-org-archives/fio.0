@@ -1,111 +1,65 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa3.hgst.iphmx.com ([216.71.153.141]:31553 "EHLO
-        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752173AbeCZPuB (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 26 Mar 2018 11:50:01 -0400
-From: Kris Davis <Kris.Davis@wdc.com>
-Subject: RE: "No I/O performed by <engine>" reporting bug?
-Date: Mon, 26 Mar 2018 15:49:58 +0000
-Message-ID: <CY1PR0401MB1116191E688201AE89DA270381AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
+Received: from mail-ua0-f174.google.com ([209.85.217.174]:40222 "EHLO
+        mail-ua0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752502AbeCXRdG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 24 Mar 2018 13:33:06 -0400
+Received: by mail-ua0-f174.google.com with SMTP id n20so947281ual.7
+        for <fio@vger.kernel.org>; Sat, 24 Mar 2018 10:33:05 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CALjAwxjzvd7dBTYGBSMaiSWm+v+LgbcrtKdh7EpZdNWtwmcubg@mail.gmail.com>
 References: <CY1PR0401MB111683B907AEAA34BB0A9A3881A80@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CALjAwxjzvd7dBTYGBSMaiSWm+v+LgbcrtKdh7EpZdNWtwmcubg@mail.gmail.com>
- <CALjAwxjN890tChPL2cOw2NsU_M-85GcEJKq8XwotYNOoDgxEtA@mail.gmail.com>
-In-Reply-To: <CALjAwxjN890tChPL2cOw2NsU_M-85GcEJKq8XwotYNOoDgxEtA@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 24 Mar 2018 17:32:34 +0000
+Message-ID: <CALjAwxjN890tChPL2cOw2NsU_M-85GcEJKq8XwotYNOoDgxEtA@mail.gmail.com>
+Subject: Re: "No I/O performed by <engine>" reporting bug?
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Kris Davis <Kris.Davis@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Itay Ben Yaacov <Itay.BenYaacov@wdc.com>
 
-U2l0c29mZSwgDQoNClRoYW5rcy4gICBJIGdhdmUgaXQgYSB0cnkgYW5kIG5vIGxvbmdlciBzZWUg
-dGhlIGVycm9yIG1lc3NhZ2UuICAgSG93ZXZlciwgaXQgZG9lc24ndCBhcHBlYXIgdGhhdCB0aGUg
-bG9vcCBjb3VudCBpcyBiZWluZyB1c2VkIGFueSBsb25nZXIgd2hlbiBudW1iZXJfaW9zIG9wdGlv
-biBpcyBzZXQuICBUaGUgZm9sbG93aW5nIHJ1bnMgaXMgbGVzcyBhYm91dCBhIHNlY29uZDogDQoN
-CiQgZmlvIC0taW9lbmdpbmU9bGliYWlvIC0tbG9vcHM9MzIgLS1kaXJlY3Q9MSAtLW51bWpvYnM9
-MSAtLW5vcmFuZG9tbWFwIC0tcmFuZHJlcGVhdD0wIC0tc2l6ZT0xNkdCIC0tZmlsZW5hbWU9L2Rl
-di9zZGIgLS1uYW1lPVJhbmRvbS1yZWFkLTRLLVFEMSAtLXJ3PXJhbmRyZWFkIC0tYnM9NEsgLS1p
-b2RlcHRoPTEgLS1udW1iZXJfaW9zPTgxOTINClJhbmRvbS1yZWFkLTRLLVFEMTogKGc9MCk6IHJ3
-PXJhbmRyZWFkLCBicz0oUikgNDA5NkItNDA5NkIsIChXKSA0MDk2Qi00MDk2QiwgKFQpIDQwOTZC
-LTQwOTZCLCBpb2VuZ2luZT1saWJhaW8sIGlvZGVwdGg9MQ0KZmlvLTMuNQ0KU3RhcnRpbmcgMSBw
-cm9jZXNzDQpKb2JzOiAxIChmPTEpDQpSYW5kb20tcmVhZC00Sy1RRDE6IChncm91cGlkPTAsIGpv
-YnM9MSk6IGVycj0gMDogcGlkPTMxNTc4OiBNb24gTWFyIDI2IDEwOjM3OjA2IDIwMTgNCiAgIHJl
-YWQ6IElPUFM9NzQzMywgQlc9MjkuME1pQi9zICgzMC40TUIvcykoMzIuME1pQi8xMTAybXNlYykN
-CiAgICBzbGF0IChuc2VjKTogbWluPTQ1NjQsIG1heD00MzQ1OSwgYXZnPTYwMTEuNjUsIHN0ZGV2
-PTY2Mi40Mw0KLi4uDQpSdW4gc3RhdHVzIGdyb3VwIDAgKGFsbCBqb2JzKToNCiAgIFJFQUQ6IGJ3
-PTI5LjBNaUIvcyAoMzAuNE1CL3MpLCAyOS4wTWlCL3MtMjkuME1pQi9zICgzMC40TUIvcy0zMC40
-TUIvcyksIGlvPTMyLjBNaUIgKDMzLjZNQiksIHJ1bj0xMTAyLTExMDJtc2VjDQoNCg0KDQpCdXQs
-IGlmIEkgdXNlIGlvX3NpemU9MzJNQiwgaXQgZG9lcyBhY3R1YWxseSBydW4gZm9yIGFib3V0IDMw
-IHNlY29uZHMgYXMgZXhwZWN0ZWQ6DQoNCiQgIGZpbyAtLWlvZW5naW5lPWxpYmFpbyAtLWxvb3Bz
-PTMyIC0tZGlyZWN0PTEgLS1udW1qb2JzPTEgLS1ub3JhbmRvbW1hcCAtLXJhbmRyZXBlYXQ9MCAt
-LXNpemU9MTZHQiAtLWZpbGVuYW1lPS9kZXYvc2RiIC0tbmFtZT1SYW5kb20tcmVhZC00Sy1RRDEg
-LS1ydz1yYW5kcmVhZCAtLWJzPTRLIC0taW9kZXB0aD0xIC0taW9fc2l6ZT0zMk1CDQpSYW5kb20t
-cmVhZC00Sy1RRDE6IChnPTApOiBydz1yYW5kcmVhZCwgYnM9KFIpIDQwOTZCLTQwOTZCLCAoVykg
-NDA5NkItNDA5NkIsIChUKSA0MDk2Qi00MDk2QiwgaW9lbmdpbmU9bGliYWlvLCBpb2RlcHRoPTEN
-CmZpby0zLjUNClN0YXJ0aW5nIDEgcHJvY2Vzcw0KUmFuZG9tLXJlYWQtNEstUUQxOiBObyBJL08g
-cGVyZm9ybWVkIGJ5IGxpYmFpbywgcGVyaGFwcyB0cnkgLS1kZWJ1Zz1pbyBvcHRpb24gZm9yIGRl
-dGFpbHM/DQoNClJhbmRvbS1yZWFkLTRLLVFEMTogKGdyb3VwaWQ9MCwgam9icz0xKTogZXJyPSAw
-OiBwaWQ9MzE5OTg6IE1vbiBNYXIgMjYgMTA6NDY6NDUgMjAxOA0KICAgcmVhZDogSU9QUz03Nzkw
-LCBCVz0zMC40TWlCL3MgKDMxLjlNQi9zKSgxMDI0TWlCLzMzNjUwbXNlYykNCiAgICBzbGF0IChu
-c2VjKTogbWluPTQ0NDMsIG1heD00MzQ1NywgYXZnPTQ4MzEuOTksIHN0ZGV2PTI4Ni4zOQ0KLi4u
-DQpSdW4gc3RhdHVzIGdyb3VwIDAgKGFsbCBqb2JzKToNCiAgIFJFQUQ6IGJ3PTMwLjRNaUIvcyAo
-MzEuOU1CL3MpLCAzMC40TWlCL3MtMzAuNE1pQi9zICgzMS45TUIvcy0zMS45TUIvcyksIGlvPTEw
-MjRNaUIgKDEwNzRNQiksIHJ1bj0zMzY1MC0zMzY1MG1zZWMNCg0KRGlzayBzdGF0cyAocmVhZC93
-cml0ZSk6DQogIHNkYjogaW9zPTI2MjEzMC8wLCBtZXJnZT0wLzAsIHRpY2tzPTMxNDUzLzAsIGlu
-X3F1ZXVlPTMxMzk2LCB1dGlsPTkzLjA2JQ0KDQoNClRoYW5rcyBhZ2Fpbi4NCg0KS3JpcyBEYXZp
-cw0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogU2l0c29mZSBXaGVlbGVyIFtt
-YWlsdG86c2l0c29mZUBnbWFpbC5jb21dIA0KU2VudDogU2F0dXJkYXksIE1hcmNoIDI0LCAyMDE4
-IDEyOjMzIFBNDQpUbzogS3JpcyBEYXZpcyA8S3Jpcy5EYXZpc0B3ZGMuY29tPg0KQ2M6IGZpb0B2
-Z2VyLmtlcm5lbC5vcmc7IEl0YXkgQmVuIFlhYWNvdiA8SXRheS5CZW5ZYWFjb3ZAd2RjLmNvbT4N
-ClN1YmplY3Q6IFJlOiAiTm8gSS9PIHBlcmZvcm1lZCBieSA8ZW5naW5lPiIgcmVwb3J0aW5nIGJ1
-Zz8NCg0KT24gMjMgTWFyY2ggMjAxOCBhdCAyMTo0NSwgU2l0c29mZSBXaGVlbGVyIDxzaXRzb2Zl
-QGdtYWlsLmNvbT4gd3JvdGU6DQo+IE9uIDIzIE1hcmNoIDIwMTggYXQgMTY6MDgsIEtyaXMgRGF2
-aXMgPEtyaXMuRGF2aXNAd2RjLmNvbT4gd3JvdGU6DQo+PiBJbiBmaW8gdmVyc2lvbiAyLjIwIGEg
-dGVzdCBzZWVtcyB0byBoYXZlIGJlZW4gYWRkZWQgdG8gYmFja2VuZC5jIHdoaWNoICJtYXkiIGZh
-bHNlbHkgcmVwb3J0IHRoYXQgbm8gSS9PIGhhcyBvY2N1cnJlZC4NClsuLi5dDQo+PiBJbiB0aGUg
-Zm9sbG93aW5nIGZpbyB0ZXN0LCB0aGUgZXJyb3IgbWVzc2FnZSBpcyBsb2dnZWQsIGV2ZW4gdGhv
-dWdoIA0KPj4gaXQgYXBwZWFycyB0aGF0IGV2ZXJ5dGhpbmcgaGFzIHJ1biBvayAoZmlvIGJ1aWx0
-IGZyb20gbWFpbiBiZWxvdywgYnV0IHJlc3VsdHMgYXBwZWFyIHRvIGJlIHRoZSBzYW1lIHdpdGgg
-YXQgbGVhc3QgZmlvIHZlcnNpb24gMi4yMSkgKEl0J3MgYWxzbyBpbnRlcmVzdGluZyB0byBub3Rl
-IHRoYXQgdGhlIGVzdGltYXRlZCAiZXRhIiBpcyBhbHNvIGdyb3NzbHkgaW5hY2N1cmF0ZSBbY2Fw
-dHVyZWQgd2hpbGUgcnVubmluZyBiZWxvd10gLSBidXQgdGhhdCBpcyBhIGRpZmZlcmVudCBpc3N1
-ZSBJIHRoaW5rKS4NCg0KWWVhaCB0aGF0J3MgZ29pbmcgdG8gYmUgYSBzZXBhcmF0ZSBpc3N1ZS4g
-VGhlIHRocmVhZF9ldGEoKSBpbiBldGEuYyBkb2Vzbid0IGxvb2sgYXQgdGhlIG51bWJlciBvZiBJ
-L09zIG9ubHkgdGhlIGd1ZXNzZWQgdG90YWwgYnl0ZXMgYW5kIGhvdyBmYXIgdGhyb3VnaCBmaW8g
-aGFzIHByb2dyZXNzZWQgdGhyb3VnaCB0aGF0Lg0KDQo+PiBZb3UgY2FuIHNlZSB0aGUgIiBSYW5k
-b20tcmVhZC00Sy1RRDE6IE5vIEkvTyBwZXJmb3JtZWQgYnkgbGliYWlvLCBwZXJoYXBzIHRyeSAt
-LWRlYnVnPWlvIG9wdGlvbiBmb3IgZGV0YWlscz8iIGVycm9yIG1lc3NhZ2UgYmVsb3csIHdoaWNo
-ICJhcHBlYXJzIiB0byBiZSBmYWxzZS4NCj4+DQo+PiAgICAgJCBmaW8gLS1pb2VuZ2luZT1saWJh
-aW8gLS1sb29wcz0zMiAtLWRpcmVjdD0xIC0tbnVtam9icz0xLS1ub3JhbmRvbW1hcCAtLXJhbmRy
-ZXBlYXQ9MCAtLXNpemU9MTZHQiAtLWZpbGVuYW1lPS9kZXYvc2RiIC0tbmFtZT1SYW5kb20tcmVh
-ZC00Sy1RRDEgLS1ydz1yYW5kcmVhZCAtLWJzPTRLIC0taW9kZXB0aD0xIC0tbnVtYmVyX2lvcz04
-MTkyDQo+PiAgICAgUmFuZG9tLXJlYWQtNEstUUQxOiAoZz0wKTogcnc9cmFuZHJlYWQsIGJzPShS
-KSA0MDk2Qi00MDk2QiwgKFcpIDQwOTZCLTQwOTZCLCAoVCkgNDA5NkItNDA5NkIsIGlvZW5naW5l
-PWxpYmFpbywgaW9kZXB0aD0xDQo+PiAgICAgZmlvLTMuNS02MC1nNjljNQ0KPj4gICAgIFN0YXJ0
-aW5nIDEgcHJvY2Vzcw0KPj4gICAgIEpvYnM6IDEgKGY9MSk6IFtyKDEpXVswLjIlXVtyPTMwLjlN
-aUIvcyx3PTBLaUIvc11bcj03ODk4LHc9MCANCj4+IElPUFNdW2V0YSAwNGg6NDVtOjM1c10NCj4+
-DQo+PiAgICAgUmFuZG9tLXJlYWQtNEstUUQxOiBObyBJL08gcGVyZm9ybWVkIGJ5IGxpYmFpbywg
-cGVyaGFwcyB0cnkgLS1kZWJ1Zz1pbyBvcHRpb24gZm9yIGRldGFpbHM/DQo+Pg0KPiBbLi4uXQ0K
-Pj4NCj4+IEkgYWRkZWQgYSBwcmludCBtZXNzYWdlIHdoaWNoIHNob3dlZCB0aGF0IGJvdGggZGRp
-cl9yd19zdW0oYnl0ZXNfZG9uZSkgYW5kIGRpZF9zb21lX2lvIHZhbHVlcyB3ZXJlIHplcm8gYXQg
-dGhhdCBwb2ludCBpbiB0aGUgY29kZS4NCj4+IEkgZGlkbid0IHRyeSB0byBkaWcgaW50byB0aGUg
-b3BlcmF0aW9uIG9mIHRoZSBieXRlc19kb25lIGFuZCBkaWRfc29tZV9pbyB2YWx1ZXMgZnVydGhl
-ciwgeWV0Lg0KPj4NCj4+DQo+PiBBbHNvLCBJIG5vdGljZWQgdGhhdCBpZiBvcHRpb24gIi0taW9f
-c2l6ZT0zMk0iIHdhcyB1c2VkIGluc3RlYWQgb2YgIm51bWJlcl9pb3M9ODE5MiIsIHRoZW4gdGhl
-IGV0YSBhcHBlYXJlZCB0byBiZSBhY2N1cmF0ZSAtIHNvIHRoZSBldGEgaXNzdWUgZG9lcyAiYXBw
-ZWFyIiB0byBiZSBpbmRlcGVuZGVudCAtIEkgY2FuIG9wZW4gYSBzZXBhcmF0ZSBkaXNjdXNzaW9u
-IG9yIGlzc3VlIGlmIGRlc2lyZWQuDQoNCkEgc2VwYXJhdGUgZGlzY3Vzc2lvbiB3b3VsZCBiZSBn
-b29kLg0KDQo+IEp1c3QgcXVpY2tseSBsb29raW5nIEkgdGhpbmsgdGhpcyBpcyBkb3duIHRvIG51
-bWJlcl9pb3M9PHZhbD4gYmVpbmcgDQo+IHBhaXJlZCB3aXRoIGxvb3BzPTMyIGJ1dCBJIGhhdmVu
-J3QgaGFkIHRpbWUgdG8gZGlnIGZ1cnRoZXIuLi4NCg0KQWZ0ZXIgZ2V0dGluZyB0aGUgd3Jvbmcg
-ZW5kIG9mIHRoZSBzdGljayBhbmQgd29uZGVyaW5nIGlmIEplbnMgd2FzIHRyeWluZyB0byBtYWtl
-IG51bWJlcl9pb3Mgb25seSBhY2NvdW50IGZvciB0aGUgY3VycmVudCBsb29wJ3MgSS9PIHdpdGgN
-Cmh0dHBzOi8vZ2l0aHViLmNvbS9heGJvZS9maW8vY29tbWl0L2NmOGE0NmE3NWYzOGFmZTA3ZWJm
-ODIzMjEwZjk1NTQzOTk5ZTMxMTYNCigiTWFrZSAnbG9vcHMnIGhvbm9yIGZ1bGwgd3JpdGUrdmVy
-aWZ5IGxvb3BzIikgSSB0aGluayBvbmUgb2YgdGhlIGNoYW5nZXMgdGhlcmUgd2FzIGp1c3QgYSBz
-aW1wbGUgbWlzdGFrZSB3aGlsZSBmaXhpbmcgb3RoZXIgYXJlYXMgdXAuDQpDYW4geW91IHNlZSBp
-ZiBodHRwczovL2dpdGh1Yi5jb20vc2l0c29mZS9maW8vdHJlZS9sb29wc19udW1iZXJpb3MNCmZp
-eGVzIHdoYXQgeW91IHdlcmUgc2VlaW5nPw0KDQotLQ0KU2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9y
-Zy9+c2l0cy8NCg==
+On 23 March 2018 at 21:45, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+> On 23 March 2018 at 16:08, Kris Davis <Kris.Davis@wdc.com> wrote:
+>> In fio version 2.20 a test seems to have been added to backend.c which "may" falsely report that no I/O has occurred.
+[...]
+>> In the following fio test, the error message is logged, even though it appears that everything has run ok (fio built from main below, but results appear to be the same with at least fio version 2.21)
+>> (It's also interesting to note that the estimated "eta" is also grossly inaccurate [captured while running below] - but that is a different issue I think).
+
+Yeah that's going to be a separate issue. The thread_eta() in eta.c
+doesn't look at the number of I/Os only the guessed total bytes and
+how far through fio has progressed through that.
+
+>> You can see the " Random-read-4K-QD1: No I/O performed by libaio, perhaps try --debug=io option for details?" error message below, which "appears" to be false.
+>>
+>>     $ fio --ioengine=libaio --loops=32 --direct=1 --numjobs=1--norandommap --randrepeat=0 --size=16GB --filename=/dev/sdb --name=Random-read-4K-QD1 --rw=randread --bs=4K --iodepth=1 --number_ios=8192
+>>     Random-read-4K-QD1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=1
+>>     fio-3.5-60-g69c5
+>>     Starting 1 process
+>>     Jobs: 1 (f=1): [r(1)][0.2%][r=30.9MiB/s,w=0KiB/s][r=7898,w=0 IOPS][eta 04h:45m:35s]
+>>
+>>     Random-read-4K-QD1: No I/O performed by libaio, perhaps try --debug=io option for details?
+>>
+> [...]
+>>
+>> I added a print message which showed that both ddir_rw_sum(bytes_done) and did_some_io values were zero at that point in the code.
+>> I didn't try to dig into the operation of the bytes_done and did_some_io values further, yet.
+>>
+>>
+>> Also, I noticed that if option "--io_size=32M" was used instead of "number_ios=8192", then the eta appeared to be accurate - so the eta issue does "appear" to be independent - I can open a separate discussion or issue if desired.
+
+A separate discussion would be good.
+
+> Just quickly looking I think this is down to number_ios=<val> being
+> paired with loops=32 but I haven't had time to dig further...
+
+After getting the wrong end of the stick and wondering if Jens was
+trying to make number_ios only account for the current loop's I/O with
+https://github.com/axboe/fio/commit/cf8a46a75f38afe07ebf823210f95543999e3116
+("Make 'loops' honor full write+verify loops") I think one of the
+changes there was just a simple mistake while fixing other areas up.
+Can you see if https://github.com/sitsofe/fio/tree/loops_numberios
+fixes what you were seeing?
+
+-- 
+Sitsofe | http://sucs.org/~sits/
