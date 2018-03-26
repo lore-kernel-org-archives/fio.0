@@ -1,65 +1,111 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk0-f46.google.com ([209.85.213.46]:44320 "EHLO
-        mail-vk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751249AbeCZQB5 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 26 Mar 2018 12:01:57 -0400
-Received: by mail-vk0-f46.google.com with SMTP id r184so2567643vke.11
-        for <fio@vger.kernel.org>; Mon, 26 Mar 2018 09:01:57 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CY1PR0401MB1116191E688201AE89DA270381AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:31553 "EHLO
+        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752173AbeCZPuB (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 26 Mar 2018 11:50:01 -0400
+From: Kris Davis <Kris.Davis@wdc.com>
+Subject: RE: "No I/O performed by <engine>" reporting bug?
+Date: Mon, 26 Mar 2018 15:49:58 +0000
+Message-ID: <CY1PR0401MB1116191E688201AE89DA270381AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
 References: <CY1PR0401MB111683B907AEAA34BB0A9A3881A80@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CALjAwxjzvd7dBTYGBSMaiSWm+v+LgbcrtKdh7EpZdNWtwmcubg@mail.gmail.com>
- <CALjAwxjN890tChPL2cOw2NsU_M-85GcEJKq8XwotYNOoDgxEtA@mail.gmail.com> <CY1PR0401MB1116191E688201AE89DA270381AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Mon, 26 Mar 2018 17:01:24 +0100
-Message-ID: <CALjAwxhhXogm8x_7RbdOBq0wOEFSrguL2S-qTpN=7ahO=HZ_0g@mail.gmail.com>
-Subject: Re: "No I/O performed by <engine>" reporting bug?
-Content-Type: text/plain; charset="UTF-8"
+ <CALjAwxjN890tChPL2cOw2NsU_M-85GcEJKq8XwotYNOoDgxEtA@mail.gmail.com>
+In-Reply-To: <CALjAwxjN890tChPL2cOw2NsU_M-85GcEJKq8XwotYNOoDgxEtA@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Kris Davis <Kris.Davis@wdc.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Itay Ben Yaacov <Itay.BenYaacov@wdc.com>
 
-Hi Kris,
-
-On 26 March 2018 at 16:49, Kris Davis <Kris.Davis@wdc.com> wrote:
->
-> Thanks.   I gave it a try and no longer see the error message.   However, it doesn't appear that the loop count is being used any longer when number_ios option is set.  The following runs is less about a second:
->
-> $ fio --ioengine=libaio --loops=32 --direct=1 --numjobs=1 --norandommap --randrepeat=0 --size=16GB --filename=/dev/sdb --name=Random-read-4K-QD1 --rw=randread --bs=4K --iodepth=1 --number_ios=8192
-> Random-read-4K-QD1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=1
-> fio-3.5
-> Starting 1 process
-> Jobs: 1 (f=1)
-> Random-read-4K-QD1: (groupid=0, jobs=1): err= 0: pid=31578: Mon Mar 26 10:37:06 2018
->    read: IOPS=7433, BW=29.0MiB/s (30.4MB/s)(32.0MiB/1102msec)
->     slat (nsec): min=4564, max=43459, avg=6011.65, stdev=662.43
-> ...
-> Run status group 0 (all jobs):
->    READ: bw=29.0MiB/s (30.4MB/s), 29.0MiB/s-29.0MiB/s (30.4MB/s-30.4MB/s), io=32.0MiB (33.6MB), run=1102-1102msec
-
-Is this a bad thing? I was aiming for that behaviour (for number_ios to
-behave per job rather than per loop)...
-
-> But, if I use io_size=32MB, it does actually run for about 30 seconds as expected:
->
-> $  fio --ioengine=libaio --loops=32 --direct=1 --numjobs=1 --norandommap --randrepeat=0 --size=16GB --filename=/dev/sdb --name=Random-read-4K-QD1 --rw=randread --bs=4K --iodepth=1 --io_size=32MB
-> Random-read-4K-QD1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=1
-> fio-3.5
-> Starting 1 process
-> Random-read-4K-QD1: No I/O performed by libaio, perhaps try --debug=io option for details?
-
-^^^ Have you found another problem here?
-
-> Random-read-4K-QD1: (groupid=0, jobs=1): err= 0: pid=31998: Mon Mar 26 10:46:45 2018
->    read: IOPS=7790, BW=30.4MiB/s (31.9MB/s)(1024MiB/33650msec)
->     slat (nsec): min=4443, max=43457, avg=4831.99, stdev=286.39
-> ...
-> Run status group 0 (all jobs):
->    READ: bw=30.4MiB/s (31.9MB/s), 30.4MiB/s-30.4MiB/s (31.9MB/s-31.9MB/s), io=1024MiB (1074MB), run=33650-33650msec
->
-> Disk stats (read/write):
->   sdb: ios=262130/0, merge=0/0, ticks=31453/0, in_queue=31396, util=93.06%
-
--- 
-Sitsofe | http://sucs.org/~sits/
+U2l0c29mZSwgDQoNClRoYW5rcy4gICBJIGdhdmUgaXQgYSB0cnkgYW5kIG5vIGxvbmdlciBzZWUg
+dGhlIGVycm9yIG1lc3NhZ2UuICAgSG93ZXZlciwgaXQgZG9lc24ndCBhcHBlYXIgdGhhdCB0aGUg
+bG9vcCBjb3VudCBpcyBiZWluZyB1c2VkIGFueSBsb25nZXIgd2hlbiBudW1iZXJfaW9zIG9wdGlv
+biBpcyBzZXQuICBUaGUgZm9sbG93aW5nIHJ1bnMgaXMgbGVzcyBhYm91dCBhIHNlY29uZDogDQoN
+CiQgZmlvIC0taW9lbmdpbmU9bGliYWlvIC0tbG9vcHM9MzIgLS1kaXJlY3Q9MSAtLW51bWpvYnM9
+MSAtLW5vcmFuZG9tbWFwIC0tcmFuZHJlcGVhdD0wIC0tc2l6ZT0xNkdCIC0tZmlsZW5hbWU9L2Rl
+di9zZGIgLS1uYW1lPVJhbmRvbS1yZWFkLTRLLVFEMSAtLXJ3PXJhbmRyZWFkIC0tYnM9NEsgLS1p
+b2RlcHRoPTEgLS1udW1iZXJfaW9zPTgxOTINClJhbmRvbS1yZWFkLTRLLVFEMTogKGc9MCk6IHJ3
+PXJhbmRyZWFkLCBicz0oUikgNDA5NkItNDA5NkIsIChXKSA0MDk2Qi00MDk2QiwgKFQpIDQwOTZC
+LTQwOTZCLCBpb2VuZ2luZT1saWJhaW8sIGlvZGVwdGg9MQ0KZmlvLTMuNQ0KU3RhcnRpbmcgMSBw
+cm9jZXNzDQpKb2JzOiAxIChmPTEpDQpSYW5kb20tcmVhZC00Sy1RRDE6IChncm91cGlkPTAsIGpv
+YnM9MSk6IGVycj0gMDogcGlkPTMxNTc4OiBNb24gTWFyIDI2IDEwOjM3OjA2IDIwMTgNCiAgIHJl
+YWQ6IElPUFM9NzQzMywgQlc9MjkuME1pQi9zICgzMC40TUIvcykoMzIuME1pQi8xMTAybXNlYykN
+CiAgICBzbGF0IChuc2VjKTogbWluPTQ1NjQsIG1heD00MzQ1OSwgYXZnPTYwMTEuNjUsIHN0ZGV2
+PTY2Mi40Mw0KLi4uDQpSdW4gc3RhdHVzIGdyb3VwIDAgKGFsbCBqb2JzKToNCiAgIFJFQUQ6IGJ3
+PTI5LjBNaUIvcyAoMzAuNE1CL3MpLCAyOS4wTWlCL3MtMjkuME1pQi9zICgzMC40TUIvcy0zMC40
+TUIvcyksIGlvPTMyLjBNaUIgKDMzLjZNQiksIHJ1bj0xMTAyLTExMDJtc2VjDQoNCg0KDQpCdXQs
+IGlmIEkgdXNlIGlvX3NpemU9MzJNQiwgaXQgZG9lcyBhY3R1YWxseSBydW4gZm9yIGFib3V0IDMw
+IHNlY29uZHMgYXMgZXhwZWN0ZWQ6DQoNCiQgIGZpbyAtLWlvZW5naW5lPWxpYmFpbyAtLWxvb3Bz
+PTMyIC0tZGlyZWN0PTEgLS1udW1qb2JzPTEgLS1ub3JhbmRvbW1hcCAtLXJhbmRyZXBlYXQ9MCAt
+LXNpemU9MTZHQiAtLWZpbGVuYW1lPS9kZXYvc2RiIC0tbmFtZT1SYW5kb20tcmVhZC00Sy1RRDEg
+LS1ydz1yYW5kcmVhZCAtLWJzPTRLIC0taW9kZXB0aD0xIC0taW9fc2l6ZT0zMk1CDQpSYW5kb20t
+cmVhZC00Sy1RRDE6IChnPTApOiBydz1yYW5kcmVhZCwgYnM9KFIpIDQwOTZCLTQwOTZCLCAoVykg
+NDA5NkItNDA5NkIsIChUKSA0MDk2Qi00MDk2QiwgaW9lbmdpbmU9bGliYWlvLCBpb2RlcHRoPTEN
+CmZpby0zLjUNClN0YXJ0aW5nIDEgcHJvY2Vzcw0KUmFuZG9tLXJlYWQtNEstUUQxOiBObyBJL08g
+cGVyZm9ybWVkIGJ5IGxpYmFpbywgcGVyaGFwcyB0cnkgLS1kZWJ1Zz1pbyBvcHRpb24gZm9yIGRl
+dGFpbHM/DQoNClJhbmRvbS1yZWFkLTRLLVFEMTogKGdyb3VwaWQ9MCwgam9icz0xKTogZXJyPSAw
+OiBwaWQ9MzE5OTg6IE1vbiBNYXIgMjYgMTA6NDY6NDUgMjAxOA0KICAgcmVhZDogSU9QUz03Nzkw
+LCBCVz0zMC40TWlCL3MgKDMxLjlNQi9zKSgxMDI0TWlCLzMzNjUwbXNlYykNCiAgICBzbGF0IChu
+c2VjKTogbWluPTQ0NDMsIG1heD00MzQ1NywgYXZnPTQ4MzEuOTksIHN0ZGV2PTI4Ni4zOQ0KLi4u
+DQpSdW4gc3RhdHVzIGdyb3VwIDAgKGFsbCBqb2JzKToNCiAgIFJFQUQ6IGJ3PTMwLjRNaUIvcyAo
+MzEuOU1CL3MpLCAzMC40TWlCL3MtMzAuNE1pQi9zICgzMS45TUIvcy0zMS45TUIvcyksIGlvPTEw
+MjRNaUIgKDEwNzRNQiksIHJ1bj0zMzY1MC0zMzY1MG1zZWMNCg0KRGlzayBzdGF0cyAocmVhZC93
+cml0ZSk6DQogIHNkYjogaW9zPTI2MjEzMC8wLCBtZXJnZT0wLzAsIHRpY2tzPTMxNDUzLzAsIGlu
+X3F1ZXVlPTMxMzk2LCB1dGlsPTkzLjA2JQ0KDQoNClRoYW5rcyBhZ2Fpbi4NCg0KS3JpcyBEYXZp
+cw0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogU2l0c29mZSBXaGVlbGVyIFtt
+YWlsdG86c2l0c29mZUBnbWFpbC5jb21dIA0KU2VudDogU2F0dXJkYXksIE1hcmNoIDI0LCAyMDE4
+IDEyOjMzIFBNDQpUbzogS3JpcyBEYXZpcyA8S3Jpcy5EYXZpc0B3ZGMuY29tPg0KQ2M6IGZpb0B2
+Z2VyLmtlcm5lbC5vcmc7IEl0YXkgQmVuIFlhYWNvdiA8SXRheS5CZW5ZYWFjb3ZAd2RjLmNvbT4N
+ClN1YmplY3Q6IFJlOiAiTm8gSS9PIHBlcmZvcm1lZCBieSA8ZW5naW5lPiIgcmVwb3J0aW5nIGJ1
+Zz8NCg0KT24gMjMgTWFyY2ggMjAxOCBhdCAyMTo0NSwgU2l0c29mZSBXaGVlbGVyIDxzaXRzb2Zl
+QGdtYWlsLmNvbT4gd3JvdGU6DQo+IE9uIDIzIE1hcmNoIDIwMTggYXQgMTY6MDgsIEtyaXMgRGF2
+aXMgPEtyaXMuRGF2aXNAd2RjLmNvbT4gd3JvdGU6DQo+PiBJbiBmaW8gdmVyc2lvbiAyLjIwIGEg
+dGVzdCBzZWVtcyB0byBoYXZlIGJlZW4gYWRkZWQgdG8gYmFja2VuZC5jIHdoaWNoICJtYXkiIGZh
+bHNlbHkgcmVwb3J0IHRoYXQgbm8gSS9PIGhhcyBvY2N1cnJlZC4NClsuLi5dDQo+PiBJbiB0aGUg
+Zm9sbG93aW5nIGZpbyB0ZXN0LCB0aGUgZXJyb3IgbWVzc2FnZSBpcyBsb2dnZWQsIGV2ZW4gdGhv
+dWdoIA0KPj4gaXQgYXBwZWFycyB0aGF0IGV2ZXJ5dGhpbmcgaGFzIHJ1biBvayAoZmlvIGJ1aWx0
+IGZyb20gbWFpbiBiZWxvdywgYnV0IHJlc3VsdHMgYXBwZWFyIHRvIGJlIHRoZSBzYW1lIHdpdGgg
+YXQgbGVhc3QgZmlvIHZlcnNpb24gMi4yMSkgKEl0J3MgYWxzbyBpbnRlcmVzdGluZyB0byBub3Rl
+IHRoYXQgdGhlIGVzdGltYXRlZCAiZXRhIiBpcyBhbHNvIGdyb3NzbHkgaW5hY2N1cmF0ZSBbY2Fw
+dHVyZWQgd2hpbGUgcnVubmluZyBiZWxvd10gLSBidXQgdGhhdCBpcyBhIGRpZmZlcmVudCBpc3N1
+ZSBJIHRoaW5rKS4NCg0KWWVhaCB0aGF0J3MgZ29pbmcgdG8gYmUgYSBzZXBhcmF0ZSBpc3N1ZS4g
+VGhlIHRocmVhZF9ldGEoKSBpbiBldGEuYyBkb2Vzbid0IGxvb2sgYXQgdGhlIG51bWJlciBvZiBJ
+L09zIG9ubHkgdGhlIGd1ZXNzZWQgdG90YWwgYnl0ZXMgYW5kIGhvdyBmYXIgdGhyb3VnaCBmaW8g
+aGFzIHByb2dyZXNzZWQgdGhyb3VnaCB0aGF0Lg0KDQo+PiBZb3UgY2FuIHNlZSB0aGUgIiBSYW5k
+b20tcmVhZC00Sy1RRDE6IE5vIEkvTyBwZXJmb3JtZWQgYnkgbGliYWlvLCBwZXJoYXBzIHRyeSAt
+LWRlYnVnPWlvIG9wdGlvbiBmb3IgZGV0YWlscz8iIGVycm9yIG1lc3NhZ2UgYmVsb3csIHdoaWNo
+ICJhcHBlYXJzIiB0byBiZSBmYWxzZS4NCj4+DQo+PiAgICAgJCBmaW8gLS1pb2VuZ2luZT1saWJh
+aW8gLS1sb29wcz0zMiAtLWRpcmVjdD0xIC0tbnVtam9icz0xLS1ub3JhbmRvbW1hcCAtLXJhbmRy
+ZXBlYXQ9MCAtLXNpemU9MTZHQiAtLWZpbGVuYW1lPS9kZXYvc2RiIC0tbmFtZT1SYW5kb20tcmVh
+ZC00Sy1RRDEgLS1ydz1yYW5kcmVhZCAtLWJzPTRLIC0taW9kZXB0aD0xIC0tbnVtYmVyX2lvcz04
+MTkyDQo+PiAgICAgUmFuZG9tLXJlYWQtNEstUUQxOiAoZz0wKTogcnc9cmFuZHJlYWQsIGJzPShS
+KSA0MDk2Qi00MDk2QiwgKFcpIDQwOTZCLTQwOTZCLCAoVCkgNDA5NkItNDA5NkIsIGlvZW5naW5l
+PWxpYmFpbywgaW9kZXB0aD0xDQo+PiAgICAgZmlvLTMuNS02MC1nNjljNQ0KPj4gICAgIFN0YXJ0
+aW5nIDEgcHJvY2Vzcw0KPj4gICAgIEpvYnM6IDEgKGY9MSk6IFtyKDEpXVswLjIlXVtyPTMwLjlN
+aUIvcyx3PTBLaUIvc11bcj03ODk4LHc9MCANCj4+IElPUFNdW2V0YSAwNGg6NDVtOjM1c10NCj4+
+DQo+PiAgICAgUmFuZG9tLXJlYWQtNEstUUQxOiBObyBJL08gcGVyZm9ybWVkIGJ5IGxpYmFpbywg
+cGVyaGFwcyB0cnkgLS1kZWJ1Zz1pbyBvcHRpb24gZm9yIGRldGFpbHM/DQo+Pg0KPiBbLi4uXQ0K
+Pj4NCj4+IEkgYWRkZWQgYSBwcmludCBtZXNzYWdlIHdoaWNoIHNob3dlZCB0aGF0IGJvdGggZGRp
+cl9yd19zdW0oYnl0ZXNfZG9uZSkgYW5kIGRpZF9zb21lX2lvIHZhbHVlcyB3ZXJlIHplcm8gYXQg
+dGhhdCBwb2ludCBpbiB0aGUgY29kZS4NCj4+IEkgZGlkbid0IHRyeSB0byBkaWcgaW50byB0aGUg
+b3BlcmF0aW9uIG9mIHRoZSBieXRlc19kb25lIGFuZCBkaWRfc29tZV9pbyB2YWx1ZXMgZnVydGhl
+ciwgeWV0Lg0KPj4NCj4+DQo+PiBBbHNvLCBJIG5vdGljZWQgdGhhdCBpZiBvcHRpb24gIi0taW9f
+c2l6ZT0zMk0iIHdhcyB1c2VkIGluc3RlYWQgb2YgIm51bWJlcl9pb3M9ODE5MiIsIHRoZW4gdGhl
+IGV0YSBhcHBlYXJlZCB0byBiZSBhY2N1cmF0ZSAtIHNvIHRoZSBldGEgaXNzdWUgZG9lcyAiYXBw
+ZWFyIiB0byBiZSBpbmRlcGVuZGVudCAtIEkgY2FuIG9wZW4gYSBzZXBhcmF0ZSBkaXNjdXNzaW9u
+IG9yIGlzc3VlIGlmIGRlc2lyZWQuDQoNCkEgc2VwYXJhdGUgZGlzY3Vzc2lvbiB3b3VsZCBiZSBn
+b29kLg0KDQo+IEp1c3QgcXVpY2tseSBsb29raW5nIEkgdGhpbmsgdGhpcyBpcyBkb3duIHRvIG51
+bWJlcl9pb3M9PHZhbD4gYmVpbmcgDQo+IHBhaXJlZCB3aXRoIGxvb3BzPTMyIGJ1dCBJIGhhdmVu
+J3QgaGFkIHRpbWUgdG8gZGlnIGZ1cnRoZXIuLi4NCg0KQWZ0ZXIgZ2V0dGluZyB0aGUgd3Jvbmcg
+ZW5kIG9mIHRoZSBzdGljayBhbmQgd29uZGVyaW5nIGlmIEplbnMgd2FzIHRyeWluZyB0byBtYWtl
+IG51bWJlcl9pb3Mgb25seSBhY2NvdW50IGZvciB0aGUgY3VycmVudCBsb29wJ3MgSS9PIHdpdGgN
+Cmh0dHBzOi8vZ2l0aHViLmNvbS9heGJvZS9maW8vY29tbWl0L2NmOGE0NmE3NWYzOGFmZTA3ZWJm
+ODIzMjEwZjk1NTQzOTk5ZTMxMTYNCigiTWFrZSAnbG9vcHMnIGhvbm9yIGZ1bGwgd3JpdGUrdmVy
+aWZ5IGxvb3BzIikgSSB0aGluayBvbmUgb2YgdGhlIGNoYW5nZXMgdGhlcmUgd2FzIGp1c3QgYSBz
+aW1wbGUgbWlzdGFrZSB3aGlsZSBmaXhpbmcgb3RoZXIgYXJlYXMgdXAuDQpDYW4geW91IHNlZSBp
+ZiBodHRwczovL2dpdGh1Yi5jb20vc2l0c29mZS9maW8vdHJlZS9sb29wc19udW1iZXJpb3MNCmZp
+eGVzIHdoYXQgeW91IHdlcmUgc2VlaW5nPw0KDQotLQ0KU2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9y
+Zy9+c2l0cy8NCg==
