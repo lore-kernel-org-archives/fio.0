@@ -1,79 +1,65 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa2.hgst.iphmx.com ([68.232.143.124]:29134 "EHLO
-        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751913AbeCZQOb (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 26 Mar 2018 12:14:31 -0400
-From: Kris Davis <Kris.Davis@wdc.com>
-Subject: RE: "No I/O performed by <engine>" reporting bug?
-Date: Mon, 26 Mar 2018 16:14:29 +0000
-Message-ID: <CY1PR0401MB111665D846A301C108F9694B81AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
+Received: from mail-vk0-f46.google.com ([209.85.213.46]:44320 "EHLO
+        mail-vk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751249AbeCZQB5 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 26 Mar 2018 12:01:57 -0400
+Received: by mail-vk0-f46.google.com with SMTP id r184so2567643vke.11
+        for <fio@vger.kernel.org>; Mon, 26 Mar 2018 09:01:57 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CY1PR0401MB1116191E688201AE89DA270381AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
 References: <CY1PR0401MB111683B907AEAA34BB0A9A3881A80@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CALjAwxjzvd7dBTYGBSMaiSWm+v+LgbcrtKdh7EpZdNWtwmcubg@mail.gmail.com>
- <CALjAwxjN890tChPL2cOw2NsU_M-85GcEJKq8XwotYNOoDgxEtA@mail.gmail.com>
- <CY1PR0401MB1116191E688201AE89DA270381AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CALjAwxhhXogm8x_7RbdOBq0wOEFSrguL2S-qTpN=7ahO=HZ_0g@mail.gmail.com>
-In-Reply-To: <CALjAwxhhXogm8x_7RbdOBq0wOEFSrguL2S-qTpN=7ahO=HZ_0g@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+ <CALjAwxjN890tChPL2cOw2NsU_M-85GcEJKq8XwotYNOoDgxEtA@mail.gmail.com> <CY1PR0401MB1116191E688201AE89DA270381AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Mon, 26 Mar 2018 17:01:24 +0100
+Message-ID: <CALjAwxhhXogm8x_7RbdOBq0wOEFSrguL2S-qTpN=7ahO=HZ_0g@mail.gmail.com>
+Subject: Re: "No I/O performed by <engine>" reporting bug?
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Kris Davis <Kris.Davis@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Itay Ben Yaacov <Itay.BenYaacov@wdc.com>
 
-U2l0c29mZSwgDQoNCj4gSXMgdGhpcyBhIGJhZCB0aGluZz8gSSB3YXMgYWltaW5nIGZvciB0aGF0
-IGJlaGF2aW91ciAoZm9yIG51bWJlcl9pb3MgdG8gYmVoYXZlIHBlciBqb2IgcmF0aGVyIHRoYW4g
-cGVyIGxvb3ApLi4uDQoNCk9oLCBJIGRpZG4ndCBjYXRjaCB0aGF0LiAgSSB3YXMgYXNzdW1pbmcg
-dGhhdCBudW1iZXJfaW9zIHdhcyBhbmFsb2dvdXMgdG8gaW9fc2l6ZS4gIFRoYXQgaXMsIGluZGlj
-YXRpbmcgd2hhdCBlYWNoICJsb29wIiB3b3VsZCBkby4gIFdvdWxkbid0IHlvdSBiZSBjaGFuZ2lu
-ZyB0aGUgY3VycmVudCBiZWhhdmlvcj8gIE15IHByaW9yIHRlc3Qgd2l0aCBudW1iZXJfaW9zIGFu
-ZCBsb29wcyB3YXMgdGFraW5nIGFib3V0IDMwIHNlY29uZHMgYXMgZXhwZWN0ZWQuDQoNClRoYW5r
-cyAgDQoNCktyaXMgRGF2aXMgDQpXZXN0ZXJuIERpZ2l0YWwgQ29wb3JhdGlvbg0KRW1haWw6IGty
-aXMuZGF2aXNAd2RjLmNvbQ0KT2ZmaWNlOjogKzEtNTA3LTMyMi0yMzc2DQoNCi0tLS0tT3JpZ2lu
-YWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBTaXRzb2ZlIFdoZWVsZXIgW21haWx0bzpzaXRzb2ZlQGdt
-YWlsLmNvbV0gDQpTZW50OiBNb25kYXksIE1hcmNoIDI2LCAyMDE4IDExOjAxIEFNDQpUbzogS3Jp
-cyBEYXZpcyA8S3Jpcy5EYXZpc0B3ZGMuY29tPg0KQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmc7IEl0
-YXkgQmVuIFlhYWNvdiA8SXRheS5CZW5ZYWFjb3ZAd2RjLmNvbT4NClN1YmplY3Q6IFJlOiAiTm8g
-SS9PIHBlcmZvcm1lZCBieSA8ZW5naW5lPiIgcmVwb3J0aW5nIGJ1Zz8NCg0KSGkgS3JpcywNCg0K
-T24gMjYgTWFyY2ggMjAxOCBhdCAxNjo0OSwgS3JpcyBEYXZpcyA8S3Jpcy5EYXZpc0B3ZGMuY29t
-PiB3cm90ZToNCj4NCj4gVGhhbmtzLiAgIEkgZ2F2ZSBpdCBhIHRyeSBhbmQgbm8gbG9uZ2VyIHNl
-ZSB0aGUgZXJyb3IgbWVzc2FnZS4gICBIb3dldmVyLCBpdCBkb2Vzbid0IGFwcGVhciB0aGF0IHRo
-ZSBsb29wIGNvdW50IGlzIGJlaW5nIHVzZWQgYW55IGxvbmdlciB3aGVuIG51bWJlcl9pb3Mgb3B0
-aW9uIGlzIHNldC4gIFRoZSBmb2xsb3dpbmcgcnVucyBpcyBsZXNzIGFib3V0IGEgc2Vjb25kOg0K
-Pg0KPiAkIGZpbyAtLWlvZW5naW5lPWxpYmFpbyAtLWxvb3BzPTMyIC0tZGlyZWN0PTEgLS1udW1q
-b2JzPTEgDQo+IC0tbm9yYW5kb21tYXAgLS1yYW5kcmVwZWF0PTAgLS1zaXplPTE2R0IgLS1maWxl
-bmFtZT0vZGV2L3NkYiANCj4gLS1uYW1lPVJhbmRvbS1yZWFkLTRLLVFEMSAtLXJ3PXJhbmRyZWFk
-IC0tYnM9NEsgLS1pb2RlcHRoPTEgDQo+IC0tbnVtYmVyX2lvcz04MTkyDQo+IFJhbmRvbS1yZWFk
-LTRLLVFEMTogKGc9MCk6IHJ3PXJhbmRyZWFkLCBicz0oUikgNDA5NkItNDA5NkIsIChXKSANCj4g
-NDA5NkItNDA5NkIsIChUKSA0MDk2Qi00MDk2QiwgaW9lbmdpbmU9bGliYWlvLCBpb2RlcHRoPTEN
-Cj4gZmlvLTMuNQ0KPiBTdGFydGluZyAxIHByb2Nlc3MNCj4gSm9iczogMSAoZj0xKQ0KPiBSYW5k
-b20tcmVhZC00Sy1RRDE6IChncm91cGlkPTAsIGpvYnM9MSk6IGVycj0gMDogcGlkPTMxNTc4OiBN
-b24gTWFyIDI2IDEwOjM3OjA2IDIwMTgNCj4gICAgcmVhZDogSU9QUz03NDMzLCBCVz0yOS4wTWlC
-L3MgKDMwLjRNQi9zKSgzMi4wTWlCLzExMDJtc2VjKQ0KPiAgICAgc2xhdCAobnNlYyk6IG1pbj00
-NTY0LCBtYXg9NDM0NTksIGF2Zz02MDExLjY1LCBzdGRldj02NjIuNDMgLi4uDQo+IFJ1biBzdGF0
-dXMgZ3JvdXAgMCAoYWxsIGpvYnMpOg0KPiAgICBSRUFEOiBidz0yOS4wTWlCL3MgKDMwLjRNQi9z
-KSwgMjkuME1pQi9zLTI5LjBNaUIvcyANCj4gKDMwLjRNQi9zLTMwLjRNQi9zKSwgaW89MzIuME1p
-QiAoMzMuNk1CKSwgcnVuPTExMDItMTEwMm1zZWMNCg0KSXMgdGhpcyBhIGJhZCB0aGluZz8gSSB3
-YXMgYWltaW5nIGZvciB0aGF0IGJlaGF2aW91ciAoZm9yIG51bWJlcl9pb3MgdG8gYmVoYXZlIHBl
-ciBqb2IgcmF0aGVyIHRoYW4gcGVyIGxvb3ApLi4uDQoNCj4gQnV0LCBpZiBJIHVzZSBpb19zaXpl
-PTMyTUIsIGl0IGRvZXMgYWN0dWFsbHkgcnVuIGZvciBhYm91dCAzMCBzZWNvbmRzIGFzIGV4cGVj
-dGVkOg0KPg0KPiAkICBmaW8gLS1pb2VuZ2luZT1saWJhaW8gLS1sb29wcz0zMiAtLWRpcmVjdD0x
-IC0tbnVtam9icz0xIA0KPiAtLW5vcmFuZG9tbWFwIC0tcmFuZHJlcGVhdD0wIC0tc2l6ZT0xNkdC
-IC0tZmlsZW5hbWU9L2Rldi9zZGIgDQo+IC0tbmFtZT1SYW5kb20tcmVhZC00Sy1RRDEgLS1ydz1y
-YW5kcmVhZCAtLWJzPTRLIC0taW9kZXB0aD0xIA0KPiAtLWlvX3NpemU9MzJNQg0KPiBSYW5kb20t
-cmVhZC00Sy1RRDE6IChnPTApOiBydz1yYW5kcmVhZCwgYnM9KFIpIDQwOTZCLTQwOTZCLCAoVykg
-DQo+IDQwOTZCLTQwOTZCLCAoVCkgNDA5NkItNDA5NkIsIGlvZW5naW5lPWxpYmFpbywgaW9kZXB0
-aD0xDQo+IGZpby0zLjUNCj4gU3RhcnRpbmcgMSBwcm9jZXNzDQo+IFJhbmRvbS1yZWFkLTRLLVFE
-MTogTm8gSS9PIHBlcmZvcm1lZCBieSBsaWJhaW8sIHBlcmhhcHMgdHJ5IC0tZGVidWc9aW8gb3B0
-aW9uIGZvciBkZXRhaWxzPw0KDQpeXl4gSGF2ZSB5b3UgZm91bmQgYW5vdGhlciBwcm9ibGVtIGhl
-cmU/DQoNCj4gUmFuZG9tLXJlYWQtNEstUUQxOiAoZ3JvdXBpZD0wLCBqb2JzPTEpOiBlcnI9IDA6
-IHBpZD0zMTk5ODogTW9uIE1hciAyNiAxMDo0Njo0NSAyMDE4DQo+ICAgIHJlYWQ6IElPUFM9Nzc5
-MCwgQlc9MzAuNE1pQi9zICgzMS45TUIvcykoMTAyNE1pQi8zMzY1MG1zZWMpDQo+ICAgICBzbGF0
-IChuc2VjKTogbWluPTQ0NDMsIG1heD00MzQ1NywgYXZnPTQ4MzEuOTksIHN0ZGV2PTI4Ni4zOSAu
-Li4NCj4gUnVuIHN0YXR1cyBncm91cCAwIChhbGwgam9icyk6DQo+ICAgIFJFQUQ6IGJ3PTMwLjRN
-aUIvcyAoMzEuOU1CL3MpLCAzMC40TWlCL3MtMzAuNE1pQi9zIA0KPiAoMzEuOU1CL3MtMzEuOU1C
-L3MpLCBpbz0xMDI0TWlCICgxMDc0TUIpLCBydW49MzM2NTAtMzM2NTBtc2VjDQo+DQo+IERpc2sg
-c3RhdHMgKHJlYWQvd3JpdGUpOg0KPiAgIHNkYjogaW9zPTI2MjEzMC8wLCBtZXJnZT0wLzAsIHRp
-Y2tzPTMxNDUzLzAsIGluX3F1ZXVlPTMxMzk2LCANCj4gdXRpbD05My4wNiUNCg0KLS0NClNpdHNv
-ZmUgfCBodHRwOi8vc3Vjcy5vcmcvfnNpdHMvDQo=
+Hi Kris,
+
+On 26 March 2018 at 16:49, Kris Davis <Kris.Davis@wdc.com> wrote:
+>
+> Thanks.   I gave it a try and no longer see the error message.   However, it doesn't appear that the loop count is being used any longer when number_ios option is set.  The following runs is less about a second:
+>
+> $ fio --ioengine=libaio --loops=32 --direct=1 --numjobs=1 --norandommap --randrepeat=0 --size=16GB --filename=/dev/sdb --name=Random-read-4K-QD1 --rw=randread --bs=4K --iodepth=1 --number_ios=8192
+> Random-read-4K-QD1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=1
+> fio-3.5
+> Starting 1 process
+> Jobs: 1 (f=1)
+> Random-read-4K-QD1: (groupid=0, jobs=1): err= 0: pid=31578: Mon Mar 26 10:37:06 2018
+>    read: IOPS=7433, BW=29.0MiB/s (30.4MB/s)(32.0MiB/1102msec)
+>     slat (nsec): min=4564, max=43459, avg=6011.65, stdev=662.43
+> ...
+> Run status group 0 (all jobs):
+>    READ: bw=29.0MiB/s (30.4MB/s), 29.0MiB/s-29.0MiB/s (30.4MB/s-30.4MB/s), io=32.0MiB (33.6MB), run=1102-1102msec
+
+Is this a bad thing? I was aiming for that behaviour (for number_ios to
+behave per job rather than per loop)...
+
+> But, if I use io_size=32MB, it does actually run for about 30 seconds as expected:
+>
+> $  fio --ioengine=libaio --loops=32 --direct=1 --numjobs=1 --norandommap --randrepeat=0 --size=16GB --filename=/dev/sdb --name=Random-read-4K-QD1 --rw=randread --bs=4K --iodepth=1 --io_size=32MB
+> Random-read-4K-QD1: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=1
+> fio-3.5
+> Starting 1 process
+> Random-read-4K-QD1: No I/O performed by libaio, perhaps try --debug=io option for details?
+
+^^^ Have you found another problem here?
+
+> Random-read-4K-QD1: (groupid=0, jobs=1): err= 0: pid=31998: Mon Mar 26 10:46:45 2018
+>    read: IOPS=7790, BW=30.4MiB/s (31.9MB/s)(1024MiB/33650msec)
+>     slat (nsec): min=4443, max=43457, avg=4831.99, stdev=286.39
+> ...
+> Run status group 0 (all jobs):
+>    READ: bw=30.4MiB/s (31.9MB/s), 30.4MiB/s-30.4MiB/s (31.9MB/s-31.9MB/s), io=1024MiB (1074MB), run=33650-33650msec
+>
+> Disk stats (read/write):
+>   sdb: ios=262130/0, merge=0/0, ticks=31453/0, in_queue=31396, util=93.06%
+
+-- 
+Sitsofe | http://sucs.org/~sits/
