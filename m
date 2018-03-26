@@ -1,118 +1,110 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:47857 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750954AbeC0PXv (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 27 Mar 2018 11:23:51 -0400
-From: Kris Davis <Kris.Davis@wdc.com>
-Subject: RE: "No I/O performed by <engine>" reporting bug?
-Date: Tue, 27 Mar 2018 15:23:46 +0000
-Message-ID: <CY1PR0401MB1116E6D05D5F5FCC0283298581AC0@CY1PR0401MB1116.namprd04.prod.outlook.com>
+Received: from mail-ua0-f170.google.com ([209.85.217.170]:36946 "EHLO
+        mail-ua0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751076AbeCZTwD (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 26 Mar 2018 15:52:03 -0400
+Received: by mail-ua0-f170.google.com with SMTP id q12so12878301uae.4
+        for <fio@vger.kernel.org>; Mon, 26 Mar 2018 12:52:02 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CY1PR0401MB1116C049AE98BC39FC9100C281AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
 References: <CY1PR0401MB111683B907AEAA34BB0A9A3881A80@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CALjAwxjzvd7dBTYGBSMaiSWm+v+LgbcrtKdh7EpZdNWtwmcubg@mail.gmail.com>
  <CALjAwxjN890tChPL2cOw2NsU_M-85GcEJKq8XwotYNOoDgxEtA@mail.gmail.com>
  <CY1PR0401MB1116191E688201AE89DA270381AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CALjAwxhhXogm8x_7RbdOBq0wOEFSrguL2S-qTpN=7ahO=HZ_0g@mail.gmail.com>
  <CY1PR0401MB111665D846A301C108F9694B81AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CALjAwxibi4Pfy0OtBaWkwnoyYbQm+pZvhdUK_WWGEDPc6+DVdg@mail.gmail.com>
- <CY1PR0401MB1116C049AE98BC39FC9100C281AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CALjAwxjBiLRoQckkYqa8ywSm1CF5noqptgaZhZb8J3DSjg3dGw@mail.gmail.com>
-In-Reply-To: <CALjAwxjBiLRoQckkYqa8ywSm1CF5noqptgaZhZb8J3DSjg3dGw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+ <CALjAwxibi4Pfy0OtBaWkwnoyYbQm+pZvhdUK_WWGEDPc6+DVdg@mail.gmail.com> <CY1PR0401MB1116C049AE98BC39FC9100C281AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Mon, 26 Mar 2018 20:51:31 +0100
+Message-ID: <CALjAwxjBiLRoQckkYqa8ywSm1CF5noqptgaZhZb8J3DSjg3dGw@mail.gmail.com>
+Subject: Re: "No I/O performed by <engine>" reporting bug?
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Kris Davis <Kris.Davis@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Itay Ben Yaacov <Itay.BenYaacov@wdc.com>
 
-U2l0c29mZSwgDQoNCkknbSB3b25kZXJpbmcgaWYgSSd2ZSBjb21wbGV0ZWx5IG1pc3VuZGVyc3Rv
-b2QgdGhlIG1lYW5pbmcgb2YgImxvb3BpbmciLiAgSSB3YXMgdGhpbmtpbmcgaXQgYmFzaWNhbGx5
-IG1lYW50IHRvICJyZXBlYXQiIHRoZSBqb2Igc3BlY2lmaWNhdGlvbiBhIG51bWJlciBvZiB0aW1l
-cywgYnV0IGZyb20geW91ciBkZXNjcmlwdGlvbiBvZiB0aGUgaW1wYWN0cywgdGhhdCBhcHBlYXJz
-IHRvIGJlIHdyb25nLiAgIA0KDQpMb29raW5nIGF0IG90aGVyIHZlcmJpYWdlIGluIHRoZSBkb2Ms
-ICJsb29wcyIgc2F5IHRvICJyZXBlYXQgc2FtZSB3b3JrbG9hZCBhIGdpdmVuIG51bWJlciBvZiB0
-aW1lcyIuICBVbmRlciB0aW1lX2Jhc2VkLCBpdCBzYXlzICJpdCB3aWxsIHNpbXBseSBsb29wIG92
-ZXIgdGhlIHNhbWUgd29ya2xvYWQgYXMgbWFueSB0aW1lcyBhcyBydW50aW1lIGFsbG93cyIuICAg
-IEknbSB3b25kZXJpbmcgaWYgdGhlIHdvcmQgJ2xvb3AnIGlzIHJlYWxseSBtZWFucyB0aGUgc2Ft
-ZSB0aGluZyBpbiB0aGVzZSB0d28gZGVzY3JpcHRpb25zLiAgSWYgbm90aGluZyBpcyByZWFsbHkg
-InJlc2V0IiBiZXR3ZWVuIGxvb3AgaXRlcmF0aW9ucywgdGhlbiBpdCBzZWVtcyB0byBtZSB0aGF0
-IHRoZXNlIHR3byB1c2VzIG9mICdsb29wJyBtZWFuIHRoZSBzYW1lIHRoaW5nLiANCg0KU29ycnkg
-aWYgSSdtIG1pc3NpbmcgdGhlIHBvaW50LCBidXQgaWYgdGhlICJsb29wcyIgb3B0aW9uIHJlYWxs
-eSBkb2Vzbid0IGVmZmVjdCBvdGhlciBhc3BlY3RzIGxpa2UgdGhlIHJ1bnRpbWUsIHJhbXBfdGlt
-ZSBvciByZXNldHRpbmcgTEJBcyBhbmQgc3VjaCwgSSdtIGNvbmZ1c2VkIHdoZW4gImxvb3BzIiB3
-b3VsZCBiZSB1c2VkIC0gd2hhdCBkb2VzIGl0IGFjY29tcGxpc2ggdGhhdCBpc24ndCBhdmFpbGFi
-bGUgdGhyb3VnaCBvdGhlciBvcHRpb25zPw0KDQpUaGFua3MNCg0KS3JpcyBEYXZpcw0KDQotLS0t
-LU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogU2l0c29mZSBXaGVlbGVyIFttYWlsdG86c2l0
-c29mZUBnbWFpbC5jb21dIA0KU2VudDogTW9uZGF5LCBNYXJjaCAyNiwgMjAxOCAyOjUyIFBNDQpU
-bzogS3JpcyBEYXZpcyA8S3Jpcy5EYXZpc0B3ZGMuY29tPg0KQ2M6IGZpb0B2Z2VyLmtlcm5lbC5v
-cmc7IEl0YXkgQmVuIFlhYWNvdiA8SXRheS5CZW5ZYWFjb3ZAd2RjLmNvbT4NClN1YmplY3Q6IFJl
-OiAiTm8gSS9PIHBlcmZvcm1lZCBieSA8ZW5naW5lPiIgcmVwb3J0aW5nIGJ1Zz8NCg0KT24gMjYg
-TWFyY2ggMjAxOCBhdCAxODo0MCwgS3JpcyBEYXZpcyA8S3Jpcy5EYXZpc0B3ZGMuY29tPiB3cm90
-ZToNCj4NCj4gSSBndWVzcyBJJ20gd2FzIGV4cGVjdGluZyB0aGF0IGxvb3BzIGp1c3QgbWVhbnMg
-dG8gcmVwZWF0IHdoYXRldmVyIHRoZSBqb2Igd2FzIGRvaW5nIHByZXZpb3VzbHkgdGhhdCBudW1i
-ZXIgb2YgdGltZXMuICBJIGd1ZXNzIHRoYXQgd2hhdCBJIGNvbmNsdWRlIGZyb20gdGhlICJsb29w
-cyIgZGVzY3JpcHRpb246ICJSdW4gdGhlIHNwZWNpZmllZCBudW1iZXIgb2YgaXRlcmF0aW9ucyBv
-ZiB0aGlzIGpvYi4gVXNlZCB0byByZXBlYXQgdGhlIHNhbWUgd29ya2xvYWQgYSBnaXZlbiBudW1i
-ZXIgb2YgdGltZXMuIERlZmF1bHRzIHRvIDEuIg0KPg0KPiBJIHdhcyBleHBlY3RpbmcgdGhhdCBl
-YWNoIGxvb3Agd291bGQgc3RhcnQgc2VxdWVudGlhbCBvcGVyYXRpb25zIGJhY2sgDQo+IGF0IDAg
-b3IgdGhlIG9mZnNldCwgYW5kIHJlZG8gYW55IHN0YXJ0X2RlbGF5IG9yIHJhbXBfdGltZSBlYWNo
-IHRpbWUuICANCj4gSWYgdGhhdCBpcyBub3QgdGhlIGNhc2UsIEknbQ0KDQpsb29wcyBsb29rcyBs
-aWtlIGEgd2F5IHRvIGdldCBhIGpvYiB0byB3cmFwIEkvTyBhcm91bmQgdG8gYmVnaW5uaW5nIGl0
-IHdoZW4gaXQgZ2V0cyB0byB0aGUgZW5kIG9mIHRoZSBmaWxlLiBDZXJ0YWluIG9wZXJhdGlvbnMg
-ZG8gaGFwcGVuIHdoZW4gdGhhdCB3cmFwYXJvdW5kL3Jlc3RhcnQgb2NjdXJzIChlLmcuIHJlc2V0
-dGluZyB0aGUgbWFwIG9mIHJlZ2lvbnMgdXNlZC9vZmZzZXQgYmVpbmcgcmVzZXQgb24gc2VxdWVu
-dGlhbCBJL08pIGJ1dCBub3QgZXZlcnkgam9iIG9wdGlvbiBpcyBpbXBhY3RlZCAoaS5lLiBzdGFy
-dF9kZWxheSBhbmQgcmFtcF90aW1lIHdpbGwgb25seSBoYXBwZW4gb25jZSBldmVuIHdoZW4gbG9v
-cHM+PTIpLg0KDQo+IGVpdGhlciBtaXNzaW5nIHNvbWV0aGluZyBpbiB0aGUgZG9jLCBvciBpdCBj
-b3VsZCBwcm9iYWJseSB1c2UgZnVydGhlciBjbGFyaWZpY2F0aW9uLiAgSWYgaW9fc2l6ZSBpcyB1
-c2VkIHJhdGhlciB0aGFuIG51bWJlcl9pb3MgLSBkb2VzIHRoZSBzdGFydGluZyBMQkEgZ2V0IHJl
-c2V0IGFmdGVyIGVhY2ggbG9vcD8NCg0KTG9va2luZyBhdCBzb21lIGV4YW1wbGVzIEkgc2VlIHRo
-aXM6DQoNCiQgLi9maW8gLS1uYW1lPXRlc3QtbG9vcHMgLS1maWxlbmFtZT0vdG1wL2Zpby50bXAg
-LS1zaXplPTQgLS1icz0xDQotLWxvb3BzPTIgLS1pb19zaXplPTMgLS1kZWJ1Zz1pbyB8IGdyZXAg
-J2NvbXBsZXRlOlx8Y2FjaGUnDQppbyAgICAgICA3NjQ5ICBkZWNsYXJlIHVubmVlZGVkIGNhY2hl
-IC90bXAvZmlvLnRtcDogMC80DQppbyAgICAgICA3NjQ5ICBjb21wbGV0ZTogaW9fdSAweGI3ODUw
-MDogb2ZmPTB4MCxsZW49MHgxLGRkaXI9MCxmaWxlPS90bXAvZmlvLnRtcA0KaW8gICAgICAgNzY0
-OSAgY29tcGxldGU6IGlvX3UgMHhiNzg1MDA6IG9mZj0weDEsbGVuPTB4MSxkZGlyPTAsZmlsZT0v
-dG1wL2Zpby50bXANCmlvICAgICAgIDc2NDkgIGNvbXBsZXRlOiBpb191IDB4Yjc4NTAwOiBvZmY9
-MHgyLGxlbj0weDEsZGRpcj0wLGZpbGU9L3RtcC9maW8udG1wDQppbyAgICAgICA3NjQ5ICBjb21w
-bGV0ZTogaW9fdSAweGI3ODUwMDogb2ZmPTB4MyxsZW49MHgxLGRkaXI9MCxmaWxlPS90bXAvZmlv
-LnRtcA0KaW8gICAgICAgNzY0OSAgZGVjbGFyZSB1bm5lZWRlZCBjYWNoZSAvdG1wL2Zpby50bXA6
-IDAvNA0KaW8gICAgICAgNzY0OSAgY29tcGxldGU6IGlvX3UgMHhiNzg1MDA6IG9mZj0weDAsbGVu
-PTB4MSxkZGlyPTAsZmlsZT0vdG1wL2Zpby50bXANCmlvICAgICAgIDc2NDkgIGNvbXBsZXRlOiBp
-b191IDB4Yjc4NTAwOiBvZmY9MHgxLGxlbj0weDEsZGRpcj0wLGZpbGU9L3RtcC9maW8udG1wDQoN
-CiQgJCAuL2ZpbyAtLW5hbWU9dGVzdC1sb29wcyAtLWZpbGVuYW1lPS90bXAvZmlvLnRtcCAtLXNp
-emU9NCAtLWJzPTENCi0tbG9vcHM9MyAtLW51bWJlcl9pb3M9MiAtLWRlYnVnPWlvIHwgZ3JlcCAn
-Y29tcGxldGU6XHxjYWNoZScNCmlvICAgICAgIDc2NTcgIGRlY2xhcmUgdW5uZWVkZWQgY2FjaGUg
-L3RtcC9maW8udG1wOiAwLzQNCmlvICAgICAgIDc2NTcgIGNvbXBsZXRlOiBpb191IDB4MjMxMDUw
-MDoNCm9mZj0weDAsbGVuPTB4MSxkZGlyPTAsZmlsZT0vdG1wL2Zpby50bXANCmlvICAgICAgIDc2
-NTcgIGNvbXBsZXRlOiBpb191IDB4MjMxMDUwMDoNCm9mZj0weDEsbGVuPTB4MSxkZGlyPTAsZmls
-ZT0vdG1wL2Zpby50bXANCmlvICAgICAgIDc2NTcgIGNvbXBsZXRlOiBpb191IDB4MjMxMDUwMDoN
-Cm9mZj0weDIsbGVuPTB4MSxkZGlyPTAsZmlsZT0vdG1wL2Zpby50bXANCmlvICAgICAgIDc2NTcg
-IGNvbXBsZXRlOiBpb191IDB4MjMxMDUwMDoNCm9mZj0weDMsbGVuPTB4MSxkZGlyPTAsZmlsZT0v
-dG1wL2Zpby50bXANCmlvICAgICAgIDc2NTcgIGRlY2xhcmUgdW5uZWVkZWQgY2FjaGUgL3RtcC9m
-aW8udG1wOiAwLzQNCmlvICAgICAgIDc2NTcgIGNvbXBsZXRlOiBpb191IDB4MjMxMDUwMDoNCm9m
-Zj0weDAsbGVuPTB4MSxkZGlyPTAsZmlsZT0vdG1wL2Zpby50bXANCmlvICAgICAgIDc2NTcgIGNv
-bXBsZXRlOiBpb191IDB4MjMxMDUwMDoNCm9mZj0weDEsbGVuPTB4MSxkZGlyPTAsZmlsZT0vdG1w
-L2Zpby50bXANCg0KQmFzaWNhbGx5IGEgbG9vcCBvbmx5IGVuZHMgd2hlbiBJL08gZ2V0cyB0byB0
-aGUgZW5kIG9mIHRoZSBmaWxlIChhbmQgd2Ugc2VlIHRoZSBjYWNoZSBiZWluZyBkZWNsYXJlZCB1
-bm5lZWRlZCB3aGVuIHRoZSBsb29wIHN0YXJ0cykgYnV0IHRoZSBpbnRlcmFjdGlvbiB3aXRoIG51
-bWJlcl9pb3MvaW9fc2l6ZSBzZWVtcyBsaW1pdGVkIHRvIGp1c3QgbXVsdGlwbHlpbmcgdGhlbSBi
-eSBsb29wcy4NCg0KSmVuczogb3JpZ2luYWxseSBudW1iZXJfaW9zL2lvX3NpemUgd291bGQganVz
-dCBlbmQgdGhlIGVudGlyZSBqb2IgZWFybHkgcmVnYXJkbGVzcyBvZiB3aGF0IGxvb3AgeW91IHdl
-cmUgb24gYnV0IHRoYXQgc2VlbXMgdG8gaGF2ZSBjaGFuZ2VkIHNpbmNlIGNmOGE0NmE3NWYzOGFm
-ZTA3ZWJmODIzMjEwZjk1NTQzOTk5ZTMxMTYgKCJNYWtlICdsb29wcycNCmhvbm9yIGZ1bGwgd3Jp
-dGUrdmVyaWZ5IGxvb3BzIikuIElzIHRoZSBpbnRlbnQgZm9yIG51bWJlcl9pb3MvaW9fc2l6ZSB0
-byBiZSBpbnZhcmlhbnQgb2YgbG9vcHMgb3IgdG8gYmUgcGVyIGxvb3A/IFdoYXQgZG9lcyBpdCBt
-ZWFuIGZvciBhIGxvb3AgaWYgaW9fc2l6ZSBpcyBiaWdnZXIgdGhhbiB0aGUgc2l6ZSBvZiB0aGUg
-ZmlsZT8NCg0KPiBJIGRvbid0IHJlYWxseSBoYXZlIGFueSBzdHJvbmcgb3BpbmlvbiBvbiBob3cg
-bnVtYmVyX2lvcyB3b3JrcyAod2UgY2FuIHVzZSBpb19zaXplIGluc3RlYWQpLCBpdCBqdXN0IHNl
-ZW1zIGxpa2UgaXQgd2FzIHdvcmtpbmcgZGlmZmVyZW50bHkgYmVmb3JlLCBhbmQgb3RoZXJ3aXNl
-IGNvdWxkIGp1c3QgdXNlIGZ1cnRoZXIgY2xhcmlmaWNhdGlvbi4gRG8geW91IGtub3cgb2YgYW55
-IG90aGVyICJxdWFudGl0eSIgdHlwZSBvZiBvcHRpb25zIHdvdWxkIG9wZXJhdGUgaW5kZXBlbmRl
-bnQgb2YgdGhlIGxvb3BzIG9wdGlvbj8gIChJIHRoaW5rIHRoaXMgaXMgdGhlIGZpcnN0IHRpbWUg
-SSd2ZSBzZWVuIGxvb3AgdXNlZCkuDQoNCnJ1bnRpbWUgaXMgdGhlIG90aGVyIG9uZSAod2UndmUg
-Y292ZXJlZCBpb19zaXplLCBudW1iZXJfaW9zIGFuZCBsb29wcykgYW5kIHRoYXQncyBsb29wIGlu
-dmFyaWFudC4gSW4gZmFjdCBydW50aW1lIHdpdGggdGltZV9iYXNlZCBlc3NlbnRpYWxseSBkaXNh
-YmxlcyBsb29raW5nIGF0IHRoZSBsb29wIGNvdW50ZXIuDQoNCi0tDQpTaXRzb2ZlIHwgaHR0cDov
-L3N1Y3Mub3JnL35zaXRzLw0K
+On 26 March 2018 at 18:40, Kris Davis <Kris.Davis@wdc.com> wrote:
+>
+> I guess I'm was expecting that loops just means to repeat whatever the jo=
+b was doing previously that number of times.  I guess that what I conclude =
+from the "loops" description: "Run the specified number of iterations of th=
+is job. Used to repeat the same workload a given number of times. Defaults =
+to 1."
+>
+> I was expecting that each loop would start sequential operations back at =
+0 or the offset, and redo any start_delay or ramp_time each time.  If that =
+is not the case, I'm
+
+loops looks like a way to get a job to wrap I/O around to beginning it
+when it gets to the end of the file. Certain operations do happen when
+that wraparound/restart occurs (e.g. resetting the map of regions
+used/offset being reset on sequential I/O) but not every job option is
+impacted (i.e. start_delay and ramp_time will only happen once even
+when loops>=3D2).
+
+> either missing something in the doc, or it could probably use further cla=
+rification.  If io_size is used rather than number_ios - does the starting =
+LBA get reset after each loop?
+
+Looking at some examples I see this:
+
+$ ./fio --name=3Dtest-loops --filename=3D/tmp/fio.tmp --size=3D4 --bs=3D1
+--loops=3D2 --io_size=3D3 --debug=3Dio | grep 'complete:\|cache'
+io       7649  declare unneeded cache /tmp/fio.tmp: 0/4
+io       7649  complete: io_u 0xb78500: off=3D0x0,len=3D0x1,ddir=3D0,file=
+=3D/tmp/fio.tmp
+io       7649  complete: io_u 0xb78500: off=3D0x1,len=3D0x1,ddir=3D0,file=
+=3D/tmp/fio.tmp
+io       7649  complete: io_u 0xb78500: off=3D0x2,len=3D0x1,ddir=3D0,file=
+=3D/tmp/fio.tmp
+io       7649  complete: io_u 0xb78500: off=3D0x3,len=3D0x1,ddir=3D0,file=
+=3D/tmp/fio.tmp
+io       7649  declare unneeded cache /tmp/fio.tmp: 0/4
+io       7649  complete: io_u 0xb78500: off=3D0x0,len=3D0x1,ddir=3D0,file=
+=3D/tmp/fio.tmp
+io       7649  complete: io_u 0xb78500: off=3D0x1,len=3D0x1,ddir=3D0,file=
+=3D/tmp/fio.tmp
+
+$ $ ./fio --name=3Dtest-loops --filename=3D/tmp/fio.tmp --size=3D4 --bs=3D1
+--loops=3D3 --number_ios=3D2 --debug=3Dio | grep 'complete:\|cache'
+io       7657  declare unneeded cache /tmp/fio.tmp: 0/4
+io       7657  complete: io_u 0x2310500:
+off=3D0x0,len=3D0x1,ddir=3D0,file=3D/tmp/fio.tmp
+io       7657  complete: io_u 0x2310500:
+off=3D0x1,len=3D0x1,ddir=3D0,file=3D/tmp/fio.tmp
+io       7657  complete: io_u 0x2310500:
+off=3D0x2,len=3D0x1,ddir=3D0,file=3D/tmp/fio.tmp
+io       7657  complete: io_u 0x2310500:
+off=3D0x3,len=3D0x1,ddir=3D0,file=3D/tmp/fio.tmp
+io       7657  declare unneeded cache /tmp/fio.tmp: 0/4
+io       7657  complete: io_u 0x2310500:
+off=3D0x0,len=3D0x1,ddir=3D0,file=3D/tmp/fio.tmp
+io       7657  complete: io_u 0x2310500:
+off=3D0x1,len=3D0x1,ddir=3D0,file=3D/tmp/fio.tmp
+
+Basically a loop only ends when I/O gets to the end of the file (and
+we see the cache being declared unneeded when the loop starts) but the
+interaction with number_ios/io_size seems limited to just multiplying
+them by loops.
+
+Jens: originally number_ios/io_size would just end the entire job
+early regardless of what loop you were on but that seems to have
+changed since cf8a46a75f38afe07ebf823210f95543999e3116 ("Make 'loops'
+honor full write+verify loops"). Is the intent for number_ios/io_size
+to be invariant of loops or to be per loop? What does it mean for a
+loop if io_size is bigger than the size of the file?
+
+> I don't really have any strong opinion on how number_ios works (we can us=
+e io_size instead), it just seems like it was working differently before, a=
+nd otherwise could just use further clarification. Do you know of any other=
+ "quantity" type of options would operate independent of the loops option? =
+ (I think this is the first time I've seen loop used).
+
+runtime is the other one (we've covered io_size, number_ios and loops)
+and that's loop invariant. In fact runtime with time_based essentially
+disables looking at the loop counter.
+
+--=20
+Sitsofe | http://sucs.org/~sits/
