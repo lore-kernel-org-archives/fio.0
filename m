@@ -1,110 +1,125 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f170.google.com ([209.85.217.170]:36946 "EHLO
-        mail-ua0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751076AbeCZTwD (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 26 Mar 2018 15:52:03 -0400
-Received: by mail-ua0-f170.google.com with SMTP id q12so12878301uae.4
-        for <fio@vger.kernel.org>; Mon, 26 Mar 2018 12:52:02 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CY1PR0401MB1116C049AE98BC39FC9100C281AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
+Received: from esa5.hgst.iphmx.com ([216.71.153.144]:41861 "EHLO
+        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751964AbeCZRka (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 26 Mar 2018 13:40:30 -0400
+From: Kris Davis <Kris.Davis@wdc.com>
+Subject: RE: "No I/O performed by <engine>" reporting bug?
+Date: Mon, 26 Mar 2018 17:40:27 +0000
+Message-ID: <CY1PR0401MB1116C049AE98BC39FC9100C281AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
 References: <CY1PR0401MB111683B907AEAA34BB0A9A3881A80@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CALjAwxjzvd7dBTYGBSMaiSWm+v+LgbcrtKdh7EpZdNWtwmcubg@mail.gmail.com>
  <CALjAwxjN890tChPL2cOw2NsU_M-85GcEJKq8XwotYNOoDgxEtA@mail.gmail.com>
  <CY1PR0401MB1116191E688201AE89DA270381AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
  <CALjAwxhhXogm8x_7RbdOBq0wOEFSrguL2S-qTpN=7ahO=HZ_0g@mail.gmail.com>
  <CY1PR0401MB111665D846A301C108F9694B81AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
- <CALjAwxibi4Pfy0OtBaWkwnoyYbQm+pZvhdUK_WWGEDPc6+DVdg@mail.gmail.com> <CY1PR0401MB1116C049AE98BC39FC9100C281AD0@CY1PR0401MB1116.namprd04.prod.outlook.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Mon, 26 Mar 2018 20:51:31 +0100
-Message-ID: <CALjAwxjBiLRoQckkYqa8ywSm1CF5noqptgaZhZb8J3DSjg3dGw@mail.gmail.com>
-Subject: Re: "No I/O performed by <engine>" reporting bug?
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+ <CALjAwxibi4Pfy0OtBaWkwnoyYbQm+pZvhdUK_WWGEDPc6+DVdg@mail.gmail.com>
+In-Reply-To: <CALjAwxibi4Pfy0OtBaWkwnoyYbQm+pZvhdUK_WWGEDPc6+DVdg@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Kris Davis <Kris.Davis@wdc.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Itay Ben Yaacov <Itay.BenYaacov@wdc.com>
 
-On 26 March 2018 at 18:40, Kris Davis <Kris.Davis@wdc.com> wrote:
->
-> I guess I'm was expecting that loops just means to repeat whatever the jo=
-b was doing previously that number of times.  I guess that what I conclude =
-from the "loops" description: "Run the specified number of iterations of th=
-is job. Used to repeat the same workload a given number of times. Defaults =
-to 1."
->
-> I was expecting that each loop would start sequential operations back at =
-0 or the offset, and redo any start_delay or ramp_time each time.  If that =
-is not the case, I'm
-
-loops looks like a way to get a job to wrap I/O around to beginning it
-when it gets to the end of the file. Certain operations do happen when
-that wraparound/restart occurs (e.g. resetting the map of regions
-used/offset being reset on sequential I/O) but not every job option is
-impacted (i.e. start_delay and ramp_time will only happen once even
-when loops>=3D2).
-
-> either missing something in the doc, or it could probably use further cla=
-rification.  If io_size is used rather than number_ios - does the starting =
-LBA get reset after each loop?
-
-Looking at some examples I see this:
-
-$ ./fio --name=3Dtest-loops --filename=3D/tmp/fio.tmp --size=3D4 --bs=3D1
---loops=3D2 --io_size=3D3 --debug=3Dio | grep 'complete:\|cache'
-io       7649  declare unneeded cache /tmp/fio.tmp: 0/4
-io       7649  complete: io_u 0xb78500: off=3D0x0,len=3D0x1,ddir=3D0,file=
-=3D/tmp/fio.tmp
-io       7649  complete: io_u 0xb78500: off=3D0x1,len=3D0x1,ddir=3D0,file=
-=3D/tmp/fio.tmp
-io       7649  complete: io_u 0xb78500: off=3D0x2,len=3D0x1,ddir=3D0,file=
-=3D/tmp/fio.tmp
-io       7649  complete: io_u 0xb78500: off=3D0x3,len=3D0x1,ddir=3D0,file=
-=3D/tmp/fio.tmp
-io       7649  declare unneeded cache /tmp/fio.tmp: 0/4
-io       7649  complete: io_u 0xb78500: off=3D0x0,len=3D0x1,ddir=3D0,file=
-=3D/tmp/fio.tmp
-io       7649  complete: io_u 0xb78500: off=3D0x1,len=3D0x1,ddir=3D0,file=
-=3D/tmp/fio.tmp
-
-$ $ ./fio --name=3Dtest-loops --filename=3D/tmp/fio.tmp --size=3D4 --bs=3D1
---loops=3D3 --number_ios=3D2 --debug=3Dio | grep 'complete:\|cache'
-io       7657  declare unneeded cache /tmp/fio.tmp: 0/4
-io       7657  complete: io_u 0x2310500:
-off=3D0x0,len=3D0x1,ddir=3D0,file=3D/tmp/fio.tmp
-io       7657  complete: io_u 0x2310500:
-off=3D0x1,len=3D0x1,ddir=3D0,file=3D/tmp/fio.tmp
-io       7657  complete: io_u 0x2310500:
-off=3D0x2,len=3D0x1,ddir=3D0,file=3D/tmp/fio.tmp
-io       7657  complete: io_u 0x2310500:
-off=3D0x3,len=3D0x1,ddir=3D0,file=3D/tmp/fio.tmp
-io       7657  declare unneeded cache /tmp/fio.tmp: 0/4
-io       7657  complete: io_u 0x2310500:
-off=3D0x0,len=3D0x1,ddir=3D0,file=3D/tmp/fio.tmp
-io       7657  complete: io_u 0x2310500:
-off=3D0x1,len=3D0x1,ddir=3D0,file=3D/tmp/fio.tmp
-
-Basically a loop only ends when I/O gets to the end of the file (and
-we see the cache being declared unneeded when the loop starts) but the
-interaction with number_ios/io_size seems limited to just multiplying
-them by loops.
-
-Jens: originally number_ios/io_size would just end the entire job
-early regardless of what loop you were on but that seems to have
-changed since cf8a46a75f38afe07ebf823210f95543999e3116 ("Make 'loops'
-honor full write+verify loops"). Is the intent for number_ios/io_size
-to be invariant of loops or to be per loop? What does it mean for a
-loop if io_size is bigger than the size of the file?
-
-> I don't really have any strong opinion on how number_ios works (we can us=
-e io_size instead), it just seems like it was working differently before, a=
-nd otherwise could just use further clarification. Do you know of any other=
- "quantity" type of options would operate independent of the loops option? =
- (I think this is the first time I've seen loop used).
-
-runtime is the other one (we've covered io_size, number_ios and loops)
-and that's loop invariant. In fact runtime with time_based essentially
-disables looking at the loop counter.
-
---=20
-Sitsofe | http://sucs.org/~sits/
+U2l0c29mZSwgDQoNCkkgZ3Vlc3MgSSdtIHdhcyBleHBlY3RpbmcgdGhhdCBsb29wcyBqdXN0IG1l
+YW5zIHRvIHJlcGVhdCB3aGF0ZXZlciB0aGUgam9iIHdhcyBkb2luZyBwcmV2aW91c2x5IHRoYXQg
+bnVtYmVyIG9mIHRpbWVzLiAgSSBndWVzcyB0aGF0IHdoYXQgSSBjb25jbHVkZSBmcm9tIHRoZSAi
+bG9vcHMiIGRlc2NyaXB0aW9uOiAiUnVuIHRoZSBzcGVjaWZpZWQgbnVtYmVyIG9mIGl0ZXJhdGlv
+bnMgb2YgdGhpcyBqb2IuIFVzZWQgdG8gcmVwZWF0IHRoZSBzYW1lIHdvcmtsb2FkIGEgZ2l2ZW4g
+bnVtYmVyIG9mIHRpbWVzLiBEZWZhdWx0cyB0byAxLiIgIA0KDQpJIHdhcyBleHBlY3RpbmcgdGhh
+dCBlYWNoIGxvb3Agd291bGQgc3RhcnQgc2VxdWVudGlhbCBvcGVyYXRpb25zIGJhY2sgYXQgMCBv
+ciB0aGUgb2Zmc2V0LCBhbmQgcmVkbyBhbnkgc3RhcnRfZGVsYXkgb3IgcmFtcF90aW1lIGVhY2gg
+dGltZS4gIElmIHRoYXQgaXMgbm90IHRoZSBjYXNlLCBJJ20gZWl0aGVyIG1pc3Npbmcgc29tZXRo
+aW5nIGluIHRoZSBkb2MsIG9yIGl0IGNvdWxkIHByb2JhYmx5IHVzZSBmdXJ0aGVyIGNsYXJpZmlj
+YXRpb24uICBJZiBpb19zaXplIGlzIHVzZWQgcmF0aGVyIHRoYW4gbnVtYmVyX2lvcyAtIGRvZXMg
+dGhlIHN0YXJ0aW5nIExCQSBnZXQgcmVzZXQgYWZ0ZXIgZWFjaCBsb29wPw0KDQpJIGRvbid0IHJl
+YWxseSBoYXZlIGFueSBzdHJvbmcgb3BpbmlvbiBvbiBob3cgbnVtYmVyX2lvcyB3b3JrcyAod2Ug
+Y2FuIHVzZSBpb19zaXplIGluc3RlYWQpLCBpdCBqdXN0IHNlZW1zIGxpa2UgaXQgd2FzIHdvcmtp
+bmcgZGlmZmVyZW50bHkgYmVmb3JlLCBhbmQgb3RoZXJ3aXNlIGNvdWxkIGp1c3QgdXNlIGZ1cnRo
+ZXIgY2xhcmlmaWNhdGlvbi4gRG8geW91IGtub3cgb2YgYW55IG90aGVyICJxdWFudGl0eSIgdHlw
+ZSBvZiBvcHRpb25zIHdvdWxkIG9wZXJhdGUgaW5kZXBlbmRlbnQgb2YgdGhlIGxvb3BzIG9wdGlv
+bj8gIChJIHRoaW5rIHRoaXMgaXMgdGhlIGZpcnN0IHRpbWUgSSd2ZSBzZWVuIGxvb3AgdXNlZCku
+DQoNClRoYW5rcw0KDQpLcmlzIERhdmlzDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpG
+cm9tOiBTaXRzb2ZlIFdoZWVsZXIgW21haWx0bzpzaXRzb2ZlQGdtYWlsLmNvbV0gDQpTZW50OiBN
+b25kYXksIE1hcmNoIDI2LCAyMDE4IDEyOjI3IFBNDQpUbzogS3JpcyBEYXZpcyA8S3Jpcy5EYXZp
+c0B3ZGMuY29tPg0KQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmc7IEl0YXkgQmVuIFlhYWNvdiA8SXRh
+eS5CZW5ZYWFjb3ZAd2RjLmNvbT4NClN1YmplY3Q6IFJlOiAiTm8gSS9PIHBlcmZvcm1lZCBieSA8
+ZW5naW5lPiIgcmVwb3J0aW5nIGJ1Zz8NCg0KSXQncyB1bmNsZWFyIHRoYXQgbnVtYmVyX2lvcyBp
+cyBzdXBwb3NlZCB0byBiZSBwZXIgbG9vcCBhbmQgaXQncyBhY3R1YWxseSBjaGFsbGVuZ2luZyB0
+byBnZXQgbnVtYmVyX2lvcyBwZXIgbG9vcCBiZWhhdmlvdXIgaW4gYSB3YXkgdGhhdCBpcyBjb25z
+aXN0ZW50IGFuZCB3aWxsIGFsc28gd29yayBmb3Igc2VwZXJhdGUgam9iIHZlcmlmaWNhdGlvbi4g
+SSBzdGFydGVkIGRvd24gdGhhdCByb3V0ZSBvcmlnaW5hbGx5IGFuZCB0aGVuIHJlYWxpc2VkIHZl
+cmlmaWNhdGlvbiBvZiBsb29wcyB3aGVyZSB5b3UgZG9uJ3QgZXhhY3RseSBldmVyeXRoaW5nIGlz
+IHByb2JsZW1hdGljLiBBcyBpdCBzdG9vZCB3aGF0IHNlZW1lZCB0byBiZSBoYXBwZW5pbmcgd2Fz
+IHRoZSBudW1iZXJfaW9zIHdlcmUgYmVpbmcgaW5jcmVhc2VkIGJ5IHRvdGFsIGxvb3BzIGJ1dCBh
+IGxvb3Agd2Fzbid0IGFjdHVhbGx5IGJlaW5nIGVuZGVkIHdoZW4gdGhhdCBsb29wJ3MgbnVtZXJp
+b3Mgd2VyZSBleGNlZWRlZC4gRm9yIGV4YW1wbGUsIHlvdSBtaWdodCBoYXZlIGV4cGVjdGVkIGEg
+c2VxdWVudGlhbCB3cml0ZSB3aXRoIHRvIGp1c3Qga2VlcCByZXdyaXRpbmcgdGhlIHN0YXJ0IHRo
+ZSBvZiB0aGUgZmlsZSB3aGVuIHVzaW5nIG51bWJlcl9pb3MgYW5kIGxvb3BzIGdyZWF0ZXIgdGhh
+biAxIGJ1dCB0aGlzIHdhcyBub3QgdGhlIGNhc2UgLSBpdCB3b3VsZCBjYXJyeSBvbiBmcm9tIHdo
+ZXJlIGl0IGxlZnQgb2ZmIG9uIHRoZSBzZWNvbmQgbG9vcCB1bnRpbCBpdCByZWFjaGVkIHRoZSBl
+bmQgb2YgdGhlIGZpbGUgYW5kIG9ubHkgd3JhcCB0aGVuLg0KDQpRdWljayBxdWVzdGlvbjogd2hh
+dCBhcmUgeW91IGV4cGVjdGluZyBudW1iZXJfaW9zIGNvdXBsZWQgd2l0aA0KbG9vcHM+PTIgdG8g
+ZG8gd2hlbiBpdCdzIHBlciBsb29wPyBCZWFyIGluIG1pbmQgdGhhdCB1bmxpa2UgaW9fc2l6ZSwN
+Cm51bWJlcl9pb3MgaXMgZG9jdW1lbnRlZCBhcyBub3QgZXh0ZW5kaW5nIGpvYnMuLi4NCg0KT24g
+MjYgTWFyY2ggMjAxOCBhdCAxNzoxNCwgS3JpcyBEYXZpcyA8S3Jpcy5EYXZpc0B3ZGMuY29tPiB3
+cm90ZToNCj4gU2l0c29mZSwNCj4NCj4+IElzIHRoaXMgYSBiYWQgdGhpbmc/IEkgd2FzIGFpbWlu
+ZyBmb3IgdGhhdCBiZWhhdmlvdXIgKGZvciBudW1iZXJfaW9zIHRvIGJlaGF2ZSBwZXIgam9iIHJh
+dGhlciB0aGFuIHBlciBsb29wKS4uLg0KPg0KPiBPaCwgSSBkaWRuJ3QgY2F0Y2ggdGhhdC4gIEkg
+d2FzIGFzc3VtaW5nIHRoYXQgbnVtYmVyX2lvcyB3YXMgYW5hbG9nb3VzIHRvIGlvX3NpemUuICBU
+aGF0IGlzLCBpbmRpY2F0aW5nIHdoYXQgZWFjaCAibG9vcCIgd291bGQgZG8uICBXb3VsZG4ndCB5
+b3UgYmUgY2hhbmdpbmcgdGhlIGN1cnJlbnQgYmVoYXZpb3I/ICBNeSBwcmlvciB0ZXN0IHdpdGgg
+bnVtYmVyX2lvcyBhbmQgbG9vcHMgd2FzIHRha2luZyBhYm91dCAzMCBzZWNvbmRzIGFzIGV4cGVj
+dGVkLg0KPg0KPiBUaGFua3MNCj4NCj4gS3JpcyBEYXZpcw0KPiBXZXN0ZXJuIERpZ2l0YWwgQ29w
+b3JhdGlvbg0KPiBFbWFpbDoga3Jpcy5kYXZpc0B3ZGMuY29tDQo+IE9mZmljZTo6ICsxLTUwNy0z
+MjItMjM3Ng0KPg0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBTaXRzb2Zl
+IFdoZWVsZXIgW21haWx0bzpzaXRzb2ZlQGdtYWlsLmNvbV0NCj4gU2VudDogTW9uZGF5LCBNYXJj
+aCAyNiwgMjAxOCAxMTowMSBBTQ0KPiBUbzogS3JpcyBEYXZpcyA8S3Jpcy5EYXZpc0B3ZGMuY29t
+Pg0KPiBDYzogZmlvQHZnZXIua2VybmVsLm9yZzsgSXRheSBCZW4gWWFhY292IDxJdGF5LkJlbllh
+YWNvdkB3ZGMuY29tPg0KPiBTdWJqZWN0OiBSZTogIk5vIEkvTyBwZXJmb3JtZWQgYnkgPGVuZ2lu
+ZT4iIHJlcG9ydGluZyBidWc/DQo+DQo+IEhpIEtyaXMsDQo+DQo+IE9uIDI2IE1hcmNoIDIwMTgg
+YXQgMTY6NDksIEtyaXMgRGF2aXMgPEtyaXMuRGF2aXNAd2RjLmNvbT4gd3JvdGU6DQo+Pg0KPj4g
+VGhhbmtzLiAgIEkgZ2F2ZSBpdCBhIHRyeSBhbmQgbm8gbG9uZ2VyIHNlZSB0aGUgZXJyb3IgbWVz
+c2FnZS4gICBIb3dldmVyLCBpdCBkb2Vzbid0IGFwcGVhciB0aGF0IHRoZSBsb29wIGNvdW50IGlz
+IGJlaW5nIHVzZWQgYW55IGxvbmdlciB3aGVuIG51bWJlcl9pb3Mgb3B0aW9uIGlzIHNldC4gIFRo
+ZSBmb2xsb3dpbmcgcnVucyBpcyBsZXNzIGFib3V0IGEgc2Vjb25kOg0KPj4NCj4+ICQgZmlvIC0t
+aW9lbmdpbmU9bGliYWlvIC0tbG9vcHM9MzIgLS1kaXJlY3Q9MSAtLW51bWpvYnM9MSANCj4+IC0t
+bm9yYW5kb21tYXAgLS1yYW5kcmVwZWF0PTAgLS1zaXplPTE2R0IgLS1maWxlbmFtZT0vZGV2L3Nk
+Yg0KPj4gLS1uYW1lPVJhbmRvbS1yZWFkLTRLLVFEMSAtLXJ3PXJhbmRyZWFkIC0tYnM9NEsgLS1p
+b2RlcHRoPTENCj4+IC0tbnVtYmVyX2lvcz04MTkyDQo+PiBSYW5kb20tcmVhZC00Sy1RRDE6IChn
+PTApOiBydz1yYW5kcmVhZCwgYnM9KFIpIDQwOTZCLTQwOTZCLCAoVykgDQo+PiA0MDk2Qi00MDk2
+QiwgKFQpIDQwOTZCLTQwOTZCLCBpb2VuZ2luZT1saWJhaW8sIGlvZGVwdGg9MQ0KPj4gZmlvLTMu
+NQ0KPj4gU3RhcnRpbmcgMSBwcm9jZXNzDQo+PiBKb2JzOiAxIChmPTEpDQo+PiBSYW5kb20tcmVh
+ZC00Sy1RRDE6IChncm91cGlkPTAsIGpvYnM9MSk6IGVycj0gMDogcGlkPTMxNTc4OiBNb24gTWFy
+IDI2IDEwOjM3OjA2IDIwMTgNCj4+ICAgIHJlYWQ6IElPUFM9NzQzMywgQlc9MjkuME1pQi9zICgz
+MC40TUIvcykoMzIuME1pQi8xMTAybXNlYykNCj4+ICAgICBzbGF0IChuc2VjKTogbWluPTQ1NjQs
+IG1heD00MzQ1OSwgYXZnPTYwMTEuNjUsIHN0ZGV2PTY2Mi40MyAuLi4NCj4+IFJ1biBzdGF0dXMg
+Z3JvdXAgMCAoYWxsIGpvYnMpOg0KPj4gICAgUkVBRDogYnc9MjkuME1pQi9zICgzMC40TUIvcyks
+IDI5LjBNaUIvcy0yOS4wTWlCL3MgDQo+PiAoMzAuNE1CL3MtMzAuNE1CL3MpLCBpbz0zMi4wTWlC
+ICgzMy42TUIpLCBydW49MTEwMi0xMTAybXNlYw0KPg0KPiBJcyB0aGlzIGEgYmFkIHRoaW5nPyBJ
+IHdhcyBhaW1pbmcgZm9yIHRoYXQgYmVoYXZpb3VyIChmb3IgbnVtYmVyX2lvcyB0byBiZWhhdmUg
+cGVyIGpvYiByYXRoZXIgdGhhbiBwZXIgbG9vcCkuLi4NCj4NCj4+IEJ1dCwgaWYgSSB1c2UgaW9f
+c2l6ZT0zMk1CLCBpdCBkb2VzIGFjdHVhbGx5IHJ1biBmb3IgYWJvdXQgMzAgc2Vjb25kcyBhcyBl
+eHBlY3RlZDoNCj4+DQo+PiAkICBmaW8gLS1pb2VuZ2luZT1saWJhaW8gLS1sb29wcz0zMiAtLWRp
+cmVjdD0xIC0tbnVtam9icz0xIA0KPj4gLS1ub3JhbmRvbW1hcCAtLXJhbmRyZXBlYXQ9MCAtLXNp
+emU9MTZHQiAtLWZpbGVuYW1lPS9kZXYvc2RiDQo+PiAtLW5hbWU9UmFuZG9tLXJlYWQtNEstUUQx
+IC0tcnc9cmFuZHJlYWQgLS1icz00SyAtLWlvZGVwdGg9MSANCj4+IC0taW9fc2l6ZT0zMk1CDQo+
+PiBSYW5kb20tcmVhZC00Sy1RRDE6IChnPTApOiBydz1yYW5kcmVhZCwgYnM9KFIpIDQwOTZCLTQw
+OTZCLCAoVykgDQo+PiA0MDk2Qi00MDk2QiwgKFQpIDQwOTZCLTQwOTZCLCBpb2VuZ2luZT1saWJh
+aW8sIGlvZGVwdGg9MQ0KPj4gZmlvLTMuNQ0KPj4gU3RhcnRpbmcgMSBwcm9jZXNzDQo+PiBSYW5k
+b20tcmVhZC00Sy1RRDE6IE5vIEkvTyBwZXJmb3JtZWQgYnkgbGliYWlvLCBwZXJoYXBzIHRyeSAt
+LWRlYnVnPWlvIG9wdGlvbiBmb3IgZGV0YWlscz8NCj4NCj4gXl5eIEhhdmUgeW91IGZvdW5kIGFu
+b3RoZXIgcHJvYmxlbSBoZXJlPw0KPg0KPj4gUmFuZG9tLXJlYWQtNEstUUQxOiAoZ3JvdXBpZD0w
+LCBqb2JzPTEpOiBlcnI9IDA6IHBpZD0zMTk5ODogTW9uIE1hciAyNiAxMDo0Njo0NSAyMDE4DQo+
+PiAgICByZWFkOiBJT1BTPTc3OTAsIEJXPTMwLjRNaUIvcyAoMzEuOU1CL3MpKDEwMjRNaUIvMzM2
+NTBtc2VjKQ0KPj4gICAgIHNsYXQgKG5zZWMpOiBtaW49NDQ0MywgbWF4PTQzNDU3LCBhdmc9NDgz
+MS45OSwgc3RkZXY9Mjg2LjM5IC4uLg0KPj4gUnVuIHN0YXR1cyBncm91cCAwIChhbGwgam9icyk6
+DQo+PiAgICBSRUFEOiBidz0zMC40TWlCL3MgKDMxLjlNQi9zKSwgMzAuNE1pQi9zLTMwLjRNaUIv
+cyANCj4+ICgzMS45TUIvcy0zMS45TUIvcyksIGlvPTEwMjRNaUIgKDEwNzRNQiksIHJ1bj0zMzY1
+MC0zMzY1MG1zZWMNCj4+DQo+PiBEaXNrIHN0YXRzIChyZWFkL3dyaXRlKToNCj4+ICAgc2RiOiBp
+b3M9MjYyMTMwLzAsIG1lcmdlPTAvMCwgdGlja3M9MzE0NTMvMCwgaW5fcXVldWU9MzEzOTYsIA0K
+Pj4gdXRpbD05My4wNiUNCj4NCj4gLS0NCj4gU2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9yZy9+c2l0
+cy8NCg0KDQoNCi0tDQpTaXRzb2ZlIHwgaHR0cDovL3N1Y3Mub3JnL35zaXRzLw0K
