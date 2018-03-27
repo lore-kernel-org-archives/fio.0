@@ -1,51 +1,30 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa5.hgst.iphmx.com ([216.71.153.144]:3232 "EHLO
-        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751188AbeC0UZe (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 27 Mar 2018 16:25:34 -0400
-From: Bart Van Assche <Bart.VanAssche@wdc.com>
-Subject: Re: Windows fio build processor group support testing
-Date: Tue, 27 Mar 2018 20:25:32 +0000
-Message-ID: <a1022d126a861770281f3003eed29b477666c496.camel@wdc.com>
-References: <CALjAwxgErjdsMQ60SOgoAdfTCvdTh_TwKY2DhgcV0OeOA36FjQ@mail.gmail.com>
-In-Reply-To: <CALjAwxgErjdsMQ60SOgoAdfTCvdTh_TwKY2DhgcV0OeOA36FjQ@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <A59CAD2E9D3C254F95F7FAC5CDB5842A@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Received: from mail-ua0-f177.google.com ([209.85.217.177]:35878 "EHLO
+        mail-ua0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750948AbeC0UOb (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 27 Mar 2018 16:14:31 -0400
+Received: by mail-ua0-f177.google.com with SMTP id v9so114690uaj.3
+        for <fio@vger.kernel.org>; Tue, 27 Mar 2018 13:14:31 -0700 (PDT)
 MIME-Version: 1.0
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Tue, 27 Mar 2018 21:13:57 +0100
+Message-ID: <CALjAwxgErjdsMQ60SOgoAdfTCvdTh_TwKY2DhgcV0OeOA36FjQ@mail.gmail.com>
+Subject: Windows fio build processor group support testing
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "sitsofe@gmail.com" <sitsofe@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: "rebecca@bluestop.org" <rebecca@bluestop.org>, "elliott@hpe.com" <elliott@hpe.com>
+To: fio <fio@vger.kernel.org>
+Cc: Rebecca Cran <rebecca@bluestop.org>, "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
 
-T24gVHVlLCAyMDE4LTAzLTI3IGF0IDIxOjEzICswMTAwLCBTaXRzb2ZlIFdoZWVsZXIgd3JvdGU6
-DQo+IEkgaGF2ZSBhIGdpdCB0cmVlIChodHRwczovL2dpdGh1Yi5jb20vc2l0c29mZS9maW8vY29t
-bWl0cy9wcm9jX2dyb3VwICkNCj4gdGhhdCBhZGRzIHByb2Nlc3NvciBncm91cCBzdXBwb3J0IHRv
-IGZpbyBDUFUgc2V0dGluZyBidXQgdG8gZG8gc28gaXQNCj4gaW50cm9kdWNlcyBhIGZsYWcgdG8g
-dGFyZ2V0IHRoZSBidWlsZCB0byBXaW5kb3dzIDcgYW5kIHNldHMgaXQgdG8gYmUNCj4gdGhlIGRl
-ZmF1bHQuIElmIHRoaXMgY2hhbmdlIGdvZXMgaW4gaXQgd2lsbCBtZWFuIGlmIHlvdSB3b3VsZCBu
-ZWVkIHRvDQo+IGV4cGxpY2l0bHkgc2V0IGEgZmxhZyB0byBoYXZlIGFuIGZpbyB0aGF0IHdpbGwg
-d29yayBmb3INCj4gV2luWFAvVmlzdGEvMjAwMy8yMDA4IChiZWZvcmUgUjIpIGV0Yy4gSWYgeW91
-IGhhdmUgdGltZSwgYW55IGZlZWRiYWNrDQo+IHdvdWxkIGJlIHVzZWZ1bC4NCj4gDQo+IElmIEkg
-ZG9uJ3QgaGVhciBhbnkgY29tcGxhaW50cyBJJ2xsIHNlbmQgYSBwdWxsIHJlcXVlc3QgdG8gSmVu
-cyBpbiBhIGRheSBvciB0d28uDQoNCkhlbGxvIFNpdHNvZmUsDQoNCk15IGZlZWRiYWNrIGFib3V0
-IHRoZXNlIHBhdGNoZXMgaXMgYXMgZm9sbG93czoNCi0gSGF2aW5nIHRvIHNwZWNpZnkgYSB0YXJn
-ZXQgV2luZG93cyB2ZXJzaW9uIGF0IGJ1aWxkIHRpbWUgc2VlbXMgd3JvbmcgdG8gbWUuDQogIFdo
-YXQgSSBkaWQgbXlzZWxmIHdoZW4gSSB3cm90ZSBXaW5kb3dzIGNvZGUgMTUgeWVhcnMgYWdvIHdh
-cyB0byBkZXRlY3QgYXQNCiAgcnVudGltZSB3aGljaCBmdW5jdGlvbmFsaXR5IGlzIGF2YWlsYWJs
-ZSBhbmQgd2hpY2ggZnVuY3Rpb25hbGl0eSBpcyBub3QNCiAgYXZhaWxhYmxlLiBBbiBpbml0aWFs
-aXphdGlvbiBmdW5jdGlvbiBjb3VsZCBlLmcuIGNhbGwgTG9hZExpYnJhcnkoKSBhbmQNCiAgR2V0
-UHJvY0FkZHJlc3MoKS4gVGhlIGZ1bmN0aW9uIHBvaW50ZXIocykgcmV0dXJuZWQgYnkgR2V0UHJv
-Y0FkZHJlc3MoKSBjYW4NCiAgYmUgc3RvcmVkIGluIGdsb2JhbCB2YXJpYWJsZXMuIEFueSBmdW5j
-dGlvbiB0aGF0IG5lZWRzIGNvZGUgdGhhdCBpcyBub3QNCiAgYXZhaWxhYmxlIG9uIGV2ZXJ5IHN1
-cHBvcnRlZCBXaW5kb3dzIHZlcnNpb24gY2FuIHRoZW4gY2hlY2sgdGhlc2UgZnVuY3Rpb24NCiAg
-cG9pbnRlcnMsIHN0YXJ0aW5nIHdpdGggdGhlIG1vc3QgcmVjZW50bHkgaW50cm9kdWNlZCBmdW5j
-dGlvbiwgYW5kIGNhbGwgYQ0KICBmdW5jdGlvbiB0aGF0IGlzIGF2YWlsYWJsZSBvbiB0aGUgV2lu
-ZG93cyBwbGF0Zm9ybSBmaW8gaGFzIGJlZW4gc3RhcnRlZCBvbi4NCi0gRXhwbGljaXQgWFAgLyAy
-MDAwIC8gZXRjLiB2ZXJzaW9uIGNoZWNrcyBzZWVtIHVuZm9ydHVuYXRlIHRvIG1lIGJlY2F1c2Ug
-SQ0KICB0aGluayB0aGVzZSB3aWxsIGxlYWQgdG8gbWFpbnRhaW5hYmlsaXR5IHByb2JsZW1zIGlu
-IHRoZSBmdXR1cmUuDQotIFlvdXIgcGF0Y2ggc2VyaWVzIGFkZHMgYSBsb3Qgb2YgY29kZSBpbiBo
-ZWFkZXIgZmlsZXMgd2hpY2ggd2lsbCBzbG93IGRvd24NCiAgdGhlIGJ1aWxkLiBJIHRoaW5rIHN1
-Y2ggY29kZSBzaG91bGQgYmUgYWRkZWQgdG8gLmMgZmlsZXMgaW5zdGVhZC4NCg0KVGhhbmtzLA0K
-DQpCYXJ0Lg0KDQoNCg==
+I have a git tree (https://github.com/sitsofe/fio/commits/proc_group )
+that adds processor group support to fio CPU setting but to do so it
+introduces a flag to target the build to Windows 7 and sets it to be
+the default. If this change goes in it will mean if you would need to
+explicitly set a flag to have an fio that will work for
+WinXP/Vista/2003/2008 (before R2) etc. If you have time, any feedback
+would be useful.
+
+If I don't hear any complaints I'll send a pull request to Jens in a day or two.
+
+-- 
+Sitsofe | http://sucs.org/~sits/
