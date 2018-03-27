@@ -1,65 +1,51 @@
-Return-Path: <sitsofe@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <a1022d126a861770281f3003eed29b477666c496.camel@wdc.com>
-References: <CALjAwxgErjdsMQ60SOgoAdfTCvdTh_TwKY2DhgcV0OeOA36FjQ@mail.gmail.com>
- <a1022d126a861770281f3003eed29b477666c496.camel@wdc.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Wed, 28 Mar 2018 11:48:06 +0100
-Message-ID: <CALjAwxhnGDcqVsq43ZyeH_Scb+bepT5gBKd0X151WTwNj85v4A@mail.gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa5.hgst.iphmx.com ([216.71.153.144]:3232 "EHLO
+        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751188AbeC0UZe (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 27 Mar 2018 16:25:34 -0400
+From: Bart Van Assche <Bart.VanAssche@wdc.com>
 Subject: Re: Windows fio build processor group support testing
-Content-Type: text/plain; charset="UTF-8"
-To: Bart Van Assche <Bart.VanAssche@wdc.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "rebecca@bluestop.org" <rebecca@bluestop.org>, "elliott@hpe.com" <elliott@hpe.com>, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+Date: Tue, 27 Mar 2018 20:25:32 +0000
+Message-ID: <a1022d126a861770281f3003eed29b477666c496.camel@wdc.com>
+References: <CALjAwxgErjdsMQ60SOgoAdfTCvdTh_TwKY2DhgcV0OeOA36FjQ@mail.gmail.com>
+In-Reply-To: <CALjAwxgErjdsMQ60SOgoAdfTCvdTh_TwKY2DhgcV0OeOA36FjQ@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <A59CAD2E9D3C254F95F7FAC5CDB5842A@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "sitsofe@gmail.com" <sitsofe@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: "rebecca@bluestop.org" <rebecca@bluestop.org>, "elliott@hpe.com" <elliott@hpe.com>
 
-Hi Bart,
-
-On 27 March 2018 at 21:25, Bart Van Assche <Bart.VanAssche@wdc.com> wrote:
-> My feedback about these patches is as follows:
-> - Having to specify a target Windows version at build time seems wrong to me.
->   What I did myself when I wrote Windows code 15 years ago was to detect at
->   runtime which functionality is available and which functionality is not
->   available. An initialization function could e.g. call LoadLibrary() and
->   GetProcAddress(). The function pointer(s) returned by GetProcAddress() can
->   be stored in global variables. Any function that needs code that is not
->   available on every supported Windows version can then check these function
->   pointers, starting with the most recently introduced function, and call a
->   function that is available on the Windows platform fio has been started on.
-
-I'll note that Jens suggested we could use build time configuration in
-https://github.com/axboe/fio/issues/527#issuecomment-363804643 . With
-runtime lookup it becomes tricky to test the legacy paths on new
-systems because you can no longer force them to be taken (I don't have
-access to a Windows before 2012 R2 myself). My hope is that support
-for legacy Windows is eventually dropped because:
-- Most mainstream versions of Windows before Windows 7/Windows Server
-2008 are already EOL (both versions of Server 2008 go EOL in 2020)
-- It's unclear who is running fio is running fio in those old Windows
-environments
-
-I also suspect we've quietly dropped support for old versions of other
-OSes due to build requirements - it looks like it would be a struggle
-to build a recent fio for a RHEL 4 era system due compiler
-requirements (and who knows if there are other problems when using an
-older glibc).
-
-> - Explicit XP / 2000 / etc. version checks seem unfortunate to me because I
->   think these will lead to maintainability problems in the future.
-
-The fact the code has a conditional (either a compile one or a runtime
-one) is what's unfortunate and there's a maintenance burden either way
-due to increased paths. The only way to save maintenance effort would
-be to drop the old path...
-
-> - Your patch series adds a lot of code in header files which will slow down
->   the build. I think such code should be added to .c files instead.
-
-This argument applies to the other bigger os/os-*.h files (e.g.
-os/os-linux.h) too but I think making such a change (and ensuring the
-pieces that are performance sensitive stay inlinable) could be done in
-a separate patch (which would be able to introduce an os.o) in the
-future.
-
--- 
-Sitsofe | http://sucs.org/~sits/
-
+T24gVHVlLCAyMDE4LTAzLTI3IGF0IDIxOjEzICswMTAwLCBTaXRzb2ZlIFdoZWVsZXIgd3JvdGU6
+DQo+IEkgaGF2ZSBhIGdpdCB0cmVlIChodHRwczovL2dpdGh1Yi5jb20vc2l0c29mZS9maW8vY29t
+bWl0cy9wcm9jX2dyb3VwICkNCj4gdGhhdCBhZGRzIHByb2Nlc3NvciBncm91cCBzdXBwb3J0IHRv
+IGZpbyBDUFUgc2V0dGluZyBidXQgdG8gZG8gc28gaXQNCj4gaW50cm9kdWNlcyBhIGZsYWcgdG8g
+dGFyZ2V0IHRoZSBidWlsZCB0byBXaW5kb3dzIDcgYW5kIHNldHMgaXQgdG8gYmUNCj4gdGhlIGRl
+ZmF1bHQuIElmIHRoaXMgY2hhbmdlIGdvZXMgaW4gaXQgd2lsbCBtZWFuIGlmIHlvdSB3b3VsZCBu
+ZWVkIHRvDQo+IGV4cGxpY2l0bHkgc2V0IGEgZmxhZyB0byBoYXZlIGFuIGZpbyB0aGF0IHdpbGwg
+d29yayBmb3INCj4gV2luWFAvVmlzdGEvMjAwMy8yMDA4IChiZWZvcmUgUjIpIGV0Yy4gSWYgeW91
+IGhhdmUgdGltZSwgYW55IGZlZWRiYWNrDQo+IHdvdWxkIGJlIHVzZWZ1bC4NCj4gDQo+IElmIEkg
+ZG9uJ3QgaGVhciBhbnkgY29tcGxhaW50cyBJJ2xsIHNlbmQgYSBwdWxsIHJlcXVlc3QgdG8gSmVu
+cyBpbiBhIGRheSBvciB0d28uDQoNCkhlbGxvIFNpdHNvZmUsDQoNCk15IGZlZWRiYWNrIGFib3V0
+IHRoZXNlIHBhdGNoZXMgaXMgYXMgZm9sbG93czoNCi0gSGF2aW5nIHRvIHNwZWNpZnkgYSB0YXJn
+ZXQgV2luZG93cyB2ZXJzaW9uIGF0IGJ1aWxkIHRpbWUgc2VlbXMgd3JvbmcgdG8gbWUuDQogIFdo
+YXQgSSBkaWQgbXlzZWxmIHdoZW4gSSB3cm90ZSBXaW5kb3dzIGNvZGUgMTUgeWVhcnMgYWdvIHdh
+cyB0byBkZXRlY3QgYXQNCiAgcnVudGltZSB3aGljaCBmdW5jdGlvbmFsaXR5IGlzIGF2YWlsYWJs
+ZSBhbmQgd2hpY2ggZnVuY3Rpb25hbGl0eSBpcyBub3QNCiAgYXZhaWxhYmxlLiBBbiBpbml0aWFs
+aXphdGlvbiBmdW5jdGlvbiBjb3VsZCBlLmcuIGNhbGwgTG9hZExpYnJhcnkoKSBhbmQNCiAgR2V0
+UHJvY0FkZHJlc3MoKS4gVGhlIGZ1bmN0aW9uIHBvaW50ZXIocykgcmV0dXJuZWQgYnkgR2V0UHJv
+Y0FkZHJlc3MoKSBjYW4NCiAgYmUgc3RvcmVkIGluIGdsb2JhbCB2YXJpYWJsZXMuIEFueSBmdW5j
+dGlvbiB0aGF0IG5lZWRzIGNvZGUgdGhhdCBpcyBub3QNCiAgYXZhaWxhYmxlIG9uIGV2ZXJ5IHN1
+cHBvcnRlZCBXaW5kb3dzIHZlcnNpb24gY2FuIHRoZW4gY2hlY2sgdGhlc2UgZnVuY3Rpb24NCiAg
+cG9pbnRlcnMsIHN0YXJ0aW5nIHdpdGggdGhlIG1vc3QgcmVjZW50bHkgaW50cm9kdWNlZCBmdW5j
+dGlvbiwgYW5kIGNhbGwgYQ0KICBmdW5jdGlvbiB0aGF0IGlzIGF2YWlsYWJsZSBvbiB0aGUgV2lu
+ZG93cyBwbGF0Zm9ybSBmaW8gaGFzIGJlZW4gc3RhcnRlZCBvbi4NCi0gRXhwbGljaXQgWFAgLyAy
+MDAwIC8gZXRjLiB2ZXJzaW9uIGNoZWNrcyBzZWVtIHVuZm9ydHVuYXRlIHRvIG1lIGJlY2F1c2Ug
+SQ0KICB0aGluayB0aGVzZSB3aWxsIGxlYWQgdG8gbWFpbnRhaW5hYmlsaXR5IHByb2JsZW1zIGlu
+IHRoZSBmdXR1cmUuDQotIFlvdXIgcGF0Y2ggc2VyaWVzIGFkZHMgYSBsb3Qgb2YgY29kZSBpbiBo
+ZWFkZXIgZmlsZXMgd2hpY2ggd2lsbCBzbG93IGRvd24NCiAgdGhlIGJ1aWxkLiBJIHRoaW5rIHN1
+Y2ggY29kZSBzaG91bGQgYmUgYWRkZWQgdG8gLmMgZmlsZXMgaW5zdGVhZC4NCg0KVGhhbmtzLA0K
+DQpCYXJ0Lg0KDQoNCg==
