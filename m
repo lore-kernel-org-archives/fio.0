@@ -1,47 +1,31 @@
-Return-Path: <axboe@kernel.dk>
+Return-Path: <prvs=618ffff81=Bart.VanAssche@wdc.com>
+From: Bart Van Assche <Bart.VanAssche@wdc.com>
 Subject: Re: Windows fio build processor group support testing
+Date: Wed, 28 Mar 2018 14:20:00 +0000
+Message-ID: <fc4d3aa0993980efbb9bbe5bf83c42d507e9f2a2.camel@wdc.com>
 References: <CALjAwxgErjdsMQ60SOgoAdfTCvdTh_TwKY2DhgcV0OeOA36FjQ@mail.gmail.com>
- <a1022d126a861770281f3003eed29b477666c496.camel@wdc.com>
- <CALjAwxhnGDcqVsq43ZyeH_Scb+bepT5gBKd0X151WTwNj85v4A@mail.gmail.com>
- <fc4d3aa0993980efbb9bbe5bf83c42d507e9f2a2.camel@wdc.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <ee74a245-dc9f-28a6-9b15-1fbcc7ac734a@kernel.dk>
-Date: Wed, 28 Mar 2018 09:08:03 -0600
-MIME-Version: 1.0
-In-Reply-To: <fc4d3aa0993980efbb9bbe5bf83c42d507e9f2a2.camel@wdc.com>
-Content-Type: text/plain; charset=utf-8
+	 <a1022d126a861770281f3003eed29b477666c496.camel@wdc.com>
+	 <CALjAwxhnGDcqVsq43ZyeH_Scb+bepT5gBKd0X151WTwNj85v4A@mail.gmail.com>
+In-Reply-To: <CALjAwxhnGDcqVsq43ZyeH_Scb+bepT5gBKd0X151WTwNj85v4A@mail.gmail.com>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Bart Van Assche <Bart.VanAssche@wdc.com>, "sitsofe@gmail.com" <sitsofe@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "rebecca@bluestop.org" <rebecca@bluestop.org>, "elliott@hpe.com" <elliott@hpe.com>
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <55B1E258C5C11843952B0F9460FB8BEA@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: "sitsofe@gmail.com" <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "rebecca@bluestop.org" <rebecca@bluestop.org>, "elliott@hpe.com" <elliott@hpe.com>, "axboe@kernel.dk" <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-On 3/28/18 8:20 AM, Bart Van Assche wrote:
-> On Wed, 2018-03-28 at 11:48 +0100, Sitsofe Wheeler wrote:
->> I'll note that Jens suggested we could use build time configuration in
->> https://github.com/axboe/fio/issues/527#issuecomment-363804643 . With
->> runtime lookup it becomes tricky to test the legacy paths on new
->> systems because you can no longer force them to be taken (I don't have
->> access to a Windows before 2012 R2 myself).
-> 
-> Let's follow what Jens proposed. But I do not agree that my proposal would
-> make it tricky to test the legacy paths. One possible approach would be to
-> add a command-line option that forces the legacy paths to be taken.
-
-I think I've done one overhaul of the cpu mask mechanism, to make it more
-cross platform friendly. And that was many years ago. So I don't expect
-a lot of churn in this area, which should mean that the legacy code can
-remain mostly untouched going forward.
-
-If, at some later point in time that changes, then I'm fine with ditching
-the old Windows processor group code if we have no way of verifying
-whether it still works or not.
-
-Hence I think that Sitsofe's approach is fine - default to the code that
-works well on newer Windows and supports > 32 CPUs. That's a basic
-system these days, and what most people would run on.
-
--- 
-Jens Axboe
-
+T24gV2VkLCAyMDE4LTAzLTI4IGF0IDExOjQ4ICswMTAwLCBTaXRzb2ZlIFdoZWVsZXIgd3JvdGU6
+DQo+IEknbGwgbm90ZSB0aGF0IEplbnMgc3VnZ2VzdGVkIHdlIGNvdWxkIHVzZSBidWlsZCB0aW1l
+IGNvbmZpZ3VyYXRpb24gaW4NCj4gaHR0cHM6Ly9naXRodWIuY29tL2F4Ym9lL2Zpby9pc3N1ZXMv
+NTI3I2lzc3VlY29tbWVudC0zNjM4MDQ2NDMgLiBXaXRoDQo+IHJ1bnRpbWUgbG9va3VwIGl0IGJl
+Y29tZXMgdHJpY2t5IHRvIHRlc3QgdGhlIGxlZ2FjeSBwYXRocyBvbiBuZXcNCj4gc3lzdGVtcyBi
+ZWNhdXNlIHlvdSBjYW4gbm8gbG9uZ2VyIGZvcmNlIHRoZW0gdG8gYmUgdGFrZW4gKEkgZG9uJ3Qg
+aGF2ZQ0KPiBhY2Nlc3MgdG8gYSBXaW5kb3dzIGJlZm9yZSAyMDEyIFIyIG15c2VsZikuDQoNCkxl
+dCdzIGZvbGxvdyB3aGF0IEplbnMgcHJvcG9zZWQuIEJ1dCBJIGRvIG5vdCBhZ3JlZSB0aGF0IG15
+IHByb3Bvc2FsIHdvdWxkDQptYWtlIGl0IHRyaWNreSB0byB0ZXN0IHRoZSBsZWdhY3kgcGF0aHMu
+IE9uZSBwb3NzaWJsZSBhcHByb2FjaCB3b3VsZCBiZSB0bw0KYWRkIGEgY29tbWFuZC1saW5lIG9w
+dGlvbiB0aGF0IGZvcmNlcyB0aGUgbGVnYWN5IHBhdGhzIHRvIGJlIHRha2VuLg0KDQpCYXJ0Lg0K
+DQoNCg0KDQo=
 
