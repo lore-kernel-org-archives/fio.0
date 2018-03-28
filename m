@@ -1,56 +1,47 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:40646 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932121AbeB1NAK (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 28 Feb 2018 08:00:10 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.89 #1 (Red Hat Linux))
-        id 1er1L7-0002Ob-QO
-        for fio@vger.kernel.org; Wed, 28 Feb 2018 13:00:09 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: Windows fio build processor group support testing
+References: <CALjAwxgErjdsMQ60SOgoAdfTCvdTh_TwKY2DhgcV0OeOA36FjQ@mail.gmail.com>
+ <a1022d126a861770281f3003eed29b477666c496.camel@wdc.com>
+ <CALjAwxhnGDcqVsq43ZyeH_Scb+bepT5gBKd0X151WTwNj85v4A@mail.gmail.com>
+ <fc4d3aa0993980efbb9bbe5bf83c42d507e9f2a2.camel@wdc.com>
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180228130002.348322C0085@kernel.dk>
-Date: Wed, 28 Feb 2018 06:00:02 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <ee74a245-dc9f-28a6-9b15-1fbcc7ac734a@kernel.dk>
+Date: Wed, 28 Mar 2018 09:08:03 -0600
+MIME-Version: 1.0
+In-Reply-To: <fc4d3aa0993980efbb9bbe5bf83c42d507e9f2a2.camel@wdc.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Bart Van Assche <Bart.VanAssche@wdc.com>, "sitsofe@gmail.com" <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "rebecca@bluestop.org" <rebecca@bluestop.org>, "elliott@hpe.com" <elliott@hpe.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 8aa33bf1b4363b706f7139e15b0a3e7b14bea16b:
+On 3/28/18 8:20 AM, Bart Van Assche wrote:
+> On Wed, 2018-03-28 at 11:48 +0100, Sitsofe Wheeler wrote:
+>> I'll note that Jens suggested we could use build time configuration in
+>> https://github.com/axboe/fio/issues/527#issuecomment-363804643 . With
+>> runtime lookup it becomes tricky to test the legacy paths on new
+>> systems because you can no longer force them to be taken (I don't have
+>> access to a Windows before 2012 R2 myself).
+> 
+> Let's follow what Jens proposed. But I do not agree that my proposal would
+> make it tricky to test the legacy paths. One possible approach would be to
+> add a command-line option that forces the legacy paths to be taken.
 
-  Merge branch 'wip-ifed-howto-update' of https://github.com/ifed01/fio (2018-02-26 11:59:54 -0700)
+I think I've done one overhaul of the cpu mask mechanism, to make it more
+cross platform friendly. And that was many years ago. So I don't expect
+a lot of churn in this area, which should mean that the legacy code can
+remain mostly untouched going forward.
 
-are available in the git repository at:
+If, at some later point in time that changes, then I'm fine with ditching
+the old Windows processor group code if we have no way of verifying
+whether it still works or not.
 
-  git://git.kernel.dk/fio.git master
+Hence I think that Sitsofe's approach is fine - default to the code that
+works well on newer Windows and supports > 32 CPUs. That's a basic
+system these days, and what most people would run on.
 
-for you to fetch changes up to 68ae273e7544ebafeef721281b9bda5d42d66f4c:
+-- 
+Jens Axboe
 
-  Merge branch 'master' of https://github.com/brycepg/fio (2018-02-27 16:15:22 -0700)
 
-----------------------------------------------------------------
-Bryce Guinta (1):
-      Refer to zlib-static package in zlib static build warning
-
-Jens Axboe (1):
-      Merge branch 'master' of https://github.com/brycepg/fio
-
- configure | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/configure b/configure
-index 5d283d7..2b99ce9 100755
---- a/configure
-+++ b/configure
-@@ -2376,7 +2376,7 @@ if test "$disable_opt" = "yes" ; then
-   output_sym "CONFIG_DISABLE_OPTIMIZATIONS"
- fi
- if test "$zlib" = "no" ; then
--  echo "Consider installing zlib-dev (zlib-devel), some fio features depend on it."
-+  echo "Consider installing zlib-dev (zlib-devel or zlib-static), some fio features depend on it."
- fi
- if test "$cuda" = "yes" ; then
-   output_sym "CONFIG_CUDA"
