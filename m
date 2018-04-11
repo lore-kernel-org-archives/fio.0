@@ -1,39 +1,56 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f182.google.com ([209.85.217.182]:44904 "EHLO
-        mail-ua0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754042AbeDPI3E (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 16 Apr 2018 04:29:04 -0400
-Received: by mail-ua0-f182.google.com with SMTP id r16so9535940uak.11
-        for <fio@vger.kernel.org>; Mon, 16 Apr 2018 01:29:04 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <86719d5b-6a45-91f5-112a-d95d5159ff05@suse.com>
-References: <1df8fc47-5ac6-fa99-ee0b-16abfc6a76bb@suse.com>
- <CALjAwxj56y_2eFaqz0aXpT3Pixgcy2QGgndhqTmnwB9g4ixj3w@mail.gmail.com> <86719d5b-6a45-91f5-112a-d95d5159ff05@suse.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Mon, 16 Apr 2018 09:28:33 +0100
-Message-ID: <CALjAwxgEj-bNV=dO1wU8K5rVbns-fMrMvc0J8=TJmdM4BX4Opw@mail.gmail.com>
+Received: from smtp2.provo.novell.com ([137.65.250.81]:54821 "EHLO
+        smtp2.provo.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752754AbeDKJBy (ORCPT
+        <rfc822;groupwise-fio@vger.kernel.org:0:0>);
+        Wed, 11 Apr 2018 05:01:54 -0400
 Subject: Re: help about how to use latency options
-Content-Type: text/plain; charset="UTF-8"
+References: <1df8fc47-5ac6-fa99-ee0b-16abfc6a76bb@suse.com>
+ <CALjAwxj56y_2eFaqz0aXpT3Pixgcy2QGgndhqTmnwB9g4ixj3w@mail.gmail.com>
+From: Larry Chen <lchen@suse.com>
+Message-ID: <86719d5b-6a45-91f5-112a-d95d5159ff05@suse.com>
+Date: Wed, 11 Apr 2018 17:01:42 +0800
+MIME-Version: 1.0
+In-Reply-To: <CALjAwxj56y_2eFaqz0aXpT3Pixgcy2QGgndhqTmnwB9g4ixj3w@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Larry Chen <lchen@suse.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: fio <fio@vger.kernel.org>
 
-Hi,
+Hi Sitsofe,
+Thanks for your explain.
+I found that if latency_target is specified, latency_window must be 
+along with latency_target option.
+If not, fio will exit immediately.
+Why the case is like that?
 
-fio needs to know what the period it should be sampling the latency
-over. If the latency was OK in the current latency window it can up
-the iodepth by one and start a new latency window thus repeating the
-process. Without a window you will (by definition) have no samples to
-look at!
+Thanks
+Larry
 
-On 11 April 2018 at 10:01, Larry Chen <lchen@suse.com> wrote:
-> Hi Sitsofe,
-> Thanks for your explain.
-> I found that if latency_target is specified, latency_window must be along
-> with latency_target option.
-> If not, fio will exit immediately.
-> Why the case is like that?
+On 04/11/2018 03:59 PM, Sitsofe Wheeler wrote:
+> Hi,
+>
+> On 11 April 2018 at 07:48, Larry Chen <lchen@suse.com> wrote:
+>> I referred to the docs and examples but I'm still hard to understand how to
+>> use latency_target, latency_window and latency_percentile.
+>> Could any one help explain it in detail?
+>> Thanks in advance
+>>
+>> Sorry for that this letter might be resent to the list because my
+>> misoperation of subscribing fio mail list.
+> These options are used to probe the highest iodepth usable such that
+> the I/Os still have a latency equal to or below that of latency_target
+> on the basis that more asynchronous I/Os being sent at the same time
+> the higher each I/Os latency will be (this is what
+> http://fio.readthedocs.io/en/latest/fio_man.html#cmdoption-arg-latency-window
+> is trying to say). latency_window controls the time window that I/Os
+> are considered over. latency_percentile is used to adjust the
+> sensitivity to outlier I/Os during this process so a single moment
+> high spike is ignored.
+>
+> Any clearer?
+>
 
--- 
-Sitsofe | http://sucs.org/~sits/
