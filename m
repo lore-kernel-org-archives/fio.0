@@ -1,64 +1,44 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk0-f47.google.com ([209.85.213.47]:39953 "EHLO
-        mail-vk0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751325AbeDPG4K (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 16 Apr 2018 02:56:10 -0400
-Received: by mail-vk0-f47.google.com with SMTP id x204so8812972vkd.7
-        for <fio@vger.kernel.org>; Sun, 15 Apr 2018 23:56:10 -0700 (PDT)
+Received: from smtp2.provo.novell.com ([137.65.250.81]:60696 "EHLO
+        smtp2.provo.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752911AbeDRLz0 (ORCPT
+        <rfc822;groupwise-fio@vger.kernel.org:0:0>);
+        Wed, 18 Apr 2018 07:55:26 -0400
+Subject: Re: help about how to use latency options
+References: <1df8fc47-5ac6-fa99-ee0b-16abfc6a76bb@suse.com>
+ <CALjAwxj56y_2eFaqz0aXpT3Pixgcy2QGgndhqTmnwB9g4ixj3w@mail.gmail.com>
+ <86719d5b-6a45-91f5-112a-d95d5159ff05@suse.com>
+ <CALjAwxgEj-bNV=dO1wU8K5rVbns-fMrMvc0J8=TJmdM4BX4Opw@mail.gmail.com>
+From: Larry Chen <lchen@suse.com>
+Message-ID: <3b549c9e-b06b-300a-3863-b8d74eb0a550@suse.com>
+Date: Wed, 18 Apr 2018 19:55:15 +0800
 MIME-Version: 1.0
-From: =?UTF-8?B?6ams5bCR5qWg?= <shaonan.ma@gmail.com>
-Date: Mon, 16 Apr 2018 14:56:09 +0800
-Message-ID: <CAAOwsrdmf4HgJqVnGvz5GU58h-BrpHk1SnckWvYYsje2mOvhFg@mail.gmail.com>
-Subject: How to use ceph rados ioengine? How to config rados.job for parallel
- reading and writing?
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CALjAwxgEj-bNV=dO1wU8K5rVbns-fMrMvc0J8=TJmdM4BX4Opw@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-Hi List,
+Thanks
+  :-)
 
-I am a beginner, and now I am testing performance of rados of ceph. I
-use the ioengine of rados but when I used the example in Github, the
-ceph pool is empty as following:
+On 04/16/2018 04:28 PM, Sitsofe Wheeler wrote:
+> Hi,
+>
+> fio needs to know what the period it should be sampling the latency
+> over. If the latency was OK in the current latency window it can up
+> the iodepth by one and start a new latency window thus repeating the
+> process. Without a window you will (by definition) have no samples to
+> look at!
+>
+> On 11 April 2018 at 10:01, Larry Chen <lchen@suse.com> wrote:
+>> Hi Sitsofe,
+>> Thanks for your explain.
+>> I found that if latency_target is specified, latency_window must be along
+>> with latency_target option.
+>> If not, fio will exit immediately.
+>> Why the case is like that?
 
-data:
-    pools:   1 pools, 100 pgs
-    objects: 0 objects, 0 bytes
-    usage:   72611 MB used, 349 TB / 349 TB avail
-    pgs:     100 active+clean
-
-$ ceph df
-GLOBAL:
-    SIZE     AVAIL     RAW USED     %RAW USED
-    349T      349T       72611M          0.02
-POOLS:
-    NAME       ID     USED     %USED     MAX AVAIL     OBJECTS
-    ecpool     1         0         0          221T           0
-
-And my configure file rados.job is as following:
-
-[global]
-ioengine=rados
-clientname=admin
-pool=ecpool
-busy_poll=0
-rw=write
-bs=4M
-
-[job1]
-size=100G
-io_size=100G
-iodepth=2048
-
-I want to know whether the result that fio got could be considered
-effective without any ojbect been written in the pool.
-
-And I want to ask what I need to do if I want to test parallel reading
-and write of rados. Should I create N pools in ceph and create N jobs
-in fio configure file?
-
-Thanks.
-
-Regards,
-Shaonan Ma
