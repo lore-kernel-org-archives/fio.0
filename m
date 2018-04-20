@@ -1,39 +1,34 @@
-Return-Path: <axboe@kernel.dk>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from muon.bluestop.org ([96.73.9.1]:38035 "EHLO muon.bluestop.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755726AbeDTPqO (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 20 Apr 2018 11:46:14 -0400
 Subject: Re: Windows and TRIM support - files, not devices
 References: <99e2bdcb-3067-cb48-90c8-c141191465d5@cran.org.uk>
  <CALjAwxgej+e6vSgHf=Vfvx_dkqHoPR7eDMhz85D5Fof=pgRjgg@mail.gmail.com>
- <40890e19-4484-2265-8b24-ef98b6f61717@bluestop.org>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <9495a910-beb6-76dd-2c1e-3f67c23ef59f@kernel.dk>
-Date: Mon, 30 Apr 2018 14:24:21 -0600
+From: Rebecca Cran <rebecca@bluestop.org>
+Message-ID: <40890e19-4484-2265-8b24-ef98b6f61717@bluestop.org>
+Date: Fri, 20 Apr 2018 09:46:13 -0600
 MIME-Version: 1.0
-In-Reply-To: <40890e19-4484-2265-8b24-ef98b6f61717@bluestop.org>
+In-Reply-To: <CALjAwxgej+e6vSgHf=Vfvx_dkqHoPR7eDMhz85D5Fof=pgRjgg@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-To: Rebecca Cran <rebecca@bluestop.org>, Sitsofe Wheeler <sitsofe@gmail.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: fio <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
 
-On 4/20/18 9:46 AM, Rebecca Cran wrote:
-> On 04/20/18 01:15, Sitsofe Wheeler wrote:
-> 
->> On 28 January 2017 at 01:05, Rebecca Cran <rebecca@bluestop.org> wrote:
->>> I've been looking at the TRIM support in Windows 8 and newer, and have come
->>> across a potential problem. Other OSes use TRIM on a physical/block device,
->>> but Windows only provides support for TRIM on files.
->>
->> How far did you get with this?
-> 
-> I didn't do any more work on it after realizing it only worked on files.
+On 04/20/18 01:15, Sitsofe Wheeler wrote:
 
-Missed this originally - files is totally fine, for what it's worth, on
-Linux we could map this to hole punching too. So I don't think that's
-a show stopper at all, it'd be perfectly possible to define trim based
-workloads just on files. In fact, that's more flexible that what we
-currently support on Linux.
+> On 28 January 2017 at 01:05, Rebecca Cran <rebecca@bluestop.org> wrote:
+>> I've been looking at the TRIM support in Windows 8 and newer, and have come
+>> across a potential problem. Other OSes use TRIM on a physical/block device,
+>> but Windows only provides support for TRIM on files.
+> 
+> How far did you get with this?
+
+I didn't do any more work on it after realizing it only worked on files.
 
 -- 
-Jens Axboe
-
-
+Rebecca
