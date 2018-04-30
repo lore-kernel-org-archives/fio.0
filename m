@@ -1,28 +1,39 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f172.google.com ([209.85.217.172]:39702 "EHLO
-        mail-ua0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752752AbeDCSSq (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 3 Apr 2018 14:18:46 -0400
-Received: by mail-ua0-f172.google.com with SMTP id m47so11615036uae.6
-        for <fio@vger.kernel.org>; Tue, 03 Apr 2018 11:18:46 -0700 (PDT)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: Windows and TRIM support - files, not devices
+References: <99e2bdcb-3067-cb48-90c8-c141191465d5@cran.org.uk>
+ <CALjAwxgej+e6vSgHf=Vfvx_dkqHoPR7eDMhz85D5Fof=pgRjgg@mail.gmail.com>
+ <40890e19-4484-2265-8b24-ef98b6f61717@bluestop.org>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <9495a910-beb6-76dd-2c1e-3f67c23ef59f@kernel.dk>
+Date: Mon, 30 Apr 2018 14:24:21 -0600
 MIME-Version: 1.0
-From: Alireza Haghdoost <haghdoost@gmail.com>
-Date: Tue, 3 Apr 2018 13:18:05 -0500
-Message-ID: <CAB-428nGSovor98bWztkQK3C0veSCK_ECey-yeBk2SahVXWFsA@mail.gmail.com>
-Subject: Terse output header ?
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <40890e19-4484-2265-8b24-ef98b6f61717@bluestop.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Rebecca Cran <rebecca@bluestop.org>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Is there any way that we can get the full header with Terse output?
+On 4/20/18 9:46 AM, Rebecca Cran wrote:
+> On 04/20/18 01:15, Sitsofe Wheeler wrote:
+> 
+>> On 28 January 2017 at 01:05, Rebecca Cran <rebecca@bluestop.org> wrote:
+>>> I've been looking at the TRIM support in Windows 8 and newer, and have come
+>>> across a potential problem. Other OSes use TRIM on a physical/block device,
+>>> but Windows only provides support for TRIM on files.
+>>
+>> How far did you get with this?
+> 
+> I didn't do any more work on it after realizing it only worked on files.
 
-Without a header, it prints a long line which is very hard to count
-and match the column with the definitions of columns in the howto
-guide. Moreover, some columns that are defined in the howto might be
-missing in my output and therefore, it makes the script development to
-use the terse output very hard.
+Missed this originally - files is totally fine, for what it's worth, on
+Linux we could map this to hole punching too. So I don't think that's
+a show stopper at all, it'd be perfectly possible to define trim based
+workloads just on files. In fact, that's more flexible that what we
+currently support on Linux.
+
+-- 
+Jens Axboe
 
 
---
-Alireza
