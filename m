@@ -1,6 +1,11 @@
-Return-Path: <axboe@kernel.dk>
+Return-Path: <rob.scheepens@nutanix.com>
+From: Rob Scheepens <rob.scheepens@nutanix.com>
 Subject: Re: Windows: FIO randomly hangs using attached script
+Date: Tue, 1 May 2018 14:41:13 +0000
+Message-ID: <40961F5A-B8DE-4497-B697-8D0B2860C542@nutanix.com>
 References: <e044afaa-22ad-c7e2-d041-e2658f49bac8@bluestop.org>
+ <CALjAwxjoTtRp1jVhfKMTcbn6wnmEmmCsjkpO7CkBgF5zj4B3Bg@mail.gmail.com>
+ <9cf7d62a-5c4a-737a-d119-13763fb42c72@bluestop.org>
  <CALjAwxhxpLuLeysnp5kC-kQoWH++4hvehCWJxc9yA_Fcsy=pmw@mail.gmail.com>
  <BAE7B5AF-63F9-4E95-940D-7C84CE5AD92E@nutanix.com>
  <36259BEC-1CF0-45A5-85AE-F557989EDF30@nutanix.com>
@@ -15,62 +20,51 @@ References: <e044afaa-22ad-c7e2-d041-e2658f49bac8@bluestop.org>
  <CALjAwxg1SzQV9ss9jjqry8_MLgDfPYq9QdbA5eVZi-PkmSEAKA@mail.gmail.com>
  <406902be-f4ce-c4f4-4e16-ee9caf8c0bcf@kernel.dk>
  <CALjAwxgr10F9X0n=7Scugz1yO48XPW5ANYGoD4JAss6Y3Egbcw@mail.gmail.com>
- <40961F5A-B8DE-4497-B697-8D0B2860C542@nutanix.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <196f210e-846a-c916-fcff-eaa7fdbdcc7d@kernel.dk>
-Date: Tue, 1 May 2018 08:42:51 -0600
-MIME-Version: 1.0
-In-Reply-To: <40961F5A-B8DE-4497-B697-8D0B2860C542@nutanix.com>
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <CALjAwxgr10F9X0n=7Scugz1yO48XPW5ANYGoD4JAss6Y3Egbcw@mail.gmail.com>
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-To: Rob Scheepens <rob.scheepens@nutanix.com>, Sitsofe Wheeler <sitsofe@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <60221DE54C230D4180961EA72E9930D6@namprd02.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: Sitsofe Wheeler <sitsofe@gmail.com>, Jens Axboe <axboe@kernel.dk>
 Cc: David Knierim <knierim@nutanix.com>, Rebecca Cran <rebecca@bluestop.org>, fio <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-Thanks for the update, a couple million iterations should suffice in
-confidently saying it's fixed :-)
-
-
-On 5/1/18 8:41 AM, Rob Scheepens wrote:
-> Closing the loop on this: after running a couple of million times the script that used to reproduce this, I have not seen a single error with the patch.
-> 
-> Thanks All for the great work on this!
-> 
-> \Rob
-> 
-> 
-> ﻿On 16/03/2018, 09:14, "Sitsofe Wheeler" <sitsofe@gmail.com> wrote:
-> 
->     On 9 March 2018 at 14:55, Jens Axboe <axboe@kernel.dk> wrote:
->     >
->     > In some implementations it's actually mandated to have the wakeup
->     > within the lock, which seems to be the case here. It's a shame,
->     > since it's clearly suboptimal (from a scalability point of view)
->     > to have to hold the lock while issuing a wakeup for a process
->     > that's going to grab the same lock.
->     >
->     > I'll commit the patch. Thanks a lot for all your hard work on this
->     > one, let's hope that was it...
->     
->     FWIW this has been accepted as a bug in the mingw-w64 project's
->     winpthreads library. The standalone program on
->     https://urldefense.proofpoint.com/v2/url?u=https-3A__gist.github.com_sitsofe_abd99efec507b18234e7cc042d1baff1&d=DwIBaQ&c=s883GpUCOChKOHiocYtGcg&r=OMged-t_5I_fmfpUaT3vaA06lgLL_alYnDQJxHmXz64&m=C-SjzVSuoSBlexryZgGqFEfxhSdPbozUDu3U82Yjmqs&s=Xri6zcEiOde_B9rOwAyOAqm92oyNy-W5DHk01BPTQ_I&e=
->     reliably triggers the deadlock for me when using a mingw build on both
->     real Windows and under Wine but not when built for Linux with glibc.
->     See https://urldefense.proofpoint.com/v2/url?u=https-3A__sourceforge.net_p_mingw-2Dw64_bugs_710_&d=DwIBaQ&c=s883GpUCOChKOHiocYtGcg&r=OMged-t_5I_fmfpUaT3vaA06lgLL_alYnDQJxHmXz64&m=C-SjzVSuoSBlexryZgGqFEfxhSdPbozUDu3U82Yjmqs&s=Ms3hnbtg0t-Ycfm-kLxkR0pvsG1BpG6Ch-oyrsk6h4Y&e= for the "Deadlock in
->     winpthreads' pthread_cond_signal()" bug.
->     
->     Rob, David, Rebecca: do you know if the current git fio cures the
->     deadlock you were seeing?
->     
->     -- 
->     Sitsofe | https://urldefense.proofpoint.com/v2/url?u=http-3A__sucs.org_-7Esits_&d=DwIBaQ&c=s883GpUCOChKOHiocYtGcg&r=OMged-t_5I_fmfpUaT3vaA06lgLL_alYnDQJxHmXz64&m=C-SjzVSuoSBlexryZgGqFEfxhSdPbozUDu3U82Yjmqs&s=Chc6sQtGY11L4YRP_re07gL3JfHJosjt_F6tVk-WdsQ&e=
->     
-> 
-
-
--- 
-Jens Axboe
-
+Q2xvc2luZyB0aGUgbG9vcCBvbiB0aGlzOiBhZnRlciBydW5uaW5nIGEgY291cGxlIG9mIG1pbGxp
+b24gdGltZXMgdGhlIHNjcmlwdCB0aGF0IHVzZWQgdG8gcmVwcm9kdWNlIHRoaXMsIEkgaGF2ZSBu
+b3Qgc2VlbiBhIHNpbmdsZSBlcnJvciB3aXRoIHRoZSBwYXRjaC4NCg0KVGhhbmtzIEFsbCBmb3Ig
+dGhlIGdyZWF0IHdvcmsgb24gdGhpcyENCg0KXFJvYg0KDQoNCu+7v09uIDE2LzAzLzIwMTgsIDA5
+OjE0LCAiU2l0c29mZSBXaGVlbGVyIiA8c2l0c29mZUBnbWFpbC5jb20+IHdyb3RlOg0KDQogICAg
+T24gOSBNYXJjaCAyMDE4IGF0IDE0OjU1LCBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+IHdy
+b3RlOg0KICAgID4NCiAgICA+IEluIHNvbWUgaW1wbGVtZW50YXRpb25zIGl0J3MgYWN0dWFsbHkg
+bWFuZGF0ZWQgdG8gaGF2ZSB0aGUgd2FrZXVwDQogICAgPiB3aXRoaW4gdGhlIGxvY2ssIHdoaWNo
+IHNlZW1zIHRvIGJlIHRoZSBjYXNlIGhlcmUuIEl0J3MgYSBzaGFtZSwNCiAgICA+IHNpbmNlIGl0
+J3MgY2xlYXJseSBzdWJvcHRpbWFsIChmcm9tIGEgc2NhbGFiaWxpdHkgcG9pbnQgb2YgdmlldykN
+CiAgICA+IHRvIGhhdmUgdG8gaG9sZCB0aGUgbG9jayB3aGlsZSBpc3N1aW5nIGEgd2FrZXVwIGZv
+ciBhIHByb2Nlc3MNCiAgICA+IHRoYXQncyBnb2luZyB0byBncmFiIHRoZSBzYW1lIGxvY2suDQog
+ICAgPg0KICAgID4gSSdsbCBjb21taXQgdGhlIHBhdGNoLiBUaGFua3MgYSBsb3QgZm9yIGFsbCB5
+b3VyIGhhcmQgd29yayBvbiB0aGlzDQogICAgPiBvbmUsIGxldCdzIGhvcGUgdGhhdCB3YXMgaXQu
+Li4NCiAgICANCiAgICBGV0lXIHRoaXMgaGFzIGJlZW4gYWNjZXB0ZWQgYXMgYSBidWcgaW4gdGhl
+IG1pbmd3LXc2NCBwcm9qZWN0J3MNCiAgICB3aW5wdGhyZWFkcyBsaWJyYXJ5LiBUaGUgc3RhbmRh
+bG9uZSBwcm9ncmFtIG9uDQogICAgaHR0cHM6Ly91cmxkZWZlbnNlLnByb29mcG9pbnQuY29tL3Yy
+L3VybD91PWh0dHBzLTNBX19naXN0LmdpdGh1Yi5jb21fc2l0c29mZV9hYmQ5OWVmZWM1MDdiMTgy
+MzRlN2NjMDQyZDFiYWZmMSZkPUR3SUJhUSZjPXM4ODNHcFVDT0NoS09IaW9jWXRHY2cmcj1PTWdl
+ZC10XzVJX2ZtZnBVYVQzdmFBMDZsZ0xMX2FsWW5EUUp4SG1YejY0Jm09Qy1TanpWU3VvU0JsZXhy
+eVpnR3FGRWZ4aFNkUGJvelVEdTNVODJZam1xcyZzPVhyaTZ6Y0VpT2RlX0I5ck93QXlPQXFtOTJv
+eU55LVc1REhrMDFCUFRRX0kmZT0NCiAgICByZWxpYWJseSB0cmlnZ2VycyB0aGUgZGVhZGxvY2sg
+Zm9yIG1lIHdoZW4gdXNpbmcgYSBtaW5ndyBidWlsZCBvbiBib3RoDQogICAgcmVhbCBXaW5kb3dz
+IGFuZCB1bmRlciBXaW5lIGJ1dCBub3Qgd2hlbiBidWlsdCBmb3IgTGludXggd2l0aCBnbGliYy4N
+CiAgICBTZWUgaHR0cHM6Ly91cmxkZWZlbnNlLnByb29mcG9pbnQuY29tL3YyL3VybD91PWh0dHBz
+LTNBX19zb3VyY2Vmb3JnZS5uZXRfcF9taW5ndy0yRHc2NF9idWdzXzcxMF8mZD1Ed0lCYVEmYz1z
+ODgzR3BVQ09DaEtPSGlvY1l0R2NnJnI9T01nZWQtdF81SV9mbWZwVWFUM3ZhQTA2bGdMTF9hbFlu
+RFFKeEhtWHo2NCZtPUMtU2p6VlN1b1NCbGV4cnlaZ0dxRkVmeGhTZFBib3pVRHUzVTgyWWptcXMm
+cz1NczNobmJ0ZzB0LVljZm0ta0x4a1IwcHZzRzFCcEc2Q2gtb3lyc2s2aDRZJmU9IGZvciB0aGUg
+IkRlYWRsb2NrIGluDQogICAgd2lucHRocmVhZHMnIHB0aHJlYWRfY29uZF9zaWduYWwoKSIgYnVn
+Lg0KICAgIA0KICAgIFJvYiwgRGF2aWQsIFJlYmVjY2E6IGRvIHlvdSBrbm93IGlmIHRoZSBjdXJy
+ZW50IGdpdCBmaW8gY3VyZXMgdGhlDQogICAgZGVhZGxvY2sgeW91IHdlcmUgc2VlaW5nPw0KICAg
+IA0KICAgIC0tIA0KICAgIFNpdHNvZmUgfCBodHRwczovL3VybGRlZmVuc2UucHJvb2Zwb2ludC5j
+b20vdjIvdXJsP3U9aHR0cC0zQV9fc3Vjcy5vcmdfLTdFc2l0c18mZD1Ed0lCYVEmYz1zODgzR3BV
+Q09DaEtPSGlvY1l0R2NnJnI9T01nZWQtdF81SV9mbWZwVWFUM3ZhQTA2bGdMTF9hbFluRFFKeEht
+WHo2NCZtPUMtU2p6VlN1b1NCbGV4cnlaZ0dxRkVmeGhTZFBib3pVRHUzVTgyWWptcXMmcz1DaGM2
+c1F0R1kxMUw0WVJQX3JlMDdnTDNKZkhKb3NqdF9GNnRWay1XZHNRJmU9DQogICAgDQoNCg==
 
