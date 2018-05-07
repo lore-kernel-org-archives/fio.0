@@ -1,36 +1,29 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:42913 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752755AbeEGVzg (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 7 May 2018 17:55:36 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: RE: fio parameter query
-Date: Mon, 7 May 2018 21:55:34 +0000
-Message-ID: <SN6PR04MB4064F6DB3F8E897B0958ADED8F9B0@SN6PR04MB4064.namprd04.prod.outlook.com>
-References: <CAKwzdDpOCbRCUHoH=XPQXVNApqgYRiRigfCnzfvW76y6QY_AkA@mail.gmail.com>
-In-Reply-To: <CAKwzdDpOCbRCUHoH=XPQXVNApqgYRiRigfCnzfvW76y6QY_AkA@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-qk0-f173.google.com ([209.85.220.173]:35667 "EHLO
+        mail-qk0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752726AbeEGUp7 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 7 May 2018 16:45:59 -0400
+Received: by mail-qk0-f173.google.com with SMTP id g4so5285206qki.2
+        for <fio@vger.kernel.org>; Mon, 07 May 2018 13:45:59 -0700 (PDT)
 MIME-Version: 1.0
+From: abhishek koundal <akoundal@gmail.com>
+Date: Mon, 7 May 2018 13:45:17 -0700
+Message-ID: <CAKwzdDpOCbRCUHoH=XPQXVNApqgYRiRigfCnzfvW76y6QY_AkA@mail.gmail.com>
+Subject: fio parameter query
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: abhishek koundal <akoundal@gmail.com>, fio <fio@vger.kernel.org>
+To: fio <fio@vger.kernel.org>
 
-WW91IGNhbiBhY2hpZXZlIHRoZSA3cyBvZiBjYWxjdWxhdGlvbnMsIGJ1dCB3aXRob3V0IGxvZ2dp
-bmcgYWxsIDEwcyBvZiBkYXRhLCBieSB1c2luZzoNCg0KcnVudGltZT03cw0KcmFtcF90aW1lPTNz
-DQoNClJlZ2FyZHMsDQpKZWZmDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBm
-aW8tb3duZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86ZmlvLW93bmVyQHZnZXIua2VybmVsLm9y
-Z10gT24gQmVoYWxmIE9mIGFiaGlzaGVrIGtvdW5kYWwNClNlbnQ6IE1vbmRheSwgTWF5IDcsIDIw
-MTggMTo0NSBQTQ0KVG86IGZpbyA8ZmlvQHZnZXIua2VybmVsLm9yZz4NClN1YmplY3Q6IGZpbyBw
-YXJhbWV0ZXIgcXVlcnkNCg0KQWxsLA0KSSB3YXMgbG9va2luZyBpZiB0aGVyZSBpcyBhbnkgdmFs
-dWUgaW4gYWRkaW5nIGEgcGFyYW1ldGVyIHRvIGZsb3cgd2hpY2ggZG9lcyB0aGlzIHNjZW5hcmlv
-Og0KMSkgcnVudGltZT0xMHMNCjIpIGxvZ3MgYWxsIGRhdGEgMC0xMHMNCjMpIGNhbGN1bGF0ZWQv
-cmVwb3J0ZWQgdmFsdWVzOiAgUW9TL0lPUFMgZnJvbSBlLmcuIDNzLTEwcy4gKGkuZS4gb25seSB1
-c2UgN3Mgd29ydGggb2YgZGF0YSBhcyBmaXJzdCAzIHNlY29uZCBkb2Vzbid0IG5lZWQgdG8gYmUg
-aW4gY2FsY3VsYXRpb25zKS4NCg0KLS0NCkxpZmUgaXMgdG9vIHNob3J0IGZvciBzaWxseSB0aGlu
-Z3Mgc28gaW52ZXN0IHlvdXIgdGltZSBpbiBzb21lIHByb2R1Y3RpdmUgb3V0cHV0cyEhDQotLQ0K
-VG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhlIGxpbmUgInVuc3Vic2NyaWJl
-IGZpbyIgaW4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2VyLmtlcm5lbC5v
-cmcgTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpvcmRv
-bW8taW5mby5odG1sDQo=
+All,
+I was looking if there is any value in adding a parameter to flow
+which does this scenario:
+1) runtime=10s
+2) logs all data 0-10s
+3) calculated/reported values:  QoS/IOPS from e.g. 3s-10s. (i.e. only
+use 7s worth of data as first 3 second doesn't need to be in
+calculations).
+
+-- 
+Life is too short for silly things so invest your time in some
+productive outputs!!
