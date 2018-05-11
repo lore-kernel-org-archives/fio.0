@@ -1,223 +1,95 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx3-rdu2.redhat.com ([66.187.233.73]:48724 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751189AbeEDOeu (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 4 May 2018 10:34:50 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 3A2E981A88A9
-        for <fio@vger.kernel.org>; Fri,  4 May 2018 14:34:50 +0000 (UTC)
-Received: from localhost.localdomain.com (ovpn-121-14.rdu2.redhat.com [10.10.121.14])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 1A17C42226
-        for <fio@vger.kernel.org>; Fri,  4 May 2018 14:34:50 +0000 (UTC)
-From: Bill O'Donnell <billodo@redhat.com>
-Subject: [PATCH] make fio scripts python3-ready
-Date: Fri,  4 May 2018 09:34:49 -0500
-Message-Id: <20180504143449.31934-1-billodo@redhat.com>
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:11622 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750818AbeEKTFp (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 11 May 2018 15:05:45 -0400
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: fio synchronization across client/server?
+Date: Fri, 11 May 2018 19:05:40 +0000
+Message-ID: <SN6PR04MB40648D6E3C70F5C1C3AA3BFA8F9F0@SN6PR04MB4064.namprd04.prod.outlook.com>
+References: <BBE28C8D35EDEC48B06294CB3C6597278D2CD8@LAX-EX-MB3.datadirect.datadirectnet.com>
+In-Reply-To: <BBE28C8D35EDEC48B06294CB3C6597278D2CD8@LAX-EX-MB3.datadirect.datadirectnet.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
+To: Jim Reuter <jreuter@ddn.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+
+Have you tried making a job file for each client, then running both clients=
+ together with:
+
+# fio --client=3Dhost1 job_a --client=3Dhost2 job_b --output=3Djob_output
+
+That should keep the clients synchronized.  Unfortunately it means you need=
+ a set of job files for each time you would normally stonewall.  Perhaps ad=
+ding a stonewall-client feature would help.  Any time stonewall-client is s=
+een, the client's jobs are paused until (all) the other client's jobfile al=
+so encounters a stonewall-client.   Then, a set of job files could be colla=
+psed to one job file per client.
+
+Regards,
+Jeff
+
+-----Original Message-----
+From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Behal=
+f Of Jim Reuter
+Sent: Friday, May 11, 2018 11:11 AM
 To: fio@vger.kernel.org
+Subject: fio synchronization across client/server?
 
-Many distributions are moving to python3 by default.  Here's
-an attempt to make the python scripts in fio python3-ready.
+I am trying to figure out if something I want to do is possible with fio.  =
+Large high performance storage systems often require load to be generated f=
+rom multiple hosts over multiple interconnects to reach (and test) maximum =
+performance.  But the fio documentation says nothing about how or if any sy=
+nchronization is done between clients and servers (in the fio --client and =
+--server meaning of these terms).
 
-Conversion was facilitated with automated tools. A few areas
-were hand fixed: remove superfluous parentheses introduced by
-2to3 converter in print function calls, shebang modifications
-to use environment variable for python version, and byte-string
-decode correction in steadystate_tests.py following 2to3
-conversion.
+Let's begin with a trivial single node example:
 
-The modified scripts pass rudimentary testing when run under
-python2.7 as well as python3.
+[global]
+bs=3D4k
+iodepth=3D16
+direct=3D1
+ioengine=3Dlibaio
+randrepeat=3D0
+time_based
+runtime=3D60
 
-Signed-off-by: Bill O'Donnell <billodo@redhat.com>
----
- doc/conf.py                     |  3 +++
- tools/fiologparser.py           |  6 +++++-
- tools/hist/fiologparser_hist.py | 17 +++++++++++------
- unit_tests/steadystate_tests.py | 21 ++++++++++++---------
- 4 files changed, 31 insertions(+), 16 deletions(-)
+[rrsda]
+rw=3Drandread
+filename=3D/dev/sda
+[rrsdb]
+rw=3Drandread
+filename=3D/dev/sdb
 
-diff --git a/doc/conf.py b/doc/conf.py
-index d4dd9d20..087a9a11 100644
---- a/doc/conf.py
-+++ b/doc/conf.py
-@@ -22,6 +22,9 @@
- 
- # -- General configuration ------------------------------------------------
- 
-+from __future__ import absolute_import
-+from __future__ import print_function
-+
- # If your documentation needs a minimal Sphinx version, state it here.
- #
- # needs_sphinx = '1.0'
-diff --git a/tools/fiologparser.py b/tools/fiologparser.py
-index 8549859f..14ddc417 100755
---- a/tools/fiologparser.py
-+++ b/tools/fiologparser.py
-@@ -1,4 +1,4 @@
--#!/usr/bin/python2.7
-+#!/usr/bin/env python
- #
- # fiologparser.py
- #
-@@ -13,8 +13,12 @@
- #
- # to see per-interval average completion latency.
- 
-+from __future__ import absolute_import
-+from __future__ import print_function
- import argparse
- import math
-+from six.moves import range
-+from functools import reduce
- 
- def parse_args():
-     parser = argparse.ArgumentParser()
-diff --git a/tools/hist/fiologparser_hist.py b/tools/hist/fiologparser_hist.py
-index 8910d5fa..958c9141 100755
---- a/tools/hist/fiologparser_hist.py
-+++ b/tools/hist/fiologparser_hist.py
-@@ -1,4 +1,4 @@
--#!/usr/bin/python2.7
-+#!/usr/bin/env python
- """ 
-     Utility for converting *_clat_hist* files generated by fio into latency statistics.
-     
-@@ -13,11 +13,16 @@
-     
-     @author Karl Cronburg <karl.cronburg@gmail.com>
- """
-+from __future__ import absolute_import
-+from __future__ import print_function
- import os
- import sys
- import pandas
- import re
- import numpy as np
-+from six.moves import map
-+from six.moves import range
-+from six.moves import zip
- 
- runascmd = False
- 
-@@ -124,7 +129,7 @@ def gen_output_columns(ctx):
-         columns = ["end-time", "dir", "samples", "min", "avg", "median"]
-     else:
-         columns = ["end-time", "samples", "min", "avg", "median"]
--    columns.extend(list(map(lambda x: x+'%', strpercs)))
-+    columns.extend(list([x+'%' for x in strpercs]))
-     columns.append("max")
- 
- def fmt_float_list(ctx, num=1):
-@@ -254,7 +259,7 @@ def print_all_stats(ctx, end, mn, ss_cnt, vs, ws, mx, dir=dir):
-         # max and min are decimal values if no divisor
-         fmt = fmt + "%d, " + fmt_float_list(ctx, len(percs)+1) + ", %d"
- 
--    print (fmt % tuple(row))
-+    print(fmt % tuple(row))
- 
- def update_extreme(val, fncn, new_val):
-     """ Calculate min / max in the presence of None values """
-@@ -338,8 +343,8 @@ def guess_max_from_bins(ctx, hist_cols):
-         bins = [ctx.group_nr * (1 << 6)]
-     else:
-         bins = [1216,1280,1344,1408,1472,1536,1600,1664]
--    coarses = range(max_coarse + 1)
--    fncn = lambda z: list(map(lambda x: z/2**x if z % 2**x == 0 else -10, coarses))
-+    coarses = list(range(max_coarse + 1))
-+    fncn = lambda z: list([z/2**x if z % 2**x == 0 else -10 for x in coarses])
-     
-     arr = np.transpose(list(map(fncn, bins)))
-     idx = np.where(arr == hist_cols)
-@@ -473,7 +478,7 @@ def main(ctx):
-         try:
-             from configparser import SafeConfigParser, NoOptionError
-         except ImportError:
--            from ConfigParser import SafeConfigParser, NoOptionError
-+            from six.moves.configparser import SafeConfigParser, NoOptionError
- 
-         cp = SafeConfigParser(allow_no_value=True)
-         with open(ctx.job_file, 'r') as fp:
-diff --git a/unit_tests/steadystate_tests.py b/unit_tests/steadystate_tests.py
-index 5a74f956..8a5189ce 100755
---- a/unit_tests/steadystate_tests.py
-+++ b/unit_tests/steadystate_tests.py
-@@ -1,4 +1,4 @@
--#!/usr/bin/python2.7
-+#!/usr/bin/env python
- #
- # steadystate_tests.py
- #
-@@ -18,6 +18,8 @@
- # if ss attained: min runtime = ss_dur + ss_ramp
- # if not attained: runtime = timeout
- 
-+from __future__ import absolute_import
-+from __future__ import print_function
- import os
- import sys
- import json
-@@ -26,11 +28,12 @@ import pprint
- import argparse
- import subprocess
- from scipy import stats
-+from six.moves import range
- 
- def parse_args():
-     parser = argparse.ArgumentParser()
-     parser.add_argument('fio',
--                        help='path to fio executable');
-+                        help='path to fio executable')
-     parser.add_argument('--read',
-                         help='target for read testing')
-     parser.add_argument('--write',
-@@ -45,7 +48,7 @@ def check(data, iops, slope, pct, limit, dur, criterion):
-     data = data[measurement]
-     mean = sum(data) / len(data)
-     if slope:
--        x = range(len(data))
-+        x = list(range(len(data)))
-         m, intercept, r_value, p_value, std_err = stats.linregress(x,data)
-         m = abs(m)
-         if pct:
-@@ -89,11 +92,11 @@ if __name__ == '__main__':
-                   'output': "set steady state BW threshold to 12" },
-               ]
-     for test in parsing:
--        output = subprocess.check_output([args.fio] + test['args']);
--        if test['output'] in output:
--            print "PASSED '{0}' found with arguments {1}".format(test['output'], test['args'])
-+        output = subprocess.check_output([args.fio] + test['args'])
-+        if test['output'] in output.decode():
-+            print("PASSED '{0}' found with arguments {1}".format(test['output'], test['args']))
-         else:
--            print "FAILED '{0}' NOT found with arguments {1}".format(test['output'], test['args'])
-+            print("FAILED '{0}' NOT found with arguments {1}".format(test['output'], test['args']))
- 
- #
- # test some read workloads
-@@ -117,7 +120,7 @@ if __name__ == '__main__':
-             args.read = '/dev/zero'
-             extra = [ "--size=134217728" ]  # 128 MiB
-         else:
--            print "ERROR: file for read testing must be specified on non-posix systems"
-+            print("ERROR: file for read testing must be specified on non-posix systems")
-             sys.exit(1)
-     else:
-         extra = []
-@@ -216,7 +219,7 @@ if __name__ == '__main__':
-                 else:
-                     result = 'FAILED '
-                 line = result + line + ' no ss, expected runtime {0} ~= actual runtime {1}'.format(expected, actual)
--            print line
-+            print(line)
-             if 'steadystate' in jsonjob:
-                 pp.pprint(jsonjob['steadystate'])
-         jobnum += 1
--- 
-2.14.3
+[rwsda]
+stonewall
+rw=3Drandwrite
+filename=3D/dev/sda
+[rrsdb]
+rw=3Drandwrite
+filename=3D/dev/sdb
 
+The above will run concurrent random read workloads on /dev/sda and /dev/sd=
+b, then switch to random write workloads on the same.  In my situation, wit=
+h a multi-client external array storage, the two LUNs to test might be /dev=
+/sda on host1 and /dev/sda on host2.  How do I achieve the above test but w=
+ith the devices on different nodes using fio?  If I am reading the document=
+ation correctly, using separate job files is an implicit stonewall, so I ca=
+nnot just split the node specific parts from above into separate job files.=
+=20
+
+I could split this into completely separate job files for the randread and =
+randwrite parts and have one for each node, but then these just run indepen=
+dently, so I do not get the purpose of the client/server fio feature for th=
+is.  Or I could just launch separate fio jobs on each node and hope they st=
+art at roughly the same time, which is a hack and possibly highly variable,=
+ which can skew results.  What am I missing?  Can fio do this?  If not, wha=
+t is the real purpose of the client/server feature?
+
+--
+To unsubscribe from this list: send the line "unsubscribe fio" in the body =
+of a message to majordomo@vger.kernel.org More majordomo info at  http://vg=
+er.kernel.org/majordomo-info.html
