@@ -1,44 +1,70 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from alln-iport-4.cisco.com ([173.37.142.91]:30527 "EHLO
-        alln-iport-4.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751425AbeEDRVB (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 4 May 2018 13:21:01 -0400
-Received: from XCH-RTP-016.cisco.com (xch-rtp-016.cisco.com [64.101.220.156])
-        by rcdn-core-10.cisco.com (8.14.5/8.14.5) with ESMTP id w44HBXVV011702
-        (version=TLSv1/SSLv3 cipher=AES256-SHA bits=256 verify=FAIL)
-        for <fio@vger.kernel.org>; Fri, 4 May 2018 17:11:33 GMT
-From: "Scott Forman (scforman)" <scforman@cisco.com>
-Subject: Can buffer passed to io_prep_pwrite/io_submit be reused before
- io_getevents is called?
-Date: Fri, 4 May 2018 17:11:32 +0000
-Message-ID: <50E2CC01-D24A-49D0-9FCD-047AE98E1F51@cisco.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <DE01355A8977D946815699A9F34EF287@emea.cisco.com>
-Content-Transfer-Encoding: base64
+Received: from fukushima.klipix.org ([85.12.144.25]:42867 "EHLO
+        fukushima.klipix.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751578AbeEOQys (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 15 May 2018 12:54:48 -0400
+Subject: Re: io_submit depth
+References: <6c4cdf73-b7d9-7843-8061-86646c20ef02@klipix.org>
+ <CALjAwxhF2s9V=JcjU5Lu74nLio+9S=YRrG9PpSoSkJLeXGU9TQ@mail.gmail.com>
+From: Julien Desfossez <ju@klipix.org>
+Message-ID: <29f37e87-986c-3682-052f-6ae441a4f063@klipix.org>
+Date: Tue, 15 May 2018 12:54:45 -0400
 MIME-Version: 1.0
+In-Reply-To: <CALjAwxhF2s9V=JcjU5Lu74nLio+9S=YRrG9PpSoSkJLeXGU9TQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio@vger.kernel.org
 
-SGksDQoNCkkgaGF2ZSBhbiBhcHBsaWNhdGlvbiB3aGVyZSBJIHdpbGwgY2FsbCBpb19wcmVwX3B3
-cml0ZSBhbmQgaW9fc3VibWl0IGluIGEgbG9vcCwgZWFjaCB0aW1lIHBhc3NpbmcgdGhlIHNhbWUg
-YnVmZmVyIHRvIGlvX3ByZXBfcHdyaXRlLCBidXQgd2l0aCBkaWZmZXJlbnQgY29udGVudHMuDQoN
-ClRoZW4gYWZ0ZXIgYSBjZXJ0YWluIG51bWJlciBvZiBsb29wcywgSSB3aWxsIGNhbGwgaW9fZ2V0
-ZXZlbnRzIGJlZm9yZSBnb2luZyBvbiB0byB0aGUgbmV4dCBmaWxlLiAgDQoNCklzIHRoaXMgc2Fm
-ZSB0byBkbywgb3IgaXMgdGhlcmUgYSByYWNlIGNvbmRpdGlvbiBiZXR3ZWVuIHRoZSBidWZmZXIg
-YmVpbmcgd3JpdHRlbiB0byBmaWxlIGFuZCBiZWluZyByZXVzZWQgZm9yIHRoZSBuZXh0IGNhbGwg
-dG8gaW9fcHJlcF9wd3JpdGU/DQoNCkJlbG93IGlzIHNvbWUgY29kZSB0byBpbGx1c3RyYXRlIG15
-IHF1ZXN0aW9uIChhYnNlbnQgYW55IGVycm9yIGhhbmRsaW5nKS4NCg0KVGhhbmtzIGZvciBhbnkg
-aW5wdXQgeW91IGNhbiBwcm92aWRlLg0KDQpTY290dA0KDQppbnQgbWFpbigpIHsNCglzdHJ1Y3Qg
-aW9jYiBpb2NiOw0KCXN0cnVjdCBpb2NiICogaW9jYnNbMV07DQoJaW9jYnNbMF0gPSAmaW9jYjsN
-CgkNCglpbnQgZmQgPSBvcGVuKCIvdG1wL3Rlc3QiLCBPX1dST05MWSB8IE9fQ1JFQVQpOw0KDQoJ
-aW9fY29udGV4dF90IGN0eDsNCgltZW1zZXQoJmN0eCwgMCwgc2l6ZW9mKGN0eCkpOw0KCWlvX3Nl
-dHVwKDEwLCAmY3R4KTsNCg0KCWNoYXIgbXNnIFsxMjhdOw0KICAgICAgICAgIGludCBsb29wQ250
-ID0gMDsNCglpbnQgZmlsZU9mZnNldCA9IDA7DQoJDQogICAgICAJZm9yICg7IGxvb3BDbnQgPCAx
-MDsgKytsb29wQ250KSB7DQoJCWludCBsZW4gPSBzbnByaW50Zihtc2csIHNpemVvZihtc2cpLCAi
-bWVzc2FnZSBudW1iZXIgJWRcbiIsIGxvb3BDbnQpOw0KCQkNCgkJaW9fcHJlcF9wd3JpdGUoJmlv
-Y2IsIGZkLCAodm9pZCAqKW1zZywgbGVuLCBmaWxlT2Zmc2V0KTsNCgkJZmlsZU9mZnNldCArPSBs
-ZW47DQoJCQkNCgkJaW9fc3VibWl0KGN0eCwgMSwgaW9jYnMpOw0KCX0NCg0KCXN0cnVjdCBpb19l
-dmVudCBldmVudHNbMTBdOw0KCWlvX2dldGV2ZW50cyhjdHgsIDEwLCAxMCwgZXZlbnRzLCBOVUxM
-KTsNCgljbG9zZShmZCk7DQoJaW9fZGVzdHJveShjdHgpOw0KDQoJcmV0dXJuIDA7DQp9DQoNCg==
+On 05/15/2018 12:32 PM, Sitsofe Wheeler wrote:
+> Hello Julien,
+> 
+> On 15 May 2018 at 16:20, Julien Desfossez <ju@klipix.org> wrote:
+>> Hi,
+>>
+>> When stracing fio running on Linux (4.13) with libaio engine, I saw that
+>> only one request is sent in the io_submit system call regardless of the
+>> iodepth parameter value.
+>>
+>> To see this:
+>> strace -f fio --name=tmp --filename=/tmp/fio --filesize=8G \
+>> --ioengine=libaio --bs=4k --iodepth=32 --rw=randwrite \
+>> --runtime=10 2>&1 | grep io_submit
+>>
+>> All of the lines look like this:
+>> io_submit(140287955259392, 1, [{pwrite, fildes=3, str="...", nbytes=4096,
+>> offset=1035223040}]) = 1
+>>
+>> I would have expected to see the second parameter to be 32.
+> 
+> By the by, did you see the warnings related to libaio in the
+> manual/HOWTO (http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-ioengine
+> and http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-iodepth
+> ) regarding buffering / not setting direct=1?
+Yes I did and I usually benchmark with direct=1, I just removed 
+parameters while doing this test.
+
+>> I see that the iodepth parameter has an impact in how many requests are sent
+>> at the beginning (in this example, I see 32 requests sent), but after that
+>> the requests are sent one by one as soon as one completes. I understand this
+>> is done to keep the number of "requests in flight" steady, but this is not
+>> what I expected when setting iodepth.
+>>
+>> So is there a way to run fio so that we can send multiple requests per
+>> io_submit call ?
+> 
+> Is iodepth_batch_submit
+> (http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-iodepth-batch-submit
+> ) and following what you're looking for?
+> 
+Indeed it helps !
+
+Apparently what I am looking for is:
+--iodepth=32 --iodepth_batch=32 --iodepth_batch_complete=32
+
+Thanks !
+
+Julien
