@@ -1,49 +1,74 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from fukushima.klipix.org ([85.12.144.25]:41716 "EHLO
-        fukushima.klipix.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753819AbeEOPaO (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 15 May 2018 11:30:14 -0400
-Received: from [192.168.1.247] (modemcable077.38-81-70.mc.videotron.ca [70.81.38.77])
-        by fukushima.klipix.org (Postfix) with ESMTPSA id 701B5460575
-        for <fio@vger.kernel.org>; Tue, 15 May 2018 17:20:25 +0200 (CEST)
-From: Julien Desfossez <ju@klipix.org>
-Subject: io_submit depth
-Message-ID: <6c4cdf73-b7d9-7843-8061-86646c20ef02@klipix.org>
-Date: Tue, 15 May 2018 11:20:24 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Received: from merlin.infradead.org ([205.233.59.134]:53630 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753094AbeEOMAN (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 15 May 2018 08:00:13 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1fIYcm-0004jh-IJ
+        for fio@vger.kernel.org; Tue, 15 May 2018 12:00:12 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20180515120001.BFE752C0069@kernel.dk>
+Date: Tue, 15 May 2018 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hi,
+The following changes since commit 43864deb3b4e24d5570ee4cb16cb626e94ec0465:
 
-When stracing fio running on Linux (4.13) with libaio engine, I saw that 
-only one request is sent in the io_submit system call regardless of the 
-iodepth parameter value.
+  iolog: default to good return (2018-04-26 22:45:04 -0600)
 
-To see this:
-strace -f fio --name=tmp --filename=/tmp/fio --filesize=8G \
---ioengine=libaio --bs=4k --iodepth=32 --rw=randwrite \
---runtime=10 2>&1 | grep io_submit
+are available in the git repository at:
 
-All of the lines look like this:
-io_submit(140287955259392, 1, [{pwrite, fildes=3, str="...", 
-nbytes=4096, offset=1035223040}]) = 1
+  git://git.kernel.dk/fio.git master
 
-I would have expected to see the second parameter to be 32.
+for you to fetch changes up to 540e235dcd276e63c57ca4bd35f70a0651e2d00e:
 
-I see that the iodepth parameter has an impact in how many requests are 
-sent at the beginning (in this example, I see 32 requests sent), but 
-after that the requests are sent one by one as soon as one completes. I 
-understand this is done to keep the number of "requests in flight" 
-steady, but this is not what I expected when setting iodepth.
+  Merge branch 'master' of https://github.com/majianpeng/fio (2018-05-14 19:40:32 -0600)
 
-So is there a way to run fio so that we can send multiple requests per 
-io_submit call ?
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'master' of https://github.com/majianpeng/fio
 
-Thanks,
+Jianpeng Ma (1):
+      This partly revert 97bb54c9606c(add __load_ioengine() to separate ioengine loading from td context)
 
-Julien
+ ioengines.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/ioengines.c b/ioengines.c
+index 6ffd27f..d579682 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -574,6 +574,7 @@ int td_io_get_file_size(struct thread_data *td, struct fio_file *f)
+ int fio_show_ioengine_help(const char *engine)
+ {
+ 	struct flist_head *entry;
++	struct thread_data td;
+ 	struct ioengine_ops *io_ops;
+ 	char *sep;
+ 	int ret = 1;
+@@ -592,7 +593,10 @@ int fio_show_ioengine_help(const char *engine)
+ 		sep++;
+ 	}
+ 
+-	io_ops = __load_ioengine(engine);
++	memset(&td, 0, sizeof(struct thread_data));
++	td.o.ioengine = (char *)engine;
++	io_ops = load_ioengine(&td);
++
+ 	if (!io_ops) {
+ 		log_info("IO engine %s not found\n", engine);
+ 		return 1;
+@@ -603,5 +607,6 @@ int fio_show_ioengine_help(const char *engine)
+ 	else
+ 		log_info("IO engine %s has no options\n", io_ops->name);
+ 
++	free_ioengine(&td);
+ 	return ret;
+ }
