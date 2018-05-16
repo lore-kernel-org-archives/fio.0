@@ -1,70 +1,35 @@
-Return-Path: <rob.scheepens@nutanix.com>
-From: Rob Scheepens <rob.scheepens@nutanix.com>
-Subject: Re: Windows: FIO randomly hangs using attached script
-Date: Tue, 1 May 2018 14:41:13 +0000
-Message-ID: <40961F5A-B8DE-4497-B697-8D0B2860C542@nutanix.com>
-References: <e044afaa-22ad-c7e2-d041-e2658f49bac8@bluestop.org>
- <CALjAwxjoTtRp1jVhfKMTcbn6wnmEmmCsjkpO7CkBgF5zj4B3Bg@mail.gmail.com>
- <9cf7d62a-5c4a-737a-d119-13763fb42c72@bluestop.org>
- <CALjAwxhxpLuLeysnp5kC-kQoWH++4hvehCWJxc9yA_Fcsy=pmw@mail.gmail.com>
- <BAE7B5AF-63F9-4E95-940D-7C84CE5AD92E@nutanix.com>
- <36259BEC-1CF0-45A5-85AE-F557989EDF30@nutanix.com>
- <2B8D69D8-05F3-4500-8A4E-F5DE21356676@nutanix.com>
- <CALjAwxiTX1=7pJKQ1Lz7nDkMXZqVJkMkNZDOA_XJYsEGP7wSfw@mail.gmail.com>
- <971ECD81-B100-4EEE-98CE-0E578A59BB02@nutanix.com>
- <7B5FFC71-BE67-435F-8DE6-8376E52754EB@nutanix.com>
- <CALjAwxgF-2dK+Bc9iwkVsxA4sfWKYSmHe8k3YbpUyDmBWP34ow@mail.gmail.com>
- <CALjAwxirkjduZof+F3prrKX0wp9YS8apS-YdK8+ru1supg1dnA@mail.gmail.com>
- <CALjAwxjPGXSOGwLOSMfVdrmxXsr8ObT6W6E1UBs2LkjttSnduw@mail.gmail.com>
- <e85db28f-da18-e6cc-7eda-1b04d2cc95eb@kernel.dk>
- <CALjAwxg1SzQV9ss9jjqry8_MLgDfPYq9QdbA5eVZi-PkmSEAKA@mail.gmail.com>
- <406902be-f4ce-c4f4-4e16-ee9caf8c0bcf@kernel.dk>
- <CALjAwxgr10F9X0n=7Scugz1yO48XPW5ANYGoD4JAss6Y3Egbcw@mail.gmail.com>
-In-Reply-To: <CALjAwxgr10F9X0n=7Scugz1yO48XPW5ANYGoD4JAss6Y3Egbcw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <60221DE54C230D4180961EA72E9930D6@namprd02.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH v2] make fio scripts python3-ready
+References: <20180504143449.31934-1-billodo@redhat.com>
+ <20180504194340.1835-1-billodo@redhat.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <52c2bd12-21ed-c216-b854-4c1d3a11cf76@kernel.dk>
+Date: Wed, 16 May 2018 11:18:11 -0600
 MIME-Version: 1.0
-To: Sitsofe Wheeler <sitsofe@gmail.com>, Jens Axboe <axboe@kernel.dk>
-Cc: David Knierim <knierim@nutanix.com>, Rebecca Cran <rebecca@bluestop.org>, fio <fio@vger.kernel.org>
+In-Reply-To: <20180504194340.1835-1-billodo@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Bill O'Donnell <billodo@redhat.com>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-Q2xvc2luZyB0aGUgbG9vcCBvbiB0aGlzOiBhZnRlciBydW5uaW5nIGEgY291cGxlIG9mIG1pbGxp
-b24gdGltZXMgdGhlIHNjcmlwdCB0aGF0IHVzZWQgdG8gcmVwcm9kdWNlIHRoaXMsIEkgaGF2ZSBu
-b3Qgc2VlbiBhIHNpbmdsZSBlcnJvciB3aXRoIHRoZSBwYXRjaC4NCg0KVGhhbmtzIEFsbCBmb3Ig
-dGhlIGdyZWF0IHdvcmsgb24gdGhpcyENCg0KXFJvYg0KDQoNCu+7v09uIDE2LzAzLzIwMTgsIDA5
-OjE0LCAiU2l0c29mZSBXaGVlbGVyIiA8c2l0c29mZUBnbWFpbC5jb20+IHdyb3RlOg0KDQogICAg
-T24gOSBNYXJjaCAyMDE4IGF0IDE0OjU1LCBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+IHdy
-b3RlOg0KICAgID4NCiAgICA+IEluIHNvbWUgaW1wbGVtZW50YXRpb25zIGl0J3MgYWN0dWFsbHkg
-bWFuZGF0ZWQgdG8gaGF2ZSB0aGUgd2FrZXVwDQogICAgPiB3aXRoaW4gdGhlIGxvY2ssIHdoaWNo
-IHNlZW1zIHRvIGJlIHRoZSBjYXNlIGhlcmUuIEl0J3MgYSBzaGFtZSwNCiAgICA+IHNpbmNlIGl0
-J3MgY2xlYXJseSBzdWJvcHRpbWFsIChmcm9tIGEgc2NhbGFiaWxpdHkgcG9pbnQgb2YgdmlldykN
-CiAgICA+IHRvIGhhdmUgdG8gaG9sZCB0aGUgbG9jayB3aGlsZSBpc3N1aW5nIGEgd2FrZXVwIGZv
-ciBhIHByb2Nlc3MNCiAgICA+IHRoYXQncyBnb2luZyB0byBncmFiIHRoZSBzYW1lIGxvY2suDQog
-ICAgPg0KICAgID4gSSdsbCBjb21taXQgdGhlIHBhdGNoLiBUaGFua3MgYSBsb3QgZm9yIGFsbCB5
-b3VyIGhhcmQgd29yayBvbiB0aGlzDQogICAgPiBvbmUsIGxldCdzIGhvcGUgdGhhdCB3YXMgaXQu
-Li4NCiAgICANCiAgICBGV0lXIHRoaXMgaGFzIGJlZW4gYWNjZXB0ZWQgYXMgYSBidWcgaW4gdGhl
-IG1pbmd3LXc2NCBwcm9qZWN0J3MNCiAgICB3aW5wdGhyZWFkcyBsaWJyYXJ5LiBUaGUgc3RhbmRh
-bG9uZSBwcm9ncmFtIG9uDQogICAgaHR0cHM6Ly91cmxkZWZlbnNlLnByb29mcG9pbnQuY29tL3Yy
-L3VybD91PWh0dHBzLTNBX19naXN0LmdpdGh1Yi5jb21fc2l0c29mZV9hYmQ5OWVmZWM1MDdiMTgy
-MzRlN2NjMDQyZDFiYWZmMSZkPUR3SUJhUSZjPXM4ODNHcFVDT0NoS09IaW9jWXRHY2cmcj1PTWdl
-ZC10XzVJX2ZtZnBVYVQzdmFBMDZsZ0xMX2FsWW5EUUp4SG1YejY0Jm09Qy1TanpWU3VvU0JsZXhy
-eVpnR3FGRWZ4aFNkUGJvelVEdTNVODJZam1xcyZzPVhyaTZ6Y0VpT2RlX0I5ck93QXlPQXFtOTJv
-eU55LVc1REhrMDFCUFRRX0kmZT0NCiAgICByZWxpYWJseSB0cmlnZ2VycyB0aGUgZGVhZGxvY2sg
-Zm9yIG1lIHdoZW4gdXNpbmcgYSBtaW5ndyBidWlsZCBvbiBib3RoDQogICAgcmVhbCBXaW5kb3dz
-IGFuZCB1bmRlciBXaW5lIGJ1dCBub3Qgd2hlbiBidWlsdCBmb3IgTGludXggd2l0aCBnbGliYy4N
-CiAgICBTZWUgaHR0cHM6Ly91cmxkZWZlbnNlLnByb29mcG9pbnQuY29tL3YyL3VybD91PWh0dHBz
-LTNBX19zb3VyY2Vmb3JnZS5uZXRfcF9taW5ndy0yRHc2NF9idWdzXzcxMF8mZD1Ed0lCYVEmYz1z
-ODgzR3BVQ09DaEtPSGlvY1l0R2NnJnI9T01nZWQtdF81SV9mbWZwVWFUM3ZhQTA2bGdMTF9hbFlu
-RFFKeEhtWHo2NCZtPUMtU2p6VlN1b1NCbGV4cnlaZ0dxRkVmeGhTZFBib3pVRHUzVTgyWWptcXMm
-cz1NczNobmJ0ZzB0LVljZm0ta0x4a1IwcHZzRzFCcEc2Q2gtb3lyc2s2aDRZJmU9IGZvciB0aGUg
-IkRlYWRsb2NrIGluDQogICAgd2lucHRocmVhZHMnIHB0aHJlYWRfY29uZF9zaWduYWwoKSIgYnVn
-Lg0KICAgIA0KICAgIFJvYiwgRGF2aWQsIFJlYmVjY2E6IGRvIHlvdSBrbm93IGlmIHRoZSBjdXJy
-ZW50IGdpdCBmaW8gY3VyZXMgdGhlDQogICAgZGVhZGxvY2sgeW91IHdlcmUgc2VlaW5nPw0KICAg
-IA0KICAgIC0tIA0KICAgIFNpdHNvZmUgfCBodHRwczovL3VybGRlZmVuc2UucHJvb2Zwb2ludC5j
-b20vdjIvdXJsP3U9aHR0cC0zQV9fc3Vjcy5vcmdfLTdFc2l0c18mZD1Ed0lCYVEmYz1zODgzR3BV
-Q09DaEtPSGlvY1l0R2NnJnI9T01nZWQtdF81SV9mbWZwVWFUM3ZhQTA2bGdMTF9hbFluRFFKeEht
-WHo2NCZtPUMtU2p6VlN1b1NCbGV4cnlaZ0dxRkVmeGhTZFBib3pVRHUzVTgyWWptcXMmcz1DaGM2
-c1F0R1kxMUw0WVJQX3JlMDdnTDNKZkhKb3NqdF9GNnRWay1XZHNRJmU9DQogICAgDQoNCg==
+On 5/4/18 1:43 PM, Bill O'Donnell wrote:
+> Many distributions are moving to python3 by default.  Here's
+> an attempt to make the python scripts in fio python3-ready.
+> 
+> Conversion was facilitated with automated tools. A few areas
+> were hand fixed: remove superfluous parentheses introduced by
+> 2to3 converter in print function calls, shebang modifications
+> to use environment variable for python version, and byte-string
+> decode correction in steadystate_tests.py following 2to3
+> conversion.
+> 
+> The modified scripts pass rudimentary testing when run under
+> python2.7 as well as python3.
+
+Applied, thanks!
+
+-- 
+Jens Axboe
+
 
