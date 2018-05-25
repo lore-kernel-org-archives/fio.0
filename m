@@ -1,29 +1,30 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-qk0-f173.google.com ([209.85.220.173]:35667 "EHLO
-        mail-qk0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752726AbeEGUp7 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 7 May 2018 16:45:59 -0400
-Received: by mail-qk0-f173.google.com with SMTP id g4so5285206qki.2
-        for <fio@vger.kernel.org>; Mon, 07 May 2018 13:45:59 -0700 (PDT)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: bssplit option HOWTO
+References: <CALKvLUnbsqZ8VDW5yKc8vbLU-3Sa4eMu2vb7u2vqm0NFQo+FZQ@mail.gmail.com>
+ <e54427a7-8037-5aa2-06cc-0168b892eb89@kernel.dk>
+ <CALKvLUnFn+yxzrF1J5WQGQUJt0RG27Tp3EHfpWyaX2V3EO5ryw@mail.gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <a1ca3647-652f-0e87-0d1f-18fca6c37d53@kernel.dk>
+Date: Fri, 25 May 2018 08:15:45 -0600
 MIME-Version: 1.0
-From: abhishek koundal <akoundal@gmail.com>
-Date: Mon, 7 May 2018 13:45:17 -0700
-Message-ID: <CAKwzdDpOCbRCUHoH=XPQXVNApqgYRiRigfCnzfvW76y6QY_AkA@mail.gmail.com>
-Subject: fio parameter query
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+In-Reply-To: <CALKvLUnFn+yxzrF1J5WQGQUJt0RG27Tp3EHfpWyaX2V3EO5ryw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Konstantin Ruvinsky <konstantin.ruvinsky@gmail.com>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-All,
-I was looking if there is any value in adding a parameter to flow
-which does this scenario:
-1) runtime=10s
-2) logs all data 0-10s
-3) calculated/reported values:  QoS/IOPS from e.g. 3s-10s. (i.e. only
-use 7s worth of data as first 3 second doesn't need to be in
-calculations).
+On 5/24/18 8:46 PM, Konstantin Ruvinsky wrote:
+> Jens,
+> 
+> Can you please do it instead me now?
+
+Sure, done:
+
+http://git.kernel.dk/cgit/fio/commit/?id=cf04b906fda16c6c14c420b71130a31d6580e9d8
 
 -- 
-Life is too short for silly things so invest your time in some
-productive outputs!!
+Jens Axboe
+
+
