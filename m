@@ -1,151 +1,97 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:57450 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750779AbeEQMAL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 17 May 2018 08:00:11 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1fJHZq-0005lV-7x
-        for fio@vger.kernel.org; Thu, 17 May 2018 12:00:10 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: time_based not working with randread
+References: <F0E1506A-A23F-4C12-B003-9860F71FC91A@linaro.org>
+ <CALjAwxiWDecVfJsUr2eiBnL4q4nc_v+XZwjVNiOE0rKj+hc_aQ@mail.gmail.com>
+ <42E4AE76-FC46-44EF-9B7A-430B0148E1AD@linaro.org>
+ <14c60616-42dd-705a-1617-08c4a70e5a05@kernel.dk>
+ <668383BC-4178-41DF-8C20-FED79FD4B262@linaro.org>
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180517120001.C92C92C00DE@kernel.dk>
-Date: Thu, 17 May 2018 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <d2ed6296-f9a0-6d5a-7846-db719d90f76d@kernel.dk>
+Date: Thu, 31 May 2018 09:07:59 -0600
+MIME-Version: 1.0
+In-Reply-To: <668383BC-4178-41DF-8C20-FED79FD4B262@linaro.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Paolo Valente <paolo.valente@linaro.org>
+Cc: Sitsofe Wheeler <sitsofe@gmail.com>, fio <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 540e235dcd276e63c57ca4bd35f70a0651e2d00e:
+On 5/31/18 8:49 AM, Paolo Valente wrote:
+> 
+> 
+>> Il giorno 31 mag 2018, alle ore 16:38, Jens Axboe <axboe@kernel.dk> ha scritto:
+>>
+>> On 5/31/18 2:55 AM, Paolo Valente wrote:
+>>>
+>>>
+>>>> Il giorno 27 mag 2018, alle ore 16:24, Sitsofe Wheeler <sitsofe@gmail.com> ha scritto:
+>>>>
+>>>> Hi Paolo!
+>>>>
+>>>> On 25 May 2018 at 20:20, Paolo Valente <paolo.valente@linaro.org> wrote:
+>>>>> Hi,
+>>>>> if I run this job (even with the last version GitHub version of fio) on an SSD:
+>>>>> [global]
+>>>>> ioengine=sync
+>>>>> time_based=1
+>>>>> runtime=20
+>>>>> readwrite=randread
+>>>>> size=100m
+>>>>> numjobs=1
+>>>>> invalidate=1
+>>>>> [job1]
+>>>>>
+>>>>> then, after little time (I think after 100MB have been read), fio reports a nonsensically large value for the throughput, while a simple iostat shows that no I/O is going on. By just replacing time_based with loops, i.e., with a job file like this:
+>>>>>
+>>>>> [global]
+>>>>> ioengine=sync
+>>>>> loops=1000
+>>>>> readwrite=randread
+>>>>> size=100m
+>>>>> numjobs=1
+>>>>> invalidate=1
+>>>>> [job1]
+>>>>>
+>>>>> the problem disappears.
+>>>>
+>>>> I've taken a stab at fixing this over in
+>>>> https://github.com/sitsofe/fio/tree/random_reinvalidate - does that
+>>>> solve the issue for you too?
+>>>
+>>> Nope :(
+>>>
+>>>> ...
+>>>> I know I'm "Teaching grandmother to suck eggs" given that you're the
+>>>> author of BFQ but just in case...
+>>>>
+>>>> This issue happens on loops=1000 too and I believe it's down to
+>>>> readahead.
+>>>
+>>> I'm afraid there is a misunderstanding on this, grandson :)
+>>>
+>>> As I wrote, this problem does not occur with loops=1000.  My
+>>> impression is that, with loops, as well as with time-based and read,
+>>> fio does invalidate the cache every time it restarts reading the same
+>>> file, while with time_based and randread it does not (or maybe it
+>>> tries to, but fails for some reason).
+>>
+>> This is basically by design. loop will go through the full
+>> open+invalidate, whereas time_based will just keep chugging
+>> along. Once your 100mb is in page cache, then no more IO
+>> will be done, as reads are just served from there.
+>>
+> 
+> Such a design confused me.  Highlighting somewhere this deviation
+> (between loops and time_based) might help other dull people like me.
 
-  Merge branch 'master' of https://github.com/majianpeng/fio (2018-05-14 19:40:32 -0600)
+Actually, I'm misremembering, and we did fix this up. But looks
+like I botched the fix, try pulling a new update and it should
+work for you. Fix:
 
-are available in the git repository at:
+http://git.kernel.dk/cgit/fio/commit/?id=80f021501fda6a6244672bb89dd8221a61cee54b
 
-  git://git.kernel.dk/fio.git master
+-- 
+Jens Axboe
 
-for you to fetch changes up to 5eac3b00238b450ac0679121a76f1e566ca8f468:
 
-  make fio scripts python3-ready (2018-05-16 11:17:55 -0600)
-
-----------------------------------------------------------------
-Bill O'Donnell (1):
-      make fio scripts python3-ready
-
- doc/conf.py                     |  3 +++
- tools/fiologparser.py           |  3 +++
- unit_tests/steadystate_tests.py | 20 ++++++++++++--------
- 3 files changed, 18 insertions(+), 8 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/doc/conf.py b/doc/conf.py
-index d4dd9d2..087a9a1 100644
---- a/doc/conf.py
-+++ b/doc/conf.py
-@@ -22,6 +22,9 @@
- 
- # -- General configuration ------------------------------------------------
- 
-+from __future__ import absolute_import
-+from __future__ import print_function
-+
- # If your documentation needs a minimal Sphinx version, state it here.
- #
- # needs_sphinx = '1.0'
-diff --git a/tools/fiologparser.py b/tools/fiologparser.py
-index 8549859..cc29f1c 100755
---- a/tools/fiologparser.py
-+++ b/tools/fiologparser.py
-@@ -1,4 +1,5 @@
- #!/usr/bin/python2.7
-+# Note: this script is python2 and python 3 compatible.
- #
- # fiologparser.py
- #
-@@ -13,6 +14,8 @@
- #
- # to see per-interval average completion latency.
- 
-+from __future__ import absolute_import
-+from __future__ import print_function
- import argparse
- import math
- 
-diff --git a/unit_tests/steadystate_tests.py b/unit_tests/steadystate_tests.py
-index 5a74f95..50254dc 100755
---- a/unit_tests/steadystate_tests.py
-+++ b/unit_tests/steadystate_tests.py
-@@ -1,4 +1,5 @@
- #!/usr/bin/python2.7
-+# Note: this script is python2 and python 3 compatible.
- #
- # steadystate_tests.py
- #
-@@ -18,6 +19,8 @@
- # if ss attained: min runtime = ss_dur + ss_ramp
- # if not attained: runtime = timeout
- 
-+from __future__ import absolute_import
-+from __future__ import print_function
- import os
- import sys
- import json
-@@ -26,11 +29,12 @@ import pprint
- import argparse
- import subprocess
- from scipy import stats
-+from six.moves import range
- 
- def parse_args():
-     parser = argparse.ArgumentParser()
-     parser.add_argument('fio',
--                        help='path to fio executable');
-+                        help='path to fio executable')
-     parser.add_argument('--read',
-                         help='target for read testing')
-     parser.add_argument('--write',
-@@ -45,7 +49,7 @@ def check(data, iops, slope, pct, limit, dur, criterion):
-     data = data[measurement]
-     mean = sum(data) / len(data)
-     if slope:
--        x = range(len(data))
-+        x = list(range(len(data)))
-         m, intercept, r_value, p_value, std_err = stats.linregress(x,data)
-         m = abs(m)
-         if pct:
-@@ -89,11 +93,11 @@ if __name__ == '__main__':
-                   'output': "set steady state BW threshold to 12" },
-               ]
-     for test in parsing:
--        output = subprocess.check_output([args.fio] + test['args']);
--        if test['output'] in output:
--            print "PASSED '{0}' found with arguments {1}".format(test['output'], test['args'])
-+        output = subprocess.check_output([args.fio] + test['args'])
-+        if test['output'] in output.decode():
-+            print("PASSED '{0}' found with arguments {1}".format(test['output'], test['args']))
-         else:
--            print "FAILED '{0}' NOT found with arguments {1}".format(test['output'], test['args'])
-+            print("FAILED '{0}' NOT found with arguments {1}".format(test['output'], test['args']))
- 
- #
- # test some read workloads
-@@ -117,7 +121,7 @@ if __name__ == '__main__':
-             args.read = '/dev/zero'
-             extra = [ "--size=134217728" ]  # 128 MiB
-         else:
--            print "ERROR: file for read testing must be specified on non-posix systems"
-+            print("ERROR: file for read testing must be specified on non-posix systems")
-             sys.exit(1)
-     else:
-         extra = []
-@@ -216,7 +220,7 @@ if __name__ == '__main__':
-                 else:
-                     result = 'FAILED '
-                 line = result + line + ' no ss, expected runtime {0} ~= actual runtime {1}'.format(expected, actual)
--            print line
-+            print(line)
-             if 'steadystate' in jsonjob:
-                 pp.pprint(jsonjob['steadystate'])
-         jobnum += 1
