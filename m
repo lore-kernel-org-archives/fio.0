@@ -1,53 +1,53 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk0-f47.google.com ([209.85.213.47]:37019 "EHLO
-        mail-vk0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754245AbeFQGtb (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 17 Jun 2018 02:49:31 -0400
-Received: by mail-vk0-f47.google.com with SMTP id w8-v6so7841574vkh.4
-        for <fio@vger.kernel.org>; Sat, 16 Jun 2018 23:49:31 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CAD9xLVT+peBDZ9Sanp3pJ6+wue0C5phNPAZLjQVd1rGa9SLyMA@mail.gmail.com>
-References: <CAD9xLVT+peBDZ9Sanp3pJ6+wue0C5phNPAZLjQVd1rGa9SLyMA@mail.gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Sun, 17 Jun 2018 07:49:00 +0100
-Message-ID: <CALjAwxgeO-o-hrF9+Gyre9T6eS+G7-o4EcNoWtuDHb_3-5spXQ@mail.gmail.com>
-Subject: Re: Query regarding [bsrange upper limit]
-Content-Type: text/plain; charset="UTF-8"
+Received: from merlin.infradead.org ([205.233.59.134]:49474 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751687AbeFBMAS (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 2 Jun 2018 08:00:18 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1fP5Cj-00031z-Lg
+        for fio@vger.kernel.org; Sat, 02 Jun 2018 12:00:17 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20180602120001.912AB2C0311@kernel.dk>
+Date: Sat,  2 Jun 2018 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: shashank chaurasia <shashankch9009@gmail.com>
-Cc: fio <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hi,
+The following changes since commit 80f021501fda6a6244672bb89dd8221a61cee54b:
 
-On 17 June 2018 at 01:57, shashank chaurasia <shashankch9009@gmail.com> wrote:
-> what is the bsrange upper limit that can be handled by fio properly?
->
-> I sometimes see "invalid argument error" when I use
-> bsrange=1k-32M
+  io_u: ensure to invalidate cache on time_based random reads (2018-05-31 09:05:59 -0600)
 
-This is going to be down to the environment you're running (I shall
-assume Linux for the rest of this email), the hardware you are using,
-the ioengine you choose and the options you passed. If you are using
-direct I/O (I can't tell because you didn't include the whole job
-file/command line you using) then you cannot use a block size smaller
-than the device's minimum sector size (for some devices that may be
-4kbytes). Additionally there's a maximum transfer size of the "disk"
-(/sys/block/<disk>/queue/max_sectors_kb) and there's the maximum size
-the kernel will use (/sys/block/sda/queue/max_sectors_kb ). Further,
-if you are choosing to transfer giant size blocks what's happening is
-you typically forcing the kernel to split the block up into little
-pieces for you (ideally the optimal_io_size which is generally much
-smaller than the maximum). If you aren't able to submit I/O
-asynchronously this can be a benefit (because you then get depth
-parallelism) but if you can, sending such large I/Os just pushing
-overhead into the kernel.
+are available in the git repository at:
 
-Another problem area can be down to unrealistically high option values
-when everything is running together. For example, if you choose a high
-iodepth, direct I/O, an asynchronous I/O engine, giant blocks and tons
-of jobs your kernel may simply not have the resources to keep that
-number of resultant hardware I/Os in flight.
+  git://git.kernel.dk/fio.git master
 
--- 
-Sitsofe | http://sucs.org/~sits/
+for you to fetch changes up to c397ab3aac3d4ed1660d9cd4d820f31a4375306e:
+
+  Fio 3.7 (2018-06-01 13:21:56 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Fio 3.7
+
+ FIO-VERSION-GEN | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index d2d095b..b28a1f3 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-3.6
++DEF_VER=fio-3.7
+ 
+ LF='
+ '
