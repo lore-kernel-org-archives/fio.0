@@ -1,89 +1,38 @@
-Return-Path: <rebecca@bluestop.org>
-From: Rebecca Cran <rebecca@bluestop.org>
-Subject: FIO build broken on FreeBSD 11.1
-Message-ID: <4b983c90-e07f-cd1f-abcb-65e23be8a102@bluestop.org>
-Date: Sun, 24 Jun 2018 20:34:16 -0600
+Return-Path: <axboe@kernel.dk>
+Subject: Re: gcc 8/8.1 warnings
+References: <9785b178-92bc-d927-4a79-80ea5beb87e6@kernel.dk>
+ <CAHndrBkcbNMqeK4FTkDUmtKhzYGhzg5r=-FD-xYAQJ5_fVQJ3Q@mail.gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <b714ea59-0415-b836-0613-90716a98d9b2@kernel.dk>
+Date: Tue, 5 Jun 2018 12:26:24 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <CAHndrBkcbNMqeK4FTkDUmtKhzYGhzg5r=-FD-xYAQJ5_fVQJ3Q@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: fio <fio@vger.kernel.org>
-Cc: axboe@kernel.dk
+Content-Transfer-Encoding: 8bit
+To: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-The FIO build seems to be broken on FreeBSD:
+On 6/5/18 12:23 PM, Tomohiro Kusumi wrote:
+> Hi
+> 
+> 2018年6月5日(火) 23:56 Jens Axboe <axboe@kernel.dk>:
+>>
+>> Hi,
+>>
+>> If someone is looking for a little project, compiling fio with
+>> gcc 8/8.1 triggers a new set of overflow warnings. I've included
+>> them below.
+> 
+> What's the CFLAGS being used ?
+> I see lots of warnings on Fedora 28 (gcc 8.1.1), but only with
+> additional -Wextra.
 
-bcran@cube:~/workspace/fio % gmake
-FIO_VERSION = fio-3.7-43-g9caa
-Running configure ...
-Forcing some known good options on Windows
-compile test failed
-Configure failed, check config.log and/or the above output
-Makefile:19: config-host.mak: No such file or directory
-gmake: *** [Makefile:10: config-host.mak] Error 1
-bcran@cube:~/workspace/fio % cat config.log
-# FIO configure log Sun Jun 24 20:30:50 MDT 2018
-# Configured with: './configure'
-#
-gcc -D_GNU_SOURCE -include config-host.h -c -o /tmp/fio-conf--92880-.o
-/tmp/fio-conf--92880-.c
-/tmp/fio-conf--92880-.c:2:2: error: #error __ANDROID__ not defined
- #error __ANDROID__ not defined
-  ^
-gcc -D_GNU_SOURCE -include config-host.h -c -o /tmp/fio-conf--92880-.o
-/tmp/fio-conf--92880-.c
-/tmp/fio-conf--92880-.c:2:2: error: #error __linux__ not defined
- #error __linux__ not defined
-  ^
-gcc -D_GNU_SOURCE -include config-host.h -c -o /tmp/fio-conf--92880-.o
-/tmp/fio-conf--92880-.c
-/tmp/fio-conf--92880-.c:2:2: error: #error __OpenBSD__ not defined
- #error __OpenBSD__ not defined
-  ^
-gcc -D_GNU_SOURCE -include config-host.h -c -o /tmp/fio-conf--92880-.o
-/tmp/fio-conf--92880-.c
-/tmp/fio-conf--92880-.c:2:2: error: #error __NetBSD__ not defined
- #error __NetBSD__ not defined
-  ^
-gcc -D_GNU_SOURCE -include config-host.h -c -o /tmp/fio-conf--92880-.o
-/tmp/fio-conf--92880-.c
-/tmp/fio-conf--92880-.c:2:2: error: #error __sun__ not defined
- #error __sun__ not defined
-  ^
-gcc -D_GNU_SOURCE -include config-host.h -c -o /tmp/fio-conf--92880-.o
-/tmp/fio-conf--92880-.c
-x86_64-w64-mingw32-gcc -D_GNU_SOURCE -include config-host.h
--D_WIN32_WINNT=0x0601 -c -o /tmp/fio-conf--92880-.o /tmp/fio-conf--92880-.c
-./configure: x86_64-w64-mingw32-gcc: not found
-x86_64-w64-mingw32-gcc -D_GNU_SOURCE -include config-host.h
--D_WIN32_WINNT=0x0601 -c -o /tmp/fio-conf--92880-.o /tmp/fio-conf--92880-.c
-./configure: x86_64-w64-mingw32-gcc: not found
-x86_64-w64-mingw32-gcc -D_GNU_SOURCE -include config-host.h
--D_WIN32_WINNT=0x0601 -c -o /tmp/fio-conf--92880-.o /tmp/fio-conf--92880-.c
-./configure: x86_64-w64-mingw32-gcc: not found
-x86_64-w64-mingw32-gcc -D_GNU_SOURCE -include config-host.h
--D_WIN32_WINNT=0x0601 -c -o /tmp/fio-conf--92880-.o /tmp/fio-conf--92880-.c
-./configure: x86_64-w64-mingw32-gcc: not found
-x86_64-w64-mingw32-gcc -D_GNU_SOURCE -include config-host.h
--D_WIN32_WINNT=0x0601 -c -o /tmp/fio-conf--92880-.o /tmp/fio-conf--92880-.c
-./configure: x86_64-w64-mingw32-gcc: not found
-x86_64-w64-mingw32-gcc -D_GNU_SOURCE -include config-host.h
--D_WIN32_WINNT=0x0601 -c -o /tmp/fio-conf--92880-.o /tmp/fio-conf--92880-.c
-./configure: x86_64-w64-mingw32-gcc: not found
-x86_64-w64-mingw32-gcc -D_GNU_SOURCE -include config-host.h
--D_WIN32_WINNT=0x0601 -c -o /tmp/fio-conf--92880-.o /tmp/fio-conf--92880-.c
-./configure: x86_64-w64-mingw32-gcc: not found
-x86_64-w64-mingw32-gcc -D_GNU_SOURCE -include config-host.h
--D_WIN32_WINNT=0x0601 -c -o /tmp/fio-conf--92880-.o /tmp/fio-conf--92880-.c
-./configure: x86_64-w64-mingw32-gcc: not found
-x86_64-w64-mingw32-gcc -D_GNU_SOURCE -include config-host.h
--D_WIN32_WINNT=0x0601 -c -o /tmp/fio-conf--92880-.o /tmp/fio-conf--92880-.c
-./configure: x86_64-w64-mingw32-gcc: not found
-x86_64-w64-mingw32-gcc -D_GNU_SOURCE -include config-host.h
--D_WIN32_WINNT=0x0601 -c -o /tmp/fio-conf--92880-.o /tmp/fio-conf--92880-.c
-./configure: x86_64-w64-mingw32-gcc: not found
-Compiling test case cross
-x86_64-w64-mingw32-gcc -D_GNU_SOURCE -include config-host.h
--D_WIN32_WINNT=0x0601 -o /tmp/fio-conf--92880-.exe /tmp/fio-conf--92880-.c
-./configure: x86_64-w64-mingw32-gcc: not found
+Just a default build, make clean && make. Maybe RH changes the gcc
+defaults for -Wformat-truncation? Or maybe ubuntu/debian does.
+
+-- 
+Jens Axboe
+
 
