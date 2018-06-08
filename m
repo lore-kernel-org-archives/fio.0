@@ -1,36 +1,36 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa3.hgst.iphmx.com ([216.71.153.141]:20214 "EHLO
-        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932194AbeFORxp (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 15 Jun 2018 13:53:45 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: fio make warning
-Date: Fri, 15 Jun 2018 17:53:41 +0000
-Message-ID: <MWHPR04MB032019EDD2993DA29DB190538F7C0@MWHPR04MB0320.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] idle-prof: Fix segment fault issue when run with
+ '--idle-prof' and multiple output format normal,json
+References: <925A83423110DA4D836092D40AC7A7E8084BAA4F@APYOKXMS108.ap.sony.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <dc0afa2f-3880-39a0-0b69-cf95fefa831f@kernel.dk>
+Date: Thu, 7 Jun 2018 20:28:21 -0600
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <925A83423110DA4D836092D40AC7A7E8084BAA4F@APYOKXMS108.ap.sony.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Friendy.Su@sony.com, fio@vger.kernel.org
+Cc: No.Tanaka@sony.com, Hajime.Tomura@sony.com
+List-ID: <fio@vger.kernel.org>
 
-On some kernels, I am getting a make warning:
+On 6/5/18 10:17 PM, Friendy.Su@sony.com wrote:
+> Original issue:
+> 
+> ./fio --output-format=normal,json --idle-prof=system jobfile.job
+> 
+> job1: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=sync, iodepth=1
+> fio-3.7-19-ga43f
+> Starting 1 process
+> Segmentation fault (core dumped)
+> 
+> Fix solution:
+> 
+> do fio_idle_prof_cleanup() after all formats of output shown.
 
-CC init.o
-init.c: In function td_fill_rand_seeds:
-init.c:1049:18: warning: array subscript is above array bounds [-Warray-bou=
-nds]
-    td->rand_seeds[i] =3D FIO_RANDSEED * td->thread_number
-                  ^
-init.c:1049:18: warning: array subscript is above array bounds [-Warray-bou=
-nds]
-init.c:1049:18: warning: array subscript is above array bounds [-Warray-bou=
-nds]
-init.c:1049:18: warning: array subscript is above array bounds [-Warray-bou=
-nds]
+Patch looks good, applied, thanks!
 
-Regards,
-Jeff
+-- 
+Jens Axboe
 
 
