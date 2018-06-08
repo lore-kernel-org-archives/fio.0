@@ -1,30 +1,63 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-io0-f177.google.com ([209.85.223.177]:45072 "EHLO
-        mail-io0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S964796AbeFNDgo (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 13 Jun 2018 23:36:44 -0400
-Received: by mail-io0-f177.google.com with SMTP id l25-v6so5688431ioh.12
-        for <fio@vger.kernel.org>; Wed, 13 Jun 2018 20:36:44 -0700 (PDT)
-MIME-Version: 1.0
-References: <DE927C68B458BE418D582EC97927A9287FF90FB2@ORSMSX113.amr.corp.intel.com>
-In-Reply-To: <DE927C68B458BE418D582EC97927A9287FF90FB2@ORSMSX113.amr.corp.intel.com>
-From: Matthew Eaton <m.eaton82@gmail.com>
-Date: Wed, 13 Jun 2018 20:36:32 -0700
-Message-ID: <CAF+0mvnvnzErPj_a=xH3_xPUaDS6=pQDber8MK=4MLBhRAir5Q@mail.gmail.com>
+Return-Path: <axboe@kernel.dk>
 Subject: Re: latency percentiles labels in fio minimal output
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: joseph.r.gruher@intel.com
-Cc: fio@vger.kernel.org
+References: <DE927C68B458BE418D582EC97927A9287FF90FB2@ORSMSX113.amr.corp.intel.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <54b19e84-c307-2815-7ff8-432e6cd0ce66@kernel.dk>
+Date: Thu, 7 Jun 2018 20:24:30 -0600
+MIME-Version: 1.0
+In-Reply-To: <DE927C68B458BE418D582EC97927A9287FF90FB2@ORSMSX113.amr.corp.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: base64
+To: "Gruher, Joseph R" <joseph.r.gruher@intel.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-> The reason this is problematic is when doing something like pasting the minimal output into a spreadsheet and then charting the output data I now don't have numerical values for the latency percentiles, I have these text strings instead.  Instead of:
->
-> 99.000000%=28704;99.500000%=28966;99.900000%=29229;99.950000%=29491;99.990000%=32112
->
-> It seems it would be much more useful if it just printed like this:
->
-> 28704,28966,29229,29491,32112
+T24gNi82LzE4IDEyOjQwIFBNLCBHcnVoZXIsIEpvc2VwaCBSIHdyb3RlOg0KPiBIaSBmb2xr
+cy0NCj4gDQo+IFdoZW4gdXNpbmcgRklPIG1pbmltYWwgb3V0cHV0IHN1Y2ggYXMgdGhpcyBv
+dXRwdXQgZXhhbXBsZSAoZnJvbSBGSU8gdjMuNik6DQo+IA0KPiAzO2Zpby0zLjY7MW0tc3It
+MDEtMDEtMzI7MDswOzE1MDI4ODM4NDsyNTAzNzYzOzI0NDQ7NjAwMjU7MDsxNzE4OTsxMTQu
+NzI0MjI0Ozk0Mi4wOTU3Njg7MDszMzc5OTsxMjk3My40MTU4MTI7OTAwOC4yNDk0ODc7MS4w
+MDAwMDAlPTA7NS4wMDAwMDAlPTA7MTAuMDAwMDAwJT0xNzM7MjAuMDAwMDAwJT0zMzU4OzMw
+LjAwMDAwMCU9NjU4Njs0MC4wMDAwMDAlPTk3NjQ7NTAuMDAwMDAwJT0xMjY0ODs2MC4wMDAw
+MDAlPTE2MTg3OzcwLjAwMDAwMCU9MTkyNjc7ODAuMDAwMDAwJT0yMjY3NTs5MC4wMDAwMDAl
+PTI1ODIxOzk1LjAwMDAwMCU9MjczOTQ7OTkuMDAwMDAwJT0yODcwNDs5OS41MDAwMDAlPTI4
+OTY2Ozk5LjkwMDAwMCU9MjkyMjk7OTkuOTUwMDAwJT0yOTQ5MTs5OS45OTAwMDAlPTMyMTEy
+OzAlPTA7MCU9MDswJT0wOzA7MzM3OTk7MTMwODguNTA3MzY1OzkwMjEuOTU4ODA3OzY3MTc0
+NDsxODI4NDI4OzQ5LjI5NzI0MiU7MTIzNDI4Ni4xMDAwMDA7NDk4MDYzLjgxMzUyODswOzA7
+MDswOzA7MDswLjAwMDAwMDswLjAwMDAwMDswOzA7MC4wMDAwMDA7MC4wMDAwMDA7MS4wMDAw
+MDAlPTA7NS4wMDAwMDAlPTA7MTAuMDAwMDAwJT0wOzIwLjAwMDAwMCU9MDszMC4wMDAwMDAl
+PTA7NDAuMDAwMDAwJT0wOzUwLjAwMDAwMCU9MDs2MC4wMDAwMDAlPTA7NzAuMDAwMDAwJT0w
+OzgwLjAwMDAwMCU9MDs5MC4wMDAwMDAlPTA7OTUuMDAwMDAwJT0wOzk5LjAwMDAwMCU9MDs5
+OS41MDAwMDAlPTA7OTkuOTAwMDAwJT0wOzk5Ljk1MDAwMCU9MDs5OS45OTAwMDAlPTA7MCU9
+MDswJT0wOzAlPTA7MDswOzAuMDAwMDAwOzAuMDAwMDAwOzA7MDswLjAwMDAwMCU7MC4wMDAw
+MDA7MC4wMDAwMDA7Mi45NjcxNDYlOzIzLjI0OTAzNCU7MTc1ODYyOzA7ODIwODswLjElOzAu
+MSU7MC4xJTswLjElOzAuMSU7MTk5LjklOzAuMCU7OS40NSU7MC4wMSU7MC4wMiU7MC4wMyU7
+MC4xMCU7MC4xNiU7MC40OSU7MC43NyU7MC43OCU7MC43OSU7My4xMSU7Ni4yNSU7MTguNzcl
+OzMxLjI2JTsyOC4wMyU7MC4wMCU7MC4wMCU7MC4wMCU7MC4wMCU7MC4wMCU7MC4wMCU7MC4w
+MCUNCj4gDQo+IFdoYXQncyB0aGUgcG9pbnQgb2YgaGF2aW5nIHRoZSBsYXRlbmN5IHBlcmNl
+bnRpbGVzIGxhYmVsZWQgaW4gdGhlIG91dHB1dCBkYXRhLCBzdWNoIGFzOg0KPiANCj4gOTku
+MDAwMDAwJT0yODcwNDs5OS41MDAwMDAlPTI4OTY2Ozk5LjkwMDAwMCU9MjkyMjk7OTkuOTUw
+MDAwJT0yOTQ5MTs5OS45OTAwMDAlPTMyMTEyDQo+IA0KPiBUaGUgZmllbGRzIGluIHRoZSBj
+b21tYSBzZXBhcmF0ZWQgb3V0cHV0IGFyZSBhbHJlYWR5IGRlZmluZWQgc28gSSdtIG5vdCBz
+dXJlIHdoeSB3ZSBuZWVkIHRoZSBwYXJ0IGluIGZyb250IG9mIGFuZCBpbmNsdWRpbmcgdGhl
+ICc9JyBzaWduLiAgSSBzdXBwb3NlIGl0IGlzIG1vcmUgaHVtYW4gcmVhZGFibGUsIGJ1dCB0
+aGF0IGlzbid0IHRoZSBwb2ludCBvZiB0aGUgbWluaW1hbCBtb2RlLi4uIHJpZ2h0PyAgRm9y
+IGV4YW1wbGUsIGZvciBJT1BTIGluIHRoaXMgZXhhbXBsZSwgd2UganVzdCBwcmludCAnMjQ0
+NCcsIHdlIGRvbid0IHByaW50ICdJT1BTPTI0NDQnIGluIHRoZSBtaW5pbWFsIG91dHB1dC4N
+Cj4gDQo+IFRoZSByZWFzb24gdGhpcyBpcyBwcm9ibGVtYXRpYyBpcyB3aGVuIGRvaW5nIHNv
+bWV0aGluZyBsaWtlIHBhc3RpbmcgdGhlIG1pbmltYWwgb3V0cHV0IGludG8gYSBzcHJlYWRz
+aGVldCBhbmQgdGhlbiBjaGFydGluZyB0aGUgb3V0cHV0IGRhdGEgSSBub3cgZG9uJ3QgaGF2
+ZSBudW1lcmljYWwgdmFsdWVzIGZvciB0aGUgbGF0ZW5jeSBwZXJjZW50aWxlcywgSSBoYXZl
+IHRoZXNlIHRleHQgc3RyaW5ncyBpbnN0ZWFkLiAgSW5zdGVhZCBvZjoNCj4gDQo+IDk5LjAw
+MDAwMCU9Mjg3MDQ7OTkuNTAwMDAwJT0yODk2Njs5OS45MDAwMDAlPTI5MjI5Ozk5Ljk1MDAw
+MCU9Mjk0OTE7OTkuOTkwMDAwJT0zMjExMg0KPiANCj4gSXQgc2VlbXMgaXQgd291bGQgYmUg
+bXVjaCBtb3JlIHVzZWZ1bCBpZiBpdCBqdXN0IHByaW50ZWQgbGlrZSB0aGlzOg0KPiANCj4g
+Mjg3MDQsMjg5NjYsMjkyMjksMjk0OTEsMzIxMTINCj4gDQo+IERvZXMgdGhhdCBtYWtlIHNl
+bnNlPyAgSXMgdGhlcmUgYSByZWFzb24gZm9yIHRoZSB3YXkgaXQgaXMgY3VycmVudGx5IGRv
+bmUsIGFtIEkgbWlzc2luZyBzb21ldGhpbmc/ICBXb3VsZCBpdCBtYWtlIHNlbnNlIHRvIGNo
+YW5nZSBpdD8NCg0KdGxkcjsgZG9uJ3QgdXNlIHRoZSB0ZXJzZSBvdXRwdXQgaWYgeW91IGNh
+cmUgYWJvdXQgcmVhZGluZyBpdC4uLiBqc29uIGlzIHdheQ0KYmV0dGVyIGZvciBib3RoIHBh
+cnNpbmcgQU5EIGlzIGh1bWFubHkgcmVhZGFibGUuDQoNCkFzIFNpdHNvZmUgYWxzbyBzYXlz
+LCB0aGUgcGVyY2VudGlsZXMgYXJlIGNvbmZpZ3VyYWJsZSwgd2hpY2ggaXMgd2h5IHRoZQ0K
+YnVja2V0cyBhcmUgaW4gdGhlIG91dHB1dC4NCg0KLS0gDQpKZW5zIEF4Ym9lDQoNCg==
 
-If you must use terse output there is a messy solution:
-sed -i 's/;/,/g;s/=/,/g' output.csv
