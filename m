@@ -1,55 +1,113 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:58296 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933857AbeFLSL7 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 12 Jun 2018 14:11:59 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: fio environment var bug
-Date: Tue, 12 Jun 2018 18:11:57 +0000
-Message-ID: <SN6PR04MB40649343247761CFB42764468F7F0@SN6PR04MB4064.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+Received: from bombadil.infradead.org ([198.137.202.133]:43504 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932373AbeFLMAP (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 12 Jun 2018 08:00:15 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1fShyA-000577-Pj
+        for fio@vger.kernel.org; Tue, 12 Jun 2018 12:00:14 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20180612120002.2CD292C263D@kernel.dk>
+Date: Tue, 12 Jun 2018 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hi All,
-There seems to be a bug while parsing environment variables when using clie=
-nt/server mode.  Consider the following:
+The following changes since commit ab5643cb04dac549b2202231d5c6e33339b7fe7d:
 
-# fio -version
-fio-3.7-21-gab56
+  stat: fix --bandwidth-log segfault (2018-06-08 08:31:20 -0600)
 
-# fio --server=3Dlocalhost&
+are available in the git repository at:
 
-# cat test.job
-[test]
-ioengine=3Dlibaio
-direct=3D1
-rw=3Drandread
-iodepth=3D${QD}
-size=3D100%
-bs=3D4k
-filename=3D/dev/nvme0n1
-runtime=3D5s
+  git://git.kernel.dk/fio.git master
 
-# QD=3D1 fio test.job
-fio-3.7-21-gab56
-Starting 1 process
-Jobs: 1 (f=3D1): [r(1)][100.0%][r=3D320MiB/s,w=3D0KiB/s][r=3D81.9k,w=3D0 IO=
-PS][eta 00m:00s]
+for you to fetch changes up to 49050b56681b17968256702a7a3ec0f545c7dad8:
 
-# QD=3D1 fio --client=3Dlocalhost test.job
-be=3D0, 64-bit, os=3DLinux, arch=3Dx86-64, fio=3Dfio-3.7-21-gab56, flags=3D=
-1
-fio: failed parsing iodepth=3D${QD}
-fio: job test dropped
+  Fix start delay being the same across threads (2018-06-11 20:02:10 -0600)
 
-I haven't deciphered where exactly the issue is in parse.c.  Any thoughts? =
- Thanks.
+----------------------------------------------------------------
+Jens Axboe (1):
+      Fix start delay being the same across threads
 
-Regards,
-Jeff
+ init.c           | 20 +++++++++++---------
+ thread_options.h |  1 +
+ 2 files changed, 12 insertions(+), 9 deletions(-)
 
+---
+
+Diff of recent changes:
+
+diff --git a/init.c b/init.c
+index 9257d47..e25e5e4 100644
+--- a/init.c
++++ b/init.c
+@@ -578,8 +578,7 @@ static int fixed_block_size(struct thread_options *o)
+ static unsigned long long get_rand_start_delay(struct thread_data *td)
+ {
+ 	unsigned long long delayrange;
+-	uint64_t frand_max;
+-	unsigned long r;
++	uint64_t r, frand_max;
+ 
+ 	delayrange = td->o.start_delay_high - td->o.start_delay;
+ 
+@@ -587,7 +586,7 @@ static unsigned long long get_rand_start_delay(struct thread_data *td)
+ 	r = __rand(&td->delay_state);
+ 	delayrange = (unsigned long long) ((double) delayrange * (r / (frand_max + 1.0)));
+ 
+-	delayrange += td->o.start_delay;
++	delayrange += td->o.start_delay_orig;
+ 	return delayrange;
+ }
+ 
+@@ -685,8 +684,11 @@ static int fixup_options(struct thread_data *td)
+ 	if (!o->file_size_high)
+ 		o->file_size_high = o->file_size_low;
+ 
+-	if (o->start_delay_high)
++	if (o->start_delay_high) {
++		if (!o->start_delay_orig)
++			o->start_delay_orig = o->start_delay;
+ 		o->start_delay = get_rand_start_delay(td);
++	}
+ 
+ 	if (o->norandommap && o->verify != VERIFY_NONE
+ 	    && !fixed_block_size(o))  {
+@@ -1456,6 +1458,11 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
+ 		}
+ 	}
+ 
++	if (setup_random_seeds(td)) {
++		td_verror(td, errno, "setup_random_seeds");
++		goto err;
++	}
++
+ 	if (fixup_options(td))
+ 		goto err;
+ 
+@@ -1511,11 +1518,6 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
+ 	td->groupid = groupid;
+ 	prev_group_jobs++;
+ 
+-	if (setup_random_seeds(td)) {
+-		td_verror(td, errno, "setup_random_seeds");
+-		goto err;
+-	}
+-
+ 	if (setup_rate(td))
+ 		goto err;
+ 
+diff --git a/thread_options.h b/thread_options.h
+index 52026e3..8d13b79 100644
+--- a/thread_options.h
++++ b/thread_options.h
+@@ -172,6 +172,7 @@ struct thread_options {
+ 	unsigned int fdatasync_blocks;
+ 	unsigned int barrier_blocks;
+ 	unsigned long long start_delay;
++	unsigned long long start_delay_orig;
+ 	unsigned long long start_delay_high;
+ 	unsigned long long timeout;
+ 	unsigned long long ramp_time;
