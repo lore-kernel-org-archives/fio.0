@@ -1,271 +1,108 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:57590 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1030286AbeF3MAc (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 30 Jun 2018 08:00:32 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1fZEYK-00035t-6T
-        for fio@vger.kernel.org; Sat, 30 Jun 2018 12:00:32 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180630120002.1E5852C013F@kernel.dk>
-Date: Sat, 30 Jun 2018 06:00:02 -0600 (MDT)
+Received: from mail-ot0-f171.google.com ([74.125.82.171]:36348 "EHLO
+        mail-ot0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754616AbeFNRib (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 14 Jun 2018 13:38:31 -0400
+Received: by mail-ot0-f171.google.com with SMTP id c15-v6so8036209otl.3
+        for <fio@vger.kernel.org>; Thu, 14 Jun 2018 10:38:30 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CALjAwxgkxrdVVZJX8H0Jzk_HdMmVem5Ju61sM6xHLkK4o8px+A@mail.gmail.com>
+References: <CACQ+FiWZyzRuOUcu1B+Wc2bvQmGtvCRfsroU+rrzm=r2wbr9tw@mail.gmail.com>
+ <CALjAwxgkxrdVVZJX8H0Jzk_HdMmVem5Ju61sM6xHLkK4o8px+A@mail.gmail.com>
+From: learn pvt <learnpvt2050@gmail.com>
+Date: Thu, 14 Jun 2018 23:08:30 +0530
+Message-ID: <CACQ+FiWTF3gMKDRhWMCNvyBj0Wc0cF0G2DJkcYnCeykWSCR02Q@mail.gmail.com>
+Subject: Re: fio libhdfs - loadFileSystems error while running FIO in CDH5.14.0
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: Fabrice Bacchella <fbacchella@spamcop.net>, Manish Mandlik <manishm@fb.com>, fio <fio@vger.kernel.org>
 
-The following changes since commit 9caaf02b06deecf0b0a13c16b6d59dddc64b8c35:
+Hi All,
 
-  Merge branch 'doc-norandommap' of https://github.com/larrystevenwise/fio (2018-06-21 11:22:41 -0600)
+I am getting same errors while running fio using libhdfs on
+open-source hadoop-2.6.0.
 
-are available in the git repository at:
+I also installed the 'hadoop-2.6.0-src' package and built it using the
+Maven (mvn compile)
 
-  git://git.kernel.dk/fio.git master
+After compiling, I got the following executables created under
+/hadoop/sources/hadoop-2.6.0-src/hadoop-hdfs-project/hadoop-hdfs/target/native/:
+test_libhdfs_ops   test_libhdfs_threaded   test_libhdfs_write
+test_native_mini_dfs   test_libhdfs_read   test_libhdfs_vecsum
+test_libhdfs_zerocopy
 
-for you to fetch changes up to 354d50e771451f510e5886275768abb63b602798:
+Using these binaries I was able to write/read files in my hadoop-cluster.
+/usr/local/hadoop/sources/hadoop-2.6.0-src/hadoop-hdfs-project/hadoop-hdfs/target/native$./test_libhdfs_write
+test-file 100M 10M
 
-  Fix compilation without cgroups (2018-06-29 08:00:29 -0600)
+But if I try to run FIO using 'ioengine=libhdfs' then it fails with
+the same errors mentioned in earlier email.
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      Fix compilation without cgroups
+As executables are able to utilize the 'libhdfs.so' correctly, it
+seems like FIO is not utilizing it as it should.
 
-Josef Bacik (2):
-      fio: work with cgroup2 as well
-      fio: add job_runtime to the thread json output
+I have configured the classpaths and other required settings as
+mentioned in earlier email.
 
- backend.c |  5 ++---
- cgroup.c  | 64 ++++++++++++++++++++++++++++++++++++++++++++-------------------
- cgroup.h  | 15 +++++++++++----
- stat.c    |  1 +
- 4 files changed, 59 insertions(+), 26 deletions(-)
+Please let me know if some additional configurations are required to
+run FIO using libhdfs engine.
 
----
+Thanks,
+LP
 
-Diff of recent changes:
-
-diff --git a/backend.c b/backend.c
-index c52eba5..a7e9184 100644
---- a/backend.c
-+++ b/backend.c
-@@ -50,7 +50,7 @@
- 
- static struct fio_sem *startup_sem;
- static struct flist_head *cgroup_list;
--static char *cgroup_mnt;
-+static struct cgroup_mnt *cgroup_mnt;
- static int exit_value;
- static volatile int fio_abort;
- static unsigned int nr_process = 0;
-@@ -1886,7 +1886,7 @@ err:
- 	close_and_free_files(td);
- 	cleanup_io_u(td);
- 	close_ioengine(td);
--	cgroup_shutdown(td, &cgroup_mnt);
-+	cgroup_shutdown(td, cgroup_mnt);
- 	verify_free_state(td);
- 
- 	if (td->zone_state_index) {
-@@ -2508,7 +2508,6 @@ int fio_backend(struct sk_out *sk_out)
- 		cgroup_kill(cgroup_list);
- 		sfree(cgroup_list);
- 	}
--	sfree(cgroup_mnt);
- 
- 	fio_sem_remove(startup_sem);
- 	stat_exit();
-diff --git a/cgroup.c b/cgroup.c
-index 629047b..77e31a4 100644
---- a/cgroup.c
-+++ b/cgroup.c
-@@ -18,12 +18,13 @@ struct cgroup_member {
- 	unsigned int cgroup_nodelete;
- };
- 
--static char *find_cgroup_mnt(struct thread_data *td)
-+static struct cgroup_mnt *find_cgroup_mnt(struct thread_data *td)
- {
--	char *mntpoint = NULL;
-+	struct cgroup_mnt *cgroup_mnt = NULL;
- 	struct mntent *mnt, dummy;
- 	char buf[256] = {0};
- 	FILE *f;
-+	bool cgroup2 = false;
- 
- 	f = setmntent("/proc/mounts", "r");
- 	if (!f) {
-@@ -35,15 +36,29 @@ static char *find_cgroup_mnt(struct thread_data *td)
- 		if (!strcmp(mnt->mnt_type, "cgroup") &&
- 		    strstr(mnt->mnt_opts, "blkio"))
- 			break;
-+		if (!strcmp(mnt->mnt_type, "cgroup2")) {
-+			cgroup2 = true;
-+			break;
-+		}
- 	}
- 
--	if (mnt)
--		mntpoint = smalloc_strdup(mnt->mnt_dir);
--	else
-+	if (mnt) {
-+		cgroup_mnt = smalloc(sizeof(*cgroup_mnt));
-+		if (cgroup_mnt) {
-+			cgroup_mnt->path = smalloc_strdup(mnt->mnt_dir);
-+			if (!cgroup_mnt->path) {
-+				sfree(cgroup_mnt);
-+				log_err("fio: could not allocate memory\n");
-+			} else {
-+				cgroup_mnt->cgroup2 = cgroup2;
-+			}
-+		}
-+	} else {
- 		log_err("fio: cgroup blkio does not appear to be mounted\n");
-+	}
- 
- 	endmntent(f);
--	return mntpoint;
-+	return cgroup_mnt;
- }
- 
- static void add_cgroup(struct thread_data *td, const char *name,
-@@ -96,14 +111,14 @@ void cgroup_kill(struct flist_head *clist)
- 	fio_sem_up(lock);
- }
- 
--static char *get_cgroup_root(struct thread_data *td, char *mnt)
-+static char *get_cgroup_root(struct thread_data *td, struct cgroup_mnt *mnt)
- {
- 	char *str = malloc(64);
- 
- 	if (td->o.cgroup)
--		sprintf(str, "%s/%s", mnt, td->o.cgroup);
-+		sprintf(str, "%s/%s", mnt->path, td->o.cgroup);
- 	else
--		sprintf(str, "%s/%s", mnt, td->o.name);
-+		sprintf(str, "%s/%s", mnt->path, td->o.name);
- 
- 	return str;
- }
-@@ -128,22 +143,25 @@ static int write_int_to_file(struct thread_data *td, const char *path,
- 
- }
- 
--static int cgroup_write_pid(struct thread_data *td, const char *root)
-+static int cgroup_write_pid(struct thread_data *td, char *path, bool cgroup2)
- {
- 	unsigned int val = td->pid;
- 
--	return write_int_to_file(td, root, "tasks", val, "cgroup write pid");
-+	if (cgroup2)
-+		return write_int_to_file(td, path, "cgroup.procs",
-+					 val, "cgroup write pid");
-+	return write_int_to_file(td, path, "tasks", val, "cgroup write pid");
- }
- 
- /*
-  * Move pid to root class
-  */
--static int cgroup_del_pid(struct thread_data *td, char *mnt)
-+static int cgroup_del_pid(struct thread_data *td, struct cgroup_mnt *mnt)
- {
--	return cgroup_write_pid(td, mnt);
-+	return cgroup_write_pid(td, mnt->path, mnt->cgroup2);
- }
- 
--int cgroup_setup(struct thread_data *td, struct flist_head *clist, char **mnt)
-+int cgroup_setup(struct thread_data *td, struct flist_head *clist, struct cgroup_mnt **mnt)
- {
- 	char *root;
- 
-@@ -172,13 +190,17 @@ int cgroup_setup(struct thread_data *td, struct flist_head *clist, char **mnt)
- 		add_cgroup(td, root, clist);
- 
- 	if (td->o.cgroup_weight) {
-+		if ((*mnt)->cgroup2) {
-+			log_err("fio: cgroup weit doesn't work with cgroup2\n");
-+			goto err;
-+		}
- 		if (write_int_to_file(td, root, "blkio.weight",
- 					td->o.cgroup_weight,
- 					"cgroup open weight"))
- 			goto err;
- 	}
- 
--	if (!cgroup_write_pid(td, root)) {
-+	if (!cgroup_write_pid(td, root, (*mnt)->cgroup2)) {
- 		free(root);
- 		return 0;
- 	}
-@@ -188,14 +210,18 @@ err:
- 	return 1;
- }
- 
--void cgroup_shutdown(struct thread_data *td, char **mnt)
-+void cgroup_shutdown(struct thread_data *td, struct cgroup_mnt *mnt)
- {
--	if (*mnt == NULL)
-+	if (mnt == NULL)
- 		return;
- 	if (!td->o.cgroup_weight && !td->o.cgroup)
--		return;
-+		goto out;
- 
--	cgroup_del_pid(td, *mnt);
-+	cgroup_del_pid(td, mnt);
-+out:
-+	if (mnt->path)
-+		sfree(mnt->path);
-+	sfree(mnt);
- }
- 
- static void fio_init cgroup_init(void)
-diff --git a/cgroup.h b/cgroup.h
-index 0bbe25a..10313b7 100644
---- a/cgroup.h
-+++ b/cgroup.h
-@@ -3,21 +3,28 @@
- 
- #ifdef FIO_HAVE_CGROUPS
- 
--int cgroup_setup(struct thread_data *, struct flist_head *, char **);
--void cgroup_shutdown(struct thread_data *, char **);
-+struct cgroup_mnt {
-+	char *path;
-+	bool cgroup2;
-+};
-+
-+int cgroup_setup(struct thread_data *, struct flist_head *, struct cgroup_mnt **);
-+void cgroup_shutdown(struct thread_data *, struct cgroup_mnt *);
- 
- void cgroup_kill(struct flist_head *list);
- 
- #else
- 
-+struct cgroup_mnt;
-+
- static inline int cgroup_setup(struct thread_data *td, struct flist_head *list,
--			       char **mnt)
-+			       struct cgroup_mnt **mnt)
- {
- 	td_verror(td, EINVAL, "cgroup_setup");
- 	return 1;
- }
- 
--static inline void cgroup_shutdown(struct thread_data *td, char **mnt)
-+static inline void cgroup_shutdown(struct thread_data *td, struct cgroup_mnt *mnt)
- {
- }
- 
-diff --git a/stat.c b/stat.c
-index d5240d9..a308eb8 100644
---- a/stat.c
-+++ b/stat.c
-@@ -1288,6 +1288,7 @@ static struct json_object *show_thread_status_json(struct thread_stat *ts,
- 		usr_cpu = 0;
- 		sys_cpu = 0;
- 	}
-+	json_object_add_value_int(root, "job_runtime", ts->total_run_time);
- 	json_object_add_value_float(root, "usr_cpu", usr_cpu);
- 	json_object_add_value_float(root, "sys_cpu", sys_cpu);
- 	json_object_add_value_int(root, "ctx", ts->ctx);
+On Tue, Jun 5, 2018 at 1:09 AM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+> CC'ing Fabrice and Manish...
+>
+> On 4 June 2018 at 19:36, learn pvt <learnpvt2050@gmail.com> wrote:
+>> Hi,
+>>
+>> I am trying to configure the 'libhdfs' in my CHD5.14.0 cluster but
+>> getting some issues.
+>>
+>> I have two node CDH-cluster and its working fine as I checked with TestDFSIO.
+>> I set the FIO_LIBHDFS_INCLUDE, FIO_LIBHDFS_LIB, 'hadoop classpath' in
+>> environment.
+>>
+>> Installed FIO on Master and configured it with enabling libhdfs while
+>> 'configure'.
+>>
+>> Created hdfs.fio file as
+>> [global]
+>> runtime=10
+>> [hdfs]
+>> rw=read
+>> namenode=xx.xx.x.xxx
+>> hostname=server1
+>> port=9000
+>> hdfsdirectory=/tmp
+>> chunk_size=1m
+>> hdfs_use_direct=1
+>> ioengine=libhdfs
+>> size=20m
+>> bs=256k
+>> single_instance=1
+>>
+>> Ran the fio job(sudo fio hdfs.fio) which resulted into errors as
+>>
+>> fio-3.6-33-g540e
+>> Starting 1 process
+>> loadFileSystems error
+>> hdfsBuilderConnect forceNewInstance=0, nn=server1, port=9000,
+>> kerbTicketCachePath=(NULL), userName=(NULL) error
+>> hdfsExists: constructNewObjectOfPath error
+>> hdfs: invalid working directory /tmp: Unknown error 255
+>> fio: failed to init engine data: 255
+>> Run status group 0 (all jobs)
+>>
+>> I tried many things but could not configure libhdfs to work correctly
+>> with FIO on my CDH.  Any suggestion would be appreciated!
+>> Thanks in advance.
+>> Note: /tmp directory is present at the hdfs level.
+>>
+>> Thanks,
+>> LP
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
