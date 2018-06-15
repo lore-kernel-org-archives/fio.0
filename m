@@ -1,52 +1,66 @@
-Return-Path: <prvs=6974b5c7f=jeff.furlong@wdc.com>
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: RE: [PATCH] client: parse env variables before sending job-file
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] client: parse env variables before sending job-file
  contents to server
-Date: Fri, 15 Jun 2018 17:47:25 +0000
-Message-ID: <MWHPR04MB032020551DA95B7E0569CE638F7C0@MWHPR04MB0320.namprd04.prod.outlook.com>
 References: <1529075486-18805-1-git-send-email-kusumi.tomohiro@gmail.com>
- <2f9dbd9e-1582-a702-8255-e4d467b6afa2@kernel.dk>
-In-Reply-To: <2f9dbd9e-1582-a702-8255-e4d467b6afa2@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <2f9dbd9e-1582-a702-8255-e4d467b6afa2@kernel.dk>
+Date: Fri, 15 Jun 2018 08:55:59 -0600
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, Tomohiro Kusumi <kusumi.tomohiro@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <1529075486-18805-1-git-send-email-kusumi.tomohiro@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-VGhhbmtzIFRvbW9oaXJvIGFuZCBKZW5zLiAgSSBhbHNvIHRlc3RlZCB0aGUgbGF0ZXN0IGdpdC4g
-IFRoZSBwcmV2aW91cyBtZXRob2Qgbm93IGZhaWxzOg0KDQogIyBRRD0xIGZpbyAtLXNlcnZlcj1s
-b2NhbGhvc3QmDQogIyBmaW8gLS1jbGllbnQ9bG9jYWxob3N0IHRlc3Quam9iDQoNCmFuZCB0aGUg
-bW9yZSBzdWl0YWJsZSBtZXRob2QNCg0KIyBmaW8gLS1zZXJ2ZXI9bG9jYWxob3N0Jg0KIyBRRD0x
-IGZpbyAtLWNsaWVudD1sb2NhbGhvc3QgdGVzdC5qb2INCg0KcGFzc2VzIGFzIGludGVuZGVkLg0K
-DQpSZWdhcmRzLA0KSmVmZg0KDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBm
-aW8tb3duZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86ZmlvLW93bmVyQHZnZXIua2VybmVsLm9y
-Z10gT24gQmVoYWxmIE9mIEplbnMgQXhib2UNClNlbnQ6IEZyaWRheSwgSnVuZSAxNSwgMjAxOCA3
-OjU2IEFNDQpUbzogVG9tb2hpcm8gS3VzdW1pIDxrdXN1bWkudG9tb2hpcm9AZ21haWwuY29tPjsg
-ZmlvQHZnZXIua2VybmVsLm9yZw0KU3ViamVjdDogUmU6IFtQQVRDSF0gY2xpZW50OiBwYXJzZSBl
-bnYgdmFyaWFibGVzIGJlZm9yZSBzZW5kaW5nIGpvYi1maWxlIGNvbnRlbnRzIHRvIHNlcnZlcg0K
-DQpPbiA2LzE1LzE4IDk6MTEgQU0sIFRvbW9oaXJvIEt1c3VtaSB3cm90ZToNCj4gRml4ZXMgImZp
-byBlbnZpcm9ubWVudCB2YXIgYnVnIi4NCj4gaHR0cHM6Ly93d3cuc3Bpbmljcy5uZXQvbGlzdHMv
-ZmlvL21zZzA3MDkzLmh0bWwNCj4gDQo+IEFkZCByZWFkX2luaV9kYXRhKCkgdG8gcGFyc2UgYW5k
-IGV4cGFuZCBlbnYgdmFyaWFibGVzIHdpdGhpbiBqb2ItZmlsZSANCj4gYmVmb3JlIHNlbmRpbmcg
-dG8gc2VydmVyLiBCeSBkb2luZyB0aGlzLCBjbGllbnRzIGNhbiBjb250cm9sIA0KPiBwYXJhbWV0
-ZXJzIGVtYmVkZGVkIHdpdGhpbiB0aGUgam9iLWZpbGUsIHdpdGhvdXQgc2VydmVyIHNpZGUgaGF2
-aW5nIHRvIA0KPiBzZXQgdGhlbSBzZXBhcmF0ZWx5Lg0KDQpMb29rcyBnb29kIHRvIG1lLCBqdXN0
-IG9uZSBtaW5vciBjb21tZW50Og0KDQo+ICtzdGF0aWMgaW50IHJlYWRfaW5pX2RhdGEoaW50IGZk
-LCB2b2lkICpkYXRhLCBzaXplX3Qgc2l6ZSkgew0KPiArCWNoYXIgKnAgPSBkYXRhOw0KPiArCWlu
-dCByZXQgPSAwOw0KPiArDQo+ICsJRklMRSAqZnAgPSBmZG9wZW4oZHVwKGZkKSwgInIiKTsNCj4g
-KwlpZiAoIWZwKQ0KPiArCQlyZXR1cm4gZXJybm87DQo+ICsNCj4gKwl3aGlsZSAoMSkgew0KPiAr
-CQlzc2l6ZV90IGxlbjsNCj4gKwkJY2hhciBidWZbT1BUX0xFTl9NQVgrMV0sICpzdWI7DQo+ICsN
-Cj4gKwkJaWYgKCFmZ2V0cyhidWYsIHNpemVvZihidWYpLCBmcCkpIHsNCj4gKwkJCWlmIChmZXJy
-b3IoZnApKSB7DQo+ICsJCQkJaWYgKGVycm5vID09IEVBR0FJTiB8fCBlcnJubyA9PSBFSU5UUikN
-Cj4gKwkJCQkJY29udGludWU7DQo+ICsJCQkJcmV0ID0gZXJybm87DQo+ICsJCQkJYnJlYWs7DQo+
-ICsJCQl9IGVsc2UNCj4gKwkJCQlicmVhazsNCj4gKwkJfQ0KDQpUaGlzIHNob3VsZCBqdXN0IGJl
-Og0KDQoJCWlmICghZmdldHMoYnVmLCBzaXplb2YoYnVmKSwgZnApKSB7DQoJCQlpZiAoZmVycm9y
-KGZwKSkgew0KCQkJCWlmIChlcnJubyA9PSBFQUdBSU4gfHwgZXJybm8gPT0gRUlOVFIpDQoJCQkJ
-CWNvbnRpbnVlOw0KCQkJCXJldCA9IGVycm5vOw0KCQkJfQ0KCQkJYnJlYWs7DQoJCX0NCg0KSSds
-bCBtYWtlIHRoYXQgY2hhbmdlIHdoaWxlIGFwcGx5aW5nLg0KDQotLQ0KSmVucyBBeGJvZQ0KDQot
-LQ0KVG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhlIGxpbmUgInVuc3Vic2Ny
-aWJlIGZpbyIgaW4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2VyLmtlcm5l
-bC5vcmcgTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpv
-cmRvbW8taW5mby5odG1sDQo=
+On 6/15/18 9:11 AM, Tomohiro Kusumi wrote:
+> Fixes "fio environment var bug".
+> https://www.spinics.net/lists/fio/msg07093.html
+> 
+> Add read_ini_data() to parse and expand env variables within job-file
+> before sending to server. By doing this, clients can control parameters
+> embedded within the job-file, without server side having to set them
+> separately.
+
+Looks good to me, just one minor comment:
+
+> +static int read_ini_data(int fd, void *data, size_t size)
+> +{
+> +	char *p = data;
+> +	int ret = 0;
+> +
+> +	FILE *fp = fdopen(dup(fd), "r");
+> +	if (!fp)
+> +		return errno;
+> +
+> +	while (1) {
+> +		ssize_t len;
+> +		char buf[OPT_LEN_MAX+1], *sub;
+> +
+> +		if (!fgets(buf, sizeof(buf), fp)) {
+> +			if (ferror(fp)) {
+> +				if (errno == EAGAIN || errno == EINTR)
+> +					continue;
+> +				ret = errno;
+> +				break;
+> +			} else
+> +				break;
+> +		}
+
+This should just be:
+
+		if (!fgets(buf, sizeof(buf), fp)) {
+			if (ferror(fp)) {
+				if (errno == EAGAIN || errno == EINTR)
+					continue;
+				ret = errno;
+			}
+			break;
+		}
+
+I'll make that change while applying.
+
+-- 
+Jens Axboe
+
 
