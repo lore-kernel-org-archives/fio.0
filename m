@@ -1,50 +1,49 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:59118 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753726AbeFOW7l (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 15 Jun 2018 18:59:41 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: RE: fio make warning
-Date: Fri, 15 Jun 2018 22:59:37 +0000
-Message-ID: <MWHPR04MB032031BCD219BABFC7D8ABCB8F7C0@MWHPR04MB0320.namprd04.prod.outlook.com>
-References: <MWHPR04MB032019EDD2993DA29DB190538F7C0@MWHPR04MB0320.namprd04.prod.outlook.com>
- <CALjAwxhCx2AxM3yu31Xnhrvgtqsa0N59jweVFk0Z3yKMSTHQzg@mail.gmail.com>
-In-Reply-To: <CALjAwxhCx2AxM3yu31Xnhrvgtqsa0N59jweVFk0Z3yKMSTHQzg@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-vk0-f50.google.com ([209.85.213.50]:45025 "EHLO
+        mail-vk0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753552AbeFOVp5 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 15 Jun 2018 17:45:57 -0400
+Received: by mail-vk0-f50.google.com with SMTP id x4-v6so6475010vkx.11
+        for <fio@vger.kernel.org>; Fri, 15 Jun 2018 14:45:57 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <MWHPR04MB032019EDD2993DA29DB190538F7C0@MWHPR04MB0320.namprd04.prod.outlook.com>
+References: <MWHPR04MB032019EDD2993DA29DB190538F7C0@MWHPR04MB0320.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Fri, 15 Jun 2018 22:45:26 +0100
+Message-ID: <CALjAwxhCx2AxM3yu31Xnhrvgtqsa0N59jweVFk0Z3yKMSTHQzg@mail.gmail.com>
+Subject: Re: fio make warning
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Jeff Furlong <jeff.furlong@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-UmlnaHQsIHVzaW5nIHRoZSBsYXRlc3QgZ2l0LiAgSSBjaGVja2VkIHRoZSBsYXRlc3QgcmVsZWFz
-ZXMgYW5kIGZpby0zLjUgZG9lcyBub3QgaGF2ZSB0aGUgd2FybmluZywgYnV0IGZpby0zLjYgaW50
-cm9kdWNlcyBpdC4gIEkgd2FzIHVzaW5nIGdjYyB2ZXJzaW9uIDQuOC4zIDIwMTQwOTExLiAgSSBt
-b3ZlZCB0byBnY2MgdmVyc2lvbiA0LjguNSAyMDE1MDYyMyBvbiBhbm90aGVyIGtlcm5lbCBhbmQg
-SSBkb24ndCBzZWUgdGhlIGlzc3VlLiAgT2RkIGhvdyB0aGUgd2FybmluZyBvbmx5IGhhcHBlbnMg
-d2l0aCBpbiBiZXR3ZWVuIGNvbXBpbGVyIHZlcnNpb25zIGFuZCBsYXRlc3QgZmlvIHNvdXJjZS4N
-Cg0KUmVnYXJkcywNCkplZmYNCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IFNp
-dHNvZmUgV2hlZWxlciBbbWFpbHRvOnNpdHNvZmVAZ21haWwuY29tXSANClNlbnQ6IEZyaWRheSwg
-SnVuZSAxNSwgMjAxOCAyOjQ1IFBNDQpUbzogSmVmZiBGdXJsb25nIDxqZWZmLmZ1cmxvbmdAd2Rj
-LmNvbT4NCkNjOiBmaW9Admdlci5rZXJuZWwub3JnDQpTdWJqZWN0OiBSZTogZmlvIG1ha2Ugd2Fy
-bmluZw0KDQpIbW0sDQoNCk9uIDE1IEp1bmUgMjAxOCBhdCAxODo1MywgSmVmZiBGdXJsb25nIDxq
-ZWZmLmZ1cmxvbmdAd2RjLmNvbT4gd3JvdGU6DQo+IE9uIHNvbWUga2VybmVscywgSSBhbSBnZXR0
-aW5nIGEgbWFrZSB3YXJuaW5nOg0KPg0KPiBDQyBpbml0Lm8NCj4gaW5pdC5jOiBJbiBmdW5jdGlv
-biB0ZF9maWxsX3JhbmRfc2VlZHM6DQo+IGluaXQuYzoxMDQ5OjE4OiB3YXJuaW5nOiBhcnJheSBz
-dWJzY3JpcHQgaXMgYWJvdmUgYXJyYXkgYm91bmRzIFstV2FycmF5LWJvdW5kc10NCj4gICAgIHRk
-LT5yYW5kX3NlZWRzW2ldID0gRklPX1JBTkRTRUVEICogdGQtPnRocmVhZF9udW1iZXINCj4gICAg
-ICAgICAgICAgICAgICAgXg0KPiBpbml0LmM6MTA0OToxODogd2FybmluZzogYXJyYXkgc3Vic2Ny
-aXB0IGlzIGFib3ZlIGFycmF5IGJvdW5kcyANCj4gWy1XYXJyYXktYm91bmRzXQ0KPiBpbml0LmM6
-MTA0OToxODogd2FybmluZzogYXJyYXkgc3Vic2NyaXB0IGlzIGFib3ZlIGFycmF5IGJvdW5kcyAN
-Cj4gWy1XYXJyYXktYm91bmRzXQ0KPiBpbml0LmM6MTA0OToxODogd2FybmluZzogYXJyYXkgc3Vi
-c2NyaXB0IGlzIGFib3ZlIGFycmF5IGJvdW5kcyANCj4gWy1XYXJyYXktYm91bmRzXQ0KDQpBc3N1
-bWluZyBsYXRlc3QgZmlvIChhZjg0Y2Q2NjE0OTUwNzQyNDgxNGNmOWMwYjQ5NTBmNGNmNjZlM2I3
-ICk6DQoNCkZyb20gZmlvLmgNCjI0NDogdW5zaWduZWQgbG9uZyByYW5kX3NlZWRzW0ZJT19SQU5E
-X05SX09GRlNdOw0KDQppbml0LmMNCjEwNDg6IGZvciAoaSA9IDA7IGkgPCBGSU9fUkFORF9OUl9P
-RkZTOyBpKyspDQoNClNvIHRoZSBhcnJheSBpcyBmcm9tIDAgLSAoRklPX1JBTkRfTlJfT0ZGUyAt
-IDEpIGFuZCBpIHNob3VsZCBnb2luZyBmcm9tIDAgLSAoRklPX1JBTkRfTlJfT0ZGUyAtIDEpLiBO
-b3Qgc3VyZSBJIHVuZGVyc3RhbmQgdGhlIGlzc3VlLi4uDQoNCldoaWNoIGNvbXBpbGVyIHdlcmUg
-eW91IHVzaW5nIGFuZCB3aGF0IHZlcnNpb24gd2FzIGl0Pw0KDQotLQ0KU2l0c29mZSB8IGh0dHA6
-Ly9zdWNzLm9yZy9+c2l0cy8NCg==
+Hmm,
+
+On 15 June 2018 at 18:53, Jeff Furlong <jeff.furlong@wdc.com> wrote:
+> On some kernels, I am getting a make warning:
+>
+> CC init.o
+> init.c: In function td_fill_rand_seeds:
+> init.c:1049:18: warning: array subscript is above array bounds [-Warray-bounds]
+>     td->rand_seeds[i] = FIO_RANDSEED * td->thread_number
+>                   ^
+> init.c:1049:18: warning: array subscript is above array bounds [-Warray-bounds]
+> init.c:1049:18: warning: array subscript is above array bounds [-Warray-bounds]
+> init.c:1049:18: warning: array subscript is above array bounds [-Warray-bounds]
+
+Assuming latest fio (af84cd66149507424814cf9c0b4950f4cf66e3b7 ):
+
+From fio.h
+244: unsigned long rand_seeds[FIO_RAND_NR_OFFS];
+
+init.c
+1048: for (i = 0; i < FIO_RAND_NR_OFFS; i++)
+
+So the array is from 0 - (FIO_RAND_NR_OFFS - 1) and i should going
+from 0 - (FIO_RAND_NR_OFFS - 1). Not sure I understand the issue...
+
+Which compiler were you using and what version was it?
+
+-- 
+Sitsofe | http://sucs.org/~sits/
