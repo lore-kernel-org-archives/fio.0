@@ -1,55 +1,42 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:11018 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935743AbeFRVHm (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 18 Jun 2018 17:07:42 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
+Received: from g2t1383g.austin.hpe.com ([15.233.16.89]:14418 "EHLO
+        g2t1383g.austin.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S936284AbeFRTwZ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 18 Jun 2018 15:52:25 -0400
+Received: from g4t3426.houston.hpe.com (g4t3426.houston.hpe.com [15.241.140.75])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by g2t1383g.austin.hpe.com (Postfix) with ESMTPS id DBB171637
+        for <fio@vger.kernel.org>; Mon, 18 Jun 2018 19:52:24 +0000 (UTC)
+From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
 Subject: RE: fio make warning
-Date: Mon, 18 Jun 2018 21:07:40 +0000
-Message-ID: <MWHPR04MB0320CD0C755B1D5E455642128F710@MWHPR04MB0320.namprd04.prod.outlook.com>
+Date: Mon, 18 Jun 2018 19:52:21 +0000
+Message-ID: <AT5PR8401MB1169C4D8ECABE385F8C4415AAB710@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
 References: <MWHPR04MB032019EDD2993DA29DB190538F7C0@MWHPR04MB0320.namprd04.prod.outlook.com>
  <CALjAwxhCx2AxM3yu31Xnhrvgtqsa0N59jweVFk0Z3yKMSTHQzg@mail.gmail.com>
  <MWHPR04MB032031BCD219BABFC7D8ABCB8F7C0@MWHPR04MB0320.namprd04.prod.outlook.com>
- <AT5PR8401MB1169C4D8ECABE385F8C4415AAB710@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
-In-Reply-To: <AT5PR8401MB1169C4D8ECABE385F8C4415AAB710@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+In-Reply-To: <MWHPR04MB032031BCD219BABFC7D8ABCB8F7C0@MWHPR04MB0320.namprd04.prod.outlook.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>, Sitsofe Wheeler <sitsofe@gmail.com>
+To: 'Jeff Furlong' <jeff.furlong@wdc.com>, Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-VGhhbmtzIFJvYmVydC4gIFRoZXNlIG9sZCBnY2MgdmVyc2lvbnMgYXJlIHN0aWxsIGluYm94IGlu
-IG1hbnkgZGlzdHJvcy4gIEFmdGVyIHJlYWRpbmcgQlogNTkxMjQgSSBzZWUgdGhlIGhhY2sgb2Yg
-YSBmaXggdG8gZGlzYWJsZSB0aGUgd2FybmluZyBpczoNCg0KDQpkaWZmIC0tZ2l0IGEvaW5pdC5j
-IGIvaW5pdC5jDQppbmRleCAzNTNjOTliLi4wZmFlNjViIDEwMDY0NA0KLS0tIGEvaW5pdC5jDQor
-KysgYi9pbml0LmMNCkBAIC0xMDQzLDcgKzEwNDMsNyBAQCB2b2lkIHRkX2ZpbGxfcmFuZF9zZWVk
-cyhzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkKQ0KICAgICAgICBib29sIHVzZTY0Ow0KDQogICAgICAg
-IGlmICh0ZC0+by5hbGxyYW5kX3JlcGVhdGFibGUpIHsNCi0gICAgICAgICAgICAgICB1bnNpZ25l
-ZCBpbnQgaTsNCisgICAgICAgICAgICAgICB1bnNpZ25lZCBsb25nIGk7DQoNCiAgICAgICAgICAg
-ICAgICBmb3IgKGkgPSAwOyBpIDwgRklPX1JBTkRfTlJfT0ZGUzsgaSsrKQ0KICAgICAgICAgICAg
-ICAgICAgICAgICAgdGQtPnJhbmRfc2VlZHNbaV0gPSBGSU9fUkFORFNFRUQgKiB0ZC0+dGhyZWFk
-X251bWJlcg0KDQoNCldvcmtzIG9uIGdjYyB2ZXJzaW9uIDQuOC4zIDIwMTQwOTExLiAgQnV0LCBk
-b2Vzbid0IHNlZW0gd2UgbmVlZCB0aGUgZml4IGFzIGl0J3MgYSByZWFsIGdjYyBidWcuDQoNClJl
-Z2FyZHMsDQpKZWZmDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBFbGxpb3R0
-LCBSb2JlcnQgKFBlcnNpc3RlbnQgTWVtb3J5KSBbbWFpbHRvOmVsbGlvdHRAaHBlLmNvbV0gDQpT
-ZW50OiBNb25kYXksIEp1bmUgMTgsIDIwMTggMTI6NTIgUE0NClRvOiBKZWZmIEZ1cmxvbmcgPGpl
-ZmYuZnVybG9uZ0B3ZGMuY29tPjsgU2l0c29mZSBXaGVlbGVyIDxzaXRzb2ZlQGdtYWlsLmNvbT4N
-CkNjOiBmaW9Admdlci5rZXJuZWwub3JnDQpTdWJqZWN0OiBSRTogZmlvIG1ha2Ugd2FybmluZw0K
-DQoNCg0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBmaW8tb3duZXJAdmdl
-ci5rZXJuZWwub3JnIFttYWlsdG86ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZ10gT24gDQo+IEJl
-aGFsZiBPZiBKZWZmIEZ1cmxvbmcNCj4gU2VudDogRnJpZGF5LCBKdW5lIDE1LCAyMDE4IDY6MDAg
-UE0NCj4gVG86IFNpdHNvZmUgV2hlZWxlciA8c2l0c29mZUBnbWFpbC5jb20+DQo+IENjOiBmaW9A
-dmdlci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IFJFOiBmaW8gbWFrZSB3YXJuaW5nDQo+IA0KPiBS
-aWdodCwgdXNpbmcgdGhlIGxhdGVzdCBnaXQuICBJIGNoZWNrZWQgdGhlIGxhdGVzdCByZWxlYXNl
-cyBhbmQgDQo+IGZpby0zLjUgZG9lcyBub3QgaGF2ZSB0aGUgd2FybmluZywgYnV0IGZpby0zLjYg
-aW50cm9kdWNlcyBpdC4gIEkgd2FzIA0KPiB1c2luZyBnY2MgdmVyc2lvbiA0LjguMyAyMDE0MDkx
-MS4gIEkgbW92ZWQgdG8gZ2NjIHZlcnNpb24gNC44LjUgDQo+IDIwMTUwNjIzIG9uIGFub3RoZXIg
-a2VybmVsIGFuZCBJIGRvbid0IHNlZSB0aGUgaXNzdWUuICBPZGQgaG93IHRoZSANCj4gd2Fybmlu
-ZyBvbmx5IGhhcHBlbnMgd2l0aCBpbiBiZXR3ZWVuIGNvbXBpbGVyIHZlcnNpb25zIGFuZCBsYXRl
-c3QgZmlvIHNvdXJjZS4NCg0KZ2NjIGFwcGFyZW50bHkgaGFkIHNvbWUgYnVncyBpbiB0aGF0IGFy
-ZWEgZm91ciB5ZWFycyBhZ286DQoJaHR0cHM6Ly9nY2MuZ251Lm9yZy9idWd6aWxsYS9zaG93X2J1
-Zy5jZ2k/aWQ9NTYyNzMNCglodHRwczovL2djYy5nbnUub3JnL2J1Z3ppbGxhL3Nob3dfYnVnLmNn
-aT9pZD01OTEyNA0KDQoNCg==
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
+a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uDQo+IEJlaGFs
+ZiBPZiBKZWZmIEZ1cmxvbmcNCj4gU2VudDogRnJpZGF5LCBKdW5lIDE1LCAyMDE4IDY6MDAgUE0N
+Cj4gVG86IFNpdHNvZmUgV2hlZWxlciA8c2l0c29mZUBnbWFpbC5jb20+DQo+IENjOiBmaW9Admdl
+ci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IFJFOiBmaW8gbWFrZSB3YXJuaW5nDQo+IA0KPiBSaWdo
+dCwgdXNpbmcgdGhlIGxhdGVzdCBnaXQuICBJIGNoZWNrZWQgdGhlIGxhdGVzdCByZWxlYXNlcyBh
+bmQgZmlvLTMuNQ0KPiBkb2VzIG5vdCBoYXZlIHRoZSB3YXJuaW5nLCBidXQgZmlvLTMuNiBpbnRy
+b2R1Y2VzIGl0LiAgSSB3YXMgdXNpbmcgZ2NjDQo+IHZlcnNpb24gNC44LjMgMjAxNDA5MTEuICBJ
+IG1vdmVkIHRvIGdjYyB2ZXJzaW9uIDQuOC41IDIwMTUwNjIzIG9uIGFub3RoZXINCj4ga2VybmVs
+IGFuZCBJIGRvbid0IHNlZSB0aGUgaXNzdWUuICBPZGQgaG93IHRoZSB3YXJuaW5nIG9ubHkgaGFw
+cGVucyB3aXRoDQo+IGluIGJldHdlZW4gY29tcGlsZXIgdmVyc2lvbnMgYW5kIGxhdGVzdCBmaW8g
+c291cmNlLg0KDQpnY2MgYXBwYXJlbnRseSBoYWQgc29tZSBidWdzIGluIHRoYXQgYXJlYSBmb3Vy
+IHllYXJzIGFnbzoNCglodHRwczovL2djYy5nbnUub3JnL2J1Z3ppbGxhL3Nob3dfYnVnLmNnaT9p
+ZD01NjI3Mw0KCWh0dHBzOi8vZ2NjLmdudS5vcmcvYnVnemlsbGEvc2hvd19idWcuY2dpP2lkPTU5
+MTI0DQoNCg0K
