@@ -1,98 +1,138 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:37158 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751025AbeFHMAW (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 8 Jun 2018 08:00:22 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1fRG45-0006y1-75
-        for fio@vger.kernel.org; Fri, 08 Jun 2018 12:00:21 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180608120001.C3B0E2C00CF@kernel.dk>
-Date: Fri,  8 Jun 2018 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <chenxiang66@hisilicon.com>
+Subject: Re: The number of fio jobs decrease after long time test
+References: <74ffbb36-a06a-9875-7c87-f3fd5ab508c1@hisilicon.com>
+ <15cde73b-0c79-9977-fe30-7c8c9286ebbc@kernel.dk>
+From: "chenxiang (M)" <chenxiang66@hisilicon.com>
+Message-ID: <4cd868cf-61eb-d52e-36ed-4e4cc1621ab5@hisilicon.com>
+Date: Thu, 21 Jun 2018 09:10:41 +0800
+MIME-Version: 1.0
+In-Reply-To: <15cde73b-0c79-9977-fe30-7c8c9286ebbc@kernel.dk>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, Bart Van Assche <Bart.VanAssche@wdc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, John Garry <john.garry@huawei.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit a43f4461d5716c4c46018dd45cecf0a896d05dbd:
+在 2018/6/21 1:28, Jens Axboe 写道:
+> On 6/19/18 8:49 PM, chenxiang (M) wrote:
+>> Hi Jens,
+>>
+>> When i use fio to test 4k READ for 19 disks which are connected with a
+>> expander, and find a issue:
+>> the numbers of jobs decrease after some times, after about 2 days or 3
+>> days, there is only one job
+>> left, but there is no another exception. Part of log is as follows (the
+>> attachment is the script i use to run fio
+>> (./creat_fio_task.sh 4k read 64)):
+>>
+>> Jobs: 19 (f=19): [RRRRRRRRRRRRRRRRRRR] [2.5% done] [7016M/0K /s]
+>> [1713K/0  iops] [eta 02d:08h:19m:55s]
+>> Jobs: 19 (f=19): [RRRRRRRRRRRRRRRRRRR] [2.5% done] [6978M/0K /s]
+>> [1704K/0  iops] [eta 02d:08h:19m:55s]
+>> Jobs: 19 (f=19): [RRRRRRRRRRRRRRRRRRR] [2.5% done] [7008M/0K /s]
+>> [1711K/0  iops] [eta 02d:08h:19m:54s]
+>> Jobs: 18 (f=18): [RRRR_RRRRRRRRRRRRRR] [2.5% done] [5800M/0K /s]
+>> [1416K/0  iops] [eta 02d:08h:19m:53s]
+>> Jobs: 18 (f=18): [RRRR_RRRRRRRRRRRRRR] [2.5% done] [5325M/0K /s]
+>> [1300K/0  iops] [eta 02d:08h:19m:51s]
+>> Jobs: 18 (f=18): [RRRR_RRRRRRRRRRRRRR] [2.5% done] [5354M/0K /s]
+>> [1307K/0  iops] [eta 02d:08h:19m:49s]
+>> Jobs: 18 (f=18): [RRRR_RRRRRRRRRRRRRR] [2.5% done] [5405M/0K /s]
+>> [1320K/0  iops] [eta 02d:08h:19m:49s]
+>> Jobs: 18 (f=18): [RRRR_RRRRRRRRRRRRRR] [2.5% done] [5411M/0K /s]
+>> [1321K/0  iops] [eta 02d:08h:19m:48s]
+>> Jobs: 18 (f=18): [RRRR_RRRRRRRRRRRRRR] [2.5% done] [5525M/0K /s]
+>> [1349K/0  iops] [eta 02d:08h:19m:48s]
+>> Jobs: 18 (f=18): [RRRR_RRRRRRRRRRRRRR] [2.5% done] [5519M/0K /s]
+>> [1347K/0  iops] [eta 02d:08h:19m:49s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [5236M/0K /s]
+>> [1278K/0  iops] [eta 02d:08h:19m:49s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [5085M/0K /s]
+>> [1241K/0  iops] [eta 02d:08h:19m:50s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [5072M/0K /s]
+>> [1238K/0  iops] [eta 02d:08h:19m:50s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [5077M/0K /s]
+>> [1240K/0  iops] [eta 02d:08h:19m:51s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [5373M/0K /s]
+>> [1312K/0  iops] [eta 02d:08h:19m:53s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [5649M/0K /s]
+>> [1379K/0  iops] [eta 02d:08h:19m:53s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [5656M/0K /s]
+>> [1381K/0  iops] [eta 02d:08h:19m:54s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [5595M/0K /s]
+>> [1366K/0  iops] [eta 02d:08h:19m:54s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [4995M/0K /s]
+>> [1219K/0  iops] [eta 02d:08h:19m:54s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [4976M/0K /s]
+>> [1215K/0  iops] [eta 02d:08h:19m:52s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [4996M/0K /s]
+>> [1220K/0  iops] [eta 02d:08h:19m:51s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [4980M/0K /s]
+>> [1216K/0  iops] [eta 02d:08h:19m:50s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [4990M/0K /s]
+>> [1218K/0  iops] [eta 02d:08h:19m:51s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [5007M/0K /s]
+>> [1222K/0  iops] [eta 02d:08h:19m:52s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [5012M/0K /s]
+>> [1224K/0  iops] [eta 02d:08h:19m:53s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [5075M/0K /s]
+>> [1239K/0  iops] [eta 02d:08h:19m:54s]
+>> Jobs: 17 (f=17): [RR_R_RRRRRRRRRRRRRR] [2.5% done] [4994M/0K /s]
+>> [1219K/0  iops] [eta 02d:08h:19m:55s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4893M/0K /s]
+>> [1195K/0  iops] [eta 02d:08h:20m:34s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4620M/0K /s]
+>> [1128K/0  iops] [eta 02d:08h:20m:35s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4600M/0K /s]
+>> [1123K/0  iops] [eta 02d:08h:20m:35s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4595M/0K /s]
+>> [1122K/0  iops] [eta 02d:08h:20m:34s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4600M/0K /s]
+>> [1123K/0  iops] [eta 02d:08h:20m:33s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4603M/0K /s]
+>> [1124K/0  iops] [eta 02d:08h:20m:32s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4625M/0K /s]
+>> [1129K/0  iops] [eta 02d:08h:20m:31s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4638M/0K /s]
+>> [1132K/0  iops] [eta 02d:08h:20m:29s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4626M/0K /s]
+>> [1129K/0  iops] [eta 02d:08h:20m:27s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4616M/0K /s]
+>> [1127K/0  iops] [eta 02d:08h:20m:26s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4615M/0K /s]
+>> [1127K/0  iops] [eta 02d:08h:20m:25s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4624M/0K /s]
+>> [1129K/0  iops] [eta 02d:08h:20m:25s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4634M/0K /s]
+>> [1131K/0  iops] [eta 02d:08h:20m:25s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4635M/0K /s]
+>> [1132K/0  iops] [eta 02d:08h:20m:25s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4626M/0K /s]
+>> [1129K/0  iops] [eta 02d:08h:20m:25s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4614M/0K /s]
+>> [1127K/0  iops] [eta 02d:08h:20m:26s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4606M/0K /s]
+>> [1125K/0  iops] [eta 02d:08h:20m:27s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4595M/0K /s]
+>> [1122K/0  iops] [eta 02d:08h:20m:28s]
+>> Jobs: 16 (f=16): [RR_R_RR_RRRRRRRRRRR] [2.5% done] [4631M/0K /s]
+>> [1131K/0  iops] [eta 02d:08h:20m:28s]
+>> ......
+>>
+>> Is it normal or exception like that? If exception, do you know why?
+> The jobs are probably finishing. You set a runtime, but didn't make
+> it time based. If you add time_based=1 it might work closer to
+> what you expect.
 
-  Fix variable shadowing (2018-06-05 13:44:47 -0600)
+Ok, thanks.
 
-are available in the git repository at:
+>
+> I'm trimming the CC list, you added every linux list except the
+> list you should have added, which is the fio list...
 
-  git://git.kernel.dk/fio.git master
+I didn't notice there was a linux list for fio before
 
-for you to fetch changes up to 7ceefc0914b9ff721047b4dc8be54625d43f577c:
+>
 
-  idle-prof: Fix segment fault issue when run with '--idle-prof' and multiple output format normal,json (2018-06-07 20:27:25 -0600)
 
-----------------------------------------------------------------
-Friendy.Su@sony.com (1):
-      idle-prof: Fix segment fault issue when run with '--idle-prof' and multiple output format normal,json
 
- idletime.c | 8 +-------
- idletime.h | 2 ++
- stat.c     | 2 ++
- 3 files changed, 5 insertions(+), 7 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/idletime.c b/idletime.c
-index 8762c85..2f59f51 100644
---- a/idletime.c
-+++ b/idletime.c
-@@ -397,7 +397,7 @@ static double fio_idle_prof_cpu_stat(int cpu)
- 	return p * 100.0;
- }
- 
--static void fio_idle_prof_cleanup(void)
-+void fio_idle_prof_cleanup(void)
- {
- 	if (ipc.ipts) {
- 		free(ipc.ipts);
-@@ -471,10 +471,6 @@ void show_idle_prof_stats(int output, struct json_object *parent,
- 			log_buf(out, " stddev=%3.2f\n", ipc.cali_stddev);
- 		}
- 
--		/* dynamic mem allocations can now be freed */
--		if (ipc.opt != IDLE_PROF_OPT_NONE)
--			fio_idle_prof_cleanup();
--
- 		return;
- 	}
- 
-@@ -498,7 +494,5 @@ void show_idle_prof_stats(int output, struct json_object *parent,
- 
- 		json_object_add_value_float(tmp, "unit_mean", ipc.cali_mean);
- 		json_object_add_value_float(tmp, "unit_stddev", ipc.cali_stddev);
--		
--		fio_idle_prof_cleanup();
- 	}
- }
-diff --git a/idletime.h b/idletime.h
-index 6c1161a..91ca95f 100644
---- a/idletime.h
-+++ b/idletime.h
-@@ -58,4 +58,6 @@ extern void fio_idle_prof_stop(void);
- 
- extern void show_idle_prof_stats(int, struct json_object *, struct buf_output *);
- 
-+extern void fio_idle_prof_cleanup(void);
-+
- #endif
-diff --git a/stat.c b/stat.c
-index 5b49ddd..58edf04 100644
---- a/stat.c
-+++ b/stat.c
-@@ -1934,6 +1934,8 @@ void __show_run_stats(void)
- 		buf_output_free(out);
- 	}
- 
-+	fio_idle_prof_cleanup();
-+
- 	log_info_flush();
- 	free(runstats);
- 	free(threadstats);
