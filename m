@@ -1,43 +1,34 @@
-Return-Path: <igor.j.konopko@intel.com>
-From: Igor Konopko <igor.j.konopko@intel.com>
-Subject: [PATCH] stat: fix --bandwidth-log segfault
-Date: Fri,  8 Jun 2018 10:26:25 +0200
-Message-Id: <20180608082625.2884-1-igor.j.konopko@intel.com>
-To: fio@vger.kernel.org, axboe@kernel.dk
-Cc: igor.j.konopko@intel.com
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from muon.bluestop.org ([96.73.9.1]:44584 "EHLO muon.bluestop.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752444AbeFYDNC (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 24 Jun 2018 23:13:02 -0400
+Subject: Re: FIO build broken on FreeBSD 11.1
+References: <4b983c90-e07f-cd1f-abcb-65e23be8a102@bluestop.org>
+ <CAHndrBndTLseKwcSfNoYZR4vspEqg5CLOGMuJoYaBpTa-EV2sw@mail.gmail.com>
+From: Rebecca Cran <rebecca@bluestop.org>
+Message-ID: <2ea16a72-00b7-0ac5-2df8-6330c5198842@bluestop.org>
+Date: Sun, 24 Jun 2018 21:13:01 -0600
+MIME-Version: 1.0
+In-Reply-To: <CAHndrBndTLseKwcSfNoYZR4vspEqg5CLOGMuJoYaBpTa-EV2sw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Cc: fio <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 
-Since bandwidth log has no corresponding thread data
-and pending struct, we cannot access any fields inside it.
+On 06/24/18 21:04, Tomohiro Kusumi wrote:
+> Rebecca Cran <rebecca@bluestop.org>:
+>>
+>> The FIO build seems to be broken on FreeBSD:
+> 
+> It compiles on my environment.
 
-Signed-off-by: Igor Konopko <igor.j.konopko@intel.com>
----
- stat.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+Thanks - I'd forgotten about my attempts at creating a cross build
+environment for MinGW64: deleting the symlinks for gcc etc. in ~/bin
+fixed things!
 
-diff --git a/stat.c b/stat.c
-index c89a7f06..1ec2849c 100644
---- a/stat.c
-+++ b/stat.c
-@@ -2212,12 +2212,14 @@ static struct io_logs *get_cur_log(struct io_log *iolog)
- 	 * submissions, flag 'td' as needing a log regrow and we'll take
- 	 * care of it on the submission side.
- 	 */
--	if (iolog->td->o.io_submit_mode == IO_MODE_OFFLOAD ||
-+	if ((iolog->td && iolog->td->o.io_submit_mode == IO_MODE_OFFLOAD) ||
- 	    !per_unit_log(iolog))
- 		return regrow_log(iolog);
- 
--	iolog->td->flags |= TD_F_REGROW_LOGS;
--	assert(iolog->pending->nr_samples < iolog->pending->max_samples);
-+	if (iolog->td)
-+		iolog->td->flags |= TD_F_REGROW_LOGS;
-+	if (iolog->pending)
-+		assert(iolog->pending->nr_samples < iolog->pending->max_samples);
- 	return iolog->pending;
- }
- 
 -- 
-2.14.3
-
-
+Rebecca
