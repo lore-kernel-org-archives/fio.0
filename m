@@ -1,26 +1,52 @@
-Return-Path: <josef@toxicpanda.com>
-Return-Path: <josef@toxicpanda.com>
-From: Josef Bacik <josef@toxicpanda.com>
-Subject: [PATCH 1/2] fio: work with cgroup2 as well
-Date: Fri, 29 Jun 2018 09:33:34 -0400
-Message-Id: <20180629133335.14618-1-josef@toxicpanda.com>
-To: fio@vger.kernel.org, kernel-team@fb.com, axboe@kernel.dk
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:57590 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1030286AbeF3MAc (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 30 Jun 2018 08:00:32 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1fZEYK-00035t-6T
+        for fio@vger.kernel.org; Sat, 30 Jun 2018 12:00:32 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20180630120002.1E5852C013F@kernel.dk>
+Date: Sat, 30 Jun 2018 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-The current code only works with cgroupv1, but as long as you don't want
-to set blkio.weight or anything we can use the 'cgroup=' setting with
-cgroupv2 easily with cgroupv1, we just need to write the thread pids to
-a different file for cgroup2.
+The following changes since commit 9caaf02b06deecf0b0a13c16b6d59dddc64b8c35:
 
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
----
+  Merge branch 'doc-norandommap' of https://github.com/larrystevenwise/fio (2018-06-21 11:22:41 -0600)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 354d50e771451f510e5886275768abb63b602798:
+
+  Fix compilation without cgroups (2018-06-29 08:00:29 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Fix compilation without cgroups
+
+Josef Bacik (2):
+      fio: work with cgroup2 as well
+      fio: add job_runtime to the thread json output
+
  backend.c |  5 ++---
  cgroup.c  | 64 ++++++++++++++++++++++++++++++++++++++++++++-------------------
- cgroup.h  | 13 ++++++++++---
- 3 files changed, 57 insertions(+), 25 deletions(-)
+ cgroup.h  | 15 +++++++++++----
+ stat.c    |  1 +
+ 4 files changed, 59 insertions(+), 26 deletions(-)
+
+---
+
+Diff of recent changes:
 
 diff --git a/backend.c b/backend.c
-index c52eba58fa10..a7e91843a0be 100644
+index c52eba5..a7e9184 100644
 --- a/backend.c
 +++ b/backend.c
 @@ -50,7 +50,7 @@
@@ -50,7 +76,7 @@ index c52eba58fa10..a7e91843a0be 100644
  	fio_sem_remove(startup_sem);
  	stat_exit();
 diff --git a/cgroup.c b/cgroup.c
-index 629047b495b3..77e31a4d0e22 100644
+index 629047b..77e31a4 100644
 --- a/cgroup.c
 +++ b/cgroup.c
 @@ -18,12 +18,13 @@ struct cgroup_member {
@@ -195,10 +221,10 @@ index 629047b495b3..77e31a4d0e22 100644
  
  static void fio_init cgroup_init(void)
 diff --git a/cgroup.h b/cgroup.h
-index 0bbe25a2cb79..e5b6addcf190 100644
+index 0bbe25a..10313b7 100644
 --- a/cgroup.h
 +++ b/cgroup.h
-@@ -3,13 +3,20 @@
+@@ -3,21 +3,28 @@
  
  #ifdef FIO_HAVE_CGROUPS
  
@@ -219,18 +245,27 @@ index 0bbe25a2cb79..e5b6addcf190 100644
 +struct cgroup_mnt;
 +
  static inline int cgroup_setup(struct thread_data *td, struct flist_head *list,
- 			       char **mnt)
+-			       char **mnt)
++			       struct cgroup_mnt **mnt)
  {
-@@ -17,7 +24,7 @@ static inline int cgroup_setup(struct thread_data *td, struct flist_head *list,
+ 	td_verror(td, EINVAL, "cgroup_setup");
  	return 1;
  }
  
 -static inline void cgroup_shutdown(struct thread_data *td, char **mnt)
-+static inline void cgroup_shutdown(struct thread_data *td, struct cgroup_mnt **mnt)
++static inline void cgroup_shutdown(struct thread_data *td, struct cgroup_mnt *mnt)
  {
  }
  
--- 
-2.14.3
-
-
+diff --git a/stat.c b/stat.c
+index d5240d9..a308eb8 100644
+--- a/stat.c
++++ b/stat.c
+@@ -1288,6 +1288,7 @@ static struct json_object *show_thread_status_json(struct thread_stat *ts,
+ 		usr_cpu = 0;
+ 		sys_cpu = 0;
+ 	}
++	json_object_add_value_int(root, "job_runtime", ts->total_run_time);
+ 	json_object_add_value_float(root, "usr_cpu", usr_cpu);
+ 	json_object_add_value_float(root, "sys_cpu", sys_cpu);
+ 	json_object_add_value_int(root, "ctx", ts->ctx);
