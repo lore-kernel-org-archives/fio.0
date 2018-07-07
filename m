@@ -1,47 +1,40 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:64782 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933676AbeGIR6a (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 9 Jul 2018 13:58:30 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: RE: fio serialize across jobs
-Date: Mon, 9 Jul 2018 17:58:27 +0000
-Message-ID: <MWHPR04MB0320201F570BDAC2EB3A46DD8F440@MWHPR04MB0320.namprd04.prod.outlook.com>
-References: <MWHPR04MB0320ED986E73B1E9994929B38F470@MWHPR04MB0320.namprd04.prod.outlook.com>
- <CALjAwxiTqn3U2vnOOCV1CZ3BkzXQ_KUaHK3wjw1WsbT5zg33rg@mail.gmail.com>
-In-Reply-To: <CALjAwxiTqn3U2vnOOCV1CZ3BkzXQ_KUaHK3wjw1WsbT5zg33rg@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-vk0-f49.google.com ([209.85.213.49]:40897 "EHLO
+        mail-vk0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751693AbeGGEYB (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 7 Jul 2018 00:24:01 -0400
+Received: by mail-vk0-f49.google.com with SMTP id s23-v6so7883405vks.7
+        for <fio@vger.kernel.org>; Fri, 06 Jul 2018 21:24:01 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <MWHPR04MB0320ED986E73B1E9994929B38F470@MWHPR04MB0320.namprd04.prod.outlook.com>
+References: <MWHPR04MB0320ED986E73B1E9994929B38F470@MWHPR04MB0320.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 7 Jul 2018 05:23:29 +0100
+Message-ID: <CALjAwxiTqn3U2vnOOCV1CZ3BkzXQ_KUaHK3wjw1WsbT5zg33rg@mail.gmail.com>
+Subject: Re: fio serialize across jobs
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Jeff Furlong <jeff.furlong@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-V2hhdCBpZiB3ZSBsaW1pdGVkIHRoZSBqb2JzIHRvIDIgYW5kIGxpbWl0ZWQgdGhlIHNlY29uZCBq
-b2IncyBRRCB0byAxPyAgTWlnaHQgdGhhdCBsaW1pdCB0aGUgbG9ja2luZyBvdmVyaGVhZD8NCg0K
-UmVnYXJkcywNCkplZmYNCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IFNpdHNv
-ZmUgV2hlZWxlciBbbWFpbHRvOnNpdHNvZmVAZ21haWwuY29tXSANClNlbnQ6IEZyaWRheSwgSnVs
-eSA2LCAyMDE4IDk6MjMgUE0NClRvOiBKZWZmIEZ1cmxvbmcgPGplZmYuZnVybG9uZ0B3ZGMuY29t
-Pg0KQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBmaW8gc2VyaWFsaXplIGFj
-cm9zcyBqb2JzDQoNCkhpLA0KDQpPbiA2IEp1bHkgMjAxOCBhdCAyMzoxNCwgSmVmZiBGdXJsb25n
-IDxqZWZmLmZ1cmxvbmdAd2RjLmNvbT4gd3JvdGU6DQo+IEhpIEFsbCwNCj4gQmFjayBpbiBjb21t
-aXQgOTk3YjU2ODBkMTM5Y2U4MmMyMDM0YmEzYTBkNjAyY2ZkNzc4Yjg5YiAiZmlvOiBhZGQgc2Vy
-aWFsaXplX292ZXJsYXAgb3B0aW9uIiB0aGUgZmVhdHVyZSB3YXMgYWRkZWQgdG8gcHJldmVudCB3
-cml0ZS90cmltIHJhY2UgY29uZGl0aW9ucyB3aXRoaW4gdGhlIHF1ZXVlLiAgQ2FuIHRoaXMgZmVh
-dHVyZSBiZSBhcHBsaWVkIHRvIG11bHRpcGxlIGpvYnM/ICBDb25zaWRlcjoNCj4NCj4gZmlvIC0t
-aW9lbmdpbmU9bGliYWlvIC0tZGlyZWN0PTEgIC0tZmlsZW5hbWU9L2Rldi9udm1lMG4xIC0tdGlt
-ZV9iYXNlZCANCj4gLS1uYW1lPXRlc3QxIC0tcnc9cmFuZHdyaXRlIC0tcnVudGltZT01cyAtLW5h
-bWU9dGVzdDIgLS1ydz1yYW5kd3JpdGUgDQo+IC0tcnVudGltZT01cyAtLXNlcmlhbGl6ZV9vdmVy
-bGFwPTENCj4NCj4gV291bGQgd2UgaGF2ZSB0byBjYWxsIGluX2ZsaWdodF9vdmVybGFwKCkgaW4g
-YSBsb29wIHdpdGggYWxsIHRocmVhZCBkYXRhIHBvaW50ZXJzPw0KDQpJdCB3b3VsZCBiZSBhIGJl
-IG1vcmUgd29yayAodGhlIG9yaWdpbmFsIHNlcmlhbGl6ZV9vdmVybGFwIHdhcyBmaWRkbHkgdG8g
-bWFrZSBjb3JyZWN0IGJ1dCB3YXMgZWFzeSB0byBnZXQgZ29pbmcpIGJ1dCBJIGNhbiBzZWUgd2h5
-IHlvdSBtaWdodCB3YW50IHdoYXQgeW91IGRlc2NyaWJlLiBUaGUgYmlnIHByb2JsZW0gaXMgdGhh
-dCBJIGNhbid0IHNlZSBob3cgeW91IGNhbiBkbyBpdCB3aXRob3V0IGludHJvZHVjaW5nIGEgbGFy
-Z2UgYW1vdW50IG9mIGxvY2tpbmcgaW50byB0aGUgZmlvJ3MgSS9PIHBhdGguIEkgdGhpbmsgdGhp
-cyB3b3VsZCBhbHNvIGJvcmRlciBvbiBhIGZlYXR1cmUgdGhhdCBkaXNrc3BkIGhhcyB3aGVyZSBt
-dWx0aXBsZSB0aHJlYWRzIGNhbiBkbyBJL08gdG8gYSBzaW5nbGUgZmlsZSBidXQgdGhleSBhbGwg
-c2hhcmUgYSByYW5kb21tYXAuLi4NCg0KLS0NClNpdHNvZmUgfCBodHRwOi8vc3Vjcy5vcmcvfnNp
-dHMvDQo=
+Hi,
+
+On 6 July 2018 at 23:14, Jeff Furlong <jeff.furlong@wdc.com> wrote:
+> Hi All,
+> Back in commit 997b5680d139ce82c2034ba3a0d602cfd778b89b "fio: add serialize_overlap option" the feature was added to prevent write/trim race conditions within the queue.  Can this feature be applied to multiple jobs?  Consider:
+>
+> fio --ioengine=libaio --direct=1  --filename=/dev/nvme0n1 --time_based --name=test1 --rw=randwrite --runtime=5s --name=test2 --rw=randwrite --runtime=5s --serialize_overlap=1
+>
+> Would we have to call in_flight_overlap() in a loop with all thread data pointers?
+
+It would be a be more work (the original serialize_overlap was fiddly
+to make correct but was easy to get going) but I can see why you might
+want what you describe. The big problem is that I can't see how you
+can do it without introducing a large amount of locking into the fio's
+I/O path. I think this would also border on a feature that diskspd has
+where multiple threads can do I/O to a single file but they all share
+a randommap...
+
+-- 
+Sitsofe | http://sucs.org/~sits/
