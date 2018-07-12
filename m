@@ -1,8 +1,5 @@
-Return-Path: <elliott@hpe.com>
-From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Subject: RE: fio max blocksize
-Date: Fri, 13 Jul 2018 00:07:55 +0000
-Message-ID: <AT5PR8401MB11693CAB8B003A65F407BDF1AB580@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: fio max blocksize
 References: <MWHPR04MB032082F03EB254879C04F26B8F470@MWHPR04MB0320.namprd04.prod.outlook.com>
  <15f67a56-7f53-cfca-f4e6-289e1d6c2b14@kernel.dk>
  <MWHPR04MB0320E4A6307D8C818D3666418F590@MWHPR04MB0320.namprd04.prod.outlook.com>
@@ -10,35 +7,33 @@ References: <MWHPR04MB032082F03EB254879C04F26B8F470@MWHPR04MB0320.namprd04.prod.
  <MWHPR04MB032079BDBD1D6341D9B1D77A8F590@MWHPR04MB0320.namprd04.prod.outlook.com>
  <e0d997fd-0ee3-2157-1dac-4f0c4c0dfcda@kernel.dk>
  <MWHPR04MB0320A295A6828D92707C552D8F590@MWHPR04MB0320.namprd04.prod.outlook.com>
-In-Reply-To: <MWHPR04MB0320A295A6828D92707C552D8F590@MWHPR04MB0320.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+ <c36b2cb1-5af7-5171-3f84-6279b216b1d6@kernel.dk>
+ <MWHPR04MB03209A6E1D7B2CB3319CFE028F590@MWHPR04MB0320.namprd04.prod.outlook.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <8c29ce9b-372d-d9f8-c836-b2e467d97a97@kernel.dk>
+Date: Thu, 12 Jul 2018 16:49:01 -0600
 MIME-Version: 1.0
-To: 'Jeff Furlong' <jeff.furlong@wdc.com>, Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <MWHPR04MB03209A6E1D7B2CB3319CFE028F590@MWHPR04MB0320.namprd04.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Jeff Furlong <jeff.furlong@wdc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
-a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBP
-ZiBKZWZmIEZ1cmxvbmcNCj4gU2VudDogVGh1cnNkYXksIEp1bHkgMTIsIDIwMTggNToxNCBQTQ0K
-PiBUbzogSmVucyBBeGJvZSA8YXhib2VAa2VybmVsLmRrPjsgZmlvQHZnZXIua2VybmVsLm9yZw0K
-PiBTdWJqZWN0OiBSRTogZmlvIG1heCBibG9ja3NpemUNCi4uLg0KPiBkaWZmIC0tZ2l0IGEvY2Nv
-bnYuYyBiL2Njb252LmMNCj4gaW5kZXggYmZkNjk5ZC4uOTE4MGJhYyAxMDA2NDQNCj4gLS0tIGEv
-Y2NvbnYuYw0KPiArKysgYi9jY29udi5jDQo+IEBAIC0xMTAsMTYgKzExMCwxNiBAQCB2b2lkIGNv
-bnZlcnRfdGhyZWFkX29wdGlvbnNfdG9fY3B1KHN0cnVjdCB0aHJlYWRfb3B0aW9ucyAqbywNCj4g
-IAlvLT5zdGFydF9vZmZzZXRfcGVyY2VudCA9IGxlMzJfdG9fY3B1KHRvcC0+c3RhcnRfb2Zmc2V0
-X3BlcmNlbnQpOw0KPiANCj4gIAlmb3IgKGkgPSAwOyBpIDwgRERJUl9SV0RJUl9DTlQ7IGkrKykg
-ew0KPiAtCQlvLT5ic1tpXSA9IGxlMzJfdG9fY3B1KHRvcC0+YnNbaV0pOw0KPiAtCQlvLT5iYVtp
-XSA9IGxlMzJfdG9fY3B1KHRvcC0+YmFbaV0pOw0KPiAtCQlvLT5taW5fYnNbaV0gPSBsZTMyX3Rv
-X2NwdSh0b3AtPm1pbl9ic1tpXSk7DQo+IC0JCW8tPm1heF9ic1tpXSA9IGxlMzJfdG9fY3B1KHRv
-cC0+bWF4X2JzW2ldKTsNCj4gKwkJby0+YnNbaV0gPSBsZTY0X3RvX2NwdSh0b3AtPmJzW2ldKTsN
-Cj4gKwkJby0+YmFbaV0gPSBsZTY0X3RvX2NwdSh0b3AtPmJhW2ldKTsNCj4gKwkJby0+bWluX2Jz
-W2ldID0gbGU2NF90b19jcHUodG9wLT5taW5fYnNbaV0pOw0KPiArCQlvLT5tYXhfYnNbaV0gPSBs
-ZTY0X3RvX2NwdSh0b3AtPm1heF9ic1tpXSk7DQo+ICAJCW8tPmJzc3BsaXRfbnJbaV0gPSBsZTMy
-X3RvX2NwdSh0b3AtPmJzc3BsaXRfbnJbaV0pOw0KDQpUaGF0IGltcGxpZXMgYW4gaW50ZXJvcGVy
-YWJpbGl0eSBpc3N1ZSBpbiBjbGllbnQvc2VydmVyIG1vZGUgLSBhIG5ldyBjbGllbnQgY291bGQN
-CmdlbmVyYXRlIHZhbHVlcyB0aGF0IGFuIG9sZCBzZXJ2ZXIgY291bGRuJ3QgcGFyc2UuICBVcGRh
-dGUgRklPX1NFUlZFUl9WRVIgdG8NCnJlcXVpcmUgdGhlbSB0byBiZSBjb21wYXRpYmxlIHZlcnNp
-b25zLg0KDQoNCi0tLQ0KUm9iZXJ0IEVsbGlvdHQsIEhQRSBQZXJzaXN0ZW50IE1lbW9yeQ0KDQoN
-Cg0K
+On 7/12/18 4:47 PM, Jeff Furlong wrote:
+>> The above will overwrite nearby members.
+> Was thinking the member was allocated as 64 bits but may only use 32
+> bits, but agreed that's not true for other options that use
+> FIO_OPT_INT (e.g. nr_files).  How about just breaking the ULL if/else
+> out separately:
+
+That is much better, that'll work fine.
+
+BTW, not on when you do a more final version, be wary of tabs and
+spaces. You seem to mix and match a bit. It's always tabs.
+
+-- 
+Jens Axboe
+
 
