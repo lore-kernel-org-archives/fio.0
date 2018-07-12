@@ -1,5 +1,8 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: fio max blocksize
+Return-Path: <prvs=724495f73=jeff.furlong@wdc.com>
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: fio max blocksize
+Date: Thu, 12 Jul 2018 22:47:31 +0000
+Message-ID: <MWHPR04MB03209A6E1D7B2CB3319CFE028F590@MWHPR04MB0320.namprd04.prod.outlook.com>
 References: <MWHPR04MB032082F03EB254879C04F26B8F470@MWHPR04MB0320.namprd04.prod.outlook.com>
  <15f67a56-7f53-cfca-f4e6-289e1d6c2b14@kernel.dk>
  <MWHPR04MB0320E4A6307D8C818D3666418F590@MWHPR04MB0320.namprd04.prod.outlook.com>
@@ -8,32 +11,60 @@ References: <MWHPR04MB032082F03EB254879C04F26B8F470@MWHPR04MB0320.namprd04.prod.
  <e0d997fd-0ee3-2157-1dac-4f0c4c0dfcda@kernel.dk>
  <MWHPR04MB0320A295A6828D92707C552D8F590@MWHPR04MB0320.namprd04.prod.outlook.com>
  <c36b2cb1-5af7-5171-3f84-6279b216b1d6@kernel.dk>
- <MWHPR04MB03209A6E1D7B2CB3319CFE028F590@MWHPR04MB0320.namprd04.prod.outlook.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <8c29ce9b-372d-d9f8-c836-b2e467d97a97@kernel.dk>
-Date: Thu, 12 Jul 2018 16:49:01 -0600
-MIME-Version: 1.0
-In-Reply-To: <MWHPR04MB03209A6E1D7B2CB3319CFE028F590@MWHPR04MB0320.namprd04.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <c36b2cb1-5af7-5171-3f84-6279b216b1d6@kernel.dk>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Jeff Furlong <jeff.furlong@wdc.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 7/12/18 4:47 PM, Jeff Furlong wrote:
->> The above will overwrite nearby members.
-> Was thinking the member was allocated as 64 bits but may only use 32
-> bits, but agreed that's not true for other options that use
-> FIO_OPT_INT (e.g. nr_files).  How about just breaking the ULL if/else
-> out separately:
-
-That is much better, that'll work fine.
-
-BTW, not on when you do a more final version, be wary of tabs and
-spaces. You seem to mix and match a bit. It's always tabs.
-
--- 
-Jens Axboe
-
+PiBUaGUgYWJvdmUgd2lsbCBvdmVyd3JpdGUgbmVhcmJ5IG1lbWJlcnMuDQpXYXMgdGhpbmtpbmcg
+dGhlIG1lbWJlciB3YXMgYWxsb2NhdGVkIGFzIDY0IGJpdHMgYnV0IG1heSBvbmx5IHVzZSAzMiBi
+aXRzLCBidXQgYWdyZWVkIHRoYXQncyBub3QgdHJ1ZSBmb3Igb3RoZXIgb3B0aW9ucyB0aGF0IHVz
+ZSBGSU9fT1BUX0lOVCAoZS5nLiBucl9maWxlcykuICBIb3cgYWJvdXQganVzdCBicmVha2luZyB0
+aGUgVUxMIGlmL2Vsc2Ugb3V0IHNlcGFyYXRlbHk6DQoNCmRpZmYgLS1naXQgYS9wYXJzZS5jIGIv
+cGFyc2UuYw0KaW5kZXggNjI2MWZjYS4uMzVlYzM2MiAxMDA2NDQNCi0tLSBhL3BhcnNlLmMNCisr
+KyBiL3BhcnNlLmMNCkBAIC0zMiw2ICszMiw3IEBAIHN0YXRpYyBjb25zdCBjaGFyICpvcHRfdHlw
+ZV9uYW1lc1tdID0gew0KIAkiT1BUX1NUUl9TVE9SRSIsDQogCSJPUFRfUkFOR0UiLA0KIAkiT1BU
+X0lOVCIsDQorICAgICJPUFRfVUxMIiwNCiAJIk9QVF9CT09MIiwNCiAJIk9QVF9GTE9BVF9MSVNU
+IiwNCiAJIk9QVF9TVFJfU0VUIiwNCkBAIC01NTQsNiArNTU1LDcgQEAgc3RhdGljIGludCBfX2hh
+bmRsZV9vcHRpb24oY29uc3Qgc3RydWN0IGZpb19vcHRpb24gKm8sIGNvbnN0IGNoYXIgKnB0ciwN
+CiAJfQ0KIAljYXNlIEZJT19PUFRfU1RSX1ZBTF9USU1FOg0KIAkJaXNfdGltZSA9IDE7DQorICAg
+IGNhc2UgRklPX09QVF9VTEw6DQogCWNhc2UgRklPX09QVF9JTlQ6DQogCWNhc2UgRklPX09QVF9T
+VFJfVkFMOiB7DQogCQlmaW9fb3B0X3N0cl92YWxfZm4gKmZuID0gby0+Y2I7DQpAQCAtNTg0LDcg
+KzU4Niw3IEBAIHN0YXRpYyBpbnQgX19oYW5kbGVfb3B0aW9uKGNvbnN0IHN0cnVjdCBmaW9fb3B0
+aW9uICpvLCBjb25zdCBjaGFyICpwdHIsDQogDQogCQlpZiAoby0+bWF4dmFsICYmIHVsbCA+IG8t
+Pm1heHZhbCkgew0KIAkJCWxvZ19lcnIoIm1heCB2YWx1ZSBvdXQgb2YgcmFuZ2U6ICVsbHUiDQot
+CQkJCQkiICgldSBtYXgpXG4iLCB1bGwsIG8tPm1heHZhbCk7DQorCQkJCQkiICglbGx1IG1heClc
+biIsIHVsbCwgby0+bWF4dmFsKTsNCiAJCQlyZXR1cm4gMTsNCiAJCX0NCiAJCWlmIChvLT5taW52
+YWwgJiYgdWxsIDwgby0+bWludmFsKSB7DQpAQCAtNjM2LDYgKzYzOCwyOCBAQCBzdGF0aWMgaW50
+IF9faGFuZGxlX29wdGlvbihjb25zdCBzdHJ1Y3QgZmlvX29wdGlvbiAqbywgY29uc3QgY2hhciAq
+cHRyLA0KIAkJCQkJCQl2YWxfc3RvcmUoaWxwLCB1bGwsIG8tPm9mZjMsIDAsIGRhdGEsIG8pOw0K
+IAkJCQkJfQ0KIAkJCQl9DQorICAgICAgICAgICAgfQ0KKyAgICAgICAgICAgIGVsc2UgaWYgKG8t
+PnR5cGUgPT0gRklPX09QVF9VTEwpIHsNCisJCQkJaWYgKGZpcnN0KQ0KKwkJCQkJdmFsX3N0b3Jl
+KHVsbHAsIHVsbCwgby0+b2ZmMSwgMCwgZGF0YSwgbyk7DQorCQkJCWlmIChjdXJyID09IDEpIHsN
+CisJCQkJCWlmIChvLT5vZmYyKQ0KKwkJCQkJCXZhbF9zdG9yZSh1bGxwLCB1bGwsIG8tPm9mZjIs
+IDAsIGRhdGEsIG8pOw0KKwkJCQl9DQorCQkJCWlmIChjdXJyID09IDIpIHsNCisJCQkJCWlmIChv
+LT5vZmYzKQ0KKwkJCQkJCXZhbF9zdG9yZSh1bGxwLCB1bGwsIG8tPm9mZjMsIDAsIGRhdGEsIG8p
+Ow0KKwkJCQl9DQorCQkJCWlmICghbW9yZSkgew0KKwkJCQkJaWYgKGN1cnIgPCAxKSB7DQorCQkJ
+CQkJaWYgKG8tPm9mZjIpDQorCQkJCQkJCXZhbF9zdG9yZSh1bGxwLCB1bGwsIG8tPm9mZjIsIDAs
+IGRhdGEsIG8pOw0KKwkJCQkJfQ0KKwkJCQkJaWYgKGN1cnIgPCAyKSB7DQorCQkJCQkJaWYgKG8t
+Pm9mZjMpDQorCQkJCQkJCXZhbF9zdG9yZSh1bGxwLCB1bGwsIG8tPm9mZjMsIDAsIGRhdGEsIG8p
+Ow0KKwkJCQkJfQ0KKwkJCQl9DQogCQkJfSBlbHNlIHsNCiAJCQkJaWYgKGZpcnN0KQ0KIAkJCQkJ
+dmFsX3N0b3JlKHVsbHAsIHVsbCwgby0+b2ZmMSwgMCwgZGF0YSwgbyk7DQpAQCAtODUxLDcgKzg3
+NSw3IEBAIHN0YXRpYyBpbnQgX19oYW5kbGVfb3B0aW9uKGNvbnN0IHN0cnVjdCBmaW9fb3B0aW9u
+ICpvLCBjb25zdCBjaGFyICpwdHIsDQogCQkJYnJlYWs7DQogDQogCQlpZiAoby0+bWF4dmFsICYm
+IGlsID4gKGludCkgby0+bWF4dmFsKSB7DQotCQkJbG9nX2VycigibWF4IHZhbHVlIG91dCBvZiBy
+YW5nZTogJWQgKCVkIG1heClcbiIsDQorCQkJbG9nX2VycigibWF4IHZhbHVlIG91dCBvZiByYW5n
+ZTogJWQgKCVsbHUgbWF4KVxuIiwNCiAJCQkJCQkJCWlsLCBvLT5tYXh2YWwpOw0KIAkJCXJldHVy
+biAxOw0KIAkJfQ0KQEAgLTEzMjUsNiArMTM0OSwxMCBAQCBzdGF0aWMgdm9pZCBvcHRpb25faW5p
+dChzdHJ1Y3QgZmlvX29wdGlvbiAqbykNCiAJCWlmICghby0+bWF4dmFsKQ0KIAkJCW8tPm1heHZh
+bCA9IFVJTlRfTUFYOw0KIAl9DQorICAgIGlmIChvLT50eXBlID09IEZJT19PUFRfVUxMKSB7DQor
+CQlpZiAoIW8tPm1heHZhbCkNCisJCQlvLT5tYXh2YWwgPSBVTExPTkdfTUFYOw0KKwl9DQogCWlm
+IChvLT50eXBlID09IEZJT19PUFRfU1RSX1NFVCAmJiBvLT5kZWYgJiYgIW8tPm5vX3dhcm5fZGVm
+KSB7DQogCQlsb2dfZXJyKCJPcHRpb24gJXM6IHN0cmluZyBzZXQgb3B0aW9uIHdpdGgiDQogCQkJ
+CSIgZGVmYXVsdCB3aWxsIGFsd2F5cyBiZSB0cnVlXG4iLCBvLT5uYW1lKTsNCg0KDQpSZWdhcmRz
+LA0KSmVmZg0KDQoNCg==
 
