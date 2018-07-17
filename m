@@ -1,42 +1,31 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from smtp2.provo.novell.com ([137.65.250.81]:42483 "EHLO
-        smtp2.provo.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752566AbeGBT0X (ORCPT
-        <rfc822;groupwise-fio@vger.kernel.org:0:0>);
-        Mon, 2 Jul 2018 15:26:23 -0400
-Message-ID: <c799b578ed44ed560c36ec7ef1a93b8076e6cc64.camel@suse.com>
-Subject: Assertion `t->bytes' failed in blktrace replay
-From: Martin Wilck <mwilck@suse.com>
-Date: Mon, 02 Jul 2018 21:26:15 +0200
-Content-Type: text/plain; charset="utf-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mail-ua0-f173.google.com ([209.85.217.173]:37657 "EHLO
+        mail-ua0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729704AbeGQTuF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 17 Jul 2018 15:50:05 -0400
+Received: by mail-ua0-f173.google.com with SMTP id y10-v6so1391292uao.4
+        for <fio@vger.kernel.org>; Tue, 17 Jul 2018 12:16:03 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <3e2d2b0388c994116ee7c8785fa96e8855d7b679.camel@suse.com>
+References: <3e2d2b0388c994116ee7c8785fa96e8855d7b679.camel@suse.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Tue, 17 Jul 2018 20:15:32 +0100
+Message-ID: <CALjAwxgHzS6KdZhaT2UE=b2UaNcKOuCHEaZnK2SzfU9PimbCCg@mail.gmail.com>
+Subject: Re: fio, vsync and iovcnt
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Martin Wilck <mwilck@suse.com>
+Cc: fio <fio@vger.kernel.org>
 
-While trying to replay a blktrace file with fio 3.7, I got the
-following error:
+On 17 July 2018 at 17:34, Martin Wilck <mwilck@suse.com> wrote:
+> I hope this question isn't too stupid - how do I make fio use iovcnt >
+> 1 with readv() / writev() ? No matter what I tried so far, it seems to
+> be using a single iovec entry only.
 
-io: blktrace.c:326: handle_trace_fs: Assertion `t->bytes' failed.
-fio: pid=7353, got signal=6
-
-After reverting c1f22c2 "blktrace: kill zero sized write test",
-I could replay the file, which was generated with blkparse from
-blktrace 1.1.0.
-
-The way I read the commit message of c1f22c2, it means that fio can't
-deal with 0-byte writes. But they do occur in the trace in question.
-AFAICS it's true that they're flushes but how else would I get rid of
-them?
-
-Does fio require blktrace files with a certain version?
-
-Thanks,
-Martin
+Do the iodepth_batch_* options over on
+http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-terse-version
+help?
 
 -- 
-Dr. Martin Wilck <mwilck@suse.com>, Tel. +49 (0)911 74053 2107
-SUSE Linux GmbH, GF: Felix Imendörffer, Jane Smithard, Graham Norton
-HRB 21284 (AG Nürnberg)
-
+Sitsofe | http://sucs.org/~sits/
