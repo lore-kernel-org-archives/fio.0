@@ -1,82 +1,101 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH] idle-prof: append output cpu idleness data to terse log
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-bl2nam02on0108.outbound.protection.outlook.com ([104.47.38.108]:34079
+        "EHLO NAM02-BL2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1730433AbeGSLuD (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 19 Jul 2018 07:50:03 -0400
+From: <Friendy.Su@sony.com>
+Subject: RE: [PATCH] idle-prof: append output cpu idleness data to terse log
+Date: Thu, 19 Jul 2018 11:07:12 +0000
+Message-ID: <925A83423110DA4D836092D40AC7A7E8084E3AAD@APYOKXMS108.ap.sony.com>
 References: <925A83423110DA4D836092D40AC7A7E8084E0DEE@APYOKXMS108.ap.sony.com>
  <AT5PR8401MB116995DF0FE7729E290EEAB5AB5C0@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
  <CAB-428=sjscbp4UoagO41K102Ba=Ng5uoXhVgCO4Uix4+zEg_g@mail.gmail.com>
  <CALjAwxgEqChgK++6YHxg7gCyGxT4=dCAy7cZNqOgHhC==cHuQA@mail.gmail.com>
  <CAB-428m9DFwvCUu6VOpF-mQkYxFWeb5VM-s4HcQC_F+DGw1xgg@mail.gmail.com>
- <AT5PR8401MB1169740953CAF420D64D20DCAB530@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <183ae5ea-594e-5197-d54a-3a8955e6b5f1@kernel.dk>
-Date: Tue, 24 Jul 2018 09:40:33 -0600
+In-Reply-To: <CAB-428m9DFwvCUu6VOpF-mQkYxFWeb5VM-s4HcQC_F+DGw1xgg@mail.gmail.com>
+Content-Language: zh-CN
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <AT5PR8401MB1169740953CAF420D64D20DCAB530@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>, Alireza Haghdoost <haghdoost@gmail.com>, Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: "Friendy.Su@sony.com" <Friendy.Su@sony.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, "No.Tanaka@sony.com" <No.Tanaka@sony.com>, "Hajime.Tomura@sony.com" <Hajime.Tomura@sony.com>
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: haghdoost@gmail.com, sitsofe@gmail.com
+Cc: elliott@hpe.com, fio@vger.kernel.org, No.Tanaka@sony.com, Hajime.Tomura@sony.com
 
-On 7/17/18 9:18 PM, Elliott, Robert (Persistent Memory) wrote:
-> 
-> 
->> -----Original Message-----
->> From: Alireza Haghdoost <haghdoost@gmail.com>
->> Sent: Tuesday, July 17, 2018 2:25 PM
->> To: Sitsofe Wheeler <sitsofe@gmail.com>
->> Cc: Elliott, Robert (Persistent Memory) <elliott@hpe.com>;
->> Friendy.Su@sony.com; fio@vger.kernel.org; No.Tanaka@sony.com;
->> Hajime.Tomura@sony.com
->> Subject: Re: [PATCH] idle-prof: append output cpu idleness data to
->> terse log
->>
->> On Tue, Jul 17, 2018 at 2:13 PM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
->>>
->>> On 17 July 2018 at 15:30, Alireza Haghdoost <haghdoost@gmail.com> wrote:
->>>> On Tue, Jul 17, 2018 at 9:18 AM, Elliott, Robert (Persistent Memory) ...
->>>>> Since the terse format is not self-describing, new fields require
->>>>> a version bump (see -terse-version).
->>>>>
->>>>> Maybe one of the versions should print out the field names as the first
->>>>> line, so it becomes self-describing.  I guess the json format already
->>>>> provides that functionality, so it might not be necessary.
->>>>>
->>>> How about adding an extra command option like --terse-header that
->>>> prints out the header only? It is hard to keep track of these version
->>>> changes in one place at the user manual or some blog post.
->>>> with a terse header command option, I can ignore the terse version and
->>>> adjust my test scripts to query the header first before running the
->>>> test, then pull the right column after the test finishes.
->>>
->>> You would then need to document all the terse formats because you
->>> never know which one someone will use (it looks like there are four:
->>> http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-terse-version
->>> ). At this stage shouldn't we be nudging people towards JSON which is
->>> more self describing and easier to extend in a backwards compatible
->>> manner?
->>
->> I am on board with your suggestion but not every user might have a
->> time/resource to re-implement their existing test script to work with
->> json. We should stop adding more versions of the terse. Otherwise, If
->> we want to continue supporting the terse format, I recommend to
->> figure out a programmatic way to handle its complexity.
-> 
-> How about defining that the next terse version always includes
-> a header line, so it'll be self-describing and can be the final
-> terse version.
-
-I like that idea. We already have a version at the front, proper scripts
-should be checking that, and we can further make it safer by adding
-new fields at the end.
-
-Honestly, I really dislike the terse format. But it's there and some
-people like to use it, and it's a shame if we can add new additions. It's
-already trailing the json/normal output in various cases, for instance
-it doesn't include fsync output (and I'm sure others). If at all possible,
-I always push people towards json instead of the nasty terse output.
-
--- 
-Jens Axboe
-
-
+SW4gcHJhY3RpY2UsIHRlcnNlIG91dHB1dCB3aXRob3V0IHNlbGYtaGVhZGVyIG1ha2VzIGl0IHRy
+b3VibGUgZm9yIGEgcGFyc2luZyBzY3JpcHQuIE5vdCBvbmx5IHRlcnNlIHZlcnNpb24sIGJ1dCBh
+bHNvIHZhcmlhYmxlIGZpZWxkIGNvdW50LiBTb21lIGZpZWxkcyBleGlzdGluZyBvciBub3QgZGVw
+ZW5kcyBvbiBvcHRpb25zIGluIGpvYiBmaWxlIG9yIGlvZW5naW5lJ3MgY29uZmlndXJhdGlvbiwg
+ZS5nIGRpc2sgdXRpbGl6YXRpb24gZGF0YS4gU2VsZi1oZWFkZXIgYSB2YXJpYWJsZSBsZW5ndGgg
+dGVyc2UgbG9va3Mgbm90IHNvIGVhc3kuDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0N
+Cj4gRnJvbTogQWxpcmV6YSBIYWdoZG9vc3QgW21haWx0bzpoYWdoZG9vc3RAZ21haWwuY29tXQ0K
+PiBTZW50OiBXZWRuZXNkYXksIEp1bHkgMTgsIDIwMTggMzoyNSBBTQ0KPiBUbzogU2l0c29mZSBX
+aGVlbGVyDQo+IENjOiBFbGxpb3R0LCBSb2JlcnQgKFBlcnNpc3RlbnQgTWVtb3J5KTsgU3UsIEZy
+aWVuZHk7IGZpb0B2Z2VyLmtlcm5lbC5vcmc7IFRhbmFrYSwNCj4gTm9idXl1a2kgKFNvbnkpOyBU
+b211cmEsIEhhamltZSAoU29ueSkNCj4gU3ViamVjdDogUmU6IFtQQVRDSF0gaWRsZS1wcm9mOiBh
+cHBlbmQgb3V0cHV0IGNwdSBpZGxlbmVzcyBkYXRhIHRvIHRlcnNlIGxvZw0KPg0KPiBPbiBUdWUs
+IEp1bCAxNywgMjAxOCBhdCAyOjEzIFBNLCBTaXRzb2ZlIFdoZWVsZXIgPHNpdHNvZmVAZ21haWwu
+Y29tPiB3cm90ZToNCj4gPg0KPiA+IE9uIDE3IEp1bHkgMjAxOCBhdCAxNTozMCwgQWxpcmV6YSBI
+YWdoZG9vc3QgPGhhZ2hkb29zdEBnbWFpbC5jb20+IHdyb3RlOg0KPiA+ID4gT24gVHVlLCBKdWwg
+MTcsIDIwMTggYXQgOToxOCBBTSwgRWxsaW90dCwgUm9iZXJ0IChQZXJzaXN0ZW50IE1lbW9yeSkN
+Cj4gPiA+IDxlbGxpb3R0QGhwZS5jb20+IHdyb3RlOg0KPiA+ID4+DQo+ID4gPj4NCj4gPiA+Pj4g
+LS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gPiA+Pj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
+a2VybmVsLm9yZyA8ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZz4gT24NCj4gQmVoYWxmDQo+ID4g
+Pj4+IE9mIEZyaWVuZHkuU3VAc29ueS5jb20NCj4gPiA+Pj4gU2VudDogVHVlc2RheSwgSnVseSAx
+NywgMjAxOCAyOjQ2IEFNDQo+ID4gPj4+IFRvOiBmaW9Admdlci5rZXJuZWwub3JnDQo+ID4gPj4+
+IENjOiBOby5UYW5ha2FAc29ueS5jb207IEhhamltZS5Ub211cmFAc29ueS5jb207DQo+IEZyaWVu
+ZHkuU3VAc29ueS5jb20NCj4gPiA+Pj4gU3ViamVjdDogW1BBVENIXSBpZGxlLXByb2Y6IGFwcGVu
+ZCBvdXRwdXQgY3B1IGlkbGVuZXNzIGRhdGEgdG8gdGVyc2UNCj4gPiA+Pj4gbG9nDQo+ID4gPj4+
+DQo+ID4gPj4+IGNwdSBpZGxlbmVzcyBkYXRhIG9ubHkgb3V0cHV0IHRvIG5vcm1hbCBhbmQganNv
+biBsb2csDQo+ID4gPj4+IGFsc28gb3V0cHV0IHRvIHRlcnNlIGxvZy4NCj4gPiA+Pj4NCj4gPiA+
+Pj4gU2lnbmVkLW9mZi1ieTogZnJpZW5keS1zdSA8ZnJpZW5keS5zdUBzb255LmNvbT4NCj4gPiA+
+Pj4gLS0tDQo+ID4gPj4+ICBIT1dUTyAgICAgIHwgIDQgKysrLQ0KPiA+ID4+PiAgaWRsZXRpbWUu
+YyB8IDE5ICsrKysrKysrKysrKysrKysrKysNCj4gPiA+Pj4gIHN0YXQuYyAgICAgfCAgMiArKw0K
+PiA+ID4+PiAgMyBmaWxlcyBjaGFuZ2VkLCAyNCBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0p
+DQo+ID4gPj4+DQo+ID4gPj4+IGRpZmYgLS1naXQgYS9IT1dUTyBiL0hPV1RPDQo+ID4gPj4+IGlu
+ZGV4IDcwZWVkMjgwLi40OTdlOGNiMSAxMDA2NDQNCj4gPiA+Pj4gLS0tIGEvSE9XVE8NCj4gPiA+
+Pj4gKysrIGIvSE9XVE8NCj4gPiA+Pj4gQEAgLTM1NjQsOCArMzU2NCwxMCBAQCB3aWxsIGJlIGEg
+ZGlzayB1dGlsaXphdGlvbiBzZWN0aW9uLg0KPiA+ID4+PiAgQmVsb3cgaXMgYSBzaW5nbGUgbGlu
+ZSBjb250YWluaW5nIHNob3J0IG5hbWVzIGZvciBlYWNoIG9mIHRoZSBmaWVsZHMNCj4gPiA+Pj4g
+aW4gdGhlDQo+ID4gPj4+ICBtaW5pbWFsIG91dHB1dCB2Mywgc2VwYXJhdGVkIGJ5IHNlbWljb2xv
+bnM6Og0KPiA+ID4+Pg0KPiA+ID4+PiAtDQo+ID4gPj4+IHRlcnNlX3ZlcnNpb25fMztmaW9fdmVy
+c2lvbjtqb2JuYW1lO2dyb3VwaWQ7ZXJyb3I7cmVhZF9rYjtyZWFkX2JhbmR3aQ0KPiA+ID4+IC4u
+Lg0KPiA+ID4+PiArDQo+ID4gPj4+IHRlcnNlX3ZlcnNpb25fMztmaW9fdmVyc2lvbjtqb2JuYW1l
+O2dyb3VwaWQ7ZXJyb3I7cmVhZF9rYjtyZWFkX2JhbmR3aQ0KPiA+ID4+IC4uLg0KPiA+ID4+DQo+
+ID4gPj4gU2luY2UgdGhlIHRlcnNlIGZvcm1hdCBpcyBub3Qgc2VsZi1kZXNjcmliaW5nLCBuZXcg
+ZmllbGRzIHJlcXVpcmUNCj4gPiA+PiBhIHZlcnNpb24gYnVtcCAoc2VlIC10ZXJzZS12ZXJzaW9u
+KS4NCj4gPiA+Pg0KPiA+ID4+IE1heWJlIG9uZSBvZiB0aGUgdmVyc2lvbnMgc2hvdWxkIHByaW50
+IG91dCB0aGUgZmllbGQgbmFtZXMgYXMgdGhlIGZpcnN0DQo+ID4gPj4gbGluZSwgc28gaXQgYmVj
+b21lcyBzZWxmLWRlc2NyaWJpbmcuICBJIGd1ZXNzIHRoZSBqc29uIGZvcm1hdCBhbHJlYWR5DQo+
+ID4gPj4gcHJvdmlkZXMgdGhhdCBmdW5jdGlvbmFsaXR5LCBzbyBpdCBtaWdodCBub3QgYmUgbmVj
+ZXNzYXJ5Lg0KPiA+ID4+DQo+ID4gPiBIb3cgYWJvdXQgYWRkaW5nIGFuIGV4dHJhIGNvbW1hbmQg
+b3B0aW9uIGxpa2UgLS10ZXJzZS1oZWFkZXIgdGhhdA0KPiA+ID4gcHJpbnRzIG91dCB0aGUgaGVh
+ZGVyIG9ubHk/IEl0IGlzIGhhcmQgdG8ga2VlcCB0cmFjayBvZiB0aGVzZSB2ZXJzaW9uDQo+ID4g
+PiBjaGFuZ2VzIGluIG9uZSBwbGFjZSBhdCB0aGUgdXNlciBtYW51YWwgb3Igc29tZSBibG9nIHBv
+c3QuDQo+ID4gPiB3aXRoIGEgdGVyc2UgaGVhZGVyIGNvbW1hbmQgb3B0aW9uLCBJIGNhbiBpZ25v
+cmUgdGhlIHRlcnNlIHZlcnNpb24gYW5kDQo+ID4gPiBhZGp1c3QgbXkgdGVzdCBzY3JpcHRzIHRv
+IHF1ZXJ5IHRoZSBoZWFkZXIgZmlyc3QgYmVmb3JlIHJ1bm5pbmcgdGhlDQo+ID4gPiB0ZXN0LCB0
+aGVuIHB1bGwgdGhlIHJpZ2h0IGNvbHVtbiBhZnRlciB0aGUgdGVzdCBmaW5pc2hlcy4NCj4gPg0K
+PiA+IFlvdSB3b3VsZCB0aGVuIG5lZWQgdG8gZG9jdW1lbnQgYWxsIHRoZSB0ZXJzZSBmb3JtYXRz
+IGJlY2F1c2UgeW91DQo+ID4gbmV2ZXIga25vdyB3aGljaCBvbmUgc29tZW9uZSB3aWxsIHVzZSAo
+aXQgbG9va3MgbGlrZSB0aGVyZSBhcmUgZm91cjoNCj4gPiBodHRwOi8vZmlvLnJlYWR0aGVkb2Nz
+LmlvL2VuL2xhdGVzdC9maW9fZG9jLmh0bWwjY21kb3B0aW9uLXRlcnNlLXZlcnNpb24NCj4gPiAp
+LiBBdCB0aGlzIHN0YWdlIHNob3VsZG4ndCB3ZSBiZSBudWRnaW5nIHBlb3BsZSB0b3dhcmRzIEpT
+T04gd2hpY2ggaXMNCj4gPiBtb3JlIHNlbGYgZGVzY3JpYmluZyBhbmQgZWFzaWVyIHRvIGV4dGVu
+ZCBpbiBhIGJhY2t3YXJkcyBjb21wYXRpYmxlDQo+ID4gbWFubmVyPw0KPg0KPiBJIGFtIG9uIGJv
+YXJkIHdpdGggeW91ciBzdWdnZXN0aW9uIGJ1dCBub3QgZXZlcnkgdXNlciBtaWdodCBoYXZlIGEN
+Cj4gdGltZS9yZXNvdXJjZSB0byByZS1pbXBsZW1lbnQgdGhlaXIgZXhpc3RpbmcgdGVzdCBzY3Jp
+cHQgdG8gd29yayB3aXRoDQo+IGpzb24uIFdlIHNob3VsZCBzdG9wIGFkZGluZyBtb3JlIHZlcnNp
+b25zIG9mIHRoZSB0ZXJzZS4gT3RoZXJ3aXNlLCBJZg0KPiB3ZSB3YW50IHRvIGNvbnRpbnVlIHN1
+cHBvcnRpbmcgdGhlIHRlcnNlIGZvcm1hdCwgSSByZWNvbW1lbmQgdG8gZmlndXJlDQo+IG91dCBh
+IHByb2dyYW1tYXRpYyB3YXkgdG8gaGFuZGxlIGl0cyBjb21wbGV4aXR5Lg0KDQpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXw0KDQpUaGlzIGVtYWlsIGlzIGNvbmZpZGVudGlhbCBhbmQg
+aW50ZW5kZWQgb25seSBmb3IgdGhlIHVzZSBvZiB0aGUgaW5kaXZpZHVhbCBvciBlbnRpdHkgbmFt
+ZWQgYWJvdmUgYW5kIG1heSBjb250YWluIGluZm9ybWF0aW9uIHRoYXQgaXMgcHJpdmlsZWdlZC4g
+SWYgeW91IGFyZSBub3QgdGhlIGludGVuZGVkIHJlY2lwaWVudCwgeW91IGFyZSBub3RpZmllZCB0
+aGF0IGFueSBkaXNzZW1pbmF0aW9uLCBkaXN0cmlidXRpb24gb3IgY29weWluZyBvZiB0aGlzIGVt
+YWlsIGlzIHN0cmljdGx5IHByb2hpYml0ZWQuIElmIHlvdSBoYXZlIHJlY2VpdmVkIHRoaXMgZW1h
+aWwgaW4gZXJyb3IsIHBsZWFzZSBub3RpZnkgdXMgaW1tZWRpYXRlbHkgYnkgcmV0dXJuIGVtYWls
+IG9yIHRlbGVwaG9uZSBhbmQgZGVzdHJveSB0aGUgb3JpZ2luYWwgbWVzc2FnZS4gLSBUaGlzIG1h
+aWwgaXMgc2VudCB2aWEgU29ueSBBc2lhIFBhY2lmaWMgTWFpbCBHYXRld2F5Li4NCg==
