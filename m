@@ -1,28 +1,37 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pl0-f41.google.com ([209.85.160.41]:42073 "EHLO
-        mail-pl0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727192AbeGPJdZ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 16 Jul 2018 05:33:25 -0400
-Received: by mail-pl0-f41.google.com with SMTP id f4-v6so10788426plb.9
-        for <fio@vger.kernel.org>; Mon, 16 Jul 2018 02:07:00 -0700 (PDT)
-Received: from Madaari.domain.name ([139.167.56.25])
-        by smtp.gmail.com with ESMTPSA id 5-v6sm67129661pgc.86.2018.07.16.02.06.57
-        for <fio@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 16 Jul 2018 02:06:58 -0700 (PDT)
-From: dev.madaari@gmail.com
-Subject: [PATCH] Fio's initial RTEMS port 
-Date: Mon, 16 Jul 2018 14:36:45 +0530
-Message-Id: <1531732006-11136-1-git-send-email-dev.madaari@gmail.com>
+Received: from mail-db5eur01on0046.outbound.protection.outlook.com ([104.47.2.46]:60480
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1732219AbeGTQjG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 20 Jul 2018 12:39:06 -0400
+Subject: Re: FIO mixed tests with different patters and block sizes
+References: <c574a91d-0d38-03d8-dc44-37f5662a6e52@cern.ch>
+ <MWHPR04MB03206430AD9D3A7258A28E758F530@MWHPR04MB0320.namprd04.prod.outlook.com>
+From: Adam Abed Abud <adam.abed.abud@cern.ch>
+Message-ID: <0667051b-3cd5-a3f7-6555-edd9b4eba055@cern.ch>
+Date: Fri, 20 Jul 2018 17:50:08 +0200
+MIME-Version: 1.0
+In-Reply-To: <MWHPR04MB03206430AD9D3A7258A28E758F530@MWHPR04MB0320.namprd04.prod.outlook.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Jeff Furlong <jeff.furlong@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Following IOengines are currently working on RTEMS:
- - psync, sync, vsync, filecreate, ftruncate, null
+Thank you it worked with both access patterns and blocksizes!
 
-I've attached the patch in my following mail, please have a look.
 
-Here's the corresponding ticket:https://devel.rtems.org/ticket/3429
-Please note that i have also sent the patch to devel@rtems.org, for their
-review of rtems-specific part. 
+On 18/07/18 19:44, Jeff Furlong wrote:
+>> I'm using FIO for testing some distributed file systems and I am interested in running a single test where I have a mix of both reading and writing. The problem is that I want to have different access patterns (e.g. sequential writing and random reading) and different block sizes. How can I run such a job?
+> I recently went through a similar exercise.  Several options allow for read/write/trim settings to be unique.  For example, consider setting the percentage_random to 100 for reads and 0 for writes:
+>
+> fio --name=rr_sw --ioengine=libaio --direct=1 --rw=randrw --norandommap --randrepeat=0 --filename=/dev/nvme0n1 --runtime=10s --time_based --percentage_random=100,0
+>
+> You can use the same concept for blocksize and invoke rwmixread to further control the amount of reads/writes.
+>
+> Regards,
+> Jeff
+>
+>
+
