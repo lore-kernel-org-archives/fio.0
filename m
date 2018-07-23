@@ -1,28 +1,32 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-eopbgr40048.outbound.protection.outlook.com ([40.107.4.48]:34064
-        "EHLO EUR03-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726427AbeGRIvo (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 18 Jul 2018 04:51:44 -0400
-From: Adam Abed Abud <adam.abed.abud@cern.ch>
-Subject: FIO mixed tests with different patters and block sizes
-Message-ID: <c574a91d-0d38-03d8-dc44-37f5662a6e52@cern.ch>
-Date: Wed, 18 Jul 2018 10:14:42 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Return-Path: <prvs=73546aba2=jeff.furlong@wdc.com>
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: fio max blocksize
+Date: Mon, 23 Jul 2018 16:33:06 +0000
+Message-ID: 
+ <MWHPR04MB03201A0AC758BE4AAA5BE6218F560@MWHPR04MB0320.namprd04.prod.outlook.com>
+References: 
+ <MWHPR04MB032082F03EB254879C04F26B8F470@MWHPR04MB0320.namprd04.prod.outlook.com>
+ <15f67a56-7f53-cfca-f4e6-289e1d6c2b14@kernel.dk>
+ <MWHPR04MB0320E4A6307D8C818D3666418F590@MWHPR04MB0320.namprd04.prod.outlook.com>
+ <4c57a31e-7955-d0b2-ed27-9d494f090651@kernel.dk>
+ <MWHPR04MB032079BDBD1D6341D9B1D77A8F590@MWHPR04MB0320.namprd04.prod.outlook.com>
+ <e0d997fd-0ee3-2157-1dac-4f0c4c0dfcda@kernel.dk>
+ <MWHPR04MB0320A295A6828D92707C552D8F590@MWHPR04MB0320.namprd04.prod.outlook.com>
+ <AT5PR8401MB11693CAB8B003A65F407BDF1AB580@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+ <MWHPR04MB0320F06DBEA0F11A75EEF1BE8F580@MWHPR04MB0320.namprd04.prod.outlook.com>
+ <MWHPR04MB0320FC699861B6963D67D54F8F580@MWHPR04MB0320.namprd04.prod.outlook.com>
+ <a1f8111f-5b0f-1f6f-cab8-c02a35e35d3a@kernel.dk>
+ <MWHPR04MB03200193A7DE2F49107615288F5C0@MWHPR04MB0320.namprd04.prod.outlook.com>
+ <6fae3201-41af-e59e-1f4b-72e17a39f6c2@kernel.dk>
+In-Reply-To: <6fae3201-41af-e59e-1f4b-72e17a39f6c2@kernel.dk>
 Content-Language: en-US
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Hello,
+PiBQbGVhc2UgdGVzdCBjdXJyZW50IC1naXQgYW5kIGVuc3VyZSB0aGF0IGl0IHdvcmtzIHByb3Bl
+cmx5IGZvciB5b3UuDQpSYW4gbGF0ZXN0IGdpdCAoZmlvLTMuOC01LWc0NjRiKSBhbmQgdGVzdHMg
+cGFzcy4gIFRoYW5rcy4NCg0KUmVnYXJkcywNCkplZmYNCg0KDQoNCg==
 
-I'm using FIO for testing some distributed file systems and I am 
-interested in running a single test where I have a mix of both reading 
-and writing. The problem is that I want to have different access 
-patterns (e.g. sequential writing and random reading) and different 
-block sizes. How can I run such a job?
-
-Thanks a lot,
-Adam
