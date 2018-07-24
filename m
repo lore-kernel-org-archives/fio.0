@@ -1,877 +1,291 @@
 Return-Path: <dev.madaari@gmail.com>
-Return-Path: <dev.madaari@gmail.com>
-From: dev.madaari@gmail.com
-Subject: [PATCH 1/1] Fio's initial RTEMS port
-Date: Mon, 30 Jul 2018 16:22:44 +0530
-Message-Id: <1532947964-16334-1-git-send-email-dev.madaari@gmail.com>
-In-Reply-To: <CAM0bxh82H10mFmsjBSfkbwMUv879z+ov04-6VUDenrPW64tRLg@mail.gmail.com>
-References: <CAM0bxh82H10mFmsjBSfkbwMUv879z+ov04-6VUDenrPW64tRLg@mail.gmail.com>
-To: fio@vger.kernel.org
-Cc: axboe@kernel.dk, Udit kumar agarwal <dev.madaari@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <246d6db1-ae2f-a4aa-9ca7-d305245b55dc@kernel.dk>
+References: <1531732006-11136-1-git-send-email-dev.madaari@gmail.com>
+ <1531732006-11136-2-git-send-email-dev.madaari@gmail.com> <246d6db1-ae2f-a4aa-9ca7-d305245b55dc@kernel.dk>
+From: Udit agarwal <dev.madaari@gmail.com>
+Date: Wed, 25 Jul 2018 00:02:16 +0530
+Message-ID: <CAM0bxh82H10mFmsjBSfkbwMUv879z+ov04-6VUDenrPW64tRLg@mail.gmail.com>
+Subject: Re: [PATCH] Fio's initial RTEMS port
+Content-Type: multipart/alternative; boundary="00000000000051e6830571c2fb5e"
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-From: Udit kumar agarwal <dev.madaari@gmail.com>
+--00000000000051e6830571c2fb5e
+Content-Type: text/plain; charset="UTF-8"
 
-- Add rtems-specific config files.
-- Constructors/Destructors being not supported by RTEMS, should be
-  invoked as normal routines.
-- Add documentation for RTEMS
-- Update Makefile, os.h for RTEMS
-- Make all constructors/destructors non-static
-- Redefine fio_init for RTEMS
----
-I have reworked the code, please have a look.
+On Tue, Jul 24, 2018 at 9:17 PM, Jens Axboe <axboe@kernel.dk> wrote:
 
- Makefile                  |  11 ++-
- README                    |  29 ++++++
- cgroup.c                  |   4 +-
- client.c                  |   2 +-
- compiler/compiler.h       |   5 ++
- configure                 |   6 ++
- crc/xxhash.h              |   8 +-
- engines/cpu.c             |   4 +-
- engines/filecreate.c      |   4 +-
- engines/null.c            |   4 +-
- engines/sync.c            |   4 +-
- fio_sem.c                 |   2 +-
- init.c                    |  26 +++++-
- options.c                 |   6 +-
- os/os-rtems.h             |  74 +++++++++++++++
- os/os.h                   |   9 ++
- os/rtems/rtems-fio-wrap.h |  41 +++++++++
- os/rtems/rtems-init.c     | 224 ++++++++++++++++++++++++++++++++++++++++++++++
- smalloc.c                 |  13 +++
- stat.c                    |   6 ++
- 20 files changed, 461 insertions(+), 21 deletions(-)
- create mode 100644 os/os-rtems.h
- create mode 100644 os/rtems/rtems-fio-wrap.h
- create mode 100644 os/rtems/rtems-init.c
+> On 7/16/18 3:06 AM, dev.madaari@gmail.com wrote:
+> > diff --git a/cgroup.c b/cgroup.c
+> > index 77e31a4..0a3d372 100644
+> > --- a/cgroup.c
+> > +++ b/cgroup.c
+> > @@ -224,7 +224,12 @@ out:
+> >       sfree(mnt);
+> >  }
+> >
+> > -static void fio_init cgroup_init(void)
+> > +#ifdef __rtems__
+> > +void
+> > +#else /* __rtems__ */
+> > +static void fio_init
+> > +#endif /* __rtems__ */
+> > +cgroup_init(void)
+>
+> For all of these, just make the non-static for all platforms. I don't
+> like having stuff like this all over the generic code. If need be,
+> fio_init can be different for rtems.
+>
+> Noted.
 
-diff --git a/Makefile b/Makefile
-index 20d3ec1..e93f964 100644
---- a/Makefile
-+++ b/Makefile
-@@ -194,11 +194,20 @@ ifneq (,$(findstring CYGWIN,$(CONFIG_TARGET_OS)))
-   LIBS	 += -lpthread -lpsapi -lws2_32
-   CFLAGS += -DPSAPI_VERSION=1 -Ios/windows/posix/include -Wno-format -static
- endif
-+ifeq ($(CONFIG_TARGET_OS), RTEMS)
-+  LDFLAGS += -B $(TOOL_PATH_PREFIX)/arm-rtems5/beagleboneblack/lib -specs bsp_specs -qrtems -Wl,--gc-sections
-+  LIBS	  += -Wl,-Bstatic -L. -lbsd -Wl,-Bdynamic -lm -lz
-+  CFLAGS  += -I $(TOOL_PATH_PREFIX)/arm-rtems5/beagleboneblack/lib/include -ffunction-sections -fdata-sections -g -mcpu=cortex-a8 -fno-strict-aliasing -ffreestanding -fno-common -w -DHAVE_RTEMS_SCORE_CPUOPTS_H=1 -DHAVE_RTEMS_H=1 -DHAVE_DLFCN_H=1 -DHAVE_RTEMS_PCI_H=1 -DHAVE_RTEMS_RTEMS_DEBUGGER_H=1
-+endif
- 
- OBJS := $(SOURCE:.c=.o)
- 
- FIO_OBJS = $(OBJS) fio.o
- 
-+ifeq ($(CONFIG_TARGET_OS), RTEMS)
-+  FIO_OBJS +=  os/rtems/rtems-init.o
-+endif
-+
- GFIO_OBJS = $(OBJS) gfio.o graph.o tickmarks.o ghelpers.o goptions.o gerror.o \
- 			gclient.o gcompat.o cairo_text_helpers.o printing.o
- 
-@@ -462,7 +471,7 @@ t/time-test: $(T_TT_OBJS)
- 	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(T_TT_OBJS) $(LIBS)
- 
- clean: FORCE
--	@rm -f .depend $(FIO_OBJS) $(GFIO_OBJS) $(OBJS) $(T_OBJS) $(PROGS) $(T_PROGS) $(T_TEST_PROGS) core.* core gfio FIO-VERSION-FILE *.[do] lib/*.d oslib/*.[do] crc/*.d engines/*.[do] profiles/*.[do] t/*.[do] config-host.mak config-host.h y.tab.[ch] lex.yy.c exp/*.[do] lexer.h
-+	@rm -f .depend $(FIO_OBJS) $(GFIO_OBJS) $(OBJS) $(T_OBJS) $(PROGS) $(T_PROGS) $(T_TEST_PROGS) core.* core gfio FIO-VERSION-FILE *.[do] lib/*.d oslib/*.[do] crc/*.d engines/*.[do] profiles/*.[do] t/*.[do] config-host.mak config-host.h y.tab.[ch] lex.yy.c exp/*.[do] lexer.h os/rtems/*.[do]
- 	@rm -rf  doc/output
- 
- distclean: clean FORCE
-diff --git a/README b/README
-index 38022bb..cbca933 100644
---- a/README
-+++ b/README
-@@ -192,6 +192,35 @@ https://github.com/mintty/mintty/issues/56 and
- https://github.com/mintty/mintty/wiki/Tips#inputoutput-interaction-with-alien-programs
- for details).
- 
-+RTEMS
-+~~~~~~~
-+
-+For RTEMS Toolchain generation::
-+
-+Toolchain, required for cross-compiling fio for desired architecture
-+(like arm in this example) can be generated by using RTEMS Source Builder(RSB).
-+
-+Please note that fio's build for RTEMS has been tested with RSB version 5(commit id:
-+25f4db09c85a52fb1640a29f9bdc2de8c2768988), and it may not work with older versions.
-+
-+Moreover, For enabling POSIX support(required by fio), build the BSP using RTEMS v5 with
-+--enable-posix option. After that, if needed(like for using SD card driver for BeagleBone Black)
-+one may also need to build rtems-libbsd for the desired BSP.
-+
-+For Cross-compiling fio for RTEMS::
-+
-+Variable to be passed for toolchain path is TOOL_PATH_PREFIX, which in this case would be,
-+
-+ $ export TOOL_PATH_PREFIX=/home/uka_in/development/sandbox/5
-+
-+After setting up the variable, next step would be to configure and build fio as:
-+
-+ $ make clean
-+ $ ./configure --cc=$TOOL_PATH_PREFIX/bin/arm-rtems5-gcc --disable-optimizations --extra-cflags=-O3
-+ $ make CROSS_COMPILE=$TOOL_PATH_PREFIX/bin/arm-rtems5- V=1
-+
-+Refer to ticket #3429 https://devel.rtems.org/ticket/3429 for updates and
-+drawbacks of current implementation.
- 
- Documentation
- ~~~~~~~~~~~~~
-diff --git a/cgroup.c b/cgroup.c
-index 77e31a4..d7de428 100644
---- a/cgroup.c
-+++ b/cgroup.c
-@@ -224,14 +224,14 @@ out:
- 	sfree(mnt);
- }
- 
--static void fio_init cgroup_init(void)
-+void fio_init cgroup_init(void)
- {
- 	lock = fio_sem_init(FIO_SEM_UNLOCKED);
- 	if (!lock)
- 		log_err("fio: failed to allocate cgroup lock\n");
- }
- 
--static void fio_exit cgroup_exit(void)
-+void fio_exit cgroup_exit(void)
- {
- 	fio_sem_remove(lock);
- }
-diff --git a/client.c b/client.c
-index 2a86ea9..356f9c0 100644
---- a/client.c
-+++ b/client.c
-@@ -86,7 +86,7 @@ static void fio_client_remove_hash(struct fio_client *client)
- 		flist_del_init(&client->hash_list);
- }
- 
--static void fio_init fio_client_hash_init(void)
-+void fio_init fio_client_hash_init(void)
- {
- 	int i;
- 
-diff --git a/compiler/compiler.h b/compiler/compiler.h
-index dacb737..bb0abf1 100644
---- a/compiler/compiler.h
-+++ b/compiler/compiler.h
-@@ -17,8 +17,13 @@
-  * Mark unused variables passed to ops functions as unused, to silence gcc
-  */
- #define fio_unused	__attribute__((__unused__))
-+#ifndef CONFIG_NO_FIO_INIT
- #define fio_init	__attribute__((constructor))
- #define fio_exit	__attribute__((destructor))
-+#else /* CONFIG_NO_FIO_INIT */
-+#define fio_init
-+#define fio_exit
-+#endif /* CONFIG_NO_FIO_INIT */
- 
- #define fio_unlikely(x)	__builtin_expect(!!(x), 0)
- 
-diff --git a/configure b/configure
-index 9bdc7a1..ad21020 100755
---- a/configure
-+++ b/configure
-@@ -262,6 +262,8 @@ elif check_define __sun__ ; then
-   CFLAGS="$CFLAGS -D_REENTRANT"
- elif check_define _WIN32 ; then
-   targetos='CYGWIN'
-+elif check_define __rtems__ ; then
-+  targetos='RTEMS'
- else
-   targetos=`uname -s`
- fi
-@@ -362,6 +364,10 @@ CYGWIN*)
-   tcp_nodelay="yes"
-   ipv6="yes"
-   ;;
-+RTEMS)
-+  inet_aton="yes"
-+  output_sym "CONFIG_NO_FIO_INIT"
-+  ;;
- esac
- 
- # Now we know the target platform we can have another guess at the preferred
-diff --git a/crc/xxhash.h b/crc/xxhash.h
-index 8850d20..9019089 100644
---- a/crc/xxhash.h
-+++ b/crc/xxhash.h
-@@ -107,9 +107,9 @@ XXH32() :
- // Advanced Hash Functions
- //****************************
- 
--void*         XXH32_init   (unsigned int seed);
-+void*         XXH32_init   (uint32_t seed);
- XXH_errorcode XXH32_update (void* state, const void* input, int len);
--unsigned int  XXH32_digest (void* state);
-+uint32_t  XXH32_digest (void* state);
- 
- /*
- These functions calculate the xxhash of an input provided in several small packets,
-@@ -135,7 +135,7 @@ Memory will be freed by XXH32_digest().
- 
- 
- int           XXH32_sizeofState(void);
--XXH_errorcode XXH32_resetState(void* state, unsigned int seed);
-+XXH_errorcode XXH32_resetState(void* state, uint32_t seed);
- 
- #define       XXH32_SIZEOFSTATE 48
- typedef struct { long long ll[(XXH32_SIZEOFSTATE+(sizeof(long long)-1))/sizeof(long long)]; } XXH32_stateSpace_t;
-@@ -151,7 +151,7 @@ use the structure XXH32_stateSpace_t, which will ensure that memory space is lar
- */
- 
- 
--unsigned int XXH32_intermediateDigest (void* state);
-+uint32_t XXH32_intermediateDigest (void* state);
- /*
- This function does the same as XXH32_digest(), generating a 32-bit hash,
- but preserve memory context.
-diff --git a/engines/cpu.c b/engines/cpu.c
-index 0987250..baa4680 100644
---- a/engines/cpu.c
-+++ b/engines/cpu.c
-@@ -112,12 +112,12 @@ static struct ioengine_ops ioengine = {
- 	.option_struct_size	= sizeof(struct cpu_options),
- };
- 
--static void fio_init fio_cpuio_register(void)
-+void fio_init fio_cpuio_register(void)
- {
- 	register_ioengine(&ioengine);
- }
- 
--static void fio_exit fio_cpuio_unregister(void)
-+void fio_exit fio_cpuio_unregister(void)
- {
- 	unregister_ioengine(&ioengine);
- }
-diff --git a/engines/filecreate.c b/engines/filecreate.c
-index 39a2950..e24539c 100644
---- a/engines/filecreate.c
-+++ b/engines/filecreate.c
-@@ -107,12 +107,12 @@ static struct ioengine_ops ioengine = {
- 				FIO_NOSTATS | FIO_NOFILEHASH,
- };
- 
--static void fio_init fio_filecreate_register(void)
-+void fio_init fio_filecreate_register(void)
- {
- 	register_ioengine(&ioengine);
- }
- 
--static void fio_exit fio_filecreate_unregister(void)
-+void fio_exit fio_filecreate_unregister(void)
- {
- 	unregister_ioengine(&ioengine);
- }
-diff --git a/engines/null.c b/engines/null.c
-index 4cc0102..f364118 100644
---- a/engines/null.c
-+++ b/engines/null.c
-@@ -154,12 +154,12 @@ static struct ioengine_ops ioengine = {
- 	.flags		= FIO_DISKLESSIO | FIO_FAKEIO,
- };
- 
--static void fio_init fio_null_register(void)
-+void fio_init fio_null_register(void)
- {
- 	register_ioengine(&ioengine);
- }
- 
--static void fio_exit fio_null_unregister(void)
-+void fio_exit fio_null_unregister(void)
- {
- 	unregister_ioengine(&ioengine);
- }
-diff --git a/engines/sync.c b/engines/sync.c
-index b3e1c9d..3a1e1bb 100644
---- a/engines/sync.c
-+++ b/engines/sync.c
-@@ -466,7 +466,7 @@ static struct ioengine_ops ioengine_pvrw2 = {
- };
- #endif
- 
--static void fio_init fio_syncio_register(void)
-+void fio_init fio_syncio_register(void)
- {
- 	register_ioengine(&ioengine_rw);
- 	register_ioengine(&ioengine_prw);
-@@ -479,7 +479,7 @@ static void fio_init fio_syncio_register(void)
- #endif
- }
- 
--static void fio_exit fio_syncio_unregister(void)
-+void fio_exit fio_syncio_unregister(void)
- {
- 	unregister_ioengine(&ioengine_rw);
- 	unregister_ioengine(&ioengine_prw);
-diff --git a/fio_sem.c b/fio_sem.c
-index 3b48061..bf0efb2 100644
---- a/fio_sem.c
-+++ b/fio_sem.c
-@@ -58,7 +58,7 @@ struct fio_sem *fio_sem_init(int value)
- 
- 	sem = (void *) mmap(NULL, sizeof(struct fio_sem),
- 				PROT_READ | PROT_WRITE,
--				OS_MAP_ANON | MAP_SHARED, -1, 0);
-+				OS_MAP_ANON | FIO_MAP_TYPE, -1, 0);
- 	if (sem == MAP_FAILED) {
- 		perror("mmap semaphore");
- 		return NULL;
-diff --git a/init.c b/init.c
-index af4cc6b..d69b644 100644
---- a/init.c
-+++ b/init.c
-@@ -7,7 +7,6 @@
- #include <ctype.h>
- #include <string.h>
- #include <errno.h>
--#include <sys/ipc.h>
- #include <sys/types.h>
- #include <dlfcn.h>
- #ifdef CONFIG_VALGRIND_DEV
-@@ -21,6 +20,10 @@
- #include <sys/shm.h>
- #endif
- 
-+#ifndef __rtems__
-+#include <sys/ipc.h>
-+#endif /* __rtems__ */
-+
- #include "parse.h"
- #include "smalloc.h"
- #include "filehash.h"
-@@ -31,7 +34,13 @@
- #include "filelock.h"
- #include "steadystate.h"
- 
-+/* RTEMS uses newlib's getopt_long_only_r() */
-+#ifdef __rtems__
-+#include <getopt.h>
-+#else /* __rtems__ */
- #include "oslib/getopt.h"
-+#endif /* __rtems__ */
-+
- #include "oslib/strcasestr.h"
- 
- #include "crc/test.h"
-@@ -87,6 +96,10 @@ unsigned int *fio_warned = NULL;
- static char cmd_optstr[256];
- static bool did_arg;
- 
-+#ifdef __rtems__
-+    struct getopt_data getopt_reent;
-+#endif /* __rtems__ */
-+
- #define FIO_CLIENT_FLAG		(1 << 16)
- 
- /*
-@@ -2435,13 +2448,20 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 	void *cur_client = NULL;
- 	int backend = 0;
- 
-+#ifdef __rtems__
-+    memset(&getopt_reent, 0, sizeof(getopt_data));
-+#endif /* __rtems__ */
- 	/*
- 	 * Reset optind handling, since we may call this multiple times
- 	 * for the backend.
- 	 */
- 	optind = 1;
--
--	while ((c = getopt_long_only(argc, argv, ostr, l_opts, &lidx)) != -1) {
-+	while ((c =
-+#ifdef __rtems__ /* Using Newlib's reentrant version of getopt */
-+		getopt_long_only_r(argc, argv, ostr, l_opts, &lidx, &getopt_reent))!= -1) {
-+#else /* __rtems__ */
-+		getopt_long_only(argc, argv, ostr, l_opts, &lidx))!= -1) {
-+#endif /* __rtems__ */
- 		if ((c & FIO_CLIENT_FLAG) || client_flag_set(c)) {
- 			parse_cmd_client(cur_client, argv[optind - 1]);
- 			c &= ~FIO_CLIENT_FLAG;
-diff --git a/options.c b/options.c
-index a174e2c..91cb71f 100644
---- a/options.c
-+++ b/options.c
-@@ -4744,7 +4744,7 @@ static char *bc_calc(char *str)
- 	if ((!strchr(str, '+') && !strchr(str, '-') && !strchr(str, '*') &&
- 	     !strchr(str, '/')) || strchr(str, '\''))
- 		return str;
--
-+#ifndef FIO_CONFIG_NO_MATH
- 	/*
- 	 * Split option from value, we only need to calculate the value
- 	 */
-@@ -4782,6 +4782,10 @@ static char *bc_calc(char *str)
- 	memcpy(buf, str, tmp - str);
- 	free(str);
- 	return strdup(buf);
-+#else /* FIO_CONFIG_NO_MATH */
-+	log_err("fio: performing math is not supported by os\n");
-+	return NULL;
-+#endif /* FIO_CONFIG_NO_MATH */
- }
- 
- /*
-diff --git a/os/os-rtems.h b/os/os-rtems.h
-new file mode 100644
-index 0000000..4a3c036
---- /dev/null
-+++ b/os/os-rtems.h
-@@ -0,0 +1,74 @@
-+/*-
-+ * Copyright (c) 2018 Udit kumar agarwal <dev.madaari@gmail.com>
-+ * All rights reserved.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions
-+ * are met:
-+ * 1. Redistributions of source code must retain the above copyright
-+ *    notice, this list of conditions and the following disclaimer.
-+ * 2. Redistributions in binary form must reproduce the above copyright
-+ *    notice, this list of conditions and the following disclaimer in the
-+ *    documentation and/or other materials provided with the distribution.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
-+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
-+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-+ * SUCH DAMAGE.
-+ */
-+
-+#ifndef FIO_OS_RTEMS_H
-+#define FIO_OS_RTEMS_H
-+
-+#define	FIO_OS	os_rtems
-+
-+#include <errno.h>
-+#include <machine/endian.h>
-+#include <sys/socket.h>
-+#include <machine/param.h>
-+#include <sys/cpuset.h>
-+#include <sys/resource.h>
-+#include <stdatomic.h>
-+#include "../file.h"
-+
-+#define FIO_HAVE_ODIRECT
-+#define FIO_USE_GENERIC_RAND
-+#define FIO_USE_GENERIC_INIT_RANDOM_STATE
-+#define off64_t _off64_t
-+#define OS_MAP_ANON		MAP_ANON
-+#define O_DIRECT	0x1000000
-+#define FIO_NO_HAVE_SHM_H
-+#define FIO_NO_SHARED_MAP
-+#define FIO_NO_VIRTUAL_MEMORY
-+#define FIO_CONFIG_NO_MATH
-+#define FIO_LESS_POOLS
-+#define CONFIG_NO_SHM
-+#define CONFIG_HAVE_MKDIR_TWO
-+#define SA_RESTART	0
-+#define __need_getopt_newlib
-+#define AF_INET 2
-+static inline int blockdev_invalidate_cache(struct fio_file *f)
-+{
-+	return ENOTSUP;
-+}
-+
-+static inline int blockdev_size(struct fio_file *f, unsigned long long *bytes)
-+{
-+	errno = ENOSYS;
-+	return 0;
-+}
-+
-+static inline unsigned long long os_phys_mem(void)
-+{
-+	errno = ENOSYS;
-+	return 0;
-+}
-+
-+#endif
-diff --git a/os/os.h b/os/os.h
-index becc410..22bbb9b 100644
---- a/os/os.h
-+++ b/os/os.h
-@@ -23,6 +23,7 @@ enum {
- 	os_windows,
- 	os_android,
- 	os_dragonfly,
-+	os_rtems,
- 
- 	os_nr,
- };
-@@ -36,6 +37,8 @@ typedef enum {
- #include "os-android.h"
- #elif defined(__linux__)
- #include "os-linux.h"
-+#elif defined (__rtems__)
-+#include "os-rtems.h"
- #elif defined(__FreeBSD__)
- #include "os-freebsd.h"
- #elif defined(__OpenBSD__)
-@@ -116,6 +119,12 @@ extern int fio_cpus_split(os_cpu_mask_t *mask, unsigned int cpu);
- #define ioprio_set(which, who, prioclass, prio)	(0)
- #endif
- 
-+#ifdef FIO_NO_SHARED_MAP
-+#define FIO_MAP_TYPE MAP_PRIVATE
-+#else
-+#define FIO_MAP_TYPE MAP_SHARED
-+#endif
-+
- #ifndef FIO_HAVE_ODIRECT
- #define OS_O_DIRECT			0
- #else
-diff --git a/os/rtems/rtems-fio-wrap.h b/os/rtems/rtems-fio-wrap.h
-new file mode 100644
-index 0000000..54397c9
---- /dev/null
-+++ b/os/rtems/rtems-fio-wrap.h
-@@ -0,0 +1,41 @@
-+#ifndef RTEMS_FIO_WRAP
-+#define RTEMS_FIO_WRAP
-+/* RTEMS specific wrapper for explicitly calling constructors and
-+ * destructors */
-+
-+void fio_syncio_register(void);
-+void fio_filecreate_register(void);
-+void fio_null_register(void);
-+void fio_syncio_unregister(void);
-+void fio_filecreate_unregister(void);
-+void fio_null_unregister(void);
-+
-+static int
-+mainwrapper(int argc, char *argv[])
-+{
-+	int err=0;
-+
-+	/* Constructors */
-+	fio_syncio_register();
-+	fio_filecreate_register();
-+	fio_null_register();
-+
-+	err = main(argc, argv, NULL);
-+
-+	/* Destructors */
-+	fio_syncio_unregister();
-+	fio_filecreate_unregister();
-+	fio_null_unregister();
-+
-+	return err;
-+}
-+
-+rtems_bsd_command_fio(int argc, char *argv[])
-+{
-+	int exit_code;
-+
-+	exit_code = mainwrapper(argc, argv);
-+
-+	return exit_code;
-+}
-+#endif /* RTEMS_FIO_WRAP */
-diff --git a/os/rtems/rtems-init.c b/os/rtems/rtems-init.c
-new file mode 100644
-index 0000000..2cce2bb
---- /dev/null
-+++ b/os/rtems/rtems-init.c
-@@ -0,0 +1,224 @@
-+/*-
-+ * Copyright (c) 2018 Udit kumar agarwal <dev.madaari@gmail.com>
-+ * Copyright (c) 2018 Christian Mauderer <christian.mauderer@embedded-brains.de>
-+ * All rights reserved.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions
-+ * are met:
-+ * 1. Redistributions of source code must retain the above copyright
-+ *    notice, this list of conditions and the following disclaimer.
-+ * 2. Redistributions in binary form must reproduce the above copyright
-+ *    notice, this list of conditions and the following disclaimer in the
-+ *    documentation and/or other materials provided with the distribution.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
-+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
-+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-+ * SUCH DAMAGE.
-+ */
-+
-+#include <sys/param.h>
-+#include <sys/stat.h>
-+#include <sys/socket.h>
-+
-+#include <assert.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <fcntl.h>
-+#include <ifaddrs.h>
-+#include <sysexits.h>
-+
-+#include <machine/rtems-bsd-commands.h>
-+
-+#include <net/if.h>
-+
-+#include <rtems/bdbuf.h>
-+#include <rtems/console.h>
-+#include <rtems/ftpd.h>
-+#include <rtems/media.h>
-+#include <rtems/shell.h>
-+#include <rtems/telnetd.h>
-+#include <rtems.h>
-+#include <rtems/printer.h>
-+#include <rtems/stackchk.h>
-+#include <rtems/bsd/bsd.h>
-+#include <rtems/bsd/modules.h>
-+#include <rtems/dhcpcd.h>
-+#include <rtems/console.h>
-+#include <rtems/shell.h>
-+#include <os/rtems/rtems-fio-wrap.h>
-+
-+static rtems_status_code
-+media_listener(rtems_media_event event, rtems_media_state state,
-+    const char *src, const char *dest, void *arg)
-+{
-+
-+	if (dest != NULL) {
-+		printf(", dest = %s", dest);
-+	}
-+
-+	if (arg != NULL) {
-+		printf(", arg = %p\n", arg);
-+	}
-+
-+	return RTEMS_SUCCESSFUL;
-+}
-+
-+rtems_shell_cmd_t rtems_shell_fio_Command = {
-+	.name = "fio",
-+	.usage = "fio testfile.fio",
-+	.topic = "user",
-+	.command = rtems_bsd_command_fio
-+};
-+
-+int nice(int incr)
-+{
-+	/* FIXME */
-+	return 0;
-+}
-+
-+static void
-+early_initialization(void)
-+{
-+	rtems_status_code sc;
-+
-+	sc = rtems_bdbuf_init();
-+	assert(sc == RTEMS_SUCCESSFUL);
-+
-+	sc = rtems_media_initialize();
-+	assert(sc == RTEMS_SUCCESSFUL);
-+
-+	sc = rtems_media_listener_add(media_listener, NULL);
-+	assert(sc == RTEMS_SUCCESSFUL);
-+
-+	sc = rtems_media_server_initialize(
-+		200,
-+		32 * 1024,
-+		RTEMS_DEFAULT_MODES,
-+		RTEMS_DEFAULT_ATTRIBUTES
-+	);
-+	assert(sc == RTEMS_SUCCESSFUL);
-+}
-+
-+void
-+Init(rtems_task_argument arg)
-+{
-+	rtems_status_code sc;
-+
-+	puts("\n*** FIO - Flexible I/O tester ***\n\n");
-+
-+	early_initialization();
-+	rtems_bsd_initialize();
-+
-+	/* Let the callout timer allocate its resources */
-+	sc = rtems_task_wake_after(2);
-+	assert(sc == RTEMS_SUCCESSFUL);
-+
-+	sc = rtems_shell_init("SHLL", 16 * 1024, 1, CONSOLE_DEVICE_NAME,
-+		false, true, NULL);
-+	assert(sc == RTEMS_SUCCESSFUL);
-+
-+	assert(0);
-+}
-+
-+
-+#define CONFIGURE_MICROSECONDS_PER_TICK 1000
-+
-+#define CONFIGURE_MAXIMUM_DRIVERS 32
-+
-+#define CONFIGURE_FILESYSTEM_DOSFS
-+
-+#define CONFIGURE_MAXIMUM_PROCESSORS 32
-+
-+/*
-+ * Configure LibBSD.
-+ */
-+
-+#define RTEMS_BSD_CONFIG_NET_PF_UNIX
-+#define RTEMS_BSD_CONFIG_NET_IP_MROUTE
-+#define RTEMS_BSD_CONFIG_NET_IP6_MROUTE
-+#define RTEMS_BSD_CONFIG_NET_IF_BRIDGE
-+#define RTEMS_BSD_CONFIG_NET_IF_LAGG
-+#define RTEMS_BSD_CONFIG_NET_IF_VLAN
-+#define RTEMS_BSD_CONFIG_BSP_CONFIG
-+#define RTEMS_BSD_CONFIG_INIT
-+
-+#include <machine/rtems-bsd-config.h>
-+
-+#define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
-+#define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
-+#define CONFIGURE_APPLICATION_NEEDS_STUB_DRIVER
-+#define CONFIGURE_APPLICATION_NEEDS_ZERO_DRIVER
-+#define CONFIGURE_APPLICATION_NEEDS_LIBBLOCK
-+
-+#define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS 32
-+
-+#define CONFIGURE_MAXIMUM_USER_EXTENSIONS 1
-+
-+#define CONFIGURE_UNLIMITED_ALLOCATION_SIZE 32
-+#define CONFIGURE_UNLIMITED_OBJECTS
-+#define CONFIGURE_UNIFIED_WORK_AREAS
-+
-+/* Turn cache off */
-+#define CONFIGURE_BDBUF_BUFFER_MAX_SIZE (4 * 1024)
-+#define CONFIGURE_BDBUF_MAX_READ_AHEAD_BLOCKS 0
-+#define CONFIGURE_BDBUF_CACHE_MEMORY_SIZE (1 * 1024 * 1024)
-+
-+#define CONFIGURE_RTEMS_INIT_TASKS_TABLE
-+
-+#define CONFIGURE_INIT_TASK_STACK_SIZE (256 * 1024)
-+#define CONFIGURE_INIT_TASK_INITIAL_MODES RTEMS_DEFAULT_MODES
-+#define CONFIGURE_INIT_TASK_ATTRIBUTES RTEMS_FLOATING_POINT
-+
-+#define CONFIGURE_INIT
-+#define CPU_STACK_MINIMUM_SIZE           (256*1024)
-+#include <rtems/confdefs.h>
-+
-+#define CONFIGURE_SHELL_COMMANDS_INIT
-+
-+#include <bsp/irq-info.h>
-+
-+#define CONFIGURE_SHELL_USER_COMMANDS \
-+  &rtems_shell_fio_Command
-+
-+#define CONFIGURE_SHELL_COMMAND_CPUINFO
-+#define CONFIGURE_SHELL_COMMAND_PROFREPORT
-+#define CONFIGURE_SHELL_COMMAND_MKRFS
-+
-+#define CONFIGURE_SHELL_COMMAND_CP
-+#define CONFIGURE_SHELL_COMMAND_PWD
-+#define CONFIGURE_SHELL_COMMAND_LS
-+#define CONFIGURE_SHELL_COMMAND_LN
-+#define CONFIGURE_SHELL_COMMAND_LSOF
-+#define CONFIGURE_SHELL_COMMAND_CHDIR
-+#define CONFIGURE_SHELL_COMMAND_CD
-+#define CONFIGURE_SHELL_COMMAND_MKDIR
-+#define CONFIGURE_SHELL_COMMAND_RMDIR
-+#define CONFIGURE_SHELL_COMMAND_CAT
-+#define CONFIGURE_SHELL_COMMAND_MV
-+#define CONFIGURE_SHELL_COMMAND_RM
-+#define CONFIGURE_SHELL_COMMAND_MALLOC_INFO
-+#define CONFIGURE_SHELL_COMMAND_SHUTDOWN
-+
-+#define CONFIGURE_SHELL_COMMAND_FDISK
-+#define CONFIGURE_SHELL_COMMAND_BLKSTATS
-+#define CONFIGURE_SHELL_COMMAND_BLKSYNC
-+#define CONFIGURE_SHELL_COMMAND_MSDOSFMT
-+#define CONFIGURE_SHELL_COMMAND_DF
-+#define CONFIGURE_SHELL_COMMAND_MOUNT
-+#define CONFIGURE_SHELL_COMMAND_UNMOUNT
-+#define CONFIGURE_SHELL_COMMAND_MSDOSFMT
-+#define CONFIGURE_SHELL_COMMAND_EDIT
-+#define CONFIGURE_SHELL_COMMAND_GETENV
-+#define CONFIGURE_SHELL_COMMAND_SETENV
-+#define CONFIGURE_SHELL_COMMAND_UNSETENV
-+#include <rtems/shellconfig.h>
-diff --git a/smalloc.c b/smalloc.c
-index a2ad25a..5cad99c 100644
---- a/smalloc.c
-+++ b/smalloc.c
-@@ -19,7 +19,11 @@
- #define SMALLOC_BPL	(SMALLOC_BPB * SMALLOC_BPI)
- 
- #define INITIAL_SIZE	16*1024*1024	/* new pool size */
-+#ifndef FIO_LESS_POOLS
- #define INITIAL_POOLS	8		/* maximum number of pools to setup */
-+#else
-+#define INITIAL_POOLS	4
-+#endif
- 
- #define MAX_POOLS	16
- 
-@@ -175,7 +179,12 @@ static bool add_pool(struct pool *pool, unsigned int alloc_size)
- #else
- 	mmap_flags |= MAP_SHARED;
- #endif
-+
-+#ifdef __rtems__
-+	ptr = (void*)malloc(alloc_size);
-+#else
- 	ptr = mmap(NULL, alloc_size, PROT_READ|PROT_WRITE, mmap_flags, -1, 0);
-+#endif
- 
- 	if (ptr == MAP_FAILED)
- 		goto out_fail;
-@@ -193,7 +202,11 @@ static bool add_pool(struct pool *pool, unsigned int alloc_size)
- out_fail:
- 	log_err("smalloc: failed adding pool\n");
- 	if (pool->map)
-+#ifdef __rtems__
-+		free(pool->map);
-+#else /* __rtems__ */
- 		munmap(pool->map, pool->mmap_size);
-+#endif /* __rtems__ */
- 	return false;
- }
- 
-diff --git a/stat.c b/stat.c
-index a308eb8..d909406 100644
---- a/stat.c
-+++ b/stat.c
-@@ -38,10 +38,16 @@ void update_rusage_stat(struct thread_data *td)
- 					&td->ru_end.ru_utime);
- 	ts->sys_time += mtime_since_tv(&td->ru_start.ru_stime,
- 					&td->ru_end.ru_stime);
-+#ifndef FIO_NO_VIRTUAL_MEMORY
- 	ts->ctx += td->ru_end.ru_nvcsw + td->ru_end.ru_nivcsw
- 			- (td->ru_start.ru_nvcsw + td->ru_start.ru_nivcsw);
- 	ts->minf += td->ru_end.ru_minflt - td->ru_start.ru_minflt;
- 	ts->majf += td->ru_end.ru_majflt - td->ru_start.ru_majflt;
-+#else /* FIO_NO_VIRTUAL_MEMORY */
-+	ts->ctx  = ((uint64_t) -1);
-+	ts->minf = ((uint64_t) -1);
-+	ts->majf = ((uint64_t) -1);
-+#endif /* FIO_NO_VIRTUAL_MEMORY */
- 
- 	memcpy(&td->ru_start, &td->ru_end, sizeof(td->ru_end));
- }
+> > diff --git a/crc/xxhash.h b/crc/xxhash.h
+> > index 8850d20..81bf51d 100644
+> > --- a/crc/xxhash.h
+> > +++ b/crc/xxhash.h
+> > @@ -107,9 +107,16 @@ XXH32() :
+> >  // Advanced Hash Functions
+> >  //****************************
+> >
+> > +/* Unlike most desktop OS, In Newlib unsigned int and uint32_t are
+> different */
+> > +#ifndef __rtems__
+> >  void*         XXH32_init   (unsigned int seed);
+> >  XXH_errorcode XXH32_update (void* state, const void* input, int len);
+> >  unsigned int  XXH32_digest (void* state);
+> > +#else /* __rtems__ */
+> > +void*         XXH32_init   (uint32_t seed);
+> > +XXH_errorcode XXH32_update (void* state, const void* input, int len);
+> > +uint32_t  XXH32_digest (void* state);
+> > +#endif /* __rtems__ */
+>
+> Same for this stuff, there's no need for this to be any different for
+> rtems.
+>
+> > diff --git a/fio.c b/fio.c
+> > index f19db1b..d4e0821 100644
+> > --- a/fio.c
+> > +++ b/fio.c
+> > @@ -65,3 +65,6 @@ done:
+> >       deinitialize_fio();
+> >       return ret;
+> >  }
+> > +#ifdef __rtems__
+> > +#include <os/rtems/rtems-fio-wrap.h>
+> > +#endif /* __rtems__ */
+>
+> Put that in your OS header.
+>
+> Ok
+
+> > diff --git a/fio.h b/fio.h
+> > index 3ac552b..e382eb7 100644
+> > --- a/fio.h
+> > +++ b/fio.h
+> > @@ -785,7 +785,11 @@ static inline void td_flags_clear(struct
+> thread_data *td, unsigned int *flags,
+> >       if (!td_async_processing(td))
+> >               *flags &= ~value;
+> >       else
+> > +#ifndef __rtems__
+> >               __sync_fetch_and_and(flags, ~value);
+> > +#else /* __rtems__ */
+> > +             atomic_fetch_and_explicit(flags, ~value,
+> memory_order_relaxed);
+> > +#endif /* __rtems__ */
+>
+> Handle this in your OS header as well.
+>
+> > diff --git a/fio_sem.c b/fio_sem.c
+> > index 3b48061..b5bc9c2 100644
+> > --- a/fio_sem.c
+> > +++ b/fio_sem.c
+> > @@ -56,9 +56,15 @@ struct fio_sem *fio_sem_init(int value)
+> >  {
+> >       struct fio_sem *sem = NULL;
+> >
+> > +#ifndef __rtems__
+> >       sem = (void *) mmap(NULL, sizeof(struct fio_sem),
+> >                               PROT_READ | PROT_WRITE,
+> >                               OS_MAP_ANON | MAP_SHARED, -1, 0);
+> > +#else /* __rtems__ */
+> > +     sem = (void *) mmap(NULL, sizeof(struct fio_sem),
+> > +                             PROT_READ | PROT_WRITE,
+> > +                             OS_MAP_ANON | MAP_PRIVATE, -1, 0);
+> > +#endif /* __rtems__ */
+>
+> Hmm?
+>
+> General comment - everytime you feel the need to add an ifdef __rtems__
+> (or ifndef), you are going down the wrong path. Look at how the other OS
+> types handle special cases and mimic that approach. Looks like your main
+> difference is that you have to call initializers manually, which is a
+> bit nasty. But differences in types etc should not be handled by having
+> ifdefs in the generic code.
+>
+> Great! Thanks for your feedback. I was eagerly waiting for one. I'll make
+the changes you told , probably by this weekend and will then resend the
+patch.
+
+> --
+> Jens Axboe
+>
+>
+
+
 -- 
-1.9.1
+Regards,
+Udit kumar agarwal
+http://uditagarwal.in/
 
+--00000000000051e6830571c2fb5e
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><div class=3D"gmail_quo=
+te">On Tue, Jul 24, 2018 at 9:17 PM, Jens Axboe <span dir=3D"ltr">&lt;<a hr=
+ef=3D"mailto:axboe@kernel.dk" target=3D"_blank">axboe@kernel.dk</a>&gt;</sp=
+an> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;=
+border-left:1px #ccc solid;padding-left:1ex"><span class=3D"">On 7/16/18 3:=
+06 AM, <a href=3D"mailto:dev.madaari@gmail.com">dev.madaari@gmail.com</a> w=
+rote:<br>
+&gt; diff --git a/cgroup.c b/cgroup.c<br>
+&gt; index 77e31a4..0a3d372 100644<br>
+&gt; --- a/cgroup.c<br>
+&gt; +++ b/cgroup.c<br>
+&gt; @@ -224,7 +224,12 @@ out:<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0sfree(mnt);<br>
+&gt;=C2=A0 }<br>
+&gt;=C2=A0 <br>
+&gt; -static void fio_init cgroup_init(void)<br>
+&gt; +#ifdef __rtems__<br>
+&gt; +void<br>
+&gt; +#else /* __rtems__ */<br>
+&gt; +static void fio_init<br>
+&gt; +#endif /* __rtems__ */<br>
+&gt; +cgroup_init(void)<br>
+<br>
+</span>For all of these, just make the non-static for all platforms. I don&=
+#39;t<br>
+like having stuff like this all over the generic code. If need be,<br>
+fio_init can be different for rtems.<br>
+<span class=3D""><br></span></blockquote><div>Noted. <br></div><blockquote =
+class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid=
+;padding-left:1ex"><span class=3D"">
+&gt; diff --git a/crc/xxhash.h b/crc/xxhash.h<br>
+&gt; index 8850d20..81bf51d 100644<br>
+&gt; --- a/crc/xxhash.h<br>
+&gt; +++ b/crc/xxhash.h<br>
+&gt; @@ -107,9 +107,16 @@ XXH32() :<br>
+&gt;=C2=A0 // Advanced Hash Functions<br>
+&gt;=C2=A0 //****************************<br>
+&gt;=C2=A0 <br>
+&gt; +/* Unlike most desktop OS, In Newlib unsigned int and uint32_t are di=
+fferent */<br>
+&gt; +#ifndef __rtems__<br>
+&gt;=C2=A0 void*=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0XXH32_init=C2=A0 =C2=A0(u=
+nsigned int seed);<br>
+&gt;=C2=A0 XXH_errorcode XXH32_update (void* state, const void* input, int =
+len);<br>
+&gt;=C2=A0 unsigned int=C2=A0 XXH32_digest (void* state);<br>
+&gt; +#else /* __rtems__ */<br>
+&gt; +void*=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0XXH32_init=C2=A0 =C2=A0(uint32=
+_t seed);<br>
+&gt; +XXH_errorcode XXH32_update (void* state, const void* input, int len);=
+<br>
+&gt; +uint32_t=C2=A0 XXH32_digest (void* state);<br>
+&gt; +#endif /* __rtems__ */<br>
+<br>
+</span>Same for this stuff, there&#39;s no need for this to be any differen=
+t for<br>
+rtems.<br>
+<span class=3D""><br>
+&gt; diff --git a/fio.c b/fio.c<br>
+&gt; index f19db1b..d4e0821 100644<br>
+&gt; --- a/fio.c<br>
+&gt; +++ b/fio.c<br>
+&gt; @@ -65,3 +65,6 @@ done:<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0deinitialize_fio();<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0return ret;<br>
+&gt;=C2=A0 }<br>
+&gt; +#ifdef __rtems__<br>
+&gt; +#include &lt;os/rtems/rtems-fio-wrap.h&gt;<br>
+&gt; +#endif /* __rtems__ */<br>
+<br>
+</span>Put that in your OS header.<br>
+<span class=3D""><br></span></blockquote><div>Ok <br></div><blockquote clas=
+s=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;pad=
+ding-left:1ex"><span class=3D"">
+&gt; diff --git a/fio.h b/fio.h<br>
+&gt; index 3ac552b..e382eb7 100644<br>
+&gt; --- a/fio.h<br>
+&gt; +++ b/fio.h<br>
+&gt; @@ -785,7 +785,11 @@ static inline void td_flags_clear(struct thread_d=
+ata *td, unsigned int *flags,<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0if (!td_async_processing(td))<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0*flags &amp;=3D =
+~value;<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0else<br>
+&gt; +#ifndef __rtems__<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0__sync_fetch_and=
+_and(flags, ~value);<br>
+&gt; +#else /* __rtems__ */<br>
+&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0atomic_fetch_and_expl=
+icit(<wbr>flags, ~value, memory_order_relaxed);<br>
+&gt; +#endif /* __rtems__ */<br>
+<br>
+</span>Handle this in your OS header as well.<br>
+<span class=3D""><br>
+&gt; diff --git a/fio_sem.c b/fio_sem.c<br>
+&gt; index 3b48061..b5bc9c2 100644<br>
+&gt; --- a/fio_sem.c<br>
+&gt; +++ b/fio_sem.c<br>
+&gt; @@ -56,9 +56,15 @@ struct fio_sem *fio_sem_init(int value)<br>
+&gt;=C2=A0 {<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0struct fio_sem *sem =3D NULL;<br>
+&gt;=C2=A0 <br>
+&gt; +#ifndef __rtems__<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0sem =3D (void *) mmap(NULL, sizeof(struct fi=
+o_sem),<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0PROT_READ | PROT_WRITE,<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0OS_MAP_ANON | MAP_SHARED, -1, 0);<=
+br>
+&gt; +#else /* __rtems__ */<br>
+&gt; +=C2=A0 =C2=A0 =C2=A0sem =3D (void *) mmap(NULL, sizeof(struct fio_sem=
+),<br>
+&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0PROT_READ | PROT_WRITE,<br>
+&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0OS_MAP_ANON | MAP_PRIVATE, -1, 0);<br>
+&gt; +#endif /* __rtems__ */<br>
+<br>
+</span>Hmm?<br>
+<br>
+General comment - everytime you feel the need to add an ifdef __rtems__<br>
+(or ifndef), you are going down the wrong path. Look at how the other OS<br=
+>
+types handle special cases and mimic that approach. Looks like your main<br=
+>
+difference is that you have to call initializers manually, which is a<br>
+bit nasty. But differences in types etc should not be handled by having<br>
+ifdefs in the generic code.<br>
+<span class=3D"HOEnZb"><font color=3D"#888888"><br></font></span></blockquo=
+te><div>Great! Thanks for your feedback. I was eagerly waiting for one. I&#=
+39;ll make the changes you told , probably by this weekend and will then re=
+send the patch.<br></div><blockquote class=3D"gmail_quote" style=3D"margin:=
+0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><span class=3D"HOEn=
+Zb"><font color=3D"#888888">
+-- <br>
+Jens Axboe<br>
+<br>
+</font></span></blockquote></div><br><br clear=3D"all"><br>-- <br><div clas=
+s=3D"gmail_signature" data-smartmail=3D"gmail_signature"><div dir=3D"ltr"><=
+div>Regards,<br></div>Udit kumar agarwal<br><a href=3D"http://uditagarwal.i=
+n/" target=3D"_blank">http://uditagarwal.in/</a><br></div></div>
+</div></div>
+
+--00000000000051e6830571c2fb5e--
 
