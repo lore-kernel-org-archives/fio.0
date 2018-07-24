@@ -1,100 +1,82 @@
-Return-Path: <Friendy.Su@sony.com>
-From: <Friendy.Su@sony.com>
-Subject: RE: [PATCH] idle-prof: append output cpu idleness data to terse log
-Date: Wed, 25 Jul 2018 08:47:09 +0000
-Message-ID: <925A83423110DA4D836092D40AC7A7E8084E52B0@APYOKXMS108.ap.sony.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] idle-prof: append output cpu idleness data to terse log
 References: <925A83423110DA4D836092D40AC7A7E8084E0DEE@APYOKXMS108.ap.sony.com>
  <AT5PR8401MB116995DF0FE7729E290EEAB5AB5C0@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
  <CAB-428=sjscbp4UoagO41K102Ba=Ng5uoXhVgCO4Uix4+zEg_g@mail.gmail.com>
  <CALjAwxgEqChgK++6YHxg7gCyGxT4=dCAy7cZNqOgHhC==cHuQA@mail.gmail.com>
  <CAB-428m9DFwvCUu6VOpF-mQkYxFWeb5VM-s4HcQC_F+DGw1xgg@mail.gmail.com>
  <AT5PR8401MB1169740953CAF420D64D20DCAB530@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
- <183ae5ea-594e-5197-d54a-3a8955e6b5f1@kernel.dk>
-In-Reply-To: <183ae5ea-594e-5197-d54a-3a8955e6b5f1@kernel.dk>
-Content-Language: zh-CN
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <183ae5ea-594e-5197-d54a-3a8955e6b5f1@kernel.dk>
+Date: Tue, 24 Jul 2018 09:40:33 -0600
 MIME-Version: 1.0
-Return-Path: Friendy.Su@sony.com
-To: axboe@kernel.dk, elliott@hpe.com, haghdoost@gmail.com, sitsofe@gmail.com
-Cc: fio@vger.kernel.org, No.Tanaka@sony.com, Hajime.Tomura@sony.com
+In-Reply-To: <AT5PR8401MB1169740953CAF420D64D20DCAB530@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>, Alireza Haghdoost <haghdoost@gmail.com>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "Friendy.Su@sony.com" <Friendy.Su@sony.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, "No.Tanaka@sony.com" <No.Tanaka@sony.com>, "Hajime.Tomura@sony.com" <Hajime.Tomura@sony.com>
 List-ID: <fio@vger.kernel.org>
 
-TWFueSBwZW9wbGUgYXJlIHN0aWxsIHVzZWQgdG8gcHJvY2VzcywgcGxvdCBkYXRhIGJ5IGV4Y2Vs
-LiBBcyBhIGZvcm1hdCB3aGljaCBjYW4gYmUgb3BlbmVkIGRpcmVjdGx5IGJ5IGV4Y2VsLCB0ZXJz
-ZSBpcyB3ZWxjb21lLg0KRXhhY3RseSB0ZXJzZSBsb2cgaGFzIGFscmVhZHkgdHJhaWxpbmcgdGhl
-IG5vcm1hbC9qc29uIGxvZywgaW1wcm92aW5nIGl0IGluc2lkZSBmaW8gbG9va3MgYSByZWR1bmRh
-bnQgd29yay4gSW5zdGVhZCwgaG93IGFib3V0IHByb3ZpZGUgYSBzY3JpcHQgdG8gY29udmVydCBq
-c29uIHRvIHRlcnNlIHVuZGVyIHRvb2xzLz9NZWFud2hpbGUsIGluIEhPV1RPIGRvYywgdGVsbCB1
-c2VyIHRvIHVzZSB0aGF0IHNjcmlwdCB0byBnZXQgYSAncGVyZmVjdCcgdGVyc2UuDQoNCj4gLS0t
-LS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmVucyBBeGJvZSBbbWFpbHRvOmF4Ym9l
-QGtlcm5lbC5ka10NCj4gU2VudDogVHVlc2RheSwgSnVseSAyNCwgMjAxOCAxMTo0MSBQTQ0KPiBU
-bzogRWxsaW90dCwgUm9iZXJ0IChQZXJzaXN0ZW50IE1lbW9yeSk7IEFsaXJlemEgSGFnaGRvb3N0
-OyBTaXRzb2ZlIFdoZWVsZXINCj4gQ2M6IFN1LCBGcmllbmR5OyBmaW9Admdlci5rZXJuZWwub3Jn
-OyBUYW5ha2EsIE5vYnV5dWtpIChTb255KTsgVG9tdXJhLCBIYWppbWUNCj4gKFNvbnkpDQo+IFN1
-YmplY3Q6IFJlOiBbUEFUQ0hdIGlkbGUtcHJvZjogYXBwZW5kIG91dHB1dCBjcHUgaWRsZW5lc3Mg
-ZGF0YSB0byB0ZXJzZSBsb2cNCj4NCj4gT24gNy8xNy8xOCA5OjE4IFBNLCBFbGxpb3R0LCBSb2Jl
-cnQgKFBlcnNpc3RlbnQgTWVtb3J5KSB3cm90ZToNCj4gPg0KPiA+DQo+ID4+IC0tLS0tT3JpZ2lu
-YWwgTWVzc2FnZS0tLS0tDQo+ID4+IEZyb206IEFsaXJlemEgSGFnaGRvb3N0IDxoYWdoZG9vc3RA
-Z21haWwuY29tPg0KPiA+PiBTZW50OiBUdWVzZGF5LCBKdWx5IDE3LCAyMDE4IDI6MjUgUE0NCj4g
-Pj4gVG86IFNpdHNvZmUgV2hlZWxlciA8c2l0c29mZUBnbWFpbC5jb20+DQo+ID4+IENjOiBFbGxp
-b3R0LCBSb2JlcnQgKFBlcnNpc3RlbnQgTWVtb3J5KSA8ZWxsaW90dEBocGUuY29tPjsNCj4gPj4g
-RnJpZW5keS5TdUBzb255LmNvbTsgZmlvQHZnZXIua2VybmVsLm9yZzsgTm8uVGFuYWthQHNvbnku
-Y29tOw0KPiA+PiBIYWppbWUuVG9tdXJhQHNvbnkuY29tDQo+ID4+IFN1YmplY3Q6IFJlOiBbUEFU
-Q0hdIGlkbGUtcHJvZjogYXBwZW5kIG91dHB1dCBjcHUgaWRsZW5lc3MgZGF0YSB0bw0KPiA+PiB0
-ZXJzZSBsb2cNCj4gPj4NCj4gPj4gT24gVHVlLCBKdWwgMTcsIDIwMTggYXQgMjoxMyBQTSwgU2l0
-c29mZSBXaGVlbGVyIDxzaXRzb2ZlQGdtYWlsLmNvbT4NCj4gd3JvdGU6DQo+ID4+Pg0KPiA+Pj4g
-T24gMTcgSnVseSAyMDE4IGF0IDE1OjMwLCBBbGlyZXphIEhhZ2hkb29zdCA8aGFnaGRvb3N0QGdt
-YWlsLmNvbT4NCj4gd3JvdGU6DQo+ID4+Pj4gT24gVHVlLCBKdWwgMTcsIDIwMTggYXQgOToxOCBB
-TSwgRWxsaW90dCwgUm9iZXJ0IChQZXJzaXN0ZW50IE1lbW9yeSkgLi4uDQo+ID4+Pj4+IFNpbmNl
-IHRoZSB0ZXJzZSBmb3JtYXQgaXMgbm90IHNlbGYtZGVzY3JpYmluZywgbmV3IGZpZWxkcyByZXF1
-aXJlDQo+ID4+Pj4+IGEgdmVyc2lvbiBidW1wIChzZWUgLXRlcnNlLXZlcnNpb24pLg0KPiA+Pj4+
-Pg0KPiA+Pj4+PiBNYXliZSBvbmUgb2YgdGhlIHZlcnNpb25zIHNob3VsZCBwcmludCBvdXQgdGhl
-IGZpZWxkIG5hbWVzIGFzIHRoZSBmaXJzdA0KPiA+Pj4+PiBsaW5lLCBzbyBpdCBiZWNvbWVzIHNl
-bGYtZGVzY3JpYmluZy4gIEkgZ3Vlc3MgdGhlIGpzb24gZm9ybWF0IGFscmVhZHkNCj4gPj4+Pj4g
-cHJvdmlkZXMgdGhhdCBmdW5jdGlvbmFsaXR5LCBzbyBpdCBtaWdodCBub3QgYmUgbmVjZXNzYXJ5
-Lg0KPiA+Pj4+Pg0KPiA+Pj4+IEhvdyBhYm91dCBhZGRpbmcgYW4gZXh0cmEgY29tbWFuZCBvcHRp
-b24gbGlrZSAtLXRlcnNlLWhlYWRlciB0aGF0DQo+ID4+Pj4gcHJpbnRzIG91dCB0aGUgaGVhZGVy
-IG9ubHk/IEl0IGlzIGhhcmQgdG8ga2VlcCB0cmFjayBvZiB0aGVzZSB2ZXJzaW9uDQo+ID4+Pj4g
-Y2hhbmdlcyBpbiBvbmUgcGxhY2UgYXQgdGhlIHVzZXIgbWFudWFsIG9yIHNvbWUgYmxvZyBwb3N0
-Lg0KPiA+Pj4+IHdpdGggYSB0ZXJzZSBoZWFkZXIgY29tbWFuZCBvcHRpb24sIEkgY2FuIGlnbm9y
-ZSB0aGUgdGVyc2UgdmVyc2lvbiBhbmQNCj4gPj4+PiBhZGp1c3QgbXkgdGVzdCBzY3JpcHRzIHRv
-IHF1ZXJ5IHRoZSBoZWFkZXIgZmlyc3QgYmVmb3JlIHJ1bm5pbmcgdGhlDQo+ID4+Pj4gdGVzdCwg
-dGhlbiBwdWxsIHRoZSByaWdodCBjb2x1bW4gYWZ0ZXIgdGhlIHRlc3QgZmluaXNoZXMuDQo+ID4+
-Pg0KPiA+Pj4gWW91IHdvdWxkIHRoZW4gbmVlZCB0byBkb2N1bWVudCBhbGwgdGhlIHRlcnNlIGZv
-cm1hdHMgYmVjYXVzZSB5b3UNCj4gPj4+IG5ldmVyIGtub3cgd2hpY2ggb25lIHNvbWVvbmUgd2ls
-bCB1c2UgKGl0IGxvb2tzIGxpa2UgdGhlcmUgYXJlIGZvdXI6DQo+ID4+PiBodHRwOi8vZmlvLnJl
-YWR0aGVkb2NzLmlvL2VuL2xhdGVzdC9maW9fZG9jLmh0bWwjY21kb3B0aW9uLXRlcnNlLXZlcnNp
-b24NCj4gPj4+ICkuIEF0IHRoaXMgc3RhZ2Ugc2hvdWxkbid0IHdlIGJlIG51ZGdpbmcgcGVvcGxl
-IHRvd2FyZHMgSlNPTiB3aGljaCBpcw0KPiA+Pj4gbW9yZSBzZWxmIGRlc2NyaWJpbmcgYW5kIGVh
-c2llciB0byBleHRlbmQgaW4gYSBiYWNrd2FyZHMgY29tcGF0aWJsZQ0KPiA+Pj4gbWFubmVyPw0K
-PiA+Pg0KPiA+PiBJIGFtIG9uIGJvYXJkIHdpdGggeW91ciBzdWdnZXN0aW9uIGJ1dCBub3QgZXZl
-cnkgdXNlciBtaWdodCBoYXZlIGENCj4gPj4gdGltZS9yZXNvdXJjZSB0byByZS1pbXBsZW1lbnQg
-dGhlaXIgZXhpc3RpbmcgdGVzdCBzY3JpcHQgdG8gd29yayB3aXRoDQo+ID4+IGpzb24uIFdlIHNo
-b3VsZCBzdG9wIGFkZGluZyBtb3JlIHZlcnNpb25zIG9mIHRoZSB0ZXJzZS4gT3RoZXJ3aXNlLCBJ
-Zg0KPiA+PiB3ZSB3YW50IHRvIGNvbnRpbnVlIHN1cHBvcnRpbmcgdGhlIHRlcnNlIGZvcm1hdCwg
-SSByZWNvbW1lbmQgdG8NCj4gPj4gZmlndXJlIG91dCBhIHByb2dyYW1tYXRpYyB3YXkgdG8gaGFu
-ZGxlIGl0cyBjb21wbGV4aXR5Lg0KPiA+DQo+ID4gSG93IGFib3V0IGRlZmluaW5nIHRoYXQgdGhl
-IG5leHQgdGVyc2UgdmVyc2lvbiBhbHdheXMgaW5jbHVkZXMNCj4gPiBhIGhlYWRlciBsaW5lLCBz
-byBpdCdsbCBiZSBzZWxmLWRlc2NyaWJpbmcgYW5kIGNhbiBiZSB0aGUgZmluYWwNCj4gPiB0ZXJz
-ZSB2ZXJzaW9uLg0KPg0KPiBJIGxpa2UgdGhhdCBpZGVhLiBXZSBhbHJlYWR5IGhhdmUgYSB2ZXJz
-aW9uIGF0IHRoZSBmcm9udCwgcHJvcGVyIHNjcmlwdHMNCj4gc2hvdWxkIGJlIGNoZWNraW5nIHRo
-YXQsIGFuZCB3ZSBjYW4gZnVydGhlciBtYWtlIGl0IHNhZmVyIGJ5IGFkZGluZw0KPiBuZXcgZmll
-bGRzIGF0IHRoZSBlbmQuDQo+DQo+IEhvbmVzdGx5LCBJIHJlYWxseSBkaXNsaWtlIHRoZSB0ZXJz
-ZSBmb3JtYXQuIEJ1dCBpdCdzIHRoZXJlIGFuZCBzb21lDQo+IHBlb3BsZSBsaWtlIHRvIHVzZSBp
-dCwgYW5kIGl0J3MgYSBzaGFtZSBpZiB3ZSBjYW4gYWRkIG5ldyBhZGRpdGlvbnMuIEl0J3MNCj4g
-YWxyZWFkeSB0cmFpbGluZyB0aGUganNvbi9ub3JtYWwgb3V0cHV0IGluIHZhcmlvdXMgY2FzZXMs
-IGZvciBpbnN0YW5jZQ0KPiBpdCBkb2Vzbid0IGluY2x1ZGUgZnN5bmMgb3V0cHV0IChhbmQgSSdt
-IHN1cmUgb3RoZXJzKS4gSWYgYXQgYWxsIHBvc3NpYmxlLA0KPiBJIGFsd2F5cyBwdXNoIHBlb3Bs
-ZSB0b3dhcmRzIGpzb24gaW5zdGVhZCBvZiB0aGUgbmFzdHkgdGVyc2Ugb3V0cHV0Lg0KPg0KPiAt
-LQ0KPiBKZW5zIEF4Ym9lDQoNCg0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18NCg0K
-VGhpcyBlbWFpbCBpcyBjb25maWRlbnRpYWwgYW5kIGludGVuZGVkIG9ubHkgZm9yIHRoZSB1c2Ug
-b2YgdGhlIGluZGl2aWR1YWwgb3IgZW50aXR5IG5hbWVkIGFib3ZlIGFuZCBtYXkgY29udGFpbiBp
-bmZvcm1hdGlvbiB0aGF0IGlzIHByaXZpbGVnZWQuIElmIHlvdSBhcmUgbm90IHRoZSBpbnRlbmRl
-ZCByZWNpcGllbnQsIHlvdSBhcmUgbm90aWZpZWQgdGhhdCBhbnkgZGlzc2VtaW5hdGlvbiwgZGlz
-dHJpYnV0aW9uIG9yIGNvcHlpbmcgb2YgdGhpcyBlbWFpbCBpcyBzdHJpY3RseSBwcm9oaWJpdGVk
-LiBJZiB5b3UgaGF2ZSByZWNlaXZlZCB0aGlzIGVtYWlsIGluIGVycm9yLCBwbGVhc2Ugbm90aWZ5
-IHVzIGltbWVkaWF0ZWx5IGJ5IHJldHVybiBlbWFpbCBvciB0ZWxlcGhvbmUgYW5kIGRlc3Ryb3kg
-dGhlIG9yaWdpbmFsIG1lc3NhZ2UuIC0gVGhpcyBtYWlsIGlzIHNlbnQgdmlhIFNvbnkgQXNpYSBQ
-YWNpZmljIE1haWwgR2F0ZXdheS4uDQo=
+On 7/17/18 9:18 PM, Elliott, Robert (Persistent Memory) wrote:
+> 
+> 
+>> -----Original Message-----
+>> From: Alireza Haghdoost <haghdoost@gmail.com>
+>> Sent: Tuesday, July 17, 2018 2:25 PM
+>> To: Sitsofe Wheeler <sitsofe@gmail.com>
+>> Cc: Elliott, Robert (Persistent Memory) <elliott@hpe.com>;
+>> Friendy.Su@sony.com; fio@vger.kernel.org; No.Tanaka@sony.com;
+>> Hajime.Tomura@sony.com
+>> Subject: Re: [PATCH] idle-prof: append output cpu idleness data to
+>> terse log
+>>
+>> On Tue, Jul 17, 2018 at 2:13 PM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>>>
+>>> On 17 July 2018 at 15:30, Alireza Haghdoost <haghdoost@gmail.com> wrote:
+>>>> On Tue, Jul 17, 2018 at 9:18 AM, Elliott, Robert (Persistent Memory) ...
+>>>>> Since the terse format is not self-describing, new fields require
+>>>>> a version bump (see -terse-version).
+>>>>>
+>>>>> Maybe one of the versions should print out the field names as the first
+>>>>> line, so it becomes self-describing.  I guess the json format already
+>>>>> provides that functionality, so it might not be necessary.
+>>>>>
+>>>> How about adding an extra command option like --terse-header that
+>>>> prints out the header only? It is hard to keep track of these version
+>>>> changes in one place at the user manual or some blog post.
+>>>> with a terse header command option, I can ignore the terse version and
+>>>> adjust my test scripts to query the header first before running the
+>>>> test, then pull the right column after the test finishes.
+>>>
+>>> You would then need to document all the terse formats because you
+>>> never know which one someone will use (it looks like there are four:
+>>> http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-terse-version
+>>> ). At this stage shouldn't we be nudging people towards JSON which is
+>>> more self describing and easier to extend in a backwards compatible
+>>> manner?
+>>
+>> I am on board with your suggestion but not every user might have a
+>> time/resource to re-implement their existing test script to work with
+>> json. We should stop adding more versions of the terse. Otherwise, If
+>> we want to continue supporting the terse format, I recommend to
+>> figure out a programmatic way to handle its complexity.
+> 
+> How about defining that the next terse version always includes
+> a header line, so it'll be self-describing and can be the final
+> terse version.
+
+I like that idea. We already have a version at the front, proper scripts
+should be checking that, and we can further make it safer by adding
+new fields at the end.
+
+Honestly, I really dislike the terse format. But it's there and some
+people like to use it, and it's a shame if we can add new additions. It's
+already trailing the json/normal output in various cases, for instance
+it doesn't include fsync output (and I'm sure others). If at all possible,
+I always push people towards json instead of the nasty terse output.
+
+-- 
+Jens Axboe
+
 
