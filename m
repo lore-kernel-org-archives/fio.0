@@ -1,9 +1,5 @@
-Return-Path: <prvs=7393583ac=Kris.Davis@wdc.com>
-From: Kris Davis <Kris.Davis@wdc.com>
-Subject: RE: [PATCH] idle-prof: append output cpu idleness data to terse log
-Date: Fri, 27 Jul 2018 15:57:27 +0000
-Message-ID: 
- <DM6PR04MB4697D2D5CFC42CB59751D294812A0@DM6PR04MB4697.namprd04.prod.outlook.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] idle-prof: append output cpu idleness data to terse log
 References: <925A83423110DA4D836092D40AC7A7E8084E0DEE@APYOKXMS108.ap.sony.com>
  <AT5PR8401MB116995DF0FE7729E290EEAB5AB5C0@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
  <CAB-428=sjscbp4UoagO41K102Ba=Ng5uoXhVgCO4Uix4+zEg_g@mail.gmail.com>
@@ -12,64 +8,27 @@ References: <925A83423110DA4D836092D40AC7A7E8084E0DEE@APYOKXMS108.ap.sony.com>
  <AT5PR8401MB1169740953CAF420D64D20DCAB530@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
  <183ae5ea-594e-5197-d54a-3a8955e6b5f1@kernel.dk>
  <925A83423110DA4D836092D40AC7A7E8084E52B0@APYOKXMS108.ap.sony.com>
- <c7bfede5-7711-12eb-8d6d-9dc2ca886700@kernel.dk>
-In-Reply-To: <c7bfede5-7711-12eb-8d6d-9dc2ca886700@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <c7bfede5-7711-12eb-8d6d-9dc2ca886700@kernel.dk>
+Date: Wed, 25 Jul 2018 07:48:28 -0700
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, "Friendy.Su@sony.com" <Friendy.Su@sony.com>, "elliott@hpe.com" <elliott@hpe.com>, "haghdoost@gmail.com" <haghdoost@gmail.com>, "sitsofe@gmail.com" <sitsofe@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "No.Tanaka@sony.com" <No.Tanaka@sony.com>, "Hajime.Tomura@sony.com" <Hajime.Tomura@sony.com>
+In-Reply-To: <925A83423110DA4D836092D40AC7A7E8084E52B0@APYOKXMS108.ap.sony.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Friendy.Su@sony.com, elliott@hpe.com, haghdoost@gmail.com, sitsofe@gmail.com
+Cc: fio@vger.kernel.org, No.Tanaka@sony.com, Hajime.Tomura@sony.com
 List-ID: <fio@vger.kernel.org>
 
-SSBkb24ndCByZWFsbHkgdXNlIHRoZSB0ZXJzZSBvdXRwdXQgbXlzZWxmLCBidXQgdGhlIHRlcnNl
-IGxhYmVscyBmcm9tIHRoZSBIT1dUTyBpbmNsdWRlIHNlcGFyYXRlIHZhbHVlcyBmb3IgcmVhZCBh
-bmQgd3JpdGVzLiAgSG93ZXZlciwgdGhlIGpzb24gb3V0cHV0IHdpbGwgb25seSBpbmNsdWRlICdt
-aXhlZCcgcmVzdWx0cyB3aGVuIC0tdW5pZmllZF9yd19yZXBvcnRpbmcgaXMgc2V0LiAgIEFsc28s
-IHRoZSB0ZXJzZSByZXBvcnRlZCBjbGF0IHBlcmNlbnRpbGVzIHNlZW0gdG8gYmUgZGlmZmVyZW50
-IHRoYW4gd2hhdCBpcyBpbmRpY2F0ZWQgaW4gLS1wZXJjZW50aWxlcyBvcHRpb24gaW4ganNvbi4g
-U28gd2l0aCBhIHNjcmlwdCBnZW5lcmF0aW5nIHRlcnNlIHJlc3VsdHMgZnJvbSB0aGUganNvbiBk
-YXRhLCB0aGUgcmVzdWx0cyB3b3VsZG4ndCBiZSBzdHJpY3RseSBpZGVudGljYWwsIGJ1dCB3aXRo
-IGhlYWRlcnMgaW5jbHVkZWQgdXNpbmcgc2NyaXB0cyBjb3VsZCBiZSBmbGV4aWJsZS4gIA0KDQpG
-b3Igd2hhdCBpdCdzIHdvcnRoLCBJIGNvdXBsZSBvZiBtb250aHMgYWdvLCBJIGNyZWF0ZWQgYSBw
-eXRob24zIG1vZHVsZSBhbmQgY2xhc3Mgd2hpY2ggcmVhZHMgZmlvIHYzKyBhbmQgY2FuIHByb2R1
-Y2UgYSBub3JtYWwgImxpa2UiIHJlc3VsdCBhbmQgYSAndGVyc2UnIGxpa2UgcmVzdWx0IHdpdGgg
-aGVhZGVycywgYWxvbmcgd2l0aCBzb21lIG1ldGhvZHMgdG8gaW50ZXJyb2dhdGUgb3ZlcmFsbCBp
-b3BzLCBtaXBzLCBldGMgKGZvciB1c2UgaW4gYSBzY3JpcHRzKS4gIEkgbGF0ZXIgZGlzY292ZXJl
-ZCBJIGNvdWxkIGxpc3QgYWxsIHRocmVlIChqc29uLG5vcm1hbCBhbmQgdGVyc2UpIGluIHRoZSBv
-dXRwdXQgb3B0aW9uLCBhbmQgc28gbW9zdGx5IHVzZSB0aGF0IGluIHNjcmlwdHMgdG8gaGF2ZSAi
-aHVtYW4iIHJlYWRhYmxlIGFuZCBqc29uIHNjcmlwdCByZWFkYWJsZS4gIFNvIEkgaGF2ZW4ndCBy
-ZWFsbHkgY29tcGxldGVseSB0ZXN0ZWQgYWxsIHRoaXMgY29kZS4gIEkgbW9zdGx5IHVzZSBpdCB0
-byBjaGVjayB0aGUgaW9wcywgbWlicywgbGF0ZW5jaWVzIGluIHNjcmlwdHMsIGFuZCB0aGVuIHN0
-cmlwIG91dCB0aGUgIm5vcm1hbCIgb3V0cHV0IGZvciBkaXNwbGF5LiAgSG93ZXZlciwgaXQgYWxz
-byBpbmNsdWRlICd0ZXJzZScgbGlrZSByZXN1bHRzLiAgSSd2ZSBkb25lIHNvbWUgY3Vyc29yeSB0
-ZXN0aW5nLg0KDQpJJ3ZlIGFkZGVkIGFyZ3VtZW50cyB0byB0aGUgbW9kdWxlcyBtYWluIHNlY3Rp
-b24gdG8gdHVybiBpbnRvIGEgc2NyaXB0LCBhbmQgaXQgbWF5IGJlIGEgc3RhcnRpbmcgcG9pbnQu
-ICBJdCB3b3VsZCBhbHNvIG5lZWQgaGVscCB0ZXN0IHRoZSBjb3JuZXIgY2FzZXMsIHNpbmNlIHRo
-ZXJlIGFyZSBzbyBtYW55IG9wdGlvbnMgd2l0aGluIEZpby4gIEknbSB3b3JraW5nIG9uIHNvbWUg
-b3RoZXIgdGhpbmdzIHdoaWNoIGhhdmUgcHJpb3JpdHkgYXQgdGhlIG1vbWVudCwgYnV0IGFueW9u
-ZSBpcyB3ZWxjb21lIHRvIHJ1biB3aXRoIGl0IGlmIHlvdSBuZWVkIHNvbWV0aGluZyBxdWlja2x5
-LiAgICANCg0KSSBwdXQgYSBzdGFydGluZyBwcm9wb3NhbCBzY3JpcHQgY2FsbCBmaW9KYXNvbklu
-dGVycHJldGVyLnB5IGF0IGh0dHBzOi8vZ2l0aHViLmNvbS9zaGltcm90L2Zpby90cmVlL2pzb25f
-b3V0cHV0X2NvbnZlcnNpb25fc2NyaXB0L3Rvb2xzIC4gSSBpbWFnaW5lIGEgc2NyaXB0IGZvciBw
-dWJsaWMgY29uc3VtcHRpb24gbWlnaHQgd2FudCBhIGRpZmZlcmVudCBuYW1lLg0KDQpUaGFua3MN
-Cg0KS3JpcyBEYXZpcw0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogZmlvLW93
-bmVyQHZnZXIua2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9u
-IEJlaGFsZiBPZiBKZW5zIEF4Ym9lDQpTZW50OiBXZWRuZXNkYXksIEp1bHkgMjUsIDIwMTggOTo0
-OCBBTQ0KVG86IEZyaWVuZHkuU3VAc29ueS5jb207IGVsbGlvdHRAaHBlLmNvbTsgaGFnaGRvb3N0
-QGdtYWlsLmNvbTsgc2l0c29mZUBnbWFpbC5jb20NCkNjOiBmaW9Admdlci5rZXJuZWwub3JnOyBO
-by5UYW5ha2FAc29ueS5jb207IEhhamltZS5Ub211cmFAc29ueS5jb20NClN1YmplY3Q6IFJlOiBb
-UEFUQ0hdIGlkbGUtcHJvZjogYXBwZW5kIG91dHB1dCBjcHUgaWRsZW5lc3MgZGF0YSB0byB0ZXJz
-ZSBsb2cNCg0KT24gNy8yNS8xOCAxOjQ3IEFNLCBGcmllbmR5LlN1QHNvbnkuY29tIHdyb3RlOg0K
-PiBNYW55IHBlb3BsZSBhcmUgc3RpbGwgdXNlZCB0byBwcm9jZXNzLCBwbG90IGRhdGEgYnkgZXhj
-ZWwuIEFzIGEgZm9ybWF0IHdoaWNoIGNhbiBiZSBvcGVuZWQgZGlyZWN0bHkgYnkgZXhjZWwsIHRl
-cnNlIGlzIHdlbGNvbWUuDQo+IEV4YWN0bHkgdGVyc2UgbG9nIGhhcyBhbHJlYWR5IHRyYWlsaW5n
-IHRoZSBub3JtYWwvanNvbiBsb2csIGltcHJvdmluZyBpdCBpbnNpZGUgZmlvIGxvb2tzIGEgcmVk
-dW5kYW50IHdvcmsuIEluc3RlYWQsIGhvdyBhYm91dCBwcm92aWRlIGEgc2NyaXB0IHRvIGNvbnZl
-cnQganNvbiB0byB0ZXJzZSB1bmRlciB0b29scy8/TWVhbndoaWxlLCBpbiBIT1dUTyBkb2MsIHRl
-bGwgdXNlciB0byB1c2UgdGhhdCBzY3JpcHQgdG8gZ2V0IGEgJ3BlcmZlY3QnIHRlcnNlLg0KDQpZ
-ZWFoLCBJIHdhcyB0aGlua2luZyB0aGUgZXhhY3Qgc2FtZSB0aGluZyB3aGlsZSBtdWxsaW5nIG92
-ZXIgdGhpcyB5ZXN0ZXJkYXkuDQpJIHRoaW5rIHRoYXQnZCBiZSBncmVhdCwgYW5kIHdvdWxkIGFs
-bG93IHVzIHRvIGtpbGwgdGhlIHRlcnNlIGNvZGUgaW4gZmlvIHByb3Blci4NCg0KLS0NCkplbnMg
-QXhib2UNCg0K
+On 7/25/18 1:47 AM, Friendy.Su@sony.com wrote:
+> Many people are still used to process, plot data by excel. As a format which can be opened directly by excel, terse is welcome.
+> Exactly terse log has already trailing the normal/json log, improving it inside fio looks a redundant work. Instead, how about provide a script to convert json to terse under tools/?Meanwhile, in HOWTO doc, tell user to use that script to get a 'perfect' terse.
+
+Yeah, I was thinking the exact same thing while mulling over this yesterday.
+I think that'd be great, and would allow us to kill the terse code in fio
+proper.
+
+-- 
+Jens Axboe
+
 
