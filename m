@@ -1,56 +1,67 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:55448 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727044AbeHCN4U (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 3 Aug 2018 09:56:20 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1flYkm-0001Se-1c
-        for fio@vger.kernel.org; Fri, 03 Aug 2018 12:00:20 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180803120002.890572C030F@kernel.dk>
-Date: Fri,  3 Aug 2018 06:00:02 -0600 (MDT)
+Received: from mail-ua0-f179.google.com ([209.85.217.179]:47056 "EHLO
+        mail-ua0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726688AbeHBAeV (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 1 Aug 2018 20:34:21 -0400
+Received: by mail-ua0-f179.google.com with SMTP id u11-v6so140114uan.13
+        for <fio@vger.kernel.org>; Wed, 01 Aug 2018 15:46:17 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CANvN+ekRKJ6r+bHpuHVzhunHn43=iY5abdxRKo4nUjrA7Fg72g@mail.gmail.com>
+References: <CANvN+ekqnT6YZ2LHPMzbF5hX4kSy+Tog9=8_+hoG+pz+JOrxsw@mail.gmail.com>
+ <CALjAwxi5b_Zd74VQkxnu4M_sEpLPOHXVs9PUojzypLoTSw=4ag@mail.gmail.com> <CANvN+ekRKJ6r+bHpuHVzhunHn43=iY5abdxRKo4nUjrA7Fg72g@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 1 Aug 2018 23:45:46 +0100
+Message-ID: <CALjAwxhLvSG2kMV7irfmtZgohJuFpzJPhcP2Pu+wBiP0BF=tCA@mail.gmail.com>
+Subject: Re: Multi-threaded verification in the partitiioned device case
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-The following changes since commit 284226f333be2fb7d859287fd3ab3c51b3636a92:
+On 1 August 2018 at 21:29, Andrey Kuzmin <andrey.v.kuzmin@gmail.com> wrote:
+>
+>
+> On Wed, Aug 1, 2018, 21:44 Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>>
+>> Hi,
+>>
+>> On 1 August 2018 at 18:06, Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+>> wrote:
+>> > As far as I understand, verification in the multi-threaded (num_jobs >
+>> > 1)
+>> > case is neither supported nor recommended.
+>> >
+>> > I wonder if it also holds for the case of a multiple-threaded job being
+>> > run
+>> > against a partitioned (using FIO's offset split machinery) device, with
+>> > thread per partition. Partitioning like this should very much avoid  any
+>> > inter-thread overlap, and seems to be safe to run in verify mode. I will
+>> > appreciate a comment on whether the simple reasoning above holds, or
+>> > something extra still needs to be done.
+>>
+>> If you can arrange for each "numjob" to write only to a region not
+>> touched by any other numjob/job then you can get a meaningful result.
+>> For example when fio is generating unique files for each numjob by
+>> itself there shouldn't be any problem (or warning). I guess another
+>> example would be using filename so all numjobs are using the same file
+>> but also using offset_increment
+>>
+>> (http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-offset-increment
+>> ) and an appropriate size together...
+>
+>
+> Yes, that's exactly what I meant by partitioning above. I also hope
+> verification doesn't depend in the random map, since otherwise in this case
+> one would have to take care of the map accesses to be atomic (presumably,
+> with offset_increment being properly aligned).
 
-  Merge branch 'fio-histo-fix' of https://github.com/parallel-fs-utils/fio (2018-07-30 08:24:20 -0600)
+I think each numjob gets its own map (they effectively become separate
+jobs) so as you said if offset_increment is aligned and the regions
+don't overlap there shouldn't be an issue. Take care if you are
+setting do_verify=0 and trying to do the verify from an entirely
+separate job as there are quirks if you don't write the entire region
+/ use variable block sizes etc...
 
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 17924179519397e49a7a82fd99d860f9ef077645:
-
-  Merge branch 'szaydel/solaris-Wincompatible-pointer-types' of https://github.com/szaydel/fio (2018-08-02 16:20:24 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'szaydel/solaris-Wincompatible-pointer-types' of https://github.com/szaydel/fio
-
-Sam Zaydel (1):
-      Fix incompatible pointer types warning on Solaris with gcc 6.4
-
- engines/solarisaio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/engines/solarisaio.c b/engines/solarisaio.c
-index 151f31d..21e9593 100644
---- a/engines/solarisaio.c
-+++ b/engines/solarisaio.c
-@@ -105,7 +105,7 @@ static struct io_u *fio_solarisaio_event(struct thread_data *td, int event)
- 	return sd->aio_events[event];
- }
- 
--static int fio_solarisaio_queue(struct thread_data fio_unused *td,
-+static enum fio_q_status fio_solarisaio_queue(struct thread_data fio_unused *td,
- 			      struct io_u *io_u)
- {
- 	struct solarisaio_data *sd = td->io_ops_data;
+-- 
+Sitsofe | http://sucs.org/~sits/
