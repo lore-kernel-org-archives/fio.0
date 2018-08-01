@@ -1,82 +1,41 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:43966 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753763AbeGEMAY (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 5 Jul 2018 08:00:24 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1fb2vv-0006qx-4T
-        for fio@vger.kernel.org; Thu, 05 Jul 2018 12:00:23 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180705120001.D18B02C006C@kernel.dk>
-Date: Thu,  5 Jul 2018 06:00:01 -0600 (MDT)
+Received: from mail-vk0-f49.google.com ([209.85.213.49]:34083 "EHLO
+        mail-vk0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729769AbeHAIgI (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 1 Aug 2018 04:36:08 -0400
+Received: by mail-vk0-f49.google.com with SMTP id l143-v6so8776491vke.1
+        for <fio@vger.kernel.org>; Tue, 31 Jul 2018 23:51:58 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CAB-428kzrUriC9SKetP+YJRdFefQRv0-=DVfeMyyFOiXim8svA@mail.gmail.com>
+References: <CAKTzs3R0S8q=tCkNZ99xqpJpjcAjDCphdSV_GvBbGKRA3GWOUw@mail.gmail.com>
+ <CAB-428kzrUriC9SKetP+YJRdFefQRv0-=DVfeMyyFOiXim8svA@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 1 Aug 2018 07:51:27 +0100
+Message-ID: <CALjAwxhYwwTZwb25uo6g8WZmQO3zTprjQr4ztvmdpKei-NEVRA@mail.gmail.com>
+Subject: Re: get err 5
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Alireza Haghdoost <haghdoost@gmail.com>
+Cc: =?UTF-8?B?2KLYsdi0INiu2KfZiNix24wg2LHYp9iv?= <arash.khavary@gmail.com>, fio <fio@vger.kernel.org>
 
-The following changes since commit 354d50e771451f510e5886275768abb63b602798:
+On 1 August 2018 at 07:39, Alireza Haghdoost <haghdoost@gmail.com> wrote:
+> Your jobs step on the foot of each other. You can=E2=80=99t write with mu=
+ltiple
+> process on the same LBA of a LUN on the same time. That is why you get er=
+ror
+> 5 because one thread is writting an LBA and another thread modify if at t=
+he
+> same time. In this case either one can get unknown result.
 
-  Fix compilation without cgroups (2018-06-29 08:00:29 -0600)
+I agree with part of this statement (unknown result in the LBA) but
+I'm doubtful it would cause an error message of "I/O error". Disks
+definitely do accept simultaneous write I/Os against the same LBA but
+the problem becomes that in most cases the end result as to which data
+the LBA will contain is undefined. It's not illegal (in the sense that
+nothing prevents and nothing will error) it's just bad from a data
+integrity perspective (and since this wasn't a verify job...).
 
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 19a8064ef4a2a826ee06ed061af970d1737cf840:
-
-  blktrace: just ignore zero byte traces (2018-07-04 14:59:18 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      blktrace: just ignore zero byte traces
-
- blktrace.c | 11 ++++++++++-
- debug.h    |  1 +
- 2 files changed, 11 insertions(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/blktrace.c b/blktrace.c
-index cda111a..36a7180 100644
---- a/blktrace.c
-+++ b/blktrace.c
-@@ -303,6 +303,11 @@ static void handle_trace_discard(struct thread_data *td,
- 	queue_io_piece(td, ipo);
- }
- 
-+static void dump_trace(struct blk_io_trace *t)
-+{
-+	log_err("blktrace: ignoring zero byte trace: action=%x\n", t->action);
-+}
-+
- static void handle_trace_fs(struct thread_data *td, struct blk_io_trace *t,
- 			    unsigned long long ttime, unsigned long *ios,
- 			    unsigned int *rw_bs)
-@@ -323,7 +328,11 @@ static void handle_trace_fs(struct thread_data *td, struct blk_io_trace *t,
- 			return;
- 	}
- 
--	assert(t->bytes);
-+	if (!t->bytes) {
-+		if (!fio_did_warn(FIO_WARN_BTRACE_ZERO))
-+			dump_trace(t);
-+		return;
-+	}
- 
- 	if (t->bytes > rw_bs[rw])
- 		rw_bs[rw] = t->bytes;
-diff --git a/debug.h b/debug.h
-index 8a8cf87..e5e8040 100644
---- a/debug.h
-+++ b/debug.h
-@@ -42,6 +42,7 @@ enum {
- 	FIO_WARN_ZONED_BUG	= 4,
- 	FIO_WARN_IOLOG_DROP	= 8,
- 	FIO_WARN_FADVISE	= 16,
-+	FIO_WARN_BTRACE_ZERO	= 32,
- };
- 
- #ifdef FIO_INC_DEBUG
+--=20
+Sitsofe | http://sucs.org/~sits/
