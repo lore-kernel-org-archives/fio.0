@@ -1,44 +1,61 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua0-f174.google.com ([209.85.217.174]:39557 "EHLO
-        mail-ua0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730848AbeHAUbx (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 1 Aug 2018 16:31:53 -0400
-Received: by mail-ua0-f174.google.com with SMTP id g18-v6so13383516uam.6
-        for <fio@vger.kernel.org>; Wed, 01 Aug 2018 11:44:46 -0700 (PDT)
+Received: from mail-vk0-f44.google.com ([209.85.213.44]:47099 "EHLO
+        mail-vk0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2407367AbeHATQR (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 1 Aug 2018 15:16:17 -0400
+Received: by mail-vk0-f44.google.com with SMTP id b14-v6so9696830vke.13
+        for <fio@vger.kernel.org>; Wed, 01 Aug 2018 10:29:34 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CANvN+ekqnT6YZ2LHPMzbF5hX4kSy+Tog9=8_+hoG+pz+JOrxsw@mail.gmail.com>
-References: <CANvN+ekqnT6YZ2LHPMzbF5hX4kSy+Tog9=8_+hoG+pz+JOrxsw@mail.gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Wed, 1 Aug 2018 19:44:15 +0100
-Message-ID: <CALjAwxi5b_Zd74VQkxnu4M_sEpLPOHXVs9PUojzypLoTSw=4ag@mail.gmail.com>
-Subject: Re: Multi-threaded verification in the partitiioned device case
-Content-Type: text/plain; charset="UTF-8"
+From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Date: Wed, 1 Aug 2018 20:06:10 +0300
+Message-ID: <CANvN+ekqnT6YZ2LHPMzbF5hX4kSy+Tog9=8_+hoG+pz+JOrxsw@mail.gmail.com>
+Subject: Multi-threaded verification in the partitiioned device case
+Content-Type: multipart/alternative; boundary="000000000000e27a8e057262b654"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
-Cc: fio <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hi,
+--000000000000e27a8e057262b654
+Content-Type: text/plain; charset="UTF-8"
 
-On 1 August 2018 at 18:06, Andrey Kuzmin <andrey.v.kuzmin@gmail.com> wrote:
-> As far as I understand, verification in the multi-threaded (num_jobs > 1)
-> case is neither supported nor recommended.
->
-> I wonder if it also holds for the case of a multiple-threaded job being run
-> against a partitioned (using FIO's offset split machinery) device, with
-> thread per partition. Partitioning like this should very much avoid  any
-> inter-thread overlap, and seems to be safe to run in verify mode. I will
-> appreciate a comment on whether the simple reasoning above holds, or
-> something extra still needs to be done.
+As far as I understand, verification in the multi-threaded (num_jobs > 1)
+case is neither supported nor recommended.
 
-If you can arrange for each "numjob" to write only to a region not
-touched by any other numjob/job then you can get a meaningful result.
-For example when fio is generating unique files for each numjob by
-itself there shouldn't be any problem (or warning). I guess another
-example would be using filename so all numjobs are using the same file
-but also using offset_increment
-(http://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-offset-increment
-) and an appropriate size together...
+I wonder if it also holds for the case of a multiple-threaded job being run
+against a partitioned (using FIO's offset split machinery) device, with
+thread per partition. Partitioning like this should very much avoid  any
+inter-thread overlap, and seems to be safe to run in verify mode. I will
+appreciate a comment on whether the simple reasoning above holds, or
+something extra still needs to be done.
 
+Regards,
+Andrey
 -- 
-Sitsofe | http://sucs.org/~sits/
+
+Regards,
+Andrey
+
+--000000000000e27a8e057262b654
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">As far as I understand,=C2=A0verification in the=C2=A0<spa=
+n style=3D"font-size:small;text-decoration-style:initial;text-decoration-co=
+lor:initial;float:none;display:inline">multi-threaded (num_jobs &gt; 1) cas=
+e is neither supported nor recommended.</span><div><br><div><div>I wonder i=
+f it also holds for the case of a multiple-threaded job being run against a=
+ partitioned (using FIO&#39;s offset split machinery) device, with thread p=
+er partition. Partitioning like this should very much avoid=C2=A0 any inter=
+-thread overlap, and seems to be safe to run in verify mode. I will appreci=
+ate a comment on whether the simple reasoning above holds, or something ext=
+ra still needs to be done.</div><div><div><span style=3D"font-size:small;te=
+xt-decoration-style:initial;text-decoration-color:initial;float:none;displa=
+y:inline"></span><br clear=3D"all"><div><div dir=3D"ltr" class=3D"m_4495116=
+673590232243gmail_signature" data-smartmail=3D"gmail_signature">Regards,<br=
+>Andrey<br></div></div></div></div></div></div></div><span>
+</span>-- <br><div dir=3D"ltr" class=3D"gmail_signature" data-smartmail=3D"=
+gmail_signature"><p dir=3D"ltr">Regards,<br>
+Andrey</p>
+</div>
+
+--000000000000e27a8e057262b654--
