@@ -1,52 +1,56 @@
-Return-Path: <prvs=76726b587=bart.vanassche@wdc.com>
-From: Bart Van Assche <bart.vanassche@wdc.com>
-Subject: [PATCH 02/11] Add the 'zbd' debug level
-Date: Fri, 24 Aug 2018 09:30:37 -0700
-Message-Id: <20180824163046.12304-3-bart.vanassche@wdc.com>
-In-Reply-To: <20180824163046.12304-1-bart.vanassche@wdc.com>
-References: <20180824163046.12304-1-bart.vanassche@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Bart Van Assche <bart.vanassche@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:55448 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727044AbeHCN4U (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 3 Aug 2018 09:56:20 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1flYkm-0001Se-1c
+        for fio@vger.kernel.org; Fri, 03 Aug 2018 12:00:20 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20180803120002.890572C030F@kernel.dk>
+Date: Fri,  3 Aug 2018 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-This debug level will be used in the next patch.
+The following changes since commit 284226f333be2fb7d859287fd3ab3c51b3636a92:
 
-Signed-off-by: Bart Van Assche <bart.vanassche@wdc.com>
+  Merge branch 'fio-histo-fix' of https://github.com/parallel-fs-utils/fio (2018-07-30 08:24:20 -0600)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 17924179519397e49a7a82fd99d860f9ef077645:
+
+  Merge branch 'szaydel/solaris-Wincompatible-pointer-types' of https://github.com/szaydel/fio (2018-08-02 16:20:24 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'szaydel/solaris-Wincompatible-pointer-types' of https://github.com/szaydel/fio
+
+Sam Zaydel (1):
+      Fix incompatible pointer types warning on Solaris with gcc 6.4
+
+ engines/solarisaio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 ---
- debug.h | 1 +
- init.c  | 4 ++++
- 2 files changed, 5 insertions(+)
 
-diff --git a/debug.h b/debug.h
-index e5e8040049ac..51b18de23544 100644
---- a/debug.h
-+++ b/debug.h
-@@ -22,6 +22,7 @@ enum {
- 	FD_COMPRESS,
- 	FD_STEADYSTATE,
- 	FD_HELPERTHREAD,
-+	FD_ZBD,
- 	FD_DEBUG_MAX,
- };
+Diff of recent changes:
+
+diff --git a/engines/solarisaio.c b/engines/solarisaio.c
+index 151f31d..21e9593 100644
+--- a/engines/solarisaio.c
++++ b/engines/solarisaio.c
+@@ -105,7 +105,7 @@ static struct io_u *fio_solarisaio_event(struct thread_data *td, int event)
+ 	return sd->aio_events[event];
+ }
  
-diff --git a/init.c b/init.c
-index 3ed57570c7e0..7514d1ab0af5 100644
---- a/init.c
-+++ b/init.c
-@@ -2263,6 +2263,10 @@ const struct debug_level debug_levels[] = {
- 	  .help = "Helper thread logging",
- 	  .shift = FD_HELPERTHREAD,
- 	},
-+	{ .name = "zbd",
-+	  .help = "Zoned Block Device logging",
-+	  .shift = FD_ZBD,
-+	},
- 	{ .name = NULL, },
- };
- 
--- 
-2.18.0
-
-
+-static int fio_solarisaio_queue(struct thread_data fio_unused *td,
++static enum fio_q_status fio_solarisaio_queue(struct thread_data fio_unused *td,
+ 			      struct io_u *io_u)
+ {
+ 	struct solarisaio_data *sd = td->io_ops_data;
