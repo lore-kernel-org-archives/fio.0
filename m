@@ -1,48 +1,53 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Subject: [PATCH] http: fix compile-time warnings
-Date: Fri, 17 Aug 2018 13:46:54 -0700
-Message-Id: <1534538814-8172-1-git-send-email-kusumi.tomohiro@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:60432 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730846AbeHFOIv (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 6 Aug 2018 10:08:51 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1fmeBA-0008Uj-DW
+        for fio@vger.kernel.org; Mon, 06 Aug 2018 12:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20180806120002.4CB4F2C0311@kernel.dk>
+Date: Mon,  6 Aug 2018 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Fix following warnings on RHEL6 and variants.
+The following changes since commit 1d73ff2a4a8f02905cf338b2f0286d76d64e7c2a:
 
-engines/http.c: In function 'fio_http_setup':
-engines/http.c:611: warning: call to '_curl_easy_setopt_err_seek_cb' declared with attribute warning: curl_easy_setopt expects a curl_seek_callback argument for this option
-engines/http.c: In function 'fio_http_queue':
-engines/http.c:549: warning: call to '_curl_easy_setopt_err_curl_off_t' declared with attribute warning: curl_easy_setopt expects a curl_off_t argument for this option
+  iolog: move the chunked items-to-fetch logic into separate function (2018-08-03 14:40:17 -0600)
 
-Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to b87ed299820c26e8c4271294b0c5037e8d0a3d4a:
+
+  client: support --status-interval option in client/server mode (2018-08-05 15:12:12 -0600)
+
+----------------------------------------------------------------
+Tomohiro Kusumi (1):
+      client: support --status-interval option in client/server mode
+
+ init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 ---
- engines/http.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/engines/http.c b/engines/http.c
-index cb66ebe..ac4898a 100644
---- a/engines/http.c
-+++ b/engines/http.c
-@@ -546,7 +546,7 @@ static enum fio_q_status fio_http_queue(struct thread_data *td,
- 	} else if (io_u->ddir == DDIR_TRIM) {
- 		curl_easy_setopt(http->curl, CURLOPT_HTTPGET, 1L);
- 		curl_easy_setopt(http->curl, CURLOPT_CUSTOMREQUEST, "DELETE");
--		curl_easy_setopt(http->curl, CURLOPT_INFILESIZE_LARGE, 0);
-+		curl_easy_setopt(http->curl, CURLOPT_INFILESIZE_LARGE, (curl_off_t)0);
- 		curl_easy_setopt(http->curl, CURLOPT_READDATA, NULL);
- 		curl_easy_setopt(http->curl, CURLOPT_WRITEDATA, NULL);
- 		res = curl_easy_perform(http->curl);
-@@ -608,7 +608,7 @@ static int fio_http_setup(struct thread_data *td)
- 	}
- 	curl_easy_setopt(http->curl, CURLOPT_READFUNCTION, _http_read);
- 	curl_easy_setopt(http->curl, CURLOPT_WRITEFUNCTION, _http_write);
--	curl_easy_setopt(http->curl, CURLOPT_SEEKFUNCTION, _http_seek);
-+	curl_easy_setopt(http->curl, CURLOPT_SEEKFUNCTION, (curl_seek_callback)_http_seek);
- 	if (o->user && o->pass) {
- 		curl_easy_setopt(http->curl, CURLOPT_USERNAME, o->user);
- 		curl_easy_setopt(http->curl, CURLOPT_PASSWORD, o->pass);
--- 
-1.7.1
+Diff of recent changes:
 
-
+diff --git a/init.c b/init.c
+index ede0a8b..06f6971 100644
+--- a/init.c
++++ b/init.c
+@@ -258,7 +258,7 @@ static struct option l_opts[FIO_NR_OPTIONS] = {
+ 	{
+ 		.name		= (char *) "status-interval",
+ 		.has_arg	= required_argument,
+-		.val		= 'L',
++		.val		= 'L' | FIO_CLIENT_FLAG,
+ 	},
+ 	{
+ 		.name		= (char *) "trigger-file",
