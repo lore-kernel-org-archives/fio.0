@@ -1,58 +1,46 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:46884 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726990AbeHaQHO (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 31 Aug 2018 12:07:14 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1fvi5t-0006oX-2X
-        for fio@vger.kernel.org; Fri, 31 Aug 2018 12:00:05 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180831120002.903522C00A1@kernel.dk>
-Date: Fri, 31 Aug 2018 06:00:02 -0600 (MDT)
+Received: from esa7.dell-outbound.iphmx.com ([68.232.153.96]:32429 "EHLO
+        esa7.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731065AbeHISBt (ORCPT
+        <rfc822;fio@vger.kernel.org>); Thu, 9 Aug 2018 14:01:49 -0400
+Received: from pps.filterd (m0142699.ppops.net [127.0.0.1])
+        by mx0a-00154901.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w79FMPw9075380
+        for <fio@vger.kernel.org>; Thu, 9 Aug 2018 11:25:17 -0400
+Received: from esa4.dell-outbound2.iphmx.com (esa4.dell-outbound2.iphmx.com [68.232.154.98])
+        by mx0a-00154901.pphosted.com with ESMTP id 2krkv51kk3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
+        for <fio@vger.kernel.org>; Thu, 09 Aug 2018 11:25:17 -0400
+From: "Beierl, Mark" <Mark.Beierl@dell.com>
+Subject: Re: How to fio benchmark on RAID device avoiding any caching
+Date: Thu, 9 Aug 2018 15:25:01 +0000
+Message-ID: <1708F6E2-0D25-4698-87BC-289925910E4D@emc.com>
+References: <trinity-501fac2d-a584-4e9d-8dd4-a0ffdc09985f-1533824046447@3c-app-webde-bs25>
+In-Reply-To: <trinity-501fac2d-a584-4e9d-8dd4-a0ffdc09985f-1533824046447@3c-app-webde-bs25>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <11BDA0245469814797E5BC939BC63519@mail.corp.emc.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "c.monty@web.de" <c.monty@web.de>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit 26b3a1880d38bc24b633a643339c9ca31f303d1c:
-
-  Make td_io_u_lock/unlock() explicit (2018-08-25 10:22:31 -0600)
-
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to c6cc1cfed2aec5ea348cbe8b8762ba8fd5fad966:
-
-  Merge branch 'configure-help' of https://github.com/hahnjo/fio (2018-08-30 08:22:21 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'configure-help' of https://github.com/hahnjo/fio
-
-Jonas Hahnfeld (1):
-      configure: Document more switches to disable features
-
- configure | 3 +++
- 1 file changed, 3 insertions(+)
-
----
-
-Diff of recent changes:
-
-diff --git a/configure b/configure
-index ab89df7..5e11195 100755
---- a/configure
-+++ b/configure
-@@ -226,6 +226,9 @@ if test "$show_help" = "yes" ; then
-   echo "--enable-gfio           Enable building of gtk gfio"
-   echo "--disable-numa          Disable libnuma even if found"
-   echo "--disable-rdma          Disable RDMA support even if found"
-+  echo "--disable-rados         Disable Rados support even if found"
-+  echo "--disable-rbd           Disable Rados Block Device even if found"
-+  echo "--disable-http          Disable HTTP support even if found"
-   echo "--disable-gfapi         Disable gfapi"
-   echo "--enable-libhdfs        Enable hdfs support"
-   echo "--disable-lex           Disable use of lex/yacc for math"
-
+SSBkb27igJl0IGtub3cgb2YgYW55IG1ldGhvZCB0byBoYXZlIGEgcHJvY2VzcyBvbiB0aGUgT1Mg
+aXNzdWUgaW5zdHJ1Y3Rpb25zIHRoYXQgd291bGQgYnlwYXNzIHRoZSBSQUlEIGNvbnRyb2xsZXLi
+gJlzIGNhY2hlLg0KDQpJIGhhdGUgdG8gc2F5IGl0LCBidXQgdGhlIG9ubHkgcmVhbGx5IGVmZmVj
+dGl2ZSB3YXkgb2YgZW5zdXJpbmcgeW91IGFyZSBub3QgbWVhc3VyaW5nIHRoZSBjYWNoZSBpcyB0
+byBlbnN1cmUgdGhhdCB5b3VyIHRlc3QgZmlsZSAob3IgZmlsZXMpIGFyZSBsYXJnZXIgKGxpa2Ug
+NC01IHRpbWVzKSB0aGFuIHRoZSBhbW91bnQgb2YgbWVtb3J5IGluIHRoZSBSQUlEIGNvbnRyb2xs
+ZXIuDQoNClJlZ2FyZHMsDQpNYXJrDQogDQpNYXJrIEJlaWVybA0KU1cgU3lzdGVtIFNyIFByaW5j
+aXBhbCBEZXZlbG9wZXINCkRlbGwgRU1DIHwgQ2xvdWQgJiBDb21tdW5pY2F0aW9uIFNlcnZpY2Ug
+UHJvdmlkZXIgU29sdXRpb24NCk1hcmsuQmVpZXJsQERlbGwuY29tDQoNCk9uIDIwMTgtMDgtMDks
+IDEwOjE0LCAiZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZyBvbiBiZWhhbGYgb2YgYy5tb250eUB3
+ZWIuZGUiIDxmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIG9uIGJlaGFsZiBvZiBjLm1vbnR5QHdl
+Yi5kZT4gd3JvdGU6DQoNCiAgICBIaSwNCiAgICANCiAgICBjYW4geW91IHJlY29tbWVuZCBhIGZp
+byBzZXR0aW5nIGZvciBiZW5jaG1hcmtpbmcgYSBSQUlEIGRldmljZSB0aGF0IGlzIGJ5cGFzc2lu
+ZyBhbnkgY2FjaGluZyBlZmZlY3RzIGluIGNhc2UgUkFJRCBjb250cm9sbGVyIGhhcyBjYWNoZSBl
+bmFibGVkPw0KICAgIA0KICAgIFRIWA0KICAgIC0tDQogICAgVG8gdW5zdWJzY3JpYmUgZnJvbSB0
+aGlzIGxpc3Q6IHNlbmQgdGhlIGxpbmUgInVuc3Vic2NyaWJlIGZpbyIgaW4NCiAgICB0aGUgYm9k
+eSBvZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21vQHZnZXIua2VybmVsLm9yZw0KICAgIE1vcmUgbWFq
+b3Jkb21vIGluZm8gYXQgIGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFqb3Jkb21vLWluZm8uaHRt
+bA0KICAgIA0KDQo=
