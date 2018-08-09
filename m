@@ -1,73 +1,32 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua1-f42.google.com ([209.85.222.42]:37045 "EHLO
-        mail-ua1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727334AbeHaKmO (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 31 Aug 2018 06:42:14 -0400
-Received: by mail-ua1-f42.google.com with SMTP id y10-v6so7414558uao.4
-        for <fio@vger.kernel.org>; Thu, 30 Aug 2018 23:36:18 -0700 (PDT)
+Received: from mx141.netapp.com ([216.240.21.12]:24381 "EHLO mx141.netapp.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732435AbeHISVo (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 9 Aug 2018 14:21:44 -0400
+From: neto from Brazil <Antonio.Jose.Rodrigues.Neto@netapp.com>
+Subject: Some questions about FIO
+Date: Thu, 9 Aug 2018 15:56:10 +0000
+Message-ID: <0C78F71C-8395-44D8-9B9C-E43C89604CF5@netapp.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <2B956859458F33448D58031CD77991E5@namprd06.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <0C78F71C-8395-44D8-9B9C-E43C89604CF5@netapp.com>
-In-Reply-To: <0C78F71C-8395-44D8-9B9C-E43C89604CF5@netapp.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Fri, 31 Aug 2018 07:35:51 +0100
-Message-ID: <CALjAwxj8GF=+wx0bTHrQOUxvd_d4=rg2_M00FV2xacyg0Og=EA@mail.gmail.com>
-Subject: Re: Some questions about FIO
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Neto, Antonio Jose Rodrigues" <Antonio.Jose.Rodrigues.Neto@netapp.com>
-Cc: fio <fio@vger.kernel.org>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hey Neto!
-
-On Thu, 9 Aug 2018 at 16:58, neto from Brazil
-<Antonio.Jose.Rodrigues.Neto@netapp.com> wrote:
->
-> Hi All,
->
-> This is neto from Brazil
->
-> How are you?
->
-> I would like to check if we have plans to have the following with FIO:
->
-> 1) When FIO runs, it shows IOPS + MB/s. Do we have any plans to show also=
- average latency? It would be really nice to have the latency (like Vdbench=
- has) - LIVE
-
-This sounds similar to https://github.com/axboe/fio/issues/584 . I
-don't see why it couldn't be done but someone is needed to code it
-up...
-
-> 2) It is possible to have an option to show the queue depth used on the s=
-ervers by FIO? It could help to identify potential bottlenecks (e.g. too ma=
-ny threads, etc) on the server side.
-
-Technically you get this in the IO depths summary data that fio
-reports back (see
-https://fio.readthedocs.io/en/latest/fio_doc.html#interpreting-the-output
-) albeit from fio's perspective.
-
-> 3) We don't have a curve option like vdbench. Do we have plans to have it=
- on FIO? It would be really nice to have a parameter like curve (10-120) wh=
-ich means: try the MAX, after to get the average, does 10%, does 20%. It wo=
-uld help to identify the "knee" on the curve.
-
-From the vdbench manual:
-
-"When no skew is requested for any workload involved, determine the
-maximum possible I/O rate by running 'iorate=3Dmax'. After this 'max'
-run, the target skew for the requested workloads will be set to the
-skew that was observed. Workloads of 10%, 50%, 70%, 80%, 90% and 100%
-of the observed maximum I/O rate and skew will be run."
-
-Sounds like a mix of Steady state
-(https://fio.readthedocs.io/en/latest/fio_doc.html#steady-state ) and
-diskplorer https://github.com/avikivity/diskplorer with more
-flexibility. Like 1) if someone were to code it up I'm sure it would
-be looked at...
-
---=20
-Sitsofe | http://sucs.org/~sits/
-
+SGkgQWxsLA0KDQpUaGlzIGlzIG5ldG8gZnJvbSBCcmF6aWwNCg0KSG93IGFyZSB5b3U/DQoNCkkg
+d291bGQgbGlrZSB0byBjaGVjayBpZiB3ZSBoYXZlIHBsYW5zIHRvIGhhdmUgdGhlIGZvbGxvd2lu
+ZyB3aXRowqBGSU86DQoNCjEpIFdoZW7CoEZJT8KgcnVucywgaXQgc2hvd3MgSU9QUyArIE1CL3Mu
+IERvIHdlIGhhdmUgYW55IHBsYW5zIHRvIHNob3cgYWxzbyBhdmVyYWdlIGxhdGVuY3k/IEl0IHdv
+dWxkIGJlIHJlYWxseSBuaWNlIHRvIGhhdmUgdGhlIGxhdGVuY3kgKGxpa2UgVmRiZW5jaCBoYXMp
+IC0gTElWRQ0KMikgSXQgaXMgcG9zc2libGUgdG8gaGF2ZSBhbiBvcHRpb24gdG8gc2hvdyB0aGUg
+cXVldWUgZGVwdGggdXNlZCBvbiB0aGUgc2VydmVycyBiecKgRklPPyBJdCBjb3VsZCBoZWxwIHRv
+IGlkZW50aWZ5IHBvdGVudGlhbCBib3R0bGVuZWNrcyAoZS5nLiB0b28gbWFueSB0aHJlYWRzLCBl
+dGMpIG9uIHRoZSBzZXJ2ZXIgc2lkZS4NCjMpIFdlIGRvbid0IGhhdmUgYcKgY3VydmUgb3B0aW9u
+IGxpa2UgdmRiZW5jaC4gRG8gd2UgaGF2ZSBwbGFucyB0byBoYXZlIGl0IG9uwqBGSU8/IEl0IHdv
+dWxkIGJlIHJlYWxseSBuaWNlIHRvIGhhdmUgYSBwYXJhbWV0ZXIgbGlrZcKgY3VydmUgKDEwLTEy
+MCkgd2hpY2ggbWVhbnM6IHRyeSB0aGUgTUFYLCBhZnRlciB0byBnZXQgdGhlIGF2ZXJhZ2UsIGRv
+ZXMgMTAlLCBkb2VzIDIwJS4gSXQgd291bGQgaGVscCB0byBpZGVudGlmeSB0aGUgImtuZWUiIG9u
+IHRoZcKgY3VydmUuDQoNClRoYW5rcywNCg0KbmV0bw0KDQoNCg0K
