@@ -1,303 +1,63 @@
-Return-Path: <prvs=76726b587=bart.vanassche@wdc.com>
-From: Bart Van Assche <bart.vanassche@wdc.com>
-Subject: [PATCH 10/11] Add support for resetting zones periodically
-Date: Fri, 24 Aug 2018 09:30:45 -0700
-Message-Id: <20180824163046.12304-11-bart.vanassche@wdc.com>
-In-Reply-To: <20180824163046.12304-1-bart.vanassche@wdc.com>
-References: <20180824163046.12304-1-bart.vanassche@wdc.com>
+Return-Path: <prvs=758a399e1=jeff.furlong@wdc.com>
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: fio serialize across jobs
+Date: Wed, 15 Aug 2018 00:04:02 +0000
+Message-ID: 
+ <MWHPR04MB03204883C3484F1151BBFAB38F3F0@MWHPR04MB0320.namprd04.prod.outlook.com>
+References: 
+ <MWHPR04MB0320ED986E73B1E9994929B38F470@MWHPR04MB0320.namprd04.prod.outlook.com>
+ <CALjAwxiTqn3U2vnOOCV1CZ3BkzXQ_KUaHK3wjw1WsbT5zg33rg@mail.gmail.com>
+ <MWHPR04MB0320201F570BDAC2EB3A46DD8F440@MWHPR04MB0320.namprd04.prod.outlook.com>
+ <48d5448e-de1b-09cd-1abf-6549e65fd097@kernel.dk>
+In-Reply-To: <48d5448e-de1b-09cd-1abf-6549e65fd097@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Bart Van Assche <bart.vanassche@wdc.com>
+To: Jens Axboe <axboe@kernel.dk>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-Filesystems that support zoned block devices typically perform garbage
-collection if device usage exceeds a certain threshold. Add two command
-line options that allow to simulate this behavior.
-
-Signed-off-by: Bart Van Assche <bart.vanassche@wdc.com>
----
- HOWTO            | 14 ++++++++
- fio.1            | 11 ++++++
- options.c        | 24 +++++++++++++
- thread_options.h |  2 ++
- zbd.c            | 89 +++++++++++++++++++++++++++++++++++++++++++++++-
- zbd.h            |  5 +++
- 6 files changed, 144 insertions(+), 1 deletion(-)
-
-diff --git a/HOWTO b/HOWTO
-index 25ce5c497821..7bbd589838ed 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1025,6 +1025,20 @@ Target file/device
- 	number of open zones is defined as the number of zones to which write
- 	commands are issued.
- 
-+.. option:: zone_reset_threshold=float
-+
-+	A number between zero and one that indicates the ratio of logical
-+	blocks with data to the total number of logical blocks in the test
-+	above which zones should be reset periodically.
-+
-+.. option:: zone_reset_frequency=float
-+
-+	A number between zero and one that indicates how often a zone reset
-+	should be issued if the zone reset threshold has been exceeded. A zone
-+	reset is submitted after each (1 / zone_reset_frequency) write
-+	requests. This and the previous parameter can be used to simulate
-+	garbage collection activity.
-+
- 
- I/O type
- ~~~~~~~~
-diff --git a/fio.1 b/fio.1
-index 7172d951ca2f..b555b208b382 100644
---- a/fio.1
-+++ b/fio.1
-@@ -786,6 +786,17 @@ When running a random write test across an entire drive many more zones will be
- open than in a typical application workload. Hence this command line option
- that allows to limit the number of open zones. The number of open zones is
- defined as the number of zones to which write commands are issued.
-+.TP
-+.BI zone_reset_threshold \fR=\fPfloat
-+A number between zero and one that indicates the ratio of logical blocks with
-+data to the total number of logical blocks in the test above which zones
-+should be reset periodically.
-+.TP
-+.BI zone_reset_frequency \fR=\fPfloat
-+A number between zero and one that indicates how often a zone reset should be
-+issued if the zone reset threshold has been exceeded. A zone reset is
-+submitted after each (1 / zone_reset_frequency) write requests. This and the
-+previous parameter can be used to simulate garbage collection activity.
- 
- .SS "I/O type"
- .TP
-diff --git a/options.c b/options.c
-index 20b64648004e..534233bdbc29 100644
---- a/options.c
-+++ b/options.c
-@@ -3318,6 +3318,30 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.category = FIO_OPT_C_IO,
- 		.group	= FIO_OPT_G_INVALID,
- 	},
-+	{
-+		.name	= "zone_reset_threshold",
-+		.lname	= "Zone reset threshold",
-+		.help	= "Zoned block device reset threshold",
-+		.type	= FIO_OPT_FLOAT_LIST,
-+		.maxlen	= 1,
-+		.off1	= offsetof(struct thread_options, zrt),
-+		.minfp	= 0,
-+		.maxfp	= 1,
-+		.category = FIO_OPT_C_IO,
-+		.group	= FIO_OPT_G_ZONE,
-+	},
-+	{
-+		.name	= "zone_reset_frequency",
-+		.lname	= "Zone reset frequency",
-+		.help	= "Zoned block device zone reset frequency in HZ",
-+		.type	= FIO_OPT_FLOAT_LIST,
-+		.maxlen	= 1,
-+		.off1	= offsetof(struct thread_options, zrf),
-+		.minfp	= 0,
-+		.maxfp	= 1,
-+		.category = FIO_OPT_C_IO,
-+		.group	= FIO_OPT_G_ZONE,
-+	},
- 	{
- 		.name	= "lockmem",
- 		.lname	= "Lock memory",
-diff --git a/thread_options.h b/thread_options.h
-index 597c4221f199..393158340e96 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -338,6 +338,8 @@ struct thread_options {
- 	/* Parameters that affect zonemode=zbd */
- 	unsigned int read_beyond_wp;
- 	int max_open_zones;
-+	fio_fp64_t zrt;
-+	fio_fp64_t zrf;
- };
- 
- #define FIO_TOP_STR_MAX		256
-diff --git a/zbd.c b/zbd.c
-index 328cdead1fa3..d97395a40868 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -599,6 +599,9 @@ static int zbd_reset_range(struct thread_data *td, const struct fio_file *f,
- 	ze = &f->zbd_info->zone_info[zone_idx_e];
- 	for (z = zb; z < ze; z++) {
- 		pthread_mutex_lock(&z->mutex);
-+		pthread_mutex_lock(&f->zbd_info->mutex);
-+		f->zbd_info->sectors_with_data -= z->wp - z->start;
-+		pthread_mutex_unlock(&f->zbd_info->mutex);
- 		z->wp = z->start;
- 		z->verify_block = 0;
- 		pthread_mutex_unlock(&z->mutex);
-@@ -697,10 +700,65 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
- 	return res;
- }
- 
-+/*
-+ * Reset zbd_info.write_cnt, the counter that counts down towards the next
-+ * zone reset.
-+ */
-+static void zbd_reset_write_cnt(const struct thread_data *td,
-+				const struct fio_file *f)
-+{
-+	assert(0 <= td->o.zrf.u.f && td->o.zrf.u.f <= 1);
-+
-+	pthread_mutex_lock(&f->zbd_info->mutex);
-+	f->zbd_info->write_cnt = td->o.zrf.u.f ?
-+		min(1.0 / td->o.zrf.u.f, 0.0 + UINT_MAX) : UINT_MAX;
-+	pthread_mutex_unlock(&f->zbd_info->mutex);
-+}
-+
-+static bool zbd_dec_and_reset_write_cnt(const struct thread_data *td,
-+					const struct fio_file *f)
-+{
-+	uint32_t write_cnt = 0;
-+
-+	pthread_mutex_lock(&f->zbd_info->mutex);
-+	assert(f->zbd_info->write_cnt);
-+	if (f->zbd_info->write_cnt)
-+		write_cnt = --f->zbd_info->write_cnt;
-+	if (write_cnt == 0)
-+		zbd_reset_write_cnt(td, f);
-+	pthread_mutex_unlock(&f->zbd_info->mutex);
-+
-+	return write_cnt == 0;
-+}
-+
-+/* Check whether the value of zbd_info.sectors_with_data is correct. */
-+static void check_swd(const struct thread_data *td, const struct fio_file *f)
-+{
-+#if 0
-+	struct fio_zone_info *zb, *ze, *z;
-+	uint64_t swd;
-+
-+	zb = &f->zbd_info->zone_info[zbd_zone_idx(f, f->file_offset)];
-+	ze = &f->zbd_info->zone_info[zbd_zone_idx(f, f->file_offset +
-+						  f->io_size)];
-+	swd = 0;
-+	for (z = zb; z < ze; z++) {
-+		pthread_mutex_lock(&z->mutex);
-+		swd += z->wp - z->start;
-+	}
-+	pthread_mutex_lock(&f->zbd_info->mutex);
-+	assert(f->zbd_info->sectors_with_data == swd);
-+	pthread_mutex_unlock(&f->zbd_info->mutex);
-+	for (z = zb; z < ze; z++)
-+		pthread_mutex_unlock(&z->mutex);
-+#endif
-+}
-+
- void zbd_file_reset(struct thread_data *td, struct fio_file *f)
- {
--	struct fio_zone_info *zb, *ze;
-+	struct fio_zone_info *zb, *ze, *z;
- 	uint32_t zone_idx_e;
-+	uint64_t swd = 0;
- 
- 	if (!f->zbd_info)
- 		return;
-@@ -708,6 +766,16 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
- 	zb = &f->zbd_info->zone_info[zbd_zone_idx(f, f->file_offset)];
- 	zone_idx_e = zbd_zone_idx(f, f->file_offset + f->io_size);
- 	ze = &f->zbd_info->zone_info[zone_idx_e];
-+	for (z = zb ; z < ze; z++) {
-+		pthread_mutex_lock(&z->mutex);
-+		swd += z->wp - z->start;
-+	}
-+	pthread_mutex_lock(&f->zbd_info->mutex);
-+	f->zbd_info->sectors_with_data = swd;
-+	pthread_mutex_unlock(&f->zbd_info->mutex);
-+	for (z = zb ; z < ze; z++)
-+		pthread_mutex_unlock(&z->mutex);
-+	dprint(FD_ZBD, "%s(%s): swd = %ld\n", __func__, f->file_name, swd);
- 	/*
- 	 * If data verification is enabled reset the affected zones before
- 	 * writing any data to avoid that a zone reset has to be issued while
-@@ -716,6 +784,7 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
- 	zbd_reset_zones(td, f, zb, ze, td->o.verify != VERIFY_NONE &&
- 			(td->o.td_ddir & TD_DDIR_WRITE) &&
- 			td->runstate != TD_VERIFYING);
-+	zbd_reset_write_cnt(td, f);
- }
- 
- /* The caller must hold f->zbd_info->mutex. */
-@@ -1017,6 +1086,14 @@ static void zbd_post_submit(const struct io_u *io_u, bool success)
- 	switch (io_u->ddir) {
- 	case DDIR_WRITE:
- 		zone_end = min(end, (z + 1)->start);
-+		pthread_mutex_lock(&zbd_info->mutex);
-+		/*
-+		 * z->wp > zone_end means that one or more I/O errors
-+		 * have occurred.
-+		 */
-+		if (z->wp <= zone_end)
-+			zbd_info->sectors_with_data += zone_end - z->wp;
-+		pthread_mutex_unlock(&zbd_info->mutex);
- 		z->wp = zone_end;
- 		break;
- 	case DDIR_TRIM:
-@@ -1121,6 +1198,15 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 				goto eof;
- 			zone_idx_b = zb - f->zbd_info->zone_info;
- 		}
-+		/* Check whether the zone reset threshold has been exceeded */
-+		if (td->o.zrf.u.f) {
-+			check_swd(td, f);
-+			if ((f->zbd_info->sectors_with_data << 9) >=
-+			    f->io_size * td->o.zrt.u.f &&
-+			    zbd_dec_and_reset_write_cnt(td, f)) {
-+				zb->reset_zone = 1;
-+			}
-+		}
- 		/* Reset the zone pointer if necessary */
- 		if (zb->reset_zone || zbd_zone_full(f, zb, min_bs)) {
- 			assert(td->o.verify == VERIFY_NONE);
-@@ -1135,6 +1221,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 			zb->reset_zone = 0;
- 			if (zbd_reset_zone(td, f, zb) < 0)
- 				goto eof;
-+			check_swd(td, f);
- 		}
- 		/* Make writes occur at the write pointer */
- 		assert(!zbd_zone_full(f, zb, min_bs));
-diff --git a/zbd.h b/zbd.h
-index 272cb9456e6f..8b230554eb1f 100644
---- a/zbd.h
-+++ b/zbd.h
-@@ -60,11 +60,14 @@ struct fio_zone_info {
-  * @mutex: Protects the modifiable members in this structure (refcount and
-  *		num_open_zones).
-  * @zone_size: size of a single zone in units of 512 bytes
-+ * @sectors_with_data: total size of data in all zones in units of 512 bytes
-  * @zone_size_log2: log2 of the zone size in bytes if it is a power of 2 or 0
-  *		if the zone size is not a power of 2.
-  * @nr_zones: number of zones
-  * @refcount: number of fio files that share this structure
-  * @num_open_zones: number of open zones
-+ * @write_cnt: Number of writes since the latest zone reset triggered by
-+ *	       the zone_reset_frequency fio job parameter.
-  * @open_zones: zone numbers of open zones
-  * @zone_info: description of the individual zones
-  *
-@@ -76,10 +79,12 @@ struct zoned_block_device_info {
- 	enum blk_zoned_model	model;
- 	pthread_mutex_t		mutex;
- 	uint64_t		zone_size;
-+	uint64_t		sectors_with_data;
- 	uint32_t		zone_size_log2;
- 	uint32_t		nr_zones;
- 	uint32_t		refcount;
- 	uint32_t		num_open_zones;
-+	uint32_t		write_cnt;
- 	uint32_t		open_zones[FIO_MAX_OPEN_ZBD_ZONES];
- 	struct fio_zone_info	zone_info[0];
- };
--- 
-2.18.0
-
+R29pbmcgYmFjayB0byB0aGlzIHRvcGljLiAgDQoNClN1cHBvc2UgLS1zZXJpYWxpemVfb3Zlcmxh
+cD0xIGFuZCAtLWlvX3N1Ym1pdF9tb2RlPW9mZmxvYWQuICBXb3VsZCB0aGUgc3VnZ2VzdGlvbiBi
+ZSB0byBhcHBseSBpbl9mbGlnaHRfb3ZlcmxhcCgpIHdpdGhpbiB3b3JrcXVldWVfZW5xdWV1ZSgp
+Pw0KDQpSZWdhcmRzLA0KSmVmZg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTog
+ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5v
+cmddIE9uIEJlaGFsZiBPZiBKZW5zIEF4Ym9lDQpTZW50OiBUaHVyc2RheSwgSnVseSAxMiwgMjAx
+OCAxMDoxMyBBTQ0KVG86IEplZmYgRnVybG9uZyA8amVmZi5mdXJsb25nQHdkYy5jb20+OyBTaXRz
+b2ZlIFdoZWVsZXIgPHNpdHNvZmVAZ21haWwuY29tPg0KQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmcN
+ClN1YmplY3Q6IFJlOiBmaW8gc2VyaWFsaXplIGFjcm9zcyBqb2JzDQoNCkdlbmVyYWwgY29tbWVu
+dHMgb24gdGhpcy4uLiBGaW8gZG9lcyBoYXZlIGEgbm90aW9uIG9mIGhhdmluZyBtdWx0aXBsZSB3
+b3JrZXJzIHBlciBzdGF0ZSwgbW9zdCBub3RhYmx5IGZvciB0aGUgb2ZmbG9hZCBJTyBtb2RlbCAo
+aW9fc3VibWl0X21vZGUpLg0KVGhhdCB3b3VsZCBtYWtlIGV0aGUgbW9zdCBzZW5zZSB0byB1dGls
+aXplIGZvciBzb21ldGhpbmcgbGlrZSB0aGlzLCByYXRoZXIgdGhhbiBoYXZpbmcgaW5kZXBlbmRl
+bnQgam9icyB0aGF0IG5lZWQgdG8gc2hhcmUgYmFzaWNhbGx5IGV2ZXJ5dGhpbmcuDQpZb3UgZW5k
+IHVwIHdpdGggYSByYXRoZXIgbGFyZ2UgcmV3b3JrLCBvbmx5IHRvIGFycml2ZSBhdCB3aGF0IHRo
+ZSBvZmZsb2FkIElPIG1vZGVsIGNhbiBhbHJlYWR5IGRvLg0KDQoNCk9uIDcvOS8xOCAxMTo1OCBB
+TSwgSmVmZiBGdXJsb25nIHdyb3RlOg0KPiBXaGF0IGlmIHdlIGxpbWl0ZWQgdGhlIGpvYnMgdG8g
+MiBhbmQgbGltaXRlZCB0aGUgc2Vjb25kIGpvYidzIFFEIHRvIDE/ICBNaWdodCB0aGF0IGxpbWl0
+IHRoZSBsb2NraW5nIG92ZXJoZWFkPw0KPiANCj4gUmVnYXJkcywNCj4gSmVmZg0KPiANCj4gLS0t
+LS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU2l0c29mZSBXaGVlbGVyIFttYWlsdG86
+c2l0c29mZUBnbWFpbC5jb21dDQo+IFNlbnQ6IEZyaWRheSwgSnVseSA2LCAyMDE4IDk6MjMgUE0N
+Cj4gVG86IEplZmYgRnVybG9uZyA8amVmZi5mdXJsb25nQHdkYy5jb20+DQo+IENjOiBmaW9Admdl
+ci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IFJlOiBmaW8gc2VyaWFsaXplIGFjcm9zcyBqb2JzDQo+
+IA0KPiBIaSwNCj4gDQo+IE9uIDYgSnVseSAyMDE4IGF0IDIzOjE0LCBKZWZmIEZ1cmxvbmcgPGpl
+ZmYuZnVybG9uZ0B3ZGMuY29tPiB3cm90ZToNCj4+IEhpIEFsbCwNCj4+IEJhY2sgaW4gY29tbWl0
+IDk5N2I1NjgwZDEzOWNlODJjMjAzNGJhM2EwZDYwMmNmZDc3OGI4OWIgImZpbzogYWRkIHNlcmlh
+bGl6ZV9vdmVybGFwIG9wdGlvbiIgdGhlIGZlYXR1cmUgd2FzIGFkZGVkIHRvIHByZXZlbnQgd3Jp
+dGUvdHJpbSByYWNlIGNvbmRpdGlvbnMgd2l0aGluIHRoZSBxdWV1ZS4gIENhbiB0aGlzIGZlYXR1
+cmUgYmUgYXBwbGllZCB0byBtdWx0aXBsZSBqb2JzPyAgQ29uc2lkZXI6DQo+Pg0KPj4gZmlvIC0t
+aW9lbmdpbmU9bGliYWlvIC0tZGlyZWN0PTEgIC0tZmlsZW5hbWU9L2Rldi9udm1lMG4xIA0KPj4g
+LS10aW1lX2Jhc2VkDQo+PiAtLW5hbWU9dGVzdDEgLS1ydz1yYW5kd3JpdGUgLS1ydW50aW1lPTVz
+IC0tbmFtZT10ZXN0MiAtLXJ3PXJhbmR3cml0ZSANCj4+IC0tcnVudGltZT01cyAtLXNlcmlhbGl6
+ZV9vdmVybGFwPTENCj4+DQo+PiBXb3VsZCB3ZSBoYXZlIHRvIGNhbGwgaW5fZmxpZ2h0X292ZXJs
+YXAoKSBpbiBhIGxvb3Agd2l0aCBhbGwgdGhyZWFkIGRhdGEgcG9pbnRlcnM/DQo+IA0KPiBJdCB3
+b3VsZCBiZSBhIGJlIG1vcmUgd29yayAodGhlIG9yaWdpbmFsIHNlcmlhbGl6ZV9vdmVybGFwIHdh
+cyBmaWRkbHkgdG8gbWFrZSBjb3JyZWN0IGJ1dCB3YXMgZWFzeSB0byBnZXQgZ29pbmcpIGJ1dCBJ
+IGNhbiBzZWUgd2h5IHlvdSBtaWdodCB3YW50IHdoYXQgeW91IGRlc2NyaWJlLiBUaGUgYmlnIHBy
+b2JsZW0gaXMgdGhhdCBJIGNhbid0IHNlZSBob3cgeW91IGNhbiBkbyBpdCB3aXRob3V0IGludHJv
+ZHVjaW5nIGEgbGFyZ2UgYW1vdW50IG9mIGxvY2tpbmcgaW50byB0aGUgZmlvJ3MgSS9PIHBhdGgu
+IEkgdGhpbmsgdGhpcyB3b3VsZCBhbHNvIGJvcmRlciBvbiBhIGZlYXR1cmUgdGhhdCBkaXNrc3Bk
+IGhhcyB3aGVyZSBtdWx0aXBsZSB0aHJlYWRzIGNhbiBkbyBJL08gdG8gYSBzaW5nbGUgZmlsZSBi
+dXQgdGhleSBhbGwgc2hhcmUgYSByYW5kb21tYXAuLi4NCj4gDQoNCg0K
 
