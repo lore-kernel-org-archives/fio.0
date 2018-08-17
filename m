@@ -1,121 +1,28 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa8.dell-outbound.iphmx.com ([68.232.149.218]:43215 "EHLO
-        esa8.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730149AbeHAVYZ (ORCPT
-        <rfc822;fio@vger.kernel.org>); Wed, 1 Aug 2018 17:24:25 -0400
-Received: from pps.filterd (m0089483.ppops.net [127.0.0.1])
-        by mx0b-00154901.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w71JWl30010765
-        for <fio@vger.kernel.org>; Wed, 1 Aug 2018 15:37:04 -0400
-Received: from esa1.dell-outbound2.iphmx.com (esa1.dell-outbound2.iphmx.com [68.232.153.201])
-        by mx0b-00154901.pphosted.com with ESMTP id 2kkfgkrvka-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
-        for <fio@vger.kernel.org>; Wed, 01 Aug 2018 15:37:04 -0400
-From: "Beierl, Mark" <Mark.Beierl@dell.com>
-Received: from maildlpprd03.lss.emc.com (maildlpprd03.lss.emc.com [10.253.24.35])
-        by mailuogwprd03.lss.emc.com (Sentrion-MTA-4.3.1/Sentrion-MTA-4.3.0) with ESMTP id w71JaxqE019526
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
-        for <fio@vger.kernel.org>; Wed, 1 Aug 2018 15:37:00 -0400
-Received: from mailusrhubprd52.lss.emc.com (mailusrhubprd52.lss.emc.com [10.106.48.25]) by maildlpprd03.lss.emc.com (RSA Interceptor) for <fio@vger.kernel.org>; Wed, 1 Aug 2018 15:36:52 -0400
-Received: from MXHUB315.corp.emc.com (MXHUB315.corp.emc.com [10.146.3.93])
-        by mailusrhubprd52.lss.emc.com (Sentrion-MTA-4.3.1/Sentrion-MTA-4.3.0) with ESMTP id w71JarYD010372
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=FAIL)
-        for <fio@vger.kernel.org>; Wed, 1 Aug 2018 15:36:53 -0400
-Subject: FIO client/server periodic stats
-Date: Wed, 1 Aug 2018 19:36:52 +0000
-Message-ID: <CA3FBCA5-E704-4426-B27E-1E8AFEBED01E@emc.com>
-Content-Language: en-US
-Content-Type: multipart/alternative;
-        boundary="_000_CA3FBCA5E7044426B27E1E8AFEBED01Eemccom_"
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH v2] http: fix compile-time warnings
+References: <1534544520-19149-1-git-send-email-kusumi.tomohiro@gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <b6e05ca3-5ce7-01f9-d988-ab42b8f3d85b@kernel.dk>
+Date: Fri, 17 Aug 2018 17:28:38 -0600
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <1534544520-19149-1-git-send-email-kusumi.tomohiro@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
---_000_CA3FBCA5E7044426B27E1E8AFEBED01Eemccom_
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+On 8/17/18 4:22 PM, Tomohiro Kusumi wrote:
+> Fix following warnings on RHEL6 and variants.
+> 
+> engines/http.c: In function 'fio_http_setup':
+> engines/http.c:611: warning: call to '_curl_easy_setopt_err_seek_cb' declared with attribute warning: curl_easy_setopt expects a curl_seek_callback argument for this option
+> engines/http.c: In function 'fio_http_queue':
+> engines/http.c:549: warning: call to '_curl_easy_setopt_err_curl_off_t' declared with attribute warning: curl_easy_setopt expects a curl_off_t argument for this option
 
-SGVsbG8sDQoNCkkgdXNlIEZJTyBieSBzc2hpbmcgdG8gYSByZW1vdGUgc3lzdGVtIGFuZCBydW5u
-aW5nIGl0IHdpdGggLS1zdGF0dXMtaW50ZXJ2YWw9NjAgLS1vdXRwdXQtZm9ybWF0PWpzb24sIGFu
-ZCB0aGVuIHBvc3RpbmcgdGhhdCBpbmZvcm1hdGlvbiB0byBDYXJib24gZm9yIHZpc3VhbGl6YXRp
-b24gaW4gR3JhcGhpdGUuICBJIHRyaWVkIGRvaW5nIHRoaXMgd2l0aCB0aGUgY2xpZW50L3NlcnZl
-ciBvcHRpb24sIGJ1dCBpdCB3b3VsZCBhcHBlYXIgSSBjYW4gb25seSBnZXQgdGhlIGZpbmFsIG91
-dHB1dCwgbm90IHN0YXRzIGV2ZXJ5IDYwIHNlY29uZHMgbGlrZSB3aGVuIEkgcnVuIGl0IGRpcmVj
-dGx5LiAgSXMgdGhlcmUgYW55IG1ldGhvZCB0byBnZXQgZnVsbCBwZXJpb2RpYyBzdGF0cyB1c2lu
-ZyBjbGllbnQvc2VydmVyPw0KDQpSZWdhcmRzLA0KTWFyaw0KDQpNYXJrIEJlaWVybA0KU1cgU3lz
-dGVtIFNyIFByaW5jaXBhbCBEZXZlbG9wZXINCkRlbGwgRU1DIHwgQ2xvdWQgJiBDb21tdW5pY2F0
-aW9uIFNlcnZpY2UgUHJvdmlkZXIgU29sdXRpb24NCk1hcmsuQmVpZXJsQERlbGwuY29tPG1haWx0
-bzpNYXJrLkJlaWVybEBEZWxsLmNvbT4NCg==
+Applied, thanks.
 
---_000_CA3FBCA5E7044426B27E1E8AFEBED01Eemccom_
-Content-Type: text/html; charset="utf-8"
-Content-ID: <FE1FF61F05823748B2EE466A0FD2CF8C@mail.corp.emc.com>
-Content-Transfer-Encoding: base64
+-- 
+Jens Axboe
 
-PGh0bWwgeG1sbnM6bz0idXJuOnNjaGVtYXMtbWljcm9zb2Z0LWNvbTpvZmZpY2U6b2ZmaWNlIiB4
-bWxuczp3PSJ1cm46c2NoZW1hcy1taWNyb3NvZnQtY29tOm9mZmljZTp3b3JkIiB4bWxuczptPSJo
-dHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL29mZmljZS8yMDA0LzEyL29tbWwiIHhtbG5zPSJo
-dHRwOi8vd3d3LnczLm9yZy9UUi9SRUMtaHRtbDQwIj4NCjxoZWFkPg0KPG1ldGEgaHR0cC1lcXVp
-dj0iQ29udGVudC1UeXBlIiBjb250ZW50PSJ0ZXh0L2h0bWw7IGNoYXJzZXQ9dXRmLTgiPg0KPG1l
-dGEgbmFtZT0iVGl0bGUiIGNvbnRlbnQ9IiI+DQo8bWV0YSBuYW1lPSJLZXl3b3JkcyIgY29udGVu
-dD0iIj4NCjxtZXRhIG5hbWU9IkdlbmVyYXRvciIgY29udGVudD0iTWljcm9zb2Z0IFdvcmQgMTUg
-KGZpbHRlcmVkIG1lZGl1bSkiPg0KPHN0eWxlPjwhLS0NCi8qIEZvbnQgRGVmaW5pdGlvbnMgKi8N
-CkBmb250LWZhY2UNCgl7Zm9udC1mYW1pbHk6QXJpYWw7DQoJcGFub3NlLTE6MiAxMSA2IDQgMiAy
-IDIgMiAyIDQ7fQ0KQGZvbnQtZmFjZQ0KCXtmb250LWZhbWlseToiQ2FtYnJpYSBNYXRoIjsNCglw
-YW5vc2UtMToyIDQgNSAzIDUgNCA2IDMgMiA0O30NCkBmb250LWZhY2UNCgl7Zm9udC1mYW1pbHk6
-Q2FsaWJyaTsNCglwYW5vc2UtMToyIDE1IDUgMiAyIDIgNCAzIDIgNDt9DQpAZm9udC1mYWNlDQoJ
-e2ZvbnQtZmFtaWx5Oi13ZWJraXQtc3RhbmRhcmQ7fQ0KLyogU3R5bGUgRGVmaW5pdGlvbnMgKi8N
-CnAuTXNvTm9ybWFsLCBsaS5Nc29Ob3JtYWwsIGRpdi5Nc29Ob3JtYWwNCgl7bWFyZ2luOjBjbTsN
-CgltYXJnaW4tYm90dG9tOi4wMDAxcHQ7DQoJZm9udC1zaXplOjEyLjBwdDsNCglmb250LWZhbWls
-eTpDYWxpYnJpO30NCmE6bGluaywgc3Bhbi5Nc29IeXBlcmxpbmsNCgl7bXNvLXN0eWxlLXByaW9y
-aXR5Ojk5Ow0KCWNvbG9yOiMwNTYzQzE7DQoJdGV4dC1kZWNvcmF0aW9uOnVuZGVybGluZTt9DQph
-OnZpc2l0ZWQsIHNwYW4uTXNvSHlwZXJsaW5rRm9sbG93ZWQNCgl7bXNvLXN0eWxlLXByaW9yaXR5
-Ojk5Ow0KCWNvbG9yOiM5NTRGNzI7DQoJdGV4dC1kZWNvcmF0aW9uOnVuZGVybGluZTt9DQpzcGFu
-LkVtYWlsU3R5bGUxNw0KCXttc28tc3R5bGUtdHlwZTpwZXJzb25hbC1jb21wb3NlOw0KCWZvbnQt
-ZmFtaWx5OkNhbGlicmk7DQoJY29sb3I6d2luZG93dGV4dDt9DQpzcGFuLm1zb0lucw0KCXttc28t
-c3R5bGUtdHlwZTpleHBvcnQtb25seTsNCgltc28tc3R5bGUtbmFtZToiIjsNCgl0ZXh0LWRlY29y
-YXRpb246dW5kZXJsaW5lOw0KCWNvbG9yOnRlYWw7fQ0KLk1zb0NocERlZmF1bHQNCgl7bXNvLXN0
-eWxlLXR5cGU6ZXhwb3J0LW9ubHk7DQoJZm9udC1mYW1pbHk6Q2FsaWJyaTt9DQpAcGFnZSBXb3Jk
-U2VjdGlvbjENCgl7c2l6ZTo2MTIuMHB0IDc5Mi4wcHQ7DQoJbWFyZ2luOjcyLjBwdCA3Mi4wcHQg
-NzIuMHB0IDcyLjBwdDt9DQpkaXYuV29yZFNlY3Rpb24xDQoJe3BhZ2U6V29yZFNlY3Rpb24xO30N
-Ci0tPjwvc3R5bGU+DQo8L2hlYWQ+DQo8Ym9keSBiZ2NvbG9yPSJ3aGl0ZSIgbGFuZz0iRU4tVVMi
-IGxpbms9IiMwNTYzQzEiIHZsaW5rPSIjOTU0RjcyIj4NCjxkaXYgY2xhc3M9IldvcmRTZWN0aW9u
-MSI+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1zaXplOjExLjBwdCI+
-SGVsbG8sPG86cD48L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4g
-c3R5bGU9ImZvbnQtc2l6ZToxMS4wcHQiPjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFuPjwvcD4NCjxw
-IGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTEuMHB0Ij5JIHVzZSBG
-SU8gYnkgc3NoaW5nIHRvIGEgcmVtb3RlIHN5c3RlbSBhbmQgcnVubmluZyBpdCB3aXRoIC0tc3Rh
-dHVzLWludGVydmFsPTYwIC0tb3V0cHV0LWZvcm1hdD1qc29uLCBhbmQgdGhlbiBwb3N0aW5nIHRo
-YXQgaW5mb3JtYXRpb24gdG8gQ2FyYm9uIGZvciB2aXN1YWxpemF0aW9uIGluIEdyYXBoaXRlLiZu
-YnNwOyBJIHRyaWVkIGRvaW5nIHRoaXMgd2l0aCB0aGUNCiBjbGllbnQvc2VydmVyIG9wdGlvbiwg
-YnV0IGl0IHdvdWxkIGFwcGVhciBJIGNhbiBvbmx5IGdldCB0aGUgZmluYWwgb3V0cHV0LCBub3Qg
-c3RhdHMgZXZlcnkgNjAgc2Vjb25kcyBsaWtlIHdoZW4gSSBydW4gaXQgZGlyZWN0bHkuJm5ic3A7
-IElzIHRoZXJlIGFueSBtZXRob2QgdG8gZ2V0IGZ1bGwgcGVyaW9kaWMgc3RhdHMgdXNpbmcgY2xp
-ZW50L3NlcnZlcj88bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48
-c3BhbiBzdHlsZT0iZm9udC1zaXplOjExLjBwdCI+PG86cD4mbmJzcDs8L286cD48L3NwYW4+PC9w
-Pg0KPHAgY2xhc3M9Ik1zb05vcm1hbCIgc3R5bGU9InRleHQtYXV0b3NwYWNlOm5vbmUiPjxzcGFu
-IHN0eWxlPSJmb250LXNpemU6MTEuMHB0Ij5SZWdhcmRzLDxvOnA+PC9vOnA+PC9zcGFuPjwvcD4N
-CjxwIGNsYXNzPSJNc29Ob3JtYWwiIHN0eWxlPSJ0ZXh0LWF1dG9zcGFjZTpub25lIj48c3BhbiBz
-dHlsZT0iZm9udC1zaXplOjExLjBwdCI+TWFyazxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNs
-YXNzPSJNc29Ob3JtYWwiIHN0eWxlPSJ0ZXh0LWF1dG9zcGFjZTpub25lIj48c3BhbiBzdHlsZT0i
-Zm9udC1zaXplOjcuMHB0O2ZvbnQtZmFtaWx5OkFyaWFsIj48bzpwPiZuYnNwOzwvbzpwPjwvc3Bh
-bj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIiBzdHlsZT0idGV4dC1hdXRvc3BhY2U6bm9uZSI+
-PGI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTo4LjBwdDtmb250LWZhbWlseTpBcmlhbCI+TWFyayBC
-ZWllcmw8bzpwPjwvbzpwPjwvc3Bhbj48L2I+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNw
-YW4gc3R5bGU9ImZvbnQtc2l6ZTo4LjVwdDtmb250LWZhbWlseTotd2Via2l0LXN0YW5kYXJkO2Nv
-bG9yOmJsYWNrIj5TVyBTeXN0ZW0gU3IgUHJpbmNpcGFsIERldmVsb3Blcjwvc3Bhbj48c3BhbiBz
-dHlsZT0iZm9udC1mYW1pbHk6LXdlYmtpdC1zdGFuZGFyZDtjb2xvcjpibGFjayI+PG86cD48L286
-cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PGI+PHNwYW4gc3R5bGU9ImZvbnQt
-c2l6ZTo4LjVwdDtmb250LWZhbWlseTpBcmlhbDtjb2xvcjojMDA5MEM2Ij5EZWxsJm5ic3A7PC9z
-cGFuPjwvYj48Yj48c3BhbiBzdHlsZT0iZm9udC1zaXplOjguNXB0O2ZvbnQtZmFtaWx5OkFyaWFs
-O2NvbG9yOiM5MjkyOTIiPkVNQzwvc3Bhbj48L2I+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTo4LjVw
-dDtmb250LWZhbWlseTpBcmlhbDtjb2xvcjpibGFjayI+Jm5ic3A7fCBDbG91ZCAmYW1wOyBDb21t
-dW5pY2F0aW9uDQogU2VydmljZSBQcm92aWRlciBTb2x1dGlvbjwvc3Bhbj48c3BhbiBzdHlsZT0i
-Zm9udC1zaXplOjkuMHB0O2ZvbnQtZmFtaWx5OkFyaWFsO2NvbG9yOmJsYWNrIj48bzpwPjwvbzpw
-Pjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1zaXpl
-OjkuMHB0O2ZvbnQtZmFtaWx5OkFyaWFsO2NvbG9yOiMwRjdDQjgiPjxhIGhyZWY9Im1haWx0bzpN
-YXJrLkJlaWVybEBEZWxsLmNvbSI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTo4LjBwdDtjb2xvcjoj
-MDAwMEU5Ij5NYXJrLkJlaWVybEBEZWxsLmNvbTwvc3Bhbj48L2E+PC9zcGFuPjxvOnA+PC9vOnA+
-PC9wPg0KPC9kaXY+DQo8L2JvZHk+DQo8L2h0bWw+DQo=
 
---_000_CA3FBCA5E7044426B27E1E8AFEBED01Eemccom_--
