@@ -1,42 +1,25 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:3508 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727195AbeH3IPr (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 30 Aug 2018 04:15:47 -0400
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH v2 4/5] zbd: Fix zbd_zone_idx()
-Date: Thu, 30 Aug 2018 13:15:30 +0900
-Message-Id: <20180830041531.20963-5-damien.lemoal@wdc.com>
-In-Reply-To: <20180830041531.20963-1-damien.lemoal@wdc.com>
-References: <20180830041531.20963-1-damien.lemoal@wdc.com>
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Bart Van Assche <bvanassche@acm.org>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] Fix residual size
+References: <MWHPR04MB03206BA957345969502C3CCC8F320@MWHPR04MB0320.namprd04.prod.outlook.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <0a916033-3959-0794-b9b7-c669194079e8@kernel.dk>
+Date: Tue, 21 Aug 2018 09:16:28 -0600
+MIME-Version: 1.0
+In-Reply-To: <MWHPR04MB03206BA957345969502C3CCC8F320@MWHPR04MB0320.namprd04.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Jeff Furlong <jeff.furlong@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-For a zone size that is not a power of 2 number of sectors,
-f->zbd_info->zone_size_log2 is set to -1. So use bit shift in
-zbd_zone_idx() only if zone_size_log2 is not negative.
+On 8/20/18 5:25 PM, Jeff Furlong wrote:
+> If we target a number of bytes of IO and keep subtracting a
+> xfer_buflen, we need to ensure the residual length is of the same
+> size.
 
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
----
- zbd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks, applied.
 
-diff --git a/zbd.c b/zbd.c
-index e98c5a50..3aea8052 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -31,7 +31,7 @@ static uint32_t zbd_zone_idx(const struct fio_file *f, uint64_t offset)
- {
- 	uint32_t zone_idx;
- 
--	if (f->zbd_info->zone_size_log2)
-+	if (f->zbd_info->zone_size_log2 > 0)
- 		zone_idx = offset >> f->zbd_info->zone_size_log2;
- 	else
- 		zone_idx = (offset >> 9) / f->zbd_info->zone_size;
 -- 
-2.17.1
+Jens Axboe
 
 
