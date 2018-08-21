@@ -1,134 +1,153 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:52804 "EHLO
+Received: from merlin.infradead.org ([205.233.59.134]:40866 "EHLO
         merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727304AbeHKOeM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 11 Aug 2018 10:34:12 -0400
+        with ESMTP id S1726910AbeHUPUE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 21 Aug 2018 11:20:04 -0400
 Received: from [216.160.245.99] (helo=kernel.dk)
         by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1foSZ3-000593-2j
-        for fio@vger.kernel.org; Sat, 11 Aug 2018 12:00:13 +0000
+        id 1fs5KV-00012t-Bi
+        for fio@vger.kernel.org; Tue, 21 Aug 2018 12:00:11 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180811120001.9F5C32C007D@kernel.dk>
-Date: Sat, 11 Aug 2018 06:00:01 -0600 (MDT)
+Message-Id: <20180821120002.4DA4C2C2FEB@kernel.dk>
+Date: Tue, 21 Aug 2018 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit ae48493039f833119126ef979dbe86aee2c05557:
+The following changes since commit c44d2c6e97245bf68a57f9860a1c92c7bc065f82:
 
-  Merge branch 'realloc-io_u-buffers' of https://github.com/aclamk/fio (2018-08-09 09:31:26 -0600)
+  Move steady state unit test to t/ (2018-08-17 19:39:07 -0600)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 73027fb9ad6728f5b066e25a9ec923459ceab8a2:
+for you to fetch changes up to 78439a18225255f7f1b4f9efab950afcd638b606:
 
-  eta: clean up ETA string printing (2018-08-10 09:33:44 -0600)
+  Update HOWTO for read_iolog change (2018-08-20 08:34:13 -0600)
 
 ----------------------------------------------------------------
-Jens Axboe (1):
-      eta: clean up ETA string printing
+Adam Kupczyk (1):
+      iolog: Now --read_iolog can contain multiple replay files, separated by ':'.
 
- eta.c | 74 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 60 insertions(+), 14 deletions(-)
+Jens Axboe (2):
+      Merge branch 'multiple-read_iolog' of https://github.com/aclamk/fio
+      Update HOWTO for read_iolog change
+
+ HOWTO     |  4 ++++
+ fio.1     |  4 ++++
+ iolog.c   | 12 ++++++++----
+ options.c | 17 +++++++++++++++++
+ options.h |  1 +
+ 5 files changed, 34 insertions(+), 4 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/eta.c b/eta.c
-index 9111f5e..970a67d 100644
---- a/eta.c
-+++ b/eta.c
-@@ -518,6 +518,63 @@ bool calc_thread_status(struct jobs_eta *je, int force)
- 	return true;
+diff --git a/HOWTO b/HOWTO
+index ff7aa09..3839461 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -2409,6 +2409,10 @@ I/O replay
+ 	:manpage:`blktrace(8)` for how to capture such logging data. For blktrace
+ 	replay, the file needs to be turned into a blkparse binary data file first
+ 	(``blkparse <device> -o /dev/null -d file_for_fio.bin``).
++	You can specify a number of files by separating the names with a ':'
++	character. See the :option:`filename` option for information on how to
++	escape ':' and '\' characters within the file names. These files will
++	be sequentially assigned to job clones created by :option:`numjobs`.
+ 
+ .. option:: read_iolog_chunked=bool
+ 
+diff --git a/fio.1 b/fio.1
+index cb4351f..4071947 100644
+--- a/fio.1
++++ b/fio.1
+@@ -2127,6 +2127,10 @@ to replay a workload captured by blktrace. See
+ \fBblktrace\fR\|(8) for how to capture such logging data. For blktrace
+ replay, the file needs to be turned into a blkparse binary data file first
+ (`blkparse <device> \-o /dev/null \-d file_for_fio.bin').
++You can specify a number of files by separating the names with a ':' character.
++See the \fBfilename\fR option for information on how to escape ':' and '\'
++characters within the file names. These files will be sequentially assigned to
++job clones created by \fBnumjobs\fR.
+ .TP
+ .BI read_iolog_chunked \fR=\fPbool
+ Determines how iolog is read. If false (default) entire \fBread_iolog\fR will
+diff --git a/iolog.c b/iolog.c
+index 0f95c60..f3eedb5 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -447,7 +447,7 @@ static bool read_iolog2(struct thread_data *td)
+ 					dprint(FD_FILE, "iolog: ignoring"
+ 						" re-add of file %s\n", fname);
+ 				} else {
+-					fileno = add_file(td, fname, 0, 1);
++					fileno = add_file(td, fname, td->subjob_number, 1);
+ 					file_action = FIO_LOG_ADD_FILE;
+ 				}
+ 				continue;
+@@ -596,13 +596,17 @@ static bool init_iolog_read(struct thread_data *td)
+ 	char buffer[256], *p;
+ 	FILE *f = NULL;
+ 	bool ret;
+-	if (is_socket(td->o.read_iolog_file)) {
+-		int fd = open_socket(td->o.read_iolog_file);
++	char* fname = get_name_by_idx(td->o.read_iolog_file, td->subjob_number);
++	dprint(FD_IO, "iolog: name=%s\n", fname);
++
++	if (is_socket(fname)) {
++		int fd = open_socket(fname);
+ 		if (fd >= 0) {
+ 			f = fdopen(fd, "r");
+ 		}
+ 	} else
+-		f = fopen(td->o.read_iolog_file, "r");
++		f = fopen(fname, "r");
++	free(fname);
+ 	if (!f) {
+ 		perror("fopen read iolog");
+ 		return false;
+diff --git a/options.c b/options.c
+index 1c35acc..86ab5d6 100644
+--- a/options.c
++++ b/options.c
+@@ -1240,6 +1240,23 @@ int set_name_idx(char *target, size_t tlen, char *input, int index,
+ 	return len;
  }
  
-+static int gen_eta_str(struct jobs_eta *je, char *p, size_t left,
-+		       char **rate_str, char **iops_str)
++char* get_name_by_idx(char *input, int index)
 +{
-+	bool has_r = je->rate[DDIR_READ] || je->iops[DDIR_READ];
-+	bool has_w = je->rate[DDIR_WRITE] || je->iops[DDIR_WRITE];
-+	bool has_t = je->rate[DDIR_TRIM] || je->iops[DDIR_TRIM];
-+	int l = 0;
++	unsigned int cur_idx;
++	char *fname, *str, *p;
 +
-+	if (!has_r && !has_w && !has_t)
-+		return 0;
++	p = str = strdup(input);
 +
-+	if (has_r) {
-+		l += snprintf(p + l, left - l, "[r=%s", rate_str[DDIR_READ]);
-+		if (!has_w)
-+			l += snprintf(p + l, left - l, "]");
-+	}
-+	if (has_w) {
-+		if (has_r)
-+			l += snprintf(p + l, left - l, ",");
-+		else
-+			l += snprintf(p + l, left - l, "[");
-+		l += snprintf(p + l, left - l, "w=%s", rate_str[DDIR_WRITE]);
-+		if (!has_t)
-+			l += snprintf(p + l, left - l, "]");
-+	}
-+	if (has_t) {
-+		if (has_r || has_w)
-+			l += snprintf(p + l, left - l, ",");
-+		else if (!has_r && !has_w)
-+			l += snprintf(p + l, left - l, "[");
-+		l += snprintf(p + l, left - l, "t=%s]", rate_str[DDIR_TRIM]);
-+	}
-+	if (has_r) {
-+		l += snprintf(p + l, left - l, "[r=%s", iops_str[DDIR_READ]);
-+		if (!has_w)
-+			l += snprintf(p + l, left - l, " IOPS]");
-+	}
-+	if (has_w) {
-+		if (has_r)
-+			l += snprintf(p + l, left - l, ",");
-+		else
-+			l += snprintf(p + l, left - l, "[");
-+		l += snprintf(p + l, left - l, "w=%s", iops_str[DDIR_WRITE]);
-+		if (!has_t)
-+			l += snprintf(p + l, left - l, " IOPS]");
-+	}
-+	if (has_t) {
-+		if (has_r || has_w)
-+			l += snprintf(p + l, left - l, ",");
-+		else if (!has_r && !has_w)
-+			l += snprintf(p + l, left - l, "[");
-+		l += snprintf(p + l, left - l, "t=%s IOPS]", iops_str[DDIR_TRIM]);
-+	}
++	index %= get_max_name_idx(input);
++	for (cur_idx = 0; cur_idx <= index; cur_idx++)
++		fname = get_next_name(&str);
 +
-+	return l;
++	fname = strdup(fname);
++	free(p);
++
++	return fname;
 +}
 +
- void display_thread_status(struct jobs_eta *je)
+ static int str_filename_cb(void *data, const char *input)
  {
- 	static struct timespec disp_eta_new_line;
-@@ -592,21 +649,10 @@ void display_thread_status(struct jobs_eta *je)
- 		}
+ 	struct thread_data *td = cb_data_to_td(data);
+diff --git a/options.h b/options.h
+index e53eb1b..8fdd136 100644
+--- a/options.h
++++ b/options.h
+@@ -16,6 +16,7 @@ void add_opt_posval(const char *, const char *, const char *);
+ void del_opt_posval(const char *, const char *);
+ struct thread_data;
+ void fio_options_free(struct thread_data *);
++char* get_name_by_idx(char *input, int index);
+ int set_name_idx(char *, size_t, char *, int, bool);
  
- 		left = sizeof(output) - (p - output) - 1;
-+		l = snprintf(p, left, ": [%s][%s]", je->run_str, perc_str);
-+		l += gen_eta_str(je, p + l, left - l, rate_str, iops_str);
-+		l += snprintf(p + l, left - l, "[eta %s]", eta_str);
- 
--		if (je->rate[DDIR_TRIM] || je->iops[DDIR_TRIM])
--			l = snprintf(p, left,
--				": [%s][%s][r=%s,w=%s,t=%s][r=%s,w=%s,t=%s IOPS][eta %s]",
--				je->run_str, perc_str, rate_str[DDIR_READ],
--				rate_str[DDIR_WRITE], rate_str[DDIR_TRIM],
--				iops_str[DDIR_READ], iops_str[DDIR_WRITE],
--				iops_str[DDIR_TRIM], eta_str);
--		else
--			l = snprintf(p, left,
--				": [%s][%s][r=%s,w=%s][r=%s,w=%s IOPS][eta %s]",
--				je->run_str, perc_str,
--				rate_str[DDIR_READ], rate_str[DDIR_WRITE],
--				iops_str[DDIR_READ], iops_str[DDIR_WRITE],
--				eta_str);
- 		/* If truncation occurred adjust l so p is on the null */
- 		if (l >= left)
- 			l = left - 1;
+ extern char client_sockaddr_str[];  /* used with --client option */
 
