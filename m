@@ -1,53 +1,51 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:37256 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726102AbeHPO6d (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 16 Aug 2018 10:58:33 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1fqGx0-0002qt-2f
-        for fio@vger.kernel.org; Thu, 16 Aug 2018 12:00:26 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180816120001.F0C712C2FEA@kernel.dk>
-Date: Thu, 16 Aug 2018 06:00:01 -0600 (MDT)
+Received: from mail.kernel.org ([198.145.29.99]:40892 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726730AbeHUW3w (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 21 Aug 2018 18:29:52 -0400
+From: Luis Chamberlain <mcgrof@kernel.org>
+Subject: [PATCH 0/2] fio: few enhancements
+Date: Tue, 21 Aug 2018 12:08:22 -0700
+Message-Id: <20180821190824.29928-1-mcgrof@kernel.org>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
+Cc: andrey.o.kudryavtsev@intel.com, Luis Chamberlain <mcgrof@kernel.org>
 
-The following changes since commit 875e8d6fa4d443068eb1c48a29f5367e454d2a37:
+I've been toying around with fio's output for a bit, mostly because
+Intel's fiovisualizer [0] was the first graphing tool I found for fio, even
+though gfio exists. The way fiovisualizer works is it reads terse
+ouptut, parses that, and plots data. gfio on the other hand is a proper
+built-in client, where communication is exchanged between client/server
+and the client plots the data.
 
-  Merge branch 'wip-http-engine' of https://github.com/l-mb/fio (2018-08-14 10:09:47 -0600)
+If you end up using scraper for terse data such as fiovisualizer with
+the prospect to scrape data you will end up with different results if
+you use a remote server as a backend.
 
-are available in the git repository at:
+While studying fio code I realized that the way fiovisualizer implements
+graphing is perhaps the wrong / least optimal approach, but also that
+fio terse output needed a bit of love for client/server relationship to
+keep fidelity in terms of the expected output.
 
-  git://git.kernel.dk/fio.git master
+These are just two small enhancements which I hope wil make things
+clearer.
 
-for you to fetch changes up to 35e2d88fad2151f272af60babb5e6c98922d0bcd:
+[0] https://github.com/intel/fiovisualizer
 
-  Fix compilation on centos 7 (2018-08-15 12:06:14 -0600)
+Luis Chamberlain (2):
+  client: respect terse output on client <--> backend relationship
+  init: add semantics for all types of backends running
 
-----------------------------------------------------------------
-Manish Dusane (1):
-      Fix compilation on centos 7
+ backend.c  |  2 ++
+ client.c   | 16 +++++++++++++---
+ diskutil.c |  2 +-
+ fio.h      |  8 ++++++++
+ init.c     |  1 +
+ stat.c     |  4 +++-
+ 6 files changed, 28 insertions(+), 5 deletions(-)
 
- log.h | 1 +
- 1 file changed, 1 insertion(+)
+-- 
+2.18.0
 
----
-
-Diff of recent changes:
-
-diff --git a/log.h b/log.h
-index b50d448..562f3f4 100644
---- a/log.h
-+++ b/log.h
-@@ -3,6 +3,7 @@
- 
- #include <stdio.h>
- #include <stdarg.h>
-+#include <unistd.h>
- 
- #include "lib/output_buffer.h"
- 
 
