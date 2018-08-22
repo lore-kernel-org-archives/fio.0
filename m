@@ -1,34 +1,48 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: Zoned block device regression test 11
+Return-Path: <Michael.H.Kelley@microsoft.com>
+From: "Michael Kelley (EOSG)" <Michael.H.Kelley@microsoft.com>
+Subject: RE: Zoned block device regression test 11
+Date: Wed, 22 Aug 2018 15:47:32 +0000
+Message-ID: 
+ <CY4PR21MB07731302C97CFA7EF56BBA1CDC300@CY4PR21MB0773.namprd21.prod.outlook.com>
 References: <a6d3d008-3a44-9d42-2c0c-b26ca9d92d3a@acm.org>
  <CY4PR21MB07732B0B200EAB77AAB4F737DC300@CY4PR21MB0773.namprd21.prod.outlook.com>
- <CY4PR21MB07731302C97CFA7EF56BBA1CDC300@CY4PR21MB0773.namprd21.prod.outlook.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <8907fd89-a0ba-39c4-35a0-a267e24a57f6@kernel.dk>
-Date: Wed, 22 Aug 2018 09:48:34 -0600
-MIME-Version: 1.0
-In-Reply-To: <CY4PR21MB07731302C97CFA7EF56BBA1CDC300@CY4PR21MB0773.namprd21.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: 
+ <CY4PR21MB07732B0B200EAB77AAB4F737DC300@CY4PR21MB0773.namprd21.prod.outlook.com>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: "Michael Kelley (EOSG)" <Michael.H.Kelley@microsoft.com>, Bart Van Assche <bvanassche@acm.org>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <damien.lemoal@wdc.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: Bart Van Assche <bvanassche@acm.org>
+Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <damien.lemoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On 8/22/18 9:47 AM, Michael Kelley (EOSG) wrote:
-> Any special configuration needed to run this test?    Any options needs on
-> command line?  I figured out to enable CONFIG_BLK_DEV_ZONED, but
-> now I get the following on my 4.18.3 kernel:
-> 
-> root@MHKfio2:~# ./fio/t/zbd/run-tests-against-zoned-nullb
-> ./fio/t/zbd/run-tests-against-zoned-nullb: line 27: ./fio/t/zbd/test-zbd-support: No such file or directory
-> 
-> /sys/kernel/config/nullb/nullb0/* and /dev/nullb0 are present as expected.
-
-You need current -git from Linus, the zoned null_blk support was added
-after 4.18.
-
--- 
-Jens Axboe
-
+QW55IHNwZWNpYWwgY29uZmlndXJhdGlvbiBuZWVkZWQgdG8gcnVuIHRoaXMgdGVzdD8gICAgQW55
+IG9wdGlvbnMgbmVlZHMgb24NCmNvbW1hbmQgbGluZT8gIEkgZmlndXJlZCBvdXQgdG8gZW5hYmxl
+IENPTkZJR19CTEtfREVWX1pPTkVELCBidXQNCm5vdyBJIGdldCB0aGUgZm9sbG93aW5nIG9uIG15
+IDQuMTguMyBrZXJuZWw6DQoNCnJvb3RATUhLZmlvMjp+IyAuL2Zpby90L3piZC9ydW4tdGVzdHMt
+YWdhaW5zdC16b25lZC1udWxsYg0KLi9maW8vdC96YmQvcnVuLXRlc3RzLWFnYWluc3Qtem9uZWQt
+bnVsbGI6IGxpbmUgMjc6IC4vZmlvL3QvemJkL3Rlc3QtemJkLXN1cHBvcnQ6IE5vIHN1Y2ggZmls
+ZSBvciBkaXJlY3RvcnkNCg0KL3N5cy9rZXJuZWwvY29uZmlnL251bGxiL251bGxiMC8qIGFuZCAv
+ZGV2L251bGxiMCBhcmUgcHJlc2VudCBhcyBleHBlY3RlZC4NCg0KTWljaGFlbA0KDQo+IC0tLS0t
+T3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IE1pY2hhZWwgS2VsbGV5IChFT1NHKQ0KPiBT
+ZW50OiBUdWVzZGF5LCBBdWd1c3QgMjEsIDIwMTggOTozMiBQTQ0KPiBUbzogQmFydCBWYW4gQXNz
+Y2hlIDxidmFuYXNzY2hlQGFjbS5vcmc+DQo+IENjOiBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwu
+ZGs+OyBmaW9Admdlci5rZXJuZWwub3JnOyBEYW1pZW4gTGUgTW9hbA0KPiA8ZGFtaWVuLmxlbW9h
+bEB3ZGMuY29tPg0KPiBTdWJqZWN0OiBSRTogWm9uZWQgYmxvY2sgZGV2aWNlIHJlZ3Jlc3Npb24g
+dGVzdCAxMQ0KPiANCj4gWWVzLCBJJ2xsIHRha2UgYSBsb29rLg0KPiANCj4gTWljaGFlbA0KPiAN
+Cj4gPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiA+IEZyb206IEJhcnQgVmFuIEFzc2No
+ZSA8YnZhbmFzc2NoZUBhY20ub3JnPg0KPiA+IFNlbnQ6IFR1ZXNkYXksIEF1Z3VzdCAyMSwgMjAx
+OCA1OjExIFBNDQo+ID4gVG86IE1pY2hhZWwgS2VsbGV5IChFT1NHKSA8TWljaGFlbC5ILktlbGxl
+eUBtaWNyb3NvZnQuY29tPg0KPiA+IENjOiBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+OyBm
+aW9Admdlci5rZXJuZWwub3JnOyBEYW1pZW4gTGUgTW9hbA0KPiA+IDxkYW1pZW4ubGVtb2FsQHdk
+Yy5jb20+DQo+ID4gU3ViamVjdDogWm9uZWQgYmxvY2sgZGV2aWNlIHJlZ3Jlc3Npb24gdGVzdCAx
+MQ0KPiA+DQo+ID4gSGVsbG8gTWljaGFlbCwNCj4gPg0KPiA+IElmIEkgcnVuIHRoZSBmaW8gY29k
+ZSBmcm9tDQo+ID4gaHR0cHM6Ly9naXRodWIuY29tL2J2YW5hc3NjaGUvZmlvIGFnYWluc3QNCj4g
+PiBMaW51eCBrZXJuZWwgdjQuMTggYXMgZm9sbG93czoNCj4gPg0KPiA+IC4vZmlvL3QvemJkL3J1
+bi10ZXN0cy1hZ2FpbnN0LXpvbmVkLW51bGxiDQo+ID4NCj4gPiB0aGVuIGFsbCB0ZXN0cyBleGNl
+cHQgdGVzdCBudW1iZXIgMTEgcGFzcy4gSWYgSSByZXZlcnQgeW91ciBheG1hcA0KPiA+IHBhdGNo
+ZXMgaG93ZXZlciB0aGVuIHRlc3QgMTEgcGFzc2VzLiBJIHRoaW5rIHRoaXMgbWVhbnMgdGhhdCB5
+b3VyIGF4bWFwDQo+ID4gcGF0Y2hlcyBpbnRyb2R1Y2VkIGEgcmVncmVzc2lvbiBpbiB0aGUgYXht
+YXAgY29kZS4gQ2FuIHlvdSBoYXZlIGEgbG9vaw0KPiA+IGF0IHRoaXM/DQo+ID4NCj4gPiBUaGFu
+a3MsDQo+ID4NCj4gPiBCYXJ0Lg0K
 
