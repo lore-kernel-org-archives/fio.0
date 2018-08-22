@@ -1,37 +1,29 @@
-Return-Path: <Michael.H.Kelley@microsoft.com>
-From: "Michael Kelley (EOSG)" <Michael.H.Kelley@microsoft.com>
-Subject: RE: Zoned block device regression test 11
-Date: Wed, 22 Aug 2018 04:32:06 +0000
-Message-ID: 
- <CY4PR21MB07732B0B200EAB77AAB4F737DC300@CY4PR21MB0773.namprd21.prod.outlook.com>
-References: <a6d3d008-3a44-9d42-2c0c-b26ca9d92d3a@acm.org>
-In-Reply-To: <a6d3d008-3a44-9d42-2c0c-b26ca9d92d3a@acm.org>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <bvanassche@acm.org>
+From: Bart Van Assche <bvanassche@acm.org>
+Subject: Zoned block device regression test 11
+Message-ID: <a6d3d008-3a44-9d42-2c0c-b26ca9d92d3a@acm.org>
+Date: Tue, 21 Aug 2018 17:10:30 -0700
 MIME-Version: 1.0
-To: Bart Van Assche <bvanassche@acm.org>
-Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <damien.lemoal@wdc.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: mikelley@microsoft.com
+Cc: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-WWVzLCBJJ2xsIHRha2UgYSBsb29rLg0KDQpNaWNoYWVsDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNz
-YWdlLS0tLS0NCj4gRnJvbTogQmFydCBWYW4gQXNzY2hlIDxidmFuYXNzY2hlQGFjbS5vcmc+DQo+
-IFNlbnQ6IFR1ZXNkYXksIEF1Z3VzdCAyMSwgMjAxOCA1OjExIFBNDQo+IFRvOiBNaWNoYWVsIEtl
-bGxleSAoRU9TRykgPE1pY2hhZWwuSC5LZWxsZXlAbWljcm9zb2Z0LmNvbT4NCj4gQ2M6IEplbnMg
-QXhib2UgPGF4Ym9lQGtlcm5lbC5kaz47IGZpb0B2Z2VyLmtlcm5lbC5vcmc7IERhbWllbiBMZSBN
-b2FsDQo+IDxkYW1pZW4ubGVtb2FsQHdkYy5jb20+DQo+IFN1YmplY3Q6IFpvbmVkIGJsb2NrIGRl
-dmljZSByZWdyZXNzaW9uIHRlc3QgMTENCj4gDQo+IEhlbGxvIE1pY2hhZWwsDQo+IA0KPiBJZiBJ
-IHJ1biB0aGUgZmlvIGNvZGUgZnJvbQ0KPiBodHRwczovL25hMDEuc2FmZWxpbmtzLnByb3RlY3Rp
-b24ub3V0bG9vay5jb20vP3VybD1odHRwcyUzQSUyRiUyRmdpdGh1Yi5jb20lMkZidmFuYXNzY2gN
-Cj4gZSUyRmZpbyZhbXA7ZGF0YT0wMiU3QzAxJTdDTWljaGFlbC5ILktlbGxleSU0MG1pY3Jvc29m
-dC5jb20lN0MzNThjMTJjZGMzZTM0NTkzMg0KPiA2OGIwOGQ2MDdjM2IwMmQlN0M3MmY5ODhiZjg2
-ZjE0MWFmOTFhYjJkN2NkMDExZGI0NyU3QzElN0MwJTdDNjM2NzA0OTM0MzkzNzI5DQo+IDc1NSZh
-bXA7c2RhdGE9dUxNY2czRXAwVVZ1SjAzMW1LbFF0NlpTeFlUb28yQXY2VzJwNjJ3JTJGN1NVJTNE
-JmFtcDtyZXNlcnZlZA0KPiA9MCBhZ2FpbnN0DQo+IExpbnV4IGtlcm5lbCB2NC4xOCBhcyBmb2xs
-b3dzOg0KPiANCj4gLi9maW8vdC96YmQvcnVuLXRlc3RzLWFnYWluc3Qtem9uZWQtbnVsbGINCj4g
-DQo+IHRoZW4gYWxsIHRlc3RzIGV4Y2VwdCB0ZXN0IG51bWJlciAxMSBwYXNzLiBJZiBJIHJldmVy
-dCB5b3VyIGF4bWFwDQo+IHBhdGNoZXMgaG93ZXZlciB0aGVuIHRlc3QgMTEgcGFzc2VzLiBJIHRo
-aW5rIHRoaXMgbWVhbnMgdGhhdCB5b3VyIGF4bWFwDQo+IHBhdGNoZXMgaW50cm9kdWNlZCBhIHJl
-Z3Jlc3Npb24gaW4gdGhlIGF4bWFwIGNvZGUuIENhbiB5b3UgaGF2ZSBhIGxvb2sNCj4gYXQgdGhp
-cz8NCj4gDQo+IFRoYW5rcywNCj4gDQo+IEJhcnQuDQo=
+Hello Michael,
+
+If I run the fio code from https://github.com/bvanassche/fio against 
+Linux kernel v4.18 as follows:
+
+./fio/t/zbd/run-tests-against-zoned-nullb
+
+then all tests except test number 11 pass. If I revert your axmap 
+patches however then test 11 passes. I think this means that your axmap 
+patches introduced a regression in the axmap code. Can you have a look 
+at this?
+
+Thanks,
+
+Bart.
 
