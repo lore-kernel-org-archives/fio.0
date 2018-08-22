@@ -1,36 +1,34 @@
-Return-Path: <Michael.H.Kelley@microsoft.com>
-From: "Michael Kelley (EOSG)" <Michael.H.Kelley@microsoft.com>
-Subject: RE: Zoned block device regression test 11
-Date: Wed, 22 Aug 2018 16:54:26 +0000
-Message-ID: 
- <CY4PR21MB0773D0F69E91EA2BD4B34FAFDC300@CY4PR21MB0773.namprd21.prod.outlook.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: Zoned block device regression test 11
 References: <a6d3d008-3a44-9d42-2c0c-b26ca9d92d3a@acm.org>
  <CY4PR21MB07732B0B200EAB77AAB4F737DC300@CY4PR21MB0773.namprd21.prod.outlook.com>
  <CY4PR21MB07731302C97CFA7EF56BBA1CDC300@CY4PR21MB0773.namprd21.prod.outlook.com>
- <8907fd89-a0ba-39c4-35a0-a267e24a57f6@kernel.dk>
-In-Reply-To: <8907fd89-a0ba-39c4-35a0-a267e24a57f6@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <8907fd89-a0ba-39c4-35a0-a267e24a57f6@kernel.dk>
+Date: Wed, 22 Aug 2018 09:48:34 -0600
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <CY4PR21MB07731302C97CFA7EF56BBA1CDC300@CY4PR21MB0773.namprd21.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: "Michael Kelley (EOSG)" <Michael.H.Kelley@microsoft.com>, Bart Van Assche <bvanassche@acm.org>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <damien.lemoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-RnJvbTogSmVucyBBeGJvZSA8YXhib2VAa2VybmVsLmRrPiBTZW50OiBXZWRuZXNkYXksIEF1Z3Vz
-dCAyMiwgMjAxOCA4OjQ5IEFNDQo+IA0KPiBPbiA4LzIyLzE4IDk6NDcgQU0sIE1pY2hhZWwgS2Vs
-bGV5IChFT1NHKSB3cm90ZToNCj4gPiBBbnkgc3BlY2lhbCBjb25maWd1cmF0aW9uIG5lZWRlZCB0
-byBydW4gdGhpcyB0ZXN0PyAgICBBbnkgb3B0aW9ucyBuZWVkcyBvbg0KPiA+IGNvbW1hbmQgbGlu
-ZT8gIEkgZmlndXJlZCBvdXQgdG8gZW5hYmxlIENPTkZJR19CTEtfREVWX1pPTkVELCBidXQNCj4g
-PiBub3cgSSBnZXQgdGhlIGZvbGxvd2luZyBvbiBteSA0LjE4LjMga2VybmVsOg0KPiA+DQo+ID4g
-cm9vdEBNSEtmaW8yOn4jIC4vZmlvL3QvemJkL3J1bi10ZXN0cy1hZ2FpbnN0LXpvbmVkLW51bGxi
-DQo+ID4gLi9maW8vdC96YmQvcnVuLXRlc3RzLWFnYWluc3Qtem9uZWQtbnVsbGI6IGxpbmUgMjc6
-IC4vZmlvL3QvemJkL3Rlc3QtemJkLXN1cHBvcnQ6IE5vIHN1Y2ggZmlsZSBvcg0KPiBkaXJlY3Rv
-cnkNCj4gPg0KPiA+IC9zeXMva2VybmVsL2NvbmZpZy9udWxsYi9udWxsYjAvKiBhbmQgL2Rldi9u
-dWxsYjAgYXJlIHByZXNlbnQgYXMgZXhwZWN0ZWQuDQo+IA0KPiBZb3UgbmVlZCBjdXJyZW50IC1n
-aXQgZnJvbSBMaW51cywgdGhlIHpvbmVkIG51bGxfYmxrIHN1cHBvcnQgd2FzIGFkZGVkDQo+IGFm
-dGVyIDQuMTguDQoNClNvIGdyYWIgdGhlIGxpbnV4LW5leHQgdHJlZSwgb3IgYXJlIHlvdSByZWZl
-cnJpbmcgdG8gc29tZXRoaW5nIGVsc2U/ICBJbiBteQ0KNC4xOC4zIHRyZWUsIHRoZSBzb3VyY2Ug
-ZmlsZSBkcml2ZXJzL2Jsb2NrL251bGxfYmxrX3pvbmVkLmMgaXMgdGhlcmUgYW5kIGJ1aWxkcy4N
-Cg0KTWljaGFlbA0K
+On 8/22/18 9:47 AM, Michael Kelley (EOSG) wrote:
+> Any special configuration needed to run this test?    Any options needs on
+> command line?  I figured out to enable CONFIG_BLK_DEV_ZONED, but
+> now I get the following on my 4.18.3 kernel:
+> 
+> root@MHKfio2:~# ./fio/t/zbd/run-tests-against-zoned-nullb
+> ./fio/t/zbd/run-tests-against-zoned-nullb: line 27: ./fio/t/zbd/test-zbd-support: No such file or directory
+> 
+> /sys/kernel/config/nullb/nullb0/* and /dev/nullb0 are present as expected.
+
+You need current -git from Linus, the zoned null_blk support was added
+after 4.18.
+
+-- 
+Jens Axboe
+
 
