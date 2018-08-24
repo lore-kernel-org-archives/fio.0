@@ -1,53 +1,64 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:60432 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730846AbeHFOIv (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 6 Aug 2018 10:08:51 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1fmeBA-0008Uj-DW
-        for fio@vger.kernel.org; Mon, 06 Aug 2018 12:00:05 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180806120002.4CB4F2C0311@kernel.dk>
-Date: Mon,  6 Aug 2018 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <prvs=76726b587=bart.vanassche@wdc.com>
+From: Bart Van Assche <bart.vanassche@wdc.com>
+Subject: [PATCH v2 01/11] configure: Add <linux/blkzoned.h> test
+Date: Fri, 24 Aug 2018 11:31:21 -0700
+Message-Id: <20180824183131.13278-2-bart.vanassche@wdc.com>
+In-Reply-To: <20180824183131.13278-1-bart.vanassche@wdc.com>
+References: <20180824183131.13278-1-bart.vanassche@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Bart Van Assche <bart.vanassche@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 1d73ff2a4a8f02905cf338b2f0286d76d64e7c2a:
+Add a test for <linux/blkzoned.h> because that header file will be used
+by the zoned block device code.
 
-  iolog: move the chunked items-to-fetch logic into separate function (2018-08-03 14:40:17 -0600)
-
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to b87ed299820c26e8c4271294b0c5037e8d0a3d4a:
-
-  client: support --status-interval option in client/server mode (2018-08-05 15:12:12 -0600)
-
-----------------------------------------------------------------
-Tomohiro Kusumi (1):
-      client: support --status-interval option in client/server mode
-
- init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
+Signed-off-by: Bart Van Assche <bart.vanassche@wdc.com>
 ---
+ configure | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-Diff of recent changes:
+diff --git a/configure b/configure
+index fb8b2433a7a7..ab89df7d57e0 100755
+--- a/configure
++++ b/configure
+@@ -2195,6 +2195,24 @@ if compile_prog "" "" "valgrind_dev"; then
+ fi
+ print_config "Valgrind headers" "$valgrind_dev"
+ 
++##########################################
++# <linux/blkzoned.h> probe
++if test "$linux_blkzoned" != "yes" ; then
++  linux_blkzoned="no"
++fi
++cat > $TMPC << EOF
++#include <linux/blkzoned.h>
++int main(int argc, char **argv)
++{
++  return 0;
++}
++EOF
++if compile_prog "" "" "linux_blkzoned"; then
++  linux_blkzoned="yes"
++fi
++print_config "Zoned block device support" "$linux_blkzoned"
++
++##########################################
+ # check march=armv8-a+crc+crypto
+ if test "$march_armv8_a_crc_crypto" != "yes" ; then
+   march_armv8_a_crc_crypto="no"
+@@ -2519,6 +2537,9 @@ fi
+ if test "$valgrind_dev" = "yes"; then
+   output_sym "CONFIG_VALGRIND_DEV"
+ fi
++if test "$linux_blkzoned" = "yes" ; then
++  output_sym "CONFIG_LINUX_BLKZONED"
++fi
+ if test "$zlib" = "no" ; then
+   echo "Consider installing zlib-dev (zlib-devel, some fio features depend on it."
+   if test "$build_static" = "yes"; then
+-- 
+2.18.0
 
-diff --git a/init.c b/init.c
-index ede0a8b..06f6971 100644
---- a/init.c
-+++ b/init.c
-@@ -258,7 +258,7 @@ static struct option l_opts[FIO_NR_OPTIONS] = {
- 	{
- 		.name		= (char *) "status-interval",
- 		.has_arg	= required_argument,
--		.val		= 'L',
-+		.val		= 'L' | FIO_CLIENT_FLAG,
- 	},
- 	{
- 		.name		= (char *) "trigger-file",
+
