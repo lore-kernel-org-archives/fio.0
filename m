@@ -1,20 +1,15 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa2.hgst.iphmx.com ([68.232.143.124]:38233 "EHLO
-        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727305AbeHXWHU (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 24 Aug 2018 18:07:20 -0400
+Return-Path: <prvs=76726b587=bart.vanassche@wdc.com>
 From: Bart Van Assche <bart.vanassche@wdc.com>
-Subject: [PATCH v2 10/11] Add support for resetting zones periodically
-Date: Fri, 24 Aug 2018 11:31:30 -0700
-Message-Id: <20180824183131.13278-11-bart.vanassche@wdc.com>
-In-Reply-To: <20180824183131.13278-1-bart.vanassche@wdc.com>
-References: <20180824183131.13278-1-bart.vanassche@wdc.com>
+Subject: [PATCH 10/11] Add support for resetting zones periodically
+Date: Fri, 24 Aug 2018 09:30:45 -0700
+Message-Id: <20180824163046.12304-11-bart.vanassche@wdc.com>
+In-Reply-To: <20180824163046.12304-1-bart.vanassche@wdc.com>
+References: <20180824163046.12304-1-bart.vanassche@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
 To: Jens Axboe <axboe@kernel.dk>
 Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Bart Van Assche <bart.vanassche@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
 Filesystems that support zoned block devices typically perform garbage
 collection if device usage exceeds a certain threshold. Add two command
@@ -126,10 +121,10 @@ index 597c4221f199..393158340e96 100644
  
  #define FIO_TOP_STR_MAX		256
 diff --git a/zbd.c b/zbd.c
-index 2bf352122bf1..561976939298 100644
+index 328cdead1fa3..d97395a40868 100644
 --- a/zbd.c
 +++ b/zbd.c
-@@ -589,6 +589,9 @@ static int zbd_reset_range(struct thread_data *td, const struct fio_file *f,
+@@ -599,6 +599,9 @@ static int zbd_reset_range(struct thread_data *td, const struct fio_file *f,
  	ze = &f->zbd_info->zone_info[zone_idx_e];
  	for (z = zb; z < ze; z++) {
  		pthread_mutex_lock(&z->mutex);
@@ -139,7 +134,7 @@ index 2bf352122bf1..561976939298 100644
  		z->wp = z->start;
  		z->verify_block = 0;
  		pthread_mutex_unlock(&z->mutex);
-@@ -687,10 +690,65 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
+@@ -697,10 +700,65 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
  	return res;
  }
  
@@ -206,7 +201,7 @@ index 2bf352122bf1..561976939298 100644
  
  	if (!f->zbd_info)
  		return;
-@@ -698,6 +756,16 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
+@@ -708,6 +766,16 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
  	zb = &f->zbd_info->zone_info[zbd_zone_idx(f, f->file_offset)];
  	zone_idx_e = zbd_zone_idx(f, f->file_offset + f->io_size);
  	ze = &f->zbd_info->zone_info[zone_idx_e];
@@ -223,7 +218,7 @@ index 2bf352122bf1..561976939298 100644
  	/*
  	 * If data verification is enabled reset the affected zones before
  	 * writing any data to avoid that a zone reset has to be issued while
-@@ -706,6 +774,7 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
+@@ -716,6 +784,7 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
  	zbd_reset_zones(td, f, zb, ze, td->o.verify != VERIFY_NONE &&
  			(td->o.td_ddir & TD_DDIR_WRITE) &&
  			td->runstate != TD_VERIFYING);
@@ -231,7 +226,7 @@ index 2bf352122bf1..561976939298 100644
  }
  
  /* The caller must hold f->zbd_info->mutex. */
-@@ -1007,6 +1076,14 @@ static void zbd_post_submit(const struct io_u *io_u, bool success)
+@@ -1017,6 +1086,14 @@ static void zbd_post_submit(const struct io_u *io_u, bool success)
  	switch (io_u->ddir) {
  	case DDIR_WRITE:
  		zone_end = min(end, (z + 1)->start);
@@ -271,7 +266,7 @@ index 2bf352122bf1..561976939298 100644
  		/* Make writes occur at the write pointer */
  		assert(!zbd_zone_full(f, zb, min_bs));
 diff --git a/zbd.h b/zbd.h
-index 215a96388096..08751fd5bf34 100644
+index 272cb9456e6f..8b230554eb1f 100644
 --- a/zbd.h
 +++ b/zbd.h
 @@ -60,11 +60,14 @@ struct fio_zone_info {
