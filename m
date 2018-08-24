@@ -1,14 +1,14 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa2.hgst.iphmx.com ([68.232.143.124]:38233 "EHLO
-        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727547AbeHXWHU (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 24 Aug 2018 18:07:20 -0400
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:18147 "EHLO
+        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727453AbeHXUGL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 24 Aug 2018 16:06:11 -0400
 From: Bart Van Assche <bart.vanassche@wdc.com>
-Subject: [PATCH v2 07/11] Add support for zoned block devices
-Date: Fri, 24 Aug 2018 11:31:27 -0700
-Message-Id: <20180824183131.13278-8-bart.vanassche@wdc.com>
-In-Reply-To: <20180824183131.13278-1-bart.vanassche@wdc.com>
-References: <20180824183131.13278-1-bart.vanassche@wdc.com>
+Subject: [PATCH 07/11] Add support for zoned block devices
+Date: Fri, 24 Aug 2018 09:30:42 -0700
+Message-Id: <20180824163046.12304-8-bart.vanassche@wdc.com>
+In-Reply-To: <20180824163046.12304-1-bart.vanassche@wdc.com>
+References: <20180824163046.12304-1-bart.vanassche@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
@@ -49,16 +49,14 @@ Signed-off-by: Bart Van Assche <bart.vanassche@wdc.com>
  HOWTO            |  20 +
  Makefile         |   3 +
  file.h           |   8 +
- filesetup.c      |  12 +
+ filesetup.c      |   9 +-
  fio.1            |  19 +
- init.c           |   5 +
  io_u.c           |  13 +-
- ioengines.c      |   8 +
  options.c        |  10 +
  thread_options.h |   3 +
  zbd.c            | 971 +++++++++++++++++++++++++++++++++++++++++++++++
- zbd.h            | 125 ++++++
- 12 files changed, 1195 insertions(+), 2 deletions(-)
+ zbd.h            | 119 ++++++
+ 10 files changed, 1172 insertions(+), 3 deletions(-)
  create mode 100644 zbd.c
  create mode 100644 zbd.h
 
@@ -134,7 +132,7 @@ index c0a547eb1d2d..446a1fbeb967 100644
  	 * Track last end and last start of IO for a given data direction
  	 */
 diff --git a/filesetup.c b/filesetup.c
-index 2ab251531ae8..580403dbc232 100644
+index 2ab251531ae8..50cbc4182d90 100644
 --- a/filesetup.c
 +++ b/filesetup.c
 @@ -14,6 +14,7 @@
@@ -145,22 +143,18 @@ index 2ab251531ae8..580403dbc232 100644
  
  #ifdef CONFIG_LINUX_FALLOCATE
  #include <linux/falloc.h>
-@@ -1158,7 +1159,14 @@ done:
+@@ -1158,7 +1159,9 @@ done:
  		td->done = 1;
  
  	td_restore_runstate(td, old_state);
+-	return 0;
 +
-+	if (td->o.zone_mode == ZONE_MODE_ZBD) {
-+		err = zbd_init(td);
-+		if (err)
-+			goto err_out;
-+	}
- 	return 0;
++	return zbd_init(td);
 +
  err_offset:
  	log_err("%s: you need to specify valid offset=\n", o->name);
  err_out:
-@@ -1346,6 +1354,8 @@ void close_and_free_files(struct thread_data *td)
+@@ -1346,6 +1349,8 @@ void close_and_free_files(struct thread_data *td)
  			td_io_unlink_file(td, f);
  		}
  
@@ -169,7 +163,7 @@ index 2ab251531ae8..580403dbc232 100644
  		if (use_free)
  			free(f->file_name);
  		else
-@@ -1870,6 +1880,8 @@ void fio_file_reset(struct thread_data *td, struct fio_file *f)
+@@ -1870,6 +1875,8 @@ void fio_file_reset(struct thread_data *td, struct fio_file *f)
  		axmap_reset(f->io_axmap);
  	else if (fio_file_lfsr(f))
  		lfsr_reset(&f->lfsr, td->rand_seeds[FIO_RAND_BLOCK_OFF]);
@@ -208,22 +202,6 @@ index 3b961193e9ed..46b4cd08395b 100644
  .SS "I/O type"
  .TP
  .BI direct \fR=\fPbool
-diff --git a/init.c b/init.c
-index 38f51288c638..b925b4ca33d2 100644
---- a/init.c
-+++ b/init.c
-@@ -623,6 +623,11 @@ static int fixup_options(struct thread_data *td)
- 		ret |= 1;
- 	}
- 
-+	if (o->zone_mode == ZONE_MODE_STRIDED && !o->zone_size) {
-+		log_err("fio: --zonesize must be specified when using --zonemode=strided.\n");
-+		ret |= 1;
-+	}
-+
- 	if (o->zone_mode == ZONE_MODE_NOT_SPECIFIED) {
- 		if (o->zone_size)
- 			o->zone_mode = ZONE_MODE_STRIDED;
 diff --git a/io_u.c b/io_u.c
 index 9b5f203c4733..3fbcf0fdd5bb 100644
 --- a/io_u.c
@@ -269,32 +247,6 @@ index 9b5f203c4733..3fbcf0fdd5bb 100644
  
  out:
  	dprint_io_u(io_u, "fill");
-diff --git a/ioengines.c b/ioengines.c
-index 1821916112cc..ba02952b1f0f 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -18,6 +18,7 @@
- 
- #include "fio.h"
- #include "diskutil.h"
-+#include "zbd.h"
- 
- static FLIST_HEAD(engine_list);
- 
-@@ -354,6 +355,13 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
- 			 "invalid block size. Try setting direct=0.\n");
- 	}
- 
-+	if (zbd_unaligned_write(io_u->error) &&
-+	    td->io_issues[io_u->ddir & 1] == 1 &&
-+	    td->o.zone_mode != ZONE_MODE_ZBD) {
-+		log_info("fio: first I/O failed. If %s is a zoned block device, consider --zonemode=zbd\n",
-+			 io_u->file->file_name);
-+	}
-+
- 	if (!td->io_ops->commit) {
- 		io_u_mark_submit(td, 1);
- 		io_u_mark_complete(td, 1);
 diff --git a/options.c b/options.c
 index 2bac64a343b1..796187ed18a8 100644
 --- a/options.c
@@ -332,7 +284,7 @@ index 9ef3d6b155ed..32063112feaa 100644
  #define FIO_TOP_STR_MAX		256
 diff --git a/zbd.c b/zbd.c
 new file mode 100644
-index 000000000000..42487780ca77
+index 000000000000..8167514e7eb2
 --- /dev/null
 +++ b/zbd.c
 @@ -0,0 +1,971 @@
@@ -853,21 +805,31 @@ index 000000000000..42487780ca77
 +	struct fio_file *f;
 +	int i;
 +
-+	for_each_file(td, f, i) {
-+		if (f->filetype != FIO_TYPE_BLOCK)
-+			continue;
-+		if (td->o.zone_size && td->o.zone_size < 512) {
-+			log_err("%s: zone size must be at least 512 bytes for --zonemode=zbd\n\n",
++	if (td->o.zone_mode == ZONE_MODE_ZBD) {
++		for_each_file(td, f, i) {
++			if (f->filetype != FIO_TYPE_BLOCK)
++				continue;
++			if (td->o.zone_size && td->o.zone_size < 512) {
++				log_err("%s: zone size must be at least 512 bytes for --zonemode=zbd\n\n",
++					f->file_name);
++				return 1;
++			}
++			if (td->o.zone_size == 0 &&
++			    get_zbd_model(f->file_name) == ZBD_DM_NONE) {
++				log_err("%s: Specifying the zone size is mandatory for regular block devices with --zonemode=zbd\n\n",
++					f->file_name);
++				return 1;
++			}
++			zbd_init_zone_info(td, f);
++		}
++	} else {
++		for_each_file(td, f, i) {
++			if (get_zbd_model(f->file_name) != ZBD_DM_HOST_MANAGED)
++				continue;
++			log_err("%s: Using --zonemode=zbd is mandatory for host-managed drives\n\n",
 +				f->file_name);
 +			return 1;
 +		}
-+		if (td->o.zone_size == 0 &&
-+		    get_zbd_model(f->file_name) == ZBD_DM_NONE) {
-+			log_err("%s: Specifying the zone size is mandatory for regular block devices with --zonemode=zbd\n\n",
-+				f->file_name);
-+			return 1;
-+		}
-+		zbd_init_zone_info(td, f);
 +	}
 +
 +	if (!zbd_using_direct_io()) {
@@ -1144,16 +1106,6 @@ index 000000000000..42487780ca77
 +	pthread_mutex_unlock(&z->mutex);
 +}
 +
-+bool zbd_unaligned_write(int error_code)
-+{
-+	switch (error_code) {
-+	case EIO:
-+	case EREMOTEIO:
-+		return true;
-+	}
-+	return false;
-+}
-+
 +/**
 + * zbd_adjust_block - adjust the offset and length as necessary for ZBD drives
 + * @td: FIO thread data.
@@ -1309,10 +1261,10 @@ index 000000000000..42487780ca77
 +}
 diff --git a/zbd.h b/zbd.h
 new file mode 100644
-index 000000000000..ec5d85e1bd50
+index 000000000000..9905050c2a76
 --- /dev/null
 +++ b/zbd.h
-@@ -0,0 +1,125 @@
+@@ -0,0 +1,119 @@
 +/*
 + * Copyright (C) 2018 Western Digital Corporation or its affiliates.
 + *
@@ -1397,7 +1349,6 @@ index 000000000000..ec5d85e1bd50
 +void zbd_free_zone_info(struct fio_file *f);
 +int zbd_init(struct thread_data *td);
 +void zbd_file_reset(struct thread_data *td, struct fio_file *f);
-+bool zbd_unaligned_write(int error_code);
 +enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u);
 +int zbd_do_trim(struct thread_data *td, const struct io_u *io_u);
 +void zbd_update_wp(struct thread_data *td, const struct io_u *io_u);
@@ -1413,11 +1364,6 @@ index 000000000000..ec5d85e1bd50
 +
 +static inline void zbd_file_reset(struct thread_data *td, struct fio_file *f)
 +{
-+}
-+
-+static inline bool zbd_unaligned_write(int error_code)
-+{
-+	return false;
 +}
 +
 +static inline enum io_u_action zbd_adjust_block(struct thread_data *td,
