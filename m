@@ -1,14 +1,14 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa2.hgst.iphmx.com ([68.232.143.124]:38238 "EHLO
-        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726960AbeHXWHU (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 24 Aug 2018 18:07:20 -0400
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:18145 "EHLO
+        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727414AbeHXUGL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 24 Aug 2018 16:06:11 -0400
 From: Bart Van Assche <bart.vanassche@wdc.com>
-Subject: [PATCH v2 08/11] Collect and show zone reset statistics
-Date: Fri, 24 Aug 2018 11:31:28 -0700
-Message-Id: <20180824183131.13278-9-bart.vanassche@wdc.com>
-In-Reply-To: <20180824183131.13278-1-bart.vanassche@wdc.com>
-References: <20180824183131.13278-1-bart.vanassche@wdc.com>
+Subject: [PATCH 08/11] Collect and show zone reset statistics
+Date: Fri, 24 Aug 2018 09:30:43 -0700
+Message-Id: <20180824163046.12304-9-bart.vanassche@wdc.com>
+In-Reply-To: <20180824163046.12304-1-bart.vanassche@wdc.com>
+References: <20180824163046.12304-1-bart.vanassche@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
@@ -101,10 +101,10 @@ index 5dcaae029cde..98de281e2e11 100644
  	uint32_t block_infos[MAX_NR_BLOCK_INFOS];
  
 diff --git a/zbd.c b/zbd.c
-index 42487780ca77..f4105b422522 100644
+index 8167514e7eb2..85beb3dcf15b 100644
 --- a/zbd.c
 +++ b/zbd.c
-@@ -594,6 +594,8 @@ static int zbd_reset_range(struct thread_data *td, const struct fio_file *f,
+@@ -604,6 +604,8 @@ static int zbd_reset_range(struct thread_data *td, const struct fio_file *f,
  		pthread_mutex_unlock(&z->mutex);
  	}
  
@@ -128,10 +128,10 @@ index 42487780ca77..f4105b422522 100644
 +	return res;
 +}
 diff --git a/zbd.h b/zbd.h
-index ec5d85e1bd50..82ce4662834f 100644
+index 9905050c2a76..b269ff0864ad 100644
 --- a/zbd.h
 +++ b/zbd.h
-@@ -86,6 +86,7 @@ bool zbd_unaligned_write(int error_code);
+@@ -85,6 +85,7 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f);
  enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u);
  int zbd_do_trim(struct thread_data *td, const struct io_u *io_u);
  void zbd_update_wp(struct thread_data *td, const struct io_u *io_u);
@@ -139,7 +139,7 @@ index ec5d85e1bd50..82ce4662834f 100644
  #else
  static inline void zbd_free_zone_info(struct fio_file *f)
  {
-@@ -120,6 +121,11 @@ static inline void zbd_update_wp(struct thread_data *td,
+@@ -114,6 +115,11 @@ static inline void zbd_update_wp(struct thread_data *td,
  				 const struct io_u *io_u)
  {
  }
