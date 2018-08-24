@@ -1,15 +1,20 @@
-Return-Path: <prvs=76726b587=bart.vanassche@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:18147 "EHLO
+        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727557AbeHXUGM (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 24 Aug 2018 16:06:12 -0400
 From: Bart Van Assche <bart.vanassche@wdc.com>
-Subject: [PATCH v2 09/11] Make it possible to limit the number of open zones
-Date: Fri, 24 Aug 2018 11:31:29 -0700
-Message-Id: <20180824183131.13278-10-bart.vanassche@wdc.com>
-In-Reply-To: <20180824183131.13278-1-bart.vanassche@wdc.com>
-References: <20180824183131.13278-1-bart.vanassche@wdc.com>
+Subject: [PATCH 09/11] Make it possible to limit the number of open zones
+Date: Fri, 24 Aug 2018 09:30:44 -0700
+Message-Id: <20180824163046.12304-10-bart.vanassche@wdc.com>
+In-Reply-To: <20180824163046.12304-1-bart.vanassche@wdc.com>
+References: <20180824163046.12304-1-bart.vanassche@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
 To: Jens Axboe <axboe@kernel.dk>
 Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Bart Van Assche <bart.vanassche@wdc.com>
-List-ID: <fio@vger.kernel.org>
 
 When running a random I/O test across an entire drive many more zones
 will be open than in a typical application workload. Hence add a command
@@ -111,10 +116,10 @@ index 32063112feaa..597c4221f199 100644
  
  #define FIO_TOP_STR_MAX		256
 diff --git a/zbd.c b/zbd.c
-index f4105b422522..2bf352122bf1 100644
+index 85beb3dcf15b..328cdead1fa3 100644
 --- a/zbd.c
 +++ b/zbd.c
-@@ -708,17 +708,228 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
+@@ -718,17 +718,228 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
  			td->runstate != TD_VERIFYING);
  }
  
@@ -369,7 +374,7 @@ index f4105b422522..2bf352122bf1 100644
  		if (zb->reset_zone || zbd_zone_full(f, zb, min_bs)) {
  			assert(td->o.verify == VERIFY_NONE);
 diff --git a/zbd.h b/zbd.h
-index 82ce4662834f..215a96388096 100644
+index b269ff0864ad..272cb9456e6f 100644
 --- a/zbd.h
 +++ b/zbd.h
 @@ -8,6 +8,7 @@
