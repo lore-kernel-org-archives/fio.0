@@ -1,32 +1,48 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from aliyun-cloud.icoremail.net ([47.90.104.110]:52320 "HELO
-        aliyun-sdnproxy-3.icoremail.net" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with SMTP id S1727182AbeHKLNh (ORCPT
-        <rfc822;fio@vger.kernel.org>); Sat, 11 Aug 2018 07:13:37 -0400
-Date: Sat, 11 Aug 2018 16:32:56 +0800 (GMT+08:00)
-From: "Shaonan Ma" <msn18@mails.tsinghua.edu.cn>
-Subject: How to use fio to test performance of a large amount of small
- files?
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=UTF-8
+Received: from esa2.hgst.iphmx.com ([68.232.143.124]:38236 "EHLO
+        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727540AbeHXWHU (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 24 Aug 2018 18:07:20 -0400
+From: Bart Van Assche <bart.vanassche@wdc.com>
+Subject: [PATCH v2 06/11] Add two assert statements in mark_random_map()
+Date: Fri, 24 Aug 2018 11:31:26 -0700
+Message-Id: <20180824183131.13278-7-bart.vanassche@wdc.com>
+In-Reply-To: <20180824183131.13278-1-bart.vanassche@wdc.com>
+References: <20180824183131.13278-1-bart.vanassche@wdc.com>
 MIME-Version: 1.0
-Message-ID: <299b1737.698d.165281df382.Coremail.msn18@mails.tsinghua.edu.cn>
+Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Bart Van Assche <bart.vanassche@wdc.com>
 
-SGksDQoNCkkgYW0gdXNpbmcgZmlvIHRvIHRlc3TCoHBlcmZvcm1hbmNlIG9mIGEgbGFyZ2UgYW1v
-dW50IG9mIHNtYWxsIGZpbGVzLiBJIHVzZSByYmQgb2YgY2VwaCBhbmQgbWFwIHRoZSBpbWFnZSB0
-byBhIGRldmljZSwgbW91bnQgdGhlIGRldmljZSBhbmQgd3JpdGUgYSBsb3Qgb2Ygc21hbGwgZmls
-ZXMuDQoNCkkgd2FudCB0byBrbm93IHdoZXRoZXIgZmlvIGNhbiB0ZXN0IHBlcmZvcm1hbmNlIG9m
-IHNtYWxsIGZpbGVzIHdlbGwuDQoNCkkgdXNlIHRoZSBlbmdpbmUgbGliYWlvLCBteSBjb25maWcg
-aXM6DQoNCltnbG9iYWxdDQppb2VuZ2luZT1saWJhaW8NCmJ1ZmZlcmVkPTANCnJ3PXJhbmR3cml0
-ZQ0KYnM9NGsNCnNpemU9MUcNCmlvX3NpemU9MUcNCmlvZGVwdGg9MjU2DQpmaWxlc2l6ZT00aw0K
-bnJmaWxlcz0yNTYwMDANCltqb2IxXQ0KZGlyZWN0b3J5PXJiZG1hcC9yYmRtYXAwDQoNCkkgZG9u
-J3Qga25vdyB3aGV0aGVyIG15IGNvbmZpZyBpcyBjb3JyZWN0LiBCZWNhdXNlIEkgaW5jcmVhc2Ug
-dGhlIGZpbGVzaXplIGZyb20gNGsgdG8gMjU2aywgYW5kIG1vZGlmeSBzaXplIGFuZCBpb19zaXpl
-LiBUaGUgcmVzdWx0IG9mIGJhbmR3aWR0aCBhbmQgaW9wcyBpcyBhcyBmb2xsb3dpbmc6DQoNCkkg
-ZG9uJ3Qga25vdyB3aGV0aGVyIHRoZSBwZXJmb3JtYW5jZSBpcyBjb3JyZWN0LCBvciBmaW8gaXMg
-bm90IHN1aXRhYmxlIGZvciBhIGxvdCBvZiBzbWFsbCBmaWxlcy4NCg0KVGhhbmtzLg0KDQotLQ0K
-U2hhb25hbiBNYQ0KVHNpbmdodWEgVW5pdmVyc2l0eQ==
+Add two assert statements that verify whether mark_random_map() is
+used correctly.
+
+Signed-off-by: Bart Van Assche <bart.vanassche@wdc.com>
+---
+ io_u.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/io_u.c b/io_u.c
+index eed7d9d91c8d..9b5f203c4733 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -41,9 +41,12 @@ static uint64_t mark_random_map(struct thread_data *td, struct io_u *io_u,
+ 
+ 	block = (offset - f->file_offset) / (uint64_t) min_bs;
+ 	nr_blocks = (buflen + min_bs - 1) / min_bs;
++	assert(nr_blocks > 0);
+ 
+-	if (!(io_u->flags & IO_U_F_BUSY_OK))
++	if (!(io_u->flags & IO_U_F_BUSY_OK)) {
+ 		nr_blocks = axmap_set_nr(f->io_axmap, block, nr_blocks);
++		assert(nr_blocks > 0);
++	}
+ 
+ 	if ((nr_blocks * min_bs) < buflen)
+ 		buflen = nr_blocks * min_bs;
+-- 
+2.18.0
+
 
