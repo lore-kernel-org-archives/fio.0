@@ -1,10 +1,10 @@
 Return-Path: <prvs=76726b587=bart.vanassche@wdc.com>
 From: Bart Van Assche <bart.vanassche@wdc.com>
-Subject: [PATCH v2 11/11] Add scripts for testing the fio zoned block device support code
-Date: Fri, 24 Aug 2018 11:31:31 -0700
-Message-Id: <20180824183131.13278-12-bart.vanassche@wdc.com>
-In-Reply-To: <20180824183131.13278-1-bart.vanassche@wdc.com>
-References: <20180824183131.13278-1-bart.vanassche@wdc.com>
+Subject: [PATCH 11/11] Add scripts for testing the fio zoned block device support code
+Date: Fri, 24 Aug 2018 09:30:46 -0700
+Message-Id: <20180824163046.12304-12-bart.vanassche@wdc.com>
+In-Reply-To: <20180824163046.12304-1-bart.vanassche@wdc.com>
+References: <20180824163046.12304-1-bart.vanassche@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 To: Jens Axboe <axboe@kernel.dk>
@@ -23,8 +23,8 @@ Signed-off-by: Bart Van Assche <bart.vanassche@wdc.com>
  t/zbd/functions                       | 106 ++++
  t/zbd/run-tests-against-regular-nullb |  25 +
  t/zbd/run-tests-against-zoned-nullb   |  27 +
- t/zbd/test-zbd-support                | 817 ++++++++++++++++++++++++++
- 4 files changed, 975 insertions(+)
+ t/zbd/test-zbd-support                | 799 ++++++++++++++++++++++++++
+ 4 files changed, 957 insertions(+)
  create mode 100644 t/zbd/functions
  create mode 100755 t/zbd/run-tests-against-regular-nullb
  create mode 100755 t/zbd/run-tests-against-zoned-nullb
@@ -208,10 +208,10 @@ index 000000000000..7d9eb439a445
 +"$(dirname "$0")"/test-zbd-support "$@" /dev/nullb0
 diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
 new file mode 100755
-index 000000000000..6ee5055b57cf
+index 000000000000..991d3ee382dc
 --- /dev/null
 +++ b/t/zbd/test-zbd-support
-@@ -0,0 +1,817 @@
+@@ -0,0 +1,799 @@
 +#!/bin/bash
 +#
 +# Copyright (C) 2018 Western Digital Corporation or its affiliates.
@@ -886,24 +886,18 @@ index 000000000000..6ee5055b57cf
 +	tee -a "${logfile}.${test_number}"
 +}
 +
-+# Check whether fio accepts --zonemode=none for zoned block devices.
++# Check whether fio refuses --zonemode=none for zoned block devices.
 +test39() {
 +    [ -n "$is_zbd" ] || return 0
-+    read_one_block --zonemode=none >/dev/null || return $?
-+    check_read $((logical_block_size)) || return $?
++    read_one_block --zonemode=none |
++	grep -q 'Using --zonemode=zbd is mandatory for host-managed drives'
 +}
 +
-+# Check whether fio accepts --zonemode=strided for zoned block devices.
++# Check whether fio refuses --zonemode=strided for zoned block devices.
 +test40() {
-+    local bs
-+
-+    bs=$((logical_block_size))
 +    [ -n "$is_zbd" ] || return 0
 +    read_one_block --zonemode=strided |
-+	grep -q 'fio: --zonesize must be specified when using --zonemode=strided' ||
-+	return $?
-+    read_one_block --zonemode=strided --zonesize=$bs >/dev/null || return $?
-+    check_read $bs || return $?
++	grep -q 'Using --zonemode=zbd is mandatory for host-managed drives'
 +}
 +
 +# Check whether fio checks the zone size for zoned block devices.
@@ -930,18 +924,6 @@ index 000000000000..6ee5055b57cf
 +test44() {
 +    read_one_block --zonemode=none --zonesize=1 |
 +	grep -q 'fio: --zonemode=none and --zonesize are not compatible'
-+}
-+
-+test45() {
-+    local bs i
-+
-+    [ -z "$is_zbd" ] && return 0
-+    bs=$((logical_block_size))
-+    run_one_fio_job --ioengine=psync --iodepth=1 --rw=randwrite --bs=$bs\
-+		    --offset=$((first_sequential_zone_sector * 512)) \
-+		    --size="$zone_size" --do_verify=1 --verify=md5 2>&1 |
-+	tee -a "${logfile}.${test_number}" |
-+	grep -q "fio: first I/O failed. If .* is a zoned block device, consider --zonemode=zbd"
 +}
 +
 +tests=()
@@ -1007,7 +989,7 @@ index 000000000000..6ee5055b57cf
 +esac
 +
 +if [ "${#tests[@]}" = 0 ]; then
-+    for ((i=1;i<=45;i++)); do
++    for ((i=1;i<=44;i++)); do
 +	tests+=("$i")
 +    done
 +fi
