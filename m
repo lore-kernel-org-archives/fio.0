@@ -1,53 +1,50 @@
-Return-Path: <prvs=771502ab2=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH] zbd: Remove inexitent function declaration
-Date: Tue, 28 Aug 2018 14:34:28 +0900
-Message-Id: <20180828053428.10143-3-damien.lemoal@wdc.com>
-In-Reply-To: <20180828053428.10143-1-damien.lemoal@wdc.com>
-References: <20180828053428.10143-1-damien.lemoal@wdc.com>
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Bart Van Assche <bvanassche@acm.org>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: Zoned block device support for fio
+References: <a1373211271aee157884ec6dea024ecc2c17331d.camel@wdc.com>
+ <be10a7d0-2d90-9381-4d05-6c4c4b81d461@kernel.dk>
+ <480f2de2cfe43c779304f7b470f84ed3f9903713.camel@wdc.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <052e5a14-5e9a-c68b-bd34-3e14c50daa67@kernel.dk>
+Date: Fri, 24 Aug 2018 10:46:08 -0600
+MIME-Version: 1.0
+In-Reply-To: <480f2de2cfe43c779304f7b470f84ed3f9903713.camel@wdc.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Bart Van Assche <Bart.VanAssche@wdc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jason Jorgensen <jason.jorgensen@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, "phillip.a.chen@seagate.com" <phillip.a.chen@seagate.com>, Damien Le Moal <Damien.LeMoal@wdc.com>, Masato Suzuki <masato.suzuki@wdc.com>, Matias Bjorling <Matias.Bjorling@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-zbd_do_trim() and zbd_update_wp() are not implemented.
-Remove there declaration from zbd.h.
+On 8/24/18 10:42 AM, Bart Van Assche wrote:
+>> zbd_init() should not be something that
+>> is unconditionally called. Only do it if ZONE_MODE_ZBD is set and make
+>> that explicit.
+> 
+> There is a test in the zbd_init() code that makes fio report an error
+> message if --zonemode=zbd has not been specified for zoned block devices:
+> 
+> 	if (td->o.zone_mode != ZONE_MODE_ZBD) {
+>  		for_each_file(td, f, i) {
+> 			if (get_zbd_model(f->file_name) != ZBD_DM_HOST_MANAGED)
+> 				continue;
+> 			log_err("%s: Using --zonemode=zbd is mandatory for host-managed drives\n\n",
+> 				f->file_name);
+> 			return 1;
+> 		}
+> 	}
+> 
+> I think that error message is very helpful for people who run fio for the
+> first time against a zoned block device so I would like to keep that error
+> message. However, I'm not sure where you would like me to move that code if
+> zbd_init() is only called for --zonemode=zbd?
 
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
----
- zbd.h | 12 ------------
- 1 file changed, 12 deletions(-)
+That's exactly what I'm objecting to. If someone doesn't ask for zoned
+behavior, don't do any of that. If the test then fails, then the test
+will fail. Don't look or parse any of that stuff. If need be, you could
+introduce an error check similarly to how we add an extra information
+note if the first O_DIRECT IO fails, for instance.
 
-diff --git a/zbd.h b/zbd.h
-index 08751fd5..d750b67e 100644
---- a/zbd.h
-+++ b/zbd.h
-@@ -95,8 +95,6 @@ int zbd_init(struct thread_data *td);
- void zbd_file_reset(struct thread_data *td, struct fio_file *f);
- bool zbd_unaligned_write(int error_code);
- enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u);
--int zbd_do_trim(struct thread_data *td, const struct io_u *io_u);
--void zbd_update_wp(struct thread_data *td, const struct io_u *io_u);
- char *zbd_write_status(const struct thread_stat *ts);
- #else
- static inline void zbd_free_zone_info(struct fio_file *f)
-@@ -123,16 +121,6 @@ static inline enum io_u_action zbd_adjust_block(struct thread_data *td,
- 	return io_u_accept;
- }
- 
--static inline int zbd_do_trim(struct thread_data *td, const struct io_u *io_u)
--{
--	return 1;
--}
--
--static inline void zbd_update_wp(struct thread_data *td,
--				 const struct io_u *io_u)
--{
--}
--
- static inline char *zbd_write_status(const struct thread_stat *ts)
- {
- 	return NULL;
 -- 
-2.17.1
+Jens Axboe
 
 
