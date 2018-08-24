@@ -1,20 +1,15 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa2.hgst.iphmx.com ([68.232.143.124]:38236 "EHLO
-        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727540AbeHXWHU (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 24 Aug 2018 18:07:20 -0400
+Return-Path: <prvs=76726b587=bart.vanassche@wdc.com>
 From: Bart Van Assche <bart.vanassche@wdc.com>
-Subject: [PATCH v2 06/11] Add two assert statements in mark_random_map()
-Date: Fri, 24 Aug 2018 11:31:26 -0700
-Message-Id: <20180824183131.13278-7-bart.vanassche@wdc.com>
-In-Reply-To: <20180824183131.13278-1-bart.vanassche@wdc.com>
-References: <20180824183131.13278-1-bart.vanassche@wdc.com>
+Subject: [PATCH 06/11] Add two assert statements in mark_random_map()
+Date: Fri, 24 Aug 2018 09:30:41 -0700
+Message-Id: <20180824163046.12304-7-bart.vanassche@wdc.com>
+In-Reply-To: <20180824163046.12304-1-bart.vanassche@wdc.com>
+References: <20180824163046.12304-1-bart.vanassche@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
 To: Jens Axboe <axboe@kernel.dk>
 Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Bart Van Assche <bart.vanassche@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
 Add two assert statements that verify whether mark_random_map() is
 used correctly.
