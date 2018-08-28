@@ -1,30 +1,29 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:42159 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726814AbeHVB3Q (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 21 Aug 2018 21:29:16 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: Windows make errors on http
-Date: Tue, 21 Aug 2018 22:07:16 +0000
-Message-ID: <MWHPR04MB03200B9A3B77890750357EB78F310@MWHPR04MB0320.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Return-Path: <prvs=771502ab2=damien.lemoal@wdc.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH] ZBD support improvment and cleanup
+Date: Tue, 28 Aug 2018 14:34:26 +0900
+Message-Id: <20180828053428.10143-1-damien.lemoal@wdc.com>
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Bart Van Assche <bvanassche@acm.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi All,
-It seems the latest git is broken for Windows builds:
+Two small patches: the first one improves read randomness to avoid excessive
+device read cache hit for a device with very few written zones. With this patch
+applied, on a 14TB SMR disk with only 100 zones written, random read performance
+result change from several thousands IOPS down to a more disk-like 100 IOPS or
+so.
 
-engines/http.o: In function 'fio_http_cleanup':
-http.c:438: undefined reference to '__imp_curl_easy_cleanup'
-...
+The second patch cleans up zbd related declarations.
 
-The 3.8 release builds successfully.
+Damien Le Moal (2):
+  zbd: Improve read randomness
+  zbd: Remove inexitent function declaration
 
-Regards,
-Jeff
+ zbd.c | 10 +++++++++-
+ zbd.h | 12 ------------
+ 2 files changed, 9 insertions(+), 13 deletions(-)
+
+-- 
+2.17.1
 
 
