@@ -1,59 +1,55 @@
-Return-Path: <prvs=77212049e=Damien.LeMoal@wdc.com>
-From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Return-Path: <bvanassche@acm.org>
 Subject: Re: [PATCH] zbd: Improve read randomness
-Date: Wed, 29 Aug 2018 00:57:16 +0000
-Message-ID: <d39cb5bb4395c0426c9d29cd1c4bd8105c2df396.camel@wdc.com>
 References: <20180828053428.10143-1-damien.lemoal@wdc.com>
-	 <20180828053428.10143-2-damien.lemoal@wdc.com>
-	 <03ebc07e-092e-00ee-1b87-a5a693e4de5b@acm.org>
-In-Reply-To: <03ebc07e-092e-00ee-1b87-a5a693e4de5b@acm.org>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <7F7ACE53A4474F4794B06D6A3A257AFF@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+ <20180828053428.10143-2-damien.lemoal@wdc.com>
+From: Bart Van Assche <bvanassche@acm.org>
+Message-ID: <03ebc07e-092e-00ee-1b87-a5a693e4de5b@acm.org>
+Date: Tue, 28 Aug 2018 07:38:35 -0700
 MIME-Version: 1.0
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "bvanassche@acm.org" <bvanassche@acm.org>, "axboe@kernel.dk" <axboe@kernel.dk>
+In-Reply-To: <20180828053428.10143-2-damien.lemoal@wdc.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Damien Le Moal <damien.lemoal@wdc.com>, fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-T24gVHVlLCAyMDE4LTA4LTI4IGF0IDA3OjM4IC0wNzAwLCBCYXJ0IFZhbiBBc3NjaGUgd3JvdGU6
-DQo+IE9uIDA4LzI3LzE4IDIyOjM0LCBEYW1pZW4gTGUgTW9hbCB3cm90ZToNCj4gPiBXaXRoIHpv
-bmVtb2RlPXpiZCwgZm9yIHJhbmRvbSByZWFkIG9wZXJhdGlvbnMgd2l0aCByZWFkX2JleW9uZF93
-cD0wLA0KPiA+IHRoZSB6YmQgY29kZSB3aWxsIGFsd2F5cyBhZGp1c3QgYW4gSS9PIG9mZnNldCBz
-byB0aGF0IHRoZSBJL08gZmFsbHMgaW4NCj4gPiBhIG5vbiBlbXB0eSB6b25lLiBUaGUgYWRqdXN0
-bWVudCBob3dldmVyIGFsd2F5cyBzZXRzIHRoZSBJL08gb2Zmc2V0IHRvDQo+ID4gdGhlIHN0YXJ0
-IG9mIHRoZSB6b25lLCByZXN1bHRpbmcgaW4gYSBoaWdoIGRldmljZSByZWFkIGNhY2hlIGhpdCBy
-YXRlDQo+ID4gaWYgdGhlIGRldmljZSBoYXMgdmVyeSBmZXcgem9uZXMgd3JpdHRlbi4NCj4gPiAN
-Cj4gPiBGaXggdGhpcyBieSBpbXByb3ZpbmcgdGhlIHJhbmRvbW5lc3Mgb2YgdGhlIEkvT3MgYnkg
-YWRqdXN0aW5nIHRoZSBJL08NCj4gPiBvZmZzZXQgdG8gYSByYW5kb20gdmFsdWUgd2l0aCB0aGUg
-cmFuZ2Ugb2Ygd3JpdHRlbiBkYXRhIGluIHRoZSB6b25lLg0KPiA+IA0KPiA+IFNpZ25lZC1vZmYt
-Ynk6IERhbWllbiBMZSBNb2FsIDxkYW1pZW4ubGVtb2FsQHdkYy5jb20+DQo+ID4gLS0tDQo+ID4g
-IHpiZC5jIHwgMTAgKysrKysrKysrLQ0KPiA+ICAxIGZpbGUgY2hhbmdlZCwgOSBpbnNlcnRpb25z
-KCspLCAxIGRlbGV0aW9uKC0pDQo+ID4gDQo+ID4gZGlmZiAtLWdpdCBhL3piZC5jIGIvemJkLmMN
-Cj4gPiBpbmRleCA1NjE5NzY5My4uYTk4NWUwMjIgMTAwNjQ0DQo+ID4gLS0tIGEvemJkLmMNCj4g
-PiArKysgYi96YmQuYw0KPiA+IEBAIC0xMTc5LDcgKzExNzksMTUgQEAgZW51bSBpb191X2FjdGlv
-biB6YmRfYWRqdXN0X2Jsb2NrKHN0cnVjdA0KPiA+IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGlv
-X3UgKmlvX3UpDQo+ID4gIAkJCQkgICAgICAgaW9fdS0+YnVmbGVuKTsNCj4gPiAgCQkJCWdvdG8g
-ZW9mOw0KPiA+ICAJCQl9DQo+ID4gLQkJCWlvX3UtPm9mZnNldCA9IHpiLT5zdGFydCA8PCA5Ow0K
-PiA+ICsJCQlyYW5nZSA9ICgoemItPndwIC0gemItPnN0YXJ0KSA8PCA5KSAtIGlvX3UtPmJ1Zmxl
-bjsNCj4gPiArCQkJaWYgKHRkX3JhbmRvbSh0ZCkgJiYgcmFuZ2UgPj0gMCkNCj4gPiArCQkJCWlv
-X3UtPm9mZnNldCA9ICh6Yi0+c3RhcnQgPDwgOSkgKw0KPiA+ICsJCQkJCSgoaW9fdS0+b2Zmc2V0
-IC0gKHpiLT5zdGFydCA8PCA5KSkgJQ0KPiA+ICsJCQkJCSAocmFuZ2UgKyAxKSkgLyBtaW5fYnMg
-KiBtaW5fYnM7DQo+IA0KPiBUaGlzIGxvb2tzIHdyb25nIHRvIG1lOiBpdCBpcyBub3QgZ3VhcmFu
-dGVlZCB0aGF0IGlvX3UtPm9mZnNldCA+PQ0KPiAoemItPnN0YXJ0IDw8IDkpLiBQbGVhc2UgdXNl
-IHRoZSBvcmlnaW5hbCB6YiBpbiB0aGF0IGV4cHJlc3Npb24uDQoNClllcyBpbmRlZWQuIFdpbGwg
-ZG8uDQoNCj4gQWRkaXRpb25hbGx5LCBzaW5jZSB0aGF0IGV4cHJlc3Npb24gaXMgb25seSBldmFs
-dWF0ZWQgaWYgcmFuZ2UgPj0wLA0KPiB0aGVyZSBpcyBubyBuZWVkIHRvIGFkZCAiKyAxIiB0byAi
-cmFuZ2UiLg0KDQpUaGlua2luZyBtb3JlIGFib3V0IHRoaXMsIHNpbmNlIHpiZF9maW5kX3pvbmUo
-KSBvbmx5IGd1YXJhbnRlZXMgdGhhdCB0aGUgem9uZQ0KcmV0dXJuZWQgaGFzIG1pbl9icyBkYXRh
-IGluIGl0LCByYW5nZSBjYW4gaW4gZmFjdCBzdGlsbCBiZSA8PSAwIGlmDQppb191LT5idWZsZW4g
-aXMgbGFyZ2VyIHRoYW4gbWluX2JzLiBJcyBpdCBhc3N1bWVkIGhlcmUgdGhhdCBtaW5fYnMgYW5k
-DQppb191LT5idWZsZW4gYXJlIGFsd2F5cyBlcXVhbCA/IElmIHllcywgdGhlbiByYW5nZSA8IDAg
-aXMgbm90IHBvc3NpYmxlLCBidXQNCnJhbmdlID09IDAgaXMgZGVmaW5pdGVseSBzdGlsbCBwb3Nz
-aWJsZSBhbmQgc28gdGhlICsxIGlzIG5lZWRlZC4NCg0KTG9va2luZyBhdCBnZXRfbmV4dF9idWZs
-ZW4oKSwgaW9fdS0+YnVmbGVuIGNhbiBiZSBsYXJnZXIgdGhhbiBtaW5fYnMuIFNvDQplaXRoZXIg
-d2UgbmVlZCB0byBtb2RpZnkgemJkX2ZpbmRfem9uZSgpIHRvIHJldHVybiBhIHpvbmUgd2l0aCBh
-dCBsZWFzdA0KaW9fdS0+YnVmbGVuIGJ5dGVzIGluIGl0LCBvciB3ZSBuZWVkIHRvIGhhbmRsZSB0
-aGUgcmFuZ2UgPCAwIGNhc2UuLi4NCg0KQW0gSSBnZXR0aW5nIHRoaXMgd3JvbmcgPw0KDQo+IFRo
-YW5rcywNCj4gDQo+IEJhcnQuDQo+IA0KDQotLSANCkRhbWllbiBMZSBNb2FsDQpXZXN0ZXJuIERp
-Z2l0YWwNCg==
+On 08/27/18 22:34, Damien Le Moal wrote:
+> With zonemode=zbd, for random read operations with read_beyond_wp=0,
+> the zbd code will always adjust an I/O offset so that the I/O falls in
+> a non empty zone. The adjustment however always sets the I/O offset to
+> the start of the zone, resulting in a high device read cache hit rate
+> if the device has very few zones written.
+> 
+> Fix this by improving the randomness of the I/Os by adjusting the I/O
+> offset to a random value with the range of written data in the zone.
+> 
+> Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+> ---
+>  zbd.c | 10 +++++++++-
+>  1 file changed, 9 insertions(+), 1 deletion(-)
+> 
+> diff --git a/zbd.c b/zbd.c
+> index 56197693..a985e022 100644
+> --- a/zbd.c
+> +++ b/zbd.c
+> @@ -1179,7 +1179,15 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+>  				       io_u->buflen);
+>  				goto eof;
+>  			}
+> -			io_u->offset = zb->start << 9;
+> +			range = ((zb->wp - zb->start) << 9) - io_u->buflen;
+> +			if (td_random(td) && range >= 0)
+> +				io_u->offset = (zb->start << 9) +
+> +					((io_u->offset - (zb->start << 9)) %
+> +					 (range + 1)) / min_bs * min_bs;
+
+This looks wrong to me: it is not guaranteed that io_u->offset >=
+(zb->start << 9). Please use the original zb in that expression.
+Additionally, since that expression is only evaluated if range >=0,
+there is no need to add "+ 1" to "range".
+
+Thanks,
+
+Bart.
+
 
