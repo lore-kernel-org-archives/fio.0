@@ -1,69 +1,63 @@
-Return-Path: <prvs=77212049e=Damien.LeMoal@wdc.com>
-From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Return-Path: <bvanassche@acm.org>
 Subject: Re: [PATCH] zbd: Improve read randomness
-Date: Wed, 29 Aug 2018 03:56:31 +0000
-Message-ID: <1fd2131f9a792c717434c23fa9a034e30f80dc3b.camel@wdc.com>
 References: <20180828053428.10143-1-damien.lemoal@wdc.com>
-	 <20180828053428.10143-2-damien.lemoal@wdc.com>
-	 <03ebc07e-092e-00ee-1b87-a5a693e4de5b@acm.org>
-	 <d39cb5bb4395c0426c9d29cd1c4bd8105c2df396.camel@wdc.com>
-	 <d0e73f47-25ec-3743-0fe3-b59a7548d885@acm.org>
-In-Reply-To: <d0e73f47-25ec-3743-0fe3-b59a7548d885@acm.org>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <BA20E33FA12B49489B14CDC3522C44D8@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+ <20180828053428.10143-2-damien.lemoal@wdc.com>
+ <03ebc07e-092e-00ee-1b87-a5a693e4de5b@acm.org>
+ <d39cb5bb4395c0426c9d29cd1c4bd8105c2df396.camel@wdc.com>
+From: Bart Van Assche <bvanassche@acm.org>
+Message-ID: <d0e73f47-25ec-3743-0fe3-b59a7548d885@acm.org>
+Date: Tue, 28 Aug 2018 20:23:12 -0700
 MIME-Version: 1.0
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "bvanassche@acm.org" <bvanassche@acm.org>, "axboe@kernel.dk" <axboe@kernel.dk>
+In-Reply-To: <d39cb5bb4395c0426c9d29cd1c4bd8105c2df396.camel@wdc.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Damien Le Moal <Damien.LeMoal@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-QmFydCwNCg0KT24gVHVlLCAyMDE4LTA4LTI4IGF0IDIwOjIzIC0wNzAwLCBCYXJ0IFZhbiBBc3Nj
-aGUgd3JvdGU6DQo+IE9uIDA4LzI4LzE4IDE3OjU3LCBEYW1pZW4gTGUgTW9hbCB3cm90ZToNCj4g
-PiBUaGlua2luZyBtb3JlIGFib3V0IHRoaXMsIHNpbmNlIHpiZF9maW5kX3pvbmUoKSBvbmx5IGd1
-YXJhbnRlZXMgdGhhdCB0aGUNCj4gPiB6b25lDQo+ID4gcmV0dXJuZWQgaGFzIG1pbl9icyBkYXRh
-IGluIGl0LCByYW5nZSBjYW4gaW4gZmFjdCBzdGlsbCBiZSA8PSAwIGlmDQo+ID4gaW9fdS0+YnVm
-bGVuIGlzIGxhcmdlciB0aGFuIG1pbl9icy4gSXMgaXQgYXNzdW1lZCBoZXJlIHRoYXQgbWluX2Jz
-IGFuZA0KPiA+IGlvX3UtPmJ1ZmxlbiBhcmUgYWx3YXlzIGVxdWFsID8NCj4gDQo+IFRoZXJlIGlz
-IG5vIHN1Y2ggYXNzdW1wdGlvbi4gaW9fdS0+YnVmbGVuIGNhbiBiZSBsYXJnZXIgdGhhbiBtaW5f
-YnMuDQo+IEUuZy4gdGVzdDExIGluIHRlc3QtemJkLXN1cHBvcnQgdHJpZ2dlcnMgdGhhdCBjYXNl
-IGJlY2F1c2UgaXQgdXNlcyB0aGUNCj4gYnNyYW5nZSBvcHRpb24uDQoNCk9LLiBXZSBhcmUgaW4g
-c3luYy4gQW5kIHRoaXMgbWVhbnMgdGhhdCByYW5nZSBjYW4gYmUgbmVnYXRpdmUgYWZ0ZXINCnpi
-Y19maW5kX3pvbmUoKSBydW5zIGFuZCBmaW5kcyBhIG5ldyB6b25lLCBzaW5jZSB0aGUgc2VhcmNo
-IHJldHVybnMgb25jZSBhDQp6b25lIHdpdGggbWluX2JzIGJ5dGVzIGlzIGZvdW5kLiBUaGF0IG1h
-eSBiZSBsZXNzIHRoYW4gaW9fdS0+YnVmbGVuLg0KDQo+IA0KPiA+IElmIHllcywgdGhlbiByYW5n
-ZSA8IDAgaXMgbm90IHBvc3NpYmxlLCBidXQgcmFuZ2UgPT0gMCBpcyBkZWZpbml0ZWx5IHN0aWxs
-DQo+ID4gcG9zc2libGUgYW5kIHNvIHRoZSArMSBpcyBuZWVkZWQuDQo+IA0KPiBIYXZlIHlvdSBj
-b25zaWRlcmVkIHRvIGxlYXZlIG91dCB0aGUgIisgMSIgYW5kIHRvIGhhbmRsZSByYW5nZSA9PSAw
-DQo+IHNlcGFyYXRlbHk/DQoNClN1cmUgSSBjYW4gZG8gdGhhdC4gQnV0IGFnYWluIHdoYXQgYWJv
-dXQgemJkX2ZpbmRfem9uZSgpID8gU2hvdWxkbid0IGl0IGJlDQpjaGFuZ2VkIHRvIGxvb2sgZm9y
-IGEgem9uZSB3aXRoIGF0IGxlYXN0IGlvX3UtPmJ1ZmxlbiBieXRlcyByYXRoZXIgdGhhbiBvbmx5
-DQptaW5fYnMgPyBPdGhlcndpc2UsIHJhbmdlIGNhbiBiZSBuZWdhdGl2ZSBhbmQgdGhlIHRlc3Qg
-ImlmIChpb191LT5vZmZzZXQgKw0KaW9fdS0+YnVmbGVuID4gemItPndwKSIgYXQgdGhlIGVuZCBv
-ZiB0aGUgRERJUl9SRUFEIGNhc2UgY291bGQgdGVybWluYXRlIHJlYWRzDQp3aXRoIGVvZiBwcmVt
-YXR1cmFseS4NCg0KPiA+IExvb2tpbmcgYXQgZ2V0X25leHRfYnVmbGVuKCksIGlvX3UtPmJ1Zmxl
-biBjYW4gYmUgbGFyZ2VyIHRoYW4gbWluX2JzLiBTbw0KPiA+IGVpdGhlciB3ZSBuZWVkIHRvIG1v
-ZGlmeSB6YmRfZmluZF96b25lKCkgdG8gcmV0dXJuIGEgem9uZSB3aXRoIGF0IGxlYXN0DQo+ID4g
-aW9fdS0+YnVmbGVuIGJ5dGVzIGluIGl0LCBvciB3ZSBuZWVkIHRvIGhhbmRsZSB0aGUgcmFuZ2Ug
-PCAwIGNhc2UuLi4NCj4gDQo+IFRoZSByYW5nZSA8IDAgY2FzZSBpcyBhbHJlYWR5IGhhbmRsZWQg
-YnkgdGhlIGZvbGxvd2luZyBjb2RlIGF0IHRoZSBlbmQNCj4gb2YgdGhlIERESVJfV1JJVEUgY2Fz
-ZToNCg0KVGhhdCBpcyBmaW5lLCBidXQgdGhhdCBpcyBmb3IgdGhlIERESVJfV1JJVEUgY2FzZS4g
-VGhlcmUgaXMgbm8gc3VjaCBjb2RlIGluDQp0aGUgRERJUl9SRUFEIGNhc2UuIFJlYWRzIEkvT3Mg
-YnVmbGVuIGFyZSBub3QgbW9kaWZpZWQgYmFzZWQgb24gdGhlIHpvbmUgd3ANCnBvc2l0aW9uLi4u
-IERvIHlvdSB0aGluayBpdCBpcyBiZXR0ZXIgdG8gYWRkIGEgc2ltaWxhciBJL08gc2l6ZSByZWR1
-Y3Rpb24gY29kZQ0KZm9yIHJlYWRzIG9yIGNoYW5nZSB6YmRfZmluZF96b25lKCkgYXMgc3VnZ2Vz
-dGVkIGFib3ZlID8gSSB0aGluayB0aGUgbGF0dGVyIGlzDQpiZXR0ZXIgdG8gZW5zdXJlIGNvbnNp
-c3RlbnQgc2l6ZXMgZm9yIHJlYWRzLg0KDQo+IA0KPiAJLyoNCj4gCSAqIE1ha2Ugc3VyZSB0aGF0
-IHRoZSBidWZsZW4gaXMgYSBtdWx0aXBsZSBvZiB0aGUgbWluaW1hbA0KPiAJICogYmxvY2sgc2l6
-ZS4gR2l2ZSB1cCBpZiBzaHJpbmtpbmcgd291bGQgbWFrZSB0aGUgcmVxdWVzdCB0b28NCj4gCSAq
-IHNtYWxsLg0KPiAJICovDQo+IAluZXdfbGVuID0gbWluKCh1bnNpZ25lZCBsb25nIGxvbmcpaW9f
-dS0+YnVmbGVuLA0KPiAJCSAgICAgICgoemIgKyAxKS0+c3RhcnQgPDwgOSkgLSBpb191LT5vZmZz
-ZXQpOw0KPiAJbmV3X2xlbiA9IG5ld19sZW4gLyBtaW5fYnMgKiBtaW5fYnM7DQo+IAlpZiAobmV3
-X2xlbiA9PSBpb191LT5idWZsZW4pDQo+IAkJZ290byBhY2NlcHQ7DQo+IAlpZiAobmV3X2xlbiA+
-PSBtaW5fYnMpIHsNCj4gCQlpb191LT5idWZsZW4gPSBuZXdfbGVuOw0KPiAJCWRwcmludChGRF9J
-TywgIkNoYW5nZWQgbGVuZ3RoIGZyb20gJXUgaW50byAlbGx1XG4iLA0KPiAJCSAgICAgICBvcmln
-X2xlbiwgaW9fdS0+YnVmbGVuKTsNCj4gCQlnb3RvIGFjY2VwdDsNCj4gCX0NCj4gCWxvZ19lcnIo
-IlpvbmUgcmVtYWluZGVyICVsbGQgc21hbGxlciB0aGFuIG1pbmltdW0gYmxvY2sgc2l6ZSAlZFxu
-IiwNCj4gCQkoKCh6YiArIDEpLT5zdGFydCA8PCA5KSAtIGlvX3UtPm9mZnNldCksDQo+IAkJbWlu
-X2JzKTsNCj4gCWdvdG8gZW9mOw0KPiANCj4gQmFydC4NCg0KLS0gDQpEYW1pZW4gTGUgTW9hbA0K
-V2VzdGVybiBEaWdpdGFsDQo=
+On 08/28/18 17:57, Damien Le Moal wrote:
+> Thinking more about this, since zbd_find_zone() only guarantees that the zone
+> returned has min_bs data in it, range can in fact still be <= 0 if
+> io_u->buflen is larger than min_bs. Is it assumed here that min_bs and
+> io_u->buflen are always equal ?
+
+There is no such assumption. io_u->buflen can be larger than min_bs.
+E.g. test11 in test-zbd-support triggers that case because it uses the
+bsrange option.
+
+> If yes, then range < 0 is not possible, but range == 0 is definitely still
+> possible and so the +1 is needed.
+
+Have you considered to leave out the "+ 1" and to handle range == 0
+separately?
+
+> Looking at get_next_buflen(), io_u->buflen can be larger than min_bs. So
+> either we need to modify zbd_find_zone() to return a zone with at least
+> io_u->buflen bytes in it, or we need to handle the range < 0 case...
+
+The range < 0 case is already handled by the following code at the end
+of the DDIR_WRITE case:
+
+	/*
+	 * Make sure that the buflen is a multiple of the minimal
+	 * block size. Give up if shrinking would make the request too
+	 * small.
+	 */
+	new_len = min((unsigned long long)io_u->buflen,
+		      ((zb + 1)->start << 9) - io_u->offset);
+	new_len = new_len / min_bs * min_bs;
+	if (new_len == io_u->buflen)
+		goto accept;
+	if (new_len >= min_bs) {
+		io_u->buflen = new_len;
+		dprint(FD_IO, "Changed length from %u into %llu\n",
+		       orig_len, io_u->buflen);
+		goto accept;
+	}
+	log_err("Zone remainder %lld smaller than minimum block size %d\n",
+		(((zb + 1)->start << 9) - io_u->offset),
+		min_bs);
+	goto eof;
+
+Bart.
 
