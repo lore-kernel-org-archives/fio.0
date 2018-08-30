@@ -1,41 +1,41 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa5.hgst.iphmx.com ([216.71.153.144]:60114 "EHLO
-        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726681AbeHUCnJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 20 Aug 2018 22:43:09 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: [PATCH] Fix residual size
-Date: Mon, 20 Aug 2018 23:25:29 +0000
-Message-ID: <MWHPR04MB03206BA957345969502C3CCC8F320@MWHPR04MB0320.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Return-Path: <prvs=7737e5e80=damien.lemoal@wdc.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH v2 0/5] ZBD support improvements and cleanup
+Date: Thu, 30 Aug 2018 13:15:26 +0900
+Message-Id: <20180830041531.20963-1-damien.lemoal@wdc.com>
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Bart Van Assche <bvanassche@acm.org>
+List-ID: <fio@vger.kernel.org>
 
-If we target a number of bytes of IO and keep subtracting a xfer_buflen, we=
- need to ensure the residual length is of the same size.
+The first patch of this series improves read randomness to avoid excessive
+device read cache hit under a random read pattern for a device with very few
+written zones. With this patch applied, on a 14TB SMR disk with only 100 zones
+written, random read performance results change from several thousands IOPS
+down to a more realistic disk-like 100 IOPS or so.
 
+The second patch cleans up zbd related declarations. The third and fourth
+patches fix small bugs.
 
-diff --git a/io_u.h b/io_u.h
-index 9a423b2..2e0fd3f 100644
---- a/io_u.h
-+++ b/io_u.h
-@@ -75,7 +75,7 @@ struct io_u {
-=20
- 	struct io_piece *ipo;
-=20
--	unsigned int resid;
-+	unsigned long long resid;
- 	unsigned int error;
-=20
- 	/*
+Finally, the last patch cleans up the code by switching to using bytes unit for
+all zone information (start, length and write pointer position).
 
+Changes from v1:
+* Reworked first patch according to Bart's comments.
+* Fixed typo in second patch title
+* Added patches 3 to 5
 
-Regards,
-Jeff
+Damien Le Moal (5):
+  zbd: Improve read randomness
+  zbd: Remove inexitent function declaration
+  zbd: Do not read offline zones
+  zbd: Fix zbd_zone_idx()
+  zbd: Use bytes unit
 
+ zbd.c | 137 +++++++++++++++++++++++++++++++++++-----------------------
+ zbd.h |  12 -----
+ 2 files changed, 83 insertions(+), 66 deletions(-)
+
+-- 
+2.17.1
 
 
