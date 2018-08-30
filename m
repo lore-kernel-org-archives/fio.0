@@ -1,27 +1,25 @@
 Return-Path: <bvanassche@acm.org>
+Subject: Re: [PATCH v2 5/5] zbd: Use bytes unit
+References: <20180830041531.20963-1-damien.lemoal@wdc.com>
+ <20180830041531.20963-6-damien.lemoal@wdc.com>
 From: Bart Van Assche <bvanassche@acm.org>
-Subject: Zoned block device regression test 11
-Message-ID: <a6d3d008-3a44-9d42-2c0c-b26ca9d92d3a@acm.org>
-Date: Tue, 21 Aug 2018 17:10:30 -0700
+Message-ID: <6238a5d2-cd30-f587-d60f-030c36823c8c@acm.org>
+Date: Thu, 30 Aug 2018 08:01:07 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <20180830041531.20963-6-damien.lemoal@wdc.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-To: mikelley@microsoft.com
-Cc: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>
+To: Damien Le Moal <damien.lemoal@wdc.com>, fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-Hello Michael,
+On 08/29/18 21:15, Damien Le Moal wrote:
+> Simplify zbd.c code by using byte unit for the zone information values
+> instead of 512B sector count. Doing so, many 9 bits shifts operation
+> are removed and code readability improved.
 
-If I run the fio code from https://github.com/bvanassche/fio against 
-Linux kernel v4.18 as follows:
-
-./fio/t/zbd/run-tests-against-zoned-nullb
-
-then all tests except test number 11 pass. If I revert your axmap 
-patches however then test 11 passes. I think this means that your axmap 
-patches introduced a regression in the axmap code. Can you have a look 
-at this?
+This patch is not related to the other patches in this series so please
+leave this patch out from this series.
 
 Thanks,
 
