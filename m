@@ -1,41 +1,33 @@
-Return-Path: <prvs=7737e5e80=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH v2 0/5] ZBD support improvements and cleanup
-Date: Thu, 30 Aug 2018 13:15:26 +0900
-Message-Id: <20180830041531.20963-1-damien.lemoal@wdc.com>
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Bart Van Assche <bvanassche@acm.org>
+Return-Path: <bvanassche@acm.org>
+Subject: Re: [PATCH v3 1/3] zbd: Improve read randomness
+References: <20180831044638.22476-1-damien.lemoal@wdc.com>
+ <20180831044638.22476-2-damien.lemoal@wdc.com>
+From: Bart Van Assche <bvanassche@acm.org>
+Message-ID: <0b7a2bcc-018b-40b3-067e-23c59a750ea7@acm.org>
+Date: Fri, 31 Aug 2018 08:04:07 -0700
+MIME-Version: 1.0
+In-Reply-To: <20180831044638.22476-2-damien.lemoal@wdc.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Damien Le Moal <damien.lemoal@wdc.com>, fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-The first patch of this series improves read randomness to avoid excessive
-device read cache hit under a random read pattern for a device with very few
-written zones. With this patch applied, on a 14TB SMR disk with only 100 zones
-written, random read performance results change from several thousands IOPS
-down to a more realistic disk-like 100 IOPS or so.
+On 08/30/18 21:46, Damien Le Moal wrote:
+> With zonemode=zbd, for random read operations with read_beyond_wp=0,
+> the zbd code will always adjust an I/O offset so that the I/O hits a
+> non empty zone. However, the adjustment always sets the I/O offset to
+> the start of the zone, resulting in a high device read cache hit rate
+> if the device has few zones written.
+> 
+> Improve randomness of read I/Os by adjusting the I/O offset to a random
+> value within the range of written data of the chosen zone. Also ensure
+> that the modified I/O does not cross over the zone wp position by
+> adjusting its size. Doing so, the search for a new zone is now done only
+> if the target zone cannot accomodate an I/O of at least min_bs bytes.
+> 
+> The comments have also been changed to better explain the code.
 
-The second patch cleans up zbd related declarations. The third and fourth
-patches fix small bugs.
-
-Finally, the last patch cleans up the code by switching to using bytes unit for
-all zone information (start, length and write pointer position).
-
-Changes from v1:
-* Reworked first patch according to Bart's comments.
-* Fixed typo in second patch title
-* Added patches 3 to 5
-
-Damien Le Moal (5):
-  zbd: Improve read randomness
-  zbd: Remove inexitent function declaration
-  zbd: Do not read offline zones
-  zbd: Fix zbd_zone_idx()
-  zbd: Use bytes unit
-
- zbd.c | 137 +++++++++++++++++++++++++++++++++++-----------------------
- zbd.h |  12 -----
- 2 files changed, 83 insertions(+), 66 deletions(-)
-
--- 
-2.17.1
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
 
 
