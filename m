@@ -1,97 +1,76 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Subject: [PATCH] client: suppress non JSON default outputs on --output-format=json/json+
-Date: Fri, 24 Aug 2018 09:42:10 -0700
-Message-Id: <1535128930-19580-1-git-send-email-kusumi.tomohiro@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mx143.netapp.com ([216.240.21.24]:45312 "EHLO mx143.netapp.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727545AbeHaMic (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 31 Aug 2018 08:38:32 -0400
+From: neto from Brazil <Antonio.Jose.Rodrigues.Neto@netapp.com>
+Subject: Re: Some questions about FIO
+Date: Fri, 31 Aug 2018 08:22:37 +0000
+Message-ID: <E61DA2B3-E487-4F06-AB72-2D82233FC1ED@netapp.com>
+References: <0C78F71C-8395-44D8-9B9C-E43C89604CF5@netapp.com>,<CALjAwxj8GF=+wx0bTHrQOUxvd_d4=rg2_M00FV2xacyg0Og=EA@mail.gmail.com>
+In-Reply-To: <CALjAwxj8GF=+wx0bTHrQOUxvd_d4=rg2_M00FV2xacyg0Og=EA@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-Suppress "hostname=...", "Disk stats (read/write)" and thread status
-if json/json+ is specified, as these are regular messages.
+Thanks my friend
 
-JSON parsers can't parse the output with these messages, and JSON
-spec doesn't support comment either.
-
---
- # ./fio ./fio.cfg --output-format=json > out
- # python3 -c "import json; json.load(open('out'))"
- # ./fio ./fio.cfg --client=localhost --output-format=json > out
- # python3 -c "import json; json.load(open('out'))"
- Traceback (most recent call last):
-   File "<string>", line 1, in <module>
-   File "/usr/local/lib/python3.7/json/__init__.py", line 296, in load
-     parse_constant=parse_constant, object_pairs_hook=object_pairs_hook, **kw)
-   File "/usr/local/lib/python3.7/json/__init__.py", line 348, in loads
-     return _default_decoder.decode(s)
-   File "/usr/local/lib/python3.7/json/decoder.py", line 337, in decode
-     obj, end = self.raw_decode(s, idx=_w(s, 0).end())
-   File "/usr/local/lib/python3.7/json/decoder.py", line 355, in raw_decode
-     raise JSONDecodeError("Expecting value", s, err.value) from None
- json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
-
-Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
----
- client.c |   19 ++++++++++++++-----
- 1 files changed, 14 insertions(+), 5 deletions(-)
-
-diff --git a/client.c b/client.c
-index bc0275b..a868e3a 100644
---- a/client.c
-+++ b/client.c
-@@ -32,6 +32,7 @@ static void handle_stop(struct fio_client *client);
- static void handle_start(struct fio_client *client, struct fio_net_cmd *cmd);
- 
- static void convert_text(struct fio_net_cmd *cmd);
-+static void client_display_thread_status(struct jobs_eta *je);
- 
- struct client_ops fio_client_ops = {
- 	.text		= handle_text,
-@@ -40,7 +41,7 @@ struct client_ops fio_client_ops = {
- 	.group_stats	= handle_gs,
- 	.stop		= handle_stop,
- 	.start		= handle_start,
--	.eta		= display_thread_status,
-+	.eta		= client_display_thread_status,
- 	.probe		= handle_probe,
- 	.eta_msec	= FIO_CLIENT_DEF_ETA_MSEC,
- 	.client_type	= FIO_CLIENT_TYPE_CLI,
-@@ -1195,7 +1196,8 @@ static void handle_du(struct fio_client *client, struct fio_net_cmd *cmd)
- 
- 	if (!client->disk_stats_shown) {
- 		client->disk_stats_shown = true;
--		log_info("\nDisk stats (read/write):\n");
-+		if (!(output_format & FIO_OUTPUT_JSON))
-+			log_info("\nDisk stats (read/write):\n");
- 	}
- 
- 	if (output_format & FIO_OUTPUT_JSON) {
-@@ -1477,9 +1479,10 @@ static void handle_probe(struct fio_client *client, struct fio_net_cmd *cmd)
- 	sprintf(bit, "%d-bit", probe->bpp * 8);
- 	probe->flags = le64_to_cpu(probe->flags);
- 
--	log_info("hostname=%s, be=%u, %s, os=%s, arch=%s, fio=%s, flags=%lx\n",
--		probe->hostname, probe->bigendian, bit, os, arch,
--		probe->fio_version, (unsigned long) probe->flags);
-+	if (!(output_format & FIO_OUTPUT_JSON))
-+		log_info("hostname=%s, be=%u, %s, os=%s, arch=%s, fio=%s, flags=%lx\n",
-+			probe->hostname, probe->bigendian, bit, os, arch,
-+			probe->fio_version, (unsigned long) probe->flags);
- 
- 	if (!client->name)
- 		client->name = strdup((char *) probe->hostname);
-@@ -2112,3 +2115,9 @@ int fio_handle_clients(struct client_ops *ops)
- 	free(pfds);
- 	return retval || error_clients;
- }
-+
-+static void client_display_thread_status(struct jobs_eta *je)
-+{
-+	if (!(output_format & FIO_OUTPUT_JSON))
-+		display_thread_status(je);
-+}
--- 
-1.7.1
-
+> On Aug 31, 2018, at 2:36 AM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>=20
+> Hey Neto!
+>=20
+> On Thu, 9 Aug 2018 at 16:58, neto from Brazil
+> <Antonio.Jose.Rodrigues.Neto@netapp.com> wrote:
+>>=20
+>> Hi All,
+>>=20
+>> This is neto from Brazil
+>>=20
+>> How are you?
+>>=20
+>> I would like to check if we have plans to have the following with FIO:
+>>=20
+>> 1) When FIO runs, it shows IOPS + MB/s. Do we have any plans to show als=
+o average latency? It would be really nice to have the latency (like Vdbenc=
+h has) - LIVE
+>=20
+> This sounds similar to https://github.com/axboe/fio/issues/584 . I
+> don't see why it couldn't be done but someone is needed to code it
+> up...
+>=20
+>> 2) It is possible to have an option to show the queue depth used on the =
+servers by FIO? It could help to identify potential bottlenecks (e.g. too m=
+any threads, etc) on the server side.
+>=20
+> Technically you get this in the IO depths summary data that fio
+> reports back (see
+> https://fio.readthedocs.io/en/latest/fio_doc.html#interpreting-the-output
+> ) albeit from fio's perspective.
+>=20
+>> 3) We don't have a curve option like vdbench. Do we have plans to have i=
+t on FIO? It would be really nice to have a parameter like curve (10-120) w=
+hich means: try the MAX, after to get the average, does 10%, does 20%. It w=
+ould help to identify the "knee" on the curve.
+>=20
+> From the vdbench manual:
+>=20
+> "When no skew is requested for any workload involved, determine the
+> maximum possible I/O rate by running 'iorate=3Dmax'. After this 'max'
+> run, the target skew for the requested workloads will be set to the
+> skew that was observed. Workloads of 10%, 50%, 70%, 80%, 90% and 100%
+> of the observed maximum I/O rate and skew will be run."
+>=20
+> Sounds like a mix of Steady state
+> (https://fio.readthedocs.io/en/latest/fio_doc.html#steady-state ) and
+> diskplorer https://github.com/avikivity/diskplorer with more
+> flexibility. Like 1) if someone were to code it up I'm sure it would
+> be looked at...
+>=20
+> --=20
+> Sitsofe | http://sucs.org/~sits/
 
