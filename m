@@ -1,129 +1,90 @@
-Return-Path: <prvs=774163301=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH v3 1/3] zbd: Improve read randomness
-Date: Fri, 31 Aug 2018 13:46:36 +0900
-Message-Id: <20180831044638.22476-2-damien.lemoal@wdc.com>
-In-Reply-To: <20180831044638.22476-1-damien.lemoal@wdc.com>
-References: <20180831044638.22476-1-damien.lemoal@wdc.com>
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Bart Van Assche <bvanassche@acm.org>
+Return-Path: <prvs=774163301=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH v2 1/5] zbd: Improve read randomness
+Date: Fri, 31 Aug 2018 00:55:33 +0000
+Message-ID: <87237c0ebdaf7df261fa7f2ab4535fb4c63ca238.camel@wdc.com>
+References: <20180830041531.20963-1-damien.lemoal@wdc.com>
+	 <20180830041531.20963-2-damien.lemoal@wdc.com>
+	 <4061532e-b0d2-8594-c1a3-4498ae067a07@acm.org>
+In-Reply-To: <4061532e-b0d2-8594-c1a3-4498ae067a07@acm.org>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <99F6ABB051F9144E98CD26C80F0FD20F@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "bvanassche@acm.org" <bvanassche@acm.org>, "axboe@kernel.dk" <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-With zonemode=zbd, for random read operations with read_beyond_wp=0,
-the zbd code will always adjust an I/O offset so that the I/O hits a
-non empty zone. However, the adjustment always sets the I/O offset to
-the start of the zone, resulting in a high device read cache hit rate
-if the device has few zones written.
-
-Improve randomness of read I/Os by adjusting the I/O offset to a random
-value within the range of written data of the chosen zone. Also ensure
-that the modified I/O does not cross over the zone wp position by
-adjusting its size. Doing so, the search for a new zone is now done only
-if the target zone cannot accomodate an I/O of at least min_bs bytes.
-
-The comments have also been changed to better explain the code.
-
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
----
- zbd.c | 59 +++++++++++++++++++++++++++++++++++++++--------------------
- 1 file changed, 39 insertions(+), 20 deletions(-)
-
-diff --git a/zbd.c b/zbd.c
-index 56197693..93f14410 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -1119,7 +1119,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- {
- 	const struct fio_file *f = io_u->file;
- 	uint32_t zone_idx_b;
--	struct fio_zone_info *zb, *zl;
-+	struct fio_zone_info *zb, *zl, *orig_zb;
- 	uint32_t orig_len = io_u->buflen;
- 	uint32_t min_bs = td->o.min_bs[io_u->ddir];
- 	uint64_t new_len;
-@@ -1132,6 +1132,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 	assert(io_u->buflen);
- 	zone_idx_b = zbd_zone_idx(f, io_u->offset);
- 	zb = &f->zbd_info->zone_info[zone_idx_b];
-+	orig_zb = zb;
- 
- 	/* Accept the I/O offset for conventional zones. */
- 	if (zb->type == BLK_ZONE_TYPE_CONVENTIONAL)
-@@ -1153,21 +1154,14 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 			goto accept;
- 		}
- 		/*
--		 * Avoid reads past the write pointer because such reads do not
--		 * hit the medium.
-+		 * Check that there is enough written data in the zone to do an
-+		 * I/O of at least min_bs B. If there isn't, find a new zone for
-+		 * the I/O.
- 		 */
- 		range = zb->cond != BLK_ZONE_COND_OFFLINE ?
--			((zb->wp - zb->start) << 9) - io_u->buflen : 0;
--		if (td_random(td) && range >= 0) {
--			io_u->offset = (zb->start << 9) +
--				((io_u->offset - (zb->start << 9)) %
--				 (range + 1)) / min_bs * min_bs;
--			assert(zb->start << 9 <= io_u->offset);
--			assert(io_u->offset + io_u->buflen <= zb->wp << 9);
--			goto accept;
--		}
--		if (zb->cond == BLK_ZONE_COND_OFFLINE ||
--		    (io_u->offset + io_u->buflen) >> 9 > zb->wp) {
-+			(zb->wp - zb->start) << 9 : 0;
-+		if (range < min_bs ||
-+		    ((!td_random(td)) && (io_u->offset + min_bs > zb->wp << 9))) {
- 			pthread_mutex_unlock(&zb->mutex);
- 			zl = &f->zbd_info->zone_info[zbd_zone_idx(f,
- 						f->file_offset + f->io_size)];
-@@ -1179,14 +1173,39 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 				       io_u->buflen);
- 				goto eof;
- 			}
--			io_u->offset = zb->start << 9;
-+			/*
-+			 * zbd_find_zone() returned a zone with a range of at
-+			 * least min_bs.
-+			 */
-+			range = (zb->wp - zb->start) << 9;
-+			assert(range >= min_bs);
-+
-+			if (!td_random(td))
-+				io_u->offset = zb->start << 9;
- 		}
--		if ((io_u->offset + io_u->buflen) >> 9 > zb->wp) {
--			dprint(FD_ZBD, "%s: %lld + %lld > %" PRIu64 "\n",
--			       f->file_name, io_u->offset, io_u->buflen,
--			       zb->wp);
--			goto eof;
-+		/*
-+		 * Make sure the I/O is within the zone valid data range while
-+		 * maximizing the I/O size and preserving randomness.
-+		 */
-+		if (range <= io_u->buflen)
-+			io_u->offset = zb->start << 9;
-+		else if (td_random(td))
-+			io_u->offset = (zb->start << 9) +
-+				((io_u->offset - (orig_zb->start << 9)) %
-+				 (range - io_u->buflen)) / min_bs * min_bs;
-+		/*
-+		 * Make sure the I/O does not cross over the zone wp position.
-+		 */
-+		new_len = min((unsigned long long)io_u->buflen,
-+			      (unsigned long long)(zb->wp << 9) - io_u->offset);
-+		new_len = new_len / min_bs * min_bs;
-+		if (new_len < io_u->buflen) {
-+			io_u->buflen = new_len;
-+			dprint(FD_IO, "Changed length from %u into %llu\n",
-+			       orig_len, io_u->buflen);
- 		}
-+		assert(zb->start << 9 <= io_u->offset);
-+		assert(io_u->offset + io_u->buflen <= zb->wp << 9);
- 		goto accept;
- 	case DDIR_WRITE:
- 		if (io_u->buflen > (f->zbd_info->zone_size << 9))
--- 
-2.17.1
-
+T24gVGh1LCAyMDE4LTA4LTMwIGF0IDA3OjQ5IC0wNzAwLCBCYXJ0IFZhbiBBc3NjaGUgd3JvdGU6
+DQo+IE9uIDA4LzI5LzE4IDIxOjE1LCBEYW1pZW4gTGUgTW9hbCB3cm90ZToNCj4gPiBXaXRoIHpv
+bmVtb2RlPXpiZCwgZm9yIHJhbmRvbSByZWFkIG9wZXJhdGlvbnMgd2l0aCByZWFkX2JleW9uZF93
+cD0wLA0KPiA+IHRoZSB6YmQgY29kZSB3aWxsIGFsd2F5cyBhZGp1c3QgYW4gSS9PIG9mZnNldCBz
+byB0aGF0IHRoZSBJL08gaGl0cyBhDQo+ID4gbm9uIGVtcHR5IHpvbmUuIEhvd2V2ZXIsIHRoZSBh
+ZGp1c3RtZW50IGFsd2F5cyBzZXRzIHRoZSBJL08gb2Zmc2V0IHRvDQo+ID4gdGhlIHN0YXJ0IG9m
+IHRoZSB6b25lLCByZXN1bHRpbmcgaW4gYSBoaWdoIGRldmljZSByZWFkIGNhY2hlIGhpdCByYXRl
+DQo+ID4gaWYgdGhlIGRldmljZSBoYXMgZmV3IHpvbmVzIHdyaXR0ZW4uDQo+ID4gDQo+ID4gSW1w
+cm92ZSByYW5kb21uZXNzIG9mIHJlYWQgSS9PcyBieSBhZGp1c3RpbmcgdGhlIEkvTyBvZmZzZXQg
+dG8gYSByYW5kb20NCj4gPiB2YWx1ZSB3aXRoaW4gdGhlIHJhbmdlIG9mIHdyaXR0ZW4gZGF0YSBv
+ZiB0aGUgY2hvc2VuIHpvbmUuIEFsc28gZW5zdXJlDQo+ID4gdGhhdCB0aGUgbW9kaWZpZWQgSS9P
+IGRvZXMgbm90IGNyb3NzIG92ZXIgdGhlIHpvbmUgd3AgcG9zaXRpb24gYnkNCj4gPiBhZGp1c3Rp
+bmcgaXRzIHNpemUuDQo+ID4gDQo+ID4gU2lnbmVkLW9mZi1ieTogRGFtaWVuIExlIE1vYWwgPGRh
+bWllbi5sZW1vYWxAd2RjLmNvbT4NCj4gPiAtLS0NCj4gPiAgemJkLmMgfCAzNSArKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKystLQ0KPiA+ICAxIGZpbGUgY2hhbmdlZCwgMzMgaW5zZXJ0
+aW9ucygrKSwgMiBkZWxldGlvbnMoLSkNCj4gPiANCj4gPiBkaWZmIC0tZ2l0IGEvemJkLmMgYi96
+YmQuYw0KPiA+IGluZGV4IDU2MTk3NjkzLi4xOTUxMTQ1NCAxMDA2NDQNCj4gPiAtLS0gYS96YmQu
+Yw0KPiA+ICsrKyBiL3piZC5jDQo+ID4gQEAgLTExMjIsNyArMTEyMiw3IEBAIGVudW0gaW9fdV9h
+Y3Rpb24gemJkX2FkanVzdF9ibG9jayhzdHJ1Y3QgdGhyZWFkX2RhdGENCj4gPiAqdGQsIHN0cnVj
+dCBpb191ICppb191KQ0KPiA+ICAJc3RydWN0IGZpb196b25lX2luZm8gKnpiLCAqemw7DQo+ID4g
+IAl1aW50MzJfdCBvcmlnX2xlbiA9IGlvX3UtPmJ1ZmxlbjsNCj4gPiAgCXVpbnQzMl90IG1pbl9i
+cyA9IHRkLT5vLm1pbl9ic1tpb191LT5kZGlyXTsNCj4gPiAtCXVpbnQ2NF90IG5ld19sZW47DQo+
+ID4gKwl1aW50NjRfdCBuZXdfbGVuLCB6b2ZzdDsNCj4gPiAgCWludDY0X3QgcmFuZ2U7DQo+ID4g
+IA0KPiA+ICAJaWYgKCFmLT56YmRfaW5mbykNCj4gPiBAQCAtMTE2OCw2ICsxMTY4LDggQEAgZW51
+bSBpb191X2FjdGlvbiB6YmRfYWRqdXN0X2Jsb2NrKHN0cnVjdCB0aHJlYWRfZGF0YQ0KPiA+ICp0
+ZCwgc3RydWN0IGlvX3UgKmlvX3UpDQo+ID4gIAkJfQ0KPiA+ICAJCWlmICh6Yi0+Y29uZCA9PSBC
+TEtfWk9ORV9DT05EX09GRkxJTkUgfHwNCj4gPiAgCQkgICAgKGlvX3UtPm9mZnNldCArIGlvX3Ut
+PmJ1ZmxlbikgPj4gOSA+IHpiLT53cCkgew0KPiA+ICsJCQlzdHJ1Y3QgZmlvX3pvbmVfaW5mbyAq
+b3JpZ196YiA9IHpiOw0KPiA+ICsNCj4gPiAgCQkJcHRocmVhZF9tdXRleF91bmxvY2soJnpiLT5t
+dXRleCk7DQo+ID4gIAkJCXpsID0gJmYtPnpiZF9pbmZvLT56b25lX2luZm9bemJkX3pvbmVfaWR4
+KGYsDQo+ID4gIAkJCQkJCWYtPmZpbGVfb2Zmc2V0ICsgZi0+aW9fc2l6ZSldOw0KPiA+IEBAIC0x
+MTc5LDcgKzExODEsMzYgQEAgZW51bSBpb191X2FjdGlvbiB6YmRfYWRqdXN0X2Jsb2NrKHN0cnVj
+dA0KPiA+IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGlvX3UgKmlvX3UpDQo+ID4gIAkJCQkgICAg
+ICAgaW9fdS0+YnVmbGVuKTsNCj4gPiAgCQkJCWdvdG8gZW9mOw0KPiA+ICAJCQl9DQo+ID4gLQkJ
+CWlvX3UtPm9mZnNldCA9IHpiLT5zdGFydCA8PCA5Ow0KPiA+ICsJCQkvKg0KPiA+ICsJCQkgKiB6
+YmRfZmluZF96b25lKCkgcmV0dXJuZWQgYSB6b25lIHdpdGggYSByYW5nZSBvZiBhdA0KPiA+ICsJ
+CQkgKiBsZWFzdCBtaW5fYnMsIGJ1dCByYW5nZSBtYXkgYmUgbGVzcyB0aGFuIHRoZSBJL08NCj4g
+PiArCQkJICogc2l6ZS4gSGFuZGxlIHRoaXMgY2FzZSBoZXJlIGFuZCBhbHNvIG1ha2Ugc3VyZSB0
+aGF0DQo+ID4gKwkJCSAqIHRoZSBJL08gZG9lcyBub3QgdGhlIGNyb3NzIHRoZSB6b25lIHdwLg0K
+PiA+ICsJCQkgKi8NCj4gPiArCQkJcmFuZ2UgPSAoKHpiLT53cCAtIHpiLT5zdGFydCkgPDwgOSkg
+LyBtaW5fYnMgKiBtaW5fYnM7DQo+ID4gKwkJCWlmICgoIXRkX3JhbmRvbSh0ZCkpIHx8IHJhbmdl
+IDw9IGlvX3UtPmJ1Zmxlbikgew0KPiA+ICsJCQkJaW9fdS0+b2Zmc2V0ID0gemItPnN0YXJ0IDw8
+IDk7DQo+ID4gKwkJCX0gZWxzZSB7DQo+ID4gKwkJCQl6b2ZzdCA9ICgoaW9fdS0+b2Zmc2V0IC0g
+KG9yaWdfemItPnN0YXJ0IDw8DQo+ID4gOSkpICUNCj4gPiArCQkJCQkgcmFuZ2UpIC8gbWluX2Jz
+ICogbWluX2JzOw0KPiA+ICsJCQkJaWYgKHpvZnN0ID49IHJhbmdlKQ0KPiA+ICsJCQkJCWlvX3Ut
+Pm9mZnNldCA9DQo+ID4gKwkJCQkJCSgoemItPndwIDw8IDkpIC8gbWluX2JzIC0gMSkgKg0KPiA+
+ICsJCQkJCQltaW5fYnM7DQo+ID4gKwkJCQllbHNlDQo+ID4gKwkJCQkJaW9fdS0+b2Zmc2V0ID0g
+KHpiLT5zdGFydCA8PCA5KSArDQo+ID4gem9mc3Q7DQo+IA0KPiBUaGUgInpvZnN0ID49IHJhbmdl
+IiB0ZXN0IGRvZXNuJ3QgbWFrZSBzZW5zZSB0byBtZS4gU2luY2UgInpvZnN0IiBpcyB0aGUNCj4g
+cmVzdWx0IG9mIHJvdW5kaW5nIGRvd24gdGhlIHJlc3VsdCBvZiBhICIlIHJhbmdlIiBvcGVyYXRp
+b24gaXQgaXMNCj4gZ3VhcmFudGVlZCB0aGF0IHpvZnN0IDwgcmFuZ2UuDQoNClllcy4gSSB3aWxs
+IGZpeCB0aGF0Lg0KDQo+IA0KPiA+ICsJCQl9DQo+ID4gKwkJCW5ld19sZW4gPSBtaW4oKHVuc2ln
+bmVkIGxvbmcgbG9uZylpb191LT5idWZsZW4sDQo+ID4gKwkJCQkgICAgICAodW5zaWduZWQgbG9u
+ZyBsb25nKSh6Yi0+d3AgPDwgOSkgLQ0KPiA+ICsJCQkJICAgICAgaW9fdS0+b2Zmc2V0KTsNCj4g
+PiArCQkJbmV3X2xlbiA9IG5ld19sZW4gLyBtaW5fYnMgKiBtaW5fYnM7DQo+ID4gKwkJCWlmIChu
+ZXdfbGVuIDwgaW9fdS0+YnVmbGVuKSB7DQo+ID4gKwkJCQlpb191LT5idWZsZW4gPSBuZXdfbGVu
+Ow0KPiA+ICsJCQkJZHByaW50KEZEX0lPLCAiQ2hhbmdlZCBsZW5ndGggZnJvbSAldSBpbnRvDQo+
+ID4gJWxsdVxuIiwNCj4gPiArCQkJCSAgICAgICBvcmlnX2xlbiwgaW9fdS0+YnVmbGVuKTsNCj4g
+PiArCQkJfQ0KPiA+ICsJCQlhc3NlcnQoemItPnN0YXJ0IDw8IDkgPD0gaW9fdS0+b2Zmc2V0KTsN
+Cj4gPiArCQkJYXNzZXJ0KGlvX3UtPm9mZnNldCArIGlvX3UtPmJ1ZmxlbiA8PSB6Yi0+d3AgPDwg
+OSk7DQo+ID4gIAkJfQ0KPiA+ICAJCWlmICgoaW9fdS0+b2Zmc2V0ICsgaW9fdS0+YnVmbGVuKSA+
+PiA5ID4gemItPndwKSB7DQo+ID4gIAkJCWRwcmludChGRF9aQkQsICIlczogJWxsZCArICVsbGQg
+PiAlIiBQUkl1NjQgIlxuIiwNCj4gPiANCj4gDQo+IFRoZSBhcHByb2FjaCBvZiB0aGlzIHBhdGNo
+IGRvZXMgbm90IG1ha2Ugc2Vuc2UgdG8gbWU6IHdpdGggdGhpcyBwYXRjaA0KPiBhcHBsaWVkLCBp
+ZiB0aGUgcmVhZCByZXF1ZXN0IGRvZXNuJ3QgZml0IGJlbG93IHRoZSB3cml0ZSBwb2ludGVyLCBh
+IG5ldw0KPiB6b25lIGlzIHNlbGVjdGVkIGFuZCBpZiB0aGUgcmVhZCByZXF1ZXN0IGRvZXNuJ3Qg
+Zml0IGluIHRoYXQgem9uZSBidWZsZW4NCj4gaXMgcmVkdWNlZC4gV291bGRuJ3QgaXQgYmUgYmV0
+dGVyIHRvIHNocmluayB0aGUgcmVxdWVzdCBpZiB6b25lICp6YiBpcw0KPiBub3QgZW1wdHkgYW5k
+IG9ubHkgdG8gY2FsbCB6YmRfZmluZF96b25lKCkgaWYgem9uZSAqemIgaXMgZW1wdHk/DQoNCklu
+ZGVlZC4gSSBsb3N0IHNpZ2h0IG9mIHRoYXQuIEkgd2lsbCBmaXggdGhpcyBhbmQgc2VuZCBhIHYz
+Lg0KDQpUaGFua3MgZm9yIHRoZSByZXZpZXdzICENCg0KLS0gDQpEYW1pZW4gTGUgTW9hbA0KV2Vz
+dGVybiBEaWdpdGFsDQo=
 
