@@ -1,67 +1,54 @@
-Return-Path: <prvs=800592d6e=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 1/2] eta: Avoid adjustements to a negative value
-Date: Wed, 26 Sep 2018 15:42:10 +0900
-Message-Id: <20180926064210.2537-1-damien.lemoal@wdc.com>
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:40010 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726827AbeIAQME (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 1 Sep 2018 12:12:04 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1fw4ZZ-0001AL-M4
+        for fio@vger.kernel.org; Sat, 01 Sep 2018 12:00:13 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20180901120001.6A2662C00A1@kernel.dk>
+Date: Sat,  1 Sep 2018 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-In the case of zonemode=strided job with both zone_size and zone_skip
-specified, thread_eta() calculates the upper bound of the number of
-zones that will be processed, including skipped bytes between zones
-(zone_skip). Adjusting bytes_total (i.e. total_io_size) by substracting
-this number of zones times the amount of skipped bytes can result in
-a negative value for bytes_total (a large number of bytes) when for
-example the job operates on an entire disk with a capacity that is not
-divisible exactly by zone_size+zone_skip or if the options --size is
-used to limit the I/O range. In such case, use the lower bound of the
-number of zones to obtain a better approximation of the job eta.
+The following changes since commit c6cc1cfed2aec5ea348cbe8b8762ba8fd5fad966:
 
-Additionnally, if --io_size was specified, bytes_total will indicate
-this exact value, so adjusting that value for zonemode != none is not
-necessary.
+  Merge branch 'configure-help' of https://github.com/hahnjo/fio (2018-08-30 08:22:21 -0600)
 
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 7df9ac895f4af7ac4500379d5a5e204be9210fb2:
+
+  client: fix nr_samples (2018-08-31 12:43:59 -0600)
+
+----------------------------------------------------------------
+Jeff Furlong (1):
+      client: fix nr_samples
+
+ client.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 ---
- eta.c | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/eta.c b/eta.c
-index 970a67df..b69dd194 100644
---- a/eta.c
-+++ b/eta.c
-@@ -177,12 +177,27 @@ static unsigned long thread_eta(struct thread_data *td)
- 		bytes_total = td->fill_device_size;
- 	}
- 
--	if (td->o.zone_size && td->o.zone_skip && bytes_total) {
-+	/*
-+	 * If io_size is set, bytes_total is an exact value that does not need
-+	 * adjustment.
-+	 */
-+	if (td->o.zone_size && td->o.zone_skip && bytes_total &&
-+	    !fio_option_is_set(&td->o, io_size)) {
- 		unsigned int nr_zones;
- 		uint64_t zone_bytes;
- 
--		zone_bytes = bytes_total + td->o.zone_size + td->o.zone_skip;
--		nr_zones = (zone_bytes - 1) / (td->o.zone_size + td->o.zone_skip);
-+		/*
-+		 * Calculate the upper bound of the number of zones that will
-+		 * be processed, including skipped bytes between zones. If this
-+		 * is larger than total_io_size (e.g. when --io_size or --size
-+		 * specify a small value), use the lower bound to avoid
-+		 * adjustments to a negative value that would result in a very
-+		 * large bytes_total and an incorrect eta.
-+		 */
-+		zone_bytes = td->o.zone_size + td->o.zone_skip;
-+		nr_zones = (bytes_total + zone_bytes - 1) / zone_bytes;
-+		if (bytes_total < nr_zones * td->o.zone_skip)
-+			nr_zones = bytes_total / zone_bytes;
- 		bytes_total -= nr_zones * td->o.zone_skip;
- 	}
- 
--- 
-2.17.1
+Diff of recent changes:
 
+diff --git a/client.c b/client.c
+index a868e3a..31c7c64 100644
+--- a/client.c
++++ b/client.c
+@@ -1539,7 +1539,7 @@ static struct cmd_iolog_pdu *convert_iolog_gz(struct fio_net_cmd *cmd,
+ #ifdef CONFIG_ZLIB
+ 	struct cmd_iolog_pdu *ret;
+ 	z_stream stream;
+-	uint32_t nr_samples;
++	uint64_t nr_samples;
+ 	size_t total;
+ 	char *p;
+ 
 
