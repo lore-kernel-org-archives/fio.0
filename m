@@ -1,157 +1,55 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa3.hgst.iphmx.com ([216.71.153.141]:18145 "EHLO
-        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727414AbeHXUGL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 24 Aug 2018 16:06:11 -0400
-From: Bart Van Assche <bart.vanassche@wdc.com>
-Subject: [PATCH 08/11] Collect and show zone reset statistics
-Date: Fri, 24 Aug 2018 09:30:43 -0700
-Message-Id: <20180824163046.12304-9-bart.vanassche@wdc.com>
-In-Reply-To: <20180824163046.12304-1-bart.vanassche@wdc.com>
-References: <20180824163046.12304-1-bart.vanassche@wdc.com>
+Received: from mail-vk0-f54.google.com ([209.85.213.54]:43781 "EHLO
+        mail-vk0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726044AbeIAJkl (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 1 Sep 2018 05:40:41 -0400
+Received: by mail-vk0-f54.google.com with SMTP id s17-v6so6200523vke.10
+        for <fio@vger.kernel.org>; Fri, 31 Aug 2018 22:29:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAFF4W0Xhk_UArnwAMdj_GY_ZRxEtZG+5tE-0yn+5_qdHGQgftg@mail.gmail.com>
+ <CALjAwxjUqfdtSBu_=_sCQv2RUGEy12LQsZmqXSiU=nKOSAy4TQ@mail.gmail.com> <CAFF4W0UuETBr4vu_23M1F-q56d++dDCsPV6aijLf-YZNqjPQug@mail.gmail.com>
+In-Reply-To: <CAFF4W0UuETBr4vu_23M1F-q56d++dDCsPV6aijLf-YZNqjPQug@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 1 Sep 2018 06:29:32 +0100
+Message-ID: <CALjAwxgXeD4ob7_QFuY=g+Pj=_OXq83DM-8_rqsoaWqoq=stHg@mail.gmail.com>
+Subject: Re: Understaning direct option in fio for rw=read and rw=randread.
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Bart Van Assche <bart.vanassche@wdc.com>
+To: Mohanraj B <bmohanraj91@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-Show how many zone resets have been performed in the I/O statistics.
-An example:
-[ ... ]
-  write: IOPS=17.0k, BW=66.5MiB/s (69.8MB/s)(1024MiB/15387msec); 4 zone resets
-[ ... ]
+Hi,
 
-Signed-off-by: Bart Van Assche <bart.vanassche@wdc.com>
----
- stat.c | 13 ++++++++++---
- stat.h |  3 +++
- zbd.c  | 12 ++++++++++++
- zbd.h  |  6 ++++++
- 4 files changed, 31 insertions(+), 3 deletions(-)
+Interesting question. Some of the terminology is just specific to fio
+(e.g. "ioengine" refers to fio's exchangeable backends which allow you
+to reuse fio's frontend core routines and monitoring).
 
-diff --git a/stat.c b/stat.c
-index 6cb704eb11bb..abdbb0e3fb9b 100644
---- a/stat.c
-+++ b/stat.c
-@@ -14,6 +14,7 @@
- #include "lib/output_buffer.h"
- #include "helper_thread.h"
- #include "smalloc.h"
-+#include "zbd.h"
- 
- #define LOG_MSEC_SLACK	1
- 
-@@ -419,7 +420,7 @@ static void show_ddir_status(struct group_run_stats *rs, struct thread_stat *ts,
- 	unsigned long runt;
- 	unsigned long long min, max, bw, iops;
- 	double mean, dev;
--	char *io_p, *bw_p, *bw_p_alt, *iops_p;
-+	char *io_p, *bw_p, *bw_p_alt, *iops_p, *zbd_w_st = NULL;
- 	int i2p;
- 
- 	if (ddir_sync(ddir)) {
-@@ -450,12 +451,16 @@ static void show_ddir_status(struct group_run_stats *rs, struct thread_stat *ts,
- 
- 	iops = (1000 * (uint64_t)ts->total_io_u[ddir]) / runt;
- 	iops_p = num2str(iops, ts->sig_figs, 1, 0, N2S_NONE);
-+	if (ddir == DDIR_WRITE)
-+		zbd_w_st = zbd_write_status(ts);
- 
--	log_buf(out, "  %s: IOPS=%s, BW=%s (%s)(%s/%llumsec)\n",
-+	log_buf(out, "  %s: IOPS=%s, BW=%s (%s)(%s/%llumsec)%s\n",
- 			rs->unified_rw_rep ? "mixed" : str[ddir],
- 			iops_p, bw_p, bw_p_alt, io_p,
--			(unsigned long long) ts->runtime[ddir]);
-+			(unsigned long long) ts->runtime[ddir],
-+			zbd_w_st ? : "");
- 
-+	free(zbd_w_st);
- 	free(io_p);
- 	free(bw_p);
- 	free(bw_p_alt);
-@@ -1655,6 +1660,7 @@ void sum_thread_stats(struct thread_stat *dst, struct thread_stat *src,
- 	dst->total_run_time += src->total_run_time;
- 	dst->total_submit += src->total_submit;
- 	dst->total_complete += src->total_complete;
-+	dst->nr_zone_resets += src->nr_zone_resets;
- }
- 
- void init_group_run_stat(struct group_run_stats *gs)
-@@ -2337,6 +2343,7 @@ void reset_io_stats(struct thread_data *td)
- 
- 	ts->total_submit = 0;
- 	ts->total_complete = 0;
-+	ts->nr_zone_resets = 0;
- }
- 
- static void __add_stat_to_log(struct io_log *iolog, enum fio_ddir ddir,
-diff --git a/stat.h b/stat.h
-index 5dcaae029cde..98de281e2e11 100644
---- a/stat.h
-+++ b/stat.h
-@@ -211,6 +211,9 @@ struct thread_stat {
- 	uint32_t first_error;
- 	uint64_t total_err_count;
- 
-+	/* ZBD stats */
-+	uint64_t nr_zone_resets;
-+
- 	uint64_t nr_block_infos;
- 	uint32_t block_infos[MAX_NR_BLOCK_INFOS];
- 
-diff --git a/zbd.c b/zbd.c
-index 8167514e7eb2..85beb3dcf15b 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -604,6 +604,8 @@ static int zbd_reset_range(struct thread_data *td, const struct fio_file *f,
- 		pthread_mutex_unlock(&z->mutex);
- 	}
- 
-+	td->ts.nr_zone_resets += ze - zb;
-+
- 	return ret;
- }
- 
-@@ -969,3 +971,13 @@ eof:
- 		pthread_mutex_unlock(&zb->mutex);
- 	return io_u_eof;
- }
-+
-+/* Return a string with ZBD statistics */
-+char *zbd_write_status(const struct thread_stat *ts)
-+{
-+	char *res;
-+
-+	if (asprintf(&res, "; %ld zone resets", ts->nr_zone_resets) < 0)
-+		return NULL;
-+	return res;
-+}
-diff --git a/zbd.h b/zbd.h
-index 9905050c2a76..b269ff0864ad 100644
---- a/zbd.h
-+++ b/zbd.h
-@@ -85,6 +85,7 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f);
- enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u);
- int zbd_do_trim(struct thread_data *td, const struct io_u *io_u);
- void zbd_update_wp(struct thread_data *td, const struct io_u *io_u);
-+char *zbd_write_status(const struct thread_stat *ts);
- #else
- static inline void zbd_free_zone_info(struct fio_file *f)
- {
-@@ -114,6 +115,11 @@ static inline void zbd_update_wp(struct thread_data *td,
- 				 const struct io_u *io_u)
- {
- }
-+
-+static inline char *zbd_write_status(const struct thread_stat *ts)
-+{
-+	return NULL;
-+}
- #endif
- 
- #endif /* FIO_ZBD_H */
+"Storage Performance Basics for Deep Learning" blog post
+(https://devblogs.nvidia.com/storage-performance-basics-for-deep-learning/
+) by James Mauro of NVIDIA describes exploratory use of fio and is an
+excellent introduction (which is curious given NVIDIA's usual domain).
+It highlights why you want to use fio, what to look at, how to combine
+it with other utilities and even discusses some pitfalls. The only
+minor point is that James was using an old version of fio but that
+doesn't diminish the article's usefulness :-)
+
+http://www.snia.org/sites/default/files/SSS_PTS_Enterprise_v1.1.pdf
+gives a thorough discussion on how to benchmark SSDs and covers
+crucial topics such as preconditioning, the need to use random
+patterns within the data etc.
+
+On Fri, 31 Aug 2018 at 09:01, Mohanraj B <bmohanraj91@gmail.com> wrote:
+>
+> Hello,
+>
+> Thanks Sitsofe Wheeler for sharing useful info.
+>
+> The terminologies(ioengine, iodepth, etc) used in fio is bit
+> overwhelming. Quite not clearly grasp how it works. Can you recommend
+> any blogs or books to get deep understanding of the underlying
+> concepts before dive in to fio.
+
 -- 
-2.18.0
-
+Sitsofe | http://sucs.org/~sits/
 
