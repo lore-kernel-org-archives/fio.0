@@ -1,86 +1,107 @@
-Return-Path: <prvs=800592d6e=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 2/2] zbd: Remove unused function and variable
-Date: Wed, 26 Sep 2018 15:42:26 +0900
-Message-Id: <20180926064226.2590-1-damien.lemoal@wdc.com>
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:48508 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726263AbeIDQZG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 4 Sep 2018 12:25:06 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1fxA0E-00068E-WF
+        for fio@vger.kernel.org; Tue, 04 Sep 2018 12:00:15 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20180904120001.9E7D02C00A1@kernel.dk>
+Date: Tue,  4 Sep 2018 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-check_swd() was defined to nothing. Remove it.
-additionally, the variable ret in zbd_reset_zonei() is unused and not
-necessary. Remove it too.
+The following changes since commit 7df9ac895f4af7ac4500379d5a5e204be9210fb2:
 
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+  client: fix nr_samples (2018-08-31 12:43:59 -0600)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 53ee8c17adb00e3db4f2c9441777ba777390cb9f:
+
+  engines/sg: improve error handling (2018-09-03 09:01:14 -0600)
+
+----------------------------------------------------------------
+Vincent Fu (1):
+      engines/sg: improve error handling
+
+ engines/sg.c | 49 +++++++++++++++++++++++++------------------------
+ 1 file changed, 25 insertions(+), 24 deletions(-)
+
 ---
- zbd.c | 31 ++-----------------------------
- 1 file changed, 2 insertions(+), 29 deletions(-)
 
-diff --git a/zbd.c b/zbd.c
-index 9c3092ab..9c525875 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -620,12 +620,10 @@ static unsigned int zbd_zone_nr(struct zoned_block_device_info *zbd_info,
- static int zbd_reset_zone(struct thread_data *td, const struct fio_file *f,
- 			  struct fio_zone_info *z)
- {
--	int ret;
--
- 	dprint(FD_ZBD, "%s: resetting wp of zone %u.\n", f->file_name,
- 		zbd_zone_nr(f->zbd_info, z));
--	ret = zbd_reset_range(td, f, z->start, (z+1)->start - z->start);
--	return ret;
+Diff of recent changes:
+
+diff --git a/engines/sg.c b/engines/sg.c
+index 7741f83..3cc068f 100644
+--- a/engines/sg.c
++++ b/engines/sg.c
+@@ -675,36 +675,37 @@ static int fio_sgio_commit(struct thread_data *td)
+ 
+ 	ret = fio_sgio_rw_doio(io_u->file, io_u, 0);
+ 
+-	if (ret < 0)
+-		for (i = 0; i < st->unmap_range_count; i++)
+-			st->trim_io_us[i]->error = errno;
+-	else if (hdr->status)
+-		for (i = 0; i < st->unmap_range_count; i++) {
+-			st->trim_io_us[i]->resid = hdr->resid;
+-			st->trim_io_us[i]->error = EIO;
++	if (ret < 0 || hdr->status) {
++		int error;
 +
-+	return zbd_reset_range(td, f, z->start, (z+1)->start - z->start);
++		if (ret < 0)
++			error = errno;
++		else {
++			error = EIO;
++			ret = -EIO;
+ 		}
+-	else {
+-		if (fio_fill_issue_time(td)) {
+-			fio_gettime(&now, NULL);
+-			for (i = 0; i < st->unmap_range_count; i++) {
+-				struct io_u *io_u = st->trim_io_us[i];
+-
+-				memcpy(&io_u->issue_time, &now, sizeof(now));
+-				io_u_queued(td, io_u);
+-			}
++
++		for (i = 0; i < st->unmap_range_count; i++) {
++			st->trim_io_us[i]->error = error;
++			clear_io_u(td, st->trim_io_us[i]);
++			if (hdr->status)
++				st->trim_io_us[i]->resid = hdr->resid;
+ 		}
+-		io_u_mark_submit(td, st->unmap_range_count);
++
++		td_verror(td, error, "xfer");
++		return ret;
+ 	}
+ 
+-	if (io_u->error) {
+-		td_verror(td, io_u->error, "xfer");
+-		return 0;
++	if (fio_fill_issue_time(td)) {
++		fio_gettime(&now, NULL);
++		for (i = 0; i < st->unmap_range_count; i++) {
++			memcpy(&st->trim_io_us[i]->issue_time, &now, sizeof(now));
++			io_u_queued(td, io_u);
++		}
+ 	}
++	io_u_mark_submit(td, st->unmap_range_count);
+ 
+-	if (ret == FIO_Q_QUEUED)
+-		return 0;
+-	else
+-		return ret;
++	return 0;
  }
  
- /*
-@@ -728,29 +726,6 @@ static bool zbd_dec_and_reset_write_cnt(const struct thread_data *td,
- 	return write_cnt == 0;
- }
- 
--/* Check whether the value of zbd_info.sectors_with_data is correct. */
--static void check_swd(const struct thread_data *td, const struct fio_file *f)
--{
--#if 0
--	struct fio_zone_info *zb, *ze, *z;
--	uint64_t swd;
--
--	zb = &f->zbd_info->zone_info[zbd_zone_idx(f, f->file_offset)];
--	ze = &f->zbd_info->zone_info[zbd_zone_idx(f, f->file_offset +
--						  f->io_size)];
--	swd = 0;
--	for (z = zb; z < ze; z++) {
--		pthread_mutex_lock(&z->mutex);
--		swd += z->wp - z->start;
--	}
--	pthread_mutex_lock(&f->zbd_info->mutex);
--	assert(f->zbd_info->sectors_with_data == swd);
--	pthread_mutex_unlock(&f->zbd_info->mutex);
--	for (z = zb; z < ze; z++)
--		pthread_mutex_unlock(&z->mutex);
--#endif
--}
--
- void zbd_file_reset(struct thread_data *td, struct fio_file *f)
- {
- 	struct fio_zone_info *zb, *ze, *z;
-@@ -1227,7 +1202,6 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 		}
- 		/* Check whether the zone reset threshold has been exceeded */
- 		if (td->o.zrf.u.f) {
--			check_swd(td, f);
- 			if (f->zbd_info->sectors_with_data >=
- 			    f->io_size * td->o.zrt.u.f &&
- 			    zbd_dec_and_reset_write_cnt(td, f)) {
-@@ -1248,7 +1222,6 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 			zb->reset_zone = 0;
- 			if (zbd_reset_zone(td, f, zb) < 0)
- 				goto eof;
--			check_swd(td, f);
- 		}
- 		/* Make writes occur at the write pointer */
- 		assert(!zbd_zone_full(f, zb, min_bs));
--- 
-2.17.1
-
+ static struct io_u *fio_sgio_event(struct thread_data *td, int event)
 
