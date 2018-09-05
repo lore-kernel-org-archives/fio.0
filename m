@@ -1,37 +1,29 @@
-Return-Path: <prvs=780a0c343=Damien.LeMoal@wdc.com>
-From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Return-Path: <axboe@kernel.dk>
 Subject: Re: [PATCH v3] zbd: Fix test scripts
-Date: Thu, 6 Sep 2018 01:08:37 +0000
-Message-ID: <700656050e6f204b39dddcea467d52c92efb11ac.camel@wdc.com>
 References: <20180905080237.21887-1-damien.lemoal@wdc.com>
-	 <6f8e2641-8324-d767-4136-ed43984d5bd8@kernel.dk>
-In-Reply-To: <6f8e2641-8324-d767-4136-ed43984d5bd8@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <63A6630A9A3E9545AD371B02A2847022@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <6f8e2641-8324-d767-4136-ed43984d5bd8@kernel.dk>
+Date: Wed, 5 Sep 2018 08:36:43 -0600
 MIME-Version: 1.0
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "bvanassche@acm.org" <bvanassche@acm.org>
+In-Reply-To: <20180905080237.21887-1-damien.lemoal@wdc.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Damien Le Moal <damien.lemoal@wdc.com>, fio@vger.kernel.org
+Cc: Bart Van Assche <bvanassche@acm.org>
 List-ID: <fio@vger.kernel.org>
 
-SmVucywNCg0KT24gV2VkLCAyMDE4LTA5LTA1IGF0IDA4OjM2IC0wNjAwLCBKZW5zIEF4Ym9lIHdy
-b3RlOg0KPiBPbiA5LzUvMTggMjowMiBBTSwgRGFtaWVuIExlIE1vYWwgd3JvdGU6DQo+ID4gRml4
-IGhhbmRsaW5nIG9mIHRoZSBwYXRoIHRvIHRoZSB0ZXN0LXpiZC1zdXBwb3J0IHNjcmlwdCB0byBh
-dm9pZCBhbg0KPiA+IGVycm9yIHdoZW4gdGhlIHRlc3RzIGFyZSBydW4gZGlyZWN0bHkgd2hlbiBp
-biBmaW8vdC96YmQgdXNpbmcgdGhlDQo+ID4gY29tbWFuZCAiLi9ydW4tYWdhaW5zdC4uLiIuDQo+
-IA0KPiBUaGFua3MsIGFwcGxpZWQuDQo+IA0KPiBXaGVyZSBhcmUgd2Ugb24gdGhlIG90aGVyIHpi
-ZCBmaXhlcz8gSSB3YW50IHRvIGN1dCBhIG5ldyB2ZXJzaW9uDQo+IGZhaXJseSBzb29uLCBidXQg
-SSBkb24ndCB3YW50IHRvIGRvIHRoYXQgd2l0aCBmaXhlcyBzdGlsbCBwZW5kaW5nLg0KDQpUaGUg
-djMgb2YgdGhlIDMgcGF0Y2ggc2VyaWVzIEkgc2VudCB3YXMgaGVhdmlseSB0ZXN0ZWQgYW5kIHJl
-dmlld2VkIGJ5IEJhcnQuDQpTbyBJIHRoaW5rIHRoZSBjaGFuZ2VzIGFyZSBPSyB0byBnby4NCg0K
-SSB1cGRhdGVkIG15IHB1bGwgcmVxdWVzdCBpbiBnaXRodWIgd2l0aCB0aGUgbGF0ZXN0IHZlcnNp
-b24gb2YgYWxsIHBhdGNoZXM6DQoqIFRoZSAzIHBhdGNoZXMgb2YgdGhlIHYzICJaQkQgc3VwcG9y
-dCBpbXByb3ZlbWVudHMgYW5kIGNsZWFudXAiOg0KCVtQQVRDSCB2MyAxLzNdIHpiZDogSW1wcm92
-ZSByZWFkIHJhbmRvbW5lc3MNCglbUEFUQ0ggdjMgMi8zXSB6YmQ6IFJlbW92ZSBpbmV4aXN0ZW50
-IGZ1bmN0aW9ucyBkZWNsYXJhdGlvbg0KCVtQQVRDSCB2MyAzLzNdIHpiZDogRml4IHpiZF96b25l
-X2lkeCgpDQoqIFRoaXMgdGVzdCBzY3JpcHQgZml4IHBhdGNoDQoqIEEgcGF0Y2ggdGhhdCBjbGVh
-bnMgdXAgdGhlIGNvZGUgdXNpbmcgdGhlIGZpbyByZWd1bGFyIGJ5dGUgdW5pdCBmb3Igem9uZQ0K
-aW5mb3JtYXRpb246DQoJW1BBVENIXSB6YmQ6IFVzZSBieXRlcyB1bml0DQoNClRoYW5rcyAhDQoN
-Ci0tICANCkRhbWllbiBMZSBNb2FsDQpXZXN0ZXJuIERpZ2l0YWwNCg==
+On 9/5/18 2:02 AM, Damien Le Moal wrote:
+> Fix handling of the path to the test-zbd-support script to avoid an
+> error when the tests are run directly when in fio/t/zbd using the
+> command "./run-against...".
+
+Thanks, applied.
+
+Where are we on the other zbd fixes? I want to cut a new version
+fairly soon, but I don't want to do that with fixes still pending.
+
+-- 
+Jens Axboe
+
 
