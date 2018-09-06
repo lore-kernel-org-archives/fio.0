@@ -1,55 +1,42 @@
-Return-Path: <axboe@kernel.dk>
+Return-Path: <prvs=780a0c343=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
 Subject: Re: [PATCH v3] zbd: Fix test scripts
+Date: Thu, 6 Sep 2018 01:12:59 +0000
+Message-ID: <61d92ae03a6485aca95905d18e6ab0af7280dc2a.camel@wdc.com>
 References: <20180905080237.21887-1-damien.lemoal@wdc.com>
- <6f8e2641-8324-d767-4136-ed43984d5bd8@kernel.dk>
- <700656050e6f204b39dddcea467d52c92efb11ac.camel@wdc.com>
- <61d92ae03a6485aca95905d18e6ab0af7280dc2a.camel@wdc.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <0f43ffdb-be83-ffb3-ac54-3f553622db39@kernel.dk>
-Date: Wed, 5 Sep 2018 19:26:02 -0600
-MIME-Version: 1.0
-In-Reply-To: <61d92ae03a6485aca95905d18e6ab0af7280dc2a.camel@wdc.com>
-Content-Type: text/plain; charset=utf-8
+	 <6f8e2641-8324-d767-4136-ed43984d5bd8@kernel.dk>
+	 <700656050e6f204b39dddcea467d52c92efb11ac.camel@wdc.com>
+In-Reply-To: <700656050e6f204b39dddcea467d52c92efb11ac.camel@wdc.com>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Damien Le Moal <Damien.LeMoal@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <EA0D9B20D6C519418E7100B86A6EF4BF@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>
 Cc: "bvanassche@acm.org" <bvanassche@acm.org>
 List-ID: <fio@vger.kernel.org>
 
-On 9/5/18 7:12 PM, Damien Le Moal wrote:
-> On Thu, 2018-09-06 at 01:08 +0000, Damien Le Moal wrote:
->> Jens,
->>
->> On Wed, 2018-09-05 at 08:36 -0600, Jens Axboe wrote:
->>> On 9/5/18 2:02 AM, Damien Le Moal wrote:
->>>> Fix handling of the path to the test-zbd-support script to avoid an
->>>> error when the tests are run directly when in fio/t/zbd using the
->>>> command "./run-against...".
->>>
->>> Thanks, applied.
->>>
->>> Where are we on the other zbd fixes? I want to cut a new version
->>> fairly soon, but I don't want to do that with fixes still pending.
->>
->> The v3 of the 3 patch series I sent was heavily tested and reviewed by Bart.
->> So I think the changes are OK to go.
->>
->> I updated my pull request in github with the latest version of all patches:
->> * The 3 patches of the v3 "ZBD support improvements and cleanup":
->> 	[PATCH v3 1/3] zbd: Improve read randomness
->> 	[PATCH v3 2/3] zbd: Remove inexistent functions declaration
->> 	[PATCH v3 3/3] zbd: Fix zbd_zone_idx()
->> * This test script fix patch
->> * A patch that cleans up the code using the fio regular byte unit for zone
->> information:
->> 	[PATCH] zbd: Use bytes unit
-> 
-> Correction: I rebased the pull request. Since the test script patch was
-> applied, only 4 patches in the pull request now.
-
-Great thanks, I'll pull them in.
-
--- 
-Jens Axboe
-
+T24gVGh1LCAyMDE4LTA5LTA2IGF0IDAxOjA4ICswMDAwLCBEYW1pZW4gTGUgTW9hbCB3cm90ZToN
+Cj4gSmVucywNCj4gDQo+IE9uIFdlZCwgMjAxOC0wOS0wNSBhdCAwODozNiAtMDYwMCwgSmVucyBB
+eGJvZSB3cm90ZToNCj4gPiBPbiA5LzUvMTggMjowMiBBTSwgRGFtaWVuIExlIE1vYWwgd3JvdGU6
+DQo+ID4gPiBGaXggaGFuZGxpbmcgb2YgdGhlIHBhdGggdG8gdGhlIHRlc3QtemJkLXN1cHBvcnQg
+c2NyaXB0IHRvIGF2b2lkIGFuDQo+ID4gPiBlcnJvciB3aGVuIHRoZSB0ZXN0cyBhcmUgcnVuIGRp
+cmVjdGx5IHdoZW4gaW4gZmlvL3QvemJkIHVzaW5nIHRoZQ0KPiA+ID4gY29tbWFuZCAiLi9ydW4t
+YWdhaW5zdC4uLiIuDQo+ID4gDQo+ID4gVGhhbmtzLCBhcHBsaWVkLg0KPiA+IA0KPiA+IFdoZXJl
+IGFyZSB3ZSBvbiB0aGUgb3RoZXIgemJkIGZpeGVzPyBJIHdhbnQgdG8gY3V0IGEgbmV3IHZlcnNp
+b24NCj4gPiBmYWlybHkgc29vbiwgYnV0IEkgZG9uJ3Qgd2FudCB0byBkbyB0aGF0IHdpdGggZml4
+ZXMgc3RpbGwgcGVuZGluZy4NCj4gDQo+IFRoZSB2MyBvZiB0aGUgMyBwYXRjaCBzZXJpZXMgSSBz
+ZW50IHdhcyBoZWF2aWx5IHRlc3RlZCBhbmQgcmV2aWV3ZWQgYnkgQmFydC4NCj4gU28gSSB0aGlu
+ayB0aGUgY2hhbmdlcyBhcmUgT0sgdG8gZ28uDQo+IA0KPiBJIHVwZGF0ZWQgbXkgcHVsbCByZXF1
+ZXN0IGluIGdpdGh1YiB3aXRoIHRoZSBsYXRlc3QgdmVyc2lvbiBvZiBhbGwgcGF0Y2hlczoNCj4g
+KiBUaGUgMyBwYXRjaGVzIG9mIHRoZSB2MyAiWkJEIHN1cHBvcnQgaW1wcm92ZW1lbnRzIGFuZCBj
+bGVhbnVwIjoNCj4gCVtQQVRDSCB2MyAxLzNdIHpiZDogSW1wcm92ZSByZWFkIHJhbmRvbW5lc3MN
+Cj4gCVtQQVRDSCB2MyAyLzNdIHpiZDogUmVtb3ZlIGluZXhpc3RlbnQgZnVuY3Rpb25zIGRlY2xh
+cmF0aW9uDQo+IAlbUEFUQ0ggdjMgMy8zXSB6YmQ6IEZpeCB6YmRfem9uZV9pZHgoKQ0KPiAqIFRo
+aXMgdGVzdCBzY3JpcHQgZml4IHBhdGNoDQo+ICogQSBwYXRjaCB0aGF0IGNsZWFucyB1cCB0aGUg
+Y29kZSB1c2luZyB0aGUgZmlvIHJlZ3VsYXIgYnl0ZSB1bml0IGZvciB6b25lDQo+IGluZm9ybWF0
+aW9uOg0KPiAJW1BBVENIXSB6YmQ6IFVzZSBieXRlcyB1bml0DQoNCkNvcnJlY3Rpb246IEkgcmVi
+YXNlZCB0aGUgcHVsbCByZXF1ZXN0LiBTaW5jZSB0aGUgdGVzdCBzY3JpcHQgcGF0Y2ggd2FzDQph
+cHBsaWVkLCBvbmx5IDQgcGF0Y2hlcyBpbiB0aGUgcHVsbCByZXF1ZXN0IG5vdy4NCg0KVGhhbmtz
+ICENCg0KLS0gDQpEYW1pZW4gTGUgTW9hbA0KV2VzdGVybiBEaWdpdGFsDQo=
 
