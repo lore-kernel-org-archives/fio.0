@@ -1,41 +1,54 @@
-Return-Path: <bvanassche@acm.org>
-From: Bart Van Assche <bvanassche@acm.org>
-Subject: [PATCH 1/6] t/zbd/functions: Make fio_reset_count() return 0 if no resets occurred
-Date: Fri, 28 Sep 2018 14:51:28 -0700
-Message-Id: <20180928215133.35222-2-bvanassche@acm.org>
-In-Reply-To: <20180928215133.35222-1-bvanassche@acm.org>
-References: <20180928215133.35222-1-bvanassche@acm.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Bart Van Assche <bvanassche@acm.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:40250 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728172AbeIGQlF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 7 Sep 2018 12:41:05 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1fyFR6-0005OU-6p
+        for fio@vger.kernel.org; Fri, 07 Sep 2018 12:00:28 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20180907120002.0DE352C00A8@kernel.dk>
+Date: Fri,  7 Sep 2018 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-This patch avoids that certain bash versions report the following complaint:
+The following changes since commit f111f76c0e6687c0cc6fc562cb902e4a64e42b37:
 
-t/zbd/test-zbd-support: line 69: [: : integer expression expected
+  Merge branch 'master' of https://github.com/damien-lemoal/fio (2018-09-05 19:25:39 -0600)
 
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to bb661c4027e5a0482b9fcc1c1b4e7e918650ee72:
+
+  Fio 3.9 (2018-09-06 09:07:55 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Fio 3.9
+
+ FIO-VERSION-GEN | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 ---
- t/zbd/functions | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/t/zbd/functions b/t/zbd/functions
-index 95f9bf456b9a..173f0ca64a42 100644
---- a/t/zbd/functions
-+++ b/t/zbd/functions
-@@ -102,5 +102,8 @@ fio_written() {
- }
+Diff of recent changes:
+
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index 99261fb..f031594 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
  
- fio_reset_count() {
--    sed -n 's/^.*write:[^;]*; \([0-9]*\) zone resets$/\1/p'
-+    local count
-+
-+    count=$(sed -n 's/^.*write:[^;]*; \([0-9]*\) zone resets$/\1/p')
-+    echo "${count:-0}"
- }
--- 
-2.19.0.605.g01d371f741-goog
-
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-3.8
++DEF_VER=fio-3.9
+ 
+ LF='
+ '
 
