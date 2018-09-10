@@ -1,54 +1,31 @@
-Return-Path: <bvanassche@acm.org>
-From: Bart Van Assche <bvanassche@acm.org>
-Subject: [PATCH 4/6] t/zbd/test-zbd-support: Report a test summary when finished
-Date: Fri, 28 Sep 2018 14:51:31 -0700
-Message-Id: <20180928215133.35222-5-bvanassche@acm.org>
-In-Reply-To: <20180928215133.35222-1-bvanassche@acm.org>
-References: <20180928215133.35222-1-bvanassche@acm.org>
+Return-Path: <mcgrof@gmail.com>
+Return-Path: <mcgrof@gmail.com>
+Date: Mon, 10 Sep 2018 10:32:48 -0700
+From: Luis Chamberlain <mcgrof@kernel.org>
+Subject: Re: Revert of 1d1b65dc17c39f43dbe9d66062ca61fc3e90ddfc
+Message-ID: <20180910173248.GA3456@garbanzo.do-not-panic.com>
+References: <e0584921-2c98-b9af-e31e-780f929631b9@kernel.dk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e0584921-2c98-b9af-e31e-780f929631b9@kernel.dk>
 To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Bart Van Assche <bvanassche@acm.org>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>
----
- t/zbd/test-zbd-support | 8 ++++++++
- 1 file changed, 8 insertions(+)
+On Fri, Sep 07, 2018 at 01:21:27PM -0600, Jens Axboe wrote:
+> Hi Luis,
+> 
+> I reverted this commit today, it breaks the normal use case
+> which is:
+> 
+> $ ./fio --server
+> $ ./fio --minimal --client=bla job.fio
+> 
+> since no output is generated at all. I don't have much time
+> to look at it right now, would be great if you could.
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index fd30f5c6ecca..2d7279109af9 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -801,18 +801,26 @@ fi
- 
- logfile=$0.log
- 
-+passed=0
-+failed=0
- rc=0
- for test_number in "${tests[@]}"; do
-     rm -f "${logfile}.${test_number}"
-     echo -n "Running test $test_number ... "
-     if eval "test$test_number"; then
- 	status="PASS"
-+	((passed++))
-     else
- 	status="FAIL"
-+	((failed++))
- 	rc=1
-     fi
-     echo "$status"
-     echo "$status" >> "${logfile}.${test_number}"
- done
- 
-+echo "$passed tests passed"
-+if [ $failed -gt 0 ]; then
-+    echo " and $failed tests failed"
-+fi
- exit $rc
--- 
-2.19.0.605.g01d371f741-goog
+Will do.
 
+  Luis
 
