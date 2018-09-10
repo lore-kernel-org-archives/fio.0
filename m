@@ -1,44 +1,41 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua1-f54.google.com ([209.85.222.54]:38782 "EHLO
-        mail-ua1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726332AbeIKLCw (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 11 Sep 2018 07:02:52 -0400
-Received: by mail-ua1-f54.google.com with SMTP id o11-v6so19500921uak.5
-        for <fio@vger.kernel.org>; Mon, 10 Sep 2018 23:05:12 -0700 (PDT)
+Received: from mail-pl1-f178.google.com ([209.85.214.178]:33197 "EHLO
+        mail-pl1-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726426AbeIKDUT (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 10 Sep 2018 23:20:19 -0400
+Received: by mail-pl1-f178.google.com with SMTP id b30-v6so8089580pla.0
+        for <fio@vger.kernel.org>; Mon, 10 Sep 2018 15:24:08 -0700 (PDT)
+Date: Mon, 10 Sep 2018 15:24:04 -0700
+From: Luis Chamberlain <mcgrof@kernel.org>
+Subject: graphing with fio - architectural docs - gfio Vs fiovisualizer
+Message-ID: <20180910222404.GB3456@garbanzo.do-not-panic.com>
 MIME-Version: 1.0
-References: <20180910222404.GB3456@garbanzo.do-not-panic.com>
-In-Reply-To: <20180910222404.GB3456@garbanzo.do-not-panic.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Tue, 11 Sep 2018 07:04:45 +0100
-Message-ID: <CALjAwxixx0ehz72hwNcUKBnEpUur55gJvmSTfMXUTDAmk_85CQ@mail.gmail.com>
-Subject: Re: graphing with fio - architectural docs - gfio Vs fiovisualizer
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: mcgrof@kernel.org
-Cc: fio <fio@vger.kernel.org>, "Kudryavtsev, Andrey O" <andrey.o.kudryavtsev@intel.com>, jblunck@infradead.org
+To: fio@vger.kernel.org
+Cc: andrey.o.kudryavtsev@intel.com, mcgrof@kernel.org, jblunck@infradead.org
 
-Hi,
+I've been doing an analysis of graphing with fio with the different
+options I was able to find out there. Documentation was pretty much
+non-existant so I wrote some stuff up for my own ingestion but then
+it also became a way for me to review fiovisualizer and to call out
+that perhaps effort is best put into gfio.
 
-(Sorry for the brevity)
+In the end I did a full analysis of differences between both, and this
+really lead to the effort to document clearly the differences between
+fio's status interval dumps, eta interval checks, and time resolutions
+possible.
 
-On Mon, 10 Sep 2018 at 23:25, Luis Chamberlain <mcgrof@kernel.org> wrote:
->
-> The doc is up here:
->
-> https://gitlab.com/mcgrof/graphing-with-fio
->
-> Please give it some review and let me know your thoughts, rants,
-> disagreements.  Perhaps with time, after things are actually set up and
-> documented correctly, if folks consider it proper, I could massage it
-> and put the generic fio stuff into documentation for fio upstream.
+The doc is up here:
 
-I think there's also https://github.com/earlephilhower/ezfio and also
-see fio2gnuplot within
-https://github.com/axboe/fio/tree/master/tools/plot . Also see
-https://github.com/axboe/fio/issues/495 for a "why not a shorter
-update interval" question.
+https://gitlab.com/mcgrof/graphing-with-fio
 
--- 
-Sitsofe | http://sucs.org/~sits/
+Please give it some review and let me know your thoughts, rants,
+disagreements.  Perhaps with time, after things are actually set up and
+documented correctly, if folks consider it proper, I could massage it
+and put the generic fio stuff into documentation for fio upstream.
+
+  Luis
 
