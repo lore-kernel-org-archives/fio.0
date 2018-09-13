@@ -1,54 +1,88 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:40250 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728172AbeIGQlF (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 7 Sep 2018 12:41:05 -0400
+Received: from merlin.infradead.org ([205.233.59.134]:56476 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727051AbeIMRJP (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 13 Sep 2018 13:09:15 -0400
 Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1fyFR6-0005OU-6p
-        for fio@vger.kernel.org; Fri, 07 Sep 2018 12:00:28 +0000
+        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1g0QI0-0002Vj-Tv
+        for fio@vger.kernel.org; Thu, 13 Sep 2018 12:00:05 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180907120002.0DE352C00A8@kernel.dk>
-Date: Fri,  7 Sep 2018 06:00:02 -0600 (MDT)
+Message-Id: <20180913120002.23DD22C0311@kernel.dk>
+Date: Thu, 13 Sep 2018 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit f111f76c0e6687c0cc6fc562cb902e4a64e42b37:
+The following changes since commit e8ed50bc3ce67f449714c55c3fbf2f8eb50730c2:
 
-  Merge branch 'master' of https://github.com/damien-lemoal/fio (2018-09-05 19:25:39 -0600)
+  windows: fix the most egregious posix.c style errors (2018-09-11 16:54:39 -0600)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to bb661c4027e5a0482b9fcc1c1b4e7e918650ee72:
+for you to fetch changes up to e26029be10ee2c570cba2c4cc2b1987568306cd2:
 
-  Fio 3.9 (2018-09-06 09:07:55 -0600)
+  Merge branch 'histo-log-dup-timestamp' of https://github.com/parallel-fs-utils/fio (2018-09-12 14:33:04 -0600)
 
 ----------------------------------------------------------------
-Jens Axboe (1):
-      Fio 3.9
+Ben England (1):
+      filter out records with duplicate timestamps
 
- FIO-VERSION-GEN | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Jens Axboe (2):
+      windows: make win_to_posix_error() more resilient
+      Merge branch 'histo-log-dup-timestamp' of https://github.com/parallel-fs-utils/fio
+
+ os/windows/posix.c                  |  2 ++
+ tools/hist/fio-histo-log-pctiles.py | 11 +++++++++++
+ 2 files changed, 13 insertions(+)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index 99261fb..f031594 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-3.8
-+DEF_VER=fio-3.9
- 
- LF='
- '
+diff --git a/os/windows/posix.c b/os/windows/posix.c
+index 5b72bea..fd1d558 100644
+--- a/os/windows/posix.c
++++ b/os/windows/posix.c
+@@ -35,6 +35,8 @@ HRESULT WINAPI StringCchPrintfA(char *pszDest, size_t cchDest, const char *pszFo
+ int win_to_posix_error(DWORD winerr)
+ {
+ 	switch (winerr) {
++	case ERROR_SUCCESS:
++		return 0;
+ 	case ERROR_FILE_NOT_FOUND:
+ 		return ENOENT;
+ 	case ERROR_PATH_NOT_FOUND:
+diff --git a/tools/hist/fio-histo-log-pctiles.py b/tools/hist/fio-histo-log-pctiles.py
+index bb016ea..1e7b631 100755
+--- a/tools/hist/fio-histo-log-pctiles.py
++++ b/tools/hist/fio-histo-log-pctiles.py
+@@ -64,6 +64,8 @@ def parse_hist_file(logfn, buckets_per_interval):
+     with open(logfn, 'r') as f:
+         records = [ l.strip() for l in f.readlines() ]
+     intervals = []
++    last_time_ms = -1
++    last_direction = -1
+     for k, r in enumerate(records):
+         if r == '':
+             continue
+@@ -96,6 +98,15 @@ def parse_hist_file(logfn, buckets_per_interval):
+         if len(buckets) != buckets_per_interval:
+             raise FioHistoLogExc('%d buckets per interval but %d expected in %s' % 
+                     (len(buckets), buckets_per_interval, exception_suffix(k+1, logfn)))
++
++        # hack to filter out records with the same timestamp
++        # we should not have to do this if fio logs histogram records correctly
++
++        if time_ms == last_time_ms and direction == last_direction:
++            continue
++        last_time_ms = time_ms
++        last_direction = direction
++
+         intervals.append((time_ms, direction, bsz, buckets))
+     if len(intervals) == 0:
+         raise FioHistoLogExc('no records in %s' % logfn)
 
