@@ -1,64 +1,155 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36964 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726304AbeI2Dxf (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 28 Sep 2018 23:53:35 -0400
-Received: from smtp.corp.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.26])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id D3F9B3001C5A
-        for <fio@vger.kernel.org>; Fri, 28 Sep 2018 21:27:59 +0000 (UTC)
-Received: from segfault.boston.devel.redhat.com (segfault.boston.devel.redhat.com [10.19.60.26])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 8D8333091373
-        for <fio@vger.kernel.org>; Fri, 28 Sep 2018 21:27:59 +0000 (UTC)
-From: Jeff Moyer <jmoyer@redhat.com>
-Subject: [patch] fix hung fio process with large I/O sizes and verify= option
-Date: Fri, 28 Sep 2018 17:27:58 -0400
-Message-ID: <x49sh1t48ip.fsf@segfault.boston.devel.redhat.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: No I/O performed by windowsaio/get_io_u: zero buflen
+References: <CA+zhgFRR_SMf=CEhU8imgM+F_3hmGJV9+h_yU6qR9yQG6br48w@mail.gmail.com>
+ <CALjAwxhGmEV=G21Vaw0rRgmLy4BFs2Yhqw4K5yNS2MXwGFvUtQ@mail.gmail.com>
+ <CA+zhgFR1V4yKg+gf0QUcuZy47R=-CqyK+_jKVJS4WKDtRb77hQ@mail.gmail.com>
+ <03bc8d3c-a8cb-fcbb-e7ff-f23a511f7908@kernel.dk>
+ <33A4DA56-9857-4EA3-A1E0-259FD1C856C8@gmail.com>
+ <e2f3fe8f-ef0b-2d92-7402-63681f9a9ffb@kernel.dk>
+ <6A1733EC-082D-4884-8769-36853A46B75C@gmail.com>
+ <CGME20180917034140epcas1p165f3011df99a7478f140d4f4aaf79409@epcas1p1.samsung.com>
+ <bddbb1ff-bf1e-f4fe-0377-95d0a311c52c@kernel.dk>
+ <55c06687ad1e4023a28a48babb7823b0@samsung.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <a939a262-0078-37cc-d9d4-42fdea475ea3@kernel.dk>
+Date: Mon, 17 Sep 2018 10:38:39 -0600
 MIME-Version: 1.0
-Content-Type: text/plain
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <55c06687ad1e4023a28a48babb7823b0@samsung.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+To: Smitha Sunder <smitha.s@samsung.com>
+Cc: Sitsofe Wheeler <sitsofe@gmail.com>, fio <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+On 9/17/18 10:33 AM, Smitha Sunder wrote:
+> -----Original Message-----
+> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Behalf Of Jens Axboe
+> Sent: Sunday, September 16, 2018 8:42 PM
+> To: smitha sunder <sundersmitha@gmail.com>
+> Cc: Sitsofe Wheeler <sitsofe@gmail.com>; fio <fio@vger.kernel.org>
+> Subject: Re: No I/O performed by windowsaio/get_io_u: zero buflen
+> 
+> On 9/16/18 9:34 PM, smitha sunder wrote:
+>>
+>>
+>>> On Sep 16, 2018, at 8:31 PM, Jens Axboe <axboe@kernel.dk> wrote:
+>>>
+>>>> On 9/16/18 9:13 PM, smitha sunder wrote:
+>>>>
+>>>>
+>>>>>> On Sep 16, 2018, at 8:02 PM, Jens Axboe <axboe@kernel.dk> wrote:
+>>>>>>
+>>>>>>> On 9/16/18 5:24 PM, smitha sunder wrote:
+>>>>>>>> On Sun, Sep 16, 2018 at 3:02 PM, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>>>>>>>> On Sat, 15 Sep 2018 at 23:14, smitha sunder <sundersmitha@gmail.com> wrote:
+>>>>>>>>
+>>>>>>>> Hello all,
+>>>>>>>>
+>>>>>>>> I have a 30TB drive and I am running into an issue with random writes.
+>>>>>>>> I went through this thread :
+>>>>>>>> https://urldefense.proofpoint.com/v2/url?u=https-3A__www.spinics
+>>>>>>>> .net_lists_fio_msg06294.html&d=DwIDaQ&c=JfeWlBa6VbDyTXraMENjy_b_0yKWuqQ4qY-FPhxK4x8w-TfgRBDyeV4hVQQBEgL2&r=fLVkx46f6GJPZippnZkCtH9m_d1P5HX6rKxJgT7l7Us&m=NaPx5NYD-_SBHGUzJNi4czQueVX-2LvLGD_SEwee41c&s=6QDNQBLcbJUsiXnq84y2HKG98aEmhvabF7uK-yKTbhk&e= that seems to be fixed already.
+>>>>>>>
+>>>>>>> I think that was something different regarding different 
+>>>>>>> blocksizes per direction.
+>>>>>>>
+>>>>>>>> I see the same issue with random reads as well.
+>>>>>>>> So not sure what is the issue here in my case; any help is greatly appreciated.
+>>>>>>>>
+>>>>>>>>
+>>>>>>>> Read Capacity results:
+>>>>>>>>  Protection: prot_en=1, p_type=1, p_i_exponent=0 [type 2 
+>>>>>>>> protection]  Logical block provisioning: lbpme=1, lbprz=1  Last 
+>>>>>>>> logical block address=58781073407 (0xdaf9fffff), Number of 
+>>>>>>>> logical blocks=58781073408  Logical block length=512 bytes  
+>>>>>>>> Logical blocks per physical block exponent=3 [so physical block
+>>>>>>>> length=4096 bytes]
+>>>>>>>>  Lowest aligned logical block address=0
+>>>>>>>> Hence:
+>>>>>>>>  Device size: 30095909584896 bytes, 2.87017e+007 MiB, 30095.9 GB
+>>>>>>>>
+>>>>>>>>
+>>>>>>>> C:\Program Files (x86)\fio>fio --ioengine=windowsaio 
+>>>>>>>> --group_reporting
+>>>>>>>> --direct=1 --size=100% --bs=4K --thread 
+>>>>>>>> --filename=\\.\PhysicalDrive1 --name=precond --rw=randwrite 
+>>>>>>>> --iodepth=1 --numjobs=1 --debug=io,random
+>>>>>>>
+>>>>>>> <snip>
+>>>>>>>
+>>>>>>>> io       3372  fill: io_u 0A458780:
+>>>>>>>> off=0x144365e7d000,len=0x0,ddir=1,file=\\.\PhysicalDrive1
+>>>>>>>> io       3372  get_io_u: zero buflen on 0A458780
+>>>>>>>> io       3372  get_io_u failed
+>>>>>>>> io       3372  drop page cache \\.\PhysicalDrive1
+>>>>>>>> random   3372  off rand 17311067694306724737
+>>>>>>>
+>>>>>>> That offset is crazy big - I'm sure it's bigger than a petabyte 
+>>>>>>> so my guess is that something is overflowing. If you use 
+>>>>>>> --size=27g does the job go through?
+>>>>>>>
+>>>>>>> [...]
+>>>>>>>
+>>>>>>>> I don’t see this issue if I use bs=8K or I use ba=512,8K, etc.
+>>>>>>>
+>>>>>>> --
+>>>>>>> Sitsofe | 
+>>>>>>> https://urldefense.proofpoint.com/v2/url?u=http-3A__sucs.org_-7Es
+>>>>>>> its_&d=DwIDaQ&c=JfeWlBa6VbDyTXraMENjy_b_0yKWuqQ4qY-FPhxK4x8w-TfgR
+>>>>>>> BDyeV4hVQQBEgL2&r=fLVkx46f6GJPZippnZkCtH9m_d1P5HX6rKxJgT7l7Us&m=N
+>>>>>>> aPx5NYD-_SBHGUzJNi4czQueVX-2LvLGD_SEwee41c&s=ZnZsmte_bg5yC3adbwXI
+>>>>>>> U4EmuEn97cA9o1YpZxDU4m0&e=
+>>>>>> Hi Sitsofe,
+>>>>>>
+>>>>>> Thanks for the reply!
+>>>>>>
+>>>>>> Yes; If I use --size=27G or if provide the exact size that the OS 
+>>>>>> displays, then the job goes through.
+>>>>>
+>>>>> Are you running a 32-bit or 64-bit build of fio?
+>>>>>
+>>>>> --
+>>>>> Jens Axboe
+>>>>>
+>>>> 32 bit.
+>>>
+>>> I thought so. I see a few 32-bit issues with huge devices. One of 
+>>> them is this one:
+>>>
+>>> https://urldefense.proofpoint.com/v2/url?u=http-3A__git.kernel.dk_cgi
+>>> t_fio_commit_-3Fid-3D604d3f5bd9f2b985568593c23f8292cbc7f4044c&d=DwIDa
+>>> Q&c=JfeWlBa6VbDyTXraMENjy_b_0yKWuqQ4qY-FPhxK4x8w-TfgRBDyeV4hVQQBEgL2&
+>>> r=fLVkx46f6GJPZippnZkCtH9m_d1P5HX6rKxJgT7l7Us&m=NaPx5NYD-_SBHGUzJNi4c
+>>> zQueVX-2LvLGD_SEwee41c&s=AJCs8E23SmJj-z7BbkuP_yxTNDg3g6BZ8FYIcV3EmAY&
+>>> e=
+>>>
+>>> but I'm sure there are others, I'll try and reproduce and get this fixed.
+>>>
+>>> --
+>>> Jens Axboe
+>>>
+>> I see the same issue even with 64 bit fio build.
+> 
+> The difference is that an unsigned long on 64-bit windows builds is still 32-bit, whereas it's 64-bit on linux. So the easiest for me is to test on 32-bit linux, which _probably_ then hits the same thing...
+> 
+> --
+> Jens Axboe
+> 
+> 
+> Jens,
+> 
+> Got the latest build from https://ci.appveyor.com/project/axboe/fio/build/1.0.891/job/awu51avmepn1kvgf/artifacts.
+> 
+> With size=100%, bs=4K , I no longer see the issue; thanks for the fix!
 
-If you use a very large I/O size (1G in this instance), and also specify
-the verify option, fio will hang, using up 100% cpu, for ever and ever.
-The problem is that __fill_random_buf_percentage does math that
-overflows the size of an unsigned int.  Fixing that gets fio to
-terminate as expected.
+Great, thanks a lot for reporting and testing!
 
-Here is the job file which showed the problem:
+For what it's worth, I think we got all of them now, puzzled why we haven't
+run into this sooner. I guess not a lot of folks run 32-bit builds. I also
+verified the random distribution of 32-bit, and it looks fine.
 
-[global]
-ioengine=dev-dax
-direct=0
-filename=/dev/dax0.0
-verify=crc32c
-bs=1G
-[write]
-rw=write
-runtime=5
-[read]
-stonewall
-rw=read
-runtime=5
+-- 
+Jens Axboe
 
-Reported-by: sujith_pandel@dell.com
-Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
-
-diff --git a/lib/rand.c b/lib/rand.c
-index 46ffe4fb..99846a8d 100644
---- a/lib/rand.c
-+++ b/lib/rand.c
-@@ -156,7 +156,7 @@ void __fill_random_buf_percentage(unsigned long seed, void *buf,
- 		/*
- 		 * Fill random chunk
- 		 */
--		this_len = (segment * (100 - percentage)) / 100;
-+		this_len = ((unsigned long long)segment * (100 - percentage)) / 100;
- 		if (this_len > len)
- 			this_len = len;
- 
 
