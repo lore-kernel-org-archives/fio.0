@@ -1,143 +1,141 @@
-Return-Path: <smitha.s@samsung.com>
-From: Smitha Sunder <smitha.s@samsung.com>
-Subject: RE: No I/O performed by windowsaio/get_io_u: zero buflen
-Date: Mon, 17 Sep 2018 16:33:42 +0000
-Message-ID: <55c06687ad1e4023a28a48babb7823b0@samsung.com>
-In-Reply-To: <bddbb1ff-bf1e-f4fe-0377-95d0a311c52c@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-References: <CA+zhgFRR_SMf=CEhU8imgM+F_3hmGJV9+h_yU6qR9yQG6br48w@mail.gmail.com>
-	<CALjAwxhGmEV=G21Vaw0rRgmLy4BFs2Yhqw4K5yNS2MXwGFvUtQ@mail.gmail.com>
-	<CA+zhgFR1V4yKg+gf0QUcuZy47R=-CqyK+_jKVJS4WKDtRb77hQ@mail.gmail.com>
-	<03bc8d3c-a8cb-fcbb-e7ff-f23a511f7908@kernel.dk>
-	<33A4DA56-9857-4EA3-A1E0-259FD1C856C8@gmail.com>
-	<e2f3fe8f-ef0b-2d92-7402-63681f9a9ffb@kernel.dk>
-	<6A1733EC-082D-4884-8769-36853A46B75C@gmail.com>
-	<CGME20180917034140epcas1p165f3011df99a7478f140d4f4aaf79409@epcas1p1.samsung.com>
-	<bddbb1ff-bf1e-f4fe-0377-95d0a311c52c@kernel.dk>
+Return-Path: <sundersmitha@gmail.com>
+Return-Path: <sundersmitha@gmail.com>
+Content-Type: text/plain;
+	charset=utf-8
+Mime-Version: 1.0 (1.0)
+Subject: Re: No I/O performed by windowsaio/get_io_u: zero buflen
+From: smitha sunder <sundersmitha@gmail.com>
+In-Reply-To: <b33a22de-cc35-e25f-9818-e0ba5ae73015@kernel.dk>
+Date: Sun, 16 Sep 2018 20:50:04 -0700
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <B444F4C4-F7FD-4CD6-8288-E221496EC1C5@gmail.com>
+References: <CA+zhgFRR_SMf=CEhU8imgM+F_3hmGJV9+h_yU6qR9yQG6br48w@mail.gmail.com> <CALjAwxhGmEV=G21Vaw0rRgmLy4BFs2Yhqw4K5yNS2MXwGFvUtQ@mail.gmail.com> <CA+zhgFR1V4yKg+gf0QUcuZy47R=-CqyK+_jKVJS4WKDtRb77hQ@mail.gmail.com> <03bc8d3c-a8cb-fcbb-e7ff-f23a511f7908@kernel.dk> <33A4DA56-9857-4EA3-A1E0-259FD1C856C8@gmail.com> <e2f3fe8f-ef0b-2d92-7402-63681f9a9ffb@kernel.dk> <6A1733EC-082D-4884-8769-36853A46B75C@gmail.com> <b33a22de-cc35-e25f-9818-e0ba5ae73015@kernel.dk>
 To: Jens Axboe <axboe@kernel.dk>
 Cc: Sitsofe Wheeler <sitsofe@gmail.com>, fio <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-LS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IGZpby1vd25lckB2Z2VyLmtlcm5lbC5v
-cmcgW21haWx0bzpmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnXSBPbiBCZWhhbGYgT2YgSmVucyBB
-eGJvZQ0KU2VudDogU3VuZGF5LCBTZXB0ZW1iZXIgMTYsIDIwMTggODo0MiBQTQ0KVG86IHNtaXRo
-YSBzdW5kZXIgPHN1bmRlcnNtaXRoYUBnbWFpbC5jb20+DQpDYzogU2l0c29mZSBXaGVlbGVyIDxz
-aXRzb2ZlQGdtYWlsLmNvbT47IGZpbyA8ZmlvQHZnZXIua2VybmVsLm9yZz4NClN1YmplY3Q6IFJl
-OiBObyBJL08gcGVyZm9ybWVkIGJ5IHdpbmRvd3NhaW8vZ2V0X2lvX3U6IHplcm8gYnVmbGVuDQoN
-Ck9uIDkvMTYvMTggOTozNCBQTSwgc21pdGhhIHN1bmRlciB3cm90ZToNCj4gDQo+IA0KPj4gT24g
-U2VwIDE2LCAyMDE4LCBhdCA4OjMxIFBNLCBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+IHdy
-b3RlOg0KPj4NCj4+PiBPbiA5LzE2LzE4IDk6MTMgUE0sIHNtaXRoYSBzdW5kZXIgd3JvdGU6DQo+
-Pj4NCj4+Pg0KPj4+Pj4gT24gU2VwIDE2LCAyMDE4LCBhdCA4OjAyIFBNLCBKZW5zIEF4Ym9lIDxh
-eGJvZUBrZXJuZWwuZGs+IHdyb3RlOg0KPj4+Pj4NCj4+Pj4+PiBPbiA5LzE2LzE4IDU6MjQgUE0s
-IHNtaXRoYSBzdW5kZXIgd3JvdGU6DQo+Pj4+Pj4+IE9uIFN1biwgU2VwIDE2LCAyMDE4IGF0IDM6
-MDIgUE0sIFNpdHNvZmUgV2hlZWxlciA8c2l0c29mZUBnbWFpbC5jb20+IHdyb3RlOg0KPj4+Pj4+
-PiBPbiBTYXQsIDE1IFNlcCAyMDE4IGF0IDIzOjE0LCBzbWl0aGEgc3VuZGVyIDxzdW5kZXJzbWl0
-aGFAZ21haWwuY29tPiB3cm90ZToNCj4+Pj4+Pj4NCj4+Pj4+Pj4gSGVsbG8gYWxsLA0KPj4+Pj4+
-Pg0KPj4+Pj4+PiBJIGhhdmUgYSAzMFRCIGRyaXZlIGFuZCBJIGFtIHJ1bm5pbmcgaW50byBhbiBp
-c3N1ZSB3aXRoIHJhbmRvbSB3cml0ZXMuDQo+Pj4+Pj4+IEkgd2VudCB0aHJvdWdoIHRoaXMgdGhy
-ZWFkIDoNCj4+Pj4+Pj4gaHR0cHM6Ly91cmxkZWZlbnNlLnByb29mcG9pbnQuY29tL3YyL3VybD91
-PWh0dHBzLTNBX193d3cuc3Bpbmljcw0KPj4+Pj4+PiAubmV0X2xpc3RzX2Zpb19tc2cwNjI5NC5o
-dG1sJmQ9RHdJRGFRJmM9SmZlV2xCYTZWYkR5VFhyYU1FTmp5X2JfMHlLV3VxUTRxWS1GUGh4SzR4
-OHctVGZnUkJEeWVWNGhWUVFCRWdMMiZyPWZMVmt4NDZmNkdKUFppcHBuWmtDdEg5bV9kMVA1SFg2
-ckt4SmdUN2w3VXMmbT1OYVB4NU5ZRC1fU0JIR1V6Sk5pNGN6UXVlVlgtMkx2TEdEX1NFd2VlNDFj
-JnM9NlFETlFCTGNiSlVzaVhucTg0eTJIS0c5OGFFbWh2YWJGN3VLLXlLVGJoayZlPSB0aGF0IHNl
-ZW1zIHRvIGJlIGZpeGVkIGFscmVhZHkuDQo+Pj4+Pj4NCj4+Pj4+PiBJIHRoaW5rIHRoYXQgd2Fz
-IHNvbWV0aGluZyBkaWZmZXJlbnQgcmVnYXJkaW5nIGRpZmZlcmVudCANCj4+Pj4+PiBibG9ja3Np
-emVzIHBlciBkaXJlY3Rpb24uDQo+Pj4+Pj4NCj4+Pj4+Pj4gSSBzZWUgdGhlIHNhbWUgaXNzdWUg
-d2l0aCByYW5kb20gcmVhZHMgYXMgd2VsbC4NCj4+Pj4+Pj4gU28gbm90IHN1cmUgd2hhdCBpcyB0
-aGUgaXNzdWUgaGVyZSBpbiBteSBjYXNlOyBhbnkgaGVscCBpcyBncmVhdGx5IGFwcHJlY2lhdGVk
-Lg0KPj4+Pj4+Pg0KPj4+Pj4+Pg0KPj4+Pj4+PiBSZWFkIENhcGFjaXR5IHJlc3VsdHM6DQo+Pj4+
-Pj4+ICBQcm90ZWN0aW9uOiBwcm90X2VuPTEsIHBfdHlwZT0xLCBwX2lfZXhwb25lbnQ9MCBbdHlw
-ZSAyIA0KPj4+Pj4+PiBwcm90ZWN0aW9uXSAgTG9naWNhbCBibG9jayBwcm92aXNpb25pbmc6IGxi
-cG1lPTEsIGxicHJ6PTEgIExhc3QgDQo+Pj4+Pj4+IGxvZ2ljYWwgYmxvY2sgYWRkcmVzcz01ODc4
-MTA3MzQwNyAoMHhkYWY5ZmZmZmYpLCBOdW1iZXIgb2YgDQo+Pj4+Pj4+IGxvZ2ljYWwgYmxvY2tz
-PTU4NzgxMDczNDA4ICBMb2dpY2FsIGJsb2NrIGxlbmd0aD01MTIgYnl0ZXMgIA0KPj4+Pj4+PiBM
-b2dpY2FsIGJsb2NrcyBwZXIgcGh5c2ljYWwgYmxvY2sgZXhwb25lbnQ9MyBbc28gcGh5c2ljYWwg
-YmxvY2sNCj4+Pj4+Pj4gbGVuZ3RoPTQwOTYgYnl0ZXNdDQo+Pj4+Pj4+ICBMb3dlc3QgYWxpZ25l
-ZCBsb2dpY2FsIGJsb2NrIGFkZHJlc3M9MA0KPj4+Pj4+PiBIZW5jZToNCj4+Pj4+Pj4gIERldmlj
-ZSBzaXplOiAzMDA5NTkwOTU4NDg5NiBieXRlcywgMi44NzAxN2UrMDA3IE1pQiwgMzAwOTUuOSBH
-Qg0KPj4+Pj4+Pg0KPj4+Pj4+Pg0KPj4+Pj4+PiBDOlxQcm9ncmFtIEZpbGVzICh4ODYpXGZpbz5m
-aW8gLS1pb2VuZ2luZT13aW5kb3dzYWlvIA0KPj4+Pj4+PiAtLWdyb3VwX3JlcG9ydGluZw0KPj4+
-Pj4+PiAtLWRpcmVjdD0xIC0tc2l6ZT0xMDAlIC0tYnM9NEsgLS10aHJlYWQgDQo+Pj4+Pj4+IC0t
-ZmlsZW5hbWU9XFwuXFBoeXNpY2FsRHJpdmUxIC0tbmFtZT1wcmVjb25kIC0tcnc9cmFuZHdyaXRl
-IA0KPj4+Pj4+PiAtLWlvZGVwdGg9MSAtLW51bWpvYnM9MSAtLWRlYnVnPWlvLHJhbmRvbQ0KPj4+
-Pj4+DQo+Pj4+Pj4gPHNuaXA+DQo+Pj4+Pj4NCj4+Pj4+Pj4gaW8gICAgICAgMzM3MiAgZmlsbDog
-aW9fdSAwQTQ1ODc4MDoNCj4+Pj4+Pj4gb2ZmPTB4MTQ0MzY1ZTdkMDAwLGxlbj0weDAsZGRpcj0x
-LGZpbGU9XFwuXFBoeXNpY2FsRHJpdmUxDQo+Pj4+Pj4+IGlvICAgICAgIDMzNzIgIGdldF9pb191
-OiB6ZXJvIGJ1ZmxlbiBvbiAwQTQ1ODc4MA0KPj4+Pj4+PiBpbyAgICAgICAzMzcyICBnZXRfaW9f
-dSBmYWlsZWQNCj4+Pj4+Pj4gaW8gICAgICAgMzM3MiAgZHJvcCBwYWdlIGNhY2hlIFxcLlxQaHlz
-aWNhbERyaXZlMQ0KPj4+Pj4+PiByYW5kb20gICAzMzcyICBvZmYgcmFuZCAxNzMxMTA2NzY5NDMw
-NjcyNDczNw0KPj4+Pj4+DQo+Pj4+Pj4gVGhhdCBvZmZzZXQgaXMgY3JhenkgYmlnIC0gSSdtIHN1
-cmUgaXQncyBiaWdnZXIgdGhhbiBhIHBldGFieXRlIA0KPj4+Pj4+IHNvIG15IGd1ZXNzIGlzIHRo
-YXQgc29tZXRoaW5nIGlzIG92ZXJmbG93aW5nLiBJZiB5b3UgdXNlIA0KPj4+Pj4+IC0tc2l6ZT0y
-N2cgZG9lcyB0aGUgam9iIGdvIHRocm91Z2g/DQo+Pj4+Pj4NCj4+Pj4+PiBbLi4uXQ0KPj4+Pj4+
-DQo+Pj4+Pj4+IEkgZG9u4oCZdCBzZWUgdGhpcyBpc3N1ZSBpZiBJIHVzZSBicz04SyBvciBJIHVz
-ZSBiYT01MTIsOEssIGV0Yy4NCj4+Pj4+Pg0KPj4+Pj4+IC0tDQo+Pj4+Pj4gU2l0c29mZSB8IA0K
-Pj4+Pj4+IGh0dHBzOi8vdXJsZGVmZW5zZS5wcm9vZnBvaW50LmNvbS92Mi91cmw/dT1odHRwLTNB
-X19zdWNzLm9yZ18tN0VzDQo+Pj4+Pj4gaXRzXyZkPUR3SURhUSZjPUpmZVdsQmE2VmJEeVRYcmFN
-RU5qeV9iXzB5S1d1cVE0cVktRlBoeEs0eDh3LVRmZ1INCj4+Pj4+PiBCRHllVjRoVlFRQkVnTDIm
-cj1mTFZreDQ2ZjZHSlBaaXBwblprQ3RIOW1fZDFQNUhYNnJLeEpnVDdsN1VzJm09Tg0KPj4+Pj4+
-IGFQeDVOWUQtX1NCSEdVekpOaTRjelF1ZVZYLTJMdkxHRF9TRXdlZTQxYyZzPVpuWnNtdGVfYmc1
-eUMzYWRid1hJDQo+Pj4+Pj4gVTRFbXVFbjk3Y0E5bzFZcFp4RFU0bTAmZT0NCj4+Pj4+IEhpIFNp
-dHNvZmUsDQo+Pj4+Pg0KPj4+Pj4gVGhhbmtzIGZvciB0aGUgcmVwbHkhDQo+Pj4+Pg0KPj4+Pj4g
-WWVzOyBJZiBJIHVzZSAtLXNpemU9MjdHIG9yIGlmIHByb3ZpZGUgdGhlIGV4YWN0IHNpemUgdGhh
-dCB0aGUgT1MgDQo+Pj4+PiBkaXNwbGF5cywgdGhlbiB0aGUgam9iIGdvZXMgdGhyb3VnaC4NCj4+
-Pj4NCj4+Pj4gQXJlIHlvdSBydW5uaW5nIGEgMzItYml0IG9yIDY0LWJpdCBidWlsZCBvZiBmaW8/
-DQo+Pj4+DQo+Pj4+IC0tDQo+Pj4+IEplbnMgQXhib2UNCj4+Pj4NCj4+PiAzMiBiaXQuDQo+Pg0K
-Pj4gSSB0aG91Z2h0IHNvLiBJIHNlZSBhIGZldyAzMi1iaXQgaXNzdWVzIHdpdGggaHVnZSBkZXZp
-Y2VzLiBPbmUgb2YgDQo+PiB0aGVtIGlzIHRoaXMgb25lOg0KPj4NCj4+IGh0dHBzOi8vdXJsZGVm
-ZW5zZS5wcm9vZnBvaW50LmNvbS92Mi91cmw/dT1odHRwLTNBX19naXQua2VybmVsLmRrX2NnaQ0K
-Pj4gdF9maW9fY29tbWl0Xy0zRmlkLTNENjA0ZDNmNWJkOWYyYjk4NTU2ODU5M2MyM2Y4MjkyY2Jj
-N2Y0MDQ0YyZkPUR3SURhDQo+PiBRJmM9SmZlV2xCYTZWYkR5VFhyYU1FTmp5X2JfMHlLV3VxUTRx
-WS1GUGh4SzR4OHctVGZnUkJEeWVWNGhWUVFCRWdMMiYNCj4+IHI9ZkxWa3g0NmY2R0pQWmlwcG5a
-a0N0SDltX2QxUDVIWDZyS3hKZ1Q3bDdVcyZtPU5hUHg1TllELV9TQkhHVXpKTmk0Yw0KPj4gelF1
-ZVZYLTJMdkxHRF9TRXdlZTQxYyZzPUFKQ3M4RTIzU21Kai16N0Jia3VQX3l4VE5EZzNnNkJaOEZZ
-SWNWM0VtQVkmDQo+PiBlPQ0KPj4NCj4+IGJ1dCBJJ20gc3VyZSB0aGVyZSBhcmUgb3RoZXJzLCBJ
-J2xsIHRyeSBhbmQgcmVwcm9kdWNlIGFuZCBnZXQgdGhpcyBmaXhlZC4NCj4+DQo+PiAtLQ0KPj4g
-SmVucyBBeGJvZQ0KPj4NCj4gSSBzZWUgdGhlIHNhbWUgaXNzdWUgZXZlbiB3aXRoIDY0IGJpdCBm
-aW8gYnVpbGQuDQoNClRoZSBkaWZmZXJlbmNlIGlzIHRoYXQgYW4gdW5zaWduZWQgbG9uZyBvbiA2
-NC1iaXQgd2luZG93cyBidWlsZHMgaXMgc3RpbGwgMzItYml0LCB3aGVyZWFzIGl0J3MgNjQtYml0
-IG9uIGxpbnV4LiBTbyB0aGUgZWFzaWVzdCBmb3IgbWUgaXMgdG8gdGVzdCBvbiAzMi1iaXQgbGlu
-dXgsIHdoaWNoIF9wcm9iYWJseV8gdGhlbiBoaXRzIHRoZSBzYW1lIHRoaW5nLi4uDQoNCi0tDQpK
-ZW5zIEF4Ym9lDQoNCg0KSmVucywNCg0KR290IHRoZSBsYXRlc3QgYnVpbGQgZnJvbSBodHRwczov
-L2NpLmFwcHZleW9yLmNvbS9wcm9qZWN0L2F4Ym9lL2Zpby9idWlsZC8xLjAuODkxL2pvYi9hd3U1
-MWF2bWVwbjFrdmdmL2FydGlmYWN0cy4NCg0KV2l0aCBzaXplPTEwMCUsIGJzPTRLICwgSSBubyBs
-b25nZXIgc2VlIHRoZSBpc3N1ZTsgdGhhbmtzIGZvciB0aGUgZml4IQ0KDQpwcmVjb25kOiAoZz0w
-KTogcnc9cmFuZHdyaXRlLCBicz0oUikgNDA5NkItNDA5NkIsIChXKSA0MDk2Qi00MDk2QiwgKFQp
-IDQwOTZCLTQwOTZCLCBpb2VuZ2luZT13aW5kb3dzYWlvLCBpb2RlcHRoPTMyDQpmaW8tMy4xMA0K
-U3RhcnRpbmcgMSB0aHJlYWQNCmZpbzogZmlsZSBcXC5cUGh5c2ljYWxEcml2ZTEgZXhjZWVkcyAz
-Mi1iaXQgdGF1c3dvcnRoZSByYW5kb20gZ2VuZXJhdG9yLg0KZmlvOiBTd2l0Y2hpbmcgdG8gdGF1
-c3dvcnRoZTY0LiBVc2UgdGhlIHJhbmRvbV9nZW5lcmF0b3I9IG9wdGlvbiB0byBnZXQgcmlkIG9m
-IHRoaXMgd2FybmluZy4NCg0KcHJlY29uZDogKGdyb3VwaWQ9MCwgam9icz0xKTogZXJyPSAwOiBw
-aWQ9MjE2NDogTW9uIFNlcCAxNyAwOTozMDo1MiAyMDE4DQogIHdyaXRlOiBJT1BTPTEyNmssIEJX
-PTQ5MU1pQi9zICg1MTVNQi9zKSgyOC44R2lCLzYwMDAxbXNlYykNCiAgICBzbGF0IChuc2VjKTog
-bWluPTEyODMsIG1heD0yMzQ5ODAsIGF2Zz0yMjY0LjI3LCBzdGRldj0xMjMwLjM3DQogICAgY2xh
-dCAodXNlYyk6IG1pbj01NSwgbWF4PTMzMjgyLCBhdmc9MjQwLjY4LCBzdGRldj00Ni44Ng0KICAg
-ICBsYXQgKHVzZWMpOiBtaW49NTcsIG1heD0zMzI5NSwgYXZnPTI0Mi45NCwgc3RkZXY9NDYuOTEN
-CiAgICBjbGF0IHBlcmNlbnRpbGVzICh1c2VjKToNCiAgICAgfCAgMS4wMHRoPVsgIDE2N10sICA1
-LjAwdGg9WyAgMTg0XSwgMTAuMDB0aD1bICAxOTRdLCAyMC4wMHRoPVsgIDIwNl0sDQogICAgIHwg
-MzAuMDB0aD1bICAyMTddLCA0MC4wMHRoPVsgIDIyN10sIDUwLjAwdGg9WyAgMjM1XSwgNjAuMDB0
-aD1bICAyNDVdLA0KICAgICB8IDcwLjAwdGg9WyAgMjU4XSwgODAuMDB0aD1bICAyNzNdLCA5MC4w
-MHRoPVsgIDI5N10sIDk1LjAwdGg9WyAgMzE4XSwNCiAgICAgfCA5OS4wMHRoPVsgIDM2N10sIDk5
-LjUwdGg9WyAgMzg4XSwgOTkuOTB0aD1bICA0NjFdLCA5OS45NXRoPVsgIDYxMV0sDQogICAgIHwg
-OTkuOTl0aD1bIDExNzJdDQogICBidyAoICBLaUIvcyk6IG1pbj00NzA5MjgsIG1heD02MDg3Njgs
-IHBlcj0xMDAuMDAlLCBhdmc9NTAzMjA0LjAzLCBzdGRldj0zNjE4OS43OCwgc2FtcGxlcz0xMTkN
-CiAgIGlvcHMgICAgICAgIDogbWluPTExNzczMiwgbWF4PTE1MjE5MiwgYXZnPTEyNTgwMS4wMSwg
-c3RkZXY9OTA0Ny40NCwgc2FtcGxlcz0xMTkNCiAgbGF0ICh1c2VjKSAgIDogMTAwPTAuMDElLCAy
-NTA9NjQuNjklLCA1MDA9MzUuMjQlLCA3NTA9MC4wNCUsIDEwMDA9MC4wMiUNCiAgbGF0IChtc2Vj
-KSAgIDogMj0wLjAyJSwgND0wLjAxJSwgNTA9MC4wMSUNCiAgY3B1ICAgICAgICAgIDogdXNyPTgu
-MzMlLCBzeXM9MjAuMDAlLCBjdHg9MCwgbWFqZj0wLCBtaW5mPTANCiAgSU8gZGVwdGhzICAgIDog
-MT0wLjElLCAyPTAuMSUsIDQ9MC4xJSwgOD0wLjElLCAxNj04MS4xJSwgMzI9MTguOCUsID49NjQ9
-MC4wJQ0KICAgICBzdWJtaXQgICAgOiAwPTAuMCUsIDQ9MTAwLjAlLCA4PTAuMCUsIDE2PTAuMCUs
-IDMyPTAuMCUsIDY0PTAuMCUsID49NjQ9MC4wJQ0KICAgICBjb21wbGV0ZSAgOiAwPTAuMCUsIDQ9
-OTIuOCUsIDg9My43JSwgMTY9My4zJSwgMzI9MC4xJSwgNjQ9MC4wJSwgPj02ND0wLjAlDQogICAg
-IGlzc3VlZCByd3RzOiB0b3RhbD0wLDc1NDUxNTIsMCwwIHNob3J0PTAsMCwwLDAgZHJvcHBlZD0w
-LDAsMCwwDQogICAgIGxhdGVuY3kgICA6IHRhcmdldD0wLCB3aW5kb3c9MCwgcGVyY2VudGlsZT0x
-MDAuMDAlLCBkZXB0aD0zMg0KDQpSdW4gc3RhdHVzIGdyb3VwIDAgKGFsbCBqb2JzKToNCiAgV1JJ
-VEU6IGJ3PTQ5MU1pQi9zICg1MTVNQi9zKSwgNDkxTWlCL3MtNDkxTWlCL3MgKDUxNU1CL3MtNTE1
-TUIvcyksIGlvPTI4LjhHaUIgKDMwLjlHQiksIHJ1bj02MDAwMS02MDAwMW1zZWMNCg0KVGhhbmtz
-DQpzbWl0aGENCg0K
+
+
+> On Sep 16, 2018, at 8:45 PM, Jens Axboe <axboe@kernel.dk> wrote:
+>=20
+>> On 9/16/18 9:34 PM, smitha sunder wrote:
+>>=20
+>>=20
+>>>> On Sep 16, 2018, at 8:31 PM, Jens Axboe <axboe@kernel.dk> wrote:
+>>>>=20
+>>>> On 9/16/18 9:13 PM, smitha sunder wrote:
+>>>>=20
+>>>>=20
+>>>>>>> On Sep 16, 2018, at 8:02 PM, Jens Axboe <axboe@kernel.dk> wrote:
+>>>>>>>=20
+>>>>>>>> On 9/16/18 5:24 PM, smitha sunder wrote:
+>>>>>>>> On Sun, Sep 16, 2018 at 3:02 PM, Sitsofe Wheeler <sitsofe@gmail.com=
+> wrote:
+>>>>>>>> On Sat, 15 Sep 2018 at 23:14, smitha sunder <sundersmitha@gmail.com=
+> wrote:
+>>>>>>>>=20
+>>>>>>>> Hello all,
+>>>>>>>>=20
+>>>>>>>> I have a 30TB drive and I am running into an issue with random writ=
+es.
+>>>>>>>> I went through this thread :
+>>>>>>>> https://www.spinics.net/lists/fio/msg06294.html that seems to be fi=
+xed
+>>>>>>>> already.
+>>>>>>>=20
+>>>>>>> I think that was something different regarding different blocksizes
+>>>>>>> per direction.
+>>>>>>>=20
+>>>>>>>> I see the same issue with random reads as well.
+>>>>>>>> So not sure what is the issue here in my case; any help is greatly a=
+ppreciated.
+>>>>>>>>=20
+>>>>>>>>=20
+>>>>>>>> Read Capacity results:
+>>>>>>>> Protection: prot_en=3D1, p_type=3D1, p_i_exponent=3D0 [type 2 prote=
+ction]
+>>>>>>>> Logical block provisioning: lbpme=3D1, lbprz=3D1
+>>>>>>>> Last logical block address=3D58781073407 (0xdaf9fffff), Number of
+>>>>>>>> logical blocks=3D58781073408
+>>>>>>>> Logical block length=3D512 bytes
+>>>>>>>> Logical blocks per physical block exponent=3D3 [so physical block
+>>>>>>>> length=3D4096 bytes]
+>>>>>>>> Lowest aligned logical block address=3D0
+>>>>>>>> Hence:
+>>>>>>>> Device size: 30095909584896 bytes, 2.87017e+007 MiB, 30095.9 GB
+>>>>>>>>=20
+>>>>>>>>=20
+>>>>>>>> C:\Program Files (x86)\fio>fio --ioengine=3Dwindowsaio --group_repo=
+rting
+>>>>>>>> --direct=3D1 --size=3D100% --bs=3D4K --thread --filename=3D\\.\Phys=
+icalDrive1
+>>>>>>>> --name=3Dprecond --rw=3Drandwrite --iodepth=3D1 --numjobs=3D1
+>>>>>>>> --debug=3Dio,random
+>>>>>>>=20
+>>>>>>> <snip>
+>>>>>>>=20
+>>>>>>>> io       3372  fill: io_u 0A458780:
+>>>>>>>> off=3D0x144365e7d000,len=3D0x0,ddir=3D1,file=3D\\.\PhysicalDrive1
+>>>>>>>> io       3372  get_io_u: zero buflen on 0A458780
+>>>>>>>> io       3372  get_io_u failed
+>>>>>>>> io       3372  drop page cache \\.\PhysicalDrive1
+>>>>>>>> random   3372  off rand 17311067694306724737
+>>>>>>>=20
+>>>>>>> That offset is crazy big - I'm sure it's bigger than a petabyte so m=
+y
+>>>>>>> guess is that something is overflowing. If you use --size=3D27g does=
+ the
+>>>>>>> job go through?
+>>>>>>>=20
+>>>>>>> [...]
+>>>>>>>=20
+>>>>>>>> I don=E2=80=99t see this issue if I use bs=3D8K or I use ba=3D512,8=
+K, etc.
+>>>>>>>=20
+>>>>>>> --
+>>>>>>> Sitsofe | http://sucs.org/~sits/
+>>>>>> Hi Sitsofe,
+>>>>>>=20
+>>>>>> Thanks for the reply!
+>>>>>>=20
+>>>>>> Yes; If I use --size=3D27G or if provide the exact size that the OS
+>>>>>> displays, then the job goes through.
+>>>>>=20
+>>>>> Are you running a 32-bit or 64-bit build of fio?
+>>>>>=20
+>>>>> --=20
+>>>>> Jens Axboe
+>>>>>=20
+>>>> 32 bit.
+>>>=20
+>>> I thought so. I see a few 32-bit issues with huge devices. One of them i=
+s
+>>> this one:
+>>>=20
+>>> http://git.kernel.dk/cgit/fio/commit/?id=3D604d3f5bd9f2b985568593c23f829=
+2cbc7f4044c
+>>>=20
+>>> but I'm sure there are others, I'll try and reproduce and get this fixed=
+.
+>>>=20
+>>> --=20
+>>> Jens Axboe
+>>>=20
+>> I see the same issue even with 64 bit fio build.
+>=20
+> One more fix, and it seems to be running for me:
+>=20
+> http://git.kernel.dk/cgit/fio/commit/?id=3D39c56bc010a609f6c89955cbcfa2898=
+34ffef336
+>=20
+> Any chance you can try a new build that has those last two commits?
+>=20
+> --=20
+> Jens Axboe
+>=20
+
+Certainly; I can give the new build a try.=20
+
+Thanks
+Smitha=20=
 
