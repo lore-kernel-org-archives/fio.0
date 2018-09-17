@@ -8,8 +8,8 @@ References: <CA+zhgFRR_SMf=CEhU8imgM+F_3hmGJV9+h_yU6qR9yQG6br48w@mail.gmail.com>
  <e2f3fe8f-ef0b-2d92-7402-63681f9a9ffb@kernel.dk>
  <6A1733EC-082D-4884-8769-36853A46B75C@gmail.com>
 From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <b33a22de-cc35-e25f-9818-e0ba5ae73015@kernel.dk>
-Date: Sun, 16 Sep 2018 21:45:20 -0600
+Message-ID: <bddbb1ff-bf1e-f4fe-0377-95d0a311c52c@kernel.dk>
+Date: Sun, 16 Sep 2018 21:41:32 -0600
 MIME-Version: 1.0
 In-Reply-To: <6A1733EC-082D-4884-8769-36853A46B75C@gmail.com>
 Content-Type: text/plain; charset="utf-8"
@@ -110,11 +110,9 @@ On 9/16/18 9:34 PM, smitha sunder wrote:
 >>
 > I see the same issue even with 64 bit fio build.
 
-One more fix, and it seems to be running for me:
-
-http://git.kernel.dk/cgit/fio/commit/?id=39c56bc010a609f6c89955cbcfa289834ffef336
-
-Any chance you can try a new build that has those last two commits?
+The difference is that an unsigned long on 64-bit windows builds is still
+32-bit, whereas it's 64-bit on linux. So the easiest for me is to test on
+32-bit linux, which _probably_ then hits the same thing...
 
 -- 
 Jens Axboe
