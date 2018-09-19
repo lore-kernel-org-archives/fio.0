@@ -1,54 +1,64 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:40010 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726827AbeIAQME (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 1 Sep 2018 12:12:04 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1fw4ZZ-0001AL-M4
-        for fio@vger.kernel.org; Sat, 01 Sep 2018 12:00:13 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180901120001.6A2662C00A1@kernel.dk>
-Date: Sat,  1 Sep 2018 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <dennisszhou@gmail.com>
+Return-Path: <dennisszhou@gmail.com>
+From: Dennis Zhou <dennis@kernel.org>
+Subject: [PATCH 0/4] add option to interleave blktraces
+Date: Wed, 19 Sep 2018 14:25:28 -0400
+Message-Id: <20180919182532.8405-1-dennis@kernel.org>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Tejun Heo <tj@kernel.org>, Andy Newell <newella@fb.com>, fio@vger.kernel.org, kernel-team@fb.com, Dennis Zhou <dennis@kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit c6cc1cfed2aec5ea348cbe8b8762ba8fd5fad966:
+Hi everyone,
 
-  Merge branch 'configure-help' of https://github.com/hahnjo/fio (2018-08-30 08:22:21 -0600)
+Understanding how a workload performs on different devices has been
+nice and easy given the infrastructure around blktrace, blkparse, and
+fio. Given a blktrace, fio can rerun that workload on a different drive.
 
-are available in the git repository at:
+Exploring colocation is a little tricker, but doable via adding multiple
+jobs in fio. An issue here is that the scheduler can influence the
+performance of each run as each job is async.
 
-  git://git.kernel.dk/fio.git master
+This patchset adds the ability to pass multiple blktrace binary dumps to
+"--read_iolog" as colon separated paths and then performs simple
+timestamp merging between the traces. Two additional parameters are
+added, "--merge_blktrace_scalars" and "--merge_blktrace_iters", to allow
+for scaling a particular trace and adjusting the number of iterations
+respectively.
 
-for you to fetch changes up to 7df9ac895f4af7ac4500379d5a5e204be9210fb2:
+In an example, given two 60s blktraces, A and B. Imagine we want to see
+how trace A would perform if we slowed it down by 50%. We can experiment
+here with --merge_blktrace_scalars="200:100" and
+--merge_blktrace_iters="1:2". This says to run the first blktrace over
+200% of the time and the second at 100% running the first for a single
+iteration and the second for 2 iterations. This puts the overall runtime
+at 120s for each trace.
 
-  client: fix nr_samples (2018-08-31 12:43:59 -0600)
+This patchset includes the following 4 patches:
+  0001-options-rename-name-string-operations-for-more-gener.patch
+  0002-blktrace-add-support-to-interleave-blktrace-files.patch
+  0003-blktrace-add-option-to-scale-a-trace.patch
+  0004-blktrace-add-option-to-iterate-over-a-trace-multiple.patch
 
-----------------------------------------------------------------
-Jeff Furlong (1):
-      client: fix nr_samples
+0001 renames some string parsing functions to be more generic.
+0002 adds basic merging support. 0003 adds merge_blktrace_scalars.
+0004 adds merge_blktrace_iters.
 
- client.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+diffstats below:
 
----
+Dennis Zhou (4):
+  options: rename name string operations for more general use
+  blktrace: add support to interleave blktrace files
+  blktrace: add option to scale a trace
+  blktrace: add option to iterate over a trace multiple times
 
-Diff of recent changes:
+ blktrace.c       | 210 +++++++++++++++++++++++++++++++++++++++++++++++
+ blktrace.h       |  17 ++++
+ init.c           |  20 +++++
+ options.c        |  47 +++++++++--
+ options.h        |   2 +
+ thread_options.h |   3 +
+ 6 files changed, 290 insertions(+), 9 deletions(-)
 
-diff --git a/client.c b/client.c
-index a868e3a..31c7c64 100644
---- a/client.c
-+++ b/client.c
-@@ -1539,7 +1539,7 @@ static struct cmd_iolog_pdu *convert_iolog_gz(struct fio_net_cmd *cmd,
- #ifdef CONFIG_ZLIB
- 	struct cmd_iolog_pdu *ret;
- 	z_stream stream;
--	uint32_t nr_samples;
-+	uint64_t nr_samples;
- 	size_t total;
- 	char *p;
- 
+Thanks,
+Dennis
 
