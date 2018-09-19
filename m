@@ -1,216 +1,72 @@
-Return-Path: <rebecca@bluestop.org>
-From: Rebecca Cran <rebecca@bluestop.org>
-Subject: [PATCH] Windows: update download URL and add missing examples
-Date: Tue,  4 Sep 2018 18:14:23 -0600
-Message-Id: <20180905001423.8412-1-rebecca@bluestop.org>
-To: fio@vger.kernel.org
-Cc: axboe@kernel.dk, Rebecca Cran <rebecca@bluestop.org>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 2/4] blktrace: add support to interleave blktrace files
+References: <20180919182532.8405-1-dennis@kernel.org>
+ <20180919182532.8405-3-dennis@kernel.org>
+ <d55cc43a-c656-bfb9-ff89-9c66c2ebc1ca@kernel.dk>
+ <20180919192900.GA14982@dennisz-mbp.dhcp.thefacebook.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <4d3d02fb-e563-8a70-e14c-7dda91ea4390@kernel.dk>
+Date: Wed, 19 Sep 2018 13:34:55 -0600
+MIME-Version: 1.0
+In-Reply-To: <20180919192900.GA14982@dennisz-mbp.dhcp.thefacebook.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Dennis Zhou <dennis@kernel.org>
+Cc: Tejun Heo <tj@kernel.org>, Andy Newell <newella@fb.com>, fio@vger.kernel.org, kernel-team@fb.com
 List-ID: <fio@vger.kernel.org>
 
----
- os/windows/examples.wxs | 90 ++++++++++++++++++++++++++++++++++++-----
- os/windows/install.wxs  |  2 +-
- 2 files changed, 82 insertions(+), 10 deletions(-)
+On 9/19/18 1:29 PM, Dennis Zhou wrote:
+> Hi Jens,
+> 
+> On Wed, Sep 19, 2018 at 12:47:37PM -0600, Jens Axboe wrote:
+>> On 9/19/18 12:25 PM, Dennis Zhou wrote:
+>>> Running concurrent workloads via multiple jobs can lead to
+>>> nondeterministic results as we are at the schedulers mercy. While the
+>>> actual performance of the workload may vary regardless, this makes the
+>>> order of events consistent.
+>>>
+>>> This patch introduces two flags: --merge_blktrace_file=<file> and
+>>> --merge-blktrace-only. When the first is specified, files that are ':'
+>>> separated in --read_iolog are passed to a merge function wich then
+>>> produces a single sorted trace file. This file is then passed on in
+>>> place of the sorted list or fio exists if --merge-blktrace-only is
+>>> specified.
+>>>
+>>> During merging, events are filtered based on what fio cares about and
+>>> the pdu is discarded as well.
+>>
+>> This looks fine to me, but it's missing documentation (fio.1 and HOWTO)
+>> for added options. For the feature as a whole as well.
+>>
+>>> diff --git a/thread_options.h b/thread_options.h
+>>> index 39315834..99552326 100644
+>>> --- a/thread_options.h
+>>> +++ b/thread_options.h
+>>> @@ -258,6 +258,7 @@ struct thread_options {
+>>>  	char *read_iolog_file;
+>>>  	bool read_iolog_chunked;
+>>>  	char *write_iolog_file;
+>>> +	char *merge_blktrace_file;
+>>>  
+>>>  	unsigned int write_bw_log;
+>>>  	unsigned int write_lat_log;
+>>
+>> This needs an accompanying change to struct thread_options_pack, and a
+>> cconv.c addition to ensure it's converted properly over the wire for
+>> client/server runs of fio.o
+>>
+>> Basically both comments here apply to the rest of the series as well :-)
+>>
+> 
+> Ah that makes sense. I wasn't quite sure what the _pack was for. Now I
+> get it. I'll add the corresponding documentation and send out a v2!
+> Thanks for looking at it so quickly.
 
-diff --git a/os/windows/examples.wxs b/os/windows/examples.wxs
-index cc2ff5c8..e8580d91 100755
---- a/os/windows/examples.wxs
-+++ b/os/windows/examples.wxs
-@@ -3,16 +3,22 @@
-     <Fragment>
-         <DirectoryRef Id="examples">
-                 <Component>
--                    <File Source="..\..\examples\1mbs_clients.fio" />
-+                  <File Source="..\..\examples\1mbs_clients.fio" />
-                 </Component>
-                 <Component>
--                    <File Source="..\..\examples\aio-read.fio" />
-+                  <File Source="..\..\examples\aio-read.fio" />
-                 </Component>
-                 <Component>
--                    <File Source="..\..\examples\backwards-read.fio" />
-+                  <File Source="..\..\examples\backwards-read.fio" />
-                 </Component>
-                 <Component>
--                    <File Source="..\..\examples\basic-verify.fio" />
-+                  <File Source="..\..\examples\basic-verify.fio" />
-+                </Component>
-+                <Component>
-+                  <File Source="..\..\examples\butterfly.fio" />
-+                </Component>
-+                <Component>
-+                  <File Source="..\..\examples\cpp_null.fio" />
-                 </Component>
-                 <Component>
-                   <File Source="..\..\examples\cpuio.fio" />
-@@ -21,7 +27,7 @@
-                   <File Source="..\..\examples\dev-dax.fio" />
-                 </Component>
-                 <Component>
--                    <File Source="..\..\examples\disk-zone-profile.fio" />
-+                  <File Source="..\..\examples\disk-zone-profile.fio" />
-                 </Component>
-                 <Component>
-                   <File Source="..\..\examples\e4defrag.fio" />
-@@ -35,6 +41,27 @@
-                 <Component>
-                   <File Source="..\..\examples\falloc.fio" />
-                 </Component>
-+                <Component>
-+                  <File Source="..\..\examples\filecreate-ioengine.fio" />
-+                </Component>
-+                <Component>
-+                  <File Source="..\..\examples\fio-rand-read.job" />
-+                </Component>
-+                <Component>
-+                  <File Source="..\..\examples\fio-rand-RW.job" />
-+                </Component>
-+                <Component>
-+                  <File Source="..\..\examples\fio-rand-write.job" />
-+                </Component>
-+                <Component>
-+                  <File Source="..\..\examples\fio-seq-read.job" />
-+                </Component>
-+                <Component>
-+                  <File Source="..\..\examples\fio-seq-RW.job" />
-+                </Component>
-+                <Component>
-+                  <File Source="..\..\examples\fio-seq-write.job" />
-+                </Component>
-                 <Component>
-                   <File Source="..\..\examples\fixed-rate-submission.fio" />
-                 </Component>
-@@ -42,7 +69,10 @@
-                   <File Source="..\..\examples\flow.fio" />
-                 </Component>
-                 <Component>
--                    <File Source="..\..\examples\fsx.fio" />
-+                  <File Source="..\..\examples\fsx.fio" />
-+                </Component>
-+                <Component>
-+                  <File Source="..\..\examples\ftruncate.fio" />
-                 </Component>
-                 <Component>
-                   <File Source="..\..\examples\fusion-aw-sync.fio" />
-@@ -51,7 +81,25 @@
-                   <File Source="..\..\examples\gfapi.fio" />
-                 </Component>
-                 <Component>
--                    <File Source="..\..\examples\iometer-file-access-server.fio" />
-+                  <File Source="..\..\examples\gpudirect-rdmaio-client.fio" />
-+                </Component>
-+                <Component>
-+                  <File Source="..\..\examples\gpudirect-rdmaio-server.fio" />
-+                </Component>
-+                <Component>
-+                  <File Source="..\..\examples\http-s3.fio" />
-+                </Component>
-+                <Component>
-+                  <File Source="..\..\examples\http-swift.fio" />
-+                </Component>
-+                <Component>
-+                  <File Source="..\..\examples\http-webdav.fio" />
-+                </Component>
-+                <Component>
-+                  <File Source="..\..\examples\ime.fio" />
-+                </Component>
-+                <Component>
-+                  <File Source="..\..\examples\iometer-file-access-server.fio" />
-                 </Component>
-                 <Component>
-                   <File Source="..\..\examples\jesd219.fio" />
-@@ -62,14 +110,17 @@
-                 <Component>
-                   <File Source="..\..\examples\libhdfs.fio" />
-                 </Component>
-+                <Component>
-+                  <File Source="..\..\examples\libpmem.fio" />
-+                </Component>
-                 <Component>
-                   <File Source="..\..\examples\mtd.fio" />
-                 </Component>
-                 <Component>
--                    <File Source="..\..\examples\netio.fio" />
-+                  <File Source="..\..\examples\netio.fio" />
-                 </Component>
-                 <Component>
--                    <File Source="..\..\examples\netio_multicast.fio" />
-+                  <File Source="..\..\examples\netio_multicast.fio" />
-                 </Component>
-                 <Component>
-                   <File Source="..\..\examples\null.fio" />
-@@ -83,6 +134,9 @@
-                 <Component>
-                   <File Source="..\..\examples\poisson-rate-submission.fio" />
-                 </Component>
-+                <Component>
-+                  <File Source="..\..\examples\rados.fio" />
-+                </Component>
-                 <Component>
-                   <File Source="..\..\examples\rand-zones.fio" />
-                 </Component>
-@@ -124,6 +178,8 @@
-             <ComponentRef Id="aio_read.fio" />
-             <ComponentRef Id="backwards_read.fio" />
-             <ComponentRef Id="basic_verify.fio" />
-+            <ComponentRef Id="butterfly.fio"/>
-+            <ComponentRef Id="cpp_null.fio"/>
-             <ComponentRef Id="cpuio.fio" />
-             <ComponentRef Id="dev_dax.fio" />
-             <ComponentRef Id="disk_zone_profile.fio" />
-@@ -131,15 +187,30 @@
-             <ComponentRef Id="e4defrag2.fio" />
-             <ComponentRef Id="enospc_pressure.fio" />
-             <ComponentRef Id="falloc.fio" />
-+            <ComponentRef Id="filecreate_ioengine.fio"/>
-+            <ComponentRef Id="fio_rand_read.job"/>
-+            <ComponentRef Id="fio_rand_RW.job"/>
-+            <ComponentRef Id="fio_rand_write.job"/>
-+            <ComponentRef Id="fio_seq_read.job"/>
-+            <ComponentRef Id="fio_seq_RW.job"/>
-+            <ComponentRef Id="fio_seq_write.job"/>
-             <ComponentRef Id="fixed_rate_submission.fio" />
-             <ComponentRef Id="flow.fio" />
-             <ComponentRef Id="fsx.fio" />
-+            <ComponentRef Id="ftruncate.fio"/>
-             <ComponentRef Id="fusion_aw_sync.fio" />
-             <ComponentRef Id="gfapi.fio" />
-+            <ComponentRef Id="gpudirect_rdmaio_client.fio"/>
-+            <ComponentRef Id="gpudirect_rdmaio_server.fio"/>
-+            <ComponentRef Id="http_s3.fio"/>
-+            <ComponentRef Id="http_swift.fio"/>
-+            <ComponentRef Id="http_webdav.fio"/>
-+            <ComponentRef Id="ime.fio"/>
-             <ComponentRef Id="iometer_file_access_server.fio" />
-             <ComponentRef Id="jesd219.fio" />
-             <ComponentRef Id="latency_profile.fio" />
-             <ComponentRef Id="libhdfs.fio" />
-+            <ComponentRef Id="libpmem.fio"/>
-             <ComponentRef Id="mtd.fio" />
-             <ComponentRef Id="netio.fio" />
-             <ComponentRef Id="netio_multicast.fio" />
-@@ -147,6 +218,7 @@
-             <ComponentRef Id="numa.fio" />
-             <ComponentRef Id="pmemblk.fio" />
-             <ComponentRef Id="poisson_rate_submission.fio" />
-+            <ComponentRef Id="rados.fio"/>
-             <ComponentRef Id="rand_zones.fio" />
-             <ComponentRef Id="rbd.fio" />
-             <ComponentRef Id="rdmaio_client.fio" />
-diff --git a/os/windows/install.wxs b/os/windows/install.wxs
-index 73b28103..97d88e9f 100755
---- a/os/windows/install.wxs
-+++ b/os/windows/install.wxs
-@@ -61,7 +61,7 @@
- 	<Property Id="ARPURLINFOABOUT" Value="http://git.kernel.dk/cgit/fio/" />
- 	<Property Id='ARPCONTACT'>fio@vger.kernel.org</Property>
- 	<Property Id='ARPHELPLINK'>http://www.spinics.net/lists/fio/</Property>
--	<Property Id='ARPURLUPDATEINFO'>http://bluestop.org/fio/</Property>
-+	<Property Id='ARPURLUPDATEINFO'>https://bluestop.org/fio/</Property>
- 
- 	<WixVariable Id="WixUILicenseRtf" Value="eula.rtf" />
- 
+No problem - also forgot to mention that you want to bump FIO_SERVER_VER
+as well, if you modify thread_options_pack.
+
 -- 
-2.17.0
+Jens Axboe
 
 
