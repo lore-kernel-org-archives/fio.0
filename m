@@ -1,94 +1,70 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:33816 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726563AbeIKQ7V (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 11 Sep 2018 12:59:21 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1fzhL9-0006XJ-9K
-        for fio@vger.kernel.org; Tue, 11 Sep 2018 12:00:20 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 3/4] blktrace: add option to scale a trace
+References: <20180919182532.8405-1-dennis@kernel.org>
+ <20180919182532.8405-4-dennis@kernel.org>
+ <f210cabe-9b1c-c35b-db8a-b7514d8d172a@kernel.dk>
+ <20180919195607.GB14982@dennisz-mbp.dhcp.thefacebook.com>
+ <d094f4cb-e89f-fb2c-7aeb-9af42b60bfd7@kernel.dk>
+ <20180919210633.GA20849@dennisz-mbp.dhcp.thefacebook.com>
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180911120002.2FCD72C00A8@kernel.dk>
-Date: Tue, 11 Sep 2018 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <db0e7430-8a39-fcd5-3ff2-57d517ddcd52@kernel.dk>
+Date: Wed, 19 Sep 2018 15:19:12 -0600
+MIME-Version: 1.0
+In-Reply-To: <20180919210633.GA20849@dennisz-mbp.dhcp.thefacebook.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Dennis Zhou <dennis@kernel.org>
+Cc: Tejun Heo <tj@kernel.org>, Andy Newell <newella@fb.com>, fio@vger.kernel.org, kernel-team@fb.com
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit ed06328df452330b7210db2558ae125f6e0d8fe2:
+On 9/19/18 3:06 PM, Dennis Zhou wrote:
+> On Wed, Sep 19, 2018 at 01:59:53PM -0600, Jens Axboe wrote:
+>> On 9/19/18 1:56 PM, Dennis Zhou wrote:
+>>> On Wed, Sep 19, 2018 at 12:49:15PM -0600, Jens Axboe wrote:
+>>>> On 9/19/18 12:25 PM, Dennis Zhou wrote:
+>>>>> As we explore stacking traces, it is nice to be able to scale a trace to
+>>>>> understand how the traces end up interacting.
+>>>>>
+>>>>> This patch adds scaling by letting the user pass in percentages to scale
+>>>>> a trace by. When passed '--merge_blktrace_scalars="100", the trace is
+>>>>> ran at 100% speed. If passed 50%, this will halve the trace timestamps.
+>>>>> The new option takes in a comma separated list that index-wise pairs
+>>>>> with the passed files in "--read_iolog".
+>>>>
+>>>> How is this different than replay_time_scale?
+>>>>
+>>>
+>>> I think merge_blktrace_scalars is a trace building parameter whereas
+>>> replay_time scale is a runtime parameter. merge_blktrace_scalars is an
+>>> index-paired list with the logs passed to --read_iolog allowing for each
+>>> trace to be independently scaled. replay_time_scale happens at runtime
+>>> and scales the entire trace uniformly. And because replay_time_scale
+>>> happens at runtime, I'm not sure repurposing the numbers would be super
+>>> intuitive.
+>>
+>> Not sure I see the difference, if you just allow replay_time_scale to
+>> take multiple values (one for each trace)?
+>>
+> 
+> I'm imagining if I reused replay_time_scale, I could use those numbers
+> for merging, but then I'd have to reset it so that it doesn't affect the
+> trace a second time during runtime. I feel like this gets a little weird
+> as we're saying if you are merging, replay_time_scale gets applied
+> during the merge, otherwise it gets applied during runtime. Reusing also
+> makes it become a many (merging) to one (runtime) parameter change too
+> as merging works on multiple files (main thread) while runtime runs a
+> single file (worker thread).
+> 
+> Additionally, I don't think it's unreasonable to want to store the
+> merged trace in realtime and then run the merged trace at a different
+> pace, which would require the merge time and runtime knobs to be
+> different.
 
-  Merge branch 'master' of https://github.com/bvanassche/fio (2018-09-09 17:42:10 -0600)
+I guess that makes sense, especially as a sub-option to merging. Just
+ensure it's all properly documented :-)
 
-are available in the git repository at:
+-- 
+Jens Axboe
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 39281024d26b5dbd4c70ce7620aeadc8933ac8c7:
-
-  Merge branch 'no-unittest-dep' of https://github.com/parallel-fs-utils/fio (2018-09-10 09:56:11 -0600)
-
-----------------------------------------------------------------
-Ben England (1):
-      remove dependency on unittest2 module
-
-Jens Axboe (1):
-      Merge branch 'no-unittest-dep' of https://github.com/parallel-fs-utils/fio
-
- tools/hist/fio-histo-log-pctiles.py | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/tools/hist/fio-histo-log-pctiles.py b/tools/hist/fio-histo-log-pctiles.py
-index c398113..bb016ea 100755
---- a/tools/hist/fio-histo-log-pctiles.py
-+++ b/tools/hist/fio-histo-log-pctiles.py
-@@ -24,7 +24,12 @@
- import sys, os, math, copy
- from copy import deepcopy
- import argparse
--import unittest2
-+
-+unittest2_imported = True
-+try:
-+    import unittest2
-+except ImportError:
-+    unittest2_imported = False
- 
- msec_per_sec = 1000
- nsec_per_usec = 1000
-@@ -412,14 +417,14 @@ def compute_percentiles_from_logs():
- #end of MAIN PROGRAM
- 
- 
--
- ##### below are unit tests ##############
- 
--import tempfile, shutil
--from os.path import join
--should_not_get_here = False
-+if unittest2_imported:
-+  import tempfile, shutil
-+  from os.path import join
-+  should_not_get_here = False
- 
--class Test(unittest2.TestCase):
-+  class Test(unittest2.TestCase):
-     tempdir = None
- 
-     # a little less typing please
-@@ -651,7 +656,10 @@ class Test(unittest2.TestCase):
- 
- if __name__ == '__main__':
-     if os.getenv('UNITTEST'):
--        sys.exit(unittest2.main())
-+        if unittest2_imported:
-+            sys.exit(unittest2.main())
-+        else:
-+            raise Exception('you must install unittest2 module to run unit test')
-     else:
-         compute_percentiles_from_logs()
- 
 
