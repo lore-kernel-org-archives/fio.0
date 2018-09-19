@@ -1,102 +1,111 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:58620 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726430AbeI1SXw (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 28 Sep 2018 14:23:52 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1g5rRY-0006Gj-7s
-        for fio@vger.kernel.org; Fri, 28 Sep 2018 12:00:25 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180928120001.AA4FD2C030F@kernel.dk>
-Date: Fri, 28 Sep 2018 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <dennisszhou@gmail.com>
+Return-Path: <dennisszhou@gmail.com>
+From: Dennis Zhou <dennis@kernel.org>
+Subject: [PATCH 1/4] options: rename name string operations for more general use
+Date: Wed, 19 Sep 2018 14:25:29 -0400
+Message-Id: <20180919182532.8405-2-dennis@kernel.org>
+In-Reply-To: <20180919182532.8405-1-dennis@kernel.org>
+References: <20180919182532.8405-1-dennis@kernel.org>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Tejun Heo <tj@kernel.org>, Andy Newell <newella@fb.com>, fio@vger.kernel.org, kernel-team@fb.com, Dennis Zhou <dennis@kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit d60be7d51cbb601cc59dccc9f2a418072046a985:
+get_next_name() and get_max_str_idx() are helpers that iterate and split
+a string separated by ':'. s/name/str/g to make this more generic which
+will be used to parse file paths for blktraces to merge.
 
-  zbd: Remove unused function and variable (2018-09-26 08:26:01 -0600)
-
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 152529ae26d1167779138b6cd30d4de10623da1b:
-
-  gettime: slightly improve CPU clock calibration (2018-09-27 17:38:21 -0600)
-
-----------------------------------------------------------------
-Bart Van Assche (1):
-      zbd: Fix zbd_zone_nr()
-
-Jens Axboe (3):
-      Merge branch 'master' of https://github.com/bvanassche/fio
-      server: be locally vocal about communication issues
-      gettime: slightly improve CPU clock calibration
-
- gettime.c | 5 ++---
- server.c  | 4 ++++
- zbd.c     | 2 +-
- 3 files changed, 7 insertions(+), 4 deletions(-)
-
+Signed-off-by: Dennis Zhou <dennis@kernel.org>
 ---
+ options.c | 18 +++++++++---------
+ options.h |  2 ++
+ 2 files changed, 11 insertions(+), 9 deletions(-)
 
-Diff of recent changes:
-
-diff --git a/gettime.c b/gettime.c
-index c0f2638..7702193 100644
---- a/gettime.c
-+++ b/gettime.c
-@@ -237,12 +237,11 @@ static unsigned long get_cycles_per_msec(void)
- 	c_s = get_cpu_clock();
- 	do {
- 		__fio_gettime(&e);
-+		c_e = get_cpu_clock();
- 
- 		elapsed = utime_since(&s, &e);
--		if (elapsed >= 1280) {
--			c_e = get_cpu_clock();
-+		if (elapsed >= 1280)
- 			break;
--		}
- 	} while (1);
- 
- 	fio_clock_source = old_cs;
-diff --git a/server.c b/server.c
-index b966c66..1c07501 100644
---- a/server.c
-+++ b/server.c
-@@ -296,6 +296,8 @@ static int verify_convert_cmd(struct fio_net_cmd *cmd)
- 	if (crc != cmd->cmd_crc16) {
- 		log_err("fio: server bad crc on command (got %x, wanted %x)\n",
- 				cmd->cmd_crc16, crc);
-+		fprintf(f_err, "fio: server bad crc on command (got %x, wanted %x)\n",
-+				cmd->cmd_crc16, crc);
- 		return 1;
- 	}
- 
-@@ -310,6 +312,8 @@ static int verify_convert_cmd(struct fio_net_cmd *cmd)
- 		break;
- 	default:
- 		log_err("fio: bad server cmd version %d\n", cmd->version);
-+		fprintf(f_err, "fio: client/server version mismatch (%d != %d)\n",
-+				cmd->version, FIO_SERVER_VER);
- 		return 1;
- 	}
- 
-diff --git a/zbd.c b/zbd.c
-index 9c52587..aa08b81 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -606,7 +606,7 @@ static int zbd_reset_range(struct thread_data *td, const struct fio_file *f,
- static unsigned int zbd_zone_nr(struct zoned_block_device_info *zbd_info,
- 				struct fio_zone_info *zone)
+diff --git a/options.c b/options.c
+index 6bd74555..824abee0 100644
+--- a/options.c
++++ b/options.c
+@@ -1155,7 +1155,7 @@ static int str_steadystate_cb(void *data, const char *str)
+  * is escaped with a '\', then that ':' is part of the filename and does not
+  * indicate a new file.
+  */
+-static char *get_next_name(char **ptr)
++char *get_next_str(char **ptr)
  {
--	return (uintptr_t) zone - (uintptr_t) zbd_info->zone_info;
-+	return zone - zbd_info->zone_info;
+ 	char *str = *ptr;
+ 	char *p, *start;
+@@ -1197,14 +1197,14 @@ static char *get_next_name(char **ptr)
  }
  
- /**
+ 
+-static int get_max_name_idx(char *input)
++int get_max_str_idx(char *input)
+ {
+ 	unsigned int cur_idx;
+ 	char *str, *p;
+ 
+ 	p = str = strdup(input);
+ 	for (cur_idx = 0; ; cur_idx++)
+-		if (get_next_name(&str) == NULL)
++		if (get_next_str(&str) == NULL)
+ 			break;
+ 
+ 	free(p);
+@@ -1224,9 +1224,9 @@ int set_name_idx(char *target, size_t tlen, char *input, int index,
+ 
+ 	p = str = strdup(input);
+ 
+-	index %= get_max_name_idx(input);
++	index %= get_max_str_idx(input);
+ 	for (cur_idx = 0; cur_idx <= index; cur_idx++)
+-		fname = get_next_name(&str);
++		fname = get_next_str(&str);
+ 
+ 	if (client_sockaddr_str[0] && unique_filename) {
+ 		len = snprintf(target, tlen, "%s/%s.", fname,
+@@ -1247,9 +1247,9 @@ char* get_name_by_idx(char *input, int index)
+ 
+ 	p = str = strdup(input);
+ 
+-	index %= get_max_name_idx(input);
++	index %= get_max_str_idx(input);
+ 	for (cur_idx = 0; cur_idx <= index; cur_idx++)
+-		fname = get_next_name(&str);
++		fname = get_next_str(&str);
+ 
+ 	fname = strdup(fname);
+ 	free(p);
+@@ -1273,7 +1273,7 @@ static int str_filename_cb(void *data, const char *input)
+ 	if (!td->files_index)
+ 		td->o.nr_files = 0;
+ 
+-	while ((fname = get_next_name(&str)) != NULL) {
++	while ((fname = get_next_str(&str)) != NULL) {
+ 		if (!strlen(fname))
+ 			break;
+ 		add_file(td, fname, 0, 1);
+@@ -1294,7 +1294,7 @@ static int str_directory_cb(void *data, const char fio_unused *unused)
+ 		return 0;
+ 
+ 	p = str = strdup(td->o.directory);
+-	while ((dirname = get_next_name(&str)) != NULL) {
++	while ((dirname = get_next_str(&str)) != NULL) {
+ 		if (lstat(dirname, &sb) < 0) {
+ 			ret = errno;
+ 
+diff --git a/options.h b/options.h
+index 8fdd1363..5276f31e 100644
+--- a/options.h
++++ b/options.h
+@@ -16,6 +16,8 @@ void add_opt_posval(const char *, const char *, const char *);
+ void del_opt_posval(const char *, const char *);
+ struct thread_data;
+ void fio_options_free(struct thread_data *);
++char *get_next_str(char **ptr);
++int get_max_str_idx(char *input);
+ char* get_name_by_idx(char *input, int index);
+ int set_name_idx(char *, size_t, char *, int, bool);
+ 
+-- 
+2.17.1
+
 
