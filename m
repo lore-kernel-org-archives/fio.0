@@ -1,35 +1,30 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH] engines/sg: improve error handling
-References: <1535402411-8396-1-git-send-email-vincentfu@gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <a5312604-0875-a51a-7101-d377894d8d5a@kernel.dk>
-Date: Mon, 3 Sep 2018 09:01:25 -0600
-MIME-Version: 1.0
-In-Reply-To: <1535402411-8396-1-git-send-email-vincentfu@gmail.com>
-Content-Type: text/plain; charset=utf-8
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa6.hgst.iphmx.com ([216.71.154.45]:57666 "EHLO
+        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727241AbeIUBWP (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 20 Sep 2018 21:22:15 -0400
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: Windows make errors on http
+Date: Thu, 20 Sep 2018 19:37:07 +0000
+Message-ID: <MWHPR04MB032068FF3C4F10BA0EE685438F130@MWHPR04MB0320.namprd04.prod.outlook.com>
+References: <MWHPR04MB03200B9A3B77890750357EB78F310@MWHPR04MB0320.namprd04.prod.outlook.com>
+ <CALjAwxguL+iPXpBPG0N4DWyR5ShO1=Wtt9RyyGiRgtSp-qMi7A@mail.gmail.com>
+ <CALjAwxg3kDAKRv6zbhpz+KWkhPdjxPcNg-eoLHL0HRPFhxHvrQ@mail.gmail.com>
+In-Reply-To: <CALjAwxg3kDAKRv6zbhpz+KWkhPdjxPcNg-eoLHL0HRPFhxHvrQ@mail.gmail.com>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Vincent Fu <vincentfu@gmail.com>, fio@vger.kernel.org
-Cc: Vincent Fu <Vincent.Fu@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-On 8/27/18 2:40 PM, Vincent Fu wrote:
-> From: Vincent Fu <Vincent.Fu@wdc.com>
-> 
-> The Linux sg driver accepts only 16 SCSI commands in flight
-> at a time per file descriptor. fio does not exit gracefully
-> when it attempts to queue up 17 or more trim commands via
-> the sg ioengine. This patch improves error handling in the
-> sg ioengine commit function to achieve a graceful exit if
-> fio attempts to queue up too many trim commands. The key to
-> this is calling clear_io_u on each io_u in the 17th trim
-> command. With this patch fio no longer loops forever
-> waiting for the IOs in the (not succesffully submitted)
-> 17th trim command to complete.
-
-Applied, thanks Vincent.
-
--- 
-Jens Axboe
-
+PkkndmUgaGFkIGEgY2hhbmNlIHRvIGRpZyBpbnRvIHRoaXMgb3ZlciBvbg0KPmh0dHBzOi8vZ2l0
+aHViLmNvbS9heGJvZS9maW8vaXNzdWVzLzY4MyAuIERvZXMgdGhlIHB1bGwgcmVxdWVzdCBtZW50
+aW9uZWQgdGhlcmUgaGVscD8NCg0KVGhlIGxhdGVzdCBnaXQgbm93IGNvbmZpZ3VyZXMgd2l0aG91
+dCBodHRwIGVuZ2luZSBlbmFibGVkLCBtYXRjaGluZyBhcHB2ZXlvci4gIEFuZCwgdGhlIG1ha2Ug
+YnVpbGRzIHdpdGhvdXQgaXNzdWVzLiAgVGhhbmtzIGZvciB0cmFjaW5nIGJhY2sgdGhlIGlzc3Vl
+IGhlcmUsIGVzcGVjaWFsbHkgc2luY2UgaXQgaW52b2x2ZXMgbWluZ3ctY3VybC4NCg0KUmVnYXJk
+cywNCkplZmYNCg0KDQo=
 
