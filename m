@@ -1,59 +1,71 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:33748 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726756AbeHHOTj (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 8 Aug 2018 10:19:39 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1fnN8S-0008NX-RA
-        for fio@vger.kernel.org; Wed, 08 Aug 2018 12:00:17 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20180808120001.5A33F2C0311@kernel.dk>
-Date: Wed,  8 Aug 2018 06:00:01 -0600 (MDT)
+Received: from esa5.dell-outbound.iphmx.com ([68.232.153.95]:64132 "EHLO
+        esa5.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2389545AbeIUXRm (ORCPT
+        <rfc822;fio@vger.kernel.org>); Fri, 21 Sep 2018 19:17:42 -0400
+Received: from pps.filterd (m0090351.ppops.net [127.0.0.1])
+        by mx0b-00154901.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w8LHIcgx089040
+        for <fio@vger.kernel.org>; Fri, 21 Sep 2018 13:27:39 -0400
+Received: from esa1.dell-outbound2.iphmx.com (esa1.dell-outbound2.iphmx.com [68.232.153.201])
+        by mx0b-00154901.pphosted.com with ESMTP id 2mmxdvt8yk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
+        for <fio@vger.kernel.org>; Fri, 21 Sep 2018 13:27:38 -0400
+From: "Beierl, Mark" <Mark.Beierl@dell.com>
+Subject: Re: How to emulate a VM workload?
+Date: Fri, 21 Sep 2018 17:27:18 +0000
+Message-ID: <C8E20B70-D3BA-49B2-8772-25E38F17EC97@emc.com>
+References: <CALBCzHevkYj3PvAUQQr03O9dGy42pgnFJ8s8ugkDmidSLKW4Pg@mail.gmail.com>
+In-Reply-To: <CALBCzHevkYj3PvAUQQr03O9dGy42pgnFJ8s8ugkDmidSLKW4Pg@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <59E52A62CEF34D46979E52861945DCF3@mail.corp.emc.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: RomanS <execooler@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit b87ed299820c26e8c4271294b0c5037e8d0a3d4a:
+SGVsbG8sDQoNCkkgYW0gbm90IHN1cmUgSSB1bmRlcnN0YW5kIHdoYXQgeW91IGFyZSBhc2tpbmcu
+ICBWTSB3b3JrbG9hZHMgY2FuIGJlIGFueXRoaW5nIHRoYXQgeW91IHdvdWxkIHdhbnQgdG8gdGVz
+dCwgdW5sZXNzIHRoZXJlIGlzIGEgc3BlY2lmaWMgc3BlY2lmaWNhdGlvbiB0aGF0IHlvdSBhcmUg
+bG9va2luZyBhdC4NCg0KSW4gdGhlIGNhc2Ugb2YgaGF2aW5nIG1hbnkgdmlydHVhbCBkaXNrcyBh
+dHRhY2hlZCB0byB0aGUgVk0sIHRoZSBjcmVhdGlvbiBvZiB0aGUgZmlsZXN5c3RlbSBpcyBzb21l
+dGhpbmcgdGhhdCB5b3UgbXVzdCBkbyBpbiB0aGUgT1Mgb2YgdGhlIFZNIGl0c2VsZi4gIEZJTyBk
+b2VzIG5vdCBoYXZlIHN1cHBvcnQgZm9yIGNyZWF0aW5nIGZpbGVzeXN0ZW1zLiAgT2YgY291cnNl
+IGVhY2ggdHlwZSBvZiBmaWxlc3lzdGVtIChOVEZTLCBleHQ0LCBIRlMsIEZBVCwgQUZTLCBldGMp
+IGhhcyBpdHMgb3duIHVuaXF1ZSBwZXJmb3JtYW5jZSBjaGFyYWN0ZXJpc3RpY3MuICANCg0KVGhl
+IG90aGVyIHRoaW5nIHRvIGNvbnNpZGVyIGlzIGlmIHlvdSBhcmUgcmVhZGluZyBhIHNpbmdsZSBm
+aWxlIG9yIG1hbnkgZmlsZXMuICBGSU8gaGFzIHBhcmFtZXRlcnMgZm9yIGNvbnRyb2xsaW5nIHRo
+YXQuICBJbiB5b3VyIGV4YW1wbGUsIHlvdSBhcmUgcmVhZGluZyBhbmQgd3JpdGluZyBqdXN0IDEg
+c2luZ2xlIGZpbGUsIHdoaWNoIG1pZ2h0IG5vdCBiZSBpbmRpY2F0aXZlIG9mIGEgcmVhbCB3b3Jr
+bG9hZC4NCg0KRm9yIGV4YW1wbGUsIGEgd2ViIHNlcnZlciB3b3VsZCBwcm9iYWJseSBiZSByZWFk
+aW5nIGZyb20gdGhvdXNhbmRzIG9mIGRpZmZlcmVudCBmaWxlcywgYW5kIHBvc3NpYmx5IHdyaXRp
+bmcgb25seSB0byBhIGZldyBmaWxlcy4gIEEgZGF0YWJhc2Ugd291bGQgb3BlcmF0ZSBxdWl0ZSBk
+aWZmZXJlbnRseSwgYXMgYW4gZXhhbXBsZSwgaXQgbWF5IGhhdmUgb25seSAyIGxhcmdlIGZpbGVz
+IG9uZSBmb3IgdGhlIHRhYmxlIGRhdGEgYW5kIG9uZSBmb3IgaW5kZXhlcy4gIA0KDQpBcyBhbiBh
+c2lkZSwgdGhlcmUgaXMgYW4gb3BlbiBzb3VyY2UgcHJvamVjdCBbMV0gd2hpY2ggY2FuIGhlbHAg
+d2l0aCBwcm9maWxpbmcgZGlza3Mgb2YgbXVsdGlwbGUgVk1zIGFuZCBpdCB1c2VzIEZJTyBpbiBl
+YWNoIFZNIHRvIGRyaXZlIHRoZSB3b3JrbG9hZCBhbmQgcmVwb3J0IGJhY2sgb24gcGVyZm9ybWFu
+Y2UuDQoNClsxXSBodHRwczovL3dpa2kub3BuZnYub3JnL2Rpc3BsYXkvc3RvcnBlcmYNCg0KUmVn
+YXJkcywNCk1hcmsNCiANCk1hcmsgQmVpZXJsDQpTVyBTeXN0ZW0gU3IgUHJpbmNpcGFsIERldmVs
+b3Blcg0KRGVsbCBFTUMgfCBDbG91ZCAmIENvbW11bmljYXRpb24gU2VydmljZSBQcm92aWRlciBT
+b2x1dGlvbg0KTWFyay5CZWllcmxARGVsbC5jb20NCg0KT24gMjAxOC0wOS0yMSwgMDk6NTEsICJm
+aW8tb3duZXJAdmdlci5rZXJuZWwub3JnIG9uIGJlaGFsZiBvZiBSb21hblMiIDxmaW8tb3duZXJA
+dmdlci5rZXJuZWwub3JnIG9uIGJlaGFsZiBvZiBleGVjb29sZXJAZ21haWwuY29tPiB3cm90ZToN
+Cg0KICAgIEhlbGxvLg0KICAgIA0KICAgIENvdWxkIHNvbWVvbmUgaGVscCB0byB3cml0ZSBhIGNv
+bmZpZyB0byBlbXVsYXRlIGEgVk0gd29ya2xvYWQ/DQogICAgVGhlIGdvYWwgaXMgdG8gdGVzdCBh
+IHN0b3JhZ2UgZm9yIFZNLiBFYWNoIGZpbGUgb24gdGhlIFZNIGlzIGEgZGlzayBvZiBhIFZNLg0K
+ICAgIA0KICAgIEkgdHJpZWQgdG8gdGVzdCB0aGUgY2FzZSBieSB0aGUgZm9sbG93aW5nIGNvbmZp
+ZzoNCiAgICANCiAgICBpb2VuZ2luZT1wb3NpeGFpbw0KICAgIHJhbmRyZXBlYXQ9MQ0KICAgIG5v
+cmFuZG9tbWFwPTENCiAgICBydW50aW1lPTg2NDAwDQogICAgZ3JvdXBfcmVwb3J0aW5nDQogICAg
+YnM9MzJrDQogICAgdGltZV9iYXNlZD0xDQogICAgaW9kZXB0aD0xNg0KICAgIG51bWpvYnM9MQ0K
+ICAgIHJ3PXJhbmRydw0KICAgIHJ3bWl4cmVhZD01MA0KICAgIHJ3bWl4d3JpdGU9NTANCiAgICBz
+aXplPTJnDQogICAgW3dvcmtsb2FkXQ0KICAgIGZpbGVuYW1lPS9zdG9yYWdlL3ZtX2Rpc2sNCiAg
+ICANCiAgICBCdXQgaXQgc2VlbXMgdGhlIGFib3ZlIGNvbmZpZyBpcyBub3QgYSBWTSB3b3JrbG9h
+ZC4NCiAgICANCiAgICBGb3IgdGhlIHNlY29uZCB0ZXN0IEkgY3JlYXRlZCBhIEZTIG9uIHRoZSBm
+aWxlIGFuZCBtb3VudGVkIGl0LiBUaGUNCiAgICBjb25maWcgd2FzIGFsbW9zdCB0aGUgc2FtZSwg
+ZXhjZXB0Og0KICAgIG51bWpvYnM9MjANCiAgICBzaXplPTg1bQ0KICAgIA0KICAgIEkgdGhpbmsg
+dGhlIHNlY29uZCBjb25maWcgaXMgbW9yZSBsaWtlIGEgVk0gd29ya2xvYWQsIHRoYW4gdGhlIGZp
+cnN0Lg0KICAgIElzIGl0IHBvc3NpYmxlIHRvIGRvIHRoZSBzYW1lIG9ubHkgYnkgRklPPw0KICAg
+IA0KDQo=
 
-  client: support --status-interval option in client/server mode (2018-08-05 15:12:12 -0600)
-
-are available in the git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 2ce58465415fc4d900c4dd89b86acbcaa51d9dfb:
-
-  libpmem: fix type print (2018-08-07 08:09:47 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      libpmem: fix type print
-
- engines/libpmem.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/engines/libpmem.c b/engines/libpmem.c
-index 4ef3094..99c7b50 100644
---- a/engines/libpmem.c
-+++ b/engines/libpmem.c
-@@ -424,10 +424,10 @@ static int fio_libpmem_prep(struct thread_data *td, struct io_u *io_u)
- 	/*
- 	 * It fits within existing mapping, use it
- 	 */
--	dprint(FD_IO," io_u->offset %lld : fdd->libpmem_off %ld : "
--			"io_u->buflen %ld : fdd->libpmem_sz %ld\n",
--			io_u->offset, fdd->libpmem_off,
--			io_u->buflen, fdd->libpmem_sz);
-+	dprint(FD_IO," io_u->offset %llu : fdd->libpmem_off %llu : "
-+			"io_u->buflen %llu : fdd->libpmem_sz %llu\n",
-+			io_u->offset, (unsigned long long) fdd->libpmem_off,
-+			io_u->buflen, (unsigned long long) fdd->libpmem_sz);
- 
- 	if (io_u->offset >= fdd->libpmem_off &&
- 	    (io_u->offset + io_u->buflen <=
