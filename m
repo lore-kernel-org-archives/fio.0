@@ -1,71 +1,50 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa5.dell-outbound.iphmx.com ([68.232.153.95]:64132 "EHLO
-        esa5.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2389545AbeIUXRm (ORCPT
-        <rfc822;fio@vger.kernel.org>); Fri, 21 Sep 2018 19:17:42 -0400
-Received: from pps.filterd (m0090351.ppops.net [127.0.0.1])
-        by mx0b-00154901.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w8LHIcgx089040
-        for <fio@vger.kernel.org>; Fri, 21 Sep 2018 13:27:39 -0400
-Received: from esa1.dell-outbound2.iphmx.com (esa1.dell-outbound2.iphmx.com [68.232.153.201])
-        by mx0b-00154901.pphosted.com with ESMTP id 2mmxdvt8yk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
-        for <fio@vger.kernel.org>; Fri, 21 Sep 2018 13:27:38 -0400
-From: "Beierl, Mark" <Mark.Beierl@dell.com>
-Subject: Re: How to emulate a VM workload?
-Date: Fri, 21 Sep 2018 17:27:18 +0000
-Message-ID: <C8E20B70-D3BA-49B2-8772-25E38F17EC97@emc.com>
-References: <CALBCzHevkYj3PvAUQQr03O9dGy42pgnFJ8s8ugkDmidSLKW4Pg@mail.gmail.com>
-In-Reply-To: <CALBCzHevkYj3PvAUQQr03O9dGy42pgnFJ8s8ugkDmidSLKW4Pg@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <59E52A62CEF34D46979E52861945DCF3@mail.corp.emc.com>
-Content-Transfer-Encoding: base64
+Received: from mail-ua1-f47.google.com ([209.85.222.47]:37782 "EHLO
+        mail-ua1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728184AbeIUTmX (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 21 Sep 2018 15:42:23 -0400
+Received: by mail-ua1-f47.google.com with SMTP id y10-v6so5857150uao.4
+        for <fio@vger.kernel.org>; Fri, 21 Sep 2018 06:53:24 -0700 (PDT)
 MIME-Version: 1.0
+From: RomanS <execooler@gmail.com>
+Date: Fri, 21 Sep 2018 16:51:50 +0300
+Message-ID: <CALBCzHevkYj3PvAUQQr03O9dGy42pgnFJ8s8ugkDmidSLKW4Pg@mail.gmail.com>
+Subject: How to emulate a VM workload?
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: RomanS <execooler@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-SGVsbG8sDQoNCkkgYW0gbm90IHN1cmUgSSB1bmRlcnN0YW5kIHdoYXQgeW91IGFyZSBhc2tpbmcu
-ICBWTSB3b3JrbG9hZHMgY2FuIGJlIGFueXRoaW5nIHRoYXQgeW91IHdvdWxkIHdhbnQgdG8gdGVz
-dCwgdW5sZXNzIHRoZXJlIGlzIGEgc3BlY2lmaWMgc3BlY2lmaWNhdGlvbiB0aGF0IHlvdSBhcmUg
-bG9va2luZyBhdC4NCg0KSW4gdGhlIGNhc2Ugb2YgaGF2aW5nIG1hbnkgdmlydHVhbCBkaXNrcyBh
-dHRhY2hlZCB0byB0aGUgVk0sIHRoZSBjcmVhdGlvbiBvZiB0aGUgZmlsZXN5c3RlbSBpcyBzb21l
-dGhpbmcgdGhhdCB5b3UgbXVzdCBkbyBpbiB0aGUgT1Mgb2YgdGhlIFZNIGl0c2VsZi4gIEZJTyBk
-b2VzIG5vdCBoYXZlIHN1cHBvcnQgZm9yIGNyZWF0aW5nIGZpbGVzeXN0ZW1zLiAgT2YgY291cnNl
-IGVhY2ggdHlwZSBvZiBmaWxlc3lzdGVtIChOVEZTLCBleHQ0LCBIRlMsIEZBVCwgQUZTLCBldGMp
-IGhhcyBpdHMgb3duIHVuaXF1ZSBwZXJmb3JtYW5jZSBjaGFyYWN0ZXJpc3RpY3MuICANCg0KVGhl
-IG90aGVyIHRoaW5nIHRvIGNvbnNpZGVyIGlzIGlmIHlvdSBhcmUgcmVhZGluZyBhIHNpbmdsZSBm
-aWxlIG9yIG1hbnkgZmlsZXMuICBGSU8gaGFzIHBhcmFtZXRlcnMgZm9yIGNvbnRyb2xsaW5nIHRo
-YXQuICBJbiB5b3VyIGV4YW1wbGUsIHlvdSBhcmUgcmVhZGluZyBhbmQgd3JpdGluZyBqdXN0IDEg
-c2luZ2xlIGZpbGUsIHdoaWNoIG1pZ2h0IG5vdCBiZSBpbmRpY2F0aXZlIG9mIGEgcmVhbCB3b3Jr
-bG9hZC4NCg0KRm9yIGV4YW1wbGUsIGEgd2ViIHNlcnZlciB3b3VsZCBwcm9iYWJseSBiZSByZWFk
-aW5nIGZyb20gdGhvdXNhbmRzIG9mIGRpZmZlcmVudCBmaWxlcywgYW5kIHBvc3NpYmx5IHdyaXRp
-bmcgb25seSB0byBhIGZldyBmaWxlcy4gIEEgZGF0YWJhc2Ugd291bGQgb3BlcmF0ZSBxdWl0ZSBk
-aWZmZXJlbnRseSwgYXMgYW4gZXhhbXBsZSwgaXQgbWF5IGhhdmUgb25seSAyIGxhcmdlIGZpbGVz
-IG9uZSBmb3IgdGhlIHRhYmxlIGRhdGEgYW5kIG9uZSBmb3IgaW5kZXhlcy4gIA0KDQpBcyBhbiBh
-c2lkZSwgdGhlcmUgaXMgYW4gb3BlbiBzb3VyY2UgcHJvamVjdCBbMV0gd2hpY2ggY2FuIGhlbHAg
-d2l0aCBwcm9maWxpbmcgZGlza3Mgb2YgbXVsdGlwbGUgVk1zIGFuZCBpdCB1c2VzIEZJTyBpbiBl
-YWNoIFZNIHRvIGRyaXZlIHRoZSB3b3JrbG9hZCBhbmQgcmVwb3J0IGJhY2sgb24gcGVyZm9ybWFu
-Y2UuDQoNClsxXSBodHRwczovL3dpa2kub3BuZnYub3JnL2Rpc3BsYXkvc3RvcnBlcmYNCg0KUmVn
-YXJkcywNCk1hcmsNCiANCk1hcmsgQmVpZXJsDQpTVyBTeXN0ZW0gU3IgUHJpbmNpcGFsIERldmVs
-b3Blcg0KRGVsbCBFTUMgfCBDbG91ZCAmIENvbW11bmljYXRpb24gU2VydmljZSBQcm92aWRlciBT
-b2x1dGlvbg0KTWFyay5CZWllcmxARGVsbC5jb20NCg0KT24gMjAxOC0wOS0yMSwgMDk6NTEsICJm
-aW8tb3duZXJAdmdlci5rZXJuZWwub3JnIG9uIGJlaGFsZiBvZiBSb21hblMiIDxmaW8tb3duZXJA
-dmdlci5rZXJuZWwub3JnIG9uIGJlaGFsZiBvZiBleGVjb29sZXJAZ21haWwuY29tPiB3cm90ZToN
-Cg0KICAgIEhlbGxvLg0KICAgIA0KICAgIENvdWxkIHNvbWVvbmUgaGVscCB0byB3cml0ZSBhIGNv
-bmZpZyB0byBlbXVsYXRlIGEgVk0gd29ya2xvYWQ/DQogICAgVGhlIGdvYWwgaXMgdG8gdGVzdCBh
-IHN0b3JhZ2UgZm9yIFZNLiBFYWNoIGZpbGUgb24gdGhlIFZNIGlzIGEgZGlzayBvZiBhIFZNLg0K
-ICAgIA0KICAgIEkgdHJpZWQgdG8gdGVzdCB0aGUgY2FzZSBieSB0aGUgZm9sbG93aW5nIGNvbmZp
-ZzoNCiAgICANCiAgICBpb2VuZ2luZT1wb3NpeGFpbw0KICAgIHJhbmRyZXBlYXQ9MQ0KICAgIG5v
-cmFuZG9tbWFwPTENCiAgICBydW50aW1lPTg2NDAwDQogICAgZ3JvdXBfcmVwb3J0aW5nDQogICAg
-YnM9MzJrDQogICAgdGltZV9iYXNlZD0xDQogICAgaW9kZXB0aD0xNg0KICAgIG51bWpvYnM9MQ0K
-ICAgIHJ3PXJhbmRydw0KICAgIHJ3bWl4cmVhZD01MA0KICAgIHJ3bWl4d3JpdGU9NTANCiAgICBz
-aXplPTJnDQogICAgW3dvcmtsb2FkXQ0KICAgIGZpbGVuYW1lPS9zdG9yYWdlL3ZtX2Rpc2sNCiAg
-ICANCiAgICBCdXQgaXQgc2VlbXMgdGhlIGFib3ZlIGNvbmZpZyBpcyBub3QgYSBWTSB3b3JrbG9h
-ZC4NCiAgICANCiAgICBGb3IgdGhlIHNlY29uZCB0ZXN0IEkgY3JlYXRlZCBhIEZTIG9uIHRoZSBm
-aWxlIGFuZCBtb3VudGVkIGl0LiBUaGUNCiAgICBjb25maWcgd2FzIGFsbW9zdCB0aGUgc2FtZSwg
-ZXhjZXB0Og0KICAgIG51bWpvYnM9MjANCiAgICBzaXplPTg1bQ0KICAgIA0KICAgIEkgdGhpbmsg
-dGhlIHNlY29uZCBjb25maWcgaXMgbW9yZSBsaWtlIGEgVk0gd29ya2xvYWQsIHRoYW4gdGhlIGZp
-cnN0Lg0KICAgIElzIGl0IHBvc3NpYmxlIHRvIGRvIHRoZSBzYW1lIG9ubHkgYnkgRklPPw0KICAg
-IA0KDQo=
+Hello.
+
+Could someone help to write a config to emulate a VM workload?
+The goal is to test a storage for VM. Each file on the VM is a disk of a VM.
+
+I tried to test the case by the following config:
+
+ioengine=posixaio
+randrepeat=1
+norandommap=1
+runtime=86400
+group_reporting
+bs=32k
+time_based=1
+iodepth=16
+numjobs=1
+rw=randrw
+rwmixread=50
+rwmixwrite=50
+size=2g
+[workload]
+filename=/storage/vm_disk
+
+But it seems the above config is not a VM workload.
+
+For the second test I created a FS on the file and mounted it. The
+config was almost the same, except:
+numjobs=20
+size=85m
+
+I think the second config is more like a VM workload, than the first.
+Is it possible to do the same only by FIO?
 
