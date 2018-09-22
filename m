@@ -1,76 +1,92 @@
-Return-Path: <prvs=8011d1e1c=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH] zbd: Restore check_swd()
-Date: Thu, 27 Sep 2018 11:16:48 +0900
-Message-Id: <20180927021648.28313-1-damien.lemoal@wdc.com>
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Bart Van Assche <bvanassche@acm.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:35284 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728324AbeIVRxb (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 22 Sep 2018 13:53:31 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1g3ga3-00067R-E7
+        for fio@vger.kernel.org; Sat, 22 Sep 2018 12:00:11 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20180922120001.BF67F2C031B@kernel.dk>
+Date: Sat, 22 Sep 2018 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-As check_swd() is useful for debugging, revert its removal done with
-commit d60be7d51cbb ("zbd: Remove unused function and variable").
+The following changes since commit 4d2707ef027cc5b2418ab5de622318e0f70c096a:
 
-Fixes: d60be7d51cbb ("zbd: Remove unused function and variable")
-Suggested-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+  blktrace: fix leak of 'merge_buf' (2018-09-20 14:25:56 -0600)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 843c6b5e081900394da002b45253e541b794ac54:
+
+  Merge branch 'steadystate-doc' of https://github.com/vincentkfu/fio (2018-09-21 09:50:07 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (2):
+      engines/http: work-around crash in certain libssl versions
+      Merge branch 'steadystate-doc' of https://github.com/vincentkfu/fio
+
+Vincent Fu (1):
+      docs: clarify usage of steadystate detection feature
+
+ HOWTO          | 4 ++++
+ engines/http.c | 2 ++
+ fio.1          | 6 ++++++
+ 3 files changed, 12 insertions(+)
+
 ---
- zbd.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
 
-diff --git a/zbd.c b/zbd.c
-index 9c525875..0b7159a0 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -726,6 +726,32 @@ static bool zbd_dec_and_reset_write_cnt(const struct thread_data *td,
- 	return write_cnt == 0;
- }
+Diff of recent changes:
+
+diff --git a/HOWTO b/HOWTO
+index 45cf0bd..9528904 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -3000,6 +3000,10 @@ Steady state
+ 	data from the rolling collection window. Threshold limits can be expressed
+ 	as a fixed value or as a percentage of the mean in the collection window.
  
-+/*
-+ * For debugging:
-+ * Check whether the value of zbd_info.sectors_with_data is correct.
-+ */
-+static void check_swd(const struct thread_data *td, const struct fio_file *f)
-+{
-+#if 0
-+	struct fio_zone_info *zb, *ze, *z;
-+	uint64_t swd;
++	When using this feature, most jobs should include the :option:`time_based`
++	and :option:`runtime` options or the :option:`loops` option so that fio does not
++	stop running after it has covered the full size of the specified file(s) or device(s).
 +
-+	zb = &f->zbd_info->zone_info[zbd_zone_idx(f, f->file_offset)];
-+	ze = &f->zbd_info->zone_info[zbd_zone_idx(f, f->file_offset +
-+						  f->io_size)];
-+	swd = 0;
-+	for (z = zb; z < ze; z++) {
-+		pthread_mutex_lock(&z->mutex);
-+		swd += z->wp - z->start;
-+	}
-+	pthread_mutex_lock(&f->zbd_info->mutex);
-+	assert(f->zbd_info->sectors_with_data == swd);
-+	pthread_mutex_unlock(&f->zbd_info->mutex);
-+	for (z = zb; z < ze; z++)
-+		pthread_mutex_unlock(&z->mutex);
-+#endif
-+}
-+
- void zbd_file_reset(struct thread_data *td, struct fio_file *f)
- {
- 	struct fio_zone_info *zb, *ze, *z;
-@@ -1202,6 +1228,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 		}
- 		/* Check whether the zone reset threshold has been exceeded */
- 		if (td->o.zrf.u.f) {
-+			check_swd(td, f);
- 			if (f->zbd_info->sectors_with_data >=
- 			    f->io_size * td->o.zrt.u.f &&
- 			    zbd_dec_and_reset_write_cnt(td, f)) {
-@@ -1222,6 +1249,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 			zb->reset_zone = 0;
- 			if (zbd_reset_zone(td, f, zb) < 0)
- 				goto eof;
-+			check_swd(td, f);
- 		}
- 		/* Make writes occur at the write pointer */
- 		assert(!zbd_zone_full(f, zb, min_bs));
--- 
-2.17.1
-
+ 		**iops**
+ 			Collect IOPS data. Stop the job if all individual IOPS measurements
+ 			are within the specified limit of the mean IOPS (e.g., ``iops:2``
+diff --git a/engines/http.c b/engines/http.c
+index 93fcd0d..d81e428 100644
+--- a/engines/http.c
++++ b/engines/http.c
+@@ -273,6 +273,8 @@ static void _hmac(unsigned char *md, void *key, int key_len, char *data) {
+ 	ctx = HMAC_CTX_new();
+ #else
+ 	ctx = &_ctx;
++	/* work-around crash in certain versions of libssl */
++	HMAC_CTX_init(ctx);
+ #endif
+ 	HMAC_Init_ex(ctx, key, key_len, EVP_sha256(), NULL);
+ 	HMAC_Update(ctx, (unsigned char*)data, strlen(data));
+diff --git a/fio.1 b/fio.1
+index 81164ae..5c11d96 100644
+--- a/fio.1
++++ b/fio.1
+@@ -2671,6 +2671,12 @@ steady state assessment criteria. All assessments are carried out using only
+ data from the rolling collection window. Threshold limits can be expressed
+ as a fixed value or as a percentage of the mean in the collection window.
+ .RS
++.P
++When using this feature, most jobs should include the \fBtime_based\fR
++and \fBruntime\fR options or the \fBloops\fR option so that fio does not
++stop running after it has covered the full size of the specified file(s)
++or device(s).
++.RS
+ .RS
+ .TP
+ .B iops
 
