@@ -1,43 +1,86 @@
-Return-Path: <bart.vanassche@gmail.com>
-Return-Path: <bart.vanassche@gmail.com>
-Message-ID: <1537976181.35256.2.camel@gmail.com>
-Subject: Re: [PATCH 2/2] zbd: Remove unused function and variable
-From: Bart Van Assche <bart.vanassche@gmail.com>
-Date: Wed, 26 Sep 2018 08:36:21 -0700
-In-Reply-To: <20180926064226.2590-1-damien.lemoal@wdc.com>
-References: <20180926064226.2590-1-damien.lemoal@wdc.com>
-Content-Type: text/plain; charset="UTF-7"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-To: Damien Le Moal <damien.lemoal@wdc.com>, fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Return-Path: <prvs=800592d6e=damien.lemoal@wdc.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH 2/2] zbd: Remove unused function and variable
+Date: Wed, 26 Sep 2018 15:42:26 +0900
+Message-Id: <20180926064226.2590-1-damien.lemoal@wdc.com>
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-On Wed, 2018-09-26 at 15:42 +-0900, Damien Le Moal wrote:
-+AD4 -/+ACo Check whether the value of zbd+AF8-info.sectors+AF8-with+AF8-data is correct. +ACo-/
-+AD4 -static void check+AF8-swd(const struct thread+AF8-data +ACo-td, const struct fio+AF8-file +ACo-f)
-+AD4 -+AHs
-+AD4 -+ACM-if 0
-+AD4 -	struct fio+AF8-zone+AF8-info +ACo-zb, +ACo-ze, +ACo-z+ADs
-+AD4 -	uint64+AF8-t swd+ADs
-+AD4 -
-+AD4 -	zb +AD0 +ACY-f-+AD4-zbd+AF8-info-+AD4-zone+AF8-info+AFs-zbd+AF8-zone+AF8-idx(f, f-+AD4-file+AF8-offset)+AF0AOw
-+AD4 -	ze +AD0 +ACY-f-+AD4-zbd+AF8-info-+AD4-zone+AF8-info+AFs-zbd+AF8-zone+AF8-idx(f, f-+AD4-file+AF8-offset +-
-+AD4 -						  f-+AD4-io+AF8-size)+AF0AOw
-+AD4 -	swd +AD0 0+ADs
-+AD4 -	for (z +AD0 zb+ADs z +ADw ze+ADs z+-+-) +AHs
-+AD4 -		pthread+AF8-mutex+AF8-lock(+ACY-z-+AD4-mutex)+ADs
-+AD4 -		swd +-+AD0 z-+AD4-wp - z-+AD4-start+ADs
-+AD4 -	+AH0
-+AD4 -	pthread+AF8-mutex+AF8-lock(+ACY-f-+AD4-zbd+AF8-info-+AD4-mutex)+ADs
-+AD4 -	assert(f-+AD4-zbd+AF8-info-+AD4-sectors+AF8-with+AF8-data +AD0APQ swd)+ADs
-+AD4 -	pthread+AF8-mutex+AF8-unlock(+ACY-f-+AD4-zbd+AF8-info-+AD4-mutex)+ADs
-+AD4 -	for (z +AD0 zb+ADs z +ADw ze+ADs z+-+-)
-+AD4 -		pthread+AF8-mutex+AF8-unlock(+ACY-z-+AD4-mutex)+ADs
-+AD4 -+ACM-endif
-+AD4 -+AH0
+check_swd() was defined to nothing. Remove it.
+additionally, the variable ret in zbd_reset_zonei() is unused and not
+necessary. Remove it too.
 
-I'd like to keep this code. This code has been proven to be very valuable
-while debugging to verify the code that updates f-+AD4-zbd+AF8-info-+AD4-sectors+AF8-with+AF8-data.
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+---
+ zbd.c | 31 ++-----------------------------
+ 1 file changed, 2 insertions(+), 29 deletions(-)
 
-Bart.
+diff --git a/zbd.c b/zbd.c
+index 9c3092ab..9c525875 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -620,12 +620,10 @@ static unsigned int zbd_zone_nr(struct zoned_block_device_info *zbd_info,
+ static int zbd_reset_zone(struct thread_data *td, const struct fio_file *f,
+ 			  struct fio_zone_info *z)
+ {
+-	int ret;
+-
+ 	dprint(FD_ZBD, "%s: resetting wp of zone %u.\n", f->file_name,
+ 		zbd_zone_nr(f->zbd_info, z));
+-	ret = zbd_reset_range(td, f, z->start, (z+1)->start - z->start);
+-	return ret;
++
++	return zbd_reset_range(td, f, z->start, (z+1)->start - z->start);
+ }
+ 
+ /*
+@@ -728,29 +726,6 @@ static bool zbd_dec_and_reset_write_cnt(const struct thread_data *td,
+ 	return write_cnt == 0;
+ }
+ 
+-/* Check whether the value of zbd_info.sectors_with_data is correct. */
+-static void check_swd(const struct thread_data *td, const struct fio_file *f)
+-{
+-#if 0
+-	struct fio_zone_info *zb, *ze, *z;
+-	uint64_t swd;
+-
+-	zb = &f->zbd_info->zone_info[zbd_zone_idx(f, f->file_offset)];
+-	ze = &f->zbd_info->zone_info[zbd_zone_idx(f, f->file_offset +
+-						  f->io_size)];
+-	swd = 0;
+-	for (z = zb; z < ze; z++) {
+-		pthread_mutex_lock(&z->mutex);
+-		swd += z->wp - z->start;
+-	}
+-	pthread_mutex_lock(&f->zbd_info->mutex);
+-	assert(f->zbd_info->sectors_with_data == swd);
+-	pthread_mutex_unlock(&f->zbd_info->mutex);
+-	for (z = zb; z < ze; z++)
+-		pthread_mutex_unlock(&z->mutex);
+-#endif
+-}
+-
+ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
+ {
+ 	struct fio_zone_info *zb, *ze, *z;
+@@ -1227,7 +1202,6 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 		}
+ 		/* Check whether the zone reset threshold has been exceeded */
+ 		if (td->o.zrf.u.f) {
+-			check_swd(td, f);
+ 			if (f->zbd_info->sectors_with_data >=
+ 			    f->io_size * td->o.zrt.u.f &&
+ 			    zbd_dec_and_reset_write_cnt(td, f)) {
+@@ -1248,7 +1222,6 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 			zb->reset_zone = 0;
+ 			if (zbd_reset_zone(td, f, zb) < 0)
+ 				goto eof;
+-			check_swd(td, f);
+ 		}
+ 		/* Make writes occur at the write pointer */
+ 		assert(!zbd_zone_full(f, zb, min_bs));
+-- 
+2.17.1
+
 
