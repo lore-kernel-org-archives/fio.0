@@ -1,62 +1,106 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vs1-f44.google.com ([209.85.217.44]:43337 "EHLO
-        mail-vs1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727076AbeI0ThB (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 27 Sep 2018 15:37:01 -0400
-Received: by mail-vs1-f44.google.com with SMTP id y22-v6so1445484vsj.10
-        for <fio@vger.kernel.org>; Thu, 27 Sep 2018 06:18:47 -0700 (PDT)
+Received: from mout.perfora.net ([74.208.4.194]:57821 "EHLO mout.perfora.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728894AbeIZXHL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 26 Sep 2018 19:07:11 -0400
+Received: from JUNENHP640W7 ([76.30.173.5]) by mrelay.perfora.net (mreueus002
+ [74.208.5.2]) with ESMTPSA (Nemesis) id 0Lbs4w-1fO91J0seS-00jHa7 for
+ <fio@vger.kernel.org>; Wed, 26 Sep 2018 18:53:21 +0200
+From: <eliezer@integritech.solutions>
+References: 
+In-Reply-To: 
+Subject: RE: Resending:  fio testing on S3 object storage
+Date: Wed, 26 Sep 2018 11:53:20 -0500
+Message-ID: <000001d455b9$6e4e6850$4aeb38f0$@integritech.solutions>
 MIME-Version: 1.0
-References: <000001d455b9$6e4e6850$4aeb38f0$@integritech.solutions>
-In-Reply-To: <000001d455b9$6e4e6850$4aeb38f0$@integritech.solutions>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Thu, 27 Sep 2018 14:18:20 +0100
-Message-ID: <CALjAwxiUCAsmXC7xx4QLS+zfz0k6erdbgd89nYbJNp9KtfhruA@mail.gmail.com>
-Subject: Re: Resending: fio testing on S3 object storage
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
+Content-Language: en-us
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: eliezer@integritech.solutions
-Cc: fio <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hi,
+It looks like I don=EF=BF=BDt have the "http" ioengine on my server:
 
-You
-On Wed, 26 Sep 2018 at 17:54, <eliezer@integritech.solutions> wrote:
->
-> It looks like I don=E2=80=99t have the "http" ioengine on my server:
->
-> # fio --enghelp
-> Available IO engines:
->         cpuio
->         mmap
->         sync
->         psync
->         vsync
->         pvsync
->         pvsync2
->         null
->         net
->         netsplice
->         ftruncate
->         libaio
->         rdma
->         posixaio
->         falloc
->         e4defrag
->         splice
->         rbd
->         mtd
->         pmemblk
->         dev-dax
->         sg
->         binject
+# fio --enghelp
+Available IO engines:
+        cpuio
+        mmap
+        sync
+        psync
+        vsync
+        pvsync
+        pvsync2
+        null
+        net
+        netsplice
+        ftruncate
+        libaio
+        rdma
+        posixaio
+        falloc
+        e4defrag
+        splice
+        rbd
+        mtd
+        pmemblk
+        dev-dax
+        sg
+        binject
 
-You need to have the appropriate dependencies available when you go to
-compile fio (you'll find that ./configure says that http is enabled).
-I believe for the http engine you need the development libraries for
-curl and openssl installed...
+How would I go about adding the "http" ioengine on my server?
 
---=20
-Sitsofe | http://sucs.org/~sits/
+Thank you in advance.
+
+Regards,
+Eliezer
+
+-----Original Message-----
+From: Eliezer Nebab (eliezer@integritech.solutions)
+[mailto:eliezer@integritech.solutions]=20
+Sent: Wednesday, September 26, 2018 10:52 AM
+To: 'fio@vger.kernel.org'
+Subject: Resending: fio testing on S3 object storage
+
+Greetings,
+
+First of all, my apologies for re-sending this email.  I've now sent it to
+the correct maillist this time and in the proper mail format.
+
+How does one run fio against an S3 object storage device?
+
+Here=EF=BF=BDs the fio parameters I=EF=BF=BDm using but I=EF=BF=BDm getting=
+ the below error message:
+
+# fio --ioengine=3Dhttp --iodepth=3D1 --http_mode=3Ds3 --http_s3_region=3Du=
+s-geo
+--http_s3_key=3D123mYkEyInfo --http_s3_keyid=3D123mYkEyiDinfO --bs=3D16k
+--size=3D100MB --http_host=3Ds3-api.us-geo.objectstorage.inthecloud.net
+--https=3Don --http_verbose=3D2
+fio: engine https not loadable
+fio: failed to load engine
+
+Am I missing a kernel module required by fio =EF=BF=BDor am I missing a few=
+ more fio
+parameters from the command line?=EF=BF=BD=EF=BF=BD If so, what do I need t=
+o do to enable
+that module?
+
+Here=EF=BF=BDs my server info:
+
+# cat /etc/redhat-release
+Red Hat Enterprise Linux Server release 7.5 (Maipo)
+
+# fio --version
+fio-3.1
+
+# uname -a
+Linux mytestserver.testfio.com 3.10.0-862.11.6.el7.x86_64 #1 SMP Fri Aug 10
+16:55:11 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux
+
+Many thanks in advance for your attention and your response(s).
+
+Regards,
+Eliezer
+
 
