@@ -1,17 +1,15 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mout.perfora.net ([74.208.4.194]:57821 "EHLO mout.perfora.net"
+Received: from mout.perfora.net ([74.208.4.196]:38899 "EHLO mout.perfora.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728894AbeIZXHL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 26 Sep 2018 19:07:11 -0400
+        id S1727067AbeIZWGE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 26 Sep 2018 18:06:04 -0400
 Received: from JUNENHP640W7 ([76.30.173.5]) by mrelay.perfora.net (mreueus002
- [74.208.5.2]) with ESMTPSA (Nemesis) id 0Lbs4w-1fO91J0seS-00jHa7 for
- <fio@vger.kernel.org>; Wed, 26 Sep 2018 18:53:21 +0200
+ [74.208.5.2]) with ESMTPSA (Nemesis) id 0Lwpo6-1fgtz31bE8-016SGr for
+ <fio@vger.kernel.org>; Wed, 26 Sep 2018 17:52:29 +0200
 From: <eliezer@integritech.solutions>
-References: 
-In-Reply-To: 
-Subject: RE: Resending:  fio testing on S3 object storage
-Date: Wed, 26 Sep 2018 11:53:20 -0500
-Message-ID: <000001d455b9$6e4e6850$4aeb38f0$@integritech.solutions>
+Subject: Resending:  fio testing on S3 object storage
+Date: Wed, 26 Sep 2018 10:52:28 -0500
+Message-ID: <003301d455b0$eda7a8e0$c8f6faa0$@integritech.solutions>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -19,48 +17,6 @@ Content-Language: en-us
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-
-It looks like I don=EF=BF=BDt have the "http" ioengine on my server:
-
-# fio --enghelp
-Available IO engines:
-        cpuio
-        mmap
-        sync
-        psync
-        vsync
-        pvsync
-        pvsync2
-        null
-        net
-        netsplice
-        ftruncate
-        libaio
-        rdma
-        posixaio
-        falloc
-        e4defrag
-        splice
-        rbd
-        mtd
-        pmemblk
-        dev-dax
-        sg
-        binject
-
-How would I go about adding the "http" ioengine on my server?
-
-Thank you in advance.
-
-Regards,
-Eliezer
-
------Original Message-----
-From: Eliezer Nebab (eliezer@integritech.solutions)
-[mailto:eliezer@integritech.solutions]=20
-Sent: Wednesday, September 26, 2018 10:52 AM
-To: 'fio@vger.kernel.org'
-Subject: Resending: fio testing on S3 object storage
 
 Greetings,
 
