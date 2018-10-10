@@ -1,129 +1,80 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vs1-f52.google.com ([209.85.217.52]:45477 "EHLO
-        mail-vs1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726964AbeJKNAw (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 11 Oct 2018 09:00:52 -0400
-Received: by mail-vs1-f52.google.com with SMTP id g201so7340505vsd.12
-        for <fio@vger.kernel.org>; Wed, 10 Oct 2018 22:35:15 -0700 (PDT)
-MIME-Version: 1.0
-References: <001001d460c6$8c44b090$a4ce11b0$@integritech.solutions>
- <BC19FF62-2BD8-4F83-9BFB-8D271F5D7101@emc.com> <AE78B431-F6A6-4796-BB7E-1FE45E328D74@integritech.solutions>
- <0DE2B6A6-1AFB-4FAD-BD99-53136B45BCD8@emc.com>
-In-Reply-To: <0DE2B6A6-1AFB-4FAD-BD99-53136B45BCD8@emc.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Thu, 11 Oct 2018 06:34:48 +0100
-Message-ID: <CALjAwxjazAUEip=nea=7K8LVRBRwq6c0h9FheeCVvh372ZvaKw@mail.gmail.com>
+Received: from esa2.dell-outbound.iphmx.com ([68.232.149.220]:39128 "EHLO
+        esa2.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727654AbeJKDX4 (ORCPT
+        <rfc822;fio@vger.kernel.org>); Wed, 10 Oct 2018 23:23:56 -0400
+Received: from pps.filterd (m0144102.ppops.net [127.0.0.1])
+        by mx0b-00154901.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w9AJwPjT183775
+        for <fio@vger.kernel.org>; Wed, 10 Oct 2018 16:00:13 -0400
+Received: from esa1.dell-outbound2.iphmx.com (esa1.dell-outbound2.iphmx.com [68.232.153.201])
+        by mx0b-00154901.pphosted.com with ESMTP id 2n1k3x9xwc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
+        for <fio@vger.kernel.org>; Wed, 10 Oct 2018 16:00:13 -0400
+From: "Beierl, Mark" <Mark.Beierl@dell.com>
 Subject: Re: fio on vmware esxi
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Date: Wed, 10 Oct 2018 19:59:59 +0000
+Message-ID: <0DE2B6A6-1AFB-4FAD-BD99-53136B45BCD8@emc.com>
+References: <001001d460c6$8c44b090$a4ce11b0$@integritech.solutions>
+ <BC19FF62-2BD8-4F83-9BFB-8D271F5D7101@emc.com>
+ <AE78B431-F6A6-4796-BB7E-1FE45E328D74@integritech.solutions>
+In-Reply-To: <AE78B431-F6A6-4796-BB7E-1FE45E328D74@integritech.solutions>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <17B9021612798D42AFADEEB6E738D338@mail.corp.emc.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: eliezer@integritech.solutions
-Cc: Mark.Beierl@dell.com, fio <fio@vger.kernel.org>
+To: Eliezer Nebab <eliezer@integritech.solutions>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi,
-
-The question of how to compile fio for ESXi comes up every few years
-and as Mark suggested it IS doable by building a static fio binary
-from an appropriate real distro but there are a few gotchas. You can't
-take a "regular" distro's fio because the ESXi environment simply
-doesn't match that of the regular distro (for example things like a
-glibc are compiled with different options, libraries are missing etc).
-
-The last time it was asked about was over on Github (see
-https://github.com/axboe/fio/issues/464 ) where I mentioned the steps
-I used to get it going for ESXi 6.0 but note that I no longer have
-access to ESXi these days so I can't say what's needed for modern
-environments (but the general idea should be the same).
-
-On Wed, 10 Oct 2018 at 21:00, Beierl, Mark <Mark.Beierl@dell.com> wrote:
->
-> Ya, sorry I could not be of more help.
->
-> I doubt that FIO could be compiled on raw ESXi as there is no compiler av=
-ailable on that from what I can tell.  A statically linked one should work,=
- but I really don=E2=80=99t know enough to be able to say why it could not =
-start a job.
->
-> I do know that ESXi can pass a full device (raw disk) to a VM and that VM=
- takes full ownership of it.  So you could load a VM with CentOS or somethi=
-ng and have FIO profile the raw device, but that is probably not going to b=
-e useful.  Chances are you are looking to something a little more advanced =
-like profile vSAN or some other form of software defined storage?
->
-> Regards,
-> Mark
->
-> Mark Beierl
-> SW System Sr Principal Developer
-> Dell EMC | Cloud & Communication Service Provider Solution
-> Mark.Beierl@Dell.com
->
-> On 2018-10-10, 15:56, "Eliezer Nebab" <eliezer@integritech.solutions> wro=
-te:
->
->
->     [EXTERNAL EMAIL]
->     Please report any suspicious attachments, links, or requests for sens=
-itive information.
->
->
->     Thanks for the quick response Mark.
->
->     Yes, I was looking for documentation or guide on if fio can be compil=
-ed or installed on esxi servers.
->
->     From your response it looks like (compile or precompiled) neither wor=
-ks.
->
->     Thank you.
->
->     Eliezer
->
->
->     > On Oct 10, 2018, at 2:05 PM, Beierl, Mark <Mark.Beierl@dell.com> wr=
-ote:
->     >
->     > Are you asking if FIO can be built or run on the hypervisor itself,=
- like via ssh?
->     >
->     > I have tried a test before where I statically compiled FIO and copi=
-ed it to an ESXi server, but I was never able to get any jobs to start.  No=
-t sure if the kernel supports the fork() or whatever call FIO uses to spawn=
- the job processes.  So, I=E2=80=99m not sure it can be done.  ESXi is not =
-a general purpose OS, so it lacks some features.
->     >
->     > Regards,
->     > Mark
->     >
->     > Mark Beierl
->     > SW System Sr Principal Developer
->     > Dell EMC | Cloud & Communication Service Provider Solution
->     > Mark.Beierl@Dell.com
->     >
->     > On 2018-10-10, 14:24, "fio-owner@vger.kernel.org on behalf of eliez=
-er@integritech.solutions" <fio-owner@vger.kernel.org on behalf of eliezer@i=
-ntegritech.solutions> wrote:
->     >
->     >
->     >    [EXTERNAL EMAIL]
->     >    Please report any suspicious attachments, links, or requests for=
- sensitive information.
->     >
->     >
->     >    Is fio supported on vmware esxi 5 and 6 servers?  Does anyone ha=
-ve any
->     >    helpful guides as to how to install it on vmware?  I've searched=
- google but
->     >    could not find any.  The only reference to fio+vmware is Disable=
- libaio for
->     >    ESXi build - bug#80
->     >
->     >    Thank you in advance.
->     >
->     >    Regards,
->     >    Eliezer
-
---=20
-Sitsofe | http://sucs.org/~sits/
+WWEsIHNvcnJ5IEkgY291bGQgbm90IGJlIG9mIG1vcmUgaGVscC4NCg0KSSBkb3VidCB0aGF0IEZJ
+TyBjb3VsZCBiZSBjb21waWxlZCBvbiByYXcgRVNYaSBhcyB0aGVyZSBpcyBubyBjb21waWxlciBh
+dmFpbGFibGUgb24gdGhhdCBmcm9tIHdoYXQgSSBjYW4gdGVsbC4gIEEgc3RhdGljYWxseSBsaW5r
+ZWQgb25lIHNob3VsZCB3b3JrLCBidXQgSSByZWFsbHkgZG9u4oCZdCBrbm93IGVub3VnaCB0byBi
+ZSBhYmxlIHRvIHNheSB3aHkgaXQgY291bGQgbm90IHN0YXJ0IGEgam9iLg0KDQpJIGRvIGtub3cg
+dGhhdCBFU1hpIGNhbiBwYXNzIGEgZnVsbCBkZXZpY2UgKHJhdyBkaXNrKSB0byBhIFZNIGFuZCB0
+aGF0IFZNIHRha2VzIGZ1bGwgb3duZXJzaGlwIG9mIGl0LiAgU28geW91IGNvdWxkIGxvYWQgYSBW
+TSB3aXRoIENlbnRPUyBvciBzb21ldGhpbmcgYW5kIGhhdmUgRklPIHByb2ZpbGUgdGhlIHJhdyBk
+ZXZpY2UsIGJ1dCB0aGF0IGlzIHByb2JhYmx5IG5vdCBnb2luZyB0byBiZSB1c2VmdWwuICBDaGFu
+Y2VzIGFyZSB5b3UgYXJlIGxvb2tpbmcgdG8gc29tZXRoaW5nIGEgbGl0dGxlIG1vcmUgYWR2YW5j
+ZWQgbGlrZSBwcm9maWxlIHZTQU4gb3Igc29tZSBvdGhlciBmb3JtIG9mIHNvZnR3YXJlIGRlZmlu
+ZWQgc3RvcmFnZT8NCg0KUmVnYXJkcywNCk1hcmsNCiANCk1hcmsgQmVpZXJsDQpTVyBTeXN0ZW0g
+U3IgUHJpbmNpcGFsIERldmVsb3Blcg0KRGVsbCBFTUMgfCBDbG91ZCAmIENvbW11bmljYXRpb24g
+U2VydmljZSBQcm92aWRlciBTb2x1dGlvbg0KTWFyay5CZWllcmxARGVsbC5jb20NCg0KT24gMjAx
+OC0xMC0xMCwgMTU6NTYsICJFbGllemVyIE5lYmFiIiA8ZWxpZXplckBpbnRlZ3JpdGVjaC5zb2x1
+dGlvbnM+IHdyb3RlOg0KDQogICAgDQogICAgW0VYVEVSTkFMIEVNQUlMXSANCiAgICBQbGVhc2Ug
+cmVwb3J0IGFueSBzdXNwaWNpb3VzIGF0dGFjaG1lbnRzLCBsaW5rcywgb3IgcmVxdWVzdHMgZm9y
+IHNlbnNpdGl2ZSBpbmZvcm1hdGlvbi4NCiAgICANCiAgICANCiAgICBUaGFua3MgZm9yIHRoZSBx
+dWljayByZXNwb25zZSBNYXJrLg0KICAgIA0KICAgIFllcywgSSB3YXMgbG9va2luZyBmb3IgZG9j
+dW1lbnRhdGlvbiBvciBndWlkZSBvbiBpZiBmaW8gY2FuIGJlIGNvbXBpbGVkIG9yIGluc3RhbGxl
+ZCBvbiBlc3hpIHNlcnZlcnMuICANCiAgICAgDQogICAgRnJvbSB5b3VyIHJlc3BvbnNlIGl0IGxv
+b2tzIGxpa2UgKGNvbXBpbGUgb3IgcHJlY29tcGlsZWQpIG5laXRoZXIgd29ya3MuDQogICAgDQog
+ICAgVGhhbmsgeW91Lg0KICAgIA0KICAgIEVsaWV6ZXINCiAgICANCiAgICANCiAgICA+IE9uIE9j
+dCAxMCwgMjAxOCwgYXQgMjowNSBQTSwgQmVpZXJsLCBNYXJrIDxNYXJrLkJlaWVybEBkZWxsLmNv
+bT4gd3JvdGU6DQogICAgPiANCiAgICA+IEFyZSB5b3UgYXNraW5nIGlmIEZJTyBjYW4gYmUgYnVp
+bHQgb3IgcnVuIG9uIHRoZSBoeXBlcnZpc29yIGl0c2VsZiwgbGlrZSB2aWEgc3NoPw0KICAgID4g
+DQogICAgPiBJIGhhdmUgdHJpZWQgYSB0ZXN0IGJlZm9yZSB3aGVyZSBJIHN0YXRpY2FsbHkgY29t
+cGlsZWQgRklPIGFuZCBjb3BpZWQgaXQgdG8gYW4gRVNYaSBzZXJ2ZXIsIGJ1dCBJIHdhcyBuZXZl
+ciBhYmxlIHRvIGdldCBhbnkgam9icyB0byBzdGFydC4gIE5vdCBzdXJlIGlmIHRoZSBrZXJuZWwg
+c3VwcG9ydHMgdGhlIGZvcmsoKSBvciB3aGF0ZXZlciBjYWxsIEZJTyB1c2VzIHRvIHNwYXduIHRo
+ZSBqb2IgcHJvY2Vzc2VzLiAgU28sIEnigJltIG5vdCBzdXJlIGl0IGNhbiBiZSBkb25lLiAgRVNY
+aSBpcyBub3QgYSBnZW5lcmFsIHB1cnBvc2UgT1MsIHNvIGl0IGxhY2tzIHNvbWUgZmVhdHVyZXMu
+DQogICAgPiANCiAgICA+IFJlZ2FyZHMsDQogICAgPiBNYXJrDQogICAgPiANCiAgICA+IE1hcmsg
+QmVpZXJsDQogICAgPiBTVyBTeXN0ZW0gU3IgUHJpbmNpcGFsIERldmVsb3Blcg0KICAgID4gRGVs
+bCBFTUMgfCBDbG91ZCAmIENvbW11bmljYXRpb24gU2VydmljZSBQcm92aWRlciBTb2x1dGlvbg0K
+ICAgID4gTWFyay5CZWllcmxARGVsbC5jb20NCiAgICA+IA0KICAgID4gT24gMjAxOC0xMC0xMCwg
+MTQ6MjQsICJmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIG9uIGJlaGFsZiBvZiBlbGllemVyQGlu
+dGVncml0ZWNoLnNvbHV0aW9ucyIgPGZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmcgb24gYmVoYWxm
+IG9mIGVsaWV6ZXJAaW50ZWdyaXRlY2guc29sdXRpb25zPiB3cm90ZToNCiAgICA+IA0KICAgID4g
+DQogICAgPiAgICBbRVhURVJOQUwgRU1BSUxdIA0KICAgID4gICAgUGxlYXNlIHJlcG9ydCBhbnkg
+c3VzcGljaW91cyBhdHRhY2htZW50cywgbGlua3MsIG9yIHJlcXVlc3RzIGZvciBzZW5zaXRpdmUg
+aW5mb3JtYXRpb24uDQogICAgPiANCiAgICA+IA0KICAgID4gICAgSXMgZmlvIHN1cHBvcnRlZCBv
+biB2bXdhcmUgZXN4aSA1IGFuZCA2IHNlcnZlcnM/ICBEb2VzIGFueW9uZSBoYXZlIGFueQ0KICAg
+ID4gICAgaGVscGZ1bCBndWlkZXMgYXMgdG8gaG93IHRvIGluc3RhbGwgaXQgb24gdm13YXJlPyAg
+SSd2ZSBzZWFyY2hlZCBnb29nbGUgYnV0DQogICAgPiAgICBjb3VsZCBub3QgZmluZCBhbnkuICBU
+aGUgb25seSByZWZlcmVuY2UgdG8gZmlvK3Ztd2FyZSBpcyBEaXNhYmxlIGxpYmFpbyBmb3INCiAg
+ICA+ICAgIEVTWGkgYnVpbGQgLSBidWcjODANCiAgICA+IA0KICAgID4gICAgVGhhbmsgeW91IGlu
+IGFkdmFuY2UuDQogICAgPiANCiAgICA+ICAgIFJlZ2FyZHMsDQogICAgPiAgICBFbGllemVyDQog
+ICAgPiANCiAgICA+IA0KICAgID4gDQogICAgDQogICAgDQoNCg==
 
