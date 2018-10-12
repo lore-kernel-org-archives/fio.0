@@ -1,175 +1,223 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa4.dell-outbound.iphmx.com ([68.232.149.214]:37027 "EHLO
-        esa4.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725929AbeJMBwz (ORCPT
-        <rfc822;fio@vger.kernel.org>); Fri, 12 Oct 2018 21:52:55 -0400
-Received: from pps.filterd (m0133268.ppops.net [127.0.0.1])
-        by mx0a-00154901.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w9CIDFYP127535
-        for <fio@vger.kernel.org>; Fri, 12 Oct 2018 14:19:08 -0400
-Received: from esa2.dell-outbound2.iphmx.com (esa2.dell-outbound2.iphmx.com [68.232.153.202])
-        by mx0a-00154901.pphosted.com with ESMTP id 2mxq9reyg7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
-        for <fio@vger.kernel.org>; Fri, 12 Oct 2018 14:19:07 -0400
-From: "Beierl, Mark" <Mark.Beierl@dell.com>
-Subject: Re: fio on vmware esxi
-Date: Fri, 12 Oct 2018 18:18:54 +0000
-Message-ID: <C1ACAB20-DCF1-4906-87C0-DBE727736C5E@emc.com>
-References: <001001d460c6$8c44b090$a4ce11b0$@integritech.solutions>
- <BC19FF62-2BD8-4F83-9BFB-8D271F5D7101@emc.com>
- <AE78B431-F6A6-4796-BB7E-1FE45E328D74@integritech.solutions>
- <0DE2B6A6-1AFB-4FAD-BD99-53136B45BCD8@emc.com>
- <CALjAwxjazAUEip=nea=7K8LVRBRwq6c0h9FheeCVvh372ZvaKw@mail.gmail.com>
- <6E7254E9-4B9B-4208-9392-2ABD43FE36A4@emc.com>
- <CALjAwxg9kiEPqOLHD2_-Px9_rXeQyqAzksaf39ABakJnUE1kiw@mail.gmail.com>
-In-Reply-To: <CALjAwxg9kiEPqOLHD2_-Px9_rXeQyqAzksaf39ABakJnUE1kiw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <41713E87AC3DB34793F6C9B653AD0A61@mail.corp.emc.com>
-Content-Transfer-Encoding: base64
+Received: from mail-vs1-f67.google.com ([209.85.217.67]:32992 "EHLO
+        mail-vs1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727286AbeJLNor (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 12 Oct 2018 09:44:47 -0400
+Received: by mail-vs1-f67.google.com with SMTP id e206so10922421vsd.0
+        for <fio@vger.kernel.org>; Thu, 11 Oct 2018 23:13:54 -0700 (PDT)
 MIME-Version: 1.0
+References: <001001d460c6$8c44b090$a4ce11b0$@integritech.solutions>
+ <BC19FF62-2BD8-4F83-9BFB-8D271F5D7101@emc.com> <AE78B431-F6A6-4796-BB7E-1FE45E328D74@integritech.solutions>
+ <0DE2B6A6-1AFB-4FAD-BD99-53136B45BCD8@emc.com> <CALjAwxjazAUEip=nea=7K8LVRBRwq6c0h9FheeCVvh372ZvaKw@mail.gmail.com>
+ <6E7254E9-4B9B-4208-9392-2ABD43FE36A4@emc.com>
+In-Reply-To: <6E7254E9-4B9B-4208-9392-2ABD43FE36A4@emc.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Fri, 12 Oct 2018 07:13:29 +0100
+Message-ID: <CALjAwxg9kiEPqOLHD2_-Px9_rXeQyqAzksaf39ABakJnUE1kiw@mail.gmail.com>
+Subject: Re: fio on vmware esxi
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: "eliezer@integritech.solutions" <eliezer@integritech.solutions>, fio <fio@vger.kernel.org>
+To: Mark.Beierl@dell.com
+Cc: eliezer@integritech.solutions, fio <fio@vger.kernel.org>
 
-T29wcywgdGhhbmtzIFNpdHNvZmUuDQoNCkkgb3Zlci1lbnRodXNpYXRpY2FsbHkgY29waWVkIHRo
-YXQgZnJvbSBhbm90aGVyIGRvY2tlciBmaWxlIHdoZXJlIEkgd2FzIGFsc28gZG9pbmcgaHR0cHMg
-cmVxdWVzdHMuICBZb3UgYXJlIHJpZ2h0LCBpdCBoYXMgbm8gcHVycG9zZSBpbiB0aGlzIGNhc2Uu
-DQoNCkhvcGVmdWxseSBJIGNhbiBsb29rIGF0IHRoZSBsaWJhaW8gd2l0aCAtLWVzeCBvcHRpb24g
-bmV4dCB3ZWVrLg0KDQpSZWdhcmRzLA0KTWFyaw0KIA0KTWFyayBCZWllcmwNClNXIFN5c3RlbSBT
-ciBQcmluY2lwYWwgRGV2ZWxvcGVyDQpEZWxsIEVNQyB8IENsb3VkICYgQ29tbXVuaWNhdGlvbiBT
-ZXJ2aWNlIFByb3ZpZGVyIFNvbHV0aW9uDQpNYXJrLkJlaWVybEBEZWxsLmNvbQ0KDQpPbiAyMDE4
-LTEwLTEyLCAwMjoxMywgIlNpdHNvZmUgV2hlZWxlciIgPHNpdHNvZmVAZ21haWwuY29tPiB3cm90
-ZToNCg0KICAgIA0KICAgIFtFWFRFUk5BTCBFTUFJTF0gDQogICAgUGxlYXNlIHJlcG9ydCBhbnkg
-c3VzcGljaW91cyBhdHRhY2htZW50cywgbGlua3MsIG9yIHJlcXVlc3RzIGZvciBzZW5zaXRpdmUg
-aW5mb3JtYXRpb24uDQogICAgDQogICAgDQogICAgVGhhbmsgeW91IGZvciBmb2xsb3dpbmcgdXAg
-b24gdGhpcyBNYXJrIC0gSSdtIHN1cmUgb3RoZXJzIHdpbGwgZmluZA0KICAgIHRoYXQgaW5mb3Jt
-YXRpb24gdXNlZnVsIQ0KICAgIA0KICAgIEdsYW5jaW5nIGF0IHlvdXIgc3RlcHM6DQogICAgDQog
-ICAgPiBSVU4gZ2l0IGNvbmZpZyAtLWdsb2JhbCBodHRwLnNzbFZlcmlmeSBmYWxzZQ0KICAgIA0K
-ICAgIEknbSBub3Qgc3VyZSB5b3UgbmVlZCB0aGlzIGFzIHRoZSBuZXh0IGxpbmUgaXNuJ3QgdXNp
-bmcgaHR0cHM6DQogICAgDQogICAgPiBSVU4gZ2l0IGNsb25lIGh0dHA6Ly9naXQua2VybmVsLmRr
-L2Zpby5naXQgZmlvDQogICAgDQogICAgSSBkb24ndCBrbm93IGlmIGFscGluZSBidWlsZHMgYSBz
-dGF0aWMgdmVyc2lvbiBvZiBsaWJhaW8gKGUuZy4gdGhlcmUNCiAgICBpc24ndCBhIHByZXBhY2th
-Z2VkICpzdGF0aWMqIGxpYmFpbyBvbiBDZW50T1MvUkhFTCkgYnV0IGlmIGl0IGRvZXMgeW91DQog
-ICAgbWF5IGZpbmQgeW91IGNhbiBub2JibGUgZmlvJ3MgY29uZmlndXJlIHNjcmlwdCB0byBhbGxv
-dyBpdHMgZGV0ZWN0aW9uDQogICAgZXZlbiB0aG91Z2ggeW91J3JlIHVzaW5nIHRoZSAtLWVzeCBv
-cHRpb24uLi4NCiAgICANCiAgICBPbiBUaHUsIDExIE9jdCAyMDE4IGF0IDE0OjQyLCBCZWllcmws
-IE1hcmsgPE1hcmsuQmVpZXJsQGRlbGwuY29tPiB3cm90ZToNCiAgICA+DQogICAgPiBIZXkgYWxs
-LCBhbmQgc3BlY2lhbCB0aGFua3MgdG8gU2l0c29mZSBmb3IgcG9pbnRpbmcgbWUgYXQgdGhlIGdp
-dGh1YiBmaW8gaXNzdWUgNDY0Lg0KICAgID4NCiAgICA+IEkgaGF2ZSBmaW8gd29ya2luZyBvbiBt
-eSBFU1hpIDYuNSBzZXJ2ZXIuICBIZXJlIGlzIHRoZSBwcm9jZWR1cmUgSSB1c2VkLiAgSW5zdGFs
-bCBEb2NrZXIgYW5kIHVzZSB0aGlzIERvY2tlcmZpbGU6DQogICAgPg0KICAgID4gPT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT0NCiAgICA+IEZST00gbXVsdGlhcmNoL2FscGluZTp4ODZfNjQt
-djMuNg0KICAgID4NCiAgICA+IFJVTiBhcGsgLS1uby1jYWNoZSBhZGQgLS11cGRhdGUgXA0KICAg
-ID4gICAgIGdpdCBcDQogICAgPiAgICAgYWxwaW5lLXNkayBcDQogICAgPiAgICAgY29yZXV0aWxz
-IFwNCiAgICA+ICAgICBsaW51eC1oZWFkZXJzIFwNCiAgICA+ICAgICBsaWJhaW8gXA0KICAgID4g
-ICAgIGxpYmFpby1kZXYgXA0KICAgID4gICAgIHpsaWItZGV2DQogICAgPg0KICAgID4gUlVOIGdp
-dCBjb25maWcgLS1nbG9iYWwgaHR0cC5zc2xWZXJpZnkgZmFsc2UNCiAgICA+IFJVTiBnaXQgY2xv
-bmUgaHR0cDovL2dpdC5rZXJuZWwuZGsvZmlvLmdpdCBmaW8NCiAgICA+IFJVTiBjZCBmaW8gJiYg
-Li9jb25maWd1cmUgLS1lc3gNCiAgICA+IFJVTiBjZCBmaW8gJiYgRVhURkxBR1M9Ii1zdGF0aWMi
-IG1ha2UgLWogJChncmVwIC1jIF5wcm9jZXNzb3IgL3Byb2MvY3B1aW5mbykgaW5zdGFsbA0KICAg
-ID4gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCiAgICA+DQogICAgPiBUaGVuLCBzdGFy
-dCB0aGUgZG9ja2VyIGNvbnRhaW5lciB3aXRoIGEgZHVtbXkgY29tbWFuZCAoSeKAmW0gc3VyZSB0
-aGVyZSBhcmUgYmV0dGVyIHdheXMgdG8gZG8gdGhpcywgYnV0IGl0IHdvcmtzLCBzbyBoZXkpDQog
-ICAgPiAkIGRvY2tlciBydW4gLWQgZmlvIHNsZWVwIDYwMA0KICAgID4NCiAgICA+IE5vdGUgdGhl
-IElEIHRoYXQgaXQgc3BpdHMgb3V0LiAgVXNlIHRoYXQgSUQgaW4gdGhlIG5leHQgY29tbWFuZDoN
-CiAgICA+ICQgZG9ja2VyIGNwIDY5ZTY0ZGUzODY1OWQzNTBmYjA3ZTQ1YjVkN2QyZDQwOThjNjQy
-ZWMxY2E4MWE2ZWIxOGE5YjM0ZTYyMjA4MmY6L2Zpby9maW8gLg0KICAgID4NCiAgICA+IFlvdSBj
-YW4gbm93IHNjcCB0aGF0IGZpbyB0byB5b3VyIEVTWGkgc2VydmVyIGFuZCBleGVjdXRlIGl0IHRo
-ZXJlLg0KICAgID4NCiAgICA+IFtyb290QFIxNTZVMzdFU1hJOi92bWZzL3ZvbHVtZXMvNWE2MTE3
-ODItMmQxNGJmNjUtYzQ1My0yNDZlOTYxNDZmODgvdGVzdGRpcl0gfi9maW8gdGVzdC5maW8NCiAg
-ICA+IGZpbGUxOiAoZz0wKTogcnc9cmFuZHJ3LCBicz0oUikgNDA5NkItNDA5NkIsIChXKSA0MDk2
-Qi00MDk2QiwgKFQpIDQwOTZCLTQwOTZCLCBpb2VuZ2luZT1wc3luYywgaW9kZXB0aD0xNg0KICAg
-ID4gZmlvLTMuMTEtNi1nZWU2Y2UNCiAgICA+IFN0YXJ0aW5nIDEgdGhyZWFkDQogICAgPiBmaWxl
-MTogTGF5aW5nIG91dCBJTyBmaWxlICgxIGZpbGUgLyAxMDI0TWlCKQ0KICAgID4gSm9iczogMSAo
-Zj0xKTogW2YoMSldWzEwMC4wJV1bcj0xMzQ2S2lCL3Msdz04OTlLaUIvc11bcj0zMzYsdz0yMjQg
-SU9QU11bZXRhIDAwbTowMHNdDQogICAgPiAuLi4uDQogICAgPg0KICAgID4gSG9wZSB0aGlzIHdv
-cmtzIGZvciB5b3UsIEVsaWV6ZXIhDQogICAgPg0KICAgID4gUmVnYXJkcywNCiAgICA+IE1hcmsN
-CiAgICA+DQogICAgPiBNYXJrIEJlaWVybA0KICAgID4gU1cgU3lzdGVtIFNyIFByaW5jaXBhbCBE
-ZXZlbG9wZXINCiAgICA+IERlbGwgRU1DIHwgQ2xvdWQgJiBDb21tdW5pY2F0aW9uIFNlcnZpY2Ug
-UHJvdmlkZXIgU29sdXRpb24NCiAgICA+IE1hcmsuQmVpZXJsQERlbGwuY29tDQogICAgPg0KICAg
-ID4gT24gMjAxOC0xMC0xMSwgMDE6MzQsICJTaXRzb2ZlIFdoZWVsZXIiIDxzaXRzb2ZlQGdtYWls
-LmNvbT4gd3JvdGU6DQogICAgPg0KICAgID4NCiAgICA+ICAgICBbRVhURVJOQUwgRU1BSUxdDQog
-ICAgPiAgICAgUGxlYXNlIHJlcG9ydCBhbnkgc3VzcGljaW91cyBhdHRhY2htZW50cywgbGlua3Ms
-IG9yIHJlcXVlc3RzIGZvciBzZW5zaXRpdmUgaW5mb3JtYXRpb24uDQogICAgPg0KICAgID4NCiAg
-ICA+ICAgICBIaSwNCiAgICA+DQogICAgPiAgICAgVGhlIHF1ZXN0aW9uIG9mIGhvdyB0byBjb21w
-aWxlIGZpbyBmb3IgRVNYaSBjb21lcyB1cCBldmVyeSBmZXcgeWVhcnMNCiAgICA+ICAgICBhbmQg
-YXMgTWFyayBzdWdnZXN0ZWQgaXQgSVMgZG9hYmxlIGJ5IGJ1aWxkaW5nIGEgc3RhdGljIGZpbyBi
-aW5hcnkNCiAgICA+ICAgICBmcm9tIGFuIGFwcHJvcHJpYXRlIHJlYWwgZGlzdHJvIGJ1dCB0aGVy
-ZSBhcmUgYSBmZXcgZ290Y2hhcy4gWW91IGNhbid0DQogICAgPiAgICAgdGFrZSBhICJyZWd1bGFy
-IiBkaXN0cm8ncyBmaW8gYmVjYXVzZSB0aGUgRVNYaSBlbnZpcm9ubWVudCBzaW1wbHkNCiAgICA+
-ICAgICBkb2Vzbid0IG1hdGNoIHRoYXQgb2YgdGhlIHJlZ3VsYXIgZGlzdHJvIChmb3IgZXhhbXBs
-ZSB0aGluZ3MgbGlrZSBhDQogICAgPiAgICAgZ2xpYmMgYXJlIGNvbXBpbGVkIHdpdGggZGlmZmVy
-ZW50IG9wdGlvbnMsIGxpYnJhcmllcyBhcmUgbWlzc2luZyBldGMpLg0KICAgID4NCiAgICA+ICAg
-ICBUaGUgbGFzdCB0aW1lIGl0IHdhcyBhc2tlZCBhYm91dCB3YXMgb3ZlciBvbiBHaXRodWIgKHNl
-ZQ0KICAgID4gICAgIGh0dHBzOi8vZ2l0aHViLmNvbS9heGJvZS9maW8vaXNzdWVzLzQ2NCApIHdo
-ZXJlIEkgbWVudGlvbmVkIHRoZSBzdGVwcw0KICAgID4gICAgIEkgdXNlZCB0byBnZXQgaXQgZ29p
-bmcgZm9yIEVTWGkgNi4wIGJ1dCBub3RlIHRoYXQgSSBubyBsb25nZXIgaGF2ZQ0KICAgID4gICAg
-IGFjY2VzcyB0byBFU1hpIHRoZXNlIGRheXMgc28gSSBjYW4ndCBzYXkgd2hhdCdzIG5lZWRlZCBm
-b3IgbW9kZXJuDQogICAgPiAgICAgZW52aXJvbm1lbnRzIChidXQgdGhlIGdlbmVyYWwgaWRlYSBz
-aG91bGQgYmUgdGhlIHNhbWUpLg0KICAgID4NCiAgICA+ICAgICBPbiBXZWQsIDEwIE9jdCAyMDE4
-IGF0IDIxOjAwLCBCZWllcmwsIE1hcmsgPE1hcmsuQmVpZXJsQGRlbGwuY29tPiB3cm90ZToNCiAg
-ICA+ICAgICA+DQogICAgPiAgICAgPiBZYSwgc29ycnkgSSBjb3VsZCBub3QgYmUgb2YgbW9yZSBo
-ZWxwLg0KICAgID4gICAgID4NCiAgICA+ICAgICA+IEkgZG91YnQgdGhhdCBGSU8gY291bGQgYmUg
-Y29tcGlsZWQgb24gcmF3IEVTWGkgYXMgdGhlcmUgaXMgbm8gY29tcGlsZXIgYXZhaWxhYmxlIG9u
-IHRoYXQgZnJvbSB3aGF0IEkgY2FuIHRlbGwuICBBIHN0YXRpY2FsbHkgbGlua2VkIG9uZSBzaG91
-bGQgd29yaywgYnV0IEkgcmVhbGx5IGRvbuKAmXQga25vdyBlbm91Z2ggdG8gYmUgYWJsZSB0byBz
-YXkgd2h5IGl0IGNvdWxkIG5vdCBzdGFydCBhIGpvYi4NCiAgICA+ICAgICA+DQogICAgPiAgICAg
-PiBJIGRvIGtub3cgdGhhdCBFU1hpIGNhbiBwYXNzIGEgZnVsbCBkZXZpY2UgKHJhdyBkaXNrKSB0
-byBhIFZNIGFuZCB0aGF0IFZNIHRha2VzIGZ1bGwgb3duZXJzaGlwIG9mIGl0LiAgU28geW91IGNv
-dWxkIGxvYWQgYSBWTSB3aXRoIENlbnRPUyBvciBzb21ldGhpbmcgYW5kIGhhdmUgRklPIHByb2Zp
-bGUgdGhlIHJhdyBkZXZpY2UsIGJ1dCB0aGF0IGlzIHByb2JhYmx5IG5vdCBnb2luZyB0byBiZSB1
-c2VmdWwuICBDaGFuY2VzIGFyZSB5b3UgYXJlIGxvb2tpbmcgdG8gc29tZXRoaW5nIGEgbGl0dGxl
-IG1vcmUgYWR2YW5jZWQgbGlrZSBwcm9maWxlIHZTQU4gb3Igc29tZSBvdGhlciBmb3JtIG9mIHNv
-ZnR3YXJlIGRlZmluZWQgc3RvcmFnZT8NCiAgICA+ICAgICA+DQogICAgPiAgICAgPiBSZWdhcmRz
-LA0KICAgID4gICAgID4gTWFyaw0KICAgID4gICAgID4NCiAgICA+ICAgICA+IE1hcmsgQmVpZXJs
-DQogICAgPiAgICAgPiBTVyBTeXN0ZW0gU3IgUHJpbmNpcGFsIERldmVsb3Blcg0KICAgID4gICAg
-ID4gRGVsbCBFTUMgfCBDbG91ZCAmIENvbW11bmljYXRpb24gU2VydmljZSBQcm92aWRlciBTb2x1
-dGlvbg0KICAgID4gICAgID4gTWFyay5CZWllcmxARGVsbC5jb20NCiAgICA+ICAgICA+DQogICAg
-PiAgICAgPiBPbiAyMDE4LTEwLTEwLCAxNTo1NiwgIkVsaWV6ZXIgTmViYWIiIDxlbGllemVyQGlu
-dGVncml0ZWNoLnNvbHV0aW9ucz4gd3JvdGU6DQogICAgPiAgICAgPg0KICAgID4gICAgID4NCiAg
-ICA+ICAgICA+ICAgICBbRVhURVJOQUwgRU1BSUxdDQogICAgPiAgICAgPiAgICAgUGxlYXNlIHJl
-cG9ydCBhbnkgc3VzcGljaW91cyBhdHRhY2htZW50cywgbGlua3MsIG9yIHJlcXVlc3RzIGZvciBz
-ZW5zaXRpdmUgaW5mb3JtYXRpb24uDQogICAgPiAgICAgPg0KICAgID4gICAgID4NCiAgICA+ICAg
-ICA+ICAgICBUaGFua3MgZm9yIHRoZSBxdWljayByZXNwb25zZSBNYXJrLg0KICAgID4gICAgID4N
-CiAgICA+ICAgICA+ICAgICBZZXMsIEkgd2FzIGxvb2tpbmcgZm9yIGRvY3VtZW50YXRpb24gb3Ig
-Z3VpZGUgb24gaWYgZmlvIGNhbiBiZSBjb21waWxlZCBvciBpbnN0YWxsZWQgb24gZXN4aSBzZXJ2
-ZXJzLg0KICAgID4gICAgID4NCiAgICA+ICAgICA+ICAgICBGcm9tIHlvdXIgcmVzcG9uc2UgaXQg
-bG9va3MgbGlrZSAoY29tcGlsZSBvciBwcmVjb21waWxlZCkgbmVpdGhlciB3b3Jrcy4NCiAgICA+
-ICAgICA+DQogICAgPiAgICAgPiAgICAgVGhhbmsgeW91Lg0KICAgID4gICAgID4NCiAgICA+ICAg
-ICA+ICAgICBFbGllemVyDQogICAgPiAgICAgPg0KICAgID4gICAgID4NCiAgICA+ICAgICA+ICAg
-ICA+IE9uIE9jdCAxMCwgMjAxOCwgYXQgMjowNSBQTSwgQmVpZXJsLCBNYXJrIDxNYXJrLkJlaWVy
-bEBkZWxsLmNvbT4gd3JvdGU6DQogICAgPiAgICAgPiAgICAgPg0KICAgID4gICAgID4gICAgID4g
-QXJlIHlvdSBhc2tpbmcgaWYgRklPIGNhbiBiZSBidWlsdCBvciBydW4gb24gdGhlIGh5cGVydmlz
-b3IgaXRzZWxmLCBsaWtlIHZpYSBzc2g/DQogICAgPiAgICAgPiAgICAgPg0KICAgID4gICAgID4g
-ICAgID4gSSBoYXZlIHRyaWVkIGEgdGVzdCBiZWZvcmUgd2hlcmUgSSBzdGF0aWNhbGx5IGNvbXBp
-bGVkIEZJTyBhbmQgY29waWVkIGl0IHRvIGFuIEVTWGkgc2VydmVyLCBidXQgSSB3YXMgbmV2ZXIg
-YWJsZSB0byBnZXQgYW55IGpvYnMgdG8gc3RhcnQuICBOb3Qgc3VyZSBpZiB0aGUga2VybmVsIHN1
-cHBvcnRzIHRoZSBmb3JrKCkgb3Igd2hhdGV2ZXIgY2FsbCBGSU8gdXNlcyB0byBzcGF3biB0aGUg
-am9iIHByb2Nlc3Nlcy4gIFNvLCBJ4oCZbSBub3Qgc3VyZSBpdCBjYW4gYmUgZG9uZS4gIEVTWGkg
-aXMgbm90IGEgZ2VuZXJhbCBwdXJwb3NlIE9TLCBzbyBpdCBsYWNrcyBzb21lIGZlYXR1cmVzLg0K
-ICAgID4gICAgID4gICAgID4NCiAgICA+ICAgICA+ICAgICA+IFJlZ2FyZHMsDQogICAgPiAgICAg
-PiAgICAgPiBNYXJrDQogICAgPiAgICAgPiAgICAgPg0KICAgID4gICAgID4gICAgID4gTWFyayBC
-ZWllcmwNCiAgICA+ICAgICA+ICAgICA+IFNXIFN5c3RlbSBTciBQcmluY2lwYWwgRGV2ZWxvcGVy
-DQogICAgPiAgICAgPiAgICAgPiBEZWxsIEVNQyB8IENsb3VkICYgQ29tbXVuaWNhdGlvbiBTZXJ2
-aWNlIFByb3ZpZGVyIFNvbHV0aW9uDQogICAgPiAgICAgPiAgICAgPiBNYXJrLkJlaWVybEBEZWxs
-LmNvbQ0KICAgID4gICAgID4gICAgID4NCiAgICA+ICAgICA+ICAgICA+IE9uIDIwMTgtMTAtMTAs
-IDE0OjI0LCAiZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZyBvbiBiZWhhbGYgb2YgZWxpZXplckBp
-bnRlZ3JpdGVjaC5zb2x1dGlvbnMiIDxmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIG9uIGJlaGFs
-ZiBvZiBlbGllemVyQGludGVncml0ZWNoLnNvbHV0aW9ucz4gd3JvdGU6DQogICAgPiAgICAgPiAg
-ICAgPg0KICAgID4gICAgID4gICAgID4NCiAgICA+ICAgICA+ICAgICA+ICAgIFtFWFRFUk5BTCBF
-TUFJTF0NCiAgICA+ICAgICA+ICAgICA+ICAgIFBsZWFzZSByZXBvcnQgYW55IHN1c3BpY2lvdXMg
-YXR0YWNobWVudHMsIGxpbmtzLCBvciByZXF1ZXN0cyBmb3Igc2Vuc2l0aXZlIGluZm9ybWF0aW9u
-Lg0KICAgID4gICAgID4gICAgID4NCiAgICA+ICAgICA+ICAgICA+DQogICAgPiAgICAgPiAgICAg
-PiAgICBJcyBmaW8gc3VwcG9ydGVkIG9uIHZtd2FyZSBlc3hpIDUgYW5kIDYgc2VydmVycz8gIERv
-ZXMgYW55b25lIGhhdmUgYW55DQogICAgPiAgICAgPiAgICAgPiAgICBoZWxwZnVsIGd1aWRlcyBh
-cyB0byBob3cgdG8gaW5zdGFsbCBpdCBvbiB2bXdhcmU/ICBJJ3ZlIHNlYXJjaGVkIGdvb2dsZSBi
-dXQNCiAgICA+ICAgICA+ICAgICA+ICAgIGNvdWxkIG5vdCBmaW5kIGFueS4gIFRoZSBvbmx5IHJl
-ZmVyZW5jZSB0byBmaW8rdm13YXJlIGlzIERpc2FibGUgbGliYWlvIGZvcg0KICAgID4gICAgID4g
-ICAgID4gICAgRVNYaSBidWlsZCAtIGJ1ZyM4MA0KICAgID4gICAgID4gICAgID4NCiAgICA+ICAg
-ICA+ICAgICA+ICAgIFRoYW5rIHlvdSBpbiBhZHZhbmNlLg0KICAgID4gICAgID4gICAgID4NCiAg
-ICA+ICAgICA+ICAgICA+ICAgIFJlZ2FyZHMsDQogICAgPiAgICAgPiAgICAgPiAgICBFbGllemVy
-DQogICAgPg0KICAgID4gICAgIC0tDQogICAgPiAgICAgU2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9y
-Zy9+c2l0cy8NCiAgICA+DQogICAgPg0KICAgIA0KICAgIA0KICAgIC0tIA0KICAgIFNpdHNvZmUg
-fCBodHRwOi8vc3Vjcy5vcmcvfnNpdHMvDQogICAgDQoNCg==
+Thank you for following up on this Mark - I'm sure others will find
+that information useful!
+
+Glancing at your steps:
+
+> RUN git config --global http.sslVerify false
+
+I'm not sure you need this as the next line isn't using https:
+
+> RUN git clone http://git.kernel.dk/fio.git fio
+
+I don't know if alpine builds a static version of libaio (e.g. there
+isn't a prepackaged *static* libaio on CentOS/RHEL) but if it does you
+may find you can nobble fio's configure script to allow its detection
+even though you're using the --esx option...
+
+On Thu, 11 Oct 2018 at 14:42, Beierl, Mark <Mark.Beierl@dell.com> wrote:
+>
+> Hey all, and special thanks to Sitsofe for pointing me at the github fio =
+issue 464.
+>
+> I have fio working on my ESXi 6.5 server.  Here is the procedure I used. =
+ Install Docker and use this Dockerfile:
+>
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+> FROM multiarch/alpine:x86_64-v3.6
+>
+> RUN apk --no-cache add --update \
+>     git \
+>     alpine-sdk \
+>     coreutils \
+>     linux-headers \
+>     libaio \
+>     libaio-dev \
+>     zlib-dev
+>
+> RUN git config --global http.sslVerify false
+> RUN git clone http://git.kernel.dk/fio.git fio
+> RUN cd fio && ./configure --esx
+> RUN cd fio && EXTFLAGS=3D"-static" make -j $(grep -c ^processor /proc/cpu=
+info) install
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+>
+> Then, start the docker container with a dummy command (I=E2=80=99m sure t=
+here are better ways to do this, but it works, so hey)
+> $ docker run -d fio sleep 600
+>
+> Note the ID that it spits out.  Use that ID in the next command:
+> $ docker cp 69e64de38659d350fb07e45b5d7d2d4098c642ec1ca81a6eb18a9b34e6220=
+82f:/fio/fio .
+>
+> You can now scp that fio to your ESXi server and execute it there.
+>
+> [root@R156U37ESXI:/vmfs/volumes/5a611782-2d14bf65-c453-246e96146f88/testd=
+ir] ~/fio test.fio
+> file1: (g=3D0): rw=3Drandrw, bs=3D(R) 4096B-4096B, (W) 4096B-4096B, (T) 4=
+096B-4096B, ioengine=3Dpsync, iodepth=3D16
+> fio-3.11-6-gee6ce
+> Starting 1 thread
+> file1: Laying out IO file (1 file / 1024MiB)
+> Jobs: 1 (f=3D1): [f(1)][100.0%][r=3D1346KiB/s,w=3D899KiB/s][r=3D336,w=3D2=
+24 IOPS][eta 00m:00s]
+> ....
+>
+> Hope this works for you, Eliezer!
+>
+> Regards,
+> Mark
+>
+> Mark Beierl
+> SW System Sr Principal Developer
+> Dell EMC | Cloud & Communication Service Provider Solution
+> Mark.Beierl@Dell.com
+>
+> On 2018-10-11, 01:34, "Sitsofe Wheeler" <sitsofe@gmail.com> wrote:
+>
+>
+>     [EXTERNAL EMAIL]
+>     Please report any suspicious attachments, links, or requests for sens=
+itive information.
+>
+>
+>     Hi,
+>
+>     The question of how to compile fio for ESXi comes up every few years
+>     and as Mark suggested it IS doable by building a static fio binary
+>     from an appropriate real distro but there are a few gotchas. You can'=
+t
+>     take a "regular" distro's fio because the ESXi environment simply
+>     doesn't match that of the regular distro (for example things like a
+>     glibc are compiled with different options, libraries are missing etc)=
+.
+>
+>     The last time it was asked about was over on Github (see
+>     https://github.com/axboe/fio/issues/464 ) where I mentioned the steps
+>     I used to get it going for ESXi 6.0 but note that I no longer have
+>     access to ESXi these days so I can't say what's needed for modern
+>     environments (but the general idea should be the same).
+>
+>     On Wed, 10 Oct 2018 at 21:00, Beierl, Mark <Mark.Beierl@dell.com> wro=
+te:
+>     >
+>     > Ya, sorry I could not be of more help.
+>     >
+>     > I doubt that FIO could be compiled on raw ESXi as there is no compi=
+ler available on that from what I can tell.  A statically linked one should=
+ work, but I really don=E2=80=99t know enough to be able to say why it coul=
+d not start a job.
+>     >
+>     > I do know that ESXi can pass a full device (raw disk) to a VM and t=
+hat VM takes full ownership of it.  So you could load a VM with CentOS or s=
+omething and have FIO profile the raw device, but that is probably not goin=
+g to be useful.  Chances are you are looking to something a little more adv=
+anced like profile vSAN or some other form of software defined storage?
+>     >
+>     > Regards,
+>     > Mark
+>     >
+>     > Mark Beierl
+>     > SW System Sr Principal Developer
+>     > Dell EMC | Cloud & Communication Service Provider Solution
+>     > Mark.Beierl@Dell.com
+>     >
+>     > On 2018-10-10, 15:56, "Eliezer Nebab" <eliezer@integritech.solution=
+s> wrote:
+>     >
+>     >
+>     >     [EXTERNAL EMAIL]
+>     >     Please report any suspicious attachments, links, or requests fo=
+r sensitive information.
+>     >
+>     >
+>     >     Thanks for the quick response Mark.
+>     >
+>     >     Yes, I was looking for documentation or guide on if fio can be =
+compiled or installed on esxi servers.
+>     >
+>     >     From your response it looks like (compile or precompiled) neith=
+er works.
+>     >
+>     >     Thank you.
+>     >
+>     >     Eliezer
+>     >
+>     >
+>     >     > On Oct 10, 2018, at 2:05 PM, Beierl, Mark <Mark.Beierl@dell.c=
+om> wrote:
+>     >     >
+>     >     > Are you asking if FIO can be built or run on the hypervisor i=
+tself, like via ssh?
+>     >     >
+>     >     > I have tried a test before where I statically compiled FIO an=
+d copied it to an ESXi server, but I was never able to get any jobs to star=
+t.  Not sure if the kernel supports the fork() or whatever call FIO uses to=
+ spawn the job processes.  So, I=E2=80=99m not sure it can be done.  ESXi i=
+s not a general purpose OS, so it lacks some features.
+>     >     >
+>     >     > Regards,
+>     >     > Mark
+>     >     >
+>     >     > Mark Beierl
+>     >     > SW System Sr Principal Developer
+>     >     > Dell EMC | Cloud & Communication Service Provider Solution
+>     >     > Mark.Beierl@Dell.com
+>     >     >
+>     >     > On 2018-10-10, 14:24, "fio-owner@vger.kernel.org on behalf of=
+ eliezer@integritech.solutions" <fio-owner@vger.kernel.org on behalf of eli=
+ezer@integritech.solutions> wrote:
+>     >     >
+>     >     >
+>     >     >    [EXTERNAL EMAIL]
+>     >     >    Please report any suspicious attachments, links, or reques=
+ts for sensitive information.
+>     >     >
+>     >     >
+>     >     >    Is fio supported on vmware esxi 5 and 6 servers?  Does any=
+one have any
+>     >     >    helpful guides as to how to install it on vmware?  I've se=
+arched google but
+>     >     >    could not find any.  The only reference to fio+vmware is D=
+isable libaio for
+>     >     >    ESXi build - bug#80
+>     >     >
+>     >     >    Thank you in advance.
+>     >     >
+>     >     >    Regards,
+>     >     >    Eliezer
+>
+>     --
+>     Sitsofe | http://sucs.org/~sits/
+>
+>
+
+
+--=20
+Sitsofe | http://sucs.org/~sits/
 
