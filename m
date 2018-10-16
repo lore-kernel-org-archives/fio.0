@@ -1,32 +1,44 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH 2/2] init: force threads when checking overlap in offload
- mode
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+From: vincentfu@gmail.com
+Subject: [PATCH 2/2] init: force threads when checking overlap in offload mode
+Date: Tue, 16 Oct 2018 11:26:50 -0400
+Message-Id: <20181016152650.7784-3-vincentfu@gmail.com>
+In-Reply-To: <20181016152650.7784-1-vincentfu@gmail.com>
 References: <20181016152650.7784-1-vincentfu@gmail.com>
- <20181016152650.7784-3-vincentfu@gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <1a792daa-4327-1a4e-48df-4c691630c834@kernel.dk>
-Date: Tue, 16 Oct 2018 09:29:06 -0600
-MIME-Version: 1.0
-In-Reply-To: <20181016152650.7784-3-vincentfu@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: vincentfu@gmail.com, fio@vger.kernel.org
+To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Vincent Fu <vincent.fu@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On 10/16/18 9:26 AM, vincentfu@gmail.com wrote:
-> From: Vincent Fu <vincent.fu@wdc.com>
-> 
-> serialize_overlap combined with io_submit_mode=offload requires
-> threads. Print a warning and force the use of threads if the user
-> did not specify threads.
+From: Vincent Fu <vincent.fu@wdc.com>
 
-Why does it require threads? Is it because of the use of a pthread
-mutex? If so, that should just be a fio mutex instead, and you would
-not have this restrictions (on most platforms, at least).
+serialize_overlap combined with io_submit_mode=offload requires
+threads. Print a warning and force the use of threads if the user
+did not specify threads.
+---
+ init.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
+diff --git a/init.c b/init.c
+index a2b70c4a..224eb8ab 100644
+--- a/init.c
++++ b/init.c
+@@ -751,6 +751,14 @@ static int fixup_options(struct thread_data *td)
+ 	    o->io_submit_mode != IO_MODE_OFFLOAD)
+ 		o->serialize_overlap = 0;
+ 
++	if (o->serialize_overlap && o->io_submit_mode == IO_MODE_OFFLOAD && !o->use_thread) {
++		o->use_thread = 1;
++		log_info("fio: threads must be used when overlap checking is"
++			 " enabled in offload mode. Use the 'thread' option"
++			 " to get rid of this warning.\n");
++		ret |= warnings_fatal;
++	}
++
+ 	if (o->nr_files > td->files_index)
+ 		o->nr_files = td->files_index;
+ 
 -- 
-Jens Axboe
+2.17.1
 
 
