@@ -1,48 +1,50 @@
-Return-Path: <feng_changyu@126.com>
-Date: Thu, 18 Oct 2018 16:16:12 +0800 (CST)
-From: Changyu  <feng_changyu@126.com>
-Subject: Re:Re: Cannot verify dedupe data, is it a bug?
-In-Reply-To: <3cce6ba4-cfe3-1309-9852-f8cecff4131b@kernel.dk>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: Cannot verify dedupe data, is it a bug?
 References: <319f5589.a4d1.1668201794f.Coremail.feng_changyu@126.com>
  <CALjAwxiqYiErO0uh9E4oL8ub_jMQ2MDPgNiCon51s_yaWVrcUA@mail.gmail.com>
- <3cce6ba4-cfe3-1309-9852-f8cecff4131b@kernel.dk>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=UTF-8
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <3cce6ba4-cfe3-1309-9852-f8cecff4131b@kernel.dk>
+Date: Wed, 17 Oct 2018 13:05:33 -0600
 MIME-Version: 1.0
-Message-ID: <3e72c6b8.73aa.166863f1110.Coremail.feng_changyu@126.com>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Sitsofe Wheeler <sitsofe@gmail.com>, fio <fio@vger.kernel.org>
+In-Reply-To: <CALjAwxiqYiErO0uh9E4oL8ub_jMQ2MDPgNiCon51s_yaWVrcUA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Sitsofe Wheeler <sitsofe@gmail.com>, feng_changyu@126.com
+Cc: fio <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-CkhpwqBKZW5zIEF4Ym9lICYgU2l0c29mZSBXaGVlbGVyCgoKVGhhbmsgeW91IHZlcnkgbXVjaCBm
-b3IgeW91ciBoZWxwLgoKZ2V0X2lvX3UgZmluYWxseSBjYWxsIGZpbGxfaW9fYnVmZmVyIHRvIGZp
-bGwgdGhlIGJ1ZmZlciwgZnVuY3Rpb24gZmlsbF9pb19idWZmZXIgdXNlcyB0ZC0+YnVmX3N0YXRl
-IGFuZCB0ZC0+YnVmX3N0YXRlX3ByZXYgdG8gZ2VuZXJhdGUgZHVwbGljYXRlZCBkYXRhIGlmIHRo
-ZSBkZWR1cGVfcGVyY2VudGFnZSBpcyBzZXQuCgpwb3B1bGF0ZV92ZXJpZnlfaW9fdSBmaW5hbGx5
-IGNhbGwgIGZpbGxfcmFuZG9tX2J1Zl9wZXJjZW50YWdlIHRvIGZpbGwgdGhlIGJ1ZmZlciwgaXQg
-dXNlIHRkLT52ZXJpZnlfc3RhdGUgdG8gZ2VuZXJhdGUgcmFuZG9tIGRhdGEuCgpTaG91bGQgSSBj
-cmVhdGUgYSBpc3N1ZSBvbiBodHRwczovL2dpdGh1Yi5jb20vYXhib2UvZmlvL2lzc3Vlcz8KCgoK
-QXQgMjAxOC0xMC0xOCAwMzowNTozMywgIkplbnMgQXhib2UiIDxheGJvZUBrZXJuZWwuZGs+IHdy
-b3RlOgo+T24gMTAvMTcvMTggMTI6MzIgUE0sIFNpdHNvZmUgV2hlZWxlciB3cm90ZToKPj4gT24g
-V2VkLCAxNyBPY3QgMjAxOCBhdCAxMzozMSwgQ2hhbmd5dSA8ZmVuZ19jaGFuZ3l1QDEyNi5jb20+
-IHdyb3RlOgo+Pj4KPj4+IEhpLAo+Pj4KPj4+IEkgc2V0ICJkZWR1cGVfcGVyY2VudGFnZSAiIHRv
-IGxldCBGSU8gZ2VuZXJhdGUgc29tZSBkdXBsaWNhdGVkIGRhdGEuICBJIGFsc28gd2FudCByZWFk
-IHRoZXNlIGRhdGEgYmFjayBhbmQgdmVyaWZ5IGl0Lgo+Pj4gQnV0LCB0aGVyZSBpcyBubyBkdXBs
-aWNhdGVkIGRhdGEgYWZ0ZXIgc2V0dGluZyAidmVyaWZ5IiBwYXJhbWV0ZXIuCj4+Pgo+Pj4gY2hl
-Y2tpbmcgdGhlIHNvdXJjZSBjb2RlLCBJIGZvdW5kIHRoYXQgIGZ1bmN0aW9uIGRvX2lvICBpbiBm
-aWxlIGJhY2tlbmQuYyBmaWxsIHRoZSBidWZmZXIgdHdpY2UuIHRoZSBzb3VyY2UgY29kZSBpcyBh
-cyBiZWxvdy4KPj4+Cj4+PiBkb19pbygpCj4+PiB7Cj4+PiAgICAgaW9fdSA9IGdldF9pb191KHRk
-KTsKPj4+ICAgICAuLi4uLgo+Pj4gICAgIGlmIChpb191LT5kZGlyID09IERESVJfV1JJVEUgJiYg
-dGQtPmZsYWdzICYgVERfRl9ET19WRVJJRlkpCj4+PiAgICAgICAgIHBvcHVsYXRlX3ZlcmlmeV9p
-b191KHRkLCBpb191KTsKPj4+IH0KPj4+Cj4+PiBJbiBmdW5jdGlvbiBnZXRfaW9fdSwgdGhlIGJ1
-ZmZlciBpcyBmaWxsZWQgd2l0aCBkYXRhIGFzIHRoZSAiZGVkdXBlX3BlcmNlbnRhZ2UgIiBzcGVj
-aWZpZWQuCj4+PiBJbiBmdW5jdGlvbiBwb3B1bGF0ZV92ZXJpZnlfaW9fdSwgdGhlIGJ1ZmZlciBp
-cyByZWZpbGxlZCB3aXRoIHJhbmRvbSBkYXRhLiBTbywgdGhlcmUgd291bGQgYmUgbm8gZHVwbGlj
-YXRlZCBkYXRhLgo+Pj4KPj4+IElzIHRoaXMgYSBidWc/Cj4+IAo+PiBJZiBpdCdzIG5vdCAoYW5k
-IEknZCBzYXkgaXQgaXMpIHRoZW4gdGhlIGN1cnJlbnQgYmVoYXZpb3VyIG5lZWRzIHRvIGl0Cj4+
-IG5lZWRzIHRvIHByaW50IGEgImNvbmZsaWN0aW5nIG9wdGlvbnMiIGVycm9yIHJhdGhlciB0aGFu
-IHNpbGVudGx5IG5vdAo+PiBkb2luZyB3aGF0IHdhcyBhc2tlZC4gU29tZW9uZSBlbHNlIGhhcyBy
-ZXBvcnRlZCBzb21ldGhpbmcgc2ltaWxhciBvdmVyCj4+IG9uIGh0dHBzOi8vZ2l0aHViLmNvbS9h
-eGJvZS9maW8vaXNzdWVzLzQ0OSAuLi4KPgo+VGhleSBzaG91bGQgZGVmaW5pdGVseSBiZSB1c2lu
-ZyB0aGUgc2FtZSBmaWxsIG1ldGhvZHMuCj4KPi0tIAo+SmVucyBBeGJvZQo=
+On 10/17/18 12:32 PM, Sitsofe Wheeler wrote:
+> On Wed, 17 Oct 2018 at 13:31, Changyu <feng_changyu@126.com> wrote:
+>>
+>> Hi,
+>>
+>> I set "dedupe_percentage " to let FIO generate some duplicated data.  I also want read these data back and verify it.
+>> But, there is no duplicated data after setting "verify" parameter.
+>>
+>> checking the source code, I found that  function do_io  in file backend.c fill the buffer twice. the source code is as below.
+>>
+>> do_io()
+>> {
+>>     io_u = get_io_u(td);
+>>     .....
+>>     if (io_u->ddir == DDIR_WRITE && td->flags & TD_F_DO_VERIFY)
+>>         populate_verify_io_u(td, io_u);
+>> }
+>>
+>> In function get_io_u, the buffer is filled with data as the "dedupe_percentage " specified.
+>> In function populate_verify_io_u, the buffer is refilled with random data. So, there would be no duplicated data.
+>>
+>> Is this a bug?
+> 
+> If it's not (and I'd say it is) then the current behaviour needs to it
+> needs to print a "conflicting options" error rather than silently not
+> doing what was asked. Someone else has reported something similar over
+> on https://github.com/axboe/fio/issues/449 ...
+
+They should definitely be using the same fill methods.
+
+-- 
+Jens Axboe
+
 
