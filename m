@@ -1,12 +1,12 @@
 Return-Path: <vincentfu@gmail.com>
 Return-Path: <vincentfu@gmail.com>
 From: vincentfu@gmail.com
-Subject: [PATCH v3 4/4] docs: serialize_overlap=1 with io_submit_mode=offload no longer requires threads
-Date: Wed, 17 Oct 2018 12:03:25 -0400
-Message-Id: <20181017160325.16866-5-vincentfu@gmail.com>
-In-Reply-To: <20181017160325.16866-1-vincentfu@gmail.com>
-References: <20181017160325.16866-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org, vincentfu@gmail.com
+Subject: [PATCH v2 4/4] docs: serialize_overlap=1 with io_submit_mode=offload no longer requires threads
+Date: Wed, 17 Oct 2018 10:52:25 -0400
+Message-Id: <20181017145225.14546-5-vincentfu@gmail.com>
+In-Reply-To: <20181017145225.14546-1-vincentfu@gmail.com>
+References: <20181017145225.14546-1-vincentfu@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Vincent Fu <vincent.fu@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
