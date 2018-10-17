@@ -1,45 +1,86 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa3.dell-outbound.iphmx.com ([68.232.153.94]:21821 "EHLO
-        esa3.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727687AbeJZI0X (ORCPT
-        <rfc822;fio@vger.kernel.org>); Fri, 26 Oct 2018 04:26:23 -0400
-Received: from pps.filterd (m0134746.ppops.net [127.0.0.1])
-        by mx0a-00154901.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w9PNmD0v122690
-        for <fio@vger.kernel.org>; Thu, 25 Oct 2018 19:51:32 -0400
-Received: from esa6.dell-outbound2.iphmx.com (esa6.dell-outbound2.iphmx.com [68.232.154.99])
-        by mx0a-00154901.pphosted.com with ESMTP id 2nbpkwg8tr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
-        for <fio@vger.kernel.org>; Thu, 25 Oct 2018 19:51:32 -0400
-From: "Beierl, Mark" <Mark.Beierl@dell.com>
-Received: from maildlpprd06.lss.emc.com (maildlpprd06.lss.emc.com [10.253.24.38])
-        by mailuogwprd02.lss.emc.com (Sentrion-MTA-4.3.1/Sentrion-MTA-4.3.0) with ESMTP id w9PNpUxw017718
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
-        for <fio@vger.kernel.org>; Thu, 25 Oct 2018 19:51:30 -0400
-Received: from mailusrhubprd52.lss.emc.com (mailusrhubprd52.lss.emc.com [10.106.48.25]) by maildlpprd06.lss.emc.com (RSA Interceptor) for <fio@vger.kernel.org>; Thu, 25 Oct 2018 19:51:15 -0400
-Received: from MXHUB305.corp.emc.com (MXHUB305.corp.emc.com [10.146.3.31])
-        by mailusrhubprd52.lss.emc.com (Sentrion-MTA-4.3.1/Sentrion-MTA-4.3.0) with ESMTP id w9PNpLXi004357
-        (version=TLSv1.2 cipher=AES128-SHA256 bits=128 verify=FAIL)
-        for <fio@vger.kernel.org>; Thu, 25 Oct 2018 19:51:22 -0400
-Subject: Static linking and RDB/Rados
-Date: Thu, 25 Oct 2018 23:51:21 +0000
-Message-ID: <3AF0240C-DE31-4E79-AB21-31D04B863142@emc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <87CC64C38180BE499FB61BD13179B5FB@mail.corp.emc.com>
-Content-Transfer-Encoding: base64
+Return-Path: <sboisvert@gydle.com>
+Subject: Re: [PATCH v2 1/4] fio: add function to check for serialize_overlap
+ with offload submission
+References: <20181017145225.14546-1-vincentfu@gmail.com>
+ <20181017145225.14546-2-vincentfu@gmail.com>
+From: =?UTF-8?Q?S=c3=a9bastien_Boisvert?= <sboisvert@gydle.com>
+Message-ID: <3886cf4c-4c8c-e4da-d064-f6ef1c5d76f7@gydle.com>
+Date: Wed, 17 Oct 2018 11:33:01 -0400
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <20181017145225.14546-2-vincentfu@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: vincentfu@gmail.com, axboe@kernel.dk, fio@vger.kernel.org
+Cc: Vincent Fu <vincent.fu@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-SeKAmXZlIGJlZW4gZG9pbmcgc29tZSBwbGF5aW5nIGFyb3VuZCB3aXRoIHN0YXRpYyBsaW5raW5n
-IGFuZCBmcm9tIHRoZSBsb29rcyBvZiBpdCB0aGUgc3RhdGljIGxpYnJhcmllcyBmb3IgUmFkb3Mg
-YW5kIFJEQiBhcmUgbm8gbG9uZ2VyIGF2YWlsYWJsZS4gIFNhbWUgZ29lcyBmb3Igc29tZSBvZiB0
-aGUgbGlicmFyaWVzIG5lZWRlZCB0byBlbmFibGUgSFRUUCAoUzMpIHN1cHBvcnQuDQoNClNvLCBJ
-IGRvbuKAmXQgdGhpbmsgdGhlIG9wdGlvbnMgZm9yIOKAk2J1aWxkLXN0YXRpYyBhcmUgdmFsaWQg
-YW55bW9yZS4gIElmIGFueW9uZSBoYXMgcG9pbnRlcnMgYXMgdG8gaG93IHRvIGdldCB0aGUgc3Rh
-dGljIFJhZG9zIG9yIFJEQiBsaWJyYXJpZXMsIEnigJlkIGxvdmUgdG8gaGVhciBhYm91dCBpdCA6
-KQ0KDQpSZWdhcmRzLA0KTWFyaw0KIA0KTWFyayBCZWllcmwNClNXIFN5c3RlbSBTciBQcmluY2lw
-YWwgRGV2ZWxvcGVyDQpEZWxsIEVNQyB8IENsb3VkICYgQ29tbXVuaWNhdGlvbiBTZXJ2aWNlIFBy
-b3ZpZGVyIFNvbHV0aW9uDQpNYXJrLkJlaWVybEBEZWxsLmNvbQ0KDQo=
+
+
+On 2018-10-17 10:52 AM, vincentfu@gmail.com wrote:
+> From: Vincent Fu <vincent.fu@wdc.com>
+> 
+> In multiple places fio needs to check whether it is carrying out overlap
+> checking in offload submission mode. Make this check a function to
+> improve code readability.
+> ---
+>  backend.c   | 4 ++--
+>  fio.h       | 5 +++++
+>  ioengines.c | 2 +-
+>  3 files changed, 8 insertions(+), 3 deletions(-)
+> 
+> diff --git a/backend.c b/backend.c
+> index cc3c4e78..f0a45bc8 100644
+> --- a/backend.c
+> +++ b/backend.c
+> @@ -1874,10 +1874,10 @@ static void *thread_main(void *data)
+>  			 "perhaps try --debug=io option for details?\n",
+>  			 td->o.name, td->io_ops->name);
+>  
+> -	if (td->o.serialize_overlap && td->o.io_submit_mode == IO_MODE_OFFLOAD)
+> +	if (td_offload_overlap(td))
+>  		pthread_mutex_lock(&overlap_check);
+>  	td_set_runstate(td, TD_FINISHING);
+> -	if (td->o.serialize_overlap && td->o.io_submit_mode == IO_MODE_OFFLOAD)
+> +	if (td_offload_overlap(td))
+>  		pthread_mutex_unlock(&overlap_check);
+>  
+>  	update_rusage_stat(td);
+> diff --git a/fio.h b/fio.h
+> index e394e165..f46a4c9b 100644
+> --- a/fio.h
+> +++ b/fio.h
+> @@ -772,6 +772,11 @@ static inline bool td_async_processing(struct thread_data *td)
+>  	return (td->flags & TD_F_NEED_LOCK) != 0;
+>  }
+>  
+> +static inline bool td_offload_overlap(struct thread_data *td)
+> +{
+> +	return (td->o.serialize_overlap && td->o.io_submit_mode == IO_MODE_OFFLOAD);
+
+The parentheses can be removed:
+
+return td->o.serialize_overlap && td->o.io_submit_mode == IO_MODE_OFFLOAD;
+
+> +}
+> +
+>  /*
+>   * We currently only need to do locking if we have verifier threads
+>   * accessing our internal structures too
+> diff --git a/ioengines.c b/ioengines.c
+> index 47f606a7..56723add 100644
+> --- a/ioengines.c
+> +++ b/ioengines.c
+> @@ -288,7 +288,7 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
+>  
+>  	assert((io_u->flags & IO_U_F_FLIGHT) == 0);
+>  	io_u_set(td, io_u, IO_U_F_FLIGHT);
+> -	if (td->o.serialize_overlap && td->o.io_submit_mode == IO_MODE_OFFLOAD)
+> +	if (td_offload_overlap(td))
+>  		pthread_mutex_unlock(&overlap_check);
+>  
+>  	assert(fio_file_open(io_u->file));
+> 
+
+Reviewed-by: Sebastien Boisvert <sboisvert@gydle.com>
 
