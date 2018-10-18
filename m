@@ -1,63 +1,43 @@
-Return-Path: <efortin@cyberspicace.com>
-From: Etienne-Hugues Fortin <efortin@cyberspicace.com>
-Subject: RE: FIO 3.11
-Date: Thu, 18 Oct 2018 10:26:21 +0000
-Message-ID: <BN7PR08MB409887E01C50FB68209F05D9D9F80@BN7PR08MB4098.namprd08.prod.outlook.com>
-References: <BN7PR08MB409869032E10FEC58C9CBE08D9FF0@BN7PR08MB4098.namprd08.prod.outlook.com>
- <d9885cb6-af59-f4c3-d58b-37495e4c0654@kernel.dk>
- <AT5PR8401MB1169925565E8213E9968F891ABFF0@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
- <CALjAwxg5bDB80+_g2aUvPuTEAsqS=xsP0Htxur=5Zyot8-4UEw@mail.gmail.com>
-In-Reply-To: <CALjAwxg5bDB80+_g2aUvPuTEAsqS=xsP0Htxur=5Zyot8-4UEw@mail.gmail.com>
-Content-Language: fr-FR
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-To: Sitsofe Wheeler <sitsofe@gmail.com>, "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Cc: fio <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+References: <BN7PR08MB409869032E10FEC58C9CBE08D9FF0@BN7PR08MB4098.namprd08.prod.outlook.com>
+ <d9885cb6-af59-f4c3-d58b-37495e4c0654@kernel.dk> <AT5PR8401MB1169925565E8213E9968F891ABFF0@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+In-Reply-To: <AT5PR8401MB1169925565E8213E9968F891ABFF0@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Thu, 18 Oct 2018 05:19:18 +0100
+Message-ID: <CALjAwxg5bDB80+_g2aUvPuTEAsqS=xsP0Htxur=5Zyot8-4UEw@mail.gmail.com>
+Subject: Re: FIO 3.11
+Content-Type: text/plain; charset="UTF-8"
+To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+Cc: efortin@cyberspicace.com, fio <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-SGksDQoNCkkgdHJpZWQgdGhlIGZsb3cgZmVhdHVyZSBvbiBhIHR3byBqb2JzIHdvcmtsb2FkIGFz
-IGEgc2ltcGxlIHRlc3QgYnV0IHdoZW4gdXNpbmcgZmlvIGluIFZNIGFzIGxvYWQgZ2VuZXJhdG9y
-LCBmaW8gdXNlIDEwMCUgb2YgdGhlIENQVSBpbiBlYWNoIFZNLiBJcyB0aGF0IGV4cGVjdGVkPyBB
-cyBhIHJlc3VsdCwgdGhlcmUgd2FzIGJhc2ljYWxseSBubyB3b3JrbG9hZCByZWFkL3dyaXRlIHRv
-IHRoZSBkaXNrcy4gSSBtYXkgaGF2ZSBtaXNjb25maWd1cmVkIHNvbWV0aGluZyBidXQgSSBkaWQg
-dXNlIGl0IGFzIGluIHRoZSBidXR0ZXJmbHkgc2VlayBwYXR0ZXJuIGV4YW1wbGUgcmVwbGFjaW5n
-IHRoZSBqb2JzIGJ5IG9uZSBmb3IgcmVhZCBhbmQgYSBzZWNvbmQgb25lIGZvciB3cml0ZS4gSSBw
-dXQgZmxvdz03IGluIGZpcnN0IGpvYiBhbmQgZmxvdz0zIGluIHRoZSBzZWNvbmQgam9iIHRvIGdl
-dCA3MCUvMzAlLiBBcyBpdCB3YXMgdXNpbmcgYWxsIHRoZSByZXNvdXJjZXMsIEkgZGlkbid0IHB1
-c2ggaXQgbW9yZSBhbmQgdHJ5IGl0IG9uIHBoeXNpY2FsIHNlcnZlcnMgYXMgdGhhdCdzIG5vdCBo
-b3cgd2Ugd2FudCB0byBvcGVyYXRlIHdoZW4gZG9pbmcgbG9hZCBzaW11bGF0aW9uLg0KDQpJIGRv
-bid0IGhhdmUgdGhpcyBpc3N1ZSB3aGVuIHVzaW5nIGZpbyB3aXRob3V0IGZsb3cgaW4gdGhvc2Ug
-c2FtZSBWTS4NCg0KTGV0IG1lIGtub3cgaWYgeW91IGhhdmUgc3VnZ2VzdGlvbiBhcm91bmQgZmxv
-dyB3aXRoIFZNLCBJJ20gd2lsbGluZyB0byB0ZXN0IGl0IGZ1cnRoZXIgaWYgeW91IHRoaW5rIGl0
-IHNob3VsZCB3b3JrIHdpdGhvdXQgb3ZlcmxvYWRpbmcgdGhlIENQVSBpbiBzdWNoIGEgc2V0dXAu
-DQoNClRoYW5rIHlvdS4NCg0KRXRpZW5uZQ0KDQotLS0tLU1lc3NhZ2UgZCdvcmlnaW5lLS0tLS0N
-CkRlwqA6IFNpdHNvZmUgV2hlZWxlciA8c2l0c29mZUBnbWFpbC5jb20+IA0KRW52b3nDqcKgOiBP
-Y3RvYmVyIDE4LCAyMDE4IDEyOjE5IEFNDQrDgMKgOiBFbGxpb3R0LCBSb2JlcnQgKFBlcnNpc3Rl
-bnQgTWVtb3J5KSA8ZWxsaW90dEBocGUuY29tPg0KQ2PCoDogZWZvcnRpbkBjeWJlcnNwaWNhY2Uu
-Y29tOyBmaW8gPGZpb0B2Z2VyLmtlcm5lbC5vcmc+OyBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwu
-ZGs+DQpPYmpldMKgOiBSZTogRklPIDMuMTENCg0KT24gV2VkLCAxNyBPY3QgMjAxOCBhdCAyMjo0
-NSwgRWxsaW90dCwgUm9iZXJ0IChQZXJzaXN0ZW50IE1lbW9yeSkgPGVsbGlvdHRAaHBlLmNvbT4g
-d3JvdGU6DQo+DQo+DQo+IFRoZXNlIHdpbGwgbWFrZSBlYWNoIHRocmVhZCBpbXBsZW1lbnQgeW91
-ciBkZXNpcmVkIG1peDoNCj4NCj4gICAgICAgIHJ3bWl4cmVhZD1pbnQNClsuLi5dDQo+ICAgICAg
-ICByd21peHdyaXRlPWludA0KWy4uLl0NCj4gICAgICAgIHBlcmNlbnRhZ2VfcmFuZG9tPWludFss
-aW50XVssaW50XQ0KWy4uLl0NCg0KQW5vdGhlciAoYnV0IG1vcmUgb3Zlcmxvb2tlZCkgb3B0aW9u
-IGZvciBmb3JjaW5nIGRpZmZlcmVudCBqb2JzIGludG8gbG9ja3N0ZXAgd2l0aCBlYWNoIG90aGVy
-IGlzIHRoZSBmbG93IHBhcmFtZXRlciAtDQpodHRwczovL2Zpby5yZWFkdGhlZG9jcy5pby9lbi9s
-YXRlc3QvZmlvX2RvYy5odG1sI2NtZG9wdGlvbi1hcmctZmxvdyBidXQgaXQgdGVuZHMgdG8gYmUg
-ZWFzaWVzdCB0byByZWFzb24gYWJvdXQgd2hlbiB0aGVyZSBhcmUganVzdCB0d28gam9icy4NCg0K
-Pg0KPiBUaHJlYWRzIHJ1bm5pbmcgc2VxdWVudGlhbCBhY2Nlc3NlcyBjYW4gZWFzaWx5IGJlbmVm
-aXQgZnJvbSBjYWNoZSBoaXRzIA0KPiBmcm9tIGVhY2ggb3RoZXIsIGlmIHRoZXJlIGlzIGFueSBj
-YWNoaW5nIG9yIHByZWZldGNoaW5nIGRvbmUgYnkgdGhlIA0KPiBpbnZvbHZlZCBkcml2ZXJzIG9y
-IGRldmljZXMuICBPbmUgdGhyZWFkIHRha2VzIHRoZSBsZWFkIGFuZCBzdWZmZXJzIA0KPiBkZWxh
-eXMsIHdoaWxlIHRoZSBvdGhlcnMgYmVuZWZpdCBmcm9tIGl0cyB3b3JrIGFuZCBzdGF5IGNsb3Nl
-IGJlaGluZC4gIFRoZXkgY2FuIHRha2UgdHVybnMsIGJ1dCB0ZW5kIHRvIHN0YXkgY2x1c3RlcmVk
-IHRvZ2V0aGVyLiBUaGlzIGNhbiBkaXN0b3J0IHJlc3VsdHMuDQo+IFJhbmRvbSBhY2Nlc3NlcyBh
-dm9pZCB0aGF0IHByb2JsZW0sIHByb3ZpZGVkIHRoZSBjYXBhY2l0eSBpcyBtdWNoIGxhcmdlciB0
-aGFuIGFueSBjYWNoZXMuDQoNCi0tDQpTaXRzb2ZlIHwgaHR0cHM6Ly9uYW0wMy5zYWZlbGlua3Mu
-cHJvdGVjdGlvbi5vdXRsb29rLmNvbS8/dXJsPWh0dHA6JTJGJTJGc3Vjcy5vcmclMkZ+c2l0cyUy
-RiZhbXA7ZGF0YT0wMiU3QzAxJTdDJTdDMmRlMmM4MjBiMTk3NGI4MzgyYTEwOGQ2MzRiMGVmMjAl
-N0M4NGRmOWU3ZmU5ZjY0MGFmYjQzNWFhYWFhYWFhYWFhYSU3QzElN0MwJTdDNjM2NzU0MzMxODU1
-MDc1MTA2JmFtcDtzZGF0YT0yMEduYnFpekNkYTZIZUZMQm9HbXlId0xqdGQlMkJiQkdlVnJUa2d1
-YTB2Z0UlM0QmYW1wO3Jlc2VydmVkPTANCg==
+On Wed, 17 Oct 2018 at 22:45, Elliott, Robert (Persistent Memory)
+<elliott@hpe.com> wrote:
+>
+>
+> These will make each thread implement your desired mix:
+>
+>        rwmixread=int
+[...]
+>        rwmixwrite=int
+[...]
+>        percentage_random=int[,int][,int]
+[...]
+
+Another (but more overlooked) option for forcing different jobs into
+lockstep with each other is the flow parameter -
+https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-flow
+but it tends to be easiest to reason about when there are just two
+jobs.
+
+>
+> Threads running sequential accesses can easily benefit from cache hits from each other, if
+> there is any caching or prefetching done by the involved drivers or devices.  One thread
+> takes the lead and suffers delays, while the others benefit from its work and stay close
+> behind.  They can take turns, but tend to stay clustered together. This can distort results.
+> Random accesses avoid that problem, provided the capacity is much larger than any caches.
+
+-- 
+Sitsofe | http://sucs.org/~sits/
 
