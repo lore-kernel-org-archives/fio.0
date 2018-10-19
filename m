@@ -1,42 +1,53 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa3.hgst.iphmx.com ([216.71.153.141]:64156 "EHLO
-        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726364AbeJ3Exb (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 30 Oct 2018 00:53:31 -0400
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: fio win affinity broken
-Date: Mon, 29 Oct 2018 20:03:16 +0000
-Message-ID: <MWHPR04MB032025E64451635D09E474C08FF30@MWHPR04MB0320.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+Received: from merlin.infradead.org ([205.233.59.134]:37300 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727170AbeJSUF4 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 19 Oct 2018 16:05:56 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1gDTRp-0004cc-Ol
+        for fio@vger.kernel.org; Fri, 19 Oct 2018 12:00:10 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20181019120002.0F82B2C0083@kernel.dk>
+Date: Fri, 19 Oct 2018 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hi All,
-Back in http://git.kernel.dk/cgit/fio/commit/?id=3Dc479640d6208236744f0562b=
-1e79535eec290e2b several updates were made for Windows CPU affinity.  Howev=
-er, using the cpus_allowed since fio 3.6 and latest git appears to throw er=
-ror messages.  Consider a job:
+The following changes since commit d5dbacf662b1cc3fb09b5cd70b236ab98d1c0dbe:
 
-fio --name=3Dtest --ioengine=3Dwindowsaio --direct=3D1 --rw=3Dwrite --overw=
-rite=3D1 --filename=3D\\.\PHYSICALDRIVE1 --runtime=3D1s --thread --cpus_all=
-owed=3D0-1 --cpus_allowed_policy=3Dshared
+  Merge branch 'offload-serialize-overlap2' of https://github.com/vincentkfu/fio (2018-10-15 14:09:18 -0600)
 
-fio_setaffinity: failed to set thread affinity (pid 2768, group 0, mask 100=
-00, GetLastError=3D87)
-fio_setaffinity: failed to set thread affinity (pid 2372, group 0, mask 200=
-00, GetLastError=3D87)
-clock setaffinity failed: No error
+are available in the git repository at:
 
-It seems err 87 is ERROR_INVALID_PARAMETER, but any idea why "GROUP_AFFINIT=
-Y struct's Reserved members are not initialised to 0?"  Might it be related=
- to Windows version?  Seems to fail on 2012 and 2016.  Thanks.
+  git://git.kernel.dk/fio.git master
 
-Regards,
-Jeff
+for you to fetch changes up to 8eb142ddd8bc3fe9428cd46b9fd98f32b2bc8c67:
 
+  fio: reset more counters when ramp time has elapsed (2018-10-18 15:33:05 -0600)
 
+----------------------------------------------------------------
+Vincent Fu (1):
+      fio: reset more counters when ramp time has elapsed
+
+ time.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+---
+
+Diff of recent changes:
+
+diff --git a/time.c b/time.c
+index c887682..1999969 100644
+--- a/time.c
++++ b/time.c
+@@ -118,6 +118,7 @@ bool ramp_time_over(struct thread_data *td)
+ 	if (utime_since_now(&td->epoch) >= td->o.ramp_time) {
+ 		td->ramp_time_over = true;
+ 		reset_all_stats(td);
++		reset_io_stats(td);
+ 		td_set_runstate(td, TD_RAMP);
+ 
+ 		/*
 
