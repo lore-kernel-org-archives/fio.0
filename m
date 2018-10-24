@@ -1,56 +1,171 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g2t1383g.austin.hpe.com ([15.233.16.89]:11111 "EHLO
-        g2t1383g.austin.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727090AbeJYO1F (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 25 Oct 2018 10:27:05 -0400
-Received: from g4t3426.houston.hpe.com (g4t3426.houston.hpe.com [15.241.140.75])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by g2t1383g.austin.hpe.com (Postfix) with ESMTPS id 3A1831A63
-        for <fio@vger.kernel.org>; Thu, 25 Oct 2018 05:55:54 +0000 (UTC)
-From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Subject: RE: rand-read: increasing iodepth makes throughput drop
-Date: Thu, 25 Oct 2018 05:55:51 +0000
-Message-ID: <AT5PR8401MB116955F32C7A59FB0494F505ABF70@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
-References: <09b20693-8e0c-2ca9-97b3-51674177f19c@willer.it>
-In-Reply-To: <09b20693-8e0c-2ca9-97b3-51674177f19c@willer.it>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:40648 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726433AbeJYCbl (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 24 Oct 2018 22:31:41 -0400
+Received: by mail-wm1-f65.google.com with SMTP id b203-v6so6381948wme.5
+        for <fio@vger.kernel.org>; Wed, 24 Oct 2018 11:02:38 -0700 (PDT)
+From: Federico Motta <federico@willer.it>
+Subject: rand-read: increasing iodepth makes throughput drop
+Message-ID: <09b20693-8e0c-2ca9-97b3-51674177f19c@willer.it>
+Date: Wed, 24 Oct 2018 20:02:21 +0200
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature";
+ boundary="CCdIBZyDNkCZOg7MtDtGoqVCocCiPUAQc"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Federico Motta <federico@willer.it>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 Cc: Paolo Valente <paolo.valente@linaro.org>, Mark Brown <mark.brown@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Ulf Hansson <ulf.hansson@linaro.org>
 
-PiBQYW9sbyBWYWxlbnRlIGFuZCBJIGZvdW5kIGFuIHVuZXhwZWN0ZWQgc3VycHJpc2Ugd2hpbGUg
-aW52ZXN0aWdhdGluZw0KPiBpb2RlcHRoIGltcGFjdCBvbiB0aHJvdWdocHV0LiBCb3RoIG9uIG15
-IGRldmljZSAoc3NkIHNhbXN1bmcgOTYwIHBybw0KPiBudm1lIG0uMiA1MTJnYikgYW5kIGhpcyBv
-bmUgKHNzZCBwbGV4dG9yIHB4LTI1Nm01cyksIHRocm91Z2hwdXQNCj4gZGVjcmVhc2VzIGFzIHRo
-ZSBpb2RlcHRoIGluY3JlYXNlcy4NCi4uLg0KPiBXaGF0IHdlIG9ic2VydmVkIGlzIHRoYXQgd2l0
-aCAiaW9kZXB0aD0xIGFuZCBpb2VuZ2luZT1zeW5jIg0KPiB0aHJvdWdocHV0DQo+IGlzIGdyZWF0
-ZXIgdGhhbiB3aXRoICJpb2RlcHRoPTggYW5kIGlvZW5naW5lPWxpYmFpbyIuICBGb3IgZXhhbXBs
-ZToNCj4gLSBpb2RlcHRoPTEsICBzeW5jOiAxNzAuOTQyIMKxIDExLjEyMiBbbWIvc10NCj4gLSBp
-b2RlcHRoPTgsIGFzeW5jOiAxNjEuMzYwIMKxIDEwLjE2NSBbbWIvc10NCj4gDQo+IA0KPiBTbywg
-SSB3b3VsZCBsaWtlIHRvIGFzazoNCj4gMSkgSXMgaXQgbm9ybWFsIHRoYXQgdGhyb3VnaHB1dCBk
-cm9wPyAoc2hvdWxkbid0IGRldmljZSBpbnRlcm5hbA0KPiBxdWV1ZXMNCj4gYmUgbW9yZSBmaWxs
-ZWQgd2l0aCBhIGdyZWF0ZXIgaW9kZXB0aCBhbmQgdGh1cyBsZWFkIHRvIGEgZ3JlYXRlcg0KPiB0
-aHJvdWdocHV0PykNCg0KVGhlIGRyaXZlIHNwZWNzIGFyZToNCiogMzUwMCBNQi9zIHNlcXVlbnRp
-YWwgcmVhZA0KKiA1Ny4zNDQgTUIvcyByYW5kb20gcmVhZCwgUUQxICgxNDAwMCBJT1BTIGRvaW5n
-IHJhbmRvbSA0IEtpQiByZWFkcykNCiogMTM1MS42OCBNQi9zIHJhbmRvbSByZWFkLCBRRDQgKDMz
-MDAwMCBJT1BTIGRvaW5nIHJhbmRvbSA0IEtpQiByZWFkcykNCg0Kc28gdGhlIGJpZ2dlciBpc3N1
-ZSBpcyB3aHkgaXQncyB1bmRlcmFjaGlldmluZyBieSAxMHguDQoNCmRpcmVjdD0wIG1lYW5zIHlv
-dSdyZSBpbnZvbHZpbmcgdGhlIHBhZ2UgY2FjaGUsIHdoaWNoIGRpc3RvcnRzIHJlc3VsdHMsDQpl
-c3BlY2lhbGx5IHdpdGggbGliYWlvOg0KDQogICAgaW9kZXB0aD1pbnQNCiAgICBOdW1iZXIgb2Yg
-SS9PIHVuaXRzIHRvIGtlZXAgaW4gZmxpZ2h0IGFnYWluc3QgdGhlIGZpbGUuIE5vdGUgdGhhdA0K
-ICAgIGluY3JlYXNpbmcgaW9kZXB0aCBiZXlvbmQgMSB3aWxsIG5vdCBhZmZlY3Qgc3luY2hyb25v
-dXMgaW9lbmdpbmVzDQogICAgKGV4Y2VwdCBmb3Igc21hbGwgZGVncmVzcyB3aGVuIHZlcmlmeV9h
-c3luYyBpcyBpbiB1c2UpLiBFdmVuIGFzeW5jDQogICAgZW5naW5lcyBtYXkgaW1wb3NlIE9TIHJl
-c3RyaWN0aW9ucyBjYXVzaW5nIHRoZSBkZXNpcmVkIGRlcHRoIG5vdCB0bw0KICAgIGJlIGFjaGll
-dmVkLiBUaGlzIG1heSBoYXBwZW4gb24gTGludXggd2hlbiB1c2luZyBsaWJhaW8gYW5kIG5vdA0K
-ICAgIHNldHRpbmcgZGlyZWN0PTEsIHNpbmNlIGJ1ZmZlcmVkIElPIGlzIG5vdCBhc3luYyBvbiB0
-aGF0IE9TLiBLZWVwDQogICAgYW4gZXllIG9uIHRoZSBJTyBkZXB0aCBkaXN0cmlidXRpb24gaW4g
-dGhlIGZpbyBvdXRwdXQgdG8gdmVyaWZ5DQogICAgdGhhdCB0aGUgYWNoaWV2ZWQgZGVwdGggaXMg
-YXMgZXhwZWN0ZWQuIERlZmF1bHQ6IDEuIA0KDQpJZiB5b3UncmUgdHJ5aW5nIHRvIHRlc3Qgc3Rv
-cmFnZSBkZXZpY2UgcGVyZm9ybWFuY2UsIHN0aWNrIHdpdGggZGlyZWN0PTEuDQoNCg0K
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--CCdIBZyDNkCZOg7MtDtGoqVCocCiPUAQc
+Content-Type: multipart/mixed; boundary="UkVe3ev5knYc61hZbus0d7V8WjhxpfFvH";
+ protected-headers="v1"
+From: Federico Motta <federico@willer.it>
+To: fio@vger.kernel.org
+Cc: Paolo Valente <paolo.valente@linaro.org>,
+ Mark Brown <mark.brown@linaro.org>, Linus Walleij
+ <linus.walleij@linaro.org>, Ulf Hansson <ulf.hansson@linaro.org>
+Message-ID: <09b20693-8e0c-2ca9-97b3-51674177f19c@willer.it>
+Subject: rand-read: increasing iodepth makes throughput drop
+
+--UkVe3ev5knYc61hZbus0d7V8WjhxpfFvH
+Content-Type: multipart/mixed;
+ boundary="------------ADE9EDEE5100651B3E4D2FD7"
+Content-Language: en-US
+
+This is a multi-part message in MIME format.
+--------------ADE9EDEE5100651B3E4D2FD7
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+Paolo Valente and I found an unexpected surprise while investigating
+iodepth impact on throughput. Both on my device (ssd samsung 960 pro
+nvme m.2 512gb) and his one (ssd plextor px-256m5s), throughput
+decreases as the iodepth increases.
+
+What follows is a summary of the testbed details:
+- mq-deadline scheduler
+- 4 fio doing rand-read I/O (4 is the number of physical cores of our cpu=
+s)
+- throughput was measured with "iostat -tmd /dev/$disk 3"
+- from the above command the first "mb_read/s" occurrence was ignored
+because of ramp time and only on the following ones average and stdev
+were computed
+- duration of 15 sec
+
+More details can be found in the jobfiles in attachment, please note that=
+:
+- global sections differ only for the first two lines (iodepth and ioengi=
+ne)
+- job sections differ only for N (0 to 3)
+
+
+What we observed is that with "iodepth=3D1 and ioengine=3Dsync" throughpu=
+t
+is greater than with "iodepth=3D8 and ioengine=3Dlibaio".  For example:
+- iodepth=3D1,  sync: 170.942 =C2=B1 11.122 [mb/s]
+- iodepth=3D8, async: 161.360 =C2=B1 10.165 [mb/s]
+
+
+So, I would like to ask:
+1) Is it normal that throughput drop? (shouldn't device internal queues
+be more filled with a greater iodepth and thus lead to a greater
+throughput?)
+2) If (1) is normal, for which reasons?
+3) If (1) is not normal, we thought to investigate about the average
+number of requests in software and hardware queues (especially the
+latter ones). In fact we expect a correlation between that number and
+throughput.
+4) If (3) is correct, how can we measure the average number of requests
+in the device internal queues? Is it possible to do that directly with fi=
+o?
+5) If (3) is not correct, what should we look for? and (if possible)
+with which tools?
+
+Under request I can give more details.
+Thank you,
+Federico
+
+--------------ADE9EDEE5100651B3E4D2FD7
+Content-Type: application/zip;
+ name="fio_jobfiles.zip"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="fio_jobfiles.zip"
+
+UEsDBBQAAAAIABiFWE1rbhZQnwAAANsAAAAjABwAdGVzdF9zdWl0ZS90ZXN0X2FzeW5jX3Fk
+OC9maW9fMC5qb2JVVAkAA3CE0FtwhNBbdXgLAAEE6AMAAAToAwAALY1LDsIwDET3vgYHSCuB
+xManYFlVlUvcxm0SV0mg4vYkCG88T5rPsHqdyY8gavkoDu9VcVwlMnqZSRQuMGe87mAl8bNg
+9xeaPmicBjbF8caRzMOcmvZFPGcDEt/kxVJh7MGrHhn7rh7EV9i0NvaQKBxTkcB4g8RkzyTV
+nSjaRlBce3UPhhqYuhFadaTq95RWblTrGi+i088DLZ2ZW+wLUEsDBBQAAAAIABiFWE2hVHYa
+nwAAANsAAAAjABwAdGVzdF9zdWl0ZS90ZXN0X2FzeW5jX3FkOC9maW9fMS5qb2JVVAkAA3CE
+0FtwhNBbdXgLAAEE6AMAAAToAwAALY1LDsIwDET3vgYHSCOBxManYFmhyiVu4zaJqzRQcXuS
+Cm88T5pPPwcdKTxB1PFWPN6r4jRLYgwykihcYNzxuoKTzK+C3V9o/qLxGtkUzwsnMg9zaF4n
+CbwbkPShII4Ko4Wguu1ou3qQ3nHR2mghU9yGIpHxBpnJHVmqO1NyjaD49uoe9DUw2Ce06kTV
+HyjP3MjCyZPocHqgpXdmV+t/UEsDBBQAAAAIABiFWE3/G9bEoAAAANsAAAAjABwAdGVzdF9z
+dWl0ZS90ZXN0X2FzeW5jX3FkOC9maW9fMi5qb2JVVAkAA3CE0FtwhNBbdXgLAAEE6AMAAATo
+AwAALY1LDoMwDET3vkYPEECt1I1P0SWqkGkMMYQYJWlRb98E1RvPk+bTz15H8k8Qtbxnh/ei
+OMwSGL2MJAoXGBNeV7AS+ZWx+QuNXzRONzbZ8cKBzMMcGtdJPCcDEj7kxVJmbMGr7gnbphyE
+97ZoaWwh0rYPWTbGG0Qme0Qp7kjBVoLs6it70JfA0D2hVgcqfk9x5kodnDyJDqcHajoxW+zg
+B1BLAwQUAAAACAAYhVhNkXTqZKAAAADcAAAAIwAcAHRlc3Rfc3VpdGUvdGVzdF9hc3luY19x
+ZDgvZmlvXzMuam9iVVQJAANwhNBbcITQW3V4CwABBOgDAAAE6AMAAC2NSw6DMAxE975GDxAQ
+rdSNT9ElqpBpDDGEGCVpUW/fBNUbz5Pm089eR/JPELW8Z4f3ojjMEhi9jCQKFxgTXlewEvmV
+sfkLjV80Tjc22fHCgczDHBrXSTwnAxI+5MVSZmzBq+4J26YchPe2aGlsIdK2D1k2xhtEJntE
+Ke5IwVaC7Oore9CXwNA9oVYHKn5PceZKHZw8iQ6nB2o6MVvsAH5QSwMEFAAAAAgAGIVYTU3p
++eCdAAAA2QAAACIAHAB0ZXN0X3N1aXRlL3Rlc3Rfc3luY19xZDEvZmlvXzAuam9iVVQJAANw
+hNBbcITQW3V4CwABBOgDAAAE6AMAAC2NQQ6DMAwE7/5GHxCQ2mNe0SNCyDSGGJIYJWkRv69T
+1RfvSruzwxpkxjACi6OjeturorRyIluu9IIbzMXed3Cc6VVt9xeSL2u8RDLV00YJzdOckveF
+AxUDnD4Y2GElBQaRo9i+04P0jpsosYeM8ZgqR7IPyITuzKzpjMk1B9W3p3swaGHqRmjohJoP
+mFdqTnHNLyzTLwOtXYha7QtQSwMEFAAAAAgAGIVYTYfTmaqdAAAA2QAAACIAHAB0ZXN0X3N1
+aXRlL3Rlc3Rfc3luY19xZDEvZmlvXzEuam9iVVQJAANwhNBbcITQW3V4CwABBOgDAAAE6AMA
+AC2NQQ6DMAwE7/5GHxAitce8okeEkCEGDCFGSVrE7+ug+uJdaXe2nYMMGDpg8XSUxVlVFGeO
+5PIVR3jAkN1zA8+JxuKav5B0ObPITqYstFJE8zanpG3iQNkAxy8G9lhIgUHkyM42ehA/+ypK
+tJBwP/rCO7kXJEJ/JtZ0wuirg7LUp3vQaqG3HVR0RM0HTDNVZ+H2E0t/Z6C2M5FX/A9QSwME
+FAAAAAgAGIVYTdmcOXSeAAAA2QAAACIAHAB0ZXN0X3N1aXRlL3Rlc3Rfc3luY19xZDEvZmlv
+XzIuam9iVVQJAANwhNBbcITQW3V4CwABBOgDAAAE6AMAAC2NTQ6DIBCF93ONHgA17ZJTdGmM
+GWWUUWAM0BpvXzCdzbwveT/96mRCNwCLoSNb3RZFYeVAOl1hhgdMST93MBxpzrr5C4mXVlY8
+qWxpo4DqrU6J+8KOkgIOX3RsMFMpdCJH0m1TDsLHb1IaW4jojzGzJ/2CSGjOyMUdMZhKkG19
+ZQ/6Ehi7AWp1wOJ3GFeq1MHNC8t4e6CmE5HRHfwAUEsDBBQAAAAIABiFWE3rHle2ngAAANoA
+AAAiABwAdGVzdF9zdWl0ZS90ZXN0X3N5bmNfcWQxL2Zpb18zLmpvYlVUCQADcITQW3CE0Ft1
+eAsAAQToAwAABOgDAAAtjU0OgyAQhfdzjR4Aje2SU3RpjBlllFFgDNAab18wnc28L3k//epk
+QjcAi6EjW90WRWHlQDpdYYYHTEk/dzAcac66+QuJl1ZWPKlsaaOA6q1OifvCjpICDl90bDBT
+KXQiR9JtUw7Cx29SGluI6I8xsyf9gkhozsjFHTGYSpBtfWUP+hIYuwFqdcDidxhXqtTBzQvL
+eHugphOR0R3AD1BLAQIeAxQAAAAIABiFWE1rbhZQnwAAANsAAAAjABgAAAAAAAEAAACkgQAA
+AAB0ZXN0X3N1aXRlL3Rlc3RfYXN5bmNfcWQ4L2Zpb18wLmpvYlVUBQADcITQW3V4CwABBOgD
+AAAE6AMAAFBLAQIeAxQAAAAIABiFWE2hVHYanwAAANsAAAAjABgAAAAAAAEAAACkgfwAAAB0
+ZXN0X3N1aXRlL3Rlc3RfYXN5bmNfcWQ4L2Zpb18xLmpvYlVUBQADcITQW3V4CwABBOgDAAAE
+6AMAAFBLAQIeAxQAAAAIABiFWE3/G9bEoAAAANsAAAAjABgAAAAAAAEAAACkgfgBAAB0ZXN0
+X3N1aXRlL3Rlc3RfYXN5bmNfcWQ4L2Zpb18yLmpvYlVUBQADcITQW3V4CwABBOgDAAAE6AMA
+AFBLAQIeAxQAAAAIABiFWE2RdOpkoAAAANwAAAAjABgAAAAAAAEAAACkgfUCAAB0ZXN0X3N1
+aXRlL3Rlc3RfYXN5bmNfcWQ4L2Zpb18zLmpvYlVUBQADcITQW3V4CwABBOgDAAAE6AMAAFBL
+AQIeAxQAAAAIABiFWE1N6fngnQAAANkAAAAiABgAAAAAAAEAAACkgfIDAAB0ZXN0X3N1aXRl
+L3Rlc3Rfc3luY19xZDEvZmlvXzAuam9iVVQFAANwhNBbdXgLAAEE6AMAAAToAwAAUEsBAh4D
+FAAAAAgAGIVYTYfTmaqdAAAA2QAAACIAGAAAAAAAAQAAAKSB6wQAAHRlc3Rfc3VpdGUvdGVz
+dF9zeW5jX3FkMS9maW9fMS5qb2JVVAUAA3CE0Ft1eAsAAQToAwAABOgDAABQSwECHgMUAAAA
+CAAYhVhN2Zw5dJ4AAADZAAAAIgAYAAAAAAABAAAApIHkBQAAdGVzdF9zdWl0ZS90ZXN0X3N5
+bmNfcWQxL2Zpb18yLmpvYlVUBQADcITQW3V4CwABBOgDAAAE6AMAAFBLAQIeAxQAAAAIABiF
+WE3rHle2ngAAANoAAAAiABgAAAAAAAEAAACkgd4GAAB0ZXN0X3N1aXRlL3Rlc3Rfc3luY19x
+ZDEvZmlvXzMuam9iVVQFAANwhNBbdXgLAAEE6AMAAAToAwAAUEsFBgAAAAAIAAgARAMAANgH
+AAAAAA==
+--------------ADE9EDEE5100651B3E4D2FD7--
+
+--UkVe3ev5knYc61hZbus0d7V8WjhxpfFvH--
+
+--CCdIBZyDNkCZOg7MtDtGoqVCocCiPUAQc
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEAREKAB0WIQQjpLt31k10FTLpDwzdnkSUycSdYAUCW9CzuAAKCRDdnkSUycSd
+YN8aAP9BnELD5DATFQoikQOeMjggGdPp4ZT52UmMcGLrQCV6uAD+LojenW/veKXi
+EdvHgu0d2pTDWvtqF55CU3BavtBnh18=
+=GwB7
+-----END PGP SIGNATURE-----
+
+--CCdIBZyDNkCZOg7MtDtGoqVCocCiPUAQc--
 
