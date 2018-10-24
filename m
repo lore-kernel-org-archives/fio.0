@@ -1,321 +1,138 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:36664 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.133]:50598 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727798AbeJES6g (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 5 Oct 2018 14:58:36 -0400
+        with ESMTP id S1726899AbeJXU2H (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 24 Oct 2018 16:28:07 -0400
 Received: from [216.160.245.99] (helo=kernel.dk)
         by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1g8OmA-0004AW-EX
-        for fio@vger.kernel.org; Fri, 05 Oct 2018 12:00:10 +0000
+        id 1gFHpg-0008RU-Pe
+        for fio@vger.kernel.org; Wed, 24 Oct 2018 12:00:16 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20181005120001.8A9402C288F@kernel.dk>
-Date: Fri,  5 Oct 2018 06:00:01 -0600 (MDT)
+Message-Id: <20181024120002.0E3132C008B@kernel.dk>
+Date: Wed, 24 Oct 2018 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 8772acb0435c6a378951458d8fd9b18e1ab1add0:
+The following changes since commit 307f2246d65d9dbea7e5f56cd17734cb68c2817f:
 
-  Fio 3.11 (2018-10-03 12:30:40 -0600)
+  docs: serialize_overlap=1 with io_submit_mode=offload no longer requires threads (2018-10-19 11:09:23 -0600)
 
 are available in the git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to f1867a7f9e588acf67cf8fa96eab8a6e2fdedcf6:
+for you to fetch changes up to d7e92306bde2117702ed96b7c5647d9485869047:
 
-  Bool conversions (2018-10-04 09:07:01 -0600)
+  io_u: move trim error notification out-of-line (2018-10-24 05:00:53 -0600)
 
 ----------------------------------------------------------------
-Jens Axboe (1):
-      Bool conversions
+Jens Axboe (2):
+      stat: use helper for IO direction name
+      io_u: move trim error notification out-of-line
 
- backend.c |  4 ++--
- fio.h     | 10 +++++-----
- gfio.c    | 10 +++++-----
- init.c    | 32 ++++++++++++++++----------------
- options.c |  2 +-
- server.c  |  8 ++++----
- server.h  |  2 +-
- stat.h    |  2 +-
- 8 files changed, 35 insertions(+), 35 deletions(-)
+ io_u.c | 24 ++++++++++++------------
+ stat.c | 10 ++++------
+ 2 files changed, 16 insertions(+), 18 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/backend.c b/backend.c
-index bb8bd13..76e456f 100644
---- a/backend.c
-+++ b/backend.c
-@@ -53,7 +53,7 @@ static struct fio_sem *startup_sem;
- static struct flist_head *cgroup_list;
- static struct cgroup_mnt *cgroup_mnt;
- static int exit_value;
--static volatile int fio_abort;
-+static volatile bool fio_abort;
- static unsigned int nr_process = 0;
- static unsigned int nr_thread = 0;
- 
-@@ -2371,7 +2371,7 @@ reap:
- 			if (fio_sem_down_timeout(startup_sem, 10000)) {
- 				log_err("fio: job startup hung? exiting.\n");
- 				fio_terminate_threads(TERMINATE_ALL);
--				fio_abort = 1;
-+				fio_abort = true;
- 				nr_started--;
- 				free(fd);
- 				break;
-diff --git a/fio.h b/fio.h
-index 9e99da1..7b6611a 100644
---- a/fio.h
-+++ b/fio.h
-@@ -503,7 +503,7 @@ enum {
- #define __fio_stringify_1(x)	#x
- #define __fio_stringify(x)	__fio_stringify_1(x)
- 
--extern int exitall_on_terminate;
-+extern bool exitall_on_terminate;
- extern unsigned int thread_number;
- extern unsigned int stat_number;
- extern int shm_id;
-@@ -512,7 +512,7 @@ extern int output_format;
- extern int append_terse_output;
- extern int temp_stall_ts;
- extern uintptr_t page_mask, page_size;
--extern int read_only;
-+extern bool read_only;
- extern int eta_print;
- extern int eta_new_line;
- extern unsigned int eta_interval_msec;
-@@ -523,10 +523,10 @@ extern enum fio_cs fio_clock_source;
- extern int fio_clock_source_set;
- extern int warnings_fatal;
- extern int terse_version;
--extern int is_backend;
--extern int is_local_backend;
-+extern bool is_backend;
-+extern bool is_local_backend;
- extern int nr_clients;
--extern int log_syslog;
-+extern bool log_syslog;
- extern int status_interval;
- extern const char fio_version_string[];
- extern char *trigger_file;
-diff --git a/gfio.c b/gfio.c
-index f59238c..2805396 100644
---- a/gfio.c
-+++ b/gfio.c
-@@ -38,7 +38,7 @@
- #include "gclient.h"
- #include "graph.h"
- 
--static int gfio_server_running;
-+static bool gfio_server_running;
- static unsigned int gfio_graph_limit = 100;
- 
- GdkColor gfio_color_white;
-@@ -461,10 +461,10 @@ static int send_job_file(struct gui_entry *ge)
- static void *server_thread(void *arg)
- {
- 	fio_server_create_sk_key();
--	is_backend = 1;
--	gfio_server_running = 1;
-+	is_backend = true;
-+	gfio_server_running = true;
- 	fio_start_server(NULL);
--	gfio_server_running = 0;
-+	gfio_server_running = false;
- 	fio_server_destroy_sk_key();
- 	return NULL;
+diff --git a/io_u.c b/io_u.c
+index a3540d1..56abe6f 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -1798,6 +1798,16 @@ static inline bool gtod_reduce(struct thread_data *td)
+ 			|| td->o.gtod_reduce;
  }
-@@ -472,7 +472,7 @@ static void *server_thread(void *arg)
- static void gfio_start_server(struct gui *ui)
+ 
++static void trim_block_info(struct thread_data *td, struct io_u *io_u)
++{
++	uint32_t *info = io_u_block_info(td, io_u);
++
++	if (BLOCK_INFO_STATE(*info) >= BLOCK_STATE_TRIM_FAILURE)
++		return;
++
++	*info = BLOCK_INFO(BLOCK_STATE_TRIMMED, BLOCK_INFO_TRIMS(*info) + 1);
++}
++
+ static void account_io_completion(struct thread_data *td, struct io_u *io_u,
+ 				  struct io_completion_data *icd,
+ 				  const enum fio_ddir idx, unsigned int bytes)
+@@ -1849,18 +1859,8 @@ static void account_io_completion(struct thread_data *td, struct io_u *io_u,
+ 	} else if (ddir_sync(idx) && !td->o.disable_clat)
+ 		add_sync_clat_sample(&td->ts, llnsec);
+ 
+-	if (td->ts.nr_block_infos && io_u->ddir == DDIR_TRIM) {
+-		uint32_t *info = io_u_block_info(td, io_u);
+-		if (BLOCK_INFO_STATE(*info) < BLOCK_STATE_TRIM_FAILURE) {
+-			if (io_u->ddir == DDIR_TRIM) {
+-				*info = BLOCK_INFO(BLOCK_STATE_TRIMMED,
+-						BLOCK_INFO_TRIMS(*info) + 1);
+-			} else if (io_u->ddir == DDIR_WRITE) {
+-				*info = BLOCK_INFO_SET_STATE(BLOCK_STATE_WRITTEN,
+-								*info);
+-			}
+-		}
+-	}
++	if (td->ts.nr_block_infos && io_u->ddir == DDIR_TRIM)
++		trim_block_info(td, io_u);
+ }
+ 
+ static void file_log_write_comp(const struct thread_data *td, struct fio_file *f,
+diff --git a/stat.c b/stat.c
+index ef9c4af..331abf6 100644
+--- a/stat.c
++++ b/stat.c
+@@ -416,7 +416,6 @@ static void display_lat(const char *name, unsigned long long min,
+ static void show_ddir_status(struct group_run_stats *rs, struct thread_stat *ts,
+ 			     int ddir, struct buf_output *out)
  {
- 	if (!gfio_server_running) {
--		gfio_server_running = 1;
-+		gfio_server_running = true;
- 		pthread_create(&ui->server_t, NULL, server_thread, NULL);
- 		pthread_detach(ui->server_t);
+-	const char *str[] = { " read", "write", " trim", "sync" };
+ 	unsigned long runt;
+ 	unsigned long long min, max, bw, iops;
+ 	double mean, dev;
+@@ -426,12 +425,12 @@ static void show_ddir_status(struct group_run_stats *rs, struct thread_stat *ts,
+ 	if (ddir_sync(ddir)) {
+ 		if (calc_lat(&ts->sync_stat, &min, &max, &mean, &dev)) {
+ 			log_buf(out, "  %s:\n", "fsync/fdatasync/sync_file_range");
+-			display_lat(str[ddir], min, max, mean, dev, out);
++			display_lat(io_ddir_name(ddir), min, max, mean, dev, out);
+ 			show_clat_percentiles(ts->io_u_sync_plat,
+ 						ts->sync_stat.samples,
+ 						ts->percentile_list,
+ 						ts->percentile_precision,
+-						str[ddir], out);
++						io_ddir_name(ddir), out);
+ 		}
+ 		return;
  	}
-diff --git a/init.c b/init.c
-index 560da8f..1eddc6f 100644
---- a/init.c
-+++ b/init.c
-@@ -45,16 +45,16 @@ const char fio_version_string[] = FIO_VERSION;
+@@ -455,7 +454,7 @@ static void show_ddir_status(struct group_run_stats *rs, struct thread_stat *ts,
+ 		zbd_w_st = zbd_write_status(ts);
  
- static char **ini_file;
- static int max_jobs = FIO_MAX_JOBS;
--static int dump_cmdline;
--static int parse_only;
--static int merge_blktrace_only;
-+static bool dump_cmdline;
-+static bool parse_only;
-+static bool merge_blktrace_only;
+ 	log_buf(out, "  %s: IOPS=%s, BW=%s (%s)(%s/%llumsec)%s\n",
+-			rs->unified_rw_rep ? "mixed" : str[ddir],
++			rs->unified_rw_rep ? "mixed" : io_ddir_name(ddir),
+ 			iops_p, bw_p, bw_p_alt, io_p,
+ 			(unsigned long long) ts->runtime[ddir],
+ 			zbd_w_st ? : "");
+@@ -985,7 +984,6 @@ static void add_ddir_status_json(struct thread_stat *ts,
+ 	double mean, dev, iops;
+ 	unsigned int len;
+ 	int i;
+-	const char *ddirname[] = { "read", "write", "trim", "sync" };
+ 	struct json_object *dir_object, *tmp_object, *percentile_object, *clat_bins_object = NULL;
+ 	char buf[120];
+ 	double p_of_agg = 100.0;
+@@ -997,7 +995,7 @@ static void add_ddir_status_json(struct thread_stat *ts,
  
- static struct thread_data def_thread;
- struct thread_data *threads = NULL;
- static char **job_sections;
- static int nr_job_sections;
+ 	dir_object = json_create_object();
+ 	json_object_add_value_object(parent,
+-		ts->unified_rw_rep ? "mixed" : ddirname[ddir], dir_object);
++		ts->unified_rw_rep ? "mixed" : io_ddir_name(ddir), dir_object);
  
--int exitall_on_terminate = 0;
-+bool exitall_on_terminate = false;
- int output_format = FIO_OUTPUT_NORMAL;
- int eta_print = FIO_ETA_AUTO;
- unsigned int eta_interval_msec = 1000;
-@@ -64,13 +64,13 @@ FILE *f_err = NULL;
- char *exec_profile = NULL;
- int warnings_fatal = 0;
- int terse_version = 3;
--int is_backend = 0;
--int is_local_backend = 0;
-+bool is_backend = false;
-+bool is_local_backend = false;
- int nr_clients = 0;
--int log_syslog = 0;
-+bool log_syslog = false;
- 
--int write_bw_log = 0;
--int read_only = 0;
-+bool write_bw_log = false;
-+bool read_only = false;
- int status_interval = 0;
- 
- char *trigger_file = NULL;
-@@ -2487,7 +2487,7 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 	char *ostr = cmd_optstr;
- 	char *pid_file = NULL;
- 	void *cur_client = NULL;
--	int backend = 0;
-+	bool backend = false;
- 
- 	/*
- 	 * Reset optind handling, since we may call this multiple times
-@@ -2513,7 +2513,7 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 			exit_val = 1;
- 			break;
- 		case 'b':
--			write_bw_log = 1;
-+			write_bw_log = true;
- 			break;
- 		case 'o': {
- 			FILE *tmp;
-@@ -2568,7 +2568,7 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 			break;
- 		case 's':
- 			did_arg = true;
--			dump_cmdline = 1;
-+			dump_cmdline = true;
- 			break;
- 		case 'r':
- 			read_only = 1;
-@@ -2634,7 +2634,7 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 			break;
- 		case 'P':
- 			did_arg = true;
--			parse_only = 1;
-+			parse_only = true;
- 			break;
- 		case 'x': {
- 			size_t new_size;
-@@ -2759,8 +2759,8 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 			}
- 			if (optarg)
- 				fio_server_set_arg(optarg);
--			is_backend = 1;
--			backend = 1;
-+			is_backend = true;
-+			backend = true;
- #else
- 			log_err("fio: client/server requires SHM support\n");
- 			do_exit++;
-@@ -2908,7 +2908,7 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 
- 		case 'A':
- 			did_arg = true;
--			merge_blktrace_only = 1;
-+			merge_blktrace_only = true;
- 			break;
- 		case '?':
- 			log_err("%s: unrecognized option '%s'\n", argv[0],
-diff --git a/options.c b/options.c
-index 9b27730..66fb580 100644
---- a/options.c
-+++ b/options.c
-@@ -482,7 +482,7 @@ static int str_rwmix_write_cb(void *data, unsigned long long *val)
- 
- static int str_exitall_cb(void)
- {
--	exitall_on_terminate = 1;
-+	exitall_on_terminate = true;
- 	return 0;
- }
- 
-diff --git a/server.c b/server.c
-index 1c07501..90d3396 100644
---- a/server.c
-+++ b/server.c
-@@ -28,7 +28,7 @@
- 
- int fio_net_port = FIO_NET_PORT;
- 
--int exit_backend = 0;
-+bool exit_backend = false;
- 
- enum {
- 	SK_F_FREE	= 1,
-@@ -995,7 +995,7 @@ static int handle_command(struct sk_out *sk_out, struct flist_head *job_list,
- 		ret = 0;
- 		break;
- 	case FIO_NET_CMD_EXIT:
--		exit_backend = 1;
-+		exit_backend = true;
- 		return -1;
- 	case FIO_NET_CMD_LOAD_FILE:
- 		ret = handle_load_file_cmd(cmd);
-@@ -2492,7 +2492,7 @@ void fio_server_got_signal(int signal)
- 		sk_out->sk = -1;
- 	else {
- 		log_info("\nfio: terminating on signal %d\n", signal);
--		exit_backend = 1;
-+		exit_backend = true;
- 	}
- }
- 
-@@ -2574,7 +2574,7 @@ int fio_start_server(char *pidfile)
- 
- 	setsid();
- 	openlog("fio", LOG_NDELAY|LOG_NOWAIT|LOG_PID, LOG_USER);
--	log_syslog = 1;
-+	log_syslog = true;
- 	close(STDIN_FILENO);
- 	close(STDOUT_FILENO);
- 	close(STDERR_FILENO);
-diff --git a/server.h b/server.h
-index 40b9eac..371e51e 100644
---- a/server.h
-+++ b/server.h
-@@ -232,7 +232,7 @@ extern int fio_net_send_quit(int sk);
- extern int fio_server_create_sk_key(void);
- extern void fio_server_destroy_sk_key(void);
- 
--extern int exit_backend;
-+extern bool exit_backend;
- extern int fio_net_port;
- 
- #endif
-diff --git a/stat.h b/stat.h
-index 98de281..b4ba71e 100644
---- a/stat.h
-+++ b/stat.h
-@@ -326,7 +326,7 @@ extern void add_sync_clat_sample(struct thread_stat *ts,
- extern int calc_log_samples(void);
- 
- extern struct io_log *agg_io_log[DDIR_RWDIR_CNT];
--extern int write_bw_log;
-+extern bool write_bw_log;
- 
- static inline bool nsec_to_usec(unsigned long long *min,
- 				unsigned long long *max, double *mean,
+ 	if (ddir_rw(ddir)) {
+ 		bw_bytes = 0;
 
