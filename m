@@ -1,126 +1,79 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa5.dell-outbound.iphmx.com ([68.232.153.95]:3603 "EHLO
-        esa5.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725808AbeJ0GDR (ORCPT
-        <rfc822;fio@vger.kernel.org>); Sat, 27 Oct 2018 02:03:17 -0400
-Received: from pps.filterd (m0144104.ppops.net [127.0.0.1])
-        by mx0b-00154901.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w9QLMoCv097516
-        for <fio@vger.kernel.org>; Fri, 26 Oct 2018 17:24:38 -0400
-Received: from esa6.dell-outbound2.iphmx.com (esa6.dell-outbound2.iphmx.com [68.232.154.99])
-        by mx0b-00154901.pphosted.com with ESMTP id 2nc7cns06f-1
+Received: from esa8.dell-outbound.iphmx.com ([68.232.149.218]:20055 "EHLO
+        esa8.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726612AbeJZTjC (ORCPT
+        <rfc822;fio@vger.kernel.org>); Fri, 26 Oct 2018 15:39:02 -0400
+Received: from pps.filterd (m0133268.ppops.net [127.0.0.1])
+        by mx0a-00154901.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w9QAm2o0130339
+        for <fio@vger.kernel.org>; Fri, 26 Oct 2018 07:02:23 -0400
+Received: from esa3.dell-outbound2.iphmx.com (esa3.dell-outbound2.iphmx.com [68.232.154.63])
+        by mx0a-00154901.pphosted.com with ESMTP id 2n7xksk43s-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
-        for <fio@vger.kernel.org>; Fri, 26 Oct 2018 17:24:38 -0400
+        for <fio@vger.kernel.org>; Fri, 26 Oct 2018 07:02:22 -0400
 From: "Beierl, Mark" <Mark.Beierl@dell.com>
 Subject: Re: Static linking and RDB/Rados
-Date: Fri, 26 Oct 2018 21:24:20 +0000
-Message-ID: <DDAFB754-E033-4307-A7B7-826307095872@emc.com>
-References: <3AF0240C-DE31-4E79-AB21-31D04B863142@emc.com>
- <CALjAwxjS4MXpf_K6mqE2vb=+sJ40iVgKQyLJ0zfEyR2JEBpfAQ@mail.gmail.com>
- <7D6A87DE-8A24-4E68-B750-78D7B2294DC6@emc.com>
-In-Reply-To: <7D6A87DE-8A24-4E68-B750-78D7B2294DC6@emc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <342FEB8C499E864BA6F001DE009EA005@mail.corp.emc.com>
-Content-Transfer-Encoding: base64
+Date: Fri, 26 Oct 2018 11:02:01 +0000
+Message-ID: <7D6A87DE-8A24-4E68-B750-78D7B2294DC6@emc.com>
+References: <3AF0240C-DE31-4E79-AB21-31D04B863142@emc.com>,<CALjAwxjS4MXpf_K6mqE2vb=+sJ40iVgKQyLJ0zfEyR2JEBpfAQ@mail.gmail.com>
+In-Reply-To: <CALjAwxjS4MXpf_K6mqE2vb=+sJ40iVgKQyLJ0zfEyR2JEBpfAQ@mail.gmail.com>
+Content-Language: en-CA
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Beierl, Mark" <Mark.Beierl@dell.com>, Sitsofe Wheeler <sitsofe@gmail.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: fio <fio@vger.kernel.org>
 
-U29ycnksIHRoaXMgaXMgc3RpbGwgYSBuby1nbyBmb3IgUkJEIHdpdGggc3RhdGljIGxpbmtpbmcu
-DQoNCkkgZm91bmQgYSBsaWJyYmQuYSBpbiBYZW5pYWwsIGJ1dCBpdCByZXF1aXJlcyBhIHRvbiBv
-ZiBzdGF0aWNhbGx5IGxpbmtlZCBsaWJyYXJpZXMgdG8gYmUgcHVsbGVkIGluIGFsb25nIHdpdGgg
-aXQ6DQoNCmxkZCAvdXNyL2xpYi94ODZfNjQtbGludXgtZ251L2xpYnJiZC5zbyANCiAgICAgICAg
-bGludXgtdmRzby5zby4xID0+ICAoMHgwMDAwN2ZmY2NkMTI0MDAwKQ0KICAgICAgICBsaWJyYWRv
-cy5zby4yID0+IC91c3IvbGliL3g4Nl82NC1saW51eC1nbnUvbGlicmFkb3Muc28uMiAoMHgwMDAw
-N2ZhYWM5YmUyMDAwKQ0KICAgICAgICBsaWJkbC5zby4yID0+IC9saWIveDg2XzY0LWxpbnV4LWdu
-dS9saWJkbC5zby4yICgweDAwMDA3ZmFhYzk5ZGUwMDApDQogICAgICAgIGxpYmJvb3N0X3RocmVh
-ZC5zby4xLjU4LjAgPT4gL3Vzci9saWIveDg2XzY0LWxpbnV4LWdudS9saWJib29zdF90aHJlYWQu
-c28uMS41OC4wICgweDAwMDA3ZmFhYzk3YjgwMDApDQogICAgICAgIGxpYmJvb3N0X3JhbmRvbS5z
-by4xLjU4LjAgPT4gL3Vzci9saWIveDg2XzY0LWxpbnV4LWdudS9saWJib29zdF9yYW5kb20uc28u
-MS41OC4wICgweDAwMDA3ZmFhYzk1YjAwMDApDQogICAgICAgIGxpYmJsa2lkLnNvLjEgPT4gL2xp
-Yi94ODZfNjQtbGludXgtZ251L2xpYmJsa2lkLnNvLjEgKDB4MDAwMDdmYWFjOTM2ZjAwMCkNCiAg
-ICAgICAgbGlicHRocmVhZC5zby4wID0+IC9saWIveDg2XzY0LWxpbnV4LWdudS9saWJwdGhyZWFk
-LnNvLjAgKDB4MDAwMDdmYWFjOTE1MjAwMCkNCiAgICAgICAgbGlicnQuc28uMSA9PiAvbGliL3g4
-Nl82NC1saW51eC1nbnUvbGlicnQuc28uMSAoMHgwMDAwN2ZhYWM4ZjQ5MDAwKQ0KICAgICAgICBs
-aWJib29zdF9pb3N0cmVhbXMuc28uMS41OC4wID0+IC91c3IvbGliL3g4Nl82NC1saW51eC1nbnUv
-bGliYm9vc3RfaW9zdHJlYW1zLnNvLjEuNTguMCAoMHgwMDAwN2ZhYWM4ZDMwMDAwKQ0KICAgICAg
-ICBsaWJib29zdF9zeXN0ZW0uc28uMS41OC4wID0+IC91c3IvbGliL3g4Nl82NC1saW51eC1nbnUv
-bGliYm9vc3Rfc3lzdGVtLnNvLjEuNTguMCAoMHgwMDAwN2ZhYWM4YjJjMDAwKQ0KICAgICAgICBs
-aWJzdGRjKysuc28uNiA9PiAvdXNyL2xpYi94ODZfNjQtbGludXgtZ251L2xpYnN0ZGMrKy5zby42
-ICgweDAwMDA3ZmFhYzg3YTkwMDApDQogICAgICAgIGxpYm0uc28uNiA9PiAvbGliL3g4Nl82NC1s
-aW51eC1nbnUvbGlibS5zby42ICgweDAwMDA3ZmFhYzg0YTAwMDApDQogICAgICAgIGxpYmMuc28u
-NiA9PiAvbGliL3g4Nl82NC1saW51eC1nbnUvbGliYy5zby42ICgweDAwMDA3ZmFhYzgwZDYwMDAp
-DQogICAgICAgIC9saWI2NC9sZC1saW51eC14ODYtNjQuc28uMiAoMHgwMDAwNTVhYjQ1MzVhMDAw
-KQ0KICAgICAgICBsaWJnY2Nfcy5zby4xID0+IC9saWIveDg2XzY0LWxpbnV4LWdudS9saWJnY2Nf
-cy5zby4xICgweDAwMDA3ZmFhYzdlYmYwMDApDQogICAgICAgIGxpYm5zczMuc28gPT4gL25zcy0z
-LjMyL2Rpc3QvTGludXgzLjEwX3g4Nl82NF9jY19nbGliY19QVEhfNjRfREJHLk9CSi9saWIvbGli
-bnNzMy5zbyAoMHgwMDAwN2ZhYWM3YjRhMDAwKQ0KICAgICAgICBsaWJzbWltZTMuc28gPT4gL25z
-cy0zLjMyL2Rpc3QvTGludXgzLjEwX3g4Nl82NF9jY19nbGliY19QVEhfNjRfREJHLk9CSi9saWIv
-bGlic21pbWUzLnNvICgweDAwMDA3ZmFhYzc5MTkwMDApDQogICAgICAgIGxpYm5zcHI0LnNvID0+
-IC91c3IvbGliL3g4Nl82NC1saW51eC1nbnUvbGlibnNwcjQuc28gKDB4MDAwMDdmYWFjNzZkOTAw
-MCkNCiAgICAgICAgbGlidXVpZC5zby4xID0+IC9saWIveDg2XzY0LWxpbnV4LWdudS9saWJ1dWlk
-LnNvLjEgKDB4MDAwMDdmYWFjNzRkNDAwMCkNCiAgICAgICAgbGliYnoyLnNvLjEuMCA9PiAvbGli
-L3g4Nl82NC1saW51eC1nbnUvbGliYnoyLnNvLjEuMCAoMHgwMDAwN2ZhYWM3MmMzMDAwKQ0KICAg
-ICAgICBsaWJ6LnNvLjEgPT4gL2xpYi94ODZfNjQtbGludXgtZ251L2xpYnouc28uMSAoMHgwMDAw
-N2ZhYWM3MGE5MDAwKQ0KICAgICAgICBsaWJuc3N1dGlsMy5zbyA9PiAvbnNzLTMuMzIvZGlzdC9M
-aW51eDMuMTBfeDg2XzY0X2NjX2dsaWJjX1BUSF82NF9EQkcuT0JKL2xpYi9saWJuc3N1dGlsMy5z
-byAoMHgwMDAwN2ZhYWM2ZTZmMDAwKQ0KICAgICAgICBsaWJwbGM0LnNvID0+IC91c3IvbGliL3g4
-Nl82NC1saW51eC1nbnUvbGlicGxjNC5zbyAoMHgwMDAwN2ZhYWM2YzZhMDAwKQ0KICAgICAgICBs
-aWJwbGRzNC5zbyA9PiAvdXNyL2xpYi94ODZfNjQtbGludXgtZ251L2xpYnBsZHM0LnNvICgweDAw
-MDA3ZmFhYzZhNjYwMDApDQoNCkkgZ290IG1vc3Qgb2YgdGhlbSwgYnV0IEkgY2Fubm90IGZpbmQg
-YW55IHN0YXRpY2FsbHkgbGlua2VkIGxpYm5zczMuYS4gIEJ1aWxkaW5nIHRoYXQgZnJvbSBzb3Vy
-Y2UgWzFdIHR1cm5lZCBvdXQgdG8gYmUgYSBuaWdodG1hcmUsIHNvIEnigJltIGF0IGEgZGVhZCBl
-bmQgYWdhaW4uDQoNClsxXSBodHRwczovL2dpdGh1Yi5jb20vbnNzLWRldi9uc3MNCg0KUmVnYXJk
-cywNCk1hcmsNCiANCk1hcmsgQmVpZXJsDQpTVyBTeXN0ZW0gU3IgUHJpbmNpcGFsIERldmVsb3Bl
-cg0KRGVsbCBFTUMgfCBDbG91ZCAmIENvbW11bmljYXRpb24gU2VydmljZSBQcm92aWRlciBTb2x1
-dGlvbg0KTWFyay5CZWllcmxARGVsbC5jb20NCg0KT24gMjAxOC0xMC0yNiwgMDc6MDIsICJmaW8t
-b3duZXJAdmdlci5rZXJuZWwub3JnIG9uIGJlaGFsZiBvZiBCZWllcmwsIE1hcmsiIDxmaW8tb3du
-ZXJAdmdlci5rZXJuZWwub3JnIG9uIGJlaGFsZiBvZiBNYXJrLkJlaWVybEBkZWxsLmNvbT4gd3Jv
-dGU6DQoNCiAgICANCiAgICBbRVhURVJOQUwgRU1BSUxdIA0KICAgIFBsZWFzZSByZXBvcnQgYW55
-IHN1c3BpY2lvdXMgYXR0YWNobWVudHMsIGxpbmtzLCBvciByZXF1ZXN0cyBmb3Igc2Vuc2l0aXZl
-IGluZm9ybWF0aW9uLg0KICAgIA0KICAgIA0KICAgIA0KICAgIA0KICAgID4gT24gT2N0IDI2LCAy
-MDE4LCBhdCAwMDoxMiwgU2l0c29mZSBXaGVlbGVyIDxzaXRzb2ZlQGdtYWlsLmNvbT4gd3JvdGU6
-DQogICAgPiANCiAgICA+IA0KICAgID4gW0VYVEVSTkFMIEVNQUlMXSANCiAgICA+IFBsZWFzZSBy
-ZXBvcnQgYW55IHN1c3BpY2lvdXMgYXR0YWNobWVudHMsIGxpbmtzLCBvciByZXF1ZXN0cyBmb3Ig
-c2Vuc2l0aXZlIGluZm9ybWF0aW9uLg0KICAgID4gDQogICAgPiANCiAgICA+IEhpLA0KICAgID4g
-DQogICAgPj4gT24gRnJpLCAyNiBPY3QgMjAxOCBhdCAwMDo1MywgQmVpZXJsLCBNYXJrIDxNYXJr
-LkJlaWVybEBkZWxsLmNvbT4gd3JvdGU6DQogICAgPj4gDQogICAgPj4gSeKAmXZlIGJlZW4gZG9p
-bmcgc29tZSBwbGF5aW5nIGFyb3VuZCB3aXRoIHN0YXRpYyBsaW5raW5nIGFuZCBmcm9tIHRoZSBs
-b29rcyBvZiBpdCB0aGUgc3RhdGljIGxpYnJhcmllcyBmb3IgUmFkb3MgYW5kIFJEQiBhcmUgbm8g
-bG9uZ2VyIGF2YWlsYWJsZS4gIFNhbWUgZ29lcyBmb3Igc29tZSBvZiB0aGUgbGlicmFyaWVzIG5l
-ZWRlZCB0byBlbmFibGUgSFRUUCAoUzMpIHN1cHBvcnQuDQogICAgPj4gDQogICAgPj4gU28sIEkg
-ZG9u4oCZdCB0aGluayB0aGUgb3B0aW9ucyBmb3Ig4oCTYnVpbGQtc3RhdGljIGFyZSB2YWxpZCBh
-bnltb3JlLiAgSWYgYW55b25lIGhhcyBwb2ludGVycyBhcyB0byBob3cgdG8gZ2V0IHRoZSBzdGF0
-aWMgUmFkb3Mgb3IgUkRCIGxpYnJhcmllcywgSeKAmWQgbG92ZSB0byBoZWFyIGFib3V0IGl0IDop
-DQogICAgPiANCiAgICA+IFlvdSBkaWRuJ3QgbWVudGlvbiB5b3VyIGRpc3RybyBidXQgSSB0aGlu
-ayBpbiB0aGUgY2FzZSBvZiBjdXJsICh3aGljaA0KICAgID4gaXMgdXNlZCBmb3IgdGhlIEhUVFAv
-UzMgc3Vwb3J0KSBpdCB3aWxsIGJlIGhpZ2hseSBlbnZpcm9ubWVudA0KICAgID4gZGVwZW5kZW50
-LiBGb3IgZXhhbXBsZSwgVWJ1bnR1IHNlZW0gdG8gc2hpcCBhIHN0YXRpYyB2ZXJzaW9uIG9mDQog
-ICAgPiBsaWJjdXJsIChodHRwczovL3BhY2thZ2VzLnVidW50dS5jb20vYmlvbmljL2FtZDY0L2xp
-YmN1cmw0LWdudXRscy1kZXYvZmlsZWxpc3QNCiAgICA+IGFuZCBzZWUgbGliY3VybC1nbnV0bHMu
-YSkgYnV0IEkgY2FuJ3Qgc2VlIGFueSBzdGF0aWMgbGliY3VybCBpbg0KICAgID4gcmVndWxhciBG
-ZWRvcmEgcGFja2FnZXMuIEluIGZhY3QsIEkga25vdyB0aGF0IEZlZG9yYSBkb2Vzbid0IHNoaXAg
-YQ0KICAgID4gc3RhdGljIGxpYmFpbyBlaXRoZXIgYW5kIG90aGVycyBoYXZlIGJlZW4gZm9yY2Vk
-IHRvIGRvd25sb2FkIHRoZQ0KICAgID4gc291cmNlLCBidWlsZCBhIHByaXZhdGUgY29weSB3aXRo
-IGEgc3RhdGljIGxpYnJhcnkgYW5kIHRoZW4gcG9pbnQgZmlvDQogICAgPiBhdCB0aGF0IGluIHRo
-ZXkgd2FudGVkIHN1Y2ggYSBiaW5hcnkgb24gRmVkb3JhLg0KICAgID4gLS0gDQogICAgPiBTaXRz
-b2ZlIHwgaHR0cDovL3N1Y3Mub3JnL35zaXRzLw0KICAgIA0KICAgIFRoYW5rcywgU2l0c29mZS4g
-DQogICAgDQogICAgU29ycnkgYWJvdXQgdGhhdC4gSSB0cmllZCBBbHBpbmUsIFVidW50dSAxNi4w
-NCBhbmQgMTguMDQsIGFzIHdlbGwgYXMgQ2VudE9TIDcuIE5vIGx1Y2sgd2l0aCBhbnkgb2YgdGhl
-bS4gSXQgYWxzbyBzZWVtcyB0aGF0IEkgd2FzIGdvaW5nIGRvd24gc29tZSByYWJiaXQgaG9sZSB3
-aXRoIG5naHR0cDIsIHdoaWNoIGFsc28gc2VlbXMgdG8gYmUgbWlzc2luZyB0aGUgLmEgc3RhdGlj
-IGxpYnJhcnkuIEkgdGhpbmsgbW9zdCBkaXN0cm9zIGFyZSBtb3ZpbmcgYXdheSBmcm9tIHNoaXBw
-aW5nIHN0YXRpYyBsaWJyYXJpZXMgbm93LiANCiAgICANCiAgICBNeSBnb2FsIGlzIHRvIGNyZWF0
-ZSBhIHN0YXRpY2FsbHkgbGlua2VkIEZJTyB0aGF0IEkgY2FuIHVzZSBvbiBkaWZmZXJlbnQgdGFy
-Z2V0cyB3aXRob3V0IGhhdmluZyB0byByZWNvbXBpbGUgb24gZWFjaC4gSeKAmW0gbm8gbG9uZ2Vy
-IHN1cmUgdGhhdCB0aGlzIGlzIGV2ZW4gYSBnb29kIHRoaW5nLCBiZWNhdXNlIGlmIHRoZSBkaXN0
-cm8gbWFpbnRhaW5lcnMgYXJlIGRyb3BwaW5nIHN0YXRpYyBsaWJyYXJpZXMsIHRoZXJlIG11c3Qg
-YmUgYSBnb29kIHJlYXNvbi4gDQogICAgDQogICAgSGF2aW5nIHNhaWQgdGhhdCwgaWYgSSBkbyBn
-ZXQgYSBkb2NrZXIgYnVpbGQgd2l0aCBhbGwgdGhlIHN0YXRpYyBzb3VyY2VzIGFuZCBhIGZpbmFs
-IEZJTyBzdGF0aWNhbGx5IGJ1aWx0LCB3b3VsZCB0aGUgY29tbXVuaXR5IGJlIGludGVyZXN0ZWQg
-aW4gdGhpcz8gIEkgY291bGQgcHJvcG9zZSBhIHBhdGNoIHdpdGggdGhpcyBhcyBhIGRvY2tlcmZp
-bGUgaWYgc28gYW5kIHRoZW4gb3RoZXJzIHdpdGggZXhwZXJpZW5jZSBpbiBkaWZmZXJlbnQgYXJl
-YXMgbWlnaHQgYmUgYWJsZSB0byBoZWxwLiANCiAgICANCg0K
+
+
+> On Oct 26, 2018, at 00:12, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>=20
+>=20
+> [EXTERNAL EMAIL]=20
+> Please report any suspicious attachments, links, or requests for sensitiv=
+e information.
+>=20
+>=20
+> Hi,
+>=20
+>> On Fri, 26 Oct 2018 at 00:53, Beierl, Mark <Mark.Beierl@dell.com> wrote:
+>>=20
+>> I=92ve been doing some playing around with static linking and from the l=
+ooks of it the static libraries for Rados and RDB are no longer available. =
+ Same goes for some of the libraries needed to enable HTTP (S3) support.
+>>=20
+>> So, I don=92t think the options for =96build-static are valid anymore.  =
+If anyone has pointers as to how to get the static Rados or RDB libraries, =
+I=92d love to hear about it :)
+>=20
+> You didn't mention your distro but I think in the case of curl (which
+> is used for the HTTP/S3 suport) it will be highly environment
+> dependent. For example, Ubuntu seem to ship a static version of
+> libcurl (https://packages.ubuntu.com/bionic/amd64/libcurl4-gnutls-dev/fil=
+elist
+> and see libcurl-gnutls.a) but I can't see any static libcurl in
+> regular Fedora packages. In fact, I know that Fedora doesn't ship a
+> static libaio either and others have been forced to download the
+> source, build a private copy with a static library and then point fio
+> at that in they wanted such a binary on Fedora.
+> --=20
+> Sitsofe | http://sucs.org/~sits/
+
+Thanks, Sitsofe.=20
+
+Sorry about that. I tried Alpine, Ubuntu 16.04 and 18.04, as well as CentOS=
+ 7. No luck with any of them. It also seems that I was going down some rabb=
+it hole with nghttp2, which also seems to be missing the .a static library.=
+ I think most distros are moving away from shipping static libraries now.=20
+
+My goal is to create a statically linked FIO that I can use on different ta=
+rgets without having to recompile on each. I=92m no longer sure that this i=
+s even a good thing, because if the distro maintainers are dropping static =
+libraries, there must be a good reason.=20
+
+Having said that, if I do get a docker build with all the static sources an=
+d a final FIO statically built, would the community be interested in this? =
+ I could propose a patch with this as a dockerfile if so and then others wi=
+th experience in different areas might be able to help. =
 
