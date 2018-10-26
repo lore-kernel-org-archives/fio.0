@@ -1,94 +1,126 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk1-f173.google.com ([209.85.221.173]:37343 "EHLO
-        mail-vk1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728301AbeJ0Se4 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 27 Oct 2018 14:34:56 -0400
-Received: by mail-vk1-f173.google.com with SMTP id y128-v6so901064vky.4
-        for <fio@vger.kernel.org>; Sat, 27 Oct 2018 02:54:32 -0700 (PDT)
-MIME-Version: 1.0
-References: <3AF0240C-DE31-4E79-AB21-31D04B863142@emc.com> <CALjAwxjS4MXpf_K6mqE2vb=+sJ40iVgKQyLJ0zfEyR2JEBpfAQ@mail.gmail.com>
- <7D6A87DE-8A24-4E68-B750-78D7B2294DC6@emc.com> <DDAFB754-E033-4307-A7B7-826307095872@emc.com>
-In-Reply-To: <DDAFB754-E033-4307-A7B7-826307095872@emc.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Sat, 27 Oct 2018 10:54:12 +0100
-Message-ID: <CALjAwxgU9iZrKqJab+tV560oPMc_=dGSNbuN8JHb0e56XL2qWg@mail.gmail.com>
+Received: from esa5.dell-outbound.iphmx.com ([68.232.153.95]:3603 "EHLO
+        esa5.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725808AbeJ0GDR (ORCPT
+        <rfc822;fio@vger.kernel.org>); Sat, 27 Oct 2018 02:03:17 -0400
+Received: from pps.filterd (m0144104.ppops.net [127.0.0.1])
+        by mx0b-00154901.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w9QLMoCv097516
+        for <fio@vger.kernel.org>; Fri, 26 Oct 2018 17:24:38 -0400
+Received: from esa6.dell-outbound2.iphmx.com (esa6.dell-outbound2.iphmx.com [68.232.154.99])
+        by mx0b-00154901.pphosted.com with ESMTP id 2nc7cns06f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
+        for <fio@vger.kernel.org>; Fri, 26 Oct 2018 17:24:38 -0400
+From: "Beierl, Mark" <Mark.Beierl@dell.com>
 Subject: Re: Static linking and RDB/Rados
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Date: Fri, 26 Oct 2018 21:24:20 +0000
+Message-ID: <DDAFB754-E033-4307-A7B7-826307095872@emc.com>
+References: <3AF0240C-DE31-4E79-AB21-31D04B863142@emc.com>
+ <CALjAwxjS4MXpf_K6mqE2vb=+sJ40iVgKQyLJ0zfEyR2JEBpfAQ@mail.gmail.com>
+ <7D6A87DE-8A24-4E68-B750-78D7B2294DC6@emc.com>
+In-Reply-To: <7D6A87DE-8A24-4E68-B750-78D7B2294DC6@emc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <342FEB8C499E864BA6F001DE009EA005@mail.corp.emc.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Mark Beierl <Mark.Beierl@dell.com>
+To: "Beierl, Mark" <Mark.Beierl@dell.com>, Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: fio <fio@vger.kernel.org>
 
-I'm afraid this is a classic Linux issue - trying to ship a binary
-that works everywhere is very hard and thus we now have
-docker/flatpak/snaps/appimage etc. Outside "app packagers" getting
-past what you've seen is likely going to be a lot of work and would
-likely involve having to ship all the dynamically libraries and mess
-around with LD_LIBRARY (and even then you've had to build everything
-on a "suitably old" distro to ensure the dynamic linking works)...
-
-On Fri, 26 Oct 2018 at 22:24, Beierl, Mark <Mark.Beierl@dell.com> wrote:
->
-> Sorry, this is still a no-go for RBD with static linking.
->
-> I found a librbd.a in Xenial, but it requires a ton of statically linked =
-libraries to be pulled in along with it:
->
-> ldd /usr/lib/x86_64-linux-gnu/librbd.so
->         linux-vdso.so.1 =3D>  (0x00007ffccd124000)
->         librados.so.2 =3D> /usr/lib/x86_64-linux-gnu/librados.so.2 (0x000=
-07faac9be2000)
->         libdl.so.2 =3D> /lib/x86_64-linux-gnu/libdl.so.2 (0x00007faac99de=
-000)
->         libboost_thread.so.1.58.0 =3D> /usr/lib/x86_64-linux-gnu/libboost=
-_thread.so.1.58.0 (0x00007faac97b8000)
->         libboost_random.so.1.58.0 =3D> /usr/lib/x86_64-linux-gnu/libboost=
-_random.so.1.58.0 (0x00007faac95b0000)
->         libblkid.so.1 =3D> /lib/x86_64-linux-gnu/libblkid.so.1 (0x00007fa=
-ac936f000)
->         libpthread.so.0 =3D> /lib/x86_64-linux-gnu/libpthread.so.0 (0x000=
-07faac9152000)
->         librt.so.1 =3D> /lib/x86_64-linux-gnu/librt.so.1 (0x00007faac8f49=
-000)
->         libboost_iostreams.so.1.58.0 =3D> /usr/lib/x86_64-linux-gnu/libbo=
-ost_iostreams.so.1.58.0 (0x00007faac8d30000)
->         libboost_system.so.1.58.0 =3D> /usr/lib/x86_64-linux-gnu/libboost=
-_system.so.1.58.0 (0x00007faac8b2c000)
->         libstdc++.so.6 =3D> /usr/lib/x86_64-linux-gnu/libstdc++.so.6 (0x0=
-0007faac87a9000)
->         libm.so.6 =3D> /lib/x86_64-linux-gnu/libm.so.6 (0x00007faac84a000=
-0)
->         libc.so.6 =3D> /lib/x86_64-linux-gnu/libc.so.6 (0x00007faac80d600=
-0)
->         /lib64/ld-linux-x86-64.so.2 (0x000055ab4535a000)
->         libgcc_s.so.1 =3D> /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fa=
-ac7ebf000)
->         libnss3.so =3D> /nss-3.32/dist/Linux3.10_x86_64_cc_glibc_PTH_64_D=
-BG.OBJ/lib/libnss3.so (0x00007faac7b4a000)
->         libsmime3.so =3D> /nss-3.32/dist/Linux3.10_x86_64_cc_glibc_PTH_64=
-_DBG.OBJ/lib/libsmime3.so (0x00007faac7919000)
->         libnspr4.so =3D> /usr/lib/x86_64-linux-gnu/libnspr4.so (0x00007fa=
-ac76d9000)
->         libuuid.so.1 =3D> /lib/x86_64-linux-gnu/libuuid.so.1 (0x00007faac=
-74d4000)
->         libbz2.so.1.0 =3D> /lib/x86_64-linux-gnu/libbz2.so.1.0 (0x00007fa=
-ac72c3000)
->         libz.so.1 =3D> /lib/x86_64-linux-gnu/libz.so.1 (0x00007faac70a900=
-0)
->         libnssutil3.so =3D> /nss-3.32/dist/Linux3.10_x86_64_cc_glibc_PTH_=
-64_DBG.OBJ/lib/libnssutil3.so (0x00007faac6e6f000)
->         libplc4.so =3D> /usr/lib/x86_64-linux-gnu/libplc4.so (0x00007faac=
-6c6a000)
->         libplds4.so =3D> /usr/lib/x86_64-linux-gnu/libplds4.so (0x00007fa=
-ac6a66000)
->
-> I got most of them, but I cannot find any statically linked libnss3.a.  B=
-uilding that from source [1] turned out to be a nightmare, so I=E2=80=99m a=
-t a dead end again.
->
-> [1] https://github.com/nss-dev/nss
-
---=20
-Sitsofe | http://sucs.org/~sits/
+U29ycnksIHRoaXMgaXMgc3RpbGwgYSBuby1nbyBmb3IgUkJEIHdpdGggc3RhdGljIGxpbmtpbmcu
+DQoNCkkgZm91bmQgYSBsaWJyYmQuYSBpbiBYZW5pYWwsIGJ1dCBpdCByZXF1aXJlcyBhIHRvbiBv
+ZiBzdGF0aWNhbGx5IGxpbmtlZCBsaWJyYXJpZXMgdG8gYmUgcHVsbGVkIGluIGFsb25nIHdpdGgg
+aXQ6DQoNCmxkZCAvdXNyL2xpYi94ODZfNjQtbGludXgtZ251L2xpYnJiZC5zbyANCiAgICAgICAg
+bGludXgtdmRzby5zby4xID0+ICAoMHgwMDAwN2ZmY2NkMTI0MDAwKQ0KICAgICAgICBsaWJyYWRv
+cy5zby4yID0+IC91c3IvbGliL3g4Nl82NC1saW51eC1nbnUvbGlicmFkb3Muc28uMiAoMHgwMDAw
+N2ZhYWM5YmUyMDAwKQ0KICAgICAgICBsaWJkbC5zby4yID0+IC9saWIveDg2XzY0LWxpbnV4LWdu
+dS9saWJkbC5zby4yICgweDAwMDA3ZmFhYzk5ZGUwMDApDQogICAgICAgIGxpYmJvb3N0X3RocmVh
+ZC5zby4xLjU4LjAgPT4gL3Vzci9saWIveDg2XzY0LWxpbnV4LWdudS9saWJib29zdF90aHJlYWQu
+c28uMS41OC4wICgweDAwMDA3ZmFhYzk3YjgwMDApDQogICAgICAgIGxpYmJvb3N0X3JhbmRvbS5z
+by4xLjU4LjAgPT4gL3Vzci9saWIveDg2XzY0LWxpbnV4LWdudS9saWJib29zdF9yYW5kb20uc28u
+MS41OC4wICgweDAwMDA3ZmFhYzk1YjAwMDApDQogICAgICAgIGxpYmJsa2lkLnNvLjEgPT4gL2xp
+Yi94ODZfNjQtbGludXgtZ251L2xpYmJsa2lkLnNvLjEgKDB4MDAwMDdmYWFjOTM2ZjAwMCkNCiAg
+ICAgICAgbGlicHRocmVhZC5zby4wID0+IC9saWIveDg2XzY0LWxpbnV4LWdudS9saWJwdGhyZWFk
+LnNvLjAgKDB4MDAwMDdmYWFjOTE1MjAwMCkNCiAgICAgICAgbGlicnQuc28uMSA9PiAvbGliL3g4
+Nl82NC1saW51eC1nbnUvbGlicnQuc28uMSAoMHgwMDAwN2ZhYWM4ZjQ5MDAwKQ0KICAgICAgICBs
+aWJib29zdF9pb3N0cmVhbXMuc28uMS41OC4wID0+IC91c3IvbGliL3g4Nl82NC1saW51eC1nbnUv
+bGliYm9vc3RfaW9zdHJlYW1zLnNvLjEuNTguMCAoMHgwMDAwN2ZhYWM4ZDMwMDAwKQ0KICAgICAg
+ICBsaWJib29zdF9zeXN0ZW0uc28uMS41OC4wID0+IC91c3IvbGliL3g4Nl82NC1saW51eC1nbnUv
+bGliYm9vc3Rfc3lzdGVtLnNvLjEuNTguMCAoMHgwMDAwN2ZhYWM4YjJjMDAwKQ0KICAgICAgICBs
+aWJzdGRjKysuc28uNiA9PiAvdXNyL2xpYi94ODZfNjQtbGludXgtZ251L2xpYnN0ZGMrKy5zby42
+ICgweDAwMDA3ZmFhYzg3YTkwMDApDQogICAgICAgIGxpYm0uc28uNiA9PiAvbGliL3g4Nl82NC1s
+aW51eC1nbnUvbGlibS5zby42ICgweDAwMDA3ZmFhYzg0YTAwMDApDQogICAgICAgIGxpYmMuc28u
+NiA9PiAvbGliL3g4Nl82NC1saW51eC1nbnUvbGliYy5zby42ICgweDAwMDA3ZmFhYzgwZDYwMDAp
+DQogICAgICAgIC9saWI2NC9sZC1saW51eC14ODYtNjQuc28uMiAoMHgwMDAwNTVhYjQ1MzVhMDAw
+KQ0KICAgICAgICBsaWJnY2Nfcy5zby4xID0+IC9saWIveDg2XzY0LWxpbnV4LWdudS9saWJnY2Nf
+cy5zby4xICgweDAwMDA3ZmFhYzdlYmYwMDApDQogICAgICAgIGxpYm5zczMuc28gPT4gL25zcy0z
+LjMyL2Rpc3QvTGludXgzLjEwX3g4Nl82NF9jY19nbGliY19QVEhfNjRfREJHLk9CSi9saWIvbGli
+bnNzMy5zbyAoMHgwMDAwN2ZhYWM3YjRhMDAwKQ0KICAgICAgICBsaWJzbWltZTMuc28gPT4gL25z
+cy0zLjMyL2Rpc3QvTGludXgzLjEwX3g4Nl82NF9jY19nbGliY19QVEhfNjRfREJHLk9CSi9saWIv
+bGlic21pbWUzLnNvICgweDAwMDA3ZmFhYzc5MTkwMDApDQogICAgICAgIGxpYm5zcHI0LnNvID0+
+IC91c3IvbGliL3g4Nl82NC1saW51eC1nbnUvbGlibnNwcjQuc28gKDB4MDAwMDdmYWFjNzZkOTAw
+MCkNCiAgICAgICAgbGlidXVpZC5zby4xID0+IC9saWIveDg2XzY0LWxpbnV4LWdudS9saWJ1dWlk
+LnNvLjEgKDB4MDAwMDdmYWFjNzRkNDAwMCkNCiAgICAgICAgbGliYnoyLnNvLjEuMCA9PiAvbGli
+L3g4Nl82NC1saW51eC1nbnUvbGliYnoyLnNvLjEuMCAoMHgwMDAwN2ZhYWM3MmMzMDAwKQ0KICAg
+ICAgICBsaWJ6LnNvLjEgPT4gL2xpYi94ODZfNjQtbGludXgtZ251L2xpYnouc28uMSAoMHgwMDAw
+N2ZhYWM3MGE5MDAwKQ0KICAgICAgICBsaWJuc3N1dGlsMy5zbyA9PiAvbnNzLTMuMzIvZGlzdC9M
+aW51eDMuMTBfeDg2XzY0X2NjX2dsaWJjX1BUSF82NF9EQkcuT0JKL2xpYi9saWJuc3N1dGlsMy5z
+byAoMHgwMDAwN2ZhYWM2ZTZmMDAwKQ0KICAgICAgICBsaWJwbGM0LnNvID0+IC91c3IvbGliL3g4
+Nl82NC1saW51eC1nbnUvbGlicGxjNC5zbyAoMHgwMDAwN2ZhYWM2YzZhMDAwKQ0KICAgICAgICBs
+aWJwbGRzNC5zbyA9PiAvdXNyL2xpYi94ODZfNjQtbGludXgtZ251L2xpYnBsZHM0LnNvICgweDAw
+MDA3ZmFhYzZhNjYwMDApDQoNCkkgZ290IG1vc3Qgb2YgdGhlbSwgYnV0IEkgY2Fubm90IGZpbmQg
+YW55IHN0YXRpY2FsbHkgbGlua2VkIGxpYm5zczMuYS4gIEJ1aWxkaW5nIHRoYXQgZnJvbSBzb3Vy
+Y2UgWzFdIHR1cm5lZCBvdXQgdG8gYmUgYSBuaWdodG1hcmUsIHNvIEnigJltIGF0IGEgZGVhZCBl
+bmQgYWdhaW4uDQoNClsxXSBodHRwczovL2dpdGh1Yi5jb20vbnNzLWRldi9uc3MNCg0KUmVnYXJk
+cywNCk1hcmsNCiANCk1hcmsgQmVpZXJsDQpTVyBTeXN0ZW0gU3IgUHJpbmNpcGFsIERldmVsb3Bl
+cg0KRGVsbCBFTUMgfCBDbG91ZCAmIENvbW11bmljYXRpb24gU2VydmljZSBQcm92aWRlciBTb2x1
+dGlvbg0KTWFyay5CZWllcmxARGVsbC5jb20NCg0KT24gMjAxOC0xMC0yNiwgMDc6MDIsICJmaW8t
+b3duZXJAdmdlci5rZXJuZWwub3JnIG9uIGJlaGFsZiBvZiBCZWllcmwsIE1hcmsiIDxmaW8tb3du
+ZXJAdmdlci5rZXJuZWwub3JnIG9uIGJlaGFsZiBvZiBNYXJrLkJlaWVybEBkZWxsLmNvbT4gd3Jv
+dGU6DQoNCiAgICANCiAgICBbRVhURVJOQUwgRU1BSUxdIA0KICAgIFBsZWFzZSByZXBvcnQgYW55
+IHN1c3BpY2lvdXMgYXR0YWNobWVudHMsIGxpbmtzLCBvciByZXF1ZXN0cyBmb3Igc2Vuc2l0aXZl
+IGluZm9ybWF0aW9uLg0KICAgIA0KICAgIA0KICAgIA0KICAgIA0KICAgID4gT24gT2N0IDI2LCAy
+MDE4LCBhdCAwMDoxMiwgU2l0c29mZSBXaGVlbGVyIDxzaXRzb2ZlQGdtYWlsLmNvbT4gd3JvdGU6
+DQogICAgPiANCiAgICA+IA0KICAgID4gW0VYVEVSTkFMIEVNQUlMXSANCiAgICA+IFBsZWFzZSBy
+ZXBvcnQgYW55IHN1c3BpY2lvdXMgYXR0YWNobWVudHMsIGxpbmtzLCBvciByZXF1ZXN0cyBmb3Ig
+c2Vuc2l0aXZlIGluZm9ybWF0aW9uLg0KICAgID4gDQogICAgPiANCiAgICA+IEhpLA0KICAgID4g
+DQogICAgPj4gT24gRnJpLCAyNiBPY3QgMjAxOCBhdCAwMDo1MywgQmVpZXJsLCBNYXJrIDxNYXJr
+LkJlaWVybEBkZWxsLmNvbT4gd3JvdGU6DQogICAgPj4gDQogICAgPj4gSeKAmXZlIGJlZW4gZG9p
+bmcgc29tZSBwbGF5aW5nIGFyb3VuZCB3aXRoIHN0YXRpYyBsaW5raW5nIGFuZCBmcm9tIHRoZSBs
+b29rcyBvZiBpdCB0aGUgc3RhdGljIGxpYnJhcmllcyBmb3IgUmFkb3MgYW5kIFJEQiBhcmUgbm8g
+bG9uZ2VyIGF2YWlsYWJsZS4gIFNhbWUgZ29lcyBmb3Igc29tZSBvZiB0aGUgbGlicmFyaWVzIG5l
+ZWRlZCB0byBlbmFibGUgSFRUUCAoUzMpIHN1cHBvcnQuDQogICAgPj4gDQogICAgPj4gU28sIEkg
+ZG9u4oCZdCB0aGluayB0aGUgb3B0aW9ucyBmb3Ig4oCTYnVpbGQtc3RhdGljIGFyZSB2YWxpZCBh
+bnltb3JlLiAgSWYgYW55b25lIGhhcyBwb2ludGVycyBhcyB0byBob3cgdG8gZ2V0IHRoZSBzdGF0
+aWMgUmFkb3Mgb3IgUkRCIGxpYnJhcmllcywgSeKAmWQgbG92ZSB0byBoZWFyIGFib3V0IGl0IDop
+DQogICAgPiANCiAgICA+IFlvdSBkaWRuJ3QgbWVudGlvbiB5b3VyIGRpc3RybyBidXQgSSB0aGlu
+ayBpbiB0aGUgY2FzZSBvZiBjdXJsICh3aGljaA0KICAgID4gaXMgdXNlZCBmb3IgdGhlIEhUVFAv
+UzMgc3Vwb3J0KSBpdCB3aWxsIGJlIGhpZ2hseSBlbnZpcm9ubWVudA0KICAgID4gZGVwZW5kZW50
+LiBGb3IgZXhhbXBsZSwgVWJ1bnR1IHNlZW0gdG8gc2hpcCBhIHN0YXRpYyB2ZXJzaW9uIG9mDQog
+ICAgPiBsaWJjdXJsIChodHRwczovL3BhY2thZ2VzLnVidW50dS5jb20vYmlvbmljL2FtZDY0L2xp
+YmN1cmw0LWdudXRscy1kZXYvZmlsZWxpc3QNCiAgICA+IGFuZCBzZWUgbGliY3VybC1nbnV0bHMu
+YSkgYnV0IEkgY2FuJ3Qgc2VlIGFueSBzdGF0aWMgbGliY3VybCBpbg0KICAgID4gcmVndWxhciBG
+ZWRvcmEgcGFja2FnZXMuIEluIGZhY3QsIEkga25vdyB0aGF0IEZlZG9yYSBkb2Vzbid0IHNoaXAg
+YQ0KICAgID4gc3RhdGljIGxpYmFpbyBlaXRoZXIgYW5kIG90aGVycyBoYXZlIGJlZW4gZm9yY2Vk
+IHRvIGRvd25sb2FkIHRoZQ0KICAgID4gc291cmNlLCBidWlsZCBhIHByaXZhdGUgY29weSB3aXRo
+IGEgc3RhdGljIGxpYnJhcnkgYW5kIHRoZW4gcG9pbnQgZmlvDQogICAgPiBhdCB0aGF0IGluIHRo
+ZXkgd2FudGVkIHN1Y2ggYSBiaW5hcnkgb24gRmVkb3JhLg0KICAgID4gLS0gDQogICAgPiBTaXRz
+b2ZlIHwgaHR0cDovL3N1Y3Mub3JnL35zaXRzLw0KICAgIA0KICAgIFRoYW5rcywgU2l0c29mZS4g
+DQogICAgDQogICAgU29ycnkgYWJvdXQgdGhhdC4gSSB0cmllZCBBbHBpbmUsIFVidW50dSAxNi4w
+NCBhbmQgMTguMDQsIGFzIHdlbGwgYXMgQ2VudE9TIDcuIE5vIGx1Y2sgd2l0aCBhbnkgb2YgdGhl
+bS4gSXQgYWxzbyBzZWVtcyB0aGF0IEkgd2FzIGdvaW5nIGRvd24gc29tZSByYWJiaXQgaG9sZSB3
+aXRoIG5naHR0cDIsIHdoaWNoIGFsc28gc2VlbXMgdG8gYmUgbWlzc2luZyB0aGUgLmEgc3RhdGlj
+IGxpYnJhcnkuIEkgdGhpbmsgbW9zdCBkaXN0cm9zIGFyZSBtb3ZpbmcgYXdheSBmcm9tIHNoaXBw
+aW5nIHN0YXRpYyBsaWJyYXJpZXMgbm93LiANCiAgICANCiAgICBNeSBnb2FsIGlzIHRvIGNyZWF0
+ZSBhIHN0YXRpY2FsbHkgbGlua2VkIEZJTyB0aGF0IEkgY2FuIHVzZSBvbiBkaWZmZXJlbnQgdGFy
+Z2V0cyB3aXRob3V0IGhhdmluZyB0byByZWNvbXBpbGUgb24gZWFjaC4gSeKAmW0gbm8gbG9uZ2Vy
+IHN1cmUgdGhhdCB0aGlzIGlzIGV2ZW4gYSBnb29kIHRoaW5nLCBiZWNhdXNlIGlmIHRoZSBkaXN0
+cm8gbWFpbnRhaW5lcnMgYXJlIGRyb3BwaW5nIHN0YXRpYyBsaWJyYXJpZXMsIHRoZXJlIG11c3Qg
+YmUgYSBnb29kIHJlYXNvbi4gDQogICAgDQogICAgSGF2aW5nIHNhaWQgdGhhdCwgaWYgSSBkbyBn
+ZXQgYSBkb2NrZXIgYnVpbGQgd2l0aCBhbGwgdGhlIHN0YXRpYyBzb3VyY2VzIGFuZCBhIGZpbmFs
+IEZJTyBzdGF0aWNhbGx5IGJ1aWx0LCB3b3VsZCB0aGUgY29tbXVuaXR5IGJlIGludGVyZXN0ZWQg
+aW4gdGhpcz8gIEkgY291bGQgcHJvcG9zZSBhIHBhdGNoIHdpdGggdGhpcyBhcyBhIGRvY2tlcmZp
+bGUgaWYgc28gYW5kIHRoZW4gb3RoZXJzIHdpdGggZXhwZXJpZW5jZSBpbiBkaWZmZXJlbnQgYXJl
+YXMgbWlnaHQgYmUgYWJsZSB0byBoZWxwLiANCiAgICANCg0K
 
