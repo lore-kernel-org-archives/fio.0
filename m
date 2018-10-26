@@ -1,91 +1,71 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mout.perfora.net ([74.208.4.194]:59797 "EHLO mout.perfora.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728132AbeJ0HXi (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 27 Oct 2018 03:23:38 -0400
-From: <eliezer@integritech.solutions>
-References: <001001d460c6$8c44b090$a4ce11b0$@integritech.solutions> <BC19FF62-2BD8-4F83-9BFB-8D271F5D7101@emc.com> <AE78B431-F6A6-4796-BB7E-1FE45E328D74@integritech.solutions> <0DE2B6A6-1AFB-4FAD-BD99-53136B45BCD8@emc.com> <CALjAwxjazAUEip=nea=7K8LVRBRwq6c0h9FheeCVvh372ZvaKw@mail.gmail.com> <6E7254E9-4B9B-4208-9392-2ABD43FE36A4@emc.com> <555423228.215547.1540355274473@email.1and1.com> <CALjAwxi5T_p5JTpRfazPcV1KoeKNm0CnO9ffBKAtCBCAMhA5=w@mail.gmail.com> <C7097D32-CB26-49DF-BA3C-A52EAA5A361F@integritech.solutions> <D36925B2-A77A-47AD-BDD6-4A45558DC32E@emc.com> <2234B3B7-5680-4238-A48C-BED3EA5EA733@integritech.solutions> <000601d46d77$201945d0$604bd170$@integritech.solutions> <AT5PR8401MB11690CF299A451394CCC5640ABF00@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
-In-Reply-To: <AT5PR8401MB11690CF299A451394CCC5640ABF00@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+Received: from g9t1613g.houston.hpe.com ([15.241.32.99]:17236 "EHLO
+        g9t1613g.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727785AbeJ0HJT (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 27 Oct 2018 03:09:19 -0400
+Received: from g9t5008.houston.hpe.com (g9t5008.houston.hpe.com [15.241.48.72])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by g9t1613g.houston.hpe.com (Postfix) with ESMTPS id BF69260C47
+        for <fio@vger.kernel.org>; Fri, 26 Oct 2018 22:30:29 +0000 (UTC)
+From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
 Subject: RE: fio on vmware esxi
-Date: Fri, 26 Oct 2018 17:44:40 -0500
-Message-ID: <000801d46d7d$7bf23f00$73d6bd00$@integritech.solutions>
-MIME-Version: 1.0
+Date: Fri, 26 Oct 2018 22:30:26 +0000
+Message-ID: <AT5PR8401MB11690CF299A451394CCC5640ABF00@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+References: <001001d460c6$8c44b090$a4ce11b0$@integritech.solutions>
+ <BC19FF62-2BD8-4F83-9BFB-8D271F5D7101@emc.com>
+ <AE78B431-F6A6-4796-BB7E-1FE45E328D74@integritech.solutions>
+ <0DE2B6A6-1AFB-4FAD-BD99-53136B45BCD8@emc.com>
+ <CALjAwxjazAUEip=nea=7K8LVRBRwq6c0h9FheeCVvh372ZvaKw@mail.gmail.com>
+ <6E7254E9-4B9B-4208-9392-2ABD43FE36A4@emc.com>
+ <555423228.215547.1540355274473@email.1and1.com>
+ <CALjAwxi5T_p5JTpRfazPcV1KoeKNm0CnO9ffBKAtCBCAMhA5=w@mail.gmail.com>
+ <C7097D32-CB26-49DF-BA3C-A52EAA5A361F@integritech.solutions>
+ <D36925B2-A77A-47AD-BDD6-4A45558DC32E@emc.com>
+ <2234B3B7-5680-4238-A48C-BED3EA5EA733@integritech.solutions>
+ <000601d46d77$201945d0$604bd170$@integritech.solutions>
+In-Reply-To: <000601d46d77$201945d0$604bd170$@integritech.solutions>
+Content-Language: en-US
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Content-Language: en-us
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "'Elliott, Robert (Persistent Memory)'" <elliott@hpe.com>, "'Beierl, Mark'" <Mark.Beierl@dell.com>
+To: "'eliezer@integritech.solutions'" <eliezer@integritech.solutions>, "'Beierl, Mark'" <Mark.Beierl@dell.com>
 Cc: 'Sitsofe Wheeler' <sitsofe@gmail.com>, 'fio' <fio@vger.kernel.org>
 
-Thanks for the quick feedback Robert.  I appreciate it.
-
-I forgot to add,  when I created a new NFS datastore in VMware ESXi 6.5 I have to NFS versions to choose from:
-
--NFS 3 allows the datastore to be accessed by ESX/ESXi hosts of version earlier than 6.0
--NFS 4.1 provides multipathing for servers and supports the Kerberos authentication protocol
-
-The results FIO results I posted were from NFS v.3. so I continued testing...
-
-I unmounted that NFS volume and remounted it as a new datastore using NFS v4.1 and I'm now showing the expected IOPS using the "posixaio" engine on NFS!  Great!
-
-So, use "posixaio" FIO engine on NFS v 4.1;  don’t use "posixaio" engine on NFS v 3.
-
-Eliezer 
-
------Original Message-----
-From: Elliott, Robert (Persistent Memory) [mailto:elliott@hpe.com] 
-Sent: Friday, October 26, 2018 5:30 PM
-To: 'eliezer@integritech.solutions'; 'Beierl, Mark'
-Cc: 'Sitsofe Wheeler'; 'fio'
-Subject: RE: fio on vmware esxi
-
-
-> I run FIO with the following parameters and used the different engines I listed above:
-> --randrepeat=1
-> --ioengine=posixaio
-> --direct=1
-> --sync=1
-> --name=mytest
-> --filename=mytestfile.fio
->  --overwrite=1
-> --iodepth=64
-> --size=100MB
-> --readwrite=randrw
-> --rwmixread=50
-> --rwmixwrite=50
->  --bs=16k
-> 
-...
-> -ioengine=psync on a 1000 IOPS Perf storage:::     read=177 write=185 IOPS
-> -ioengine=pvsync on a 1000 IOPS Perf storage:::    read=176 write=184 IOPS
-> -ioengine=sync on a 1000 IOPS Perf storage:::      read=145 write=152 IOPS
-> -ioengine=posixaio on a 1000 IOPS Perf storage:::  read=528 write=551 IOPS*
-> 
-> Based on the FIO results I posted above, I've concluded that the suitable FIO engine for Block Storage
-> is "posixaio"; and for NFS it can be psync or pvsync or sync.
-> If I use the FIO engine "posixaio" on VMware to test block storage, I'm seeing the expected IOPS.
-> However, if I use the same FIO engine ("posixaio") to test NFS, I'm NOT seeing the expected IOPS.  I'd
-> have to use either psync, or pvsync, or sync to see the IOPS I'm expecting.
->   These tests are on the same baremetal server running the version of VMWare I posted above.
-> 
-> Can someone please shed some light on why FIO results is skewed when "posixaio" engine is used to test
-> an NFS storage?   The same goes with ioengines psync/pvsync/sync skews IOPS  results on a block
-> storage device?
-
-NFS might introduce all sorts of problems.  For the block device cases...
-
-Synchronous engines like sync do not honor the iodepth; you need to use
-jobs= to get multiple concurrent IOs.  posixaio is an  asynchronous engine, 
-so it is honoring your iodepth (it spawns threads for you).
-
-Also, if your storage devices do any sort of buffering and caching, the
-tiny 100 MiB size is likely to result in lots of cache hits, distorting
-the results.
-
----
-Robert Elliott, HPE Persistent Memory
-
-
-
+DQo+IEkgcnVuIEZJTyB3aXRoIHRoZSBmb2xsb3dpbmcgcGFyYW1ldGVycyBhbmQgdXNlZCB0aGUg
+ZGlmZmVyZW50IGVuZ2luZXMgSSBsaXN0ZWQgYWJvdmU6DQo+IC0tcmFuZHJlcGVhdD0xDQo+IC0t
+aW9lbmdpbmU9cG9zaXhhaW8NCj4gLS1kaXJlY3Q9MQ0KPiAtLXN5bmM9MQ0KPiAtLW5hbWU9bXl0
+ZXN0DQo+IC0tZmlsZW5hbWU9bXl0ZXN0ZmlsZS5maW8NCj4gIC0tb3ZlcndyaXRlPTENCj4gLS1p
+b2RlcHRoPTY0DQo+IC0tc2l6ZT0xMDBNQg0KPiAtLXJlYWR3cml0ZT1yYW5kcncNCj4gLS1yd21p
+eHJlYWQ9NTANCj4gLS1yd21peHdyaXRlPTUwDQo+ICAtLWJzPTE2aw0KPiANCi4uLg0KPiAtaW9l
+bmdpbmU9cHN5bmMgb24gYSAxMDAwIElPUFMgUGVyZiBzdG9yYWdlOjo6ICAgICByZWFkPTE3NyB3
+cml0ZT0xODUgSU9QUw0KPiAtaW9lbmdpbmU9cHZzeW5jIG9uIGEgMTAwMCBJT1BTIFBlcmYgc3Rv
+cmFnZTo6OiAgICByZWFkPTE3NiB3cml0ZT0xODQgSU9QUw0KPiAtaW9lbmdpbmU9c3luYyBvbiBh
+IDEwMDAgSU9QUyBQZXJmIHN0b3JhZ2U6OjogICAgICByZWFkPTE0NSB3cml0ZT0xNTIgSU9QUw0K
+PiAtaW9lbmdpbmU9cG9zaXhhaW8gb24gYSAxMDAwIElPUFMgUGVyZiBzdG9yYWdlOjo6ICByZWFk
+PTUyOCB3cml0ZT01NTEgSU9QUyoNCj4gDQo+IEJhc2VkIG9uIHRoZSBGSU8gcmVzdWx0cyBJIHBv
+c3RlZCBhYm92ZSwgSSd2ZSBjb25jbHVkZWQgdGhhdCB0aGUgc3VpdGFibGUgRklPIGVuZ2luZSBm
+b3IgQmxvY2sgU3RvcmFnZQ0KPiBpcyAicG9zaXhhaW8iOyBhbmQgZm9yIE5GUyBpdCBjYW4gYmUg
+cHN5bmMgb3IgcHZzeW5jIG9yIHN5bmMuDQo+IElmIEkgdXNlIHRoZSBGSU8gZW5naW5lICJwb3Np
+eGFpbyIgb24gVk13YXJlIHRvIHRlc3QgYmxvY2sgc3RvcmFnZSwgSSdtIHNlZWluZyB0aGUgZXhw
+ZWN0ZWQgSU9QUy4NCj4gSG93ZXZlciwgaWYgSSB1c2UgdGhlIHNhbWUgRklPIGVuZ2luZSAoInBv
+c2l4YWlvIikgdG8gdGVzdCBORlMsIEknbSBOT1Qgc2VlaW5nIHRoZSBleHBlY3RlZCBJT1BTLiAg
+SSdkDQo+IGhhdmUgdG8gdXNlIGVpdGhlciBwc3luYywgb3IgcHZzeW5jLCBvciBzeW5jIHRvIHNl
+ZSB0aGUgSU9QUyBJJ20gZXhwZWN0aW5nLg0KPiAgIFRoZXNlIHRlc3RzIGFyZSBvbiB0aGUgc2Ft
+ZSBiYXJlbWV0YWwgc2VydmVyIHJ1bm5pbmcgdGhlIHZlcnNpb24gb2YgVk1XYXJlIEkgcG9zdGVk
+IGFib3ZlLg0KPiANCj4gQ2FuIHNvbWVvbmUgcGxlYXNlIHNoZWQgc29tZSBsaWdodCBvbiB3aHkg
+RklPIHJlc3VsdHMgaXMgc2tld2VkIHdoZW4gInBvc2l4YWlvIiBlbmdpbmUgaXMgdXNlZCB0byB0
+ZXN0DQo+IGFuIE5GUyBzdG9yYWdlPyAgIFRoZSBzYW1lIGdvZXMgd2l0aCBpb2VuZ2luZXMgcHN5
+bmMvcHZzeW5jL3N5bmMgc2tld3MgSU9QUyAgcmVzdWx0cyBvbiBhIGJsb2NrDQo+IHN0b3JhZ2Ug
+ZGV2aWNlPw0KDQpORlMgbWlnaHQgaW50cm9kdWNlIGFsbCBzb3J0cyBvZiBwcm9ibGVtcy4gIEZv
+ciB0aGUgYmxvY2sgZGV2aWNlIGNhc2VzLi4uDQoNClN5bmNocm9ub3VzIGVuZ2luZXMgbGlrZSBz
+eW5jIGRvIG5vdCBob25vciB0aGUgaW9kZXB0aDsgeW91IG5lZWQgdG8gdXNlDQpqb2JzPSB0byBn
+ZXQgbXVsdGlwbGUgY29uY3VycmVudCBJT3MuICBwb3NpeGFpbyBpcyBhbiAgYXN5bmNocm9ub3Vz
+IGVuZ2luZSwgDQpzbyBpdCBpcyBob25vcmluZyB5b3VyIGlvZGVwdGggKGl0IHNwYXducyB0aHJl
+YWRzIGZvciB5b3UpLg0KDQpBbHNvLCBpZiB5b3VyIHN0b3JhZ2UgZGV2aWNlcyBkbyBhbnkgc29y
+dCBvZiBidWZmZXJpbmcgYW5kIGNhY2hpbmcsIHRoZQ0KdGlueSAxMDAgTWlCIHNpemUgaXMgbGlr
+ZWx5IHRvIHJlc3VsdCBpbiBsb3RzIG9mIGNhY2hlIGhpdHMsIGRpc3RvcnRpbmcNCnRoZSByZXN1
+bHRzLg0KDQotLS0NClJvYmVydCBFbGxpb3R0LCBIUEUgUGVyc2lzdGVudCBNZW1vcnkNCg0KDQo=
 
