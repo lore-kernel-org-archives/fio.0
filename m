@@ -1,73 +1,135 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH v2 1/4] fio: add function to check for serialize_overlap with offload submission
-Date: Wed, 17 Oct 2018 10:52:22 -0400
-Message-Id: <20181017145225.14546-2-vincentfu@gmail.com>
-In-Reply-To: <20181017145225.14546-1-vincentfu@gmail.com>
-References: <20181017145225.14546-1-vincentfu@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <kusumi.tomohiro@gmail.com>
+From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Subject: [PATCH 5/7] unittests: add unittest suite for oslib/strndup.c
+Date: Fri, 26 Oct 2018 09:35:44 -0700
+Message-Id: <1540571746-12885-6-git-send-email-kusumi.tomohiro@gmail.com>
+In-Reply-To: <1540571746-12885-1-git-send-email-kusumi.tomohiro@gmail.com>
+References: <1540571746-12885-1-git-send-email-kusumi.tomohiro@gmail.com>
 To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
+Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Vincent Fu <vincent.fu@wdc.com>
+Add test cases for oslib/strndup.c as an example of unittest.
 
-In multiple places fio needs to check whether it is carrying out overlap
-checking in offload submission mode. Make this check a function to
-improve code readability.
+Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 ---
- backend.c   | 4 ++--
- fio.h       | 5 +++++
- ioengines.c | 2 +-
- 3 files changed, 8 insertions(+), 3 deletions(-)
+ Makefile                  |    2 +
+ unittests/oslib/strndup.c |   63 +++++++++++++++++++++++++++++++++++++++++++++
+ unittests/unittest.c      |    1 +
+ unittests/unittest.h      |    1 +
+ 4 files changed, 67 insertions(+), 0 deletions(-)
+ create mode 100644 unittests/oslib/strndup.c
 
-diff --git a/backend.c b/backend.c
-index cc3c4e78..f0a45bc8 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1874,10 +1874,10 @@ static void *thread_main(void *data)
- 			 "perhaps try --debug=io option for details?\n",
- 			 td->o.name, td->io_ops->name);
- 
--	if (td->o.serialize_overlap && td->o.io_submit_mode == IO_MODE_OFFLOAD)
-+	if (td_offload_overlap(td))
- 		pthread_mutex_lock(&overlap_check);
- 	td_set_runstate(td, TD_FINISHING);
--	if (td->o.serialize_overlap && td->o.io_submit_mode == IO_MODE_OFFLOAD)
-+	if (td_offload_overlap(td))
- 		pthread_mutex_unlock(&overlap_check);
- 
- 	update_rusage_stat(td);
-diff --git a/fio.h b/fio.h
-index e394e165..f46a4c9b 100644
---- a/fio.h
-+++ b/fio.h
-@@ -772,6 +772,11 @@ static inline bool td_async_processing(struct thread_data *td)
- 	return (td->flags & TD_F_NEED_LOCK) != 0;
- }
- 
-+static inline bool td_offload_overlap(struct thread_data *td)
+diff --git a/Makefile b/Makefile
+index dd02612..5ac568e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -305,9 +305,11 @@ UT_OBJS = unittests/unittest.o
+ UT_OBJS += unittests/lib/memalign.o
+ UT_OBJS += unittests/lib/strntol.o
+ UT_OBJS += unittests/oslib/strlcat.o
++UT_OBJS += unittests/oslib/strndup.o
+ UT_TARGET_OBJS = lib/memalign.o
+ UT_TARGET_OBJS += lib/strntol.o
+ UT_TARGET_OBJS += oslib/strlcat.o
++UT_TARGET_OBJS += oslib/strndup.o
+ UT_PROGS = unittests/unittest
+ else
+ UT_OBJS =
+diff --git a/unittests/oslib/strndup.c b/unittests/oslib/strndup.c
+new file mode 100644
+index 0000000..2d1baf1
+--- /dev/null
++++ b/unittests/oslib/strndup.c
+@@ -0,0 +1,63 @@
++#include "../unittest.h"
++
++#ifndef CONFIG_HAVE_STRNDUP
++#include "../../oslib/strndup.h"
++#else
++#include <string.h>
++#endif
++
++static void test_strndup_1(void)
 +{
-+	return (td->o.serialize_overlap && td->o.io_submit_mode == IO_MODE_OFFLOAD);
++	char s[] = "test";
++	char *p = strndup(s, 3);
++
++	if (p) {
++		CU_ASSERT_EQUAL(strcmp(p, "tes"), 0);
++		CU_ASSERT_EQUAL(strlen(p), 3);
++	}
 +}
 +
- /*
-  * We currently only need to do locking if we have verifier threads
-  * accessing our internal structures too
-diff --git a/ioengines.c b/ioengines.c
-index 47f606a7..56723add 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -288,7 +288,7 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
++static void test_strndup_2(void)
++{
++	char s[] = "test";
++	char *p = strndup(s, 4);
++
++	if (p) {
++		CU_ASSERT_EQUAL(strcmp(p, s), 0);
++		CU_ASSERT_EQUAL(strlen(p), 4);
++	}
++}
++
++static void test_strndup_3(void)
++{
++	char s[] = "test";
++	char *p = strndup(s, 5);
++
++	if (p) {
++		CU_ASSERT_EQUAL(strcmp(p, s), 0);
++		CU_ASSERT_EQUAL(strlen(p), 4);
++	}
++}
++
++static struct fio_unittest_entry tests[] = {
++	{
++		.name	= "strndup/1",
++		.fn	= test_strndup_1,
++	},
++	{
++		.name	= "strndup/2",
++		.fn	= test_strndup_2,
++	},
++	{
++		.name	= "strndup/3",
++		.fn	= test_strndup_3,
++	},
++	{
++		.name	= NULL,
++	},
++};
++
++CU_ErrorCode fio_unittest_oslib_strndup(void)
++{
++	return fio_unittest_add_suite("oslib/strndup.c", NULL, NULL, tests);
++}
+diff --git a/unittests/unittest.c b/unittests/unittest.c
+index 20f9205..1166e6e 100644
+--- a/unittests/unittest.c
++++ b/unittests/unittest.c
+@@ -61,6 +61,7 @@ int main(void)
+ 	fio_unittest_register(fio_unittest_lib_memalign);
+ 	fio_unittest_register(fio_unittest_lib_strntol);
+ 	fio_unittest_register(fio_unittest_oslib_strlcat);
++	fio_unittest_register(fio_unittest_oslib_strndup);
  
- 	assert((io_u->flags & IO_U_F_FLIGHT) == 0);
- 	io_u_set(td, io_u, IO_U_F_FLIGHT);
--	if (td->o.serialize_overlap && td->o.io_submit_mode == IO_MODE_OFFLOAD)
-+	if (td_offload_overlap(td))
- 		pthread_mutex_unlock(&overlap_check);
+ 	CU_basic_set_mode(CU_BRM_VERBOSE);
+ 	CU_basic_run_tests();
+diff --git a/unittests/unittest.h b/unittests/unittest.h
+index f45e193..d3e3822 100644
+--- a/unittests/unittest.h
++++ b/unittests/unittest.h
+@@ -21,5 +21,6 @@ CU_ErrorCode fio_unittest_add_suite(const char*, CU_InitializeFunc,
+ CU_ErrorCode fio_unittest_lib_memalign(void);
+ CU_ErrorCode fio_unittest_lib_strntol(void);
+ CU_ErrorCode fio_unittest_oslib_strlcat(void);
++CU_ErrorCode fio_unittest_oslib_strndup(void);
  
- 	assert(fio_file_open(io_u->file));
+ #endif
 -- 
-2.17.1
+1.7.1
 
 
