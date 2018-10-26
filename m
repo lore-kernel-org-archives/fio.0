@@ -1,134 +1,55 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:40894 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726787AbeJ0AyT (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 26 Oct 2018 20:54:19 -0400
+Received: by mail-pg1-f193.google.com with SMTP id o14-v6so759900pgv.7
+        for <fio@vger.kernel.org>; Fri, 26 Oct 2018 09:16:40 -0700 (PDT)
 From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Subject: [PATCH 5/7] unittests: add unittest suite for oslib/strndup.c
-Date: Fri, 26 Oct 2018 09:35:44 -0700
-Message-Id: <1540571746-12885-6-git-send-email-kusumi.tomohiro@gmail.com>
+Subject: [PATCH 6/7] lib: fix strntol's end pointer when str has leading spaces
+Date: Fri, 26 Oct 2018 09:35:45 -0700
+Message-Id: <1540571746-12885-7-git-send-email-kusumi.tomohiro@gmail.com>
 In-Reply-To: <1540571746-12885-1-git-send-email-kusumi.tomohiro@gmail.com>
 References: <1540571746-12885-1-git-send-email-kusumi.tomohiro@gmail.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
 To: axboe@kernel.dk, fio@vger.kernel.org
 Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-List-ID: <fio@vger.kernel.org>
 
-Add test cases for oslib/strndup.c as an example of unittest.
+Fix unittests/lib/strntol.c test case failure.
+
+Given behavior of strtol(3), "end" pointer should be calculated
+based on "beg" pointer instead of "str" on success.
+
+Otherwise if "str" has leading spaces (which are explicitly ignored
+by strntol()), "end" won't point to "the first invalid character"
+for not counting those spaces.
+
+Glibc's strtol(3) says as follows.
+--
+ If endptr is not NULL, strtol() stores the address of the first
+ invalid character in *endptr.  If there were no digits at all,
+ strtol() stores the original value of nptr in *endptr (and returns 0).
+ In particular, if *nptr is not '\0' but **endptr is '\0' on return,
+ the entire string is valid.
 
 Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
 ---
- Makefile                  |    2 +
- unittests/oslib/strndup.c |   63 +++++++++++++++++++++++++++++++++++++++++++++
- unittests/unittest.c      |    1 +
- unittests/unittest.h      |    1 +
- 4 files changed, 67 insertions(+), 0 deletions(-)
- create mode 100644 unittests/oslib/strndup.c
+ lib/strntol.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/Makefile b/Makefile
-index dd02612..5ac568e 100644
---- a/Makefile
-+++ b/Makefile
-@@ -305,9 +305,11 @@ UT_OBJS = unittests/unittest.o
- UT_OBJS += unittests/lib/memalign.o
- UT_OBJS += unittests/lib/strntol.o
- UT_OBJS += unittests/oslib/strlcat.o
-+UT_OBJS += unittests/oslib/strndup.o
- UT_TARGET_OBJS = lib/memalign.o
- UT_TARGET_OBJS += lib/strntol.o
- UT_TARGET_OBJS += oslib/strlcat.o
-+UT_TARGET_OBJS += oslib/strndup.o
- UT_PROGS = unittests/unittest
- else
- UT_OBJS =
-diff --git a/unittests/oslib/strndup.c b/unittests/oslib/strndup.c
-new file mode 100644
-index 0000000..2d1baf1
---- /dev/null
-+++ b/unittests/oslib/strndup.c
-@@ -0,0 +1,63 @@
-+#include "../unittest.h"
-+
-+#ifndef CONFIG_HAVE_STRNDUP
-+#include "../../oslib/strndup.h"
-+#else
-+#include <string.h>
-+#endif
-+
-+static void test_strndup_1(void)
-+{
-+	char s[] = "test";
-+	char *p = strndup(s, 3);
-+
-+	if (p) {
-+		CU_ASSERT_EQUAL(strcmp(p, "tes"), 0);
-+		CU_ASSERT_EQUAL(strlen(p), 3);
-+	}
-+}
-+
-+static void test_strndup_2(void)
-+{
-+	char s[] = "test";
-+	char *p = strndup(s, 4);
-+
-+	if (p) {
-+		CU_ASSERT_EQUAL(strcmp(p, s), 0);
-+		CU_ASSERT_EQUAL(strlen(p), 4);
-+	}
-+}
-+
-+static void test_strndup_3(void)
-+{
-+	char s[] = "test";
-+	char *p = strndup(s, 5);
-+
-+	if (p) {
-+		CU_ASSERT_EQUAL(strcmp(p, s), 0);
-+		CU_ASSERT_EQUAL(strlen(p), 4);
-+	}
-+}
-+
-+static struct fio_unittest_entry tests[] = {
-+	{
-+		.name	= "strndup/1",
-+		.fn	= test_strndup_1,
-+	},
-+	{
-+		.name	= "strndup/2",
-+		.fn	= test_strndup_2,
-+	},
-+	{
-+		.name	= "strndup/3",
-+		.fn	= test_strndup_3,
-+	},
-+	{
-+		.name	= NULL,
-+	},
-+};
-+
-+CU_ErrorCode fio_unittest_oslib_strndup(void)
-+{
-+	return fio_unittest_add_suite("oslib/strndup.c", NULL, NULL, tests);
-+}
-diff --git a/unittests/unittest.c b/unittests/unittest.c
-index 20f9205..1166e6e 100644
---- a/unittests/unittest.c
-+++ b/unittests/unittest.c
-@@ -61,6 +61,7 @@ int main(void)
- 	fio_unittest_register(fio_unittest_lib_memalign);
- 	fio_unittest_register(fio_unittest_lib_strntol);
- 	fio_unittest_register(fio_unittest_oslib_strlcat);
-+	fio_unittest_register(fio_unittest_oslib_strndup);
- 
- 	CU_basic_set_mode(CU_BRM_VERBOSE);
- 	CU_basic_run_tests();
-diff --git a/unittests/unittest.h b/unittests/unittest.h
-index f45e193..d3e3822 100644
---- a/unittests/unittest.h
-+++ b/unittests/unittest.h
-@@ -21,5 +21,6 @@ CU_ErrorCode fio_unittest_add_suite(const char*, CU_InitializeFunc,
- CU_ErrorCode fio_unittest_lib_memalign(void);
- CU_ErrorCode fio_unittest_lib_strntol(void);
- CU_ErrorCode fio_unittest_oslib_strlcat(void);
-+CU_ErrorCode fio_unittest_oslib_strndup(void);
- 
- #endif
+diff --git a/lib/strntol.c b/lib/strntol.c
+index f622c8d..c3a55a1 100644
+--- a/lib/strntol.c
++++ b/lib/strntol.c
+@@ -28,6 +28,6 @@ long strntol(const char *str, size_t sz, char **end, int base)
+ 	if (ret == LONG_MIN || ret == LONG_MAX)
+ 		return ret;
+ 	if (end)
+-		*end = (char *)str + (*end - buf);
++		*end = (char *)beg + (*end - buf);
+ 	return ret;
+ }
 -- 
 1.7.1
 
