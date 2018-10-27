@@ -1,44 +1,50 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH 2/2] init: force threads when checking overlap in offload mode
-Date: Tue, 16 Oct 2018 11:26:50 -0400
-Message-Id: <20181016152650.7784-3-vincentfu@gmail.com>
-In-Reply-To: <20181016152650.7784-1-vincentfu@gmail.com>
-References: <20181016152650.7784-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re:
+References: <CAFF4W0V0VTMUbtZHOziTp6ca_khY2yHEPRQNAe68ebmTg9BO6w@mail.gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <af440868-bf5a-4973-292f-42bd099670ba@kernel.dk>
+Date: Sat, 27 Oct 2018 10:55:59 -0600
+MIME-Version: 1.0
+In-Reply-To: <CAFF4W0V0VTMUbtZHOziTp6ca_khY2yHEPRQNAe68ebmTg9BO6w@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Mohanraj B <bmohanraj91@gmail.com>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-From: Vincent Fu <vincent.fu@wdc.com>
+On 10/26/18 6:54 AM, Mohanraj B wrote:
+> Hello,
+> 
+> I am trying to check how option --clocksource works.
+> 
+> 
+> bash# fio --name job1 --size 10m --clocksource 2
+>         valid values: gettimeofday Use gettimeofday(2) for timing
+>                     : clock_gettime Use clock_gettime(2) for timing
+>                     : cpu        Use CPU private clock
+> 
+> fio: failed parsing clocksource=2
+> 
+> bash# fio --name job1 --size 10m --clocksource gettimeofday(2)
+> bash: syntax error near unexpected token `('
+> 
+> Below command works fine.
+> bash# fio --name job1 --size 10m --clocksource gettimeofday
+> 
+> It runs without error but quiet not sure how to see the effect of this
+> option. also tried other options - clock_gettime, cpu gettimeofday and
+> dont see any difference.
+> 
+> Also is there any error in documentation passing gettimeofday(2)
+> throws parse error.
 
-serialize_overlap combined with io_submit_mode=offload requires
-threads. Print a warning and force the use of threads if the user
-did not specify threads.
----
- init.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+The format is 'value' 'help', so you'd want to do:
 
-diff --git a/init.c b/init.c
-index a2b70c4a..224eb8ab 100644
---- a/init.c
-+++ b/init.c
-@@ -751,6 +751,14 @@ static int fixup_options(struct thread_data *td)
- 	    o->io_submit_mode != IO_MODE_OFFLOAD)
- 		o->serialize_overlap = 0;
- 
-+	if (o->serialize_overlap && o->io_submit_mode == IO_MODE_OFFLOAD && !o->use_thread) {
-+		o->use_thread = 1;
-+		log_info("fio: threads must be used when overlap checking is"
-+			 " enabled in offload mode. Use the 'thread' option"
-+			 " to get rid of this warning.\n");
-+		ret |= warnings_fatal;
-+	}
-+
- 	if (o->nr_files > td->files_index)
- 		o->nr_files = td->files_index;
- 
+--clocksource=gettimeofday
+
+for instance.
+
 -- 
-2.17.1
+Jens Axboe
 
 
