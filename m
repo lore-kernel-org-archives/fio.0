@@ -1,168 +1,60 @@
-Return-Path: <bmohanraj91@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa5.dell-outbound.iphmx.com ([68.232.153.95]:13739 "EHLO
+        esa5.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725964AbeJ2XJ3 (ORCPT
+        <rfc822;fio@vger.kernel.org>); Mon, 29 Oct 2018 19:09:29 -0400
+Received: from pps.filterd (m0134746.ppops.net [127.0.0.1])
+        by mx0a-00154901.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w9TED4ps120182
+        for <fio@vger.kernel.org>; Mon, 29 Oct 2018 10:20:36 -0400
+Received: from esa1.dell-outbound2.iphmx.com (esa1.dell-outbound2.iphmx.com [68.232.153.201])
+        by mx0a-00154901.pphosted.com with ESMTP id 2ne01ysemb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
+        for <fio@vger.kernel.org>; Mon, 29 Oct 2018 10:20:36 -0400
+From: "Beierl, Mark" <Mark.Beierl@dell.com>
+Subject: Re: 
+Date: Mon, 29 Oct 2018 14:20:16 +0000
+Message-ID: <97B23BED-1883-400F-A28C-752554717124@emc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <2304BADCFA49B2449CBB309499973CDF@mail.corp.emc.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <97B23BED-1883-400F-A28C-752554717124@emc.com>
-In-Reply-To: <97B23BED-1883-400F-A28C-752554717124@emc.com>
-From: Mohanraj B <bmohanraj91@gmail.com>
-Date: Mon, 29 Oct 2018 20:07:45 +0530
-Message-ID: <CAFF4W0XbBv5=hrx6tPYvO75=amvsUgJ=V7ctsNRa7bwX3F4tmw@mail.gmail.com>
-Subject: Re:
-Content-Type: multipart/alternative; boundary="000000000000d9eeb705795f037e"
-To: "Beierl, Mark" <Mark.Beierl@dell.com>
-Cc: Jens Axboe <axboe@kernel.dk>, fio <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>, Mohanraj B <bmohanraj91@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
---000000000000d9eeb705795f037e
-Content-Type: text/plain; charset="UTF-8"
-
-Thanks Axboe and Mark.
-
-On Mon 29 Oct, 2018, 7:50 PM Beierl, Mark, <Mark.Beierl@dell.com> wrote:
-
-> On 2018-10-27, 12:55, "fio-owner@vger.kernel.org on behalf of Jens Axboe"
-> <fio-owner@vger.kernel.org on behalf of axboe@kernel.dk> wrote:
->
->     [EXTERNAL EMAIL]
->     Please report any suspicious attachments, links, or requests for
-> sensitive information.
->
->
->     On 10/26/18 6:54 AM, Mohanraj B wrote:
->     > Hello,
->     >
->     > I am trying to check how option --clocksource works.
->     >
->     >
->     > bash# fio --name job1 --size 10m --clocksource 2
->     >         valid values: gettimeofday Use gettimeofday(2) for timing
->     >                     : clock_gettime Use clock_gettime(2) for timing
->     >                     : cpu        Use CPU private clock
->     >
->     > fio: failed parsing clocksource=2
->     >
->     > bash# fio --name job1 --size 10m --clocksource gettimeofday(2)
->     > bash: syntax error near unexpected token `('
->     >
->     > Below command works fine.
->     > bash# fio --name job1 --size 10m --clocksource gettimeofday
->     >
->     > It runs without error but quiet not sure how to see the effect of
-> this
->     > option. also tried other options - clock_gettime, cpu gettimeofday
-> and
->     > dont see any difference.
->     >
->     > Also is there any error in documentation passing gettimeofday(2)
->     > throws parse error.
->
->     The format is 'value' 'help', so you'd want to do:
->
->     --clocksource=gettimeofday
->
->     for instance.
->
->     --
->     Jens Axboe
->
-> Hello, Mohanraj
->
-> The help output that you see above states that using
-> --clocksource=gettimeofday will use the gettimeofday function as defined in
-> the man page in the section (2), which is where all the system calls
-> manuals are stored.  The (2) is  not meant to be part of the command line,
-> it is part of the description of the help text, which tells you where to
-> find more information on what is being used to implement the clocksource.
->
-> Hope that helps clarify the help text.
->
-> Regards,
-> Mark
->
->
->
->
-
---000000000000d9eeb705795f037e
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"auto">Thanks Axboe and Mark.</div><br><div class=3D"gmail_quote=
-"><div dir=3D"ltr">On Mon 29 Oct, 2018, 7:50 PM Beierl, Mark, &lt;<a href=
-=3D"mailto:Mark.Beierl@dell.com">Mark.Beierl@dell.com</a>&gt; wrote:<br></d=
-iv><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left=
-:1px #ccc solid;padding-left:1ex">On 2018-10-27, 12:55, &quot;<a href=3D"ma=
-ilto:fio-owner@vger.kernel.org" target=3D"_blank" rel=3D"noreferrer">fio-ow=
-ner@vger.kernel.org</a> on behalf of Jens Axboe&quot; &lt;<a href=3D"mailto=
-:fio-owner@vger.kernel.org" target=3D"_blank" rel=3D"noreferrer">fio-owner@=
-vger.kernel.org</a> on behalf of <a href=3D"mailto:axboe@kernel.dk" target=
-=3D"_blank" rel=3D"noreferrer">axboe@kernel.dk</a>&gt; wrote:<br>
-<br>
-=C2=A0 =C2=A0 [EXTERNAL EMAIL] <br>
-=C2=A0 =C2=A0 Please report any suspicious attachments, links, or requests =
-for sensitive information.<br>
-<br>
-<br>
-=C2=A0 =C2=A0 On 10/26/18 6:54 AM, Mohanraj B wrote:<br>
-=C2=A0 =C2=A0 &gt; Hello,<br>
-=C2=A0 =C2=A0 &gt; <br>
-=C2=A0 =C2=A0 &gt; I am trying to check how option --clocksource works.<br>
-=C2=A0 =C2=A0 &gt; <br>
-=C2=A0 =C2=A0 &gt; <br>
-=C2=A0 =C2=A0 &gt; bash# fio --name job1 --size 10m --clocksource 2<br>
-=C2=A0 =C2=A0 &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0valid values: gettimeof=
-day Use gettimeofday(2) for timing<br>
-=C2=A0 =C2=A0 &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0: clock_gettime Use clock_gettime(2) for timing<br>
-=C2=A0 =C2=A0 &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0: cpu=C2=A0 =C2=A0 =C2=A0 =C2=A0 Use CPU private clock<=
-br>
-=C2=A0 =C2=A0 &gt; <br>
-=C2=A0 =C2=A0 &gt; fio: failed parsing clocksource=3D2<br>
-=C2=A0 =C2=A0 &gt; <br>
-=C2=A0 =C2=A0 &gt; bash# fio --name job1 --size 10m --clocksource gettimeof=
-day(2)<br>
-=C2=A0 =C2=A0 &gt; bash: syntax error near unexpected token `(&#39;<br>
-=C2=A0 =C2=A0 &gt; <br>
-=C2=A0 =C2=A0 &gt; Below command works fine.<br>
-=C2=A0 =C2=A0 &gt; bash# fio --name job1 --size 10m --clocksource gettimeof=
-day<br>
-=C2=A0 =C2=A0 &gt; <br>
-=C2=A0 =C2=A0 &gt; It runs without error but quiet not sure how to see the =
-effect of this<br>
-=C2=A0 =C2=A0 &gt; option. also tried other options - clock_gettime, cpu ge=
-ttimeofday and<br>
-=C2=A0 =C2=A0 &gt; dont see any difference.<br>
-=C2=A0 =C2=A0 &gt; <br>
-=C2=A0 =C2=A0 &gt; Also is there any error in documentation passing gettime=
-ofday(2)<br>
-=C2=A0 =C2=A0 &gt; throws parse error.<br>
-<br>
-=C2=A0 =C2=A0 The format is &#39;value&#39; &#39;help&#39;, so you&#39;d wa=
-nt to do:<br>
-<br>
-=C2=A0 =C2=A0 --clocksource=3Dgettimeofday<br>
-<br>
-=C2=A0 =C2=A0 for instance.<br>
-<br>
-=C2=A0 =C2=A0 -- <br>
-=C2=A0 =C2=A0 Jens Axboe<br>
-<br>
-Hello, Mohanraj<br>
-<br>
-The help output that you see above states that using --clocksource=3Dgettim=
-eofday will use the gettimeofday function as defined in the man page in the=
- section (2), which is where all the system calls manuals are stored.=C2=A0=
- The (2) is=C2=A0 not meant to be part of the command line, it is part of t=
-he description of the help text, which tells you where to find more informa=
-tion on what is being used to implement the clocksource.<br>
-<br>
-Hope that helps clarify the help text.<br>
-<br>
-Regards,<br>
-Mark<br>
-<br>
-<br>
-<br>
-</blockquote></div>
-
---000000000000d9eeb705795f037e--
+T24gMjAxOC0xMC0yNywgMTI6NTUsICJmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIG9uIGJlaGFs
+ZiBvZiBKZW5zIEF4Ym9lIiA8ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZyBvbiBiZWhhbGYgb2Yg
+YXhib2VAa2VybmVsLmRrPiB3cm90ZToNCiAgICANCiAgICBbRVhURVJOQUwgRU1BSUxdIA0KICAg
+IFBsZWFzZSByZXBvcnQgYW55IHN1c3BpY2lvdXMgYXR0YWNobWVudHMsIGxpbmtzLCBvciByZXF1
+ZXN0cyBmb3Igc2Vuc2l0aXZlIGluZm9ybWF0aW9uLg0KICAgIA0KICAgIA0KICAgIE9uIDEwLzI2
+LzE4IDY6NTQgQU0sIE1vaGFucmFqIEIgd3JvdGU6DQogICAgPiBIZWxsbywNCiAgICA+IA0KICAg
+ID4gSSBhbSB0cnlpbmcgdG8gY2hlY2sgaG93IG9wdGlvbiAtLWNsb2Nrc291cmNlIHdvcmtzLg0K
+ICAgID4gDQogICAgPiANCiAgICA+IGJhc2gjIGZpbyAtLW5hbWUgam9iMSAtLXNpemUgMTBtIC0t
+Y2xvY2tzb3VyY2UgMg0KICAgID4gICAgICAgICB2YWxpZCB2YWx1ZXM6IGdldHRpbWVvZmRheSBV
+c2UgZ2V0dGltZW9mZGF5KDIpIGZvciB0aW1pbmcNCiAgICA+ICAgICAgICAgICAgICAgICAgICAg
+OiBjbG9ja19nZXR0aW1lIFVzZSBjbG9ja19nZXR0aW1lKDIpIGZvciB0aW1pbmcNCiAgICA+ICAg
+ICAgICAgICAgICAgICAgICAgOiBjcHUgICAgICAgIFVzZSBDUFUgcHJpdmF0ZSBjbG9jaw0KICAg
+ID4gDQogICAgPiBmaW86IGZhaWxlZCBwYXJzaW5nIGNsb2Nrc291cmNlPTINCiAgICA+IA0KICAg
+ID4gYmFzaCMgZmlvIC0tbmFtZSBqb2IxIC0tc2l6ZSAxMG0gLS1jbG9ja3NvdXJjZSBnZXR0aW1l
+b2ZkYXkoMikNCiAgICA+IGJhc2g6IHN5bnRheCBlcnJvciBuZWFyIHVuZXhwZWN0ZWQgdG9rZW4g
+YCgnDQogICAgPiANCiAgICA+IEJlbG93IGNvbW1hbmQgd29ya3MgZmluZS4NCiAgICA+IGJhc2gj
+IGZpbyAtLW5hbWUgam9iMSAtLXNpemUgMTBtIC0tY2xvY2tzb3VyY2UgZ2V0dGltZW9mZGF5DQog
+ICAgPiANCiAgICA+IEl0IHJ1bnMgd2l0aG91dCBlcnJvciBidXQgcXVpZXQgbm90IHN1cmUgaG93
+IHRvIHNlZSB0aGUgZWZmZWN0IG9mIHRoaXMNCiAgICA+IG9wdGlvbi4gYWxzbyB0cmllZCBvdGhl
+ciBvcHRpb25zIC0gY2xvY2tfZ2V0dGltZSwgY3B1IGdldHRpbWVvZmRheSBhbmQNCiAgICA+IGRv
+bnQgc2VlIGFueSBkaWZmZXJlbmNlLg0KICAgID4gDQogICAgPiBBbHNvIGlzIHRoZXJlIGFueSBl
+cnJvciBpbiBkb2N1bWVudGF0aW9uIHBhc3NpbmcgZ2V0dGltZW9mZGF5KDIpDQogICAgPiB0aHJv
+d3MgcGFyc2UgZXJyb3IuDQogICAgDQogICAgVGhlIGZvcm1hdCBpcyAndmFsdWUnICdoZWxwJywg
+c28geW91J2Qgd2FudCB0byBkbzoNCiAgICANCiAgICAtLWNsb2Nrc291cmNlPWdldHRpbWVvZmRh
+eQ0KICAgIA0KICAgIGZvciBpbnN0YW5jZS4NCiAgICANCiAgICAtLSANCiAgICBKZW5zIEF4Ym9l
+DQoNCkhlbGxvLCBNb2hhbnJhag0KDQpUaGUgaGVscCBvdXRwdXQgdGhhdCB5b3Ugc2VlIGFib3Zl
+IHN0YXRlcyB0aGF0IHVzaW5nIC0tY2xvY2tzb3VyY2U9Z2V0dGltZW9mZGF5IHdpbGwgdXNlIHRo
+ZSBnZXR0aW1lb2ZkYXkgZnVuY3Rpb24gYXMgZGVmaW5lZCBpbiB0aGUgbWFuIHBhZ2UgaW4gdGhl
+IHNlY3Rpb24gKDIpLCB3aGljaCBpcyB3aGVyZSBhbGwgdGhlIHN5c3RlbSBjYWxscyBtYW51YWxz
+IGFyZSBzdG9yZWQuICBUaGUgKDIpIGlzICBub3QgbWVhbnQgdG8gYmUgcGFydCBvZiB0aGUgY29t
+bWFuZCBsaW5lLCBpdCBpcyBwYXJ0IG9mIHRoZSBkZXNjcmlwdGlvbiBvZiB0aGUgaGVscCB0ZXh0
+LCB3aGljaCB0ZWxscyB5b3Ugd2hlcmUgdG8gZmluZCBtb3JlIGluZm9ybWF0aW9uIG9uIHdoYXQg
+aXMgYmVpbmcgdXNlZCB0byBpbXBsZW1lbnQgdGhlIGNsb2Nrc291cmNlLg0KDQpIb3BlIHRoYXQg
+aGVscHMgY2xhcmlmeSB0aGUgaGVscCB0ZXh0Lg0KDQpSZWdhcmRzLA0KTWFyaw0KDQoNCg0K
 
