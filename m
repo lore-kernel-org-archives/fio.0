@@ -1,68 +1,41 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from g9t1613g.houston.hpe.com ([15.241.32.99]:2413 "EHLO
-        g9t1613g.houston.hpe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726568AbeJ3GNJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 30 Oct 2018 02:13:09 -0400
-Received: from g2t2353.austin.hpe.com (g2t2353.austin.hpe.com [15.233.44.26])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by g9t1613g.houston.hpe.com (Postfix) with ESMTPS id ECFD26147F
-        for <fio@vger.kernel.org>; Mon, 29 Oct 2018 21:22:40 +0000 (UTC)
-From: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Subject: RE: fio win affinity broken
-Date: Mon, 29 Oct 2018 21:22:31 +0000
-Message-ID: <AT5PR8401MB1169A3894E1F442F0EB980E2ABF30@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
-References: <MWHPR04MB032025E64451635D09E474C08FF30@MWHPR04MB0320.namprd04.prod.outlook.com>
- <CALjAwxiuF2hn99MTGGB-AZp=wbQeud2TOtTUx=PeetyETqECgA@mail.gmail.com>
-In-Reply-To: <CALjAwxiuF2hn99MTGGB-AZp=wbQeud2TOtTUx=PeetyETqECgA@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-ua1-f66.google.com ([209.85.222.66]:40236 "EHLO
+        mail-ua1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726034AbeJ3FCy (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 30 Oct 2018 01:02:54 -0400
+Received: by mail-ua1-f66.google.com with SMTP id n7so1404752uao.7
+        for <fio@vger.kernel.org>; Mon, 29 Oct 2018 13:12:40 -0700 (PDT)
 MIME-Version: 1.0
+References: <MWHPR04MB032025E64451635D09E474C08FF30@MWHPR04MB0320.namprd04.prod.outlook.com>
+In-Reply-To: <MWHPR04MB032025E64451635D09E474C08FF30@MWHPR04MB0320.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Mon, 29 Oct 2018 20:12:16 +0000
+Message-ID: <CALjAwxiuF2hn99MTGGB-AZp=wbQeud2TOtTUx=PeetyETqECgA@mail.gmail.com>
+Subject: Re: fio win affinity broken
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: 'Sitsofe Wheeler' <sitsofe@gmail.com>, Jeff Furlong <jeff.furlong@wdc.com>
+To: Jeff Furlong <jeff.furlong@wdc.com>
 Cc: fio <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
-a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBP
-ZiBTaXRzb2ZlIFdoZWVsZXINCj4gU2VudDogTW9uZGF5LCBPY3RvYmVyIDI5LCAyMDE4IDM6MTIg
-UE0NCj4gU3ViamVjdDogUmU6IGZpbyB3aW4gYWZmaW5pdHkgYnJva2VuDQo+IA0KPiBPbiBNb24s
-IDI5IE9jdCAyMDE4IGF0IDIwOjA0LCBKZWZmIEZ1cmxvbmcgPGplZmYuZnVybG9uZ0B3ZGMuY29t
-PiB3cm90ZToNCj4gPg0KPiA+IEJhY2sgaW4gaHR0cDovL2dpdC5rZXJuZWwuZGsvY2dpdC9maW8v
-Y29tbWl0Lz9pZD1jNDc5NjQwZDYyMDgyMzY3NDRmMDU2MmIxZTc5NTM1ZWVjMjkwZTJiIHNldmVy
-YWwNCj4gPiB1cGRhdGVzIHdlcmUgbWFkZSBmb3IgV2luZG93cyBDUFUgYWZmaW5pdHkuICBIb3dl
-dmVyLCB1c2luZyB0aGUgY3B1c19hbGxvd2VkIHNpbmNlIGZpbyAzLjYgYW5kIGxhdGVzdA0KPiA+
-IGdpdCBhcHBlYXJzIHRvIHRocm93IGVycm9yIG1lc3NhZ2VzLiAgQ29uc2lkZXIgYSBqb2I6DQo+
-ID4NCj4gPiBmaW8gLS1uYW1lPXRlc3QgLS1pb2VuZ2luZT13aW5kb3dzYWlvIC0tZGlyZWN0PTEg
-LS1ydz13cml0ZSAtLW92ZXJ3cml0ZT0xIC0tDQo+ID4gZmlsZW5hbWU9XFwuXFBIWVNJQ0FMRFJJ
-VkUxIC0tcnVudGltZT0xcyAtLXRocmVhZCAtLWNwdXNfYWxsb3dlZD0wLTEgLS1jcHVzX2FsbG93
-ZWRfcG9saWN5PXNoYXJlZA0KDQpVc3VhbGx5IHNwbGl0IGlzIGEgYmV0dGVyIGNob2ljZSB0aGFu
-IHNoYXJlZCAtIGRvIHlvdSByZWFsbHkgd2FudCB0aHJlYWRzIGhvcHBpbmcgYmV0d2VlbiBDUFVz
-Pw0KDQo+ID4gZmlvX3NldGFmZmluaXR5OiBmYWlsZWQgdG8gc2V0IHRocmVhZCBhZmZpbml0eSAo
-cGlkIDI3NjgsIGdyb3VwIDAsIG1hc2sgMTAwMDAsIEdldExhc3RFcnJvcj04NykNCj4gPiBmaW9f
-c2V0YWZmaW5pdHk6IGZhaWxlZCB0byBzZXQgdGhyZWFkIGFmZmluaXR5IChwaWQgMjM3MiwgZ3Jv
-dXAgMCwgbWFzayAyMDAwMCwgR2V0TGFzdEVycm9yPTg3KQ0KPiA+IGNsb2NrIHNldGFmZmluaXR5
-IGZhaWxlZDogTm8gZXJyb3INCg0KVGhvc2UgYXJlIHRoZSBjbG9jayB0aHJlYWRzLCBub3QgdGhl
-IGpvYiB0aHJlYWRzLiAgQXQgc3RhcnR1cCwgZmlvIHNwYXducyB0aHJlYWRzIG9uIGFsbCBDUFVz
-IHRvDQptZWFzdXJlIHRoZSBjbG9ja3MgKGZpb19tb25vdG9uaWNfY2xvY2t0ZXN0KS4gIA0KDQpB
-IFdpbmRvd3MgZGlmZmVyZW5jZSBmcm9tIGxpbnV4IEkgbWVudGlvbmVkIGxhc3QgeWVhciB3YXM6
-DQogICAgSWYgeW91J3ZlIGNvbnN0cmFpbmVkIHRoZSBDUFUgYWZmaW5pdHkgb3V0c2lkZSBmaW8s
-IHNvbWUgb2YgdGhvc2Ugd2lsbCBmYWlsLiBJbiBXaW5kb3dzLCANCiAgICBzb21ldGhpbmcgbGlr
-ZQ0KICAgICAgICBTVEFSVCAvQUZGSU5JVFkgMHg1NTU1NTU1NSBmaW8gLi4uDQogICAgY2FuIGNh
-dXNlIGhhbGYgb2YgdGhlIGNsb2NrIHRocmVhZHMgdG8gZmFpbC4NCg0KICAgIEluIGxpbnV4LCBw
-cm9jZXNzZXMgYW5kIHRocmVhZHMgYXJlIG5vdCByZXN0cmljdGVkIHRvIHRoZWlyIHBhcmVudCdz
-DQogICAgYWZmaW5pdHkgbWFzay4gIEFsdGhvdWdoIHRoZXkgaW5oZXJpdCBieSBkZWZhdWx0LCB0
-aGV5IG1heSBjYWxsDQogICAgc2NoZWRfc2V0YWZmaW5pdHkgd2l0aCBhbnkgdmFsdWVzLg0KDQpJ
-IGhvcGVkIHRvIHdvcmsgb24gYSBwYXRjaCB0byBsaW1pdCB0aGUgY2xvY2sgdGhyZWFkcyB0byB0
-aGUgQ1BVcyB3aXRoaW4gdGhlIHBhcmVudCBhZmZpbml0eSBtYXNrDQphbmQgdGhlIGxvZ2ljYWwg
-T1Igb2YgYWxsIHRoZSBDUFVzIHRoYXQgYXJlIGdvaW5nIHRvIGJlIHVzZWQgYnkgdGhlIGpvYnMs
-IGJ1dCB0aGVuIGxvc3QgYWNjZXNzDQp0byB0aGUgV2luZG93cyBzeXN0ZW0gSSB3YXMgdXNpbmcg
-YW5kIG5ldmVyIHdlbnQgYmFjayB0byBpdC4NCg0KPiA+IEl0IHNlZW1zIGVyciA4NyBpcyBFUlJP
-Ul9JTlZBTElEX1BBUkFNRVRFUiwgYnV0IGFueSBpZGVhIHdoeSAiR1JPVVBfQUZGSU5JVFkgc3Ry
-dWN0J3MgUmVzZXJ2ZWQNCj4gbWVtYmVycyBhcmUgbm90IGluaXRpYWxpc2VkIHRvIDA/IiAgDQoN
-ClRoYXQncyBqdXN0IG9uZSBwb3NzaWJsZSByZWFzb24gZm9yIGZhaWx1cmU7IG1vcmUgbGlrZWx5
-IGNhdXNlcyBhcmUgYW4gaW52YWxpZCBNYXNrIG9yIEdyb3VwIGZvcg0KdGhlIHN5c3RlbSB1bmRl
-ciB0ZXN0Lg0KDQotLS0NClJvYmVydCBFbGxpb3R0LCBIUEUgUGVyc2lzdGVudCBNZW1vcnkNCg0K
-DQoNCg==
+Hi Jeff,
+
+On Mon, 29 Oct 2018 at 20:04, Jeff Furlong <jeff.furlong@wdc.com> wrote:
+>
+> Hi All,
+> Back in http://git.kernel.dk/cgit/fio/commit/?id=c479640d6208236744f0562b1e79535eec290e2b several updates were made for Windows CPU affinity.  However, using the cpus_allowed since fio 3.6 and latest git appears to throw error messages.  Consider a job:
+>
+> fio --name=test --ioengine=windowsaio --direct=1 --rw=write --overwrite=1 --filename=\\.\PHYSICALDRIVE1 --runtime=1s --thread --cpus_allowed=0-1 --cpus_allowed_policy=shared
+>
+> fio_setaffinity: failed to set thread affinity (pid 2768, group 0, mask 10000, GetLastError=87)
+> fio_setaffinity: failed to set thread affinity (pid 2372, group 0, mask 20000, GetLastError=87)
+> clock setaffinity failed: No error
+>
+> It seems err 87 is ERROR_INVALID_PARAMETER, but any idea why "GROUP_AFFINITY struct's Reserved members are not initialised to 0?"  Might it be related to Windows version?  Seems to fail on 2012 and 2016.  Thanks.
+
+Which version of fio are you compiling with, which cpus do you have
+and what is the output when you use --debug=process in fio line?
+
+-- 
+Sitsofe | http://sucs.org/~sits/
 
