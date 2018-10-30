@@ -1,129 +1,70 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:42673 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727508AbeJ0AyP (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 26 Oct 2018 20:54:15 -0400
-Received: by mail-pl1-f195.google.com with SMTP id t6-v6so727908plo.9
-        for <fio@vger.kernel.org>; Fri, 26 Oct 2018 09:16:36 -0700 (PDT)
-From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Subject: [PATCH 4/7] unittests: add unittest suite for oslib/strlcat.c
-Date: Fri, 26 Oct 2018 09:35:43 -0700
-Message-Id: <1540571746-12885-5-git-send-email-kusumi.tomohiro@gmail.com>
-In-Reply-To: <1540571746-12885-1-git-send-email-kusumi.tomohiro@gmail.com>
-References: <1540571746-12885-1-git-send-email-kusumi.tomohiro@gmail.com>
+Received: from mail-it1-f176.google.com ([209.85.166.176]:40622 "EHLO
+        mail-it1-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726532AbeJaA2V (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 30 Oct 2018 20:28:21 -0400
+Received: by mail-it1-f176.google.com with SMTP id i191-v6so14176380iti.5
+        for <fio@vger.kernel.org>; Tue, 30 Oct 2018 08:34:24 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <AT5PR8401MB1169A4654019B7EA12C5DD93ABCC0@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+References: <CAFF4W0UAVN49BsfKa+nkzgCd8XKEPi57f9v8785YR5wjXqzepQ@mail.gmail.com>
+ <AT5PR8401MB1169A4654019B7EA12C5DD93ABCC0@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+From: Mohanraj B <bmohanraj91@gmail.com>
+Date: Tue, 30 Oct 2018 21:04:23 +0530
+Message-ID: <CAFF4W0XQ8096s_XGQsULoU=tMhA8BDHs4CrP=pmjv-DS0840Tw@mail.gmail.com>
+Subject: Re: Understanding --section=name option.
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+Cc: fio <fio@vger.kernel.org>
 
-Add test cases for oslib/strlcat.c as an example of unittest.
+Thanks for the info Elliott, Its working fine now.
 
-Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
----
- Makefile                  |    2 +
- unittests/oslib/strlcat.c |   52 +++++++++++++++++++++++++++++++++++++++++++++
- unittests/unittest.c      |    1 +
- unittests/unittest.h      |    1 +
- 4 files changed, 56 insertions(+), 0 deletions(-)
- create mode 100644 unittests/oslib/strlcat.c
+Mohan
 
-diff --git a/Makefile b/Makefile
-index abcfe4d..dd02612 100644
---- a/Makefile
-+++ b/Makefile
-@@ -304,8 +304,10 @@ ifdef CONFIG_HAVE_CUNIT
- UT_OBJS = unittests/unittest.o
- UT_OBJS += unittests/lib/memalign.o
- UT_OBJS += unittests/lib/strntol.o
-+UT_OBJS += unittests/oslib/strlcat.o
- UT_TARGET_OBJS = lib/memalign.o
- UT_TARGET_OBJS += lib/strntol.o
-+UT_TARGET_OBJS += oslib/strlcat.o
- UT_PROGS = unittests/unittest
- else
- UT_OBJS =
-diff --git a/unittests/oslib/strlcat.c b/unittests/oslib/strlcat.c
-new file mode 100644
-index 0000000..8d35d41
---- /dev/null
-+++ b/unittests/oslib/strlcat.c
-@@ -0,0 +1,52 @@
-+#include "../unittest.h"
-+
-+#ifndef CONFIG_STRLCAT
-+#include "../../oslib/strlcat.h"
-+#else
-+#include <string.h>
-+#endif
-+
-+static void test_strlcat_1(void)
-+{
-+	char dst[32];
-+	char src[] = "test";
-+	size_t ret;
-+
-+	dst[0] = '\0';
-+	ret = strlcat(dst, src, sizeof(dst));
-+
-+	CU_ASSERT_EQUAL(strcmp(dst, "test"), 0);
-+	CU_ASSERT_EQUAL(ret, 4); /* total length it tried to create */
-+}
-+
-+static void test_strlcat_2(void)
-+{
-+	char dst[32];
-+	char src[] = "test";
-+	size_t ret;
-+
-+	dst[0] = '\0';
-+	ret = strlcat(dst, src, strlen(dst));
-+
-+	CU_ASSERT_EQUAL(strcmp(dst, ""), 0);
-+	CU_ASSERT_EQUAL(ret, 4); /* total length it tried to create */
-+}
-+
-+static struct fio_unittest_entry tests[] = {
-+	{
-+		.name	= "strlcat/1",
-+		.fn	= test_strlcat_1,
-+	},
-+	{
-+		.name	= "strlcat/2",
-+		.fn	= test_strlcat_2,
-+	},
-+	{
-+		.name	= NULL,
-+	},
-+};
-+
-+CU_ErrorCode fio_unittest_oslib_strlcat(void)
-+{
-+	return fio_unittest_add_suite("oslib/strlcat.c", NULL, NULL, tests);
-+}
-diff --git a/unittests/unittest.c b/unittests/unittest.c
-index dc627b4..20f9205 100644
---- a/unittests/unittest.c
-+++ b/unittests/unittest.c
-@@ -60,6 +60,7 @@ int main(void)
- 
- 	fio_unittest_register(fio_unittest_lib_memalign);
- 	fio_unittest_register(fio_unittest_lib_strntol);
-+	fio_unittest_register(fio_unittest_oslib_strlcat);
- 
- 	CU_basic_set_mode(CU_BRM_VERBOSE);
- 	CU_basic_run_tests();
-diff --git a/unittests/unittest.h b/unittests/unittest.h
-index e0121ec..f45e193 100644
---- a/unittests/unittest.h
-+++ b/unittests/unittest.h
-@@ -20,5 +20,6 @@ CU_ErrorCode fio_unittest_add_suite(const char*, CU_InitializeFunc,
- 
- CU_ErrorCode fio_unittest_lib_memalign(void);
- CU_ErrorCode fio_unittest_lib_strntol(void);
-+CU_ErrorCode fio_unittest_oslib_strlcat(void);
- 
- #endif
--- 
-1.7.1
-
+On 10/30/18, Elliott, Robert (Persistent Memory) <elliott@hpe.com> wrote:
+>
+>
+>> -----Original Message-----
+>> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On
+>> Behalf Of Mohanraj B
+>> Sent: Tuesday, October 30, 2018 5:01 AM
+>> Subject: Understanding --section=name option.
+> ...
+>>
+>> [job1]
+>> rw=randread
+>> size=100M
+>>
+>> [job2]
+>> rw=read
+>> size=10m
+>>
+>> I want to run the job2 only, so used --section option.
+>> Below is the docker command have used to test --section option.
+>>
+>> docker run -v /home/:/tmp/fio-data/ fio:5.0 --section job2 --client
+>> 172.17.0.3 read.fio
+>> May be I am not using the option properly, please explain how to use
+>> the option based on the job file I have given here.
+>
+> The convention for most command line tools, not just fio, is
+> 	--option=value
+> not
+> 	--option value
+>
+> The one-character shorthand options, when they exist, use spaces:
+> 	-o value
+>
+> See https://www.gnu.org/software/libc/manual/html_node/Argument-Syntax.html
+>
+> ---
+> Robert Elliott, HPE Persistent Memory
+>
+>
+>
+>
+>
+>
 
