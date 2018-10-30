@@ -1,60 +1,127 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa5.dell-outbound.iphmx.com ([68.232.153.95]:13739 "EHLO
-        esa5.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725964AbeJ2XJ3 (ORCPT
-        <rfc822;fio@vger.kernel.org>); Mon, 29 Oct 2018 19:09:29 -0400
-Received: from pps.filterd (m0134746.ppops.net [127.0.0.1])
-        by mx0a-00154901.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id w9TED4ps120182
-        for <fio@vger.kernel.org>; Mon, 29 Oct 2018 10:20:36 -0400
-Received: from esa1.dell-outbound2.iphmx.com (esa1.dell-outbound2.iphmx.com [68.232.153.201])
-        by mx0a-00154901.pphosted.com with ESMTP id 2ne01ysemb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
-        for <fio@vger.kernel.org>; Mon, 29 Oct 2018 10:20:36 -0400
-From: "Beierl, Mark" <Mark.Beierl@dell.com>
-Subject: Re: 
-Date: Mon, 29 Oct 2018 14:20:16 +0000
-Message-ID: <97B23BED-1883-400F-A28C-752554717124@emc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <2304BADCFA49B2449CBB309499973CDF@mail.corp.emc.com>
-Content-Transfer-Encoding: base64
+Received: from mail-it1-f169.google.com ([209.85.166.169]:34613 "EHLO
+        mail-it1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726222AbeJ3S16 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 30 Oct 2018 14:27:58 -0400
+Received: by mail-it1-f169.google.com with SMTP id e81-v6so12339767itc.1
+        for <fio@vger.kernel.org>; Tue, 30 Oct 2018 02:35:16 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <CAFF4W0Xr3qThNjeS6-M-SWGQ2hjhm5VOfCkaPsagzqhuwfucLA@mail.gmail.com>
+References: <CAFF4W0Xr3qThNjeS6-M-SWGQ2hjhm5VOfCkaPsagzqhuwfucLA@mail.gmail.com>
+From: Mohanraj B <bmohanraj91@gmail.com>
+Date: Tue, 30 Oct 2018 15:05:14 +0530
+Message-ID: <CAFF4W0VnnZYMGJcMKDrYQDO8JXEmJHAsZvg01anyCDuOrMpnQA@mail.gmail.com>
+Subject: Re: --eta never option works on server but not on client.
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jens Axboe <axboe@kernel.dk>, Mohanraj B <bmohanraj91@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio <fio@vger.kernel.org>
 
-T24gMjAxOC0xMC0yNywgMTI6NTUsICJmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIG9uIGJlaGFs
-ZiBvZiBKZW5zIEF4Ym9lIiA8ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZyBvbiBiZWhhbGYgb2Yg
-YXhib2VAa2VybmVsLmRrPiB3cm90ZToNCiAgICANCiAgICBbRVhURVJOQUwgRU1BSUxdIA0KICAg
-IFBsZWFzZSByZXBvcnQgYW55IHN1c3BpY2lvdXMgYXR0YWNobWVudHMsIGxpbmtzLCBvciByZXF1
-ZXN0cyBmb3Igc2Vuc2l0aXZlIGluZm9ybWF0aW9uLg0KICAgIA0KICAgIA0KICAgIE9uIDEwLzI2
-LzE4IDY6NTQgQU0sIE1vaGFucmFqIEIgd3JvdGU6DQogICAgPiBIZWxsbywNCiAgICA+IA0KICAg
-ID4gSSBhbSB0cnlpbmcgdG8gY2hlY2sgaG93IG9wdGlvbiAtLWNsb2Nrc291cmNlIHdvcmtzLg0K
-ICAgID4gDQogICAgPiANCiAgICA+IGJhc2gjIGZpbyAtLW5hbWUgam9iMSAtLXNpemUgMTBtIC0t
-Y2xvY2tzb3VyY2UgMg0KICAgID4gICAgICAgICB2YWxpZCB2YWx1ZXM6IGdldHRpbWVvZmRheSBV
-c2UgZ2V0dGltZW9mZGF5KDIpIGZvciB0aW1pbmcNCiAgICA+ICAgICAgICAgICAgICAgICAgICAg
-OiBjbG9ja19nZXR0aW1lIFVzZSBjbG9ja19nZXR0aW1lKDIpIGZvciB0aW1pbmcNCiAgICA+ICAg
-ICAgICAgICAgICAgICAgICAgOiBjcHUgICAgICAgIFVzZSBDUFUgcHJpdmF0ZSBjbG9jaw0KICAg
-ID4gDQogICAgPiBmaW86IGZhaWxlZCBwYXJzaW5nIGNsb2Nrc291cmNlPTINCiAgICA+IA0KICAg
-ID4gYmFzaCMgZmlvIC0tbmFtZSBqb2IxIC0tc2l6ZSAxMG0gLS1jbG9ja3NvdXJjZSBnZXR0aW1l
-b2ZkYXkoMikNCiAgICA+IGJhc2g6IHN5bnRheCBlcnJvciBuZWFyIHVuZXhwZWN0ZWQgdG9rZW4g
-YCgnDQogICAgPiANCiAgICA+IEJlbG93IGNvbW1hbmQgd29ya3MgZmluZS4NCiAgICA+IGJhc2gj
-IGZpbyAtLW5hbWUgam9iMSAtLXNpemUgMTBtIC0tY2xvY2tzb3VyY2UgZ2V0dGltZW9mZGF5DQog
-ICAgPiANCiAgICA+IEl0IHJ1bnMgd2l0aG91dCBlcnJvciBidXQgcXVpZXQgbm90IHN1cmUgaG93
-IHRvIHNlZSB0aGUgZWZmZWN0IG9mIHRoaXMNCiAgICA+IG9wdGlvbi4gYWxzbyB0cmllZCBvdGhl
-ciBvcHRpb25zIC0gY2xvY2tfZ2V0dGltZSwgY3B1IGdldHRpbWVvZmRheSBhbmQNCiAgICA+IGRv
-bnQgc2VlIGFueSBkaWZmZXJlbmNlLg0KICAgID4gDQogICAgPiBBbHNvIGlzIHRoZXJlIGFueSBl
-cnJvciBpbiBkb2N1bWVudGF0aW9uIHBhc3NpbmcgZ2V0dGltZW9mZGF5KDIpDQogICAgPiB0aHJv
-d3MgcGFyc2UgZXJyb3IuDQogICAgDQogICAgVGhlIGZvcm1hdCBpcyAndmFsdWUnICdoZWxwJywg
-c28geW91J2Qgd2FudCB0byBkbzoNCiAgICANCiAgICAtLWNsb2Nrc291cmNlPWdldHRpbWVvZmRh
-eQ0KICAgIA0KICAgIGZvciBpbnN0YW5jZS4NCiAgICANCiAgICAtLSANCiAgICBKZW5zIEF4Ym9l
-DQoNCkhlbGxvLCBNb2hhbnJhag0KDQpUaGUgaGVscCBvdXRwdXQgdGhhdCB5b3Ugc2VlIGFib3Zl
-IHN0YXRlcyB0aGF0IHVzaW5nIC0tY2xvY2tzb3VyY2U9Z2V0dGltZW9mZGF5IHdpbGwgdXNlIHRo
-ZSBnZXR0aW1lb2ZkYXkgZnVuY3Rpb24gYXMgZGVmaW5lZCBpbiB0aGUgbWFuIHBhZ2UgaW4gdGhl
-IHNlY3Rpb24gKDIpLCB3aGljaCBpcyB3aGVyZSBhbGwgdGhlIHN5c3RlbSBjYWxscyBtYW51YWxz
-IGFyZSBzdG9yZWQuICBUaGUgKDIpIGlzICBub3QgbWVhbnQgdG8gYmUgcGFydCBvZiB0aGUgY29t
-bWFuZCBsaW5lLCBpdCBpcyBwYXJ0IG9mIHRoZSBkZXNjcmlwdGlvbiBvZiB0aGUgaGVscCB0ZXh0
-LCB3aGljaCB0ZWxscyB5b3Ugd2hlcmUgdG8gZmluZCBtb3JlIGluZm9ybWF0aW9uIG9uIHdoYXQg
-aXMgYmVpbmcgdXNlZCB0byBpbXBsZW1lbnQgdGhlIGNsb2Nrc291cmNlLg0KDQpIb3BlIHRoYXQg
-aGVscHMgY2xhcmlmeSB0aGUgaGVscCB0ZXh0Lg0KDQpSZWdhcmRzLA0KTWFyaw0KDQoNCg0K
+Hello all,
+
+sorry its working fine, may be I haven't understood the options
+completely at first.
+increased --size to 30M, ETA never printed when used below command.
+
+bash# docker run -v /home:/tmp/fio-data/ fio:5.0 --eta never --client
+172.17.0.3 randread.fio
+hostname=7e742f684ce7, be=0, 64-bit, os=Linux, arch=x86-64,
+fio=fio-3.11-21-g307f, flags=1
+<7e742f684ce7> Bafjo: (g=0): rw=randread, bs=(R) 4096B-4096B, (W)
+4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+<7e742f684ce7> Starting 1 process
+<7e742f684ce7>
+Bafjo: (groupid=0, jobs=1): err= 0: pid=49: Tue Oct 30 09:30:34 2018
+   read: IOPS=400, BW=1604KiB/s (1642kB/s)(100MiB/63846msec)
+    clat (usec): min=119, max=328155, avg=2480.36, stdev=6322.22
+     lat (usec): min=119, max=328156, avg=2481.27, stdev=6322.23
+    clat percentiles (usec):
+     |  1.00th=[   149],  5.00th=[   172], 10.00th=[   198], 20.00th=[   247],
+     | 30.00th=[   289], 40.00th=[   326], 50.00th=[   371], 60.00th=[   424],
+     | 70.00th=[   502], 80.00th=[  1729], 90.00th=[  9110], 95.00th=[ 12256],
+     | 99.00th=[ 31065], 99.50th=[ 35390], 99.90th=[ 60031], 99.95th=[ 83362],
+     | 99.99th=[141558]
+   bw (  KiB/s): min=   12, max=34392, per=100.00%, avg=10980.17,
+stdev=7198.55, samples=25600
+   iops        : min=    1, max=    1, avg= 1.00, stdev= 0.00, samples=25600
+  lat (usec)   : 250=20.77%, 500=49.26%, 750=7.01%, 1000=0.57%
+  lat (msec)   : 2=3.00%, 4=1.14%, 10=9.72%, 20=6.91%, 50=1.49%
+  lat (msec)   : 100=0.09%, 250=0.04%, 500=0.01%
+  cpu          : usr=0.82%, sys=3.02%, ctx=25642, majf=0, minf=829
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=25600,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: bw=1604KiB/s (1642kB/s), 1604KiB/s-1604KiB/s
+(1642kB/s-1642kB/s), io=100MiB (105MB), run=63846-63846msec
+
+Disk stats (read/write):
+  sda: ios=25600/285, merge=0/297, ticks=61452/52884, in_queue=114304,
+util=96.21%
+
+Thanks and Regards,
+Mohan
+
+On 10/30/18, Mohanraj B <bmohanraj91@gmail.com> wrote:
+> Hello,
+>
+> The option --eta never,always,auto is quiet confusing.
+>
+> When I started the server with the below command, there is no output
+> display.
+>
+> bash# docker run fio-test:5.0 --eta never --server
+>
+> But the same option not works in client side.
+>
+> bash# docker run -v /home/:/tmp/fio-data/ fio-test:5.0 --eta never
+> --client 172.17.0.3 randread.fio
+> hostname=7e742f684ce7, be=0, 64-bit, os=Linux, arch=x86-64,
+> fio=fio-3.11-21-g307f, flags=1
+> <7e742f684ce7> Bafjo: (g=0): rw=randread, bs=(R) 4096B-4096B, (W)
+> 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+> <7e742f684ce7> Starting 1 process
+> <7e742f684ce7> Bafjo: Laying out IO file (1 file / 10MiB)
+> <7e742f684ce7>
+> Bafjo: (groupid=0, jobs=1): err= 0: pid=17: Tue Oct 30 08:46:24 2018
+>    read: IOPS=1037, BW=4151KiB/s (4250kB/s)(10.0MiB/2467msec)
+>     clat (usec): min=132, max=2901, avg=953.17, stdev=636.69
+>      lat (usec): min=132, max=2901, avg=953.81, stdev=636.71
+>     clat percentiles (usec):
+>      |  1.00th=[  176],  5.00th=[  225], 10.00th=[  269], 20.00th=[  359],
+>      | 30.00th=[  457], 40.00th=[  594], 50.00th=[  791], 60.00th=[ 1020],
+>      | 70.00th=[ 1254], 80.00th=[ 1516], 90.00th=[ 1942], 95.00th=[ 2212],
+>      | 99.00th=[ 2573], 99.50th=[ 2671], 99.90th=[ 2802], 99.95th=[ 2835],
+>      | 99.99th=[ 2900]
+>    bw (  KiB/s): min= 1411, max=30846, per=100.00%, avg=7151.19,
+> stdev=5345.75, samples=2560
+>    iops        : min=    1, max=    1, avg= 1.00, stdev= 0.00, samples=2560
+>   lat (usec)   : 250=8.09%, 500=25.62%, 750=14.84%, 1000=10.62%
+>   lat (msec)   : 2=32.07%, 4=8.75%
+>   cpu          : usr=2.03%, sys=4.95%, ctx=2565, majf=0, minf=101
+>   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%,
+>>=64=0.0%
+>      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
+>>=64=0.0%
+>      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
+>>=64=0.0%
+>      issued rwts: total=2560,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+>      latency   : target=0, window=0, percentile=100.00%, depth=1
+>
+> Run status group 0 (all jobs):
+>    READ: bw=4151KiB/s (4250kB/s), 4151KiB/s-4151KiB/s
+> (4250kB/s-4250kB/s), io=10.0MiB (10.5MB), run=2467-2467msec
+>
+> Disk stats (read/write):
+>   sda: ios=2389/0, merge=0/0, ticks=2108/0, in_queue=2108, util=86.82%
+>
+>
+> please let me know how to fix it.
+>
+> Thanks and Regards,
+> Mohan
+>
 
