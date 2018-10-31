@@ -1,75 +1,116 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH v3 1/4] fio: add function to check for serialize_overlap with offload submission
-Date: Wed, 17 Oct 2018 12:03:22 -0400
-Message-Id: <20181017160325.16866-2-vincentfu@gmail.com>
-In-Reply-To: <20181017160325.16866-1-vincentfu@gmail.com>
-References: <20181017160325.16866-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org, vincentfu@gmail.com
-Cc: Vincent Fu <vincent.fu@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-vk1-f193.google.com ([209.85.221.193]:47063 "EHLO
+        mail-vk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728978AbeJaWTK (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 31 Oct 2018 18:19:10 -0400
+Received: by mail-vk1-f193.google.com with SMTP id 185so3886488vkv.13
+        for <fio@vger.kernel.org>; Wed, 31 Oct 2018 06:21:09 -0700 (PDT)
+MIME-Version: 1.0
+References: <CAFF4W0UYcVadXY=aNHbaT51s8NEb1z7CvNTXF0gGSF33sESDeQ@mail.gmail.com>
+In-Reply-To: <CAFF4W0UYcVadXY=aNHbaT51s8NEb1z7CvNTXF0gGSF33sESDeQ@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 31 Oct 2018 13:20:42 +0000
+Message-ID: <CALjAwxjM1_YMQa59G9cEcahwTm424FTwaaeRuakGK=9mB5n-Sg@mail.gmail.com>
+Subject: Re: fio output not printing on the terminal when used fio cmd line
+ options in client/server mode.
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Mohanraj B <bmohanraj91@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-From: Vincent Fu <vincent.fu@wdc.com>
+On Tue, 30 Oct 2018 at 08:18, Mohanraj B <bmohanraj91@gmail.com> wrote:
+>
+> Hello,
+>
+> I am testing fio client/server mode locally. Below are the steps I
+> have followed.
+>
+> bash# fio --server
+> fio: server listening on 0.0.0.0,8765
+>
+> bash# fio --client=localhost --name job1 --size 1M
+> job1: (g=0): rw=read, bs=4K-4K/4K-4K/4K-4K, ioengine=psync, iodepth=1
+>
+> The output has stopped with one line as above and remaining outputs
+> are not printing.
+>
+> But when I pass job file, complete output is printing.
+> bash# fio --client=0.0.0.0 /home/randread.fio
+>
+> hostname=Mohan, be=0, 64-bit, os=Linux, arch=x86-64, fio=fio-2.16, flags=1
 
-In multiple places fio needs to check whether it is carrying out overlap
-checking in offload submission mode. Make this check a function to
-improve code readability.
+^^^ Your fio is pretty old - https://github.com/axboe/fio/releases ....
 
-Reviewed-by: Sebastien Boisvert <sboisvert@gydle.com>
----
- backend.c   | 4 ++--
- fio.h       | 5 +++++
- ioengines.c | 2 +-
- 3 files changed, 8 insertions(+), 3 deletions(-)
+<snip>
 
-diff --git a/backend.c b/backend.c
-index cc3c4e78..f0a45bc8 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1874,10 +1874,10 @@ static void *thread_main(void *data)
- 			 "perhaps try --debug=io option for details?\n",
- 			 td->o.name, td->io_ops->name);
- 
--	if (td->o.serialize_overlap && td->o.io_submit_mode == IO_MODE_OFFLOAD)
-+	if (td_offload_overlap(td))
- 		pthread_mutex_lock(&overlap_check);
- 	td_set_runstate(td, TD_FINISHING);
--	if (td->o.serialize_overlap && td->o.io_submit_mode == IO_MODE_OFFLOAD)
-+	if (td_offload_overlap(td))
- 		pthread_mutex_unlock(&overlap_check);
- 
- 	update_rusage_stat(td);
-diff --git a/fio.h b/fio.h
-index e394e165..b3ba5db2 100644
---- a/fio.h
-+++ b/fio.h
-@@ -772,6 +772,11 @@ static inline bool td_async_processing(struct thread_data *td)
- 	return (td->flags & TD_F_NEED_LOCK) != 0;
- }
- 
-+static inline bool td_offload_overlap(struct thread_data *td)
-+{
-+	return td->o.serialize_overlap && td->o.io_submit_mode == IO_MODE_OFFLOAD;
-+}
-+
- /*
-  * We currently only need to do locking if we have verifier threads
-  * accessing our internal structures too
-diff --git a/ioengines.c b/ioengines.c
-index 47f606a7..56723add 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -288,7 +288,7 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
- 
- 	assert((io_u->flags & IO_U_F_FLIGHT) == 0);
- 	io_u_set(td, io_u, IO_U_F_FLIGHT);
--	if (td->o.serialize_overlap && td->o.io_submit_mode == IO_MODE_OFFLOAD)
-+	if (td_offload_overlap(td))
- 		pthread_mutex_unlock(&overlap_check);
- 
- 	assert(fio_file_open(io_u->file));
+> Am I missing any options while passing parameters as command line options?
+
+Not exactly - you can't use command line for jobs when you're using
+client mode: https://github.com/axboe/fio/issues/621 ....
+
 -- 
-2.17.1
+Sitsofe | http://sucs.org/~sits/
+On Tue, 30 Oct 2018 at 08:18, Mohanraj B <bmohanraj91@gmail.com> wrote:
+>
+> Hello,
+>
+> I am testing fio client/server mode locally. Below are the steps I
+> have followed.
+>
+> bash# fio --server
+> fio: server listening on 0.0.0.0,8765
+>
+> bash# fio --client=localhost --name job1 --size 1M
+> job1: (g=0): rw=read, bs=4K-4K/4K-4K/4K-4K, ioengine=psync, iodepth=1
+>
+> The output has stopped with one line as above and remaining outputs
+> are not printing.
+>
+> But when I pass job file, complete output is printing.
+> bash# fio --client=0.0.0.0 /home/randread.fio
+>
+> hostname=Mohan, be=0, 64-bit, os=Linux, arch=x86-64, fio=fio-2.16, flags=1
+> <Mohan> Bafjo: (g=0): rw=randread, bs=4K-4K/4K-4K/4K-4K,
+> ioengine=psync, iodepth=1
+> <Mohan> Starting 1 process
+> Bafjo: (groupid=0, jobs=1): err= 0: pid=14048: Tue Oct 30 13:43:04 2018 00m:00s]
+>   read : io=10240KB, bw=3855.5KB/s, iops=963, runt=  2656msec
+>     clat (usec): min=129, max=106418, avg=1024.37, stdev=2361.84
+>      lat (usec): min=129, max=106419, avg=1025.20, stdev=2361.84
+>     clat percentiles (usec):
+>      |  1.00th=[  159],  5.00th=[  187], 10.00th=[  223], 20.00th=[  306],
+>      | 30.00th=[  394], 40.00th=[  556], 50.00th=[  748], 60.00th=[  988],
+>      | 70.00th=[ 1224], 80.00th=[ 1496], 90.00th=[ 1928], 95.00th=[ 2256],
+>      | 99.00th=[ 2736], 99.50th=[ 9536], 99.90th=[15040], 99.95th=[23424],
+>      | 99.99th=[105984]
+>     bw (KB  /s): min=   38, max=31751, per=100.00%, avg=8072.33, stdev=6448.75
+>     lat (usec) : 250=12.81%, 500=24.73%, 750=12.62%, 1000=10.47%
+>     lat (msec) : 2=30.55%, 4=7.89%, 10=0.55%, 20=0.31%, 50=0.04%
+>     lat (msec) : 250=0.04%
+>   cpu          : usr=1.92%, sys=5.88%, ctx=2564, majf=0, minf=78
+>   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+>      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>      issued    : total=r=2560/w=0/d=0, short=r=0/w=0/d=0, drop=r=0/w=0/d=0
+>      latency   : target=0, window=0, percentile=100.00%, depth=1
+>
+> Run status group 0 (all jobs):
+>    READ: io=10240KB, aggrb=3855KB/s, minb=3855KB/s, maxb=3855KB/s,
+> mint=2656msec, maxt=2656msec
+>
+> Disk stats (read/write):
+>   sda: ios=2518/3, merge=0/9, ticks=2472/44, in_queue=2516, util=90.09%
+> <Mohan>
+>
+>
+> Am I missing any options while passing parameters as command line options?
+>
+> Thanks and Regards,
+> Mohan
 
+
+
+-- 
+Sitsofe | http://sucs.org/~sits/
 
