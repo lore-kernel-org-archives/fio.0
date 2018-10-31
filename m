@@ -1,139 +1,130 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vk1-f169.google.com ([209.85.221.169]:37774 "EHLO
-        mail-vk1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728920AbeKAAFq (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 31 Oct 2018 20:05:46 -0400
-Received: by mail-vk1-f169.google.com with SMTP id 197so2451143vkf.4
-        for <fio@vger.kernel.org>; Wed, 31 Oct 2018 08:07:21 -0700 (PDT)
-MIME-Version: 1.0
+Received: from esa5.hgst.iphmx.com ([216.71.153.144]:50909 "EHLO
+        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728467AbeJaNDO (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 31 Oct 2018 09:03:14 -0400
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: fio win affinity broken
+Date: Wed, 31 Oct 2018 04:06:51 +0000
+Message-ID: <MWHPR04MB0320C90A987FA4BA44A888068FCD0@MWHPR04MB0320.namprd04.prod.outlook.com>
 References: <MWHPR04MB032025E64451635D09E474C08FF30@MWHPR04MB0320.namprd04.prod.outlook.com>
  <CALjAwxiuF2hn99MTGGB-AZp=wbQeud2TOtTUx=PeetyETqECgA@mail.gmail.com>
  <AT5PR8401MB1169A3894E1F442F0EB980E2ABF30@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
  <MWHPR04MB0320651CAF29DB64A9ACBFD28FCC0@MWHPR04MB0320.namprd04.prod.outlook.com>
  <AT5PR8401MB1169A4930EFBEA0856E92002ABCD0@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
- <MWHPR04MB0320C90A987FA4BA44A888068FCD0@MWHPR04MB0320.namprd04.prod.outlook.com>
-In-Reply-To: <MWHPR04MB0320C90A987FA4BA44A888068FCD0@MWHPR04MB0320.namprd04.prod.outlook.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Wed, 31 Oct 2018 15:06:54 +0000
-Message-ID: <CALjAwxjNpp56s6=mD5Nxr6h9xoCWEyh9jZoNMy4-jd-rgkd4KA@mail.gmail.com>
-Subject: Re: fio win affinity broken
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <AT5PR8401MB1169A4930EFBEA0856E92002ABCD0@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jeff Furlong <jeff.furlong@wdc.com>
-Cc: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>, fio <fio@vger.kernel.org>
+To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>, 'Sitsofe Wheeler' <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-I agree with the assessment that Robert and yourself have made - it
-should have been a call to GetActiveProcessorCount() and I'm not sure
-why I didn't use that...
-
-On Wed, 31 Oct 2018 at 04:06, Jeff Furlong <jeff.furlong@wdc.com> wrote:
->
-> Each socket has 8 logical cores, so 16 total cores.  Agreed GetMaximumProcessorCount() returns the max possible cores, and GetActiveProcessorCount() returns the current active cores.  I can try to see if that change resolves it.  Thanks.
->
-> Regards,
-> Jeff
->
-> -----Original Message-----
-> From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Behalf Of Elliott, Robert (Persistent Memory)
-> Sent: Tuesday, October 30, 2018 7:21 PM
-> To: Jeff Furlong <jeff.furlong@wdc.com>; 'Sitsofe Wheeler' <sitsofe@gmail.com>
-> Cc: fio <fio@vger.kernel.org>
-> Subject: RE: fio win affinity broken
->
->
->
-> > -----Original Message-----
-> > From: Jeff Furlong [mailto:jeff.furlong@wdc.com]
-> > Sent: Tuesday, October 30, 2018 11:21 AM
-> > To: Elliott, Robert (Persistent Memory) <elliott@hpe.com>; 'Sitsofe
-> > Wheeler' <sitsofe@gmail.com>
-> > Cc: fio <fio@vger.kernel.org>
-> > Subject: RE: fio win affinity broken
-> >
-> > Robert,
-> > Agreed split is better.  In trying to trim down the parameter list I
-> > left the policy to shared, which is default.  I haven't constrained the fio process, so not sure why the resulting clock threads fail.
-> > Is the mask shifted the correct number of bits?
-> >
-> > Sitsofe,
-> > On a x64 version of Win2016, with dual Intel(R) Xeon(R) CPU E5-2623 v3
-> > @ 3.00GHz, running
-> >
-> > fio --name=test --ioengine=windowsaio --direct=1 --rw=write
-> > --overwrite=1 --
-> > filename=\\.\PHYSICALDRIVE1 --runtime=1s --thread --cpus_allowed=0-1
-> > --debug=process
-> >
->
-> All of your threads fail starting with the 17th (mask 10000) (see below).
-> Is that how many CPU cores you really have?
->
-> cpus_online() is calling GetMaximumProcessorCount() which is returning the count of 64:
->     process  4788  group=0 group_start=0 group_size=64 search_cpu=0
->
-> In linux, that would return only 16 for a system with 16 online CPUs.
-> GetActiveProcessorCount() might be a better function to call.
->
->
-> fio_setaffinity: failed to set thread affinity (mask 10000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 100000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 1000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 10000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 100000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 1000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 10000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 100000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 1000000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 10000000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 100000000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 1000000000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 20000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 200000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 2000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 20000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 200000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 2000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 20000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 200000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 2000000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 20000000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 200000000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 2000000000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 40000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 400000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 4000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 40000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 400000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 4000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 40000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 400000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 4000000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 40000000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 400000000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 4000000000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 80000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 800000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 8000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 80000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 800000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 8000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 80000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 800000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 8000000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 80000000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 800000000000000, GetLastError=87)
-> fio_setaffinity: failed to set thread affinity (mask 8000000000000000, GetLastError=87)
->
->
-> ---
-> Robert Elliott, HPE Persistent Memory
->
->
->
->
-
-
---
-Sitsofe | http://sucs.org/~sits/
+RWFjaCBzb2NrZXQgaGFzIDggbG9naWNhbCBjb3Jlcywgc28gMTYgdG90YWwgY29yZXMuICBBZ3Jl
+ZWQgR2V0TWF4aW11bVByb2Nlc3NvckNvdW50KCkgcmV0dXJucyB0aGUgbWF4IHBvc3NpYmxlIGNv
+cmVzLCBhbmQgR2V0QWN0aXZlUHJvY2Vzc29yQ291bnQoKSByZXR1cm5zIHRoZSBjdXJyZW50IGFj
+dGl2ZSBjb3Jlcy4gIEkgY2FuIHRyeSB0byBzZWUgaWYgdGhhdCBjaGFuZ2UgcmVzb2x2ZXMgaXQu
+ICBUaGFua3MuDQoNClJlZ2FyZHMsDQpKZWZmDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0t
+DQpGcm9tOiBmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86ZmlvLW93bmVyQHZnZXIu
+a2VybmVsLm9yZ10gT24gQmVoYWxmIE9mIEVsbGlvdHQsIFJvYmVydCAoUGVyc2lzdGVudCBNZW1v
+cnkpDQpTZW50OiBUdWVzZGF5LCBPY3RvYmVyIDMwLCAyMDE4IDc6MjEgUE0NClRvOiBKZWZmIEZ1
+cmxvbmcgPGplZmYuZnVybG9uZ0B3ZGMuY29tPjsgJ1NpdHNvZmUgV2hlZWxlcicgPHNpdHNvZmVA
+Z21haWwuY29tPg0KQ2M6IGZpbyA8ZmlvQHZnZXIua2VybmVsLm9yZz4NClN1YmplY3Q6IFJFOiBm
+aW8gd2luIGFmZmluaXR5IGJyb2tlbg0KDQoNCg0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0t
+LQ0KPiBGcm9tOiBKZWZmIEZ1cmxvbmcgW21haWx0bzpqZWZmLmZ1cmxvbmdAd2RjLmNvbV0NCj4g
+U2VudDogVHVlc2RheSwgT2N0b2JlciAzMCwgMjAxOCAxMToyMSBBTQ0KPiBUbzogRWxsaW90dCwg
+Um9iZXJ0IChQZXJzaXN0ZW50IE1lbW9yeSkgPGVsbGlvdHRAaHBlLmNvbT47ICdTaXRzb2ZlIA0K
+PiBXaGVlbGVyJyA8c2l0c29mZUBnbWFpbC5jb20+DQo+IENjOiBmaW8gPGZpb0B2Z2VyLmtlcm5l
+bC5vcmc+DQo+IFN1YmplY3Q6IFJFOiBmaW8gd2luIGFmZmluaXR5IGJyb2tlbg0KPiANCj4gUm9i
+ZXJ0LA0KPiBBZ3JlZWQgc3BsaXQgaXMgYmV0dGVyLiAgSW4gdHJ5aW5nIHRvIHRyaW0gZG93biB0
+aGUgcGFyYW1ldGVyIGxpc3QgSSANCj4gbGVmdCB0aGUgcG9saWN5IHRvIHNoYXJlZCwgd2hpY2gg
+aXMgZGVmYXVsdC4gIEkgaGF2ZW4ndCBjb25zdHJhaW5lZCB0aGUgZmlvIHByb2Nlc3MsIHNvIG5v
+dCBzdXJlIHdoeSB0aGUgcmVzdWx0aW5nIGNsb2NrIHRocmVhZHMgZmFpbC4NCj4gSXMgdGhlIG1h
+c2sgc2hpZnRlZCB0aGUgY29ycmVjdCBudW1iZXIgb2YgYml0cz8NCj4gDQo+IFNpdHNvZmUsDQo+
+IE9uIGEgeDY0IHZlcnNpb24gb2YgV2luMjAxNiwgd2l0aCBkdWFsIEludGVsKFIpIFhlb24oUikg
+Q1BVIEU1LTI2MjMgdjMgDQo+IEAgMy4wMEdIeiwgcnVubmluZw0KPiANCj4gZmlvIC0tbmFtZT10
+ZXN0IC0taW9lbmdpbmU9d2luZG93c2FpbyAtLWRpcmVjdD0xIC0tcnc9d3JpdGUgDQo+IC0tb3Zl
+cndyaXRlPTEgLS0NCj4gZmlsZW5hbWU9XFwuXFBIWVNJQ0FMRFJJVkUxIC0tcnVudGltZT0xcyAt
+LXRocmVhZCAtLWNwdXNfYWxsb3dlZD0wLTEgDQo+IC0tZGVidWc9cHJvY2Vzcw0KPiANCg0KQWxs
+IG9mIHlvdXIgdGhyZWFkcyBmYWlsIHN0YXJ0aW5nIHdpdGggdGhlIDE3dGggKG1hc2sgMTAwMDAp
+IChzZWUgYmVsb3cpLiANCklzIHRoYXQgaG93IG1hbnkgQ1BVIGNvcmVzIHlvdSByZWFsbHkgaGF2
+ZT8NCg0KY3B1c19vbmxpbmUoKSBpcyBjYWxsaW5nIEdldE1heGltdW1Qcm9jZXNzb3JDb3VudCgp
+IHdoaWNoIGlzIHJldHVybmluZyB0aGUgY291bnQgb2YgNjQ6DQogICAgcHJvY2VzcyAgNDc4OCAg
+Z3JvdXA9MCBncm91cF9zdGFydD0wIGdyb3VwX3NpemU9NjQgc2VhcmNoX2NwdT0wDQoNCkluIGxp
+bnV4LCB0aGF0IHdvdWxkIHJldHVybiBvbmx5IDE2IGZvciBhIHN5c3RlbSB3aXRoIDE2IG9ubGlu
+ZSBDUFVzLg0KR2V0QWN0aXZlUHJvY2Vzc29yQ291bnQoKSBtaWdodCBiZSBhIGJldHRlciBmdW5j
+dGlvbiB0byBjYWxsLg0KDQoNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQg
+YWZmaW5pdHkgKG1hc2sgMTAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTog
+ZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgMTAwMDAwLCBHZXRMYXN0RXJyb3I9
+ODcpDQpmaW9fc2V0YWZmaW5pdHk6IGZhaWxlZCB0byBzZXQgdGhyZWFkIGFmZmluaXR5IChtYXNr
+IDEwMDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNl
+dCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgMTAwMDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19z
+ZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgMTAwMDAwMDAw
+LCBHZXRMYXN0RXJyb3I9ODcpDQpmaW9fc2V0YWZmaW5pdHk6IGZhaWxlZCB0byBzZXQgdGhyZWFk
+IGFmZmluaXR5IChtYXNrIDEwMDAwMDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZp
+bml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgMTAwMDAwMDAwMDAsIEdl
+dExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZm
+aW5pdHkgKG1hc2sgMTAwMDAwMDAwMDAwLCBHZXRMYXN0RXJyb3I9ODcpDQpmaW9fc2V0YWZmaW5p
+dHk6IGZhaWxlZCB0byBzZXQgdGhyZWFkIGFmZmluaXR5IChtYXNrIDEwMDAwMDAwMDAwMDAsIEdl
+dExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZm
+aW5pdHkgKG1hc2sgMTAwMDAwMDAwMDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZp
+bml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgMTAwMDAwMDAwMDAwMDAw
+LCBHZXRMYXN0RXJyb3I9ODcpDQpmaW9fc2V0YWZmaW5pdHk6IGZhaWxlZCB0byBzZXQgdGhyZWFk
+IGFmZmluaXR5IChtYXNrIDEwMDAwMDAwMDAwMDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19z
+ZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgMjAwMDAsIEdl
+dExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZm
+aW5pdHkgKG1hc2sgMjAwMDAwLCBHZXRMYXN0RXJyb3I9ODcpDQpmaW9fc2V0YWZmaW5pdHk6IGZh
+aWxlZCB0byBzZXQgdGhyZWFkIGFmZmluaXR5IChtYXNrIDIwMDAwMDAsIEdldExhc3RFcnJvcj04
+NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sg
+MjAwMDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNl
+dCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgMjAwMDAwMDAwLCBHZXRMYXN0RXJyb3I9ODcpDQpmaW9f
+c2V0YWZmaW5pdHk6IGZhaWxlZCB0byBzZXQgdGhyZWFkIGFmZmluaXR5IChtYXNrIDIwMDAwMDAw
+MDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJl
+YWQgYWZmaW5pdHkgKG1hc2sgMjAwMDAwMDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRh
+ZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgMjAwMDAwMDAwMDAw
+LCBHZXRMYXN0RXJyb3I9ODcpDQpmaW9fc2V0YWZmaW5pdHk6IGZhaWxlZCB0byBzZXQgdGhyZWFk
+IGFmZmluaXR5IChtYXNrIDIwMDAwMDAwMDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRh
+ZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgMjAwMDAwMDAwMDAw
+MDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJl
+YWQgYWZmaW5pdHkgKG1hc2sgMjAwMDAwMDAwMDAwMDAwLCBHZXRMYXN0RXJyb3I9ODcpDQpmaW9f
+c2V0YWZmaW5pdHk6IGZhaWxlZCB0byBzZXQgdGhyZWFkIGFmZmluaXR5IChtYXNrIDIwMDAwMDAw
+MDAwMDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNl
+dCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgNDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRh
+ZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgNDAwMDAwLCBHZXRM
+YXN0RXJyb3I9ODcpDQpmaW9fc2V0YWZmaW5pdHk6IGZhaWxlZCB0byBzZXQgdGhyZWFkIGFmZmlu
+aXR5IChtYXNrIDQwMDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTogZmFp
+bGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgNDAwMDAwMDAsIEdldExhc3RFcnJvcj04
+NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sg
+NDAwMDAwMDAwLCBHZXRMYXN0RXJyb3I9ODcpDQpmaW9fc2V0YWZmaW5pdHk6IGZhaWxlZCB0byBz
+ZXQgdGhyZWFkIGFmZmluaXR5IChtYXNrIDQwMDAwMDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZp
+b19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgNDAwMDAw
+MDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0
+aHJlYWQgYWZmaW5pdHkgKG1hc2sgNDAwMDAwMDAwMDAwLCBHZXRMYXN0RXJyb3I9ODcpDQpmaW9f
+c2V0YWZmaW5pdHk6IGZhaWxlZCB0byBzZXQgdGhyZWFkIGFmZmluaXR5IChtYXNrIDQwMDAwMDAw
+MDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0
+aHJlYWQgYWZmaW5pdHkgKG1hc2sgNDAwMDAwMDAwMDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZp
+b19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgNDAwMDAw
+MDAwMDAwMDAwLCBHZXRMYXN0RXJyb3I9ODcpDQpmaW9fc2V0YWZmaW5pdHk6IGZhaWxlZCB0byBz
+ZXQgdGhyZWFkIGFmZmluaXR5IChtYXNrIDQwMDAwMDAwMDAwMDAwMDAsIEdldExhc3RFcnJvcj04
+NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sg
+ODAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0
+aHJlYWQgYWZmaW5pdHkgKG1hc2sgODAwMDAwLCBHZXRMYXN0RXJyb3I9ODcpDQpmaW9fc2V0YWZm
+aW5pdHk6IGZhaWxlZCB0byBzZXQgdGhyZWFkIGFmZmluaXR5IChtYXNrIDgwMDAwMDAsIEdldExh
+c3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZmaW5p
+dHkgKG1hc2sgODAwMDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTogZmFp
+bGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgODAwMDAwMDAwLCBHZXRMYXN0RXJyb3I9
+ODcpDQpmaW9fc2V0YWZmaW5pdHk6IGZhaWxlZCB0byBzZXQgdGhyZWFkIGFmZmluaXR5IChtYXNr
+IDgwMDAwMDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRv
+IHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgODAwMDAwMDAwMDAsIEdldExhc3RFcnJvcj04NykN
+CmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgODAw
+MDAwMDAwMDAwLCBHZXRMYXN0RXJyb3I9ODcpDQpmaW9fc2V0YWZmaW5pdHk6IGZhaWxlZCB0byBz
+ZXQgdGhyZWFkIGFmZmluaXR5IChtYXNrIDgwMDAwMDAwMDAwMDAsIEdldExhc3RFcnJvcj04NykN
+CmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRvIHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgODAw
+MDAwMDAwMDAwMDAsIEdldExhc3RFcnJvcj04NykNCmZpb19zZXRhZmZpbml0eTogZmFpbGVkIHRv
+IHNldCB0aHJlYWQgYWZmaW5pdHkgKG1hc2sgODAwMDAwMDAwMDAwMDAwLCBHZXRMYXN0RXJyb3I9
+ODcpDQpmaW9fc2V0YWZmaW5pdHk6IGZhaWxlZCB0byBzZXQgdGhyZWFkIGFmZmluaXR5IChtYXNr
+IDgwMDAwMDAwMDAwMDAwMDAsIEdldExhc3RFcnJvcj04NykNCg0KDQotLS0NClJvYmVydCBFbGxp
+b3R0LCBIUEUgUGVyc2lzdGVudCBNZW1vcnkNCg0KDQoNCg0K
 
