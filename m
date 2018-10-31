@@ -1,51 +1,63 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-io1-f42.google.com ([209.85.166.42]:35298 "EHLO
-        mail-io1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726570AbeJ3Sx0 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 30 Oct 2018 14:53:26 -0400
-Received: by mail-io1-f42.google.com with SMTP id 79-v6so6853277iou.2
-        for <fio@vger.kernel.org>; Tue, 30 Oct 2018 03:00:40 -0700 (PDT)
+Received: from mail-qk1-f175.google.com ([209.85.222.175]:41005 "EHLO
+        mail-qk1-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725780AbeKAF2L (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 1 Nov 2018 01:28:11 -0400
+Received: by mail-qk1-f175.google.com with SMTP id 189so9561322qkj.8
+        for <fio@vger.kernel.org>; Wed, 31 Oct 2018 13:28:32 -0700 (PDT)
+From: Vincent Fu <vincentfu@gmail.com>
+Subject: Re: automated notification for fio releases
+References: <0f34b150-5f5f-6f01-9c19-e04830c9d4ee@gmail.com>
+ <CALjAwxhSCN+5C9oRG34rdLc6NKnPUkNO+ND7X=p6fTWemuMsMg@mail.gmail.com>
+Message-ID: <7dda5da1-bcbd-e338-60ec-aac424784892@gmail.com>
+Date: Wed, 31 Oct 2018 16:28:30 -0400
 MIME-Version: 1.0
-From: Mohanraj B <bmohanraj91@gmail.com>
-Date: Tue, 30 Oct 2018 15:30:38 +0530
-Message-ID: <CAFF4W0UAVN49BsfKa+nkzgCd8XKEPi57f9v8785YR5wjXqzepQ@mail.gmail.com>
-Subject: Understanding --section=name option.
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CALjAwxhSCN+5C9oRG34rdLc6NKnPUkNO+ND7X=p6fTWemuMsMg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-Hello all,
+On 10/31/18 11:05 AM, Sitsofe Wheeler wrote:
+> On Tue, 30 Oct 2018 at 20:26, Vincent Fu <vincentfu@gmail.com> wrote:
+>>
+>> Does anyone know of a means to be automatically notified of new fio
+>> releases?
+>>
+>> I have seen Jens post announcements via Twitter, but that is not a
+>> social media platform I actively use. As far as I can tell, Github does
+>> not provide a means to be notified of new releases.
+>>
+>> Perhaps the solution is to monitor http://brick.kernel.dk/snaps/ for new
+>> fio shortlog files.
+> 
+> I think there are few things that are doing monitoring of this.
+> Repology ( https://repology.org/metapackage/fio/packages ) seems to
+> have some way of knowing, Fedora seem to use
+> https://release-monitoring.org/project/806/ and I think Debian have
+> their own watcher (https://qa.debian.org/cgi-bin/watch?pkg=fio ). You
+> might also be able to tell via github
+> (https://github.com/axboe/fio/releases and I think there are atom
+> feeds off that page).
+> 
 
-Below is my job file
+Thanks, Sitsofe. That helps a lot. I am actually seeking to be notified 
+via email of new releases.
 
-[job1]
-rw=randread
-size=100M
+I signed up to be notified of fio release-monitoring.org changes via 
+Fedora notifications (https://apps.fedoraproject.org/notifications), 
+although the filter I created only produced example matches with fio-3.8 
+and did not pick up any later releases.
 
-[job2]
-rw=read
-size=10m
+I also set up an IFTTT rule to receive email messages when updates are 
+made to the github fio release atom feed 
+(https://github.com/axboe/fio/releases.atom).
 
-I want to run the job2 only, so used --section option.
-Below is the docker command have used to test --section option.
+Finally, I signed up to be notified via https://newreleases.io/.
 
-docker run -v /home/:/tmp/fio-data/ fio:5.0 --section job2 --client
-172.17.0.3 read.fio
-
-hostname=7e742f684ce7, be=0, 64-bit, os=Linux, arch=x86-64,
-fio=fio-3.11-21-g307f, flags=1
-<7e742f684ce7> job35: (g=0): rw=randread, bs=(R) 4096B-4096B, (W)
-4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
-<7e742f684ce7> hello: (g=0): rw=read, bs=(R) 4096B-4096B, (W)
-4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
-<7e742f684ce7> Starting 2 processes
-
-But both process is running.
-
-May be I am not using the option properly, please explain how to use
-the option based on the job file I have given here.
-
-Thanks and Regards,
-Mohan
+With any luck I should be bombarded with notifications when fio 3.12 is 
+tagged.
 
