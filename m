@@ -1,48 +1,173 @@
-Return-Path: <prvs=83695fa77=jeff.furlong@wdc.com>
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: [PATCH] RE: fio win affinity broken
-Date: Thu, 1 Nov 2018 16:23:33 +0000
-Message-ID: 
- <MWHPR04MB0320F871B2A1650A706DD5778FCE0@MWHPR04MB0320.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mout.perfora.net ([74.208.4.194]:58813 "EHLO mout.perfora.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727996AbeKBAgm (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 1 Nov 2018 20:36:42 -0400
+From: <eliezer@integritech.solutions>
+References: <MWHPR04MB032025E64451635D09E474C08FF30@MWHPR04MB0320.namprd04.prod.outlook.com> <CALjAwxiuF2hn99MTGGB-AZp=wbQeud2TOtTUx=PeetyETqECgA@mail.gmail.com> <AT5PR8401MB1169A3894E1F442F0EB980E2ABF30@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM> <MWHPR04MB0320651CAF29DB64A9ACBFD28FCC0@MWHPR04MB0320.namprd04.prod.outlook.com> <AT5PR8401MB1169A4930EFBEA0856E92002ABCD0@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM> <MWHPR04MB0320C90A987FA4BA44A888068FCD0@MWHPR04MB0320.namprd04.prod.outlook.com>
+In-Reply-To: <MWHPR04MB0320C90A987FA4BA44A888068FCD0@MWHPR04MB0320.namprd04.prod.outlook.com>
+Subject: RE: fio win affinity broken
+Date: Thu, 1 Nov 2018 10:33:06 -0500
+Message-ID: <000401d471f8$30567eb0$91037c10$@integritech.solutions>
 MIME-Version: 1.0
-To: Sitsofe Wheeler <sitsofe@gmail.com>, Jens Axboe <axboe@kernel.dk>
-Cc: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>, fio <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Language: en-us
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: 'Jeff Furlong' <jeff.furlong@wdc.com>, "'Elliott, Robert (Persistent Memory)'" <elliott@hpe.com>, 'Sitsofe Wheeler' <sitsofe@gmail.com>
+Cc: 'fio' <fio@vger.kernel.org>
 
-PiBJIGFncmVlIHdpdGggdGhlIGFzc2Vzc21lbnQgdGhhdCBSb2JlcnQgYW5kIHlvdXJzZWxmIGhh
-dmUgbWFkZSAtIGl0IHNob3VsZCBoYXZlIGJlZW4gYSBjYWxsIHRvIEdldEFjdGl2ZVByb2Nlc3Nv
-ckNvdW50KCkgYW5kIEknbSBub3Qgc3VyZSB3aHkgSSBkaWRuJ3QgdXNlIHRoYXQuLi4NCg0KSSd2
-ZSBjcmVhdGVkIGEgcGF0Y2ggYW5kIHRlc3RlZCBvbiBXaW4gMjAxMiBhbmQgMjAxNi4gIE5vIG1v
-cmUgZXJyb3JzLiAgVGhhbmtzIGZvciBwb2ludGluZyBvdXQgdGhlIGRldGFpbHMgZnJvbSB0aGUg
-ZGVidWcgb3V0cHV0Lg0KDQpUaGlzIHBhdGNoIHJlc29sdmVzIGM0Nzk2NDBkNjIwODIzNjc0NGYw
-NTYyYjFlNzk1MzVlZWMyOTBlMmIgd2hlcmUgdGhlIENQVSBjb3VudCByZXR1cm5zIG1heCBwb3Nz
-aWJsZSBzdXBwb3J0ZWQgQ1BVcywgYW5kIGluc3RlYWQgcmV0dXJucyBjdXJyZW50IGFjdGl2ZSBD
-UFVzLg0KDQpSZWdhcmRzLA0KSmVmZg0KDQoNCmRpZmYgLS1naXQgYS9vcy9vcy13aW5kb3dzLTcu
-aCBiL29zL29zLXdpbmRvd3MtNy5oDQppbmRleCBmNWRkYjhlLi4wYTZlYWEzIDEwMDY0NA0KLS0t
-IGEvb3Mvb3Mtd2luZG93cy03LmgNCisrKyBiL29zL29zLXdpbmRvd3MtNy5oDQpAQCAtMTAsNyAr
-MTAsNyBAQCB0eXBlZGVmIHN0cnVjdCB7DQogLyogUmV0dXJuIGFsbCBwcm9jZXNzb3JzIHJlZ2Fy
-ZGxlc3Mgb2YgcHJvY2Vzc29yIGdyb3VwICovDQogc3RhdGljIGlubGluZSB1bnNpZ25lZCBpbnQg
-Y3B1c19vbmxpbmUodm9pZCkNCiB7DQotCXJldHVybiBHZXRNYXhpbXVtUHJvY2Vzc29yQ291bnQo
-QUxMX1BST0NFU1NPUl9HUk9VUFMpOw0KKwlyZXR1cm4gR2V0QWN0aXZlUHJvY2Vzc29yQ291bnQo
-QUxMX1BST0NFU1NPUl9HUk9VUFMpOw0KIH0NCiANCiBzdGF0aWMgaW5saW5lIHZvaWQgcHJpbnRf
-bWFzayhvc19jcHVfbWFza190ICpjcHVtYXNrKQ0KQEAgLTEwNCw3ICsxMDQsNyBAQCBzdGF0aWMg
-aW5saW5lIGludCBtYXNrX3RvX2dyb3VwX21hc2sob3NfY3B1X21hc2tfdCAqY3B1bWFzaywgaW50
-ICpwcm9jZXNzb3JfZ3JvdQ0KIAljcHVzX29mZnNldCA9IDA7DQogCWdyb3VwX3NpemUgPSAwOw0K
-IAl3aGlsZSAoIWZvdW5kICYmIGdyb3VwIDwgb25saW5lX2dyb3Vwcykgew0KLQkJZ3JvdXBfc2l6
-ZSA9IEdldE1heGltdW1Qcm9jZXNzb3JDb3VudChncm91cCk7DQorCQlncm91cF9zaXplID0gR2V0
-QWN0aXZlUHJvY2Vzc29yQ291bnQoZ3JvdXApOw0KIAkJZHByaW50KEZEX1BST0NFU1MsICJncm91
-cD0lZCBncm91cF9zdGFydD0lZCBncm91cF9zaXplPSV1IHNlYXJjaF9jcHU9JWRcbiIsDQogCQkg
-ICAgICAgZ3JvdXAsIGNwdXNfb2Zmc2V0LCBncm91cF9zaXplLCBzZWFyY2hfY3B1KTsNCiAJCWlm
-IChjcHVzX29mZnNldCArIGdyb3VwX3NpemUgPiBzZWFyY2hfY3B1KQ0KQEAgLTI3MSw3ICsyNzEs
-NyBAQCBzdGF0aWMgaW5saW5lIGludCBmaW9fZ2V0YWZmaW5pdHkoaW50IHBpZCwgb3NfY3B1X21h
-c2tfdCAqbWFzaykNCiAJZHByaW50KEZEX1BST0NFU1MsICJjdXJyZW50X2dyb3Vwcz0lZCBncm91
-cF9jb3VudD0lZFxuIiwNCiAJICAgICAgIGN1cnJlbnRfZ3JvdXBzWzBdLCBncm91cF9jb3VudCk7
-DQogCXdoaWxlICh0cnVlKSB7DQotCQlncm91cF9zaXplID0gR2V0TWF4aW11bVByb2Nlc3NvckNv
-dW50KGdyb3VwKTsNCisJCWdyb3VwX3NpemUgPSBHZXRBY3RpdmVQcm9jZXNzb3JDb3VudChncm91
-cCk7DQogCQlpZiAoZ3JvdXBfc2l6ZSA9PSAwKSB7DQogCQkJbG9nX2VycigiZmlvX2dldGFmZmlu
-aXR5OiBlcnJvciByZXRyaWV2aW5nIHNpemUgb2YgIg0KIAkJCQkicHJvY2Vzc29yIGdyb3VwICVk
-XG4iLCBncm91cCk7DQoNCg0K
+Jeff,
+
+I just wanted to confirm, I'm also getting the same error on a test windows 2016 server with 16 total cores and fio version 3.9 for windows:
+
+iops-testing: (g=0): rw=randrw, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T) 16.0KiB-16.0KiB, ioengine=windowsaio, iodepth=1
+fio-3.9
+fio_setaffinity: failed to set thread affinity (pid 17004, group 0, mask 100000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 10872, group 0, mask 400000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 17720, group 0, mask 4000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 16588, group 0, mask 40000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 1336, group 0, mask 800000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 7164, group 0, mask 200000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 292, group 0, mask 1000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 9548, group 0, mask 2000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 11336, group 0, mask 10000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 1676, group 0, mask 2000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 17776, group 0, mask 100000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 16912, group 0, mask 400000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 732, group 0, mask 1000000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 18192, group 0, mask 2000000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 8472, group 0, mask 8000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 11684, group 0, mask 20000000000, GetLastError=87)
+clock setaffinity failed: No error
+fio_setaffinity: failed to set thread affinity (pid 10696, group 0, mask 1000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 1640, group 0, mask 800000000000, GetLastError=87)
+clock setaffinity failed: No error
+fio_setaffinity: failed to set thread affinity (pid 3100, group 0, mask 40000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 840, group 0, mask 4000000000000, GetLastError=87)
+clock setaffinity failed: No error
+fio_setaffinity: failed to set thread affinity (pid 1012, group 0, mask 200000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (pid 376, group 0, mask 8000000000000, GetLastError=87)
+[snip]
+
+Regards,
+Eliezer
+
+
+
+
+
+-----Original Message-----
+From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Behalf Of Jeff Furlong
+Sent: Tuesday, October 30, 2018 11:07 PM
+To: Elliott, Robert (Persistent Memory); 'Sitsofe Wheeler'
+Cc: fio
+Subject: RE: fio win affinity broken
+
+Each socket has 8 logical cores, so 16 total cores.  Agreed GetMaximumProcessorCount() returns the max possible cores, and GetActiveProcessorCount() returns the current active cores.  I can try to see if that change resolves it.  Thanks.
+
+Regards,
+Jeff
+
+-----Original Message-----
+From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Behalf Of Elliott, Robert (Persistent Memory)
+Sent: Tuesday, October 30, 2018 7:21 PM
+To: Jeff Furlong <jeff.furlong@wdc.com>; 'Sitsofe Wheeler' <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>
+Subject: RE: fio win affinity broken
+
+
+
+> -----Original Message-----
+> From: Jeff Furlong [mailto:jeff.furlong@wdc.com]
+> Sent: Tuesday, October 30, 2018 11:21 AM
+> To: Elliott, Robert (Persistent Memory) <elliott@hpe.com>; 'Sitsofe 
+> Wheeler' <sitsofe@gmail.com>
+> Cc: fio <fio@vger.kernel.org>
+> Subject: RE: fio win affinity broken
+> 
+> Robert,
+> Agreed split is better.  In trying to trim down the parameter list I 
+> left the policy to shared, which is default.  I haven't constrained the fio process, so not sure why the resulting clock threads fail.
+> Is the mask shifted the correct number of bits?
+> 
+> Sitsofe,
+> On a x64 version of Win2016, with dual Intel(R) Xeon(R) CPU E5-2623 v3 
+> @ 3.00GHz, running
+> 
+> fio --name=test --ioengine=windowsaio --direct=1 --rw=write 
+> --overwrite=1 --
+> filename=\\.\PHYSICALDRIVE1 --runtime=1s --thread --cpus_allowed=0-1 
+> --debug=process
+> 
+
+All of your threads fail starting with the 17th (mask 10000) (see below). 
+Is that how many CPU cores you really have?
+
+cpus_online() is calling GetMaximumProcessorCount() which is returning the count of 64:
+    process  4788  group=0 group_start=0 group_size=64 search_cpu=0
+
+In linux, that would return only 16 for a system with 16 online CPUs.
+GetActiveProcessorCount() might be a better function to call.
+
+
+fio_setaffinity: failed to set thread affinity (mask 10000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 100000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 1000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 10000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 100000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 1000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 10000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 100000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 1000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 10000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 100000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 1000000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 20000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 200000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 2000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 20000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 200000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 2000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 20000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 200000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 2000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 20000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 200000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 2000000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 40000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 400000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 4000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 40000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 400000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 4000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 40000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 400000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 4000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 40000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 400000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 4000000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 80000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 800000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 8000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 80000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 800000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 8000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 80000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 800000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 8000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 80000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 800000000000000, GetLastError=87)
+fio_setaffinity: failed to set thread affinity (mask 8000000000000000, GetLastError=87)
+
+
+---
+Robert Elliott, HPE Persistent Memory
+
+
+
+
+
 
