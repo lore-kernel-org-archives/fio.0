@@ -1,95 +1,33 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ot1-f42.google.com ([209.85.210.42]:34695 "EHLO
-        mail-ot1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731295AbeKMThK (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 13 Nov 2018 14:37:10 -0500
-Received: by mail-ot1-f42.google.com with SMTP id t5so10755284otk.1
-        for <fio@vger.kernel.org>; Tue, 13 Nov 2018 01:39:54 -0800 (PST)
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:9458 "EHLO
+        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726085AbeKCDJx (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 2 Nov 2018 23:09:53 -0400
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: [PATCH] RE: fio win affinity broken
+Date: Fri, 2 Nov 2018 18:01:49 +0000
+Message-ID: <MWHPR04MB0320E9BD51B074CD5C3659158FCF0@MWHPR04MB0320.namprd04.prod.outlook.com>
+References: <MWHPR04MB0320F871B2A1650A706DD5778FCE0@MWHPR04MB0320.namprd04.prod.outlook.com>
+ <000001d472b8$b783e3d0$268bab70$@integritech.solutions>
+In-Reply-To: <000001d472b8$b783e3d0$268bab70$@integritech.solutions>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-From: Taylor Yang <taylor4869@gmail.com>
-Date: Tue, 13 Nov 2018 01:39:42 -0800
-Message-ID: <CAKiK_mDQ7mf+2v3rDConxm7Da0dKGeudf=zABLuU2XPOWuRprg@mail.gmail.com>
-Subject: Question about data verification using verify_state_save
-Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "eliezer@integritech.solutions" <eliezer@integritech.solutions>
+Cc: fio <fio@vger.kernel.org>
 
-Hi,
-I want to do some writes and reads to a device for a period of time
-and then verify the writes. So I have the following job files.
-
-write.fio job file:
-[global]
-direct=1
-ioengine=libaio
-numjobs=1
-verify=crc32c
-
-[/dev/sdf]
-filename=/dev/sdf
-time_based
-runtime=5000
-bwavgtime=1000
-iopsavgtime=1000
-rw=randrw
-rwmixwrite=50
-verify_state_save=1
-iodepth=4
-bs=4k
-
-verify.fio file
-[global]
-direct=1
-ioengine=libaio
-group_reporting
-numjobs=1
-verify=crc32c
-
-[/dev/sdf]
-rw=read
-do_verify=1
-filename=/dev/sdf
-verify_state_load=1
-
-I saw some bad magic header errors while doing this but when I added
-all the related flags I have in the write.fio file to the verify.fio
-file. Everything seems to work.
-
-[global]
-direct=1
-ioengine=libaio
-numjobs=1
-verify=crc32c
-
-[/dev/sdf]
-rw=randrw
-rwmixwrite=50
-do_verify=1
-filename=/dev/sdf
-verify_state_load=1
-iodepth=4
-bs=4k
-
-For example, if I change the verify job file to below, everything
-looks fine but the verification might take some time.
-
-I have a few questions regarding this.
-1. Does the write phase `rw` option have to match the verify phase?
-For example if I have `randomwrite` for write phase, do I need to put
-'randomread' for verify phase but not 'read'? And if I have 'randomrw'
-in write phase, is it true that I have to use it in verify phase?
-2. Do I need to put all the flags in write phase to verify phase? So
-in my case, do I have to add iodepth and bs to the verify phase as
-well?
-3. Are there other ways to achieve what I want? I mainly want to do
-some complicated IO workload (mix of writes and reads) with the
-time_based option and if the verification could complete during this
-timed phase, I could save the progress and then have a separate verify
-phase later to fully verify the writes. I know I could use
-verify_backlog but I intend to verify the writes separately.
-
-Thank you so much in advance.
-Best wishes,
-Taylor
+WW91IGNhbiBjb21waWxlIHRoZSBsYXRlc3QgZ2l0IHNvdXJjZSwgb3IgeW91IGNhbiBnZXQgdGhl
+IG1zaSBmcm9tIGh0dHBzOi8vY2kuYXBwdmV5b3IuY29tL3Byb2plY3QvYXhib2UvZmlvL2J1aWxk
+L2pvYi9lamtzdzlsaXgwc2ozMGcyL2FydGlmYWN0cw0KDQpSZWdhcmRzLA0KSmVmZg0KDQoNCi0t
+LS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBlbGllemVyQGludGVncml0ZWNoLnNvbHV0
+aW9ucyBbbWFpbHRvOmVsaWV6ZXJAaW50ZWdyaXRlY2guc29sdXRpb25zXSANClNlbnQ6IEZyaWRh
+eSwgTm92ZW1iZXIgMiwgMjAxOCA3OjMxIEFNDQpUbzogSmVmZiBGdXJsb25nIDxqZWZmLmZ1cmxv
+bmdAd2RjLmNvbT4NClN1YmplY3Q6IFJFOiBbUEFUQ0hdIFJFOiBmaW8gd2luIGFmZmluaXR5IGJy
+b2tlbg0KDQpIaSBKZWZmLA0KDQpHb29kIG1vcm5pbmcuICBJIGhvcGUgYWxsIGlzIHdlbGwuDQoN
+Ck1heSBJIGtub3cgd2hlcmUgSSBjb3VsZCBvYnRhaW4geW91ciBmaXhlZCB2ZXJzaW9uIG9mIGFm
+ZmluaXR5IGluIFdpbmRvd3M/DQoNClRoYW5rIHlvdSBpbiBhZHZhbmNlLg0KDQpSZWdhcmRzLA0K
+RWxpZXplcg0KDQo=
 
