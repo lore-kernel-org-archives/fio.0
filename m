@@ -1,68 +1,30 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:55164 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726663AbeK0X6A (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 27 Nov 2018 18:58:00 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1gRcyG-0002eC-Cx
-        for fio@vger.kernel.org; Tue, 27 Nov 2018 13:00:08 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20181127130001.B35602C0119@kernel.dk>
-Date: Tue, 27 Nov 2018 06:00:01 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <bart.vanassche@gmail.com>
+Return-Path: <bart.vanassche@gmail.com>
+Message-ID: <1541183044.154300.2.camel@acm.org>
+Subject: Re: [PATCH v2] fix windows cpu count
+From: Bart Van Assche <bvanassche@acm.org>
+Date: Fri, 02 Nov 2018 11:24:04 -0700
+In-Reply-To: <MWHPR04MB0320BE1571FFF5497958BD6F8FCF0@MWHPR04MB0320.namprd04.prod.outlook.com>
+References: 
+	<MWHPR04MB03200B2DD2F07C83B09550C48FCF0@MWHPR04MB0320.namprd04.prod.outlook.com>
+	 <20181102172019.GA1660@kernel.dk>
+	 <MWHPR04MB0320BE1571FFF5497958BD6F8FCF0@MWHPR04MB0320.namprd04.prod.outlook.com>
+Content-Type: text/plain; charset="UTF-7"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+To: Jeff Furlong <jeff.furlong@wdc.com>, Jens Axboe <axboe@kernel.dk>
+Cc: fio <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 41dd12d62f43160bc8d8574127d0c2b861e1ee1d:
+On Fri, 2018-11-02 at 17:49 +-0000, Jeff Furlong wrote:
++AD4 Sorry about the mixup, seems my email client had some updates and is stuck
++AD4 in quoted printable.  I'll try to resolve.
 
-  options: fix 'kb_base' being of the wrong type (2018-11-25 09:56:06 -0700)
+Hi Jeff,
 
-are available in the git repository at:
+A few months ago I documented on https://connect.wdc.com/ how to use git
+send-email inside WDC. I think git send-email formats patches in the way Jens
+expects them.
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 4cf30b66c62f3f5e6501390d564cf0d966823591:
-
-  workqueue: update IO counters promptly after handling IO (2018-11-26 09:16:52 -0700)
-
-----------------------------------------------------------------
-Vincent Fu (1):
-      workqueue: update IO counters promptly after handling IO
-
- workqueue.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/workqueue.c b/workqueue.c
-index faed245..b595951 100644
---- a/workqueue.c
-+++ b/workqueue.c
-@@ -190,8 +190,6 @@ static void *worker_thread(void *data)
- 				if (wq->wake_idle)
- 					pthread_cond_signal(&wq->flush_cond);
- 			}
--			if (wq->ops.update_acct_fn)
--				wq->ops.update_acct_fn(sw);
- 
- 			pthread_cond_wait(&sw->cond, &sw->lock);
- 		} else {
-@@ -200,11 +198,10 @@ handle_work:
- 		}
- 		pthread_mutex_unlock(&sw->lock);
- 		handle_list(sw, &local_list);
-+		if (wq->ops.update_acct_fn)
-+			wq->ops.update_acct_fn(sw);
- 	}
- 
--	if (wq->ops.update_acct_fn)
--		wq->ops.update_acct_fn(sw);
--
- done:
- 	sk_out_drop();
- 	return NULL;
+Bart.
 
