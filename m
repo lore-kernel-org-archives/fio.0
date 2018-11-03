@@ -1,35 +1,83 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vs1-f43.google.com ([209.85.217.43]:43684 "EHLO
-        mail-vs1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728915AbeKDT7Y (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 4 Nov 2018 14:59:24 -0500
-Received: by mail-vs1-f43.google.com with SMTP id k14so3477543vsm.10
-        for <fio@vger.kernel.org>; Sun, 04 Nov 2018 02:44:53 -0800 (PST)
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+From: Vincent Fu <vincentfu@gmail.com>
+Subject: Re: automated notification for fio releases
+References: <0f34b150-5f5f-6f01-9c19-e04830c9d4ee@gmail.com>
+ <CALjAwxhSCN+5C9oRG34rdLc6NKnPUkNO+ND7X=p6fTWemuMsMg@mail.gmail.com>
+ <7dda5da1-bcbd-e338-60ec-aac424784892@gmail.com>
+ <ba464a20-de84-81fc-24d9-d67356022c1a@kernel.dk>
+Message-ID: <09ffd9d0-3f96-b838-a589-4cb635e18ca7@gmail.com>
+Date: Sat, 3 Nov 2018 19:15:59 -0400
 MIME-Version: 1.0
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Sun, 4 Nov 2018 10:44:26 +0000
-Message-ID: <CALjAwxjW8=DniS12hBvPXmd1Cp0NjEm9RewHAO8rHerDQg=eDQ@mail.gmail.com>
-Subject: Mention of fio by Apple
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+In-Reply-To: <ba464a20-de84-81fc-24d9-d67356022c1a@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Jens Axboe <axboe@kernel.dk>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Looks like someone is referencing an fio benchmark result on Apple's
-Mac Mini page and whoever did it took care to respect the Moral
-License (https://fio.readthedocs.io/en/latest/fio_doc.html#moral-license
-). From https://www.apple.com/mac-mini/ :
+On 11/3/18 5:53 PM, Jens Axboe wrote:
+> On 10/31/18 2:28 PM, Vincent Fu wrote:
+>> On 10/31/18 11:05 AM, Sitsofe Wheeler wrote:
+>>> On Tue, 30 Oct 2018 at 20:26, Vincent Fu <vincentfu@gmail.com> wrote:
+>>>>
+>>>> Does anyone know of a means to be automatically notified of new fio
+>>>> releases?
+>>>>
+>>>> I have seen Jens post announcements via Twitter, but that is not a
+>>>> social media platform I actively use. As far as I can tell, Github does
+>>>> not provide a means to be notified of new releases.
+>>>>
+>>>> Perhaps the solution is to monitor http://brick.kernel.dk/snaps/ for new
+>>>> fio shortlog files.
+>>>
+>>> I think there are few things that are doing monitoring of this.
+>>> Repology ( https://repology.org/metapackage/fio/packages ) seems to
+>>> have some way of knowing, Fedora seem to use
+>>> https://release-monitoring.org/project/806/ and I think Debian have
+>>> their own watcher (https://qa.debian.org/cgi-bin/watch?pkg=fio ). You
+>>> might also be able to tell via github
+>>> (https://github.com/axboe/fio/releases and I think there are atom
+>>> feeds off that page).
+>>>
+>>
+>> Thanks, Sitsofe. That helps a lot. I am actually seeking to be notified
+>> via email of new releases.
+>>
+>> I signed up to be notified of fio release-monitoring.org changes via
+>> Fedora notifications (https://apps.fedoraproject.org/notifications),
+>> although the filter I created only produced example matches with fio-3.8
+>> and did not pick up any later releases.
+>>
+>> I also set up an IFTTT rule to receive email messages when updates are
+>> made to the github fio release atom feed
+>> (https://github.com/axboe/fio/releases.atom).
+>>
+>> Finally, I signed up to be notified via https://newreleases.io/.
+>>
+>> With any luck I should be bombarded with notifications when fio 3.12 is
+>> tagged.
+> 
+> Did it work?
+> 
+> FWIW, this list does receive any changes that were pushed to the git
+> repo. As tags are pushed, you'd see that in the "Recent changes" email
+> the next day. Not great, but it's something.
+> 
+> I don't announce all releases to twitter, and sometimes it'll be a day
+> or two before I do. Case in point, the 3.12 release hasn't been
+> announced there yet.
+> 
 
-"4. Testing conducted by Apple in October 2018 using preproduction
-3.2GHz 6-core Intel Core i7-based Mac mini systems with 64GB of RAM
-and 1TB SSD, and shipping 3.0GHz dual-core Intel Core i7-based Mac
-mini systems with 16GB of RAM and 1TB SSD. Tested with FIO 3.8, 1024KB
-request size, 150GB test file and IO depth=8. Performance tests are
-conducted using specific computer systems and reflect the approximate
-performance of Mac mini."
+The atom feed for the github releases page now has an entry for fio 
+3.12. I see it in my news reader and I received an email for it from the 
+IFTTT RSS feed to email rule I created.
 
-My only question is: as the depth was 8 were they using the posixaio engine?
+I also received an email from https://newreleases.io.
 
--- 
-Sitsofe | http://sucs.org/~sits/
+fio 3.12 has also appeared on 
+https://release-monitoring.org/project/806/ but I haven't received a 
+notification from the Fedora Notifications system. Either I've set it up 
+wrong or it doesn't work.
 
