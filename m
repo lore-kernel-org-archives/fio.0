@@ -1,42 +1,55 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vs1-f41.google.com ([209.85.217.41]:45805 "EHLO
-        mail-vs1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730583AbeKHB1L (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 7 Nov 2018 20:27:11 -0500
-Received: by mail-vs1-f41.google.com with SMTP id 124so9675797vsp.12
-        for <fio@vger.kernel.org>; Wed, 07 Nov 2018 07:56:14 -0800 (PST)
+Received: from mail-io1-f44.google.com ([209.85.166.44]:36572 "EHLO
+        mail-io1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726298AbeKGRFQ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 7 Nov 2018 12:05:16 -0500
+Received: by mail-io1-f44.google.com with SMTP id o19-v6so11225016iod.3
+        for <fio@vger.kernel.org>; Tue, 06 Nov 2018 23:36:08 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <CALjAwxi0CnZz1SF0U-maHaTpEJUe6k4C4XN6FXxYnZQ42qpcSg@mail.gmail.com>
 References: <CAFF4W0XipV0ZuAMX9DbXH7P8aVJ0jHP-G+vqmE4o5e0edG79nQ@mail.gmail.com>
- <CALjAwxi0CnZz1SF0U-maHaTpEJUe6k4C4XN6FXxYnZQ42qpcSg@mail.gmail.com> <CAFF4W0W1=oeLsHWb04dxRwp7G1f+PgVzH14PiAU1rspLz2XOrw@mail.gmail.com>
-In-Reply-To: <CAFF4W0W1=oeLsHWb04dxRwp7G1f+PgVzH14PiAU1rspLz2XOrw@mail.gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Wed, 7 Nov 2018 15:55:48 +0000
-Message-ID: <CALjAwxjCYdpJZAG0S41wC6fkQJqEnFWM4nMWVZvGzMxSjP2iQQ@mail.gmail.com>
+ <CALjAwxi0CnZz1SF0U-maHaTpEJUe6k4C4XN6FXxYnZQ42qpcSg@mail.gmail.com>
+From: Mohanraj B <bmohanraj91@gmail.com>
+Date: Wed, 7 Nov 2018 13:06:07 +0530
+Message-ID: <CAFF4W0W1=oeLsHWb04dxRwp7G1f+PgVzH14PiAU1rspLz2XOrw@mail.gmail.com>
 Subject: Re: Query Regarding <local-args> in fio <local-args>
  --client=<server> <remote-args> <job file(s)>
 Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Mohanraj B <bmohanraj91@gmail.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: fio <fio@vger.kernel.org>
 
-On Wed, 7 Nov 2018 at 07:36, Mohanraj B <bmohanraj91@gmail.com> wrote:
+Hi,
+
+Also what <remote-args> will that also the options in the link -
+https://fio.readthedocs.io/en/latest/fio_doc.html#command-line-options.
+
+What is purpose of the arguments on the left and right of --client.
+pls explain.
+
+Thanks and Regards,
+Mohan
+
+
+On 10/31/18, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+> On Wed, 31 Oct 2018 at 11:14, Mohanraj B <bmohanraj91@gmail.com> wrote:
+>>
+>> Hi all,
+>>
+>> https://fio.readthedocs.io/en/latest/fio_doc.html#client-server
+>>
+>> Under client/server section, below command is given
+>> fio <local-args> --client=<server> <remote-args> <job file(s)>
+>>
+>> Need to know, what are the arguments we can use for the client side -
+>> <local-args>.
 >
-> Hi,
+> Won't those be things like
+> https://fio.readthedocs.io/en/latest/fio_doc.html#command-line-options
+> ?
 >
-> Also what <remote-args> will that also the options in the link -
-> https://fio.readthedocs.io/en/latest/fio_doc.html#command-line-options.
-
-Sorry - I can't work out what you're asking...
-
-> What is purpose of the arguments on the left and right of --client.
-> pls explain.
-
-You can have multiple clients (as mentioned
-https://fio.readthedocs.io/en/latest/fio_doc.html#client-server ) or
-mixtures of local jobs (and options you want to send to the locally
-running fio) and jobs you wish to send elsewhere etc.
-
--- 
-Sitsofe | http://sucs.org/~sits/
+> --
+> Sitsofe | http://sucs.org/~sits/
+>
 
