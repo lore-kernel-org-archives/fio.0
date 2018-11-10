@@ -1,95 +1,114 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-oi1-f178.google.com ([209.85.167.178]:44970 "EHLO
-        mail-oi1-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726245AbeKMS5a (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 13 Nov 2018 13:57:30 -0500
-Received: by mail-oi1-f178.google.com with SMTP id p82-v6so9622600oih.11
-        for <fio@vger.kernel.org>; Tue, 13 Nov 2018 01:00:22 -0800 (PST)
-MIME-Version: 1.0
-From: Taylor Yang <taylor4869@gmail.com>
-Date: Tue, 13 Nov 2018 01:00:10 -0800
-Message-ID: <CAKiK_mAyMPdR9JamSee8XLQJoBehdGFY1a92NEgH+DmjpnKBow@mail.gmail.com>
-Subject: Question about data verification using verify_state_save and verify_state_load
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:46699 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728836AbeKJTNY (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 10 Nov 2018 14:13:24 -0500
+Received: by mail-wr1-f66.google.com with SMTP id 74-v6so4254808wrb.13
+        for <fio@vger.kernel.org>; Sat, 10 Nov 2018 01:29:04 -0800 (PST)
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 12.0 \(3445.100.39\))
+Subject: Re: rand-read: increasing iodepth makes throughput drop
+From: Paolo Valente <paolo.valente@linaro.org>
+In-Reply-To: <AT5PR8401MB116917F29EA34E175EAA2A08ABC60@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+Date: Sat, 10 Nov 2018 10:29:01 +0100
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <1C747D7B-996D-4E5A-9194-872F604F03B9@linaro.org>
+References: <09b20693-8e0c-2ca9-97b3-51674177f19c@willer.it>
+ <AT5PR8401MB116955F32C7A59FB0494F505ABF70@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+ <a26c6cc6-3efe-cbf8-37c7-f52672179b79@willer.it>
+ <MWHPR04MB03204694EB4A9074B9D5A4228FCD0@MWHPR04MB0320.namprd04.prod.outlook.com>
+ <38550f9e-63ba-cfc4-d8eb-5314d0647fd9@willer.it>
+ <CALjAwxh=CDGp6agq=7hisWvAJfGWKH9mpjQDq=FUb-VpJXS+6A@mail.gmail.com>
+ <64b2647f-4644-c4ed-ee44-6f571d037e50@willer.it>
+ <AT5PR8401MB116917F29EA34E175EAA2A08ABC60@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-
-I want to do some writes and reads to a device for a period of time
-and then verify the writes. So I have the following job files.
-
-write.fio job file:
-[global]
-direct=1
-ioengine=libaio
-numjobs=1
-verify=crc32c
-
-[/dev/sdf]
-filename=/dev/sdf
-time_based
-runtime=500
-bwavgtime=1000
-iopsavgtime=1000
-rw=randrw
-rwmixwrite=50
-verify_state_save=1
-iodepth=4
-bs=4k
+To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
+Cc: Federico Motta <federico@willer.it>, Sitsofe Wheeler <sitsofe@gmail.com>, Jeff Furlong <jeff.furlong@wdc.com>, fio <fio@vger.kernel.org>, "mark.brown@linaro.org" <mark.brown@linaro.org>, "linus.walleij@linaro.org" <linus.walleij@linaro.org>, "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>
 
 
-verify.fio file
-[global]
-direct=1
-ioengine=libaio
-group_reporting
-numjobs=1
-verify=crc32c
 
-[/dev/sdf]
-rw=read
-do_verify=1
-filename=/dev/sdf
-verify_state_load=1
+> Il giorno 9 nov 2018, alle ore 21:21, Elliott, Robert (Persistent =
+Memory) <elliott@hpe.com> ha scritto:
+>=20
+>=20
+>=20
+>> -----Original Message-----
+>> From: Federico Motta [mailto:federico@willer.it]
+>> Sent: Friday, November 9, 2018 3:31 AM
+>> To: Sitsofe Wheeler <sitsofe@gmail.com>
+>> Cc: Jeff Furlong <jeff.furlong@wdc.com>; Elliott, Robert (Persistent =
+Memory) <elliott@hpe.com>; fio
+>> <fio@vger.kernel.org>; Paolo Valente <paolo.valente@linaro.org>; =
+mark.brown@linaro.org;
+>> linus.walleij@linaro.org; ulf.hansson@linaro.org
+>> Subject: Re: rand-read: increasing iodepth makes throughput drop
+>>>> On 10/31/18 3:19 PM, Federico Motta wrote:
+>>>> ...
+>>>>> Is it possible to ask fio a measure of "how much device internal
+>>>> queues are filled"?
+>>>>> If yes, with which option(s)?
+>>>>> If not, do you know some other tools or procedures which can tell =
+us that?
+>>>>=20
+>>>> Does somebody has ideas about that ^  ?
+>>>=20
+>>> ...I think iostat produces similar output to that too...
+>>>=20
+>>=20
+>> Actually I was wondering if a more direct or low level measure =
+exists,
+>> but since I don't even know if that is possible I think the fio =
+"util"
+>> percentage could be a good trade-off between "a low level measure" =
+and
+>> "no measure available".
+>=20
+> In linux, iostat provides some statistics, and there are lots of more =
+detailed
+> queuing statistics in sysfs. Some are provided by the block layer; =
+some by the
+> SCSI midlayer (for SCSI devices); some by the low-level driver (like =
+hpsa).
+>=20
+>=20
+> # nr_requests, the block layer request queue depth
+> /sys/block/$device/queue/nr_requests
+>=20
+> # queue_depth, the SCSI midlayer queue depth
+> /sys/block/$device/device/queue_depth
+>=20
+> # can_queue sets the initial request queue size
+> /sys/class/scsi_host/$scsi_host/can_queue
+>=20
+> # cmd_per_lun sets the initial queue_depth
+> /sys/class/scsi_host/$scsi_host/cmd_per_lun
+>=20
+> # host_busy indicates how many commands are queued by the SCSI layer
+> /sys/class/scsi_host/$scsi_host/host_busy
+>=20
 
-I saw some bad magic header errors while doing this but when I added
-all the related flags I have in the write.fio file to the verify.fio
-file. Everything seems to work.
+Thank you very much, this seems exactly the kind of information we
+need.  AFAYK, are there also per-queue info in case of NVMe devices?
 
-[global]
-direct=1
-ioengine=libaio
-numjobs=1
-verify=crc32c
+Thanks,
+Paolo
 
-[/dev/sdf]
-rw=randrw
-rwmixwrite=50
-do_verify=1
-filename=/dev/sdf
-verify_state_load=1
-iodepth=4
-bs=4k
+> # host_blocked indicates the host is blocking all IOs
+> /sys/class/scsi_host/$scsi_host/host_blocked
+>=20
+> # hpsa ioaccel commands outstanding
+> /sys/block/$device/device/hpsa_ioaccel_cmds_out
+>=20
+> # hpsa physical drive queue depth
+> /sys/block/$device/device/hpsa_queue_depth
+>=20
+> # hpsa commands_outstanding from submission to completion
+> /sys/class/scsi_host/$scsi_host/commands_outstanding
+>=20
+> There are a bunch of blk-mq stats too, some only shown if debugfs is =
+enabled.
+>=20
 
-For example, if I change the verify job file to below, everything
-looks fine but the verification might take some time.
-
-I have a few questions regarding this.
-1. Does the write phase `rw` option have to match the verify phase?
-For example if I have `randomwrite` for write phase, do I need to put
-'randomread' for verify phase but not 'read'? And if I have 'randomrw'
-in write phase, is it true that I have to use it in verify phase?
-2. Do I need to put all the flags in write phase to verify phase? So
-in my case, do I have to add iodepth and bs to the verify phase as
-well?
-3. Are there other ways to achieve what I want? I mainly want to have
-some kinda of complicated IO workload (mix writes and reads) with the
-time_based option and if the verification could complete during this
-timed phase, I could save the progress and then have a separate verify
-phase later to fully verify the writes. I know I could use
-verify_backlog but I intend to verify the writes separately.
-
-Thank you so much in advance.
-Best wishes,
-Taylor
 
