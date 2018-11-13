@@ -1,34 +1,95 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-it1-f173.google.com ([209.85.166.173]:40218 "EHLO
-        mail-it1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726892AbeKORDR (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 15 Nov 2018 12:03:17 -0500
-Received: by mail-it1-f173.google.com with SMTP id e11so27747974itl.5
-        for <fio@vger.kernel.org>; Wed, 14 Nov 2018 22:56:43 -0800 (PST)
+Received: from mail-ot1-f42.google.com ([209.85.210.42]:34695 "EHLO
+        mail-ot1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731295AbeKMThK (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 13 Nov 2018 14:37:10 -0500
+Received: by mail-ot1-f42.google.com with SMTP id t5so10755284otk.1
+        for <fio@vger.kernel.org>; Tue, 13 Nov 2018 01:39:54 -0800 (PST)
 MIME-Version: 1.0
-From: Mousumi Mullick <mousumi.mullick@gmail.com>
-Date: Wed, 14 Nov 2018 22:56:31 -0800
-Message-ID: <CAHt2jbtMQ3Hcxk0o4+-AauE6iOcZOewCBpfv0_VdNu4ZiX4kKA@mail.gmail.com>
-Subject: Save verify_state continuously
+From: Taylor Yang <taylor4869@gmail.com>
+Date: Tue, 13 Nov 2018 01:39:42 -0800
+Message-ID: <CAKiK_mDQ7mf+2v3rDConxm7Da0dKGeudf=zABLuU2XPOWuRprg@mail.gmail.com>
+Subject: Question about data verification using verify_state_save
 Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-I am planning to run fio on a dozens of virtual machines across
-multiple physical hosts and at some point will power off a physical
-host. As fio workload is running I will be triggering random VM
-migrations across a set of physical hosts. Since powering off a
-physical host will abruptly power off all VMs running on that host,
-none of the fio processes in them will have a verify_state file saved.
+Hi,
+I want to do some writes and reads to a device for a period of time
+and then verify the writes. So I have the following job files.
 
-Given this test, I was wondering if there is a way for fio to
-continuously save verify_state to a file so that I can use it
-unconditionally on a subsequent power on to verify the data written so
-far?
+write.fio job file:
+[global]
+direct=1
+ioengine=libaio
+numjobs=1
+verify=crc32c
 
+[/dev/sdf]
+filename=/dev/sdf
+time_based
+runtime=5000
+bwavgtime=1000
+iopsavgtime=1000
+rw=randrw
+rwmixwrite=50
+verify_state_save=1
+iodepth=4
+bs=4k
 
--- 
-Thanks,
-Mousumi Mullick
+verify.fio file
+[global]
+direct=1
+ioengine=libaio
+group_reporting
+numjobs=1
+verify=crc32c
+
+[/dev/sdf]
+rw=read
+do_verify=1
+filename=/dev/sdf
+verify_state_load=1
+
+I saw some bad magic header errors while doing this but when I added
+all the related flags I have in the write.fio file to the verify.fio
+file. Everything seems to work.
+
+[global]
+direct=1
+ioengine=libaio
+numjobs=1
+verify=crc32c
+
+[/dev/sdf]
+rw=randrw
+rwmixwrite=50
+do_verify=1
+filename=/dev/sdf
+verify_state_load=1
+iodepth=4
+bs=4k
+
+For example, if I change the verify job file to below, everything
+looks fine but the verification might take some time.
+
+I have a few questions regarding this.
+1. Does the write phase `rw` option have to match the verify phase?
+For example if I have `randomwrite` for write phase, do I need to put
+'randomread' for verify phase but not 'read'? And if I have 'randomrw'
+in write phase, is it true that I have to use it in verify phase?
+2. Do I need to put all the flags in write phase to verify phase? So
+in my case, do I have to add iodepth and bs to the verify phase as
+well?
+3. Are there other ways to achieve what I want? I mainly want to do
+some complicated IO workload (mix of writes and reads) with the
+time_based option and if the verification could complete during this
+timed phase, I could save the progress and then have a separate verify
+phase later to fully verify the writes. I know I could use
+verify_backlog but I intend to verify the writes separately.
+
+Thank you so much in advance.
+Best wishes,
+Taylor
 
