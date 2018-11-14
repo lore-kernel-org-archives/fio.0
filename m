@@ -1,103 +1,142 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-it1-f172.google.com ([209.85.166.172]:35476 "EHLO
-        mail-it1-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725945AbeKZGSd (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 26 Nov 2018 01:18:33 -0500
-Received: by mail-it1-f172.google.com with SMTP id v11so24369729itj.0
-        for <fio@vger.kernel.org>; Sun, 25 Nov 2018 11:26:47 -0800 (PST)
+Received: from mail-vs1-f42.google.com ([209.85.217.42]:44234 "EHLO
+        mail-vs1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726842AbeKNOHX (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 14 Nov 2018 09:07:23 -0500
+Received: by mail-vs1-f42.google.com with SMTP id g68so8704236vsd.11
+        for <fio@vger.kernel.org>; Tue, 13 Nov 2018 20:05:58 -0800 (PST)
 MIME-Version: 1.0
-From: Mohanraj B <bmohanraj91@gmail.com>
-Date: Mon, 26 Nov 2018 00:56:45 +0530
-Message-ID: <CAFF4W0UPjgKPX2t=aqRPsjKN65DJHa46emuTckTOsNx4BYBoZg@mail.gmail.com>
-Subject: Re loading libaio engine error and pvsync2 operation not permitted error
+References: <CAKiK_mAyMPdR9JamSee8XLQJoBehdGFY1a92NEgH+DmjpnKBow@mail.gmail.com>
+In-Reply-To: <CAKiK_mAyMPdR9JamSee8XLQJoBehdGFY1a92NEgH+DmjpnKBow@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 14 Nov 2018 04:05:33 +0000
+Message-ID: <CALjAwxgAdak2m0s2F_7HQYYqVeEGj2P7bjx3Le7rPFtH0QcT6A@mail.gmail.com>
+Subject: Re: Question about data verification using verify_state_save and verify_state_load
 Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+To: Taylor Yang <taylor4869@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-Hello,
+Hi Taylor,
 
-I am trying to use libaio engine for a job file in my docker
-container, but it throws fio: engine libaio not loadable error.
+On Tue, 13 Nov 2018 at 09:01, Taylor Yang <taylor4869@gmail.com> wrote:
+>
+> I want to do some writes and reads to a device for a period of time
+> and then verify the writes. So I have the following job files.
+>
+> write.fio job file:
+> [global]
+> direct=1
+> ioengine=libaio
+> numjobs=1
+> verify=crc32c
+>
+> [/dev/sdf]
+> filename=/dev/sdf
+> time_based
+> runtime=500
+> bwavgtime=1000
+> iopsavgtime=1000
+> rw=randrw
+> rwmixwrite=50
+> verify_state_save=1
+> iodepth=4
+> bs=4k
+>
+>
+> verify.fio file
+> [global]
+> direct=1
+> ioengine=libaio
+> group_reporting
+> numjobs=1
+> verify=crc32c
+>
+> [/dev/sdf]
+> rw=read
+> do_verify=1
+> filename=/dev/sdf
+> verify_state_load=1
 
-fio --name=hello1 --size=1m --ioengine=libaio
+^^^ You have different options here to your original job (rw is
+different, and technically you're missing rwmixwrite). I think you're
+right to drop the time restriction and bandwidth options but you've
+changed rw=randrw into rw=read which will make the verify examine
+blocks that weren't necessarily written by the original job. Maybe
+verify_only (https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-verify-only
+) would be of use to you?
 
-fio: engine libaio not loadable
-fio: engine libaio not loadable
-fio: failed to load engine
-fio: file:ioengines.c:89, func=dlopen, error=libaio: cannot open
-shared object file: No such file or directory
+> I saw some bad magic header errors while doing this but when I added
+> all the related flags I have in the write.fio file to the verify.fio
+> file. Everything seems to work.
+>
+> [global]
+> direct=1
+> ioengine=libaio
+> numjobs=1
+> verify=crc32c
+>
+> [/dev/sdf]
+> rw=randrw
+> rwmixwrite=50
+> do_verify=1
+> filename=/dev/sdf
+> verify_state_load=1
+> iodepth=4
+> bs=4k
 
-Available IO engines:
-[root@210df130f2c7 fio-data]# fio --enghelp
-Available IO engines:
-	cpuio
-	mmap
-	sync
-	psync
-	vsync
-	pvsync
-	pvsync2
-	null
-	net
-	netsplice
-	ftruncate
-	filecreate
-	posixaio
-	falloc
-	e4defrag
-	splice
-	mtd
-	sg
+This will run a write followed by a verify so it overwrites whatever
+data was originally there then verifies it and the verify knows
+exactly what the write phase did.
 
+> For example, if I change the verify job file to below, everything
+> looks fine but the verification might take some time.
+>
+> I have a few questions regarding this.
+> 1. Does the write phase `rw` option have to match the verify phase?
+> For example if I have `randomwrite` for write phase, do I need to put
+> 'randomread' for verify phase but not 'read'? And if I have 'randomrw'
+> in write phase, is it true that I have to use it in verify phase?
 
-libaio is not listed above, but its installed in container.
+Sometimes - it depends on the job file and the options you are using.
+I'm going to sidestep this question and say:
 
-yum install libaio
-Loaded plugins: fastestmirror, ovl
-Loading mirror speeds from cached hostfile
- * base: ftp.iitm.ac.in
- * extras: ftp.iitm.ac.in
- * updates: ftp.iitm.ac.in
-Package libaio-0.3.109-13.el7.x86_64 already installed and latest version
-Nothing to do
+"I think it's easier to use verify_only to flip the writes to reads in
+the verify job".
 
-Centos docker container : centos-release-7-5.1804.5.el7.centos.x86_64
+> 2. Do I need to put all the flags in write phase to verify phase? So
+> in my case, do I have to add iodepth and bs to the verify phase as
+> well?
 
+This depends on whether you are writing the entire region using a
+fixed block size. If you are doing both (whole region is changed,
+fixed block size) then life is easy when you are running split jobs as
+all sorts of things happen to work. If you are not then you need to be
+careful about matching things up. With respect to your examples:
+iodepth is unlikely to matter on the verify part but having a matching
+blocksize/bs is critical!
 
-Re pvsync2 operation not permitted error
+> 3. Are there other ways to achieve what I want? I mainly want to have
+> some kinda of complicated IO workload (mix writes and reads) with the
+> time_based option and if the verification could complete during this
+> timed phase, I could save the progress and then have a separate verify
+> phase later to fully verify the writes. I know I could use
+> verify_backlog but I intend to verify the writes separately.
 
-fio --name=hello --size=10m --ioengine=pvsync2
+As mentioned in https://www.spinics.net/lists/fio/msg07237.html ,
+split verify jobs where the original job was timed limited are always
+more complicated to get going but something is typically achievable.
+Other approaches usually depend on some additional restriction so I
+think your approach is right given what you want to achieve. You're
+unlikely to hit it with the jobs above but there's a tiny corner case
+if the job ends up rewriting blocks it wrote earlier when looping
+round which can be sidestepped using serialize_overlap
+(https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-serialize-overlap
+) but we can chat about that some other time.
 
-hello: (g=0): rw=read, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T)
-4096B-4096B, ioengine=pvsync2, iodepth=1
-fio-3.12-18-g92a1
-Starting 1 process
-hello: Laying out IO file (1 file / 10MiB)
-fio: io_u error on file hello.0.0: Operation not permitted: read
-offset=0, buflen=4096
-fio: pid=59, err=1/file:io_u.c:1789, func=io_u error, error=Operation
-not permitted
+Keep us informed of your progress getting this to work!
 
-hello: (groupid=0, jobs=1): err= 1 (file:io_u.c:1789, func=io_u error,
-error=Operation not permitted): pid=59: Sun Nov 25 19:23:14 2018
-  cpu          : usr=0.00%, sys=0.00%, ctx=2, majf=0, minf=19
-  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     issued rwts: total=1,0,0,0 short=0,0,0,0 dropped=0,0,0,0
-     latency   : target=0, window=0, percentile=100.00%, depth=1
-
-Run status group 0 (all jobs):
-
-Disk stats (read/write):
-  sda: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
-
-I dont have access to machine running centos, so running in centos
-docker container. Are these issues occuring because of running in fio?
-
-host machine OS is ubuntu 18.04.
-
-Thanks and Regards,
-Mohan
+--
+Sitsofe | http://sucs.org/~sits/
 
