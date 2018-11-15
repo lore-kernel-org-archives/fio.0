@@ -1,17 +1,17 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-it1-f181.google.com ([209.85.166.181]:50661 "EHLO
-        mail-it1-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725742AbeKPFkT (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 16 Nov 2018 00:40:19 -0500
-Received: by mail-it1-f181.google.com with SMTP id k206-v6so31144238ite.0
-        for <fio@vger.kernel.org>; Thu, 15 Nov 2018 11:31:13 -0800 (PST)
+Received: from mail-it1-f179.google.com ([209.85.166.179]:55949 "EHLO
+        mail-it1-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726453AbeKPEqW (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 15 Nov 2018 23:46:22 -0500
+Received: by mail-it1-f179.google.com with SMTP id o19so21711204itg.5
+        for <fio@vger.kernel.org>; Thu, 15 Nov 2018 10:37:26 -0800 (PST)
 MIME-Version: 1.0
 References: <CAHt2jbtMQ3Hcxk0o4+-AauE6iOcZOewCBpfv0_VdNu4ZiX4kKA@mail.gmail.com>
- <CALjAwxicij8N=d6qCQoDz33tbjw4epM_MZtN1LoKQ7B5+X8nTA@mail.gmail.com> <CAHt2jbus+sKPf=X=bhonZ3HG9J=4AMqF9Fu73zrcqUp6ukR4Rg@mail.gmail.com>
-In-Reply-To: <CAHt2jbus+sKPf=X=bhonZ3HG9J=4AMqF9Fu73zrcqUp6ukR4Rg@mail.gmail.com>
+ <CALjAwxicij8N=d6qCQoDz33tbjw4epM_MZtN1LoKQ7B5+X8nTA@mail.gmail.com>
+In-Reply-To: <CALjAwxicij8N=d6qCQoDz33tbjw4epM_MZtN1LoKQ7B5+X8nTA@mail.gmail.com>
 From: Mousumi Mullick <mousumi.mullick@gmail.com>
-Date: Thu, 15 Nov 2018 11:30:59 -0800
-Message-ID: <CAHt2jbsHx4YUHNFUAjkf2of5Bqnv2m7=CNwZheMLWJj48Ko5Sg@mail.gmail.com>
+Date: Thu, 15 Nov 2018 10:37:14 -0800
+Message-ID: <CAHt2jbus+sKPf=X=bhonZ3HG9J=4AMqF9Fu73zrcqUp6ukR4Rg@mail.gmail.com>
 Subject: Re: Save verify_state continuously
 Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
@@ -19,64 +19,49 @@ List-Id: fio@vger.kernel.org
 To: sitsofe@gmail.com
 Cc: fio@vger.kernel.org
 
-If its possible to get this feature in a test/private build, I can try
-it out. It would be very helpful if I can continue using FIO in our
-framework.
+I did think about trigger file but I have some constraints with our
+infrastructure that makes it difficult to create a trigger file in the
+VMs before resetting the physical hosts. Also, I thought of having NFS
+mounts on all VMs and using that location for trigger file but again
+the infrastructure constraints are not helpful in this regards too.
+Given all the constraints and the solutions that I have thought of
+(mostly around trigger file) I am not able to come up with a solution.
+This may not be an issue if there is a way in fio to checkpoint the
+state file periodically from the start of a test.
 
 
-
-On Thu, Nov 15, 2018 at 10:37 AM Mousumi Mullick
-<mousumi.mullick@gmail.com> wrote:
+On Thu, Nov 15, 2018 at 3:31 AM Sitsofe Wheeler <sitsofe@gmail.com> wrote:
 >
-> I did think about trigger file but I have some constraints with our
-> infrastructure that makes it difficult to create a trigger file in the
-> VMs before resetting the physical hosts. Also, I thought of having NFS
-> mounts on all VMs and using that location for trigger file but again
-> the infrastructure constraints are not helpful in this regards too.
-> Given all the constraints and the solutions that I have thought of
-> (mostly around trigger file) I am not able to come up with a solution.
-> This may not be an issue if there is a way in fio to checkpoint the
-> state file periodically from the start of a test.
+> Hi,
 >
->
-> On Thu, Nov 15, 2018 at 3:31 AM Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+> On Thu, 15 Nov 2018 at 06:57, Mousumi Mullick <mousumi.mullick@gmail.com> wrote:
 > >
-> > Hi,
+> > I am planning to run fio on a dozens of virtual machines across
+> > multiple physical hosts and at some point will power off a physical
+> > host. As fio workload is running I will be triggering random VM
+> > migrations across a set of physical hosts. Since powering off a
+> > physical host will abruptly power off all VMs running on that host,
+> > none of the fio processes in them will have a verify_state file saved.
 > >
-> > On Thu, 15 Nov 2018 at 06:57, Mousumi Mullick <mousumi.mullick@gmail.com> wrote:
-> > >
-> > > I am planning to run fio on a dozens of virtual machines across
-> > > multiple physical hosts and at some point will power off a physical
-> > > host. As fio workload is running I will be triggering random VM
-> > > migrations across a set of physical hosts. Since powering off a
-> > > physical host will abruptly power off all VMs running on that host,
-> > > none of the fio processes in them will have a verify_state file saved.
-> > >
-> > > Given this test, I was wondering if there is a way for fio to
-> > > continuously save verify_state to a file so that I can use it
-> > > unconditionally on a subsequent power on to verify the data written so
-> > > far?
-> >
-> > Why not create a trigger file (see
-> > https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-trigger-file
-> > , https://fio.readthedocs.io/en/latest/fio_doc.html#verification-and-triggers
-> > ) to let fio know it needs to do a state save (it will also exit
-> > itself)? You may even be able to arrange for fio to send a command
-> > that powers the host off if you're using the client/server model with
-> > the appropriate trigger type. Further, don't you need to know fio has
-> > finished doing the state save correctly (note the that the trigger
-> > file will be deleted when fio is done with it)? If you power off a VM
-> > halfway through fio saving its state you risk generating/getting an
-> > incomplete/corrupt state file...
-> >
-> > --
-> > Sitsofe | http://sucs.org/~sits/
+> > Given this test, I was wondering if there is a way for fio to
+> > continuously save verify_state to a file so that I can use it
+> > unconditionally on a subsequent power on to verify the data written so
+> > far?
 >
->
+> Why not create a trigger file (see
+> https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-trigger-file
+> , https://fio.readthedocs.io/en/latest/fio_doc.html#verification-and-triggers
+> ) to let fio know it needs to do a state save (it will also exit
+> itself)? You may even be able to arrange for fio to send a command
+> that powers the host off if you're using the client/server model with
+> the appropriate trigger type. Further, don't you need to know fio has
+> finished doing the state save correctly (note the that the trigger
+> file will be deleted when fio is done with it)? If you power off a VM
+> halfway through fio saving its state you risk generating/getting an
+> incomplete/corrupt state file...
 >
 > --
-> Thanks,
-> Mousumi Mullick
+> Sitsofe | http://sucs.org/~sits/
 
 
 
