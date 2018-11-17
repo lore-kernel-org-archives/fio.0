@@ -1,33 +1,19 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:1253 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387447AbeKVJYq (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 22 Nov 2018 04:24:46 -0500
+Received: from esa6.hgst.iphmx.com ([216.71.154.45]:60086 "EHLO
+        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727116AbeKQLNr (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 17 Nov 2018 06:13:47 -0500
 From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: RE: fio backend bug
-Date: Wed, 21 Nov 2018 22:48:17 +0000
-Message-ID: <MWHPR04MB0320EFD8CD70C227F9DF7B988FDA0@MWHPR04MB0320.namprd04.prod.outlook.com>
-References: <MWHPR04MB0320645703E3BFD7FA5EAA578FDE0@MWHPR04MB0320.namprd04.prod.outlook.com>
-In-Reply-To: <MWHPR04MB0320645703E3BFD7FA5EAA578FDE0@MWHPR04MB0320.namprd04.prod.outlook.com>
+Subject: fio backend bug
+Date: Sat, 17 Nov 2018 00:59:04 +0000
+Message-ID: <MWHPR04MB0320645703E3BFD7FA5EAA578FDE0@MWHPR04MB0320.namprd04.prod.outlook.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="Windows-1252"
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: "fio@vger.kernel.org" <fio@vger.kernel.org>
-
-FYI, fixed on latest git, fio-3.12-17-g0fcbc0.
-
-Regards,
-Jeff
-
------Original Message-----
-From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Behal=
-f Of Jeff Furlong
-Sent: Friday, November 16, 2018 4:59 PM
-To: fio@vger.kernel.org
-Subject: fio backend bug
 
 Hi All,
 Consider a small fio job with limited IO and fixed cpu assignment:
