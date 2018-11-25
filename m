@@ -1,104 +1,114 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa4.dell-outbound.iphmx.com ([68.232.149.214]:45380 "EHLO
-        esa4.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725863AbeKZGdk (ORCPT
-        <rfc822;fio@vger.kernel.org>); Mon, 26 Nov 2018 01:33:40 -0500
-Received: from pps.filterd (m0142699.ppops.net [127.0.0.1])
-        by mx0a-00154901.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wAPKTTN0061971
-        for <fio@vger.kernel.org>; Sun, 25 Nov 2018 15:32:33 -0500
-Received: from esa4.dell-outbound2.iphmx.com (esa4.dell-outbound2.iphmx.com [68.232.154.98])
-        by mx0a-00154901.pphosted.com with ESMTP id 2nyycmrevn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
-        for <fio@vger.kernel.org>; Sun, 25 Nov 2018 15:32:32 -0500
-From: "Beierl, Mark" <Mark.Beierl@dell.com>
+Received: from mail-it1-f169.google.com ([209.85.166.169]:37961 "EHLO
+        mail-it1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725972AbeKZGT4 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 26 Nov 2018 01:19:56 -0500
+Received: by mail-it1-f169.google.com with SMTP id h65so24345930ith.3
+        for <fio@vger.kernel.org>; Sun, 25 Nov 2018 11:28:09 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <CAFF4W0UPjgKPX2t=aqRPsjKN65DJHa46emuTckTOsNx4BYBoZg@mail.gmail.com>
+References: <CAFF4W0UPjgKPX2t=aqRPsjKN65DJHa46emuTckTOsNx4BYBoZg@mail.gmail.com>
+From: Mohanraj B <bmohanraj91@gmail.com>
+Date: Mon, 26 Nov 2018 00:58:08 +0530
+Message-ID: <CAFF4W0XUBMLn5TuYWonvoJntZfPUtUS7HypWpejw8Ofer9z9Sw@mail.gmail.com>
 Subject: Re: Re loading libaio engine error and pvsync2 operation not
  permitted error
-Date: Sun, 25 Nov 2018 19:41:34 +0000
-Message-ID: <0E387D6D-E489-41E2-B535-577AD63036F9@emc.com>
-References: <CAFF4W0UPjgKPX2t=aqRPsjKN65DJHa46emuTckTOsNx4BYBoZg@mail.gmail.com>
- <CAFF4W0XUBMLn5TuYWonvoJntZfPUtUS7HypWpejw8Ofer9z9Sw@mail.gmail.com>
-In-Reply-To: <CAFF4W0XUBMLn5TuYWonvoJntZfPUtUS7HypWpejw8Ofer9z9Sw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <DC192E0A11749546BD0D9C8E36D09C68@mail.corp.emc.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Mohanraj B <bmohanraj91@gmail.com>, fio <fio@vger.kernel.org>
+To: fio <fio@vger.kernel.org>
 
-SGVsbG8hDQoNCkkgaGF2ZSBhIGNvdXBsZSBvZiBxdWVzdGlvbnMsIGFzIEkgYWxzbyBidWlsZCBG
-SU8gaW4gYW4gQWxwaW5lIGNvbnRhaW5lciwgYnV0IHRoZXJlIEkgYnVpbGQgaXQgZnJvbSBzb3Vy
-Y2Ugc28gdGhhdCBJIGhhdmUgYWxsIHJlcXVpcmVkIGxpYnJhcmllcy4gIFRoZSBzb3VyY2UgZm9y
-IHRoZSBjb250YWluZXIgaXMgaGVyZSBbMV0gYW5kIGl0IGlzIHBhcnQgb2YgdGhlIE9QTkZWIFN0
-b3JQZXJmIHByb2plY3QsIHdoaWNoIGlzIGZvciB3cmFwcGluZyBGSU8gaW4gYSB3ZWIgZnJvbnQg
-ZW5kIGFuZCBtYWtpbmcgaXQgZWFzaWVyIHRvIHRlc3QgYWdhaW5zdCB2YXJpb3VzIGRpc3RyaWJ1
-dGlvbnMgb3IgVk1zIFsyXS4NCg0KTXkgcXVlc3Rpb25zIGFyZToNCg0KMSkgSG93IGFyZSB5b3Ug
-aW5zdGFsbGluZyBGSU8g4oCTIGZyb20gdGhlIGFwdCByZXBvcywgb3IgYnVpbGRpbmcgZnJvbSBz
-b3VyY2U/DQoyKSBXaGF0IHN0b3JhZ2UgYXJlIHlvdSB1c2luZyBpbiB0aGUgY29udGFpbmVyIOKA
-kyBhIG1vdW50ZWQgdm9sdW1lIG9yIGFyZSB5b3UgdHJ5aW5nIHRvIHVzZSB0aGUgaG9zdCBPUy9y
-YXcgZGV2aWNlPw0KMykgSXMgdGhlIGNvbnRhaW5lciBydW5uaW5nIGFzIHByaXZpbGVnZWQgaWYg
-eW91IGFyZSB0cnlpbmcgdG8gYWNjZXNzIHRoZSBob3N0Pw0KDQpbMV0gaHR0cHM6Ly9naXQub3Bu
-ZnYub3JnL3N0b3JwZXJmL3RyZWUvZG9ja2VyL3N0b3JwZXJmLW1hc3Rlci9Eb2NrZXJmaWxlDQpb
-Ml0gaHR0cHM6Ly93aWtpLm9wbmZ2Lm9yZy9kaXNwbGF5L3N0b3JwZXJmDQoNClJlZ2FyZHMsDQpN
-YXJrDQogDQpNYXJrIEJlaWVybA0KU1cgU3lzdGVtIFNyIFByaW5jaXBhbCBEZXZlbG9wZXINCkRl
-bGwgRU1DIHwgQ2xvdWQgJiBDb21tdW5pY2F0aW9uIFNlcnZpY2UgUHJvdmlkZXIgU29sdXRpb24N
-Ck1hcmsuQmVpZXJsQERlbGwuY29tDQoNCk9uIDIwMTgtMTEtMjUsIDE1OjI4LCAiZmlvLW93bmVy
-QHZnZXIua2VybmVsLm9yZyBvbiBiZWhhbGYgb2YgTW9oYW5yYWogQiIgPGZpby1vd25lckB2Z2Vy
-Lmtlcm5lbC5vcmcgb24gYmVoYWxmIG9mIGJtb2hhbnJhajkxQGdtYWlsLmNvbT4gd3JvdGU6DQoN
-CiAgICANCiAgICBbRVhURVJOQUwgRU1BSUxdIA0KICAgIA0KICAgIHR5cG8NCiAgICBydW5uaW5n
-IGluIGRvY2tlciBjb250YWluZXIuDQogICAgDQogICAgT24gMTEvMjYvMTgsIE1vaGFucmFqIEIg
-PGJtb2hhbnJhajkxQGdtYWlsLmNvbT4gd3JvdGU6DQogICAgPiBIZWxsbywNCiAgICA+DQogICAg
-PiBJIGFtIHRyeWluZyB0byB1c2UgbGliYWlvIGVuZ2luZSBmb3IgYSBqb2IgZmlsZSBpbiBteSBk
-b2NrZXINCiAgICA+IGNvbnRhaW5lciwgYnV0IGl0IHRocm93cyBmaW86IGVuZ2luZSBsaWJhaW8g
-bm90IGxvYWRhYmxlIGVycm9yLg0KICAgID4NCiAgICA+IGZpbyAtLW5hbWU9aGVsbG8xIC0tc2l6
-ZT0xbSAtLWlvZW5naW5lPWxpYmFpbw0KICAgID4NCiAgICA+IGZpbzogZW5naW5lIGxpYmFpbyBu
-b3QgbG9hZGFibGUNCiAgICA+IGZpbzogZW5naW5lIGxpYmFpbyBub3QgbG9hZGFibGUNCiAgICA+
-IGZpbzogZmFpbGVkIHRvIGxvYWQgZW5naW5lDQogICAgPiBmaW86IGZpbGU6aW9lbmdpbmVzLmM6
-ODksIGZ1bmM9ZGxvcGVuLCBlcnJvcj1saWJhaW86IGNhbm5vdCBvcGVuDQogICAgPiBzaGFyZWQg
-b2JqZWN0IGZpbGU6IE5vIHN1Y2ggZmlsZSBvciBkaXJlY3RvcnkNCiAgICA+DQogICAgPiBBdmFp
-bGFibGUgSU8gZW5naW5lczoNCiAgICA+IFtyb290QDIxMGRmMTMwZjJjNyBmaW8tZGF0YV0jIGZp
-byAtLWVuZ2hlbHANCiAgICA+IEF2YWlsYWJsZSBJTyBlbmdpbmVzOg0KICAgID4gCWNwdWlvDQog
-ICAgPiAJbW1hcA0KICAgID4gCXN5bmMNCiAgICA+IAlwc3luYw0KICAgID4gCXZzeW5jDQogICAg
-PiAJcHZzeW5jDQogICAgPiAJcHZzeW5jMg0KICAgID4gCW51bGwNCiAgICA+IAluZXQNCiAgICA+
-IAluZXRzcGxpY2UNCiAgICA+IAlmdHJ1bmNhdGUNCiAgICA+IAlmaWxlY3JlYXRlDQogICAgPiAJ
-cG9zaXhhaW8NCiAgICA+IAlmYWxsb2MNCiAgICA+IAllNGRlZnJhZw0KICAgID4gCXNwbGljZQ0K
-ICAgID4gCW10ZA0KICAgID4gCXNnDQogICAgPg0KICAgID4NCiAgICA+IGxpYmFpbyBpcyBub3Qg
-bGlzdGVkIGFib3ZlLCBidXQgaXRzIGluc3RhbGxlZCBpbiBjb250YWluZXIuDQogICAgPg0KICAg
-ID4geXVtIGluc3RhbGwgbGliYWlvDQogICAgPiBMb2FkZWQgcGx1Z2luczogZmFzdGVzdG1pcnJv
-ciwgb3ZsDQogICAgPiBMb2FkaW5nIG1pcnJvciBzcGVlZHMgZnJvbSBjYWNoZWQgaG9zdGZpbGUN
-CiAgICA+ICAqIGJhc2U6IGZ0cC5paXRtLmFjLmluDQogICAgPiAgKiBleHRyYXM6IGZ0cC5paXRt
-LmFjLmluDQogICAgPiAgKiB1cGRhdGVzOiBmdHAuaWl0bS5hYy5pbg0KICAgID4gUGFja2FnZSBs
-aWJhaW8tMC4zLjEwOS0xMy5lbDcueDg2XzY0IGFscmVhZHkgaW5zdGFsbGVkIGFuZCBsYXRlc3Qg
-dmVyc2lvbg0KICAgID4gTm90aGluZyB0byBkbw0KICAgID4NCiAgICA+IENlbnRvcyBkb2NrZXIg
-Y29udGFpbmVyIDogY2VudG9zLXJlbGVhc2UtNy01LjE4MDQuNS5lbDcuY2VudG9zLng4Nl82NA0K
-ICAgID4NCiAgICA+DQogICAgPiBSZSBwdnN5bmMyIG9wZXJhdGlvbiBub3QgcGVybWl0dGVkIGVy
-cm9yDQogICAgPg0KICAgID4gZmlvIC0tbmFtZT1oZWxsbyAtLXNpemU9MTBtIC0taW9lbmdpbmU9
-cHZzeW5jMg0KICAgID4NCiAgICA+IGhlbGxvOiAoZz0wKTogcnc9cmVhZCwgYnM9KFIpIDQwOTZC
-LTQwOTZCLCAoVykgNDA5NkItNDA5NkIsIChUKQ0KICAgID4gNDA5NkItNDA5NkIsIGlvZW5naW5l
-PXB2c3luYzIsIGlvZGVwdGg9MQ0KICAgID4gZmlvLTMuMTItMTgtZzkyYTENCiAgICA+IFN0YXJ0
-aW5nIDEgcHJvY2Vzcw0KICAgID4gaGVsbG86IExheWluZyBvdXQgSU8gZmlsZSAoMSBmaWxlIC8g
-MTBNaUIpDQogICAgPiBmaW86IGlvX3UgZXJyb3Igb24gZmlsZSBoZWxsby4wLjA6IE9wZXJhdGlv
-biBub3QgcGVybWl0dGVkOiByZWFkDQogICAgPiBvZmZzZXQ9MCwgYnVmbGVuPTQwOTYNCiAgICA+
-IGZpbzogcGlkPTU5LCBlcnI9MS9maWxlOmlvX3UuYzoxNzg5LCBmdW5jPWlvX3UgZXJyb3IsIGVy
-cm9yPU9wZXJhdGlvbg0KICAgID4gbm90IHBlcm1pdHRlZA0KICAgID4NCiAgICA+IGhlbGxvOiAo
-Z3JvdXBpZD0wLCBqb2JzPTEpOiBlcnI9IDEgKGZpbGU6aW9fdS5jOjE3ODksIGZ1bmM9aW9fdSBl
-cnJvciwNCiAgICA+IGVycm9yPU9wZXJhdGlvbiBub3QgcGVybWl0dGVkKTogcGlkPTU5OiBTdW4g
-Tm92IDI1IDE5OjIzOjE0IDIwMTgNCiAgICA+ICAgY3B1ICAgICAgICAgIDogdXNyPTAuMDAlLCBz
-eXM9MC4wMCUsIGN0eD0yLCBtYWpmPTAsIG1pbmY9MTkNCiAgICA+ICAgSU8gZGVwdGhzICAgIDog
-MT0xMDAuMCUsIDI9MC4wJSwgND0wLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsDQogICAg
-Pj49NjQ9MC4wJQ0KICAgID4gICAgICBzdWJtaXQgICAgOiAwPTAuMCUsIDQ9MTAwLjAlLCA4PTAu
-MCUsIDE2PTAuMCUsIDMyPTAuMCUsIDY0PTAuMCUsDQogICAgPj49NjQ9MC4wJQ0KICAgID4gICAg
-ICBjb21wbGV0ZSAgOiAwPTAuMCUsIDQ9MTAwLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUs
-IDY0PTAuMCUsDQogICAgPj49NjQ9MC4wJQ0KICAgID4gICAgICBpc3N1ZWQgcnd0czogdG90YWw9
-MSwwLDAsMCBzaG9ydD0wLDAsMCwwIGRyb3BwZWQ9MCwwLDAsMA0KICAgID4gICAgICBsYXRlbmN5
-ICAgOiB0YXJnZXQ9MCwgd2luZG93PTAsIHBlcmNlbnRpbGU9MTAwLjAwJSwgZGVwdGg9MQ0KICAg
-ID4NCiAgICA+IFJ1biBzdGF0dXMgZ3JvdXAgMCAoYWxsIGpvYnMpOg0KICAgID4NCiAgICA+IERp
-c2sgc3RhdHMgKHJlYWQvd3JpdGUpOg0KICAgID4gICBzZGE6IGlvcz0wLzAsIG1lcmdlPTAvMCwg
-dGlja3M9MC8wLCBpbl9xdWV1ZT0wLCB1dGlsPTAuMDAlDQogICAgPg0KICAgID4gSSBkb250IGhh
-dmUgYWNjZXNzIHRvIG1hY2hpbmUgcnVubmluZyBjZW50b3MsIHNvIHJ1bm5pbmcgaW4gY2VudG9z
-DQogICAgPiBkb2NrZXIgY29udGFpbmVyLiBBcmUgdGhlc2UgaXNzdWVzIG9jY3VyaW5nIGJlY2F1
-c2Ugb2YgcnVubmluZyBpbiBmaW8/DQogICAgPg0KICAgID4gaG9zdCBtYWNoaW5lIE9TIGlzIHVi
-dW50dSAxOC4wNC4NCiAgICA+DQogICAgPiBUaGFua3MgYW5kIFJlZ2FyZHMsDQogICAgPiBNb2hh
-bg0KICAgID4NCiAgICANCg0K
+typo
+running in docker container.
+
+On 11/26/18, Mohanraj B <bmohanraj91@gmail.com> wrote:
+> Hello,
+>
+> I am trying to use libaio engine for a job file in my docker
+> container, but it throws fio: engine libaio not loadable error.
+>
+> fio --name=hello1 --size=1m --ioengine=libaio
+>
+> fio: engine libaio not loadable
+> fio: engine libaio not loadable
+> fio: failed to load engine
+> fio: file:ioengines.c:89, func=dlopen, error=libaio: cannot open
+> shared object file: No such file or directory
+>
+> Available IO engines:
+> [root@210df130f2c7 fio-data]# fio --enghelp
+> Available IO engines:
+> 	cpuio
+> 	mmap
+> 	sync
+> 	psync
+> 	vsync
+> 	pvsync
+> 	pvsync2
+> 	null
+> 	net
+> 	netsplice
+> 	ftruncate
+> 	filecreate
+> 	posixaio
+> 	falloc
+> 	e4defrag
+> 	splice
+> 	mtd
+> 	sg
+>
+>
+> libaio is not listed above, but its installed in container.
+>
+> yum install libaio
+> Loaded plugins: fastestmirror, ovl
+> Loading mirror speeds from cached hostfile
+>  * base: ftp.iitm.ac.in
+>  * extras: ftp.iitm.ac.in
+>  * updates: ftp.iitm.ac.in
+> Package libaio-0.3.109-13.el7.x86_64 already installed and latest version
+> Nothing to do
+>
+> Centos docker container : centos-release-7-5.1804.5.el7.centos.x86_64
+>
+>
+> Re pvsync2 operation not permitted error
+>
+> fio --name=hello --size=10m --ioengine=pvsync2
+>
+> hello: (g=0): rw=read, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T)
+> 4096B-4096B, ioengine=pvsync2, iodepth=1
+> fio-3.12-18-g92a1
+> Starting 1 process
+> hello: Laying out IO file (1 file / 10MiB)
+> fio: io_u error on file hello.0.0: Operation not permitted: read
+> offset=0, buflen=4096
+> fio: pid=59, err=1/file:io_u.c:1789, func=io_u error, error=Operation
+> not permitted
+>
+> hello: (groupid=0, jobs=1): err= 1 (file:io_u.c:1789, func=io_u error,
+> error=Operation not permitted): pid=59: Sun Nov 25 19:23:14 2018
+>   cpu          : usr=0.00%, sys=0.00%, ctx=2, majf=0, minf=19
+>   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%,
+>>=64=0.0%
+>      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
+>>=64=0.0%
+>      complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
+>>=64=0.0%
+>      issued rwts: total=1,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+>      latency   : target=0, window=0, percentile=100.00%, depth=1
+>
+> Run status group 0 (all jobs):
+>
+> Disk stats (read/write):
+>   sda: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
+>
+> I dont have access to machine running centos, so running in centos
+> docker container. Are these issues occuring because of running in fio?
+>
+> host machine OS is ubuntu 18.04.
+>
+> Thanks and Regards,
+> Mohan
+>
 
