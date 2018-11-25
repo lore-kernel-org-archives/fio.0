@@ -1,238 +1,168 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa2.hgst.iphmx.com ([68.232.143.124]:3855 "EHLO
-        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726027AbeKZKnl (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 26 Nov 2018 05:43:41 -0500
-From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Received: from esa4.dell-outbound.iphmx.com ([68.232.149.214]:4667 "EHLO
+        esa4.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725863AbeKZHEh (ORCPT
+        <rfc822;fio@vger.kernel.org>); Mon, 26 Nov 2018 02:04:37 -0500
+Received: from pps.filterd (m0142693.ppops.net [127.0.0.1])
+        by mx0a-00154901.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wAPKCj9G015183
+        for <fio@vger.kernel.org>; Sun, 25 Nov 2018 15:12:45 -0500
+Received: from esa2.dell-outbound2.iphmx.com (esa2.dell-outbound2.iphmx.com [68.232.153.202])
+        by mx0a-00154901.pphosted.com with ESMTP id 2p01jn03et-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
+        for <fio@vger.kernel.org>; Sun, 25 Nov 2018 15:12:44 -0500
+From: "Beierl, Mark" <Mark.Beierl@dell.com>
 Subject: Re: Re loading libaio engine error and pvsync2 operation not
  permitted error
-Date: Sun, 25 Nov 2018 23:51:14 +0000
-Message-ID: <BN3PR0401MB164063C824D35F22565924D3E7D60@BN3PR0401MB1640.namprd04.prod.outlook.com>
+Date: Sun, 25 Nov 2018 20:12:33 +0000
+Message-ID: <F5162AA3-5A02-4EAC-86F8-632BA1BC8D4A@emc.com>
 References: <CAFF4W0UPjgKPX2t=aqRPsjKN65DJHa46emuTckTOsNx4BYBoZg@mail.gmail.com>
  <CAFF4W0XUBMLn5TuYWonvoJntZfPUtUS7HypWpejw8Ofer9z9Sw@mail.gmail.com>
  <0E387D6D-E489-41E2-B535-577AD63036F9@emc.com>
  <CAFF4W0VUtSHm1BVAMS9WrFhkUBKMv-_SbyNLXia08OeyfVQ6FA@mail.gmail.com>
+In-Reply-To: <CAFF4W0VUtSHm1BVAMS9WrFhkUBKMv-_SbyNLXia08OeyfVQ6FA@mail.gmail.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <0F3497D958514A45AB89356A18CFABE9@mail.corp.emc.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Mohanraj B <bmohanraj91@gmail.com>, "Beierl, Mark" <Mark.Beierl@dell.com>
+To: Mohanraj B <bmohanraj91@gmail.com>
 Cc: fio <fio@vger.kernel.org>
 
-On 2018/11/26 5:01, Mohanraj B wrote:=0A=
-> Hi,=0A=
-> =0A=
-> 1) How are you installing FIO =96 from the apt repos, or building from so=
-urce?=0A=
-> I build fio from source, below is my dockerfile.=0A=
-> =0A=
-> FROM centos:latest=0A=
-> RUN yum update -y=0A=
-> RUN yum install git gcc gcc-c++ make  -y=0A=
-> RUN git clone https://github.com/axboe/fio=0A=
-> RUN yum install zlib-devel libaio -y=0A=
-=0A=
-yum install libaio-devel ?=0A=
-Otherwise, libaio will not be compiled...=0A=
-=0A=
-> WORKDIR  /fio=0A=
-> RUN ./configure=0A=
-> RUN make=0A=
-> RUN make install=0A=
-> VOLUME /tmp/fio-data=0A=
-> WORKDIR /tmp/fio-data=0A=
-> ENTRYPOINT ["fio"]=0A=
-> =0A=
-> =0A=
->  2) What storage are you using in the container =96 a mounted volume or=
-=0A=
-> are you trying to use the host OS/raw device?=0A=
-> After reading this question, I getting more doubts, with the above=0A=
-> docker file and few examples given below.=0A=
-> docker run fio:6.0 --name:job1 --size=3D50m --rw=3Dread=0A=
-> docker run fio:6.0 --name:job1 --size=3D100m --rw=3Dreadwrite=0A=
-> =0A=
-> Am I really testing the host HDD or testing docker volume only. If I=0A=
-> am testing only the docker volume then its not my intended use case, I=0A=
-> need to test host machine HDD.=0A=
-> What is the best way to test host machine HDD ?=0A=
-> =0A=
->  3) Is the container running as privileged if you are trying to access th=
-e host?=0A=
-> Only when I am trying to test a RAW device, I use --privileged=3Dtrue=0A=
-> like below otherwise I dont supply --privileged=3Dtrue .=0A=
-> docker run --privileged=3Dtrue fio:6.0 --name=3Dfile --size=3D100m=0A=
-> --filename=3D/dev/sdc=0A=
-> =0A=
-> Thanks and Regards,=0A=
-> Mohan=0A=
-> =0A=
-> On 11/26/18, Beierl, Mark <Mark.Beierl@dell.com> wrote:=0A=
->> Hello!=0A=
->>=0A=
->> I have a couple of questions, as I also build FIO in an Alpine container=
-,=0A=
->> but there I build it from source so that I have all required libraries. =
- The=0A=
->> source for the container is here [1] and it is part of the OPNFV StorPer=
-f=0A=
->> project, which is for wrapping FIO in a web front end and making it easi=
-er=0A=
->> to test against various distributions or VMs [2].=0A=
->>=0A=
->> My questions are:=0A=
->>=0A=
->> 1) How are you installing FIO =96 from the apt repos, or building from=
-=0A=
->> source?=0A=
->> 2) What storage are you using in the container =96 a mounted volume or a=
-re you=0A=
->> trying to use the host OS/raw device?=0A=
->> 3) Is the container running as privileged if you are trying to access th=
-e=0A=
->> host?=0A=
->>=0A=
->> [1] https://git.opnfv.org/storperf/tree/docker/storperf-master/Dockerfil=
-e=0A=
->> [2] https://wiki.opnfv.org/display/storperf=0A=
->>=0A=
->> Regards,=0A=
->> Mark=0A=
->>=0A=
->> Mark Beierl=0A=
->> SW System Sr Principal Developer=0A=
->> Dell EMC | Cloud & Communication Service Provider Solution=0A=
->> Mark.Beierl@Dell.com=0A=
->>=0A=
->> On 2018-11-25, 15:28, "fio-owner@vger.kernel.org on behalf of Mohanraj B=
-"=0A=
->> <fio-owner@vger.kernel.org on behalf of bmohanraj91@gmail.com> wrote:=0A=
->>=0A=
->>=0A=
->>     [EXTERNAL EMAIL]=0A=
->>=0A=
->>     typo=0A=
->>     running in docker container.=0A=
->>=0A=
->>     On 11/26/18, Mohanraj B <bmohanraj91@gmail.com> wrote:=0A=
->>     > Hello,=0A=
->>     >=0A=
->>     > I am trying to use libaio engine for a job file in my docker=0A=
->>     > container, but it throws fio: engine libaio not loadable error.=0A=
->>     >=0A=
->>     > fio --name=3Dhello1 --size=3D1m --ioengine=3Dlibaio=0A=
->>     >=0A=
->>     > fio: engine libaio not loadable=0A=
->>     > fio: engine libaio not loadable=0A=
->>     > fio: failed to load engine=0A=
->>     > fio: file:ioengines.c:89, func=3Ddlopen, error=3Dlibaio: cannot op=
-en=0A=
->>     > shared object file: No such file or directory=0A=
->>     >=0A=
->>     > Available IO engines:=0A=
->>     > [root@210df130f2c7 fio-data]# fio --enghelp=0A=
->>     > Available IO engines:=0A=
->>     > 	cpuio=0A=
->>     > 	mmap=0A=
->>     > 	sync=0A=
->>     > 	psync=0A=
->>     > 	vsync=0A=
->>     > 	pvsync=0A=
->>     > 	pvsync2=0A=
->>     > 	null=0A=
->>     > 	net=0A=
->>     > 	netsplice=0A=
->>     > 	ftruncate=0A=
->>     > 	filecreate=0A=
->>     > 	posixaio=0A=
->>     > 	falloc=0A=
->>     > 	e4defrag=0A=
->>     > 	splice=0A=
->>     > 	mtd=0A=
->>     > 	sg=0A=
->>     >=0A=
->>     >=0A=
->>     > libaio is not listed above, but its installed in container.=0A=
->>     >=0A=
->>     > yum install libaio=0A=
->>     > Loaded plugins: fastestmirror, ovl=0A=
->>     > Loading mirror speeds from cached hostfile=0A=
->>     >  * base: ftp.iitm.ac.in=0A=
->>     >  * extras: ftp.iitm.ac.in=0A=
->>     >  * updates: ftp.iitm.ac.in=0A=
->>     > Package libaio-0.3.109-13.el7.x86_64 already installed and latest=
-=0A=
->> version=0A=
->>     > Nothing to do=0A=
->>     >=0A=
->>     > Centos docker container : centos-release-7-5.1804.5.el7.centos.x86=
-_64=0A=
->>     >=0A=
->>     >=0A=
->>     > Re pvsync2 operation not permitted error=0A=
->>     >=0A=
->>     > fio --name=3Dhello --size=3D10m --ioengine=3Dpvsync2=0A=
->>     >=0A=
->>     > hello: (g=3D0): rw=3Dread, bs=3D(R) 4096B-4096B, (W) 4096B-4096B, =
-(T)=0A=
->>     > 4096B-4096B, ioengine=3Dpvsync2, iodepth=3D1=0A=
->>     > fio-3.12-18-g92a1=0A=
->>     > Starting 1 process=0A=
->>     > hello: Laying out IO file (1 file / 10MiB)=0A=
->>     > fio: io_u error on file hello.0.0: Operation not permitted: read=
-=0A=
->>     > offset=3D0, buflen=3D4096=0A=
->>     > fio: pid=3D59, err=3D1/file:io_u.c:1789, func=3Dio_u error, error=
-=3DOperation=0A=
->>     > not permitted=0A=
->>     >=0A=
->>     > hello: (groupid=3D0, jobs=3D1): err=3D 1 (file:io_u.c:1789, func=
-=3Dio_u=0A=
->> error,=0A=
->>     > error=3DOperation not permitted): pid=3D59: Sun Nov 25 19:23:14 20=
-18=0A=
->>     >   cpu          : usr=3D0.00%, sys=3D0.00%, ctx=3D2, majf=3D0, minf=
-=3D19=0A=
->>     >   IO depths    : 1=3D100.0%, 2=3D0.0%, 4=3D0.0%, 8=3D0.0%, 16=3D0.=
-0%, 32=3D0.0%,=0A=
->>     >>=3D64=3D0.0%=0A=
->>     >      submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0=
-.0%, 64=3D0.0%,=0A=
->>     >>=3D64=3D0.0%=0A=
->>     >      complete  : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0=
-.0%, 64=3D0.0%,=0A=
->>     >>=3D64=3D0.0%=0A=
->>     >      issued rwts: total=3D1,0,0,0 short=3D0,0,0,0 dropped=3D0,0,0,=
-0=0A=
->>     >      latency   : target=3D0, window=3D0, percentile=3D100.00%, dep=
-th=3D1=0A=
->>     >=0A=
->>     > Run status group 0 (all jobs):=0A=
->>     >=0A=
->>     > Disk stats (read/write):=0A=
->>     >   sda: ios=3D0/0, merge=3D0/0, ticks=3D0/0, in_queue=3D0, util=3D0=
-.00%=0A=
->>     >=0A=
->>     > I dont have access to machine running centos, so running in centos=
-=0A=
->>     > docker container. Are these issues occuring because of running in=
-=0A=
->> fio?=0A=
->>     >=0A=
->>     > host machine OS is ubuntu 18.04.=0A=
->>     >=0A=
->>     > Thanks and Regards,=0A=
->>     > Mohan=0A=
->>     >=0A=
->>=0A=
->>=0A=
->>=0A=
-> =0A=
-=0A=
-=0A=
--- =0A=
-Damien Le Moal=0A=
-Western Digital Research=0A=
+T2ssIHNvIG1heWJlIGp1c3QgbGF1bmNoIHRoZSBjb250YWluZXIgd2l0aCAvYmluL2Jhc2ggb3Ig
+L2Jpbi9zaCBpbnN0ZWFkIG9mIGhhdmluZyBpdCBydW4gRklPLiAgVGhlbiBvbmNlIHlvdSBhcmUg
+aW5zaWRlIHRoZSBydW5uaW5nIGNvbnRhaW5lciwgY2QgdG8gL2ZpbyBhbmQgbWFudWFsbHkgcnVu
+IHRoZSAuL2NvbmZpZ3VyZSB0byBzZWUgaWYgbGliYWlhbyBpcyBiZWluZyBmb3VuZC4gIEl0IGlz
+IHBvc3NpYmxlIHRoYXQgaXQgZ290IGluc3RhbGxlZCBpbiBhIGRpZmZlcmVudCBkaXJlY3Rvcnkg
+dGhhbiB3aGF0IC4vY29uZmlndXJlIGlzIGV4cGVjdGluZy4NCg0KQXMgZmFyIGFzIHRoZSBob3N0
+IGZpbGVzeXN0ZW0gZ29lcywgd2hlbiBydW5uaW5nIGEgc2ltcGxlIGNvbnRhaW5lciBhcyB5b3Ug
+c2hvd2VkIGJlbG93LCBpdCB3aWxsIGJlIHVzaW5nIEFVRlMgYXMgYW4gb3ZlcmxheSBmaWxlc3lz
+dGVtIGFuZCBub3QgcGVyZm9ybWluZyBJL08gYWdhaW5zdCB0aGUgaG9zdCBmaWxlc3lzdGVtLiAg
+SSB3b3VsZCByZWNvbW1lbmQgbW91bnRpbmcgYSB2b2x1bWUgaW4gYSBkaXJlY3RvcnkgdGhhdCBp
+cyBwYXJ0IG9mIHRoZSBtb3VudGVkIGZpbGVzeXN0ZW0geW91IHdpc2ggdG8gcHJvZmlsZSwgYW5k
+IHRlbGwgRklPIHRvIHVzZSB0aGF0IHBhdGggaW5zdGVhZC4gIFRoYXQgd2F5IHlvdSBhcmUgY2xv
+c2VyIHRvIHByb2ZpbGluZyB0aGUgaG9zdCB2cy4gcHJvZmlsaW5nIERvY2tlciBBVUZTLg0KDQpJ
+ZiB5b3UgcmVhbGx5IHdhbnQgdG8gZW5zdXJlIHlvdSBhcmUgZ29pbmcgZGlyZWN0bHkgYWdhaW5z
+dCB0aGUgaG9zdCBmaWxlc3lzdGVtLCBJIHdvdWxkIHRoaW5rIHRoYXQgeW91IHdvdWxkIG5lZWQg
+dG8gcnVuIHByaXZpbGVnZWQgYW5kIHRhbGsgZGlyZWN0bHkgdG8gdGhlIGRlc2lyZWQgcGF0aC4N
+Cg0KUmVnYXJkcywNCk1hcmsNCiANCk1hcmsgQmVpZXJsDQpTVyBTeXN0ZW0gU3IgUHJpbmNpcGFs
+IERldmVsb3Blcg0KRGVsbCBFTUMgfCBDbG91ZCAmIENvbW11bmljYXRpb24gU2VydmljZSBQcm92
+aWRlciBTb2x1dGlvbg0KTWFyay5CZWllcmxARGVsbC5jb20NCg0KT24gMjAxOC0xMS0yNSwgMTY6
+MDEsICJNb2hhbnJhaiBCIiA8Ym1vaGFucmFqOTFAZ21haWwuY29tPiB3cm90ZToNCg0KICAgIA0K
+ICAgIFtFWFRFUk5BTCBFTUFJTF0gDQogICAgDQogICAgSGksDQogICAgDQogICAgMSkgSG93IGFy
+ZSB5b3UgaW5zdGFsbGluZyBGSU8g4oCTIGZyb20gdGhlIGFwdCByZXBvcywgb3IgYnVpbGRpbmcg
+ZnJvbSBzb3VyY2U/DQogICAgSSBidWlsZCBmaW8gZnJvbSBzb3VyY2UsIGJlbG93IGlzIG15IGRv
+Y2tlcmZpbGUuDQogICAgDQogICAgRlJPTSBjZW50b3M6bGF0ZXN0DQogICAgUlVOIHl1bSB1cGRh
+dGUgLXkNCiAgICBSVU4geXVtIGluc3RhbGwgZ2l0IGdjYyBnY2MtYysrIG1ha2UgIC15DQogICAg
+UlVOIGdpdCBjbG9uZSBodHRwczovL2dpdGh1Yi5jb20vYXhib2UvZmlvDQogICAgUlVOIHl1bSBp
+bnN0YWxsIHpsaWItZGV2ZWwgbGliYWlvIC15DQogICAgV09SS0RJUiAgL2Zpbw0KICAgIFJVTiAu
+L2NvbmZpZ3VyZQ0KICAgIFJVTiBtYWtlDQogICAgUlVOIG1ha2UgaW5zdGFsbA0KICAgIFZPTFVN
+RSAvdG1wL2Zpby1kYXRhDQogICAgV09SS0RJUiAvdG1wL2Zpby1kYXRhDQogICAgRU5UUllQT0lO
+VCBbImZpbyJdDQogICAgDQogICAgDQogICAgIDIpIFdoYXQgc3RvcmFnZSBhcmUgeW91IHVzaW5n
+IGluIHRoZSBjb250YWluZXIg4oCTIGEgbW91bnRlZCB2b2x1bWUgb3INCiAgICBhcmUgeW91IHRy
+eWluZyB0byB1c2UgdGhlIGhvc3QgT1MvcmF3IGRldmljZT8NCiAgICBBZnRlciByZWFkaW5nIHRo
+aXMgcXVlc3Rpb24sIEkgZ2V0dGluZyBtb3JlIGRvdWJ0cywgd2l0aCB0aGUgYWJvdmUNCiAgICBk
+b2NrZXIgZmlsZSBhbmQgZmV3IGV4YW1wbGVzIGdpdmVuIGJlbG93Lg0KICAgIGRvY2tlciBydW4g
+ZmlvOjYuMCAtLW5hbWU6am9iMSAtLXNpemU9NTBtIC0tcnc9cmVhZA0KICAgIGRvY2tlciBydW4g
+ZmlvOjYuMCAtLW5hbWU6am9iMSAtLXNpemU9MTAwbSAtLXJ3PXJlYWR3cml0ZQ0KICAgIA0KICAg
+IEFtIEkgcmVhbGx5IHRlc3RpbmcgdGhlIGhvc3QgSEREIG9yIHRlc3RpbmcgZG9ja2VyIHZvbHVt
+ZSBvbmx5LiBJZiBJDQogICAgYW0gdGVzdGluZyBvbmx5IHRoZSBkb2NrZXIgdm9sdW1lIHRoZW4g
+aXRzIG5vdCBteSBpbnRlbmRlZCB1c2UgY2FzZSwgSQ0KICAgIG5lZWQgdG8gdGVzdCBob3N0IG1h
+Y2hpbmUgSERELg0KICAgIFdoYXQgaXMgdGhlIGJlc3Qgd2F5IHRvIHRlc3QgaG9zdCBtYWNoaW5l
+IEhERCA/DQogICAgDQogICAgIDMpIElzIHRoZSBjb250YWluZXIgcnVubmluZyBhcyBwcml2aWxl
+Z2VkIGlmIHlvdSBhcmUgdHJ5aW5nIHRvIGFjY2VzcyB0aGUgaG9zdD8NCiAgICBPbmx5IHdoZW4g
+SSBhbSB0cnlpbmcgdG8gdGVzdCBhIFJBVyBkZXZpY2UsIEkgdXNlIC0tcHJpdmlsZWdlZD10cnVl
+DQogICAgbGlrZSBiZWxvdyBvdGhlcndpc2UgSSBkb250IHN1cHBseSAtLXByaXZpbGVnZWQ9dHJ1
+ZSAuDQogICAgZG9ja2VyIHJ1biAtLXByaXZpbGVnZWQ9dHJ1ZSBmaW86Ni4wIC0tbmFtZT1maWxl
+IC0tc2l6ZT0xMDBtDQogICAgLS1maWxlbmFtZT0vZGV2L3NkYw0KICAgIA0KICAgIFRoYW5rcyBh
+bmQgUmVnYXJkcywNCiAgICBNb2hhbg0KICAgIA0KICAgIE9uIDExLzI2LzE4LCBCZWllcmwsIE1h
+cmsgPE1hcmsuQmVpZXJsQGRlbGwuY29tPiB3cm90ZToNCiAgICA+IEhlbGxvIQ0KICAgID4NCiAg
+ICA+IEkgaGF2ZSBhIGNvdXBsZSBvZiBxdWVzdGlvbnMsIGFzIEkgYWxzbyBidWlsZCBGSU8gaW4g
+YW4gQWxwaW5lIGNvbnRhaW5lciwNCiAgICA+IGJ1dCB0aGVyZSBJIGJ1aWxkIGl0IGZyb20gc291
+cmNlIHNvIHRoYXQgSSBoYXZlIGFsbCByZXF1aXJlZCBsaWJyYXJpZXMuICBUaGUNCiAgICA+IHNv
+dXJjZSBmb3IgdGhlIGNvbnRhaW5lciBpcyBoZXJlIFsxXSBhbmQgaXQgaXMgcGFydCBvZiB0aGUg
+T1BORlYgU3RvclBlcmYNCiAgICA+IHByb2plY3QsIHdoaWNoIGlzIGZvciB3cmFwcGluZyBGSU8g
+aW4gYSB3ZWIgZnJvbnQgZW5kIGFuZCBtYWtpbmcgaXQgZWFzaWVyDQogICAgPiB0byB0ZXN0IGFn
+YWluc3QgdmFyaW91cyBkaXN0cmlidXRpb25zIG9yIFZNcyBbMl0uDQogICAgPg0KICAgID4gTXkg
+cXVlc3Rpb25zIGFyZToNCiAgICA+DQogICAgPiAxKSBIb3cgYXJlIHlvdSBpbnN0YWxsaW5nIEZJ
+TyDigJMgZnJvbSB0aGUgYXB0IHJlcG9zLCBvciBidWlsZGluZyBmcm9tDQogICAgPiBzb3VyY2U/
+DQogICAgPiAyKSBXaGF0IHN0b3JhZ2UgYXJlIHlvdSB1c2luZyBpbiB0aGUgY29udGFpbmVyIOKA
+kyBhIG1vdW50ZWQgdm9sdW1lIG9yIGFyZSB5b3UNCiAgICA+IHRyeWluZyB0byB1c2UgdGhlIGhv
+c3QgT1MvcmF3IGRldmljZT8NCiAgICA+IDMpIElzIHRoZSBjb250YWluZXIgcnVubmluZyBhcyBw
+cml2aWxlZ2VkIGlmIHlvdSBhcmUgdHJ5aW5nIHRvIGFjY2VzcyB0aGUNCiAgICA+IGhvc3Q/DQog
+ICAgPg0KICAgID4gWzFdIGh0dHBzOi8vZ2l0Lm9wbmZ2Lm9yZy9zdG9ycGVyZi90cmVlL2RvY2tl
+ci9zdG9ycGVyZi1tYXN0ZXIvRG9ja2VyZmlsZQ0KICAgID4gWzJdIGh0dHBzOi8vd2lraS5vcG5m
+di5vcmcvZGlzcGxheS9zdG9ycGVyZg0KICAgID4NCiAgICA+IFJlZ2FyZHMsDQogICAgPiBNYXJr
+DQogICAgPg0KICAgID4gTWFyayBCZWllcmwNCiAgICA+IFNXIFN5c3RlbSBTciBQcmluY2lwYWwg
+RGV2ZWxvcGVyDQogICAgPiBEZWxsIEVNQyB8IENsb3VkICYgQ29tbXVuaWNhdGlvbiBTZXJ2aWNl
+IFByb3ZpZGVyIFNvbHV0aW9uDQogICAgPiBNYXJrLkJlaWVybEBEZWxsLmNvbQ0KICAgID4NCiAg
+ICA+IE9uIDIwMTgtMTEtMjUsIDE1OjI4LCAiZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZyBvbiBi
+ZWhhbGYgb2YgTW9oYW5yYWogQiINCiAgICA+IDxmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIG9u
+IGJlaGFsZiBvZiBibW9oYW5yYWo5MUBnbWFpbC5jb20+IHdyb3RlOg0KICAgID4NCiAgICA+DQog
+ICAgPiAgICAgW0VYVEVSTkFMIEVNQUlMXQ0KICAgID4NCiAgICA+ICAgICB0eXBvDQogICAgPiAg
+ICAgcnVubmluZyBpbiBkb2NrZXIgY29udGFpbmVyLg0KICAgID4NCiAgICA+ICAgICBPbiAxMS8y
+Ni8xOCwgTW9oYW5yYWogQiA8Ym1vaGFucmFqOTFAZ21haWwuY29tPiB3cm90ZToNCiAgICA+ICAg
+ICA+IEhlbGxvLA0KICAgID4gICAgID4NCiAgICA+ICAgICA+IEkgYW0gdHJ5aW5nIHRvIHVzZSBs
+aWJhaW8gZW5naW5lIGZvciBhIGpvYiBmaWxlIGluIG15IGRvY2tlcg0KICAgID4gICAgID4gY29u
+dGFpbmVyLCBidXQgaXQgdGhyb3dzIGZpbzogZW5naW5lIGxpYmFpbyBub3QgbG9hZGFibGUgZXJy
+b3IuDQogICAgPiAgICAgPg0KICAgID4gICAgID4gZmlvIC0tbmFtZT1oZWxsbzEgLS1zaXplPTFt
+IC0taW9lbmdpbmU9bGliYWlvDQogICAgPiAgICAgPg0KICAgID4gICAgID4gZmlvOiBlbmdpbmUg
+bGliYWlvIG5vdCBsb2FkYWJsZQ0KICAgID4gICAgID4gZmlvOiBlbmdpbmUgbGliYWlvIG5vdCBs
+b2FkYWJsZQ0KICAgID4gICAgID4gZmlvOiBmYWlsZWQgdG8gbG9hZCBlbmdpbmUNCiAgICA+ICAg
+ICA+IGZpbzogZmlsZTppb2VuZ2luZXMuYzo4OSwgZnVuYz1kbG9wZW4sIGVycm9yPWxpYmFpbzog
+Y2Fubm90IG9wZW4NCiAgICA+ICAgICA+IHNoYXJlZCBvYmplY3QgZmlsZTogTm8gc3VjaCBmaWxl
+IG9yIGRpcmVjdG9yeQ0KICAgID4gICAgID4NCiAgICA+ICAgICA+IEF2YWlsYWJsZSBJTyBlbmdp
+bmVzOg0KICAgID4gICAgID4gW3Jvb3RAMjEwZGYxMzBmMmM3IGZpby1kYXRhXSMgZmlvIC0tZW5n
+aGVscA0KICAgID4gICAgID4gQXZhaWxhYmxlIElPIGVuZ2luZXM6DQogICAgPiAgICAgPiAJY3B1
+aW8NCiAgICA+ICAgICA+IAltbWFwDQogICAgPiAgICAgPiAJc3luYw0KICAgID4gICAgID4gCXBz
+eW5jDQogICAgPiAgICAgPiAJdnN5bmMNCiAgICA+ICAgICA+IAlwdnN5bmMNCiAgICA+ICAgICA+
+IAlwdnN5bmMyDQogICAgPiAgICAgPiAJbnVsbA0KICAgID4gICAgID4gCW5ldA0KICAgID4gICAg
+ID4gCW5ldHNwbGljZQ0KICAgID4gICAgID4gCWZ0cnVuY2F0ZQ0KICAgID4gICAgID4gCWZpbGVj
+cmVhdGUNCiAgICA+ICAgICA+IAlwb3NpeGFpbw0KICAgID4gICAgID4gCWZhbGxvYw0KICAgID4g
+ICAgID4gCWU0ZGVmcmFnDQogICAgPiAgICAgPiAJc3BsaWNlDQogICAgPiAgICAgPiAJbXRkDQog
+ICAgPiAgICAgPiAJc2cNCiAgICA+ICAgICA+DQogICAgPiAgICAgPg0KICAgID4gICAgID4gbGli
+YWlvIGlzIG5vdCBsaXN0ZWQgYWJvdmUsIGJ1dCBpdHMgaW5zdGFsbGVkIGluIGNvbnRhaW5lci4N
+CiAgICA+ICAgICA+DQogICAgPiAgICAgPiB5dW0gaW5zdGFsbCBsaWJhaW8NCiAgICA+ICAgICA+
+IExvYWRlZCBwbHVnaW5zOiBmYXN0ZXN0bWlycm9yLCBvdmwNCiAgICA+ICAgICA+IExvYWRpbmcg
+bWlycm9yIHNwZWVkcyBmcm9tIGNhY2hlZCBob3N0ZmlsZQ0KICAgID4gICAgID4gICogYmFzZTog
+ZnRwLmlpdG0uYWMuaW4NCiAgICA+ICAgICA+ICAqIGV4dHJhczogZnRwLmlpdG0uYWMuaW4NCiAg
+ICA+ICAgICA+ICAqIHVwZGF0ZXM6IGZ0cC5paXRtLmFjLmluDQogICAgPiAgICAgPiBQYWNrYWdl
+IGxpYmFpby0wLjMuMTA5LTEzLmVsNy54ODZfNjQgYWxyZWFkeSBpbnN0YWxsZWQgYW5kIGxhdGVz
+dA0KICAgID4gdmVyc2lvbg0KICAgID4gICAgID4gTm90aGluZyB0byBkbw0KICAgID4gICAgID4N
+CiAgICA+ICAgICA+IENlbnRvcyBkb2NrZXIgY29udGFpbmVyIDogY2VudG9zLXJlbGVhc2UtNy01
+LjE4MDQuNS5lbDcuY2VudG9zLng4Nl82NA0KICAgID4gICAgID4NCiAgICA+ICAgICA+DQogICAg
+PiAgICAgPiBSZSBwdnN5bmMyIG9wZXJhdGlvbiBub3QgcGVybWl0dGVkIGVycm9yDQogICAgPiAg
+ICAgPg0KICAgID4gICAgID4gZmlvIC0tbmFtZT1oZWxsbyAtLXNpemU9MTBtIC0taW9lbmdpbmU9
+cHZzeW5jMg0KICAgID4gICAgID4NCiAgICA+ICAgICA+IGhlbGxvOiAoZz0wKTogcnc9cmVhZCwg
+YnM9KFIpIDQwOTZCLTQwOTZCLCAoVykgNDA5NkItNDA5NkIsIChUKQ0KICAgID4gICAgID4gNDA5
+NkItNDA5NkIsIGlvZW5naW5lPXB2c3luYzIsIGlvZGVwdGg9MQ0KICAgID4gICAgID4gZmlvLTMu
+MTItMTgtZzkyYTENCiAgICA+ICAgICA+IFN0YXJ0aW5nIDEgcHJvY2Vzcw0KICAgID4gICAgID4g
+aGVsbG86IExheWluZyBvdXQgSU8gZmlsZSAoMSBmaWxlIC8gMTBNaUIpDQogICAgPiAgICAgPiBm
+aW86IGlvX3UgZXJyb3Igb24gZmlsZSBoZWxsby4wLjA6IE9wZXJhdGlvbiBub3QgcGVybWl0dGVk
+OiByZWFkDQogICAgPiAgICAgPiBvZmZzZXQ9MCwgYnVmbGVuPTQwOTYNCiAgICA+ICAgICA+IGZp
+bzogcGlkPTU5LCBlcnI9MS9maWxlOmlvX3UuYzoxNzg5LCBmdW5jPWlvX3UgZXJyb3IsIGVycm9y
+PU9wZXJhdGlvbg0KICAgID4gICAgID4gbm90IHBlcm1pdHRlZA0KICAgID4gICAgID4NCiAgICA+
+ICAgICA+IGhlbGxvOiAoZ3JvdXBpZD0wLCBqb2JzPTEpOiBlcnI9IDEgKGZpbGU6aW9fdS5jOjE3
+ODksIGZ1bmM9aW9fdQ0KICAgID4gZXJyb3IsDQogICAgPiAgICAgPiBlcnJvcj1PcGVyYXRpb24g
+bm90IHBlcm1pdHRlZCk6IHBpZD01OTogU3VuIE5vdiAyNSAxOToyMzoxNCAyMDE4DQogICAgPiAg
+ICAgPiAgIGNwdSAgICAgICAgICA6IHVzcj0wLjAwJSwgc3lzPTAuMDAlLCBjdHg9MiwgbWFqZj0w
+LCBtaW5mPTE5DQogICAgPiAgICAgPiAgIElPIGRlcHRocyAgICA6IDE9MTAwLjAlLCAyPTAuMCUs
+IDQ9MC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLA0KICAgID4gICAgID4+PTY0PTAuMCUN
+CiAgICA+ICAgICA+ICAgICAgc3VibWl0ICAgIDogMD0wLjAlLCA0PTEwMC4wJSwgOD0wLjAlLCAx
+Nj0wLjAlLCAzMj0wLjAlLCA2ND0wLjAlLA0KICAgID4gICAgID4+PTY0PTAuMCUNCiAgICA+ICAg
+ICA+ICAgICAgY29tcGxldGUgIDogMD0wLjAlLCA0PTEwMC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAz
+Mj0wLjAlLCA2ND0wLjAlLA0KICAgID4gICAgID4+PTY0PTAuMCUNCiAgICA+ICAgICA+ICAgICAg
+aXNzdWVkIHJ3dHM6IHRvdGFsPTEsMCwwLDAgc2hvcnQ9MCwwLDAsMCBkcm9wcGVkPTAsMCwwLDAN
+CiAgICA+ICAgICA+ICAgICAgbGF0ZW5jeSAgIDogdGFyZ2V0PTAsIHdpbmRvdz0wLCBwZXJjZW50
+aWxlPTEwMC4wMCUsIGRlcHRoPTENCiAgICA+ICAgICA+DQogICAgPiAgICAgPiBSdW4gc3RhdHVz
+IGdyb3VwIDAgKGFsbCBqb2JzKToNCiAgICA+ICAgICA+DQogICAgPiAgICAgPiBEaXNrIHN0YXRz
+IChyZWFkL3dyaXRlKToNCiAgICA+ICAgICA+ICAgc2RhOiBpb3M9MC8wLCBtZXJnZT0wLzAsIHRp
+Y2tzPTAvMCwgaW5fcXVldWU9MCwgdXRpbD0wLjAwJQ0KICAgID4gICAgID4NCiAgICA+ICAgICA+
+IEkgZG9udCBoYXZlIGFjY2VzcyB0byBtYWNoaW5lIHJ1bm5pbmcgY2VudG9zLCBzbyBydW5uaW5n
+IGluIGNlbnRvcw0KICAgID4gICAgID4gZG9ja2VyIGNvbnRhaW5lci4gQXJlIHRoZXNlIGlzc3Vl
+cyBvY2N1cmluZyBiZWNhdXNlIG9mIHJ1bm5pbmcgaW4NCiAgICA+IGZpbz8NCiAgICA+ICAgICA+
+DQogICAgPiAgICAgPiBob3N0IG1hY2hpbmUgT1MgaXMgdWJ1bnR1IDE4LjA0Lg0KICAgID4gICAg
+ID4NCiAgICA+ICAgICA+IFRoYW5rcyBhbmQgUmVnYXJkcywNCiAgICA+ICAgICA+IE1vaGFuDQog
+ICAgPiAgICAgPg0KICAgID4NCiAgICA+DQogICAgPg0KICAgIA0KDQo=
 
