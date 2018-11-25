@@ -1,111 +1,54 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa6.dell-outbound.iphmx.com ([68.232.149.229]:54569 "EHLO
-        esa6.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726182AbeKIGyl (ORCPT
-        <rfc822;fio@vger.kernel.org>); Fri, 9 Nov 2018 01:54:41 -0500
-Received: from pps.filterd (m0133268.ppops.net [127.0.0.1])
-        by mx0a-00154901.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id wA8L8MBW086221
-        for <fio@vger.kernel.org>; Thu, 8 Nov 2018 16:17:20 -0500
-Received: from esa3.dell-outbound2.iphmx.com (esa3.dell-outbound2.iphmx.com [68.232.154.63])
-        by mx0a-00154901.pphosted.com with ESMTP id 2nh5wrr17f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
-        for <fio@vger.kernel.org>; Thu, 08 Nov 2018 16:17:20 -0500
-From: "Beierl, Mark" <Mark.Beierl@dell.com>
-Subject: Re: Static linking and RDB/Rados
-Date: Thu, 8 Nov 2018 21:17:04 +0000
-Message-ID: <5FA4BA4C-1455-469C-A69E-EEE3BFD4E79D@emc.com>
-References: <3AF0240C-DE31-4E79-AB21-31D04B863142@emc.com>
- <CALjAwxjS4MXpf_K6mqE2vb=+sJ40iVgKQyLJ0zfEyR2JEBpfAQ@mail.gmail.com>
- <7D6A87DE-8A24-4E68-B750-78D7B2294DC6@emc.com>
- <DDAFB754-E033-4307-A7B7-826307095872@emc.com>
- <CALjAwxgU9iZrKqJab+tV560oPMc_=dGSNbuN8JHb0e56XL2qWg@mail.gmail.com>
-In-Reply-To: <CALjAwxgU9iZrKqJab+tV560oPMc_=dGSNbuN8JHb0e56XL2qWg@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <387A696991752943A19B279D1D048F61@mail.corp.emc.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+Received: from bombadil.infradead.org ([198.137.202.133]:45316 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726090AbeKYXvS (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 25 Nov 2018 18:51:18 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1gQu1I-0007PL-JH
+        for fio@vger.kernel.org; Sun, 25 Nov 2018 13:00:16 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20181125130001.CC6D02C0119@kernel.dk>
+Date: Sun, 25 Nov 2018 06:00:01 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: fio <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-DQpPbiAyMDE4LTEwLTI3LCAwNTo1NCwgIlNpdHNvZmUgV2hlZWxlciIgPHNpdHNvZmVAZ21haWwu
-Y29tPiB3cm90ZToNCiAgICANCiAgICBJJ20gYWZyYWlkIHRoaXMgaXMgYSBjbGFzc2ljIExpbnV4
-IGlzc3VlIC0gdHJ5aW5nIHRvIHNoaXAgYSBiaW5hcnkNCiAgICB0aGF0IHdvcmtzIGV2ZXJ5d2hl
-cmUgaXMgdmVyeSBoYXJkIGFuZCB0aHVzIHdlIG5vdyBoYXZlDQogICAgZG9ja2VyL2ZsYXRwYWsv
-c25hcHMvYXBwaW1hZ2UgZXRjLiBPdXRzaWRlICJhcHAgcGFja2FnZXJzIiBnZXR0aW5nDQogICAg
-cGFzdCB3aGF0IHlvdSd2ZSBzZWVuIGlzIGxpa2VseSBnb2luZyB0byBiZSBhIGxvdCBvZiB3b3Jr
-IGFuZCB3b3VsZA0KICAgIGxpa2VseSBpbnZvbHZlIGhhdmluZyB0byBzaGlwIGFsbCB0aGUgZHlu
-YW1pY2FsbHkgbGlicmFyaWVzIGFuZCBtZXNzDQogICAgYXJvdW5kIHdpdGggTERfTElCUkFSWSAo
-YW5kIGV2ZW4gdGhlbiB5b3UndmUgaGFkIHRvIGJ1aWxkIGV2ZXJ5dGhpbmcNCiAgICBvbiBhICJz
-dWl0YWJseSBvbGQiIGRpc3RybyB0byBlbnN1cmUgdGhlIGR5bmFtaWMgbGlua2luZyB3b3Jrcyku
-Li4NCiAgICANCiAgICBPbiBGcmksIDI2IE9jdCAyMDE4IGF0IDIyOjI0LCBCZWllcmwsIE1hcmsg
-PE1hcmsuQmVpZXJsQGRlbGwuY29tPiB3cm90ZToNCiAgICA+DQogICAgPiBTb3JyeSwgdGhpcyBp
-cyBzdGlsbCBhIG5vLWdvIGZvciBSQkQgd2l0aCBzdGF0aWMgbGlua2luZy4NCiAgICA+DQogICAg
-PiBJIGZvdW5kIGEgbGlicmJkLmEgaW4gWGVuaWFsLCBidXQgaXQgcmVxdWlyZXMgYSB0b24gb2Yg
-c3RhdGljYWxseSBsaW5rZWQgbGlicmFyaWVzIHRvIGJlIHB1bGxlZCBpbiBhbG9uZyB3aXRoIGl0
-Og0KICAgID4NCiAgICA+IGxkZCAvdXNyL2xpYi94ODZfNjQtbGludXgtZ251L2xpYnJiZC5zbw0K
-ICAgID4gICAgICAgICBsaW51eC12ZHNvLnNvLjEgPT4gICgweDAwMDA3ZmZjY2QxMjQwMDApDQog
-ICAgPiAgICAgICAgIGxpYnJhZG9zLnNvLjIgPT4gL3Vzci9saWIveDg2XzY0LWxpbnV4LWdudS9s
-aWJyYWRvcy5zby4yICgweDAwMDA3ZmFhYzliZTIwMDApDQogICAgPiAgICAgICAgIGxpYmRsLnNv
-LjIgPT4gL2xpYi94ODZfNjQtbGludXgtZ251L2xpYmRsLnNvLjIgKDB4MDAwMDdmYWFjOTlkZTAw
-MCkNCiAgICA+ICAgICAgICAgbGliYm9vc3RfdGhyZWFkLnNvLjEuNTguMCA9PiAvdXNyL2xpYi94
-ODZfNjQtbGludXgtZ251L2xpYmJvb3N0X3RocmVhZC5zby4xLjU4LjAgKDB4MDAwMDdmYWFjOTdi
-ODAwMCkNCiAgICA+ICAgICAgICAgbGliYm9vc3RfcmFuZG9tLnNvLjEuNTguMCA9PiAvdXNyL2xp
-Yi94ODZfNjQtbGludXgtZ251L2xpYmJvb3N0X3JhbmRvbS5zby4xLjU4LjAgKDB4MDAwMDdmYWFj
-OTViMDAwMCkNCiAgICA+ICAgICAgICAgbGliYmxraWQuc28uMSA9PiAvbGliL3g4Nl82NC1saW51
-eC1nbnUvbGliYmxraWQuc28uMSAoMHgwMDAwN2ZhYWM5MzZmMDAwKQ0KICAgID4gICAgICAgICBs
-aWJwdGhyZWFkLnNvLjAgPT4gL2xpYi94ODZfNjQtbGludXgtZ251L2xpYnB0aHJlYWQuc28uMCAo
-MHgwMDAwN2ZhYWM5MTUyMDAwKQ0KICAgID4gICAgICAgICBsaWJydC5zby4xID0+IC9saWIveDg2
-XzY0LWxpbnV4LWdudS9saWJydC5zby4xICgweDAwMDA3ZmFhYzhmNDkwMDApDQogICAgPiAgICAg
-ICAgIGxpYmJvb3N0X2lvc3RyZWFtcy5zby4xLjU4LjAgPT4gL3Vzci9saWIveDg2XzY0LWxpbnV4
-LWdudS9saWJib29zdF9pb3N0cmVhbXMuc28uMS41OC4wICgweDAwMDA3ZmFhYzhkMzAwMDApDQog
-ICAgPiAgICAgICAgIGxpYmJvb3N0X3N5c3RlbS5zby4xLjU4LjAgPT4gL3Vzci9saWIveDg2XzY0
-LWxpbnV4LWdudS9saWJib29zdF9zeXN0ZW0uc28uMS41OC4wICgweDAwMDA3ZmFhYzhiMmMwMDAp
-DQogICAgPiAgICAgICAgIGxpYnN0ZGMrKy5zby42ID0+IC91c3IvbGliL3g4Nl82NC1saW51eC1n
-bnUvbGlic3RkYysrLnNvLjYgKDB4MDAwMDdmYWFjODdhOTAwMCkNCiAgICA+ICAgICAgICAgbGli
-bS5zby42ID0+IC9saWIveDg2XzY0LWxpbnV4LWdudS9saWJtLnNvLjYgKDB4MDAwMDdmYWFjODRh
-MDAwMCkNCiAgICA+ICAgICAgICAgbGliYy5zby42ID0+IC9saWIveDg2XzY0LWxpbnV4LWdudS9s
-aWJjLnNvLjYgKDB4MDAwMDdmYWFjODBkNjAwMCkNCiAgICA+ICAgICAgICAgL2xpYjY0L2xkLWxp
-bnV4LXg4Ni02NC5zby4yICgweDAwMDA1NWFiNDUzNWEwMDApDQogICAgPiAgICAgICAgIGxpYmdj
-Y19zLnNvLjEgPT4gL2xpYi94ODZfNjQtbGludXgtZ251L2xpYmdjY19zLnNvLjEgKDB4MDAwMDdm
-YWFjN2ViZjAwMCkNCiAgICA+ICAgICAgICAgbGlibnNzMy5zbyA9PiAvbnNzLTMuMzIvZGlzdC9M
-aW51eDMuMTBfeDg2XzY0X2NjX2dsaWJjX1BUSF82NF9EQkcuT0JKL2xpYi9saWJuc3MzLnNvICgw
-eDAwMDA3ZmFhYzdiNGEwMDApDQogICAgPiAgICAgICAgIGxpYnNtaW1lMy5zbyA9PiAvbnNzLTMu
-MzIvZGlzdC9MaW51eDMuMTBfeDg2XzY0X2NjX2dsaWJjX1BUSF82NF9EQkcuT0JKL2xpYi9saWJz
-bWltZTMuc28gKDB4MDAwMDdmYWFjNzkxOTAwMCkNCiAgICA+ICAgICAgICAgbGlibnNwcjQuc28g
-PT4gL3Vzci9saWIveDg2XzY0LWxpbnV4LWdudS9saWJuc3ByNC5zbyAoMHgwMDAwN2ZhYWM3NmQ5
-MDAwKQ0KICAgID4gICAgICAgICBsaWJ1dWlkLnNvLjEgPT4gL2xpYi94ODZfNjQtbGludXgtZ251
-L2xpYnV1aWQuc28uMSAoMHgwMDAwN2ZhYWM3NGQ0MDAwKQ0KICAgID4gICAgICAgICBsaWJiejIu
-c28uMS4wID0+IC9saWIveDg2XzY0LWxpbnV4LWdudS9saWJiejIuc28uMS4wICgweDAwMDA3ZmFh
-YzcyYzMwMDApDQogICAgPiAgICAgICAgIGxpYnouc28uMSA9PiAvbGliL3g4Nl82NC1saW51eC1n
-bnUvbGliei5zby4xICgweDAwMDA3ZmFhYzcwYTkwMDApDQogICAgPiAgICAgICAgIGxpYm5zc3V0
-aWwzLnNvID0+IC9uc3MtMy4zMi9kaXN0L0xpbnV4My4xMF94ODZfNjRfY2NfZ2xpYmNfUFRIXzY0
-X0RCRy5PQkovbGliL2xpYm5zc3V0aWwzLnNvICgweDAwMDA3ZmFhYzZlNmYwMDApDQogICAgPiAg
-ICAgICAgIGxpYnBsYzQuc28gPT4gL3Vzci9saWIveDg2XzY0LWxpbnV4LWdudS9saWJwbGM0LnNv
-ICgweDAwMDA3ZmFhYzZjNmEwMDApDQogICAgPiAgICAgICAgIGxpYnBsZHM0LnNvID0+IC91c3Iv
-bGliL3g4Nl82NC1saW51eC1nbnUvbGlicGxkczQuc28gKDB4MDAwMDdmYWFjNmE2NjAwMCkNCiAg
-ICA+DQogICAgPiBJIGdvdCBtb3N0IG9mIHRoZW0sIGJ1dCBJIGNhbm5vdCBmaW5kIGFueSBzdGF0
-aWNhbGx5IGxpbmtlZCBsaWJuc3MzLmEuICBCdWlsZGluZyB0aGF0IGZyb20gc291cmNlIFsxXSB0
-dXJuZWQgb3V0IHRvIGJlIGEgbmlnaHRtYXJlLCBzbyBJ4oCZbSBhdCBhIGRlYWQgZW5kIGFnYWlu
-Lg0KICAgID4NCiAgICA+IFsxXSBodHRwczovL2dpdGh1Yi5jb20vbnNzLWRldi9uc3MNCiAgICAN
-CiAgICAtLSANCiAgICBTaXRzb2ZlIHwgaHR0cDovL3N1Y3Mub3JnL35zaXRzLw0KICAgIA0KU2Vl
-aW5nIGFzIGxpYnJiZCBpcyBubyBsb25nZXIgYXZhaWxhYmxlIGFzIGEgc3RhdGljIGxpYnJhcnks
-IHdoYXQgYWJvdXQgdGhlIGZvbGxvd2luZyBwYXRjaCB0byBjb25maWd1cmUsIHdoaWNoICphbHdh
-eXMqIGluY2x1ZGVzIGxpYnJiZCBhcyBkeW5hbWljLCBldmVuIHdoZW4gYSBzdGF0aWMgYnVpbGQg
-aXMgcmVxdWVzdGVkPw0KDQo9PT09PT09PT09PT09PT09PT09DQpkaWZmIC0tZ2l0IGEvY29uZmln
-dXJlIGIvY29uZmlndXJlDQppbmRleCAxZjRlNTBiMS4uMDFkNWVmNTcgMTAwNzU1DQotLS0gYS9j
-b25maWd1cmUNCisrKyBiL2NvbmZpZ3VyZQ0KQEAgLTE2NjMsOCArMTY2MywxMiBAQCBpbnQgbWFp
-bihpbnQgYXJnYywgY2hhciAqKmFyZ3YpDQogICByZXR1cm4gMDsNCiB9DQogRU9GDQotaWYgdGVz
-dCAiJGRpc2FibGVfcmJkIiAhPSAieWVzIiAgJiYgY29tcGlsZV9wcm9nICIiICItbHJiZCAtbHJh
-ZG9zIiAicmJkIjsgdGhlbg0KLSAgTElCUz0iLWxyYmQgLWxyYWRvcyAkTElCUyINCitpZiB0ZXN0
-ICIkZGlzYWJsZV9yYmQiICE9ICJ5ZXMiICAmJiBjb21waWxlX3Byb2cgIiIgIi1XbCwtQmR5bmFt
-aWMgLWxyYmQgLWxyYWRvcyIgInJiZCI7IHRoZW4NCisgIGlmIHRlc3QgIiRidWlsZF9zdGF0aWMi
-ID0gInllcyIgOyB0aGVuDQorICAgIExJQlM9Ii1XbCwtQmR5bmFtaWMgLWxyYmQgLWxyYWRvcyAt
-V2wsLUJzdGF0aWMgJExJQlMiDQorICBlbHNlDQorICAgIExJQlM9Ii1scmJkIC1scmFkb3MiDQor
-ICBmaQ0KICAgcmJkPSJ5ZXMiDQogZmkNCiBwcmludF9jb25maWcgIlJhZG9zIEJsb2NrIERldmlj
-ZSBlbmdpbmUiICIkcmJkIg0KPT09PT09PT09PT09PT09PT09PQ0KDQpJdCB2aW9sYXRlcyB0aGUg
-cmVxdWVzdCBmb3Igc3RhdGljLCBidXQgaXQgaXNu4oCZdCBwb3NzaWJsZSB3aXRoIFJCRCBhbnl3
-YXkuICBUaG91Z2h0cz8NCg0KUmVnYXJkcywNCk1hcmsNCg0K
+The following changes since commit 0fcbc00994f49f73fe815b9dc074bd6a15eab522:
+
+  engines/libaio: cleanup new vs old io_setup() system call path (2018-11-21 11:33:22 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 92a1a1d701f8af640859a75cc74f82b7bf9e3a0a:
+
+  options: fix 'unit_base' being of the wrong type (2018-11-24 15:10:39 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      options: fix 'unit_base' being of the wrong type
+
+ options.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/options.c b/options.c
+index 98187de..cf087ed 100644
+--- a/options.c
++++ b/options.c
+@@ -4551,7 +4551,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 	{
+ 		.name	= "unit_base",
+ 		.lname	= "Unit for quantities of data (Bits or Bytes)",
+-		.type	= FIO_OPT_INT,
++		.type	= FIO_OPT_STR,
+ 		.off1	= offsetof(struct thread_options, unit_base),
+ 		.prio	= 1,
+ 		.posval = {
 
