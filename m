@@ -1,53 +1,54 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm1-f42.google.com ([209.85.128.42]:54681 "EHLO
-        mail-wm1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726355AbeK3PkW (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 30 Nov 2018 10:40:22 -0500
-Received: by mail-wm1-f42.google.com with SMTP id z18so4398358wmc.4
-        for <fio@vger.kernel.org>; Thu, 29 Nov 2018 20:32:22 -0800 (PST)
-Received: from [192.168.29.142] (24-151-137-62.dhcp.oxfr.ma.charter.com. [24.151.137.62])
-        by smtp.gmail.com with ESMTPSA id j33sm5649618wre.91.2018.11.29.20.32.20
-        for <fio@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 29 Nov 2018 20:32:20 -0800 (PST)
-From: Michael Green <mishagreen@gmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-Mime-Version: 1.0 (Mac OS X Mail 10.3 \(3273\))
-Subject: rbdname question
-Message-Id: <01463E86-AD81-4F02-B2D3-C30853376967@gmail.com>
-Date: Thu, 29 Nov 2018 23:32:18 -0500
+Received: from bombadil.infradead.org ([198.137.202.133]:32890 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726713AbeKZXyU (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 26 Nov 2018 18:54:20 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1gRGUo-0004Vk-DI
+        for fio@vger.kernel.org; Mon, 26 Nov 2018 13:00:14 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20181126130002.9D1962C0119@kernel.dk>
+Date: Mon, 26 Nov 2018 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hello collective wisdom,
+The following changes since commit 92a1a1d701f8af640859a75cc74f82b7bf9e3a0a:
 
-fio-3.12 + CEPH 13.2.2 (mimic) here.
+  options: fix 'unit_base' being of the wrong type (2018-11-24 15:10:39 -0700)
 
-So it appears that unlike file based engines such as libaio where =
---filename allows for multiple block devices to be specified on the same =
-line,  --rbdname of RBD engine, doesn't accept multiple rbd images =
-separated by colon (:). If that's indeed the case, is it possible to =
-enable such functionality? If yes, how can I put in a request?
+are available in the git repository at:
 
-While at this, will the IO be spread evenly among the RBD images,  if I =
-specify multiple rbdname  like below?
+  git://git.kernel.dk/fio.git master
 
-[global]
-invalidate=3D0
-ioengine=3Drbd
-clientname=3Dcephuser
-clustername=3Dceph
-pool=3Drbd
-rw=3Drandwrite
-bs=3D4k
+for you to fetch changes up to 41dd12d62f43160bc8d8574127d0c2b861e1ee1d:
 
-[rbd_iodepth32]
-iodepth=3D32
-rbdname=3Dimage0
-rbdname=3Dimage1
+  options: fix 'kb_base' being of the wrong type (2018-11-25 09:56:06 -0700)
 
---
-Michael=20=
+----------------------------------------------------------------
+Jens Axboe (1):
+      options: fix 'kb_base' being of the wrong type
+
+ options.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/options.c b/options.c
+index cf087ed..7a7006c 100644
+--- a/options.c
++++ b/options.c
+@@ -4530,7 +4530,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 	{
+ 		.name	= "kb_base",
+ 		.lname	= "KB Base",
+-		.type	= FIO_OPT_INT,
++		.type	= FIO_OPT_STR,
+ 		.off1	= offsetof(struct thread_options, kb_base),
+ 		.prio	= 1,
+ 		.def	= "1024",
 
