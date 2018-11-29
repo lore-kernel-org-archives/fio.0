@@ -1,96 +1,78 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-it1-f178.google.com ([209.85.166.178]:52848 "EHLO
-        mail-it1-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726097AbeKZCQM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 25 Nov 2018 21:16:12 -0500
-Received: by mail-it1-f178.google.com with SMTP id i7so24611865iti.2
-        for <fio@vger.kernel.org>; Sun, 25 Nov 2018 07:24:54 -0800 (PST)
-MIME-Version: 1.0
-From: Bari Antebi <bari@lightbitslabs.com>
-Date: Sun, 25 Nov 2018 17:24:42 +0200
-Message-ID: <CALD1HU=N7v3ZV9fFF0cEsO50GtHPrPV-XEa5mRsFyoaX8+P8zQ@mail.gmail.com>
-Subject: FIO compression bug
-Content-Type: text/plain; charset="UTF-8"
+Received: from mail-wr1-f51.google.com ([209.85.221.51]:40942 "EHLO
+        mail-wr1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726954AbeK2O3q (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 29 Nov 2018 09:29:46 -0500
+Received: by mail-wr1-f51.google.com with SMTP id p4so356956wrt.7
+        for <fio@vger.kernel.org>; Wed, 28 Nov 2018 19:25:53 -0800 (PST)
+Received: from [192.168.29.142] (24-151-137-62.dhcp.oxfr.ma.charter.com. [24.151.137.62])
+        by smtp.gmail.com with ESMTPSA id j8sm908430wmd.0.2018.11.28.19.25.51
+        for <fio@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 28 Nov 2018 19:25:51 -0800 (PST)
+From: Michael Green <mishagreen@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0 (Mac OS X Mail 10.3 \(3273\))
+Subject: rados_connect failed / fio_rbd_connect failed
+Message-Id: <EF2C30AE-94EF-460F-A641-88CE6B1CD616@gmail.com>
+Date: Wed, 28 Nov 2018 22:25:49 -0500
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: fio <fio@vger.kernel.org>
 
-To Whom It May Concern,
+FIO 3.12 (2ce58465415fc4d900c4dd89b86acbcaa51d9dfb) here.=20
 
-I've noticed a bug in fio while testing it. I expected to receive
-output similar to the expected output below for: "hexdump -n 4096
-/dev/nvme0n1" (considering the configuration file I've used  that may
-be found below).
+I'm trying to get FIO w/ RBD engine running on a working CEPH cluster. =
+The error I'm getting is:
 
-Expected output:
-
-0000000 fdc6 a8a8 7190 0219 1fb8 9632 d9dd 1e64
-                /* random data */
-00004c0 d8a3 13fe aeec 0fb6 5b14 162e 0000 0000
-00004d0 0000 0000 0000 0000 0000 0000 0000 0000
-*
-0001000
+[cephuser@sm10 ~]$ sudo /usr/local/bin/fio ./rbd.fio
+rbd_iodepth32: (g=3D0): rw=3Drandwrite, bs=3D(R) 4096B-4096B, (W) =
+4096B-4096B, (T) 4096B-4096B, ioengine=3Drbd, iodepth=3D32
+fio-3.12
+Starting 1 process
+rados_connect failed.
+fio_rbd_connect failed.
 
 
-However, the output I've received  contained data after address 4cc
-(which should have been filled with zeros until 1000 as far as I
-understand, but as you can see 99a contains data.
+Run status group 0 (all jobs):
 
-
-0000000 fdc6 a8a8 7190 0219 1fb8 9632 d9dd 1e64
-/* random data */
-00004c0 d8a3 13fe aeec 0fb6 5b14 162e 0000 0000
-00004d0 0000 0000 0000 0000 0000 0000 0000 0000
-*
-0000990 0000 0000 0000 0000 fdc6 a8a8 7190 0219
-
-Config file:
-
+The job file is a slightly modified example/rbd.fio
+-----
 [global]
-group_reporting=1
-filename=/dev/nvme0n1
-name=task_nvme0n1
-rw=write
-bs=4096
-numjobs=1
-iodepth=32
-buffer_compress_chunk=4096
-buffer_compress_percentage=70
-cpus_allowed=0-8
-cpus_allowed_policy=split
-direct=1
-ioengine=libaio
-loops=1
-refill_buffers=0
+invalidate=3D0
+ioengine=3Drbd
+clientname=3Dcephuser
+clustername=3Dceph
+pool=3Drbd
+rbdname=3Dsm10_v0
+rw=3Drandwrite
+bs=3D4k
 
-[job empty]
-size=4096
+[rbd_iodepth32]
+iodepth=3D32
+-------
+I'm able to run 'ceph status' from the client node (sm10) where FIO =
+fails either as root or cephuser.=20
 
-The version I ran is  fio-3.11, but it seems the bug wasn't fixed in
-the new version from a look at the code.
+The pool rbd does exist:
+[cephuser@sm10 ~]$ ceph osd lspools
+4 rbd
 
-I solved the issue locally & would like to send a pr for the fix.
-The problem in the code maybe found in "lib/rand.c", at the function
-"__fill_random_buf_percentage".
-After fio finishes to write the random part, it should write the
-remainder of "((unsigned long long)segment * (100 - percentage)) /
-100",
-but currently it writes "this_len" zeros which seems wrong.
+The RBD image does exist in that pool:
+[cephuser@sm10 ~]$ rbd ls -p rbd | grep sm10_v0
+sm10_v0
 
-My solution is to add a single line under line 168 (of the current fio
-version). If it's possible I'd like to add the PR myself, it will be
-my first contribution to any open source code :)
-168. buf += this_len;
-169. this_len = segment - this_len
+fio --debug=3Dall isn't helpful. Google turned up some results where =
+people changed client name from username to client.username which didn't =
+help in my case.
 
-Have a light day,
-Bari Antebi - Software developer at Lightbits
+Any pointers how to troubleshoot?
+
+--
+Michael Green
+mishagreen@gmail.com
 
 
-This message is sent in confidence for the addressee only.  It may
-contain legally privileged information. The contents are not to be
-disclosed to anyone other than the addressee. Unauthorized recipients
-are requested to preserve this confidentiality, advise the sender
-immediately of any error in transmission and delete the email from
-their systems.
+
 
