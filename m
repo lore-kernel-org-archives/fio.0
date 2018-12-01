@@ -1,104 +1,93 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:48970 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729988AbeLTNAW (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 20 Dec 2018 08:00:22 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1gZxw6-0007UD-BM
-        for fio@vger.kernel.org; Thu, 20 Dec 2018 13:00:22 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20181220130001.C6F962C004F@kernel.dk>
-Date: Thu, 20 Dec 2018 06:00:01 -0700 (MST)
+Received: from mout.perfora.net ([74.208.4.196]:47527 "EHLO mout.perfora.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726778AbeLBDx5 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 1 Dec 2018 22:53:57 -0500
+Received: from JUNENHP640W7 ([76.30.173.5]) by mrelay.perfora.net (mreueus001
+ [74.208.5.2]) with ESMTPSA (Nemesis) id 0MZF1O-1go63F1TK8-00KvZ9 for
+ <fio@vger.kernel.org>; Sat, 01 Dec 2018 17:41:01 +0100
+From: <eliezer@integritech.solutions>
+Subject: RE: fio 3.12-27g68af on vmware esxi 6.0 build causing segmentation fault
+Date: Sat, 1 Dec 2018 10:40:57 -0600
+Message-ID: <000101d48994$a3239410$e96abc30$@integritech.solutions>
+MIME-Version: 1.0
+Content-Type: text/plain;
+        charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Language: en-us
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: 'fio' <fio@vger.kernel.org>
 
-The following changes since commit 5b8f19b7afe0cabc002c453a1a4abd7a494880bb:
+Hello Folks:
 
-  Fix 'min' latency times being 0 with ramp_time (2018-12-14 14:36:52 -0700)
+Getting a "segmentation fault" error when running latest fio version
+(3.12.27-g68af) on vmware 6.0:
 
-are available in the Git repository at:
+> ./fio --bs=16k --size=10GB --readwrite=randrw --ioengine=posixaio
+--filename=test10GB.fio --direct=1 --sync=1 --rwmixread=50 --rwmixwrite=50
+--direct=1 --sync=1 --name=testvmw6 
+testvmw6: (g=0): rw=randrw, bs=(R) 16.0KiB-16.0KiB, (W) 16.0KiB-16.0KiB, (T)
+16.0KiB-16.0KiB, ioengine=posixaio, iodepth=1
+fio-3.12-27-g68af
+Segmentation fault
 
-  git://git.kernel.dk/fio.git master
+On the following vmware version:
+> vmware -v
+VMware ESXi 6.0.0 build-5050593
 
-for you to fetch changes up to d63a472d4b213533236ae9aab9cf9e0ec2854c31:
+Using fio version below:
+> ./fio -version
+fio-3.12-27-g68af
 
-  engines/aio-ring: initialization error handling (2018-12-19 12:55:10 -0700)
+> ./fio --enghelp
+Available IO engines:
+        cpuio
+        mmap
+        sync
+        psync
+        vsync
+        pvsync
+        pvsync2
+        null
+        net
+        netsplice
+        ftruncate
+        filecreate
+        posixaio
+        falloc
+        e4defrag
+        splice
+        mtd
+        sg
 
-----------------------------------------------------------------
-Jens Axboe (2):
-      engines/aio-ring: cleanup read/write prep
-      engines/aio-ring: initialization error handling
+FIO binary built from Docker using the following Dockerfile (Kudos to Mark
+Beierl!)
 
- engines/aioring.c | 38 +++++++++++++++++---------------------
- 1 file changed, 17 insertions(+), 21 deletions(-)
+===
+FROM multiarch/alpine:x86_64-v3.6 (--- I also tried v3.8 ---)
 
----
+RUN apk --no-cache add --update \
+    git \
+    alpine-sdk \
+    coreutils \
+    linux-headers \
+    libaio \
+    libaio-dev \
+    zlib-dev
 
-Diff of recent changes:
+RUN git clone http://git.kernel.dk/fio.git fio
+RUN cd fio && ./configure --esx
+RUN cd fio && EXTFLAGS="-static" make -j $(grep -c ^processor /proc/cpuinfo)
+install
+===
 
-diff --git a/engines/aioring.c b/engines/aioring.c
-index 925b8862..59551f9c 100644
---- a/engines/aioring.c
-+++ b/engines/aioring.c
-@@ -197,26 +197,20 @@ static int fio_aioring_prep(struct thread_data *td, struct io_u *io_u)
- 
- 	iocb = &ld->iocbs[io_u->index];
- 
--	if (io_u->ddir == DDIR_READ) {
--		if (o->fixedbufs) {
--			iocb->aio_fildes = f->fd;
-+	if (io_u->ddir == DDIR_READ || io_u->ddir == DDIR_WRITE) {
-+		if (io_u->ddir == DDIR_READ)
- 			iocb->aio_lio_opcode = IO_CMD_PREAD;
--			iocb->u.c.offset = io_u->offset;
--		} else {
--			io_prep_pread(iocb, f->fd, io_u->xfer_buf, io_u->xfer_buflen, io_u->offset);
--			if (o->hipri)
--				iocb->u.c.flags |= IOCB_FLAG_HIPRI;
--		}
--	} else if (io_u->ddir == DDIR_WRITE) {
--		if (o->fixedbufs) {
--			iocb->aio_fildes = f->fd;
-+		else
- 			iocb->aio_lio_opcode = IO_CMD_PWRITE;
--			iocb->u.c.offset = io_u->offset;
--		} else {
--			io_prep_pwrite(iocb, f->fd, io_u->xfer_buf, io_u->xfer_buflen, io_u->offset);
--			if (o->hipri)
--				iocb->u.c.flags |= IOCB_FLAG_HIPRI;
--		}
-+		iocb->aio_reqprio = 0;
-+		iocb->aio_fildes = f->fd;
-+		iocb->u.c.buf = io_u->xfer_buf;
-+		iocb->u.c.nbytes = io_u->xfer_buflen;
-+		iocb->u.c.offset = io_u->offset;
-+		if (o->hipri)
-+			iocb->u.c.flags |= IOCB_FLAG_HIPRI;
-+		else
-+			iocb->u.c.flags = 0;
- 	} else if (ddir_sync(io_u->ddir))
- 		io_prep_fsync(iocb, f->fd);
- 
-@@ -521,13 +515,15 @@ static int fio_aioring_post_init(struct thread_data *td)
- 	}
- 
- 	err = fio_aioring_queue_init(td);
-+
-+	/* Adjust depth back again */
-+	td->o.iodepth--;
-+
- 	if (err) {
--		td_verror(td, -err, "io_queue_init");
-+		td_verror(td, errno, "io_queue_init");
- 		return 1;
- 	}
- 
--	/* Adjust depth back again */
--	td->o.iodepth--;
- 	return 0;
- }
- 
+Do I need to use an older fio version and Dockerfile config to run fio on
+vmware 6.0, or is the segmentation error due to something else?  Not sure
+how to debug this further.  Any insight how to debug this further is very
+much appreciated.
+
+Regards,
+Eliezer
+
 
