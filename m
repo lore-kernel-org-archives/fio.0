@@ -1,389 +1,506 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:41932 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.133]:43454 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729192AbeLONIP (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 15 Dec 2018 08:08:15 -0500
+        with ESMTP id S1726203AbeLKNAQ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 11 Dec 2018 08:00:16 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
         by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1gY9fy-0001Y6-Kp
-        for fio@vger.kernel.org; Sat, 15 Dec 2018 13:08:14 +0000
+        id 1gWhe3-0006lA-C3
+        for fio@vger.kernel.org; Tue, 11 Dec 2018 13:00:15 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20181215130002.2C2D52C0053@kernel.dk>
-Date: Sat, 15 Dec 2018 06:00:02 -0700 (MST)
+Message-Id: <20181211130002.6CEC32C0053@kernel.dk>
+Date: Tue, 11 Dec 2018 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 771c99012e26af0dc2a0b7e0762e5097534144bd:
+The following changes since commit 46961748140e291f0f1e966bac9aad1a3b9ad1c7:
 
-  engines/aioring: enable IOCTX_FLAG_SQPOLL (2018-12-13 13:52:35 -0700)
+  engines/libaio: increase RLIMIT_MEMLOCK for user buffers (2018-12-04 11:27:02 -0700)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 5b8f19b7afe0cabc002c453a1a4abd7a494880bb:
+for you to fetch changes up to 0527b23f9112b59dc63f3b40a7f40d45c48ec60d:
 
-  Fix 'min' latency times being 0 with ramp_time (2018-12-14 14:36:52 -0700)
+  t/aio-ring: updates/cleanups (2018-12-10 15:14:36 -0700)
 
 ----------------------------------------------------------------
-Jens Axboe (6):
-      engines/aioring: update to newer API
-      client/server: convert nr_zone_resets on the wire
-      Add cache hit stats
-      t/aio-ring: add cache hit statistics
-      engines/aioring: get rid of old error on sqwq and sqthread
-      Fix 'min' latency times being 0 with ramp_time
+Jens Axboe (2):
+      Add aio-ring test app
+      t/aio-ring: updates/cleanups
 
- client.c          |  4 ++++
- engines/aioring.c | 31 ++++++++++++++++++++++++-------
- server.c          |  4 ++++
- server.h          |  2 +-
- stat.c            | 34 +++++++++++++++++++++++++++++-----
- stat.h            |  3 +++
- t/aio-ring.c      | 30 ++++++++++++++++++++++++++----
- 7 files changed, 91 insertions(+), 17 deletions(-)
+ Makefile     |   7 +
+ t/aio-ring.c | 424 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 431 insertions(+)
+ create mode 100644 t/aio-ring.c
 
 ---
 
 Diff of recent changes:
 
-diff --git a/client.c b/client.c
-index 32489067..480425f6 100644
---- a/client.c
-+++ b/client.c
-@@ -1000,6 +1000,7 @@ static void convert_ts(struct thread_stat *dst, struct thread_stat *src)
+diff --git a/Makefile b/Makefile
+index 5ac568e9..284621d3 100644
+--- a/Makefile
++++ b/Makefile
+@@ -263,6 +263,9 @@ T_VS_PROGS = t/fio-verify-state
+ T_PIPE_ASYNC_OBJS = t/read-to-pipe-async.o
+ T_PIPE_ASYNC_PROGS = t/read-to-pipe-async
  
- 	dst->total_submit	= le64_to_cpu(src->total_submit);
- 	dst->total_complete	= le64_to_cpu(src->total_complete);
-+	dst->nr_zone_resets	= le64_to_cpu(src->nr_zone_resets);
- 
- 	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
- 		dst->io_bytes[i]	= le64_to_cpu(src->io_bytes[i]);
-@@ -1038,6 +1039,9 @@ static void convert_ts(struct thread_stat *dst, struct thread_stat *src)
- 			dst->ss_bw_data[i] = le64_to_cpu(src->ss_bw_data[i]);
- 		}
- 	}
++T_AIO_RING_OBJS = t/aio-ring.o
++T_AIO_RING_PROGS = t/aio-ring
 +
-+	dst->cachehit		= le64_to_cpu(src->cachehit);
-+	dst->cachemiss		= le64_to_cpu(src->cachemiss);
- }
+ T_MEMLOCK_OBJS = t/memlock.o
+ T_MEMLOCK_PROGS = t/memlock
  
- static void convert_gs(struct group_run_stats *dst, struct group_run_stats *src)
-diff --git a/engines/aioring.c b/engines/aioring.c
-index cb13b415..925b8862 100644
---- a/engines/aioring.c
-+++ b/engines/aioring.c
-@@ -61,6 +61,10 @@ typedef uint64_t u64;
- typedef uint32_t u32;
- typedef uint16_t u16;
+@@ -281,6 +284,7 @@ T_OBJS += $(T_VS_OBJS)
+ T_OBJS += $(T_PIPE_ASYNC_OBJS)
+ T_OBJS += $(T_MEMLOCK_OBJS)
+ T_OBJS += $(T_TT_OBJS)
++T_OBJS += $(T_AIO_RING_OBJS)
  
-+#define IORING_SQ_NEED_WAKEUP	(1 << 0)
+ ifneq (,$(findstring CYGWIN,$(CONFIG_TARGET_OS)))
+     T_DEDUPE_OBJS += os/windows/posix.o lib/hweight.o
+@@ -440,6 +444,9 @@ cairo_text_helpers.o: cairo_text_helpers.c cairo_text_helpers.h
+ printing.o: printing.c printing.h
+ 	$(QUIET_CC)$(CC) $(CFLAGS) $(GTK_CFLAGS) $(CPPFLAGS) -c $<
+ 
++t/aio-ring: $(T_AIO_RING_OBJS)
++	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(T_AIO_RING_OBJS) $(LIBS)
 +
-+#define IOEV_RES2_CACHEHIT	(1 << 0)
-+
- struct aio_sq_ring {
- 	union {
- 		struct {
-@@ -68,6 +72,7 @@ struct aio_sq_ring {
- 			u32 tail;
- 			u32 nr_events;
- 			u16 sq_thread_cpu;
-+			u16 kflags;
- 			u64 iocbs;
- 		};
- 		u32 pad[16];
-@@ -100,6 +105,9 @@ struct aioring_data {
+ t/read-to-pipe-async: $(T_PIPE_ASYNC_OBJS)
+ 	$(QUIET_LINK)$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(T_PIPE_ASYNC_OBJS) $(LIBS)
  
- 	int queued;
- 	int cq_ring_off;
-+
-+	uint64_t cachehit;
-+	uint64_t cachemiss;
- };
- 
- struct aioring_options {
-@@ -238,6 +246,13 @@ static struct io_u *fio_aioring_event(struct thread_data *td, int event)
- 	} else
- 		io_u->error = 0;
- 
-+	if (io_u->ddir == DDIR_READ) {
-+		if (ev->res2 & IOEV_RES2_CACHEHIT)
-+			ld->cachehit++;
-+		else
-+			ld->cachemiss++;
-+	}
-+
- 	return io_u;
- }
- 
-@@ -368,6 +383,10 @@ static int fio_aioring_commit(struct thread_data *td)
- 
- 	/* Nothing to do */
- 	if (o->sqthread_poll) {
-+		struct aio_sq_ring *ring = ld->sq_ring;
-+
-+		if (ring->kflags & IORING_SQ_NEED_WAKEUP)
-+			io_ring_enter(ld->aio_ctx, ld->queued, 0, IORING_FLAG_SUBMIT);
- 		ld->queued = 0;
- 		return 0;
- 	}
-@@ -424,6 +443,9 @@ static void fio_aioring_cleanup(struct thread_data *td)
- 	struct aioring_data *ld = td->io_ops_data;
- 
- 	if (ld) {
-+		td->ts.cachehit += ld->cachehit;
-+		td->ts.cachemiss += ld->cachemiss;
-+
- 		/* Bump depth to match init depth */
- 		td->o.iodepth++;
- 
-@@ -458,7 +480,8 @@ static int fio_aioring_queue_init(struct thread_data *td)
- 		flags |= IOCTX_FLAG_SQTHREAD;
- 		if (o->sqthread_poll)
- 			flags |= IOCTX_FLAG_SQPOLL;
--	} else if (o->sqwq)
-+	}
-+	if (o->sqwq)
- 		flags |= IOCTX_FLAG_SQWQ;
- 
- 	if (o->fixedbufs) {
-@@ -510,14 +533,8 @@ static int fio_aioring_post_init(struct thread_data *td)
- 
- static int fio_aioring_init(struct thread_data *td)
- {
--	struct aioring_options *o = td->eo;
- 	struct aioring_data *ld;
- 
--	if (o->sqthread_set && o->sqwq) {
--		log_err("fio: aioring sqthread and sqwq are mutually exclusive\n");
--		return 1;
--	}
--
- 	/* ring needs an extra entry, add one to achieve QD set */
- 	td->o.iodepth++;
- 
-diff --git a/server.c b/server.c
-index 90d3396b..2a337707 100644
---- a/server.c
-+++ b/server.c
-@@ -1530,6 +1530,7 @@ void fio_server_send_ts(struct thread_stat *ts, struct group_run_stats *rs)
- 
- 	p.ts.total_submit	= cpu_to_le64(ts->total_submit);
- 	p.ts.total_complete	= cpu_to_le64(ts->total_complete);
-+	p.ts.nr_zone_resets	= cpu_to_le64(ts->nr_zone_resets);
- 
- 	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
- 		p.ts.io_bytes[i]	= cpu_to_le64(ts->io_bytes[i]);
-@@ -1562,6 +1563,9 @@ void fio_server_send_ts(struct thread_stat *ts, struct group_run_stats *rs)
- 	p.ts.ss_deviation.u.i	= cpu_to_le64(fio_double_to_uint64(ts->ss_deviation.u.f));
- 	p.ts.ss_criterion.u.i	= cpu_to_le64(fio_double_to_uint64(ts->ss_criterion.u.f));
- 
-+	p.ts.cachehit		= cpu_to_le64(ts->cachehit);
-+	p.ts.cachemiss		= cpu_to_le64(ts->cachemiss);
-+
- 	convert_gs(&p.rs, rs);
- 
- 	dprint(FD_NET, "ts->ss_state = %d\n", ts->ss_state);
-diff --git a/server.h b/server.h
-index 371e51ea..abb23bad 100644
---- a/server.h
-+++ b/server.h
-@@ -48,7 +48,7 @@ struct fio_net_cmd_reply {
- };
- 
- enum {
--	FIO_SERVER_VER			= 77,
-+	FIO_SERVER_VER			= 78,
- 
- 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
- 	FIO_SERVER_MAX_CMD_MB		= 2048,
-diff --git a/stat.c b/stat.c
-index 887509fe..351c49cc 100644
---- a/stat.c
-+++ b/stat.c
-@@ -419,7 +419,7 @@ static void show_ddir_status(struct group_run_stats *rs, struct thread_stat *ts,
- 	unsigned long runt;
- 	unsigned long long min, max, bw, iops;
- 	double mean, dev;
--	char *io_p, *bw_p, *bw_p_alt, *iops_p, *zbd_w_st = NULL;
-+	char *io_p, *bw_p, *bw_p_alt, *iops_p, *post_st = NULL;
- 	int i2p;
- 
- 	if (ddir_sync(ddir)) {
-@@ -451,15 +451,25 @@ static void show_ddir_status(struct group_run_stats *rs, struct thread_stat *ts,
- 	iops = (1000 * (uint64_t)ts->total_io_u[ddir]) / runt;
- 	iops_p = num2str(iops, ts->sig_figs, 1, 0, N2S_NONE);
- 	if (ddir == DDIR_WRITE)
--		zbd_w_st = zbd_write_status(ts);
-+		post_st = zbd_write_status(ts);
-+	else if (ddir == DDIR_READ && ts->cachehit && ts->cachemiss) {
-+		uint64_t total;
-+		double hit;
-+
-+		total = ts->cachehit + ts->cachemiss;
-+		hit = (double) ts->cachehit / (double) total;
-+		hit *= 100.0;
-+		if (asprintf(&post_st, "; Cachehit=%0.2f%%", hit) < 0)
-+			post_st = NULL;
-+	}
- 
- 	log_buf(out, "  %s: IOPS=%s, BW=%s (%s)(%s/%llumsec)%s\n",
- 			rs->unified_rw_rep ? "mixed" : io_ddir_name(ddir),
- 			iops_p, bw_p, bw_p_alt, io_p,
- 			(unsigned long long) ts->runtime[ddir],
--			zbd_w_st ? : "");
-+			post_st ? : "");
- 
--	free(zbd_w_st);
-+	free(post_st);
- 	free(io_p);
- 	free(bw_p);
- 	free(bw_p_alt);
-@@ -1153,6 +1163,16 @@ static void add_ddir_status_json(struct thread_stat *ts,
- 	json_object_add_value_float(dir_object, "iops_stddev", dev);
- 	json_object_add_value_int(dir_object, "iops_samples",
- 				(&ts->iops_stat[ddir])->samples);
-+
-+	if (ts->cachehit + ts->cachemiss) {
-+		uint64_t total;
-+		double hit;
-+
-+		total = ts->cachehit + ts->cachemiss;
-+		hit = (double) ts->cachehit / (double) total;
-+		hit *= 100.0;
-+		json_object_add_value_float(dir_object, "cachehit", hit);
-+	}
- }
- 
- static void show_thread_status_terse_all(struct thread_stat *ts,
-@@ -1695,6 +1715,8 @@ void sum_thread_stats(struct thread_stat *dst, struct thread_stat *src,
- 	dst->total_submit += src->total_submit;
- 	dst->total_complete += src->total_complete;
- 	dst->nr_zone_resets += src->nr_zone_resets;
-+	dst->cachehit += src->cachehit;
-+	dst->cachemiss += src->cachemiss;
- }
- 
- void init_group_run_stat(struct group_run_stats *gs)
-@@ -2329,7 +2351,8 @@ static void __add_log_sample(struct io_log *iolog, union io_sample_data data,
- 
- static inline void reset_io_stat(struct io_stat *ios)
- {
--	ios->max_val = ios->min_val = ios->samples = 0;
-+	ios->min_val = -1ULL;
-+	ios->max_val = ios->samples = 0;
- 	ios->mean.u.f = ios->S.u.f = 0;
- }
- 
-@@ -2376,6 +2399,7 @@ void reset_io_stats(struct thread_data *td)
- 	ts->total_submit = 0;
- 	ts->total_complete = 0;
- 	ts->nr_zone_resets = 0;
-+	ts->cachehit = ts->cachemiss = 0;
- }
- 
- static void __add_stat_to_log(struct io_log *iolog, enum fio_ddir ddir,
-diff --git a/stat.h b/stat.h
-index b4ba71e3..e9551381 100644
---- a/stat.h
-+++ b/stat.h
-@@ -246,6 +246,9 @@ struct thread_stat {
- 		uint64_t *ss_bw_data;
- 		uint64_t pad5;
- 	};
-+
-+	uint64_t cachehit;
-+	uint64_t cachemiss;
- } __attribute__((packed));
- 
- struct jobs_eta {
 diff --git a/t/aio-ring.c b/t/aio-ring.c
-index 322f2ffa..c813c4e7 100644
---- a/t/aio-ring.c
+new file mode 100644
+index 00000000..c6106348
+--- /dev/null
 +++ b/t/aio-ring.c
-@@ -30,6 +30,8 @@
- #define IOCTX_FLAG_SQTHREAD	(1 << 3)	/* Use SQ thread */
- #define IOCTX_FLAG_SQWQ		(1 << 4)	/* Use SQ wq */
- 
-+#define IOEV_RES2_CACHEHIT	(1 << 0)
+@@ -0,0 +1,424 @@
++/*
++ * gcc -D_GNU_SOURCE -Wall -O2 -o aio-ring aio-ring.c  -lpthread -laio
++ */
++#include <stdio.h>
++#include <errno.h>
++#include <assert.h>
++#include <stdlib.h>
++#include <stddef.h>
++#include <signal.h>
++#include <inttypes.h>
 +
- #define barrier()	__asm__ __volatile__("": : :"memory")
- 
- #define min(a, b)		((a < b) ? (a) : (b))
-@@ -87,6 +89,7 @@ struct submitter {
- 	unsigned long reaps;
- 	unsigned long done;
- 	unsigned long calls;
-+	unsigned long cachehit, cachemiss;
- 	volatile int finish;
- 	char filename[128];
- };
-@@ -206,6 +209,10 @@ static int reap_events(struct submitter *s)
- 			printf("offset=%lu, size=%lu\n", (unsigned long) iocb->u.c.offset, (unsigned long) iocb->u.c.nbytes);
- 			return -1;
- 		}
-+		if (ev->res2 & IOEV_RES2_CACHEHIT)
-+			s->cachehit++;
-+		else
-+			s->cachemiss++;
- 		reaped++;
- 		head++;
- 		if (head == ring->nr_events)
-@@ -333,7 +340,7 @@ static void arm_sig_int(void)
- int main(int argc, char *argv[])
- {
- 	struct submitter *s = &submitters[0];
--	unsigned long done, calls, reap;
-+	unsigned long done, calls, reap, cache_hit, cache_miss;
- 	int flags = 0, err;
- 	int j;
- 	size_t size;
-@@ -410,27 +417,42 @@ int main(int argc, char *argv[])
- 
- 	pthread_create(&s->thread, NULL, submitter_fn, s);
- 
--	reap = calls = done = 0;
-+	cache_hit = cache_miss = reap = calls = done = 0;
- 	do {
- 		unsigned long this_done = 0;
- 		unsigned long this_reap = 0;
- 		unsigned long this_call = 0;
-+		unsigned long this_cache_hit = 0;
-+		unsigned long this_cache_miss = 0;
- 		unsigned long rpc = 0, ipc = 0;
-+		double hit = 0.0;
- 
- 		sleep(1);
- 		this_done += s->done;
- 		this_call += s->calls;
- 		this_reap += s->reaps;
-+		this_cache_hit += s->cachehit;
-+		this_cache_miss += s->cachemiss;
-+		if (this_cache_hit && this_cache_miss) {
-+			unsigned long hits, total;
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <sys/ioctl.h>
++#include <sys/syscall.h>
++#include <sys/resource.h>
++#include <linux/fs.h>
++#include <fcntl.h>
++#include <unistd.h>
++#include <libaio.h>
++#include <string.h>
++#include <pthread.h>
++#include <sched.h>
 +
-+			hits = this_cache_hit - cache_hit;
-+			total = hits + this_cache_miss - cache_miss;
-+			hit = (double) hits / (double) total;
-+			hit *= 100.0;
++#define IOCB_FLAG_HIPRI		(1 << 2)
++
++#define IOCTX_FLAG_IOPOLL	(1 << 1)
++#define IOCTX_FLAG_USERIOCB	(1 << 0)
++#define IOCTX_FLAG_FIXEDBUFS	(1 << 2)
++#define IOCTX_FLAG_SCQRING	(1 << 3)	/* Use SQ/CQ rings */
++#define IOCTX_FLAG_SQTHREAD	(1 << 4)	/* Use SQ thread */
++#define IOCTX_FLAG_SQWQ		(1 << 5)	/* Use SQ wq */
++
++#define barrier()	__asm__ __volatile__("": : :"memory")
++
++#define min(a, b)		((a < b) ? (a) : (b))
++
++typedef uint32_t u32;
++
++struct aio_iocb_ring {
++	union {
++		struct {
++			u32 head, tail;
++			u32 nr_events;
++			u32 sq_thread_cpu;
++		};
++		struct iocb pad_iocb;
++	};
++	struct iocb iocbs[0];
++};
++
++struct aio_io_event_ring {
++	union {
++		struct {
++			u32 head, tail;
++			u32 nr_events;
++		};
++		struct io_event pad_event;
++	};
++	struct io_event events[0];
++};
++
++#define IORING_FLAG_SUBMIT	(1 << 0)
++#define IORING_FLAG_GETEVENTS	(1 << 1)
++
++#define DEPTH			32
++#define RING_SIZE		(DEPTH + 1)
++
++#define BATCH_SUBMIT		8
++#define BATCH_COMPLETE		8
++
++#define BS			4096
++
++struct submitter {
++	pthread_t thread;
++	unsigned long max_blocks;
++	io_context_t ioc;
++	struct drand48_data rand;
++	struct aio_iocb_ring *sq_ring;
++	struct aio_io_event_ring *cq_ring;
++	int inflight;
++	unsigned long reaps;
++	unsigned long done;
++	unsigned long calls;
++	volatile int finish;
++	char filename[128];
++};
++
++static struct submitter submitters[1];
++static volatile int finish;
++
++static int polled = 1;		/* use IO polling */
++static int fixedbufs = 1;	/* use fixed user buffers */
++static int buffered = 0;	/* use buffered IO, not O_DIRECT */
++static int sq_thread = 0;	/* use kernel submission thread */
++static int sq_thread_cpu = 0;	/* pin above thread to this CPU */
++
++static int io_setup2(unsigned int nr_events, unsigned int flags,
++		     struct iocb *iocbs, struct aio_iocb_ring *sq_ring,
++		     struct aio_io_event_ring *cq_ring, io_context_t *ctx_idp)
++{
++	return syscall(335, nr_events, flags, iocbs, sq_ring, cq_ring, ctx_idp);
++}
++
++static int io_ring_enter(io_context_t ctx, unsigned int to_submit,
++			 unsigned int min_complete, unsigned int flags)
++{
++	return syscall(336, ctx, to_submit, min_complete, flags);
++}
++
++static int gettid(void)
++{
++	return syscall(__NR_gettid);
++}
++
++static void init_io(struct submitter *s, int fd, struct iocb *iocb)
++{
++	unsigned long offset;
++	long r;
++
++	lrand48_r(&s->rand, &r);
++	offset = (r % (s->max_blocks - 1)) * BS;
++
++	iocb->aio_fildes = fd;
++	iocb->aio_lio_opcode = IO_CMD_PREAD;
++	iocb->u.c.offset = offset;
++	if (polled)
++		iocb->u.c.flags = IOCB_FLAG_HIPRI;
++	if (!fixedbufs)
++		iocb->u.c.nbytes = BS;
++}
++
++static int prep_more_ios(struct submitter *s, int fd, int max_ios)
++{
++	struct aio_iocb_ring *ring = s->sq_ring;
++	struct iocb *iocb;
++	u32 tail, next_tail, prepped = 0;
++
++	next_tail = tail = ring->tail;
++	do {
++		next_tail++;
++		if (next_tail == ring->nr_events)
++			next_tail = 0;
++
++		barrier();
++		if (next_tail == ring->head)
++			break;
++
++		iocb = &s->sq_ring->iocbs[tail];
++		init_io(s, fd, iocb);
++		prepped++;
++		tail = next_tail;
++	} while (prepped < max_ios);
++
++	if (ring->tail != tail) {
++		/* order tail store with writes to iocbs above */
++		barrier();
++		ring->tail = tail;
++		barrier();
++	}
++	return prepped;
++}
++
++static int get_file_size(int fd, unsigned long *blocks)
++{
++	struct stat st;
++
++	if (fstat(fd, &st) < 0)
++		return -1;
++	if (S_ISBLK(st.st_mode)) {
++		unsigned long long bytes;
++
++		if (ioctl(fd, BLKGETSIZE64, &bytes) != 0)
++			return -1;
++
++		*blocks = bytes / BS;
++		return 0;
++	} else if (S_ISREG(st.st_mode)) {
++		*blocks = st.st_size / BS;
++		return 0;
++	}
++
++	return -1;
++}
++
++static int reap_events(struct submitter *s)
++{
++	struct aio_io_event_ring *ring = s->cq_ring;
++	struct io_event *ev;
++	u32 head, reaped = 0;
++
++	head = ring->head;
++	do {
++		barrier();
++		if (head == ring->tail)
++			break;
++		ev = &ring->events[head];
++		if (ev->res != BS) {
++			int index = (int) (uintptr_t) ev->obj;
++			struct iocb *iocb = &s->sq_ring->iocbs[index];
++
++			printf("io: unexpected ret=%ld\n", ev->res);
++			printf("offset=%lu, size=%lu\n", (unsigned long) iocb->u.c.offset, (unsigned long) iocb->u.c.nbytes);
++			return -1;
 +		}
- 		if (this_call - calls) {
- 			rpc = (this_done - done) / (this_call - calls);
- 			ipc = (this_reap - reap) / (this_call - calls);
- 		}
--		printf("IOPS=%lu, IOS/call=%lu/%lu, inflight=%u (head=%d tail=%d), %lu, %lu\n",
-+		printf("IOPS=%lu, IOS/call=%lu/%lu, inflight=%u (head=%d tail=%d), Cachehit=%0.2f%%\n",
- 				this_done - done, rpc, ipc, s->inflight,
--				s->cq_ring->head, s->cq_ring->tail, s->reaps, s->done);
-+				s->cq_ring->head, s->cq_ring->tail, hit);
- 		done = this_done;
- 		calls = this_call;
- 		reap = this_reap;
-+		cache_hit = s->cachehit;
-+		cache_miss = s->cachemiss;
- 	} while (!finish);
- 
- 	pthread_join(s->thread, &ret);
++		reaped++;
++		head++;
++		if (head == ring->nr_events)
++			head = 0;
++	} while (1);
++
++	s->inflight -= reaped;
++	ring->head = head;
++	barrier();
++	return reaped;
++}
++
++static void *submitter_fn(void *data)
++{
++	struct submitter *s = data;
++	int fd, ret, prepped, flags;
++
++	printf("submitter=%d\n", gettid());
++
++	flags = O_RDONLY;
++	if (!buffered)
++		flags |= O_DIRECT;
++	fd = open(s->filename, flags);
++	if (fd < 0) {
++		perror("open");
++		goto done;
++	}
++
++	if (get_file_size(fd, &s->max_blocks)) {
++		printf("failed getting size of device/file\n");
++		goto err;
++	}
++	if (!s->max_blocks) {
++		printf("Zero file/device size?\n");
++		goto err;
++	}
++
++	s->max_blocks--;
++
++	srand48_r(pthread_self(), &s->rand);
++
++	prepped = 0;
++	do {
++		int to_wait, flags, to_submit, this_reap;
++
++		if (!prepped && s->inflight < DEPTH)
++			prepped = prep_more_ios(s, fd, min(DEPTH - s->inflight, BATCH_SUBMIT));
++		s->inflight += prepped;
++submit_more:
++		to_submit = prepped;
++submit:
++		if (s->inflight + BATCH_SUBMIT < DEPTH)
++			to_wait = 0;
++		else
++			to_wait = min(s->inflight + to_submit, BATCH_COMPLETE);
++
++		flags = IORING_FLAG_GETEVENTS;
++		if (to_submit)
++			flags |= IORING_FLAG_SUBMIT;
++
++		ret = io_ring_enter(s->ioc, to_submit, to_wait, flags);
++		s->calls++;
++
++		this_reap = reap_events(s);
++		if (this_reap == -1)
++			break;
++		s->reaps += this_reap;
++
++		if (ret >= 0) {
++			if (!ret) {
++				to_submit = 0;
++				if (s->inflight)
++					goto submit;
++				continue;
++			} else if (ret < to_submit) {
++				int diff = to_submit - ret;
++
++				s->done += ret;
++				prepped -= diff;
++				goto submit_more;
++			}
++			s->done += ret;
++			prepped = 0;
++			continue;
++		} else if (ret < 0) {
++			if ((ret == -1 && errno == EAGAIN) || ret == -EAGAIN) {
++				if (s->finish)
++					break;
++				if (this_reap)
++					goto submit;
++				to_submit = 0;
++				goto submit;
++			}
++			if (ret == -1)
++				printf("io_submit: %s\n", strerror(errno));
++			else
++				printf("io_submit: %s\n", strerror(-ret));
++			break;
++		}
++	} while (!s->finish);
++err:
++	close(fd);
++done:
++	finish = 1;
++	return NULL;
++}
++
++static void sig_int(int sig)
++{
++	printf("Exiting on signal %d\n", sig);
++	submitters[0].finish = 1;
++	finish = 1;
++}
++
++static void arm_sig_int(void)
++{
++	struct sigaction act;
++
++	memset(&act, 0, sizeof(act));
++	act.sa_handler = sig_int;
++	act.sa_flags = SA_RESTART;
++	sigaction(SIGINT, &act, NULL);
++}
++
++int main(int argc, char *argv[])
++{
++	struct submitter *s = &submitters[0];
++	unsigned long done, calls, reap;
++	int flags = 0, err;
++	int j;
++	size_t size;
++	void *p, *ret;
++	struct rlimit rlim;
++
++	if (argc < 2) {
++		printf("%s: filename\n", argv[0]);
++		return 1;
++	}
++
++	rlim.rlim_cur = RLIM_INFINITY;
++	rlim.rlim_max = RLIM_INFINITY;
++	if (setrlimit(RLIMIT_MEMLOCK, &rlim) < 0) {
++		perror("setrlimit");
++		return 1;
++	}
++
++	arm_sig_int();
++
++	size = sizeof(struct aio_iocb_ring) + RING_SIZE * sizeof(struct iocb);
++	if (posix_memalign(&p, 4096, size))
++		return 1;
++	s->sq_ring = p;
++	memset(p, 0, size);
++
++	size = sizeof(struct aio_io_event_ring) + RING_SIZE * sizeof(struct io_event);
++	if (posix_memalign(&p, 4096, size))
++		return 1;
++	s->cq_ring = p;
++	memset(p, 0, size);
++
++	for (j = 0; j < RING_SIZE; j++) {
++		struct iocb *iocb = &s->sq_ring->iocbs[j];
++
++		if (posix_memalign(&iocb->u.c.buf, BS, BS)) {
++			printf("failed alloc\n");
++			return 1;
++		}
++		iocb->u.c.nbytes = BS;
++	}
++
++	flags = IOCTX_FLAG_SCQRING;
++	if (polled)
++		flags |= IOCTX_FLAG_IOPOLL;
++	if (fixedbufs)
++		flags |= IOCTX_FLAG_FIXEDBUFS;
++	if (buffered)
++		flags |= IOCTX_FLAG_SQWQ;
++	else if (sq_thread) {
++		flags |= IOCTX_FLAG_SQTHREAD;
++		s->sq_ring->sq_thread_cpu = sq_thread_cpu;
++	}
++
++	err = io_setup2(RING_SIZE, flags, s->sq_ring->iocbs, s->sq_ring, s->cq_ring, &s->ioc);
++	if (err) {
++		printf("ctx_init failed: %s, %d\n", strerror(errno), err);
++		return 1;
++	}
++	printf("polled=%d, fixedbufs=%d, buffered=%d\n", polled, fixedbufs, buffered);
++	printf("  QD=%d, sq_ring=%d, cq_ring=%d\n", DEPTH, s->sq_ring->nr_events, s->cq_ring->nr_events);
++	strcpy(s->filename, argv[1]);
++
++	pthread_create(&s->thread, NULL, submitter_fn, s);
++
++	reap = calls = done = 0;
++	do {
++		unsigned long this_done = 0;
++		unsigned long this_reap = 0;
++		unsigned long this_call = 0;
++		unsigned long rpc = 0, ipc = 0;
++
++		sleep(1);
++		this_done += s->done;
++		this_call += s->calls;
++		this_reap += s->reaps;
++		if (this_call - calls) {
++			rpc = (this_done - done) / (this_call - calls);
++			ipc = (this_reap - reap) / (this_call - calls);
++		}
++		printf("IOPS=%lu, IOS/call=%lu/%lu, inflight=%u (head=%d tail=%d), %lu, %lu\n",
++				this_done - done, rpc, ipc, s->inflight,
++				s->cq_ring->head, s->cq_ring->tail, s->reaps, s->done);
++		done = this_done;
++		calls = this_call;
++		reap = this_reap;
++	} while (!finish);
++
++	pthread_join(s->thread, &ret);
++	return 0;
++}
 
