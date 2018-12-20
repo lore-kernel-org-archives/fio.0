@@ -1,56 +1,104 @@
-Return-Path: <kusumi.tomohiro@gmail.com>
-Return-Path: <kusumi.tomohiro@gmail.com>
-From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Subject: [PATCH 1/2] exp: Fix -Wstringop-overflow= warning on gcc 8.1
-Date: Thu, 22 Nov 2018 08:48:25 -0800
-Message-Id: <1542905306-12193-2-git-send-email-kusumi.tomohiro@gmail.com>
-In-Reply-To: <1542905306-12193-1-git-send-email-kusumi.tomohiro@gmail.com>
-References: <1542905306-12193-1-git-send-email-kusumi.tomohiro@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:48970 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729988AbeLTNAW (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 20 Dec 2018 08:00:22 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1gZxw6-0007UD-BM
+        for fio@vger.kernel.org; Thu, 20 Dec 2018 13:00:22 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20181220130001.C6F962C004F@kernel.dk>
+Date: Thu, 20 Dec 2018 06:00:01 -0700 (MST)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-gcc 8.1 on DragonFlyBSD is warning below.
+The following changes since commit 5b8f19b7afe0cabc002c453a1a4abd7a494880bb:
 
-It seems to be saying max copy length shouldn't depend on
-the input string itself, so change the length argument to
-"sizeof(lexer_input_buffer)-3" without strlen() involved,
-followed by explicit \0 termination at the end of source
-string length or at "sizeof(lexer_input_buffer)-3".
+  Fix 'min' latency times being 0 with ramp_time (2018-12-14 14:36:52 -0700)
 
-(-3 comes from what this function has been using.)
+are available in the Git repository at:
 
---
-    CC y.tab.o
-In function 'setup_to_parse_string',
-    inlined from 'evaluate_arithmetic_expression' at y.tab.c:317:2:
-y.tab.c:305:2: warning: 'strncpy' specified bound depends on the length of the source argument [-Wstringop-overflow=]
-  strncpy(lexer_input_buffer, string, len);
-  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-y.tab.c: In function 'evaluate_arithmetic_expression':
-y.tab.c:301:8: note: length computed here
-  len = strlen(string);
-        ^~~~~~~~~~~~~~
+  git://git.kernel.dk/fio.git master
 
-Signed-off-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+for you to fetch changes up to d63a472d4b213533236ae9aab9cf9e0ec2854c31:
+
+  engines/aio-ring: initialization error handling (2018-12-19 12:55:10 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (2):
+      engines/aio-ring: cleanup read/write prep
+      engines/aio-ring: initialization error handling
+
+ engines/aioring.c | 38 +++++++++++++++++---------------------
+ 1 file changed, 17 insertions(+), 21 deletions(-)
+
 ---
- exp/expression-parser.y |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/exp/expression-parser.y b/exp/expression-parser.y
-index 04a6e07..29e2bcf 100644
---- a/exp/expression-parser.y
-+++ b/exp/expression-parser.y
-@@ -208,7 +208,7 @@ static void setup_to_parse_string(const char *string)
- 	if (len > sizeof(lexer_input_buffer) - 3)
- 		len = sizeof(lexer_input_buffer) - 3;
+Diff of recent changes:
+
+diff --git a/engines/aioring.c b/engines/aioring.c
+index 925b8862..59551f9c 100644
+--- a/engines/aioring.c
++++ b/engines/aioring.c
+@@ -197,26 +197,20 @@ static int fio_aioring_prep(struct thread_data *td, struct io_u *io_u)
  
--	strncpy(lexer_input_buffer, string, len);
-+	strncpy(lexer_input_buffer, string, sizeof(lexer_input_buffer)-3);
- 	lexer_input_buffer[len] = '\0'; 
- 	lexer_input_buffer[len + 1] = '\0';  /* lex/yacc want string double null terminated! */
- 	lexer_read_offset = 0;
--- 
-1.7.1
-
+ 	iocb = &ld->iocbs[io_u->index];
+ 
+-	if (io_u->ddir == DDIR_READ) {
+-		if (o->fixedbufs) {
+-			iocb->aio_fildes = f->fd;
++	if (io_u->ddir == DDIR_READ || io_u->ddir == DDIR_WRITE) {
++		if (io_u->ddir == DDIR_READ)
+ 			iocb->aio_lio_opcode = IO_CMD_PREAD;
+-			iocb->u.c.offset = io_u->offset;
+-		} else {
+-			io_prep_pread(iocb, f->fd, io_u->xfer_buf, io_u->xfer_buflen, io_u->offset);
+-			if (o->hipri)
+-				iocb->u.c.flags |= IOCB_FLAG_HIPRI;
+-		}
+-	} else if (io_u->ddir == DDIR_WRITE) {
+-		if (o->fixedbufs) {
+-			iocb->aio_fildes = f->fd;
++		else
+ 			iocb->aio_lio_opcode = IO_CMD_PWRITE;
+-			iocb->u.c.offset = io_u->offset;
+-		} else {
+-			io_prep_pwrite(iocb, f->fd, io_u->xfer_buf, io_u->xfer_buflen, io_u->offset);
+-			if (o->hipri)
+-				iocb->u.c.flags |= IOCB_FLAG_HIPRI;
+-		}
++		iocb->aio_reqprio = 0;
++		iocb->aio_fildes = f->fd;
++		iocb->u.c.buf = io_u->xfer_buf;
++		iocb->u.c.nbytes = io_u->xfer_buflen;
++		iocb->u.c.offset = io_u->offset;
++		if (o->hipri)
++			iocb->u.c.flags |= IOCB_FLAG_HIPRI;
++		else
++			iocb->u.c.flags = 0;
+ 	} else if (ddir_sync(io_u->ddir))
+ 		io_prep_fsync(iocb, f->fd);
+ 
+@@ -521,13 +515,15 @@ static int fio_aioring_post_init(struct thread_data *td)
+ 	}
+ 
+ 	err = fio_aioring_queue_init(td);
++
++	/* Adjust depth back again */
++	td->o.iodepth--;
++
+ 	if (err) {
+-		td_verror(td, -err, "io_queue_init");
++		td_verror(td, errno, "io_queue_init");
+ 		return 1;
+ 	}
+ 
+-	/* Adjust depth back again */
+-	td->o.iodepth--;
+ 	return 0;
+ }
+ 
 
