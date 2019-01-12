@@ -1,196 +1,342 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:42835 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729309AbfARUF4 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 18 Jan 2019 15:05:56 -0500
-From: Jeff Furlong <jeff.furlong@wdc.com>
-Subject: client/server: inflate and deflate error handling
-Date: Fri, 18 Jan 2019 20:05:48 +0000
-Message-ID: <MWHPR04MB03200FF19D62294AD70764798F9C0@MWHPR04MB0320.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+Received: from merlin.infradead.org ([205.233.59.134]:38138 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725823AbfALNAL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 12 Jan 2019 08:00:11 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1giItU-0008D0-RA
+        for fio@vger.kernel.org; Sat, 12 Jan 2019 13:00:09 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20190112130001.BCA2A2C0164@kernel.dk>
+Date: Sat, 12 Jan 2019 06:00:01 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Occasionally fio client/server with zlib enabled may report:
+The following changes since commit a7abc9fb769596d3bbf6d779e99d1cb8c1fcd49b:
 
-fio: inflate error -5
-fio: failed decompressing log
-fio: failed converting IO log
+  t/io_uring: add support for registered files (2019-01-10 22:29:27 -0700)
 
-The error -5 is a Z_BUF_ERROR, and references are available at https://zlib=
-.net/zlib_how.html and https://www.zlib.net/manual.html  It seems that when=
- decompressing the buffer, if the buffer chunk is the same size as remainin=
-g data in the buffer, the Z_BUF_ERROR can safely be ignored.  So one idea i=
-s to ignore the safe errors noting the zlib references:
+are available in the Git repository at:
 
-"inflate() can also return Z_STREAM_ERROR, which should not be possible her=
-e, but could be checked for as noted above for def(). Z_BUF_ERROR does not =
-need to be checked for here, for the same reasons noted for def(). Z_STREAM=
-_END will be checked for later.=20
+  git://git.kernel.dk/fio.git master
 
-            ret =3D inflate(&strm, Z_NO_FLUSH);
-            assert(ret !=3D Z_STREAM_ERROR);  /* state not clobbered */
-            switch (ret) {
-            case Z_NEED_DICT:
-                ret =3D Z_DATA_ERROR;     /* and fall through */
-            case Z_DATA_ERROR:
-            case Z_MEM_ERROR:
-                (void)inflateEnd(&strm);
-                return ret;
-            }
+for you to fetch changes up to e0abe38815e1c8cf7a319c6fbd0b1d60691db3d5:
 
-...
+  t/io_uring: only set IORING_ENTER_GETEVENTS when actively reaping (2019-01-11 14:40:16 -0700)
 
-The way we tell that deflate() has no more output is by seeing that it did =
-not fill the output buffer, leaving avail_out greater than zero. However su=
-ppose that deflate() has no more output, but just so happened to exactly fi=
-ll the output buffer! avail_out is zero, and we can't tell that deflate() h=
-as done all it can. As far as we know, deflate() has more output for us. So=
- we call it again. But now deflate() produces no output at all, and avail_o=
-ut remains unchanged as CHUNK. That deflate() call wasn't able to do anythi=
-ng, either consume input or produce output, and so it returns Z_BUF_ERROR. =
-(See, I told you I'd cover this later.) However this is not a problem at al=
-l. Now we finally have the desired indication that deflate() is really done=
-, and so we drop out of the inner loop to provide more input to deflate()."
+----------------------------------------------------------------
+Jens Axboe (4):
+      io_uring: update to newer API
+      t/io_uring: remember to set p->sq_thread_cpu
+      engines/io_uring: remove unused ld->io_us array
+      t/io_uring: only set IORING_ENTER_GETEVENTS when actively reaping
 
+ engines/io_uring.c | 27 +++++++++++++++------------
+ os/io_uring.h      | 31 ++++++++++++++++++++-----------
+ t/io_uring.c       | 47 ++++++++++++++++++++++++++++-------------------
+ 3 files changed, 63 insertions(+), 42 deletions(-)
 
-I have tried a few different patches here, but am seeing new issues.  First=
- I attempted to patch all cases of inflate/deflate error checking (patch 1)=
-, but got some hangs.  Finally I tried patching one small case (patch 2) bu=
-t got:
+---
 
-err=3D22/file:ioengines.c:443, func=3Dio commit, error=3DInvalid argument
+Diff of recent changes:
 
-Any thoughts on how the errors are persisting or where in the decompression=
- process the flow is broken?  Unfortunately getting the issue to repeat req=
-uires a few hours (seemingly more hours with patch 2 applied), so any ideas=
- to make a targeted test for decompressing specific size buffers may also b=
-e helpful.  Thanks.
-
-Regards,
-Jeff
-
-
-
-[=3D=3D=3D=3D=3D=3D=3D=3D=3D=3DPATCH 1=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D]
-diff --git a/client.c b/client.c
-index 480425f..bf8bc4c 100644
---- a/client.c
-+++ b/client.c
-@@ -1598,10 +1598,13 @@ static struct cmd_iolog_pdu *convert_iolog_gz(struc=
-t fio_net_cmd *cmd,
- 		err =3D inflate(&stream, Z_NO_FLUSH);
- 		/* may be Z_OK, or Z_STREAM_END */
- 		if (err < 0) {
--			log_err("fio: inflate error %d\n", err);
--			free(ret);
--			ret =3D NULL;
--			goto err;
-+			/* Z_STREAM_ERROR and Z_BUF_ERROR can safely be ignored */
-+			if ((err !=3D Z_STREAM_ERROR) && (err !=3D Z_BUF_ERROR)) {
-+				log_err("fio: inflate error %d\n", err);
-+				free(ret);
-+				ret =3D NULL;
-+				goto err;
-+			}
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index 7591190a..ca3e157f 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -48,7 +48,6 @@ struct ioring_mmap {
+ struct ioring_data {
+ 	int ring_fd;
+ 
+-	struct io_u **io_us;
+ 	struct io_u **io_u_index;
+ 
+ 	struct io_sq_ring sq_ring;
+@@ -150,25 +149,31 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
+ 	sqe->buf_index = 0;
+ 
+ 	if (io_u->ddir == DDIR_READ || io_u->ddir == DDIR_WRITE) {
+-		if (io_u->ddir == DDIR_READ)
+-			sqe->opcode = IORING_OP_READV;
+-		else
+-			sqe->opcode = IORING_OP_WRITEV;
+-
+ 		if (o->fixedbufs) {
+-			sqe->flags |= IOSQE_FIXED_BUFFER;
++			if (io_u->ddir == DDIR_READ)
++				sqe->opcode = IORING_OP_READ_FIXED;
++			else
++				sqe->opcode = IORING_OP_WRITE_FIXED;
+ 			sqe->addr = io_u->xfer_buf;
+ 			sqe->len = io_u->xfer_buflen;
+ 			sqe->buf_index = io_u->index;
+ 		} else {
++			if (io_u->ddir == DDIR_READ)
++				sqe->opcode = IORING_OP_READV;
++			else
++				sqe->opcode = IORING_OP_WRITEV;
+ 			sqe->addr = &ld->iovecs[io_u->index];
+ 			sqe->len = 1;
  		}
-=20
- 		this_len =3D this_chunk - stream.avail_out;
-diff --git a/iolog.c b/iolog.c
-index b72dcf9..6986bff 100644
---- a/iolog.c
-+++ b/iolog.c
-@@ -1027,9 +1027,12 @@ static size_t inflate_chunk(struct iolog_compress *i=
-c, int gz_hdr, FILE *f,
-=20
- 		err =3D inflate(stream, Z_NO_FLUSH);
- 		if (err < 0) {
--			log_err("fio: failed inflating log: %d\n", err);
--			iter->err =3D err;
--			break;
-+            /* Z_STREAM_ERROR and Z_BUF_ERROR can safely be ignored */
-+			if ((err !=3D Z_STREAM_ERROR) && (err !=3D Z_BUF_ERROR)) {
-+			    log_err("fio: failed inflating log: %d\n", err);
-+			    iter->err =3D err;
-+			    break;
-+            }
+ 		sqe->off = io_u->offset;
+-	} else if (ddir_sync(io_u->ddir))
++	} else if (ddir_sync(io_u->ddir)) {
++		sqe->fsync_flags = 0;
++		if (io_u->ddir == DDIR_DATASYNC)
++			sqe->fsync_flags |= IORING_FSYNC_DATASYNC;
+ 		sqe->opcode = IORING_OP_FSYNC;
++	}
+ 
+-	sqe->data = (unsigned long) io_u;
++	sqe->user_data = (unsigned long) io_u;
+ 	return 0;
+ }
+ 
+@@ -182,7 +187,7 @@ static struct io_u *fio_ioring_event(struct thread_data *td, int event)
+ 	index = (event + ld->cq_ring_off) & ld->cq_ring_mask;
+ 
+ 	cqe = &ld->cq_ring.cqes[index];
+-	io_u = (struct io_u *) cqe->data;
++	io_u = (struct io_u *) cqe->user_data;
+ 
+ 	if (cqe->res != io_u->xfer_buflen) {
+ 		if (cqe->res > io_u->xfer_buflen)
+@@ -390,7 +395,6 @@ static void fio_ioring_cleanup(struct thread_data *td)
+ 			fio_ioring_unmap(ld);
+ 
+ 		free(ld->io_u_index);
+-		free(ld->io_us);
+ 		free(ld->iovecs);
+ 		free(ld);
+ 	}
+@@ -526,7 +530,6 @@ static int fio_ioring_init(struct thread_data *td)
+ 
+ 	/* io_u index */
+ 	ld->io_u_index = calloc(td->o.iodepth, sizeof(struct io_u *));
+-	ld->io_us = calloc(td->o.iodepth, sizeof(struct io_u *));
+ 	ld->iovecs = calloc(td->o.iodepth, sizeof(struct iovec));
+ 
+ 	td->io_ops_data = ld;
+diff --git a/os/io_uring.h b/os/io_uring.h
+index e1d3df0b..74370aed 100644
+--- a/os/io_uring.h
++++ b/os/io_uring.h
+@@ -16,7 +16,7 @@
+  */
+ struct io_uring_sqe {
+ 	__u8	opcode;		/* type of operation for this sqe */
+-	__u8	flags;		/* IOSQE_ flags below */
++	__u8	flags;		/* IOSQE_ flags */
+ 	__u16	ioprio;		/* ioprio for the request */
+ 	__s32	fd;		/* file descriptor to do IO on */
+ 	__u64	off;		/* offset into file */
+@@ -27,18 +27,18 @@ struct io_uring_sqe {
+ 	__u32	len;		/* buffer size or number of iovecs */
+ 	union {
+ 		__kernel_rwf_t	rw_flags;
+-		__u32		__resv;
++		__u32		fsync_flags;
+ 	};
+ 	__u16	buf_index;	/* index into fixed buffers, if used */
+-	__u16	__pad2[3];
+-	__u64	data;		/* data to be passed back at completion time */
++	__u16	__pad2;
++	__u32	__pad3;
++	__u64	user_data;	/* data to be passed back at completion time */
+ };
+ 
+ /*
+  * sqe->flags
+  */
+-#define IOSQE_FIXED_BUFFER	(1 << 0)	/* use fixed buffer */
+-#define IOSQE_FIXED_FILE	(1 << 1)	/* use fixed fileset */
++#define IOSQE_FIXED_FILE	(1 << 0)	/* use fixed fileset */
+ 
+ /*
+  * io_uring_setup() flags
+@@ -50,13 +50,19 @@ struct io_uring_sqe {
+ #define IORING_OP_READV		1
+ #define IORING_OP_WRITEV	2
+ #define IORING_OP_FSYNC		3
+-#define IORING_OP_FDSYNC	4
++#define IORING_OP_READ_FIXED	4
++#define IORING_OP_WRITE_FIXED	5
++
++/*
++ * sqe->fsync_flags
++ */
++#define IORING_FSYNC_DATASYNC	(1 << 0)
+ 
+ /*
+  * IO completion data structure (Completion Queue Entry)
+  */
+ struct io_uring_cqe {
+-	__u64	data;		/* sqe->data submission passed back */
++	__u64	user_data;	/* sqe->data submission passed back */
+ 	__s32	res;		/* result code for this event */
+ 	__u32	flags;
+ };
+@@ -87,6 +93,9 @@ struct io_sqring_offsets {
+ 	__u32 resv[3];
+ };
+ 
++/*
++ * sq_ring->flags
++ */
+ #define IORING_SQ_NEED_WAKEUP	(1 << 0) /* needs io_uring_enter wakeup */
+ 
+ struct io_cqring_offsets {
+@@ -127,12 +136,12 @@ struct io_uring_params {
+ 
+ struct io_uring_register_buffers {
+ 	struct iovec *iovecs;
+-	unsigned nr_iovecs;
++	__u32 nr_iovecs;
+ };
+ 
+ struct io_uring_register_files {
+-	int *fds;
+-	unsigned nr_fds;
++	__s32 *fds;
++	__u32 nr_fds;
+ };
+ 
+ #endif
+diff --git a/t/io_uring.c b/t/io_uring.c
+index 0461329b..d4160c3d 100644
+--- a/t/io_uring.c
++++ b/t/io_uring.c
+@@ -59,7 +59,8 @@ static unsigned sq_ring_mask, cq_ring_mask;
+ struct file {
+ 	unsigned long max_blocks;
+ 	unsigned pending_ios;
+-	int fd;
++	int real_fd;
++	int fixed_fd;
+ };
+ 
+ struct submitter {
+@@ -77,6 +78,8 @@ struct submitter {
+ 	unsigned long cachehit, cachemiss;
+ 	volatile int finish;
+ 
++	__s32 *fds;
++
+ 	struct file files[MAX_FDS];
+ 	unsigned nr_files;
+ 	unsigned cur_file;
+@@ -105,17 +108,18 @@ static int io_uring_register_buffers(struct submitter *s)
+ static int io_uring_register_files(struct submitter *s)
+ {
+ 	struct io_uring_register_files reg;
+-	int i, ret;
++	int i;
+ 
+-	reg.fds = calloc(s->nr_files, sizeof(int));
+-	for (i = 0; i < s->nr_files; i++)
+-		reg.fds[i] = s->files[i].fd;
++	s->fds = calloc(s->nr_files, sizeof(__s32));
++	for (i = 0; i < s->nr_files; i++) {
++		s->fds[i] = s->files[i].real_fd;
++		s->files[i].fixed_fd = i;
++	}
++	reg.fds = s->fds;
+ 	reg.nr_fds = s->nr_files;
+ 
+-	ret = syscall(__NR_sys_io_uring_register, s->ring_fd,
++	return syscall(__NR_sys_io_uring_register, s->ring_fd,
+ 			IORING_REGISTER_FILES, &reg);
+-	free(reg.fds);
+-	return ret;
+ }
+ 
+ static int io_uring_setup(unsigned entries, struct io_uring_params *p)
+@@ -163,21 +167,21 @@ static void init_io(struct submitter *s, unsigned index)
+ 	offset = (r % (f->max_blocks - 1)) * BS;
+ 
+ 	sqe->flags = IOSQE_FIXED_FILE;
+-	sqe->opcode = IORING_OP_READV;
+ 	if (fixedbufs) {
++		sqe->opcode = IORING_OP_READ_FIXED;
+ 		sqe->addr = s->iovecs[index].iov_base;
+ 		sqe->len = BS;
+ 		sqe->buf_index = index;
+-		sqe->flags |= IOSQE_FIXED_BUFFER;
+ 	} else {
++		sqe->opcode = IORING_OP_READV;
+ 		sqe->addr = &s->iovecs[index];
+ 		sqe->len = 1;
+ 		sqe->buf_index = 0;
+ 	}
+ 	sqe->ioprio = 0;
+-	sqe->fd = f->fd;
++	sqe->fd = f->fixed_fd;
+ 	sqe->off = offset;
+-	sqe->data = (unsigned long) f;
++	sqe->user_data = (unsigned long) f;
+ }
+ 
+ static int prep_more_ios(struct submitter *s, int max_ios)
+@@ -212,12 +216,12 @@ static int get_file_size(struct file *f)
+ {
+ 	struct stat st;
+ 
+-	if (fstat(f->fd, &st) < 0)
++	if (fstat(f->real_fd, &st) < 0)
+ 		return -1;
+ 	if (S_ISBLK(st.st_mode)) {
+ 		unsigned long long bytes;
+ 
+-		if (ioctl(f->fd, BLKGETSIZE64, &bytes) != 0)
++		if (ioctl(f->real_fd, BLKGETSIZE64, &bytes) != 0)
+ 			return -1;
+ 
+ 		f->max_blocks = bytes / BS;
+@@ -244,7 +248,7 @@ static int reap_events(struct submitter *s)
+ 		if (head == *ring->tail)
+ 			break;
+ 		cqe = &ring->cqes[head & cq_ring_mask];
+-		f = (struct file *) cqe->data;
++		f = (struct file *) cqe->user_data;
+ 		f->pending_ios--;
+ 		if (cqe->res != BS) {
+ 			printf("io: unexpected ret=%d\n", cqe->res);
+@@ -296,8 +300,11 @@ submit:
+ 		 * poll, or if IORING_SQ_NEED_WAKEUP is set.
+ 		 */
+ 		if (!sq_thread_poll || (*ring->flags & IORING_SQ_NEED_WAKEUP)) {
+-			ret = io_uring_enter(s, to_submit, to_wait,
+-						IORING_ENTER_GETEVENTS);
++			unsigned flags = 0;
++
++			if (to_wait)
++				flags = IORING_ENTER_GETEVENTS;
++			ret = io_uring_enter(s, to_submit, to_wait, flags);
+ 			s->calls++;
  		}
-=20
- 		iter->buf_used +=3D this_out - stream->avail_out;
-@@ -1335,9 +1338,12 @@ static int gz_work(struct iolog_flush_data *data)
- 		stream.next_out =3D c->buf;
- 		ret =3D deflate(&stream, Z_NO_FLUSH);
- 		if (ret < 0) {
--			log_err("fio: deflate log (%d)\n", ret);
--			free_chunk(c);
--			goto err;
-+            /* Z_STREAM_ERROR and Z_BUF_ERROR can safely be ignored */
-+			if ((ret !=3D Z_STREAM_ERROR) && (ret !=3D Z_BUF_ERROR)) {
-+			    log_err("fio: deflate log (%d)\n", ret);
-+			    free_chunk(c);
-+			    goto err;
-+            }
+ 
+@@ -382,8 +389,10 @@ static int setup_ring(struct submitter *s)
+ 		p.flags |= IORING_SETUP_IOPOLL;
+ 	if (sq_thread_poll) {
+ 		p.flags |= IORING_SETUP_SQPOLL;
+-		if (sq_thread_cpu != -1)
++		if (sq_thread_cpu != -1) {
+ 			p.flags |= IORING_SETUP_SQ_AFF;
++			p.sq_thread_cpu = sq_thread_cpu;
++		}
+ 	}
+ 
+ 	fd = io_uring_setup(DEPTH, &p);
+@@ -463,7 +472,7 @@ int main(int argc, char *argv[])
+ 			perror("open");
+ 			return 1;
  		}
-=20
- 		c->len =3D GZ_CHUNK - stream.avail_out;
-diff --git a/server.c b/server.c
-index 2a33770..d64e5f1 100644
---- a/server.c
-+++ b/server.c
-@@ -1739,8 +1739,11 @@ static int __deflate_pdu_buffer(void *next_in, unsig=
-ned int next_sz, void **out_
- 		ret =3D deflate(stream, Z_BLOCK);
-=20
- 		if (ret < 0) {
--			free(*out_pdu);
--			return 1;
-+            /* Z_STREAM_ERROR and Z_BUF_ERROR can safely be ignored */
-+			if ((ret !=3D Z_STREAM_ERROR) && (ret !=3D Z_BUF_ERROR)) {
-+			    free(*out_pdu);
-+			    return 1;
-+            }
- 		}
- 	} while (stream->avail_in);
-=20
-@@ -1823,8 +1826,11 @@ static int __fio_append_iolog_gz(struct sk_entry *fi=
-rst, struct io_log *log,
- 		ret =3D deflate(stream, Z_BLOCK);
- 		/* may be Z_OK, or Z_STREAM_END */
- 		if (ret < 0) {
--			free(out_pdu);
--			return 1;
-+            /* Z_STREAM_ERROR and Z_BUF_ERROR can safely be ignored */
-+			if ((ret !=3D Z_STREAM_ERROR) && (ret !=3D Z_BUF_ERROR)) {
-+			    free(out_pdu);
-+			    return 1;
-+            }
- 		}
-=20
- 		this_len =3D FIO_SERVER_MAX_FRAGMENT_PDU - stream->avail_out;
-
-
-
-[=3D=3D=3D=3D=3D=3D=3D=3D=3D=3DPATCH 2=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D]
-diff --git a/client.c b/client.c
-index 480425f..522edbf 100644
---- a/client.c
-+++ b/client.c
-@@ -1598,7 +1598,9 @@ static struct cmd_iolog_pdu *convert_iolog_gz(struct =
-fio_net_cmd *cmd,
- 		err =3D inflate(&stream, Z_NO_FLUSH);
- 		/* may be Z_OK, or Z_STREAM_END */
- 		if (err < 0) {
--			log_err("fio: inflate error %d\n", err);
-+			/* Z_STREAM_ERROR and Z_BUF_ERROR can safely be ignored */
-+			if ((err =3D=3D Z_STREAM_ERROR) || (err =3D=3D Z_BUF_ERROR))
-+				break;
- 			free(ret);
- 			ret =3D NULL;
- 			goto err;
-
-
+-		f->fd = fd;
++		f->real_fd = fd;
+ 		if (get_file_size(f)) {
+ 			printf("failed getting size of device/file\n");
+ 			return 1;
 
