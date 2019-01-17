@@ -1,230 +1,195 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:36506 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390382AbfAPNAG (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 16 Jan 2019 08:00:06 -0500
+Received: from bombadil.infradead.org ([198.137.202.133]:51702 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725882AbfAQNAT (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 17 Jan 2019 08:00:19 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1gjknd-0000JI-46
-        for fio@vger.kernel.org; Wed, 16 Jan 2019 13:00:05 +0000
+        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1gk7HP-0003pS-Jn
+        for fio@vger.kernel.org; Thu, 17 Jan 2019 13:00:19 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20190116130002.0212E2C0089@kernel.dk>
-Date: Wed, 16 Jan 2019 06:00:01 -0700 (MST)
+Message-Id: <20190117130001.9BC5C2C0089@kernel.dk>
+Date: Thu, 17 Jan 2019 06:00:01 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 93d1811ce6a510d36d61381840283d1ae9933b37:
+The following changes since commit 2b9415ddc260726c3ea9ae3436826f9181811143:
 
-  t/io_uring: pick next file if we're over the limti (2019-01-15 05:57:54 -0700)
+  engines/io_uring: ensure sqe stores are ordered SQ ring tail update (2019-01-15 22:06:05 -0700)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 2b9415ddc260726c3ea9ae3436826f9181811143:
+for you to fetch changes up to 2d644205f56953192d27ccbf193c899ae559fcb7:
 
-  engines/io_uring: ensure sqe stores are ordered SQ ring tail update (2019-01-15 22:06:05 -0700)
+  engines/io_uring: cleanup setrlimit() (2019-01-16 09:07:13 -0700)
 
 ----------------------------------------------------------------
-Jens Axboe (7):
-      t/io_uring: print file depths
-      t/io_uring: wait if we're at queue limit
-      t/io_uring: terminate buf[] file depth string
-      t/io_uring: fixes
-      x86-64: correct read/write barriers
-      t/io_uring: use fio provided memory barriers
-      engines/io_uring: ensure sqe stores are ordered SQ ring tail update
+Jens Axboe (2):
+      io_uring: sync with upstream API
+      engines/io_uring: cleanup setrlimit()
 
- arch/arch-x86_64.h |  4 ++--
- engines/io_uring.c |  2 ++
- t/io_uring.c       | 51 ++++++++++++++++++++++++++++++++++++---------------
- 3 files changed, 40 insertions(+), 17 deletions(-)
+ engines/io_uring.c  | 24 +++++++++---------------
+ os/linux/io_uring.h | 21 +--------------------
+ t/io_uring.c        | 16 ++++------------
+ 3 files changed, 14 insertions(+), 47 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/arch/arch-x86_64.h b/arch/arch-x86_64.h
-index 665c6b04..0cd21b8f 100644
---- a/arch/arch-x86_64.h
-+++ b/arch/arch-x86_64.h
-@@ -27,8 +27,8 @@ static inline void do_cpuid(unsigned int *eax, unsigned int *ebx,
- #define	FIO_HUGE_PAGE		2097152
- 
- #define nop		__asm__ __volatile__("rep;nop": : :"memory")
--#define read_barrier()	__asm__ __volatile__("lfence":::"memory")
--#define write_barrier()	__asm__ __volatile__("sfence":::"memory")
-+#define read_barrier()	__asm__ __volatile__("":::"memory")
-+#define write_barrier()	__asm__ __volatile__("":::"memory")
- 
- static inline unsigned long arch_ffz(unsigned long bitmask)
- {
 diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 56af8d71..8c5d9deb 100644
+index 8c5d9deb..c759ec19 100644
 --- a/engines/io_uring.c
 +++ b/engines/io_uring.c
-@@ -289,6 +289,8 @@ static enum fio_q_status fio_ioring_queue(struct thread_data *td,
- 	if (next_tail == *ring->head)
- 		return FIO_Q_BUSY;
+@@ -154,7 +154,7 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
+ 				sqe->opcode = IORING_OP_READ_FIXED;
+ 			else
+ 				sqe->opcode = IORING_OP_WRITE_FIXED;
+-			sqe->addr = io_u->xfer_buf;
++			sqe->addr = (unsigned long) io_u->xfer_buf;
+ 			sqe->len = io_u->xfer_buflen;
+ 			sqe->buf_index = io_u->index;
+ 		} else {
+@@ -162,7 +162,7 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
+ 				sqe->opcode = IORING_OP_READV;
+ 			else
+ 				sqe->opcode = IORING_OP_WRITEV;
+-			sqe->addr = &ld->iovecs[io_u->index];
++			sqe->addr = (unsigned long) &ld->iovecs[io_u->index];
+ 			sqe->len = 1;
+ 		}
+ 		sqe->off = io_u->offset;
+@@ -462,15 +462,6 @@ static int fio_ioring_queue_init(struct thread_data *td)
+ 		}
+ 	}
  
-+	/* ensure sqe stores are ordered with tail update */
-+	write_barrier();
- 	ring->array[tail & ld->sq_ring_mask] = io_u->index;
- 	*ring->tail = next_tail;
- 	write_barrier();
+-	if (o->fixedbufs) {
+-		struct rlimit rlim = {
+-			.rlim_cur = RLIM_INFINITY,
+-			.rlim_max = RLIM_INFINITY,
+-		};
+-
+-		setrlimit(RLIMIT_MEMLOCK, &rlim);
+-	}
+-
+ 	ret = syscall(__NR_sys_io_uring_setup, depth, &p);
+ 	if (ret < 0)
+ 		return ret;
+@@ -478,13 +469,16 @@ static int fio_ioring_queue_init(struct thread_data *td)
+ 	ld->ring_fd = ret;
+ 
+ 	if (o->fixedbufs) {
+-		struct io_uring_register_buffers reg = {
+-			.iovecs = ld->iovecs,
+-			.nr_iovecs = depth
++		struct rlimit rlim = {
++			.rlim_cur = RLIM_INFINITY,
++			.rlim_max = RLIM_INFINITY,
+ 		};
+ 
++		if (setrlimit(RLIMIT_MEMLOCK, &rlim) < 0)
++			return -1;
++
+ 		ret = syscall(__NR_sys_io_uring_register, ld->ring_fd,
+-				IORING_REGISTER_BUFFERS, &reg);
++				IORING_REGISTER_BUFFERS, ld->iovecs, depth);
+ 		if (ret < 0)
+ 			return ret;
+ 	}
+diff --git a/os/linux/io_uring.h b/os/linux/io_uring.h
+index 71e92026..9bb71816 100644
+--- a/os/linux/io_uring.h
++++ b/os/linux/io_uring.h
+@@ -20,10 +20,7 @@ struct io_uring_sqe {
+ 	__u16	ioprio;		/* ioprio for the request */
+ 	__s32	fd;		/* file descriptor to do IO on */
+ 	__u64	off;		/* offset into file */
+-	union {
+-		void	*addr;	/* buffer or iovecs */
+-		__u64	__pad;
+-	};
++	__u64	addr;		/* pointer to buffer or iovecs */
+ 	__u32	len;		/* buffer size or number of iovecs */
+ 	union {
+ 		__kernel_rwf_t	rw_flags;
+@@ -136,20 +133,4 @@ struct io_uring_params {
+ #define IORING_REGISTER_FILES		2
+ #define IORING_UNREGISTER_FILES		3
+ 
+-struct io_uring_register_buffers {
+-	union {
+-		struct iovec *iovecs;
+-		__u64 pad;
+-	};
+-	__u32 nr_iovecs;
+-};
+-
+-struct io_uring_register_files {
+-	union {
+-		__s32 *fds;
+-		__u64 pad;
+-	};
+-	__u32 nr_fds;
+-};
+-
+ #endif
 diff --git a/t/io_uring.c b/t/io_uring.c
-index b5f1e094..ef5d52d1 100644
+index ef5d52d1..da3b4d1f 100644
 --- a/t/io_uring.c
 +++ b/t/io_uring.c
-@@ -24,8 +24,6 @@
- #include "../lib/types.h"
- #include "../os/linux/io_uring.h"
+@@ -96,21 +96,15 @@ static int do_nop = 0;		/* no-op SQ ring commands */
  
--#define barrier()	__asm__ __volatile__("": : :"memory")
--
- #define min(a, b)		((a < b) ? (a) : (b))
- 
- struct io_sq_ring {
-@@ -47,8 +45,8 @@ struct io_cq_ring {
- 
- #define DEPTH			128
- 
--#define BATCH_SUBMIT		64
--#define BATCH_COMPLETE		64
-+#define BATCH_SUBMIT		32
-+#define BATCH_COMPLETE		32
- 
- #define BS			4096
- 
-@@ -211,7 +209,7 @@ static int prep_more_ios(struct submitter *s, int max_ios)
- 	next_tail = tail = *ring->tail;
- 	do {
- 		next_tail++;
--		barrier();
-+		read_barrier();
- 		if (next_tail == *ring->head)
- 			break;
- 
-@@ -224,9 +222,9 @@ static int prep_more_ios(struct submitter *s, int max_ios)
- 
- 	if (*ring->tail != tail) {
- 		/* order tail store with writes to sqes above */
--		barrier();
-+		write_barrier();
- 		*ring->tail = tail;
--		barrier();
-+		write_barrier();
- 	}
- 	return prepped;
- }
-@@ -263,7 +261,7 @@ static int reap_events(struct submitter *s)
- 	do {
- 		struct file *f;
- 
--		barrier();
-+		read_barrier();
- 		if (head == *ring->tail)
- 			break;
- 		cqe = &ring->cqes[head & cq_ring_mask];
-@@ -285,7 +283,7 @@ static int reap_events(struct submitter *s)
- 
- 	s->inflight -= reaped;
- 	*ring->head = head;
--	barrier();
-+	write_barrier();
- 	return reaped;
- }
- 
-@@ -311,7 +309,7 @@ static void *submitter_fn(void *data)
- submit_more:
- 		to_submit = prepped;
- submit:
--		if (to_submit && (s->inflight + to_submit < DEPTH))
-+		if (to_submit && (s->inflight + to_submit <= DEPTH))
- 			to_wait = 0;
- 		else
- 			to_wait = min(s->inflight + to_submit, BATCH_COMPLETE);
-@@ -338,9 +336,10 @@ submit:
- 		do {
- 			int r;
- 			r = reap_events(s);
--			if (r == -1)
-+			if (r == -1) {
-+				s->finish = 1;
- 				break;
--			else if (r > 0)
-+			} else if (r > 0)
- 				this_reap += r;
- 		} while (sq_thread_poll && this_reap < to_wait);
- 		s->reaps += this_reap;
-@@ -406,7 +405,7 @@ static int setup_ring(struct submitter *s)
- 
- 	memset(&p, 0, sizeof(p));
- 
--	if (polled)
-+	if (polled && !do_nop)
- 		p.flags |= IORING_SETUP_IOPOLL;
- 	if (sq_thread_poll) {
- 		p.flags |= IORING_SETUP_SQPOLL;
-@@ -469,11 +468,30 @@ static int setup_ring(struct submitter *s)
- 	return 0;
- }
- 
-+static void file_depths(char *buf)
-+{
-+	struct submitter *s = &submitters[0];
-+	char *p;
-+	int i;
-+
-+	buf[0] = '\0';
-+	p = buf;
-+	for (i = 0; i < s->nr_files; i++) {
-+		struct file *f = &s->files[i];
-+
-+		if (i + 1 == s->nr_files)
-+			p += sprintf(p, "%d", f->pending_ios);
-+		else
-+			p += sprintf(p, "%d, ", f->pending_ios);
-+	}
-+}
-+
- int main(int argc, char *argv[])
+ static int io_uring_register_buffers(struct submitter *s)
  {
- 	struct submitter *s = &submitters[0];
- 	unsigned long done, calls, reap, cache_hit, cache_miss;
- 	int err, i, flags, fd;
-+	char *fdepths;
- 	void *ret;
+-	struct io_uring_register_buffers reg = {
+-		.iovecs = s->iovecs,
+-		.nr_iovecs = DEPTH
+-	};
+-
+ 	if (do_nop)
+ 		return 0;
  
- 	if (!do_nop && argc < 2) {
-@@ -544,6 +562,7 @@ int main(int argc, char *argv[])
- 
- 	pthread_create(&s->thread, NULL, submitter_fn, s);
- 
-+	fdepths = malloc(8 * s->nr_files);
- 	cache_hit = cache_miss = reap = calls = done = 0;
- 	do {
- 		unsigned long this_done = 0;
-@@ -573,9 +592,10 @@ int main(int argc, char *argv[])
- 			ipc = (this_reap - reap) / (this_call - calls);
- 		} else
- 			rpc = ipc = -1;
--		printf("IOPS=%lu, IOS/call=%ld/%ld, inflight=%u (head=%u tail=%u), Cachehit=%0.2f%%\n",
-+		file_depths(fdepths);
-+		printf("IOPS=%lu, IOS/call=%ld/%ld, inflight=%u (%s), Cachehit=%0.2f%%\n",
- 				this_done - done, rpc, ipc, s->inflight,
--				*s->cq_ring.head, *s->cq_ring.tail, hit);
-+				fdepths, hit);
- 		done = this_done;
- 		calls = this_call;
- 		reap = this_reap;
-@@ -585,5 +605,6 @@ int main(int argc, char *argv[])
- 
- 	pthread_join(s->thread, &ret);
- 	close(s->ring_fd);
-+	free(fdepths);
- 	return 0;
+ 	return syscall(__NR_sys_io_uring_register, s->ring_fd,
+-			IORING_REGISTER_BUFFERS, &reg);
++			IORING_REGISTER_BUFFERS, s->iovecs, DEPTH);
  }
+ 
+ static int io_uring_register_files(struct submitter *s)
+ {
+-	struct io_uring_register_files reg;
+ 	int i;
+ 
+ 	if (do_nop)
+@@ -121,11 +115,9 @@ static int io_uring_register_files(struct submitter *s)
+ 		s->fds[i] = s->files[i].real_fd;
+ 		s->files[i].fixed_fd = i;
+ 	}
+-	reg.fds = s->fds;
+-	reg.nr_fds = s->nr_files;
+ 
+ 	return syscall(__NR_sys_io_uring_register, s->ring_fd,
+-			IORING_REGISTER_FILES, &reg);
++			IORING_REGISTER_FILES, s->fds, s->nr_files);
+ }
+ 
+ static int io_uring_setup(unsigned entries, struct io_uring_params *p)
+@@ -187,12 +179,12 @@ static void init_io(struct submitter *s, unsigned index)
+ 	}
+ 	if (fixedbufs) {
+ 		sqe->opcode = IORING_OP_READ_FIXED;
+-		sqe->addr = s->iovecs[index].iov_base;
++		sqe->addr = (unsigned long) s->iovecs[index].iov_base;
+ 		sqe->len = BS;
+ 		sqe->buf_index = index;
+ 	} else {
+ 		sqe->opcode = IORING_OP_READV;
+-		sqe->addr = &s->iovecs[index];
++		sqe->addr = (unsigned long) &s->iovecs[index];
+ 		sqe->len = 1;
+ 		sqe->buf_index = 0;
+ 	}
 
