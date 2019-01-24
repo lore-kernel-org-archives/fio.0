@@ -1,154 +1,129 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:55718 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725851AbfA3NAH (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 30 Jan 2019 08:00:07 -0500
+Received: from merlin.infradead.org ([205.233.59.134]:53998 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728014AbfAXNAV (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 24 Jan 2019 08:00:21 -0500
 Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1gopTL-0000db-JJ
-        for fio@vger.kernel.org; Wed, 30 Jan 2019 13:00:07 +0000
+        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1gmecG-0002U6-8b
+        for fio@vger.kernel.org; Thu, 24 Jan 2019 13:00:20 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20190130130002.078EF2C328A@kernel.dk>
-Date: Wed, 30 Jan 2019 06:00:02 -0700 (MST)
+Message-Id: <20190124130001.E2F652C00C0@kernel.dk>
+Date: Thu, 24 Jan 2019 06:00:01 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit b532dd6d476679b08e4a56a60e8a7dd958779df9:
+The following changes since commit 2d644205f56953192d27ccbf193c899ae559fcb7:
 
-  io_uring: sync with kernel (2019-01-28 11:42:20 -0700)
+  engines/io_uring: cleanup setrlimit() (2019-01-16 09:07:13 -0700)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 521164fa90df413aa7aa8fb2956095a41eba7d6a:
+for you to fetch changes up to 63ed82548f4489b4c6d5df688f7405b9eb20ddc9:
 
-  io_uring: ensure we use the right argument syscall (2019-01-29 12:20:02 -0700)
+  io_uring: system calls have been renumbered (2019-01-23 08:04:28 -0700)
 
 ----------------------------------------------------------------
-Jens Axboe (3):
-      io_uring: update to kernel struct io_uring_params
-      t/io_uring: fix bad if
-      io_uring: ensure we use the right argument syscall
+Jens Axboe (1):
+      io_uring: system calls have been renumbered
 
- engines/io_uring.c  |  2 +-
- os/linux/io_uring.h | 24 ++++++++++++------------
- t/io_uring.c        |  4 ++--
- 3 files changed, 15 insertions(+), 15 deletions(-)
+ arch/arch-x86-common.h | 11 +++++++++++
+ arch/arch-x86.h        | 11 -----------
+ arch/arch-x86_64.h     | 11 -----------
+ 3 files changed, 11 insertions(+), 22 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 5279b1d0..014f954e 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -132,7 +132,7 @@ static int io_uring_enter(struct ioring_data *ld, unsigned int to_submit,
- 			 unsigned int min_complete, unsigned int flags)
- {
- 	return syscall(__NR_sys_io_uring_enter, ld->ring_fd, to_submit,
--			min_complete, flags);
-+			min_complete, flags, NULL, 0);
+diff --git a/arch/arch-x86-common.h b/arch/arch-x86-common.h
+index 5140f238..7c07a61c 100644
+--- a/arch/arch-x86-common.h
++++ b/arch/arch-x86-common.h
+@@ -3,6 +3,16 @@
+ 
+ #include <string.h>
+ 
++#ifndef __NR_sys_io_uring_setup
++#define __NR_sys_io_uring_setup		425
++#endif
++#ifndef __NR_sys_io_uring_enter
++#define __NR_sys_io_uring_enter		426
++#endif
++#ifndef __NR_sys_io_uring_register
++#define __NR_sys_io_uring_register	427
++#endif
++
+ static inline void cpuid(unsigned int op,
+ 			 unsigned int *eax, unsigned int *ebx,
+ 			 unsigned int *ecx, unsigned int *edx)
+@@ -13,6 +23,7 @@ static inline void cpuid(unsigned int op,
  }
  
- static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
-diff --git a/os/linux/io_uring.h b/os/linux/io_uring.h
-index 589b6402..b1504502 100644
---- a/os/linux/io_uring.h
-+++ b/os/linux/io_uring.h
-@@ -39,14 +39,14 @@ struct io_uring_sqe {
- /*
-  * sqe->flags
-  */
--#define IOSQE_FIXED_FILE	(1 << 0)	/* use fixed fileset */
-+#define IOSQE_FIXED_FILE	(1U << 0)	/* use fixed fileset */
+ #define ARCH_HAVE_INIT
++#define ARCH_HAVE_IOURING
  
- /*
-  * io_uring_setup() flags
-  */
--#define IORING_SETUP_IOPOLL	(1 << 0)	/* io_context is polled */
--#define IORING_SETUP_SQPOLL	(1 << 1)	/* SQ poll thread */
--#define IORING_SETUP_SQ_AFF	(1 << 2)	/* sq_thread_cpu is valid */
-+#define IORING_SETUP_IOPOLL	(1U << 0)	/* io_context is polled */
-+#define IORING_SETUP_SQPOLL	(1U << 1)	/* SQ poll thread */
-+#define IORING_SETUP_SQ_AFF	(1U << 2)	/* sq_thread_cpu is valid */
+ extern bool tsc_reliable;
+ extern int arch_random;
+diff --git a/arch/arch-x86.h b/arch/arch-x86.h
+index c1c866ea..c6bcb54c 100644
+--- a/arch/arch-x86.h
++++ b/arch/arch-x86.h
+@@ -1,16 +1,6 @@
+ #ifndef ARCH_X86_H
+ #define ARCH_X86_H
  
- #define IORING_OP_NOP		0
- #define IORING_OP_READV		1
-@@ -60,7 +60,7 @@ struct io_uring_sqe {
- /*
-  * sqe->fsync_flags
-  */
--#define IORING_FSYNC_DATASYNC	(1 << 0)
-+#define IORING_FSYNC_DATASYNC	(1U << 0)
- 
- /*
-  * IO completion data structure (Completion Queue Entry)
-@@ -74,7 +74,7 @@ struct io_uring_cqe {
- /*
-  * io_uring_event->flags
-  */
--#define IOCQE_FLAG_CACHEHIT	(1 << 0)	/* IO did not hit media */
-+#define IOCQE_FLAG_CACHEHIT	(1U << 0)	/* IO did not hit media */
- 
- /*
-  * Magic offsets for the application to mmap the data it needs
-@@ -100,7 +100,7 @@ struct io_sqring_offsets {
- /*
-  * sq_ring->flags
-  */
--#define IORING_SQ_NEED_WAKEUP	(1 << 0) /* needs io_uring_enter wakeup */
-+#define IORING_SQ_NEED_WAKEUP	(1U << 0) /* needs io_uring_enter wakeup */
- 
- struct io_cqring_offsets {
- 	__u32 head;
-@@ -115,8 +115,8 @@ struct io_cqring_offsets {
- /*
-  * io_uring_enter(2) flags
-  */
--#define IORING_ENTER_GETEVENTS	(1 << 0)
--#define IORING_ENTER_SQ_WAKEUP	(1 << 1)
-+#define IORING_ENTER_GETEVENTS	(1U << 0)
-+#define IORING_ENTER_SQ_WAKEUP	(1U << 1)
- 
- /*
-  * Passed in for io_uring_setup(2). Copied back with updated info on success
-@@ -125,9 +125,9 @@ struct io_uring_params {
- 	__u32 sq_entries;
- 	__u32 cq_entries;
- 	__u32 flags;
--	__u16 sq_thread_cpu;
--	__u16 sq_thread_idle;
--	__u16 resv[8];
-+	__u32 sq_thread_cpu;
-+	__u32 sq_thread_idle;
-+	__u32 resv[5];
- 	struct io_sqring_offsets sq_off;
- 	struct io_cqring_offsets cq_off;
- };
-diff --git a/t/io_uring.c b/t/io_uring.c
-index 9ded1590..62b48e44 100644
---- a/t/io_uring.c
-+++ b/t/io_uring.c
-@@ -129,7 +129,7 @@ static int io_uring_enter(struct submitter *s, unsigned int to_submit,
- 			  unsigned int min_complete, unsigned int flags)
+-#ifndef __NR_sys_io_uring_setup
+-#define __NR_sys_io_uring_setup		387
+-#endif
+-#ifndef __NR_sys_io_uring_enter
+-#define __NR_sys_io_uring_enter		388
+-#endif
+-#ifndef __NR_sys_io_uring_register
+-#define __NR_sys_io_uring_register	389
+-#endif
+-
+ static inline void do_cpuid(unsigned int *eax, unsigned int *ebx,
+ 			    unsigned int *ecx, unsigned int *edx)
  {
- 	return syscall(__NR_sys_io_uring_enter, s->ring_fd, to_submit,
--			min_complete, flags);
-+			min_complete, flags, NULL, 0);
- }
+@@ -46,6 +36,5 @@ static inline unsigned long long get_cpu_clock(void)
  
- static int gettid(void)
-@@ -315,7 +315,7 @@ submit:
+ #define ARCH_HAVE_FFZ
+ #define ARCH_HAVE_CPU_CLOCK
+-#define ARCH_HAVE_IOURING
  
- 			if (to_wait)
- 				flags = IORING_ENTER_GETEVENTS;
--			if (*ring->flags & IORING_SQ_NEED_WAKEUP)
-+			if ((*ring->flags & IORING_SQ_NEED_WAKEUP))
- 				flags |= IORING_ENTER_SQ_WAKEUP;
- 			ret = io_uring_enter(s, to_submit, to_wait, flags);
- 			s->calls++;
+ #endif
+diff --git a/arch/arch-x86_64.h b/arch/arch-x86_64.h
+index 0cd21b8f..25850f90 100644
+--- a/arch/arch-x86_64.h
++++ b/arch/arch-x86_64.h
+@@ -1,16 +1,6 @@
+ #ifndef ARCH_X86_64_H
+ #define ARCH_X86_64_H
+ 
+-#ifndef __NR_sys_io_uring_setup
+-#define __NR_sys_io_uring_setup		335
+-#endif
+-#ifndef __NR_sys_io_uring_enter
+-#define __NR_sys_io_uring_enter		336
+-#endif
+-#ifndef __NR_sys_io_uring_register
+-#define __NR_sys_io_uring_register	337
+-#endif
+-
+ static inline void do_cpuid(unsigned int *eax, unsigned int *ebx,
+ 			    unsigned int *ecx, unsigned int *edx)
+ {
+@@ -47,7 +37,6 @@ static inline unsigned long long get_cpu_clock(void)
+ #define ARCH_HAVE_FFZ
+ #define ARCH_HAVE_SSE4_2
+ #define ARCH_HAVE_CPU_CLOCK
+-#define ARCH_HAVE_IOURING
+ 
+ #define RDRAND_LONG	".byte 0x48,0x0f,0xc7,0xf0"
+ #define RDSEED_LONG	".byte 0x48,0x0f,0xc7,0xf8"
 
