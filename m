@@ -1,99 +1,50 @@
-Return-Path: <prvs=947609abe=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 1/8] zbd: Fix partition block device handling
-Date: Wed, 20 Feb 2019 16:17:18 +0900
-Message-Id: <20190220071725.8487-2-damien.lemoal@wdc.com>
-In-Reply-To: <20190220071725.8487-1-damien.lemoal@wdc.com>
-References: <20190220071725.8487-1-damien.lemoal@wdc.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: Kill "No I/O performed by ..."
+References: <cd0d737a-b1e3-daad-e9c1-ac604b69fa10@wdc.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <3f2324c5-58b4-4cb6-bf68-9fbcabe7536c@kernel.dk>
+Date: Fri, 1 Feb 2019 08:36:59 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Bart Van Assche <bvanassche@acm.org>, Matias Bjorling <matias.bjorling@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+In-Reply-To: <cd0d737a-b1e3-daad-e9c1-ac604b69fa10@wdc.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Matias Bjorling <Matias.Bjorling@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+On 1/25/19 1:56 AM, Matias Bjorling wrote:
+> Hi Jens,
+> 
+> I noticed that the "No I/O performed by" message was ripped out in November. Some of the verification tests used it for the zone test suite (t/zbd/test-zbd-support).
+> 
+> When running the zones test script. It has two tests (2 and 3), which assumes that the "No I/O performed by " message is printed, such that it can verify that no I/Os have been executed.
+> 
+> # Test 2 - Block size exceeds zone size. That test should show that the kernel fails the I/O.
+> fio --aux-path=/tmp --allow_file_create=0 --name=job1 --filename=/dev/nullb0 --rw=write --direct=1 --zonemode=zbd --offset=536870912 --bs=536870912 --size=536870912
+> 
+> # Test 3 - Run fio against an empty zone. No I/Os to be issued, since it (at that point), no zones have been written.
+> fio --aux-path=/tmp --allow_file_create=0 --name=/dev/nullb0 --filename=/dev/nullb0 --offset=34359738368 --bs=4K --size=268435456 --zonemode=zbd --ioengine=psync --rw=read --direct=1 --thread=1
+> 
+> In both cases, fio reports a successful exit status.
+> 
+> To fix this, should the patch be reverted, kill the tests, or change fio to return an unsuccessful exit status?
 
-For fio to correctly handle the zonemode=zbd mode with partitions of
-zoned block devices, the partition block device file must be identified
-as a zoned disk. However, partition block device files do not have
-a zoned sysfs file. This patch allows a correct identification of the
-device file zone model by accessing the sysfs "zoned" file of the
-holder disk for partition devices.
+The problem with it was that it had so many false positives, which drove
+me nuts. So I just decided to kill it. It was meant to be helpful to users
+that something wasn't quite right. But it needs to be bullet proof for that
+to be the case. After having had to tweak it for the Nth time, it's now dead.
 
-Change get_zbd_model() function to resolve the symbolic link to the
-sysfs path to obtain the canonical sysfs path. The canonical sysfs
-path of a partition device includes both of the holder device name and
-the partition device name. If the given device is a partition device,
-cut the partition device name in the canonical sysfs path to access
-the "zoned" file in the holder device sysfs path.
+I'd welcome it back if we did something really trivial, and not rely on
+counters that may or may not get reset for loops, etc. Something that just
+did, on the first IO completion:
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- zbd.c | 38 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 37 insertions(+), 1 deletion(-)
+if (!td->ever_done_ios)
+    td->ever_done_ios = true;
 
-diff --git a/zbd.c b/zbd.c
-index 8acda1f6..9b603b97 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -228,12 +228,45 @@ static enum blk_zoned_model get_zbd_model(const char *file_name)
- 	char *zoned_attr_path = NULL;
- 	char *model_str = NULL;
- 	struct stat statbuf;
-+	char *sys_devno_path = NULL;
-+	char *part_attr_path = NULL;
-+	char *part_str = NULL;
-+	char sys_path[PATH_MAX];
-+	ssize_t sz;
-+	char *delim = NULL;
- 
- 	if (stat(file_name, &statbuf) < 0)
- 		goto out;
--	if (asprintf(&zoned_attr_path, "/sys/dev/block/%d:%d/queue/zoned",
-+
-+	if (asprintf(&sys_devno_path, "/sys/dev/block/%d:%d",
- 		     major(statbuf.st_rdev), minor(statbuf.st_rdev)) < 0)
- 		goto out;
-+
-+	sz = readlink(sys_devno_path, sys_path, sizeof(sys_path) - 1);
-+	if (sz < 0)
-+		goto out;
-+	sys_path[sz] = '\0';
-+
-+	/*
-+	 * If the device is a partition device, cut the device name in the
-+	 * canonical sysfs path to obtain the sysfs path of the holder device.
-+	 *   e.g.:  /sys/devices/.../sda/sda1 -> /sys/devices/.../sda
-+	 */
-+	if (asprintf(&part_attr_path, "/sys/dev/block/%s/partition",
-+		     sys_path) < 0)
-+		goto out;
-+	part_str = read_file(part_attr_path);
-+	if (part_str && *part_str == '1') {
-+		delim = strrchr(sys_path, '/');
-+		if (!delim)
-+			goto out;
-+		*delim = '\0';
-+	}
-+
-+	if (asprintf(&zoned_attr_path,
-+		     "/sys/dev/block/%s/queue/zoned", sys_path) < 0)
-+		goto out;
-+
- 	model_str = read_file(zoned_attr_path);
- 	if (!model_str)
- 		goto out;
-@@ -246,6 +279,9 @@ static enum blk_zoned_model get_zbd_model(const char *file_name)
- out:
- 	free(model_str);
- 	free(zoned_attr_path);
-+	free(part_str);
-+	free(part_attr_path);
-+	free(sys_devno_path);
- 	return model;
- }
- 
+and then just use that for the trigger.
+
 -- 
-2.20.1
+Jens Axboe
 
 
