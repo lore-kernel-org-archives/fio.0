@@ -1,28 +1,54 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:60290 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725967AbfCAB65 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 28 Feb 2019 20:58:57 -0500
-From: TK Tan Tan Tuan Keat <Tan.Tuan.Keat@wdc.com>
-Subject: fio.exe has stopped working
-Date: Fri, 1 Mar 2019 01:58:55 +0000
-Message-ID: <BYAPR04MB395750846A4577AE03C100F1AB760@BYAPR04MB3957.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+Received: from merlin.infradead.org ([205.233.59.134]:44958 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726705AbfBANAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 1 Feb 2019 08:00:09 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1gpYQS-0000Jz-Gw
+        for fio@vger.kernel.org; Fri, 01 Feb 2019 13:00:08 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20190201130001.ECACE2C0148@kernel.dk>
+Date: Fri,  1 Feb 2019 06:00:01 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: 
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-SGksDQoNCkkgaGF2ZSBpbnN0YWxsZWQgRklPIDMuMTIgb24gNCBkZXNrdG9wIFBDcyAtIGFsbCBy
-dW5uaW5nIFdpbmRvd3MgNyB3aXRoIGRpZmZlcmVudCBwcm9jZXNzb3JzLg0KMiBvZiB0aGVtIGFy
-ZSBydW5uaW5nIEZJTyB3aXRob3V0IHByb2JsZW0sIGJ1dCBhbm90aGVyIDIgaGFzIHRoaXMgd2lu
-ZG93cyBlcnJvcg0KDQoiZmlvLmV4ZSBoYXMgc3RvcHBlZCB3b3JraW5nDQpBIHByb2JsZW0gY2F1
-c2VkIHRoZSBwcm9ncmFtIHRvIHN0b3Agd29ya2luZyBjb3JyZWN0bHkuDQpXaW5kb3dzIHdpbGwg
-Y2xvc2UgdGhlIHByb2dyYW0gYW5kIG5vdGlmeSB5b3UgaWYgYSBzb2x1dGlvbiBpcw0KQXZhaWxh
-YmxlLg0KCQkJCUNsb3NlIHByb2dyYW0gW2J1dHRvbl0iDQoNCiBIYXMgYW55b25lIHJ1biBpbnRv
-IHRoaXMgcHJvYmxlbSBiZWZvcmU/IEFuZCBpZiB5ZXMsIHdoYXQgaXMgdGhlIHNvbHV0aW9uPw0K
-DQpUaGFua3MgaW4gYWR2YW5jZS4NCg0KVEsNCg0K
+The following changes since commit 521164fa90df413aa7aa8fb2956095a41eba7d6a:
+
+  io_uring: ensure we use the right argument syscall (2019-01-29 12:20:02 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 154a95828fe08b01774b59602544de394b2d3aa6:
+
+  t/io_uring: verbose error for -95/-EOPNOTSUPP failure (2019-01-31 22:55:52 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      t/io_uring: verbose error for -95/-EOPNOTSUPP failure
+
+ t/io_uring.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+---
+
+Diff of recent changes:
+
+diff --git a/t/io_uring.c b/t/io_uring.c
+index 62b48e44..7c75c887 100644
+--- a/t/io_uring.c
++++ b/t/io_uring.c
+@@ -262,6 +262,8 @@ static int reap_events(struct submitter *s)
+ 			f->pending_ios--;
+ 			if (cqe->res != BS) {
+ 				printf("io: unexpected ret=%d\n", cqe->res);
++				if (polled && cqe->res == -EOPNOTSUPP)
++					printf("Your filesystem doesn't support poll\n");
+ 				return -1;
+ 			}
+ 		}
 
