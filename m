@@ -1,70 +1,36 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:31050 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726998AbfBTHSL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 20 Feb 2019 02:18:11 -0500
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 7/8] zbd: Avoid async I/O multi-job workload deadlock
-Date: Wed, 20 Feb 2019 16:17:24 +0900
-Message-Id: <20190220071725.8487-8-damien.lemoal@wdc.com>
-In-Reply-To: <20190220071725.8487-1-damien.lemoal@wdc.com>
-References: <20190220071725.8487-1-damien.lemoal@wdc.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 0/2] stat cleanup/bugfix patches
+References: <20190207155107.7148-1-vincentfu@gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <7530595b-03e9-64a5-3dd9-5a221155b607@kernel.dk>
+Date: Thu, 7 Feb 2019 09:49:02 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Bart Van Assche <bvanassche@acm.org>, Matias Bjorling <matias.bjorling@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+In-Reply-To: <20190207155107.7148-1-vincentfu@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: vincentfu@gmail.com, fio@vger.kernel.org
+Cc: Vincent Fu <vincent.fu@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-With zonemode=zbd, for a multi-job workload using asynchronous I/O
-engines with a deep I/O queue depth setting, a job that is building a
-batch of asynchronous I/Os to submit may end up waiting for an I/O
-target zone lock held by another job that is also preparing a batch.
-For small devices with few zones and/or a large number of jobs, such
-prepare phase zone lock contention can be frequent enough to end up in a
-situation where all jobs are waiting for zone locks held by other jobs
-and no I/O being executed (so no zone being unlocked).
+On 2/7/19 8:51 AM, vincentfu@gmail.com wrote:
+> From: Vincent Fu <vincent.fu@wdc.com>
+> 
+> Jens, please consider these two cleanup/bugfix patches for stat.c
+> 
+> Vincent
+> 
+> Vincent Fu (2):
+>   stat: clean up calc_clat_percentiles
+>   stat: put 'percentiles' object in appropriate 'clat_ns' or 'lat_ns'
+>     parent
+> 
+>  stat.c | 15 ++++++++-------
+>  1 file changed, 8 insertions(+), 7 deletions(-)
 
-Avoid this situation by using pthread_mutex_trylock() instead of
-pthread_mutex_lock() and by calling io_u_quiesce() to execute queued
-I/O units if locking fails. pthread_mutex_lock() is then called to
-lock the desired target zone. The execution of io_u_quiesce() forces
-I/O execution progress and so zones to be unlocked, avoiding job
-deadlock.
+Looks good, applied both. Thanks Vincent.
 
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
----
- zbd.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
-
-diff --git a/zbd.c b/zbd.c
-index 310b1732..2da742b7 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -1255,7 +1255,21 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 
- 	zbd_check_swd(f);
- 
--	pthread_mutex_lock(&zb->mutex);
-+	/*
-+	 * Lock the io_u target zone. The zone will be unlocked if io_u offset
-+	 * is changed or when io_u completes and zbd_put_io() executed.
-+	 * To avoid multiple jobs doing asynchronous I/Os from deadlocking each
-+	 * other waiting for zone locks when building an io_u batch, first
-+	 * only trylock the zone. If the zone is already locked by another job,
-+	 * process the currently queued I/Os so that I/O progress is made and
-+	 * zones unlocked.
-+	 */
-+	if (pthread_mutex_trylock(&zb->mutex) != 0) {
-+		if (!td_ioengine_flagged(td, FIO_SYNCIO))
-+			io_u_quiesce(td);
-+		pthread_mutex_lock(&zb->mutex);
-+	}
-+
- 	switch (io_u->ddir) {
- 	case DDIR_READ:
- 		if (td->runstate == TD_VERIFYING) {
 -- 
-2.20.1
+Jens Axboe
 
 
