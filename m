@@ -1,51 +1,59 @@
-Return-Path: <prvs=947609abe=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 3/8] t/zbd: Fix handling of partition devices
-Date: Wed, 20 Feb 2019 16:17:20 +0900
-Message-Id: <20190220071725.8487-4-damien.lemoal@wdc.com>
-In-Reply-To: <20190220071725.8487-1-damien.lemoal@wdc.com>
-References: <20190220071725.8487-1-damien.lemoal@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Bart Van Assche <bvanassche@acm.org>, Matias Bjorling <matias.bjorling@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+From: vincentfu@gmail.com
+Subject: [PATCH 1/2] stat: clean up calc_clat_percentiles
+Date: Thu,  7 Feb 2019 10:51:06 -0500
+Message-Id: <20190207155107.7148-2-vincentfu@gmail.com>
+In-Reply-To: <20190207155107.7148-1-vincentfu@gmail.com>
+References: <20190207155107.7148-1-vincentfu@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Vincent Fu <vincent.fu@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+From: Vincent Fu <vincent.fu@wdc.com>
 
-To allow t/zbd/tests-zbd-support test script to run correctly on
-partitions of zoned block devices, fix access to the device properties
-through sysfs by referencing the sysfs directory of the holder block
-device. Doing so, the "zoned", "logical_block_size" and "mq" attributes
-can be correctly accessed.
-
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+We already know the size of the buffer needed. So there
+is no need to do anything fancy when allocating it.
 ---
- t/zbd/test-zbd-support | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ stat.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 2d727910..d316d880 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -761,7 +761,15 @@ source "$(dirname "$0")/functions" || exit $?
- dev=$1
- realdev=$(readlink -f "$dev")
- basename=$(basename "$realdev")
--disk_size=$(($(<"/sys/block/$basename/size")*512))
-+major=$((0x$(stat -L -c '%t' "$realdev")))
-+minor=$((0x$(stat -L -c '%T' "$realdev")))
-+disk_size=$(($(<"/sys/dev/block/$major:$minor/size")*512))
-+# When the target is a partition device, get basename of its holder device to
-+# access sysfs path of the holder device
-+if [[ -r "/sys/dev/block/$major:$minor/partition" ]]; then
-+	realsysfs=$(readlink "/sys/dev/block/$major:$minor")
-+	basename=$(basename "${realsysfs%/*}")
-+fi
- logical_block_size=$(<"/sys/block/$basename/queue/logical_block_size")
- case "$(<"/sys/class/block/$basename/queue/zoned")" in
-     host-managed|host-aware)
+diff --git a/stat.c b/stat.c
+index 351c49cc..7c843e6b 100644
+--- a/stat.c
++++ b/stat.c
+@@ -139,7 +139,6 @@ unsigned int calc_clat_percentiles(uint64_t *io_u_plat, unsigned long long nr,
+ {
+ 	unsigned long long sum = 0;
+ 	unsigned int len, i, j = 0;
+-	unsigned int oval_len = 0;
+ 	unsigned long long *ovals = NULL;
+ 	bool is_last;
+ 
+@@ -161,6 +160,10 @@ unsigned int calc_clat_percentiles(uint64_t *io_u_plat, unsigned long long nr,
+ 	if (len > 1)
+ 		qsort((void *)plist, len, sizeof(plist[0]), double_cmp);
+ 
++	ovals = malloc(len * sizeof(*ovals));
++	if (!ovals)
++		return 0;
++
+ 	/*
+ 	 * Calculate bucket values, note down max and min values
+ 	 */
+@@ -170,11 +173,6 @@ unsigned int calc_clat_percentiles(uint64_t *io_u_plat, unsigned long long nr,
+ 		while (sum >= (plist[j].u.f / 100.0 * nr)) {
+ 			assert(plist[j].u.f <= 100.0);
+ 
+-			if (j == oval_len) {
+-				oval_len += 100;
+-				ovals = realloc(ovals, oval_len * sizeof(*ovals));
+-			}
+-
+ 			ovals[j] = plat_idx_to_val(i);
+ 			if (ovals[j] < *minv)
+ 				*minv = ovals[j];
 -- 
-2.20.1
+2.17.1
 
 
