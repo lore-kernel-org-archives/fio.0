@@ -1,307 +1,92 @@
-Return-Path: <kailash.mallikarjunaswamy@skhms.com>
-From: Kailash Mallikarjunaswamy <Kailash.Mallikarjunaswamy@skhms.com>
-Subject: Fio version 3.1 on CentOS - Possible bug reporting
-Date: Thu, 28 Feb 2019 23:35:47 +0000
-Message-ID: <18dd8eb6f2ee414195c87d0117c9e9dc@N111XMB0239.skhms.com>
-References: <1551233986158.86408@skhms.com>
-In-Reply-To: <1551233986158.86408@skhms.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa6.hgst.iphmx.com ([216.71.154.45]:28925 "EHLO
+        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726165AbfBNA4f (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 13 Feb 2019 19:56:35 -0500
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: timeout on SEND ETA
+Date: Thu, 14 Feb 2019 00:56:29 +0000
+Message-ID: <MWHPR04MB03203E13431168C0082C2EB48F670@MWHPR04MB0320.namprd04.prod.outlook.com>
+References: <0D6A6B44-681F-4DCE-B84F-EF193698052D@suse.com>
+ <MWHPR04MB03202D053616916F1FDF1DF98F640@MWHPR04MB0320.namprd04.prod.outlook.com>
+ <6DE877F0-CA5F-4757-B223-941D51CFE4D2@suse.com>
+In-Reply-To: <6DE877F0-CA5F-4757-B223-941D51CFE4D2@suse.com>
 Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="_000_18dd8eb6f2ee414195c87d0117c9e9dcN111XMB0239skhmscom_"
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "majordomo@vger.kernel.org" <majordomo@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: Yi Tong <yi.tong@skhms.com>, "Sean (Seong Won) Shin" <seongwon.shin@skhms.com>
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: David Byte <dbyte@suse.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
---_000_18dd8eb6f2ee414195c87d0117c9e9dcN111XMB0239skhmscom_
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-
-
-I am writing to report a possible* bug on:
-
-
-
-fio version - 3.1
-
-Operating System - CentOS  7.6.1810
-
-kernel: 3.10.0-957.1.3.el7.x86_64
-
-
-
-I use a HP Proliant Enterprise Server hardware to run the metrics
-
-
-
-Bug: In some of the runs, the max value of completion latency (clat) is les=
-ser than the 9-nines percentile value. How is this possible? I have marked =
-the numbers in red below. Kindly take a look.
-
-___________________________________________________________________________=
-_
-
-Workload:
-
-
-
-sudo chrt -f 1 fio  --filename=3D/dev/nvme0n1 --numjobs=3D1 --iodepth=3D512=
- --offset=3D0M --bs=3D
-
-7681501126656 --size=3D
-
-7681501126656 --io_size=3D%s --rw=3Dread --buffered=3D0 --thread --time_bas=
-ed --runtime=3D60 --name=3Dseqtest0 --group_reporting --disable_lat=3D1 --d=
-isable_slat=3D1 --disable_bw_measurement=3D1 --zero_buffers --ioengine=3Dli=
-baio --percentile=3D99:99.9:99.99:99.999:99.9999:99.99999:99.999999:99.9999=
-999 --output-format=3Djson,normal --eta=3Dnever --invalidate=3D1 --end_fsyn=
-c=3D0 --refill_buffers
-
-
-
-___________________________________________________________________________=
-_
-
-Result:
-
-
-
-seqtest0: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D3908: Tue Feb 26 18:02:2=
-5 2019
-   read: IOPS=3D25.1k, BW=3D3135MiB/s (3287MB/s)(184GiB/60021msec)
-    clat (usec): min=3D16426, max=3D41005, avg=3D20384.67, stdev=3D337.20
-    clat percentiles (usec):
-     | 99.0000000th=3D[20579], 99.9000000th=3D[21103], 99.9900000th=3D[3801=
-1],
-     | 99.9990000th=3D[40633], 99.9999000th=3D[41157], 99.9999900th=3D[4115=
-7],
-     | 99.9999990th=3D[41157], 99.9999999th=3D[41157]
-   bw (  MiB/s): min=3D 2981, max=3D 3144, per=3D100.00%, avg=3D3135.58, st=
-dev=3D14.46, samples=3D120
-   iops        : min=3D23848, max=3D25154, avg=3D25084.63, stdev=3D115.65, =
-samples=3D120
-  lat (msec)   : 20=3D0.31%, 50=3D99.69%
-  cpu          : usr=3D4.10%, sys=3D64.00%, ctx=3D742962, majf=3D0, minf=3D=
-44
-  IO depths    : 1=3D0.1%, 2=3D0.1%, 4=3D0.1%, 8=3D0.1%, 16=3D0.1%, 32=3D0.=
-1%, >=3D64=3D100.0%
-     submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
-=3D0.0%, >=3D64=3D0.0%
-     complete  : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
-=3D0.0%, >=3D64=3D0.1%
-     issued rwt: total=3D1505214,0,0, short=3D0,0,0, dropped=3D0,0,0
-     latency   : target=3D0, window=3D0, percentile=3D100.00%, depth=3D512
-
-Run status group 0 (all jobs):
-   READ: bw=3D3135MiB/s (3287MB/s), 3135MiB/s-3135MiB/s (3287MB/s-3287MB/s)=
-, io=3D184GiB (197GB), run=3D60021-60021msec
-
-___________________________________________________________________________=
-_
-
-
-
-Any inputs/help will be greatly appreciated.
-
-
-
-Thanks in advance!
-
-
-
-The information contained in this e-mail is considered confidential of SK h=
-ynix memory solutions America Inc. and intended only for the persons addres=
-sed or copied in this e-mail. Any unauthorized use, dissemination of the in=
-formation, or copying of this message is strictly prohibited. If you are no=
-t the intended recipient, please contact the sender immediately and permane=
-ntly delete the original and any copies of this email.
-
---_000_18dd8eb6f2ee414195c87d0117c9e9dcN111XMB0239skhmscom_
-Content-Type: text/html; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
-
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
-osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
-//www.w3.org/TR/REC-html40">
-<head>
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
->
-<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
-<style><!--
-/* Font Definitions */
-@font-face
-=09{font-family:"Cambria Math";
-=09panose-1:2 4 5 3 5 4 6 3 2 4;}
-@font-face
-=09{font-family:Calibri;
-=09panose-1:2 15 5 2 2 2 4 3 2 4;}
-/* Style Definitions */
-p.MsoNormal, li.MsoNormal, div.MsoNormal
-=09{margin:0in;
-=09margin-bottom:.0001pt;
-=09font-size:12.0pt;
-=09font-family:"Times New Roman","serif";}
-a:link, span.MsoHyperlink
-=09{mso-style-priority:99;
-=09color:#0563C1;
-=09text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-=09{mso-style-priority:99;
-=09color:#954F72;
-=09text-decoration:underline;}
-p
-=09{mso-style-priority:99;
-=09margin:0in;
-=09margin-bottom:.0001pt;
-=09font-size:12.0pt;
-=09font-family:"Times New Roman","serif";}
-span.EmailStyle18
-=09{mso-style-type:personal-reply;
-=09font-family:"Calibri","sans-serif";
-=09color:#1F497D;}
-.MsoChpDefault
-=09{mso-style-type:export-only;
-=09font-size:10.0pt;}
-@page WordSection1
-=09{size:8.5in 11.0in;
-=09margin:1.0in 1.0in 1.0in 1.0in;}
-div.WordSection1
-=09{page:WordSection1;}
---></style><!--[if gte mso 9]><xml>
-<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
-</xml><![endif]--><!--[if gte mso 9]><xml>
-<o:shapelayout v:ext=3D"edit">
-<o:idmap v:ext=3D"edit" data=3D"1" />
-</o:shapelayout></xml><![endif]-->
-</head>
-<body bgcolor=3D"white" lang=3D"EN-US" link=3D"#0563C1" vlink=3D"#954F72">
-<div class=3D"WordSection1">
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black">Hi,<o:p></o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black"><o:p>&nbsp;</o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black">I am writing to report a possible* bug on:
-<o:p></o:p></span></p>
-<p><span style=3D"font-size:11.0pt;font-family:&quot;Calibri&quot;,&quot;sa=
-ns-serif&quot;;color:#1F497D"><o:p>&nbsp;</o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black;background:yellow">fio version - 3.1</span><span style=3D"font-fa=
-mily:&quot;Calibri&quot;,&quot;sans-serif&quot;;color:black"><o:p></o:p></s=
-pan></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black;background:yellow">Operating System - CentOS &nbsp;7.6.1810
-</span><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot=
-;;color:black"><o:p></o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black;background:yellow">kernel: 3.10.0-957.1.3.el7.x86_64</span><span =
-style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;color:black=
-"><o:p></o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black"><o:p>&nbsp;</o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black">I use a HP Proliant Enterprise Server hardware to run the metric=
-s<o:p></o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black"><o:p>&nbsp;</o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black">Bug: In some of the runs, the max value of completion latency (c=
-lat) is lesser than the 9-nines percentile value. How is this possible? I h=
-ave marked the numbers in red below. Kindly take a look.<o:p></o:p></span><=
-/p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black">________________________________________________________________=
-____________<o:p></o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black">Workload:<o:p></o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black"><o:p>&nbsp;</o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black">sudo chrt -f 1 fio&nbsp; --filename=3D/dev/nvme0n1 --numjobs=3D1=
- --iodepth=3D512 --offset=3D0M --bs=3D<o:p></o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black">7681501126656 --size=3D<o:p></o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black">7681501126656 --io_size=3D%s --rw=3Dread --buffered=3D0 --thread=
- --time_based --runtime=3D60 --name=3Dseqtest0 --group_reporting --disable_=
-lat=3D1 --disable_slat=3D1 --disable_bw_measurement=3D1 --zero_buffers
- --ioengine=3Dlibaio --percentile=3D99:99.9:99.99:99.999:99.9999:99.99999:9=
-9.999999:99.9999999 --output-format=3Djson,normal --eta=3Dnever --invalidat=
-e=3D1 --end_fsync=3D0 --refill_buffers<o:p></o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black"><o:p>&nbsp;</o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black">________________________________________________________________=
-____________<o:p></o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black">Result:<o:p></o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black"><o:p>&nbsp;</o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black">seqtest0: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D3908: Tue Feb=
- 26 18:02:25 2019<br>
-&nbsp;&nbsp; read: IOPS=3D25.1k, BW=3D3135MiB/s (3287MB/s)(184GiB/60021msec=
-)<br>
-&nbsp;&nbsp;&nbsp; clat (usec): min=3D16426, max=3D<span style=3D"backgroun=
-d:red">41005</span>, avg=3D20384.67, stdev=3D337.20<br>
-&nbsp;&nbsp;&nbsp; clat percentiles (usec):<br>
-&nbsp;&nbsp;&nbsp;&nbsp; | 99.0000000th=3D[20579], 99.9000000th=3D[21103], =
-99.9900000th=3D[38011],<br>
-&nbsp;&nbsp;&nbsp;&nbsp; | 99.9990000th=3D[40633], 99.9999000th=3D[41157], =
-99.9999900th=3D[41157],<br>
-&nbsp;&nbsp;&nbsp;&nbsp; | 99.9999990th=3D[41157], 99.9999999th=3D[<span st=
-yle=3D"background:red">41157</span>]<br>
-&nbsp;&nbsp; bw (&nbsp; MiB/s): min=3D 2981, max=3D 3144, per=3D100.00%, av=
-g=3D3135.58, stdev=3D14.46, samples=3D120<br>
-&nbsp;&nbsp; iops&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : min=3D23848, =
-max=3D25154, avg=3D25084.63, stdev=3D115.65, samples=3D120<br>
-&nbsp; lat (msec)&nbsp;&nbsp; : 20=3D0.31%, 50=3D99.69%<br>
-&nbsp; cpu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : usr=3D4.=
-10%, sys=3D64.00%, ctx=3D742962, majf=3D0, minf=3D44<br>
-&nbsp; IO depths&nbsp;&nbsp;&nbsp; : 1=3D0.1%, 2=3D0.1%, 4=3D0.1%, 8=3D0.1%=
-, 16=3D0.1%, 32=3D0.1%, &gt;=3D64=3D100.0%<br>
-&nbsp;&nbsp;&nbsp;&nbsp; submit&nbsp;&nbsp;&nbsp; : 0=3D0.0%, 4=3D100.0%, 8=
-=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=3D0.0%, &gt;=3D64=3D0.0%<br>
-&nbsp;&nbsp;&nbsp;&nbsp; complete&nbsp; : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 1=
-6=3D0.0%, 32=3D0.0%, 64=3D0.0%, &gt;=3D64=3D0.1%<br>
-&nbsp;&nbsp;&nbsp;&nbsp; issued rwt: total=3D1505214,0,0, short=3D0,0,0, dr=
-opped=3D0,0,0<br>
-&nbsp;&nbsp;&nbsp;&nbsp; latency&nbsp;&nbsp; : target=3D0, window=3D0, perc=
-entile=3D100.00%, depth=3D512<br>
-<br>
-Run status group 0 (all jobs):<br>
-&nbsp;&nbsp; READ: bw=3D3135MiB/s (3287MB/s), 3135MiB/s-3135MiB/s (3287MB/s=
--3287MB/s), io=3D184GiB (197GB), run=3D60021-60021msec<o:p></o:p></span></p=
->
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black">________________________________________________________________=
-____________<o:p></o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black"><o:p>&nbsp;</o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black">Any inputs/help will be greatly appreciated.<o:p></o:p></span></=
-p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black"><o:p>&nbsp;</o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black">Thanks in advance!<o:p></o:p></span></p>
-<p><span style=3D"font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;co=
-lor:black"><o:p>&nbsp;</o:p></span></p>
-</div>
-The information contained in this e-mail is considered confidential of SK h=
-ynix memory solutions America Inc. and intended only for the persons addres=
-sed or copied in this e-mail. Any unauthorized use, dissemination of the in=
-formation, or copying of this message
- is strictly prohibited. If you are not the intended recipient, please cont=
-act the sender immediately and permanently delete the original and any copi=
-es of this email.
-</body>
-</html>
-
---_000_18dd8eb6f2ee414195c87d0117c9e9dcN111XMB0239skhmscom_--
-
+UmlnaHQsIHRoZXJlIGlzIGEgNXggY2hlY2sgYmVmb3JlIGFib3J0aW5nOg0KDQpzdGF0aWMgaW50
+IGhhbmRsZV9jbWRfdGltZW91dChzdHJ1Y3QgZmlvX2NsaWVudCAqY2xpZW50LA0KCQkJICAgICAg
+c3RydWN0IGZpb19uZXRfY21kX3JlcGx5ICpyZXBseSkNCnsNCgl1aW50MTZfdCByZXBseV9vcGNv
+ZGUgPSByZXBseS0+b3Bjb2RlOw0KDQoJZmxpc3RfZGVsKCZyZXBseS0+bGlzdCk7DQoJZnJlZShy
+ZXBseSk7DQoNCglpZiAocmVwbHlfb3Bjb2RlICE9IEZJT19ORVRfQ01EX1NFTkRfRVRBKQ0KCQly
+ZXR1cm4gMTsNCg0KCWxvZ19pbmZvKCJjbGllbnQgPCVzPjogdGltZW91dCBvbiBTRU5EX0VUQVxu
+IiwgY2xpZW50LT5ob3N0bmFtZSk7DQoNCglmbGlzdF9kZWxfaW5pdCgmY2xpZW50LT5ldGFfbGlz
+dCk7DQoJaWYgKGNsaWVudC0+ZXRhX2luX2ZsaWdodCkgew0KCQlmaW9fY2xpZW50X2RlY19qb2Jz
+X2V0YShjbGllbnQtPmV0YV9pbl9mbGlnaHQsIGNsaWVudC0+b3BzLT5ldGEpOw0KCQljbGllbnQt
+PmV0YV9pbl9mbGlnaHQgPSBOVUxMOw0KCX0NCg0KCS8qDQoJICogSWYgd2UgZmFpbCA1IGluIGEg
+cm93LCBnaXZlIHVwLi4uDQoJICovDQoJaWYgKGNsaWVudC0+ZXRhX3RpbWVvdXRzKysgPiA1KQ0K
+CQlyZXR1cm4gMTsNCg0KCXJldHVybiAwOw0KfQ0KDQpSZWdhcmRzLA0KSmVmZg0KDQotLS0tLU9y
+aWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogRGF2aWQgQnl0ZSBbbWFpbHRvOmRieXRlQHN1c2Uu
+Y29tXSANClNlbnQ6IE1vbmRheSwgRmVicnVhcnkgMTEsIDIwMTkgMjozOSBQTQ0KVG86IEplZmYg
+RnVybG9uZyA8amVmZi5mdXJsb25nQHdkYy5jb20+OyBmaW9Admdlci5rZXJuZWwub3JnDQpTdWJq
+ZWN0OiBSZTogdGltZW91dCBvbiBTRU5EIEVUQQ0KDQpUaGFua3MgZm9yIHRoZSByZXNwb25zZSBK
+ZWZmLiAgV2UgY2hhbmdlZCB0byAtLWV0YT1uZXZlciBhbmQgaGF2ZSBzdG9wcGVkIGxvc2luZyB0
+aGUgZGF0YSBhc3NvY2lhdGVkIHdpdGggdGhvc2Ugam9icy4gIFRoZSBhbmFseXNpcyBmcm9tIG9u
+ZSBvZiBvdXIgZ3V5cyBpcyB0aGF0IGl0IGFwcGVhcnMgdGhhdCB3aGVuIHRoZSBleHBlY3RlZCBF
+VEEgcmVxdWVzdCB0aW1lcyBvdXQgdG9vIG1hbnkgdGltZXMgdGhhdCBmaW8gYWJvcnRzIHRoZSBj
+b25uZWN0aW9uLCB0aHVzIHJlc3VsdGluZyBpbiB0aGUgbG9zcyBvZiB0aGUgZGF0YSBmcm9tIHRo
+YXQgaW5zdGFuY2UuICANCg0KQWRtaXR0ZWRseSwgSSBkcml2ZSB0aGUgZmlvIG5vZGVzIFZFUlkg
+aGFyZC4NCg0KRGF2aWQgQnl0ZQ0KU3IuIFRlY2hub2xvZ3kgU3RyYXRlZ2lzdA0KDQrvu79PbiAy
+LzExLzE5LCAyOjA0IFBNLCAiSmVmZiBGdXJsb25nIiA8amVmZi5mdXJsb25nQHdkYy5jb20+IHdy
+b3RlOg0KDQogICAgQ2FuIHlvdSByZXByb2R1Y2UgdGhpcyBwcm9ibGVtIG9uIHRoZSBsYXRlc3Qg
+dmVyc2lvbiBvZiBmaW8/ICBEbyB5b3UgaGF2ZSBhIHNhbXBsZSBqb2IgZmlsZT8gIElmIEkgcmVj
+YWxsIGZyb20gc2VlaW5nIHRoaXMgZXJyb3IgcHJldmlvdXNseSwgdGhlIHNlcnZlciBoYXMgc3Rv
+cHBlZCBidXQgdGhlIGNsaWVudHMgYXJlIHN0aWxsIGZpbmlzaGluZyB1cCBhdCB0aGUgZW5kIG9m
+IGEgam9iLiAgTWF5YmUgd29yc2UgaWYgeW91ciBjbGllbnRzIGFyZSBwdXNoaW5nIGhpZ2hlciBD
+UFUgdXRpbGl6YXRpb25zPyAgWW91IG1pZ2h0IGxvb2sgYXQgLS1ldGE9bmV2ZXIgb3IgLS1ldGEt
+aW50ZXJ2YWw9NXMgdG8gcmVkdWNlIGhvdyBtYW55IHdhcm5pbmdzIHlvdSBzZWUuDQogICAgDQog
+ICAgUmVnYXJkcywNCiAgICBKZWZmDQogICAgDQogICAgLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0t
+LS0NCiAgICBGcm9tOiBmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86ZmlvLW93bmVy
+QHZnZXIua2VybmVsLm9yZ10gT24gQmVoYWxmIE9mIERhdmlkIEJ5dGUNCiAgICBTZW50OiBGcmlk
+YXksIEZlYnJ1YXJ5IDEsIDIwMTkgNDo1NyBQTQ0KICAgIFRvOiBmaW9Admdlci5rZXJuZWwub3Jn
+DQogICAgU3ViamVjdDogdGltZW91dCBvbiBTRU5EIEVUQQ0KICAgIA0KICAgIEkgaGF2ZSBhIHNj
+cmlwdGVkIHByb2Nlc3MgdGhhdCB1c2VzIGZpbyBhbmQgYWZ0ZXIgYSBmZXcgdGVzdHMgSSBzdGFy
+dCBzZWVpbmcgYSBsb3Qgb2YgZXJyb3JzOg0KICAgIA0KICAgIDxzcjYzMC01PiBTdGFydGluZyAx
+NiBwcm9jZXNzZXMNCiAgICA8c3I2MzAtNj4gU3RhcnRpbmcgMTYgcHJvY2Vzc2VzDQogICAgY2xp
+ZW50IDxzcjYzMC02PjogdGltZW91dCBvbiBTRU5EX0VUQQ0KICAgIGNsaWVudCA8c3I2MzAtNT46
+IHRpbWVvdXQgb24gU0VORF9FVEENCiAgICBjbGllbnQgPHNyNjMwLTY+OiB0aW1lb3V0IG9uIFNF
+TkRfRVRBDQogICAgY2xpZW50IDxzcjYzMC01PjogdGltZW91dCBvbiBTRU5EX0VUQQ0KICAgIGNs
+aWVudCA8c3I2MzAtNj46IHRpbWVvdXQgb24gU0VORF9FVEENCiAgICBjbGllbnQgPHNyNjMwLTU+
+OiB0aW1lb3V0IG9uIFNFTkRfRVRBDQogICAgZmlvOiBjbGllbnQ6IHVuYWJsZSB0byBmaW5kIG1h
+dGNoaW5nIHRhZyAoMWUyNzhlMCkNCiAgICBmaW86IGNsaWVudDogdW5hYmxlIHRvIGZpbmQgbWF0
+Y2hpbmcgdGFnICgxZTI3NGIwKSBjbGllbnQgPHNyNjMwLTY+OiB0aW1lb3V0IG9uIFNFTkRfRVRB
+IGNsaWVudCA8c3I2MzAtNT46IHRpbWVvdXQgb24gU0VORF9FVEEgY2xpZW50IDxzcjYzMC02Pjog
+dGltZW91dCBvbiBTRU5EX0VUQSBjbGllbnQgPHNyNjMwLTU+OiB0aW1lb3V0IG9uIFNFTkRfRVRB
+DQogICAgZmlvOiBjbGllbnQ6IHVuYWJsZSB0byBmaW5kIG1hdGNoaW5nIHRhZyAoMWUyNzhlMCkN
+CiAgICBmaW86IGNsaWVudDogdW5hYmxlIHRvIGZpbmQgbWF0Y2hpbmcgdGFnICgxZTI3NGIwKSBj
+bGllbnQgPHNyNjMwLTY+OiB0aW1lb3V0IG9uIFNFTkRfRVRBIGNsaWVudCA8c3I2MzAtNT46IHRp
+bWVvdXQgb24gU0VORF9FVEEgY2xpZW50IDxzcjYzMC02PjogdGltZW91dCBvbiBTRU5EX0VUQQ0K
+ICAgIGZpbzogY2xpZW50IHNyNjMwLTYsIHRpbWVvdXQgb24gY21kIFNFTkRfRVRBDQogICAgZmlv
+OiBjbGllbnQgc3I2MzAtNiB0aW1lZCBvdXQNCiAgICBjbGllbnQgPHNyNjMwLTU+OiB0aW1lb3V0
+IG9uIFNFTkRfRVRBDQogICAgZmlvOiBjbGllbnQgc3I2MzAtNSwgdGltZW91dCBvbiBjbWQgU0VO
+RF9FVEENCiAgICBmaW86IGNsaWVudCBzcjYzMC01IHRpbWVkIG91dA0KICAgIA0KICAgIFRoZSBq
+b2JzIGFyZSBpbnRlbmRlZCB0byBkcml2ZSB0aGUgY2xpZW50IHN5c3RlbSBhbmQgc3RvcmFnZSBh
+cyBoYXJkIGFzIHBvc3NpYmxlLCBzbyBJIG1heSBiZSBwdXNoaW5nIG92ZXIgc29tZSBraW5kIG9m
+IGJvdW5kYXJ5IHBlcmhhcHM/IFRoZSBpc3N1ZSBkb2VzbuKAmXQgb2NjdXIgd2l0aCA1IG1pbnV0
+ZSBqb2IgcnVucywgYnV0IGl0IGRvZXMgd2l0aCAxaHIgam9iIHJ1bnMgbWFraW5nIG1lIHRoaW5r
+IGl0IGlzIHRpZWQgdG8gdGhlIGpvYiBkdXJhdGlvbiBpbiBzb21lIHdheS4NCiAgICANCiAgICBm
+aW8gMy4xMA0KICAgIGtlcm5lbCBzdXNlLTQuNC4xNzEtOTQuNzYtZGVmYXVsdA0KICAgIA0KICAg
+IG5ldHdvcmsgaXMgMTAwRywgbm9kZXMgaGF2ZSB4ZW9uIHNpbHZlciA0MTEwIHdpdGggc3BlY3Ry
+ZS9tZWx0ZG93biBkaXNhYmxlZA0KICAgIA0KICAgIFRoZSBqb2JzIGFyZSBpbnRlbnNlLCBRRD0z
+MissIG51bWpvYnM9MTYuICANCiAgICANCiAgICBJIHNlZSBhIGxvdCBtb3JlIGZhaWx1cmVzIHdp
+dGggc21hbGwgSS9PcywgZXNwZWNpYWxseSByYW5kb20uICBUaGlzIGlzIHRydWUgb24gYm90aCBz
+cGlubmluZyBhbmQgU1NEIGJhc2VkIHN0b3JhZ2UuDQogICAgDQogICAgSXMgdGhlcmUgYW55dGhp
+bmcgdGhhdCBjYW4gYmUgdHdlYWtlZCBmcm9tIHRoZSBqb2JmaWxlIGRlZmluaXRpb24gdG8gbGVu
+Z3RoZW4gdGltZW91dHM/DQogICAgDQogICAgT3RoZXIgdGhvdWdodHM/DQogICAgDQogICAgRGF2
+aWQgQnl0ZQ0KICAgIFNyLiBUZWNobm9sb2d5IFN0cmF0ZWdpc3QNCiAgICANCiAgICANCg0K
 
