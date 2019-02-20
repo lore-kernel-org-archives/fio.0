@@ -1,29 +1,51 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH 0/2] stat/options patches
-Date: Tue, 19 Feb 2019 16:44:06 -0500
-Message-Id: <20190219214408.14207-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
+Return-Path: <prvs=947609abe=damien.lemoal@wdc.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH 3/8] t/zbd: Fix handling of partition devices
+Date: Wed, 20 Feb 2019 16:17:20 +0900
+Message-Id: <20190220071725.8487-4-damien.lemoal@wdc.com>
+In-Reply-To: <20190220071725.8487-1-damien.lemoal@wdc.com>
+References: <20190220071725.8487-1-damien.lemoal@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Bart Van Assche <bvanassche@acm.org>, Matias Bjorling <matias.bjorling@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Vincent Fu <vincent.fu@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-Jens, please consider these two patches that address a couple issues
-that we have encountered. Thanks.
+To allow t/zbd/tests-zbd-support test script to run correctly on
+partitions of zoned block devices, fix access to the device properties
+through sysfs by referencing the sysfs directory of the holder block
+device. Doing so, the "zoned", "logical_block_size" and "mq" attributes
+can be correctly accessed.
 
-Vincent
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ t/zbd/test-zbd-support | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-Vincent Fu (2):
-  stat: use long doubles to identify latency percentiles
-  options: catch division by zero in setting CPU affinity
-
- options.c | 3 +++
- stat.c    | 5 ++++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
-
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 2d727910..d316d880 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -761,7 +761,15 @@ source "$(dirname "$0")/functions" || exit $?
+ dev=$1
+ realdev=$(readlink -f "$dev")
+ basename=$(basename "$realdev")
+-disk_size=$(($(<"/sys/block/$basename/size")*512))
++major=$((0x$(stat -L -c '%t' "$realdev")))
++minor=$((0x$(stat -L -c '%T' "$realdev")))
++disk_size=$(($(<"/sys/dev/block/$major:$minor/size")*512))
++# When the target is a partition device, get basename of its holder device to
++# access sysfs path of the holder device
++if [[ -r "/sys/dev/block/$major:$minor/partition" ]]; then
++	realsysfs=$(readlink "/sys/dev/block/$major:$minor")
++	basename=$(basename "${realsysfs%/*}")
++fi
+ logical_block_size=$(<"/sys/block/$basename/queue/logical_block_size")
+ case "$(<"/sys/class/block/$basename/queue/zoned")" in
+     host-managed|host-aware)
 -- 
-2.17.1
+2.20.1
 
 
