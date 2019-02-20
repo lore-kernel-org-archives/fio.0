@@ -1,86 +1,43 @@
-Return-Path: <prvs=94868c4cd=Damien.LeMoal@wdc.com>
-From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Return-Path: <bart.vanassche@gmail.com>
+Return-Path: <bart.vanassche@gmail.com>
+Message-ID: <1550678420.93548.19.camel@acm.org>
 Subject: Re: [PATCH 1/8] zbd: Fix partition block device handling
-Date: Thu, 21 Feb 2019 01:47:23 +0000
-Message-ID: <71552140811ff1b82f68f0dbd0ea0d191f97741c.camel@wdc.com>
+From: Bart Van Assche <bvanassche@acm.org>
+Date: Wed, 20 Feb 2019 08:00:20 -0800
+In-Reply-To: <20190220071725.8487-2-damien.lemoal@wdc.com>
 References: <20190220071725.8487-1-damien.lemoal@wdc.com>
 	 <20190220071725.8487-2-damien.lemoal@wdc.com>
-	 <1550678420.93548.19.camel@acm.org>
-In-Reply-To: <1550678420.93548.19.camel@acm.org>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <FC44976A01EB5F49BE26A0FE50E9687E@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "bvanassche@acm.org" <bvanassche@acm.org>, "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, "osandov@osandov.com" <osandov@osandov.com>, Matias Bjorling <Matias.Bjorling@wdc.com>
+Content-Type: text/plain; charset="UTF-7"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+To: Damien Le Moal <damien.lemoal@wdc.com>, fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Matias Bjorling <matias.bjorling@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-QmFydCwNCg0KK09tYXIgd2hvIGhhcyBhIHNpbWlsYXIgcXVlc3Rpb24gb24gYmxrdGVzdHMgc2lk
-ZS4NCg0KT24gV2VkLCAyMDE5LTAyLTIwIGF0IDA4OjAwIC0wODAwLCBCYXJ0IFZhbiBBc3NjaGUg
-d3JvdGU6DQo+IE9uIFdlZCwgMjAxOS0wMi0yMCBhdCAxNjoxNyArMDkwMCwgRGFtaWVuIExlIE1v
-YWwgd3JvdGU6DQo+ID4gRnJvbTogU2hpbidpY2hpcm8gS2F3YXNha2kgPHNoaW5pY2hpcm8ua2F3
-YXNha2lAd2RjLmNvbT4NCj4gPiANCj4gPiBGb3IgZmlvIHRvIGNvcnJlY3RseSBoYW5kbGUgdGhl
-IHpvbmVtb2RlPXpiZCBtb2RlIHdpdGggcGFydGl0aW9ucyBvZg0KPiA+IHpvbmVkIGJsb2NrIGRl
-dmljZXMsIHRoZSBwYXJ0aXRpb24gYmxvY2sgZGV2aWNlIGZpbGUgbXVzdCBiZQ0KPiA+IGlkZW50
-aWZpZWQNCj4gPiBhcyBhIHpvbmVkIGRpc2suIEhvd2V2ZXIsIHBhcnRpdGlvbiBibG9jayBkZXZp
-Y2UgZmlsZXMgZG8gbm90IGhhdmUNCj4gPiBhIHpvbmVkIHN5c2ZzIGZpbGUuIFRoaXMgcGF0Y2gg
-YWxsb3dzIGEgY29ycmVjdCBpZGVudGlmaWNhdGlvbiBvZg0KPiA+IHRoZQ0KPiA+IGRldmljZSBm
-aWxlIHpvbmUgbW9kZWwgYnkgYWNjZXNzaW5nIHRoZSBzeXNmcyAiem9uZWQiIGZpbGUgb2YgdGhl
-DQo+ID4gaG9sZGVyIGRpc2sgZm9yIHBhcnRpdGlvbiBkZXZpY2VzLg0KPiA+IA0KPiA+IENoYW5n
-ZSBnZXRfemJkX21vZGVsKCkgZnVuY3Rpb24gdG8gcmVzb2x2ZSB0aGUgc3ltYm9saWMgbGluayB0
-byB0aGUNCj4gPiBzeXNmcyBwYXRoIHRvIG9idGFpbiB0aGUgY2Fub25pY2FsIHN5c2ZzIHBhdGgu
-IFRoZSBjYW5vbmljYWwgc3lzZnMNCj4gPiBwYXRoIG9mIGEgcGFydGl0aW9uIGRldmljZSBpbmNs
-dWRlcyBib3RoIG9mIHRoZSBob2xkZXIgZGV2aWNlIG5hbWUNCj4gPiBhbmQNCj4gPiB0aGUgcGFy
-dGl0aW9uIGRldmljZSBuYW1lLiBJZiB0aGUgZ2l2ZW4gZGV2aWNlIGlzIGEgcGFydGl0aW9uDQo+
-ID4gZGV2aWNlLA0KPiA+IGN1dCB0aGUgcGFydGl0aW9uIGRldmljZSBuYW1lIGluIHRoZSBjYW5v
-bmljYWwgc3lzZnMgcGF0aCB0byBhY2Nlc3MNCj4gPiB0aGUgInpvbmVkIiBmaWxlIGluIHRoZSBo
-b2xkZXIgZGV2aWNlIHN5c2ZzIHBhdGguDQo+IA0KPiBQbGVhc2UgZXhwbGFpbiB3aGF0IG1ha2Vz
-IHlvdSB0aGluayB0aGF0IGl0IG1ha2VzIHNlbnNlIHRvIGNyZWF0ZQ0KPiBwYXJ0aXRpb25zIG9u
-IGEgem9uZWQgYmxvY2sgZGV2aWNlLiBBbiBhcHBsaWNhdGlvbiB0aGF0IHdhbnRzIHRvIHdyaXRl
-DQo+IHRvIGEgcGFydGl0aW9uIG9mIGEgem9uZWQgYmxvY2sgZGV2aWNlIG5lZWRzIGFjY2VzcyB0
-byB0aGUgd2hvbGUgZGlzaw0KPiBhbnl3YXkgdG8gZ2V0IHBlcm1pc3Npb24gdG8gc3VibWl0IHRo
-ZSBCTEtSRVBPUlRaT05FIGFuZCBCTEtSRVNFVFpPTkUNCj4gaW9jdGxzLiBTbyB3aHkgd291bGQg
-YW55b25lIGNyZWF0ZSBwYXJ0aXRpb25zIG9uIGEgem9uZWQgYmxvY2sgZGV2aWNlPw0KDQpUaGUg
-QkxLUkVQT1JUWk9ORSBhbmQgQkxLUkVTRVRaT05FIGlvY3RscyBkbyB3b3JrIGFzIGV4cGVjdGVk
-IHdoZW4NCmlzc3VlZCBhZ2FpbnN0IGEgcGFydGl0aW9uIGRldmljZS4gVGhhdCBpcywgdGhlIHNl
-Y3RvciB2YWx1ZXMgaW52b2x2ZWQNCndpdGggdGhlc2UgaW9jdGxzIGdldCByZW1hcHBlZCBhZ2Fp
-bnN0IHRoZSBwYXJ0aXRpb24gc2VjdG9yIHJhbmdlIHdpdGgNCmFuIGFkZGl0aW9uIG9yIHN1YnN0
-cmFjdGlvbiBvZiB0aGUgcGFydGl0aW9uIHNlY3RvciBvZmZzZXQuIEZvciB0aGlzIHRvDQp3b3Jr
-IGNvcnJlY3RseSwgdGhlIGtlcm5lbCBwYXJ0aXRpb24gY29kZSBvbmx5IGFsbG93cyBwYXJ0aXRp
-b25zIG9uDQp6b25lZCBibG9jayBkZXZpY2VzIGlmIHRoZSBwYXJ0aXRpb25zIGFyZSB6b25lIGFs
-aWduZWQgKHBsZWFzZSBzZWUgdGhlDQp1c2Ugb2YgdGhlIGZ1bmN0aW9uIHBhcnRfem9uZV9hbGln
-bmVkKCkgaW4gdGhlIGtlcm5lbCBmaWxlDQpibG9jay9wYXJ0aXRpb24tZ2VuZXJpYy5jKS4gU28g
-YW4gYXBwbGljYXRpb24gd29ya2luZyB3aXRoIGEgcGFydGl0aW9uDQpvZiBhIHpvbmVkIGJsb2Nr
-IGRldmljZSBkb2VzIG5vdCBuZWVkIHRvIGlzc3VlIHRoZXNlIGlvY3RscyBhZ2FpbnN0IHRoZQ0K
-ZW50aXJlIGRpc2suDQoNCk5vdyBmb3IgdGhlIHVzZSBjYXNlLiBJbmRlZWQsIGZvciBob3N0LW1h
-bmFnZWQgZGlza3MsIHRoaXMgaXMgbm90IGEgdmVyeQ0KY29tcGVsaW5nIHVzZSBjYXNlLCBub3Ig
-aXMgaXQgY29tbW9ubHkgaW4gdXNlIGluIHRoZSBmaWVsZCBhcyBmYXIgYXMgSQ0Ka25vdy4gQ2h1
-bmtpbmcgYSBob3N0LW1hbmFnZWQgZGlzayBpbnRvIHNtYWxsZXIgZHJpdmVzIHdpdGggZG0tbGlu
-ZWFyIGlzDQpsaWtlbHkgYSBiZXR0ZXIgb3B0aW9uLiBUaGVyZSBpcyBvbmUgdXNlIGNhc2UgSSBo
-YXZlIHNlZW4gaW4gdGhlIGZpZWxkDQp0aG91Z2ggd2hlcmUgYSBwYXJ0aXRpb24gd2FzIGNyZWF0
-ZWQgb3ZlciB0aGUgY29udmVudGlvbmFsIHpvbmVzIHNwYWNlDQpvZiBhIGRpc2sgdG8gY3JlYXRl
-IGFuIGVzc2VudGlhbGx5IG5vcm1hbCAoaS5lLiByYW5kb21seSB3cml0YWJsZSkgZGlzaw0KdG8g
-cHV0IGFuIGV4dDQgZmlsZSBzeXN0ZW0gb24gdG9wIGZvciBhIG1ldGFkYXRhIERCIHRvIG1hbmFn
-ZSBkYXRhDQpzdG9yZWQgb24gdGhlIHJlbWFpbmluZyBzZXF1ZW50aWFsIHpvbmVzIG9mIHRoZSBk
-aXNrLiBTdWNoIGNob2ljZSBhbGxvd3MNCnRvIHNpbXBsaWZ5IHRoZSBvdmVyYWxsIHN5c3RlbSBk
-ZXNpZ24gYnkgZW5hYmxpbmcgdGhlIHVzZSBvZiBwcm92ZW4NCmNvbXBvbmVudHMgKGV4dDQsIERC
-KSByYXRoZXIgdGhhbiB3cml0aW5nIG9yIHBvcnRpbmcgZXZlcnl0aGluZyB0byBmaXQgYQ0KcHVy
-ZSB6b25lZCBibG9jayBkZXZpY2UgbW9kZWwuDQoNClRoZSBtYWluIHVzZSBjYXNlIGlzIGZvciBo
-b3N0LWF3YXJlIGRpc2tzIGFzIHRoZXNlIGNhbiBiZSB3cml0dGVuDQpyYW5kb21seSBhbnl3aGVy
-ZSBhbmQgc28gYXJlIGluIGVzc2VuY2UgIm5vcm1hbCIgZGlza3MsIG1vcmUgc28NCmNvbnNpZGVy
-aW5nIHRoZSBmYWN0IHRoYXQgdGhlc2UgZHJpdmVzIFNDU0kgZGV2aWNlIHR5cGUgaXMgIjB4MCIs
-DQplcXVpdmFsZW50IHRvIHJlZ3VsYXIgZGlzayBkZXZpY2VzLiBBcyBzdWNoLCBwYXJ0aXRpb25p
-bmcgaG9zdC1hd2FyZQ0KZGlza3MgaW4gdGhlIHNhbWUgbWFubmVyIGFzIHJlZ3VsYXIgZGlza3Mg
-Z2VuZXJhbGx5IGFyZSBpcyBhIHZhbGlkIHVzZQ0KY2FzZS4NCg0KVG9nZXRoZXIgd2l0aCB0aGUg
-YmxrdGVzdHMgZml4ZXMgd2UgcG9zdGVkIHllc3RlcmRheSwgdGhlIGludGVudCBvZiB0aGlzDQpm
-aXggaXMgdG8gYWxsb3cgZm9yIHJ1bm5pbmcgdGVzdHMgYWdhaW5zdCBwYXJ0aXRpb25zIHRvIGNo
-ZWNrIHRoZSBrZXJuZWwNCnBhcnRpdGlvbiBzZWN0b3IgcmVtYXBwaW5nIGZvciB6b25lZCBibG9j
-ayBkaXNrcy4gU3BlY2lmaWMgdGVzdHMgaW4NCmJsa3Rlc3RzIGFyZSBub3QgbmVlZGVkLCB3ZSBv
-bmx5IG5lZWQgdGhlIGFiaWxpdHkgdG8gc3BlY2lmeSBhIHBhcnRpdGlvbg0KZGV2aWNlIGZpbGUg
-aW4gYmxrdGVzdHMgY29uZmlnIChURVNUX0RFVlMgdmFyaWFibGUpLiBUaGlzIGlzIHRvIGltcHJv
-dmUNCnRlc3QgY292ZXJhZ2UuIFdlIGFsc28gcnVuIHRoZXNlIHRlc3RzIHdpdGggdGhlIHNhbWUg
-aW50ZW50IChzZWN0b3INCnJlbWFwcGluZyB2ZXJpZmljYXRpb24pIGZvciBkbS1saW5lYXIgZGV2
-aWNlcyB0b28uDQoNClRoYW5rIHlvdSBmb3IgeW91ciByZXZpZXcuDQoNCkJlc3QgcmVnYXJkcy4N
-Cg0KLS0gDQpEYW1pZW4gTGUgTW9hbA0KV2VzdGVybiBEaWdpdGFsIFJlc2VhcmNoDQo=
+On Wed, 2019-02-20 at 16:17 +-0900, Damien Le Moal wrote:
++AD4 From: Shin'ichiro Kawasaki +ADw-shinichiro.kawasaki+AEA-wdc.com+AD4
++AD4 
++AD4 For fio to correctly handle the zonemode+AD0-zbd mode with partitions of
++AD4 zoned block devices, the partition block device file must be identified
++AD4 as a zoned disk. However, partition block device files do not have
++AD4 a zoned sysfs file. This patch allows a correct identification of the
++AD4 device file zone model by accessing the sysfs +ACI-zoned+ACI file of the
++AD4 holder disk for partition devices.
++AD4 
++AD4 Change get+AF8-zbd+AF8-model() function to resolve the symbolic link to the
++AD4 sysfs path to obtain the canonical sysfs path. The canonical sysfs
++AD4 path of a partition device includes both of the holder device name and
++AD4 the partition device name. If the given device is a partition device,
++AD4 cut the partition device name in the canonical sysfs path to access
++AD4 the +ACI-zoned+ACI file in the holder device sysfs path.
+
+Please explain what makes you think that it makes sense to create
+partitions on a zoned block device. An application that wants to write
+to a partition of a zoned block device needs access to the whole disk
+anyway to get permission to submit the BLKREPORTZONE and BLKRESETZONE
+ioctls. So why would anyone create partitions on a zoned block device?
+
+Thanks,
+
+Bart.
 
