@@ -1,99 +1,86 @@
-Return-Path: <prvs=94868c4cd=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH v2 1/9] zbd: Fix partition block device handling
-Date: Thu, 21 Feb 2019 13:10:59 +0900
-Message-Id: <20190221041107.8576-2-damien.lemoal@wdc.com>
-In-Reply-To: <20190221041107.8576-1-damien.lemoal@wdc.com>
-References: <20190221041107.8576-1-damien.lemoal@wdc.com>
+Return-Path: <prvs=94868c4cd=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH 1/8] zbd: Fix partition block device handling
+Date: Thu, 21 Feb 2019 01:47:23 +0000
+Message-ID: <71552140811ff1b82f68f0dbd0ea0d191f97741c.camel@wdc.com>
+References: <20190220071725.8487-1-damien.lemoal@wdc.com>
+	 <20190220071725.8487-2-damien.lemoal@wdc.com>
+	 <1550678420.93548.19.camel@acm.org>
+In-Reply-To: <1550678420.93548.19.camel@acm.org>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <FC44976A01EB5F49BE26A0FE50E9687E@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Bart Van Assche <bvanassche@acm.org>, Matias Bjorling <matias.bjorling@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "bvanassche@acm.org" <bvanassche@acm.org>, "axboe@kernel.dk" <axboe@kernel.dk>
+Cc: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, "osandov@osandov.com" <osandov@osandov.com>, Matias Bjorling <Matias.Bjorling@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-
-For fio to correctly handle the zonemode=zbd mode with partitions of
-zoned block devices, the partition block device file must be identified
-as a zoned disk. However, partition block device files do not have
-a zoned sysfs file. This patch allows a correct identification of the
-device file zone model by accessing the sysfs "zoned" file of the
-holder disk for partition devices.
-
-Change get_zbd_model() function to resolve the symbolic link to the
-sysfs path to obtain the canonical sysfs path. The canonical sysfs
-path of a partition device includes both of the holder device name and
-the partition device name. If the given device is a partition device,
-cut the partition device name in the canonical sysfs path to access
-the "zoned" file in the holder device sysfs path.
-
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- zbd.c | 38 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 37 insertions(+), 1 deletion(-)
-
-diff --git a/zbd.c b/zbd.c
-index 8acda1f6..9b603b97 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -228,12 +228,45 @@ static enum blk_zoned_model get_zbd_model(const char *file_name)
- 	char *zoned_attr_path = NULL;
- 	char *model_str = NULL;
- 	struct stat statbuf;
-+	char *sys_devno_path = NULL;
-+	char *part_attr_path = NULL;
-+	char *part_str = NULL;
-+	char sys_path[PATH_MAX];
-+	ssize_t sz;
-+	char *delim = NULL;
- 
- 	if (stat(file_name, &statbuf) < 0)
- 		goto out;
--	if (asprintf(&zoned_attr_path, "/sys/dev/block/%d:%d/queue/zoned",
-+
-+	if (asprintf(&sys_devno_path, "/sys/dev/block/%d:%d",
- 		     major(statbuf.st_rdev), minor(statbuf.st_rdev)) < 0)
- 		goto out;
-+
-+	sz = readlink(sys_devno_path, sys_path, sizeof(sys_path) - 1);
-+	if (sz < 0)
-+		goto out;
-+	sys_path[sz] = '\0';
-+
-+	/*
-+	 * If the device is a partition device, cut the device name in the
-+	 * canonical sysfs path to obtain the sysfs path of the holder device.
-+	 *   e.g.:  /sys/devices/.../sda/sda1 -> /sys/devices/.../sda
-+	 */
-+	if (asprintf(&part_attr_path, "/sys/dev/block/%s/partition",
-+		     sys_path) < 0)
-+		goto out;
-+	part_str = read_file(part_attr_path);
-+	if (part_str && *part_str == '1') {
-+		delim = strrchr(sys_path, '/');
-+		if (!delim)
-+			goto out;
-+		*delim = '\0';
-+	}
-+
-+	if (asprintf(&zoned_attr_path,
-+		     "/sys/dev/block/%s/queue/zoned", sys_path) < 0)
-+		goto out;
-+
- 	model_str = read_file(zoned_attr_path);
- 	if (!model_str)
- 		goto out;
-@@ -246,6 +279,9 @@ static enum blk_zoned_model get_zbd_model(const char *file_name)
- out:
- 	free(model_str);
- 	free(zoned_attr_path);
-+	free(part_str);
-+	free(part_attr_path);
-+	free(sys_devno_path);
- 	return model;
- }
- 
--- 
-2.20.1
-
+QmFydCwNCg0KK09tYXIgd2hvIGhhcyBhIHNpbWlsYXIgcXVlc3Rpb24gb24gYmxrdGVzdHMgc2lk
+ZS4NCg0KT24gV2VkLCAyMDE5LTAyLTIwIGF0IDA4OjAwIC0wODAwLCBCYXJ0IFZhbiBBc3NjaGUg
+d3JvdGU6DQo+IE9uIFdlZCwgMjAxOS0wMi0yMCBhdCAxNjoxNyArMDkwMCwgRGFtaWVuIExlIE1v
+YWwgd3JvdGU6DQo+ID4gRnJvbTogU2hpbidpY2hpcm8gS2F3YXNha2kgPHNoaW5pY2hpcm8ua2F3
+YXNha2lAd2RjLmNvbT4NCj4gPiANCj4gPiBGb3IgZmlvIHRvIGNvcnJlY3RseSBoYW5kbGUgdGhl
+IHpvbmVtb2RlPXpiZCBtb2RlIHdpdGggcGFydGl0aW9ucyBvZg0KPiA+IHpvbmVkIGJsb2NrIGRl
+dmljZXMsIHRoZSBwYXJ0aXRpb24gYmxvY2sgZGV2aWNlIGZpbGUgbXVzdCBiZQ0KPiA+IGlkZW50
+aWZpZWQNCj4gPiBhcyBhIHpvbmVkIGRpc2suIEhvd2V2ZXIsIHBhcnRpdGlvbiBibG9jayBkZXZp
+Y2UgZmlsZXMgZG8gbm90IGhhdmUNCj4gPiBhIHpvbmVkIHN5c2ZzIGZpbGUuIFRoaXMgcGF0Y2gg
+YWxsb3dzIGEgY29ycmVjdCBpZGVudGlmaWNhdGlvbiBvZg0KPiA+IHRoZQ0KPiA+IGRldmljZSBm
+aWxlIHpvbmUgbW9kZWwgYnkgYWNjZXNzaW5nIHRoZSBzeXNmcyAiem9uZWQiIGZpbGUgb2YgdGhl
+DQo+ID4gaG9sZGVyIGRpc2sgZm9yIHBhcnRpdGlvbiBkZXZpY2VzLg0KPiA+IA0KPiA+IENoYW5n
+ZSBnZXRfemJkX21vZGVsKCkgZnVuY3Rpb24gdG8gcmVzb2x2ZSB0aGUgc3ltYm9saWMgbGluayB0
+byB0aGUNCj4gPiBzeXNmcyBwYXRoIHRvIG9idGFpbiB0aGUgY2Fub25pY2FsIHN5c2ZzIHBhdGgu
+IFRoZSBjYW5vbmljYWwgc3lzZnMNCj4gPiBwYXRoIG9mIGEgcGFydGl0aW9uIGRldmljZSBpbmNs
+dWRlcyBib3RoIG9mIHRoZSBob2xkZXIgZGV2aWNlIG5hbWUNCj4gPiBhbmQNCj4gPiB0aGUgcGFy
+dGl0aW9uIGRldmljZSBuYW1lLiBJZiB0aGUgZ2l2ZW4gZGV2aWNlIGlzIGEgcGFydGl0aW9uDQo+
+ID4gZGV2aWNlLA0KPiA+IGN1dCB0aGUgcGFydGl0aW9uIGRldmljZSBuYW1lIGluIHRoZSBjYW5v
+bmljYWwgc3lzZnMgcGF0aCB0byBhY2Nlc3MNCj4gPiB0aGUgInpvbmVkIiBmaWxlIGluIHRoZSBo
+b2xkZXIgZGV2aWNlIHN5c2ZzIHBhdGguDQo+IA0KPiBQbGVhc2UgZXhwbGFpbiB3aGF0IG1ha2Vz
+IHlvdSB0aGluayB0aGF0IGl0IG1ha2VzIHNlbnNlIHRvIGNyZWF0ZQ0KPiBwYXJ0aXRpb25zIG9u
+IGEgem9uZWQgYmxvY2sgZGV2aWNlLiBBbiBhcHBsaWNhdGlvbiB0aGF0IHdhbnRzIHRvIHdyaXRl
+DQo+IHRvIGEgcGFydGl0aW9uIG9mIGEgem9uZWQgYmxvY2sgZGV2aWNlIG5lZWRzIGFjY2VzcyB0
+byB0aGUgd2hvbGUgZGlzaw0KPiBhbnl3YXkgdG8gZ2V0IHBlcm1pc3Npb24gdG8gc3VibWl0IHRo
+ZSBCTEtSRVBPUlRaT05FIGFuZCBCTEtSRVNFVFpPTkUNCj4gaW9jdGxzLiBTbyB3aHkgd291bGQg
+YW55b25lIGNyZWF0ZSBwYXJ0aXRpb25zIG9uIGEgem9uZWQgYmxvY2sgZGV2aWNlPw0KDQpUaGUg
+QkxLUkVQT1JUWk9ORSBhbmQgQkxLUkVTRVRaT05FIGlvY3RscyBkbyB3b3JrIGFzIGV4cGVjdGVk
+IHdoZW4NCmlzc3VlZCBhZ2FpbnN0IGEgcGFydGl0aW9uIGRldmljZS4gVGhhdCBpcywgdGhlIHNl
+Y3RvciB2YWx1ZXMgaW52b2x2ZWQNCndpdGggdGhlc2UgaW9jdGxzIGdldCByZW1hcHBlZCBhZ2Fp
+bnN0IHRoZSBwYXJ0aXRpb24gc2VjdG9yIHJhbmdlIHdpdGgNCmFuIGFkZGl0aW9uIG9yIHN1YnN0
+cmFjdGlvbiBvZiB0aGUgcGFydGl0aW9uIHNlY3RvciBvZmZzZXQuIEZvciB0aGlzIHRvDQp3b3Jr
+IGNvcnJlY3RseSwgdGhlIGtlcm5lbCBwYXJ0aXRpb24gY29kZSBvbmx5IGFsbG93cyBwYXJ0aXRp
+b25zIG9uDQp6b25lZCBibG9jayBkZXZpY2VzIGlmIHRoZSBwYXJ0aXRpb25zIGFyZSB6b25lIGFs
+aWduZWQgKHBsZWFzZSBzZWUgdGhlDQp1c2Ugb2YgdGhlIGZ1bmN0aW9uIHBhcnRfem9uZV9hbGln
+bmVkKCkgaW4gdGhlIGtlcm5lbCBmaWxlDQpibG9jay9wYXJ0aXRpb24tZ2VuZXJpYy5jKS4gU28g
+YW4gYXBwbGljYXRpb24gd29ya2luZyB3aXRoIGEgcGFydGl0aW9uDQpvZiBhIHpvbmVkIGJsb2Nr
+IGRldmljZSBkb2VzIG5vdCBuZWVkIHRvIGlzc3VlIHRoZXNlIGlvY3RscyBhZ2FpbnN0IHRoZQ0K
+ZW50aXJlIGRpc2suDQoNCk5vdyBmb3IgdGhlIHVzZSBjYXNlLiBJbmRlZWQsIGZvciBob3N0LW1h
+bmFnZWQgZGlza3MsIHRoaXMgaXMgbm90IGEgdmVyeQ0KY29tcGVsaW5nIHVzZSBjYXNlLCBub3Ig
+aXMgaXQgY29tbW9ubHkgaW4gdXNlIGluIHRoZSBmaWVsZCBhcyBmYXIgYXMgSQ0Ka25vdy4gQ2h1
+bmtpbmcgYSBob3N0LW1hbmFnZWQgZGlzayBpbnRvIHNtYWxsZXIgZHJpdmVzIHdpdGggZG0tbGlu
+ZWFyIGlzDQpsaWtlbHkgYSBiZXR0ZXIgb3B0aW9uLiBUaGVyZSBpcyBvbmUgdXNlIGNhc2UgSSBo
+YXZlIHNlZW4gaW4gdGhlIGZpZWxkDQp0aG91Z2ggd2hlcmUgYSBwYXJ0aXRpb24gd2FzIGNyZWF0
+ZWQgb3ZlciB0aGUgY29udmVudGlvbmFsIHpvbmVzIHNwYWNlDQpvZiBhIGRpc2sgdG8gY3JlYXRl
+IGFuIGVzc2VudGlhbGx5IG5vcm1hbCAoaS5lLiByYW5kb21seSB3cml0YWJsZSkgZGlzaw0KdG8g
+cHV0IGFuIGV4dDQgZmlsZSBzeXN0ZW0gb24gdG9wIGZvciBhIG1ldGFkYXRhIERCIHRvIG1hbmFn
+ZSBkYXRhDQpzdG9yZWQgb24gdGhlIHJlbWFpbmluZyBzZXF1ZW50aWFsIHpvbmVzIG9mIHRoZSBk
+aXNrLiBTdWNoIGNob2ljZSBhbGxvd3MNCnRvIHNpbXBsaWZ5IHRoZSBvdmVyYWxsIHN5c3RlbSBk
+ZXNpZ24gYnkgZW5hYmxpbmcgdGhlIHVzZSBvZiBwcm92ZW4NCmNvbXBvbmVudHMgKGV4dDQsIERC
+KSByYXRoZXIgdGhhbiB3cml0aW5nIG9yIHBvcnRpbmcgZXZlcnl0aGluZyB0byBmaXQgYQ0KcHVy
+ZSB6b25lZCBibG9jayBkZXZpY2UgbW9kZWwuDQoNClRoZSBtYWluIHVzZSBjYXNlIGlzIGZvciBo
+b3N0LWF3YXJlIGRpc2tzIGFzIHRoZXNlIGNhbiBiZSB3cml0dGVuDQpyYW5kb21seSBhbnl3aGVy
+ZSBhbmQgc28gYXJlIGluIGVzc2VuY2UgIm5vcm1hbCIgZGlza3MsIG1vcmUgc28NCmNvbnNpZGVy
+aW5nIHRoZSBmYWN0IHRoYXQgdGhlc2UgZHJpdmVzIFNDU0kgZGV2aWNlIHR5cGUgaXMgIjB4MCIs
+DQplcXVpdmFsZW50IHRvIHJlZ3VsYXIgZGlzayBkZXZpY2VzLiBBcyBzdWNoLCBwYXJ0aXRpb25p
+bmcgaG9zdC1hd2FyZQ0KZGlza3MgaW4gdGhlIHNhbWUgbWFubmVyIGFzIHJlZ3VsYXIgZGlza3Mg
+Z2VuZXJhbGx5IGFyZSBpcyBhIHZhbGlkIHVzZQ0KY2FzZS4NCg0KVG9nZXRoZXIgd2l0aCB0aGUg
+YmxrdGVzdHMgZml4ZXMgd2UgcG9zdGVkIHllc3RlcmRheSwgdGhlIGludGVudCBvZiB0aGlzDQpm
+aXggaXMgdG8gYWxsb3cgZm9yIHJ1bm5pbmcgdGVzdHMgYWdhaW5zdCBwYXJ0aXRpb25zIHRvIGNo
+ZWNrIHRoZSBrZXJuZWwNCnBhcnRpdGlvbiBzZWN0b3IgcmVtYXBwaW5nIGZvciB6b25lZCBibG9j
+ayBkaXNrcy4gU3BlY2lmaWMgdGVzdHMgaW4NCmJsa3Rlc3RzIGFyZSBub3QgbmVlZGVkLCB3ZSBv
+bmx5IG5lZWQgdGhlIGFiaWxpdHkgdG8gc3BlY2lmeSBhIHBhcnRpdGlvbg0KZGV2aWNlIGZpbGUg
+aW4gYmxrdGVzdHMgY29uZmlnIChURVNUX0RFVlMgdmFyaWFibGUpLiBUaGlzIGlzIHRvIGltcHJv
+dmUNCnRlc3QgY292ZXJhZ2UuIFdlIGFsc28gcnVuIHRoZXNlIHRlc3RzIHdpdGggdGhlIHNhbWUg
+aW50ZW50IChzZWN0b3INCnJlbWFwcGluZyB2ZXJpZmljYXRpb24pIGZvciBkbS1saW5lYXIgZGV2
+aWNlcyB0b28uDQoNClRoYW5rIHlvdSBmb3IgeW91ciByZXZpZXcuDQoNCkJlc3QgcmVnYXJkcy4N
+Cg0KLS0gDQpEYW1pZW4gTGUgTW9hbA0KV2VzdGVybiBEaWdpdGFsIFJlc2VhcmNoDQo=
 
