@@ -1,74 +1,64 @@
 Return-Path: <prvs=94868c4cd=damien.lemoal@wdc.com>
 From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH v2 0/9] ZBD support fixes
-Date: Thu, 21 Feb 2019 13:10:58 +0900
-Message-Id: <20190221041107.8576-1-damien.lemoal@wdc.com>
+Subject: [PATCH v2 8/9] zbd: Avoid async I/O multi-job workload deadlock
+Date: Thu, 21 Feb 2019 13:11:06 +0900
+Message-Id: <20190221041107.8576-9-damien.lemoal@wdc.com>
+In-Reply-To: <20190221041107.8576-1-damien.lemoal@wdc.com>
+References: <20190221041107.8576-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 Cc: Bart Van Assche <bvanassche@acm.org>, Matias Bjorling <matias.bjorling@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-This patch series fixes various problems with fio zbd support discovered
-with extensive testing on various test targets (null_blk, iscsi/tcmu
-device, SMR disk, partition devices, etc).
+With zonemode=zbd, for a multi-job workload using asynchronous I/O
+engines with a deep I/O queue depth setting, a job that is building a
+batch of asynchronous I/Os to submit may end up waiting for an I/O
+target zone lock held by another job that is also preparing a batch.
+For small devices with few zones and/or a large number of jobs, such
+prepare phase zone lock contention can be frequent enough to end up in a
+situation where all jobs are waiting for zone locks held by other jobs
+and no I/O being executed (so no zone being unlocked).
 
-In more details:
-* Patch 1 fixes the discovery of a block device zone model to correctly
-  handle block devices that are partitions.
-* Patch 2 addresses a problem with the SG engine and devices not
-  supporting the READ CAPACITY(10) command.
-* Patch 3 cleans up the SG engine code with helper functions to handle
-  big-endian SCSI cdb fields.
-* Patch 4 to 6 fix the zbd support tests to avoid incorrect failures
-  reports.
-* Patch 7 and 8 fix zone locking handling to avoid write command
-  reordering with multi-jobs workloads with asynchronous I/O engines.
-  These changes do have a significant impact on the performance reported
-  for very small (test) devices with a high number of jobs. The worst
-  degradation observed result in libaio performance being equal to that
-  of the synchronous psync engine. There is however no noticeable
-  performance degradation with real disks as the large number of zones
-  with these drives do not cause excessive zone lock contention.
-* Patch 9 introduces a new zbd test case 46 to test asynchronous
-  muli-job writes.
+Avoid this situation by using pthread_mutex_trylock() instead of
+pthread_mutex_lock() and by calling io_u_quiesce() to execute queued
+I/O units if locking fails. pthread_mutex_lock() is then called to
+lock the desired target zone. The execution of io_u_quiesce() forces
+I/O execution progress and so zones to be unlocked, avoiding job
+deadlock.
 
-All these fixes are necessary for correctly running blktests with
-different target devices, and to also implement further blktests
-zbd test group to improve test coverage.
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+---
+ zbd.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-As always, comments are very welcome.
-
-Changes from v1:
-* Addressed Bart's comments for SG engine changes (added patch 3)
-* Fixed patch 5 as suggested by Bart
-
-Damien Le Moal (4):
-  t/zbd: Fix test 2 and 3 result handling
-  zbd: Fix zone locking for async I/O engines
-  zbd: Avoid async I/O multi-job workload deadlock
-  t/zbd: Add multi-job libaio test
-
-Dmitry Fomichev (2):
-  sg: Avoid READ CAPACITY failures
-  sg: Clean up handling of big endian data fields
-
-Shin'ichiro Kawasaki (3):
-  zbd: Fix partition block device handling
-  t/zbd: Fix handling of partition devices
-  t/zbd: Default to using blkzone tool
-
- engines/sg.c           | 127 ++++++++++++++++++++++------------------
- io_u.c                 |  10 +---
- io_u.h                 |  17 +++++-
- ioengines.c            |   6 +-
- os/os.h                |  24 ++++++++
- t/zbd/functions        |  25 ++++++--
- t/zbd/test-zbd-support |  34 ++++++++---
- zbd.c                  | 129 +++++++++++++++++++++++++++++++++++------
- zbd.h                  |  22 +++++++
- 9 files changed, 289 insertions(+), 105 deletions(-)
-
+diff --git a/zbd.c b/zbd.c
+index 310b1732..2da742b7 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -1255,7 +1255,21 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 
+ 	zbd_check_swd(f);
+ 
+-	pthread_mutex_lock(&zb->mutex);
++	/*
++	 * Lock the io_u target zone. The zone will be unlocked if io_u offset
++	 * is changed or when io_u completes and zbd_put_io() executed.
++	 * To avoid multiple jobs doing asynchronous I/Os from deadlocking each
++	 * other waiting for zone locks when building an io_u batch, first
++	 * only trylock the zone. If the zone is already locked by another job,
++	 * process the currently queued I/Os so that I/O progress is made and
++	 * zones unlocked.
++	 */
++	if (pthread_mutex_trylock(&zb->mutex) != 0) {
++		if (!td_ioengine_flagged(td, FIO_SYNCIO))
++			io_u_quiesce(td);
++		pthread_mutex_lock(&zb->mutex);
++	}
++
+ 	switch (io_u->ddir) {
+ 	case DDIR_READ:
+ 		if (td->runstate == TD_VERIFYING) {
 -- 
 2.20.1
 
