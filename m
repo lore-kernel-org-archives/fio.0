@@ -1,80 +1,62 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:35616 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725926AbfBVNAF (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 22 Feb 2019 08:00:05 -0500
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1gxAQu-000539-Vs
-        for fio@vger.kernel.org; Fri, 22 Feb 2019 13:00:05 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20190222130002.1A6DC2C040D@kernel.dk>
-Date: Fri, 22 Feb 2019 06:00:02 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <prvs=94868c4cd=damien.lemoal@wdc.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH v2 5/9] t/zbd: Fix test 2 and 3 result handling
+Date: Thu, 21 Feb 2019 13:11:03 +0900
+Message-Id: <20190221041107.8576-6-damien.lemoal@wdc.com>
+In-Reply-To: <20190221041107.8576-1-damien.lemoal@wdc.com>
+References: <20190221041107.8576-1-damien.lemoal@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Bart Van Assche <bvanassche@acm.org>, Matias Bjorling <matias.bjorling@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 71144e676e710b37966f447ccd8d944813dfa6d1:
+Removal of the message "No I/O performed" when fio does not execute any
+I/O broke zbd tests 2 and 3 as this message is looked after to test for
+success. Fix this by looking for a "Run status" line starting with
+"WRITE:" for test 2 and "READ:" for test 3. The run status lines are not
+printed when no I/O is performed. Testing for the absence of these
+strings thus allows to easily test if I/Os where executed or not.
 
-  configure: enable -Wimplicit-fallthrough if we have it (2019-02-11 13:30:52 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 3a294b8704a4125f12e3c3dec36667e68d821be0:
-
-  options: catch division by zero in setting CPU affinity (2019-02-21 10:55:32 -0700)
-
-----------------------------------------------------------------
-Vincent Fu (2):
-      stat: use long doubles to identify latency percentiles
-      options: catch division by zero in setting CPU affinity
-
- options.c | 3 +++
- stat.c    | 5 ++++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
-
+Fixes: ff3aa922570c ("Kill "No I/O performed by ..." message")
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 ---
+ t/zbd/test-zbd-support | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-Diff of recent changes:
-
-diff --git a/options.c b/options.c
-index 6d832354..95086074 100644
---- a/options.c
-+++ b/options.c
-@@ -493,6 +493,9 @@ int fio_cpus_split(os_cpu_mask_t *mask, unsigned int cpu_index)
- 	const long max_cpu = cpus_online();
- 
- 	cpus_in_mask = fio_cpu_count(mask);
-+	if (!cpus_in_mask)
-+		return 0;
-+
- 	cpu_index = cpu_index % cpus_in_mask;
- 
- 	index = 0;
-diff --git a/stat.c b/stat.c
-index c1f46e1d..66a13bca 100644
---- a/stat.c
-+++ b/stat.c
-@@ -170,7 +170,7 @@ unsigned int calc_clat_percentiles(uint64_t *io_u_plat, unsigned long long nr,
- 	is_last = false;
- 	for (i = 0; i < FIO_IO_U_PLAT_NR && !is_last; i++) {
- 		sum += io_u_plat[i];
--		while (sum >= (plist[j].u.f / 100.0 * nr)) {
-+		while (sum >= ((long double) plist[j].u.f / 100.0 * nr)) {
- 			assert(plist[j].u.f <= 100.0);
- 
- 			ovals[j] = plat_idx_to_val(i);
-@@ -187,6 +187,9 @@ unsigned int calc_clat_percentiles(uint64_t *io_u_plat, unsigned long long nr,
- 		}
- 	}
- 
-+	if (!is_last)
-+		log_err("fio: error calculating latency percentiles\n");
-+
- 	*output = ovals;
- 	return len;
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index d316d880..03d61b70 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -141,9 +141,8 @@ test2() {
+     if [ -z "$is_zbd" ]; then
+ 	opts+=("--zonesize=${zone_size}")
+     fi
+-    run_fio "${opts[@]}" 2>&1 |
+-	tee -a "${logfile}.${test_number}" |
+-	grep -q 'No I/O performed'
++    run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
++    ! grep -q 'WRITE:' "${logfile}.${test_number}"
  }
+ 
+ # Run fio against an empty zone. This causes fio to report "No I/O performed".
+@@ -160,12 +159,12 @@ test3() {
+ 	opts+=("--zonesize=${zone_size}")
+     fi
+     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
+-    grep -q "No I/O performed" "${logfile}.${test_number}"
++    grep -q 'READ:' "${logfile}.${test_number}"
+     rc=$?
+     if [ -n "$is_zbd" ]; then
+-	[ $rc = 0 ]
+-    else
+ 	[ $rc != 0 ]
++    else
++	[ $rc = 0 ]
+     fi
+ }
+ 
+-- 
+2.20.1
+
 
