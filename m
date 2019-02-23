@@ -1,108 +1,69 @@
-Return-Path: <prvs=947609abe=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 2/8] sg: Avoid READ CAPACITY failures
-Date: Wed, 20 Feb 2019 16:17:19 +0900
-Message-Id: <20190220071725.8487-3-damien.lemoal@wdc.com>
-In-Reply-To: <20190220071725.8487-1-damien.lemoal@wdc.com>
-References: <20190220071725.8487-1-damien.lemoal@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-wr1-f48.google.com ([209.85.221.48]:35760 "EHLO
+        mail-wr1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726043AbfBWIzX (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 23 Feb 2019 03:55:23 -0500
+Received: by mail-wr1-f48.google.com with SMTP id t18so4801258wrx.2
+        for <fio@vger.kernel.org>; Sat, 23 Feb 2019 00:55:22 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Bart Van Assche <bvanassche@acm.org>, Matias Bjorling <matias.bjorling@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
-List-ID: <fio@vger.kernel.org>
+References: <CO2PR04MB2374AD34FB3EE52EC16FE6419F7F0@CO2PR04MB2374.namprd04.prod.outlook.com>
+ <CALjAwxg=j1OJ_uqV+S8NdSstOJk=23i9V3yo7bxWXcF91PT3Ow@mail.gmail.com> <x49h8cvv4gm.fsf@segfault.boston.devel.redhat.com>
+In-Reply-To: <x49h8cvv4gm.fsf@segfault.boston.devel.redhat.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 23 Feb 2019 08:54:55 +0000
+Message-ID: <CALjAwxh7Ke74yVR43nUGCuoK_qd1_FVbPV4zC4+AZKSeG+sX0Q@mail.gmail.com>
+Subject: Re: Question: can anyone tell me what QD exactly a device is received
+ from this test script
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: Jing Booth <Jing.Booth@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+On Fri, 22 Feb 2019 at 22:33, Jeff Moyer <jmoyer@redhat.com> wrote:
+>
+> Sitsofe Wheeler <sitsofe@gmail.com> writes:
+>
+> > Hi,
+> >
+> > On Fri, 22 Feb 2019 at 16:19, Jing Booth <Jing.Booth@wdc.com> wrote:
+> >>
+> >> Hi all,
+> >>
+> >> In the test script shown below, it has [global] section and
+> >> [nvme0n1] section. The test script is used to test a storage
+> >> device. What queue depth does the storage device receive? Thanks
+> >>
+> >> fio --name=global --ba=16K --bs=16K --buffered=0 --ioengine=libaio
+> >> --nice=-10 --rw=randrw --size=100% --status-interval=1 --ramp_time=2
+> >> --runtime=5 --time_based --rwmixread=25 --group_reporting
+> >> --numjobs=4 --iodepth=16 --norandommap
+> >> --random_generator=tausworthe64 --randrepeat=0
+> >> --percentile_list=99:99.9:99.99:99.999:99.9999:99.99999:99.999999:99.9999999
+> >> --name=nvme0n1 --filename=/dev/nvme0n1 --iodepth=64
+> >
+> > Something like 4 if you count all jobs together (because numjobs is 4)
+> > but you can check for yourself by looking at the submit line in the IO
+> > depths output that fio produces.
+> >
+> > Did you see the warnings with the libaio engine in the
+> > manual/documentation
+> > (https://fio.readthedocs.io/en/latest/fio_doc.html#i-o-engine ) or the
+> > warning in the iodepth option section
+> > (https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-iodepth
+> > )?
+>
+> He specified buffered=0.  The end result will by 64 * 4 = 256.  Of
+> course, at the device things may differ due to splitting and/or merging
+> of I/O in the kernel.
 
-Some SCSI devices (very large disks or SMR zoned disks in particular)
-do not support the READ CAPACITY(10) command and only reply
-successfully to the READ CAPACITY(16) command. This patch forces the
-execution READ CAPACITY(16) if READ CAPACITY(10) fails with
-CHECK CONDITION.
+I stand corrected (I did a quick search for direct=1 in the line
+posted and missed buffered=0), thanks Jeff!
 
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- engines/sg.c | 45 ++++++++++++++++++++++++++++++---------------
- 1 file changed, 30 insertions(+), 15 deletions(-)
+I would still recommend looking at what fio reports back and you can
+also use external tools like iostat to see what the lower level are
+reporting too.
 
-diff --git a/engines/sg.c b/engines/sg.c
-index 3cc068f3..9105c24c 100644
---- a/engines/sg.c
-+++ b/engines/sg.c
-@@ -723,6 +723,8 @@ static int fio_sgio_read_capacity(struct thread_data *td, unsigned int *bs,
- 	 * io_u structures, which are not initialized until later.
- 	 */
- 	struct sg_io_hdr hdr;
-+	unsigned long long hlba;
-+	unsigned int blksz = 0;
- 	unsigned char cmd[16];
- 	unsigned char sb[64];
- 	unsigned char buf[32];  // read capacity return
-@@ -759,16 +761,21 @@ static int fio_sgio_read_capacity(struct thread_data *td, unsigned int *bs,
- 		return ret;
- 	}
- 
--	*bs	 = ((unsigned long) buf[4] << 24) | ((unsigned long) buf[5] << 16) |
--		   ((unsigned long) buf[6] << 8) | (unsigned long) buf[7];
--	*max_lba = ((unsigned long) buf[0] << 24) | ((unsigned long) buf[1] << 16) |
--		   ((unsigned long) buf[2] << 8) | (unsigned long) buf[3];
-+	if (hdr.info & SG_INFO_CHECK) {
-+		/* RCAP(10) might be unsupported by device. Force RCAP(16) */
-+		hlba = MAX_10B_LBA;
-+	} else {
-+		blksz	 = ((unsigned long) buf[4] << 24) | ((unsigned long) buf[5] << 16) |
-+			   ((unsigned long) buf[6] << 8) | (unsigned long) buf[7];
-+		hlba	 = ((unsigned long) buf[0] << 24) | ((unsigned long) buf[1] << 16) |
-+			   ((unsigned long) buf[2] << 8) | (unsigned long) buf[3];
-+	}
- 
- 	/*
- 	 * If max lba masked by MAX_10B_LBA equals MAX_10B_LBA,
- 	 * then need to retry with 16 byte Read Capacity command.
- 	 */
--	if (*max_lba == MAX_10B_LBA) {
-+	if (hlba == MAX_10B_LBA) {
- 		hdr.cmd_len = 16;
- 		hdr.cmdp[0] = 0x9e; // service action
- 		hdr.cmdp[1] = 0x10; // Read Capacity(16)
-@@ -791,19 +798,27 @@ static int fio_sgio_read_capacity(struct thread_data *td, unsigned int *bs,
- 		if (hdr.info & SG_INFO_CHECK)
- 			td_verror(td, EIO, "fio_sgio_read_capacity");
- 
--		*bs = (buf[8] << 24) | (buf[9] << 16) | (buf[10] << 8) | buf[11];
--		*max_lba = ((unsigned long long)buf[0] << 56) |
--				((unsigned long long)buf[1] << 48) |
--				((unsigned long long)buf[2] << 40) |
--				((unsigned long long)buf[3] << 32) |
--				((unsigned long long)buf[4] << 24) |
--				((unsigned long long)buf[5] << 16) |
--				((unsigned long long)buf[6] << 8) |
--				(unsigned long long)buf[7];
-+		blksz = (buf[8] << 24) | (buf[9] << 16) | (buf[10] << 8) | buf[11];
-+		hlba  = ((unsigned long long)buf[0] << 56) |
-+			((unsigned long long)buf[1] << 48) |
-+			((unsigned long long)buf[2] << 40) |
-+			((unsigned long long)buf[3] << 32) |
-+			((unsigned long long)buf[4] << 24) |
-+			((unsigned long long)buf[5] << 16) |
-+			((unsigned long long)buf[6] << 8) |
-+			(unsigned long long)buf[7];
-+	}
-+
-+	if (blksz) {
-+		*bs = blksz;
-+		*max_lba = hlba;
-+		ret = 0;
-+	} else {
-+		ret = EIO;
- 	}
- 
- 	close(fd);
--	return 0;
-+	return ret;
- }
- 
- static void fio_sgio_cleanup(struct thread_data *td)
 -- 
-2.20.1
-
+Sitsofe | http://sucs.org/~sits/
 
