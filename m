@@ -1,61 +1,52 @@
-Return-Path: <AbeA@supermicro.com>
-From: Abe Asraoui <AbeA@supermicro.com>
-Subject: Re: <intel04> fio: pid=0, err=22/file:filesetup.c:961,
- func=total_file_size, error=Invalid argument
-Date: Mon, 4 Feb 2019 18:49:23 +0000
-Message-ID: <4FBD6879-674C-4F94-9506-3A984BA4A1D4@supermicro.com>
-References: <4B2FC744-82DB-488F-8DDD-294223A61DBC@supermicro.com>
- <1334f43b-21d9-4c9f-bde7-36a675f4cf05@kernel.dk>
-In-Reply-To: <1334f43b-21d9-4c9f-bde7-36a675f4cf05@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <09F5815048CA074C9701B2BF0ADB4288@supermicro.com>
-Content-Transfer-Encoding: base64
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH v2 0/9] ZBD support fixes
+References: <20190221041107.8576-1-damien.lemoal@wdc.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <683539f2-bad5-7baa-1110-cb595adb45a4@kernel.dk>
+Date: Sat, 23 Feb 2019 21:19:26 -0700
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, Abe Asraoui <AbeA@supermicro.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <20190221041107.8576-1-damien.lemoal@wdc.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Damien Le Moal <damien.lemoal@wdc.com>, fio@vger.kernel.org
+Cc: Bart Van Assche <bvanassche@acm.org>, Matias Bjorling <matias.bjorling@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-SGVsbG8sDQoNCldlIGFyZSBoYXZpbmcgaXNzdWVzIHJ1bm5pbmcgZmlvIG9uIG1vcmUgdGhhbiAy
-IHNlcnZlcnMsIGl0IGFwcGVhcnMgZHVlIHRvIHRoZSBtZXNzYWdlIGFib3ZlIHNpemU9DQoNCldl
-IGhhdmUgdGhpcyBzZXR1cCBpbiB0aGUgam9iIGZpbGVzIGFzIGZvbGxvd3M6IChzaXplPTQxOTQz
-MDQwKQ0KDQoNCmZpbyAtLWNsaWVudD1pbnRlbDAxIGpvYmZpbGUtdy1pbnRlbDEuY2ZnIC0tY2xp
-ZW50PWludGVsMDQgam9iZmlsZS13LWludGVsNC5jZmcgLS1jbGllbnQ9YW1kMSBqb2JmaWxlLXct
-YW1kMS5jZmcgLS1jbGllbnQ9YW1kMiBqb2JmaWxlLXctYW1kMi5jZmcgLS1vdXRwdXQ9L3Jvb3Qv
-ZmlvL3NjcmlwdHMvVGVzdFJlc3VsdHNfbmYxLWFuZC00Y2xpZW50cy9SV180S0JfMTZOVk1lXzNy
-ZC1ydW4udHh0DQoNCiBqb2JmaWxlLXctaW50ZWwxLmNmZyBzbmFwc2hvdDoNCiBbZ2xvYmFsc10N
-CmlvZW5naW5lPWxpYmFpbw0KbmFtZT1pbw0Kcnc9cmFuZHdyaXRlDQpicz00S0INCmJhPTRLQg0K
-aW9kZXB0aD0zMg0KZGlyZWN0PTENCm51bWpvYnM9MTYNCnJhbXBfdGltZT0xMA0KcnVudGltZT02
-MA0Kbm9yYW5kb21tYXA9MQ0KZ3JvdXBfcmVwb3J0aW5nPTENCmZzeW5jX29uX2Nsb3NlPTANCnRp
-bWVfYmFzZWQNCmlvc2NoZWR1bGVyPW5vb3ANCnNpemU9NDE5NDMwNDANCmJsb2Nrc2l6ZT00TQ0K
-DQpyb290QGludGVsMDIgc2NyaXB0c10jIGZpbyAtdg0KZmlvLTMuMQ0KDQoNCklzIHRoaXMgc2V0
-dXAgY29ycmVjdGx5IHRvIHJ1biB3aXRoIGZpbyA/DQoNClRoYW5rcywNCkFiZQ0KDQoNCk9uIDIv
-NC8xOSwgODowMCBBTSwgIkplbnMgQXhib2UiIDxheGJvZUBrZXJuZWwuZGs+IHdyb3RlOg0KDQog
-ICAgSSBjYW4ndCBoZWxwIHlvdSBhcyB5b3UgaGF2ZSBhYnNvbHV0ZWx5IG5vIGRldGFpbHMgaW4g
-eW91cg0KICAgIGJ1ZyByZXBvcnQuIFBsZWFzZSByZWFkOg0KICAgIA0KICAgIGh0dHBzOi8vdXJs
-ZGVmZW5zZS5wcm9vZnBvaW50LmNvbS92Mi91cmw/dT1odHRwLTNBX19naXQua2VybmVsLmRrX2Nn
-aXRfZmlvX3RyZWVfUkVQT1JUSU5HLTJEQlVHUyZkPUR3SURhUSZjPTREeFgtSlgwaTI4WDZWNjVo
-SzBmdHdWSzF4bm13Y1lDMHZvN0dWeWExSlkmcj1KVHZ4UDVVeHpXUVU5OUthQ001V19QWjRNYVN5
-Vjl3N2VqYlg1SnpDWEFrJm09b0J4UnBwdzFWSzkzMGhCZ0JyUjFVQlBleVpmcmxSY096YXdHZWN5
-VnZCWSZzPWtVZ0pDLW51ZG1EY2tFS3pYYXppUGtFYWJuUkZubzAzc0hpdXNfVi0zMW8mZT0NCiAg
-ICANCiAgICANCiAgICBPbiAyLzMvMTkgNzowNSBQTSwgQWJlIEFzcmFvdWkgd3JvdGU6DQogICAg
-PiAgDQogICAgPiANCiAgICA+IEhlbGxvIG5lZWQgaGVscCB3aXRoIHRoaXMgZXJyb3IsDQogICAg
-PiANCiAgICA+ICANCiAgICA+IA0KICAgID4gSeKAmW0gbm90IGFibGUgdG8gcnVuIGpvYnMgb24g
-dGhlIDNecmQgc2VydmVyLCB3aGljaCBJIHRoaW5rIHRoZSBlcnJvciBhYm92ZSBpcyB0aGUgcm9v
-dCBjYXVzZS4NCiAgICA+IA0KICAgID4gSSBzZXR1cCB0aGUgc2l6ZSB0byAxMDAgYW5kIHRoaXMg
-ZG9lcyBub3QgaGVscCAuLg0KICAgID4gDQogICAgPiAgDQogICAgPiANCiAgICA+ICANCiAgICA+
-IA0KICAgID4gPGludGVsMDQ+IC4uLg0KICAgID4gDQogICAgPiA8aW50ZWwwND4gU3RhcnRpbmcg
-MjU2IHByb2Nlc3Nlcw0KICAgID4gDQogICAgPiA8aW50ZWwwND4gam9iOiB5b3UgbmVlZCB0byBz
-cGVjaWZ5IHNpemU9DQogICAgPiANCiAgICA+IDxpbnRlbDA0PiBmaW86IHBpZD0wLCBlcnI9MjIv
-ZmlsZTpmaWxlc2V0dXAuYzo5NjEsIGZ1bmM9dG90YWxfZmlsZV9zaXplLCBlcnJvcj1JbnZhbGlk
-IGFyZ3VtZW50DQogICAgPiANCiAgICA+IDxpbnRlbDA0PiBqb2I6IHlvdSBuZWVkIHRvIHNwZWNp
-Znkgc2l6ZT0NCiAgICA+IA0KICAgID4gPGludGVsMDQ+IGZpbzogcGlkPTAsIGVycj0yMi9maWxl
-OmZpbGVzZXR1cC5jOjk2MSwgZnVuYz10b3RhbF9maWxlX3NpemUsIGVycm9yPUludmFsaWQgYXJn
-dW1lbnQNCiAgICA+IA0KICAgID4gPGludGVsMDQ+IGpvYjogeW91IG5lZWQgdG8gc3BlY2lmeSBz
-aXplPQ0KICAgID4gDQogICAgPiA8aW50ZWwwND4gZmlvOiBwaWQ9MCwgZXJyPTIyL2ZpbGU6Zmls
-ZXNldHVwLmM6OTYxLCBmdW5jPXRvdGFsX2ZpbGVfc2l6ZSwgZXJyb3I9SW52YWxpZCBhcmd1bWVu
-dA0KICAgID4gDQogICAgPiA8aW50ZWwwND4gam9iOiB5b3UgbmVlZCB0byBzcGVjaWZ5IHNpemU9
-DQogICAgPiANCiAgICA+ICANCiAgICA+IA0KICAgID4gIA0KICAgID4gDQogICAgPiBUaGFua3Ms
-DQogICAgPiANCiAgICA+IEFiZQ0KICAgID4gDQogICAgPiAgDQogICAgPiANCiAgICANCiAgICAN
-CiAgICAtLSANCiAgICBKZW5zIEF4Ym9lDQogICAgDQogICAgDQoNCg==
+On 2/20/19 9:10 PM, Damien Le Moal wrote:
+> This patch series fixes various problems with fio zbd support discovered
+> with extensive testing on various test targets (null_blk, iscsi/tcmu
+> device, SMR disk, partition devices, etc).
+> 
+> In more details:
+> * Patch 1 fixes the discovery of a block device zone model to correctly
+>   handle block devices that are partitions.
+> * Patch 2 addresses a problem with the SG engine and devices not
+>   supporting the READ CAPACITY(10) command.
+> * Patch 3 cleans up the SG engine code with helper functions to handle
+>   big-endian SCSI cdb fields.
+> * Patch 4 to 6 fix the zbd support tests to avoid incorrect failures
+>   reports.
+> * Patch 7 and 8 fix zone locking handling to avoid write command
+>   reordering with multi-jobs workloads with asynchronous I/O engines.
+>   These changes do have a significant impact on the performance reported
+>   for very small (test) devices with a high number of jobs. The worst
+>   degradation observed result in libaio performance being equal to that
+>   of the synchronous psync engine. There is however no noticeable
+>   performance degradation with real disks as the large number of zones
+>   with these drives do not cause excessive zone lock contention.
+> * Patch 9 introduces a new zbd test case 46 to test asynchronous
+>   muli-job writes.
+> 
+> All these fixes are necessary for correctly running blktests with
+> different target devices, and to also implement further blktests
+> zbd test group to improve test coverage.
+> 
+> As always, comments are very welcome.
+
+Applied, thanks.
+
+-- 
+Jens Axboe
+
 
