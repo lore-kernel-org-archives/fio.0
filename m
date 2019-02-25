@@ -1,52 +1,43 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa3.hgst.iphmx.com ([216.71.153.141]:21528 "EHLO
-        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728564AbfBYWsx (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 25 Feb 2019 17:48:53 -0500
-From: TK Tan Tan Tuan Keat <Tan.Tuan.Keat@wdc.com>
-Subject: RE: Looking for assistance on FIO
-Date: Mon, 25 Feb 2019 22:48:50 +0000
-Message-ID: <BYAPR04MB395744162CD9B91B471CED11AB7A0@BYAPR04MB3957.namprd04.prod.outlook.com>
+Received: from esa5.dell-outbound.iphmx.com ([68.232.153.95]:54731 "EHLO
+        esa5.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728758AbfBYWFM (ORCPT
+        <rfc822;fio@vger.kernel.org>); Mon, 25 Feb 2019 17:05:12 -0500
+Received: from pps.filterd (m0144103.ppops.net [127.0.0.1])
+        by mx0b-00154901.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x1PLrGqN175997
+        for <fio@vger.kernel.org>; Mon, 25 Feb 2019 16:53:55 -0500
+Received: from esa3.dell-outbound2.iphmx.com (esa3.dell-outbound2.iphmx.com [68.232.154.63])
+        by mx0b-00154901.pphosted.com with ESMTP id 2qvj5tjeh8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
+        for <fio@vger.kernel.org>; Mon, 25 Feb 2019 16:53:55 -0500
+From: "Beierl, Mark" <Mark.Beierl@dell.com>
+Subject: Re: Looking for assistance on FIO
+Date: Mon, 25 Feb 2019 21:53:37 +0000
+Message-ID: <3C283A8E-A84A-48B4-AA0D-F1DF3C5B8F60@emc.com>
 References: <BYAPR04MB3957C90EDDB9378AE4836BFAAB7A0@BYAPR04MB3957.namprd04.prod.outlook.com>
  <b01e1b4d-0ca0-4e08-03e9-26ffc3417438@kernel.dk>
  <D4757891-14D1-4AA6-A6A3-4C353C8A8294@netapp.com>
- <3C283A8E-A84A-48B4-AA0D-F1DF3C5B8F60@emc.com>
-In-Reply-To: <3C283A8E-A84A-48B4-AA0D-F1DF3C5B8F60@emc.com>
+In-Reply-To: <D4757891-14D1-4AA6-A6A3-4C353C8A8294@netapp.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="utf-8"
+Content-ID: <062B217C7765FA4A97578C2B828A2220@mail.corp.emc.com>
 Content-Transfer-Encoding: base64
 MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Beierl, Mark" <Mark.Beierl@dell.com>, neto from Brazil <Antonio.Jose.Rodrigues.Neto@netapp.com>
+To: neto from Brazil <Antonio.Jose.Rodrigues.Neto@netapp.com>, TK Tan Tan Tuan Keat <Tan.Tuan.Keat@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-VGhhbmtzIGZvciB5b3VyIHJlc3BvbnNlcyBKZW5zLCBNYXJrLCBLcmlzICYgQW50b25pbw0KDQpE
-ZWZpbml0ZWx5IHdhcyB1c2luZyBkaWZmZXJlbnQgdXNlciBsb2dpbiBvbiBib3RoIHN5c3RlbXMg
-LSBkZXNrdG9wIChteSBwZXJzb25hbCBsb2dpbikgYW5kIHNlcnZlciAoYWRtaW4gbG9naW4pLg0K
-WWVzLCBJIGhhdmUgY2hlY2tlZCB0byBtYWtlIHN1cmUgRGlzazEgaXMgbm90IHRoZSBPUyBkaXNr
-LiBGeWkgLSBJIGhhdmUgNSB0ZXN0cyBoYXJkIGRpc2sgZHJpdmUgKEhERCkgY29ubmVjdGVkIHRv
-IHRoZSBzZXJ2ZXIgKERpc2swLCAxLCAyLCA0LCA1KSBhbmQgRGlzazMgaXMgdGhlIE9TIGRpc2su
-DQpBbGwgdGhlIGNvbm5lY3RlZCBkaXNrIHdlcmUgc2hvd2luZyAiT25saW5lIiBzdGF0dXMgb24g
-dGhlIHNlcnZlcjsgYW5kIHByaW9yIHRvIHJ1bm5pbmcgRklPIC0gdGhleSByYW4gd2l0aCBJT01l
-dGVyIHdpdGhvdXQgYW55IHByb2JsZW0gKHJhbmRvbSB3cml0ZSBmb3IgNDggaG91cnMpLg0KDQpP
-biB0aGUgZGVza3RvcCB3aXRoIFdpbmRvd3M3IHRoYXQgd29ya2VkIC0gdGhlIHRlc3QgZGlzayB3
-YXMgRGlzazAgKHdoaWxlIERpc2sxIGlzIE9TKS4NCg0KVGhhbmtzLA0KVEsNCg0KLS0tLS1Pcmln
-aW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IEJlaWVybCwgTWFyayBbbWFpbHRvOk1hcmsuQmVpZXJs
-QGRlbGwuY29tXSANClNlbnQ6IE1vbmRheSwgRmVicnVhcnkgMjUsIDIwMTkgMTo1NCBQTQ0KVG86
-IG5ldG8gZnJvbSBCcmF6aWwgPEFudG9uaW8uSm9zZS5Sb2RyaWd1ZXMuTmV0b0BuZXRhcHAuY29t
-PjsgVEsgVGFuIFRhbiBUdWFuIEtlYXQgPFRhbi5UdWFuLktlYXRAd2RjLmNvbT4NCkNjOiBmaW9A
-dmdlci5rZXJuZWwub3JnDQpTdWJqZWN0OiBSZTogTG9va2luZyBmb3IgYXNzaXN0YW5jZSBvbiBG
-SU8NCg0KT24gMjAxOS0wMi0yNSwgMTM6NTEsICJmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIG9u
-IGJlaGFsZiBvZiBuZXRvIGZyb20gQnJhemlsIiA8ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZyBv
-biBiZWhhbGYgb2YgQW50b25pby5Kb3NlLlJvZHJpZ3Vlcy5OZXRvQG5ldGFwcC5jb20+IHdyb3Rl
-Og0KDQogICAgICAgID4gZmlvOiBpb191IGVycm9yIG9uIGZpbGUgXFwuXFBoeXNpY2FsRHJpdmUx
-OiBQZXJtaXNzaW9uIGRlbmllZDogd3JpdGUgb2Zmc2V0PTUwNDQ1NzMyMjQ5NiwgYnVmbGVuPTQw
-OTYNCg0KSSB0aGluayB0aGF0IGlzIHRoZSBjcml0aWNhbCBtZXNzYWdlOiBQZXJtaXNzaW9uIGRl
-bmllZC4gIFNvLCB0aGVyZSBtaWdodCBiZSBhIGRpZmZlcmVuY2UgZnJvbSBvbmUgdmVyc2lvbiBv
-ZiBXaW5kb3dzIHRvIGFub3RoZXIsIG9yIHBlcmhhcHMgeW91IGFyZSB1c2luZyBhIGRpZmZlcmVu
-dCB1c2VyPyAgQWxzbywgaXMgUGh5c2ljYWxEcml2ZTEgdGhlIHNhbWUgbG9jYXRpb24gb24gYm90
-aCBzZXJ2ZXJzIChpZTogUGh5c2ljYWxEaXNrMSBpcyBhdmFpbGFibGUgZm9yIHdyaXRpbmcsIGFu
-ZCBub3QgcGFydCBvZiBhIHZvbHVtZSBzcGFuLCBvciBob3N0aW5nIHRoZSBPUywgZXRjPykNCg0K
-UmVnYXJkcywNCk1hcmsNCg0K
+T24gMjAxOS0wMi0yNSwgMTM6NTEsICJmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIG9uIGJlaGFs
+ZiBvZiBuZXRvIGZyb20gQnJhemlsIiA8ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZyBvbiBiZWhh
+bGYgb2YgQW50b25pby5Kb3NlLlJvZHJpZ3Vlcy5OZXRvQG5ldGFwcC5jb20+IHdyb3RlOg0KDQog
+ICAgICAgID4gZmlvOiBpb191IGVycm9yIG9uIGZpbGUgXFwuXFBoeXNpY2FsRHJpdmUxOiBQZXJt
+aXNzaW9uIGRlbmllZDogd3JpdGUgb2Zmc2V0PTUwNDQ1NzMyMjQ5NiwgYnVmbGVuPTQwOTYNCg0K
+SSB0aGluayB0aGF0IGlzIHRoZSBjcml0aWNhbCBtZXNzYWdlOiBQZXJtaXNzaW9uIGRlbmllZC4g
+IFNvLCB0aGVyZSBtaWdodCBiZSBhIGRpZmZlcmVuY2UgZnJvbSBvbmUgdmVyc2lvbiBvZiBXaW5k
+b3dzIHRvIGFub3RoZXIsIG9yIHBlcmhhcHMgeW91IGFyZSB1c2luZyBhIGRpZmZlcmVudCB1c2Vy
+PyAgQWxzbywgaXMgUGh5c2ljYWxEcml2ZTEgdGhlIHNhbWUgbG9jYXRpb24gb24gYm90aCBzZXJ2
+ZXJzIChpZTogUGh5c2ljYWxEaXNrMSBpcyBhdmFpbGFibGUgZm9yIHdyaXRpbmcsIGFuZCBub3Qg
+cGFydCBvZiBhIHZvbHVtZSBzcGFuLCBvciBob3N0aW5nIHRoZSBPUywgZXRjPykNCg0KUmVnYXJk
+cywNCk1hcmsNCg0K
 
