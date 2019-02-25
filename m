@@ -1,100 +1,182 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-eopbgr710065.outbound.protection.outlook.com ([40.107.71.65]:39124
-        "EHLO NAM05-BY2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726224AbfBYSvb (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 25 Feb 2019 13:51:31 -0500
-From: neto from Brazil <Antonio.Jose.Rodrigues.Neto@netapp.com>
+Return-Path: <axboe@kernel.dk>
 Subject: Re: Looking for assistance on FIO
-Date: Mon, 25 Feb 2019 18:51:27 +0000
-Message-ID: <D4757891-14D1-4AA6-A6A3-4C353C8A8294@netapp.com>
 References: <BYAPR04MB3957C90EDDB9378AE4836BFAAB7A0@BYAPR04MB3957.namprd04.prod.outlook.com>
- <b01e1b4d-0ca0-4e08-03e9-26ffc3417438@kernel.dk>
-In-Reply-To: <b01e1b4d-0ca0-4e08-03e9-26ffc3417438@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <5FB446402044374E857D05CCA5B29C27@namprd06.prod.outlook.com>
-Content-Transfer-Encoding: base64
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <b01e1b4d-0ca0-4e08-03e9-26ffc3417438@kernel.dk>
+Date: Mon, 25 Feb 2019 11:20:26 -0700
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
+In-Reply-To: <BYAPR04MB3957C90EDDB9378AE4836BFAAB7A0@BYAPR04MB3957.namprd04.prod.outlook.com>
+Content-Type: text/plain; charset="windows-1252"
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 To: TK Tan Tan Tuan Keat <Tan.Tuan.Keat@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-DQoNCu+7v09uIDIvMjUvMTksIDM6MjAgUE0sICJmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIG9u
-IGJlaGFsZiBvZiBKZW5zIEF4Ym9lIiA8ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZyBvbiBiZWhh
-bGYgb2YgYXhib2VAa2VybmVsLmRrPiB3cm90ZToNCg0KICAgIA0KICAgIENDJ2luZyBsaXN0IC0g
-cGxlYXNlIGRvbid0IHNlbmQgc3VwcG9ydCBxdWVzdGlvbnMgZGlyZWN0bHkgdG8gbWUuDQogICAg
-DQogICAgT24gMi8yNS8xOSAxMToxOCBBTSwgVEsgVGFuIFRhbiBUdWFuIEtlYXQgd3JvdGU6DQog
-ICAgPiBIaSBKZW5zLA0KICAgID4NCiAgICA+DQogICAgPg0KICAgID4gSSBhbSB0b3RhbGx5IG5l
-dyB0byBGSU8gYW5kIG91ciBncm91cCBpcyB0YXNrZWQgdG8gcnVuIHRlc3RzIHdpdGggdGhpcyBu
-ZXcgdG9vbC4NCiAgICA+DQogICAgPiBJIGhhdmUgcHJvYmxlbSBydW5uaW5nIHRoZSBzYW1lIGNv
-bW1hbmQgbGluZSBvbiBhIHNlcnZlciBjb25maWd1cmF0aW9uLCB3aGVyZSB0aGUgc2FtZSBjb21t
-YW5kIGxpbmUgd291bGQgd29yayBvbiBkZXNrdG9wIFBDLg0KICAgID4NCiAgICA+IEkgYW0gd29u
-ZGVyaW5nIGlmIHlvdSBvciBhIGNvbW11bml0eSBjYW4gaGVscCBtZT8NCiAgICA+DQogICAgPg0K
-ICAgID4NCiAgICA+IFRoZSBkZXNrdG9wIFBDIGlzIFdpbmRvd3M3IHdoaWxlIHRoZSBzZXJ2ZXIg
-aXMgV2luZG93cyBTZXJ2ZXIgMjAxMg0KICAgID4NCiAgICA+DQogICAgPg0KICAgID4gQmVsb3cg
-aXMgdGhlIGNvbW1hbmQgbGluZQ0KICAgID4NCiAgICA+IOKAnGlvIC0tb3V0cHV0PSI0a19SYW5k
-V3JfUUQ9MS5vdXQiIC0tZGlyZWN0PTEgLS1maWxlbmFtZT0iXFwuXFBoeXNpY2FsRHJpdmUxIiAt
-LWlvZW5naW5lPXdpbmRvd3NhaW8gLS1sb2dfYXZnX21zZWM9MTAwMCAtLWxvZ19tYXhfdmFsdWU9
-MSAtLXBlcmNlbnRpbGVfbGlzdD0iMTo1OjEwOjIwOjMwOjQwOjUwOjYwOjcwOjgwOjkwOjk1Ojk5
-Ojk5LjU6OTkuOTo5OS45NTo5OS45OSIgLS1yYW1wX3RpbWU9MHMgLS1ydW50aW1lPTM2MDBzIC0t
-dGhyZWFkPTEgLS10aW1lX2Jhc2VkPTEgLS1uYW1lPSI0a19SYW5kV3JfUUQ9MSIgLS1icz00ayAt
-LWlvZGVwdGg9MSAtLXJ3PXJhbmR3cml0ZSAtLXdyaXRlX2lvcHNfbG9nPSI0a19SYW5kV3JfUUQ9
-MSIgLS13cml0ZV9sYXRfbG9nPSI0a19SYW5kV3JfUUQ9MSIgLS1vZmZzZXQ9MyUgLS1zaXplPTEw
-JeKAnQ0KICAgID4NCiAgICA+DQogICAgPg0KICAgID4gQW5kIGhlcmUgaXMgdGhlIGVycm9yIG1l
-c3NhZ2U6DQogICAgPg0KICAgID4gZmlvOiBzZXQgZGVidWcgb3B0aW9uIGlvDQogICAgPg0KICAg
-ID4gNGtfUmFuZFdyX1FEPTE6IChnPTApOiBydz1yYW5kd3JpdGUsIGJzPShSKSA0MDk2Qi00MDk2
-QiwgKFcpIDQwOTZCLTQwOTZCLCAoVCkgNDA5NkItNDA5NkIsIGlvZW5naW5lPXdpbmRvd3NhaW8s
-IGlvZGVwdGg9MQ0KICAgID4NCiAgICA+IGZpby0zLjEyDQogICAgPg0KICAgID4gU3RhcnRpbmcg
-MSB0aHJlYWQNCiAgICA+DQogICAgPiBpbyAgICAgICAzMDIwICBkcm9wIHBhZ2UgY2FjaGUgXFwu
-XFBoeXNpY2FsRHJpdmUxDQogICAgPg0KICAgID4gaW8gICAgICAgMzAyMCAgZmlsbDogaW9fdSAw
-MDAwMDAwMDIzNTkyRTAwOiBvZmY9MHg3NTczZmZlMDAwLGxlbj0weDEwMDAsZGRpcj0xLGZpbGU9
-XFwuXFBoeXNpY2FsRHJpdmUxDQogICAgPg0KICAgID4gaW8gICAgICAgMzAyMCAgcHJlcDogaW9f
-dSAwMDAwMDAwMDIzNTkyRTAwOiBvZmY9MHg3NTczZmZlMDAwLGxlbj0weDEwMDAsZGRpcj0xLGZp
-bGU9XFwuXFBoeXNpY2FsRHJpdmUxDQogICAgPg0KICAgID4gaW8gICAgICAgMzAyMCAgcXVldWU6
-IGlvX3UgMDAwMDAwMDAyMzU5MkUwMDogb2ZmPTB4NzU3M2ZmZTAwMCxsZW49MHgxMDAwLGRkaXI9
-MSxmaWxlPVxcLlxQaHlzaWNhbERyaXZlMQ0KICAgID4NCiAgICA+IGlvICAgICAgIDMwMjAgIGNh
-bGxpbmcgLT5jb21taXQoKSwgZGVwdGggMQ0KICAgID4NCiAgICA+IGlvICAgICAgIDMwMjAgIGlv
-X3VfcXVldWVkX2NvbXBsZXRlOiBtaW49MQ0KICAgID4NCiAgICA+IGlvICAgICAgIDMwMjAgIGdl
-dGV2ZW50czogMQ0KICAgID4NCiAgICA+IGlvICAgICAgIDMwMjAgIGNvbXBsZXRlOiBpb191IDAw
-MDAwMDAwMjM1OTJFMDA6IG9mZj0weDc1NzNmZmUwMDAsbGVuPTB4MTAwMCxkZGlyPTEsZmlsZT1c
-XC5cUGh5c2ljYWxEcml2ZTENCiAgICA+DQogICAgPiBmaW86IGlvX3UgZXJyb3Igb24gZmlsZSBc
-XC5cUGh5c2ljYWxEcml2ZTE6IFBlcm1pc3Npb24gZGVuaWVkOiB3cml0ZSBvZmZzZXQ9NTA0NDU3
-MzIyNDk2LCBidWZsZW49NDA5Ng0KICAgID4NCiAgICA+IGlvICAgICAgIDMwMjAgIGlvX3VfcXVl
-dWVkX2NvbXBsZXRlOiBtaW49MA0KICAgID4NCiAgICA+IGlvICAgICAgIDMwMjAgIGdldGV2ZW50
-czogMA0KICAgID4NCiAgICA+IDRrX1JhbmRXcl9RRD0xOiBObyBJL08gcGVyZm9ybWVkIGJ5IHdp
-bmRvd3NhaW8sIHBlcmhhcHMgdHJ5IC0tZGVidWc9aW8gb3B0aW9uIGZvciBkZXRhaWxzPw0KICAg
-ID4NCiAgICA+IGZpbzogcGlkPTMwMjAsIGVycj0xMy9maWxlOmlvX3UuYzoxNzg1LCBmdW5jPWlv
-X3UgZXJyb3IsIGVycm9yPVBlcm1pc3Npb24gZGVuaWVkDQogICAgPg0KICAgID4gaW8gICAgICAg
-MzAyMCAgY2xvc2UgaW9lbmdpbmUgd2luZG93c2Fpbw0KICAgID4NCiAgICA+IGlvICAgICAgIDMw
-MjAgIGZyZWUgaW9lbmdpbmUgd2luZG93c2Fpbw0KICAgID4NCiAgICA+DQogICAgPg0KICAgID4g
-NGtfUmFuZFdyX1FEPTE6IChncm91cGlkPTAsIGpvYnM9MSk6IGVycj0xMyAoZmlsZTppb191LmM6
-MTc4NSwgZnVuYz1pb191IGVycm9yLCBlcnJvcj1QZXJtaXNzaW9uIGRlbmllZCk6IHBpZD0zMDIw
-OiBGcmkgRmViIDIyIDEzOjQxOjE5IDIwMTkNCiAgICA+DQogICAgPiAgIGNwdSAgICAgICAgICA6
-IHVzcj0wLjAwJSwgc3lzPTAuMDAlLCBjdHg9MCwgbWFqZj0wLCBtaW5mPTANCiAgICA+DQogICAg
-PiAgIElPIGRlcHRocyAgICA6IDE9MTAwLjAlLCAyPTAuMCUsIDQ9MC4wJSwgOD0wLjAlLCAxNj0w
-LjAlLCAzMj0wLjAlLCA+PTY0PTAuMCUNCiAgICA+DQogICAgPiAgICAgIHN1Ym1pdCAgICA6IDA9
-MC4wJSwgND0xMDAuMCUsIDg9MC4wJSwgMTY9MC4wJSwgMzI9MC4wJSwgNjQ9MC4wJSwgPj02ND0w
-LjAlDQogICAgPg0KICAgID4gICAgICBjb21wbGV0ZSAgOiAwPTMzLjMlLCA0PTY2LjclLCA4PTAu
-MCUsIDE2PTAuMCUsIDMyPTAuMCUsIDY0PTAuMCUsID49NjQ9MC4wJQ0KICAgID4NCiAgICA+ICAg
-ICAgaXNzdWVkIHJ3dHM6IHRvdGFsPTAsMSwwLDAgc2hvcnQ9MCwwLDAsMCBkcm9wcGVkPTAsMCww
-LDANCiAgICA+DQogICAgPiAgICAgIGxhdGVuY3kgICA6IHRhcmdldD0wLCB3aW5kb3c9MCwgcGVy
-Y2VudGlsZT0xMDAuMDAlLCBkZXB0aD0xDQogICAgPg0KICAgID4NCiAgICA+DQogICAgPiBSdW4g
-c3RhdHVzIGdyb3VwIDAgKGFsbCBqb2JzKToNCiAgICA+DQogICAgPiBpbyAgICAgICAyMTAwICBp
-b2VuZ2luZSBjcHVpbyB1bnJlZ2lzdGVyZWQNCiAgICA+DQogICAgPiBpbyAgICAgICAyMTAwICBp
-b2VuZ2luZSBtbWFwIHVucmVnaXN0ZXJlZA0KICAgID4NCiAgICA+IGlvICAgICAgIDIxMDAgIGlv
-ZW5naW5lIHN5bmMgdW5yZWdpc3RlcmVkDQogICAgPg0KICAgID4gaW8gICAgICAgMjEwMCAgaW9l
-bmdpbmUgcHN5bmMgdW5yZWdpc3RlcmVkDQogICAgPg0KICAgID4gaW8gICAgICAgMjEwMCAgaW9l
-bmdpbmUgdnN5bmMgdW5yZWdpc3RlcmVkDQogICAgPg0KICAgID4gaW8gICAgICAgMjEwMCAgaW9l
-bmdpbmUgbnVsbCB1bnJlZ2lzdGVyZWQNCiAgICA+DQogICAgPiBpbyAgICAgICAyMTAwICBpb2Vu
-Z2luZSBuZXQgdW5yZWdpc3RlcmVkDQogICAgPg0KICAgID4gaW8gICAgICAgMjEwMCAgaW9lbmdp
-bmUgZnRydW5jYXRlIHVucmVnaXN0ZXJlZA0KICAgID4NCiAgICA+IGlvICAgICAgIDIxMDAgIGlv
-ZW5naW5lIGZpbGVjcmVhdGUgdW5yZWdpc3RlcmVkDQogICAgPg0KICAgID4gaW8gICAgICAgMjEw
-MCAgaW9lbmdpbmUgd2luZG93c2FpbyB1bnJlZ2lzdGVyZWQNCiAgICA+DQogICAgPg0KICAgID4N
-CiAgICA+IFRoYW5rcywNCiAgICA+DQogICAgPiBUSw0KICAgID4NCiAgICA+DQogICAgPg0KICAg
-IA0KSGkgVEssDQoNClRoaXMgaXMgbmV0byBmcm9tIEJyYXppbA0KDQpIb3cgYXJlIHlvdT8NCg0K
-UGxlYXNlIGRvOg0KDQpPcGVuIENvbW1hbmQgUHJvbXB0Og0KZGlza3BhcnQgICAgDQpzZWxlY3Qg
-ZGlzayAxDQpvbmxpbmUgZGlzaw0KYXR0cmlidXRlIGRpc2sgY2xlYXIgcmVhZG9ubHkNCg0KUGxl
-YXNlIGxldCBtZSBrbm93IGhvdyBpdCBnb2VzLg0KDQpBbGwgdGhlIGJlc3QsDQoNCm5ldG8NCg0K
+CC'ing list - please don't send support questions directly to me.
+
+On 2/25/19 11:18 AM, TK Tan Tan Tuan Keat wrote:
+> Hi Jens,
+>=20
+> =EF=BF=BD
+>=20
+> I am totally new to FIO and our group is tasked to run tests with this ne=
+w tool.
+>=20
+> I have problem running the same command line on a server configuration, w=
+here the same command line would work on desktop PC.
+>=20
+> I am wondering if you or a community can help me?
+>=20
+> =EF=BF=BD
+>=20
+> The desktop PC is Windows7 while the server is Windows Server 2012
+>=20
+> =EF=BF=BD
+>=20
+> Below is the command line
+>=20
+> =EF=BF=BDio --output=3D"4k_RandWr_QD=3D1.out" --direct=3D1 --filename=3D"=
+\\.\PhysicalDrive1" --ioengine=3Dwindowsaio --log_avg_msec=3D1000 --log_max=
+_value=3D1 --percentile_list=3D"1:5:10:20:30:40:50:60:70:80:90:95:99:99.5:9=
+9.9:99.95:99.99" --ramp_time=3D0s --runtime=3D3600s --thread=3D1 --time_bas=
+ed=3D1 --name=3D"4k_RandWr_QD=3D1" --bs=3D4k --iodepth=3D1 --rw=3Drandwrite=
+ --write_iops_log=3D"4k_RandWr_QD=3D1" --write_lat_log=3D"4k_RandWr_QD=3D1"=
+ --offset=3D3% --size=3D10%=EF=BF=BD
+>=20
+> =EF=BF=BD
+>=20
+> And here is the error message:
+>=20
+> fio: set debug option io
+>=20
+> 4k_RandWr_QD=3D1: (g=3D0): rw=3Drandwrite, bs=3D(R) 4096B-4096B, (W) 4096=
+B-4096B, (T) 4096B-4096B, ioengine=3Dwindowsaio, iodepth=3D1
+>=20
+> fio-3.12
+>=20
+> Starting 1 thread
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 3020=EF=BF=BD dr=
+op page cache \\.\PhysicalDrive1
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 3020=EF=BF=BD fi=
+ll: io_u 0000000023592E00: off=3D0x7573ffe000,len=3D0x1000,ddir=3D1,file=3D=
+\\.\PhysicalDrive1
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 3020=EF=BF=BD pr=
+ep: io_u 0000000023592E00: off=3D0x7573ffe000,len=3D0x1000,ddir=3D1,file=3D=
+\\.\PhysicalDrive1
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 3020=EF=BF=BD qu=
+eue: io_u 0000000023592E00: off=3D0x7573ffe000,len=3D0x1000,ddir=3D1,file=
+=3D\\.\PhysicalDrive1
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 3020=EF=BF=BD ca=
+lling ->commit(), depth 1
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 3020=EF=BF=BD io=
+_u_queued_complete: min=3D1
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 3020=EF=BF=BD ge=
+tevents: 1
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 3020=EF=BF=BD co=
+mplete: io_u 0000000023592E00: off=3D0x7573ffe000,len=3D0x1000,ddir=3D1,fil=
+e=3D\\.\PhysicalDrive1
+>=20
+> fio: io_u error on file \\.\PhysicalDrive1: Permission denied: write offs=
+et=3D504457322496, buflen=3D4096
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 3020=EF=BF=BD io=
+_u_queued_complete: min=3D0
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 3020=EF=BF=BD ge=
+tevents: 0
+>=20
+> 4k_RandWr_QD=3D1: No I/O performed by windowsaio, perhaps try --debug=3Di=
+o option for details?
+>=20
+> fio: pid=3D3020, err=3D13/file:io_u.c:1785, func=3Dio_u error, error=3DPe=
+rmission denied
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 3020=EF=BF=BD cl=
+ose ioengine windowsaio
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 3020=EF=BF=BD fr=
+ee ioengine windowsaio
+>=20
+> =EF=BF=BD
+>=20
+> 4k_RandWr_QD=3D1: (groupid=3D0, jobs=3D1): err=3D13 (file:io_u.c:1785, fu=
+nc=3Dio_u error, error=3DPermission denied): pid=3D3020: Fri Feb 22 13:41:1=
+9 2019
+>=20
+> =EF=BF=BD cpu=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=
+=BD=EF=BF=BD=EF=BF=BD : usr=3D0.00%, sys=3D0.00%, ctx=3D0, majf=3D0, minf=
+=3D0
+>=20
+> =EF=BF=BD IO depths=EF=BF=BD=EF=BF=BD=EF=BF=BD : 1=3D100.0%, 2=3D0.0%, 4=
+=3D0.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, >=3D64=3D0.0%
+>=20
+> =EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD submit=EF=BF=BD=EF=BF=BD=EF=BF=BD : =
+0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=3D0.0%, >=3D64=3D0=
+.0%
+>=20
+> =EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD complete=EF=BF=BD : 0=3D33.3%, 4=3D6=
+6.7%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=3D0.0%, >=3D64=3D0.0%
+>=20
+> =EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD issued rwts: total=3D0,1,0,0 short=
+=3D0,0,0,0 dropped=3D0,0,0,0
+>=20
+> =EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD latency=EF=BF=BD=EF=BF=BD : target=
+=3D0, window=3D0, percentile=3D100.00%, depth=3D1
+>=20
+> =EF=BF=BD
+>=20
+> Run status group 0 (all jobs):
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 2100=EF=BF=BD io=
+engine cpuio unregistered
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 2100=EF=BF=BD io=
+engine mmap unregistered
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 2100=EF=BF=BD io=
+engine sync unregistered
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 2100=EF=BF=BD io=
+engine psync unregistered
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 2100=EF=BF=BD io=
+engine vsync unregistered
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 2100=EF=BF=BD io=
+engine null unregistered
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 2100=EF=BF=BD io=
+engine net unregistered
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 2100=EF=BF=BD io=
+engine ftruncate unregistered
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 2100=EF=BF=BD io=
+engine filecreate unregistered
+>=20
+> io=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD=EF=BF=BD 2100=EF=BF=BD io=
+engine windowsaio unregistered
+>=20
+> =EF=BF=BD
+>=20
+> Thanks,
+>=20
+> TK
+>=20
+> =EF=BF=BD
+>=20
+
+
+--=20
+Jens Axboe
+
 
