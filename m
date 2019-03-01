@@ -1,48 +1,48 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:34230 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732561AbfCAHmm (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 1 Mar 2019 02:42:42 -0500
-From: TK Tan Tan Tuan Keat <Tan.Tuan.Keat@wdc.com>
-Subject: RE: fio.exe has stopped working
-Date: Fri, 1 Mar 2019 07:42:39 +0000
-Message-ID: <BYAPR04MB39573C849C7FDFB05866D4A7AB760@BYAPR04MB3957.namprd04.prod.outlook.com>
-References: <BYAPR04MB395750846A4577AE03C100F1AB760@BYAPR04MB3957.namprd04.prod.outlook.com>
- <CALjAwxir74sOo-2drJ5Cu_sHbAZQgbd5x7fv2SXB0ttSQQadVA@mail.gmail.com>
-In-Reply-To: <CALjAwxir74sOo-2drJ5Cu_sHbAZQgbd5x7fv2SXB0ttSQQadVA@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-wr1-f47.google.com ([209.85.221.47]:34861 "EHLO
+        mail-wr1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726066AbfCAEVw (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 28 Feb 2019 23:21:52 -0500
+Received: by mail-wr1-f47.google.com with SMTP id t18so24347923wrx.2
+        for <fio@vger.kernel.org>; Thu, 28 Feb 2019 20:21:51 -0800 (PST)
 MIME-Version: 1.0
+References: <BYAPR04MB395750846A4577AE03C100F1AB760@BYAPR04MB3957.namprd04.prod.outlook.com>
+In-Reply-To: <BYAPR04MB395750846A4577AE03C100F1AB760@BYAPR04MB3957.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Fri, 1 Mar 2019 04:21:32 +0000
+Message-ID: <CALjAwxir74sOo-2drJ5Cu_sHbAZQgbd5x7fv2SXB0ttSQQadVA@mail.gmail.com>
+Subject: Re: fio.exe has stopped working
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: TK Tan Tan Tuan Keat <Tan.Tuan.Keat@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-SGkgU2l0c29mZSwNCg0KWWVzIHRoZSBvcmlnaW5hbCBGSU8gdmVyIDMuMTIgd2FzIGRvd25sb2Fk
-ZWQgZnJvbSBibHVlc3RvcC4NCkkgdW5pbnN0YWxsZWQgdGhhdCB2ZXJzaW9uIGFuZCByZWluc3Rh
-bGwgd2l0aCB0aGUgbGluayB0aGF0IHlvdSBwcm92aWRlZCBhbmQgcHJvYmxlbSByZXNvbHZlZC4N
-Cg0KVGhhbmtzIGZvciB5b3VyIGhlbHAhDQoNClRLDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0t
-LS0tDQpGcm9tOiBmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86ZmlvLW93bmVyQHZn
-ZXIua2VybmVsLm9yZ10gT24gQmVoYWxmIE9mIFNpdHNvZmUgV2hlZWxlcg0KU2VudDogVGh1cnNk
-YXksIEZlYnJ1YXJ5IDI4LCAyMDE5IDg6MjIgUE0NClRvOiBUSyBUYW4gVGFuIFR1YW4gS2VhdCA8
-VGFuLlR1YW4uS2VhdEB3ZGMuY29tPg0KQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6
-IFJlOiBmaW8uZXhlIGhhcyBzdG9wcGVkIHdvcmtpbmcNCg0KSGksDQoNCk9uIEZyaSwgMSBNYXIg
-MjAxOSBhdCAwMjoxMiwgVEsgVGFuIFRhbiBUdWFuIEtlYXQgPFRhbi5UdWFuLktlYXRAd2RjLmNv
-bT4gd3JvdGU6DQo+DQo+IEhpLA0KPg0KPiBJIGhhdmUgaW5zdGFsbGVkIEZJTyAzLjEyIG9uIDQg
-ZGVza3RvcCBQQ3MgLSBhbGwgcnVubmluZyBXaW5kb3dzIDcgd2l0aCBkaWZmZXJlbnQgcHJvY2Vz
-c29ycy4NCj4gMiBvZiB0aGVtIGFyZSBydW5uaW5nIEZJTyB3aXRob3V0IHByb2JsZW0sIGJ1dCBh
-bm90aGVyIDIgaGFzIHRoaXMgDQo+IHdpbmRvd3MgZXJyb3INCj4NCj4gImZpby5leGUgaGFzIHN0
-b3BwZWQgd29ya2luZw0KPiBBIHByb2JsZW0gY2F1c2VkIHRoZSBwcm9ncmFtIHRvIHN0b3Agd29y
-a2luZyBjb3JyZWN0bHkuDQo+IFdpbmRvd3Mgd2lsbCBjbG9zZSB0aGUgcHJvZ3JhbSBhbmQgbm90
-aWZ5IHlvdSBpZiBhIHNvbHV0aW9uIGlzIA0KPiBBdmFpbGFibGUuDQo+ICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgQ2xvc2UgcHJvZ3JhbSBbYnV0dG9uXSINCj4NCj4gIEhhcyBhbnlv
-bmUgcnVuIGludG8gdGhpcyBwcm9ibGVtIGJlZm9yZT8gQW5kIGlmIHllcywgd2hhdCBpcyB0aGUg
-c29sdXRpb24/DQoNCldoZXJlIGFyZSB5b3UgZ3JhYmJpbmcgdGhlIGZpby5leGUgYmluYXJ5IGZy
-b20/IFdhcyBpdCBmcm9tIGh0dHBzOi8vYmx1ZXN0b3Aub3JnL2Zpby8gPw0KDQpBdCBhIHdpbGQg
-Z3Vlc3MgaXQgY291bGQgYmUgdGhlIGJpbmFyeSB3YXMgYnVpbHQgd2l0aCBpbnN0cnVjdGlvbnMg
-c29tZSBvZiB5b3VyIFBDcyBkb24ndCBzdXBwb3J0IGR1ZSB0byBtYXJjaD1uYXRpdmUuLi4gRG9l
-cyB0aGUgYmluYXJ5IGZyb20gaHR0cHM6Ly9jaS5hcHB2ZXlvci5jb20vcHJvamVjdC9heGJvZS9m
-aW8vYnVpbGRzLzIwMDExMDcxL2pvYi81NHI4YjFkNnU4anBjdGg5L2FydGlmYWN0cw0Kd29yaz8N
-Cg0KLS0NClNpdHNvZmUgfCBodHRwOi8vc3Vjcy5vcmcvfnNpdHMvDQo=
+Hi,
+
+On Fri, 1 Mar 2019 at 02:12, TK Tan Tan Tuan Keat <Tan.Tuan.Keat@wdc.com> wrote:
+>
+> Hi,
+>
+> I have installed FIO 3.12 on 4 desktop PCs - all running Windows 7 with different processors.
+> 2 of them are running FIO without problem, but another 2 has this windows error
+>
+> "fio.exe has stopped working
+> A problem caused the program to stop working correctly.
+> Windows will close the program and notify you if a solution is
+> Available.
+>                                 Close program [button]"
+>
+>  Has anyone run into this problem before? And if yes, what is the solution?
+
+Where are you grabbing the fio.exe binary from? Was it from
+https://bluestop.org/fio/ ?
+
+At a wild guess it could be the binary was built with instructions
+some of your PCs don't support due to march=native... Does the binary
+from https://ci.appveyor.com/project/axboe/fio/builds/20011071/job/54r8b1d6u8jpcth9/artifacts
+work?
+
+-- 
+Sitsofe | http://sucs.org/~sits/
 
