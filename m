@@ -1,57 +1,119 @@
-Return-Path: <prvs=94868c4cd=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH v2 9/9] t/zbd: Add multi-job libaio test
-Date: Thu, 21 Feb 2019 13:11:07 +0900
-Message-Id: <20190221041107.8576-10-damien.lemoal@wdc.com>
-In-Reply-To: <20190221041107.8576-1-damien.lemoal@wdc.com>
-References: <20190221041107.8576-1-damien.lemoal@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Bart Van Assche <bvanassche@acm.org>, Matias Bjorling <matias.bjorling@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:41898 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726001AbfCANAQ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 1 Mar 2019 08:00:16 -0500
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1gzhlv-0004Os-My
+        for fio@vger.kernel.org; Fri, 01 Mar 2019 13:00:15 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20190301130001.BE42D2C008C@kernel.dk>
+Date: Fri,  1 Mar 2019 06:00:01 -0700 (MST)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Introduce test case 46 to verify that write ordering is correct and that
-no job deadlock occurs in the case of a multi job run with an
-asynchronous I/O engine (libaio).
+The following changes since commit 66a8a1bf98d714e013ee329dc975f3b6b552de6d:
 
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+  engines/sg: kill dead function (2019-02-24 08:13:39 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 7508b3948a216106196cec33a3a707d6f32d84a8:
+
+  engines/sg: ensure we flag EIO on the right io_u (2019-02-28 10:08:08 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (2):
+      engines/sg: ensure we complete the right command for sync IO
+      engines/sg: ensure we flag EIO on the right io_u
+
+ engines/sg.c | 43 ++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 32 insertions(+), 11 deletions(-)
+
 ---
- t/zbd/test-zbd-support | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 03d61b70..10c78e9a 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -730,6 +730,17 @@ test45() {
- 	grep -q "fio: first I/O failed. If .* is a zoned block device, consider --zonemode=zbd"
+Diff of recent changes:
+
+diff --git a/engines/sg.c b/engines/sg.c
+index bf437c8d..c46b9aba 100644
+--- a/engines/sg.c
++++ b/engines/sg.c
+@@ -424,7 +424,8 @@ static enum fio_q_status fio_sgio_ioctl_doio(struct thread_data *td,
+ 	return FIO_Q_COMPLETED;
  }
  
-+# Random write to sequential zones, libaio, 8 jobs, queue depth 64 per job
-+test46() {
-+    local size
-+
-+    size=$((4 * zone_size))
-+    run_fio_on_seq --ioengine=libaio --iodepth=64 --rw=randwrite --bs=4K \
-+		   --group_reporting=1 --numjobs=8 \
-+		   >> "${logfile}.${test_number}" 2>&1 || return $?
-+    check_written $((size * 8)) || return $?
-+}
-+
- tests=()
- dynamic_analyzer=()
- reset_all_zones=
-@@ -801,7 +812,7 @@ case "$(<"/sys/class/block/$basename/queue/zoned")" in
- esac
+-static enum fio_q_status fio_sgio_rw_doio(struct fio_file *f,
++static enum fio_q_status fio_sgio_rw_doio(struct thread_data *td,
++					  struct fio_file *f,
+ 					  struct io_u *io_u, int do_sync)
+ {
+ 	struct sg_io_hdr *hdr = &io_u->hdr;
+@@ -435,13 +436,32 @@ static enum fio_q_status fio_sgio_rw_doio(struct fio_file *f,
+ 		return ret;
  
- if [ "${#tests[@]}" = 0 ]; then
--    for ((i=1;i<=45;i++)); do
-+    for ((i=1;i<=46;i++)); do
- 	tests+=("$i")
-     done
- fi
--- 
-2.20.1
-
+ 	if (do_sync) {
+-		ret = read(f->fd, hdr, sizeof(*hdr));
+-		if (ret < 0)
+-			return ret;
++		/*
++		 * We can't just read back the first command that completes
++		 * and assume it's the one we need, it could be any command
++		 * that is inflight.
++		 */
++		do {
++			struct io_u *__io_u;
+ 
+-		/* record if an io error occurred */
+-		if (hdr->info & SG_INFO_CHECK)
+-			io_u->error = EIO;
++			ret = read(f->fd, hdr, sizeof(*hdr));
++			if (ret < 0)
++				return ret;
++
++			__io_u = hdr->usr_ptr;
++
++			/* record if an io error occurred */
++			if (hdr->info & SG_INFO_CHECK)
++				__io_u->error = EIO;
++
++			if (__io_u == io_u)
++				break;
++
++			if (io_u_sync_complete(td, __io_u)) {
++				ret = -1;
++				break;
++			}
++		} while (1);
+ 
+ 		return FIO_Q_COMPLETED;
+ 	}
+@@ -457,10 +477,11 @@ static enum fio_q_status fio_sgio_doio(struct thread_data *td,
+ 
+ 	if (f->filetype == FIO_TYPE_BLOCK) {
+ 		ret = fio_sgio_ioctl_doio(td, f, io_u);
+-		td_verror(td, io_u->error, __func__);
++		if (io_u->error)
++			td_verror(td, io_u->error, __func__);
+ 	} else {
+-		ret = fio_sgio_rw_doio(f, io_u, do_sync);
+-		if (do_sync)
++		ret = fio_sgio_rw_doio(td, f, io_u, do_sync);
++		if (io_u->error && do_sync)
+ 			td_verror(td, io_u->error, __func__);
+ 	}
+ 
+@@ -678,7 +699,7 @@ static int fio_sgio_commit(struct thread_data *td)
+ 
+ 	sd->current_queue = -1;
+ 
+-	ret = fio_sgio_rw_doio(io_u->file, io_u, 0);
++	ret = fio_sgio_rw_doio(td, io_u->file, io_u, 0);
+ 
+ 	if (ret < 0 || hdr->status) {
+ 		int error;
 
