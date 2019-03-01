@@ -1,63 +1,48 @@
-Return-Path: <prvs=947609abe=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 4/8] t/zbd: Fix test 2 and 3 result handling
-Date: Wed, 20 Feb 2019 16:17:21 +0900
-Message-Id: <20190220071725.8487-5-damien.lemoal@wdc.com>
-In-Reply-To: <20190220071725.8487-1-damien.lemoal@wdc.com>
-References: <20190220071725.8487-1-damien.lemoal@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:34230 "EHLO
+        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732561AbfCAHmm (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 1 Mar 2019 02:42:42 -0500
+From: TK Tan Tan Tuan Keat <Tan.Tuan.Keat@wdc.com>
+Subject: RE: fio.exe has stopped working
+Date: Fri, 1 Mar 2019 07:42:39 +0000
+Message-ID: <BYAPR04MB39573C849C7FDFB05866D4A7AB760@BYAPR04MB3957.namprd04.prod.outlook.com>
+References: <BYAPR04MB395750846A4577AE03C100F1AB760@BYAPR04MB3957.namprd04.prod.outlook.com>
+ <CALjAwxir74sOo-2drJ5Cu_sHbAZQgbd5x7fv2SXB0ttSQQadVA@mail.gmail.com>
+In-Reply-To: <CALjAwxir74sOo-2drJ5Cu_sHbAZQgbd5x7fv2SXB0ttSQQadVA@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Bart Van Assche <bvanassche@acm.org>, Matias Bjorling <matias.bjorling@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Removal of the message "No I/O performed" when fio does not execute any
-I/O broke zbd tests 2 and 3 as this message is looked after to test for
-success. Fix this by looking for a "Run status" line starting with
-"WRITE:" for test 2 and "READ:" for test 3. The run status lines are not
-printed when no I/O is performed. Testing for the absence of these
-strings thus allows to easily test if I/Os where executed or not.
-
-Fixes: ff3aa922570c ("Kill "No I/O performed by ..." message")
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
----
- t/zbd/test-zbd-support | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index d316d880..c6391169 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -141,9 +141,9 @@ test2() {
-     if [ -z "$is_zbd" ]; then
- 	opts+=("--zonesize=${zone_size}")
-     fi
--    run_fio "${opts[@]}" 2>&1 |
--	tee -a "${logfile}.${test_number}" |
--	grep -q 'No I/O performed'
-+    run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
-+    grep -q 'WRITE:' "${logfile}.${test_number}"
-+    [ $? != 0 ]
- }
- 
- # Run fio against an empty zone. This causes fio to report "No I/O performed".
-@@ -160,12 +160,12 @@ test3() {
- 	opts+=("--zonesize=${zone_size}")
-     fi
-     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
--    grep -q "No I/O performed" "${logfile}.${test_number}"
-+    grep -q 'READ:' "${logfile}.${test_number}"
-     rc=$?
-     if [ -n "$is_zbd" ]; then
--	[ $rc = 0 ]
--    else
- 	[ $rc != 0 ]
-+    else
-+	[ $rc = 0 ]
-     fi
- }
- 
--- 
-2.20.1
-
+SGkgU2l0c29mZSwNCg0KWWVzIHRoZSBvcmlnaW5hbCBGSU8gdmVyIDMuMTIgd2FzIGRvd25sb2Fk
+ZWQgZnJvbSBibHVlc3RvcC4NCkkgdW5pbnN0YWxsZWQgdGhhdCB2ZXJzaW9uIGFuZCByZWluc3Rh
+bGwgd2l0aCB0aGUgbGluayB0aGF0IHlvdSBwcm92aWRlZCBhbmQgcHJvYmxlbSByZXNvbHZlZC4N
+Cg0KVGhhbmtzIGZvciB5b3VyIGhlbHAhDQoNClRLDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0t
+LS0tDQpGcm9tOiBmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86ZmlvLW93bmVyQHZn
+ZXIua2VybmVsLm9yZ10gT24gQmVoYWxmIE9mIFNpdHNvZmUgV2hlZWxlcg0KU2VudDogVGh1cnNk
+YXksIEZlYnJ1YXJ5IDI4LCAyMDE5IDg6MjIgUE0NClRvOiBUSyBUYW4gVGFuIFR1YW4gS2VhdCA8
+VGFuLlR1YW4uS2VhdEB3ZGMuY29tPg0KQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6
+IFJlOiBmaW8uZXhlIGhhcyBzdG9wcGVkIHdvcmtpbmcNCg0KSGksDQoNCk9uIEZyaSwgMSBNYXIg
+MjAxOSBhdCAwMjoxMiwgVEsgVGFuIFRhbiBUdWFuIEtlYXQgPFRhbi5UdWFuLktlYXRAd2RjLmNv
+bT4gd3JvdGU6DQo+DQo+IEhpLA0KPg0KPiBJIGhhdmUgaW5zdGFsbGVkIEZJTyAzLjEyIG9uIDQg
+ZGVza3RvcCBQQ3MgLSBhbGwgcnVubmluZyBXaW5kb3dzIDcgd2l0aCBkaWZmZXJlbnQgcHJvY2Vz
+c29ycy4NCj4gMiBvZiB0aGVtIGFyZSBydW5uaW5nIEZJTyB3aXRob3V0IHByb2JsZW0sIGJ1dCBh
+bm90aGVyIDIgaGFzIHRoaXMgDQo+IHdpbmRvd3MgZXJyb3INCj4NCj4gImZpby5leGUgaGFzIHN0
+b3BwZWQgd29ya2luZw0KPiBBIHByb2JsZW0gY2F1c2VkIHRoZSBwcm9ncmFtIHRvIHN0b3Agd29y
+a2luZyBjb3JyZWN0bHkuDQo+IFdpbmRvd3Mgd2lsbCBjbG9zZSB0aGUgcHJvZ3JhbSBhbmQgbm90
+aWZ5IHlvdSBpZiBhIHNvbHV0aW9uIGlzIA0KPiBBdmFpbGFibGUuDQo+ICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgQ2xvc2UgcHJvZ3JhbSBbYnV0dG9uXSINCj4NCj4gIEhhcyBhbnlv
+bmUgcnVuIGludG8gdGhpcyBwcm9ibGVtIGJlZm9yZT8gQW5kIGlmIHllcywgd2hhdCBpcyB0aGUg
+c29sdXRpb24/DQoNCldoZXJlIGFyZSB5b3UgZ3JhYmJpbmcgdGhlIGZpby5leGUgYmluYXJ5IGZy
+b20/IFdhcyBpdCBmcm9tIGh0dHBzOi8vYmx1ZXN0b3Aub3JnL2Zpby8gPw0KDQpBdCBhIHdpbGQg
+Z3Vlc3MgaXQgY291bGQgYmUgdGhlIGJpbmFyeSB3YXMgYnVpbHQgd2l0aCBpbnN0cnVjdGlvbnMg
+c29tZSBvZiB5b3VyIFBDcyBkb24ndCBzdXBwb3J0IGR1ZSB0byBtYXJjaD1uYXRpdmUuLi4gRG9l
+cyB0aGUgYmluYXJ5IGZyb20gaHR0cHM6Ly9jaS5hcHB2ZXlvci5jb20vcHJvamVjdC9heGJvZS9m
+aW8vYnVpbGRzLzIwMDExMDcxL2pvYi81NHI4YjFkNnU4anBjdGg5L2FydGlmYWN0cw0Kd29yaz8N
+Cg0KLS0NClNpdHNvZmUgfCBodHRwOi8vc3Vjcy5vcmcvfnNpdHMvDQo=
 
