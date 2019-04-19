@@ -1,74 +1,43 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:39920 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725920AbfDTMAH (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 20 Apr 2019 08:00:07 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1hHof9-0004vW-EX
-        for fio@vger.kernel.org; Sat, 20 Apr 2019 12:00:07 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20190420120002.791A92C0104@kernel.dk>
-Date: Sat, 20 Apr 2019 06:00:02 -0600 (MDT)
+Received: from mail-wr1-f48.google.com ([209.85.221.48]:46010 "EHLO
+        mail-wr1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726704AbfDSSV3 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 19 Apr 2019 14:21:29 -0400
+Received: by mail-wr1-f48.google.com with SMTP id s15so7789809wra.12
+        for <fio@vger.kernel.org>; Fri, 19 Apr 2019 11:21:28 -0700 (PDT)
+MIME-Version: 1.0
+References: <CAEESUgmg2YW7qsq+xQqWyJhmOHi1Rfs_4h0kFthWm2FpHe1oaw@mail.gmail.com>
+In-Reply-To: <CAEESUgmg2YW7qsq+xQqWyJhmOHi1Rfs_4h0kFthWm2FpHe1oaw@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Fri, 19 Apr 2019 09:37:52 +0100
+Message-ID: <CALjAwxgiQGXkqY9cUp=1iNnUAVk2cNFZAn7RxD3gjKKis0Kbbw@mail.gmail.com>
+Subject: Re: force sync percentiles unit of measure
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Matteo Olivi <matteoolivi7@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-The following changes since commit ff547caad147b437f654881717fedc750c0c9b17:
+Hi Matteo,
 
-  fio: Add advise THP option to mmap engine (2019-04-18 10:46:19 -0600)
+On Thu, 4 Apr 2019 at 17:41, Matteo Olivi <matteoolivi7@gmail.com> wrote:
+>
+> Is there a way to force fio output (no --minimal) to use msec as the
+> unit of measure for sync percentiles?
+>
+> I'm using fio-3.13.
 
-are available in the Git repository at:
+If you are willing to switch fio to output in a different format (such
+as JSON) then the answer is yes.
 
-  git://git.kernel.dk/fio.git master
+It sounds as if you scraping fio's human readable output at the moment
+- is this the case? If so, please switch to using the JSON output (or
+at least minimal/terse)! Fio's human output is NOT stable across
+versions and is NOT meant for machines! If you are wondering why see
+https://github.com/axboe/fio/issues/451 (and
+https://www.youtube.com/watch?v=vm1GJMp0QN4#t=17m48s ) for further
+details.
 
-for you to fetch changes up to 7f125e7f3879d23e79bc2ef5eed678ddab3b5c70:
-
-  zbd: Fix zone report handling (2019-04-19 09:11:34 -0600)
-
-----------------------------------------------------------------
-Damien Le Moal (1):
-      zbd: Fix zone report handling
-
- zbd.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/zbd.c b/zbd.c
-index 2da742b7..1c46b452 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -186,11 +186,14 @@ static bool zbd_verify_bs(void)
-  * size of @buf.
-  *
-  * Returns 0 upon success and a negative error code upon failure.
-+ * If the zone report is empty, always assume an error (device problem) and
-+ * return -EIO.
-  */
- static int read_zone_info(int fd, uint64_t start_sector,
- 			  void *buf, unsigned int bufsz)
- {
- 	struct blk_zone_report *hdr = buf;
-+	int ret;
- 
- 	if (bufsz < sizeof(*hdr))
- 		return -EINVAL;
-@@ -199,7 +202,12 @@ static int read_zone_info(int fd, uint64_t start_sector,
- 
- 	hdr->nr_zones = (bufsz - sizeof(*hdr)) / sizeof(struct blk_zone);
- 	hdr->sector = start_sector;
--	return ioctl(fd, BLKREPORTZONE, hdr) >= 0 ? 0 : -errno;
-+	ret = ioctl(fd, BLKREPORTZONE, hdr);
-+	if (ret)
-+		return -errno;
-+	if (!hdr->nr_zones)
-+		return -EIO;
-+	return 0;
- }
- 
- /*
+--
+Sitsofe | http://sucs.org/~sits/
 
