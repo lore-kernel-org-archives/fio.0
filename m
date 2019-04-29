@@ -1,39 +1,28 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm1-f42.google.com ([209.85.128.42]:39445 "EHLO
-        mail-wm1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729370AbfD2VfG (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 29 Apr 2019 17:35:06 -0400
-Received: by mail-wm1-f42.google.com with SMTP id n25so1150372wmk.4
-        for <fio@vger.kernel.org>; Mon, 29 Apr 2019 14:35:05 -0700 (PDT)
+Received: from m9a0003g.houston.softwaregrp.com ([15.124.64.68]:47336 "EHLO
+        m9a0003g.houston.softwaregrp.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729398AbfD2VXh (ORCPT
+        <rfc822;fio@vger.kernel.org>); Mon, 29 Apr 2019 17:23:37 -0400
+Received: FROM m9a0003g.houston.softwaregrp.com (15.121.0.191) BY m9a0003g.houston.softwaregrp.com WITH ESMTP
+ FOR fio@vger.kernel.org;
+ Mon, 29 Apr 2019 21:23:34 +0000
+From: David Byte <dbyte@suse.com>
+Subject: block size definition
+Date: Mon, 29 Apr 2019 20:48:09 +0000
+Message-ID: <E4692EE0-7DAF-4EFF-9291-5E1ACD93249C@suse.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <1E0E3AD20153F442B27F67C77D983615@namprd18.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <E4692EE0-7DAF-4EFF-9291-5E1ACD93249C@suse.com>
-In-Reply-To: <E4692EE0-7DAF-4EFF-9291-5E1ACD93249C@suse.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Mon, 29 Apr 2019 22:34:37 +0100
-Message-ID: <CALjAwxh_0LOfM4-MT7sftUt+1dOhJpftZALBj6KKFFMmm9S5Tw@mail.gmail.com>
-Subject: Re: block size definition
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: David Byte <dbyte@suse.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi,
-
-On Mon, 29 Apr 2019 at 22:24, David Byte <dbyte@suse.com> wrote:
->
-> When defining block sizes for I/O, are they truly in MB (base-10)or MiB(b=
-inary)?
->
-> Given the notation of MB, I am assuming base-10?=EF=BB=BF
-
-It's selectable but non-intuitive and defaults to powers of two with
-the "wrong" named units. See the "int" section under parameter types
-of the manual (https://fio.readthedocs.io/en/latest/fio_doc.html#parameter-=
-types
-).
-
---=20
-Sitsofe | http://sucs.org/~sits/
+V2hlbiBkZWZpbmluZyBibG9jayBzaXplcyBmb3IgSS9PLCBhcmUgdGhleSB0cnVseSBpbiBNQiAo
+YmFzZS0xMClvciBNaUIoYmluYXJ5KT8NCg0KR2l2ZW4gdGhlIG5vdGF0aW9uIG9mIE1CLCBJIGFt
+IGFzc3VtaW5nIGJhc2UtMTA/77u/DQoNCkRhdmlkIEJ5dGUNClNyLiBUZWNobm9sb2d5IFN0cmF0
+ZWdpc3QNClNDRSBFbnRlcnByaXNlIExpbnV4IA0KU0NFIEVudGVycHJpc2UgU3RvcmFnZQ0KQWxs
+aWFuY2VzIGFuZCBTVVNFIEVtYmVkZGVkDQpkYnl0ZUBzdXNlLmNvbQ0KOTE4LjUyOC40NDIyDQoN
+Cg==
 
