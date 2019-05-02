@@ -1,81 +1,42 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vs1-f45.google.com ([209.85.217.45]:38249 "EHLO
-        mail-vs1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725962AbfEBSal (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 2 May 2019 14:30:41 -0400
-Received: by mail-vs1-f45.google.com with SMTP id v141so1987482vsc.5
-        for <fio@vger.kernel.org>; Thu, 02 May 2019 11:30:41 -0700 (PDT)
-MIME-Version: 1.0
+Received: from mx0a-002e3701.pphosted.com ([148.163.147.86]:51032 "EHLO
+        mx0a-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726428AbfEBPu0 (ORCPT
+        <rfc822;fio@vger.kernel.org>); Thu, 2 May 2019 11:50:26 -0400
+From: "Elliott, Robert (Servers)" <elliott@hpe.com>
+Subject: RE: How do reads and writes overlap?
+Date: Thu, 2 May 2019 15:50:15 +0000
+Message-ID: <AT5PR8401MB11693A24BC27035F38619B85AB340@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
 References: <CAJQBtgm5kTYnn0Qjs_CHXDqirr+7=qVhev0ScXq0x6wxoib8QQ@mail.gmail.com>
- <AT5PR8401MB11693A24BC27035F38619B85AB340@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
-In-Reply-To: <AT5PR8401MB11693A24BC27035F38619B85AB340@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
-From: Left Right <olegsivokon@gmail.com>
-Date: Thu, 2 May 2019 18:30:25 +0300
-Message-ID: <CAJQBtgksHEjb5oR-yA2eUHkDyuiboLc+MPV-dWJLNdm8v04YWw@mail.gmail.com>
-Subject: Re: How do reads and writes overlap?
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAJQBtgm5kTYnn0Qjs_CHXDqirr+7=qVhev0ScXq0x6wxoib8QQ@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Elliott, Robert (Servers)" <elliott@hpe.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Left Right <olegsivokon@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Thanks a lot for your answer. Just to clarify, the reason I wanted to
-know this isn't really data validation. It's important for
-understanding of the results of my benchmarks. Since the program that
-I'm testing is a kind of iSCSI server, which needs to, for example,
-acknowledge writes based on user's policy pertaining as to how far the
-data had propagated, a read from a block with a write pending might be
-served from the server's cache, rather than going the full circle to
-the physical storage and back.
-
-Thus, understanding the percentage of such overlaps would be very
-important for me. So, I was wondering if there is any way of
-controlling this behavior.
-
-Thanks!
-
-On Thu, May 2, 2019 at 6:50 PM Elliott, Robert (Servers)
-<elliott@hpe.com> wrote:
->
->
->
-> > -----Original Message-----
-> > From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On Behalf Of Left Right
-> > Sent: Wednesday, May 1, 2019 10:06 PM
-> > To: fio@vger.kernel.org
-> > Subject: How do reads and writes overlap?
-> >
-> > I was looking for this info, online, but with no luck so far. What I'm
-> > really interested to know is this:
-> >
-> > * Say, you have a mixed sequential workload 75% reads, 25% writes with
-> > queue depth greater than one, then:
-> > ** are all writes executed before all reads?
->
-> No.
->
-> > ** are there any reads from the blocks not yet written to?
->
-> Yes.
->
-> > ** are there any reads performed against writes that are not ack'ed yet?
->
-> Yes.
->
-> > ** are there any writes performed to the same blocks that have a
-> > pending read request?
->
-> Yes.
-> > * Does any of the answers change if we modify the ratio of reads to
-> > writes, sequential to random?
->
-> No.
->
-> Remember that fio is a primarily a workload generator, not a data
-> validation tool. It doesn't care what data it gets back from reads
-> (comparing all the bytes would take too much time, interfering with
-> performance). You can run special verify threads, but those are
-> separate from the normal read workloads.
->
->
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
+a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBP
+ZiBMZWZ0IFJpZ2h0DQo+IFNlbnQ6IFdlZG5lc2RheSwgTWF5IDEsIDIwMTkgMTA6MDYgUE0NCj4g
+VG86IGZpb0B2Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDogSG93IGRvIHJlYWRzIGFuZCB3cml0
+ZXMgb3ZlcmxhcD8NCj4gDQo+IEkgd2FzIGxvb2tpbmcgZm9yIHRoaXMgaW5mbywgb25saW5lLCBi
+dXQgd2l0aCBubyBsdWNrIHNvIGZhci4gV2hhdCBJJ20NCj4gcmVhbGx5IGludGVyZXN0ZWQgdG8g
+a25vdyBpcyB0aGlzOg0KPiANCj4gKiBTYXksIHlvdSBoYXZlIGEgbWl4ZWQgc2VxdWVudGlhbCB3
+b3JrbG9hZCA3NSUgcmVhZHMsIDI1JSB3cml0ZXMgd2l0aA0KPiBxdWV1ZSBkZXB0aCBncmVhdGVy
+IHRoYW4gb25lLCB0aGVuOg0KPiAqKiBhcmUgYWxsIHdyaXRlcyBleGVjdXRlZCBiZWZvcmUgYWxs
+IHJlYWRzPw0KDQpOby4NCg0KPiAqKiBhcmUgdGhlcmUgYW55IHJlYWRzIGZyb20gdGhlIGJsb2Nr
+cyBub3QgeWV0IHdyaXR0ZW4gdG8/DQoNClllcy4NCg0KPiAqKiBhcmUgdGhlcmUgYW55IHJlYWRz
+IHBlcmZvcm1lZCBhZ2FpbnN0IHdyaXRlcyB0aGF0IGFyZSBub3QgYWNrJ2VkIHlldD8NCg0KWWVz
+Lg0KDQo+ICoqIGFyZSB0aGVyZSBhbnkgd3JpdGVzIHBlcmZvcm1lZCB0byB0aGUgc2FtZSBibG9j
+a3MgdGhhdCBoYXZlIGENCj4gcGVuZGluZyByZWFkIHJlcXVlc3Q/DQoNClllcy4NCj4gKiBEb2Vz
+IGFueSBvZiB0aGUgYW5zd2VycyBjaGFuZ2UgaWYgd2UgbW9kaWZ5IHRoZSByYXRpbyBvZiByZWFk
+cyB0bw0KPiB3cml0ZXMsIHNlcXVlbnRpYWwgdG8gcmFuZG9tPw0KDQpOby4NCg0KUmVtZW1iZXIg
+dGhhdCBmaW8gaXMgYSBwcmltYXJpbHkgYSB3b3JrbG9hZCBnZW5lcmF0b3IsIG5vdCBhIGRhdGEN
+CnZhbGlkYXRpb24gdG9vbC4gSXQgZG9lc24ndCBjYXJlIHdoYXQgZGF0YSBpdCBnZXRzIGJhY2sg
+ZnJvbSByZWFkcw0KKGNvbXBhcmluZyBhbGwgdGhlIGJ5dGVzIHdvdWxkIHRha2UgdG9vIG11Y2gg
+dGltZSwgaW50ZXJmZXJpbmcgd2l0aA0KcGVyZm9ybWFuY2UpLiBZb3UgY2FuIHJ1biBzcGVjaWFs
+IHZlcmlmeSB0aHJlYWRzLCBidXQgdGhvc2UgYXJlDQpzZXBhcmF0ZSBmcm9tIHRoZSBub3JtYWwg
+cmVhZCB3b3JrbG9hZHMuDQoNCg0K
 
