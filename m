@@ -1,42 +1,35 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx0a-002e3701.pphosted.com ([148.163.147.86]:51032 "EHLO
-        mx0a-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726428AbfEBPu0 (ORCPT
-        <rfc822;fio@vger.kernel.org>); Thu, 2 May 2019 11:50:26 -0400
-From: "Elliott, Robert (Servers)" <elliott@hpe.com>
-Subject: RE: How do reads and writes overlap?
-Date: Thu, 2 May 2019 15:50:15 +0000
-Message-ID: <AT5PR8401MB11693A24BC27035F38619B85AB340@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
-References: <CAJQBtgm5kTYnn0Qjs_CHXDqirr+7=qVhev0ScXq0x6wxoib8QQ@mail.gmail.com>
-In-Reply-To: <CAJQBtgm5kTYnn0Qjs_CHXDqirr+7=qVhev0ScXq0x6wxoib8QQ@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-ua1-f44.google.com ([209.85.222.44]:45904 "EHLO
+        mail-ua1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726255AbfEBGGX (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 2 May 2019 02:06:23 -0400
+Received: by mail-ua1-f44.google.com with SMTP id o33so324680uae.12
+        for <fio@vger.kernel.org>; Wed, 01 May 2019 23:06:23 -0700 (PDT)
 MIME-Version: 1.0
+From: Left Right <olegsivokon@gmail.com>
+Date: Thu, 2 May 2019 06:06:07 +0300
+Message-ID: <CAJQBtgm5kTYnn0Qjs_CHXDqirr+7=qVhev0ScXq0x6wxoib8QQ@mail.gmail.com>
+Subject: How do reads and writes overlap?
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Left Right <olegsivokon@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
-a2VybmVsLm9yZyBbbWFpbHRvOmZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBP
-ZiBMZWZ0IFJpZ2h0DQo+IFNlbnQ6IFdlZG5lc2RheSwgTWF5IDEsIDIwMTkgMTA6MDYgUE0NCj4g
-VG86IGZpb0B2Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDogSG93IGRvIHJlYWRzIGFuZCB3cml0
-ZXMgb3ZlcmxhcD8NCj4gDQo+IEkgd2FzIGxvb2tpbmcgZm9yIHRoaXMgaW5mbywgb25saW5lLCBi
-dXQgd2l0aCBubyBsdWNrIHNvIGZhci4gV2hhdCBJJ20NCj4gcmVhbGx5IGludGVyZXN0ZWQgdG8g
-a25vdyBpcyB0aGlzOg0KPiANCj4gKiBTYXksIHlvdSBoYXZlIGEgbWl4ZWQgc2VxdWVudGlhbCB3
-b3JrbG9hZCA3NSUgcmVhZHMsIDI1JSB3cml0ZXMgd2l0aA0KPiBxdWV1ZSBkZXB0aCBncmVhdGVy
-IHRoYW4gb25lLCB0aGVuOg0KPiAqKiBhcmUgYWxsIHdyaXRlcyBleGVjdXRlZCBiZWZvcmUgYWxs
-IHJlYWRzPw0KDQpOby4NCg0KPiAqKiBhcmUgdGhlcmUgYW55IHJlYWRzIGZyb20gdGhlIGJsb2Nr
-cyBub3QgeWV0IHdyaXR0ZW4gdG8/DQoNClllcy4NCg0KPiAqKiBhcmUgdGhlcmUgYW55IHJlYWRz
-IHBlcmZvcm1lZCBhZ2FpbnN0IHdyaXRlcyB0aGF0IGFyZSBub3QgYWNrJ2VkIHlldD8NCg0KWWVz
-Lg0KDQo+ICoqIGFyZSB0aGVyZSBhbnkgd3JpdGVzIHBlcmZvcm1lZCB0byB0aGUgc2FtZSBibG9j
-a3MgdGhhdCBoYXZlIGENCj4gcGVuZGluZyByZWFkIHJlcXVlc3Q/DQoNClllcy4NCj4gKiBEb2Vz
-IGFueSBvZiB0aGUgYW5zd2VycyBjaGFuZ2UgaWYgd2UgbW9kaWZ5IHRoZSByYXRpbyBvZiByZWFk
-cyB0bw0KPiB3cml0ZXMsIHNlcXVlbnRpYWwgdG8gcmFuZG9tPw0KDQpOby4NCg0KUmVtZW1iZXIg
-dGhhdCBmaW8gaXMgYSBwcmltYXJpbHkgYSB3b3JrbG9hZCBnZW5lcmF0b3IsIG5vdCBhIGRhdGEN
-CnZhbGlkYXRpb24gdG9vbC4gSXQgZG9lc24ndCBjYXJlIHdoYXQgZGF0YSBpdCBnZXRzIGJhY2sg
-ZnJvbSByZWFkcw0KKGNvbXBhcmluZyBhbGwgdGhlIGJ5dGVzIHdvdWxkIHRha2UgdG9vIG11Y2gg
-dGltZSwgaW50ZXJmZXJpbmcgd2l0aA0KcGVyZm9ybWFuY2UpLiBZb3UgY2FuIHJ1biBzcGVjaWFs
-IHZlcmlmeSB0aHJlYWRzLCBidXQgdGhvc2UgYXJlDQpzZXBhcmF0ZSBmcm9tIHRoZSBub3JtYWwg
-cmVhZCB3b3JrbG9hZHMuDQoNCg0K
+I was looking for this info, online, but with no luck so far. What I'm
+really interested to know is this:
+
+* Say, you have a mixed sequential workload 75% reads, 25% writes with
+queue depth greater than one, then:
+** are all writes executed before all reads?
+** are there any reads from the blocks not yet written to?
+** are there any reads performed against writes that are not ack'ed yet?
+** are there any writes performed to the same blocks that have a
+pending read request?
+
+* Does any of the answers change if we modify the ratio of reads to
+writes, sequential to random?
+
+Thanks!
+
+Oleg
 
