@@ -1,29 +1,43 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vs1-f49.google.com ([209.85.217.49]:38717 "EHLO
-        mail-vs1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725792AbfEWEnG (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 23 May 2019 00:43:06 -0400
-Received: by mail-vs1-f49.google.com with SMTP id x184so2778760vsb.5
-        for <fio@vger.kernel.org>; Wed, 22 May 2019 21:43:06 -0700 (PDT)
+Received: from mail-eopbgr50116.outbound.protection.outlook.com ([40.107.5.116]:24118
+        "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726297AbfEFNWK (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 6 May 2019 09:22:10 -0400
+From: Erwan Velu <e.velu@criteo.com>
+Subject: Some curious code across the project
+Date: Mon, 6 May 2019 13:22:07 +0000
+Message-ID: <64def37e-fc9f-fabe-17bb-e609b87ec720@criteo.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <DC57995FFF6BF842991A465F1A5F1E3C@eurprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-From: Left Right <olegsivokon@gmail.com>
-Date: Thu, 23 May 2019 04:42:53 +0300
-Message-ID: <CAJQBtgk=RDMWMM1=RAR=rYXHOLsJgvMsqaYLT8HPRy7YK-Oouw@mail.gmail.com>
-Subject: How does FIO know size of a partition?
-Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hello list!
-
-We are working on testing pmem library backed up by a partition on a
-device, and there seems to be a discrepancy between how we / pmem /
-FIO understand the size of the of partitions.
-
-Could anyone, please, shed a light on how this is done?
-
-Thank you!
-
-Oleg
+SGkgSmVucywNCg0KSSBzcG90dGVkIHNvbWUgY29kZSB0aGF0IGxvb2tzIGxpa2UgYSBtaXN0YWtl
+IG9yIG5lZWRzIHRvIGJlIGV4cGxpY2F0ZWQuDQoNCg0KaHR0cHM6Ly9naXRodWIuY29tL2F4Ym9l
+L2Zpby9ibG9iL21hc3Rlci9sb2cuYyNMMTI3DQoNCkluIHRoaXMgY29kZSwgd2UgY2FuIHNlZSB0
+d28gZndyaXRlIG92ZXJyZGluZyB0aGUgc2FtZSByZXQgdmFyaWFibGUuDQoNCkkgd2FzIHdvbmRl
+cmluZyBpZiB0aGVzZSB0d28gZndyaXRlIG11c3QgYmUgZXhjbHVzaXZlIHRvIGVhY2ggb3RoZXIg
+b3IgDQppZiByZXQgdmFsdWUgbXVzdCBiZSBpbnNwZWN0ZWQgYmVmb3JlIGJlaW5nIG92ZXJ3cml0
+dGVuLg0KDQoNClRoZXJlIGlzIGFsbW9zdCB0aGUgc2FtZSBjYXNlIGhlcmUgOiANCmh0dHBzOi8v
+Z2l0aHViLmNvbS9heGJvZS9maW8vYmxvYi8wNTEzODIyMThjYmU1MTAxYTVjYWE4M2VhYjU1ZWQw
+NDYwOGY4NDc1L2Jsa3RyYWNlLmMjTDc2Mw0KDQoNCg0KaHR0cHM6Ly9naXRodWIuY29tL2F4Ym9l
+L2Zpby9ibG9iLzA1MTM4MjIxOGNiZTUxMDFhNWNhYTgzZWFiNTVlZDA0NjA4Zjg0NzUvemJkLmMj
+TDEzMzANCg0KIm5ld19sZW4gPSBuZXdfbGVuIC8gbWluX2JzICogbWluX2JzIg0KDQpJJ20gbm90
+IHJlYWxseSB3aGF0IGl0IG1lYW5zIHRvIGJlIGRvbmUgaGVyZS4gSXMgaXQgYSB0eXBvIG9yIGEg
+a2luZCBvZiANCnJvdW5kaW5nID8NCg0KDQoNCmh0dHBzOi8vZ2l0aHViLmNvbS9heGJvZS9maW8v
+YmxvYi8wNTEzODIyMThjYmU1MTAxYTVjYWE4M2VhYjU1ZWQwNDYwOGY4NDc1L2VuZ2luZXMvc2cu
+YyNMNDYxDQoNCkxvb2tzIGxpa2UgdGhlIHJldCBpcyB1c2VsZXNzIGhlcmUuDQoNCg0KaHR0cHM6
+Ly9naXRodWIuY29tL2F4Ym9lL2Zpby9ibG9iLzA1MTM4MjIxOGNiZTUxMDFhNWNhYTgzZWFiNTVl
+ZDA0NjA4Zjg0NzUvZW5naW5lcy9zZy5jI0w5NjQNCg0KcmV0IHZhbHVlIGlzIHVudXNlZCBoZXJl
+LCBzaGFsbCB3ZSByZXR1cm4gaXQgb3IganVzdCBpZ25vcmUgcmV0ID8NCg0KDQpodHRwczovL2dp
+dGh1Yi5jb20vYXhib2UvZmlvL2Jsb2IvMDUxMzgyMjE4Y2JlNTEwMWE1Y2FhODNlYWI1NWVkMDQ2
+MDhmODQ3NS9saWIvZmxzLmgjTDM1DQoNCkxvb2tzIGxpa2UgdGhlIHggPDw9IDEgZG8gYW55dGhp
+bmcgaGVyZSBhcyB4IGlzIGEgbG9jYWwgdmFsdWUgYW5kIHdlIA0KZG9uJ3QgcHJvY2VzcyBpdCBh
+bnltb3JlLg0KDQoNCkkgY2FuIHByb3ZpZGUgcGF0Y2hlcyB0byB0aGVzZSBpc3N1ZXMsDQoNCkVy
+d2FuLA0KDQo=
 
