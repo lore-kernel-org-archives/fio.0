@@ -1,57 +1,86 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:37042 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726327AbfEBPVE (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 2 May 2019 11:21:04 -0400
-Date: Thu, 2 May 2019 17:20:47 +0200
-From: Lars Marowsky-Bree <lmb@suse.com>
-Subject: Re: Help with HTTP engine with S3
-Message-ID: <20190502152047.3mf6d3n5ul5ho7jz@suse.com>
-References: <CAKRObaZ5N=trawpfu3fj8xAP6+3mLHp8Lgo0DZ6Aac56O6epww@mail.gmail.com>
- <CALjAwxgiednQRtcv7HYssQ0Xqw1x24gPd+sN5OKA7F4aqsiOuA@mail.gmail.com>
+Received: from mail-it1-f181.google.com ([209.85.166.181]:37965 "EHLO
+        mail-it1-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726687AbfEHUNo (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 8 May 2019 16:13:44 -0400
+Received: by mail-it1-f181.google.com with SMTP id q19so6060785itk.3
+        for <fio@vger.kernel.org>; Wed, 08 May 2019 13:13:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CALjAwxgiednQRtcv7HYssQ0Xqw1x24gPd+sN5OKA7F4aqsiOuA@mail.gmail.com>
+From: Shivam Dhir <dhirs1@uci.edu>
+Date: Wed, 8 May 2019 13:13:32 -0700
+Message-ID: <CAKaVHqeY0zGAewNX8wpK_rqgEJazSt-VfO7MTgbz8E7+3Mq=xw@mail.gmail.com>
+Subject: Random RW Error
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: Surendar Chandra <surendar@acm.org>, fio <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-On 2019-04-19T10:32:14, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+Hi, below are two scripts for doing a random read write with
+verification. The goal is to have a mixed io test with 70 percent
+being reads after preconditioning the drive with writes.
 
-Yes, that's how this currently works.
+Script 1
+[global]
+numjobs=1
+ioengine=libaio
+filename=/dev/nvme0n1
+size=100GB
+direct=1
+bs=4k
+iodepth=128
+verify=md5
+verify_interval=4096
 
-Every IO is essentially translated to a separate object.
+[write-phase]
+rw=write
+do_verify=0
+stonewall
 
-S3/Swift do not support overwrites, you can only PUT a single object as
-a whole. (Multipart uploads are handled somewhat differently, but the
-end result is the same.)
+[randomrw]
+rw=randrw
+rwmixread=70
+norandommap
+randrepeat=0
+do_verify=1
+stonewall
 
-> > [create]
-> > filename=/data.dat
-> > rw=readwrite
-> > bs=2m
-> > size=50g
-> > io_size=10m
-> >
-> > The PUT goes to /data.dat_0_2097152 signifying offset (0) and
-> > xfer_buflen of 2M. Except, AWS seems to create the file
-> > /data.dat_0_2097152. How do I make AWS understand this format?
-> > Shouldn’t we be using RANGE requests?
+Script 2
+[global]
+numjobs=1
+ioengine=libaio
+filename=/dev/nvme0n1
+size=100GB
+direct=1
+bs=4k
+iodepth=128
+verify=md5
+verify_interval=4096
 
-"filename" is misleading. It's essentially just the prefix. The engine
-is a bit of an exploit - it uses the offset/blocksize as an extension
-and thus creates many separate objects.
+[write-phase]
+rw=write
+do_verify=1
+stonewall
 
-What you want to do, S3/AWS can't do.
+[randomrw]
+rw=randrw
+rwmixread=70
+norandommap
+randrepeat=0
+do_verify=1
+stonewall
 
 
-Regards,
-    Lars
+The first script gives an error : invalid or incomplete multibyte or
+wide character.
+The second script passes without any error.
 
+Wondering how does not doing verification in first script during write
+phase leads to this error.
+
+Thanks.
 -- 
-SUSE Linux GmbH, GF: Felix Imendörffer, Mary Higgins, Sri Rasiah, HRB 21284 (AG Nürnberg)
-"Architects should open possibilities and not determine everything." (Ueli Zbinden)
+Shivam Dhir
+Master of Embedded and Cyber-Physical Systems
+University of California
+Irvine
 
