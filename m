@@ -1,30 +1,41 @@
-Return-Path: <axboe@kernel.dk>
+Return-Path: <e.velu@criteo.com>
+From: Erwan Velu <e.velu@criteo.com>
 Subject: Re: Recent changes (master)
+Date: Thu, 9 May 2019 12:47:41 +0000
+Message-ID: <3b8b6f54-e990-2feb-bfc3-14a68345c366@criteo.com>
 References: <20190509120003.26BCA2C098E@kernel.dk>
- <3b8b6f54-e990-2feb-bfc3-14a68345c366@criteo.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <b40b8010-52ea-1d77-bdae-225086e8dfab@kernel.dk>
-Date: Thu, 9 May 2019 08:07:53 -0600
-MIME-Version: 1.0
-In-Reply-To: <3b8b6f54-e990-2feb-bfc3-14a68345c366@criteo.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20190509120003.26BCA2C098E@kernel.dk>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Erwan Velu <e.velu@criteo.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <4F2311AC8D488541B1AE31543B3FCC3E@eurprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 5/9/19 6:47 AM, Erwan Velu wrote:
-> Isn't that also related to the kernel version you use ?
-> 
-> This message might mislead the user as he might just have to upgrade his 
-> kernel to gain the feature ?
-
-Yes, the message is for the specific kernel, it doesn't speak for any
-future kernels. But I think we're getting into documentation at this
-point, the message just means that on this setup, either the fs or
-device driver (or both) doesn't support polled IO.
-
--- 
-Jens Axboe
-
+SXNuJ3QgdGhhdCBhbHNvIHJlbGF0ZWQgdG8gdGhlIGtlcm5lbCB2ZXJzaW9uIHlvdSB1c2UgPw0K
+DQpUaGlzIG1lc3NhZ2UgbWlnaHQgbWlzbGVhZCB0aGUgdXNlciBhcyBoZSBtaWdodCBqdXN0IGhh
+dmUgdG8gdXBncmFkZSBoaXMgDQprZXJuZWwgdG8gZ2FpbiB0aGUgZmVhdHVyZSA/DQoNCkxlIDA5
+LzA1LzIwMTkgw6AgMTQ6MDAsIEplbnMgQXhib2UgYSDDqWNyaXTCoDoNCj4gVGhlIGZvbGxvd2lu
+ZyBjaGFuZ2VzIHNpbmNlIGNvbW1pdCBmMjJkZDk3YTVhMTM0MmM3ZGNiODRmNzc3YTc3YmQzMDg1
+OWNjMzViOg0KPg0KPiAgICBVcGRhdGUgQ0ZMQUdTIGFuZCBMREZMQUdTIGZvciBGcmVlQlNEIGJ1
+aWxkcyAoMjAxOS0wNS0wNiAyMjoxODo1NSAtMDYwMCkNCj4NCj4gYXJlIGF2YWlsYWJsZSBpbiB0
+aGUgR2l0IHJlcG9zaXRvcnkgYXQ6DQo+DQo+ICAgIGdpdDovL2dpdC5rZXJuZWwuZGsvZmlvLmdp
+dCBtYXN0ZXINCj4NCj4gZm9yIHlvdSB0byBmZXRjaCBjaGFuZ2VzIHVwIHRvIDI4NTdjMzRiZDM5
+ZmNkNjdjNDg5YThlMmIxOWQ5NDU1MDMyYmFkMGY6DQo+DQo+ICAgIHQvaW9fdXJpbmc6IGNsYXJp
+ZnkgcG9sbGVkIHN1cHBvcnQgaXMgZnMgKyBkZXZpY2UgKDIwMTktMDUtMDggMTE6NTY6MDUgLTA2
+MDApDQo+DQo+IC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0NCj4gSmVucyBBeGJvZSAoMSk6DQo+ICAgICAgICB0L2lvX3VyaW5n
+OiBjbGFyaWZ5IHBvbGxlZCBzdXBwb3J0IGlzIGZzICsgZGV2aWNlDQo+DQo+ICAgdC9pb191cmlu
+Zy5jIHwgMyArKy0NCj4gICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAxIGRlbGV0
+aW9uKC0pDQo+DQo+IC0tLQ0KPg0KPiBEaWZmIG9mIHJlY2VudCBjaGFuZ2VzOg0KPg0KPiBkaWZm
+IC0tZ2l0IGEvdC9pb191cmluZy5jIGIvdC9pb191cmluZy5jDQo+IGluZGV4IDc5YTkyMzExLi4y
+MDhiNThhNSAxMDA2NDQNCj4gLS0tIGEvdC9pb191cmluZy5jDQo+ICsrKyBiL3QvaW9fdXJpbmcu
+Yw0KPiBAQCAtMjY0LDcgKzI2NCw4IEBAIHN0YXRpYyBpbnQgcmVhcF9ldmVudHMoc3RydWN0IHN1
+Ym1pdHRlciAqcykNCj4gICAJCQlpZiAoY3FlLT5yZXMgIT0gQlMpIHsNCj4gICAJCQkJcHJpbnRm
+KCJpbzogdW5leHBlY3RlZCByZXQ9JWRcbiIsIGNxZS0+cmVzKTsNCj4gICAJCQkJaWYgKHBvbGxl
+ZCAmJiBjcWUtPnJlcyA9PSAtRU9QTk9UU1VQUCkNCj4gLQkJCQkJcHJpbnRmKCJZb3VyIGZpbGVz
+eXN0ZW0gZG9lc24ndCBzdXBwb3J0IHBvbGxcbiIpOw0KPiArCQkJCQlwcmludGYoIllvdXIgZmls
+ZXN5c3RlbS9kZXZpY2UgZG9lc24ndCAiDQo+ICsJCQkJCQkic3VwcG9ydCBwb2xsZWQgSU9cbiIp
+Ow0KPiAgIAkJCQlyZXR1cm4gLTE7DQo+ICAgCQkJfQ0KPiAgIAkJfQ0K
 
