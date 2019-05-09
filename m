@@ -1,23 +1,37 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:13810 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389288AbfEXPVu (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 24 May 2019 11:21:50 -0400
-From: Kris Davis <Kris.Davis@wdc.com>
-Subject: iodepth_submit "0" bucket question
-Date: Fri, 24 May 2019 15:21:47 +0000
-Message-ID: <DM6PR04MB46974D9F7CAFC941B51D0E1B81020@DM6PR04MB4697.namprd04.prod.outlook.com>
+Return-Path: <elliott@hpe.com>
+From: "Elliott, Robert (Servers)" <elliott@hpe.com>
+Subject: RE: Recent changes (master)
+Date: Thu, 9 May 2019 16:12:29 +0000
+Message-ID: <AT5PR8401MB116961A8325A45171A71D062AB330@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+References: <20190509120003.26BCA2C098E@kernel.dk>
+ <AT5PR8401MB1169B5D8881E1D2E3D11EC4DAB330@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+ <c5c7cb41-565a-d3fa-5a58-c1fb6647b3b4@gydle.com>
+In-Reply-To: <c5c7cb41-565a-d3fa-5a58-c1fb6647b3b4@gydle.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Sebastien Boisvert <sboisvert@gydle.com>, Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-A hopefully simple question: =20
-What does the "0" bucket of the iodepth_submit and iodepth_complete result =
-values indicate?  That is, when would the values be non-zero?
-Thanks
-Kris Davis
+DQoNCj4gVGhpcw0KPiANCj4gDQo+ICsJCQkJCXByaW50ZigiWW91ciBmaWxlc3lzdGVtL2Rldmlj
+ZQ0KPiBkb2Vzbid0ICINCj4gKwkJCQkJCSJzdXBwb3J0IHBvbGxlZCBJT1xuIik7DQo+IA0KPiB3
+aWxsIHByaW50IG9uZSBsaW5lIGluIHN0YW5kYXJkIG91dHB1dDoNCj4gDQo+IFlvdXIgZmlsZXN5
+c3RlbS9kZXZpY2UgZG9lc24ndCBzdXBwb3J0IHBvbGxlZCBJTw0KPiANCj4gDQo+IERvIHlvdSBt
+ZWFuIHRoYXQgeW91IHdhbnQgdG8gZ3JlcCBpbiB0aGUgc291cmNlIGNvZGUgPw0KDQpZZXMsIGxp
+a2UgTGludXMgVG9ydmFsZHMgY29tcGxhaW5lZCBhYm91dCB5ZWFycyBhZ286DQogICAgIkkndmUg
+aGFkIGdyZXAncyB0aGF0IGZhaWwgZHVlIHRvIHBlb3BsZSBzcGxpdHRpbmcgdGhlIGFjdHVhbA0K
+ICAgIHN0cmluZyBldGMsIHdoaWNoIGp1c3QgZHJpdmVzIG1lIHdpbGQuIg0KICAgIGh0dHBzOi8v
+bGttbC5vcmcvbGttbC8yMDA5LzEyLzE3LzIyOQ0KDQpJdCdzIHBhcnQgb2YgdGhlIGxpbnV4IGtl
+cm5lbCBjb2Rpbmcgc3R5bGUgKHdoaWNoIGZpbyBkb2Vzbid0DQpzdHJpY3RseSBmb2xsb3csIGJ1
+dCBnZW5lcmFsbHkgZG9lcyk6DQoNCiAgICAiU3RhdGVtZW50cyBsb25nZXIgdGhhbiA4MCBjb2x1
+bW5zIHdpbGwgYmUgYnJva2VuIGludG8gc2Vuc2libGUNCiAgICBjaHVua3MsIHVubGVzcyBleGNl
+ZWRpbmcgODAgY29sdW1ucyBzaWduaWZpY2FudGx5IGluY3JlYXNlcw0KICAgIHJlYWRhYmlsaXR5
+IGFuZCBkb2VzIG5vdCBoaWRlIGluZm9ybWF0aW9uLiBEZXNjZW5kYW50cyBhcmUNCiAgICBhbHdh
+eXMgc3Vic3RhbnRpYWxseSBzaG9ydGVyIHRoYW4gdGhlIHBhcmVudCBhbmQgYXJlIHBsYWNlZA0K
+ICAgIHN1YnN0YW50aWFsbHkgdG8gdGhlIHJpZ2h0LiBUaGUgc2FtZSBhcHBsaWVzIHRvIGZ1bmN0
+aW9uIGhlYWRlcnMNCiAgICB3aXRoIGEgbG9uZyBhcmd1bWVudCBsaXN0LiBIb3dldmVyLCBuZXZl
+ciBicmVhayB1c2VyLXZpc2libGUNCiAgICBzdHJpbmdzIHN1Y2ggYXMgcHJpbnRrIG1lc3NhZ2Vz
+LCBiZWNhdXNlIHRoYXQgYnJlYWtzIHRoZQ0KICAgIGFiaWxpdHkgdG8gZ3JlcCBmb3IgdGhlbS4i
+DQoNCg0K
 
