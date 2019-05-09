@@ -1,41 +1,55 @@
-Return-Path: <e.velu@criteo.com>
-From: Erwan Velu <e.velu@criteo.com>
-Subject: Re: Recent changes (master)
-Date: Thu, 9 May 2019 12:47:41 +0000
-Message-ID: <3b8b6f54-e990-2feb-bfc3-14a68345c366@criteo.com>
-References: <20190509120003.26BCA2C098E@kernel.dk>
-In-Reply-To: <20190509120003.26BCA2C098E@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <4F2311AC8D488541B1AE31543B3FCC3E@eurprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:57740 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725963AbfEIMAF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 9 May 2019 08:00:05 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1hOhiW-0002l6-Mf
+        for fio@vger.kernel.org; Thu, 09 May 2019 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20190509120003.26BCA2C098E@kernel.dk>
+Date: Thu,  9 May 2019 06:00:03 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-SXNuJ3QgdGhhdCBhbHNvIHJlbGF0ZWQgdG8gdGhlIGtlcm5lbCB2ZXJzaW9uIHlvdSB1c2UgPw0K
-DQpUaGlzIG1lc3NhZ2UgbWlnaHQgbWlzbGVhZCB0aGUgdXNlciBhcyBoZSBtaWdodCBqdXN0IGhh
-dmUgdG8gdXBncmFkZSBoaXMgDQprZXJuZWwgdG8gZ2FpbiB0aGUgZmVhdHVyZSA/DQoNCkxlIDA5
-LzA1LzIwMTkgw6AgMTQ6MDAsIEplbnMgQXhib2UgYSDDqWNyaXTCoDoNCj4gVGhlIGZvbGxvd2lu
-ZyBjaGFuZ2VzIHNpbmNlIGNvbW1pdCBmMjJkZDk3YTVhMTM0MmM3ZGNiODRmNzc3YTc3YmQzMDg1
-OWNjMzViOg0KPg0KPiAgICBVcGRhdGUgQ0ZMQUdTIGFuZCBMREZMQUdTIGZvciBGcmVlQlNEIGJ1
-aWxkcyAoMjAxOS0wNS0wNiAyMjoxODo1NSAtMDYwMCkNCj4NCj4gYXJlIGF2YWlsYWJsZSBpbiB0
-aGUgR2l0IHJlcG9zaXRvcnkgYXQ6DQo+DQo+ICAgIGdpdDovL2dpdC5rZXJuZWwuZGsvZmlvLmdp
-dCBtYXN0ZXINCj4NCj4gZm9yIHlvdSB0byBmZXRjaCBjaGFuZ2VzIHVwIHRvIDI4NTdjMzRiZDM5
-ZmNkNjdjNDg5YThlMmIxOWQ5NDU1MDMyYmFkMGY6DQo+DQo+ICAgIHQvaW9fdXJpbmc6IGNsYXJp
-ZnkgcG9sbGVkIHN1cHBvcnQgaXMgZnMgKyBkZXZpY2UgKDIwMTktMDUtMDggMTE6NTY6MDUgLTA2
-MDApDQo+DQo+IC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0NCj4gSmVucyBBeGJvZSAoMSk6DQo+ICAgICAgICB0L2lvX3VyaW5n
-OiBjbGFyaWZ5IHBvbGxlZCBzdXBwb3J0IGlzIGZzICsgZGV2aWNlDQo+DQo+ICAgdC9pb191cmlu
-Zy5jIHwgMyArKy0NCj4gICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAxIGRlbGV0
-aW9uKC0pDQo+DQo+IC0tLQ0KPg0KPiBEaWZmIG9mIHJlY2VudCBjaGFuZ2VzOg0KPg0KPiBkaWZm
-IC0tZ2l0IGEvdC9pb191cmluZy5jIGIvdC9pb191cmluZy5jDQo+IGluZGV4IDc5YTkyMzExLi4y
-MDhiNThhNSAxMDA2NDQNCj4gLS0tIGEvdC9pb191cmluZy5jDQo+ICsrKyBiL3QvaW9fdXJpbmcu
-Yw0KPiBAQCAtMjY0LDcgKzI2NCw4IEBAIHN0YXRpYyBpbnQgcmVhcF9ldmVudHMoc3RydWN0IHN1
-Ym1pdHRlciAqcykNCj4gICAJCQlpZiAoY3FlLT5yZXMgIT0gQlMpIHsNCj4gICAJCQkJcHJpbnRm
-KCJpbzogdW5leHBlY3RlZCByZXQ9JWRcbiIsIGNxZS0+cmVzKTsNCj4gICAJCQkJaWYgKHBvbGxl
-ZCAmJiBjcWUtPnJlcyA9PSAtRU9QTk9UU1VQUCkNCj4gLQkJCQkJcHJpbnRmKCJZb3VyIGZpbGVz
-eXN0ZW0gZG9lc24ndCBzdXBwb3J0IHBvbGxcbiIpOw0KPiArCQkJCQlwcmludGYoIllvdXIgZmls
-ZXN5c3RlbS9kZXZpY2UgZG9lc24ndCAiDQo+ICsJCQkJCQkic3VwcG9ydCBwb2xsZWQgSU9cbiIp
-Ow0KPiAgIAkJCQlyZXR1cm4gLTE7DQo+ICAgCQkJfQ0KPiAgIAkJfQ0K
+The following changes since commit f22dd97a5a1342c7dcb84f777a77bd30859cc35b:
+
+  Update CFLAGS and LDFLAGS for FreeBSD builds (2019-05-06 22:18:55 -0600)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 2857c34bd39fcd67c489a8e2b19d9455032bad0f:
+
+  t/io_uring: clarify polled support is fs + device (2019-05-08 11:56:05 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      t/io_uring: clarify polled support is fs + device
+
+ t/io_uring.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/t/io_uring.c b/t/io_uring.c
+index 79a92311..208b58a5 100644
+--- a/t/io_uring.c
++++ b/t/io_uring.c
+@@ -264,7 +264,8 @@ static int reap_events(struct submitter *s)
+ 			if (cqe->res != BS) {
+ 				printf("io: unexpected ret=%d\n", cqe->res);
+ 				if (polled && cqe->res == -EOPNOTSUPP)
+-					printf("Your filesystem doesn't support poll\n");
++					printf("Your filesystem/device doesn't "
++						"support polled IO\n");
+ 				return -1;
+ 			}
+ 		}
 
