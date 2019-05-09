@@ -1,37 +1,42 @@
-Return-Path: <elliott@hpe.com>
-From: "Elliott, Robert (Servers)" <elliott@hpe.com>
-Subject: RE: Recent changes (master)
-Date: Thu, 9 May 2019 16:12:29 +0000
-Message-ID: <AT5PR8401MB116961A8325A45171A71D062AB330@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: Recent changes (master)
 References: <20190509120003.26BCA2C098E@kernel.dk>
  <AT5PR8401MB1169B5D8881E1D2E3D11EC4DAB330@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
- <c5c7cb41-565a-d3fa-5a58-c1fb6647b3b4@gydle.com>
-In-Reply-To: <c5c7cb41-565a-d3fa-5a58-c1fb6647b3b4@gydle.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <e2203ed6-359b-0e14-eb54-459616e4ed02@kernel.dk>
+Date: Thu, 9 May 2019 09:57:10 -0600
 MIME-Version: 1.0
-To: Sebastien Boisvert <sboisvert@gydle.com>, Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <AT5PR8401MB1169B5D8881E1D2E3D11EC4DAB330@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: "Elliott, Robert (Servers)" <elliott@hpe.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-DQoNCj4gVGhpcw0KPiANCj4gDQo+ICsJCQkJCXByaW50ZigiWW91ciBmaWxlc3lzdGVtL2Rldmlj
-ZQ0KPiBkb2Vzbid0ICINCj4gKwkJCQkJCSJzdXBwb3J0IHBvbGxlZCBJT1xuIik7DQo+IA0KPiB3
-aWxsIHByaW50IG9uZSBsaW5lIGluIHN0YW5kYXJkIG91dHB1dDoNCj4gDQo+IFlvdXIgZmlsZXN5
-c3RlbS9kZXZpY2UgZG9lc24ndCBzdXBwb3J0IHBvbGxlZCBJTw0KPiANCj4gDQo+IERvIHlvdSBt
-ZWFuIHRoYXQgeW91IHdhbnQgdG8gZ3JlcCBpbiB0aGUgc291cmNlIGNvZGUgPw0KDQpZZXMsIGxp
-a2UgTGludXMgVG9ydmFsZHMgY29tcGxhaW5lZCBhYm91dCB5ZWFycyBhZ286DQogICAgIkkndmUg
-aGFkIGdyZXAncyB0aGF0IGZhaWwgZHVlIHRvIHBlb3BsZSBzcGxpdHRpbmcgdGhlIGFjdHVhbA0K
-ICAgIHN0cmluZyBldGMsIHdoaWNoIGp1c3QgZHJpdmVzIG1lIHdpbGQuIg0KICAgIGh0dHBzOi8v
-bGttbC5vcmcvbGttbC8yMDA5LzEyLzE3LzIyOQ0KDQpJdCdzIHBhcnQgb2YgdGhlIGxpbnV4IGtl
-cm5lbCBjb2Rpbmcgc3R5bGUgKHdoaWNoIGZpbyBkb2Vzbid0DQpzdHJpY3RseSBmb2xsb3csIGJ1
-dCBnZW5lcmFsbHkgZG9lcyk6DQoNCiAgICAiU3RhdGVtZW50cyBsb25nZXIgdGhhbiA4MCBjb2x1
-bW5zIHdpbGwgYmUgYnJva2VuIGludG8gc2Vuc2libGUNCiAgICBjaHVua3MsIHVubGVzcyBleGNl
-ZWRpbmcgODAgY29sdW1ucyBzaWduaWZpY2FudGx5IGluY3JlYXNlcw0KICAgIHJlYWRhYmlsaXR5
-IGFuZCBkb2VzIG5vdCBoaWRlIGluZm9ybWF0aW9uLiBEZXNjZW5kYW50cyBhcmUNCiAgICBhbHdh
-eXMgc3Vic3RhbnRpYWxseSBzaG9ydGVyIHRoYW4gdGhlIHBhcmVudCBhbmQgYXJlIHBsYWNlZA0K
-ICAgIHN1YnN0YW50aWFsbHkgdG8gdGhlIHJpZ2h0LiBUaGUgc2FtZSBhcHBsaWVzIHRvIGZ1bmN0
-aW9uIGhlYWRlcnMNCiAgICB3aXRoIGEgbG9uZyBhcmd1bWVudCBsaXN0LiBIb3dldmVyLCBuZXZl
-ciBicmVhayB1c2VyLXZpc2libGUNCiAgICBzdHJpbmdzIHN1Y2ggYXMgcHJpbnRrIG1lc3NhZ2Vz
-LCBiZWNhdXNlIHRoYXQgYnJlYWtzIHRoZQ0KICAgIGFiaWxpdHkgdG8gZ3JlcCBmb3IgdGhlbS4i
-DQoNCg0K
+On 5/9/19 9:47 AM, Elliott, Robert (Servers) wrote:
+> 
+> 
+>> -----Original Message-----
+>> From: fio-owner@vger.kernel.org <fio-owner@vger.kernel.org> On Behalf
+>> Of Jens Axboe
+>> Sent: Thursday, May 09, 2019 7:00 AM
+>> To: fio@vger.kernel.org
+>> Subject: Recent changes (master)
+> ...
+>> -					printf("Your filesystem doesn't
+>> support poll\n");
+>> +					printf("Your filesystem/device
+>> doesn't "
+>> +						"support polled IO\n");
+> 
+> Can you keep that string on one line so it is grep-able?
+
+To keep everyone happy, I changed it to one line AND added a kernel
+mention too.
+
+Next up, color of the build ;-)
+
+-- 
+Jens Axboe
+
 
