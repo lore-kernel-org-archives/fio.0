@@ -1,33 +1,30 @@
-Return-Path: <elliott@hpe.com>
-From: "Elliott, Robert (Servers)" <elliott@hpe.com>
-Subject: RE: Recent changes (master)
-Date: Thu, 9 May 2019 15:47:06 +0000
-Message-ID: <AT5PR8401MB1169B5D8881E1D2E3D11EC4DAB330@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: Recent changes (master)
 References: <20190509120003.26BCA2C098E@kernel.dk>
-In-Reply-To: <20190509120003.26BCA2C098E@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+ <3b8b6f54-e990-2feb-bfc3-14a68345c366@criteo.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <b40b8010-52ea-1d77-bdae-225086e8dfab@kernel.dk>
+Date: Thu, 9 May 2019 08:07:53 -0600
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <3b8b6f54-e990-2feb-bfc3-14a68345c366@criteo.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Erwan Velu <e.velu@criteo.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
+On 5/9/19 6:47 AM, Erwan Velu wrote:
+> Isn't that also related to the kernel version you use ?
+> 
+> This message might mislead the user as he might just have to upgrade his 
+> kernel to gain the feature ?
 
+Yes, the message is for the specific kernel, it doesn't speak for any
+future kernels. But I think we're getting into documentation at this
+point, the message just means that on this setup, either the fs or
+device driver (or both) doesn't support polled IO.
 
-> -----Original Message-----
-> From: fio-owner@vger.kernel.org <fio-owner@vger.kernel.org> On Behalf
-> Of Jens Axboe
-> Sent: Thursday, May 09, 2019 7:00 AM
-> To: fio@vger.kernel.org
-> Subject: Recent changes (master)
-...
-> -					printf("Your filesystem doesn't
-> support poll\n");
-> +					printf("Your filesystem/device
-> doesn't "
-> +						"support polled IO\n");
-
-Can you keep that string on one line so it is grep-able?
-
+-- 
+Jens Axboe
 
 
