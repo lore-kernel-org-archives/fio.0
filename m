@@ -1,51 +1,46 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-oln040092000084.outbound.protection.outlook.com ([40.92.0.84]:35520
-        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1730328AbfEWL5b (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 23 May 2019 07:57:31 -0400
-From: Etienne-Hugues Fortin <efortin@cyberspicace.com>
-Subject: Either I don't understand how it work or I get unexpected result -
- mixed workload
-Date: Thu, 23 May 2019 11:57:27 +0000
-Message-ID: <CY4PR0801MB3793680FDFFBB3AE6BD85514D9010@CY4PR0801MB3793.namprd08.prod.outlook.com>
-References: <CY4PR0801MB3793BFC227015B3DEC29C824D9010@CY4PR0801MB3793.namprd08.prod.outlook.com>
-In-Reply-To: <CY4PR0801MB3793BFC227015B3DEC29C824D9010@CY4PR0801MB3793.namprd08.prod.outlook.com>
-Content-Language: fr-FR
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+From: vincentfu@gmail.com
+Subject: [PATCH 2/5] client: handle disk util for all output formats
+Date: Wed, 15 May 2019 16:05:00 -0400
+Message-Id: <20190515200503.23000-3-vincentfu@gmail.com>
+In-Reply-To: <20190515200503.23000-1-vincentfu@gmail.com>
+References: <20190515200503.23000-1-vincentfu@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Vincent Fu <vincent.fu@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+From: Vincent Fu <vincent.fu@wdc.com>
 
-I'm trying to create a workload where 70% would be read, 30% write with a ratio of 50% random for the whole workload. Currently, the job look like this:
+Since fio allows multiple output formats, it should process the disk
+utilization data for each output format that was requested by the user
+when it is run in client/server mode.
+---
+ client.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-[global]
-directory=\\server\path
-rw=randrw
-rwmixread=70
-percentage_random=50
-numjobs=16
-size=20g
-bs=32k
-zero_buffers
-direct=0
-sync=0
-refill_buffers
-ioengine=sync
-iodepth=1
-runtime=900
-time_based
-[32k_IOPS]
+diff --git a/client.c b/client.c
+index 43156854..7fe571ef 100644
+--- a/client.c
++++ b/client.c
+@@ -1219,12 +1219,13 @@ static void handle_du(struct fio_client *client, struct fio_net_cmd *cmd)
+ 		json_array_add_disk_util(&du->dus, &du->agg, du_array);
+ 		duobj = json_array_last_value_object(du_array);
+ 		json_object_add_client_info(duobj, client);
+-	} else if (output_format & FIO_OUTPUT_TERSE && terse_version >= 3)
+-		print_disk_util(&du->dus, &du->agg, 1, &client->buf);
+-	else if (output_format & FIO_OUTPUT_NORMAL) {
++	}
++	if (output_format & FIO_OUTPUT_NORMAL) {
+ 		__log_buf(&client->buf, "\nDisk stats (read/write):\n");
+ 		print_disk_util(&du->dus, &du->agg, 0, &client->buf);
+ 	}
++	if (output_format & FIO_OUTPUT_TERSE && terse_version >= 3)
++		print_disk_util(&du->dus, &du->agg, 1, &client->buf);
+ }
+ 
+ static void convert_jobs_eta(struct jobs_eta *je)
+-- 
+2.17.1
 
-My understanding is that randrw will do random read/write, rwmixread will set the read percentage to 70% and percentage_random will make 50% of the IO to be random. However, when I look at the storage unit, I'm seeing between 85-87% of read and 15-13% of write. Is that expected based on that config file? If so, what is the reason behind it?
-
-Is there a way to see the distribution of the IO that are sent/received by fio in order to validate read/write and random/sequential ratio?
-
-Thank you.
-
-Etienne
 
