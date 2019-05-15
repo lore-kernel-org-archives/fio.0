@@ -1,76 +1,255 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:38604 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726404AbfEGMAL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 7 May 2019 08:00:11 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1hNylW-0006nx-Qs
-        for fio@vger.kernel.org; Tue, 07 May 2019 12:00:10 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20190507120001.DF97C2C098E@kernel.dk>
-Date: Tue,  7 May 2019 06:00:01 -0600 (MDT)
+Received: from mail-ed1-f52.google.com ([209.85.208.52]:37315 "EHLO
+        mail-ed1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726360AbfEOSSR (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 15 May 2019 14:18:17 -0400
+Received: by mail-ed1-f52.google.com with SMTP id w37so1154315edw.4
+        for <fio@vger.kernel.org>; Wed, 15 May 2019 11:18:15 -0700 (PDT)
+MIME-Version: 1.0
+From: Kip Ingram <kip.ingram@gmail.com>
+Date: Wed, 15 May 2019 13:18:03 -0500
+Message-ID: <CAH6Skxr56cMzxuJjmfZfj2th56qFDu4K0PomHBDLmbUSjYVaow@mail.gmail.com>
+Subject: Bug report: Histogram log files cut off above 782.96 us
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 051382218cbe5101a5caa83eab55ed04608f8475:
+Hi guys.  I think I've uncovered a bug in the clat_hist log files.  My
+installation of fio uses 1856 bins for the histograms.  I am getting
+all zero in bins with latency greater than 786.92 microseconds.  I
+created traffic conditions that would produce solid latencies above
+this level, using this input file:
 
-  io_uring: remove cachehit information (2019-04-25 13:27:54 -0600)
+[global]
+name=fcm_sniff_test
+thread=1
+size=100G
+rw=randread
+buffer_compress_percentage=${BCP}
+write_bw_log=qd1read4k
+write_hist_log=qd1read4k
+write_iops_log=qd1read4k
+log_avg_msec=1000
+log_hist_msec=1000
+disable_lat=1
+disable_slat=1
+log_unix_epoch=1
+random_generator=tausworthe64
+randrepeat=0
+rwmixread=0
+bs=4k
+direct=1
+ioengine=spdk
+numjobs=1
+iodepth=64
+time_based=1
+runtime=300
+[file0]
+filename=trtype=PCIe traddr=0000.0b.00.0 ns=1
+cpumask=0x00000001
+Here is a sample line from the log file:
 
-are available in the Git repository at:
+1557941679145, 0, 4096, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0,
+0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 2, 0, 2, 0, 2,
+2, 6, 4, 2, 6, 3, 5, 3, 5, 2, 5, 6, 12, 11, 16, 27, 21, 20, 31, 36,
+35, 42, 38, 40, 47, 49, 68, 69, 64, 79, 98, 83, 98, 115, 141, 156,
+164, 188, 211, 214, 251, 260, 295, 317, 317, 368, 372, 404, 387, 402,
+432, 522, 465, 493, 500, 551, 526, 573, 540, 520, 591, 594, 565, 584,
+573, 527, 579, 573, 582, 584, 550, 576, 529, 538, 516, 501, 1084,
+1048, 1074, 1130, 1091, 1103, 1018, 1078, 1010, 964, 973, 986, 953,
+892, 939, 845, 894, 821, 776, 790, 777, 781, 730, 707, 696, 672, 621,
+590, 602, 621, 587, 519, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-  git://git.kernel.dk/fio.git master
+Notice that there is still a significant event count at the last
+non-zero entry, then we just drop to zero.  Meanwhile, the json+
+output reports this, starting at about the point of the cutoff:
 
-for you to fetch changes up to f22dd97a5a1342c7dcb84f777a77bd30859cc35b:
+            "6520832" : 588,
+            "6586368" : 522,
+            "6651904" : 554,
+            "6717440" : 513,
+            "6782976" : 495,
+            "6848512" : 467,
+            "6914048" : 417,
+            "6979584" : 420,
+            "7045120" : 397,
+            "7110656" : 366,
+            "7176192" : 335,
+            "7241728" : 300,
+            "7307264" : 304,
+            "7372800" : 266,
+            "7438336" : 290,
+            "7503872" : 241,
+            "7569408" : 229,
+            "7634944" : 245,
+            "7700480" : 238,
+            "7766016" : 201,
+            "7831552" : 176,
+            "7897088" : 197,
+            "7962624" : 173,
+            "8028160" : 147,
+            "8093696" : 162,
+            "8159232" : 141,
+            "8224768" : 149,
+            "8290304" : 119,
+            "8355840" : 133,
+            "8454144" : 247,
+            "8585216" : 195,
+            "8716288" : 174,
+            "8847360" : 132,
+            "8978432" : 143,
+            "9109504" : 167,
+            "9240576" : 105,
+            "9371648" : 83,
+            "9502720" : 86,
+            "9633792" : 78,
+            "9764864" : 53,
+            "9895936" : 70,
+            "10027008" : 66,
+            "10158080" : 58,
+            "10289152" : 56,
+            "10420224" : 53,
+            "10551296" : 36,
+            "10682368" : 43,
+            "10813440" : 36,
+            "10944512" : 30,
+            "11075584" : 28,
+            "11206656" : 17,
+            "11337728" : 17,
+            "11468800" : 20,
+            "11599872" : 14,
+            "11730944" : 9,
+            "11862016" : 16,
+            "11993088" : 18,
+            "12124160" : 11,
+            "12255232" : 16,
+            "12386304" : 7,
+            "12517376" : 7,
+            "12648448" : 11,
+            "12779520" : 8,
+            "12910592" : 5,
+            "13041664" : 9,
+            "13172736" : 5,
+            "13303808" : 4,
+            "13434880" : 3,
+            "13565952" : 4,
+            "13697024" : 2,
+            "13828096" : 2,
+            "13959168" : 3,
+            "14090240" : 3,
+            "14221312" : 1,
+            "14352384" : 1,
+            "14614528" : 1,
+            "14876672" : 2,
+            "15007744" : 1,
+            "15138816" : 2,
+            "15269888" : 2,
+            "15400960" : 2,
+            "15663104" : 1,
+            "16187392" : 3,
+            "16318464" : 1,
+            "16711680" : 1,
+            "16908288" : 2,
+            "17170432" : 1,
+            "17694720" : 1,
+            "19267584" : 1
 
-  Update CFLAGS and LDFLAGS for FreeBSD builds (2019-05-06 22:18:55 -0600)
+Note that the log file neither includes the tail nor has a perfect
+numerical match with the json histogram.
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'fix-infinite-loop-of-io_uring' of https://github.com/satoru-takeuchi/fio
+The json+ output looks reasonable and correct, with a proper tail.  I
+imported that log file into a spreadsheet and aggregated it into a
+single histogram.  There is a high degree of "match" between the log
+aggregation and the json histogram, but it's not perfect, even below
+the cutoff.
 
-Rebecca Cran (1):
-      Update CFLAGS and LDFLAGS for FreeBSD builds
+I am running under CentOS 7.5.  The command I used to run the job was this:
 
-Satoru Takeuchi (1):
-      io_uring: fix possible infinite loop
+LD_PRELOAD=/home/kingram/tools/spdk/examples/nvme/fio_plugin/fio_plugin
+BCP=0 fio --output-format=json+ fcm-test >json_output
 
- configure          | 4 ++++
- engines/io_uring.c | 2 ++
- 2 files changed, 6 insertions(+)
+My fio --version output is:
 
----
+[root@gjallahorn 05-qd1read_4k_rand]# fio --version
+fio-3.13-42-g8066f
 
-Diff of recent changes:
+Thanks very much!
 
-diff --git a/configure b/configure
-index c7a7c0ae..d71387c0 100755
---- a/configure
-+++ b/configure
-@@ -307,6 +307,10 @@ AIX|OpenBSD|NetBSD)
-     force_no_lex_o="yes"
-   fi
-   ;;
-+FreeBSD)
-+  CFLAGS="$CFLAGS -I/usr/local/include"
-+  LDFLAGS="$LDFLAGS -L/usr/local/lib"
-+  ;;
- Darwin)
-   # on Leopard most of the system is 32-bit, so we have to ask the kernel if
-   # we can run 64-bit userspace code.
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 5b3509a9..a5e77d8f 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -233,6 +233,8 @@ static int fio_ioring_getevents(struct thread_data *td, unsigned int min,
- 		r = fio_ioring_cqring_reap(td, events, max);
- 		if (r) {
- 			events += r;
-+			if (actual_min != 0)
-+				actual_min -= r;
- 			continue;
- 		}
- 
+Best regards,
+Kip
 
