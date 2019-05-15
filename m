@@ -1,55 +1,46 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:57740 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725963AbfEIMAF (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 9 May 2019 08:00:05 -0400
-Received: from [216.160.245.99] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1hOhiW-0002l6-Mf
-        for fio@vger.kernel.org; Thu, 09 May 2019 12:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20190509120003.26BCA2C098E@kernel.dk>
-Date: Thu,  9 May 2019 06:00:03 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+From: vincentfu@gmail.com
+Subject: [PATCH 5/5] stat: remove terse v2 blank lines with description not set
+Date: Wed, 15 May 2019 16:05:03 -0400
+Message-Id: <20190515200503.23000-6-vincentfu@gmail.com>
+In-Reply-To: <20190515200503.23000-1-vincentfu@gmail.com>
+References: <20190515200503.23000-1-vincentfu@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Vincent Fu <vincent.fu@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit f22dd97a5a1342c7dcb84f777a77bd30859cc35b:
+From: Vincent Fu <vincent.fu@wdc.com>
 
-  Update CFLAGS and LDFLAGS for FreeBSD builds (2019-05-06 22:18:55 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 2857c34bd39fcd67c489a8e2b19d9455032bad0f:
-
-  t/io_uring: clarify polled support is fs + device (2019-05-08 11:56:05 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      t/io_uring: clarify polled support is fs + device
-
- t/io_uring.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
+The documentation says that the job description will appear on a second
+line if this is set. If it is not set there will be an empty line.
+Eliminate the empty line when the description is not set.
 ---
+ stat.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-Diff of recent changes:
+diff --git a/stat.c b/stat.c
+index 2bc21dad..bf87917c 100644
+--- a/stat.c
++++ b/stat.c
+@@ -1244,12 +1244,13 @@ static void show_thread_status_terse_all(struct thread_stat *ts,
+ 	/* Additional output if continue_on_error set - default off*/
+ 	if (ts->continue_on_error)
+ 		log_buf(out, ";%llu;%d", (unsigned long long) ts->total_err_count, ts->first_error);
+-	if (ver == 2)
+-		log_buf(out, "\n");
+ 
+ 	/* Additional output if description is set */
+-	if (strlen(ts->description))
++	if (strlen(ts->description)) {
++		if (ver == 2)
++			log_buf(out, "\n");
+ 		log_buf(out, ";%s", ts->description);
++	}
+ 
+ 	log_buf(out, "\n");
+ }
+-- 
+2.17.1
 
-diff --git a/t/io_uring.c b/t/io_uring.c
-index 79a92311..208b58a5 100644
---- a/t/io_uring.c
-+++ b/t/io_uring.c
-@@ -264,7 +264,8 @@ static int reap_events(struct submitter *s)
- 			if (cqe->res != BS) {
- 				printf("io: unexpected ret=%d\n", cqe->res);
- 				if (polled && cqe->res == -EOPNOTSUPP)
--					printf("Your filesystem doesn't support poll\n");
-+					printf("Your filesystem/device doesn't "
-+						"support polled IO\n");
- 				return -1;
- 			}
- 		}
 
