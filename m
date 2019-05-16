@@ -1,37 +1,35 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH 1/5] client: do not print disk utilization for terse v2
-Date: Wed, 15 May 2019 16:04:59 -0400
-Message-Id: <20190515200503.23000-2-vincentfu@gmail.com>
-In-Reply-To: <20190515200503.23000-1-vincentfu@gmail.com>
-References: <20190515200503.23000-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:4945 "EHLO
+        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726736AbfEPO7O (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 16 May 2019 10:59:14 -0400
+From: Kris Davis <Kris.Davis@wdc.com>
+Subject: Replay of blktrace containing trims causes assert
+Date: Thu, 16 May 2019 14:59:11 +0000
+Message-ID: <DM6PR04MB4697F5E8A0DEF7A332FF63DF810A0@DM6PR04MB4697.namprd04.prod.outlook.com>
+References: <DM6PR04MB46979AAC86FAAEF22257B2A2810F0@DM6PR04MB4697.namprd04.prod.outlook.com>
+In-Reply-To: <DM6PR04MB46979AAC86FAAEF22257B2A2810F0@DM6PR04MB4697.namprd04.prod.outlook.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Vincent Fu <vincent.fu@wdc.com>
+(this note might be a repeat - notice I previously had email formatted as H=
+TML - probably put ended up in bitbucket)
 
-terse version 2 omits disk utilization data when fio is run locally.
-Make this behavior the same when fio is run in client/server mode.
----
- client.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I have an issue replaying an blktrace which contains trim operations. It re=
+sults in an assert failure:=20
+> fio: fio.h:552: fio_ro_check: Assertion `!(io_u->ddir =3D=3D DDIR_WRITE &=
+& !((td)->o.td_ddir & TD_DDIR_WRITE)) && !(io_u->ddir =3D=3D DDIR_TRIM && !=
+((td)->o.td_ddir & TD_DDIR_TRIM))'=20
 
-diff --git a/client.c b/client.c
-index 4cbffb62..43156854 100644
---- a/client.c
-+++ b/client.c
-@@ -1219,7 +1219,7 @@ static void handle_du(struct fio_client *client, struct fio_net_cmd *cmd)
- 		json_array_add_disk_util(&du->dus, &du->agg, du_array);
- 		duobj = json_array_last_value_object(du_array);
- 		json_object_add_client_info(duobj, client);
--	} else if (output_format & FIO_OUTPUT_TERSE)
-+	} else if (output_format & FIO_OUTPUT_TERSE && terse_version >= 3)
- 		print_disk_util(&du->dus, &du->agg, 1, &client->buf);
- 	else if (output_format & FIO_OUTPUT_NORMAL) {
- 		__log_buf(&client->buf, "\nDisk stats (read/write):\n");
--- 
-2.17.1
+I posted a detailed explanation and a simple patch in https://github.com/ax=
+boe/fio/issues/771, along with a pull request.=A0=20
+Can someone please take a look?
+Thanks
+Kris Davis
 
 
