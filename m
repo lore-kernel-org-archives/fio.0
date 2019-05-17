@@ -1,167 +1,171 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa6.hgst.iphmx.com ([216.71.154.45]:22785 "EHLO
-        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725961AbfE3RPf (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 30 May 2019 13:15:35 -0400
-From: Kris Davis <Kris.Davis@wdc.com>
-Subject: Write operations stalled and split into 4KB sequential during
- blktrace replay containing trims
-Date: Thu, 30 May 2019 17:15:32 +0000
-Message-ID: <DM6PR04MB4697EECACF2FBDA63DF2996181180@DM6PR04MB4697.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+Received: from bombadil.infradead.org ([198.137.202.133]:46528 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727221AbfEQMAE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 17 May 2019 08:00:04 -0400
+Received: from [216.160.245.99] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1hRbWt-0004bU-2V
+        for fio@vger.kernel.org; Fri, 17 May 2019 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20190517120001.DDCA02C0096@kernel.dk>
+Date: Fri, 17 May 2019 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Need help to understand and resolve a blktrace replay with trims issue.  So=
-rry, this is a rather long note, but puzzling issue:=20
+The following changes since commit 8066f6b6177acba17f61fecb9f04d04767fb1a96:
 
-The problem:=20
-If I replay a blktrace containing trims and writes, the trims occur at the =
-expected timing and size, but all of the otherwise random writes are split =
-into groups of 4KB sequential writes, and are intermittently delayed (for s=
-econds) related to the trim operations.  Fio debug io,blktrace, and write_i=
-ops_log indicates fio is replaying the operations correctly, but a blktrace=
- of the blktrace replay indicates operations writes do not happen as record=
-ed by fio. =20
+  t/io_uring: improve EOPNOTSUPP message (2019-05-09 09:56:29 -0600)
 
+are available in the Git repository at:
 
-How to reproduce:=20
-Building fio from head (with proposed patch https://github.com/axboe/fio/pu=
-ll/777 to fix assert error when blktrace replay contains trims)
-Note: I've tried this several times with various OS levels and fio revision=
- and mapping to one cpu - failures seem consistent
+  git://git.kernel.dk/fio.git master
 
-FIO command to produce the replay blktrace
+for you to fetch changes up to d5495f0b72f8fbecb97192da430720aa56f8feb9:
+
+  stat: remove terse v2 blank lines with description not set (2019-05-16 08:42:45 -0600)
+
 ----------------------------------------------------------------
-Fio two jobs to perform 256MB Random Trims along with 256KB Random Writes a=
-t the same 64MB BW rate, while collecting blktrace. =20
-> blktrace -d /dev/nvme0n1 -o p2-trimwrites-gen=20
-> fio --output=3D"p2-trimwrites-gen.out" --output-format=3Dnormal --direct=
-=3D1 --runtime=3D30s --filename=3D"/dev/nvme0n1" --ioengine=3Dlibaio  --num=
-a_cpu_nodes=3D0 --numa_mem_policy=3D"bind:0" --overwrite=3D1 --unified_rw_r=
-eporting=3D0 --name=3D"Writes" --bs=3D256KB  --rate=3D64MB --rw=3Drandwrite=
- --write_iops_log=3D"p2-trimwrites-gen-writes" -name=3D"Trims" --bs=3D256MB=
- --rate=3D64MB --rw=3Drandtrim  --write_iops_log=3D"p2-trimwrites-gen-trim"
-> blkparse -i p2-trimwrites-gen -o /dev/null -d p2-trimwrites-gen.bin
+Vincent Fu (5):
+      client: do not print disk utilization for terse v2
+      client: handle disk util for all output formats
+      client: add a newline after terse disk util
+      docs: improve terse output format documentation
+      stat: remove terse v2 blank lines with description not set
 
-The actual write operations are restricted according to max_hw_sectors_kb t=
-o 127, so the writes are split into 3 sequential operations: 248+248+16 blo=
-cks as indicated in the block trace.
->   blkparse -i p2-trimwrites-gen -o p2-trimwrites-gen.blkparsed
->   grep ' Q ' p2-trimwrites-gen.blkparsed > p2-trimwrites-gen.blkparsedq  =
-      # helps to see timing and sequence
->   egrep 'Q|C' p2-trimwrites-gen.blkparsed > p2-trimwrites-gen.blkparsedqc=
-  # include completions - nothing surprising=20
+ HOWTO    | 12 +++++++++++-
+ client.c |  9 ++++++---
+ fio.1    | 11 ++++++++++-
+ stat.c   |  7 ++++---
+ 4 files changed, 31 insertions(+), 8 deletions(-)
 
+---
 
-Blktrace Replay
---------------------------------------------
-When the original blktrace is replayed while collecting another blktrace to=
- check:
-> blktrace -d /dev/nvme0n1 -o p2-fio-twreplay &
-> fio --output=3D"p2-fio-twreplay.out" --output-format=3Dnormal --direct=3D=
-1 --filename=3D"/dev/nvme0n1" --ioengine=3Dlibaio --numa_cpu_nodes=3D0 --nu=
-ma_mem_policy=3D"bind:0" --overwrite=3D1 --unified_rw_reporting=3D0 --log_o=
-ffset=3D1 --name=3D"TrimWrite" --write_iops_log=3D"p2-fio-twreplay"  --repl=
-ay_redirect=3D/dev/nvme0n1 --read_iolog=3D"p2-trimwrites-gen.bin"
-> blkparse -i p2-fio-twreplay -o p2-fio-twreplay.blkparsed
-> grep ' Q ' p2-fio-twreplay.blkparsed > p2-fio-twreplay.blkparsedq   =20
-> egrep 'Q|C' p2-fio-twreplay.blkparsed > p2-fio-twreplay.blkparsedqc
+Diff of recent changes:
 
-The fio io log indicates that fio is issuing operations with timing and siz=
-es as indicated in original blktrace  (1st two deallocates occur quickly wh=
-ile fio adjust to rate, then they occur 4 seconds apart, with intervening w=
-rite operations).=20
-2nd deallocate at 353 ms:=20
-    279, 1, 1, 126976, 447737622528
-    279, 1, 1, 8192, 447737749504
-    283, 1, 1, 126976, 352846086144
-    283, 1, 1, 126976, 352846213120
-    283, 1, 1, 8192, 352846340096
-    353, 1, 2, 268435456, 145492017152    <- 2nd deallocate
-    355, 1, 1, 126976, 644440915968           <-=20
-    355, 1, 1, 126976, 644441042944           <- Expected write operation s=
-plit
-    355, 1, 1, 8192, 644441169920               <-=20
-    359, 1, 1, 126976, 289736491008
-    359, 1, 1, 126976, 289736617984
-
-The fio result statistics also seem to indicate that all is well, with trim=
- and write rates somewhat close to expectations:=20
-TrimWrite: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D13167: Fri May 24 10:48=
-:29 2019
-  write: IOPS=3D674, BW=3D56.2MiB/s (58.9MB/s)(1920MiB/34156msec)
-...
-  trim: IOPS=3D0, BW=3D67.5MiB/s (70.7MB/s)(2304MiB/34156msec)
-
-
-HOWEVER, the blktrace gathered during the replay indicates reality is diffe=
-rent. =20
-The deallocates occur with the expected timing and sizes, but the writes ar=
-e delayed and occur as 4KB sequential writes, rather than the fio recorded =
-124K+124k+8k writes
-    259,0    6      136     0.133395386 13167  Q   D 398458880 + 524288 [fi=
-o]                 <- first two deallocates (they are not waiting on comple=
-tions, but I don't now here)
-    259,0    6      140     0.273302506 13167  Q   D 284164096 + 524288 [fi=
-o]
-    259,0    6      144     5.211904696 10263  Q   W 1602560 + 8 [kworker/u=
-97:0]         <- writes held off by something (prior deallocate has long ag=
-o completed), and writes become 4KB sequentials
-    259,0    6      147     5.211914136 10263  Q   W 1602568 + 8 [kworker/u=
-97:0]
-    259,0    6      150     5.211916318 10263  Q   W 1602576 + 8 [kworker/u=
-97:0]
-    259,0    6      153     5.211918422 10263  Q   W 1602584 + 8 [kworker/u=
-97:0]
-    259,0    6      156     5.211920629 10263  Q   W 1602592 + 8 [kworker/u=
-97:0]
-...
-    259,0    4   154632     5.910154830 10263  Q   W 1563763184 + 8 [kworke=
-r/u97:0]
-    259,0    4   154636     5.910159723 10263  Q   W 1563763192 + 8 [kworke=
-r/u97:0]
-    259,0    6    87359     8.623207082 13167  Q   D 939524096 + 524288 [fi=
-o]            <- latter deallocates also bundled (writes held up seemingly =
-till all deallocates complete)=20
-    259,0    6    87363    12.865571718 13167  Q   D 61341696 + 524288 [fio=
-]
-    259,0    6    87367    17.108236841 13167  Q   D 708313088 + 524288 [fi=
-o]
-    259,0   12        1    21.350936497 13167  Q   D 965214208 + 524288 [fi=
-o]
-    259,0   12        5    25.593485851 13167  Q   D 1087897600 + 524288 [f=
-io]
-    259,0   12        9    29.836349325 13167  Q   D 445120512 + 524288 [fi=
-o]
-    259,0    4   154640    30.955897677 10263  Q   W 1563776000 + 8 [kworke=
-r/u97:0]   <- writes finish up without delays, again only as 4KB sequential=
- groups.
-    259,0    4   154643    30.955909105 10263  Q   W 1563776008 + 8 [kworke=
-r/u97:0]
-    259,0    4   154646    30.955911370 10263  Q   W 1563776016 + 8 [kworke=
-r/u97:0]
-
-
-An fio debug=3Dblktrace,io didn't seem to show anything different than the =
-io log.
-
-It seems likely there is some interaction between fio and the kernel or dri=
-ver, though it appears to only occur replay.
-
-The write io problem DOES NOT occur if the trims are filtered out of the bl=
-ktrace  (--replay_skip=3Dtrim).   Then the write operations rate and sizes =
-occur as the expected 124K+124k+8k write groups
-
-Any ideas?  I've also tried with centos 7.2, 7.3, 7.4 - which are kernels 3=
-.10...=20
-Thanks
-
-Kris Davis
-
-
+diff --git a/HOWTO b/HOWTO
+index 4fd4da14..142b83e5 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -3693,7 +3693,8 @@ is one long line of values, such as::
+     2;card0;0;0;7139336;121836;60004;1;10109;27.932460;116.933948;220;126861;3495.446807;1085.368601;226;126864;3523.635629;1089.012448;24063;99944;50.275485%;59818.274627;5540.657370;7155060;122104;60004;1;8338;29.086342;117.839068;388;128077;5032.488518;1234.785715;391;128085;5061.839412;1236.909129;23436;100928;50.287926%;59964.832030;5644.844189;14.595833%;19.394167%;123706;0;7313;0.1%;0.1%;0.1%;0.1%;0.1%;0.1%;100.0%;0.00%;0.00%;0.00%;0.00%;0.00%;0.00%;0.01%;0.02%;0.05%;0.16%;6.04%;40.40%;52.68%;0.64%;0.01%;0.00%;0.01%;0.00%;0.00%;0.00%;0.00%;0.00%
+     A description of this job goes here.
+ 
+-The job description (if provided) follows on a second line.
++The job description (if provided) follows on a second line for terse v2.
++It appears on the same line for other terse versions.
+ 
+ To enable terse output, use the :option:`--minimal` or
+ :option:`--output-format`\=terse command line options. The
+@@ -3778,6 +3779,11 @@ minimal output v3, separated by semicolons::
+ 
+         terse_version_3;fio_version;jobname;groupid;error;read_kb;read_bandwidth;read_iops;read_runtime_ms;read_slat_min;read_slat_max;read_slat_mean;read_slat_dev;read_clat_min;read_clat_max;read_clat_mean;read_clat_dev;read_clat_pct01;read_clat_pct02;read_clat_pct03;read_clat_pct04;read_clat_pct05;read_clat_pct06;read_clat_pct07;read_clat_pct08;read_clat_pct09;read_clat_pct10;read_clat_pct11;read_clat_pct12;read_clat_pct13;read_clat_pct14;read_clat_pct15;read_clat_pct16;read_clat_pct17;read_clat_pct18;read_clat_pct19;read_clat_pct20;read_tlat_min;read_lat_max;read_lat_mean;read_lat_dev;read_bw_min;read_bw_max;read_bw_agg_pct;read_bw_mean;read_bw_dev;write_kb;write_bandwidth;write_iops;write_runtime_ms;write_slat_min;write_slat_max;write_slat_mean;write_slat_dev;write_clat_min;write_clat_max;write_clat_mean;write_clat_dev;write_clat_pct01;write_clat_pct02;write_clat_pct03;write_clat_pct04;write_clat_pct05;write_clat_pct06;write_clat_pct07;write_clat_pct08;write_clat_pct09;write_cla
+ t_pct10;write_clat_pct11;write_clat_pct12;write_clat_pct13;write_clat_pct14;write_clat_pct15;write_clat_pct16;write_clat_pct17;write_clat_pct18;write_clat_pct19;write_clat_pct20;write_tlat_min;write_lat_max;write_lat_mean;write_lat_dev;write_bw_min;write_bw_max;write_bw_agg_pct;write_bw_mean;write_bw_dev;cpu_user;cpu_sys;cpu_csw;cpu_mjf;cpu_minf;iodepth_1;iodepth_2;iodepth_4;iodepth_8;iodepth_16;iodepth_32;iodepth_64;lat_2us;lat_4us;lat_10us;lat_20us;lat_50us;lat_100us;lat_250us;lat_500us;lat_750us;lat_1000us;lat_2ms;lat_4ms;lat_10ms;lat_20ms;lat_50ms;lat_100ms;lat_250ms;lat_500ms;lat_750ms;lat_1000ms;lat_2000ms;lat_over_2000ms;disk_name;disk_read_iops;disk_write_iops;disk_read_merges;disk_write_merges;disk_read_ticks;write_ticks;disk_queue_time;disk_util
+ 
++In client/server mode terse output differs from what appears when jobs are run
++locally. Disk utilization data is omitted from the standard terse output and
++for v3 and later appears on its own separate line at the end of each terse
++reporting cycle.
++
+ 
+ JSON output
+ ------------
+@@ -4056,6 +4062,7 @@ is recorded. Each *data direction* seen within the window period will aggregate
+ its values in a separate row. Further, when using windowed logging the *block
+ size* and *offset* entries will always contain 0.
+ 
++
+ Client/Server
+ -------------
+ 
+@@ -4143,3 +4150,6 @@ containing two hostnames ``h1`` and ``h2`` with IP addresses 192.168.10.120 and
+ 
+ 	/mnt/nfs/fio/192.168.10.120.fileio.tmp
+ 	/mnt/nfs/fio/192.168.10.121.fileio.tmp
++
++Terse output in client/server mode will differ slightly from what is produced
++when fio is run in stand-alone mode. See the terse output section for details.
+diff --git a/client.c b/client.c
+index 4cbffb62..43cfbd43 100644
+--- a/client.c
++++ b/client.c
+@@ -1219,12 +1219,15 @@ static void handle_du(struct fio_client *client, struct fio_net_cmd *cmd)
+ 		json_array_add_disk_util(&du->dus, &du->agg, du_array);
+ 		duobj = json_array_last_value_object(du_array);
+ 		json_object_add_client_info(duobj, client);
+-	} else if (output_format & FIO_OUTPUT_TERSE)
+-		print_disk_util(&du->dus, &du->agg, 1, &client->buf);
+-	else if (output_format & FIO_OUTPUT_NORMAL) {
++	}
++	if (output_format & FIO_OUTPUT_NORMAL) {
+ 		__log_buf(&client->buf, "\nDisk stats (read/write):\n");
+ 		print_disk_util(&du->dus, &du->agg, 0, &client->buf);
+ 	}
++	if (output_format & FIO_OUTPUT_TERSE && terse_version >= 3) {
++		print_disk_util(&du->dus, &du->agg, 1, &client->buf);
++		__log_buf(&client->buf, "\n");
++	}
+ }
+ 
+ static void convert_jobs_eta(struct jobs_eta *je)
+diff --git a/fio.1 b/fio.1
+index 2708b503..84b80eee 100644
+--- a/fio.1
++++ b/fio.1
+@@ -3330,7 +3330,8 @@ is one long line of values, such as:
+ 		A description of this job goes here.
+ .fi
+ .P
+-The job description (if provided) follows on a second line.
++The job description (if provided) follows on a second line for terse v2.
++It appears on the same line for other terse versions.
+ .P
+ To enable terse output, use the \fB\-\-minimal\fR or
+ `\-\-output\-format=terse' command line options. The
+@@ -3465,6 +3466,11 @@ minimal output v3, separated by semicolons:
+ .nf
+ 		terse_version_3;fio_version;jobname;groupid;error;read_kb;read_bandwidth;read_iops;read_runtime_ms;read_slat_min;read_slat_max;read_slat_mean;read_slat_dev;read_clat_min;read_clat_max;read_clat_mean;read_clat_dev;read_clat_pct01;read_clat_pct02;read_clat_pct03;read_clat_pct04;read_clat_pct05;read_clat_pct06;read_clat_pct07;read_clat_pct08;read_clat_pct09;read_clat_pct10;read_clat_pct11;read_clat_pct12;read_clat_pct13;read_clat_pct14;read_clat_pct15;read_clat_pct16;read_clat_pct17;read_clat_pct18;read_clat_pct19;read_clat_pct20;read_tlat_min;read_lat_max;read_lat_mean;read_lat_dev;read_bw_min;read_bw_max;read_bw_agg_pct;read_bw_mean;read_bw_dev;write_kb;write_bandwidth;write_iops;write_runtime_ms;write_slat_min;write_slat_max;write_slat_mean;write_slat_dev;write_clat_min;write_clat_max;write_clat_mean;write_clat_dev;write_clat_pct01;write_clat_pct02;write_clat_pct03;write_clat_pct04;write_clat_pct05;write_clat_pct06;write_clat_pct07;write_clat_pct08;write_clat_pct09;write_clat_pct1
+ 0;write_clat_pct11;write_clat_pct12;write_clat_pct13;write_clat_pct14;write_clat_pct15;write_clat_pct16;write_clat_pct17;write_clat_pct18;write_clat_pct19;write_clat_pct20;write_tlat_min;write_lat_max;write_lat_mean;write_lat_dev;write_bw_min;write_bw_max;write_bw_agg_pct;write_bw_mean;write_bw_dev;cpu_user;cpu_sys;cpu_csw;cpu_mjf;cpu_minf;iodepth_1;iodepth_2;iodepth_4;iodepth_8;iodepth_16;iodepth_32;iodepth_64;lat_2us;lat_4us;lat_10us;lat_20us;lat_50us;lat_100us;lat_250us;lat_500us;lat_750us;lat_1000us;lat_2ms;lat_4ms;lat_10ms;lat_20ms;lat_50ms;lat_100ms;lat_250ms;lat_500ms;lat_750ms;lat_1000ms;lat_2000ms;lat_over_2000ms;disk_name;disk_read_iops;disk_write_iops;disk_read_merges;disk_write_merges;disk_read_ticks;write_ticks;disk_queue_time;disk_util
+ .fi
++.P
++In client/server mode terse output differs from what appears when jobs are run
++locally. Disk utilization data is omitted from the standard terse output and
++for v3 and later appears on its own separate line at the end of each terse
++reporting cycle.
+ .SH JSON OUTPUT
+ The \fBjson\fR output format is intended to be both human readable and convenient
+ for automated parsing. For the most part its sections mirror those of the
+@@ -3859,6 +3865,9 @@ containing two hostnames `h1' and `h2' with IP addresses 192.168.10.120 and
+ /mnt/nfs/fio/192.168.10.121.fileio.tmp
+ .PD
+ .RE
++.P
++Terse output in client/server mode will differ slightly from what is produced
++when fio is run in stand-alone mode. See the terse output section for details.
+ .SH AUTHORS
+ .B fio
+ was written by Jens Axboe <axboe@kernel.dk>.
+diff --git a/stat.c b/stat.c
+index 2bc21dad..bf87917c 100644
+--- a/stat.c
++++ b/stat.c
+@@ -1244,12 +1244,13 @@ static void show_thread_status_terse_all(struct thread_stat *ts,
+ 	/* Additional output if continue_on_error set - default off*/
+ 	if (ts->continue_on_error)
+ 		log_buf(out, ";%llu;%d", (unsigned long long) ts->total_err_count, ts->first_error);
+-	if (ver == 2)
+-		log_buf(out, "\n");
+ 
+ 	/* Additional output if description is set */
+-	if (strlen(ts->description))
++	if (strlen(ts->description)) {
++		if (ver == 2)
++			log_buf(out, "\n");
+ 		log_buf(out, ";%s", ts->description);
++	}
+ 
+ 	log_buf(out, "\n");
+ }
 
