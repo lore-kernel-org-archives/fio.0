@@ -1,109 +1,92 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm1-f43.google.com ([209.85.128.43]:32890 "EHLO
-        mail-wm1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726263AbfERLcR (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 18 May 2019 07:32:17 -0400
-Received: by mail-wm1-f43.google.com with SMTP id c66so10938332wme.0
-        for <fio@vger.kernel.org>; Sat, 18 May 2019 04:32:15 -0700 (PDT)
+Received: from mail-lf1-f47.google.com ([209.85.167.47]:37001 "EHLO
+        mail-lf1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726263AbfERInH (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 18 May 2019 04:43:07 -0400
+Received: by mail-lf1-f47.google.com with SMTP id q17so6962067lfo.4
+        for <fio@vger.kernel.org>; Sat, 18 May 2019 01:43:06 -0700 (PDT)
 MIME-Version: 1.0
 References: <CA+=P2MuECGCj+zdvP-=3DfPD71VyYHX1RoOxCCDz2Uea=ZL9_g@mail.gmail.com>
- <CALjAwxjDh5UhbeP=VATCPq0vBcoUmms=nbQoh8cqrFsK-xfJjw@mail.gmail.com> <CA+=P2MubaS=U+XPgjLXQKaf+-1nm+C5B-KdWD5z2Tu1nb56Axg@mail.gmail.com>
-In-Reply-To: <CA+=P2MubaS=U+XPgjLXQKaf+-1nm+C5B-KdWD5z2Tu1nb56Axg@mail.gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Sat, 18 May 2019 12:31:53 +0100
-Message-ID: <CALjAwxiKbeKjPc3eY8L6D6FB3jZVnSRwEtnyZ_6NC_eDNCjQXg@mail.gmail.com>
+ <CALjAwxjDh5UhbeP=VATCPq0vBcoUmms=nbQoh8cqrFsK-xfJjw@mail.gmail.com>
+In-Reply-To: <CALjAwxjDh5UhbeP=VATCPq0vBcoUmms=nbQoh8cqrFsK-xfJjw@mail.gmail.com>
+From: "Manu K.S." <cse.manuks@gmail.com>
+Date: Sat, 18 May 2019 14:12:54 +0530
+Message-ID: <CA+=P2MubaS=U+XPgjLXQKaf+-1nm+C5B-KdWD5z2Tu1nb56Axg@mail.gmail.com>
 Subject: Re: How is numjobs & iodepth related?
 Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Manu K.S." <cse.manuks@gmail.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: fio <fio@vger.kernel.org>
 
-Hi,
+Thank you for the information.
+Yes I'm indeed using libaio as the ioengine on a linux server.
 
-I'm going to stop here for now because the command line you posted
-earlier is missing something if you are really using libaio so I'm
-getting confused (maybe you are saying you are using a new command
-line but you forgot to post it in your new email?). I'm afraid we need
-to see the full current command line (and the contents of any job
-files) to be able to answer questions like this - see
-https://github.com/axboe/fio/blob/master/REPORTING-BUGS for the type
-of information that is required. Could you follow up with ALL the
-information requested there? To maximize the odds of getting to a
-resolution ensure you include the fio output as mentioned in
-REPORTING-BUGS - don't be tempted to skip sending it to us in this
-case!
+For command 2, what is the logic? If I'm specifying numjobs=2 &
+iodepth=4 will each job get 2 IO depth, or does it mean each job will
+be running with IO depth 4? This is a bit confusing for me.
 
-On Sat, 18 May 2019 at 09:43, Manu K.S. <cse.manuks@gmail.com> wrote:
+For command 3, will each disk have :
+ 1. 2 jobs per disk with 4 IO depth for each job?
+ 2. 2 jobs per disk with 2 IO depth for each job?
+ 2. One job per disk with 2 IO depth for each job?
+ 3. One job per disk with 4 IO depth?
+
+
+--
+Cheers
+Manu K S
+
+On Sat, May 18, 2019 at 12:43 PM Sitsofe Wheeler <sitsofe@gmail.com> wrote:
 >
-> Thank you for the information.
-> Yes I'm indeed using libaio as the ioengine on a linux server.
+> Hi,
 >
-> For command 2, what is the logic? If I'm specifying numjobs=2 &
-> iodepth=4 will each job get 2 IO depth, or does it mean each job will
-> be running with IO depth 4? This is a bit confusing for me.
->
-> For command 3, will each disk have :
->  1. 2 jobs per disk with 4 IO depth for each job?
->  2. 2 jobs per disk with 2 IO depth for each job?
->  2. One job per disk with 2 IO depth for each job?
->  3. One job per disk with 4 IO depth?
->
->
-> --
-> Cheers
-> Manu K S
->
-> On Sat, May 18, 2019 at 12:43 PM Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+> On Fri, 17 May 2019 at 16:20, Manu K.S. <cse.manuks@gmail.com> wrote:
 > >
-> > Hi,
-> >
-> > On Fri, 17 May 2019 at 16:20, Manu K.S. <cse.manuks@gmail.com> wrote:
-> > >
-> > > Hi, what will be the iodepth for each job with below 3 commands?
-> > >
-> > > COMMAND 1
-> > > -----------------
-> > > fio --name=fiotest --filename=/dev/sdb --rw=read --numjobs=1
-> > > --iodepth=4 --size=1G --bs=4k --runtime=120 --time_based
-> > >
-> > > COMMAND 2
-> > > -------------------
-> > > fio --name=fiotest --filename=/dev/sdb --rw=read --numjobs=2
-> > > --iodepth=4 --size=1G --bs=4k --runtime=120 --time_based
-> > >
-> > > COMMAND 3
-> > > -------------------
-> > > fio --name=fiotest --filename=/dev/sdb:/dev/sdc --rw=read --numjobs=2
-> > > --iodepth=4 --size=1G --bs=4k --runtime=120 --time_based
-> >
-> > Hard to say without more context but assuming you're on Linux:
+> > Hi, what will be the iodepth for each job with below 3 commands?
 > >
 > > COMMAND 1
-> > You're going to get a depth of 1 because the default ioengine chosen
-> > when you don't specify one on Linux is synchronous (see the iodepth
-> > description in the fio help for warnings about depth and synchronous
-> > ioengines - https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-iodepth
-> > ). Maybe you wanted to use libaio with direct=1 (see the libaio
-> > section in https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-ioengine
-> > for more details)?
+> > -----------------
+> > fio --name=fiotest --filename=/dev/sdb --rw=read --numjobs=1
+> > --iodepth=4 --size=1G --bs=4k --runtime=120 --time_based
 > >
 > > COMMAND 2
-> > I'd guess you will get an overall depth of 2 (1 per job).
+> > -------------------
+> > fio --name=fiotest --filename=/dev/sdb --rw=read --numjobs=2
+> > --iodepth=4 --size=1G --bs=4k --runtime=120 --time_based
 > >
 > > COMMAND 3
-> > I'd guess you will get an overall depth of 2 (1 per job). Multiple
-> > files in filename won't impact the depth only which file each I/O goes
-> > to (which is roundrobin by default -
-> > https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-file-service-type
-> > ).
-> >
-> > NB: fio will try and report the depths it is achieving see the "IO
-> > depths" output in the example on
-> > https://fio.readthedocs.io/en/latest/fio_doc.html#interpreting-the-output
-> > . What your disk actually sees can be different though depending on
-> > what the kernel chooses to do with the submitted I/O.
-
--- 
-Sitsofe | http://sucs.org/~sits/
+> > -------------------
+> > fio --name=fiotest --filename=/dev/sdb:/dev/sdc --rw=read --numjobs=2
+> > --iodepth=4 --size=1G --bs=4k --runtime=120 --time_based
+>
+> Hard to say without more context but assuming you're on Linux:
+>
+> COMMAND 1
+> You're going to get a depth of 1 because the default ioengine chosen
+> when you don't specify one on Linux is synchronous (see the iodepth
+> description in the fio help for warnings about depth and synchronous
+> ioengines - https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-iodepth
+> ). Maybe you wanted to use libaio with direct=1 (see the libaio
+> section in https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-ioengine
+> for more details)?
+>
+> COMMAND 2
+> I'd guess you will get an overall depth of 2 (1 per job).
+>
+> COMMAND 3
+> I'd guess you will get an overall depth of 2 (1 per job). Multiple
+> files in filename won't impact the depth only which file each I/O goes
+> to (which is roundrobin by default -
+> https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-file-service-type
+> ).
+>
+> NB: fio will try and report the depths it is achieving see the "IO
+> depths" output in the example on
+> https://fio.readthedocs.io/en/latest/fio_doc.html#interpreting-the-output
+> . What your disk actually sees can be different though depending on
+> what the kernel chooses to do with the submitted I/O.
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
 
