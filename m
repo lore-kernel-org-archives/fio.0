@@ -1,115 +1,142 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:59983 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725941AbfETXgG (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 20 May 2019 19:36:06 -0400
-From: Kris Davis <Kris.Davis@wdc.com>
-Subject: RE: Issues with read_iolog trace replay
-Date: Mon, 20 May 2019 23:36:04 +0000
-Message-ID: <DM6PR04MB469721D6C5473FA0643F7E5681060@DM6PR04MB4697.namprd04.prod.outlook.com>
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:44494 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389679AbfETQ5V (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 20 May 2019 12:57:21 -0400
+Received: by mail-lj1-f195.google.com with SMTP id e13so13115250ljl.11
+        for <fio@vger.kernel.org>; Mon, 20 May 2019 09:57:19 -0700 (PDT)
+MIME-Version: 1.0
 References: <CANQrb8i=qoGivQuk4nGX-fce7zCf8_hqO=+VJzW7By_uCS1kvg@mail.gmail.com>
  <DM6PR04MB4697DC66770EDDA8B152CA8B81050@DM6PR04MB4697.namprd04.prod.outlook.com>
- <CANQrb8j=Kxp+NEEbJ7BKNO3G3DEbU9-BNOYDa35FcS2BhX-0JQ@mail.gmail.com>
-In-Reply-To: <CANQrb8j=Kxp+NEEbJ7BKNO3G3DEbU9-BNOYDa35FcS2BhX-0JQ@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+In-Reply-To: <DM6PR04MB4697DC66770EDDA8B152CA8B81050@DM6PR04MB4697.namprd04.prod.outlook.com>
+From: Gary Little <gary.j.little@gmail.com>
+Date: Mon, 20 May 2019 12:57:06 -0400
+Message-ID: <CANQrb8j=Kxp+NEEbJ7BKNO3G3DEbU9-BNOYDa35FcS2BhX-0JQ@mail.gmail.com>
+Subject: Re: Issues with read_iolog trace replay
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Gary Little <gary.j.little@gmail.com>
+To: Kris Davis <Kris.Davis@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-V2VsbCwgaXQncyBqdXN0IGEgc25pcHBldCAtIHRoZSBvdmVyYWxsIGNvZGUgaXMgcGFydCBvZiBh
-IGF1dG9tYXRpb24gZnJhbWV3b3JrLCB3aGljaCBpcyBpbnRlcm5hbCB1c2Ugb25seS4gIEJ1dCBJ
-IGNyZWF0ZWQgYW4gaW5pdGlhbCBtb2R1bGUgYXQ6IGh0dHBzOi8vZ2l0aHViLmNvbS9zaGltcm90
-L3B5ZmlvYmxrdHJhY2UsIHdpdGggcGVyaGFwcyBhbiBvdmVybHkgYW1iaXRpb3VzIG5hbWUuDQoN
-ClRoYW5rcw0KDQpLcmlzIERhdmlzDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9t
-OiBHYXJ5IExpdHRsZSA8Z2FyeS5qLmxpdHRsZUBnbWFpbC5jb20+IA0KU2VudDogTW9uZGF5LCBN
-YXkgMjAsIDIwMTkgMTE6NTcgQU0NClRvOiBLcmlzIERhdmlzIDxLcmlzLkRhdmlzQHdkYy5jb20+
-DQpDYzogZmlvQHZnZXIua2VybmVsLm9yZw0KU3ViamVjdDogUmU6IElzc3VlcyB3aXRoIHJlYWRf
-aW9sb2cgdHJhY2UgcmVwbGF5DQoNCkhpIEtyaXMsDQoNClRoaXMgbG9va3MgdmVyeSBwcm9taXNp
-bmcuICBJIG5vdGljZWQgdGhhdCBKZW5zIGhhcyBwdXQgc29tZSB3b3JrIGludG8gc29tZSBuaWNl
-IGZlYXR1cmVzIHVzaW5nIGJsa3RyYWNlIHJlcGxheSwgc28gaXQgbG9va3MgbGlrZSB0aGlzIGlz
-IHRoZSB3YXkgdG8gZ28uICBEbyB5b3UgaGF2ZSB0aGlzIG9uIEdpdEh1YiBvciBzb21ldGhpbmcg
-c2ltaWxhciBzbyB3ZSBjb3VsZCBjb2xsYWJvcmF0ZT8NCg0KVGhhbmtzIGFnYWluLA0KDQpHYXJ5
-Lg0KDQpPbiBTdW4sIDE5IE1heSAyMDE5IGF0IDE4OjQ3LCBLcmlzIERhdmlzIDxLcmlzLkRhdmlz
-QHdkYy5jb20+IHdyb3RlOg0KPg0KPiBHYXJ5LA0KPg0KPiBJIHRoaW5rIHRoZSBpb19yZXBsYXkg
-ZmlsZSB3YWl0IGlzIHJlZmVycmluZyB0byBhICJzdGFydF9kZWxheSIgdHlwZSBvZiB3YWl0LCBu
-b3QgcGVyaW9kcyBiZXR3ZWVuIG9wcywgYnV0IGNvdWxkIGJlIHdyb25nLg0KPiBJIGhhZCBhIHNp
-bWlsYXIgbmVlZCwgYW5kIGZvdW5kIGJsa3RyYWNlIHJlcGxheSB0byBwcm9kdWNlIHJlYXNvbmFi
-bGUgdGltaW5ncy4gIFNvIEkgY3JlYXRlZCBhIHB5dGhvbjMgc2NyaXB0IHRvIGdlbmVyYXRlIHRo
-ZSBibGt0cmFjZSBiaW5hcnkgcmVwbGF5IGZpbGUuDQo+IEJlbG93IGlzIGEgc25pcHBldCB0byBj
-cmVhdGUgYmxrdHJhY2UgdHlwZSBiaW5hcnkgZW50cmllcy4gIEl0J3MgbGltaXRlZCB0byBvbmx5
-IHdoYXQgd2FzIHdvcmtpbmcgb24sIGJ1dCBJJ2QgbG92ZSB0byBoYXZlIHNvbWUgaGVscCB0byBm
-aWxsIG91dCB0aGUga25vd24gb3BlcmF0aW9ucyBhbmQgc3VjaC4NCj4gSG9wZWZ1bGx5IHRoaXMg
-d2lsbCBoZWxwIHlvdSBwcm9jZWVkIHRob3VnaC4NCj4gKE5vdGU6IHRoZXJlIGlzIGFuIGZpbyBi
-dWcgd2l0aCByZXBsYXlpbmcgVHJpbSBvcGVyYXRpb25zIA0KPiAoaHR0cHM6Ly9naXRodWIuY29t
-L2F4Ym9lL2Zpby9pc3N1ZXMvNzcxKQ0KPg0KPiBSZWdhcmRzLA0KPiBLcmlzDQo+DQo+ICMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMNCj4gaW1wb3J0IHN0
-cnVjdA0KPiBpbXBvcnQgYmluYXNjaWkNCj4gZnJvbSBlbnVtIGltcG9ydCBFbnVtDQo+DQo+DQo+
-IGNsYXNzIE9wcyhFbnVtKToNCj4gICAgICMgYWN0aW9uIHZhbHVlIG9ic2VydmVkIGluIGJsa3Bh
-cnNlIGJpbmFyeSBvdXRwdXQNCj4gICAgICMgdW5jbGVhciBvbiBiaXQgbWVhbmluZ3MsIHNvIHVu
-Y2xlYXIsIGJ1dCB3b3JrcyBjdXJyZW50bHkgYXQgUUQ9MQ0KPiAgICAgIyBUT0RPOiBmaW5kIGJp
-dCBtZWFuaW5ncyBhbmQgZmlsbCBvdXQgd2l0aCBvdGhlciBvcHMNCj4gICAgICMgVE9ETzogTWln
-aHQgYmUgb3RoZXIgaW1wbGljYXRpb25zIGF0IGhpZ2hlciBRRHMgLSBleHBlcmltZW50DQo+ICAg
-ICBUUklNICAgICAgICA9IDB4MjAxMg0KPiAgICAgV1JJVEVTWU5DICAgPSAweDAwMWENCj4gICAg
-IFJFQUQgICAgICAgID0gMHgwMDExDQo+DQo+DQo+IGNsYXNzIEJsa1BhcnNlckJpbkZvcm1hdCgp
-Og0KPiAgICAgbWFnaWMgPSAweDY1NjE3NDA3DQo+ICAgICBkZWYgX19pbml0X18oc2VsZik6DQo+
-ICAgICAgICAgc2VsZi5mbXQgPSBzdHJ1Y3QuU3RydWN0KA0KPiAgICAgICAgICAgICAgICAgICAg
-IyBkZWZpbnRpb24gZnJvbSBGSU8gY29kZTogYmxrdHJhY2VfYXBpLmgNCj4gICAgICAgICAgICAg
-ICAgICAgICMgc3RydWN0IGJsa19pb190cmFjZSB7DQo+ICAgICAgICAgICAgICJJICIgICAjICAg
-X191MzIgbWFnaWM7ICAgICAgICAvKiBNQUdJQyA8PCA4IHwgdmVyc2lvbiAqLw0KPiAgICAgICAg
-ICAgICAiSSAiICAgIyAgIF9fdTMyIHNlcXVlbmNlOyAgICAgLyogZXZlbnQgbnVtYmVyICovDQo+
-ICAgICAgICAgICAgICJRICIgICAjICAgX191NjQgdGltZTsgICAgICAgICAvKiBpbiBuYW5vc2Vj
-b25kcyAqLw0KPiAgICAgICAgICAgICAiUSAiICAgIyAgIF9fdTY0IHNlY3RvcjsgICAgICAgLyog
-ZGlzayBvZmZzZXQgKi8NCj4gICAgICAgICAgICAgIkkgIiAgICMgICBfX3UzMiBieXRlczsgICAg
-ICAgIC8qIHRyYW5zZmVyIGxlbmd0aCAqLw0KPiAgICAgICAgICAgICAiSCBIICIgIyAgIF9fdTMy
-IGFjdGlvbjsgICAgICAgLyogd2hhdCBoYXBwZW5lZCAqLyAgU3BsaXQgaW50byBhY3Rpb24gKDB4
-MDAwMSBpcyBRKSBhbmQgY29tbWFuZA0KPiAgICAgICAgICAgICAiSSAiICAgIyAgIF9fdTMyIHBp
-ZDsgICAgICAgICAgLyogd2hvIGRpZCBpdCAqLw0KPiAgICAgICAgICAgICAiSSAiICAgIyAgIF9f
-dTMyIGRldmljZTsgICAgICAgLyogZGV2aWNlIGlkZW50aWZpZXIgKGRldl90KSAqLw0KPiAgICAg
-ICAgICAgICAiSSAiICAgIyAgIF9fdTMyIGNwdTsgICAgICAgICAgLyogb24gd2hhdCBjcHUgZGlk
-IGl0IGhhcHBlbiAqLw0KPiAgICAgICAgICAgICAiSCAiICAgIyAgIF9fdTE2IGVycm9yOyAgICAg
-ICAgLyogY29tcGxldGlvbiBlcnJvciAqLw0KPiAgICAgICAgICAgICAiSCAiICAgIyAgIF9fdTE2
-IHBkdV9sZW47ICAgICAgLyogbGVuZ3RoIG9mIGRhdGEgYWZ0ZXIgdGhpcyB0cmFjZSAqLw0KPiAg
-ICAgICAgICAgICApDQo+ICAgICAgICAgc2VsZi5jdXJTZXF1ZW5jZSA9IDANCj4NCj4gICAgIGRl
-ZiBuZXdFbnRyeShzZWxmLCB0aW1lLCBzZWN0b3IsIHhmZXJsZW4sIG9wZXJhdGlvbik6DQo+ICAg
-ICAgICAgc2VsZi5jdXJTZXF1ZW5jZSArPSAxDQo+ICAgICAgICAgbG9nZ2VyLmRlYnVnKExhenko
-bGFtYmRhOiBwcC5wZm9ybWF0KChzZWxmLm1hZ2ljLCBzZWxmLmN1clNlcXVlbmNlLCB0aW1lLCBz
-ZWN0b3IsIHhmZXJsZW4sIDB4MDAwMSwgb3BlcmF0aW9uLCAwLCAweDEwMzEwMDAxLCAwLCAwLCAw
-KSkpKQ0KPiAgICAgICAgIHJldHVybiBzZWxmLmZtdC5wYWNrKHNlbGYubWFnaWMsIHNlbGYuY3Vy
-U2VxdWVuY2UsIHRpbWUsIA0KPiBzZWN0b3IsIHhmZXJsZW4sIDB4MDAwMSwgb3BlcmF0aW9uLCAw
-LCAweDEwMzEwMDAxLCAwLCAwLCAwKSANCj4gIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIw0KPg0KPiBLcmlzIERhdmlzDQo+DQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0t
-LS0tDQo+IEZyb206IGZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmcgPGZpby1vd25lckB2Z2VyLmtl
-cm5lbC5vcmc+IE9uIEJlaGFsZiANCj4gT2YgR2FyeSBMaXR0bGUNCj4gU2VudDogU2F0dXJkYXks
-IE1heSAxOCwgMjAxOSA0OjEwIFBNDQo+IFRvOiBmaW9Admdlci5rZXJuZWwub3JnDQo+IFN1Ympl
-Y3Q6IElzc3VlcyB3aXRoIHJlYWRfaW9sb2cgdHJhY2UgcmVwbGF5DQo+DQo+IEhlbGxvLA0KPg0K
-PiBJIGFtIHRyeWluZyB0byBzaW11bGF0ZSBidXJzdHkgdHJhZmZpYyB3aXRoIGZvLiAgSSBrbm93
-IHRoYXQgSSBjYW4gZG8gdGhpcyBieSB0cmFjaW5nIGEgYnVyc3R5IGFwcCBhbmQgdGhlbiBkb2lu
-ZyBhIGJsa3RyYWNlIHJlcGxheSwgYnV0IEkgd291bGQgbGlrZSB0byBkbyBzb21ldGhpbmcgcHJv
-Z3JhbWF0aWMuDQo+DQo+IEkgaGFkIGhvcGVkIHRoYXQgSSBjb3VsZCBjcmVhdGUgYW4gaW9fcmVw
-bGF5IGZpbGUgdGhhdCBsb29rcyBsaWtlIHRoaXMgd2hpY2ggd291bGQgcmVhZCwgdGhlbiBwYXVz
-ZSBmb3IgMTAwbXMgYmVmb3JlIGlzc3VpbmcgdGhlIG5leHQgcmVhZC4NCj4gT25jZSB3b3JraW5n
-IEkgY291bGQgdGhlbiB2YXJ5IChsb3dlcikgdGhlICJ3YWl0IiBwZXJpb2QgdG8gZ2VuZXJhdGUg
-dGhlIGJ1cnN0cy4NCj4NCj4gQnV0IHdoYXQgc2VlbXMgdG8gaGFwcGVuIGlzIHRoYXQgYWxsIHRo
-ZSAid2FpdCIgbGluZXMgYXJlIGV4ZWN1dGVkIHNlcXVlbnRpYWxseSwgZm9sbG93ZWQgYnkgYWxs
-IHRoZSAicmVhZHMiIHNlcXVlbnRpYWxseSwgd2l0aG91dCB0aGUgMTAwbXMgcGF1c2UgaW4tYmV0
-d2Vlbi4NCj4NCj4gRldJVywgdXNpbmcgYmxrdHJhY2UgaW5wdXQgd29ya3MgYXMgZXhwZWN0ZWQs
-IGFuZCByZXBsYXlzIHRoZSB0cmFjZSBhdCB0aGUgc2FtZSBpTyByYXRlIGFzIHRoZSB0cmFjZWQg
-d29ya2xvYWQuDQo+DQo+IFtyb290QGFyY2hlcyBmaWxlYmVuY2hdIyAvdXNyL2xvY2FsL2Jpbi9m
-aW8gLS12ZXJzaW9uDQo+IGZpby0zLjEzDQo+DQo+IFtyb290QGFyY2hlcyBmaWxlYmVuY2hdIyAv
-dXNyL2xvY2FsL2Jpbi9maW8gLS1uYW1lPXJlcGxheSANCj4gLS1yZWFkX2lvbG9nPXJlYWQxMDAu
-Y3N2DQo+DQo+IFtnYXJ5QGFyY2hlcyBmaWxlYmVuY2hdJCBjYXQgcmVhZDEwMC5jc3YgZmlvIHZl
-cnNpb24gMiBpb2xvZyAvZGV2L3NkYyANCj4gYWRkIC9kZXYvc2RjIG9wZW4gL2Rldi9zZGMgcmVh
-ZCAxNjM4NCA0MDk2IC9kZXYvc2RjIHdhaXQgMTAwMDAwIDEgDQo+IC9kZXYvc2RjIHJlYWQgMTYz
-ODQgNDA5NiAvZGV2L3NkYyB3YWl0IDEwMDAwMCAxIC9kZXYvc2RjIHJlYWQgMTYzODQgDQo+IDQw
-OTYgL2Rldi9zZGMgd2FpdCAxMDAwMDAgMSAvZGV2L3NkYyByZWFkIDE2Mzg0IDQwOTYgL2Rldi9z
-ZGMgd2FpdCANCj4gMTAwMDAwIDEgL2Rldi9zZGMgcmVhZCAxNjM4NCA0MDk2IC9kZXYvc2RjIHdh
-aXQgMTAwMDAwIDEgL2Rldi9zZGMgcmVhZCANCj4gMTYzODQgNDA5NiAvZGV2L3NkYyB3YWl0IDEw
-MDAwMCAxIC9kZXYvc2RjIHJlYWQgMTYzODQgNDA5NiAvZGV2L3NkYyANCj4gd2FpdCAxMDAwMDAg
-MSAvZGV2L3NkYyByZWFkIDE2Mzg0IDQwOTYgL2Rldi9zZGMgd2FpdCAxMDAwMDAgMSAvZGV2L3Nk
-YyANCj4gcmVhZCAxNjM4NCA0MDk2IC9kZXYvc2RjIHdhaXQgMTAwMDAwIDEgL2Rldi9zZGMgcmVh
-ZCAxNjM4NCA0MDk2IA0KPiAvZGV2L3NkYyB3YWl0IDEwMDAwMCAxIC9kZXYvc2RjIGNsb3NlDQo=
+Hi Kris,
+
+This looks very promising.  I noticed that Jens has put some work into
+some nice features using blktrace replay, so it looks like this is the
+way to go.  Do you have this on GitHub or something similar so we
+could collaborate?
+
+Thanks again,
+
+Gary.
+
+On Sun, 19 May 2019 at 18:47, Kris Davis <Kris.Davis@wdc.com> wrote:
+>
+> Gary,
+>
+> I think the io_replay file wait is referring to a "start_delay" type of w=
+ait, not periods between ops, but could be wrong.
+> I had a similar need, and found blktrace replay to produce reasonable tim=
+ings.  So I created a python3 script to generate the blktrace binary replay=
+ file.
+> Below is a snippet to create blktrace type binary entries.  It's limited =
+to only what was working on, but I'd love to have some help to fill out the=
+ known operations and such.
+> Hopefully this will help you proceed though.
+> (Note: there is an fio bug with replaying Trim operations (https://github=
+.com/axboe/fio/issues/771)
+>
+> Regards,
+> Kris
+>
+> #################################################
+> import struct
+> import binascii
+> from enum import Enum
+>
+>
+> class Ops(Enum):
+>     # action value observed in blkparse binary output
+>     # unclear on bit meanings, so unclear, but works currently at QD=3D1
+>     # TODO: find bit meanings and fill out with other ops
+>     # TODO: Might be other implications at higher QDs - experiment
+>     TRIM        =3D 0x2012
+>     WRITESYNC   =3D 0x001a
+>     READ        =3D 0x0011
+>
+>
+> class BlkParserBinFormat():
+>     magic =3D 0x65617407
+>     def __init__(self):
+>         self.fmt =3D struct.Struct(
+>                    # defintion from FIO code: blktrace_api.h
+>                    # struct blk_io_trace {
+>             "I "   #   __u32 magic;        /* MAGIC << 8 | version */
+>             "I "   #   __u32 sequence;     /* event number */
+>             "Q "   #   __u64 time;         /* in nanoseconds */
+>             "Q "   #   __u64 sector;       /* disk offset */
+>             "I "   #   __u32 bytes;        /* transfer length */
+>             "H H " #   __u32 action;       /* what happened */  Split int=
+o action (0x0001 is Q) and command
+>             "I "   #   __u32 pid;          /* who did it */
+>             "I "   #   __u32 device;       /* device identifier (dev_t) *=
+/
+>             "I "   #   __u32 cpu;          /* on what cpu did it happen *=
+/
+>             "H "   #   __u16 error;        /* completion error */
+>             "H "   #   __u16 pdu_len;      /* length of data after this t=
+race */
+>             )
+>         self.curSequence =3D 0
+>
+>     def newEntry(self, time, sector, xferlen, operation):
+>         self.curSequence +=3D 1
+>         logger.debug(Lazy(lambda: pp.pformat((self.magic, self.curSequenc=
+e, time, sector, xferlen, 0x0001, operation, 0, 0x10310001, 0, 0, 0))))
+>         return self.fmt.pack(self.magic, self.curSequence, time, sector, =
+xferlen, 0x0001, operation, 0, 0x10310001, 0, 0, 0)
+> ########################################
+>
+> Kris Davis
+>
+> -----Original Message-----
+> From: fio-owner@vger.kernel.org <fio-owner@vger.kernel.org> On Behalf Of =
+Gary Little
+> Sent: Saturday, May 18, 2019 4:10 PM
+> To: fio@vger.kernel.org
+> Subject: Issues with read_iolog trace replay
+>
+> Hello,
+>
+> I am trying to simulate bursty traffic with fo.  I know that I can do thi=
+s by tracing a bursty app and then doing a blktrace replay, but I would lik=
+e to do something programatic.
+>
+> I had hoped that I could create an io_replay file that looks like this wh=
+ich would read, then pause for 100ms before issuing the next read.
+> Once working I could then vary (lower) the "wait" period to generate the =
+bursts.
+>
+> But what seems to happen is that all the "wait" lines are executed sequen=
+tially, followed by all the "reads" sequentially, without the 100ms pause i=
+n-between.
+>
+> FWIW, using blktrace input works as expected, and replays the trace at th=
+e same iO rate as the traced workload.
+>
+> [root@arches filebench]# /usr/local/bin/fio --version
+> fio-3.13
+>
+> [root@arches filebench]# /usr/local/bin/fio --name=3Dreplay --read_iolog=
+=3Dread100.csv
+>
+> [gary@arches filebench]$ cat read100.csv fio version 2 iolog /dev/sdc add=
+ /dev/sdc open /dev/sdc read 16384 4096 /dev/sdc wait 100000 1 /dev/sdc rea=
+d 16384 4096 /dev/sdc wait 100000 1 /dev/sdc read 16384 4096 /dev/sdc wait =
+100000 1 /dev/sdc read 16384 4096 /dev/sdc wait 100000 1 /dev/sdc read 1638=
+4 4096 /dev/sdc wait 100000 1 /dev/sdc read 16384 4096 /dev/sdc wait 100000=
+ 1 /dev/sdc read 16384 4096 /dev/sdc wait 100000 1 /dev/sdc read 16384 4096=
+ /dev/sdc wait 100000 1 /dev/sdc read 16384 4096 /dev/sdc wait 100000 1 /de=
+v/sdc read 16384 4096 /dev/sdc wait 100000 1 /dev/sdc close
 
