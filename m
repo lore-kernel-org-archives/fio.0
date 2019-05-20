@@ -1,255 +1,169 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ed1-f52.google.com ([209.85.208.52]:37315 "EHLO
-        mail-ed1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726360AbfEOSSR (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 15 May 2019 14:18:17 -0400
-Received: by mail-ed1-f52.google.com with SMTP id w37so1154315edw.4
-        for <fio@vger.kernel.org>; Wed, 15 May 2019 11:18:15 -0700 (PDT)
+Received: from mail-wr1-f41.google.com ([209.85.221.41]:44068 "EHLO
+        mail-wr1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725807AbfETF61 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 20 May 2019 01:58:27 -0400
+Received: by mail-wr1-f41.google.com with SMTP id w13so2286536wru.11
+        for <fio@vger.kernel.org>; Sun, 19 May 2019 22:58:26 -0700 (PDT)
 MIME-Version: 1.0
-From: Kip Ingram <kip.ingram@gmail.com>
-Date: Wed, 15 May 2019 13:18:03 -0500
-Message-ID: <CAH6Skxr56cMzxuJjmfZfj2th56qFDu4K0PomHBDLmbUSjYVaow@mail.gmail.com>
-Subject: Bug report: Histogram log files cut off above 782.96 us
+References: <CA+=P2MuECGCj+zdvP-=3DfPD71VyYHX1RoOxCCDz2Uea=ZL9_g@mail.gmail.com>
+ <CALjAwxjDh5UhbeP=VATCPq0vBcoUmms=nbQoh8cqrFsK-xfJjw@mail.gmail.com>
+ <CA+=P2MubaS=U+XPgjLXQKaf+-1nm+C5B-KdWD5z2Tu1nb56Axg@mail.gmail.com>
+ <CALjAwxiKbeKjPc3eY8L6D6FB3jZVnSRwEtnyZ_6NC_eDNCjQXg@mail.gmail.com> <CA+=P2MsGQFDbr+31aauO-8YxNFQLEnsbXBrRJy2+wps6=c8isQ@mail.gmail.com>
+In-Reply-To: <CA+=P2MsGQFDbr+31aauO-8YxNFQLEnsbXBrRJy2+wps6=c8isQ@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Mon, 20 May 2019 06:58:09 +0100
+Message-ID: <CALjAwxjmBpt+dUtvYpqXpkU+Tn_bahkUYEYiRz3EeCd=f_8t+A@mail.gmail.com>
+Subject: Re: How is numjobs & iodepth related?
 Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "Manu K.S." <cse.manuks@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-Hi guys.  I think I've uncovered a bug in the clat_hist log files.  My
-installation of fio uses 1856 bins for the histograms.  I am getting
-all zero in bins with latency greater than 786.92 microseconds.  I
-created traffic conditions that would produce solid latencies above
-this level, using this input file:
+Hi,
 
-[global]
-name=fcm_sniff_test
-thread=1
-size=100G
-rw=randread
-buffer_compress_percentage=${BCP}
-write_bw_log=qd1read4k
-write_hist_log=qd1read4k
-write_iops_log=qd1read4k
-log_avg_msec=1000
-log_hist_msec=1000
-disable_lat=1
-disable_slat=1
-log_unix_epoch=1
-random_generator=tausworthe64
-randrepeat=0
-rwmixread=0
-bs=4k
-direct=1
-ioengine=spdk
-numjobs=1
-iodepth=64
-time_based=1
-runtime=300
-[file0]
-filename=trtype=PCIe traddr=0000.0b.00.0 ns=1
-cpumask=0x00000001
-Here is a sample line from the log file:
+Command 1 TLDR; IO depth will be (up to) eight but there are caveats.
+Logic used per job: asynchronously queue an I/O at a time but once
+four I/Os are outstanding wait for at least one of those I/Os to
+complete before queuing any more. There is a case where if I/Os
+complete fast enough you end up achieving a depth lower than expected
+but if that really concerns you there are ways around that (which come
+with their own tradeoffs).  As there are two concurrent jobs (thanks
+to numjobs) it means you could get up to eight outstanding I/Os <but
+insert caveats about kernel transforming I/O mentioned in the NB of
+the reply to your first mail:
+https://www.spinics.net/lists/fio/msg07872.html >. You make it sound
+like you're not seeing that - can you tell how you are determining
+this?
 
-1557941679145, 0, 4096, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0,
-0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 2, 0, 2, 0, 2,
-2, 6, 4, 2, 6, 3, 5, 3, 5, 2, 5, 6, 12, 11, 16, 27, 21, 20, 31, 36,
-35, 42, 38, 40, 47, 49, 68, 69, 64, 79, 98, 83, 98, 115, 141, 156,
-164, 188, 211, 214, 251, 260, 295, 317, 317, 368, 372, 404, 387, 402,
-432, 522, 465, 493, 500, 551, 526, 573, 540, 520, 591, 594, 565, 584,
-573, 527, 579, 573, 582, 584, 550, 576, 529, 538, 516, 501, 1084,
-1048, 1074, 1130, 1091, 1103, 1018, 1078, 1010, 964, 973, 986, 953,
-892, 939, 845, 894, 821, 776, 790, 777, 781, 730, 707, 696, 672, 621,
-590, 602, 621, 587, 519, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+(I'm a little worried you've got "prio=0" in your command though.
+Generally when you're starting out with fio extra unknown options can
+lead to more confusion. I'd remove it until you're happy with your
+current command line)
 
-Notice that there is still a significant event count at the last
-non-zero entry, then we just drop to zero.  Meanwhile, the json+
-output reports this, starting at about the point of the cutoff:
+Command 2: I think I'm going to ask you to reply with what YOU think
+the answer is and WHY :-) Don't forget you can actually run the
+command and fio will tell you the depths a job achieved over its
+lifetime so I'm also going to ask you to post the full OUTPUT of
+running that job in your answer!
 
-            "6520832" : 588,
-            "6586368" : 522,
-            "6651904" : 554,
-            "6717440" : 513,
-            "6782976" : 495,
-            "6848512" : 467,
-            "6914048" : 417,
-            "6979584" : 420,
-            "7045120" : 397,
-            "7110656" : 366,
-            "7176192" : 335,
-            "7241728" : 300,
-            "7307264" : 304,
-            "7372800" : 266,
-            "7438336" : 290,
-            "7503872" : 241,
-            "7569408" : 229,
-            "7634944" : 245,
-            "7700480" : 238,
-            "7766016" : 201,
-            "7831552" : 176,
-            "7897088" : 197,
-            "7962624" : 173,
-            "8028160" : 147,
-            "8093696" : 162,
-            "8159232" : 141,
-            "8224768" : 149,
-            "8290304" : 119,
-            "8355840" : 133,
-            "8454144" : 247,
-            "8585216" : 195,
-            "8716288" : 174,
-            "8847360" : 132,
-            "8978432" : 143,
-            "9109504" : 167,
-            "9240576" : 105,
-            "9371648" : 83,
-            "9502720" : 86,
-            "9633792" : 78,
-            "9764864" : 53,
-            "9895936" : 70,
-            "10027008" : 66,
-            "10158080" : 58,
-            "10289152" : 56,
-            "10420224" : 53,
-            "10551296" : 36,
-            "10682368" : 43,
-            "10813440" : 36,
-            "10944512" : 30,
-            "11075584" : 28,
-            "11206656" : 17,
-            "11337728" : 17,
-            "11468800" : 20,
-            "11599872" : 14,
-            "11730944" : 9,
-            "11862016" : 16,
-            "11993088" : 18,
-            "12124160" : 11,
-            "12255232" : 16,
-            "12386304" : 7,
-            "12517376" : 7,
-            "12648448" : 11,
-            "12779520" : 8,
-            "12910592" : 5,
-            "13041664" : 9,
-            "13172736" : 5,
-            "13303808" : 4,
-            "13434880" : 3,
-            "13565952" : 4,
-            "13697024" : 2,
-            "13828096" : 2,
-            "13959168" : 3,
-            "14090240" : 3,
-            "14221312" : 1,
-            "14352384" : 1,
-            "14614528" : 1,
-            "14876672" : 2,
-            "15007744" : 1,
-            "15138816" : 2,
-            "15269888" : 2,
-            "15400960" : 2,
-            "15663104" : 1,
-            "16187392" : 3,
-            "16318464" : 1,
-            "16711680" : 1,
-            "16908288" : 2,
-            "17170432" : 1,
-            "17694720" : 1,
-            "19267584" : 1
+On Sat, 18 May 2019 at 12:46, Manu K.S. <cse.manuks@gmail.com> wrote:
+>
+> These are the commands :
+>
+> Command 1:
+> fio --filename=/dev/sdb --time_based --rw=read --name=fiotest --prio=0
+> --bs=4k --direct=1 --ioengine=libaio --runtime=60 --numjobs=2
+> --iodepth=4
+> Command 2:
+> fio --filename=/dev/sdb:/dev/sdc --time_based --rw=read --name=fiotest
+> --prio=0 --bs=4k --direct=1 --ioengine=libaio --runtime=60 --numjobs=2
+> --iodepth=4
+>
+> For command 1, what is the logic used ? If I'm specifying numjobs=2 &
+> iodepth=4, will each job get 2 IO depth, or does it mean each job will
+> be running with IO depth 4? This is a bit confusing for me.
+>
+> For command 2, will each disk have :
+>  1. 2 jobs per disk with 4 IO depth for each job?
+>  2. 2 jobs per disk with 2 IO depth for each job?
+>  2. One job per disk with 2 IO depth for each job?
+>  3. One job per disk with 4 IO depth?
+>
+>
+>
+> --
+> Cheers
+> Manu K S
+>
+> On Sat, May 18, 2019 at 5:02 PM Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+> >
+> > Hi,
+> >
+> > I'm going to stop here for now because the command line you posted
+> > earlier is missing something if you are really using libaio so I'm
+> > getting confused (maybe you are saying you are using a new command
+> > line but you forgot to post it in your new email?). I'm afraid we need
+> > to see the full current command line (and the contents of any job
+> > files) to be able to answer questions like this - see
+> > https://github.com/axboe/fio/blob/master/REPORTING-BUGS for the type
+> > of information that is required. Could you follow up with ALL the
+> > information requested there? To maximize the odds of getting to a
+> > resolution ensure you include the fio output as mentioned in
+> > REPORTING-BUGS - don't be tempted to skip sending it to us in this
+> > case!
+> >
+> > On Sat, 18 May 2019 at 09:43, Manu K.S. <cse.manuks@gmail.com> wrote:
+> > >
+> > > Thank you for the information.
+> > > Yes I'm indeed using libaio as the ioengine on a linux server.
+> > >
+> > > For command 2, what is the logic? If I'm specifying numjobs=2 &
+> > > iodepth=4 will each job get 2 IO depth, or does it mean each job will
+> > > be running with IO depth 4? This is a bit confusing for me.
+> > >
+> > > For command 3, will each disk have :
+> > >  1. 2 jobs per disk with 4 IO depth for each job?
+> > >  2. 2 jobs per disk with 2 IO depth for each job?
+> > >  2. One job per disk with 2 IO depth for each job?
+> > >  3. One job per disk with 4 IO depth?
+> > >
+> > >
+> > > --
+> > > Cheers
+> > > Manu K S
+> > >
+> > > On Sat, May 18, 2019 at 12:43 PM Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+> > > >
+> > > > Hi,
+> > > >
+> > > > On Fri, 17 May 2019 at 16:20, Manu K.S. <cse.manuks@gmail.com> wrote:
+> > > > >
+> > > > > Hi, what will be the iodepth for each job with below 3 commands?
+> > > > >
+> > > > > COMMAND 1
+> > > > > -----------------
+> > > > > fio --name=fiotest --filename=/dev/sdb --rw=read --numjobs=1
+> > > > > --iodepth=4 --size=1G --bs=4k --runtime=120 --time_based
+> > > > >
+> > > > > COMMAND 2
+> > > > > -------------------
+> > > > > fio --name=fiotest --filename=/dev/sdb --rw=read --numjobs=2
+> > > > > --iodepth=4 --size=1G --bs=4k --runtime=120 --time_based
+> > > > >
+> > > > > COMMAND 3
+> > > > > -------------------
+> > > > > fio --name=fiotest --filename=/dev/sdb:/dev/sdc --rw=read --numjobs=2
+> > > > > --iodepth=4 --size=1G --bs=4k --runtime=120 --time_based
+> > > >
+> > > > Hard to say without more context but assuming you're on Linux:
+> > > >
+> > > > COMMAND 1
+> > > > You're going to get a depth of 1 because the default ioengine chosen
+> > > > when you don't specify one on Linux is synchronous (see the iodepth
+> > > > description in the fio help for warnings about depth and synchronous
+> > > > ioengines - https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-iodepth
+> > > > ). Maybe you wanted to use libaio with direct=1 (see the libaio
+> > > > section in https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-ioengine
+> > > > for more details)?
+> > > >
+> > > > COMMAND 2
+> > > > I'd guess you will get an overall depth of 2 (1 per job).
+> > > >
+> > > > COMMAND 3
+> > > > I'd guess you will get an overall depth of 2 (1 per job). Multiple
+> > > > files in filename won't impact the depth only which file each I/O goes
+> > > > to (which is roundrobin by default -
+> > > > https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-file-service-type
+> > > > ).
+> > > >
+> > > > NB: fio will try and report the depths it is achieving see the "IO
+> > > > depths" output in the example on
+> > > > https://fio.readthedocs.io/en/latest/fio_doc.html#interpreting-the-output
+> > > > . What your disk actually sees can be different though depending on
+> > > > what the kernel chooses to do with the submitted I/O.
 
-Note that the log file neither includes the tail nor has a perfect
-numerical match with the json histogram.
-
-The json+ output looks reasonable and correct, with a proper tail.  I
-imported that log file into a spreadsheet and aggregated it into a
-single histogram.  There is a high degree of "match" between the log
-aggregation and the json histogram, but it's not perfect, even below
-the cutoff.
-
-I am running under CentOS 7.5.  The command I used to run the job was this:
-
-LD_PRELOAD=/home/kingram/tools/spdk/examples/nvme/fio_plugin/fio_plugin
-BCP=0 fio --output-format=json+ fcm-test >json_output
-
-My fio --version output is:
-
-[root@gjallahorn 05-qd1read_4k_rand]# fio --version
-fio-3.13-42-g8066f
-
-Thanks very much!
-
-Best regards,
-Kip
+-- 
+Sitsofe | http://sucs.org/~sits/
 
