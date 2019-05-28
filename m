@@ -1,47 +1,62 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa3.hgst.iphmx.com ([216.71.153.141]:11485 "EHLO
-        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726830AbfEHXcf (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 8 May 2019 19:32:35 -0400
-From: TK Tan Tan Tuan Keat <Tan.Tuan.Keat@wdc.com>
-Subject: Statistic from the output log
-Date: Wed, 8 May 2019 23:32:33 +0000
-Message-ID: <BYAPR04MB39572518AF0454EC921A6009AB320@BYAPR04MB3957.namprd04.prod.outlook.com>
-References: <BYAPR04MB39577610B7A567F3CA45CF69AB320@BYAPR04MB3957.namprd04.prod.outlook.com>
-In-Reply-To: <BYAPR04MB39577610B7A567F3CA45CF69AB320@BYAPR04MB3957.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 1/2] configure: apply ${cross_prefix} to pkg-config calls
+References: <20190527193249.GA15169@alf.mars>
+ <921099f5-210e-faa4-dbcd-d3a46af2aa2f@kernel.dk> <3616703.VSBPW50pFo@merkaba>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <c437ac20-0bf3-96ef-dd19-2ea1be7004d1@kernel.dk>
+Date: Tue, 28 May 2019 07:56:43 -0600
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <3616703.VSBPW50pFo@merkaba>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+To: Martin Steigerwald <Martin.Steigerwald@proact.de>
+Cc: Helmut Grohne <helmut@subdivi.de>, "929579@bugs.debian.org" <929579@bugs.debian.org>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-SGksDQoNCkkgYW0gdHJ5aW5nIHRvIHZlcmlmeSB0aGUgc3RhdGlzdGljIGluIHRoZSBvdXRwdXQg
-bG9nIGZyb20gdGhlIGxhdGVuY3kgYW5kIGlvcHMgbG9ncw0KCXdyaXRlX2xhdF9sb2cNCgl3cml0
-ZV9pb3BzX2xvZw0KDQp3aGVuIEkgaW1wb3J0IHRoZSBpb3BzIGRhdGEgYW5kIGRpZCB0aGUgc3Rh
-dGlzdGljIC0gSSBoYXZlIGEgcGVyZmVjdCBtYXRjaA0KDQpmcm9tIEZJTyBvdXQgbG9nOg0KCWlv
-cHMgICAgICAgIDogbWluPSAgIDM3LCBtYXg9ICAxMzgsIGF2Zz0xMjMuNjMsIHN0ZGV2PTExLjMx
-LCBzYW1wbGVzPTI2NjgNCg0KZnJvbSBzdGF0aXN0aWNhbCB0b29sIGNhbGN1bGF0aW9uOg0KRGVz
-Y3JpcHRpdmUgU3RhdGlzdGljczogaW9wcyANCg0KVmFyaWFibGUgICAgIAlOICAJTiogIAlDdW1O
-ICAJQ3VtUGN0ICAgIAlNZWFuICAJU0UgTWVhbiAgCVN0RGV2ICAJTWluaW11bSAgICAgCSBRMQ0K
-aW9wcyAgICAgIAkJMjY2OCAgCSAwICAJMjY2OCAgICAJMTAwICAJCTEyMy42MyAgICAwLjIxOSAg
-CQkxMS4zMSAgIAkgMzcuMDAgIAkJMTIyLjAwDQoNClZhcmlhYmxlICAJTWVkaWFuICAgICAgCVEz
-ICAJTWF4aW11bQ0KaW9wcyAgICAgIAkJMTI1LjAwICAJCTEzMC4wMCAgIDEzOC4wMA0KDQpCdXQg
-d2hlbiBJIHRyaWVkIHRvIGRvIHRoZSBzYW1lIGV4ZXJjaXNlIHVzaW5nIHRoZSBsYXQsIHNsYXQg
-YW5kIGNsYXQgbG9ncyAtIHRoZSByZXN1bHRzIGFyZSB2ZXJ5IGRpZmZlcmVudA0KDQpmcm9tIEZJ
-TyBvdXQgbG9nOg0KCWxhdCAobXNlYyk6IG1pbj0zLCBtYXg9NDQyLCBhdmc9IDcuOTgsIHN0ZGV2
-PSA2LjE1DQoNCmZyb20gc3RhdGlzdGljYWwgdG9vbCBjYWxjdWxhdGlvbjoNCkRlc2NyaXB0aXZl
-IFN0YXRpc3RpY3M6IGxhdCAobnMpIA0KDQpWYXJpYWJsZSAgICAgCU4gIAlOKiAgCUN1bU4gIAlD
-dW1QY3QgICAgICAJTWVhbiAgCQlTRSBNZWFuICAgICAJU3REZXYgCQkgTWluaW11bQ0KbGF0IChu
-cykgIAkyNjY5ICAJIDAgIAkyNjY5ICAgICAJMTAwICAJCTMxNjc1NTg2ICAJMTE5MjE1MCAgCTYx
-NTg5Mjg1ICAJODQyODM4Mg0KDQpWYXJpYWJsZSAgICAgICAgCVExICAgCQlNZWRpYW4gICAgICAg
-IAlRMyAgICAJCU1heGltdW0NCmxhdCAobnMpICAJMTU1NTI3MTYgIAkxODMzMDMwMyAgCTI0MTM3
-ODk5IAkgNDQyMDAxMzM2DQoNCk1heSBJIGtub3cgaWYgdGhlcmUgaXMgZmlsdGVyaW5nIG9mIGRh
-dGEgKG91dGxpZXIsIGV0YykgZm9yIHRoYXQ/IE15IG1haW4gb2JqZWN0aXZlIGlzIHRvIHVuZGVy
-c3RhbmQgdGhlIGxvbmcgdGFpbCBsYXRlbmN5ICg5OS45NSUgYW5kIDk5Ljk5JSkuIFRoZSBsYXRl
-bmN5IGxvZyBoYXMgdGhlIHRpbWVzdGFtcCBhbmQgbGF0ZW5jeSBkYXRhIGFuZCBJIGp1c3QgbmVl
-ZCB0byBmaW5kIG91dCB3aGVyZSB0aGUgbG9uZyBsYXRlbmNpZXMgYXJlIGNvbWluZyBmcm9tIC0g
-YmVnaW5uaW5nLCBtaWRkbGUgb3IgZW5kIG9mIHRoZSB0ZXN0Lg0KDQpUaGFua3MgaW4gYWR2YW5j
-ZSwNClRLDQo=
+Your IT department needs a stern talking to... But I'd just use
+your personal email then, any kind of html email will be a problem
+on any of the vger hosted lists.
+
+
+On 5/28/19 6:57 AM, Martin Steigerwald wrote:
+> Hi Jens, hi Helmut, (unfortunately our signature software seems to add HTML to the mail and vger.kernel.org rejects the mail then… so it won't appear on fio mailing list. This is nothing I can influence from my mail client.) Jens Axboe - 27.05.19, 22:51:
+> Mit freundlichen Grüßen / With kind regards​
+> 
+> Martin Steigerwald	 •
+> 	Proact Deutschland GmbH
+> 
+> Trainer
+> 
+> Telefon: *+49 911 30999 0* <tel:+49%20911%2030999%200>	 •
+> 	Fax: *+49 911 30999 99* <tel:>
+> 
+> Südwestpark 43	 •
+> 	90449 	Nürnberg	 •
+> 	Germany
+> 
+> *Martin.Steigerwald@proact.de* <mailto:Martin.Steigerwald@proact.de>	 •
+> 	*www.proact.de* <https://www.proact.de/>
+> 
+> Amtsgericht Nürnberg
+> 	 •
+> 	HRB 18320
+> 
+> Geschäftsführer:
+> 	Oliver Kügow	 •
+> 	Richard Müller	 •
+> 	Jakob Høholdt
+> 	 •
+> 	Peter Mikael Javestad
+> 
+> – Delivering Business Agility –
+> 
+> Proact Wissenstag <https://go.proact.eu/Proact-Wissenstage-Anmeldung>
+> 
+>  > On 5/27/19 1:32 PM, Helmut Grohne wrote: > > Otherwise, we're searching for build architecture libraries which is > > not what we want. > > Applied 1-2, thanks. Thanks. When there is a new fio release I update the package and am ready to apply/merge the Debian related parts of the cross build changes. Ciao,
+
+
+-- 
+Jens Axboe
+
 
