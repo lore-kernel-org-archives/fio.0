@@ -1,65 +1,28 @@
-Return-Path: <prvs=051d3e551=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 2/2] eta: Fix compiler warning
-Date: Tue,  4 Jun 2019 16:07:32 +0900
-Message-Id: <20190604070732.17952-2-damien.lemoal@wdc.com>
-In-Reply-To: <20190604070732.17952-1-damien.lemoal@wdc.com>
-References: <20190604070732.17952-1-damien.lemoal@wdc.com>
-MIME-Version: 1.0
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-eopbgr660134.outbound.protection.outlook.com ([40.107.66.134]:55424
+        "EHLO CAN01-QB1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726135AbfFAO3f (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 1 Jun 2019 10:29:35 -0400
+From: "Stephen  Bates" <sbates@raithlin.com>
+Subject: [PATCH] .gitignore: Add t/io_uring to .gitignore
+Date: Sat, 1 Jun 2019 14:29:31 +0000
+Message-ID: <472753C3-9DC9-4D67-9133-519B9E03D7DA@raithlin.com>
+Content-Language: en-US
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+Content-ID: <9F9305BD0888E14F869CFB0FD3F99DC7@CANPRD01.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-gcc 9 complains about directly referencing pointer values in the packed
-structure jobs_eta. E.g.:
-
-warning: taking address of packed member of ‘struct jobs_eta’ may
-result in an unaligned pointer value [-Waddress-of-packed-member]
-
-Remove this by using a local void pointer for the rate and iops array
-references that generate the warning.
-
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
----
- eta.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/eta.c b/eta.c
-index b69dd194..647a1bdd 100644
---- a/eta.c
-+++ b/eta.c
-@@ -392,6 +392,9 @@ bool calc_thread_status(struct jobs_eta *je, int force)
- 	static unsigned long long disp_io_iops[DDIR_RWDIR_CNT];
- 	static struct timespec rate_prev_time, disp_prev_time;
- 
-+	void *je_rate = (void *) je->rate;
-+	void *je_iops = (void *) je->iops;
-+
- 	if (!force) {
- 		if (!(output_format & FIO_OUTPUT_NORMAL) &&
- 		    f_out == stdout)
-@@ -507,7 +510,7 @@ bool calc_thread_status(struct jobs_eta *je, int force)
- 
- 	if (write_bw_log && rate_time > bw_avg_time && !in_ramp_time(td)) {
- 		calc_rate(unified_rw_rep, rate_time, io_bytes, rate_io_bytes,
--				je->rate);
-+				je_rate);
- 		memcpy(&rate_prev_time, &now, sizeof(now));
- 		add_agg_sample(sample_val(je->rate[DDIR_READ]), DDIR_READ, 0);
- 		add_agg_sample(sample_val(je->rate[DDIR_WRITE]), DDIR_WRITE, 0);
-@@ -519,8 +522,8 @@ bool calc_thread_status(struct jobs_eta *je, int force)
- 	if (!force && !eta_time_within_slack(disp_time))
- 		return false;
- 
--	calc_rate(unified_rw_rep, disp_time, io_bytes, disp_io_bytes, je->rate);
--	calc_iops(unified_rw_rep, disp_time, io_iops, disp_io_iops, je->iops);
-+	calc_rate(unified_rw_rep, disp_time, io_bytes, disp_io_bytes, je_rate);
-+	calc_iops(unified_rw_rep, disp_time, io_iops, disp_io_iops, je_iops);
- 
- 	memcpy(&disp_prev_time, &now, sizeof(now));
- 
--- 
-2.21.0
-
+V2Ugd2FudCB0byBpZ25vcmUgdGhlIGV4ZWN1dGFibGVzIGluIHRoZSAvdCBmb2xkZXIgc28gYWRk
+IGlvX3VyaW5nIHRvDQp0aGUgbGlzdC4NCg0KU2lnbmVkLW9mZi1ieTogU3RlcGhlbiBCYXRlcyA8
+c2JhdGVzQHJhaXRobGluLmNvbT4NCi0tLQ0KIC5naXRpZ25vcmUgfCAxICsNCiAxIGZpbGUgY2hh
+bmdlZCwgMSBpbnNlcnRpb24oKykNCg0KZGlmZiAtLWdpdCBhLy5naXRpZ25vcmUgYi8uZ2l0aWdu
+b3JlDQppbmRleCBmODZiZWM2NC4uOTgwYzlkZmEgMTAwNjQ0DQotLS0gYS8uZ2l0aWdub3JlDQor
+KysgYi8uZ2l0aWdub3JlDQpAQCAtMTYsNiArMTYsNyBAQA0KIC90L2Zpby12ZXJpZnktc3RhdGUN
+CiAvdC9nZW4tcmFuZA0KIC90L2llZWU3NTQNCisvdC9pb191cmluZw0KIC90L2xmc3ItdGVzdA0K
+IC90L3N0ZXN0DQogL3VuaXR0ZXN0cy91bml0dGVzdA0KLS0gDQoyLjE3LjENCiANCg0K
 
