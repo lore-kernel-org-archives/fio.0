@@ -1,86 +1,65 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-vs1-f41.google.com ([209.85.217.41]:43966 "EHLO
-        mail-vs1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729715AbfFGTtz (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 7 Jun 2019 15:49:55 -0400
-Received: by mail-vs1-f41.google.com with SMTP id d128so1846641vsc.10
-        for <fio@vger.kernel.org>; Fri, 07 Jun 2019 12:49:55 -0700 (PDT)
+Return-Path: <prvs=051d3e551=damien.lemoal@wdc.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH 2/2] eta: Fix compiler warning
+Date: Tue,  4 Jun 2019 16:07:32 +0900
+Message-Id: <20190604070732.17952-2-damien.lemoal@wdc.com>
+In-Reply-To: <20190604070732.17952-1-damien.lemoal@wdc.com>
+References: <20190604070732.17952-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
-From: Kurt Dorsey <batlin@gmail.com>
-Date: Fri, 7 Jun 2019 14:49:42 -0500
-Message-ID: <CAJzzwJziVYzTV4wjmA6CzGO-NcmXxMFvzYr3-b9juHmY2R-oMw@mail.gmail.com>
-Subject: Round Robin IO
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-I am trying to do multi device round robin, I have been utilizing
---filename=dev1:dev2 and it works great for Randoms but it doesn't
-work correctly for sequential (This is for multi path devices)
-Looking at the debug output and a blktrace for sequential it looks
-like it is sending the same offset to both devices
-Is there a way to issue Sequential IO where it increments the LBA for each IO?
-File1  LBA 0-4
-File2 LBA  4-8
-File1 LBA 8-12
-File2 LBA 12-16
-If this is not implemented would it be possible to implement this?
+gcc 9 complains about directly referencing pointer values in the packed
+structure jobs_eta. E.g.:
 
-Thank you!
-Kurt
-(Below is debug output)
-file     10720 get file /dev/nvme1n1, ref=1
-io       10720 fill: io_u 0x55620e76b380:
-off=0x0,len=0x20000,ddir=1,file=/dev/nvme1n1
-io       10720 prep: io_u 0x55620e76b380:
-off=0x0,len=0x20000,ddir=1,file=/dev/nvme1n1
-io       10720 prep: io_u 0x55620e76b380: ret=0
-io       10720 queue: io_u 0x55620e76b380:
-off=0x0,len=0x20000,ddir=1,file=/dev/nvme1n1
-io       10720 calling ->commit(), depth 1
-file     10720 trying file /dev/nvme3n1 10
-file     10720 fd open /dev/nvme3n1
-file     10720 file not found in hash /dev/nvme3n1
-file     10720 get file /dev/nvme3n1, ref=0
-io       10720 drop page cache /dev/nvme3n1
-file     10720 goodf=1, badf=2, ff=31
-file     10720 get_next_file_rr: 0x7f80f9fb06f0
-file     10720 get_next_file: 0x7f80f9fb06f0 [/dev/nvme3n1]
-file     10720 get file /dev/nvme3n1, ref=1
-io       10720 fill: io_u 0x55620e76b140:
-off=0x0,len=0x20000,ddir=1,file=/dev/nvme3n1
-io       10720 prep: io_u 0x55620e76b140:
-off=0x0,len=0x20000,ddir=1,file=/dev/nvme3n1
-io       10720 prep: io_u 0x55620e76b140: ret=0
-io       10720 queue: io_u 0x55620e76b140:
-off=0x0,len=0x20000,ddir=1,file=/dev/nvme3n1
-io       10720 calling ->commit(), depth 2
-file     10720 trying file /dev/nvme1n1 31
-file     10720 goodf=1, badf=2, ff=31
-file     10720 get_next_file_rr: 0x7f80f9fb0510
-file     10720 get_next_file: 0x7f80f9fb0510 [/dev/nvme1n1]
-file     10720 get file /dev/nvme1n1, ref=2
-io       10720 fill: io_u 0x55620e76af40:
-off=0x20000,len=0x20000,ddir=1,file=/dev/nvme1n1
-io       10720 prep: io_u 0x55620e76af40:
-off=0x20000,len=0x20000,ddir=1,file=/dev/nvme1n1
-io       10720 prep: io_u 0x55620e76af40: ret=0
-io       10720 queue: io_u 0x55620e76af40:
-off=0x20000,len=0x20000,ddir=1,file=/dev/nvme1n1
-io       10720 calling ->commit(), depth 3
-file     10720 trying file /dev/nvme3n1 31
-file     10720 goodf=1, badf=2, ff=31
-file     10720 get_next_file_rr: 0x7f80f9fb06f0
-file     10720 get_next_file: 0x7f80f9fb06f0 [/dev/nvme3n1]
-file     10720 get file /dev/nvme3n1, ref=2
-io       10720 fill: io_u 0x55620e76ad00:
-off=0x20000,len=0x20000,ddir=1,file=/dev/nvme3n1
-io       10720 prep: io_u 0x55620e76ad00:
-off=0x20000,len=0x20000,ddir=1,file=/dev/nvme3n1
-io       10720 prep: io_u 0x55620e76ad00: ret=0
-io       10720 queue: io_u 0x55620e76ad00:
-off=0x20000,len=0x20000,ddir=1,file=/dev/nvme3n1
-io       10720 calling ->commit(), depth 4
-file     10720 trying file /dev/nvme1n1 31
+warning: taking address of packed member of ‘struct jobs_eta’ may
+result in an unaligned pointer value [-Waddress-of-packed-member]
+
+Remove this by using a local void pointer for the rate and iops array
+references that generate the warning.
+
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+---
+ eta.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/eta.c b/eta.c
+index b69dd194..647a1bdd 100644
+--- a/eta.c
++++ b/eta.c
+@@ -392,6 +392,9 @@ bool calc_thread_status(struct jobs_eta *je, int force)
+ 	static unsigned long long disp_io_iops[DDIR_RWDIR_CNT];
+ 	static struct timespec rate_prev_time, disp_prev_time;
+ 
++	void *je_rate = (void *) je->rate;
++	void *je_iops = (void *) je->iops;
++
+ 	if (!force) {
+ 		if (!(output_format & FIO_OUTPUT_NORMAL) &&
+ 		    f_out == stdout)
+@@ -507,7 +510,7 @@ bool calc_thread_status(struct jobs_eta *je, int force)
+ 
+ 	if (write_bw_log && rate_time > bw_avg_time && !in_ramp_time(td)) {
+ 		calc_rate(unified_rw_rep, rate_time, io_bytes, rate_io_bytes,
+-				je->rate);
++				je_rate);
+ 		memcpy(&rate_prev_time, &now, sizeof(now));
+ 		add_agg_sample(sample_val(je->rate[DDIR_READ]), DDIR_READ, 0);
+ 		add_agg_sample(sample_val(je->rate[DDIR_WRITE]), DDIR_WRITE, 0);
+@@ -519,8 +522,8 @@ bool calc_thread_status(struct jobs_eta *je, int force)
+ 	if (!force && !eta_time_within_slack(disp_time))
+ 		return false;
+ 
+-	calc_rate(unified_rw_rep, disp_time, io_bytes, disp_io_bytes, je->rate);
+-	calc_iops(unified_rw_rep, disp_time, io_iops, disp_io_iops, je->iops);
++	calc_rate(unified_rw_rep, disp_time, io_bytes, disp_io_bytes, je_rate);
++	calc_iops(unified_rw_rep, disp_time, io_iops, disp_io_iops, je_iops);
+ 
+ 	memcpy(&disp_prev_time, &now, sizeof(now));
+ 
+-- 
+2.21.0
+
 
