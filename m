@@ -1,105 +1,62 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH] fio: fix aio trim completion latencies
-Date: Mon,  8 Jul 2019 15:23:54 -0400
-Message-Id: <20190708192354.14979-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-io1-f43.google.com ([209.85.166.43]:34195 "EHLO
+        mail-io1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725972AbfGBPrr (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 2 Jul 2019 11:47:47 -0400
+Received: by mail-io1-f43.google.com with SMTP id k8so38148314iot.1
+        for <fio@vger.kernel.org>; Tue, 02 Jul 2019 08:47:46 -0700 (PDT)
+MIME-Version: 1.0
+References: <CAF+0mvm4RkkOV1S53Q5HDsvmt0g8RfLFm1nGc-i0U+8NcV-2WA@mail.gmail.com>
+ <CALjAwxh1Vq74h+4UmsgKStAh5Y9BfmZh=Xsm9YsdzTVcg55Ccg@mail.gmail.com>
+In-Reply-To: <CALjAwxh1Vq74h+4UmsgKStAh5Y9BfmZh=Xsm9YsdzTVcg55Ccg@mail.gmail.com>
+From: Matthew Eaton <m.eaton82@gmail.com>
+Date: Tue, 2 Jul 2019 08:47:34 -0700
+Message-ID: <CAF+0mvmtYkfegdvQbjCD680K=++mFE3hq-nE94qryZUtEgBZOw@mail.gmail.com>
+Subject: Re: Concurrent random and sequential IO
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-From: Vincent Fu <vincent.fu@wdc.com>
+Hi Sitsofe,
 
-The io_uring, libaio, and posixaio ioengines actually carry out
-synchronous trim operations, but latency timestamps are recorded as if
-the trims were issued asynchronously. This patch fixes how timestamps
-are recorded for trim operations issued by these ioengines.
+Thank you!! It took me a minute to wrap my head around
+--percentage_random=100,0 but now I get it and that's exactly what I'm
+looking for.
 
-Fixes: https://github.com/axboe/fio/issues/764
----
- engines/io_uring.c | 1 +
- engines/libaio.c   | 1 +
- engines/posixaio.c | 1 +
- ioengines.c        | 8 ++++++--
- ioengines.h        | 2 ++
- 5 files changed, 11 insertions(+), 2 deletions(-)
-
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index a5e77d8f..9bcfec17 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -533,6 +533,7 @@ static int fio_ioring_io_u_init(struct thread_data *td, struct io_u *io_u)
- static struct ioengine_ops ioengine = {
- 	.name			= "io_uring",
- 	.version		= FIO_IOOPS_VERSION,
-+	.flags			= FIO_ASYNCIO_SYNC_TRIM,
- 	.init			= fio_ioring_init,
- 	.post_init		= fio_ioring_post_init,
- 	.io_u_init		= fio_ioring_io_u_init,
-diff --git a/engines/libaio.c b/engines/libaio.c
-index 8844ac8b..cc6ca66b 100644
---- a/engines/libaio.c
-+++ b/engines/libaio.c
-@@ -429,6 +429,7 @@ static int fio_libaio_init(struct thread_data *td)
- static struct ioengine_ops ioengine = {
- 	.name			= "libaio",
- 	.version		= FIO_IOOPS_VERSION,
-+	.flags			= FIO_ASYNCIO_SYNC_TRIM,
- 	.init			= fio_libaio_init,
- 	.post_init		= fio_libaio_post_init,
- 	.prep			= fio_libaio_prep,
-diff --git a/engines/posixaio.c b/engines/posixaio.c
-index 4ac01957..82c6aa65 100644
---- a/engines/posixaio.c
-+++ b/engines/posixaio.c
-@@ -243,6 +243,7 @@ static int fio_posixaio_init(struct thread_data *td)
- static struct ioengine_ops ioengine = {
- 	.name		= "posixaio",
- 	.version	= FIO_IOOPS_VERSION,
-+	.flags		= FIO_ASYNCIO_SYNC_TRIM,
- 	.init		= fio_posixaio_init,
- 	.prep		= fio_posixaio_prep,
- 	.queue		= fio_posixaio_queue,
-diff --git a/ioengines.c b/ioengines.c
-index 7e5a50cc..aa4ccd27 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -308,7 +308,9 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
- 	io_u->error = 0;
- 	io_u->resid = 0;
- 
--	if (td_ioengine_flagged(td, FIO_SYNCIO)) {
-+	if (td_ioengine_flagged(td, FIO_SYNCIO) ||
-+		(td_ioengine_flagged(td, FIO_ASYNCIO_SYNC_TRIM) && 
-+		io_u->ddir == DDIR_TRIM)) {
- 		if (fio_fill_issue_time(td))
- 			fio_gettime(&io_u->issue_time, NULL);
- 
-@@ -389,7 +391,9 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
- 			td_io_commit(td);
- 	}
- 
--	if (!td_ioengine_flagged(td, FIO_SYNCIO)) {
-+	if (!td_ioengine_flagged(td, FIO_SYNCIO) &&
-+		(!td_ioengine_flagged(td, FIO_ASYNCIO_SYNC_TRIM) ||
-+		 io_u->ddir != DDIR_TRIM)) {
- 		if (fio_fill_issue_time(td))
- 			fio_gettime(&io_u->issue_time, NULL);
- 
-diff --git a/ioengines.h b/ioengines.h
-index b9cd33d5..01a9b586 100644
---- a/ioengines.h
-+++ b/ioengines.h
-@@ -63,6 +63,8 @@ enum fio_ioengine_flags {
- 	FIO_FAKEIO	= 1 << 11,	/* engine pretends to do IO */
- 	FIO_NOSTATS	= 1 << 12,	/* don't do IO stats */
- 	FIO_NOFILEHASH	= 1 << 13,	/* doesn't hash the files for lookup later. */
-+	FIO_ASYNCIO_SYNC_TRIM
-+			= 1 << 14	/* io engine has async ->queue except for trim */
- };
- 
- /*
--- 
-2.17.1
-
+On Tue, Jul 2, 2019 at 2:35 AM Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>
+> Hi Matthew!
+>
+> On Tue, 2 Jul 2019 at 01:05, Matthew Eaton <m.eaton82@gmail.com> wrote:
+> >
+> > Hi group,
+> >
+> > I'm trying to create a workload that is 50% random read and 50%
+> > sequential write. Is the command line below accurate for that
+> > workload?
+> >
+> > fio --ioengine=libaio --direct=1 --size=100% --bs=16k --rw=randrw
+> > --percentage_random=50,50 --numjobs=1 --iodepth=32 --runtime=600
+> > --time_based --norandommap --randrepeat=0 --refill_buffers --name=job1
+> > --filename=/dev/sdb
+>
+> Hard to say. My reading of what you would like is:
+> - 50% of the I/O should be random read
+> - The other 50% of the I/O should be sequential write
+>
+> https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-percentage-random
+> says percentage_random controls how random a given direction is so
+> you're actually asking for a writes to be split between 50% sequential
+> and 50% random, and also asking for reads to be split between 50%
+> sequential and 50% random. By default there will be a 50% split
+> between reads and writes with rw=[rw|randrw] (see
+> https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-readwrite
+> and https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-rwmixread).
+>
+> I'd guess you want --percentage_random=100,0 ?
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
 
