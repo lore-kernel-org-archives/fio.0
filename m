@@ -1,231 +1,135 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:35658 "EHLO
+Received: from merlin.infradead.org ([205.233.59.134]:46752 "EHLO
         merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725975AbfG0MAH (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 27 Jul 2019 08:00:07 -0400
+        with ESMTP id S1726043AbfGJMAE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 10 Jul 2019 08:00:04 -0400
 Received: from [65.144.74.35] (helo=kernel.dk)
         by merlin.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
-        id 1hrLMr-0008DC-Lj
-        for fio@vger.kernel.org; Sat, 27 Jul 2019 12:00:06 +0000
+        id 1hlBGV-00042H-Tk
+        for fio@vger.kernel.org; Wed, 10 Jul 2019 12:00:04 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20190727120002.53D0E2C00FD@kernel.dk>
-Date: Sat, 27 Jul 2019 06:00:02 -0600 (MDT)
+Message-Id: <20190710120001.E4A6B2C0099@kernel.dk>
+Date: Wed, 10 Jul 2019 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit fc220349e45144360917db48010b503a9874930d:
+The following changes since commit 308aa5d011158d5f7fa533a60199066dd1858e4c:
 
-  Merge branch 'dev' of https://github.com/smartxworks/fio (2019-07-12 10:44:45 -0600)
+  Merge branch 'optlenmax' of https://github.com/powernap/fio (2019-07-01 14:26:29 -0600)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 029b42ace698eae477c5e261d2f82b191507526b:
+for you to fetch changes up to f32a30d4c4eb2490b5c1bdac9ae3c2fc7a7ab20e:
 
-  Document io_uring feature (2019-07-26 09:53:43 -0600)
+  engines/http: set FIO_SYNCIO flag (2019-07-09 08:55:31 -0600)
 
 ----------------------------------------------------------------
-Jens Axboe (2):
-      engines/libaio: remove remnants of abandoned aio features
-      Document io_uring feature
+Vincent Fu (2):
+      fio: fix aio trim completion latencies
+      engines/http: set FIO_SYNCIO flag
 
- HOWTO            | 34 ++++++++++++++++++++++++++++++++
- engines/libaio.c | 60 +++-----------------------------------------------------
- fio.1            | 23 ++++++++++++++++++++++
- 3 files changed, 60 insertions(+), 57 deletions(-)
+ engines/http.c     | 2 +-
+ engines/io_uring.c | 1 +
+ engines/libaio.c   | 1 +
+ engines/posixaio.c | 1 +
+ ioengines.c        | 8 ++++++--
+ ioengines.h        | 2 ++
+ 6 files changed, 12 insertions(+), 3 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/HOWTO b/HOWTO
-index 142b83e5..81244064 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1805,6 +1805,11 @@ I/O engine
- 		**pvsync2**
- 			Basic :manpage:`preadv2(2)` or :manpage:`pwritev2(2)` I/O.
- 
-+		**io_uring**
-+			Fast Linux native asynchronous I/O. Supports async IO
-+			for both direct and buffered IO.
-+			This engine defines engine specific options.
-+
- 		**libaio**
- 			Linux native asynchronous I/O. Note that Linux may only support
- 			queued behavior with non-buffered I/O (set ``direct=1`` or
-@@ -2002,6 +2007,35 @@ In addition, there are some parameters which are only valid when a specific
- with the caveat that when used on the command line, they must come after the
- :option:`ioengine` that defines them is selected.
- 
-+.. option:: hipri : [io_uring]
-+
-+	If this option is set, fio will attempt to use polled IO completions.
-+	Normal IO completions generate interrupts to signal the completion of
-+	IO, polled completions do not. Hence they are require active reaping
-+	by the application. The benefits are more efficient IO for high IOPS
-+	scenarios, and lower latencies for low queue depth IO.
-+
-+.. option:: fixedbufs : [io_uring]
-+
-+	If fio is asked to do direct IO, then Linux will map pages for each
-+	IO call, and release them when IO is done. If this option is set, the
-+	pages are pre-mapped before IO is started. This eliminates the need to
-+	map and release for each IO. This is more efficient, and reduces the
-+	IO latency as well.
-+
-+.. option:: sqthread_poll : [io_uring]
-+
-+	Normally fio will submit IO by issuing a system call to notify the
-+	kernel of available items in the SQ ring. If this option is set, the
-+	act of submitting IO will be done by a polling thread in the kernel.
-+	This frees up cycles for fio, at the cost of using more CPU in the
-+	system.
-+
-+.. option:: sqthread_poll_cpu : [io_uring]
-+
-+	When :option:`sqthread_poll` is set, this option provides a way to
-+	define which CPU should be used for the polling thread.
-+
- .. option:: userspace_reap : [libaio]
- 
- 	Normally, with the libaio engine in use, fio will use the
+diff --git a/engines/http.c b/engines/http.c
+index a35c0332..275fcab5 100644
+--- a/engines/http.c
++++ b/engines/http.c
+@@ -642,7 +642,7 @@ static int fio_http_invalidate(struct thread_data *td, struct fio_file *f)
+ static struct ioengine_ops ioengine = {
+ 	.name = "http",
+ 	.version		= FIO_IOOPS_VERSION,
+-	.flags			= FIO_DISKLESSIO,
++	.flags			= FIO_DISKLESSIO | FIO_SYNCIO,
+ 	.setup			= fio_http_setup,
+ 	.queue			= fio_http_queue,
+ 	.getevents		= fio_http_getevents,
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index a5e77d8f..9bcfec17 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -533,6 +533,7 @@ static int fio_ioring_io_u_init(struct thread_data *td, struct io_u *io_u)
+ static struct ioengine_ops ioengine = {
+ 	.name			= "io_uring",
+ 	.version		= FIO_IOOPS_VERSION,
++	.flags			= FIO_ASYNCIO_SYNC_TRIM,
+ 	.init			= fio_ioring_init,
+ 	.post_init		= fio_ioring_post_init,
+ 	.io_u_init		= fio_ioring_io_u_init,
 diff --git a/engines/libaio.c b/engines/libaio.c
-index cc6ca66b..cd5b89f9 100644
+index 8844ac8b..cc6ca66b 100644
 --- a/engines/libaio.c
 +++ b/engines/libaio.c
-@@ -16,14 +16,6 @@
- #include "../optgroup.h"
- #include "../lib/memalign.h"
+@@ -429,6 +429,7 @@ static int fio_libaio_init(struct thread_data *td)
+ static struct ioengine_ops ioengine = {
+ 	.name			= "libaio",
+ 	.version		= FIO_IOOPS_VERSION,
++	.flags			= FIO_ASYNCIO_SYNC_TRIM,
+ 	.init			= fio_libaio_init,
+ 	.post_init		= fio_libaio_post_init,
+ 	.prep			= fio_libaio_prep,
+diff --git a/engines/posixaio.c b/engines/posixaio.c
+index 4ac01957..82c6aa65 100644
+--- a/engines/posixaio.c
++++ b/engines/posixaio.c
+@@ -243,6 +243,7 @@ static int fio_posixaio_init(struct thread_data *td)
+ static struct ioengine_ops ioengine = {
+ 	.name		= "posixaio",
+ 	.version	= FIO_IOOPS_VERSION,
++	.flags		= FIO_ASYNCIO_SYNC_TRIM,
+ 	.init		= fio_posixaio_init,
+ 	.prep		= fio_posixaio_prep,
+ 	.queue		= fio_posixaio_queue,
+diff --git a/ioengines.c b/ioengines.c
+index 7e5a50cc..aa4ccd27 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -308,7 +308,9 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
+ 	io_u->error = 0;
+ 	io_u->resid = 0;
  
--#ifndef IOCB_FLAG_HIPRI
--#define IOCB_FLAG_HIPRI	(1 << 2)
--#endif
--
--#ifndef IOCTX_FLAG_IOPOLL
--#define IOCTX_FLAG_IOPOLL	(1 << 0)
--#endif
--
- static int fio_libaio_commit(struct thread_data *td);
+-	if (td_ioengine_flagged(td, FIO_SYNCIO)) {
++	if (td_ioengine_flagged(td, FIO_SYNCIO) ||
++		(td_ioengine_flagged(td, FIO_ASYNCIO_SYNC_TRIM) && 
++		io_u->ddir == DDIR_TRIM)) {
+ 		if (fio_fill_issue_time(td))
+ 			fio_gettime(&io_u->issue_time, NULL);
  
- struct libaio_data {
-@@ -65,15 +57,6 @@ static struct fio_option options[] = {
- 		.category = FIO_OPT_C_ENGINE,
- 		.group	= FIO_OPT_G_LIBAIO,
- 	},
--	{
--		.name	= "hipri",
--		.lname	= "High Priority",
--		.type	= FIO_OPT_STR_SET,
--		.off1	= offsetof(struct libaio_options, hipri),
--		.help	= "Use polled IO completions",
--		.category = FIO_OPT_C_ENGINE,
--		.group	= FIO_OPT_G_LIBAIO,
--	},
- 	{
- 		.name	= NULL,
- 	},
-@@ -91,19 +74,12 @@ static inline void ring_inc(struct libaio_data *ld, unsigned int *val,
- static int fio_libaio_prep(struct thread_data fio_unused *td, struct io_u *io_u)
- {
- 	struct fio_file *f = io_u->file;
--	struct libaio_options *o = td->eo;
--	struct iocb *iocb;
--
--	iocb = &io_u->iocb;
-+	struct iocb *iocb = &io_u->iocb;
- 
- 	if (io_u->ddir == DDIR_READ) {
- 		io_prep_pread(iocb, f->fd, io_u->xfer_buf, io_u->xfer_buflen, io_u->offset);
--		if (o->hipri)
--			iocb->u.c.flags |= IOCB_FLAG_HIPRI;
- 	} else if (io_u->ddir == DDIR_WRITE) {
- 		io_prep_pwrite(iocb, f->fd, io_u->xfer_buf, io_u->xfer_buflen, io_u->offset);
--		if (o->hipri)
--			iocb->u.c.flags |= IOCB_FLAG_HIPRI;
- 	} else if (ddir_sync(io_u->ddir))
- 		io_prep_fsync(iocb, f->fd);
- 
-@@ -366,42 +342,12 @@ static void fio_libaio_cleanup(struct thread_data *td)
+@@ -389,7 +391,9 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
+ 			td_io_commit(td);
  	}
- }
  
--static int fio_libaio_old_queue_init(struct libaio_data *ld, unsigned int depth,
--				     bool hipri)
--{
--	if (hipri) {
--		log_err("fio: polled aio not available on your platform\n");
--		return 1;
--	}
--
--	return io_queue_init(depth, &ld->aio_ctx);
--}
--
--static int fio_libaio_queue_init(struct libaio_data *ld, unsigned int depth,
--				 bool hipri)
--{
--#ifdef __NR_sys_io_setup2
--	int ret, flags = 0;
--
--	if (hipri)
--		flags |= IOCTX_FLAG_IOPOLL;
--
--	ret = syscall(__NR_sys_io_setup2, depth, flags, NULL, NULL,
--			&ld->aio_ctx);
--	if (!ret)
--		return 0;
--	/* fall through to old syscall */
--#endif
--	return fio_libaio_old_queue_init(ld, depth, hipri);
--}
--
- static int fio_libaio_post_init(struct thread_data *td)
- {
- 	struct libaio_data *ld = td->io_ops_data;
--	struct libaio_options *o = td->eo;
--	int err = 0;
-+	int err;
+-	if (!td_ioengine_flagged(td, FIO_SYNCIO)) {
++	if (!td_ioengine_flagged(td, FIO_SYNCIO) &&
++		(!td_ioengine_flagged(td, FIO_ASYNCIO_SYNC_TRIM) ||
++		 io_u->ddir != DDIR_TRIM)) {
+ 		if (fio_fill_issue_time(td))
+ 			fio_gettime(&io_u->issue_time, NULL);
  
--	err = fio_libaio_queue_init(ld, td->o.iodepth, o->hipri);
-+	err = io_queue_init(td->o.iodepth, &ld->aio_ctx);
- 	if (err) {
- 		td_verror(td, -err, "io_queue_init");
- 		return 1;
-diff --git a/fio.1 b/fio.1
-index 156201ad..2966d9d5 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1762,6 +1762,29 @@ In addition, there are some parameters which are only valid when a specific
- with the caveat that when used on the command line, they must come after the
- \fBioengine\fR that defines them is selected.
- .TP
-+.BI (io_uring)hipri
-+If this option is set, fio will attempt to use polled IO completions. Normal IO
-+completions generate interrupts to signal the completion of IO, polled
-+completions do not. Hence they are require active reaping by the application.
-+The benefits are more efficient IO for high IOPS scenarios, and lower latencies
-+for low queue depth IO.
-+.TP
-+.BI (io_uring)fixedbufs
-+If fio is asked to do direct IO, then Linux will map pages for each IO call, and
-+release them when IO is done. If this option is set, the pages are pre-mapped
-+before IO is started. This eliminates the need to map and release for each IO.
-+This is more efficient, and reduces the IO latency as well.
-+.TP
-+.BI (io_uring)sqthread_poll
-+Normally fio will submit IO by issuing a system call to notify the kernel of
-+available items in the SQ ring. If this option is set, the act of submitting IO
-+will be done by a polling thread in the kernel. This frees up cycles for fio, at
-+the cost of using more CPU in the system.
-+.TP
-+.BI (io_uring)sqthread_poll_cpu
-+When `sqthread_poll` is set, this option provides a way to define which CPU
-+should be used for the polling thread.
-+.TP
- .BI (libaio)userspace_reap
- Normally, with the libaio engine in use, fio will use the
- \fBio_getevents\fR\|(3) system call to reap newly returned events. With
+diff --git a/ioengines.h b/ioengines.h
+index b9cd33d5..01a9b586 100644
+--- a/ioengines.h
++++ b/ioengines.h
+@@ -63,6 +63,8 @@ enum fio_ioengine_flags {
+ 	FIO_FAKEIO	= 1 << 11,	/* engine pretends to do IO */
+ 	FIO_NOSTATS	= 1 << 12,	/* don't do IO stats */
+ 	FIO_NOFILEHASH	= 1 << 13,	/* doesn't hash the files for lookup later. */
++	FIO_ASYNCIO_SYNC_TRIM
++			= 1 << 14	/* io engine has async ->queue except for trim */
+ };
+ 
+ /*
 
