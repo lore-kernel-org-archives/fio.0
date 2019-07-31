@@ -2,8 +2,8 @@ Return-Path: <axboe@kernel.dk>
 Subject: Re: [PATCH] smalloc: fix compiler warning
 References: <20190731205751.17531-1-vincentfu@gmail.com>
 From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <d25403dd-bc12-3d6d-356f-e516de79a580@kernel.dk>
-Date: Wed, 31 Jul 2019 15:28:26 -0600
+Message-ID: <568b52b6-7203-65ac-6847-5a7e21fed435@kernel.dk>
+Date: Wed, 31 Jul 2019 15:17:11 -0600
 MIME-Version: 1.0
 In-Reply-To: <20190731205751.17531-1-vincentfu@gmail.com>
 Content-Type: text/plain; charset=utf-8
@@ -21,12 +21,24 @@ On 7/31/19 2:57 PM, vincentfu@gmail.com wrote:
 > completion. This patch resolves the compiler warning.
 > 
 > AppVeyor Windows build log: https://ci.appveyor.com/project/axboe/fio/builds/26381726
+> ---
+>   smalloc.c | 3 +++
+>   1 file changed, 3 insertions(+)
+> 
+> diff --git a/smalloc.c b/smalloc.c
+> index c97bcbaa..0d7054a4 100644
+> --- a/smalloc.c
+> +++ b/smalloc.c
+> @@ -347,6 +347,9 @@ static unsigned int firstfree(struct pool *pool)
+>                           return i;
+>   
+>           assert(0);
+> +
+> +	/* we will never get here but this fixes a compiler warning */
+> +	return -1U;
+>   }
 
-I did this on top, as it removes the need to have that weird assert()
-with a return. Also fixes the coding style (mix of tabs and spaces), and
-makes it easier to read imho. Please review!
-
-http://git.kernel.dk/cgit/fio/commit/?id=21eabccd000aaa36ff8af2cd0db833e0871ed85b
+Thanks, a bit ugly (for Windows), but no big deal.
 
 -- 
 Jens Axboe
