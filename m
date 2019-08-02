@@ -1,40 +1,32 @@
-Return-Path: <prvs=138d395aa=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH] zbd: Improve job zonesize initialization checks
-Date: Fri, 30 Aug 2019 11:16:05 +0900
-Message-Id: <20190830021605.1211-1-damien.lemoal@wdc.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH v5] engines: Add Network Block Device (NBD) support using
+ libnbd.
+References: <20190802161125.14199-1-rjones@redhat.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <b2d1373f-bf3b-54a5-0f2f-d9e48cc3f05c@kernel.dk>
+Date: Fri, 2 Aug 2019 10:42:40 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <20190802161125.14199-1-rjones@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: "Richard W.M. Jones" <rjones@redhat.com>, fio@vger.kernel.org
+Cc: eblake@redhat.com
 List-ID: <fio@vger.kernel.org>
 
-For a multijob workload, each job may specify a zonesize option for
-access to a zoned block device or regular device with zonemode=zbd.
-In such case, make sure that the zone size value specified by each job
-matches the device zone size.
+On 8/2/19 10:11 AM, Richard W.M. Jones wrote:
+> This commit adds a new engine for testing Network Block Devices
+> directly.  It requires libnbd (https://github.com/libguestfs/libnbd).
+> 
+> To see how to test nbdkit or qemu-nbd read examples/nbd.fio.
 
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
----
- zbd.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Applied, thanks.
 
-diff --git a/zbd.c b/zbd.c
-index 0a573692..99310c49 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -127,6 +127,11 @@ static bool zbd_verify_sizes(void)
- 						f->file_name);
- 					return false;
- 				}
-+			} else if (td->o.zone_size != f->zbd_info->zone_size) {
-+				log_err("%s: job parameter zonesize %llu does not match disk zone size %llu.\n",
-+					f->file_name, (unsigned long long) td->o.zone_size,
-+					(unsigned long long) f->zbd_info->zone_size);
-+				return false;
- 			}
- 
- 			if (td->o.zone_skip &&
+Can you send a followup patch with some documentation in fio.1
+and HOWTO? The nbd 'uri' option should be documented there as well,
+under engine options.
+
 -- 
-2.21.0
+Jens Axboe
 
 
