@@ -1,30 +1,38 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH] nbd: Remove copy and paste error in example.
-References: <20190803155106.19525-1-rjones@redhat.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <f8d3a8f1-c9db-c266-f531-1eddd23199f7@kernel.dk>
-Date: Sat, 3 Aug 2019 08:52:26 -0700
+Return-Path: <rjones@redhat.com>
+From: "Richard W.M. Jones" <rjones@redhat.com>
+Subject: [PATCH] nbd: Remove copy and paste error in example.
+Date: Sat,  3 Aug 2019 16:51:06 +0100
+Message-Id: <20190803155106.19525-1-rjones@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20190803155106.19525-1-rjones@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: "Richard W.M. Jones" <rjones@redhat.com>, fio@vger.kernel.org
-Cc: eblake@redhat.com, sitsofe@gmail.com
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org
+Cc: eblake@redhat.com, axboe@kernel.dk, sitsofe@gmail.com
 List-ID: <fio@vger.kernel.org>
 
-On 8/3/19 9:51 AM, Richard W.M. Jones wrote:
-> Fixes a copy and paste error introduced in commit d643a1e29d
-> ("engines: Add Network Block Device (NBD) support using libnbd.").
-> 
-> Thanks: Sitsofe Wheeler
+Fixes a copy and paste error introduced in commit d643a1e29d
+("engines: Add Network Block Device (NBD) support using libnbd.").
 
-Applied, thanks.
+Thanks: Sitsofe Wheeler
 
-Small request for future patches - don't end the first commit line with
-a period.
+Signed-off-by: Richard W.M. Jones <rjones@redhat.com>
+---
+ examples/nbd.fio | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/examples/nbd.fio b/examples/nbd.fio
+index 27e15086..6900ebe7 100644
+--- a/examples/nbd.fio
++++ b/examples/nbd.fio
+@@ -26,7 +26,7 @@ iodepth=64
+ offset=0
+ 
+ [job1]
+-offset=064m
++offset=64m
+ 
+ [job2]
+ offset=128m
 -- 
-Jens Axboe
+2.22.0
 
 
