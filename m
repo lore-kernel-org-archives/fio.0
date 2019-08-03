@@ -1,44 +1,65 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mout.perfora.net ([74.208.4.194]:34135 "EHLO mout.perfora.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726083AbfHRXBp (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 18 Aug 2019 19:01:45 -0400
-Received: from [10.132.208.18] ([107.92.58.20]) by mrelay.perfora.net
- (mreueus004 [74.208.5.2]) with ESMTPSA (Nemesis) id 1MhTl1-1iUOoJ0F1P-00egW0
- for <fio@vger.kernel.org>; Mon, 19 Aug 2019 00:56:44 +0200
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain;
-        charset=us-ascii
-From: Eliezer Nebab <eliezer@integritech.solutions>
-Mime-Version: 1.0 (1.0)
-Subject: Total latency (lat) of a workload test
-Message-Id: <A6EB8C9D-45E9-4BB4-8F69-3FFFBD326B47@integritech.solutions>
-Date: Sun, 18 Aug 2019 17:56:42 -0500
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <rjones@redhat.com>
+Date: Sat, 3 Aug 2019 16:32:06 +0100
+From: "Richard W.M. Jones" <rjones@redhat.com>
+Subject: Re: [PATCH v4] engines: Add Network Block Device (NBD) support using
+ libnbd.
+Message-ID: <20190803153206.GY3888@redhat.com>
+References: <20190802153225.11480-1-rjones@redhat.com>
+ <20190802153225.11480-2-rjones@redhat.com>
+ <CALjAwxgdf_XNwquVDJtSTKRjD9kcXcdM9MoDCZUY2qh9bxwwNg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CALjAwxgdf_XNwquVDJtSTKRjD9kcXcdM9MoDCZUY2qh9bxwwNg@mail.gmail.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>, eblake@redhat.com, Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-Hello,
+On Sat, Aug 03, 2019 at 04:10:07PM +0100, Sitsofe Wheeler wrote:
+> On Sat, 3 Aug 2019 at 15:38, Richard W.M. Jones <rjones@redhat.com> wrote:
+> > +               **nbd**
+> > +                       Synchronous read and write a Network Block Device (NBD).
+> 
+> I wonder if the engine should be called nbdkit as that's what it uses
+> under hood to talk NBD...
 
-I have the following workload:
+libnbd (nbdkit is a server).  libnbd is supposed to be "the" NBD
+client library however.  I'm not sure what other NBD engines would be
+useful here.
 
-fio --randrepeat=1 --ioengine=libaio --direct=1 --sync=1 --name=test --filename=random_readwrite_test.fio --overwrite=1 --iodepth=64 --size=5GB --readwrite=randrw --rwmixread=50 --rwmixwrite=50 --bs=32k --runtime=60 --time_based --ramp_time=15
+> > +  --enable-libnbd) libnbd="yes"
+> > +  ;;
+> 
+> Why not enable by default if available and then do a probe to see if
+> it can be enabled?
 
-With the following result:
+Yes, we can do this.  I disabled it out of an abundance of caution, so
+that no one's build could be broken if I got it wrong.
 
-read : io=1949.4MB, bw=33249KB/s, iops=1038 , runt= 60035msec
-    slat (usec): min=4 , max=30100 , avg=23.92, stdev=240.73
-    clat (msec): min=1 , max=80 , avg=31.59, stdev= 8.94
-     lat (msec): min=1 , max=80 , avg=31.61, stdev= 8.94
+> > +       .io_u_free              = nbd_io_u_free,
+> > +
+> > +       .open_file              = nbd_open_file,
+> > +       .invalidate             = nbd_invalidate,
+> 
+> Do you have to register functions for things that you don't do
+> anything (e.g. nbd_io_u_free)?
 
- write: io=1830.3MB, bw=31219KB/s, iops=975 , runt= 60035msec
-    slat (usec): min=5 , max=30150 , avg=35.61, stdev=293.88
-    clat (msec): min=1 , max=80 , avg=31.91, stdev= 8.82
-     lat (msec): min=1 , max=80 , avg=31.95, stdev= 8.81
+I think io_u_free is the only one which is an actual no-op (but it
+balances the corresponding init function).  I'm not really sure of the
+purpose of open_file and invalidate except that other engines also did
+the same thing.
 
-This is a 2000 iops iscsi. The read operation shows a 31.61 (msec) lat and the write operation at 31.95 (msec).  What is the correct way to interpret the total latency of this fio workload?  Do you add the read lat (31.61) plus write lat (31.95) to get the overall latency for this workload?
+> > +offset=064m
+> 
+> I'd drop the leading 0.
 
-Thanks in advance for your input.
+This is a bug, I'll send a follow-up patch to fix it.
 
-Eliezer
+Rich.
+
+-- 
+Richard Jones, Virtualization Group, Red Hat http://people.redhat.com/~rjones
+Read my programming and virtualization blog: http://rwmj.wordpress.com
+virt-builder quickly builds VMs from scratch
+http://libguestfs.org/virt-builder.1.html
 
