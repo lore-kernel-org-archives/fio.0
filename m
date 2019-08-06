@@ -1,67 +1,93 @@
-Return-Path: <bart.vanassche@gmail.com>
-Return-Path: <bart.vanassche@gmail.com>
-From: Bart Van Assche <bvanassche@acm.org>
-Subject: [PATCH v3 4/7] Refine packed annotations in stat.h
-Date: Wed, 14 Aug 2019 13:10:09 -0700
-Message-Id: <20190814201012.253060-5-bvanassche@acm.org>
-In-Reply-To: <20190814201012.253060-1-bvanassche@acm.org>
-References: <20190814201012.253060-1-bvanassche@acm.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:59180 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726092AbfHFMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 6 Aug 2019 08:00:09 -0400
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
+        id 1huy8N-0002I4-Uv
+        for fio@vger.kernel.org; Tue, 06 Aug 2019 12:00:08 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20190806120001.D0D702C0099@kernel.dk>
+Date: Tue,  6 Aug 2019 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Instead of declaring the whole structure packed, only declare non-aligned
-members packed. This patch is an alternative way to fix the following gcc 9
-compiler warnings:
+The following changes since commit acd44dec8cfa476d91dc1695df64f249e52d06e3:
 
-eta.c: In function 'calc_thread_status':
-eta.c:510:7: error: taking address of packed member of 'struct jobs_eta' may result in an unaligned pointer value [-Werror=address-of-packed-member]
-  510 |     je->rate);
-      |     ~~^~~~~~
-eta.c:522:66: error: taking address of packed member of 'struct jobs_eta' may result in an unaligned pointer value [-Werror=address-of-packed-member]
-  522 |  calc_rate(unified_rw_rep, disp_time, io_bytes, disp_io_bytes, je->rate);
-      |                                                                ~~^~~~~~
-eta.c:523:64: error: taking address of packed member of 'struct jobs_eta' may result in an unaligned pointer value [-Werror=address-of-packed-member]
-  523 |  calc_iops(unified_rw_rep, disp_time, io_iops, disp_io_iops, je->iops);
-      |
+  nbd: Remove copy and paste error in example (2019-08-03 09:51:44 -0600)
 
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to c1f6f32ea74316df1e8707eba4fb95ab14fae6f7:
+
+  Add tests from t/ to the Windows installer (2019-08-05 14:45:50 -0600)
+
+----------------------------------------------------------------
+Rebecca Cran (1):
+      Add tests from t/ to the Windows installer
+
+ os/windows/install.wxs | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+
 ---
- stat.h | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/stat.h b/stat.h
-index e9551381ce7b..c6353c70ae08 100644
---- a/stat.h
-+++ b/stat.h
-@@ -260,10 +260,11 @@ struct jobs_eta {
- 
- 	uint64_t m_rate[DDIR_RWDIR_CNT], t_rate[DDIR_RWDIR_CNT];
- 	uint64_t rate[DDIR_RWDIR_CNT];
--	uint32_t m_iops[DDIR_RWDIR_CNT], t_iops[DDIR_RWDIR_CNT];
--	uint32_t iops[DDIR_RWDIR_CNT];
--	uint64_t elapsed_sec;
--	uint64_t eta_sec;
-+	uint32_t m_iops[DDIR_RWDIR_CNT] __attribute__((packed));
-+	uint32_t t_iops[DDIR_RWDIR_CNT] __attribute__((packed));
-+	uint32_t iops[DDIR_RWDIR_CNT] __attribute__((packed));
-+	uint64_t elapsed_sec __attribute__((packed));
-+	uint64_t eta_sec __attribute__((packed));
- 	uint32_t is_pow2;
- 	uint32_t unit_base;
- 
-@@ -276,7 +277,7 @@ struct jobs_eta {
- 	 */
- 	uint32_t nr_threads;
- 	uint8_t run_str[];
--} __attribute__((packed));
-+};
- 
- struct io_u_plat_entry {
- 	struct flist_head list;
--- 
-2.22.0.rc1
+Diff of recent changes:
 
+diff --git a/os/windows/install.wxs b/os/windows/install.wxs
+index 97d88e9f..dcb8c92c 100755
+--- a/os/windows/install.wxs
++++ b/os/windows/install.wxs
+@@ -43,6 +43,32 @@
+ 							<File Id="MORAL_LICENSE" Name="MORAL-LICENSE.txt" Source="..\..\MORAL-LICENSE"/>
+ 						</Component>
+ 						<Directory Id="examples" Name="examples"/>
++						<Directory Id="tests" Name="tests">
++							<Component>
++								<File Source="../../t/fio-genzipf.exe"/>
++							</Component>
++							<Component>
++								<File Source="../../t/fio-dedupe.exe"/>
++							</Component>
++							<Component>
++								<File Source="../../t/stest.exe"/>
++							</Component>
++							<Component>
++								<File Source="../../t/ieee754.exe"/>
++							</Component>
++							<Component>
++								<File Source="../../t/axmap.exe"/>
++							</Component>
++							<Component>
++								<File Source="../../t/lfsr-test.exe"/>
++							</Component>
++							<Component>
++								<File Source="../../t/gen-rand.exe"/>
++							</Component>
++							<Component>
++								<File Source="../../t/fio-verify-state.exe"/>
++							</Component>
++						</Directory>
+ 					</Directory>
+ 				</Directory>
+ 			</Directory>
+@@ -56,6 +82,14 @@
+ 		<ComponentRef Id="COPYING"/>
+ 		<ComponentRef Id="MORAL_LICENSE"/>
+ 		<ComponentGroupRef Id="examples"/>
++		<ComponentRef Id="fio_genzipf.exe"/>
++		<ComponentRef Id="fio_dedupe.exe"/>
++		<ComponentRef Id="stest.exe"/>
++		<ComponentRef Id="ieee754.exe"/>
++		<ComponentRef Id="axmap.exe"/>
++		<ComponentRef Id="lfsr_test.exe"/>
++		<ComponentRef Id="gen_rand.exe"/>
++		<ComponentRef Id="fio_verify_state.exe"/>
+ 	</Feature>
+ 
+ 	<Property Id="ARPURLINFOABOUT" Value="http://git.kernel.dk/cgit/fio/" />
 
