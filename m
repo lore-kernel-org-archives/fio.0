@@ -1,58 +1,66 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa5.hgst.iphmx.com ([216.71.153.144]:28106 "EHLO
-        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727492AbfH2HVl (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 29 Aug 2019 03:21:41 -0400
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 5/6] man: Improve zonemode=zbd information
-Date: Thu, 29 Aug 2019 16:21:34 +0900
-Message-Id: <20190829072135.2872-6-damien.lemoal@wdc.com>
-In-Reply-To: <20190829072135.2872-1-damien.lemoal@wdc.com>
-References: <20190829072135.2872-1-damien.lemoal@wdc.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 5/5] make test: Also run zbd tests
+References: <20190813020136.15798-1-bvanassche@acm.org>
+ <20190813020136.15798-6-bvanassche@acm.org>
+ <CALjAwxjBiG9UsTfcB7zQohbtu7QofGhf3qvbi9T9TT-Kv=oeCw@mail.gmail.com>
+ <aafcc9f9-67fc-10c8-1b6e-b9d8cd4621a3@acm.org>
+ <CALjAwxi-NujdSFZPP48GZ=vovkmz43qyP1-8OzERJxJK0D3knQ@mail.gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <80f13ecd-34b1-c2c2-5802-da2a8058ab42@kernel.dk>
+Date: Tue, 13 Aug 2019 14:22:55 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <CALjAwxi-NujdSFZPP48GZ=vovkmz43qyP1-8OzERJxJK0D3knQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Sitsofe Wheeler <sitsofe@gmail.com>, Bart Van Assche <bvanassche@acm.org>
+Cc: fio <fio@vger.kernel.org>, Damien Le Moal <damien.lemoal@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-Clarify the use of the zonerange and zonesize options for zonemode=zbd.
+On 8/13/19 2:10 PM, Sitsofe Wheeler wrote:
+> On Tue, 13 Aug 2019 at 16:06, Bart Van Assche <bvanassche@acm.org> wrote:
+>>
+>> On 8/12/19 9:39 PM, Sitsofe Wheeler wrote:
+>>> On Tue, 13 Aug 2019 at 03:02, Bart Van Assche <bvanassche@acm.org> wrote:
+>>>>    test: fio
+>>>>           ./fio --minimal --thread --exitall_on_error --runtime=1s --name=nulltest --ioengine=null --rw=randrw --iodepth=2 --norandommap --random_generator=tausworthe64 --size=16T --name=verifyfstest --filename=fiotestfile.tmp --unlink=1 --rw=write --verify=crc32c --verify_state_save=0 --size=16K
+>>>> +       if modinfo null_blk >/dev/null 2>&1 &&                                 \
+>>>> +               sudo modprobe null_blk &&                                      \
+>>>> +               [ -e /sys/kernel/config/nullb ]; then                          \
+>>>> +               git clone https://github.com/hgst/libzbc &&                    \
+>>>> +               (cd libzbc &&                                                  \
+>>>> +               ./autogen.sh &&                                                \
+>>>> +               ./configure --prefix=/usr &&                                   \
+>>>> +               make -j &&                                                     \
+>>>> +               sudo make install) &&                                          \
+>>>> +               sudo t/zbd/run-tests-against-regular-nullb &&                  \
+>>>> +               if modinfo null_blk | grep -q '^parm:[[:blank:]]*zoned:'; then \
+>>>> +                       sudo t/zbd/run-tests-against-zoned-nullb;              \
+>>>> +               fi;                                                            \
+>>>> +       fi
+>>>>
+>>>>    install: $(PROGS) $(SCRIPTS) tools/plot/fio2gnuplot.1 FORCE
+>>>>           $(INSTALL) -m 755 -d $(DESTDIR)$(bindir)
+>>>>
+>>>
+>>> I don't feel comfortable trying to clone a repo, run sudo, installing
+>>> stuff as root and loading a kernel module just because someone ran
+>>> "make test". Maybe we should introduce another target for this?
+>>
+>> Hi Sitsofe,
+>>
+>> How about executing the new code only on Travis, e.g. by checking
+>> whether the TRAVIS environment variable has been set?
+> 
+> That's a bit better but I still think we could introduce a test_travis
+> target, have travis call that and run any extra commands we want...
 
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
----
- fio.1 | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+I agree with that, but let's call it something like fulltest instead.
+That gives travis/CI the option to run test and fulltest, where a
+"normal" user would probably just do make test. If they do want
+fulltest, then it's available to run.
 
-diff --git a/fio.1 b/fio.1
-index d7421eee..c00579bc 100644
---- a/fio.1
-+++ b/fio.1
-@@ -753,7 +753,10 @@ restricted to a single zone.
- .RE
- .TP
- .BI zonerange \fR=\fPint
--Size of a single zone. See also \fBzonesize\fR and \fBzoneskip\fR.
-+For \fBzonemode\fR=strided, this is the size of a single zone. See also
-+\fBzonesize\fR and \fBzoneskip\fR.
-+
-+For \fBzonemode\fR=zbd, this parameter is ignored.
- .TP
- .BI zonesize \fR=\fPint
- For \fBzonemode\fR=strided, this is the number of bytes to transfer before
-@@ -762,8 +765,11 @@ skipping \fBzoneskip\fR bytes. If this parameter is smaller than
- will be accessed.  If this parameter is larger than \fBzonerange\fR then each
- zone will be accessed multiple times before skipping to the next zone.
- 
--For \fBzonemode\fR=zbd, this is the size of a single zone. The \fBzonerange\fR
--parameter is ignored in this mode.
-+For \fBzonemode\fR=zbd, this is the size of a single zone. The
-+\fBzonerange\fR parameter is ignored in this mode. For a job accessing a
-+zoned block device, the specified \fBzonesize\fR must be 0 or equal to the
-+device zone size. For a regular block device or file, the specified
-+\fBzonesize\fR must be at least 512B.
- .TP
- .BI zoneskip \fR=\fPint
- For \fBzonemode\fR=strided, the number of bytes to skip after \fBzonesize\fR
 -- 
-2.21.0
+Jens Axboe
 
 
