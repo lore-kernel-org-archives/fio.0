@@ -1,49 +1,53 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [three fio patches 1/3] docs: small HOWTO fixes
-Date: Wed, 28 Aug 2019 13:48:40 -0400
-Message-Id: <20190828174842.25423-2-vincentfu@gmail.com>
-In-Reply-To: <20190828174842.25423-1-vincentfu@gmail.com>
-References: <20190828174842.25423-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
+Return-Path: <bart.vanassche@gmail.com>
+Return-Path: <bart.vanassche@gmail.com>
+From: Bart Van Assche <bvanassche@acm.org>
+Subject: [PATCH 2/5] Verify the size of struct jobs_eta at compile time
+Date: Mon, 12 Aug 2019 19:01:33 -0700
+Message-Id: <20190813020136.15798-3-bvanassche@acm.org>
+In-Reply-To: <20190813020136.15798-1-bvanassche@acm.org>
+References: <20190813020136.15798-1-bvanassche@acm.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Bart Van Assche <bvanassche@acm.org>
 List-ID: <fio@vger.kernel.org>
 
-From: Vincent Fu <vincent.fu@wdc.com>
+This helps to verify the correctness of a later patch that will modify
+this structure.
 
-Document three debug options and fix a formatting error.
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 ---
- HOWTO | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ eta.c | 2 ++
+ fio.h | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/HOWTO b/HOWTO
-index 41b959d1..1c9b2c10 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -93,6 +93,12 @@ Command line options
- 			Dump info related to I/O rate switching.
- 	*compress*
- 			Dump info related to log compress/decompress.
-+	*steadystate*
-+			Dump info related to steadystate detection.
-+	*helperthread*
-+			Dump info related to the helper thread.
-+	*zbd*
-+			Dump info related to support for zoned block devices.
- 	*?* or *help*
- 			Show available debug options.
+diff --git a/eta.c b/eta.c
+index 647a1bdd8eed..99c537d189a3 100644
+--- a/eta.c
++++ b/eta.c
+@@ -736,6 +736,8 @@ void print_thread_status(void)
  
-@@ -2388,7 +2394,7 @@ I/O depth
- 	this option can reduce both performance and the :option:`iodepth` achieved.
+ void print_status_init(int thr_number)
+ {
++	BUILD_BUG_ON(sizeof(struct jobs_eta) != 160);
++
+ 	DRD_IGNORE_VAR(__run_str);
+ 	__run_str[thr_number] = 'P';
+ 	update_condensed_str(__run_str, run_str);
+diff --git a/fio.h b/fio.h
+index 2094d30b863e..4bf96fc1cd62 100644
+--- a/fio.h
++++ b/fio.h
+@@ -66,6 +66,8 @@
+ #include <cuda.h>
+ #endif
  
- 	This option only applies to I/Os issued for a single job except when it is
--	enabled along with :option:`io_submit_mode`=offload. In offload mode, fio
-+	enabled along with :option:`io_submit_mode`\=offload. In offload mode, fio
- 	will check for overlap among all I/Os submitted by offload jobs with :option:`serialize_overlap`
- 	enabled.
++#define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2*!!(condition)]))
++
+ struct fio_sem;
  
+ /*
 -- 
-2.17.1
+2.22.0
 
 
