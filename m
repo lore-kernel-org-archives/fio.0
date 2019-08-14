@@ -1,56 +1,61 @@
 Return-Path: <bart.vanassche@gmail.com>
 Return-Path: <bart.vanassche@gmail.com>
 From: Bart Van Assche <bvanassche@acm.org>
-Subject: [PATCH 0/5] Five fio patches
-Date: Mon, 12 Aug 2019 19:01:31 -0700
-Message-Id: <20190813020136.15798-1-bvanassche@acm.org>
+Subject: [PATCH v2 6/7] Revert "eta: Fix compiler warning"
+Date: Tue, 13 Aug 2019 19:20:37 -0700
+Message-Id: <20190814022038.30941-7-bvanassche@acm.org>
+In-Reply-To: <20190814022038.30941-1-bvanassche@acm.org>
+References: <20190814022038.30941-1-bvanassche@acm.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 To: Jens Axboe <axboe@kernel.dk>
 Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Bart Van Assche <bvanassche@acm.org>
 List-ID: <fio@vger.kernel.org>
 
-Hi Jens,
+This reverts commit df0ca15ce2ffac0df3e9dcf4bfe4121333c4aa27. Due to
+the previous patch it is no longer necessary to confuse the compiler
+about accesses of the 'rate' and 'iops' members in struct jobs_eta.
 
-The following changes are included in this patch series:
-- Use snprintf() instead of strncpy() + explicit null termination.
-- Rework the approach for suppressing gcc 9 address of packed member warnings.
-- Make Travis run the zbd tests.
+Cc: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+---
+ eta.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-Please consider these patches for the official fio git repository.
-
-Thanks,
-
-Bart.
-
-Bart Van Assche (5):
-  Optimize the code that copies strings
-  Verify the size of struct jobs_eta at compile time
-  Refine packed annotations in stat.h
-  Revert "eta: Fix compiler warning"
-  make test: Also run zbd tests
-
- .travis.yml   |  3 +++
- Makefile      | 14 ++++++++++++++
- cconv.c       |  7 +++----
- client.c      |  5 +++--
- diskutil.c    |  9 ++++-----
- engines/net.c |  6 ++----
- engines/sg.c  |  4 ++--
- eta.c         | 11 +++++------
- filesetup.c   |  6 ++----
- fio.h         |  2 ++
- gclient.c     |  4 ++--
- init.c        | 19 +++++--------------
- ioengines.c   |  3 +--
- options.c     |  3 +--
- parse.c       |  6 ++----
- server.c      | 26 +++++++++++---------------
- stat.c        | 15 ++++++++-------
- stat.h        | 11 ++++++-----
- verify.c      |  3 +--
- 19 files changed, 77 insertions(+), 80 deletions(-)
-
+diff --git a/eta.c b/eta.c
+index 4095a257d206..3d09a9229d93 100644
+--- a/eta.c
++++ b/eta.c
+@@ -392,9 +392,6 @@ bool calc_thread_status(struct jobs_eta *je, int force)
+ 	static unsigned long long disp_io_iops[DDIR_RWDIR_CNT];
+ 	static struct timespec rate_prev_time, disp_prev_time;
+ 
+-	void *je_rate = (void *) je->rate;
+-	void *je_iops = (void *) je->iops;
+-
+ 	if (!force) {
+ 		if (!(output_format & FIO_OUTPUT_NORMAL) &&
+ 		    f_out == stdout)
+@@ -510,7 +507,7 @@ bool calc_thread_status(struct jobs_eta *je, int force)
+ 
+ 	if (write_bw_log && rate_time > bw_avg_time && !in_ramp_time(td)) {
+ 		calc_rate(unified_rw_rep, rate_time, io_bytes, rate_io_bytes,
+-				je_rate);
++				je->rate);
+ 		memcpy(&rate_prev_time, &now, sizeof(now));
+ 		add_agg_sample(sample_val(je->rate[DDIR_READ]), DDIR_READ, 0);
+ 		add_agg_sample(sample_val(je->rate[DDIR_WRITE]), DDIR_WRITE, 0);
+@@ -522,8 +519,8 @@ bool calc_thread_status(struct jobs_eta *je, int force)
+ 	if (!force && !eta_time_within_slack(disp_time))
+ 		return false;
+ 
+-	calc_rate(unified_rw_rep, disp_time, io_bytes, disp_io_bytes, je_rate);
+-	calc_iops(unified_rw_rep, disp_time, io_iops, disp_io_iops, je_iops);
++	calc_rate(unified_rw_rep, disp_time, io_bytes, disp_io_bytes, je->rate);
++	calc_iops(unified_rw_rep, disp_time, io_iops, disp_io_iops, je->iops);
+ 
+ 	memcpy(&disp_prev_time, &now, sizeof(now));
+ 
 -- 
 2.22.0
 
