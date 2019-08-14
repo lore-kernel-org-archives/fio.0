@@ -1,23 +1,49 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from [114.99.24.127] ([114.99.24.127]:61260 "HELO unknown.com"
-        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with SMTP
-        id S1727868AbfHXWD0 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 24 Aug 2019 18:03:26 -0400
-Received: from zgsnwj.com ([127.0.0.1])
-        (envelope-sender <karty@shenyang.gov.cn>)
-        by 127.0.0.1 with ESMTP
-        for <fio@vger.kernel.org>; Sun, 25 Aug 2019 05:05:34 +0800
-From: "=?utf-8?Q?332019825?=" <karty@shenyang.gov.cn>
-Subject: =?utf-8?Q?=E8=91=A3=E6=99=A8dongchen?=
-Message-ID: <40db929f58b9145ebee9fa4137fb1961@shenyang.gov.cn>
-Date: Sun, 25 Aug 2019 05:05:33 +0800
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: base64
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: =?utf-8?Q?fio?= <fio@vger.kernel.org>
+Return-Path: <bart.vanassche@gmail.com>
+Return-Path: <bart.vanassche@gmail.com>
+From: Bart Van Assche <bvanassche@acm.org>
+Subject: [PATCH v3 1/7] zbd: Declare local functions 'static'
+Date: Wed, 14 Aug 2019 13:10:06 -0700
+Message-Id: <20190814201012.253060-2-bvanassche@acm.org>
+In-Reply-To: <20190814201012.253060-1-bvanassche@acm.org>
+References: <20190814201012.253060-1-bvanassche@acm.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>
+List-ID: <fio@vger.kernel.org>
 
-5byA56WoDQrOve+8muKTqeKSqOKTqDQ2NTM=
+This patch fixes two sparse warnings.
+
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+---
+ zbd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/zbd.c b/zbd.c
+index d7e91e37e010..2383c57dfc90 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -481,7 +481,7 @@ out:
+  *
+  * Returns 0 upon success and a negative error code upon failure.
+  */
+-int zbd_create_zone_info(struct thread_data *td, struct fio_file *f)
++static int zbd_create_zone_info(struct thread_data *td, struct fio_file *f)
+ {
+ 	enum blk_zoned_model zbd_model;
+ 	int ret = 0;
+@@ -933,8 +933,8 @@ static void zbd_close_zone(struct thread_data *td, const struct fio_file *f,
+  * a multiple of the fio block size. The caller must neither hold z->mutex
+  * nor f->zbd_info->mutex. Returns with z->mutex held upon success.
+  */
+-struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+-					       struct io_u *io_u)
++static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
++						      struct io_u *io_u)
+ {
+ 	const uint32_t min_bs = td->o.min_bs[io_u->ddir];
+ 	const struct fio_file *f = io_u->file;
+-- 
+2.22.0.rc1
 
 
