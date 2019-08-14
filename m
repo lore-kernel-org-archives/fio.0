@@ -1,51 +1,49 @@
-Return-Path: <prvs=138d395aa=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH] zbd: Fix job zone size initialization
-Date: Fri, 30 Aug 2019 10:45:03 +0900
-Message-Id: <20190830014503.32691-1-damien.lemoal@wdc.com>
+Return-Path: <bart.vanassche@gmail.com>
+Return-Path: <bart.vanassche@gmail.com>
+From: Bart Van Assche <bvanassche@acm.org>
+Subject: [PATCH v2 1/7] zbd: Declare local functions 'static'
+Date: Tue, 13 Aug 2019 19:20:32 -0700
+Message-Id: <20190814022038.30941-2-bvanassche@acm.org>
+In-Reply-To: <20190814022038.30941-1-bvanassche@acm.org>
+References: <20190814022038.30941-1-bvanassche@acm.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Bart Van Assche <bvanassche@acm.org>
 List-ID: <fio@vger.kernel.org>
 
-For a job accessing a zoned block device, the zone size is automatically
-initialized to the device zone size. However, since zone information for
-a zoned block device is parsed once only for the first job
-initialization of a multi job workload, only the first job has its
-zonesize option intialized, causing problem if the zoneskip option is
-also used (assert exit).
+This patch fixes two sparse warnings.
 
-Fix this by always initializing a job zonesize option using the job
-file zbd information when verifying the job ZBD related sizes and
-offsets.
-
-Fixes: 4d37720ae029 ("zbd: Add support for zoneskip option")
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 ---
- zbd.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ zbd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/zbd.c b/zbd.c
-index fb81b532..0a573692 100644
+index d7e91e37e010..2383c57dfc90 100644
 --- a/zbd.c
 +++ b/zbd.c
-@@ -120,6 +120,15 @@ static bool zbd_verify_sizes(void)
- 			if (!zbd_is_seq_job(f))
- 				continue;
- 
-+			if (!td->o.zone_size) {
-+				td->o.zone_size = f->zbd_info->zone_size;
-+				if (!td->o.zone_size) {
-+					log_err("%s: invalid 0 zone size\n",
-+						f->file_name);
-+					return false;
-+				}
-+			}
-+
- 			if (td->o.zone_skip &&
- 			    (td->o.zone_skip < td->o.zone_size ||
- 			     td->o.zone_skip % td->o.zone_size)) {
+@@ -481,7 +481,7 @@ out:
+  *
+  * Returns 0 upon success and a negative error code upon failure.
+  */
+-int zbd_create_zone_info(struct thread_data *td, struct fio_file *f)
++static int zbd_create_zone_info(struct thread_data *td, struct fio_file *f)
+ {
+ 	enum blk_zoned_model zbd_model;
+ 	int ret = 0;
+@@ -933,8 +933,8 @@ static void zbd_close_zone(struct thread_data *td, const struct fio_file *f,
+  * a multiple of the fio block size. The caller must neither hold z->mutex
+  * nor f->zbd_info->mutex. Returns with z->mutex held upon success.
+  */
+-struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+-					       struct io_u *io_u)
++static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
++						      struct io_u *io_u)
+ {
+ 	const uint32_t min_bs = td->o.min_bs[io_u->ddir];
+ 	const struct fio_file *f = io_u->file;
 -- 
-2.21.0
+2.22.0
 
 
