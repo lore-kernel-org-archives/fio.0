@@ -1,49 +1,67 @@
 Return-Path: <bart.vanassche@gmail.com>
 Return-Path: <bart.vanassche@gmail.com>
 From: Bart Van Assche <bvanassche@acm.org>
-Subject: [PATCH v2 1/7] zbd: Declare local functions 'static'
-Date: Tue, 13 Aug 2019 19:20:32 -0700
-Message-Id: <20190814022038.30941-2-bvanassche@acm.org>
-In-Reply-To: <20190814022038.30941-1-bvanassche@acm.org>
-References: <20190814022038.30941-1-bvanassche@acm.org>
+Subject: [PATCH v3 4/7] Refine packed annotations in stat.h
+Date: Wed, 14 Aug 2019 13:10:09 -0700
+Message-Id: <20190814201012.253060-5-bvanassche@acm.org>
+In-Reply-To: <20190814201012.253060-1-bvanassche@acm.org>
+References: <20190814201012.253060-1-bvanassche@acm.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Bart Van Assche <bvanassche@acm.org>
+Cc: fio@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>
 List-ID: <fio@vger.kernel.org>
 
-This patch fixes two sparse warnings.
+Instead of declaring the whole structure packed, only declare non-aligned
+members packed. This patch is an alternative way to fix the following gcc 9
+compiler warnings:
+
+eta.c: In function 'calc_thread_status':
+eta.c:510:7: error: taking address of packed member of 'struct jobs_eta' may result in an unaligned pointer value [-Werror=address-of-packed-member]
+  510 |     je->rate);
+      |     ~~^~~~~~
+eta.c:522:66: error: taking address of packed member of 'struct jobs_eta' may result in an unaligned pointer value [-Werror=address-of-packed-member]
+  522 |  calc_rate(unified_rw_rep, disp_time, io_bytes, disp_io_bytes, je->rate);
+      |                                                                ~~^~~~~~
+eta.c:523:64: error: taking address of packed member of 'struct jobs_eta' may result in an unaligned pointer value [-Werror=address-of-packed-member]
+  523 |  calc_iops(unified_rw_rep, disp_time, io_iops, disp_io_iops, je->iops);
+      |
 
 Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 ---
- zbd.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ stat.h | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/zbd.c b/zbd.c
-index d7e91e37e010..2383c57dfc90 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -481,7 +481,7 @@ out:
-  *
-  * Returns 0 upon success and a negative error code upon failure.
-  */
--int zbd_create_zone_info(struct thread_data *td, struct fio_file *f)
-+static int zbd_create_zone_info(struct thread_data *td, struct fio_file *f)
- {
- 	enum blk_zoned_model zbd_model;
- 	int ret = 0;
-@@ -933,8 +933,8 @@ static void zbd_close_zone(struct thread_data *td, const struct fio_file *f,
-  * a multiple of the fio block size. The caller must neither hold z->mutex
-  * nor f->zbd_info->mutex. Returns with z->mutex held upon success.
-  */
--struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
--					       struct io_u *io_u)
-+static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
-+						      struct io_u *io_u)
- {
- 	const uint32_t min_bs = td->o.min_bs[io_u->ddir];
- 	const struct fio_file *f = io_u->file;
+diff --git a/stat.h b/stat.h
+index e9551381ce7b..c6353c70ae08 100644
+--- a/stat.h
++++ b/stat.h
+@@ -260,10 +260,11 @@ struct jobs_eta {
+ 
+ 	uint64_t m_rate[DDIR_RWDIR_CNT], t_rate[DDIR_RWDIR_CNT];
+ 	uint64_t rate[DDIR_RWDIR_CNT];
+-	uint32_t m_iops[DDIR_RWDIR_CNT], t_iops[DDIR_RWDIR_CNT];
+-	uint32_t iops[DDIR_RWDIR_CNT];
+-	uint64_t elapsed_sec;
+-	uint64_t eta_sec;
++	uint32_t m_iops[DDIR_RWDIR_CNT] __attribute__((packed));
++	uint32_t t_iops[DDIR_RWDIR_CNT] __attribute__((packed));
++	uint32_t iops[DDIR_RWDIR_CNT] __attribute__((packed));
++	uint64_t elapsed_sec __attribute__((packed));
++	uint64_t eta_sec __attribute__((packed));
+ 	uint32_t is_pow2;
+ 	uint32_t unit_base;
+ 
+@@ -276,7 +277,7 @@ struct jobs_eta {
+ 	 */
+ 	uint32_t nr_threads;
+ 	uint8_t run_str[];
+-} __attribute__((packed));
++};
+ 
+ struct io_u_plat_entry {
+ 	struct flist_head list;
 -- 
-2.22.0
+2.22.0.rc1
 
 
