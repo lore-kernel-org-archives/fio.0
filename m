@@ -1,38 +1,31 @@
-Return-Path: <rjones@redhat.com>
-From: "Richard W.M. Jones" <rjones@redhat.com>
-Subject: [PATCH] nbd: Remove copy and paste error in example.
-Date: Sat,  3 Aug 2019 16:51:06 +0100
-Message-Id: <20190803155106.19525-1-rjones@redhat.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH v3 0/7] Seven fio patches
+References: <20190814201012.253060-1-bvanassche@acm.org>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <10f371c3-20cb-e5d1-b342-39e2b02de26d@kernel.dk>
+Date: Wed, 14 Aug 2019 15:02:28 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org
-Cc: eblake@redhat.com, axboe@kernel.dk, sitsofe@gmail.com
+In-Reply-To: <20190814201012.253060-1-bvanassche@acm.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Bart Van Assche <bvanassche@acm.org>
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-Fixes a copy and paste error introduced in commit d643a1e29d
-("engines: Add Network Block Device (NBD) support using libnbd.").
+On 8/14/19 2:10 PM, Bart Van Assche wrote:
+> Hi Jens,
+> 
+> The following changes are included in this patch series:
+> - Declare local functions 'static' in zbd.c.
+> - Make the zbd test scripts more robust.
+> - Use snprintf() instead of strncpy() + explicit null termination.
+> - Rework the approach for suppressing gcc 9 address of packed member warnings.
+> - Add a 'fulltest' target that runs the zbd tests.
 
-Thanks: Sitsofe Wheeler
+Applied, thanks Bart.
 
-Signed-off-by: Richard W.M. Jones <rjones@redhat.com>
----
- examples/nbd.fio | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/examples/nbd.fio b/examples/nbd.fio
-index 27e15086..6900ebe7 100644
---- a/examples/nbd.fio
-+++ b/examples/nbd.fio
-@@ -26,7 +26,7 @@ iodepth=64
- offset=0
- 
- [job1]
--offset=064m
-+offset=64m
- 
- [job2]
- offset=128m
 -- 
-2.22.0
+Jens Axboe
 
 
