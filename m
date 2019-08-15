@@ -1,76 +1,39 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:36936 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726237AbfHDMIt (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 4 Aug 2019 08:08:49 -0400
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
-        id 1huFJh-0007l6-N9
-        for fio@vger.kernel.org; Sun, 04 Aug 2019 12:08:49 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH fio] nbd: Update for libnbd 0.9.8.
+References: <20190815153040.4511-1-rjones@redhat.com>
+ <3df9429c-caf0-6913-5fdf-a5aae85b9765@kernel.dk>
+ <20190815165735.GI3888@redhat.com>
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20190804120001.6289E2C0099@kernel.dk>
-Date: Sun,  4 Aug 2019 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <2da31297-2a7e-7a5b-6267-b2a555c90597@kernel.dk>
+Date: Thu, 15 Aug 2019 11:02:57 -0600
+MIME-Version: 1.0
+In-Reply-To: <20190815165735.GI3888@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: "Richard W.M. Jones" <rjones@redhat.com>
+Cc: fio@vger.kernel.org, eblake@redhat.com
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit f2d6de5d997b039cebac9c34912871baa5e12d49:
+On 8/15/19 10:57 AM, Richard W.M. Jones wrote:
+> On Thu, Aug 15, 2019 at 10:42:17AM -0600, Jens Axboe wrote:
+>> On 8/15/19 9:30 AM, Richard W.M. Jones wrote:
+>>> As the libnbd API isn't permanently stable until we reach the 1.0
+>>> release (expected soon), some code changes are needed to cope with API
+>>> changes between 0.9.6 and 0.9.8.  In this case we made changes to
+>>> completion handlers after feedback from reviewers.  This fix for fio
+>>> incorporates all the changes needed and bumps the minimum version to
+>>> libnbd >= 0.9.8.
+>>
+>> Applied, thanks.
+> 
+> Thanks - we're really hoping this will be the last time (forever)
+> that the API changes.  Fingers crossed ...
 
-  nbd: Document the NBD-specific uri parameter (2019-08-02 11:05:28 -0600)
+If the versioning proximity to 1.0 is worth anything, hopefully it'll
+be pretty close to (if not at) stability :-)
 
-are available in the Git repository at:
+-- 
+Jens Axboe
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to acd44dec8cfa476d91dc1695df64f249e52d06e3:
-
-  nbd: Remove copy and paste error in example (2019-08-03 09:51:44 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      engines/splice: remove buggy ->mem_align set
-
-Richard W.M. Jones (1):
-      nbd: Remove copy and paste error in example
-
- engines/splice.c | 7 -------
- examples/nbd.fio | 2 +-
- 2 files changed, 1 insertion(+), 8 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/engines/splice.c b/engines/splice.c
-index feb764fe..6fc36bb6 100644
---- a/engines/splice.c
-+++ b/engines/splice.c
-@@ -278,13 +278,6 @@ static int fio_spliceio_init(struct thread_data *td)
- 	 */
- 	sd->vmsplice_to_user_map = 1;
- 
--	/*
--	 * And if vmsplice_to_user works, we definitely need aligned
--	 * buffers. Just set ->odirect to force that.
--	 */
--	if (td_read(td))
--		td->o.mem_align = 1;
--
- 	td->io_ops_data = sd;
- 	return 0;
- }
-diff --git a/examples/nbd.fio b/examples/nbd.fio
-index 27e15086..6900ebe7 100644
---- a/examples/nbd.fio
-+++ b/examples/nbd.fio
-@@ -26,7 +26,7 @@ iodepth=64
- offset=0
- 
- [job1]
--offset=064m
-+offset=64m
- 
- [job2]
- offset=128m
 
