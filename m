@@ -1,29 +1,27 @@
-Return-Path: <axboe@kernel.dk>
+Return-Path: <rjones@redhat.com>
+Date: Thu, 15 Aug 2019 16:32:05 +0100
+From: "Richard W.M. Jones" <rjones@redhat.com>
 Subject: Re: [PATCH fio] nbd: Update for libnbd 0.9.8.
+Message-ID: <20190815153205.GA31372@redhat.com>
 References: <20190815153040.4511-1-rjones@redhat.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <3df9429c-caf0-6913-5fdf-a5aae85b9765@kernel.dk>
-Date: Thu, 15 Aug 2019 10:42:17 -0600
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20190815153040.4511-1-rjones@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: "Richard W.M. Jones" <rjones@redhat.com>, fio@vger.kernel.org
-Cc: eblake@redhat.com
+To: fio@vger.kernel.org
+Cc: eblake@redhat.com, axboe@kernel.dk
 List-ID: <fio@vger.kernel.org>
 
-On 8/15/19 9:30 AM, Richard W.M. Jones wrote:
-> As the libnbd API isn't permanently stable until we reach the 1.0
-> release (expected soon), some code changes are needed to cope with API
-> changes between 0.9.6 and 0.9.8.  In this case we made changes to
-> completion handlers after feedback from reviewers.  This fix for fio
-> incorporates all the changes needed and bumps the minimum version to
-> libnbd >= 0.9.8.
 
-Applied, thanks.
+Sorry, I realized I reflexively used a period at the end
+of the first line of the commit message :-(
+
+Rich.
 
 -- 
-Jens Axboe
-
+Richard Jones, Virtualization Group, Red Hat http://people.redhat.com/~rjones
+Read my programming and virtualization blog: http://rwmj.wordpress.com
+virt-df lists disk usage of guests without needing to install any
+software inside the virtual machine.  Supports Linux and Windows.
+http://people.redhat.com/~rjones/virt-df/
 
