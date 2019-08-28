@@ -1,68 +1,70 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:43239 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726537AbfHMCBz (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 12 Aug 2019 22:01:55 -0400
-Received: by mail-pl1-f193.google.com with SMTP id 4so41608830pld.10
-        for <fio@vger.kernel.org>; Mon, 12 Aug 2019 19:01:55 -0700 (PDT)
-From: Bart Van Assche <bvanassche@acm.org>
-Subject: [PATCH 4/5] Revert "eta: Fix compiler warning"
-Date: Mon, 12 Aug 2019 19:01:35 -0700
-Message-Id: <20190813020136.15798-5-bvanassche@acm.org>
-In-Reply-To: <20190813020136.15798-1-bvanassche@acm.org>
-References: <20190813020136.15798-1-bvanassche@acm.org>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [three fio patches 3/3] smalloc: allocate pool-> members from
+ shared memory
+References: <20190828174842.25423-1-vincentfu@gmail.com>
+ <20190828174842.25423-4-vincentfu@gmail.com>
+ <bb5acdc6-d2f6-99e6-2e9e-01fef4650b74@kernel.dk>
+ <BL0PR04MB4898E1614B5213924541271B95A30@BL0PR04MB4898.namprd04.prod.outlook.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <d511fd90-d267-8a77-0d48-57b912447c23@kernel.dk>
+Date: Wed, 28 Aug 2019 13:47:23 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <BL0PR04MB4898E1614B5213924541271B95A30@BL0PR04MB4898.namprd04.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Vincent Fu <Vincent.Fu@wdc.com>, "vincentfu@gmail.com" <vincentfu@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-This reverts commit df0ca15ce2ffac0df3e9dcf4bfe4121333c4aa27. Due to
-the previous patch it is no longer necessary to confuse the compiler
-about accesses of the 'rate' and 'iops' members in struct jobs_eta.
+On 8/28/19 1:44 PM, Vincent Fu wrote:
+> On 8/28/19 3:13 PM, Jens Axboe wrote:
+>> On 8/28/19 11:48 AM, vincentfu@gmail.com wrote:
+>>> From: Vincent Fu <vincent.fu@wdc.com>
+>>>
+>>> If one process is making smalloc calls and another process is making
+>>> sfree calls, pool->free_blocks and pool->next_non_full will not be
+>>> synchronized because the two processes each have independent, local
+>>> copies of the variables.
+>>>
+>>> This patch allocates space for the two variables from shared storage so
+>>> that separate processes will be modifying quantities stored at the same
+>>> locations.
+>>>
+>>> This issue was discovered on the server side running a client/server job
+>>> with --status-interval=1. Such a job encountered an OOM error when only
+>>> ~50 objects were allocated from the smalloc pool.
+>>>
+>>> Also change the calculation of free_blocks in add_pool() to use
+>>> SMALLOC_BPI instead of SMALLOC_BPB. These two constants are
+>>> coincidentally the same on Linux and Windows but SMALLOC_BPI is the
+>>> correct one to use. free_blocks is the number of available blocks of
+>>> size SMALLOC_BPB. It is the product of the number of unsigned integers
+>>> in the bitmap (bitmap_blocks) and the number of bits per unsigned
+>>> integer (SMALLOC_BPI).
+>>
+>> Would it make more sense to just have the pool[] come out of shared
+>> memory?
+>>
+>>
+> 
+> Yeah, that would avoid the ugly *(pool->free_blocks) expressions and
+> make things easier if anything else that needs to be shared is ever
+> added to struct pool.
+> 
+> Would something like this in sinit() work?
+> 
+> if (nr_pools == 0)
+> 
+>       mp = mmap(NULL, MAX_POOLS * sizeof(struct pool), ...)
 
-Cc: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
----
- eta.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+It should only be called once, so you should not need that nr_pools
+check. But yeah, something like that.
 
-diff --git a/eta.c b/eta.c
-index 99c537d189a3..77c3dd5f0453 100644
---- a/eta.c
-+++ b/eta.c
-@@ -392,9 +392,6 @@ bool calc_thread_status(struct jobs_eta *je, int force)
- 	static unsigned long long disp_io_iops[DDIR_RWDIR_CNT];
- 	static struct timespec rate_prev_time, disp_prev_time;
- 
--	void *je_rate = (void *) je->rate;
--	void *je_iops = (void *) je->iops;
--
- 	if (!force) {
- 		if (!(output_format & FIO_OUTPUT_NORMAL) &&
- 		    f_out == stdout)
-@@ -510,7 +507,7 @@ bool calc_thread_status(struct jobs_eta *je, int force)
- 
- 	if (write_bw_log && rate_time > bw_avg_time && !in_ramp_time(td)) {
- 		calc_rate(unified_rw_rep, rate_time, io_bytes, rate_io_bytes,
--				je_rate);
-+				je->rate);
- 		memcpy(&rate_prev_time, &now, sizeof(now));
- 		add_agg_sample(sample_val(je->rate[DDIR_READ]), DDIR_READ, 0);
- 		add_agg_sample(sample_val(je->rate[DDIR_WRITE]), DDIR_WRITE, 0);
-@@ -522,8 +519,8 @@ bool calc_thread_status(struct jobs_eta *je, int force)
- 	if (!force && !eta_time_within_slack(disp_time))
- 		return false;
- 
--	calc_rate(unified_rw_rep, disp_time, io_bytes, disp_io_bytes, je_rate);
--	calc_iops(unified_rw_rep, disp_time, io_iops, disp_io_iops, je_iops);
-+	calc_rate(unified_rw_rep, disp_time, io_bytes, disp_io_bytes, je->rate);
-+	calc_iops(unified_rw_rep, disp_time, io_iops, disp_io_iops, je->iops);
- 
- 	memcpy(&disp_prev_time, &now, sizeof(now));
- 
+> I'm on vacation through Labor Day and will work on this next week.
+
+Sounds good. I have applied 1-2 for now, thanks Vincent.
+
 -- 
-2.22.0
+Jens Axboe
 
 
