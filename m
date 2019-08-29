@@ -1,36 +1,68 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [three fio patches 2/3] options: allow offset_increment to understand percentages
-Date: Wed, 28 Aug 2019 13:48:41 -0400
-Message-Id: <20190828174842.25423-3-vincentfu@gmail.com>
-In-Reply-To: <20190828174842.25423-1-vincentfu@gmail.com>
-References: <20190828174842.25423-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:57780 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726739AbfH2MAQ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 29 Aug 2019 08:00:16 -0400
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
+        id 1i3J67-0002AM-8c
+        for fio@vger.kernel.org; Thu, 29 Aug 2019 12:00:15 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20190829120002.31A162C028B@kernel.dk>
+Date: Thu, 29 Aug 2019 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Vincent Fu <vincent.fu@wdc.com>
+The following changes since commit 4e8c82b4e9804c52bf2c78327cc5bfca9d8aedfc:
 
-Add the ability for the offset_increment option to understand
-percentages. With this patch offset_increment=10% will, for example,
-increase the start offset by 10% of the file size for additional jobs
-created by numjobs.
----
- HOWTO            |  4 +++-
+  nbd: Update for libnbd 0.9.8 (2019-08-15 10:42:01 -0600)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 0b288ba164c10009ea9f4a2c737bd29863ebc60c:
+
+  options: allow offset_increment to understand percentages (2019-08-28 13:45:37 -0600)
+
+----------------------------------------------------------------
+Vincent Fu (2):
+      docs: small HOWTO fixes
+      options: allow offset_increment to understand percentages
+
+ HOWTO            | 12 ++++++++++--
  cconv.c          |  2 ++
  filesetup.c      | 32 ++++++++++++++++++++++----------
  fio.1            |  4 +++-
  options.c        | 17 +++++++++++++++++
  server.h         |  2 +-
  thread_options.h |  3 +++
- 7 files changed, 51 insertions(+), 13 deletions(-)
+ 7 files changed, 58 insertions(+), 14 deletions(-)
+
+---
+
+Diff of recent changes:
 
 diff --git a/HOWTO b/HOWTO
-index 1c9b2c10..4201e2e9 100644
+index 41b959d1..4201e2e9 100644
 --- a/HOWTO
 +++ b/HOWTO
-@@ -1252,7 +1252,9 @@ I/O type
+@@ -93,6 +93,12 @@ Command line options
+ 			Dump info related to I/O rate switching.
+ 	*compress*
+ 			Dump info related to log compress/decompress.
++	*steadystate*
++			Dump info related to steadystate detection.
++	*helperthread*
++			Dump info related to the helper thread.
++	*zbd*
++			Dump info related to support for zoned block devices.
+ 	*?* or *help*
+ 			Show available debug options.
+ 
+@@ -1246,7 +1252,9 @@ I/O type
  	is incremented for each sub-job (i.e. when :option:`numjobs` option is
  	specified). This option is useful if there are several jobs which are
  	intended to operate on a file in parallel disjoint segments, with even
@@ -40,6 +72,15 @@ index 1c9b2c10..4201e2e9 100644
 +	``blocksize`` or to the value of ``offset_align`` if provided.
  
  .. option:: number_ios=int
+ 
+@@ -2388,7 +2396,7 @@ I/O depth
+ 	this option can reduce both performance and the :option:`iodepth` achieved.
+ 
+ 	This option only applies to I/Os issued for a single job except when it is
+-	enabled along with :option:`io_submit_mode`=offload. In offload mode, fio
++	enabled along with :option:`io_submit_mode`\=offload. In offload mode, fio
+ 	will check for overlap among all I/Os submitted by offload jobs with :option:`serialize_overlap`
+ 	enabled.
  
 diff --git a/cconv.c b/cconv.c
 index 0e657246..bff5e34f 100644
@@ -209,7 +250,4 @@ index 14c6969f..ee6e4d6d 100644
  	uint64_t offset_increment;
  	uint64_t number_ios;
  
--- 
-2.17.1
-
 
