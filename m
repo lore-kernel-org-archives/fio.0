@@ -1,107 +1,51 @@
-Return-Path: <bart.vanassche@gmail.com>
-Return-Path: <bart.vanassche@gmail.com>
-From: Bart Van Assche <bvanassche@acm.org>
-Subject: [PATCH v3 5/7] Verify the absence of holes in struct jobs_eta at compile time
-Date: Wed, 14 Aug 2019 13:10:10 -0700
-Message-Id: <20190814201012.253060-6-bvanassche@acm.org>
-In-Reply-To: <20190814201012.253060-1-bvanassche@acm.org>
-References: <20190814201012.253060-1-bvanassche@acm.org>
+Return-Path: <prvs=138d395aa=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH] zbd: Fix job zone size initialization
+Date: Fri, 30 Aug 2019 02:01:06 +0000
+Message-ID: 
+ <BYAPR04MB5816A4F3B82D4E27BAA4DCACE7BD0@BYAPR04MB5816.namprd04.prod.outlook.com>
+References: <20190830014503.32691-1-damien.lemoal@wdc.com>
+ <2915e04d-7e42-46d7-f29a-597cc9046b4c@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>
+To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-This patch verifies the correctness of the previous patch.
-
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
----
- eta.c  |  3 +++
- stat.h | 55 +++++++++++++++++++++++++++++--------------------------
- 2 files changed, 32 insertions(+), 26 deletions(-)
-
-diff --git a/eta.c b/eta.c
-index 647a1bdd8eed..5900bc0fd919 100644
---- a/eta.c
-+++ b/eta.c
-@@ -736,6 +736,9 @@ void print_thread_status(void)
- 
- void print_status_init(int thr_number)
- {
-+	compiletime_assert(sizeof(struct jobs_eta) ==
-+			   sizeof(struct jobs_eta_packed), "jobs_eta");
-+
- 	DRD_IGNORE_VAR(__run_str);
- 	__run_str[thr_number] = 'P';
- 	update_condensed_str(__run_str, run_str);
-diff --git a/stat.h b/stat.h
-index c6353c70ae08..c209ab6c7a96 100644
---- a/stat.h
-+++ b/stat.h
-@@ -251,33 +251,36 @@ struct thread_stat {
- 	uint64_t cachemiss;
- } __attribute__((packed));
- 
--struct jobs_eta {
--	uint32_t nr_running;
--	uint32_t nr_ramp;
--
--	uint32_t nr_pending;
--	uint32_t nr_setting_up;
--
--	uint64_t m_rate[DDIR_RWDIR_CNT], t_rate[DDIR_RWDIR_CNT];
--	uint64_t rate[DDIR_RWDIR_CNT];
--	uint32_t m_iops[DDIR_RWDIR_CNT] __attribute__((packed));
--	uint32_t t_iops[DDIR_RWDIR_CNT] __attribute__((packed));
--	uint32_t iops[DDIR_RWDIR_CNT] __attribute__((packed));
--	uint64_t elapsed_sec __attribute__((packed));
--	uint64_t eta_sec __attribute__((packed));
--	uint32_t is_pow2;
--	uint32_t unit_base;
--
--	uint32_t sig_figs;
--
--	uint32_t files_open;
-+#define JOBS_ETA {							\
-+	uint32_t nr_running;						\
-+	uint32_t nr_ramp;						\
-+									\
-+	uint32_t nr_pending;						\
-+	uint32_t nr_setting_up;						\
-+									\
-+	uint64_t m_rate[DDIR_RWDIR_CNT], t_rate[DDIR_RWDIR_CNT];	\
-+	uint64_t rate[DDIR_RWDIR_CNT];					\
-+	uint32_t m_iops[DDIR_RWDIR_CNT] __attribute__((packed));	\
-+	uint32_t t_iops[DDIR_RWDIR_CNT] __attribute__((packed));	\
-+	uint32_t iops[DDIR_RWDIR_CNT] __attribute__((packed));		\
-+	uint64_t elapsed_sec __attribute__((packed));			\
-+	uint64_t eta_sec __attribute__((packed));			\
-+	uint32_t is_pow2;						\
-+	uint32_t unit_base;						\
-+									\
-+	uint32_t sig_figs;						\
-+									\
-+	uint32_t files_open;						\
-+									\
-+	/*								\
-+	 * Network 'copy' of run_str[]					\
-+	 */								\
-+	uint32_t nr_threads;						\
-+	uint8_t run_str[];						\
-+}
- 
--	/*
--	 * Network 'copy' of run_str[]
--	 */
--	uint32_t nr_threads;
--	uint8_t run_str[];
--};
-+struct jobs_eta JOBS_ETA;
-+struct jobs_eta_packed JOBS_ETA __attribute__((packed));
- 
- struct io_u_plat_entry {
- 	struct flist_head list;
--- 
-2.22.0.rc1
-
+On 2019/08/30 10:52, Jens Axboe wrote:=0A=
+> On 8/29/19 7:45 PM, Damien Le Moal wrote:=0A=
+>> For a job accessing a zoned block device, the zone size is automatically=
+=0A=
+>> initialized to the device zone size. However, since zone information for=
+=0A=
+>> a zoned block device is parsed once only for the first job=0A=
+>> initialization of a multi job workload, only the first job has its=0A=
+>> zonesize option intialized, causing problem if the zoneskip option is=0A=
+>> also used (assert exit).=0A=
+>>=0A=
+>> Fix this by always initializing a job zonesize option using the job=0A=
+>> file zbd information when verifying the job ZBD related sizes and=0A=
+>> offsets.=0A=
+> =0A=
+> Applied, thanks.=0A=
+> =0A=
+=0A=
+Jens,=0A=
+=0A=
+Thanks. But I just realized that the check is incomplete. If each job speci=
+fies=0A=
+"zonesize=3DX" instead of not specifying a zone size and relying on the aut=
+omatic=0A=
+initialization from the device zone size, then "X =3D=3D device zone size" =
+must be=0A=
+checked too.=0A=
+=0A=
+Sending an additional patch for this. My apologies for the churn.=0A=
+=0A=
+Thank you.=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
