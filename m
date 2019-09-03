@@ -1,40 +1,77 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm1-f43.google.com ([209.85.128.43]:39806 "EHLO
-        mail-wm1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727410AbfINQW3 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 14 Sep 2019 12:22:29 -0400
-Received: by mail-wm1-f43.google.com with SMTP id v17so5246272wml.4
-        for <fio@vger.kernel.org>; Sat, 14 Sep 2019 09:22:28 -0700 (PDT)
-MIME-Version: 1.0
-From: Elliott Balsley <elliott@altsystems.com>
-Date: Sat, 14 Sep 2019 09:22:16 -0700
-Message-ID: <CABO+gV-fpuOi6u8w8-L5G+sZ7KhvPy9SC3hqXh+q6PReVTxbCA@mail.gmail.com>
-Subject: Disk slows down while empting write buffer
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+From: vincentfu@gmail.com
+Subject: [PATCH 1/2] smalloc: allocate struct pool array from shared memory
+Date: Tue,  3 Sep 2019 13:44:44 -0400
+Message-Id: <20190903174445.1212-2-vincentfu@gmail.com>
+In-Reply-To: <20190903174445.1212-1-vincentfu@gmail.com>
+References: <20190903174445.1212-1-vincentfu@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Vincent Fu <vincent.fu@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-I am trying to figure out why end_fsync causes the overall disk write
-to take longer.  I'm aware that without this option, the test may
-return before all data is flushed to disk, but I am monitoring actual
-disk writes with iostat.  At the beginning of the test, iostat shows
-165MBps writing to each disk, and fio shows over 3000MBps (because
-it's writing to the buffer, and the buffer is simultaneously going to
-disk).
-Near the end, fio drops to 0MBps which means it's waiting for fsync to
-finish.  At this time, iostat drops to 120MBps per disk.
+From: Vincent Fu <vincent.fu@wdc.com>
 
-fio --name=w --rw=write --bs=1M --size=30G --directory=/mnt/stripe --end_fsync=1
+If one process is making smalloc calls and another process is making
+sfree calls, pool->free_blocks and pool->next_non_full will not be
+synchronized because the two processes each have independent, local
+copies of the variables.
 
-If I instead run this command with end_fsync=0 then iostat shows
-steady 165MBps the whole time.
+This patch allocates space for the array of struct pool instances from
+shared storage so that separate processes will be modifying quantities
+stored at the same locations.
 
-I have observed this issue on CentOS with an mdadm soft RAID with XFS.
-And also on FreeBSD with a ZFS pool.  If I instead run it on a single
-disk formatted XFS then it does not use the cache at all, it just
-writes steady at 165MBps, I'm not sure why that is.
+This issue was discovered on the server side running a client/server job
+with --status-interval=1. Such a job encountered an OOM error when only
+~50 objects were allocated from the smalloc pool.
+---
+ smalloc.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-I'd appreciate any insights to this.
--Elliott
+diff --git a/smalloc.c b/smalloc.c
+index 125e07bf..39bf47a5 100644
+--- a/smalloc.c
++++ b/smalloc.c
+@@ -54,7 +54,7 @@ struct block_hdr {
+  */
+ static const bool enable_smalloc_debug = false;
+ 
+-static struct pool mp[MAX_POOLS];
++static struct pool *mp;
+ static unsigned int nr_pools;
+ static unsigned int last_pool;
+ 
+@@ -208,6 +208,20 @@ void sinit(void)
+ 	bool ret;
+ 	int i;
+ 
++	/*
++	 * sinit() can be called more than once if alloc-size is
++	 * set. But we want to allocate space for the struct pool
++	 * instances only once.
++	 */
++	if (!mp) {
++		mp = (struct pool *) mmap(NULL,
++			MAX_POOLS * sizeof(struct pool),
++			PROT_READ | PROT_WRITE,
++			OS_MAP_ANON | MAP_SHARED, -1, 0);
++
++		assert(mp != MAP_FAILED);
++	}
++
+ 	for (i = 0; i < INITIAL_POOLS; i++) {
+ 		ret = add_pool(&mp[nr_pools], smalloc_pool_size);
+ 		if (!ret)
+@@ -239,6 +253,8 @@ void scleanup(void)
+ 
+ 	for (i = 0; i < nr_pools; i++)
+ 		cleanup_pool(&mp[i]);
++
++	munmap(mp, MAX_POOLS * sizeof(struct pool));
+ }
+ 
+ #ifdef SMALLOC_REDZONE
+-- 
+2.17.1
+
 
