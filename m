@@ -1,76 +1,94 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:46828 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.133]:56334 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729885AbfINMAF (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 14 Sep 2019 08:00:05 -0400
+        with ESMTP id S1729740AbfIDMAO (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 4 Sep 2019 08:00:14 -0400
 Received: from [65.144.74.35] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.2 #3 (Red Hat Linux))
-        id 1i96ii-00018M-By
-        for fio@vger.kernel.org; Sat, 14 Sep 2019 12:00:04 +0000
+        by bombadil.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
+        id 1i5TxO-0004lo-17
+        for fio@vger.kernel.org; Wed, 04 Sep 2019 12:00:14 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20190914120001.B78992C0099@kernel.dk>
-Date: Sat, 14 Sep 2019 06:00:01 -0600 (MDT)
+Message-Id: <20190904120002.62C1F2C02C3@kernel.dk>
+Date: Wed,  4 Sep 2019 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 4c29a34fcc8cae333ec8b7af7657495745153b44:
+The following changes since commit 971d6a22bad5942234496683d89a2f8deed57172:
 
-  Merge branch 'ioring_add_sync_file_range' of https://github.com/anarazel/fio (2019-09-12 14:24:23 -0600)
+  zbd: Improve job zonesize initialization checks (2019-08-29 20:51:17 -0600)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to ae3ae8367271e6df7be5eae37c15c00e6c2dc76e:
+for you to fetch changes up to 4a479420d50eada0a7b9a972c529d75e2884732d:
 
-  Merge branch 'fio_reset_sqe' of https://github.com/anarazel/fio (2019-09-13 14:56:16 -0600)
+  smalloc: use SMALLOC_BPI instead of SMALLOC_BPB in add_pool() (2019-09-03 12:32:01 -0600)
 
 ----------------------------------------------------------------
-Andres Freund (1):
-      engines/io_uring: Fully clear out previous SQE contents.
+Vincent Fu (2):
+      smalloc: allocate struct pool array from shared memory
+      smalloc: use SMALLOC_BPI instead of SMALLOC_BPB in add_pool()
 
-Jens Axboe (1):
-      Merge branch 'fio_reset_sqe' of https://github.com/anarazel/fio
-
- engines/io_uring.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ smalloc.c | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 53cb60c5..e5edfcd2 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -152,15 +152,16 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
- 	struct io_uring_sqe *sqe;
+diff --git a/smalloc.c b/smalloc.c
+index 125e07bf..fa00f0ee 100644
+--- a/smalloc.c
++++ b/smalloc.c
+@@ -54,7 +54,7 @@ struct block_hdr {
+  */
+ static const bool enable_smalloc_debug = false;
  
- 	sqe = &ld->sqes[io_u->index];
-+
-+	/* zero out fields not used in this submission */
-+	memset(sqe, 0, sizeof(*sqe));
-+
- 	if (o->registerfiles) {
- 		sqe->fd = f->engine_pos;
- 		sqe->flags = IOSQE_FIXED_FILE;
- 	} else {
- 		sqe->fd = f->fd;
--		sqe->flags = 0;
- 	}
--	sqe->ioprio = 0;
--	sqe->buf_index = 0;
+-static struct pool mp[MAX_POOLS];
++static struct pool *mp;
+ static unsigned int nr_pools;
+ static unsigned int last_pool;
  
- 	if (io_u->ddir == DDIR_READ || io_u->ddir == DDIR_WRITE) {
- 		if (o->fixedbufs) {
-@@ -187,7 +188,6 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
- 			sqe->sync_range_flags = td->o.sync_file_range;
- 			sqe->opcode = IORING_OP_SYNC_FILE_RANGE;
- 		} else {
--			sqe->fsync_flags = 0;
- 			if (io_u->ddir == DDIR_DATASYNC)
- 				sqe->fsync_flags |= IORING_FSYNC_DATASYNC;
- 			sqe->opcode = IORING_OP_FSYNC;
+@@ -173,7 +173,7 @@ static bool add_pool(struct pool *pool, unsigned int alloc_size)
+ 	pool->mmap_size = alloc_size;
+ 
+ 	pool->nr_blocks = bitmap_blocks;
+-	pool->free_blocks = bitmap_blocks * SMALLOC_BPB;
++	pool->free_blocks = bitmap_blocks * SMALLOC_BPI;
+ 
+ 	mmap_flags = OS_MAP_ANON;
+ #ifdef CONFIG_ESX
+@@ -208,6 +208,20 @@ void sinit(void)
+ 	bool ret;
+ 	int i;
+ 
++	/*
++	 * sinit() can be called more than once if alloc-size is
++	 * set. But we want to allocate space for the struct pool
++	 * instances only once.
++	 */
++	if (!mp) {
++		mp = (struct pool *) mmap(NULL,
++			MAX_POOLS * sizeof(struct pool),
++			PROT_READ | PROT_WRITE,
++			OS_MAP_ANON | MAP_SHARED, -1, 0);
++
++		assert(mp != MAP_FAILED);
++	}
++
+ 	for (i = 0; i < INITIAL_POOLS; i++) {
+ 		ret = add_pool(&mp[nr_pools], smalloc_pool_size);
+ 		if (!ret)
+@@ -239,6 +253,8 @@ void scleanup(void)
+ 
+ 	for (i = 0; i < nr_pools; i++)
+ 		cleanup_pool(&mp[i]);
++
++	munmap(mp, MAX_POOLS * sizeof(struct pool));
+ }
+ 
+ #ifdef SMALLOC_REDZONE
 
