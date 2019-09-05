@@ -1,57 +1,40 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:35354 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725836AbfIZMAN (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 26 Sep 2019 08:00:13 -0400
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.2 #3 (Red Hat Linux))
-        id 1iDSRP-0005rY-Ni
-        for fio@vger.kernel.org; Thu, 26 Sep 2019 12:00:11 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: io_uring engine -- sqthread_poll option can't work as implemented
+References: <x49r254apvv.fsf@segfault.boston.devel.redhat.com>
+ <6adaa1ad-93b6-48b1-6fe0-7a0cceab9eda@kernel.dk>
+ <x498sr5txag.fsf@segfault.boston.devel.redhat.com>
+ <0f8ba952-418c-d63d-6b3e-021cae4cfecc@kernel.dk>
+ <0edfb602-184c-f33b-485e-221be543b069@kernel.dk>
+ <7a3c83bd-4bbe-72ca-b690-5b247e8b9fd0@kernel.dk>
+ <x49h85qu6av.fsf@segfault.boston.devel.redhat.com>
+ <75a6f63a-2515-32e1-07b8-5c84eed0c662@kernel.dk>
+ <x49d0geu3jk.fsf@segfault.boston.devel.redhat.com>
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20190926120001.DF1632C02C4@kernel.dk>
-Date: Thu, 26 Sep 2019 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <b2225e27-ef5d-3bdf-0147-ddaf8e6a1221@kernel.dk>
+Date: Thu, 5 Sep 2019 10:11:39 -0600
+MIME-Version: 1.0
+In-Reply-To: <x49d0geu3jk.fsf@segfault.boston.devel.redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 3c029ac46c3478243932f76cadf04ca10b64ab3e:
+On 9/5/19 10:10 AM, Jeff Moyer wrote:
+> Jens Axboe <axboe@kernel.dk> writes:
+> 
+>> I did make make sqthread_poll == true set registerfiles as well, and added
+>> the man page bits for the option. If you have further updates, please do
+>> send them. Also interested in how the testing went ;-)
+> 
+> OK, I had a look and the patch looks good to me.  It tested out fine as
+> well with the attached jobfile, run against both a block device and file
+> system.
 
-  filesetup: Extend file size for 'null' and 'filecreate' ioengines (2019-09-25 03:12:05 -0600)
+My lucky punch of the day. Thanks for testing, Jeff!
 
-are available in the Git repository at:
+-- 
+Jens Axboe
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 106a71cd6c24f31fce9d95c49e00ff4b28aa6fdc:
-
-  t/zbd: Avoid magic number of test case count (2019-09-26 00:47:14 -0600)
-
-----------------------------------------------------------------
-Shin'ichiro Kawasaki (1):
-      t/zbd: Avoid magic number of test case count
-
- t/zbd/test-zbd-support | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 90f9f87b..5d079a8b 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -826,9 +826,8 @@ case "$(<"/sys/class/block/$basename/queue/zoned")" in
- esac
- 
- if [ "${#tests[@]}" = 0 ]; then
--    for ((i=1;i<=46;i++)); do
--	tests+=("$i")
--    done
-+    readarray -t tests < <(declare -F | grep "test[0-9]*" | \
-+				   tr -c -d "[:digit:]\n" | sort -n)
- fi
- 
- logfile=$0.log
 
