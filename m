@@ -1,22 +1,30 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm1-f54.google.com ([209.85.128.54]:53781 "EHLO
-        mail-wm1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727109AbfIPHQf (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 16 Sep 2019 03:16:35 -0400
-Received: by mail-wm1-f54.google.com with SMTP id i16so2877206wmd.3
-        for <fio@vger.kernel.org>; Mon, 16 Sep 2019 00:16:33 -0700 (PDT)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 0/2] two patches
+References: <20190911145640.30005-1-vincentfu@gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <b4cd876e-f4bc-59a0-5aab-021570be2b45@kernel.dk>
+Date: Wed, 11 Sep 2019 09:00:36 -0600
 MIME-Version: 1.0
-From: Elliott Balsley <elliott@altsystems.com>
-Date: Mon, 16 Sep 2019 00:16:22 -0700
-Message-ID: <CABO+gV-AvdsAWe+0SZXga4iDZ-C8xR9MuHQhBzm7aBiuGid8pg@mail.gmail.com>
-Subject: How to cancel job
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+In-Reply-To: <20190911145640.30005-1-vincentfu@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: vincentfu@gmail.com, fio@vger.kernel.org
+Cc: Vincent Fu <vincent.fu@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-Hello.  Simple question, what is the best way to cancel an fio job in
-progress?  If I start a job with wrong options by mistake, I try
-Ctrl-C but this just prints "fio: terminating on signal 2" and the job
-continues.
+On 9/11/19 8:56 AM, vincentfu@gmail.com wrote:
+> From: Vincent Fu <vincent.fu@wdc.com>
+> 
+> Jens, please consider these two patches.
+> 
+> The first is a simple documentation fix, whereas the second has
+> filesetup.c:setup_files() honor the offset option in one additional
+> case.
+
+Thanks Vincent, both look good. Applied.
+
+-- 
+Jens Axboe
+
 
