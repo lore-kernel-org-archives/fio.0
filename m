@@ -1,67 +1,49 @@
-Return-Path: <prvs=1646af0c7=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 2/2] filesetup: Extend file size for 'null' and 'filecreate' ioengines
-Date: Wed, 25 Sep 2019 17:29:24 +0900
-Message-Id: <20190925082924.9771-3-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20190925082924.9771-1-shinichiro.kawasaki@wdc.com>
-References: <20190925082924.9771-1-shinichiro.kawasaki@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Vincent Fu <Vincent.Fu@wdc.com>, Damien Le Moal <Damien.LeMoal@wdc.com>, Masato Suzuki <masato.suzuki@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+From: vincentfu@gmail.com
+Subject: [PATCH 2/2] filesetup: honor the offset option
+Date: Wed, 11 Sep 2019 10:56:40 -0400
+Message-Id: <20190911145640.30005-3-vincentfu@gmail.com>
+In-Reply-To: <20190911145640.30005-1-vincentfu@gmail.com>
+References: <20190911145640.30005-1-vincentfu@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Vincent Fu <vincent.fu@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-It was reported the fio command with following options fails because of
-file access beyond the file size specified with size option.
+From: Vincent Fu <vincent.fu@wdc.com>
+
+Commands like the following do not honor the value given by the offset
+option:
 
 ./fio --name=test --rw=randread --runtime=10s --offset=90% --time_based --ioengine=null --size=1T --norandommap --randrepeat=0
+./fio --name=test --size=8k --offset=4k
 
-One of the options specifies null ioengine which has FIO_DISKLESSIO and
-FIO_FAKEIO flags. When FIO_DISKLESSIO flag is set, current fio code does
-not extend the file size even when io_size + file_offset is larger than
-real_file_size. With this, random offsets are generated within io_size +
-file_offset range and fail comparison with real_file_size. This failure
-does not happen with other engines such as libaio since the target file
-is extended to ensure real_file_size is larger than io_size +
-file_offset.
+In the random case, eventually a random offset will be generated beyond
+the 1T file size, leading to a failure.
 
-To avoid the failure, extend file size for ioengines with FIO_DISKLESSIO
-and FIO_FAKEIO. This changes behavior of two ioengines only: null
-ioengine and filecreate engine. It does not change behavior of all other
-ioengines including 12 ioengines with FIO_DISKLESSIO flag, such as nbd,
-glusterfs, pmemblk, etc.
+In the sequential case, a 12k file will be created despite size
+specifying the 8k end boundary.
 
-Signed-off-by: Masato Suzuki <masato.suzuki@wdc.com>
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+This patch modifies setup_files() so that f->io_size incorporates the
+offset for cases like those above.
 ---
- filesetup.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ filesetup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/filesetup.c b/filesetup.c
-index 7904d187..a439b6d6 100644
+index 7904d187..b8d1d838 100644
 --- a/filesetup.c
 +++ b/filesetup.c
-@@ -1104,13 +1104,15 @@ int setup_files(struct thread_data *td)
- 		}
- 
- 		if (f->filetype == FIO_TYPE_FILE &&
--		    (f->io_size + f->file_offset) > f->real_file_size &&
--		    !td_ioengine_flagged(td, FIO_DISKLESSIO)) {
--			if (!o->create_on_open) {
-+		    (f->io_size + f->file_offset) > f->real_file_size) {
-+			if (!td_ioengine_flagged(td, FIO_DISKLESSIO) &&
-+			    !o->create_on_open) {
- 				need_extend++;
- 				extend_size += (f->io_size + f->file_offset);
- 				fio_file_set_extend(f);
--			} else
-+			} else if (!td_ioengine_flagged(td, FIO_DISKLESSIO) ||
-+				   (td_ioengine_flagged(td, FIO_DISKLESSIO) &&
-+				    td_ioengine_flagged(td, FIO_FAKEIO)))
- 				f->real_file_size = f->io_size + f->file_offset;
- 		}
- 	}
+@@ -1047,7 +1047,7 @@ int setup_files(struct thread_data *td)
+ 			 * doesn't divide nicely with the min blocksize,
+ 			 * make the first files bigger.
+ 			 */
+-			f->io_size = fs;
++			f->io_size = fs - f->file_offset;
+ 			if (nr_fs_extra) {
+ 				nr_fs_extra--;
+ 				f->io_size += bs;
 -- 
-2.21.0
+2.17.1
 
 
