@@ -1,55 +1,68 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH 1/2] doc: clarify what --alloc-size does
-Date: Wed, 11 Sep 2019 10:56:39 -0400
-Message-Id: <20190911145640.30005-2-vincentfu@gmail.com>
-In-Reply-To: <20190911145640.30005-1-vincentfu@gmail.com>
-References: <20190911145640.30005-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:35936 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2405262AbfITMAL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 20 Sep 2019 08:00:11 -0400
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.2 #3 (Red Hat Linux))
+        id 1iBHa7-0007CN-1C
+        for fio@vger.kernel.org; Fri, 20 Sep 2019 12:00:11 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20190920120002.382EB2C02C4@kernel.dk>
+Date: Fri, 20 Sep 2019 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Vincent Fu <vincent.fu@wdc.com>
+The following changes since commit ae3ae8367271e6df7be5eae37c15c00e6c2dc76e:
 
-The alloc-size option actually directs fio to allocate additional shared
-memory pools of the specified size, augmenting the default allocation.
+  Merge branch 'fio_reset_sqe' of https://github.com/anarazel/fio (2019-09-13 14:56:16 -0600)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 92f75708b530989fdb13b50be6604f44b80d038d:
+
+  Fio 3.16 (2019-09-19 19:01:52 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (2):
+      engines/io_uring: remove debug printf
+      Fio 3.16
+
+ FIO-VERSION-GEN    | 2 +-
+ engines/io_uring.c | 1 -
+ 2 files changed, 1 insertion(+), 2 deletions(-)
+
 ---
- HOWTO | 4 ++--
- fio.1 | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/HOWTO b/HOWTO
-index 6b449e97..4fef1504 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -222,8 +222,8 @@ Command line options
- 
- .. option:: --alloc-size=kb
- 
--	Set the internal smalloc pool size to `kb` in KiB.  The
--	``--alloc-size`` switch allows one to use a larger pool size for smalloc.
-+	Allocate additional internal smalloc pools of size `kb` in KiB.  The
-+	``--alloc-size`` option increases shared memory set aside for use by fio.
- 	If running large jobs with randommap enabled, fio can run out of memory.
- 	Smalloc is an internal allocator for shared structures from a fixed size
- 	memory pool and can grow to 16 pools. The pool size defaults to 16MiB.
-diff --git a/fio.1 b/fio.1
-index e0283f7f..77a2d799 100644
---- a/fio.1
-+++ b/fio.1
-@@ -112,8 +112,8 @@ only applies to job sections. The reserved *global* section is always
- parsed and used.
- .TP
- .BI \-\-alloc\-size \fR=\fPkb
--Set the internal smalloc pool size to \fIkb\fR in KiB. The
--\fB\-\-alloc\-size\fR switch allows one to use a larger pool size for smalloc.
-+Allocate additional internal smalloc pools of size \fIkb\fR in KiB. The
-+\fB\-\-alloc\-size\fR option increases shared memory set aside for use by fio.
- If running large jobs with randommap enabled, fio can run out of memory.
- Smalloc is an internal allocator for shared structures from a fixed size
- memory pool and can grow to 16 pools. The pool size defaults to 16MiB.
--- 
-2.17.1
+Diff of recent changes:
 
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index 350da551..d5cec22e 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-3.15
++DEF_VER=fio-3.16
+ 
+ LF='
+ '
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index e5edfcd2..ef56345b 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -562,7 +562,6 @@ static int fio_ioring_post_init(struct thread_data *td)
+ 		return 1;
+ 	}
+ 
+-	printf("files=%d\n", o->registerfiles);
+ 	if (o->registerfiles) {
+ 		err = fio_ioring_register_files(td);
+ 		if (err) {
 
