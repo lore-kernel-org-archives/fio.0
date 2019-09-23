@@ -1,46 +1,42 @@
-Return-Path: <prvs=165d1baa7=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH] t/zbd: Avoid magic number of test case count
-Date: Thu, 26 Sep 2019 10:00:44 +0900
-Message-Id: <20190926010044.21020-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:38946 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726436AbfIWMnV (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 23 Sep 2019 08:43:21 -0400
+Received: by mail-wm1-f65.google.com with SMTP id v17so9144583wml.4
+        for <fio@vger.kernel.org>; Mon, 23 Sep 2019 05:43:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
+References: <4b960e8e-f9a0-ebd0-7e8a-1ce839ffb6a4@unix-beratung.de>
+In-Reply-To: <4b960e8e-f9a0-ebd0-7e8a-1ce839ffb6a4@unix-beratung.de>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Mon, 23 Sep 2019 13:42:52 +0100
+Message-ID: <CALjAwxg18ifsWcXK5sMWGq92NAehbOoPhw3ASO-O_z3oS4QRQw@mail.gmail.com>
+Subject: Re: what is the point of config-host.h?
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Robert Urban <urban@unix-beratung.de>
+Cc: fio <fio@vger.kernel.org>
 
-In the test script t/zbd/test-zbd-support, the number of test cases is
-defined as a raw constant. Every time a new test case is added, need to
-update the constant but this chore tends to be overlooked. When test
-case 47 was added recently, the number was not incremented from 46. Then
-the test script does not run the test case 47.
+Hi,
 
-To avoid the constant increment chore, automate the test case number
-counting. List bash functions which implement test cases and convert the
-list to test case numbers.
+On Sun, 22 Sep 2019 at 20:22, Robert Urban <urban@unix-beratung.de> wrote:
+>
+> Hello,
+>
+> I'm trying to port fio (I used the "download ZIP" link on github on September
+> 13th) to Tru64 UNIX V5.1B, an OS no longer being maintained :(
+>
+> In the meantime I've built gcc 4.6 for Tru64 (a few days and 3.5 GB later.)
+>
+> When I run configure it produces a "config-host.h" which looks correct, but this
+> is never included anywhere. By what mechanism is this header supposed to be
+> included?
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- t/zbd/test-zbd-support | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+Isn't it included in all compiles via CFLAGS -
+https://github.com/axboe/fio/blob/92f75708b530989fdb13b50be6604f44b80d038d/configure#L47
+?
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 90f9f87b..5d079a8b 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -826,9 +826,8 @@ case "$(<"/sys/class/block/$basename/queue/zoned")" in
- esac
- 
- if [ "${#tests[@]}" = 0 ]; then
--    for ((i=1;i<=46;i++)); do
--	tests+=("$i")
--    done
-+    readarray -t tests < <(declare -F | grep "test[0-9]*" | \
-+				   tr -c -d "[:digit:]\n" | sort -n)
- fi
- 
- logfile=$0.log
 -- 
-2.21.0
-
+Sitsofe | http://sucs.org/~sits/
 
