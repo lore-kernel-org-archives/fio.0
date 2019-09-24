@@ -1,42 +1,74 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from dna.y42.org ([138.201.40.98]:33614 "EHLO dna.y42.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726024AbfIOWjN (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 15 Sep 2019 18:39:13 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by dna.y42.org (Postfix) with ESMTP id 7D01B9EA11
-        for <fio@vger.kernel.org>; Mon, 16 Sep 2019 00:31:17 +0200 (CEST)
-Received: from dna.y42.org ([127.0.0.1])
-        by localhost (dna.y42.org [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id amfDeJCo0klw for <fio@vger.kernel.org>;
-        Mon, 16 Sep 2019 00:31:15 +0200 (CEST)
-Received: from [192.168.2.2] (p2E5426A0.dip0.t-ipconnect.de [46.84.38.160])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by dna.y42.org (Postfix) with ESMTPSA
-        for <fio@vger.kernel.org>; Mon, 16 Sep 2019 00:31:15 +0200 (CEST)
-From: Robert Urban <urban@unix-beratung.de>
-Subject: porting fio to other OSes
-Message-ID: <f5e8d9f9-445c-ff9a-5e34-48fcbd81454d@unix-beratung.de>
-Date: Mon, 16 Sep 2019 00:31:15 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Received: from merlin.infradead.org ([205.233.59.134]:48520 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388614AbfIXMAG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 24 Sep 2019 08:00:06 -0400
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.2 #3 (Red Hat Linux))
+        id 1iCjUC-0008I5-2T
+        for fio@vger.kernel.org; Tue, 24 Sep 2019 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20190924120001.543E62C02C4@kernel.dk>
+Date: Tue, 24 Sep 2019 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hello,
+The following changes since commit 92f75708b530989fdb13b50be6604f44b80d038d:
 
-I would like to port fio to Tru64 UNIX. Looking at the various os/os-*.h files
-it seems some compatibility functions must be implemented for the target OS.
-"blockdev_size()" is one example.
+  Fio 3.16 (2019-09-19 19:01:52 -0600)
 
-Besides the very general comments in the "Platforms" section of the "README"
-file, are there more detailed guidelines for porting fio to an OS? For example,
-a list of the compatibility functions that must be implemented?
+are available in the Git repository at:
 
--rob
+  git://git.kernel.dk/fio.git master
 
+for you to fetch changes up to 3982ec03ab0c125d01b62876f5139b2c07082c7a:
+
+  verify: check that the block size is big enough (2019-09-24 02:43:39 -0600)
+
+----------------------------------------------------------------
+Anatol Pomozov (1):
+      Fix compilation error with gfio
+
+Jens Axboe (2):
+      Merge branch 'master' of https://github.com/anatol/fio
+      verify: check that the block size is big enough
+
+ gclient.c | 2 +-
+ verify.c  | 4 ++++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/gclient.c b/gclient.c
+index 64324177..d8dc62d2 100644
+--- a/gclient.c
++++ b/gclient.c
+@@ -330,7 +330,7 @@ static void gfio_update_thread_status_all(struct gui *ui, char *status_message,
+ 	static char message[100];
+ 	const char *m = message;
+ 
+-	strncpy(message, sizeof(message), "%s", status_message);
++	snprintf(message, sizeof(message), "%s", status_message);
+ 	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(ui->thread_status_pb), m);
+ 	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(ui->thread_status_pb), perc / 100.0);
+ 	gtk_widget_queue_draw(ui->window);
+diff --git a/verify.c b/verify.c
+index 48ba051d..37d2be8d 100644
+--- a/verify.c
++++ b/verify.c
+@@ -1191,6 +1191,10 @@ static void populate_hdr(struct thread_data *td, struct io_u *io_u,
+ 
+ 	fill_hdr(td, io_u, hdr, header_num, header_len, io_u->rand_seed);
+ 
++	if (header_len <= hdr_size(td, hdr)) {
++		td_verror(td, EINVAL, "Blocksize too small");
++		return;
++	}
+ 	data_len = header_len - hdr_size(td, hdr);
+ 
+ 	data = p + hdr_size(td, hdr);
 
