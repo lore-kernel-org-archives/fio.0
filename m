@@ -1,77 +1,75 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH 1/2] smalloc: allocate struct pool array from shared memory
-Date: Tue,  3 Sep 2019 13:44:44 -0400
-Message-Id: <20190903174445.1212-2-vincentfu@gmail.com>
-In-Reply-To: <20190903174445.1212-1-vincentfu@gmail.com>
-References: <20190903174445.1212-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:33244 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2405217AbfIYMAP (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 25 Sep 2019 08:00:15 -0400
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.2 #3 (Red Hat Linux))
+        id 1iD5xu-0006OJ-MY
+        for fio@vger.kernel.org; Wed, 25 Sep 2019 12:00:14 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20190925120001.5D13F2C02E8@kernel.dk>
+Date: Wed, 25 Sep 2019 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Vincent Fu <vincent.fu@wdc.com>
+The following changes since commit 3982ec03ab0c125d01b62876f5139b2c07082c7a:
 
-If one process is making smalloc calls and another process is making
-sfree calls, pool->free_blocks and pool->next_non_full will not be
-synchronized because the two processes each have independent, local
-copies of the variables.
+  verify: check that the block size is big enough (2019-09-24 02:43:39 -0600)
 
-This patch allocates space for the array of struct pool instances from
-shared storage so that separate processes will be modifying quantities
-stored at the same locations.
+are available in the Git repository at:
 
-This issue was discovered on the server side running a client/server job
-with --status-interval=1. Such a job encountered an OOM error when only
-~50 objects were allocated from the smalloc pool.
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 3c029ac46c3478243932f76cadf04ca10b64ab3e:
+
+  filesetup: Extend file size for 'null' and 'filecreate' ioengines (2019-09-25 03:12:05 -0600)
+
+----------------------------------------------------------------
+Shin'ichiro Kawasaki (2):
+      Revert "filesetup: honor the offset option"
+      filesetup: Extend file size for 'null' and 'filecreate' ioengines
+
+ filesetup.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
 ---
- smalloc.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/smalloc.c b/smalloc.c
-index 125e07bf..39bf47a5 100644
---- a/smalloc.c
-+++ b/smalloc.c
-@@ -54,7 +54,7 @@ struct block_hdr {
-  */
- static const bool enable_smalloc_debug = false;
- 
--static struct pool mp[MAX_POOLS];
-+static struct pool *mp;
- static unsigned int nr_pools;
- static unsigned int last_pool;
- 
-@@ -208,6 +208,20 @@ void sinit(void)
- 	bool ret;
- 	int i;
- 
-+	/*
-+	 * sinit() can be called more than once if alloc-size is
-+	 * set. But we want to allocate space for the struct pool
-+	 * instances only once.
-+	 */
-+	if (!mp) {
-+		mp = (struct pool *) mmap(NULL,
-+			MAX_POOLS * sizeof(struct pool),
-+			PROT_READ | PROT_WRITE,
-+			OS_MAP_ANON | MAP_SHARED, -1, 0);
-+
-+		assert(mp != MAP_FAILED);
-+	}
-+
- 	for (i = 0; i < INITIAL_POOLS; i++) {
- 		ret = add_pool(&mp[nr_pools], smalloc_pool_size);
- 		if (!ret)
-@@ -239,6 +253,8 @@ void scleanup(void)
- 
- 	for (i = 0; i < nr_pools; i++)
- 		cleanup_pool(&mp[i]);
-+
-+	munmap(mp, MAX_POOLS * sizeof(struct pool));
- }
- 
- #ifdef SMALLOC_REDZONE
--- 
-2.17.1
+Diff of recent changes:
 
+diff --git a/filesetup.c b/filesetup.c
+index b8d1d838..a439b6d6 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -1047,7 +1047,7 @@ int setup_files(struct thread_data *td)
+ 			 * doesn't divide nicely with the min blocksize,
+ 			 * make the first files bigger.
+ 			 */
+-			f->io_size = fs - f->file_offset;
++			f->io_size = fs;
+ 			if (nr_fs_extra) {
+ 				nr_fs_extra--;
+ 				f->io_size += bs;
+@@ -1104,13 +1104,15 @@ int setup_files(struct thread_data *td)
+ 		}
+ 
+ 		if (f->filetype == FIO_TYPE_FILE &&
+-		    (f->io_size + f->file_offset) > f->real_file_size &&
+-		    !td_ioengine_flagged(td, FIO_DISKLESSIO)) {
+-			if (!o->create_on_open) {
++		    (f->io_size + f->file_offset) > f->real_file_size) {
++			if (!td_ioengine_flagged(td, FIO_DISKLESSIO) &&
++			    !o->create_on_open) {
+ 				need_extend++;
+ 				extend_size += (f->io_size + f->file_offset);
+ 				fio_file_set_extend(f);
+-			} else
++			} else if (!td_ioengine_flagged(td, FIO_DISKLESSIO) ||
++				   (td_ioengine_flagged(td, FIO_DISKLESSIO) &&
++				    td_ioengine_flagged(td, FIO_FAKEIO)))
+ 				f->real_file_size = f->io_size + f->file_offset;
+ 		}
+ 	}
 
