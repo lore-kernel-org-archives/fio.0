@@ -1,37 +1,48 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa4.hc2186-20.iphmx.com ([216.71.154.29]:31963 "EHLO
-        esa4.hc2186-20.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727358AbfIZQdf (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 26 Sep 2019 12:33:35 -0400
-From: "Mittal, Rishabh" <rimittal@ebay.com>
-Subject: Re: how to run fio verification reliably in case of error
-Date: Thu, 26 Sep 2019 16:26:25 +0000
-Message-ID: <214BDD2B-E543-44DB-A4EE-47932A3632EB@ebay.com>
-References: <50AAB0EF-BB15-4322-8F13-2C5737BBF2F4@ebay.com>
-In-Reply-To: <50AAB0EF-BB15-4322-8F13-2C5737BBF2F4@ebay.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <C4EFA37F5D6C7A4F92B68D9235CDE317@namprd07.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Return-Path: <prvs=1646af0c7=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 1/2] Revert "filesetup: honor the offset option"
+Date: Wed, 25 Sep 2019 17:29:23 +0900
+Message-Id: <20190925082924.9771-2-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20190925082924.9771-1-shinichiro.kawasaki@wdc.com>
+References: <20190925082924.9771-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Vincent Fu <Vincent.Fu@wdc.com>, Damien Le Moal <Damien.LeMoal@wdc.com>, Masato Suzuki <masato.suzuki@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-Q2FuIGFueW9uZSBwbGVhc2UgcmVwbHkgdG8gdGhpcyBlbWFpbC4gIFRoYW5rcw0KDQoNCg0K77u/
-T24gOS8yMC8xOSwgNTowNSBBTSwgIk1pdHRhbCwgUmlzaGFiaCIgPHJpbWl0dGFsQGViYXkuY29t
-PiB3cm90ZToNCg0KICAgICBIaSwgIA0KICAgICAgICANCiAgICBUaGlzIGlzIFJpc2hhYmguIFdl
-IGFyZSB1c2luZyBmaW8gb3ZlciBkaXNrcyBleHBvc2VkIHRocm91Z2ggaXNjc2kuIEkgYW0gZ2l2
-aW5nIHRoZXNlIHBhcmFtcyBpbiBmaW8NCiAgICAgICAgIA0KICAgICAgICBmaW8gLS1uYW1lPXJh
-bmR3cml0ZSAtLWlvZW5naW5lPWxpYmFpbyAtLWlvZGVwdGg9NjQgLS1ydz1yYW5kcncgLS1yd21p
-eHJlYWQ9NTAgIC0tYnM9NGsgLS1kaXJlY3Q9MSAtZmlsZW5hbWU9ZGF0YSAtLW51bWpvYnM9MSAt
-LXJ1bnRpbWUgMzYwMDAgLS12ZXJpZnk9bWQ1IC0tdmVyaWZ5X2FzeW5jPTQgLS12ZXJpZnlfYmFj
-a2xvZz0xMDAwMDAgLS12ZXJpZnlfZHVtcD0xIC0tdmVyaWZ5X2ZhdGFsPTEgLS10aW1lX2Jhc2Vk
-IC0tZ3JvdXBfcmVwb3J0aW5nIC0tY29udGludWVfb25fZXJyb3IgPSBpbw0KICAgICAgICAgDQog
-ICAgSWYgYW4gZXJyb3IgaGFwcGVucyBvbiBhbiBJTyB0aGVuIGhvdyB2ZXJpZmljYXRpb24gaGFw
-cGVucyBvZiB0aGF0IElPLiBEb2VzIEZJTyBjb21wbGV0ZWx5IHNraXAgdGhhdCBJTyBmb3IgYW55
-IGZ1dHVyZSB2ZXJpZmljYXRpb24gb3IgZG9lcyBpdCBtYWludGFpbiBtdWx0aXBsZSBjaGVja3N1
-bXMgYW5kIHBhc3NlcyBpZiBpdCB2ZXJpZmllcyB3aXRoIGFueSBvZiB0aGUgcHJldmlvdXMgY2hl
-Y2tzdW1zLiAgICANCiAgICAgICAgIA0KICAgIFRoYW5rcw0KICAgIFJpc2hhYmggTWl0dGFsDQog
-ICAgICAgICANCiAgICAgICAgDQogICAgICAgIA0KICAgIA0KICAgIA0KDQo=
+This reverts commit ad46c5715ffc5d4e70d2e941225b1f504f23e409.
+
+The commit tried to fix a failure observed with --offset=90%, --size=1T
+and --ioengine=null options. However, it affected fio behavior not only
+for null ioengine but also for other all ioengines. It changed io_size,
+then I/O read or written bytes are not same as that specified with
+command line 'size' option. This caused t/zbd/test-zbd-support test
+script failures for zoned block devices: test cases #17, #28 and #38
+failed.
+
+To prepare for other fix with limited ioengine impacts, revert the fix
+which affects all ioengines.
+
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ filesetup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/filesetup.c b/filesetup.c
+index b8d1d838..7904d187 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -1047,7 +1047,7 @@ int setup_files(struct thread_data *td)
+ 			 * doesn't divide nicely with the min blocksize,
+ 			 * make the first files bigger.
+ 			 */
+-			f->io_size = fs - f->file_offset;
++			f->io_size = fs;
+ 			if (nr_fs_extra) {
+ 				nr_fs_extra--;
+ 				f->io_size += bs;
+-- 
+2.21.0
+
 
