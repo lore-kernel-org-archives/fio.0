@@ -1,94 +1,37 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:56334 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729740AbfIDMAO (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 4 Sep 2019 08:00:14 -0400
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
-        id 1i5TxO-0004lo-17
-        for fio@vger.kernel.org; Wed, 04 Sep 2019 12:00:14 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20190904120002.62C1F2C02C3@kernel.dk>
-Date: Wed,  4 Sep 2019 06:00:02 -0600 (MDT)
+Received: from esa4.hc2186-20.iphmx.com ([216.71.154.29]:31963 "EHLO
+        esa4.hc2186-20.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727358AbfIZQdf (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 26 Sep 2019 12:33:35 -0400
+From: "Mittal, Rishabh" <rimittal@ebay.com>
+Subject: Re: how to run fio verification reliably in case of error
+Date: Thu, 26 Sep 2019 16:26:25 +0000
+Message-ID: <214BDD2B-E543-44DB-A4EE-47932A3632EB@ebay.com>
+References: <50AAB0EF-BB15-4322-8F13-2C5737BBF2F4@ebay.com>
+In-Reply-To: <50AAB0EF-BB15-4322-8F13-2C5737BBF2F4@ebay.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <C4EFA37F5D6C7A4F92B68D9235CDE317@namprd07.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit 971d6a22bad5942234496683d89a2f8deed57172:
-
-  zbd: Improve job zonesize initialization checks (2019-08-29 20:51:17 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 4a479420d50eada0a7b9a972c529d75e2884732d:
-
-  smalloc: use SMALLOC_BPI instead of SMALLOC_BPB in add_pool() (2019-09-03 12:32:01 -0600)
-
-----------------------------------------------------------------
-Vincent Fu (2):
-      smalloc: allocate struct pool array from shared memory
-      smalloc: use SMALLOC_BPI instead of SMALLOC_BPB in add_pool()
-
- smalloc.c | 20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/smalloc.c b/smalloc.c
-index 125e07bf..fa00f0ee 100644
---- a/smalloc.c
-+++ b/smalloc.c
-@@ -54,7 +54,7 @@ struct block_hdr {
-  */
- static const bool enable_smalloc_debug = false;
- 
--static struct pool mp[MAX_POOLS];
-+static struct pool *mp;
- static unsigned int nr_pools;
- static unsigned int last_pool;
- 
-@@ -173,7 +173,7 @@ static bool add_pool(struct pool *pool, unsigned int alloc_size)
- 	pool->mmap_size = alloc_size;
- 
- 	pool->nr_blocks = bitmap_blocks;
--	pool->free_blocks = bitmap_blocks * SMALLOC_BPB;
-+	pool->free_blocks = bitmap_blocks * SMALLOC_BPI;
- 
- 	mmap_flags = OS_MAP_ANON;
- #ifdef CONFIG_ESX
-@@ -208,6 +208,20 @@ void sinit(void)
- 	bool ret;
- 	int i;
- 
-+	/*
-+	 * sinit() can be called more than once if alloc-size is
-+	 * set. But we want to allocate space for the struct pool
-+	 * instances only once.
-+	 */
-+	if (!mp) {
-+		mp = (struct pool *) mmap(NULL,
-+			MAX_POOLS * sizeof(struct pool),
-+			PROT_READ | PROT_WRITE,
-+			OS_MAP_ANON | MAP_SHARED, -1, 0);
-+
-+		assert(mp != MAP_FAILED);
-+	}
-+
- 	for (i = 0; i < INITIAL_POOLS; i++) {
- 		ret = add_pool(&mp[nr_pools], smalloc_pool_size);
- 		if (!ret)
-@@ -239,6 +253,8 @@ void scleanup(void)
- 
- 	for (i = 0; i < nr_pools; i++)
- 		cleanup_pool(&mp[i]);
-+
-+	munmap(mp, MAX_POOLS * sizeof(struct pool));
- }
- 
- #ifdef SMALLOC_REDZONE
+Q2FuIGFueW9uZSBwbGVhc2UgcmVwbHkgdG8gdGhpcyBlbWFpbC4gIFRoYW5rcw0KDQoNCg0K77u/
+T24gOS8yMC8xOSwgNTowNSBBTSwgIk1pdHRhbCwgUmlzaGFiaCIgPHJpbWl0dGFsQGViYXkuY29t
+PiB3cm90ZToNCg0KICAgICBIaSwgIA0KICAgICAgICANCiAgICBUaGlzIGlzIFJpc2hhYmguIFdl
+IGFyZSB1c2luZyBmaW8gb3ZlciBkaXNrcyBleHBvc2VkIHRocm91Z2ggaXNjc2kuIEkgYW0gZ2l2
+aW5nIHRoZXNlIHBhcmFtcyBpbiBmaW8NCiAgICAgICAgIA0KICAgICAgICBmaW8gLS1uYW1lPXJh
+bmR3cml0ZSAtLWlvZW5naW5lPWxpYmFpbyAtLWlvZGVwdGg9NjQgLS1ydz1yYW5kcncgLS1yd21p
+eHJlYWQ9NTAgIC0tYnM9NGsgLS1kaXJlY3Q9MSAtZmlsZW5hbWU9ZGF0YSAtLW51bWpvYnM9MSAt
+LXJ1bnRpbWUgMzYwMDAgLS12ZXJpZnk9bWQ1IC0tdmVyaWZ5X2FzeW5jPTQgLS12ZXJpZnlfYmFj
+a2xvZz0xMDAwMDAgLS12ZXJpZnlfZHVtcD0xIC0tdmVyaWZ5X2ZhdGFsPTEgLS10aW1lX2Jhc2Vk
+IC0tZ3JvdXBfcmVwb3J0aW5nIC0tY29udGludWVfb25fZXJyb3IgPSBpbw0KICAgICAgICAgDQog
+ICAgSWYgYW4gZXJyb3IgaGFwcGVucyBvbiBhbiBJTyB0aGVuIGhvdyB2ZXJpZmljYXRpb24gaGFw
+cGVucyBvZiB0aGF0IElPLiBEb2VzIEZJTyBjb21wbGV0ZWx5IHNraXAgdGhhdCBJTyBmb3IgYW55
+IGZ1dHVyZSB2ZXJpZmljYXRpb24gb3IgZG9lcyBpdCBtYWludGFpbiBtdWx0aXBsZSBjaGVja3N1
+bXMgYW5kIHBhc3NlcyBpZiBpdCB2ZXJpZmllcyB3aXRoIGFueSBvZiB0aGUgcHJldmlvdXMgY2hl
+Y2tzdW1zLiAgICANCiAgICAgICAgIA0KICAgIFRoYW5rcw0KICAgIFJpc2hhYmggTWl0dGFsDQog
+ICAgICAgICANCiAgICAgICAgDQogICAgICAgIA0KICAgIA0KICAgIA0KDQo=
 
