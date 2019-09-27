@@ -1,49 +1,57 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH 2/2] filesetup: honor the offset option
-Date: Wed, 11 Sep 2019 10:56:40 -0400
-Message-Id: <20190911145640.30005-3-vincentfu@gmail.com>
-In-Reply-To: <20190911145640.30005-1-vincentfu@gmail.com>
-References: <20190911145640.30005-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
+Return-Path: <tom.leiming@gmail.com>
+MIME-Version: 1.0
+References: <20190927080249.GA19514@ming.t460p> <0bc98379-408b-310a-31e4-0b3fbf85f1c9@kernel.dk>
+In-Reply-To: <0bc98379-408b-310a-31e4-0b3fbf85f1c9@kernel.dk>
+From: Ming Lei <tom.leiming@gmail.com>
+Date: Fri, 27 Sep 2019 18:05:08 +0800
+Message-ID: <CACVXFVMb0=4XTMzRb7m5hk4KFzgyF1iZcryumRXMXQ-Nqp76kQ@mail.gmail.com>
+Subject: Re: fio: iodepth_batch_submit is broken on libaio
+Content-Type: text/plain; charset="UTF-8"
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Ming Lei <ming.lei@redhat.com>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-From: Vincent Fu <vincent.fu@wdc.com>
+On Fri, Sep 27, 2019 at 5:59 PM Jens Axboe <axboe@kernel.dk> wrote:
+>
+> On 9/27/19 10:02 AM, Ming Lei wrote:
+> > Hi Jens,
+> >
+> > Looks fio's 'iodepth_batch_submit' is broken.
+> >
+> > When running the attached fio script[1], I observed that 'nr' passed to
+> > io_submit() is 1, except that 64 is only passed to the 1st io_submit().
+> >
+> > Then plug merging can't work at all.
+> >
+> > [root@ktest-08 tools]# cat bpf
+> > #include <uapi/linux/aio_abi.h>
+> > tracepoint:syscalls:sys_enter_io_submit { @nr = hist(args->nr); }
+> > [root@ktest-08 tools]# bpftrace ./bpf
+> > Attaching 1 probe...
+> > ^C
+> >
+> > @nr:
+> > [1]               902349 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|
+> > [2, 4)                 0 |                                                    |
+> > [4, 8)                 0 |                                                    |
+> > [8, 16)                0 |                                                    |
+> > [16, 32)               0 |                                                    |
+> > [32, 64)               0 |                                                    |
+> > [64, 128)              1 |                                                    |
+> >
+> > [1] fio script:
+> > fio --readwrite=write --filesize=4g --filename=/dev/sda \
+> >       --runtime=10s --time_based \
+> >       --ioengine=libaio --direct=1 --bs=4k --iodepth=64 \
+> >       --iodepth_batch_submit=64 \
+> >       --numjobs=64 \
+> >       --name=foo
+>
+> Try adding iodepth_batch_complete as well.
 
-Commands like the following do not honor the value given by the offset
-option:
+Yeah, it works, thanks!
 
-./fio --name=test --rw=randread --runtime=10s --offset=90% --time_based --ioengine=null --size=1T --norandommap --randrepeat=0
-./fio --name=test --size=8k --offset=4k
 
-In the random case, eventually a random offset will be generated beyond
-the 1T file size, leading to a failure.
-
-In the sequential case, a 12k file will be created despite size
-specifying the 8k end boundary.
-
-This patch modifies setup_files() so that f->io_size incorporates the
-offset for cases like those above.
----
- filesetup.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/filesetup.c b/filesetup.c
-index 7904d187..b8d1d838 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -1047,7 +1047,7 @@ int setup_files(struct thread_data *td)
- 			 * doesn't divide nicely with the min blocksize,
- 			 * make the first files bigger.
- 			 */
--			f->io_size = fs;
-+			f->io_size = fs - f->file_offset;
- 			if (nr_fs_extra) {
- 				nr_fs_extra--;
- 				f->io_size += bs;
 -- 
-2.17.1
-
+Ming Lei
 
