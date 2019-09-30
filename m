@@ -1,25 +1,38 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: FIO generated workload file export
-References: <CAGSn662aMTA5RZAdnE7C0caFtGSMfDMHXD1qV8drPnyZryJ3gQ@mail.gmail.com>
- <CAGSn662K7z5QD44VSoxDiw2ow7mnga1+V5-A3P+u8BQzO=qtUg@mail.gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <c792a656-1930-4cad-a40d-8e58b8ee94bc@kernel.dk>
-Date: Tue, 17 Sep 2019 15:28:51 -0600
+Return-Path: <rebecca@bsdio.com>
+From: Rebecca Cran <rebecca@bsdio.com>
+Subject: [PATCH 2/2] Windows: Update URLs to https, and remove mention of WiX version
+Date: Mon, 30 Sep 2019 14:57:08 -0600
+Message-Id: <20190930205708.2302-2-rebecca@bsdio.com>
+In-Reply-To: <20190930205708.2302-1-rebecca@bsdio.com>
+References: <20190930205708.2302-1-rebecca@bsdio.com>
 MIME-Version: 1.0
-In-Reply-To: <CAGSn662K7z5QD44VSoxDiw2ow7mnga1+V5-A3P+u8BQzO=qtUg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Mohiuddin Qader <mabdu002@ucr.edu>, fio@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+Cc: Rebecca Cran <rebecca@bsdio.com>
 List-ID: <fio@vger.kernel.org>
 
-On 9/17/19 3:27 PM, Mohiuddin Qader wrote:
-> Hi folks,
-> I have a question on FIO tool. I wanted to use the generated workload from FIO in some other programs. Is there any way to export the generated workload to file in some format (preferably in: fd, offset, value).
+---
+ README | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-See write_iolog=
-
+diff --git a/README b/README
+index 7c65906d..0f943bcc 100644
+--- a/README
++++ b/README
+@@ -164,9 +164,9 @@ configure.
+ Windows
+ ~~~~~~~
+ 
+-On Windows, Cygwin (http://www.cygwin.com/) is required in order to build
+-fio. To create an MSI installer package install WiX 3.8 from
+-http://wixtoolset.org and run :file:`dobuild.cmd` from the :file:`os/windows`
++On Windows, Cygwin (https://www.cygwin.com/) is required in order to build
++fio. To create an MSI installer package install WiX from
++https://wixtoolset.org and run :file:`dobuild.cmd` from the :file:`os/windows`
+ directory.
+ 
+ How to compile fio on 64-bit Windows:
 -- 
-Jens Axboe
+2.21.0
 
 
