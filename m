@@ -1,76 +1,41 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:40044 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730317AbfJHMAN (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 8 Oct 2019 08:00:13 -0400
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.2 #3 (Red Hat Linux))
-        id 1iHoA0-00007P-2I
-        for fio@vger.kernel.org; Tue, 08 Oct 2019 12:00:12 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20191008120001.6BEFE2C086D@kernel.dk>
-Date: Tue,  8 Oct 2019 06:00:01 -0600 (MDT)
+Received: from mx0b-002e3701.pphosted.com ([148.163.143.35]:34870 "EHLO
+        mx0b-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726712AbfJAUfm (ORCPT
+        <rfc822;fio@vger.kernel.org>); Tue, 1 Oct 2019 16:35:42 -0400
+From: "Elliott, Robert (Servers)" <elliott@hpe.com>
+Subject: RE: how to run fio verification reliably in case of error
+Date: Tue, 1 Oct 2019 20:35:36 +0000
+Message-ID: <AT5PR8401MB11695055982A4F77F41DCAC0AB9D0@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+References: <50AAB0EF-BB15-4322-8F13-2C5737BBF2F4@ebay.com>
+ <214BDD2B-E543-44DB-A4EE-47932A3632EB@ebay.com>
+In-Reply-To: <214BDD2B-E543-44DB-A4EE-47932A3632EB@ebay.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "Mittal, Rishabh" <rimittal@ebay.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit 58d68a0dad21fb8aed34bb987e00b9b7dee65296:
-
-  Merge branch 'error-on-implicit-decl' of https://github.com/sitsofe/fio (2019-10-06 09:15:51 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 998baa29f571df9d2e4b626bedd317a2fd28c68a:
-
-  Merge branch 'replay-blktrace-fixes' of https://github.com/shimrot/fio (2019-10-07 21:23:26 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'replay-blktrace-fixes' of https://github.com/shimrot/fio
-
-krisd (1):
-      Fix assert error on blktrace replay containing trims
-
- blktrace.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/blktrace.c b/blktrace.c
-index efe9ce24..8a246613 100644
---- a/blktrace.c
-+++ b/blktrace.c
-@@ -544,16 +544,19 @@ bool load_blktrace(struct thread_data *td, const char *filename, int need_swap)
- 	    !ios[DDIR_SYNC]) {
- 		log_err("fio: found no ios in blktrace data\n");
- 		return false;
--	} else if (ios[DDIR_READ] && !ios[DDIR_WRITE]) {
--		td->o.td_ddir = TD_DDIR_READ;
--		td->o.max_bs[DDIR_READ] = rw_bs[DDIR_READ];
--	} else if (!ios[DDIR_READ] && ios[DDIR_WRITE]) {
--		td->o.td_ddir = TD_DDIR_WRITE;
--		td->o.max_bs[DDIR_WRITE] = rw_bs[DDIR_WRITE];
--	} else {
--		td->o.td_ddir = TD_DDIR_RW;
-+	}
-+
-+	td->o.td_ddir = 0;
-+	if (ios[DDIR_READ]) {
-+		td->o.td_ddir |= TD_DDIR_READ;
- 		td->o.max_bs[DDIR_READ] = rw_bs[DDIR_READ];
-+	}
-+	if (ios[DDIR_WRITE]) {
-+		td->o.td_ddir |= TD_DDIR_WRITE;
- 		td->o.max_bs[DDIR_WRITE] = rw_bs[DDIR_WRITE];
-+	}
-+	if (ios[DDIR_TRIM]) {
-+		td->o.td_ddir |= TD_DDIR_TRIM;
- 		td->o.max_bs[DDIR_TRIM] = rw_bs[DDIR_TRIM];
- 	}
- 
+PiANCj4gICAgICAgICBmaW8gLS1uYW1lPXJhbmR3cml0ZSAtLWlvZW5naW5lPWxpYmFpbyAtLWlv
+ZGVwdGg9NjQgLS1ydz1yYW5kcncgLS1yd21peHJlYWQ9NTAgIC0tYnM9NGsgLS0NCj4gZGlyZWN0
+PTEgLWZpbGVuYW1lPWRhdGEgLS1udW1qb2JzPTEgLS1ydW50aW1lIDM2MDAwIC0tdmVyaWZ5PW1k
+NSAtLXZlcmlmeV9hc3luYz00IC0tDQo+IHZlcmlmeV9iYWNrbG9nPTEwMDAwMCAtLXZlcmlmeV9k
+dW1wPTEgLS12ZXJpZnlfZmF0YWw9MSAtLXRpbWVfYmFzZWQgLS1ncm91cF9yZXBvcnRpbmcgLS0N
+Cj4gY29udGludWVfb25fZXJyb3IgPSBpbw0KPiANCj4gICAgIElmIGFuIGVycm9yIGhhcHBlbnMg
+b24gYW4gSU8gdGhlbiBob3cgdmVyaWZpY2F0aW9uIGhhcHBlbnMgb2YgdGhhdCBJTy4gRG9lcyBG
+SU8gY29tcGxldGVseSBza2lwDQo+IHRoYXQgSU8gZm9yIGFueSBmdXR1cmUgdmVyaWZpY2F0aW9u
+IA0KDQpObywgaXQgZG9lc24ndCBkbyBhbnl0aGluZyBzcGVjaWFsIHRvIHJlbWVtYmVyIHRoZW0u
+IFNvbWV0aGluZyBwYXJhbGxlbGluZyB0aGUNCnJhbmRvbW1hcCBmZWF0dXJlIGNvdWxkIGJlIHVz
+ZWQgdG8ga25vY2sgb3V0IGJhZCBibG9ja3MsIGlmIHlvdSBuZWVkIHN1Y2gNCmFuIG9wdGlvbi4N
+Cg0KSWYgdXNpbmcgZmlvIHRvIHN0cmVzcyB0ZXN0IGVycm9yIGhhbmRsaW5nLCB5b3UgbWlnaHQg
+d2FudCBpdCB0byBrZWVwIHRyeWluZyBiYWQNCmJsb2Nrcy4gDQoNCkVycm9ycyBtaWdodCBnbyBh
+d2F5IG9uIHRoZWlyIG93biwgYW5kIGFyZSB1c3VhbGx5IGZpeGVkIGJ5IG92ZXJ3cml0aW5nIHRo
+ZSBibG9jaywNCnNvIGdpdmluZyB1cCBvbiBhIGJsb2NrIGZvcmV2ZXIgYWZ0ZXIgdGhlIGZpcnN0
+IGVycm9yIHdvdWxkbid0IHNpbXVsYXRlIHJlYWwNCnByb2dyYW0gYmVoYXZpb3IuDQoNCg0KPiBv
+ciBkb2VzIGl0IG1haW50YWluIG11bHRpcGxlIGNoZWNrc3VtcyBhbmQgcGFzc2VzIGlmIGl0IHZl
+cmlmaWVzDQo+IHdpdGggYW55IG9mIHRoZSBwcmV2aW91cyBjaGVja3N1bXMuDQoNCk5vOyB0aGUg
+bnVtYmVyIG9mIHBvc3NpYmxlIGNvbWJpbmF0aW9ucyBvZiBnb29kICsgYmFkIGJsb2NrcyB3b3Vs
+ZCBiZSBodWdlLg0KDQoNCg==
 
