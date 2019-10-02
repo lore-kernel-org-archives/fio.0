@@ -1,44 +1,26 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH 1/3] io_u: skip to the next zone when zoneskip is set to zero
-Date: Tue, 15 Oct 2019 10:29:56 -0400
-Message-Id: <20191015142958.14559-2-vincentfu@gmail.com>
-In-Reply-To: <20191015142958.14559-1-vincentfu@gmail.com>
-References: <20191015142958.14559-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-wr1-f53.google.com ([209.85.221.53]:35114 "EHLO
+        mail-wr1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726287AbfJBXzU (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 2 Oct 2019 19:55:20 -0400
+Received: by mail-wr1-f53.google.com with SMTP id v8so885420wrt.2
+        for <fio@vger.kernel.org>; Wed, 02 Oct 2019 16:55:19 -0700 (PDT)
+MIME-Version: 1.0
+References: <CABO+gV-fpuOi6u8w8-L5G+sZ7KhvPy9SC3hqXh+q6PReVTxbCA@mail.gmail.com>
+ <CALjAwxi3L-N1-fW5PNJbMU0SjY6G2eRXrL4=5Z7egL3w=apPcQ@mail.gmail.com>
+ <CABO+gV-uxLsURnoVBS1QcPPadwBVL2rm1Fo1OeG_PHB_0E16eQ@mail.gmail.com>
+ <CALjAwxi+Lpzm3yn-nZSaj+zZB8Bjn8=9gCAkP1yqkiBS8_bm6w@mail.gmail.com>
+ <CABO+gV9bnpokx2QstPLHoErR3N876YtuVuFDsKznqmEQ3K8TAg@mail.gmail.com> <CALjAwxjO876Hew33EgC84A5oFEA0CvSffFjk-ADwOi=pMV=2LQ@mail.gmail.com>
+In-Reply-To: <CALjAwxjO876Hew33EgC84A5oFEA0CvSffFjk-ADwOi=pMV=2LQ@mail.gmail.com>
+From: Elliott Balsley <elliott@altsystems.com>
+Date: Wed, 2 Oct 2019 16:55:07 -0700
+Message-ID: <CABO+gV8QW0rzS1=nj_Fo3HL-c0Qa3L4R0UDgbQO22O2GW2m-Ow@mail.gmail.com>
+Subject: Re: Disk slows down while empting write buffer
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-From: Vincent Fu <vincent.fu@wdc.com>
-
-If zoneskip is not set or set to 0 in zonemode=strided mode, all IO
-occurs in a single zone. If zoneskip is non-zero, the next zone begins
-zoneskip bytes beyond the end of the current zone. Thus, it's not
-possible to access contiguous zones since zoneskip bytes will separate
-the end of one zone and the beginning of the next zone.
-
-This patch allows fio to move to the next zone when zoneskip is
-explicitly set to 0, making it possible to issue IO to contiguous zones.
----
- io_u.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/io_u.c b/io_u.c
-index 94899552..5cbbe85a 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -850,7 +850,8 @@ static void setup_strided_zone_mode(struct thread_data *td, struct io_u *io_u)
- 	/*
- 	 * See if it's time to switch to a new zone
- 	 */
--	if (td->zone_bytes >= td->o.zone_size && td->o.zone_skip) {
-+	if (td->zone_bytes >= td->o.zone_size &&
-+			fio_option_is_set(&td->o, zone_skip)) {
- 		td->zone_bytes = 0;
- 		f->file_offset += td->o.zone_range + td->o.zone_skip;
- 
--- 
-2.17.1
-
+Ok thanks, I opened an issue on github.
 
