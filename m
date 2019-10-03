@@ -1,44 +1,62 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx0a-002e3701.pphosted.com ([148.163.147.86]:6792 "EHLO
-        mx0a-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732517AbfJDCuO (ORCPT
-        <rfc822;fio@vger.kernel.org>); Thu, 3 Oct 2019 22:50:14 -0400
-From: "Elliott, Robert (Servers)" <elliott@hpe.com>
-Subject: RE: IO Depth measurement
-Date: Fri, 4 Oct 2019 02:48:46 +0000
-Message-ID: <AT5PR8401MB1169235248CCAB18D4C989CCAB9E0@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
-References: <CABO+gV_H3EcY70W+=Q_oZX+skVMQ_q+O1LqocC8kUhfdvoos3g@mail.gmail.com>
-In-Reply-To: <CABO+gV_H3EcY70W+=Q_oZX+skVMQ_q+O1LqocC8kUhfdvoos3g@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-wm1-f52.google.com ([209.85.128.52]:38791 "EHLO
+        mail-wm1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389445AbfJCRiO (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 3 Oct 2019 13:38:14 -0400
+Received: by mail-wm1-f52.google.com with SMTP id 3so2973110wmi.3
+        for <fio@vger.kernel.org>; Thu, 03 Oct 2019 10:38:12 -0700 (PDT)
 MIME-Version: 1.0
+From: Elliott Balsley <elliott@altsystems.com>
+Date: Thu, 3 Oct 2019 10:38:01 -0700
+Message-ID: <CABO+gV_H3EcY70W+=Q_oZX+skVMQ_q+O1LqocC8kUhfdvoos3g@mail.gmail.com>
+Subject: IO Depth measurement
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Elliott Balsley <elliott@altsystems.com>, fio <fio@vger.kernel.org>
+To: fio <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
-a2VybmVsLm9yZyA8ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZz4gT24gQmVoYWxmDQo+IE9mIEVs
-bGlvdHQgQmFsc2xleQ0KPiBTZW50OiBUaHVyc2RheSwgT2N0b2JlciAwMywgMjAxOSAxMjozOCBQ
-TQ0KPiBUbzogZmlvIDxmaW9Admdlci5rZXJuZWwub3JnPg0KPiBTdWJqZWN0OiBJTyBEZXB0aCBt
-ZWFzdXJlbWVudA0KPiANCj4gSGVsbG8uICBJJ3ZlIHJlYWQgdGhyb3VnaCB0aGUgZG9jcywgYnV0
-IEkgZG9uJ3QgdW5kZXJzdGFuZCB0aGUNCj4gZGlmZmVyZW5jZSBpbiBvdXRwdXQgYmV0d2VlbiBJ
-TyBkZXB0aCBhbmQgSU8gc3VibWl0LiAgSW4gdGhpcw0KPiBleGFtcGxlLA0KPiBJIHNldCBpb2Rl
-cHRoPTIsIGJ1dCBpdCdzIHNob3dpbmcgMTAwJSB1c2UgZGVwdGggb2YgMS4gIEFuZCAxMDAlIG9m
-DQo+IHN1Ym1pdHMgYXJlIGJldHdlZW4gNCB0byA4LiAgSSdkIGFwcHJlY2lhdGUgaWYgc29tZW9u
-ZSBjYW4gZXhwbGFpbg0KPiB3aGF0IHRoaXMgbWVhbnMuICBJZiBpdCBtYXR0ZXJzLCBJJ20gcmVh
-ZGluZyBmcm9tIGEgWkZTIGZpbGVzeXN0ZW0sDQo+IGFuZCBkYXRhIGlzIGNhY2hlZCBpbiBBUkMs
-IGhlbmNlIHRoZSBoaWdoIHNwZWVkcy4NCj4gDQo+IGZpbyAtLW5hbWU9bGFycnkgLS1ydz1yZWFk
-IC0tYnM9MU0gLS1zaXplPTUwMDBNIC0tZGlyZWN0b3J5PS9hbGwyNA0KPiAtLW5yZmlsZXM9MTAg
-LS1lbmRfZnN5bmM9MSAtLW51bWpvYnM9MjAgLS1ncm91cF9yZXBvcnRpbmcgLS1pb2RlcHRoPTIN
-Cj4gbGFycnk6IChnPTApOiBydz1yZWFkLCBicz0oUikgMTAyNEtpQi0xMDI0S2lCLCAoVykgMTAy
-NEtpQi0xMDI0S2lCLA0KPiAoVCkgMTAyNEtpQi0xMDI0S2lCLCBpb2VuZ2luZT1wc3luYywgaW9k
-ZXB0aD0yDQo+ICAgSU8gZGVwdGhzICAgIDogMT0xMDAuMCUsIDI9MC4wJSwgND0wLjAlLCA4PTAu
-MCUsIDE2PTAuMCUsIDMyPTAuMCUsDQoNCnBzeW5jIGlzIGEgc3luY2hyb25vdXMgZW5naW5lLCBz
-byBhIHRocmVhZCBjYW4gb25seSBydW4gb25lIElPIGF0DQphIHRpbWUuIFRoZSBpb2RlcHRoIGFy
-Z3VtZW50IGlzIGlnbm9yZWQuDQoNCm51bWpvYnM9MjAgc3Bhd25zIDIwIGNvbmN1cnJlbnQgcHJv
-Y2Vzc2VzLCBzbyB5b3Ugc2hvdWxkIHNlZSBhIHF1ZXVlDQpkZXB0aCBhcHByb2FjaGluZyAyMCBh
-dCB0aGUga2VybmVsIGxldmVsIGluIHN5c2ZzIChvZnRlbiByZXRyaWV2ZWQgd2l0aA0KdGhlIGlv
-c3RhdCB1dGlsaXR5KS4gIElmIHRoZXJlJ3MgYSBjYWNoaW5nIGxheWVyIGludm9sdmVkLCB0aG91
-Z2gsDQp5b3UgY2FuIHNlZSBhbGwgc29ydHMgb2YgYml6YXJyZSByZXN1bHRzLg0KDQoNCg0K
+Hello.  I've read through the docs, but I don't understand the
+difference in output between IO depth and IO submit.  In this example,
+I set iodepth=2, but it's showing 100% use depth of 1.  And 100% of
+submits are between 4 to 8.  I'd appreciate if someone can explain
+what this means.  If it matters, I'm reading from a ZFS filesystem,
+and data is cached in ARC, hence the high speeds.
+
+fio --name=larry --rw=read --bs=1M --size=5000M --directory=/all24
+--nrfiles=10 --end_fsync=1 --numjobs=20 --group_reporting --iodepth=2
+larry: (g=0): rw=read, bs=(R) 1024KiB-1024KiB, (W) 1024KiB-1024KiB,
+(T) 1024KiB-1024KiB, ioengine=psync, iodepth=2
+...
+fio-3.5
+Starting 20 processes
+Jobs: 11 (f=110):
+[_(1),R(2),_(1),R(1),_(1),R(1),_(1),R(1),_(1),R(4),_(1),R(1),_(1),R(1),_(2)][70.0%][r=14.3GiB/s,w=0KiBJobs:
+1 (f=10): [_(10),E(1),R(1),_(8)][100.0%][r=13.0GiB/s,w=0KiB/s][r=13.4k,w=0
+IOPS][eta 00m:00s]
+larry: (groupid=0, jobs=20): err= 0: pid=70097: Thu Oct  3 10:34:31 2019
+   read: IOPS=14.2k, BW=13.9GiB/s (14.9GB/s)(97.7GiB/7020msec)
+    clat (usec): min=343, max=5832, avg=1204.12, stdev=542.72
+     lat (usec): min=343, max=5832, avg=1204.38, stdev=542.85
+    clat percentiles (usec):
+     |  1.00th=[  433],  5.00th=[  502], 10.00th=[  578], 20.00th=[  750],
+     | 30.00th=[  922], 40.00th=[ 1029], 50.00th=[ 1074], 60.00th=[ 1106],
+     | 70.00th=[ 1401], 80.00th=[ 1811], 90.00th=[ 2057], 95.00th=[ 2147],
+     | 99.00th=[ 2606], 99.50th=[ 2802], 99.90th=[ 3261], 99.95th=[ 3523],
+     | 99.99th=[ 4555]
+   bw (  KiB/s): min=469835, max=1684183, per=5.45%, avg=794410.57,
+stdev=293137.66, samples=230
+   iops        : min=  458, max= 1644, avg=775.34, stdev=286.24, samples=230
+  lat (usec)   : 500=4.99%, 750=15.08%, 1000=16.16%
+  lat (msec)   : 2=50.54%, 4=13.21%, 10=0.03%
+  cpu          : usr=0.41%, sys=99.55%, ctx=2364, majf=0, minf=5120
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=100000,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=2
+
+Run status group 0 (all jobs):
+   READ: bw=13.9GiB/s (14.9GB/s), 13.9GiB/s-13.9GiB/s
+(14.9GB/s-14.9GB/s), io=97.7GiB (105GB), run=7020-7020msec
+fio --name=larry --rw=read --bs=1M --size=5000M --directory=/all24
 
