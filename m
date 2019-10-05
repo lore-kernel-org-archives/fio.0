@@ -1,14 +1,14 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pg1-f173.google.com ([209.85.215.173]:38023 "EHLO
-        mail-pg1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726285AbfJEQXD (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 5 Oct 2019 12:23:03 -0400
-Received: by mail-pg1-f173.google.com with SMTP id x10so5530948pgi.5
-        for <fio@vger.kernel.org>; Sat, 05 Oct 2019 09:23:02 -0700 (PDT)
+Received: from mail-pf1-f178.google.com ([209.85.210.178]:46210 "EHLO
+        mail-pf1-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725826AbfJEQGE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 5 Oct 2019 12:06:04 -0400
+Received: by mail-pf1-f178.google.com with SMTP id q5so5720845pfg.13
+        for <fio@vger.kernel.org>; Sat, 05 Oct 2019 09:06:02 -0700 (PDT)
 From: Khem Raj <raj.khem@gmail.com>
 Subject: [PATCH] arch-arm: Consider armv7ve arch as well
-Date: Sat,  5 Oct 2019 09:22:54 -0700
-Message-Id: <20191005162254.1339794-1-raj.khem@gmail.com>
+Date: Sat,  5 Oct 2019 09:05:50 -0700
+Message-Id: <20191005160550.1338758-1-raj.khem@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
