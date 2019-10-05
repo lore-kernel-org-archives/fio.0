@@ -1,48 +1,74 @@
-Return-Path: <ming.lei@redhat.com>
-Date: Fri, 27 Sep 2019 16:02:50 +0800
-From: Ming Lei <ming.lei@redhat.com>
-Subject: fio: iodepth_batch_submit is broken on libaio
-Message-ID: <20190927080249.GA19514@ming.t460p>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:55185 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727980AbfJETvp (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 5 Oct 2019 15:51:45 -0400
+Received: by mail-wm1-f65.google.com with SMTP id p7so8827880wmp.4
+        for <fio@vger.kernel.org>; Sat, 05 Oct 2019 12:51:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+References: <CABO+gV-AvdsAWe+0SZXga4iDZ-C8xR9MuHQhBzm7aBiuGid8pg@mail.gmail.com>
+ <CALjAwxjpbpjv5OgvCUmxttNcXs2xtjUUrTyMdnac0ctmYwEiDA@mail.gmail.com>
+ <CABO+gV-rjH3CJw6-G2Oj2DZ4xOb7v7VNx_aocqU3iwODZPvBtQ@mail.gmail.com>
+ <CALjAwxhRz6OVURRTmTyUrnN+7pLy0SpC94NEE3izJyd2Gu3yfg@mail.gmail.com>
+ <CABO+gV8xNYo-aJ0hpr48z87tSxG7Yu6_HbmcRrZ+0AB969yyKQ@mail.gmail.com> <CALjAwxhPCTyFxoYOYAwJjA+TjGpwvGCCCkNuhMFSi-_OXWBoqw@mail.gmail.com>
+In-Reply-To: <CALjAwxhPCTyFxoYOYAwJjA+TjGpwvGCCCkNuhMFSi-_OXWBoqw@mail.gmail.com>
+From: Elliott Balsley <elliott@altsystems.com>
+Date: Sat, 5 Oct 2019 12:51:32 -0700
+Message-ID: <CABO+gV9smN4-A3nMKnHXDbH1BCXnkfWpQScV_9akqqtzO_p5kw@mail.gmail.com>
+Subject: Re: How to cancel job
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-Hi Jens,
+Thanks, I had not noticed the D state.  I learn something every day.
+I am indeed using NFS hard mount, but when this issue happens there is
+no problem with the mount itself.  Other apps can read/write just
+fine.  So maybe this could be improved by making fio do interruptible
+sleep?  Usually this happens when I accidentally start a job with a
+size much higher than I intended.
 
-Looks fio's 'iodepth_batch_submit' is broken.
-
-When running the attached fio script[1], I observed that 'nr' passed to
-io_submit() is 1, except that 64 is only passed to the 1st io_submit().
-
-Then plug merging can't work at all.
-
-[root@ktest-08 tools]# cat bpf
-#include <uapi/linux/aio_abi.h>
-tracepoint:syscalls:sys_enter_io_submit { @nr = hist(args->nr); }
-[root@ktest-08 tools]# bpftrace ./bpf
-Attaching 1 probe...
-^C
-
-@nr:
-[1]               902349 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|
-[2, 4)                 0 |                                                    |
-[4, 8)                 0 |                                                    |
-[8, 16)                0 |                                                    |
-[16, 32)               0 |                                                    |
-[32, 64)               0 |                                                    |
-[64, 128)              1 |                                                    |
-
-[1] fio script:
-fio --readwrite=write --filesize=4g --filename=/dev/sda \
-	--runtime=10s --time_based \
-	--ioengine=libaio --direct=1 --bs=4k --iodepth=64 \
-	--iodepth_batch_submit=64 \
-	--numjobs=64 \
-	--name=foo
-
-
-Thanks,
-Ming
+On Sat, Oct 5, 2019 at 3:15 AM Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>
+> On Fri, 4 Oct 2019 at 22:34, Elliott Balsley <elliott@altsystems.com> wrote:
+> >
+> > > This sounds unexpected. Are there easy reproduction steps for this? Is
+> > > I/O definitely being processed by the lower levels of the kernel?
+> >
+> > I'm not sure how to reproduce it reliably.  It seems to happen more
+> > often with NFS, not local filesystems.  Here is an example where
+> > Ctrl-C does nothing.  Then I ran "killall -9 fio" in another terminal"
+> > and it took about 20 seconds before the disk activity actually stopped
+> > in iostat.
+> >
+> > $ fio --name=write --rw=write --bs=1M --size=100G --end_fsync=1
+> > --filename_format=/mnt/rivendell/fio.\$jobnum.\$filenum
+> > write: (g=0): rw=write, bs=(R) 1024KiB-1024KiB, (W) 1024KiB-1024KiB,
+> > (T) 1024KiB-1024KiB, ioengine=psync, iodepth=1
+> > fio-3.1
+> > Starting 1 process
+> > write: Laying out IO file (1 file / 102400MiB)
+> > fio: native_fallocate call failed: Operation not supported
+> > ^Cbs: 1 (f=1): [W(1)][14.3%][r=0KiB/s,w=1327MiB/s][r=0,w=1327 IOPS][eta 00m:42s]
+> > fio: terminating on signal 2
+> > Killed1 (f=1): [F(1)][100.0%][r=0KiB/s,w=0KiB/s][r=0,w=0 IOPS][eta 00m:00s]
+> >
+> > $ ps aux | grep fio
+> > root     243211 36.0  0.0 931316  3068 ?        Ds   14:25   0:08 fio
+> > --name=write --rw=write --bs=1M --size=100G --end_fsync=1
+> > --filename_format=/mnt/rivendell/fio.$jobnum.$filenum
+> > root     243238  0.0  0.0 112708   988 pts/0    S+   14:26   0:00 grep
+> > --color=auto fio
+>
+> That process state (D) means that it is uninterruptible sleep. Doing
+> I/O through NFS can result in the process being unkillable until it
+> gets out of sending/receiving some batch of data to/from the NFS
+> server. Some part of fio saw the Ctrl-C (hence the terminating
+> message) but the part actually processing I/O presumably didn't
+> respond - maybe your NFS share is mounted with the "hard" option and
+> is retrying I/O indefinitely?
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
 
