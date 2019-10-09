@@ -1,84 +1,57 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-lj1-f174.google.com ([209.85.208.174]:36477 "EHLO
-        mail-lj1-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730002AbfJOVg6 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 15 Oct 2019 17:36:58 -0400
-Received: by mail-lj1-f174.google.com with SMTP id v24so21801532ljj.3
-        for <fio@vger.kernel.org>; Tue, 15 Oct 2019 14:36:56 -0700 (PDT)
-MIME-Version: 1.0
-From: smitha sunder <sundersmitha@gmail.com>
-Date: Tue, 15 Oct 2019 14:36:44 -0700
-Message-ID: <CA+zhgFSzBaH3q8TGZCet4WujqYBNqNA_kH3HavLoQY8FsmKFcQ@mail.gmail.com>
-Subject: unaligned IO and starting LBA
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Received: from merlin.infradead.org ([205.233.59.134]:47928 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727002AbfJIMAG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 9 Oct 2019 08:00:06 -0400
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.2 #3 (Red Hat Linux))
+        id 1iIAdQ-000244-Pb
+        for fio@vger.kernel.org; Wed, 09 Oct 2019 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20191009120001.63D2F2C086D@kernel.dk>
+Date: Wed,  9 Oct 2019 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hello,
+The following changes since commit 998baa29f571df9d2e4b626bedd317a2fd28c68a:
 
+  Merge branch 'replay-blktrace-fixes' of https://github.com/shimrot/fio (2019-10-07 21:23:26 -0600)
 
+are available in the Git repository at:
 
-I have a 512 byte formatted nvme drive and I want to send an unaligned
-IO and here=E2=80=99s the fio command line I am using , fio version fio-3.7
+  git://git.kernel.dk/fio.git master
 
-# fio --name=3Djob1 --filename=3D/dev/nvme0n1  --rw=3Drandwrite
---ioengine=3Dlibaio  --number_ios=3D1 --debug=3Dio --bs_unaligned=3D1
---bs=3D1029
+for you to fetch changes up to 983a656c11bf35043759de48aa5a85bdb4ffb106:
 
-Starting 1 process
+  Merge branch 'bumpflocks' of https://github.com/earlephilhower/fio (2019-10-08 20:58:57 -0600)
 
-io       24015 drop page cache /dev/nvme0n1
-io       24015 fill: io_u 0x8c9bc0:
-off=3D0x1af7af9cec,len=3D0x405,ddir=3D1,file=3D/dev/nvme0n1
-io       24015 prep: io_u 0x8c9bc0:
-off=3D0x1af7af9cec,len=3D0x405,ddir=3D1,file=3D/dev/nvme0n1
-io       24015 prep: io_u 0x8c9bc0: ret=3D0
-io       24015 queue: io_u 0x8c9bc0:
-off=3D0x1af7af9cec,len=3D0x405,ddir=3D1,file=3D/dev/nvme0n1
-io       24015 calling ->commit(), depth 1
-io       24015 io_u_queued_complete: min=3D1
-io       24015 getevents: 1
-io       24015 complete: io_u 0x8c9bc0:
-off=3D0x1af7af9cec,len=3D0x405,ddir=3D1,file=3D/dev/nvme0n1
-io       24015 close ioengine libaio
-io       24015 free ioengine libaio
+----------------------------------------------------------------
+Earle F. Philhower, III (1):
+      Increase MAX_FILELOCKS for highly parallel IO test
 
+Jens Axboe (1):
+      Merge branch 'bumpflocks' of https://github.com/earlephilhower/fio
 
+ filelock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Node             SN                   Model
-        Namespace Usage                      Format           FW Rev
+---
 
----------------- --------------------
----------------------------------------- ---------
--------------------------- ---------------- --------
+Diff of recent changes:
 
-/dev/nvme0n1     160401RICHC01        PM1733V4TLC
-        1           0.00   B /   1.92  TB    512   B +  0 B   NQ52
-/dev/nvme1n1     160401RICHC01        PM1733V4TLC
-        1           0.00   B /   1.92  TB    512   B +  0 B   NQ52
-
-
-
-Shouldn=E2=80=99t I see D7BD7CE as the starting LBA for the write based on =
-the
-above offset (0x1af7af9cec) ?
-
-
-
-From the PCI trace I see two writes with D7BD7C8 and D7BD7D0 as LBAs,
-I am not sure why that is, any help is greatly appreciated :
-
-; Write; Good; 11.345_5; 0; D7BD7C8; 1000; B008B; 0000; xxxx:A824;
-00:10.336_991_850_0; 49.864_0; PCIe Expert Target(1:1:2);
-; Write; Good; 13.761_5; 0; D7BD7D0; 1000; B008C; 0000; xxxx:A824;
-00:10.336_995_406_0; 3.556_0; PCIe Expert Target(1:1:2);
-; Identify; Good; 96359.046_9; 0;; 1000; 12; 0000; xxxx:A824;
-00:10.433_423_218_0; 96427.812_0; PCIe Expert Target(1:1:2;
-; Identify; Good; 41.635_5; 0;; 1000; 13; 0000; xxxx:A824;
-00:10.439_182_147_0; 5758.929_0; PCIe Expert Target(1:1:2);
-
-Thanks
-smitha
+diff --git a/filelock.c b/filelock.c
+index cc98aafc..7e92f63d 100644
+--- a/filelock.c
++++ b/filelock.c
+@@ -22,7 +22,7 @@ struct fio_filelock {
+ 	unsigned int references;
+ };
+ 
+-#define MAX_FILELOCKS	128
++#define MAX_FILELOCKS	1024
+ 	
+ static struct filelock_data {
+ 	struct flist_head list;
 
