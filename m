@@ -1,28 +1,44 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH 1/2] Update the email and web address for Windows
- binaries.
-References: <20190930205708.2302-1-rebecca@bsdio.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <f6b7ce53-5a0b-826a-7634-f5442b1b00ae@kernel.dk>
-Date: Tue, 1 Oct 2019 21:36:05 -0600
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20190930205708.2302-1-rebecca@bsdio.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Rebecca Cran <rebecca@bsdio.com>, fio@vger.kernel.org
+References: <AFC0F5D4-A0C0-446E-9463-3B242CEC575C@yahoo.com> <775dcc11-287a-5080-a5e4-a46e0f121683@kernel.dk>
+In-Reply-To: <775dcc11-287a-5080-a5e4-a46e0f121683@kernel.dk>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 9 Oct 2019 05:16:40 +0100
+Message-ID: <CALjAwxhCDytODGB7=xSVzmWaK8ib3qKV-r5=TXjwgMOysHTEWw@mail.gmail.com>
+Subject: Re: Fio Workload issues
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+To: Jaime Valencia <jaime4alex@yahoo.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-On 9/30/19 2:57 PM, Rebecca Cran wrote:
-> ---
->   README | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
+Hi,
 
-Thanks, applied.
+On Tue, 8 Oct 2019 at 22:24, Jens Axboe <axboe@kernel.dk> wrote:
+>
+> Forwarded to the list, please don't email me personally about
+> "how to use" questions.
+>
+>
+> On 10/8/19 3:00 PM, Jaime Valencia wrote:
+> > Hello,
+> >
+> > I=E2=80=99m currently working towards trying to write a Fio workload th=
+at can run multiple jobs in parallel while those multiple jobs writing a sp=
+ecific filesize and having a set iops rate.
+> >
+> > I ran into issues trying to verify the amount of data written to my dri=
+ve accurately as well as verifying my multiple jobs are writing the correct=
+ filesize.
+> >
+> > Can you provide some assistance with my issues?
 
-Is there a patch 2/2? Only 1/2 showed up in my inbox.
+Jamie - I think we'd need to see the job file/command line args you
+were running with along with descriptions of what problems you were
+hitting...
 
--- 
-Jens Axboe
+(Don't forget to reply all so this continues going to the fio mailing list)
 
+--=20
+Sitsofe | http://sucs.org/~sits/
 
