@@ -1,41 +1,57 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx0b-002e3701.pphosted.com ([148.163.143.35]:34870 "EHLO
-        mx0b-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726712AbfJAUfm (ORCPT
-        <rfc822;fio@vger.kernel.org>); Tue, 1 Oct 2019 16:35:42 -0400
-From: "Elliott, Robert (Servers)" <elliott@hpe.com>
-Subject: RE: how to run fio verification reliably in case of error
-Date: Tue, 1 Oct 2019 20:35:36 +0000
-Message-ID: <AT5PR8401MB11695055982A4F77F41DCAC0AB9D0@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
-References: <50AAB0EF-BB15-4322-8F13-2C5737BBF2F4@ebay.com>
- <214BDD2B-E543-44DB-A4EE-47932A3632EB@ebay.com>
-In-Reply-To: <214BDD2B-E543-44DB-A4EE-47932A3632EB@ebay.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+Received: from merlin.infradead.org ([205.233.59.134]:56180 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731004AbfJNMAM (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 14 Oct 2019 08:00:12 -0400
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1iJz1H-0007sn-At
+        for fio@vger.kernel.org; Mon, 14 Oct 2019 12:00:11 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20191014120002.1092E2C02DB@kernel.dk>
+Date: Mon, 14 Oct 2019 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Mittal, Rishabh" <rimittal@ebay.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-PiANCj4gICAgICAgICBmaW8gLS1uYW1lPXJhbmR3cml0ZSAtLWlvZW5naW5lPWxpYmFpbyAtLWlv
-ZGVwdGg9NjQgLS1ydz1yYW5kcncgLS1yd21peHJlYWQ9NTAgIC0tYnM9NGsgLS0NCj4gZGlyZWN0
-PTEgLWZpbGVuYW1lPWRhdGEgLS1udW1qb2JzPTEgLS1ydW50aW1lIDM2MDAwIC0tdmVyaWZ5PW1k
-NSAtLXZlcmlmeV9hc3luYz00IC0tDQo+IHZlcmlmeV9iYWNrbG9nPTEwMDAwMCAtLXZlcmlmeV9k
-dW1wPTEgLS12ZXJpZnlfZmF0YWw9MSAtLXRpbWVfYmFzZWQgLS1ncm91cF9yZXBvcnRpbmcgLS0N
-Cj4gY29udGludWVfb25fZXJyb3IgPSBpbw0KPiANCj4gICAgIElmIGFuIGVycm9yIGhhcHBlbnMg
-b24gYW4gSU8gdGhlbiBob3cgdmVyaWZpY2F0aW9uIGhhcHBlbnMgb2YgdGhhdCBJTy4gRG9lcyBG
-SU8gY29tcGxldGVseSBza2lwDQo+IHRoYXQgSU8gZm9yIGFueSBmdXR1cmUgdmVyaWZpY2F0aW9u
-IA0KDQpObywgaXQgZG9lc24ndCBkbyBhbnl0aGluZyBzcGVjaWFsIHRvIHJlbWVtYmVyIHRoZW0u
-IFNvbWV0aGluZyBwYXJhbGxlbGluZyB0aGUNCnJhbmRvbW1hcCBmZWF0dXJlIGNvdWxkIGJlIHVz
-ZWQgdG8ga25vY2sgb3V0IGJhZCBibG9ja3MsIGlmIHlvdSBuZWVkIHN1Y2gNCmFuIG9wdGlvbi4N
-Cg0KSWYgdXNpbmcgZmlvIHRvIHN0cmVzcyB0ZXN0IGVycm9yIGhhbmRsaW5nLCB5b3UgbWlnaHQg
-d2FudCBpdCB0byBrZWVwIHRyeWluZyBiYWQNCmJsb2Nrcy4gDQoNCkVycm9ycyBtaWdodCBnbyBh
-d2F5IG9uIHRoZWlyIG93biwgYW5kIGFyZSB1c3VhbGx5IGZpeGVkIGJ5IG92ZXJ3cml0aW5nIHRo
-ZSBibG9jaywNCnNvIGdpdmluZyB1cCBvbiBhIGJsb2NrIGZvcmV2ZXIgYWZ0ZXIgdGhlIGZpcnN0
-IGVycm9yIHdvdWxkbid0IHNpbXVsYXRlIHJlYWwNCnByb2dyYW0gYmVoYXZpb3IuDQoNCg0KPiBv
-ciBkb2VzIGl0IG1haW50YWluIG11bHRpcGxlIGNoZWNrc3VtcyBhbmQgcGFzc2VzIGlmIGl0IHZl
-cmlmaWVzDQo+IHdpdGggYW55IG9mIHRoZSBwcmV2aW91cyBjaGVja3N1bXMuDQoNCk5vOyB0aGUg
-bnVtYmVyIG9mIHBvc3NpYmxlIGNvbWJpbmF0aW9ucyBvZiBnb29kICsgYmFkIGJsb2NrcyB3b3Vs
-ZCBiZSBodWdlLg0KDQoNCg==
+The following changes since commit 983a656c11bf35043759de48aa5a85bdb4ffb106:
+
+  Merge branch 'bumpflocks' of https://github.com/earlephilhower/fio (2019-10-08 20:58:57 -0600)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 9663e751c25d3bf52e959d8c9025460d2f645b1e:
+
+  Merge branch 'fix-corrupt-hist-log' of https://github.com/sitsofe/fio (2019-10-13 11:02:00 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'fix-corrupt-hist-log' of https://github.com/sitsofe/fio
+
+Sitsofe Wheeler (1):
+      stat: fix corruption in histogram logs
+
+ stat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/stat.c b/stat.c
+index 33637900..05663e07 100644
+--- a/stat.c
++++ b/stat.c
+@@ -2580,7 +2580,7 @@ void add_clat_sample(struct thread_data *td, enum fio_ddir ddir,
+ 			io_u_plat = (uint64_t *) td->ts.io_u_plat[ddir];
+ 			dst = malloc(sizeof(struct io_u_plat_entry));
+ 			memcpy(&(dst->io_u_plat), io_u_plat,
+-				FIO_IO_U_PLAT_NR * sizeof(unsigned int));
++				FIO_IO_U_PLAT_NR * sizeof(uint64_t));
+ 			flist_add(&dst->list, &hw->list);
+ 			__add_log_sample(iolog, sample_plat(dst), ddir, bs,
+ 						elapsed, offset);
 
