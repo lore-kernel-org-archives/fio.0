@@ -1,40 +1,46 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pf1-f178.google.com ([209.85.210.178]:46210 "EHLO
-        mail-pf1-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725826AbfJEQGE (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 5 Oct 2019 12:06:04 -0400
-Received: by mail-pf1-f178.google.com with SMTP id q5so5720845pfg.13
-        for <fio@vger.kernel.org>; Sat, 05 Oct 2019 09:06:02 -0700 (PDT)
-From: Khem Raj <raj.khem@gmail.com>
-Subject: [PATCH] arch-arm: Consider armv7ve arch as well
-Date: Sat,  5 Oct 2019 09:05:50 -0700
-Message-Id: <20191005160550.1338758-1-raj.khem@gmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Khem Raj <raj.khem@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+From: vincentfu@gmail.com
+Subject: [PATCH 2/3] filesetup: use zonerange for map and LFSR with zonemode=strided
+Date: Tue, 15 Oct 2019 10:29:57 -0400
+Message-Id: <20191015142958.14559-3-vincentfu@gmail.com>
+In-Reply-To: <20191015142958.14559-1-vincentfu@gmail.com>
+References: <20191015142958.14559-1-vincentfu@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Vincent Fu <vincent.fu@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-Signed-off-by: Khem Raj <raj.khem@gmail.com>
+From: Vincent Fu <vincent.fu@wdc.com>
+
+When a random map is enabled, cover only the current zone when run with
+zonemode=strided. This ensures that when we reach the end of the zone we
+wrap around back into the current zone instead of accessing blocks
+outside of the zone.
+
+In addition, when an LFSR is used, constrain the blocks generated to the
+current zone. Previously, the LFSR random_generator would ignore the
+strided zonemode setting.
+
+Fixes: https://github.com/axboe/fio/issues/809
 ---
- arch/arch-arm.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ filesetup.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arch-arm.h b/arch/arch-arm.h
-index 78cb2ebe..4f722967 100644
---- a/arch/arch-arm.h
-+++ b/arch/arch-arm.h
-@@ -11,7 +11,7 @@
- #define nop             __asm__ __volatile__("mov\tr0,r0\t@ nop\n\t")
- #define read_barrier()	__asm__ __volatile__ ("" : : : "memory")
- #define write_barrier()	__asm__ __volatile__ ("" : : : "memory")
--#elif defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_8A__)
-+#elif defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_8A__) || defined(__ARM_ARCH_7VE__)
- #define	nop		__asm__ __volatile__ ("nop")
- #define read_barrier()	__sync_synchronize()
- #define write_barrier()	__sync_synchronize()
+diff --git a/filesetup.c b/filesetup.c
+index a439b6d6..1d3094c1 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -1338,6 +1338,9 @@ bool init_random_map(struct thread_data *td)
+ 	for_each_file(td, f, i) {
+ 		uint64_t fsize = min(f->real_file_size, f->io_size);
+ 
++		if (td->o.zone_mode == ZONE_MODE_STRIDED)
++			fsize = td->o.zone_range;
++
+ 		blocks = fsize / (unsigned long long) td->o.rw_min_bs;
+ 
+ 		if (check_rand_gen_limits(td, f, blocks))
 -- 
-2.23.0
+2.17.1
 
 
