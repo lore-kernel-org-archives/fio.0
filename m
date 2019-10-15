@@ -1,57 +1,381 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:36626 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388156AbfJVMAE (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 22 Oct 2019 08:00:04 -0400
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iMspX-0000yK-Sw
-        for fio@vger.kernel.org; Tue, 22 Oct 2019 12:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20191022120002.392302C070F@kernel.dk>
-Date: Tue, 22 Oct 2019 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+From: vincentfu@gmail.com
+Subject: [PATCH 3/3] testing: add test script for zonemode=strided
+Date: Tue, 15 Oct 2019 10:29:58 -0400
+Message-Id: <20191015142958.14559-4-vincentfu@gmail.com>
+In-Reply-To: <20191015142958.14559-1-vincentfu@gmail.com>
+References: <20191015142958.14559-1-vincentfu@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Vincent Fu <vincent.fu@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 2e97fa1b0d76edc6517fa4a8a4f6e0792b458e8c:
+From: Vincent Fu <vincent.fu@wdc.com>
 
-  Merge branch 'fix-fsync-on-close' of https://github.com/sitsofe/fio (2019-10-15 09:27:06 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to f6830780c2022a607b252191d4a5a1c6804e7513:
-
-  Merge branch 'android-log-fix' of https://github.com/kdrag0n/fio (2019-10-21 08:46:43 -0600)
-
-----------------------------------------------------------------
-Danny Lin (1):
-      Makefile: Link to the system logging library on Android
-
-Jens Axboe (1):
-      Merge branch 'android-log-fix' of https://github.com/kdrag0n/fio
-
- Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
+Python script to run jobs with randommap, with LFSR, and with
+nonrandommap. Uses null ioengine or a real file.
 ---
+ t/strided.py | 350 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 350 insertions(+)
+ create mode 100755 t/strided.py
 
-Diff of recent changes:
+diff --git a/t/strided.py b/t/strided.py
+new file mode 100755
+index 00000000..47ce5523
+--- /dev/null
++++ b/t/strided.py
+@@ -0,0 +1,350 @@
++#!/usr/bin/python
++# Note: this script is python2 and python3 compatible.
++#
++# strided.py
++#
++# Test zonemode=strided. This uses the null ioengine when no file is
++# specified. If a file is specified, use it for randdom read testing.
++# Some of the zoneranges in the tests are 16MiB. So when using a file
++# a minimum size of 32MiB is recommended.
++#
++# USAGE
++# python strided.py fio-executable [-f file/device]
++#
++# EXAMPLES
++# python t/strided.py ./fio
++# python t/strided.py ./fio -f /dev/sda
++# dd if=/dev/zero of=temp bs=1M count=32
++# python t/strided.py ./fio -f temp
++#
++# REQUIREMENTS
++# Python 2.6+
++#
++# ===TEST MATRIX===
++#
++# --zonemode=strided, zoneskip >= 0
++#   w/ randommap and LFSR
++#       zonesize=zonerange  all blocks in zonerange touched
++#       zonesize>zonerange  all blocks touched and roll-over back into zone
++#       zonesize<zonerange  all blocks inside zone
++#
++#   w/o randommap       all blocks inside zone
++#
++
++from __future__ import absolute_import
++from __future__ import print_function
++import os
++import sys
++import argparse
++import subprocess
++
++
++def parse_args():
++    parser = argparse.ArgumentParser()
++    parser.add_argument('fio',
++                        help='path to fio executable (e.g., ./fio)')
++    parser.add_argument('-f', '--filename', help="file/device to test")
++    args = parser.parse_args()
++
++    return args
++
++
++def run_fio(fio, test, index):
++    filename = "strided"
++    fio_args = [
++                "--name=strided",
++                "--zonemode=strided",
++                "--log_offset=1",
++                "--randrepeat=0",
++                "--rw=randread",
++                "--zoneskip=0",
++                "--write_iops_log={0}{1:03d}".format(filename, index),
++                "--output={0}{1:03d}.out".format(filename, index),
++                "--zonerange={zonerange}".format(**test),
++                "--zonesize={zonesize}".format(**test),
++                "--bs={bs}".format(**test),
++               ]
++    if 'norandommap' in test:
++        fio_args.append('--norandommap')
++    if 'random_generator' in test:
++        fio_args.append('--random_generator={random_generator}'.format(**test))
++    if 'offset' in test:
++        fio_args.append('--offset={offset}'.format(**test))
++    if 'filename' in test:
++        fio_args.append('--filename={filename}'.format(**test))
++        fio_args.append('--filesize={filesize})'.format(**test))
++    else:
++        fio_args.append('--ioengine=null')
++        fio_args.append('--size={size}'.format(**test))
++        fio_args.append('--io_size={io_size}'.format(**test))
++        fio_args.append('--filesize={size})'.format(**test))
++
++    output = subprocess.check_output([fio] + fio_args, universal_newlines=True)
++
++    f = open("{0}{1:03d}_iops.1.log".format(filename, index), "r")
++    log = f.read()
++    f.close()
++
++    return log
++
++
++def check_output(iops_log, test):
++    zonestart = 0 if 'offset' not in test else test['offset']
++    iospersize = test['zonesize'] / test['bs']
++    iosperrange = test['zonerange'] / test['bs']
++    iosperzone = 0
++    lines = iops_log.split('\n')
++    zoneset = set()
++
++    for line in lines:
++        if len(line) == 0:
++            continue
++
++        if iosperzone == iospersize:
++            # time to move to a new zone
++            iosperzone = 0
++            zoneset = set()
++            zonestart += test['zonerange']
++            if zonestart >= test['filesize']:
++                zonestart = 0 if 'offset' not in test else test['offset']
++
++        iosperzone = iosperzone + 1
++        tokens = line.split(',')
++        offset = int(tokens[4])
++        if offset < zonestart or offset >= zonestart + test['zonerange']:
++            print("Offset {0} outside of zone starting at {1}".format(
++                    offset, zonestart))
++            return False
++
++        # skip next section if norandommap is enabled with no
++        # random_generator or with a random_generator != lfsr
++        if 'norandommap' in test:
++            if 'random_generator' in test:
++                if test['random_generator'] != 'lfsr':
++                    continue
++            else:
++                continue
++
++        # we either have a random map enabled or we
++        # are using an LFSR
++        # so all blocks should be unique and we should have
++        # covered the entire zone when iosperzone % iosperrange == 0
++        block = (offset - zonestart) / test['bs']
++        if block in zoneset:
++            print("Offset {0} in zone already touched".format(offset))
++            return False
++
++        zoneset.add(block)
++        if iosperzone % iosperrange == 0:
++            if len(zoneset) != iosperrange:
++                print("Expected {0} blocks in zone but only saw {1}".format(
++                        iosperrange, len(zoneset)))
++                return False
++            zoneset = set()
++
++    return True
++
++
++if __name__ == '__main__':
++    args = parse_args()
++
++    tests = [   # randommap enabled
++                {
++                    "zonerange": 4096,
++                    "zonesize": 4096,
++                    "bs": 4096,
++                    "offset": 8*4096,
++                    "size": 16*4096,
++                    "io_size": 16*4096,
++                },
++                {
++                    "zonerange": 4096,
++                    "zonesize": 4096,
++                    "bs": 4096,
++                    "size": 16*4096,
++                    "io_size": 16*4096,
++                },
++                {
++                    "zonerange": 16*1024*1024,
++                    "zonesize": 16*1024*1024,
++                    "bs": 4096,
++                    "size": 256*1024*1024,
++                    "io_size": 256*1024*204,
++                },
++                {
++                    "zonerange": 4096,
++                    "zonesize": 4*4096,
++                    "bs": 4096,
++                    "size": 16*4096,
++                    "io_size": 16*4096,
++                },
++                {
++                    "zonerange": 16*1024*1024,
++                    "zonesize": 32*1024*1024,
++                    "bs": 4096,
++                    "size": 256*1024*1024,
++                    "io_size": 256*1024*204,
++                },
++                {
++                    "zonerange": 8192,
++                    "zonesize": 4096,
++                    "bs": 4096,
++                    "size": 16*4096,
++                    "io_size": 16*4096,
++                },
++                {
++                    "zonerange": 16*1024*1024,
++                    "zonesize": 8*1024*1024,
++                    "bs": 4096,
++                    "size": 256*1024*1024,
++                    "io_size": 256*1024*204,
++                },
++                # lfsr
++                {
++                    "random_generator": "lfsr",
++                    "zonerange": 4096,
++                    "zonesize": 4096,
++                    "bs": 4096,
++                    "offset": 8*4096,
++                    "size": 16*4096,
++                    "io_size": 16*4096,
++                },
++                {
++                    "random_generator": "lfsr",
++                    "zonerange": 4096,
++                    "zonesize": 4096,
++                    "bs": 4096,
++                    "size": 16*4096,
++                    "io_size": 16*4096,
++                },
++                {
++                    "random_generator": "lfsr",
++                    "zonerange": 16*1024*1024,
++                    "zonesize": 16*1024*1024,
++                    "bs": 4096,
++                    "size": 256*1024*1024,
++                    "io_size": 256*1024*204,
++                },
++                {
++                    "random_generator": "lfsr",
++                    "zonerange": 4096,
++                    "zonesize": 4*4096,
++                    "bs": 4096,
++                    "size": 16*4096,
++                    "io_size": 16*4096,
++                },
++                {
++                    "random_generator": "lfsr",
++                    "zonerange": 16*1024*1024,
++                    "zonesize": 32*1024*1024,
++                    "bs": 4096,
++                    "size": 256*1024*1024,
++                    "io_size": 256*1024*204,
++                },
++                {
++                    "random_generator": "lfsr",
++                    "zonerange": 8192,
++                    "zonesize": 4096,
++                    "bs": 4096,
++                    "size": 16*4096,
++                    "io_size": 16*4096,
++                },
++                {
++                    "random_generator": "lfsr",
++                    "zonerange": 16*1024*1024,
++                    "zonesize": 8*1024*1024,
++                    "bs": 4096,
++                    "size": 256*1024*1024,
++                    "io_size": 256*1024*204,
++                },
++                # norandommap
++                {
++                    "norandommap": 1,
++                    "zonerange": 4096,
++                    "zonesize": 4096,
++                    "bs": 4096,
++                    "offset": 8*4096,
++                    "size": 16*4096,
++                    "io_size": 16*4096,
++                },
++                {
++                    "norandommap": 1,
++                    "zonerange": 4096,
++                    "zonesize": 4096,
++                    "bs": 4096,
++                    "size": 16*4096,
++                    "io_size": 16*4096,
++                },
++                {
++                    "norandommap": 1,
++                    "zonerange": 16*1024*1024,
++                    "zonesize": 16*1024*1024,
++                    "bs": 4096,
++                    "size": 256*1024*1024,
++                    "io_size": 256*1024*204,
++                },
++                {
++                    "norandommap": 1,
++                    "zonerange": 4096,
++                    "zonesize": 8192,
++                    "bs": 4096,
++                    "size": 16*4096,
++                    "io_size": 16*4096,
++                },
++                {
++                    "norandommap": 1,
++                    "zonerange": 16*1024*1024,
++                    "zonesize": 32*1024*1024,
++                    "bs": 4096,
++                    "size": 256*1024*1024,
++                    "io_size": 256*1024*204,
++                },
++                {
++                    "norandommap": 1,
++                    "zonerange": 8192,
++                    "zonesize": 4096,
++                    "bs": 4096,
++                    "size": 16*4096,
++                    "io_size": 16*4096,
++                },
++                {
++                    "norandommap": 1,
++                    "zonerange": 16*1024*1024,
++                    "zonesize": 8*1024*1024,
++                    "bs": 4096,
++                    "size": 256*1024*1024,
++                    "io_size": 256*1024*204,
++                },
++
++            ]
++
++    index = 1
++    passed = 0
++    failed = 0
++
++    if args.filename:
++        statinfo = os.stat(args.filename)
++        filesize = statinfo.st_size
++        if filesize == 0:
++            f = os.open(args.filename, os.O_RDONLY)
++            filesize = os.lseek(f, 0, os.SEEK_END)
++            os.close(f)
++
++    for test in tests:
++        if args.filename:
++            test['filename'] = args.filename
++            test['filesize'] = filesize
++        else:
++            test['filesize'] = test['size']
++        iops_log = run_fio(args.fio, test, index)
++        status = check_output(iops_log, test)
++        print("Test {0} {1}".format(index, ("PASSED" if status else "FAILED")))
++        if status:
++            passed = passed + 1
++        else:
++            failed = failed + 1
++        index = index + 1
++
++    print("{0} tests passed, {1} failed".format(passed, failed))
++
++    sys.exit(failed)
+-- 
+2.17.1
 
-diff --git a/Makefile b/Makefile
-index 7c21ef83..7aab6abd 100644
---- a/Makefile
-+++ b/Makefile
-@@ -170,7 +170,7 @@ endif
- ifeq ($(CONFIG_TARGET_OS), Android)
-   SOURCE += diskutil.c fifo.c blktrace.c cgroup.c trim.c profiles/tiobench.c \
- 		oslib/linux-dev-lookup.c
--  LIBS += -ldl
-+  LIBS += -ldl -llog
-   LDFLAGS += -rdynamic
- endif
- ifeq ($(CONFIG_TARGET_OS), SunOS)
 
