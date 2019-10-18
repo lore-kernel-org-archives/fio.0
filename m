@@ -1,39 +1,24 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm1-f54.google.com ([209.85.128.54]:35848 "EHLO
-        mail-wm1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726026AbfJSHMK (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 19 Oct 2019 03:12:10 -0400
-Received: by mail-wm1-f54.google.com with SMTP id m18so8064843wmc.1
-        for <fio@vger.kernel.org>; Sat, 19 Oct 2019 00:12:09 -0700 (PDT)
-MIME-Version: 1.0
-References: <BY5PR21MB14922563C2166CDB9268784FDF6D0@BY5PR21MB1492.namprd21.prod.outlook.com>
-In-Reply-To: <BY5PR21MB14922563C2166CDB9268784FDF6D0@BY5PR21MB1492.namprd21.prod.outlook.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Sat, 19 Oct 2019 08:11:42 +0100
-Message-ID: <CALjAwxhqfLCVN+q7NJ+KVWxg5CAsyM+AZizdmUDoaH9z12Rkfg@mail.gmail.com>
+Received: from muon.bluestop.org ([65.103.231.193]:49009 "EHLO muon.bsdio.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1732097AbfJQVVm (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 17 Oct 2019 17:21:42 -0400
 Subject: Re: build issue
-Content-Type: text/plain; charset="UTF-8"
+References: <BY5PR21MB14922563C2166CDB9268784FDF6D0@BY5PR21MB1492.namprd21.prod.outlook.com>
+From: Rebecca Cran <rebecca@bsdio.com>
+Message-ID: <55a04137-7b12-0a73-494e-35d270ea25d4@bsdio.com>
+Date: Thu, 17 Oct 2019 21:21:40 -0600
+MIME-Version: 1.0
+In-Reply-To: <BY5PR21MB14922563C2166CDB9268784FDF6D0@BY5PR21MB1492.namprd21.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Astolfo Rueda <astolfor@microsoft.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Astolfo Rueda <astolfor@microsoft.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi,
-
-On Fri, 18 Oct 2019 at 23:18, Astolfo Rueda <astolfor@microsoft.com> wrote:
->
-> Hello I am trying to build FIO and I get these errors.
-> The server is windows 10, with latest Cygwin.
->
-> What am I doing wrong?
-
-You're not doing anything wrong from what I can see - it looks like
-sounds like some sort of compiler issue...
-
-> Thanks
-> Astolfo
->
->
+On 10/17/2019 2:34 PM, Astolfo Rueda wrote:
+>      CC oslib/inet_aton.o
 > /tmp/ccQfIUjv.s: Assembler messages:
 > /tmp/ccQfIUjv.s:1188: Error: invalid register for .seh_savexmm
 > make: *** [Makefile:376: filehash.o] Error 1
@@ -53,16 +38,17 @@ sounds like some sort of compiler issue...
 > /tmp/ccZfFBQo.s:3834: Error: invalid register for .seh_savexmm
 > make: *** [Makefile:379: options.o] Error 1
 
-Hmm. This might be down to a compatibility issue between
-x86_64-w64-mingw32-gcc and Windows when using AVX512 (and whether fio
-defaults to compiling with such options will depend on the compilation
-environment). If you do
 
-./configure --extra-cflags="-fno-asynchronous-unwind-tables"
-make -j
+I just built the latest git master on my Windows 10 machine without any 
+problems, and the configure output looked the same too.
 
-etc. are things any better?
+Can you check which commit you're building please (e.g. with "git show").
 
--- 
-Sitsofe | http://sucs.org/~sits/
+Also, could you post the output with "make V=1" to show the command line 
+it's running?
+
+
+Thanks.
+Rebecca
+
 
