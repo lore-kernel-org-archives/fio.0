@@ -1,46 +1,57 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH 2/3] filesetup: use zonerange for map and LFSR with zonemode=strided
-Date: Tue, 15 Oct 2019 10:29:57 -0400
-Message-Id: <20191015142958.14559-3-vincentfu@gmail.com>
-In-Reply-To: <20191015142958.14559-1-vincentfu@gmail.com>
-References: <20191015142958.14559-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:36626 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388156AbfJVMAE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 22 Oct 2019 08:00:04 -0400
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1iMspX-0000yK-Sw
+        for fio@vger.kernel.org; Tue, 22 Oct 2019 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20191022120002.392302C070F@kernel.dk>
+Date: Tue, 22 Oct 2019 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Vincent Fu <vincent.fu@wdc.com>
+The following changes since commit 2e97fa1b0d76edc6517fa4a8a4f6e0792b458e8c:
 
-When a random map is enabled, cover only the current zone when run with
-zonemode=strided. This ensures that when we reach the end of the zone we
-wrap around back into the current zone instead of accessing blocks
-outside of the zone.
+  Merge branch 'fix-fsync-on-close' of https://github.com/sitsofe/fio (2019-10-15 09:27:06 -0600)
 
-In addition, when an LFSR is used, constrain the blocks generated to the
-current zone. Previously, the LFSR random_generator would ignore the
-strided zonemode setting.
+are available in the Git repository at:
 
-Fixes: https://github.com/axboe/fio/issues/809
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to f6830780c2022a607b252191d4a5a1c6804e7513:
+
+  Merge branch 'android-log-fix' of https://github.com/kdrag0n/fio (2019-10-21 08:46:43 -0600)
+
+----------------------------------------------------------------
+Danny Lin (1):
+      Makefile: Link to the system logging library on Android
+
+Jens Axboe (1):
+      Merge branch 'android-log-fix' of https://github.com/kdrag0n/fio
+
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 ---
- filesetup.c | 3 +++
- 1 file changed, 3 insertions(+)
 
-diff --git a/filesetup.c b/filesetup.c
-index a439b6d6..1d3094c1 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -1338,6 +1338,9 @@ bool init_random_map(struct thread_data *td)
- 	for_each_file(td, f, i) {
- 		uint64_t fsize = min(f->real_file_size, f->io_size);
- 
-+		if (td->o.zone_mode == ZONE_MODE_STRIDED)
-+			fsize = td->o.zone_range;
-+
- 		blocks = fsize / (unsigned long long) td->o.rw_min_bs;
- 
- 		if (check_rand_gen_limits(td, f, blocks))
--- 
-2.17.1
+Diff of recent changes:
 
+diff --git a/Makefile b/Makefile
+index 7c21ef83..7aab6abd 100644
+--- a/Makefile
++++ b/Makefile
+@@ -170,7 +170,7 @@ endif
+ ifeq ($(CONFIG_TARGET_OS), Android)
+   SOURCE += diskutil.c fifo.c blktrace.c cgroup.c trim.c profiles/tiobench.c \
+ 		oslib/linux-dev-lookup.c
+-  LIBS += -ldl
++  LIBS += -ldl -llog
+   LDFLAGS += -rdynamic
+ endif
+ ifeq ($(CONFIG_TARGET_OS), SunOS)
 
