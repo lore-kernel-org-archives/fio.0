@@ -1,118 +1,99 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-eopbgr770117.outbound.protection.outlook.com ([40.107.77.117]:65408
-        "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728330AbfJ1OWW (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 28 Oct 2019 10:22:22 -0400
-From: Astolfo Rueda <astolfor@microsoft.com>
-Subject: RE: build issue
-Date: Mon, 28 Oct 2019 14:22:18 +0000
-Message-ID: <BY5PR21MB1492978D5057CB5DA28B65C1DF660@BY5PR21MB1492.namprd21.prod.outlook.com>
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:37831 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726956AbfJ0Ueg (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 27 Oct 2019 16:34:36 -0400
+Received: by mail-wr1-f68.google.com with SMTP id e11so7765893wrv.4
+        for <fio@vger.kernel.org>; Sun, 27 Oct 2019 13:34:33 -0700 (PDT)
+MIME-Version: 1.0
 References: <BY5PR21MB14922563C2166CDB9268784FDF6D0@BY5PR21MB1492.namprd21.prod.outlook.com>
  <CALjAwxhqfLCVN+q7NJ+KVWxg5CAsyM+AZizdmUDoaH9z12Rkfg@mail.gmail.com>
- <CALjAwxjpiTfdUupdPOZnbb_cK=Y0rP1GwnVy1rqbYFw8pZhG5g@mail.gmail.com>
-In-Reply-To: <CALjAwxjpiTfdUupdPOZnbb_cK=Y0rP1GwnVy1rqbYFw8pZhG5g@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+In-Reply-To: <CALjAwxhqfLCVN+q7NJ+KVWxg5CAsyM+AZizdmUDoaH9z12Rkfg@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sun, 27 Oct 2019 20:34:06 +0000
+Message-ID: <CALjAwxjpiTfdUupdPOZnbb_cK=Y0rP1GwnVy1rqbYFw8pZhG5g@mail.gmail.com>
+Subject: Re: build issue
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+To: Astolfo Rueda <astolfor@microsoft.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Rebecca Cran <rebecca@bluestop.org>
 
-SGVsbG8gU2l0c29mZSwgdGhhbmtzIGZvciB5b3VyIGhlbHAuIA0KLi9jb25maWd1cmUgLS1leHRy
-YS1jZmxhZ3M9Ii1mbm8tYXN5bmNocm9ub3VzLXVud2luZC10YWJsZXMiDQogbWFrZSAtaiANCg0K
-d29ya2VkLg0KDQpJIGFtIHRlc3RpbmcgdGhlIG5ldyBQQ0llIGdlbiA0IE52TUVzIHNvIEkgYW0g
-Z2xhZCBpdCB3b3JrZWQuDQoNCk9uZSBxdWVzdGlvbiwgZG8geW91IGtub3cgd2hlbiB0aGUgIlBv
-b3Igd2luZG93c2FpbyBwZXJmb3JtYW5jZSBkdWUgdG8gc3luY2hyb25pemF0aW9uIG9mIHdyaXRl
-cyB1bmxlc3MgLS1vdmVyd3JpdGUgMSBpcyBnaXZlbiAoIzgzMykiIGlzIGdvaW5nIHRvIGJlIHJl
-c29sdmVkPyBJIGFsc28gbm90aWNlZCB0aGF0IHRoZSBxdWV1ZSBkZXB0aCBpbmRpY2F0ZWQgaW4g
-RklPIGRvZXMgbm90IHRyYW5zbGF0ZSBpbnRvIFBIWSBkaXNrIHF1ZXVlIGRlcHRoIHdoZW4gZmly
-c3QgYWxsb2NhdGlvbnMgYXJlIGhhcHBlbmluZy4gSSB3b3VsZCBuZWVkIHRoZSBzeW1ib2xzIGZv
-ciBGSU8gdG8gdHJvdWJsZXNob290IGZ1cnRoZXIgYmVjYXVzZSBvdXIgc3RhY2sgYXBwZWFycyB0
-byBiZSB3YWl0aW5nDQoNClRoYW5rcw0KQXN0b2xmbw0KDQogDQotLS0tLU9yaWdpbmFsIE1lc3Nh
-Z2UtLS0tLQ0KRnJvbTogU2l0c29mZSBXaGVlbGVyIDxzaXRzb2ZlQGdtYWlsLmNvbT4gDQpTZW50
-OiBTdW5kYXksIE9jdG9iZXIgMjcsIDIwMTkgMTozNCBQTQ0KVG86IEFzdG9sZm8gUnVlZGEgPGFz
-dG9sZm9yQG1pY3Jvc29mdC5jb20+DQpDYzogZmlvQHZnZXIua2VybmVsLm9yZzsgUmViZWNjYSBD
-cmFuIDxyZWJlY2NhQGJsdWVzdG9wLm9yZz4NClN1YmplY3Q6IFJlOiBidWlsZCBpc3N1ZQ0KDQpI
-aSwNCg0KT24gU2F0LCAxOSBPY3QgMjAxOSBhdCAwODoxMSwgU2l0c29mZSBXaGVlbGVyIDxzaXRz
-b2ZlQGdtYWlsLmNvbT4gd3JvdGU6DQo+DQo+IEhpLA0KPg0KPiBPbiBGcmksIDE4IE9jdCAyMDE5
-IGF0IDIzOjE4LCBBc3RvbGZvIFJ1ZWRhIDxhc3RvbGZvckBtaWNyb3NvZnQuY29tPiB3cm90ZToN
-Cj4gPg0KPiA+IEhlbGxvIEkgYW0gdHJ5aW5nIHRvIGJ1aWxkIEZJTyBhbmQgSSBnZXQgdGhlc2Ug
-ZXJyb3JzLg0KPiA+IFRoZSBzZXJ2ZXIgaXMgd2luZG93cyAxMCwgd2l0aCBsYXRlc3QgQ3lnd2lu
-Lg0KPiA+DQo+ID4gV2hhdCBhbSBJIGRvaW5nIHdyb25nPw0KPg0KPiBZb3UncmUgbm90IGRvaW5n
-IGFueXRoaW5nIHdyb25nIGZyb20gd2hhdCBJIGNhbiBzZWUgLSBpdCBsb29rcyBsaWtlIA0KPiBz
-b3VuZHMgbGlrZSBzb21lIHNvcnQgb2YgY29tcGlsZXIgaXNzdWUuLi4NCj4NCj4gPiBUaGFua3MN
-Cj4gPiBBc3RvbGZvDQo+ID4NCj4gPg0KPiA+IC90bXAvY2NRZklVanYuczogQXNzZW1ibGVyIG1l
-c3NhZ2VzOg0KPiA+IC90bXAvY2NRZklVanYuczoxMTg4OiBFcnJvcjogaW52YWxpZCByZWdpc3Rl
-ciBmb3IgLnNlaF9zYXZleG1tDQo+ID4gbWFrZTogKioqIFtNYWtlZmlsZTozNzY6IGZpbGVoYXNo
-Lm9dIEVycm9yIDENCj4gPiBtYWtlOiAqKiogV2FpdGluZyBmb3IgdW5maW5pc2hlZCBqb2JzLi4u
-Lg0KPiA+IC90bXAvY2NaZkZCUW8uczogQXNzZW1ibGVyIG1lc3NhZ2VzOg0KPiA+IC90bXAvY2Na
-ZkZCUW8uczozODEyOiBFcnJvcjogaW52YWxpZCByZWdpc3RlciBmb3IgLnNlaF9zYXZleG1tDQo+
-ID4gL3RtcC9jY1pmRkJRby5zOjM4MTQ6IEVycm9yOiBpbnZhbGlkIHJlZ2lzdGVyIGZvciAuc2Vo
-X3NhdmV4bW0NCj4gPiAvdG1wL2NjWmZGQlFvLnM6MzgxNjogRXJyb3I6IGludmFsaWQgcmVnaXN0
-ZXIgZm9yIC5zZWhfc2F2ZXhtbQ0KPiA+IC90bXAvY2NaZkZCUW8uczozODE4OiBFcnJvcjogaW52
-YWxpZCByZWdpc3RlciBmb3IgLnNlaF9zYXZleG1tDQo+ID4gL3RtcC9jY1pmRkJRby5zOjM4MjA6
-IEVycm9yOiBpbnZhbGlkIHJlZ2lzdGVyIGZvciAuc2VoX3NhdmV4bW0NCj4gPiAvdG1wL2NjWmZG
-QlFvLnM6MzgyMjogRXJyb3I6IGludmFsaWQgcmVnaXN0ZXIgZm9yIC5zZWhfc2F2ZXhtbQ0KPiA+
-IC90bXAvY2NaZkZCUW8uczozODI0OiBFcnJvcjogaW52YWxpZCByZWdpc3RlciBmb3IgLnNlaF9z
-YXZleG1tDQo+ID4gL3RtcC9jY1pmRkJRby5zOjM4MjY6IEVycm9yOiBpbnZhbGlkIHJlZ2lzdGVy
-IGZvciAuc2VoX3NhdmV4bW0NCj4gPiAvdG1wL2NjWmZGQlFvLnM6MzgyODogRXJyb3I6IGludmFs
-aWQgcmVnaXN0ZXIgZm9yIC5zZWhfc2F2ZXhtbQ0KPiA+IC90bXAvY2NaZkZCUW8uczozODMwOiBF
-cnJvcjogaW52YWxpZCByZWdpc3RlciBmb3IgLnNlaF9zYXZleG1tDQo+ID4gL3RtcC9jY1pmRkJR
-by5zOjM4MzI6IEVycm9yOiBpbnZhbGlkIHJlZ2lzdGVyIGZvciAuc2VoX3NhdmV4bW0NCj4gPiAv
-dG1wL2NjWmZGQlFvLnM6MzgzNDogRXJyb3I6IGludmFsaWQgcmVnaXN0ZXIgZm9yIC5zZWhfc2F2
-ZXhtbQ0KPiA+IG1ha2U6ICoqKiBbTWFrZWZpbGU6Mzc5OiBvcHRpb25zLm9dIEVycm9yIDENCj4N
-Cj4gSG1tLiBUaGlzIG1pZ2h0IGJlIGRvd24gdG8gYSBjb21wYXRpYmlsaXR5IGlzc3VlIGJldHdl
-ZW4gDQo+IHg4Nl82NC13NjQtbWluZ3czMi1nY2MgYW5kIFdpbmRvd3Mgd2hlbiB1c2luZyBBVlg1
-MTIgKGFuZCB3aGV0aGVyIGZpbyANCj4gZGVmYXVsdHMgdG8gY29tcGlsaW5nIHdpdGggc3VjaCBv
-cHRpb25zIHdpbGwgZGVwZW5kIG9uIHRoZSBjb21waWxhdGlvbiANCj4gZW52aXJvbm1lbnQpLiBJ
-ZiB5b3UgZG8NCj4NCj4gLi9jb25maWd1cmUgLS1leHRyYS1jZmxhZ3M9Ii1mbm8tYXN5bmNocm9u
-b3VzLXVud2luZC10YWJsZXMiDQo+IG1ha2UgLWoNCj4NCj4gZXRjLiBhcmUgdGhpbmdzIGFueSBi
-ZXR0ZXI/DQoNClNvIEkndmUgbWFuYWdlZCB0byBmaW5kIGEgcmVjZW50IFhlb24gc2VydmVyIHdp
-dGggV2luZG93cyBWTSBhbmQgSSBzZWUgdGhlIGNvbXBpbGUgZXJyb3JzIHlvdSBkZXNjcmliZSBv
-biBpdCB0b28uIERvaW5nIG1ha2UgY2xlYW4gLi9jb25maWd1cmUgLS1leHRyYS1jZmxhZ3M9Ii1m
-bm8tYXN5bmNocm9ub3VzLXVud2luZC10YWJsZXMiDQptYWtlIC1qDQoNCmZpeGVzIHRoZSAiaW52
-YWxpZCByZWdpc3RlciBmb3IgLnNlaF9zYXZleG1tIiBlcnJvciBmb3IgbWUuIEFub3RoZXIgd29y
-a2Fyb3VuZCBpcyB0byBkaXNhYmxlIHRoZSBnZW5lcmF0aW9uIG9mIHByb2JsZW1hdGljIEFWWA0K
-aW5zdHJ1Y3Rpb25zOg0KbWFrZSBjbGVhbg0KLi9jb25maWd1cmUgLS1leHRyYS1jZmxhZ3M9Ii1t
-bm8tYXZ4NTEyZiINCm1ha2UgLWoNCg0KYnV0IHRoZSBiaW5hcnkgbWFkZSBtaWdodCBiZSBldmVy
-IHNvIHNsaWdodGx5IHNsb3dlciAoYW5kIHlvdSdkIG5lZWQgaW5jcmVkaWJseSBmYXN0IGRpc2tz
-IGFuZCB3aGVuIEkgZGlkIGEgcXVpY2sgY2hlY2sgd2l0aCB0aGUgbnVsbCBpb2VuZ2luZSBJIGFj
-dHVhbGx5IGZvdW5kIHRoZSBub24tQVZYNTEyIHZlcnNpb24gb2YgZmlvIHdhcyBmYXN0ZXIgaW4g
-bXkgVk0uLi4pLg0KDQpJdCBsb29rcyBsaWtlIHRoaXMgaXMgdGhlICJnY2MvbWluZ3ctZ2NjIGZh
-aWxzIHRvIGFsaWduIHRoZSBzdGFjayBwcm9wZXJseSB0byBXaW5kb3dzJyByZXF1aXJlbWVudHMg
-d2hlbiB1c2luZyBBVlggNTEyIGluc3RydWN0aW9ucyINCmlzc3VlOg0KaHR0cHM6Ly9uYW0wNi5z
-YWZlbGlua3MucHJvdGVjdGlvbi5vdXRsb29rLmNvbS8/dXJsPWh0dHBzJTNBJTJGJTJGZ2NjLmdu
-dS5vcmclMkZidWd6aWxsYSUyRnNob3dfYnVnLmNnaSUzRmlkJTNENjU3ODImYW1wO2RhdGE9MDIl
-N0MwMSU3Q2FzdG9sZm9yJTQwbWljcm9zb2Z0LmNvbSU3QzRlMTY4NjY1YThkZDQzN2ViYzk5MDhk
-NzViMWQxMzkyJTdDNzJmOTg4YmY4NmYxNDFhZjkxYWIyZDdjZDAxMWRiNDclN0MxJTdDMCU3QzYz
-NzA3ODA1Mjc1MDg2MTEwMyZhbXA7c2RhdGE9bVpEZXAzV0JvUXc3JTJCSlg3QlM2Sml4azEwNUJR
-MnBOYnV5bEFkbFAlMkI5aE0lM0QmYW1wO3Jlc2VydmVkPTANCmh0dHBzOi8vbmFtMDYuc2FmZWxp
-bmtzLnByb3RlY3Rpb24ub3V0bG9vay5jb20vP3VybD1odHRwcyUzQSUyRiUyRmdjYy5nbnUub3Jn
-JTJGYnVnemlsbGElMkZzaG93X2J1Zy5jZ2klM0ZpZCUzRDU0NDEyJmFtcDtkYXRhPTAyJTdDMDEl
-N0Nhc3RvbGZvciU0MG1pY3Jvc29mdC5jb20lN0M0ZTE2ODY2NWE4ZGQ0MzdlYmM5OTA4ZDc1YjFk
-MTM5MiU3QzcyZjk4OGJmODZmMTQxYWY5MWFiMmQ3Y2QwMTFkYjQ3JTdDMSU3QzAlN0M2MzcwNzgw
-NTI3NTA4NjExMDMmYW1wO3NkYXRhPWQxVktZa05KZ0RMQiUyRm9obHBwOEtsY3BLQ2NUdGQ2ZXJn
-c2JETDh5VmZsbyUzRCZhbXA7cmVzZXJ2ZWQ9MA0KaHR0cHM6Ly9uYW0wNi5zYWZlbGlua3MucHJv
-dGVjdGlvbi5vdXRsb29rLmNvbS8/dXJsPWh0dHBzJTNBJTJGJTJGc3RhY2tvdmVyZmxvdy5jb20l
-MkZxdWVzdGlvbnMlMkYzMDkyODI2NSUyRm1pbmd3NjQtaXMtaW5jYXBhYmxlLW9mLTMyLWJ5dGUt
-c3RhY2stYWxpZ25tZW50LXJlcXVpcmVkLWZvci1hdngtb24td2luZG93cy14NjQmYW1wO2RhdGE9
-MDIlN0MwMSU3Q2FzdG9sZm9yJTQwbWljcm9zb2Z0LmNvbSU3QzRlMTY4NjY1YThkZDQzN2ViYzk5
-MDhkNzViMWQxMzkyJTdDNzJmOTg4YmY4NmYxNDFhZjkxYWIyZDdjZDAxMWRiNDclN0MxJTdDMCU3
-QzYzNzA3ODA1Mjc1MDg2MTEwMyZhbXA7c2RhdGE9NnowZkxzY2VIVmlPWjlJYWMlMkJKTiUyQjg4
-aG12czdhRHJZWkN4d3F1ZW0zY1ElM0QmYW1wO3Jlc2VydmVkPTANCmh0dHBzOi8vbmFtMDYuc2Fm
-ZWxpbmtzLnByb3RlY3Rpb24ub3V0bG9vay5jb20vP3VybD1odHRwcyUzQSUyRiUyRnN0YWNrb3Zl
-cmZsb3cuY29tJTJGcXVlc3Rpb25zJTJGNDMxNTI2MzMlMkZpbnZhbGlkLXJlZ2lzdGVyLWZvci1z
-ZWgtc2F2ZXhtbS1pbi1jeWd3aW4mYW1wO2RhdGE9MDIlN0MwMSU3Q2FzdG9sZm9yJTQwbWljcm9z
-b2Z0LmNvbSU3QzRlMTY4NjY1YThkZDQzN2ViYzk5MDhkNzViMWQxMzkyJTdDNzJmOTg4YmY4NmYx
-NDFhZjkxYWIyZDdjZDAxMWRiNDclN0MxJTdDMCU3QzYzNzA3ODA1Mjc1MDg3MTA1OSZhbXA7c2Rh
-dGE9V2tyViUyRnlYWlE5ZjNlWDVBRVdrMTYlMkZOSmMydWZSRkN1RHZOTGRHZmFCU0ElM0QmYW1w
-O3Jlc2VydmVkPTANCg0KLS0NClNpdHNvZmUgfCBodHRwczovL25hbTA2LnNhZmVsaW5rcy5wcm90
-ZWN0aW9uLm91dGxvb2suY29tLz91cmw9aHR0cDolMkYlMkZzdWNzLm9yZyUyRn5zaXRzJTJGJmFt
-cDtkYXRhPTAyJTdDMDElN0Nhc3RvbGZvciU0MG1pY3Jvc29mdC5jb20lN0M0ZTE2ODY2NWE4ZGQ0
-MzdlYmM5OTA4ZDc1YjFkMTM5MiU3QzcyZjk4OGJmODZmMTQxYWY5MWFiMmQ3Y2QwMTFkYjQ3JTdD
-MSU3QzAlN0M2MzcwNzgwNTI3NTA4NzEwNTkmYW1wO3NkYXRhPUx0bHZHVFdLVHlOS1hPc0hzTnFw
-NXM3Sm1FS21NTDJza0twMnElMkIlMkJQbjUwJTNEJmFtcDtyZXNlcnZlZD0wDQo=
+Hi,
+
+On Sat, 19 Oct 2019 at 08:11, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>
+> Hi,
+>
+> On Fri, 18 Oct 2019 at 23:18, Astolfo Rueda <astolfor@microsoft.com> wrote:
+> >
+> > Hello I am trying to build FIO and I get these errors.
+> > The server is windows 10, with latest Cygwin.
+> >
+> > What am I doing wrong?
+>
+> You're not doing anything wrong from what I can see - it looks like
+> sounds like some sort of compiler issue...
+>
+> > Thanks
+> > Astolfo
+> >
+> >
+> > /tmp/ccQfIUjv.s: Assembler messages:
+> > /tmp/ccQfIUjv.s:1188: Error: invalid register for .seh_savexmm
+> > make: *** [Makefile:376: filehash.o] Error 1
+> > make: *** Waiting for unfinished jobs....
+> > /tmp/ccZfFBQo.s: Assembler messages:
+> > /tmp/ccZfFBQo.s:3812: Error: invalid register for .seh_savexmm
+> > /tmp/ccZfFBQo.s:3814: Error: invalid register for .seh_savexmm
+> > /tmp/ccZfFBQo.s:3816: Error: invalid register for .seh_savexmm
+> > /tmp/ccZfFBQo.s:3818: Error: invalid register for .seh_savexmm
+> > /tmp/ccZfFBQo.s:3820: Error: invalid register for .seh_savexmm
+> > /tmp/ccZfFBQo.s:3822: Error: invalid register for .seh_savexmm
+> > /tmp/ccZfFBQo.s:3824: Error: invalid register for .seh_savexmm
+> > /tmp/ccZfFBQo.s:3826: Error: invalid register for .seh_savexmm
+> > /tmp/ccZfFBQo.s:3828: Error: invalid register for .seh_savexmm
+> > /tmp/ccZfFBQo.s:3830: Error: invalid register for .seh_savexmm
+> > /tmp/ccZfFBQo.s:3832: Error: invalid register for .seh_savexmm
+> > /tmp/ccZfFBQo.s:3834: Error: invalid register for .seh_savexmm
+> > make: *** [Makefile:379: options.o] Error 1
+>
+> Hmm. This might be down to a compatibility issue between
+> x86_64-w64-mingw32-gcc and Windows when using AVX512 (and whether fio
+> defaults to compiling with such options will depend on the compilation
+> environment). If you do
+>
+> ./configure --extra-cflags="-fno-asynchronous-unwind-tables"
+> make -j
+>
+> etc. are things any better?
+
+So I've managed to find a recent Xeon server with Windows VM and I see
+the compile errors you describe on it too. Doing
+make clean
+./configure --extra-cflags="-fno-asynchronous-unwind-tables"
+make -j
+
+fixes the "invalid register for .seh_savexmm" error for me. Another
+workaround is to disable the generation of problematic AVX
+instructions:
+make clean
+./configure --extra-cflags="-mno-avx512f"
+make -j
+
+but the binary made might be ever so slightly slower (and you'd need
+incredibly fast disks and when I did a quick check with the null
+ioengine I actually found the non-AVX512 version of fio was faster in
+my VM...).
+
+It looks like this is the "gcc/mingw-gcc fails to align the stack
+properly to Windows' requirements when using AVX 512 instructions"
+issue:
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65782
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54412
+https://stackoverflow.com/questions/30928265/mingw64-is-incapable-of-32-byte-stack-alignment-required-for-avx-on-windows-x64
+https://stackoverflow.com/questions/43152633/invalid-register-for-seh-savexmm-in-cygwin
+
+-- 
+Sitsofe | http://sucs.org/~sits/
 
