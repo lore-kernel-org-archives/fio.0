@@ -1,504 +1,118 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:41686 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726372AbfJPMAF (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 16 Oct 2019 08:00:05 -0400
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iKhyF-0002Lt-La
-        for fio@vger.kernel.org; Wed, 16 Oct 2019 12:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20191016120001.9DC602C03CF@kernel.dk>
-Date: Wed, 16 Oct 2019 06:00:01 -0600 (MDT)
+Received: from mail-eopbgr770117.outbound.protection.outlook.com ([40.107.77.117]:65408
+        "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728330AbfJ1OWW (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 28 Oct 2019 10:22:22 -0400
+From: Astolfo Rueda <astolfor@microsoft.com>
+Subject: RE: build issue
+Date: Mon, 28 Oct 2019 14:22:18 +0000
+Message-ID: <BY5PR21MB1492978D5057CB5DA28B65C1DF660@BY5PR21MB1492.namprd21.prod.outlook.com>
+References: <BY5PR21MB14922563C2166CDB9268784FDF6D0@BY5PR21MB1492.namprd21.prod.outlook.com>
+ <CALjAwxhqfLCVN+q7NJ+KVWxg5CAsyM+AZizdmUDoaH9z12Rkfg@mail.gmail.com>
+ <CALjAwxjpiTfdUupdPOZnbb_cK=Y0rP1GwnVy1rqbYFw8pZhG5g@mail.gmail.com>
+In-Reply-To: <CALjAwxjpiTfdUupdPOZnbb_cK=Y0rP1GwnVy1rqbYFw8pZhG5g@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Rebecca Cran <rebecca@bluestop.org>
 
-The following changes since commit 5cd4efe903798f2185a347911a9440324558c89f:
-
-  parse: improve detection of bad input string (2019-10-14 08:03:53 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 2e97fa1b0d76edc6517fa4a8a4f6e0792b458e8c:
-
-  Merge branch 'fix-fsync-on-close' of https://github.com/sitsofe/fio (2019-10-15 09:27:06 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'fix-fsync-on-close' of https://github.com/sitsofe/fio
-
-Sitsofe Wheeler (1):
-      backend: fix final fsync behaviour
-
-Vincent Fu (3):
-      io_u: skip to the next zone when zoneskip is set to zero
-      filesetup: use zonerange for map and LFSR with zonemode=strided
-      testing: add test script for zonemode=strided
-
- backend.c    |  11 +-
- filesetup.c  |   3 +
- io_u.c       |   3 +-
- ioengines.c  |   6 +-
- t/strided.py | 350 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 366 insertions(+), 7 deletions(-)
- create mode 100755 t/strided.py
-
----
-
-Diff of recent changes:
-
-diff --git a/backend.c b/backend.c
-index 2f463293..fe868271 100644
---- a/backend.c
-+++ b/backend.c
-@@ -281,6 +281,7 @@ static bool fio_io_sync(struct thread_data *td, struct fio_file *f)
- 
- 	io_u->ddir = DDIR_SYNC;
- 	io_u->file = f;
-+	io_u_set(td, io_u, IO_U_F_NO_FILE_PUT);
- 
- 	if (td_io_prep(td, io_u)) {
- 		put_io_u(td, io_u);
-@@ -314,7 +315,7 @@ requeue:
- 
- static int fio_file_fsync(struct thread_data *td, struct fio_file *f)
- {
--	int ret;
-+	int ret, ret2;
- 
- 	if (fio_file_open(f))
- 		return fio_io_sync(td, f);
-@@ -323,8 +324,10 @@ static int fio_file_fsync(struct thread_data *td, struct fio_file *f)
- 		return 1;
- 
- 	ret = fio_io_sync(td, f);
--	td_io_close_file(td, f);
--	return ret;
-+	ret2 = 0;
-+	if (fio_file_open(f))
-+		ret2 = td_io_close_file(td, f);
-+	return (ret || ret2);
- }
- 
- static inline void __update_ts_cache(struct thread_data *td)
-@@ -1124,7 +1127,7 @@ reap:
- 				td->error = 0;
- 		}
- 
--		if (should_fsync(td) && td->o.end_fsync) {
-+		if (should_fsync(td) && (td->o.end_fsync || td->o.fsync_on_close)) {
- 			td_set_runstate(td, TD_FSYNCING);
- 
- 			for_each_file(td, f, i) {
-diff --git a/filesetup.c b/filesetup.c
-index a439b6d6..1d3094c1 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -1338,6 +1338,9 @@ bool init_random_map(struct thread_data *td)
- 	for_each_file(td, f, i) {
- 		uint64_t fsize = min(f->real_file_size, f->io_size);
- 
-+		if (td->o.zone_mode == ZONE_MODE_STRIDED)
-+			fsize = td->o.zone_range;
-+
- 		blocks = fsize / (unsigned long long) td->o.rw_min_bs;
- 
- 		if (check_rand_gen_limits(td, f, blocks))
-diff --git a/io_u.c b/io_u.c
-index 94899552..5cbbe85a 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -850,7 +850,8 @@ static void setup_strided_zone_mode(struct thread_data *td, struct io_u *io_u)
- 	/*
- 	 * See if it's time to switch to a new zone
- 	 */
--	if (td->zone_bytes >= td->o.zone_size && td->o.zone_skip) {
-+	if (td->zone_bytes >= td->o.zone_size &&
-+			fio_option_is_set(&td->o, zone_skip)) {
- 		td->zone_bytes = 0;
- 		f->file_offset += td->o.zone_range + td->o.zone_skip;
- 
-diff --git a/ioengines.c b/ioengines.c
-index 40fa75c3..9e3fcc9f 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -376,14 +376,16 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
- 	}
- 
- 	if (ret == FIO_Q_COMPLETED) {
--		if (ddir_rw(io_u->ddir) || ddir_sync(io_u->ddir)) {
-+		if (ddir_rw(io_u->ddir) ||
-+		    (ddir_sync(io_u->ddir) && td->runstate != TD_FSYNCING)) {
- 			io_u_mark_depth(td, 1);
- 			td->ts.total_io_u[io_u->ddir]++;
- 		}
- 	} else if (ret == FIO_Q_QUEUED) {
- 		td->io_u_queued++;
- 
--		if (ddir_rw(io_u->ddir) || ddir_sync(io_u->ddir))
-+		if (ddir_rw(io_u->ddir) ||
-+		    (ddir_sync(io_u->ddir) && td->runstate != TD_FSYNCING))
- 			td->ts.total_io_u[io_u->ddir]++;
- 
- 		if (td->io_u_queued >= td->o.iodepth_batch)
-diff --git a/t/strided.py b/t/strided.py
-new file mode 100755
-index 00000000..47ce5523
---- /dev/null
-+++ b/t/strided.py
-@@ -0,0 +1,350 @@
-+#!/usr/bin/python
-+# Note: this script is python2 and python3 compatible.
-+#
-+# strided.py
-+#
-+# Test zonemode=strided. This uses the null ioengine when no file is
-+# specified. If a file is specified, use it for randdom read testing.
-+# Some of the zoneranges in the tests are 16MiB. So when using a file
-+# a minimum size of 32MiB is recommended.
-+#
-+# USAGE
-+# python strided.py fio-executable [-f file/device]
-+#
-+# EXAMPLES
-+# python t/strided.py ./fio
-+# python t/strided.py ./fio -f /dev/sda
-+# dd if=/dev/zero of=temp bs=1M count=32
-+# python t/strided.py ./fio -f temp
-+#
-+# REQUIREMENTS
-+# Python 2.6+
-+#
-+# ===TEST MATRIX===
-+#
-+# --zonemode=strided, zoneskip >= 0
-+#   w/ randommap and LFSR
-+#       zonesize=zonerange  all blocks in zonerange touched
-+#       zonesize>zonerange  all blocks touched and roll-over back into zone
-+#       zonesize<zonerange  all blocks inside zone
-+#
-+#   w/o randommap       all blocks inside zone
-+#
-+
-+from __future__ import absolute_import
-+from __future__ import print_function
-+import os
-+import sys
-+import argparse
-+import subprocess
-+
-+
-+def parse_args():
-+    parser = argparse.ArgumentParser()
-+    parser.add_argument('fio',
-+                        help='path to fio executable (e.g., ./fio)')
-+    parser.add_argument('-f', '--filename', help="file/device to test")
-+    args = parser.parse_args()
-+
-+    return args
-+
-+
-+def run_fio(fio, test, index):
-+    filename = "strided"
-+    fio_args = [
-+                "--name=strided",
-+                "--zonemode=strided",
-+                "--log_offset=1",
-+                "--randrepeat=0",
-+                "--rw=randread",
-+                "--zoneskip=0",
-+                "--write_iops_log={0}{1:03d}".format(filename, index),
-+                "--output={0}{1:03d}.out".format(filename, index),
-+                "--zonerange={zonerange}".format(**test),
-+                "--zonesize={zonesize}".format(**test),
-+                "--bs={bs}".format(**test),
-+               ]
-+    if 'norandommap' in test:
-+        fio_args.append('--norandommap')
-+    if 'random_generator' in test:
-+        fio_args.append('--random_generator={random_generator}'.format(**test))
-+    if 'offset' in test:
-+        fio_args.append('--offset={offset}'.format(**test))
-+    if 'filename' in test:
-+        fio_args.append('--filename={filename}'.format(**test))
-+        fio_args.append('--filesize={filesize})'.format(**test))
-+    else:
-+        fio_args.append('--ioengine=null')
-+        fio_args.append('--size={size}'.format(**test))
-+        fio_args.append('--io_size={io_size}'.format(**test))
-+        fio_args.append('--filesize={size})'.format(**test))
-+
-+    output = subprocess.check_output([fio] + fio_args, universal_newlines=True)
-+
-+    f = open("{0}{1:03d}_iops.1.log".format(filename, index), "r")
-+    log = f.read()
-+    f.close()
-+
-+    return log
-+
-+
-+def check_output(iops_log, test):
-+    zonestart = 0 if 'offset' not in test else test['offset']
-+    iospersize = test['zonesize'] / test['bs']
-+    iosperrange = test['zonerange'] / test['bs']
-+    iosperzone = 0
-+    lines = iops_log.split('\n')
-+    zoneset = set()
-+
-+    for line in lines:
-+        if len(line) == 0:
-+            continue
-+
-+        if iosperzone == iospersize:
-+            # time to move to a new zone
-+            iosperzone = 0
-+            zoneset = set()
-+            zonestart += test['zonerange']
-+            if zonestart >= test['filesize']:
-+                zonestart = 0 if 'offset' not in test else test['offset']
-+
-+        iosperzone = iosperzone + 1
-+        tokens = line.split(',')
-+        offset = int(tokens[4])
-+        if offset < zonestart or offset >= zonestart + test['zonerange']:
-+            print("Offset {0} outside of zone starting at {1}".format(
-+                    offset, zonestart))
-+            return False
-+
-+        # skip next section if norandommap is enabled with no
-+        # random_generator or with a random_generator != lfsr
-+        if 'norandommap' in test:
-+            if 'random_generator' in test:
-+                if test['random_generator'] != 'lfsr':
-+                    continue
-+            else:
-+                continue
-+
-+        # we either have a random map enabled or we
-+        # are using an LFSR
-+        # so all blocks should be unique and we should have
-+        # covered the entire zone when iosperzone % iosperrange == 0
-+        block = (offset - zonestart) / test['bs']
-+        if block in zoneset:
-+            print("Offset {0} in zone already touched".format(offset))
-+            return False
-+
-+        zoneset.add(block)
-+        if iosperzone % iosperrange == 0:
-+            if len(zoneset) != iosperrange:
-+                print("Expected {0} blocks in zone but only saw {1}".format(
-+                        iosperrange, len(zoneset)))
-+                return False
-+            zoneset = set()
-+
-+    return True
-+
-+
-+if __name__ == '__main__':
-+    args = parse_args()
-+
-+    tests = [   # randommap enabled
-+                {
-+                    "zonerange": 4096,
-+                    "zonesize": 4096,
-+                    "bs": 4096,
-+                    "offset": 8*4096,
-+                    "size": 16*4096,
-+                    "io_size": 16*4096,
-+                },
-+                {
-+                    "zonerange": 4096,
-+                    "zonesize": 4096,
-+                    "bs": 4096,
-+                    "size": 16*4096,
-+                    "io_size": 16*4096,
-+                },
-+                {
-+                    "zonerange": 16*1024*1024,
-+                    "zonesize": 16*1024*1024,
-+                    "bs": 4096,
-+                    "size": 256*1024*1024,
-+                    "io_size": 256*1024*204,
-+                },
-+                {
-+                    "zonerange": 4096,
-+                    "zonesize": 4*4096,
-+                    "bs": 4096,
-+                    "size": 16*4096,
-+                    "io_size": 16*4096,
-+                },
-+                {
-+                    "zonerange": 16*1024*1024,
-+                    "zonesize": 32*1024*1024,
-+                    "bs": 4096,
-+                    "size": 256*1024*1024,
-+                    "io_size": 256*1024*204,
-+                },
-+                {
-+                    "zonerange": 8192,
-+                    "zonesize": 4096,
-+                    "bs": 4096,
-+                    "size": 16*4096,
-+                    "io_size": 16*4096,
-+                },
-+                {
-+                    "zonerange": 16*1024*1024,
-+                    "zonesize": 8*1024*1024,
-+                    "bs": 4096,
-+                    "size": 256*1024*1024,
-+                    "io_size": 256*1024*204,
-+                },
-+                # lfsr
-+                {
-+                    "random_generator": "lfsr",
-+                    "zonerange": 4096,
-+                    "zonesize": 4096,
-+                    "bs": 4096,
-+                    "offset": 8*4096,
-+                    "size": 16*4096,
-+                    "io_size": 16*4096,
-+                },
-+                {
-+                    "random_generator": "lfsr",
-+                    "zonerange": 4096,
-+                    "zonesize": 4096,
-+                    "bs": 4096,
-+                    "size": 16*4096,
-+                    "io_size": 16*4096,
-+                },
-+                {
-+                    "random_generator": "lfsr",
-+                    "zonerange": 16*1024*1024,
-+                    "zonesize": 16*1024*1024,
-+                    "bs": 4096,
-+                    "size": 256*1024*1024,
-+                    "io_size": 256*1024*204,
-+                },
-+                {
-+                    "random_generator": "lfsr",
-+                    "zonerange": 4096,
-+                    "zonesize": 4*4096,
-+                    "bs": 4096,
-+                    "size": 16*4096,
-+                    "io_size": 16*4096,
-+                },
-+                {
-+                    "random_generator": "lfsr",
-+                    "zonerange": 16*1024*1024,
-+                    "zonesize": 32*1024*1024,
-+                    "bs": 4096,
-+                    "size": 256*1024*1024,
-+                    "io_size": 256*1024*204,
-+                },
-+                {
-+                    "random_generator": "lfsr",
-+                    "zonerange": 8192,
-+                    "zonesize": 4096,
-+                    "bs": 4096,
-+                    "size": 16*4096,
-+                    "io_size": 16*4096,
-+                },
-+                {
-+                    "random_generator": "lfsr",
-+                    "zonerange": 16*1024*1024,
-+                    "zonesize": 8*1024*1024,
-+                    "bs": 4096,
-+                    "size": 256*1024*1024,
-+                    "io_size": 256*1024*204,
-+                },
-+                # norandommap
-+                {
-+                    "norandommap": 1,
-+                    "zonerange": 4096,
-+                    "zonesize": 4096,
-+                    "bs": 4096,
-+                    "offset": 8*4096,
-+                    "size": 16*4096,
-+                    "io_size": 16*4096,
-+                },
-+                {
-+                    "norandommap": 1,
-+                    "zonerange": 4096,
-+                    "zonesize": 4096,
-+                    "bs": 4096,
-+                    "size": 16*4096,
-+                    "io_size": 16*4096,
-+                },
-+                {
-+                    "norandommap": 1,
-+                    "zonerange": 16*1024*1024,
-+                    "zonesize": 16*1024*1024,
-+                    "bs": 4096,
-+                    "size": 256*1024*1024,
-+                    "io_size": 256*1024*204,
-+                },
-+                {
-+                    "norandommap": 1,
-+                    "zonerange": 4096,
-+                    "zonesize": 8192,
-+                    "bs": 4096,
-+                    "size": 16*4096,
-+                    "io_size": 16*4096,
-+                },
-+                {
-+                    "norandommap": 1,
-+                    "zonerange": 16*1024*1024,
-+                    "zonesize": 32*1024*1024,
-+                    "bs": 4096,
-+                    "size": 256*1024*1024,
-+                    "io_size": 256*1024*204,
-+                },
-+                {
-+                    "norandommap": 1,
-+                    "zonerange": 8192,
-+                    "zonesize": 4096,
-+                    "bs": 4096,
-+                    "size": 16*4096,
-+                    "io_size": 16*4096,
-+                },
-+                {
-+                    "norandommap": 1,
-+                    "zonerange": 16*1024*1024,
-+                    "zonesize": 8*1024*1024,
-+                    "bs": 4096,
-+                    "size": 256*1024*1024,
-+                    "io_size": 256*1024*204,
-+                },
-+
-+            ]
-+
-+    index = 1
-+    passed = 0
-+    failed = 0
-+
-+    if args.filename:
-+        statinfo = os.stat(args.filename)
-+        filesize = statinfo.st_size
-+        if filesize == 0:
-+            f = os.open(args.filename, os.O_RDONLY)
-+            filesize = os.lseek(f, 0, os.SEEK_END)
-+            os.close(f)
-+
-+    for test in tests:
-+        if args.filename:
-+            test['filename'] = args.filename
-+            test['filesize'] = filesize
-+        else:
-+            test['filesize'] = test['size']
-+        iops_log = run_fio(args.fio, test, index)
-+        status = check_output(iops_log, test)
-+        print("Test {0} {1}".format(index, ("PASSED" if status else "FAILED")))
-+        if status:
-+            passed = passed + 1
-+        else:
-+            failed = failed + 1
-+        index = index + 1
-+
-+    print("{0} tests passed, {1} failed".format(passed, failed))
-+
-+    sys.exit(failed)
+SGVsbG8gU2l0c29mZSwgdGhhbmtzIGZvciB5b3VyIGhlbHAuIA0KLi9jb25maWd1cmUgLS1leHRy
+YS1jZmxhZ3M9Ii1mbm8tYXN5bmNocm9ub3VzLXVud2luZC10YWJsZXMiDQogbWFrZSAtaiANCg0K
+d29ya2VkLg0KDQpJIGFtIHRlc3RpbmcgdGhlIG5ldyBQQ0llIGdlbiA0IE52TUVzIHNvIEkgYW0g
+Z2xhZCBpdCB3b3JrZWQuDQoNCk9uZSBxdWVzdGlvbiwgZG8geW91IGtub3cgd2hlbiB0aGUgIlBv
+b3Igd2luZG93c2FpbyBwZXJmb3JtYW5jZSBkdWUgdG8gc3luY2hyb25pemF0aW9uIG9mIHdyaXRl
+cyB1bmxlc3MgLS1vdmVyd3JpdGUgMSBpcyBnaXZlbiAoIzgzMykiIGlzIGdvaW5nIHRvIGJlIHJl
+c29sdmVkPyBJIGFsc28gbm90aWNlZCB0aGF0IHRoZSBxdWV1ZSBkZXB0aCBpbmRpY2F0ZWQgaW4g
+RklPIGRvZXMgbm90IHRyYW5zbGF0ZSBpbnRvIFBIWSBkaXNrIHF1ZXVlIGRlcHRoIHdoZW4gZmly
+c3QgYWxsb2NhdGlvbnMgYXJlIGhhcHBlbmluZy4gSSB3b3VsZCBuZWVkIHRoZSBzeW1ib2xzIGZv
+ciBGSU8gdG8gdHJvdWJsZXNob290IGZ1cnRoZXIgYmVjYXVzZSBvdXIgc3RhY2sgYXBwZWFycyB0
+byBiZSB3YWl0aW5nDQoNClRoYW5rcw0KQXN0b2xmbw0KDQogDQotLS0tLU9yaWdpbmFsIE1lc3Nh
+Z2UtLS0tLQ0KRnJvbTogU2l0c29mZSBXaGVlbGVyIDxzaXRzb2ZlQGdtYWlsLmNvbT4gDQpTZW50
+OiBTdW5kYXksIE9jdG9iZXIgMjcsIDIwMTkgMTozNCBQTQ0KVG86IEFzdG9sZm8gUnVlZGEgPGFz
+dG9sZm9yQG1pY3Jvc29mdC5jb20+DQpDYzogZmlvQHZnZXIua2VybmVsLm9yZzsgUmViZWNjYSBD
+cmFuIDxyZWJlY2NhQGJsdWVzdG9wLm9yZz4NClN1YmplY3Q6IFJlOiBidWlsZCBpc3N1ZQ0KDQpI
+aSwNCg0KT24gU2F0LCAxOSBPY3QgMjAxOSBhdCAwODoxMSwgU2l0c29mZSBXaGVlbGVyIDxzaXRz
+b2ZlQGdtYWlsLmNvbT4gd3JvdGU6DQo+DQo+IEhpLA0KPg0KPiBPbiBGcmksIDE4IE9jdCAyMDE5
+IGF0IDIzOjE4LCBBc3RvbGZvIFJ1ZWRhIDxhc3RvbGZvckBtaWNyb3NvZnQuY29tPiB3cm90ZToN
+Cj4gPg0KPiA+IEhlbGxvIEkgYW0gdHJ5aW5nIHRvIGJ1aWxkIEZJTyBhbmQgSSBnZXQgdGhlc2Ug
+ZXJyb3JzLg0KPiA+IFRoZSBzZXJ2ZXIgaXMgd2luZG93cyAxMCwgd2l0aCBsYXRlc3QgQ3lnd2lu
+Lg0KPiA+DQo+ID4gV2hhdCBhbSBJIGRvaW5nIHdyb25nPw0KPg0KPiBZb3UncmUgbm90IGRvaW5n
+IGFueXRoaW5nIHdyb25nIGZyb20gd2hhdCBJIGNhbiBzZWUgLSBpdCBsb29rcyBsaWtlIA0KPiBz
+b3VuZHMgbGlrZSBzb21lIHNvcnQgb2YgY29tcGlsZXIgaXNzdWUuLi4NCj4NCj4gPiBUaGFua3MN
+Cj4gPiBBc3RvbGZvDQo+ID4NCj4gPg0KPiA+IC90bXAvY2NRZklVanYuczogQXNzZW1ibGVyIG1l
+c3NhZ2VzOg0KPiA+IC90bXAvY2NRZklVanYuczoxMTg4OiBFcnJvcjogaW52YWxpZCByZWdpc3Rl
+ciBmb3IgLnNlaF9zYXZleG1tDQo+ID4gbWFrZTogKioqIFtNYWtlZmlsZTozNzY6IGZpbGVoYXNo
+Lm9dIEVycm9yIDENCj4gPiBtYWtlOiAqKiogV2FpdGluZyBmb3IgdW5maW5pc2hlZCBqb2JzLi4u
+Lg0KPiA+IC90bXAvY2NaZkZCUW8uczogQXNzZW1ibGVyIG1lc3NhZ2VzOg0KPiA+IC90bXAvY2Na
+ZkZCUW8uczozODEyOiBFcnJvcjogaW52YWxpZCByZWdpc3RlciBmb3IgLnNlaF9zYXZleG1tDQo+
+ID4gL3RtcC9jY1pmRkJRby5zOjM4MTQ6IEVycm9yOiBpbnZhbGlkIHJlZ2lzdGVyIGZvciAuc2Vo
+X3NhdmV4bW0NCj4gPiAvdG1wL2NjWmZGQlFvLnM6MzgxNjogRXJyb3I6IGludmFsaWQgcmVnaXN0
+ZXIgZm9yIC5zZWhfc2F2ZXhtbQ0KPiA+IC90bXAvY2NaZkZCUW8uczozODE4OiBFcnJvcjogaW52
+YWxpZCByZWdpc3RlciBmb3IgLnNlaF9zYXZleG1tDQo+ID4gL3RtcC9jY1pmRkJRby5zOjM4MjA6
+IEVycm9yOiBpbnZhbGlkIHJlZ2lzdGVyIGZvciAuc2VoX3NhdmV4bW0NCj4gPiAvdG1wL2NjWmZG
+QlFvLnM6MzgyMjogRXJyb3I6IGludmFsaWQgcmVnaXN0ZXIgZm9yIC5zZWhfc2F2ZXhtbQ0KPiA+
+IC90bXAvY2NaZkZCUW8uczozODI0OiBFcnJvcjogaW52YWxpZCByZWdpc3RlciBmb3IgLnNlaF9z
+YXZleG1tDQo+ID4gL3RtcC9jY1pmRkJRby5zOjM4MjY6IEVycm9yOiBpbnZhbGlkIHJlZ2lzdGVy
+IGZvciAuc2VoX3NhdmV4bW0NCj4gPiAvdG1wL2NjWmZGQlFvLnM6MzgyODogRXJyb3I6IGludmFs
+aWQgcmVnaXN0ZXIgZm9yIC5zZWhfc2F2ZXhtbQ0KPiA+IC90bXAvY2NaZkZCUW8uczozODMwOiBF
+cnJvcjogaW52YWxpZCByZWdpc3RlciBmb3IgLnNlaF9zYXZleG1tDQo+ID4gL3RtcC9jY1pmRkJR
+by5zOjM4MzI6IEVycm9yOiBpbnZhbGlkIHJlZ2lzdGVyIGZvciAuc2VoX3NhdmV4bW0NCj4gPiAv
+dG1wL2NjWmZGQlFvLnM6MzgzNDogRXJyb3I6IGludmFsaWQgcmVnaXN0ZXIgZm9yIC5zZWhfc2F2
+ZXhtbQ0KPiA+IG1ha2U6ICoqKiBbTWFrZWZpbGU6Mzc5OiBvcHRpb25zLm9dIEVycm9yIDENCj4N
+Cj4gSG1tLiBUaGlzIG1pZ2h0IGJlIGRvd24gdG8gYSBjb21wYXRpYmlsaXR5IGlzc3VlIGJldHdl
+ZW4gDQo+IHg4Nl82NC13NjQtbWluZ3czMi1nY2MgYW5kIFdpbmRvd3Mgd2hlbiB1c2luZyBBVlg1
+MTIgKGFuZCB3aGV0aGVyIGZpbyANCj4gZGVmYXVsdHMgdG8gY29tcGlsaW5nIHdpdGggc3VjaCBv
+cHRpb25zIHdpbGwgZGVwZW5kIG9uIHRoZSBjb21waWxhdGlvbiANCj4gZW52aXJvbm1lbnQpLiBJ
+ZiB5b3UgZG8NCj4NCj4gLi9jb25maWd1cmUgLS1leHRyYS1jZmxhZ3M9Ii1mbm8tYXN5bmNocm9u
+b3VzLXVud2luZC10YWJsZXMiDQo+IG1ha2UgLWoNCj4NCj4gZXRjLiBhcmUgdGhpbmdzIGFueSBi
+ZXR0ZXI/DQoNClNvIEkndmUgbWFuYWdlZCB0byBmaW5kIGEgcmVjZW50IFhlb24gc2VydmVyIHdp
+dGggV2luZG93cyBWTSBhbmQgSSBzZWUgdGhlIGNvbXBpbGUgZXJyb3JzIHlvdSBkZXNjcmliZSBv
+biBpdCB0b28uIERvaW5nIG1ha2UgY2xlYW4gLi9jb25maWd1cmUgLS1leHRyYS1jZmxhZ3M9Ii1m
+bm8tYXN5bmNocm9ub3VzLXVud2luZC10YWJsZXMiDQptYWtlIC1qDQoNCmZpeGVzIHRoZSAiaW52
+YWxpZCByZWdpc3RlciBmb3IgLnNlaF9zYXZleG1tIiBlcnJvciBmb3IgbWUuIEFub3RoZXIgd29y
+a2Fyb3VuZCBpcyB0byBkaXNhYmxlIHRoZSBnZW5lcmF0aW9uIG9mIHByb2JsZW1hdGljIEFWWA0K
+aW5zdHJ1Y3Rpb25zOg0KbWFrZSBjbGVhbg0KLi9jb25maWd1cmUgLS1leHRyYS1jZmxhZ3M9Ii1t
+bm8tYXZ4NTEyZiINCm1ha2UgLWoNCg0KYnV0IHRoZSBiaW5hcnkgbWFkZSBtaWdodCBiZSBldmVy
+IHNvIHNsaWdodGx5IHNsb3dlciAoYW5kIHlvdSdkIG5lZWQgaW5jcmVkaWJseSBmYXN0IGRpc2tz
+IGFuZCB3aGVuIEkgZGlkIGEgcXVpY2sgY2hlY2sgd2l0aCB0aGUgbnVsbCBpb2VuZ2luZSBJIGFj
+dHVhbGx5IGZvdW5kIHRoZSBub24tQVZYNTEyIHZlcnNpb24gb2YgZmlvIHdhcyBmYXN0ZXIgaW4g
+bXkgVk0uLi4pLg0KDQpJdCBsb29rcyBsaWtlIHRoaXMgaXMgdGhlICJnY2MvbWluZ3ctZ2NjIGZh
+aWxzIHRvIGFsaWduIHRoZSBzdGFjayBwcm9wZXJseSB0byBXaW5kb3dzJyByZXF1aXJlbWVudHMg
+d2hlbiB1c2luZyBBVlggNTEyIGluc3RydWN0aW9ucyINCmlzc3VlOg0KaHR0cHM6Ly9uYW0wNi5z
+YWZlbGlua3MucHJvdGVjdGlvbi5vdXRsb29rLmNvbS8/dXJsPWh0dHBzJTNBJTJGJTJGZ2NjLmdu
+dS5vcmclMkZidWd6aWxsYSUyRnNob3dfYnVnLmNnaSUzRmlkJTNENjU3ODImYW1wO2RhdGE9MDIl
+N0MwMSU3Q2FzdG9sZm9yJTQwbWljcm9zb2Z0LmNvbSU3QzRlMTY4NjY1YThkZDQzN2ViYzk5MDhk
+NzViMWQxMzkyJTdDNzJmOTg4YmY4NmYxNDFhZjkxYWIyZDdjZDAxMWRiNDclN0MxJTdDMCU3QzYz
+NzA3ODA1Mjc1MDg2MTEwMyZhbXA7c2RhdGE9bVpEZXAzV0JvUXc3JTJCSlg3QlM2Sml4azEwNUJR
+MnBOYnV5bEFkbFAlMkI5aE0lM0QmYW1wO3Jlc2VydmVkPTANCmh0dHBzOi8vbmFtMDYuc2FmZWxp
+bmtzLnByb3RlY3Rpb24ub3V0bG9vay5jb20vP3VybD1odHRwcyUzQSUyRiUyRmdjYy5nbnUub3Jn
+JTJGYnVnemlsbGElMkZzaG93X2J1Zy5jZ2klM0ZpZCUzRDU0NDEyJmFtcDtkYXRhPTAyJTdDMDEl
+N0Nhc3RvbGZvciU0MG1pY3Jvc29mdC5jb20lN0M0ZTE2ODY2NWE4ZGQ0MzdlYmM5OTA4ZDc1YjFk
+MTM5MiU3QzcyZjk4OGJmODZmMTQxYWY5MWFiMmQ3Y2QwMTFkYjQ3JTdDMSU3QzAlN0M2MzcwNzgw
+NTI3NTA4NjExMDMmYW1wO3NkYXRhPWQxVktZa05KZ0RMQiUyRm9obHBwOEtsY3BLQ2NUdGQ2ZXJn
+c2JETDh5VmZsbyUzRCZhbXA7cmVzZXJ2ZWQ9MA0KaHR0cHM6Ly9uYW0wNi5zYWZlbGlua3MucHJv
+dGVjdGlvbi5vdXRsb29rLmNvbS8/dXJsPWh0dHBzJTNBJTJGJTJGc3RhY2tvdmVyZmxvdy5jb20l
+MkZxdWVzdGlvbnMlMkYzMDkyODI2NSUyRm1pbmd3NjQtaXMtaW5jYXBhYmxlLW9mLTMyLWJ5dGUt
+c3RhY2stYWxpZ25tZW50LXJlcXVpcmVkLWZvci1hdngtb24td2luZG93cy14NjQmYW1wO2RhdGE9
+MDIlN0MwMSU3Q2FzdG9sZm9yJTQwbWljcm9zb2Z0LmNvbSU3QzRlMTY4NjY1YThkZDQzN2ViYzk5
+MDhkNzViMWQxMzkyJTdDNzJmOTg4YmY4NmYxNDFhZjkxYWIyZDdjZDAxMWRiNDclN0MxJTdDMCU3
+QzYzNzA3ODA1Mjc1MDg2MTEwMyZhbXA7c2RhdGE9NnowZkxzY2VIVmlPWjlJYWMlMkJKTiUyQjg4
+aG12czdhRHJZWkN4d3F1ZW0zY1ElM0QmYW1wO3Jlc2VydmVkPTANCmh0dHBzOi8vbmFtMDYuc2Fm
+ZWxpbmtzLnByb3RlY3Rpb24ub3V0bG9vay5jb20vP3VybD1odHRwcyUzQSUyRiUyRnN0YWNrb3Zl
+cmZsb3cuY29tJTJGcXVlc3Rpb25zJTJGNDMxNTI2MzMlMkZpbnZhbGlkLXJlZ2lzdGVyLWZvci1z
+ZWgtc2F2ZXhtbS1pbi1jeWd3aW4mYW1wO2RhdGE9MDIlN0MwMSU3Q2FzdG9sZm9yJTQwbWljcm9z
+b2Z0LmNvbSU3QzRlMTY4NjY1YThkZDQzN2ViYzk5MDhkNzViMWQxMzkyJTdDNzJmOTg4YmY4NmYx
+NDFhZjkxYWIyZDdjZDAxMWRiNDclN0MxJTdDMCU3QzYzNzA3ODA1Mjc1MDg3MTA1OSZhbXA7c2Rh
+dGE9V2tyViUyRnlYWlE5ZjNlWDVBRVdrMTYlMkZOSmMydWZSRkN1RHZOTGRHZmFCU0ElM0QmYW1w
+O3Jlc2VydmVkPTANCg0KLS0NClNpdHNvZmUgfCBodHRwczovL25hbTA2LnNhZmVsaW5rcy5wcm90
+ZWN0aW9uLm91dGxvb2suY29tLz91cmw9aHR0cDolMkYlMkZzdWNzLm9yZyUyRn5zaXRzJTJGJmFt
+cDtkYXRhPTAyJTdDMDElN0Nhc3RvbGZvciU0MG1pY3Jvc29mdC5jb20lN0M0ZTE2ODY2NWE4ZGQ0
+MzdlYmM5OTA4ZDc1YjFkMTM5MiU3QzcyZjk4OGJmODZmMTQxYWY5MWFiMmQ3Y2QwMTFkYjQ3JTdD
+MSU3QzAlN0M2MzcwNzgwNTI3NTA4NzEwNTkmYW1wO3NkYXRhPUx0bHZHVFdLVHlOS1hPc0hzTnFw
+NXM3Sm1FS21NTDJza0twMnElMkIlMkJQbjUwJTNEJmFtcDtyZXNlcnZlZD0wDQo=
 
