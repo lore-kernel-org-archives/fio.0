@@ -1,39 +1,53 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-io1-f43.google.com ([209.85.166.43]:43013 "EHLO
-        mail-io1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726902AbfKLAfr (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 11 Nov 2019 19:35:47 -0500
-Received: by mail-io1-f43.google.com with SMTP id c11so16716473iom.10
-        for <fio@vger.kernel.org>; Mon, 11 Nov 2019 16:35:46 -0800 (PST)
-MIME-Version: 1.0
-From: Shivam Dhir <dhirs1@uci.edu>
-Date: Mon, 11 Nov 2019 16:35:35 -0800
-Message-ID: <CAKaVHqeWbV67BF1chqihOpnfwuUcgzC4M1C755C7n-JK9U52vQ@mail.gmail.com>
-Subject: Logging using "write_bw_log" seems off
-Content-Type: text/plain; charset="UTF-8"
+Received: from merlin.infradead.org ([205.233.59.134]:51664 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727377AbfKCNAI (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 3 Nov 2019 08:00:08 -0500
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1iRFUD-0001uC-NU
+        for fio@vger.kernel.org; Sun, 03 Nov 2019 13:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20191103130001.8D5E42C0085@kernel.dk>
+Date: Sun,  3 Nov 2019 06:00:01 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hi
+The following changes since commit 8c302eb9706963e07d6d79998e15bede77b94520:
 
-I was trying to draw some performance graphs executing a sequence like
+  Merge branch 'patch-1' of https://github.com/hannesweisbach/fio (2019-10-29 13:39:14 -0600)
 
-1 Sequential write
-3 Random writes
-25% trim command
-3 Sequential writes
+are available in the Git repository at:
 
-I observed a discrepancy in the bandwidth logging for last two
-sequential writes.
-I notice that the last two sequential writes differ by 300 MB/s but
-the last individual reading of these logs indicate that the slower
-sequential write actually took slightly less time to complete.
-Capacity is 4TB.
+  git://git.kernel.dk/fio.git master
 
-Can you provide some inputs if this is a known issue?
-I am using fio-2.2.10.
+for you to fetch changes up to f89cfed7d28f76e99ee7520d6d350b9847fab07c:
 
-Thanks,
-Shivam
+  engines/libaio.c: remove unused 'hipri' setting (2019-11-02 14:48:24 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      engines/libaio.c: remove unused 'hipri' setting
+
+ engines/libaio.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/engines/libaio.c b/engines/libaio.c
+index cd5b89f9..b047b746 100644
+--- a/engines/libaio.c
++++ b/engines/libaio.c
+@@ -44,7 +44,6 @@ struct libaio_data {
+ struct libaio_options {
+ 	void *pad;
+ 	unsigned int userspace_reap;
+-	unsigned int hipri;
+ };
+ 
+ static struct fio_option options[] = {
 
