@@ -1,59 +1,67 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH 3/3] t/run-fio-tests: improve error handling
-Date: Mon, 11 Nov 2019 11:30:55 -0500
-Message-Id: <20191111163055.7358-4-vincentfu@gmail.com>
-In-Reply-To: <20191111163055.7358-1-vincentfu@gmail.com>
-References: <20191111163055.7358-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:49000 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727332AbfKDNAH (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 4 Nov 2019 08:00:07 -0500
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1iRbxl-0007vm-MZ
+        for fio@vger.kernel.org; Mon, 04 Nov 2019 13:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20191104130001.F0B522C0085@kernel.dk>
+Date: Mon,  4 Nov 2019 06:00:01 -0700 (MST)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Vincent Fu <vincent.fu@wdc.com>
+The following changes since commit f89cfed7d28f76e99ee7520d6d350b9847fab07c:
 
-More gracefully handle errors when running a test. Also change the
-EXAMPLE to refer to fio's canonical git repository.
+  engines/libaio.c: remove unused 'hipri' setting (2019-11-02 14:48:24 -0600)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 35e3ade0fe63f5149e07024ee31a02ac14d2dde7:
+
+  Merge branch 'master' of https://github.com/aphreet/fio (2019-11-03 06:35:44 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'master' of https://github.com/aphreet/fio
+
+Mikhail Malygin (1):
+      Enable io_uring engine on powerpc arch
+
+ arch/arch-ppc.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
 ---
- t/run-fio-tests.py | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
-index 1b8ca0a2..cf8de093 100755
---- a/t/run-fio-tests.py
-+++ b/t/run-fio-tests.py
-@@ -14,7 +14,7 @@
- #
- #
- # EXAMPLE
--# # git clone [fio-repository]
-+# # git clone git://git.kernel.dk/fio.git
- # # cd fio
- # # make -j
- # # python3 t/run-fio-tests.py
-@@ -123,6 +123,7 @@ class FioExeTest(FioTest):
-         stderr_file = open(self.stderr_file, "w+")
-         exticode_file = open(self.exticode_file, "w+")
-         try:
-+            proc = None
-             # Avoid using subprocess.run() here because when a timeout occurs,
-             # fio will be stopped with SIGKILL. This does not give fio a
-             # chance to clean up and means that child processes may continue
-@@ -142,9 +143,10 @@ class FioExeTest(FioTest):
-             assert proc.poll()
-             self.output['failure'] = 'timeout'
-         except Exception:
--            if not proc.poll():
--                proc.terminate()
--                proc.communicate()
-+            if proc:
-+                if not proc.poll():
-+                    proc.terminate()
-+                    proc.communicate()
-             self.output['failure'] = 'exception'
-             self.output['exc_info'] = sys.exc_info()
-         finally:
--- 
-2.17.1
+Diff of recent changes:
 
+diff --git a/arch/arch-ppc.h b/arch/arch-ppc.h
+index 804d596a..46246bae 100644
+--- a/arch/arch-ppc.h
++++ b/arch/arch-ppc.h
+@@ -24,6 +24,18 @@
+ #define PPC_CNTLZL "cntlzw"
+ #endif
+ 
++#define ARCH_HAVE_IOURING
++
++#ifndef __NR_sys_io_uring_setup
++#define __NR_sys_io_uring_setup		425
++#endif
++#ifndef __NR_sys_io_uring_enter
++#define __NR_sys_io_uring_enter		426
++#endif
++#ifndef __NR_sys_io_uring_register
++#define __NR_sys_io_uring_register	427
++#endif
++
+ static inline int __ilog2(unsigned long bitmask)
+ {
+ 	int lz;
 
