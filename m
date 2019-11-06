@@ -1,83 +1,54 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH 2/3] io_u: move to next zone even if zoneskip is unset
-Date: Mon, 11 Nov 2019 11:30:54 -0500
-Message-Id: <20191111163055.7358-3-vincentfu@gmail.com>
-In-Reply-To: <20191111163055.7358-1-vincentfu@gmail.com>
-References: <20191111163055.7358-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:49670 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730630AbfKFNAF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 6 Nov 2019 08:00:05 -0500
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1iSKup-00076M-HH
+        for fio@vger.kernel.org; Wed, 06 Nov 2019 13:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20191106130001.847DA2C00F5@kernel.dk>
+Date: Wed,  6 Nov 2019 06:00:01 -0700 (MST)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Vincent Fu <vincent.fu@wdc.com>
+The following changes since commit 35e3ade0fe63f5149e07024ee31a02ac14d2dde7:
 
-This patch makes fio's behavior under zonemode=strided conform to the
-documentation:
+  Merge branch 'master' of https://github.com/aphreet/fio (2019-11-03 06:35:44 -0700)
 
-    I/O happens in a single zone until zonesize bytes have been
-    transferred. After that number of bytes has been transferred
-    processing of the next zone starts.
+are available in the Git repository at:
 
-With zonemode=strided, before commit 35f561eb, fio would only move to
-the next zone when zoneskip > 0 and zonesize bytes were written. There
-would always be zoneskip bytes between the end of one zone and the
-beginning of the next zone. If zoneskip was not set or set to 0, all IO
-would happen in the first zone.
+  git://git.kernel.dk/fio.git master
 
-Commit 35f561eb changed this so that fio would move to the next zone
-upon writing zonesize bytes if zoneskip was explicitly set to a value >=
-0. This option made it possible for zones to be contiguous. The
-documentation was not updated to reflect the new behavior.
+for you to fetch changes up to d5c4f97458d59689c3d1a13831519617d000fb19:
 
-I originally intended to submit a patch to update fio's documentation,
-but upon further reflection it seems better to change fio's behavior and
-have a clean user interface than to change the documentation to note
-that zoneskip must be explciitly set in order for fio to move to the
-next zone.
+  arch-arm: Consider armv7ve arch as well (2019-11-05 06:41:55 -0700)
 
-This patch also updates t/strided.py to reflect the new behavior.
+----------------------------------------------------------------
+Khem Raj (1):
+      arch-arm: Consider armv7ve arch as well
+
+ arch/arch-arm.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 ---
- io_u.c       | 3 +--
- t/strided.py | 3 +--
- 2 files changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/io_u.c b/io_u.c
-index 5cbbe85a..b5c31335 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -850,8 +850,7 @@ static void setup_strided_zone_mode(struct thread_data *td, struct io_u *io_u)
- 	/*
- 	 * See if it's time to switch to a new zone
- 	 */
--	if (td->zone_bytes >= td->o.zone_size &&
--			fio_option_is_set(&td->o, zone_skip)) {
-+	if (td->zone_bytes >= td->o.zone_size) {
- 		td->zone_bytes = 0;
- 		f->file_offset += td->o.zone_range + td->o.zone_skip;
- 
-diff --git a/t/strided.py b/t/strided.py
-index c159dc0b..aac15d10 100755
---- a/t/strided.py
-+++ b/t/strided.py
-@@ -22,7 +22,7 @@
- #
- # ===TEST MATRIX===
- #
--# --zonemode=strided, zoneskip >= 0
-+# --zonemode=strided, zoneskip unset
- #   w/ randommap and LFSR
- #       zonesize=zonerange  all blocks in zonerange touched
- #       zonesize>zonerange  all blocks touched and roll-over back into zone
-@@ -57,7 +57,6 @@ def run_fio(fio, test, index):
-                 "--log_offset=1",
-                 "--randrepeat=0",
-                 "--rw=randread",
--                "--zoneskip=0",
-                 "--write_iops_log={0}{1:03d}".format(filename, index),
-                 "--output={0}{1:03d}.out".format(filename, index),
-                 "--zonerange={zonerange}".format(**test),
--- 
-2.17.1
+Diff of recent changes:
 
+diff --git a/arch/arch-arm.h b/arch/arch-arm.h
+index 78cb2ebe..b3567122 100644
+--- a/arch/arch-arm.h
++++ b/arch/arch-arm.h
+@@ -11,7 +11,7 @@
+ #define nop             __asm__ __volatile__("mov\tr0,r0\t@ nop\n\t")
+ #define read_barrier()	__asm__ __volatile__ ("" : : : "memory")
+ #define write_barrier()	__asm__ __volatile__ ("" : : : "memory")
+-#elif defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_8A__)
++#elif defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7VE__) || defined(__ARM_ARCH_8A__)
+ #define	nop		__asm__ __volatile__ ("nop")
+ #define read_barrier()	__sync_synchronize()
+ #define write_barrier()	__sync_synchronize()
 
