@@ -1,16 +1,16 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:43560 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.133]:51912 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729829AbfKGPZC (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 7 Nov 2019 10:25:02 -0500
+        with ESMTP id S1726873AbfKGNAH (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 7 Nov 2019 08:00:07 -0500
 Received: from [65.144.74.35] (helo=kernel.dk)
         by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iSjeg-0004md-CS
-        for fio@vger.kernel.org; Thu, 07 Nov 2019 15:25:02 +0000
+        id 1iShOM-0001Uv-Nu
+        for fio@vger.kernel.org; Thu, 07 Nov 2019 13:00:06 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20191107152501.B3C571BC0D35@kernel.dk>
-Date: Thu,  7 Nov 2019 08:25:01 -0700 (MST)
+Message-Id: <20191107130002.069012C01F8@kernel.dk>
+Date: Thu,  7 Nov 2019 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
