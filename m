@@ -1,227 +1,83 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:48182 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726514AbfK0NAK (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 27 Nov 2019 08:00:10 -0500
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iZwvR-0005UM-8k
-        for fio@vger.kernel.org; Wed, 27 Nov 2019 13:00:09 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20191127130002.153BE1BC0156@kernel.dk>
-Date: Wed, 27 Nov 2019 06:00:02 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+From: vincentfu@gmail.com
+Subject: [PATCH 2/3] io_u: move to next zone even if zoneskip is unset
+Date: Mon, 11 Nov 2019 11:30:54 -0500
+Message-Id: <20191111163055.7358-3-vincentfu@gmail.com>
+In-Reply-To: <20191111163055.7358-1-vincentfu@gmail.com>
+References: <20191111163055.7358-1-vincentfu@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Vincent Fu <vincent.fu@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 5a9d5c4ab5f7cea83dc94e7cd23ecceb45b68134:
+From: Vincent Fu <vincent.fu@wdc.com>
 
-  Merge branch 'rados-now-use-completion-callbacks' of https://github.com/aclamk/fio (2019-11-25 21:40:38 -0700)
+This patch makes fio's behavior under zonemode=strided conform to the
+documentation:
 
-are available in the Git repository at:
+    I/O happens in a single zone until zonesize bytes have been
+    transferred. After that number of bytes has been transferred
+    processing of the next zone starts.
 
-  git://git.kernel.dk/fio.git master
+With zonemode=strided, before commit 35f561eb, fio would only move to
+the next zone when zoneskip > 0 and zonesize bytes were written. There
+would always be zoneskip bytes between the end of one zone and the
+beginning of the next zone. If zoneskip was not set or set to 0, all IO
+would happen in the first zone.
 
-for you to fetch changes up to b4d867339d3e89ca54104df104f830aa374e31c0:
+Commit 35f561eb changed this so that fio would move to the next zone
+upon writing zonesize bytes if zoneskip was explicitly set to a value >=
+0. This option made it possible for zones to be contiguous. The
+documentation was not updated to reflect the new behavior.
 
-  Merge branch 'fallocate-truncate' of https://github.com/tripped/fio (2019-11-26 11:57:52 -0700)
+I originally intended to submit a patch to update fio's documentation,
+but upon further reflection it seems better to change fio's behavior and
+have a clean user interface than to change the documentation to note
+that zoneskip must be explciitly set in order for fio to move to the
+next zone.
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'fallocate-truncate' of https://github.com/tripped/fio
-
-Trip Volpe (1):
-      filesetup: add fallocate=truncate option.
-
- HOWTO       | 14 +++++++++++++-
- file.h      |  1 +
- filesetup.c | 12 ++++++++++++
- fio.1       | 14 +++++++++++++-
- init.c      |  5 -----
- options.c   | 17 ++++++++---------
- os/os.h     |  2 +-
- 7 files changed, 48 insertions(+), 17 deletions(-)
-
+This patch also updates t/strided.py to reflect the new behavior.
 ---
+ io_u.c       | 3 +--
+ t/strided.py | 3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
-Diff of recent changes:
+diff --git a/io_u.c b/io_u.c
+index 5cbbe85a..b5c31335 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -850,8 +850,7 @@ static void setup_strided_zone_mode(struct thread_data *td, struct io_u *io_u)
+ 	/*
+ 	 * See if it's time to switch to a new zone
+ 	 */
+-	if (td->zone_bytes >= td->o.zone_size &&
+-			fio_option_is_set(&td->o, zone_skip)) {
++	if (td->zone_bytes >= td->o.zone_size) {
+ 		td->zone_bytes = 0;
+ 		f->file_offset += td->o.zone_range + td->o.zone_skip;
+ 
+diff --git a/t/strided.py b/t/strided.py
+index c159dc0b..aac15d10 100755
+--- a/t/strided.py
++++ b/t/strided.py
+@@ -22,7 +22,7 @@
+ #
+ # ===TEST MATRIX===
+ #
+-# --zonemode=strided, zoneskip >= 0
++# --zonemode=strided, zoneskip unset
+ #   w/ randommap and LFSR
+ #       zonesize=zonerange  all blocks in zonerange touched
+ #       zonesize>zonerange  all blocks touched and roll-over back into zone
+@@ -57,7 +57,6 @@ def run_fio(fio, test, index):
+                 "--log_offset=1",
+                 "--randrepeat=0",
+                 "--rw=randread",
+-                "--zoneskip=0",
+                 "--write_iops_log={0}{1:03d}".format(filename, index),
+                 "--output={0}{1:03d}.out".format(filename, index),
+                 "--zonerange={zonerange}".format(**test),
+-- 
+2.17.1
 
-diff --git a/HOWTO b/HOWTO
-index 64c6a033..88dbb03f 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1173,6 +1173,10 @@ I/O type
- 			Pre-allocate via :manpage:`fallocate(2)` with
- 			FALLOC_FL_KEEP_SIZE set.
- 
-+		**truncate**
-+			Extend file to final size via :manpage:`ftruncate(2)`
-+			instead of allocating.
-+
- 		**0**
- 			Backward-compatible alias for **none**.
- 
-@@ -1182,7 +1186,15 @@ I/O type
- 	May not be available on all supported platforms. **keep** is only available
- 	on Linux. If using ZFS on Solaris this cannot be set to **posix**
- 	because ZFS doesn't support pre-allocation. Default: **native** if any
--	pre-allocation methods are available, **none** if not.
-+	pre-allocation methods except **truncate** are available, **none** if not.
-+
-+	Note that using **truncate** on Windows will interact surprisingly
-+	with non-sequential write patterns. When writing to a file that has
-+	been extended by setting the end-of-file information, Windows will
-+	backfill the unwritten portion of the file up to that offset with
-+	zeroes before issuing the new write. This means that a single small
-+	write to the end of an extended file will stall until the entire
-+	file has been filled with zeroes.
- 
- .. option:: fadvise_hint=str
- 
-diff --git a/file.h b/file.h
-index e50c0f9c..ae0e6fc8 100644
---- a/file.h
-+++ b/file.h
-@@ -67,6 +67,7 @@ enum fio_fallocate_mode {
- 	FIO_FALLOCATE_POSIX	= 2,
- 	FIO_FALLOCATE_KEEP_SIZE	= 3,
- 	FIO_FALLOCATE_NATIVE	= 4,
-+	FIO_FALLOCATE_TRUNCATE	= 5,
- };
- 
- /*
-diff --git a/filesetup.c b/filesetup.c
-index 7d54c9f1..7fe2ebd4 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -95,6 +95,18 @@ static void fallocate_file(struct thread_data *td, struct fio_file *f)
- 		break;
- 		}
- #endif /* CONFIG_LINUX_FALLOCATE */
-+	case FIO_FALLOCATE_TRUNCATE: {
-+		int r;
-+
-+		dprint(FD_FILE, "ftruncate file %s size %llu\n",
-+				f->file_name,
-+				(unsigned long long) f->real_file_size);
-+		r = ftruncate(f->fd, f->real_file_size);
-+		if (r != 0)
-+			td_verror(td, errno, "ftruncate");
-+
-+		break;
-+	}
- 	default:
- 		log_err("fio: unknown fallocate mode: %d\n", td->o.fallocate_mode);
- 		assert(0);
-diff --git a/fio.1 b/fio.1
-index 087d3778..14569e9f 100644
---- a/fio.1
-+++ b/fio.1
-@@ -943,6 +943,10 @@ Pre-allocate via \fBposix_fallocate\fR\|(3).
- Pre-allocate via \fBfallocate\fR\|(2) with
- FALLOC_FL_KEEP_SIZE set.
- .TP
-+.B truncate
-+Extend file to final size using \fBftruncate\fR|(2)
-+instead of allocating.
-+.TP
- .B 0
- Backward-compatible alias for \fBnone\fR.
- .TP
-@@ -953,7 +957,15 @@ Backward-compatible alias for \fBposix\fR.
- May not be available on all supported platforms. \fBkeep\fR is only available
- on Linux. If using ZFS on Solaris this cannot be set to \fBposix\fR
- because ZFS doesn't support pre-allocation. Default: \fBnative\fR if any
--pre-allocation methods are available, \fBnone\fR if not.
-+pre-allocation methods except \fBtruncate\fR are available, \fBnone\fR if not.
-+.P
-+Note that using \fBtruncate\fR on Windows will interact surprisingly
-+with non-sequential write patterns. When writing to a file that has
-+been extended by setting the end-of-file information, Windows will
-+backfill the unwritten portion of the file up to that offset with
-+zeroes before issuing the new write. This means that a single small
-+write to the end of an extended file will stall until the entire
-+file has been filled with zeroes.
- .RE
- .TP
- .BI fadvise_hint \fR=\fPstr
-diff --git a/init.c b/init.c
-index 63f2168e..60c85761 100644
---- a/init.c
-+++ b/init.c
-@@ -852,11 +852,6 @@ static int fixup_options(struct thread_data *td)
- 			o->unit_base = N2S_BYTEPERSEC;
- 	}
- 
--#ifndef FIO_HAVE_ANY_FALLOCATE
--	/* Platform doesn't support any fallocate so force it to none */
--	o->fallocate_mode = FIO_FALLOCATE_NONE;
--#endif
--
- #ifndef CONFIG_FDATASYNC
- 	if (o->fdatasync_blocks) {
- 		log_info("fio: this platform does not support fdatasync()"
-diff --git a/options.c b/options.c
-index 2c5bf5e0..fad1857e 100644
---- a/options.c
-+++ b/options.c
-@@ -2412,14 +2412,17 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.parent = "nrfiles",
- 		.hide	= 1,
- 	},
--#ifdef FIO_HAVE_ANY_FALLOCATE
- 	{
- 		.name	= "fallocate",
- 		.lname	= "Fallocate",
- 		.type	= FIO_OPT_STR,
- 		.off1	= offsetof(struct thread_options, fallocate_mode),
- 		.help	= "Whether pre-allocation is performed when laying out files",
-+#ifdef FIO_HAVE_DEFAULT_FALLOCATE
- 		.def	= "native",
-+#else
-+		.def	= "none",
-+#endif
- 		.category = FIO_OPT_C_FILE,
- 		.group	= FIO_OPT_G_INVALID,
- 		.posval	= {
-@@ -2443,6 +2446,10 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 			    .help = "Use fallocate(..., FALLOC_FL_KEEP_SIZE, ...)",
- 			  },
- #endif
-+			  { .ival = "truncate",
-+			    .oval = FIO_FALLOCATE_TRUNCATE,
-+			    .help = "Truncate file to final size instead of allocating"
-+			  },
- 			  /* Compatibility with former boolean values */
- 			  { .ival = "0",
- 			    .oval = FIO_FALLOCATE_NONE,
-@@ -2456,14 +2463,6 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- #endif
- 		},
- 	},
--#else	/* FIO_HAVE_ANY_FALLOCATE */
--	{
--		.name	= "fallocate",
--		.lname	= "Fallocate",
--		.type	= FIO_OPT_UNSUPPORTED,
--		.help	= "Your platform does not support fallocate",
--	},
--#endif /* FIO_HAVE_ANY_FALLOCATE */
- 	{
- 		.name	= "fadvise_hint",
- 		.lname	= "Fadvise hint",
-diff --git a/os/os.h b/os/os.h
-index e4729680..dadcd87b 100644
---- a/os/os.h
-+++ b/os/os.h
-@@ -397,7 +397,7 @@ static inline bool fio_fallocate(struct fio_file *f, uint64_t offset, uint64_t l
- #endif
- 
- #if defined(CONFIG_POSIX_FALLOCATE) || defined(FIO_HAVE_NATIVE_FALLOCATE)
--# define FIO_HAVE_ANY_FALLOCATE
-+# define FIO_HAVE_DEFAULT_FALLOCATE
- #endif
- 
- #ifndef FIO_HAVE_CPU_HAS
 
