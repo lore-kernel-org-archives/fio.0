@@ -1,54 +1,49 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH 1/3] filesetup: improve LFSR init failure error message
-Date: Mon, 11 Nov 2019 11:30:53 -0500
-Message-Id: <20191111163055.7358-2-vincentfu@gmail.com>
-In-Reply-To: <20191111163055.7358-1-vincentfu@gmail.com>
-References: <20191111163055.7358-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-wm1-f52.google.com ([209.85.128.52]:50724 "EHLO
+        mail-wm1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725801AbfKLGzQ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 12 Nov 2019 01:55:16 -0500
+Received: by mail-wm1-f52.google.com with SMTP id l17so1824822wmh.0
+        for <fio@vger.kernel.org>; Mon, 11 Nov 2019 22:55:15 -0800 (PST)
+MIME-Version: 1.0
+References: <CAKaVHqeWbV67BF1chqihOpnfwuUcgzC4M1C755C7n-JK9U52vQ@mail.gmail.com>
+In-Reply-To: <CAKaVHqeWbV67BF1chqihOpnfwuUcgzC4M1C755C7n-JK9U52vQ@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Tue, 12 Nov 2019 06:54:48 +0000
+Message-ID: <CALjAwxiAWYjyn_2yeJbpc8Sx1hLtpKdBktVNxyFWsVQfP=2SwA@mail.gmail.com>
+Subject: Re: Logging using "write_bw_log" seems off
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Shivam Dhir <dhirs1@uci.edu>
+Cc: fio <fio@vger.kernel.org>
 
-From: Vincent Fu <vincent.fu@wdc.com>
+Hi Shivam,
 
-Especially with small sample spaces, the LFSR random generator
-occasionally fails to initialize successfully. When this occurs, the
-error message refers to problems allocating a random map. Change the
-error message to explicitly mention the LFSR failure.
+On Tue, 12 Nov 2019 at 00:37, Shivam Dhir <dhirs1@uci.edu> wrote:
+>
+> Hi
+>
+> I was trying to draw some performance graphs executing a sequence like
+>
+> 1 Sequential write
+> 3 Random writes
+> 25% trim command
+> 3 Sequential writes
+>
+> I observed a discrepancy in the bandwidth logging for last two
+> sequential writes.
+> I notice that the last two sequential writes differ by 300 MB/s but
+> the last individual reading of these logs indicate that the slower
+> sequential write actually took slightly less time to complete.
+> Capacity is 4TB.
+>
+> Can you provide some inputs if this is a known issue?
+> I am using fio-2.2.10.
 
-OLD BEHAVIOR
-$ ./fio --name=test --ioengine=null --size=4k --random_generator=lfsr --rw=randread --randrepeat=0
-test: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=null, iodepth=1
-fio-3.16-13-g998b-dirty
-Starting 1 process
-fio: failed allocating random map. If running a large number of jobs, try the 'norandommap' option or set 'softrandommap'. Or give a larger --alloc-size to fio.
-
-NEW BEHAVIOR
-$ ./fio --name=test --ioengine=null --size=4k --random_generator=lfsr --rw=randread --randrepeat=0
-test: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=null, iodepth=1
-fio-3.16-37-g65ee
-Starting 1 process
-fio: failed initializing LFSR
----
- filesetup.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/filesetup.c b/filesetup.c
-index 1d3094c1..7d54c9f1 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -1354,6 +1354,9 @@ bool init_random_map(struct thread_data *td)
- 			if (!lfsr_init(&f->lfsr, blocks, seed, 0)) {
- 				fio_file_set_lfsr(f);
- 				continue;
-+			} else {
-+				log_err("fio: failed initializing LFSR\n");
-+				return false;
- 			}
- 		} else if (!td->o.norandommap) {
- 			f->io_axmap = axmap_new(blocks);
+This might have been fixed. Does this still happen when you use a
+recent fio (e.g. 3.16 - see https://github.com/axboe/fio/releases for
+what we're up to)?
 -- 
-2.17.1
-
+Sitsofe | http://sucs.org/~sits/
 
