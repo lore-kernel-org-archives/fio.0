@@ -1,123 +1,130 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx0a-0016f401.pphosted.com ([67.231.148.174]:31914 "EHLO
-        mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726307AbfKSS33 (ORCPT
-        <rfc822;fio@vger.kernel.org>); Tue, 19 Nov 2019 13:29:29 -0500
-Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
-        by mx0a-0016f401.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAJIQFjU003932
-        for <fio@vger.kernel.org>; Tue, 19 Nov 2019 10:29:28 -0800
-Received: from sc-exch01.marvell.com ([199.233.58.181])
-        by mx0a-0016f401.pphosted.com with ESMTP id 2wc8423fby-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT)
-        for <fio@vger.kernel.org>; Tue, 19 Nov 2019 10:29:28 -0800
-From: Joseph DeVincentis <jdevincentis@marvell.com>
-Subject: fio successful completions followed by segfault
-Date: Tue, 19 Nov 2019 18:29:25 +0000
-Message-ID: <MN2PR18MB287796333F64B6B6F78B0169C44C0@MN2PR18MB2877.namprd18.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+Received: from bombadil.infradead.org ([198.137.202.133]:39246 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727223AbfKONAQ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 15 Nov 2019 08:00:16 -0500
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1iVbCx-0002Yj-DT
+        for fio@vger.kernel.org; Fri, 15 Nov 2019 13:00:15 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20191115130002.2CB181BC003D@kernel.dk>
+Date: Fri, 15 Nov 2019 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-Hello,
+The following changes since commit cc16261082a4d0f027cef9d019ad023129bf6012:
 
-I am seeing rare segfaults running "fio" threaded.  In these
-tests, fio is executed threaded for 60 second run periods, over
-and over again for 24 hours (simplified).
+  Merge branch 'testing' of https://github.com/vincentkfu/fio (2019-11-06 17:04:17 -0700)
 
-The fio operations always complete, results are reported, they are=20
-always successful, it's just that rarely, the exit status reported by=20
-the fio run is 139 / segfault.  The failure rate is perhaps 1 to 3
-fio "runs" over a 24 hour period, so its not easy to reproduce.
+are available in the Git repository at:
 
-I am running --threads, --numjobs=3D4.  (I am running 12 VMs, 2vcpus
-per, 2Gmem per, and this "fio stress" is one of a few other things
-going on in each of the VMs).
+  git://git.kernel.dk/fio.git master
 
-I think the bug is that the worker threads (thread_main) are detatched,
-and left to run to completion without coordination by "run_threads()", henc=
-e
-they are in a race with the main code flow.  The main code flow eventually
-frees the thread specific memory, and I think that's where this segfault co=
-mes from.
+for you to fetch changes up to b048455fef67dad4ef96ce0393937322e3165b58:
 
-The job ("thread_main") threads indicate that it is "done" via
-changing its state to TD_EXITED.  This allows run_threads() to "reap"
-their status, and then the code to finishup/exit.
+  t/run-fio-tests: improve error handling (2019-11-14 14:07:25 -0700)
 
-However, "thread_main" makes function calls and even dereferences the=20
-thread specific data AFTER it has indicated its state is TD_EXITED.
+----------------------------------------------------------------
+Vincent Fu (3):
+      filesetup: improve LFSR init failure error message
+      io_u: move to next zone even if zoneskip is unset
+      t/run-fio-tests: improve error handling
 
-The final line of "thread_main" is ;
-                return (void *) (uintptr_t) td->error;
+ filesetup.c        |  3 +++
+ io_u.c             |  3 +--
+ t/run-fio-tests.py | 10 ++++++----
+ t/strided.py       |  3 +--
+ 4 files changed, 11 insertions(+), 8 deletions(-)
 
-Since the main code flow doesn't know that a thread is just about to resume
-and dereference the thread specific data, (it doesn't know anything about
-the "main_thread" threads), it can't guarantee that it is safe
-to free the thread specific data (which it does via atexit()).
+---
 
-I have captured a few of these segfaults in a modified fio installing a
-backtrace dump on segv handler, and the segfault has always been
-on the last line of thread_main, e.g. dereferencing the thread specific
-pointer "td".
+Diff of recent changes:
 
-I have also captured one failure under gdb, automating the invocation of=20
-gdb/fio with an expect script.  This script dumped the CPU registers and th=
-e
-register holding the "td" pointer looked "sane", yet it still segfaulted. =
-=20
-
-This can be explained by a thread that has just resumed, so its registers=20
-hold what look like valid virtual addresses to the thread specific memory=20
-(td pointer), but that memory has been freed by atexit(), and is no longer=
-=20
-mapped.
-
-The version of fio is 3.9, however the latest version (3.16) has
-the same code, so I expect it could fail the same way if things
-line up just right.
-
-      fio --version=20
-      fio-3.9
-
-Solutions:
-
-If the threads are going to be detatched, and "completion" is indicated
-via TD_EXITED, then I don't think thread_main should do anything after=20
-"td_set_runstate(td, TD_EXITED);" to avoid any race conditions.
-
-A different option would be to leave the "thread_main" threads attached,=20
-and add a small loop (for_each_td) that joins the pthreads and guarantees
-no race condition exists between the worker threads and the main code
-flow.
-
-Experiments:
-
-1) In backend.c:thread_main, I captured td->error into a local var,=20
-prior to "thread_main" indicating TD_EXITED, and changed the return to retu=
-rn=20
-the local var, and ran 72 hours without failure in a scenario that fails
-at least 3 times per 24 hours.
-
-2) I changed "thread_main" to NOT detatch the pthreads, and added
-explicit pthread_join() to the end of "run_threads()", and I have
-yet to see a failure (obviously I need to run for a very long time
-to be certain, my typical run periods are 24 hours per scenario).
-
-These are my parameters to fio.
-
-fio --name=3Drandrw --minimal --readwrite=3Drandrw \
-    --rwmixwrite=3D0 --bs=3D8192 --invalidate=3D1 --end_fsync=3D0 \
-    --directory=3D/home/disk_stress --size=3D1048676 \
-    --time_based --runtime=3D10 --group_reporting \
-    --numjobs=3D4  --norandommap --randrepeat=3D0 --iodepth=3D8 \
-    --direct=3D1 --thread
-
-Thanks,
-Joe
-
-
+diff --git a/filesetup.c b/filesetup.c
+index 1d3094c1..7d54c9f1 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -1354,6 +1354,9 @@ bool init_random_map(struct thread_data *td)
+ 			if (!lfsr_init(&f->lfsr, blocks, seed, 0)) {
+ 				fio_file_set_lfsr(f);
+ 				continue;
++			} else {
++				log_err("fio: failed initializing LFSR\n");
++				return false;
+ 			}
+ 		} else if (!td->o.norandommap) {
+ 			f->io_axmap = axmap_new(blocks);
+diff --git a/io_u.c b/io_u.c
+index 5cbbe85a..b5c31335 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -850,8 +850,7 @@ static void setup_strided_zone_mode(struct thread_data *td, struct io_u *io_u)
+ 	/*
+ 	 * See if it's time to switch to a new zone
+ 	 */
+-	if (td->zone_bytes >= td->o.zone_size &&
+-			fio_option_is_set(&td->o, zone_skip)) {
++	if (td->zone_bytes >= td->o.zone_size) {
+ 		td->zone_bytes = 0;
+ 		f->file_offset += td->o.zone_range + td->o.zone_skip;
+ 
+diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
+index 1b8ca0a2..cf8de093 100755
+--- a/t/run-fio-tests.py
++++ b/t/run-fio-tests.py
+@@ -14,7 +14,7 @@
+ #
+ #
+ # EXAMPLE
+-# # git clone [fio-repository]
++# # git clone git://git.kernel.dk/fio.git
+ # # cd fio
+ # # make -j
+ # # python3 t/run-fio-tests.py
+@@ -123,6 +123,7 @@ class FioExeTest(FioTest):
+         stderr_file = open(self.stderr_file, "w+")
+         exticode_file = open(self.exticode_file, "w+")
+         try:
++            proc = None
+             # Avoid using subprocess.run() here because when a timeout occurs,
+             # fio will be stopped with SIGKILL. This does not give fio a
+             # chance to clean up and means that child processes may continue
+@@ -142,9 +143,10 @@ class FioExeTest(FioTest):
+             assert proc.poll()
+             self.output['failure'] = 'timeout'
+         except Exception:
+-            if not proc.poll():
+-                proc.terminate()
+-                proc.communicate()
++            if proc:
++                if not proc.poll():
++                    proc.terminate()
++                    proc.communicate()
+             self.output['failure'] = 'exception'
+             self.output['exc_info'] = sys.exc_info()
+         finally:
+diff --git a/t/strided.py b/t/strided.py
+index c159dc0b..aac15d10 100755
+--- a/t/strided.py
++++ b/t/strided.py
+@@ -22,7 +22,7 @@
+ #
+ # ===TEST MATRIX===
+ #
+-# --zonemode=strided, zoneskip >= 0
++# --zonemode=strided, zoneskip unset
+ #   w/ randommap and LFSR
+ #       zonesize=zonerange  all blocks in zonerange touched
+ #       zonesize>zonerange  all blocks touched and roll-over back into zone
+@@ -57,7 +57,6 @@ def run_fio(fio, test, index):
+                 "--log_offset=1",
+                 "--randrepeat=0",
+                 "--rw=randread",
+-                "--zoneskip=0",
+                 "--write_iops_log={0}{1:03d}".format(filename, index),
+                 "--output={0}{1:03d}.out".format(filename, index),
+                 "--zonerange={zonerange}".format(**test),
 
