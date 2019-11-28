@@ -1,47 +1,57 @@
-Return-Path: <sitsofe@gmail.com>
-MIME-Version: 1.0
-References: <20191005164319.1341600-1-raj.khem@gmail.com>
-In-Reply-To: <20191005164319.1341600-1-raj.khem@gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Tue, 5 Nov 2019 05:46:02 +0000
-Message-ID: <CALjAwxiy4upAq6fHG9XCCj+rzZrWVX_LFTwz7x_CrBKqdMkeKQ@mail.gmail.com>
-Subject: Re: [PATCH] arch-arm: Consider armv7ve arch as well
-Content-Type: text/plain; charset="UTF-8"
-To: Khem Raj <raj.khem@gmail.com>
-Cc: Jens Axboe <axboe@kernel.dk>, fio <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:57394 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726320AbfK1NAR (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 28 Nov 2019 08:00:17 -0500
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1iaJP6-00020r-B1
+        for fio@vger.kernel.org; Thu, 28 Nov 2019 13:00:16 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20191128130002.715601BC016B@kernel.dk>
+Date: Thu, 28 Nov 2019 06:00:02 -0700 (MST)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Hi Khem,
+The following changes since commit b4d867339d3e89ca54104df104f830aa374e31c0:
 
-It might have been nicer for 7VE to come before 8A but it's easy to
-get the gist...
+  Merge branch 'fallocate-truncate' of https://github.com/tripped/fio (2019-11-26 11:57:52 -0700)
 
-Jens - I think this patch may have been overlooked...
+are available in the Git repository at:
 
-On Sat, 5 Oct 2019 at 17:45, Khem Raj <raj.khem@gmail.com> wrote:
->
-> Signed-off-by: Khem Raj <raj.khem@gmail.com>
-> ---
->  arch/arch-arm.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/arch/arch-arm.h b/arch/arch-arm.h
-> index 78cb2ebe..4f722967 100644
-> --- a/arch/arch-arm.h
-> +++ b/arch/arch-arm.h
-> @@ -11,7 +11,7 @@
->  #define nop             __asm__ __volatile__("mov\tr0,r0\t@ nop\n\t")
->  #define read_barrier() __asm__ __volatile__ ("" : : : "memory")
->  #define write_barrier()        __asm__ __volatile__ ("" : : : "memory")
-> -#elif defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_8A__)
-> +#elif defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_8A__) || defined(__ARM_ARCH_7VE__)
->  #define        nop             __asm__ __volatile__ ("nop")
->  #define read_barrier() __sync_synchronize()
->  #define write_barrier()        __sync_synchronize()
-> --
-> 2.23.0
->
+  git://git.kernel.dk/fio.git master
 
--- 
-Sitsofe | http://sucs.org/~sits/
+for you to fetch changes up to bef74db41fb5a1607fd55cb86544165fc08acac1:
+
+  Merge branch 'engine-rados-fix-first' of https://github.com/aclamk/fio (2019-11-27 10:23:12 -0700)
+
+----------------------------------------------------------------
+Adam Kupczyk (1):
+      engines/rados: fix error with getting last instead of first element from list
+
+Jens Axboe (1):
+      Merge branch 'engine-rados-fix-first' of https://github.com/aclamk/fio
+
+ engines/rados.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/engines/rados.c b/engines/rados.c
+index cde538b9..30fcebb5 100644
+--- a/engines/rados.c
++++ b/engines/rados.c
+@@ -342,7 +342,7 @@ int fio_rados_getevents(struct thread_data *td, unsigned int min,
+ 		}
+ 		assert(!flist_empty(&rados->completed_operations));
+ 		
+-		fri = flist_last_entry(&rados->completed_operations, struct fio_rados_iou, list);
++		fri = flist_first_entry(&rados->completed_operations, struct fio_rados_iou, list);
+ 		assert(fri->completion);
+ 		assert(rados_aio_is_complete(fri->completion));
+ 		if (fri->write_op != NULL) {
 
