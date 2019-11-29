@@ -1,38 +1,46 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wr1-f51.google.com ([209.85.221.51]:35406 "EHLO
-        mail-wr1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726033AbfKEFuR (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 5 Nov 2019 00:50:17 -0500
-Received: by mail-wr1-f51.google.com with SMTP id l10so19811588wrb.2
-        for <fio@vger.kernel.org>; Mon, 04 Nov 2019 21:50:16 -0800 (PST)
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:44194 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726360AbfK2Hyj (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 29 Nov 2019 02:54:39 -0500
+Received: by mail-wr1-f65.google.com with SMTP id i12so33786313wrn.11
+        for <fio@vger.kernel.org>; Thu, 28 Nov 2019 23:54:38 -0800 (PST)
 MIME-Version: 1.0
-References: <CABO+gV_H3EcY70W+=Q_oZX+skVMQ_q+O1LqocC8kUhfdvoos3g@mail.gmail.com>
- <CALjAwxgSSdcH7MWCa89okeVNfsrzWiaT-xbqQHmQ_s1sRLtafQ@mail.gmail.com> <AT5PR8401MB1169209F101524F68537C7FBAB9E0@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
-In-Reply-To: <AT5PR8401MB1169209F101524F68537C7FBAB9E0@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+References: <CAHEKYV4x7Re+sa1AADW00j0nR0C7+PUXr8gh7vby4d2h084KjQ@mail.gmail.com>
+In-Reply-To: <CAHEKYV4x7Re+sa1AADW00j0nR0C7+PUXr8gh7vby4d2h084KjQ@mail.gmail.com>
 From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Tue, 5 Nov 2019 05:49:49 +0000
-Message-ID: <CALjAwxioZrH1g6xZTmWG7zxy+0GuRNp2_Bquav1Tv8+5QDm+tA@mail.gmail.com>
-Subject: Re: IO Depth measurement
+Date: Fri, 29 Nov 2019 07:54:21 +0000
+Message-ID: <CALjAwxiRRM2sJ7s_Ej0ZShfO1JcA774ZnDNCw1mF4A9txVMcCw@mail.gmail.com>
+Subject: Re: rwmixread
 Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Elliott, Robert (Servers)" <elliott@hpe.com>
-Cc: Elliott Balsley <elliott@altsystems.com>, fio <fio@vger.kernel.org>
+To: Mauricio Tavares <raubvogel@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-On Fri, 4 Oct 2019 at 14:38, Elliott, Robert (Servers) <elliott@hpe.com> wrote:
+On Wed, 27 Nov 2019 at 17:18, Mauricio Tavares <raubvogel@gmail.com> wrote:
 >
-> > (see the sentence that begins Note in documentation for iodepth -
-> > https://fio.readthedocs.io/en/latest/fio_man.html#cmdoption-arg-
-> > iodepth
-> > ). In your output we can see you have "ioengine=psync" which is
-> > synchronous. Getting ahead of ourselves note that very recent ZFS
+> On some articles which use fio, I see the following entry in the config file:
 >
-> This question has come up before... maybe a warning message when
-> iodepth is being ignored would help users?
+> rwmixread={100, 70, 0}
+>
+> Is that a valid entry or just a shorthand to say 3 runs each of them
+> using one of the percentage values?
 
-I have a faint memory of wanting to do this some time ago but the
-approach I was using was flawed -
-https://github.com/axboe/fio/pull/347 ...
+I'm afraid the answer is no - that's invalid in standard fio because
+`rwmixread` only takes a single int (see
+https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-rwmixread
+) and has nothing to do with successive runs. I've found the document
+you're referring to and they use that syntax in lots of different
+places so I wonder if they are using it to mean "we manually tried
+this set of parameters" or are using a customised version of fio that
+does some sort of preprocessing beyond regular fio.
+
+A brief reminder to anyone reading: if you're publishing results don't
+forget to abide by fio's MORAL-LICENSE
+(https://github.com/axboe/fio/blob/master/MORAL-LICENSE ) as things
+like version number or whether your fio is custom fork can help others
+understand how to reproduce your results.
 
 -- 
 Sitsofe | http://sucs.org/~sits/
