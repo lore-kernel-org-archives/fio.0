@@ -1,62 +1,58 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH 0/9] testing patches
-Date: Tue, 10 Dec 2019 12:54:33 -0500
-Message-Id: <20191210175442.2975-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:27799 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727457AbfLCVlq (ORCPT
+        <rfc822;fio@vger.kernel.org>); Tue, 3 Dec 2019 16:41:46 -0500
+From: Jeff Moyer <jmoyer@redhat.com>
+Subject: Re: rwmixread
+References: <CAHEKYV4x7Re+sa1AADW00j0nR0C7+PUXr8gh7vby4d2h084KjQ@mail.gmail.com>
+        <CALjAwxiRRM2sJ7s_Ej0ZShfO1JcA774ZnDNCw1mF4A9txVMcCw@mail.gmail.com>
+        <AT5PR8401MB1169A13E33A093D959958D91AB420@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+Date: Tue, 03 Dec 2019 16:41:41 -0500
+In-Reply-To: <AT5PR8401MB1169A13E33A093D959958D91AB420@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+        (Robert Elliott's message of "Tue, 3 Dec 2019 01:03:29 +0000")
+Message-ID: <x49a789qe7e.fsf@segfault.boston.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: "Elliott, Robert (Servers)" <elliott@hpe.com>
+Cc: Sitsofe Wheeler <sitsofe@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Vincent Fu <vincent.fu@wdc.com>
+"Elliott, Robert (Servers)" <elliott@hpe.com> writes:
 
-Jens, please consider this series of patches related to testing.
+>> -----Original Message-----
+>> From: fio-owner@vger.kernel.org <fio-owner@vger.kernel.org> On Behalf
+>> Of Sitsofe Wheeler
+>> Sent: Friday, November 29, 2019 1:54 AM
+>> To: Mauricio Tavares <raubvogel@gmail.com>
+>> Cc: fio <fio@vger.kernel.org>
+>> Subject: Re: rwmixread
+> ...
+>> A brief reminder to anyone reading: if you're publishing results
+>> don't forget to abide by fio's MORAL-LICENSE
+>> (https://github.com/axboe/fio/blob/master/MORAL-LICENSE ) as things
+>> like version number or whether your fio is custom fork can help
+>> others understand how to reproduce your results.
+>>=20
+>
+> People working with fio source code might see that file, but users of
+> precompiled binaries in a distro won't; all that they'll see is=20
+> whatever fio outputs and the manpage.
 
-The patches improve t/run-fio-tests.py in various ways, most prominently
-adding support for Windows and macOS.
+# cat /etc/redhat-release=20
+Red Hat Enterprise Linux release 8.2 Beta (Ootpa)
 
-Also included are travis and appveyor patches that add run-fio-tests.py
-as a step.  Currently both the travis and appveyor build processes
-complete in less than four minutes.  Adding run-fio-tests.py increases
-this to about 20 minutes for travis and 14 minutes for appveyor. 
+# rpm -q fio
+fio-3.7-3.el8.x86_64
 
-Also worth noting is that sometimes the VMs these builds run on appear
-to become overloaded and produce false failures. For instance, builds on
-the same hash fail here
+# rpm -ql fio | grep LIC
+/usr/share/doc/fio/MORAL-LICENSE
 
-https://ci.appveyor.com/project/vincentkfu/fio/builds/29342164
+Now, whether users go looking for that file is another story.
 
-but succeed here
-
-https://ci.appveyor.com/project/vincentkfu/fio/builds/29344271
-
-The failure occured because of a timeout running a null ioengine job that
-reads 10G of data.
-
-It's certainly nice to have these tests automatically run with every
-commit, but the downside is that the build process is significantly
-lengthened and some noise is introduced.
-
-
-Vincent Fu (9):
-  .gitignore: ignore zbd test output files
-  t/run-fio-tests: a few small improvements
-  t/run-fio-tests: detect requirements and skip tests accordingly
-  t/run-fio-tests: improve Windows support
-  t/run-fio-tests: identify test id for debug messages
-  t/steadystate_tests: use null ioengine for tests
-  .travis.yml: run t/run-fio.tests.py as part of build
-  .appveyor.yml: run run-fio-tests.py
-  t/run-fio-tests: relax acceptance criterion for t0011
-
- .appveyor.yml          |   6 +-
- .gitignore             |   1 +
- .travis.yml            |  26 ++---
- t/run-fio-tests.py     | 219 ++++++++++++++++++++++++++++++++++++-----
- t/steadystate_tests.py |  21 +---
- 5 files changed, 219 insertions(+), 54 deletions(-)
-
--- 
-2.17.1
+Cheers,
+Jeff
 
 
