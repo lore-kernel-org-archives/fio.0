@@ -1,51 +1,71 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:39970 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726250AbfLFPce (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 6 Dec 2019 10:32:34 -0500
-Received: by mail-ot1-f70.google.com with SMTP id m26so3900837otk.12
-        for <fio@vger.kernel.org>; Fri, 06 Dec 2019 07:32:32 -0800 (PST)
-MIME-Version: 1.0
-From: Andreas Gruenbacher <agruenba@redhat.com>
-Date: Fri, 6 Dec 2019 16:32:20 +0100
-Message-ID: <CAHc6FU6ZbWL_LhZ_p1c=gAiD9VAjkPCMT01pqkcTSO0V9s9OgQ@mail.gmail.com>
-Subject: Fwd: fio verify and short writes (resend)
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fstests <fstests@vger.kernel.org>
-Cc: fio@vger.kernel.org
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+From: vincentfu@gmail.com
+Subject: [PATCH 6/9] t/steadystate_tests: use null ioengine for tests
+Date: Tue, 10 Dec 2019 12:54:39 -0500
+Message-Id: <20191210175442.2975-7-vincentfu@gmail.com>
+In-Reply-To: <20191210175442.2975-1-vincentfu@gmail.com>
+References: <20191210175442.2975-1-vincentfu@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Vincent Fu <vincent.fu@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+From: Vincent Fu <vincent.fu@wdc.com>
 
-[This basically is a resend of https://www.spinics.net/lists/fio/msg08165.h=
-tml.]
+Instead of reading from /dev/zero just use the null ioengine. This
+enables the script to run on Windows.
+---
+ t/steadystate_tests.py | 21 +++------------------
+ 1 file changed, 3 insertions(+), 18 deletions(-)
 
-I've run into a verify issue with fio in xfstest generic/300 [*]:
-
-The filesystem I'm running this on has a block size of 1k, on a
-current mainline kernel and with current fio.
-
-The aio-dio-verifier thread in that test case writes 4k buffers and
-then reads them back in.
-
-The test case is designed to run the filesystem out of space. When
-that happens, some writes can end up short. That doesn't seem to
-happen on ext4 or xfs filesystems with a block size of 1k, possibly
-just because the test always runs on a scratch filesystem, but it
-does happen on gfs2.
-
-When the aio-dio-verifier thread reads the buffer of such a short write
-back in, part of the buffer will lie in a hole and be zero-filled, so
-verification will fail.
-
-Any thoughts?
-
-Thanks,
-Andreas
-
-[*] https://git.kernel.org/pub/scm/fs/xfs/xfstests-dev.git/tree/tests/gener=
-ic/300
+diff --git a/t/steadystate_tests.py b/t/steadystate_tests.py
+index 53b0f35e..9122a60f 100755
+--- a/t/steadystate_tests.py
++++ b/t/steadystate_tests.py
+@@ -31,12 +31,7 @@ from scipy import stats
+ 
+ def parse_args():
+     parser = argparse.ArgumentParser()
+-    parser.add_argument('fio',
+-                        help='path to fio executable')
+-    parser.add_argument('--read',
+-                        help='target for read testing')
+-    parser.add_argument('--write',
+-                        help='target for write testing')
++    parser.add_argument('fio', help='path to fio executable')
+     args = parser.parse_args()
+ 
+     return args
+@@ -123,26 +118,16 @@ if __name__ == '__main__':
+               {'s': True, 'timeout': 10, 'numjobs': 3, 'ss_dur': 10, 'ss_ramp': 500, 'iops': False, 'slope': True, 'ss_limit': 0.1, 'pct': True},
+             ]
+ 
+-    if args.read == None:
+-        if os.name == 'posix':
+-            args.read = '/dev/zero'
+-            extra = [ "--size=128M" ]
+-        else:
+-            print("ERROR: file for read testing must be specified on non-posix systems")
+-            sys.exit(1)
+-    else:
+-        extra = []
+-
+     jobnum = 0
+     for job in reads:
+ 
+         tf = "steadystate_job{0}.json".format(jobnum)
+         parameters = [ "--name=job{0}".format(jobnum) ]
+-        parameters.extend(extra)
+         parameters.extend([ "--thread",
+                             "--output-format=json",
+                             "--output={0}".format(tf),
+-                            "--filename={0}".format(args.read),
++                            "--ioengine=null",
++                            "--size=1G",
+                             "--rw=randrw",
+                             "--rwmixread=100",
+                             "--stonewall",
+-- 
+2.17.1
 
 
