@@ -1,104 +1,129 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:53700 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726962AbfLQNAE (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 17 Dec 2019 08:00:04 -0500
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1ihCSJ-0007H3-RE
-        for fio@vger.kernel.org; Tue, 17 Dec 2019 13:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20191217130002.0CCF51BC0CE2@kernel.dk>
-Date: Tue, 17 Dec 2019 06:00:02 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+From: vincentfu@gmail.com
+Subject: [PATCH 2/9] t/run-fio-tests: a few small improvements
+Date: Tue, 10 Dec 2019 12:54:35 -0500
+Message-Id: <20191210175442.2975-3-vincentfu@gmail.com>
+In-Reply-To: <20191210175442.2975-1-vincentfu@gmail.com>
+References: <20191210175442.2975-1-vincentfu@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Vincent Fu <vincent.fu@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 41ceb6c79aea52bd46ea13c5036722a294bb719e:
+From: Vincent Fu <vincent.fu@wdc.com>
 
-  t/run-fio-tests: relax acceptance criterion for t0011 (2019-12-11 20:55:07 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 397dddce43664df92101350f1fe5cd4c9cd2a2c7:
-
-  Merge branch 'travis-xcode11.2-python' of https://github.com/vincentkfu/fio (2019-12-16 16:08:35 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (3):
-      t/io_uring: check for CONFIG_HAVE_GETTID
-      Fio 3.17
-      Merge branch 'travis-xcode11.2-python' of https://github.com/vincentkfu/fio
-
-Vincent Fu (1):
-      .travis.yml: xcode11.2 scipy issue
-
- .travis.yml     | 9 ++++-----
- FIO-VERSION-GEN | 2 +-
- t/io_uring.c    | 2 ++
- 3 files changed, 7 insertions(+), 6 deletions(-)
-
+- add debug option that changes logging level
+- improve error handling
+- more output on test failures
+- Python 3.5 compatibility with pathlib.Path and os.path.join
+- warn if fio executable not found but don't abort because some tests
+can run without the fio executable
 ---
+ t/run-fio-tests.py | 43 +++++++++++++++++++++++++++++++------------
+ 1 file changed, 31 insertions(+), 12 deletions(-)
 
-Diff of recent changes:
+diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
+index cf8de093..72314505 100755
+--- a/t/run-fio-tests.py
++++ b/t/run-fio-tests.py
+@@ -46,6 +46,7 @@ import os
+ import sys
+ import json
+ import time
++import shutil
+ import logging
+ import argparse
+ import subprocess
+@@ -177,8 +178,8 @@ class FioExeTest(FioTest):
+                     self.failure_reason = "{0} zero return code,".format(self.failure_reason)
+                     self.passed = False
+ 
++        stderr_size = os.path.getsize(self.stderr_file)
+         if 'stderr_empty' in self.success:
+-            stderr_size = os.path.getsize(self.stderr_file)
+             if self.success['stderr_empty']:
+                 if stderr_size != 0:
+                     self.failure_reason = "{0} stderr not empty,".format(self.failure_reason)
+@@ -262,15 +263,22 @@ class FioJobTest(FioExeTest):
+ 
+         super(FioJobTest, self).check_result()
+ 
++        if not self.passed:
++            return
++
+         if 'json' in self.output_format:
+-            output_file = open(os.path.join(self.test_dir, self.fio_output), "r")
+-            file_data = output_file.read()
+-            output_file.close()
+             try:
+-                self.json_data = json.loads(file_data)
+-            except json.JSONDecodeError:
+-                self.failure_reason = "{0} unable to decode JSON data,".format(self.failure_reason)
++                with open(os.path.join(self.test_dir, self.fio_output), "r") as output_file:
++                    file_data = output_file.read()
++            except EnvironmentError:
++                self.failure_reason = "{0} unable to open output file,".format(self.failure_reason)
+                 self.passed = False
++            else:
++                try:
++                    self.json_data = json.loads(file_data)
++                except json.JSONDecodeError:
++                    self.failure_reason = "{0} unable to decode JSON data,".format(self.failure_reason)
++                    self.passed = False
+ 
+ 
+ class FioJobTest_t0005(FioJobTest):
+@@ -587,26 +595,33 @@ def parse_args():
+                         help='list of test(s) to skip')
+     parser.add_argument('-o', '--run-only', nargs='+', type=int,
+                         help='list of test(s) to run, skipping all others')
++    parser.add_argument('-d', '--debug', action='store_true',
++                        help='provide debug output')
+     args = parser.parse_args()
+ 
+     return args
+ 
+ 
+ def main():
+-    logging.basicConfig(level=logging.INFO)
+-
+     args = parse_args()
++    if args.debug:
++        logging.basicConfig(level=logging.DEBUG)
++    else:
++        logging.basicConfig(level=logging.INFO)
++
+     if args.fio_root:
+         fio_root = args.fio_root
+     else:
+-        fio_root = Path(__file__).absolute().parent.parent
+-    logging.debug("fio_root: %s" % fio_root)
++        fio_root = str(Path(__file__).absolute().parent.parent)
++    print("fio root is %s" % fio_root)
+ 
+     if args.fio:
+         fio_path = args.fio
+     else:
+         fio_path = os.path.join(fio_root, "fio")
+-    logging.debug("fio_path: %s" % fio_path)
++    print("fio path is %s" % fio_path)
++    if not shutil.which(fio_path):
++        print("Warning: fio executable not found")
+ 
+     artifact_root = args.artifact_root if args.artifact_root else \
+         "fio-test-{0}".format(time.strftime("%Y%m%d-%H%M%S"))
+@@ -667,6 +682,10 @@ def main():
+         else:
+             result = "FAILED: {0}".format(test.failure_reason)
+             failed = failed + 1
++            with open(test.stderr_file, "r") as stderr_file:
++                logging.debug("stderr:\n%s" % stderr_file.read())
++            with open(test.stdout_file, "r") as stdout_file:
++                logging.debug("stdout:\n%s" % stdout_file.read())
+         print("Test {0} {1}".format(config['test_id'], result))
+ 
+     print("{0} test(s) passed, {1} failed, {2} skipped".format(passed, failed, skipped))
+-- 
+2.17.1
 
-diff --git a/.travis.yml b/.travis.yml
-index 0017db56..eee31988 100644
---- a/.travis.yml
-+++ b/.travis.yml
-@@ -43,17 +43,16 @@ before_install:
-         fi;
-         sudo apt-get -qq update;
-         sudo apt-get install --no-install-recommends -qq -y "${pkgs[@]}";
--    fi
-+    fi;
-   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-         brew update;
-         brew install cunit;
-         if [[ "$TRAVIS_OSX_IMAGE" == "xcode11.2" ]]; then
-             pip3 install scipy;
--        else
--            pip install scipy;
-         fi;
--    fi
-+        pip install scipy;
-+    fi;
- script:
-   - ./configure --extra-cflags="${EXTRA_CFLAGS}" && make
-   - make test
--  - sudo python3 t/run-fio-tests.py --skip 6 1007 1008
-+  - sudo python3 t/run-fio-tests.py --skip 6 1007 1008 --debug
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index d5cec22e..13ce8c16 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-3.16
-+DEF_VER=fio-3.17
- 
- LF='
- '
-diff --git a/t/io_uring.c b/t/io_uring.c
-index 62dee805..c2e5e098 100644
---- a/t/io_uring.c
-+++ b/t/io_uring.c
-@@ -133,10 +133,12 @@ static int io_uring_enter(struct submitter *s, unsigned int to_submit,
- 			min_complete, flags, NULL, 0);
- }
- 
-+#ifndef CONFIG_HAVE_GETTID
- static int gettid(void)
- {
- 	return syscall(__NR_gettid);
- }
-+#endif
- 
- static unsigned file_depth(struct submitter *s)
- {
 
