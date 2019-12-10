@@ -1,45 +1,83 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm1-f52.google.com ([209.85.128.52]:36437 "EHLO
-        mail-wm1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726294AbfLSHUG (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 19 Dec 2019 02:20:06 -0500
-Received: by mail-wm1-f52.google.com with SMTP id p17so4485387wma.1
-        for <fio@vger.kernel.org>; Wed, 18 Dec 2019 23:20:05 -0800 (PST)
-MIME-Version: 1.0
-References: <CABO+gV-AvdsAWe+0SZXga4iDZ-C8xR9MuHQhBzm7aBiuGid8pg@mail.gmail.com>
- <CALjAwxjpbpjv5OgvCUmxttNcXs2xtjUUrTyMdnac0ctmYwEiDA@mail.gmail.com>
- <CABO+gV-rjH3CJw6-G2Oj2DZ4xOb7v7VNx_aocqU3iwODZPvBtQ@mail.gmail.com>
- <CALjAwxhRz6OVURRTmTyUrnN+7pLy0SpC94NEE3izJyd2Gu3yfg@mail.gmail.com>
- <CABO+gV8xNYo-aJ0hpr48z87tSxG7Yu6_HbmcRrZ+0AB969yyKQ@mail.gmail.com>
- <CALjAwxhPCTyFxoYOYAwJjA+TjGpwvGCCCkNuhMFSi-_OXWBoqw@mail.gmail.com> <CABO+gV9smN4-A3nMKnHXDbH1BCXnkfWpQScV_9akqqtzO_p5kw@mail.gmail.com>
-In-Reply-To: <CABO+gV9smN4-A3nMKnHXDbH1BCXnkfWpQScV_9akqqtzO_p5kw@mail.gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Thu, 19 Dec 2019 07:19:40 +0000
-Message-ID: <CALjAwxh82pascdnGQdfyrJg2HkuYRATYT69ktrDNYVyRQknBRw@mail.gmail.com>
-Subject: Re: How to cancel job
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Elliott Balsley <elliott@altsystems.com>
-Cc: fio <fio@vger.kernel.org>
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+From: vincentfu@gmail.com
+Subject: [PATCH 7/9] .travis.yml: run t/run-fio.tests.py as part of build
+Date: Tue, 10 Dec 2019 12:54:40 -0500
+Message-Id: <20191210175442.2975-8-vincentfu@gmail.com>
+In-Reply-To: <20191210175442.2975-1-vincentfu@gmail.com>
+References: <20191210175442.2975-1-vincentfu@gmail.com>
+To: axboe@kernel.dk, fio@vger.kernel.org
+Cc: Vincent Fu <vincent.fu@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-On Sat, 5 Oct 2019 at 20:51, Elliott Balsley <elliott@altsystems.com> wrote:
->
-> Thanks, I had not noticed the D state.  I learn something every day.
-> I am indeed using NFS hard mount, but when this issue happens there is
-> no problem with the mount itself.  Other apps can read/write just
-> fine.  So maybe this could be improved by making fio do interruptible
-> sleep?  Usually this happens when I accidentally start a job with a
-> size much higher than I intended.
+From: Vincent Fu <vincent.fu@wdc.com>
 
-(Sorry for the late reply) It's not fio's choice - it's the kernel's.
-Fio is doing I/O down to a file (maybe just that file is causing the
-NFS server heartache?) and the kernel chooses whether doing that I/O
-makes the task (hopefully temporarily) uninterruptible. Your other
-tasks might not be doing enough NFS I/O to get caught out (presumably
-the queue of I/O is backing up) and/or you don't spot them hanging
-because you're not actively killing them.
+- install SciPy and CUnit support
+- skip test 6 because of timeout
+- skip zbd tests 1007, 1008 because installing kernel modules is not supported
+- replace xcode8.3 (lacks python3) with latest xcode11.2
+---
+ .travis.yml | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
 
+diff --git a/.travis.yml b/.travis.yml
+index 4a87fe6c..0017db56 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -15,19 +15,13 @@ matrix:
+     - os: osx
+       compiler: clang # Workaround travis setting CC=["clang", "gcc"]
+       env: BUILD_ARCH="x86_64"
+-    # Build using the 10.12 SDK but target and run on OSX 10.11
+-#   - os: osx
+-#     compiler: clang
+-#     osx_image: xcode8
+-#     env: SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk MACOSX_DEPLOYMENT_TARGET=10.11
+-    # Build on the latest OSX version (will eventually become obsolete)
+     - os: osx
+       compiler: clang
+-      osx_image: xcode8.3
++      osx_image: xcode9.4
+       env: BUILD_ARCH="x86_64"
+     - os: osx
+       compiler: clang
+-      osx_image: xcode9.4
++      osx_image: xcode11.2
+       env: BUILD_ARCH="x86_64"
+   exclude:
+     - os: osx
+@@ -39,17 +33,27 @@ matrix:
+ before_install:
+   - EXTRA_CFLAGS="-Werror"
+   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+-        pkgs=(libaio-dev libnuma-dev libz-dev librbd-dev libibverbs-dev librdmacm-dev);
++        pkgs=(libaio-dev libnuma-dev libz-dev librbd-dev libibverbs-dev librdmacm-dev libcunit1 libcunit1-dev);
+         if [[ "$BUILD_ARCH" == "x86" ]]; then
+             pkgs=("${pkgs[@]/%/:i386}");
+-            pkgs+=(gcc-multilib);
++            pkgs+=(gcc-multilib python-scipy);
+             EXTRA_CFLAGS="${EXTRA_CFLAGS} -m32";
+         else
+-            pkgs+=(glusterfs-common);
++            pkgs+=(glusterfs-common python-scipy);
+         fi;
+         sudo apt-get -qq update;
+         sudo apt-get install --no-install-recommends -qq -y "${pkgs[@]}";
+     fi
++  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
++        brew update;
++        brew install cunit;
++        if [[ "$TRAVIS_OSX_IMAGE" == "xcode11.2" ]]; then
++            pip3 install scipy;
++        else
++            pip install scipy;
++        fi;
++    fi
+ script:
+   - ./configure --extra-cflags="${EXTRA_CFLAGS}" && make
+   - make test
++  - sudo python3 t/run-fio-tests.py --skip 6 1007 1008
 -- 
-Sitsofe | http://sucs.org/~sits/
+2.17.1
+
 
