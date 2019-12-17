@@ -1,256 +1,216 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-eopbgr1300091.outbound.protection.outlook.com ([40.107.130.91]:41384
-        "EHLO APC01-HK2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726609AbfLSKUJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 19 Dec 2019 05:20:09 -0500
-From: "Su, Friendy" <Friendy.Su@sony.com>
-Subject: RE: [PATCH] engines: add engine for file stat
-Date: Thu, 19 Dec 2019 10:19:55 +0000
-Message-ID: <SG2PR04MB2492F64F703104122008D211FD520@SG2PR04MB2492.apcprd04.prod.outlook.com>
-References: <925A83423110DA4D836092D40AC7A7E8085CB462@APYOKXMS108.ap.sony.com>
- <CALjAwxhtdp3zJisFDdXt4no2hHwFKktuDNEMEV5EZN7fo=mL4Q@mail.gmail.com>
-In-Reply-To: <CALjAwxhtdp3zJisFDdXt4no2hHwFKktuDNEMEV5EZN7fo=mL4Q@mail.gmail.com>
-Content-Language: zh-CN
-Content-Type: multipart/mixed;
-        boundary="_002_SG2PR04MB2492F64F703104122008D211FD520SG2PR04MB2492apcp_"
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:51411 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728546AbfLQOFT (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 17 Dec 2019 09:05:19 -0500
+Received: by mail-wm1-f68.google.com with SMTP id d73so3061902wmd.1
+        for <fio@vger.kernel.org>; Tue, 17 Dec 2019 06:05:16 -0800 (PST)
 MIME-Version: 1.0
+References: <925A83423110DA4D836092D40AC7A7E8085CB462@APYOKXMS108.ap.sony.com>
+In-Reply-To: <925A83423110DA4D836092D40AC7A7E8085CB462@APYOKXMS108.ap.sony.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Tue, 17 Dec 2019 14:04:52 +0000
+Message-ID: <CALjAwxhtdp3zJisFDdXt4no2hHwFKktuDNEMEV5EZN7fo=mL4Q@mail.gmail.com>
+Subject: Re: [PATCH] engines: add engine for file stat
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: fio <fio@vger.kernel.org>, "Kobayashi, Kento (Sony)" <Kento.A.Kobayashi@sony.com>
+To: Friendy.Su@sony.com
+Cc: fio <fio@vger.kernel.org>, Kento.A.Kobayashi@sony.com
 
---_002_SG2PR04MB2492F64F703104122008D211FD520SG2PR04MB2492apcp_
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Sorry I missed this the first time round. Some comments below:
 
-VGhhbmtzIGZvciB5b3VyIGNvbW1lbnRzLg0KSSBmaXhlZCBhbmQgcmVzZW50IHBhdGNoLiBQbHMg
-c2VlIG15IHJlcGx5IGluIHRleHQgYmVsb3cuDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0t
-DQpGcm9tOiBTaXRzb2ZlIFdoZWVsZXIgPHNpdHNvZmVAZ21haWwuY29tPiANClNlbnQ6IFR1ZXNk
-YXksIERlY2VtYmVyIDE3LCAyMDE5IDEwOjA1IFBNDQpUbzogU3UsIEZyaWVuZHkgPEZyaWVuZHku
-U3VAc29ueS5jb20+DQpDYzogZmlvIDxmaW9Admdlci5rZXJuZWwub3JnPjsgS29iYXlhc2hpLCBL
-ZW50byAoU29ueSkgPEtlbnRvLkEuS29iYXlhc2hpQHNvbnkuY29tPg0KU3ViamVjdDogUmU6IFtQ
-QVRDSF0gZW5naW5lczogYWRkIGVuZ2luZSBmb3IgZmlsZSBzdGF0DQoNClNvcnJ5IEkgbWlzc2Vk
-IHRoaXMgdGhlIGZpcnN0IHRpbWUgcm91bmQuIFNvbWUgY29tbWVudHMgYmVsb3c6DQoNCk9uIFdl
-ZCwgNCBEZWMgMjAxOSBhdCAxMDowOSwgPEZyaWVuZHkuU3VAc29ueS5jb20+IHdyb3RlOg0KPg0K
-PiBGcm9tIDFlZTA4Y2E1ZWQ5ZDNjODUyYzliNTM2ZGFlNzE5YjRhNDllNzUyNGUgTW9uIFNlcCAx
-NyAwMDowMDowMCAyMDAxDQo+IEZyb206IGZyaWVuZHktc3UgPGZyaWVuZHkuc3VAc29ueS5jb20+
-DQo+IERhdGU6IE1vbiwgMiBEZWMgMjAxOSAxODoyNTowNSArMDgwMA0KPiBTdWJqZWN0OiBbUEFU
-Q0hdIGVuZ2luZXM6IGFkZCBlbmdpbmUgZm9yIGZpbGUgc3RhdA0KPg0KPiBUaGlzIGVuZ2luZSBp
-cyB0byBtZWFzdXJlIHBlcmZvcm1hbmNlIG9mIGFjY2Vzc2luZyBmaWxlJ3MgbWV0YSBkYXRhLg0K
-PiBUaGlzIGlzIGZvciB0aGUgYWN0dWFsIGFjY2VzcyBwYXR0ZXJuIHdoaWNoIGRvZXMgbm90IGRv
-IHJlYWwgSU8sIGJ1dCANCj4ganVzdCBsb29rIHVwIHRoZSBmaWxlIGFuZCBnZXQgZmlsZSdzIGF0
-dHJpYnV0ZS4NCj4NCj4gU2lnbmVkLW9mZi1ieTogZnJpZW5keS1zdSA8ZnJpZW5keS5zdUBzb255
-LmNvbT4NCj4gLS0tDQo+ICBNYWtlZmlsZSAgICAgICAgICAgICAgICAgICAgICAgfCAgIDIgKy0N
-Cj4gIGVuZ2luZXMvZmlsZXN0YXQuYyAgICAgICAgICAgICB8IDEwOSArKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysNCj4gIGV4YW1wbGVzL2ZpbGVzdGF0LWlvZW5naW5lLmZpbyB8ICAy
-MCArKysrKysNCj4gIDMgZmlsZXMgY2hhbmdlZCwgMTMwIGluc2VydGlvbnMoKyksIDEgZGVsZXRp
-b24oLSkgIGNyZWF0ZSBtb2RlIDEwMDY0NCANCj4gZW5naW5lcy9maWxlc3RhdC5jICBjcmVhdGUg
-bW9kZSAxMDA2NDQgZXhhbXBsZXMvZmlsZXN0YXQtaW9lbmdpbmUuZmlvDQo+DQo+IGRpZmYgLS1n
-aXQgYS9NYWtlZmlsZSBiL01ha2VmaWxlDQo+IGluZGV4IDdhYWI2YWJkLi5hYjg1Y2VhYyAxMDA2
-NDQNCj4gLS0tIGEvTWFrZWZpbGUNCj4gKysrIGIvTWFrZWZpbGUNCj4gQEAgLTQ1LDcgKzQ1LDcg
-QEAgU09VUkNFIDo9ICAgICAkKHNvcnQgJChwYXRzdWJzdCAkKFNSQ0RJUikvJSwlLCQod2lsZGNh
-cmQgJChTUkNESVIpL2NyYy8qLmMpKSBcDQo+ICAgICAgICAgICAgICAgICBwc2hhcmVkLmMgb3B0
-aW9ucy5jIFwNCj4gICAgICAgICAgICAgICAgIHNtYWxsb2MuYyBmaWxlaGFzaC5jIHByb2ZpbGUu
-YyBkZWJ1Zy5jIGVuZ2luZXMvY3B1LmMgXA0KPiAgICAgICAgICAgICAgICAgZW5naW5lcy9tbWFw
-LmMgZW5naW5lcy9zeW5jLmMgZW5naW5lcy9udWxsLmMgZW5naW5lcy9uZXQuYyBcDQo+IC0gICAg
-ICAgICAgICAgICBlbmdpbmVzL2Z0cnVuY2F0ZS5jIGVuZ2luZXMvZmlsZWNyZWF0ZS5jIFwNCj4g
-KyAgICAgICAgICAgICAgIGVuZ2luZXMvZnRydW5jYXRlLmMgZW5naW5lcy9maWxlY3JlYXRlLmMg
-DQo+ICsgZW5naW5lcy9maWxlc3RhdC5jIFwNCj4gICAgICAgICAgICAgICAgIHNlcnZlci5jIGNs
-aWVudC5jIGlvbG9nLmMgYmFja2VuZC5jIGxpYmZpby5jIGZsb3cuYyBjY29udi5jIFwNCj4gICAg
-ICAgICAgICAgICAgIGdldHRpbWUtdGhyZWFkLmMgaGVscGVycy5jIGpzb24uYyBpZGxldGltZS5j
-IHRkX2Vycm9yLmMgXA0KPiAgICAgICAgICAgICAgICAgcHJvZmlsZXMvdGlvYmVuY2guYyBwcm9m
-aWxlcy9hY3QuYyBpb191X3F1ZXVlLmMgDQo+IGZpbGVsb2NrLmMgXCBkaWZmIC0tZ2l0IGEvZW5n
-aW5lcy9maWxlc3RhdC5jIGIvZW5naW5lcy9maWxlc3RhdC5jIG5ldyANCj4gZmlsZSBtb2RlIDEw
-MDY0NCBpbmRleCAwMDAwMDAwMC4uOWM2NjM2YTgNCj4gLS0tIC9kZXYvbnVsbA0KPiArKysgYi9l
-bmdpbmVzL2ZpbGVzdGF0LmMNCj4gQEAgLTAsMCArMSwxMDkgQEANCj4gKy8qDQo+ICsgKiBmaWxl
-c3RhdCBlbmdpbmUNCj4gKyAqDQo+ICsgKiBJTyBlbmdpbmUgdGhhdCBkb2Vzbid0IGRvIGFueSBJ
-TywganVzdCBzdGF0IGZpbGVzIGFuZCB0cmFja3MgdGhlIA0KPiArbGF0ZW5jeQ0KPiArICogb2Yg
-dGhlIGZpbGUgc3RhdC4NCj4gKyAqLw0KPiArI2luY2x1ZGUgPHN0ZGlvLmg+DQo+ICsjaW5jbHVk
-ZSA8ZmNudGwuaD4NCj4gKyNpbmNsdWRlIDxlcnJuby5oPg0KPiArI2luY2x1ZGUgPHN5cy90eXBl
-cy5oPg0KPiArI2luY2x1ZGUgPHN5cy9zdGF0Lmg+DQo+ICsjaW5jbHVkZSA8dW5pc3RkLmg+DQo+
-ICsjaW5jbHVkZSAiLi4vZmlvLmgiDQo+ICsNCj4gK3N0cnVjdCBmY19kYXRhIHsNCj4gKyAgICAg
-ICBlbnVtIGZpb19kZGlyIHN0YXRfZGRpcjsNCj4gK307DQo+ICsNCj4gK3N0YXRpYyBpbnQgc3Rh
-dF9maWxlKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsIHN0cnVjdCBmaW9fZmlsZSAqZikgew0KPiAr
-ICAgICAgIHN0cnVjdCB0aW1lc3BlYyBzdGFydDsNCj4gKyAgICAgICBpbnQgZG9fbGF0ID0gIXRk
-LT5vLmRpc2FibGVfbGF0Ow0KPiArICAgICAgIHN0cnVjdCBzdGF0IHN0YXRidWY7DQo+ICsgICAg
-ICAgaW50IHJldDsNCj4gKw0KPiArICAgICAgIGRwcmludChGRF9GSUxFLCAiZmQgc3RhdCAlc1xu
-IiwgZi0+ZmlsZV9uYW1lKTsNCj4gKw0KPiArICAgICAgIGlmIChmLT5maWxldHlwZSAhPSBGSU9f
-VFlQRV9GSUxFKSB7DQo+ICsgICAgICAgICAgICAgICBsb2dfZXJyKCJmaW86IG9ubHkgZmlsZXMg
-YXJlIHN1cHBvcnRlZCBmYWxsb2NhdGUgXG4iKTsNCj4gKyAgICAgICAgICAgICAgIHJldHVybiAx
-Ow0KPiArICAgICAgIH0NCj4gKyAgICAgICBpZiAoIXN0cmNtcChmLT5maWxlX25hbWUsICItIikp
-IHsNCj4gKyAgICAgICAgICAgICAgIGxvZ19lcnIoImZpbzogY2FuJ3QgcmVhZC93cml0ZSB0byBz
-dGRpbi9vdXRcbiIpOw0KPiArICAgICAgICAgICAgICAgcmV0dXJuIDE7DQo+ICsgICAgICAgfQ0K
-PiArDQo+ICsgICAgICAgaWYgKGRvX2xhdCkNCj4gKyAgICAgICAgICAgICAgIGZpb19nZXR0aW1l
-KCZzdGFydCwgTlVMTCk7DQoNCkRvbid0IHlvdSBhbHdheXMgd2FudCB0aGlzIG9uPw0KW1N1LCBG
-cmllbmR5XSBJIGRvIHRoZSBzYW1lIGFzIGVuZ2luZTogZmlsZWNyZWF0ZS4gTGF0ZW5jeSBpcyBv
-bmx5IHJlY29yZGVkIGlmIHVzZXIgZW5hYmxlZCBpdC4NCg0KPiArDQo+ICsgICAgICAgcmV0ID0g
-c3RhdChmLT5maWxlX25hbWUsICZzdGF0YnVmKTsNCg0KV2lsbCB0aGlzIHdvcmsgb24gV2luZG93
-cyB0b28/DQpbU3UsIEZyaWVuZHldIFllcywgSSBjYW4gcnVuIHRoaXMgZW5naW5lIHVuZGVyIHdp
-bmRvd3MgY29uc29sZS4gKGZpbyBidWlsdCBieSBDeWd3aW4pLg0KDQoNCj4gKw0KPiArICAgICAg
-IGlmIChyZXQgPT0gLTEpIHsNCj4gKyAgICAgICAgICAgICAgIGNoYXIgYnVmW0ZJT19WRVJST1Jf
-U0laRV07DQo+ICsgICAgICAgICAgICAgICBpbnQgZSA9IGVycm5vOw0KPiArDQo+ICsgICAgICAg
-ICAgICAgICBzbnByaW50ZihidWYsIHNpemVvZihidWYpLCAic3RhdCglcykiLCBmLT5maWxlX25h
-bWUpOw0KPiArICAgICAgICAgICAgICAgdGRfdmVycm9yKHRkLCBlLCBidWYpOw0KPiArICAgICAg
-ICAgICAgICAgcmV0dXJuIDE7DQo+ICsgICAgICAgfQ0KPiArDQo+ICsgICAgICAgaWYgKGRvX2xh
-dCkgew0KPiArICAgICAgICAgICAgICAgc3RydWN0IGZjX2RhdGEgKmRhdGEgPSB0ZC0+aW9fb3Bz
-X2RhdGE7DQo+ICsgICAgICAgICAgICAgICB1aW50NjRfdCBuc2VjOw0KPiArDQo+ICsgICAgICAg
-ICAgICAgICBuc2VjID0gbnRpbWVfc2luY2Vfbm93KCZzdGFydCk7DQo+ICsgICAgICAgICAgICAg
-ICBhZGRfY2xhdF9zYW1wbGUodGQsIGRhdGEtPnN0YXRfZGRpciwgbnNlYywgMCwgMCk7DQo+ICsg
-ICAgICAgfQ0KPiArDQo+ICsgICAgICAgcmV0dXJuIDA7DQo+ICt9DQo+ICsNCj4gK3N0YXRpYyBl
-bnVtIGZpb19xX3N0YXR1cyBxdWV1ZV9pbyhzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBzdHJ1Y3Qg
-aW9fdSANCj4gK2Zpb191bnVzZWQgKmlvX3UpIHsNCj4gKyAgICAgICByZXR1cm4gRklPX1FfQ09N
-UExFVEVEOw0KPiArfQ0KPiArDQo+ICtzdGF0aWMgaW50IGluaXQoc3RydWN0IHRocmVhZF9kYXRh
-ICp0ZCkgew0KPiArICAgICAgIHN0cnVjdCBmY19kYXRhICpkYXRhOw0KPiArDQo+ICsgICAgICAg
-ZGF0YSA9IGNhbGxvYygxLCBzaXplb2YoKmRhdGEpKTsNCj4gKw0KPiArICAgICAgIGlmICh0ZF9y
-ZWFkKHRkKSkNCj4gKyAgICAgICAgICAgICAgIGRhdGEtPnN0YXRfZGRpciA9IERESVJfUkVBRDsN
-Cj4gKyAgICAgICBlbHNlIGlmICh0ZF93cml0ZSh0ZCkpDQo+ICsgICAgICAgICAgICAgICBkYXRh
-LT5zdGF0X2RkaXIgPSBERElSX1dSSVRFOw0KPiArDQo+ICsgICAgICAgdGQtPmlvX29wc19kYXRh
-ID0gZGF0YTsNCj4gKyAgICAgICByZXR1cm4gMDsNCj4gK30NCj4gKw0KPiArc3RhdGljIHZvaWQg
-Y2xlYW51cChzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkKSB7DQo+ICsgICAgICAgc3RydWN0IGZjX2Rh
-dGEgKmRhdGEgPSB0ZC0+aW9fb3BzX2RhdGE7DQo+ICsNCj4gKyAgICAgICBmcmVlKGRhdGEpOw0K
-PiArfQ0KPiArDQo+ICtzdGF0aWMgc3RydWN0IGlvZW5naW5lX29wcyBpb2VuZ2luZSA9IHsNCj4g
-KyAgICAgICAubmFtZSAgICAgICAgICAgPSAiZmlsZXN0YXQiLA0KPiArICAgICAgIC52ZXJzaW9u
-ICAgICAgICA9IEZJT19JT09QU19WRVJTSU9OLA0KPiArICAgICAgIC5pbml0ICAgICAgICAgICA9
-IGluaXQsDQo+ICsgICAgICAgLmNsZWFudXAgICAgICAgID0gY2xlYW51cCwNCj4gKyAgICAgICAu
-cXVldWUgICAgICAgICAgPSBxdWV1ZV9pbywNCj4gKyAgICAgICAuZ2V0X2ZpbGVfc2l6ZSAgPSBn
-ZW5lcmljX2dldF9maWxlX3NpemUsDQo+ICsgICAgICAgLm9wZW5fZmlsZSAgICAgID0gc3RhdF9m
-aWxlLA0KPiArICAgICAgIC5mbGFncyAgICAgICAgICA9ICBGSU9fU1lOQ0lPIHwgRklPX0ZBS0VJ
-TyB8DQo+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgRklPX05PU1RBVFMgfCBGSU9f
-Tk9GSUxFSEFTSCwgfTsNCj4gKw0KPiArc3RhdGljIHZvaWQgZmlvX2luaXQgZmlvX2ZpbGVjcmVh
-dGVfcmVnaXN0ZXIodm9pZCkgew0KPiArICAgICAgIHJlZ2lzdGVyX2lvZW5naW5lKCZpb2VuZ2lu
-ZSk7DQo+ICt9DQo+ICsNCj4gK3N0YXRpYyB2b2lkIGZpb19leGl0IGZpb19maWxlY3JlYXRlX3Vu
-cmVnaXN0ZXIodm9pZCkgew0KPiArICAgICAgIHVucmVnaXN0ZXJfaW9lbmdpbmUoJmlvZW5naW5l
-KTsgfQ0KPiBkaWZmIC0tZ2l0IGEvZXhhbXBsZXMvZmlsZXN0YXQtaW9lbmdpbmUuZmlvIA0KPiBi
-L2V4YW1wbGVzL2ZpbGVzdGF0LWlvZW5naW5lLmZpbyBuZXcgZmlsZSBtb2RlIDEwMDY0NCBpbmRl
-eCANCj4gMDAwMDAwMDAuLjlhNzcxMTYwDQo+IC0tLSAvZGV2L251bGwNCj4gKysrIGIvZXhhbXBs
-ZXMvZmlsZXN0YXQtaW9lbmdpbmUuZmlvDQo+IEBAIC0wLDAgKzEsMjAgQEANCj4gKyMgRXhhbXBs
-ZSBmaWxlc3RhdCBqb2INCj4gKw0KPiArIyAnZmlsZXN0YXQnIGVuZ2luZSBvbmx5IGRvICdzdGF0
-KGZpbGVuYW1lKScsIGZpbGUgd2lsbCBub3QgYmUgb3BlbigpLg0KPiArIyAnaW52YWxpZGF0ZScg
-c2hvdWxkIGJlIHNldCB0byAwIHNpbmNlIGZpbGUgd2lsbCBub3QgYmUgb3BlbigpLCBwb3NpeF9m
-YWR2aXNlKGZkLC4uLi4pIHdpbGwgZmFpbC4NCg0KU2hvdWxkIHlvdXIgZW5naW5lIHByaW50IGEg
-bWVzc2FnZSBhYm91dCB0aGlzIG9uIHN0YXJ0dXAgaWYgaXQgZmluZHMgdGhhdCBpdCdzIHNldD8N
-CltTdSwgRnJpZW5keV0gSSBpbXBsZW1lbnRlZCBzdGF0X2ludmFsaWRhdGUoKSB3aGljaCBqdXN0
-IHJldHVybiAwLiBUaGVuIHRoaXMgbWVzc2FnZSBpcyBubyBuZWVkLiBJIGRlbGV0ZWQgaXQuDQoN
-Cj4gKyMgJ2ZpbGVzaXplJyBtdXN0IGJlIHNldCwgdGhlbiBmaWxlcyB3aWxsIGJlIGNyZWF0ZWQg
-YXQgc2V0dXAgc3RhZ2UuDQo+ICsNCj4gK1tnbG9iYWxdDQo+ICtpb2VuZ2luZT1maWxlc3RhdA0K
-PiArbnVtam9icz0xDQo+ICtmaWxlc2l6ZT00aw0KPiAraW52YWxpZGF0ZT0wDQo+ICtucmZpbGVz
-PTIwMA0KPiArDQo+ICtbdDBdDQo+ICtbdDFdDQo+ICtbdDJdDQo+ICtbdDNdDQo+ICtbdDRdDQo+
-ICtbdDVdDQo+ICsNCj4gLS0NCj4gMi4xNy4xDQo+DQoNCkNvdWxkIHlvdSB1cGRhdGUgdGhlIGRv
-Y3VtZW50YXRpb24gKHJzdCBmaWxlIEhPV1RPIGFuZCBtYW4gcGFnZSBmaW8uMSkgd2l0aCBhIGRl
-c2NyaXB0aW9uIG9mIGhvdyB0byB1c2UgeW91ciBpb2VuZ2luZT8NCltTdSwgRnJpZW5keV0gVXBk
-YXRlZC4NCg0KLS0NClNpdHNvZmUgfCBodHRwOi8vc3Vjcy5vcmcvfnNpdHMvDQo=
+On Wed, 4 Dec 2019 at 10:09, <Friendy.Su@sony.com> wrote:
+>
+> From 1ee08ca5ed9d3c852c9b536dae719b4a49e7524e Mon Sep 17 00:00:00 2001
+> From: friendy-su <friendy.su@sony.com>
+> Date: Mon, 2 Dec 2019 18:25:05 +0800
+> Subject: [PATCH] engines: add engine for file stat
+>
+> This engine is to measure performance of accessing file's meta data.
+> This is for the actual access pattern which does not do real IO, but
+> just look up the file and get file's attribute.
+>
+> Signed-off-by: friendy-su <friendy.su@sony.com>
+> ---
+>  Makefile                       |   2 +-
+>  engines/filestat.c             | 109 +++++++++++++++++++++++++++++++++
+>  examples/filestat-ioengine.fio |  20 ++++++
+>  3 files changed, 130 insertions(+), 1 deletion(-)
+>  create mode 100644 engines/filestat.c
+>  create mode 100644 examples/filestat-ioengine.fio
+>
+> diff --git a/Makefile b/Makefile
+> index 7aab6abd..ab85ceac 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -45,7 +45,7 @@ SOURCE :=     $(sort $(patsubst $(SRCDIR)/%,%,$(wildcard $(SRCDIR)/crc/*.c)) \
+>                 pshared.c options.c \
+>                 smalloc.c filehash.c profile.c debug.c engines/cpu.c \
+>                 engines/mmap.c engines/sync.c engines/null.c engines/net.c \
+> -               engines/ftruncate.c engines/filecreate.c \
+> +               engines/ftruncate.c engines/filecreate.c engines/filestat.c \
+>                 server.c client.c iolog.c backend.c libfio.c flow.c cconv.c \
+>                 gettime-thread.c helpers.c json.c idletime.c td_error.c \
+>                 profiles/tiobench.c profiles/act.c io_u_queue.c filelock.c \
+> diff --git a/engines/filestat.c b/engines/filestat.c
+> new file mode 100644
+> index 00000000..9c6636a8
+> --- /dev/null
+> +++ b/engines/filestat.c
+> @@ -0,0 +1,109 @@
+> +/*
+> + * filestat engine
+> + *
+> + * IO engine that doesn't do any IO, just stat files and tracks the latency
+> + * of the file stat.
+> + */
+> +#include <stdio.h>
+> +#include <fcntl.h>
+> +#include <errno.h>
+> +#include <sys/types.h>
+> +#include <sys/stat.h>
+> +#include <unistd.h>
+> +#include "../fio.h"
+> +
+> +struct fc_data {
+> +       enum fio_ddir stat_ddir;
+> +};
+> +
+> +static int stat_file(struct thread_data *td, struct fio_file *f)
+> +{
+> +       struct timespec start;
+> +       int do_lat = !td->o.disable_lat;
+> +       struct stat statbuf;
+> +       int ret;
+> +
+> +       dprint(FD_FILE, "fd stat %s\n", f->file_name);
+> +
+> +       if (f->filetype != FIO_TYPE_FILE) {
+> +               log_err("fio: only files are supported fallocate \n");
+> +               return 1;
+> +       }
+> +       if (!strcmp(f->file_name, "-")) {
+> +               log_err("fio: can't read/write to stdin/out\n");
+> +               return 1;
+> +       }
+> +
+> +       if (do_lat)
+> +               fio_gettime(&start, NULL);
 
---_002_SG2PR04MB2492F64F703104122008D211FD520SG2PR04MB2492apcp_
-Content-Type: application/octet-stream;
-	name="0001-engines-add-engine-for-file-stat.patch"
-Content-Description: 0001-engines-add-engine-for-file-stat.patch
-Content-Disposition: attachment;
-	filename="0001-engines-add-engine-for-file-stat.patch"; size=5645;
-	creation-date="Thu, 19 Dec 2019 10:09:30 GMT";
-	modification-date="Thu, 19 Dec 2019 10:09:30 GMT"
-Content-Transfer-Encoding: base64
+Don't you always want this on?
 
-RnJvbSA3ODcxOThmZjRiOTViNmFkZGYyNzZiN2VjNmJhYjc1OGI5MjhjODk2IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBmcmllbmR5LXN1IDxmcmllbmR5LnN1QHNvbnkuY29tPgpEYXRl
-OiBUaHUsIDE5IERlYyAyMDE5IDE4OjAyOjEyICswODAwClN1YmplY3Q6IFtQQVRDSF0gZW5naW5l
-czogYWRkIGVuZ2luZSBmb3IgZmlsZSBzdGF0CgpUaGlzIGVuZ2luZSBpcyB0byBtZWFzdXJlIHBl
-cmZvcm1hbmNlIG9mIGFjY2Vzc2luZyBmaWxlJ3MgbWV0YSBkYXRhLgpUaGlzIGlzIGZvciB0aGUg
-YWN0dWFsIGFjY2VzcyBwYXR0ZXJuIHdoaWNoIGRvZXMgbm90IGRvIHJlYWwgSU8sIGJ1dApqdXN0
-IGxvb2sgdXAgdGhlIGZpbGUgYW5kIGdldCBmaWxlJ3MgYXR0cmlidXRlLgotLS0KIEhPV1RPICAg
-ICAgICAgICAgICAgICAgICAgICAgICB8ICAgNSArKwogTWFrZWZpbGUgICAgICAgICAgICAgICAg
-ICAgICAgIHwgICAyICstCiBlbmdpbmVzL2ZpbGVzdGF0LmMgICAgICAgICAgICAgfCAxMTYgKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrCiBleGFtcGxlcy9maWxlc3RhdC1pb2VuZ2lu
-ZS5maW8gfCAgMTkgKysrKysrCiBmaW8uMSAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDUg
-KysKIDUgZmlsZXMgY2hhbmdlZCwgMTQ2IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKIGNy
-ZWF0ZSBtb2RlIDEwMDY0NCBlbmdpbmVzL2ZpbGVzdGF0LmMKIGNyZWF0ZSBtb2RlIDEwMDY0NCBl
-eGFtcGxlcy9maWxlc3RhdC1pb2VuZ2luZS5maW8KCmRpZmYgLS1naXQgYS9IT1dUTyBiL0hPV1RP
-CmluZGV4IDg4ZGJiMDNmLi41ZTQyNGU4NCAxMDA2NDQKLS0tIGEvSE9XVE8KKysrIGIvSE9XVE8K
-QEAgLTE5OTYsNiArMTk5NiwxMSBAQCBJL08gZW5naW5lCiAJCQlzZXQgIGBmaWxlc2l6ZWAgc28g
-dGhhdCBhbGwgdGhlIGFjY291bnRpbmcgc3RpbGwgb2NjdXJzLCBidXQgbm8KIAkJCWFjdHVhbCBJ
-L08gd2lsbCBiZSBkb25lIG90aGVyIHRoYW4gY3JlYXRpbmcgdGhlIGZpbGUuCiAKKwkJKipmaWxl
-c3RhdCoqCisJCQlTaW1wbHkgZG8gc3RhdCgpIGFuZCBkbyBubyBJL08gdG8gdGhlIGZpbGUuIFlv
-dSBuZWVkIHRvIHNldCAnZmlsZXNpemUnCisJCQlhbmQgJ25yZmlsZXMnLCBzbyB0aGF0IGZpbGVz
-IHdpbGwgYmUgY3JlYXRlZC4KKwkJCVRoaXMgZW5naW5lIGlzIHRvIG1lYXN1cmUgZmlsZSBsb29r
-dXAgYW5kIG1ldGEgZGF0YSBhY2Nlc3MuCisKIAkJKipsaWJwbWVtKioKIAkJCVJlYWQgYW5kIHdy
-aXRlIHVzaW5nIG1tYXAgSS9PIHRvIGEgZmlsZSBvbiBhIGZpbGVzeXN0ZW0KIAkJCW1vdW50ZWQg
-d2l0aCBEQVggb24gYSBwZXJzaXN0ZW50IG1lbW9yeSBkZXZpY2UgdGhyb3VnaCB0aGUgUE1ESwpk
-aWZmIC0tZ2l0IGEvTWFrZWZpbGUgYi9NYWtlZmlsZQppbmRleCA3YWFiNmFiZC4uYWI4NWNlYWMg
-MTAwNjQ0Ci0tLSBhL01ha2VmaWxlCisrKyBiL01ha2VmaWxlCkBAIC00NSw3ICs0NSw3IEBAIFNP
-VVJDRSA6PQkkKHNvcnQgJChwYXRzdWJzdCAkKFNSQ0RJUikvJSwlLCQod2lsZGNhcmQgJChTUkNE
-SVIpL2NyYy8qLmMpKSBcCiAJCXBzaGFyZWQuYyBvcHRpb25zLmMgXAogCQlzbWFsbG9jLmMgZmls
-ZWhhc2guYyBwcm9maWxlLmMgZGVidWcuYyBlbmdpbmVzL2NwdS5jIFwKIAkJZW5naW5lcy9tbWFw
-LmMgZW5naW5lcy9zeW5jLmMgZW5naW5lcy9udWxsLmMgZW5naW5lcy9uZXQuYyBcCi0JCWVuZ2lu
-ZXMvZnRydW5jYXRlLmMgZW5naW5lcy9maWxlY3JlYXRlLmMgXAorCQllbmdpbmVzL2Z0cnVuY2F0
-ZS5jIGVuZ2luZXMvZmlsZWNyZWF0ZS5jIGVuZ2luZXMvZmlsZXN0YXQuYyBcCiAJCXNlcnZlci5j
-IGNsaWVudC5jIGlvbG9nLmMgYmFja2VuZC5jIGxpYmZpby5jIGZsb3cuYyBjY29udi5jIFwKIAkJ
-Z2V0dGltZS10aHJlYWQuYyBoZWxwZXJzLmMganNvbi5jIGlkbGV0aW1lLmMgdGRfZXJyb3IuYyBc
-CiAJCXByb2ZpbGVzL3Rpb2JlbmNoLmMgcHJvZmlsZXMvYWN0LmMgaW9fdV9xdWV1ZS5jIGZpbGVs
-b2NrLmMgXApkaWZmIC0tZ2l0IGEvZW5naW5lcy9maWxlc3RhdC5jIGIvZW5naW5lcy9maWxlc3Rh
-dC5jCm5ldyBmaWxlIG1vZGUgMTAwNjQ0CmluZGV4IDAwMDAwMDAwLi5jNDhmMGQ4OQotLS0gL2Rl
-di9udWxsCisrKyBiL2VuZ2luZXMvZmlsZXN0YXQuYwpAQCAtMCwwICsxLDExNiBAQAorLyoKKyAq
-IGZpbGVzdGF0IGVuZ2luZQorICoKKyAqIElPIGVuZ2luZSB0aGF0IGRvZXNuJ3QgZG8gYW55IElP
-LCBqdXN0IHN0YXQgZmlsZXMgYW5kIHRyYWNrcyB0aGUgbGF0ZW5jeQorICogb2YgdGhlIGZpbGUg
-c3RhdC4KKyAqLworI2luY2x1ZGUgPHN0ZGlvLmg+CisjaW5jbHVkZSA8ZmNudGwuaD4KKyNpbmNs
-dWRlIDxlcnJuby5oPgorI2luY2x1ZGUgPHN5cy90eXBlcy5oPgorI2luY2x1ZGUgPHN5cy9zdGF0
-Lmg+CisjaW5jbHVkZSA8dW5pc3RkLmg+CisjaW5jbHVkZSAiLi4vZmlvLmgiCisKK3N0cnVjdCBm
-Y19kYXRhIHsKKwllbnVtIGZpb19kZGlyIHN0YXRfZGRpcjsKK307CisKK3N0YXRpYyBpbnQgc3Rh
-dF9maWxlKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsIHN0cnVjdCBmaW9fZmlsZSAqZikKK3sKKwlz
-dHJ1Y3QgdGltZXNwZWMgc3RhcnQ7CisJaW50IGRvX2xhdCA9ICF0ZC0+by5kaXNhYmxlX2xhdDsK
-KwlzdHJ1Y3Qgc3RhdCBzdGF0YnVmOworCWludCByZXQ7CisKKwlkcHJpbnQoRkRfRklMRSwgImZk
-IHN0YXQgJXNcbiIsIGYtPmZpbGVfbmFtZSk7CisKKwlpZiAoZi0+ZmlsZXR5cGUgIT0gRklPX1RZ
-UEVfRklMRSkgeworCQlsb2dfZXJyKCJmaW86IG9ubHkgZmlsZXMgYXJlIHN1cHBvcnRlZCBmYWxs
-b2NhdGUgXG4iKTsKKwkJcmV0dXJuIDE7CisJfQorCWlmICghc3RyY21wKGYtPmZpbGVfbmFtZSwg
-Ii0iKSkgeworCQlsb2dfZXJyKCJmaW86IGNhbid0IHJlYWQvd3JpdGUgdG8gc3RkaW4vb3V0XG4i
-KTsKKwkJcmV0dXJuIDE7CisJfQorCisJaWYgKGRvX2xhdCkKKwkJZmlvX2dldHRpbWUoJnN0YXJ0
-LCBOVUxMKTsKKworCXJldCA9IHN0YXQoZi0+ZmlsZV9uYW1lLCAmc3RhdGJ1Zik7CisKKwlpZiAo
-cmV0ID09IC0xKSB7CisJCWNoYXIgYnVmW0ZJT19WRVJST1JfU0laRV07CisJCWludCBlID0gZXJy
-bm87CisKKwkJc25wcmludGYoYnVmLCBzaXplb2YoYnVmKSwgInN0YXQoJXMpIiwgZi0+ZmlsZV9u
-YW1lKTsKKwkJdGRfdmVycm9yKHRkLCBlLCBidWYpOworCQlyZXR1cm4gMTsKKwl9CisKKwlpZiAo
-ZG9fbGF0KSB7CisJCXN0cnVjdCBmY19kYXRhICpkYXRhID0gdGQtPmlvX29wc19kYXRhOworCQl1
-aW50NjRfdCBuc2VjOworCisJCW5zZWMgPSBudGltZV9zaW5jZV9ub3coJnN0YXJ0KTsKKwkJYWRk
-X2NsYXRfc2FtcGxlKHRkLCBkYXRhLT5zdGF0X2RkaXIsIG5zZWMsIDAsIDApOworCX0KKworCXJl
-dHVybiAwOworfQorCitzdGF0aWMgZW51bSBmaW9fcV9zdGF0dXMgcXVldWVfaW8oc3RydWN0IHRo
-cmVhZF9kYXRhICp0ZCwgc3RydWN0IGlvX3UgZmlvX3VudXNlZCAqaW9fdSkKK3sKKwlyZXR1cm4g
-RklPX1FfQ09NUExFVEVEOworfQorCitzdGF0aWMgaW50IGluaXQoc3RydWN0IHRocmVhZF9kYXRh
-ICp0ZCkKK3sKKwlzdHJ1Y3QgZmNfZGF0YSAqZGF0YTsKKworCWRhdGEgPSBjYWxsb2MoMSwgc2l6
-ZW9mKCpkYXRhKSk7CisKKwlpZiAodGRfcmVhZCh0ZCkpCisJCWRhdGEtPnN0YXRfZGRpciA9IERE
-SVJfUkVBRDsKKwllbHNlIGlmICh0ZF93cml0ZSh0ZCkpCisJCWRhdGEtPnN0YXRfZGRpciA9IERE
-SVJfV1JJVEU7CisKKwl0ZC0+aW9fb3BzX2RhdGEgPSBkYXRhOworCXJldHVybiAwOworfQorCitz
-dGF0aWMgdm9pZCBjbGVhbnVwKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpCit7CisJc3RydWN0IGZj
-X2RhdGEgKmRhdGEgPSB0ZC0+aW9fb3BzX2RhdGE7CisKKwlmcmVlKGRhdGEpOworfQorCitzdGF0
-aWMgaW50IHN0YXRfaW52YWxpZGF0ZShzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBzdHJ1Y3QgZmlv
-X2ZpbGUgKmYpCit7CisJLyogZG8gbm90aGluZyBiZWNhdXNlIGZpbGUgbm90IG9wZW5lZCAqLwor
-CXJldHVybiAwOworfQorCitzdGF0aWMgc3RydWN0IGlvZW5naW5lX29wcyBpb2VuZ2luZSA9IHsK
-KwkubmFtZQkJPSAiZmlsZXN0YXQiLAorCS52ZXJzaW9uCT0gRklPX0lPT1BTX1ZFUlNJT04sCisJ
-LmluaXQJCT0gaW5pdCwKKwkuY2xlYW51cAk9IGNsZWFudXAsCisJLnF1ZXVlCQk9IHF1ZXVlX2lv
-LAorCS5pbnZhbGlkYXRlCT0gc3RhdF9pbnZhbGlkYXRlLAorCS5nZXRfZmlsZV9zaXplCT0gZ2Vu
-ZXJpY19nZXRfZmlsZV9zaXplLAorCS5vcGVuX2ZpbGUJPSBzdGF0X2ZpbGUsCisJLmZsYWdzCQk9
-ICBGSU9fU1lOQ0lPIHwgRklPX0ZBS0VJTyB8CisJCQkJRklPX05PU1RBVFMgfCBGSU9fTk9GSUxF
-SEFTSCwKK307CisKK3N0YXRpYyB2b2lkIGZpb19pbml0IGZpb19maWxlc3RhdF9yZWdpc3Rlcih2
-b2lkKQoreworCXJlZ2lzdGVyX2lvZW5naW5lKCZpb2VuZ2luZSk7Cit9CisKK3N0YXRpYyB2b2lk
-IGZpb19leGl0IGZpb19maWxlc3RhdF91bnJlZ2lzdGVyKHZvaWQpCit7CisJdW5yZWdpc3Rlcl9p
-b2VuZ2luZSgmaW9lbmdpbmUpOworfQpkaWZmIC0tZ2l0IGEvZXhhbXBsZXMvZmlsZXN0YXQtaW9l
-bmdpbmUuZmlvIGIvZXhhbXBsZXMvZmlsZXN0YXQtaW9lbmdpbmUuZmlvCm5ldyBmaWxlIG1vZGUg
-MTAwNjQ0CmluZGV4IDAwMDAwMDAwLi45MzJmY2VkOAotLS0gL2Rldi9udWxsCisrKyBiL2V4YW1w
-bGVzL2ZpbGVzdGF0LWlvZW5naW5lLmZpbwpAQCAtMCwwICsxLDE5IEBACisjIEV4YW1wbGUgZmls
-ZXN0YXQgam9iCisKKyMgJ2ZpbGVzdGF0JyBlbmdpbmUgb25seSBkbyAnc3RhdChmaWxlbmFtZSkn
-LCBmaWxlIHdpbGwgbm90IGJlIG9wZW4oKS4KKyMgJ2ZpbGVzaXplJyBtdXN0IGJlIHNldCwgdGhl
-biBmaWxlcyB3aWxsIGJlIGNyZWF0ZWQgYXQgc2V0dXAgc3RhZ2UuCisKK1tnbG9iYWxdCitpb2Vu
-Z2luZT1maWxlc3RhdAorbnVtam9icz0xCitmaWxlc2l6ZT00aworbnJmaWxlcz0yMDAKK3RocmVh
-ZAorCitbdDBdCitbdDFdCitbdDJdCitbdDNdCitbdDRdCitbdDVdCisKZGlmZiAtLWdpdCBhL2Zp
-by4xIGIvZmlvLjEKaW5kZXggMTQ1NjllOWYuLmJiMWU0MmY2IDEwMDY0NAotLS0gYS9maW8uMQor
-KysgYi9maW8uMQpAQCAtMTc2MCw2ICsxNzYwLDExIEBAIFNpbXBseSBjcmVhdGUgdGhlIGZpbGVz
-IGFuZCBkbyBubyBJL08gdG8gdGhlbS4gIFlvdSBzdGlsbCBuZWVkIHRvIHNldAogXGZCZmlsZXNp
-emVcZlIgc28gdGhhdCBhbGwgdGhlIGFjY291bnRpbmcgc3RpbGwgb2NjdXJzLCBidXQgbm8gYWN0
-dWFsIEkvTyB3aWxsIGJlCiBkb25lIG90aGVyIHRoYW4gY3JlYXRpbmcgdGhlIGZpbGUuCiAuVFAK
-Ky5CIGZpbGVzdGF0CitTaW1wbHkgZG8gc3RhdCgpIGFuZCBkbyBubyBJL08gdG8gdGhlIGZpbGUu
-IFlvdSBuZWVkIHRvIHNldCAnZmlsZXNpemUnCithbmQgJ25yZmlsZXMnLCBzbyB0aGF0IGZpbGVz
-IHdpbGwgYmUgY3JlYXRlZC4KK1RoaXMgZW5naW5lIGlzIHRvIG1lYXN1cmUgZmlsZSBsb29rdXAg
-YW5kIG1ldGEgZGF0YSBhY2Nlc3MuCisuVFAKIC5CIGxpYnBtZW0KIFJlYWQgYW5kIHdyaXRlIHVz
-aW5nIG1tYXAgSS9PIHRvIGEgZmlsZSBvbiBhIGZpbGVzeXN0ZW0KIG1vdW50ZWQgd2l0aCBEQVgg
-b24gYSBwZXJzaXN0ZW50IG1lbW9yeSBkZXZpY2UgdGhyb3VnaCB0aGUgUE1ESwotLSAKMi4xNy4x
-Cgo=
+> +
+> +       ret = stat(f->file_name, &statbuf);
 
---_002_SG2PR04MB2492F64F703104122008D211FD520SG2PR04MB2492apcp_--
+Will this work on Windows too?
+
+> +
+> +       if (ret == -1) {
+> +               char buf[FIO_VERROR_SIZE];
+> +               int e = errno;
+> +
+> +               snprintf(buf, sizeof(buf), "stat(%s)", f->file_name);
+> +               td_verror(td, e, buf);
+> +               return 1;
+> +       }
+> +
+> +       if (do_lat) {
+> +               struct fc_data *data = td->io_ops_data;
+> +               uint64_t nsec;
+> +
+> +               nsec = ntime_since_now(&start);
+> +               add_clat_sample(td, data->stat_ddir, nsec, 0, 0);
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+> +static enum fio_q_status queue_io(struct thread_data *td, struct io_u fio_unused *io_u)
+> +{
+> +       return FIO_Q_COMPLETED;
+> +}
+> +
+> +static int init(struct thread_data *td)
+> +{
+> +       struct fc_data *data;
+> +
+> +       data = calloc(1, sizeof(*data));
+> +
+> +       if (td_read(td))
+> +               data->stat_ddir = DDIR_READ;
+> +       else if (td_write(td))
+> +               data->stat_ddir = DDIR_WRITE;
+> +
+> +       td->io_ops_data = data;
+> +       return 0;
+> +}
+> +
+> +static void cleanup(struct thread_data *td)
+> +{
+> +       struct fc_data *data = td->io_ops_data;
+> +
+> +       free(data);
+> +}
+> +
+> +static struct ioengine_ops ioengine = {
+> +       .name           = "filestat",
+> +       .version        = FIO_IOOPS_VERSION,
+> +       .init           = init,
+> +       .cleanup        = cleanup,
+> +       .queue          = queue_io,
+> +       .get_file_size  = generic_get_file_size,
+> +       .open_file      = stat_file,
+> +       .flags          =  FIO_SYNCIO | FIO_FAKEIO |
+> +                               FIO_NOSTATS | FIO_NOFILEHASH,
+> +};
+> +
+> +static void fio_init fio_filecreate_register(void)
+> +{
+> +       register_ioengine(&ioengine);
+> +}
+> +
+> +static void fio_exit fio_filecreate_unregister(void)
+> +{
+> +       unregister_ioengine(&ioengine);
+> +}
+> diff --git a/examples/filestat-ioengine.fio b/examples/filestat-ioengine.fio
+> new file mode 100644
+> index 00000000..9a771160
+> --- /dev/null
+> +++ b/examples/filestat-ioengine.fio
+> @@ -0,0 +1,20 @@
+> +# Example filestat job
+> +
+> +# 'filestat' engine only do 'stat(filename)', file will not be open().
+> +# 'invalidate' should be set to 0 since file will not be open(), posix_fadvise(fd,....) will fail.
+
+Should your engine print a message about this on startup if it finds
+that it's set?
+
+> +# 'filesize' must be set, then files will be created at setup stage.
+> +
+> +[global]
+> +ioengine=filestat
+> +numjobs=1
+> +filesize=4k
+> +invalidate=0
+> +nrfiles=200
+> +
+> +[t0]
+> +[t1]
+> +[t2]
+> +[t3]
+> +[t4]
+> +[t5]
+> +
+> --
+> 2.17.1
+>
+
+Could you update the documentation (rst file HOWTO and man page fio.1)
+with a description of how to use your ioengine?
+
+-- 
+Sitsofe | http://sucs.org/~sits/
 
