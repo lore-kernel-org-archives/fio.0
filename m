@@ -1,194 +1,82 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-eopbgr750139.outbound.protection.outlook.com ([40.107.75.139]:60585
-        "EHLO NAM02-BL2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726679AbfLDKIj (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 4 Dec 2019 05:08:39 -0500
-From: <Friendy.Su@sony.com>
-Subject: [PATCH] engines: add engine for file stat
-Date: Wed, 4 Dec 2019 10:08:28 +0000
-Message-ID: <925A83423110DA4D836092D40AC7A7E8085CB462@APYOKXMS108.ap.sony.com>
-Content-Language: zh-CN
-Content-Type: text/plain; charset="us-ascii"
+Received: from mail-wm1-f49.google.com ([209.85.128.49]:38399 "EHLO
+        mail-wm1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726762AbfLSD2O (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 18 Dec 2019 22:28:14 -0500
+Received: by mail-wm1-f49.google.com with SMTP id u2so4100527wmc.3
+        for <fio@vger.kernel.org>; Wed, 18 Dec 2019 19:28:13 -0800 (PST)
 MIME-Version: 1.0
+References: <CA+zhgFSzBaH3q8TGZCet4WujqYBNqNA_kH3HavLoQY8FsmKFcQ@mail.gmail.com>
+ <AT5PR8401MB116994768647E0EF0490F80DAB920@AT5PR8401MB1169.NAMPRD84.PROD.OUTLOOK.COM>
+ <CA+zhgFRJJ6JiWe46+UPDkfDddUDxCTJcOTPUtJnA-y6rKcvN6w@mail.gmail.com>
+In-Reply-To: <CA+zhgFRJJ6JiWe46+UPDkfDddUDxCTJcOTPUtJnA-y6rKcvN6w@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Thu, 19 Dec 2019 03:27:47 +0000
+Message-ID: <CALjAwxhuNDowJbesAjgPVoj67h5tfLj-OAcWdA0go30Qy95+Gg@mail.gmail.com>
+Subject: Re: unaligned IO and starting LBA
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Kento.A.Kobayashi@sony.com, Friendy.Su@sony.com
+To: smitha sunder <sundersmitha@gmail.com>
+Cc: "Elliott, Robert (Servers)" <elliott@hpe.com>, fio <fio@vger.kernel.org>
 
-From 1ee08ca5ed9d3c852c9b536dae719b4a49e7524e Mon Sep 17 00:00:00 2001
-From: friendy-su <friendy.su@sony.com>
-Date: Mon, 2 Dec 2019 18:25:05 +0800
-Subject: [PATCH] engines: add engine for file stat
+On Thu, 17 Oct 2019 at 13:49, smitha sunder <sundersmitha@gmail.com> wrote:
+>
+> Hi Robert,
+>
+> Since I want to use blocksize_unaligned=3D1 , I had to get rid of direct=
+=3D1 :
+>
+> Per man page :
+> blocksize_unaligned, bs_unaligned
+> If set, any size in blocksize_range may be used. This typically won't
+> work with direct I/O, as that normally requires sector alignment.
+>
+> # fio --name=3Djob1 --filename=3D/dev/nvme0n1  --rw=3Drandwrite
+> --ioengine=3Dlibaio  --number_ios=3D1 --debug=3Dio --bs_unaligned=3D1
+> --bs=3D1029 --direct=3D1
+> fio: set debug option io
+> fio: bs_unaligned may not work with raw io
 
-This engine is to measure performance of accessing file's meta data.
-This is for the actual access pattern which does not do real IO, but
-just look up the file and get file's attribute.
+> On Wed, Oct 16, 2019 at 8:12 AM Elliott, Robert (Servers)
+> <elliott@hpe.com> wrote:
+> >
+> > > -----Original Message-----
+> > > From: fio-owner@vger.kernel.org [mailto:fio-owner@vger.kernel.org] On=
+ Behalf Of smitha sunder
+> > > Sent: Tuesday, October 15, 2019 4:37 PM
+> > > To: fio <fio@vger.kernel.org>
+> > > Subject: unaligned IO and starting LBA
+> > >
+> > > Hello,
+> > >
+> > > I have a 512 byte formatted nvme drive and I want to send an unaligne=
+d
+> > > IO and here=E2=80=99s the fio command line I am using , fio version f=
+io-3.7
+> > >
+> > > # fio --name=3Djob1 --filename=3D/dev/nvme0n1  --rw=3Drandwrite
+> > > --ioengine=3Dlibaio  --number_ios=3D1 --debug=3Dio --bs_unaligned=3D1
+> > > --bs=3D1029
 
-Signed-off-by: friendy-su <friendy.su@sony.com>
----
- Makefile                       |   2 +-
- engines/filestat.c             | 109 +++++++++++++++++++++++++++++++++
- examples/filestat-ioengine.fio |  20 ++++++
- 3 files changed, 130 insertions(+), 1 deletion(-)
- create mode 100644 engines/filestat.c
- create mode 100644 examples/filestat-ioengine.fio
+A blocksize of 1029 is neither a multiple of 4096 nor 512! You simply
+can't send I/O that is not aligned (and is not a multiple) of the
+device's logical block size down to a device so something will have to
+"fix" things for you.
 
-diff --git a/Makefile b/Makefile
-index 7aab6abd..ab85ceac 100644
---- a/Makefile
-+++ b/Makefile
-@@ -45,7 +45,7 @@ SOURCE :=	$(sort $(patsubst $(SRCDIR)/%,%,$(wildcard $(SRCDIR)/crc/*.c)) \
- 		pshared.c options.c \
- 		smalloc.c filehash.c profile.c debug.c engines/cpu.c \
- 		engines/mmap.c engines/sync.c engines/null.c engines/net.c \
--		engines/ftruncate.c engines/filecreate.c \
-+		engines/ftruncate.c engines/filecreate.c engines/filestat.c \
- 		server.c client.c iolog.c backend.c libfio.c flow.c cconv.c \
- 		gettime-thread.c helpers.c json.c idletime.c td_error.c \
- 		profiles/tiobench.c profiles/act.c io_u_queue.c filelock.c \
-diff --git a/engines/filestat.c b/engines/filestat.c
-new file mode 100644
-index 00000000..9c6636a8
---- /dev/null
-+++ b/engines/filestat.c
-@@ -0,0 +1,109 @@
-+/*
-+ * filestat engine
-+ *
-+ * IO engine that doesn't do any IO, just stat files and tracks the latency
-+ * of the file stat.
-+ */
-+#include <stdio.h>
-+#include <fcntl.h>
-+#include <errno.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <unistd.h>
-+#include "../fio.h"
-+
-+struct fc_data {
-+	enum fio_ddir stat_ddir;
-+};
-+
-+static int stat_file(struct thread_data *td, struct fio_file *f)
-+{
-+	struct timespec start;
-+	int do_lat = !td->o.disable_lat;
-+	struct stat statbuf;
-+	int ret;
-+
-+	dprint(FD_FILE, "fd stat %s\n", f->file_name);
-+
-+	if (f->filetype != FIO_TYPE_FILE) {
-+		log_err("fio: only files are supported fallocate \n");
-+		return 1;
-+	}
-+	if (!strcmp(f->file_name, "-")) {
-+		log_err("fio: can't read/write to stdin/out\n");
-+		return 1;
-+	}
-+
-+	if (do_lat)
-+		fio_gettime(&start, NULL);
-+
-+	ret = stat(f->file_name, &statbuf);
-+
-+	if (ret == -1) {
-+		char buf[FIO_VERROR_SIZE];
-+		int e = errno;
-+
-+		snprintf(buf, sizeof(buf), "stat(%s)", f->file_name);
-+		td_verror(td, e, buf);
-+		return 1;
-+	}
-+
-+	if (do_lat) {
-+		struct fc_data *data = td->io_ops_data;
-+		uint64_t nsec;
-+
-+		nsec = ntime_since_now(&start);
-+		add_clat_sample(td, data->stat_ddir, nsec, 0, 0);
-+	}
-+
-+	return 0;
-+}
-+
-+static enum fio_q_status queue_io(struct thread_data *td, struct io_u fio_unused *io_u)
-+{
-+	return FIO_Q_COMPLETED;
-+}
-+
-+static int init(struct thread_data *td)
-+{
-+	struct fc_data *data;
-+
-+	data = calloc(1, sizeof(*data));
-+
-+	if (td_read(td))
-+		data->stat_ddir = DDIR_READ;
-+	else if (td_write(td))
-+		data->stat_ddir = DDIR_WRITE;
-+
-+	td->io_ops_data = data;
-+	return 0;
-+}
-+
-+static void cleanup(struct thread_data *td)
-+{
-+	struct fc_data *data = td->io_ops_data;
-+
-+	free(data);
-+}
-+
-+static struct ioengine_ops ioengine = {
-+	.name		= "filestat",
-+	.version	= FIO_IOOPS_VERSION,
-+	.init		= init,
-+	.cleanup	= cleanup,
-+	.queue		= queue_io,
-+	.get_file_size	= generic_get_file_size,
-+	.open_file	= stat_file,
-+	.flags		=  FIO_SYNCIO | FIO_FAKEIO |
-+				FIO_NOSTATS | FIO_NOFILEHASH,
-+};
-+
-+static void fio_init fio_filecreate_register(void)
-+{
-+	register_ioengine(&ioengine);
-+}
-+
-+static void fio_exit fio_filecreate_unregister(void)
-+{
-+	unregister_ioengine(&ioengine);
-+}
-diff --git a/examples/filestat-ioengine.fio b/examples/filestat-ioengine.fio
-new file mode 100644
-index 00000000..9a771160
---- /dev/null
-+++ b/examples/filestat-ioengine.fio
-@@ -0,0 +1,20 @@
-+# Example filestat job
-+
-+# 'filestat' engine only do 'stat(filename)', file will not be open().
-+# 'invalidate' should be set to 0 since file will not be open(), posix_fadvise(fd,....) will fail.
-+# 'filesize' must be set, then files will be created at setup stage.
-+
-+[global]
-+ioengine=filestat
-+numjobs=1
-+filesize=4k
-+invalidate=0
-+nrfiles=200
-+
-+[t0]
-+[t1]
-+[t2]
-+[t3]
-+[t4]
-+[t5]
-+
--- 
-2.17.1
+> > > Shouldn=E2=80=99t I see D7BD7CE as the starting LBA for the write bas=
+ed on the
+> > > above offset (0x1af7af9cec) ?
+> >
+> > Without direct=3D1 you're exercising the OS page cache logic,
+> > not directly accessing the drive.
 
+Robert's right - when you have buffering going on the linux kernel
+will quietly do a read-modify-write (two reads assuming it didn't
+already have those blocks in memory, a modify, then two writes)
+because you straddled a block.
+
+--=20
+Sitsofe | http://sucs.org/~sits/
 
