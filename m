@@ -1,35 +1,27 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wr1-f52.google.com ([209.85.221.52]:43112 "EHLO
-        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726498AbfLANK2 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 1 Dec 2019 08:10:28 -0500
-Received: by mail-wr1-f52.google.com with SMTP id n1so40758957wra.10
-        for <fio@vger.kernel.org>; Sun, 01 Dec 2019 05:10:25 -0800 (PST)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] io_uring: Enable io_uring ioengine on aarch64 arch
+References: <4bb14ca8-2628-0f7d-0f1e-2f1c4a5bf1a8@huawei.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <9aa7ecbf-a360-8416-7e49-c570c6d55523@kernel.dk>
+Date: Wed, 25 Dec 2019 08:04:01 -0700
 MIME-Version: 1.0
-From: Roy Shterman <roys@lightbitslabs.com>
-Date: Sun, 1 Dec 2019 15:10:13 +0200
-Message-ID: <CACDtTTE-nixBkdVL_NiAviYkAfFxA6yEBb1Ey0HwvWficcMtpw@mail.gmail.com>
-Subject: Question regarding load/save_verify state
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org, Ronen Weiss <ronen@lightbitslabs.com>, Sagi Grimberg <sagi@lightbitslabs.com>
+In-Reply-To: <4bb14ca8-2628-0f7d-0f1e-2f1c4a5bf1a8@huawei.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: "yezhenyu (A)" <yezhenyu2@huawei.com>
+Cc: fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+On 12/25/19 1:45 AM, yezhenyu (A) wrote:
+> This patch enabled io_uring ioengine on aarch64 arch.
 
-I'm running fio job with trigger, and using load/save_verify_state to
-run verify phase afterwards.
-Both write and read have the same offsets and sizes and both are using
-non random patterns.
-From time to time I see that the fio read verify actually reads
-offsets bigger than the latest offset in the file saved during write
-phase.
+Thanks, applied.
 
-Both workloads are running with iodepth of 300, I wonder if the
-iodepth affect somehow the end offset during read phase?
+Your patch was whitespace damaged fwiw, I hand applied it. But
+something to keep an eye out if you send patches in general.
 
-Could it be that fio during read is reading from last_sector_written + iodepth?
+-- 
+Jens Axboe
 
-Thanks,
-Roy
 
