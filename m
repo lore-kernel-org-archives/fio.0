@@ -1,118 +1,61 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH 4/9] t/run-fio-tests: improve Windows support
-Date: Tue, 10 Dec 2019 12:54:37 -0500
-Message-Id: <20191210175442.2975-5-vincentfu@gmail.com>
-In-Reply-To: <20191210175442.2975-1-vincentfu@gmail.com>
-References: <20191210175442.2975-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-wr1-f50.google.com ([209.85.221.50]:45514 "EHLO
+        mail-wr1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726329AbfL2VQc (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 29 Dec 2019 16:16:32 -0500
+Received: by mail-wr1-f50.google.com with SMTP id j42so31097980wrj.12
+        for <fio@vger.kernel.org>; Sun, 29 Dec 2019 13:16:31 -0800 (PST)
+MIME-Version: 1.0
+References: <CANbyPNfpV0dazkiyviWs1yZtnGkjC-3zYBZt6QCr2wGgnGv1jw@mail.gmail.com>
+ <CALjAwxjuA71m-FdOb=gpFDt8mrgedgcgEikB62gUjv0M248nrA@mail.gmail.com> <06dee952d2214867863d4423127553b8@AUSX13MPS306.AMER.DELL.COM>
+In-Reply-To: <06dee952d2214867863d4423127553b8@AUSX13MPS306.AMER.DELL.COM>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sun, 29 Dec 2019 21:16:04 +0000
+Message-ID: <CALjAwxg03oE0h43NX7PSz7qxe4VWkoUwxMQ0YO32X7fUxnyAtg@mail.gmail.com>
+Subject: Re: Running FIO until DUT leaves steadystate
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Charles.Colburn@dell.com
+Cc: Mike Kingsbury <mike.kingsbury@cacheio.com>, fio <fio@vger.kernel.org>, Vincent Fu <vincentfu@gmail.com>
 
-From: Vincent Fu <vincent.fu@wdc.com>
+(CC'ing Vincent for comment)
 
-- add .exe extension for fio and unittest
-- for python scripts use 'python.exe script.py' instead of ./script.py
-- make JSON decoding more resilient by lopping off up to four of the
-first lines when encountering decoding errors. This helps Windows
-because for some jobs fio prints an informational message about
-requiring threads
----
- t/run-fio-tests.py | 56 +++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 43 insertions(+), 13 deletions(-)
+On Thu, 19 Dec 2019 at 17:34, <Charles.Colburn@dell.com> wrote:
+>
+> Sitsofe
+>
+> Is there an example of using the steadystate option to do random preconditioning of and SSD? - I assume that is what it is for. I tried to use the featured a while back but never got it to work as expected.
+>
+> Chuck Colburn
+>
+>
+>
+> -----Original Message-----
+> From: fio-owner@vger.kernel.org <fio-owner@vger.kernel.org> On Behalf Of Sitsofe Wheeler
+> Sent: Thursday, December 19, 2019 1:11 AM
+> To: Mike Kingsbury
+> Cc: fio
+> Subject: Re: Running FIO until DUT leaves steadystate
+>
+>
+> [EXTERNAL EMAIL]
+>
+> Hi,
+>
+> On Fri, 13 Dec 2019 at 16:29, Mike Kingsbury <mike.kingsbury@cacheio.com> wrote:
+> >
+> > Reading through the docs and looked at some examples, its not clear if
+> > its possible to accomplish this. In our case, we're attempting to
+> > evaluate SSDs and determine when they start internal garbage
+> > collection and how much performance drops.  Is there a way to detect
+> > steadystate, and then exit when the DUT performance leaves that
+> > steadystate?
+>
+> Not really. You can use the steadystate option (https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-steadystate
+> ) to try and determine when you're in the steadystate but then you're kind of stuck. Maybe once you knew what expected latencies were, you could then use max_latency (https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-max-latency
+> ) to allow a job to exit if one got obviously too high? You would have to do a fair bit of intermediate storage and processing to make this work and it's not clear how reliable it would be though...
 
-diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
-index 40b85310..7fc3e4cd 100755
---- a/t/run-fio-tests.py
-+++ b/t/run-fio-tests.py
-@@ -267,19 +267,35 @@ class FioJobTest(FioExeTest):
-         if not self.passed:
-             return
- 
--        if 'json' in self.output_format:
-+        if not 'json' in self.output_format:
-+            return
-+
-+        try:
-+            with open(os.path.join(self.test_dir, self.fio_output), "r") as output_file:
-+                file_data = output_file.read()
-+        except EnvironmentError:
-+            self.failure_reason = "{0} unable to open output file,".format(self.failure_reason)
-+            self.passed = False
-+            return
-+
-+        #
-+        # Sometimes fio informational messages are included at the top of the
-+        # JSON output, especially under Windows. Try to decode output as JSON
-+        # data, lopping off up to the first four lines
-+        #
-+        lines = file_data.splitlines()
-+        for i in range(5):
-+            file_data = '\n'.join(lines[i:])
-             try:
--                with open(os.path.join(self.test_dir, self.fio_output), "r") as output_file:
--                    file_data = output_file.read()
--            except EnvironmentError:
--                self.failure_reason = "{0} unable to open output file,".format(self.failure_reason)
--                self.passed = False
-+                self.json_data = json.loads(file_data)
-+            except json.JSONDecodeError:
-+                continue
-             else:
--                try:
--                    self.json_data = json.loads(file_data)
--                except json.JSONDecodeError:
--                    self.failure_reason = "{0} unable to decode JSON data,".format(self.failure_reason)
--                    self.passed = False
-+                logging.debug("skipped %d lines decoding JSON data" % i)
-+                return
-+
-+        self.failure_reason = "{0} unable to decode JSON data,".format(self.failure_reason)
-+        self.passed = False
- 
- 
- class FioJobTest_t0005(FioJobTest):
-@@ -438,7 +454,11 @@ class Requirements(object):
-                     if os.path.exists("/sys/module/null_blk/parameters/zoned"):
-                         Requirements._zoned_nullb = True
- 
--        unittest_path = os.path.join(fio_root, "unittests", "unittest")
-+        if platform.system() == "Windows":
-+            utest_exe = "unittest.exe"
-+        else:
-+            utest_exe = "unittest"
-+        unittest_path = os.path.join(fio_root, "unittests", utest_exe)
-         Requirements._unittests = os.path.exists(unittest_path)
- 
-         Requirements._cpucount4 = multiprocessing.cpu_count() >= 4
-@@ -725,7 +745,11 @@ def main():
-     if args.fio:
-         fio_path = args.fio
-     else:
--        fio_path = os.path.join(fio_root, "fio")
-+        if platform.system() == "Windows":
-+            fio_exe = "fio.exe"
-+        else:
-+            fio_exe = "fio"
-+        fio_path = os.path.join(fio_root, fio_exe)
-     print("fio path is %s" % fio_path)
-     if not shutil.which(fio_path):
-         print("Warning: fio executable not found")
-@@ -776,6 +800,12 @@ def main():
-                 parameters = [p.format(fio_path=fio_path) for p in config['parameters']]
-             else:
-                 parameters = None
-+            if Path(exe_path).suffix == '.py' and platform.system() == "Windows":
-+                if parameters:
-+                    parameters.insert(0, exe_path)
-+                else:
-+                    parameters = [exe_path]
-+                exe_path = "python.exe"
-             test = config['test_class'](exe_path, parameters,
-                                         config['success'])
-         else:
 -- 
-2.17.1
-
+Sitsofe | http://sucs.org/~sits/
 
