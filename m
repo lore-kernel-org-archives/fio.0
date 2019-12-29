@@ -1,83 +1,38 @@
-Return-Path: <vincentfu@gmail.com>
-Return-Path: <vincentfu@gmail.com>
-From: vincentfu@gmail.com
-Subject: [PATCH 7/9] .travis.yml: run t/run-fio.tests.py as part of build
-Date: Tue, 10 Dec 2019 12:54:40 -0500
-Message-Id: <20191210175442.2975-8-vincentfu@gmail.com>
-In-Reply-To: <20191210175442.2975-1-vincentfu@gmail.com>
-References: <20191210175442.2975-1-vincentfu@gmail.com>
-To: axboe@kernel.dk, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-wr1-f46.google.com ([209.85.221.46]:44710 "EHLO
+        mail-wr1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726329AbfL2VO4 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 29 Dec 2019 16:14:56 -0500
+Received: by mail-wr1-f46.google.com with SMTP id q10so31135293wrm.11
+        for <fio@vger.kernel.org>; Sun, 29 Dec 2019 13:14:54 -0800 (PST)
+MIME-Version: 1.0
+References: <000001d5b855$e52cff40$af86fdc0$@rwlabs.com> <9515e08a-39ca-3d69-cf9c-c51dc3dd4169@kernel.dk>
+In-Reply-To: <9515e08a-39ca-3d69-cf9c-c51dc3dd4169@kernel.dk>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sun, 29 Dec 2019 21:14:27 +0000
+Message-ID: <CALjAwxie1_93xqOwS2_zZAt2+nhmPvYtkdjPcr2+DdUY_GeD+w@mail.gmail.com>
+Subject: Re: SNIA Jobfile
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Chris Ramseyer <chris@rwlabs.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Luis Chamberlain <mcgrof@kernel.org>
 
-From: Vincent Fu <vincent.fu@wdc.com>
+Hi,
 
-- install SciPy and CUnit support
-- skip test 6 because of timeout
-- skip zbd tests 1007, 1008 because installing kernel modules is not supported
-- replace xcode8.3 (lacks python3) with latest xcode11.2
----
- .travis.yml | 26 +++++++++++++++-----------
- 1 file changed, 15 insertions(+), 11 deletions(-)
+On Sun, 22 Dec 2019 at 15:14, Jens Axboe <axboe@kernel.dk> wrote:
+>
+> On 12/21/19 4:25 PM, Chris Ramseyer wrote:
+> >
+> > Do you have a jobfile already built for the latest SNIA enterprise SSD
+> > test or know where I can download one?
 
-diff --git a/.travis.yml b/.travis.yml
-index 4a87fe6c..0017db56 100644
---- a/.travis.yml
-+++ b/.travis.yml
-@@ -15,19 +15,13 @@ matrix:
-     - os: osx
-       compiler: clang # Workaround travis setting CC=["clang", "gcc"]
-       env: BUILD_ARCH="x86_64"
--    # Build using the 10.12 SDK but target and run on OSX 10.11
--#   - os: osx
--#     compiler: clang
--#     osx_image: xcode8
--#     env: SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk MACOSX_DEPLOYMENT_TARGET=10.11
--    # Build on the latest OSX version (will eventually become obsolete)
-     - os: osx
-       compiler: clang
--      osx_image: xcode8.3
-+      osx_image: xcode9.4
-       env: BUILD_ARCH="x86_64"
-     - os: osx
-       compiler: clang
--      osx_image: xcode9.4
-+      osx_image: xcode11.2
-       env: BUILD_ARCH="x86_64"
-   exclude:
-     - os: osx
-@@ -39,17 +33,27 @@ matrix:
- before_install:
-   - EXTRA_CFLAGS="-Werror"
-   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
--        pkgs=(libaio-dev libnuma-dev libz-dev librbd-dev libibverbs-dev librdmacm-dev);
-+        pkgs=(libaio-dev libnuma-dev libz-dev librbd-dev libibverbs-dev librdmacm-dev libcunit1 libcunit1-dev);
-         if [[ "$BUILD_ARCH" == "x86" ]]; then
-             pkgs=("${pkgs[@]/%/:i386}");
--            pkgs+=(gcc-multilib);
-+            pkgs+=(gcc-multilib python-scipy);
-             EXTRA_CFLAGS="${EXTRA_CFLAGS} -m32";
-         else
--            pkgs+=(glusterfs-common);
-+            pkgs+=(glusterfs-common python-scipy);
-         fi;
-         sudo apt-get -qq update;
-         sudo apt-get install --no-install-recommends -qq -y "${pkgs[@]}";
-     fi
-+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-+        brew update;
-+        brew install cunit;
-+        if [[ "$TRAVIS_OSX_IMAGE" == "xcode11.2" ]]; then
-+            pip3 install scipy;
-+        else
-+            pip install scipy;
-+        fi;
-+    fi
- script:
-   - ./configure --extra-cflags="${EXTRA_CFLAGS}" && make
-   - make test
-+  - sudo python3 t/run-fio-tests.py --skip 6 1007 1008
+I'm not sure what the "SNIA enterprise SSD test" is in the scenario.
+If you mean the "(SSS) Performance Test Specification (PTS)" (what a
+name) then someone posted something about that to the list a few
+months back (https://www.spinics.net/lists/fio/msg07882.html ) but fio
+doesn't do the whole thing by itself.
+
 -- 
-2.17.1
-
+Sitsofe | http://sucs.org/~sits/
 
