@@ -1,99 +1,76 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-bn8nam11on2104.outbound.protection.outlook.com ([40.107.236.104]:30286
-        "EHLO NAM11-BN8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726528AbgA2WzI (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 29 Jan 2020 17:55:08 -0500
-From: "Fetters, Alex" <Alex.Fetters@garmin.com>
-Subject: Random fill data
-Date: Wed, 29 Jan 2020 22:54:58 +0000
-Message-ID: <4ea2729e28b141c1b3e312eee502c2e2@garmin.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Received: from mail-qt1-f170.google.com ([209.85.160.170]:35976 "EHLO
+        mail-qt1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728260AbgABUEh (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 2 Jan 2020 15:04:37 -0500
+Received: by mail-qt1-f170.google.com with SMTP id q20so35438853qtp.3
+        for <fio@vger.kernel.org>; Thu, 02 Jan 2020 12:04:37 -0800 (PST)
+Subject: Re: Running FIO until DUT leaves steadystate
+References: <CANbyPNfpV0dazkiyviWs1yZtnGkjC-3zYBZt6QCr2wGgnGv1jw@mail.gmail.com>
+ <CALjAwxjuA71m-FdOb=gpFDt8mrgedgcgEikB62gUjv0M248nrA@mail.gmail.com>
+ <06dee952d2214867863d4423127553b8@AUSX13MPS306.AMER.DELL.COM>
+ <CALjAwxg03oE0h43NX7PSz7qxe4VWkoUwxMQ0YO32X7fUxnyAtg@mail.gmail.com>
+From: Vincent Fu <vincentfu@gmail.com>
+Message-ID: <299afd0f-3fb2-7aa7-4af5-007da387699e@gmail.com>
+Date: Thu, 2 Jan 2020 15:04:35 -0500
 MIME-Version: 1.0
+In-Reply-To: <CALjAwxg03oE0h43NX7PSz7qxe4VWkoUwxMQ0YO32X7fUxnyAtg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Sitsofe Wheeler <sitsofe@gmail.com>, Charles.Colburn@dell.com
+Cc: Mike Kingsbury <mike.kingsbury@cacheio.com>, fio <fio@vger.kernel.org>
 
-I'm having issue getting a full fill when using the default buffer fill. Sp=
-ecifically, every other 32-bits of fill is 0x00000000. This is similar to t=
-he issue seen here: https://www.spinics.net/lists/fio/msg07529.html The com=
-mand I'm using is:
+On 12/29/19 4:16 PM, Sitsofe Wheeler wrote:
+> (CC'ing Vincent for comment)
+> 
+> On Thu, 19 Dec 2019 at 17:34, <Charles.Colburn@dell.com> wrote:
+>>
+>> Sitsofe
+>>
+>> Is there an example of using the steadystate option to do random preconditioning of and SSD? - I assume that is what it is for. I tried to use the featured a while back but never got it to work as expected.
+>>
+>> Chuck Colburn
+>>
+>>
+>>
+>> -----Original Message-----
+>> From: fio-owner@vger.kernel.org <fio-owner@vger.kernel.org> On Behalf Of Sitsofe Wheeler
+>> Sent: Thursday, December 19, 2019 1:11 AM
+>> To: Mike Kingsbury
+>> Cc: fio
+>> Subject: Re: Running FIO until DUT leaves steadystate
+>>
+>>
+>> [EXTERNAL EMAIL]
+>>
+>> Hi,
+>>
+>> On Fri, 13 Dec 2019 at 16:29, Mike Kingsbury <mike.kingsbury@cacheio.com> wrote:
+>>>
+>>> Reading through the docs and looked at some examples, its not clear if
+>>> its possible to accomplish this. In our case, we're attempting to
+>>> evaluate SSDs and determine when they start internal garbage
+>>> collection and how much performance drops.  Is there a way to detect
+>>> steadystate, and then exit when the DUT performance leaves that
+>>> steadystate?
+>>
+>> Not really. You can use the steadystate option (https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-steadystate
+>> ) to try and determine when you're in the steadystate but then you're kind of stuck. Maybe once you knew what expected latencies were, you could then use max_latency (https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-max-latency
+>> ) to allow a job to exit if one got obviously too high? You would have to do a fair bit of intermediate storage and processing to make this work and it's not clear how reliable it would be though...
+> 
 
-    fio --filename=3Dtest.bin --direct=3D1 --rw=3Dwrite --bs=3D512 --size=
-=3D512 --name=3Dtest --verify=3Dcrc32c
+Chuck, I don't understand why one would need to engage steady state 
+detection to randomly precondition an SSD. Why not just use an LFSR to 
+write the device's logical capacity? Is there something you mean by 
+"random preconditioning" that isn't being communicated to me?
 
-which produces:
+Mike, as for your original question, I do not believe that the 
+steadystate feature is suitable for detecting when garbage collection 
+has started. Garbage collection presumably will begin at the point where 
+the total amount of write IO approaches the device's physical capacity.
 
-    xxd test.bin
-    00000000: caac 0500 0002 0000 c249 e005 0000 0000  .........I......
-    00000010: 0000 0000 0000 0000 0000 0000 0000 0000  ................
-    00000020: 0100 0000 c3e9 1fe9 42df bf59 0000 0000  ........B..Y....
-    00000030: c320 0c14 0000 0000 1824 fe0e 0000 0000  . .......$......
-    00000040: 83c4 0414 0000 0000 9038 c504 0000 0000  .........8......
-    00000050: 12a7 7601 0000 0000 e294 4a00 0000 0000  ..v.......J.....
-    00000060: 9c12 1b0f 0000 0000 53e2 d30a 0000 0000  ........S.......
-    00000070: 4a1c 951c 0000 0000 8963 8f1b 0000 0000  J........c......
-    00000080: 71cc 7f01 0000 0000 8ed9 7815 0000 0000  q.........x.....
-    00000090: 315b df0e 0000 0000 66cb 8c1c 0000 0000  1[......f.......
-    000000a0: 6cd9 6e18 0000 0000 2d5b d40e 0000 0000  l.n.....-[......
-    000000b0: 65eb 6f0d 0000 0000 6c5d c41e 0000 0000  e.o.....l]......
-    000000c0: ad0b 1f1b 0000 0000 7541 690c 0000 0000  ........uAi.....
-    000000d0: 2e88 510a 0000 0000 0571 0616 0000 0000  ..Q......q......
-    000000e0: 202e 830e 0000 0000 c465 ec16 0000 0000   ........e......
-    000000f0: b80c 811d 0000 0000 9721 210d 0000 0000  .........!!.....
-    00000100: 3244 d20e 0000 0000 8608 3212 0000 0000  2D........2.....
-    00000110: 1081 5f13 0000 0000 22f0 b915 0000 0000  .._.....".......
-    00000120: 04fe 2015 0000 0000 c09f ff03 0000 0000  .. .............
-    00000130: f8f3 c71a 0000 0000 7ffe a112 0000 0000  ................
-    00000140: cf5f 3d04 0000 0000 f9cb 760b 0000 0000  ._=3D.......v.....
-    00000150: 7fb9 7e11 0000 0000 2ff7 b809 0000 0000  ..~...../.......
-    00000160: e53e da04 0000 0000 dca7 c11b 0000 0000  .>..............
-    00000170: fbb4 801e 0000 0000 9fb6 4d1d 0000 0000  ..........M.....
-    00000180: d3d6 6e0f 0000 0000 da7a 180e 0000 0000  ..n......z......
-    00000190: 5bcf dd1f 0000 0000 eb59 cd1a 0000 0000  [........Y......
-    000001a0: 3d4b c90e 0000 0000 6789 dc1b 0000 0000  =3DK......g.......
-    000001b0: 2cb1 5f06 0000 0000 2576 da07 0000 0000  ,._.....%v......
-    000001c0: c4ae f907 0000 0000 d8b5 8211 0000 0000  ................
-    000001d0: bb56 5d0e 0000 0000 d74a 5103 0000 0000  .V]......JQ.....
-    000001e0: 5a49 3019 0000 0000 2bc9 f00c 0000 0000  ZI0.....+.......
-    000001f0: 25b9 e519 0000 0000 2417 db16 0000 0000  %.......$.......
-   =20
-I included the verify header to show that the byte can be written to.
-
-To me, this looks like a 32 vs 64 bit issue. Specifically, somewhere a 32-b=
-it value is used for the fill and then the buffer is incremented by 64-bits=
-.=20
-
-fio is 32-bit.
-
-    file /usr/bin/fio
-    /usr/bin/fio: ELF 32-bit LSB shared object, ARM, EABI5 version 1 (SYSV)=
-, dynamically linked, interpreter /lib, for GNU/Linux 3.2.0, BuildID[sha1]=
-=3D61891ac32f94190d63ea4f182e585b4a093bd8b6, stripped
-   =20
-As is my Kernel (ARMv7 architectures are 32-bit: https://en.wikipedia.org/w=
-iki/ARM_architecture#Cores)
-
-    uname -s -r -m
-    Linux 4.14.5-92 armv7l
-   =20
-
-Digging into the fio, fill_random_buf() https://github.com/axboe/fio/blob/m=
-aster/lib/rand.c#L125 is suspicious. Specifically, when the state->use32 is=
- true, __rand() will return a number contained within 32-bits of the uint64=
-_t. __fill_random_buf() then should increment by sizeof(int64_t). Unfortuna=
-tely, that should only impact the first few values. GOLDEN_RATIO_PRIME is s=
-ufficiently large that when multiplied with <seed> in __fill_random_buf() i=
-t should quickly grow past 32-bits.=20
-
-And now I'm lost. Any ideas where the holes are coming from?
-
-I have verified that on a VM running 64-bit Linux and FIO, there are no hol=
-es.
-
---
-Alex Fetters
-
+Vincent
 
