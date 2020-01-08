@@ -1,166 +1,115 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:43158 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387393AbgAXNAF (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 24 Jan 2020 08:00:05 -0500
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iuyZA-0006bf-FF
-        for fio@vger.kernel.org; Fri, 24 Jan 2020 13:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20200124130001.B83FF1BC016A@kernel.dk>
-Date: Fri, 24 Jan 2020 06:00:01 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <Friendy.Su@sony.com>
+From: "Su, Friendy" <Friendy.Su@sony.com>
+Subject: [PATCH v2_only patch] engines: add engine for file stat
+Date: Wed, 8 Jan 2020 09:39:39 +0000
+Message-ID: 
+ <SG2PR04MB2492720C1D01C982159B5897FD3E0@SG2PR04MB2492.apcprd04.prod.outlook.com>
+Content-Language: zh-CN
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: fio <fio@vger.kernel.org>
+Cc: "Kobayashi, Kento (Sony)" <Kento.A.Kobayashi@sony.com>, Jens Axboe <axboe@kernel.dk>, Sitsofe Wheeler <sitsofe@gmail.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 4ee9c375b64de236356cc97843d84978edeba491:
-
-  stat: ensure we align correctly (2020-01-22 19:53:14 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 8178434ccba8e2d06684ce0c730b0eda571c5280:
-
-  Merge branch 'filestat1' of https://github.com/kusumi/fio (2020-01-23 11:35:23 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'filestat1' of https://github.com/kusumi/fio
-
-Tomohiro Kusumi (1):
-      engines/filestat: add "lstat" option to use lstat(2)
-
- HOWTO              |  4 ++++
- engines/filestat.c | 33 +++++++++++++++++++++++++++++++--
- fio.1              |  3 +++
- optgroup.h         |  2 ++
- 4 files changed, 40 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO b/HOWTO
-index 0a366168..f19f9226 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -2261,6 +2261,10 @@ with the caveat that when used on the command line, they must come after the
- 	multiple paths exist between the client and the server or in certain loopback
- 	configurations.
- 
-+.. option:: lstat=bool : [filestat]
-+
-+	Use lstat(2) to measure lookup/getattr performance. Default is 0.
-+
- .. option:: readfua=bool : [sg]
- 
- 	With readfua option set to 1, read operations include
-diff --git a/engines/filestat.c b/engines/filestat.c
-index 79525934..6c87c4c2 100644
---- a/engines/filestat.c
-+++ b/engines/filestat.c
-@@ -11,13 +11,36 @@
- #include <sys/stat.h>
- #include <unistd.h>
- #include "../fio.h"
-+#include "../optgroup.h"
- 
- struct fc_data {
- 	enum fio_ddir stat_ddir;
- };
- 
-+struct filestat_options {
-+	void *pad;
-+	unsigned int lstat;
-+};
-+
-+static struct fio_option options[] = {
-+	{
-+		.name	= "lstat",
-+		.lname	= "lstat",
-+		.type	= FIO_OPT_BOOL,
-+		.off1	= offsetof(struct filestat_options, lstat),
-+		.help	= "Use lstat(2) to measure lookup/getattr performance",
-+		.def	= "0",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_FILESTAT,
-+	},
-+	{
-+		.name	= NULL,
-+	},
-+};
-+
- static int stat_file(struct thread_data *td, struct fio_file *f)
- {
-+	struct filestat_options *o = td->eo;
- 	struct timespec start;
- 	int do_lat = !td->o.disable_lat;
- 	struct stat statbuf;
-@@ -37,13 +60,17 @@ static int stat_file(struct thread_data *td, struct fio_file *f)
- 	if (do_lat)
- 		fio_gettime(&start, NULL);
- 
--	ret = stat(f->file_name, &statbuf);
-+	if (o->lstat)
-+		ret = lstat(f->file_name, &statbuf);
-+	else
-+		ret = stat(f->file_name, &statbuf);
- 
- 	if (ret == -1) {
- 		char buf[FIO_VERROR_SIZE];
- 		int e = errno;
- 
--		snprintf(buf, sizeof(buf), "stat(%s)", f->file_name);
-+		snprintf(buf, sizeof(buf), "%sstat(%s)",
-+			o->lstat ? "l" : "", f->file_name);
- 		td_verror(td, e, buf);
- 		return 1;
- 	}
-@@ -103,6 +130,8 @@ static struct ioengine_ops ioengine = {
- 	.open_file	= stat_file,
- 	.flags		=  FIO_SYNCIO | FIO_FAKEIO |
- 				FIO_NOSTATS | FIO_NOFILEHASH,
-+	.options	= options,
-+	.option_struct_size = sizeof(struct filestat_options),
- };
- 
- static void fio_init fio_filestat_register(void)
-diff --git a/fio.1 b/fio.1
-index 05896e61..a58632b4 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2032,6 +2032,9 @@ on the client site it will be used in the rdma_resolve_add()
- function. This can be useful when multiple paths exist between the
- client and the server or in certain loopback configurations.
- .TP
-+.BI (filestat)lstat \fR=\fPbool
-+Use \fBlstat\fR\|(2) to measure lookup/getattr performance. Default: 0.
-+.TP
- .BI (sg)readfua \fR=\fPbool
- With readfua option set to 1, read operations include the force
- unit access (fua) flag. Default: 0.
-diff --git a/optgroup.h b/optgroup.h
-index 55ef5934..5789afd3 100644
---- a/optgroup.h
-+++ b/optgroup.h
-@@ -65,6 +65,7 @@ enum opt_category_group {
- 	__FIO_OPT_G_ISCSI,
- 	__FIO_OPT_G_NBD,
- 	__FIO_OPT_G_IOURING,
-+	__FIO_OPT_G_FILESTAT,
- 	__FIO_OPT_G_NR,
- 
- 	FIO_OPT_G_RATE		= (1ULL << __FIO_OPT_G_RATE),
-@@ -106,6 +107,7 @@ enum opt_category_group {
- 	FIO_OPT_G_ISCSI         = (1ULL << __FIO_OPT_G_ISCSI),
- 	FIO_OPT_G_NBD		= (1ULL << __FIO_OPT_G_NBD),
- 	FIO_OPT_G_IOURING	= (1ULL << __FIO_OPT_G_IOURING),
-+	FIO_OPT_G_FILESTAT	= (1ULL << __FIO_OPT_G_FILESTAT),
- };
- 
- extern const struct opt_group *opt_group_from_mask(uint64_t *mask);
+VGhpcyBlbmdpbmUgaXMgdG8gbWVhc3VyZSBwZXJmb3JtYW5jZSBvZiBhY2Nlc3NpbmcgZmlsZSdz
+IG1ldGEgZGF0YS4NClRoaXMgaXMgZm9yIHRoZSBhY3R1YWwgYWNjZXNzIHBhdHRlcm4gd2hpY2gg
+ZG9lcyBub3QgZG8gcmVhbCBJTywgYnV0DQpqdXN0IGxvb2sgdXAgdGhlIGZpbGUgYW5kIGdldCBm
+aWxlJ3MgYXR0cmlidXRlLg0KLS0tDQogSE9XVE8gICAgICAgICAgICAgICAgICAgICAgICAgIHwg
+ICA1ICsrDQogTWFrZWZpbGUgICAgICAgICAgICAgICAgICAgICAgIHwgICAyICstDQogZW5naW5l
+cy9maWxlc3RhdC5jICAgICAgICAgICAgIHwgMTE2ICsrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKw0KIGV4YW1wbGVzL2ZpbGVzdGF0LWlvZW5naW5lLmZpbyB8ICAxOSArKysrKysNCiBm
+aW8uMSAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDUgKysNCiA1IGZpbGVzIGNoYW5nZWQs
+IDE0NiBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pDQogY3JlYXRlIG1vZGUgMTAwNjQ0IGVu
+Z2luZXMvZmlsZXN0YXQuYw0KIGNyZWF0ZSBtb2RlIDEwMDY0NCBleGFtcGxlcy9maWxlc3RhdC1p
+b2VuZ2luZS5maW8NCg0KZGlmZiAtLWdpdCBhL0hPV1RPIGIvSE9XVE8NCmluZGV4IDg4ZGJiMDNm
+Li41ZTQyNGU4NCAxMDA2NDQNCi0tLSBhL0hPV1RPDQorKysgYi9IT1dUTw0KQEAgLTE5OTYsNiAr
+MTk5NiwxMSBAQCBJL08gZW5naW5lDQogCQkJc2V0ICBgZmlsZXNpemVgIHNvIHRoYXQgYWxsIHRo
+ZSBhY2NvdW50aW5nIHN0aWxsIG9jY3VycywgYnV0IG5vDQogCQkJYWN0dWFsIEkvTyB3aWxsIGJl
+IGRvbmUgb3RoZXIgdGhhbiBjcmVhdGluZyB0aGUgZmlsZS4NCiANCisJCSoqZmlsZXN0YXQqKg0K
+KwkJCVNpbXBseSBkbyBzdGF0KCkgYW5kIGRvIG5vIEkvTyB0byB0aGUgZmlsZS4gWW91IG5lZWQg
+dG8gc2V0ICdmaWxlc2l6ZScNCisJCQlhbmQgJ25yZmlsZXMnLCBzbyB0aGF0IGZpbGVzIHdpbGwg
+YmUgY3JlYXRlZC4NCisJCQlUaGlzIGVuZ2luZSBpcyB0byBtZWFzdXJlIGZpbGUgbG9va3VwIGFu
+ZCBtZXRhIGRhdGEgYWNjZXNzLg0KKw0KIAkJKipsaWJwbWVtKioNCiAJCQlSZWFkIGFuZCB3cml0
+ZSB1c2luZyBtbWFwIEkvTyB0byBhIGZpbGUgb24gYSBmaWxlc3lzdGVtDQogCQkJbW91bnRlZCB3
+aXRoIERBWCBvbiBhIHBlcnNpc3RlbnQgbWVtb3J5IGRldmljZSB0aHJvdWdoIHRoZSBQTURLDQpk
+aWZmIC0tZ2l0IGEvTWFrZWZpbGUgYi9NYWtlZmlsZQ0KaW5kZXggN2FhYjZhYmQuLmFiODVjZWFj
+IDEwMDY0NA0KLS0tIGEvTWFrZWZpbGUNCisrKyBiL01ha2VmaWxlDQpAQCAtNDUsNyArNDUsNyBA
+QCBTT1VSQ0UgOj0JJChzb3J0ICQocGF0c3Vic3QgJChTUkNESVIpLyUsJSwkKHdpbGRjYXJkICQo
+U1JDRElSKS9jcmMvKi5jKSkgXA0KIAkJcHNoYXJlZC5jIG9wdGlvbnMuYyBcDQogCQlzbWFsbG9j
+LmMgZmlsZWhhc2guYyBwcm9maWxlLmMgZGVidWcuYyBlbmdpbmVzL2NwdS5jIFwNCiAJCWVuZ2lu
+ZXMvbW1hcC5jIGVuZ2luZXMvc3luYy5jIGVuZ2luZXMvbnVsbC5jIGVuZ2luZXMvbmV0LmMgXA0K
+LQkJZW5naW5lcy9mdHJ1bmNhdGUuYyBlbmdpbmVzL2ZpbGVjcmVhdGUuYyBcDQorCQllbmdpbmVz
+L2Z0cnVuY2F0ZS5jIGVuZ2luZXMvZmlsZWNyZWF0ZS5jIGVuZ2luZXMvZmlsZXN0YXQuYyBcDQog
+CQlzZXJ2ZXIuYyBjbGllbnQuYyBpb2xvZy5jIGJhY2tlbmQuYyBsaWJmaW8uYyBmbG93LmMgY2Nv
+bnYuYyBcDQogCQlnZXR0aW1lLXRocmVhZC5jIGhlbHBlcnMuYyBqc29uLmMgaWRsZXRpbWUuYyB0
+ZF9lcnJvci5jIFwNCiAJCXByb2ZpbGVzL3Rpb2JlbmNoLmMgcHJvZmlsZXMvYWN0LmMgaW9fdV9x
+dWV1ZS5jIGZpbGVsb2NrLmMgXA0KZGlmZiAtLWdpdCBhL2VuZ2luZXMvZmlsZXN0YXQuYyBiL2Vu
+Z2luZXMvZmlsZXN0YXQuYw0KbmV3IGZpbGUgbW9kZSAxMDA2NDQNCmluZGV4IDAwMDAwMDAwLi5j
+NDhmMGQ4OQ0KLS0tIC9kZXYvbnVsbA0KKysrIGIvZW5naW5lcy9maWxlc3RhdC5jDQpAQCAtMCww
+ICsxLDExNiBAQA0KKy8qDQorICogZmlsZXN0YXQgZW5naW5lDQorICoNCisgKiBJTyBlbmdpbmUg
+dGhhdCBkb2Vzbid0IGRvIGFueSBJTywganVzdCBzdGF0IGZpbGVzIGFuZCB0cmFja3MgdGhlIGxh
+dGVuY3kNCisgKiBvZiB0aGUgZmlsZSBzdGF0Lg0KKyAqLw0KKyNpbmNsdWRlIDxzdGRpby5oPg0K
+KyNpbmNsdWRlIDxmY250bC5oPg0KKyNpbmNsdWRlIDxlcnJuby5oPg0KKyNpbmNsdWRlIDxzeXMv
+dHlwZXMuaD4NCisjaW5jbHVkZSA8c3lzL3N0YXQuaD4NCisjaW5jbHVkZSA8dW5pc3RkLmg+DQor
+I2luY2x1ZGUgIi4uL2Zpby5oIg0KKw0KK3N0cnVjdCBmY19kYXRhIHsNCisJZW51bSBmaW9fZGRp
+ciBzdGF0X2RkaXI7DQorfTsNCisNCitzdGF0aWMgaW50IHN0YXRfZmlsZShzdHJ1Y3QgdGhyZWFk
+X2RhdGEgKnRkLCBzdHJ1Y3QgZmlvX2ZpbGUgKmYpDQorew0KKwlzdHJ1Y3QgdGltZXNwZWMgc3Rh
+cnQ7DQorCWludCBkb19sYXQgPSAhdGQtPm8uZGlzYWJsZV9sYXQ7DQorCXN0cnVjdCBzdGF0IHN0
+YXRidWY7DQorCWludCByZXQ7DQorDQorCWRwcmludChGRF9GSUxFLCAiZmQgc3RhdCAlc1xuIiwg
+Zi0+ZmlsZV9uYW1lKTsNCisNCisJaWYgKGYtPmZpbGV0eXBlICE9IEZJT19UWVBFX0ZJTEUpIHsN
+CisJCWxvZ19lcnIoImZpbzogb25seSBmaWxlcyBhcmUgc3VwcG9ydGVkIGZhbGxvY2F0ZSBcbiIp
+Ow0KKwkJcmV0dXJuIDE7DQorCX0NCisJaWYgKCFzdHJjbXAoZi0+ZmlsZV9uYW1lLCAiLSIpKSB7
+DQorCQlsb2dfZXJyKCJmaW86IGNhbid0IHJlYWQvd3JpdGUgdG8gc3RkaW4vb3V0XG4iKTsNCisJ
+CXJldHVybiAxOw0KKwl9DQorDQorCWlmIChkb19sYXQpDQorCQlmaW9fZ2V0dGltZSgmc3RhcnQs
+IE5VTEwpOw0KKw0KKwlyZXQgPSBzdGF0KGYtPmZpbGVfbmFtZSwgJnN0YXRidWYpOw0KKw0KKwlp
+ZiAocmV0ID09IC0xKSB7DQorCQljaGFyIGJ1ZltGSU9fVkVSUk9SX1NJWkVdOw0KKwkJaW50IGUg
+PSBlcnJubzsNCisNCisJCXNucHJpbnRmKGJ1Ziwgc2l6ZW9mKGJ1ZiksICJzdGF0KCVzKSIsIGYt
+PmZpbGVfbmFtZSk7DQorCQl0ZF92ZXJyb3IodGQsIGUsIGJ1Zik7DQorCQlyZXR1cm4gMTsNCisJ
+fQ0KKw0KKwlpZiAoZG9fbGF0KSB7DQorCQlzdHJ1Y3QgZmNfZGF0YSAqZGF0YSA9IHRkLT5pb19v
+cHNfZGF0YTsNCisJCXVpbnQ2NF90IG5zZWM7DQorDQorCQluc2VjID0gbnRpbWVfc2luY2Vfbm93
+KCZzdGFydCk7DQorCQlhZGRfY2xhdF9zYW1wbGUodGQsIGRhdGEtPnN0YXRfZGRpciwgbnNlYywg
+MCwgMCk7DQorCX0NCisNCisJcmV0dXJuIDA7DQorfQ0KKw0KK3N0YXRpYyBlbnVtIGZpb19xX3N0
+YXR1cyBxdWV1ZV9pbyhzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBzdHJ1Y3QgaW9fdSBmaW9fdW51
+c2VkICppb191KQ0KK3sNCisJcmV0dXJuIEZJT19RX0NPTVBMRVRFRDsNCit9DQorDQorc3RhdGlj
+IGludCBpbml0KHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpDQorew0KKwlzdHJ1Y3QgZmNfZGF0YSAq
+ZGF0YTsNCisNCisJZGF0YSA9IGNhbGxvYygxLCBzaXplb2YoKmRhdGEpKTsNCisNCisJaWYgKHRk
+X3JlYWQodGQpKQ0KKwkJZGF0YS0+c3RhdF9kZGlyID0gRERJUl9SRUFEOw0KKwllbHNlIGlmICh0
+ZF93cml0ZSh0ZCkpDQorCQlkYXRhLT5zdGF0X2RkaXIgPSBERElSX1dSSVRFOw0KKw0KKwl0ZC0+
+aW9fb3BzX2RhdGEgPSBkYXRhOw0KKwlyZXR1cm4gMDsNCit9DQorDQorc3RhdGljIHZvaWQgY2xl
+YW51cChzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkKQ0KK3sNCisJc3RydWN0IGZjX2RhdGEgKmRhdGEg
+PSB0ZC0+aW9fb3BzX2RhdGE7DQorDQorCWZyZWUoZGF0YSk7DQorfQ0KKw0KK3N0YXRpYyBpbnQg
+c3RhdF9pbnZhbGlkYXRlKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsIHN0cnVjdCBmaW9fZmlsZSAq
+ZikNCit7DQorCS8qIGRvIG5vdGhpbmcgYmVjYXVzZSBmaWxlIG5vdCBvcGVuZWQgKi8NCisJcmV0
+dXJuIDA7DQorfQ0KKw0KK3N0YXRpYyBzdHJ1Y3QgaW9lbmdpbmVfb3BzIGlvZW5naW5lID0gew0K
+KwkubmFtZQkJPSAiZmlsZXN0YXQiLA0KKwkudmVyc2lvbgk9IEZJT19JT09QU19WRVJTSU9OLA0K
+KwkuaW5pdAkJPSBpbml0LA0KKwkuY2xlYW51cAk9IGNsZWFudXAsDQorCS5xdWV1ZQkJPSBxdWV1
+ZV9pbywNCisJLmludmFsaWRhdGUJPSBzdGF0X2ludmFsaWRhdGUsDQorCS5nZXRfZmlsZV9zaXpl
+CT0gZ2VuZXJpY19nZXRfZmlsZV9zaXplLA0KKwkub3Blbl9maWxlCT0gc3RhdF9maWxlLA0KKwku
+ZmxhZ3MJCT0gIEZJT19TWU5DSU8gfCBGSU9fRkFLRUlPIHwNCisJCQkJRklPX05PU1RBVFMgfCBG
+SU9fTk9GSUxFSEFTSCwNCit9Ow0KKw0KK3N0YXRpYyB2b2lkIGZpb19pbml0IGZpb19maWxlc3Rh
+dF9yZWdpc3Rlcih2b2lkKQ0KK3sNCisJcmVnaXN0ZXJfaW9lbmdpbmUoJmlvZW5naW5lKTsNCit9
+DQorDQorc3RhdGljIHZvaWQgZmlvX2V4aXQgZmlvX2ZpbGVzdGF0X3VucmVnaXN0ZXIodm9pZCkN
+Cit7DQorCXVucmVnaXN0ZXJfaW9lbmdpbmUoJmlvZW5naW5lKTsNCit9DQpkaWZmIC0tZ2l0IGEv
+ZXhhbXBsZXMvZmlsZXN0YXQtaW9lbmdpbmUuZmlvIGIvZXhhbXBsZXMvZmlsZXN0YXQtaW9lbmdp
+bmUuZmlvDQpuZXcgZmlsZSBtb2RlIDEwMDY0NA0KaW5kZXggMDAwMDAwMDAuLjkzMmZjZWQ4DQot
+LS0gL2Rldi9udWxsDQorKysgYi9leGFtcGxlcy9maWxlc3RhdC1pb2VuZ2luZS5maW8NCkBAIC0w
+LDAgKzEsMTkgQEANCisjIEV4YW1wbGUgZmlsZXN0YXQgam9iDQorDQorIyAnZmlsZXN0YXQnIGVu
+Z2luZSBvbmx5IGRvICdzdGF0KGZpbGVuYW1lKScsIGZpbGUgd2lsbCBub3QgYmUgb3BlbigpLg0K
+KyMgJ2ZpbGVzaXplJyBtdXN0IGJlIHNldCwgdGhlbiBmaWxlcyB3aWxsIGJlIGNyZWF0ZWQgYXQg
+c2V0dXAgc3RhZ2UuDQorDQorW2dsb2JhbF0NCitpb2VuZ2luZT1maWxlc3RhdA0KK251bWpvYnM9
+MQ0KK2ZpbGVzaXplPTRrDQorbnJmaWxlcz0yMDANCit0aHJlYWQNCisNCitbdDBdDQorW3QxXQ0K
+K1t0Ml0NCitbdDNdDQorW3Q0XQ0KK1t0NV0NCisNCmRpZmYgLS1naXQgYS9maW8uMSBiL2Zpby4x
+DQppbmRleCAxNDU2OWU5Zi4uYmIxZTQyZjYgMTAwNjQ0DQotLS0gYS9maW8uMQ0KKysrIGIvZmlv
+LjENCkBAIC0xNzYwLDYgKzE3NjAsMTEgQEAgU2ltcGx5IGNyZWF0ZSB0aGUgZmlsZXMgYW5kIGRv
+IG5vIEkvTyB0byB0aGVtLiAgWW91IHN0aWxsIG5lZWQgdG8gc2V0DQogXGZCZmlsZXNpemVcZlIg
+c28gdGhhdCBhbGwgdGhlIGFjY291bnRpbmcgc3RpbGwgb2NjdXJzLCBidXQgbm8gYWN0dWFsIEkv
+TyB3aWxsIGJlDQogZG9uZSBvdGhlciB0aGFuIGNyZWF0aW5nIHRoZSBmaWxlLg0KIC5UUA0KKy5C
+IGZpbGVzdGF0DQorU2ltcGx5IGRvIHN0YXQoKSBhbmQgZG8gbm8gSS9PIHRvIHRoZSBmaWxlLiBZ
+b3UgbmVlZCB0byBzZXQgJ2ZpbGVzaXplJw0KK2FuZCAnbnJmaWxlcycsIHNvIHRoYXQgZmlsZXMg
+d2lsbCBiZSBjcmVhdGVkLg0KK1RoaXMgZW5naW5lIGlzIHRvIG1lYXN1cmUgZmlsZSBsb29rdXAg
+YW5kIG1ldGEgZGF0YSBhY2Nlc3MuDQorLlRQDQogLkIgbGlicG1lbQ0KIFJlYWQgYW5kIHdyaXRl
+IHVzaW5nIG1tYXAgSS9PIHRvIGEgZmlsZSBvbiBhIGZpbGVzeXN0ZW0NCiBtb3VudGVkIHdpdGgg
+REFYIG9uIGEgcGVyc2lzdGVudCBtZW1vcnkgZGV2aWNlIHRocm91Z2ggdGhlIFBNREsNCi0tIA0K
+Mi4xNy4xDQoNCg==
 
