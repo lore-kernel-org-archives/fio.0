@@ -1,32 +1,56 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-oi1-f182.google.com ([209.85.167.182]:43969 "EHLO
-        mail-oi1-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725893AbgA0SYq (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 27 Jan 2020 13:24:46 -0500
-Received: by mail-oi1-f182.google.com with SMTP id p125so7581943oif.10
-        for <fio@vger.kernel.org>; Mon, 27 Jan 2020 10:24:45 -0800 (PST)
-MIME-Version: 1.0
-From: Mauricio Tavares <raubvogel@gmail.com>
-Date: Mon, 27 Jan 2020 13:24:34 -0500
-Message-ID: <CAHEKYV7Hzs_TbhGsAXoFUP55oGQGeDot+c8Dh3RcLjWrxbqO9Q@mail.gmail.com>
-Subject: clock setaffinity failed: Invalid argument
-Content-Type: text/plain; charset="UTF-8"
+Received: from bombadil.infradead.org ([198.137.202.133]:51658 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727174AbgAJNAI (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 10 Jan 2020 08:00:08 -0500
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1ipttX-00080B-Nv
+        for fio@vger.kernel.org; Fri, 10 Jan 2020 13:00:07 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200110130002.2497E1BC015C@kernel.dk>
+Date: Fri, 10 Jan 2020 06:00:02 -0700 (MST)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-I am seeing a lot of those errors:
+The following changes since commit 2198a6b5a9f40726b40aced24cf2dcdb3b639898:
 
-run write in 512K(1)][90.3%][w=1942MiB/s][w=7766 IOPS][eta 03m:13s]
-clock setaffinity failed: Invalid argument
-clock setaffinity failed: Invalid argument
-clock setaffinity failed: Invalid argument
-[...]
-clock setaffinity failed: Invalid argument
-Jobs: 1 (f=1): [W(1)][45.2%][w=2010MiB/s][w=4019 IOPS][eta 18m:07s]
+  Merge branch 'master' of https://github.com/bvanassche/fio (2020-01-06 18:38:02 -0700)
 
-According to https://github.com/axboe/fio/issues/46, I would expect to
-see a bit more descriptive error (I am compiling using source checked
-out of https://github.com/axboe/fio on Fedora 31 on Intel), but that
-is not the case. Any suggestions of what I should be looking into?
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to b7ed2a862ddafa7dbaa6299ee8633b6f8221e283:
+
+  io_uring: set sqe iopriority, if prio/prioclass is set (2020-01-09 14:58:51 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      io_uring: set sqe iopriority, if prio/prioclass is set
+
+ engines/io_uring.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+---
+
+Diff of recent changes:
+
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index 7c19294b..4f6a9678 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -206,6 +206,10 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
+ 		}
+ 		if (!td->o.odirect && o->uncached)
+ 			sqe->rw_flags = RWF_UNCACHED;
++		if (fio_option_is_set(&td->o, ioprio_class))
++			sqe->ioprio = td->o.ioprio_class << 13;
++		if (fio_option_is_set(&td->o, ioprio))
++			sqe->ioprio |= td->o.ioprio;
+ 		sqe->off = io_u->offset;
+ 	} else if (ddir_sync(io_u->ddir)) {
+ 		if (io_u->ddir == DDIR_SYNC_FILE_RANGE) {
 
