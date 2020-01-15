@@ -1,45 +1,47 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:31580 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726778AbgAOR2h (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 15 Jan 2020 12:28:37 -0500
-From: "Gruher, Joseph R" <joseph.r.gruher@intel.com>
-Subject: RE: CPUs, threads, and speed
-Date: Wed, 15 Jan 2020 17:28:09 +0000
-Message-ID: <MWHPR11MB16790DF710A8EA7EB9118C37A9370@MWHPR11MB1679.namprd11.prod.outlook.com>
-References: <CAHEKYV6AqY=u=PZ2EAxLwM2a3TL6ByAwTRyURA=9CA1dAtwLbw@mail.gmail.com>
-In-Reply-To: <CAHEKYV6AqY=u=PZ2EAxLwM2a3TL6ByAwTRyURA=9CA1dAtwLbw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-ot1-f52.google.com ([209.85.210.52]:36040 "EHLO
+        mail-ot1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726501AbgAOPu5 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 15 Jan 2020 10:50:57 -0500
+Received: by mail-ot1-f52.google.com with SMTP id m2so11652008otq.3
+        for <fio@vger.kernel.org>; Wed, 15 Jan 2020 07:50:57 -0800 (PST)
 MIME-Version: 1.0
+From: Mauricio Tavares <raubvogel@gmail.com>
+Date: Wed, 15 Jan 2020 10:50:46 -0500
+Message-ID: <CAHEKYV6AqY=u=PZ2EAxLwM2a3TL6ByAwTRyURA=9CA1dAtwLbw@mail.gmail.com>
+Subject: CPUs, threads, and speed
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Mauricio Tavares <raubvogel@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: fio@vger.kernel.org
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBmaW8tb3duZXJAdmdlci5rZXJu
-ZWwub3JnIDxmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnPiBPbiBCZWhhbGYgT2YNCj4gTWF1cmlj
-aW8gVGF2YXJlcw0KPiBTZW50OiBXZWRuZXNkYXksIEphbnVhcnkgMTUsIDIwMjAgNzo1MSBBTQ0K
-PiBUbzogZmlvQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBDUFVzLCB0aHJlYWRzLCBhbmQg
-c3BlZWQNCj4gDQo+IExldCdzIHNheSBJIGhhdmUgYSBjb25maWcgZmlsZSB0byBwcmVsb2FkIGRy
-aXZlIHRoYXQgbG9va3MgbGlrZSB0aGlzIChzdG9sZW4gZnJvbQ0KPiBodHRwczovL2dpdGh1Yi5j
-b20vaW50ZWwvZmlvdmlzdWFsaXplci9ibG9iL21hc3Rlci9Xb3JrbG9hZHMvUHJlY29uZGl0aW9u
-L2ZpbGwNCj4gXzRLUmFuZG9tX05WTWUuaW5pKQ0KPiANCj4gW2dsb2JhbF0NCj4gbmFtZT00ayBy
-YW5kb20gd3JpdGUgNCBpb3MgaW4gdGhlIHF1ZXVlIGluIDMyIHF1ZXVlcw0KPiBmaWxlbmFtZT0v
-ZGV2L252bWUwbjENCj4gaW9lbmdpbmU9bGliYWlvDQo+IGRpcmVjdD0xDQo+IGJzPTRrDQo+IHJ3
-PXJhbmR3cml0ZQ0KPiBpb2RlcHRoPTQNCj4gbnVtam9icz0zMg0KPiBidWZmZXJlZD0wDQo+IHNp
-emU9MTAwJQ0KPiBsb29wcz0yDQo+IHJhbmRyZXBlYXQ9MA0KPiBub3JhbmRvbW1hcA0KPiByZWZp
-bGxfYnVmZmVycw0KPiANCj4gW2pvYjFdDQo+IA0KPiBUaGF0IGlzIHRha2luZyBhIHRvbiBvZiB0
-aW1lLCBsaWtlIGRheXMgdG8gZ28uIElzIHRoZXJlIGFueXRoaW5nIEkgY2FuIGRvIHRvIHNwZWVk
-IGl0DQo+IHVwPyANCg0KV2hlbiB5b3Ugc2F5IHByZWxvYWQsIGRvIHlvdSBqdXN0IHdhbnQgdG8g
-d3JpdGUgaW4gdGhlIGZ1bGwgY2FwYWNpdHkgb2YgdGhlIGRyaXZlPyAgQSBzZXF1ZW50aWFsIHdv
-cmtsb2FkIHdpdGggbGFyZ2VyIGJsb2NrcyB3aWxsIGJlIGZhc3RlciwgbGlrZToNCg0KW2dsb2Jh
-bF0NCmlvZW5naW5lPWxpYmFpbw0KdGhyZWFkPTENCmRpcmVjdD0xDQpicz0xMjhrDQpydz13cml0
-ZQ0KbnVtam9icz0xDQppb2RlcHRoPTEyOA0Kc2l6ZT0xMDAlDQpsb29wcz0yDQpbam9iMDBdDQpm
-aWxlbmFtZT0vZGV2L252bWUwbjENCg0KT3IgaWYgeW91IGhhdmUgYSB1c2UgY2FzZSB3aGVyZSB5
-b3Ugc3BlY2lmaWNhbGx5IHdhbnQgdG8gd3JpdGUgaXQgaW4gd2l0aCA0SyBibG9ja3MsIHlvdSBj
-b3VsZCBwcm9iYWJseSBpbmNyZWFzZSB5b3VyIHF1ZXVlIGRlcHRoIHdheSBiZXlvbmQgNCBhbmQg
-c2VlIGltcHJvdmVtZW50IGluIHBlcmZvcm1hbmNlLCBhbmQgeW91IHByb2JhYmx5IGRvbid0IHdh
-bnQgdG8gc3BlY2lmeSBub3JhbmRvbW1hcCBpZiB5b3UncmUgdHJ5aW5nIHRvIGhpdCBldmVyeSBi
-bG9jayBvbiB0aGUgZGV2aWNlLg0KDQotSm9lDQo=
+Let's say I have a config file to preload drive that looks like this
+(stolen from https://github.com/intel/fiovisualizer/blob/master/Workloads/Precondition/fill_4KRandom_NVMe.ini)
+
+[global]
+name=4k random write 4 ios in the queue in 32 queues
+filename=/dev/nvme0n1
+ioengine=libaio
+direct=1
+bs=4k
+rw=randwrite
+iodepth=4
+numjobs=32
+buffered=0
+size=100%
+loops=2
+randrepeat=0
+norandommap
+refill_buffers
+
+[job1]
+
+That is taking a ton of time, like days to go. Is there anything I can
+do to speed it up? For instance, what is the default value for
+cpus_allowed (or cpumask)[2]? Is it all CPUs? If not what would I gain
+by throwing more cpus at the problem?
+
+I also read[2] by default fio uses fork. What would I get by going to threads?
+
+[2] https://fio.readthedocs.io/en/latest/fio_doc.html#threads-processes-and-job-synchronization
 
