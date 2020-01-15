@@ -1,102 +1,60 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ot1-f45.google.com ([209.85.210.45]:40142 "EHLO
-        mail-ot1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726310AbgAOWjY (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 15 Jan 2020 17:39:24 -0500
-Received: by mail-ot1-f45.google.com with SMTP id w21so17577458otj.7
-        for <fio@vger.kernel.org>; Wed, 15 Jan 2020 14:39:24 -0800 (PST)
-MIME-Version: 1.0
+Received: from mx0b-002e3701.pphosted.com ([148.163.143.35]:24152 "EHLO
+        mx0b-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726187AbgAOVdw (ORCPT
+        <rfc822;fio@vger.kernel.org>); Wed, 15 Jan 2020 16:33:52 -0500
+From: "Elliott, Robert (Servers)" <elliott@hpe.com>
+Subject: RE: CPUs, threads, and speed
+Date: Wed, 15 Jan 2020 21:33:33 +0000
+Message-ID: <DF4PR8401MB1241A17DB6202AC287E57DC8AB370@DF4PR8401MB1241.NAMPRD84.PROD.OUTLOOK.COM>
 References: <CAHEKYV6AqY=u=PZ2EAxLwM2a3TL6ByAwTRyURA=9CA1dAtwLbw@mail.gmail.com>
- <DF4PR8401MB1241A17DB6202AC287E57DC8AB370@DF4PR8401MB1241.NAMPRD84.PROD.OUTLOOK.COM>
-In-Reply-To: <DF4PR8401MB1241A17DB6202AC287E57DC8AB370@DF4PR8401MB1241.NAMPRD84.PROD.OUTLOOK.COM>
-From: Mauricio Tavares <raubvogel@gmail.com>
-Date: Wed, 15 Jan 2020 17:39:12 -0500
-Message-ID: <CAHEKYV7CiYwpUJEjdyzczdbXC8rt+yiCXr6-BiLWy2EpuCaMEw@mail.gmail.com>
-Subject: Re: CPUs, threads, and speed
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAHEKYV6AqY=u=PZ2EAxLwM2a3TL6ByAwTRyURA=9CA1dAtwLbw@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Elliott, Robert (Servers)" <elliott@hpe.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Mauricio Tavares <raubvogel@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On Wed, Jan 15, 2020 at 4:33 PM Elliott, Robert (Servers)
-<elliott@hpe.com> wrote:
->
->
->
-> > -----Original Message-----
-> > From: fio-owner@vger.kernel.org <fio-owner@vger.kernel.org> On Behalf Of
-> > Mauricio Tavares
-> > Sent: Wednesday, January 15, 2020 9:51 AM
-> > Subject: CPUs, threads, and speed
-> >
-> ...
-> > [global]
-> > name=4k random write 4 ios in the queue in 32 queues
-> > filename=/dev/nvme0n1
-> > ioengine=libaio
-> > direct=1
-> > bs=4k
-> > rw=randwrite
-> > iodepth=4
-> > numjobs=32
-> > buffered=0
-> > size=100%
-> > loops=2
-> > randrepeat=0
-> > norandommap
-> > refill_buffers
-> >
-> > [job1]
-> >
-> > That is taking a ton of time, like days to go. Is there anything I can
-> > do to speed it up? For instance, what is the default value for
-> > cpus_allowed (or cpumask)[2]? Is it all CPUs? If not what would I gain
-> > by throwing more cpus at the problem?
-> >
-> > I also read[2] by default fio uses fork. What would I get by going to
-> > threads?
->
-> > Jobs: 32 (f=32): [w(32)][10.8%][w=301MiB/s][w=77.0k IOPS][eta 06d:13h:56m:51s]]
->
-> 77 kIOPs for random writes isn't bad - check your drive data sheet.
-> If the drive is 1 TB, it should take
->     1 TB / (77k * 4 KiB) = 3170 s = 52.8 minutes
-> to write the whole drive.
->
-      Since the drive is 4TB, we are talking about 3.5h to complete
-the task, right?
-
-> Best practice is to use all CPU cores, lock threads to cores, and
-> be NUMA aware. If the device is attached to physical CPU 0 and that CPU
-> has 12 cores known to linux as 0-11 (per "lscpu" or "numactl --hardware"),
-
-I have two CPUs with 16 cores each; I thought that meant numjobs=32.
-If Iw as wrong, I learned something new!
-
-> try:
->   iodepth=16
->   numjobs=12
->   cpus_allowed=0-11
->   cpus_allowed_policy=split
->
-> Based on these:
->   numjobs=32, size=100%, loops=2
-> fio will run each job for that many bytes, so a 1 TB drive will result
-> in IOs for 64 TB rather than 1 TB. That could easily result in the
-> multi-day estimate.
->
-      Let's see if I understand this: your 64TB number came from 32*1TB*1*2?
-
-> Other nits:
-> * thread - threading might be slightly more efficient than
->   spawning full processes
-> * gtod_reduce=1 - precision latency measurements don't matter for this
-> * refill_buffers - presuming you don't care about the data contents,
->   don't include this. zero_buffers is the simplest/fastest, unless you're
->   concerned that the device might do compression or zero detection
-> * norandommap - if you want it to hit each LBA a precise number
->   of times, you can't include this; fio won't remember what it's
->   done. There is a lot of overhead in keeping track, though.
->
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
+a2VybmVsLm9yZyA8ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZz4gT24gQmVoYWxmIE9mDQo+IE1h
+dXJpY2lvIFRhdmFyZXMNCj4gU2VudDogV2VkbmVzZGF5LCBKYW51YXJ5IDE1LCAyMDIwIDk6NTEg
+QU0NCj4gU3ViamVjdDogQ1BVcywgdGhyZWFkcywgYW5kIHNwZWVkDQo+IA0KLi4uDQo+IFtnbG9i
+YWxdDQo+IG5hbWU9NGsgcmFuZG9tIHdyaXRlIDQgaW9zIGluIHRoZSBxdWV1ZSBpbiAzMiBxdWV1
+ZXMNCj4gZmlsZW5hbWU9L2Rldi9udm1lMG4xDQo+IGlvZW5naW5lPWxpYmFpbw0KPiBkaXJlY3Q9
+MQ0KPiBicz00aw0KPiBydz1yYW5kd3JpdGUNCj4gaW9kZXB0aD00DQo+IG51bWpvYnM9MzINCj4g
+YnVmZmVyZWQ9MA0KPiBzaXplPTEwMCUNCj4gbG9vcHM9Mg0KPiByYW5kcmVwZWF0PTANCj4gbm9y
+YW5kb21tYXANCj4gcmVmaWxsX2J1ZmZlcnMNCj4gDQo+IFtqb2IxXQ0KPiANCj4gVGhhdCBpcyB0
+YWtpbmcgYSB0b24gb2YgdGltZSwgbGlrZSBkYXlzIHRvIGdvLiBJcyB0aGVyZSBhbnl0aGluZyBJ
+IGNhbg0KPiBkbyB0byBzcGVlZCBpdCB1cD8gRm9yIGluc3RhbmNlLCB3aGF0IGlzIHRoZSBkZWZh
+dWx0IHZhbHVlIGZvcg0KPiBjcHVzX2FsbG93ZWQgKG9yIGNwdW1hc2spWzJdPyBJcyBpdCBhbGwg
+Q1BVcz8gSWYgbm90IHdoYXQgd291bGQgSSBnYWluDQo+IGJ5IHRocm93aW5nIG1vcmUgY3B1cyBh
+dCB0aGUgcHJvYmxlbT8NCj4gDQo+IEkgYWxzbyByZWFkWzJdIGJ5IGRlZmF1bHQgZmlvIHVzZXMg
+Zm9yay4gV2hhdCB3b3VsZCBJIGdldCBieSBnb2luZyB0bw0KPiB0aHJlYWRzPw0KDQo+IEpvYnM6
+IDMyIChmPTMyKTogW3coMzIpXVsxMC44JV1bdz0zMDFNaUIvc11bdz03Ny4wayBJT1BTXVtldGEg
+MDZkOjEzaDo1Nm06NTFzXV0NCg0KNzcga0lPUHMgZm9yIHJhbmRvbSB3cml0ZXMgaXNuJ3QgYmFk
+IC0gY2hlY2sgeW91ciBkcml2ZSBkYXRhIHNoZWV0Lg0KSWYgdGhlIGRyaXZlIGlzIDEgVEIsIGl0
+IHNob3VsZCB0YWtlIA0KICAgIDEgVEIgLyAoNzdrICogNCBLaUIpID0gMzE3MCBzID0gNTIuOCBt
+aW51dGVzIA0KdG8gd3JpdGUgdGhlIHdob2xlIGRyaXZlLg0KDQpCZXN0IHByYWN0aWNlIGlzIHRv
+IHVzZSBhbGwgQ1BVIGNvcmVzLCBsb2NrIHRocmVhZHMgdG8gY29yZXMsIGFuZA0KYmUgTlVNQSBh
+d2FyZS4gSWYgdGhlIGRldmljZSBpcyBhdHRhY2hlZCB0byBwaHlzaWNhbCBDUFUgMCBhbmQgdGhh
+dCBDUFUNCmhhcyAxMiBjb3JlcyBrbm93biB0byBsaW51eCBhcyAwLTExIChwZXIgImxzY3B1IiBv
+ciAibnVtYWN0bCAtLWhhcmR3YXJlIiksDQp0cnk6DQogIGlvZGVwdGg9MTYNCiAgbnVtam9icz0x
+Mg0KICBjcHVzX2FsbG93ZWQ9MC0xMQ0KICBjcHVzX2FsbG93ZWRfcG9saWN5PXNwbGl0DQoNCkJh
+c2VkIG9uIHRoZXNlOg0KICBudW1qb2JzPTMyLCBzaXplPTEwMCUsIGxvb3BzPTINCmZpbyB3aWxs
+IHJ1biBlYWNoIGpvYiBmb3IgdGhhdCBtYW55IGJ5dGVzLCBzbyBhIDEgVEIgZHJpdmUgd2lsbCBy
+ZXN1bHQgDQppbiBJT3MgZm9yIDY0IFRCIHJhdGhlciB0aGFuIDEgVEIuIFRoYXQgY291bGQgZWFz
+aWx5IHJlc3VsdCBpbiB0aGUNCm11bHRpLWRheSBlc3RpbWF0ZS4NCg0KT3RoZXIgbml0czoNCiog
+dGhyZWFkIC0gdGhyZWFkaW5nIG1pZ2h0IGJlIHNsaWdodGx5IG1vcmUgZWZmaWNpZW50IHRoYW4g
+DQogIHNwYXduaW5nIGZ1bGwgcHJvY2Vzc2VzDQoqIGd0b2RfcmVkdWNlPTEgLSBwcmVjaXNpb24g
+bGF0ZW5jeSBtZWFzdXJlbWVudHMgZG9uJ3QgbWF0dGVyIGZvciB0aGlzDQoqIHJlZmlsbF9idWZm
+ZXJzIC0gcHJlc3VtaW5nIHlvdSBkb24ndCBjYXJlIGFib3V0IHRoZSBkYXRhIGNvbnRlbnRzLA0K
+ICBkb24ndCBpbmNsdWRlIHRoaXMuIHplcm9fYnVmZmVycyBpcyB0aGUgc2ltcGxlc3QvZmFzdGVz
+dCwgdW5sZXNzIHlvdSdyZQ0KICBjb25jZXJuZWQgdGhhdCB0aGUgZGV2aWNlIG1pZ2h0IGRvIGNv
+bXByZXNzaW9uIG9yIHplcm8gZGV0ZWN0aW9uDQoqIG5vcmFuZG9tbWFwIC0gaWYgeW91IHdhbnQg
+aXQgdG8gaGl0IGVhY2ggTEJBIGEgcHJlY2lzZSBudW1iZXINCiAgb2YgdGltZXMsIHlvdSBjYW4n
+dCBpbmNsdWRlIHRoaXM7IGZpbyB3b24ndCByZW1lbWJlciB3aGF0IGl0J3MgDQogIGRvbmUuIFRo
+ZXJlIGlzIGEgbG90IG9mIG92ZXJoZWFkIGluIGtlZXBpbmcgdHJhY2ssIHRob3VnaC4NCg0KDQoN
+Cg==
 
