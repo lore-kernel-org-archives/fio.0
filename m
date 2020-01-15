@@ -1,60 +1,153 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx0b-002e3701.pphosted.com ([148.163.143.35]:24152 "EHLO
-        mx0b-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726187AbgAOVdw (ORCPT
-        <rfc822;fio@vger.kernel.org>); Wed, 15 Jan 2020 16:33:52 -0500
-From: "Elliott, Robert (Servers)" <elliott@hpe.com>
-Subject: RE: CPUs, threads, and speed
-Date: Wed, 15 Jan 2020 21:33:33 +0000
-Message-ID: <DF4PR8401MB1241A17DB6202AC287E57DC8AB370@DF4PR8401MB1241.NAMPRD84.PROD.OUTLOOK.COM>
-References: <CAHEKYV6AqY=u=PZ2EAxLwM2a3TL6ByAwTRyURA=9CA1dAtwLbw@mail.gmail.com>
-In-Reply-To: <CAHEKYV6AqY=u=PZ2EAxLwM2a3TL6ByAwTRyURA=9CA1dAtwLbw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from mail-oi1-f171.google.com ([209.85.167.171]:44204 "EHLO
+        mail-oi1-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728963AbgAOUg7 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 15 Jan 2020 15:36:59 -0500
+Received: by mail-oi1-f171.google.com with SMTP id d62so16720297oia.11
+        for <fio@vger.kernel.org>; Wed, 15 Jan 2020 12:36:59 -0800 (PST)
 MIME-Version: 1.0
+References: <CAHEKYV6AqY=u=PZ2EAxLwM2a3TL6ByAwTRyURA=9CA1dAtwLbw@mail.gmail.com>
+ <MWHPR11MB16790DF710A8EA7EB9118C37A9370@MWHPR11MB1679.namprd11.prod.outlook.com>
+ <CANvN+ekCr5CxPe1pcVwc7MQG+MoUPK=YVpfcGT1Hn=4H1JQOqA@mail.gmail.com>
+ <CAHEKYV6tMRCyhWnT9D+LaZ_U7j=wRLcMMU4yjBv1Te72FUYBag@mail.gmail.com> <CANvN+enS9cZpJrnvL=Z-X-cYHO4eGdfaG9aR5NQQ-KJUTM9Zug@mail.gmail.com>
+In-Reply-To: <CANvN+enS9cZpJrnvL=Z-X-cYHO4eGdfaG9aR5NQQ-KJUTM9Zug@mail.gmail.com>
+From: Mauricio Tavares <raubvogel@gmail.com>
+Date: Wed, 15 Jan 2020 15:36:47 -0500
+Message-ID: <CAHEKYV5L0wz0AKvuc9=zDYN0ug-dQYwTf7aGzE16Yu0S9Hi3Fg@mail.gmail.com>
+Subject: Re: CPUs, threads, and speed
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Mauricio Tavares <raubvogel@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Cc: "Gruher, Joseph R" <joseph.r.gruher@intel.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
-a2VybmVsLm9yZyA8ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZz4gT24gQmVoYWxmIE9mDQo+IE1h
-dXJpY2lvIFRhdmFyZXMNCj4gU2VudDogV2VkbmVzZGF5LCBKYW51YXJ5IDE1LCAyMDIwIDk6NTEg
-QU0NCj4gU3ViamVjdDogQ1BVcywgdGhyZWFkcywgYW5kIHNwZWVkDQo+IA0KLi4uDQo+IFtnbG9i
-YWxdDQo+IG5hbWU9NGsgcmFuZG9tIHdyaXRlIDQgaW9zIGluIHRoZSBxdWV1ZSBpbiAzMiBxdWV1
-ZXMNCj4gZmlsZW5hbWU9L2Rldi9udm1lMG4xDQo+IGlvZW5naW5lPWxpYmFpbw0KPiBkaXJlY3Q9
-MQ0KPiBicz00aw0KPiBydz1yYW5kd3JpdGUNCj4gaW9kZXB0aD00DQo+IG51bWpvYnM9MzINCj4g
-YnVmZmVyZWQ9MA0KPiBzaXplPTEwMCUNCj4gbG9vcHM9Mg0KPiByYW5kcmVwZWF0PTANCj4gbm9y
-YW5kb21tYXANCj4gcmVmaWxsX2J1ZmZlcnMNCj4gDQo+IFtqb2IxXQ0KPiANCj4gVGhhdCBpcyB0
-YWtpbmcgYSB0b24gb2YgdGltZSwgbGlrZSBkYXlzIHRvIGdvLiBJcyB0aGVyZSBhbnl0aGluZyBJ
-IGNhbg0KPiBkbyB0byBzcGVlZCBpdCB1cD8gRm9yIGluc3RhbmNlLCB3aGF0IGlzIHRoZSBkZWZh
-dWx0IHZhbHVlIGZvcg0KPiBjcHVzX2FsbG93ZWQgKG9yIGNwdW1hc2spWzJdPyBJcyBpdCBhbGwg
-Q1BVcz8gSWYgbm90IHdoYXQgd291bGQgSSBnYWluDQo+IGJ5IHRocm93aW5nIG1vcmUgY3B1cyBh
-dCB0aGUgcHJvYmxlbT8NCj4gDQo+IEkgYWxzbyByZWFkWzJdIGJ5IGRlZmF1bHQgZmlvIHVzZXMg
-Zm9yay4gV2hhdCB3b3VsZCBJIGdldCBieSBnb2luZyB0bw0KPiB0aHJlYWRzPw0KDQo+IEpvYnM6
-IDMyIChmPTMyKTogW3coMzIpXVsxMC44JV1bdz0zMDFNaUIvc11bdz03Ny4wayBJT1BTXVtldGEg
-MDZkOjEzaDo1Nm06NTFzXV0NCg0KNzcga0lPUHMgZm9yIHJhbmRvbSB3cml0ZXMgaXNuJ3QgYmFk
-IC0gY2hlY2sgeW91ciBkcml2ZSBkYXRhIHNoZWV0Lg0KSWYgdGhlIGRyaXZlIGlzIDEgVEIsIGl0
-IHNob3VsZCB0YWtlIA0KICAgIDEgVEIgLyAoNzdrICogNCBLaUIpID0gMzE3MCBzID0gNTIuOCBt
-aW51dGVzIA0KdG8gd3JpdGUgdGhlIHdob2xlIGRyaXZlLg0KDQpCZXN0IHByYWN0aWNlIGlzIHRv
-IHVzZSBhbGwgQ1BVIGNvcmVzLCBsb2NrIHRocmVhZHMgdG8gY29yZXMsIGFuZA0KYmUgTlVNQSBh
-d2FyZS4gSWYgdGhlIGRldmljZSBpcyBhdHRhY2hlZCB0byBwaHlzaWNhbCBDUFUgMCBhbmQgdGhh
-dCBDUFUNCmhhcyAxMiBjb3JlcyBrbm93biB0byBsaW51eCBhcyAwLTExIChwZXIgImxzY3B1IiBv
-ciAibnVtYWN0bCAtLWhhcmR3YXJlIiksDQp0cnk6DQogIGlvZGVwdGg9MTYNCiAgbnVtam9icz0x
-Mg0KICBjcHVzX2FsbG93ZWQ9MC0xMQ0KICBjcHVzX2FsbG93ZWRfcG9saWN5PXNwbGl0DQoNCkJh
-c2VkIG9uIHRoZXNlOg0KICBudW1qb2JzPTMyLCBzaXplPTEwMCUsIGxvb3BzPTINCmZpbyB3aWxs
-IHJ1biBlYWNoIGpvYiBmb3IgdGhhdCBtYW55IGJ5dGVzLCBzbyBhIDEgVEIgZHJpdmUgd2lsbCBy
-ZXN1bHQgDQppbiBJT3MgZm9yIDY0IFRCIHJhdGhlciB0aGFuIDEgVEIuIFRoYXQgY291bGQgZWFz
-aWx5IHJlc3VsdCBpbiB0aGUNCm11bHRpLWRheSBlc3RpbWF0ZS4NCg0KT3RoZXIgbml0czoNCiog
-dGhyZWFkIC0gdGhyZWFkaW5nIG1pZ2h0IGJlIHNsaWdodGx5IG1vcmUgZWZmaWNpZW50IHRoYW4g
-DQogIHNwYXduaW5nIGZ1bGwgcHJvY2Vzc2VzDQoqIGd0b2RfcmVkdWNlPTEgLSBwcmVjaXNpb24g
-bGF0ZW5jeSBtZWFzdXJlbWVudHMgZG9uJ3QgbWF0dGVyIGZvciB0aGlzDQoqIHJlZmlsbF9idWZm
-ZXJzIC0gcHJlc3VtaW5nIHlvdSBkb24ndCBjYXJlIGFib3V0IHRoZSBkYXRhIGNvbnRlbnRzLA0K
-ICBkb24ndCBpbmNsdWRlIHRoaXMuIHplcm9fYnVmZmVycyBpcyB0aGUgc2ltcGxlc3QvZmFzdGVz
-dCwgdW5sZXNzIHlvdSdyZQ0KICBjb25jZXJuZWQgdGhhdCB0aGUgZGV2aWNlIG1pZ2h0IGRvIGNv
-bXByZXNzaW9uIG9yIHplcm8gZGV0ZWN0aW9uDQoqIG5vcmFuZG9tbWFwIC0gaWYgeW91IHdhbnQg
-aXQgdG8gaGl0IGVhY2ggTEJBIGEgcHJlY2lzZSBudW1iZXINCiAgb2YgdGltZXMsIHlvdSBjYW4n
-dCBpbmNsdWRlIHRoaXM7IGZpbyB3b24ndCByZW1lbWJlciB3aGF0IGl0J3MgDQogIGRvbmUuIFRo
-ZXJlIGlzIGEgbG90IG9mIG92ZXJoZWFkIGluIGtlZXBpbmcgdHJhY2ssIHRob3VnaC4NCg0KDQoN
-Cg==
+On Wed, Jan 15, 2020 at 2:00 PM Andrey Kuzmin <andrey.v.kuzmin@gmail.com> w=
+rote:
+>
+> On Wed, Jan 15, 2020 at 9:29 PM Mauricio Tavares <raubvogel@gmail.com> wr=
+ote:
+> >
+> > On Wed, Jan 15, 2020 at 1:04 PM Andrey Kuzmin <andrey.v.kuzmin@gmail.co=
+m> wrote:
+> > >
+> > > On Wed, Jan 15, 2020 at 8:29 PM Gruher, Joseph R
+> > > <joseph.r.gruher@intel.com> wrote:
+> > > >
+> > > > > -----Original Message-----
+> > > > > From: fio-owner@vger.kernel.org <fio-owner@vger.kernel.org> On Be=
+half Of
+> > > > > Mauricio Tavares
+> > > > > Sent: Wednesday, January 15, 2020 7:51 AM
+> > > > > To: fio@vger.kernel.org
+> > > > > Subject: CPUs, threads, and speed
+> > > > >
+> > > > > Let's say I have a config file to preload drive that looks like t=
+his (stolen from
+> > > > > https://github.com/intel/fiovisualizer/blob/master/Workloads/Prec=
+ondition/fill
+> > > > > _4KRandom_NVMe.ini)
+> > > > >
+> > > > > [global]
+> > > > > name=3D4k random write 4 ios in the queue in 32 queues
+> > > > > filename=3D/dev/nvme0n1
+> > > > > ioengine=3Dlibaio
+> > > > > direct=3D1
+> > > > > bs=3D4k
+> > > > > rw=3Drandwrite
+> > > > > iodepth=3D4
+> > > > > numjobs=3D32
+> > > > > buffered=3D0
+> > > > > size=3D100%
+> > > > > loops=3D2
+> > > > > randrepeat=3D0
+> > > > > norandommap
+> > > > > refill_buffers
+> > > > >
+> > > > > [job1]
+> > > > >
+> > > > > That is taking a ton of time, like days to go. Is there anything =
+I can do to speed it
+> > > > > up?
+> > > >
+> > > > When you say preload, do you just want to write in the full capacit=
+y of the drive?
+> > >
+> > > I believe that preload here means what in SSD world is called drive
+> > > preconditioning. It means bringing a fresh drive into steady mode
+> > > where it gives you the true performance in production over months of
+> > > use rather than the unrealistic fresh drive random write IOPS.
+> > >
+> > > > A sequential workload with larger blocks will be faster,
+> > >
+> > > No, you cannot get the job done by sequential writes since it doesn't
+> > > populate FTL translation tables like random writes do.
+> > >
+> > > As to taking a ton, the rule of thumb is to give the SSD 2xcapacity
+> > > worth of random writes. At today speeds, that should take just a
+> > > couple of hours.
+> > >
+> >       When you say 2xcapacity worth of random writes, do you mean just
+> > setting size=3D200%?
+>
+> Right.
+>
+      Then I wonder what I am doing wrong now. I changed the config file to
+
+[root@testbox tests]# cat preload.conf
+[global]
+name=3D4k random write 4 ios in the queue in 32 queues
+ioengine=3Dlibaio
+direct=3D1
+bs=3D4k
+rw=3Drandwrite
+iodepth=3D4
+numjobs=3D32
+buffered=3D0
+size=3D200%
+loops=3D2
+random_generator=3Dtausworthe64
+thread=3D1
+
+[job1]
+filename=3D/dev/nvme0n1
+[root@testbox tests]#
+
+but when I run it, now it spits out much larger eta times:
+
+Jobs: 32 (f=3D32): [w(32)][0.0%][w=3D382MiB/s][w=3D97.7k IOPS][eta
+16580099d:14h:55m:27s]]
+
+Compare with what I was getting with size=3D100%
+
+ Jobs: 32 (f=3D32): [w(32)][10.8%][w=3D301MiB/s][w=3D77.0k IOPS][eta 06d:13=
+h:56m:51s]]
+
+> Regards,
+> Andrey
+> >
+> > > Regards,
+> > > Andrey
+> > >
+> > > > like:
+> > > >
+> > > > [global]
+> > > > ioengine=3Dlibaio
+> > > > thread=3D1
+> > > > direct=3D1
+> > > > bs=3D128k
+> > > > rw=3Dwrite
+> > > > numjobs=3D1
+> > > > iodepth=3D128
+> > > > size=3D100%
+> > > > loops=3D2
+> > > > [job00]
+> > > > filename=3D/dev/nvme0n1
+> > > >
+> > > > Or if you have a use case where you specifically want to write it i=
+n with 4K blocks, you could probably increase your queue depth way beyond 4=
+ and see improvement in performance, and you probably don't want to specify=
+ norandommap if you're trying to hit every block on the device.
+> > > >
+> > > > -Joe
 
