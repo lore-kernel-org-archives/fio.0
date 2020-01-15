@@ -1,63 +1,110 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:19770 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728596AbgAOSdG (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 15 Jan 2020 13:33:06 -0500
-From: "Kudryavtsev, Andrey O" <andrey.o.kudryavtsev@intel.com>
-Subject: Re: CPUs, threads, and speed
-Date: Wed, 15 Jan 2020 18:33:01 +0000
-Message-ID: <EE47D240-3BC2-4E47-91A6-7F7943A408CB@intel.com>
+Received: from mail-oi1-f174.google.com ([209.85.167.174]:36001 "EHLO
+        mail-oi1-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728928AbgAOS3z (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 15 Jan 2020 13:29:55 -0500
+Received: by mail-oi1-f174.google.com with SMTP id c16so16375019oic.3
+        for <fio@vger.kernel.org>; Wed, 15 Jan 2020 10:29:55 -0800 (PST)
+MIME-Version: 1.0
 References: <CAHEKYV6AqY=u=PZ2EAxLwM2a3TL6ByAwTRyURA=9CA1dAtwLbw@mail.gmail.com>
  <MWHPR11MB16790DF710A8EA7EB9118C37A9370@MWHPR11MB1679.namprd11.prod.outlook.com>
-In-Reply-To: <MWHPR11MB16790DF710A8EA7EB9118C37A9370@MWHPR11MB1679.namprd11.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <350FB736F1CDD941A744AEA0A2C58638@namprd11.prod.outlook.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+ <CANvN+ekCr5CxPe1pcVwc7MQG+MoUPK=YVpfcGT1Hn=4H1JQOqA@mail.gmail.com>
+In-Reply-To: <CANvN+ekCr5CxPe1pcVwc7MQG+MoUPK=YVpfcGT1Hn=4H1JQOqA@mail.gmail.com>
+From: Mauricio Tavares <raubvogel@gmail.com>
+Date: Wed, 15 Jan 2020 13:29:43 -0500
+Message-ID: <CAHEKYV6tMRCyhWnT9D+LaZ_U7j=wRLcMMU4yjBv1Te72FUYBag@mail.gmail.com>
+Subject: Re: CPUs, threads, and speed
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Gruher, Joseph R" <joseph.r.gruher@intel.com>, Mauricio Tavares <raubvogel@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Cc: "Gruher, Joseph R" <joseph.r.gruher@intel.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-SSBjYW4gY2xhcmlmeSB0aGF0IGFzIEkgcG9zdGVkIHRoZSBvcmlnaW5hbCBzY3JpcHQgb24gZ2l0
-aHViLiANClNlcXVlbnRpYWwgcHJlY29uZGl0aW9uaW5nIGlzIG1hbmRhdG9yeSBmb3IgYmFuZHdp
-ZHRoIHRlc3QuIFJhbmRvbSA0ayBwcmVjb25kaXRpb25pbmcgaXMgZm9yIGV2ZXJ5dGhpbmcgZWxz
-ZS4gRm9yIGFsbCBtaXhlZCBzY2VuYXJpb3MgZGF0YSBoYXMgdG8gYmUgcmFuZG9taXplZCwgc28s
-IHRoYXQgcHV0cyBoaWdoZXN0IHByZXNzdXJlIG9uIHRoZSBkcml2ZSAoYW5kIGludGVybmFsbHkg
-V0FGIGluIGNhc2Ugb2YgTkFORCBTU0QpLiBUaGF0IG1ha2VzIGFsbCBmb2xsb3dpbmcgYmVuY2ht
-YXJrcyBmYWlyLiAgDQpOb3JhbmRvbW1hcCAtIEkgYWdyZWUgaW4gZ2VuZXJhbCwgYnV0IHRoZSBG
-SU8gb3ZlcmhlYWQgb2YgdHJhY2tpbmcgTEJBcyBpbXBhY3RzIHRoZSBwZXJmb3JtYW5jZSBhbmQg
-ZXh0ZW5kcyBwcmUtZmlsbCB0aW1lLiANCg0KLS0gDQpBbmRyZXkgS3VkcnlhdnRzZXYsIA0KU1NE
-IFNvbHV0aW9uIEFyY2hpdGVjdA0KSW50ZWwgQ29ycC4gDQoNCg0K77u/T24gMS8xNS8yMCwgOToy
-OSBBTSwgImZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmcgb24gYmVoYWxmIG9mIEdydWhlciwgSm9z
-ZXBoIFIiIDxmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnIG9uIGJlaGFsZiBvZiBqb3NlcGguci5n
-cnVoZXJAaW50ZWwuY29tPiB3cm90ZToNCg0KICAgID4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0t
-LS0NCiAgICA+IEZyb206IGZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmcgPGZpby1vd25lckB2Z2Vy
-Lmtlcm5lbC5vcmc+IE9uIEJlaGFsZiBPZg0KICAgID4gTWF1cmljaW8gVGF2YXJlcw0KICAgID4g
-U2VudDogV2VkbmVzZGF5LCBKYW51YXJ5IDE1LCAyMDIwIDc6NTEgQU0NCiAgICA+IFRvOiBmaW9A
-dmdlci5rZXJuZWwub3JnDQogICAgPiBTdWJqZWN0OiBDUFVzLCB0aHJlYWRzLCBhbmQgc3BlZWQN
-CiAgICA+IA0KICAgID4gTGV0J3Mgc2F5IEkgaGF2ZSBhIGNvbmZpZyBmaWxlIHRvIHByZWxvYWQg
-ZHJpdmUgdGhhdCBsb29rcyBsaWtlIHRoaXMgKHN0b2xlbiBmcm9tDQogICAgPiBodHRwczovL2dp
-dGh1Yi5jb20vaW50ZWwvZmlvdmlzdWFsaXplci9ibG9iL21hc3Rlci9Xb3JrbG9hZHMvUHJlY29u
-ZGl0aW9uL2ZpbGwNCiAgICA+IF80S1JhbmRvbV9OVk1lLmluaSkNCiAgICA+IA0KICAgID4gW2ds
-b2JhbF0NCiAgICA+IG5hbWU9NGsgcmFuZG9tIHdyaXRlIDQgaW9zIGluIHRoZSBxdWV1ZSBpbiAz
-MiBxdWV1ZXMNCiAgICA+IGZpbGVuYW1lPS9kZXYvbnZtZTBuMQ0KICAgID4gaW9lbmdpbmU9bGli
-YWlvDQogICAgPiBkaXJlY3Q9MQ0KICAgID4gYnM9NGsNCiAgICA+IHJ3PXJhbmR3cml0ZQ0KICAg
-ID4gaW9kZXB0aD00DQogICAgPiBudW1qb2JzPTMyDQogICAgPiBidWZmZXJlZD0wDQogICAgPiBz
-aXplPTEwMCUNCiAgICA+IGxvb3BzPTINCiAgICA+IHJhbmRyZXBlYXQ9MA0KICAgID4gbm9yYW5k
-b21tYXANCiAgICA+IHJlZmlsbF9idWZmZXJzDQogICAgPiANCiAgICA+IFtqb2IxXQ0KICAgID4g
-DQogICAgPiBUaGF0IGlzIHRha2luZyBhIHRvbiBvZiB0aW1lLCBsaWtlIGRheXMgdG8gZ28uIElz
-IHRoZXJlIGFueXRoaW5nIEkgY2FuIGRvIHRvIHNwZWVkIGl0DQogICAgPiB1cD8gDQogICAgDQog
-ICAgV2hlbiB5b3Ugc2F5IHByZWxvYWQsIGRvIHlvdSBqdXN0IHdhbnQgdG8gd3JpdGUgaW4gdGhl
-IGZ1bGwgY2FwYWNpdHkgb2YgdGhlIGRyaXZlPyAgQSBzZXF1ZW50aWFsIHdvcmtsb2FkIHdpdGgg
-bGFyZ2VyIGJsb2NrcyB3aWxsIGJlIGZhc3RlciwgbGlrZToNCiAgICANCiAgICBbZ2xvYmFsXQ0K
-ICAgIGlvZW5naW5lPWxpYmFpbw0KICAgIHRocmVhZD0xDQogICAgZGlyZWN0PTENCiAgICBicz0x
-MjhrDQogICAgcnc9d3JpdGUNCiAgICBudW1qb2JzPTENCiAgICBpb2RlcHRoPTEyOA0KICAgIHNp
-emU9MTAwJQ0KICAgIGxvb3BzPTINCiAgICBbam9iMDBdDQogICAgZmlsZW5hbWU9L2Rldi9udm1l
-MG4xDQogICAgDQogICAgT3IgaWYgeW91IGhhdmUgYSB1c2UgY2FzZSB3aGVyZSB5b3Ugc3BlY2lm
-aWNhbGx5IHdhbnQgdG8gd3JpdGUgaXQgaW4gd2l0aCA0SyBibG9ja3MsIHlvdSBjb3VsZCBwcm9i
-YWJseSBpbmNyZWFzZSB5b3VyIHF1ZXVlIGRlcHRoIHdheSBiZXlvbmQgNCBhbmQgc2VlIGltcHJv
-dmVtZW50IGluIHBlcmZvcm1hbmNlLCBhbmQgeW91IHByb2JhYmx5IGRvbid0IHdhbnQgdG8gc3Bl
-Y2lmeSBub3JhbmRvbW1hcCBpZiB5b3UncmUgdHJ5aW5nIHRvIGhpdCBldmVyeSBibG9jayBvbiB0
-aGUgZGV2aWNlLg0KICAgIA0KICAgIC1Kb2UNCiAgICANCg0K
+On Wed, Jan 15, 2020 at 1:04 PM Andrey Kuzmin <andrey.v.kuzmin@gmail.com> w=
+rote:
+>
+> On Wed, Jan 15, 2020 at 8:29 PM Gruher, Joseph R
+> <joseph.r.gruher@intel.com> wrote:
+> >
+> > > -----Original Message-----
+> > > From: fio-owner@vger.kernel.org <fio-owner@vger.kernel.org> On Behalf=
+ Of
+> > > Mauricio Tavares
+> > > Sent: Wednesday, January 15, 2020 7:51 AM
+> > > To: fio@vger.kernel.org
+> > > Subject: CPUs, threads, and speed
+> > >
+> > > Let's say I have a config file to preload drive that looks like this =
+(stolen from
+> > > https://github.com/intel/fiovisualizer/blob/master/Workloads/Precondi=
+tion/fill
+> > > _4KRandom_NVMe.ini)
+> > >
+> > > [global]
+> > > name=3D4k random write 4 ios in the queue in 32 queues
+> > > filename=3D/dev/nvme0n1
+> > > ioengine=3Dlibaio
+> > > direct=3D1
+> > > bs=3D4k
+> > > rw=3Drandwrite
+> > > iodepth=3D4
+> > > numjobs=3D32
+> > > buffered=3D0
+> > > size=3D100%
+> > > loops=3D2
+> > > randrepeat=3D0
+> > > norandommap
+> > > refill_buffers
+> > >
+> > > [job1]
+> > >
+> > > That is taking a ton of time, like days to go. Is there anything I ca=
+n do to speed it
+> > > up?
+> >
+> > When you say preload, do you just want to write in the full capacity of=
+ the drive?
+>
+> I believe that preload here means what in SSD world is called drive
+> preconditioning. It means bringing a fresh drive into steady mode
+> where it gives you the true performance in production over months of
+> use rather than the unrealistic fresh drive random write IOPS.
+>
+> > A sequential workload with larger blocks will be faster,
+>
+> No, you cannot get the job done by sequential writes since it doesn't
+> populate FTL translation tables like random writes do.
+>
+> As to taking a ton, the rule of thumb is to give the SSD 2xcapacity
+> worth of random writes. At today speeds, that should take just a
+> couple of hours.
+>
+      When you say 2xcapacity worth of random writes, do you mean just
+setting size=3D200%?
+
+> Regards,
+> Andrey
+>
+> > like:
+> >
+> > [global]
+> > ioengine=3Dlibaio
+> > thread=3D1
+> > direct=3D1
+> > bs=3D128k
+> > rw=3Dwrite
+> > numjobs=3D1
+> > iodepth=3D128
+> > size=3D100%
+> > loops=3D2
+> > [job00]
+> > filename=3D/dev/nvme0n1
+> >
+> > Or if you have a use case where you specifically want to write it in wi=
+th 4K blocks, you could probably increase your queue depth way beyond 4 and=
+ see improvement in performance, and you probably don't want to specify nor=
+andommap if you're trying to hit every block on the device.
+> >
+> > -Joe
 
