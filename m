@@ -1,147 +1,153 @@
-Return-Path: <Friendy.Su@sony.com>
-From: "Su, Friendy" <Friendy.Su@sony.com>
-Subject: [PATCH v2] engines: add engine for file stat
-Date: Wed, 8 Jan 2020 07:47:30 +0000
-Message-ID: 
- <SG2PR04MB2492F1C97D5744C3EB0AA85FFD3E0@SG2PR04MB2492.apcprd04.prod.outlook.com>
-Content-Language: zh-CN
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <michael.c@excelero.com>
 MIME-Version: 1.0
-To: fio <fio@vger.kernel.org>
-Cc: "Kobayashi, Kento (Sony)" <Kento.A.Kobayashi@sony.com>, Jens Axboe <axboe@kernel.dk>, Sitsofe Wheeler <sitsofe@gmail.com>
+References: <CAA6um5PoJSafFa6Xa9ZeZqXUyXPA5b2fGNWA=+OoRVhkkXgogg@mail.gmail.com>
+ <7b667f2f-dbe9-7ff1-72f4-d41d0994e21d@kernel.dk> <CALjAwxi-W2-5Xg=3mBMakfmeTJ7KjnQC=L0DrsESQAEY45Y3rw@mail.gmail.com>
+In-Reply-To: <CALjAwxi-W2-5Xg=3mBMakfmeTJ7KjnQC=L0DrsESQAEY45Y3rw@mail.gmail.com>
+From: Michael Chichik <michael.c@excelero.com>
+Date: Thu, 16 Jan 2020 14:09:27 +0200
+Message-ID: <CAA6um5Pv=7x_SxkXZk_kNYh8nhOsq_Uxt2n2ryJjoqL_t7Q9Kw@mail.gmail.com>
+Subject: Re: FIO verify bad header question
+Content-Type: multipart/alternative; boundary="000000000000058d35059c40b3cb"
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: Matan Ramrazker <matan@excelero.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-VGhpcyBlbmdpbmUgaXMgdG8gbWVhc3VyZSBwZXJmb3JtYW5jZSBvZiBhY2Nlc3NpbmcgZmlsZSdz
-IG1ldGEgZGF0YS4NClRoaXMgaXMgZm9yIHRoZSBhY3R1YWwgYWNjZXNzIHBhdHRlcm4gd2hpY2gg
-ZG9lcyBub3QgZG8gcmVhbCBJTywgYnV0DQpqdXN0IGxvb2sgdXAgdGhlIGZpbGUgYW5kIGdldCBm
-aWxlJ3MgYXR0cmlidXRlLg0KLS0tDQogSE9XVE8gICAgICAgICAgICAgICAgICAgICAgICAgIHwg
-ICA1ICsrDQogTWFrZWZpbGUgICAgICAgICAgICAgICAgICAgICAgIHwgICAyICstDQogZW5naW5l
-cy9maWxlc3RhdC5jICAgICAgICAgICAgIHwgMTE2ICsrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKw0KIGV4YW1wbGVzL2ZpbGVzdGF0LWlvZW5naW5lLmZpbyB8ICAxOSArKysrKysNCiBm
-aW8uMSAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDUgKysNCiA1IGZpbGVzIGNoYW5nZWQs
-IDE0NiBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pDQogY3JlYXRlIG1vZGUgMTAwNjQ0IGVu
-Z2luZXMvZmlsZXN0YXQuYw0KIGNyZWF0ZSBtb2RlIDEwMDY0NCBleGFtcGxlcy9maWxlc3RhdC1p
-b2VuZ2luZS5maW8NCg0KZGlmZiAtLWdpdCBhL0hPV1RPIGIvSE9XVE8NCmluZGV4IDg4ZGJiMDNm
-Li41ZTQyNGU4NCAxMDA2NDQNCi0tLSBhL0hPV1RPDQorKysgYi9IT1dUTw0KQEAgLTE5OTYsNiAr
-MTk5NiwxMSBAQCBJL08gZW5naW5lDQogCQkJc2V0ICBgZmlsZXNpemVgIHNvIHRoYXQgYWxsIHRo
-ZSBhY2NvdW50aW5nIHN0aWxsIG9jY3VycywgYnV0IG5vDQogCQkJYWN0dWFsIEkvTyB3aWxsIGJl
-IGRvbmUgb3RoZXIgdGhhbiBjcmVhdGluZyB0aGUgZmlsZS4NCiANCisJCSoqZmlsZXN0YXQqKg0K
-KwkJCVNpbXBseSBkbyBzdGF0KCkgYW5kIGRvIG5vIEkvTyB0byB0aGUgZmlsZS4gWW91IG5lZWQg
-dG8gc2V0ICdmaWxlc2l6ZScNCisJCQlhbmQgJ25yZmlsZXMnLCBzbyB0aGF0IGZpbGVzIHdpbGwg
-YmUgY3JlYXRlZC4NCisJCQlUaGlzIGVuZ2luZSBpcyB0byBtZWFzdXJlIGZpbGUgbG9va3VwIGFu
-ZCBtZXRhIGRhdGEgYWNjZXNzLg0KKw0KIAkJKipsaWJwbWVtKioNCiAJCQlSZWFkIGFuZCB3cml0
-ZSB1c2luZyBtbWFwIEkvTyB0byBhIGZpbGUgb24gYSBmaWxlc3lzdGVtDQogCQkJbW91bnRlZCB3
-aXRoIERBWCBvbiBhIHBlcnNpc3RlbnQgbWVtb3J5IGRldmljZSB0aHJvdWdoIHRoZSBQTURLDQpk
-aWZmIC0tZ2l0IGEvTWFrZWZpbGUgYi9NYWtlZmlsZQ0KaW5kZXggN2FhYjZhYmQuLmFiODVjZWFj
-IDEwMDY0NA0KLS0tIGEvTWFrZWZpbGUNCisrKyBiL01ha2VmaWxlDQpAQCAtNDUsNyArNDUsNyBA
-QCBTT1VSQ0UgOj0JJChzb3J0ICQocGF0c3Vic3QgJChTUkNESVIpLyUsJSwkKHdpbGRjYXJkICQo
-U1JDRElSKS9jcmMvKi5jKSkgXA0KIAkJcHNoYXJlZC5jIG9wdGlvbnMuYyBcDQogCQlzbWFsbG9j
-LmMgZmlsZWhhc2guYyBwcm9maWxlLmMgZGVidWcuYyBlbmdpbmVzL2NwdS5jIFwNCiAJCWVuZ2lu
-ZXMvbW1hcC5jIGVuZ2luZXMvc3luYy5jIGVuZ2luZXMvbnVsbC5jIGVuZ2luZXMvbmV0LmMgXA0K
-LQkJZW5naW5lcy9mdHJ1bmNhdGUuYyBlbmdpbmVzL2ZpbGVjcmVhdGUuYyBcDQorCQllbmdpbmVz
-L2Z0cnVuY2F0ZS5jIGVuZ2luZXMvZmlsZWNyZWF0ZS5jIGVuZ2luZXMvZmlsZXN0YXQuYyBcDQog
-CQlzZXJ2ZXIuYyBjbGllbnQuYyBpb2xvZy5jIGJhY2tlbmQuYyBsaWJmaW8uYyBmbG93LmMgY2Nv
-bnYuYyBcDQogCQlnZXR0aW1lLXRocmVhZC5jIGhlbHBlcnMuYyBqc29uLmMgaWRsZXRpbWUuYyB0
-ZF9lcnJvci5jIFwNCiAJCXByb2ZpbGVzL3Rpb2JlbmNoLmMgcHJvZmlsZXMvYWN0LmMgaW9fdV9x
-dWV1ZS5jIGZpbGVsb2NrLmMgXA0KZGlmZiAtLWdpdCBhL2VuZ2luZXMvZmlsZXN0YXQuYyBiL2Vu
-Z2luZXMvZmlsZXN0YXQuYw0KbmV3IGZpbGUgbW9kZSAxMDA2NDQNCmluZGV4IDAwMDAwMDAwLi5j
-NDhmMGQ4OQ0KLS0tIC9kZXYvbnVsbA0KKysrIGIvZW5naW5lcy9maWxlc3RhdC5jDQpAQCAtMCww
-ICsxLDExNiBAQA0KKy8qDQorICogZmlsZXN0YXQgZW5naW5lDQorICoNCisgKiBJTyBlbmdpbmUg
-dGhhdCBkb2Vzbid0IGRvIGFueSBJTywganVzdCBzdGF0IGZpbGVzIGFuZCB0cmFja3MgdGhlIGxh
-dGVuY3kNCisgKiBvZiB0aGUgZmlsZSBzdGF0Lg0KKyAqLw0KKyNpbmNsdWRlIDxzdGRpby5oPg0K
-KyNpbmNsdWRlIDxmY250bC5oPg0KKyNpbmNsdWRlIDxlcnJuby5oPg0KKyNpbmNsdWRlIDxzeXMv
-dHlwZXMuaD4NCisjaW5jbHVkZSA8c3lzL3N0YXQuaD4NCisjaW5jbHVkZSA8dW5pc3RkLmg+DQor
-I2luY2x1ZGUgIi4uL2Zpby5oIg0KKw0KK3N0cnVjdCBmY19kYXRhIHsNCisJZW51bSBmaW9fZGRp
-ciBzdGF0X2RkaXI7DQorfTsNCisNCitzdGF0aWMgaW50IHN0YXRfZmlsZShzdHJ1Y3QgdGhyZWFk
-X2RhdGEgKnRkLCBzdHJ1Y3QgZmlvX2ZpbGUgKmYpDQorew0KKwlzdHJ1Y3QgdGltZXNwZWMgc3Rh
-cnQ7DQorCWludCBkb19sYXQgPSAhdGQtPm8uZGlzYWJsZV9sYXQ7DQorCXN0cnVjdCBzdGF0IHN0
-YXRidWY7DQorCWludCByZXQ7DQorDQorCWRwcmludChGRF9GSUxFLCAiZmQgc3RhdCAlc1xuIiwg
-Zi0+ZmlsZV9uYW1lKTsNCisNCisJaWYgKGYtPmZpbGV0eXBlICE9IEZJT19UWVBFX0ZJTEUpIHsN
-CisJCWxvZ19lcnIoImZpbzogb25seSBmaWxlcyBhcmUgc3VwcG9ydGVkIGZhbGxvY2F0ZSBcbiIp
-Ow0KKwkJcmV0dXJuIDE7DQorCX0NCisJaWYgKCFzdHJjbXAoZi0+ZmlsZV9uYW1lLCAiLSIpKSB7
-DQorCQlsb2dfZXJyKCJmaW86IGNhbid0IHJlYWQvd3JpdGUgdG8gc3RkaW4vb3V0XG4iKTsNCisJ
-CXJldHVybiAxOw0KKwl9DQorDQorCWlmIChkb19sYXQpDQorCQlmaW9fZ2V0dGltZSgmc3RhcnQs
-IE5VTEwpOw0KKw0KKwlyZXQgPSBzdGF0KGYtPmZpbGVfbmFtZSwgJnN0YXRidWYpOw0KKw0KKwlp
-ZiAocmV0ID09IC0xKSB7DQorCQljaGFyIGJ1ZltGSU9fVkVSUk9SX1NJWkVdOw0KKwkJaW50IGUg
-PSBlcnJubzsNCisNCisJCXNucHJpbnRmKGJ1Ziwgc2l6ZW9mKGJ1ZiksICJzdGF0KCVzKSIsIGYt
-PmZpbGVfbmFtZSk7DQorCQl0ZF92ZXJyb3IodGQsIGUsIGJ1Zik7DQorCQlyZXR1cm4gMTsNCisJ
-fQ0KKw0KKwlpZiAoZG9fbGF0KSB7DQorCQlzdHJ1Y3QgZmNfZGF0YSAqZGF0YSA9IHRkLT5pb19v
-cHNfZGF0YTsNCisJCXVpbnQ2NF90IG5zZWM7DQorDQorCQluc2VjID0gbnRpbWVfc2luY2Vfbm93
-KCZzdGFydCk7DQorCQlhZGRfY2xhdF9zYW1wbGUodGQsIGRhdGEtPnN0YXRfZGRpciwgbnNlYywg
-MCwgMCk7DQorCX0NCisNCisJcmV0dXJuIDA7DQorfQ0KKw0KK3N0YXRpYyBlbnVtIGZpb19xX3N0
-YXR1cyBxdWV1ZV9pbyhzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBzdHJ1Y3QgaW9fdSBmaW9fdW51
-c2VkICppb191KQ0KK3sNCisJcmV0dXJuIEZJT19RX0NPTVBMRVRFRDsNCit9DQorDQorc3RhdGlj
-IGludCBpbml0KHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpDQorew0KKwlzdHJ1Y3QgZmNfZGF0YSAq
-ZGF0YTsNCisNCisJZGF0YSA9IGNhbGxvYygxLCBzaXplb2YoKmRhdGEpKTsNCisNCisJaWYgKHRk
-X3JlYWQodGQpKQ0KKwkJZGF0YS0+c3RhdF9kZGlyID0gRERJUl9SRUFEOw0KKwllbHNlIGlmICh0
-ZF93cml0ZSh0ZCkpDQorCQlkYXRhLT5zdGF0X2RkaXIgPSBERElSX1dSSVRFOw0KKw0KKwl0ZC0+
-aW9fb3BzX2RhdGEgPSBkYXRhOw0KKwlyZXR1cm4gMDsNCit9DQorDQorc3RhdGljIHZvaWQgY2xl
-YW51cChzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkKQ0KK3sNCisJc3RydWN0IGZjX2RhdGEgKmRhdGEg
-PSB0ZC0+aW9fb3BzX2RhdGE7DQorDQorCWZyZWUoZGF0YSk7DQorfQ0KKw0KK3N0YXRpYyBpbnQg
-c3RhdF9pbnZhbGlkYXRlKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsIHN0cnVjdCBmaW9fZmlsZSAq
-ZikNCit7DQorCS8qIGRvIG5vdGhpbmcgYmVjYXVzZSBmaWxlIG5vdCBvcGVuZWQgKi8NCisJcmV0
-dXJuIDA7DQorfQ0KKw0KK3N0YXRpYyBzdHJ1Y3QgaW9lbmdpbmVfb3BzIGlvZW5naW5lID0gew0K
-KwkubmFtZQkJPSAiZmlsZXN0YXQiLA0KKwkudmVyc2lvbgk9IEZJT19JT09QU19WRVJTSU9OLA0K
-KwkuaW5pdAkJPSBpbml0LA0KKwkuY2xlYW51cAk9IGNsZWFudXAsDQorCS5xdWV1ZQkJPSBxdWV1
-ZV9pbywNCisJLmludmFsaWRhdGUJPSBzdGF0X2ludmFsaWRhdGUsDQorCS5nZXRfZmlsZV9zaXpl
-CT0gZ2VuZXJpY19nZXRfZmlsZV9zaXplLA0KKwkub3Blbl9maWxlCT0gc3RhdF9maWxlLA0KKwku
-ZmxhZ3MJCT0gIEZJT19TWU5DSU8gfCBGSU9fRkFLRUlPIHwNCisJCQkJRklPX05PU1RBVFMgfCBG
-SU9fTk9GSUxFSEFTSCwNCit9Ow0KKw0KK3N0YXRpYyB2b2lkIGZpb19pbml0IGZpb19maWxlc3Rh
-dF9yZWdpc3Rlcih2b2lkKQ0KK3sNCisJcmVnaXN0ZXJfaW9lbmdpbmUoJmlvZW5naW5lKTsNCit9
-DQorDQorc3RhdGljIHZvaWQgZmlvX2V4aXQgZmlvX2ZpbGVzdGF0X3VucmVnaXN0ZXIodm9pZCkN
-Cit7DQorCXVucmVnaXN0ZXJfaW9lbmdpbmUoJmlvZW5naW5lKTsNCit9DQpkaWZmIC0tZ2l0IGEv
-ZXhhbXBsZXMvZmlsZXN0YXQtaW9lbmdpbmUuZmlvIGIvZXhhbXBsZXMvZmlsZXN0YXQtaW9lbmdp
-bmUuZmlvDQpuZXcgZmlsZSBtb2RlIDEwMDY0NA0KaW5kZXggMDAwMDAwMDAuLjkzMmZjZWQ4DQot
-LS0gL2Rldi9udWxsDQorKysgYi9leGFtcGxlcy9maWxlc3RhdC1pb2VuZ2luZS5maW8NCkBAIC0w
-LDAgKzEsMTkgQEANCisjIEV4YW1wbGUgZmlsZXN0YXQgam9iDQorDQorIyAnZmlsZXN0YXQnIGVu
-Z2luZSBvbmx5IGRvICdzdGF0KGZpbGVuYW1lKScsIGZpbGUgd2lsbCBub3QgYmUgb3BlbigpLg0K
-KyMgJ2ZpbGVzaXplJyBtdXN0IGJlIHNldCwgdGhlbiBmaWxlcyB3aWxsIGJlIGNyZWF0ZWQgYXQg
-c2V0dXAgc3RhZ2UuDQorDQorW2dsb2JhbF0NCitpb2VuZ2luZT1maWxlc3RhdA0KK251bWpvYnM9
-MQ0KK2ZpbGVzaXplPTRrDQorbnJmaWxlcz0yMDANCit0aHJlYWQNCisNCitbdDBdDQorW3QxXQ0K
-K1t0Ml0NCitbdDNdDQorW3Q0XQ0KK1t0NV0NCisNCmRpZmYgLS1naXQgYS9maW8uMSBiL2Zpby4x
-DQppbmRleCAxNDU2OWU5Zi4uYmIxZTQyZjYgMTAwNjQ0DQotLS0gYS9maW8uMQ0KKysrIGIvZmlv
-LjENCkBAIC0xNzYwLDYgKzE3NjAsMTEgQEAgU2ltcGx5IGNyZWF0ZSB0aGUgZmlsZXMgYW5kIGRv
-IG5vIEkvTyB0byB0aGVtLiAgWW91IHN0aWxsIG5lZWQgdG8gc2V0DQogXGZCZmlsZXNpemVcZlIg
-c28gdGhhdCBhbGwgdGhlIGFjY291bnRpbmcgc3RpbGwgb2NjdXJzLCBidXQgbm8gYWN0dWFsIEkv
-TyB3aWxsIGJlDQogZG9uZSBvdGhlciB0aGFuIGNyZWF0aW5nIHRoZSBmaWxlLg0KIC5UUA0KKy5C
-IGZpbGVzdGF0DQorU2ltcGx5IGRvIHN0YXQoKSBhbmQgZG8gbm8gSS9PIHRvIHRoZSBmaWxlLiBZ
-b3UgbmVlZCB0byBzZXQgJ2ZpbGVzaXplJw0KK2FuZCAnbnJmaWxlcycsIHNvIHRoYXQgZmlsZXMg
-d2lsbCBiZSBjcmVhdGVkLg0KK1RoaXMgZW5naW5lIGlzIHRvIG1lYXN1cmUgZmlsZSBsb29rdXAg
-YW5kIG1ldGEgZGF0YSBhY2Nlc3MuDQorLlRQDQogLkIgbGlicG1lbQ0KIFJlYWQgYW5kIHdyaXRl
-IHVzaW5nIG1tYXAgSS9PIHRvIGEgZmlsZSBvbiBhIGZpbGVzeXN0ZW0NCiBtb3VudGVkIHdpdGgg
-REFYIG9uIGEgcGVyc2lzdGVudCBtZW1vcnkgZGV2aWNlIHRocm91Z2ggdGhlIFBNREsNCi0tIA0K
-Mi4xNy4xDQoNCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IEplbnMgQXhib2Ug
-PGF4Ym9lQGtlcm5lbC5kaz4gDQpTZW50OiBNb25kYXksIERlY2VtYmVyIDMwLCAyMDE5IDc6MjEg
-QU0NClRvOiBTaXRzb2ZlIFdoZWVsZXIgPHNpdHNvZmVAZ21haWwuY29tPjsgU3UsIEZyaWVuZHkg
-PEZyaWVuZHkuU3VAc29ueS5jb20+DQpDYzogZmlvIDxmaW9Admdlci5rZXJuZWwub3JnPjsgS29i
-YXlhc2hpLCBLZW50byAoU29ueSkgPEtlbnRvLkEuS29iYXlhc2hpQHNvbnkuY29tPg0KU3ViamVj
-dDogUmU6IFtQQVRDSF0gZW5naW5lczogYWRkIGVuZ2luZSBmb3IgZmlsZSBzdGF0DQoNCk9uIDEy
-LzI5LzE5IDI6MjMgUE0sIFNpdHNvZmUgV2hlZWxlciB3cm90ZToNCj4gT24gVGh1LCAxOSBEZWMg
-MjAxOSBhdCAxMDoyMCwgU3UsIEZyaWVuZHkgPEZyaWVuZHkuU3VAc29ueS5jb20+IHdyb3RlOg0K
-Pj4NCj4+IFRoYW5rcyBmb3IgeW91ciBjb21tZW50cy4NCj4+IEkgZml4ZWQgYW5kIHJlc2VudCBw
-YXRjaC4gUGxzIHNlZSBteSByZXBseSBpbiB0ZXh0IGJlbG93Lg0KPiANCj4gRnJvbSBhIGJyaWVm
-IHNjYW4gaXQgbG9va3MgT0sgdG8gbWUgYnV0IEknZCBzYXkgeW91IGFyZSBiZXR0ZXIgb2ZmIA0K
-PiBwb3N0aW5nIHBhdGNoZXMgaW4tbGluZSBiZWNhdXNlIGl0IG1ha2UgcmV2aWV3IGVhc2llciAo
-YW55b25lIGVsc2Ugd2hvIA0KPiB3YW50cyB0byBzZWUgaXQgd2lsbCBoYXZlIHRvIGxvb2sgYXQg
-dGhlIHBhcmVudCBvZiB0aGlzIG1haWwpLiBJZiB0aGlzIA0KPiBpcyB0cm91Ymxlc29tZSB5b3Ug
-Y2FuIGFsd2F5cyB0cnkgc3VibWl0dGluZyBhIHB1bGwgcmVxdWVzdCAoZS5nLiB2aWEgDQo+IGh0
-dHBzOi8vdXJsZGVmZW5zZS5wcm9vZnBvaW50LmNvbS92Mi91cmw/dT1odHRwcy0zQV9fZ2l0aHVi
-LmNvbV9heGJvZV9maW9fcHVsbHMmZD1Ed0lDYVEmYz1mUDR0Zi0tMWRTMGJpQ0ZsQjBzYXowSTBr
-ak81djctR0xQdHZTaEFvNGNjJnI9eDR3LXhlRkxWMXE5UU52VC1nNTFoSU5fWWRuVERoMmluaVJU
-RGpPcEdUayZtPW43YUgwNEF6MEJrZTZMdFAxYmNHaEtpc2dqWjQtX2NYM0NtMGFKeW82Mlkmcz1I
-WkdGd0dURXNiYk82b1dEZDJmTlFZemZ0M2tQOVl2MURCaUJxN2RtRGowJmU9ICApLi4uDQo+IA0K
-PiBKZW5zOiBJZiB5b3UgY2FuIHNlZSB0aGUgcGF0Y2ggYXMgYW4gYXR0YWNobWVudCAoZS5nLiBh
-dCB0aGUgYm90dG9tIG9mIA0KPiBodHRwczovL3VybGRlZmVuc2UucHJvb2Zwb2ludC5jb20vdjIv
-dXJsP3U9aHR0cHMtM0FfX3d3dy5zcGluaWNzLm5ldF9saXN0c19maW9fbXNnMDgyMDMuaHRtbCZk
-PUR3SUNhUSZjPWZQNHRmLS0xZFMwYmlDRmxCMHNhejBJMGtqTzV2Ny1HTFB0dlNoQW80Y2Mmcj14
-NHcteGVGTFYxcTlRTnZULWc1MWhJTl9ZZG5URGgyaW5pUlREak9wR1RrJm09bjdhSDA0QXowQmtl
-Nkx0UDFiY0doS2lzZ2paNC1fY1gzQ20wYUp5bzYyWSZzPWdWcjRsa1VKQ2hxcEtzeHBTUGRndXU4
-dHhvSF9nZWt1N1o1TVFYellLX2smZT0gICksIHdoYXQgZG8geW91IHRoaW5rPw0KDQpXaXRoIG15
-IGlvX3VyaW5nIGhhdCBvbiwgdGhlcmUncyBhIGZldyB3YXlzIHRvIGRvIHN0YXQgc2luY2UgaW9f
-dXJpbmcgYWxzbyBzdXBwb3J0cyBpdC4gSXMgdGhlIHBsYW4gdG8gZW5hYmxlIGEgaW9fdXJpbmcg
-YmFja2VuZCBhcyB3ZWxsIGZvciB0aGF0IGVuZ2luZT8gT3Igc2hvdWxkIHN0YXQgcGVyaGFwcyBi
-ZSBhIGRhdGEgZGlyZWN0aW9uIGluc3RlYWQgdGhhdCBhbGwgaW8gZW5naW5lcyBjb3VsZCB0aGVu
-IHN1cHBvcnQsIHNvbWUgb2YgdGhlbSBpbiBhbiBhc3luYyBtYW5uZXI/DQoNCg0KLS0NCkplbnMg
-QXhib2UNCg0K
+--000000000000058d35059c40b3cb
+Content-Type: text/plain; charset="UTF-8"
+
+I thought that if i use size=1g with nomjobs=10 the 1G is a range for each
+job so no job interfere with other jobs
+thanks a lot!!
+
+On Thu, Jan 16, 2020 at 1:47 AM Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+
+> Hi,
+>
+> On Wed, 15 Jan 2020 at 15:32, Jens Axboe <axboe@kernel.dk> wrote:
+> >
+> > Please use the fio list for this, CC'ed.
+> >
+> > On 1/15/20 8:28 AM, Michael Chichik wrote:
+> > >
+> > > */usr/bin/fio --time_based --runtime=1d --ioengine=libaio --iodepth=32
+> --rw=randrw --bs=24k --direct=0 --io_size=60G --numjobs=10 --size=1G
+> --rwmixread=0 --verify=md5 --verify_fatal=1 --output-format=json
+> --output=4_randrw_0_10_32_libaio_xfs_1G.json --directory
+> /mnt/test-vol-23206-36 --name host1_test-vol-23206-36
+>
+> ^^^numjobs=10 will mean all the jobs are working inside the same
+> region. Because you're using randrw it's likely each job will write
+> blocks in a different sequence to other jobs.
+>
+> > > *
+> > > FIO failed with the following error:
+> > > *
+> > > *
+> > > *verify: bad header rand_seed 1089408830752521594, wanted
+> 7280637923435198810 at file /mnt/test-vol-23206-36/filename offset
+> 776945664, length 24576
+>
+> This means job 2 can interfere with the writes of job 1 so when job
+> one comes to do a verify it can't find the blocks written by itself
+> (because it may find job 2's data). If you're going to use numjobs I'd
+> strongly look into use offset_increment
+> (
+> https://fio.readthedocs.io/en/latest/fio_man.html#cmdoption-arg-offset-increment
+> ) and size (
+> https://fio.readthedocs.io/en/latest/fio_man.html#cmdoption-arg-size
+> ) to ensure each job is working within a different region to any other
+> job.
+>
+>
+> > > *
+> > >
+> > > but when we compare the block level data is consistent.
+> > >
+> > > what is the meaning of the Error? does it really indicate data
+> corruption?
+>
+> It means the data a given job had written isn't there and if no one
+> else has interfered with the data that usually means corruption (but
+> in this case other jobs may be interfering). Also using randrw with
+> verify makes things complicated because are you expecting it to verify
+> data it might try to read in the first pass which that job has never
+> written?
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
+>
+
+--000000000000058d35059c40b3cb
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>I thought that if i use size=3D1g with nomjobs=3D10 t=
+he 1G is a range for each job so no job interfere with other jobs</div>than=
+ks a lot!!</div><br><div class=3D"gmail_quote"><div dir=3D"ltr" class=3D"gm=
+ail_attr">On Thu, Jan 16, 2020 at 1:47 AM Sitsofe Wheeler &lt;<a href=3D"ma=
+ilto:sitsofe@gmail.com">sitsofe@gmail.com</a>&gt; wrote:<br></div><blockquo=
+te class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px =
+solid rgb(204,204,204);padding-left:1ex">Hi,<br>
+<br>
+On Wed, 15 Jan 2020 at 15:32, Jens Axboe &lt;<a href=3D"mailto:axboe@kernel=
+.dk" target=3D"_blank">axboe@kernel.dk</a>&gt; wrote:<br>
+&gt;<br>
+&gt; Please use the fio list for this, CC&#39;ed.<br>
+&gt;<br>
+&gt; On 1/15/20 8:28 AM, Michael Chichik wrote:<br>
+&gt; &gt;<br>
+&gt; &gt; */usr/bin/fio --time_based --runtime=3D1d --ioengine=3Dlibaio --i=
+odepth=3D32 --rw=3Drandrw --bs=3D24k --direct=3D0 --io_size=3D60G --numjobs=
+=3D10 --size=3D1G --rwmixread=3D0 --verify=3Dmd5 --verify_fatal=3D1 --outpu=
+t-format=3Djson --output=3D4_randrw_0_10_32_libaio_xfs_1G.json --directory =
+/mnt/test-vol-23206-36 --name host1_test-vol-23206-36<br>
+<br>
+^^^numjobs=3D10 will mean all the jobs are working inside the same<br>
+region. Because you&#39;re using randrw it&#39;s likely each job will write=
+<br>
+blocks in a different sequence to other jobs.<br>
+<br>
+&gt; &gt; *<br>
+&gt; &gt; FIO failed with the following error:<br>
+&gt; &gt; *<br>
+&gt; &gt; *<br>
+&gt; &gt; *verify: bad header rand_seed 1089408830752521594, wanted 7280637=
+923435198810 at file /mnt/test-vol-23206-36/filename offset 776945664, leng=
+th 24576<br>
+<br>
+This means job 2 can interfere with the writes of job 1 so when job<br>
+one comes to do a verify it can&#39;t find the blocks written by itself<br>
+(because it may find job 2&#39;s data). If you&#39;re going to use numjobs =
+I&#39;d<br>
+strongly look into use offset_increment<br>
+(<a href=3D"https://fio.readthedocs.io/en/latest/fio_man.html#cmdoption-arg=
+-offset-increment" rel=3D"noreferrer" target=3D"_blank">https://fio.readthe=
+docs.io/en/latest/fio_man.html#cmdoption-arg-offset-increment</a><br>
+) and size (<a href=3D"https://fio.readthedocs.io/en/latest/fio_man.html#cm=
+doption-arg-size" rel=3D"noreferrer" target=3D"_blank">https://fio.readthed=
+ocs.io/en/latest/fio_man.html#cmdoption-arg-size</a><br>
+) to ensure each job is working within a different region to any other<br>
+job.<br>
+<br>
+<br>
+&gt; &gt; *<br>
+&gt; &gt;<br>
+&gt; &gt; but when we compare the block level data is consistent.<br>
+&gt; &gt;<br>
+&gt; &gt; what is the meaning of the Error? does it really indicate data co=
+rruption?<br>
+<br>
+It means the data a given job had written isn&#39;t there and if no one<br>
+else has interfered with the data that usually means corruption (but<br>
+in this case other jobs may be interfering). Also using randrw with<br>
+verify makes things complicated because are you expecting it to verify<br>
+data it might try to read in the first pass which that job has never<br>
+written?<br>
+<br>
+--<br>
+Sitsofe | <a href=3D"http://sucs.org/~sits/" rel=3D"noreferrer" target=3D"_=
+blank">http://sucs.org/~sits/</a><br>
+</blockquote></div>
+
+--000000000000058d35059c40b3cb--
 
