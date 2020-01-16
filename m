@@ -1,10 +1,10 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ot1-f48.google.com ([209.85.210.48]:45216 "EHLO
-        mail-ot1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391973AbgAPRZb (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:25:31 -0500
-Received: by mail-ot1-f48.google.com with SMTP id 59so20070009otp.12
-        for <fio@vger.kernel.org>; Thu, 16 Jan 2020 09:25:30 -0800 (PST)
+Received: from mail-vs1-f43.google.com ([209.85.217.43]:43961 "EHLO
+        mail-vs1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387950AbgAPRD4 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:03:56 -0500
+Received: by mail-vs1-f43.google.com with SMTP id s16so13108778vsc.10
+        for <fio@vger.kernel.org>; Thu, 16 Jan 2020 09:03:55 -0800 (PST)
 MIME-Version: 1.0
 References: <CAHEKYV6AqY=u=PZ2EAxLwM2a3TL6ByAwTRyURA=9CA1dAtwLbw@mail.gmail.com>
  <MWHPR11MB16790DF710A8EA7EB9118C37A9370@MWHPR11MB1679.namprd11.prod.outlook.com>
@@ -14,74 +14,18 @@ References: <CAHEKYV6AqY=u=PZ2EAxLwM2a3TL6ByAwTRyURA=9CA1dAtwLbw@mail.gmail.com>
  <CAHEKYV5L0wz0AKvuc9=zDYN0ug-dQYwTf7aGzE16Yu0S9Hi3Fg@mail.gmail.com>
  <CANvN+emieOE7jBdmTwaB+j-jrpyn4mjnO7+iUDD9bYBQJ18Szw@mail.gmail.com> <CAHEKYV4qoGxYQ=NMsidt23c3O4YePrpcYXFimu04wjE4-2LWyg@mail.gmail.com>
 In-Reply-To: <CAHEKYV4qoGxYQ=NMsidt23c3O4YePrpcYXFimu04wjE4-2LWyg@mail.gmail.com>
-From: Jared Walton <jawalking@gmail.com>
-Date: Thu, 16 Jan 2020 10:25:18 -0700
-Message-ID: <CAGfUJcGpJ2kx3Q0+nyYD22bsNMgGhe+4SpGbcN_K67Lbs5Gbhg@mail.gmail.com>
+From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Date: Thu, 16 Jan 2020 20:03:43 +0300
+Message-ID: <CANvN+en_BMbkHS0EAdPiEdgY__mRvZHi_WK=tThqD6oZjpLnsg@mail.gmail.com>
 Subject: Re: CPUs, threads, and speed
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: Mauricio Tavares <raubvogel@gmail.com>
-Cc: fio@vger.kernel.org
+Cc: fio <fio@vger.kernel.org>
 
-Not sure if this will help, but I use the following to prep multiple
-4TB drives at the same time in a little over an hour. Is it inelegant,
-yes, but it works for me.
-
-globalFIOParameters=3D"--offset=3D0 --ioengine=3Dlibaio --invalidate=3D1
---group_reporting --direct=3D1 --thread --refill_buffers --norandommap
---randrepeat=3D0 --allow_mounted_write=3D1 --output-format=3Djson,normal"
-
-# Drives should be FOB or LLF'd (if it's good to do that)
-# LLF logic
-
-# 128k Pre-Condition
-# Write to entire disk
-for i in `ls -1 /dev/nvme*n1`
-do
-    size=3D$(fdisk -l | grep ${i} | awk -F "," '{ print $2 }' | awk '{
-print $1 }')
-./fio --name=3DPreconditionPass1of3 --filename=3D${i} --iodepth=3D$iodepth
---bs=3D128k --rw=3Dwrite --size=3D${size} --fill_device=3D1
-$globalFIOParameters &
-done
-wait
-
-# Read entire disk
-for i in `ls -1 /dev/nvme*n1`
-do
-    size=3D$(fdisk -l | grep ${i} | awk -F "," '{ print $2 }' | awk '{
-print $1 }')
-./fio --name=3DPreconditionPass2of3 --filename=3D${i} --iodepth=3D$iodepth
---bs=3D128k --rw=3Dread --size=3D${size} --fill_device=3D1
-$globalFIOParameters &
-done
-wait
-
-# Write to entire disk one last time
-for i in `ls -1 /dev/nvme*n1`
-do
-    size=3D$(fdisk -l | grep ${i} | awk -F "," '{ print $2 }' | awk '{
-print $1 }')
-./fio --name=3DPreconditionPass3of3 --filename=3D${i} --iodepth=3D$iodepth
---bs=3D128k --rw=3Dwrite --size=3D${size} --fill_device=3D1
-$globalFIOParameters &
-done
-wait
-
-
-# Check 128k steady-state
-for i in `ls -1 /dev/nvme*n1`
-do
-./fio --name=3DSteadyState --filename=3D${i} --iodepth=3D16 --numjobs=3D16
---bs=3D4k --rw=3Dread --ss_dur=3D1800 --ss=3Diops_slope:0.3% --runtime=3D24=
-h
-$globalFIOParameters &
-done
-wait
-
-On Thu, Jan 16, 2020 at 9:13 AM Mauricio Tavares <raubvogel@gmail.com> wrot=
+On Thu, Jan 16, 2020 at 7:13 PM Mauricio Tavares <raubvogel@gmail.com> wrot=
 e:
 >
 > On Thu, Jan 16, 2020 at 2:00 AM Andrey Kuzmin <andrey.v.kuzmin@gmail.com>=
@@ -230,6 +174,14 @@ ile to
 > Starting 1 process
 > Jobs: 1 (f=3D1): [W(1)][0.0%][w=3D1906MiB/s][w=3D15.2k IOPS][eta 108616d:=
 00h:00m:24s]
+
+At almost 2GBps, your run against 4TB drive should take about an hor.
+I'm not sure if fio properly reports ETA for size-based jobs at all.
+You should check with Jens.
+
+Regards,
+Andrey
+
 >
 > > Regards,
 > > Andrey
