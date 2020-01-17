@@ -1,10 +1,10 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:50623 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726334AbgARPsm (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 18 Jan 2020 10:48:42 -0500
-Received: by mail-wm1-f66.google.com with SMTP id a5so10261414wmb.0
-        for <fio@vger.kernel.org>; Sat, 18 Jan 2020 07:48:40 -0800 (PST)
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:44417 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726885AbgAQWPa (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 17 Jan 2020 17:15:30 -0500
+Received: by mail-ed1-f65.google.com with SMTP id bx28so23693856edb.11
+        for <fio@vger.kernel.org>; Fri, 17 Jan 2020 14:15:29 -0800 (PST)
 MIME-Version: 1.0
 References: <CA+zhgFSVYMYkDeGEc1Tn3yEy24PgmFRiKABcCQkuEByMuLsnsQ@mail.gmail.com>
  <CALjAwxg+OKr3co5K++St1B=EdztytsDbhWUhNe6Bjz0Vg2uVQw@mail.gmail.com>
@@ -14,18 +14,35 @@ References: <CA+zhgFSVYMYkDeGEc1Tn3yEy24PgmFRiKABcCQkuEByMuLsnsQ@mail.gmail.com>
  <TU4PR8401MB09274B35275964C4D924BAF5AB380@TU4PR8401MB0927.NAMPRD84.PROD.OUTLOOK.COM>
  <CALjAwxioWYxdHY+myk=tSkncuQn8qLdVUTGSSDzprSSsHJJKYA@mail.gmail.com> <CA+zhgFTeqGMarz264rRwt1eTtujyCL35VpruQ23EYydMUV5X+A@mail.gmail.com>
 In-Reply-To: <CA+zhgFTeqGMarz264rRwt1eTtujyCL35VpruQ23EYydMUV5X+A@mail.gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Sat, 18 Jan 2020 15:48:14 +0000
-Message-ID: <CALjAwxi1DDZmgEDuoGwea_Ct+QcDK8qfC4C+YERcS+MadX11jA@mail.gmail.com>
+From: Matthew Eaton <m.eaton82@gmail.com>
+Date: Fri, 17 Jan 2020 14:15:17 -0800
+Message-ID: <CAF+0mvk97co2jhuDOb79F4ociN3_arcO8nH77775OQBGB0HL4g@mail.gmail.com>
 Subject: Re: 4KiB + 64 B formatted drive : Invalid or incomplete multibyte or
  wide character: write offset=4096, buflen=4096
 Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: smitha sunder <sundersmitha@gmail.com>
-Cc: "Elliott, Robert (Servers)" <elliott@hpe.com>, fio <fio@vger.kernel.org>
+Cc: Sitsofe Wheeler <sitsofe@gmail.com>, "Elliott, Robert (Servers)" <elliott@hpe.com>, fio <fio@vger.kernel.org>
 
-On Fri, 17 Jan 2020 at 21:17, smitha sunder <sundersmitha@gmail.com> wrote:
+On Fri, Jan 17, 2020 at 1:18 PM smitha sunder <sundersmitha@gmail.com> wrote:
+>
+> On Mon, Jan 13, 2020 at 12:04 AM Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+> >
+> > On Fri, 10 Jan 2020 at 06:35, Elliott, Robert (Servers) <elliott@hpe.com> wrote:
+> > >
+> > > What are all those reads to LBA 3750748672? Something is looking
+> > > for partition tables?
+> > >
+> > > You're using direct=1 so the page cache shouldn't be doing
+> > > prefetching.
+> >
+> > If you scribble over the start of a disk that can trigger udev rules
+> > to rescan partitions and maybe that is checking for a backup GPT...
+> >
+> > --
+> > Sitsofe | http://sucs.org/~sits/
+>
 >
 > If I issue "nvme write" that works :
 >
@@ -81,19 +98,10 @@ On Fri, 17 Jan 2020 at 21:17, smitha sunder <sundersmitha@gmail.com> wrote:
 >      latency   : target=0, window=0, percentile=100.00%, depth=1
 >
 > Run status group 0 (all jobs)
+>
+> Thanks
+> smitha
 
-Your nvme write is presumably crafting an entire NVMe command and
-getting that sent to the device rather than going through the block
-layer and letting that create NVMe commands so it's not really a fair
-comparison (but it's another data point). I'd guess you're going to
-still get kernel errors even using something like dd (but with the
-appropriate direct flag with it and the same block size as fio)...
-
-Generally speaking, if you're seeing kernel errors while doing block
-level I/O that's indicative of something happening below fio and
-you're better off talking to the folks on the linux-block list
-(http://vger.kernel.org/vger-lists.html#linux-block ) to learn more...
-
---
-Sitsofe | http://sucs.org/~sits/
+Maybe try the latest version of fio or try changing ioengine to
+something other than libaio?
 
