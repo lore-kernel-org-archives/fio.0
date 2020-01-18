@@ -1,115 +1,99 @@
-Return-Path: <Friendy.Su@sony.com>
-From: "Su, Friendy" <Friendy.Su@sony.com>
-Subject: [PATCH v2_only patch] engines: add engine for file stat
-Date: Wed, 8 Jan 2020 09:39:39 +0000
-Message-ID: 
- <SG2PR04MB2492720C1D01C982159B5897FD3E0@SG2PR04MB2492.apcprd04.prod.outlook.com>
-Content-Language: zh-CN
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:50623 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726334AbgARPsm (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 18 Jan 2020 10:48:42 -0500
+Received: by mail-wm1-f66.google.com with SMTP id a5so10261414wmb.0
+        for <fio@vger.kernel.org>; Sat, 18 Jan 2020 07:48:40 -0800 (PST)
 MIME-Version: 1.0
-To: fio <fio@vger.kernel.org>
-Cc: "Kobayashi, Kento (Sony)" <Kento.A.Kobayashi@sony.com>, Jens Axboe <axboe@kernel.dk>, Sitsofe Wheeler <sitsofe@gmail.com>
-List-ID: <fio@vger.kernel.org>
+References: <CA+zhgFSVYMYkDeGEc1Tn3yEy24PgmFRiKABcCQkuEByMuLsnsQ@mail.gmail.com>
+ <CALjAwxg+OKr3co5K++St1B=EdztytsDbhWUhNe6Bjz0Vg2uVQw@mail.gmail.com>
+ <CA+zhgFRV0LcX+jZOGgjkfc+5v0iwk=C+hVEoP9e1hnTQEMa2vQ@mail.gmail.com>
+ <TU4PR8401MB092733E68E23F041756044D9AB380@TU4PR8401MB0927.NAMPRD84.PROD.OUTLOOK.COM>
+ <CA+zhgFTY4AgJ9EBUk_z7EfN3wxwE8c5Ccx+A4u4aFmFGvdOfdQ@mail.gmail.com>
+ <TU4PR8401MB09274B35275964C4D924BAF5AB380@TU4PR8401MB0927.NAMPRD84.PROD.OUTLOOK.COM>
+ <CALjAwxioWYxdHY+myk=tSkncuQn8qLdVUTGSSDzprSSsHJJKYA@mail.gmail.com> <CA+zhgFTeqGMarz264rRwt1eTtujyCL35VpruQ23EYydMUV5X+A@mail.gmail.com>
+In-Reply-To: <CA+zhgFTeqGMarz264rRwt1eTtujyCL35VpruQ23EYydMUV5X+A@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 18 Jan 2020 15:48:14 +0000
+Message-ID: <CALjAwxi1DDZmgEDuoGwea_Ct+QcDK8qfC4C+YERcS+MadX11jA@mail.gmail.com>
+Subject: Re: 4KiB + 64 B formatted drive : Invalid or incomplete multibyte or
+ wide character: write offset=4096, buflen=4096
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: smitha sunder <sundersmitha@gmail.com>
+Cc: "Elliott, Robert (Servers)" <elliott@hpe.com>, fio <fio@vger.kernel.org>
 
-VGhpcyBlbmdpbmUgaXMgdG8gbWVhc3VyZSBwZXJmb3JtYW5jZSBvZiBhY2Nlc3NpbmcgZmlsZSdz
-IG1ldGEgZGF0YS4NClRoaXMgaXMgZm9yIHRoZSBhY3R1YWwgYWNjZXNzIHBhdHRlcm4gd2hpY2gg
-ZG9lcyBub3QgZG8gcmVhbCBJTywgYnV0DQpqdXN0IGxvb2sgdXAgdGhlIGZpbGUgYW5kIGdldCBm
-aWxlJ3MgYXR0cmlidXRlLg0KLS0tDQogSE9XVE8gICAgICAgICAgICAgICAgICAgICAgICAgIHwg
-ICA1ICsrDQogTWFrZWZpbGUgICAgICAgICAgICAgICAgICAgICAgIHwgICAyICstDQogZW5naW5l
-cy9maWxlc3RhdC5jICAgICAgICAgICAgIHwgMTE2ICsrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKw0KIGV4YW1wbGVzL2ZpbGVzdGF0LWlvZW5naW5lLmZpbyB8ICAxOSArKysrKysNCiBm
-aW8uMSAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDUgKysNCiA1IGZpbGVzIGNoYW5nZWQs
-IDE0NiBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pDQogY3JlYXRlIG1vZGUgMTAwNjQ0IGVu
-Z2luZXMvZmlsZXN0YXQuYw0KIGNyZWF0ZSBtb2RlIDEwMDY0NCBleGFtcGxlcy9maWxlc3RhdC1p
-b2VuZ2luZS5maW8NCg0KZGlmZiAtLWdpdCBhL0hPV1RPIGIvSE9XVE8NCmluZGV4IDg4ZGJiMDNm
-Li41ZTQyNGU4NCAxMDA2NDQNCi0tLSBhL0hPV1RPDQorKysgYi9IT1dUTw0KQEAgLTE5OTYsNiAr
-MTk5NiwxMSBAQCBJL08gZW5naW5lDQogCQkJc2V0ICBgZmlsZXNpemVgIHNvIHRoYXQgYWxsIHRo
-ZSBhY2NvdW50aW5nIHN0aWxsIG9jY3VycywgYnV0IG5vDQogCQkJYWN0dWFsIEkvTyB3aWxsIGJl
-IGRvbmUgb3RoZXIgdGhhbiBjcmVhdGluZyB0aGUgZmlsZS4NCiANCisJCSoqZmlsZXN0YXQqKg0K
-KwkJCVNpbXBseSBkbyBzdGF0KCkgYW5kIGRvIG5vIEkvTyB0byB0aGUgZmlsZS4gWW91IG5lZWQg
-dG8gc2V0ICdmaWxlc2l6ZScNCisJCQlhbmQgJ25yZmlsZXMnLCBzbyB0aGF0IGZpbGVzIHdpbGwg
-YmUgY3JlYXRlZC4NCisJCQlUaGlzIGVuZ2luZSBpcyB0byBtZWFzdXJlIGZpbGUgbG9va3VwIGFu
-ZCBtZXRhIGRhdGEgYWNjZXNzLg0KKw0KIAkJKipsaWJwbWVtKioNCiAJCQlSZWFkIGFuZCB3cml0
-ZSB1c2luZyBtbWFwIEkvTyB0byBhIGZpbGUgb24gYSBmaWxlc3lzdGVtDQogCQkJbW91bnRlZCB3
-aXRoIERBWCBvbiBhIHBlcnNpc3RlbnQgbWVtb3J5IGRldmljZSB0aHJvdWdoIHRoZSBQTURLDQpk
-aWZmIC0tZ2l0IGEvTWFrZWZpbGUgYi9NYWtlZmlsZQ0KaW5kZXggN2FhYjZhYmQuLmFiODVjZWFj
-IDEwMDY0NA0KLS0tIGEvTWFrZWZpbGUNCisrKyBiL01ha2VmaWxlDQpAQCAtNDUsNyArNDUsNyBA
-QCBTT1VSQ0UgOj0JJChzb3J0ICQocGF0c3Vic3QgJChTUkNESVIpLyUsJSwkKHdpbGRjYXJkICQo
-U1JDRElSKS9jcmMvKi5jKSkgXA0KIAkJcHNoYXJlZC5jIG9wdGlvbnMuYyBcDQogCQlzbWFsbG9j
-LmMgZmlsZWhhc2guYyBwcm9maWxlLmMgZGVidWcuYyBlbmdpbmVzL2NwdS5jIFwNCiAJCWVuZ2lu
-ZXMvbW1hcC5jIGVuZ2luZXMvc3luYy5jIGVuZ2luZXMvbnVsbC5jIGVuZ2luZXMvbmV0LmMgXA0K
-LQkJZW5naW5lcy9mdHJ1bmNhdGUuYyBlbmdpbmVzL2ZpbGVjcmVhdGUuYyBcDQorCQllbmdpbmVz
-L2Z0cnVuY2F0ZS5jIGVuZ2luZXMvZmlsZWNyZWF0ZS5jIGVuZ2luZXMvZmlsZXN0YXQuYyBcDQog
-CQlzZXJ2ZXIuYyBjbGllbnQuYyBpb2xvZy5jIGJhY2tlbmQuYyBsaWJmaW8uYyBmbG93LmMgY2Nv
-bnYuYyBcDQogCQlnZXR0aW1lLXRocmVhZC5jIGhlbHBlcnMuYyBqc29uLmMgaWRsZXRpbWUuYyB0
-ZF9lcnJvci5jIFwNCiAJCXByb2ZpbGVzL3Rpb2JlbmNoLmMgcHJvZmlsZXMvYWN0LmMgaW9fdV9x
-dWV1ZS5jIGZpbGVsb2NrLmMgXA0KZGlmZiAtLWdpdCBhL2VuZ2luZXMvZmlsZXN0YXQuYyBiL2Vu
-Z2luZXMvZmlsZXN0YXQuYw0KbmV3IGZpbGUgbW9kZSAxMDA2NDQNCmluZGV4IDAwMDAwMDAwLi5j
-NDhmMGQ4OQ0KLS0tIC9kZXYvbnVsbA0KKysrIGIvZW5naW5lcy9maWxlc3RhdC5jDQpAQCAtMCww
-ICsxLDExNiBAQA0KKy8qDQorICogZmlsZXN0YXQgZW5naW5lDQorICoNCisgKiBJTyBlbmdpbmUg
-dGhhdCBkb2Vzbid0IGRvIGFueSBJTywganVzdCBzdGF0IGZpbGVzIGFuZCB0cmFja3MgdGhlIGxh
-dGVuY3kNCisgKiBvZiB0aGUgZmlsZSBzdGF0Lg0KKyAqLw0KKyNpbmNsdWRlIDxzdGRpby5oPg0K
-KyNpbmNsdWRlIDxmY250bC5oPg0KKyNpbmNsdWRlIDxlcnJuby5oPg0KKyNpbmNsdWRlIDxzeXMv
-dHlwZXMuaD4NCisjaW5jbHVkZSA8c3lzL3N0YXQuaD4NCisjaW5jbHVkZSA8dW5pc3RkLmg+DQor
-I2luY2x1ZGUgIi4uL2Zpby5oIg0KKw0KK3N0cnVjdCBmY19kYXRhIHsNCisJZW51bSBmaW9fZGRp
-ciBzdGF0X2RkaXI7DQorfTsNCisNCitzdGF0aWMgaW50IHN0YXRfZmlsZShzdHJ1Y3QgdGhyZWFk
-X2RhdGEgKnRkLCBzdHJ1Y3QgZmlvX2ZpbGUgKmYpDQorew0KKwlzdHJ1Y3QgdGltZXNwZWMgc3Rh
-cnQ7DQorCWludCBkb19sYXQgPSAhdGQtPm8uZGlzYWJsZV9sYXQ7DQorCXN0cnVjdCBzdGF0IHN0
-YXRidWY7DQorCWludCByZXQ7DQorDQorCWRwcmludChGRF9GSUxFLCAiZmQgc3RhdCAlc1xuIiwg
-Zi0+ZmlsZV9uYW1lKTsNCisNCisJaWYgKGYtPmZpbGV0eXBlICE9IEZJT19UWVBFX0ZJTEUpIHsN
-CisJCWxvZ19lcnIoImZpbzogb25seSBmaWxlcyBhcmUgc3VwcG9ydGVkIGZhbGxvY2F0ZSBcbiIp
-Ow0KKwkJcmV0dXJuIDE7DQorCX0NCisJaWYgKCFzdHJjbXAoZi0+ZmlsZV9uYW1lLCAiLSIpKSB7
-DQorCQlsb2dfZXJyKCJmaW86IGNhbid0IHJlYWQvd3JpdGUgdG8gc3RkaW4vb3V0XG4iKTsNCisJ
-CXJldHVybiAxOw0KKwl9DQorDQorCWlmIChkb19sYXQpDQorCQlmaW9fZ2V0dGltZSgmc3RhcnQs
-IE5VTEwpOw0KKw0KKwlyZXQgPSBzdGF0KGYtPmZpbGVfbmFtZSwgJnN0YXRidWYpOw0KKw0KKwlp
-ZiAocmV0ID09IC0xKSB7DQorCQljaGFyIGJ1ZltGSU9fVkVSUk9SX1NJWkVdOw0KKwkJaW50IGUg
-PSBlcnJubzsNCisNCisJCXNucHJpbnRmKGJ1Ziwgc2l6ZW9mKGJ1ZiksICJzdGF0KCVzKSIsIGYt
-PmZpbGVfbmFtZSk7DQorCQl0ZF92ZXJyb3IodGQsIGUsIGJ1Zik7DQorCQlyZXR1cm4gMTsNCisJ
-fQ0KKw0KKwlpZiAoZG9fbGF0KSB7DQorCQlzdHJ1Y3QgZmNfZGF0YSAqZGF0YSA9IHRkLT5pb19v
-cHNfZGF0YTsNCisJCXVpbnQ2NF90IG5zZWM7DQorDQorCQluc2VjID0gbnRpbWVfc2luY2Vfbm93
-KCZzdGFydCk7DQorCQlhZGRfY2xhdF9zYW1wbGUodGQsIGRhdGEtPnN0YXRfZGRpciwgbnNlYywg
-MCwgMCk7DQorCX0NCisNCisJcmV0dXJuIDA7DQorfQ0KKw0KK3N0YXRpYyBlbnVtIGZpb19xX3N0
-YXR1cyBxdWV1ZV9pbyhzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBzdHJ1Y3QgaW9fdSBmaW9fdW51
-c2VkICppb191KQ0KK3sNCisJcmV0dXJuIEZJT19RX0NPTVBMRVRFRDsNCit9DQorDQorc3RhdGlj
-IGludCBpbml0KHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpDQorew0KKwlzdHJ1Y3QgZmNfZGF0YSAq
-ZGF0YTsNCisNCisJZGF0YSA9IGNhbGxvYygxLCBzaXplb2YoKmRhdGEpKTsNCisNCisJaWYgKHRk
-X3JlYWQodGQpKQ0KKwkJZGF0YS0+c3RhdF9kZGlyID0gRERJUl9SRUFEOw0KKwllbHNlIGlmICh0
-ZF93cml0ZSh0ZCkpDQorCQlkYXRhLT5zdGF0X2RkaXIgPSBERElSX1dSSVRFOw0KKw0KKwl0ZC0+
-aW9fb3BzX2RhdGEgPSBkYXRhOw0KKwlyZXR1cm4gMDsNCit9DQorDQorc3RhdGljIHZvaWQgY2xl
-YW51cChzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkKQ0KK3sNCisJc3RydWN0IGZjX2RhdGEgKmRhdGEg
-PSB0ZC0+aW9fb3BzX2RhdGE7DQorDQorCWZyZWUoZGF0YSk7DQorfQ0KKw0KK3N0YXRpYyBpbnQg
-c3RhdF9pbnZhbGlkYXRlKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsIHN0cnVjdCBmaW9fZmlsZSAq
-ZikNCit7DQorCS8qIGRvIG5vdGhpbmcgYmVjYXVzZSBmaWxlIG5vdCBvcGVuZWQgKi8NCisJcmV0
-dXJuIDA7DQorfQ0KKw0KK3N0YXRpYyBzdHJ1Y3QgaW9lbmdpbmVfb3BzIGlvZW5naW5lID0gew0K
-KwkubmFtZQkJPSAiZmlsZXN0YXQiLA0KKwkudmVyc2lvbgk9IEZJT19JT09QU19WRVJTSU9OLA0K
-KwkuaW5pdAkJPSBpbml0LA0KKwkuY2xlYW51cAk9IGNsZWFudXAsDQorCS5xdWV1ZQkJPSBxdWV1
-ZV9pbywNCisJLmludmFsaWRhdGUJPSBzdGF0X2ludmFsaWRhdGUsDQorCS5nZXRfZmlsZV9zaXpl
-CT0gZ2VuZXJpY19nZXRfZmlsZV9zaXplLA0KKwkub3Blbl9maWxlCT0gc3RhdF9maWxlLA0KKwku
-ZmxhZ3MJCT0gIEZJT19TWU5DSU8gfCBGSU9fRkFLRUlPIHwNCisJCQkJRklPX05PU1RBVFMgfCBG
-SU9fTk9GSUxFSEFTSCwNCit9Ow0KKw0KK3N0YXRpYyB2b2lkIGZpb19pbml0IGZpb19maWxlc3Rh
-dF9yZWdpc3Rlcih2b2lkKQ0KK3sNCisJcmVnaXN0ZXJfaW9lbmdpbmUoJmlvZW5naW5lKTsNCit9
-DQorDQorc3RhdGljIHZvaWQgZmlvX2V4aXQgZmlvX2ZpbGVzdGF0X3VucmVnaXN0ZXIodm9pZCkN
-Cit7DQorCXVucmVnaXN0ZXJfaW9lbmdpbmUoJmlvZW5naW5lKTsNCit9DQpkaWZmIC0tZ2l0IGEv
-ZXhhbXBsZXMvZmlsZXN0YXQtaW9lbmdpbmUuZmlvIGIvZXhhbXBsZXMvZmlsZXN0YXQtaW9lbmdp
-bmUuZmlvDQpuZXcgZmlsZSBtb2RlIDEwMDY0NA0KaW5kZXggMDAwMDAwMDAuLjkzMmZjZWQ4DQot
-LS0gL2Rldi9udWxsDQorKysgYi9leGFtcGxlcy9maWxlc3RhdC1pb2VuZ2luZS5maW8NCkBAIC0w
-LDAgKzEsMTkgQEANCisjIEV4YW1wbGUgZmlsZXN0YXQgam9iDQorDQorIyAnZmlsZXN0YXQnIGVu
-Z2luZSBvbmx5IGRvICdzdGF0KGZpbGVuYW1lKScsIGZpbGUgd2lsbCBub3QgYmUgb3BlbigpLg0K
-KyMgJ2ZpbGVzaXplJyBtdXN0IGJlIHNldCwgdGhlbiBmaWxlcyB3aWxsIGJlIGNyZWF0ZWQgYXQg
-c2V0dXAgc3RhZ2UuDQorDQorW2dsb2JhbF0NCitpb2VuZ2luZT1maWxlc3RhdA0KK251bWpvYnM9
-MQ0KK2ZpbGVzaXplPTRrDQorbnJmaWxlcz0yMDANCit0aHJlYWQNCisNCitbdDBdDQorW3QxXQ0K
-K1t0Ml0NCitbdDNdDQorW3Q0XQ0KK1t0NV0NCisNCmRpZmYgLS1naXQgYS9maW8uMSBiL2Zpby4x
-DQppbmRleCAxNDU2OWU5Zi4uYmIxZTQyZjYgMTAwNjQ0DQotLS0gYS9maW8uMQ0KKysrIGIvZmlv
-LjENCkBAIC0xNzYwLDYgKzE3NjAsMTEgQEAgU2ltcGx5IGNyZWF0ZSB0aGUgZmlsZXMgYW5kIGRv
-IG5vIEkvTyB0byB0aGVtLiAgWW91IHN0aWxsIG5lZWQgdG8gc2V0DQogXGZCZmlsZXNpemVcZlIg
-c28gdGhhdCBhbGwgdGhlIGFjY291bnRpbmcgc3RpbGwgb2NjdXJzLCBidXQgbm8gYWN0dWFsIEkv
-TyB3aWxsIGJlDQogZG9uZSBvdGhlciB0aGFuIGNyZWF0aW5nIHRoZSBmaWxlLg0KIC5UUA0KKy5C
-IGZpbGVzdGF0DQorU2ltcGx5IGRvIHN0YXQoKSBhbmQgZG8gbm8gSS9PIHRvIHRoZSBmaWxlLiBZ
-b3UgbmVlZCB0byBzZXQgJ2ZpbGVzaXplJw0KK2FuZCAnbnJmaWxlcycsIHNvIHRoYXQgZmlsZXMg
-d2lsbCBiZSBjcmVhdGVkLg0KK1RoaXMgZW5naW5lIGlzIHRvIG1lYXN1cmUgZmlsZSBsb29rdXAg
-YW5kIG1ldGEgZGF0YSBhY2Nlc3MuDQorLlRQDQogLkIgbGlicG1lbQ0KIFJlYWQgYW5kIHdyaXRl
-IHVzaW5nIG1tYXAgSS9PIHRvIGEgZmlsZSBvbiBhIGZpbGVzeXN0ZW0NCiBtb3VudGVkIHdpdGgg
-REFYIG9uIGEgcGVyc2lzdGVudCBtZW1vcnkgZGV2aWNlIHRocm91Z2ggdGhlIFBNREsNCi0tIA0K
-Mi4xNy4xDQoNCg==
+On Fri, 17 Jan 2020 at 21:17, smitha sunder <sundersmitha@gmail.com> wrote:
+>
+> If I issue "nvme write" that works :
+>
+> #  echo "hello" | nvme write -s 0 -c 0 -y 64 -z 4096 --prinfo=0 /dev/nvme0n1
+> write: Success
+>
+> # nvme read /dev/nvme0n1 -s 0  --prinfo=0 -z 4096  -y 64
+> hello
+> read: Success
+>
+>
+> fio fails :
+>
+> #  fio --filename=/dev/nvme0n1  --rw=write --ioengine=libaio
+> --direct=1  --do_verify=0  --name=test --bs=4096 --number_ios=1
+> --offset=100M --debug=io
+> fio: set debug option io
+> test: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T)
+> 4096B-4096B, ioengine=libaio, iodepth=1
+> fio-3.7
+> Starting 1 process
+> io       20252 drop page cache /dev/nvme0n1
+> io       20252 fill: io_u 0xb4cc80:
+> off=0x6400000,len=0x1000,ddir=1,file=/dev/nvme0n1
+> io       20252 prep: io_u 0xb4cc80:
+> off=0x6400000,len=0x1000,ddir=1,file=/dev/nvme0n1
+> io       20252 prep: io_u 0xb4cc80: ret=0
+> io       20252 queue: io_u 0xb4cc80:
+> off=0x6400000,len=0x1000,ddir=1,file=/dev/nvme0n1
+> io       20252 calling ->commit(), depth 1
+> io       20252 io_u_queued_complete: min=1
+> io       20252 getevents: 1
+> io       20252 complete: io_u 0xb4cc80:
+> off=0x6400000,len=0x1000,ddir=1,file=/dev/nvme0n1
+> fio: io_u error on file /dev/nvme0n1: Invalid or incomplete multibyte
+> or wide character: write offset=104857600, buflen=4096
+> io       20252 io_u_queued_complete: min=0
+> io       20252 getevents: 0
+> test: No I/O performed by libaio, perhaps try --debug=io option for details?
+> fio: pid=20252, err=84/file:io_u.c:1747, func=io_u error,
+> error=Invalid or incomplete multibyte or wide character
+> io       20252 close ioengine libaio
+> io       20252 free ioengine libaio
+>
+> test: (groupid=0, jobs=1): err=84 (file:io_u.c:1747, func=io_u error,
+> error=Invalid or incomplete multibyte or wide character): pid=20252:
+> Fri Jan 17 13:13:52 2020
+>   cpu          : usr=0.00%, sys=0.00%, ctx=1, majf=0, minf=24
+>   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+>      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>      complete  : 0=50.0%, 4=50.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>      issued rwts: total=0,1,0,0 short=0,0,0,0 dropped=0,0,0,0
+>      latency   : target=0, window=0, percentile=100.00%, depth=1
+>
+> Run status group 0 (all jobs)
+
+Your nvme write is presumably crafting an entire NVMe command and
+getting that sent to the device rather than going through the block
+layer and letting that create NVMe commands so it's not really a fair
+comparison (but it's another data point). I'd guess you're going to
+still get kernel errors even using something like dd (but with the
+appropriate direct flag with it and the same block size as fio)...
+
+Generally speaking, if you're seeing kernel errors while doing block
+level I/O that's indicative of something happening below fio and
+you're better off talking to the folks on the linux-block list
+(http://vger.kernel.org/vger-lists.html#linux-block ) to learn more...
+
+--
+Sitsofe | http://sucs.org/~sits/
 
