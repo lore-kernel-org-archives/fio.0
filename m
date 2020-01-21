@@ -1,82 +1,73 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH] engines: add engine for file stat
+Return-Path: <Friendy.Su@sony.com>
+From: "Su, Friendy" <Friendy.Su@sony.com>
+Subject: RE: [PATCH] engines: add engine for file stat
+Date: Tue, 21 Jan 2020 10:09:39 +0000
+Message-ID: 
+ <HK0PR04MB2388DC18A61F0D5483D72BE8FD0D0@HK0PR04MB2388.apcprd04.prod.outlook.com>
 References: <925A83423110DA4D836092D40AC7A7E8085CB462@APYOKXMS108.ap.sony.com>
  <CALjAwxhtdp3zJisFDdXt4no2hHwFKktuDNEMEV5EZN7fo=mL4Q@mail.gmail.com>
  <SG2PR04MB2492F64F703104122008D211FD520@SG2PR04MB2492.apcprd04.prod.outlook.com>
  <CALjAwxjd9u+DLLOmf7reEtnkX=wL=vqK0dpCTq3cFHdVN0z7dg@mail.gmail.com>
  <027dde15-1c6a-47a5-f89b-0d808d4cd1f3@kernel.dk>
  <SG2PR04MB24924423F87B356C30A9AF54FD3E0@SG2PR04MB2492.apcprd04.prod.outlook.com>
- <HK0PR04MB2388DC18A61F0D5483D72BE8FD0D0@HK0PR04MB2388.apcprd04.prod.outlook.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <56461733-2fef-6faa-ac60-2436bf7d692d@kernel.dk>
-Date: Tue, 21 Jan 2020 08:26:49 -0700
+In-Reply-To: 
+ <SG2PR04MB24924423F87B356C30A9AF54FD3E0@SG2PR04MB2492.apcprd04.prod.outlook.com>
+Content-Language: zh-CN
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <HK0PR04MB2388DC18A61F0D5483D72BE8FD0D0@HK0PR04MB2388.apcprd04.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: "Su, Friendy" <Friendy.Su@sony.com>, Sitsofe Wheeler <sitsofe@gmail.com>
+To: Jens Axboe <axboe@kernel.dk>, Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: fio <fio@vger.kernel.org>, "Kobayashi, Kento (Sony)" <Kento.A.Kobayashi@sony.com>
 List-ID: <fio@vger.kernel.org>
 
-I'm not totally against adding this type of engine, I just think that
-going forward it'd be better to make any sort of file oriented operation
-something the IO engine can perform, instead of having a specific engine
-for that. But that's probably a larger scope project than you're willing
-to attack, and I don't think it'd be fair to gate the inclusion of this
-one on that.
-
-So feel free to send the latest version you have and we can take a look
-at it.
-
-
-On 1/21/20 3:09 AM, Su, Friendy wrote:
-> Any update or opinion on this topic?
-> 
-> -----Original Message-----
-> From: Su, Friendy 
-> Sent: Wednesday, January 8, 2020 5:33 PM
-> To: Jens Axboe <axboe@kernel.dk>; Sitsofe Wheeler <sitsofe@gmail.com>
-> Cc: fio <fio@vger.kernel.org>; Kobayashi, Kento (Sony) <Kento.A.Kobayashi@sony.com>
-> Subject: RE: [PATCH] engines: add engine for file stat
-> 
-> Sorry, I resend patch in mail body, not attachment.
-> 
-> Until now, I have not considered relation between 'io_uring' and 'filestat'.
-> 
-> This 'filestat' engine is created since under some real occasion, we really care about 'how fast files being lookup or operated' as well as 'how fast read/write'. FIO is strong on 'IO performance' measurement, we choose FIO. We want the same benchmark tool to measure 'file operation' since 'same tool' makes condition, sequence easy to be same. Based on this, I created 'filestat' engine. We hope FIO can be strengthen its capability on 'file operation' measurement. Besides 'filestat', 'file-delete', 'file-rename' are also need.
-> 
-> -----Original Message-----
-> From: Jens Axboe <axboe@kernel.dk>
-> Sent: Monday, December 30, 2019 7:21 AM
-> To: Sitsofe Wheeler <sitsofe@gmail.com>; Su, Friendy <Friendy.Su@sony.com>
-> Cc: fio <fio@vger.kernel.org>; Kobayashi, Kento (Sony) <Kento.A.Kobayashi@sony.com>
-> Subject: Re: [PATCH] engines: add engine for file stat
-> 
-> On 12/29/19 2:23 PM, Sitsofe Wheeler wrote:
->> On Thu, 19 Dec 2019 at 10:20, Su, Friendy <Friendy.Su@sony.com> wrote:
->>>
->>> Thanks for your comments.
->>> I fixed and resent patch. Pls see my reply in text below.
->>
->> From a brief scan it looks OK to me but I'd say you are better off 
->> posting patches in-line because it make review easier (anyone else who 
->> wants to see it will have to look at the parent of this mail). If this 
->> is troublesome you can always try submitting a pull request (e.g. via 
->> https://urldefense.proofpoint.com/v2/url?u=https-3A__github.com_axboe_fio_pulls&d=DwICaQ&c=fP4tf--1dS0biCFlB0saz0I0kjO5v7-GLPtvShAo4cc&r=x4w-xeFLV1q9QNvT-g51hIN_YdnTDh2iniRTDjOpGTk&m=n7aH04Az0Bke6LtP1bcGhKisgjZ4-_cX3Cm0aJyo62Y&s=HZGFwGTEsbbO6oWDd2fNQYzft3kP9Yv1DBiBq7dmDj0&e=  )...
->>
->> Jens: If you can see the patch as an attachment (e.g. at the bottom of 
->> https://urldefense.proofpoint.com/v2/url?u=https-3A__www.spinics.net_lists_fio_msg08203.html&d=DwICaQ&c=fP4tf--1dS0biCFlB0saz0I0kjO5v7-GLPtvShAo4cc&r=x4w-xeFLV1q9QNvT-g51hIN_YdnTDh2iniRTDjOpGTk&m=n7aH04Az0Bke6LtP1bcGhKisgjZ4-_cX3Cm0aJyo62Y&s=gVr4lkUJChqpKsxpSPdguu8txoH_geku7Z5MQXzYK_k&e=  ), what do you think?
-> 
-> With my io_uring hat on, there's a few ways to do stat since io_uring also supports it. Is the plan to enable a io_uring backend as well for that engine? Or should stat perhaps be a data direction instead that all io engines could then support, some of them in an async manner?
-> 
-> 
-> --
-> Jens Axboe
-> 
-
-
--- 
-Jens Axboe
-
+QW55IHVwZGF0ZSBvciBvcGluaW9uIG9uIHRoaXMgdG9waWM/DQoNCi0tLS0tT3JpZ2luYWwgTWVz
+c2FnZS0tLS0tDQpGcm9tOiBTdSwgRnJpZW5keSANClNlbnQ6IFdlZG5lc2RheSwgSmFudWFyeSA4
+LCAyMDIwIDU6MzMgUE0NClRvOiBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+OyBTaXRzb2Zl
+IFdoZWVsZXIgPHNpdHNvZmVAZ21haWwuY29tPg0KQ2M6IGZpbyA8ZmlvQHZnZXIua2VybmVsLm9y
+Zz47IEtvYmF5YXNoaSwgS2VudG8gKFNvbnkpIDxLZW50by5BLktvYmF5YXNoaUBzb255LmNvbT4N
+ClN1YmplY3Q6IFJFOiBbUEFUQ0hdIGVuZ2luZXM6IGFkZCBlbmdpbmUgZm9yIGZpbGUgc3RhdA0K
+DQpTb3JyeSwgSSByZXNlbmQgcGF0Y2ggaW4gbWFpbCBib2R5LCBub3QgYXR0YWNobWVudC4NCg0K
+VW50aWwgbm93LCBJIGhhdmUgbm90IGNvbnNpZGVyZWQgcmVsYXRpb24gYmV0d2VlbiAnaW9fdXJp
+bmcnIGFuZCAnZmlsZXN0YXQnLg0KDQpUaGlzICdmaWxlc3RhdCcgZW5naW5lIGlzIGNyZWF0ZWQg
+c2luY2UgdW5kZXIgc29tZSByZWFsIG9jY2FzaW9uLCB3ZSByZWFsbHkgY2FyZSBhYm91dCAnaG93
+IGZhc3QgZmlsZXMgYmVpbmcgbG9va3VwIG9yIG9wZXJhdGVkJyBhcyB3ZWxsIGFzICdob3cgZmFz
+dCByZWFkL3dyaXRlJy4gRklPIGlzIHN0cm9uZyBvbiAnSU8gcGVyZm9ybWFuY2UnIG1lYXN1cmVt
+ZW50LCB3ZSBjaG9vc2UgRklPLiBXZSB3YW50IHRoZSBzYW1lIGJlbmNobWFyayB0b29sIHRvIG1l
+YXN1cmUgJ2ZpbGUgb3BlcmF0aW9uJyBzaW5jZSAnc2FtZSB0b29sJyBtYWtlcyBjb25kaXRpb24s
+IHNlcXVlbmNlIGVhc3kgdG8gYmUgc2FtZS4gQmFzZWQgb24gdGhpcywgSSBjcmVhdGVkICdmaWxl
+c3RhdCcgZW5naW5lLiBXZSBob3BlIEZJTyBjYW4gYmUgc3RyZW5ndGhlbiBpdHMgY2FwYWJpbGl0
+eSBvbiAnZmlsZSBvcGVyYXRpb24nIG1lYXN1cmVtZW50LiBCZXNpZGVzICdmaWxlc3RhdCcsICdm
+aWxlLWRlbGV0ZScsICdmaWxlLXJlbmFtZScgYXJlIGFsc28gbmVlZC4NCg0KLS0tLS1PcmlnaW5h
+bCBNZXNzYWdlLS0tLS0NCkZyb206IEplbnMgQXhib2UgPGF4Ym9lQGtlcm5lbC5kaz4NClNlbnQ6
+IE1vbmRheSwgRGVjZW1iZXIgMzAsIDIwMTkgNzoyMSBBTQ0KVG86IFNpdHNvZmUgV2hlZWxlciA8
+c2l0c29mZUBnbWFpbC5jb20+OyBTdSwgRnJpZW5keSA8RnJpZW5keS5TdUBzb255LmNvbT4NCkNj
+OiBmaW8gPGZpb0B2Z2VyLmtlcm5lbC5vcmc+OyBLb2JheWFzaGksIEtlbnRvIChTb255KSA8S2Vu
+dG8uQS5Lb2JheWFzaGlAc29ueS5jb20+DQpTdWJqZWN0OiBSZTogW1BBVENIXSBlbmdpbmVzOiBh
+ZGQgZW5naW5lIGZvciBmaWxlIHN0YXQNCg0KT24gMTIvMjkvMTkgMjoyMyBQTSwgU2l0c29mZSBX
+aGVlbGVyIHdyb3RlOg0KPiBPbiBUaHUsIDE5IERlYyAyMDE5IGF0IDEwOjIwLCBTdSwgRnJpZW5k
+eSA8RnJpZW5keS5TdUBzb255LmNvbT4gd3JvdGU6DQo+Pg0KPj4gVGhhbmtzIGZvciB5b3VyIGNv
+bW1lbnRzLg0KPj4gSSBmaXhlZCBhbmQgcmVzZW50IHBhdGNoLiBQbHMgc2VlIG15IHJlcGx5IGlu
+IHRleHQgYmVsb3cuDQo+IA0KPiBGcm9tIGEgYnJpZWYgc2NhbiBpdCBsb29rcyBPSyB0byBtZSBi
+dXQgSSdkIHNheSB5b3UgYXJlIGJldHRlciBvZmYgDQo+IHBvc3RpbmcgcGF0Y2hlcyBpbi1saW5l
+IGJlY2F1c2UgaXQgbWFrZSByZXZpZXcgZWFzaWVyIChhbnlvbmUgZWxzZSB3aG8gDQo+IHdhbnRz
+IHRvIHNlZSBpdCB3aWxsIGhhdmUgdG8gbG9vayBhdCB0aGUgcGFyZW50IG9mIHRoaXMgbWFpbCku
+IElmIHRoaXMgDQo+IGlzIHRyb3VibGVzb21lIHlvdSBjYW4gYWx3YXlzIHRyeSBzdWJtaXR0aW5n
+IGEgcHVsbCByZXF1ZXN0IChlLmcuIHZpYSANCj4gaHR0cHM6Ly91cmxkZWZlbnNlLnByb29mcG9p
+bnQuY29tL3YyL3VybD91PWh0dHBzLTNBX19naXRodWIuY29tX2F4Ym9lX2Zpb19wdWxscyZkPUR3
+SUNhUSZjPWZQNHRmLS0xZFMwYmlDRmxCMHNhejBJMGtqTzV2Ny1HTFB0dlNoQW80Y2Mmcj14NHct
+eGVGTFYxcTlRTnZULWc1MWhJTl9ZZG5URGgyaW5pUlREak9wR1RrJm09bjdhSDA0QXowQmtlNkx0
+UDFiY0doS2lzZ2paNC1fY1gzQ20wYUp5bzYyWSZzPUhaR0Z3R1RFc2JiTzZvV0RkMmZOUVl6ZnQz
+a1A5WXYxREJpQnE3ZG1EajAmZT0gICkuLi4NCj4gDQo+IEplbnM6IElmIHlvdSBjYW4gc2VlIHRo
+ZSBwYXRjaCBhcyBhbiBhdHRhY2htZW50IChlLmcuIGF0IHRoZSBib3R0b20gb2YgDQo+IGh0dHBz
+Oi8vdXJsZGVmZW5zZS5wcm9vZnBvaW50LmNvbS92Mi91cmw/dT1odHRwcy0zQV9fd3d3LnNwaW5p
+Y3MubmV0X2xpc3RzX2Zpb19tc2cwODIwMy5odG1sJmQ9RHdJQ2FRJmM9ZlA0dGYtLTFkUzBiaUNG
+bEIwc2F6MEkwa2pPNXY3LUdMUHR2U2hBbzRjYyZyPXg0dy14ZUZMVjFxOVFOdlQtZzUxaElOX1lk
+blREaDJpbmlSVERqT3BHVGsmbT1uN2FIMDRBejBCa2U2THRQMWJjR2hLaXNnalo0LV9jWDNDbTBh
+SnlvNjJZJnM9Z1ZyNGxrVUpDaHFwS3N4cFNQZGd1dTh0eG9IX2dla3U3WjVNUVh6WUtfayZlPSAg
+KSwgd2hhdCBkbyB5b3UgdGhpbms/DQoNCldpdGggbXkgaW9fdXJpbmcgaGF0IG9uLCB0aGVyZSdz
+IGEgZmV3IHdheXMgdG8gZG8gc3RhdCBzaW5jZSBpb191cmluZyBhbHNvIHN1cHBvcnRzIGl0LiBJ
+cyB0aGUgcGxhbiB0byBlbmFibGUgYSBpb191cmluZyBiYWNrZW5kIGFzIHdlbGwgZm9yIHRoYXQg
+ZW5naW5lPyBPciBzaG91bGQgc3RhdCBwZXJoYXBzIGJlIGEgZGF0YSBkaXJlY3Rpb24gaW5zdGVh
+ZCB0aGF0IGFsbCBpbyBlbmdpbmVzIGNvdWxkIHRoZW4gc3VwcG9ydCwgc29tZSBvZiB0aGVtIGlu
+IGFuIGFzeW5jIG1hbm5lcj8NCg0KDQotLQ0KSmVucyBBeGJvZQ0KDQo=
 
