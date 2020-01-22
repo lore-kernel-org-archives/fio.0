@@ -1,56 +1,41 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:51658 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727174AbgAJNAI (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 10 Jan 2020 08:00:08 -0500
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1ipttX-00080B-Nv
-        for fio@vger.kernel.org; Fri, 10 Jan 2020 13:00:07 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] engines: add engine for file stat
+References: <925A83423110DA4D836092D40AC7A7E8085CB462@APYOKXMS108.ap.sony.com>
+ <CALjAwxhtdp3zJisFDdXt4no2hHwFKktuDNEMEV5EZN7fo=mL4Q@mail.gmail.com>
+ <SG2PR04MB2492F64F703104122008D211FD520@SG2PR04MB2492.apcprd04.prod.outlook.com>
+ <CALjAwxjd9u+DLLOmf7reEtnkX=wL=vqK0dpCTq3cFHdVN0z7dg@mail.gmail.com>
+ <027dde15-1c6a-47a5-f89b-0d808d4cd1f3@kernel.dk>
+ <SG2PR04MB24924423F87B356C30A9AF54FD3E0@SG2PR04MB2492.apcprd04.prod.outlook.com>
+ <HK0PR04MB2388DC18A61F0D5483D72BE8FD0D0@HK0PR04MB2388.apcprd04.prod.outlook.com>
+ <56461733-2fef-6faa-ac60-2436bf7d692d@kernel.dk>
+ <HK0PR04MB23886E2661C532F057030540FD0C0@HK0PR04MB2388.apcprd04.prod.outlook.com>
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20200110130002.2497E1BC015C@kernel.dk>
-Date: Fri, 10 Jan 2020 06:00:02 -0700 (MST)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <613a7d9e-4a0f-1b89-128d-5da7cf4390e2@kernel.dk>
+Date: Wed, 22 Jan 2020 08:32:25 -0700
+MIME-Version: 1.0
+In-Reply-To: <HK0PR04MB23886E2661C532F057030540FD0C0@HK0PR04MB2388.apcprd04.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: "Su, Friendy" <Friendy.Su@sony.com>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>, "Kobayashi, Kento (Sony)" <Kento.A.Kobayashi@sony.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 2198a6b5a9f40726b40aced24cf2dcdb3b639898:
+On 1/21/20 8:07 PM, Su, Friendy wrote:
+> This engine is to measure performance of accessing file's meta data.
+> This is for the actual access pattern which does not do real IO, but
+> just look up the file and get file's attribute.
 
-  Merge branch 'master' of https://github.com/bvanassche/fio (2020-01-06 18:38:02 -0700)
+Applied, just one minor fixup:
 
-are available in the Git repository at:
+> +	if (f->filetype != FIO_TYPE_FILE) {
+> +		log_err("fio: only files are supported fallocate \n");
+> +		return 1;
+> +	}
 
-  git://git.kernel.dk/fio.git master
+Not sure where this fallocate came from, too much copy paste perhaps?
 
-for you to fetch changes up to b7ed2a862ddafa7dbaa6299ee8633b6f8221e283:
+-- 
+Jens Axboe
 
-  io_uring: set sqe iopriority, if prio/prioclass is set (2020-01-09 14:58:51 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      io_uring: set sqe iopriority, if prio/prioclass is set
-
- engines/io_uring.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
----
-
-Diff of recent changes:
-
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 7c19294b..4f6a9678 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -206,6 +206,10 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
- 		}
- 		if (!td->o.odirect && o->uncached)
- 			sqe->rw_flags = RWF_UNCACHED;
-+		if (fio_option_is_set(&td->o, ioprio_class))
-+			sqe->ioprio = td->o.ioprio_class << 13;
-+		if (fio_option_is_set(&td->o, ioprio))
-+			sqe->ioprio |= td->o.ioprio;
- 		sqe->off = io_u->offset;
- 	} else if (ddir_sync(io_u->ddir)) {
- 		if (io_u->ddir == DDIR_SYNC_FILE_RANGE) {
 
