@@ -1,65 +1,51 @@
-Return-Path: <Friendy.Su@sony.com>
-From: "Su, Friendy" <Friendy.Su@sony.com>
-Subject: RE: [PATCH] engines: add engine for file stat
-Date: Wed, 8 Jan 2020 09:32:44 +0000
-Message-ID: 
- <SG2PR04MB24924423F87B356C30A9AF54FD3E0@SG2PR04MB2492.apcprd04.prod.outlook.com>
-References: <925A83423110DA4D836092D40AC7A7E8085CB462@APYOKXMS108.ap.sony.com>
- <CALjAwxhtdp3zJisFDdXt4no2hHwFKktuDNEMEV5EZN7fo=mL4Q@mail.gmail.com>
- <SG2PR04MB2492F64F703104122008D211FD520@SG2PR04MB2492.apcprd04.prod.outlook.com>
- <CALjAwxjd9u+DLLOmf7reEtnkX=wL=vqK0dpCTq3cFHdVN0z7dg@mail.gmail.com>
- <027dde15-1c6a-47a5-f89b-0d808d4cd1f3@kernel.dk>
-In-Reply-To: <027dde15-1c6a-47a5-f89b-0d808d4cd1f3@kernel.dk>
-Content-Language: zh-CN
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-oi1-f177.google.com ([209.85.167.177]:46546 "EHLO
+        mail-oi1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387393AbgAXUja (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 24 Jan 2020 15:39:30 -0500
+Received: by mail-oi1-f177.google.com with SMTP id 13so754349oij.13
+        for <fio@vger.kernel.org>; Fri, 24 Jan 2020 12:39:29 -0800 (PST)
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: fio <fio@vger.kernel.org>, "Kobayashi, Kento (Sony)" <Kento.A.Kobayashi@sony.com>
-List-ID: <fio@vger.kernel.org>
+References: <CAHEKYV6AqY=u=PZ2EAxLwM2a3TL6ByAwTRyURA=9CA1dAtwLbw@mail.gmail.com>
+ <MWHPR11MB16790DF710A8EA7EB9118C37A9370@MWHPR11MB1679.namprd11.prod.outlook.com>
+ <CANvN+ekCr5CxPe1pcVwc7MQG+MoUPK=YVpfcGT1Hn=4H1JQOqA@mail.gmail.com>
+ <CAHEKYV6tMRCyhWnT9D+LaZ_U7j=wRLcMMU4yjBv1Te72FUYBag@mail.gmail.com>
+ <CANvN+enS9cZpJrnvL=Z-X-cYHO4eGdfaG9aR5NQQ-KJUTM9Zug@mail.gmail.com>
+ <CAHEKYV5L0wz0AKvuc9=zDYN0ug-dQYwTf7aGzE16Yu0S9Hi3Fg@mail.gmail.com>
+ <CANvN+emieOE7jBdmTwaB+j-jrpyn4mjnO7+iUDD9bYBQJ18Szw@mail.gmail.com>
+ <CAHEKYV4qoGxYQ=NMsidt23c3O4YePrpcYXFimu04wjE4-2LWyg@mail.gmail.com>
+ <CAGfUJcGpJ2kx3Q0+nyYD22bsNMgGhe+4SpGbcN_K67Lbs5Gbhg@mail.gmail.com>
+ <CANvN+e=w2Rd88CAfeuubYEXLSabCJBU=bTGGfGjnQzNh_Qx11w@mail.gmail.com>
+ <CAGfUJcFBW-46v7Fna1E-Fh1CL=LTnv5cpJjO=-Ls+xMFPda3BQ@mail.gmail.com> <CAF+0mvmYdsnWj4dPSjeGzrYRgMBh+XFvQxrYB=TGCEDudRiebA@mail.gmail.com>
+In-Reply-To: <CAF+0mvmYdsnWj4dPSjeGzrYRgMBh+XFvQxrYB=TGCEDudRiebA@mail.gmail.com>
+From: Mauricio Tavares <raubvogel@gmail.com>
+Date: Fri, 24 Jan 2020 15:39:18 -0500
+Message-ID: <CAHEKYV4vQ30vSzv7_O4Tzm4S3eFHEA7az91Vrd1dAJXVWuzbMA@mail.gmail.com>
+Subject: Re: CPUs, threads, and speed
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio <fio@vger.kernel.org>
 
-U29ycnksIEkgcmVzZW5kIHBhdGNoIGluIG1haWwgYm9keSwgbm90IGF0dGFjaG1lbnQuDQoNClVu
-dGlsIG5vdywgSSBoYXZlIG5vdCBjb25zaWRlcmVkIHJlbGF0aW9uIGJldHdlZW4gJ2lvX3VyaW5n
-JyBhbmQgJ2ZpbGVzdGF0Jy4NCg0KVGhpcyAnZmlsZXN0YXQnIGVuZ2luZSBpcyBjcmVhdGVkIHNp
-bmNlIHVuZGVyIHNvbWUgcmVhbCBvY2Nhc2lvbiwgd2UgcmVhbGx5IGNhcmUgYWJvdXQgJ2hvdyBm
-YXN0IGZpbGVzIGJlaW5nIGxvb2t1cCBvciBvcGVyYXRlZCcgYXMgd2VsbCBhcyAnaG93IGZhc3Qg
-cmVhZC93cml0ZScuIEZJTyBpcyBzdHJvbmcgb24gJ0lPIHBlcmZvcm1hbmNlJyBtZWFzdXJlbWVu
-dCwgd2UgY2hvb3NlIEZJTy4gV2Ugd2FudCB0aGUgc2FtZSBiZW5jaG1hcmsgdG9vbCB0byBtZWFz
-dXJlICdmaWxlIG9wZXJhdGlvbicgc2luY2UgJ3NhbWUgdG9vbCcgbWFrZXMgY29uZGl0aW9uLCBz
-ZXF1ZW5jZSBlYXN5IHRvIGJlIHNhbWUuIEJhc2VkIG9uIHRoaXMsIEkgY3JlYXRlZCAnZmlsZXN0
-YXQnIGVuZ2luZS4gV2UgaG9wZSBGSU8gY2FuIGJlIHN0cmVuZ3RoZW4gaXRzIGNhcGFiaWxpdHkg
-b24gJ2ZpbGUgb3BlcmF0aW9uJyBtZWFzdXJlbWVudC4gQmVzaWRlcyAnZmlsZXN0YXQnLCAnZmls
-ZS1kZWxldGUnLCAnZmlsZS1yZW5hbWUnIGFyZSBhbHNvIG5lZWQuDQoNCi0tLS0tT3JpZ2luYWwg
-TWVzc2FnZS0tLS0tDQpGcm9tOiBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+IA0KU2VudDog
-TW9uZGF5LCBEZWNlbWJlciAzMCwgMjAxOSA3OjIxIEFNDQpUbzogU2l0c29mZSBXaGVlbGVyIDxz
-aXRzb2ZlQGdtYWlsLmNvbT47IFN1LCBGcmllbmR5IDxGcmllbmR5LlN1QHNvbnkuY29tPg0KQ2M6
-IGZpbyA8ZmlvQHZnZXIua2VybmVsLm9yZz47IEtvYmF5YXNoaSwgS2VudG8gKFNvbnkpIDxLZW50
-by5BLktvYmF5YXNoaUBzb255LmNvbT4NClN1YmplY3Q6IFJlOiBbUEFUQ0hdIGVuZ2luZXM6IGFk
-ZCBlbmdpbmUgZm9yIGZpbGUgc3RhdA0KDQpPbiAxMi8yOS8xOSAyOjIzIFBNLCBTaXRzb2ZlIFdo
-ZWVsZXIgd3JvdGU6DQo+IE9uIFRodSwgMTkgRGVjIDIwMTkgYXQgMTA6MjAsIFN1LCBGcmllbmR5
-IDxGcmllbmR5LlN1QHNvbnkuY29tPiB3cm90ZToNCj4+DQo+PiBUaGFua3MgZm9yIHlvdXIgY29t
-bWVudHMuDQo+PiBJIGZpeGVkIGFuZCByZXNlbnQgcGF0Y2guIFBscyBzZWUgbXkgcmVwbHkgaW4g
-dGV4dCBiZWxvdy4NCj4gDQo+IEZyb20gYSBicmllZiBzY2FuIGl0IGxvb2tzIE9LIHRvIG1lIGJ1
-dCBJJ2Qgc2F5IHlvdSBhcmUgYmV0dGVyIG9mZiANCj4gcG9zdGluZyBwYXRjaGVzIGluLWxpbmUg
-YmVjYXVzZSBpdCBtYWtlIHJldmlldyBlYXNpZXIgKGFueW9uZSBlbHNlIHdobyANCj4gd2FudHMg
-dG8gc2VlIGl0IHdpbGwgaGF2ZSB0byBsb29rIGF0IHRoZSBwYXJlbnQgb2YgdGhpcyBtYWlsKS4g
-SWYgdGhpcyANCj4gaXMgdHJvdWJsZXNvbWUgeW91IGNhbiBhbHdheXMgdHJ5IHN1Ym1pdHRpbmcg
-YSBwdWxsIHJlcXVlc3QgKGUuZy4gdmlhIA0KPiBodHRwczovL3VybGRlZmVuc2UucHJvb2Zwb2lu
-dC5jb20vdjIvdXJsP3U9aHR0cHMtM0FfX2dpdGh1Yi5jb21fYXhib2VfZmlvX3B1bGxzJmQ9RHdJ
-Q2FRJmM9ZlA0dGYtLTFkUzBiaUNGbEIwc2F6MEkwa2pPNXY3LUdMUHR2U2hBbzRjYyZyPXg0dy14
-ZUZMVjFxOVFOdlQtZzUxaElOX1lkblREaDJpbmlSVERqT3BHVGsmbT1uN2FIMDRBejBCa2U2THRQ
-MWJjR2hLaXNnalo0LV9jWDNDbTBhSnlvNjJZJnM9SFpHRndHVEVzYmJPNm9XRGQyZk5RWXpmdDNr
-UDlZdjFEQmlCcTdkbURqMCZlPSAgKS4uLg0KPiANCj4gSmVuczogSWYgeW91IGNhbiBzZWUgdGhl
-IHBhdGNoIGFzIGFuIGF0dGFjaG1lbnQgKGUuZy4gYXQgdGhlIGJvdHRvbSBvZiANCj4gaHR0cHM6
-Ly91cmxkZWZlbnNlLnByb29mcG9pbnQuY29tL3YyL3VybD91PWh0dHBzLTNBX193d3cuc3Bpbmlj
-cy5uZXRfbGlzdHNfZmlvX21zZzA4MjAzLmh0bWwmZD1Ed0lDYVEmYz1mUDR0Zi0tMWRTMGJpQ0Zs
-QjBzYXowSTBrak81djctR0xQdHZTaEFvNGNjJnI9eDR3LXhlRkxWMXE5UU52VC1nNTFoSU5fWWRu
-VERoMmluaVJURGpPcEdUayZtPW43YUgwNEF6MEJrZTZMdFAxYmNHaEtpc2dqWjQtX2NYM0NtMGFK
-eW82Mlkmcz1nVnI0bGtVSkNocXBLc3hwU1BkZ3V1OHR4b0hfZ2VrdTdaNU1RWHpZS19rJmU9ICAp
-LCB3aGF0IGRvIHlvdSB0aGluaz8NCg0KV2l0aCBteSBpb191cmluZyBoYXQgb24sIHRoZXJlJ3Mg
-YSBmZXcgd2F5cyB0byBkbyBzdGF0IHNpbmNlIGlvX3VyaW5nIGFsc28gc3VwcG9ydHMgaXQuIElz
-IHRoZSBwbGFuIHRvIGVuYWJsZSBhIGlvX3VyaW5nIGJhY2tlbmQgYXMgd2VsbCBmb3IgdGhhdCBl
-bmdpbmU/IE9yIHNob3VsZCBzdGF0IHBlcmhhcHMgYmUgYSBkYXRhIGRpcmVjdGlvbiBpbnN0ZWFk
-IHRoYXQgYWxsIGlvIGVuZ2luZXMgY291bGQgdGhlbiBzdXBwb3J0LCBzb21lIG9mIHRoZW0gaW4g
-YW4gYXN5bmMgbWFubmVyPw0KDQoNCi0tDQpKZW5zIEF4Ym9lDQoNCg==
+On Fri, Jan 17, 2020 at 5:08 PM Matthew Eaton <m.eaton82@gmail.com> wrote:
+>
+> On Thu, Jan 16, 2020 at 11:04 AM Jared Walton <jawalking@gmail.com> wrote:
+> >
+> > Correct, I pre-condition for IOPS testing by utilizing the the last if
+> > block, only using randwrite. which will run random writes for about
+> > 45min, until a steady state is achieved.
+> >
+[...]
+>
+> I have pretty much standardized on two sequential drive writes and
+> four random drive writes to get to steady state. It may be overkill
+> but has worked well for me since we test a variety of SSDs and some
+> reach steady state faster than others.
+
+Thank you for all the replies and to Jared for the script, which leads
+me to one related question: even though it used steady state as
+criteria to consider drive preconditioned, am I correct to assume that
+steady state does not necessarily have any relationship with the
+steady state where I want to take the measurements when actually
+running the tests?
 
