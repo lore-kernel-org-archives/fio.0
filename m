@@ -1,17 +1,16 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-wr1-f52.google.com ([209.85.221.52]:45961 "EHLO
-        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726851AbgA3HeC (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 30 Jan 2020 02:34:02 -0500
-Received: by mail-wr1-f52.google.com with SMTP id a6so2677002wrx.12
-        for <fio@vger.kernel.org>; Wed, 29 Jan 2020 23:34:01 -0800 (PST)
+Received: from mail-wm1-f42.google.com ([209.85.128.42]:38054 "EHLO
+        mail-wm1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726646AbgA2XEz (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 29 Jan 2020 18:04:55 -0500
+Received: by mail-wm1-f42.google.com with SMTP id a9so1903378wmj.3
+        for <fio@vger.kernel.org>; Wed, 29 Jan 2020 15:04:54 -0800 (PST)
 MIME-Version: 1.0
 References: <CAL-AFxyeQ_mnGmy_458jm=CXVdXYd9Gdz77UDbAxDknR7Lv0Ow@mail.gmail.com>
- <CALjAwxhq=+WkUjkwFNkcPoREDfvdGs4JZy7Lcn=B09+AbTy26Q@mail.gmail.com> <CAL-AFxzbJow_drH44doM-u8xJM=gz71W77PAqVr8PKDCJL4dYg@mail.gmail.com>
-In-Reply-To: <CAL-AFxzbJow_drH44doM-u8xJM=gz71W77PAqVr8PKDCJL4dYg@mail.gmail.com>
+In-Reply-To: <CAL-AFxyeQ_mnGmy_458jm=CXVdXYd9Gdz77UDbAxDknR7Lv0Ow@mail.gmail.com>
 From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Thu, 30 Jan 2020 07:33:33 +0000
-Message-ID: <CALjAwxjzn8KR2H7dRz9w+EEnkaepdz1Zp4KU38ZWokXmHYh9-Q@mail.gmail.com>
+Date: Wed, 29 Jan 2020 23:04:27 +0000
+Message-ID: <CALjAwxhq=+WkUjkwFNkcPoREDfvdGs4JZy7Lcn=B09+AbTy26Q@mail.gmail.com>
 Subject: Re: Strange benchmark results of SSD - any ideas
 Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
@@ -19,30 +18,38 @@ List-Id: fio@vger.kernel.org
 To: Louwrentius <louwrentius@gmail.com>
 Cc: fio <fio@vger.kernel.org>
 
-On Wed, 29 Jan 2020 at 23:14, Louwrentius <louwrentius@gmail.com> wrote:
+On Wed, 29 Jan 2020 at 22:44, Louwrentius <louwrentius@gmail.com> wrote:
 >
-> Thanks a lot for your reply. I have not erased or trimmed the drives.
-> I actually wanted to see how the SSDs would behave under worst
-> possible circumstances.
-> But maybe this causes me comparing apples to oranges.
+> Hello,
+>
+> I've done some benchmarks with FIO of entire SSD devices. So the FIO
+> benchmark stops when the whole device has been read/written. I've
+> logged latency and iops for the entire run.
+>
+> Those logs are then translated to graphs. The Intel SSD shows the kind
+> of graph I would expect. The Samsung and Kingston SSDs show 'strange'
+> results.
+>
+> I've written a brief blog article about this which includes links to
+> the raw data and the images.
+> https://louwrentius.com/difference-of-behavior-in-sata-solid-state-drives.html
+>
+> Does anybody have an idea what could be going on? Why do we see these
+> 'golden gate bridge' patterns? Maybe I did something wrong?
 
-To do this fairly, you really would have to the same preconditioning
-from an "empty" device on all of them before starting your benchmark.
-See the links in the previous email for more on that.
+Your job seems to be doing small (4K) randrw  norandommap... Isn't
+this the sort of effect seen when garbage collection
+(http://codecapsule.com/2014/02/12/coding-for-ssds-part-3-pages-blocks-and-the-flash-translation-layer/
+) kicks in? Have you been doing a secure erase (or not quite so good
+due to unpredictability but still better than nothing - a trim) before
+starting your benchmarking?
 
-> So the explanation for the golden gate bridge pattern could be an
-> interaction between the benchmark and the garbage collection kicking
-> in.
-> Maybe if I do erase the drive properly, mark all blocks as empty, the
-> pattern should be gone and look more like the intel?
+See https://www.snia.org/sites/default/education/tutorials/2011/fall/SolidState/EstherSpanjer_The_Why_How_SSD_Performance_Benchmarking.pdf
+for an overview and
+https://www.snia.org/tech_activities/standards/curr_standards/pts for
+a list of specs talking about the lengths that can be done to try and
+make comparisons fair...
 
-That's the hope. If it is garbage collection related, starting with
-all the blocks erased will hopefully make it take much longer before
-garbage collection has to kick in. It could be some SSDs had more
-empty cells than others or were better at garbage collecting or had
-been written with a data pattern in the past more amenable to the
-workload you're doing now etc.
-
--- 
+--
 Sitsofe | http://sucs.org/~sits/
 
