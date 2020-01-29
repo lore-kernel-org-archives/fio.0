@@ -1,15 +1,13 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-eopbgr680091.outbound.protection.outlook.com ([40.107.68.91]:22522
-        "EHLO NAM04-BN3-obe.outbound.protection.outlook.com"
+Received: from mail-bn8nam11on2104.outbound.protection.outlook.com ([40.107.236.104]:30286
+        "EHLO NAM11-BN8-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727161AbgA3Vhq (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 30 Jan 2020 16:37:46 -0500
+        id S1726528AbgA2WzI (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 29 Jan 2020 17:55:08 -0500
 From: "Fetters, Alex" <Alex.Fetters@garmin.com>
-Subject: RE: Random fill data
-Date: Thu, 30 Jan 2020 21:37:33 +0000
-Message-ID: <a2b20526d03f48f4bd6c64e99b6e0518@garmin.com>
-References: <4ea2729e28b141c1b3e312eee502c2e2@garmin.com>
-In-Reply-To: <4ea2729e28b141c1b3e312eee502c2e2@garmin.com>
+Subject: Random fill data
+Date: Wed, 29 Jan 2020 22:54:58 +0000
+Message-ID: <4ea2729e28b141c1b3e312eee502c2e2@garmin.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
@@ -17,22 +15,6 @@ MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: "fio@vger.kernel.org" <fio@vger.kernel.org>
-
-Some debugging with gdb reveals this issue has been patched in https://gith=
-ub.com/axboe/fio/commit/9781c080385364d24ac18a95544484864a27611a which is i=
-ncluded in fio-3.14 or later.=20
-
-The important detail missing from the commit summary is that the fix is not=
- limited to Windows as I encountered it in a 32-bit Linux kernel.
-
---
-Alex Fetters
-
------Original Message-----
-From: Fetters, Alex=20
-Sent: Wednesday, January 29, 2020 4:55 PM
-To: 'fio@vger.kernel.org' <fio@vger.kernel.org>
-Subject: Random fill data
 
 I'm having issue getting a full fill when using the default buffer fill. Sp=
 ecifically, every other 32-bits of fill is 0x00000000. This is similar to t=
