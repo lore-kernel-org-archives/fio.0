@@ -1,61 +1,58 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-eopbgr10099.outbound.protection.outlook.com ([40.107.1.99]:54917
-        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728027AbgAaH6O (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 31 Jan 2020 02:58:14 -0500
-From: Erwan Velu <e.velu@criteo.com>
+Received: from mail-wr1-f54.google.com ([209.85.221.54]:35485 "EHLO
+        mail-wr1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726863AbgA3IlN (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 30 Jan 2020 03:41:13 -0500
+Received: by mail-wr1-f54.google.com with SMTP id g17so2997038wro.2
+        for <fio@vger.kernel.org>; Thu, 30 Jan 2020 00:41:12 -0800 (PST)
+Received: from [10.0.1.35] (ip-213-127-252-215.ip.prioritytelecom.net. [213.127.252.215])
+        by smtp.gmail.com with ESMTPSA id q124sm14099215wme.2.2020.01.30.00.41.10
+        for <fio@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Jan 2020 00:41:10 -0800 (PST)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+From: Louwrentius <louwrentius@gmail.com>
+Mime-Version: 1.0 (1.0)
 Subject: Re: Strange benchmark results of SSD - any ideas
-Date: Fri, 31 Jan 2020 07:58:09 +0000
-Message-ID: <0b3477ac-858c-742c-d4e6-21e6174e456d@criteo.com>
-References: <CAL-AFxyeQ_mnGmy_458jm=CXVdXYd9Gdz77UDbAxDknR7Lv0Ow@mail.gmail.com>
-In-Reply-To: <CAL-AFxyeQ_mnGmy_458jm=CXVdXYd9Gdz77UDbAxDknR7Lv0Ow@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <064E6E85A4B4AB4BBAFFE4E2449AC1A3@eurprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+Date: Thu, 30 Jan 2020 09:41:09 +0100
+Message-Id: <B6E610B0-856D-411B-9712-CDAFFB6B461D@gmail.com>
+References: <CALjAwxjzn8KR2H7dRz9w+EEnkaepdz1Zp4KU38ZWokXmHYh9-Q@mail.gmail.com>
+In-Reply-To: <CALjAwxjzn8KR2H7dRz9w+EEnkaepdz1Zp4KU38ZWokXmHYh9-Q@mail.gmail.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Louwrentius <louwrentius@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: 
+Cc: fio <fio@vger.kernel.org>
 
-QSBjb3VwbGUgb2YgY29tbWVudHMgb24geW91ciB0ZXN0aW5nIHByb2NlZHVyZS4NCg0KLSBQbGVh
-c2UgdmVyc2lvbiBldmVyeXRoaW5nIHlvdSB1c2XCoCA6IGZpbywga2VybmVsLCBzeXN0ZW0sIGJp
-b3MsIHNzZCANCmZpcm13YXJlDQoNCkFsbCB0aGlzIGNhbiBoYXZlIGFuIGltcGFjdCBvbiB5b3Vy
-IHRlc3RpbmcuDQoNCkl0J3MgdW5jbGVhciBpZiB0aGV5IGFsbCBydW4gb2YgdGhlIHNhbWUgaG9z
-dC9zZXR1cCBvciBub3QuDQoNCg0KLSBQbGVhc2UgZXhwb3NlIHRoZSBkZXZpY2Ugc2l6ZSBhcyB0
-aGUgc3NkIG1vZGVsL2JyYW5kIGlzbid0IGVub3VnaC4NCg0KVGhlIHNpemUgb2YgdGhlIFNTRCBo
-YXZlIGEgaHVnZSBpbXBhY3Qgb24gaXRzIHBlcmZvcm1hbmNlDQoNCllvdSBzaG91bGQgYWxzbyBl
-eHBvc2UgdGhlIERXUEQgb2YgdGhlc2UgZHJpdmUgdG8gZGV0YWlsIGhvdyBtdWNoIA0KZW5kdXJh
-bnQgdGhleSBhcmUgc3VwcG9zZWQgdG8gYmUuDQoNClRoZSBwdWJsaWMgcHJpY2UgY291bGQgYmUg
-YWxzbyBhIGhpbnQgZm9yIHRoZSByZWFkZXIuDQoNCg0KLSBQbGVhc2UgZXhwb3NlIHRoZSBTTUFS
-VCBhdHRyaWJ1dGVzIG9mIHRoZXNlIGRyaXZlcw0KDQpJZiBzb21lIGFyZSBvbGRlciB0aGFuIG90
-aGVyLCB0aGUgd2VhciBsZXZlbGluZyBzdGF0dXMgY291bGQgaW1wYWN0IHRoZSANCnBlcmZvcm1h
-bmNlIHRvbw0KDQoNCi0gV2h5IGRvIHlvdSBlbmZvcmNlIGlvZGVwdGggdG8gMSA/IFNTRCBkZXZp
-Y2VzIGNhbiBwZXJmZWN0bHkgaGFuZGxlIA0KbXVjaCBtb3JlIHRoYW4gdGhhdCwgYW5kIHRoYXQg
-d2hhdCB3aWxsIGhhcHBlbiB3aGVuIHVzZWQgYnkgdGhlIE9TLg0KDQpJJ2Qgc3VnZ2VzdCB0byBy
-dW4gYXQgbGVhc3QgaW9kZXB0aCA9IDMyLg0KDQoNCi0gUGxlYXNlIGV4cG9zZSB0aGUgZGV2aWNl
-IGNvbmZpZ3VyYXRpb24gd2l0aCBhIHNkcGFybSAtYSAodG8ga25vdyB3aGF0IA0KYXJlIHRoZSBy
-ZWFkICYgd3JpdGUgY2FjaGUgc2V0dGluZ3Mgb24gdGhpcyBkZXZpY2VzKQ0KDQoNCi0gU3RhcnRp
-bmcgZnJvbSB0aGUgZnJlc2ggZXJhc2VkIGRpc2sgd291bGQgYmUgYmV0dGVyIHRvIHN0YXJ0IGZy
-b20gYSANCmNsZWFyIGRldmljZSAoc2FtZSBUUklNIHN0YXRlIG9uIGFsbCBkZXZpY2VzKQ0KDQoN
-Ck9uIDI5LzAxLzIwMjAgMjM6NDMsIExvdXdyZW50aXVzIHdyb3RlOg0KPiBIZWxsbywNCj4NCj4g
-SSd2ZSBkb25lIHNvbWUgYmVuY2htYXJrcyB3aXRoIEZJTyBvZiBlbnRpcmUgU1NEIGRldmljZXMu
-IFNvIHRoZSBGSU8NCj4gYmVuY2htYXJrIHN0b3BzIHdoZW4gdGhlIHdob2xlIGRldmljZSBoYXMg
-YmVlbiByZWFkL3dyaXR0ZW4uIEkndmUNCj4gbG9nZ2VkIGxhdGVuY3kgYW5kIGlvcHMgZm9yIHRo
-ZSBlbnRpcmUgcnVuLg0KPg0KPiBUaG9zZSBsb2dzIGFyZSB0aGVuIHRyYW5zbGF0ZWQgdG8gZ3Jh
-cGhzLiBUaGUgSW50ZWwgU1NEIHNob3dzIHRoZSBraW5kDQo+IG9mIGdyYXBoIEkgd291bGQgZXhw
-ZWN0LiBUaGUgU2Ftc3VuZyBhbmQgS2luZ3N0b24gU1NEcyBzaG93ICdzdHJhbmdlJw0KPiByZXN1
-bHRzLg0KPg0KPiBJJ3ZlIHdyaXR0ZW4gYSBicmllZiBibG9nIGFydGljbGUgYWJvdXQgdGhpcyB3
-aGljaCBpbmNsdWRlcyBsaW5rcyB0bw0KPiB0aGUgcmF3IGRhdGEgYW5kIHRoZSBpbWFnZXMuDQo+
-IGh0dHBzOi8vZXVyMDMuc2FmZWxpbmtzLnByb3RlY3Rpb24ub3V0bG9vay5jb20vP3VybD1odHRw
-cyUzQSUyRiUyRmxvdXdyZW50aXVzLmNvbSUyRmRpZmZlcmVuY2Utb2YtYmVoYXZpb3ItaW4tc2F0
-YS1zb2xpZC1zdGF0ZS1kcml2ZXMuaHRtbCZhbXA7ZGF0YT0wMiU3QzAxJTdDZS52ZWx1JTQwY3Jp
-dGVvLmNvbSU3QzBiZmQxYWNhYjE0NTQ4NDFmYWQyMDhkN2E1MGNhOTgzJTdDMmEzNWQ4ZmQ1NzRk
-NDhlMzkyN2M4YzM5OGUyMjVhMDElN0MxJTdDMSU3QzYzNzE1OTM0NjExNTIyNDA2NSZhbXA7c2Rh
-dGE9RHpFWkRIVGZDazZ0cEVzWWFjTVJFVGo1clViUm9MUnRRdTd5VVclMkJlVjNNJTNEJmFtcDty
-ZXNlcnZlZD0wDQo+DQo+IERvZXMgYW55Ym9keSBoYXZlIGFuIGlkZWEgd2hhdCBjb3VsZCBiZSBn
-b2luZyBvbj8gV2h5IGRvIHdlIHNlZSB0aGVzZQ0KPiAnZ29sZGVuIGdhdGUgYnJpZGdlJyBwYXR0
-ZXJucz8gTWF5YmUgSSBkaWQgc29tZXRoaW5nIHdyb25nPw0KPg0KPiBXaXRoIHJlZ2FyZHMsDQo+
-DQo+IExvdXdyZW50aXVzDQo=
+Ok thanks a lot for the feedback, I=E2=80=99ll take your comments to heart.
+
+> On 30 Jan 2020, at 08:34, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>=20
+> =EF=BB=BFOn Wed, 29 Jan 2020 at 23:14, Louwrentius <louwrentius@gmail.com>=
+ wrote:
+>>=20
+>> Thanks a lot for your reply. I have not erased or trimmed the drives.
+>> I actually wanted to see how the SSDs would behave under worst
+>> possible circumstances.
+>> But maybe this causes me comparing apples to oranges.
+>=20
+> To do this fairly, you really would have to the same preconditioning
+> from an "empty" device on all of them before starting your benchmark.
+> See the links in the previous email for more on that.
+>=20
+>> So the explanation for the golden gate bridge pattern could be an
+>> interaction between the benchmark and the garbage collection kicking
+>> in.
+>> Maybe if I do erase the drive properly, mark all blocks as empty, the
+>> pattern should be gone and look more like the intel?
+>=20
+> That's the hope. If it is garbage collection related, starting with
+> all the blocks erased will hopefully make it take much longer before
+> garbage collection has to kick in. It could be some SSDs had more
+> empty cells than others or were better at garbage collecting or had
+> been written with a data pattern in the past more amenable to the
+> workload you're doing now etc.
+>=20
+> --=20
+> Sitsofe | http://sucs.org/~sits/
 
