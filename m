@@ -1,112 +1,61 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-ua1-f49.google.com ([209.85.222.49]:44844 "EHLO
-        mail-ua1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725909AbgAaSmU (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 31 Jan 2020 13:42:20 -0500
-Received: by mail-ua1-f49.google.com with SMTP id x16so2931154uao.11
-        for <fio@vger.kernel.org>; Fri, 31 Jan 2020 10:42:19 -0800 (PST)
-MIME-Version: 1.0
-References: <CAL-AFxyeQ_mnGmy_458jm=CXVdXYd9Gdz77UDbAxDknR7Lv0Ow@mail.gmail.com>
- <0b3477ac-858c-742c-d4e6-21e6174e456d@criteo.com>
-In-Reply-To: <0b3477ac-858c-742c-d4e6-21e6174e456d@criteo.com>
-From: Louwrentius <louwrentius@gmail.com>
-Date: Fri, 31 Jan 2020 19:42:08 +0100
-Message-ID: <CAL-AFxx=y8dxsCd6oZid=0RVk49Wv7Zqu2Tj8w9wZ2khMKV7qg@mail.gmail.com>
+Received: from mail-eopbgr10099.outbound.protection.outlook.com ([40.107.1.99]:54917
+        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728027AbgAaH6O (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 31 Jan 2020 02:58:14 -0500
+From: Erwan Velu <e.velu@criteo.com>
 Subject: Re: Strange benchmark results of SSD - any ideas
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Date: Fri, 31 Jan 2020 07:58:09 +0000
+Message-ID: <0b3477ac-858c-742c-d4e6-21e6174e456d@criteo.com>
+References: <CAL-AFxyeQ_mnGmy_458jm=CXVdXYd9Gdz77UDbAxDknR7Lv0Ow@mail.gmail.com>
+In-Reply-To: <CAL-AFxyeQ_mnGmy_458jm=CXVdXYd9Gdz77UDbAxDknR7Lv0Ow@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <064E6E85A4B4AB4BBAFFE4E2449AC1A3@eurprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Erwan Velu <e.velu@criteo.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Louwrentius <louwrentius@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Thanks for the feedback. I have to make an apology to you all. I made
-a rather stupid mistake.
-I tested the SSDs on a P420i RAID controller (not in HBA mode) and
-this seems to cause these strange patterns.
-
-After some feedback, I decided to test the SSDs again on a regular
-AHCI SATA 300 controller and the results were as expected.
-I've updated my blog post with the new benchmark results. This is an exampl=
-e:
-
-https://raw.githubusercontent.com/louwrentius/fio-plot/master/images/SAMSUN=
-G-PM883-ON-AHCI-SATA-300-FULL-DISK-4K-RANDOM-READ-WRITE-50%25-2020-01-31_14=
-4732.png
-
-As to why I test this way (with qd=3D1): I like to see how SSDs perform
-under worst-case performance situations.
-Although SSDs can get to crazy IOPs with high queue depths, I wonder
-if those queue depths are always encountered in real-life situations.
-Probably depends on the workload.
-
-Thanks again for the suggestions.
-
-Op vr 31 jan. 2020 om 08:58 schreef Erwan Velu <e.velu@criteo.com>:
->
-> A couple of comments on your testing procedure.
->
-> - Please version everything you use  : fio, kernel, system, bios, ssd
-> firmware
->
-> All this can have an impact on your testing.
->
-> It's unclear if they all run of the same host/setup or not.
->
->
-> - Please expose the device size as the ssd model/brand isn't enough.
->
-> The size of the SSD have a huge impact on its performance
->
-> You should also expose the DWPD of these drive to detail how much
-> endurant they are supposed to be.
->
-> The public price could be also a hint for the reader.
->
->
-> - Please expose the SMART attributes of these drives
->
-> If some are older than other, the wear leveling status could impact the
-> performance too
->
->
-> - Why do you enforce iodepth to 1 ? SSD devices can perfectly handle
-> much more than that, and that what will happen when used by the OS.
->
-> I'd suggest to run at least iodepth =3D 32.
->
->
-> - Please expose the device configuration with a sdparm -a (to know what
-> are the read & write cache settings on this devices)
->
->
-> - Starting from the fresh erased disk would be better to start from a
-> clear device (same TRIM state on all devices)
->
->
-> On 29/01/2020 23:43, Louwrentius wrote:
-> > Hello,
-> >
-> > I've done some benchmarks with FIO of entire SSD devices. So the FIO
-> > benchmark stops when the whole device has been read/written. I've
-> > logged latency and iops for the entire run.
-> >
-> > Those logs are then translated to graphs. The Intel SSD shows the kind
-> > of graph I would expect. The Samsung and Kingston SSDs show 'strange'
-> > results.
-> >
-> > I've written a brief blog article about this which includes links to
-> > the raw data and the images.
-> > https://eur03.safelinks.protection.outlook.com/?url=3Dhttps%3A%2F%2Flou=
-wrentius.com%2Fdifference-of-behavior-in-sata-solid-state-drives.html&amp;d=
-ata=3D02%7C01%7Ce.velu%40criteo.com%7C0bfd1acab1454841fad208d7a50ca983%7C2a=
-35d8fd574d48e3927c8c398e225a01%7C1%7C1%7C637159346115224065&amp;sdata=3DDzE=
-ZDHTfCk6tpEsYacMRETj5rUbRoLRtQu7yUW%2BeV3M%3D&amp;reserved=3D0
-> >
-> > Does anybody have an idea what could be going on? Why do we see these
-> > 'golden gate bridge' patterns? Maybe I did something wrong?
-> >
-> > With regards,
-> >
-> > Louwrentius
+QSBjb3VwbGUgb2YgY29tbWVudHMgb24geW91ciB0ZXN0aW5nIHByb2NlZHVyZS4NCg0KLSBQbGVh
+c2UgdmVyc2lvbiBldmVyeXRoaW5nIHlvdSB1c2XCoCA6IGZpbywga2VybmVsLCBzeXN0ZW0sIGJp
+b3MsIHNzZCANCmZpcm13YXJlDQoNCkFsbCB0aGlzIGNhbiBoYXZlIGFuIGltcGFjdCBvbiB5b3Vy
+IHRlc3RpbmcuDQoNCkl0J3MgdW5jbGVhciBpZiB0aGV5IGFsbCBydW4gb2YgdGhlIHNhbWUgaG9z
+dC9zZXR1cCBvciBub3QuDQoNCg0KLSBQbGVhc2UgZXhwb3NlIHRoZSBkZXZpY2Ugc2l6ZSBhcyB0
+aGUgc3NkIG1vZGVsL2JyYW5kIGlzbid0IGVub3VnaC4NCg0KVGhlIHNpemUgb2YgdGhlIFNTRCBo
+YXZlIGEgaHVnZSBpbXBhY3Qgb24gaXRzIHBlcmZvcm1hbmNlDQoNCllvdSBzaG91bGQgYWxzbyBl
+eHBvc2UgdGhlIERXUEQgb2YgdGhlc2UgZHJpdmUgdG8gZGV0YWlsIGhvdyBtdWNoIA0KZW5kdXJh
+bnQgdGhleSBhcmUgc3VwcG9zZWQgdG8gYmUuDQoNClRoZSBwdWJsaWMgcHJpY2UgY291bGQgYmUg
+YWxzbyBhIGhpbnQgZm9yIHRoZSByZWFkZXIuDQoNCg0KLSBQbGVhc2UgZXhwb3NlIHRoZSBTTUFS
+VCBhdHRyaWJ1dGVzIG9mIHRoZXNlIGRyaXZlcw0KDQpJZiBzb21lIGFyZSBvbGRlciB0aGFuIG90
+aGVyLCB0aGUgd2VhciBsZXZlbGluZyBzdGF0dXMgY291bGQgaW1wYWN0IHRoZSANCnBlcmZvcm1h
+bmNlIHRvbw0KDQoNCi0gV2h5IGRvIHlvdSBlbmZvcmNlIGlvZGVwdGggdG8gMSA/IFNTRCBkZXZp
+Y2VzIGNhbiBwZXJmZWN0bHkgaGFuZGxlIA0KbXVjaCBtb3JlIHRoYW4gdGhhdCwgYW5kIHRoYXQg
+d2hhdCB3aWxsIGhhcHBlbiB3aGVuIHVzZWQgYnkgdGhlIE9TLg0KDQpJJ2Qgc3VnZ2VzdCB0byBy
+dW4gYXQgbGVhc3QgaW9kZXB0aCA9IDMyLg0KDQoNCi0gUGxlYXNlIGV4cG9zZSB0aGUgZGV2aWNl
+IGNvbmZpZ3VyYXRpb24gd2l0aCBhIHNkcGFybSAtYSAodG8ga25vdyB3aGF0IA0KYXJlIHRoZSBy
+ZWFkICYgd3JpdGUgY2FjaGUgc2V0dGluZ3Mgb24gdGhpcyBkZXZpY2VzKQ0KDQoNCi0gU3RhcnRp
+bmcgZnJvbSB0aGUgZnJlc2ggZXJhc2VkIGRpc2sgd291bGQgYmUgYmV0dGVyIHRvIHN0YXJ0IGZy
+b20gYSANCmNsZWFyIGRldmljZSAoc2FtZSBUUklNIHN0YXRlIG9uIGFsbCBkZXZpY2VzKQ0KDQoN
+Ck9uIDI5LzAxLzIwMjAgMjM6NDMsIExvdXdyZW50aXVzIHdyb3RlOg0KPiBIZWxsbywNCj4NCj4g
+SSd2ZSBkb25lIHNvbWUgYmVuY2htYXJrcyB3aXRoIEZJTyBvZiBlbnRpcmUgU1NEIGRldmljZXMu
+IFNvIHRoZSBGSU8NCj4gYmVuY2htYXJrIHN0b3BzIHdoZW4gdGhlIHdob2xlIGRldmljZSBoYXMg
+YmVlbiByZWFkL3dyaXR0ZW4uIEkndmUNCj4gbG9nZ2VkIGxhdGVuY3kgYW5kIGlvcHMgZm9yIHRo
+ZSBlbnRpcmUgcnVuLg0KPg0KPiBUaG9zZSBsb2dzIGFyZSB0aGVuIHRyYW5zbGF0ZWQgdG8gZ3Jh
+cGhzLiBUaGUgSW50ZWwgU1NEIHNob3dzIHRoZSBraW5kDQo+IG9mIGdyYXBoIEkgd291bGQgZXhw
+ZWN0LiBUaGUgU2Ftc3VuZyBhbmQgS2luZ3N0b24gU1NEcyBzaG93ICdzdHJhbmdlJw0KPiByZXN1
+bHRzLg0KPg0KPiBJJ3ZlIHdyaXR0ZW4gYSBicmllZiBibG9nIGFydGljbGUgYWJvdXQgdGhpcyB3
+aGljaCBpbmNsdWRlcyBsaW5rcyB0bw0KPiB0aGUgcmF3IGRhdGEgYW5kIHRoZSBpbWFnZXMuDQo+
+IGh0dHBzOi8vZXVyMDMuc2FmZWxpbmtzLnByb3RlY3Rpb24ub3V0bG9vay5jb20vP3VybD1odHRw
+cyUzQSUyRiUyRmxvdXdyZW50aXVzLmNvbSUyRmRpZmZlcmVuY2Utb2YtYmVoYXZpb3ItaW4tc2F0
+YS1zb2xpZC1zdGF0ZS1kcml2ZXMuaHRtbCZhbXA7ZGF0YT0wMiU3QzAxJTdDZS52ZWx1JTQwY3Jp
+dGVvLmNvbSU3QzBiZmQxYWNhYjE0NTQ4NDFmYWQyMDhkN2E1MGNhOTgzJTdDMmEzNWQ4ZmQ1NzRk
+NDhlMzkyN2M4YzM5OGUyMjVhMDElN0MxJTdDMSU3QzYzNzE1OTM0NjExNTIyNDA2NSZhbXA7c2Rh
+dGE9RHpFWkRIVGZDazZ0cEVzWWFjTVJFVGo1clViUm9MUnRRdTd5VVclMkJlVjNNJTNEJmFtcDty
+ZXNlcnZlZD0wDQo+DQo+IERvZXMgYW55Ym9keSBoYXZlIGFuIGlkZWEgd2hhdCBjb3VsZCBiZSBn
+b2luZyBvbj8gV2h5IGRvIHdlIHNlZSB0aGVzZQ0KPiAnZ29sZGVuIGdhdGUgYnJpZGdlJyBwYXR0
+ZXJucz8gTWF5YmUgSSBkaWQgc29tZXRoaW5nIHdyb25nPw0KPg0KPiBXaXRoIHJlZ2FyZHMsDQo+
+DQo+IExvdXdyZW50aXVzDQo=
 
