@@ -1,38 +1,54 @@
-Return-Path: <prvs=320bddd21=naohiro.aota@wdc.com>
-From: Naohiro Aota <naohiro.aota@wdc.com>
-Subject: [PATCH 2/2] doc: fix "thezoned" typo
-Date: Fri, 28 Feb 2020 16:33:23 +0900
-Message-Id: <20200228073323.4000336-2-naohiro.aota@wdc.com>
-In-Reply-To: <20200228073323.4000336-1-naohiro.aota@wdc.com>
-References: <20200228073323.4000336-1-naohiro.aota@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:54580 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726765AbgBFNAF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 6 Feb 2020 08:00:05 -0500
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1izglJ-0000aX-0L
+        for fio@vger.kernel.org; Thu, 06 Feb 2020 13:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200206130001.C49091BC016D@kernel.dk>
+Date: Thu,  6 Feb 2020 06:00:01 -0700 (MST)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-The man page is showing "thezoned", which lacks a space between "the" and
-"zoned".  This patch trivially add the space.
+The following changes since commit f4cd67d8dc96ca947b294f6a5c9fdced2b64215d:
 
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
----
- fio.1 | 2 +-
+  Merge branch 'latency-rebase-again' of https://github.com/vincentkfu/fio (2020-02-04 10:05:09 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to ac694f66968fe7b18c820468abd8333f3df333fb:
+
+  Fio 3.18 (2020-02-05 07:59:58 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Fio 3.18
+
+ FIO-VERSION-GEN | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fio.1 b/fio.1
-index d728df8aca9e..9b8d73e0c7ff 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1178,7 +1178,7 @@ example, the user would do:
- random_distribution=zoned:60/10:30/20:8/30:2/40
- .RE
- .P
--A \fBzoned_abs\fR distribution works exactly like the\fBzoned\fR, except that
-+A \fBzoned_abs\fR distribution works exactly like the \fBzoned\fR, except that
- it takes absolute sizes. For example, let's say you wanted to define access
- according to the following criteria:
- .RS
--- 
-2.25.1
+---
 
+Diff of recent changes:
+
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index 13ce8c16..6c2bcc8a 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-3.17
++DEF_VER=fio-3.18
+ 
+ LF='
+ '
 
