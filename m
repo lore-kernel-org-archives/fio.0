@@ -1,64 +1,34 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-lf1-f43.google.com ([209.85.167.43]:42243 "EHLO
-        mail-lf1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727526AbgBFU7L (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 6 Feb 2020 15:59:11 -0500
-Received: by mail-lf1-f43.google.com with SMTP id y19so41682lfl.9
-        for <fio@vger.kernel.org>; Thu, 06 Feb 2020 12:59:08 -0800 (PST)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: Setting number of read threads
+References: <CABO+gV_6uBVxzzZ3K4HmDs18w_KzT8C5QxsNgLN3wp1C=x7NwQ@mail.gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <02eb7f85-72ab-f311-22fe-832a140bb2e6@kernel.dk>
+Date: Wed, 26 Feb 2020 19:52:13 -0700
 MIME-Version: 1.0
-From: Frank Esposito <fpesposito@gmail.com>
-Date: Thu, 6 Feb 2020 15:58:55 -0500
-Message-ID: <CAFqEa-CTzhZcUAnGn2i4d6ZKwqz5=p6zeKYJ2LEvu1VMJO9JYQ@mail.gmail.com>
-Subject: crash
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <CABO+gV_6uBVxzzZ3K4HmDs18w_KzT8C5QxsNgLN3wp1C=x7NwQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Elliott Balsley <elliott@altsystems.com>, fio <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Hello --
+On 2/26/20 2:32 PM, Elliott Balsley wrote:
+> When I do a sequential read test with multiple threads, the initial
+> write only uses one thread.  Is there some way to adjust this?  For
+> example a command like this:
+> 
+> fio --name moe --rw read --directory /mnt/nv01/fio/local --size 40G
+> --bs 4M --numjobs 4 --group_reporting --direct 1
+> 
+> It lays out four files one at a time, then it reads them all back at
+> once.  I would like to lay out the four files simultaneously to save
+> time.  I hope this makes sense; I'm not sure if I'm phrasing this in
+> the right way.
 
-I am running win 10 / 1909  64bit --- all current update applied --
-
-I download the win binaries  including the zip ones  --
-
-I unzipped  fio-3.16-x64.zip   and ran fio.exe --- Is it looking for a DLL
-
-
-This is the text from the event log ---
-
-
-Windows cannot access the file for one of the following reasons:  there is a
-problem with the network connection, the disk that the file is stored on, or the
-storage drivers installed on this computer; or the disk is missing.  Windows
-closed the program fio.exe because of this error.
-
-Program:  fio.exe File:
-
-The error value is listed in the Additional Data section.  User Action 1. Open
-the file again.  This situation might be a temporary problem that corrects
-itself when the program runs again.
-
-2. If the file still cannot be accessed and
-
-- It is on the network, your network administrator should verify that there is
-not a problem with the network and that the server can be contacted.
-
-- It is on a removable disk, for example, a floppy disk or CD-ROM, verify that
-the disk is fully inserted into the computer.
-
-3. Check and repair the file system by running CHKDSK.  To run CHKDSK, click
-Start, click Run, type CMD, and then click OK.  At the command prompt, type
-CHKDSK /F, and then press ENTER.
-
-4. If the problem persists, restore the file from a backup copy.
-
-5. Determine whether other files on the same disk can be opened.  If not, the
-disk might be damaged.  If it is a hard disk, contact your administrator or
-computer hardware vendor for further assistance.
-
-Additional Data Error value:  00000000 Disk type:  0 -
-
+create_serialize=false would do that. It defaults to sequentially
+since otherwise the fs layout tends to suffer.
 
 -- 
-Frank Esposito
+Jens Axboe
+
 
