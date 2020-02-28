@@ -1,42 +1,70 @@
-Return-Path: <Friendy.Su@sony.com>
-From: "Su, Friendy" <Friendy.Su@sony.com>
-Subject: RE: [PATCH] engines: add engine for file stat
-Date: Sun, 2 Feb 2020 08:18:05 +0000
-Message-ID: 
- <HK0PR04MB23888825F71109075AF3751EFD010@HK0PR04MB2388.apcprd04.prod.outlook.com>
-References: <925A83423110DA4D836092D40AC7A7E8085CB462@APYOKXMS108.ap.sony.com>
- <CALjAwxhtdp3zJisFDdXt4no2hHwFKktuDNEMEV5EZN7fo=mL4Q@mail.gmail.com>
- <SG2PR04MB2492F64F703104122008D211FD520@SG2PR04MB2492.apcprd04.prod.outlook.com>
- <CALjAwxjd9u+DLLOmf7reEtnkX=wL=vqK0dpCTq3cFHdVN0z7dg@mail.gmail.com>
- <027dde15-1c6a-47a5-f89b-0d808d4cd1f3@kernel.dk>
- <SG2PR04MB24924423F87B356C30A9AF54FD3E0@SG2PR04MB2492.apcprd04.prod.outlook.com>
- <HK0PR04MB2388DC18A61F0D5483D72BE8FD0D0@HK0PR04MB2388.apcprd04.prod.outlook.com>
- <56461733-2fef-6faa-ac60-2436bf7d692d@kernel.dk>
- <HK0PR04MB23886E2661C532F057030540FD0C0@HK0PR04MB2388.apcprd04.prod.outlook.com>
- <613a7d9e-4a0f-1b89-128d-5da7cf4390e2@kernel.dk>
-In-Reply-To: <613a7d9e-4a0f-1b89-128d-5da7cf4390e2@kernel.dk>
-Content-Language: zh-CN
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <prvs=320bddd21=naohiro.aota@wdc.com>
+From: Naohiro Aota <naohiro.aota@wdc.com>
+Subject: [PATCH 0/6] Fix zone lock deadlock
+Date: Fri, 28 Feb 2020 16:12:42 +0900
+Message-Id: <20200228071248.3981623-1-naohiro.aota@wdc.com>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: fio <fio@vger.kernel.org>, "Kobayashi, Kento (Sony)" <Kento.A.Kobayashi@sony.com>
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-VGhhbmtzIGEgbG90IGZvciBmaXggYW5kIGFwcGx5LiDwn5iKDQoNCi0tLS0tT3JpZ2luYWwgTWVz
-c2FnZS0tLS0tDQpGcm9tOiBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+IA0KU2VudDogV2Vk
-bmVzZGF5LCBKYW51YXJ5IDIyLCAyMDIwIDExOjMyIFBNDQpUbzogU3UsIEZyaWVuZHkgPEZyaWVu
-ZHkuU3VAc29ueS5jb20+OyBTaXRzb2ZlIFdoZWVsZXIgPHNpdHNvZmVAZ21haWwuY29tPg0KQ2M6
-IGZpbyA8ZmlvQHZnZXIua2VybmVsLm9yZz47IEtvYmF5YXNoaSwgS2VudG8gKFNvbnkpIDxLZW50
-by5BLktvYmF5YXNoaUBzb255LmNvbT4NClN1YmplY3Q6IFJlOiBbUEFUQ0hdIGVuZ2luZXM6IGFk
-ZCBlbmdpbmUgZm9yIGZpbGUgc3RhdA0KDQpPbiAxLzIxLzIwIDg6MDcgUE0sIFN1LCBGcmllbmR5
-IHdyb3RlOg0KPiBUaGlzIGVuZ2luZSBpcyB0byBtZWFzdXJlIHBlcmZvcm1hbmNlIG9mIGFjY2Vz
-c2luZyBmaWxlJ3MgbWV0YSBkYXRhLg0KPiBUaGlzIGlzIGZvciB0aGUgYWN0dWFsIGFjY2VzcyBw
-YXR0ZXJuIHdoaWNoIGRvZXMgbm90IGRvIHJlYWwgSU8sIGJ1dCANCj4ganVzdCBsb29rIHVwIHRo
-ZSBmaWxlIGFuZCBnZXQgZmlsZSdzIGF0dHJpYnV0ZS4NCg0KQXBwbGllZCwganVzdCBvbmUgbWlu
-b3IgZml4dXA6DQoNCj4gKwlpZiAoZi0+ZmlsZXR5cGUgIT0gRklPX1RZUEVfRklMRSkgew0KPiAr
-CQlsb2dfZXJyKCJmaW86IG9ubHkgZmlsZXMgYXJlIHN1cHBvcnRlZCBmYWxsb2NhdGUgXG4iKTsN
-Cj4gKwkJcmV0dXJuIDE7DQo+ICsJfQ0KDQpOb3Qgc3VyZSB3aGVyZSB0aGlzIGZhbGxvY2F0ZSBj
-YW1lIGZyb20sIHRvbyBtdWNoIGNvcHkgcGFzdGUgcGVyaGFwcz8NCg0KLS0NCkplbnMgQXhib2UN
-Cg0K
+With zonemode=zbd and asynchronous ioengine, a thread takes a zone lock
+before an I/O submission (in zbd_adjust_block() or
+zbd_convert_to_open_zone()) and releases the lock after the I/O is put (in
+zbd_put_io()).  With a small number of open zones and/or a large number of
+jobs, threads can easily end up circular lock dependency and deadlocks. For
+example, thread A sends an I/O to zone 0, so thread A holds a zone lock #0.
+Then, thread A continues on zone 1 and try to acquire zone lock #1. At the
+same time, thread B held zone lock #1, sent I/O to zone 1, and try to
+acquire zone #0. Now, both threads are waiting for each other's lock, which
+is never released.
+
+This series fixes three problems to eliminate the deadlock. First, taking
+all the zone locks should be avoided. zbd_process_swd() and
+zbd_reset_zones() take the lock for all zones of the specified device,
+preventing other threads from accessing different zones in parallel. While
+it is not the root cause of the deadlock, such all zone locking easily
+trigger a deadlock. So, this series reduces such contentions by (1)
+eliminating unnecessary invocation of zbd_process_swd() and (2) changing to
+take single zone at at time in zbd_reset_zones().
+
+Secondly, zbd's I/O issuing path should expect lock contention with other
+threads and handle the case properly. Commit 6f0c608564c3 ("zbd: Avoid
+async I/O multi-job workload deadlock") also addressed this issue by using
+pthread_mutex_try_lock() and io_u_quiesce(). However, there are more
+pthread_mutex_lock() left to be fixed in the same way.
+
+Finally, fio should clean up I/Os properly on an error case. Currently,
+cleanup_pending_aio() and io_u_quiesce() fail to clean up I/Os with an
+error. As a result, zone locks, which are held by an erroneous thread, are
+kept held and blocks other threads to acquire the locks.
+
+This series also add a test case to cause the deadlock with unpatched fio.
+
+Patches 1 and 2 avoid long range lock holding to reduce lock contentions.
+
+Patch 3 introduces zone_lock and use it to handle the lock contention case.
+
+Patches 4 and 5 fix error path to clean up all the pending I/Os left.
+
+Patch 6 adds the test.
+
+Naohiro Aota (6):
+  zbd: avoid initializing swd when unnecessary
+  zbd: reset one zone at a time
+  zbd: use zone_lock to lock a zone
+  backend: always clean up pending aios
+  io_u: ensure io_u_quiesce() to process all the IOs
+  zbd: add test for stressing zone locking
+
+ backend.c              |  5 ---
+ io_u.c                 |  6 +--
+ t/zbd/test-zbd-support | 30 +++++++++++++++
+ zbd.c                  | 84 ++++++++++++++++--------------------------
+ 4 files changed, 65 insertions(+), 60 deletions(-)
+
+-- 
+2.25.1
+
 
