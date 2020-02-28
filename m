@@ -1,35 +1,57 @@
 Return-Path: <prvs=320bddd21=naohiro.aota@wdc.com>
 From: Naohiro Aota <naohiro.aota@wdc.com>
-Subject: [PATCH 1/2] doc: fix zoned_abs example
-Date: Fri, 28 Feb 2020 16:33:22 +0900
-Message-Id: <20200228073323.4000336-1-naohiro.aota@wdc.com>
+Subject: [PATCH 5/6] io_u: ensure io_u_quiesce() to process all the IOs
+Date: Fri, 28 Feb 2020 16:12:47 +0900
+Message-Id: <20200228071248.3981623-6-naohiro.aota@wdc.com>
+In-Reply-To: <20200228071248.3981623-1-naohiro.aota@wdc.com>
+References: <20200228071248.3981623-1-naohiro.aota@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 To: Jens Axboe <axboe@kernel.dk>
 Cc: fio@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-It seems the example shown in "zoned_abs" desciption is copied from "zoned"
-example by mistake. Fix the example according to the desciption.
+Currently, when IO have an error io_u_quiesce() stops processing
+in-flight IOs there and leaves other IOs non-completed. This is not a
+desired behavior for io_u_quiesce(). Fix it by continuing even on
+error.
 
 Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
 ---
- fio.1 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ io_u.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fio.1 b/fio.1
-index 1db12c2ff41e..d728df8aca9e 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1195,7 +1195,7 @@ according to the following criteria:
- we can define an absolute zoning distribution with:
- .RS
- .P
--random_distribution=zoned:60/10:30/20:8/30:2/40
-+random_distribution=zoned_abs:60/20G:30/100G:10/500G
- .RE
- .P
- For both \fBzoned\fR and \fBzoned_abs\fR, fio supports defining up to 256
+diff --git a/io_u.c b/io_u.c
+index bcb893c5abad..5d62a76cb5a7 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -606,7 +606,7 @@ static inline enum fio_ddir get_rand_ddir(struct thread_data *td)
+ 
+ int io_u_quiesce(struct thread_data *td)
+ {
+-	int ret = 0, completed = 0;
++	int ret = 0, completed = 0, err = 0;
+ 
+ 	/*
+ 	 * We are going to sleep, ensure that we flush anything pending as
+@@ -625,7 +625,7 @@ int io_u_quiesce(struct thread_data *td)
+ 		if (ret > 0)
+ 			completed += ret;
+ 		else if (ret < 0)
+-			break;
++			err = ret;
+ 	}
+ 
+ 	if (td->flags & TD_F_REGROW_LOGS)
+@@ -634,7 +634,7 @@ int io_u_quiesce(struct thread_data *td)
+ 	if (completed)
+ 		return completed;
+ 
+-	return ret;
++	return err;
+ }
+ 
+ static enum fio_ddir rate_ddir(struct thread_data *td, enum fio_ddir ddir)
 -- 
 2.25.1
 
