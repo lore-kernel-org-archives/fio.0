@@ -1,42 +1,24 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:63803 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725942AbgCIHJj (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 9 Mar 2020 03:09:39 -0400
-From: Damien Le Moal <Damien.LeMoal@wdc.com>
-Subject: Re: Fio and zns testing
-Date: Mon, 9 Mar 2020 07:09:36 +0000
-Message-ID: <BYAPR04MB5816E102A4050BC5A3837229E7FE0@BYAPR04MB5816.namprd04.prod.outlook.com>
-References: <CAKwzdDqMHe7HHSPqr49SyFrrGWCZKH+BksNanCYuVBD0CgZ0Sw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Received: from mail-pl1-f179.google.com ([209.85.214.179]:35359 "EHLO
+        mail-pl1-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388508AbgCDXWe (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 4 Mar 2020 18:22:34 -0500
+Received: by mail-pl1-f179.google.com with SMTP id g6so1757981plt.2
+        for <fio@vger.kernel.org>; Wed, 04 Mar 2020 15:22:34 -0800 (PST)
 MIME-Version: 1.0
+From: abhishek koundal <akoundal@gmail.com>
+Date: Wed, 4 Mar 2020 15:21:57 -0800
+Message-ID: <CAKwzdDqMHe7HHSPqr49SyFrrGWCZKH+BksNanCYuVBD0CgZ0Sw@mail.gmail.com>
+Subject: Fio and zns testing
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: abhishek koundal <akoundal@gmail.com>, fio <fio@vger.kernel.org>
+To: fio <fio@vger.kernel.org>
 
-On 2020/03/05 8:22, abhishek koundal wrote:=0A=
-> hi,=0A=
-> Just wanted to know if the FIO will be adding the support for the Zone=0A=
-> Name Space testing?=0A=
-> =0A=
-=0A=
-NVMe Zoned Namespace devices will be exposed by the kernel as zoned block=
-=0A=
-devices, exactly like SMR HDDs. This means that most of the "zonemode=3Dzbd=
-"=0A=
-support added to fio since version 3.9 apply to ZNS. Only a few minor=0A=
-modifications will be necessary to generically handle all devices due to so=
-me=0A=
-minor differences in the interface between SMR HDDs and ZNS SSDs (e.g. the=
-=0A=
-addition of zone capacity). But nothing major. The current fio zbd support =
-will=0A=
-work mostly as is.=0A=
-=0A=
-=0A=
--- =0A=
-Damien Le Moal=0A=
-Western Digital Research=0A=
+hi,
+Just wanted to know if the FIO will be adding the support for the Zone
+Name Space testing?
+-- 
+Life is too short for silly things so invest your time in some
+productive outputs!!
 
