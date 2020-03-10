@@ -1,55 +1,40 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-io1-f41.google.com ([209.85.166.41]:40809 "EHLO
-        mail-io1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729535AbgCKN5W (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 11 Mar 2020 09:57:22 -0400
-Received: by mail-io1-f41.google.com with SMTP id d8so1968762ion.7
-        for <fio@vger.kernel.org>; Wed, 11 Mar 2020 06:57:21 -0700 (PDT)
+Received: from mga04.intel.com ([192.55.52.120]:30072 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726463AbgCJXs3 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 10 Mar 2020 19:48:29 -0400
+From: "Ober, Frank" <frank.ober@intel.com>
+Subject: RE: U.2 vs M.2
+Date: Tue, 10 Mar 2020 23:47:53 +0000
+Message-ID: <MW3PR11MB4697A577D77BAC1FB77D44FC8BFF0@MW3PR11MB4697.namprd11.prod.outlook.com>
+References: <CAHEKYV4_Njx62A6bUFKQUgbf=0y4JUDNM8HcR69HEOFjDRL1cw@mail.gmail.com>
+In-Reply-To: <CAHEKYV4_Njx62A6bUFKQUgbf=0y4JUDNM8HcR69HEOFjDRL1cw@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-From: =?UTF-8?Q?Marcin_=C5=BBukowski?= <marcin.zukowski@gmail.com>
-Date: Wed, 11 Mar 2020 06:56:55 -0700
-Message-ID: <CABdSUwQx5HmuVQGYsY6fc1TeOwE223i4NoMKMmWxgQTcZuPvTQ@mail.gmail.com>
-Subject: RFC: New GAS meta-engine and S3 engine
-Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Mauricio Tavares <raubvogel@gmail.com>, fio <fio@vger.kernel.org>
 
-Hi all,
-
-Sending this before I send a pull request, as I wanted to consult
-first if this is something that would be desirable.
-
-A long while ago (2017) I needed ability to test AWS S3 performance,
-including aspects like concurrent IOs, various IO sizes etc. So I
-decided my favorite "fio" is probably a good tool to use for it. Back
-then, S3 mode for http.c didn't exist yet, so I had to do something
-myself. I made it work back then, but I got busy and didn't merge it
-upstream (sorry!). Trying to fix it now.
-
-Instead of manually implementing S3 HTTP interface (like http.c did),
-I thought it would be desirable to use the official AWS SDK. However,
-it had some issues, like no built-in asynchronicity, being C++ and so
-on.
-
-I realized the process of making AWS interface provide what fio needs
-is super generic. So I decided to write a mini meta-engine I called
-GAS - Generic ASync. It provides fio-compatible  async-adding wrapper
-to any IO-like library. Then, adding a full-fledged fio engine is
-trivial, see example in gas-direct-io.c . Similarly S3 engine
-(read-only for now) is quite trivial. I had to split it into a C and
-C++ part, but the entire thing is still <200 LOC.
-
-I'm now thinking about adding similar engines for Azure and GCP object
-stores, hence I wonder if it would make sense to merge it upstream.
-One concern I have is making fio dependent on all these SDKs. Hence I
-thought this should only be optionally compiled-in.
-
-The repo is here, I recently refreshed it from upstream:
-https://github.com/MarcinZukowski/fio
-
-Thoughts? Comments? Should I just send a pull request? :)
-
-Thanks,
-Marcin
+SGkgTWF1cmljaW8sIFlvdSBnb3QgaXQgY29ycmVjdCwgTS4yIGlzIHR5cGljYWxseSBkZXNpZ25l
+ZCBmb3IgY29uc3VtZXIobGFwdG9wKSwgZGVza3RvcCwgSSBoYXZlIHNlZW4gTS4yIGluIHRoZSBi
+YWNrIG9mIHRoZSBzZXJ2ZXIgZm9yIGR1YWwgYm9vdCBkcml2ZXMgdG9vLg0KDQpVLjIgYnJpbmdz
+IG1vcmUgc3VyZmFjZSBhcmVhIHRvIHRoZSBlcXVhdGlvbiwgc28gYSBiZWVmaWVyIChob3R0ZXIp
+IGNvbnRyb2xsZXIgY291bGQgcHVzaCBtb3JlIE5BTkQuIA0KDQpCZXR0ZXIgbWFuYWdlbWVudCwg
+c28geW91IGNhbiBkbyB3YXJtIHNhZmUgcmVtb3ZhbC4gDQoNClUuMiBjb3VsZCBiZSBhZGRlZCB0
+byBhIGNhcmQgc28geW91IGNvdWxkIHVzZSBhIFBDSWUgc2xvdCB3aXRoIGl0LiANCg0KT3IgeW91
+IGNvdWxkIGxldmVyYWdlIHNvbWV0aGluZyBsaWtlIHRoaXMuLi4gaHR0cHM6Ly93d3cubGlxaWQu
+Y29tL3Byb2R1Y3RzL2NvbXBvc2FibGUtc3RvcmFnZS9lbGVtZW50LWxxZDMwMDAtYWljLXBjaWUt
+c3NkDQoNCldoaWNoIGxldmVyYWdlcyBNLjIgdG8gYnVpbGQgYSByZWFsbHkgZmFzdCBQQ0llIENh
+cmQuLi4NCkZyYW5rDQoNCg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogZmlv
+LW93bmVyQHZnZXIua2VybmVsLm9yZyA8ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZz4gT24gQmVo
+YWxmIE9mIE1hdXJpY2lvIFRhdmFyZXMNClNlbnQ6IFR1ZXNkYXksIE1hcmNoIDEwLCAyMDIwIDEx
+OjAyIEFNDQpUbzogZmlvIDxmaW9Admdlci5rZXJuZWwub3JnPg0KU3ViamVjdDogVS4yIHZzIE0u
+Mg0KDQpUaGlzIG1pZ2h0IGJlIGEgYml0IG9mZi10b3BpYywgYnV0IHdoYXQgaXMgdGhlIGRpZmZl
+cmVuY2UgcGVyZm9ybWFuY2UgYmV0d2VlbiB0aG9zZSB0d28gYXMgZmFyIGFzIHRoZSBudm1lIGRy
+aXZlcyBhcmUgY29uY2VybmVkPyBBbGwgSSBrbm93IGlzIEkgc2VlIE0uMiBiZWluZyB1c2VkIGZv
+ciBjdXN0b21lci9wcm9zdW1lci1sZXZlbCBzdHVmZiB3aGlsZSB0aGUNClUuMiBpbiBlbnRlcnBy
+aXN5IGRyaXZlcyAob2sgYm9vdCBkaXNrcyBpbiB0aGUgc2VydmVycyBtaWdodCBiZSBNLjIgYnV0
+IHlvdSBnZXQgbXkgZHJpZnQpLg0K
 
