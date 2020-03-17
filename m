@@ -1,123 +1,64 @@
-Return-Path: <adobriyan@gmail.com>
-Return-Path: <adobriyan@gmail.com>
-Date: Fri, 20 Mar 2020 21:06:23 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: [PATCH] fio: fix interaction between offset/size limited threads and
- "max_open_zones"
-Message-ID: <20200320180623.GA19960@avx2>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH RFC] gauss.c: correct the stddev initializtion
+References: <20200317125331.6799-1-feng.tang@intel.com>
+ <dab7e008-2fff-62d8-28f6-cc08a5388738@kernel.dk>
+ <20200317145240.GA18256@shbuild999.sh.intel.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <c7573ca4-e31d-583c-d5d1-c122ba54efe8@kernel.dk>
+Date: Tue, 17 Mar 2020 08:56:19 -0600
 MIME-Version: 1.0
+In-Reply-To: <20200317145240.GA18256@shbuild999.sh.intel.com>
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, damien.lemoal@wdc.com
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Feng Tang <feng.tang@intel.com>
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-If thread bumps into "max_open_zones" limit, it tries to close/reopen some
-other zone before issuing IO. This scan is done over full list of block devices's
-opened zones. It means that a zone which doesn't belong to thread's working
-area can be altered or IO can be retargeted at such zone.
+On 3/17/20 8:52 AM, Feng Tang wrote:
+> Hi,
+> 
+> On Tue, Mar 17, 2020 at 08:34:48AM -0600, Jens Axboe wrote:
+>> On 3/17/20 6:53 AM, Feng Tang wrote:
+>>> Signed-off-by: Feng Tang <feng.tang@intel.com>
+>>> ---
+>>>  lib/gauss.c | 2 +-
+>>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> diff --git a/lib/gauss.c b/lib/gauss.c
+>>> index 1d24e187..3f84dbc6 100644
+>>> --- a/lib/gauss.c
+>>> +++ b/lib/gauss.c
+>>> @@ -51,7 +51,7 @@ void gauss_init(struct gauss_state *gs, unsigned long nranges, double dev,
+>>>  	gs->nranges = nranges;
+>>>  
+>>>  	if (dev != 0.0) {
+>>> -		gs->stddev = ceil((double) (nranges * 100.0) / dev);
+>>> +		gs->stddev = ceil((double)(nranges * dev) / 100.0);
+>>>  		if (gs->stddev > nranges / 2)
+>>>  			gs->stddev = nranges / 2;
+>>>  	}
+>>
+>> Looks like I very helpfully did not include a reference to to where
+>> this is from... Can you expand on the need for the patch?
+> 
+> Thanks for your prompt response! 
+> 
+> I tried to run fio with "random_distribution=normal:20" as one
+> parameter, and didn't notice it has difference with "normal:50",
+> so I went to read the source code, as the man page says the
+> deviation ranges from 0 to 100, so this gs->stddev will
+> always be "nranges/2". Or I misunderstood the man page?
 
-If IO is retargeted, then it will be dropped by "is_valid_offset()" check.
+Nope I think you are right, I looked up the original change
+that made it a parameter:
 
-What happens with null block device testing is that one thread monopolises
-IO and other thread do basically nothing.
+https://git.kernel.dk/cgit/fio/commit/?id=3cdb8cf38198d5cea73074d427ae310320e1d65f
 
-This config will reliably succeed now:
+and that clearly indicates that your patch is correct. I'll
+apply it, thanks!
 
-	[global]
-	zonemode=zbd
-	zonesize=1M
-	rw=randwrite
-		...
-	thread
-	numjobs=2
-	offset_increment=128M
+-- 
+Jens Axboe
 
-	[j]
-	max_open_zones=2
-	size=2M
-
-Starting 2 threads
-zbd      7991  /dev/nullb0: zbd model string: host-managed
-zbd      7991  Device /dev/nullb0 has 1024 zones of size 1024 KB
-zbd      8009  /dev/nullb0: examining zones 0 .. 2
-zbd      8010  /dev/nullb0: examining zones 128 .. 130
-zbd      8009  /dev/nullb0: opening zone 0
-zbd      8010  /dev/nullb0: opening zone 128
-zbd      8009  /dev/nullb0: queued I/O (0, 4096) for zone 0
-zbd      8009  zbd_convert_to_open_zone(/dev/nullb0): starting from zone 128 (offset 1552384, buflen 4096)
-
-	retargeted for other thread's zone	(zone 0 => zone 128)
-
-zbd      8010  /dev/nullb0: queued I/O (134217728, 4096) for zone 128
-zbd      8009  zbd_convert_to_open_zone(/dev/nullb0): returning zone 128
-zbd      8009  Dropped request with offset 134221824
-
-	and dropped
-
-Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
----
-
- zbd.c |   35 ++++++++++++++++++++++++++++++-----
- 1 file changed, 30 insertions(+), 5 deletions(-)
-
---- a/zbd.c
-+++ b/zbd.c
-@@ -969,9 +969,8 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
- 		 * This statement accesses f->zbd_info->open_zones[] on purpose
- 		 * without locking.
- 		 */
--		zone_idx = f->zbd_info->open_zones[(io_u->offset -
--						    f->file_offset) *
--				f->zbd_info->num_open_zones / f->io_size];
-+		uint32_t tmp = io_u->offset * f->zbd_info->num_open_zones / f->real_file_size;
-+		zone_idx = f->zbd_info->open_zones[tmp];
- 	} else {
- 		zone_idx = zbd_zone_idx(f, io_u->offset);
- 	}
-@@ -985,6 +984,8 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
- 	 * has been obtained. Hence the loop.
- 	 */
- 	for (;;) {
-+		uint32_t tmp;
-+
- 		z = &f->zbd_info->zone_info[zone_idx];
- 
- 		zone_lock(td, z);
-@@ -998,9 +999,33 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
- 			       __func__, f->file_name);
- 			return NULL;
- 		}
--		open_zone_idx = (io_u->offset - f->file_offset) *
--			f->zbd_info->num_open_zones / f->io_size;
-+		open_zone_idx = io_u->offset * f->zbd_info->num_open_zones / f->real_file_size;
- 		assert(open_zone_idx < f->zbd_info->num_open_zones);
-+
-+		for (tmp = open_zone_idx; tmp < f->zbd_info->num_open_zones; tmp++) {
-+			uint32_t tmpz = f->zbd_info->open_zones[tmp];
-+			struct fio_zone_info *z = &f->zbd_info->zone_info[tmpz];
-+
-+			if (is_valid_offset(f, z->start)) {
-+				open_zone_idx = tmp;
-+				goto found_candidate_zone;
-+			}
-+		}
-+		for (tmp = 0; tmp < open_zone_idx; tmp++) {
-+			uint32_t tmpz = f->zbd_info->open_zones[tmp];
-+			struct fio_zone_info *z = &f->zbd_info->zone_info[tmpz];
-+
-+			if (is_valid_offset(f, z->start)) {
-+				open_zone_idx = tmp;
-+				goto found_candidate_zone;
-+			}
-+
-+		}
-+		dprint(FD_ZBD, "%s(%s): no candidate zone\n",
-+			__func__, f->file_name);
-+		return NULL;
-+
-+found_candidate_zone:
- 		new_zone_idx = f->zbd_info->open_zones[open_zone_idx];
- 		if (new_zone_idx == zone_idx)
- 			break;
 
