@@ -1,173 +1,126 @@
-Return-Path: <prvs=349fa11bd=Damien.LeMoal@wdc.com>
-From: Damien Le Moal <Damien.LeMoal@wdc.com>
-Subject: Re: [PATCH v2] fio: fix interaction between offset/size limited
- threads and "max_open_zones"
-Date: Sat, 28 Mar 2020 08:34:44 +0000
-Message-ID: 
- <CO2PR04MB2343CBAD373DF1EBCAABB97CE7CD0@CO2PR04MB2343.namprd04.prod.outlook.com>
+Return-Path: <adobriyan@gmail.com>
+Return-Path: <adobriyan@gmail.com>
+Date: Wed, 25 Mar 2020 20:52:48 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: [PATCH v2] fio: fix interaction between offset/size limited threads
+ and "max_open_zones"
+Message-ID: <20200325175248.GA18527@avx2>
 References: <20200320180623.GA19960@avx2>
  <CO2PR04MB234395285948F0249B2485F0E7F10@CO2PR04MB2343.namprd04.prod.outlook.com>
- <20200325175248.GA18527@avx2>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>, "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CO2PR04MB234395285948F0249B2485F0E7F10@CO2PR04MB2343.namprd04.prod.outlook.com>
+To: axboe@kernel.dk
+Cc: fio@vger.kernel.org, Damien.LeMoal@wdc.com
 List-ID: <fio@vger.kernel.org>
 
-On 2020/03/26 2:52, Alexey Dobriyan wrote:=0A=
-> If thread bumps into "max_open_zones" limit, it tries to close/reopen som=
-e=0A=
-> other zone before issuing IO. This scan is done over full list of block d=
-evice's=0A=
-> opened zones. It means that a zone which doesn't belong to thread's worki=
-ng=0A=
-> area can be altered or IO can be retargeted at such zone.=0A=
-> =0A=
-> If IO is retargeted, then it will be dropped by "is_valid_offset()" check=
-.=0A=
-> =0A=
-> What happens with null block device testing is that one thread monopolise=
-s=0A=
-> IO and others thread do basically nothing.=0A=
-> =0A=
-> This config will reliably succeed now:=0A=
-> =0A=
-> 	[global]=0A=
-> 	zonemode=3Dzbd=0A=
-> 	zonesize=3D1M=0A=
-> 	rw=3Drandwrite=0A=
-> 		...=0A=
-> 	thread=0A=
-> 	numjobs=3D2=0A=
-> 	offset_increment=3D128M=0A=
-> =0A=
-> 	[j]=0A=
-> 	max_open_zones=3D2=0A=
-> 	size=3D2M=0A=
-> =0A=
-> Starting 2 threads=0A=
-> zbd      7991  /dev/nullb0: zbd model string: host-managed=0A=
-> zbd      7991  Device /dev/nullb0 has 1024 zones of size 1024 KB=0A=
-> zbd      8009  /dev/nullb0: examining zones 0 .. 2=0A=
-> zbd      8010  /dev/nullb0: examining zones 128 .. 130=0A=
-> zbd      8009  /dev/nullb0: opening zone 0=0A=
-> zbd      8010  /dev/nullb0: opening zone 128=0A=
-> zbd      8009  /dev/nullb0: queued I/O (0, 4096) for zone 0=0A=
-> zbd      8009  zbd_convert_to_open_zone(/dev/nullb0): starting from zone =
-128 (offset 1552384, buflen 4096)=0A=
-> =0A=
-> 	retargeted for other thread's zone	(zone 0 =3D> zone 128)=0A=
-> =0A=
-> zbd      8010  /dev/nullb0: queued I/O (134217728, 4096) for zone 128=0A=
-> zbd      8009  zbd_convert_to_open_zone(/dev/nullb0): returning zone 128=
-=0A=
-> zbd      8009  Dropped request with offset 134221824=0A=
-> =0A=
-> 	and dropped=0A=
-> =0A=
-> Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>=0A=
-=0A=
-Alexey,=0A=
-=0A=
-Did you run t/zbd/test-zbd-support or t/zbd/run-tests-against-xxx-nullb wit=
-h=0A=
-this patch applied ?=0A=
-=0A=
-I am still scratching my head about this change:=0A=
-=0A=
-> -		zone_idx =3D f->zbd_info->open_zones[(io_u->offset -=0A=
-> -						    f->file_offset) *=0A=
-> -				f->zbd_info->num_open_zones / f->io_size];=0A=
-> +		uint32_t tmp =3D io_u->offset * f->zbd_info->num_open_zones / f->real_=
-file_size;=0A=
-> +		zone_idx =3D f->zbd_info->open_zones[tmp];=0A=
-=0A=
-Since this removes the use of f->file_offset, if the thread has an offset+s=
-ize=0A=
-option specified to operate on a specific range of zones, it does look to m=
-e=0A=
-like a zone from outside that range could end up being chosen... Will test =
-and=0A=
-dig some more Monday.=0A=
-=0A=
-Best regards.=0A=
-=0A=
-> ---=0A=
-> =0A=
->  zbd.c |   35 ++++++++++++++++++++++++++++++-----=0A=
->  1 file changed, 30 insertions(+), 5 deletions(-)=0A=
-> =0A=
-> --- a/zbd.c=0A=
-> +++ b/zbd.c=0A=
-> @@ -969,9 +969,8 @@ static struct fio_zone_info *zbd_convert_to_open_zone=
-(struct thread_data *td,=0A=
->  		 * This statement accesses f->zbd_info->open_zones[] on purpose=0A=
->  		 * without locking.=0A=
->  		 */=0A=
-> -		zone_idx =3D f->zbd_info->open_zones[(io_u->offset -=0A=
-> -						    f->file_offset) *=0A=
-> -				f->zbd_info->num_open_zones / f->io_size];=0A=
-> +		uint32_t tmp =3D io_u->offset * f->zbd_info->num_open_zones / f->real_=
-file_size;=0A=
-> +		zone_idx =3D f->zbd_info->open_zones[tmp];=0A=
->  	} else {=0A=
->  		zone_idx =3D zbd_zone_idx(f, io_u->offset);=0A=
->  	}=0A=
-> @@ -985,6 +984,8 @@ static struct fio_zone_info *zbd_convert_to_open_zone=
-(struct thread_data *td,=0A=
->  	 * has been obtained. Hence the loop.=0A=
->  	 */=0A=
->  	for (;;) {=0A=
-> +		uint32_t tmp;=0A=
-> +=0A=
->  		z =3D &f->zbd_info->zone_info[zone_idx];=0A=
->  =0A=
->  		zone_lock(td, z);=0A=
-> @@ -998,9 +999,33 @@ static struct fio_zone_info *zbd_convert_to_open_zon=
-e(struct thread_data *td,=0A=
->  			       __func__, f->file_name);=0A=
->  			return NULL;=0A=
->  		}=0A=
-> -		open_zone_idx =3D (io_u->offset - f->file_offset) *=0A=
-> -			f->zbd_info->num_open_zones / f->io_size;=0A=
-> +=0A=
-> +		/*=0A=
-> +		 * List of opened zones is per-device, shared across all threads.=0A=
-> +		 * Start with quasi-random candidate zone.=0A=
-> +		 * Ignore zones which don't belong to thread's offset/size area.=0A=
-> +		 */=0A=
-> +		open_zone_idx =3D io_u->offset * f->zbd_info->num_open_zones / f->real=
-_file_size;=0A=
->  		assert(open_zone_idx < f->zbd_info->num_open_zones);=0A=
-> +		for (tmp =3D open_zone_idx, i =3D 0; i < f->zbd_info->num_open_zones; =
-i++, tmp++) {=0A=
-> +			uint32_t tmpz;=0A=
-> +=0A=
-> +			if (tmp >=3D f->zbd_info->num_open_zones)=0A=
-> +				tmp =3D 0;=0A=
-> +			tmpz =3D f->zbd_info->open_zones[tmp];=0A=
-> +=0A=
-> +			if (is_valid_offset(f, f->zbd_info->zone_info[tmpz].start)) {=0A=
-> +				open_zone_idx =3D tmp;=0A=
-> +				goto found_candidate_zone;=0A=
-> +			}=0A=
-> +=0A=
-> +		}=0A=
-> +=0A=
-> +		dprint(FD_ZBD, "%s(%s): no candidate zone\n",=0A=
-> +			__func__, f->file_name);=0A=
-> +		return NULL;=0A=
-> +=0A=
-> +found_candidate_zone:=0A=
->  		new_zone_idx =3D f->zbd_info->open_zones[open_zone_idx];=0A=
->  		if (new_zone_idx =3D=3D zone_idx)=0A=
->  			break;=0A=
-> =0A=
-=0A=
-=0A=
--- =0A=
-Damien Le Moal=0A=
-Western Digital Research=0A=
+If thread bumps into "max_open_zones" limit, it tries to close/reopen some
+other zone before issuing IO. This scan is done over full list of block device's
+opened zones. It means that a zone which doesn't belong to thread's working
+area can be altered or IO can be retargeted at such zone.
+
+If IO is retargeted, then it will be dropped by "is_valid_offset()" check.
+
+What happens with null block device testing is that one thread monopolises
+IO and others thread do basically nothing.
+
+This config will reliably succeed now:
+
+	[global]
+	zonemode=zbd
+	zonesize=1M
+	rw=randwrite
+		...
+	thread
+	numjobs=2
+	offset_increment=128M
+
+	[j]
+	max_open_zones=2
+	size=2M
+
+Starting 2 threads
+zbd      7991  /dev/nullb0: zbd model string: host-managed
+zbd      7991  Device /dev/nullb0 has 1024 zones of size 1024 KB
+zbd      8009  /dev/nullb0: examining zones 0 .. 2
+zbd      8010  /dev/nullb0: examining zones 128 .. 130
+zbd      8009  /dev/nullb0: opening zone 0
+zbd      8010  /dev/nullb0: opening zone 128
+zbd      8009  /dev/nullb0: queued I/O (0, 4096) for zone 0
+zbd      8009  zbd_convert_to_open_zone(/dev/nullb0): starting from zone 128 (offset 1552384, buflen 4096)
+
+	retargeted for other thread's zone	(zone 0 => zone 128)
+
+zbd      8010  /dev/nullb0: queued I/O (134217728, 4096) for zone 128
+zbd      8009  zbd_convert_to_open_zone(/dev/nullb0): returning zone 128
+zbd      8009  Dropped request with offset 134221824
+
+	and dropped
+
+Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
+---
+
+ zbd.c |   35 ++++++++++++++++++++++++++++++-----
+ 1 file changed, 30 insertions(+), 5 deletions(-)
+
+--- a/zbd.c
++++ b/zbd.c
+@@ -969,9 +969,8 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+ 		 * This statement accesses f->zbd_info->open_zones[] on purpose
+ 		 * without locking.
+ 		 */
+-		zone_idx = f->zbd_info->open_zones[(io_u->offset -
+-						    f->file_offset) *
+-				f->zbd_info->num_open_zones / f->io_size];
++		uint32_t tmp = io_u->offset * f->zbd_info->num_open_zones / f->real_file_size;
++		zone_idx = f->zbd_info->open_zones[tmp];
+ 	} else {
+ 		zone_idx = zbd_zone_idx(f, io_u->offset);
+ 	}
+@@ -985,6 +984,8 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+ 	 * has been obtained. Hence the loop.
+ 	 */
+ 	for (;;) {
++		uint32_t tmp;
++
+ 		z = &f->zbd_info->zone_info[zone_idx];
+ 
+ 		zone_lock(td, z);
+@@ -998,9 +999,33 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+ 			       __func__, f->file_name);
+ 			return NULL;
+ 		}
+-		open_zone_idx = (io_u->offset - f->file_offset) *
+-			f->zbd_info->num_open_zones / f->io_size;
++
++		/*
++		 * List of opened zones is per-device, shared across all threads.
++		 * Start with quasi-random candidate zone.
++		 * Ignore zones which don't belong to thread's offset/size area.
++		 */
++		open_zone_idx = io_u->offset * f->zbd_info->num_open_zones / f->real_file_size;
+ 		assert(open_zone_idx < f->zbd_info->num_open_zones);
++		for (tmp = open_zone_idx, i = 0; i < f->zbd_info->num_open_zones; i++, tmp++) {
++			uint32_t tmpz;
++
++			if (tmp >= f->zbd_info->num_open_zones)
++				tmp = 0;
++			tmpz = f->zbd_info->open_zones[tmp];
++
++			if (is_valid_offset(f, f->zbd_info->zone_info[tmpz].start)) {
++				open_zone_idx = tmp;
++				goto found_candidate_zone;
++			}
++
++		}
++
++		dprint(FD_ZBD, "%s(%s): no candidate zone\n",
++			__func__, f->file_name);
++		return NULL;
++
++found_candidate_zone:
+ 		new_zone_idx = f->zbd_info->open_zones[open_zone_idx];
+ 		if (new_zone_idx == zone_idx)
+ 			break;
 
