@@ -1,53 +1,34 @@
 Return-Path: <axboe@kernel.dk>
 Subject: Re: [PATCH] fio: add NVMe engine
 References: <20200326204406.GA29597@avx2>
- <CO2PR04MB2343805A950787DBA0BA18E9E7CC0@CO2PR04MB2343.namprd04.prod.outlook.com>
- <20200327061439.GA2745@avx2>
- <BY5PR04MB6689C6836C345348D8BFFC46FFCC0@BY5PR04MB6689.namprd04.prod.outlook.com>
+ <9d18acbf-f878-c685-6272-a77eb5f98bcc@kernel.dk> <20200327061921.GA3260@avx2>
 From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <51339d62-debc-5024-11fd-773574f3be6c@kernel.dk>
-Date: Fri, 27 Mar 2020 08:47:08 -0600
+Message-ID: <221f7ccd-53e9-3ad6-0afa-958e74c2ded1@kernel.dk>
+Date: Fri, 27 Mar 2020 08:45:59 -0600
 MIME-Version: 1.0
-In-Reply-To: <BY5PR04MB6689C6836C345348D8BFFC46FFCC0@BY5PR04MB6689.namprd04.prod.outlook.com>
+In-Reply-To: <20200327061921.GA3260@avx2>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-To: Keith Busch <Keith.Busch@wdc.com>, Alexey Dobriyan <adobriyan@gmail.com>, Damien Le Moal <Damien.LeMoal@wdc.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-On 3/27/20 8:25 AM, Keith Busch wrote:
-> On 3/27/20 12:14 AM, Alexey Dobriyan wrote:
->> On Fri, Mar 27, 2020 at 12:56:00AM +0000, Damien Le Moal wrote:
->>>
->>> On 2020/03/27 5:44, Alexey Dobriyan wrote:
->>>> Add simple iodepth=1 NVMe engine:
->>>>
->>>> 	ioengine=nvme
->>>>
->>>> It works via standard Linux NVMe ioctls.
->>> Keith is working on splitting up nvmecli into the cli part and libnvme which
->>> uses the kernel ioctl iinterface for NVMe command passthrough. So I think it may
->>> be better to implement ioengine=libnvme using Keith libnvme library. That will
->>> remove the need to define all the NVMe command stuff here.
->> Sure. It is just standalone file you can send to colleagues and forget.
->> Similar to how header-only C++ libraries work.
+On 3/27/20 12:19 AM, Alexey Dobriyan wrote:
+>>> +static int fio_nvme_read(struct fio_file *f, struct io_u *io_u)
+>>> +{
+>>> +	fio_unused uint32_t nsid = get_nsid(f);
+>>> +	struct nvme_user_io cmd = {};
+>>> +
+>>> +	//printf("R %u %llu/%llu\n", nsid, io_u->offset, io_u->xfer_buflen);
 >>
->>>> It will be used for testing upcoming ZNS stuff.
+>> Leftover debug
 > 
-> 
-> 
-> I'm not completely against fio providing an nvme ioengine, and libnvme
-> could easily fit in, but I don't think that faithfully represents how
-> these devices are actually used. The passthrough interface is not really
-> our fast path, and being a synchronous interface is a bit limiting in
-> testing device capabilities.
+> dprint(FD_IO is pretty chatty, but OK.
 
-I guess my main question is what purpose it fills. Since it's not
-a performant interface, it's not a benchmarking thing. Hence it's for
-testing the feature? If so, would it be better to have in nvme-cli or
-a standalone tool?
-
+Having stubbed out debug is pointless, since you need to edit the file
+to enable it anyway, and recompile. At that point you may as well just
+add the printf.
 
 -- 
 Jens Axboe
