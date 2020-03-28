@@ -1,10 +1,10 @@
-Return-Path: <prvs=352e60adf=Damien.LeMoal@wdc.com>
+Return-Path: <prvs=349fa11bd=Damien.LeMoal@wdc.com>
 From: Damien Le Moal <Damien.LeMoal@wdc.com>
 Subject: Re: [PATCH v2] fio: fix interaction between offset/size limited
  threads and "max_open_zones"
-Date: Tue, 31 Mar 2020 08:07:32 +0000
+Date: Sat, 28 Mar 2020 08:34:44 +0000
 Message-ID: 
- <CO2PR04MB23436F306B2F4AD63E7423F8E7C80@CO2PR04MB2343.namprd04.prod.outlook.com>
+ <CO2PR04MB2343CBAD373DF1EBCAABB97CE7CD0@CO2PR04MB2343.namprd04.prod.outlook.com>
 References: <20200320180623.GA19960@avx2>
  <CO2PR04MB234395285948F0249B2485F0E7F10@CO2PR04MB2343.namprd04.prod.outlook.com>
  <20200325175248.GA18527@avx2>
@@ -69,10 +69,30 @@ s=0A=
 > =0A=
 > Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>=0A=
 =0A=
-I tested your patch. I confirm that it works and results in much better IO=
+Alexey,=0A=
 =0A=
-patterns with multiple jobs (less zone contention).=0A=
-I just have a few more comments below.=0A=
+Did you run t/zbd/test-zbd-support or t/zbd/run-tests-against-xxx-nullb wit=
+h=0A=
+this patch applied ?=0A=
+=0A=
+I am still scratching my head about this change:=0A=
+=0A=
+> -		zone_idx =3D f->zbd_info->open_zones[(io_u->offset -=0A=
+> -						    f->file_offset) *=0A=
+> -				f->zbd_info->num_open_zones / f->io_size];=0A=
+> +		uint32_t tmp =3D io_u->offset * f->zbd_info->num_open_zones / f->real_=
+file_size;=0A=
+> +		zone_idx =3D f->zbd_info->open_zones[tmp];=0A=
+=0A=
+Since this removes the use of f->file_offset, if the thread has an offset+s=
+ize=0A=
+option specified to operate on a specific range of zones, it does look to m=
+e=0A=
+like a zone from outside that range could end up being chosen... Will test =
+and=0A=
+dig some more Monday.=0A=
+=0A=
+Best regards.=0A=
 =0A=
 > ---=0A=
 > =0A=
@@ -91,16 +111,6 @@ I just have a few more comments below.=0A=
 > -				f->zbd_info->num_open_zones / f->io_size];=0A=
 > +		uint32_t tmp =3D io_u->offset * f->zbd_info->num_open_zones / f->real_=
 file_size;=0A=
-=0A=
-You are using tmp here and then tmp and below. Instead of repeating the=0A=
-declaration locally, move it to the function whole scope and call it tmp_id=
-x=0A=
-(tmp is a little too generic in my opinion).=0A=
-=0A=
-Also please try to avoid lines longer than 80 chars (split the calculation =
-above=0A=
-on two lines).=0A=
-=0A=
 > +		zone_idx =3D f->zbd_info->open_zones[tmp];=0A=
 >  	} else {=0A=
 >  		zone_idx =3D zbd_zone_idx(f, io_u->offset);=0A=
@@ -112,9 +122,6 @@ on two lines).=0A=
 >  	for (;;) {=0A=
 > +		uint32_t tmp;=0A=
 > +=0A=
-=0A=
-Remove this.=0A=
-=0A=
 >  		z =3D &f->zbd_info->zone_info[zone_idx];=0A=
 >  =0A=
 >  		zone_lock(td, z);=0A=
@@ -159,12 +166,6 @@ i++, tmp++) {=0A=
 >  			break;=0A=
 > =0A=
 =0A=
-With the above nits corrected, please feel free to add:=0A=
-=0A=
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
-Tested-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
-=0A=
-Cheers.=0A=
 =0A=
 -- =0A=
 Damien Le Moal=0A=
