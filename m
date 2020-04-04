@@ -1,39 +1,47 @@
-Return-Path: <sandeen@redhat.com>
-From: Eric Sandeen <sandeen@redhat.com>
-Subject: fio memory use seems .... large
-Message-ID: <bd4ad58b-74ef-f07a-fe9d-69cd32b5e759@redhat.com>
-Date: Tue, 28 Apr 2020 18:41:28 -0500
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-lj1-f172.google.com ([209.85.208.172]:33281 "EHLO
+        mail-lj1-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726057AbgDDQrn (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 4 Apr 2020 12:47:43 -0400
+Received: by mail-lj1-f172.google.com with SMTP id f20so10224334ljm.0
+        for <fio@vger.kernel.org>; Sat, 04 Apr 2020 09:47:41 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: fio <fio@vger.kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Vincent Fu <vincent.fu@wdc.com>
-List-ID: <fio@vger.kernel.org>
+From: Yigal Korman <ykorman@gmail.com>
+Date: Sat, 4 Apr 2020 19:47:29 +0300
+Message-ID: <CAOdGBnHqcmD2ZkKRFS4K=+pvDbqhe=1tgifw1+sDV0SUuoz77A@mail.gmail.com>
+Subject: [Suggestion] build option to externalize ioengine
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-This seems ... large, no?
+Hi,
+I was wondering if you'll be open to a pull-request that adds a
+'configure' option to convert some of the more dependency-heavy
+ioengines into external engines?
+The reason - installing fio via the distro package manager brings a
+lot of dependencies[0], which are entirely unnecessary if all one
+needs is the sync ioengine.
+So I'd like to suggest externalizing some and packaging them
+separately as optional.
 
-# /usr/bin/time -f "RSS %M kb" ./fio --name=writetest --filename=/mnt/testfile1 --rw=write --bs=4096 --size=64M --iodepth=1 --ioengine=libaio --direct=1 --verify=sha512 --do_verify=0
+Regards,
+Yigal
 
-RSS 1138748 kb
+[0] List of dependencies on Fedora 31:
 
-and it got quite a bit larger with commit 
-
-df8781b6 fio: groundwork for adding slat, lat percentiles
-
-i.e. if I check out the commit just before that,
-
-ab45cf07 Merge branch 'stat-averaging-interval-start-fix' of https://github.com/maciejsszmigiero/fio
-
-I get:
-
-RSS 782236 kb
-
-which is, if I'm reading it right, ~350mb smaller.
-
-760mb seems pretty big for a simple fio job like this in the first place, that commit growing it by 350mb is unexpected and I ... haven't been able to figure out where that increase came from.  Am I mis-analyzing something here?
-
-Thanks,
--Eric
-
+[vm@vm1 fio]$ sudo dnf deplist fio | grep provider | sort | uniq
+Last metadata expiration check: 0:02:14 ago on Sat 04 Apr 2020 04:36:08 PM UTC.
+   provider: bash-5.0.11-1.fc31.x86_64
+   provider: glibc-2.30-10.fc31.x86_64
+   provider: libaio-0.3.111-6.fc31.x86_64
+   provider: libibverbs-20.1-6.fc31.x86_64
+   provider: libpmem-1.7-1.fc31.x86_64
+   provider: libpmemblk-1.7-1.fc31.x86_64
+   provider: librados2-2:14.2.8-1.fc31.x86_64
+   provider: librbd1-2:14.2.8-1.fc31.x86_64
+   provider: librdmacm-20.1-6.fc31.x86_64
+   provider: numactl-libs-2.0.12-3.fc31.x86_64
+   provider: python3-3.7.6-2.fc31.x86_64
+   provider: zlib-1.2.11-20.fc31.x86_64
 
