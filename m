@@ -1,77 +1,57 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-dm6nam11on2128.outbound.protection.outlook.com ([40.107.223.128]:13217
-        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726358AbgD3GKR (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 30 Apr 2020 02:10:17 -0400
-Subject: Re: Sequential read/write with multiple threads
-References: <5ac69854-8385-6e5e-4a88-76f0880a6c6e@eafit.edu.co>
-From: Hamilton Tobon Mosquera <htobonm@eafit.edu.co>
-Message-ID: <ccac042b-4011-d3c4-d79c-2b0d7e2798f9@eafit.edu.co>
-Date: Thu, 30 Apr 2020 02:10:13 -0400
-In-Reply-To: <5ac69854-8385-6e5e-4a88-76f0880a6c6e@eafit.edu.co>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Return-Path: <axboe@kernel.dk>
+Subject: Re: RFC: New GAS meta-engine and S3 engine
+References: <CABdSUwQx5HmuVQGYsY6fc1TeOwE223i4NoMKMmWxgQTcZuPvTQ@mail.gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <15112f6c-e0d6-162c-5120-d0c247fa95f9@kernel.dk>
+Date: Tue, 7 Apr 2020 15:44:06 -0700
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+In-Reply-To: <CABdSUwQx5HmuVQGYsY6fc1TeOwE223i4NoMKMmWxgQTcZuPvTQ@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+To: =?UTF-8?Q?Marcin_=c5=bbukowski?= <marcin.zukowski@gmail.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Hi there,
+On 3/11/20 6:56 AM, Marcin Żukowski wrote:
+> Hi all,
+> 
+> Sending this before I send a pull request, as I wanted to consult
+> first if this is something that would be desirable.
+> 
+> A long while ago (2017) I needed ability to test AWS S3 performance,
+> including aspects like concurrent IOs, various IO sizes etc. So I
+> decided my favorite "fio" is probably a good tool to use for it. Back
+> then, S3 mode for http.c didn't exist yet, so I had to do something
+> myself. I made it work back then, but I got busy and didn't merge it
+> upstream (sorry!). Trying to fix it now.
+> 
+> Instead of manually implementing S3 HTTP interface (like http.c did),
+> I thought it would be desirable to use the official AWS SDK. However,
+> it had some issues, like no built-in asynchronicity, being C++ and so
+> on.
+> 
+> I realized the process of making AWS interface provide what fio needs
+> is super generic. So I decided to write a mini meta-engine I called
+> GAS - Generic ASync. It provides fio-compatible  async-adding wrapper
+> to any IO-like library. Then, adding a full-fledged fio engine is
+> trivial, see example in gas-direct-io.c . Similarly S3 engine
+> (read-only for now) is quite trivial. I had to split it into a C and
+> C++ part, but the entire thing is still <200 LOC.
+> 
+> I'm now thinking about adding similar engines for Azure and GCP object
+> stores, hence I wonder if it would make sense to merge it upstream.
+> One concern I have is making fio dependent on all these SDKs. Hence I
+> thought this should only be optionally compiled-in.
+> 
+> The repo is here, I recently refreshed it from upstream:
+> https://github.com/MarcinZukowski/fio
+> 
+> Thoughts? Comments? Should I just send a pull request? :)
 
-Yes I saw it. Thank you very much for your help.
+Yeah, just send a pull request, probably the best way to get some
+comments on the code!
 
-I finally got it to run by using the flags size and offset_increment. An 
-example for future readers:
-
-I'm trying to do sequential and random requests to the same file with 
-multiple threads, preventing each thread to interfere in other thread's 
-requests. My file size is 200G, then, if the number of threads is 4, I 
-set the flag --size to 50G, that is, I divide the file size into the 
-number of threads. Also, as offset_increment accepts a percentage, I 
-divide 100% into the number of threads, in this case I set it to 25%. 
-With these two flags each thread starts doing the specified requests 
-adding 50G to the offset (because that's 25% percent of the file) and 
-they only issue requests up to 50G, preventing an overflow to other 
-thread's chunk or outside the file.
-
-Even though it's working for me (it's not crashing, nor screwing the 
-file), If I'm wrong in something please correct me.
-
-Thank you.
-
-Hamilton.
-
-On 30/04/20 1:59 a. m., Sitsofe Wheeler wrote:
-> On Wed, 29 Apr 2020 at 15:41, Hamilton Tobon Mosquera
-> <htobonm@eafit.edu.co> wrote:
->> Hi there, I send this again, I'm not sure if it was sent last time, I
->> thought I was subscribed to the mailing list but I wasn't.
-> Did you see my reply to your previous mail -
-> https://nam01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fwww.spinics.net%2Flists%2Ffio%2Fmsg08483.html&amp;data=01%7C01%7Chtobonm%40eafit.edu.co%7C969ea7f7c9f64f8a377808d7eccbbcfd%7C99f7b55e9cbe467b8143919782918afb%7C0&amp;sdata=f7lIoMftni9kAlZu5j0TKfzjtByBt21lpm2BeOs0gF4%3D&amp;reserved=0 
-> ?
->
->
-> --
-> Sitsofe | 
-> https://nam01.safelinks.protection.outlook.com/?url=http:%2F%2Fsucs.org%2F~sits%2F&amp;data=01%7C01%7Chtobonm%40eafit.edu.co%7C969ea7f7c9f64f8a377808d7eccbbcfd%7C99f7b55e9cbe467b8143919782918afb%7C0&amp;sdata=JmGkoD6x%2F%2FF6Rh%2B9PvrQucHElsF8yIGlDcY3gcsiR4o%3D&amp;reserved=0
-> La información contenida en este correo electrónico estádirigida 
-> únicamente a su destinatario y puede contener información 
-> confidencial, material privilegiado o información protegida porderecho 
-> de autor. Está prohibida cualquier copia, utilización,indebida 
-> retención, modificación, difusión, distribución o reproducción total o 
-> parcial. Si usted recibe este mensaje por error, por favor contacte al 
-> remitente y elimínelo. La información aquí contenida es 
-> responsabilidad exclusiva de su remitente porlo tanto la Universidad 
-> EAFIT no se hace responsable de lo que el mensaje contenga. The 
-> information contained in this email is addressed to its recipient only 
-> and may contain confidential information, privileged material or 
-> information protected by copyright. Its prohibited any copy, use, 
-> improper retention, modification, dissemination, distribution or total 
-> or partial reproduction. If you receive this message by error, please 
-> contact the sender and delete it. The information contained herein is 
-> the sole responsibility of the sender therefore Universidad EAFIT is 
-> not responsible for what the message contains.
+-- 
+Jens Axboe
 
 
