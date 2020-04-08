@@ -1,22 +1,23 @@
-Return-Path: <prvs=360af864b=damien.lemoal@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa2.hgst.iphmx.com ([68.232.143.124]:26965 "EHLO
+        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726146AbgDHGrU (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 8 Apr 2020 02:47:20 -0400
 From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 3/3 v2] examples: add libzbc ioengine example scripts
-Date: Wed,  8 Apr 2020 15:53:09 +0900
-Message-Id: <20200408065309.1622043-1-damien.lemoal@wdc.com>
+Subject: [PATCH 3/3] examples: add libzbc ioengine example scripts
+Date: Wed,  8 Apr 2020 15:47:19 +0900
+Message-Id: <20200408064719.1621911-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
 
 Add two example script files (random write and sequential read)
 illustrating the use of the libzbc ioengine with zonemode=zbd.
 
 Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 ---
-
-Changes from v1:
-* Fix job name of libzbc rand write example
-
  examples/libzbc-rand-write.fio | 20 ++++++++++++++++++++
  examples/libzbc-seq-read.fio   | 19 +++++++++++++++++++
  2 files changed, 39 insertions(+)
@@ -25,7 +26,7 @@ Changes from v1:
 
 diff --git a/examples/libzbc-rand-write.fio b/examples/libzbc-rand-write.fio
 new file mode 100644
-index 00000000..ce5870e4
+index 00000000..6f299bb4
 --- /dev/null
 +++ b/examples/libzbc-rand-write.fio
 @@ -0,0 +1,20 @@
@@ -34,7 +35,7 @@ index 00000000..ce5870e4
 +; and writes directed at the write pointer of the chosen zones
 +
 +[global]
-+name=libzbc-rand-write
++name=zbd-rand-write
 +group_reporting
 +rw=randwrite
 +zonemode=zbd
