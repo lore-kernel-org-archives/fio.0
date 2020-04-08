@@ -1,139 +1,77 @@
-Return-Path: <adobriyan@gmail.com>
-Return-Path: <adobriyan@gmail.com>
-Date: Mon, 13 Apr 2020 21:51:55 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: [PATCH v2] zbd: fix sequential write pattern with verify= and
- max_open_zones=
-Message-ID: <20200413185155.GA2347@avx2>
-References: <20200408221652.GA2592@avx2>
- <BY5PR04MB6900B4F8DFDDBB498EDA8768E7C10@BY5PR04MB6900.namprd04.prod.outlook.com>
- <20200409171401.GA3220@avx2>
- <BY5PR04MB6900D077D39EEAF4AE35809FE7C10@BY5PR04MB6900.namprd04.prod.outlook.com>
- <b6b09ff8-1149-c662-9838-35e61a7ce295@kernel.dk>
+Return-Path: <prvs=360af864b=damien.lemoal@wdc.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH 2/3] examples: add zonemode=zbd example scripts
+Date: Wed,  8 Apr 2020 15:46:59 +0900
+Message-Id: <20200408064659.1621850-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <b6b09ff8-1149-c662-9838-35e61a7ce295@kernel.dk>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-Sequential write with max_open_zones=1 has interesting (read: buggy)
-interaction with verify=.
+Add two example script files (random write and sequential read)
+illustrating the use of zonemode=zbd with the psync and libaio
+ioengines.
 
-If verify is off, then job runs correctly and IO is sequential,
-and restarted from offset 0 and remains sequential.
-
-If verify is on, then 1 full run is done and verified correctly.
-At this point there is exactly 1 open zone which is the last zone.
-
-Now IO restarts from offset 0 and pick_random_zone() picks opened zone
-#0 which is the last zone because offset is 0. All IO is redirected
-to the last zone, which is rewritten once triggering verify again.
-
-IO pattern becomes: 1 full sequential rewrite followed by constant
-sequential rewrites of the last zone.
-
-
-	[global]
-	filename=/dev/loop0
-	direct=1
-	zonemode=zbd
-	zonesize=1M
-	bs=512K
-	rw=write
-	verify=xxhash
-	[j]
-	max_open_zones=1
-	io_size=3G
-
-Fix is to close every zone given that verification acts as a barrier
-between jobs.
-
-max_open_zones=2 can restart from half of the device, etc.
-
-Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 ---
+ examples/zbd-rand-write.fio | 20 ++++++++++++++++++++
+ examples/zbd-seq-read.fio   | 19 +++++++++++++++++++
+ 2 files changed, 39 insertions(+)
+ create mode 100644 examples/zbd-rand-write.fio
+ create mode 100644 examples/zbd-seq-read.fio
 
- zbd.c |   52 +++++++++++++++++++++++++++++++++-------------------
- 1 file changed, 33 insertions(+), 19 deletions(-)
+diff --git a/examples/zbd-rand-write.fio b/examples/zbd-rand-write.fio
+new file mode 100644
+index 00000000..1b3f2088
+--- /dev/null
++++ b/examples/zbd-rand-write.fio
+@@ -0,0 +1,20 @@
++; Using the libaio ioengine, random write to a (zoned) block device,
++; writing at most 32 zones at a time. Target zones are chosen randomly
++; and writes directed at the write pointer of the chosen zones
++
++[global]
++name=zbd-rand-write
++group_reporting
++rw=randwrite
++zonemode=zbd
++zonesize=256M
++max_open_zones=32
++bs=512K
++direct=1
++numjobs=16
++time_based=1
++runtime=180
++
++[dev1]
++filename=/dev/sdj
++ioengine=psync
+diff --git a/examples/zbd-seq-read.fio b/examples/zbd-seq-read.fio
+new file mode 100644
+index 00000000..82f2b1db
+--- /dev/null
++++ b/examples/zbd-seq-read.fio
+@@ -0,0 +1,19 @@
++; Sequentially read 40 zones of a (zoned) block device, reading only
++; written data from the 524th zone (524 * 256M = 140660178944)
++
++[global]
++name=zbd-seq-read
++rw=read
++bs=256K
++direct=1
++numjobs=1
++zonemode=zbd
++zonesize=256M
++read_beyond_wp=0
++
++[dev1]
++filename=/dev/sdd
++offset=140660178944
++size=10G
++ioengine=libaio
++iodepth=16
+-- 
+2.25.1
 
---- a/zbd.c
-+++ b/zbd.c
-@@ -687,6 +687,22 @@ static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
- 	return zbd_reset_range(td, f, z->start, (z+1)->start - z->start);
- }
- 
-+/* The caller must hold f->zbd_info->mutex */
-+static void zbd_close_zone(struct thread_data *td, const struct fio_file *f,
-+			   unsigned int open_zone_idx)
-+{
-+	uint32_t zone_idx;
-+
-+	assert(open_zone_idx < f->zbd_info->num_open_zones);
-+	zone_idx = f->zbd_info->open_zones[open_zone_idx];
-+	memmove(f->zbd_info->open_zones + open_zone_idx,
-+		f->zbd_info->open_zones + open_zone_idx + 1,
-+		(ZBD_MAX_OPEN_ZONES - (open_zone_idx + 1)) *
-+		sizeof(f->zbd_info->open_zones[0]));
-+	f->zbd_info->num_open_zones--;
-+	f->zbd_info->zone_info[zone_idx].open = 0;
-+}
-+
- /*
-  * Reset a range of zones. Returns 0 upon success and 1 upon failure.
-  * @td: fio thread data.
-@@ -710,12 +726,26 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
- 	dprint(FD_ZBD, "%s: examining zones %u .. %u\n", f->file_name,
- 		zbd_zone_nr(f->zbd_info, zb), zbd_zone_nr(f->zbd_info, ze));
- 	for (z = zb; z < ze; z++) {
-+		uint32_t nz = z - f->zbd_info->zone_info;
-+
- 		if (!zbd_zone_swr(z))
- 			continue;
- 		zone_lock(td, z);
--		reset_wp = all_zones ? z->wp != z->start :
--				(td->o.td_ddir & TD_DDIR_WRITE) &&
--				z->wp % min_bs != 0;
-+		if (all_zones) {
-+			unsigned int i;
-+
-+			pthread_mutex_lock(&f->zbd_info->mutex);
-+			for (i = 0; i < f->zbd_info->num_open_zones; i++) {
-+				if (f->zbd_info->open_zones[i] == nz)
-+					zbd_close_zone(td, f, i);
-+			}
-+			pthread_mutex_unlock(&f->zbd_info->mutex);
-+
-+			reset_wp = z->wp != z->start;
-+		} else {
-+			reset_wp = (td->o.td_ddir & TD_DDIR_WRITE) &&
-+					z->wp % min_bs != 0;
-+		}
- 		if (reset_wp) {
- 			dprint(FD_ZBD, "%s: resetting zone %u\n",
- 			       f->file_name,
-@@ -905,22 +935,6 @@ out:
- 	return res;
- }
- 
--/* The caller must hold f->zbd_info->mutex */
--static void zbd_close_zone(struct thread_data *td, const struct fio_file *f,
--			   unsigned int open_zone_idx)
--{
--	uint32_t zone_idx;
--
--	assert(open_zone_idx < f->zbd_info->num_open_zones);
--	zone_idx = f->zbd_info->open_zones[open_zone_idx];
--	memmove(f->zbd_info->open_zones + open_zone_idx,
--		f->zbd_info->open_zones + open_zone_idx + 1,
--		(ZBD_MAX_OPEN_ZONES - (open_zone_idx + 1)) *
--		sizeof(f->zbd_info->open_zones[0]));
--	f->zbd_info->num_open_zones--;
--	f->zbd_info->zone_info[zone_idx].open = 0;
--}
--
- /* Anything goes as long as it is not a constant. */
- static uint32_t pick_random_zone_idx(const struct fio_file *f,
- 				     const struct io_u *io_u)
 
