@@ -1,62 +1,80 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50630 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726477AbgDVMAc (ORCPT
-        <rfc822;fio@vger.kernel.org>); Wed, 22 Apr 2020 08:00:32 -0400
-Received: from merlin.infradead.org (unknown [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DBCBC03C1A8
-        for <fio@vger.kernel.org>; Wed, 22 Apr 2020 05:00:32 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jRE35-0007Sy-F2
-        for fio@vger.kernel.org; Wed, 22 Apr 2020 12:00:15 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20200422120002.0C8091BC016C@kernel.dk>
-Date: Wed, 22 Apr 2020 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <prvs=360af864b=damien.lemoal@wdc.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH 3/3 v2] examples: add libzbc ioengine example scripts
+Date: Wed,  8 Apr 2020 15:53:09 +0900
+Message-Id: <20200408065309.1622043-1-damien.lemoal@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 173ff874d01466fa19f41998225d173cafd7e3bc:
+Add two example script files (random write and sequential read)
+illustrating the use of the libzbc ioengine with zonemode=zbd.
 
-  json: don't use named initializers for anonymous unions (2020-04-20 21:20:03 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 3966740cd903ed95f306e59892075faf9fd2a151:
-
-  Merge branch 'gcc1' of https://github.com/kusumi/fio (2020-04-21 15:44:31 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'gcc1' of https://github.com/kusumi/fio
-
-Tomohiro Kusumi (1):
-      json: Fix compile error on RHEL6
-
- json.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 ---
 
-Diff of recent changes:
+Changes from v1:
+* Fix job name of libzbc rand write example
 
-diff --git a/json.h b/json.h
-index b2bb457e..1544ed76 100644
---- a/json.h
-+++ b/json.h
-@@ -92,9 +92,9 @@ static inline int json_object_add_value_object(struct json_object *obj,
- {
- 	struct json_value arg = {
- 		.type = JSON_TYPE_OBJECT,
--		.object = val,
- 	};
- 
-+	arg.object = val;
- 	return json_object_add_value_type(obj, name, &arg);
- }
- 
+ examples/libzbc-rand-write.fio | 20 ++++++++++++++++++++
+ examples/libzbc-seq-read.fio   | 19 +++++++++++++++++++
+ 2 files changed, 39 insertions(+)
+ create mode 100644 examples/libzbc-rand-write.fio
+ create mode 100644 examples/libzbc-seq-read.fio
+
+diff --git a/examples/libzbc-rand-write.fio b/examples/libzbc-rand-write.fio
+new file mode 100644
+index 00000000..ce5870e4
+--- /dev/null
++++ b/examples/libzbc-rand-write.fio
+@@ -0,0 +1,20 @@
++; Using the libzbc ioengine, random write to a (zoned) block device,
++; writing at most 32 zones at a time. Target zones are chosen randomly
++; and writes directed at the write pointer of the chosen zones
++
++[global]
++name=libzbc-rand-write
++group_reporting
++rw=randwrite
++zonemode=zbd
++zonesize=256M
++max_open_zones=32
++bs=512K
++direct=1
++numjobs=16
++time_based=1
++runtime=300
++
++[dev1]
++filename=/dev/sdj
++ioengine=libzbc
+diff --git a/examples/libzbc-seq-read.fio b/examples/libzbc-seq-read.fio
+new file mode 100644
+index 00000000..f4d265a0
+--- /dev/null
++++ b/examples/libzbc-seq-read.fio
+@@ -0,0 +1,19 @@
++; Using the libzbc ioengine, sequentially read 40 zones of a (zoned)
++; block device, reading only written data from the 524th zone
++; (524 * 256M = 140660178944)
++
++[global]
++name=libzbc-seq-read
++rw=read
++bs=1M
++direct=1
++numjobs=1
++zonemode=zbd
++zonesize=256M
++read_beyond_wp=0
++
++[dev1]
++filename=/dev/sdd
++offset=140660178944
++size=10G
++ioengine=libzbc
+-- 
+2.25.1
+
 
