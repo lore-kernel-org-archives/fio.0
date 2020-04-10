@@ -1,51 +1,44 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-eopbgr690098.outbound.protection.outlook.com ([40.107.69.98]:8421
-        "EHLO NAM04-CO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726399AbgD2Di2 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 28 Apr 2020 23:38:28 -0400
-From: Hamilton Tobon Mosquera <htobonm@eafit.edu.co>
-Subject: Sequential read/write with multiple threads
-Message-ID: <af3fe93c-bd21-c991-b4ce-80037623b723@eafit.edu.co>
-Date: Tue, 28 Apr 2020 23:38:23 -0400
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+References: <20200407015900.1335019-1-damien.lemoal@wdc.com>
+ <7b5d0ce0-3204-20ba-2b44-17d734511d78@kernel.dk> <61e87991-3fdb-bed3-95b9-b730d7bfb222@gmail.com>
+ <BY5PR04MB6900AFAF3F60C1092BB842B0E7C00@BY5PR04MB6900.namprd04.prod.outlook.com>
+ <43ac3364-5d63-0a89-9830-efff18b9b4b0@gmail.com> <BY5PR04MB690053CDA9D7D4C86A05D8F5E7C00@BY5PR04MB6900.namprd04.prod.outlook.com>
+ <341b4035-f524-0d18-79d7-c9eb055dff0f@gmail.com>
+In-Reply-To: <341b4035-f524-0d18-79d7-c9eb055dff0f@gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Fri, 10 Apr 2020 16:05:49 +0100
+Message-ID: <CALjAwxg31_Xgnxm3S7R+Op_aWHuaHHvCDbxitc-XqJwYf_5kmg@mail.gmail.com>
+Subject: Re: [PATCH 0/4] Generalize zonemode=zbd
+Content-Type: text/plain; charset="UTF-8"
+To: Vincent Fu <vincentfu@gmail.com>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi there,
+On Wed, 8 Apr 2020 at 22:59, Vincent Fu <vincentfu@gmail.com> wrote:
+>
+> For what it's worth, I have integrated AppVeyor and travis-ci with my
+> own github account, allowing the two services to run through the
+> build/test cycle on Linux, Windows, and macOS any time I push changes to
+> my fork of fio.
+>
+> It's been a while since I set up the integration but it looks like the
+> right places to look are here:
+>
+> https://github.com/marketplace/appveyor
+> https://github.com/marketplace/travis-ci
+>
+> The main drawback of the two services is that they do not provide access
+> to the test artifacts. So I maintain a small cluster of servers that
+> does automated builds/testing for fio, although this is all going away
+> when our lab is dismantled at the end of May.
 
-I'm trying to run some benchmarks using the ioegnines libaio and 
-pvsync2. I'm trying to run sequential reads/writes and random 
-read/writes in a file of 200G with a maximum of 4 jobs, that is, 
-threads. I don't mix them, that is, I run sequentially or randomly 
-reads/writes.
+Appveyor can be made to selectively package up chosen artifacts that
+can be downloaded. See
+https://github.com/axboe/fio/blob/3f2dcb7f855d43244ec178aa2a34bb1475bf6901/.appveyor.yml#L30
+for an example and see
+https://www.appveyor.com/docs/packaging-artifacts/ for the docs.
 
-My question is this: when running sequentially, given that I'm using 4 
-threads, is it really sequential?. Do the threads interfere with each 
-other?, if yes, which options should I use to make each thread only 
-issue requests to disjoint parts of the file, each of 50G (in case of 4 
-threads). I tried using offset_increment, but sometimes it overflows on 
-random requests, and for sequential requests the file size increases 
-automatically, that is, the requests are going further the size of the 
-file, but it does not crashes. More specifically, I get the file size in 
-bytes, exactly 214748364800. I divide that number in the number of 
-threads, and I use the result as the offset_increment. The file is 
-created using the filecreate engine with size 200G.
-
-Lastly, is it possible for each thread to issue random requests only in 
-that piece of 50G, so that it does not overflows to other threads piece 
-of file or even overflow outside the file?.
-
-Perhaps I'm doing something wrong. Could someone please help me?.
-
-Thank you.
-
-Hamilton.
-
-
-
+-- 
+Sitsofe | http://sucs.org/~sits/
 
