@@ -1,39 +1,53 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36520 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726411AbgD3UwB (ORCPT
-        <rfc822;fio@vger.kernel.org>); Thu, 30 Apr 2020 16:52:01 -0400
-Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14621C035494
-        for <fio@vger.kernel.org>; Thu, 30 Apr 2020 13:52:01 -0700 (PDT)
-Received: by mail-lj1-x22c.google.com with SMTP id g4so835945ljl.2
-        for <fio@vger.kernel.org>; Thu, 30 Apr 2020 13:52:00 -0700 (PDT)
+Return-Path: <prvs=36634da1a=shinichiro.kawasaki@wdc.com>
+From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: Re: [PATCH 3/3] zbd: Ensure first I/O is write for random read/write
+ to sequential zones
+Date: Tue, 14 Apr 2020 03:35:18 +0000
+Message-ID: <20200414033517.wps6zihay7rmoevw@shindev.dhcp.fujisawa.hgst.com>
+References: <20200413212111.GA19503@avx2>
+In-Reply-To: <20200413212111.GA19503@avx2>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <676A2DAE07762F46A2064789F6A381E4@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-From: Elliott Balsley <elliott@altsystems.com>
-Date: Thu, 30 Apr 2020 13:51:48 -0700
-Message-ID: <CABO+gV9UbBAb1DEtf7zzNnTwUhiSAsSVcm5wCbFHC_ZvRi-tyA@mail.gmail.com>
-Subject: Monitoring disk i/o in Windows
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: "damien.lemoaal@wdc.com" <damien.lemoaal@wdc.com>, "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-I built a Windows 2019 server with an NVMe storage pool and I'm using
-fio to test performance.  Results from fio are in line with my
-expectations for this hardware, but I noticed something strange with
-Windows Performance Monitor.  The physical disk r/w throughput
-counters are roughly double what they should be.  This holds true for
-various different iodepth, numjobs, and block size options.  Logical
-Disk throughput counters are accurate.  In this screenshot, fio shows
-11.1GiB/s and the physical disk shows about 22.2 GiB/s.  Is there a
-logical explanation for this?  Or is there a better disk monitoring
-tool to use, something like iostat for Windows?
+On Apr 14, 2020 / 00:21, Alexey Dobriyan wrote:
+> > zbd_adjust_block
+>=20
+>=20
+> > +	if (td_rw(td) && !f->zbd_info->sectors_with_data
+> > +	    && !td->o.read_beyond_wp)
+> > +		io_u->ddir =3D DDIR_WRITE;
+>=20
+> Oh, you've noticed this too. :-)
+>=20
+> This will issue the first write with wrong length if bs[DDIR_READ] !=3D b=
+s[DDIR_WRITE].
 
-https://i.postimg.cc/zqrW8ZPk/windows-fio.png?dl=1
+Hi Alexey, thanks for pointing out that.
 
-The storage pool is created as a simple stripe with no parity or
-mirroring and formatted as ReFS.
+> Adjusting in zbd_adjust_block() is too late.
 
-Thanks,
-Elliott
+Hmm, you are right. To align the new ddir with buflen and offset, need to c=
+all
+get_next_offset() and get_next_buflen() again from zbd_adjust_block(). Thos=
+e
+functions are now static to io_u.c and will have duplicate code...
+
+It is not ideal to add more zoned block device related code to io_u.c, but =
+now I
+think it is the simplest to check conditions and enforce ddir=3DDDIR_WRITE =
+in
+set_rw_ddir() of io_u.c. It modifies ddir before get_next_offset() and
+get_next_buflen() calls then makes io_u fields consistent. Will create a pa=
+tch
+to ask opinions on this list.
+
+--=20
+Best Regards,
+Shin'ichiro Kawasaki=
 
