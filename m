@@ -1,36 +1,43 @@
-Return-Path: <adobriyan@gmail.com>
-Return-Path: <adobriyan@gmail.com>
-Date: Fri, 17 Apr 2020 20:30:50 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
+Return-Path: <axboe@kernel.dk>
 Subject: Re: [PATCH v2] zbd: Fix I/O direction adjustment step for random
  read/write
-Message-ID: <20200417173050.GA26921@avx2>
 References: <20200416113036.28296-1-shinichiro.kawasaki@wdc.com>
- <8acaca2e-d5dc-e091-6579-ebb5e6a55c3b@kernel.dk>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <8acaca2e-d5dc-e091-6579-ebb5e6a55c3b@kernel.dk>
+Date: Fri, 17 Apr 2020 08:32:05 -0600
 MIME-Version: 1.0
+In-Reply-To: <20200416113036.28296-1-shinichiro.kawasaki@wdc.com>
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <8acaca2e-d5dc-e091-6579-ebb5e6a55c3b@kernel.dk>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>, fio@vger.kernel.org, Damien Le Moal <Damien.LeMoal@wdc.com>
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>, fio@vger.kernel.org
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, Damien Le Moal <Damien.LeMoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On Fri, Apr 17, 2020 at 08:32:05AM -0600, Jens Axboe wrote:
-> I'm not a huge fan of this zbd sprinkling everywhere, but that's not the
-> fault of your fix. But I would really prefer if zbd got disentangled
-> from the core/hot paths completely, maybe by adding a io engine fn for
-> whatever it needs to do.
+On 4/16/20 5:30 AM, Shin'ichiro Kawasaki wrote:
+> Commit fb0259fb ("zbd: Ensure first I/O is write for random read/write to
+> sequential zones") introduced a step to change direction of io_u from
+> read to write when that is the first I/O of the random read/write
+> workload to zoned block devices. However, such direction adjustment
+> results in inconsistent I/O length when read block size and write block
+> size are different.
+> 
+> To avoid the inconsistency between I/O direction and I/O length,
+> adjust the I/O direction before the I/O length is set. Move the step
+> from zbd_adjust_block() to set_rw_ddir(). To minimize changes in
+> set_rw_ddir(), introduce zbd_adjust_ddir() helper function.
 
-I think it should be done at generator level. zonemode=strided/zbd is
-really a specialized random generator. Such generator would issue first
-write in ZBD mode and read/write in normal mode.
+I'm not a huge fan of this zbd sprinkling everywhere, but that's not the
+fault of your fix. But I would really prefer if zbd got disentangled
+from the core/hot paths completely, maybe by adding a io engine fn for
+whatever it needs to do. At least that reduces the hot path overhead to
+check a pointer and calling that function instead of having various
+checks here and there.
 
-zbd_adjust_block() is strange. For example "norandommap" in ZBD mode
-doesn't guarantee full LBA space coverage even with 1 thread but it
-would guarantee it with 1 thread and generator which shuffles zone
-numbers once and issues writes with any QD.
+Really not great to have a somewhat esoteric feature like zbd support
+add _any_ overhead to the hot path at all.
 
-But the combinatorial explosion given the number of options scaries me.
-And then things will become even more entertaining once QD > 1 zone appends
-start to show up!
+-- 
+Jens Axboe
+
 
