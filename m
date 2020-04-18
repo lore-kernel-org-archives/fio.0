@@ -1,150 +1,130 @@
-Return-Path: <prvs=379927889=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 5/5] zbd: Introduce thread zbd operations
-Date: Mon, 27 Apr 2020 14:51:14 +0900
-Message-Id: <20200427055115.107909-6-damien.lemoal@wdc.com>
-In-Reply-To: <20200427055115.107909-1-damien.lemoal@wdc.com>
-References: <20200427055115.107909-1-damien.lemoal@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36584 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725862AbgDRMA1 (ORCPT
+        <rfc822;fio@vger.kernel.org>); Sat, 18 Apr 2020 08:00:27 -0400
+Received: from merlin.infradead.org (unknown [IPv6:2001:8b0:10b:1231::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F4CFC061A0C
+        for <fio@vger.kernel.org>; Sat, 18 Apr 2020 05:00:27 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jPm8o-0003qF-H0
+        for fio@vger.kernel.org; Sat, 18 Apr 2020 12:00:10 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200418120001.AD7141BC0CC0@kernel.dk>
+Date: Sat, 18 Apr 2020 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-When zonemode is not "zbd", calls to the functions zbd_adjust_ddir()
-and zbd_adjust_block() are not necessary. Avoid executing these
-functions by redifining them as inline functions implemented using
-thread operation function pointers that are defined only for
-zonemode=zbd cases.
+The following changes since commit 8dbd327fbaa267eef862843a270fac61d06df00b:
 
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+  Merge branch 'patch-1' of https://github.com/aakarshg/fio (2020-04-16 14:04:26 -0600)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to c65057f93d1de62a48f98578e24716128ce77a75:
+
+  zbd: Fix I/O direction adjustment step for random read/write (2020-04-17 08:32:15 -0600)
+
+----------------------------------------------------------------
+Shin'ichiro Kawasaki (1):
+      zbd: Fix I/O direction adjustment step for random read/write
+
+ io_u.c |  2 ++
+ zbd.c  | 40 ++++++++++++++++++++++++++++++----------
+ zbd.h  |  2 ++
+ 3 files changed, 34 insertions(+), 10 deletions(-)
+
 ---
- fio.h  |  8 ++++++++
- io_u.c |  8 +++-----
- zbd.c  | 14 ++++++++------
- zbd.h  | 19 ++++++++++++++++---
- 4 files changed, 35 insertions(+), 14 deletions(-)
 
-diff --git a/fio.h b/fio.h
-index bbf057c1..77db656f 100644
---- a/fio.h
-+++ b/fio.h
-@@ -268,6 +268,14 @@ struct thread_data {
- 
- 	int shm_id;
- 
-+	/*
-+	 * zonemode=zbd hooks for adjusting IOs.
-+	 */
-+	enum fio_ddir (*zbd_adjust_ddir)(struct thread_data *,
-+					 struct io_u *, enum fio_ddir);
-+	enum io_u_action (*zbd_adjust_block)(struct thread_data *,
-+					     struct io_u *);
-+
- 	/*
- 	 * IO engine hooks, contains everything needed to submit an io_u
- 	 * to any of the available IO engines.
+Diff of recent changes:
+
 diff --git a/io_u.c b/io_u.c
-index 18e94617..d93665d0 100644
+index 5d62a76c..18e94617 100644
 --- a/io_u.c
 +++ b/io_u.c
-@@ -922,11 +922,9 @@ static int fill_io_u(struct thread_data *td, struct io_u *io_u)
- 	}
+@@ -746,6 +746,8 @@ static void set_rw_ddir(struct thread_data *td, struct io_u *io_u)
+ {
+ 	enum fio_ddir ddir = get_rw_ddir(td);
  
- 	offset = io_u->offset;
--	if (td->o.zone_mode == ZONE_MODE_ZBD) {
--		ret = zbd_adjust_block(td, io_u);
--		if (ret == io_u_eof)
--			return 1;
--	}
-+	ret = zbd_adjust_block(td, io_u);
-+	if (ret == io_u_eof)
-+		return 1;
- 
- 	if (io_u->offset + io_u->buflen > io_u->file->real_file_size) {
- 		dprint(FD_IO, "io_u %p, off=0x%llx + len=0x%llx exceeds file size=0x%llx\n",
++	ddir = zbd_adjust_ddir(td, io_u, ddir);
++
+ 	if (td_trimwrite(td)) {
+ 		struct fio_file *f = io_u->file;
+ 		if (f->last_pos[DDIR_WRITE] == f->last_pos[DDIR_TRIM])
 diff --git a/zbd.c b/zbd.c
-index 078d93a4..96a5cf89 100644
+index de0c5bf4..8dc3c397 100644
 --- a/zbd.c
 +++ b/zbd.c
-@@ -1313,8 +1313,8 @@ void setup_zbd_zone_mode(struct thread_data *td, struct io_u *io_u)
-  *
-  * Return adjusted I/O direction.
-  */
--enum fio_ddir zbd_adjust_ddir(struct thread_data *td, struct io_u *io_u,
--			      enum fio_ddir ddir)
-+static enum fio_ddir zbd_adjust_io_ddir(struct thread_data *td,
-+					struct io_u *io_u, enum fio_ddir ddir)
- {
- 	/*
- 	 * In case read direction is chosen for the first random I/O, fio with
-@@ -1322,9 +1322,7 @@ enum fio_ddir zbd_adjust_ddir(struct thread_data *td, struct io_u *io_u,
- 	 * devices with all empty zones. Overwrite the first I/O direction as
- 	 * write to make sure data to read exists.
- 	 */
--	if (td->o.zone_mode != ZONE_MODE_ZBD ||
--	    ddir != DDIR_READ ||
--	    !td_rw(td))
-+	if (ddir != DDIR_READ || !td_rw(td))
- 		return ddir;
- 
- 	if (io_u->file->zbd_info->sectors_with_data ||
-@@ -1343,7 +1341,8 @@ enum fio_ddir zbd_adjust_ddir(struct thread_data *td, struct io_u *io_u,
-  * to a sequential zone and if io_u_accept is returned. z is the zone that
-  * corresponds to io_u->offset at the end of this function.
-  */
--enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
-+static enum io_u_action zbd_adjust_io_block(struct thread_data *td,
-+					    struct io_u *io_u)
- {
- 	struct fio_file *f = io_u->file;
- 	uint32_t zone_idx_b;
-@@ -1567,5 +1566,8 @@ int zbd_init(struct thread_data *td)
- 	if (!zbd_verify_bs())
- 		return 1;
- 
-+	td->zbd_adjust_ddir = zbd_adjust_io_ddir;
-+	td->zbd_adjust_block = zbd_adjust_io_block;
-+
- 	return 0;
+@@ -1331,6 +1331,36 @@ void setup_zbd_zone_mode(struct thread_data *td, struct io_u *io_u)
+ 	}
  }
+ 
++/**
++ * zbd_adjust_ddir - Adjust an I/O direction for zonedmode=zbd.
++ *
++ * @td: FIO thread data.
++ * @io_u: FIO I/O unit.
++ * @ddir: I/O direction before adjustment.
++ *
++ * Return adjusted I/O direction.
++ */
++enum fio_ddir zbd_adjust_ddir(struct thread_data *td, struct io_u *io_u,
++			      enum fio_ddir ddir)
++{
++	/*
++	 * In case read direction is chosen for the first random I/O, fio with
++	 * zonemode=zbd stops because no data can be read from zoned block
++	 * devices with all empty zones. Overwrite the first I/O direction as
++	 * write to make sure data to read exists.
++	 */
++	if (td->o.zone_mode != ZONE_MODE_ZBD ||
++	    ddir != DDIR_READ ||
++	    !td_rw(td))
++		return ddir;
++
++	if (io_u->file->zbd_info->sectors_with_data ||
++	    td->o.read_beyond_wp)
++		return DDIR_READ;
++
++	return DDIR_WRITE;
++}
++
+ /**
+  * zbd_adjust_block - adjust the offset and length as necessary for ZBD drives
+  * @td: FIO thread data.
+@@ -1364,16 +1394,6 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 	if (!zbd_zone_swr(zb))
+ 		return io_u_accept;
+ 
+-	/*
+-	 * In case read direction is chosen for the first random I/O, fio with
+-	 * zonemode=zbd stops because no data can be read from zoned block
+-	 * devices with all empty zones. Overwrite the first I/O direction as
+-	 * write to make sure data to read exists.
+-	 */
+-	if (td_rw(td) && !f->zbd_info->sectors_with_data
+-	    && !td->o.read_beyond_wp)
+-		io_u->ddir = DDIR_WRITE;
+-
+ 	/*
+ 	 * Accept the I/O offset for reads if reading beyond the write pointer
+ 	 * is enabled.
 diff --git a/zbd.h b/zbd.h
-index 550d7a99..dfd5e947 100644
+index 4eaf902e..5a660399 100644
 --- a/zbd.h
 +++ b/zbd.h
-@@ -80,9 +80,6 @@ struct zoned_block_device_info {
- int zbd_init(struct thread_data *td);
+@@ -82,6 +82,8 @@ int zbd_init(struct thread_data *td);
+ void zbd_file_reset(struct thread_data *td, struct fio_file *f);
  bool zbd_unaligned_write(int error_code);
  void setup_zbd_zone_mode(struct thread_data *td, struct io_u *io_u);
--enum fio_ddir zbd_adjust_ddir(struct thread_data *td, struct io_u *io_u,
--			      enum fio_ddir ddir);
--enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u);
++enum fio_ddir zbd_adjust_ddir(struct thread_data *td, struct io_u *io_u,
++			      enum fio_ddir ddir);
+ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u);
  char *zbd_write_status(const struct thread_stat *ts);
  
- static inline void zbd_file_reset(struct thread_data *td, struct fio_file *f)
-@@ -97,6 +94,22 @@ static inline void zbd_file_close(struct fio_file *f)
- 		f->zbd_close(f);
- }
- 
-+static inline enum fio_ddir zbd_adjust_ddir(struct thread_data *td,
-+				    struct io_u *io_u, enum fio_ddir ddir)
-+{
-+	if (td->zbd_adjust_ddir)
-+		return td->zbd_adjust_ddir(td, io_u, ddir);
-+	return ddir;
-+}
-+
-+static inline enum io_u_action zbd_adjust_block(struct thread_data *td,
-+						struct io_u *io_u)
-+{
-+	if (td->zbd_adjust_block)
-+		return td->zbd_adjust_block(td, io_u);
-+	return io_u_accept;
-+}
-+
- static inline void zbd_queue_io_u(struct io_u *io_u, enum fio_q_status status)
- {
- 	if (io_u->zbd_queue_io) {
--- 
-2.25.4
-
 
