@@ -1,63 +1,188 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa2.hgst.iphmx.com ([68.232.143.124]:26903 "EHLO
-        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725763AbgDHGqr (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 8 Apr 2020 02:46:47 -0400
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 1/3] zbd: Fix missing mutex unlock and warnings detected with coverity
-Date: Wed,  8 Apr 2020 15:46:45 +0900
-Message-Id: <20200408064645.1621805-1-damien.lemoal@wdc.com>
+Return-Path: <adobriyan@gmail.com>
+Return-Path: <adobriyan@gmail.com>
+Date: Fri, 24 Apr 2020 22:55:49 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH] zbd: don't lock zones outside working area
+Message-ID: <20200424195549.GA9460@avx2>
+References: <20200423213834.GA22728@avx2>
+ <BY5PR04MB6900E41CFD6CBA366F4232E2E7D00@BY5PR04MB6900.namprd04.prod.outlook.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <BY5PR04MB6900E41CFD6CBA366F4232E2E7D00@BY5PR04MB6900.namprd04.prod.outlook.com>
+To: Damien Le Moal <Damien.LeMoal@wdc.com>
+Cc: "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-With max_open_zones != 0, if no candidate zone for open is found by
-zbd_convert_to_open_zone(), the file zbd_info mutex as well as the
-current target zone mutex must both be unlocked before returning NULL.
+On Fri, Apr 24, 2020 at 08:17:25AM +0000, Damien Le Moal wrote:
+> On 2020/04/24 6:38, Alexey Dobriyan wrote:
+> > Currently threads tap into each other zones even if their working areas
+> > as defined by [f->file_offset, f->file_offset + f->io_size) don't intersect.
+> > 
+> > This should remove unnecessary quiescing in iodepth > 1 workloads.
+> > 
+> > Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
+> > ---
+> > 
+> >  file.h |    3 +++
+> >  zbd.c  |   42 ++++++++++++++++++++++++++++++++----------
+> >  2 files changed, 35 insertions(+), 10 deletions(-)
+> > 
+> > --- a/file.h
+> > +++ b/file.h
+> > @@ -104,6 +104,9 @@ struct fio_file {
+> >  	 * Zoned block device information. See also zonemode=zbd.
+> >  	 */
+> >  	struct zoned_block_device_info *zbd_info;
+> > +	/* zonemode=zbd working area */
+> > +	uint32_t min_zone;	/* inclusive */
+> > +	uint32_t max_zone;	/* exclusive */
+> 
+> For simplicity, what about having both inclusive ?
 
-While at it, also assert check for min_bs != 0 where min_bs is used for
-divisions to avoid division by zero warnings from coverity.
+Boundaries are better defined as [inclusive, exclusive),
+so that loops and comparisons are shorter
 
-Reported-by: Bart Van Assche <bvanassche@acm.org>
-Fixes: 6463db6c1d3a ("fio: fix interaction between offset/size...")
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
----
- zbd.c | 5 +++++
- 1 file changed, 5 insertions(+)
+	for (z = min_zone; z < max_zone; z++)
 
-diff --git a/zbd.c b/zbd.c
-index f4067802..baa6cdac 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -704,6 +704,8 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
- 	bool reset_wp;
- 	int res = 0;
- 
-+	assert(min_bs);
-+
- 	dprint(FD_ZBD, "%s: examining zones %u .. %u\n", f->file_name,
- 		zbd_zone_nr(f->zbd_info, zb), zbd_zone_nr(f->zbd_info, ze));
- 	for (z = zb; z < ze; z++) {
-@@ -1004,6 +1006,8 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
- 
- 		dprint(FD_ZBD, "%s(%s): no candidate zone\n",
- 			__func__, f->file_name);
-+		pthread_mutex_unlock(&f->zbd_info->mutex);
-+		pthread_mutex_unlock(&z->mutex);
- 		return NULL;
- 
- found_candidate_zone:
-@@ -1332,6 +1336,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 	if (!f->zbd_info)
- 		return io_u_accept;
- 
-+	assert(min_bs);
- 	assert(is_valid_offset(f, io_u->offset));
- 	assert(io_u->buflen);
- 	zone_idx_b = zbd_zone_idx(f, io_u->offset);
--- 
-2.25.1
+I want to change file's offsets to [f->min_offset, f->max_offset)
+because redefining ->io_size is confusing and it will be
+inclusive/exclusive as well.
 
+> > --- a/zbd.c
+> > +++ b/zbd.c
+> > @@ -156,8 +156,14 @@ static bool zbd_zone_full(const struct fio_file *f, struct fio_zone_info *z,
+> >  		z->wp + required > z->start + f->zbd_info->zone_size;
+> >  }
+> >  
+> > -static void zone_lock(struct thread_data *td, struct fio_zone_info *z)
+> > +static void zone_lock(struct thread_data *td, struct fio_file *f, struct fio_zone_info *z)
+> >  {
+> > +	struct zoned_block_device_info *zbd = f->zbd_info;
+> > +	uint32_t nz = z - zbd->zone_info;
+> > +
+> > +	/* Thread should never lock zones outside its working area. */
+> > +	assert(f->min_zone <= nz && nz < f->max_zone);
+> > +
+> >  	/*
+> >  	 * Lock the io_u target zone. The zone will be unlocked if io_u offset
+> >  	 * is changed or when io_u completes and zbd_put_io() executed.
+> > @@ -289,6 +295,9 @@ static bool zbd_verify_sizes(void)
+> >  					 (unsigned long long) new_end - f->file_offset);
+> >  				f->io_size = new_end - f->file_offset;
+> >  			}
+> > +
+> > +			f->min_zone = zbd_zone_idx(f, f->file_offset);
+> > +			f->max_zone = zbd_zone_idx(f, f->file_offset + f->io_size);
+> 
+> "- 1" to make it inclusive ?
+> 
+> >  		}
+> >  	}
+> >  
+> > @@ -332,6 +341,17 @@ static int ilog2(uint64_t i)
+> >  	return log;
+> >  }
+> >  
+> > +static uint32_t clamp_u32(uint32_t x, uint32_t min, uint32_t max)
+> > +{
+> > +	if (x < min) {
+> > +		return min;
+> > +	} else if (x > max) {
+> > +		return max;
+> > +	} else {
+> > +		return x;
+> > +	}
+> > +}
+> 
+> See below comment.
+> 
+> > +
+> >  /*
+> >   * Initialize f->zbd_info for devices that are not zoned block devices. This
+> >   * allows to execute a ZBD workload against a non-ZBD device.
+> > @@ -735,7 +755,7 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
+> >  
+> >  		if (!zbd_zone_swr(z))
+> >  			continue;
+> > -		zone_lock(td, z);
+> > +		zone_lock(td, f, z);
+> >  		if (all_zones) {
+> >  			unsigned int i;
+> >  
+> > @@ -958,7 +978,7 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+> >  						      struct io_u *io_u)
+> >  {
+> >  	const uint32_t min_bs = td->o.min_bs[io_u->ddir];
+> > -	const struct fio_file *f = io_u->file;
+> > +	struct fio_file *f = io_u->file;
+> >  	struct fio_zone_info *z;
+> >  	unsigned int open_zone_idx = -1;
+> >  	uint32_t zone_idx, new_zone_idx;
+> > @@ -975,6 +995,7 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+> >  	} else {
+> >  		zone_idx = zbd_zone_idx(f, io_u->offset);
+> >  	}
+> > +	zone_idx = clamp_u32(zone_idx, f->min_zone, f->max_zone - 1);
+> 
+> Since this is the only place clamp_u32 is used, I think you could just open code
+> it here. That plus a comment would make it easier to follow what is going on.
+> E.g.:
+> 
+> 	/*
+> 	 * Limit candidate zones to those contained in the thread working area.
+> 	 */
+> 	if (zone_idx < f->min_zone)
+> 		zone_idx = f->min_zone;
+> 	else if (zone_idx > f->max_zone)
+> 		zone_idx = f->max_zone;
+> 
+> 
+> >  	dprint(FD_ZBD, "%s(%s): starting from zone %d (offset %lld, buflen %lld)\n",
+> >  	       __func__, f->file_name, zone_idx, io_u->offset, io_u->buflen);
+> >  
+> > @@ -989,7 +1010,7 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+> >  
+> >  		z = &f->zbd_info->zone_info[zone_idx];
+> >  
+> > -		zone_lock(td, z);
+> > +		zone_lock(td, f, z);
+> >  		pthread_mutex_lock(&f->zbd_info->mutex);
+> >  		if (td->o.max_open_zones == 0)
+> >  			goto examine_zone;
+> > @@ -1015,8 +1036,7 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+> >  			if (tmp_idx >= f->zbd_info->num_open_zones)
+> >  				tmp_idx = 0;
+> >  			tmpz = f->zbd_info->open_zones[tmp_idx];
+> > -
+> > -			if (is_valid_offset(f, f->zbd_info->zone_info[tmpz].start)) {
+> > +			if (f->min_zone <= tmpz && tmpz < f->max_zone) {
+> >  				open_zone_idx = tmp_idx;
+> >  				goto found_candidate_zone;
+> >  			}
+> > @@ -1061,11 +1081,11 @@ examine_zone:
+> >  		z++;
+> >  		if (!is_valid_offset(f, z->start)) {
+> >  			/* Wrap-around. */
+> > -			zone_idx = zbd_zone_idx(f, f->file_offset);
+> > +			zone_idx = f->min_zone;
+> >  			z = &f->zbd_info->zone_info[zone_idx];
+> >  		}
+> >  		assert(is_valid_offset(f, z->start));
+> > -		zone_lock(td, z);
+> > +		zone_lock(td, f, z);
+> >  		if (z->open)
+> >  			continue;
+> >  		if (zbd_open_zone(td, io_u, zone_idx))
+> > @@ -1078,12 +1098,14 @@ examine_zone:
+> >  	pthread_mutex_lock(&f->zbd_info->mutex);
+> >  	for (i = 0; i < f->zbd_info->num_open_zones; i++) {
+> >  		zone_idx = f->zbd_info->open_zones[i];
+> > +		if (!(f->min_zone <= zone_idx && zone_idx < f->max_zone))
+> > +			continue;
+> 
+> 		if (zone_idx < f->min_zone || zone_idx >= f->max_zone))
+> 			continue;
+> 
+> is I think easier to read.
 
