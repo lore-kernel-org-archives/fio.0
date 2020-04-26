@@ -1,98 +1,110 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35480 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726176AbgDZUZ3 (ORCPT
-        <rfc822;fio@vger.kernel.org>); Sun, 26 Apr 2020 16:25:29 -0400
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE75BC061A0F
-        for <fio@vger.kernel.org>; Sun, 26 Apr 2020 13:25:28 -0700 (PDT)
-Received: by mail-lf1-x142.google.com with SMTP id u10so12082856lfo.8
-        for <fio@vger.kernel.org>; Sun, 26 Apr 2020 13:25:28 -0700 (PDT)
-MIME-Version: 1.0
+Received: from mga14.intel.com ([192.55.52.115]:14590 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726152AbgDZSdy (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 26 Apr 2020 14:33:54 -0400
+From: "Gruher, Joseph R" <joseph.r.gruher@intel.com>
+Subject: RE: Don't benchmark with fio
+Date: Sun, 26 Apr 2020 18:33:52 +0000
+Message-ID: <MW3PR11MB476162584C83AA787DB80D37A9AE0@MW3PR11MB4761.namprd11.prod.outlook.com>
 References: <CAK3+OmX5TX9KPw584_BT0u1Jb+roA=6_13pK5Ra8rwrcL5HecQ@mail.gmail.com>
  <BY5PR04MB690094E00580D5D1D90ADD4FE7D00@BY5PR04MB6900.namprd04.prod.outlook.com>
  <BY5PR04MB6900531561ED9F8EDB35E9C2E7D00@BY5PR04MB6900.namprd04.prod.outlook.com>
- <CAOdGBnHfNb_C3Gc+fpSxy8rCmOcUihguwyoQk+g0k6cYsd40dA@mail.gmail.com> <CAK3+OmVVGvOPToJRds+uD3S_inZbbADFFS2t+jx2TYT-E_CUUw@mail.gmail.com>
-In-Reply-To: <CAK3+OmVVGvOPToJRds+uD3S_inZbbADFFS2t+jx2TYT-E_CUUw@mail.gmail.com>
-From: Yigal Korman <ykorman@gmail.com>
-Date: Sun, 26 Apr 2020 23:25:16 +0300
-Message-ID: <CAOdGBnEA=S+pXJrC2xhgrhp5_SwDS4Fz31C-jZ-8D=ni199uqw@mail.gmail.com>
-Subject: Re: Don't benchmark with fio
-Content-Type: text/plain; charset="UTF-8"
+ <CAOdGBnHfNb_C3Gc+fpSxy8rCmOcUihguwyoQk+g0k6cYsd40dA@mail.gmail.com>
+ <CAK3+OmVVGvOPToJRds+uD3S_inZbbADFFS2t+jx2TYT-E_CUUw@mail.gmail.com>
+ <CALjAwxjyaf+D6pgmeEf-ZZV-kpMrn75Z7pxU_oSg6tvSaxm3Og@mail.gmail.com>
+ <CAK3+OmUMi_XEmn3Q17YGMNB20ORw3_VAoAL7mjCEo4jg8hA9=w@mail.gmail.com>
+In-Reply-To: <CAK3+OmUMi_XEmn3Q17YGMNB20ORw3_VAoAL7mjCEo4jg8hA9=w@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Seena Fallah <seenafallah@gmail.com>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Seena Fallah <seenafallah@gmail.com>, Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: Yigal Korman <ykorman@gmail.com>, Damien Le Moal <Damien.LeMoal@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On Sun, Apr 26, 2020 at 4:16 PM Seena Fallah <seenafallah@gmail.com> wrote:
->
-> Thanks all for your replies.
->
-> Maybe if you like it would be a good feature in fio to support this
-> type of needs :)
->
-> I have one more question about xfs_io, I don't know if it's a right
-> place but if it not I'm sorry. I have run xfs_io and gets this result:
-> 100.000000 bytes, 1 ops; 0.0000 sec (1.514 MiB/sec and 15873.0159 ops/sec)
-> What is the 15873.0159 ops/sec? Did xfs_io really do 15873.0159 iops or 1iops?
-
-It did 1 operation, but because it took such a short time, much less
-than a second, the ops/sec comes out as a large number.
-I hope that makes sense to you.
-
-Y
-
->
->
-> On Fri, Apr 24, 2020 at 11:39 AM Yigal Korman <ykorman@gmail.com> wrote:
-> >
-> > On Fri, Apr 24, 2020 at 6:16 AM Damien Le Moal <Damien.LeMoal@wdc.com> wrote:
-> > >
-> > > On 2020/04/24 12:11, Damien Le Moal wrote:
-> > > > On 2020/04/23 23:41, Seena Fallah wrote:
-> > > >> Hi all.
-> > > >>
-> > > >> I'm trying to probe my file system with fio. I don't want to benchmark
-> > > >> my file system. The only thing I want do is to for example write 100K
-> > > >> file on a file system and then check how much IO does it take to write
-> > > >> and the bandwidth and the runtime.
-> > > >> The main thing I want is to just write that file size and don't bench on that.
-> > > >> Can anyone help me which ioengine or which args should I use to do this probe?
-> > > >>
-> > > >> Thanks.
-> > > >>
-> > > >
-> > > > dd if=/dev/zero of=/path/to/your/file/to/write bs=100K count=i conv=fsync
-> > > >
-> > >
-> > > Oops... Should be:
-> > >
-> > > dd if=/dev/zero of=/path/to/your/file/to/write bs=100K count=1 conv=fsync
-> > >
-> > > obviously for 100K :)
-> > >
-> > > You will get the write bandwidth with this. For knowing how many IOs this take,
-> > > you will need to trace the kernel IO stack (blktrace). No way to know this
-> > > exactly from user space, that is, if by "IO" you mean "storage device commands".
-> > > If by "IO" you mean "system calls", then with the above command, it will be
-> > > exactly 1 "write()" call (use strace to see it).
-> > >
-> > > --
-> > > Damien Le Moal
-> > > Western Digital Research
-> >
-> > Yeah, fio might not be the best tool for this purpose.
-> > As Damien said - 'dd' is a good alternative.
-> > You could also use the xfs_io tool.
-> > It's not really xfs related, it's a general i/o and filesystem operations tool.
-> > It's part of the xfsprogs package and most likely already installed on
-> > your host.
-> > Here's an example:
-> >
-> > xfs_io -c "pwrite 0 100" -f /path/to/file
-> >
-> > Writes 100 bytes at offset 0 to the file.
-> > It will give you some timing info and bandwidth stats.
-> >
-> > Yigal
+WW91IG1pZ2h0IGxvb2sgaW50byBpb3BpbmcuICBZb3UgY2FuIGNvbmZpZ3VyZSBpdCB0byByZWFk
+L3dyaXRlIGEgc2V0IG51bWJlciBvZiByZXF1ZXN0cyBvZiBhIHNwZWNpZmljIHNpemUgYW5kIHRv
+IGJ5cGFzcyBjYWNoaW5nIGlmIGRlc2lyZWQuDQoNCmh0dHBzOi8vbWFucGFnZXMuZGViaWFuLm9y
+Zy90ZXN0aW5nL2lvcGluZy9pb3BpbmcuMS5lbi5odG1sDQoNCmh0dHBzOi8vZ2l0aHViLmNvbS9r
+b2N0OWkvaW9waW5nDQoNCg0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBm
+aW8tb3duZXJAdmdlci5rZXJuZWwub3JnIDxmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnPiBPbiBC
+ZWhhbGYgT2YNCj4gU2VlbmEgRmFsbGFoDQo+IFNlbnQ6IFN1bmRheSwgQXByaWwgMjYsIDIwMjAg
+ODozMCBBTQ0KPiBUbzogU2l0c29mZSBXaGVlbGVyIDxzaXRzb2ZlQGdtYWlsLmNvbT4NCj4gQ2M6
+IFlpZ2FsIEtvcm1hbiA8eWtvcm1hbkBnbWFpbC5jb20+OyBEYW1pZW4gTGUgTW9hbA0KPiA8RGFt
+aWVuLkxlTW9hbEB3ZGMuY29tPjsgZmlvQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTog
+RG9uJ3QgYmVuY2htYXJrIHdpdGggZmlvDQo+IA0KPiBPbiBTdW4sIEFwciAyNiwgMjAyMCBhdCA3
+OjMzIFBNIFNpdHNvZmUgV2hlZWxlciA8c2l0c29mZUBnbWFpbC5jb20+IHdyb3RlOg0KPiA+DQo+
+ID4gT24gU3VuLCAyNiBBcHIgMjAyMCBhdCAxNDoxNywgU2VlbmEgRmFsbGFoIDxzZWVuYWZhbGxh
+aEBnbWFpbC5jb20+IHdyb3RlOg0KPiA+ID4NCj4gPiA+IFRoYW5rcyBhbGwgZm9yIHlvdXIgcmVw
+bGllcy4NCj4gPiA+DQo+ID4gPiBNYXliZSBpZiB5b3UgbGlrZSBpdCB3b3VsZCBiZSBhIGdvb2Qg
+ZmVhdHVyZSBpbiBmaW8gdG8gc3VwcG9ydCB0aGlzDQo+ID4gPiB0eXBlIG9mIG5lZWRzIDopDQo+
+ID4gPg0KPiA+DQo+ID4gY2QgL3RvL2ZpbGVzeXN0ZW07IGZpbyAtLXNpemU9MTAwayAtLWJzPTRr
+IC0tcnc9d3JpdGUNCj4gPiAtLW5hbWU9bm90YWJlbmNobWFyaw0KPiA+DQo+ID4gPyBPYnZpb3Vz
+bHkgdGhpcyBjb3VsZCBnbyBvbmx5IHRvIHRoZSBjYWNoZSBzbyBtYXliZSB5b3Ugd2FudA0KPiA+
+IGVuZF9mc3luYz0xDQo+ID4gKGh0dHBzOi8vZmlvLnJlYWR0aGVkb2NzLmlvL2VuL2xhdGVzdC9m
+aW9fbWFuLmh0bWwjY21kb3B0aW9uLWFyZy1lbmQtZg0KPiA+IHN5bmMNCj4gPiApIGV0Yy4gSWYg
+eW91IHJlYWxseSB3YW50IHRvIGRvIG9ubHkgb25lIEkvTyBJIHN1cHBvc2UgeW91IGNvdWxkDQo+
+ID4gY2hhbmdlIHRoZSBibG9jayBzaXplIHRvIDEwMGsuLi4NCj4gDQo+IEkgaGF2ZSB0cmllZCBp
+dCBidXQgc3RpbGwgZ29pbmcgdG8gYmVuY2htYXJrLiBJIGp1c3Qgd2FudCB0byByZWFkL3dyaXRl
+IGZvciBleGFtcGxlDQo+IDQgSU8gdG8gc2VlIGhvdyBsb25nIGRvZXMgaXQgdGFrZT8NCj4gDQo+
+ID4gPiBJIGhhdmUgb25lIG1vcmUgcXVlc3Rpb24gYWJvdXQgeGZzX2lvLCBJIGRvbid0IGtub3cg
+aWYgaXQncyBhIHJpZ2h0DQo+ID4gPiBwbGFjZSBidXQgaWYgaXQgbm90IEknbSBzb3JyeS4gSSBo
+YXZlIHJ1biB4ZnNfaW8gYW5kIGdldHMgdGhpcyByZXN1bHQ6DQo+ID4gPiAxMDAuMDAwMDAwIGJ5
+dGVzLCAxIG9wczsgMC4wMDAwIHNlYyAoMS41MTQgTWlCL3NlYyBhbmQgMTU4NzMuMDE1OQ0KPiA+
+ID4gb3BzL3NlYykgV2hhdCBpcyB0aGUgMTU4NzMuMDE1OSBvcHMvc2VjPyBEaWQgeGZzX2lvIHJl
+YWxseSBkbyAxNTg3My4wMTU5DQo+IGlvcHMgb3IgMWlvcHM/DQo+ID4NCj4gPiBXaGF0IGlmIGl0
+IGRpZCBvbmx5IDEgb3AgYnV0IHRpbWVkIGhvdyBsb25nIGl0IHRvb2sgdG8gZG8gYWxsIHRoZSBJ
+L08NCj4gPiAoZS5nLiBhcm91bmQgNjMgbWljcm9zZWNvbmRzKT8gV2hlbiB5b3UgYXZlcmFnZSB0
+aGF0IG91dC4uLg0KPiANCj4gVGhlIG1haW4gZ29hbCBpcyBJIGFtIHdyaXRpbmcgYSBwcm9iZXIg
+Zm9yIG15IGZpbGUgc3lzdGVtIHRoYXQgaXMgYXR0YWNrIHRvIGEgdm0NCj4gZm9yIGV4YW1wbGUg
+YW5kIEkgZG9uJ3Qgd2FudCB0byBsb2FkIG9uIG15IGZpbGUgc3lzdGVtLg0KPiBJIGp1c3Qgd2Fu
+dCB0byBwcm9iZSBpdCBhbmQgc2VlIGlmIGl0IHdyaXRlcyA0IElPIGluIGEgdGltZSB0aGF0IHdh
+cyBkb25lIGxhc3QgdGltZQ0KPiBvciBub3Q/DQo+IA0KPiA+IFlvdSBjYW4gc2VlIHRoZSBjb2Rl
+IGhlcmU6DQo+ID4gaHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2ZzL3hmcy94ZnNwcm9n
+cy1kZXYuZ2l0L3RyZWUvaW8vcHdyaXRlLg0KPiA+IGMjbjQ2OA0KPiANCj4gSSBzZWUgdGhlIGNv
+ZGUgYnV0IGl0IHdhc24ndCBpbiBhIHBhdHRlcm4gSSBoYXZlIHNlbnQgdG8geW91LiBBbSBJIHdy
+b25nPw0KPiAgLg0KPiA+DQo+ID4gPiBPbiBGcmksIEFwciAyNCwgMjAyMCBhdCAxMTozOSBBTSBZ
+aWdhbCBLb3JtYW4gPHlrb3JtYW5AZ21haWwuY29tPg0KPiB3cm90ZToNCj4gPiA+ID4NCj4gPiA+
+ID4gT24gRnJpLCBBcHIgMjQsIDIwMjAgYXQgNjoxNiBBTSBEYW1pZW4gTGUgTW9hbA0KPiA8RGFt
+aWVuLkxlTW9hbEB3ZGMuY29tPiB3cm90ZToNCj4gPiA+ID4gPg0KPiA+ID4gPiA+IE9uIDIwMjAv
+MDQvMjQgMTI6MTEsIERhbWllbiBMZSBNb2FsIHdyb3RlOg0KPiA+ID4gPiA+ID4gT24gMjAyMC8w
+NC8yMyAyMzo0MSwgU2VlbmEgRmFsbGFoIHdyb3RlOg0KPiA+ID4gPiA+ID4+IEhpIGFsbC4NCj4g
+PiA+ID4gPiA+Pg0KPiA+ID4gPiA+ID4+IEknbSB0cnlpbmcgdG8gcHJvYmUgbXkgZmlsZSBzeXN0
+ZW0gd2l0aCBmaW8uIEkgZG9uJ3Qgd2FudCB0bw0KPiA+ID4gPiA+ID4+IGJlbmNobWFyayBteSBm
+aWxlIHN5c3RlbS4gVGhlIG9ubHkgdGhpbmcgSSB3YW50IGRvIGlzIHRvIGZvcg0KPiA+ID4gPiA+
+ID4+IGV4YW1wbGUgd3JpdGUgMTAwSyBmaWxlIG9uIGEgZmlsZSBzeXN0ZW0gYW5kIHRoZW4gY2hl
+Y2sgaG93DQo+ID4gPiA+ID4gPj4gbXVjaCBJTyBkb2VzIGl0IHRha2UgdG8gd3JpdGUgYW5kIHRo
+ZSBiYW5kd2lkdGggYW5kIHRoZSBydW50aW1lLg0KPiA+ID4gPiA+ID4+IFRoZSBtYWluIHRoaW5n
+IEkgd2FudCBpcyB0byBqdXN0IHdyaXRlIHRoYXQgZmlsZSBzaXplIGFuZCBkb24ndCBiZW5jaCBv
+bg0KPiB0aGF0Lg0KPiA+ID4gPiA+ID4+IENhbiBhbnlvbmUgaGVscCBtZSB3aGljaCBpb2VuZ2lu
+ZSBvciB3aGljaCBhcmdzIHNob3VsZCBJIHVzZSB0byBkbw0KPiB0aGlzIHByb2JlPw0KPiA+ID4g
+PiA+ID4+DQo+ID4gPiA+ID4gPj4gVGhhbmtzLg0KPiA+ID4gPiA+ID4+DQo+ID4gPiA+ID4gPg0K
+PiA+ID4gPiA+ID4gZGQgaWY9L2Rldi96ZXJvIG9mPS9wYXRoL3RvL3lvdXIvZmlsZS90by93cml0
+ZSBicz0xMDBLIGNvdW50PWkNCj4gPiA+ID4gPiA+IGNvbnY9ZnN5bmMNCj4gPiA+ID4gPiA+DQo+
+ID4gPiA+ID4NCj4gPiA+ID4gPiBPb3BzLi4uIFNob3VsZCBiZToNCj4gPiA+ID4gPg0KPiA+ID4g
+PiA+IGRkIGlmPS9kZXYvemVybyBvZj0vcGF0aC90by95b3VyL2ZpbGUvdG8vd3JpdGUgYnM9MTAw
+SyBjb3VudD0xDQo+ID4gPiA+ID4gY29udj1mc3luYw0KPiA+ID4gPiA+DQo+ID4gPiA+ID4gb2J2
+aW91c2x5IGZvciAxMDBLIDopDQo+ID4gPiA+ID4NCj4gPiA+ID4gPiBZb3Ugd2lsbCBnZXQgdGhl
+IHdyaXRlIGJhbmR3aWR0aCB3aXRoIHRoaXMuIEZvciBrbm93aW5nIGhvdyBtYW55DQo+ID4gPiA+
+ID4gSU9zIHRoaXMgdGFrZSwgeW91IHdpbGwgbmVlZCB0byB0cmFjZSB0aGUga2VybmVsIElPIHN0
+YWNrDQo+ID4gPiA+ID4gKGJsa3RyYWNlKS4gTm8gd2F5IHRvIGtub3cgdGhpcyBleGFjdGx5IGZy
+b20gdXNlciBzcGFjZSwgdGhhdCBpcywgaWYgYnkgIklPIg0KPiB5b3UgbWVhbiAic3RvcmFnZSBk
+ZXZpY2UgY29tbWFuZHMiLg0KPiA+ID4gPiA+IElmIGJ5ICJJTyIgeW91IG1lYW4gInN5c3RlbSBj
+YWxscyIsIHRoZW4gd2l0aCB0aGUgYWJvdmUgY29tbWFuZCwNCj4gPiA+ID4gPiBpdCB3aWxsIGJl
+IGV4YWN0bHkgMSAid3JpdGUoKSIgY2FsbCAodXNlIHN0cmFjZSB0byBzZWUgaXQpLg0KPiA+ID4g
+PiA+DQo+ID4gPiA+ID4gLS0NCj4gPiA+ID4gPiBEYW1pZW4gTGUgTW9hbA0KPiA+ID4gPiA+IFdl
+c3Rlcm4gRGlnaXRhbCBSZXNlYXJjaA0KPiA+ID4gPg0KPiA+ID4gPiBZZWFoLCBmaW8gbWlnaHQg
+bm90IGJlIHRoZSBiZXN0IHRvb2wgZm9yIHRoaXMgcHVycG9zZS4NCj4gPiA+ID4gQXMgRGFtaWVu
+IHNhaWQgLSAnZGQnIGlzIGEgZ29vZCBhbHRlcm5hdGl2ZS4NCj4gPiA+ID4gWW91IGNvdWxkIGFs
+c28gdXNlIHRoZSB4ZnNfaW8gdG9vbC4NCj4gPiA+ID4gSXQncyBub3QgcmVhbGx5IHhmcyByZWxh
+dGVkLCBpdCdzIGEgZ2VuZXJhbCBpL28gYW5kIGZpbGVzeXN0ZW0gb3BlcmF0aW9ucyB0b29sLg0K
+PiA+ID4gPiBJdCdzIHBhcnQgb2YgdGhlIHhmc3Byb2dzIHBhY2thZ2UgYW5kIG1vc3QgbGlrZWx5
+IGFscmVhZHkNCj4gPiA+ID4gaW5zdGFsbGVkIG9uIHlvdXIgaG9zdC4NCj4gPiA+ID4gSGVyZSdz
+IGFuIGV4YW1wbGU6DQo+ID4gPiA+DQo+ID4gPiA+IHhmc19pbyAtYyAicHdyaXRlIDAgMTAwIiAt
+ZiAvcGF0aC90by9maWxlDQo+ID4gPiA+DQo+ID4gPiA+IFdyaXRlcyAxMDAgYnl0ZXMgYXQgb2Zm
+c2V0IDAgdG8gdGhlIGZpbGUuDQo+ID4gPiA+IEl0IHdpbGwgZ2l2ZSB5b3Ugc29tZSB0aW1pbmcg
+aW5mbyBhbmQgYmFuZHdpZHRoIHN0YXRzLg0KPiA+ID4gPg0KPiA+ID4gPiBZaWdhbA0KPiA+DQo+
+ID4gLS0NCj4gPiBTaXRzb2ZlIHwgaHR0cDovL3N1Y3Mub3JnL35zaXRzLw0K
 
