@@ -1,50 +1,56 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-bn7nam10on2099.outbound.protection.outlook.com ([40.107.92.99]:35905
-        "EHLO NAM10-BN7-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726355AbgD2Okd (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 29 Apr 2020 10:40:33 -0400
-From: Hamilton Tobon Mosquera <htobonm@eafit.edu.co>
-Subject: Sequential read/write with multiple threads
-Message-ID: <bd28b7f9-6aa3-ab2d-8934-419d8457f55e@eafit.edu.co>
-Date: Wed, 29 Apr 2020 10:40:28 -0400
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Return-Path: <prvs=379927889=damien.lemoal@wdc.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH 2/5] zbd: Fix potential deadlock on read operations
+Date: Mon, 27 Apr 2020 14:51:11 +0900
+Message-Id: <20200427055115.107909-3-damien.lemoal@wdc.com>
+In-Reply-To: <20200427055115.107909-1-damien.lemoal@wdc.com>
+References: <20200427055115.107909-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-Hi there, I send this again, I'm not sure if it was sent last time, I 
-thought I was subscribed to the mailing list but I wasn't.
+For read-only workloads, zbd_find_zone() has a similar zone locking
+behavior as for write IOs: zones to be read are locked when an IO is
+prepared and unlocked when the IO completes. With an asynchronous IO
+engine, this can create deadlocks if 2 threads are trying to read the
+same 2 zones. For instance, if thread A already has a lock on zone 1
+and is waiting for a lock on zone 2 while thread B already has a lock
+on zone 2 and waiting for a lock on zone 1.
 
-I'm trying to run some benchmarks using the ioegnines libaio and 
-pvsync2. I'm trying to run sequential reads/writes and random 
-read/writes in a file of 200G with a maximum of 4 jobs, that is, 
-threads. I don't mix them, that is, I run sequentially or randomly 
-reads/writes.
+The fix is similar to previous fixes for this potential deadlock,
+namely, use zone_lock() instead of directly calling pthread_mutex_lock()
+to ensure that a thread issues the IOs it already has prepared if it
+encounters a locked zone, doing so ensuring forward progress.
 
-My question is this: when running sequentially, given that I'm using 4 
-threads, is it really sequential?. Do the threads interfere with each 
-other?, if yes, which options should I use to make each thread only 
-issue requests to disjoint parts of the file, each of 50G (in case of 4 
-threads). I tried using offset_increment, but sometimes it overflows on 
-random requests, and for sequential requests the file size increases 
-automatically, that is, the requests are going further the size of the 
-file, but it does not crashes. More specifically, I get the file size in 
-bytes, exactly 214748364800. I divide that number in the number of 
-threads, and I use the result as the offset_increment. The file is 
-created using the filecreate engine with size 200G.
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+---
+ zbd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Lastly, is it possible for each thread to issue random requests only in 
-that piece of 50G, so that it does not overflows to other threads piece 
-of file or even overflow outside the file?.
-
-Perhaps I'm doing something wrong. Could someone please help me?.
-
-Thank you.
-
-Hamilton.
+diff --git a/zbd.c b/zbd.c
+index 8dc3c397..5aaf1e2c 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -1141,7 +1141,7 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
+ 	 */
+ 	for (z1 = zb + 1, z2 = zb - 1; z1 < zl || z2 >= zf; z1++, z2--) {
+ 		if (z1 < zl && z1->cond != ZBD_ZONE_COND_OFFLINE) {
+-			pthread_mutex_lock(&z1->mutex);
++			zone_lock(td, z1);
+ 			if (z1->start + min_bs <= z1->wp)
+ 				return z1;
+ 			pthread_mutex_unlock(&z1->mutex);
+@@ -1150,7 +1150,7 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
+ 		}
+ 		if (td_random(td) && z2 >= zf &&
+ 		    z2->cond != ZBD_ZONE_COND_OFFLINE) {
+-			pthread_mutex_lock(&z2->mutex);
++			zone_lock(td, z2);
+ 			if (z2->start + min_bs <= z2->wp)
+ 				return z2;
+ 			pthread_mutex_unlock(&z2->mutex);
+-- 
+2.25.4
 
 
