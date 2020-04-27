@@ -1,31 +1,41 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45626 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726323AbgDWOlr (ORCPT
-        <rfc822;fio@vger.kernel.org>); Thu, 23 Apr 2020 10:41:47 -0400
-Received: from mail-ua1-x930.google.com (mail-ua1-x930.google.com [IPv6:2607:f8b0:4864:20::930])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9661C08E934
-        for <fio@vger.kernel.org>; Thu, 23 Apr 2020 07:41:46 -0700 (PDT)
-Received: by mail-ua1-x930.google.com with SMTP id u12so5879640uau.10
-        for <fio@vger.kernel.org>; Thu, 23 Apr 2020 07:41:46 -0700 (PDT)
+Return-Path: <prvs=379927889=damien.lemoal@wdc.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH 1/5] iolog: Fix write_iolog_close()
+Date: Mon, 27 Apr 2020 14:51:10 +0900
+Message-Id: <20200427055115.107909-2-damien.lemoal@wdc.com>
+In-Reply-To: <20200427055115.107909-1-damien.lemoal@wdc.com>
+References: <20200427055115.107909-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
-From: Seena Fallah <seenafallah@gmail.com>
-Date: Thu, 23 Apr 2020 19:11:34 +0430
-Message-ID: <CAK3+OmX5TX9KPw584_BT0u1Jb+roA=6_13pK5Ra8rwrcL5HecQ@mail.gmail.com>
-Subject: Don't benchmark with fio
-Content-Type: text/plain; charset="UTF-8"
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-Hi all.
+If the init_iolog() call from backend.c thread_main() fails (e.g. wrong
+file path given), td->iolog_f is not set but write_iolog_close() is
+still called from thread_main() error processing. This causes a seg
+fault and unclean termination of fio. Fix this by changing
+write_iolog_close() to do nothing if td->iolog_f is NULL.
 
-I'm trying to probe my file system with fio. I don't want to benchmark
-my file system. The only thing I want do is to for example write 100K
-file on a file system and then check how much IO does it take to write
-and the bandwidth and the runtime.
-The main thing I want is to just write that file size and don't bench on that.
-Can anyone help me which ioengine or which args should I use to do this probe?
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+---
+ iolog.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Thanks.
+diff --git a/iolog.c b/iolog.c
+index 917a446c..4a79fc46 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -342,6 +342,9 @@ void trim_io_piece(const struct io_u *io_u)
+ 
+ void write_iolog_close(struct thread_data *td)
+ {
++	if (!td->iolog_f)
++		return;
++
+ 	fflush(td->iolog_f);
+ 	fclose(td->iolog_f);
+ 	free(td->iolog_buf);
+-- 
+2.25.4
+
 
