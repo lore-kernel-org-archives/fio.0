@@ -1,71 +1,43 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-io1-f49.google.com ([209.85.166.49]:44023 "EHLO
-        mail-io1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725972AbgDIKVR (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 9 Apr 2020 06:21:17 -0400
-Received: by mail-io1-f49.google.com with SMTP id u2so3278467iop.10
-        for <fio@vger.kernel.org>; Thu, 09 Apr 2020 03:21:17 -0700 (PDT)
+Return-Path: <prvs=379927889=damien.lemoal@wdc.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH 3/5] zbd: Fix read with verify
+Date: Mon, 27 Apr 2020 14:51:12 +0900
+Message-Id: <20200427055115.107909-4-damien.lemoal@wdc.com>
+In-Reply-To: <20200427055115.107909-1-damien.lemoal@wdc.com>
+References: <20200427055115.107909-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
-From: Hselin Chen <hselin.chen@gmail.com>
-Date: Thu, 9 Apr 2020 03:21:05 -0700
-Message-ID: <CAMHtQmOvnJ-Unsc7V3RTh1NxXNqJ74H2g7bHNrsaRE764mjU4A@mail.gmail.com>
-Subject: Clarification on FIO verify bad header answer
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-Hi Sitsofe,
+For a read only workload with verify option enabled, executing
+zbd_replay_write_order() will ignore target zones that are full and try
+to open another zone. This either triggers an assert if max_open_zones
+is unused, or result in verify failing. Fix this by executing
+zbd_replay_write_order() only for writing workloads. This fix is also
+consistent with the fact that zoned devices do not implicitly open
+zones for read operations.
 
-You wrote the following answer for a question on bad header
-verification back in Jan 15th of this year.
-I have a follow-up question on why numjobs > 1 would create
-interference with each other - doesn't each job write to their own
-file?
-Apologies in advance for the rudimentary question.
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+---
+ zbd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Thanks!
-Albert
+diff --git a/zbd.c b/zbd.c
+index 5aaf1e2c..c30454b9 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -1409,7 +1409,8 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 	switch (io_u->ddir) {
+ 	case DDIR_READ:
+ 		if (td->runstate == TD_VERIFYING) {
+-			zb = zbd_replay_write_order(td, io_u, zb);
++			if (td_write(td))
++				zb = zbd_replay_write_order(td, io_u, zb);
+ 			goto accept;
+ 		}
+ 		/*
+-- 
+2.25.4
 
-=3D=3D=3D=3D=3D=3D=3D
-
-Re: FIO verify bad header question
-
-Hi,
-
-On Wed, 15 Jan 2020 at 15:32, Jens Axboe <axboe@xxxxxxxxx> wrote:
->
-> Please use the fio list for this, CC'ed.
->
-> On 1/15/20 8:28 AM, Michael Chichik wrote:
-> >
-> > */usr/bin/fio --time_based --runtime=3D1d --ioengine=3Dlibaio --iodepth=
-=3D32 --rw=3Drandrw --bs=3D24k --direct=3D0 --io_size=3D60G --numjobs=3D10 =
---size=3D1G --rwmixread=3D0 --verify=3Dmd5 --verify_fatal=3D1 --output-form=
-at=3Djson --output=3D4_randrw_0_10_32_libaio_xfs_1G.json --directory /mnt/t=
-est-vol-23206-36 --name host1_test-vol-23206-36
-
-^^^numjobs=3D10 will mean all the jobs are working inside the same
-region. Because you're using randrw it's likely each job will write
-blocks in a different sequence to other jobs.
-
-> > *
-> > FIO failed with the following error:
-> > *
-> > *
-> > *verify: bad header rand_seed 1089408830752521594, wanted 7280637923435=
-198810 at file /mnt/test-vol-23206-36/filename offset 776945664, length 245=
-76
-
-This means job 2 can interfere with the writes of job 1 so when job
-one comes to do a verify it can't find the blocks written by itself
-(because it may find job 2's data). If you're going to use numjobs I'd
-strongly look into use offset_increment
-(https://fio.readthedocs.io/en/latest/fio_man.html#cmdoption-arg-offset-inc=
-rement
-) and size (https://fio.readthedocs.io/en/latest/fio_man.html#cmdoption-arg=
--size
-) to ensure each job is working within a different region to any other
-job.
 
