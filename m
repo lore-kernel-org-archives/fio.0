@@ -1,90 +1,73 @@
-Return-Path: <adobriyan@gmail.com>
-Return-Path: <adobriyan@gmail.com>
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: [PATCH 4/7] zbd: make zbd_info->mutex non-recursive
-Date: Thu, 30 Apr 2020 15:40:47 +0300
-Message-Id: <20200430124050.20146-4-adobriyan@gmail.com>
-In-Reply-To: <20200430124050.20146-1-adobriyan@gmail.com>
-References: <20200430124050.20146-1-adobriyan@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34126 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725861AbgD2Fd5 (ORCPT
+        <rfc822;fio@vger.kernel.org>); Wed, 29 Apr 2020 01:33:57 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 447FEC03C1AC
+        for <fio@vger.kernel.org>; Tue, 28 Apr 2020 22:33:57 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id g13so901806wrb.8
+        for <fio@vger.kernel.org>; Tue, 28 Apr 2020 22:33:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: axboe@kernel.dk
-Cc: adobriyan@gmail.com, damien.lemoal@wdc.com, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+References: <af3fe93c-bd21-c991-b4ce-80037623b723@eafit.edu.co>
+In-Reply-To: <af3fe93c-bd21-c991-b4ce-80037623b723@eafit.edu.co>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 29 Apr 2020 06:33:30 +0100
+Message-ID: <CALjAwxjY5NTtpB-vLqdYju_dH2rGofTSCEPZyM53BUbj4oFu9g@mail.gmail.com>
+Subject: Re: Sequential read/write with multiple threads
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Hamilton Tobon Mosquera <htobonm@eafit.edu.co>
+Cc: fio <fio@vger.kernel.org>
 
-There is no reason for it to be recursive. Resursiveness leaked from
-zi->mutex.
+Hi,
 
-Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
----
- zbd.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+On Wed, 29 Apr 2020 at 04:39, Hamilton Tobon Mosquera
+<htobonm@eafit.edu.co> wrote:
+>
+> Hi there,
+>
+> I'm trying to run some benchmarks using the ioegnines libaio and
+> pvsync2. I'm trying to run sequential reads/writes and random
+> read/writes in a file of 200G with a maximum of 4 jobs, that is,
+> threads. I don't mix them, that is, I run sequentially or randomly
+> reads/writes.
+>
+> My question is this: when running sequentially, given that I'm using 4
+> threads, is it really sequential?. Do the threads interfere with each
+> other?, if yes, which options should I use to make each thread only
 
-diff --git a/zbd.c b/zbd.c
-index a517349a..18cedfce 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -373,9 +373,9 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
- 		return -ENOMEM;
- 
- 	pthread_mutexattr_init(&attr);
--	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
- 	pthread_mutexattr_setpshared(&attr, true);
- 	pthread_mutex_init(&zbd_info->mutex, &attr);
-+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
- 	zbd_info->refcount = 1;
- 	p = &zbd_info->zone_info[0];
- 	for (i = 0; i < nr_zones; i++, p++) {
-@@ -417,7 +417,6 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- 	int i, j, ret = 0;
- 
- 	pthread_mutexattr_init(&attr);
--	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
- 	pthread_mutexattr_setpshared(&attr, true);
- 
- 	zones = calloc(ZBD_REPORT_MAX_ZONES, sizeof(struct zbd_zone));
-@@ -454,6 +453,7 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- 	if (!zbd_info)
- 		goto out;
- 	pthread_mutex_init(&zbd_info->mutex, &attr);
-+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
- 	zbd_info->refcount = 1;
- 	p = &zbd_info->zone_info[0];
- 	for (offset = 0, j = 0; j < nr_zones;) {
-@@ -801,14 +801,20 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
-  * Reset zbd_info.write_cnt, the counter that counts down towards the next
-  * zone reset.
-  */
--static void zbd_reset_write_cnt(const struct thread_data *td,
--				const struct fio_file *f)
-+static void _zbd_reset_write_cnt(const struct thread_data *td,
-+				 const struct fio_file *f)
- {
- 	assert(0 <= td->o.zrf.u.f && td->o.zrf.u.f <= 1);
- 
--	pthread_mutex_lock(&f->zbd_info->mutex);
- 	f->zbd_info->write_cnt = td->o.zrf.u.f ?
- 		min(1.0 / td->o.zrf.u.f, 0.0 + UINT_MAX) : UINT_MAX;
-+}
-+
-+static void zbd_reset_write_cnt(const struct thread_data *td,
-+				const struct fio_file *f)
-+{
-+	pthread_mutex_lock(&f->zbd_info->mutex);
-+	_zbd_reset_write_cnt(td, f);
- 	pthread_mutex_unlock(&f->zbd_info->mutex);
- }
- 
-@@ -822,7 +828,7 @@ static bool zbd_dec_and_reset_write_cnt(const struct thread_data *td,
- 	if (f->zbd_info->write_cnt)
- 		write_cnt = --f->zbd_info->write_cnt;
- 	if (write_cnt == 0)
--		zbd_reset_write_cnt(td, f);
-+		_zbd_reset_write_cnt(td, f);
- 	pthread_mutex_unlock(&f->zbd_info->mutex);
- 
- 	return write_cnt == 0;
+Sequential to which layer? It's worth noting that the more concurrent
+sequential streams there are the more a workload will appear to be
+random to the lower levels. From an fio perspective without seeing the
+actual job it's hard to answer your question. For example, if each of
+the four sequential jobs are working on the same file (because you
+specified filename) then there's a high chance of interference and
+it's hard to say what the interference will look like given the
+interaction of the cache etc. If they are separate files then I guess
+you would argue they don't interfere...
+
+> issue requests to disjoint parts of the file, each of 50G (in case of 4
+> threads). I tried using offset_increment, but sometimes it overflows on
+> random requests, and for sequential requests the file size increases
+> automatically, that is, the requests are going further the size of the
+> file, but it does not crashes. More specifically, I get the file size in
+> bytes, exactly 214748364800. I divide that number in the number of
+> threads, and I use the result as the offset_increment. The file is
+> created using the filecreate engine with size 200G.
+
+In your case I would expect you would have to use offset AND size to
+limit the region worked within (see
+https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-offset
+).
+
+> Lastly, is it possible for each thread to issue random requests only in
+> that piece of 50G, so that it does not overflows to other threads piece
+> of file or even overflow outside the file?.
+
+See above!
+
 -- 
-2.26.2
-
+Sitsofe | http://sucs.org/~sits/
 
