@@ -1,144 +1,178 @@
-Return-Path: <adobriyan@gmail.com>
-Return-Path: <adobriyan@gmail.com>
-Date: Thu, 2 Apr 2020 22:21:02 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: [PATCH v3] fio: fix interaction between offset/size limited threads
- and "max_open_zones"
-Message-ID: <20200402192102.GA4335@avx2>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-To: axboe@kernel.dk
-Cc: damien.lemoal@wdc.com, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37286 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726817AbgD3MAE (ORCPT
+        <rfc822;fio@vger.kernel.org>); Thu, 30 Apr 2020 08:00:04 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10706C09B040
+        for <fio@vger.kernel.org>; Thu, 30 Apr 2020 05:00:03 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jU7rG-0007kz-QO
+        for fio@vger.kernel.org; Thu, 30 Apr 2020 12:00:02 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200430120001.9C7491BC0165@kernel.dk>
+Date: Thu, 30 Apr 2020 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-If thread bumps into "max_open_zones" limit, it tries to close/reopen some
-other zone before issuing IO. This scan is done over full list of block device's
-opened zones. It means that a zone which doesn't belong to thread's working
-area can be altered or IO can be retargeted at such zone.
+The following changes since commit 3966740cd903ed95f306e59892075faf9fd2a151:
 
-If IO is retargeted then it will be dropped by "is_valid_offset()" check.
+  Merge branch 'gcc1' of https://github.com/kusumi/fio (2020-04-21 15:44:31 -0600)
 
-What happens with null block device testing is that one thread monopolises
-IO and others threads do basically nothing.
+are available in the Git repository at:
 
-This config will reliably succeed now:
+  git://git.kernel.dk/fio.git master
 
-	[global]
-	zonemode=zbd
-	zonesize=1M
-	rw=randwrite
-		...
-	thread
-	numjobs=2
-	offset_increment=128M
+for you to fetch changes up to b2ed1c4a07c6afc4ae90482ca5f70026a4bc34e6:
 
-	[j]
-	max_open_zones=2
-	size=2M
+  Merge branch 'helper_thread_test' of https://github.com/vincentkfu/fio (2020-04-29 09:05:11 -0600)
 
-Starting 2 threads
-zbd      7991  /dev/nullb0: zbd model string: host-managed
-zbd      7991  Device /dev/nullb0 has 1024 zones of size 1024 KB
-zbd      8009  /dev/nullb0: examining zones 0 .. 2
-zbd      8010  /dev/nullb0: examining zones 128 .. 130
-zbd      8009  /dev/nullb0: opening zone 0
-zbd      8010  /dev/nullb0: opening zone 128
-zbd      8009  /dev/nullb0: queued I/O (0, 4096) for zone 0
-zbd      8009  zbd_convert_to_open_zone(/dev/nullb0): starting from zone 128 (offset 1552384, buflen 4096)
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'helper_thread_test' of https://github.com/vincentkfu/fio
 
-	retargeted for other thread's zone	(zone 0 => zone 128)
+Vincent Fu (3):
+      helper_thread: cleanups
+      helper_thread: fix inconsistent status intervals
+      helper_thread: refactor status-interval and steadystate code
 
-zbd      8010  /dev/nullb0: queued I/O (134217728, 4096) for zone 128
-zbd      8009  zbd_convert_to_open_zone(/dev/nullb0): returning zone 128
-zbd      8009  Dropped request with offset 134221824
+ helper_thread.c | 54 +++++++++++++++++++++++++++++++++++-------------------
+ stat.c          | 12 ------------
+ 2 files changed, 35 insertions(+), 31 deletions(-)
 
-	and dropped
-
-Note: quasi-randomness is kind of necessary to spread I/O. Imagine index 0
-is picked all the time, zone living there will be reopened constantly and
-get relatively little I/O.
-
-Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Tested-by: Damien Le Moal <damien.lemoal@wdc.com>
 ---
 
- zbd.c |   43 ++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 38 insertions(+), 5 deletions(-)
+Diff of recent changes:
 
---- a/zbd.c
-+++ b/zbd.c
-@@ -945,6 +945,13 @@ static void zone_lock(struct thread_data *td, struct fio_zone_info *z)
- 	}
+diff --git a/helper_thread.c b/helper_thread.c
+index 78749855..ad1a08f3 100644
+--- a/helper_thread.c
++++ b/helper_thread.c
+@@ -128,11 +128,30 @@ void helper_thread_exit(void)
+ 	pthread_join(helper_data->thread, NULL);
  }
  
-+/* Anything goes as long as it is not a constant. */
-+static uint32_t pick_random_zone_idx(const struct fio_file *f,
-+				     const struct io_u *io_u)
++static unsigned int task_helper(struct timespec *last, struct timespec *now, unsigned int period, void do_task())
 +{
-+	return io_u->offset * f->zbd_info->num_open_zones / f->real_file_size;
++	unsigned int next, since;
++
++	since = mtime_since(last, now);
++	if (since >= period || period - since < 10) {
++		do_task();
++		timespec_add_msec(last, since);
++		if (since > period)
++			next = period - (since - period);
++		else
++			next = period;
++	} else
++		next = period - since;
++
++	return next;
 +}
 +
- /*
-  * Modify the offset of an I/O unit that does not refer to an open zone such
-  * that it refers to an open zone. Close an open zone and open a new zone if
-@@ -969,9 +976,7 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
- 		 * This statement accesses f->zbd_info->open_zones[] on purpose
- 		 * without locking.
- 		 */
--		zone_idx = f->zbd_info->open_zones[(io_u->offset -
--						    f->file_offset) *
--				f->zbd_info->num_open_zones / f->io_size];
-+		zone_idx = f->zbd_info->open_zones[pick_random_zone_idx(f, io_u)];
- 	} else {
- 		zone_idx = zbd_zone_idx(f, io_u->offset);
- 	}
-@@ -985,6 +990,8 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
- 	 * has been obtained. Hence the loop.
- 	 */
- 	for (;;) {
-+		uint32_t tmp_idx;
-+
- 		z = &f->zbd_info->zone_info[zone_idx];
+ static void *helper_thread_main(void *data)
+ {
+ 	struct helper_data *hd = data;
+-	unsigned int msec_to_next_event, next_log, next_ss = STEADYSTATE_MSEC;
+-	struct timespec ts, last_du, last_ss;
++	unsigned int msec_to_next_event, next_log, next_si = status_interval;
++	unsigned int next_ss = STEADYSTATE_MSEC;
++	struct timespec ts, last_du, last_ss, last_si;
+ 	char action;
+ 	int ret = 0;
  
- 		zone_lock(td, z);
-@@ -998,9 +1005,35 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
- 			       __func__, f->file_name);
- 			return NULL;
- 		}
--		open_zone_idx = (io_u->offset - f->file_offset) *
--			f->zbd_info->num_open_zones / f->io_size;
-+
-+		/*
-+		 * List of opened zones is per-device, shared across all threads.
-+		 * Start with quasi-random candidate zone.
-+		 * Ignore zones which don't belong to thread's offset/size area.
-+		 */
-+		open_zone_idx = pick_random_zone_idx(f, io_u);
- 		assert(open_zone_idx < f->zbd_info->num_open_zones);
-+		tmp_idx = open_zone_idx;
-+		for (i = 0; i < f->zbd_info->num_open_zones; i++) {
-+			uint32_t tmpz;
-+
-+			if (tmp_idx >= f->zbd_info->num_open_zones)
-+				tmp_idx = 0;
-+			tmpz = f->zbd_info->open_zones[tmp_idx];
-+
-+			if (is_valid_offset(f, f->zbd_info->zone_info[tmpz].start)) {
-+				open_zone_idx = tmp_idx;
-+				goto found_candidate_zone;
-+			}
-+
-+			tmp_idx++;
+@@ -157,20 +176,19 @@ static void *helper_thread_main(void *data)
+ #endif
+ 	memcpy(&last_du, &ts, sizeof(ts));
+ 	memcpy(&last_ss, &ts, sizeof(ts));
++	memcpy(&last_si, &ts, sizeof(ts));
+ 
+ 	fio_sem_up(hd->startup_sem);
+ 
+ 	msec_to_next_event = DISK_UTIL_MSEC;
+ 	while (!ret && !hd->exit) {
+-		uint64_t since_du, since_ss = 0;
++		uint64_t since_du;
+ 		struct timeval timeout = {
+-			.tv_sec  = DISK_UTIL_MSEC / 1000,
+-			.tv_usec = (DISK_UTIL_MSEC % 1000) * 1000,
++			.tv_sec  = msec_to_next_event / 1000,
++			.tv_usec = (msec_to_next_event % 1000) * 1000,
+ 		};
+ 		fd_set rfds, efds;
+ 
+-		timespec_add_msec(&ts, msec_to_next_event);
+-
+ 		if (read_from_pipe(hd->pipe[0], &action, sizeof(action)) < 0) {
+ 			FD_ZERO(&rfds);
+ 			FD_SET(hd->pipe[0], &rfds);
+@@ -209,25 +227,23 @@ static void *helper_thread_main(void *data)
+ 		if (action == A_DO_STAT)
+ 			__show_running_run_stats();
+ 
++		if (status_interval) {
++			next_si = task_helper(&last_si, &ts, status_interval, __show_running_run_stats);
++			msec_to_next_event = min(next_si, msec_to_next_event);
 +		}
 +
-+		dprint(FD_ZBD, "%s(%s): no candidate zone\n",
-+			__func__, f->file_name);
-+		return NULL;
-+
-+found_candidate_zone:
- 		new_zone_idx = f->zbd_info->open_zones[open_zone_idx];
- 		if (new_zone_idx == zone_idx)
- 			break;
+ 		next_log = calc_log_samples();
+ 		if (!next_log)
+ 			next_log = DISK_UTIL_MSEC;
+ 
+ 		if (steadystate_enabled) {
+-			since_ss = mtime_since(&last_ss, &ts);
+-			if (since_ss >= STEADYSTATE_MSEC || STEADYSTATE_MSEC - since_ss < 10) {
+-				steadystate_check();
+-				timespec_add_msec(&last_ss, since_ss);
+-				if (since_ss > STEADYSTATE_MSEC)
+-					next_ss = STEADYSTATE_MSEC - (since_ss - STEADYSTATE_MSEC);
+-				else
+-					next_ss = STEADYSTATE_MSEC;
+-			} else
+-				next_ss = STEADYSTATE_MSEC - since_ss;
++			next_ss = task_helper(&last_ss, &ts, STEADYSTATE_MSEC, steadystate_check);
++			msec_to_next_event = min(next_ss, msec_to_next_event);
+                 }
+ 
+-		msec_to_next_event = min(min(next_log, msec_to_next_event), next_ss);
+-		dprint(FD_HELPERTHREAD, "since_ss: %llu, next_ss: %u, next_log: %u, msec_to_next_event: %u\n", (unsigned long long)since_ss, next_ss, next_log, msec_to_next_event);
++		msec_to_next_event = min(next_log, msec_to_next_event);
++		dprint(FD_HELPERTHREAD, "next_si: %u, next_ss: %u, next_log: %u, msec_to_next_event: %u\n",
++			next_si, next_ss, next_log, msec_to_next_event);
+ 
+ 		if (!is_backend)
+ 			print_thread_status();
+diff --git a/stat.c b/stat.c
+index efa811d2..2cf11947 100644
+--- a/stat.c
++++ b/stat.c
+@@ -2354,8 +2354,6 @@ void __show_running_run_stats(void)
+ 	fio_sem_up(stat_sem);
+ }
+ 
+-static bool status_interval_init;
+-static struct timespec status_time;
+ static bool status_file_disabled;
+ 
+ #define FIO_STATUS_FILE		"fio-dump-status"
+@@ -2398,16 +2396,6 @@ static int check_status_file(void)
+ 
+ void check_for_running_stats(void)
+ {
+-	if (status_interval) {
+-		if (!status_interval_init) {
+-			fio_gettime(&status_time, NULL);
+-			status_interval_init = true;
+-		} else if (mtime_since_now(&status_time) >= status_interval) {
+-			show_running_run_stats();
+-			fio_gettime(&status_time, NULL);
+-			return;
+-		}
+-	}
+ 	if (check_status_file()) {
+ 		show_running_run_stats();
+ 		return;
 
