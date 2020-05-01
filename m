@@ -1,75 +1,106 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53750 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725930AbgDUSEq (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 21 Apr 2020 14:04:46 -0400
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on20614.outbound.protection.outlook.com [IPv6:2a01:111:f400:7eaa::614])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97421C0610D5
-        for <fio@vger.kernel.org>; Tue, 21 Apr 2020 11:04:46 -0700 (PDT)
-From: "Pierre Labat (plabat)" <plabat@micron.com>
-Subject: A few change to increase test coverage for zoned devices.
-Date: Tue, 21 Apr 2020 18:04:43 +0000
-Message-ID: <BYAPR08MB5430F7F889911C8D049241F9ABD50@BYAPR08MB5430.namprd08.prod.outlook.com>
+Return-Path: <prvs=383ebf04e=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH 7/7] verify: decouple seed generation from buffer fill
+Date: Fri, 1 May 2020 01:59:22 +0000
+Message-ID: 
+ <BY5PR04MB69008A971A26E98EDD12381CE7AB0@BY5PR04MB6900.namprd04.prod.outlook.com>
+References: <20200430124050.20146-1-adobriyan@gmail.com>
+ <20200430124050.20146-7-adobriyan@gmail.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>, "axboe@kernel.dk" <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
-
-We (Micron San Jose CA) have a few FIO changes to propose. The general goal=
- of these changes is to increase the test coverage for zoned devices. Below=
- is a summary.
-
-1. A ZNS namespace has a maximum number of open zones (aka number of zones =
-one can write in parallel) that may be smallish. There is another ZNS limit=
-ation that is the maximum number of "active" zones =A0(active=3Dzone in sta=
-te open or closed). This number can be much bigger than the maximum number =
-of open zones.
-
-This Fio change allows to test the device in regards to this maximum number=
- of active zones.=20
-
-Fio is given a maximum number of active zones. The threads/jobs (their numb=
-er is limited to the maximum number open zones) write a bit into one active=
- zone, close it, jumps to another active zone (open it (write implicit open=
-)) and so on. The writing threads keep ping ponging across the active zones=
- writing a bit each time and then closing the zone. An active zone is re-op=
-ened when a writing thread write again in the zone (implicit open). As a co=
-nsequence, the write load is spread across all active zones while never pas=
-sing the max number of active zones.
-Then at some point some active zones get=A0 full. When that happens they ar=
-e not "active" anymore. Fio selects other zones automatically, they will be=
-come active on the first write. As a consequence, over time, the active zon=
-es move across the namespace (but they stay in the window specified by fio)=
-. That gives a good workout to the device running it at its max limit of ac=
-tive zones and jumping (to write in a zone) at high rate from one zone to a=
-nother.
-
-2. An application can "finish" a zone without writing it in full. For examp=
-le an app could only write half a zone and then finish it. That changes the=
- state of the zone to "full". The app cannot write anymore in the zone. The=
- zone will have to be reset at some point.
-
-We have a change in FIO that allows to test that. A new option tells FIO to=
- stop writing in a zone when reaching some threshold and to "finish" it. At=
- that point, FIO sends a zone management command to finish the zone and con=
-sider the zone full (even if it is not actually full of app data).
-
-3. Another change is relaxing the checks in zbd_verify_sizes() in regards t=
-o read IO on zoned devices. The reading can start anywhere in a zone (below=
- the WP), it doesn't need to always start at the zone beginning.
-
-I would have to move these changes on latest fio and do some cleanup before=
- having patches ready.
-
-Let me know if that make sense to add the above to fio.
-
-Best regards,
-
-Pierre
-
+On 2020/04/30 21:41, Alexey Dobriyan wrote:=0A=
+> Nicer this way and less LOC.=0A=
+=0A=
+A better description of this cleanup would be nice.=0A=
+=0A=
+> =0A=
+> Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>=0A=
+> ---=0A=
+>  backend.c |  6 ------=0A=
+>  verify.c  | 20 +++++++-------------=0A=
+>  2 files changed, 7 insertions(+), 19 deletions(-)=0A=
+> =0A=
+> diff --git a/backend.c b/backend.c=0A=
+> index feb34e51..452975cf 100644=0A=
+> --- a/backend.c=0A=
+> +++ b/backend.c=0A=
+> @@ -1006,12 +1006,6 @@ static void do_io(struct thread_data *td, uint64_t=
+ *bytes_done)=0A=
+>  		if (td->o.verify !=3D VERIFY_NONE && io_u->ddir =3D=3D DDIR_READ &&=0A=
+>  		    ((io_u->flags & IO_U_F_VER_LIST) || !td_rw(td))) {=0A=
+>  =0A=
+> -			if (!td->o.verify_pattern_bytes) {=0A=
+> -				io_u->rand_seed =3D __rand(&td->verify_state);=0A=
+> -				if (sizeof(int) !=3D sizeof(long *))=0A=
+> -					io_u->rand_seed *=3D __rand(&td->verify_state);=0A=
+> -			}=0A=
+> -=0A=
+>  			if (verify_state_should_stop(td, io_u)) {=0A=
+>  				put_io_u(td, io_u);=0A=
+>  				break;=0A=
+> diff --git a/verify.c b/verify.c=0A=
+> index cf299ebf..b7fa6693 100644=0A=
+> --- a/verify.c=0A=
+> +++ b/verify.c=0A=
+> @@ -46,15 +46,6 @@ static void __fill_buffer(struct thread_options *o, ui=
+nt64_t seed, void *p,=0A=
+>  	__fill_random_buf_percentage(seed, p, o->compress_percentage, len, len,=
+ o->buffer_pattern, o->buffer_pattern_bytes);=0A=
+>  }=0A=
+>  =0A=
+> -static uint64_t fill_buffer(struct thread_data *td, void *p,=0A=
+> -			    unsigned int len)=0A=
+> -{=0A=
+> -	struct frand_state *fs =3D &td->verify_state;=0A=
+> -	struct thread_options *o =3D &td->o;=0A=
+> -=0A=
+> -	return fill_random_buf_percentage(fs, p, o->compress_percentage, len, l=
+en, o->buffer_pattern, o->buffer_pattern_bytes);=0A=
+> -}=0A=
+=0A=
+Since you remove this, you could probably rename __fill_buffer() to=0A=
+fill_buffer() ? Or do you want to keep the relation with the call to the "_=
+_"=0A=
+version of fill_random_buf_percentage() ?=0A=
+=0A=
+> -=0A=
+>  void fill_verify_pattern(struct thread_data *td, void *p, unsigned int l=
+en,=0A=
+>  			 struct io_u *io_u, uint64_t seed, int use_seed)=0A=
+>  {=0A=
+> @@ -63,10 +54,13 @@ void fill_verify_pattern(struct thread_data *td, void=
+ *p, unsigned int len,=0A=
+>  	if (!o->verify_pattern_bytes) {=0A=
+>  		dprint(FD_VERIFY, "fill random bytes len=3D%u\n", len);=0A=
+>  =0A=
+> -		if (use_seed)=0A=
+> -			__fill_buffer(o, seed, p, len);=0A=
+> -		else=0A=
+> -			io_u->rand_seed =3D fill_buffer(td, p, len);=0A=
+> +		if (!use_seed) {=0A=
+> +			seed =3D __rand(&td->verify_state);=0A=
+> +			if (sizeof(int) !=3D sizeof(long *))=0A=
+> +				seed *=3D (unsigned long)__rand(&td->verify_state);=0A=
+> +		}=0A=
+> +		io_u->rand_seed =3D seed;=0A=
+> +		__fill_buffer(o, seed, p, len);=0A=
+>  		return;=0A=
+>  	}=0A=
+>  =0A=
+> =0A=
+=0A=
+Otherwise, this looks good to me.=0A=
+=0A=
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
+=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
