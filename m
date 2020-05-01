@@ -1,218 +1,257 @@
-Return-Path: <prvs=379927889=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 4/5] zbd: Introduce file zbd operations
-Date: Mon, 27 Apr 2020 14:51:13 +0900
-Message-Id: <20200427055115.107909-5-damien.lemoal@wdc.com>
-In-Reply-To: <20200427055115.107909-1-damien.lemoal@wdc.com>
-References: <20200427055115.107909-1-damien.lemoal@wdc.com>
+Return-Path: <prvs=383ebf04e=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH 3/7] zbd: introduce per-device "max_open_zones" limit
+Date: Fri, 1 May 2020 01:34:32 +0000
+Message-ID: 
+ <BY5PR04MB690042CF7A2990BE21B0DBCDE7AB0@BY5PR04MB6900.namprd04.prod.outlook.com>
+References: <20200430124050.20146-1-adobriyan@gmail.com>
+ <20200430124050.20146-3-adobriyan@gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+To: Alexey Dobriyan <adobriyan@gmail.com>, "axboe@kernel.dk" <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-Use a pointer to a function for implementing zbd_file_reset()
-as an inline function resulting in an actual zbd function call only if
-necessary, that is, if zonemode is "zbd" and the thread is writing.
-This change also allows optimizing zbd_reset_file() (renamed from
-zbd_file_reset()) to be a nop for read-only jobs, avoiding a costly
-scan of all zones in the job access range.
-
-Similarly change zbd_free_zone_info() too, renaming it as
-zbd_file_close().
-
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
----
- file.h      |  5 +++-
- filesetup.c |  2 +-
- zbd.c       | 66 ++++++++++++++++++++++++++++-------------------------
- zbd.h       | 14 ++++++++++--
- 4 files changed, 52 insertions(+), 35 deletions(-)
-
-diff --git a/file.h b/file.h
-index ae0e6fc8..8a301d37 100644
---- a/file.h
-+++ b/file.h
-@@ -12,6 +12,7 @@
- 
- /* Forward declarations */
- struct zoned_block_device_info;
-+struct thread_data;
- 
- /*
-  * The type of object we are working on
-@@ -101,9 +102,11 @@ struct fio_file {
- 	uint64_t io_size;
- 
- 	/*
--	 * Zoned block device information. See also zonemode=zbd.
-+	 * Zoned block device information and operations. See also zonemode=zbd.
- 	 */
- 	struct zoned_block_device_info *zbd_info;
-+	void (*zbd_reset)(struct thread_data *, struct fio_file *);
-+	void (*zbd_close)(struct fio_file *);
- 
- 	/*
- 	 * Track last end and last start of IO for a given data direction
-diff --git a/filesetup.c b/filesetup.c
-index 8a4091fc..9f994c93 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -1469,7 +1469,7 @@ void close_and_free_files(struct thread_data *td)
- 			td_io_unlink_file(td, f);
- 		}
- 
--		zbd_free_zone_info(f);
-+		zbd_file_close(f);
- 
- 		if (use_free)
- 			free(f->file_name);
-diff --git a/zbd.c b/zbd.c
-index c30454b9..078d93a4 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -542,7 +542,7 @@ static int zbd_create_zone_info(struct thread_data *td, struct fio_file *f)
- 	return ret;
- }
- 
--void zbd_free_zone_info(struct fio_file *f)
-+static void zbd_close_file(struct fio_file *f)
- {
- 	uint32_t refcount;
- 
-@@ -592,30 +592,6 @@ static int zbd_init_zone_info(struct thread_data *td, struct fio_file *file)
- 	return ret;
- }
- 
--int zbd_init(struct thread_data *td)
--{
--	struct fio_file *f;
--	int i;
--
--	for_each_file(td, f, i) {
--		if (zbd_init_zone_info(td, f))
--			return 1;
--	}
--
--	if (!zbd_using_direct_io()) {
--		log_err("Using direct I/O is mandatory for writing to ZBD drives\n\n");
--		return 1;
--	}
--
--	if (!zbd_verify_sizes())
--		return 1;
--
--	if (!zbd_verify_bs())
--		return 1;
--
--	return 0;
--}
--
- /**
-  * zbd_reset_range - reset zones for a range of sectors
-  * @td: FIO thread data.
-@@ -743,8 +719,7 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
- 
- 			reset_wp = z->wp != z->start;
- 		} else {
--			reset_wp = (td->o.td_ddir & TD_DDIR_WRITE) &&
--					z->wp % min_bs != 0;
-+			reset_wp = z->wp % min_bs != 0;
- 		}
- 		if (reset_wp) {
- 			dprint(FD_ZBD, "%s: resetting zone %u\n",
-@@ -851,13 +826,12 @@ static void zbd_init_swd(struct fio_file *f)
- 	       swd);
- }
- 
--void zbd_file_reset(struct thread_data *td, struct fio_file *f)
-+static void zbd_reset_file(struct thread_data *td, struct fio_file *f)
- {
- 	struct fio_zone_info *zb, *ze;
- 	uint32_t zone_idx_e;
- 
--	if (!f->zbd_info)
--		return;
-+	assert(td_write(td) && f->zbd_info);
- 
- 	zb = &f->zbd_info->zone_info[zbd_zone_idx(f, f->file_offset)];
- 	zone_idx_e = zbd_zone_idx(f, f->file_offset + f->io_size);
-@@ -869,7 +843,6 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
- 	 * writing data, which causes data loss.
- 	 */
- 	zbd_reset_zones(td, f, zb, ze, td->o.verify != VERIFY_NONE &&
--			(td->o.td_ddir & TD_DDIR_WRITE) &&
- 			td->runstate != TD_VERIFYING);
- 	zbd_reset_write_cnt(td, f);
- }
-@@ -1565,3 +1538,34 @@ char *zbd_write_status(const struct thread_stat *ts)
- 		return NULL;
- 	return res;
- }
-+
-+int zbd_init(struct thread_data *td)
-+{
-+	struct fio_file *f;
-+	int i;
-+
-+	for_each_file(td, f, i) {
-+		if (zbd_init_zone_info(td, f))
-+			return 1;
-+		if (!f->zbd_info)
-+			continue;
-+
-+		/* Set file operations */
-+		f->zbd_close = zbd_close_file;
-+		if (td_write(td))
-+			f->zbd_reset = zbd_reset_file;
-+	}
-+
-+	if (!zbd_using_direct_io()) {
-+		log_err("Using direct I/O is mandatory for writing to ZBD drives\n\n");
-+		return 1;
-+	}
-+
-+	if (!zbd_verify_sizes())
-+		return 1;
-+
-+	if (!zbd_verify_bs())
-+		return 1;
-+
-+	return 0;
-+}
-diff --git a/zbd.h b/zbd.h
-index 5a660399..550d7a99 100644
---- a/zbd.h
-+++ b/zbd.h
-@@ -77,9 +77,7 @@ struct zoned_block_device_info {
- 	struct fio_zone_info	zone_info[0];
- };
- 
--void zbd_free_zone_info(struct fio_file *f);
- int zbd_init(struct thread_data *td);
--void zbd_file_reset(struct thread_data *td, struct fio_file *f);
- bool zbd_unaligned_write(int error_code);
- void setup_zbd_zone_mode(struct thread_data *td, struct io_u *io_u);
- enum fio_ddir zbd_adjust_ddir(struct thread_data *td, struct io_u *io_u,
-@@ -87,6 +85,18 @@ enum fio_ddir zbd_adjust_ddir(struct thread_data *td, struct io_u *io_u,
- enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u);
- char *zbd_write_status(const struct thread_stat *ts);
- 
-+static inline void zbd_file_reset(struct thread_data *td, struct fio_file *f)
-+{
-+	if (f->zbd_reset)
-+		f->zbd_reset(td, f);
-+}
-+
-+static inline void zbd_file_close(struct fio_file *f)
-+{
-+	if (f->zbd_close)
-+		f->zbd_close(f);
-+}
-+
- static inline void zbd_queue_io_u(struct io_u *io_u, enum fio_q_status status)
- {
- 	if (io_u->zbd_queue_io) {
--- 
-2.25.4
-
+On 2020/04/30 21:41, Alexey Dobriyan wrote:=0A=
+> It is not possible to maintain equal per-thread iodepth. The way code=0A=
+> is written, "max_open_zones" acts as a global limit, and one thread=0A=
+> opens all "max_open_zones" for itself and others starve for available=0A=
+> zones and _exit_ prematurely.=0A=
+> =0A=
+> This config is guaranteed to make equal number of zone resets/IO now:=0A=
+> each thread generates identical pattern and doesn't intersect with other=
+=0A=
+> threads:=0A=
+> =0A=
+> 	zonemode=3Dzbd=0A=
+> 	zonesize=3D...=0A=
+> 	rw=3Dwrite=0A=
+> =0A=
+> 	numjobs=3DN=0A=
+> 	offset_increment=3DM*zonesize=0A=
+> =0A=
+> 	[j]=0A=
+> 	size=3DM*zonesize=0A=
+> =0A=
+> Patch introduces "global_max_open_zones" which is per-device config=0A=
+> option. "max_open_zones" becomes per-thread limit. Both limits are=0A=
+> checked for each open zone so one thread can't starve others.=0A=
+=0A=
+It makes sense. Nice one.=0A=
+=0A=
+But the change as is will break existing test scripts (e.g. lots of SMR dri=
+ves=0A=
+are being tested with this). I think we can avoid this breakage simply: lea=
+ve=0A=
+max_open_zones option definition as is and add "job_max_open_zones" or=0A=
+"thread_max_open_zones" option (no strong feelings about the name here, as =
+long=0A=
+as it is explicit) to define the per thread maximum number of open zones. T=
+his=0A=
+new option could actually default to max_open_zones / numjobs if that is no=
+t 0.=0A=
+=0A=
+> =0A=
+> Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>=0A=
+> ---=0A=
+>  fio.1            |  6 +++++-=0A=
+>  fio.h            |  1 +=0A=
+>  options.c        | 14 ++++++++++++--=0A=
+>  thread_options.h |  1 +=0A=
+>  zbd.c            | 37 +++++++++++++++++++++++++++++++++----=0A=
+>  zbd.h            |  3 +++=0A=
+>  6 files changed, 55 insertions(+), 7 deletions(-)=0A=
+> =0A=
+> diff --git a/fio.1 b/fio.1=0A=
+> index a2379f98..1c04a3af 100644=0A=
+> --- a/fio.1=0A=
+> +++ b/fio.1=0A=
+> @@ -804,7 +804,11 @@ so. Default: false.=0A=
+>  When running a random write test across an entire drive many more zones =
+will be=0A=
+>  open than in a typical application workload. Hence this command line opt=
+ion=0A=
+>  that allows to limit the number of open zones. The number of open zones =
+is=0A=
+> -defined as the number of zones to which write commands are issued.=0A=
+> +defined as the number of zones to which write commands are issued by one=
+=0A=
+> +thread/process.=0A=
+> +.TP=0A=
+> +.BI global_max_open_zones \fR=3D\fPint=0A=
+> +Global limit on the number of simultaneously opened zones per block devi=
+ce.=0A=
+>  .TP=0A=
+>  .BI zone_reset_threshold \fR=3D\fPfloat=0A=
+>  A number between zero and one that indicates the ratio of logical blocks=
+ with=0A=
+> diff --git a/fio.h b/fio.h=0A=
+> index bbf057c1..20ca80e2 100644=0A=
+> --- a/fio.h=0A=
+> +++ b/fio.h=0A=
+> @@ -260,6 +260,7 @@ struct thread_data {=0A=
+>  	struct frand_state prio_state;=0A=
+>  =0A=
+>  	struct zone_split_index **zone_state_index;=0A=
+> +	unsigned int num_open_zones;=0A=
+>  =0A=
+>  	unsigned int verify_batch;=0A=
+>  	unsigned int trim_batch;=0A=
+> diff --git a/options.c b/options.c=0A=
+> index 2372c042..306874ea 100644=0A=
+> --- a/options.c=0A=
+> +++ b/options.c=0A=
+> @@ -3364,8 +3364,18 @@ struct fio_option fio_options[FIO_MAX_OPTS] =3D {=
+=0A=
+>  		.type	=3D FIO_OPT_INT,=0A=
+>  		.off1	=3D offsetof(struct thread_options, max_open_zones),=0A=
+>  		.maxval	=3D ZBD_MAX_OPEN_ZONES,=0A=
+> -		.help	=3D "Limit random writes to SMR drives to the specified"=0A=
+> -			  " number of sequential zones",=0A=
+> +		.help	=3D "Thread/process limit on the number of simultaneously opened=
+ sequential write zones in SMR/ZNS drives",=0A=
+> +		.def	=3D "0",=0A=
+> +		.category =3D FIO_OPT_C_IO,=0A=
+> +		.group	=3D FIO_OPT_G_INVALID,=0A=
+> +	},=0A=
+> +	{=0A=
+> +		.name	=3D "global_max_open_zones",=0A=
+> +		.lname	=3D "Global maximum number of open zones",=0A=
+> +		.type	=3D FIO_OPT_INT,=0A=
+> +		.off1	=3D offsetof(struct thread_options, global_max_open_zones),=0A=
+> +		.maxval	=3D ZBD_MAX_OPEN_ZONES,=0A=
+> +		.help	=3D "Block device limit on the number of simultaneously opened s=
+equential write zones in SMR/ZNS drives",=0A=
+>  		.def	=3D "0",=0A=
+>  		.category =3D FIO_OPT_C_IO,=0A=
+>  		.group	=3D FIO_OPT_G_INVALID,=0A=
+> diff --git a/thread_options.h b/thread_options.h=0A=
+> index c78ed43d..4078d46f 100644=0A=
+> --- a/thread_options.h=0A=
+> +++ b/thread_options.h=0A=
+> @@ -342,6 +342,7 @@ struct thread_options {=0A=
+>  	/* Parameters that affect zonemode=3Dzbd */=0A=
+>  	unsigned int read_beyond_wp;=0A=
+>  	int max_open_zones;=0A=
+> +	unsigned int global_max_open_zones;=0A=
+>  	fio_fp64_t zrt;=0A=
+>  	fio_fp64_t zrf;=0A=
+>  };=0A=
+> diff --git a/zbd.c b/zbd.c=0A=
+> index e8f0a4d8..a517349a 100644=0A=
+> --- a/zbd.c=0A=
+> +++ b/zbd.c=0A=
+> @@ -546,8 +546,10 @@ static int zbd_create_zone_info(struct thread_data *=
+td, struct fio_file *f)=0A=
+>  		return -EINVAL;=0A=
+>  	}=0A=
+>  =0A=
+> -	if (ret =3D=3D 0)=0A=
+> +	if (ret =3D=3D 0) {=0A=
+>  		f->zbd_info->model =3D zbd_model;=0A=
+> +		f->zbd_info->max_open_zones =3D td->o.global_max_open_zones;=0A=
+> +	}=0A=
+>  	return ret;=0A=
+>  }=0A=
+>  =0A=
+> @@ -622,6 +624,27 @@ int zbd_init(struct thread_data *td)=0A=
+>  	if (!zbd_verify_bs())=0A=
+>  		return 1;=0A=
+>  =0A=
+> +	for_each_file(td, f, i) {=0A=
+> +		struct zoned_block_device_info *zbd =3D f->zbd_info;=0A=
+> +=0A=
+> +		if (!zbd)=0A=
+> +			continue;=0A=
+> +=0A=
+> +		if (zbd->max_open_zones =3D=3D 0) {=0A=
+> +			zbd->max_open_zones =3D ZBD_MAX_OPEN_ZONES;=0A=
+> +		}=0A=
+> +=0A=
+> +		if (td->o.global_max_open_zones &&=0A=
+> +		    zbd->max_open_zones !=3D td->o.global_max_open_zones) {=0A=
+> +			log_err("Different 'global_max_open_zones' values\n");=0A=
+> +			return 1;=0A=
+> +		}=0A=
+> +		if (zbd->max_open_zones > ZBD_MAX_OPEN_ZONES) {=0A=
+> +			log_err("'global_max_open_zones' value is limited by %u\n", ZBD_MAX_O=
+PEN_ZONES);=0A=
+> +			return 1;=0A=
+> +		}=0A=
+> +	}=0A=
+> +=0A=
+>  	return 0;=0A=
+>  }=0A=
+>  =0A=
+> @@ -714,6 +737,7 @@ static void zbd_close_zone(struct thread_data *td, co=
+nst struct fio_file *f,=0A=
+>  		(ZBD_MAX_OPEN_ZONES - (open_zone_idx + 1)) *=0A=
+>  		sizeof(f->zbd_info->open_zones[0]));=0A=
+>  	f->zbd_info->num_open_zones--;=0A=
+> +	td->num_open_zones--;=0A=
+>  	f->zbd_info->zone_info[zone_idx].open =3D 0;=0A=
+>  }=0A=
+>  =0A=
+> @@ -895,8 +919,10 @@ static bool is_zone_open(const struct thread_data *t=
+d, const struct fio_file *f,=0A=
+>  	struct zoned_block_device_info *zbdi =3D f->zbd_info;=0A=
+>  	int i;=0A=
+>  =0A=
+> -	assert(td->o.max_open_zones <=3D ARRAY_SIZE(zbdi->open_zones));=0A=
+> -	assert(zbdi->num_open_zones <=3D td->o.max_open_zones);=0A=
+> +	assert(td->o.max_open_zones =3D=3D 0 || td->num_open_zones <=3D td->o.m=
+ax_open_zones);=0A=
+> +=0A=
+> +	assert(td->o.max_open_zones <=3D zbdi->max_open_zones);=0A=
+> +	assert(zbdi->num_open_zones <=3D zbdi->max_open_zones);=0A=
+>  =0A=
+>  	for (i =3D 0; i < zbdi->num_open_zones; i++)=0A=
+>  		if (zbdi->open_zones[i] =3D=3D zone_idx)=0A=
+> @@ -937,10 +963,13 @@ static bool zbd_open_zone(struct thread_data *td, c=
+onst struct io_u *io_u,=0A=
+>  	if (is_zone_open(td, f, zone_idx))=0A=
+>  		goto out;=0A=
+>  	res =3D false;=0A=
+> -	if (f->zbd_info->num_open_zones >=3D td->o.max_open_zones)=0A=
+> +	if (td->num_open_zones >=3D td->o.max_open_zones)=0A=
+> +		goto out;=0A=
+> +	if (f->zbd_info->num_open_zones >=3D f->zbd_info->max_open_zones)=0A=
+>  		goto out;=0A=
+>  	dprint(FD_ZBD, "%s: opening zone %d\n", f->file_name, zone_idx);=0A=
+>  	f->zbd_info->open_zones[f->zbd_info->num_open_zones++] =3D zone_idx;=0A=
+> +	td->num_open_zones++;=0A=
+>  	z->open =3D 1;=0A=
+>  	res =3D true;=0A=
+>  =0A=
+> diff --git a/zbd.h b/zbd.h=0A=
+> index 5a660399..fb39fb82 100644=0A=
+> --- a/zbd.h=0A=
+> +++ b/zbd.h=0A=
+> @@ -45,6 +45,8 @@ struct fio_zone_info {=0A=
+>  /**=0A=
+>   * zoned_block_device_info - zoned block device characteristics=0A=
+>   * @model: Device model.=0A=
+> + * @max_open_zones: global limit on the number of simultaneously opened=
+=0A=
+> + *	sequential write zones.=0A=
+>   * @mutex: Protects the modifiable members in this structure (refcount a=
+nd=0A=
+>   *		num_open_zones).=0A=
+>   * @zone_size: size of a single zone in units of 512 bytes=0A=
+> @@ -65,6 +67,7 @@ struct fio_zone_info {=0A=
+>   */=0A=
+>  struct zoned_block_device_info {=0A=
+>  	enum zbd_zoned_model	model;=0A=
+> +	uint32_t		max_open_zones;=0A=
+>  	pthread_mutex_t		mutex;=0A=
+>  	uint64_t		zone_size;=0A=
+>  	uint64_t		sectors_with_data;=0A=
+> =0A=
+=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
