@@ -1,120 +1,106 @@
-Return-Path: <prvs=35814f3ae=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH] zbd: Fix potential zone lock deadlock
-Date: Mon,  6 Apr 2020 19:51:32 +0900
-Message-Id: <20200406105132.1291382-1-damien.lemoal@wdc.com>
+Return-Path: <prvs=383ebf04e=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH 4/7] zbd: make zbd_info->mutex non-recursive
+Date: Fri, 1 May 2020 01:36:46 +0000
+Message-ID: 
+ <BY5PR04MB6900B1E9D494761E8ECE7B08E7AB0@BY5PR04MB6900.namprd04.prod.outlook.com>
+References: <20200430124050.20146-1-adobriyan@gmail.com>
+ <20200430124050.20146-4-adobriyan@gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+To: Alexey Dobriyan <adobriyan@gmail.com>, "axboe@kernel.dk" <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-Commit b27aef6abfba ("zbd: use zone_lock to lock a zone") to fix
-potential deadlocks with zonemode=zbd  zone locking was incomplete.
-The execution of the zone lock stress test t/zbd test case 48 still
-sometimes lead to deadlocks (a large number of repeated execution is
-sometimes needed).
-
-The remaining deadlock pattern identified with the repeated execution
-of this test is due to the concurrent execution of jobs doing random
-async writes to zones. In such case, any of the job may trigger an all
-zone reset through the path get_next_rand_block() -> fio_file_reset()
-while async writes are still inflight. The fix for this is to use the
-zone_lock() function instead of directly calling pthread_mutex_lock()i
-to ensure that no async IO is inflight for a zone that is part of a
-reset range.
-
-Suggested-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
----
- zbd.c | 60 +++++++++++++++++++++++++++++------------------------------
- 1 file changed, 30 insertions(+), 30 deletions(-)
-
-diff --git a/zbd.c b/zbd.c
-index 0dd5a619..d12d6a7a 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -58,6 +58,24 @@ static bool zbd_zone_full(const struct fio_file *f, struct fio_zone_info *z,
- 		z->wp + required > z->start + f->zbd_info->zone_size;
- }
- 
-+static void zone_lock(struct thread_data *td, struct fio_zone_info *z)
-+{
-+	/*
-+	 * Lock the io_u target zone. The zone will be unlocked if io_u offset
-+	 * is changed or when io_u completes and zbd_put_io() executed.
-+	 * To avoid multiple jobs doing asynchronous I/Os from deadlocking each
-+	 * other waiting for zone locks when building an io_u batch, first
-+	 * only trylock the zone. If the zone is already locked by another job,
-+	 * process the currently queued I/Os so that I/O progress is made and
-+	 * zones unlocked.
-+	 */
-+	if (pthread_mutex_trylock(&z->mutex) != 0) {
-+		if (!td_ioengine_flagged(td, FIO_SYNCIO))
-+			io_u_quiesce(td);
-+		pthread_mutex_lock(&z->mutex);
-+	}
-+}
-+
- static bool is_valid_offset(const struct fio_file *f, uint64_t offset)
- {
- 	return (uint64_t)(offset - f->file_offset) < f->io_size;
-@@ -716,18 +734,18 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
- 		zbd_zone_nr(f->zbd_info, zb), zbd_zone_nr(f->zbd_info, ze));
- 	assert(f->fd != -1);
- 	for (z = zb; z < ze; z++) {
--		pthread_mutex_lock(&z->mutex);
--		if (z->type == BLK_ZONE_TYPE_SEQWRITE_REQ) {
--			reset_wp = all_zones ? z->wp != z->start :
--					(td->o.td_ddir & TD_DDIR_WRITE) &&
--					z->wp % min_bs != 0;
--			if (reset_wp) {
--				dprint(FD_ZBD, "%s: resetting zone %u\n",
--				       f->file_name,
--				       zbd_zone_nr(f->zbd_info, z));
--				if (zbd_reset_zone(td, f, z) < 0)
--					res = 1;
--			}
-+		if (z->type != BLK_ZONE_TYPE_SEQWRITE_REQ)
-+			continue;
-+		zone_lock(td, z);
-+		reset_wp = all_zones ? z->wp != z->start :
-+				(td->o.td_ddir & TD_DDIR_WRITE) &&
-+				z->wp % min_bs != 0;
-+		if (reset_wp) {
-+			dprint(FD_ZBD, "%s: resetting zone %u\n",
-+			       f->file_name,
-+			       zbd_zone_nr(f->zbd_info, z));
-+			if (zbd_reset_zone(td, f, z) < 0)
-+				res = 1;
- 		}
- 		pthread_mutex_unlock(&z->mutex);
- 	}
-@@ -927,24 +945,6 @@ static void zbd_close_zone(struct thread_data *td, const struct fio_file *f,
- 	f->zbd_info->zone_info[zone_idx].open = 0;
- }
- 
--static void zone_lock(struct thread_data *td, struct fio_zone_info *z)
--{
--	/*
--	 * Lock the io_u target zone. The zone will be unlocked if io_u offset
--	 * is changed or when io_u completes and zbd_put_io() executed.
--	 * To avoid multiple jobs doing asynchronous I/Os from deadlocking each
--	 * other waiting for zone locks when building an io_u batch, first
--	 * only trylock the zone. If the zone is already locked by another job,
--	 * process the currently queued I/Os so that I/O progress is made and
--	 * zones unlocked.
--	 */
--	if (pthread_mutex_trylock(&z->mutex) != 0) {
--		if (!td_ioengine_flagged(td, FIO_SYNCIO))
--			io_u_quiesce(td);
--		pthread_mutex_lock(&z->mutex);
--	}
--}
--
- /* Anything goes as long as it is not a constant. */
- static uint32_t pick_random_zone_idx(const struct fio_file *f,
- 				     const struct io_u *io_u)
--- 
-2.25.1
-
+On 2020/04/30 21:41, Alexey Dobriyan wrote:=0A=
+> There is no reason for it to be recursive. Resursiveness leaked from=0A=
+> zi->mutex.=0A=
+> =0A=
+> Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>=0A=
+> ---=0A=
+>  zbd.c | 18 ++++++++++++------=0A=
+>  1 file changed, 12 insertions(+), 6 deletions(-)=0A=
+> =0A=
+> diff --git a/zbd.c b/zbd.c=0A=
+> index a517349a..18cedfce 100644=0A=
+> --- a/zbd.c=0A=
+> +++ b/zbd.c=0A=
+> @@ -373,9 +373,9 @@ static int init_zone_info(struct thread_data *td, str=
+uct fio_file *f)=0A=
+>  		return -ENOMEM;=0A=
+>  =0A=
+>  	pthread_mutexattr_init(&attr);=0A=
+> -	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);=0A=
+>  	pthread_mutexattr_setpshared(&attr, true);=0A=
+>  	pthread_mutex_init(&zbd_info->mutex, &attr);=0A=
+> +	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);=0A=
+>  	zbd_info->refcount =3D 1;=0A=
+>  	p =3D &zbd_info->zone_info[0];=0A=
+>  	for (i =3D 0; i < nr_zones; i++, p++) {=0A=
+> @@ -417,7 +417,6 @@ static int parse_zone_info(struct thread_data *td, st=
+ruct fio_file *f)=0A=
+>  	int i, j, ret =3D 0;=0A=
+>  =0A=
+>  	pthread_mutexattr_init(&attr);=0A=
+> -	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);=0A=
+>  	pthread_mutexattr_setpshared(&attr, true);=0A=
+>  =0A=
+>  	zones =3D calloc(ZBD_REPORT_MAX_ZONES, sizeof(struct zbd_zone));=0A=
+> @@ -454,6 +453,7 @@ static int parse_zone_info(struct thread_data *td, st=
+ruct fio_file *f)=0A=
+>  	if (!zbd_info)=0A=
+>  		goto out;=0A=
+>  	pthread_mutex_init(&zbd_info->mutex, &attr);=0A=
+> +	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);=0A=
+>  	zbd_info->refcount =3D 1;=0A=
+>  	p =3D &zbd_info->zone_info[0];=0A=
+>  	for (offset =3D 0, j =3D 0; j < nr_zones;) {=0A=
+> @@ -801,14 +801,20 @@ static int zbd_reset_zones(struct thread_data *td, =
+struct fio_file *f,=0A=
+>   * Reset zbd_info.write_cnt, the counter that counts down towards the ne=
+xt=0A=
+>   * zone reset.=0A=
+>   */=0A=
+> -static void zbd_reset_write_cnt(const struct thread_data *td,=0A=
+> -				const struct fio_file *f)=0A=
+> +static void _zbd_reset_write_cnt(const struct thread_data *td,=0A=
+> +				 const struct fio_file *f)=0A=
+>  {=0A=
+>  	assert(0 <=3D td->o.zrf.u.f && td->o.zrf.u.f <=3D 1);=0A=
+>  =0A=
+> -	pthread_mutex_lock(&f->zbd_info->mutex);=0A=
+>  	f->zbd_info->write_cnt =3D td->o.zrf.u.f ?=0A=
+>  		min(1.0 / td->o.zrf.u.f, 0.0 + UINT_MAX) : UINT_MAX;=0A=
+> +}=0A=
+> +=0A=
+> +static void zbd_reset_write_cnt(const struct thread_data *td,=0A=
+> +				const struct fio_file *f)=0A=
+> +{=0A=
+> +	pthread_mutex_lock(&f->zbd_info->mutex);=0A=
+> +	_zbd_reset_write_cnt(td, f);=0A=
+>  	pthread_mutex_unlock(&f->zbd_info->mutex);=0A=
+>  }=0A=
+>  =0A=
+> @@ -822,7 +828,7 @@ static bool zbd_dec_and_reset_write_cnt(const struct =
+thread_data *td,=0A=
+>  	if (f->zbd_info->write_cnt)=0A=
+>  		write_cnt =3D --f->zbd_info->write_cnt;=0A=
+>  	if (write_cnt =3D=3D 0)=0A=
+> -		zbd_reset_write_cnt(td, f);=0A=
+> +		_zbd_reset_write_cnt(td, f);=0A=
+>  	pthread_mutex_unlock(&f->zbd_info->mutex);=0A=
+>  =0A=
+>  	return write_cnt =3D=3D 0;=0A=
+> =0A=
+=0A=
+Looks good.=0A=
+=0A=
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
+=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
