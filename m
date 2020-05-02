@@ -1,132 +1,97 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39282 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726062AbgEOMAK (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 15 May 2020 08:00:10 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65B82C061A0C
-        for <fio@vger.kernel.org>; Fri, 15 May 2020 05:00:10 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jZZ0Z-0006Oi-2t
-        for fio@vger.kernel.org; Fri, 15 May 2020 12:00:09 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20200515120002.077A01BC0163@kernel.dk>
-Date: Fri, 15 May 2020 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <prvs=38445ce10=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH 5/7] zbd: consolidate zone mutex initialisation
+Date: Sat, 2 May 2020 04:39:24 +0000
+Message-ID: 
+ <BY5PR04MB69005BF5B2D6789D3132288CE7A80@BY5PR04MB6900.namprd04.prod.outlook.com>
+References: <20200430124050.20146-1-adobriyan@gmail.com>
+ <20200430124050.20146-5-adobriyan@gmail.com>
+ <BY5PR04MB69009FD94999AC765AA1E25AE7AB0@BY5PR04MB6900.namprd04.prod.outlook.com>
+ <20200501183734.GA32674@avx2>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 3ac77f9f5f7e3f2a5f9dababae810565f4c72eb7:
-
-  Merge branch 'helper-thread-select' of https://github.com/vincentkfu/fio (2020-05-13 08:10:32 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 723f9bc5fe77ae8bedc08ed3ec3a25426b48c096:
-
-  Merge branch 'rados' of https://github.com/vincentkfu/fio (2020-05-14 11:47:17 -0600)
-
-----------------------------------------------------------------
-Adam Kupczyk (1):
-      engines/rados: Added waiting for completion on cleanup.
-
-Jens Axboe (2):
-      Merge branch 'rados-cleanup-wait' of https://github.com/aclamk/fio
-      Merge branch 'rados' of https://github.com/vincentkfu/fio
-
-Vincent Fu (1):
-      engines/rados: fix build issue with thread_cond_t vs pthread_cond_t
-
- engines/rados.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/engines/rados.c b/engines/rados.c
-index 30fcebb5..d4413427 100644
---- a/engines/rados.c
-+++ b/engines/rados.c
-@@ -12,13 +12,15 @@
- #include "../optgroup.h"
- 
- struct rados_data {
--        rados_t cluster;
--        rados_ioctx_t io_ctx;
--        struct io_u **aio_events;
--        bool connected;
--        pthread_mutex_t completed_lock;
--        pthread_cond_t completed_more_io;
--        struct flist_head completed_operations;
-+	rados_t cluster;
-+	rados_ioctx_t io_ctx;
-+	struct io_u **aio_events;
-+	bool connected;
-+	pthread_mutex_t completed_lock;
-+	pthread_cond_t completed_more_io;
-+	struct flist_head completed_operations;
-+	uint64_t ops_scheduled;
-+	uint64_t ops_completed;
- };
- 
- struct fio_rados_iou {
-@@ -101,6 +103,8 @@ static int _fio_setup_rados_data(struct thread_data *td,
- 	pthread_mutex_init(&rados->completed_lock, NULL);
- 	pthread_cond_init(&rados->completed_more_io, NULL);
- 	INIT_FLIST_HEAD(&rados->completed_operations);
-+	rados->ops_scheduled = 0;
-+	rados->ops_completed = 0;
- 	*rados_data_ptr = rados;
- 	return 0;
- 
-@@ -227,8 +231,11 @@ static void _fio_rados_disconnect(struct rados_data *rados)
- static void fio_rados_cleanup(struct thread_data *td)
- {
- 	struct rados_data *rados = td->io_ops_data;
--
- 	if (rados) {
-+		pthread_mutex_lock(&rados->completed_lock);
-+		while (rados->ops_scheduled != rados->ops_completed)
-+			pthread_cond_wait(&rados->completed_more_io, &rados->completed_lock);
-+		pthread_mutex_unlock(&rados->completed_lock);
- 		_fio_rados_rm_objects(td, rados);
- 		_fio_rados_disconnect(rados);
- 		free(rados->aio_events);
-@@ -244,6 +251,7 @@ static void complete_callback(rados_completion_t cb, void *arg)
- 	assert(rados_aio_is_complete(fri->completion));
- 	pthread_mutex_lock(&rados->completed_lock);
- 	flist_add_tail(&fri->list, &rados->completed_operations);
-+	rados->ops_completed++;
- 	pthread_mutex_unlock(&rados->completed_lock);
- 	pthread_cond_signal(&rados->completed_more_io);
- }
-@@ -272,6 +280,7 @@ static enum fio_q_status fio_rados_queue(struct thread_data *td,
- 			log_err("rados_write failed.\n");
- 			goto failed_comp;
- 		}
-+		rados->ops_scheduled++;
- 		return FIO_Q_QUEUED;
- 	} else if (io_u->ddir == DDIR_READ) {
- 		r = rados_aio_create_completion(fri, complete_callback,
-@@ -286,6 +295,7 @@ static enum fio_q_status fio_rados_queue(struct thread_data *td,
- 			log_err("rados_aio_read failed.\n");
- 			goto failed_comp;
- 		}
-+		rados->ops_scheduled++;
- 		return FIO_Q_QUEUED;
- 	} else if (io_u->ddir == DDIR_TRIM) {
- 		r = rados_aio_create_completion(fri, complete_callback,
-@@ -307,6 +317,7 @@ static enum fio_q_status fio_rados_queue(struct thread_data *td,
- 			log_err("rados_aio_write_op_operate failed.\n");
- 			goto failed_write_op;
- 		}
-+		rados->ops_scheduled++;
- 		return FIO_Q_QUEUED;
- 	 }
- 
+On 2020/05/02 3:37, Alexey Dobriyan wrote:=0A=
+> On Fri, May 01, 2020 at 01:44:26AM +0000, Damien Le Moal wrote:=0A=
+>> On 2020/04/30 21:41, Alexey Dobriyan wrote:=0A=
+>>> Another mutex is coming!=0A=
+>>=0A=
+>> That is not very descriptive at all.=0A=
+>> What the patch does is to make the per zone mutex initialization code co=
+mmon=0A=
+>> between init_zone_info() and parse_zone_info(), moving it to create_zone=
+_info().=0A=
+> =0A=
+>>> @@ -546,11 +532,27 @@ static int zbd_create_zone_info(struct thread_dat=
+a *td, struct fio_file *f)=0A=
+>>>  		return -EINVAL;=0A=
+>>>  	}=0A=
+>>>  =0A=
+>>> -	if (ret =3D=3D 0) {=0A=
+>>> -		f->zbd_info->model =3D zbd_model;=0A=
+>>> -		f->zbd_info->max_open_zones =3D td->o.global_max_open_zones;=0A=
+>>> +	if (ret)=0A=
+>>> +		return ret;=0A=
+>>> +=0A=
+>>> +	zbd =3D f->zbd_info;=0A=
+>>> +	zbd->model =3D zbd_model;=0A=
+>>> +	zbd->max_open_zones =3D td->o.global_max_open_zones;=0A=
+>>> +	{=0A=
+>>> +		pthread_mutexattr_t attr;=0A=
+>>=0A=
+>> If you move this declaration to the beginning of zbd_create_zone_info(),=
+ you can=0A=
+>> avoid this block code, which does not look pretty.=0A=
+> =0A=
+> It is done on purpose, to move declaration closer to usage.=0A=
+=0A=
+I understood that. But it is visually not pleasing in my opinion and does n=
+ot=0A=
+match the general coding style used in fio.=0A=
+Just make that mutex initialization code block an inline function. That wil=
+l=0A=
+cleanup things nicely.=0A=
+=0A=
+> fio is built with -std=3Dgnu99 _and_ -Wdeclaration-after-statement which=
+=0A=
+> prevents=0A=
+> =0A=
+> 	a =3D b;=0A=
+> 	int c;=0A=
+> 	c =3D d;=0A=
+> =0A=
+> modern style of declaration.=0A=
+> =0A=
+>>> +		pthread_mutexattr_init(&attr);=0A=
+>>> +		pthread_mutexattr_setpshared(&attr, true);=0A=
+>>> +		pthread_mutex_init(&zbd->mutex, &attr);=0A=
+>>> +		pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);=0A=
+>>> +		for (uint32_t z =3D 0; z < zbd->nr_zones; z++) {=0A=
+>>> +			struct fio_zone_info *zi =3D &zbd->zone_info[z];=0A=
+>>> +=0A=
+>>> +			pthread_mutex_init(&zi->mutex, &attr);=0A=
+>>> +		}=0A=
+>>> +		pthread_mutexattr_destroy(&attr);=0A=
+>>>  	}=0A=
+>>> -	return ret;=0A=
+>>> +	return 0;=0A=
+>>>  }=0A=
+>>>  =0A=
+>>>  void zbd_free_zone_info(struct fio_file *f)=0A=
+>>>=0A=
+>>=0A=
+>> With the nits above fixed, Looks good to me.=0A=
+>>=0A=
+>> Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
+> =0A=
+=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
