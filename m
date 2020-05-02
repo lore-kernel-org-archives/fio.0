@@ -1,61 +1,47 @@
-Return-Path: <prvs=407053df0=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH 1/4] libzbc: cleanup init code
-Date: Tue, 26 May 2020 06:32:53 +0900
-Message-Id: <20200525213256.7476-2-dmitry.fomichev@wdc.com>
-In-Reply-To: <20200525213256.7476-1-dmitry.fomichev@wdc.com>
-References: <20200525213256.7476-1-dmitry.fomichev@wdc.com>
+Return-Path: <prvs=38445ce10=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH 1/7] zbd: bump ZBD_MAX_OPEN_ZONES
+Date: Sat, 2 May 2020 04:37:11 +0000
+Message-ID: 
+ <BY5PR04MB6900A72C37A609FCE0C66115E7A80@BY5PR04MB6900.namprd04.prod.outlook.com>
+References: <20200430124050.20146-1-adobriyan@gmail.com>
+ <BY5PR04MB690069FD2724EB40CA9AC828E7AB0@BY5PR04MB6900.namprd04.prod.outlook.com>
+ <20200501144702.GA15160@avx2>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-Make sure every allocated data structure gets freed in case of
-unsuccessful libzbc ioengine initialization.
-
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- engines/libzbc.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
-
-diff --git a/engines/libzbc.c b/engines/libzbc.c
-index 8c682de6..2f6b4583 100644
---- a/engines/libzbc.c
-+++ b/engines/libzbc.c
-@@ -92,15 +92,12 @@ static int libzbc_open_dev(struct thread_data *td, struct fio_file *f,
- 	if (ret) {
- 		log_err("%s: zbc_open() failed, err=%d\n",
- 			f->file_name, ret);
--		return ret;
-+		goto err;
- 	}
- 
- 	ret = libzbc_get_dev_info(ld, f);
--	if (ret) {
--		zbc_close(ld->zdev);
--		free(ld);
--		return ret;
--	}
-+	if (ret)
-+		goto err_close;
- 
- 	td->io_ops_data = ld;
- out:
-@@ -108,6 +105,12 @@ out:
- 		*p_ld = ld;
- 
- 	return 0;
-+
-+err_close:
-+	zbc_close(ld->zdev);
-+err:
-+	free(ld);
-+	return ret;
- }
- 
- static int libzbc_close_dev(struct thread_data *td)
--- 
-2.21.0
-
+On 2020/05/01 23:47, Alexey Dobriyan wrote:=0A=
+> On Fri, May 01, 2020 at 01:19:10AM +0000, Damien Le Moal wrote:=0A=
+>> On 2020/04/30 21:41, Alexey Dobriyan wrote:=0A=
+> =0A=
+>>> -#define ZBD_MAX_OPEN_ZONES	128=0A=
+>>> +#define ZBD_MAX_OPEN_ZONES	4096=0A=
+>>>  =0A=
+>>>  /*=0A=
+>>>   * Zoned block device models.=0A=
+>>>=0A=
+>>=0A=
+>> Makes sense. ZNS will will need this.=0A=
+> =0A=
+> Oh yeah :^) 128 opened zones doesn't cut it.=0A=
+> =0A=
+>> Note: You did not send a cover letter for the series. Please add it for =
+the next=0A=
+>> round.=0A=
+> =0A=
+> There is no cover letter, fixes are really independent.=0A=
+=0A=
+Even in such case, a cover letter is still useful for Jens to ack all patch=
+es in=0A=
+one go instead of having to answer each patch email.=0A=
+=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
