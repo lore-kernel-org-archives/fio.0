@@ -1,139 +1,54 @@
-Return-Path: <adobriyan@gmail.com>
-Return-Path: <adobriyan@gmail.com>
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: [PATCH 6/9] zbd: consolidate zone mutex initialisation
-Date: Tue,  5 May 2020 20:56:32 +0300
-Message-Id: <20200505175634.2517-6-adobriyan@gmail.com>
-In-Reply-To: <20200505175634.2517-1-adobriyan@gmail.com>
-References: <20200505175634.2517-1-adobriyan@gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mx0b-002e3701.pphosted.com ([148.163.143.35]:33702 "EHLO
+        mx0b-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728223AbgEDXta (ORCPT
+        <rfc822;fio@vger.kernel.org>); Mon, 4 May 2020 19:49:30 -0400
+From: "Elliott, Robert (Servers)" <elliott@hpe.com>
+Subject: RE: Monitoring disk i/o in Windows
+Date: Mon, 4 May 2020 23:49:26 +0000
+Message-ID: <CS1PR8401MB1237414481692503AEFFF3D1ABA60@CS1PR8401MB1237.NAMPRD84.PROD.OUTLOOK.COM>
+References: <CABO+gV9UbBAb1DEtf7zzNnTwUhiSAsSVcm5wCbFHC_ZvRi-tyA@mail.gmail.com>
+In-Reply-To: <CABO+gV9UbBAb1DEtf7zzNnTwUhiSAsSVcm5wCbFHC_ZvRi-tyA@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, damien.lemoal@wdc.com, Alexey Dobriyan <adobriyan@gmail.com>
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Elliott Balsley <elliott@altsystems.com>, fio <fio@vger.kernel.org>
 
-Initialise everything that is not write pointers coming from device or
-faked separatedly.
-
-More stuff (verification in ZBD mode and ->write_mutex) will be added.
-
-Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
----
- zbd.c | 39 ++++++++++++++++++++-------------------
- 1 file changed, 20 insertions(+), 19 deletions(-)
-
-diff --git a/zbd.c b/zbd.c
-index 2926bae9..df46da42 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -351,7 +351,6 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
- 	struct fio_zone_info *p;
- 	uint64_t zone_size = td->o.zone_size;
- 	struct zoned_block_device_info *zbd_info = NULL;
--	pthread_mutexattr_t attr;
- 	int i;
- 
- 	if (zone_size == 0) {
-@@ -372,14 +371,9 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
- 	if (!zbd_info)
- 		return -ENOMEM;
- 
--	pthread_mutexattr_init(&attr);
--	pthread_mutexattr_setpshared(&attr, true);
--	pthread_mutex_init(&zbd_info->mutex, &attr);
--	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
- 	zbd_info->refcount = 1;
- 	p = &zbd_info->zone_info[0];
- 	for (i = 0; i < nr_zones; i++, p++) {
--		pthread_mutex_init(&p->mutex, &attr);
- 		p->start = i * zone_size;
- 		p->wp = p->start + zone_size;
- 		p->type = ZBD_ZONE_TYPE_SWR;
-@@ -393,7 +387,6 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
- 	f->zbd_info->zone_size_log2 = is_power_of_2(zone_size) ?
- 		ilog2(zone_size) : 0;
- 	f->zbd_info->nr_zones = nr_zones;
--	pthread_mutexattr_destroy(&attr);
- 	return 0;
- }
- 
-@@ -413,12 +406,8 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- 	struct fio_zone_info *p;
- 	uint64_t zone_size, offset;
- 	struct zoned_block_device_info *zbd_info = NULL;
--	pthread_mutexattr_t attr;
- 	int i, j, ret = 0;
- 
--	pthread_mutexattr_init(&attr);
--	pthread_mutexattr_setpshared(&attr, true);
--
- 	zones = calloc(ZBD_REPORT_MAX_ZONES, sizeof(struct zbd_zone));
- 	if (!zones)
- 		goto out;
-@@ -452,14 +441,11 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- 	ret = -ENOMEM;
- 	if (!zbd_info)
- 		goto out;
--	pthread_mutex_init(&zbd_info->mutex, &attr);
--	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
- 	zbd_info->refcount = 1;
- 	p = &zbd_info->zone_info[0];
- 	for (offset = 0, j = 0; j < nr_zones;) {
- 		z = &zones[0];
- 		for (i = 0; i < nrz; i++, j++, z++, p++) {
--			pthread_mutex_init(&p->mutex, &attr);
- 			p->start = z->start;
- 			switch (z->cond) {
- 			case ZBD_ZONE_COND_NOT_WP:
-@@ -510,7 +496,6 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- out:
- 	sfree(zbd_info);
- 	free(zones);
--	pthread_mutexattr_destroy(&attr);
- 	return ret;
- }
- 
-@@ -521,7 +506,9 @@ out:
-  */
- static int zbd_create_zone_info(struct thread_data *td, struct fio_file *f)
- {
-+	struct zoned_block_device_info *zbd;
- 	enum zbd_zoned_model zbd_model;
-+	pthread_mutexattr_t attr;
- 	int ret;
- 
- 	assert(td->o.zone_mode == ZONE_MODE_ZBD);
-@@ -546,11 +533,25 @@ static int zbd_create_zone_info(struct thread_data *td, struct fio_file *f)
- 		return -EINVAL;
- 	}
- 
--	if (ret == 0) {
--		f->zbd_info->model = zbd_model;
--		f->zbd_info->max_open_zones = td->o.max_open_zones;
-+	if (ret)
-+		return ret;
-+
-+	zbd = f->zbd_info;
-+	zbd->model = zbd_model;
-+	zbd->max_open_zones = td->o.max_open_zones;
-+
-+	pthread_mutexattr_init(&attr);
-+	pthread_mutexattr_setpshared(&attr, true);
-+	pthread_mutex_init(&zbd->mutex, &attr);
-+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-+	for (uint32_t z = 0; z < zbd->nr_zones; z++) {
-+		struct fio_zone_info *zi = &zbd->zone_info[z];
-+
-+		pthread_mutex_init(&zi->mutex, &attr);
- 	}
--	return ret;
-+	pthread_mutexattr_destroy(&attr);
-+
-+	return 0;
- }
- 
- void zbd_free_zone_info(struct fio_file *f)
--- 
-2.26.2
-
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBmaW8tb3duZXJAdmdlci5rZXJu
+ZWwub3JnIDxmaW8tb3duZXJAdmdlci5rZXJuZWwub3JnPiBPbiBCZWhhbGYNCj4gT2YgRWxsaW90
+dCBCYWxzbGV5DQo+IFNlbnQ6IFRodXJzZGF5LCBBcHJpbCAzMCwgMjAyMCAzOjUyIFBNDQo+IFRv
+OiBmaW8gPGZpb0B2Z2VyLmtlcm5lbC5vcmc+DQo+IFN1YmplY3Q6IE1vbml0b3JpbmcgZGlzayBp
+L28gaW4gV2luZG93cw0KPiANCj4gSSBidWlsdCBhIFdpbmRvd3MgMjAxOSBzZXJ2ZXIgd2l0aCBh
+biBOVk1lIHN0b3JhZ2UgcG9vbCBhbmQgSSdtIHVzaW5nDQo+IGZpbyB0byB0ZXN0IHBlcmZvcm1h
+bmNlLiAgUmVzdWx0cyBmcm9tIGZpbyBhcmUgaW4gbGluZSB3aXRoIG15DQo+IGV4cGVjdGF0aW9u
+cyBmb3IgdGhpcyBoYXJkd2FyZSwgYnV0IEkgbm90aWNlZCBzb21ldGhpbmcgc3RyYW5nZSB3aXRo
+DQo+IFdpbmRvd3MgUGVyZm9ybWFuY2UgTW9uaXRvci4gIFRoZSBwaHlzaWNhbCBkaXNrIHIvdyB0
+aHJvdWdocHV0DQo+IGNvdW50ZXJzIGFyZSByb3VnaGx5IGRvdWJsZSB3aGF0IHRoZXkgc2hvdWxk
+IGJlLiAgVGhpcyBob2xkcyB0cnVlIGZvcg0KPiB2YXJpb3VzIGRpZmZlcmVudCBpb2RlcHRoLCBu
+dW1qb2JzLCBhbmQgYmxvY2sgc2l6ZSBvcHRpb25zLiAgTG9naWNhbA0KPiBEaXNrIHRocm91Z2hw
+dXQgY291bnRlcnMgYXJlIGFjY3VyYXRlLiAgSW4gdGhpcyBzY3JlZW5zaG90LCBmaW8gc2hvd3MN
+Cj4gMTEuMUdpQi9zIGFuZCB0aGUgcGh5c2ljYWwgZGlzayBzaG93cyBhYm91dCAyMi4yIEdpQi9z
+LiAgSXMgdGhlcmUgYQ0KPiBsb2dpY2FsIGV4cGxhbmF0aW9uIGZvciB0aGlzPyAgT3IgaXMgdGhl
+cmUgYSBiZXR0ZXIgZGlzayBtb25pdG9yaW5nDQo+IHRvb2wgdG8gdXNlLCBzb21ldGhpbmcgbGlr
+ZSBpb3N0YXQgZm9yIFdpbmRvd3M/DQo+IA0KPiBodHRwczovL2kucG9zdGltZy5jYy96cXJXOFpQ
+ay93aW5kb3dzLWZpby5wbmc/ZGw9MQ0KPiANCj4gVGhlIHN0b3JhZ2UgcG9vbCBpcyBjcmVhdGVk
+IGFzIGEgc2ltcGxlIHN0cmlwZSB3aXRoIG5vIHBhcml0eSBvcg0KPiBtaXJyb3JpbmcgYW5kIGZv
+cm1hdHRlZCBhcyBSZUZTLg0KDQpXcml0aW5nIHRvIGZpbGVzIG1lYW5zIHlvdSdyZSBzdWJqZWN0
+IHRvIGhvd2V2ZXIgdGhlIGZpbGVzeXN0ZW0NCndvcmtzLiBNYXliZSBpdCdzIHdyaXRpbmcgZXZl
+cnl0aGluZyB0d2ljZSBhcyBwYXJ0IG9mIGpvdXJuYWxpbmc/DQpBY2Nlc3NpbmcgdGhlIHJhdyBw
+aHlzaWNhbCBkZXZpY2Ugd291bGQgYmUgc2ltcGxlci4NCg0KSXQgbG9va3MgbGlrZSBmaW8ncyAx
+IE1pQiBJT3MgYXJlIGdldHRpbmcgc3BsaXQgaW50byBzbWFsbGVyIElPcy4gQWx0aG91Z2gNCnlv
+dXIgTG9naWNhbERpc2sgQXZnIERpc2sgQnl0ZXMvV3JpdGUgaXMgMSBNaUIsIHRoZSBQaHlzaWNh
+bERpc2sgcmVwb3J0cw0KNDE5LDQyMi4xMDEgYnl0ZXMgKHdoaWNoIGlzIGp1c3QgYmVsb3cgNDAw
+IEtpQikuDQoNCklmIG5vdCBqdXN0IGZ1bmRhbWVudGFsIHRvIHRoZSBmaWxlc3lzdGVtLCBpdCBt
+aWdodCBiZSBleGNlZWRpbmcgYSBsaW1pdA0Kc29tZXdoZXJlIGluIHRoZSBzdGFjayAoZS5nLiwg
+dG9vIG1hbnkgc2NhdHRlci1nYXRoZXIgbGlzdCBlbnRyaWVzIG9yDQpQUlAgZW50cmllcykuIH4x
+MCB5ZWFycyBhZ28gd2UgcmFuIGludG8gYSBsaW1pdCBzb21ld2hlcmUgaW4gdGhlIHN0YWNrDQpv
+ZiAyNTUgbWF4IFNHIGVudHJpZXMsIHdpdGggZWFjaCBlbnRyeSBkZXNjcmliaW5nIG9uZSA0IEtp
+QiBDUFUgcGFnZSwNCndoaWNoIHdhcyA0IEtpQiBzaG9ydCBvZiBhIDEgTWlCIHRyYW5zZmVyIHNp
+emUuIFRoYXQga2VwdCAxIE1pQiBJT3MNCmZyb20gZ29pbmcgdGhyb3VnaCBpbiBXaW5kb3dzLg0K
+DQo=
 
