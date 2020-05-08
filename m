@@ -1,64 +1,43 @@
-Return-Path: <prvs=407053df0=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH 3/4] t/zbd: beautify test script output
-Date: Tue, 26 May 2020 06:32:55 +0900
-Message-Id: <20200525213256.7476-4-dmitry.fomichev@wdc.com>
-In-Reply-To: <20200525213256.7476-1-dmitry.fomichev@wdc.com>
-References: <20200525213256.7476-1-dmitry.fomichev@wdc.com>
+Return-Path: <prvs=390c41bd8=damien.lemoal@wdc.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH v2 7/7] t/zbd: Use max-jobs=16 option
+Date: Fri,  8 May 2020 16:56:45 +0900
+Message-Id: <20200508075645.543890-8-damien.lemoal@wdc.com>
+In-Reply-To: <20200508075645.543890-1-damien.lemoal@wdc.com>
+References: <20200508075645.543890-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-The test printout columns are better aligned now. Also, the test
-result, PASS/FAIL, is now color-coded and that makes it easier
-to spot failures.
+Use max-jobs option to reduce memory usage and speedup execution of
+test-zbd-support.
 
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+With --max-jobs=16, twice the largest number of jobs used in all test
+cases, the execution time of test-zbd-support against a zoned nullblk
+device is lowered from 64s to 41s on a laptop.
+
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 ---
- t/zbd/test-zbd-support | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ t/zbd/test-zbd-support | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index de05f438..51b05dfd 100755
+index be889f34..de05f438 100755
 --- a/t/zbd/test-zbd-support
 +++ b/t/zbd/test-zbd-support
-@@ -929,19 +929,31 @@ logfile=$0.log
+@@ -93,8 +93,8 @@ run_fio() {
  
- passed=0
- failed=0
-+if [ -t 1 ]; then
-+    red="\e[1;31m"
-+    green="\e[1;32m"
-+    end="\e[m"
-+else
-+    red=""
-+    green=""
-+    end=""
-+fi
- rc=0
-+
- for test_number in "${tests[@]}"; do
-     rm -f "${logfile}.${test_number}"
--    echo -n "Running test $test_number ... "
-+    echo -n "Running test $(printf "%02d" $test_number) ... "
-     if eval "test$test_number"; then
- 	status="PASS"
-+	cc_status="${green}${status}${end}"
- 	((passed++))
-     else
- 	status="FAIL"
-+	cc_status="${red}${status}${end}"
- 	((failed++))
- 	rc=1
-     fi
--    echo "$status"
-+    echo -e "$cc_status"
-     echo "$status" >> "${logfile}.${test_number}"
- done
+     fio=$(dirname "$0")/../../fio
+ 
+-    opts=("--aux-path=/tmp" "--allow_file_create=0" \
+-			    "--significant_figures=10" "$@")
++    opts=("--max-jobs=16" "--aux-path=/tmp" "--allow_file_create=0" \
++	  "--significant_figures=10" "$@")
+     opts+=(${var_opts[@]})
+     { echo; echo "fio ${opts[*]}"; echo; } >>"${logfile}.${test_number}"
  
 -- 
-2.21.0
+2.25.4
 
 
