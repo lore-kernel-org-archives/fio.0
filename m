@@ -1,53 +1,41 @@
-Return-Path: <plabat@micron.com>
-From: <plabat@micron.com>
-Subject: [PATCH] Allow sequential read to start anywhere in a zone (option offset), and have a span smaller than a zone (option size).
-Date: Fri, 15 May 2020 11:22:13 -0500
-Message-ID: <20200515162213.1035-1-plabat@micron.com>
+Return-Path: <prvs=390c41bd8=damien.lemoal@wdc.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH v2 1/7] iolog: Fix write_iolog_close()
+Date: Fri,  8 May 2020 16:56:39 +0900
+Message-Id: <20200508075645.543890-2-damien.lemoal@wdc.com>
+In-Reply-To: <20200508075645.543890-1-damien.lemoal@wdc.com>
+References: <20200508075645.543890-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Return-Path: plabat@micron.com
-To: damien.lemoal@wdc.com
-Cc: axboe@kernel.dk, fio@vger.kernel.org, Pierre Labat <plabat@micron.com>
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-From: Pierre Labat <plabat@micron.com>
+If the init_iolog() call from backend.c thread_main() fails (e.g. wrong
+file path given), td->iolog_f is not set but write_iolog_close() is
+still called from thread_main() error processing. This causes a seg
+fault and unclean termination of fio. Fix this by changing
+write_iolog_close() to do nothing if td->iolog_f is NULL.
 
-Allow sequential read to start anywhere in a zone (option
-offset), and have a span smaller than a zone (option size).
-
-A use case is a Key Value Store reading a set of keys or values
-starting somewhere in a zone.
-
-Signed-off-by: Pierre Labat <plabat@micron.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 ---
- zbd.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ iolog.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/zbd.c b/zbd.c
-index 8dc3c39..f1f7c5c 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -262,7 +262,8 @@ static bool zbd_verify_sizes(void)
+diff --git a/iolog.c b/iolog.c
+index 917a446c..4a79fc46 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -342,6 +342,9 @@ void trim_io_piece(const struct io_u *io_u)
  
- 			zone_idx = zbd_zone_idx(f, f->file_offset);
- 			z = &f->zbd_info->zone_info[zone_idx];
--			if (f->file_offset != z->start) {
-+			if ((f->file_offset != z->start) &&
-+			    (td->o.td_ddir != TD_DDIR_READ)) {
- 				new_offset = (z+1)->start;
- 				if (new_offset >= f->file_offset + f->io_size) {
- 					log_info("%s: io_size must be at least one zone\n",
-@@ -278,7 +279,8 @@ static bool zbd_verify_sizes(void)
- 			zone_idx = zbd_zone_idx(f, f->file_offset + f->io_size);
- 			z = &f->zbd_info->zone_info[zone_idx];
- 			new_end = z->start;
--			if (f->file_offset + f->io_size != new_end) {
-+			if ((td->o.td_ddir != TD_DDIR_READ) &&
-+			    (f->file_offset + f->io_size != new_end)) {
- 				if (new_end <= f->file_offset) {
- 					log_info("%s: io_size must be at least one zone\n",
- 						 f->file_name);
+ void write_iolog_close(struct thread_data *td)
+ {
++	if (!td->iolog_f)
++		return;
++
+ 	fflush(td->iolog_f);
+ 	fclose(td->iolog_f);
+ 	free(td->iolog_buf);
 -- 
-2.9.5
+2.25.4
 
 
