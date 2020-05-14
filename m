@@ -1,80 +1,65 @@
-Return-Path: <adobriyan@gmail.com>
-Return-Path: <adobriyan@gmail.com>
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: [PATCH 1/9] verify: decouple seed generation from buffer fill
-Date: Tue,  5 May 2020 20:56:27 +0300
-Message-Id: <20200505175634.2517-1-adobriyan@gmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, damien.lemoal@wdc.com, Alexey Dobriyan <adobriyan@gmail.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40254 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725955AbgENMAD (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 14 May 2020 08:00:03 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B32C061A0C
+        for <fio@vger.kernel.org>; Thu, 14 May 2020 05:00:03 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jZCWx-0002yo-81
+        for fio@vger.kernel.org; Thu, 14 May 2020 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200514120001.890BC1BC01AD@kernel.dk>
+Date: Thu, 14 May 2020 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-It is nicer this way and there will be more code in this area
-with ZBD verification.
+The following changes since commit 9bc878ed59deb6c4a031f4f3a8d1ff3bbdbbd14d:
 
-Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
+  Merge branch 'btrace2fio' of https://github.com/liu-song-6/fio (2020-05-11 12:09:31 -0600)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 3ac77f9f5f7e3f2a5f9dababae810565f4c72eb7:
+
+  Merge branch 'helper-thread-select' of https://github.com/vincentkfu/fio (2020-05-13 08:10:32 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'helper-thread-select' of https://github.com/vincentkfu/fio
+
+Vincent Fu (1):
+      helper_thread: better handle select() return value
+
+ helper_thread.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
 ---
- backend.c |  6 ------
- verify.c  | 20 +++++++-------------
- 2 files changed, 7 insertions(+), 19 deletions(-)
 
-diff --git a/backend.c b/backend.c
-index feb34e51..452975cf 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1006,12 +1006,6 @@ static void do_io(struct thread_data *td, uint64_t *bytes_done)
- 		if (td->o.verify != VERIFY_NONE && io_u->ddir == DDIR_READ &&
- 		    ((io_u->flags & IO_U_F_VER_LIST) || !td_rw(td))) {
- 
--			if (!td->o.verify_pattern_bytes) {
--				io_u->rand_seed = __rand(&td->verify_state);
--				if (sizeof(int) != sizeof(long *))
--					io_u->rand_seed *= __rand(&td->verify_state);
--			}
--
- 			if (verify_state_should_stop(td, io_u)) {
- 				put_io_u(td, io_u);
- 				break;
-diff --git a/verify.c b/verify.c
-index cf299ebf..b7fa6693 100644
---- a/verify.c
-+++ b/verify.c
-@@ -46,15 +46,6 @@ static void __fill_buffer(struct thread_options *o, uint64_t seed, void *p,
- 	__fill_random_buf_percentage(seed, p, o->compress_percentage, len, len, o->buffer_pattern, o->buffer_pattern_bytes);
- }
- 
--static uint64_t fill_buffer(struct thread_data *td, void *p,
--			    unsigned int len)
--{
--	struct frand_state *fs = &td->verify_state;
--	struct thread_options *o = &td->o;
--
--	return fill_random_buf_percentage(fs, p, o->compress_percentage, len, len, o->buffer_pattern, o->buffer_pattern_bytes);
--}
--
- void fill_verify_pattern(struct thread_data *td, void *p, unsigned int len,
- 			 struct io_u *io_u, uint64_t seed, int use_seed)
- {
-@@ -63,10 +54,13 @@ void fill_verify_pattern(struct thread_data *td, void *p, unsigned int len,
- 	if (!o->verify_pattern_bytes) {
- 		dprint(FD_VERIFY, "fill random bytes len=%u\n", len);
- 
--		if (use_seed)
--			__fill_buffer(o, seed, p, len);
--		else
--			io_u->rand_seed = fill_buffer(td, p, len);
-+		if (!use_seed) {
-+			seed = __rand(&td->verify_state);
-+			if (sizeof(int) != sizeof(long *))
-+				seed *= (unsigned long)__rand(&td->verify_state);
-+		}
-+		io_u->rand_seed = seed;
-+		__fill_buffer(o, seed, p, len);
- 		return;
- 	}
- 
--- 
-2.26.2
+Diff of recent changes:
 
+diff --git a/helper_thread.c b/helper_thread.c
+index ad1a08f3..a2fb7c29 100644
+--- a/helper_thread.c
++++ b/helper_thread.c
+@@ -194,10 +194,11 @@ static void *helper_thread_main(void *data)
+ 			FD_SET(hd->pipe[0], &rfds);
+ 			FD_ZERO(&efds);
+ 			FD_SET(hd->pipe[0], &efds);
+-			ret = select(1, &rfds, NULL, &efds, &timeout);
+-			if (ret < 0)
++			if (select(1, &rfds, NULL, &efds, &timeout) < 0) {
+ 				log_err("fio: select() call in helper thread failed: %s",
+ 					strerror(errno));
++				ret = 1;
++			}
+ 			if (read_from_pipe(hd->pipe[0], &action, sizeof(action)) <
+ 			    0)
+ 				action = 0;
 
