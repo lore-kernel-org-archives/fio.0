@@ -1,369 +1,256 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:34410 "EHLO
+Received: from merlin.infradead.org ([205.233.59.134]:36306 "EHLO
         merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725775AbgE2MAY (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 29 May 2020 08:00:24 -0400
+        with ESMTP id S1726949AbgESMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 19 May 2020 08:00:09 -0400
 Received: from [65.144.74.35] (helo=kernel.dk)
         by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jedgU-0004lf-8p
-        for fio@vger.kernel.org; Fri, 29 May 2020 12:00:22 +0000
+        id 1jb0um-0006fu-JA
+        for fio@vger.kernel.org; Tue, 19 May 2020 12:00:08 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20200529120002.4D1621BC0CCA@kernel.dk>
-Date: Fri, 29 May 2020 06:00:02 -0600 (MDT)
+Message-Id: <20200519120001.B58D61BC1055@kernel.dk>
+Date: Tue, 19 May 2020 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit c96b385b6e0c78478697713e6da9174fba2432d3:
+The following changes since commit 723f9bc5fe77ae8bedc08ed3ec3a25426b48c096:
 
-  t/zbd: make the test script easier to terminate (2020-05-25 18:21:45 -0600)
+  Merge branch 'rados' of https://github.com/vincentkfu/fio (2020-05-14 11:47:17 -0600)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to dacac3b936092aa73e29257fefcb7bf5658ec7cb:
+for you to fetch changes up to f09a7773f5821d5b89428419dcef1987ced39b67:
 
-  Merge branch 'python3-testing' of https://github.com/vincentkfu/fio (2020-05-28 13:27:15 -0600)
+  Allow more flexibility in zone start and span (2020-05-18 16:56:00 -0600)
 
 ----------------------------------------------------------------
-Jens Axboe (2):
-      Merge branch 'testing' of https://github.com/vincentkfu/fio
-      Merge branch 'python3-testing' of https://github.com/vincentkfu/fio
+Damien Le Moal (7):
+      iolog: Fix write_iolog_close()
+      zbd: Fix potential deadlock on read operations
+      zbd: Fix read with verify
+      zbd: Optimize zbd_file_reset()
+      zbd: Rename zbd_init()
+      io_u: Optimize set_rw_ddir()
+      t/zbd: Use max-jobs=16 option
 
-Shin'ichiro Kawasaki (2):
-      pshared: Add mutex_init_pshared_with_type()
-      zbd: Fix compilation error on BSD
+Pierre Labat (1):
+      Allow more flexibility in zone start and span
 
-Vincent Fu (5):
-      appveyor: use on_finish section to upload artifacts
-      t/run-fio-tests: pass-through arguments to test scripts
-      .travis: enable arm64 architecture builds
-      testing: change two test scripts to refer to python3
-      travis: install python3 scipy for Linux and macOS tests
-
- .appveyor.yml          |  6 +++---
- .travis.yml            | 26 ++++++++++++++++++--------
- pshared.c              | 15 ++++++++++++++-
- pshared.h              |  1 +
- t/run-fio-tests.py     | 27 ++++++++++++++++++---------
- t/steadystate_tests.py |  3 +--
- t/strided.py           |  3 +--
- zbd.c                  | 22 +++++++---------------
- 8 files changed, 63 insertions(+), 40 deletions(-)
+ filesetup.c            |  4 ++--
+ io_u.c                 |  3 ++-
+ iolog.c                |  3 +++
+ t/zbd/test-zbd-support |  4 ++--
+ zbd.c                  | 28 +++++++++++++---------------
+ zbd.h                  |  8 +++++++-
+ 6 files changed, 29 insertions(+), 21 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/.appveyor.yml b/.appveyor.yml
-index e2351be7..70c337f8 100644
---- a/.appveyor.yml
-+++ b/.appveyor.yml
-@@ -26,10 +26,10 @@ after_build:
- test_script:
-   - 'bash.exe -lc "cd \"${APPVEYOR_BUILD_FOLDER}\" && file.exe fio.exe && make.exe test'
-   - 'bash.exe -lc "cd \"${APPVEYOR_BUILD_FOLDER}\" && [ -f fio.exe ] && python.exe t/run-fio-tests.py --artifact-root test-artifacts --debug'
--  - 'bash.exe -lc "cd \"${APPVEYOR_BUILD_FOLDER}\" && [ -d test-artifacts ] && 7z a -t7z test-artifacts.7z test-artifacts -xr!foo.0.0 -xr!latency.?.0 -xr!fio_jsonplus_clat2csv.test'
+diff --git a/filesetup.c b/filesetup.c
+index 8a4091fc..49c54b81 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -1268,7 +1268,7 @@ done:
+ 	td_restore_runstate(td, old_state);
  
- artifacts:
-   - path: os\windows\*.msi
-     name: msi
--  - path: test-artifacts.7z
--    name: test-artifacts
-+
-+on_finish:
-+  - 'bash.exe -lc "cd \"${APPVEYOR_BUILD_FOLDER}\" && [ -d test-artifacts ] && 7z a -t7z test-artifacts.7z test-artifacts -xr!foo.0.0 -xr!latency.?.0 -xr!fio_jsonplus_clat2csv.test && appveyor PushArtifact test-artifacts.7z'
-diff --git a/.travis.yml b/.travis.yml
-index 77c31b77..eba16baa 100644
---- a/.travis.yml
-+++ b/.travis.yml
-@@ -5,6 +5,9 @@ os:
- compiler:
-   - clang
-   - gcc
-+arch:
-+  - amd64
-+  - arm64
- env:
-   matrix:
-     - BUILD_ARCH="x86"
-@@ -17,28 +20,34 @@ matrix:
-     - os: osx
-       compiler: clang # Workaround travis setting CC=["clang", "gcc"]
-       env: BUILD_ARCH="x86_64"
-+      arch: amd64
-     # Latest xcode image (needs periodic updating)
-     - os: osx
-       compiler: clang
-       osx_image: xcode11.2
-       env: BUILD_ARCH="x86_64"
-+      arch: amd64
-   exclude:
-     - os: osx
-       compiler: gcc
--  exclude:
-     - os: linux
-       compiler: clang
-+      arch: amd64
-       env: BUILD_ARCH="x86" # Only do the gcc x86 build to reduce clutter
-+    - os: linux
-+      env: BUILD_ARCH="x86"
-+      arch: arm64
-+
- before_install:
-   - EXTRA_CFLAGS="-Werror"
-   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-         pkgs=(libaio-dev libcunit1 libcunit1-dev libgoogle-perftools4 libibverbs-dev libiscsi-dev libnuma-dev librbd-dev librdmacm-dev libz-dev);
-         if [[ "$BUILD_ARCH" == "x86" ]]; then
-             pkgs=("${pkgs[@]/%/:i386}");
--            pkgs+=(gcc-multilib python-scipy);
-+            pkgs+=(gcc-multilib python3-scipy);
-             EXTRA_CFLAGS="${EXTRA_CFLAGS} -m32";
-         else
--            pkgs+=(glusterfs-common python-scipy);
-+            pkgs+=(glusterfs-common python3-scipy);
-         fi;
-         sudo apt-get -qq update;
-         sudo apt-get install --no-install-recommends -qq -y "${pkgs[@]}";
-@@ -46,12 +55,13 @@ before_install:
-   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-         brew update;
-         brew install cunit;
--        if [[ "$TRAVIS_OSX_IMAGE" == "xcode11.2" ]]; then
--            pip3 install scipy;
--        fi;
--        pip install scipy;
-+        pip3 install scipy;
-     fi;
- script:
-   - ./configure --extra-cflags="${EXTRA_CFLAGS}" && make
-   - make test
--  - sudo python3 t/run-fio-tests.py --skip 6 1007 1008 --debug
-+  - if [[ "$TRAVIS_CPU_ARCH" == "arm64" ]]; then
-+        sudo python3 t/run-fio-tests.py --skip 6 1007 1008 --debug -p 1010:"--skip 15 16 17 18 19 20";
-+    else
-+        sudo python3 t/run-fio-tests.py --skip 6 1007 1008 --debug;
-+    fi;
-diff --git a/pshared.c b/pshared.c
-index 21192556..791faf95 100644
---- a/pshared.c
-+++ b/pshared.c
-@@ -39,7 +39,7 @@ int cond_init_pshared(pthread_cond_t *cond)
- 	return 0;
- }
- 
--int mutex_init_pshared(pthread_mutex_t *mutex)
-+int mutex_init_pshared_with_type(pthread_mutex_t *mutex, int type)
- {
- 	pthread_mutexattr_t mattr;
- 	int ret;
-@@ -60,6 +60,14 @@ int mutex_init_pshared(pthread_mutex_t *mutex)
- 		return ret;
+ 	if (td->o.zone_mode == ZONE_MODE_ZBD) {
+-		err = zbd_init(td);
++		err = zbd_setup_files(td);
+ 		if (err)
+ 			goto err_out;
  	}
- #endif
-+	if (type) {
-+		ret = pthread_mutexattr_settype(&mattr, type);
-+		if (ret) {
-+			log_err("pthread_mutexattr_settype: %s\n",
-+				strerror(ret));
-+			return ret;
-+		}
-+	}
- 	ret = pthread_mutex_init(mutex, &mattr);
- 	if (ret) {
- 		log_err("pthread_mutex_init: %s\n", strerror(ret));
-@@ -69,6 +77,11 @@ int mutex_init_pshared(pthread_mutex_t *mutex)
- 	return 0;
- }
+@@ -1469,7 +1469,7 @@ void close_and_free_files(struct thread_data *td)
+ 			td_io_unlink_file(td, f);
+ 		}
  
-+int mutex_init_pshared(pthread_mutex_t *mutex)
-+{
-+	return mutex_init_pshared_with_type(mutex, 0);
-+}
-+
- int mutex_cond_init_pshared(pthread_mutex_t *mutex, pthread_cond_t *cond)
+-		zbd_free_zone_info(f);
++		zbd_close_file(f);
+ 
+ 		if (use_free)
+ 			free(f->file_name);
+diff --git a/io_u.c b/io_u.c
+index 18e94617..aa8808b8 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -746,7 +746,8 @@ static void set_rw_ddir(struct thread_data *td, struct io_u *io_u)
  {
- 	int ret;
-diff --git a/pshared.h b/pshared.h
-index a58df6fe..f33be462 100644
---- a/pshared.h
-+++ b/pshared.h
-@@ -3,6 +3,7 @@
+ 	enum fio_ddir ddir = get_rw_ddir(td);
  
- #include <pthread.h>
+-	ddir = zbd_adjust_ddir(td, io_u, ddir);
++	if (td->o.zone_mode == ZONE_MODE_ZBD)
++		ddir = zbd_adjust_ddir(td, io_u, ddir);
  
-+extern int mutex_init_pshared_with_type(pthread_mutex_t *, int);
- extern int mutex_init_pshared(pthread_mutex_t *);
- extern int cond_init_pshared(pthread_cond_t *);
- extern int mutex_cond_init_pshared(pthread_mutex_t *, pthread_cond_t *);
-diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
-index 763e0103..e7063d3e 100755
---- a/t/run-fio-tests.py
-+++ b/t/run-fio-tests.py
-@@ -122,10 +122,7 @@ class FioExeTest(FioTest):
-     def run(self):
-         """Execute the binary or script described by this instance."""
+ 	if (td_trimwrite(td)) {
+ 		struct fio_file *f = io_u->file;
+diff --git a/iolog.c b/iolog.c
+index 917a446c..4a79fc46 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -342,6 +342,9 @@ void trim_io_piece(const struct io_u *io_u)
  
--        if self.parameters:
--            command = [self.exe_path] + self.parameters
--        else:
--            command = [self.exe_path]
-+        command = [self.exe_path] + self.parameters
-         command_file = open(self.command_file, "w+")
-         command_file.write("%s\n" % command)
-         command_file.close()
-@@ -797,6 +794,8 @@ def parse_args():
-                         help='provide debug output')
-     parser.add_argument('-k', '--skip-req', action='store_true',
-                         help='skip requirements checking')
-+    parser.add_argument('-p', '--pass-through', action='append',
-+                        help='pass-through an argument to an executable test')
-     args = parser.parse_args()
- 
-     return args
-@@ -811,6 +810,17 @@ def main():
-     else:
-         logging.basicConfig(level=logging.INFO)
- 
-+    pass_through = {}
-+    if args.pass_through:
-+        for arg in args.pass_through:
-+            if not ':' in arg:
-+                print("Invalid --pass-through argument '%s'" % arg)
-+                print("Syntax for --pass-through is TESTNUMBER:ARGUMENT")
-+                return
-+            split = arg.split(":",1)
-+            pass_through[int(split[0])] = split[1]
-+        logging.debug("Pass-through arguments: %s" % pass_through)
+ void write_iolog_close(struct thread_data *td)
+ {
++	if (!td->iolog_f)
++		return;
 +
-     if args.fio_root:
-         fio_root = args.fio_root
-     else:
-@@ -874,13 +884,12 @@ def main():
-             if config['parameters']:
-                 parameters = [p.format(fio_path=fio_path) for p in config['parameters']]
-             else:
--                parameters = None
-+                parameters = []
-             if Path(exe_path).suffix == '.py' and platform.system() == "Windows":
--                if parameters:
--                    parameters.insert(0, exe_path)
--                else:
--                    parameters = [exe_path]
-+                parameters.insert(0, exe_path)
-                 exe_path = "python.exe"
-+            if config['test_id'] in pass_through:
-+                parameters += pass_through[config['test_id']].split()
-             test = config['test_class'](exe_path, parameters,
-                                         config['success'])
-         else:
-diff --git a/t/steadystate_tests.py b/t/steadystate_tests.py
-index e99b655c..e8bd768c 100755
---- a/t/steadystate_tests.py
-+++ b/t/steadystate_tests.py
-@@ -1,5 +1,4 @@
--#!/usr/bin/env python
--# Note: this script is python2 and python3 compatible.
-+#!/usr/bin/env python3
- #
- # steadystate_tests.py
- #
-diff --git a/t/strided.py b/t/strided.py
-index 6d34be8a..45e6f148 100755
---- a/t/strided.py
-+++ b/t/strided.py
-@@ -1,5 +1,4 @@
--#!/usr/bin/python
--# Note: this script is python2 and python3 compatible.
-+#!/usr/bin/env python3
- #
- # strided.py
- #
+ 	fflush(td->iolog_f);
+ 	fclose(td->iolog_f);
+ 	free(td->iolog_buf);
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index be889f34..de05f438 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -93,8 +93,8 @@ run_fio() {
+ 
+     fio=$(dirname "$0")/../../fio
+ 
+-    opts=("--aux-path=/tmp" "--allow_file_create=0" \
+-			    "--significant_figures=10" "$@")
++    opts=("--max-jobs=16" "--aux-path=/tmp" "--allow_file_create=0" \
++	  "--significant_figures=10" "$@")
+     opts+=(${var_opts[@]})
+     { echo; echo "fio ${opts[*]}"; echo; } >>"${logfile}.${test_number}"
+ 
 diff --git a/zbd.c b/zbd.c
-index 72352db0..a7572c9a 100644
+index 8dc3c397..36de29fb 100644
 --- a/zbd.c
 +++ b/zbd.c
-@@ -19,6 +19,7 @@
- #include "oslib/asprintf.h"
- #include "smalloc.h"
- #include "verify.h"
-+#include "pshared.h"
- #include "zbd.h"
+@@ -262,7 +262,8 @@ static bool zbd_verify_sizes(void)
  
- /**
-@@ -353,7 +354,6 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
- 	struct fio_zone_info *p;
- 	uint64_t zone_size = td->o.zone_size;
- 	struct zoned_block_device_info *zbd_info = NULL;
--	pthread_mutexattr_t attr;
- 	int i;
+ 			zone_idx = zbd_zone_idx(f, f->file_offset);
+ 			z = &f->zbd_info->zone_info[zone_idx];
+-			if (f->file_offset != z->start) {
++			if ((f->file_offset != z->start) &&
++			    (td->o.td_ddir != TD_DDIR_READ)) {
+ 				new_offset = (z+1)->start;
+ 				if (new_offset >= f->file_offset + f->io_size) {
+ 					log_info("%s: io_size must be at least one zone\n",
+@@ -278,7 +279,8 @@ static bool zbd_verify_sizes(void)
+ 			zone_idx = zbd_zone_idx(f, f->file_offset + f->io_size);
+ 			z = &f->zbd_info->zone_info[zone_idx];
+ 			new_end = z->start;
+-			if (f->file_offset + f->io_size != new_end) {
++			if ((td->o.td_ddir != TD_DDIR_READ) &&
++			    (f->file_offset + f->io_size != new_end)) {
+ 				if (new_end <= f->file_offset) {
+ 					log_info("%s: io_size must be at least one zone\n",
+ 						 f->file_name);
+@@ -546,8 +548,7 @@ void zbd_free_zone_info(struct fio_file *f)
+ {
+ 	uint32_t refcount;
  
- 	if (zone_size == 0) {
-@@ -374,14 +374,12 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
- 	if (!zbd_info)
- 		return -ENOMEM;
+-	if (!f->zbd_info)
+-		return;
++	assert(f->zbd_info);
  
--	pthread_mutexattr_init(&attr);
--	pthread_mutexattr_setpshared(&attr, true);
--	pthread_mutex_init(&zbd_info->mutex, &attr);
--	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-+	mutex_init_pshared(&zbd_info->mutex);
- 	zbd_info->refcount = 1;
- 	p = &zbd_info->zone_info[0];
- 	for (i = 0; i < nr_zones; i++, p++) {
--		pthread_mutex_init(&p->mutex, &attr);
-+		mutex_init_pshared_with_type(&p->mutex,
-+					     PTHREAD_MUTEX_RECURSIVE);
- 		p->start = i * zone_size;
- 		p->wp = p->start + zone_size;
- 		p->type = ZBD_ZONE_TYPE_SWR;
-@@ -395,7 +393,6 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
- 	f->zbd_info->zone_size_log2 = is_power_of_2(zone_size) ?
- 		ilog2(zone_size) : 0;
- 	f->zbd_info->nr_zones = nr_zones;
--	pthread_mutexattr_destroy(&attr);
- 	return 0;
- }
- 
-@@ -415,12 +412,8 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- 	struct fio_zone_info *p;
- 	uint64_t zone_size, offset;
- 	struct zoned_block_device_info *zbd_info = NULL;
--	pthread_mutexattr_t attr;
- 	int i, j, ret = 0;
- 
--	pthread_mutexattr_init(&attr);
--	pthread_mutexattr_setpshared(&attr, true);
--
- 	zones = calloc(ZBD_REPORT_MAX_ZONES, sizeof(struct zbd_zone));
- 	if (!zones)
- 		goto out;
-@@ -454,14 +447,14 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- 	ret = -ENOMEM;
- 	if (!zbd_info)
- 		goto out;
--	pthread_mutex_init(&zbd_info->mutex, &attr);
--	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-+	mutex_init_pshared(&zbd_info->mutex);
- 	zbd_info->refcount = 1;
- 	p = &zbd_info->zone_info[0];
- 	for (offset = 0, j = 0; j < nr_zones;) {
- 		z = &zones[0];
- 		for (i = 0; i < nrz; i++, j++, z++, p++) {
--			pthread_mutex_init(&p->mutex, &attr);
-+			mutex_init_pshared_with_type(&p->mutex,
-+						     PTHREAD_MUTEX_RECURSIVE);
- 			p->start = z->start;
- 			switch (z->cond) {
- 			case ZBD_ZONE_COND_NOT_WP:
-@@ -512,7 +505,6 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- out:
- 	sfree(zbd_info);
- 	free(zones);
--	pthread_mutexattr_destroy(&attr);
+ 	pthread_mutex_lock(&f->zbd_info->mutex);
+ 	refcount = --f->zbd_info->refcount;
+@@ -592,7 +593,7 @@ static int zbd_init_zone_info(struct thread_data *td, struct fio_file *file)
  	return ret;
  }
  
+-int zbd_init(struct thread_data *td)
++int zbd_setup_files(struct thread_data *td)
+ {
+ 	struct fio_file *f;
+ 	int i;
+@@ -743,8 +744,7 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
+ 
+ 			reset_wp = z->wp != z->start;
+ 		} else {
+-			reset_wp = (td->o.td_ddir & TD_DDIR_WRITE) &&
+-					z->wp % min_bs != 0;
++			reset_wp = z->wp % min_bs != 0;
+ 		}
+ 		if (reset_wp) {
+ 			dprint(FD_ZBD, "%s: resetting zone %u\n",
+@@ -856,7 +856,7 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
+ 	struct fio_zone_info *zb, *ze;
+ 	uint32_t zone_idx_e;
+ 
+-	if (!f->zbd_info)
++	if (!f->zbd_info || !td_write(td))
+ 		return;
+ 
+ 	zb = &f->zbd_info->zone_info[zbd_zone_idx(f, f->file_offset)];
+@@ -869,7 +869,6 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
+ 	 * writing data, which causes data loss.
+ 	 */
+ 	zbd_reset_zones(td, f, zb, ze, td->o.verify != VERIFY_NONE &&
+-			(td->o.td_ddir & TD_DDIR_WRITE) &&
+ 			td->runstate != TD_VERIFYING);
+ 	zbd_reset_write_cnt(td, f);
+ }
+@@ -1141,7 +1140,7 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
+ 	 */
+ 	for (z1 = zb + 1, z2 = zb - 1; z1 < zl || z2 >= zf; z1++, z2--) {
+ 		if (z1 < zl && z1->cond != ZBD_ZONE_COND_OFFLINE) {
+-			pthread_mutex_lock(&z1->mutex);
++			zone_lock(td, z1);
+ 			if (z1->start + min_bs <= z1->wp)
+ 				return z1;
+ 			pthread_mutex_unlock(&z1->mutex);
+@@ -1150,7 +1149,7 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
+ 		}
+ 		if (td_random(td) && z2 >= zf &&
+ 		    z2->cond != ZBD_ZONE_COND_OFFLINE) {
+-			pthread_mutex_lock(&z2->mutex);
++			zone_lock(td, z2);
+ 			if (z2->start + min_bs <= z2->wp)
+ 				return z2;
+ 			pthread_mutex_unlock(&z2->mutex);
+@@ -1349,9 +1348,7 @@ enum fio_ddir zbd_adjust_ddir(struct thread_data *td, struct io_u *io_u,
+ 	 * devices with all empty zones. Overwrite the first I/O direction as
+ 	 * write to make sure data to read exists.
+ 	 */
+-	if (td->o.zone_mode != ZONE_MODE_ZBD ||
+-	    ddir != DDIR_READ ||
+-	    !td_rw(td))
++	if (ddir != DDIR_READ || !td_rw(td))
+ 		return ddir;
+ 
+ 	if (io_u->file->zbd_info->sectors_with_data ||
+@@ -1409,7 +1406,8 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 	switch (io_u->ddir) {
+ 	case DDIR_READ:
+ 		if (td->runstate == TD_VERIFYING) {
+-			zb = zbd_replay_write_order(td, io_u, zb);
++			if (td_write(td))
++				zb = zbd_replay_write_order(td, io_u, zb);
+ 			goto accept;
+ 		}
+ 		/*
+diff --git a/zbd.h b/zbd.h
+index 5a660399..e8dd3d6d 100644
+--- a/zbd.h
++++ b/zbd.h
+@@ -77,8 +77,8 @@ struct zoned_block_device_info {
+ 	struct fio_zone_info	zone_info[0];
+ };
+ 
++int zbd_setup_files(struct thread_data *td);
+ void zbd_free_zone_info(struct fio_file *f);
+-int zbd_init(struct thread_data *td);
+ void zbd_file_reset(struct thread_data *td, struct fio_file *f);
+ bool zbd_unaligned_write(int error_code);
+ void setup_zbd_zone_mode(struct thread_data *td, struct io_u *io_u);
+@@ -87,6 +87,12 @@ enum fio_ddir zbd_adjust_ddir(struct thread_data *td, struct io_u *io_u,
+ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u);
+ char *zbd_write_status(const struct thread_stat *ts);
+ 
++static inline void zbd_close_file(struct fio_file *f)
++{
++	if (f->zbd_info)
++		zbd_free_zone_info(f);
++}
++
+ static inline void zbd_queue_io_u(struct io_u *io_u, enum fio_q_status status)
+ {
+ 	if (io_u->zbd_queue_io) {
 
