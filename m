@@ -1,60 +1,91 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43748 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726860AbgE3MAH (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 30 May 2020 08:00:07 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74EB9C03E969
-        for <fio@vger.kernel.org>; Sat, 30 May 2020 05:00:06 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jf09m-0002pH-5X
-        for fio@vger.kernel.org; Sat, 30 May 2020 12:00:06 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20200530120001.7E1581BC01A2@kernel.dk>
-Date: Sat, 30 May 2020 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <adobriyan@gmail.com>
+Return-Path: <adobriyan@gmail.com>
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: [PATCH 5/5] zbd: make zbd_info->mutex non-recursive
+Date: Fri, 22 May 2020 02:17:16 +0300
+Message-Id: <20200521231716.28832-5-adobriyan@gmail.com>
+In-Reply-To: <20200521231716.28832-1-adobriyan@gmail.com>
+References: <20200521231716.28832-1-adobriyan@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: axboe@kernel.dk
+Cc: adobriyan@gmail.com, damien.lemoal@wdc.com, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit dacac3b936092aa73e29257fefcb7bf5658ec7cb:
+There is no reason for it to be recursive. Resursiveness leaked
+from struct fio_zone_info::mutex initialisation.
 
-  Merge branch 'python3-testing' of https://github.com/vincentkfu/fio (2020-05-28 13:27:15 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 2f6cbfdcf0ce3b53e83713e3a6b5a0bb6a76a1e9:
-
-  Merge branch 'pshared1' of https://github.com/kusumi/fio (2020-05-29 08:16:10 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'pshared1' of https://github.com/kusumi/fio
-
-Tomohiro Kusumi (1):
-      pshared: fix comment on supported platforms
-
- pshared.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
+Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
 ---
+ zbd.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-Diff of recent changes:
-
-diff --git a/pshared.c b/pshared.c
-index 791faf95..e671c87f 100644
---- a/pshared.c
-+++ b/pshared.c
-@@ -51,7 +51,7 @@ int mutex_init_pshared_with_type(pthread_mutex_t *mutex, int type)
- 	}
+diff --git a/zbd.c b/zbd.c
+index 61c685a1..72352db0 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -375,9 +375,9 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
+ 		return -ENOMEM;
  
- 	/*
--	 * Not all platforms support process shared mutexes (FreeBSD)
-+	 * Not all platforms support process shared mutexes (NetBSD/OpenBSD)
- 	 */
- #ifdef CONFIG_PSHARED
- 	ret = pthread_mutexattr_setpshared(&mattr, PTHREAD_PROCESS_SHARED);
+ 	pthread_mutexattr_init(&attr);
+-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+ 	pthread_mutexattr_setpshared(&attr, true);
+ 	pthread_mutex_init(&zbd_info->mutex, &attr);
++	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+ 	zbd_info->refcount = 1;
+ 	p = &zbd_info->zone_info[0];
+ 	for (i = 0; i < nr_zones; i++, p++) {
+@@ -419,7 +419,6 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
+ 	int i, j, ret = 0;
+ 
+ 	pthread_mutexattr_init(&attr);
+-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+ 	pthread_mutexattr_setpshared(&attr, true);
+ 
+ 	zones = calloc(ZBD_REPORT_MAX_ZONES, sizeof(struct zbd_zone));
+@@ -456,6 +455,7 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
+ 	if (!zbd_info)
+ 		goto out;
+ 	pthread_mutex_init(&zbd_info->mutex, &attr);
++	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+ 	zbd_info->refcount = 1;
+ 	p = &zbd_info->zone_info[0];
+ 	for (offset = 0, j = 0; j < nr_zones;) {
+@@ -794,14 +794,20 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
+  * Reset zbd_info.write_cnt, the counter that counts down towards the next
+  * zone reset.
+  */
+-static void zbd_reset_write_cnt(const struct thread_data *td,
+-				const struct fio_file *f)
++static void _zbd_reset_write_cnt(const struct thread_data *td,
++				 const struct fio_file *f)
+ {
+ 	assert(0 <= td->o.zrf.u.f && td->o.zrf.u.f <= 1);
+ 
+-	pthread_mutex_lock(&f->zbd_info->mutex);
+ 	f->zbd_info->write_cnt = td->o.zrf.u.f ?
+ 		min(1.0 / td->o.zrf.u.f, 0.0 + UINT_MAX) : UINT_MAX;
++}
++
++static void zbd_reset_write_cnt(const struct thread_data *td,
++				const struct fio_file *f)
++{
++	pthread_mutex_lock(&f->zbd_info->mutex);
++	_zbd_reset_write_cnt(td, f);
+ 	pthread_mutex_unlock(&f->zbd_info->mutex);
+ }
+ 
+@@ -815,7 +821,7 @@ static bool zbd_dec_and_reset_write_cnt(const struct thread_data *td,
+ 	if (f->zbd_info->write_cnt)
+ 		write_cnt = --f->zbd_info->write_cnt;
+ 	if (write_cnt == 0)
+-		zbd_reset_write_cnt(td, f);
++		_zbd_reset_write_cnt(td, f);
+ 	pthread_mutex_unlock(&f->zbd_info->mutex);
+ 
+ 	return write_cnt == 0;
+-- 
+2.26.2
+
 
