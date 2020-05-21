@@ -1,47 +1,42 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-eopbgr690098.outbound.protection.outlook.com ([40.107.69.98]:61696
-        "EHLO NAM04-CO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2388621AbgEYRpJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 25 May 2020 13:45:09 -0400
-From: Hamilton Tobon Mosquera <htobonm@eafit.edu.co>
-Subject: [io_uring] Problems using io_uring engine
-Message-ID: <4f70c99f-e5c8-08f7-ebe9-1bbdea73305d@eafit.edu.co>
-Date: Mon, 25 May 2020 13:45:03 -0400
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Return-Path: <adobriyan@gmail.com>
+Return-Path: <adobriyan@gmail.com>
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: [PATCH 2/5] zbd: bump ZBD_MAX_OPEN_ZONES
+Date: Fri, 22 May 2020 02:17:13 +0300
+Message-Id: <20200521231716.28832-2-adobriyan@gmail.com>
+In-Reply-To: <20200521231716.28832-1-adobriyan@gmail.com>
+References: <20200521231716.28832-1-adobriyan@gmail.com>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+To: axboe@kernel.dk
+Cc: adobriyan@gmail.com, damien.lemoal@wdc.com, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Hi there,
+128 opened zones is not enough for us!
 
-I'm trying to run sequential and random reads/writes in parallel using 
-the io_uring engine with the HIPRI flag activated to enable polling. The 
-file size is 200G, the number of fio threads is 4. The --size flags is 
-set to 200/4, and the --offset_increment is set to 25%. I could 
-effectively do it with pvsync2 engine but when I switch to io_uring the 
-workloads immediately (they do not even work for 1 sec) fail with these 
-errors:
+4096 opened zones is OK for 64×iodepth=64 stress testing.
 
-fio: io_u error on file /path/to/file: Operation not supported: write 
-offset=3238043648, buflen=4096
-fio: io_u error on file /path/to/file: Operation not supported: write 
-offset=88715874304, buflen=4096
-fio: io_u error on file /path/to/file: Operation not supported: write 
-offset=174739943424, buflen=4096
-fio: io_u error on file /path/to/file: Operation not supported: write 
-offset=112642154496, buflen=4096
+Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+---
+ zbd_types.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
-The offsets are under 200G, I don't understand why it's returning those 
-errors. Can someone help please?.
-
-Thank you in advance.
-
-Hamilton.
-
+diff --git a/zbd_types.h b/zbd_types.h
+index 2f2f1324..d63c0d0a 100644
+--- a/zbd_types.h
++++ b/zbd_types.h
+@@ -8,7 +8,7 @@
+ 
+ #include <inttypes.h>
+ 
+-#define ZBD_MAX_OPEN_ZONES	128
++#define ZBD_MAX_OPEN_ZONES	4096
+ 
+ /*
+  * Zoned block device models.
+-- 
+2.26.2
 
 
