@@ -1,86 +1,75 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60516 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728766AbgEXJpg (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 24 May 2020 05:45:36 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79A64C061A0E
-        for <fio@vger.kernel.org>; Sun, 24 May 2020 02:45:36 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id y5so925166wmi.5
-        for <fio@vger.kernel.org>; Sun, 24 May 2020 02:45:36 -0700 (PDT)
+        with ESMTP id S1730306AbgEVQyt (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 22 May 2020 12:54:49 -0400
+Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3388C061A0E
+        for <fio@vger.kernel.org>; Fri, 22 May 2020 09:54:49 -0700 (PDT)
+Received: by mail-il1-x142.google.com with SMTP id r2so130179ila.4
+        for <fio@vger.kernel.org>; Fri, 22 May 2020 09:54:49 -0700 (PDT)
 MIME-Version: 1.0
 References: <CAF6DVKOmDjTecr4ebiHZWD_5=-8kb4nwHC40tzq71ufFgiWJLg@mail.gmail.com>
  <CALjAwxjN02WtDu5xSV-AAD_9v-VDUwGEXYbVKy_jU5ObwbmQLg@mail.gmail.com>
  <CAF6DVKMMkjrZrEKr4yb6P+MrETKNh9-QHA=MA7sP-=tKPOOMyw@mail.gmail.com>
  <CAF6DVKPmyhrSJr4hFrBmYHrNTuETQm2b+2JAhUza7su_R7buwQ@mail.gmail.com>
- <CAF6DVKPM3ZTZoWumbEgy3A2wi9kHo3kbC7TGYa2i=EY-HkcLig@mail.gmail.com>
- <CALjAwxj6P2-ByczmZ4McgTyYEtQX9+VdVqWCMdAevyGP3VxSeg@mail.gmail.com> <CAF6DVKOP3wKpeQV_DHH-F62dOTkZpeMG+02f3ppi7cRbbiwdGQ@mail.gmail.com>
-In-Reply-To: <CAF6DVKOP3wKpeQV_DHH-F62dOTkZpeMG+02f3ppi7cRbbiwdGQ@mail.gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Sun, 24 May 2020 10:45:09 +0100
-Message-ID: <CALjAwxhdtWFCW5GYRk9Va2=VFkgOr4sGrckUy_h8H267SxatWA@mail.gmail.com>
+ <CAF6DVKPM3ZTZoWumbEgy3A2wi9kHo3kbC7TGYa2i=EY-HkcLig@mail.gmail.com> <CALjAwxj6P2-ByczmZ4McgTyYEtQX9+VdVqWCMdAevyGP3VxSeg@mail.gmail.com>
+In-Reply-To: <CALjAwxj6P2-ByczmZ4McgTyYEtQX9+VdVqWCMdAevyGP3VxSeg@mail.gmail.com>
+From: Debraj Manna <subharaj.manna@gmail.com>
+Date: Fri, 22 May 2020 22:24:23 +0530
+Message-ID: <CAF6DVKOP3wKpeQV_DHH-F62dOTkZpeMG+02f3ppi7cRbbiwdGQ@mail.gmail.com>
 Subject: Re: fio reporting high value of read iops at iodepth 1
 Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Debraj Manna <subharaj.manna@gmail.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: fio <fio@vger.kernel.org>
 
-On Fri, 22 May 2020 at 17:54, Debraj Manna <subharaj.manna@gmail.com> wrote:
+Thanks again.
+
+One more query
+
+"maybe check how many I/Os the kernel sent to disk versus those that
+fio was asked to do" - For this can I rely on iostat or do you
+recommend any other tool?
+
+
+On Fri, May 22, 2020 at 9:34 PM Sitsofe Wheeler <sitsofe@gmail.com> wrote:
 >
-> One more query
+> On Fri, 22 May 2020 at 10:01, Debraj Manna <subharaj.manna@gmail.com> wrote:
+> >
+> > Few queries for my understanding
+> >
+> > 1. Is there a way to bypass the disk/buffer cache while doing a fio
+> > test? I know about direct=1 but that does not always bypass a cache.
 >
-> "maybe check how many I/Os the kernel sent to disk versus those that
-> fio was asked to do" - For this can I rely on iostat or do you
-> recommend any other tool?
-
-You could do it by manually reading the disk stats collected in
-/sys/block/<device>/stat just before the I/O starts but then you'd
-have to somehow know when the actual part of the real job starts
-rather than when you were doing layout etc. Further, I believe those
-are the underlying files that iostat may use for monitoring anyway (it
-can also use /proc/diskstats but you can see what iostat does by
-tracing through both branches around
-https://github.com/sysstat/sysstat/blob/b5fd09323bdbd36e34472ee448563f8a7fd34464/iostat.c#L2006
-)...
-
-...but you already have processed versions statistics in your fio
-output. For example in your RUN 1 you had this:
-[...]
-> bw-test: (groupid=0, jobs=1): err= 0: pid=48575: Fri May 15 18:42:15 2020
-[...]
->   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
-[...]
->      issued    : total=r=51200/w=0/d=0, short=r=0/w=0/d=0, drop=r=0/w=0/d=0
-[...]
-> Disk stats (read/write):
->     dm-6: ios=48310/2, merge=0/0, ticks=3944/0, in_queue=3972,
-> util=90.95%, aggrios=51200/40, aggrmerge=0/205, aggrticks=4048/0,
-> aggrin_queue=4048, aggrutil=87.75%
->   sda: ios=51200/40, merge=0/205, ticks=4048/0, in_queue=4048, util=87.75%
-
-The "Disk stats (read/write)" show what went out of relevant block
-layer devices while your job was running and is mentioned in the fio
-documentation (e.g.
-https://fio.readthedocs.io/en/latest/fio_doc.html#interpreting-the-output
-). Be aware that the stats may also cover I/O not generated by your
-job (e.g. I/O done by other processes that was sent to disk,
-filesystem metadata I/O etc.) but it's as close as you're going to get
-without reaching deeper into the kernel. This is why it's important to
-use as quiet a system as possible to avoid interference/contamination.
-
-Looking closer, something interesting in your results is that fio says
-it issued 51200 read I/Os but the device mapper device (dm-6, which
-your filesystem is presumably on) apparently only saw 48310 reads AND
-saw 2 writes (which suggests something else was happening on that
-device as your fio job wouldn't have been issuing writes at that
-point). Curiously the underlying block device to your device mapper
-device (sda) saw 51200 reads and 40 writes. That might be because the
-time the underlying block stats were read was ever so slightly later
-than that of when the device mapper stats were read or because some
-other device mapper device was also sending I/O to sda (also note some
-merging of writes also took place but no merging of reads did).
-
--- 
-Sitsofe | http://sucs.org/~sits/
+> Generally whether it will or won't is down to what you're doing I/O
+> against and how you're doing it. If you're doing it to a block device
+> of a real device then direct=1 usually won't touch the buffer cache.
+> If you're doing it to a file in a filesystem you're at the whim of the
+> filesystem (some do, some don't , some do unless you're using certain
+> options, some do so long as you get all the rules right but if you
+> don't then they quietly just use the buffer cache etc). I do notice
+> you're only doing reads and after laying out a file fio tries its best
+> to drop the cache for that file -
+> https://github.com/axboe/fio/blob/f09a7773f5821d5b89428419dcef1987ced39b67/filesetup.c#L509
+> . On reflection, this should mean you're unlikely to be hitting the
+> kernel cache (maybe check how many I/Os the kernel sent to disk versus
+> those that fio was asked to do).
+>
+> >  2. "Maybe do I/O on a much larger file to see if the variation
+> > between runs goes down" - Will the file size be in some ratio of my
+> > system configuration?. For example if I am having a RAM of 32 GB then
+> > should I use a file of size of 64 GB or there are some other
+> > recommended best practices?
+>
+> This advice is to reduce the effectiveness of caching (if caching
+> really is taking place it might not be - see above). If most of your
+> I/O isn't going to cache then most of your I/O will reflect non-cache
+> speeds even if you are asking for buffered I/O. Doing too little I/O
+> is prone to be disturbed by other things that may be happening on the
+> system so I'd expect longer results to be more reliable.
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
 
