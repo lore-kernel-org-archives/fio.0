@@ -1,96 +1,86 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54150 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729653AbgEYGVa (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 25 May 2020 02:21:30 -0400
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA5E9C061A0E
-        for <fio@vger.kernel.org>; Sun, 24 May 2020 23:21:28 -0700 (PDT)
-Received: by mail-il1-x142.google.com with SMTP id 17so16414338ilj.3
-        for <fio@vger.kernel.org>; Sun, 24 May 2020 23:21:28 -0700 (PDT)
+        with ESMTP id S1728766AbgEXJpg (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 24 May 2020 05:45:36 -0400
+Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79A64C061A0E
+        for <fio@vger.kernel.org>; Sun, 24 May 2020 02:45:36 -0700 (PDT)
+Received: by mail-wm1-x343.google.com with SMTP id y5so925166wmi.5
+        for <fio@vger.kernel.org>; Sun, 24 May 2020 02:45:36 -0700 (PDT)
 MIME-Version: 1.0
 References: <CAF6DVKOmDjTecr4ebiHZWD_5=-8kb4nwHC40tzq71ufFgiWJLg@mail.gmail.com>
  <CALjAwxjN02WtDu5xSV-AAD_9v-VDUwGEXYbVKy_jU5ObwbmQLg@mail.gmail.com>
  <CAF6DVKMMkjrZrEKr4yb6P+MrETKNh9-QHA=MA7sP-=tKPOOMyw@mail.gmail.com>
  <CAF6DVKPmyhrSJr4hFrBmYHrNTuETQm2b+2JAhUza7su_R7buwQ@mail.gmail.com>
  <CAF6DVKPM3ZTZoWumbEgy3A2wi9kHo3kbC7TGYa2i=EY-HkcLig@mail.gmail.com>
- <CALjAwxj6P2-ByczmZ4McgTyYEtQX9+VdVqWCMdAevyGP3VxSeg@mail.gmail.com>
- <CAF6DVKOP3wKpeQV_DHH-F62dOTkZpeMG+02f3ppi7cRbbiwdGQ@mail.gmail.com>
- <CALjAwxhdtWFCW5GYRk9Va2=VFkgOr4sGrckUy_h8H267SxatWA@mail.gmail.com> <CAF6DVKOZvOYw75v-b-JpqG3vPB6O04GnG765zv1ymNisxOuoiw@mail.gmail.com>
-In-Reply-To: <CAF6DVKOZvOYw75v-b-JpqG3vPB6O04GnG765zv1ymNisxOuoiw@mail.gmail.com>
-From: Debraj Manna <subharaj.manna@gmail.com>
-Date: Mon, 25 May 2020 11:51:01 +0530
-Message-ID: <CAF6DVKNUT4GGmypxiiADYfK0C2XdWmJsRBbnjgC40PdmzPzEOw@mail.gmail.com>
+ <CALjAwxj6P2-ByczmZ4McgTyYEtQX9+VdVqWCMdAevyGP3VxSeg@mail.gmail.com> <CAF6DVKOP3wKpeQV_DHH-F62dOTkZpeMG+02f3ppi7cRbbiwdGQ@mail.gmail.com>
+In-Reply-To: <CAF6DVKOP3wKpeQV_DHH-F62dOTkZpeMG+02f3ppi7cRbbiwdGQ@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sun, 24 May 2020 10:45:09 +0100
+Message-ID: <CALjAwxhdtWFCW5GYRk9Va2=VFkgOr4sGrckUy_h8H267SxatWA@mail.gmail.com>
 Subject: Re: fio reporting high value of read iops at iodepth 1
 Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+To: Debraj Manna <subharaj.manna@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-Thanks again for the detailed explanation. It is really helpful.
-
-
-On Mon, May 25, 2020 at 11:48 AM Debraj Manna <subharaj.manna@gmail.com> wrote:
+On Fri, 22 May 2020 at 17:54, Debraj Manna <subharaj.manna@gmail.com> wrote:
 >
-> Thanks again for the detailed explanation. It is really helpful.
+> One more query
 >
-> On Sun, May 24, 2020 at 3:15 PM Sitsofe Wheeler <sitsofe@gmail.com> wrote:
->>
->> On Fri, 22 May 2020 at 17:54, Debraj Manna <subharaj.manna@gmail.com> wrote:
->> >
->> > One more query
->> >
->> > "maybe check how many I/Os the kernel sent to disk versus those that
->> > fio was asked to do" - For this can I rely on iostat or do you
->> > recommend any other tool?
->>
->> You could do it by manually reading the disk stats collected in
->> /sys/block/<device>/stat just before the I/O starts but then you'd
->> have to somehow know when the actual part of the real job starts
->> rather than when you were doing layout etc. Further, I believe those
->> are the underlying files that iostat may use for monitoring anyway (it
->> can also use /proc/diskstats but you can see what iostat does by
->> tracing through both branches around
->> https://github.com/sysstat/sysstat/blob/b5fd09323bdbd36e34472ee448563f8a7fd34464/iostat.c#L2006
->> )...
->>
->> ...but you already have processed versions statistics in your fio
->> output. For example in your RUN 1 you had this:
->> [...]
->> > bw-test: (groupid=0, jobs=1): err= 0: pid=48575: Fri May 15 18:42:15 2020
->> [...]
->> >   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
->> [...]
->> >      issued    : total=r=51200/w=0/d=0, short=r=0/w=0/d=0, drop=r=0/w=0/d=0
->> [...]
->> > Disk stats (read/write):
->> >     dm-6: ios=48310/2, merge=0/0, ticks=3944/0, in_queue=3972,
->> > util=90.95%, aggrios=51200/40, aggrmerge=0/205, aggrticks=4048/0,
->> > aggrin_queue=4048, aggrutil=87.75%
->> >   sda: ios=51200/40, merge=0/205, ticks=4048/0, in_queue=4048, util=87.75%
->>
->> The "Disk stats (read/write)" show what went out of relevant block
->> layer devices while your job was running and is mentioned in the fio
->> documentation (e.g.
->> https://fio.readthedocs.io/en/latest/fio_doc.html#interpreting-the-output
->> ). Be aware that the stats may also cover I/O not generated by your
->> job (e.g. I/O done by other processes that was sent to disk,
->> filesystem metadata I/O etc.) but it's as close as you're going to get
->> without reaching deeper into the kernel. This is why it's important to
->> use as quiet a system as possible to avoid interference/contamination.
->>
->> Looking closer, something interesting in your results is that fio says
->> it issued 51200 read I/Os but the device mapper device (dm-6, which
->> your filesystem is presumably on) apparently only saw 48310 reads AND
->> saw 2 writes (which suggests something else was happening on that
->> device as your fio job wouldn't have been issuing writes at that
->> point). Curiously the underlying block device to your device mapper
->> device (sda) saw 51200 reads and 40 writes. That might be because the
->> time the underlying block stats were read was ever so slightly later
->> than that of when the device mapper stats were read or because some
->> other device mapper device was also sending I/O to sda (also note some
->> merging of writes also took place but no merging of reads did).
->>
->> --
->> Sitsofe | http://sucs.org/~sits/
+> "maybe check how many I/Os the kernel sent to disk versus those that
+> fio was asked to do" - For this can I rely on iostat or do you
+> recommend any other tool?
+
+You could do it by manually reading the disk stats collected in
+/sys/block/<device>/stat just before the I/O starts but then you'd
+have to somehow know when the actual part of the real job starts
+rather than when you were doing layout etc. Further, I believe those
+are the underlying files that iostat may use for monitoring anyway (it
+can also use /proc/diskstats but you can see what iostat does by
+tracing through both branches around
+https://github.com/sysstat/sysstat/blob/b5fd09323bdbd36e34472ee448563f8a7fd34464/iostat.c#L2006
+)...
+
+...but you already have processed versions statistics in your fio
+output. For example in your RUN 1 you had this:
+[...]
+> bw-test: (groupid=0, jobs=1): err= 0: pid=48575: Fri May 15 18:42:15 2020
+[...]
+>   IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+[...]
+>      issued    : total=r=51200/w=0/d=0, short=r=0/w=0/d=0, drop=r=0/w=0/d=0
+[...]
+> Disk stats (read/write):
+>     dm-6: ios=48310/2, merge=0/0, ticks=3944/0, in_queue=3972,
+> util=90.95%, aggrios=51200/40, aggrmerge=0/205, aggrticks=4048/0,
+> aggrin_queue=4048, aggrutil=87.75%
+>   sda: ios=51200/40, merge=0/205, ticks=4048/0, in_queue=4048, util=87.75%
+
+The "Disk stats (read/write)" show what went out of relevant block
+layer devices while your job was running and is mentioned in the fio
+documentation (e.g.
+https://fio.readthedocs.io/en/latest/fio_doc.html#interpreting-the-output
+). Be aware that the stats may also cover I/O not generated by your
+job (e.g. I/O done by other processes that was sent to disk,
+filesystem metadata I/O etc.) but it's as close as you're going to get
+without reaching deeper into the kernel. This is why it's important to
+use as quiet a system as possible to avoid interference/contamination.
+
+Looking closer, something interesting in your results is that fio says
+it issued 51200 read I/Os but the device mapper device (dm-6, which
+your filesystem is presumably on) apparently only saw 48310 reads AND
+saw 2 writes (which suggests something else was happening on that
+device as your fio job wouldn't have been issuing writes at that
+point). Curiously the underlying block device to your device mapper
+device (sda) saw 51200 reads and 40 writes. That might be because the
+time the underlying block stats were read was ever so slightly later
+than that of when the device mapper stats were read or because some
+other device mapper device was also sending I/O to sda (also note some
+merging of writes also took place but no merging of reads did).
+
+-- 
+Sitsofe | http://sucs.org/~sits/
 
