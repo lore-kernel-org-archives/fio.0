@@ -1,43 +1,71 @@
-Return-Path: <prvs=36522ed81=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 2/3] t/zbd: Fix a bug in reset_zone() for all zones reset
-Date: Mon, 13 Apr 2020 17:32:59 +0900
-Message-Id: <20200413083300.256784-3-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200413083300.256784-1-shinichiro.kawasaki@wdc.com>
-References: <20200413083300.256784-1-shinichiro.kawasaki@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:50976 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726734AbgEXMCX (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 24 May 2020 08:02:23 -0400
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jcpIa-0002Gc-9J
+        for fio@vger.kernel.org; Sun, 24 May 2020 12:00:12 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200524120003.13ADB1BC018D@kernel.dk>
+Date: Sun, 24 May 2020 06:00:03 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-The bash function reset_zone() is expected to reset all zones when -1 is
-provided as its second argument. However, it fails to reset all zones
-using blkzone command because of wrong and unnecessary options provided
-to blkzone. Remove the option to fix it.
+The following changes since commit 1bb1bcade4acbd3cf69ba1c825ad01eebf0b3cdf:
 
-This failure was found with running test-zbd-support with -r option.
+  zbd: make zbd_info->mutex non-recursive (2020-05-21 17:23:13 -0600)
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to d51e4ffa596b617cdb41680b31a4a3895a5307fc:
+
+  Fio 3.20 (2020-05-23 11:14:14 -0600)
+
+----------------------------------------------------------------
+Fabrice Fontaine (1):
+      Makefile: fix build of io_uring on sh4
+
+Jens Axboe (2):
+      Merge branch 'master' of https://github.com/ffontaine/fio
+      Fio 3.20
+
+ FIO-VERSION-GEN | 2 +-
+ Makefile        | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
 ---
- t/zbd/functions | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/t/zbd/functions b/t/zbd/functions
-index 5bffad6e..1bd22ec4 100644
---- a/t/zbd/functions
-+++ b/t/zbd/functions
-@@ -97,8 +97,7 @@ reset_zone() {
+Diff of recent changes:
+
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index 3220aaa1..7050f84e 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
  
-     if [ -n "${blkzone}" ] && [ ! -n "${use_libzbc}" ]; then
- 	if [ "$offset" -lt 0 ]; then
--	    sectors=$(<"/sys/class/block/${dev#/dev/}/size")
--	    ${blkzone} reset -o "${offset}" -l "$sectors" "$dev"
-+	    ${blkzone} reset "$dev"
- 	else
- 	    ${blkzone} reset -o "${offset}" -c 1 "$dev"
- 	fi
--- 
-2.25.1
-
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-3.19
++DEF_VER=fio-3.20
+ 
+ LF='
+ '
+diff --git a/Makefile b/Makefile
+index f1e984f5..e3962195 100644
+--- a/Makefile
++++ b/Makefile
+@@ -283,6 +283,7 @@ T_PIPE_ASYNC_OBJS = t/read-to-pipe-async.o
+ T_PIPE_ASYNC_PROGS = t/read-to-pipe-async
+ 
+ T_IOU_RING_OBJS = t/io_uring.o
++T_IOU_RING_OBJS += t/arch.o
+ T_IOU_RING_PROGS = t/io_uring
+ 
+ T_MEMLOCK_OBJS = t/memlock.o
 
