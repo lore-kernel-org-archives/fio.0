@@ -1,70 +1,98 @@
-Return-Path: <axboe@kernel.dk>
+Return-Path: <htobonm@eafit.edu.co>
 Subject: Re: [io_uring] Problems using io_uring engine
 References: <4f70c99f-e5c8-08f7-ebe9-1bbdea73305d@eafit.edu.co>
  <f552027a-25bd-d953-9b19-58e5e44121c6@kernel.dk>
- <ed949243-f657-5f41-79f2-dc8a34459f27@eafit.edu.co>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <93136695-8e24-c48c-0a74-e242bdaa2f3b@kernel.dk>
-Date: Mon, 25 May 2020 18:19:40 -0600
-MIME-Version: 1.0
-In-Reply-To: <ed949243-f657-5f41-79f2-dc8a34459f27@eafit.edu.co>
-Content-Type: text/plain; charset=utf-8
+From: Hamilton Tobon Mosquera <htobonm@eafit.edu.co>
+Message-ID: <ed949243-f657-5f41-79f2-dc8a34459f27@eafit.edu.co>
+Date: Mon, 25 May 2020 18:38:20 -0400
+In-Reply-To: <f552027a-25bd-d953-9b19-58e5e44121c6@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Hamilton Tobon Mosquera <htobonm@eafit.edu.co>, fio@vger.kernel.org
+Return-Path: htobonm@eafit.edu.co
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-On 5/25/20 4:38 PM, Hamilton Tobon Mosquera wrote:
-> Thank you for your answer.
-> 
-> I'm using ext4. I guess it supports polling because I could get sub 10 
-> microseconds latency with an Intel Optane SSDPED1D280GA 260GB and 
-> pvsync2. If it helps here's how I'm running it:
-> 
-> fio global.fio --size=50G --ioengine=io_uring --hipri --direct=1 
-> --rw=randwrite --iodepth=256 --bs=4K --numjobs=4 --offset_increment=25%
-> 
-> The global.fio has:
-> 
-> ioengine=io_uring
-> hipri
-> direct=1
-> thread=1
-> buffered=0
-> size=100%
-> randrepeat=0
-> time_based
-> ramp_time=0
-> norandommap
-> refill_buffers
-> log_max_value=1
-> log_avg_msec=1000
-> group_reporting
-> percentile_list=50:60:70:80:90:95:99
-> 
-> Your help is highly appreciated, thank you.
+Thank you for your answer.
 
-I almost guarantee you that you are NOT using polling. Check with
-vmstat 1 and look at the interrupt rate. If it's about your IOPS
-rate, then you're doing IRQ based completions. If it's closer to 0,
-you're doing polled.
+I'm using ext4. I guess it supports polling because I could get sub 10=20
+microseconds latency with an Intel Optane SSDPED1D280GA 260GB and=20
+pvsync2. If it helps here's how I'm running it:
 
-If your fs supports it, then you likely did not allocate poll
-queues for NVMe. If nvme is builtin to the kernel, use nvme.poll_queues=N
-to allocate N poll queues, or use poll_queues=N as a module parameter
-if nvme is modular.
+fio global.fio --size=3D50G --ioengine=3Dio_uring --hipri --direct=3D1=20
+--rw=3Drandwrite --iodepth=3D256 --bs=3D4K --numjobs=3D4 --offset_increment=
+=3D25%
 
-Ideally you want N to be equal to the number of CPUs in the system.
-NVMe will report that it used at load time, here's an example from
-my laptop:
+The global.fio has:
 
-[    2.396978] nvme nvme0: 1/8/8 default/read/poll queues
+ioengine=3Dio_uring
+hipri
+direct=3D1
+thread=3D1
+buffered=3D0
+size=3D100%
+randrepeat=3D0
+time_based
+ramp_time=3D0
+norandommap
+refill_buffers
+log_max_value=3D1
+log_avg_msec=3D1000
+group_reporting
+percentile_list=3D50:60:70:80:90:95:99
 
-You can check this right now by looking at dmesg. If you don't
-have any poll queues, preadv2 with IOCB_HIPRI will be IRQ based,
-not polled. io_uring just tells you this up front with -EOPNOTSUPP.
+Your help is highly appreciated, thank you.
 
--- 
-Jens Axboe
+Hamilton.
+
+On 25/05/20 3:21 p.=C2=A0m., Jens Axboe wrote:
+> On 5/25/20 11:45 AM, Hamilton Tobon Mosquera wrote:
+>> Hi there,
+>>
+>> I'm trying to run sequential and random reads/writes in parallel using
+>> the io_uring engine with the HIPRI flag activated to enable polling. The
+>> file size is 200G, the number of fio threads is 4. The --size flags is
+>> set to 200/4, and the --offset_increment is set to 25%. I could
+>> effectively do it with pvsync2 engine but when I switch to io_uring the
+>> workloads immediately (they do not even work for 1 sec) fail with these
+>> errors:
+>>
+>> fio: io_u error on file /path/to/file: Operation not supported: write
+>> offset=3D3238043648, buflen=3D4096
+>> fio: io_u error on file /path/to/file: Operation not supported: write
+>> offset=3D88715874304, buflen=3D4096
+>> fio: io_u error on file /path/to/file: Operation not supported: write
+>> offset=3D174739943424, buflen=3D4096
+>> fio: io_u error on file /path/to/file: Operation not supported: write
+>> offset=3D112642154496, buflen=3D4096
+>>
+>>
+>> The offsets are under 200G, I don't understand why it's returning those
+>> errors. Can someone help please?.
+> What file system are you using? I don't think it supports IO polling.
+> io_uring actually checks for this, with preadv you just get normal
+> schedule based IO.
+>
+> --
+> Jens Axboe
+>
+> La informaci=C3=B3n contenida en este correo electr=C3=B3nico est=C3=A1 d=
+irigida =C3=BAnicamente a su destinatario y puede contener informaci=C3=B3n=
+ confidencial, material privilegiado o informaci=C3=B3n protegida por derec=
+ho de autor. Est=C3=A1 prohibida cualquier copia, utilizaci=C3=B3n, indebid=
+a retenci=C3=B3n, modificaci=C3=B3n, difusi=C3=B3n, distribuci=C3=B3n o rep=
+roducci=C3=B3n total o parcial. Si usted recibe este mensaje por error, por=
+ favor contacte al remitente y elim=C3=ADnelo. La informaci=C3=B3n aqu=C3=
+=AD contenida es responsabilidad exclusiva de su remitente por lo tanto la =
+Universidad EAFIT no se hace responsable de lo que el mensaje contenga. The=
+ information contained in this email is addressed to its recipient only and=
+ may contain confidential information, privileged material or information p=
+rotected by copyright. Its prohibited any copy, use, improper retention, mo=
+dification, dissemination, distribution or total or partial reproduction. I=
+f you receive this message by error, please contact the sender and delete i=
+t. The information contained herein is the sole responsibility of the sende=
+r therefore Universidad EAFIT is not responsible for what the message conta=
+ins.
 
 
