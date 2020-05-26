@@ -1,47 +1,30 @@
-Return-Path: <prvs=0416aa3d74=elliott@hpe.com>
-From: "Elliott, Robert (Servers)" <elliott@hpe.com>
-Subject: RE: Python scripts - /usr/bin/env python3 vs python vs python2.7
-Date: Wed, 27 May 2020 18:10:57 +0000
-Message-ID: <CS1PR8401MB1237B6211F30F9C8C1450CE1ABB10@CS1PR8401MB1237.NAMPRD84.PROD.OUTLOOK.COM>
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+Subject: Re: Python scripts - /usr/bin/env python3 vs python vs python2.7
 References: <d9332e23-633e-c4c0-381b-b2fcbd983e15@bsdio.com>
- <87ec264a-c0cd-2868-4173-f7d52297e7d5@gmail.com>
-In-Reply-To: <87ec264a-c0cd-2868-4173-f7d52297e7d5@gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Vincent Fu <vincentfu@gmail.com>
+Message-ID: <87ec264a-c0cd-2868-4173-f7d52297e7d5@gmail.com>
+Date: Tue, 26 May 2020 10:32:39 -0400
 MIME-Version: 1.0
-To: Vincent Fu <vincentfu@gmail.com>, Rebecca Cran <rebecca@bsdio.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <d9332e23-633e-c4c0-381b-b2fcbd983e15@bsdio.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Rebecca Cran <rebecca@bsdio.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 Cc: Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-DQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IGZpby1vd25lckB2Z2VyLmtl
-cm5lbC5vcmcgPGZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmc+IE9uIEJlaGFsZg0KPiBPZiBWaW5j
-ZW50IEZ1DQo+IFNlbnQ6IFR1ZXNkYXksIE1heSAyNiwgMjAyMCA5OjMzIEFNDQo+IFRvOiBSZWJl
-Y2NhIENyYW4gPHJlYmVjY2FAYnNkaW8uY29tPjsgZmlvQHZnZXIua2VybmVsLm9yZw0KPiBDYzog
-SmVucyBBeGJvZSA8YXhib2VAa2VybmVsLmRrPg0KPiBTdWJqZWN0OiBSZTogUHl0aG9uIHNjcmlw
-dHMgLSAvdXNyL2Jpbi9lbnYgcHl0aG9uMyB2cyBweXRob24gdnMNCj4gcHl0aG9uMi43DQo+IA0K
-PiBPbiA1LzI2LzIwIDEwOjEzIEFNLCBSZWJlY2NhIENyYW4gd3JvdGU6DQo+ID4gUHl0aG9uIHNj
-cmlwdHMgaW4gZmlvIHVzZSBhIHZhcmlldHkgb2YgbWV0aG9kcyB0byBydW4gdGhlIHB5dGhvbg0K
-PiA+IGludGVycHJldGVyOiB0L3J1bl9maW9fdGVzdHMucHkgaGFzICIjIS91c3IvYmluL2VudiBw
-eXRob24zIiB3aGlsZQ0KPiA+IHQvc3RyaWRlZC5weSBoYXMgIiMhL3Vzci9iaW4vcHl0aG9uIiwg
-YW5kIHNndW5tYXAtdGVzdC5weSBoYXMNCj4gPiAiIyEvdXNyL2Jpbi9weXRob24yLjciLg0KPiA+
-DQo+ID4NCj4gPiBXb3VsZCB0aGVyZSBhbnkgaW50ZXJlc3QgaW4gY29udmVydGluZyB0aGVtIGFs
-bCB0byB1c2UNCj4gPiAiIyEvdXNyL2Jpbi9lbnYgcHl0aG9uMyA/DQo+IA0KPiBJIHRoaW5rIGhh
-dmluZyBhIHVuaWZvcm0gcHl0aG9uIGludGVycHJldGVyIGxpbmUgd291bGQgYmUgYSBnb29kDQo+
-IHRoaW5nLg0KDQpJIGhhdmUgYmVlbiB1c2luZyBweXRob24gYSBsb3QgcmVjZW50bHkgYW5kIGFs
-c28gbm90aWNlZCB0aGF0IHRoZQ0KL3Vzci9iaW4vZW52IGZvcm1hdCBpcyB0aGUgcHJlZmVycmVk
-IGFwcHJvYWNoOyBpdCB3b3JrcyBiZXN0IGFjcm9zcw0KbGludXggZGlzdHJvcywgbG9jYWwgaW5z
-dGFsbHMsIGFuZCBpcyBldmVuIHJlY29nbml6ZWQgYnkgUHl0aG9uIGluDQpXaW5kb3dzLg0KDQpN
-b3N0IG9mIHRoZSBzY3JpcHRzIGluY2x1ZGUgY29tbWVudHMgY2xhaW1pbmcgcHl0aG9uMyBjb21w
-YXRpYmlsaXR5Ow0Kb25lIGRvZXMgbm90Lg0KDQp0L3NndW5tYXAtcGVyZi5weTojIS91c3IvYmlu
-L3B5dGhvbjIuNw0KdC9zZ3VubWFwLXBlcmYucHk6IyBSRVFVSVJFTUVOVFMNCnQvc2d1bm1hcC1w
-ZXJmLnB5OiMgUHl0aG9uIDIuNisNCg0KdC9zZ3VubWFwLXRlc3QucHk6IyEvdXNyL2Jpbi9weXRo
-b24yLjcNCnQvc2d1bm1hcC10ZXN0LnB5OiMgTm90ZTogdGhpcyBzY3JpcHQgaXMgcHl0aG9uMiBh
-bmQgcHl0aG9uIDMgY29tcGF0aWJsZS4NCg0KdC9zdGVhZHlzdGF0ZV90ZXN0cy5weTojIS91c3Iv
-YmluL2VudiBweXRob24NCnQvc3RlYWR5c3RhdGVfdGVzdHMucHk6IyBOb3RlOiB0aGlzIHNjcmlw
-dCBpcyBweXRob24yIGFuZCBweXRob24zIGNvbXBhdGlibGUuDQoNCnQvc3RyaWRlZC5weTojIS91
-c3IvYmluL3B5dGhvbg0KdC9zdHJpZGVkLnB5OiMgTm90ZTogdGhpcyBzY3JpcHQgaXMgcHl0aG9u
-MiBhbmQgcHl0aG9uMyBjb21wYXRpYmxlLg0KDQp0b29scy9maW9sb2dwYXJzZXIucHk6IyEvdXNy
-L2Jpbi9weXRob24yLjcNCnRvb2xzL2Zpb2xvZ3BhcnNlci5weTojIS8jIE5vdGU6IHRoaXMgc2Ny
-aXB0IGlzIHB5dGhvbjIgYW5kIHB5dGhvbiAzIGNvbXBhdGlibGUuDQoNCg0K
+On 5/26/20 10:13 AM, Rebecca Cran wrote:
+> Python scripts in fio use a variety of methods to run the python 
+> interpreter: t/run_fio_tests.py has "#!/usr/bin/env python3" while 
+> t/strided.py has "#!/usr/bin/python", and sgunmap-test.py has 
+> "#!/usr/bin/python2.7".
+> 
+> 
+> Would there any interest in converting them all to use "#!/usr/bin/env 
+> python3 ?
+> 
+> 
+
+I think having a uniform python interpreter line would be a good thing.
 
