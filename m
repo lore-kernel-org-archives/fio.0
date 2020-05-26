@@ -1,42 +1,37 @@
-Return-Path: <adobriyan@gmail.com>
-Return-Path: <adobriyan@gmail.com>
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: [PATCH 2/5] zbd: bump ZBD_MAX_OPEN_ZONES
-Date: Fri, 22 May 2020 02:17:13 +0300
-Message-Id: <20200521231716.28832-2-adobriyan@gmail.com>
-In-Reply-To: <20200521231716.28832-1-adobriyan@gmail.com>
-References: <20200521231716.28832-1-adobriyan@gmail.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 0/4] zbd: clean up libzbc ioengine and tests
+References: <20200525213256.7476-1-dmitry.fomichev@wdc.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <15fbdcf6-d3d4-029b-f1e5-b08285a0ec4b@kernel.dk>
+Date: Mon, 25 May 2020 18:22:23 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-To: axboe@kernel.dk
-Cc: adobriyan@gmail.com, damien.lemoal@wdc.com, fio@vger.kernel.org
+In-Reply-To: <20200525213256.7476-1-dmitry.fomichev@wdc.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-128 opened zones is not enough for us!
+On 5/25/20 3:32 PM, Dmitry Fomichev wrote:
+> This series makes a few minor, but IMO useful changes in libzbc
+> ioengine and ZBD test script.
+> 
+> Dmitry Fomichev (4):
+>   libzbc: cleanup init code
+>   libzbc: fix whitespace errors
+>   t/zbd: beautify test script output
+>   t/zbd: make the test script easier to terminate
+> 
+>  engines/libzbc.c       | 33 +++++++++++++++++----------------
+>  t/zbd/test-zbd-support | 20 ++++++++++++++++++--
+>  2 files changed, 35 insertions(+), 18 deletions(-)
 
-4096 opened zones is OK for 64×iodepth=64 stress testing.
+Applied, thanks. BTW, since Damien asked, I'm fine with whitespace
+changes as long as they are separate. Don't mix them with functional
+changes. Ditto coding style changes.
 
-Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
----
- zbd_types.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/zbd_types.h b/zbd_types.h
-index 2f2f1324..d63c0d0a 100644
---- a/zbd_types.h
-+++ b/zbd_types.h
-@@ -8,7 +8,7 @@
- 
- #include <inttypes.h>
- 
--#define ZBD_MAX_OPEN_ZONES	128
-+#define ZBD_MAX_OPEN_ZONES	4096
- 
- /*
-  * Zoned block device models.
 -- 
-2.26.2
+Jens Axboe
 
 
