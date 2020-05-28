@@ -1,106 +1,82 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:22452 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726036AbgEHH4u (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 8 May 2020 03:56:50 -0400
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH v2 5/7] zbd: Rename zbd_init()
-Date: Fri,  8 May 2020 16:56:43 +0900
-Message-Id: <20200508075645.543890-6-damien.lemoal@wdc.com>
-In-Reply-To: <20200508075645.543890-1-damien.lemoal@wdc.com>
-References: <20200508075645.543890-1-damien.lemoal@wdc.com>
+Return-Path: <prvs=4108b2f29=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 1/2] pshared: Add mutex_init_pshared_with_type()
+Date: Thu, 28 May 2020 21:56:41 +0900
+Message-Id: <20200528125642.103863-2-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200528125642.103863-1-shinichiro.kawasaki@wdc.com>
+References: <20200528125642.103863-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>, Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-Clarify the execution context of zbd_init() by renaming this function
-to zbd_setup_files() as it is called from the setup_files() function.
-While at it, wrap the use of zbd_free_zone_info() into the inline
-function zbd_close_file() to avoid an unecessary function call when
-closing files that are not zoned block device files of zonemode=zbd
-jobs, that is, files that do not have zbd_info initialized.
+To initialize mutex to be shared across processes, the helper function
+mutex_init_pshared() is available. However, it does not allow to set
+mutex attribute types such as POSIX_MUTEX_RECURSIVE.
 
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+To allow setting mutex attribute types, introduce another helper function
+mutex_init_pshared_with_type(). It initialize mutex for sharing across
+processes and set attribute types specified as its argument.
+
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- filesetup.c | 4 ++--
- zbd.c       | 5 ++---
- zbd.h       | 8 +++++++-
- 3 files changed, 11 insertions(+), 6 deletions(-)
+ pshared.c | 15 ++++++++++++++-
+ pshared.h |  1 +
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/filesetup.c b/filesetup.c
-index 8a4091fc..49c54b81 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -1268,7 +1268,7 @@ done:
- 	td_restore_runstate(td, old_state);
- 
- 	if (td->o.zone_mode == ZONE_MODE_ZBD) {
--		err = zbd_init(td);
-+		err = zbd_setup_files(td);
- 		if (err)
- 			goto err_out;
- 	}
-@@ -1469,7 +1469,7 @@ void close_and_free_files(struct thread_data *td)
- 			td_io_unlink_file(td, f);
- 		}
- 
--		zbd_free_zone_info(f);
-+		zbd_close_file(f);
- 
- 		if (use_free)
- 			free(f->file_name);
-diff --git a/zbd.c b/zbd.c
-index a64fd0c7..db6d09f2 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -546,8 +546,7 @@ void zbd_free_zone_info(struct fio_file *f)
- {
- 	uint32_t refcount;
- 
--	if (!f->zbd_info)
--		return;
-+	assert(f->zbd_info);
- 
- 	pthread_mutex_lock(&f->zbd_info->mutex);
- 	refcount = --f->zbd_info->refcount;
-@@ -592,7 +591,7 @@ static int zbd_init_zone_info(struct thread_data *td, struct fio_file *file)
- 	return ret;
+diff --git a/pshared.c b/pshared.c
+index 21192556..791faf95 100644
+--- a/pshared.c
++++ b/pshared.c
+@@ -39,7 +39,7 @@ int cond_init_pshared(pthread_cond_t *cond)
+ 	return 0;
  }
  
--int zbd_init(struct thread_data *td)
-+int zbd_setup_files(struct thread_data *td)
+-int mutex_init_pshared(pthread_mutex_t *mutex)
++int mutex_init_pshared_with_type(pthread_mutex_t *mutex, int type)
  {
- 	struct fio_file *f;
- 	int i;
-diff --git a/zbd.h b/zbd.h
-index 5a660399..e8dd3d6d 100644
---- a/zbd.h
-+++ b/zbd.h
-@@ -77,8 +77,8 @@ struct zoned_block_device_info {
- 	struct fio_zone_info	zone_info[0];
- };
+ 	pthread_mutexattr_t mattr;
+ 	int ret;
+@@ -60,6 +60,14 @@ int mutex_init_pshared(pthread_mutex_t *mutex)
+ 		return ret;
+ 	}
+ #endif
++	if (type) {
++		ret = pthread_mutexattr_settype(&mattr, type);
++		if (ret) {
++			log_err("pthread_mutexattr_settype: %s\n",
++				strerror(ret));
++			return ret;
++		}
++	}
+ 	ret = pthread_mutex_init(mutex, &mattr);
+ 	if (ret) {
+ 		log_err("pthread_mutex_init: %s\n", strerror(ret));
+@@ -69,6 +77,11 @@ int mutex_init_pshared(pthread_mutex_t *mutex)
+ 	return 0;
+ }
  
-+int zbd_setup_files(struct thread_data *td);
- void zbd_free_zone_info(struct fio_file *f);
--int zbd_init(struct thread_data *td);
- void zbd_file_reset(struct thread_data *td, struct fio_file *f);
- bool zbd_unaligned_write(int error_code);
- void setup_zbd_zone_mode(struct thread_data *td, struct io_u *io_u);
-@@ -87,6 +87,12 @@ enum fio_ddir zbd_adjust_ddir(struct thread_data *td, struct io_u *io_u,
- enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u);
- char *zbd_write_status(const struct thread_stat *ts);
- 
-+static inline void zbd_close_file(struct fio_file *f)
++int mutex_init_pshared(pthread_mutex_t *mutex)
 +{
-+	if (f->zbd_info)
-+		zbd_free_zone_info(f);
++	return mutex_init_pshared_with_type(mutex, 0);
 +}
 +
- static inline void zbd_queue_io_u(struct io_u *io_u, enum fio_q_status status)
+ int mutex_cond_init_pshared(pthread_mutex_t *mutex, pthread_cond_t *cond)
  {
- 	if (io_u->zbd_queue_io) {
+ 	int ret;
+diff --git a/pshared.h b/pshared.h
+index a58df6fe..f33be462 100644
+--- a/pshared.h
++++ b/pshared.h
+@@ -3,6 +3,7 @@
+ 
+ #include <pthread.h>
+ 
++extern int mutex_init_pshared_with_type(pthread_mutex_t *, int);
+ extern int mutex_init_pshared(pthread_mutex_t *);
+ extern int cond_init_pshared(pthread_cond_t *);
+ extern int mutex_cond_init_pshared(pthread_mutex_t *, pthread_cond_t *);
 -- 
 2.25.4
 
