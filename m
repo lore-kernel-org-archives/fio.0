@@ -1,62 +1,136 @@
-Return-Path: <prvs=0418b5f30e=elliott@hpe.com>
-From: "Elliott, Robert (Servers)" <elliott@hpe.com>
-Subject: RE: Python scripts - /usr/bin/env python3 vs python vs python2.7
-Date: Fri, 29 May 2020 20:42:07 +0000
-Message-ID: <CS1PR8401MB1237D43565B8F691EA902AC6AB8F0@CS1PR8401MB1237.NAMPRD84.PROD.OUTLOOK.COM>
+Return-Path: <vincentfu@gmail.com>
+Return-Path: <vincentfu@gmail.com>
+Subject: Re: Python scripts - /usr/bin/env python3 vs python vs python2.7
 References: <d9332e23-633e-c4c0-381b-b2fcbd983e15@bsdio.com>
  <87ec264a-c0cd-2868-4173-f7d52297e7d5@gmail.com>
  <CS1PR8401MB1237B6211F30F9C8C1450CE1ABB10@CS1PR8401MB1237.NAMPRD84.PROD.OUTLOOK.COM>
  <CALjAwxgPF_oHQgDMr+v8y6r1AKbMUf9PKLxdctCugY4CHPy27w@mail.gmail.com>
-In-Reply-To: <CALjAwxgPF_oHQgDMr+v8y6r1AKbMUf9PKLxdctCugY4CHPy27w@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Vincent Fu <vincentfu@gmail.com>
+Message-ID: <0a1c5a62-3cb7-3543-77f9-cab03f07d028@gmail.com>
+Date: Thu, 28 May 2020 15:24:45 -0400
 MIME-Version: 1.0
-To: Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: Vincent Fu <vincentfu@gmail.com>, Rebecca Cran <rebecca@bsdio.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <CALjAwxgPF_oHQgDMr+v8y6r1AKbMUf9PKLxdctCugY4CHPy27w@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Sitsofe Wheeler <sitsofe@gmail.com>, "Elliott, Robert (Servers)" <elliott@hpe.com>
+Cc: Rebecca Cran <rebecca@bsdio.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU2l0c29mZSBXaGVlbGVy
-IDxzaXRzb2ZlQGdtYWlsLmNvbT4NCj4gU2VudDogVGh1cnNkYXksIE1heSAyOCwgMjAyMCAzOjIw
-IEFNDQo+IFRvOiBFbGxpb3R0LCBSb2JlcnQgKFNlcnZlcnMpIDxlbGxpb3R0QGhwZS5jb20+DQo+
-IENjOiBWaW5jZW50IEZ1IDx2aW5jZW50ZnVAZ21haWwuY29tPjsgUmViZWNjYSBDcmFuDQo+IDxy
-ZWJlY2NhQGJzZGlvLmNvbT47IGZpb0B2Z2VyLmtlcm5lbC5vcmc7IEplbnMgQXhib2UNCj4gPGF4
-Ym9lQGtlcm5lbC5kaz4NCj4gU3ViamVjdDogUmU6IFB5dGhvbiBzY3JpcHRzIC0gL3Vzci9iaW4v
-ZW52IHB5dGhvbjMgdnMgcHl0aG9uIHZzDQo+IHB5dGhvbjIuNw0KPiANCj4gPiBJIGhhdmUgYmVl
-biB1c2luZyBweXRob24gYSBsb3QgcmVjZW50bHkgYW5kIGFsc28gbm90aWNlZCB0aGF0IHRoZQ0K
-PiA+IC91c3IvYmluL2VudiBmb3JtYXQgaXMgdGhlIHByZWZlcnJlZCBhcHByb2FjaDsgaXQgd29y
-a3MgYmVzdCBhY3Jvc3MNCj4gPiBsaW51eCBkaXN0cm9zLCBsb2NhbCBpbnN0YWxscywgYW5kIGlz
-IGV2ZW4gcmVjb2duaXplZCBieSBQeXRob24gaW4NCj4gPiBXaW5kb3dzLg0KPiANCj4gSSdtIGd1
-ZXNzaW5nIHRoYXQncyBvbmx5IGluIGdpdCBmb3Igd2luZG93cyBzdHlsZSBzaGVsbHM/IFN1cmVs
-eQ0KPiBuYXRpdmUgV2luZG93cyB3aWxsIGp1c3QgbG9vayBhdCB0aGUgZXh0ZW5zaW9uIGFuZCB0
-aGVuIGxvb2sgaW4gdGhlDQo+IHJlZ2lzdHJ5Pw0KDQpXaXRoIFB5dGhvbiAzLjggaW5zdGFsbGVk
-IChhcyAicHl0aG9uIiwgd2hpY2ggaXMgaG93IHRoZSB1cHN0cmVhbSBpbnN0YWxsZXINCm5hbWVz
-IGl0KSwgdGhpcyBpcyB3aGF0IGl0IGRvZXMgaW4gUG93ZXJTaGVsbDoNCg0KUFMgRDpcPiB0eXBl
-IHRlc3RzaGUucHkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIyEvdXNyL2Jp
-bi9lbnYgcHl0aG9uDQpwcmludCgiaGVsbG8iKQ0KDQpQUyBEOlw+IHR5cGUgdGVzdHNoZTIucHkg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAjIS91c3IvYmluL2VudiBweXRob24y
-DQpwcmludCgiaGVsbG8iKQ0KDQpQUyBEOlw+IHR5cGUgdGVzdHNoZTMucHkgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAjIS91c3IvYmluL2VudiBweXRob24zDQpwcmludCgiaGVs
-bG8iKQ0KDQpQUyBEOlw+IHR5cGUgdGVzdHNoZTMxMC5weSAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAjIS91c3IvYmluL2VudiBweXRob24zLjEwDQpwcmludCgiaGVsbG8iKQ0KDQpQ
-UyBEOlw+IC4vdGVzdHNoZS5weTsgLi90ZXN0c2hlMi5weTsgLi90ZXN0c2hlMy5weTsgLi90ZXN0
-c2hlMzEwLnB5DQpoZWxsbw0KUmVxdWVzdGVkIFB5dGhvbiB2ZXJzaW9uICgyKSBpcyBub3QgaW5z
-dGFsbGVkDQpoZWxsbw0KUmVxdWVzdGVkIFB5dGhvbiB2ZXJzaW9uICgzLjEwKSBpcyBub3QgaW5z
-dGFsbGVkDQoNClBTIEQ6XD4gcHl0aG9uIC4vdGVzdHNoZS5weTsgcHl0aG9uIC4vdGVzdHNoZTIu
-cHk7IHB5dGhvbiAuL3Rlc3RzaGUzLnB5OyBweXRob24gLi90ZXN0c2hlMzEwLnB5DQpoZWxsbw0K
-aGVsbG8NCmhlbGxvDQpoZWxsbw0KDQpJbiBvdGhlciB3b3JkcywgaXQgY2hlY2tzIHRoZSBzaGVi
-YW5nIHZlcnNpb24gaWYgaW52b2tlZCBpbmRpcmVjdGx5LA0KYnV0IGlnbm9yZXMgaXQgdGhlIHB5
-dGhvbiBzY3JpcHQgZmlsZW5hbWUgaXMgYW4gYXJndW1lbnQuDQoNCkluIFdpbmRvd3MgU3Vic3lz
-dGVtIGZvciBMaW51eCArIFVidW50dSArIHB5dGhvbjMsIHdoZXJlIGl0J3MgaW5zdGFsbGVkDQph
-cyAicHl0aG9uMyI6DQovbW50L2QkIC4vdGVzdHNoZS5weTsgLi90ZXN0c2hlMi5weTsgLi90ZXN0
-c2hlMy5weTsgLi90ZXN0c2hlMzEwLnB5DQovdXNyL2Jpbi9lbnY6IOKAmHB5dGhvbuKAmTogTm8g
-c3VjaCBmaWxlIG9yIGRpcmVjdG9yeQ0KL3Vzci9iaW4vZW52OiDigJhweXRob24y4oCZOiBObyBz
-dWNoIGZpbGUgb3IgZGlyZWN0b3J5DQpoZWxsbw0KL3Vzci9iaW4vZW52OiDigJhweXRob24zLjEw
-4oCZOiBObyBzdWNoIGZpbGUgb3IgZGlyZWN0b3J5DQoNCi9tbnQvZCAkIHB5dGhvbjMgLi90ZXN0
-c2hlLnB5OyBweXRob24zIC4vdGVzdHNoZTIucHk7IHB5dGhvbjMgLi90ZXN0c2hlMy5weTsgcHl0
-aG9uMyAuL3Rlc3RzaGUzMTAucHkNCmhlbGxvDQpoZWxsbw0KaGVsbG8NCmhlbGxvDQoNCg==
+On 5/28/20 4:19 AM, Sitsofe Wheeler wrote:
+> Hi,
+> 
+> On Wed, 27 May 2020 at 20:23, Elliott, Robert (Servers) <elliott@hpe.com> wrote:
+>>
+>>> From: fio-owner@vger.kernel.org <fio-owner@vger.kernel.org> On Behalf
+>>> Of Vincent Fu
+>>> Sent: Tuesday, May 26, 2020 9:33 AM
+>>> To: Rebecca Cran <rebecca@bsdio.com>; fio@vger.kernel.org
+>>> Cc: Jens Axboe <axboe@kernel.dk>
+>>> Subject: Re: Python scripts - /usr/bin/env python3 vs python vs
+>>> python2.7
+>>>
+>>> On 5/26/20 10:13 AM, Rebecca Cran wrote:
+>>>> Python scripts in fio use a variety of methods to run the python
+>>>> interpreter: t/run_fio_tests.py has "#!/usr/bin/env python3" while
+>>>> t/strided.py has "#!/usr/bin/python", and sgunmap-test.py has
+>>>> "#!/usr/bin/python2.7".
+>>>>
+>>>>
+>>>> Would there any interest in converting them all to use
+>>>> "#!/usr/bin/env python3 ?
+>>>
+>>> I think having a uniform python interpreter line would be a good
+>>> thing.
+>>
+>> I have been using python a lot recently and also noticed that the
+>> /usr/bin/env format is the preferred approach; it works best across
+>> linux distros, local installs, and is even recognized by Python in
+>> Windows.
+> 
+> I'm guessing that's only in git for windows style shells? Surely
+> native Windows will just look at the extension and then look in the
+> registry?
+> 
+>> Most of the scripts include comments claiming python3 compatibility;
+>> one does not.
+>>
+>> t/sgunmap-perf.py:#!/usr/bin/python2.7
+>> t/sgunmap-perf.py:# REQUIREMENTS
+>> t/sgunmap-perf.py:# Python 2.6+
+>>
+>> t/sgunmap-test.py:#!/usr/bin/python2.7
+>> t/sgunmap-test.py:# Note: this script is python2 and python 3 compatible.
+>>
+>> t/steadystate_tests.py:#!/usr/bin/env python
+>> t/steadystate_tests.py:# Note: this script is python2 and python3 compatible.
+>>
+>> t/strided.py:#!/usr/bin/python
+>> t/strided.py:# Note: this script is python2 and python3 compatible.
+>>
+>> tools/fiologparser.py:#!/usr/bin/python2.7
+>> tools/fiologparser.py:#!/# Note: this script is python2 and python 3 compatible.
+> 
+> I second the suggestion that a single interpreter. Ages ago
+> (https://github.com/axboe/fio/commit/60023ade47e7817db1c18d9b7e511839de5c2c99
+> )  switched the interpreter to /usr/bin/python2.7 on scripts of the
+> time to make life easier on macOS and as a compromise to the distros
+> (which stated that env should not be used for their packages).
+> 
+> These days we have some python3 only scripts, some distros have to
+> patch the interpreter line to be python3 anyway
+> (https://src.fedoraproject.org/rpms/fio/c/b45ecfbe7170bbd6f5b2bec2a33e3c0e3d17d1d2?branch=master
+> ) and will seemingly auto-convert env interpreter usage
+> (https://docs.fedoraproject.org/en-US/packaging-guidelines/#_shebang_lines
+> ) at packaging time, some OS package guidelines say you should ONLY
+> use env interpreter lines (I think this is the case for NetBSD's
+> pkgsrc), macOS will eventually stop shipping python 2.7 default:
+> 
+> WARNING: Python 2.7 is not recommended.
+> This version is included in macOS for compatibility with legacy software.
+> Future versions of macOS will not include Python 2.7.
+> 
+> and it will only ship python3 as part of its developers tools (or the
+> user will have to get it some other way such as homebrew etc).
+> 
+> Given the above, I think the best thing is just to use "#!/usr/bin/env
+> python3" everywhere and at least:
+> - That's nicer to environments that don't have a python interpreter in /usr/bin
+> - Nicer if you ever run the scripts in a virtualenv
+> - Packagers can fix it up to whatever they like and at least the
+> pattern is the same across the board
+> 
+> I guess the things to do are:
+> - Check if the script that doesn't claim python3 compat already works
+> or can be fixed up
+> - Change all the hashbang lines and throw away the comments talking
+> about 2+3 compat
+> 
+> It would be good if any such commit mentions that it
+> "fixes"/supercedes https://github.com/axboe/fio/pull/874 ...
+> 
+
+I have a pull request that changes the shebang lines for 
+t/steadystate_tests.py and t/strided.py:
+
+https://github.com/axboe/fio/pull/1000
+
+I did not make changes to t/sgunmap-*.py. I originally wrote them when 
+testing the sg unmap operation on SAS SSDs but I no longer have access 
+to those devices. I saw errors when I tried to issue sg unmap commands 
+to SATA SSDs.
+
+As for the scripts in the tools subdirectory, the change is trivial to 
+make and test for fio_jsonplus_clat2csv because there is a test script 
+for the tool.
+
+However, tools/fiologparser.py is currently broken because the logging 
+format was changed. The same problem exists for tools/plot/fio2gnuplot 
+and was reported and diagnosed at:
+
+https://github.com/axboe/fio/issues/928
+
+I don't know enough about the scripts in tools/hist to comment on them.
+
+Updating the tools scripts will take a bit of effort.
 
