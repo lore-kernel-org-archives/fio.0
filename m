@@ -1,169 +1,125 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51638 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727948AbgEZMAP (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 26 May 2020 08:00:15 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71761C03E96D
-        for <fio@vger.kernel.org>; Tue, 26 May 2020 05:00:14 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jdYFe-0001RJ-Kl
-        for fio@vger.kernel.org; Tue, 26 May 2020 12:00:11 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20200526120001.4C0D61BC01A9@kernel.dk>
-Date: Tue, 26 May 2020 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <prvs=4108b2f29=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 2/2] zbd: Fix compilation error on BSD
+Date: Thu, 28 May 2020 21:56:42 +0900
+Message-Id: <20200528125642.103863-3-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200528125642.103863-1-shinichiro.kawasaki@wdc.com>
+References: <20200528125642.103863-1-shinichiro.kawasaki@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>, Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 5df5882b267b1cc7d08f7e9038e6c1046d492936:
+Commit b76949618d55 ("fio: Generalize zonemode=zbd") enabled zbd.c
+compilation on other operating systems than Linux. This caused a
+compilation error on NetBSD as follows:
 
-  Merge branch 'parse-and-fill-pattern' of https://github.com/bvanassche/fio (2020-05-24 12:03:56 -0600)
+ld: zbd.o: in function `parse_zone_info':
+fio/zbd.c:422: undefined reference to `pthread_mutexattr_setpshared'
+ld: zbd.o: in function `init_zone_info':
+fio/zbd.c:378: undefined reference to `pthread_mutexattr_setpshared'
+gmake: *** [Makefile:483: fio] Error 1
 
-are available in the Git repository at:
+Same error is expected on other BSD OSes.
 
-  git://git.kernel.dk/fio.git master
+Fix this by initializing mutex using helper functions pshared.c provides.
+To initialize mutex with POSIX_MUTEX_RECURSIVE attribute type, utilize
+mutex_init_pshared_with_type().
 
-for you to fetch changes up to c96b385b6e0c78478697713e6da9174fba2432d3:
-
-  t/zbd: make the test script easier to terminate (2020-05-25 18:21:45 -0600)
-
-----------------------------------------------------------------
-Dmitry Fomichev (4):
-      libzbc: cleanup init code
-      libzbc: fix whitespace errors
-      t/zbd: beautify test script output
-      t/zbd: make the test script easier to terminate
-
- engines/libzbc.c       | 33 +++++++++++++++++----------------
- t/zbd/test-zbd-support | 20 ++++++++++++++++++--
- 2 files changed, 35 insertions(+), 18 deletions(-)
-
+Reported-by: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Fixes: b76949618d55 ("fio: Generalize zonemode=zbd")
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
+ zbd.c | 22 +++++++---------------
+ 1 file changed, 7 insertions(+), 15 deletions(-)
 
-Diff of recent changes:
-
-diff --git a/engines/libzbc.c b/engines/libzbc.c
-index 8c682de6..9e568334 100644
---- a/engines/libzbc.c
-+++ b/engines/libzbc.c
-@@ -47,7 +47,7 @@ static int libzbc_open_dev(struct thread_data *td, struct fio_file *f,
- 			   struct libzbc_data **p_ld)
- {
- 	struct libzbc_data *ld = td->io_ops_data;
--        int ret, flags = OS_O_DIRECT;
-+	int ret, flags = OS_O_DIRECT;
+diff --git a/zbd.c b/zbd.c
+index 72352db0..a7572c9a 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -19,6 +19,7 @@
+ #include "oslib/asprintf.h"
+ #include "smalloc.h"
+ #include "verify.h"
++#include "pshared.h"
+ #include "zbd.h"
  
- 	if (ld) {
- 		/* Already open */
-@@ -61,7 +61,7 @@ static int libzbc_open_dev(struct thread_data *td, struct fio_file *f,
- 		return -EINVAL;
- 	}
+ /**
+@@ -353,7 +354,6 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
+ 	struct fio_zone_info *p;
+ 	uint64_t zone_size = td->o.zone_size;
+ 	struct zoned_block_device_info *zbd_info = NULL;
+-	pthread_mutexattr_t attr;
+ 	int i;
  
--        if (td_write(td)) {
-+	if (td_write(td)) {
- 		if (!read_only)
- 			flags |= O_RDWR;
- 	} else if (td_read(td)) {
-@@ -71,17 +71,15 @@ static int libzbc_open_dev(struct thread_data *td, struct fio_file *f,
- 			flags |= O_RDONLY;
- 	} else if (td_trim(td)) {
- 		td_verror(td, EINVAL, "libzbc does not support trim");
--                log_err("%s: libzbc does not support trim\n",
--                        f->file_name);
--                return -EINVAL;
-+		log_err("%s: libzbc does not support trim\n", f->file_name);
-+		return -EINVAL;
- 	}
+ 	if (zone_size == 0) {
+@@ -374,14 +374,12 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
+ 	if (!zbd_info)
+ 		return -ENOMEM;
  
--        if (td->o.oatomic) {
-+	if (td->o.oatomic) {
- 		td_verror(td, EINVAL, "libzbc does not support O_ATOMIC");
--                log_err("%s: libzbc does not support O_ATOMIC\n",
--                        f->file_name);
--                return -EINVAL;
--        }
-+		log_err("%s: libzbc does not support O_ATOMIC\n", f->file_name);
-+		return -EINVAL;
-+	}
- 
- 	ld = calloc(1, sizeof(*ld));
- 	if (!ld)
-@@ -92,15 +90,12 @@ static int libzbc_open_dev(struct thread_data *td, struct fio_file *f,
- 	if (ret) {
- 		log_err("%s: zbc_open() failed, err=%d\n",
- 			f->file_name, ret);
--		return ret;
-+		goto err;
- 	}
- 
- 	ret = libzbc_get_dev_info(ld, f);
--	if (ret) {
--		zbc_close(ld->zdev);
--		free(ld);
--		return ret;
--	}
-+	if (ret)
-+		goto err_close;
- 
- 	td->io_ops_data = ld;
- out:
-@@ -108,6 +103,12 @@ out:
- 		*p_ld = ld;
- 
+-	pthread_mutexattr_init(&attr);
+-	pthread_mutexattr_setpshared(&attr, true);
+-	pthread_mutex_init(&zbd_info->mutex, &attr);
+-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
++	mutex_init_pshared(&zbd_info->mutex);
+ 	zbd_info->refcount = 1;
+ 	p = &zbd_info->zone_info[0];
+ 	for (i = 0; i < nr_zones; i++, p++) {
+-		pthread_mutex_init(&p->mutex, &attr);
++		mutex_init_pshared_with_type(&p->mutex,
++					     PTHREAD_MUTEX_RECURSIVE);
+ 		p->start = i * zone_size;
+ 		p->wp = p->start + zone_size;
+ 		p->type = ZBD_ZONE_TYPE_SWR;
+@@ -395,7 +393,6 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
+ 	f->zbd_info->zone_size_log2 = is_power_of_2(zone_size) ?
+ 		ilog2(zone_size) : 0;
+ 	f->zbd_info->nr_zones = nr_zones;
+-	pthread_mutexattr_destroy(&attr);
  	return 0;
-+
-+err_close:
-+	zbc_close(ld->zdev);
-+err:
-+	free(ld);
-+	return ret;
  }
  
- static int libzbc_close_dev(struct thread_data *td)
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index de05f438..4001be3b 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -929,20 +929,36 @@ logfile=$0.log
+@@ -415,12 +412,8 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
+ 	struct fio_zone_info *p;
+ 	uint64_t zone_size, offset;
+ 	struct zoned_block_device_info *zbd_info = NULL;
+-	pthread_mutexattr_t attr;
+ 	int i, j, ret = 0;
  
- passed=0
- failed=0
-+if [ -t 1 ]; then
-+    red="\e[1;31m"
-+    green="\e[1;32m"
-+    end="\e[m"
-+else
-+    red=""
-+    green=""
-+    end=""
-+fi
- rc=0
-+
-+intr=0
-+trap 'intr=1' SIGINT
-+
- for test_number in "${tests[@]}"; do
-     rm -f "${logfile}.${test_number}"
--    echo -n "Running test $test_number ... "
-+    echo -n "Running test $(printf "%02d" $test_number) ... "
-     if eval "test$test_number"; then
- 	status="PASS"
-+	cc_status="${green}${status}${end}"
- 	((passed++))
-     else
- 	status="FAIL"
-+	cc_status="${red}${status}${end}"
- 	((failed++))
- 	rc=1
-     fi
--    echo "$status"
-+    echo -e "$cc_status"
-     echo "$status" >> "${logfile}.${test_number}"
-+    [ $intr -ne 0 ] && exit 1
- done
+-	pthread_mutexattr_init(&attr);
+-	pthread_mutexattr_setpshared(&attr, true);
+-
+ 	zones = calloc(ZBD_REPORT_MAX_ZONES, sizeof(struct zbd_zone));
+ 	if (!zones)
+ 		goto out;
+@@ -454,14 +447,14 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
+ 	ret = -ENOMEM;
+ 	if (!zbd_info)
+ 		goto out;
+-	pthread_mutex_init(&zbd_info->mutex, &attr);
+-	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
++	mutex_init_pshared(&zbd_info->mutex);
+ 	zbd_info->refcount = 1;
+ 	p = &zbd_info->zone_info[0];
+ 	for (offset = 0, j = 0; j < nr_zones;) {
+ 		z = &zones[0];
+ 		for (i = 0; i < nrz; i++, j++, z++, p++) {
+-			pthread_mutex_init(&p->mutex, &attr);
++			mutex_init_pshared_with_type(&p->mutex,
++						     PTHREAD_MUTEX_RECURSIVE);
+ 			p->start = z->start;
+ 			switch (z->cond) {
+ 			case ZBD_ZONE_COND_NOT_WP:
+@@ -512,7 +505,6 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
+ out:
+ 	sfree(zbd_info);
+ 	free(zones);
+-	pthread_mutexattr_destroy(&attr);
+ 	return ret;
+ }
  
- echo "$passed tests passed"
+-- 
+2.25.4
+
 
