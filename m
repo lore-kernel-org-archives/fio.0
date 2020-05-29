@@ -1,73 +1,62 @@
-Return-Path: <sitsofe@gmail.com>
-MIME-Version: 1.0
+Return-Path: <prvs=0418b5f30e=elliott@hpe.com>
+From: "Elliott, Robert (Servers)" <elliott@hpe.com>
+Subject: RE: Python scripts - /usr/bin/env python3 vs python vs python2.7
+Date: Fri, 29 May 2020 20:42:07 +0000
+Message-ID: <CS1PR8401MB1237D43565B8F691EA902AC6AB8F0@CS1PR8401MB1237.NAMPRD84.PROD.OUTLOOK.COM>
 References: <d9332e23-633e-c4c0-381b-b2fcbd983e15@bsdio.com>
- <87ec264a-c0cd-2868-4173-f7d52297e7d5@gmail.com> <CS1PR8401MB1237B6211F30F9C8C1450CE1ABB10@CS1PR8401MB1237.NAMPRD84.PROD.OUTLOOK.COM>
- <CALjAwxgPF_oHQgDMr+v8y6r1AKbMUf9PKLxdctCugY4CHPy27w@mail.gmail.com> <CS1PR8401MB1237D43565B8F691EA902AC6AB8F0@CS1PR8401MB1237.NAMPRD84.PROD.OUTLOOK.COM>
-In-Reply-To: <CS1PR8401MB1237D43565B8F691EA902AC6AB8F0@CS1PR8401MB1237.NAMPRD84.PROD.OUTLOOK.COM>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Sat, 30 May 2020 04:36:27 +0100
-Message-ID: <CALjAwxhZN9hOONERh0N2=mFCkm7we01qB6X8x12yQG_h3JGMQg@mail.gmail.com>
-Subject: Re: Python scripts - /usr/bin/env python3 vs python vs python2.7
-Content-Type: text/plain; charset="UTF-8"
-To: "Elliott, Robert (Servers)" <elliott@hpe.com>
+ <87ec264a-c0cd-2868-4173-f7d52297e7d5@gmail.com>
+ <CS1PR8401MB1237B6211F30F9C8C1450CE1ABB10@CS1PR8401MB1237.NAMPRD84.PROD.OUTLOOK.COM>
+ <CALjAwxgPF_oHQgDMr+v8y6r1AKbMUf9PKLxdctCugY4CHPy27w@mail.gmail.com>
+In-Reply-To: <CALjAwxgPF_oHQgDMr+v8y6r1AKbMUf9PKLxdctCugY4CHPy27w@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: Sitsofe Wheeler <sitsofe@gmail.com>
 Cc: Vincent Fu <vincentfu@gmail.com>, Rebecca Cran <rebecca@bsdio.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-On Fri, 29 May 2020 at 21:42, Elliott, Robert (Servers) <elliott@hpe.com> wrote:
->
-> > -----Original Message-----
-> > From: Sitsofe Wheeler <sitsofe@gmail.com>
-> > Sent: Thursday, May 28, 2020 3:20 AM
-> > To: Elliott, Robert (Servers) <elliott@hpe.com>
-> > Cc: Vincent Fu <vincentfu@gmail.com>; Rebecca Cran
-> > <rebecca@bsdio.com>; fio@vger.kernel.org; Jens Axboe
-> > <axboe@kernel.dk>
-> > Subject: Re: Python scripts - /usr/bin/env python3 vs python vs
-> > python2.7
-> >
-> > > I have been using python a lot recently and also noticed that the
-> > > /usr/bin/env format is the preferred approach; it works best across
-> > > linux distros, local installs, and is even recognized by Python in
-> > > Windows.
-> >
-> > I'm guessing that's only in git for windows style shells? Surely
-> > native Windows will just look at the extension and then look in the
-> > registry?
->
-> With Python 3.8 installed (as "python", which is how the upstream installer
-> names it), this is what it does in PowerShell:
->
-> PS D:\> type testshe.py                                                                                              #!/usr/bin/env python
-> print("hello")
->
-> PS D:\> type testshe2.py                                                                                             #!/usr/bin/env python2
-> print("hello")
->
-> PS D:\> type testshe3.py                                                                                             #!/usr/bin/env python3
-> print("hello")
->
-> PS D:\> type testshe310.py                                                                                           #!/usr/bin/env python3.10
-> print("hello")
->
-> PS D:\> ./testshe.py; ./testshe2.py; ./testshe3.py; ./testshe310.py
-> hello
-> Requested Python version (2) is not installed
-> hello
-> Requested Python version (3.10) is not installed
->
-> PS D:\> python ./testshe.py; python ./testshe2.py; python ./testshe3.py; python ./testshe310.py
-> hello
-> hello
-> hello
-> hello
->
-> In other words, it checks the shebang version if invoked indirectly,
-> but ignores it the python script filename is an argument.
-
-Wow - TIL... It looks like this support is down to the Python launcher
-for Windows (https://docs.python.org/3/using/windows.html#shebang-lines
-). Thanks for taking the time to correct me Elliot!
-
--- 
-Sitsofe | http://sucs.org/~sits/
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU2l0c29mZSBXaGVlbGVy
+IDxzaXRzb2ZlQGdtYWlsLmNvbT4NCj4gU2VudDogVGh1cnNkYXksIE1heSAyOCwgMjAyMCAzOjIw
+IEFNDQo+IFRvOiBFbGxpb3R0LCBSb2JlcnQgKFNlcnZlcnMpIDxlbGxpb3R0QGhwZS5jb20+DQo+
+IENjOiBWaW5jZW50IEZ1IDx2aW5jZW50ZnVAZ21haWwuY29tPjsgUmViZWNjYSBDcmFuDQo+IDxy
+ZWJlY2NhQGJzZGlvLmNvbT47IGZpb0B2Z2VyLmtlcm5lbC5vcmc7IEplbnMgQXhib2UNCj4gPGF4
+Ym9lQGtlcm5lbC5kaz4NCj4gU3ViamVjdDogUmU6IFB5dGhvbiBzY3JpcHRzIC0gL3Vzci9iaW4v
+ZW52IHB5dGhvbjMgdnMgcHl0aG9uIHZzDQo+IHB5dGhvbjIuNw0KPiANCj4gPiBJIGhhdmUgYmVl
+biB1c2luZyBweXRob24gYSBsb3QgcmVjZW50bHkgYW5kIGFsc28gbm90aWNlZCB0aGF0IHRoZQ0K
+PiA+IC91c3IvYmluL2VudiBmb3JtYXQgaXMgdGhlIHByZWZlcnJlZCBhcHByb2FjaDsgaXQgd29y
+a3MgYmVzdCBhY3Jvc3MNCj4gPiBsaW51eCBkaXN0cm9zLCBsb2NhbCBpbnN0YWxscywgYW5kIGlz
+IGV2ZW4gcmVjb2duaXplZCBieSBQeXRob24gaW4NCj4gPiBXaW5kb3dzLg0KPiANCj4gSSdtIGd1
+ZXNzaW5nIHRoYXQncyBvbmx5IGluIGdpdCBmb3Igd2luZG93cyBzdHlsZSBzaGVsbHM/IFN1cmVs
+eQ0KPiBuYXRpdmUgV2luZG93cyB3aWxsIGp1c3QgbG9vayBhdCB0aGUgZXh0ZW5zaW9uIGFuZCB0
+aGVuIGxvb2sgaW4gdGhlDQo+IHJlZ2lzdHJ5Pw0KDQpXaXRoIFB5dGhvbiAzLjggaW5zdGFsbGVk
+IChhcyAicHl0aG9uIiwgd2hpY2ggaXMgaG93IHRoZSB1cHN0cmVhbSBpbnN0YWxsZXINCm5hbWVz
+IGl0KSwgdGhpcyBpcyB3aGF0IGl0IGRvZXMgaW4gUG93ZXJTaGVsbDoNCg0KUFMgRDpcPiB0eXBl
+IHRlc3RzaGUucHkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIyEvdXNyL2Jp
+bi9lbnYgcHl0aG9uDQpwcmludCgiaGVsbG8iKQ0KDQpQUyBEOlw+IHR5cGUgdGVzdHNoZTIucHkg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAjIS91c3IvYmluL2VudiBweXRob24y
+DQpwcmludCgiaGVsbG8iKQ0KDQpQUyBEOlw+IHR5cGUgdGVzdHNoZTMucHkgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAjIS91c3IvYmluL2VudiBweXRob24zDQpwcmludCgiaGVs
+bG8iKQ0KDQpQUyBEOlw+IHR5cGUgdGVzdHNoZTMxMC5weSAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAjIS91c3IvYmluL2VudiBweXRob24zLjEwDQpwcmludCgiaGVsbG8iKQ0KDQpQ
+UyBEOlw+IC4vdGVzdHNoZS5weTsgLi90ZXN0c2hlMi5weTsgLi90ZXN0c2hlMy5weTsgLi90ZXN0
+c2hlMzEwLnB5DQpoZWxsbw0KUmVxdWVzdGVkIFB5dGhvbiB2ZXJzaW9uICgyKSBpcyBub3QgaW5z
+dGFsbGVkDQpoZWxsbw0KUmVxdWVzdGVkIFB5dGhvbiB2ZXJzaW9uICgzLjEwKSBpcyBub3QgaW5z
+dGFsbGVkDQoNClBTIEQ6XD4gcHl0aG9uIC4vdGVzdHNoZS5weTsgcHl0aG9uIC4vdGVzdHNoZTIu
+cHk7IHB5dGhvbiAuL3Rlc3RzaGUzLnB5OyBweXRob24gLi90ZXN0c2hlMzEwLnB5DQpoZWxsbw0K
+aGVsbG8NCmhlbGxvDQpoZWxsbw0KDQpJbiBvdGhlciB3b3JkcywgaXQgY2hlY2tzIHRoZSBzaGVi
+YW5nIHZlcnNpb24gaWYgaW52b2tlZCBpbmRpcmVjdGx5LA0KYnV0IGlnbm9yZXMgaXQgdGhlIHB5
+dGhvbiBzY3JpcHQgZmlsZW5hbWUgaXMgYW4gYXJndW1lbnQuDQoNCkluIFdpbmRvd3MgU3Vic3lz
+dGVtIGZvciBMaW51eCArIFVidW50dSArIHB5dGhvbjMsIHdoZXJlIGl0J3MgaW5zdGFsbGVkDQph
+cyAicHl0aG9uMyI6DQovbW50L2QkIC4vdGVzdHNoZS5weTsgLi90ZXN0c2hlMi5weTsgLi90ZXN0
+c2hlMy5weTsgLi90ZXN0c2hlMzEwLnB5DQovdXNyL2Jpbi9lbnY6IOKAmHB5dGhvbuKAmTogTm8g
+c3VjaCBmaWxlIG9yIGRpcmVjdG9yeQ0KL3Vzci9iaW4vZW52OiDigJhweXRob24y4oCZOiBObyBz
+dWNoIGZpbGUgb3IgZGlyZWN0b3J5DQpoZWxsbw0KL3Vzci9iaW4vZW52OiDigJhweXRob24zLjEw
+4oCZOiBObyBzdWNoIGZpbGUgb3IgZGlyZWN0b3J5DQoNCi9tbnQvZCAkIHB5dGhvbjMgLi90ZXN0
+c2hlLnB5OyBweXRob24zIC4vdGVzdHNoZTIucHk7IHB5dGhvbjMgLi90ZXN0c2hlMy5weTsgcHl0
+aG9uMyAuL3Rlc3RzaGUzMTAucHkNCmhlbGxvDQpoZWxsbw0KaGVsbG8NCmhlbGxvDQoNCg==
 
