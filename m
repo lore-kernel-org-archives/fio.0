@@ -1,48 +1,51 @@
-Return-Path: <prvs=390c41bd8=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH v2 0/7] Assorted bug fixes and improvements
-Date: Fri,  8 May 2020 16:56:38 +0900
-Message-Id: <20200508075645.543890-1-damien.lemoal@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa5.hgst.iphmx.com ([216.71.153.144]:40187 "EHLO
+        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725768AbgE2HDJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 29 May 2020 03:03:09 -0400
+From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: Re: Build failure on NetBSD since "fio: Generalize zonemode=zbd"
+Date: Fri, 29 May 2020 07:03:06 +0000
+Message-ID: <20200529070305.zhcpfpqqzs75kuq5@shindev.dhcp.fujisawa.hgst.com>
+References: <CAHndrBnYH-i1y890GfAjHq1Mz2kgB4b6JcxtT4q0wjE_pV-hUQ@mail.gmail.com>
+ <20200528130204.senunv5454uvd7hy@shindev.dhcp.fujisawa.hgst.com>
+ <CAHndrBkmJYgVXPQAcfhiTGiy2UsiJvJ-iD7oj4rfCZHSFah3-w@mail.gmail.com>
+In-Reply-To: <CAHndrBkmJYgVXPQAcfhiTGiy2UsiJvJ-iD7oj4rfCZHSFah3-w@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <E3089F4D07BABE4398C8CCF846CAFCEF@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-The first 3 patches of this series fix bugs with write_iolog option
-initialization (crash on initialization failure) and with zonemode=zbd
-(one possible deadlock for read workloads and an assert trigerring with
-verify option enabled).
-
-The following 4 patches are cleanups and improvements of zbd_xxx()
-functions to reduce unnecessary overhead when zonemode=zbd is not used.
-
-Comments are welcome !
-
-* Changes from v1:
-  - Dropped the patches introducing file and thread zbd function
-    pointers. Further reducing the overhead on fio core due to the
-    presence of zbd_xxx() functions will require major code surgery.
-    Until then, the new patches 4, 5 and 6 provide smaller improvements.
-  - Added patch 7 to improve tests execution time.
-
-Damien Le Moal (7):
-  iolog: Fix write_iolog_close()
-  zbd: Fix potential deadlock on read operations
-  zbd: Fix read with verify
-  zbd: Optimize zbd_file_reset()
-  zbd: Rename zbd_init()
-  io_u: Optimize set_rw_ddir()
-  t/zbd: Use max-jobs=16 option
-
- filesetup.c            |  4 ++--
- io_u.c                 |  3 ++-
- iolog.c                |  3 +++
- t/zbd/test-zbd-support |  4 ++--
- zbd.c                  | 22 +++++++++-------------
- zbd.h                  |  8 +++++++-
- 6 files changed, 25 insertions(+), 19 deletions(-)
-
--- 
-2.25.4
-
+T24gTWF5IDI5LCAyMDIwIC8gMDE6NDYsIFRvbW9oaXJvIEt1c3VtaSB3cm90ZToNCj4gMjAyMOW5
+tDXmnIgyOOaXpSjmnKgpIDIyOjAyIFNoaW5pY2hpcm8gS2F3YXNha2kgPHNoaW5pY2hpcm8ua2F3
+YXNha2lAd2RjLmNvbT46DQo+ID4NCj4gPiBPbiBNYXkgMjcsIDIwMjAgLyAwMTowOCwgVG9tb2hp
+cm8gS3VzdW1pIHdyb3RlOg0KPiA+ID4gYjc2OTQ5NjE4ZDU1N2JkNjMxODEyNDVhYTUyMmVhZDli
+OTJkMjc0YiAoImZpbzogR2VuZXJhbGl6ZSB6b25lbW9kZT16YmQiKQ0KPiA+ID4gd2hpY2ggZ290
+IHJpZCBvZiBDT05GSUdfSEFTX0JMS1pPTkVEIGZsYWcgYnJva2UgY29tcGlsYXRpb24gb24gTmV0
+QlNELA0KPiA+ID4gYXMgcHRocmVhZCBpbiBOZXRCU0QgZG9lc24ndCBoYXZlIHB0aHJlYWRfbXV0
+ZXhhdHRyX3NldHBzaGFyZWQoMykuDQo+ID4gPiBMb29rcyBsaWtlIE9wZW5CU0QgZG9lc24ndCBo
+YXZlIGl0IGVpdGhlci4NCj4gPiA+DQo+ID4gPiAtLQ0KPiA+ID4gbGQ6IHpiZC5vOiBpbiBmdW5j
+dGlvbiBgcGFyc2Vfem9uZV9pbmZvJzoNCj4gPiA+IGZpby96YmQuYzo0MjI6IHVuZGVmaW5lZCBy
+ZWZlcmVuY2UgdG8gYHB0aHJlYWRfbXV0ZXhhdHRyX3NldHBzaGFyZWQnDQo+ID4gPiBsZDogemJk
+Lm86IGluIGZ1bmN0aW9uIGBpbml0X3pvbmVfaW5mbyc6DQo+ID4gPiBmaW8vemJkLmM6Mzc4OiB1
+bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBwdGhyZWFkX211dGV4YXR0cl9zZXRwc2hhcmVkJw0KPiA+
+ID4gZ21ha2U6ICoqKiBbTWFrZWZpbGU6NDgzOiBmaW9dIEVycm9yIDENCj4gPg0KPiA+IEhlbGxv
+IFRvbW9oaXJvLA0KPiA+DQo+ID4gSSBoYXZlIHNlbnQgb3V0IGEgcGF0Y2ggc2VyaWVzIHdpdGgg
+c3ViamVjdCAiRml4IGNvbXBpbGF0aW9uIGVycm9yIG9uIEJTRCINCj4gPiB3aGljaCB0cmllcyB0
+byBhZGRyZXNzIHRoZSBpc3N1ZS4gSSBkbyBub3QgaGF2ZSBCU0Qgc3lzdGVtcyBhbmQgY2FuIG5v
+dCBjb25maXJtDQo+ID4gdGhlIHNlcmllcyBmaXhlcyB0aGUgaXNzdWUuIENvdWxkIHlvdSBoZWxw
+IHRvIGNoZWNrIHRoZSBmaXggd2l0aCB5b3VyIHN5c3RlbT8NCj4gDQo+IEhpDQo+IA0KPiBUaGFu
+ayB5b3UgZm9yIHRha2luZyBhIGxvb2sgYXQgaXQuDQo+IFRoZSBidWlsZCBmYWlsdXJlIG9uIE5l
+dEJTRCBhbmQgT3BlbkJTRCBhcmUgYm90aCBmaXhlZCBub3cuDQo+IA0KPiAoSSd2ZSBhbHNvIGNv
+bXBpbGVkIGl0IG9uIEZyZWVCU0QgYW5kIERyYWdvbkZseUJTRCB3aGljaCBzZWVtIHRvIHN1cHBv
+cnQNCj4gcHRocmVhZF9tdXRleGF0dHJfc2V0cHNoYXJlZCgzKSAoYXQgbGVhc3QgY29tcGlsZSks
+IGFuZCB0aGV5IGRpZG4ndCBoYXZlIGJ1aWxkDQo+IGlzc3VlIHdpdGggeW91ciBwYXRjaCBzZXJp
+ZXMgYXMgd2VsbC4pDQoNClRvbW9oaXJvLCB0aGFua3MgZm9yIHRoZSBjb25maXJtYXRpb24uIFNv
+dW5kcyBnb29kLg0KDQpKZW5zLCB0aGFuayB5b3UgZm9yIHRoZSBxdWljayBwaWNrIHVwLg0KDQot
+LSANCkJlc3QgUmVnYXJkcywNClNoaW4naWNoaXJvIEthd2FzYWtp
 
