@@ -1,55 +1,43 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42214 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725267AbgE0XS2 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 27 May 2020 19:18:28 -0400
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D6D9C08C5C1
-        for <fio@vger.kernel.org>; Wed, 27 May 2020 16:18:28 -0700 (PDT)
-Received: by mail-ej1-x630.google.com with SMTP id k11so4817200ejr.9
-        for <fio@vger.kernel.org>; Wed, 27 May 2020 16:18:28 -0700 (PDT)
-MIME-Version: 1.0
-References: <CACmRju_xOV_8QRqH8=VWiDA1VM2SwmczcObk+HCgExnX4xsXoA@mail.gmail.com>
- <CACmRju8gdCJTsP6MOCVOUth0Zx4+w1BuMy64knZBGOXZ94FJWQ@mail.gmail.com>
-In-Reply-To: <CACmRju8gdCJTsP6MOCVOUth0Zx4+w1BuMy64knZBGOXZ94FJWQ@mail.gmail.com>
-From: =?UTF-8?B?6YK55a6H?= <yzou0503@gmail.com>
-Date: Wed, 27 May 2020 19:18:15 -0400
-Message-ID: <CACmRju-Y+Smd41F67+B_DW+=31VOYOUrvVcOKrCv5ObiJ4O3rQ@mail.gmail.com>
-Subject: Fwd: iodepth option setting suggestions
-Content-Type: text/plain; charset="UTF-8"
+Received: from o1.dev.nutanix.com ([198.21.4.205]:51939 "EHLO
+        o1.dev.nutanix.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2405031AbgE2C3d (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 28 May 2020 22:29:33 -0400
+From: Raphael Norwitz <raphael.norwitz@nutanix.com>
+Subject: [PATCH] Fix typo in libiscsi error message
+Date: Fri, 29 May 2020 02:24:24 +0000 (UTC)
+Message-Id: <1588795197-3341-1-git-send-email-raphael.norwitz@nutanix.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
+Cc: raphael.s.norwitz@gmail.com, Raphael Norwitz <raphael.norwitz@nutanix.com>
 
-Dear All,
+On authentication failure when connecting to an iscsi server, fio will
+print "sicsi: failed to connect to LUN : Failed to log in to target.".
 
-I'm working on using hardware to accelerate the OS stack of NVMe SSD.
-By now, we provided these APIs to userspace:
+This change fixes a typo, changing sicsi to iscsi.
 
-read_async(); // there is a pre-allocated memory request buffer in
-DRAM, if request buffer is not full, push request to buffer then
-return. If buffer is full, send all request in buffer batch to the
-accelerator, waiting for (polling) all request to be completed, and
-return.
-write_async();// same as read_async()
-poll();// if there are some requests left in the request buffer,
-finish processing them.
+Signed-off-by: Raphael Norwitz <raphael.norwitz@nutanix.com>
+---
+ engines/libiscsi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I feel like this is very similar to asynchronous I/O with libaio in
-Linux, so we take this as the baseline. But I'm not sure in my use
-case, for a fair comparison, how to set iodepth options:
+diff --git a/engines/libiscsi.c b/engines/libiscsi.c
+index 58667fb..35761a6 100644
+--- a/engines/libiscsi.c
++++ b/engines/libiscsi.c
+@@ -109,7 +109,7 @@ static int fio_iscsi_setup_lun(struct iscsi_info *iscsi_info,
+ 	if (iscsi_full_connect_sync(iscsi_lun->iscsi,
+ 				    iscsi_lun->url->portal,
+ 				    iscsi_lun->url->lun)) {
+-		log_err("sicsi: failed to connect to LUN : %s\n",
++		log_err("iscsi: failed to connect to LUN : %s\n",
+ 			iscsi_get_error(iscsi_lun->iscsi));
+ 		ret = EINVAL;
+ 		goto out;
+-- 
+1.8.3.1
 
-iodepth_batch_submit
-iodepth_batch_complete_min
-iodepth_batch_complete_max
-iodepth_low
-
-Right now, I'm using:
-fio --iodepth_batch_submit=0 --ioengine=libaio --direct=1 --buffered=0
-sequential_write.fio
-
-Any suggestions about other option settings?
-
-Thank you.
-Yu
 
