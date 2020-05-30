@@ -1,90 +1,73 @@
-Return-Path: <adobriyan@gmail.com>
-Return-Path: <adobriyan@gmail.com>
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: [PATCH 5/9] zbd: make zbd_info->mutex non-recursive
-Date: Tue,  5 May 2020 20:56:31 +0300
-Message-Id: <20200505175634.2517-5-adobriyan@gmail.com>
-In-Reply-To: <20200505175634.2517-1-adobriyan@gmail.com>
-References: <20200505175634.2517-1-adobriyan@gmail.com>
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, damien.lemoal@wdc.com, Alexey Dobriyan <adobriyan@gmail.com>
+References: <d9332e23-633e-c4c0-381b-b2fcbd983e15@bsdio.com>
+ <87ec264a-c0cd-2868-4173-f7d52297e7d5@gmail.com> <CS1PR8401MB1237B6211F30F9C8C1450CE1ABB10@CS1PR8401MB1237.NAMPRD84.PROD.OUTLOOK.COM>
+ <CALjAwxgPF_oHQgDMr+v8y6r1AKbMUf9PKLxdctCugY4CHPy27w@mail.gmail.com> <CS1PR8401MB1237D43565B8F691EA902AC6AB8F0@CS1PR8401MB1237.NAMPRD84.PROD.OUTLOOK.COM>
+In-Reply-To: <CS1PR8401MB1237D43565B8F691EA902AC6AB8F0@CS1PR8401MB1237.NAMPRD84.PROD.OUTLOOK.COM>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 30 May 2020 04:36:27 +0100
+Message-ID: <CALjAwxhZN9hOONERh0N2=mFCkm7we01qB6X8x12yQG_h3JGMQg@mail.gmail.com>
+Subject: Re: Python scripts - /usr/bin/env python3 vs python vs python2.7
+Content-Type: text/plain; charset="UTF-8"
+To: "Elliott, Robert (Servers)" <elliott@hpe.com>
+Cc: Vincent Fu <vincentfu@gmail.com>, Rebecca Cran <rebecca@bsdio.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-There is no reason for it to be recursive. Resursiveness leaked
-from struct fio_zone_info::mutex initialisation.
+On Fri, 29 May 2020 at 21:42, Elliott, Robert (Servers) <elliott@hpe.com> wrote:
+>
+> > -----Original Message-----
+> > From: Sitsofe Wheeler <sitsofe@gmail.com>
+> > Sent: Thursday, May 28, 2020 3:20 AM
+> > To: Elliott, Robert (Servers) <elliott@hpe.com>
+> > Cc: Vincent Fu <vincentfu@gmail.com>; Rebecca Cran
+> > <rebecca@bsdio.com>; fio@vger.kernel.org; Jens Axboe
+> > <axboe@kernel.dk>
+> > Subject: Re: Python scripts - /usr/bin/env python3 vs python vs
+> > python2.7
+> >
+> > > I have been using python a lot recently and also noticed that the
+> > > /usr/bin/env format is the preferred approach; it works best across
+> > > linux distros, local installs, and is even recognized by Python in
+> > > Windows.
+> >
+> > I'm guessing that's only in git for windows style shells? Surely
+> > native Windows will just look at the extension and then look in the
+> > registry?
+>
+> With Python 3.8 installed (as "python", which is how the upstream installer
+> names it), this is what it does in PowerShell:
+>
+> PS D:\> type testshe.py                                                                                              #!/usr/bin/env python
+> print("hello")
+>
+> PS D:\> type testshe2.py                                                                                             #!/usr/bin/env python2
+> print("hello")
+>
+> PS D:\> type testshe3.py                                                                                             #!/usr/bin/env python3
+> print("hello")
+>
+> PS D:\> type testshe310.py                                                                                           #!/usr/bin/env python3.10
+> print("hello")
+>
+> PS D:\> ./testshe.py; ./testshe2.py; ./testshe3.py; ./testshe310.py
+> hello
+> Requested Python version (2) is not installed
+> hello
+> Requested Python version (3.10) is not installed
+>
+> PS D:\> python ./testshe.py; python ./testshe2.py; python ./testshe3.py; python ./testshe310.py
+> hello
+> hello
+> hello
+> hello
+>
+> In other words, it checks the shebang version if invoked indirectly,
+> but ignores it the python script filename is an argument.
 
-Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
----
- zbd.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+Wow - TIL... It looks like this support is down to the Python launcher
+for Windows (https://docs.python.org/3/using/windows.html#shebang-lines
+). Thanks for taking the time to correct me Elliot!
 
-diff --git a/zbd.c b/zbd.c
-index b34ceb34..2926bae9 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -373,9 +373,9 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
- 		return -ENOMEM;
- 
- 	pthread_mutexattr_init(&attr);
--	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
- 	pthread_mutexattr_setpshared(&attr, true);
- 	pthread_mutex_init(&zbd_info->mutex, &attr);
-+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
- 	zbd_info->refcount = 1;
- 	p = &zbd_info->zone_info[0];
- 	for (i = 0; i < nr_zones; i++, p++) {
-@@ -417,7 +417,6 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- 	int i, j, ret = 0;
- 
- 	pthread_mutexattr_init(&attr);
--	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
- 	pthread_mutexattr_setpshared(&attr, true);
- 
- 	zones = calloc(ZBD_REPORT_MAX_ZONES, sizeof(struct zbd_zone));
-@@ -454,6 +453,7 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- 	if (!zbd_info)
- 		goto out;
- 	pthread_mutex_init(&zbd_info->mutex, &attr);
-+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
- 	zbd_info->refcount = 1;
- 	p = &zbd_info->zone_info[0];
- 	for (offset = 0, j = 0; j < nr_zones;) {
-@@ -796,14 +796,20 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
-  * Reset zbd_info.write_cnt, the counter that counts down towards the next
-  * zone reset.
-  */
--static void zbd_reset_write_cnt(const struct thread_data *td,
--				const struct fio_file *f)
-+static void _zbd_reset_write_cnt(const struct thread_data *td,
-+				 const struct fio_file *f)
- {
- 	assert(0 <= td->o.zrf.u.f && td->o.zrf.u.f <= 1);
- 
--	pthread_mutex_lock(&f->zbd_info->mutex);
- 	f->zbd_info->write_cnt = td->o.zrf.u.f ?
- 		min(1.0 / td->o.zrf.u.f, 0.0 + UINT_MAX) : UINT_MAX;
-+}
-+
-+static void zbd_reset_write_cnt(const struct thread_data *td,
-+				const struct fio_file *f)
-+{
-+	pthread_mutex_lock(&f->zbd_info->mutex);
-+	_zbd_reset_write_cnt(td, f);
- 	pthread_mutex_unlock(&f->zbd_info->mutex);
- }
- 
-@@ -817,7 +823,7 @@ static bool zbd_dec_and_reset_write_cnt(const struct thread_data *td,
- 	if (f->zbd_info->write_cnt)
- 		write_cnt = --f->zbd_info->write_cnt;
- 	if (write_cnt == 0)
--		zbd_reset_write_cnt(td, f);
-+		_zbd_reset_write_cnt(td, f);
- 	pthread_mutex_unlock(&f->zbd_info->mutex);
- 
- 	return write_cnt == 0;
 -- 
-2.26.2
-
+Sitsofe | http://sucs.org/~sits/
 
