@@ -1,83 +1,60 @@
-Return-Path: <prvs=4108b2f29=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 1/2] pshared: Add mutex_init_pshared_with_type()
-Date: Thu, 28 May 2020 21:56:41 +0900
-Message-Id: <20200528125642.103863-2-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200528125642.103863-1-shinichiro.kawasaki@wdc.com>
-References: <20200528125642.103863-1-shinichiro.kawasaki@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>, Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43748 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726860AbgE3MAH (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 30 May 2020 08:00:07 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74EB9C03E969
+        for <fio@vger.kernel.org>; Sat, 30 May 2020 05:00:06 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jf09m-0002pH-5X
+        for fio@vger.kernel.org; Sat, 30 May 2020 12:00:06 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200530120001.7E1581BC01A2@kernel.dk>
+Date: Sat, 30 May 2020 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-To initialize mutex to be shared across processes, the helper function
-mutex_init_pshared() is available. However, it does not allow to set
-mutex attribute types such as POSIX_MUTEX_RECURSIVE.
+The following changes since commit dacac3b936092aa73e29257fefcb7bf5658ec7cb:
 
-To allow setting mutex attribute types, introduce another helper function
-mutex_init_pshared_with_type(). It initialize mutex for sharing across
-processes and set attribute types specified as its argument.
+  Merge branch 'python3-testing' of https://github.com/vincentkfu/fio (2020-05-28 13:27:15 -0600)
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 2f6cbfdcf0ce3b53e83713e3a6b5a0bb6a76a1e9:
+
+  Merge branch 'pshared1' of https://github.com/kusumi/fio (2020-05-29 08:16:10 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'pshared1' of https://github.com/kusumi/fio
+
+Tomohiro Kusumi (1):
+      pshared: fix comment on supported platforms
+
+ pshared.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 ---
- pshared.c | 15 ++++++++++++++-
- pshared.h |  1 +
- 2 files changed, 15 insertions(+), 1 deletion(-)
+
+Diff of recent changes:
 
 diff --git a/pshared.c b/pshared.c
-index 21192556..791faf95 100644
+index 791faf95..e671c87f 100644
 --- a/pshared.c
 +++ b/pshared.c
-@@ -39,7 +39,7 @@ int cond_init_pshared(pthread_cond_t *cond)
- 	return 0;
- }
- 
--int mutex_init_pshared(pthread_mutex_t *mutex)
-+int mutex_init_pshared_with_type(pthread_mutex_t *mutex, int type)
- {
- 	pthread_mutexattr_t mattr;
- 	int ret;
-@@ -60,6 +60,14 @@ int mutex_init_pshared(pthread_mutex_t *mutex)
- 		return ret;
+@@ -51,7 +51,7 @@ int mutex_init_pshared_with_type(pthread_mutex_t *mutex, int type)
  	}
- #endif
-+	if (type) {
-+		ret = pthread_mutexattr_settype(&mattr, type);
-+		if (ret) {
-+			log_err("pthread_mutexattr_settype: %s\n",
-+				strerror(ret));
-+			return ret;
-+		}
-+	}
- 	ret = pthread_mutex_init(mutex, &mattr);
- 	if (ret) {
- 		log_err("pthread_mutex_init: %s\n", strerror(ret));
-@@ -69,6 +77,11 @@ int mutex_init_pshared(pthread_mutex_t *mutex)
- 	return 0;
- }
  
-+int mutex_init_pshared(pthread_mutex_t *mutex)
-+{
-+	return mutex_init_pshared_with_type(mutex, 0);
-+}
-+
- int mutex_cond_init_pshared(pthread_mutex_t *mutex, pthread_cond_t *cond)
- {
- 	int ret;
-diff --git a/pshared.h b/pshared.h
-index a58df6fe..f33be462 100644
---- a/pshared.h
-+++ b/pshared.h
-@@ -3,6 +3,7 @@
- 
- #include <pthread.h>
- 
-+extern int mutex_init_pshared_with_type(pthread_mutex_t *, int);
- extern int mutex_init_pshared(pthread_mutex_t *);
- extern int cond_init_pshared(pthread_cond_t *);
- extern int mutex_cond_init_pshared(pthread_mutex_t *, pthread_cond_t *);
--- 
-2.25.4
-
+ 	/*
+-	 * Not all platforms support process shared mutexes (FreeBSD)
++	 * Not all platforms support process shared mutexes (NetBSD/OpenBSD)
+ 	 */
+ #ifdef CONFIG_PSHARED
+ 	ret = pthread_mutexattr_setpshared(&mattr, PTHREAD_PROCESS_SHARED);
 
