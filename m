@@ -1,104 +1,105 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: Fio fails to build from source with gcc 10.1: multiple definition
- of
-References: <2090225.DZbHg2GNPv@merkaba>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <c0a8ab00-6b1d-43b9-faf3-a464d4a2d5ba@kernel.dk>
-Date: Tue, 2 Jun 2020 08:20:51 -0600
+Return-Path: <martin@lichtvoll.de>
+From: Martin Steigerwald <martin@lichtvoll.de>
+Subject: Fio fails to build from source with gcc 10.1: multiple definition of
+Date: Tue, 02 Jun 2020 15:28:11 +0200
+Message-ID: <2090225.DZbHg2GNPv@merkaba>
 MIME-Version: 1.0
-In-Reply-To: <2090225.DZbHg2GNPv@merkaba>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: base64
-To: Martin Steigerwald <martin@lichtvoll.de>, fio@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+To: fio@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-T24gNi8yLzIwIDc6MjggQU0sIE1hcnRpbiBTdGVpZ2Vyd2FsZCB3cm90ZToNCj4gSGkhDQo+
-IA0KPiBGaW8gZmFpbHMgdG8gYnVpbGQgZnJvbSBzb3VyY2Ugd2l0aCBnY2MgMTAuMToNCj4g
-DQo+IFNlZToNCj4gDQo+IGZpbzogZnRiZnMgd2l0aCBHQ0MtMTANCj4gDQo+IGh0dHBzOi8v
-YnVncy5kZWJpYW4ub3JnLzk1NzIwNA0KPiANCj4gQnVpbGQgbG9nIGlzIGhlcmU6DQo+IA0K
-PiBodHRwczovL3Blb3BsZS5kZWJpYW4ub3JnL35kb2tvL2xvZ3MvZ2NjMTAtMjAyMDAyMjUv
-ZmlvXzMuMTYtMV91bnN0YWJsZV9nY2MxMC5sb2cNCj4gDQo+IHRoZXJlIGFyZSBlcnJvcnMg
-bGlrZToNCj4gDQo+IGdjYyAtV2wsLXosZGVmcyAtV2wsLS1hcy1uZWVkZWQgLVdsLC16LHJl
-bHJvIC1XbCwteixub3cgLVdsLC16LGRlZnMgLVdsLC0tYXMtbmVlZGVkIC1XbCwteixyZWxy
-byAtV2wsLXosbm93IC1yZHluYW1pYyAtbyBnZmlvIGNyYy9jcmMxNi5vIGNyYy9jcmMzMi5v
-IGNyYy9jcmMzMmMtYXJtNjQubyBjcmMvY3JjMzJjLWludGVsLm8gY3JjL2NyYzMyYy5vIGNy
-Yy9jcmM2NC5vIGNyYy9jcmM3Lm8gY3JjL2Zudi5vIGNyYy9tZDUubyBjcmMvbXVybXVyMy5v
-IGNyYy9zaGExLm8gY3JjL3NoYTI1Ni5vIGNyYy9zaGEzLm8gY3JjL3NoYTUxMi5vIGNyYy90
-ZXN0Lm8gY3JjL3h4aGFzaC5vIGxpYi9heG1hcC5vIGxpYi9ibG9vbS5vIGxpYi9mbGlzdF9z
-b3J0Lm8gbGliL2dhdXNzLm8gbGliL2dldHJ1c2FnZS5vIGxpYi9od2VpZ2h0Lm8gbGliL2ll
-ZWU3NTQubyBsaWIvbGZzci5vIGxpYi9tZW1hbGlnbi5vIGxpYi9tZW1jcHkubyBsaWIvbW91
-bnRjaGVjay5vIGxpYi9udW0yc3RyLm8gbGliL291dHB1dF9idWZmZXIubyBsaWIvcGF0dGVy
-bi5vIGxpYi9wcmlvX3RyZWUubyBsaWIvcmFuZC5vIGxpYi9yYnRyZWUubyBsaWIvc3RybnRv
-bC5vIGxpYi96aXBmLm8gZ2V0dGltZS5vIGlvZW5naW5lcy5vIGluaXQubyBzdGF0Lm8gbG9n
-Lm8gdGltZS5vIGZpbGVzZXR1cC5vIGV0YS5vIHZlcmlmeS5vIG1lbW9yeS5vIGlvX3UubyBw
-YXJzZS5vIGZpb19zZW0ubyByd2xvY2subyBwc2hhcmVkLm8gb3B0aW9ucy5vIHNtYWxsb2Mu
-byBmaWxlaGFzaC5vIHByb2ZpbGUubyBkZWJ1Zy5vIGVuZ2luZXMvY3B1Lm8gZW5naW5lcy9t
-bWFwLm8gZW5naW5lcy9zeW5jLm8gZW5naW5lcy9udWxsLm8gZW5naW5lcy9uZXQubyBlbmdp
-bmVzL2Z0cnVuY2F0ZS5vIGVuZ2luZXMvZmlsZWNyZWF0ZS5vIHNlcnZlci5vIGNsaWVudC5v
-IGlvbG9nLm8gYmFja2VuZC5vIGxpYmZpby5vIGZsb3cubyBjY29udi5vIGdldHRpbWUtdGhy
-ZWFkLm8gaGVscGVycy5vIGpzb24ubyBpZGxldGltZS5vIHRkX2Vycm9yLm8gcHJvZmlsZXMv
-dGlvYmVuY2gubyBwcm9maWxlcy9hY3QubyBpb191X3F1ZXVlLm8gZmlsZWxvY2subyB3b3Jr
-cXVldWUubyByYXRlLXN1Ym1pdC5vIG9wdGdyb3VwLm8gaGVscGVyX3RocmVhZC5vIHN0ZWFk
-eXN0YXRlLm8gem9uZS1kaXN0Lm8gZW5naW5lcy9saWJhaW8ubyBlbmdpbmVzL3JkbWEubyBl
-bmdpbmVzL3Bvc2l4YWlvLm8gZW5naW5lcy9mYWxsb2MubyBlbmdpbmVzL2U0ZGVmcmFnLm8g
-ZW5naW5lcy9zcGxpY2UubyBlbmdpbmVzL3JhZG9zLm8gZW5naW5lcy9yYmQubyBvc2xpYi9h
-c3ByaW50Zi5vIG9zbGliL3N0cmxjYXQubyBlbmdpbmVzL2dsdXN0ZXJmcy5vIGVuZ2luZXMv
-Z2x1c3RlcmZzX3N5bmMubyBlbmdpbmVzL2dsdXN0ZXJmc19hc3luYy5vIGVuZ2luZXMvbXRk
-Lm8gb3NsaWIvbGlibXRkLm8gb3NsaWIvbGlibXRkX2xlZ2FjeS5vIHpiZC5vIGRpc2t1dGls
-Lm8gZmlmby5vIGJsa3RyYWNlLm8gY2dyb3VwLm8gdHJpbS5vIGVuZ2luZXMvc2cubyBvc2xp
-Yi9saW51eC1kZXYtbG9va3VwLm8gZW5naW5lcy9pb191cmluZy5vIGdmaW8ubyBncmFwaC5v
-IHRpY2ttYXJrcy5vIGdoZWxwZXJzLm8gZ29wdGlvbnMubyBnZXJyb3IubyBnY2xpZW50Lm8g
-Z2NvbXBhdC5vIGNhaXJvX3RleHRfaGVscGVycy5vIHByaW50aW5nLm8gLWxnZmFwaSAtbGds
-dXN0ZXJmcyAtbHJiZCAtbHJhZG9zIC1scmFkb3MgLWxudW1hIC1scmRtYWNtIC1saWJ2ZXJi
-cyAtbHJ0IC1sYWlvIC1seiAgLWxtICAtbHB0aHJlYWQgLWxkbCAtbG51bWEgLWxyZG1hY20g
-LWxpYnZlcmJzIC1scnQgLWxhaW8gLWx6ICAtbGd0ay14MTEtMi4wIC1sZ2RrLXgxMS0yLjAg
-LWxwYW5nb2NhaXJvLTEuMCAtbGF0ay0xLjAgLWxjYWlybyAtbGdka19waXhidWYtMi4wIC1s
-Z2lvLTIuMCAtbHBhbmdvZnQyLTEuMCAtbHBhbmdvLTEuMCAtbGdvYmplY3QtMi4wIC1sZm9u
-dGNvbmZpZyAtbGZyZWV0eXBlIC1sZ3RocmVhZC0yLjAgLXB0aHJlYWQgLWxnbGliLTIuMCAg
-DQo+IGdjYyAtV2wsLXosZGVmcyAtV2wsLS1hcy1uZWVkZWQgLVdsLC16LHJlbHJvIC1XbCwt
-eixub3cgLVdsLC16LGRlZnMgLVdsLC0tYXMtbmVlZGVkIC1XbCwteixyZWxybyAtV2wsLXos
-bm93IC1yZHluYW1pYyAtZyAtTzIgLWZkZWJ1Zy1wcmVmaXgtbWFwPS88PFBLR0JVSUxERElS
-Pj49LiAtZnN0YWNrLXByb3RlY3Rvci1zdHJvbmcgLVdmb3JtYXQgLVdlcnJvcj1mb3JtYXQt
-c2VjdXJpdHkgLURfR05VX1NPVVJDRSAtaW5jbHVkZSBjb25maWctaG9zdC5oIC1wdGhyZWFk
-IC1JL3Vzci9pbmNsdWRlL2d0ay0yLjAgLUkvdXNyL2xpYi94ODZfNjQtbGludXgtZ251L2d0
-ay0yLjAvaW5jbHVkZSAtSS91c3IvaW5jbHVkZS9wYW5nby0xLjAgLUkvdXNyL2luY2x1ZGUv
-YXRrLTEuMCAtSS91c3IvaW5jbHVkZS9jYWlybyAtSS91c3IvaW5jbHVkZS9waXhtYW4tMSAt
-SS91c3IvaW5jbHVkZS9nZGstcGl4YnVmLTIuMCAtSS91c3IvaW5jbHVkZS9saWJtb3VudCAt
-SS91c3IvaW5jbHVkZS9ibGtpZCAtSS91c3IvaW5jbHVkZS9wYW5nby0xLjAgLUkvdXNyL2lu
-Y2x1ZGUvaGFyZmJ1enogLUkvdXNyL2luY2x1ZGUvcGFuZ28tMS4wIC1JL3Vzci9pbmNsdWRl
-L2ZyaWJpZGkgLUkvdXNyL2luY2x1ZGUvdXVpZCAtSS91c3IvaW5jbHVkZS9mcmVldHlwZTIg
-LUkvdXNyL2luY2x1ZGUvbGlicG5nMTYgLUkvdXNyL2luY2x1ZGUvZ2xpYi0yLjAgLUkvdXNy
-L2xpYi94ODZfNjQtbGludXgtZ251L2dsaWItMi4wL2luY2x1ZGUgLVdpbXBsaWNpdC1mYWxs
-dGhyb3VnaCAtc3RkPWdudTk5IC1Xd3JpdGUtc3RyaW5ncyAtV2FsbCAtV2RlY2xhcmF0aW9u
-LWFmdGVyLXN0YXRlbWVudCAtZyAtZmZhc3QtbWF0aCAgLURfR05VX1NPVVJDRSAtaW5jbHVk
-ZSBjb25maWctaG9zdC5oIC1wdGhyZWFkIC1JL3Vzci9pbmNsdWRlL2d0ay0yLjAgLUkvdXNy
-L2xpYi94ODZfNjQtbGludXgtZ251L2d0ay0yLjAvaW5jbHVkZSAtSS91c3IvaW5jbHVkZS9w
-YW5nby0xLjAgLUkvdXNyL2luY2x1ZGUvYXRrLTEuMCAtSS91c3IvaW5jbHVkZS9jYWlybyAt
-SS91c3IvaW5jbHVkZS9waXhtYW4tMSAtSS91c3IvaW5jbHVkZS9nZGstcGl4YnVmLTIuMCAt
-SS91c3IvaW5jbHVkZS9saWJtb3VudCAtSS91c3IvaW5jbHVkZS9ibGtpZCAtSS91c3IvaW5j
-bHVkZS9wYW5nby0xLjAgLUkvdXNyL2luY2x1ZGUvaGFyZmJ1enogLUkvdXNyL2luY2x1ZGUv
-cGFuZ28tMS4wIC1JL3Vzci9pbmNsdWRlL2ZyaWJpZGkgLUkvdXNyL2luY2x1ZGUvdXVpZCAt
-SS91c3IvaW5jbHVkZS9mcmVldHlwZTIgLUkvdXNyL2luY2x1ZGUvbGlicG5nMTYgLUkvdXNy
-L2luY2x1ZGUvZ2xpYi0yLjAgLUkvdXNyL2xpYi94ODZfNjQtbGludXgtZ251L2dsaWItMi4w
-L2luY2x1ZGUgLVdpbXBsaWNpdC1mYWxsdGhyb3VnaCAtSS4gLUkuIC1PMyAtVV9GT1JUSUZZ
-X1NPVVJDRSAtRF9GT1JUSUZZX1NPVVJDRT0yIC1EQklUU19QRVJfTE9ORz02NCAtREZJT19W
-RVJTSU9OPSciZmlvLTMuMTYiJyAtbyB0L2Zpby1nZW56aXBmIHQvbG9nLm8gbGliL2llZWU3
-NTQubyBsaWIvcmFuZC5vIGxpYi9wYXR0ZXJuLm8gbGliL3ppcGYubyBsaWIvc3RybnRvbC5v
-IGxpYi9nYXVzcy5vIHQvZ2VuemlwZi5vIG9zbGliL3N0cmNhc2VzdHIubyBvc2xpYi9zdHJu
-ZHVwLm8gLWxnZmFwaSAtbGdsdXN0ZXJmcyAtbHJiZCAtbHJhZG9zIC1scmFkb3MgLWxudW1h
-IC1scmRtYWNtIC1saWJ2ZXJicyAtbHJ0IC1sYWlvIC1seiAgLWxtICAtbHB0aHJlYWQgLWxk
-bA0KPiAvdXNyL2Jpbi9sZDogZ29wdGlvbnMubzouL2dmaW8uaDo4MTogbXVsdGlwbGUgZGVm
-aW5pdGlvbiBvZiBgbWFpbl91aSc7IGdmaW8ubzouL2dmaW8uaDo4MTogZmlyc3QgZGVmaW5l
-ZCBoZXJlDQo+IC91c3IvYmluL2xkOiBnZXJyb3IubzouL2dmaW8uaDo4MTogbXVsdGlwbGUg
-ZGVmaW5pdGlvbiBvZiBgbWFpbl91aSc7IGdmaW8ubzouL2dmaW8uaDo4MTogZmlyc3QgZGVm
-aW5lZCBoZXJlDQo+IC91c3IvYmluL2xkOiBnY2xpZW50Lm86Li9nZmlvLmg6ODE6IG11bHRp
-cGxlIGRlZmluaXRpb24gb2YgYG1haW5fdWknOyBnZmlvLm86Li9nZmlvLmg6ODE6IGZpcnN0
-IGRlZmluZWQgaGVyZQ0KPiAvdXNyL2Jpbi9sZDogcHJpbnRpbmcubzouL2dmaW8uaDo4MTog
-bXVsdGlwbGUgZGVmaW5pdGlvbiBvZiBgbWFpbl91aSc7IGdmaW8ubzouL2dmaW8uaDo4MTog
-Zmlyc3QgZGVmaW5lZCBoZXJlDQo+IA0KPiBUaGlzIGJ1aWxkIGxvZyBpcyBhYm91dCBmaW8t
-My4xNiwgaG93ZXZlciBJIHRlc3RlZCB3aXRoIGZpby0zLjIwIGFuZCBnb3QNCj4gdGhlIHNh
-bWUgZXJyb3JzLg0KPiANCj4gSSB3b3VsZCBwcmVmZXIgdGhpcyB0byBiZSBmaXhlZCB1cHN0
-cmVhbS4NCg0KSSBwdXNoZWQgYSB0cml2aWFsIGZpeCBmb3IgdGhpcy4NCg0KLS0gDQpKZW5z
-IEF4Ym9lDQoNCg==
+Hi!
+
+=46io fails to build from source with gcc 10.1:
+
+See:
+
+fio: ftbfs with GCC-10
+
+https://bugs.debian.org/957204
+
+Build log is here:
+
+https://people.debian.org/~doko/logs/gcc10-20200225/fio_3.16-1_unstable_gcc=
+10.log
+
+there are errors like:
+
+gcc -Wl,-z,defs -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,-z,defs -Wl,--a=
+s-needed -Wl,-z,relro -Wl,-z,now -rdynamic -o gfio crc/crc16.o crc/crc32.o =
+crc/crc32c-arm64.o crc/crc32c-intel.o crc/crc32c.o crc/crc64.o crc/crc7.o c=
+rc/fnv.o crc/md5.o crc/murmur3.o crc/sha1.o crc/sha256.o crc/sha3.o crc/sha=
+512.o crc/test.o crc/xxhash.o lib/axmap.o lib/bloom.o lib/flist_sort.o lib/=
+gauss.o lib/getrusage.o lib/hweight.o lib/ieee754.o lib/lfsr.o lib/memalign=
+=2Eo lib/memcpy.o lib/mountcheck.o lib/num2str.o lib/output_buffer.o lib/pa=
+ttern.o lib/prio_tree.o lib/rand.o lib/rbtree.o lib/strntol.o lib/zipf.o ge=
+ttime.o ioengines.o init.o stat.o log.o time.o filesetup.o eta.o verify.o m=
+emory.o io_u.o parse.o fio_sem.o rwlock.o pshared.o options.o smalloc.o fil=
+ehash.o profile.o debug.o engines/cpu.o engines/mmap.o engines/sync.o engin=
+es/null.o engines/net.o engines/ftruncate.o engines/filecreate.o server.o c=
+lient.o iolog.o backend.o libfio.o flow.o cconv.o gettime-thread.o helpers.=
+o json.o idletime.o td_error.o profiles/tiobench.o profiles/act.o io_u_queu=
+e.o filelock.o workqueue.o rate-submit.o optgroup.o helper_thread.o steadys=
+tate.o zone-dist.o engines/libaio.o engines/rdma.o engines/posixaio.o engin=
+es/falloc.o engines/e4defrag.o engines/splice.o engines/rados.o engines/rbd=
+=2Eo oslib/asprintf.o oslib/strlcat.o engines/glusterfs.o engines/glusterfs=
+_sync.o engines/glusterfs_async.o engines/mtd.o oslib/libmtd.o oslib/libmtd=
+_legacy.o zbd.o diskutil.o fifo.o blktrace.o cgroup.o trim.o engines/sg.o o=
+slib/linux-dev-lookup.o engines/io_uring.o gfio.o graph.o tickmarks.o ghelp=
+ers.o goptions.o gerror.o gclient.o gcompat.o cairo_text_helpers.o printing=
+=2Eo -lgfapi -lglusterfs -lrbd -lrados -lrados -lnuma -lrdmacm -libverbs -l=
+rt -laio -lz  -lm  -lpthread -ldl -lnuma -lrdmacm -libverbs -lrt -laio -lz =
+ -lgtk-x11-2.0 -lgdk-x11-2.0 -lpangocairo-1.0 -latk-1.0 -lcairo -lgdk_pixbu=
+f-2.0 -lgio-2.0 -lpangoft2-1.0 -lpango-1.0 -lgobject-2.0 -lfontconfig -lfre=
+etype -lgthread-2.0 -pthread -lglib-2.0 =20
+gcc -Wl,-z,defs -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,-z,defs -Wl,--a=
+s-needed -Wl,-z,relro -Wl,-z,now -rdynamic -g -O2 -fdebug-prefix-map=3D/<<P=
+KGBUILDDIR>>=3D. -fstack-protector-strong -Wformat -Werror=3Dformat-securit=
+y -D_GNU_SOURCE -include config-host.h -pthread -I/usr/include/gtk-2.0 -I/u=
+sr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/inc=
+lude/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gd=
+k-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/pa=
+ngo-1.0 -I/usr/include/harfbuzz -I/usr/include/pango-1.0 -I/usr/include/fri=
+bidi -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -=
+I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -Wimpli=
+cit-fallthrough -std=3Dgnu99 -Wwrite-strings -Wall -Wdeclaration-after-stat=
+ement -g -ffast-math  -D_GNU_SOURCE -include config-host.h -pthread -I/usr/=
+include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/=
+pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman=
+=2D1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/b=
+lkid -I/usr/include/pango-1.0 -I/usr/include/harfbuzz -I/usr/include/pango-=
+1.0 -I/usr/include/fribidi -I/usr/include/uuid -I/usr/include/freetype2 -I/=
+usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/gl=
+ib-2.0/include -Wimplicit-fallthrough -I. -I. -O3 -U_FORTIFY_SOURCE -D_FORT=
+IFY_SOURCE=3D2 -DBITS_PER_LONG=3D64 -DFIO_VERSION=3D'"fio-3.16"' -o t/fio-g=
+enzipf t/log.o lib/ieee754.o lib/rand.o lib/pattern.o lib/zipf.o lib/strnto=
+l.o lib/gauss.o t/genzipf.o oslib/strcasestr.o oslib/strndup.o -lgfapi -lgl=
+usterfs -lrbd -lrados -lrados -lnuma -lrdmacm -libverbs -lrt -laio -lz  -lm=
+  -lpthread -ldl
+/usr/bin/ld: goptions.o:./gfio.h:81: multiple definition of `main_ui'; gfio=
+=2Eo:./gfio.h:81: first defined here
+/usr/bin/ld: gerror.o:./gfio.h:81: multiple definition of `main_ui'; gfio.o=
+:./gfio.h:81: first defined here
+/usr/bin/ld: gclient.o:./gfio.h:81: multiple definition of `main_ui'; gfio.=
+o:./gfio.h:81: first defined here
+/usr/bin/ld: printing.o:./gfio.h:81: multiple definition of `main_ui'; gfio=
+=2Eo:./gfio.h:81: first defined here
+
+This build log is about fio-3.16, however I tested with fio-3.20 and got
+the same errors.
+
+I would prefer this to be fixed upstream.
+
+This is not all that urgent. There is still some time till Debian 11 aka
+bullseye release. First milestone for the freeze towards bullseye is
+planned for January 2021, so it would be good to have some fix within
+till November 2020.
+
+Thanks,
+=2D-=20
+Martin
+
+
 
