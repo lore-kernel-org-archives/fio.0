@@ -1,74 +1,75 @@
-Return-Path: <prvs=439ee04d1=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 5/8] t/zbd: Combine write and read fio commands for test case #15
-Date: Fri, 26 Jun 2020 18:43:28 +0900
-Message-Id: <20200626094331.418309-6-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200626094331.418309-1-shinichiro.kawasaki@wdc.com>
-References: <20200626094331.418309-1-shinichiro.kawasaki@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58490 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728147AbgFDMA2 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 4 Jun 2020 08:00:28 -0400
+Received: from merlin.infradead.org (unknown [IPv6:2001:8b0:10b:1231::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2B94C03E96D
+        for <fio@vger.kernel.org>; Thu,  4 Jun 2020 05:00:26 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jgoXZ-0006oi-AV
+        for fio@vger.kernel.org; Thu, 04 Jun 2020 12:00:09 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200604120001.A02171BC0CCC@kernel.dk>
+Date: Thu,  4 Jun 2020 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-The test case #15 called fio twice. Once with write job to prepare data
-to read. The other with read job for testing. But the first run has no
-effect on the second run when the zone status is reinitialized.
+The following changes since commit 63a4b9cca4ba3aa4101051402cbbe946ced17a49:
 
-Specify both the write job and the read job to a single fio command using
-write_and_run_one_fio_job() helper function instead of run_one_fio_job().
+  gfio: don't have multiple versions of main_ui (2020-06-02 08:20:03 -0600)
 
-Also apply same test pass condition for both regular block devices and
-zoned block devices.
+are available in the Git repository at:
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 00ca8df5468e90bbf1256ec90fc9ae14b1706ccc:
+
+  zbd: Fix max_open_zones checks (2020-06-03 20:15:35 -0600)
+
+----------------------------------------------------------------
+Shin'ichiro Kawasaki (1):
+      zbd: Fix max_open_zones checks
+
+ zbd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
 ---
- t/zbd/test-zbd-support | 20 +++++++-------------
- 1 file changed, 7 insertions(+), 13 deletions(-)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index eccb5178..cd8492ff 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -349,30 +349,24 @@ test14() {
- # Sequential read on a mix of empty and full zones.
- test15() {
-     local i off size
-+    local w_off w_size
- 
-     for ((i=0;i<4;i++)); do
- 	[ -n "$is_zbd" ] &&
- 	    reset_zone "$dev" $((first_sequential_zone_sector +
- 				 i*sectors_per_zone))
-     done
--    off=$(((first_sequential_zone_sector + 2 * sectors_per_zone) * 512))
--    size=$((2 * zone_size))
--    run_one_fio_job "$(ioengine "psync")" --rw=write --bs=$((zone_size / 16))\
--		    --zonemode=zbd --zonesize="${zone_size}" --offset=$off \
--		    --size=$size >>"${logfile}.${test_number}" 2>&1 ||
--	return $?
--    check_written $size || return $?
-+    w_off=$(((first_sequential_zone_sector + 2 * sectors_per_zone) * 512))
-+    w_size=$((2 * zone_size))
-     off=$((first_sequential_zone_sector * 512))
-     size=$((4 * zone_size))
--    run_one_fio_job "$(ioengine "psync")" --rw=read --bs=$((zone_size / 16)) \
-+    write_and_run_one_fio_job "${w_off}" "${w_size}" \
-+		    "$(ioengine "psync")" --rw=read --bs=$((zone_size / 16)) \
- 		    --zonemode=zbd --zonesize="${zone_size}" --offset=$off \
- 		    --size=$((size)) >>"${logfile}.${test_number}" 2>&1 ||
- 	return $?
--    if [ -n "$is_zbd" ]; then
--	check_read $((size / 2))
--    else
--	check_read $size
--    fi
-+    check_written $((w_size)) || return $?
-+    check_read $((size / 2))
- }
- 
- # Random read on a mix of empty and full zones. Must be run after test15.
--- 
-2.26.2
+Diff of recent changes:
 
+diff --git a/zbd.c b/zbd.c
+index a7572c9a..dc302606 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -989,7 +989,7 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+ 
+ 	assert(is_valid_offset(f, io_u->offset));
+ 
+-	if (td->o.job_max_open_zones) {
++	if (td->o.max_open_zones || td->o.job_max_open_zones) {
+ 		/*
+ 		 * This statement accesses f->zbd_info->open_zones[] on purpose
+ 		 * without locking.
+@@ -1018,7 +1018,7 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+ 
+ 		zone_lock(td, f, z);
+ 		pthread_mutex_lock(&f->zbd_info->mutex);
+-		if (td->o.job_max_open_zones == 0)
++		if (td->o.max_open_zones == 0 && td->o.job_max_open_zones == 0)
+ 			goto examine_zone;
+ 		if (f->zbd_info->num_open_zones == 0) {
+ 			pthread_mutex_unlock(&f->zbd_info->mutex);
+@@ -1074,7 +1074,7 @@ examine_zone:
+ 	}
+ 	dprint(FD_ZBD, "%s(%s): closing zone %d\n", __func__, f->file_name,
+ 	       zone_idx);
+-	if (td->o.job_max_open_zones)
++	if (td->o.max_open_zones || td->o.job_max_open_zones)
+ 		zbd_close_zone(td, f, open_zone_idx);
+ 	pthread_mutex_unlock(&f->zbd_info->mutex);
+ 
 
