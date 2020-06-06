@@ -1,88 +1,58 @@
-Return-Path: <krish.reddy@samsung.com>
-From: Krishna Kanth Reddy <krish.reddy@samsung.com>
-Subject: [PATCH 4/4] t/zbd: Add support to verify Zone Append command with
- libaio, io_uring IO engine tests
-Date: Thu, 25 Jun 2020 23:08:52 +0530
-Message-Id: <1593106733-19596-5-git-send-email-krish.reddy@samsung.com>
-In-Reply-To: <1593106733-19596-1-git-send-email-krish.reddy@samsung.com>
-Content-Type: text/plain; charset="utf-8"
-References: <1593106733-19596-1-git-send-email-krish.reddy@samsung.com>
-	<CGME20200625174133epcas5p1eace8f03319bee805b93c50fe6c690c7@epcas5p1.samsung.com>
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, Krishna Kanth Reddy <krish.reddy@samsung.com>, Ankit Kumar <ankit.kumar@samsung.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53760 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725831AbgFFMAO (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 6 Jun 2020 08:00:14 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F0E3C03E96A
+        for <fio@vger.kernel.org>; Sat,  6 Jun 2020 05:00:14 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jhXUf-0004Jd-75
+        for fio@vger.kernel.org; Sat, 06 Jun 2020 12:00:09 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200606120001.C5BC61BC017A@kernel.dk>
+Date: Sat,  6 Jun 2020 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Modify the test-zbd-support script to verify the Zone Append command
-for NVMe Zoned Namespaces (ZNS) defined in NVM Express TP4053.
-Added a new FIO option zone_append.
-When zone_append option is enabled, the existing write path will
-send Zone Append command with LBA offset as start of the Zone.
+The following changes since commit 00ca8df5468e90bbf1256ec90fc9ae14b1706ccc:
 
-Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
+  zbd: Fix max_open_zones checks (2020-06-03 20:15:35 -0600)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 08541925ec1b5887fc91e59a4bc253d54757c4c6:
+
+  Makefile: include linux-blkzoned.c for Android, if set (2020-06-05 07:06:46 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Makefile: include linux-blkzoned.c for Android, if set
+
+ Makefile | 3 +++
+ 1 file changed, 3 insertions(+)
+
 ---
- t/zbd/test-zbd-support | 48 ++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 48 insertions(+)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 4001be3..ddade22 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -801,6 +801,54 @@ test48() {
- 	    >> "${logfile}.${test_number}" 2>&1 || return $?
- }
- 
-+# Zone append to sequential zones, libaio, 1 job, queue depth 1
-+test49() {
-+    local i size
-+
-+    size=$((4 * zone_size))
-+    run_fio_on_seq --ioengine=libaio --iodepth=1 --rw=write --zone_append=1 \
-+                   --bs="$(max $((zone_size / 64)) "$logical_block_size")"\
-+                   --do_verify=1 --verify=md5                           \
-+                   >>"${logfile}.${test_number}" 2>&1 || return $?
-+    check_written $size || return $?
-+    check_read $size || return $?
-+}
-+
-+# Random zone append to sequential zones, libaio, 8 jobs, queue depth 64 per job
-+test50() {
-+    local size
-+
-+    size=$((4 * zone_size))
-+    run_fio_on_seq --ioengine=libaio --iodepth=64 --rw=randwrite --bs=4K \
-+                   --group_reporting=1 --numjobs=8 --zone_append=1 \
-+                   >> "${logfile}.${test_number}" 2>&1 || return $?
-+    check_written $((size * 8)) || return $?
-+}
-+
-+# Zone append to sequential zones, io_uring, 1 job, queue depth 1
-+test51() {
-+    local i size
-+
-+    size=$((4 * zone_size))
-+    run_fio_on_seq --ioengine=io_uring --iodepth=1 --rw=write --zone_append=1 \
-+                   --bs="$(max $((zone_size / 64)) "$logical_block_size")"\
-+                   --do_verify=1 --verify=md5                           \
-+                   >>"${logfile}.${test_number}" 2>&1 || return $?
-+    check_written $size || return $?
-+    check_read $size || return $?
-+}
-+
-+# Random zone append to sequential zones, io_uring, 8 jobs, queue depth 64 per job
-+test52() {
-+    local size
-+
-+    size=$((4 * zone_size))
-+    run_fio_on_seq --ioengine=io_uring --iodepth=64 --rw=randwrite --bs=4K \
-+                   --group_reporting=1 --numjobs=8 --zone_append=1 \
-+                   >> "${logfile}.${test_number}" 2>&1 || return $?
-+    check_written $((size * 8)) || return $?
-+}
-+
- tests=()
- dynamic_analyzer=()
- reset_all_zones=
--- 
-2.7.4
+Diff of recent changes:
 
+diff --git a/Makefile b/Makefile
+index e3962195..7eb5e899 100644
+--- a/Makefile
++++ b/Makefile
+@@ -176,6 +176,9 @@ endif
+ ifeq ($(CONFIG_TARGET_OS), Android)
+   SOURCE += diskutil.c fifo.c blktrace.c cgroup.c trim.c profiles/tiobench.c \
+ 		oslib/linux-dev-lookup.c
++ifdef CONFIG_HAS_BLKZONED
++  SOURCE += oslib/linux-blkzoned.c
++endif
+   LIBS += -ldl -llog
+   LDFLAGS += -rdynamic
+ endif
 
