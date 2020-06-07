@@ -1,44 +1,37 @@
-Return-Path: <prvs=439ee04d1=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 8/8] t/zbd: Enable regular block devices for test case #47
-Date: Fri, 26 Jun 2020 18:43:31 +0900
-Message-Id: <20200626094331.418309-9-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200626094331.418309-1-shinichiro.kawasaki@wdc.com>
-References: <20200626094331.418309-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <bart.vanassche@gmail.com>
+Return-Path: <bart.vanassche@gmail.com>
+From: Bart Van Assche <bvanassche@acm.org>
+Subject: [PATCH 3/5] ci/travis-install.sh, MacOS: Install the Python 'six' package
+Date: Sun,  7 Jun 2020 12:11:02 -0700
+Message-Id: <20200607191104.17550-4-bvanassche@acm.org>
+In-Reply-To: <20200607191104.17550-1-bvanassche@acm.org>
+References: <20200607191104.17550-1-bvanassche@acm.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org, Sitsofe Wheeler <sitsofe@yahoo.com>, Vincent Fu <vincent.fu@wdc.com>, Bart Van Assche <bvanassche@acm.org>
 List-ID: <fio@vger.kernel.org>
 
-The test case #47 was not able to run for regular block devices since it
-missed zonesize option required for regular block devices.
+From: Vincent Fu <vincent.fu@wdc.com>
 
-Enable the test case for regular block devices by calling the
-run_fio_on_seq() helper function which adds the zonesize option.
-
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Vincent Fu <vincent.fu@wdc.com>
+[bvanassche: edited commit message / only retained "pip install six" command /
+ changed 'pip' into 'pip3']
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 ---
- t/zbd/test-zbd-support | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ ci/travis-install.sh | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 8934e32b..80dc3f30 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -773,10 +773,8 @@ test46() {
- test47() {
-     local bs
+diff --git a/ci/travis-install.sh b/ci/travis-install.sh
+index 8a4f40e57a3a..232ab6b10c3c 100755
+--- a/ci/travis-install.sh
++++ b/ci/travis-install.sh
+@@ -35,6 +35,7 @@ case "$TRAVIS_OS_NAME" in
+ 	brew update >/dev/null 2>&1
+ 	brew install cunit
+ 	pip3 install scipy
++	pip3 install six
+ 	;;
+ esac
  
--    [ -z "$is_zbd" ] && return 0
-     bs=$((logical_block_size))
--    run_one_fio_job "$(ioengine "psync")" --rw=write --bs=$bs \
--		    --zonemode=zbd --zoneskip=1		 \
-+    run_fio_on_seq "$(ioengine "psync")" --rw=write --bs=$bs --zoneskip=1 \
- 		    >> "${logfile}.${test_number}" 2>&1 && return 1
-     grep -q 'zoneskip 1 is not a multiple of the device zone size' "${logfile}.${test_number}"
- }
--- 
-2.26.2
-
 
