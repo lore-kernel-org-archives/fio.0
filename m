@@ -1,45 +1,30 @@
-Return-Path: <ykorman@gmail.com>
-Return-Path: <ykorman@gmail.com>
-From: Yigal Korman <ykorman@gmail.com>
-Subject: [PATCH v1 3/3] fio: suggest installing engine package when missing
-Date: Sun, 28 Jun 2020 22:27:58 +0300
-Message-Id: <678d10332ad5edb5d076d0fe94a833fe595a3020.1592981060.git.ykorman@gmail.com>
-In-Reply-To: <cover.1592981060.git.ykorman@gmail.com>
-References: <cover.1592981060.git.ykorman@gmail.com>
-In-Reply-To: <cover.1592981060.git.ykorman@gmail.com>
-References: <cover.1592981060.git.ykorman@gmail.com>
-To: axboe@kernel.dk
-Cc: Yigal Korman <ykorman@gmail.com>, fio@vger.kernel.org
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 0/5] Switch to Python3
+References: <20200607191104.17550-1-bvanassche@acm.org>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <86788204-2c80-bbcd-a792-ad4204a5d59e@kernel.dk>
+Date: Sun, 7 Jun 2020 17:30:58 -0600
+MIME-Version: 1.0
+In-Reply-To: <20200607191104.17550-1-bvanassche@acm.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Bart Van Assche <bvanassche@acm.org>
+Cc: fio@vger.kernel.org, Sitsofe Wheeler <sitsofe@yahoo.com>, Vincent Fu <vincent.fu@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-Signed-off-by: Yigal Korman <ykorman@gmail.com>
----
- ioengines.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+On 6/7/20 1:10 PM, Bart Van Assche wrote:
+> Hi Jens,
+> 
+> Since Python2 is in maintenance mode, this patch series converts the fio
+> test scripts to Python3. Please consider this patch series for inclusion
+> in the upstream fio repository. Thanks to Sitsofe Wheeler and Vincent Fu
+> for the help with reviewing this series. See also
+> https://github.com/axboe/fio/pull/1002.
 
-diff --git a/ioengines.c b/ioengines.c
-index 78262bc1..20224e59 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -79,10 +79,16 @@ static struct ioengine_ops *find_ioengine(const char *name)
- static void *dlopen_external(struct thread_data *td, const char *engine)
- {
- 	char engine_path[PATH_MAX];
-+	void *dlhandle;
- 
- 	sprintf(engine_path, "%s/lib%s.so", FIO_EXT_ENG_DIR, engine);
- 
--	return dlopen(engine_path, RTLD_LAZY);
-+	dlhandle = dlopen(engine_path, RTLD_LAZY);
-+	if (!dlhandle)
-+		log_info("Engine not available; Install the fio-engine-%s package\n",
-+			 engine);
-+
-+	return dlhandle;
- }
- #else
- #define dlopen_external(td, engine) (NULL)
+Applied, thanks Bart!
+
 -- 
-2.17.1
+Jens Axboe
 
 
