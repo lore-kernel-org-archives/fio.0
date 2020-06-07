@@ -1,67 +1,42 @@
-Return-Path: <krish.reddy@samsung.com>
-From: Krishna Kanth Reddy <krish.reddy@samsung.com>
-Subject: [PATCH 2/4] libaio: support for Zone Append command
-Date: Thu, 25 Jun 2020 23:08:50 +0530
-Message-Id: <1593106733-19596-3-git-send-email-krish.reddy@samsung.com>
-In-Reply-To: <1593106733-19596-1-git-send-email-krish.reddy@samsung.com>
-Content-Type: text/plain; charset="utf-8"
-References: <1593106733-19596-1-git-send-email-krish.reddy@samsung.com>
-	<CGME20200625174129epcas5p304bf58bb381b4b0c39e0ff91b50a23a9@epcas5p3.samsung.com>
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, Ankit Kumar <ankit.kumar@samsung.com>, Krishna Kanth Reddy <krish.reddy@samsung.com>
+Return-Path: <bart.vanassche@gmail.com>
+Return-Path: <bart.vanassche@gmail.com>
+From: Bart Van Assche <bvanassche@acm.org>
+Subject: [PATCH 5/5] t/run-fio-tests.py: Accept a wider range of IOPS values
+Date: Sun,  7 Jun 2020 12:11:04 -0700
+Message-Id: <20200607191104.17550-6-bvanassche@acm.org>
+In-Reply-To: <20200607191104.17550-1-bvanassche@acm.org>
+References: <20200607191104.17550-1-bvanassche@acm.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org, Sitsofe Wheeler <sitsofe@yahoo.com>, Vincent Fu <vincent.fu@wdc.com>, Bart Van Assche <bvanassche@acm.org>
 List-ID: <fio@vger.kernel.org>
 
-From: Ankit Kumar <ankit.kumar@samsung.com>
+This patch prevents that test 11 sporadically fails as follows:
 
-The zone append command uses the write path with offset as
-start of the zone. Upon successful completion, multiple of
-sectors relative to the zone's start offset, where the data
-has been placed is returned.
+DEBUG:root:Test 11: return code: 0
+DEBUG:root:Test 11: skipped 0 lines decoding JSON data
+DEBUG:root:Test 11: iops1: 997.670549
+DEBUG:root:Test 11: ratio: 8.163684
 
-Signed-off-by: Krishna Kanth Reddy <krish.reddy@samsung.com>
+Test 11 FAILED:  iops value mismatch,
+
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 ---
- engines/libaio.c | 20 +++++++++++++++++++-
- 1 file changed, 19 insertions(+), 1 deletion(-)
+ t/run-fio-tests.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/engines/libaio.c b/engines/libaio.c
-index 398fdf9..4ffe831 100644
---- a/engines/libaio.c
-+++ b/engines/libaio.c
-@@ -123,7 +123,13 @@ static int fio_libaio_prep(struct thread_data *td, struct io_u *io_u)
- 		if (o->nowait)
- 			iocb->aio_rw_flags |= RWF_NOWAIT;
- 	} else if (io_u->ddir == DDIR_WRITE) {
--		io_prep_pwrite(iocb, f->fd, io_u->xfer_buf, io_u->xfer_buflen, io_u->offset);
-+		if ((td->o.zone_mode == ZONE_MODE_ZBD) && td->o.zone_append) {
-+			io_prep_pwrite(iocb, f->fd, io_u->xfer_buf, io_u->xfer_buflen, io_u->zone_start_offset);
-+		}
-+		else
-+			io_prep_pwrite(iocb, f->fd, io_u->xfer_buf, io_u->xfer_buflen, io_u->offset);
-+		if (td->o.zone_append)
-+			iocb->aio_rw_flags |= RWF_ZONE_APPEND;
- 		if (o->nowait)
- 			iocb->aio_rw_flags |= RWF_NOWAIT;
- 	} else if (ddir_sync(io_u->ddir))
-@@ -228,6 +234,18 @@ static int fio_libaio_getevents(struct thread_data *td, unsigned int min,
- 		} else {
- 			r = io_getevents(ld->aio_ctx, actual_min,
- 				max, ld->aio_events + events, lt);
-+			if (td->o.zone_mode == ZONE_MODE_ZBD) {
-+				struct io_event *ev;
-+				struct io_u *io_u;
-+				for (unsigned event = 0; event < r; event++) {
-+					ev = ld->aio_events + event;
-+					io_u = container_of(ev->obj, struct io_u, iocb);
-+					if (td->o.zone_append
-+					    && td->o.do_verify && td->o.verify
-+					    && (io_u->ddir == DDIR_WRITE))
-+						io_u->ipo->offset = io_u->zone_start_offset + (ev->res2 << 9);
-+				}
-+			}
- 		}
- 		if (r > 0)
- 			events += r;
--- 
-2.7.4
-
+diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
+index e7063d3eb63a..c2352d80c2bf 100755
+--- a/t/run-fio-tests.py
++++ b/t/run-fio-tests.py
+@@ -438,7 +438,7 @@ class FioJobTest_t0011(FioJobTest):
+         logging.debug("Test %d: iops1: %f", self.testnum, iops1)
+         logging.debug("Test %d: ratio: %f", self.testnum, ratio)
+ 
+-        if iops1 < 998 or iops1 > 1002:
++        if iops1 < 997 or iops1 > 1003:
+             self.failure_reason = "{0} iops value mismatch,".format(self.failure_reason)
+             self.passed = False
+ 
 
