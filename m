@@ -1,70 +1,38 @@
-Return-Path: <krish.reddy@samsung.com>
-From: Krishna Kanth Reddy <krish.reddy@samsung.com>
-Subject: [PATCH 3/4] iouring: support for Zone Append command
-Date: Thu, 25 Jun 2020 23:08:51 +0530
-Message-Id: <1593106733-19596-4-git-send-email-krish.reddy@samsung.com>
-In-Reply-To: <1593106733-19596-1-git-send-email-krish.reddy@samsung.com>
-Content-Type: text/plain; charset="utf-8"
-References: <1593106733-19596-1-git-send-email-krish.reddy@samsung.com>
-	<CGME20200625174131epcas5p36cf7cd413dcb698f117474df71e5648b@epcas5p3.samsung.com>
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, Ankit Kumar <ankit.kumar@samsung.com>, Krishna Kanth Reddy <krish.reddy@samsung.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58926 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730476AbgFJUDc (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 10 Jun 2020 16:03:32 -0400
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2621DC03E96B
+        for <fio@vger.kernel.org>; Wed, 10 Jun 2020 13:03:32 -0700 (PDT)
+Received: by mail-wr1-x42b.google.com with SMTP id y17so3695751wrn.11
+        for <fio@vger.kernel.org>; Wed, 10 Jun 2020 13:03:32 -0700 (PDT)
+MIME-Version: 1.0
+References: <CAF6DVKN0_94sOWxywgqYNYWHRstC2enX5z-qi7+9uf4_7Lag-g@mail.gmail.com>
+In-Reply-To: <CAF6DVKN0_94sOWxywgqYNYWHRstC2enX5z-qi7+9uf4_7Lag-g@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 10 Jun 2020 21:03:04 +0100
+Message-ID: <CALjAwxhhDK2ko3Mg89y38WBjBZDD8H_tHwZJHop-xp6wNthjyg@mail.gmail.com>
+Subject: Re: Link to Release Notes
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Debraj Manna <subharaj.manna@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-From: Ankit Kumar <ankit.kumar@samsung.com>
+Hi,
 
-The zone append command uses the write path with offset as
-start of the zone. Upon successful completion, multiple of
-sectors relative to the zone's start offset, where the data
-has been placed is returned.
+On Wed, 10 Jun 2020 at 16:17, Debraj Manna <subharaj.manna@gmail.com> wrote:
+>
+> Hi
+>
+> Is there any link where I can view the release notes for fio or I have
+> to view the commit messages in the github for a release?
 
-Signed-off-by: Krishna Kanth Reddy <krish.reddy@samsung.com>
----
- engines/io_uring.c | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+Jens often puts them up on https://brick.kernel.dk/snaps/ (e.g.
+https://brick.kernel.dk/snaps/fio-3.20.shortlog.txt ).
 
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index cd0810f..cb7c5ba 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -251,7 +251,13 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
- 			sqe->ioprio = td->o.ioprio_class << 13;
- 		if (ld->ioprio_set)
- 			sqe->ioprio |= td->o.ioprio;
--		sqe->off = io_u->offset;
-+		if (td->o.zone_append && io_u->ddir == DDIR_WRITE)
-+			sqe->rw_flags |= RWF_ZONE_APPEND;
-+		if ((td->o.zone_mode == ZONE_MODE_ZBD)
-+		     && td->o.zone_append && io_u->ddir == DDIR_WRITE) {
-+			sqe->off = io_u->zone_start_offset;
-+		} else
-+			sqe->off = io_u->offset;
- 	} else if (ddir_sync(io_u->ddir)) {
- 		if (io_u->ddir == DDIR_SYNC_FILE_RANGE) {
- 			sqe->off = f->first_write;
-@@ -324,6 +330,21 @@ static int fio_ioring_getevents(struct thread_data *td, unsigned int min,
- 	ld->cq_ring_off = *ring->head;
- 	do {
- 		r = fio_ioring_cqring_reap(td, events, max);
-+		if (td->o.zone_mode == ZONE_MODE_ZBD) {
-+			struct io_uring_cqe *cqe;
-+			struct io_u *io_u;
-+			unsigned index;
-+			for (unsigned event = 0; event < r; event++) {
-+				index = (event + ld->cq_ring_off) & ld->cq_ring_mask;
-+
-+				cqe = &ld->cq_ring.cqes[index];
-+				io_u = (struct io_u *) (uintptr_t) cqe->user_data;
-+
-+				if (td->o.zone_append && td->o.do_verify
-+				    && td->o.verify && (io_u->ddir == DDIR_WRITE))
-+					io_u->ipo->offset = io_u->zone_start_offset + (cqe->flags << 9);
-+			}
-+		}
- 		if (r) {
- 			events += r;
- 			if (actual_min != 0)
 -- 
-2.7.4
-
+Sitsofe | http://sucs.org/~sits/
 
