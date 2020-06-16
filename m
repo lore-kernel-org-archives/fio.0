@@ -1,58 +1,46 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53760 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725831AbgFFMAO (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 6 Jun 2020 08:00:14 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F0E3C03E96A
-        for <fio@vger.kernel.org>; Sat,  6 Jun 2020 05:00:14 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jhXUf-0004Jd-75
-        for fio@vger.kernel.org; Sat, 06 Jun 2020 12:00:09 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20200606120001.C5BC61BC017A@kernel.dk>
-Date: Sat,  6 Jun 2020 06:00:01 -0600 (MDT)
+        with ESMTP id S1725710AbgFPHdD (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 16 Jun 2020 03:33:03 -0400
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CDA6C05BD43
+        for <fio@vger.kernel.org>; Tue, 16 Jun 2020 00:33:03 -0700 (PDT)
+Received: by mail-wr1-x42f.google.com with SMTP id x6so19578578wrm.13
+        for <fio@vger.kernel.org>; Tue, 16 Jun 2020 00:33:03 -0700 (PDT)
+MIME-Version: 1.0
+References: <3866F5B3-377A-4452-B7DB-F57404C6D157@gmail.com>
+In-Reply-To: <3866F5B3-377A-4452-B7DB-F57404C6D157@gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Tue, 16 Jun 2020 08:32:36 +0100
+Message-ID: <CALjAwxiaMosfY0XuvwAvDiahjz6=mYp3LBskT=W-kg3z=zSgJg@mail.gmail.com>
+Subject: Re: How to split IO by block size and read/write
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Jared Walton <jawalking@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-The following changes since commit 00ca8df5468e90bbf1256ec90fc9ae14b1706ccc:
+Hi,
 
-  zbd: Fix max_open_zones checks (2020-06-03 20:15:35 -0600)
+On Mon, 15 Jun 2020 at 20:30, Jared Walton <jawalking@gmail.com> wrote:
+>
+> I=E2=80=99m trying to setup workload where 70% of the IOs are read and 30=
+% are write, but all reads would be 4k reads, and all writes would be 8k. I=
+s this possible with FIO?
+>
+> I see that I can set bssplit=3D4k/70:8k/30 but where how would I ensure t=
+hat all 4k are reads?
 
-are available in the Git repository at:
+Can't you use just plain blocksize
+(https://fio.readthedocs.io/en/latest/fio_man.html#cmdoption-arg-blocksize
+) and rwmixread
+(https://fio.readthedocs.io/en/latest/fio_man.html#cmdoption-arg-rwmixread
+) for this? blocksize takes comma separated values for each direction
+so you could set bs=3D4k,8k and then you could use rwmixread=3D70 to skew
+the balance of reads to writes...
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 08541925ec1b5887fc91e59a4bc253d54757c4c6:
-
-  Makefile: include linux-blkzoned.c for Android, if set (2020-06-05 07:06:46 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Makefile: include linux-blkzoned.c for Android, if set
-
- Makefile | 3 +++
- 1 file changed, 3 insertions(+)
-
----
-
-Diff of recent changes:
-
-diff --git a/Makefile b/Makefile
-index e3962195..7eb5e899 100644
---- a/Makefile
-+++ b/Makefile
-@@ -176,6 +176,9 @@ endif
- ifeq ($(CONFIG_TARGET_OS), Android)
-   SOURCE += diskutil.c fifo.c blktrace.c cgroup.c trim.c profiles/tiobench.c \
- 		oslib/linux-dev-lookup.c
-+ifdef CONFIG_HAS_BLKZONED
-+  SOURCE += oslib/linux-blkzoned.c
-+endif
-   LIBS += -ldl -llog
-   LDFLAGS += -rdynamic
- endif
+--=20
+Sitsofe | http://sucs.org/~sits/
 
