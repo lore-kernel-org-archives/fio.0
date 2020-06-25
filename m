@@ -1,89 +1,88 @@
-Return-Path: <prvs=43878f96a=Dmitry.Fomichev@wdc.com>
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: RE: [PATCH 4/4] t/zbd: Add support to verify Zone Append command with
+Return-Path: <krish.reddy@samsung.com>
+From: Krishna Kanth Reddy <krish.reddy@samsung.com>
+Subject: [PATCH 4/4] t/zbd: Add support to verify Zone Append command with
  libaio, io_uring IO engine tests
-Date: Thu, 25 Jun 2020 18:44:19 +0000
-Message-ID: 
- <MN2PR04MB5951416AEA2856F350725EF8E1920@MN2PR04MB5951.namprd04.prod.outlook.com>
-References: <1593106733-19596-1-git-send-email-krish.reddy@samsung.com>
-        <CGME20200625174133epcas5p1eace8f03319bee805b93c50fe6c690c7@epcas5p1.samsung.com>
- <1593106733-19596-5-git-send-email-krish.reddy@samsung.com>
-In-Reply-To: <1593106733-19596-5-git-send-email-krish.reddy@samsung.com>
-Content-Language: en-US
+Date: Thu, 25 Jun 2020 23:08:52 +0530
+Message-Id: <1593106733-19596-5-git-send-email-krish.reddy@samsung.com>
+In-Reply-To: <1593106733-19596-1-git-send-email-krish.reddy@samsung.com>
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-To: Krishna Kanth Reddy <krish.reddy@samsung.com>, "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Ankit Kumar <ankit.kumar@samsung.com>, Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+References: <1593106733-19596-1-git-send-email-krish.reddy@samsung.com>
+	<CGME20200625174133epcas5p1eace8f03319bee805b93c50fe6c690c7@epcas5p1.samsung.com>
+To: axboe@kernel.dk
+Cc: fio@vger.kernel.org, Krishna Kanth Reddy <krish.reddy@samsung.com>, Ankit Kumar <ankit.kumar@samsung.com>
 List-ID: <fio@vger.kernel.org>
 
-V2lsbCB0aGVzZSB0ZXN0cyBzdWNjZWVkIGlmIHQvemJkL3Rlc3QtemJkLXN1cHBvcnQgc2NyaXB0
-IGlzIHJ1biBhZ2FpbnN0IGFuIFNNUiBIREQ/DQpTaW5jZSB6b25lZCBIRERzIGRvbid0IHN1cHBv
-cnQgWm9uZSBBcHBlbmQsIEkgd291bGQgZXhwZWN0IHRoZSBpL28gdG8gZmFpbC4NCkkgdGhpbmsg
-eW91IG5lZWQgdG8gY2hlY2sgaWYgdGhpcyBkZXZpY2UgaXMgYW4gTlZNZSBkcml2ZSBhbmQgZXhw
-ZWN0IHRoZSBpL28gZmFpbHVyZSBpbg0KdGhlIHRlc3RzIGJlbG93IGlmIHRoaXMgaXMgbm90IHRo
-ZSBjYXNlLg0KDQpNb3JlIGlubGluZS4uLg0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0t
-DQo+IEZyb206IGZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmcgPGZpby1vd25lckB2Z2VyLmtlcm5l
-bC5vcmc+IE9uIEJlaGFsZg0KPiBPZiBLcmlzaG5hIEthbnRoIFJlZGR5DQo+IFNlbnQ6IFRodXJz
-ZGF5LCBKdW5lIDI1LCAyMDIwIDE6MzkgUE0NCj4gVG86IGF4Ym9lQGtlcm5lbC5kaw0KPiBDYzog
-ZmlvQHZnZXIua2VybmVsLm9yZzsgS3Jpc2huYSBLYW50aCBSZWRkeSA8a3Jpc2gucmVkZHlAc2Ft
-c3VuZy5jb20+Ow0KPiBBbmtpdCBLdW1hciA8YW5raXQua3VtYXJAc2Ftc3VuZy5jb20+DQo+IFN1
-YmplY3Q6IFtQQVRDSCA0LzRdIHQvemJkOiBBZGQgc3VwcG9ydCB0byB2ZXJpZnkgWm9uZSBBcHBl
-bmQgY29tbWFuZA0KPiB3aXRoIGxpYmFpbywgaW9fdXJpbmcgSU8gZW5naW5lIHRlc3RzDQo+IA0K
-PiBNb2RpZnkgdGhlIHRlc3QtemJkLXN1cHBvcnQgc2NyaXB0IHRvIHZlcmlmeSB0aGUgWm9uZSBB
-cHBlbmQgY29tbWFuZA0KPiBmb3IgTlZNZSBab25lZCBOYW1lc3BhY2VzIChaTlMpIGRlZmluZWQg
-aW4gTlZNIEV4cHJlc3MgVFA0MDUzLg0KPiBBZGRlZCBhIG5ldyBGSU8gb3B0aW9uIHpvbmVfYXBw
-ZW5kLg0KPiBXaGVuIHpvbmVfYXBwZW5kIG9wdGlvbiBpcyBlbmFibGVkLCB0aGUgZXhpc3Rpbmcg
-d3JpdGUgcGF0aCB3aWxsDQo+IHNlbmQgWm9uZSBBcHBlbmQgY29tbWFuZCB3aXRoIExCQSBvZmZz
-ZXQgYXMgc3RhcnQgb2YgdGhlIFpvbmUuDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBBbmtpdCBLdW1h
-ciA8YW5raXQua3VtYXJAc2Ftc3VuZy5jb20+DQo+IC0tLQ0KPiAgdC96YmQvdGVzdC16YmQtc3Vw
-cG9ydCB8IDQ4DQo+ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKw0KPiAgMSBmaWxlIGNoYW5nZWQsIDQ4IGluc2VydGlvbnMoKykNCj4gDQo+IGRpZmYgLS1n
-aXQgYS90L3piZC90ZXN0LXpiZC1zdXBwb3J0IGIvdC96YmQvdGVzdC16YmQtc3VwcG9ydA0KPiBp
-bmRleCA0MDAxYmUzLi5kZGFkZTIyIDEwMDc1NQ0KPiAtLS0gYS90L3piZC90ZXN0LXpiZC1zdXBw
-b3J0DQo+ICsrKyBiL3QvemJkL3Rlc3QtemJkLXN1cHBvcnQNCj4gQEAgLTgwMSw2ICs4MDEsNTQg
-QEAgdGVzdDQ4KCkgew0KPiAgCSAgICA+PiAiJHtsb2dmaWxlfS4ke3Rlc3RfbnVtYmVyfSIgMj4m
-MSB8fCByZXR1cm4gJD8NCj4gIH0NCj4gDQo+ICsjIFpvbmUgYXBwZW5kIHRvIHNlcXVlbnRpYWwg
-em9uZXMsIGxpYmFpbywgMSBqb2IsIHF1ZXVlIGRlcHRoIDENCj4gK3Rlc3Q0OSgpIHsNCj4gKyAg
-ICBsb2NhbCBpIHNpemUNCj4gKw0KPiArICAgIHNpemU9JCgoNCAqIHpvbmVfc2l6ZSkpDQo+ICsg
-ICAgcnVuX2Zpb19vbl9zZXEgLS1pb2VuZ2luZT1saWJhaW8gLS1pb2RlcHRoPTEgLS1ydz13cml0
-ZSAtLQ0KPiB6b25lX2FwcGVuZD0xIFwNCj4gKyAgICAgICAgICAgICAgICAgICAtLWJzPSIkKG1h
-eCAkKCh6b25lX3NpemUgLyA2NCkpICIkbG9naWNhbF9ibG9ja19zaXplIikiXA0KPiArICAgICAg
-ICAgICAgICAgICAgIC0tZG9fdmVyaWZ5PTEgLS12ZXJpZnk9bWQ1ICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgXA0KPiArICAgICAgICAgICAgICAgICAgID4+IiR7bG9nZmlsZX0uJHt0ZXN0X251
-bWJlcn0iIDI+JjEgfHwgcmV0dXJuICQ/DQo+ICsgICAgY2hlY2tfd3JpdHRlbiAkc2l6ZSB8fCBy
-ZXR1cm4gJD8NCj4gKyAgICBjaGVja19yZWFkICRzaXplIHx8IHJldHVybiAkPw0KPiArfQ0KPiAr
-DQo+ICsjIFJhbmRvbSB6b25lIGFwcGVuZCB0byBzZXF1ZW50aWFsIHpvbmVzLCBsaWJhaW8sIDgg
-am9icywgcXVldWUgZGVwdGggNjQNCj4gcGVyIGpvYg0KPiArdGVzdDUwKCkgew0KPiArICAgIGxv
-Y2FsIHNpemUNCj4gKw0KPiArICAgIHNpemU9JCgoNCAqIHpvbmVfc2l6ZSkpDQo+ICsgICAgcnVu
-X2Zpb19vbl9zZXEgLS1pb2VuZ2luZT1saWJhaW8gLS1pb2RlcHRoPTY0IC0tcnc9cmFuZHdyaXRl
-IC0tYnM9NEsgXA0KPiArICAgICAgICAgICAgICAgICAgIC0tZ3JvdXBfcmVwb3J0aW5nPTEgLS1u
-dW1qb2JzPTggLS16b25lX2FwcGVuZD0xIFwNCj4gKyAgICAgICAgICAgICAgICAgICA+PiAiJHts
-b2dmaWxlfS4ke3Rlc3RfbnVtYmVyfSIgMj4mMSB8fCByZXR1cm4gJD8NCj4gKyAgICBjaGVja193
-cml0dGVuICQoKHNpemUgKiA4KSkgfHwgcmV0dXJuICQ/DQo+ICt9DQo+ICsNCj4gKyMgWm9uZSBh
-cHBlbmQgdG8gc2VxdWVudGlhbCB6b25lcywgaW9fdXJpbmcsIDEgam9iLCBxdWV1ZSBkZXB0aCAx
-DQo+ICt0ZXN0NTEoKSB7DQo+ICsgICAgbG9jYWwgaSBzaXplDQo+ICsNCj4gKyAgICBzaXplPSQo
-KDQgKiB6b25lX3NpemUpKQ0KPiArICAgIHJ1bl9maW9fb25fc2VxIC0taW9lbmdpbmU9aW9fdXJp
-bmcgLS1pb2RlcHRoPTEgLS1ydz13cml0ZSAtLQ0KPiB6b25lX2FwcGVuZD0xIFwNCj4gKyAgICAg
-ICAgICAgICAgICAgICAtLWJzPSIkKG1heCAkKCh6b25lX3NpemUgLyA2NCkpICIkbG9naWNhbF9i
-bG9ja19zaXplIikiXA0KPiArICAgICAgICAgICAgICAgICAgIC0tZG9fdmVyaWZ5PTEgLS12ZXJp
-Znk9bWQ1ICAgICAgICAgICAgICAgICAgICAgICAgICAgXA0KPiArICAgICAgICAgICAgICAgICAg
-ID4+IiR7bG9nZmlsZX0uJHt0ZXN0X251bWJlcn0iIDI+JjEgfHwgcmV0dXJuICQ/DQo+ICsgICAg
-Y2hlY2tfd3JpdHRlbiAkc2l6ZSB8fCByZXR1cm4gJD8NCj4gKyAgICBjaGVja19yZWFkICRzaXpl
-IHx8IHJldHVybiAkPw0KPiArfQ0KPiArDQo+ICsjIFJhbmRvbSB6b25lIGFwcGVuZCB0byBzZXF1
-ZW50aWFsIHpvbmVzLCBpb191cmluZywgOCBqb2JzLCBxdWV1ZSBkZXB0aA0KPiA2NCBwZXIgam9i
-DQo+ICt0ZXN0NTIoKSB7DQo+ICsgICAgbG9jYWwgc2l6ZQ0KPiArDQo+ICsgICAgc2l6ZT0kKCg0
-ICogem9uZV9zaXplKSkNCg0KTWF5YmUgdHJ5IHNvbWUgZGlmZmVyZW50IHNpemU/IEl0IGlzIHRo
-ZSBzYW1lIGluIGFsbCB0ZXN0cy4gDQoNCj4gKyAgICBydW5fZmlvX29uX3NlcSAtLWlvZW5naW5l
-PWlvX3VyaW5nIC0taW9kZXB0aD02NCAtLXJ3PXJhbmR3cml0ZSAtLQ0KPiBicz00SyBcDQoNCkFs
-bCB0ZXN0cyBkbyA0SyBpL28sIGJ1dCBtYXliZSB0cnkgdG8gcnVuIHdpdGggYSBkaWZmZXJlbnQg
-YmxvY2sgc2l6ZT8NCkl0IGNvdWxkIGJlIGEgZ29vZCBpZGVhIHRvIGFkZCBhIHRlc3QgdGhhdCB3
-aWxsIHdyaXRlIHdpdGggYnM9WkFTTChvciBNRFRTKS4NCllldCBhbm90aGVyIHRlc3QgaXNzdWlu
-ZyBpL28gd2l0aCBicyBleGNlZWRpbmcgdGhlIG1heGltdW0gaS9vIHNpemUgd291bGQNCmJlIHZl
-cnkgdXNlZnVsLg0KDQo+ICsgICAgICAgICAgICAgICAgICAgLS1ncm91cF9yZXBvcnRpbmc9MSAt
-LW51bWpvYnM9OCAtLXpvbmVfYXBwZW5kPTEgXA0KPiArICAgICAgICAgICAgICAgICAgID4+ICIk
-e2xvZ2ZpbGV9LiR7dGVzdF9udW1iZXJ9IiAyPiYxIHx8IHJldHVybiAkPw0KPiArICAgIGNoZWNr
-X3dyaXR0ZW4gJCgoc2l6ZSAqIDgpKSB8fCByZXR1cm4gJD8NCj4gK30NCj4gKw0KPiAgdGVzdHM9
-KCkNCj4gIGR5bmFtaWNfYW5hbHl6ZXI9KCkNCj4gIHJlc2V0X2FsbF96b25lcz0NCj4gLS0NCj4g
-Mi43LjQNCg0K
+Modify the test-zbd-support script to verify the Zone Append command
+for NVMe Zoned Namespaces (ZNS) defined in NVM Express TP4053.
+Added a new FIO option zone_append.
+When zone_append option is enabled, the existing write path will
+send Zone Append command with LBA offset as start of the Zone.
+
+Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
+---
+ t/zbd/test-zbd-support | 48 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 48 insertions(+)
+
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 4001be3..ddade22 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -801,6 +801,54 @@ test48() {
+ 	    >> "${logfile}.${test_number}" 2>&1 || return $?
+ }
+ 
++# Zone append to sequential zones, libaio, 1 job, queue depth 1
++test49() {
++    local i size
++
++    size=$((4 * zone_size))
++    run_fio_on_seq --ioengine=libaio --iodepth=1 --rw=write --zone_append=1 \
++                   --bs="$(max $((zone_size / 64)) "$logical_block_size")"\
++                   --do_verify=1 --verify=md5                           \
++                   >>"${logfile}.${test_number}" 2>&1 || return $?
++    check_written $size || return $?
++    check_read $size || return $?
++}
++
++# Random zone append to sequential zones, libaio, 8 jobs, queue depth 64 per job
++test50() {
++    local size
++
++    size=$((4 * zone_size))
++    run_fio_on_seq --ioengine=libaio --iodepth=64 --rw=randwrite --bs=4K \
++                   --group_reporting=1 --numjobs=8 --zone_append=1 \
++                   >> "${logfile}.${test_number}" 2>&1 || return $?
++    check_written $((size * 8)) || return $?
++}
++
++# Zone append to sequential zones, io_uring, 1 job, queue depth 1
++test51() {
++    local i size
++
++    size=$((4 * zone_size))
++    run_fio_on_seq --ioengine=io_uring --iodepth=1 --rw=write --zone_append=1 \
++                   --bs="$(max $((zone_size / 64)) "$logical_block_size")"\
++                   --do_verify=1 --verify=md5                           \
++                   >>"${logfile}.${test_number}" 2>&1 || return $?
++    check_written $size || return $?
++    check_read $size || return $?
++}
++
++# Random zone append to sequential zones, io_uring, 8 jobs, queue depth 64 per job
++test52() {
++    local size
++
++    size=$((4 * zone_size))
++    run_fio_on_seq --ioengine=io_uring --iodepth=64 --rw=randwrite --bs=4K \
++                   --group_reporting=1 --numjobs=8 --zone_append=1 \
++                   >> "${logfile}.${test_number}" 2>&1 || return $?
++    check_written $((size * 8)) || return $?
++}
++
+ tests=()
+ dynamic_analyzer=()
+ reset_all_zones=
+-- 
+2.7.4
+
 
