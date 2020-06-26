@@ -1,51 +1,47 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: Sequential profile in FIO 3.7 in linux CentOS 7
-References: <CAFsSD_XNL1iA7LT1ChdL0ZFRT+_6TV9N+VerbTEJFYOvs4ZYXg@mail.gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <818b44df-741d-dfc6-6a1f-479b11ab556a@kernel.dk>
-Date: Fri, 5 Jun 2020 07:02:08 -0600
+Return-Path: <prvs=439ee04d1=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 2/8] t/zbd: Fix pass condition of test case #3
+Date: Fri, 26 Jun 2020 18:43:25 +0900
+Message-Id: <20200626094331.418309-3-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200626094331.418309-1-shinichiro.kawasaki@wdc.com>
+References: <20200626094331.418309-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
-In-Reply-To: <CAFsSD_XNL1iA7LT1ChdL0ZFRT+_6TV9N+VerbTEJFYOvs4ZYXg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: harshit jain <kumarjain10@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On 6/5/20 12:52 AM, harshit jain wrote:
-> Hi Jen's,
-> 
-> I need help in creating an I/O profile wherein the LBA access are
-> sequential. Basically is it possible to create a profile wherein the
-> LBA pattern is write on LBA 0 followed by read on LBA 0 immediately
-> and so on?
-> 
-> I am trying to generate the below mentioned sequence
-> 
-> Write LBA0
-> Read LBA0
-> 
-> Write LBA1
-> Read LBA1
-> 
-> Write LBAn
-> Read LBAn
-> 
-> And so on till all LBA sectors is covered.
-> 
-> Any pointers would be much appreciated.
+The test case #3 checks that the read workload for empty zones ends
+without reading any data. When zonemode=zbd, it is expected for both
+regular block devices and zoned block devices. However, the test case
+allowed for regular block devices to read data from empty zones. Remove
+this special pass condition for regular block devices.
 
-Please send general queries etc to the mailing list, I've CC'ed it.
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ t/zbd/test-zbd-support | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-For this use case, I'd just do a verify workload with a backlog of 1.
-That means that after 1 write, we'll verify it.
-
-rw=write                                                                        
-verify=crc32c                                                                   
-verify_backlog=1                                                                
-
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 4001be3b..1178afd4 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -170,13 +170,7 @@ test3() {
+ 	opts+=("--zonesize=${zone_size}")
+     fi
+     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
+-    grep -q 'READ:' "${logfile}.${test_number}"
+-    rc=$?
+-    if [ -n "$is_zbd" ]; then
+-	[ $rc != 0 ]
+-    else
+-	[ $rc = 0 ]
+-    fi
++    ! grep -q 'READ:' "${logfile}.${test_number}"
+ }
+ 
+ # Run fio with --read_beyond_wp=1 against an empty zone.
 -- 
-Jens Axboe
+2.26.2
 
 
