@@ -1,60 +1,47 @@
-Return-Path: <prvs=443f8aa95=Damien.LeMoal@wdc.com>
-From: Damien Le Moal <Damien.LeMoal@wdc.com>
-Subject: Re: [PATCH 0/8] zbd: Fix initial zone write pointer of regular block
- devices
-Date: Tue, 30 Jun 2020 04:53:59 +0000
-Message-ID: 
- <CY4PR04MB3751C96E54170346CE125BBBE76F0@CY4PR04MB3751.namprd04.prod.outlook.com>
+Return-Path: <prvs=439ee04d1=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 1/8] zbd: Fix initial zone write pointer of regular block devices
+Date: Fri, 26 Jun 2020 18:43:24 +0900
+Message-Id: <20200626094331.418309-2-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200626094331.418309-1-shinichiro.kawasaki@wdc.com>
 References: <20200626094331.418309-1-shinichiro.kawasaki@wdc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On 2020/06/26 18:43, Shin'ichiro Kawasaki wrote:=0A=
-> With zonemode=3Dzbd and regular block devices, fio initializes zone statu=
-s as=0A=
-> empty. However, write pointers are set not at zone start but at zone end.=
- This=0A=
-> inconsistency between write pointer position and zone status caused diffe=
-rent=0A=
-> behavior of regular block devices from zoned block devices. This patch se=
-ries=0A=
-> fixes the inconsistency and the behavior gap.=0A=
-> =0A=
-> The 1st patch fixes the zone status initialization code by setting write=
-=0A=
-> pointers at zone start. Following patches fixes t/zbd test script to hand=
-le=0A=
-> regular block devices and zoned block devices in same manner.=0A=
-> =0A=
-> Shin'ichiro Kawasaki (8):=0A=
->   zbd: Fix initial zone write pointer of regular block devices=0A=
->   t/zbd: Fix pass condition of test case #3=0A=
->   t/zbd: Add write_and_run_one_fio_job() helper function=0A=
->   t/zbd: Combine write and read fio commands for test case #6=0A=
->   t/zbd: Combine write and read fio commands for test case #15=0A=
->   t/zbd: Combine write and read fio commands for test case #16=0A=
->   t/zbd: Remove write before random read/write from test case #17=0A=
->   t/zbd: Enable regular block devices for test case #47=0A=
-> =0A=
->  t/zbd/test-zbd-support | 78 +++++++++++++++++++++++-------------------=
-=0A=
->  zbd.c                  |  2 +-=0A=
->  2 files changed, 44 insertions(+), 36 deletions(-)=0A=
-> =0A=
-=0A=
-Jens,=0A=
-=0A=
-I reviewed this series internally with Shin'ichiro before he posted.=0A=
-So:=0A=
-=0A=
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
-=0A=
-=0A=
--- =0A=
-Damien Le Moal=0A=
-Western Digital Research=0A=
+With zonemode=zbd and regular block devices, fio initializes zone status
+as empty. However, write pointers are set not at zone start but at zone
+end. This inconsistency between write pointer position and zone status
+caused different behavior from zoned block devices. Fix the inconsistency
+by setting initial write pointer at zone start.
+
+Of note is that every fio run with zonemode=zbd and regular block devices
+starts with empty zones. Then read workloads just ends without any data
+to read. To run read workload, specify read_beyond_wp option. Or specify
+two jobs to a single fio command: write job to prepare data for read and
+read job which waits for the write job completion.
+
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ zbd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/zbd.c b/zbd.c
+index 8cf8f812..cf2cded9 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -381,7 +381,7 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
+ 		mutex_init_pshared_with_type(&p->mutex,
+ 					     PTHREAD_MUTEX_RECURSIVE);
+ 		p->start = i * zone_size;
+-		p->wp = p->start + zone_size;
++		p->wp = p->start;
+ 		p->type = ZBD_ZONE_TYPE_SWR;
+ 		p->cond = ZBD_ZONE_COND_EMPTY;
+ 	}
+-- 
+2.26.2
+
 
