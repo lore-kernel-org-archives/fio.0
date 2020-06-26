@@ -1,96 +1,106 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51824 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404285AbgFYMAV (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 25 Jun 2020 08:00:21 -0400
-Received: from merlin.infradead.org (unknown [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5EAAC061573
-        for <fio@vger.kernel.org>; Thu, 25 Jun 2020 05:00:20 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1joQXz-00065e-QL
-        for fio@vger.kernel.org; Thu, 25 Jun 2020 12:00:03 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20200625120002.B8C371BC0CCB@kernel.dk>
-Date: Thu, 25 Jun 2020 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <prvs=4391c0654=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH 3/4] iouring: support for Zone Append command
+Date: Fri, 26 Jun 2020 05:43:27 +0000
+Message-ID: 
+ <CY4PR04MB375159898F07C71C4870DE63E7930@CY4PR04MB3751.namprd04.prod.outlook.com>
+References: <1593106733-19596-1-git-send-email-krish.reddy@samsung.com>
+ <CGME20200625174131epcas5p36cf7cd413dcb698f117474df71e5648b@epcas5p3.samsung.com>
+ <1593106733-19596-4-git-send-email-krish.reddy@samsung.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+To: Krishna Kanth Reddy <krish.reddy@samsung.com>, "axboe@kernel.dk" <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Ankit Kumar <ankit.kumar@samsung.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit c7f72c4bdb3586025cc7c5da707e69cc7a1baf07:
-
-  Merge branch 'master' of https://github.com/safl/fio (2020-06-23 12:41:35 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to dc6143a58735b781820bb4e3094114078b055810:
-
-  Merge branch 'compiler' of https://github.com/bvanassche/fio (2020-06-24 09:02:06 -0600)
-
-----------------------------------------------------------------
-Bart Van Assche (1):
-      Merge compiler/gcc4.h into compiler/compiler.h
-
-Jens Axboe (1):
-      Merge branch 'compiler' of https://github.com/bvanassche/fio
-
- compiler/compiler-gcc4.h | 17 -----------------
- compiler/compiler.h      |  8 ++++----
- 2 files changed, 4 insertions(+), 21 deletions(-)
- delete mode 100644 compiler/compiler-gcc4.h
-
----
-
-Diff of recent changes:
-
-diff --git a/compiler/compiler-gcc4.h b/compiler/compiler-gcc4.h
-deleted file mode 100644
-index e8701cf0..00000000
---- a/compiler/compiler-gcc4.h
-+++ /dev/null
-@@ -1,17 +0,0 @@
--#ifndef FIO_COMPILER_GCC4_H
--#define FIO_COMPILER_GCC4_H
--
--#ifndef __must_check
--#define __must_check		__attribute__((warn_unused_result))
--#endif
--
--#define GCC_VERSION (__GNUC__ * 10000		\
--			+ __GNUC_MINOR__ * 100	\
--			+ __GNUC_PATCHLEVEL__)
--
--#if GCC_VERSION >= 40300
--#define __compiletime_warning(message)	__attribute__((warning(message)))
--#define __compiletime_error(message)	__attribute__((error(message)))
--#endif
--
--#endif
-diff --git a/compiler/compiler.h b/compiler/compiler.h
-index 8eba2929..8c0eb9d1 100644
---- a/compiler/compiler.h
-+++ b/compiler/compiler.h
-@@ -3,15 +3,15 @@
- 
- /* IWYU pragma: begin_exports */
- #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 9) || __clang_major__ >= 6
--#include "compiler-gcc4.h"
- #else
- #error Compiler too old, need at least gcc 4.9
- #endif
- /* IWYU pragma: end_exports */
- 
--#ifndef __must_check
--#define __must_check
--#endif
-+#define __must_check		__attribute__((warn_unused_result))
-+
-+#define __compiletime_warning(message)	__attribute__((warning(message)))
-+#define __compiletime_error(message)	__attribute__((error(message)))
- 
- /*
-  * Mark unused variables passed to ops functions as unused, to silence gcc
+On 2020/06/26 2:41, Krishna Kanth Reddy wrote:=0A=
+> From: Ankit Kumar <ankit.kumar@samsung.com>=0A=
+> =0A=
+> The zone append command uses the write path with offset as=0A=
+> start of the zone. Upon successful completion, multiple of=0A=
+> sectors relative to the zone's start offset, where the data=0A=
+> has been placed is returned.=0A=
+> =0A=
+> Signed-off-by: Krishna Kanth Reddy <krish.reddy@samsung.com>=0A=
+> ---=0A=
+>  engines/io_uring.c | 23 ++++++++++++++++++++++-=0A=
+>  1 file changed, 22 insertions(+), 1 deletion(-)=0A=
+> =0A=
+> diff --git a/engines/io_uring.c b/engines/io_uring.c=0A=
+> index cd0810f..cb7c5ba 100644=0A=
+> --- a/engines/io_uring.c=0A=
+> +++ b/engines/io_uring.c=0A=
+> @@ -251,7 +251,13 @@ static int fio_ioring_prep(struct thread_data *td, s=
+truct io_u *io_u)=0A=
+>  			sqe->ioprio =3D td->o.ioprio_class << 13;=0A=
+>  		if (ld->ioprio_set)=0A=
+>  			sqe->ioprio |=3D td->o.ioprio;=0A=
+> -		sqe->off =3D io_u->offset;=0A=
+> +		if (td->o.zone_append && io_u->ddir =3D=3D DDIR_WRITE)=0A=
+> +			sqe->rw_flags |=3D RWF_ZONE_APPEND;=0A=
+> +		if ((td->o.zone_mode =3D=3D ZONE_MODE_ZBD)=0A=
+> +		     && td->o.zone_append && io_u->ddir =3D=3D DDIR_WRITE) {=0A=
+> +			sqe->off =3D io_u->zone_start_offset;=0A=
+> +		} else=0A=
+> +			sqe->off =3D io_u->offset;=0A=
+=0A=
+Why test twice "td->o.zone_append && io_u->ddir =3D=3D DDIR_WRITE" ? this c=
+an be=0A=
+rewritten to not have to test this 2 times:=0A=
+=0A=
+		if (td->o.zone_append && io_u->ddir =3D=3D DDIR_WRITE) {=0A=
+			sqe->rw_flags |=3D RWF_ZONE_APPEND;=0A=
+			if (td->o.zone_mode =3D=3D ZONE_MODE_ZBD)=0A=
+				sqe->off =3D io_u->zone_start_offset;=0A=
+			else=0A=
+				sqe->off =3D io_u->offset;=0A=
+		}=0A=
+=0A=
+And fix the start offset as already commented, using io_u->offset and=0A=
+td->o.zone_size.=0A=
+=0A=
+>  	} else if (ddir_sync(io_u->ddir)) {=0A=
+>  		if (io_u->ddir =3D=3D DDIR_SYNC_FILE_RANGE) {=0A=
+>  			sqe->off =3D f->first_write;=0A=
+> @@ -324,6 +330,21 @@ static int fio_ioring_getevents(struct thread_data *=
+td, unsigned int min,=0A=
+>  	ld->cq_ring_off =3D *ring->head;=0A=
+>  	do {=0A=
+>  		r =3D fio_ioring_cqring_reap(td, events, max);=0A=
+> +		if (td->o.zone_mode =3D=3D ZONE_MODE_ZBD) {=0A=
+> +			struct io_uring_cqe *cqe;=0A=
+> +			struct io_u *io_u;=0A=
+> +			unsigned index;=0A=
+=0A=
+need blank line.=0A=
+=0A=
+> +			for (unsigned event =3D 0; event < r; event++) {=0A=
+> +				index =3D (event + ld->cq_ring_off) & ld->cq_ring_mask;=0A=
+> +=0A=
+> +				cqe =3D &ld->cq_ring.cqes[index];=0A=
+> +				io_u =3D (struct io_u *) (uintptr_t) cqe->user_data;=0A=
+> +=0A=
+> +				if (td->o.zone_append && td->o.do_verify=0A=
+> +				    && td->o.verify && (io_u->ddir =3D=3D DDIR_WRITE))=0A=
+> +					io_u->ipo->offset =3D io_u->zone_start_offset + (cqe->flags << 9);=
+=0A=
+=0A=
+cqe->flags needs to be cast to 64bit or the shift could give the wrong resu=
+lt.=0A=
+=0A=
+Same comments as for libaio regarding structure.=0A=
+=0A=
+> +			}=0A=
+> +		}=0A=
+>  		if (r) {=0A=
+>  			events +=3D r;=0A=
+>  			if (actual_min !=3D 0)=0A=
+> =0A=
+=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
