@@ -2,9 +2,9 @@ Return-Path: <prvs=4391c0654=Damien.LeMoal@wdc.com>
 From: Damien Le Moal <Damien.LeMoal@wdc.com>
 Subject: Re: [PATCH 1/4] Add Zone Append command support for NVMe Zoned
  Namespaces (ZNS)
-Date: Fri, 26 Jun 2020 05:50:10 +0000
+Date: Fri, 26 Jun 2020 05:33:01 +0000
 Message-ID: 
- <CY4PR04MB375191A36EF1B39B8257DC28E7930@CY4PR04MB3751.namprd04.prod.outlook.com>
+ <CY4PR04MB3751CE408523493A3DF02390E7930@CY4PR04MB3751.namprd04.prod.outlook.com>
 References: <1593106733-19596-1-git-send-email-krish.reddy@samsung.com>
  <CGME20200625174124epcas5p18e4fbc502c9cf1fef7e84ba5cefba945@epcas5p1.samsung.com>
  <1593106733-19596-2-git-send-email-krish.reddy@samsung.com>
@@ -22,6 +22,13 @@ On 2020/06/26 2:41, Krishna Kanth Reddy wrote:=0A=
 > defined in NVM Express TP4053. Added a new FIO option zone_append.=0A=
 > When zone_append option is enabled, the existing write path will=0A=
 > send Zone Append command with offset as start of the Zone.=0A=
+=0A=
+Zone append is supported by SCSI disks too through emulation and will be fo=
+r=0A=
+nullblk too, so please generalize this patch title and commit message. This=
+ is=0A=
+not for NVMe ZNS devices only.=0A=
+=0A=
 > =0A=
 > Signed-off-by: Krishna Kanth Reddy <krish.reddy@samsung.com>=0A=
 > ---=0A=
@@ -52,8 +59,20 @@ On 2020/06/26 2:41, Krishna Kanth Reddy wrote:=0A=
 =0A=
 > +	`rw` =3Drandwrite, if zone_append is enabled, the the io_u points to th=
 e=0A=
+=0A=
+s/the the io_u/the io_u=0A=
+=0A=
 > +	starting offset of a zone. On successful completion the multiple of=0A=
 > +	sectors relative to the zone's starting offset is returned.=0A=
+=0A=
+You are describing this option effect from the code perspective. That is no=
+t=0A=
+helpful for a user who does not know fio internals. Please describe this fr=
+om=0A=
+the user perspective, from high level, what the option does, which is, to u=
+se=0A=
+zone append write command instead of regular write command.=0A=
+=0A=
 > +=0A=
 >  .. option:: read_beyond_wp=3Dbool=0A=
 >  =0A=
@@ -75,6 +94,9 @@ te, if=0A=
 > +successful completion the multiple of sectors relative to the zone's sta=
 rting=0A=
 > +offset is returned.=0A=
+=0A=
+Same comment here.=0A=
+=0A=
 > +=0A=
 > +.TP=0A=
 >  .BI read_beyond_wp \fR=3D\fPbool=0A=
@@ -115,6 +137,10 @@ truct io_u *io_u)=0A=
 > +	 * for zone append this is the start offset of the zone.=0A=
 > +	 */=0A=
 > +	unsigned long long zone_start_offset;=0A=
+=0A=
+This is not necessary. This value can be calculated from any io_u offset.=
+=0A=
+=0A=
 > +=0A=
 > +	/*=0A=
 >  	 * ZBD mode zbd_queue_io callback: called after engine->queue operation=
@@ -178,6 +204,11 @@ truct io_u *io_u)=0A=
 > +		.type	=3D FIO_OPT_BOOL,=0A=
 > +		.off1	=3D offsetof(struct thread_options, zone_append),=0A=
 > +		.help	=3D "Use Zone Append for Zone block device",=0A=
+=0A=
+"Use zone append for writing zones of a zoned block device"=0A=
+=0A=
+may be better as it points out that this has an effect on writes only.=0A=
+=0A=
 > +		.def	=3D "0",=0A=
 > +		.category =3D FIO_OPT_C_IO,=0A=
 > +		.group	=3D FIO_OPT_G_ZONE,=0A=
@@ -217,6 +248,12 @@ ruct fio_file *f)=0A=
 >  			mutex_init_pshared_with_type(&p->mutex,=0A=
 >  						     PTHREAD_MUTEX_RECURSIVE);=0A=
 > +			cond_init_pshared(&p->reset_cond);=0A=
+=0A=
+It would be nice if the commit message explained the changes in this patch =
+and=0A=
+explain the role of this condition variable. It is not clear to me at all.=
+=0A=
+=0A=
 >  			p->start =3D z->start;=0A=
 >  			switch (z->cond) {=0A=
 >  			case ZBD_ZONE_COND_NOT_WP:=0A=
@@ -226,6 +263,13 @@ ruct fio_file *f)=0A=
 >  			p->type =3D z->type;=0A=
 >  			p->cond =3D z->cond;=0A=
 > +			p->pending_ios =3D 0;=0A=
+=0A=
+Same here. This is not explained so one has to figure it out from the code =
+only.=0A=
+Not easy to do as what I think is needed may not be what *you* thought in t=
+he=0A=
+first place.=0A=
+=0A=
 >  			if (j > 0 && p->start !=3D p[-1].start + zone_size) {=0A=
 >  				log_info("%s: invalid zone data\n",=0A=
 >  					 f->file_name);=0A=
@@ -265,6 +309,14 @@ bool success)=0A=
 >  		z->wp =3D zone_end;=0A=
 > +		if (td->o.zone_append)=0A=
 > +			z->pending_ios++;=0A=
+=0A=
+The name is not very good. Shouldn't this be queued_ios ? And since fio=0A=
+differentiate queued and in-flight, but this counter does not and is for zo=
+ne=0A=
+append commands only, it may be even better to call this something like=0A=
+in_flight_za_ios or something like that to clarify the use and avoid confus=
+ion.=0A=
+=0A=
 >  		break;=0A=
 >  	case DDIR_TRIM:=0A=
 >  		assert(z->wp =3D=3D z->start);=0A=
@@ -309,6 +361,12 @@ bool success)=0A=
 > +			 * Other threads may be waiting for pending I/O's to=0A=
 > +			 * complete for this zone. Notify them.=0A=
 > +			 */=0A=
+=0A=
+Please move this comment inside the if, or even better, at the beginning of=
+ this=0A=
+code block. And also explain why the zone lock needs to be taken here for  =
+zone=0A=
+append only.=0A=
 > +			if (!z->pending_ios)=0A=
 > +				pthread_cond_broadcast(&z->reset_cond);=0A=
 > +		}=0A=
@@ -351,6 +409,11 @@ ata *td, struct io_u *io_u)=0A=
 > +				if (zb->pending_ios) {=0A=
 > +					pthread_cond_wait(&zb->reset_cond, &zb->mutex);=0A=
 > +					goto proceed;=0A=
+=0A=
+If you are OK to reset  the zone after the cond wait, why the jump to proce=
+ed ?=0A=
+That will skip the reset...=0A=
+=0A=
 > +				}=0A=
 > +			}=0A=
 > +=0A=
@@ -360,6 +423,9 @@ ata *td, struct io_u *io_u)=0A=
 > +			/* Notify other threads waiting for zone mutex */=0A=
 > +			if (td->o.zone_append)=0A=
 > +				pthread_cond_broadcast(&zb->reset_cond);=0A=
+=0A=
+Why ? isn't this cond variable used to signal pending_ios going to 0 ?=0A=
+=0A=
 > +		}=0A=
 > +proceed:=0A=
 > +		/*=0A=
@@ -370,6 +436,21 @@ ata *td, struct io_u *io_u)=0A=
 > +		if (zbd_zone_full(f, zb, min_bs)) {=0A=
 > +			goto reset;=0A=
 >  		}=0A=
+=0A=
+No need for the curly braces. But the main problem here is that a job is no=
+t=0A=
+guaranteeds to ever be able to issue a zone append. A job may end up loopin=
+g=0A=
+indefinitely between here and reset label.=0A=
+=0A=
+This does not look necessary at all to me. The zone is locked and it was al=
+ready=0A=
+determined that reset is not needed, or, the zone was already reset a few l=
+ine=0A=
+above after waiting for all pending ios, all of that with the zone locked. =
+So=0A=
+how can it become full again at this point ?=0A=
+=0A=
 > +=0A=
 >  		/* Make writes occur at the write pointer */=0A=
 >  		assert(!zbd_zone_full(f, zb, min_bs));=0A=
@@ -385,6 +466,15 @@ ata *td, struct io_u *io_u)=0A=
 > +			else=0A=
 > +				io_u->zone_start_offset =3D zb->start;=0A=
 > +		}=0A=
+=0A=
+This hunk is not needed. zone start offset is:=0A=
+=0A=
+io_u->offset & ~(zone_size - 1)=0A=
+=0A=
+with zone_size being either td->o.zone_size or f->zbd_info->zone_size. So y=
+ou=0A=
+can completely drop this zone_start_offset field.=0A=
+=0A=
 > +=0A=
 >  		if (!is_valid_offset(f, io_u->offset)) {=0A=
 >  			dprint(FD_ZBD, "Dropped request with offset %llu\n",=0A=
@@ -398,11 +488,19 @@ ata *td, struct io_u *io_u)=0A=
 >   * @start: zone start location (bytes)=0A=
 >   * @wp: zone write pointer location (bytes)=0A=
 > + * @pending_ios: Number of IO's pending in this zone=0A=
+=0A=
+Misleading. This is the nukmber of zone append IOs. Only zone append. You a=
+re=0A=
+not counting reads or writes withe this.=0A=
+=0A=
 >   * @verify_block: number of blocks that have been verified for this zone=
 =0A=
 >   * @mutex: protects the modifiable members in this structure=0A=
 > + * @reset_cond: zone reset check condition. only relevant for zone_appen=
 d.=0A=
+=0A=
+You are using it to signal pending_ios going to 0 too.=0A=
+=0A=
 >   * @type: zone type (BLK_ZONE_TYPE_*)=0A=
 >   * @cond: zone state (BLK_ZONE_COND_*)=0A=
 >   * @open: whether or not this zone is currently open. Only relevant if=
@@ -448,19 +546,25 @@ u)=0A=
 >  	}=0A=
 > =0A=
 =0A=
-Another thing: IO engines such as libzbc will not support any of this, nor =
-will=0A=
-engines such as psync or SG and many many other. SO it may be good to defin=
-e a=0A=
-new io engine flag such as FIO_ZONE_APPEND that can be set in struct=0A=
-ioengine_ops flags field in the engine declaration to indicate that the eng=
-ine=0A=
-supports zone append. That can be checked on initialization instead of no c=
-heck=0A=
-at all and seeing lots of weird things happening with engines that do not=
-=0A=
-support zone append.=0A=
-=0A=
+So a few fixes are needed. However, my biggest concerns is the change to zo=
+ne=0A=
+locking just for zone append... I kind of like the idea to not hold the zon=
+e=0A=
+lock for the entire duration of IOs, and the condition variable with IO cou=
+nter=0A=
+seem to be a reasonnable way to do that. Have you tried extending this lock=
+ing=0A=
+change to all IOs (read and write) ? A prep patch could do that and zone ap=
+pend=0A=
+support can come on top. I am however worried that all of this may not be t=
+hat=0A=
+easy due to the various inspection loops for choosing a zone to read or wri=
+te,=0A=
+finding an open zone or finding a zone to close & open. This needs checking=
+, or=0A=
+at least explainations in the commit message that none of it is affexcted b=
+y=0A=
+your change.=0A=
 =0A=
 -- =0A=
 Damien Le Moal=0A=
