@@ -1,42 +1,60 @@
-Return-Path: <bart.vanassche@gmail.com>
-Return-Path: <bart.vanassche@gmail.com>
-From: Bart Van Assche <bvanassche@acm.org>
-Subject: [PATCH 5/5] t/run-fio-tests.py: Accept a wider range of IOPS values
-Date: Sun,  7 Jun 2020 12:11:04 -0700
-Message-Id: <20200607191104.17550-6-bvanassche@acm.org>
-In-Reply-To: <20200607191104.17550-1-bvanassche@acm.org>
-References: <20200607191104.17550-1-bvanassche@acm.org>
+Return-Path: <prvs=443f8aa95=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH 0/8] zbd: Fix initial zone write pointer of regular block
+ devices
+Date: Tue, 30 Jun 2020 04:53:59 +0000
+Message-ID: 
+ <CY4PR04MB3751C96E54170346CE125BBBE76F0@CY4PR04MB3751.namprd04.prod.outlook.com>
+References: <20200626094331.418309-1-shinichiro.kawasaki@wdc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Sitsofe Wheeler <sitsofe@yahoo.com>, Vincent Fu <vincent.fu@wdc.com>, Bart Van Assche <bvanassche@acm.org>
+To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-This patch prevents that test 11 sporadically fails as follows:
-
-DEBUG:root:Test 11: return code: 0
-DEBUG:root:Test 11: skipped 0 lines decoding JSON data
-DEBUG:root:Test 11: iops1: 997.670549
-DEBUG:root:Test 11: ratio: 8.163684
-
-Test 11 FAILED:  iops value mismatch,
-
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
----
- t/run-fio-tests.py | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
-index e7063d3eb63a..c2352d80c2bf 100755
---- a/t/run-fio-tests.py
-+++ b/t/run-fio-tests.py
-@@ -438,7 +438,7 @@ class FioJobTest_t0011(FioJobTest):
-         logging.debug("Test %d: iops1: %f", self.testnum, iops1)
-         logging.debug("Test %d: ratio: %f", self.testnum, ratio)
- 
--        if iops1 < 998 or iops1 > 1002:
-+        if iops1 < 997 or iops1 > 1003:
-             self.failure_reason = "{0} iops value mismatch,".format(self.failure_reason)
-             self.passed = False
- 
+On 2020/06/26 18:43, Shin'ichiro Kawasaki wrote:=0A=
+> With zonemode=3Dzbd and regular block devices, fio initializes zone statu=
+s as=0A=
+> empty. However, write pointers are set not at zone start but at zone end.=
+ This=0A=
+> inconsistency between write pointer position and zone status caused diffe=
+rent=0A=
+> behavior of regular block devices from zoned block devices. This patch se=
+ries=0A=
+> fixes the inconsistency and the behavior gap.=0A=
+> =0A=
+> The 1st patch fixes the zone status initialization code by setting write=
+=0A=
+> pointers at zone start. Following patches fixes t/zbd test script to hand=
+le=0A=
+> regular block devices and zoned block devices in same manner.=0A=
+> =0A=
+> Shin'ichiro Kawasaki (8):=0A=
+>   zbd: Fix initial zone write pointer of regular block devices=0A=
+>   t/zbd: Fix pass condition of test case #3=0A=
+>   t/zbd: Add write_and_run_one_fio_job() helper function=0A=
+>   t/zbd: Combine write and read fio commands for test case #6=0A=
+>   t/zbd: Combine write and read fio commands for test case #15=0A=
+>   t/zbd: Combine write and read fio commands for test case #16=0A=
+>   t/zbd: Remove write before random read/write from test case #17=0A=
+>   t/zbd: Enable regular block devices for test case #47=0A=
+> =0A=
+>  t/zbd/test-zbd-support | 78 +++++++++++++++++++++++-------------------=
+=0A=
+>  zbd.c                  |  2 +-=0A=
+>  2 files changed, 44 insertions(+), 36 deletions(-)=0A=
+> =0A=
+=0A=
+Jens,=0A=
+=0A=
+I reviewed this series internally with Shin'ichiro before he posted.=0A=
+So:=0A=
+=0A=
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
+=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
