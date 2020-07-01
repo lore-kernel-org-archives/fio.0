@@ -1,15 +1,20 @@
-Return-Path: <prvs=4589743b3=shinichiro.kawasaki@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:48988 "EHLO
+        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728552AbgGAIae (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 1 Jul 2020 04:30:34 -0400
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 2/6] options: Add zonecapacity option for zonemode=zbd
-Date: Wed, 15 Jul 2020 15:41:37 +0900
-Message-Id: <20200715064141.116415-3-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200715064141.116415-1-shinichiro.kawasaki@wdc.com>
-References: <20200715064141.116415-1-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 2/6] options: Add zonecapacity option for zonemode=zbd
+Date: Wed,  1 Jul 2020 17:30:25 +0900
+Message-Id: <20200701083029.140741-3-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200701083029.140741-1-shinichiro.kawasaki@wdc.com>
+References: <20200701083029.140741-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Hans Holmberg <hans.holmberg@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
 
 From: Hans Holmberg <hans.holmberg@wdc.com>
 
