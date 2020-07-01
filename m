@@ -1,187 +1,66 @@
-Return-Path: <ykorman@gmail.com>
-Return-Path: <ykorman@gmail.com>
-From: Yigal Korman <ykorman@gmail.com>
-Subject: [PATCH v2 2/4] configure/Makefile: engine LIBS consistency
-Date: Fri,  3 Jul 2020 15:38:41 +0300
-Message-Id: <e63db7a6b9814b2696d3266b51e020734dc0d625.1593761533.git.ykorman@gmail.com>
-In-Reply-To: <cover.1593761533.git.ykorman@gmail.com>
-References: <cover.1593761533.git.ykorman@gmail.com>
-In-Reply-To: <cover.1593761533.git.ykorman@gmail.com>
-References: <cover.1593761533.git.ykorman@gmail.com>
-To: axboe@kernel.dk
-Cc: Yigal Korman <ykorman@gmail.com>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:48983 "EHLO
+        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728479AbgGAIac (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 1 Jul 2020 04:30:32 -0400
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 0/6] Support zone capacity
+Date: Wed,  1 Jul 2020 17:30:23 +0900
+Message-Id: <20200701083029.140741-1-shinichiro.kawasaki@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Hans Holmberg <hans.holmberg@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-Some engines were adding their LIBS in the Makefile and some were
-declaring them in the configure script.
-This is inconsistent and confusing and prevents easy bulk changes to the
-engines.
+Kernel 5.9 zone descriptor interface adds the new zone capacity field defining
+the range of sectors usable within a zone. This patch series adds support for
+this new field.
 
-Signed-off-by: Yigal Korman <ykorman@gmail.com>
----
- Makefile  | 14 ++++++++++++++
- configure | 12 ------------
- 2 files changed, 14 insertions(+), 12 deletions(-)
+The 1st patch adds zone capacity support to zonemode=zbd. Get zone capacity
+values of each zone and adjust io_u to meet the zone capacity limit. The 2nd
+patch adds a new option zonecapacity which allows to test zone capacity
+handling by fio using regular block devices. Other four patches extend t/zbd
+test scripts for zone capacity.
 
-diff --git a/Makefile b/Makefile
-index 99e96635..629d8993 100644
---- a/Makefile
-+++ b/Makefile
-@@ -79,9 +79,15 @@ ifdef CONFIG_32BIT
- endif
- ifdef CONFIG_LIBAIO
-   SOURCE += engines/libaio.c
-+  ifdef CONFIG_LIBAIO_URING
-+    LIBS += -luring
-+  else
-+    LIBS += -laio
-+  endif
- endif
- ifdef CONFIG_RDMA
-   SOURCE += engines/rdma.c
-+  LIBS += -libverbs -lrdmacm
- endif
- ifdef CONFIG_POSIXAIO
-   SOURCE += engines/posixaio.c
-@@ -106,12 +112,15 @@ ifdef CONFIG_WINDOWSAIO
- endif
- ifdef CONFIG_RADOS
-   SOURCE += engines/rados.c
-+  LIBS += -lrados
- endif
- ifdef CONFIG_RBD
-   SOURCE += engines/rbd.c
-+  LIBS += -lrbd -lrados
- endif
- ifdef CONFIG_HTTP
-   SOURCE += engines/http.c
-+  LIBS += -lcurl -lssl -lcrypto
- endif
- SOURCE += oslib/asprintf.c
- ifndef CONFIG_STRSEP
-@@ -139,6 +148,7 @@ ifdef CONFIG_GFAPI
-   SOURCE += engines/glusterfs.c
-   SOURCE += engines/glusterfs_sync.c
-   SOURCE += engines/glusterfs_async.c
-+  LIBS += -lgfapi -lglusterfs
-   ifdef CONFIG_GF_FADVISE
-     CFLAGS := "-DGFAPI_USE_FADVISE" $(CFLAGS)
-   endif
-@@ -150,18 +160,22 @@ ifdef CONFIG_MTD
- endif
- ifdef CONFIG_PMEMBLK
-   SOURCE += engines/pmemblk.c
-+  LIBS += -lpmemblk
- endif
- ifdef CONFIG_LINUX_DEVDAX
-   SOURCE += engines/dev-dax.c
-+  LIBS += -lpmem
- endif
- ifdef CONFIG_LIBPMEM
-   SOURCE += engines/libpmem.c
-+  LIBS += -lpmem
- endif
- ifdef CONFIG_IME
-   SOURCE += engines/ime.c
- endif
- ifdef CONFIG_LIBZBC
-   SOURCE += engines/libzbc.c
-+  LIBS += -lzbc
- endif
- 
- ifeq ($(CONFIG_TARGET_OS), Linux)
-diff --git a/configure b/configure
-index 63b30555..5d475bf3 100755
---- a/configure
-+++ b/configure
-@@ -605,11 +605,9 @@ int main(void)
- EOF
-   if test "$libaio_uring" = "yes" && compile_prog "" "-luring" "libaio io_uring" ; then
-     libaio=yes
--    LIBS="-luring $LIBS"
-   elif compile_prog "" "-laio" "libaio" ; then
-     libaio=yes
-     libaio_uring=no
--    LIBS="-laio $LIBS"
-   else
-     if test "$libaio" = "yes" ; then
-       feature_not_found "linux AIO" "libaio-dev or libaio-devel"
-@@ -859,7 +857,6 @@ int main(int argc, char **argv)
- EOF
- if test "$disable_rdma" != "yes" && compile_prog "" "-libverbs" "libverbs" ; then
-     libverbs="yes"
--    LIBS="-libverbs $LIBS"
- fi
- print_config "libverbs" "$libverbs"
- 
-@@ -879,7 +876,6 @@ int main(int argc, char **argv)
- EOF
- if test "$disable_rdma" != "yes" && compile_prog "" "-lrdmacm" "rdma"; then
-     rdmacm="yes"
--    LIBS="-lrdmacm $LIBS"
- fi
- print_config "rdmacm" "$rdmacm"
- 
-@@ -1770,10 +1766,8 @@ if test "$disable_http" != "yes"; then
-   if compile_prog "" "$HTTP_LIBS" "curl-new-ssl"; then
-     output_sym "CONFIG_HAVE_OPAQUE_HMAC_CTX"
-     http="yes"
--    LIBS="$HTTP_LIBS $LIBS"
-   elif mv $TMPC2 $TMPC && compile_prog "" "$HTTP_LIBS" "curl-old-ssl"; then
-     http="yes"
--    LIBS="$HTTP_LIBS $LIBS"
-   fi
- fi
- print_config "http engine" "$http"
-@@ -1802,7 +1796,6 @@ int main(int argc, char **argv)
- }
- EOF
- if test "$disable_rados" != "yes"  && compile_prog "" "-lrados" "rados"; then
--  LIBS="-lrados $LIBS"
-   rados="yes"
- fi
- print_config "Rados engine" "$rados"
-@@ -1833,7 +1826,6 @@ int main(int argc, char **argv)
- }
- EOF
- if test "$disable_rbd" != "yes"  && compile_prog "" "-lrbd -lrados" "rbd"; then
--  LIBS="-lrbd -lrados $LIBS"
-   rbd="yes"
- fi
- print_config "Rados Block Device engine" "$rbd"
-@@ -1924,7 +1916,6 @@ int main(int argc, char **argv)
- }
- EOF
- if test "$disable_gfapi" != "yes"  && compile_prog "" "-lgfapi -lglusterfs" "gfapi"; then
--  LIBS="-lgfapi -lglusterfs $LIBS"
-   gfapi="yes"
- fi
- print_config "Gluster API engine" "$gfapi"
-@@ -2086,7 +2077,6 @@ int main(int argc, char **argv)
- EOF
- if compile_prog "" "-lpmem" "libpmem"; then
-   libpmem="yes"
--  LIBS="-lpmem $LIBS"
- fi
- print_config "libpmem" "$libpmem"
- 
-@@ -2108,7 +2098,6 @@ int main(int argc, char **argv)
- EOF
-   if compile_prog "" "-lpmemblk" "libpmemblk"; then
-     libpmemblk="yes"
--    LIBS="-lpmemblk $LIBS"
-   fi
- fi
- print_config "libpmemblk" "$libpmemblk"
-@@ -2432,7 +2421,6 @@ if compile_prog "" "-lzbc" "libzbc"; then
-   libzbcvermaj=$(pkg-config --modversion libzbc | sed 's/\.[0-9]*\.[0-9]*//')
-   if test "$libzbcvermaj" -ge "5" ; then
-     libzbc="yes"
--    LIBS="-lzbc $LIBS"
-   else
-     print_config "libzbc engine" "Unsupported libzbc version (version 5 or above required)"
-     libzbc="no"
+Of note is that the zone capacity is always equal to the zone size for SCSI
+drives. For NVMe ZNS and nullblk zoned drives, the zone capacity can be
+smaller than the zone size.
+
+This series can be applied on top of another series 'zbd: Fix initial zone write
+pointer of regular block devices' [1].
+
+[1] https://www.spinics.net/lists/fio/msg08670.html
+
+Hans Holmberg (3):
+  options: Add zonecapacity option for zonemode=zbd
+  t/zbd: Support testing zone capacity smaller than zone size
+  t/zbd: Add test case to check zonecapacity option
+
+Shin'ichiro Kawasaki (3):
+  zns: Support zone capacity smaller than zone size
+  t/zbd: Mandate blkzone capacity report for devices with zone capacity
+  t/zbd: Support testing zone capacity smaller than zone size with
+    null_blk
+
+ HOWTO                               |  18 +++-
+ cconv.c                             |   2 +
+ configure                           |  19 +++++
+ engines/libzbc.c                    |   1 +
+ fio.1                               |  13 ++-
+ options.c                           |  11 +++
+ oslib/linux-blkzoned.c              |  11 +++
+ t/zbd/functions                     |  82 +++++++++++++++++++
+ t/zbd/run-tests-against-zoned-nullb |  30 ++++++-
+ t/zbd/test-zbd-support              | 123 ++++++++++++++++++++--------
+ thread_options.h                    |   2 +
+ zbd.c                               |  85 +++++++++++++++----
+ zbd.h                               |   2 +
+ zbd_types.h                         |   1 +
+ 14 files changed, 342 insertions(+), 58 deletions(-)
+
 -- 
-2.17.1
+2.26.2
 
 
