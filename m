@@ -1,61 +1,74 @@
-Return-Path: <prvs=4589743b3=shinichiro.kawasaki@wdc.com>
+Return-Path: <prvs=4448e3298=shinichiro.kawasaki@wdc.com>
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 6/8] t/zbd: Combine write and read fio commands for test case #16
-Date: Wed, 15 Jul 2020 13:13:20 +0900
-Message-Id: <20200715041322.114929-7-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200715041322.114929-1-shinichiro.kawasaki@wdc.com>
-References: <20200715041322.114929-1-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 5/6] t/zbd: Support testing zone capacity smaller than zone size with null_blk
+Date: Wed,  1 Jul 2020 17:30:28 +0900
+Message-Id: <20200701083029.140741-6-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200701083029.140741-1-shinichiro.kawasaki@wdc.com>
+References: <20200701083029.140741-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Hans Holmberg <hans.holmberg@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-The test case #16 checks result of read job which runs after write job of
-test case #15. It does not work if test case #16 is executed alone with
-the -t option and the target device has all zones empty.
+To test zone capacity support by fio using null_blk, add -zone-cap option
+to run-tests-against-zoned-nullb. With this option, the script creates a
+null_blk device which has zone capacity smaller than zone size and run
+test-zbd-support script for the device.
 
-Specify both the write job and the read job to a single fio command using
-write_and_run_one_fio_job() helper function instead of run_one_fio_job().
-
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- t/zbd/test-zbd-support | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ t/zbd/run-tests-against-zoned-nullb | 30 ++++++++++++++++++++++++++---
+ 1 file changed, 27 insertions(+), 3 deletions(-)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index cd8492ff..a3ecec1f 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -369,15 +369,25 @@ test15() {
-     check_read $((size / 2))
- }
+diff --git a/t/zbd/run-tests-against-zoned-nullb b/t/zbd/run-tests-against-zoned-nullb
+index 53aee3e8..9a5d5409 100755
+--- a/t/zbd/run-tests-against-zoned-nullb
++++ b/t/zbd/run-tests-against-zoned-nullb
+@@ -6,6 +6,21 @@
  
--# Random read on a mix of empty and full zones. Must be run after test15.
-+# Random read on a mix of empty and full zones.
- test16() {
-     local off size
-+    local i w_off w_size
+ scriptdir="$(cd "$(dirname "$0")" && pwd)"
  
-+    for ((i=0;i<4;i++)); do
-+	[ -n "$is_zbd" ] &&
-+	    reset_zone "$dev" $((first_sequential_zone_sector +
-+				 i*sectors_per_zone))
-+    done
-+    w_off=$(((first_sequential_zone_sector + 2 * sectors_per_zone) * 512))
-+    w_size=$((2 * zone_size))
-     off=$((first_sequential_zone_sector * 512))
-     size=$((4 * zone_size))
--    run_one_fio_job "$(ioengine "libaio")" --iodepth=64 --rw=randread --bs=16K \
-+    write_and_run_one_fio_job "${w_off}" "${w_size}" \
-+		    "$(ioengine "libaio")" --iodepth=64 --rw=randread --bs=16K \
- 		    --zonemode=zbd --zonesize="${zone_size}" --offset=$off \
- 		    --size=$size >>"${logfile}.${test_number}" 2>&1 || return $?
-+    check_written $w_size || return $?
-     check_read $size || return $?
- }
- 
++zone_size=1
++zone_capacity=1
++if [[ ${1} == "-h" ]]; then
++    echo "Usage: ${0} [OPTIONS]"
++    echo "Options:"
++    echo -e "\t-h Show this message."
++    echo -e "\t-zone-cap Use null blk with zone capacity less than zone size."
++    echo -e "\tany option supported by test-zbd-support script"
++    exit 1
++elif [[ ${1} == "-zone-cap" ]]; then
++    zone_size=4
++    zone_capacity=3
++    shift
++fi
++
+ for d in /sys/kernel/config/nullb/*; do [ -d "$d" ] && rmdir "$d"; done
+ modprobe -r null_blk
+ modprobe null_blk nr_devices=0 || exit $?
+@@ -17,9 +32,18 @@ modprobe -r null_blk
+ modprobe null_blk nr_devices=0 &&
+     cd /sys/kernel/config/nullb &&
+     mkdir nullb0 &&
+-    cd nullb0 &&
+-    echo 1 > zoned &&
+-    echo 1 > zone_size &&
++    cd nullb0 || exit $?
++
++if ((zone_capacity < zone_size)); then
++    if [[ ! -w zone_capacity ]]; then
++        echo "null blk does not support zone capacity"
++        exit 1
++    fi
++    echo "${zone_capacity}" > zone_capacity
++fi
++
++echo 1 > zoned &&
++    echo "${zone_size}" > zone_size &&
+     echo 0 > completion_nsec &&
+     echo 4096 > blocksize &&
+     echo 1024 > size &&
 -- 
 2.26.2
 
