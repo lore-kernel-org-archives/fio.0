@@ -1,53 +1,59 @@
-Return-Path: <prvs=470d1383e=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH 3/3] t/zbd: check log file for failed assertions
-Date: Mon, 27 Jul 2020 12:16:38 +0900
-Message-Id: <20200727031638.28264-4-dmitry.fomichev@wdc.com>
-In-Reply-To: <20200727031638.28264-1-dmitry.fomichev@wdc.com>
-References: <20200727031638.28264-1-dmitry.fomichev@wdc.com>
+Return-Path: <prvs=4448e3298=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 6/6] t/zbd: Add test case to check zonecapacity option
+Date: Wed,  1 Jul 2020 17:30:29 +0900
+Message-Id: <20200701083029.140741-7-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200701083029.140741-1-shinichiro.kawasaki@wdc.com>
+References: <20200701083029.140741-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Hans Holmberg <hans.holmberg@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-Currently, a ZBD test can succeed even if an fio assertion is raised
-during its run. Search every ZBD test log file for failed assertions
-and fail the test if any were found.
+From: Hans Holmberg <hans.holmberg@wdc.com>
 
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Add test case #49 which confirms the newly introduced zonecapacity
+option is working as expected with regular block devices.
+
+Signed-off-by: Hans Holmberg <hans.holmberg@wdc.com>
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- t/zbd/test-zbd-support | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ t/zbd/test-zbd-support | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
 diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 471a3487..139495d3 100755
+index 31718c95..e53a20c5 100755
 --- a/t/zbd/test-zbd-support
 +++ b/t/zbd/test-zbd-support
-@@ -77,6 +77,13 @@ check_reset_count() {
-     eval "[ '$reset_count' '$1' '$2' ]"
+@@ -839,6 +839,26 @@ test48() {
+ 	    >> "${logfile}.${test_number}" 2>&1 || return $?
  }
  
-+# Check log for failed assertions and crashes. Without these checks,
-+# a test can succeed even when these events happen, but it must fail.
-+check_log() {
-+     [ ! -f "${logfile}.${1}" ] && return 0
-+     ! grep -q -e "Assertion " -e "Aborted " "${logfile}.${1}"
++# Check if fio handles --zonecapacity on a normal block device correctly
++test49() {
++
++    if [ -n "$is_zbd" ]; then
++	echo "$dev is not a regular block device" \
++	     >>"${logfile}.${test_number}"
++	return 0
++    fi
++
++    size=$((2 * zone_size))
++    capacity=$((zone_size * 3 / 4))
++
++    run_one_fio_job "$(ioengine "psync")" --rw=write \
++		    --zonemode=zbd --zonesize="${zone_size}" \
++		    --zonecapacity=${capacity} \
++		    --verify=md5  --size=${size} >>"${logfile}.${test_number}" 2>&1 ||
++	return $?
++    check_read $((capacity * 2)) || return $?
 +}
 +
- # Whether or not $1 (/dev/...) is a SCSI device.
- is_scsi_device() {
-     local d f
-@@ -1008,7 +1015,7 @@ trap 'intr=1' SIGINT
- for test_number in "${tests[@]}"; do
-     rm -f "${logfile}.${test_number}"
-     echo -n "Running test $(printf "%02d" $test_number) ... "
--    if eval "test$test_number"; then
-+    if eval "test$test_number" && check_log $test_number; then
- 	status="PASS"
- 	cc_status="${green}${status}${end}"
- 	((passed++))
+ tests=()
+ dynamic_analyzer=()
+ reset_all_zones=
 -- 
-2.21.0
+2.26.2
 
 
