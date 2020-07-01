@@ -1,51 +1,107 @@
-Return-Path: <krish.reddy@samsung.com>
-From: Krishna Kanth Reddy <krish.reddy@samsung.com>
-Subject: [PATCH 0/3] v3 Patchset : Zone Append command support
-Date: Tue, 28 Jul 2020 18:06:52 +0530
-Message-Id: <20200728123655.30780-1-krish.reddy@samsung.com>
-Content-Type: text/plain; charset="utf-8"
-References: <CGME20200728124000epcas5p4fa4a9eed2e1f8d3e20f36ede60a63708@epcas5p4.samsung.com>
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, Krishna Kanth Reddy <krish.reddy@samsung.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:48983 "EHLO
+        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728577AbgGAIaf (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 1 Jul 2020 04:30:35 -0400
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 3/6] t/zbd: Mandate blkzone capacity report for devices with zone capacity
+Date: Wed,  1 Jul 2020 17:30:26 +0900
+Message-Id: <20200701083029.140741-4-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200701083029.140741-1-shinichiro.kawasaki@wdc.com>
+References: <20200701083029.140741-1-shinichiro.kawasaki@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Hans Holmberg <hans.holmberg@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-This is a v3 Patchset for the Zone Append command support
-The v1 Pull Request is https://github.com/axboe/fio/pull/1021
-The v2 Pull Request is https://github.com/axboe/fio/pull/1026
+For NVMe ZNS and null_blk zoned drives, the zone capacity can be smaller
+than the zone size. To test zone capacity handling by fio for these
+devices, need to know each zone's zone capacity. If the blkzone tool is
+old and does not report zone capacity, t/zbd/test-zbd-support script run
+will fail for the devices.
 
-Review comments for the v2 Patchset have been taken care of in the v3 Patchset.
-Corresponding Linux Kernel Patchset for the Zone Append command support :
-https://lore.kernel.org/linux-block/1595605762-17010-1-git-send-email-joshi.k@samsung.com/
+To avoid the failures, make zone capacity report by blkzone mandatory if
+the test target device is a ZNS device or a null_blk device.
 
-1. Added a new FIO option zone_append.
-	When zone_append option is enabled, for Zone mode ZBD,
-	the existing write path will send Zone Append command with offset as start of the Zone.
-2. libaio: support for Zone Append command in libaio IO engine
-3. t/zbd: Add support to verify Zone Append command with libaio IO engine tests
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ t/zbd/functions        | 45 ++++++++++++++++++++++++++++++++++++++++++
+ t/zbd/test-zbd-support |  3 +++
+ 2 files changed, 48 insertions(+)
 
-This is a RFC and the Linux Kernel io_uring interface is being discussed in the LKML.
-io_uring engine's Zone Append command support will be submitted for review after the kernel interface is finalized.
-
-Feedback / Comments will help in improving this further.
-
-Ankit Kumar (2):
-  Add Zone Append command support
-  libaio: support for Zone Append command
-
-Krishna Kanth Reddy (1):
-  t/zbd: Add support to verify Zone Append command with libaio tests
-
- HOWTO                  |  7 +++++++
- engines/libaio.c       | 32 ++++++++++++++++++++++++++++----
- fio.1                  |  7 +++++++
- ioengines.c            |  6 ++++++
- ioengines.h            |  3 ++-
- options.c              | 10 ++++++++++
- t/zbd/test-zbd-support | 29 +++++++++++++++++++++++++++++
- thread_options.h       |  2 ++
- 8 files changed, 91 insertions(+), 5 deletions(-)
-
+diff --git a/t/zbd/functions b/t/zbd/functions
+index 1bd22ec4..344836c8 100644
+--- a/t/zbd/functions
++++ b/t/zbd/functions
+@@ -19,6 +19,51 @@ if [ -n "${use_libzbc}" ] &&
+     exit 1
+ fi
+ 
++blkzone_reports_capacity() {
++	local dev="${1}"
++
++	[[ -n "${blkzone}" ]] &&
++		"${blkzone}" report -c 1 -o 0 "${dev}" | grep -q 'cap '
++}
++
++# Whether or not $1 (/dev/...) is a NVME ZNS device.
++is_nvme_zns() {
++	local s
++
++	s=/sys/block/$(basename "${1}")/device/subsystem
++
++	if [[ ! -h "${s}" || $(realpath "${s}") != /sys/class/nvme ]]; then
++		return 1
++	fi
++
++	[[ $(</sys/block/$(basename "${1}")/queue/zoned) == host-managed ]]
++}
++
++# Whether or not $1 (/dev/...) is a null_blk device with zone capacity smaller
++# than zone size.
++is_nullb_with_zone_cap() {
++	local f
++
++	f=/sys/kernel/config/nullb/$(basename "${1}")
++	[[ -r "${f}/zone_capacity" &&
++		   $(<"${f}/zone_capacity") -lt $(<"${f}/zone_size") ]]
++}
++
++# Check if blkzone is available and suitable for the test target device. If not
++# available, print error message and return 1. Otherwise return 0.
++check_blkzone() {
++	local dev="${1}"
++
++	# If the devices supports zone capacity, mandate zone capacity report by
++	# blkzone.
++	if is_nvme_zns "${dev}" || is_nullb_with_zone_cap "${dev}" &&
++				! blkzone_reports_capacity "${dev}"; then
++		echo "Error: blkzone does not report zone capacity"
++		echo "Error: install latest util-linux with blkzone"
++		return 1
++	fi
++}
++
+ # Reports the starting sector and length of the first sequential zone of device
+ # $1.
+ first_sequential_zone() {
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 80dc3f30..f086bd10 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -863,6 +863,9 @@ if [[ -b "$realdev" ]]; then
+ 	case "$(<"/sys/class/block/$basename/queue/zoned")" in
+ 	host-managed|host-aware)
+ 		is_zbd=true
++		if ! check_blkzone "${dev}"; then
++			exit 1
++		fi
+ 		if ! result=($(first_sequential_zone "$dev")); then
+ 			echo "Failed to determine first sequential zone"
+ 			exit 1
 -- 
-2.17.1
+2.26.2
 
 
