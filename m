@@ -1,49 +1,113 @@
-Return-Path: <prvs=4589743b3=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 7/8] t/zbd: Remove write before random read/write from test case #17
-Date: Wed, 15 Jul 2020 13:13:21 +0900
-Message-Id: <20200715041322.114929-8-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200715041322.114929-1-shinichiro.kawasaki@wdc.com>
-References: <20200715041322.114929-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <krish.reddy@samsung.com>
+Date: Fri, 3 Jul 2020 14:39:14 +0530
+From: Krishna Kanth Reddy <krish.reddy@samsung.com>
+Subject: Re: [PATCH 4/4] t/zbd: Add support to verify Zone Append command
+ with libaio, io_uring IO engine tests
+Message-ID: <20200703090914.GB27933@test-zns>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+In-Reply-To: <CY4PR04MB375109E8E368191896248011E7930@CY4PR04MB3751.namprd04.prod.outlook.com>
+Content-Type: multipart/mixed;
+	boundary="----FBC7EIImzEv-3WQrgwRbJYn4xAlwhlhWWV1zALX9mq8rjZSB=_c6213_"
+References: <1593106733-19596-1-git-send-email-krish.reddy@samsung.com>
+	<CGME20200625174133epcas5p1eace8f03319bee805b93c50fe6c690c7@epcas5p1.samsung.com>
+	<1593106733-19596-5-git-send-email-krish.reddy@samsung.com>
+	<CY4PR04MB375109E8E368191896248011E7930@CY4PR04MB3751.namprd04.prod.outlook.com>
+To: Damien Le Moal <Damien.LeMoal@wdc.com>
+Cc: "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Ankit Kumar <ankit.kumar@samsung.com>
 List-ID: <fio@vger.kernel.org>
 
-The test case #17 writes data to the last zone before random read/write.
-This avoided read failure when read is chosen for the first operation of
-the random read and write. Such failure case was prevented by the commit
-fb0259fb276a ("zbd: Ensure first I/O is write for random read/write to
-sequential zones"). Then the write is no longer required. Remove it.
+------FBC7EIImzEv-3WQrgwRbJYn4xAlwhlhWWV1zALX9mq8rjZSB=_c6213_
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Disposition: inline
 
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- t/zbd/test-zbd-support | 6 ------
- 1 file changed, 6 deletions(-)
+On Fri, Jun 26, 2020 at 05:45:49AM +0000, Damien Le Moal wrote:
+>On 2020/06/26 2:41, Krishna Kanth Reddy wrote:
+>> Modify the test-zbd-support script to verify the Zone Append command
+>> for NVMe Zoned Namespaces (ZNS) defined in NVM Express TP4053.
+>> Added a new FIO option zone_append.
+>> When zone_append option is enabled, the existing write path will
+>> send Zone Append command with LBA offset as start of the Zone.
+>>
+>> Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
+>> ---
+>>  t/zbd/test-zbd-support | 48 ++++++++++++++++++++++++++++++++++++++++++++++++
+>>  1 file changed, 48 insertions(+)
+>>
+>> diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+>> index 4001be3..ddade22 100755
+>> --- a/t/zbd/test-zbd-support
+>> +++ b/t/zbd/test-zbd-support
+>> @@ -801,6 +801,54 @@ test48() {
+>>  	    >> "${logfile}.${test_number}" 2>&1 || return $?
+>>  }
+>>
+>> +# Zone append to sequential zones, libaio, 1 job, queue depth 1
+>> +test49() {
+>> +    local i size
+>> +
+>> +    size=$((4 * zone_size))
+>> +    run_fio_on_seq --ioengine=libaio --iodepth=1 --rw=write --zone_append=1 \
+>> +                   --bs="$(max $((zone_size / 64)) "$logical_block_size")"\
+>> +                   --do_verify=1 --verify=md5                           \
+>> +                   >>"${logfile}.${test_number}" 2>&1 || return $?
+>> +    check_written $size || return $?
+>> +    check_read $size || return $?
+>> +}
+>> +
+>> +# Random zone append to sequential zones, libaio, 8 jobs, queue depth 64 per job
+>> +test50() {
+>> +    local size
+>> +
+>> +    size=$((4 * zone_size))
+>> +    run_fio_on_seq --ioengine=libaio --iodepth=64 --rw=randwrite --bs=4K \
+>> +                   --group_reporting=1 --numjobs=8 --zone_append=1 \
+>> +                   >> "${logfile}.${test_number}" 2>&1 || return $?
+>> +    check_written $((size * 8)) || return $?
+>> +}
+>> +
+>> +# Zone append to sequential zones, io_uring, 1 job, queue depth 1
+>> +test51() {
+>> +    local i size
+>> +
+>> +    size=$((4 * zone_size))
+>> +    run_fio_on_seq --ioengine=io_uring --iodepth=1 --rw=write --zone_append=1 \
+>> +                   --bs="$(max $((zone_size / 64)) "$logical_block_size")"\
+>> +                   --do_verify=1 --verify=md5                           \
+>> +                   >>"${logfile}.${test_number}" 2>&1 || return $?
+>> +    check_written $size || return $?
+>> +    check_read $size || return $?
+>> +}
+>> +
+>> +# Random zone append to sequential zones, io_uring, 8 jobs, queue depth 64 per job
+>> +test52() {
+>> +    local size
+>> +
+>> +    size=$((4 * zone_size))
+>> +    run_fio_on_seq --ioengine=io_uring --iodepth=64 --rw=randwrite --bs=4K \
+>> +                   --group_reporting=1 --numjobs=8 --zone_append=1 \
+>> +                   >> "${logfile}.${test_number}" 2>&1 || return $?
+>> +    check_written $((size * 8)) || return $?
+>> +}
+>> +
+>>  tests=()
+>>  dynamic_analyzer=()
+>>  reset_all_zones=
+>>
+>
+>If the test script was called using an SG node with -l option for libzbc tests,
+>these tests will fail. Please add conditions to not run them when they cannot.
+>
+Sure, we will add the conditions to not execute tests in such cases.
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index a3ecec1f..8934e32b 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -397,15 +397,9 @@ test17() {
- 
-     off=$(((disk_size / zone_size - 1) * zone_size))
-     size=$((disk_size - off))
--    # Overwrite the last zone to avoid that reading from that zone fails.
-     if [ -n "$is_zbd" ]; then
- 	reset_zone "$dev" $((off / 512)) || return $?
-     fi
--    run_one_fio_job "$(ioengine "psync")" --rw=write --offset="$off"	\
--		    --zonemode=zbd --zonesize="${zone_size}"		\
--		    --bs="$zone_size" --size="$zone_size"		\
--		    >>"${logfile}.${test_number}" 2>&1 || return $?
--    check_written "$zone_size" || return $?
-     run_one_fio_job "$(ioengine "libaio")" --iodepth=8 --rw=randrw --bs=4K \
- 		    --zonemode=zbd --zonesize="${zone_size}"		\
- 		    --offset=$off --loops=2 --norandommap=1\
--- 
-2.26.2
+>
+>-- 
+>Damien Le Moal
+>Western Digital Research
+>
 
+------FBC7EIImzEv-3WQrgwRbJYn4xAlwhlhWWV1zALX9mq8rjZSB=_c6213_
+Content-Type: text/plain; charset="utf-8"
+
+
+------FBC7EIImzEv-3WQrgwRbJYn4xAlwhlhWWV1zALX9mq8rjZSB=_c6213_--
 
