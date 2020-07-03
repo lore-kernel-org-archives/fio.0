@@ -1,66 +1,70 @@
-Return-Path: <krish.reddy@samsung.com>
-From: Krishna Kanth Reddy <krish.reddy@samsung.com>
-Subject: [PATCH 3/3] t/zbd: Add support to verify Zone Append command with
- libaio tests
-Date: Tue, 28 Jul 2020 18:06:55 +0530
-Message-Id: <20200728123655.30780-4-krish.reddy@samsung.com>
-In-Reply-To: <20200728123655.30780-1-krish.reddy@samsung.com>
-Content-Type: text/plain; charset="utf-8"
-References: <20200728123655.30780-1-krish.reddy@samsung.com>
-	<CGME20200728124030epcas5p47d085c6ca8d92406e2a543bfe1e2e23b@epcas5p4.samsung.com>
+Return-Path: <ykorman@gmail.com>
+Return-Path: <ykorman@gmail.com>
+From: Yigal Korman <ykorman@gmail.com>
+Subject: [PATCH v2 1/4] fio: don't retry engine search on failure
+Date: Fri,  3 Jul 2020 15:38:40 +0300
+Message-Id: <e2ad15c3cde2bea866594b790b653d7ededd95c8.1593761533.git.ykorman@gmail.com>
+In-Reply-To: <cover.1593761533.git.ykorman@gmail.com>
+References: <cover.1593761533.git.ykorman@gmail.com>
+In-Reply-To: <cover.1593761533.git.ykorman@gmail.com>
+References: <cover.1593761533.git.ykorman@gmail.com>
 To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, Krishna Kanth Reddy <krish.reddy@samsung.com>, Ankit Kumar <ankit.kumar@samsung.com>
+Cc: Yigal Korman <ykorman@gmail.com>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-Added a new FIO option zone_append.
-When zone_append option is enabled and when the zonemode is ZBD,
-the existing write path will send Zone Append command with offset as start of the Zone.
+ioengine_load will try to load a given engine and if it doesn't match
+the current one (default is always psync), it will remove the current
+one and try again.
+This makes sense when the engine is loaded successfully, but if it's
+not, we try to load it twice for no reason.
 
-Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
+Fix by failing if we were unable to load requested engine and not
+retrying.
+
+Signed-off-by: Yigal Korman <ykorman@gmail.com>
 ---
- t/zbd/test-zbd-support | 29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ init.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 471a3487..048daaf5 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -860,6 +860,35 @@ test49() {
-     check_read $((capacity * 2)) || return $?
+diff --git a/init.c b/init.c
+index e53be35a..3710e3d4 100644
+--- a/init.c
++++ b/init.c
+@@ -1099,6 +1099,9 @@ int ioengine_load(struct thread_data *td)
+ 		 */
+ 		dlhandle = td->io_ops_dlhandle;
+ 		ops = load_ioengine(td);
++		if (!ops)
++			goto fail;
++
+ 		if (ops == td->io_ops && dlhandle == td->io_ops_dlhandle) {
+ 			if (dlhandle)
+ 				dlclose(dlhandle);
+@@ -1113,10 +1116,8 @@ int ioengine_load(struct thread_data *td)
+ 	}
+ 
+ 	td->io_ops = load_ioengine(td);
+-	if (!td->io_ops) {
+-		log_err("fio: failed to load engine\n");
+-		return 1;
+-	}
++	if (!td->io_ops)
++		goto fail;
+ 
+ 	if (td->io_ops->option_struct_size && td->io_ops->options) {
+ 		/*
+@@ -1155,6 +1156,11 @@ int ioengine_load(struct thread_data *td)
+ 
+ 	td_set_ioengine_flags(td);
+ 	return 0;
++
++fail:
++	log_err("fio: failed to load engine\n");
++	return 1;
++
  }
  
-+# Zone append to sequential zones, libaio, 1 job, queue depth 1
-+test50() {
-+    local size capacity
-+
-+    [ -n "$use_libzbc" ] && return 0
-+    size=$((8 * zone_size))
-+    off=$((first_sequential_zone_sector * 512))
-+    capacity=$(total_zone_capacity 8 $off $dev)
-+
-+    run_fio_on_seq --ioengine=libaio --iodepth=1 --rw=write --zone_append=1 \
-+                   --bs=65536 --size=$size --do_verify=1 --verify=md5 \
-+                   >>"${logfile}.${test_number}" 2>&1 || return $?
-+    check_written $capacity || return $?
-+    check_read $capacity || return $?
-+}
-+
-+# Random zone append to sequential zones, libaio, 8 jobs, queue depth 64 per job
-+test51() {
-+    local capacity
-+
-+    [ -n "$use_libzbc" ] && return 0
-+    off=$((first_sequential_zone_sector * 512))
-+    capacity=$(total_zone_capacity 4 $off $dev)
-+    run_fio_on_seq --ioengine=libaio --iodepth=64 --rw=randwrite \
-+		   --bs=4096 --group_reporting=1 --numjobs=8 --zone_append=1 \
-+                   >> "${logfile}.${test_number}" 2>&1 || return $?
-+    check_written $((capacity * 8)) || return $?
-+}
-+
- tests=()
- dynamic_analyzer=()
- reset_all_zones=
+ static void init_flags(struct thread_data *td)
 -- 
 2.17.1
 
