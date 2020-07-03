@@ -1,40 +1,32 @@
 Return-Path: <krish.reddy@samsung.com>
-Date: Fri, 3 Jul 2020 22:47:00 +0530
+Date: Fri, 3 Jul 2020 22:20:42 +0530
 From: Krishna Kanth Reddy <krish.reddy@samsung.com>
 Subject: Re: [PATCH 1/4] Add Zone Append command support for NVMe Zoned
  Namespaces (ZNS)
-Message-ID: <20200703171700.GB2391@test-zns>
+Message-ID: <20200703165042.GA2391@test-zns>
 MIME-Version: 1.0
-In-Reply-To: <CY4PR04MB3751CE408523493A3DF02390E7930@CY4PR04MB3751.namprd04.prod.outlook.com>
+In-Reply-To: <CY4PR04MB375191A36EF1B39B8257DC28E7930@CY4PR04MB3751.namprd04.prod.outlook.com>
 Content-Type: multipart/mixed;
-	boundary="----nai8lIH9ngBNHun9R6qswQcIIemhXBCkNXu5CagZqSM5j8ea=_c8b16_"
+	boundary="----nai8lIH9ngBNHun9R6qswQcIIemhXBCkNXu5CagZqSM5j8ea=_c89d4_"
 References: <1593106733-19596-1-git-send-email-krish.reddy@samsung.com>
 	<CGME20200625174124epcas5p18e4fbc502c9cf1fef7e84ba5cefba945@epcas5p1.samsung.com>
 	<1593106733-19596-2-git-send-email-krish.reddy@samsung.com>
-	<CY4PR04MB3751CE408523493A3DF02390E7930@CY4PR04MB3751.namprd04.prod.outlook.com>
+	<CY4PR04MB375191A36EF1B39B8257DC28E7930@CY4PR04MB3751.namprd04.prod.outlook.com>
 To: Damien Le Moal <Damien.LeMoal@wdc.com>
 Cc: "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Ankit Kumar <ankit.kumar@samsung.com>
 List-ID: <fio@vger.kernel.org>
 
-------nai8lIH9ngBNHun9R6qswQcIIemhXBCkNXu5CagZqSM5j8ea=_c8b16_
+------nai8lIH9ngBNHun9R6qswQcIIemhXBCkNXu5CagZqSM5j8ea=_c89d4_
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Disposition: inline
 
-On Fri, Jun 26, 2020 at 05:33:01AM +0000, Damien Le Moal wrote:
+On Fri, Jun 26, 2020 at 05:50:10AM +0000, Damien Le Moal wrote:
 >On 2020/06/26 2:41, Krishna Kanth Reddy wrote:
 >> From: Ankit Kumar <ankit.kumar@samsung.com>
 >>
 >> defined in NVM Express TP4053. Added a new FIO option zone_append.
 >> When zone_append option is enabled, the existing write path will
 >> send Zone Append command with offset as start of the Zone.
->
->Zone append is supported by SCSI disks too through emulation and will be for
->nullblk too, so please generalize this patch title and commit message. This is
->not for NVMe ZNS devices only.
->
-Sure, will take care of this in the future commit messages and the
-titles.
-
 >>
 >> Signed-off-by: Krishna Kanth Reddy <krish.reddy@samsung.com>
 >> ---
@@ -61,21 +53,8 @@ titles.
 >> +
 >> +	For :option:`zonemode` =zbd and for :option:`rw` =write or :option:
 >> +	`rw` =randwrite, if zone_append is enabled, the the io_u points to the
->
->s/the the io_u/the io_u
-Ok.
-
->
 >> +	starting offset of a zone. On successful completion the multiple of
 >> +	sectors relative to the zone's starting offset is returned.
->
->You are describing this option effect from the code perspective. That is not
->helpful for a user who does not know fio internals. Please describe this from
->the user perspective, from high level, what the option does, which is, to use
->zone append write command instead of regular write command.
->
-Ok, will describe this option from the user perspective.
-
 >> +
 >>  .. option:: read_beyond_wp=bool
 >>
@@ -93,11 +72,6 @@ Ok, will describe this option from the user perspective.
 >> +zone_append is enabled, the io_u points to the starting offset of a zone. On
 >> +successful completion the multiple of sectors relative to the zone's starting
 >> +offset is returned.
->
->Same comment here.
->
-Ok.
-
 >> +
 >> +.TP
 >>  .BI read_beyond_wp \fR=\fPbool
@@ -136,12 +110,6 @@ Ok.
 >> +	 * for zone append this is the start offset of the zone.
 >> +	 */
 >> +	unsigned long long zone_start_offset;
->
->This is not necessary. This value can be calculated from any io_u offset.
->
-This is a great suggestion. Will implement the code changes
-accordingly.
-
 >> +
 >> +	/*
 >>  	 * ZBD mode zbd_queue_io callback: called after engine->queue operation
@@ -198,13 +166,6 @@ accordingly.
 >> +		.type	= FIO_OPT_BOOL,
 >> +		.off1	= offsetof(struct thread_options, zone_append),
 >> +		.help	= "Use Zone Append for Zone block device",
->
->"Use zone append for writing zones of a zoned block device"
->
->may be better as it points out that this has an effect on writes only.
->
-Sure. Will update the help message.
-
 >> +		.def	= "0",
 >> +		.category = FIO_OPT_C_IO,
 >> +		.group	= FIO_OPT_G_ZONE,
@@ -242,14 +203,6 @@ Sure. Will update the help message.
 >>  			mutex_init_pshared_with_type(&p->mutex,
 >>  						     PTHREAD_MUTEX_RECURSIVE);
 >> +			cond_init_pshared(&p->reset_cond);
->
->It would be nice if the commit message explained the changes in this patch and
->explain the role of this condition variable. It is not clear to me at all.
->
-As part of this initial version, we plan to introduce Zone Append as an
-extension of Write. This will remove all the zbd.c and zbd.h related
-code changes (pending_ios, reset_cond).
-
 >>  			p->start = z->start;
 >>  			switch (z->cond) {
 >>  			case ZBD_ZONE_COND_NOT_WP:
@@ -258,13 +211,6 @@ code changes (pending_ios, reset_cond).
 >>  			p->type = z->type;
 >>  			p->cond = z->cond;
 >> +			p->pending_ios = 0;
->
->Same here. This is not explained so one has to figure it out from the code only.
->Not easy to do as what I think is needed may not be what *you* thought in the
->first place.
->
-Will be removed as part of the initial version.
-
 >>  			if (j > 0 && p->start != p[-1].start + zone_size) {
 >>  				log_info("%s: invalid zone data\n",
 >>  					 f->file_name);
@@ -300,15 +246,6 @@ Will be removed as part of the initial version.
 >>  		z->wp = zone_end;
 >> +		if (td->o.zone_append)
 >> +			z->pending_ios++;
->
->The name is not very good. Shouldn't this be queued_ios ? And since fio
->differentiate queued and in-flight, but this counter does not and is for zone
->append commands only, it may be even better to call this something like
->in_flight_za_ios or something like that to clarify the use and avoid confusion.
->
-Will be removed as part of the initial version. Naming of the variable
-will be done properly to avoid confusion in the later commits.
-
 >>  		break;
 >>  	case DDIR_TRIM:
 >>  		assert(z->wp == z->start);
@@ -351,14 +288,6 @@ will be done properly to avoid confusion in the later commits.
 >> +			 * Other threads may be waiting for pending I/O's to
 >> +			 * complete for this zone. Notify them.
 >> +			 */
->
->Please move this comment inside the if, or even better, at the beginning of this
->code block. And also explain why the zone lock needs to be taken here for  zone
->append only.
-Will be removed as part of the initial version. Sure will explain the
-need for zone lock at the beginning of the code block, in the future
-commits.
-
 >> +			if (!z->pending_ios)
 >> +				pthread_cond_broadcast(&z->reset_cond);
 >> +		}
@@ -400,12 +329,6 @@ commits.
 >> +				if (zb->pending_ios) {
 >> +					pthread_cond_wait(&zb->reset_cond, &zb->mutex);
 >> +					goto proceed;
->
->If you are OK to reset  the zone after the cond wait, why the jump to proceed ?
->That will skip the reset...
->
-Will be removed as part of the initial version.
-
 >> +				}
 >> +			}
 >> +
@@ -415,11 +338,6 @@ Will be removed as part of the initial version.
 >> +			/* Notify other threads waiting for zone mutex */
 >> +			if (td->o.zone_append)
 >> +				pthread_cond_broadcast(&zb->reset_cond);
->
->Why ? isn't this cond variable used to signal pending_ios going to 0 ?
->
-Will be removed as part of the initial version.
-
 >> +		}
 >> +proceed:
 >> +		/*
@@ -430,19 +348,6 @@ Will be removed as part of the initial version.
 >> +		if (zbd_zone_full(f, zb, min_bs)) {
 >> +			goto reset;
 >>  		}
->
->No need for the curly braces. But the main problem here is that a job is not
->guaranteeds to ever be able to issue a zone append. A job may end up looping
->indefinitely between here and reset label.
->
->This does not look necessary at all to me. The zone is locked and it was already
->determined that reset is not needed, or, the zone was already reset a few line
->above after waiting for all pending ios, all of that with the zone locked. So
->how can it become full again at this point ?
->
-Will be removed as part of the initial version, as we are planning to
-introduce Zone Append as an extension of Zone Write.
-
 >> +
 >>  		/* Make writes occur at the write pointer */
 >>  		assert(!zbd_zone_full(f, zb, min_bs));
@@ -458,17 +363,6 @@ introduce Zone Append as an extension of Zone Write.
 >> +			else
 >> +				io_u->zone_start_offset = zb->start;
 >> +		}
->
->This hunk is not needed. zone start offset is:
->
->io_u->offset & ~(zone_size - 1)
->
->with zone_size being either td->o.zone_size or f->zbd_info->zone_size. So you
->can completely drop this zone_start_offset field.
->
-Thank you for this great suggestion. zone_start_offset will be removed
-in our next version of the patches.
-
 >> +
 >>  		if (!is_valid_offset(f, io_u->offset)) {
 >>  			dprint(FD_ZBD, "Dropped request with offset %llu\n",
@@ -482,20 +376,9 @@ in our next version of the patches.
 >>   * @start: zone start location (bytes)
 >>   * @wp: zone write pointer location (bytes)
 >> + * @pending_ios: Number of IO's pending in this zone
->
->Misleading. This is the nukmber of zone append IOs. Only zone append. You are
->not counting reads or writes withe this.
->
-Will be removed as part of the initial version.
-
 >>   * @verify_block: number of blocks that have been verified for this zone
 >>   * @mutex: protects the modifiable members in this structure
 >> + * @reset_cond: zone reset check condition. only relevant for zone_append.
->
->You are using it to signal pending_ios going to 0 too.
->
-Will be removed as part of the initial version.
-
 >>   * @type: zone type (BLK_ZONE_TYPE_*)
 >>   * @cond: zone state (BLK_ZONE_COND_*)
 >>   * @open: whether or not this zone is currently open. Only relevant if
@@ -536,34 +419,32 @@ Will be removed as part of the initial version.
 >>  	}
 >>
 >
->So a few fixes are needed. However, my biggest concerns is the change to zone
->locking just for zone append... I kind of like the idea to not hold the zone
->lock for the entire duration of IOs, and the condition variable with IO counter
->seem to be a reasonnable way to do that. Have you tried extending this locking
->change to all IOs (read and write) ? A prep patch could do that and zone append
->support can come on top. I am however worried that all of this may not be that
->easy due to the various inspection loops for choosing a zone to read or write,
->finding an open zone or finding a zone to close & open. This needs checking, or
->at least explainations in the commit message that none of it is affexcted by
->your change.
+>Another thing: IO engines such as libzbc will not support any of this, nor will
+>engines such as psync or SG and many many other. SO it may be good to define a
+>new io engine flag such as FIO_ZONE_APPEND that can be set in struct
+>ioengine_ops flags field in the engine declaration to indicate that the engine
+>supports zone append. That can be checked on initialization instead of no check
+>at all and seeing lots of weird things happening with engines that do not
+>support zone append.
 >
-No, we haven't tried extending this locking change to all IOs.
-In case of multiple jobs, Zone Writes will have issues with ordering.
-If the first job releases the lock after queuing a Write request,
-other jobs can aquire the lock. Then the other jobs can prepare, queue
-and commit their Write requests even before the first job has committed
-it's Write request.
-Will definitely try to work on your comments in the future patches.
-Thank you for your suggestions.
-
+We can add a new IO engine flag to indicate that the engine supports
+Zone Append.
+As part of this initial version, we plan to introduce Zone Append as an
+extension of Write. This will remove all the zbd.c and zbd.h related
+code changes (pending_ios, reset_cond).
+I wonder, since we don't have any zbd related code changes and the
+zone_start_offset being removed, for the other IO engines, even if we
+enable zone_append, it will still do a regular write. So, do we still
+need this new IO engine flag ?
+>
 >-- 
 >Damien Le Moal
 >Western Digital Research
 >
 
-------nai8lIH9ngBNHun9R6qswQcIIemhXBCkNXu5CagZqSM5j8ea=_c8b16_
+------nai8lIH9ngBNHun9R6qswQcIIemhXBCkNXu5CagZqSM5j8ea=_c89d4_
 Content-Type: text/plain; charset="utf-8"
 
 
-------nai8lIH9ngBNHun9R6qswQcIIemhXBCkNXu5CagZqSM5j8ea=_c8b16_--
+------nai8lIH9ngBNHun9R6qswQcIIemhXBCkNXu5CagZqSM5j8ea=_c89d4_--
 
