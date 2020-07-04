@@ -1,365 +1,716 @@
-Return-Path: <prvs=460e8bdd2=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v3 4/6] t/zbd: Support testing zone capacity smaller than zone size
-Date: Fri, 17 Jul 2020 18:36:35 +0900
-Message-Id: <20200717093637.139565-5-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200717093637.139565-1-shinichiro.kawasaki@wdc.com>
-References: <20200717093637.139565-1-shinichiro.kawasaki@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Hans Holmberg <hans.holmberg@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43580 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726766AbgGDMAI (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 4 Jul 2020 08:00:08 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C330EC061794
+        for <fio@vger.kernel.org>; Sat,  4 Jul 2020 05:00:07 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jrgpx-0000Ag-NA
+        for fio@vger.kernel.org; Sat, 04 Jul 2020 12:00:06 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200704120002.2F0431BC0F06@kernel.dk>
+Date: Sat,  4 Jul 2020 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Hans Holmberg <hans.holmberg@wdc.com>
+The following changes since commit 5144df064b2fc011615868e59083cfc1786bd073:
 
-Add support for testing zoned block devices where zone capacity is less
-than zone size. If the test case runs sequential workloads or workloads
-with verify, use zone capacity instead of zone size to complete.
+  Merge branch 'num2str' of https://github.com/bvanassche/fio (2020-07-02 18:08:14 -0600)
 
-To use zone capacity of the test target zones, introduce a helper
-function total_zone_capacity() which sums up zone capacity numbers of the
-test target zones.
+are available in the Git repository at:
 
-Signed-off-by: Hans Holmberg <hans.holmberg@wdc.com>
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to a504a3902e00b6db0183872b0ff62e35abae7119:
+
+  configure: fix bad indentation (2020-07-03 08:34:56 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      configure: fix bad indentation
+
+Yigal Korman (4):
+      fio: don't retry engine search on failure
+      configure/Makefile: engine LIBS consistency
+      configure: new --dynamic-libengines build option
+      fio: better info when engine not found
+
+ .gitignore         |  1 +
+ Makefile           | 86 +++++++++++++++++++++++++++++++++++++++++++-----------
+ configure          | 20 +++++--------
+ engines/dev-dax.c  |  2 +-
+ engines/guasi.c    |  2 +-
+ engines/http.c     |  2 +-
+ engines/libaio.c   |  2 +-
+ engines/libhdfs.c  |  6 ++--
+ engines/libiscsi.c |  6 ++--
+ engines/libpmem.c  |  2 +-
+ engines/libzbc.c   |  2 +-
+ engines/nbd.c      |  2 +-
+ engines/pmemblk.c  |  2 +-
+ engines/rados.c    |  2 +-
+ engines/rbd.c      |  2 +-
+ engines/rdma.c     |  9 +++---
+ init.c             | 14 ++++++---
+ ioengines.c        | 26 +++++++++++++++--
+ ioengines.h        |  6 ++++
+ os/os-linux.h      |  2 ++
+ 20 files changed, 141 insertions(+), 55 deletions(-)
+
 ---
- t/zbd/functions        |  37 +++++++++++++++
- t/zbd/test-zbd-support | 100 ++++++++++++++++++++++++++---------------
- 2 files changed, 102 insertions(+), 35 deletions(-)
 
-diff --git a/t/zbd/functions b/t/zbd/functions
-index 14366e15..81b6f3f7 100644
---- a/t/zbd/functions
-+++ b/t/zbd/functions
-@@ -84,6 +84,43 @@ first_sequential_zone() {
-     fi
+Diff of recent changes:
+
+diff --git a/.gitignore b/.gitignore
+index b84b0fda..0aa4a361 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,5 +1,6 @@
+ *.d
+ *.o
++*.so
+ *.exe
+ /.depend
+ /FIO-VERSION-FILE
+diff --git a/Makefile b/Makefile
+index 99e96635..8f8d9b9a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -60,15 +60,17 @@ ifdef CONFIG_LIBHDFS
+ endif
+ 
+ ifdef CONFIG_LIBISCSI
+-  CFLAGS := $(LIBISCSI_CFLAGS) $(CFLAGS)
+-  LIBS += $(LIBISCSI_LIBS)
+-  SOURCE += engines/libiscsi.c
++  iscsi_SRCS = engines/libiscsi.c
++  iscsi_LIBS = $(LIBISCSI_LIBS)
++  iscsi_CFLAGS = $(LIBISCSI_LIBS)
++  ENGINES += iscsi
+ endif
+ 
+ ifdef CONFIG_LIBNBD
+-  CFLAGS := $(LIBNBD_CFLAGS) $(CFLAGS)
+-  LIBS += $(LIBNBD_LIBS)
+-  SOURCE += engines/nbd.c
++  nbd_SRCS = engines/nbd.c
++  nbd_LIBS = $(LIBNBD_LIBS)
++  nbd_CFLAGS = $(LIBNBD_CFLAGS)
++  ENGINES += nbd
+ endif
+ 
+ ifdef CONFIG_64BIT
+@@ -78,10 +80,19 @@ ifdef CONFIG_32BIT
+   CFLAGS := -DBITS_PER_LONG=32 $(CFLAGS)
+ endif
+ ifdef CONFIG_LIBAIO
+-  SOURCE += engines/libaio.c
++  aio_SRCS = engines/libaio.c
++  aio_LIBS = -laio
++  ifdef CONFIG_LIBAIO_URING
++    aio_LIBS = -luring
++  else
++    aio_LIBS = -laio
++  endif
++  ENGINES += aio
+ endif
+ ifdef CONFIG_RDMA
+-  SOURCE += engines/rdma.c
++  rdma_SRCS = engines/rdma.c
++  rdma_LIBS = -libverbs -lrdmacm
++  ENGINES += rdma
+ endif
+ ifdef CONFIG_POSIXAIO
+   SOURCE += engines/posixaio.c
+@@ -96,7 +107,8 @@ ifdef CONFIG_LINUX_SPLICE
+   SOURCE += engines/splice.c
+ endif
+ ifdef CONFIG_GUASI
+-  SOURCE += engines/guasi.c
++  guasi_SRCS = engines/guasi.c
++  ENGINES += guasi
+ endif
+ ifdef CONFIG_SOLARISAIO
+   SOURCE += engines/solarisaio.c
+@@ -105,13 +117,19 @@ ifdef CONFIG_WINDOWSAIO
+   SOURCE += engines/windowsaio.c
+ endif
+ ifdef CONFIG_RADOS
+-  SOURCE += engines/rados.c
++  rados_SRCS = engines/rados.c
++  rados_LIBS = -lrados
++  ENGINES += rados
+ endif
+ ifdef CONFIG_RBD
+-  SOURCE += engines/rbd.c
++  rbd_SRCS = engines/rbd.c
++  rbd_LIBS = -lrbd -lrados
++  ENGINES += rbd
+ endif
+ ifdef CONFIG_HTTP
+-  SOURCE += engines/http.c
++  http_SRCS = engines/http.c
++  http_LIBS = -lcurl -lssl -lcrypto
++  ENGINES += http
+ endif
+ SOURCE += oslib/asprintf.c
+ ifndef CONFIG_STRSEP
+@@ -139,6 +157,7 @@ ifdef CONFIG_GFAPI
+   SOURCE += engines/glusterfs.c
+   SOURCE += engines/glusterfs_sync.c
+   SOURCE += engines/glusterfs_async.c
++  LIBS += -lgfapi -lglusterfs
+   ifdef CONFIG_GF_FADVISE
+     CFLAGS := "-DGFAPI_USE_FADVISE" $(CFLAGS)
+   endif
+@@ -149,19 +168,27 @@ ifdef CONFIG_MTD
+   SOURCE += oslib/libmtd_legacy.c
+ endif
+ ifdef CONFIG_PMEMBLK
+-  SOURCE += engines/pmemblk.c
++  pmemblk_SRCS = engines/pmemblk.c
++  pmemblk_LIBS = -lpmemblk
++  ENGINES += pmemblk
+ endif
+ ifdef CONFIG_LINUX_DEVDAX
+-  SOURCE += engines/dev-dax.c
++  devdax_SRCS = engines/dev-dax.c
++  devdax_LIBS = -lpmem
++  ENGINES += dev-dax
+ endif
+ ifdef CONFIG_LIBPMEM
+-  SOURCE += engines/libpmem.c
++  pmem_SRCS = engines/libpmem.c
++  pmem_LIBS = -lpmem
++  ENGINES += pmem
+ endif
+ ifdef CONFIG_IME
+   SOURCE += engines/ime.c
+ endif
+ ifdef CONFIG_LIBZBC
+-  SOURCE += engines/libzbc.c
++  zbc_SRCS = engines/libzbc.c
++  zbc_LIBS = -lzbc
++  ENGINES += zbc
+ endif
+ 
+ ifeq ($(CONFIG_TARGET_OS), Linux)
+@@ -223,6 +250,26 @@ ifneq (,$(findstring CYGWIN,$(CONFIG_TARGET_OS)))
+   CFLAGS := -DPSAPI_VERSION=1 -Ios/windows/posix/include -Wno-format $(CFLAGS)
+ endif
+ 
++ifdef CONFIG_DYNAMIC_ENGINES
++ DYNAMIC_ENGS := $(ENGINES)
++define engine_template =
++$(1)_OBJS := $$($(1)_SRCS:.c=.o)
++$$($(1)_OBJS): CFLAGS := -fPIC $$($(1)_CFLAGS) $(CFLAGS)
++engines/lib$(1).so: $$($(1)_OBJS)
++	$$(QUIET_LINK)$(CC) -shared -rdynamic -fPIC -Wl,-soname,lib$(1).so.1 $$($(1)_LIBS) -o $$@ $$<
++ENGS_OBJS += engines/lib$(1).so
++all install: $(ENGS_OBJS)
++endef
++else # !CONFIG_DYNAMIC_ENGINES
++define engine_template =
++SOURCE += $$($(1)_SRCS)
++LIBS += $$($(1)_LIBS)
++CFLAGS := $$($(1)_CFLAGS) $(CFLAGS)
++endef
++endif
++
++$(foreach eng,$(ENGINES),$(eval $(call engine_template,$(eng))))
++
+ OBJS := $(SOURCE:.c=.o)
+ 
+ FIO_OBJS = $(OBJS) fio.o
+@@ -374,6 +421,7 @@ else
+ endif
+ prefix = $(INSTALL_PREFIX)
+ bindir = $(prefix)/bin
++libdir = $(prefix)/lib/fio
+ 
+ ifeq ($(CONFIG_TARGET_OS), Darwin)
+ mandir = /usr/share/man
+@@ -522,7 +570,7 @@ unittests/unittest: $(UT_OBJS) $(UT_TARGET_OBJS)
+ endif
+ 
+ clean: FORCE
+-	@rm -f .depend $(FIO_OBJS) $(GFIO_OBJS) $(OBJS) $(T_OBJS) $(UT_OBJS) $(PROGS) $(T_PROGS) $(T_TEST_PROGS) core.* core gfio unittests/unittest FIO-VERSION-FILE *.[do] lib/*.d oslib/*.[do] crc/*.d engines/*.[do] profiles/*.[do] t/*.[do] unittests/*.[do] unittests/*/*.[do] config-host.mak config-host.h y.tab.[ch] lex.yy.c exp/*.[do] lexer.h
++	@rm -f .depend $(FIO_OBJS) $(GFIO_OBJS) $(OBJS) $(T_OBJS) $(UT_OBJS) $(PROGS) $(T_PROGS) $(T_TEST_PROGS) core.* core gfio unittests/unittest FIO-VERSION-FILE *.[do] lib/*.d oslib/*.[do] crc/*.d engines/*.[do] engines/*.so profiles/*.[do] t/*.[do] unittests/*.[do] unittests/*/*.[do] config-host.mak config-host.h y.tab.[ch] lex.yy.c exp/*.[do] lexer.h
+ 	@rm -f t/fio-btrace2fio t/io_uring t/read-to-pipe-async
+ 	@rm -rf  doc/output
+ 
+@@ -562,6 +610,10 @@ fulltest:
+ install: $(PROGS) $(SCRIPTS) tools/plot/fio2gnuplot.1 FORCE
+ 	$(INSTALL) -m 755 -d $(DESTDIR)$(bindir)
+ 	$(INSTALL) $(PROGS) $(SCRIPTS) $(DESTDIR)$(bindir)
++ifdef CONFIG_DYNAMIC_ENGINES
++	$(INSTALL) -m 755 -d $(DESTDIR)$(libdir)
++	$(INSTALL) -m 755 $(SRCDIR)/engines/*.so $(DESTDIR)$(libdir)
++endif
+ 	$(INSTALL) -m 755 -d $(DESTDIR)$(mandir)/man1
+ 	$(INSTALL) -m 644 $(SRCDIR)/fio.1 $(DESTDIR)$(mandir)/man1
+ 	$(INSTALL) -m 644 $(SRCDIR)/tools/fio_generate_plots.1 $(DESTDIR)$(mandir)/man1
+diff --git a/configure b/configure
+index 63b30555..6991393b 100755
+--- a/configure
++++ b/configure
+@@ -151,6 +151,7 @@ march_set="no"
+ libiscsi="no"
+ libnbd="no"
+ libaio_uring="no"
++dynamic_engines="no"
+ prefix=/usr/local
+ 
+ # parse options
+@@ -215,6 +216,8 @@ for opt do
+   ;;
+   --enable-libaio-uring) libaio_uring="yes"
+   ;;
++  --dynamic-libengines) dynamic_engines="yes"
++  ;;
+   --help)
+     show_help="yes"
+     ;;
+@@ -254,6 +257,7 @@ if test "$show_help" = "yes" ; then
+   echo "--enable-libnbd         Enable libnbd (NBD engine) support"
+   echo "--disable-tcmalloc	Disable tcmalloc support"
+   echo "--enable-libaio-uring   Enable libaio emulated over io_uring"
++  echo "--dynamic-libengines	Lib-based ioengines as dynamic libraries"
+   exit $exit_val
+ fi
+ 
+@@ -605,11 +609,9 @@ int main(void)
+ EOF
+   if test "$libaio_uring" = "yes" && compile_prog "" "-luring" "libaio io_uring" ; then
+     libaio=yes
+-    LIBS="-luring $LIBS"
+   elif compile_prog "" "-laio" "libaio" ; then
+     libaio=yes
+     libaio_uring=no
+-    LIBS="-laio $LIBS"
+   else
+     if test "$libaio" = "yes" ; then
+       feature_not_found "linux AIO" "libaio-dev or libaio-devel"
+@@ -859,7 +861,6 @@ int main(int argc, char **argv)
+ EOF
+ if test "$disable_rdma" != "yes" && compile_prog "" "-libverbs" "libverbs" ; then
+     libverbs="yes"
+-    LIBS="-libverbs $LIBS"
+ fi
+ print_config "libverbs" "$libverbs"
+ 
+@@ -879,7 +880,6 @@ int main(int argc, char **argv)
+ EOF
+ if test "$disable_rdma" != "yes" && compile_prog "" "-lrdmacm" "rdma"; then
+     rdmacm="yes"
+-    LIBS="-lrdmacm $LIBS"
+ fi
+ print_config "rdmacm" "$rdmacm"
+ 
+@@ -1770,10 +1770,8 @@ if test "$disable_http" != "yes"; then
+   if compile_prog "" "$HTTP_LIBS" "curl-new-ssl"; then
+     output_sym "CONFIG_HAVE_OPAQUE_HMAC_CTX"
+     http="yes"
+-    LIBS="$HTTP_LIBS $LIBS"
+   elif mv $TMPC2 $TMPC && compile_prog "" "$HTTP_LIBS" "curl-old-ssl"; then
+     http="yes"
+-    LIBS="$HTTP_LIBS $LIBS"
+   fi
+ fi
+ print_config "http engine" "$http"
+@@ -1802,7 +1800,6 @@ int main(int argc, char **argv)
+ }
+ EOF
+ if test "$disable_rados" != "yes"  && compile_prog "" "-lrados" "rados"; then
+-  LIBS="-lrados $LIBS"
+   rados="yes"
+ fi
+ print_config "Rados engine" "$rados"
+@@ -1833,7 +1830,6 @@ int main(int argc, char **argv)
+ }
+ EOF
+ if test "$disable_rbd" != "yes"  && compile_prog "" "-lrbd -lrados" "rbd"; then
+-  LIBS="-lrbd -lrados $LIBS"
+   rbd="yes"
+ fi
+ print_config "Rados Block Device engine" "$rbd"
+@@ -1924,7 +1920,6 @@ int main(int argc, char **argv)
+ }
+ EOF
+ if test "$disable_gfapi" != "yes"  && compile_prog "" "-lgfapi -lglusterfs" "gfapi"; then
+-  LIBS="-lgfapi -lglusterfs $LIBS"
+   gfapi="yes"
+ fi
+ print_config "Gluster API engine" "$gfapi"
+@@ -2086,7 +2081,6 @@ int main(int argc, char **argv)
+ EOF
+ if compile_prog "" "-lpmem" "libpmem"; then
+   libpmem="yes"
+-  LIBS="-lpmem $LIBS"
+ fi
+ print_config "libpmem" "$libpmem"
+ 
+@@ -2108,7 +2102,6 @@ int main(int argc, char **argv)
+ EOF
+   if compile_prog "" "-lpmemblk" "libpmemblk"; then
+     libpmemblk="yes"
+-    LIBS="-lpmemblk $LIBS"
+   fi
+ fi
+ print_config "libpmemblk" "$libpmemblk"
+@@ -2432,7 +2425,6 @@ if compile_prog "" "-lzbc" "libzbc"; then
+   libzbcvermaj=$(pkg-config --modversion libzbc | sed 's/\.[0-9]*\.[0-9]*//')
+   if test "$libzbcvermaj" -ge "5" ; then
+     libzbc="yes"
+-    LIBS="-lzbc $LIBS"
+   else
+     print_config "libzbc engine" "Unsupported libzbc version (version 5 or above required)"
+     libzbc="no"
+@@ -2966,6 +2958,10 @@ if test "$libnbd" = "yes" ; then
+   echo "LIBNBD_CFLAGS=$libnbd_cflags" >> $config_host_mak
+   echo "LIBNBD_LIBS=$libnbd_libs" >> $config_host_mak
+ fi
++if test "$dynamic_engines" = "yes" ; then
++  output_sym "CONFIG_DYNAMIC_ENGINES"
++fi
++print_config "Lib-based ioengines dynamic" "$dynamic_engines"
+ cat > $TMPC << EOF
+ int main(int argc, char **argv)
+ {
+diff --git a/engines/dev-dax.c b/engines/dev-dax.c
+index 422ea634..1d0f66cb 100644
+--- a/engines/dev-dax.c
++++ b/engines/dev-dax.c
+@@ -328,7 +328,7 @@ fio_devdax_get_file_size(struct thread_data *td, struct fio_file *f)
+ 	return 0;
  }
  
-+# Reports the summed zone capacity of $1 number of zones starting from offset $2
-+# on device $3.
-+total_zone_capacity() {
-+	local nr_zones=$1
-+	local sector=$(($2 / 512))
-+	local dev=$3
-+	local capacity=0 num
-+	local grep_str
+-static struct ioengine_ops ioengine = {
++FIO_STATIC struct ioengine_ops ioengine = {
+ 	.name		= "dev-dax",
+ 	.version	= FIO_IOOPS_VERSION,
+ 	.init		= fio_devdax_init,
+diff --git a/engines/guasi.c b/engines/guasi.c
+index cb26802c..d4121757 100644
+--- a/engines/guasi.c
++++ b/engines/guasi.c
+@@ -242,7 +242,7 @@ static int fio_guasi_init(struct thread_data *td)
+ 	return 0;
+ }
+ 
+-static struct ioengine_ops ioengine = {
++FIO_STATIC struct ioengine_ops ioengine = {
+ 	.name		= "guasi",
+ 	.version	= FIO_IOOPS_VERSION,
+ 	.init		= fio_guasi_init,
+diff --git a/engines/http.c b/engines/http.c
+index 275fcab5..7a61b132 100644
+--- a/engines/http.c
++++ b/engines/http.c
+@@ -639,7 +639,7 @@ static int fio_http_invalidate(struct thread_data *td, struct fio_file *f)
+ 	return 0;
+ }
+ 
+-static struct ioengine_ops ioengine = {
++FIO_STATIC struct ioengine_ops ioengine = {
+ 	.name = "http",
+ 	.version		= FIO_IOOPS_VERSION,
+ 	.flags			= FIO_DISKLESSIO | FIO_SYNCIO,
+diff --git a/engines/libaio.c b/engines/libaio.c
+index 398fdf91..b909b79e 100644
+--- a/engines/libaio.c
++++ b/engines/libaio.c
+@@ -445,7 +445,7 @@ static int fio_libaio_init(struct thread_data *td)
+ 	return 0;
+ }
+ 
+-static struct ioengine_ops ioengine = {
++FIO_STATIC struct ioengine_ops ioengine = {
+ 	.name			= "libaio",
+ 	.version		= FIO_IOOPS_VERSION,
+ 	.flags			= FIO_ASYNCIO_SYNC_TRIM,
+diff --git a/engines/libhdfs.c b/engines/libhdfs.c
+index c57fcea6..9ca82f78 100644
+--- a/engines/libhdfs.c
++++ b/engines/libhdfs.c
+@@ -393,7 +393,7 @@ static void fio_hdfsio_io_u_free(struct thread_data *td, struct io_u *io_u)
+ 	}
+ }
+ 
+-static struct ioengine_ops ioengine_hdfs = {
++FIO_STATIC struct ioengine_ops ioengine = {
+ 	.name = "libhdfs",
+ 	.version = FIO_IOOPS_VERSION,
+ 	.flags = FIO_SYNCIO | FIO_DISKLESSIO | FIO_NODISKUTIL,
+@@ -412,10 +412,10 @@ static struct ioengine_ops ioengine_hdfs = {
+ 
+ static void fio_init fio_hdfsio_register(void)
+ {
+-	register_ioengine(&ioengine_hdfs);
++	register_ioengine(&ioengine);
+ }
+ 
+ static void fio_exit fio_hdfsio_unregister(void)
+ {
+-	unregister_ioengine(&ioengine_hdfs);
++	unregister_ioengine(&ioengine);
+ }
+diff --git a/engines/libiscsi.c b/engines/libiscsi.c
+index 35761a61..c97b5709 100644
+--- a/engines/libiscsi.c
++++ b/engines/libiscsi.c
+@@ -383,7 +383,7 @@ static struct io_u *fio_iscsi_event(struct thread_data *td, int event)
+ 	return io_u;
+ }
+ 
+-static struct ioengine_ops ioengine_iscsi = {
++FIO_STATIC struct ioengine_ops ioengine = {
+ 	.name               = "libiscsi",
+ 	.version            = FIO_IOOPS_VERSION,
+ 	.flags              = FIO_SYNCIO | FIO_DISKLESSIO | FIO_NODISKUTIL,
+@@ -402,10 +402,10 @@ static struct ioengine_ops ioengine_iscsi = {
+ 
+ static void fio_init fio_iscsi_register(void)
+ {
+-	register_ioengine(&ioengine_iscsi);
++	register_ioengine(&ioengine);
+ }
+ 
+ static void fio_exit fio_iscsi_unregister(void)
+ {
+-	unregister_ioengine(&ioengine_iscsi);
++	unregister_ioengine(&ioengine);
+ }
+diff --git a/engines/libpmem.c b/engines/libpmem.c
+index 99c7b50d..3f63055c 100644
+--- a/engines/libpmem.c
++++ b/engines/libpmem.c
+@@ -558,7 +558,7 @@ static int fio_libpmem_close_file(struct thread_data *td, struct fio_file *f)
+ 	return generic_close_file(td, f);
+ }
+ 
+-static struct ioengine_ops ioengine = {
++FIO_STATIC struct ioengine_ops ioengine = {
+ 	.name		= "libpmem",
+ 	.version	= FIO_IOOPS_VERSION,
+ 	.init		= fio_libpmem_init,
+diff --git a/engines/libzbc.c b/engines/libzbc.c
+index 9e568334..fdde8ca6 100644
+--- a/engines/libzbc.c
++++ b/engines/libzbc.c
+@@ -397,7 +397,7 @@ static enum fio_q_status libzbc_queue(struct thread_data *td, struct io_u *io_u)
+ 	return FIO_Q_COMPLETED;
+ }
+ 
+-static struct ioengine_ops ioengine = {
++FIO_STATIC struct ioengine_ops ioengine = {
+ 	.name			= "libzbc",
+ 	.version		= FIO_IOOPS_VERSION,
+ 	.open_file		= libzbc_open_file,
+diff --git a/engines/nbd.c b/engines/nbd.c
+index 53237929..b0ba75e6 100644
+--- a/engines/nbd.c
++++ b/engines/nbd.c
+@@ -328,7 +328,7 @@ static int nbd_invalidate(struct thread_data *td, struct fio_file *f)
+ 	return 0;
+ }
+ 
+-static struct ioengine_ops ioengine = {
++FIO_STATIC struct ioengine_ops ioengine = {
+ 	.name			= "nbd",
+ 	.version		= FIO_IOOPS_VERSION,
+ 	.options		= options,
+diff --git a/engines/pmemblk.c b/engines/pmemblk.c
+index e2eaa15e..fc6358e8 100644
+--- a/engines/pmemblk.c
++++ b/engines/pmemblk.c
+@@ -426,7 +426,7 @@ static int fio_pmemblk_unlink_file(struct thread_data *td, struct fio_file *f)
+ 	return 0;
+ }
+ 
+-static struct ioengine_ops ioengine = {
++FIO_STATIC struct ioengine_ops ioengine = {
+ 	.name = "pmemblk",
+ 	.version = FIO_IOOPS_VERSION,
+ 	.queue = fio_pmemblk_queue,
+diff --git a/engines/rados.c b/engines/rados.c
+index d4413427..42ee48ff 100644
+--- a/engines/rados.c
++++ b/engines/rados.c
+@@ -444,7 +444,7 @@ static int fio_rados_io_u_init(struct thread_data *td, struct io_u *io_u)
+ }
+ 
+ /* ioengine_ops for get_ioengine() */
+-static struct ioengine_ops ioengine = {
++FIO_STATIC struct ioengine_ops ioengine = {
+ 	.name = "rados",
+ 	.version		= FIO_IOOPS_VERSION,
+ 	.flags			= FIO_DISKLESSIO,
+diff --git a/engines/rbd.c b/engines/rbd.c
+index a08f4775..268b6ebd 100644
+--- a/engines/rbd.c
++++ b/engines/rbd.c
+@@ -668,7 +668,7 @@ static int fio_rbd_io_u_init(struct thread_data *td, struct io_u *io_u)
+ 	return 0;
+ }
+ 
+-static struct ioengine_ops ioengine = {
++FIO_STATIC struct ioengine_ops ioengine = {
+ 	.name			= "rbd",
+ 	.version		= FIO_IOOPS_VERSION,
+ 	.setup			= fio_rbd_setup,
+diff --git a/engines/rdma.c b/engines/rdma.c
+index f192f432..f4471869 100644
+--- a/engines/rdma.c
++++ b/engines/rdma.c
+@@ -226,7 +226,8 @@ static int client_recv(struct thread_data *td, struct ibv_wc *wc)
+ 		rd->rmt_nr = ntohl(rd->recv_buf.nr);
+ 
+ 		for (i = 0; i < rd->rmt_nr; i++) {
+-			rd->rmt_us[i].buf = be64_to_cpu(rd->recv_buf.rmt_us[i].buf);
++			rd->rmt_us[i].buf = __be64_to_cpu(
++						rd->recv_buf.rmt_us[i].buf);
+ 			rd->rmt_us[i].rkey = ntohl(rd->recv_buf.rmt_us[i].rkey);
+ 			rd->rmt_us[i].size = ntohl(rd->recv_buf.rmt_us[i].size);
+ 
+@@ -1389,7 +1390,7 @@ static int fio_rdmaio_setup(struct thread_data *td)
+ 	return 0;
+ }
+ 
+-static struct ioengine_ops ioengine_rw = {
++FIO_STATIC struct ioengine_ops ioengine = {
+ 	.name			= "rdma",
+ 	.version		= FIO_IOOPS_VERSION,
+ 	.setup			= fio_rdmaio_setup,
+@@ -1410,10 +1411,10 @@ static struct ioengine_ops ioengine_rw = {
+ 
+ static void fio_init fio_rdmaio_register(void)
+ {
+-	register_ioengine(&ioengine_rw);
++	register_ioengine(&ioengine);
+ }
+ 
+ static void fio_exit fio_rdmaio_unregister(void)
+ {
+-	unregister_ioengine(&ioengine_rw);
++	unregister_ioengine(&ioengine);
+ }
+diff --git a/init.c b/init.c
+index e53be35a..3710e3d4 100644
+--- a/init.c
++++ b/init.c
+@@ -1099,6 +1099,9 @@ int ioengine_load(struct thread_data *td)
+ 		 */
+ 		dlhandle = td->io_ops_dlhandle;
+ 		ops = load_ioengine(td);
++		if (!ops)
++			goto fail;
 +
-+	if [ -z "$is_zbd" ]; then
-+		# For regular block devices, handle zone size as zone capacity.
-+		echo $((zone_size * nr_zones))
-+		return
-+	fi
+ 		if (ops == td->io_ops && dlhandle == td->io_ops_dlhandle) {
+ 			if (dlhandle)
+ 				dlclose(dlhandle);
+@@ -1113,10 +1116,8 @@ int ioengine_load(struct thread_data *td)
+ 	}
+ 
+ 	td->io_ops = load_ioengine(td);
+-	if (!td->io_ops) {
+-		log_err("fio: failed to load engine\n");
+-		return 1;
+-	}
++	if (!td->io_ops)
++		goto fail;
+ 
+ 	if (td->io_ops->option_struct_size && td->io_ops->options) {
+ 		/*
+@@ -1155,6 +1156,11 @@ int ioengine_load(struct thread_data *td)
+ 
+ 	td_set_ioengine_flags(td);
+ 	return 0;
 +
-+	if [ -n "${blkzone}" ] && [ ! -n "${use_libzbc}" ]; then
-+		if blkzone_reports_capacity "${dev}"; then
-+			grep_str='cap \K[0-9a-zA-Z]*'
-+		else
-+			# If zone capacity is not reported, refer zone length.
-+			grep_str='len \K[0-9a-zA-Z]*'
-+		fi
-+		while read num; do
-+			capacity=$((capacity + num))
-+		done < <(${blkzone} report -c "$nr_zones" -o "$sector" "$dev" |
-+				grep -Po "${grep_str}")
-+	else
-+		# ZBC devices do not have zone capacity. Use zone size.
-+		while read num; do
-+			capacity=$((capacity + num))
-+		done < <(${zbc_report_zones} -nz "$nr_zones" -start "$sector" \
-+				"$dev" | grep -Po 'sector [0-9]*, \K[0-9]*')
-+	fi
++fail:
++	log_err("fio: failed to load engine\n");
++	return 1;
 +
-+	echo $((capacity * 512))
+ }
+ 
+ static void init_flags(struct thread_data *td)
+diff --git a/ioengines.c b/ioengines.c
+index 2c7a0df9..c1b430a1 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -75,6 +75,25 @@ static struct ioengine_ops *find_ioengine(const char *name)
+ 	return NULL;
+ }
+ 
++#ifdef CONFIG_DYNAMIC_ENGINES
++static void *dlopen_external(struct thread_data *td, const char *engine)
++{
++	char engine_path[PATH_MAX];
++	void *dlhandle;
++
++	sprintf(engine_path, "%s/lib%s.so", FIO_EXT_ENG_DIR, engine);
++
++	dlhandle = dlopen(engine_path, RTLD_LAZY);
++	if (!dlhandle)
++		log_info("Engine %s not found; Either name is invalid, was not built, or fio-engine-%s package is missing.\n",
++			 engine, engine);
++
++	return dlhandle;
 +}
++#else
++#define dlopen_external(td, engine) (NULL)
++#endif
 +
- max_open_zones() {
-     local dev=$1
+ static struct ioengine_ops *dlopen_ioengine(struct thread_data *td,
+ 					    const char *engine_lib)
+ {
+@@ -86,8 +105,11 @@ static struct ioengine_ops *dlopen_ioengine(struct thread_data *td,
+ 	dlerror();
+ 	dlhandle = dlopen(engine_lib, RTLD_LAZY);
+ 	if (!dlhandle) {
+-		td_vmsg(td, -1, dlerror(), "dlopen");
+-		return NULL;
++		dlhandle = dlopen_external(td, engine_lib);
++		if (!dlhandle) {
++			td_vmsg(td, -1, dlerror(), "dlopen");
++			return NULL;
++		}
+ 	}
  
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index f086bd10..31718c95 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -204,55 +204,64 @@ test4() {
+ 	/*
+diff --git a/ioengines.h b/ioengines.h
+index f48b4db9..54dadba2 100644
+--- a/ioengines.h
++++ b/ioengines.h
+@@ -10,6 +10,12 @@
  
- # Sequential write to sequential zones.
- test5() {
--    local size
-+    local size off capacity
+ #define FIO_IOOPS_VERSION	26
  
-+    off=$((first_sequential_zone_sector * 512))
-+    capacity=$(total_zone_capacity 4 $off $dev)
-     size=$((4 * zone_size))
-     run_fio_on_seq "$(ioengine "psync")" --iodepth=1 --rw=write	\
- 		   --bs="$(max $((zone_size / 64)) "$logical_block_size")"\
- 		   --do_verify=1 --verify=md5				\
- 		   >>"${logfile}.${test_number}" 2>&1 || return $?
--    check_written $size || return $?
--    check_read $size || return $?
-+    check_written $capacity || return $?
-+    check_read $capacity || return $?
- }
- 
- # Sequential read from sequential zones.
- test6() {
--    local size
-+    local size off capacity
- 
-+    off=$((first_sequential_zone_sector * 512))
-+    capacity=$(total_zone_capacity 4 $off $dev)
-     size=$((4 * zone_size))
-     write_and_run_one_fio_job \
- 	    $((first_sequential_zone_sector * 512)) "${size}" \
--	    --offset=$((first_sequential_zone_sector * 512)) \
-+	    --offset="${off}" \
- 	    --size="${size}" --zonemode=zbd --zonesize="${zone_size}" \
- 	    "$(ioengine "psync")" --iodepth=1 --rw=read \
- 	    --bs="$(max $((zone_size / 64)) "$logical_block_size")" \
- 	    >>"${logfile}.${test_number}" 2>&1 || return $?
--    check_read $size || return $?
-+    check_read $capacity || return $?
- }
- 
- # Random write to sequential zones, libaio, queue depth 1.
- test7() {
-     local size=$((zone_size))
-+    local off capacity
- 
-+    off=$((first_sequential_zone_sector * 512))
-+    capacity=$(total_zone_capacity 1 $off $dev)
-     run_fio_on_seq "$(ioengine "libaio")" --iodepth=1 --rw=randwrite	\
- 		   --bs="$(min 16384 "${zone_size}")"			\
- 		   --do_verify=1 --verify=md5 --size="$size"		\
- 		   >>"${logfile}.${test_number}" 2>&1 || return $?
--    check_written $size || return $?
--    check_read $size || return $?
-+    check_written $capacity || return $?
-+    check_read $capacity || return $?
- }
- 
- # Random write to sequential zones, libaio, queue depth 64.
- test8() {
--    local size
-+    local size off capacity
- 
-     size=$((4 * zone_size))
-+    off=$((first_sequential_zone_sector * 512))
-+    capacity=$(total_zone_capacity 4 $off $dev)
-     run_fio_on_seq "$(ioengine "libaio")" --iodepth=64 --rw=randwrite	\
- 		   --bs="$(min 16384 "${zone_size}")"			\
- 		   --do_verify=1 --verify=md5				\
- 		   >>"${logfile}.${test_number}" 2>&1 || return $?
--    check_written $size || return $?
--    check_read $size || return $?
-+    check_written $capacity || return $?
-+    check_read $capacity || return $?
- }
- 
- # Random write to sequential zones, sg, queue depth 1.
-@@ -293,39 +302,45 @@ test10() {
- 
- # Random write to sequential zones, libaio, queue depth 64, random block size.
- test11() {
--    local size
-+    local size off capacity
- 
-     size=$((4 * zone_size))
-+    off=$((first_sequential_zone_sector * 512))
-+    capacity=$(total_zone_capacity 4 $off $dev)
-     run_fio_on_seq "$(ioengine "libaio")" --iodepth=64 --rw=randwrite	\
- 		   --bsrange=4K-64K --do_verify=1 --verify=md5		\
- 		   --debug=zbd >>"${logfile}.${test_number}" 2>&1 || return $?
--    check_written $size || return $?
--    check_read $size || return $?
-+    check_written $capacity || return $?
-+    check_read $capacity || return $?
- }
- 
- # Random write to sequential zones, libaio, queue depth 64, max 1 open zone.
- test12() {
--    local size
-+    local size off capacity
- 
-     size=$((8 * zone_size))
-+    off=$((first_sequential_zone_sector * 512))
-+    capacity=$(total_zone_capacity 8 $off $dev)
-     run_fio_on_seq "$(ioengine "libaio")" --iodepth=64 --rw=randwrite --bs=16K \
- 		   --max_open_zones=1 --size=$size --do_verify=1 --verify=md5 \
- 		   --debug=zbd >>"${logfile}.${test_number}" 2>&1 || return $?
--    check_written $size || return $?
--    check_read $size || return $?
-+    check_written $capacity || return $?
-+    check_read $capacity || return $?
- }
- 
- # Random write to sequential zones, libaio, queue depth 64, max 4 open zones.
- test13() {
--    local size
-+    local size off capacity
- 
-     size=$((8 * zone_size))
-+    off=$((first_sequential_zone_sector * 512))
-+    capacity=$(total_zone_capacity 8 $off $dev)
-     run_fio_on_seq "$(ioengine "libaio")" --iodepth=64 --rw=randwrite --bs=16K \
- 		   --max_open_zones=4 --size=$size --do_verify=1 --verify=md5 \
- 		   --debug=zbd						      \
- 		   >>"${logfile}.${test_number}" 2>&1 || return $?
--    check_written $size || return $?
--    check_read $size || return $?
-+    check_written $capacity || return $?
-+    check_read $capacity || return $?
- }
- 
- # Random write to conventional zones.
-@@ -349,7 +364,7 @@ test14() {
- # Sequential read on a mix of empty and full zones.
- test15() {
-     local i off size
--    local w_off w_size
-+    local w_off w_size w_capacity
- 
-     for ((i=0;i<4;i++)); do
- 	[ -n "$is_zbd" ] &&
-@@ -358,6 +373,7 @@ test15() {
-     done
-     w_off=$(((first_sequential_zone_sector + 2 * sectors_per_zone) * 512))
-     w_size=$((2 * zone_size))
-+    w_capacity=$(total_zone_capacity 2 $w_off $dev)
-     off=$((first_sequential_zone_sector * 512))
-     size=$((4 * zone_size))
-     write_and_run_one_fio_job "${w_off}" "${w_size}" \
-@@ -365,14 +381,14 @@ test15() {
- 		    --zonemode=zbd --zonesize="${zone_size}" --offset=$off \
- 		    --size=$((size)) >>"${logfile}.${test_number}" 2>&1 ||
- 	return $?
--    check_written $((w_size)) || return $?
--    check_read $((size / 2))
-+    check_written $((w_capacity)) || return $?
-+    check_read $((w_capacity))
- }
- 
- # Random read on a mix of empty and full zones.
- test16() {
-     local off size
--    local i w_off w_size
-+    local i w_off w_size w_capacity
- 
-     for ((i=0;i<4;i++)); do
- 	[ -n "$is_zbd" ] &&
-@@ -381,13 +397,14 @@ test16() {
-     done
-     w_off=$(((first_sequential_zone_sector + 2 * sectors_per_zone) * 512))
-     w_size=$((2 * zone_size))
-+    w_capacity=$(total_zone_capacity 2 $w_off $dev)
-     off=$((first_sequential_zone_sector * 512))
-     size=$((4 * zone_size))
-     write_and_run_one_fio_job "${w_off}" "${w_size}" \
- 		    "$(ioengine "libaio")" --iodepth=64 --rw=randread --bs=16K \
- 		    --zonemode=zbd --zonesize="${zone_size}" --offset=$off \
- 		    --size=$size >>"${logfile}.${test_number}" 2>&1 || return $?
--    check_written $w_size || return $?
-+    check_written $w_capacity || return $?
-     check_read $size || return $?
- }
- 
-@@ -451,13 +468,17 @@ test23() {
- 
- test24() {
-     local bs loops=9 size=$((zone_size))
-+    local off capacity
++#ifndef CONFIG_DYNAMIC_ENGINES
++#define FIO_STATIC	static
++#else
++#define FIO_STATIC
++#endif
 +
-+    off=$((first_sequential_zone_sector * 512))
-+    capacity=$(total_zone_capacity 1 $off $dev)
+ /*
+  * io_ops->queue() return values
+  */
+diff --git a/os/os-linux.h b/os/os-linux.h
+index 6ec7243d..65d3b429 100644
+--- a/os/os-linux.h
++++ b/os/os-linux.h
+@@ -58,6 +58,8 @@
  
-     bs=$(min $((256*1024)) "$zone_size")
-     run_fio_on_seq "$(ioengine "psync")" --rw=write --bs="$bs"		\
- 		   --size=$size --loops=$loops				\
- 		   --zone_reset_frequency=.01 --zone_reset_threshold=.90 \
- 		   >> "${logfile}.${test_number}" 2>&1 || return $?
--    check_written $((size * loops)) || return $?
-+    check_written $((capacity * loops)) || return $?
-     check_reset_count -eq 8 ||
- 	check_reset_count -eq 9 ||
- 	check_reset_count -eq 10 || return $?
-@@ -483,15 +504,19 @@ test25() {
+ #define OS_MAP_ANON		MAP_ANONYMOUS
  
- write_to_first_seq_zone() {
-     local loops=4 r
-+    local off capacity
++#define FIO_EXT_ENG_DIR	"/usr/lib/fio"
 +
-+    off=$((first_sequential_zone_sector * 512))
-+    capacity=$(total_zone_capacity 1 $off $dev)
+ typedef cpu_set_t os_cpu_mask_t;
  
-     r=$(((RANDOM << 16) | RANDOM))
-     run_fio --name="$dev" --filename="$dev" "$(ioengine "psync")" --rw="$1" \
- 	    --thread=1 --do_verify=1 --verify=md5 --direct=1 --bs=4K	\
--	    --offset=$((first_sequential_zone_sector * 512))		\
--	    "--size=$zone_size" --loops=$loops --randseed="$r"		\
-+	    --offset=$off						\
-+	    --size=$zone_size --loops=$loops --randseed="$r"		\
- 	    --zonemode=zbd --zonesize="${zone_size}" --group_reporting=1	\
- 	    --gtod_reduce=1 >> "${logfile}.${test_number}" 2>&1 || return $?
--    check_written $((loops * zone_size)) || return $?
-+    check_written $((loops * capacity)) || return $?
- }
- 
- # Overwrite the first sequential zone four times sequentially.
-@@ -511,15 +536,16 @@ test28() {
-     off=$((first_sequential_zone_sector * 512 + 64 * zone_size))
-     [ -n "$is_zbd" ] && reset_zone "$dev" $((off / 512))
-     opts=("--debug=zbd")
-+    capacity=$(total_zone_capacity 1 $off $dev)
-     for ((i=0;i<jobs;i++)); do
- 	opts+=("--name=job$i" "--filename=$dev" "--offset=$off" "--bs=16K")
--	opts+=("--size=$zone_size" "$(ioengine "psync")" "--rw=randwrite")
-+	opts+=("--size=$zone_size" "--io_size=$capacity" "$(ioengine "psync")" "--rw=randwrite")
- 	opts+=("--thread=1" "--direct=1" "--zonemode=zbd")
- 	opts+=("--zonesize=${zone_size}" "--group_reporting=1")
- 	opts+=(${var_opts[@]})
-     done
-     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
--    check_written $((jobs * zone_size)) || return $?
-+    check_written $((jobs * $capacity)) || return $?
-     check_reset_count -eq $jobs ||
- 	check_reset_count -eq $((jobs - 1)) ||
- 	return $?
-@@ -608,10 +634,13 @@ test32() {
- # zone size.
- test33() {
-     local bs io_size size
-+    local off capacity=0;
- 
-+    off=$((first_sequential_zone_sector * 512))
-+    capacity=$(total_zone_capacity 1 $off $dev)
-     size=$((2 * zone_size))
--    io_size=$((5 * zone_size))
--    bs=$((3 * zone_size / 4))
-+    io_size=$((5 * capacity))
-+    bs=$((3 * capacity / 4))
-     run_fio_on_seq "$(ioengine "psync")" --iodepth=1 --rw=write	\
- 		   --size=$size --io_size=$io_size --bs=$bs	\
- 		   >> "${logfile}.${test_number}" 2>&1 || return $?
-@@ -660,8 +689,9 @@ test36() {
- 
- # Test 3/4 for the I/O boundary rounding code: $size > $zone_size.
- test37() {
--    local bs off size
-+    local bs off size capacity
- 
-+    capacity=$(total_zone_capacity 1 $first_sequential_zone_sector $dev)
-     if [ "$first_sequential_zone_sector" = 0 ]; then
- 	off=0
-     else
-@@ -673,7 +703,7 @@ test37() {
- 		    --iodepth=1 --rw=write --do_verify=1 --verify=md5	\
- 		    --bs=$bs --zonemode=zbd --zonesize="${zone_size}"	\
- 		    >> "${logfile}.${test_number}" 2>&1
--    check_written $((zone_size)) || return $?
-+    check_written $capacity || return $?
- }
- 
- # Test 4/4 for the I/O boundary rounding code: $offset > $disk_size - $zone_size
--- 
-2.26.2
-
+ #ifdef CONFIG_3ARG_AFFINITY
 
