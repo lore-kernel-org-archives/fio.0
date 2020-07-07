@@ -1,117 +1,66 @@
-Return-Path: <krish.reddy@samsung.com>
-Date: Fri, 3 Jul 2020 16:17:48 +0530
-From: Krishna Kanth Reddy <krish.reddy@samsung.com>
-Subject: Re: [PATCH 2/4] libaio: support for Zone Append command
-Message-ID: <20200703104748.GD27933@test-zns>
+Return-Path: <prvs=450fc09ef=shinichiro.kawasaki@wdc.com>
+From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: Re: [PATCH 0/8] zbd: Fix initial zone write pointer of regular block
+ devices
+Date: Tue, 7 Jul 2020 01:00:18 +0000
+Message-ID: <20200707010018.kh3nnkldg23toq6i@shindev.dhcp.fujisawa.hgst.com>
+References: <20200626094331.418309-1-shinichiro.kawasaki@wdc.com>
+ <CY4PR04MB3751C96E54170346CE125BBBE76F0@CY4PR04MB3751.namprd04.prod.outlook.com>
+In-Reply-To: 
+ <CY4PR04MB3751C96E54170346CE125BBBE76F0@CY4PR04MB3751.namprd04.prod.outlook.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <E559B68E85359044B23B2AD5C9D281D2@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-In-Reply-To: <CY4PR04MB3751B98A411CC5C6B29CA442E7930@CY4PR04MB3751.namprd04.prod.outlook.com>
-Content-Type: multipart/mixed;
-	boundary="----HLsVUhwo1NnMf0MkEybe_TfPnfOwGw2mguf7MLxPvWAMWj5A=_c6e51_"
-References: <1593106733-19596-1-git-send-email-krish.reddy@samsung.com>
-	<CGME20200625174129epcas5p304bf58bb381b4b0c39e0ff91b50a23a9@epcas5p3.samsung.com>
-	<1593106733-19596-3-git-send-email-krish.reddy@samsung.com>
-	<CY4PR04MB3751B98A411CC5C6B29CA442E7930@CY4PR04MB3751.namprd04.prod.outlook.com>
 To: Damien Le Moal <Damien.LeMoal@wdc.com>
-Cc: "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Ankit Kumar <ankit.kumar@samsung.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-------HLsVUhwo1NnMf0MkEybe_TfPnfOwGw2mguf7MLxPvWAMWj5A=_c6e51_
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Disposition: inline
+On Jun 30, 2020 / 04:53, Damien Le Moal wrote:
+> On 2020/06/26 18:43, Shin'ichiro Kawasaki wrote:
+> > With zonemode=3Dzbd and regular block devices, fio initializes zone sta=
+tus as
+> > empty. However, write pointers are set not at zone start but at zone en=
+d. This
+> > inconsistency between write pointer position and zone status caused dif=
+ferent
+> > behavior of regular block devices from zoned block devices. This patch =
+series
+> > fixes the inconsistency and the behavior gap.
+> >=20
+> > The 1st patch fixes the zone status initialization code by setting writ=
+e
+> > pointers at zone start. Following patches fixes t/zbd test script to ha=
+ndle
+> > regular block devices and zoned block devices in same manner.
+> >=20
+> > Shin'ichiro Kawasaki (8):
+> >   zbd: Fix initial zone write pointer of regular block devices
+> >   t/zbd: Fix pass condition of test case #3
+> >   t/zbd: Add write_and_run_one_fio_job() helper function
+> >   t/zbd: Combine write and read fio commands for test case #6
+> >   t/zbd: Combine write and read fio commands for test case #15
+> >   t/zbd: Combine write and read fio commands for test case #16
+> >   t/zbd: Remove write before random read/write from test case #17
+> >   t/zbd: Enable regular block devices for test case #47
+> >=20
+> >  t/zbd/test-zbd-support | 78 +++++++++++++++++++++++-------------------
+> >  zbd.c                  |  2 +-
+> >  2 files changed, 44 insertions(+), 36 deletions(-)
+> >=20
+>=20
+> Jens,
+>=20
+> I reviewed this series internally with Shin'ichiro before he posted.
+> So:
+>=20
+> Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
 
-On Fri, Jun 26, 2020 at 05:38:53AM +0000, Damien Le Moal wrote:
->On 2020/06/26 2:41, Krishna Kanth Reddy wrote:
->> From: Ankit Kumar <ankit.kumar@samsung.com>
->>
->> The zone append command uses the write path with offset as
->> start of the zone. Upon successful completion, multiple of
->> sectors relative to the zone's start offset, where the data
->> has been placed is returned.
->>
->> Signed-off-by: Krishna Kanth Reddy <krish.reddy@samsung.com>
->> ---
->>  engines/libaio.c | 20 +++++++++++++++++++-
->>  1 file changed, 19 insertions(+), 1 deletion(-)
->>
->> diff --git a/engines/libaio.c b/engines/libaio.c
->> index 398fdf9..4ffe831 100644
->> --- a/engines/libaio.c
->> +++ b/engines/libaio.c
->> @@ -123,7 +123,13 @@ static int fio_libaio_prep(struct thread_data *td, struct io_u *io_u)
->>  		if (o->nowait)
->>  			iocb->aio_rw_flags |= RWF_NOWAIT;
->>  	} else if (io_u->ddir == DDIR_WRITE) {
->> -		io_prep_pwrite(iocb, f->fd, io_u->xfer_buf, io_u->xfer_buflen, io_u->offset);
->> +		if ((td->o.zone_mode == ZONE_MODE_ZBD) && td->o.zone_append) {
->> +			io_prep_pwrite(iocb, f->fd, io_u->xfer_buf, io_u->xfer_buflen, io_u->zone_start_offset);
->> +		}
->
->No need for the added braces. And see my comment in the previous patch about
->zone_start_offset. You can calculate it from io_u->offset.
->
-Sure, will remove the braces and zone_start_offset. Offset will be
-calculated as per your comments.
+Hi Jens, could you consider to merge this series to the upstream?
+It will make zonemode=3Dzbd implementation less confusing.
 
->> +		else
->> +			io_prep_pwrite(iocb, f->fd, io_u->xfer_buf, io_u->xfer_buflen, io_u->offset);
->> +		if (td->o.zone_append)
->> +			iocb->aio_rw_flags |= RWF_ZONE_APPEND;
->>  		if (o->nowait)
->>  			iocb->aio_rw_flags |= RWF_NOWAIT;
->>  	} else if (ddir_sync(io_u->ddir))
->> @@ -228,6 +234,18 @@ static int fio_libaio_getevents(struct thread_data *td, unsigned int min,
->>  		} else {
->>  			r = io_getevents(ld->aio_ctx, actual_min,
->>  				max, ld->aio_events + events, lt);
->> +			if (td->o.zone_mode == ZONE_MODE_ZBD) {
->> +				struct io_event *ev;
->> +				struct io_u *io_u;
->
->Add a blank line after declarations please.
->
-Sure.
-
->> +				for (unsigned event = 0; event < r; event++) {
->
->Better declare event above instead of here. I know C allows it, but this looks
->like C++ to me :)
->
-Yeah sure :) Will modify this.
-
->> +					ev = ld->aio_events + event;
->> +					io_u = container_of(ev->obj, struct io_u, iocb);
->> +					if (td->o.zone_append
->> +					    && td->o.do_verify && td->o.verify
->> +					    && (io_u->ddir == DDIR_WRITE))
->
->So this is done only if verify is on ? Then why do the loop at all if verify is
->off ? Move the "td->o.zone_append && td->o.do_verify && td->o.verify" condition
->outside the loop.
->
-Yes, right. Will move this outside the loop.
-
->> +						io_u->ipo->offset = io_u->zone_start_offset + (ev->res2 << 9);
->
->same here about start offset.
->
-Ok, sure.
-
->> +				}
->> +			}
->>  		}
->>  		if (r > 0)
->>  			events += r;
->>
->
->
->-- 
->Damien Le Moal
->Western Digital Research
->
-
-------HLsVUhwo1NnMf0MkEybe_TfPnfOwGw2mguf7MLxPvWAMWj5A=_c6e51_
-Content-Type: text/plain; charset="utf-8"
-
-
-------HLsVUhwo1NnMf0MkEybe_TfPnfOwGw2mguf7MLxPvWAMWj5A=_c6e51_--
+--=20
+Best Regards,
+Shin'ichiro Kawasaki=
 
