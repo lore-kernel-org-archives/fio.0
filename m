@@ -1,107 +1,154 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa3.hgst.iphmx.com ([216.71.153.141]:48983 "EHLO
-        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728577AbgGAIaf (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 1 Jul 2020 04:30:35 -0400
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 3/6] t/zbd: Mandate blkzone capacity report for devices with zone capacity
-Date: Wed,  1 Jul 2020 17:30:26 +0900
-Message-Id: <20200701083029.140741-4-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200701083029.140741-1-shinichiro.kawasaki@wdc.com>
-References: <20200701083029.140741-1-shinichiro.kawasaki@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51734 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726599AbgGIMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 9 Jul 2020 08:00:09 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF820C061A0B
+        for <fio@vger.kernel.org>; Thu,  9 Jul 2020 05:00:08 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jtVDh-0005d3-Tl
+        for fio@vger.kernel.org; Thu, 09 Jul 2020 12:00:07 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200709120002.1D9871BC0181@kernel.dk>
+Date: Thu,  9 Jul 2020 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Hans Holmberg <hans.holmberg@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To: fio@vger.kernel.org
 
-For NVMe ZNS and null_blk zoned drives, the zone capacity can be smaller
-than the zone size. To test zone capacity handling by fio for these
-devices, need to know each zone's zone capacity. If the blkzone tool is
-old and does not report zone capacity, t/zbd/test-zbd-support script run
-will fail for the devices.
+The following changes since commit 430083bf2a3db52bcb374919140d3a978391fbf0:
 
-To avoid the failures, make zone capacity report by blkzone mandatory if
-the test target device is a ZNS device or a null_blk device.
+  Merge branch 'windows' of https://github.com/bvanassche/fio (2020-07-04 17:29:32 -0600)
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 5bd526f2a614e75a929906c91a5fa3bab293d319:
+
+  t/io_uring: make bs and polled IO configurable at runtime (2020-07-08 15:48:11 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      t/io_uring: make bs and polled IO configurable at runtime
+
+ t/io_uring.c | 30 +++++++++++++++++++-----------
+ 1 file changed, 19 insertions(+), 11 deletions(-)
+
 ---
- t/zbd/functions        | 45 ++++++++++++++++++++++++++++++++++++++++++
- t/zbd/test-zbd-support |  3 +++
- 2 files changed, 48 insertions(+)
 
-diff --git a/t/zbd/functions b/t/zbd/functions
-index 1bd22ec4..344836c8 100644
---- a/t/zbd/functions
-+++ b/t/zbd/functions
-@@ -19,6 +19,51 @@ if [ -n "${use_libzbc}" ] &&
-     exit 1
- fi
+Diff of recent changes:
+
+diff --git a/t/io_uring.c b/t/io_uring.c
+index d48db1e9..7fa84f99 100644
+--- a/t/io_uring.c
++++ b/t/io_uring.c
+@@ -46,7 +46,6 @@ struct io_cq_ring {
+ #define DEPTH			128
+ #define BATCH_SUBMIT		32
+ #define BATCH_COMPLETE		32
+-
+ #define BS			4096
  
-+blkzone_reports_capacity() {
-+	local dev="${1}"
-+
-+	[[ -n "${blkzone}" ]] &&
-+		"${blkzone}" report -c 1 -o 0 "${dev}" | grep -q 'cap '
-+}
-+
-+# Whether or not $1 (/dev/...) is a NVME ZNS device.
-+is_nvme_zns() {
-+	local s
-+
-+	s=/sys/block/$(basename "${1}")/device/subsystem
-+
-+	if [[ ! -h "${s}" || $(realpath "${s}") != /sys/class/nvme ]]; then
-+		return 1
-+	fi
-+
-+	[[ $(</sys/block/$(basename "${1}")/queue/zoned) == host-managed ]]
-+}
-+
-+# Whether or not $1 (/dev/...) is a null_blk device with zone capacity smaller
-+# than zone size.
-+is_nullb_with_zone_cap() {
-+	local f
-+
-+	f=/sys/kernel/config/nullb/$(basename "${1}")
-+	[[ -r "${f}/zone_capacity" &&
-+		   $(<"${f}/zone_capacity") -lt $(<"${f}/zone_size") ]]
-+}
-+
-+# Check if blkzone is available and suitable for the test target device. If not
-+# available, print error message and return 1. Otherwise return 0.
-+check_blkzone() {
-+	local dev="${1}"
-+
-+	# If the devices supports zone capacity, mandate zone capacity report by
-+	# blkzone.
-+	if is_nvme_zns "${dev}" || is_nullb_with_zone_cap "${dev}" &&
-+				! blkzone_reports_capacity "${dev}"; then
-+		echo "Error: blkzone does not report zone capacity"
-+		echo "Error: install latest util-linux with blkzone"
-+		return 1
-+	fi
-+}
-+
- # Reports the starting sector and length of the first sequential zone of device
- # $1.
- first_sequential_zone() {
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 80dc3f30..f086bd10 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -863,6 +863,9 @@ if [[ -b "$realdev" ]]; then
- 	case "$(<"/sys/class/block/$basename/queue/zoned")" in
- 	host-managed|host-aware)
- 		is_zbd=true
-+		if ! check_blkzone "${dev}"; then
-+			exit 1
-+		fi
- 		if ! result=($(first_sequential_zone "$dev")); then
- 			echo "Failed to determine first sequential zone"
- 			exit 1
--- 
-2.26.2
-
+ #define MAX_FDS			16
+@@ -86,6 +85,7 @@ static volatile int finish;
+ static int depth = DEPTH;
+ static int batch_submit = BATCH_SUBMIT;
+ static int batch_complete = BATCH_COMPLETE;
++static int bs = BS;
+ static int polled = 1;		/* use IO polling */
+ static int fixedbufs = 1;	/* use fixed user buffers */
+ static int register_files = 1;	/* use fixed files */
+@@ -170,7 +170,7 @@ static void init_io(struct submitter *s, unsigned index)
+ 	f->pending_ios++;
+ 
+ 	r = lrand48();
+-	offset = (r % (f->max_blocks - 1)) * BS;
++	offset = (r % (f->max_blocks - 1)) * bs;
+ 
+ 	if (register_files) {
+ 		sqe->flags = IOSQE_FIXED_FILE;
+@@ -182,7 +182,7 @@ static void init_io(struct submitter *s, unsigned index)
+ 	if (fixedbufs) {
+ 		sqe->opcode = IORING_OP_READ_FIXED;
+ 		sqe->addr = (unsigned long) s->iovecs[index].iov_base;
+-		sqe->len = BS;
++		sqe->len = bs;
+ 		sqe->buf_index = index;
+ 	} else {
+ 		sqe->opcode = IORING_OP_READV;
+@@ -233,10 +233,10 @@ static int get_file_size(struct file *f)
+ 		if (ioctl(f->real_fd, BLKGETSIZE64, &bytes) != 0)
+ 			return -1;
+ 
+-		f->max_blocks = bytes / BS;
++		f->max_blocks = bytes / bs;
+ 		return 0;
+ 	} else if (S_ISREG(st.st_mode)) {
+-		f->max_blocks = st.st_size / BS;
++		f->max_blocks = st.st_size / bs;
+ 		return 0;
+ 	}
+ 
+@@ -260,7 +260,7 @@ static int reap_events(struct submitter *s)
+ 		if (!do_nop) {
+ 			f = (struct file *) (uintptr_t) cqe->user_data;
+ 			f->pending_ios--;
+-			if (cqe->res != BS) {
++			if (cqe->res != bs) {
+ 				printf("io: unexpected ret=%d\n", cqe->res);
+ 				if (polled && cqe->res == -EOPNOTSUPP)
+ 					printf("Your filesystem/driver/kernel doesn't support polled IO\n");
+@@ -483,8 +483,10 @@ static void usage(char *argv)
+ 	printf("%s [options] -- [filenames]\n"
+ 		" -d <int> : IO Depth, default %d\n"
+ 		" -s <int> : Batch submit, default %d\n"
+-		" -c <int> : Batch complete, default %d\n",
+-		argv, DEPTH, BATCH_SUBMIT, BATCH_COMPLETE);
++		" -c <int> : Batch complete, default %d\n"
++		" -b <int> : Block size, default %d\n"
++		" -p <bool> : Polled IO, default %d\n",
++		argv, DEPTH, BATCH_SUBMIT, BATCH_COMPLETE, BS, polled);
+ 	exit(0);
+ }
+ 
+@@ -501,7 +503,7 @@ int main(int argc, char *argv[])
+ 		return 1;
+ 	}
+ 
+-	while ((opt = getopt(argc, argv, "d:s:c:h?")) != -1) {
++	while ((opt = getopt(argc, argv, "d:s:c:b:p:h?")) != -1) {
+ 		switch (opt) {
+ 		case 'd':
+ 			depth = atoi(optarg);
+@@ -512,6 +514,12 @@ int main(int argc, char *argv[])
+ 		case 'c':
+ 			batch_complete = atoi(optarg);
+ 			break;
++		case 'b':
++			bs = atoi(optarg);
++			break;
++		case 'p':
++			polled = !!atoi(optarg);
++			break;
+ 		case 'h':
+ 		case '?':
+ 		default:
+@@ -575,12 +583,12 @@ int main(int argc, char *argv[])
+ 	for (i = 0; i < depth; i++) {
+ 		void *buf;
+ 
+-		if (posix_memalign(&buf, BS, BS)) {
++		if (posix_memalign(&buf, bs, bs)) {
+ 			printf("failed alloc\n");
+ 			return 1;
+ 		}
+ 		s->iovecs[i].iov_base = buf;
+-		s->iovecs[i].iov_len = BS;
++		s->iovecs[i].iov_len = bs;
+ 	}
+ 
+ 	err = setup_ring(s);
 
