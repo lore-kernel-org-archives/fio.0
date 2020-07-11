@@ -1,157 +1,78 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49832 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726612AbgGYMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 25 Jul 2020 08:00:09 -0400
-Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E2C1C0619D3
-        for <fio@vger.kernel.org>; Sat, 25 Jul 2020 05:00:08 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jzIqU-0003S8-0P
-        for fio@vger.kernel.org; Sat, 25 Jul 2020 12:00:06 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20200725120002.46CE71BC01BB@kernel.dk>
-Date: Sat, 25 Jul 2020 06:00:02 -0600 (MDT)
+        with ESMTP id S1726958AbgGKICA (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 11 Jul 2020 04:02:00 -0400
+Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5D3EC08C5DD
+        for <fio@vger.kernel.org>; Sat, 11 Jul 2020 01:01:59 -0700 (PDT)
+Received: by mail-wm1-x336.google.com with SMTP id g75so8345981wme.5
+        for <fio@vger.kernel.org>; Sat, 11 Jul 2020 01:01:59 -0700 (PDT)
+MIME-Version: 1.0
+References: <CAAEM5qLD0+9np-kk+_cRep0JQPDgu6F2p8z7HD397sEKzXwjUw@mail.gmail.com>
+In-Reply-To: <CAAEM5qLD0+9np-kk+_cRep0JQPDgu6F2p8z7HD397sEKzXwjUw@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sat, 11 Jul 2020 09:01:32 +0100
+Message-ID: <CALjAwxjM6QEKTxskK3Yvx5_7TWJXfPQEKiyrKohkxxDw8pr09g@mail.gmail.com>
+Subject: Re: Phy Change count increases during IO in SATA drives
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: siha lawrence <sihaj33@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-The following changes since commit 5090d1d0f2a109c276384c93308566b7a3bfa5ad:
+Hi,
 
-  zbd: fix %lu -> %llu dprint() formatting (2020-07-21 09:40:07 -0600)
+On Sat, 11 Jul 2020 at 01:33, siha lawrence <sihaj33@gmail.com> wrote:
+>
+> Below is the workload we have run and we see PHY changes during I/O
+> Does fio abort outstanding commands?
 
-are available in the Git repository at:
+No fio doesn't (I believe there's an outstanding request to add
+functionality to do so - https://github.com/axboe/fio/issues/292 ) but
+something outside of fio might be... I guess you're scribbling over
+the start and end of the disk and it's not impossible you're
+triggering udev rules that try and re-read partitions when areas that
+might contain partition tables are changed. You can try fiddling with
+--offset so you start 10MBytes in and change size to avoid writing the
+very end of the disk to try and narrow something like that... Let us
+know if you find out the cause!
 
-  git://git.kernel.dk/fio.git master
+>
+> Workload:
+> fio --eta=3Dnever --ioengine=3Dlibaio --size=3D100% --ramp_time=3D10
+> --runtime=3D40 --time_based=3D1 --verify_backlog=3D1 --verify_dump=3D1
+> --verify_fatal=3D1 --norandommap --numjobs=3D1 --direct=3D1
+> --random_generator=3Dtausworthe64 --iodepth=3D8 --rw=3Dwrite --bs=3D1M
+> --buffer_pattern=3D0xfffefdfcfbfaf9f8f7f6f5f4f3f2f1f0efeeedecebeae9e8e7e6=
+e5e4e3e2e1e0dfdedddcdbdad9d8d7d6d5d4d3d2d1d0cfcecdcccbcac9c8c7c6c5c4c3c2c1c=
+0bfbebdbcbbbab9b8b7b6b5b4b3b2b1b0afaeadacabaaa9a8a7a6a5a4a3a2a1a09f9e9d9c9b=
+9a999897969594939291908f8e8d8c8b8a898887868584838281807f7e7d7c7b7a797877767=
+574737271706f6e6d6c6b6a696867666564636261605f5e5d5c5b5a59585756555453525150=
+4f4e4d4c4b4a494847464544434241403f3e3d3c3b3a393837363534333231302f2e2d2c2b2=
+a292827262524232221201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a0908070605=
+0403020100
+> --minimal --name=3D/dev/sdp --name=3D/dev/sdq --name=3D/dev/sdr
+> --name=3D/dev/sds --name=3D/dev/sdt --name=3D/dev/sdu --name=3D/dev/sdv
+> --name=3D/dev/sdw --name=3D/dev/sdx --name=3D/dev/sdy --name=3D/dev/sdz
+> --name=3D/dev/sdaa --name=3D/dev/sdaf --name=3D/dev/sdag --name=3D/dev/sd=
+ah
+> --name=3D/dev/sdai --name=3D/dev/sdab --name=3D/dev/sdac --name=3D/dev/sd=
+ad
+> --name=3D/dev/sdae --name=3D/dev/sdaj --name=3D/dev/sdak --name=3D/dev/sd=
+al
+> --name=3D/dev/sdam --name=3D/dev/sdan --name=3D/dev/sdao --name=3D/dev/sd=
+aq
+> --name=3D/dev/sdap --name=3D/dev/sdf --name=3D/dev/sdg --name=3D/dev/sdh
+> --name=3D/dev/sdi --name=3D/dev/sdj --name=3D/dev/sdk --name=3D/dev/sdl
+> --name=3D/dev/sdm --name=3D/dev/sdo --name=3D/dev/sdn --name=3D/dev/sde
+> --name=3D/dev/sdd --name=3D/dev/sdc --name=3D/dev/sdb
+>
+> We do not see this behaviour with SAS drives.
 
-for you to fetch changes up to c355011a2509fdf6caa2a220e1534d61f14c4801:
+Maybe different devices trigger different rules?
 
-  Merge branch 'sribs-patch-1039' of https://github.com/sribs/fio (2020-07-24 11:05:21 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'sribs-patch-1039' of https://github.com/sribs/fio
-
-Shin'ichiro Kawasaki (1):
-      t/zbd: Improve pass condition of test case #49
-
-sribs (2):
-      io_u: fix exit failure case when using rates and timeout
-      stat: stop triggerring division by zero on bandwidth lower than 1KBps
-
- io_u.c                 | 19 +++++++++++++++++++
- stat.c                 | 25 +++++++++++++++----------
- t/zbd/test-zbd-support |  1 +
- 3 files changed, 35 insertions(+), 10 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/io_u.c b/io_u.c
-index 7f50906b..6a729e51 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -680,7 +680,22 @@ static enum fio_ddir rate_ddir(struct thread_data *td, enum fio_ddir ddir)
- 	if (td->o.io_submit_mode == IO_MODE_INLINE)
- 		io_u_quiesce(td);
- 
-+	if (td->o.timeout && ((usec + now) > td->o.timeout)) {
-+		/*
-+		 * check if the usec is capable of taking negative values
-+		 */
-+		if (now > td->o.timeout) {
-+			ddir = DDIR_INVAL;
-+			return ddir;
-+		}
-+		usec = td->o.timeout - now;
-+	}
- 	usec_sleep(td, usec);
-+
-+	now = utime_since_now(&td->epoch);
-+	if ((td->o.timeout && (now > td->o.timeout)) || td->terminate)
-+		ddir = DDIR_INVAL;
-+
- 	return ddir;
- }
- 
-@@ -896,6 +911,10 @@ static int fill_io_u(struct thread_data *td, struct io_u *io_u)
- 
- 	set_rw_ddir(td, io_u);
- 
-+	if (io_u->ddir == DDIR_INVAL) {
-+		dprint(FD_IO, "invalid direction received ddir = %d", io_u->ddir);
-+		return 1;
-+	}
- 	/*
- 	 * fsync() or fdatasync() or trim etc, we are done
- 	 */
-diff --git a/stat.c b/stat.c
-index b3951199..23657cee 100644
---- a/stat.c
-+++ b/stat.c
-@@ -414,6 +414,18 @@ static void display_lat(const char *name, unsigned long long min,
- 	free(maxp);
- }
- 
-+static double convert_agg_kbytes_percent(struct group_run_stats *rs, int ddir, int mean)
-+{
-+	double p_of_agg = 100.0;
-+	if (rs && rs->agg[ddir] > 1024) {
-+		p_of_agg = mean * 100 / (double) (rs->agg[ddir] / 1024.0);
-+
-+		if (p_of_agg > 100.0)
-+			p_of_agg = 100.0;
-+	}
-+	return p_of_agg;
-+}
-+
- static void show_ddir_status(struct group_run_stats *rs, struct thread_stat *ts,
- 			     int ddir, struct buf_output *out)
- {
-@@ -551,11 +563,7 @@ static void show_ddir_status(struct group_run_stats *rs, struct thread_stat *ts,
- 		else
- 			bw_str = "kB";
- 
--		if (rs->agg[ddir]) {
--			p_of_agg = mean * 100 / (double) (rs->agg[ddir] / 1024);
--			if (p_of_agg > 100.0)
--				p_of_agg = 100.0;
--		}
-+		p_of_agg = convert_agg_kbytes_percent(rs, ddir, mean);
- 
- 		if (rs->unit_base == 1) {
- 			min *= 8.0;
-@@ -1376,11 +1384,7 @@ static void add_ddir_status_json(struct thread_stat *ts,
- 	}
- 
- 	if (calc_lat(&ts->bw_stat[ddir], &min, &max, &mean, &dev)) {
--		if (rs->agg[ddir]) {
--			p_of_agg = mean * 100 / (double) (rs->agg[ddir] / 1024);
--			if (p_of_agg > 100.0)
--				p_of_agg = 100.0;
--		}
-+		p_of_agg = convert_agg_kbytes_percent(rs, ddir, mean);
- 	} else {
- 		min = max = 0;
- 		p_of_agg = mean = dev = 0.0;
-@@ -3130,3 +3134,4 @@ uint32_t *io_u_block_info(struct thread_data *td, struct io_u *io_u)
- 	assert(idx < td->ts.nr_block_infos);
- 	return info;
- }
-+
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index e53a20c5..471a3487 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -856,6 +856,7 @@ test49() {
- 		    --zonecapacity=${capacity} \
- 		    --verify=md5  --size=${size} >>"${logfile}.${test_number}" 2>&1 ||
- 	return $?
-+    check_written $((capacity * 2)) || return $?
-     check_read $((capacity * 2)) || return $?
- }
- 
+--=20
+Sitsofe | http://sucs.org/~sits/
 
