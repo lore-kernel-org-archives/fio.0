@@ -1,8 +1,8 @@
 Return-Path: <prvs=4589743b3=shinichiro.kawasaki@wdc.com>
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 4/8] t/zbd: Combine write and read fio commands for test case #6
-Date: Wed, 15 Jul 2020 13:13:18 +0900
-Message-Id: <20200715041322.114929-5-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 6/8] t/zbd: Combine write and read fio commands for test case #16
+Date: Wed, 15 Jul 2020 13:13:20 +0900
+Message-Id: <20200715041322.114929-7-shinichiro.kawasaki@wdc.com>
 In-Reply-To: <20200715041322.114929-1-shinichiro.kawasaki@wdc.com>
 References: <20200715041322.114929-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
@@ -11,45 +11,48 @@ To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-The test case #6 checks result of the read job which reads data written
-by the write job of test case #5. It does not work if test case #6 is
-executed alone with the -t option and the target device has all zones
-empty.
+The test case #16 checks result of read job which runs after write job of
+test case #15. It does not work if test case #16 is executed alone with
+the -t option and the target device has all zones empty.
 
-Specify both the write job and the read job to a single fio command
-using write_and_run_one_fio_job() helper function instead of
-run_fio_on_seq() helper function.
+Specify both the write job and the read job to a single fio command using
+write_and_run_one_fio_job() helper function instead of run_one_fio_job().
 
 Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- t/zbd/test-zbd-support | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ t/zbd/test-zbd-support | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
 diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 55363357..eccb5178 100755
+index cd8492ff..a3ecec1f 100755
 --- a/t/zbd/test-zbd-support
 +++ b/t/zbd/test-zbd-support
-@@ -215,14 +215,18 @@ test5() {
-     check_read $size || return $?
+@@ -369,15 +369,25 @@ test15() {
+     check_read $((size / 2))
  }
  
--# Sequential read from sequential zones. Must be run after test5.
-+# Sequential read from sequential zones.
- test6() {
-     local size
+-# Random read on a mix of empty and full zones. Must be run after test15.
++# Random read on a mix of empty and full zones.
+ test16() {
+     local off size
++    local i w_off w_size
  
++    for ((i=0;i<4;i++)); do
++	[ -n "$is_zbd" ] &&
++	    reset_zone "$dev" $((first_sequential_zone_sector +
++				 i*sectors_per_zone))
++    done
++    w_off=$(((first_sequential_zone_sector + 2 * sectors_per_zone) * 512))
++    w_size=$((2 * zone_size))
+     off=$((first_sequential_zone_sector * 512))
      size=$((4 * zone_size))
--    run_fio_on_seq "$(ioengine "psync")" --iodepth=1 --rw=read	\
--		   --bs="$(max $((zone_size / 64)) "$logical_block_size")"\
--		   >>"${logfile}.${test_number}" 2>&1 || return $?
-+    write_and_run_one_fio_job \
-+	    $((first_sequential_zone_sector * 512)) "${size}" \
-+	    --offset=$((first_sequential_zone_sector * 512)) \
-+	    --size="${size}" --zonemode=zbd --zonesize="${zone_size}" \
-+	    "$(ioengine "psync")" --iodepth=1 --rw=read \
-+	    --bs="$(max $((zone_size / 64)) "$logical_block_size")" \
-+	    >>"${logfile}.${test_number}" 2>&1 || return $?
+-    run_one_fio_job "$(ioengine "libaio")" --iodepth=64 --rw=randread --bs=16K \
++    write_and_run_one_fio_job "${w_off}" "${w_size}" \
++		    "$(ioengine "libaio")" --iodepth=64 --rw=randread --bs=16K \
+ 		    --zonemode=zbd --zonesize="${zone_size}" --offset=$off \
+ 		    --size=$size >>"${logfile}.${test_number}" 2>&1 || return $?
++    check_written $w_size || return $?
      check_read $size || return $?
  }
  
