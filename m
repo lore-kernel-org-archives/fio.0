@@ -1,74 +1,47 @@
-Return-Path: <prvs=460e8bdd2=shinichiro.kawasaki@wdc.com>
+Return-Path: <prvs=4589743b3=shinichiro.kawasaki@wdc.com>
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v3 5/6] t/zbd: Support testing zone capacity smaller than zone size with null_blk
-Date: Fri, 17 Jul 2020 18:36:36 +0900
-Message-Id: <20200717093637.139565-6-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200717093637.139565-1-shinichiro.kawasaki@wdc.com>
-References: <20200717093637.139565-1-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 2/8] t/zbd: Fix pass condition of test case #3
+Date: Wed, 15 Jul 2020 13:13:16 +0900
+Message-Id: <20200715041322.114929-3-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200715041322.114929-1-shinichiro.kawasaki@wdc.com>
+References: <20200715041322.114929-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Hans Holmberg <hans.holmberg@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-To test zone capacity support by fio using null_blk, add -zone-cap option
-to run-tests-against-zoned-nullb. With this option, the script creates a
-null_blk device which has zone capacity smaller than zone size and run
-test-zbd-support script for the device.
+The test case #3 checks that the read workload for empty zones ends
+without reading any data. When zonemode=zbd, it is expected for both
+regular block devices and zoned block devices. However, the test case
+allowed for regular block devices to read data from empty zones. Remove
+this special pass condition for regular block devices.
 
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- t/zbd/run-tests-against-zoned-nullb | 30 ++++++++++++++++++++++++++---
- 1 file changed, 27 insertions(+), 3 deletions(-)
+ t/zbd/test-zbd-support | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/t/zbd/run-tests-against-zoned-nullb b/t/zbd/run-tests-against-zoned-nullb
-index 53aee3e8..f9c9530c 100755
---- a/t/zbd/run-tests-against-zoned-nullb
-+++ b/t/zbd/run-tests-against-zoned-nullb
-@@ -6,6 +6,21 @@
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 4001be3b..1178afd4 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -170,13 +170,7 @@ test3() {
+ 	opts+=("--zonesize=${zone_size}")
+     fi
+     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
+-    grep -q 'READ:' "${logfile}.${test_number}"
+-    rc=$?
+-    if [ -n "$is_zbd" ]; then
+-	[ $rc != 0 ]
+-    else
+-	[ $rc = 0 ]
+-    fi
++    ! grep -q 'READ:' "${logfile}.${test_number}"
+ }
  
- scriptdir="$(cd "$(dirname "$0")" && pwd)"
- 
-+zone_size=1
-+zone_capacity=1
-+if [[ ${1} == "-h" ]]; then
-+    echo "Usage: ${0} [OPTIONS]"
-+    echo "Options:"
-+    echo -e "\t-h Show this message."
-+    echo -e "\t-zone-cap Use null blk with zone capacity less than zone size."
-+    echo -e "\tany option supported by test-zbd-support script."
-+    exit 1
-+elif [[ ${1} == "-zone-cap" ]]; then
-+    zone_size=4
-+    zone_capacity=3
-+    shift
-+fi
-+
- for d in /sys/kernel/config/nullb/*; do [ -d "$d" ] && rmdir "$d"; done
- modprobe -r null_blk
- modprobe null_blk nr_devices=0 || exit $?
-@@ -17,9 +32,18 @@ modprobe -r null_blk
- modprobe null_blk nr_devices=0 &&
-     cd /sys/kernel/config/nullb &&
-     mkdir nullb0 &&
--    cd nullb0 &&
--    echo 1 > zoned &&
--    echo 1 > zone_size &&
-+    cd nullb0 || exit $?
-+
-+if ((zone_capacity < zone_size)); then
-+    if [[ ! -w zone_capacity ]]; then
-+        echo "null blk does not support zone capacity"
-+        exit 1
-+    fi
-+    echo "${zone_capacity}" > zone_capacity
-+fi
-+
-+echo 1 > zoned &&
-+    echo "${zone_size}" > zone_size &&
-     echo 0 > completion_nsec &&
-     echo 4096 > blocksize &&
-     echo 1024 > size &&
+ # Run fio with --read_beyond_wp=1 against an empty zone.
 -- 
 2.26.2
 
