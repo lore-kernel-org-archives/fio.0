@@ -1,96 +1,62 @@
-Return-Path: <krish.reddy@samsung.com>
-From: Krishna Kanth Reddy <krish.reddy@samsung.com>
-Subject: [PATCH 2/3] libaio: support for Zone Append command
-Date: Tue, 28 Jul 2020 18:06:54 +0530
-Message-Id: <20200728123655.30780-3-krish.reddy@samsung.com>
-In-Reply-To: <20200728123655.30780-1-krish.reddy@samsung.com>
-Content-Type: text/plain; charset="utf-8"
-References: <20200728123655.30780-1-krish.reddy@samsung.com>
-	<CGME20200728124026epcas5p131c8548df5b07dcdfa8e3bccbcc88f3d@epcas5p1.samsung.com>
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, Ankit Kumar <ankit.kumar@samsung.com>, Krishna Kanth Reddy <krish.reddy@samsung.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56554 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725852AbgGOMAH (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 15 Jul 2020 08:00:07 -0400
+Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62BC1C061755
+        for <fio@vger.kernel.org>; Wed, 15 Jul 2020 05:00:07 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jvg4z-000535-4W
+        for fio@vger.kernel.org; Wed, 15 Jul 2020 12:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200715120002.0779D1BC019B@kernel.dk>
+Date: Wed, 15 Jul 2020 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Ankit Kumar <ankit.kumar@samsung.com>
+The following changes since commit 255f09d6d266c3e73abb9776ae481bb4d79caf00:
 
-The zone append command uses the write path with offset as
-start of the zone, when ZBD zone mode is enabled.
-Upon successful completion, offset  of the location where
-the data has been placed is returned in res2 field of the
-io event. If data verification is enabled, the offset returned
-is used for read and verify.
+  Merge branch 'io_uring-opt' of https://github.com/antonblanchard/fio (2020-07-13 08:01:52 -0600)
 
-Signed-off-by: Krishna Kanth Reddy <krish.reddy@samsung.com>
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 37e8cc62319b30927a3147e25b16c3e00b84692f:
+
+  Merge branch 'fix_devdax' of https://github.com/harish-24/fio (2020-07-14 10:10:23 -0600)
+
+----------------------------------------------------------------
+Harish (1):
+      Fix: dev-dax engine building with make
+
+Jens Axboe (1):
+      Merge branch 'fix_devdax' of https://github.com/harish-24/fio
+
+ Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
 ---
- engines/libaio.c | 32 ++++++++++++++++++++++++++++----
- 1 file changed, 28 insertions(+), 4 deletions(-)
 
-diff --git a/engines/libaio.c b/engines/libaio.c
-index b909b79e..5c10f69d 100644
---- a/engines/libaio.c
-+++ b/engines/libaio.c
-@@ -12,6 +12,7 @@
- #include <sys/resource.h>
- 
- #include "../fio.h"
-+#include "../zbd.h"
- #include "../lib/pow2.h"
- #include "../optgroup.h"
- #include "../lib/memalign.h"
-@@ -123,7 +124,14 @@ static int fio_libaio_prep(struct thread_data *td, struct io_u *io_u)
- 		if (o->nowait)
- 			iocb->aio_rw_flags |= RWF_NOWAIT;
- 	} else if (io_u->ddir == DDIR_WRITE) {
--		io_prep_pwrite(iocb, f->fd, io_u->xfer_buf, io_u->xfer_buflen, io_u->offset);
-+		if ((td->o.zone_mode == ZONE_MODE_ZBD) && td->o.zone_append && f->zbd_info->model != ZBD_NONE) {
-+			unsigned long long zone_start_offset = io_u->offset & ~(f->zbd_info->zone_size - 1);
-+			io_prep_pwrite(iocb, f->fd, io_u->xfer_buf, io_u->xfer_buflen, zone_start_offset);
-+		}
-+		else
-+			io_prep_pwrite(iocb, f->fd, io_u->xfer_buf, io_u->xfer_buflen, io_u->offset);
-+		if (td->o.zone_append)
-+			iocb->aio_rw_flags |= RWF_APPEND;
- 		if (o->nowait)
- 			iocb->aio_rw_flags |= RWF_NOWAIT;
- 	} else if (ddir_sync(io_u->ddir))
-@@ -229,9 +237,25 @@ static int fio_libaio_getevents(struct thread_data *td, unsigned int min,
- 			r = io_getevents(ld->aio_ctx, actual_min,
- 				max, ld->aio_events + events, lt);
- 		}
--		if (r > 0)
-+		if (r > 0) {
-+			if ((td->o.zone_mode == ZONE_MODE_ZBD) && td->o.zone_append
-+			    && td->o.do_verify && td->o.verify) {
-+				struct io_event *ev;
-+				struct io_u *io_u;
-+				struct fio_file *f;
-+				unsigned event;
-+
-+				for (event = 0; event < r; event++) {
-+					ev = ld->aio_events + event;
-+					io_u = container_of(ev->obj, struct io_u, iocb);
-+					f = io_u->file;
-+					if ((io_u->ddir == DDIR_WRITE)
-+					    && (f->zbd_info->model != ZBD_NONE))
-+						io_u->ipo->offset = ev->res2;
-+				}
-+			}
- 			events += r;
--		else if ((min && r == 0) || r == -EAGAIN) {
-+		} else if ((min && r == 0) || r == -EAGAIN) {
- 			fio_libaio_commit(td);
- 			if (actual_min)
- 				usleep(10);
-@@ -448,7 +472,7 @@ static int fio_libaio_init(struct thread_data *td)
- FIO_STATIC struct ioengine_ops ioengine = {
- 	.name			= "libaio",
- 	.version		= FIO_IOOPS_VERSION,
--	.flags			= FIO_ASYNCIO_SYNC_TRIM,
-+	.flags			= FIO_ASYNCIO_SYNC_TRIM | FIO_ZONE_APPEND,
- 	.init			= fio_libaio_init,
- 	.post_init		= fio_libaio_post_init,
- 	.prep			= fio_libaio_prep,
--- 
-2.17.1
+Diff of recent changes:
 
+diff --git a/Makefile b/Makefile
+index 8f8d9b9a..f374ac84 100644
+--- a/Makefile
++++ b/Makefile
+@@ -173,8 +173,8 @@ ifdef CONFIG_PMEMBLK
+   ENGINES += pmemblk
+ endif
+ ifdef CONFIG_LINUX_DEVDAX
+-  devdax_SRCS = engines/dev-dax.c
+-  devdax_LIBS = -lpmem
++  dev-dax_SRCS = engines/dev-dax.c
++  dev-dax_LIBS = -lpmem
+   ENGINES += dev-dax
+ endif
+ ifdef CONFIG_LIBPMEM
 
