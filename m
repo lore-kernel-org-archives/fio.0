@@ -1,143 +1,75 @@
-Return-Path: <krish.reddy@samsung.com>
-From: Krishna Kanth Reddy <krish.reddy@samsung.com>
-Subject: [PATCH 1/3] Add Zone Append command support
-Date: Tue, 28 Jul 2020 18:06:53 +0530
-Message-Id: <20200728123655.30780-2-krish.reddy@samsung.com>
-In-Reply-To: <20200728123655.30780-1-krish.reddy@samsung.com>
-Content-Type: text/plain; charset="utf-8"
-References: <20200728123655.30780-1-krish.reddy@samsung.com>
-	<CGME20200728124022epcas5p1787dd4ab5af2ac0793858afe600d67a2@epcas5p1.samsung.com>
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, Ankit Kumar <ankit.kumar@samsung.com>, Krishna Kanth Reddy <krish.reddy@samsung.com>
+Return-Path: <prvs=4589743b3=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 5/8] t/zbd: Combine write and read fio commands for test case #15
+Date: Wed, 15 Jul 2020 13:13:19 +0900
+Message-Id: <20200715041322.114929-6-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200715041322.114929-1-shinichiro.kawasaki@wdc.com>
+References: <20200715041322.114929-1-shinichiro.kawasaki@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Ankit Kumar <ankit.kumar@samsung.com>
+The test case #15 called fio twice. Once with write job to prepare data
+to read. The other with read job for testing. But the first run has no
+effect on the second run when the zone status is reinitialized.
 
-Added a new FIO option zone_append. In ZBD zone mode,
-when zone_append option is enabled, the existing write path will
-send Zone Append command with offset as start of the Zone.
-Added a new io engine flag FIO_ZONE_APPEND that can be used
-in engine declaration to indicate that it supports zone append.
+Specify both the write job and the read job to a single fio command using
+write_and_run_one_fio_job() helper function instead of run_one_fio_job().
 
-Signed-off-by: Krishna Kanth Reddy <krish.reddy@samsung.com>
+Also apply same test pass condition for both regular block devices and
+zoned block devices.
+
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- HOWTO            |  7 +++++++
- fio.1            |  7 +++++++
- ioengines.c      |  6 ++++++
- ioengines.h      |  3 ++-
- options.c        | 10 ++++++++++
- thread_options.h |  2 ++
- 6 files changed, 34 insertions(+), 1 deletion(-)
+ t/zbd/test-zbd-support | 20 +++++++-------------
+ 1 file changed, 7 insertions(+), 13 deletions(-)
 
-diff --git a/HOWTO b/HOWTO
-index 35ead0cb..a46b9da0 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1022,6 +1022,13 @@ Target file/device
- 	:option:`zonesize` bytes of data have been transferred. This parameter
- 	must be zero for :option:`zonemode` =zbd.
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index eccb5178..cd8492ff 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -349,30 +349,24 @@ test14() {
+ # Sequential read on a mix of empty and full zones.
+ test15() {
+     local i off size
++    local w_off w_size
  
-+.. option:: zone_append=bool
-+
-+	For :option:`rw` =write or :option: `rw` =randwrite and
-+	:option:`zonemode` =zbd, if zone_append is enabled the offset to write
-+	will be the starting offset of a zone. On successful completion the device
-+	returns the offset where the data has been placed.
-+
- .. option:: read_beyond_wp=bool
- 
- 	This parameter applies to :option:`zonemode` =zbd only.
-diff --git a/fio.1 b/fio.1
-index a3d348b2..00122808 100644
---- a/fio.1
-+++ b/fio.1
-@@ -790,6 +790,13 @@ zone have been read (read workloads). This parameter is valid only for
- sequential workloads and ignored for random workloads. For read workloads,
- see also \fBread_beyond_wp\fR.
- 
-+.TP
-+.BI zone_append
-+For :option:`rw` =write or :option: `rw` =randwrite and for
-+:option:`zonemode` =zbd, if zone_append is enabled the offset to write will be
-+the starting offset of a zone. On successful completion the device returns the
-+offset where the data has been placed.
-+
- .TP
- .BI read_beyond_wp \fR=\fPbool
- This parameter applies to \fBzonemode=zbd\fR only.
-diff --git a/ioengines.c b/ioengines.c
-index 1c5970a4..288306a2 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -448,6 +448,12 @@ int td_io_init(struct thread_data *td)
- 			td->error = ret;
- 	}
- 
-+	if (td->o.zone_append && !td_ioengine_flagged(td, FIO_ZONE_APPEND)) {
-+		log_err("fio: io engine %s doesn't support zone append\n",
-+			td->io_ops->name);
-+		return 1;
-+	}
-+
- 	return ret;
+     for ((i=0;i<4;i++)); do
+ 	[ -n "$is_zbd" ] &&
+ 	    reset_zone "$dev" $((first_sequential_zone_sector +
+ 				 i*sectors_per_zone))
+     done
+-    off=$(((first_sequential_zone_sector + 2 * sectors_per_zone) * 512))
+-    size=$((2 * zone_size))
+-    run_one_fio_job "$(ioengine "psync")" --rw=write --bs=$((zone_size / 16))\
+-		    --zonemode=zbd --zonesize="${zone_size}" --offset=$off \
+-		    --size=$size >>"${logfile}.${test_number}" 2>&1 ||
+-	return $?
+-    check_written $size || return $?
++    w_off=$(((first_sequential_zone_sector + 2 * sectors_per_zone) * 512))
++    w_size=$((2 * zone_size))
+     off=$((first_sequential_zone_sector * 512))
+     size=$((4 * zone_size))
+-    run_one_fio_job "$(ioengine "psync")" --rw=read --bs=$((zone_size / 16)) \
++    write_and_run_one_fio_job "${w_off}" "${w_size}" \
++		    "$(ioengine "psync")" --rw=read --bs=$((zone_size / 16)) \
+ 		    --zonemode=zbd --zonesize="${zone_size}" --offset=$off \
+ 		    --size=$((size)) >>"${logfile}.${test_number}" 2>&1 ||
+ 	return $?
+-    if [ -n "$is_zbd" ]; then
+-	check_read $((size / 2))
+-    else
+-	check_read $size
+-    fi
++    check_written $((w_size)) || return $?
++    check_read $((size / 2))
  }
  
-diff --git a/ioengines.h b/ioengines.h
-index 54dadba2..5ba6b7f2 100644
---- a/ioengines.h
-+++ b/ioengines.h
-@@ -77,7 +77,8 @@ enum fio_ioengine_flags {
- 	FIO_NOSTATS	= 1 << 12,	/* don't do IO stats */
- 	FIO_NOFILEHASH	= 1 << 13,	/* doesn't hash the files for lookup later. */
- 	FIO_ASYNCIO_SYNC_TRIM
--			= 1 << 14	/* io engine has async ->queue except for trim */
-+			= 1 << 14,	/* io engine has async ->queue except for trim */
-+	FIO_ZONE_APPEND = 1 << 15	/* engine supports zone append */
- };
- 
- /*
-diff --git a/options.c b/options.c
-index 251ad2c1..0c9cd910 100644
---- a/options.c
-+++ b/options.c
-@@ -3316,6 +3316,16 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 			   },
- 		},
- 	},
-+	{
-+		.name	= "zone_append",
-+		.lname	= "zone_append",
-+		.type	= FIO_OPT_BOOL,
-+		.off1	= offsetof(struct thread_options, zone_append),
-+		.help	= "Use zone append for writing zones of a zoned block device",
-+		.def	= "0",
-+		.category = FIO_OPT_C_IO,
-+		.group	= FIO_OPT_G_ZONE,
-+	},
- 	{
- 		.name	= "zonesize",
- 		.lname	= "Zone size",
-diff --git a/thread_options.h b/thread_options.h
-index 3fe48ecc..b03b35a7 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -196,6 +196,7 @@ struct thread_options {
- 	unsigned long long zone_capacity;
- 	unsigned long long zone_skip;
- 	enum fio_zone_mode zone_mode;
-+	unsigned int zone_append;
- 	unsigned long long lockmem;
- 	enum fio_memtype mem_type;
- 	unsigned int mem_align;
-@@ -633,6 +634,7 @@ struct thread_options_pack {
- 	uint32_t allow_mounted_write;
- 
- 	uint32_t zone_mode;
-+	uint32_t zone_append;
- } __attribute__((packed));
- 
- extern void convert_thread_options_to_cpu(struct thread_options *o, struct thread_options_pack *top);
+ # Random read on a mix of empty and full zones. Must be run after test15.
 -- 
-2.17.1
+2.26.2
 
 
