@@ -1,101 +1,94 @@
-Return-Path: <prvs=460a6953b=Damien.LeMoal@wdc.com>
-From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa2.hgst.iphmx.com ([68.232.143.124]:2859 "EHLO
+        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726166AbgGQG7x (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 17 Jul 2020 02:59:53 -0400
+From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 Subject: Re: [PATCH v2 4/6] t/zbd: Support testing zone capacity smaller than
  zone size
-Date: Fri, 17 Jul 2020 07:01:45 +0000
-Message-ID: 
- <CY4PR04MB37512EA5DC06813C7D91E2B5E77C0@CY4PR04MB3751.namprd04.prod.outlook.com>
+Date: Fri, 17 Jul 2020 06:59:49 +0000
+Message-ID: <20200717065948.lycsnwsvu6rtlfaj@shindev.dhcp.fujisawa.hgst.com>
 References: <20200715064141.116415-1-shinichiro.kawasaki@wdc.com>
  <20200715064141.116415-5-shinichiro.kawasaki@wdc.com>
  <CY4PR04MB3751443B7CD688F5691C2280E77C0@CY4PR04MB3751.namprd04.prod.outlook.com>
- <20200717065948.lycsnwsvu6rtlfaj@shindev.dhcp.fujisawa.hgst.com>
+In-Reply-To: <CY4PR04MB3751443B7CD688F5691C2280E77C0@CY4PR04MB3751.namprd04.prod.outlook.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
+Content-ID: <5EC1F791265D464083B78590CF4BD81B@namprd04.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Damien Le Moal <Damien.LeMoal@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>, Hans Holmberg <Hans.Holmberg@wdc.com>, Aravind Ramesh <Aravind.Ramesh@wdc.com>
-List-ID: <fio@vger.kernel.org>
 
-On 2020/07/17 15:59, Shinichiro Kawasaki wrote:=0A=
-> On Jul 17, 2020 / 02:01, Damien Le Moal wrote:=0A=
->> On 2020/07/15 15:41, Shin'ichiro Kawasaki wrote:=0A=
->>> From: Hans Holmberg <hans.holmberg@wdc.com>=0A=
->>>=0A=
->>> Add support for testing zoned block devices where zone capacity is less=
-=0A=
->>> than zone size. If the test case runs sequential workloads or workloads=
-=0A=
->>> with verify, use zone capacity instead of zone size to complete.=0A=
->>>=0A=
->>> To use zone capacity of the test target zones, introduce a helper=0A=
->>> function total_zone_capacity() which sums up zone capacity numbers of t=
-he=0A=
->>> test target zones.=0A=
->>>=0A=
->>> Signed-off-by: Hans Holmberg <hans.holmberg@wdc.com>=0A=
->>> Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>=0A=
->>> ---=0A=
->>>  t/zbd/functions        |  37 +++++++++++++++=0A=
->>>  t/zbd/test-zbd-support | 100 ++++++++++++++++++++++++++---------------=
-=0A=
->>>  2 files changed, 102 insertions(+), 35 deletions(-)=0A=
->>>=0A=
->>> diff --git a/t/zbd/functions b/t/zbd/functions=0A=
->>> index 344836c8..82d64f5c 100644=0A=
->>> --- a/t/zbd/functions=0A=
->>> +++ b/t/zbd/functions=0A=
->>> @@ -84,6 +84,43 @@ first_sequential_zone() {=0A=
->>>      fi=0A=
->>>  }=0A=
->>>  =0A=
->>> +# Reports the summed zone capacity of $1 number of zones starting from=
- offset $2=0A=
->>> +# on device $3.=0A=
->>> +total_zone_capacity() {=0A=
->>> +	local nr_zones=3D$1=0A=
->>> +	local sector=3D$(($2 / 512))=0A=
->>> +	local dev=3D$3=0A=
->>> +	local capacity=3D0 num=0A=
->>> +	local grep_str=0A=
->>> +=0A=
->>> +	if [ -z "$is_zbd" ]; then=0A=
->>> +		# For regular block devices, handle zone size as zone capacity.=0A=
->>> +		echo $((zone_size * nr_zones))=0A=
->>> +		return=0A=
->>> +	fi=0A=
->>> +=0A=
->>> +	if [ -n "${blkzone}" ] && [ ! -n "${use_libzbc}" ]; then=0A=
->>> +		if blkzone_reports_capacity "${dev}"; then=0A=
->>> +			grep_str=3D'cap \K[0-9a-zA-Z]*'=0A=
->>> +		else=0A=
->>> +			# If zone capacity is not reported, refer zone length.=0A=
->>> +			grep_str=3D'len \K[0-9a-zA-Z]*'=0A=
->>> +		fi=0A=
->>> +		while read num; do=0A=
->>> +			capacity=3D$((capacity + num))=0A=
->>> +		done < <(${blkzone} report -c "$nr_zones" -o "$sector" "$dev" |=0A=
->>> +				grep -Po "${grep_str}")=0A=
->>=0A=
->> Why the space in "< <" ? Why not "<<" ?=0A=
-> =0A=
-> "<()" is the bash syntax "process substitution". To separate it from redi=
-rect, a=0A=
-> space is required between "<" and "<()".=0A=
-=0A=
-Ah. Yes. I missed that... For some reason, I assumed that the loop input ne=
-eded=0A=
-"<<" :)=0A=
-=0A=
-=0A=
-> =0A=
-> Other than this, I will reflect all of your comments to v3. Thank you for=
- the=0A=
-> valuable comments.=0A=
-> =0A=
-=0A=
-=0A=
--- =0A=
-Damien Le Moal=0A=
-Western Digital Research=0A=
+On Jul 17, 2020 / 02:01, Damien Le Moal wrote:
+> On 2020/07/15 15:41, Shin'ichiro Kawasaki wrote:
+> > From: Hans Holmberg <hans.holmberg@wdc.com>
+> >=20
+> > Add support for testing zoned block devices where zone capacity is less
+> > than zone size. If the test case runs sequential workloads or workloads
+> > with verify, use zone capacity instead of zone size to complete.
+> >=20
+> > To use zone capacity of the test target zones, introduce a helper
+> > function total_zone_capacity() which sums up zone capacity numbers of t=
+he
+> > test target zones.
+> >=20
+> > Signed-off-by: Hans Holmberg <hans.holmberg@wdc.com>
+> > Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+> > ---
+> >  t/zbd/functions        |  37 +++++++++++++++
+> >  t/zbd/test-zbd-support | 100 ++++++++++++++++++++++++++---------------
+> >  2 files changed, 102 insertions(+), 35 deletions(-)
+> >=20
+> > diff --git a/t/zbd/functions b/t/zbd/functions
+> > index 344836c8..82d64f5c 100644
+> > --- a/t/zbd/functions
+> > +++ b/t/zbd/functions
+> > @@ -84,6 +84,43 @@ first_sequential_zone() {
+> >      fi
+> >  }
+> > =20
+> > +# Reports the summed zone capacity of $1 number of zones starting from=
+ offset $2
+> > +# on device $3.
+> > +total_zone_capacity() {
+> > +	local nr_zones=3D$1
+> > +	local sector=3D$(($2 / 512))
+> > +	local dev=3D$3
+> > +	local capacity=3D0 num
+> > +	local grep_str
+> > +
+> > +	if [ -z "$is_zbd" ]; then
+> > +		# For regular block devices, handle zone size as zone capacity.
+> > +		echo $((zone_size * nr_zones))
+> > +		return
+> > +	fi
+> > +
+> > +	if [ -n "${blkzone}" ] && [ ! -n "${use_libzbc}" ]; then
+> > +		if blkzone_reports_capacity "${dev}"; then
+> > +			grep_str=3D'cap \K[0-9a-zA-Z]*'
+> > +		else
+> > +			# If zone capacity is not reported, refer zone length.
+> > +			grep_str=3D'len \K[0-9a-zA-Z]*'
+> > +		fi
+> > +		while read num; do
+> > +			capacity=3D$((capacity + num))
+> > +		done < <(${blkzone} report -c "$nr_zones" -o "$sector" "$dev" |
+> > +				grep -Po "${grep_str}")
+>=20
+> Why the space in "< <" ? Why not "<<" ?
+
+"<()" is the bash syntax "process substitution". To separate it from redire=
+ct, a
+space is required between "<" and "<()".
+
+Other than this, I will reflect all of your comments to v3. Thank you for t=
+he
+valuable comments.
+
+--=20
+Best Regards,
+Shin'ichiro Kawasaki=
 
