@@ -1,249 +1,212 @@
-Return-Path: <prvs=464b1537e=Damien.LeMoal@wdc.com>
-From: Damien Le Moal <Damien.LeMoal@wdc.com>
-Subject: Re: [PATCH v3 2/6] options: Add zonecapacity option for zonemode=zbd
-Date: Tue, 21 Jul 2020 09:52:38 +0000
-Message-ID: 
- <CY4PR04MB3751E6106C4BC7CDDA7B1BEEE7780@CY4PR04MB3751.namprd04.prod.outlook.com>
+Return-Path: <prvs=460e8bdd2=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v3 2/6] options: Add zonecapacity option for zonemode=zbd
+Date: Fri, 17 Jul 2020 18:36:33 +0900
+Message-Id: <20200717093637.139565-3-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200717093637.139565-1-shinichiro.kawasaki@wdc.com>
 References: <20200717093637.139565-1-shinichiro.kawasaki@wdc.com>
- <20200717093637.139565-3-shinichiro.kawasaki@wdc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
-Cc: Hans Holmberg <Hans.Holmberg@wdc.com>, Aravind Ramesh <Aravind.Ramesh@wdc.com>
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Hans Holmberg <hans.holmberg@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On 2020/07/17 18:36, Shin'ichiro Kawasaki wrote:=0A=
-> From: Hans Holmberg <hans.holmberg@wdc.com>=0A=
-> =0A=
-> To test zone capacity handling by fio using regular block devices, add=0A=
-> zonecapacity option for zonemode=3Dzbd. This new option allows specifying=
- a=0A=
-> zone capacity smaller than the zone size. Similarly to the zonesize=0A=
-> option, the zonecapacity defined value applies to all emulated zones of=
-=0A=
-> the device.=0A=
-> =0A=
-> Signed-off-by: Hans Holmberg <hans.holmberg@wdc.com>=0A=
-> Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>=0A=
-> ---=0A=
->  HOWTO            | 18 +++++++++++++++---=0A=
->  cconv.c          |  2 ++=0A=
->  fio.1            | 13 +++++++++++--=0A=
->  options.c        | 11 +++++++++++=0A=
->  thread_options.h |  2 ++=0A=
->  zbd.c            | 13 ++++++++++++-=0A=
->  6 files changed, 53 insertions(+), 6 deletions(-)=0A=
-> =0A=
-> diff --git a/HOWTO b/HOWTO=0A=
-> index 8cf8d650..35ead0cb 100644=0A=
-> --- a/HOWTO=0A=
-> +++ b/HOWTO=0A=
-> @@ -970,14 +970,15 @@ Target file/device=0A=
->  	Accepted values are:=0A=
->  =0A=
->  		**none**=0A=
-> -				The :option:`zonerange`, :option:`zonesize` and=0A=
-> -				:option:`zoneskip` parameters are ignored.=0A=
-> +				The :option:`zonerange`, :option:`zonesize`,=0A=
-> +				:option `zonecapacity` and option:`zoneskip`=0A=
-> +				parameters are ignored.=0A=
->  		**strided**=0A=
->  				I/O happens in a single zone until=0A=
->  				:option:`zonesize` bytes have been transferred.=0A=
->  				After that number of bytes has been=0A=
->  				transferred processing of the next zone=0A=
-> -				starts.=0A=
-> +				starts. :option `zonecapacity` is ignored.=0A=
->  		**zbd**=0A=
->  				Zoned block device mode. I/O happens=0A=
->  				sequentially in each zone, even if random I/O=0A=
-> @@ -1004,6 +1005,17 @@ Target file/device=0A=
->  	For :option:`zonemode` =3Dzbd, this is the size of a single zone. The=
-=0A=
->  	:option:`zonerange` parameter is ignored in this mode.=0A=
->  =0A=
-> +=0A=
-> +.. option:: zonecapacity=3Dint=0A=
-> +=0A=
-> +	For :option:`zonemode` =3Dzbd, this defines the capacity of a single zo=
-ne,=0A=
-> +	which is the accessible area starting from the zone start address.=0A=
-> +	This parameter only applies when using :option:`zonemode` =3Dzbd in=0A=
-> +	combination with regular block devices. If not specified it defaults to=
-=0A=
-> +	the zone size. If the target device is a zoned block device, the zone=
-=0A=
-> +	capacity is obtained from the device information and this option is=0A=
-> +	ignored.=0A=
-> +=0A=
->  .. option:: zoneskip=3Dint=0A=
->  =0A=
->  	For :option:`zonemode` =3Dstrided, the number of bytes to skip after=0A=
-> diff --git a/cconv.c b/cconv.c=0A=
-> index 449bcf7b..2469389b 100644=0A=
-> --- a/cconv.c=0A=
-> +++ b/cconv.c=0A=
-> @@ -223,6 +223,7 @@ void convert_thread_options_to_cpu(struct thread_opti=
-ons *o,=0A=
->  	o->ss_limit.u.f =3D fio_uint64_to_double(le64_to_cpu(top->ss_limit.u.i)=
-);=0A=
->  	o->zone_range =3D le64_to_cpu(top->zone_range);=0A=
->  	o->zone_size =3D le64_to_cpu(top->zone_size);=0A=
-> +	o->zone_capacity =3D le64_to_cpu(top->zone_capacity);=0A=
->  	o->zone_skip =3D le64_to_cpu(top->zone_skip);=0A=
->  	o->zone_mode =3D le32_to_cpu(top->zone_mode);=0A=
->  	o->lockmem =3D le64_to_cpu(top->lockmem);=0A=
-> @@ -563,6 +564,7 @@ void convert_thread_options_to_net(struct thread_opti=
-ons_pack *top,=0A=
->  	top->ss_limit.u.i =3D __cpu_to_le64(fio_double_to_uint64(o->ss_limit.u.=
-f));=0A=
->  	top->zone_range =3D __cpu_to_le64(o->zone_range);=0A=
->  	top->zone_size =3D __cpu_to_le64(o->zone_size);=0A=
-> +	top->zone_capacity =3D __cpu_to_le64(o->zone_capacity);=0A=
->  	top->zone_skip =3D __cpu_to_le64(o->zone_skip);=0A=
->  	top->zone_mode =3D __cpu_to_le32(o->zone_mode);=0A=
->  	top->lockmem =3D __cpu_to_le64(o->lockmem);=0A=
-> diff --git a/fio.1 b/fio.1=0A=
-> index f134e0bf..a3d348b2 100644=0A=
-> --- a/fio.1=0A=
-> +++ b/fio.1=0A=
-> @@ -738,12 +738,13 @@ Accepted values are:=0A=
->  .RS=0A=
->  .TP=0A=
->  .B none=0A=
-> -The \fBzonerange\fR, \fBzonesize\fR and \fBzoneskip\fR parameters are ig=
-nored.=0A=
-> +The \fBzonerange\fR, \fBzonesize\fR \fBzonecapacity\fR and \fBzoneskip\f=
-R=0A=
-> +parameters are ignored.=0A=
->  .TP=0A=
->  .B strided=0A=
->  I/O happens in a single zone until \fBzonesize\fR bytes have been transf=
-erred.=0A=
->  After that number of bytes has been transferred processing of the next z=
-one=0A=
-> -starts.=0A=
-> +starts. The \fBzonecapacity\fR parameter is ignored.=0A=
->  .TP=0A=
->  .B zbd=0A=
->  Zoned block device mode. I/O happens sequentially in each zone, even if =
-random=0A=
-> @@ -771,6 +772,14 @@ zoned block device, the specified \fBzonesize\fR mus=
-t be 0 or equal to the=0A=
->  device zone size. For a regular block device or file, the specified=0A=
->  \fBzonesize\fR must be at least 512B.=0A=
->  .TP=0A=
-> +.BI zonecapacity \fR=3D\fPint=0A=
-> +For \fBzonemode\fR=3Dzbd, this defines the capacity of a single zone, wh=
-ich is=0A=
-> +the accessible area starting from the zone start address. This parameter=
- only=0A=
-> +applies when using \fBzonemode\fR=3Dzbd in combination with regular bloc=
-k devices.=0A=
-> +If not specified it defaults to the zone size. If the target device is a=
- zoned=0A=
-> +block device, the zone capacity is obtained from the device information =
-and this=0A=
-> +option is ignored.=0A=
-> +.TP=0A=
->  .BI zoneskip \fR=3D\fPint=0A=
->  For \fBzonemode\fR=3Dstrided, the number of bytes to skip after \fBzones=
-ize\fR=0A=
->  bytes of data have been transferred.=0A=
-> diff --git a/options.c b/options.c=0A=
-> index 85a0f490..251ad2c1 100644=0A=
-> --- a/options.c=0A=
-> +++ b/options.c=0A=
-> @@ -3327,6 +3327,17 @@ struct fio_option fio_options[FIO_MAX_OPTS] =3D {=
-=0A=
->  		.category =3D FIO_OPT_C_IO,=0A=
->  		.group	=3D FIO_OPT_G_ZONE,=0A=
->  	},=0A=
-> +	{=0A=
-> +		.name	=3D "zonecapacity",=0A=
-> +		.lname	=3D "Zone capacity",=0A=
-> +		.type	=3D FIO_OPT_STR_VAL,=0A=
-> +		.off1	=3D offsetof(struct thread_options, zone_capacity),=0A=
-> +		.help	=3D "Capacity per zone",=0A=
-> +		.def	=3D "0",=0A=
-> +		.interval =3D 1024 * 1024,=0A=
-> +		.category =3D FIO_OPT_C_IO,=0A=
-> +		.group	=3D FIO_OPT_G_ZONE,=0A=
-> +	},=0A=
->  	{=0A=
->  		.name	=3D "zonerange",=0A=
->  		.lname	=3D "Zone range",=0A=
-> diff --git a/thread_options.h b/thread_options.h=0A=
-> index 968ea0ab..3fe48ecc 100644=0A=
-> --- a/thread_options.h=0A=
-> +++ b/thread_options.h=0A=
-> @@ -193,6 +193,7 @@ struct thread_options {=0A=
->  	unsigned int loops;=0A=
->  	unsigned long long zone_range;=0A=
->  	unsigned long long zone_size;=0A=
-> +	unsigned long long zone_capacity;=0A=
->  	unsigned long long zone_skip;=0A=
->  	enum fio_zone_mode zone_mode;=0A=
->  	unsigned long long lockmem;=0A=
-> @@ -487,6 +488,7 @@ struct thread_options_pack {=0A=
->  	uint32_t loops;=0A=
->  	uint64_t zone_range;=0A=
->  	uint64_t zone_size;=0A=
-> +	uint64_t zone_capacity;=0A=
->  	uint64_t zone_skip;=0A=
->  	uint64_t lockmem;=0A=
->  	uint32_t mem_type;=0A=
-> diff --git a/zbd.c b/zbd.c=0A=
-> index c738a58b..85478aa5 100644=0A=
-> --- a/zbd.c=0A=
-> +++ b/zbd.c=0A=
-> @@ -371,6 +371,7 @@ static int init_zone_info(struct thread_data *td, str=
-uct fio_file *f)=0A=
->  	uint32_t nr_zones;=0A=
->  	struct fio_zone_info *p;=0A=
->  	uint64_t zone_size =3D td->o.zone_size;=0A=
-> +	uint64_t zone_capacity =3D td->o.zone_capacity;=0A=
->  	struct zoned_block_device_info *zbd_info =3D NULL;=0A=
->  	int i;=0A=
->  =0A=
-> @@ -386,6 +387,16 @@ static int init_zone_info(struct thread_data *td, st=
-ruct fio_file *f)=0A=
->  		return 1;=0A=
->  	}=0A=
->  =0A=
-> +	if (zone_capacity =3D=3D 0)=0A=
-> +		zone_capacity =3D zone_size;=0A=
-> +=0A=
-> +	if (zone_capacity > zone_size) {=0A=
-> +		log_err("%s: job parameter zonecapacity %llu is larger than zone size =
-%llu\n",=0A=
-> +			f->file_name, (unsigned long long) td->o.zone_capacity,=0A=
-> +			(unsigned long long) td->o.zone_size);=0A=
-> +		return 1;=0A=
-> +	}=0A=
-> +=0A=
->  	nr_zones =3D (f->real_file_size + zone_size - 1) / zone_size;=0A=
->  	zbd_info =3D scalloc(1, sizeof(*zbd_info) +=0A=
->  			   (nr_zones + 1) * sizeof(zbd_info->zone_info[0]));=0A=
-> @@ -402,7 +413,7 @@ static int init_zone_info(struct thread_data *td, str=
-uct fio_file *f)=0A=
->  		p->wp =3D p->start;=0A=
->  		p->type =3D ZBD_ZONE_TYPE_SWR;=0A=
->  		p->cond =3D ZBD_ZONE_COND_EMPTY;=0A=
-> -		p->capacity =3D zone_size;=0A=
-> +		p->capacity =3D zone_capacity;=0A=
->  	}=0A=
->  	/* a sentinel */=0A=
->  	p->start =3D nr_zones * zone_size;=0A=
-> =0A=
-=0A=
-Looks good to me.=0A=
-=0A=
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
-=0A=
--- =0A=
-Damien Le Moal=0A=
-Western Digital Research=0A=
+From: Hans Holmberg <hans.holmberg@wdc.com>
+
+To test zone capacity handling by fio using regular block devices, add
+zonecapacity option for zonemode=zbd. This new option allows specifying a
+zone capacity smaller than the zone size. Similarly to the zonesize
+option, the zonecapacity defined value applies to all emulated zones of
+the device.
+
+Signed-off-by: Hans Holmberg <hans.holmberg@wdc.com>
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ HOWTO            | 18 +++++++++++++++---
+ cconv.c          |  2 ++
+ fio.1            | 13 +++++++++++--
+ options.c        | 11 +++++++++++
+ thread_options.h |  2 ++
+ zbd.c            | 13 ++++++++++++-
+ 6 files changed, 53 insertions(+), 6 deletions(-)
+
+diff --git a/HOWTO b/HOWTO
+index 8cf8d650..35ead0cb 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -970,14 +970,15 @@ Target file/device
+ 	Accepted values are:
+ 
+ 		**none**
+-				The :option:`zonerange`, :option:`zonesize` and
+-				:option:`zoneskip` parameters are ignored.
++				The :option:`zonerange`, :option:`zonesize`,
++				:option `zonecapacity` and option:`zoneskip`
++				parameters are ignored.
+ 		**strided**
+ 				I/O happens in a single zone until
+ 				:option:`zonesize` bytes have been transferred.
+ 				After that number of bytes has been
+ 				transferred processing of the next zone
+-				starts.
++				starts. :option `zonecapacity` is ignored.
+ 		**zbd**
+ 				Zoned block device mode. I/O happens
+ 				sequentially in each zone, even if random I/O
+@@ -1004,6 +1005,17 @@ Target file/device
+ 	For :option:`zonemode` =zbd, this is the size of a single zone. The
+ 	:option:`zonerange` parameter is ignored in this mode.
+ 
++
++.. option:: zonecapacity=int
++
++	For :option:`zonemode` =zbd, this defines the capacity of a single zone,
++	which is the accessible area starting from the zone start address.
++	This parameter only applies when using :option:`zonemode` =zbd in
++	combination with regular block devices. If not specified it defaults to
++	the zone size. If the target device is a zoned block device, the zone
++	capacity is obtained from the device information and this option is
++	ignored.
++
+ .. option:: zoneskip=int
+ 
+ 	For :option:`zonemode` =strided, the number of bytes to skip after
+diff --git a/cconv.c b/cconv.c
+index 449bcf7b..2469389b 100644
+--- a/cconv.c
++++ b/cconv.c
+@@ -223,6 +223,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
+ 	o->ss_limit.u.f = fio_uint64_to_double(le64_to_cpu(top->ss_limit.u.i));
+ 	o->zone_range = le64_to_cpu(top->zone_range);
+ 	o->zone_size = le64_to_cpu(top->zone_size);
++	o->zone_capacity = le64_to_cpu(top->zone_capacity);
+ 	o->zone_skip = le64_to_cpu(top->zone_skip);
+ 	o->zone_mode = le32_to_cpu(top->zone_mode);
+ 	o->lockmem = le64_to_cpu(top->lockmem);
+@@ -563,6 +564,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
+ 	top->ss_limit.u.i = __cpu_to_le64(fio_double_to_uint64(o->ss_limit.u.f));
+ 	top->zone_range = __cpu_to_le64(o->zone_range);
+ 	top->zone_size = __cpu_to_le64(o->zone_size);
++	top->zone_capacity = __cpu_to_le64(o->zone_capacity);
+ 	top->zone_skip = __cpu_to_le64(o->zone_skip);
+ 	top->zone_mode = __cpu_to_le32(o->zone_mode);
+ 	top->lockmem = __cpu_to_le64(o->lockmem);
+diff --git a/fio.1 b/fio.1
+index f134e0bf..a3d348b2 100644
+--- a/fio.1
++++ b/fio.1
+@@ -738,12 +738,13 @@ Accepted values are:
+ .RS
+ .TP
+ .B none
+-The \fBzonerange\fR, \fBzonesize\fR and \fBzoneskip\fR parameters are ignored.
++The \fBzonerange\fR, \fBzonesize\fR \fBzonecapacity\fR and \fBzoneskip\fR
++parameters are ignored.
+ .TP
+ .B strided
+ I/O happens in a single zone until \fBzonesize\fR bytes have been transferred.
+ After that number of bytes has been transferred processing of the next zone
+-starts.
++starts. The \fBzonecapacity\fR parameter is ignored.
+ .TP
+ .B zbd
+ Zoned block device mode. I/O happens sequentially in each zone, even if random
+@@ -771,6 +772,14 @@ zoned block device, the specified \fBzonesize\fR must be 0 or equal to the
+ device zone size. For a regular block device or file, the specified
+ \fBzonesize\fR must be at least 512B.
+ .TP
++.BI zonecapacity \fR=\fPint
++For \fBzonemode\fR=zbd, this defines the capacity of a single zone, which is
++the accessible area starting from the zone start address. This parameter only
++applies when using \fBzonemode\fR=zbd in combination with regular block devices.
++If not specified it defaults to the zone size. If the target device is a zoned
++block device, the zone capacity is obtained from the device information and this
++option is ignored.
++.TP
+ .BI zoneskip \fR=\fPint
+ For \fBzonemode\fR=strided, the number of bytes to skip after \fBzonesize\fR
+ bytes of data have been transferred.
+diff --git a/options.c b/options.c
+index 85a0f490..251ad2c1 100644
+--- a/options.c
++++ b/options.c
+@@ -3327,6 +3327,17 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.category = FIO_OPT_C_IO,
+ 		.group	= FIO_OPT_G_ZONE,
+ 	},
++	{
++		.name	= "zonecapacity",
++		.lname	= "Zone capacity",
++		.type	= FIO_OPT_STR_VAL,
++		.off1	= offsetof(struct thread_options, zone_capacity),
++		.help	= "Capacity per zone",
++		.def	= "0",
++		.interval = 1024 * 1024,
++		.category = FIO_OPT_C_IO,
++		.group	= FIO_OPT_G_ZONE,
++	},
+ 	{
+ 		.name	= "zonerange",
+ 		.lname	= "Zone range",
+diff --git a/thread_options.h b/thread_options.h
+index 968ea0ab..3fe48ecc 100644
+--- a/thread_options.h
++++ b/thread_options.h
+@@ -193,6 +193,7 @@ struct thread_options {
+ 	unsigned int loops;
+ 	unsigned long long zone_range;
+ 	unsigned long long zone_size;
++	unsigned long long zone_capacity;
+ 	unsigned long long zone_skip;
+ 	enum fio_zone_mode zone_mode;
+ 	unsigned long long lockmem;
+@@ -487,6 +488,7 @@ struct thread_options_pack {
+ 	uint32_t loops;
+ 	uint64_t zone_range;
+ 	uint64_t zone_size;
++	uint64_t zone_capacity;
+ 	uint64_t zone_skip;
+ 	uint64_t lockmem;
+ 	uint32_t mem_type;
+diff --git a/zbd.c b/zbd.c
+index c738a58b..85478aa5 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -371,6 +371,7 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
+ 	uint32_t nr_zones;
+ 	struct fio_zone_info *p;
+ 	uint64_t zone_size = td->o.zone_size;
++	uint64_t zone_capacity = td->o.zone_capacity;
+ 	struct zoned_block_device_info *zbd_info = NULL;
+ 	int i;
+ 
+@@ -386,6 +387,16 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
+ 		return 1;
+ 	}
+ 
++	if (zone_capacity == 0)
++		zone_capacity = zone_size;
++
++	if (zone_capacity > zone_size) {
++		log_err("%s: job parameter zonecapacity %llu is larger than zone size %llu\n",
++			f->file_name, (unsigned long long) td->o.zone_capacity,
++			(unsigned long long) td->o.zone_size);
++		return 1;
++	}
++
+ 	nr_zones = (f->real_file_size + zone_size - 1) / zone_size;
+ 	zbd_info = scalloc(1, sizeof(*zbd_info) +
+ 			   (nr_zones + 1) * sizeof(zbd_info->zone_info[0]));
+@@ -402,7 +413,7 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
+ 		p->wp = p->start;
+ 		p->type = ZBD_ZONE_TYPE_SWR;
+ 		p->cond = ZBD_ZONE_COND_EMPTY;
+-		p->capacity = zone_size;
++		p->capacity = zone_capacity;
+ 	}
+ 	/* a sentinel */
+ 	p->start = nr_zones * zone_size;
+-- 
+2.26.2
+
 
