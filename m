@@ -1,101 +1,65 @@
-Return-Path: <prvs=460e8bdd2=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v3 3/6] t/zbd: Mandate blkzone capacity report for devices with zone capacity
-Date: Fri, 17 Jul 2020 18:36:34 +0900
-Message-Id: <20200717093637.139565-4-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200717093637.139565-1-shinichiro.kawasaki@wdc.com>
-References: <20200717093637.139565-1-shinichiro.kawasaki@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Hans Holmberg <hans.holmberg@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38326 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725836AbgGSMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 19 Jul 2020 08:00:09 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13F88C0619D2
+        for <fio@vger.kernel.org>; Sun, 19 Jul 2020 05:00:09 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jx7zC-0005Bk-Us
+        for fio@vger.kernel.org; Sun, 19 Jul 2020 12:00:07 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200719120001.84AA01BC018E@kernel.dk>
+Date: Sun, 19 Jul 2020 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-For NVMe ZNS and null_blk zoned drives, a zone capacity can be smaller
-than its size. To test zone capacity handling by fio for these devices,
-t/zbd/test-zbd-support must be able to discover zone capacities to avoid
-test failures.
+The following changes since commit e04241512bb69f1fe8ff6eed9402343af436ba75:
 
-To avoid the failures, make zone capacity report by blkzone mandatory if
-the test target device is a ZNS device or a null_blk device.
+  t/zbd: Enable regular block devices for test case #47 (2020-07-17 07:32:12 -0600)
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to fa443634fbfa38fd5d6418a96a45022c78b90df4:
+
+  Merge branch 'patch-1' of https://github.com/avlasov-mos-de/fio (2020-07-18 08:39:04 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'patch-1' of https://github.com/avlasov-mos-de/fio
+
+avlasov-mos-de (1):
+      Fix scale on gnuplot graphs
+
+ tools/fio_generate_plots | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
 ---
- t/zbd/functions        | 45 ++++++++++++++++++++++++++++++++++++++++++
- t/zbd/test-zbd-support |  3 +++
- 2 files changed, 48 insertions(+)
 
-diff --git a/t/zbd/functions b/t/zbd/functions
-index 1bd22ec4..14366e15 100644
---- a/t/zbd/functions
-+++ b/t/zbd/functions
-@@ -19,6 +19,51 @@ if [ -n "${use_libzbc}" ] &&
-     exit 1
- fi
+Diff of recent changes:
+
+diff --git a/tools/fio_generate_plots b/tools/fio_generate_plots
+index 8872206e..e4558788 100755
+--- a/tools/fio_generate_plots
++++ b/tools/fio_generate_plots
+@@ -123,10 +123,10 @@ plot () {
+ # plot <sub title> <file name tag> <y axis label> <y axis scale>
+ #
  
-+blkzone_reports_capacity() {
-+	local dev="${1}"
-+
-+	[[ -n "${blkzone}" ]] &&
-+		"${blkzone}" report -c 1 -o 0 "${dev}" | grep -q 'cap '
-+}
-+
-+# Whether or not $1 (/dev/...) is a NVME ZNS device.
-+is_nvme_zns() {
-+	local s
-+
-+	s=/sys/block/$(basename "${1}")/device/subsystem
-+
-+	if [[ ! -h "${s}" || $(realpath "${s}") != /sys/class/nvme ]]; then
-+		return 1
-+	fi
-+
-+	[[ $(</sys/block/$(basename "${1}")/queue/zoned) == host-managed ]]
-+}
-+
-+# Whether or not $1 (/dev/...) is a null_blk device with zone capacity smaller
-+# than zone size.
-+is_nullb_with_zone_cap() {
-+	local f
-+
-+	f=/sys/kernel/config/nullb/$(basename "${1}")
-+	[[ -r "${f}/zone_capacity" &&
-+		   $(<"${f}/zone_capacity") -lt $(<"${f}/zone_size") ]]
-+}
-+
-+# Check if blkzone is available and suitable for the test target device. If not
-+# available, print error message and return 1. Otherwise return 0.
-+check_blkzone() {
-+	local dev="${1}"
-+
-+	# If the device supports zone capacity, mandate zone capacity report by
-+	# blkzone.
-+	if (is_nvme_zns "${dev}" || is_nullb_with_zone_cap "${dev}") &&
-+				! blkzone_reports_capacity "${dev}"; then
-+		echo "Error: blkzone does not report zone capacity"
-+		echo "Error: install latest util-linux with blkzone"
-+		return 1
-+	fi
-+}
-+
- # Reports the starting sector and length of the first sequential zone of device
- # $1.
- first_sequential_zone() {
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 80dc3f30..f086bd10 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -863,6 +863,9 @@ if [[ -b "$realdev" ]]; then
- 	case "$(<"/sys/class/block/$basename/queue/zoned")" in
- 	host-managed|host-aware)
- 		is_zbd=true
-+		if ! check_blkzone "${dev}"; then
-+			exit 1
-+		fi
- 		if ! result=($(first_sequential_zone "$dev")); then
- 			echo "Failed to determine first sequential zone"
- 			exit 1
--- 
-2.26.2
-
+-plot "I/O Latency" lat "Time (msec)" 1000
++plot "I/O Latency" lat "Time (msec)" 1000000
+ plot "I/O Operations Per Second" iops "IOPS" 1
+-plot "I/O Submission Latency" slat "Time (��sec)" 1
+-plot "I/O Completion Latency" clat "Time (msec)" 1000
++plot "I/O Submission Latency" slat "Time (��sec)" 1000
++plot "I/O Completion Latency" clat "Time (msec)" 1000000
+ plot "I/O Bandwidth" bw "Throughput (KB/s)" 1
+ 
+ 
 
