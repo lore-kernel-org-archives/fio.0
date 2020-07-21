@@ -1,450 +1,405 @@
-Return-Path: <krish.reddy@samsung.com>
-Date: Fri, 3 Jul 2020 22:20:42 +0530
-From: Krishna Kanth Reddy <krish.reddy@samsung.com>
-Subject: Re: [PATCH 1/4] Add Zone Append command support for NVMe Zoned
- Namespaces (ZNS)
-Message-ID: <20200703165042.GA2391@test-zns>
+Return-Path: <prvs=464b1537e=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH v3 4/6] t/zbd: Support testing zone capacity smaller than
+ zone size
+Date: Tue, 21 Jul 2020 09:56:27 +0000
+Message-ID: 
+ <CY4PR04MB375193D51E89948FD62A46FEE7780@CY4PR04MB3751.namprd04.prod.outlook.com>
+References: <20200717093637.139565-1-shinichiro.kawasaki@wdc.com>
+ <20200717093637.139565-5-shinichiro.kawasaki@wdc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-In-Reply-To: <CY4PR04MB375191A36EF1B39B8257DC28E7930@CY4PR04MB3751.namprd04.prod.outlook.com>
-Content-Type: multipart/mixed;
-	boundary="----nai8lIH9ngBNHun9R6qswQcIIemhXBCkNXu5CagZqSM5j8ea=_c89d4_"
-References: <1593106733-19596-1-git-send-email-krish.reddy@samsung.com>
-	<CGME20200625174124epcas5p18e4fbc502c9cf1fef7e84ba5cefba945@epcas5p1.samsung.com>
-	<1593106733-19596-2-git-send-email-krish.reddy@samsung.com>
-	<CY4PR04MB375191A36EF1B39B8257DC28E7930@CY4PR04MB3751.namprd04.prod.outlook.com>
-To: Damien Le Moal <Damien.LeMoal@wdc.com>
-Cc: "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Ankit Kumar <ankit.kumar@samsung.com>
+To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+Cc: Hans Holmberg <Hans.Holmberg@wdc.com>, Aravind Ramesh <Aravind.Ramesh@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-------nai8lIH9ngBNHun9R6qswQcIIemhXBCkNXu5CagZqSM5j8ea=_c89d4_
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Disposition: inline
-
-On Fri, Jun 26, 2020 at 05:50:10AM +0000, Damien Le Moal wrote:
->On 2020/06/26 2:41, Krishna Kanth Reddy wrote:
->> From: Ankit Kumar <ankit.kumar@samsung.com>
->>
->> defined in NVM Express TP4053. Added a new FIO option zone_append.
->> When zone_append option is enabled, the existing write path will
->> send Zone Append command with offset as start of the Zone.
->>
->> Signed-off-by: Krishna Kanth Reddy <krish.reddy@samsung.com>
->> ---
->>  HOWTO            |  7 +++++
->>  fio.1            |  7 +++++
->>  io_u.c           |  4 +--
->>  io_u.h           | 10 +++++--
->>  ioengines.c      |  4 +--
->>  options.c        | 10 +++++++
->>  thread_options.h |  2 ++
->>  zbd.c            | 90 ++++++++++++++++++++++++++++++++++++++++++++++++++++----
->>  zbd.h            | 13 +++++---
->>  9 files changed, 131 insertions(+), 16 deletions(-)
->>
->> diff --git a/HOWTO b/HOWTO
->> index 8cf8d65..62b5ac8 100644
->> --- a/HOWTO
->> +++ b/HOWTO
->> @@ -1010,6 +1010,13 @@ Target file/device
->>  	:option:`zonesize` bytes of data have been transferred. This parameter
->>  	must be zero for :option:`zonemode` =zbd.
->>
->> +.. option:: zone_append=bool
->> +
->> +	For :option:`zonemode` =zbd and for :option:`rw` =write or :option:
->> +	`rw` =randwrite, if zone_append is enabled, the the io_u points to the
->> +	starting offset of a zone. On successful completion the multiple of
->> +	sectors relative to the zone's starting offset is returned.
->> +
->>  .. option:: read_beyond_wp=bool
->>
->>  	This parameter applies to :option:`zonemode` =zbd only.
->> diff --git a/fio.1 b/fio.1
->> index f134e0b..09add8f 100644
->> --- a/fio.1
->> +++ b/fio.1
->> @@ -782,6 +782,13 @@ sequential workloads and ignored for random workloads. For read workloads,
->>  see also \fBread_beyond_wp\fR.
->>
->>  .TP
->> +.BI zone_append
->> +For \fBzonemode\fR =zbd and for \fBrw\fR=write or \fBrw\fR=randwrite, if
->> +zone_append is enabled, the io_u points to the starting offset of a zone. On
->> +successful completion the multiple of sectors relative to the zone's starting
->> +offset is returned.
->> +
->> +.TP
->>  .BI read_beyond_wp \fR=\fPbool
->>  This parameter applies to \fBzonemode=zbd\fR only.
->>
->> diff --git a/io_u.c b/io_u.c
->> index 7f50906..b891a9b 100644
->> --- a/io_u.c
->> +++ b/io_u.c
->> @@ -778,7 +778,7 @@ void put_io_u(struct thread_data *td, struct io_u *io_u)
->>  {
->>  	const bool needs_lock = td_async_processing(td);
->>
->> -	zbd_put_io_u(io_u);
->> +	zbd_put_io_u(td, io_u);
->>
->>  	if (td->parent)
->>  		td = td->parent;
->> @@ -1342,7 +1342,7 @@ static long set_io_u_file(struct thread_data *td, struct io_u *io_u)
->>  		if (!fill_io_u(td, io_u))
->>  			break;
->>
->> -		zbd_put_io_u(io_u);
->> +		zbd_put_io_u(td, io_u);
->>
->>  		put_file_log(td, f);
->>  		td_io_close_file(td, f);
->> diff --git a/io_u.h b/io_u.h
->> index 87c2920..f5b24fd 100644
->> --- a/io_u.h
->> +++ b/io_u.h
->> @@ -94,19 +94,25 @@ struct io_u {
->>  	};
->>
->>  	/*
->> +	 * for zone append this is the start offset of the zone.
->> +	 */
->> +	unsigned long long zone_start_offset;
->> +
->> +	/*
->>  	 * ZBD mode zbd_queue_io callback: called after engine->queue operation
->>  	 * to advance a zone write pointer and eventually unlock the I/O zone.
->>  	 * @q indicates the I/O queue status (busy, queued or completed).
->>  	 * @success == true means that the I/O operation has been queued or
->>  	 * completed successfully.
->>  	 */
->> -	void (*zbd_queue_io)(struct io_u *, int q, bool success);
->> +	void (*zbd_queue_io)(struct thread_data *, struct io_u *, int q,
->> +			     bool success);
->>
->>  	/*
->>  	 * ZBD mode zbd_put_io callback: called in after completion of an I/O
->>  	 * or commit of an async I/O to unlock the I/O target zone.
->>  	 */
->> -	void (*zbd_put_io)(const struct io_u *);
->> +	void (*zbd_put_io)(struct thread_data *, const struct io_u *);
->>
->>  	/*
->>  	 * Callback for io completion
->> diff --git a/ioengines.c b/ioengines.c
->> index 2c7a0df..81ac846 100644
->> --- a/ioengines.c
->> +++ b/ioengines.c
->> @@ -328,7 +328,7 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
->>  	}
->>
->>  	ret = td->io_ops->queue(td, io_u);
->> -	zbd_queue_io_u(io_u, ret);
->> +	zbd_queue_io_u(td, io_u, ret);
->>
->>  	unlock_file(td, io_u->file);
->>
->> @@ -370,7 +370,7 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
->>  	if (!td->io_ops->commit) {
->>  		io_u_mark_submit(td, 1);
->>  		io_u_mark_complete(td, 1);
->> -		zbd_put_io_u(io_u);
->> +		zbd_put_io_u(td, io_u);
->>  	}
->>
->>  	if (ret == FIO_Q_COMPLETED) {
->> diff --git a/options.c b/options.c
->> index 85a0f49..d54da81 100644
->> --- a/options.c
->> +++ b/options.c
->> @@ -3317,6 +3317,16 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
->>  		},
->>  	},
->>  	{
->> +		.name	= "zone_append",
->> +		.lname	= "zone_append",
->> +		.type	= FIO_OPT_BOOL,
->> +		.off1	= offsetof(struct thread_options, zone_append),
->> +		.help	= "Use Zone Append for Zone block device",
->> +		.def	= "0",
->> +		.category = FIO_OPT_C_IO,
->> +		.group	= FIO_OPT_G_ZONE,
->> +	},
->> +	{
->>  		.name	= "zonesize",
->>  		.lname	= "Zone size",
->>  		.type	= FIO_OPT_STR_VAL,
->> diff --git a/thread_options.h b/thread_options.h
->> index 968ea0a..45c5ef8 100644
->> --- a/thread_options.h
->> +++ b/thread_options.h
->> @@ -195,6 +195,7 @@ struct thread_options {
->>  	unsigned long long zone_size;
->>  	unsigned long long zone_skip;
->>  	enum fio_zone_mode zone_mode;
->> +	unsigned int zone_append;
->>  	unsigned long long lockmem;
->>  	enum fio_memtype mem_type;
->>  	unsigned int mem_align;
->> @@ -631,6 +632,7 @@ struct thread_options_pack {
->>  	uint32_t allow_mounted_write;
->>
->>  	uint32_t zone_mode;
->> +	uint32_t zone_append;
->>  } __attribute__((packed));
->>
->>  extern void convert_thread_options_to_cpu(struct thread_options *o, struct thread_options_pack *top);
->> diff --git a/zbd.c b/zbd.c
->> index 8cf8f81..ffdb766 100644
->> --- a/zbd.c
->> +++ b/zbd.c
->> @@ -455,6 +455,7 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
->>  		for (i = 0; i < nrz; i++, j++, z++, p++) {
->>  			mutex_init_pshared_with_type(&p->mutex,
->>  						     PTHREAD_MUTEX_RECURSIVE);
->> +			cond_init_pshared(&p->reset_cond);
->>  			p->start = z->start;
->>  			switch (z->cond) {
->>  			case ZBD_ZONE_COND_NOT_WP:
->> @@ -469,6 +470,7 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
->>  			}
->>  			p->type = z->type;
->>  			p->cond = z->cond;
->> +			p->pending_ios = 0;
->>  			if (j > 0 && p->start != p[-1].start + zone_size) {
->>  				log_info("%s: invalid zone data\n",
->>  					 f->file_name);
->> @@ -1196,20 +1198,24 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
->>
->>  /**
->>   * zbd_queue_io - update the write pointer of a sequential zone
->> + * @td: fio thread data.
->>   * @io_u: I/O unit
->>   * @success: Whether or not the I/O unit has been queued successfully
->>   * @q: queueing status (busy, completed or queued).
->>   *
->>   * For write and trim operations, update the write pointer of the I/O unit
->>   * target zone.
->> + * For zone append operation, release the zone mutex
->>   */
->> -static void zbd_queue_io(struct io_u *io_u, int q, bool success)
->> +static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int q,
->> +			 bool success)
->>  {
->>  	const struct fio_file *f = io_u->file;
->>  	struct zoned_block_device_info *zbd_info = f->zbd_info;
->>  	struct fio_zone_info *z;
->>  	uint32_t zone_idx;
->>  	uint64_t zone_end;
->> +	int ret;
->>
->>  	if (!zbd_info)
->>  		return;
->> @@ -1241,6 +1247,8 @@ static void zbd_queue_io(struct io_u *io_u, int q, bool success)
->>  			zbd_info->sectors_with_data += zone_end - z->wp;
->>  		pthread_mutex_unlock(&zbd_info->mutex);
->>  		z->wp = zone_end;
->> +		if (td->o.zone_append)
->> +			z->pending_ios++;
->>  		break;
->>  	case DDIR_TRIM:
->>  		assert(z->wp == z->start);
->> @@ -1250,18 +1258,22 @@ static void zbd_queue_io(struct io_u *io_u, int q, bool success)
->>  	}
->>
->>  unlock:
->> -	if (!success || q != FIO_Q_QUEUED) {
->> +	if (!success || q != FIO_Q_QUEUED || td->o.zone_append) {
->>  		/* BUSY or COMPLETED: unlock the zone */
->> -		pthread_mutex_unlock(&z->mutex);
->> -		io_u->zbd_put_io = NULL;
->> +		ret = pthread_mutex_unlock(&z->mutex);
->> +		assert(ret == 0);
->> +		if (!success || q != FIO_Q_QUEUED)
->> +			io_u->zbd_put_io = NULL;
->>  	}
->>  }
->>
->>  /**
->>   * zbd_put_io - Unlock an I/O unit target zone lock
->> + * For zone append operation we don't hold zone lock
->> + * @td: fio thread data.
->>   * @io_u: I/O unit
->>   */
->> -static void zbd_put_io(const struct io_u *io_u)
->> +static void zbd_put_io(struct thread_data *td, const struct io_u *io_u)
->>  {
->>  	const struct fio_file *f = io_u->file;
->>  	struct zoned_block_device_info *zbd_info = f->zbd_info;
->> @@ -1283,6 +1295,19 @@ static void zbd_put_io(const struct io_u *io_u)
->>  	       "%s: terminate I/O (%lld, %llu) for zone %u\n",
->>  	       f->file_name, io_u->offset, io_u->buflen, zone_idx);
->>
->> +	if (td->o.zone_append) {
->> +		pthread_mutex_lock(&z->mutex);
->> +		if (z->pending_ios > 0) {
->> +			z->pending_ios--;
->> +			/*
->> +			 * Other threads may be waiting for pending I/O's to
->> +			 * complete for this zone. Notify them.
->> +			 */
->> +			if (!z->pending_ios)
->> +				pthread_cond_broadcast(&z->reset_cond);
->> +		}
->> +	}
->> +
->>  	ret = pthread_mutex_unlock(&z->mutex);
->>  	assert(ret == 0);
->>  	zbd_check_swd(f);
->> @@ -1524,16 +1549,69 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
->>  			 * asynchronously and since we will submit the zone
->>  			 * reset synchronously, wait until previously submitted
->>  			 * write requests have completed before issuing a
->> -			 * zone reset.
->> +			 * zone reset. For append request release the zone lock
->> +			 * as other threads will acquire it at the time of
->> +			 * zbd_put_io.
->>  			 */
->> +reset:
->> +			if (td->o.zone_append)
->> +				pthread_mutex_unlock(&zb->mutex);
->>  			io_u_quiesce(td);
->> +			if (td->o.zone_append)
->> +				pthread_mutex_lock(&zb->mutex);
->> +
->>  			zb->reset_zone = 0;
->> +			if (td->o.zone_append) {
->> +				/*
->> +				 * While processing the current thread queued
->> +				 * requests the other thread may have already
->> +				 * done zone reset so need to check zone full
->> +				 * condition again.
->> +				 */
->> +				if (!zbd_zone_full(f, zb, min_bs))
->> +					goto proceed;
->> +				/*
->> +				 * Wait for the pending requests to be completed
->> +				 * else we are ok to reset this zone.
->> +				 */
->> +				if (zb->pending_ios) {
->> +					pthread_cond_wait(&zb->reset_cond, &zb->mutex);
->> +					goto proceed;
->> +				}
->> +			}
->> +
->>  			if (zbd_reset_zone(td, f, zb) < 0)
->>  				goto eof;
->> +
->> +			/* Notify other threads waiting for zone mutex */
->> +			if (td->o.zone_append)
->> +				pthread_cond_broadcast(&zb->reset_cond);
->> +		}
->> +proceed:
->> +		/*
->> +		 * Check for zone full condition again. For zone append request
->> +		 * the zone may already be reset, written and full while we
->> +		 * were waiting for our turn.
->> +		 */
->> +		if (zbd_zone_full(f, zb, min_bs)) {
->> +			goto reset;
->>  		}
->> +
->>  		/* Make writes occur at the write pointer */
->>  		assert(!zbd_zone_full(f, zb, min_bs));
->>  		io_u->offset = zb->wp;
->> +
->> +		/*
->> +		 * Support zone append for both regular and zoned block
->> +		 * device.
->> +		 */
->> +		if (td->o.zone_append) {
->> +			if (f->zbd_info->model == ZBD_NONE)
->> +				io_u->zone_start_offset = zb->wp;
->> +			else
->> +				io_u->zone_start_offset = zb->start;
->> +		}
->> +
->>  		if (!is_valid_offset(f, io_u->offset)) {
->>  			dprint(FD_ZBD, "Dropped request with offset %llu\n",
->>  			       io_u->offset);
->> diff --git a/zbd.h b/zbd.h
->> index e942a7f..eac42f7 100644
->> --- a/zbd.h
->> +++ b/zbd.h
->> @@ -23,8 +23,10 @@ enum io_u_action {
->>   * struct fio_zone_info - information about a single ZBD zone
->>   * @start: zone start location (bytes)
->>   * @wp: zone write pointer location (bytes)
->> + * @pending_ios: Number of IO's pending in this zone
->>   * @verify_block: number of blocks that have been verified for this zone
->>   * @mutex: protects the modifiable members in this structure
->> + * @reset_cond: zone reset check condition. only relevant for zone_append.
->>   * @type: zone type (BLK_ZONE_TYPE_*)
->>   * @cond: zone state (BLK_ZONE_COND_*)
->>   * @open: whether or not this zone is currently open. Only relevant if
->> @@ -33,8 +35,10 @@ enum io_u_action {
->>   */
->>  struct fio_zone_info {
->>  	pthread_mutex_t		mutex;
->> +	pthread_cond_t		reset_cond;
->>  	uint64_t		start;
->>  	uint64_t		wp;
->> +	uint32_t		pending_ios;
->>  	uint32_t		verify_block;
->>  	enum zbd_zone_type	type:2;
->>  	enum zbd_zone_cond	cond:4;
->> @@ -96,18 +100,19 @@ static inline void zbd_close_file(struct fio_file *f)
->>  		zbd_free_zone_info(f);
->>  }
->>
->> -static inline void zbd_queue_io_u(struct io_u *io_u, enum fio_q_status status)
->> +static inline void zbd_queue_io_u(struct thread_data *td, struct io_u *io_u,
->> +				  enum fio_q_status status)
->>  {
->>  	if (io_u->zbd_queue_io) {
->> -		io_u->zbd_queue_io(io_u, status, io_u->error == 0);
->> +		io_u->zbd_queue_io(td, io_u, status, io_u->error == 0);
->>  		io_u->zbd_queue_io = NULL;
->>  	}
->>  }
->>
->> -static inline void zbd_put_io_u(struct io_u *io_u)
->> +static inline void zbd_put_io_u(struct thread_data *td, struct io_u *io_u)
->>  {
->>  	if (io_u->zbd_put_io) {
->> -		io_u->zbd_put_io(io_u);
->> +		io_u->zbd_put_io(td, io_u);
->>  		io_u->zbd_queue_io = NULL;
->>  		io_u->zbd_put_io = NULL;
->>  	}
->>
->
->Another thing: IO engines such as libzbc will not support any of this, nor will
->engines such as psync or SG and many many other. SO it may be good to define a
->new io engine flag such as FIO_ZONE_APPEND that can be set in struct
->ioengine_ops flags field in the engine declaration to indicate that the engine
->supports zone append. That can be checked on initialization instead of no check
->at all and seeing lots of weird things happening with engines that do not
->support zone append.
->
-We can add a new IO engine flag to indicate that the engine supports
-Zone Append.
-As part of this initial version, we plan to introduce Zone Append as an
-extension of Write. This will remove all the zbd.c and zbd.h related
-code changes (pending_ios, reset_cond).
-I wonder, since we don't have any zbd related code changes and the
-zone_start_offset being removed, for the other IO engines, even if we
-enable zone_append, it will still do a regular write. So, do we still
-need this new IO engine flag ?
->
->-- 
->Damien Le Moal
->Western Digital Research
->
-
-------nai8lIH9ngBNHun9R6qswQcIIemhXBCkNXu5CagZqSM5j8ea=_c89d4_
-Content-Type: text/plain; charset="utf-8"
-
-
-------nai8lIH9ngBNHun9R6qswQcIIemhXBCkNXu5CagZqSM5j8ea=_c89d4_--
+On 2020/07/17 18:36, Shin'ichiro Kawasaki wrote:=0A=
+> From: Hans Holmberg <hans.holmberg@wdc.com>=0A=
+> =0A=
+> Add support for testing zoned block devices where zone capacity is less=
+=0A=
+> than zone size. If the test case runs sequential workloads or workloads=
+=0A=
+> with verify, use zone capacity instead of zone size to complete.=0A=
+> =0A=
+> To use zone capacity of the test target zones, introduce a helper=0A=
+> function total_zone_capacity() which sums up zone capacity numbers of the=
+=0A=
+> test target zones.=0A=
+> =0A=
+> Signed-off-by: Hans Holmberg <hans.holmberg@wdc.com>=0A=
+> Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>=0A=
+> ---=0A=
+>  t/zbd/functions        |  37 +++++++++++++++=0A=
+>  t/zbd/test-zbd-support | 100 ++++++++++++++++++++++++++---------------=
+=0A=
+>  2 files changed, 102 insertions(+), 35 deletions(-)=0A=
+> =0A=
+> diff --git a/t/zbd/functions b/t/zbd/functions=0A=
+> index 14366e15..81b6f3f7 100644=0A=
+> --- a/t/zbd/functions=0A=
+> +++ b/t/zbd/functions=0A=
+> @@ -84,6 +84,43 @@ first_sequential_zone() {=0A=
+>      fi=0A=
+>  }=0A=
+>  =0A=
+> +# Reports the summed zone capacity of $1 number of zones starting from o=
+ffset $2=0A=
+> +# on device $3.=0A=
+> +total_zone_capacity() {=0A=
+> +	local nr_zones=3D$1=0A=
+> +	local sector=3D$(($2 / 512))=0A=
+> +	local dev=3D$3=0A=
+> +	local capacity=3D0 num=0A=
+> +	local grep_str=0A=
+> +=0A=
+> +	if [ -z "$is_zbd" ]; then=0A=
+> +		# For regular block devices, handle zone size as zone capacity.=0A=
+> +		echo $((zone_size * nr_zones))=0A=
+> +		return=0A=
+> +	fi=0A=
+> +=0A=
+> +	if [ -n "${blkzone}" ] && [ ! -n "${use_libzbc}" ]; then=0A=
+> +		if blkzone_reports_capacity "${dev}"; then=0A=
+> +			grep_str=3D'cap \K[0-9a-zA-Z]*'=0A=
+> +		else=0A=
+> +			# If zone capacity is not reported, refer zone length.=0A=
+> +			grep_str=3D'len \K[0-9a-zA-Z]*'=0A=
+> +		fi=0A=
+> +		while read num; do=0A=
+> +			capacity=3D$((capacity + num))=0A=
+> +		done < <(${blkzone} report -c "$nr_zones" -o "$sector" "$dev" |=0A=
+> +				grep -Po "${grep_str}")=0A=
+> +	else=0A=
+> +		# ZBC devices do not have zone capacity. Use zone size.=0A=
+> +		while read num; do=0A=
+> +			capacity=3D$((capacity + num))=0A=
+> +		done < <(${zbc_report_zones} -nz "$nr_zones" -start "$sector" \=0A=
+> +				"$dev" | grep -Po 'sector [0-9]*, \K[0-9]*')=0A=
+> +	fi=0A=
+> +=0A=
+> +	echo $((capacity * 512))=0A=
+> +}=0A=
+> +=0A=
+>  max_open_zones() {=0A=
+>      local dev=3D$1=0A=
+>  =0A=
+> diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support=0A=
+> index f086bd10..31718c95 100755=0A=
+> --- a/t/zbd/test-zbd-support=0A=
+> +++ b/t/zbd/test-zbd-support=0A=
+> @@ -204,55 +204,64 @@ test4() {=0A=
+>  =0A=
+>  # Sequential write to sequential zones.=0A=
+>  test5() {=0A=
+> -    local size=0A=
+> +    local size off capacity=0A=
+>  =0A=
+> +    off=3D$((first_sequential_zone_sector * 512))=0A=
+> +    capacity=3D$(total_zone_capacity 4 $off $dev)=0A=
+>      size=3D$((4 * zone_size))=0A=
+>      run_fio_on_seq "$(ioengine "psync")" --iodepth=3D1 --rw=3Dwrite	\=0A=
+>  		   --bs=3D"$(max $((zone_size / 64)) "$logical_block_size")"\=0A=
+>  		   --do_verify=3D1 --verify=3Dmd5				\=0A=
+>  		   >>"${logfile}.${test_number}" 2>&1 || return $?=0A=
+> -    check_written $size || return $?=0A=
+> -    check_read $size || return $?=0A=
+> +    check_written $capacity || return $?=0A=
+> +    check_read $capacity || return $?=0A=
+>  }=0A=
+>  =0A=
+>  # Sequential read from sequential zones.=0A=
+>  test6() {=0A=
+> -    local size=0A=
+> +    local size off capacity=0A=
+>  =0A=
+> +    off=3D$((first_sequential_zone_sector * 512))=0A=
+> +    capacity=3D$(total_zone_capacity 4 $off $dev)=0A=
+>      size=3D$((4 * zone_size))=0A=
+>      write_and_run_one_fio_job \=0A=
+>  	    $((first_sequential_zone_sector * 512)) "${size}" \=0A=
+> -	    --offset=3D$((first_sequential_zone_sector * 512)) \=0A=
+> +	    --offset=3D"${off}" \=0A=
+>  	    --size=3D"${size}" --zonemode=3Dzbd --zonesize=3D"${zone_size}" \=
+=0A=
+>  	    "$(ioengine "psync")" --iodepth=3D1 --rw=3Dread \=0A=
+>  	    --bs=3D"$(max $((zone_size / 64)) "$logical_block_size")" \=0A=
+>  	    >>"${logfile}.${test_number}" 2>&1 || return $?=0A=
+> -    check_read $size || return $?=0A=
+> +    check_read $capacity || return $?=0A=
+>  }=0A=
+>  =0A=
+>  # Random write to sequential zones, libaio, queue depth 1.=0A=
+>  test7() {=0A=
+>      local size=3D$((zone_size))=0A=
+> +    local off capacity=0A=
+>  =0A=
+> +    off=3D$((first_sequential_zone_sector * 512))=0A=
+> +    capacity=3D$(total_zone_capacity 1 $off $dev)=0A=
+>      run_fio_on_seq "$(ioengine "libaio")" --iodepth=3D1 --rw=3Drandwrite=
+	\=0A=
+>  		   --bs=3D"$(min 16384 "${zone_size}")"			\=0A=
+>  		   --do_verify=3D1 --verify=3Dmd5 --size=3D"$size"		\=0A=
+>  		   >>"${logfile}.${test_number}" 2>&1 || return $?=0A=
+> -    check_written $size || return $?=0A=
+> -    check_read $size || return $?=0A=
+> +    check_written $capacity || return $?=0A=
+> +    check_read $capacity || return $?=0A=
+>  }=0A=
+>  =0A=
+>  # Random write to sequential zones, libaio, queue depth 64.=0A=
+>  test8() {=0A=
+> -    local size=0A=
+> +    local size off capacity=0A=
+>  =0A=
+>      size=3D$((4 * zone_size))=0A=
+> +    off=3D$((first_sequential_zone_sector * 512))=0A=
+> +    capacity=3D$(total_zone_capacity 4 $off $dev)=0A=
+>      run_fio_on_seq "$(ioengine "libaio")" --iodepth=3D64 --rw=3Drandwrit=
+e	\=0A=
+>  		   --bs=3D"$(min 16384 "${zone_size}")"			\=0A=
+>  		   --do_verify=3D1 --verify=3Dmd5				\=0A=
+>  		   >>"${logfile}.${test_number}" 2>&1 || return $?=0A=
+> -    check_written $size || return $?=0A=
+> -    check_read $size || return $?=0A=
+> +    check_written $capacity || return $?=0A=
+> +    check_read $capacity || return $?=0A=
+>  }=0A=
+>  =0A=
+>  # Random write to sequential zones, sg, queue depth 1.=0A=
+> @@ -293,39 +302,45 @@ test10() {=0A=
+>  =0A=
+>  # Random write to sequential zones, libaio, queue depth 64, random block=
+ size.=0A=
+>  test11() {=0A=
+> -    local size=0A=
+> +    local size off capacity=0A=
+>  =0A=
+>      size=3D$((4 * zone_size))=0A=
+> +    off=3D$((first_sequential_zone_sector * 512))=0A=
+> +    capacity=3D$(total_zone_capacity 4 $off $dev)=0A=
+>      run_fio_on_seq "$(ioengine "libaio")" --iodepth=3D64 --rw=3Drandwrit=
+e	\=0A=
+>  		   --bsrange=3D4K-64K --do_verify=3D1 --verify=3Dmd5		\=0A=
+>  		   --debug=3Dzbd >>"${logfile}.${test_number}" 2>&1 || return $?=0A=
+> -    check_written $size || return $?=0A=
+> -    check_read $size || return $?=0A=
+> +    check_written $capacity || return $?=0A=
+> +    check_read $capacity || return $?=0A=
+>  }=0A=
+>  =0A=
+>  # Random write to sequential zones, libaio, queue depth 64, max 1 open z=
+one.=0A=
+>  test12() {=0A=
+> -    local size=0A=
+> +    local size off capacity=0A=
+>  =0A=
+>      size=3D$((8 * zone_size))=0A=
+> +    off=3D$((first_sequential_zone_sector * 512))=0A=
+> +    capacity=3D$(total_zone_capacity 8 $off $dev)=0A=
+>      run_fio_on_seq "$(ioengine "libaio")" --iodepth=3D64 --rw=3Drandwrit=
+e --bs=3D16K \=0A=
+>  		   --max_open_zones=3D1 --size=3D$size --do_verify=3D1 --verify=3Dmd5 =
+\=0A=
+>  		   --debug=3Dzbd >>"${logfile}.${test_number}" 2>&1 || return $?=0A=
+> -    check_written $size || return $?=0A=
+> -    check_read $size || return $?=0A=
+> +    check_written $capacity || return $?=0A=
+> +    check_read $capacity || return $?=0A=
+>  }=0A=
+>  =0A=
+>  # Random write to sequential zones, libaio, queue depth 64, max 4 open z=
+ones.=0A=
+>  test13() {=0A=
+> -    local size=0A=
+> +    local size off capacity=0A=
+>  =0A=
+>      size=3D$((8 * zone_size))=0A=
+> +    off=3D$((first_sequential_zone_sector * 512))=0A=
+> +    capacity=3D$(total_zone_capacity 8 $off $dev)=0A=
+>      run_fio_on_seq "$(ioengine "libaio")" --iodepth=3D64 --rw=3Drandwrit=
+e --bs=3D16K \=0A=
+>  		   --max_open_zones=3D4 --size=3D$size --do_verify=3D1 --verify=3Dmd5 =
+\=0A=
+>  		   --debug=3Dzbd						      \=0A=
+>  		   >>"${logfile}.${test_number}" 2>&1 || return $?=0A=
+> -    check_written $size || return $?=0A=
+> -    check_read $size || return $?=0A=
+> +    check_written $capacity || return $?=0A=
+> +    check_read $capacity || return $?=0A=
+>  }=0A=
+>  =0A=
+>  # Random write to conventional zones.=0A=
+> @@ -349,7 +364,7 @@ test14() {=0A=
+>  # Sequential read on a mix of empty and full zones.=0A=
+>  test15() {=0A=
+>      local i off size=0A=
+> -    local w_off w_size=0A=
+> +    local w_off w_size w_capacity=0A=
+>  =0A=
+>      for ((i=3D0;i<4;i++)); do=0A=
+>  	[ -n "$is_zbd" ] &&=0A=
+> @@ -358,6 +373,7 @@ test15() {=0A=
+>      done=0A=
+>      w_off=3D$(((first_sequential_zone_sector + 2 * sectors_per_zone) * 5=
+12))=0A=
+>      w_size=3D$((2 * zone_size))=0A=
+> +    w_capacity=3D$(total_zone_capacity 2 $w_off $dev)=0A=
+>      off=3D$((first_sequential_zone_sector * 512))=0A=
+>      size=3D$((4 * zone_size))=0A=
+>      write_and_run_one_fio_job "${w_off}" "${w_size}" \=0A=
+> @@ -365,14 +381,14 @@ test15() {=0A=
+>  		    --zonemode=3Dzbd --zonesize=3D"${zone_size}" --offset=3D$off \=0A=
+>  		    --size=3D$((size)) >>"${logfile}.${test_number}" 2>&1 ||=0A=
+>  	return $?=0A=
+> -    check_written $((w_size)) || return $?=0A=
+> -    check_read $((size / 2))=0A=
+> +    check_written $((w_capacity)) || return $?=0A=
+> +    check_read $((w_capacity))=0A=
+>  }=0A=
+>  =0A=
+>  # Random read on a mix of empty and full zones.=0A=
+>  test16() {=0A=
+>      local off size=0A=
+> -    local i w_off w_size=0A=
+> +    local i w_off w_size w_capacity=0A=
+>  =0A=
+>      for ((i=3D0;i<4;i++)); do=0A=
+>  	[ -n "$is_zbd" ] &&=0A=
+> @@ -381,13 +397,14 @@ test16() {=0A=
+>      done=0A=
+>      w_off=3D$(((first_sequential_zone_sector + 2 * sectors_per_zone) * 5=
+12))=0A=
+>      w_size=3D$((2 * zone_size))=0A=
+> +    w_capacity=3D$(total_zone_capacity 2 $w_off $dev)=0A=
+>      off=3D$((first_sequential_zone_sector * 512))=0A=
+>      size=3D$((4 * zone_size))=0A=
+>      write_and_run_one_fio_job "${w_off}" "${w_size}" \=0A=
+>  		    "$(ioengine "libaio")" --iodepth=3D64 --rw=3Drandread --bs=3D16K \=
+=0A=
+>  		    --zonemode=3Dzbd --zonesize=3D"${zone_size}" --offset=3D$off \=0A=
+>  		    --size=3D$size >>"${logfile}.${test_number}" 2>&1 || return $?=0A=
+> -    check_written $w_size || return $?=0A=
+> +    check_written $w_capacity || return $?=0A=
+>      check_read $size || return $?=0A=
+>  }=0A=
+>  =0A=
+> @@ -451,13 +468,17 @@ test23() {=0A=
+>  =0A=
+>  test24() {=0A=
+>      local bs loops=3D9 size=3D$((zone_size))=0A=
+> +    local off capacity=0A=
+> +=0A=
+> +    off=3D$((first_sequential_zone_sector * 512))=0A=
+> +    capacity=3D$(total_zone_capacity 1 $off $dev)=0A=
+>  =0A=
+>      bs=3D$(min $((256*1024)) "$zone_size")=0A=
+>      run_fio_on_seq "$(ioengine "psync")" --rw=3Dwrite --bs=3D"$bs"		\=0A=
+>  		   --size=3D$size --loops=3D$loops				\=0A=
+>  		   --zone_reset_frequency=3D.01 --zone_reset_threshold=3D.90 \=0A=
+>  		   >> "${logfile}.${test_number}" 2>&1 || return $?=0A=
+> -    check_written $((size * loops)) || return $?=0A=
+> +    check_written $((capacity * loops)) || return $?=0A=
+>      check_reset_count -eq 8 ||=0A=
+>  	check_reset_count -eq 9 ||=0A=
+>  	check_reset_count -eq 10 || return $?=0A=
+> @@ -483,15 +504,19 @@ test25() {=0A=
+>  =0A=
+>  write_to_first_seq_zone() {=0A=
+>      local loops=3D4 r=0A=
+> +    local off capacity=0A=
+> +=0A=
+> +    off=3D$((first_sequential_zone_sector * 512))=0A=
+> +    capacity=3D$(total_zone_capacity 1 $off $dev)=0A=
+>  =0A=
+>      r=3D$(((RANDOM << 16) | RANDOM))=0A=
+>      run_fio --name=3D"$dev" --filename=3D"$dev" "$(ioengine "psync")" --=
+rw=3D"$1" \=0A=
+>  	    --thread=3D1 --do_verify=3D1 --verify=3Dmd5 --direct=3D1 --bs=3D4K	=
+\=0A=
+> -	    --offset=3D$((first_sequential_zone_sector * 512))		\=0A=
+> -	    "--size=3D$zone_size" --loops=3D$loops --randseed=3D"$r"		\=0A=
+> +	    --offset=3D$off						\=0A=
+> +	    --size=3D$zone_size --loops=3D$loops --randseed=3D"$r"		\=0A=
+>  	    --zonemode=3Dzbd --zonesize=3D"${zone_size}" --group_reporting=3D1	=
+\=0A=
+>  	    --gtod_reduce=3D1 >> "${logfile}.${test_number}" 2>&1 || return $?=
+=0A=
+> -    check_written $((loops * zone_size)) || return $?=0A=
+> +    check_written $((loops * capacity)) || return $?=0A=
+>  }=0A=
+>  =0A=
+>  # Overwrite the first sequential zone four times sequentially.=0A=
+> @@ -511,15 +536,16 @@ test28() {=0A=
+>      off=3D$((first_sequential_zone_sector * 512 + 64 * zone_size))=0A=
+>      [ -n "$is_zbd" ] && reset_zone "$dev" $((off / 512))=0A=
+>      opts=3D("--debug=3Dzbd")=0A=
+> +    capacity=3D$(total_zone_capacity 1 $off $dev)=0A=
+>      for ((i=3D0;i<jobs;i++)); do=0A=
+>  	opts+=3D("--name=3Djob$i" "--filename=3D$dev" "--offset=3D$off" "--bs=
+=3D16K")=0A=
+> -	opts+=3D("--size=3D$zone_size" "$(ioengine "psync")" "--rw=3Drandwrite"=
+)=0A=
+> +	opts+=3D("--size=3D$zone_size" "--io_size=3D$capacity" "$(ioengine "psy=
+nc")" "--rw=3Drandwrite")=0A=
+>  	opts+=3D("--thread=3D1" "--direct=3D1" "--zonemode=3Dzbd")=0A=
+>  	opts+=3D("--zonesize=3D${zone_size}" "--group_reporting=3D1")=0A=
+>  	opts+=3D(${var_opts[@]})=0A=
+>      done=0A=
+>      run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $=
+?=0A=
+> -    check_written $((jobs * zone_size)) || return $?=0A=
+> +    check_written $((jobs * $capacity)) || return $?=0A=
+>      check_reset_count -eq $jobs ||=0A=
+>  	check_reset_count -eq $((jobs - 1)) ||=0A=
+>  	return $?=0A=
+> @@ -608,10 +634,13 @@ test32() {=0A=
+>  # zone size.=0A=
+>  test33() {=0A=
+>      local bs io_size size=0A=
+> +    local off capacity=3D0;=0A=
+>  =0A=
+> +    off=3D$((first_sequential_zone_sector * 512))=0A=
+> +    capacity=3D$(total_zone_capacity 1 $off $dev)=0A=
+>      size=3D$((2 * zone_size))=0A=
+> -    io_size=3D$((5 * zone_size))=0A=
+> -    bs=3D$((3 * zone_size / 4))=0A=
+> +    io_size=3D$((5 * capacity))=0A=
+> +    bs=3D$((3 * capacity / 4))=0A=
+>      run_fio_on_seq "$(ioengine "psync")" --iodepth=3D1 --rw=3Dwrite	\=0A=
+>  		   --size=3D$size --io_size=3D$io_size --bs=3D$bs	\=0A=
+>  		   >> "${logfile}.${test_number}" 2>&1 || return $?=0A=
+> @@ -660,8 +689,9 @@ test36() {=0A=
+>  =0A=
+>  # Test 3/4 for the I/O boundary rounding code: $size > $zone_size.=0A=
+>  test37() {=0A=
+> -    local bs off size=0A=
+> +    local bs off size capacity=0A=
+>  =0A=
+> +    capacity=3D$(total_zone_capacity 1 $first_sequential_zone_sector $de=
+v)=0A=
+>      if [ "$first_sequential_zone_sector" =3D 0 ]; then=0A=
+>  	off=3D0=0A=
+>      else=0A=
+> @@ -673,7 +703,7 @@ test37() {=0A=
+>  		    --iodepth=3D1 --rw=3Dwrite --do_verify=3D1 --verify=3Dmd5	\=0A=
+>  		    --bs=3D$bs --zonemode=3Dzbd --zonesize=3D"${zone_size}"	\=0A=
+>  		    >> "${logfile}.${test_number}" 2>&1=0A=
+> -    check_written $((zone_size)) || return $?=0A=
+> +    check_written $capacity || return $?=0A=
+>  }=0A=
+>  =0A=
+>  # Test 4/4 for the I/O boundary rounding code: $offset > $disk_size - $z=
+one_size=0A=
+> =0A=
+=0A=
+Looks good to me.=0A=
+=0A=
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
