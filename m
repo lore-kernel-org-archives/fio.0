@@ -1,135 +1,122 @@
-Return-Path: <prvs=47212d7a9=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v2 3/4] zbd: simplify zone reset code
-Date: Thu, 30 Jul 2020 06:04:14 +0900
-Message-Id: <20200729210415.4166-4-dmitry.fomichev@wdc.com>
-In-Reply-To: <20200729210415.4166-1-dmitry.fomichev@wdc.com>
-References: <20200729210415.4166-1-dmitry.fomichev@wdc.com>
+Return-Path: <prvs=464b1537e=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH v3 3/6] t/zbd: Mandate blkzone capacity report for devices
+ with zone capacity
+Date: Tue, 21 Jul 2020 09:54:51 +0000
+Message-ID: 
+ <CY4PR04MB37512C3F8323B44427A0F880E7780@CY4PR04MB3751.namprd04.prod.outlook.com>
+References: <20200717093637.139565-1-shinichiro.kawasaki@wdc.com>
+ <20200717093637.139565-4-shinichiro.kawasaki@wdc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+Cc: Hans Holmberg <Hans.Holmberg@wdc.com>, Aravind Ramesh <Aravind.Ramesh@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-zbd_reset_range() function is only called once from zbd_reset_zone()
-and it is always called for an individual zone, not a range.
-
-Make zone reset flow simpler by moving all the code needed
-to reset a single zone from zbd_reset_range() to zbd_reset_zone().
-Therefore, zbd_reset_range() is now dropped.
-
-zbc_reset_zone() is always called with the zone already locked. Remove
-recursive zone locking inside this function and add a note in the
-description of this function saying that the caller is expected to have
-the zone locked when calling it.
-
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- zbd.c | 76 +++++++++++++++++++++--------------------------------------
- 1 file changed, 27 insertions(+), 49 deletions(-)
-
-diff --git a/zbd.c b/zbd.c
-index 3eac5df3..e4a480b7 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -670,54 +670,6 @@ int zbd_setup_files(struct thread_data *td)
- 	return 0;
- }
- 
--/**
-- * zbd_reset_range - reset zones for a range of sectors
-- * @td: FIO thread data.
-- * @f: Fio file for which to reset zones
-- * @sector: Starting sector in units of 512 bytes
-- * @nr_sectors: Number of sectors in units of 512 bytes
-- *
-- * Returns 0 upon success and a negative error code upon failure.
-- */
--static int zbd_reset_range(struct thread_data *td, struct fio_file *f,
--			   uint64_t offset, uint64_t length)
--{
--	uint32_t zone_idx_b, zone_idx_e;
--	struct fio_zone_info *zb, *ze, *z;
--	int ret = 0;
--
--	assert(is_valid_offset(f, offset + length - 1));
--
--	switch (f->zbd_info->model) {
--	case ZBD_HOST_AWARE:
--	case ZBD_HOST_MANAGED:
--		ret = zbd_reset_wp(td, f, offset, length);
--		if (ret < 0)
--			return ret;
--		break;
--	default:
--		break;
--	}
--
--	zone_idx_b = zbd_zone_idx(f, offset);
--	zb = &f->zbd_info->zone_info[zone_idx_b];
--	zone_idx_e = zbd_zone_idx(f, offset + length);
--	ze = &f->zbd_info->zone_info[zone_idx_e];
--	for (z = zb; z < ze; z++) {
--		pthread_mutex_lock(&z->mutex);
--		pthread_mutex_lock(&f->zbd_info->mutex);
--		f->zbd_info->sectors_with_data -= z->wp - z->start;
--		pthread_mutex_unlock(&f->zbd_info->mutex);
--		z->wp = z->start;
--		z->verify_block = 0;
--		pthread_mutex_unlock(&z->mutex);
--	}
--
--	td->ts.nr_zone_resets += ze - zb;
--
--	return ret;
--}
--
- static unsigned int zbd_zone_nr(struct zoned_block_device_info *zbd_info,
- 				struct fio_zone_info *zone)
- {
-@@ -731,14 +683,40 @@ static unsigned int zbd_zone_nr(struct zoned_block_device_info *zbd_info,
-  * @z: Zone to reset.
-  *
-  * Returns 0 upon success and a negative error code upon failure.
-+ *
-+ * The caller must hold z->mutex.
-  */
- static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
- 			  struct fio_zone_info *z)
- {
-+	uint64_t offset = z->start;
-+	uint64_t length = (z+1)->start - offset;
-+	int ret = 0;
-+
-+	assert(is_valid_offset(f, offset + length - 1));
-+
- 	dprint(FD_ZBD, "%s: resetting wp of zone %u.\n", f->file_name,
- 		zbd_zone_nr(f->zbd_info, z));
-+	switch (f->zbd_info->model) {
-+	case ZBD_HOST_AWARE:
-+	case ZBD_HOST_MANAGED:
-+		ret = zbd_reset_wp(td, f, offset, length);
-+		if (ret < 0)
-+			return ret;
-+		break;
-+	default:
-+		break;
-+	}
- 
--	return zbd_reset_range(td, f, z->start, zbd_zone_end(z) - z->start);
-+	pthread_mutex_lock(&f->zbd_info->mutex);
-+	f->zbd_info->sectors_with_data -= z->wp - z->start;
-+	pthread_mutex_unlock(&f->zbd_info->mutex);
-+	z->wp = z->start;
-+	z->verify_block = 0;
-+
-+	td->ts.nr_zone_resets++;
-+
-+	return ret;
- }
- 
- /* The caller must hold f->zbd_info->mutex */
--- 
-2.21.0
-
+On 2020/07/17 18:36, Shin'ichiro Kawasaki wrote:=0A=
+> For NVMe ZNS and null_blk zoned drives, a zone capacity can be smaller=0A=
+> than its size. To test zone capacity handling by fio for these devices,=
+=0A=
+> t/zbd/test-zbd-support must be able to discover zone capacities to avoid=
+=0A=
+> test failures.=0A=
+> =0A=
+> To avoid the failures, make zone capacity report by blkzone mandatory if=
+=0A=
+> the test target device is a ZNS device or a null_blk device.=0A=
+> =0A=
+> Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>=0A=
+> ---=0A=
+>  t/zbd/functions        | 45 ++++++++++++++++++++++++++++++++++++++++++=
+=0A=
+>  t/zbd/test-zbd-support |  3 +++=0A=
+>  2 files changed, 48 insertions(+)=0A=
+> =0A=
+> diff --git a/t/zbd/functions b/t/zbd/functions=0A=
+> index 1bd22ec4..14366e15 100644=0A=
+> --- a/t/zbd/functions=0A=
+> +++ b/t/zbd/functions=0A=
+> @@ -19,6 +19,51 @@ if [ -n "${use_libzbc}" ] &&=0A=
+>      exit 1=0A=
+>  fi=0A=
+>  =0A=
+> +blkzone_reports_capacity() {=0A=
+> +	local dev=3D"${1}"=0A=
+> +=0A=
+> +	[[ -n "${blkzone}" ]] &&=0A=
+> +		"${blkzone}" report -c 1 -o 0 "${dev}" | grep -q 'cap '=0A=
+> +}=0A=
+> +=0A=
+> +# Whether or not $1 (/dev/...) is a NVME ZNS device.=0A=
+> +is_nvme_zns() {=0A=
+> +	local s=0A=
+> +=0A=
+> +	s=3D/sys/block/$(basename "${1}")/device/subsystem=0A=
+> +=0A=
+> +	if [[ ! -h "${s}" || $(realpath "${s}") !=3D /sys/class/nvme ]]; then=
+=0A=
+> +		return 1=0A=
+> +	fi=0A=
+> +=0A=
+> +	[[ $(</sys/block/$(basename "${1}")/queue/zoned) =3D=3D host-managed ]]=
+=0A=
+> +}=0A=
+> +=0A=
+> +# Whether or not $1 (/dev/...) is a null_blk device with zone capacity s=
+maller=0A=
+> +# than zone size.=0A=
+> +is_nullb_with_zone_cap() {=0A=
+> +	local f=0A=
+> +=0A=
+> +	f=3D/sys/kernel/config/nullb/$(basename "${1}")=0A=
+> +	[[ -r "${f}/zone_capacity" &&=0A=
+> +		   $(<"${f}/zone_capacity") -lt $(<"${f}/zone_size") ]]=0A=
+> +}=0A=
+> +=0A=
+> +# Check if blkzone is available and suitable for the test target device.=
+ If not=0A=
+> +# available, print error message and return 1. Otherwise return 0.=0A=
+> +check_blkzone() {=0A=
+> +	local dev=3D"${1}"=0A=
+> +=0A=
+> +	# If the device supports zone capacity, mandate zone capacity report by=
+=0A=
+> +	# blkzone.=0A=
+> +	if (is_nvme_zns "${dev}" || is_nullb_with_zone_cap "${dev}") &&=0A=
+> +				! blkzone_reports_capacity "${dev}"; then=0A=
+> +		echo "Error: blkzone does not report zone capacity"=0A=
+> +		echo "Error: install latest util-linux with blkzone"=0A=
+> +		return 1=0A=
+> +	fi=0A=
+> +}=0A=
+> +=0A=
+>  # Reports the starting sector and length of the first sequential zone of=
+ device=0A=
+>  # $1.=0A=
+>  first_sequential_zone() {=0A=
+> diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support=0A=
+> index 80dc3f30..f086bd10 100755=0A=
+> --- a/t/zbd/test-zbd-support=0A=
+> +++ b/t/zbd/test-zbd-support=0A=
+> @@ -863,6 +863,9 @@ if [[ -b "$realdev" ]]; then=0A=
+>  	case "$(<"/sys/class/block/$basename/queue/zoned")" in=0A=
+>  	host-managed|host-aware)=0A=
+>  		is_zbd=3Dtrue=0A=
+> +		if ! check_blkzone "${dev}"; then=0A=
+> +			exit 1=0A=
+> +		fi=0A=
+>  		if ! result=3D($(first_sequential_zone "$dev")); then=0A=
+>  			echo "Failed to determine first sequential zone"=0A=
+>  			exit 1=0A=
+> =0A=
+=0A=
+Looks good to me.=0A=
+=0A=
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
