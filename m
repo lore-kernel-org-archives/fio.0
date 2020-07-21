@@ -1,66 +1,57 @@
-Return-Path: <prvs=450fc09ef=shinichiro.kawasaki@wdc.com>
-From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: Re: [PATCH 0/8] zbd: Fix initial zone write pointer of regular block
- devices
-Date: Tue, 7 Jul 2020 01:00:18 +0000
-Message-ID: <20200707010018.kh3nnkldg23toq6i@shindev.dhcp.fujisawa.hgst.com>
-References: <20200626094331.418309-1-shinichiro.kawasaki@wdc.com>
- <CY4PR04MB3751C96E54170346CE125BBBE76F0@CY4PR04MB3751.namprd04.prod.outlook.com>
-In-Reply-To: 
- <CY4PR04MB3751C96E54170346CE125BBBE76F0@CY4PR04MB3751.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <E559B68E85359044B23B2AD5C9D281D2@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-To: Damien Le Moal <Damien.LeMoal@wdc.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59330 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726715AbgGUMAH (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 21 Jul 2020 08:00:07 -0400
+Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20B28C061794
+        for <fio@vger.kernel.org>; Tue, 21 Jul 2020 05:00:07 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jxqwG-0006HT-Or
+        for fio@vger.kernel.org; Tue, 21 Jul 2020 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200721120001.BBF3B1BC01AA@kernel.dk>
+Date: Tue, 21 Jul 2020 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On Jun 30, 2020 / 04:53, Damien Le Moal wrote:
-> On 2020/06/26 18:43, Shin'ichiro Kawasaki wrote:
-> > With zonemode=3Dzbd and regular block devices, fio initializes zone sta=
-tus as
-> > empty. However, write pointers are set not at zone start but at zone en=
-d. This
-> > inconsistency between write pointer position and zone status caused dif=
-ferent
-> > behavior of regular block devices from zoned block devices. This patch =
-series
-> > fixes the inconsistency and the behavior gap.
-> >=20
-> > The 1st patch fixes the zone status initialization code by setting writ=
-e
-> > pointers at zone start. Following patches fixes t/zbd test script to ha=
-ndle
-> > regular block devices and zoned block devices in same manner.
-> >=20
-> > Shin'ichiro Kawasaki (8):
-> >   zbd: Fix initial zone write pointer of regular block devices
-> >   t/zbd: Fix pass condition of test case #3
-> >   t/zbd: Add write_and_run_one_fio_job() helper function
-> >   t/zbd: Combine write and read fio commands for test case #6
-> >   t/zbd: Combine write and read fio commands for test case #15
-> >   t/zbd: Combine write and read fio commands for test case #16
-> >   t/zbd: Remove write before random read/write from test case #17
-> >   t/zbd: Enable regular block devices for test case #47
-> >=20
-> >  t/zbd/test-zbd-support | 78 +++++++++++++++++++++++-------------------
-> >  zbd.c                  |  2 +-
-> >  2 files changed, 44 insertions(+), 36 deletions(-)
-> >=20
->=20
-> Jens,
->=20
-> I reviewed this series internally with Shin'ichiro before he posted.
-> So:
->=20
-> Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+The following changes since commit fa443634fbfa38fd5d6418a96a45022c78b90df4:
 
-Hi Jens, could you consider to merge this series to the upstream?
-It will make zonemode=3Dzbd implementation less confusing.
+  Merge branch 'patch-1' of https://github.com/avlasov-mos-de/fio (2020-07-18 08:39:04 -0600)
 
---=20
-Best Regards,
-Shin'ichiro Kawasaki=
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to d13596b225baf61425a9ca92b0583fc3fa97765d:
+
+  Fio 3.21 (2020-07-20 16:37:50 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Fio 3.21
+
+ FIO-VERSION-GEN | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index 7050f84e..48e575fc 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-3.20
++DEF_VER=fio-3.21
+ 
+ LF='
+ '
 
