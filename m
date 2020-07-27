@@ -1,63 +1,49 @@
-Return-Path: <prvs=471ca4633=Dmitry.Fomichev@wdc.com>
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: RE: [PATCH 1/3] configure: improve libzbc version check
-Date: Tue, 28 Jul 2020 19:58:41 +0000
-Message-ID: 
- <MN2PR04MB59510EA6CF8FA08958D3603EE1730@MN2PR04MB5951.namprd04.prod.outlook.com>
-References: <20200727031638.28264-1-dmitry.fomichev@wdc.com>
- <20200727031638.28264-2-dmitry.fomichev@wdc.com>
- <CY4PR04MB37518C4372FBF5B4203D468AE7720@CY4PR04MB3751.namprd04.prod.outlook.com>
- <CALjAwxjdDCKJiW-1gUun=j7Tn8rLL4EhTPDtt5NtD=wRrUn0bw@mail.gmail.com>
-In-Reply-To: 
- <CALjAwxjdDCKJiW-1gUun=j7Tn8rLL4EhTPDtt5NtD=wRrUn0bw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-To: Sitsofe Wheeler <sitsofe@gmail.com>, Damien Le Moal <Damien.LeMoal@wdc.com>
-Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+References: <20200727031638.28264-1-dmitry.fomichev@wdc.com>
+ <20200727031638.28264-2-dmitry.fomichev@wdc.com> <CY4PR04MB37518C4372FBF5B4203D468AE7720@CY4PR04MB3751.namprd04.prod.outlook.com>
+In-Reply-To: <CY4PR04MB37518C4372FBF5B4203D468AE7720@CY4PR04MB3751.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Mon, 27 Jul 2020 06:23:04 +0100
+Message-ID: <CALjAwxjdDCKJiW-1gUun=j7Tn8rLL4EhTPDtt5NtD=wRrUn0bw@mail.gmail.com>
+Subject: Re: [PATCH 1/3] configure: improve libzbc version check
+Content-Type: text/plain; charset="UTF-8"
+To: Damien Le Moal <Damien.LeMoal@wdc.com>
+Cc: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU2l0c29mZSBXaGVlbGVy
-IDxzaXRzb2ZlQGdtYWlsLmNvbT4NCj4gU2VudDogTW9uZGF5LCBKdWx5IDI3LCAyMDIwIDE6MjMg
-QU0NCj4gVG86IERhbWllbiBMZSBNb2FsIDxEYW1pZW4uTGVNb2FsQHdkYy5jb20+DQo+IENjOiBE
-bWl0cnkgRm9taWNoZXYgPERtaXRyeS5Gb21pY2hldkB3ZGMuY29tPjsgSmVucyBBeGJvZQ0KPiA8
-YXhib2VAa2VybmVsLmRrPjsgZmlvQHZnZXIua2VybmVsLm9yZzsgU2hpbmljaGlybyBLYXdhc2Fr
-aQ0KPiA8c2hpbmljaGlyby5rYXdhc2FraUB3ZGMuY29tPg0KPiBTdWJqZWN0OiBSZTogW1BBVENI
-IDEvM10gY29uZmlndXJlOiBpbXByb3ZlIGxpYnpiYyB2ZXJzaW9uIGNoZWNrDQo+IA0KPiBPbiBN
-b24sIDI3IEp1bCAyMDIwIGF0IDA2OjA1LCBEYW1pZW4gTGUgTW9hbCA8RGFtaWVuLkxlTW9hbEB3
-ZGMuY29tPg0KPiB3cm90ZToNCj4gPg0KPiA+IE9uIDIwMjAvMDcvMjcgMTI6MTYsIERtaXRyeSBG
-b21pY2hldiB3cm90ZToNCj4gPiA+IEF2b2lkIHBhcnNpbmcgcGtnLWNvbmZpZyBvdXRwdXQgYW5k
-IGp1c3QgdXNlIC0tYXRsZWFzdC12ZXJzaW9uIHRvDQo+ID4gPiBjaGVjayBpZiBsaWJ6YmMgaXMg
-cHJlc2VudCBhbmQgaGFzIGFuIHVwIHRvIGRhdGUgdmVyc2lvbi4gU2luY2UNCj4gPiA+IHRoaXMg
-cHJvY2VzcyBtYXkgZmFpbCBiZWNhdXNlIHBrZy1jb25maWcgaXMgbm90IGluc3RhbGxlZCwgdmVy
-aWZ5DQo+ID4gPiBwa2ctY29uZmlnIHByZXNlbmNlIGFuZCB3YXJuIHRoZSB1c2VyIGlmIGl0IHdh
-cyBub3QgZm91bmQuDQo+ID4gPg0KPiA+ID4gU2lnbmVkLW9mZi1ieTogRG1pdHJ5IEZvbWljaGV2
-IDxkbWl0cnkuZm9taWNoZXZAd2RjLmNvbT4NCj4gPiA+IC0tLQ0KPiA+ID4gIGNvbmZpZ3VyZSB8
-IDkgKysrKysrLS0tDQo+ID4gPiAgMSBmaWxlIGNoYW5nZWQsIDYgaW5zZXJ0aW9ucygrKSwgMyBk
-ZWxldGlvbnMoLSkNCj4gPiA+DQo+ID4gPiBkaWZmIC0tZ2l0IGEvY29uZmlndXJlIGIvY29uZmln
-dXJlDQo+ID4gPiBpbmRleCA1OTI1ZTk0Zi4uMGM0YTk2ZWMgMTAwNzU1DQo+ID4gPiAtLS0gYS9j
-b25maWd1cmUNCj4gPiA+ICsrKyBiL2NvbmZpZ3VyZQ0KPiA+ID4gQEAgLTI0NjcsMTEgKzI0Njcs
-MTQgQEAgaW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKiphcmd2KQ0KPiA+ID4gIH0NCj4gPiA+ICBF
-T0YNCj4gPiA+ICBpZiBjb21waWxlX3Byb2cgIiIgIi1semJjIiAibGliemJjIjsgdGhlbg0KPiA+
-ID4gLSAgbGliemJjdmVybWFqPSQocGtnLWNvbmZpZyAtLW1vZHZlcnNpb24gbGliemJjIHwgc2Vk
-ICdzL1wuWzAtOV0qXC5bMC0NCj4gOV0qLy8nKQ0KPiA+ID4gLSAgaWYgdGVzdCAiJGxpYnpiY3Zl
-cm1haiIgLWdlICI1IiA7IHRoZW4NCj4gPiA+ICsgIGlmICQocGtnLWNvbmZpZyAtLWF0bGVhc3Qt
-dmVyc2lvbj01IGxpYnpiYyk7IHRoZW4NCj4gDQo+IFNob3VsZCB0aGlzIHJlYWxseSBiZSBiZWlu
-ZyBkb25lIGluIGEgc3Vic2hlbGw/IElmIGl0IHdlcmVuJ3QgZG9uZSBpbg0KPiBhIHN1YnNoZWxs
-IHdvdWxkbid0IHRoZSBpZiBoYXZlIGZhaWxlZCBkdWUgdG8gYSBsYWNrIG9mIHBrZy1jb25maWc6
-DQo+IA0KPiAlIGlmIG5vdC1wa2ctY29uZmlnIC0tYXRsZWFzdC12ZXJzaW9uPTUgbGliemJjOyB0
-aGVuIGVjaG8geTsgZWxzZSBlY2hvIG47IGZpDQo+IHpzaDogY29tbWFuZCBub3QgZm91bmQ6IG5v
-dC1wa2ctY29uZmlnDQo+IG4NCg0KVGhpcyBsaW5lIG5vdyBkb2VzIHRoZSBzYW1lIHRoaW5nIHRo
-YXQgaXMgZG9uZSB0byBjaGVjayBsaWJpc2NzaSBhbmQgbGlibmJkDQptaW5pbXVtIHZlcnNpb25z
-IGluIHRoZSBzYW1lIHNjcmlwdC4gSXQgd29ya3MgZmluZSBpZiBwa2ctY29uZmlnIGlzIGluc3Rh
-bGxlZA0KaW4gdGhlIHN5c3RlbS4gVGhlIHZlcnNpb24gd2l0aG91dCB0aGUgc3Vic2hlbGwgYWxz
-byB3b3JrcywgYnV0IGl0IG91dHB1dHMNCmFuIGFkZGl0aW9uYWwgZXJyb3IgbWVzc2FnZSBpZiBw
-a2ctY29uZmlnIGlzIG5vdCBpbnN0YWxsZWQgLQ0KDQouL2NvbmZpZ3VyZTogbGluZSAyNDcwOiBu
-b3QtcGtnLWNvbmZpZzogY29tbWFuZCBub3QgZm91bmQNCmxpYnpiYyBlbmdpbmUgICAgICAgICAg
-ICAgICAgIG1pc3NpbmcgcGtnLWNvbmZpZywgY2FuJ3QgY2hlY2sgbGlicmFyeSB2ZXJzaW9uDQoN
-CkkgY291bGQgcmVtb3ZlIHRoZSBleHBsaWNpdCBjaGVjayBmb3IgcGtnLWNvbmZpZyBhbmQgZG8g
-dGhlIHZlcnNpb24gY2hlY2sNCndpdGhvdXQgdGhlIHN1YnNoZWxsLCBidXQgSSB0aGluayB0aGUg
-b3V0cHV0IGlzIGxlc3MgY29uZnVzaW5nIHdpdGggdGhlIHN1YnNoZWxsDQp2ZXJzaW9uLg0KDQo+
-IA0KPiAtLQ0KPiBTaXRzb2ZlIHwgaHR0cDovL3N1Y3Mub3JnL35zaXRzLw0K
+On Mon, 27 Jul 2020 at 06:05, Damien Le Moal <Damien.LeMoal@wdc.com> wrote:
+>
+> On 2020/07/27 12:16, Dmitry Fomichev wrote:
+> > Avoid parsing pkg-config output and just use --atleast-version to
+> > check if libzbc is present and has an up to date version. Since
+> > this process may fail because pkg-config is not installed, verify
+> > pkg-config presence and warn the user if it was not found.
+> >
+> > Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+> > ---
+> >  configure | 9 ++++++---
+> >  1 file changed, 6 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/configure b/configure
+> > index 5925e94f..0c4a96ec 100755
+> > --- a/configure
+> > +++ b/configure
+> > @@ -2467,11 +2467,14 @@ int main(int argc, char **argv)
+> >  }
+> >  EOF
+> >  if compile_prog "" "-lzbc" "libzbc"; then
+> > -  libzbcvermaj=$(pkg-config --modversion libzbc | sed 's/\.[0-9]*\.[0-9]*//')
+> > -  if test "$libzbcvermaj" -ge "5" ; then
+> > +  if $(pkg-config --atleast-version=5 libzbc); then
+
+Should this really be being done in a subshell? If it weren't done in
+a subshell wouldn't the if have failed due to a lack of pkg-config:
+
+% if not-pkg-config --atleast-version=5 libzbc; then echo y; else echo n; fi
+zsh: command not found: not-pkg-config
+n
+
+-- 
+Sitsofe | http://sucs.org/~sits/
 
