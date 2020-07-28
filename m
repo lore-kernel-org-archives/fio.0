@@ -1,84 +1,81 @@
-Return-Path: <prvs=47212d7a9=Dmitry.Fomichev@wdc.com>
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: RE: [PATCH 1/3] configure: improve libzbc version check
-Date: Wed, 29 Jul 2020 21:09:56 +0000
-Message-ID: 
- <MN2PR04MB5951D651DD8E40596A756219E1700@MN2PR04MB5951.namprd04.prod.outlook.com>
-References: <20200727031638.28264-1-dmitry.fomichev@wdc.com>
- <20200727031638.28264-2-dmitry.fomichev@wdc.com>
- <CY4PR04MB37518C4372FBF5B4203D468AE7720@CY4PR04MB3751.namprd04.prod.outlook.com>
- <CALjAwxjdDCKJiW-1gUun=j7Tn8rLL4EhTPDtt5NtD=wRrUn0bw@mail.gmail.com>
- <MN2PR04MB59510EA6CF8FA08958D3603EE1730@MN2PR04MB5951.namprd04.prod.outlook.com>
- <CALjAwxhS=kMGZNgcLmqG=r7KnMMN21snk9xkMXOis=5w3X4+fw@mail.gmail.com>
-In-Reply-To: 
- <CALjAwxhS=kMGZNgcLmqG=r7KnMMN21snk9xkMXOis=5w3X4+fw@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-To: Sitsofe Wheeler <sitsofe@gmail.com>
+References: <20200727031638.28264-1-dmitry.fomichev@wdc.com>
+ <20200727031638.28264-2-dmitry.fomichev@wdc.com> <CY4PR04MB37518C4372FBF5B4203D468AE7720@CY4PR04MB3751.namprd04.prod.outlook.com>
+ <CALjAwxjdDCKJiW-1gUun=j7Tn8rLL4EhTPDtt5NtD=wRrUn0bw@mail.gmail.com> <MN2PR04MB59510EA6CF8FA08958D3603EE1730@MN2PR04MB5951.namprd04.prod.outlook.com>
+In-Reply-To: <MN2PR04MB59510EA6CF8FA08958D3603EE1730@MN2PR04MB5951.namprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Tue, 28 Jul 2020 22:23:10 +0100
+Message-ID: <CALjAwxhS=kMGZNgcLmqG=r7KnMMN21snk9xkMXOis=5w3X4+fw@mail.gmail.com>
+Subject: Re: [PATCH 1/3] configure: improve libzbc version check
+Content-Type: text/plain; charset="UTF-8"
+To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
 Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU2l0c29mZSBXaGVlbGVy
-IDxzaXRzb2ZlQGdtYWlsLmNvbT4NCj4gU2VudDogVHVlc2RheSwgSnVseSAyOCwgMjAyMCA1OjIz
-IFBNDQo+IFRvOiBEbWl0cnkgRm9taWNoZXYgPERtaXRyeS5Gb21pY2hldkB3ZGMuY29tPg0KPiBD
-YzogRGFtaWVuIExlIE1vYWwgPERhbWllbi5MZU1vYWxAd2RjLmNvbT47IEplbnMgQXhib2UNCj4g
-PGF4Ym9lQGtlcm5lbC5kaz47IGZpb0B2Z2VyLmtlcm5lbC5vcmc7IFNoaW5pY2hpcm8gS2F3YXNh
-a2kNCj4gPHNoaW5pY2hpcm8ua2F3YXNha2lAd2RjLmNvbT4NCj4gU3ViamVjdDogUmU6IFtQQVRD
-SCAxLzNdIGNvbmZpZ3VyZTogaW1wcm92ZSBsaWJ6YmMgdmVyc2lvbiBjaGVjaw0KPiANCj4gT24g
-VHVlLCAyOCBKdWwgMjAyMCBhdCAyMDo1OCwgRG1pdHJ5IEZvbWljaGV2IDxEbWl0cnkuRm9taWNo
-ZXZAd2RjLmNvbT4NCj4gd3JvdGU6DQo+ID4NCj4gPiA+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0t
-LS0tDQo+ID4gPiBGcm9tOiBTaXRzb2ZlIFdoZWVsZXIgPHNpdHNvZmVAZ21haWwuY29tPg0KPiA+
-ID4gU2VudDogTW9uZGF5LCBKdWx5IDI3LCAyMDIwIDE6MjMgQU0NCj4gPiA+IFRvOiBEYW1pZW4g
-TGUgTW9hbCA8RGFtaWVuLkxlTW9hbEB3ZGMuY29tPg0KPiA+ID4gQ2M6IERtaXRyeSBGb21pY2hl
-diA8RG1pdHJ5LkZvbWljaGV2QHdkYy5jb20+OyBKZW5zIEF4Ym9lDQo+ID4gPiA8YXhib2VAa2Vy
-bmVsLmRrPjsgZmlvQHZnZXIua2VybmVsLm9yZzsgU2hpbmljaGlybyBLYXdhc2FraQ0KPiA+ID4g
-PHNoaW5pY2hpcm8ua2F3YXNha2lAd2RjLmNvbT4NCj4gPiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0gg
-MS8zXSBjb25maWd1cmU6IGltcHJvdmUgbGliemJjIHZlcnNpb24gY2hlY2sNCj4gPiA+DQo+ID4g
-PiBPbiBNb24sIDI3IEp1bCAyMDIwIGF0IDA2OjA1LCBEYW1pZW4gTGUgTW9hbA0KPiA8RGFtaWVu
-LkxlTW9hbEB3ZGMuY29tPg0KPiA+ID4gd3JvdGU6DQo+ID4gPiA+DQo+ID4gPiA+IE9uIDIwMjAv
-MDcvMjcgMTI6MTYsIERtaXRyeSBGb21pY2hldiB3cm90ZToNCj4gPiA+ID4gPiBBdm9pZCBwYXJz
-aW5nIHBrZy1jb25maWcgb3V0cHV0IGFuZCBqdXN0IHVzZSAtLWF0bGVhc3QtdmVyc2lvbiB0bw0K
-PiA+ID4gPiA+IGNoZWNrIGlmIGxpYnpiYyBpcyBwcmVzZW50IGFuZCBoYXMgYW4gdXAgdG8gZGF0
-ZSB2ZXJzaW9uLiBTaW5jZQ0KPiA+ID4gPiA+IHRoaXMgcHJvY2VzcyBtYXkgZmFpbCBiZWNhdXNl
-IHBrZy1jb25maWcgaXMgbm90IGluc3RhbGxlZCwgdmVyaWZ5DQo+ID4gPiA+ID4gcGtnLWNvbmZp
-ZyBwcmVzZW5jZSBhbmQgd2FybiB0aGUgdXNlciBpZiBpdCB3YXMgbm90IGZvdW5kLg0KPiA+ID4g
-PiA+DQo+ID4gPiA+ID4gU2lnbmVkLW9mZi1ieTogRG1pdHJ5IEZvbWljaGV2IDxkbWl0cnkuZm9t
-aWNoZXZAd2RjLmNvbT4NCj4gPiA+ID4gPiAtLS0NCj4gPiA+ID4gPiAgY29uZmlndXJlIHwgOSAr
-KysrKystLS0NCj4gPiA+ID4gPiAgMSBmaWxlIGNoYW5nZWQsIDYgaW5zZXJ0aW9ucygrKSwgMyBk
-ZWxldGlvbnMoLSkNCj4gPiA+ID4gPg0KPiA+ID4gPiA+IGRpZmYgLS1naXQgYS9jb25maWd1cmUg
-Yi9jb25maWd1cmUNCj4gPiA+ID4gPiBpbmRleCA1OTI1ZTk0Zi4uMGM0YTk2ZWMgMTAwNzU1DQo+
-ID4gPiA+ID4gLS0tIGEvY29uZmlndXJlDQo+ID4gPiA+ID4gKysrIGIvY29uZmlndXJlDQo+ID4g
-PiA+ID4gQEAgLTI0NjcsMTEgKzI0NjcsMTQgQEAgaW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKiph
-cmd2KQ0KPiA+ID4gPiA+ICB9DQo+ID4gPiA+ID4gIEVPRg0KPiA+ID4gPiA+ICBpZiBjb21waWxl
-X3Byb2cgIiIgIi1semJjIiAibGliemJjIjsgdGhlbg0KPiA+ID4gPiA+IC0gIGxpYnpiY3Zlcm1h
-aj0kKHBrZy1jb25maWcgLS1tb2R2ZXJzaW9uIGxpYnpiYyB8IHNlZCAncy9cLlswLTldKlwuWzAt
-DQo+ID4gPiA5XSovLycpDQo+ID4gPiA+ID4gLSAgaWYgdGVzdCAiJGxpYnpiY3Zlcm1haiIgLWdl
-ICI1IiA7IHRoZW4NCj4gPiA+ID4gPiArICBpZiAkKHBrZy1jb25maWcgLS1hdGxlYXN0LXZlcnNp
-b249NSBsaWJ6YmMpOyB0aGVuDQo+ID4gPg0KPiA+ID4gU2hvdWxkIHRoaXMgcmVhbGx5IGJlIGJl
-aW5nIGRvbmUgaW4gYSBzdWJzaGVsbD8gSWYgaXQgd2VyZW4ndCBkb25lIGluDQo+ID4gPiBhIHN1
-YnNoZWxsIHdvdWxkbid0IHRoZSBpZiBoYXZlIGZhaWxlZCBkdWUgdG8gYSBsYWNrIG9mIHBrZy1j
-b25maWc6DQo+ID4gPg0KPiA+ID4gJSBpZiBub3QtcGtnLWNvbmZpZyAtLWF0bGVhc3QtdmVyc2lv
-bj01IGxpYnpiYzsgdGhlbiBlY2hvIHk7IGVsc2UgZWNobyBuOyBmaQ0KPiA+ID4genNoOiBjb21t
-YW5kIG5vdCBmb3VuZDogbm90LXBrZy1jb25maWcNCj4gPiA+IG4NCj4gPg0KPiA+IFRoaXMgbGlu
-ZSBub3cgZG9lcyB0aGUgc2FtZSB0aGluZyB0aGF0IGlzIGRvbmUgdG8gY2hlY2sgbGliaXNjc2kg
-YW5kIGxpYm5iZA0KPiA+IG1pbmltdW0gdmVyc2lvbnMgaW4gdGhlIHNhbWUgc2NyaXB0LiBJdCB3
-b3JrcyBmaW5lIGlmIHBrZy1jb25maWcgaXMgaW5zdGFsbGVkDQo+ID4gaW4gdGhlIHN5c3RlbS4g
-VGhlIHZlcnNpb24gd2l0aG91dCB0aGUgc3Vic2hlbGwgYWxzbyB3b3JrcywgYnV0IGl0IG91dHB1
-dHMNCj4gPiBhbiBhZGRpdGlvbmFsIGVycm9yIG1lc3NhZ2UgaWYgcGtnLWNvbmZpZyBpcyBub3Qg
-aW5zdGFsbGVkIC0NCj4gPg0KPiA+IC4vY29uZmlndXJlOiBsaW5lIDI0NzA6IG5vdC1wa2ctY29u
-ZmlnOiBjb21tYW5kIG5vdCBmb3VuZA0KPiA+IGxpYnpiYyBlbmdpbmUgICAgICAgICAgICAgICAg
-IG1pc3NpbmcgcGtnLWNvbmZpZywgY2FuJ3QgY2hlY2sgbGlicmFyeSB2ZXJzaW9uDQo+ID4NCj4g
-PiBJIGNvdWxkIHJlbW92ZSB0aGUgZXhwbGljaXQgY2hlY2sgZm9yIHBrZy1jb25maWcgYW5kIGRv
-IHRoZSB2ZXJzaW9uIGNoZWNrDQo+ID4gd2l0aG91dCB0aGUgc3Vic2hlbGwsIGJ1dCBJIHRoaW5r
-IHRoZSBvdXRwdXQgaXMgbGVzcyBjb25mdXNpbmcgd2l0aCB0aGUNCj4gc3Vic2hlbGwNCj4gPiB2
-ZXJzaW9uLg0KPiANCj4gT0sgSSBzZWUgd2hhdCB5b3UgbWVhbi4gV291bGQgaXQgYmUgYmV0dGVy
-IHRvIGhhdmUgYW4gZXhwbGljaXQNCj4gcGtnLWNvbmZpZyBjaGVjayBmb3IgYWxsIHRob3NlIGVu
-Z2luZXM/DQo+IA0KPiAoVGhlcmUgaXMgYWxzbyBhIGdlbmVyYWwgaXNzdWUgdGhhdCBmaW8ncyBw
-a2ctY29uZmlnIHVzYWdlIHdvbid0IGNvcGUNCj4gd2VsbCBpbiBjcm9zcyBjb21waWxlIGVudmly
-b25tZW50cyBidXQgdGhhdCdzIGFub3RoZXIgaXNzdWUuLi4pDQoNCkkndmUgc2VudCB2MiB0aGF0
-IGFkZHMgYSBoZWxwZXIgZnVuY3Rpb24gdG8gcGVyZm9ybSB0aGUgc2FtZSBjaGVjayBmb3IgYWxs
-DQpvdGhlciBsaWJzIHRoYXQgbmVlZCBpdC4NCg0KPiANCj4gLS0NCj4gU2l0c29mZSB8IGh0dHA6
-Ly9zdWNzLm9yZy9+c2l0cy8NCg==
+On Tue, 28 Jul 2020 at 20:58, Dmitry Fomichev <Dmitry.Fomichev@wdc.com> wrote:
+>
+> > -----Original Message-----
+> > From: Sitsofe Wheeler <sitsofe@gmail.com>
+> > Sent: Monday, July 27, 2020 1:23 AM
+> > To: Damien Le Moal <Damien.LeMoal@wdc.com>
+> > Cc: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>; Jens Axboe
+> > <axboe@kernel.dk>; fio@vger.kernel.org; Shinichiro Kawasaki
+> > <shinichiro.kawasaki@wdc.com>
+> > Subject: Re: [PATCH 1/3] configure: improve libzbc version check
+> >
+> > On Mon, 27 Jul 2020 at 06:05, Damien Le Moal <Damien.LeMoal@wdc.com>
+> > wrote:
+> > >
+> > > On 2020/07/27 12:16, Dmitry Fomichev wrote:
+> > > > Avoid parsing pkg-config output and just use --atleast-version to
+> > > > check if libzbc is present and has an up to date version. Since
+> > > > this process may fail because pkg-config is not installed, verify
+> > > > pkg-config presence and warn the user if it was not found.
+> > > >
+> > > > Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+> > > > ---
+> > > >  configure | 9 ++++++---
+> > > >  1 file changed, 6 insertions(+), 3 deletions(-)
+> > > >
+> > > > diff --git a/configure b/configure
+> > > > index 5925e94f..0c4a96ec 100755
+> > > > --- a/configure
+> > > > +++ b/configure
+> > > > @@ -2467,11 +2467,14 @@ int main(int argc, char **argv)
+> > > >  }
+> > > >  EOF
+> > > >  if compile_prog "" "-lzbc" "libzbc"; then
+> > > > -  libzbcvermaj=$(pkg-config --modversion libzbc | sed 's/\.[0-9]*\.[0-
+> > 9]*//')
+> > > > -  if test "$libzbcvermaj" -ge "5" ; then
+> > > > +  if $(pkg-config --atleast-version=5 libzbc); then
+> >
+> > Should this really be being done in a subshell? If it weren't done in
+> > a subshell wouldn't the if have failed due to a lack of pkg-config:
+> >
+> > % if not-pkg-config --atleast-version=5 libzbc; then echo y; else echo n; fi
+> > zsh: command not found: not-pkg-config
+> > n
+>
+> This line now does the same thing that is done to check libiscsi and libnbd
+> minimum versions in the same script. It works fine if pkg-config is installed
+> in the system. The version without the subshell also works, but it outputs
+> an additional error message if pkg-config is not installed -
+>
+> ./configure: line 2470: not-pkg-config: command not found
+> libzbc engine                 missing pkg-config, can't check library version
+>
+> I could remove the explicit check for pkg-config and do the version check
+> without the subshell, but I think the output is less confusing with the subshell
+> version.
+
+OK I see what you mean. Would it be better to have an explicit
+pkg-config check for all those engines?
+
+(There is also a general issue that fio's pkg-config usage won't cope
+well in cross compile environments but that's another issue...)
+
+-- 
+Sitsofe | http://sucs.org/~sits/
 
