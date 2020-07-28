@@ -1,231 +1,214 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47366 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725848AbgGZMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 26 Jul 2020 08:00:09 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91159C0619D2
-        for <fio@vger.kernel.org>; Sun, 26 Jul 2020 05:00:07 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jzfK1-0006lT-68
-        for fio@vger.kernel.org; Sun, 26 Jul 2020 12:00:06 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20200726120002.491FB1BC01C4@kernel.dk>
-Date: Sun, 26 Jul 2020 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <prvs=471db6e92=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH 2/3] zbd: simplify zone reset code
+Date: Tue, 28 Jul 2020 23:17:46 +0000
+Message-ID: 
+ <CY4PR04MB3751503A0B02583DA279C21AE7730@CY4PR04MB3751.namprd04.prod.outlook.com>
+References: <20200727031638.28264-1-dmitry.fomichev@wdc.com>
+ <20200727031638.28264-3-dmitry.fomichev@wdc.com>
+ <CY4PR04MB37516FEB528EA3FEA138055AE7720@CY4PR04MB3751.namprd04.prod.outlook.com>
+ <MN2PR04MB5951A8D8EB4EAFA03D277664E1730@MN2PR04MB5951.namprd04.prod.outlook.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Jens Axboe <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit c355011a2509fdf6caa2a220e1534d61f14c4801:
-
-  Merge branch 'sribs-patch-1039' of https://github.com/sribs/fio (2020-07-24 11:05:21 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to e235e74dfd0627b17690194f957da509b8ace808:
-
-  Merge branch 'test-cleanup' of https://github.com/vincentkfu/fio (2020-07-25 13:55:16 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (3):
-      configure: error early on too old compier
-      Merge branch 'check-atomics' of https://github.com/sitsofe/fio
-      Merge branch 'test-cleanup' of https://github.com/vincentkfu/fio
-
-Sitsofe Wheeler (1):
-      configure: check for C11 atomics support
-
-Vincent Fu (4):
-      t/run-fio-tests: catch modprobe exceptions
-      t/run-fio-tests: fix issues identified by pylint3 and pyflakes3
-      ci: set PYTHONUNBUFFERED=TRUE
-      t/run-fio-tests: add description to each test result line
-
- .appveyor.yml       |  1 +
- ci/travis-build.sh  |  1 +
- compiler/compiler.h |  7 -------
- configure           | 19 +++++++++++++++++++
- t/run-fio-tests.py  | 34 ++++++++++++++++------------------
- 5 files changed, 37 insertions(+), 25 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/.appveyor.yml b/.appveyor.yml
-index 5f4a33e2..5c0266a1 100644
---- a/.appveyor.yml
-+++ b/.appveyor.yml
-@@ -18,6 +18,7 @@ environment:
- install:
-   - '%CYG_ROOT%\setup-x86_64.exe --quiet-mode --no-shortcuts --only-site --site "%CYG_MIRROR%" --packages "mingw64-%PACKAGE_ARCH%-zlib,mingw64-%PACKAGE_ARCH%-CUnit" > NUL'
-   - SET PATH=C:\Python38-x64;%CYG_ROOT%\bin;%PATH% # NB: Changed env variables persist to later sections
-+  - SET PYTHONUNBUFFERED=TRUE
-   - python.exe -m pip install scipy six
- 
- build_script:
-diff --git a/ci/travis-build.sh b/ci/travis-build.sh
-index fff9c088..06012e89 100755
---- a/ci/travis-build.sh
-+++ b/ci/travis-build.sh
-@@ -1,6 +1,7 @@
- #!/bin/bash
- 
- EXTRA_CFLAGS="-Werror"
-+PYTHONUNBUFFERED=TRUE
- 
- if [[ "$BUILD_ARCH" == "x86" ]]; then
-     EXTRA_CFLAGS="${EXTRA_CFLAGS} -m32"
-diff --git a/compiler/compiler.h b/compiler/compiler.h
-index 8c0eb9d1..8a784b92 100644
---- a/compiler/compiler.h
-+++ b/compiler/compiler.h
-@@ -1,13 +1,6 @@
- #ifndef FIO_COMPILER_H
- #define FIO_COMPILER_H
- 
--/* IWYU pragma: begin_exports */
--#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 9) || __clang_major__ >= 6
--#else
--#error Compiler too old, need at least gcc 4.9
--#endif
--/* IWYU pragma: end_exports */
--
- #define __must_check		__attribute__((warn_unused_result))
- 
- #define __compiletime_warning(message)	__attribute__((warning(message)))
-diff --git a/configure b/configure
-index b079a2a5..25216c63 100755
---- a/configure
-+++ b/configure
-@@ -550,6 +550,25 @@ else
- fi
- print_config "Static build" "$build_static"
- 
-+##########################################
-+# check for C11 atomics support
-+cat > $TMPC <<EOF
-+#include <stdatomic.h>
-+int main(void)
-+{
-+  _Atomic unsigned v;
-+  atomic_load(&v);
-+  return 0;
-+}
-+EOF
-+if ! compile_prog "" "" "C11 atomics"; then
-+  echo
-+  echo "Your compiler doesn't support C11 atomics. gcc 4.9/clang 3.6 are the"
-+  echo "minimum versions with it - perhaps your compiler is too old?"
-+  fatal "C11 atomics support not found"
-+fi
-+
-+
- ##########################################
- # check for wordsize
- wordsize="0"
-diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
-index c116bf5a..6f1fc092 100755
---- a/t/run-fio-tests.py
-+++ b/t/run-fio-tests.py
-@@ -447,13 +447,6 @@ class FioJobTest_iops_rate(FioJobTest):
-             self.passed = False
- 
- 
--class FioJobTest_t0013(FioJobTest):
--    """Runs fio test job t0013"""
--
--    def check_result(self):
--        super(FioJobTest_t0013, self).check_result()
--
--
- class Requirements(object):
-     """Requirements consists of multiple run environment characteristics.
-     These are to determine if a particular test can be run"""
-@@ -485,11 +478,14 @@ class Requirements(object):
- 
-             Requirements._root = (os.geteuid() == 0)
-             if Requirements._zbd and Requirements._root:
--                subprocess.run(["modprobe", "null_blk"],
--                               stdout=subprocess.PIPE,
--                               stderr=subprocess.PIPE)
--                if os.path.exists("/sys/module/null_blk/parameters/zoned"):
--                    Requirements._zoned_nullb = True
-+                try:
-+                    subprocess.run(["modprobe", "null_blk"],
-+                                   stdout=subprocess.PIPE,
-+                                   stderr=subprocess.PIPE)
-+                    if os.path.exists("/sys/module/null_blk/parameters/zoned"):
-+                        Requirements._zoned_nullb = True
-+                except Exception:
-+                    pass
- 
-         if platform.system() == "Windows":
-             utest_exe = "unittest.exe"
-@@ -690,13 +686,13 @@ TEST_LIST = [
-         'pre_job':          None,
-         'pre_success':      None,
-         'output_format':    'json',
--        'requirements':     [],
-         'requirements':     [Requirements.not_macos],
-         # mac os does not support CPU affinity
-+        # which is required for gtod offloading
-     },
-     {
-         'test_id':          13,
--        'test_class':       FioJobTest_t0013,
-+        'test_class':       FioJobTest,
-         'job':              't0013.fio',
-         'success':          SUCCESS_DEFAULT,
-         'pre_job':          None,
-@@ -846,9 +842,9 @@ def main():
-                 print("Invalid --pass-through argument '%s'" % arg)
-                 print("Syntax for --pass-through is TESTNUMBER:ARGUMENT")
-                 return
--            split = arg.split(":",1)
-+            split = arg.split(":", 1)
-             pass_through[int(split[0])] = split[1]
--        logging.debug("Pass-through arguments: %s" % pass_through)
-+        logging.debug("Pass-through arguments: %s", pass_through)
- 
-     if args.fio_root:
-         fio_root = args.fio_root
-@@ -908,6 +904,7 @@ def main():
-                 fio_pre_job=fio_pre_job,
-                 fio_pre_success=fio_pre_success,
-                 output_format=output_format)
-+            desc = config['job']
-         elif issubclass(config['test_class'], FioExeTest):
-             exe_path = os.path.join(fio_root, config['exe'])
-             if config['parameters']:
-@@ -921,6 +918,7 @@ def main():
-                 parameters += pass_through[config['test_id']].split()
-             test = config['test_class'](exe_path, parameters,
-                                         config['success'])
-+            desc = config['exe']
-         else:
-             print("Test {0} FAILED: unable to process test config".format(config['test_id']))
-             failed = failed + 1
-@@ -935,7 +933,7 @@ def main():
-                 if not reqs_met:
-                     break
-             if not reqs_met:
--                print("Test {0} SKIPPED ({1})".format(config['test_id'], reason))
-+                print("Test {0} SKIPPED ({1}) {2}".format(config['test_id'], reason, desc))
-                 skipped = skipped + 1
-                 continue
- 
-@@ -952,7 +950,7 @@ def main():
-             logging.debug("Test %d: stderr:\n%s", config['test_id'], contents)
-             contents, _ = FioJobTest.get_file(test.stdout_file)
-             logging.debug("Test %d: stdout:\n%s", config['test_id'], contents)
--        print("Test {0} {1}".format(config['test_id'], result))
-+        print("Test {0} {1} {2}".format(config['test_id'], result, desc))
- 
-     print("{0} test(s) passed, {1} failed, {2} skipped".format(passed, failed, skipped))
- 
+On 2020/07/29 8:01, Dmitry Fomichev wrote:=0A=
+> =0A=
+>> -----Original Message-----=0A=
+>> From: Damien Le Moal <Damien.LeMoal@wdc.com>=0A=
+>> Sent: Monday, July 27, 2020 1:07 AM=0A=
+>> To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>; Jens Axboe=0A=
+>> <axboe@kernel.dk>=0A=
+>> Cc: fio@vger.kernel.org; Shinichiro Kawasaki=0A=
+>> <shinichiro.kawasaki@wdc.com>=0A=
+>> Subject: Re: [PATCH 2/3] zbd: simplify zone reset code=0A=
+>>=0A=
+>> On 2020/07/27 12:16, Dmitry Fomichev wrote:=0A=
+>>> zbd_reset_range() function is only called once from zbd_reset_zone()=0A=
+>>> and it is always called for an individual zone, not a range.=0A=
+>>>=0A=
+>>> Make zone reset flow simpler by moving all the code needed=0A=
+>>> to reset a single zone from zbd_reset_range() to zbd_reset_zone().=0A=
+>>> Therefore, zbd_reset_range() is now dropped.=0A=
+>>>=0A=
+>>> No functional change.=0A=
+>>>=0A=
+>>> Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>=0A=
+>>> ---=0A=
+>>>  zbd.c | 76 +++++++++++++++++++++--------------------------------------=
+=0A=
+>>>  1 file changed, 27 insertions(+), 49 deletions(-)=0A=
+>>>=0A=
+>>> diff --git a/zbd.c b/zbd.c=0A=
+>>> index 3eac5df3..f6ccf299 100644=0A=
+>>> --- a/zbd.c=0A=
+>>> +++ b/zbd.c=0A=
+>>> @@ -670,54 +670,6 @@ int zbd_setup_files(struct thread_data *td)=0A=
+>>>  	return 0;=0A=
+>>>  }=0A=
+>>>=0A=
+>>> -/**=0A=
+>>> - * zbd_reset_range - reset zones for a range of sectors=0A=
+>>> - * @td: FIO thread data.=0A=
+>>> - * @f: Fio file for which to reset zones=0A=
+>>> - * @sector: Starting sector in units of 512 bytes=0A=
+>>> - * @nr_sectors: Number of sectors in units of 512 bytes=0A=
+>>> - *=0A=
+>>> - * Returns 0 upon success and a negative error code upon failure.=0A=
+>>> - */=0A=
+>>> -static int zbd_reset_range(struct thread_data *td, struct fio_file *f,=
+=0A=
+>>> -			   uint64_t offset, uint64_t length)=0A=
+>>> -{=0A=
+>>> -	uint32_t zone_idx_b, zone_idx_e;=0A=
+>>> -	struct fio_zone_info *zb, *ze, *z;=0A=
+>>> -	int ret =3D 0;=0A=
+>>> -=0A=
+>>> -	assert(is_valid_offset(f, offset + length - 1));=0A=
+>>> -=0A=
+>>> -	switch (f->zbd_info->model) {=0A=
+>>> -	case ZBD_HOST_AWARE:=0A=
+>>> -	case ZBD_HOST_MANAGED:=0A=
+>>> -		ret =3D zbd_reset_wp(td, f, offset, length);=0A=
+>>> -		if (ret < 0)=0A=
+>>> -			return ret;=0A=
+>>> -		break;=0A=
+>>> -	default:=0A=
+>>> -		break;=0A=
+>>> -	}=0A=
+>>> -=0A=
+>>> -	zone_idx_b =3D zbd_zone_idx(f, offset);=0A=
+>>> -	zb =3D &f->zbd_info->zone_info[zone_idx_b];=0A=
+>>> -	zone_idx_e =3D zbd_zone_idx(f, offset + length);=0A=
+>>> -	ze =3D &f->zbd_info->zone_info[zone_idx_e];=0A=
+>>> -	for (z =3D zb; z < ze; z++) {=0A=
+>>> -		pthread_mutex_lock(&z->mutex);=0A=
+>>> -		pthread_mutex_lock(&f->zbd_info->mutex);=0A=
+>>> -		f->zbd_info->sectors_with_data -=3D z->wp - z->start;=0A=
+>>> -		pthread_mutex_unlock(&f->zbd_info->mutex);=0A=
+>>> -		z->wp =3D z->start;=0A=
+>>> -		z->verify_block =3D 0;=0A=
+>>> -		pthread_mutex_unlock(&z->mutex);=0A=
+>>> -	}=0A=
+>>> -=0A=
+>>> -	td->ts.nr_zone_resets +=3D ze - zb;=0A=
+>>> -=0A=
+>>> -	return ret;=0A=
+>>> -}=0A=
+>>> -=0A=
+>>>  static unsigned int zbd_zone_nr(struct zoned_block_device_info=0A=
+>> *zbd_info,=0A=
+>>>  				struct fio_zone_info *zone)=0A=
+>>>  {=0A=
+>>> @@ -735,10 +687,36 @@ static unsigned int zbd_zone_nr(struct=0A=
+>> zoned_block_device_info *zbd_info,=0A=
+>>>  static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,=
+=0A=
+>>>  			  struct fio_zone_info *z)=0A=
+>>>  {=0A=
+>>> +	uint64_t offset =3D z->start;=0A=
+>>> +	uint64_t length =3D (z+1)->start - offset;=0A=
+>>> +	int ret =3D 0;=0A=
+>>> +=0A=
+>>> +	assert(is_valid_offset(f, offset + length - 1));=0A=
+>>> +=0A=
+>>>  	dprint(FD_ZBD, "%s: resetting wp of zone %u.\n", f->file_name,=0A=
+>>>  		zbd_zone_nr(f->zbd_info, z));=0A=
+>>> +	switch (f->zbd_info->model) {=0A=
+>>> +	case ZBD_HOST_AWARE:=0A=
+>>> +	case ZBD_HOST_MANAGED:=0A=
+>>> +		ret =3D zbd_reset_wp(td, f, offset, length);=0A=
+>>> +		if (ret < 0)=0A=
+>>> +			return ret;=0A=
+>>> +		break;=0A=
+>>> +	default:=0A=
+>>> +		break;=0A=
+>>> +	}=0A=
+>>>=0A=
+>>> -	return zbd_reset_range(td, f, z->start, zbd_zone_end(z) - z->start);=
+=0A=
+>>> +	pthread_mutex_lock(&z->mutex);=0A=
+>>=0A=
+>> Your change is not affecting the locking model, but I wonder if it would=
+ not=0A=
+>> be=0A=
+>> better to lock the zone before calling zbd_reset_wp() so that the device=
+ side=0A=
+>> zone reset and the update "z->wp =3D z->start" are atomically executed..=
+.=0A=
+> =0A=
+> I am seeing that zbd_reset_zone() is always called with the zone already =
+locked=0A=
+> and we can remove that locking inside this function (need to add a note i=
+n the=0A=
+> description that the caller must hold z->mutex). Overall, the additional =
+change is=0A=
+> =0A=
+> --- a/zbd.c=0A=
+> +++ b/zbd.c=0A=
+> @@ -691,24 +691,26 @@ static int zbd_reset_zone(struct thread_data *td, s=
+truct fio_file *f,=0A=
+> =0A=
+>         dprint(FD_ZBD, "%s: resetting wp of zone %u.\n", f->file_name,=0A=
+>                 zbd_zone_nr(f->zbd_info, z));=0A=
+> +=0A=
+> +       pthread_mutex_lock(&f->zbd_info->mutex);=0A=
+=0A=
+I do not think this is needed.=0A=
+=0A=
+> +=0A=
+>         switch (f->zbd_info->model) {=0A=
+>         case ZBD_HOST_AWARE:=0A=
+>         case ZBD_HOST_MANAGED:=0A=
+>                 ret =3D zbd_reset_wp(td, f, offset, length);=0A=
+> -               if (ret < 0)=0A=
+> +               if (ret < 0) {=0A=
+> +                       pthread_mutex_unlock(&f->zbd_info->mutex);=0A=
+=0A=
+Neither is this.=0A=
+=0A=
+>                         return ret;=0A=
+> +               }=0A=
+>                 break;=0A=
+>         default:=0A=
+>                 break;=0A=
+>         }=0A=
+> =0A=
+> -       pthread_mutex_lock(&z->mutex);=0A=
+=0A=
+Checking too, yes, the zone is already locked when zbd_reset_zone() is call=
+ed.=0A=
+So this can go away.=0A=
+=0A=
+> -       pthread_mutex_lock(&f->zbd_info->mutex);=0A=
+=0A=
+But this one needs to stay to protect sectors_with_data.=0A=
+=0A=
+=0A=
+>         f->zbd_info->sectors_with_data -=3D z->wp - z->start;=0A=
+>         pthread_mutex_unlock(&f->zbd_info->mutex);=0A=
+>         z->wp =3D z->start;=0A=
+>         z->verify_block =3D 0;=0A=
+> -       pthread_mutex_unlock(&z->mutex);=0A=
+> =0A=
+>         td->ts.nr_zone_resets++;=0A=
+> =0A=
+> I tried this now and I don't see any problems. This probably needs to be =
+a separate=0A=
+> patch. I can add it to this series. What do you suggest?=0A=
+=0A=
+I would just squash the above changes in your initial patch as a v2. Since =
+the=0A=
+original patch is already moving the mutex calls around, you may as well ch=
+ange=0A=
+them in the same patch with a mention about it in the commit message.=0A=
+=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
