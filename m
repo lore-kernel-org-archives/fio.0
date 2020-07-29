@@ -1,59 +1,35 @@
-Return-Path: <prvs=4448e3298=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 6/6] t/zbd: Add test case to check zonecapacity option
-Date: Wed,  1 Jul 2020 17:30:29 +0900
-Message-Id: <20200701083029.140741-7-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200701083029.140741-1-shinichiro.kawasaki@wdc.com>
-References: <20200701083029.140741-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <prvs=47212d7a9=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH v2 0/4] miscellaneous ZBD improvements
+Date: Thu, 30 Jul 2020 06:04:11 +0900
+Message-Id: <20200729210415.4166-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Hans Holmberg <hans.holmberg@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Hans Holmberg <hans.holmberg@wdc.com>
+This series contains four patches related to zoned block devices.
 
-Add test case #49 which confirms the newly introduced zonecapacity
-option is working as expected with regular block devices.
+v1 -> v2:
+  - removed recursive zone locking in zbd_reset_zone()
+  - added --disable-libzbc configure option
+  - moved pkg-config version check to a separate function
+  - added a patch to verify that pkg-config is available to check
+    the minimum supported version in all libraries that need that
 
-Signed-off-by: Hans Holmberg <hans.holmberg@wdc.com>
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- t/zbd/test-zbd-support | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+Dmitry Fomichev (4):
+  configure: improve libzbc version check
+  configure: check if pkg-config is installed
+  zbd: simplify zone reset code
+  t/zbd: check log file for failed assertions
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 31718c95..e53a20c5 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -839,6 +839,26 @@ test48() {
- 	    >> "${logfile}.${test_number}" 2>&1 || return $?
- }
- 
-+# Check if fio handles --zonecapacity on a normal block device correctly
-+test49() {
-+
-+    if [ -n "$is_zbd" ]; then
-+	echo "$dev is not a regular block device" \
-+	     >>"${logfile}.${test_number}"
-+	return 0
-+    fi
-+
-+    size=$((2 * zone_size))
-+    capacity=$((zone_size * 3 / 4))
-+
-+    run_one_fio_job "$(ioengine "psync")" --rw=write \
-+		    --zonemode=zbd --zonesize="${zone_size}" \
-+		    --zonecapacity=${capacity} \
-+		    --verify=md5  --size=${size} >>"${logfile}.${test_number}" 2>&1 ||
-+	return $?
-+    check_read $((capacity * 2)) || return $?
-+}
-+
- tests=()
- dynamic_analyzer=()
- reset_all_zones=
+ configure              | 61 ++++++++++++++++++---------------
+ t/zbd/test-zbd-support |  9 ++++-
+ zbd.c                  | 76 +++++++++++++++---------------------------
+ 3 files changed, 69 insertions(+), 77 deletions(-)
+
 -- 
-2.26.2
+2.21.0
 
 
