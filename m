@@ -1,212 +1,84 @@
-Return-Path: <prvs=460e8bdd2=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v3 2/6] options: Add zonecapacity option for zonemode=zbd
-Date: Fri, 17 Jul 2020 18:36:33 +0900
-Message-Id: <20200717093637.139565-3-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200717093637.139565-1-shinichiro.kawasaki@wdc.com>
-References: <20200717093637.139565-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <prvs=47212d7a9=Dmitry.Fomichev@wdc.com>
+From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+Subject: RE: [PATCH 1/3] configure: improve libzbc version check
+Date: Wed, 29 Jul 2020 21:09:56 +0000
+Message-ID: 
+ <MN2PR04MB5951D651DD8E40596A756219E1700@MN2PR04MB5951.namprd04.prod.outlook.com>
+References: <20200727031638.28264-1-dmitry.fomichev@wdc.com>
+ <20200727031638.28264-2-dmitry.fomichev@wdc.com>
+ <CY4PR04MB37518C4372FBF5B4203D468AE7720@CY4PR04MB3751.namprd04.prod.outlook.com>
+ <CALjAwxjdDCKJiW-1gUun=j7Tn8rLL4EhTPDtt5NtD=wRrUn0bw@mail.gmail.com>
+ <MN2PR04MB59510EA6CF8FA08958D3603EE1730@MN2PR04MB5951.namprd04.prod.outlook.com>
+ <CALjAwxhS=kMGZNgcLmqG=r7KnMMN21snk9xkMXOis=5w3X4+fw@mail.gmail.com>
+In-Reply-To: 
+ <CALjAwxhS=kMGZNgcLmqG=r7KnMMN21snk9xkMXOis=5w3X4+fw@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Hans Holmberg <hans.holmberg@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Hans Holmberg <hans.holmberg@wdc.com>
-
-To test zone capacity handling by fio using regular block devices, add
-zonecapacity option for zonemode=zbd. This new option allows specifying a
-zone capacity smaller than the zone size. Similarly to the zonesize
-option, the zonecapacity defined value applies to all emulated zones of
-the device.
-
-Signed-off-by: Hans Holmberg <hans.holmberg@wdc.com>
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- HOWTO            | 18 +++++++++++++++---
- cconv.c          |  2 ++
- fio.1            | 13 +++++++++++--
- options.c        | 11 +++++++++++
- thread_options.h |  2 ++
- zbd.c            | 13 ++++++++++++-
- 6 files changed, 53 insertions(+), 6 deletions(-)
-
-diff --git a/HOWTO b/HOWTO
-index 8cf8d650..35ead0cb 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -970,14 +970,15 @@ Target file/device
- 	Accepted values are:
- 
- 		**none**
--				The :option:`zonerange`, :option:`zonesize` and
--				:option:`zoneskip` parameters are ignored.
-+				The :option:`zonerange`, :option:`zonesize`,
-+				:option `zonecapacity` and option:`zoneskip`
-+				parameters are ignored.
- 		**strided**
- 				I/O happens in a single zone until
- 				:option:`zonesize` bytes have been transferred.
- 				After that number of bytes has been
- 				transferred processing of the next zone
--				starts.
-+				starts. :option `zonecapacity` is ignored.
- 		**zbd**
- 				Zoned block device mode. I/O happens
- 				sequentially in each zone, even if random I/O
-@@ -1004,6 +1005,17 @@ Target file/device
- 	For :option:`zonemode` =zbd, this is the size of a single zone. The
- 	:option:`zonerange` parameter is ignored in this mode.
- 
-+
-+.. option:: zonecapacity=int
-+
-+	For :option:`zonemode` =zbd, this defines the capacity of a single zone,
-+	which is the accessible area starting from the zone start address.
-+	This parameter only applies when using :option:`zonemode` =zbd in
-+	combination with regular block devices. If not specified it defaults to
-+	the zone size. If the target device is a zoned block device, the zone
-+	capacity is obtained from the device information and this option is
-+	ignored.
-+
- .. option:: zoneskip=int
- 
- 	For :option:`zonemode` =strided, the number of bytes to skip after
-diff --git a/cconv.c b/cconv.c
-index 449bcf7b..2469389b 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -223,6 +223,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
- 	o->ss_limit.u.f = fio_uint64_to_double(le64_to_cpu(top->ss_limit.u.i));
- 	o->zone_range = le64_to_cpu(top->zone_range);
- 	o->zone_size = le64_to_cpu(top->zone_size);
-+	o->zone_capacity = le64_to_cpu(top->zone_capacity);
- 	o->zone_skip = le64_to_cpu(top->zone_skip);
- 	o->zone_mode = le32_to_cpu(top->zone_mode);
- 	o->lockmem = le64_to_cpu(top->lockmem);
-@@ -563,6 +564,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	top->ss_limit.u.i = __cpu_to_le64(fio_double_to_uint64(o->ss_limit.u.f));
- 	top->zone_range = __cpu_to_le64(o->zone_range);
- 	top->zone_size = __cpu_to_le64(o->zone_size);
-+	top->zone_capacity = __cpu_to_le64(o->zone_capacity);
- 	top->zone_skip = __cpu_to_le64(o->zone_skip);
- 	top->zone_mode = __cpu_to_le32(o->zone_mode);
- 	top->lockmem = __cpu_to_le64(o->lockmem);
-diff --git a/fio.1 b/fio.1
-index f134e0bf..a3d348b2 100644
---- a/fio.1
-+++ b/fio.1
-@@ -738,12 +738,13 @@ Accepted values are:
- .RS
- .TP
- .B none
--The \fBzonerange\fR, \fBzonesize\fR and \fBzoneskip\fR parameters are ignored.
-+The \fBzonerange\fR, \fBzonesize\fR \fBzonecapacity\fR and \fBzoneskip\fR
-+parameters are ignored.
- .TP
- .B strided
- I/O happens in a single zone until \fBzonesize\fR bytes have been transferred.
- After that number of bytes has been transferred processing of the next zone
--starts.
-+starts. The \fBzonecapacity\fR parameter is ignored.
- .TP
- .B zbd
- Zoned block device mode. I/O happens sequentially in each zone, even if random
-@@ -771,6 +772,14 @@ zoned block device, the specified \fBzonesize\fR must be 0 or equal to the
- device zone size. For a regular block device or file, the specified
- \fBzonesize\fR must be at least 512B.
- .TP
-+.BI zonecapacity \fR=\fPint
-+For \fBzonemode\fR=zbd, this defines the capacity of a single zone, which is
-+the accessible area starting from the zone start address. This parameter only
-+applies when using \fBzonemode\fR=zbd in combination with regular block devices.
-+If not specified it defaults to the zone size. If the target device is a zoned
-+block device, the zone capacity is obtained from the device information and this
-+option is ignored.
-+.TP
- .BI zoneskip \fR=\fPint
- For \fBzonemode\fR=strided, the number of bytes to skip after \fBzonesize\fR
- bytes of data have been transferred.
-diff --git a/options.c b/options.c
-index 85a0f490..251ad2c1 100644
---- a/options.c
-+++ b/options.c
-@@ -3327,6 +3327,17 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.category = FIO_OPT_C_IO,
- 		.group	= FIO_OPT_G_ZONE,
- 	},
-+	{
-+		.name	= "zonecapacity",
-+		.lname	= "Zone capacity",
-+		.type	= FIO_OPT_STR_VAL,
-+		.off1	= offsetof(struct thread_options, zone_capacity),
-+		.help	= "Capacity per zone",
-+		.def	= "0",
-+		.interval = 1024 * 1024,
-+		.category = FIO_OPT_C_IO,
-+		.group	= FIO_OPT_G_ZONE,
-+	},
- 	{
- 		.name	= "zonerange",
- 		.lname	= "Zone range",
-diff --git a/thread_options.h b/thread_options.h
-index 968ea0ab..3fe48ecc 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -193,6 +193,7 @@ struct thread_options {
- 	unsigned int loops;
- 	unsigned long long zone_range;
- 	unsigned long long zone_size;
-+	unsigned long long zone_capacity;
- 	unsigned long long zone_skip;
- 	enum fio_zone_mode zone_mode;
- 	unsigned long long lockmem;
-@@ -487,6 +488,7 @@ struct thread_options_pack {
- 	uint32_t loops;
- 	uint64_t zone_range;
- 	uint64_t zone_size;
-+	uint64_t zone_capacity;
- 	uint64_t zone_skip;
- 	uint64_t lockmem;
- 	uint32_t mem_type;
-diff --git a/zbd.c b/zbd.c
-index c738a58b..85478aa5 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -371,6 +371,7 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
- 	uint32_t nr_zones;
- 	struct fio_zone_info *p;
- 	uint64_t zone_size = td->o.zone_size;
-+	uint64_t zone_capacity = td->o.zone_capacity;
- 	struct zoned_block_device_info *zbd_info = NULL;
- 	int i;
- 
-@@ -386,6 +387,16 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
- 		return 1;
- 	}
- 
-+	if (zone_capacity == 0)
-+		zone_capacity = zone_size;
-+
-+	if (zone_capacity > zone_size) {
-+		log_err("%s: job parameter zonecapacity %llu is larger than zone size %llu\n",
-+			f->file_name, (unsigned long long) td->o.zone_capacity,
-+			(unsigned long long) td->o.zone_size);
-+		return 1;
-+	}
-+
- 	nr_zones = (f->real_file_size + zone_size - 1) / zone_size;
- 	zbd_info = scalloc(1, sizeof(*zbd_info) +
- 			   (nr_zones + 1) * sizeof(zbd_info->zone_info[0]));
-@@ -402,7 +413,7 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
- 		p->wp = p->start;
- 		p->type = ZBD_ZONE_TYPE_SWR;
- 		p->cond = ZBD_ZONE_COND_EMPTY;
--		p->capacity = zone_size;
-+		p->capacity = zone_capacity;
- 	}
- 	/* a sentinel */
- 	p->start = nr_zones * zone_size;
--- 
-2.26.2
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU2l0c29mZSBXaGVlbGVy
+IDxzaXRzb2ZlQGdtYWlsLmNvbT4NCj4gU2VudDogVHVlc2RheSwgSnVseSAyOCwgMjAyMCA1OjIz
+IFBNDQo+IFRvOiBEbWl0cnkgRm9taWNoZXYgPERtaXRyeS5Gb21pY2hldkB3ZGMuY29tPg0KPiBD
+YzogRGFtaWVuIExlIE1vYWwgPERhbWllbi5MZU1vYWxAd2RjLmNvbT47IEplbnMgQXhib2UNCj4g
+PGF4Ym9lQGtlcm5lbC5kaz47IGZpb0B2Z2VyLmtlcm5lbC5vcmc7IFNoaW5pY2hpcm8gS2F3YXNh
+a2kNCj4gPHNoaW5pY2hpcm8ua2F3YXNha2lAd2RjLmNvbT4NCj4gU3ViamVjdDogUmU6IFtQQVRD
+SCAxLzNdIGNvbmZpZ3VyZTogaW1wcm92ZSBsaWJ6YmMgdmVyc2lvbiBjaGVjaw0KPiANCj4gT24g
+VHVlLCAyOCBKdWwgMjAyMCBhdCAyMDo1OCwgRG1pdHJ5IEZvbWljaGV2IDxEbWl0cnkuRm9taWNo
+ZXZAd2RjLmNvbT4NCj4gd3JvdGU6DQo+ID4NCj4gPiA+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0t
+LS0tDQo+ID4gPiBGcm9tOiBTaXRzb2ZlIFdoZWVsZXIgPHNpdHNvZmVAZ21haWwuY29tPg0KPiA+
+ID4gU2VudDogTW9uZGF5LCBKdWx5IDI3LCAyMDIwIDE6MjMgQU0NCj4gPiA+IFRvOiBEYW1pZW4g
+TGUgTW9hbCA8RGFtaWVuLkxlTW9hbEB3ZGMuY29tPg0KPiA+ID4gQ2M6IERtaXRyeSBGb21pY2hl
+diA8RG1pdHJ5LkZvbWljaGV2QHdkYy5jb20+OyBKZW5zIEF4Ym9lDQo+ID4gPiA8YXhib2VAa2Vy
+bmVsLmRrPjsgZmlvQHZnZXIua2VybmVsLm9yZzsgU2hpbmljaGlybyBLYXdhc2FraQ0KPiA+ID4g
+PHNoaW5pY2hpcm8ua2F3YXNha2lAd2RjLmNvbT4NCj4gPiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0gg
+MS8zXSBjb25maWd1cmU6IGltcHJvdmUgbGliemJjIHZlcnNpb24gY2hlY2sNCj4gPiA+DQo+ID4g
+PiBPbiBNb24sIDI3IEp1bCAyMDIwIGF0IDA2OjA1LCBEYW1pZW4gTGUgTW9hbA0KPiA8RGFtaWVu
+LkxlTW9hbEB3ZGMuY29tPg0KPiA+ID4gd3JvdGU6DQo+ID4gPiA+DQo+ID4gPiA+IE9uIDIwMjAv
+MDcvMjcgMTI6MTYsIERtaXRyeSBGb21pY2hldiB3cm90ZToNCj4gPiA+ID4gPiBBdm9pZCBwYXJz
+aW5nIHBrZy1jb25maWcgb3V0cHV0IGFuZCBqdXN0IHVzZSAtLWF0bGVhc3QtdmVyc2lvbiB0bw0K
+PiA+ID4gPiA+IGNoZWNrIGlmIGxpYnpiYyBpcyBwcmVzZW50IGFuZCBoYXMgYW4gdXAgdG8gZGF0
+ZSB2ZXJzaW9uLiBTaW5jZQ0KPiA+ID4gPiA+IHRoaXMgcHJvY2VzcyBtYXkgZmFpbCBiZWNhdXNl
+IHBrZy1jb25maWcgaXMgbm90IGluc3RhbGxlZCwgdmVyaWZ5DQo+ID4gPiA+ID4gcGtnLWNvbmZp
+ZyBwcmVzZW5jZSBhbmQgd2FybiB0aGUgdXNlciBpZiBpdCB3YXMgbm90IGZvdW5kLg0KPiA+ID4g
+PiA+DQo+ID4gPiA+ID4gU2lnbmVkLW9mZi1ieTogRG1pdHJ5IEZvbWljaGV2IDxkbWl0cnkuZm9t
+aWNoZXZAd2RjLmNvbT4NCj4gPiA+ID4gPiAtLS0NCj4gPiA+ID4gPiAgY29uZmlndXJlIHwgOSAr
+KysrKystLS0NCj4gPiA+ID4gPiAgMSBmaWxlIGNoYW5nZWQsIDYgaW5zZXJ0aW9ucygrKSwgMyBk
+ZWxldGlvbnMoLSkNCj4gPiA+ID4gPg0KPiA+ID4gPiA+IGRpZmYgLS1naXQgYS9jb25maWd1cmUg
+Yi9jb25maWd1cmUNCj4gPiA+ID4gPiBpbmRleCA1OTI1ZTk0Zi4uMGM0YTk2ZWMgMTAwNzU1DQo+
+ID4gPiA+ID4gLS0tIGEvY29uZmlndXJlDQo+ID4gPiA+ID4gKysrIGIvY29uZmlndXJlDQo+ID4g
+PiA+ID4gQEAgLTI0NjcsMTEgKzI0NjcsMTQgQEAgaW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKiph
+cmd2KQ0KPiA+ID4gPiA+ICB9DQo+ID4gPiA+ID4gIEVPRg0KPiA+ID4gPiA+ICBpZiBjb21waWxl
+X3Byb2cgIiIgIi1semJjIiAibGliemJjIjsgdGhlbg0KPiA+ID4gPiA+IC0gIGxpYnpiY3Zlcm1h
+aj0kKHBrZy1jb25maWcgLS1tb2R2ZXJzaW9uIGxpYnpiYyB8IHNlZCAncy9cLlswLTldKlwuWzAt
+DQo+ID4gPiA5XSovLycpDQo+ID4gPiA+ID4gLSAgaWYgdGVzdCAiJGxpYnpiY3Zlcm1haiIgLWdl
+ICI1IiA7IHRoZW4NCj4gPiA+ID4gPiArICBpZiAkKHBrZy1jb25maWcgLS1hdGxlYXN0LXZlcnNp
+b249NSBsaWJ6YmMpOyB0aGVuDQo+ID4gPg0KPiA+ID4gU2hvdWxkIHRoaXMgcmVhbGx5IGJlIGJl
+aW5nIGRvbmUgaW4gYSBzdWJzaGVsbD8gSWYgaXQgd2VyZW4ndCBkb25lIGluDQo+ID4gPiBhIHN1
+YnNoZWxsIHdvdWxkbid0IHRoZSBpZiBoYXZlIGZhaWxlZCBkdWUgdG8gYSBsYWNrIG9mIHBrZy1j
+b25maWc6DQo+ID4gPg0KPiA+ID4gJSBpZiBub3QtcGtnLWNvbmZpZyAtLWF0bGVhc3QtdmVyc2lv
+bj01IGxpYnpiYzsgdGhlbiBlY2hvIHk7IGVsc2UgZWNobyBuOyBmaQ0KPiA+ID4genNoOiBjb21t
+YW5kIG5vdCBmb3VuZDogbm90LXBrZy1jb25maWcNCj4gPiA+IG4NCj4gPg0KPiA+IFRoaXMgbGlu
+ZSBub3cgZG9lcyB0aGUgc2FtZSB0aGluZyB0aGF0IGlzIGRvbmUgdG8gY2hlY2sgbGliaXNjc2kg
+YW5kIGxpYm5iZA0KPiA+IG1pbmltdW0gdmVyc2lvbnMgaW4gdGhlIHNhbWUgc2NyaXB0LiBJdCB3
+b3JrcyBmaW5lIGlmIHBrZy1jb25maWcgaXMgaW5zdGFsbGVkDQo+ID4gaW4gdGhlIHN5c3RlbS4g
+VGhlIHZlcnNpb24gd2l0aG91dCB0aGUgc3Vic2hlbGwgYWxzbyB3b3JrcywgYnV0IGl0IG91dHB1
+dHMNCj4gPiBhbiBhZGRpdGlvbmFsIGVycm9yIG1lc3NhZ2UgaWYgcGtnLWNvbmZpZyBpcyBub3Qg
+aW5zdGFsbGVkIC0NCj4gPg0KPiA+IC4vY29uZmlndXJlOiBsaW5lIDI0NzA6IG5vdC1wa2ctY29u
+ZmlnOiBjb21tYW5kIG5vdCBmb3VuZA0KPiA+IGxpYnpiYyBlbmdpbmUgICAgICAgICAgICAgICAg
+IG1pc3NpbmcgcGtnLWNvbmZpZywgY2FuJ3QgY2hlY2sgbGlicmFyeSB2ZXJzaW9uDQo+ID4NCj4g
+PiBJIGNvdWxkIHJlbW92ZSB0aGUgZXhwbGljaXQgY2hlY2sgZm9yIHBrZy1jb25maWcgYW5kIGRv
+IHRoZSB2ZXJzaW9uIGNoZWNrDQo+ID4gd2l0aG91dCB0aGUgc3Vic2hlbGwsIGJ1dCBJIHRoaW5r
+IHRoZSBvdXRwdXQgaXMgbGVzcyBjb25mdXNpbmcgd2l0aCB0aGUNCj4gc3Vic2hlbGwNCj4gPiB2
+ZXJzaW9uLg0KPiANCj4gT0sgSSBzZWUgd2hhdCB5b3UgbWVhbi4gV291bGQgaXQgYmUgYmV0dGVy
+IHRvIGhhdmUgYW4gZXhwbGljaXQNCj4gcGtnLWNvbmZpZyBjaGVjayBmb3IgYWxsIHRob3NlIGVu
+Z2luZXM/DQo+IA0KPiAoVGhlcmUgaXMgYWxzbyBhIGdlbmVyYWwgaXNzdWUgdGhhdCBmaW8ncyBw
+a2ctY29uZmlnIHVzYWdlIHdvbid0IGNvcGUNCj4gd2VsbCBpbiBjcm9zcyBjb21waWxlIGVudmly
+b25tZW50cyBidXQgdGhhdCdzIGFub3RoZXIgaXNzdWUuLi4pDQoNCkkndmUgc2VudCB2MiB0aGF0
+IGFkZHMgYSBoZWxwZXIgZnVuY3Rpb24gdG8gcGVyZm9ybSB0aGUgc2FtZSBjaGVjayBmb3IgYWxs
+DQpvdGhlciBsaWJzIHRoYXQgbmVlZCBpdC4NCg0KPiANCj4gLS0NCj4gU2l0c29mZSB8IGh0dHA6
+Ly9zdWNzLm9yZy9+c2l0cy8NCg==
 
