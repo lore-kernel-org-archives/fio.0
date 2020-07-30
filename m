@@ -1,71 +1,151 @@
-Return-Path: <ykorman@gmail.com>
-Return-Path: <ykorman@gmail.com>
-From: Yigal Korman <ykorman@gmail.com>
-Subject: [PATCH v2 1/4] fio: don't retry engine search on failure
-Date: Fri,  3 Jul 2020 15:38:40 +0300
-Message-Id: <e2ad15c3cde2bea866594b790b653d7ededd95c8.1593761533.git.ykorman@gmail.com>
-In-Reply-To: <cover.1593761533.git.ykorman@gmail.com>
-References: <cover.1593761533.git.ykorman@gmail.com>
-In-Reply-To: <cover.1593761533.git.ykorman@gmail.com>
-References: <cover.1593761533.git.ykorman@gmail.com>
-To: axboe@kernel.dk
-Cc: Yigal Korman <ykorman@gmail.com>, fio@vger.kernel.org
+Return-Path: <prvs=473630db6=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH v2 3/4] zbd: simplify zone reset code
+Date: Thu, 30 Jul 2020 05:04:01 +0000
+Message-ID: 
+ <CY4PR04MB37512821E5E68609F0588444E7710@CY4PR04MB3751.namprd04.prod.outlook.com>
+References: <20200729210415.4166-1-dmitry.fomichev@wdc.com>
+ <20200729210415.4166-4-dmitry.fomichev@wdc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Jens Axboe <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-ioengine_load will try to load a given engine and if it doesn't match
-the current one (default is always psync), it will remove the current
-one and try again.
-This makes sense when the engine is loaded successfully, but if it's
-not, we try to load it twice for no reason.
-
-Fix by failing if we were unable to load requested engine and not
-retrying.
-
-Signed-off-by: Yigal Korman <ykorman@gmail.com>
----
- init.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
-
-diff --git a/init.c b/init.c
-index e53be35a..3710e3d4 100644
---- a/init.c
-+++ b/init.c
-@@ -1099,6 +1099,9 @@ int ioengine_load(struct thread_data *td)
- 		 */
- 		dlhandle = td->io_ops_dlhandle;
- 		ops = load_ioengine(td);
-+		if (!ops)
-+			goto fail;
-+
- 		if (ops == td->io_ops && dlhandle == td->io_ops_dlhandle) {
- 			if (dlhandle)
- 				dlclose(dlhandle);
-@@ -1113,10 +1116,8 @@ int ioengine_load(struct thread_data *td)
- 	}
- 
- 	td->io_ops = load_ioengine(td);
--	if (!td->io_ops) {
--		log_err("fio: failed to load engine\n");
--		return 1;
--	}
-+	if (!td->io_ops)
-+		goto fail;
- 
- 	if (td->io_ops->option_struct_size && td->io_ops->options) {
- 		/*
-@@ -1155,6 +1156,11 @@ int ioengine_load(struct thread_data *td)
- 
- 	td_set_ioengine_flags(td);
- 	return 0;
-+
-+fail:
-+	log_err("fio: failed to load engine\n");
-+	return 1;
-+
- }
- 
- static void init_flags(struct thread_data *td)
--- 
-2.17.1
-
+On 2020/07/30 6:04, Dmitry Fomichev wrote:=0A=
+> zbd_reset_range() function is only called once from zbd_reset_zone()=0A=
+> and it is always called for an individual zone, not a range.=0A=
+> =0A=
+> Make zone reset flow simpler by moving all the code needed=0A=
+> to reset a single zone from zbd_reset_range() to zbd_reset_zone().=0A=
+> Therefore, zbd_reset_range() is now dropped.=0A=
+> =0A=
+> zbc_reset_zone() is always called with the zone already locked. Remove=0A=
+> recursive zone locking inside this function and add a note in the=0A=
+> description of this function saying that the caller is expected to have=
+=0A=
+> the zone locked when calling it.=0A=
+> =0A=
+> Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>=0A=
+> ---=0A=
+>  zbd.c | 76 +++++++++++++++++++++--------------------------------------=
+=0A=
+>  1 file changed, 27 insertions(+), 49 deletions(-)=0A=
+> =0A=
+> diff --git a/zbd.c b/zbd.c=0A=
+> index 3eac5df3..e4a480b7 100644=0A=
+> --- a/zbd.c=0A=
+> +++ b/zbd.c=0A=
+> @@ -670,54 +670,6 @@ int zbd_setup_files(struct thread_data *td)=0A=
+>  	return 0;=0A=
+>  }=0A=
+>  =0A=
+> -/**=0A=
+> - * zbd_reset_range - reset zones for a range of sectors=0A=
+> - * @td: FIO thread data.=0A=
+> - * @f: Fio file for which to reset zones=0A=
+> - * @sector: Starting sector in units of 512 bytes=0A=
+> - * @nr_sectors: Number of sectors in units of 512 bytes=0A=
+> - *=0A=
+> - * Returns 0 upon success and a negative error code upon failure.=0A=
+> - */=0A=
+> -static int zbd_reset_range(struct thread_data *td, struct fio_file *f,=
+=0A=
+> -			   uint64_t offset, uint64_t length)=0A=
+> -{=0A=
+> -	uint32_t zone_idx_b, zone_idx_e;=0A=
+> -	struct fio_zone_info *zb, *ze, *z;=0A=
+> -	int ret =3D 0;=0A=
+> -=0A=
+> -	assert(is_valid_offset(f, offset + length - 1));=0A=
+> -=0A=
+> -	switch (f->zbd_info->model) {=0A=
+> -	case ZBD_HOST_AWARE:=0A=
+> -	case ZBD_HOST_MANAGED:=0A=
+> -		ret =3D zbd_reset_wp(td, f, offset, length);=0A=
+> -		if (ret < 0)=0A=
+> -			return ret;=0A=
+> -		break;=0A=
+> -	default:=0A=
+> -		break;=0A=
+> -	}=0A=
+> -=0A=
+> -	zone_idx_b =3D zbd_zone_idx(f, offset);=0A=
+> -	zb =3D &f->zbd_info->zone_info[zone_idx_b];=0A=
+> -	zone_idx_e =3D zbd_zone_idx(f, offset + length);=0A=
+> -	ze =3D &f->zbd_info->zone_info[zone_idx_e];=0A=
+> -	for (z =3D zb; z < ze; z++) {=0A=
+> -		pthread_mutex_lock(&z->mutex);=0A=
+> -		pthread_mutex_lock(&f->zbd_info->mutex);=0A=
+> -		f->zbd_info->sectors_with_data -=3D z->wp - z->start;=0A=
+> -		pthread_mutex_unlock(&f->zbd_info->mutex);=0A=
+> -		z->wp =3D z->start;=0A=
+> -		z->verify_block =3D 0;=0A=
+> -		pthread_mutex_unlock(&z->mutex);=0A=
+> -	}=0A=
+> -=0A=
+> -	td->ts.nr_zone_resets +=3D ze - zb;=0A=
+> -=0A=
+> -	return ret;=0A=
+> -}=0A=
+> -=0A=
+>  static unsigned int zbd_zone_nr(struct zoned_block_device_info *zbd_info=
+,=0A=
+>  				struct fio_zone_info *zone)=0A=
+>  {=0A=
+> @@ -731,14 +683,40 @@ static unsigned int zbd_zone_nr(struct zoned_block_=
+device_info *zbd_info,=0A=
+>   * @z: Zone to reset.=0A=
+>   *=0A=
+>   * Returns 0 upon success and a negative error code upon failure.=0A=
+> + *=0A=
+> + * The caller must hold z->mutex.=0A=
+>   */=0A=
+>  static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,=0A=
+>  			  struct fio_zone_info *z)=0A=
+>  {=0A=
+> +	uint64_t offset =3D z->start;=0A=
+> +	uint64_t length =3D (z+1)->start - offset;=0A=
+> +	int ret =3D 0;=0A=
+> +=0A=
+> +	assert(is_valid_offset(f, offset + length - 1));=0A=
+> +=0A=
+>  	dprint(FD_ZBD, "%s: resetting wp of zone %u.\n", f->file_name,=0A=
+>  		zbd_zone_nr(f->zbd_info, z));=0A=
+> +	switch (f->zbd_info->model) {=0A=
+> +	case ZBD_HOST_AWARE:=0A=
+> +	case ZBD_HOST_MANAGED:=0A=
+> +		ret =3D zbd_reset_wp(td, f, offset, length);=0A=
+> +		if (ret < 0)=0A=
+> +			return ret;=0A=
+> +		break;=0A=
+> +	default:=0A=
+> +		break;=0A=
+> +	}=0A=
+>  =0A=
+> -	return zbd_reset_range(td, f, z->start, zbd_zone_end(z) - z->start);=0A=
+> +	pthread_mutex_lock(&f->zbd_info->mutex);=0A=
+> +	f->zbd_info->sectors_with_data -=3D z->wp - z->start;=0A=
+> +	pthread_mutex_unlock(&f->zbd_info->mutex);=0A=
+> +	z->wp =3D z->start;=0A=
+> +	z->verify_block =3D 0;=0A=
+> +=0A=
+> +	td->ts.nr_zone_resets++;=0A=
+> +=0A=
+> +	return ret;=0A=
+>  }=0A=
+>  =0A=
+>  /* The caller must hold f->zbd_info->mutex */=0A=
+> =0A=
+=0A=
+Looks good.=0A=
+=0A=
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
+=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
