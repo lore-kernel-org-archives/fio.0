@@ -1,31 +1,54 @@
-Return-Path: <aherrmann@suse.com>
-Date: Fri, 28 Aug 2020 12:02:30 +0200
-From: Andreas Herrmann <aherrmann@suse.com>
-Subject: [PATCH 0/2] cgroup: Enable weight tests with cgroup-v2
-Message-ID: <20200828100230.GG6041@suselix>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Return-Path: aherrmann@suse.com
+Return-Path: <prvs=478995cc1=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH v3 4/4] t/zbd: check log file for failed assertions
+Date: Tue,  4 Aug 2020 10:38:28 +0900
+Message-Id: <20200804013828.1569-5-dmitry.fomichev@wdc.com>
+In-Reply-To: <20200804013828.1569-1-dmitry.fomichev@wdc.com>
+References: <20200804013828.1569-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org
+Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Sitsofe Wheeler <sitsofe@gmail.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-Hi,
+Currently, a ZBD test can succeed even if an fio assertion is raised
+during its run. Search every ZBD test log file for failed assertions
+and fail the test if any were found.
 
-To allow tests with weight attribute with cgroup-v2
-it would be nice to be able to specify which attribute
-to use -- either the generic or the BFQ specific one.
-Patch #1 adds an option to do that.
-Patch #2 enables tests with cgroup.weight when cgroup-v2 is used.
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+---
+ t/zbd/test-zbd-support | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---=20
-Regards,
-Andreas
-
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-GF: Felix Imend=C3=B6rffer (HRB 36809, AG N=C3=BCrnberg)
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 471a3487..139495d3 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -77,6 +77,13 @@ check_reset_count() {
+     eval "[ '$reset_count' '$1' '$2' ]"
+ }
+ 
++# Check log for failed assertions and crashes. Without these checks,
++# a test can succeed even when these events happen, but it must fail.
++check_log() {
++     [ ! -f "${logfile}.${1}" ] && return 0
++     ! grep -q -e "Assertion " -e "Aborted " "${logfile}.${1}"
++}
++
+ # Whether or not $1 (/dev/...) is a SCSI device.
+ is_scsi_device() {
+     local d f
+@@ -1008,7 +1015,7 @@ trap 'intr=1' SIGINT
+ for test_number in "${tests[@]}"; do
+     rm -f "${logfile}.${test_number}"
+     echo -n "Running test $(printf "%02d" $test_number) ... "
+-    if eval "test$test_number"; then
++    if eval "test$test_number" && check_log $test_number; then
+ 	status="PASS"
+ 	cc_status="${green}${status}${end}"
+ 	((passed++))
+-- 
+2.21.0
 
 
