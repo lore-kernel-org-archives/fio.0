@@ -1,172 +1,148 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45636 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728717AbgHOVv1 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 15 Aug 2020 17:51:27 -0400
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF731C004592
-        for <fio@vger.kernel.org>; Sat, 15 Aug 2020 11:48:21 -0700 (PDT)
-Received: by mail-io1-xd43.google.com with SMTP id a5so13745492ioa.13
-        for <fio@vger.kernel.org>; Sat, 15 Aug 2020 11:48:21 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200804013828.1569-1-dmitry.fomichev@wdc.com>
- <20200804013828.1569-3-dmitry.fomichev@wdc.com> <CY4PR04MB3751C92C5E4A5048EB689BADE74B0@CY4PR04MB3751.namprd04.prod.outlook.com>
-In-Reply-To: <CY4PR04MB3751C92C5E4A5048EB689BADE74B0@CY4PR04MB3751.namprd04.prod.outlook.com>
-From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Date: Sun, 16 Aug 2020 03:47:44 +0900
-Message-ID: <CAHndrBmszp=crv_bqHo7FxPsgJZOWBKF9Crv7bT0hHVcN92jmg@mail.gmail.com>
+Return-Path: <prvs=479a3bc3e=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
 Subject: Re: [PATCH v3 2/4] configure: check if pkg-config is installed
-Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 5 Aug 2020 07:05:01 +0000
+Message-ID: 
+ <CY4PR04MB3751C92C5E4A5048EB689BADE74B0@CY4PR04MB3751.namprd04.prod.outlook.com>
+References: <20200804013828.1569-1-dmitry.fomichev@wdc.com>
+ <20200804013828.1569-3-dmitry.fomichev@wdc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Damien Le Moal <Damien.LeMoal@wdc.com>
-Cc: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+MIME-Version: 1.0
+To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Jens Axboe <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Sitsofe Wheeler <sitsofe@gmail.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-2020=E5=B9=B48=E6=9C=885=E6=97=A5(=E6=B0=B4) 16:06 Damien Le Moal <Damien.L=
-eMoal@wdc.com>:
->
-> On 2020/08/04 10:38, Dmitry Fomichev wrote:
-> > A few libraries need to be newer than a specific version in order to be
-> > supported by fio and pkg-config utility is used to verify the versions
-> > of the installed libraries. Since this step may fail because pkg-config
-> > is not installed, verify pkg-config presence and warn the user if it
-> > could not be found.
-> >
-> > To avoid code duplication, add a common helper function to perform
-> > these checks.
-
-This line
-"if test ${!feature} =3D "yes" ; then"
-seems to have broken compilation on some BSD's.
-
-[root@localhost fio]# uname
-NetBSD
-[root@localhost fio]# gmake clean && gmake
-FIO_VERSION =3D fio-3.21-56-g0ce7e
-Running configure ...
-./configure: 144: Syntax error: Bad substitution
-Makefile:19: config-host.mak: No such file or directory
-gmake: *** [Makefile:10: config-host.mak] Error 2
-
-
-> >
-> > Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-> > ---
-> >  configure | 45 +++++++++++++++++++++++++--------------------
-> >  1 file changed, 25 insertions(+), 20 deletions(-)
-> >
-> > diff --git a/configure b/configure
-> > index 81fd32bb..dd7fe3d2 100755
-> > --- a/configure
-> > +++ b/configure
-> > @@ -133,6 +133,23 @@ output_sym() {
-> >    echo "#define $1" >> $config_host_h
-> >  }
-> >
-> > +check_min_lib_version() {
-> > +  local feature=3D$3
-> > +
-> > +  if ${cross_prefix}pkg-config --atleast-version=3D$2 $1 > /dev/null 2=
->&1; then
-> > +    return 0
-> > +  fi
-> > +  : ${feature:=3D${1}}
-> > +  if ${cross_prefix}pkg-config --version > /dev/null 2>&1; then
-> > +    if test ${!feature} =3D "yes" ; then
-> > +      feature_not_found "$feature" "$1 >=3D $2"
-> > +    fi
-> > +  else
-> > +    print_config "$1" "missing pkg-config, can't check $feature versio=
-n"
-> > +  fi
-> > +  return 1
-> > +}
-> > +
-> >  targetos=3D""
-> >  cpu=3D""
-> >
-> > @@ -1521,18 +1538,17 @@ if test "$?" !=3D "0" ; then
-> >    echo "configure: gtk and gthread not found"
-> >    exit 1
-> >  fi
-> > -if ! ${cross_prefix}pkg-config --atleast-version 2.18.0 gtk+-2.0; then
-> > -  echo "GTK found, but need version 2.18 or higher"
-> > -  gfio=3D"no"
-> > -else
-> > +gfio=3D"yes"
-> > +if check_min_lib_version gtk+-2.0 2.18.0 "gfio"; then
-> >    if compile_prog "$GTK_CFLAGS" "$GTK_LIBS" "gfio" ; then
-> > -    gfio=3D"yes"
-> >      GFIO_LIBS=3D"$LIBS $GTK_LIBS"
-> >      CFLAGS=3D"$CFLAGS $GTK_CFLAGS"
-> >    else
-> >      echo "Please install gtk and gdk libraries"
-> >      gfio=3D"no"
-> >    fi
-> > +else
-> > +  gfio=3D"no"
-> >  fi
-> >  LDFLAGS=3D$ORG_LDFLAGS
-> >  fi
-> > @@ -2182,15 +2198,11 @@ print_config "DDN's Infinite Memory Engine" "$l=
-ibime"
-> >  ##########################################
-> >  # Check if we have libiscsi
-> >  if test "$libiscsi" !=3D "no" ; then
-> > -  minimum_libiscsi=3D1.9.0
-> > -  if $(pkg-config --atleast-version=3D$minimum_libiscsi libiscsi); the=
-n
-> > +  if check_min_lib_version libiscsi 1.9.0; then
-> >      libiscsi=3D"yes"
-> >      libiscsi_cflags=3D$(pkg-config --cflags libiscsi)
-> >      libiscsi_libs=3D$(pkg-config --libs libiscsi)
-> >    else
-> > -    if test "$libiscsi" =3D "yes" ; then
-> > -      feature_not_found "libiscsi" "libiscsi >=3D $minimum_libiscsi"
-> > -    fi
-> >      libiscsi=3D"no"
-> >    fi
-> >  fi
-> > @@ -2199,15 +2211,11 @@ print_config "iscsi engine" "$libiscsi"
-> >  ##########################################
-> >  # Check if we have libnbd (for NBD support)
-> >  if test "$libnbd" !=3D "no" ; then
-> > -  minimum_libnbd=3D0.9.8
-> > -  if $(pkg-config --atleast-version=3D$minimum_libnbd libnbd); then
-> > +  if check_min_lib_version libnbd 0.9.8; then
-> >      libnbd=3D"yes"
-> >      libnbd_cflags=3D$(pkg-config --cflags libnbd)
-> >      libnbd_libs=3D$(pkg-config --libs libnbd)
-> >    else
-> > -    if test "$libnbd" =3D "yes" ; then
-> > -      feature_not_found "libnbd" "libnbd >=3D $minimum_libnbd"
-> > -    fi
-> >      libnbd=3D"no"
-> >    fi
-> >  fi
-> > @@ -2469,11 +2477,8 @@ int main(int argc, char **argv)
-> >  EOF
-> >  if test "$libzbc" !=3D "no" ; then
-> >    if compile_prog "" "-lzbc" "libzbc"; then
-> > -    minimum_libzbc=3D5
-> > -    if $(pkg-config --atleast-version=3D$minimum_libzbc libzbc); then
-> > -      libzbc=3D"yes"
-> > -    else
-> > -      print_config "libzbc engine" "libzbc version $minimum_libzbc or =
-above required"
-> > +    libzbc=3D"yes"
-> > +    if ! check_min_lib_version libzbc 5; then
-> >        libzbc=3D"no"
-> >      fi
-> >    else
-> >
->
-> Looks good.
->
-> Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
->
-> --
-> Damien Le Moal
-> Western Digital Research
+On 2020/08/04 10:38, Dmitry Fomichev wrote:=0A=
+> A few libraries need to be newer than a specific version in order to be=
+=0A=
+> supported by fio and pkg-config utility is used to verify the versions=0A=
+> of the installed libraries. Since this step may fail because pkg-config=
+=0A=
+> is not installed, verify pkg-config presence and warn the user if it=0A=
+> could not be found.=0A=
+> =0A=
+> To avoid code duplication, add a common helper function to perform=0A=
+> these checks.=0A=
+> =0A=
+> Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>=0A=
+> ---=0A=
+>  configure | 45 +++++++++++++++++++++++++--------------------=0A=
+>  1 file changed, 25 insertions(+), 20 deletions(-)=0A=
+> =0A=
+> diff --git a/configure b/configure=0A=
+> index 81fd32bb..dd7fe3d2 100755=0A=
+> --- a/configure=0A=
+> +++ b/configure=0A=
+> @@ -133,6 +133,23 @@ output_sym() {=0A=
+>    echo "#define $1" >> $config_host_h=0A=
+>  }=0A=
+>  =0A=
+> +check_min_lib_version() {=0A=
+> +  local feature=3D$3=0A=
+> +=0A=
+> +  if ${cross_prefix}pkg-config --atleast-version=3D$2 $1 > /dev/null 2>&=
+1; then=0A=
+> +    return 0=0A=
+> +  fi=0A=
+> +  : ${feature:=3D${1}}=0A=
+> +  if ${cross_prefix}pkg-config --version > /dev/null 2>&1; then=0A=
+> +    if test ${!feature} =3D "yes" ; then=0A=
+> +      feature_not_found "$feature" "$1 >=3D $2"=0A=
+> +    fi=0A=
+> +  else=0A=
+> +    print_config "$1" "missing pkg-config, can't check $feature version"=
+=0A=
+> +  fi=0A=
+> +  return 1=0A=
+> +}=0A=
+> +=0A=
+>  targetos=3D""=0A=
+>  cpu=3D""=0A=
+>  =0A=
+> @@ -1521,18 +1538,17 @@ if test "$?" !=3D "0" ; then=0A=
+>    echo "configure: gtk and gthread not found"=0A=
+>    exit 1=0A=
+>  fi=0A=
+> -if ! ${cross_prefix}pkg-config --atleast-version 2.18.0 gtk+-2.0; then=
+=0A=
+> -  echo "GTK found, but need version 2.18 or higher"=0A=
+> -  gfio=3D"no"=0A=
+> -else=0A=
+> +gfio=3D"yes"=0A=
+> +if check_min_lib_version gtk+-2.0 2.18.0 "gfio"; then=0A=
+>    if compile_prog "$GTK_CFLAGS" "$GTK_LIBS" "gfio" ; then=0A=
+> -    gfio=3D"yes"=0A=
+>      GFIO_LIBS=3D"$LIBS $GTK_LIBS"=0A=
+>      CFLAGS=3D"$CFLAGS $GTK_CFLAGS"=0A=
+>    else=0A=
+>      echo "Please install gtk and gdk libraries"=0A=
+>      gfio=3D"no"=0A=
+>    fi=0A=
+> +else=0A=
+> +  gfio=3D"no"=0A=
+>  fi=0A=
+>  LDFLAGS=3D$ORG_LDFLAGS=0A=
+>  fi=0A=
+> @@ -2182,15 +2198,11 @@ print_config "DDN's Infinite Memory Engine" "$lib=
+ime"=0A=
+>  ##########################################=0A=
+>  # Check if we have libiscsi=0A=
+>  if test "$libiscsi" !=3D "no" ; then=0A=
+> -  minimum_libiscsi=3D1.9.0=0A=
+> -  if $(pkg-config --atleast-version=3D$minimum_libiscsi libiscsi); then=
+=0A=
+> +  if check_min_lib_version libiscsi 1.9.0; then=0A=
+>      libiscsi=3D"yes"=0A=
+>      libiscsi_cflags=3D$(pkg-config --cflags libiscsi)=0A=
+>      libiscsi_libs=3D$(pkg-config --libs libiscsi)=0A=
+>    else=0A=
+> -    if test "$libiscsi" =3D "yes" ; then=0A=
+> -      feature_not_found "libiscsi" "libiscsi >=3D $minimum_libiscsi"=0A=
+> -    fi=0A=
+>      libiscsi=3D"no"=0A=
+>    fi=0A=
+>  fi=0A=
+> @@ -2199,15 +2211,11 @@ print_config "iscsi engine" "$libiscsi"=0A=
+>  ##########################################=0A=
+>  # Check if we have libnbd (for NBD support)=0A=
+>  if test "$libnbd" !=3D "no" ; then=0A=
+> -  minimum_libnbd=3D0.9.8=0A=
+> -  if $(pkg-config --atleast-version=3D$minimum_libnbd libnbd); then=0A=
+> +  if check_min_lib_version libnbd 0.9.8; then=0A=
+>      libnbd=3D"yes"=0A=
+>      libnbd_cflags=3D$(pkg-config --cflags libnbd)=0A=
+>      libnbd_libs=3D$(pkg-config --libs libnbd)=0A=
+>    else=0A=
+> -    if test "$libnbd" =3D "yes" ; then=0A=
+> -      feature_not_found "libnbd" "libnbd >=3D $minimum_libnbd"=0A=
+> -    fi=0A=
+>      libnbd=3D"no"=0A=
+>    fi=0A=
+>  fi=0A=
+> @@ -2469,11 +2477,8 @@ int main(int argc, char **argv)=0A=
+>  EOF=0A=
+>  if test "$libzbc" !=3D "no" ; then=0A=
+>    if compile_prog "" "-lzbc" "libzbc"; then=0A=
+> -    minimum_libzbc=3D5=0A=
+> -    if $(pkg-config --atleast-version=3D$minimum_libzbc libzbc); then=0A=
+> -      libzbc=3D"yes"=0A=
+> -    else=0A=
+> -      print_config "libzbc engine" "libzbc version $minimum_libzbc or ab=
+ove required"=0A=
+> +    libzbc=3D"yes"=0A=
+> +    if ! check_min_lib_version libzbc 5; then=0A=
+>        libzbc=3D"no"=0A=
+>      fi=0A=
+>    else=0A=
+> =0A=
+=0A=
+Looks good.=0A=
+=0A=
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
