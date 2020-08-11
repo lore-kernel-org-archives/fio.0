@@ -1,37 +1,31 @@
-Return-Path: <prvs=48661b089=Dmitry.Fomichev@wdc.com>
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: RE: [PATCH v3 0/4] miscellaneous ZBD improvements
-Date: Wed, 12 Aug 2020 00:56:54 +0000
-Message-ID: 
- <MN2PR04MB5951C5924CAF5964593E7FC2E1420@MN2PR04MB5951.namprd04.prod.outlook.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH v3 0/4] miscellaneous ZBD improvements
 References: <20200804013828.1569-1-dmitry.fomichev@wdc.com>
  <MN2PR04MB5951E73D48E903B0F368A6ECE1450@MN2PR04MB5951.namprd04.prod.outlook.com>
- <8b792bce-0cb9-96fd-4d77-9e29c5281815@kernel.dk>
-In-Reply-To: <8b792bce-0cb9-96fd-4d77-9e29c5281815@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <8b792bce-0cb9-96fd-4d77-9e29c5281815@kernel.dk>
+Date: Tue, 11 Aug 2020 10:43:20 -0600
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <MN2PR04MB5951E73D48E903B0F368A6ECE1450@MN2PR04MB5951.namprd04.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Sitsofe Wheeler <sitsofe@gmail.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-SSByYW4gWkJEIHRlc3RzIGFnYWluc3QgdGhlIHpvbmVkIGRyaXZlcyBJIGhhdmUgYXZhaWxhYmxl
-IGFuZCBldmVyeXRoaW5nDQpsb29rcyBnb29kLiBBIG1vcmUgZXh0ZW5zaXZlIHRlc3Qgc3VpdGUg
-d2lsbCBiZSBydW4gbmV4dCBNb25kYXkuIEknbGwgbGV0DQp5b3Uga25vdyBpZiBzb21ldGhpbmcg
-YWJub3JtYWwgaGFwcGVucyBkdXJpbmcgdGhhdCB0ZXN0aW5nLi4uDQoNCkRtaXRyeQ0KDQo+IC0t
-LS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IGZpby1vd25lckB2Z2VyLmtlcm5lbC5v
-cmcgPGZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmc+IE9uIEJlaGFsZg0KPiBPZiBKZW5zIEF4Ym9l
-DQo+IFNlbnQ6IFR1ZXNkYXksIEF1Z3VzdCAxMSwgMjAyMCAxMjo0MyBQTQ0KPiBUbzogRG1pdHJ5
-IEZvbWljaGV2IDxEbWl0cnkuRm9taWNoZXZAd2RjLmNvbT4NCj4gQ2M6IGZpb0B2Z2VyLmtlcm5l
-bC5vcmc7IERhbWllbiBMZSBNb2FsIDxEYW1pZW4uTGVNb2FsQHdkYy5jb20+Ow0KPiBTaXRzb2Zl
-IFdoZWVsZXIgPHNpdHNvZmVAZ21haWwuY29tPjsgU2hpbmljaGlybyBLYXdhc2FraQ0KPiA8c2hp
-bmljaGlyby5rYXdhc2FraUB3ZGMuY29tPg0KPiBTdWJqZWN0OiBSZTogW1BBVENIIHYzIDAvNF0g
-bWlzY2VsbGFuZW91cyBaQkQgaW1wcm92ZW1lbnRzDQo+IA0KPiBPbiA4LzExLzIwIDk6NTggQU0s
-IERtaXRyeSBGb21pY2hldiB3cm90ZToNCj4gPiBKZW5zLA0KPiA+DQo+ID4gQSBnZW50bGUgcGlu
-Zy4uLiBQbGVhc2UgY29uc2lkZXIgdGhpcyBwYXRjaHNldCBmb3IgbWVyZ2luZy4NCj4gDQo+IEFw
-cGxpZWQsIHRoYW5rcy4NCj4gDQo+IEJUVywgY2FuIEkgZ2V0IHlvdSB0byBydW4geW91ciB1c3Vh
-bCB2ZXJpZmljYXRpb24gd29ya2xvYWRzIHdpdGgNCj4gemJkPyBJIG1hZGUgc29tZSBjaGFuZ2Vz
-IHllc3RlcmRheSB0byBmaXggYSBidWcsIHdvdWxkIGJlIG5pY2UNCj4gdG8gZW5zdXJlIHRoYXQg
-emJkIHN0aWxsIHdvcmtzLi4NCj4gLg0KPiAtLQ0KPiBKZW5zIEF4Ym9lDQoNCg==
+On 8/11/20 9:58 AM, Dmitry Fomichev wrote:
+> Jens,
+> 
+> A gentle ping... Please consider this patchset for merging.
+
+Applied, thanks.
+
+BTW, can I get you to run your usual verification workloads with
+zbd? I made some changes yesterday to fix a bug, would be nice
+to ensure that zbd still works..
+.
+-- 
+Jens Axboe
+
 
