@@ -1,60 +1,225 @@
-Return-Path: <prvs=049388e865=elliott@hpe.com>
-From: "Elliott, Robert (Servers)" <elliott@hpe.com>
-Subject: RE: [PATCH] fio: add for_each_rw_ddir() macro
-Date: Wed, 12 Aug 2020 22:01:56 +0000
-Message-ID: <TU4PR8401MB10556465AD0CE9AF3A1E4B30AB420@TU4PR8401MB1055.NAMPRD84.PROD.OUTLOOK.COM>
-References: <20200812152622.GA40719@localhost.localdomain>
-In-Reply-To: <20200812152622.GA40719@localhost.localdomain>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <adobriyan@gmail.com>
+Return-Path: <adobriyan@gmail.com>
+Date: Wed, 12 Aug 2020 18:26:22 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: [PATCH] fio: add for_each_rw_ddir() macro
+Message-ID: <20200812152622.GA40719@localhost.localdomain>
 MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>, "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+To: axboe@kernel.dk
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
-a2VybmVsLm9yZyA8ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZz4gT24gQmVoYWxmDQo+IE9mIEFs
-ZXhleSBEb2JyaXlhbg0KPiBTZW50OiBXZWRuZXNkYXksIEF1Z3VzdCAxMiwgMjAyMCAxMDoyNiBB
-TQ0KPiBUbzogYXhib2VAa2VybmVsLmRrDQo+IENjOiBmaW9Admdlci5rZXJuZWwub3JnDQo+IFN1
-YmplY3Q6IFtQQVRDSF0gZmlvOiBhZGQgZm9yX2VhY2hfcndfZGRpcigpIG1hY3JvDQo+IA0KPiBN
-YWtlIGl0IHNsaWdodGx5IGVhc2llciB0byBhZGQgRERJUl9BUFBFTkQgYXMgZnVsbHkgZmxlZGdl
-ZCBJL08gdHlwZS4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEFsZXhleSBEb2JyaXlhbiA8YWRvYnJp
-eWFuQGdtYWlsLmNvbT4NCj4gLS0tDQo+IA0KLi4uDQoNCj4gQEAgLTY2MiwzMSArNjYwLDI1IEBA
-IHN0YXRpYyBpbnQgZml4dXBfb3B0aW9ucyhzdHJ1Y3QgdGhyZWFkX2RhdGENCj4gKnRkKQ0KLi4u
-DQo+ICAJLyoNCj4gIAkgKiBGb3IgcmFuZG9tIElPLCBhbGxvdyBibG9ja2FsaWduIG9mZnNldCBv
-dGhlciB0aGFuIG1pbl9icy4NCj4gIAkgKi8NCj4gLQlpZiAoIW8tPmJhW0RESVJfUkVBRF0gfHwg
-IXRkX3JhbmRvbSh0ZCkpDQo+IC0JCW8tPmJhW0RESVJfUkVBRF0gPSBvLT5taW5fYnNbRERJUl9S
-RUFEXTsNCj4gLQlpZiAoIW8tPmJhW0RESVJfV1JJVEVdIHx8ICF0ZF9yYW5kb20odGQpKQ0KPiAt
-CQlvLT5iYVtERElSX1dSSVRFXSA9IG8tPm1pbl9ic1tERElSX1dSSVRFXTsNCj4gLQlpZiAoIW8t
-PmJhW0RESVJfVFJJTV0gfHwgIXRkX3JhbmRvbSh0ZCkpDQo+IC0JCW8tPmJhW0RESVJfVFJJTV0g
-PSBvLT5taW5fYnNbRERJUl9UUklNXTsNCj4gKwlmb3JfZWFjaF9yd19kZGlyKGRkaXIpIHsNCj4g
-KwkJaWYgKCFvLT5iYVtkZGlyXSB8fCAhdGRfcmFuZG9tKHRkKSkNCj4gKwkJCW8tPmJhW2RkaXJd
-ID0gby0+bWluX2JzW2RkaXJdOw0KPiArCX0NCj4gDQo+ICAJaWYgKChvLT5iYVtERElSX1JFQURd
-ICE9IG8tPm1pbl9ic1tERElSX1JFQURdIHx8DQo+ICAJICAgIG8tPmJhW0RESVJfV1JJVEVdICE9
-IG8tPm1pbl9ic1tERElSX1dSSVRFXSB8fA0KDQpjb250aW51ZXMgYXM6DQogICAgICAgICAgICBv
-LT5iYVtERElSX1RSSU1dICE9IG8tPm1pbl9ic1tERElSX1RSSU1dKSAmJg0KICAgICAgICAgICAg
-IW8tPm5vcmFuZG9tbWFwKSB7DQoNCndoaWNoIHNob3VsZCBiZSB1cGRhdGVkIHRvby4NCg0KDQo+
-IEBAIC03NjUsMTQgKzc1NywxMiBAQCBzdGF0aWMgaW50IGZpeHVwX29wdGlvbnMoc3RydWN0IHRo
-cmVhZF9kYXRhDQo+ICp0ZCkNCj4gIAkJbG9nX2VycigiZmlvOiByYXRlIGFuZCByYXRlX2lvcHMg
-YXJlIG11dHVhbGx5DQo+IGV4Y2x1c2l2ZVxuIik7DQo+ICAJCXJldCB8PSAxOw0KPiAgCX0NCj4g
-LQlpZiAoKG8tPnJhdGVbRERJUl9SRUFEXSAmJiAoby0+cmF0ZVtERElSX1JFQURdIDwgby0+cmF0
-ZW1pbltERElSX1JFQURdKSkgfHwNCj4gLQkgICAgKG8tPnJhdGVbRERJUl9XUklURV0gJiYgKG8t
-PnJhdGVbRERJUl9XUklURV0gPCBvLT5yYXRlbWluW0RESVJfV1JJVEVdKSkgfHwNCj4gLQkgICAg
-KG8tPnJhdGVbRERJUl9UUklNXSAmJiAoby0+cmF0ZVtERElSX1RSSU1dIDwgby0+cmF0ZW1pbltE
-RElSX1RSSU1dKSkgfHwNCj4gLQkgICAgKG8tPnJhdGVfaW9wc1tERElSX1JFQURdICYmIChvLT5y
-YXRlX2lvcHNbRERJUl9SRUFEXSA8IG8tPnJhdGVfaW9wc19taW5bRERJUl9SRUFEXSkpIHx8DQo+
-IC0JICAgIChvLT5yYXRlX2lvcHNbRERJUl9XUklURV0gJiYgKG8tPnJhdGVfaW9wc1tERElSX1dS
-SVRFXSA8IG8tPnJhdGVfaW9wc19taW5bRERJUl9XUklURV0pKSB8fA0KPiAtCSAgICAoby0+cmF0
-ZV9pb3BzW0RESVJfVFJJTV0gJiYgKG8tPnJhdGVfaW9wc1tERElSX1RSSU1dIDwgby0+cmF0ZV9p
-b3BzX21pbltERElSX1RSSU1dKSkpIHsNCj4gLQkJbG9nX2VycigiZmlvOiBtaW5pbXVtIHJhdGUg
-ZXhjZWVkcyByYXRlXG4iKTsNCj4gLQkJcmV0IHw9IDE7DQo+ICsJZm9yX2VhY2hfcndfZGRpcihk
-ZGlyKSB7DQo+ICsJCWlmICgoby0+cmF0ZVtkZGlyXSAmJiAoby0+cmF0ZVtkZGlyXSA8IG8tPnJh
-dGVtaW5bZGRpcl0pKSB8fA0KPiArCQkgICAgKG8tPnJhdGVfaW9wc1tkZGlyXSAmJiAoby0+cmF0
-ZV9pb3BzW2RkaXJdIDwgby0+cmF0ZV9pb3BzX21pbltkZGlyXSkpKSB7DQo+ICsJCQlsb2dfZXJy
-KCJmaW86IG1pbmltdW0gcmF0ZSBleGNlZWRzIHJhdGVcbiIpOw0KPiArCQkJcmV0IHw9IDE7DQo+
-ICsJCX0NCj4gIAl9DQoNClRoYXQgY2hhbmdlcyB0aGUgYmVoYXZpb3Igc2xpZ2h0bHkgLSB5b3Ug
-Y2FuIG5vdyBnZXQgdXAgdG8gdGhyZWUgb2YNCnRob3NlIG1lc3NhZ2VzLiBQcmludGluZyB0aGUg
-dmFsdWUgb2YgZGRpciB3b3VsZCBoZWxwIGlkZW50aWZ5IHRoZQ0KcHJvYmxlbShzKSBhbmQgYmUg
-bW9yZSBpbmZvcm1hdGl2ZSB0aGFuIHRoZSBjdXJyZW50IHNpbmdsZSBtZXNzYWdlLg0KDQo=
+Make it slightly easier to add DDIR_APPEND as fully fledged I/O type.
+
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
+
+ backend.c |   16 +++++++---------
+ eta.c     |   12 +++++-------
+ init.c    |   62 ++++++++++++++++++++++++++------------------------------------
+ io_ddir.h |    2 ++
+ stat.c    |   16 +++++++---------
+ 5 files changed, 47 insertions(+), 61 deletions(-)
+
+--- a/backend.c
++++ b/backend.c
+@@ -223,12 +223,10 @@ static bool check_min_rate(struct thread_data *td, struct timespec *now)
+ {
+ 	bool ret = false;
+ 
+-	if (td->bytes_done[DDIR_READ])
+-		ret |= __check_min_rate(td, now, DDIR_READ);
+-	if (td->bytes_done[DDIR_WRITE])
+-		ret |= __check_min_rate(td, now, DDIR_WRITE);
+-	if (td->bytes_done[DDIR_TRIM])
+-		ret |= __check_min_rate(td, now, DDIR_TRIM);
++	for_each_rw_ddir(ddir) {
++		if (td->bytes_done[ddir])
++			ret |= __check_min_rate(td, now, ddir);
++	}
+ 
+ 	return ret;
+ }
+@@ -1876,9 +1874,9 @@ static void *thread_main(void *data)
+ 
+ 	update_rusage_stat(td);
+ 	td->ts.total_run_time = mtime_since_now(&td->epoch);
+-	td->ts.io_bytes[DDIR_READ] = td->io_bytes[DDIR_READ];
+-	td->ts.io_bytes[DDIR_WRITE] = td->io_bytes[DDIR_WRITE];
+-	td->ts.io_bytes[DDIR_TRIM] = td->io_bytes[DDIR_TRIM];
++	for_each_rw_ddir(ddir) {
++		td->ts.io_bytes[ddir] = td->io_bytes[ddir];
++	}
+ 
+ 	if (td->o.verify_state_save && !(td->flags & TD_F_VSTATE_SAVED) &&
+ 	    (td->o.verify != VERIFY_NONE && td_write(td)))
+--- a/eta.c
++++ b/eta.c
+@@ -383,8 +383,8 @@ bool calc_thread_status(struct jobs_eta *je, int force)
+ 	struct thread_data *td;
+ 	int i, unified_rw_rep;
+ 	uint64_t rate_time, disp_time, bw_avg_time, *eta_secs;
+-	unsigned long long io_bytes[DDIR_RWDIR_CNT];
+-	unsigned long long io_iops[DDIR_RWDIR_CNT];
++	unsigned long long io_bytes[DDIR_RWDIR_CNT] = {};
++	unsigned long long io_iops[DDIR_RWDIR_CNT] = {};
+ 	struct timespec now;
+ 
+ 	static unsigned long long rate_io_bytes[DDIR_RWDIR_CNT];
+@@ -413,8 +413,6 @@ bool calc_thread_status(struct jobs_eta *je, int force)
+ 
+ 	je->elapsed_sec = (mtime_since_genesis() + 999) / 1000;
+ 
+-	io_bytes[DDIR_READ] = io_bytes[DDIR_WRITE] = io_bytes[DDIR_TRIM] = 0;
+-	io_iops[DDIR_READ] = io_iops[DDIR_WRITE] = io_iops[DDIR_TRIM] = 0;
+ 	bw_avg_time = ULONG_MAX;
+ 	unified_rw_rep = 0;
+ 	for_each_td(td, i) {
+@@ -509,9 +507,9 @@ bool calc_thread_status(struct jobs_eta *je, int force)
+ 		calc_rate(unified_rw_rep, rate_time, io_bytes, rate_io_bytes,
+ 				je->rate);
+ 		memcpy(&rate_prev_time, &now, sizeof(now));
+-		add_agg_sample(sample_val(je->rate[DDIR_READ]), DDIR_READ, 0, 0);
+-		add_agg_sample(sample_val(je->rate[DDIR_WRITE]), DDIR_WRITE, 0, 0);
+-		add_agg_sample(sample_val(je->rate[DDIR_TRIM]), DDIR_TRIM, 0, 0);
++		for_each_rw_ddir(ddir) {
++			add_agg_sample(sample_val(je->rate[ddir]), ddir, 0, 0);
++		}
+ 	}
+ 
+ 	disp_time = mtime_since(&disp_prev_time, &now);
+--- a/init.c
++++ b/init.c
+@@ -564,13 +564,11 @@ static int setup_rate(struct thread_data *td)
+ {
+ 	int ret = 0;
+ 
+-	if (td->o.rate[DDIR_READ] || td->o.rate_iops[DDIR_READ])
+-		ret = __setup_rate(td, DDIR_READ);
+-	if (td->o.rate[DDIR_WRITE] || td->o.rate_iops[DDIR_WRITE])
+-		ret |= __setup_rate(td, DDIR_WRITE);
+-	if (td->o.rate[DDIR_TRIM] || td->o.rate_iops[DDIR_TRIM])
+-		ret |= __setup_rate(td, DDIR_TRIM);
+-
++	for_each_rw_ddir(ddir) {
++		if (td->o.rate[ddir] || td->o.rate_iops[ddir]) {
++			ret |= __setup_rate(td, ddir);
++		}
++	}
+ 	return ret;
+ }
+ 
+@@ -662,31 +660,25 @@ static int fixup_options(struct thread_data *td)
+ 	if (td_read(td))
+ 		o->overwrite = 1;
+ 
+-	if (!o->min_bs[DDIR_READ])
+-		o->min_bs[DDIR_READ] = o->bs[DDIR_READ];
+-	if (!o->max_bs[DDIR_READ])
+-		o->max_bs[DDIR_READ] = o->bs[DDIR_READ];
+-	if (!o->min_bs[DDIR_WRITE])
+-		o->min_bs[DDIR_WRITE] = o->bs[DDIR_WRITE];
+-	if (!o->max_bs[DDIR_WRITE])
+-		o->max_bs[DDIR_WRITE] = o->bs[DDIR_WRITE];
+-	if (!o->min_bs[DDIR_TRIM])
+-		o->min_bs[DDIR_TRIM] = o->bs[DDIR_TRIM];
+-	if (!o->max_bs[DDIR_TRIM])
+-		o->max_bs[DDIR_TRIM] = o->bs[DDIR_TRIM];
+-
+-	o->rw_min_bs = min(o->min_bs[DDIR_READ], o->min_bs[DDIR_WRITE]);
+-	o->rw_min_bs = min(o->min_bs[DDIR_TRIM], o->rw_min_bs);
++	for_each_rw_ddir(ddir) {
++		if (!o->min_bs[ddir])
++			o->min_bs[ddir] = o->bs[ddir];
++		if (!o->max_bs[ddir])
++			o->max_bs[ddir] = o->bs[ddir];
++	}
++
++	o->rw_min_bs = -1;
++	for_each_rw_ddir(ddir) {
++		o->rw_min_bs = min(o->rw_min_bs, o->min_bs[ddir]);
++	}
+ 
+ 	/*
+ 	 * For random IO, allow blockalign offset other than min_bs.
+ 	 */
+-	if (!o->ba[DDIR_READ] || !td_random(td))
+-		o->ba[DDIR_READ] = o->min_bs[DDIR_READ];
+-	if (!o->ba[DDIR_WRITE] || !td_random(td))
+-		o->ba[DDIR_WRITE] = o->min_bs[DDIR_WRITE];
+-	if (!o->ba[DDIR_TRIM] || !td_random(td))
+-		o->ba[DDIR_TRIM] = o->min_bs[DDIR_TRIM];
++	for_each_rw_ddir(ddir) {
++		if (!o->ba[ddir] || !td_random(td))
++			o->ba[ddir] = o->min_bs[ddir];
++	}
+ 
+ 	if ((o->ba[DDIR_READ] != o->min_bs[DDIR_READ] ||
+ 	    o->ba[DDIR_WRITE] != o->min_bs[DDIR_WRITE] ||
+@@ -765,14 +757,12 @@ static int fixup_options(struct thread_data *td)
+ 		log_err("fio: rate and rate_iops are mutually exclusive\n");
+ 		ret |= 1;
+ 	}
+-	if ((o->rate[DDIR_READ] && (o->rate[DDIR_READ] < o->ratemin[DDIR_READ])) ||
+-	    (o->rate[DDIR_WRITE] && (o->rate[DDIR_WRITE] < o->ratemin[DDIR_WRITE])) ||
+-	    (o->rate[DDIR_TRIM] && (o->rate[DDIR_TRIM] < o->ratemin[DDIR_TRIM])) ||
+-	    (o->rate_iops[DDIR_READ] && (o->rate_iops[DDIR_READ] < o->rate_iops_min[DDIR_READ])) ||
+-	    (o->rate_iops[DDIR_WRITE] && (o->rate_iops[DDIR_WRITE] < o->rate_iops_min[DDIR_WRITE])) ||
+-	    (o->rate_iops[DDIR_TRIM] && (o->rate_iops[DDIR_TRIM] < o->rate_iops_min[DDIR_TRIM]))) {
+-		log_err("fio: minimum rate exceeds rate\n");
+-		ret |= 1;
++	for_each_rw_ddir(ddir) {
++		if ((o->rate[ddir] && (o->rate[ddir] < o->ratemin[ddir])) ||
++		    (o->rate_iops[ddir] && (o->rate_iops[ddir] < o->rate_iops_min[ddir]))) {
++			log_err("fio: minimum rate exceeds rate\n");
++			ret |= 1;
++		}
+ 	}
+ 
+ 	if (!o->timeout && o->time_based) {
+--- a/io_ddir.h
++++ b/io_ddir.h
+@@ -16,6 +16,8 @@ enum fio_ddir {
+ 	DDIR_RWDIR_SYNC_CNT = 4,
+ };
+ 
++#define for_each_rw_ddir(ddir)	for (enum fio_ddir ddir = 0; ddir < DDIR_RWDIR_CNT; ddir++)
++
+ static inline const char *io_ddir_name(enum fio_ddir ddir)
+ {
+ 	static const char *name[] = { "read", "write", "trim", "sync",
+--- a/stat.c
++++ b/stat.c
+@@ -1078,12 +1078,10 @@ static void show_thread_status_normal(struct thread_stat *ts,
+ 	if (strlen(ts->description))
+ 		log_buf(out, "  Description  : [%s]\n", ts->description);
+ 
+-	if (ts->io_bytes[DDIR_READ])
+-		show_ddir_status(rs, ts, DDIR_READ, out);
+-	if (ts->io_bytes[DDIR_WRITE])
+-		show_ddir_status(rs, ts, DDIR_WRITE, out);
+-	if (ts->io_bytes[DDIR_TRIM])
+-		show_ddir_status(rs, ts, DDIR_TRIM, out);
++	for_each_rw_ddir(ddir) {
++		if (ts->io_bytes[ddir])
++			show_ddir_status(rs, ts, ddir, out);
++	}
+ 
+ 	show_latencies(ts, out);
+ 
+@@ -2315,9 +2313,9 @@ void __show_running_run_stats(void)
+ 
+ 	for_each_td(td, i) {
+ 		td->update_rusage = 1;
+-		td->ts.io_bytes[DDIR_READ] = td->io_bytes[DDIR_READ];
+-		td->ts.io_bytes[DDIR_WRITE] = td->io_bytes[DDIR_WRITE];
+-		td->ts.io_bytes[DDIR_TRIM] = td->io_bytes[DDIR_TRIM];
++		for_each_rw_ddir(ddir) {
++			td->ts.io_bytes[ddir] = td->io_bytes[ddir];
++		}
+ 		td->ts.total_run_time = mtime_since(&td->epoch, &ts);
+ 
+ 		rt[i] = mtime_since(&td->start, &ts);
 
