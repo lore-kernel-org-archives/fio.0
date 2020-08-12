@@ -1,91 +1,60 @@
-Return-Path: <adobriyan@gmail.com>
-Return-Path: <adobriyan@gmail.com>
-Date: Thu, 13 Aug 2020 13:36:24 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: [PATCH] fio: add for_each_rw_ddir() macro
-Message-ID: <20200813103624.GA5475@localhost.localdomain>
+Return-Path: <prvs=049388e865=elliott@hpe.com>
+From: "Elliott, Robert (Servers)" <elliott@hpe.com>
+Subject: RE: [PATCH] fio: add for_each_rw_ddir() macro
+Date: Wed, 12 Aug 2020 22:01:56 +0000
+Message-ID: <TU4PR8401MB10556465AD0CE9AF3A1E4B30AB420@TU4PR8401MB1055.NAMPRD84.PROD.OUTLOOK.COM>
 References: <20200812152622.GA40719@localhost.localdomain>
- <TU4PR8401MB10556465AD0CE9AF3A1E4B30AB420@TU4PR8401MB1055.NAMPRD84.PROD.OUTLOOK.COM>
+In-Reply-To: <20200812152622.GA40719@localhost.localdomain>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <TU4PR8401MB10556465AD0CE9AF3A1E4B30AB420@TU4PR8401MB1055.NAMPRD84.PROD.OUTLOOK.COM>
-To: "Elliott, Robert (Servers)" <elliott@hpe.com>
-Cc: "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>, "axboe@kernel.dk" <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On Wed, Aug 12, 2020 at 10:01:56PM +0000, Elliott, Robert (Servers) wrote:
-> > -----Original Message-----
-> > From: fio-owner@vger.kernel.org <fio-owner@vger.kernel.org> On Behalf
-> > Of Alexey Dobriyan
-> > Sent: Wednesday, August 12, 2020 10:26 AM
-> > To: axboe@kernel.dk
-> > Cc: fio@vger.kernel.org
-> > Subject: [PATCH] fio: add for_each_rw_ddir() macro
-> > 
-> > Make it slightly easier to add DDIR_APPEND as fully fledged I/O type.
-
-> >  	/*
-> >  	 * For random IO, allow blockalign offset other than min_bs.
-> >  	 */
-> > -	if (!o->ba[DDIR_READ] || !td_random(td))
-> > -		o->ba[DDIR_READ] = o->min_bs[DDIR_READ];
-> > -	if (!o->ba[DDIR_WRITE] || !td_random(td))
-> > -		o->ba[DDIR_WRITE] = o->min_bs[DDIR_WRITE];
-> > -	if (!o->ba[DDIR_TRIM] || !td_random(td))
-> > -		o->ba[DDIR_TRIM] = o->min_bs[DDIR_TRIM];
-> > +	for_each_rw_ddir(ddir) {
-> > +		if (!o->ba[ddir] || !td_random(td))
-> > +			o->ba[ddir] = o->min_bs[ddir];
-> > +	}
-> > 
-> >  	if ((o->ba[DDIR_READ] != o->min_bs[DDIR_READ] ||
-> >  	    o->ba[DDIR_WRITE] != o->min_bs[DDIR_WRITE] ||
-> 
-> continues as:
->             o->ba[DDIR_TRIM] != o->min_bs[DDIR_TRIM]) &&
->             !o->norandommap) {
-> 
-> which should be updated too.
-
-Actually it should not. This error message doesn't make sense for Append:
-
-        if ((o->ba[DDIR_READ] != o->min_bs[DDIR_READ] ||
-            o->ba[DDIR_WRITE] != o->min_bs[DDIR_WRITE] ||
-            o->ba[DDIR_TRIM] != o->min_bs[DDIR_TRIM]) &&
-            !o->norandommap) {
-                log_err("fio: Any use of blockalign= turns off randommap\n");
-                o->norandommap = 1;
-                ret |= warnings_fatal;
-        }
-
-ba= should be ignored for Append (maybe with a non-fatal warning message).
-
-> > @@ -765,14 +757,12 @@ static int fixup_options(struct thread_data
-> > *td)
-> >  		log_err("fio: rate and rate_iops are mutually
-> > exclusive\n");
-> >  		ret |= 1;
-> >  	}
-> > -	if ((o->rate[DDIR_READ] && (o->rate[DDIR_READ] < o->ratemin[DDIR_READ])) ||
-> > -	    (o->rate[DDIR_WRITE] && (o->rate[DDIR_WRITE] < o->ratemin[DDIR_WRITE])) ||
-> > -	    (o->rate[DDIR_TRIM] && (o->rate[DDIR_TRIM] < o->ratemin[DDIR_TRIM])) ||
-> > -	    (o->rate_iops[DDIR_READ] && (o->rate_iops[DDIR_READ] < o->rate_iops_min[DDIR_READ])) ||
-> > -	    (o->rate_iops[DDIR_WRITE] && (o->rate_iops[DDIR_WRITE] < o->rate_iops_min[DDIR_WRITE])) ||
-> > -	    (o->rate_iops[DDIR_TRIM] && (o->rate_iops[DDIR_TRIM] < o->rate_iops_min[DDIR_TRIM]))) {
-> > -		log_err("fio: minimum rate exceeds rate\n");
-> > -		ret |= 1;
-> > +	for_each_rw_ddir(ddir) {
-> > +		if ((o->rate[ddir] && (o->rate[ddir] < o->ratemin[ddir])) ||
-> > +		    (o->rate_iops[ddir] && (o->rate_iops[ddir] < o->rate_iops_min[ddir]))) {
-> > +			log_err("fio: minimum rate exceeds rate\n");
-> > +			ret |= 1;
-> > +		}
-> >  	}
-> 
-> That changes the behavior slightly - you can now get up to three of
-> those messages. Printing the value of ddir would help identify the
-> problem(s) and be more informative than the current single message.
-
-OK.
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
+a2VybmVsLm9yZyA8ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZz4gT24gQmVoYWxmDQo+IE9mIEFs
+ZXhleSBEb2JyaXlhbg0KPiBTZW50OiBXZWRuZXNkYXksIEF1Z3VzdCAxMiwgMjAyMCAxMDoyNiBB
+TQ0KPiBUbzogYXhib2VAa2VybmVsLmRrDQo+IENjOiBmaW9Admdlci5rZXJuZWwub3JnDQo+IFN1
+YmplY3Q6IFtQQVRDSF0gZmlvOiBhZGQgZm9yX2VhY2hfcndfZGRpcigpIG1hY3JvDQo+IA0KPiBN
+YWtlIGl0IHNsaWdodGx5IGVhc2llciB0byBhZGQgRERJUl9BUFBFTkQgYXMgZnVsbHkgZmxlZGdl
+ZCBJL08gdHlwZS4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEFsZXhleSBEb2JyaXlhbiA8YWRvYnJp
+eWFuQGdtYWlsLmNvbT4NCj4gLS0tDQo+IA0KLi4uDQoNCj4gQEAgLTY2MiwzMSArNjYwLDI1IEBA
+IHN0YXRpYyBpbnQgZml4dXBfb3B0aW9ucyhzdHJ1Y3QgdGhyZWFkX2RhdGENCj4gKnRkKQ0KLi4u
+DQo+ICAJLyoNCj4gIAkgKiBGb3IgcmFuZG9tIElPLCBhbGxvdyBibG9ja2FsaWduIG9mZnNldCBv
+dGhlciB0aGFuIG1pbl9icy4NCj4gIAkgKi8NCj4gLQlpZiAoIW8tPmJhW0RESVJfUkVBRF0gfHwg
+IXRkX3JhbmRvbSh0ZCkpDQo+IC0JCW8tPmJhW0RESVJfUkVBRF0gPSBvLT5taW5fYnNbRERJUl9S
+RUFEXTsNCj4gLQlpZiAoIW8tPmJhW0RESVJfV1JJVEVdIHx8ICF0ZF9yYW5kb20odGQpKQ0KPiAt
+CQlvLT5iYVtERElSX1dSSVRFXSA9IG8tPm1pbl9ic1tERElSX1dSSVRFXTsNCj4gLQlpZiAoIW8t
+PmJhW0RESVJfVFJJTV0gfHwgIXRkX3JhbmRvbSh0ZCkpDQo+IC0JCW8tPmJhW0RESVJfVFJJTV0g
+PSBvLT5taW5fYnNbRERJUl9UUklNXTsNCj4gKwlmb3JfZWFjaF9yd19kZGlyKGRkaXIpIHsNCj4g
+KwkJaWYgKCFvLT5iYVtkZGlyXSB8fCAhdGRfcmFuZG9tKHRkKSkNCj4gKwkJCW8tPmJhW2RkaXJd
+ID0gby0+bWluX2JzW2RkaXJdOw0KPiArCX0NCj4gDQo+ICAJaWYgKChvLT5iYVtERElSX1JFQURd
+ICE9IG8tPm1pbl9ic1tERElSX1JFQURdIHx8DQo+ICAJICAgIG8tPmJhW0RESVJfV1JJVEVdICE9
+IG8tPm1pbl9ic1tERElSX1dSSVRFXSB8fA0KDQpjb250aW51ZXMgYXM6DQogICAgICAgICAgICBv
+LT5iYVtERElSX1RSSU1dICE9IG8tPm1pbl9ic1tERElSX1RSSU1dKSAmJg0KICAgICAgICAgICAg
+IW8tPm5vcmFuZG9tbWFwKSB7DQoNCndoaWNoIHNob3VsZCBiZSB1cGRhdGVkIHRvby4NCg0KDQo+
+IEBAIC03NjUsMTQgKzc1NywxMiBAQCBzdGF0aWMgaW50IGZpeHVwX29wdGlvbnMoc3RydWN0IHRo
+cmVhZF9kYXRhDQo+ICp0ZCkNCj4gIAkJbG9nX2VycigiZmlvOiByYXRlIGFuZCByYXRlX2lvcHMg
+YXJlIG11dHVhbGx5DQo+IGV4Y2x1c2l2ZVxuIik7DQo+ICAJCXJldCB8PSAxOw0KPiAgCX0NCj4g
+LQlpZiAoKG8tPnJhdGVbRERJUl9SRUFEXSAmJiAoby0+cmF0ZVtERElSX1JFQURdIDwgby0+cmF0
+ZW1pbltERElSX1JFQURdKSkgfHwNCj4gLQkgICAgKG8tPnJhdGVbRERJUl9XUklURV0gJiYgKG8t
+PnJhdGVbRERJUl9XUklURV0gPCBvLT5yYXRlbWluW0RESVJfV1JJVEVdKSkgfHwNCj4gLQkgICAg
+KG8tPnJhdGVbRERJUl9UUklNXSAmJiAoby0+cmF0ZVtERElSX1RSSU1dIDwgby0+cmF0ZW1pbltE
+RElSX1RSSU1dKSkgfHwNCj4gLQkgICAgKG8tPnJhdGVfaW9wc1tERElSX1JFQURdICYmIChvLT5y
+YXRlX2lvcHNbRERJUl9SRUFEXSA8IG8tPnJhdGVfaW9wc19taW5bRERJUl9SRUFEXSkpIHx8DQo+
+IC0JICAgIChvLT5yYXRlX2lvcHNbRERJUl9XUklURV0gJiYgKG8tPnJhdGVfaW9wc1tERElSX1dS
+SVRFXSA8IG8tPnJhdGVfaW9wc19taW5bRERJUl9XUklURV0pKSB8fA0KPiAtCSAgICAoby0+cmF0
+ZV9pb3BzW0RESVJfVFJJTV0gJiYgKG8tPnJhdGVfaW9wc1tERElSX1RSSU1dIDwgby0+cmF0ZV9p
+b3BzX21pbltERElSX1RSSU1dKSkpIHsNCj4gLQkJbG9nX2VycigiZmlvOiBtaW5pbXVtIHJhdGUg
+ZXhjZWVkcyByYXRlXG4iKTsNCj4gLQkJcmV0IHw9IDE7DQo+ICsJZm9yX2VhY2hfcndfZGRpcihk
+ZGlyKSB7DQo+ICsJCWlmICgoby0+cmF0ZVtkZGlyXSAmJiAoby0+cmF0ZVtkZGlyXSA8IG8tPnJh
+dGVtaW5bZGRpcl0pKSB8fA0KPiArCQkgICAgKG8tPnJhdGVfaW9wc1tkZGlyXSAmJiAoby0+cmF0
+ZV9pb3BzW2RkaXJdIDwgby0+cmF0ZV9pb3BzX21pbltkZGlyXSkpKSB7DQo+ICsJCQlsb2dfZXJy
+KCJmaW86IG1pbmltdW0gcmF0ZSBleGNlZWRzIHJhdGVcbiIpOw0KPiArCQkJcmV0IHw9IDE7DQo+
+ICsJCX0NCj4gIAl9DQoNClRoYXQgY2hhbmdlcyB0aGUgYmVoYXZpb3Igc2xpZ2h0bHkgLSB5b3Ug
+Y2FuIG5vdyBnZXQgdXAgdG8gdGhyZWUgb2YNCnRob3NlIG1lc3NhZ2VzLiBQcmludGluZyB0aGUg
+dmFsdWUgb2YgZGRpciB3b3VsZCBoZWxwIGlkZW50aWZ5IHRoZQ0KcHJvYmxlbShzKSBhbmQgYmUg
+bW9yZSBpbmZvcm1hdGl2ZSB0aGFuIHRoZSBjdXJyZW50IHNpbmdsZSBtZXNzYWdlLg0KDQo=
 
