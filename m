@@ -1,27 +1,60 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH] zbd: use ->min_zone, ->max_zone in more places
+Return-Path: <prvs=4878f8862=Dmitry.Fomichev@wdc.com>
+From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+Subject: RE: [PATCH] zbd: use ->min_zone, ->max_zone in more places
+Date: Thu, 13 Aug 2020 22:00:22 +0000
+Message-ID: 
+ <MN2PR04MB5951C0F65D56BD17B1FBDA0AE1430@MN2PR04MB5951.namprd04.prod.outlook.com>
 References: <20200813163632.GB26072@localhost.localdomain>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <b1fcac00-30ab-c164-bd29-1e142bccf0b5@kernel.dk>
-Date: Thu, 13 Aug 2020 16:06:41 -0600
-MIME-Version: 1.0
 In-Reply-To: <20200813163632.GB26072@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: fio@vger.kernel.org, damien.lemoal@wdc.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: Alexey Dobriyan <adobriyan@gmail.com>, "axboe@kernel.dk" <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On 8/13/20 10:36 AM, Alexey Dobriyan wrote:
-> Check that ->min_zone is less than ->max_zone.
-> This assert found one bug here.
-> 
-> Use it in more places, now that it was added.
-
-Applied, thanks.
-
--- 
-Jens Axboe
-
+DQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IGZpby1vd25lckB2Z2VyLmtl
+cm5lbC5vcmcgPGZpby1vd25lckB2Z2VyLmtlcm5lbC5vcmc+IE9uIEJlaGFsZg0KPiBPZiBBbGV4
+ZXkgRG9icml5YW4NCj4gU2VudDogVGh1cnNkYXksIEF1Z3VzdCAxMywgMjAyMCAxMjozNyBQTQ0K
+PiBUbzogYXhib2VAa2VybmVsLmRrDQo+IENjOiBmaW9Admdlci5rZXJuZWwub3JnOyBEYW1pZW4g
+TGUgTW9hbCA8RGFtaWVuLkxlTW9hbEB3ZGMuY29tPg0KPiBTdWJqZWN0OiBbUEFUQ0hdIHpiZDog
+dXNlIC0+bWluX3pvbmUsIC0+bWF4X3pvbmUgaW4gbW9yZSBwbGFjZXMNCj4gDQo+IENoZWNrIHRo
+YXQgLT5taW5fem9uZSBpcyBsZXNzIHRoYW4gLT5tYXhfem9uZS4NCj4gVGhpcyBhc3NlcnQgZm91
+bmQgb25lIGJ1ZyBoZXJlLg0KPiANCj4gVXNlIGl0IGluIG1vcmUgcGxhY2VzLCBub3cgdGhhdCBp
+dCB3YXMgYWRkZWQuDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBBbGV4ZXkgRG9icml5YW4gKFNLIGh5
+bml4KSA8YWRvYnJpeWFuQGdtYWlsLmNvbT4NCj4gLS0tDQoNCldvcmtzIGZpbmUgZm9yIG1lLiBO
+aWNlIGNsZWFudXAhDQoNClJldmlld2VkLWJ5OiBEbWl0cnkgRm9taWNoZXYgPGRtaXRyeS5mb21p
+Y2hldkB3ZGMuY29tPg0KDQo+IA0KPiAgemJkLmMgfCAgIDExICsrKysrLS0tLS0tDQo+ICAxIGZp
+bGUgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCspLCA2IGRlbGV0aW9ucygtKQ0KPiANCj4gLS0tIGEv
+emJkLmMNCj4gKysrIGIvemJkLmMNCj4gQEAgLTMxOSw2ICszMTksNyBAQCBzdGF0aWMgYm9vbCB6
+YmRfdmVyaWZ5X3NpemVzKHZvaWQpDQo+IA0KPiAgCQkJZi0+bWluX3pvbmUgPSB6YmRfem9uZV9p
+ZHgoZiwgZi0+ZmlsZV9vZmZzZXQpOw0KPiAgCQkJZi0+bWF4X3pvbmUgPSB6YmRfem9uZV9pZHgo
+ZiwgZi0+ZmlsZV9vZmZzZXQgKyBmLQ0KPiA+aW9fc2l6ZSk7DQo+ICsJCQlhc3NlcnQoZi0+bWlu
+X3pvbmUgPCBmLT5tYXhfem9uZSk7DQo+ICAJCX0NCj4gIAl9DQo+IA0KPiBAQCAtODM5LDkgKzg0
+MCw4IEBAIHN0YXRpYyB1aW50NjRfdCB6YmRfcHJvY2Vzc19zd2QoY29uc3Qgc3RydWN0IGZpb19m
+aWxlDQo+ICpmLCBlbnVtIHN3ZF9hY3Rpb24gYSkNCj4gIAlzdHJ1Y3QgZmlvX3pvbmVfaW5mbyAq
+emIsICp6ZSwgKno7DQo+ICAJdWludDY0X3Qgc3dkID0gMDsNCj4gDQo+IC0JemIgPSAmZi0+emJk
+X2luZm8tPnpvbmVfaW5mb1t6YmRfem9uZV9pZHgoZiwgZi0+ZmlsZV9vZmZzZXQpXTsNCj4gLQl6
+ZSA9ICZmLT56YmRfaW5mby0+em9uZV9pbmZvW3piZF96b25lX2lkeChmLCBmLT5maWxlX29mZnNl
+dCArDQo+IC0JCQkJCQkgIGYtPmlvX3NpemUpXTsNCj4gKwl6YiA9ICZmLT56YmRfaW5mby0+em9u
+ZV9pbmZvW2YtPm1pbl96b25lXTsNCj4gKwl6ZSA9ICZmLT56YmRfaW5mby0+em9uZV9pbmZvW2Yt
+Pm1heF96b25lXTsNCj4gIAlmb3IgKHogPSB6YjsgeiA8IHplOyB6KyspIHsNCj4gIAkJcHRocmVh
+ZF9tdXRleF9sb2NrKCZ6LT5tdXRleCk7DQo+ICAJCXN3ZCArPSB6LT53cCAtIHotPnN0YXJ0Ow0K
+PiBAQCAtMTE3NSw3ICsxMTc1LDcgQEAgemJkX2ZpbmRfem9uZShzdHJ1Y3QgdGhyZWFkX2RhdGEg
+KnRkLCBzdHJ1Y3QgaW9fdQ0KPiAqaW9fdSwNCj4gIAlzdHJ1Y3QgZmlvX2ZpbGUgKmYgPSBpb191
+LT5maWxlOw0KPiAgCXN0cnVjdCBmaW9fem9uZV9pbmZvICp6MSwgKnoyOw0KPiAgCWNvbnN0IHN0
+cnVjdCBmaW9fem9uZV9pbmZvICpjb25zdCB6ZiA9DQo+IC0JCSZmLT56YmRfaW5mby0+em9uZV9p
+bmZvW3piZF96b25lX2lkeChmLCBmLT5maWxlX29mZnNldCldOw0KPiArCQkmZi0+emJkX2luZm8t
+PnpvbmVfaW5mb1tmLT5taW5fem9uZV07DQo+IA0KPiAgCS8qDQo+ICAJICogU2tpcCB0byB0aGUg
+bmV4dCBub24tZW1wdHkgem9uZSBpbiBjYXNlIG9mIHNlcXVlbnRpYWwgSS9PIGFuZCB0bw0KPiBA
+QCAtMTQ4Miw4ICsxNDgyLDcgQEAgZW51bSBpb191X2FjdGlvbiB6YmRfYWRqdXN0X2Jsb2NrKHN0
+cnVjdA0KPiB0aHJlYWRfZGF0YSAqdGQsIHN0cnVjdCBpb191ICppb191KQ0KPiAgCQlpZiAocmFu
+Z2UgPCBtaW5fYnMgfHwNCj4gIAkJICAgICgoIXRkX3JhbmRvbSh0ZCkpICYmIChpb191LT5vZmZz
+ZXQgKyBtaW5fYnMgPiB6Yi0+d3ApKSkgew0KPiAgCQkJcHRocmVhZF9tdXRleF91bmxvY2soJnpi
+LT5tdXRleCk7DQo+IC0JCQl6bCA9ICZmLT56YmRfaW5mby0+em9uZV9pbmZvW3piZF96b25lX2lk
+eChmLA0KPiAtCQkJCQkJZi0+ZmlsZV9vZmZzZXQgKyBmLT5pb19zaXplKV07DQo+ICsJCQl6bCA9
+ICZmLT56YmRfaW5mby0+em9uZV9pbmZvW2YtPm1heF96b25lXTsNCj4gIAkJCXpiID0gemJkX2Zp
+bmRfem9uZSh0ZCwgaW9fdSwgemIsIHpsKTsNCj4gIAkJCWlmICghemIpIHsNCj4gIAkJCQlkcHJp
+bnQoRkRfWkJELA0K
 
