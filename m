@@ -1,62 +1,57 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa6.hgst.iphmx.com ([216.71.154.45]:48367 "EHLO
-        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726189AbgHUGhn (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 21 Aug 2020 02:37:43 -0400
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 2/7] oslib/linux-blkzoned: Allow reset zone before file set up
-Date: Fri, 21 Aug 2020 15:37:34 +0900
-Message-Id: <20200821063739.390353-3-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200821063739.390353-1-shinichiro.kawasaki@wdc.com>
-References: <20200821063739.390353-1-shinichiro.kawasaki@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47484 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726224AbgHMMAH (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 13 Aug 2020 08:00:07 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18316C061757
+        for <fio@vger.kernel.org>; Thu, 13 Aug 2020 05:00:07 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1k6Btt-0003TF-1w
+        for fio@vger.kernel.org; Thu, 13 Aug 2020 12:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200813120001.6FBC91BC01B3@kernel.dk>
+Date: Thu, 13 Aug 2020 06:00:01 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To: fio@vger.kernel.org
 
-To reset zones before file set up completion, modify the helper function
-blkzoned_reset_wp() to work even when fio_file struct does not have valid
-file descriptor yet. If the file descriptor is not available, open and
-close the reset target file within the function. Otherwise use the
-available descriptor to avoid file open/close overhead.
+The following changes since commit 0d578085cc7b97b783e1719b205dd563b406ecbc:
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+  t/zbd: check log file for failed assertions (2020-08-11 10:42:43 -0600)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 84abeef7d9f2f5cded36dcfc127b3f33db89ea57:
+
+  io_u: calculate incremental residuals correctly (2020-08-12 11:48:15 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      io_u: calculate incremental residuals correctly
+
+ io_u.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 ---
- oslib/linux-blkzoned.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/oslib/linux-blkzoned.c b/oslib/linux-blkzoned.c
-index 6fe78b9c..0a8a577a 100644
---- a/oslib/linux-blkzoned.c
-+++ b/oslib/linux-blkzoned.c
-@@ -222,9 +222,21 @@ int blkzoned_reset_wp(struct thread_data *td, struct fio_file *f,
- 		.sector         = offset >> 9,
- 		.nr_sectors     = length >> 9,
- 	};
-+	int fd, ret = 0;
-+
-+	/* If the file is not yet opened, open it for this function. */
-+	fd = f->fd;
-+	if (fd < 0) {
-+		fd = open(f->file_name, O_RDWR | O_LARGEFILE);
-+		if (fd < 0)
-+			return -errno;
-+	}
- 
--	if (ioctl(f->fd, BLKRESETZONE, &zr) < 0)
--		return -errno;
-+	if (ioctl(fd, BLKRESETZONE, &zr) < 0)
-+		ret = -errno;
- 
--	return 0;
-+	if (f->fd < 0)
-+		close(fd);
-+
-+	return ret;
- }
--- 
-2.26.2
+Diff of recent changes:
 
+diff --git a/io_u.c b/io_u.c
+index dbb0a6f8..2ef5acec 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -1977,7 +1977,7 @@ static void io_completed(struct thread_data *td, struct io_u **io_u_ptr,
+ 	td->last_ddir = ddir;
+ 
+ 	if (!io_u->error && ddir_rw(ddir)) {
+-		unsigned long long bytes = io_u->buflen - io_u->resid;
++		unsigned long long bytes = io_u->xfer_buflen - io_u->resid;
+ 		int ret;
+ 
+ 		/*
 
