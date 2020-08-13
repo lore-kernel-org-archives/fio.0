@@ -1,43 +1,46 @@
-Return-Path: <prvs=48985016a=Dmitry.Fomichev@wdc.com>
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: Re: [PATCH 3/6] t/zbd: Improve usage message of test-zbd-support
- script
-Date: Sat, 15 Aug 2020 00:06:38 +0000
-Message-ID: <141029be5762769ecc02cc4d843b3e72b5ab627d.camel@wdc.com>
+Return-Path: <prvs=487b39e6c=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 3/6] t/zbd: Improve usage message of test-zbd-support script
+Date: Thu, 13 Aug 2020 13:57:21 +0900
+Message-Id: <20200813045724.47475-4-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200813045724.47475-1-shinichiro.kawasaki@wdc.com>
 References: <20200813045724.47475-1-shinichiro.kawasaki@wdc.com>
-	 <20200813045724.47475-4-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200813045724.47475-4-shinichiro.kawasaki@wdc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <494A17E47C28144895FBD10DC64EA922@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-T24gVGh1LCAyMDIwLTA4LTEzIGF0IDEzOjU3ICswOTAwLCBTaGluJ2ljaGlybyBLYXdhc2FraSB3
-cm90ZToNCj4gVGhlIHVzYWdlIG1lc3NhZ2Ugb2YgdC96YmQvdGVzdC16YmQtc3VwcG9ydCBkb2Vz
-IG5vdCBleHBsYWluIG1lYW5pbmcgb2YNCj4gZWFjaCBvcHRpb24uIEVsYWJvcmF0ZSBtZWFuaW5n
-IG9mIHRoZSBvcHRpb25zLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogU2hpbidpY2hpcm8gS2F3YXNh
-a2kgPHNoaW5pY2hpcm8ua2F3YXNha2lAd2RjLmNvbT4NCg0KDQpMb29rcyBnb29kLg0KUmV2aWV3
-ZWQtYnk6IERtaXRyeSBGb21pY2hldjogPGRtaXRyeS5mb21pY2hldkB3ZGMuY29tPg0KDQo+IC0t
-LQ0KPiAgdC96YmQvdGVzdC16YmQtc3VwcG9ydCB8IDEwICsrKysrKysrKy0NCj4gIDEgZmlsZSBj
-aGFuZ2VkLCA5IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkNCj4gDQo+IGRpZmYgLS1naXQg
-YS90L3piZC90ZXN0LXpiZC1zdXBwb3J0IGIvdC96YmQvdGVzdC16YmQtc3VwcG9ydA0KPiBpbmRl
-eCAxMzk0OTVkMy4uOWUzOThjYWIgMTAwNzU1DQo+IC0tLSBhL3QvemJkL3Rlc3QtemJkLXN1cHBv
-cnQNCj4gKysrIGIvdC96YmQvdGVzdC16YmQtc3VwcG9ydA0KPiBAQCAtNSw3ICs1LDE1IEBADQo+
-ICAjIFRoaXMgZmlsZSBpcyByZWxlYXNlZCB1bmRlciB0aGUgR1BMLg0KPiAgDQo+ICB1c2FnZSgp
-IHsNCj4gLSAgICBlY2hvICJVc2FnZTogJChiYXNlbmFtZSAiJDAiKSBbLWRdIFstZV0gWy1sXSBb
-LXJdIFstdl0gWy10IDx0ZXN0Pl0gWy16XSA8U01SIGRyaXZlIGRldmljZSBub2RlPiINCj4gKwll
-Y2hvICJVc2FnZTogJChiYXNlbmFtZSAiJDAiKSBbT1BUSU9OU10gPHRlc3QgdGFyZ2V0IGRldmlj
-ZSBmaWxlPiINCj4gKwllY2hvICJPcHRpb25zOiINCj4gKwllY2hvIC1lICJcdC1kIFJ1biBmaW8g
-d2l0aCB2YWxncmluZCB1c2luZyBEUkQgdG9vbCINCj4gKwllY2hvIC1lICJcdC1lIFJ1biBmaW8g
-d2l0aCB2YWxncmluZCB1c2luZyBoZWxncmluZCB0b29sIg0KPiArCWVjaG8gLWUgIlx0LXYgUnVu
-IGZpbyB3aXRoIHZhbGdyaW5kIC0tcmVhZC12YXItaW5mbyBvcHRpb24iDQo+ICsJZWNobyAtZSAi
-XHQtbCBUZXN0IHdpdGggbGliemJjIGlvZW5naW5lIg0KPiArCWVjaG8gLWUgIlx0LXIgUmVzZXQg
-YWxsIHpvbmVzIGJlZm9yZSB0ZXN0IHN0YXJ0Ig0KPiArCWVjaG8gLWUgIlx0LXQgPHRlc3QgIz4g
-UnVuIG9ubHkgYSBzaW5nbGUgdGVzdCBjYXNlIHdpdGggc3BlY2lmaWVkIG51bWJlciINCj4gKwll
-Y2hvIC1lICJcdC16IFJ1biBmaW8gd2l0aCBkZWJ1Zz16YmQgb3B0aW9uIg0KPiAgfQ0KPiAgDQo+
-ICBtYXgoKSB7DQo=
+The usage message of t/zbd/test-zbd-support does not explain meaning of
+each option. Elaborate meaning of the options.
+
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ t/zbd/test-zbd-support | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 139495d3..9e398cab 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -5,7 +5,15 @@
+ # This file is released under the GPL.
+ 
+ usage() {
+-    echo "Usage: $(basename "$0") [-d] [-e] [-l] [-r] [-v] [-t <test>] [-z] <SMR drive device node>"
++	echo "Usage: $(basename "$0") [OPTIONS] <test target device file>"
++	echo "Options:"
++	echo -e "\t-d Run fio with valgrind using DRD tool"
++	echo -e "\t-e Run fio with valgrind using helgrind tool"
++	echo -e "\t-v Run fio with valgrind --read-var-info option"
++	echo -e "\t-l Test with libzbc ioengine"
++	echo -e "\t-r Reset all zones before test start"
++	echo -e "\t-t <test #> Run only a single test case with specified number"
++	echo -e "\t-z Run fio with debug=zbd option"
+ }
+ 
+ max() {
+-- 
+2.26.2
+
 
