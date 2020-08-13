@@ -1,92 +1,111 @@
-Return-Path: <prvs=48985016a=Dmitry.Fomichev@wdc.com>
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: Re: [PATCH 2/6] zbd: Initialize open zones list referring zone status
- at fio start
-Date: Sat, 15 Aug 2020 00:06:16 +0000
-Message-ID: <5ad0ea307ae5bce0871bd6c8f329d66b0f9f2ba9.camel@wdc.com>
+Return-Path: <prvs=487b39e6c=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 2/6] zbd: Initialize open zones list referring zone status at fio start
+Date: Thu, 13 Aug 2020 13:57:20 +0900
+Message-Id: <20200813045724.47475-3-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200813045724.47475-1-shinichiro.kawasaki@wdc.com>
 References: <20200813045724.47475-1-shinichiro.kawasaki@wdc.com>
-	 <20200813045724.47475-3-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200813045724.47475-3-shinichiro.kawasaki@wdc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <A7A283218E9612489C0BE289CBE3F981@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-T24gVGh1LCAyMDIwLTA4LTEzIGF0IDEzOjU3ICswOTAwLCBTaGluJ2ljaGlybyBLYXdhc2FraSB3
-cm90ZToNCj4gV2hlbiBmaW8gc3RhcnRzIHdyaXRlIHdvcmtsb2FkcyB0byB6b25lcyB3aXRoIG9w
-ZW4gc3RhdHVzLCBmaW8gZG9lcyBub3QNCj4gcmVmbGVjdCB0aGUgem9uZSBzdGF0dXMgdG8gb3Bl
-biB6b25lIGxpc3QuIFRoaXMgcmVzdWx0cyBpbiBpbmNvbnNpc3RlbnQNCj4gb3BlbiB6b25lIGFj
-Y291bnRpbmcuDQo+IA0KPiBUbyBhdm9pZCB0aGlzIGluY29uc2lzdGVuY3ksIGluaXRpYWxpemUg
-dGhlIG9wZW4gem9uZSBsaXN0IHJlZmVycmluZyB0aGUNCj4gem9uZSBzdGF0dXMgYnkgY2FsbGlu
-ZyB6YmRfb3Blbl96b25lKCkgZnVuY3Rpb24gYmVmb3JlIHdvcmtsb2FkIHN0YXJ0Lg0KPiBTaW5j
-ZSBpb191IGlzIG5vdCBhdmFpbGFibGUgYXQgdGhhdCB0aW1pbmcsIG1ha2UgdGhlIGZ1bmN0aW9u
-DQo+IGluZGVwZW5kZW50IGZyb20gaW9fdS4NCj4gDQo+IE9mIG5vdGUgaXMgdGhhdCBmaW8gY291
-bnRzIG9wZW4gem9uZXMgd2l0aGluIHRoZSB3cml0ZSB0YXJnZXQgcmFuZ2UuDQo+IE9wZW4gem9u
-ZXMgb3V0IG9mIHRoZSByYW5nZSBhcmUgbm90IGNvdW50ZWQgb3IgY2hlY2tlZC4NCj4gDQo+IFNp
-Z25lZC1vZmYtYnk6IFNoaW4naWNoaXJvIEthd2FzYWtpIDxzaGluaWNoaXJvLmthd2FzYWtpQHdk
-Yy5jb20+DQo+IC0tLQ0KPiAgemJkLmMgfCAyMSArKysrKysrKysrKysrKysrLS0tLS0NCj4gIDEg
-ZmlsZSBjaGFuZ2VkLCAxNiBpbnNlcnRpb25zKCspLCA1IGRlbGV0aW9ucygtKQ0KPiANCj4gZGlm
-ZiAtLWdpdCBhL3piZC5jIGIvemJkLmMNCj4gaW5kZXggMjBmNjRiNTguLjEyM2Q1NTMwIDEwMDY0
-NA0KPiAtLS0gYS96YmQuYw0KPiArKysgYi96YmQuYw0KPiBAQCAtNjI3LDYgKzYyNyw5IEBAIHN0
-YXRpYyBpbnQgemJkX2luaXRfem9uZV9pbmZvKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsIHN0cnVj
-dCBmaW9fZmlsZSAqZmlsZSkNCj4gIAlyZXR1cm4gcmV0Ow0KPiAgfQ0KPiAgDQo+ICtzdGF0aWMg
-Ym9vbCB6YmRfb3Blbl96b25lKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsIGNvbnN0IHN0cnVjdCBm
-aW9fZmlsZSAqZiwNCj4gKwkJCSAgdWludDMyX3Qgem9uZV9pZHgpOw0KPiArDQo+ICBpbnQgemJk
-X3NldHVwX2ZpbGVzKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpDQo+ICB7DQo+ICAJc3RydWN0IGZp
-b19maWxlICpmOw0KPiBAQCAtNjUwLDYgKzY1Myw4IEBAIGludCB6YmRfc2V0dXBfZmlsZXMoc3Ry
-dWN0IHRocmVhZF9kYXRhICp0ZCkNCj4gIA0KPiAgCWZvcl9lYWNoX2ZpbGUodGQsIGYsIGkpIHsN
-Cj4gIAkJc3RydWN0IHpvbmVkX2Jsb2NrX2RldmljZV9pbmZvICp6YmQgPSBmLT56YmRfaW5mbzsN
-Cj4gKwkJc3RydWN0IGZpb196b25lX2luZm8gKno7DQo+ICsJCWludCB6aTsNCj4gIA0KPiAgCQlp
-ZiAoIXpiZCkNCj4gIAkJCWNvbnRpbnVlOw0KPiBAQCAtNjY1LDYgKzY3MCwxMyBAQCBpbnQgemJk
-X3NldHVwX2ZpbGVzKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpDQo+ICAJCQlsb2dfZXJyKCInbWF4
-X29wZW5fem9uZXMnIHZhbHVlIGlzIGxpbWl0ZWQgYnkgJXVcbiIsIFpCRF9NQVhfT1BFTl9aT05F
-Uyk7DQo+ICAJCQlyZXR1cm4gMTsNCj4gIAkJfQ0KPiArDQo+ICsJCWZvciAoemkgPSBmLT5taW5f
-em9uZTsgemkgPCBmLT5tYXhfem9uZTsgemkrKykgew0KPiArCQkJeiA9ICZ6YmQtPnpvbmVfaW5m
-b1t6aV07DQo+ICsJCQlpZiAoei0+Y29uZCA9PSBaQkRfWk9ORV9DT05EX0lNUF9PUEVOIHx8DQo+
-ICsJCQkgICAgei0+Y29uZCA9PSBaQkRfWk9ORV9DT05EX0VYUF9PUEVOKQ0KPiArCQkJCXpiZF9v
-cGVuX3pvbmUodGQsIGYsIHppKTsNCj4gKwkJfQ0KDQpXaGF0IGlmIHpiZC0+bWF4X29wZW5fem9u
-ZXMgaXMgc2V0IGxlc3MgdGhhbiB0aGUgbnVtYmVyIG9mIHRoZSBjdXJyZW50bHkNCm9wZW4gem9u
-ZXMgaW4gW21heF96b25lOm1pbl96b25lXSByYW5nZT8gSW4gdGhpcyBjYXNlLCB0aGUgbG9vcCBh
-Ym92ZSB3aWxsDQpvcGVuIG1vcmUgem9uZXMgdGhhbiBuZWVkZWQuIE1heWJlIHRoaXMgcGFydCBz
-aG91bGQgYmUgY2hhbmdlZCB0byBzb21ldGhpbmcNCmxpa2UgdGhlIGNvZGUgYmVsb3c/DQoNCisJ
-CWludCB6aSwgbm96Ow0KLi4uDQorCQlmb3IgKHppID0gZi0+bWluX3pvbmUsIG5veiA9IDA7IHpp
-IDwgZi0+bWF4X3pvbmU7IHppKyspIHsNCisJCQl6ID0gJnpiZC0+em9uZV9pbmZvW3ppXTsNCisJ
-CQlpZiAoei0+Y29uZCA9PSBaQkRfWk9ORV9DT05EX0lNUF9PUEVOIHx8DQorCQkJICAgIHotPmNv
-bmQgPT0gWkJEX1pPTkVfQ09ORF9FWFBfT1BFTikgew0KKwkJCQlpZiAobm96IDwgemJkLT5tYXhf
-b3Blbl96b25lcykNCisJCQkJCXpiZF9vcGVuX3pvbmUodGQsIGYsIHppKTsNCisJCQkJZWxzZQ0K
-KwkJCQkJemJkX3Jlc2V0X3pvbmUodGQsIGYsIHppKTsNCisJCQkJbm96Kys7DQorCQkJfQ0KKwkJ
-fQ0KDQo+ICAJfQ0KPiAgDQo+ICAJcmV0dXJuIDA7DQo+IEBAIC05MzQsMTEgKzk0NiwxMCBAQCBz
-dGF0aWMgYm9vbCBpc196b25lX29wZW4oY29uc3Qgc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgY29u
-c3Qgc3RydWN0IGZpb19maWxlICpmLA0KPiAgICogd2FzIG5vdCB5ZXQgb3BlbiBhbmQgb3Blbmlu
-ZyBhIG5ldyB6b25lIHdvdWxkIGNhdXNlIHRoZSB6b25lIGxpbWl0IHRvIGJlDQo+ICAgKiBleGNl
-ZWRlZC4NCj4gICAqLw0KPiAtc3RhdGljIGJvb2wgemJkX29wZW5fem9uZShzdHJ1Y3QgdGhyZWFk
-X2RhdGEgKnRkLCBjb25zdCBzdHJ1Y3QgaW9fdSAqaW9fdSwNCj4gK3N0YXRpYyBib29sIHpiZF9v
-cGVuX3pvbmUoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgY29uc3Qgc3RydWN0IGZpb19maWxlICpm
-LA0KPiAgCQkJICB1aW50MzJfdCB6b25lX2lkeCkNCj4gIHsNCj4gIAljb25zdCB1aW50MzJfdCBt
-aW5fYnMgPSB0ZC0+by5taW5fYnNbRERJUl9XUklURV07DQo+IC0JY29uc3Qgc3RydWN0IGZpb19m
-aWxlICpmID0gaW9fdS0+ZmlsZTsNCj4gIAlzdHJ1Y3QgZmlvX3pvbmVfaW5mbyAqeiA9ICZmLT56
-YmRfaW5mby0+em9uZV9pbmZvW3pvbmVfaWR4XTsNCj4gIAlib29sIHJlcyA9IHRydWU7DQo+ICAN
-Cj4gQEAgLTExMjYsNyArMTEzNyw3IEBAIG9wZW5fb3RoZXJfem9uZToNCj4gIAkJem9uZV9sb2Nr
-KHRkLCBmLCB6KTsNCj4gIAkJaWYgKHotPm9wZW4pDQo+ICAJCQljb250aW51ZTsNCj4gLQkJaWYg
-KHpiZF9vcGVuX3pvbmUodGQsIGlvX3UsIHpvbmVfaWR4KSkNCj4gKwkJaWYgKHpiZF9vcGVuX3pv
-bmUodGQsIGYsIHpvbmVfaWR4KSkNCj4gIAkJCWdvdG8gb3V0Ow0KPiAgCX0NCj4gIA0KPiBAQCAt
-MTE2OSw3ICsxMTgwLDcgQEAgc3RhdGljIHN0cnVjdCBmaW9fem9uZV9pbmZvICp6YmRfcmVwbGF5
-X3dyaXRlX29yZGVyKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsDQo+ICAJY29uc3Qgc3RydWN0IGZp
-b19maWxlICpmID0gaW9fdS0+ZmlsZTsNCj4gIAljb25zdCB1aW50MzJfdCBtaW5fYnMgPSB0ZC0+
-by5taW5fYnNbRERJUl9XUklURV07DQo+ICANCj4gLQlpZiAoIXpiZF9vcGVuX3pvbmUodGQsIGlv
-X3UsIHogLSBmLT56YmRfaW5mby0+em9uZV9pbmZvKSkgew0KPiArCWlmICghemJkX29wZW5fem9u
-ZSh0ZCwgZiwgeiAtIGYtPnpiZF9pbmZvLT56b25lX2luZm8pKSB7DQo+ICAJCXB0aHJlYWRfbXV0
-ZXhfdW5sb2NrKCZ6LT5tdXRleCk7DQo+ICAJCXogPSB6YmRfY29udmVydF90b19vcGVuX3pvbmUo
-dGQsIGlvX3UpOw0KPiAgCQlhc3NlcnQoeik7DQo+IEBAIC0xNTgxLDcgKzE1OTIsNyBAQCBlbnVt
-IGlvX3VfYWN0aW9uIHpiZF9hZGp1c3RfYmxvY2soc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgc3Ry
-dWN0IGlvX3UgKmlvX3UpDQo+ICAJY2FzZSBERElSX1dSSVRFOg0KPiAgCQlpZiAoaW9fdS0+YnVm
-bGVuID4gZi0+emJkX2luZm8tPnpvbmVfc2l6ZSkNCj4gIAkJCWdvdG8gZW9mOw0KPiAtCQlpZiAo
-IXpiZF9vcGVuX3pvbmUodGQsIGlvX3UsIHpvbmVfaWR4X2IpKSB7DQo+ICsJCWlmICghemJkX29w
-ZW5fem9uZSh0ZCwgZiwgem9uZV9pZHhfYikpIHsNCj4gIAkJCXB0aHJlYWRfbXV0ZXhfdW5sb2Nr
-KCZ6Yi0+bXV0ZXgpOw0KPiAgCQkJemIgPSB6YmRfY29udmVydF90b19vcGVuX3pvbmUodGQsIGlv
-X3UpOw0KPiAgCQkJaWYgKCF6YikNCg==
+When fio starts write workloads to zones with open status, fio does not
+reflect the zone status to open zone list. This results in inconsistent
+open zone accounting.
+
+To avoid this inconsistency, initialize the open zone list referring the
+zone status by calling zbd_open_zone() function before workload start.
+Since io_u is not available at that timing, make the function
+independent from io_u.
+
+Of note is that fio counts open zones within the write target range.
+Open zones out of the range are not counted or checked.
+
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ zbd.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
+
+diff --git a/zbd.c b/zbd.c
+index 20f64b58..123d5530 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -627,6 +627,9 @@ static int zbd_init_zone_info(struct thread_data *td, struct fio_file *file)
+ 	return ret;
+ }
+ 
++static bool zbd_open_zone(struct thread_data *td, const struct fio_file *f,
++			  uint32_t zone_idx);
++
+ int zbd_setup_files(struct thread_data *td)
+ {
+ 	struct fio_file *f;
+@@ -650,6 +653,8 @@ int zbd_setup_files(struct thread_data *td)
+ 
+ 	for_each_file(td, f, i) {
+ 		struct zoned_block_device_info *zbd = f->zbd_info;
++		struct fio_zone_info *z;
++		int zi;
+ 
+ 		if (!zbd)
+ 			continue;
+@@ -665,6 +670,13 @@ int zbd_setup_files(struct thread_data *td)
+ 			log_err("'max_open_zones' value is limited by %u\n", ZBD_MAX_OPEN_ZONES);
+ 			return 1;
+ 		}
++
++		for (zi = f->min_zone; zi < f->max_zone; zi++) {
++			z = &zbd->zone_info[zi];
++			if (z->cond == ZBD_ZONE_COND_IMP_OPEN ||
++			    z->cond == ZBD_ZONE_COND_EXP_OPEN)
++				zbd_open_zone(td, f, zi);
++		}
+ 	}
+ 
+ 	return 0;
+@@ -934,11 +946,10 @@ static bool is_zone_open(const struct thread_data *td, const struct fio_file *f,
+  * was not yet open and opening a new zone would cause the zone limit to be
+  * exceeded.
+  */
+-static bool zbd_open_zone(struct thread_data *td, const struct io_u *io_u,
++static bool zbd_open_zone(struct thread_data *td, const struct fio_file *f,
+ 			  uint32_t zone_idx)
+ {
+ 	const uint32_t min_bs = td->o.min_bs[DDIR_WRITE];
+-	const struct fio_file *f = io_u->file;
+ 	struct fio_zone_info *z = &f->zbd_info->zone_info[zone_idx];
+ 	bool res = true;
+ 
+@@ -1126,7 +1137,7 @@ open_other_zone:
+ 		zone_lock(td, f, z);
+ 		if (z->open)
+ 			continue;
+-		if (zbd_open_zone(td, io_u, zone_idx))
++		if (zbd_open_zone(td, f, zone_idx))
+ 			goto out;
+ 	}
+ 
+@@ -1169,7 +1180,7 @@ static struct fio_zone_info *zbd_replay_write_order(struct thread_data *td,
+ 	const struct fio_file *f = io_u->file;
+ 	const uint32_t min_bs = td->o.min_bs[DDIR_WRITE];
+ 
+-	if (!zbd_open_zone(td, io_u, z - f->zbd_info->zone_info)) {
++	if (!zbd_open_zone(td, f, z - f->zbd_info->zone_info)) {
+ 		pthread_mutex_unlock(&z->mutex);
+ 		z = zbd_convert_to_open_zone(td, io_u);
+ 		assert(z);
+@@ -1581,7 +1592,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 	case DDIR_WRITE:
+ 		if (io_u->buflen > f->zbd_info->zone_size)
+ 			goto eof;
+-		if (!zbd_open_zone(td, io_u, zone_idx_b)) {
++		if (!zbd_open_zone(td, f, zone_idx_b)) {
+ 			pthread_mutex_unlock(&zb->mutex);
+ 			zb = zbd_convert_to_open_zone(td, io_u);
+ 			if (!zb)
+-- 
+2.26.2
+
 
