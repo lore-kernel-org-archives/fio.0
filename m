@@ -1,164 +1,213 @@
-Return-Path: <prvs=48985016a=Dmitry.Fomichev@wdc.com>
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: Re: [PATCH 4/6] t/zbd: Add -o option to t/zbd/test-zoned-support
-Date: Sat, 15 Aug 2020 00:07:05 +0000
-Message-ID: <092a1a95867ef3598a4cbadb808bec9e527a8113.camel@wdc.com>
+Return-Path: <prvs=487b39e6c=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 4/6] t/zbd: Add -o option to t/zbd/test-zoned-support
+Date: Thu, 13 Aug 2020 13:57:22 +0900
+Message-Id: <20200813045724.47475-5-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200813045724.47475-1-shinichiro.kawasaki@wdc.com>
 References: <20200813045724.47475-1-shinichiro.kawasaki@wdc.com>
-	 <20200813045724.47475-5-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200813045724.47475-5-shinichiro.kawasaki@wdc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <F4B1283F04DE1F468BFEC8E8F12BE853@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-T24gVGh1LCAyMDIwLTA4LTEzIGF0IDEzOjU3ICswOTAwLCBTaGluJ2ljaGlybyBLYXdhc2FraSB3
-cm90ZToNCj4gVG8gc3BlY2lmeSBtYXhpbXVtIG9wZW4gem9uZXMgb2YgdGhlIHRlc3QgdGFyZ2V0
-IGRldmljZSwgYWRkIC1vIG9wdGlvbg0KPiB0byB0L3piZC90ZXN0LXpvbmVkLXN1cHBvcnQuIFdo
-ZW4gdGhpcyBvcHRpb24gaXMgc3BlY2lmaWVkLCBhZGQNCj4gbWF4X29wZW5fem9uZXMgb3B0aW9u
-IHRvIGFsbCBmaW8gY29tbWFuZHMgaW4gdGhlIHRlc3Qgc2NyaXB0LiBUaGUgb3B0aW9uDQo+IGVu
-c3VyZXMgdGhlIG51bWJlciBvZiB6b25lcyBvcGVuZWQgYnkgZmlvIGlzIHdpdGhpbiB0aGUgbGlt
-aXQuIFRoaXMgaXMNCj4gdXNlZnVsIHdoZW4gdGhlIHRlc3QgdGFyZ2V0IGRldmljZSBoYXMgbWF4
-aW11bSBvcGVuIHpvbmVzIGxpbWl0Lg0KPiANCj4gV2hlbiB0aGUgZmlvIGNvbW1hbmQgZG9lcyBu
-b3QgaGF2ZSBtdWx0aXBsZSBqb2JzIGFuZCB0aGUgdGVzdCBjYXNlIGRvZXMNCj4gbm90IHNwZWNp
-ZnkgbWF4X29wZW5fem9uZXMsIGFkZCBzaW5nbGUgbWF4X29wZW5fem9uZXMgb3B0aW9uIHRvIHRo
-ZSBmaW8NCj4gY29tbWFuZCBsaW5lLg0KPiANCj4gV2hlbiB0aGUgZmlvIGNvbW1hbmQgdGFrZXMg
-bXVsdGlwbGUgam9icywgYWRkIG1heF9vcGVuX3pvbmVzIG9wdGlvbiB0bw0KPiBlYWNoIGpvYi4g
-SW50cm9kdWNlIGpvYl92YXJfb3B0cyB2YXJpYWJsZSB0byBrZWVwIG9wdGlvbnMgdG8gYmUgYWRk
-ZWQgdG8NCj4gZWFjaCBqb2IuIFRvIGRpc3Rpbmd1aXNoIGl0IGZyb20gZ2xvYmFsIG9wdGlvbnMg
-Zm9yIGFsbCBqb2JzLCByZW5hbWUNCj4gdmFyX29wdHMgdmFyaWFibGUgdG8gZ2xvYmFsX3Zhcl9v
-cHRzLiBXaGVuIGEgdGVzdCBjYXNlIHdpdGggbXVsdGlwbGUgam9icw0KPiBhbHdheXMgc3BlY2lm
-aWVzIG1heF9vcGVuX3pvbmVzIG9wdGlvbiwgZXhjbHVkZSB0aGUgbWF4X29wZW5fem9uZXMgb3B0
-aW9uDQo+IGZyb20gam9iX3Zhcl9vcHRzLCB1c2luZyBqb2JfdmFyX29wdHNfZXhjbHVkZSgpIGhl
-bHBlciBmdW5jdGlvbi4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IFNoaW4naWNoaXJvIEthd2FzYWtp
-IDxzaGluaWNoaXJvLmthd2FzYWtpQHdkYy5jb20+DQo+IC0tLQ0KIHQvemJkL3Rlc3QtemJkLXN1
-cHBvcnQgfCA3MCArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0NCj4g
-IDEgZmlsZSBjaGFuZ2VkLCA1NyBpbnNlcnRpb25zKCspLCAxMyBkZWxldGlvbnMoLSkNCj4gDQo+
-IGRpZmYgLS1naXQgYS90L3piZC90ZXN0LXpiZC1zdXBwb3J0IGIvdC96YmQvdGVzdC16YmQtc3Vw
-cG9ydA0KPiBpbmRleCA5ZTM5OGNhYi4uYzIxZDZhYWQgMTAwNzU1DQo+IC0tLSBhL3QvemJkL3Rl
-c3QtemJkLXN1cHBvcnQNCj4gKysrIGIvdC96YmQvdGVzdC16YmQtc3VwcG9ydA0KPiBAQCAtMTIs
-NiArMTIsNyBAQCB1c2FnZSgpIHsNCj4gIAllY2hvIC1lICJcdC12IFJ1biBmaW8gd2l0aCB2YWxn
-cmluZCAtLXJlYWQtdmFyLWluZm8gb3B0aW9uIg0KPiAgCWVjaG8gLWUgIlx0LWwgVGVzdCB3aXRo
-IGxpYnpiYyBpb2VuZ2luZSINCj4gIAllY2hvIC1lICJcdC1yIFJlc2V0IGFsbCB6b25lcyBiZWZv
-cmUgdGVzdCBzdGFydCINCj4gKwllY2hvIC1lICJcdC1vIDxtYXhfb3Blbl96b25lcz4gUnVuIGZp
-byB3aXRoIG1heF9vcGVuX3pvbmVzIGxpbWl0Ig0KPiAgCWVjaG8gLWUgIlx0LXQgPHRlc3QgIz4g
-UnVuIG9ubHkgYSBzaW5nbGUgdGVzdCBjYXNlIHdpdGggc3BlY2lmaWVkIG51bWJlciINCj4gIAll
-Y2hvIC1lICJcdC16IFJ1biBmaW8gd2l0aCBkZWJ1Zz16YmQgb3B0aW9uIg0KPiAgfQ0KPiBAQCAt
-MTAzLDE0ICsxMDQsNDEgQEAgaXNfc2NzaV9kZXZpY2UoKSB7DQo+ICAgICAgcmV0dXJuIDENCj4g
-IH0NCj4gIA0KPiAram9iX3Zhcl9vcHRzX2V4Y2x1ZGUoKSB7DQo+ICsJbG9jYWwgbw0KPiArCWxv
-Y2FsIGV4X2tleT0iJHsxfSINCj4gKw0KPiArCWZvciBvIGluICIke2pvYl92YXJfb3B0c1tAXX0i
-OyBkbw0KPiArCQlpZiBbWyAke299ID1+ICIke2V4X2tleX0iIF1dOyB0aGVuDQo+ICsJCQljb250
-aW51ZQ0KPiArCQlmaQ0KPiArCQllY2hvIC1uICIke299Ig0KPiArCWRvbmUNCj4gK30NCj4gKw0K
-PiAraGFzX21heF9vcGVuX3pvbmVzKCkgew0KPiArCXdoaWxlICgoJCMgPiAxKSk7IGRvDQo+ICsJ
-CWlmIFtbICR7MX0gPX4gIi0tbWF4X29wZW5fem9uZXMiIF1dOyB0aGVuDQo+ICsJCQlyZXR1cm4g
-MA0KPiArCQlmaQ0KPiArCQlzaGlmdA0KPiArCWRvbmUNCj4gKwlyZXR1cm4gMQ0KPiArfQ0KPiAr
-DQo+ICBydW5fZmlvKCkgew0KPiAgICAgIGxvY2FsIGZpbyBvcHRzDQo+ICANCj4gICAgICBmaW89
-JChkaXJuYW1lICIkMCIpLy4uLy4uL2Zpbw0KPiAgDQo+IC0gICAgb3B0cz0oIi0tbWF4LWpvYnM9
-MTYiICItLWF1eC1wYXRoPS90bXAiICItLWFsbG93X2ZpbGVfY3JlYXRlPTAiIFwNCj4gLQkgICIt
-LXNpZ25pZmljYW50X2ZpZ3VyZXM9MTAiICIkQCIpDQo+IC0gICAgb3B0cys9KCR7dmFyX29wdHNb
-QF19KQ0KPiArICAgIG9wdHM9KCR7Z2xvYmFsX3Zhcl9vcHRzW0BdfSkNCj4gKyAgICBvcHRzKz0o
-Ii0tbWF4LWpvYnM9MTYiICItLWF1eC1wYXRoPS90bXAiICItLWFsbG93X2ZpbGVfY3JlYXRlPTAi
-IFwNCj4gKwkJCSAgICItLXNpZ25pZmljYW50X2ZpZ3VyZXM9MTAiICIkQCIpDQo+ICsgICAgIyBX
-aGVuIG1heF9vcGVuX3pvbmVzIG9wdGlvbiBpcyBzcGVjaWZpZWQgdG8gdGhpcyB0ZXN0IHNjcmlw
-dCwgYWRkDQo+ICsgICAgIyBtYXhfb3Blbl96b25lcyBvcHRpb24gdG8gZmlvIGNvbW1hbmQgdW5s
-ZXNzIHRoZSB0ZXN0IGNhc2UgYWxyZWFkeSBhZGQgaXQuDQo+ICsgICAgaWYgW1sgLW4gJHttYXhf
-b3Blbl96b25lc19vcHR9IF1dICYmICEgaGFzX21heF9vcGVuX3pvbmVzICIke29wdHNbQF19Ijsg
-dGhlbg0KPiArCSAgICBvcHRzKz0oIi0tbWF4X29wZW5fem9uZXM9JHttYXhfb3Blbl96b25lc19v
-cHR9IikNCj4gKyAgICBmaQ0KPiAgICAgIHsgZWNobzsgZWNobyAiZmlvICR7b3B0c1sqXX0iOyBl
-Y2hvOyB9ID4+IiR7bG9nZmlsZX0uJHt0ZXN0X251bWJlcn0iDQo+ICANCj4gICAgICAiJHtkeW5h
-bWljX2FuYWx5emVyW0BdfSIgIiRmaW8iICIke29wdHNbQF19Ig0KPiBAQCAtMTI4LDEzICsxNTYs
-MTYgQEAgd3JpdGVfYW5kX3J1bl9vbmVfZmlvX2pvYigpIHsNCj4gICAgICBsb2NhbCByDQo+ICAg
-ICAgbG9jYWwgd3JpdGVfb2Zmc2V0PSIkezF9Ig0KPiAgICAgIGxvY2FsIHdyaXRlX3NpemU9IiR7
-Mn0iDQo+ICsgICAgbG9jYWwgLWEgd3JpdGVfb3B0cw0KPiAgDQo+ICAgICAgc2hpZnQgMg0KPiAg
-ICAgIHI9JCgoKFJBTkRPTSA8PCAxNikgfCBSQU5ET00pKQ0KPiAtICAgIHJ1bl9maW8gLS1maWxl
-bmFtZT0iJGRldiIgLS1yYW5kc2VlZD0iJHIiICAtLW5hbWU9IndyaXRlX2pvYiIgLS1ydz13cml0
-ZSBcDQo+IC0JICAgICIkKGlvZW5naW5lICJwc3luYyIpIiAtLWJzPSIke2xvZ2ljYWxfYmxvY2tf
-c2l6ZX0iIFwNCj4gLQkgICAgLS16b25lbW9kZT16YmQgLS16b25lc2l6ZT0iJHt6b25lX3NpemV9
-IiAtLXRocmVhZD0xIC0tZGlyZWN0PTEgXA0KPiAtCSAgICAtLW9mZnNldD0iJHt3cml0ZV9vZmZz
-ZXR9IiAtLXNpemU9IiR7d3JpdGVfc2l6ZX0iIFwNCj4gKyAgICB3cml0ZV9vcHRzPSgtLW5hbWU9
-IndyaXRlX2pvYiIgLS1ydz13cml0ZSAiJChpb2VuZ2luZSAicHN5bmMiKSIgXA0KPiArCQkgICAg
-ICAtLWJzPSIke2xvZ2ljYWxfYmxvY2tfc2l6ZX0iIC0tem9uZW1vZGU9emJkIFwNCj4gKwkJICAg
-ICAgLS16b25lc2l6ZT0iJHt6b25lX3NpemV9IiAtLXRocmVhZD0xIC0tZGlyZWN0PTEgXA0KPiAr
-CQkgICAgICAtLW9mZnNldD0iJHt3cml0ZV9vZmZzZXR9IiAtLXNpemU9IiR7d3JpdGVfc2l6ZX0i
-KQ0KPiArICAgIHdyaXRlX29wdHMrPSgiJHtqb2JfdmFyX29wdHNbQF19IikNCj4gKyAgICBydW5f
-ZmlvIC0tZmlsZW5hbWU9IiRkZXYiIC0tcmFuZHNlZWQ9IiRyIiAiJHt3cml0ZV9vcHRzW0BdfSIg
-XA0KPiAgCSAgICAtLW5hbWU9IiRkZXYiIC0td2FpdF9mb3I9IndyaXRlX2pvYiIgIiRAIiAtLXRo
-cmVhZD0xIC0tZGlyZWN0PTENCj4gIH0NCj4gIA0KPiBAQCAtNTEyLDcgKzU0Myw3IEBAIHRlc3Qy
-NSgpIHsNCj4gIAlvcHRzKz0oIi0tb2Zmc2V0PSQoKGZpcnN0X3NlcXVlbnRpYWxfem9uZV9zZWN0
-b3IqNTEyICsgem9uZV9zaXplKmkpKSIpDQo+ICAJb3B0cys9KCItLXNpemU9JHpvbmVfc2l6ZSIg
-IiQoaW9lbmdpbmUgInBzeW5jIikiICItLXJ3PXdyaXRlIiAiLS1icz0xNksiKQ0KPiAgCW9wdHMr
-PSgiLS16b25lbW9kZT16YmQiICItLXpvbmVzaXplPSR7em9uZV9zaXplfSIgIi0tZ3JvdXBfcmVw
-b3J0aW5nPTEiKQ0KPiAtCW9wdHMrPSgke3Zhcl9vcHRzW0BdfSkNCj4gKwlvcHRzKz0oJHtqb2Jf
-dmFyX29wdHNbQF19KQ0KPiAgICAgIGRvbmUNCj4gICAgICBydW5fZmlvICIke29wdHNbQF19IiA+
-PiAiJHtsb2dmaWxlfS4ke3Rlc3RfbnVtYmVyfSIgMj4mMSB8fCByZXR1cm4gJD8NCj4gIH0NCj4g
-QEAgLTU1Nyw3ICs1ODgsNyBAQCB0ZXN0MjgoKSB7DQo+ICAJb3B0cys9KCItLXNpemU9JHpvbmVf
-c2l6ZSIgIi0taW9fc2l6ZT0kY2FwYWNpdHkiICIkKGlvZW5naW5lICJwc3luYyIpIiAiLS1ydz1y
-YW5kd3JpdGUiKQ0KPiAgCW9wdHMrPSgiLS10aHJlYWQ9MSIgIi0tZGlyZWN0PTEiICItLXpvbmVt
-b2RlPXpiZCIpDQo+ICAJb3B0cys9KCItLXpvbmVzaXplPSR7em9uZV9zaXplfSIgIi0tZ3JvdXBf
-cmVwb3J0aW5nPTEiKQ0KPiAtCW9wdHMrPSgke3Zhcl9vcHRzW0BdfSkNCj4gKwlvcHRzKz0oJHtq
-b2JfdmFyX29wdHNbQF19KQ0KPiAgICAgIGRvbmUNCj4gICAgICBydW5fZmlvICIke29wdHNbQF19
-IiA+PiAiJHtsb2dmaWxlfS4ke3Rlc3RfbnVtYmVyfSIgMj4mMSB8fCByZXR1cm4gJD8NCj4gICAg
-ICBjaGVja193cml0dGVuICQoKGpvYnMgKiAkY2FwYWNpdHkpKSB8fCByZXR1cm4gJD8NCj4gQEAg
-LTU4MSw3ICs2MTIsOCBAQCB0ZXN0MjkoKSB7DQo+ICAJb3B0cys9KCIkKGlvZW5naW5lICJwc3lu
-YyIpIiAiLS1ydz1yYW5kd3JpdGUiICItLWRpcmVjdD0xIikNCj4gIAlvcHRzKz0oIi0tbWF4X29w
-ZW5fem9uZXM9NCIgIi0tZ3JvdXBfcmVwb3J0aW5nPTEiKQ0KPiAgCW9wdHMrPSgiLS16b25lbW9k
-ZT16YmQiICItLXpvbmVzaXplPSR7em9uZV9zaXplfSIpDQo+IC0Jb3B0cys9KCR7dmFyX29wdHNb
-QF19KQ0KPiArCSMgbWF4X29wZW5fem9uZXMgaXMgYWxyZWFkeSBzcGVjaWZpZWQNCj4gKwlvcHRz
-Kz0oJChqb2JfdmFyX29wdHNfZXhjbHVkZSAiLS1tYXhfb3Blbl96b25lcyIpKQ0KPiAgICAgIGRv
-bmUNCj4gICAgICBydW5fZmlvICIke29wdHNbQF19IiA+PiAiJHtsb2dmaWxlfS4ke3Rlc3RfbnVt
-YmVyfSIgMj4mMSB8fCByZXR1cm4gJD8NCj4gICAgICBjaGVja193cml0dGVuICQoKGpvYnMgKiB6
-b25lX3NpemUpKSB8fCByZXR1cm4gJD8NCj4gQEAgLTYxNyw3ICs2NDksNyBAQCB0ZXN0MzEoKSB7
-DQo+ICAJb3B0cys9KCItLWJzPSRicyIgIi0tc2l6ZT0kem9uZV9zaXplIiAiJChpb2VuZ2luZSAi
-bGliYWlvIikiKQ0KPiAgCW9wdHMrPSgiLS1ydz13cml0ZSIgIi0tZGlyZWN0PTEiICItLXRocmVh
-ZD0xIiAiLS1zdGF0cz0wIikNCj4gIAlvcHRzKz0oIi0tem9uZW1vZGU9emJkIiAiLS16b25lc2l6
-ZT0ke3pvbmVfc2l6ZX0iKQ0KPiAtCW9wdHMrPSgke3Zhcl9vcHRzW0BdfSkNCj4gKwlvcHRzKz0o
-JHtqb2JfdmFyX29wdHNbQF19KQ0KPiAgICAgIGRvbmUNCj4gICAgICAiJChkaXJuYW1lICIkMCIp
-Ly4uLy4uL2ZpbyIgIiR7b3B0c1tAXX0iID4+ICIke2xvZ2ZpbGV9LiR7dGVzdF9udW1iZXJ9IiAy
-PiYxDQo+ICAgICAgIyBOZXh0LCBydW4gdGhlIHRlc3QuDQo+IEBAIC02MjcsNiArNjU5LDcgQEAg
-dGVzdDMxKCkgew0KPiAgICAgIG9wdHMrPSgiLS1icz0kYnMiICIkKGlvZW5naW5lICJwc3luYyIp
-IiAiLS1ydz1yYW5kcmVhZCIgIi0tZGlyZWN0PTEiKQ0KPiAgICAgIG9wdHMrPSgiLS10aHJlYWQ9
-MSIgIi0tdGltZV9iYXNlZCIgIi0tcnVudGltZT0zMCIgIi0tem9uZW1vZGU9emJkIikNCj4gICAg
-ICBvcHRzKz0oIi0tem9uZXNpemU9JHt6b25lX3NpemV9IikNCj4gKyAgICBvcHRzKz0oJHtqb2Jf
-dmFyX29wdHNbQF19KQ0KPiAgICAgIHJ1bl9maW8gIiR7b3B0c1tAXX0iID4+ICIke2xvZ2ZpbGV9
-LiR7dGVzdF9udW1iZXJ9IiAyPiYxIHx8IHJldHVybiAkPw0KPiAgfQ0KPiAgDQo+IEBAIC04NDMs
-NiArODc2LDggQEAgdGVzdDQ4KCkgew0KPiAgCW9wdHMrPSgiLS1uYW1lPWpvYiRpIiAiLS1maWxl
-bmFtZT0kZGV2IiAiLS1vZmZzZXQ9JG9mZiIgIi0tYnM9MTZLIikNCj4gIAlvcHRzKz0oIi0taW9f
-c2l6ZT0kem9uZV9zaXplIiAiLS1pb2RlcHRoPTI1NiIgIi0tdGhyZWFkPTEiKQ0KPiAgCW9wdHMr
-PSgiLS1ncm91cF9yZXBvcnRpbmc9MSIpDQo+ICsJIyBtYXhfb3Blbl96b25lcyBpcyBhbHJlYWR5
-IHNwZWNpZmllZA0KPiArCW9wdHMrPSgkKGpvYl92YXJfb3B0c19leGNsdWRlICItLW1heF9vcGVu
-X3pvbmVzIikpDQo+ICAgICAgZG9uZQ0KPiAgDQo+ICAgICAgZmlvPSQoZGlybmFtZSAiJDAiKS8u
-Li8uLi9maW8NCj4gQEAgLTg4MCw2ICs5MTUsNyBAQCBkeW5hbWljX2FuYWx5emVyPSgpDQo+ICBy
-ZXNldF9hbGxfem9uZXM9DQo+ICB1c2VfbGliemJjPQ0KPiAgemJkX2RlYnVnPQ0KPiArbWF4X29w
-ZW5fem9uZXNfb3B0PQ0KPiAgDQo+ICB3aGlsZSBbICIkezEjLX0iICE9ICIkMSIgXTsgZG8NCj4g
-ICAgY2FzZSAiJDEiIGluDQo+IEBAIC04OTEsNiArOTI3LDcgQEAgd2hpbGUgWyAiJHsxIy19IiAh
-PSAiJDEiIF07IGRvDQo+ICAgICAgLWwpIHVzZV9saWJ6YmM9MTsgc2hpZnQ7Ow0KPiAgICAgIC1y
-KSByZXNldF9hbGxfem9uZXM9MTsgc2hpZnQ7Ow0KPiAgICAgIC10KSB0ZXN0cys9KCIkMiIpOyBz
-aGlmdDsgc2hpZnQ7Ow0KPiArICAgIC1vKSBtYXhfb3Blbl96b25lc19vcHQ9IiR7Mn0iOyBzaGlm
-dDsgc2hpZnQ7Ow0KPiAgICAgIC12KSBkeW5hbWljX2FuYWx5emVyPSh2YWxncmluZCAiLS1yZWFk
-LXZhci1pbmZvPXllcyIpOw0KPiAgCXNoaWZ0OzsNCj4gICAgICAteikgemJkX2RlYnVnPTE7IHNo
-aWZ0OzsNCj4gQEAgLTkwNiw5ICs5NDMsMTAgQEAgZmkNCj4gICMgc2hlbGxjaGVjayBzb3VyY2U9
-ZnVuY3Rpb25zDQo+ICBzb3VyY2UgIiQoZGlybmFtZSAiJDAiKS9mdW5jdGlvbnMiIHx8IGV4aXQg
-JD8NCj4gIA0KPiAtdmFyX29wdHM9KCkNCj4gK2dsb2JhbF92YXJfb3B0cz0oKQ0KPiAram9iX3Zh
-cl9vcHRzPSgpDQo+ICBpZiBbIC1uICIkemJkX2RlYnVnIiBdOyB0aGVuDQo+IC0gICAgdmFyX29w
-dHMrPSgiLS1kZWJ1Zz16YmQiKQ0KPiArICAgIGdsb2JhbF92YXJfb3B0cys9KCItLWRlYnVnPXpi
-ZCIpDQo+ICBmaQ0KPiAgZGV2PSQxDQo+ICByZWFsZGV2PSQocmVhZGxpbmsgLWYgIiRkZXYiKQ0K
-PiBAQCAtOTk0LDYgKzEwMzIsMTIgQEAgZWxpZiBbWyAtYyAiJHJlYWxkZXYiIF1dOyB0aGVuDQo+
-ICAJZmkNCj4gIGZpDQo+ICANCj4gK2lmIFtbIC1uICR7bWF4X29wZW5fem9uZXNfb3B0fSBdXTsg
-dGhlbg0KPiArCSMgT3ZlcnJpZGUgbWF4X29wZW5fem9uZXMgd2l0aCB0aGUgc2NyaXB0IG9wdGlv
-biB2YWx1ZQ0KPiArCW1heF9vcGVuX3pvbmVzPSIke21heF9vcGVuX3pvbmVzX29wdH0iDQo+ICsJ
-am9iX3Zhcl9vcHRzKz0oIi0tbWF4X29wZW5fem9uZXM9JHttYXhfb3Blbl96b25lc19vcHR9IikN
-Cj4gK2ZpDQo+ICsNCj4gIGVjaG8gLW4gIkZpcnN0IHNlcXVlbnRpYWwgem9uZSBzdGFydHMgYXQg
-c2VjdG9yICRmaXJzdF9zZXF1ZW50aWFsX3pvbmVfc2VjdG9yOyINCj4gIGVjaG8gIiB6b25lIHNp
-emU6ICQoKHpvbmVfc2l6ZSA+PiAyMCkpIE1CIg0KPiAgDQoNClRoZSBzY3JpcHQgY2hhbmdlcyBs
-b29rIGdvb2QuIFRoZSBvbmx5IG5pdCBpcy4uLiBJIHRyaWVkIHRvIHJ1bg0KDQp0L3piZC90ZXN0
-LXpiZC1zdXBwb3J0IHdpdGggLW8gNTEyIDxkZXZpY2U+DQoNCndoaWNoIGlzIGxhcmdlciB0aGFu
-IDEyOCBtYXggb3BlbiB6b25lcyBzdXBwb3J0ZWQgYnkgdGhlIGRyaXZlIGV4cGVjdGluZw0KdGhl
-IHRlc3QgdG8gZmFpbCwgYnV0IGl0IGRpZG4ndC4gSXQgc2VlbXMsIHRoZSBzY3JpcHQgZGVmYXVs
-dHMgdG8gdGhlIG1heGltdW0NCm51bWJlciBvZiBvcGVuIHpvbmVzIGluIHRoaXMgY2FzZSwgYnV0
-IGl0IGlzIG5vdCB2ZXJ5IG9idmlvdXMuIE1heWJlIGxvZw0KYSBtZXNzYWdlIHNheWluZyB0aGF0
-IHRoZSBzY3JpcHQgaGFzIGNhcHBlZCB0aGUgdmFsdWUgc3BlY2lmaWVkIGJ5IHRoZSB1c2VyDQpi
-ZWNhdXNlIGl0IHdhcyB0b28gbGFyZ2U/DQo=
+To specify maximum open zones of the test target device, add -o option
+to t/zbd/test-zoned-support. When this option is specified, add
+max_open_zones option to all fio commands in the test script. The option
+ensures the number of zones opened by fio is within the limit. This is
+useful when the test target device has maximum open zones limit.
+
+When the fio command does not have multiple jobs and the test case does
+not specify max_open_zones, add single max_open_zones option to the fio
+command line.
+
+When the fio command takes multiple jobs, add max_open_zones option to
+each job. Introduce job_var_opts variable to keep options to be added to
+each job. To distinguish it from global options for all jobs, rename
+var_opts variable to global_var_opts. When a test case with multiple jobs
+always specifies max_open_zones option, exclude the max_open_zones option
+from job_var_opts, using job_var_opts_exclude() helper function.
+
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ t/zbd/test-zbd-support | 70 ++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 57 insertions(+), 13 deletions(-)
+
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 9e398cab..c21d6aad 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -12,6 +12,7 @@ usage() {
+ 	echo -e "\t-v Run fio with valgrind --read-var-info option"
+ 	echo -e "\t-l Test with libzbc ioengine"
+ 	echo -e "\t-r Reset all zones before test start"
++	echo -e "\t-o <max_open_zones> Run fio with max_open_zones limit"
+ 	echo -e "\t-t <test #> Run only a single test case with specified number"
+ 	echo -e "\t-z Run fio with debug=zbd option"
+ }
+@@ -103,14 +104,41 @@ is_scsi_device() {
+     return 1
+ }
+ 
++job_var_opts_exclude() {
++	local o
++	local ex_key="${1}"
++
++	for o in "${job_var_opts[@]}"; do
++		if [[ ${o} =~ "${ex_key}" ]]; then
++			continue
++		fi
++		echo -n "${o}"
++	done
++}
++
++has_max_open_zones() {
++	while (($# > 1)); do
++		if [[ ${1} =~ "--max_open_zones" ]]; then
++			return 0
++		fi
++		shift
++	done
++	return 1
++}
++
+ run_fio() {
+     local fio opts
+ 
+     fio=$(dirname "$0")/../../fio
+ 
+-    opts=("--max-jobs=16" "--aux-path=/tmp" "--allow_file_create=0" \
+-	  "--significant_figures=10" "$@")
+-    opts+=(${var_opts[@]})
++    opts=(${global_var_opts[@]})
++    opts+=("--max-jobs=16" "--aux-path=/tmp" "--allow_file_create=0" \
++			   "--significant_figures=10" "$@")
++    # When max_open_zones option is specified to this test script, add
++    # max_open_zones option to fio command unless the test case already add it.
++    if [[ -n ${max_open_zones_opt} ]] && ! has_max_open_zones "${opts[@]}"; then
++	    opts+=("--max_open_zones=${max_open_zones_opt}")
++    fi
+     { echo; echo "fio ${opts[*]}"; echo; } >>"${logfile}.${test_number}"
+ 
+     "${dynamic_analyzer[@]}" "$fio" "${opts[@]}"
+@@ -128,13 +156,16 @@ write_and_run_one_fio_job() {
+     local r
+     local write_offset="${1}"
+     local write_size="${2}"
++    local -a write_opts
+ 
+     shift 2
+     r=$(((RANDOM << 16) | RANDOM))
+-    run_fio --filename="$dev" --randseed="$r"  --name="write_job" --rw=write \
+-	    "$(ioengine "psync")" --bs="${logical_block_size}" \
+-	    --zonemode=zbd --zonesize="${zone_size}" --thread=1 --direct=1 \
+-	    --offset="${write_offset}" --size="${write_size}" \
++    write_opts=(--name="write_job" --rw=write "$(ioengine "psync")" \
++		      --bs="${logical_block_size}" --zonemode=zbd \
++		      --zonesize="${zone_size}" --thread=1 --direct=1 \
++		      --offset="${write_offset}" --size="${write_size}")
++    write_opts+=("${job_var_opts[@]}")
++    run_fio --filename="$dev" --randseed="$r" "${write_opts[@]}" \
+ 	    --name="$dev" --wait_for="write_job" "$@" --thread=1 --direct=1
+ }
+ 
+@@ -512,7 +543,7 @@ test25() {
+ 	opts+=("--offset=$((first_sequential_zone_sector*512 + zone_size*i))")
+ 	opts+=("--size=$zone_size" "$(ioengine "psync")" "--rw=write" "--bs=16K")
+ 	opts+=("--zonemode=zbd" "--zonesize=${zone_size}" "--group_reporting=1")
+-	opts+=(${var_opts[@]})
++	opts+=(${job_var_opts[@]})
+     done
+     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
+ }
+@@ -557,7 +588,7 @@ test28() {
+ 	opts+=("--size=$zone_size" "--io_size=$capacity" "$(ioengine "psync")" "--rw=randwrite")
+ 	opts+=("--thread=1" "--direct=1" "--zonemode=zbd")
+ 	opts+=("--zonesize=${zone_size}" "--group_reporting=1")
+-	opts+=(${var_opts[@]})
++	opts+=(${job_var_opts[@]})
+     done
+     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
+     check_written $((jobs * $capacity)) || return $?
+@@ -581,7 +612,8 @@ test29() {
+ 	opts+=("$(ioengine "psync")" "--rw=randwrite" "--direct=1")
+ 	opts+=("--max_open_zones=4" "--group_reporting=1")
+ 	opts+=("--zonemode=zbd" "--zonesize=${zone_size}")
+-	opts+=(${var_opts[@]})
++	# max_open_zones is already specified
++	opts+=($(job_var_opts_exclude "--max_open_zones"))
+     done
+     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
+     check_written $((jobs * zone_size)) || return $?
+@@ -617,7 +649,7 @@ test31() {
+ 	opts+=("--bs=$bs" "--size=$zone_size" "$(ioengine "libaio")")
+ 	opts+=("--rw=write" "--direct=1" "--thread=1" "--stats=0")
+ 	opts+=("--zonemode=zbd" "--zonesize=${zone_size}")
+-	opts+=(${var_opts[@]})
++	opts+=(${job_var_opts[@]})
+     done
+     "$(dirname "$0")/../../fio" "${opts[@]}" >> "${logfile}.${test_number}" 2>&1
+     # Next, run the test.
+@@ -627,6 +659,7 @@ test31() {
+     opts+=("--bs=$bs" "$(ioengine "psync")" "--rw=randread" "--direct=1")
+     opts+=("--thread=1" "--time_based" "--runtime=30" "--zonemode=zbd")
+     opts+=("--zonesize=${zone_size}")
++    opts+=(${job_var_opts[@]})
+     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
+ }
+ 
+@@ -843,6 +876,8 @@ test48() {
+ 	opts+=("--name=job$i" "--filename=$dev" "--offset=$off" "--bs=16K")
+ 	opts+=("--io_size=$zone_size" "--iodepth=256" "--thread=1")
+ 	opts+=("--group_reporting=1")
++	# max_open_zones is already specified
++	opts+=($(job_var_opts_exclude "--max_open_zones"))
+     done
+ 
+     fio=$(dirname "$0")/../../fio
+@@ -880,6 +915,7 @@ dynamic_analyzer=()
+ reset_all_zones=
+ use_libzbc=
+ zbd_debug=
++max_open_zones_opt=
+ 
+ while [ "${1#-}" != "$1" ]; do
+   case "$1" in
+@@ -891,6 +927,7 @@ while [ "${1#-}" != "$1" ]; do
+     -l) use_libzbc=1; shift;;
+     -r) reset_all_zones=1; shift;;
+     -t) tests+=("$2"); shift; shift;;
++    -o) max_open_zones_opt="${2}"; shift; shift;;
+     -v) dynamic_analyzer=(valgrind "--read-var-info=yes");
+ 	shift;;
+     -z) zbd_debug=1; shift;;
+@@ -906,9 +943,10 @@ fi
+ # shellcheck source=functions
+ source "$(dirname "$0")/functions" || exit $?
+ 
+-var_opts=()
++global_var_opts=()
++job_var_opts=()
+ if [ -n "$zbd_debug" ]; then
+-    var_opts+=("--debug=zbd")
++    global_var_opts+=("--debug=zbd")
+ fi
+ dev=$1
+ realdev=$(readlink -f "$dev")
+@@ -994,6 +1032,12 @@ elif [[ -c "$realdev" ]]; then
+ 	fi
+ fi
+ 
++if [[ -n ${max_open_zones_opt} ]]; then
++	# Override max_open_zones with the script option value
++	max_open_zones="${max_open_zones_opt}"
++	job_var_opts+=("--max_open_zones=${max_open_zones_opt}")
++fi
++
+ echo -n "First sequential zone starts at sector $first_sequential_zone_sector;"
+ echo " zone size: $((zone_size >> 20)) MB"
+ 
+-- 
+2.26.2
+
 
