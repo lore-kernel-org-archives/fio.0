@@ -1,33 +1,26 @@
-Return-Path: <prvs=5016bbd9f=Dmitry.Fomichev@wdc.com>
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: RE: [PATCH] zbd: don't read past the WP on a read only workload with
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:10854 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726193AbgHNHYv (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 14 Aug 2020 03:24:51 -0400
+From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: Re: [PATCH] zbd: don't read past the WP on a read only workload with
  verify
-Date: Thu, 27 Aug 2020 18:09:56 +0000
-Message-ID: 
- <MN2PR04MB595192579EC087B4C9EAECE1E1550@MN2PR04MB5951.namprd04.prod.outlook.com>
+Date: Fri, 14 Aug 2020 07:24:47 +0000
+Message-ID: <20200814072446.abniokrckafgytlb@shindev.dhcp.fujisawa.hgst.com>
 References: <20200813150148.14655-1-niklas.cassel@wdc.com>
 In-Reply-To: <20200813150148.14655-1-niklas.cassel@wdc.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
+Content-ID: <2318B0D95AFD934AA6EFB93AE86C35FB@namprd04.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>, Aravind Ramesh <Aravind.Ramesh@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Niklas Cassel <Niklas.Cassel@wdc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Aravind Ramesh <Aravind.Ramesh@wdc.com>
 
-+ Jens... and ping for this patch, I believe it has two reviews by now.
-
-> -----Original Message-----
-> From: fio-owner@vger.kernel.org <fio-owner@vger.kernel.org> On Behalf
-> Of Niklas Cassel
-> Sent: Thursday, August 13, 2020 11:02 AM
-> To: fio@vger.kernel.org
-> Cc: Damien Le Moal <Damien.LeMoal@wdc.com>; Shinichiro Kawasaki
-> <shinichiro.kawasaki@wdc.com>; Aravind Ramesh
-> <Aravind.Ramesh@wdc.com>; Niklas Cassel <Niklas.Cassel@wdc.com>
-> Subject: [PATCH] zbd: don't read past the WP on a read only workload with
-> verify
->=20
+On Aug 13, 2020 / 17:01, Niklas Cassel wrote:
 > From: Aravind Ramesh <aravind.ramesh@wdc.com>
 >=20
 > When running a read only workload with verify option enabled,
@@ -50,30 +43,12 @@ List-ID: <fio@vger.kernel.org>
 >=20
 > Signed-off-by: Aravind Ramesh <aravind.ramesh@wdc.com>
 > Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-> ---
-> Patch made by Aravind, I simply rewrote the commit message.
->=20
->  zbd.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
->=20
-> diff --git a/zbd.c b/zbd.c
-> index e4a480b7..92936fe8 100644
-> --- a/zbd.c
-> +++ b/zbd.c
-> @@ -1467,9 +1467,8 @@ enum io_u_action zbd_adjust_block(struct
-> thread_data *td, struct io_u *io_u)
->=20
->  	switch (io_u->ddir) {
->  	case DDIR_READ:
-> -		if (td->runstate =3D=3D TD_VERIFYING) {
-> -			if (td_write(td))
-> -				zb =3D zbd_replay_write_order(td, io_u, zb);
-> +		if (td->runstate =3D=3D TD_VERIFYING && td_write(td)) {
-> +			zb =3D zbd_replay_write_order(td, io_u, zb);
->  			goto accept;
->  		}
->  		/*
-> --
-> 2.26.2
 
+Looks good to me.
+
+Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+
+--=20
+Best Regards,
+Shin'ichiro Kawasaki=
 
