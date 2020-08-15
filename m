@@ -1,347 +1,203 @@
-Return-Path: <prvs=49599655b=shinichiro.kawasaki@wdc.com>
-From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Return-Path: <prvs=48985016a=Dmitry.Fomichev@wdc.com>
+From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
 Subject: Re: [PATCH 5/6] t/zbd: Reset all zones before test when max open
  zones is specified
-Date: Fri, 21 Aug 2020 06:06:51 +0000
-Message-ID: <20200821060650.sy3y4ohxdvntbc2t@shindev.dhcp.fujisawa.hgst.com>
+Date: Sat, 15 Aug 2020 00:07:42 +0000
+Message-ID: <5da58515b771e47ef64f146c2ca6adc4995b910f.camel@wdc.com>
 References: <20200813045724.47475-1-shinichiro.kawasaki@wdc.com>
- <20200813045724.47475-6-shinichiro.kawasaki@wdc.com>
- <5da58515b771e47ef64f146c2ca6adc4995b910f.camel@wdc.com>
-In-Reply-To: <5da58515b771e47ef64f146c2ca6adc4995b910f.camel@wdc.com>
+	 <20200813045724.47475-6-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200813045724.47475-6-shinichiro.kawasaki@wdc.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <D9D5C856386BA24480E3C427C9761C61@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <84A79CFA986B1D47805BEF8DCA85A772@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>, Damien Le Moal <Damien.LeMoal@wdc.com>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On Aug 15, 2020 / 00:07, Dmitry Fomichev wrote:
-> On Thu, 2020-08-13 at 13:57 +0900, Shin'ichiro Kawasaki wrote:
-> > When the test target device has maximum open zones limit, the zones in
-> > test target region may not be opened up to the limit, because the zones
-> > out of the test target region may have open zones. To ensure that the
-> > test target zones can be opened up to the limit, reset all zones of the
-> > test target device before the test cases with write work load starts.
-> >=20
-> > Introduce the helper function prep_write() to check if all zone reset i=
-s
-> > required and do the reset. For test cases which reset all zones
-> > regardless of the maximum open zones option., the helper function takes
-> > "reset_all" argument.
-> >=20
-> > Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
->=20
-> The patch looks ok, but I wonder if some of the reset-all cases can be
-> unnecessary if you reset excessive open zones in zbd_setup_files() as
-> I suggested in the comment to the previous patch. Anyway,
-
-That's right. With you suggestion on zbd_setup_files(), I confirmed that
-reset-all is no longer required. Will remove in the v2. Thank you.
-
->=20
-> Reviewed-by: Dmitry Fomichev: <dmitry.fomichev@wdc.com>
->=20
-> > ---
-> >  t/zbd/test-zbd-support | 44 +++++++++++++++++++++++++++++++++++++++---
-> >  1 file changed, 41 insertions(+), 3 deletions(-)
-> >=20
-> > diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-> > index c21d6aad..9ec406c3 100755
-> > --- a/t/zbd/test-zbd-support
-> > +++ b/t/zbd/test-zbd-support
-> > @@ -181,6 +181,16 @@ run_fio_on_seq() {
-> >      run_one_fio_job "${opts[@]}" "$@"
-> >  }
-> > =20
-> > +# Prepare for write test by resetting zones. When "reset_all" is speci=
-fied,
-> > +# reset all sequential write required zones. When max_open_zones optio=
-n is
-> > +# specified, reset all zones of the test target to ensure that zones o=
-ut of the
-> > +# test target range do not have open zones. This allows the write test=
- to the
-> > +# target range to be able to open zones up to max_open_zones.
-> > +prep_write() {
-> > +	[[ ${1} =3D=3D "reset_all" || -n "${max_open_zones_opt}" ]] &&
-> > +		[[ -n "${is_zbd}" ]] && reset_zone "${dev}" -1
-> > +}
-> > +
-> >  # Check whether buffered writes are refused.
-> >  test1() {
-> >      run_fio --name=3Djob1 --filename=3D"$dev" --rw=3Dwrite --direct=3D=
-0 --bs=3D4K	\
-> > @@ -252,6 +262,7 @@ test4() {
-> >  test5() {
-> >      local size off capacity
-> > =20
-> > +    prep_write
-> >      off=3D$((first_sequential_zone_sector * 512))
-> >      capacity=3D$(total_zone_capacity 4 $off $dev)
-> >      size=3D$((4 * zone_size))
-> > @@ -267,6 +278,7 @@ test5() {
-> >  test6() {
-> >      local size off capacity
-> > =20
-> > +    prep_write
-> >      off=3D$((first_sequential_zone_sector * 512))
-> >      capacity=3D$(total_zone_capacity 4 $off $dev)
-> >      size=3D$((4 * zone_size))
-> > @@ -285,6 +297,7 @@ test7() {
-> >      local size=3D$((zone_size))
-> >      local off capacity
-> > =20
-> > +    prep_write
-> >      off=3D$((first_sequential_zone_sector * 512))
-> >      capacity=3D$(total_zone_capacity 1 $off $dev)
-> >      run_fio_on_seq "$(ioengine "libaio")" --iodepth=3D1 --rw=3Drandwri=
-te	\
-> > @@ -299,6 +312,7 @@ test7() {
-> >  test8() {
-> >      local size off capacity
-> > =20
-> > +    prep_write
-> >      size=3D$((4 * zone_size))
-> >      off=3D$((first_sequential_zone_sector * 512))
-> >      capacity=3D$(total_zone_capacity 4 $off $dev)
-> > @@ -319,6 +333,7 @@ test9() {
-> >  	return 0
-> >      fi
-> > =20
-> > +    prep_write
-> >      size=3D$((4 * zone_size))
-> >      run_fio_on_seq --ioengine=3Dsg					\
-> >  		   --iodepth=3D1 --rw=3Drandwrite --bs=3D16K			\
-> > @@ -337,6 +352,7 @@ test10() {
-> >  	return 0
-> >      fi
-> > =20
-> > +    prep_write
-> >      size=3D$((4 * zone_size))
-> >      run_fio_on_seq --ioengine=3Dsg 					\
-> >  		   --iodepth=3D64 --rw=3Drandwrite --bs=3D16K			\
-> > @@ -350,6 +366,7 @@ test10() {
-> >  test11() {
-> >      local size off capacity
-> > =20
-> > +    prep_write
-> >      size=3D$((4 * zone_size))
-> >      off=3D$((first_sequential_zone_sector * 512))
-> >      capacity=3D$(total_zone_capacity 4 $off $dev)
-> > @@ -364,6 +381,7 @@ test11() {
-> >  test12() {
-> >      local size off capacity
-> > =20
-> > +    prep_write
-> >      size=3D$((8 * zone_size))
-> >      off=3D$((first_sequential_zone_sector * 512))
-> >      capacity=3D$(total_zone_capacity 8 $off $dev)
-> > @@ -378,6 +396,7 @@ test12() {
-> >  test13() {
-> >      local size off capacity
-> > =20
-> > +    prep_write
-> >      size=3D$((8 * zone_size))
-> >      off=3D$((first_sequential_zone_sector * 512))
-> >      capacity=3D$(total_zone_capacity 8 $off $dev)
-> > @@ -393,6 +412,7 @@ test13() {
-> >  test14() {
-> >      local size
-> > =20
-> > +    prep_write
-> >      size=3D$((16 * 2**20)) # 20 MB
-> >      if [ $size -gt $((first_sequential_zone_sector * 512)) ]; then
-> >  	echo "$dev does not have enough sequential zones" \
-> > @@ -417,6 +437,7 @@ test15() {
-> >  	    reset_zone "$dev" $((first_sequential_zone_sector +
-> >  				 i*sectors_per_zone))
-> >      done
-> > +    prep_write
-> >      w_off=3D$(((first_sequential_zone_sector + 2 * sectors_per_zone) *=
- 512))
-> >      w_size=3D$((2 * zone_size))
-> >      w_capacity=3D$(total_zone_capacity 2 $w_off $dev)
-> > @@ -441,6 +462,7 @@ test16() {
-> >  	    reset_zone "$dev" $((first_sequential_zone_sector +
-> >  				 i*sectors_per_zone))
-> >      done
-> > +    prep_write
-> >      w_off=3D$(((first_sequential_zone_sector + 2 * sectors_per_zone) *=
- 512))
-> >      w_size=3D$((2 * zone_size))
-> >      w_capacity=3D$(total_zone_capacity 2 $w_off $dev)
-> > @@ -463,6 +485,7 @@ test17() {
-> >      if [ -n "$is_zbd" ]; then
-> >  	reset_zone "$dev" $((off / 512)) || return $?
-> >      fi
-> > +    prep_write
-> >      run_one_fio_job "$(ioengine "libaio")" --iodepth=3D8 --rw=3Drandrw=
- --bs=3D4K \
-> >  		    --zonemode=3Dzbd --zonesize=3D"${zone_size}"		\
-> >  		    --offset=3D$off --loops=3D2 --norandommap=3D1\
-> > @@ -516,6 +539,7 @@ test24() {
-> >      local bs loops=3D9 size=3D$((zone_size))
-> >      local off capacity
-> > =20
-> > +    prep_write
-> >      off=3D$((first_sequential_zone_sector * 512))
-> >      capacity=3D$(total_zone_capacity 1 $off $dev)
-> > =20
-> > @@ -538,6 +562,7 @@ test25() {
-> >          [ -n "$is_zbd" ] &&
-> >  	    reset_zone "$dev" $((first_sequential_zone_sector + i*sectors_per=
-_zone))
-> >      done
-> > +    prep_write
-> >      for ((i=3D0;i<16;i++)); do
-> >  	opts+=3D("--name=3Djob$i" "--filename=3D$dev" "--thread=3D1" "--direc=
-t=3D1")
-> >  	opts+=3D("--offset=3D$((first_sequential_zone_sector*512 + zone_size*=
-i))")
-> > @@ -552,6 +577,7 @@ write_to_first_seq_zone() {
-> >      local loops=3D4 r
-> >      local off capacity
-> > =20
-> > +    prep_write
-> >      off=3D$((first_sequential_zone_sector * 512))
-> >      capacity=3D$(total_zone_capacity 1 $off $dev)
-> > =20
-> > @@ -580,7 +606,7 @@ test28() {
-> >      local i jobs=3D16 off opts
-> > =20
-> >      off=3D$((first_sequential_zone_sector * 512 + 64 * zone_size))
-> > -    [ -n "$is_zbd" ] && reset_zone "$dev" $((off / 512))
-> > +    prep_write reset_all
-> >      opts=3D("--debug=3Dzbd")
-> >      capacity=3D$(total_zone_capacity 1 $off $dev)
-> >      for ((i=3D0;i<jobs;i++)); do
-> > @@ -604,7 +630,7 @@ test29() {
-> > =20
-> >      off=3D$((first_sequential_zone_sector * 512 + 64 * zone_size))
-> >      size=3D$((16*zone_size))
-> > -    [ -n "$is_zbd" ] && reset_zone "$dev" $((off / 512))
-> > +    prep_write reset_all
-> >      opts=3D("--debug=3Dzbd")
-> >      for ((i=3D0;i<jobs;i++)); do
-> >  	opts+=3D("--name=3Djob$i" "--filename=3D$dev" "--offset=3D$off" "--bs=
-=3D16K")
-> > @@ -623,6 +649,7 @@ test29() {
-> >  test30() {
-> >      local off
-> > =20
-> > +    prep_write
-> >      off=3D$((first_sequential_zone_sector * 512))
-> >      run_one_fio_job "$(ioengine "libaio")" --iodepth=3D8 --rw=3Drandrw=
-	\
-> >  		    --bs=3D"$(max $((zone_size / 128)) "$logical_block_size")"\
-> > @@ -636,6 +663,7 @@ test30() {
-> >  test31() {
-> >      local bs inc nz off opts size
-> > =20
-> > +    prep_write
-> >      # Start with writing 128 KB to 128 sequential zones.
-> >      bs=3D128K
-> >      nz=3D128
-> > @@ -668,6 +696,7 @@ test31() {
-> >  test32() {
-> >      local off opts=3D() size
-> > =20
-> > +    prep_write
-> >      off=3D$((first_sequential_zone_sector * 512))
-> >      size=3D$((disk_size - off))
-> >      opts+=3D("--name=3D$dev" "--filename=3D$dev" "--offset=3D$off" "--=
-size=3D$size")
-> > @@ -684,6 +713,7 @@ test33() {
-> >      local bs io_size size
-> >      local off capacity=3D0;
-> > =20
-> > +    prep_write
-> >      off=3D$((first_sequential_zone_sector * 512))
-> >      capacity=3D$(total_zone_capacity 1 $off $dev)
-> >      size=3D$((2 * zone_size))
-> > @@ -700,6 +730,7 @@ test33() {
-> >  test34() {
-> >      local size
-> > =20
-> > +    prep_write
-> >      size=3D$((2 * zone_size))
-> >      run_fio_on_seq "$(ioengine "psync")" --iodepth=3D1 --rw=3Dwrite --=
-size=3D$size \
-> >  		   --do_verify=3D1 --verify=3Dmd5 --bs=3D$((3 * zone_size / 4)) \
-> > @@ -711,6 +742,7 @@ test34() {
-> >  test35() {
-> >      local bs off io_size size
-> > =20
-> > +    prep_write
-> >      off=3D$(((first_sequential_zone_sector + 1) * 512))
-> >      size=3D$((zone_size - 2 * 512))
-> >      bs=3D$((zone_size / 4))
-> > @@ -725,6 +757,7 @@ test35() {
-> >  test36() {
-> >      local bs off io_size size
-> > =20
-> > +    prep_write
-> >      off=3D$(((first_sequential_zone_sector) * 512))
-> >      size=3D$((zone_size - 512))
-> >      bs=3D$((zone_size / 4))
-> > @@ -739,6 +772,7 @@ test36() {
-> >  test37() {
-> >      local bs off size capacity
-> > =20
-> > +    prep_write
-> >      capacity=3D$(total_zone_capacity 1 $first_sequential_zone_sector $=
-dev)
-> >      if [ "$first_sequential_zone_sector" =3D 0 ]; then
-> >  	off=3D0
-> > @@ -758,6 +792,7 @@ test37() {
-> >  test38() {
-> >      local bs off size
-> > =20
-> > +    prep_write
-> >      size=3D$((logical_block_size))
-> >      off=3D$((disk_size - logical_block_size))
-> >      bs=3D$((logical_block_size))
-> > @@ -828,6 +863,7 @@ test45() {
-> >      local bs i
-> > =20
-> >      [ -z "$is_zbd" ] && return 0
-> > +    prep_write
-> >      bs=3D$((logical_block_size))
-> >      run_one_fio_job "$(ioengine "psync")" --iodepth=3D1 --rw=3Drandwri=
-te --bs=3D$bs\
-> >  		    --offset=3D$((first_sequential_zone_sector * 512)) \
-> > @@ -840,6 +876,7 @@ test45() {
-> >  test46() {
-> >      local size
-> > =20
-> > +    prep_write
-> >      size=3D$((4 * zone_size))
-> >      run_fio_on_seq "$(ioengine "libaio")" --iodepth=3D64 --rw=3Drandwr=
-ite --bs=3D4K \
-> >  		   --group_reporting=3D1 --numjobs=3D8 \
-> > @@ -851,6 +888,7 @@ test46() {
-> >  test47() {
-> >      local bs
-> > =20
-> > +    prep_write
-> >      bs=3D$((logical_block_size))
-> >      run_fio_on_seq "$(ioengine "psync")" --rw=3Dwrite --bs=3D$bs --zon=
-eskip=3D1 \
-> >  		    >> "${logfile}.${test_number}" 2>&1 && return 1
-> > @@ -865,7 +903,7 @@ test48() {
-> > =20
-> >      off=3D$((first_sequential_zone_sector * 512 + 64 * zone_size))
-> >      size=3D$((16*zone_size))
-> > -    [ -n "$is_zbd" ] && reset_zone "$dev" $((off / 512))
-> > +    prep_write reset_all
-> >      opts=3D("--aux-path=3D/tmp" "--allow_file_create=3D0" "--significa=
-nt_figures=3D10")
-> >      opts+=3D("--debug=3Dzbd")
-> >      opts+=3D("$(ioengine "libaio")" "--rw=3Drandwrite" "--direct=3D1")
-
---=20
-Best Regards,
-Shin'ichiro Kawasaki=
+T24gVGh1LCAyMDIwLTA4LTEzIGF0IDEzOjU3ICswOTAwLCBTaGluJ2ljaGlybyBLYXdhc2FraSB3
+cm90ZToNCj4gV2hlbiB0aGUgdGVzdCB0YXJnZXQgZGV2aWNlIGhhcyBtYXhpbXVtIG9wZW4gem9u
+ZXMgbGltaXQsIHRoZSB6b25lcyBpbg0KPiB0ZXN0IHRhcmdldCByZWdpb24gbWF5IG5vdCBiZSBv
+cGVuZWQgdXAgdG8gdGhlIGxpbWl0LCBiZWNhdXNlIHRoZSB6b25lcw0KPiBvdXQgb2YgdGhlIHRl
+c3QgdGFyZ2V0IHJlZ2lvbiBtYXkgaGF2ZSBvcGVuIHpvbmVzLiBUbyBlbnN1cmUgdGhhdCB0aGUN
+Cj4gdGVzdCB0YXJnZXQgem9uZXMgY2FuIGJlIG9wZW5lZCB1cCB0byB0aGUgbGltaXQsIHJlc2V0
+IGFsbCB6b25lcyBvZiB0aGUNCj4gdGVzdCB0YXJnZXQgZGV2aWNlIGJlZm9yZSB0aGUgdGVzdCBj
+YXNlcyB3aXRoIHdyaXRlIHdvcmsgbG9hZCBzdGFydHMuDQo+IA0KPiBJbnRyb2R1Y2UgdGhlIGhl
+bHBlciBmdW5jdGlvbiBwcmVwX3dyaXRlKCkgdG8gY2hlY2sgaWYgYWxsIHpvbmUgcmVzZXQgaXMN
+Cj4gcmVxdWlyZWQgYW5kIGRvIHRoZSByZXNldC4gRm9yIHRlc3QgY2FzZXMgd2hpY2ggcmVzZXQg
+YWxsIHpvbmVzDQo+IHJlZ2FyZGxlc3Mgb2YgdGhlIG1heGltdW0gb3BlbiB6b25lcyBvcHRpb24u
+LCB0aGUgaGVscGVyIGZ1bmN0aW9uIHRha2VzDQo+ICJyZXNldF9hbGwiIGFyZ3VtZW50Lg0KPiAN
+Cj4gU2lnbmVkLW9mZi1ieTogU2hpbidpY2hpcm8gS2F3YXNha2kgPHNoaW5pY2hpcm8ua2F3YXNh
+a2lAd2RjLmNvbT4NCg0KVGhlIHBhdGNoIGxvb2tzIG9rLCBidXQgSSB3b25kZXIgaWYgc29tZSBv
+ZiB0aGUgcmVzZXQtYWxsIGNhc2VzIGNhbiBiZQ0KdW5uZWNlc3NhcnkgaWYgeW91IHJlc2V0IGV4
+Y2Vzc2l2ZSBvcGVuIHpvbmVzIGluIHpiZF9zZXR1cF9maWxlcygpIGFzDQpJIHN1Z2dlc3RlZCBp
+biB0aGUgY29tbWVudCB0byB0aGUgcHJldmlvdXMgcGF0Y2guIEFueXdheSwNCg0KUmV2aWV3ZWQt
+Ynk6IERtaXRyeSBGb21pY2hldjogPGRtaXRyeS5mb21pY2hldkB3ZGMuY29tPg0KDQo+IC0tLQ0K
+PiAgdC96YmQvdGVzdC16YmQtc3VwcG9ydCB8IDQ0ICsrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKy0tLQ0KPiAgMSBmaWxlIGNoYW5nZWQsIDQxIGluc2VydGlvbnMoKyksIDMg
+ZGVsZXRpb25zKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvdC96YmQvdGVzdC16YmQtc3VwcG9ydCBi
+L3QvemJkL3Rlc3QtemJkLXN1cHBvcnQNCj4gaW5kZXggYzIxZDZhYWQuLjllYzQwNmMzIDEwMDc1
+NQ0KPiAtLS0gYS90L3piZC90ZXN0LXpiZC1zdXBwb3J0DQo+ICsrKyBiL3QvemJkL3Rlc3QtemJk
+LXN1cHBvcnQNCj4gQEAgLTE4MSw2ICsxODEsMTYgQEAgcnVuX2Zpb19vbl9zZXEoKSB7DQo+ICAg
+ICAgcnVuX29uZV9maW9fam9iICIke29wdHNbQF19IiAiJEAiDQo+ICB9DQo+ICANCj4gKyMgUHJl
+cGFyZSBmb3Igd3JpdGUgdGVzdCBieSByZXNldHRpbmcgem9uZXMuIFdoZW4gInJlc2V0X2FsbCIg
+aXMgc3BlY2lmaWVkLA0KPiArIyByZXNldCBhbGwgc2VxdWVudGlhbCB3cml0ZSByZXF1aXJlZCB6
+b25lcy4gV2hlbiBtYXhfb3Blbl96b25lcyBvcHRpb24gaXMNCj4gKyMgc3BlY2lmaWVkLCByZXNl
+dCBhbGwgem9uZXMgb2YgdGhlIHRlc3QgdGFyZ2V0IHRvIGVuc3VyZSB0aGF0IHpvbmVzIG91dCBv
+ZiB0aGUNCj4gKyMgdGVzdCB0YXJnZXQgcmFuZ2UgZG8gbm90IGhhdmUgb3BlbiB6b25lcy4gVGhp
+cyBhbGxvd3MgdGhlIHdyaXRlIHRlc3QgdG8gdGhlDQo+ICsjIHRhcmdldCByYW5nZSB0byBiZSBh
+YmxlIHRvIG9wZW4gem9uZXMgdXAgdG8gbWF4X29wZW5fem9uZXMuDQo+ICtwcmVwX3dyaXRlKCkg
+ew0KPiArCVtbICR7MX0gPT0gInJlc2V0X2FsbCIgfHwgLW4gIiR7bWF4X29wZW5fem9uZXNfb3B0
+fSIgXV0gJiYNCj4gKwkJW1sgLW4gIiR7aXNfemJkfSIgXV0gJiYgcmVzZXRfem9uZSAiJHtkZXZ9
+IiAtMQ0KPiArfQ0KPiArDQo+ICAjIENoZWNrIHdoZXRoZXIgYnVmZmVyZWQgd3JpdGVzIGFyZSBy
+ZWZ1c2VkLg0KPiAgdGVzdDEoKSB7DQo+ICAgICAgcnVuX2ZpbyAtLW5hbWU9am9iMSAtLWZpbGVu
+YW1lPSIkZGV2IiAtLXJ3PXdyaXRlIC0tZGlyZWN0PTAgLS1icz00SwlcDQo+IEBAIC0yNTIsNiAr
+MjYyLDcgQEAgdGVzdDQoKSB7DQo+ICB0ZXN0NSgpIHsNCj4gICAgICBsb2NhbCBzaXplIG9mZiBj
+YXBhY2l0eQ0KPiAgDQo+ICsgICAgcHJlcF93cml0ZQ0KPiAgICAgIG9mZj0kKChmaXJzdF9zZXF1
+ZW50aWFsX3pvbmVfc2VjdG9yICogNTEyKSkNCj4gICAgICBjYXBhY2l0eT0kKHRvdGFsX3pvbmVf
+Y2FwYWNpdHkgNCAkb2ZmICRkZXYpDQo+ICAgICAgc2l6ZT0kKCg0ICogem9uZV9zaXplKSkNCj4g
+QEAgLTI2Nyw2ICsyNzgsNyBAQCB0ZXN0NSgpIHsNCj4gIHRlc3Q2KCkgew0KPiAgICAgIGxvY2Fs
+IHNpemUgb2ZmIGNhcGFjaXR5DQo+ICANCj4gKyAgICBwcmVwX3dyaXRlDQo+ICAgICAgb2ZmPSQo
+KGZpcnN0X3NlcXVlbnRpYWxfem9uZV9zZWN0b3IgKiA1MTIpKQ0KPiAgICAgIGNhcGFjaXR5PSQo
+dG90YWxfem9uZV9jYXBhY2l0eSA0ICRvZmYgJGRldikNCj4gICAgICBzaXplPSQoKDQgKiB6b25l
+X3NpemUpKQ0KPiBAQCAtMjg1LDYgKzI5Nyw3IEBAIHRlc3Q3KCkgew0KPiAgICAgIGxvY2FsIHNp
+emU9JCgoem9uZV9zaXplKSkNCj4gICAgICBsb2NhbCBvZmYgY2FwYWNpdHkNCj4gIA0KPiArICAg
+IHByZXBfd3JpdGUNCj4gICAgICBvZmY9JCgoZmlyc3Rfc2VxdWVudGlhbF96b25lX3NlY3RvciAq
+IDUxMikpDQo+ICAgICAgY2FwYWNpdHk9JCh0b3RhbF96b25lX2NhcGFjaXR5IDEgJG9mZiAkZGV2
+KQ0KPiAgICAgIHJ1bl9maW9fb25fc2VxICIkKGlvZW5naW5lICJsaWJhaW8iKSIgLS1pb2RlcHRo
+PTEgLS1ydz1yYW5kd3JpdGUJXA0KPiBAQCAtMjk5LDYgKzMxMiw3IEBAIHRlc3Q3KCkgew0KPiAg
+dGVzdDgoKSB7DQo+ICAgICAgbG9jYWwgc2l6ZSBvZmYgY2FwYWNpdHkNCj4gIA0KPiArICAgIHBy
+ZXBfd3JpdGUNCj4gICAgICBzaXplPSQoKDQgKiB6b25lX3NpemUpKQ0KPiAgICAgIG9mZj0kKChm
+aXJzdF9zZXF1ZW50aWFsX3pvbmVfc2VjdG9yICogNTEyKSkNCj4gICAgICBjYXBhY2l0eT0kKHRv
+dGFsX3pvbmVfY2FwYWNpdHkgNCAkb2ZmICRkZXYpDQo+IEBAIC0zMTksNiArMzMzLDcgQEAgdGVz
+dDkoKSB7DQo+ICAJcmV0dXJuIDANCj4gICAgICBmaQ0KPiAgDQo+ICsgICAgcHJlcF93cml0ZQ0K
+PiAgICAgIHNpemU9JCgoNCAqIHpvbmVfc2l6ZSkpDQo+ICAgICAgcnVuX2Zpb19vbl9zZXEgLS1p
+b2VuZ2luZT1zZwkJCQkJXA0KPiAgCQkgICAtLWlvZGVwdGg9MSAtLXJ3PXJhbmR3cml0ZSAtLWJz
+PTE2SwkJCVwNCj4gQEAgLTMzNyw2ICszNTIsNyBAQCB0ZXN0MTAoKSB7DQo+ICAJcmV0dXJuIDAN
+Cj4gICAgICBmaQ0KPiAgDQo+ICsgICAgcHJlcF93cml0ZQ0KPiAgICAgIHNpemU9JCgoNCAqIHpv
+bmVfc2l6ZSkpDQo+ICAgICAgcnVuX2Zpb19vbl9zZXEgLS1pb2VuZ2luZT1zZyAJCQkJCVwNCj4g
+IAkJICAgLS1pb2RlcHRoPTY0IC0tcnc9cmFuZHdyaXRlIC0tYnM9MTZLCQkJXA0KPiBAQCAtMzUw
+LDYgKzM2Niw3IEBAIHRlc3QxMCgpIHsNCj4gIHRlc3QxMSgpIHsNCj4gICAgICBsb2NhbCBzaXpl
+IG9mZiBjYXBhY2l0eQ0KPiAgDQo+ICsgICAgcHJlcF93cml0ZQ0KPiAgICAgIHNpemU9JCgoNCAq
+IHpvbmVfc2l6ZSkpDQo+ICAgICAgb2ZmPSQoKGZpcnN0X3NlcXVlbnRpYWxfem9uZV9zZWN0b3Ig
+KiA1MTIpKQ0KPiAgICAgIGNhcGFjaXR5PSQodG90YWxfem9uZV9jYXBhY2l0eSA0ICRvZmYgJGRl
+dikNCj4gQEAgLTM2NCw2ICszODEsNyBAQCB0ZXN0MTEoKSB7DQo+ICB0ZXN0MTIoKSB7DQo+ICAg
+ICAgbG9jYWwgc2l6ZSBvZmYgY2FwYWNpdHkNCj4gIA0KPiArICAgIHByZXBfd3JpdGUNCj4gICAg
+ICBzaXplPSQoKDggKiB6b25lX3NpemUpKQ0KPiAgICAgIG9mZj0kKChmaXJzdF9zZXF1ZW50aWFs
+X3pvbmVfc2VjdG9yICogNTEyKSkNCj4gICAgICBjYXBhY2l0eT0kKHRvdGFsX3pvbmVfY2FwYWNp
+dHkgOCAkb2ZmICRkZXYpDQo+IEBAIC0zNzgsNiArMzk2LDcgQEAgdGVzdDEyKCkgew0KPiAgdGVz
+dDEzKCkgew0KPiAgICAgIGxvY2FsIHNpemUgb2ZmIGNhcGFjaXR5DQo+ICANCj4gKyAgICBwcmVw
+X3dyaXRlDQo+ICAgICAgc2l6ZT0kKCg4ICogem9uZV9zaXplKSkNCj4gICAgICBvZmY9JCgoZmly
+c3Rfc2VxdWVudGlhbF96b25lX3NlY3RvciAqIDUxMikpDQo+ICAgICAgY2FwYWNpdHk9JCh0b3Rh
+bF96b25lX2NhcGFjaXR5IDggJG9mZiAkZGV2KQ0KPiBAQCAtMzkzLDYgKzQxMiw3IEBAIHRlc3Qx
+MygpIHsNCj4gIHRlc3QxNCgpIHsNCj4gICAgICBsb2NhbCBzaXplDQo+ICANCj4gKyAgICBwcmVw
+X3dyaXRlDQo+ICAgICAgc2l6ZT0kKCgxNiAqIDIqKjIwKSkgIyAyMCBNQg0KPiAgICAgIGlmIFsg
+JHNpemUgLWd0ICQoKGZpcnN0X3NlcXVlbnRpYWxfem9uZV9zZWN0b3IgKiA1MTIpKSBdOyB0aGVu
+DQo+ICAJZWNobyAiJGRldiBkb2VzIG5vdCBoYXZlIGVub3VnaCBzZXF1ZW50aWFsIHpvbmVzIiBc
+DQo+IEBAIC00MTcsNiArNDM3LDcgQEAgdGVzdDE1KCkgew0KPiAgCSAgICByZXNldF96b25lICIk
+ZGV2IiAkKChmaXJzdF9zZXF1ZW50aWFsX3pvbmVfc2VjdG9yICsNCj4gIAkJCQkgaSpzZWN0b3Jz
+X3Blcl96b25lKSkNCj4gICAgICBkb25lDQo+ICsgICAgcHJlcF93cml0ZQ0KPiAgICAgIHdfb2Zm
+PSQoKChmaXJzdF9zZXF1ZW50aWFsX3pvbmVfc2VjdG9yICsgMiAqIHNlY3RvcnNfcGVyX3pvbmUp
+ICogNTEyKSkNCj4gICAgICB3X3NpemU9JCgoMiAqIHpvbmVfc2l6ZSkpDQo+ICAgICAgd19jYXBh
+Y2l0eT0kKHRvdGFsX3pvbmVfY2FwYWNpdHkgMiAkd19vZmYgJGRldikNCj4gQEAgLTQ0MSw2ICs0
+NjIsNyBAQCB0ZXN0MTYoKSB7DQo+ICAJICAgIHJlc2V0X3pvbmUgIiRkZXYiICQoKGZpcnN0X3Nl
+cXVlbnRpYWxfem9uZV9zZWN0b3IgKw0KPiAgCQkJCSBpKnNlY3RvcnNfcGVyX3pvbmUpKQ0KPiAg
+ICAgIGRvbmUNCj4gKyAgICBwcmVwX3dyaXRlDQo+ICAgICAgd19vZmY9JCgoKGZpcnN0X3NlcXVl
+bnRpYWxfem9uZV9zZWN0b3IgKyAyICogc2VjdG9yc19wZXJfem9uZSkgKiA1MTIpKQ0KPiAgICAg
+IHdfc2l6ZT0kKCgyICogem9uZV9zaXplKSkNCj4gICAgICB3X2NhcGFjaXR5PSQodG90YWxfem9u
+ZV9jYXBhY2l0eSAyICR3X29mZiAkZGV2KQ0KPiBAQCAtNDYzLDYgKzQ4NSw3IEBAIHRlc3QxNygp
+IHsNCj4gICAgICBpZiBbIC1uICIkaXNfemJkIiBdOyB0aGVuDQo+ICAJcmVzZXRfem9uZSAiJGRl
+diIgJCgob2ZmIC8gNTEyKSkgfHwgcmV0dXJuICQ/DQo+ICAgICAgZmkNCj4gKyAgICBwcmVwX3dy
+aXRlDQo+ICAgICAgcnVuX29uZV9maW9fam9iICIkKGlvZW5naW5lICJsaWJhaW8iKSIgLS1pb2Rl
+cHRoPTggLS1ydz1yYW5kcncgLS1icz00SyBcDQo+ICAJCSAgICAtLXpvbmVtb2RlPXpiZCAtLXpv
+bmVzaXplPSIke3pvbmVfc2l6ZX0iCQlcDQo+ICAJCSAgICAtLW9mZnNldD0kb2ZmIC0tbG9vcHM9
+MiAtLW5vcmFuZG9tbWFwPTFcDQo+IEBAIC01MTYsNiArNTM5LDcgQEAgdGVzdDI0KCkgew0KPiAg
+ICAgIGxvY2FsIGJzIGxvb3BzPTkgc2l6ZT0kKCh6b25lX3NpemUpKQ0KPiAgICAgIGxvY2FsIG9m
+ZiBjYXBhY2l0eQ0KPiAgDQo+ICsgICAgcHJlcF93cml0ZQ0KPiAgICAgIG9mZj0kKChmaXJzdF9z
+ZXF1ZW50aWFsX3pvbmVfc2VjdG9yICogNTEyKSkNCj4gICAgICBjYXBhY2l0eT0kKHRvdGFsX3pv
+bmVfY2FwYWNpdHkgMSAkb2ZmICRkZXYpDQo+ICANCj4gQEAgLTUzOCw2ICs1NjIsNyBAQCB0ZXN0
+MjUoKSB7DQo+ICAgICAgICAgIFsgLW4gIiRpc196YmQiIF0gJiYNCj4gIAkgICAgcmVzZXRfem9u
+ZSAiJGRldiIgJCgoZmlyc3Rfc2VxdWVudGlhbF96b25lX3NlY3RvciArIGkqc2VjdG9yc19wZXJf
+em9uZSkpDQo+ICAgICAgZG9uZQ0KPiArICAgIHByZXBfd3JpdGUNCj4gICAgICBmb3IgKChpPTA7
+aTwxNjtpKyspKTsgZG8NCj4gIAlvcHRzKz0oIi0tbmFtZT1qb2IkaSIgIi0tZmlsZW5hbWU9JGRl
+diIgIi0tdGhyZWFkPTEiICItLWRpcmVjdD0xIikNCj4gIAlvcHRzKz0oIi0tb2Zmc2V0PSQoKGZp
+cnN0X3NlcXVlbnRpYWxfem9uZV9zZWN0b3IqNTEyICsgem9uZV9zaXplKmkpKSIpDQo+IEBAIC01
+NTIsNiArNTc3LDcgQEAgd3JpdGVfdG9fZmlyc3Rfc2VxX3pvbmUoKSB7DQo+ICAgICAgbG9jYWwg
+bG9vcHM9NCByDQo+ICAgICAgbG9jYWwgb2ZmIGNhcGFjaXR5DQo+ICANCj4gKyAgICBwcmVwX3dy
+aXRlDQo+ICAgICAgb2ZmPSQoKGZpcnN0X3NlcXVlbnRpYWxfem9uZV9zZWN0b3IgKiA1MTIpKQ0K
+PiAgICAgIGNhcGFjaXR5PSQodG90YWxfem9uZV9jYXBhY2l0eSAxICRvZmYgJGRldikNCj4gIA0K
+PiBAQCAtNTgwLDcgKzYwNiw3IEBAIHRlc3QyOCgpIHsNCj4gICAgICBsb2NhbCBpIGpvYnM9MTYg
+b2ZmIG9wdHMNCj4gIA0KPiAgICAgIG9mZj0kKChmaXJzdF9zZXF1ZW50aWFsX3pvbmVfc2VjdG9y
+ICogNTEyICsgNjQgKiB6b25lX3NpemUpKQ0KPiAtICAgIFsgLW4gIiRpc196YmQiIF0gJiYgcmVz
+ZXRfem9uZSAiJGRldiIgJCgob2ZmIC8gNTEyKSkNCj4gKyAgICBwcmVwX3dyaXRlIHJlc2V0X2Fs
+bA0KPiAgICAgIG9wdHM9KCItLWRlYnVnPXpiZCIpDQo+ICAgICAgY2FwYWNpdHk9JCh0b3RhbF96
+b25lX2NhcGFjaXR5IDEgJG9mZiAkZGV2KQ0KPiAgICAgIGZvciAoKGk9MDtpPGpvYnM7aSsrKSk7
+IGRvDQo+IEBAIC02MDQsNyArNjMwLDcgQEAgdGVzdDI5KCkgew0KPiAgDQo+ICAgICAgb2ZmPSQo
+KGZpcnN0X3NlcXVlbnRpYWxfem9uZV9zZWN0b3IgKiA1MTIgKyA2NCAqIHpvbmVfc2l6ZSkpDQo+
+ICAgICAgc2l6ZT0kKCgxNip6b25lX3NpemUpKQ0KPiAtICAgIFsgLW4gIiRpc196YmQiIF0gJiYg
+cmVzZXRfem9uZSAiJGRldiIgJCgob2ZmIC8gNTEyKSkNCj4gKyAgICBwcmVwX3dyaXRlIHJlc2V0
+X2FsbA0KPiAgICAgIG9wdHM9KCItLWRlYnVnPXpiZCIpDQo+ICAgICAgZm9yICgoaT0wO2k8am9i
+cztpKyspKTsgZG8NCj4gIAlvcHRzKz0oIi0tbmFtZT1qb2IkaSIgIi0tZmlsZW5hbWU9JGRldiIg
+Ii0tb2Zmc2V0PSRvZmYiICItLWJzPTE2SyIpDQo+IEBAIC02MjMsNiArNjQ5LDcgQEAgdGVzdDI5
+KCkgew0KPiAgdGVzdDMwKCkgew0KPiAgICAgIGxvY2FsIG9mZg0KPiAgDQo+ICsgICAgcHJlcF93
+cml0ZQ0KPiAgICAgIG9mZj0kKChmaXJzdF9zZXF1ZW50aWFsX3pvbmVfc2VjdG9yICogNTEyKSkN
+Cj4gICAgICBydW5fb25lX2Zpb19qb2IgIiQoaW9lbmdpbmUgImxpYmFpbyIpIiAtLWlvZGVwdGg9
+OCAtLXJ3PXJhbmRydwlcDQo+ICAJCSAgICAtLWJzPSIkKG1heCAkKCh6b25lX3NpemUgLyAxMjgp
+KSAiJGxvZ2ljYWxfYmxvY2tfc2l6ZSIpIlwNCj4gQEAgLTYzNiw2ICs2NjMsNyBAQCB0ZXN0MzAo
+KSB7DQo+ICB0ZXN0MzEoKSB7DQo+ICAgICAgbG9jYWwgYnMgaW5jIG56IG9mZiBvcHRzIHNpemUN
+Cj4gIA0KPiArICAgIHByZXBfd3JpdGUNCj4gICAgICAjIFN0YXJ0IHdpdGggd3JpdGluZyAxMjgg
+S0IgdG8gMTI4IHNlcXVlbnRpYWwgem9uZXMuDQo+ICAgICAgYnM9MTI4Sw0KPiAgICAgIG56PTEy
+OA0KPiBAQCAtNjY4LDYgKzY5Niw3IEBAIHRlc3QzMSgpIHsNCj4gIHRlc3QzMigpIHsNCj4gICAg
+ICBsb2NhbCBvZmYgb3B0cz0oKSBzaXplDQo+ICANCj4gKyAgICBwcmVwX3dyaXRlDQo+ICAgICAg
+b2ZmPSQoKGZpcnN0X3NlcXVlbnRpYWxfem9uZV9zZWN0b3IgKiA1MTIpKQ0KPiAgICAgIHNpemU9
+JCgoZGlza19zaXplIC0gb2ZmKSkNCj4gICAgICBvcHRzKz0oIi0tbmFtZT0kZGV2IiAiLS1maWxl
+bmFtZT0kZGV2IiAiLS1vZmZzZXQ9JG9mZiIgIi0tc2l6ZT0kc2l6ZSIpDQo+IEBAIC02ODQsNiAr
+NzEzLDcgQEAgdGVzdDMzKCkgew0KPiAgICAgIGxvY2FsIGJzIGlvX3NpemUgc2l6ZQ0KPiAgICAg
+IGxvY2FsIG9mZiBjYXBhY2l0eT0wOw0KPiAgDQo+ICsgICAgcHJlcF93cml0ZQ0KPiAgICAgIG9m
+Zj0kKChmaXJzdF9zZXF1ZW50aWFsX3pvbmVfc2VjdG9yICogNTEyKSkNCj4gICAgICBjYXBhY2l0
+eT0kKHRvdGFsX3pvbmVfY2FwYWNpdHkgMSAkb2ZmICRkZXYpDQo+ICAgICAgc2l6ZT0kKCgyICog
+em9uZV9zaXplKSkNCj4gQEAgLTcwMCw2ICs3MzAsNyBAQCB0ZXN0MzMoKSB7DQo+ICB0ZXN0MzQo
+KSB7DQo+ICAgICAgbG9jYWwgc2l6ZQ0KPiAgDQo+ICsgICAgcHJlcF93cml0ZQ0KPiAgICAgIHNp
+emU9JCgoMiAqIHpvbmVfc2l6ZSkpDQo+ICAgICAgcnVuX2Zpb19vbl9zZXEgIiQoaW9lbmdpbmUg
+InBzeW5jIikiIC0taW9kZXB0aD0xIC0tcnc9d3JpdGUgLS1zaXplPSRzaXplIFwNCj4gIAkJICAg
+LS1kb192ZXJpZnk9MSAtLXZlcmlmeT1tZDUgLS1icz0kKCgzICogem9uZV9zaXplIC8gNCkpIFwN
+Cj4gQEAgLTcxMSw2ICs3NDIsNyBAQCB0ZXN0MzQoKSB7DQo+ICB0ZXN0MzUoKSB7DQo+ICAgICAg
+bG9jYWwgYnMgb2ZmIGlvX3NpemUgc2l6ZQ0KPiAgDQo+ICsgICAgcHJlcF93cml0ZQ0KPiAgICAg
+IG9mZj0kKCgoZmlyc3Rfc2VxdWVudGlhbF96b25lX3NlY3RvciArIDEpICogNTEyKSkNCj4gICAg
+ICBzaXplPSQoKHpvbmVfc2l6ZSAtIDIgKiA1MTIpKQ0KPiAgICAgIGJzPSQoKHpvbmVfc2l6ZSAv
+IDQpKQ0KPiBAQCAtNzI1LDYgKzc1Nyw3IEBAIHRlc3QzNSgpIHsNCj4gIHRlc3QzNigpIHsNCj4g
+ICAgICBsb2NhbCBicyBvZmYgaW9fc2l6ZSBzaXplDQo+ICANCj4gKyAgICBwcmVwX3dyaXRlDQo+
+ICAgICAgb2ZmPSQoKChmaXJzdF9zZXF1ZW50aWFsX3pvbmVfc2VjdG9yKSAqIDUxMikpDQo+ICAg
+ICAgc2l6ZT0kKCh6b25lX3NpemUgLSA1MTIpKQ0KPiAgICAgIGJzPSQoKHpvbmVfc2l6ZSAvIDQp
+KQ0KPiBAQCAtNzM5LDYgKzc3Miw3IEBAIHRlc3QzNigpIHsNCj4gIHRlc3QzNygpIHsNCj4gICAg
+ICBsb2NhbCBicyBvZmYgc2l6ZSBjYXBhY2l0eQ0KPiAgDQo+ICsgICAgcHJlcF93cml0ZQ0KPiAg
+ICAgIGNhcGFjaXR5PSQodG90YWxfem9uZV9jYXBhY2l0eSAxICRmaXJzdF9zZXF1ZW50aWFsX3pv
+bmVfc2VjdG9yICRkZXYpDQo+ICAgICAgaWYgWyAiJGZpcnN0X3NlcXVlbnRpYWxfem9uZV9zZWN0
+b3IiID0gMCBdOyB0aGVuDQo+ICAJb2ZmPTANCj4gQEAgLTc1OCw2ICs3OTIsNyBAQCB0ZXN0Mzco
+KSB7DQo+ICB0ZXN0MzgoKSB7DQo+ICAgICAgbG9jYWwgYnMgb2ZmIHNpemUNCj4gIA0KPiArICAg
+IHByZXBfd3JpdGUNCj4gICAgICBzaXplPSQoKGxvZ2ljYWxfYmxvY2tfc2l6ZSkpDQo+ICAgICAg
+b2ZmPSQoKGRpc2tfc2l6ZSAtIGxvZ2ljYWxfYmxvY2tfc2l6ZSkpDQo+ICAgICAgYnM9JCgobG9n
+aWNhbF9ibG9ja19zaXplKSkNCj4gQEAgLTgyOCw2ICs4NjMsNyBAQCB0ZXN0NDUoKSB7DQo+ICAg
+ICAgbG9jYWwgYnMgaQ0KPiAgDQo+ICAgICAgWyAteiAiJGlzX3piZCIgXSAmJiByZXR1cm4gMA0K
+PiArICAgIHByZXBfd3JpdGUNCj4gICAgICBicz0kKChsb2dpY2FsX2Jsb2NrX3NpemUpKQ0KPiAg
+ICAgIHJ1bl9vbmVfZmlvX2pvYiAiJChpb2VuZ2luZSAicHN5bmMiKSIgLS1pb2RlcHRoPTEgLS1y
+dz1yYW5kd3JpdGUgLS1icz0kYnNcDQo+ICAJCSAgICAtLW9mZnNldD0kKChmaXJzdF9zZXF1ZW50
+aWFsX3pvbmVfc2VjdG9yICogNTEyKSkgXA0KPiBAQCAtODQwLDYgKzg3Niw3IEBAIHRlc3Q0NSgp
+IHsNCj4gIHRlc3Q0NigpIHsNCj4gICAgICBsb2NhbCBzaXplDQo+ICANCj4gKyAgICBwcmVwX3dy
+aXRlDQo+ICAgICAgc2l6ZT0kKCg0ICogem9uZV9zaXplKSkNCj4gICAgICBydW5fZmlvX29uX3Nl
+cSAiJChpb2VuZ2luZSAibGliYWlvIikiIC0taW9kZXB0aD02NCAtLXJ3PXJhbmR3cml0ZSAtLWJz
+PTRLIFwNCj4gIAkJICAgLS1ncm91cF9yZXBvcnRpbmc9MSAtLW51bWpvYnM9OCBcDQo+IEBAIC04
+NTEsNiArODg4LDcgQEAgdGVzdDQ2KCkgew0KPiAgdGVzdDQ3KCkgew0KPiAgICAgIGxvY2FsIGJz
+DQo+ICANCj4gKyAgICBwcmVwX3dyaXRlDQo+ICAgICAgYnM9JCgobG9naWNhbF9ibG9ja19zaXpl
+KSkNCj4gICAgICBydW5fZmlvX29uX3NlcSAiJChpb2VuZ2luZSAicHN5bmMiKSIgLS1ydz13cml0
+ZSAtLWJzPSRicyAtLXpvbmVza2lwPTEgXA0KPiAgCQkgICAgPj4gIiR7bG9nZmlsZX0uJHt0ZXN0
+X251bWJlcn0iIDI+JjEgJiYgcmV0dXJuIDENCj4gQEAgLTg2NSw3ICs5MDMsNyBAQCB0ZXN0NDgo
+KSB7DQo+ICANCj4gICAgICBvZmY9JCgoZmlyc3Rfc2VxdWVudGlhbF96b25lX3NlY3RvciAqIDUx
+MiArIDY0ICogem9uZV9zaXplKSkNCj4gICAgICBzaXplPSQoKDE2KnpvbmVfc2l6ZSkpDQo+IC0g
+ICAgWyAtbiAiJGlzX3piZCIgXSAmJiByZXNldF96b25lICIkZGV2IiAkKChvZmYgLyA1MTIpKQ0K
+PiArICAgIHByZXBfd3JpdGUgcmVzZXRfYWxsDQo+ICAgICAgb3B0cz0oIi0tYXV4LXBhdGg9L3Rt
+cCIgIi0tYWxsb3dfZmlsZV9jcmVhdGU9MCIgIi0tc2lnbmlmaWNhbnRfZmlndXJlcz0xMCIpDQo+
+ICAgICAgb3B0cys9KCItLWRlYnVnPXpiZCIpDQo+ICAgICAgb3B0cys9KCIkKGlvZW5naW5lICJs
+aWJhaW8iKSIgIi0tcnc9cmFuZHdyaXRlIiAiLS1kaXJlY3Q9MSIpDQo=
 
