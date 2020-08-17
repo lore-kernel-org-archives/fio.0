@@ -1,88 +1,57 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41130 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726398AbgHRNVu (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 18 Aug 2020 09:21:50 -0400
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB5EBC061389
-        for <fio@vger.kernel.org>; Tue, 18 Aug 2020 06:21:49 -0700 (PDT)
-Received: by mail-io1-xd43.google.com with SMTP id b16so21149007ioj.4
-        for <fio@vger.kernel.org>; Tue, 18 Aug 2020 06:21:49 -0700 (PDT)
-MIME-Version: 1.0
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:55270 "EHLO
+        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726135AbgHQXuz (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 17 Aug 2020 19:50:55 -0400
+From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+Subject: RE: [PATCH v3 2/4] configure: check if pkg-config is installed
+Date: Mon, 17 Aug 2020 23:50:49 +0000
+Message-ID: <MN2PR04MB5951CC3B05E953AF3CBDBFA1E15F0@MN2PR04MB5951.namprd04.prod.outlook.com>
 References: <20200804013828.1569-1-dmitry.fomichev@wdc.com>
- <20200804013828.1569-3-dmitry.fomichev@wdc.com> <CY4PR04MB3751C92C5E4A5048EB689BADE74B0@CY4PR04MB3751.namprd04.prod.outlook.com>
+ <20200804013828.1569-3-dmitry.fomichev@wdc.com>
+ <CY4PR04MB3751C92C5E4A5048EB689BADE74B0@CY4PR04MB3751.namprd04.prod.outlook.com>
  <CAHndrBmszp=crv_bqHo7FxPsgJZOWBKF9Crv7bT0hHVcN92jmg@mail.gmail.com>
- <CALjAwxjsmg3=QkT6V8ci5FLosJ5+BG_1xwHEEeG5OY6xAx_w9Q@mail.gmail.com> <MN2PR04MB5951CC3B05E953AF3CBDBFA1E15F0@MN2PR04MB5951.namprd04.prod.outlook.com>
-In-Reply-To: <MN2PR04MB5951CC3B05E953AF3CBDBFA1E15F0@MN2PR04MB5951.namprd04.prod.outlook.com>
-From: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-Date: Tue, 18 Aug 2020 22:21:11 +0900
-Message-ID: <CAHndrB=E2hEpNtc0+xEVfXUHxVNXUrmkAkNdR4E7vqRNH1PytA@mail.gmail.com>
-Subject: Re: [PATCH v3 2/4] configure: check if pkg-config is installed
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+ <CALjAwxjsmg3=QkT6V8ci5FLosJ5+BG_1xwHEEeG5OY6xAx_w9Q@mail.gmail.com>
+In-Reply-To: <CALjAwxjsmg3=QkT6V8ci5FLosJ5+BG_1xwHEEeG5OY6xAx_w9Q@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Cc: Sitsofe Wheeler <sitsofe@gmail.com>, Damien Le Moal <Damien.LeMoal@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Sitsofe Wheeler <sitsofe@gmail.com>, Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-2020=E5=B9=B48=E6=9C=8818=E6=97=A5(=E7=81=AB) 8:50 Dmitry Fomichev <Dmitry.=
-Fomichev@wdc.com>:
->
->
->
-> > -----Original Message-----
-> > From: Sitsofe Wheeler <sitsofe@gmail.com>
-> > Sent: Sunday, August 16, 2020 4:48 PM
-> > To: Tomohiro Kusumi <kusumi.tomohiro@gmail.com>
-> > Cc: Damien Le Moal <Damien.LeMoal@wdc.com>; Dmitry Fomichev
-> > <Dmitry.Fomichev@wdc.com>; fio@vger.kernel.org
-> > Subject: Re: [PATCH v3 2/4] configure: check if pkg-config is installed
-> >
-> > On Sat, 15 Aug 2020 at 23:05, Tomohiro Kusumi
-> > <kusumi.tomohiro@gmail.com> wrote:
-> > >
-> > > 2020=E5=B9=B48=E6=9C=885=E6=97=A5(=E6=B0=B4) 16:06 Damien Le Moal <Da=
-mien.LeMoal@wdc.com>:
-> > > >
-> > > > On 2020/08/04 10:38, Dmitry Fomichev wrote:
-> > > > > A few libraries need to be newer than a specific version in order=
- to be
-> > > > > supported by fio and pkg-config utility is used to verify the ver=
-sions
-> > > > > of the installed libraries. Since this step may fail because pkg-=
-config
-> > > > > is not installed, verify pkg-config presence and warn the user if=
- it
-> > > > > could not be found.
-> > > > >
-> > > > > To avoid code duplication, add a common helper function to perfor=
-m
-> > > > > these checks.
-> > >
-> > > This line
-> > > "if test ${!feature} =3D "yes" ; then"
-> > > seems to have broken compilation on some BSD's.
-> > >
-> > > [root@localhost fio]# uname
-> > > NetBSD
-> > > [root@localhost fio]# gmake clean && gmake
-> > > FIO_VERSION =3D fio-3.21-56-g0ce7e
-> > > Running configure ...
-> > > ./configure: 144: Syntax error: Bad substitution
-> > > Makefile:19: config-host.mak: No such file or directory
-> > > gmake: *** [Makefile:10: config-host.mak] Error 2
-> >
-> > Looks like a few bashisms have snuck into configure (shellcheck warns
-> > about some other stuff). I think NetBSD's sh is ash...
-> >
->
-> Indeed. I just sent the fix for this problem.
->
-> Tomohiro,
-> Would you be able to test the new patch?
->
-> Thank you,
-> Dmitry
-
-Thanks, I've confirmed ./configure issue is fixed on NetBSD.
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU2l0c29mZSBXaGVlbGVy
+IDxzaXRzb2ZlQGdtYWlsLmNvbT4NCj4gU2VudDogU3VuZGF5LCBBdWd1c3QgMTYsIDIwMjAgNDo0
+OCBQTQ0KPiBUbzogVG9tb2hpcm8gS3VzdW1pIDxrdXN1bWkudG9tb2hpcm9AZ21haWwuY29tPg0K
+PiBDYzogRGFtaWVuIExlIE1vYWwgPERhbWllbi5MZU1vYWxAd2RjLmNvbT47IERtaXRyeSBGb21p
+Y2hldg0KPiA8RG1pdHJ5LkZvbWljaGV2QHdkYy5jb20+OyBmaW9Admdlci5rZXJuZWwub3JnDQo+
+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggdjMgMi80XSBjb25maWd1cmU6IGNoZWNrIGlmIHBrZy1jb25m
+aWcgaXMgaW5zdGFsbGVkDQo+IA0KPiBPbiBTYXQsIDE1IEF1ZyAyMDIwIGF0IDIzOjA1LCBUb21v
+aGlybyBLdXN1bWkNCj4gPGt1c3VtaS50b21vaGlyb0BnbWFpbC5jb20+IHdyb3RlOg0KPiA+DQo+
+ID4gMjAyMOW5tDjmnIg15pelKOawtCkgMTY6MDYgRGFtaWVuIExlIE1vYWwgPERhbWllbi5MZU1v
+YWxAd2RjLmNvbT46DQo+ID4gPg0KPiA+ID4gT24gMjAyMC8wOC8wNCAxMDozOCwgRG1pdHJ5IEZv
+bWljaGV2IHdyb3RlOg0KPiA+ID4gPiBBIGZldyBsaWJyYXJpZXMgbmVlZCB0byBiZSBuZXdlciB0
+aGFuIGEgc3BlY2lmaWMgdmVyc2lvbiBpbiBvcmRlciB0byBiZQ0KPiA+ID4gPiBzdXBwb3J0ZWQg
+YnkgZmlvIGFuZCBwa2ctY29uZmlnIHV0aWxpdHkgaXMgdXNlZCB0byB2ZXJpZnkgdGhlIHZlcnNp
+b25zDQo+ID4gPiA+IG9mIHRoZSBpbnN0YWxsZWQgbGlicmFyaWVzLiBTaW5jZSB0aGlzIHN0ZXAg
+bWF5IGZhaWwgYmVjYXVzZSBwa2ctY29uZmlnDQo+ID4gPiA+IGlzIG5vdCBpbnN0YWxsZWQsIHZl
+cmlmeSBwa2ctY29uZmlnIHByZXNlbmNlIGFuZCB3YXJuIHRoZSB1c2VyIGlmIGl0DQo+ID4gPiA+
+IGNvdWxkIG5vdCBiZSBmb3VuZC4NCj4gPiA+ID4NCj4gPiA+ID4gVG8gYXZvaWQgY29kZSBkdXBs
+aWNhdGlvbiwgYWRkIGEgY29tbW9uIGhlbHBlciBmdW5jdGlvbiB0byBwZXJmb3JtDQo+ID4gPiA+
+IHRoZXNlIGNoZWNrcy4NCj4gPg0KPiA+IFRoaXMgbGluZQ0KPiA+ICJpZiB0ZXN0ICR7IWZlYXR1
+cmV9ID0gInllcyIgOyB0aGVuIg0KPiA+IHNlZW1zIHRvIGhhdmUgYnJva2VuIGNvbXBpbGF0aW9u
+IG9uIHNvbWUgQlNEJ3MuDQo+ID4NCj4gPiBbcm9vdEBsb2NhbGhvc3QgZmlvXSMgdW5hbWUNCj4g
+PiBOZXRCU0QNCj4gPiBbcm9vdEBsb2NhbGhvc3QgZmlvXSMgZ21ha2UgY2xlYW4gJiYgZ21ha2UN
+Cj4gPiBGSU9fVkVSU0lPTiA9IGZpby0zLjIxLTU2LWcwY2U3ZQ0KPiA+IFJ1bm5pbmcgY29uZmln
+dXJlIC4uLg0KPiA+IC4vY29uZmlndXJlOiAxNDQ6IFN5bnRheCBlcnJvcjogQmFkIHN1YnN0aXR1
+dGlvbg0KPiA+IE1ha2VmaWxlOjE5OiBjb25maWctaG9zdC5tYWs6IE5vIHN1Y2ggZmlsZSBvciBk
+aXJlY3RvcnkNCj4gPiBnbWFrZTogKioqIFtNYWtlZmlsZToxMDogY29uZmlnLWhvc3QubWFrXSBF
+cnJvciAyDQo+IA0KPiBMb29rcyBsaWtlIGEgZmV3IGJhc2hpc21zIGhhdmUgc251Y2sgaW50byBj
+b25maWd1cmUgKHNoZWxsY2hlY2sgd2FybnMNCj4gYWJvdXQgc29tZSBvdGhlciBzdHVmZikuIEkg
+dGhpbmsgTmV0QlNEJ3Mgc2ggaXMgYXNoLi4uDQo+IA0KDQpJbmRlZWQuIEkganVzdCBzZW50IHRo
+ZSBmaXggZm9yIHRoaXMgcHJvYmxlbS4NCg0KVG9tb2hpcm8sDQpXb3VsZCB5b3UgYmUgYWJsZSB0
+byB0ZXN0IHRoZSBuZXcgcGF0Y2g/DQoNClRoYW5rIHlvdSwNCkRtaXRyeQ0KDQoNCj4gLS0NCj4g
+U2l0c29mZSB8IGh0dHA6Ly9zdWNzLm9yZy9+c2l0cy8NCg==
 
