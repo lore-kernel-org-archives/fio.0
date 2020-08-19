@@ -1,36 +1,87 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH] configure: fix syntax error with NetBSD
-References: <20200817234708.20701-1-dmitry.fomichev@wdc.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <628f241e-af58-3bc3-6630-b527655fb9fa@kernel.dk>
-Date: Wed, 19 Aug 2020 07:05:48 -0600
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20200817234708.20701-1-dmitry.fomichev@wdc.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Dmitry Fomichev <dmitry.fomichev@wdc.com>, Tomohiro Kusumi <kusumi.tomohiro@gmail.com>, Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>
+References: <20200817234708.20701-1-dmitry.fomichev@wdc.com> <CALjAwxixHyY8b3y=oNkNpuMvqNoPGRXZy25kN7E14sZLuZ9Mhg@mail.gmail.com>
+In-Reply-To: <CALjAwxixHyY8b3y=oNkNpuMvqNoPGRXZy25kN7E14sZLuZ9Mhg@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Wed, 19 Aug 2020 07:46:07 +0100
+Message-ID: <CALjAwxgh-f6CUbMJDzKd7azkV6AH4LBbD08GMn2mA1fq7=R=BA@mail.gmail.com>
+Subject: Re: [PATCH] configure: fix syntax error with NetBSD
+Content-Type: text/plain; charset="UTF-8"
+To: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Cc: Jens Axboe <axboe@kernel.dk>, Tomohiro Kusumi <kusumi.tomohiro@gmail.com>, fio <fio@vger.kernel.org>, Damien Le Moal <damien.lemoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On 8/17/20 4:47 PM, Dmitry Fomichev wrote:
-> The recent patch to detect for pkg-config presence has introduced some
-> bash-specific code to configure script. This lead to syntax errors
-> while running configure under some other shells, such as (d)ash.
-> 
-> Avoid ${!var} indirect substitution syntax and stop using "local"
-> keyword which is non-POSIX-standard. Address a few minor shellcheck
-> complaints about the code in same function.
+On Tue, 18 Aug 2020 at 09:00, Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>
+> On Tue, 18 Aug 2020 at 00:48, Dmitry Fomichev <dmitry.fomichev@wdc.com> wrote:
+> >
+> > The recent patch to detect for pkg-config presence has introduced some
+> > bash-specific code to configure script. This lead to syntax errors
+> > while running configure under some other shells, such as (d)ash.
+> >
+> > Avoid ${!var} indirect substitution syntax and stop using "local"
+> > keyword which is non-POSIX-standard. Address a few minor shellcheck
+> > complaints about the code in same function.
+> >
+> > Fixes: 162f8c2a96ae181d7e4099af8e9f39b5eac6886e
+> > Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+> > ---
+> >  configure | 14 +++++++-------
+> >  1 file changed, 7 insertions(+), 7 deletions(-)
+> >
+> > diff --git a/configure b/configure
+> > index dd7fe3d2..d3997b5f 100755
+> > --- a/configure
+> > +++ b/configure
+> > @@ -134,18 +134,18 @@ output_sym() {
+> >  }
+> >
+> >  check_min_lib_version() {
+> > -  local feature=$3
+> > +  _feature=$3
+> >
+> > -  if ${cross_prefix}pkg-config --atleast-version=$2 $1 > /dev/null 2>&1; then
+> > +  if "${cross_prefix}"pkg-config --atleast-version="$2" "$1" > /dev/null 2>&1; then
+> >      return 0
+> >    fi
+> > -  : ${feature:=${1}}
+> > -  if ${cross_prefix}pkg-config --version > /dev/null 2>&1; then
+> > -    if test ${!feature} = "yes" ; then
+> > -      feature_not_found "$feature" "$1 >= $2"
+> > +  : "${_feature:=${1}}"
+> > +  if "${cross_prefix}"pkg-config --version > /dev/null 2>&1; then
+> > +    if eval "echo \$$_feature" = "yes" ; then
+>
+> Stuff this into another variable once (e.g. feature_var) and then just
+> use that variable.
 
-Applied, thanks.
+Looking closer my comment doesn't make sense (I thought $_name was
+special syntax). What you've done is as good as it gets while
+remaining portable so LGTM!
 
-> Fixes: 162f8c2a96ae181d7e4099af8e9f39b5eac6886e
+Reviewed-by: Sitsofe Wheeler <sitsofe@yahoo.com>
 
-Fixed this one up in the process, it should look like this:
 
-Fixes: 162f8c2a96ae ("configure: check if pkg-config is installed")
 
--- 
-Jens Axboe
+>
+> > +      feature_not_found "$_feature" "$1 >= $2"
+> >      fi
+> >    else
+> > -    print_config "$1" "missing pkg-config, can't check $feature version"
+> > +    print_config "$1" "missing pkg-config, can't check $_feature version"
+> >    fi
+> >    return 1
+> >  }
+> > --
+> > 2.21.0
+> >
+>
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
 
+
+
+--
+Sitsofe | http://sucs.org/~sits/
 
