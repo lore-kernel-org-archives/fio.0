@@ -1,63 +1,47 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:30321 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726435AbgHSTfI (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 19 Aug 2020 15:35:08 -0400
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: RE: [PATCH] zbd: remove reset_zone flag from fio_zone_info
-Date: Wed, 19 Aug 2020 19:35:03 +0000
-Message-ID: <MN2PR04MB5951788306F08D671035B797E15D0@MN2PR04MB5951.namprd04.prod.outlook.com>
-References: <20200819125609.GA278226@localhost.localdomain>
-In-Reply-To: <20200819125609.GA278226@localhost.localdomain>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35718 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728493AbgHSM4T (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 19 Aug 2020 08:56:19 -0400
+Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C3B0C061345
+        for <fio@vger.kernel.org>; Wed, 19 Aug 2020 05:56:13 -0700 (PDT)
+Received: by mail-wm1-x344.google.com with SMTP id k8so2098560wma.2
+        for <fio@vger.kernel.org>; Wed, 19 Aug 2020 05:56:13 -0700 (PDT)
+Date: Wed, 19 Aug 2020 15:56:09 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH] zbd: remove reset_zone flag from fio_zone_info
+Message-ID: <20200819125609.GA278226@localhost.localdomain>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: dmitry.fomichev@wdc.com
+Cc: fio@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogQWxleGV5IERvYnJpeWFu
-IDxhZG9icml5YW5AZ21haWwuY29tPg0KPiBTZW50OiBXZWRuZXNkYXksIEF1Z3VzdCAxOSwgMjAy
-MCA4OjU2IEFNDQo+IFRvOiBEbWl0cnkgRm9taWNoZXYgPERtaXRyeS5Gb21pY2hldkB3ZGMuY29t
-Pg0KPiBDYzogZmlvQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENIXSB6YmQ6
-IHJlbW92ZSByZXNldF96b25lIGZsYWcgZnJvbSBmaW9fem9uZV9pbmZvDQo+IA0KPiA+IFRoZSBy
-ZXNldF96b25lIGZsYWcgdGhhdCBpcyBkZWZpbmVkIGluIGZpb196b25lX2luZm8gc3RydWN0dXJl
-IGlzDQo+ID4gb25seSByZWZlcmVuY2VkIGluIHpiZF9hZGp1c3RfYmxvY2soKSBmdW5jdGlvbi4g
-Q29udmVydCB0aGlzIGZsYWcNCj4gPiB0byBhIGxvY2FsIHZhcmlhYmxlIGFuZCBzYXZlIHNvbWUg
-cm9vbSBpbiB6YmRfaW5mbyBhcnJheSB3aGljaCBjYW4NCj4gPiBiZSBwcmV0dHkgbGFyZ2Ugd2hl
-biBydW5uaW5nIGZpbyBhZ2FpbnN0IGhpZ2ggY2FwYWNpdHkgem9uZWQgZGV2aWNlcy4NCj4gDQo+
-IFRoaXMgZmxhZyBzaG91bGQgYmUga2VwdC4NCj4gDQo+IFRlc3QgY2FuIGNyYXNoIG9yIGJlIGlu
-dGVycnVwdGVkIGxlYXZpbmcgaHcgaW4gaW5kZXRlcm1pbmF0ZSBzdGF0ZSwNCj4gaXQgbXVzdCBi
-ZSByZXN0YXJ0ZWQgZnJvbSBjbGVhbiBzdGF0ZS4gT3IgdGVzdCBjYW4gYmUgcHJlY29uZGl0aW9u
-IGFuZA0KPiB6b25lIHNob3VsZCBub3QgYmUgcmVzZXQuDQoNClRoaXMgaXMgYmV5b25kIHRoZSBz
-Y29wZSBvZiBmaW8uIEFueSBwcmVjb25kaXRpb25pbmcgb2Ygem9uZXMgaXMgZG9uZQ0KYnkgZXh0
-ZXJuYWwgc2NyaXB0cyB0aGF0IGhhdmUgbm8gYWNjZXNzIHRvIHRoaXMgZmxhZy4gVG9vbHMgbGlr
-ZSBibGt6b25lLA0KbGliemJjIG9yIG52bWUtY2xpIGFyZSB0eXBpY2FsbHkgdXNlZCB0byBwcmVj
-b25kaXRpb24gem9uZXMgYmVmb3JlDQp0ZXN0aW5nIGFuZCB0byBhbmFseXplIHpvbmUgc3RhdGUg
-YWZ0ZXIgdGVzdCBydW5zLg0KDQo+IA0KPiBDYW4ndCBkaXN0aW5ndWlzaCB0aGVzZSB0d28gY2Fz
-ZXMgZnJvbSB3cml0ZSBwb2ludGVycyBhbG9uZS4NCj4gDQo+IEdpdmVuIHRoYXQgcHJlY29uZGl0
-aW9uIGFuZCByZWFsIHdvcmtsb2FkIGNhbiBiZSBpbiBkaWZmZXJlbnQgZmlvDQo+IGluc3RhbmNl
-cywgdGhpcyBpbmZvcm1hdGlvbiBtdXN0IGJlIHNvbWVob3cgZ2l2ZW4gdG8gZmlvIHByb2Nlc3MN
-Cj4gYW5kIGVpdGhlciBmb3JjZSBvciBub3QgZm9yY2Ugem9uZSByZXNldCAoY29uZmlnIG9wdGlv
-biBvYnZpb3VzbHkpDQoNClRoZSBmdW5jdGlvbmFsaXR5IHlvdSBhcmUgZGVzY3JpYmluZyBpbiBu
-b3QgYSBwYXJ0IG9mIHRoZSBjdXJyZW50IGZpbyBjb2RlLg0KUGVyaGFwcyB5b3UgYXJlIHRhbGtp
-bmcgYWJvdXQgc29tZSBwcm9wcmlldGFyeSBjb2RlIGFkZGl0aW9ucyB0aGF0IHlvdQ0KYXJlIGRl
-dmVsb3BpbmcuIFBsZWFzZSBzdWJtaXQgYSBwYXRjaCB0aGF0IHdpbGwgaW1wbGVtZW50IHdoYXQg
-eW91IGFyZQ0KdGFsa2luZyBhYm91dCBhbmQgaWYgaXQgaGFzIG1lcml0IHlvdSB3aWxsIGhhdmUg
-YSBzb2xpZCBjYXNlIHRvIHJlaW50cm9kdWNlDQp0aGlzIGZsYWcuDQoNCkZvciBub3csIGhhdmlu
-ZyB0aGlzIGZsYWcgb25seSBtYWtlcyB0aGUgY29kZSBsZXNzIHN0cmFpZ2h0Zm9yd2FyZC4NCg0K
-PiANCj4gPiBAQCAtNDEsNyArNDAsNiBAQCBzdHJ1Y3QgZmlvX3pvbmVfaW5mbyB7DQo+ID4gIAll
-bnVtIHpiZF96b25lX3R5cGUJdHlwZToyOw0KPiA+ICAJZW51bSB6YmRfem9uZV9jb25kCWNvbmQ6
-NDsNCj4gPiAgCXVuc2lnbmVkIGludAkJb3BlbjoxOw0KPiA+IC0JdW5zaWduZWQgaW50CQlyZXNl
-dF96b25lOjE7DQo+IA0KPiBEb2VzIGl0IHNhdmUgc3BhY2U/IEJpdGZpZWxkcyBzdGljayB0b2dl
-dGhlciBhZnRlciBhbGwuDQoNCkl0IHNhdmVzIHJvb20gZm9yIG90aGVyIHN0dWZmIHRoYXQgaXMg
-Z29pbmcgYmUgYWRkZWQgdG8gdGhpcyBzdHJ1Y3QgaW4gdGhlDQpmdXR1cmUuIFNvbWUgbmV3IG1l
-bWJlcnMgd2lsbCBsaWtlbHkgYmUgYWRkZWQgdGhlcmUgdG8gc3VwcG9ydCB6b25lDQphcHBlbmQg
-YW5kIHRoZXJlIGlzIHNvbWUgb3RoZXIgZGV2ZWxvcG1lbnQgaW4gdGhlIHdvcmtzIHRoYXQgd2ls
-bCBsaWtlbHkNCmFkZCBtb3JlIGJpdHMgdGhlcmUuIEtlZXAgaW4gbWluZCB0aGF0IHRoZSBudW1i
-ZXIgb2Ygem9uZXMgb24gYSAyMFRCDQpESFNNUiBkcml2ZSBtYXkgZXhjZWVkIDEzMEsgYW5kIHRo
-ZXNlIG51bWJlcnMgd2lsbCBvbmx5IGdyb3cNCm92ZXIgdGltZS4gRXZlcnkgYml0IGNvdW50cyBp
-biB0aGlzIHN0cnVjdHVyZSA6KQ0K
+> The reset_zone flag that is defined in fio_zone_info structure is
+> only referenced in zbd_adjust_block() function. Convert this flag
+> to a local variable and save some room in zbd_info array which can
+> be pretty large when running fio against high capacity zoned devices.
+
+This flag should be kept.
+
+Test can crash or be interrupted leaving hw in indeterminate state,
+it must be restarted from clean state. Or test can be precondition and
+zone should not be reset.
+
+Can't distinguish these two cases from write pointers alone.
+
+Given that precondition and real workload can be in different fio
+instances, this information must be somehow given to fio process
+and either force or not force zone reset (config option obviously)
+
+> @@ -41,7 +40,6 @@ struct fio_zone_info {
+>  	enum zbd_zone_type	type:2;
+>  	enum zbd_zone_cond	cond:4;
+>  	unsigned int		open:1;
+> -	unsigned int		reset_zone:1;
+
+Does it save space? Bitfields stick together after all.
 
