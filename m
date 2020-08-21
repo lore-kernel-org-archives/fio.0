@@ -1,70 +1,81 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa5.hgst.iphmx.com ([216.71.153.144]:22092 "EHLO
-        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727877AbgH0TSM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 27 Aug 2020 15:18:12 -0400
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: RE: [PATCH] zbd: remove reset_zone flag from fio_zone_info
-Date: Thu, 27 Aug 2020 19:18:07 +0000
-Message-ID: <MN2PR04MB5951A6A974917E280DF3E262E1550@MN2PR04MB5951.namprd04.prod.outlook.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40570 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728860AbgHURHL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 21 Aug 2020 13:07:11 -0400
+Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C372C061573
+        for <fio@vger.kernel.org>; Fri, 21 Aug 2020 10:07:11 -0700 (PDT)
+Received: by mail-ed1-x542.google.com with SMTP id ba10so2042037edb.3
+        for <fio@vger.kernel.org>; Fri, 21 Aug 2020 10:07:11 -0700 (PDT)
+Date: Fri, 21 Aug 2020 20:07:07 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH] zbd: remove reset_zone flag from fio_zone_info
+Message-ID: <20200821170707.GA1443825@localhost.localdomain>
 References: <20200819125609.GA278226@localhost.localdomain>
  <MN2PR04MB5951788306F08D671035B797E15D0@MN2PR04MB5951.namprd04.prod.outlook.com>
- <20200821170707.GA1443825@localhost.localdomain>
-In-Reply-To: <20200821170707.GA1443825@localhost.localdomain>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <MN2PR04MB5951788306F08D671035B797E15D0@MN2PR04MB5951.namprd04.prod.outlook.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Alexey Dobriyan <adobriyan@gmail.com>
+To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogQWxleGV5IERvYnJpeWFu
-IDxhZG9icml5YW5AZ21haWwuY29tPg0KPiBTZW50OiBGcmlkYXksIEF1Z3VzdCAyMSwgMjAyMCAx
-OjA3IFBNDQo+IFRvOiBEbWl0cnkgRm9taWNoZXYgPERtaXRyeS5Gb21pY2hldkB3ZGMuY29tPg0K
-PiBDYzogZmlvQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENIXSB6YmQ6IHJl
-bW92ZSByZXNldF96b25lIGZsYWcgZnJvbSBmaW9fem9uZV9pbmZvDQo+IA0KPiBPbiBXZWQsIEF1
-ZyAxOSwgMjAyMCBhdCAwNzozNTowM1BNICswMDAwLCBEbWl0cnkgRm9taWNoZXYgd3JvdGU6DQo+
-ID4NCj4gPg0KPiA+ID4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gPiA+IEZyb206IEFs
-ZXhleSBEb2JyaXlhbiA8YWRvYnJpeWFuQGdtYWlsLmNvbT4NCj4gPiA+IFNlbnQ6IFdlZG5lc2Rh
-eSwgQXVndXN0IDE5LCAyMDIwIDg6NTYgQU0NCj4gPiA+IFRvOiBEbWl0cnkgRm9taWNoZXYgPERt
-aXRyeS5Gb21pY2hldkB3ZGMuY29tPg0KPiA+ID4gQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmcNCj4g
-PiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0hdIHpiZDogcmVtb3ZlIHJlc2V0X3pvbmUgZmxhZyBmcm9t
-IGZpb196b25lX2luZm8NCj4gPiA+DQo+ID4gPiA+IFRoZSByZXNldF96b25lIGZsYWcgdGhhdCBp
-cyBkZWZpbmVkIGluIGZpb196b25lX2luZm8gc3RydWN0dXJlIGlzDQo+ID4gPiA+IG9ubHkgcmVm
-ZXJlbmNlZCBpbiB6YmRfYWRqdXN0X2Jsb2NrKCkgZnVuY3Rpb24uIENvbnZlcnQgdGhpcyBmbGFn
-DQo+ID4gPiA+IHRvIGEgbG9jYWwgdmFyaWFibGUgYW5kIHNhdmUgc29tZSByb29tIGluIHpiZF9p
-bmZvIGFycmF5IHdoaWNoIGNhbg0KPiA+ID4gPiBiZSBwcmV0dHkgbGFyZ2Ugd2hlbiBydW5uaW5n
-IGZpbyBhZ2FpbnN0IGhpZ2ggY2FwYWNpdHkgem9uZWQgZGV2aWNlcy4NCj4gPiA+DQo+ID4gPiBU
-aGlzIGZsYWcgc2hvdWxkIGJlIGtlcHQuDQo+ID4gPg0KPiA+ID4gVGVzdCBjYW4gY3Jhc2ggb3Ig
-YmUgaW50ZXJydXB0ZWQgbGVhdmluZyBodyBpbiBpbmRldGVybWluYXRlIHN0YXRlLA0KPiA+ID4g
-aXQgbXVzdCBiZSByZXN0YXJ0ZWQgZnJvbSBjbGVhbiBzdGF0ZS4gT3IgdGVzdCBjYW4gYmUgcHJl
-Y29uZGl0aW9uIGFuZA0KPiA+ID4gem9uZSBzaG91bGQgbm90IGJlIHJlc2V0Lg0KPiA+DQo+ID4g
-VGhpcyBpcyBiZXlvbmQgdGhlIHNjb3BlIG9mIGZpby4gQW55IHByZWNvbmRpdGlvbmluZyBvZiB6
-b25lcyBpcyBkb25lDQo+ID4gYnkgZXh0ZXJuYWwgc2NyaXB0cyB0aGF0IGhhdmUgbm8gYWNjZXNz
-IHRvIHRoaXMgZmxhZy4gVG9vbHMgbGlrZSBibGt6b25lLA0KPiA+IGxpYnpiYyBvciBudm1lLWNs
-aSBhcmUgdHlwaWNhbGx5IHVzZWQgdG8gcHJlY29uZGl0aW9uIHpvbmVzIGJlZm9yZQ0KPiA+IHRl
-c3RpbmcgYW5kIHRvIGFuYWx5emUgem9uZSBzdGF0ZSBhZnRlciB0ZXN0IHJ1bnMuDQo+IA0KPiBJ
-ZiBpdCBpcyBhIG1hdHRlciBvZiBwb2xpY3kgdGhhdCBmaW8gZG9lc24ndCBkbyBwcmVjb25kaXRp
-b25pbmcsDQo+IHRoZW4gdGhlIHBhdGNoIGlzIE9LLg0KPiANCj4gV2UgZG8gcHJlY29uZGl0aW9u
-aW5nIGluIGZpbywgaXQgaXMgbmVhdDoNCj4gKiBkb24ndCBuZWVkIGV4dGVybmFsIHByb2dyYW1z
-DQo+ICogZXZlcnl0aGluZyBpbnNpZGUgb25lIGpvYiBmaWxlDQo+ICogbm90IGEgbG90IG9mIGNv
-ZGUgdG8gYWRkDQo+IA0KPiBCdXQgdG8gZG8gdGhpcywgZmxhZyBtdXN0IGxpdmUgaW4gInN0cnVj
-dCBmaW9fem9uZV9pbmZvIi4NCj4gDQo+IAlbenJhXQ0KPiAJem9uZV9yZXNldF9hbGw9MQ0KDQpU
-aGUgd2F5IEkgdW5kZXJzdGFuZCB0aGlzLCB0aGlzIG9wdGlvbiBtYWtlcyBaQkQgY29kZSB0byBz
-ZXQgdGhlIHJlc2V0X3pvbmUNCmZsYWcgZm9yIGFsbCB6b25lcyBkdXJpbmcgaW5pdC4gVGhpcyB3
-aWxsIGZvcmNlIHpvbmUgcmVzZXQgYmVmb3JlIHRoZSBmaXJzdCB3cml0ZQ0KdG8gYSB6b25lLiBU
-aGlzIGluZGVlZCBpcyBhIG5lYXQgaWRlYSBhbmQgdGhpcyBmZWF0dXJlIGxvb2tzIHRvIGJlIHBy
-ZXR0eSANCmxpZ2h0d2VpZ2h0IGFzIHlvdSBzYWlkLg0KDQo+IAl6b25lX2ZpbmlzaF9hbGw9MQ0K
-DQpIb3cgZG9lcyB0aGlzIG9wdGlvbiB3b3JrPyBTZWVtcyBsaWtlIHlvdSBoYXZlIGFkZGVkIGEg
-bmV3DQpmaW5pc2hfem9uZSBmbGFnIGFuZCB5b3UgZmluaXNoIGV2ZXJ5IHpvbmUgZm9yIHdoaWNo
-IHRoZSBmbGFnIGlzIHNldA0KaW5zdGVhZCBvZiBwZXJmb3JtaW5nIHRoZSBmaXJzdCB3cml0ZSB0
-byB0aGUgem9uZS4uLg0KDQo+IAlydz13cml0ZQ0KPiANCj4gCVtwcmVdDQo+IAlzdG9uZXdhbGwN
-Cj4gCXpvbmVfcmVzZXRfYWxsPTANCj4gCXpvbmVfZmluaXNoX2FsbD0wDQo+IAlqb2JfbWF4X29w
-ZW5fem9uZXM9Li4uDQo+IAlydz13cml0ZQ0KPiAJCS4uLg0KPiANCj4gCVtqXQ0KPiAJc3RvbmV3
-YWxsDQo+IAl6b25lX3Jlc2V0X2FsbD0wDQo+IAl6b25lX2ZpbmlzaF9hbGw9MA0KPiAJcnc9cmFu
-ZHJlYWQNCj4gCQkuLi4NCg0KSSBndWVzcyB3ZSBjYW4gaG9sZCBvZmYgd2l0aCByZW1vdmluZyB0
-aGUgcmVzZXRfem9uZSBmbGFnIGlmIHlvdSBhcmUgcGxhbm5pbmcNCnRvIHNlbmQgdGhlIHBhdGNo
-IGZvciB0aGlzLg0KDQpEbWl0cnkNCg0KDQo=
+On Wed, Aug 19, 2020 at 07:35:03PM +0000, Dmitry Fomichev wrote:
+> 
+> 
+> > -----Original Message-----
+> > From: Alexey Dobriyan <adobriyan@gmail.com>
+> > Sent: Wednesday, August 19, 2020 8:56 AM
+> > To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+> > Cc: fio@vger.kernel.org
+> > Subject: Re: [PATCH] zbd: remove reset_zone flag from fio_zone_info
+> > 
+> > > The reset_zone flag that is defined in fio_zone_info structure is
+> > > only referenced in zbd_adjust_block() function. Convert this flag
+> > > to a local variable and save some room in zbd_info array which can
+> > > be pretty large when running fio against high capacity zoned devices.
+> > 
+> > This flag should be kept.
+> > 
+> > Test can crash or be interrupted leaving hw in indeterminate state,
+> > it must be restarted from clean state. Or test can be precondition and
+> > zone should not be reset.
+> 
+> This is beyond the scope of fio. Any preconditioning of zones is done
+> by external scripts that have no access to this flag. Tools like blkzone,
+> libzbc or nvme-cli are typically used to precondition zones before
+> testing and to analyze zone state after test runs.
+
+If it is a matter of policy that fio doesn't do preconditioning,
+then the patch is OK.
+
+We do preconditioning in fio, it is neat:
+* don't need external programs
+* everything inside one job file
+* not a lot of code to add
+
+But to do this, flag must live in "struct fio_zone_info".
+
+	[zra]
+	zone_reset_all=1
+	zone_finish_all=1
+	rw=write
+
+	[pre]
+	stonewall
+	zone_reset_all=0
+	zone_finish_all=0
+	job_max_open_zones=...
+	rw=write
+		...
+
+	[j]
+	stonewall
+	zone_reset_all=0
+	zone_finish_all=0
+	rw=randread
+		...
 
