@@ -1,53 +1,39 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from de-smtp-delivery-102.mimecast.com ([62.140.7.102]:54041 "EHLO
-        de-smtp-delivery-102.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728991AbgH0MYH (ORCPT
-        <rfc822;fio@vger.kernel.org>); Thu, 27 Aug 2020 08:24:07 -0400
-Date: Thu, 27 Aug 2020 14:15:33 +0200
-From: Andreas Herrmann <aherrmann@suse.com>
-Subject: [PATCH 3/3] cgroup: Try to use blkio.bfq.weight if blkio.weight is
- not available
-Message-ID: <20200827121533.GF6041@suselix>
-References: <20200827120722.GC6041@suselix>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200827120722.GC6041@suselix>
+Return-Path: <prvs=49599655b=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 7/7] t/zbd: Remove unnecessary option for zbc_reset_zone
+Date: Fri, 21 Aug 2020 15:37:39 +0900
+Message-Id: <20200821063739.390353-8-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200821063739.390353-1-shinichiro.kawasaki@wdc.com>
+References: <20200821063739.390353-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: Jens Axboe <axboe@fb.com>
-Cc: fio@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-Newer kernels just provide blkio.bfq.weight for blkio contoller. Try
-to use this attribute when legacy file is not available.
+When -all option is specified, zbc_reset_zone command does not take
+offset option. Remove it.
 
-Signed-off-by: Andreas Herrmann <aherrmann@suse.com>
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Reviewed-by: Dmitry Fomichev: <dmitry.fomichev@wdc.com>
 ---
- cgroup.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ t/zbd/functions | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/cgroup.c b/cgroup.c
-index 43513733..6edb5b14 100644
---- a/cgroup.c
-+++ b/cgroup.c
-@@ -218,8 +218,14 @@ int cgroup_setup(struct thread_data *td, struct flist_head *clist, struct cgroup
- 		}
- 		if (write_int_to_file(td, root, "blkio.weight",
- 					td->o.cgroup_weight,
--					"cgroup open weight"))
--			goto err;
-+					"cgroup open blkio.weight")) {
-+			td_clear_error(td);
-+			log_err("Trying to use blkio.bfq.weight\n");
-+			if (write_int_to_file(td, root, "blkio.bfq.weight",
-+						td->o.cgroup_weight,
-+						"cgroup open blkio.bfq.weight"))
-+				goto err;
-+		}
- 	}
- 
- 	if (!cgroup_write_pid(td, root, (*mnt)->cgroup2)) {
+diff --git a/t/zbd/functions b/t/zbd/functions
+index 81b6f3f7..1a64a215 100644
+--- a/t/zbd/functions
++++ b/t/zbd/functions
+@@ -185,7 +185,7 @@ reset_zone() {
+ 	fi
+     else
+ 	if [ "$offset" -lt 0 ]; then
+-	    ${zbc_reset_zone} -all "$dev" "${offset}" >/dev/null
++	    ${zbc_reset_zone} -all "$dev" >/dev/null
+ 	else
+ 	    ${zbc_reset_zone} -sector "$dev" "${offset}" >/dev/null
+ 	fi
 -- 
-2.28.0
+2.26.2
 
 
