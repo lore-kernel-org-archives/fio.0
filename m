@@ -1,15 +1,20 @@
-Return-Path: <prvs=487b39e6c=shinichiro.kawasaki@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa6.hgst.iphmx.com ([216.71.154.45]:48369 "EHLO
+        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726057AbgHUGhn (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 21 Aug 2020 02:37:43 -0400
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 1/6] zbd: Decrement open zones count at write command completion
-Date: Thu, 13 Aug 2020 13:57:19 +0900
-Message-Id: <20200813045724.47475-2-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200813045724.47475-1-shinichiro.kawasaki@wdc.com>
-References: <20200813045724.47475-1-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 1/7] zbd: Decrement open zones count at write command completion
+Date: Fri, 21 Aug 2020 15:37:33 +0900
+Message-Id: <20200821063739.390353-2-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20200821063739.390353-1-shinichiro.kawasaki@wdc.com>
+References: <20200821063739.390353-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
 
 When max_open_zones or job_max_open_zones option is provided, fio counts
 number of open zones. This open zone accounting is done during submission
@@ -52,9 +57,9 @@ Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
  io_u.c      |  4 +--
  io_u.h      |  5 +--
  ioengines.c |  4 +--
- zbd.c       | 92 +++++++++++++++++++++++++++++++++++++++++------------
- zbd.h       |  9 +++---
- 5 files changed, 84 insertions(+), 30 deletions(-)
+ zbd.c       | 94 +++++++++++++++++++++++++++++++++++++++++------------
+ zbd.h       |  9 ++---
+ 5 files changed, 86 insertions(+), 30 deletions(-)
 
 diff --git a/io_u.c b/io_u.c
 index 2ef5acec..62bfec47 100644
@@ -122,10 +127,10 @@ index 1c5970a4..476df58d 100644
  
  	if (ret == FIO_Q_COMPLETED) {
 diff --git a/zbd.c b/zbd.c
-index e4a480b7..20f64b58 100644
+index 5af8af4a..82d9af62 100644
 --- a/zbd.c
 +++ b/zbd.c
-@@ -721,12 +721,18 @@ static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
+@@ -722,12 +722,21 @@ static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
  
  /* The caller must hold f->zbd_info->mutex */
  static void zbd_close_zone(struct thread_data *td, const struct fio_file *f,
@@ -134,21 +139,24 @@ index e4a480b7..20f64b58 100644
  {
 -	uint32_t zone_idx;
 +	uint32_t open_zone_idx = 0;
-+
+ 
+-	assert(open_zone_idx < f->zbd_info->num_open_zones);
+-	zone_idx = f->zbd_info->open_zones[open_zone_idx];
 +	for (; open_zone_idx < f->zbd_info->num_open_zones; open_zone_idx++) {
 +		if (f->zbd_info->open_zones[open_zone_idx] == zone_idx)
 +			break;
 +	}
-+	if (open_zone_idx == f->zbd_info->num_open_zones)
++	if (open_zone_idx == f->zbd_info->num_open_zones) {
++		dprint(FD_ZBD, "%s: zone %d is not open\n",
++		       f->file_name, zone_idx);
 +		return;
- 
--	assert(open_zone_idx < f->zbd_info->num_open_zones);
--	zone_idx = f->zbd_info->open_zones[open_zone_idx];
++	}
++
 +	dprint(FD_ZBD, "%s: closing zone %d\n", f->file_name, zone_idx);
  	memmove(f->zbd_info->open_zones + open_zone_idx,
  		f->zbd_info->open_zones + open_zone_idx + 1,
  		(ZBD_MAX_OPEN_ZONES - (open_zone_idx + 1)) *
-@@ -765,13 +771,8 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
+@@ -766,13 +775,8 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
  			continue;
  		zone_lock(td, f, z);
  		if (all_zones) {
@@ -163,7 +171,7 @@ index e4a480b7..20f64b58 100644
  			pthread_mutex_unlock(&f->zbd_info->mutex);
  
  			reset_wp = z->wp != z->start;
-@@ -952,8 +953,15 @@ static bool zbd_open_zone(struct thread_data *td, const struct io_u *io_u,
+@@ -952,8 +956,15 @@ static bool zbd_open_zone(struct thread_data *td, const struct io_u *io_u,
  		return false;
  
  	pthread_mutex_lock(&f->zbd_info->mutex);
@@ -180,7 +188,7 @@ index e4a480b7..20f64b58 100644
  	res = false;
  	/* Zero means no limit */
  	if (td->o.job_max_open_zones > 0 &&
-@@ -995,6 +1003,7 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+@@ -995,6 +1006,7 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
  	unsigned int open_zone_idx = -1;
  	uint32_t zone_idx, new_zone_idx;
  	int i;
@@ -188,7 +196,7 @@ index e4a480b7..20f64b58 100644
  
  	assert(is_valid_offset(f, io_u->offset));
  
-@@ -1030,11 +1039,9 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+@@ -1030,11 +1042,9 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
  		if (td->o.max_open_zones == 0 && td->o.job_max_open_zones == 0)
  			goto examine_zone;
  		if (f->zbd_info->num_open_zones == 0) {
@@ -201,7 +209,7 @@ index e4a480b7..20f64b58 100644
  		}
  
  		/*
-@@ -1081,14 +1088,30 @@ examine_zone:
+@@ -1081,14 +1091,30 @@ examine_zone:
  		pthread_mutex_unlock(&f->zbd_info->mutex);
  		goto out;
  	}
@@ -236,7 +244,7 @@ index e4a480b7..20f64b58 100644
  	/* Zone 'z' is full, so try to open a new zone. */
  	for (i = f->io_size / f->zbd_info->zone_size; i > 0; i--) {
  		zone_idx++;
-@@ -1203,6 +1226,29 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
+@@ -1203,6 +1229,28 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
  	return NULL;
  }
  
@@ -244,18 +252,17 @@ index e4a480b7..20f64b58 100644
 + * zbd_end_zone_io - update zone status at command completion
 + * @io_u: I/O unit
 + * @z: zone info pointer
-+ * @success: Whether or not the I/O unit has been queued successfully
 + *
 + * If the write command made the zone full, close it.
 + *
 + * The caller must hold z->mutex.
 + */
 +static void zbd_end_zone_io(struct thread_data *td, const struct io_u *io_u,
-+			    struct fio_zone_info *z, bool success)
++			    struct fio_zone_info *z)
 +{
 +	const struct fio_file *f = io_u->file;
 +
-+	if (io_u->ddir == DDIR_WRITE && success &&
++	if (io_u->ddir == DDIR_WRITE &&
 +	    io_u->offset + io_u->buflen >= zbd_zone_capacity_end(z)) {
 +		pthread_mutex_lock(&f->zbd_info->mutex);
 +		zbd_close_zone(td, f, z - f->zbd_info->zone_info);
@@ -266,7 +273,7 @@ index e4a480b7..20f64b58 100644
  /**
   * zbd_queue_io - update the write pointer of a sequential zone
   * @io_u: I/O unit
-@@ -1212,7 +1258,8 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
+@@ -1212,7 +1260,8 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
   * For write and trim operations, update the write pointer of the I/O unit
   * target zone.
   */
@@ -276,17 +283,17 @@ index e4a480b7..20f64b58 100644
  {
  	const struct fio_file *f = io_u->file;
  	struct zoned_block_device_info *zbd_info = f->zbd_info;
-@@ -1258,6 +1305,9 @@ static void zbd_queue_io(struct io_u *io_u, int q, bool success)
+@@ -1258,6 +1307,9 @@ static void zbd_queue_io(struct io_u *io_u, int q, bool success)
  		break;
  	}
  
-+	if (q == FIO_Q_COMPLETED)
-+		zbd_end_zone_io(td, io_u, z, !io_u->error);
++	if (q == FIO_Q_COMPLETED && !io_u->error)
++		zbd_end_zone_io(td, io_u, z);
 +
  unlock:
  	if (!success || q != FIO_Q_QUEUED) {
  		/* BUSY or COMPLETED: unlock the zone */
-@@ -1270,7 +1320,7 @@ unlock:
+@@ -1270,7 +1322,7 @@ unlock:
   * zbd_put_io - Unlock an I/O unit target zone lock
   * @io_u: I/O unit
   */
@@ -295,11 +302,11 @@ index e4a480b7..20f64b58 100644
  {
  	const struct fio_file *f = io_u->file;
  	struct zoned_block_device_info *zbd_info = f->zbd_info;
-@@ -1292,6 +1342,8 @@ static void zbd_put_io(const struct io_u *io_u)
+@@ -1292,6 +1344,8 @@ static void zbd_put_io(const struct io_u *io_u)
  	       "%s: terminate I/O (%lld, %llu) for zone %u\n",
  	       f->file_name, io_u->offset, io_u->buflen, zone_idx);
  
-+	zbd_end_zone_io(td, io_u, z, true);
++	zbd_end_zone_io(td, io_u, z);
 +
  	ret = pthread_mutex_unlock(&z->mutex);
  	assert(ret == 0);
