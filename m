@@ -1,308 +1,212 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa6.hgst.iphmx.com ([216.71.154.45]:48370 "EHLO
-        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726181AbgHUGhv (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 21 Aug 2020 02:37:51 -0400
+Return-Path: <prvs=49599655b=shinichiro.kawasaki@wdc.com>
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 6/7] t/zbd: Reset all zones before test when max open zones is specified
-Date: Fri, 21 Aug 2020 15:37:38 +0900
-Message-Id: <20200821063739.390353-7-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 5/7] t/zbd: Add -o option to t/zbd/test-zoned-support
+Date: Fri, 21 Aug 2020 15:37:37 +0900
+Message-Id: <20200821063739.390353-6-shinichiro.kawasaki@wdc.com>
 In-Reply-To: <20200821063739.390353-1-shinichiro.kawasaki@wdc.com>
 References: <20200821063739.390353-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-When the test target device has maximum open zones limit, the zones in
-test target region may not be opened up to the limit, because the zones
-out of the test target region may have open zones. To ensure that the
-test target zones can be opened up to the limit, reset all zones of the
-test target device before the test cases with write work load starts.
-Introduce the helper function prep_write() to check if all zone reset is
-required and do the reset.
+To specify maximum open zones of the test target device, add -o option
+to t/zbd/test-zoned-support. When this option is specified, add
+max_open_zones option to all fio commands in the test script. The option
+ensures the number of zones opened by fio is within the limit. This is
+useful when the test target device has maximum open zones limit.
 
-Also remove unnecessary reset_zone calls for test case #29 and #48. These
-are no longer required by virtue of the improvement in zbd_setup_files()
-to set up zones to meet max_open_zones limit.
+When the fio command does not have multiple jobs and the test case does
+not specify max_open_zones, add single max_open_zones option to the fio
+command line.
+
+When the fio command takes multiple jobs, add max_open_zones option to
+each job. Introduce job_var_opts variable to keep options to be added to
+each job. To distinguish it from global options for all jobs, rename
+var_opts variable to global_var_opts. When a test case with multiple jobs
+always specifies max_open_zones option, exclude the max_open_zones option
+from job_var_opts, using job_var_opts_exclude() helper function.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- t/zbd/test-zbd-support | 42 ++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 40 insertions(+), 2 deletions(-)
+ t/zbd/test-zbd-support | 70 ++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 57 insertions(+), 13 deletions(-)
 
 diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index c21d6aad..248423bb 100755
+index 9e398cab..c21d6aad 100755
 --- a/t/zbd/test-zbd-support
 +++ b/t/zbd/test-zbd-support
-@@ -181,6 +181,15 @@ run_fio_on_seq() {
-     run_one_fio_job "${opts[@]}" "$@"
+@@ -12,6 +12,7 @@ usage() {
+ 	echo -e "\t-v Run fio with valgrind --read-var-info option"
+ 	echo -e "\t-l Test with libzbc ioengine"
+ 	echo -e "\t-r Reset all zones before test start"
++	echo -e "\t-o <max_open_zones> Run fio with max_open_zones limit"
+ 	echo -e "\t-t <test #> Run only a single test case with specified number"
+ 	echo -e "\t-z Run fio with debug=zbd option"
+ }
+@@ -103,14 +104,41 @@ is_scsi_device() {
+     return 1
  }
  
-+# Prepare for write test by resetting zones. When max_open_zones option is
-+# specified, reset all zones of the test target to ensure that zones out of the
-+# test target range do not have open zones. This allows the write test to the
-+# target range to be able to open zones up to max_open_zones.
-+prep_write() {
-+	[[ -n "${max_open_zones_opt}" && -n "${is_zbd}" ]] &&
-+		reset_zone "${dev}" -1
++job_var_opts_exclude() {
++	local o
++	local ex_key="${1}"
++
++	for o in "${job_var_opts[@]}"; do
++		if [[ ${o} =~ "${ex_key}" ]]; then
++			continue
++		fi
++		echo -n "${o}"
++	done
 +}
 +
- # Check whether buffered writes are refused.
- test1() {
-     run_fio --name=job1 --filename="$dev" --rw=write --direct=0 --bs=4K	\
-@@ -252,6 +261,7 @@ test4() {
- test5() {
-     local size off capacity
++has_max_open_zones() {
++	while (($# > 1)); do
++		if [[ ${1} =~ "--max_open_zones" ]]; then
++			return 0
++		fi
++		shift
++	done
++	return 1
++}
++
+ run_fio() {
+     local fio opts
  
-+    prep_write
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 4 $off $dev)
-     size=$((4 * zone_size))
-@@ -267,6 +277,7 @@ test5() {
- test6() {
-     local size off capacity
+     fio=$(dirname "$0")/../../fio
  
-+    prep_write
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 4 $off $dev)
-     size=$((4 * zone_size))
-@@ -285,6 +296,7 @@ test7() {
-     local size=$((zone_size))
-     local off capacity
+-    opts=("--max-jobs=16" "--aux-path=/tmp" "--allow_file_create=0" \
+-	  "--significant_figures=10" "$@")
+-    opts+=(${var_opts[@]})
++    opts=(${global_var_opts[@]})
++    opts+=("--max-jobs=16" "--aux-path=/tmp" "--allow_file_create=0" \
++			   "--significant_figures=10" "$@")
++    # When max_open_zones option is specified to this test script, add
++    # max_open_zones option to fio command unless the test case already add it.
++    if [[ -n ${max_open_zones_opt} ]] && ! has_max_open_zones "${opts[@]}"; then
++	    opts+=("--max_open_zones=${max_open_zones_opt}")
++    fi
+     { echo; echo "fio ${opts[*]}"; echo; } >>"${logfile}.${test_number}"
  
-+    prep_write
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 1 $off $dev)
-     run_fio_on_seq "$(ioengine "libaio")" --iodepth=1 --rw=randwrite	\
-@@ -299,6 +311,7 @@ test7() {
- test8() {
-     local size off capacity
+     "${dynamic_analyzer[@]}" "$fio" "${opts[@]}"
+@@ -128,13 +156,16 @@ write_and_run_one_fio_job() {
+     local r
+     local write_offset="${1}"
+     local write_size="${2}"
++    local -a write_opts
  
-+    prep_write
-     size=$((4 * zone_size))
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 4 $off $dev)
-@@ -319,6 +332,7 @@ test9() {
- 	return 0
-     fi
+     shift 2
+     r=$(((RANDOM << 16) | RANDOM))
+-    run_fio --filename="$dev" --randseed="$r"  --name="write_job" --rw=write \
+-	    "$(ioengine "psync")" --bs="${logical_block_size}" \
+-	    --zonemode=zbd --zonesize="${zone_size}" --thread=1 --direct=1 \
+-	    --offset="${write_offset}" --size="${write_size}" \
++    write_opts=(--name="write_job" --rw=write "$(ioengine "psync")" \
++		      --bs="${logical_block_size}" --zonemode=zbd \
++		      --zonesize="${zone_size}" --thread=1 --direct=1 \
++		      --offset="${write_offset}" --size="${write_size}")
++    write_opts+=("${job_var_opts[@]}")
++    run_fio --filename="$dev" --randseed="$r" "${write_opts[@]}" \
+ 	    --name="$dev" --wait_for="write_job" "$@" --thread=1 --direct=1
+ }
  
-+    prep_write
-     size=$((4 * zone_size))
-     run_fio_on_seq --ioengine=sg					\
- 		   --iodepth=1 --rw=randwrite --bs=16K			\
-@@ -337,6 +351,7 @@ test10() {
- 	return 0
-     fi
- 
-+    prep_write
-     size=$((4 * zone_size))
-     run_fio_on_seq --ioengine=sg 					\
- 		   --iodepth=64 --rw=randwrite --bs=16K			\
-@@ -350,6 +365,7 @@ test10() {
- test11() {
-     local size off capacity
- 
-+    prep_write
-     size=$((4 * zone_size))
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 4 $off $dev)
-@@ -364,6 +380,7 @@ test11() {
- test12() {
-     local size off capacity
- 
-+    prep_write
-     size=$((8 * zone_size))
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 8 $off $dev)
-@@ -378,6 +395,7 @@ test12() {
- test13() {
-     local size off capacity
- 
-+    prep_write
-     size=$((8 * zone_size))
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 8 $off $dev)
-@@ -393,6 +411,7 @@ test13() {
- test14() {
-     local size
- 
-+    prep_write
-     size=$((16 * 2**20)) # 20 MB
-     if [ $size -gt $((first_sequential_zone_sector * 512)) ]; then
- 	echo "$dev does not have enough sequential zones" \
-@@ -417,6 +436,7 @@ test15() {
- 	    reset_zone "$dev" $((first_sequential_zone_sector +
- 				 i*sectors_per_zone))
-     done
-+    prep_write
-     w_off=$(((first_sequential_zone_sector + 2 * sectors_per_zone) * 512))
-     w_size=$((2 * zone_size))
-     w_capacity=$(total_zone_capacity 2 $w_off $dev)
-@@ -441,6 +461,7 @@ test16() {
- 	    reset_zone "$dev" $((first_sequential_zone_sector +
- 				 i*sectors_per_zone))
-     done
-+    prep_write
-     w_off=$(((first_sequential_zone_sector + 2 * sectors_per_zone) * 512))
-     w_size=$((2 * zone_size))
-     w_capacity=$(total_zone_capacity 2 $w_off $dev)
-@@ -463,6 +484,7 @@ test17() {
-     if [ -n "$is_zbd" ]; then
- 	reset_zone "$dev" $((off / 512)) || return $?
-     fi
-+    prep_write
-     run_one_fio_job "$(ioengine "libaio")" --iodepth=8 --rw=randrw --bs=4K \
- 		    --zonemode=zbd --zonesize="${zone_size}"		\
- 		    --offset=$off --loops=2 --norandommap=1\
-@@ -516,6 +538,7 @@ test24() {
-     local bs loops=9 size=$((zone_size))
-     local off capacity
- 
-+    prep_write
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 1 $off $dev)
- 
-@@ -538,6 +561,7 @@ test25() {
-         [ -n "$is_zbd" ] &&
- 	    reset_zone "$dev" $((first_sequential_zone_sector + i*sectors_per_zone))
-     done
-+    prep_write
-     for ((i=0;i<16;i++)); do
- 	opts+=("--name=job$i" "--filename=$dev" "--thread=1" "--direct=1")
+@@ -512,7 +543,7 @@ test25() {
  	opts+=("--offset=$((first_sequential_zone_sector*512 + zone_size*i))")
-@@ -552,6 +576,7 @@ write_to_first_seq_zone() {
-     local loops=4 r
-     local off capacity
+ 	opts+=("--size=$zone_size" "$(ioengine "psync")" "--rw=write" "--bs=16K")
+ 	opts+=("--zonemode=zbd" "--zonesize=${zone_size}" "--group_reporting=1")
+-	opts+=(${var_opts[@]})
++	opts+=(${job_var_opts[@]})
+     done
+     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
+ }
+@@ -557,7 +588,7 @@ test28() {
+ 	opts+=("--size=$zone_size" "--io_size=$capacity" "$(ioengine "psync")" "--rw=randwrite")
+ 	opts+=("--thread=1" "--direct=1" "--zonemode=zbd")
+ 	opts+=("--zonesize=${zone_size}" "--group_reporting=1")
+-	opts+=(${var_opts[@]})
++	opts+=(${job_var_opts[@]})
+     done
+     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
+     check_written $((jobs * $capacity)) || return $?
+@@ -581,7 +612,8 @@ test29() {
+ 	opts+=("$(ioengine "psync")" "--rw=randwrite" "--direct=1")
+ 	opts+=("--max_open_zones=4" "--group_reporting=1")
+ 	opts+=("--zonemode=zbd" "--zonesize=${zone_size}")
+-	opts+=(${var_opts[@]})
++	# max_open_zones is already specified
++	opts+=($(job_var_opts_exclude "--max_open_zones"))
+     done
+     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
+     check_written $((jobs * zone_size)) || return $?
+@@ -617,7 +649,7 @@ test31() {
+ 	opts+=("--bs=$bs" "--size=$zone_size" "$(ioengine "libaio")")
+ 	opts+=("--rw=write" "--direct=1" "--thread=1" "--stats=0")
+ 	opts+=("--zonemode=zbd" "--zonesize=${zone_size}")
+-	opts+=(${var_opts[@]})
++	opts+=(${job_var_opts[@]})
+     done
+     "$(dirname "$0")/../../fio" "${opts[@]}" >> "${logfile}.${test_number}" 2>&1
+     # Next, run the test.
+@@ -627,6 +659,7 @@ test31() {
+     opts+=("--bs=$bs" "$(ioengine "psync")" "--rw=randread" "--direct=1")
+     opts+=("--thread=1" "--time_based" "--runtime=30" "--zonemode=zbd")
+     opts+=("--zonesize=${zone_size}")
++    opts+=(${job_var_opts[@]})
+     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
+ }
  
-+    prep_write
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 1 $off $dev)
- 
-@@ -581,6 +606,7 @@ test28() {
- 
-     off=$((first_sequential_zone_sector * 512 + 64 * zone_size))
-     [ -n "$is_zbd" ] && reset_zone "$dev" $((off / 512))
-+    prep_write
-     opts=("--debug=zbd")
-     capacity=$(total_zone_capacity 1 $off $dev)
-     for ((i=0;i<jobs;i++)); do
-@@ -604,7 +630,7 @@ test29() {
- 
-     off=$((first_sequential_zone_sector * 512 + 64 * zone_size))
-     size=$((16*zone_size))
--    [ -n "$is_zbd" ] && reset_zone "$dev" $((off / 512))
-+    prep_write
-     opts=("--debug=zbd")
-     for ((i=0;i<jobs;i++)); do
+@@ -843,6 +876,8 @@ test48() {
  	opts+=("--name=job$i" "--filename=$dev" "--offset=$off" "--bs=16K")
-@@ -623,6 +649,7 @@ test29() {
- test30() {
-     local off
+ 	opts+=("--io_size=$zone_size" "--iodepth=256" "--thread=1")
+ 	opts+=("--group_reporting=1")
++	# max_open_zones is already specified
++	opts+=($(job_var_opts_exclude "--max_open_zones"))
+     done
  
-+    prep_write
-     off=$((first_sequential_zone_sector * 512))
-     run_one_fio_job "$(ioengine "libaio")" --iodepth=8 --rw=randrw	\
- 		    --bs="$(max $((zone_size / 128)) "$logical_block_size")"\
-@@ -636,6 +663,7 @@ test30() {
- test31() {
-     local bs inc nz off opts size
+     fio=$(dirname "$0")/../../fio
+@@ -880,6 +915,7 @@ dynamic_analyzer=()
+ reset_all_zones=
+ use_libzbc=
+ zbd_debug=
++max_open_zones_opt=
  
-+    prep_write
-     # Start with writing 128 KB to 128 sequential zones.
-     bs=128K
-     nz=128
-@@ -668,6 +696,7 @@ test31() {
- test32() {
-     local off opts=() size
+ while [ "${1#-}" != "$1" ]; do
+   case "$1" in
+@@ -891,6 +927,7 @@ while [ "${1#-}" != "$1" ]; do
+     -l) use_libzbc=1; shift;;
+     -r) reset_all_zones=1; shift;;
+     -t) tests+=("$2"); shift; shift;;
++    -o) max_open_zones_opt="${2}"; shift; shift;;
+     -v) dynamic_analyzer=(valgrind "--read-var-info=yes");
+ 	shift;;
+     -z) zbd_debug=1; shift;;
+@@ -906,9 +943,10 @@ fi
+ # shellcheck source=functions
+ source "$(dirname "$0")/functions" || exit $?
  
-+    prep_write
-     off=$((first_sequential_zone_sector * 512))
-     size=$((disk_size - off))
-     opts+=("--name=$dev" "--filename=$dev" "--offset=$off" "--size=$size")
-@@ -684,6 +713,7 @@ test33() {
-     local bs io_size size
-     local off capacity=0;
+-var_opts=()
++global_var_opts=()
++job_var_opts=()
+ if [ -n "$zbd_debug" ]; then
+-    var_opts+=("--debug=zbd")
++    global_var_opts+=("--debug=zbd")
+ fi
+ dev=$1
+ realdev=$(readlink -f "$dev")
+@@ -994,6 +1032,12 @@ elif [[ -c "$realdev" ]]; then
+ 	fi
+ fi
  
-+    prep_write
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 1 $off $dev)
-     size=$((2 * zone_size))
-@@ -700,6 +730,7 @@ test33() {
- test34() {
-     local size
++if [[ -n ${max_open_zones_opt} ]]; then
++	# Override max_open_zones with the script option value
++	max_open_zones="${max_open_zones_opt}"
++	job_var_opts+=("--max_open_zones=${max_open_zones_opt}")
++fi
++
+ echo -n "First sequential zone starts at sector $first_sequential_zone_sector;"
+ echo " zone size: $((zone_size >> 20)) MB"
  
-+    prep_write
-     size=$((2 * zone_size))
-     run_fio_on_seq "$(ioengine "psync")" --iodepth=1 --rw=write --size=$size \
- 		   --do_verify=1 --verify=md5 --bs=$((3 * zone_size / 4)) \
-@@ -711,6 +742,7 @@ test34() {
- test35() {
-     local bs off io_size size
- 
-+    prep_write
-     off=$(((first_sequential_zone_sector + 1) * 512))
-     size=$((zone_size - 2 * 512))
-     bs=$((zone_size / 4))
-@@ -725,6 +757,7 @@ test35() {
- test36() {
-     local bs off io_size size
- 
-+    prep_write
-     off=$(((first_sequential_zone_sector) * 512))
-     size=$((zone_size - 512))
-     bs=$((zone_size / 4))
-@@ -739,6 +772,7 @@ test36() {
- test37() {
-     local bs off size capacity
- 
-+    prep_write
-     capacity=$(total_zone_capacity 1 $first_sequential_zone_sector $dev)
-     if [ "$first_sequential_zone_sector" = 0 ]; then
- 	off=0
-@@ -758,6 +792,7 @@ test37() {
- test38() {
-     local bs off size
- 
-+    prep_write
-     size=$((logical_block_size))
-     off=$((disk_size - logical_block_size))
-     bs=$((logical_block_size))
-@@ -828,6 +863,7 @@ test45() {
-     local bs i
- 
-     [ -z "$is_zbd" ] && return 0
-+    prep_write
-     bs=$((logical_block_size))
-     run_one_fio_job "$(ioengine "psync")" --iodepth=1 --rw=randwrite --bs=$bs\
- 		    --offset=$((first_sequential_zone_sector * 512)) \
-@@ -840,6 +876,7 @@ test45() {
- test46() {
-     local size
- 
-+    prep_write
-     size=$((4 * zone_size))
-     run_fio_on_seq "$(ioengine "libaio")" --iodepth=64 --rw=randwrite --bs=4K \
- 		   --group_reporting=1 --numjobs=8 \
-@@ -851,6 +888,7 @@ test46() {
- test47() {
-     local bs
- 
-+    prep_write
-     bs=$((logical_block_size))
-     run_fio_on_seq "$(ioengine "psync")" --rw=write --bs=$bs --zoneskip=1 \
- 		    >> "${logfile}.${test_number}" 2>&1 && return 1
-@@ -865,7 +903,7 @@ test48() {
- 
-     off=$((first_sequential_zone_sector * 512 + 64 * zone_size))
-     size=$((16*zone_size))
--    [ -n "$is_zbd" ] && reset_zone "$dev" $((off / 512))
-+    prep_write
-     opts=("--aux-path=/tmp" "--allow_file_create=0" "--significant_figures=10")
-     opts+=("--debug=zbd")
-     opts+=("$(ioengine "libaio")" "--rw=randwrite" "--direct=1")
 -- 
 2.26.2
 
