@@ -1,25 +1,49 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH] Add fill_quota option
-References: <20200811194445.GA152146@dione.lan>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <d3b41f1b-5bd7-a9f2-5511-7a6062aaa5bf@kernel.dk>
-Date: Fri, 28 Aug 2020 17:53:34 -0600
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60380 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726747AbgHUWQL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 21 Aug 2020 18:16:11 -0400
+Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A522C061573
+        for <fio@vger.kernel.org>; Fri, 21 Aug 2020 15:16:11 -0700 (PDT)
+Received: by mail-wm1-x344.google.com with SMTP id t14so3186404wmi.3
+        for <fio@vger.kernel.org>; Fri, 21 Aug 2020 15:16:11 -0700 (PDT)
 MIME-Version: 1.0
+References: <20200811194445.GA152146@dione.lan>
 In-Reply-To: <20200811194445.GA152146@dione.lan>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Martin Bukatovic <martin.bukatovic@gmail.com>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Fri, 21 Aug 2020 23:15:44 +0100
+Message-ID: <CALjAwxjOvFN2S0YhQyCkKhXUg3Uym1nPOOaPCLWrsbD3F+5bEQ@mail.gmail.com>
+Subject: Re: [PATCH] Add fill_quota option
+Content-Type: text/plain; charset="UTF-8"
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Martin Bukatovic <martin.bukatovic@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-On 8/11/20 1:44 PM, Martin Bukatovic wrote:
-> Option fill_quota causes fio to write until EDQUOT occurs (assuming rw=write),
-> in the same way as fill_device option makes fio to write until ENOSPC.
+On Tue, 11 Aug 2020 at 20:45, Martin Bukatovic
+<martin.bukatovic@gmail.com> wrote:
+>
+<snip>
+>
+>  #define FIO_TOP_STR_MAX                256
+> @@ -633,6 +635,8 @@ struct thread_options_pack {
+>         uint32_t allow_mounted_write;
+>
+>         uint32_t zone_mode;
+> +
+> +       uint32_t fill_quota;
+>  } __attribute__((packed));
 
-Might be easier and saner to just accept EDQUOT by default, instead of
-adding an option for it?
+If you're changing the wire format you'll have to bump FIO_SERVER_VER
+in server.h;;;
+>
+>  extern void convert_thread_options_to_cpu(struct thread_options *o, struct thread_options_pack *top);
+> --
+> 2.26.2
+
+
 
 -- 
-Jens Axboe
-
+Sitsofe | http://sucs.org/~sits/
 
