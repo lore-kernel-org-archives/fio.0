@@ -1,54 +1,42 @@
-Return-Path: <prvs=478995cc1=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v3 4/4] t/zbd: check log file for failed assertions
-Date: Tue,  4 Aug 2020 10:38:28 +0900
-Message-Id: <20200804013828.1569-5-dmitry.fomichev@wdc.com>
-In-Reply-To: <20200804013828.1569-1-dmitry.fomichev@wdc.com>
-References: <20200804013828.1569-1-dmitry.fomichev@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from de-smtp-delivery-102.mimecast.com ([51.163.158.102]:60132 "EHLO
+        de-smtp-delivery-102.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729004AbgH0MJW (ORCPT
+        <rfc822;fio@vger.kernel.org>); Thu, 27 Aug 2020 08:09:22 -0400
+Date: Thu, 27 Aug 2020 14:08:50 +0200
+From: Andreas Herrmann <aherrmann@suse.com>
+Subject: [PATCH 1/3] cgroup: Fix typo
+Message-ID: <20200827120850.GD6041@suselix>
+References: <20200827120722.GC6041@suselix>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200827120722.GC6041@suselix>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Sitsofe Wheeler <sitsofe@gmail.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Jens Axboe <axboe@fb.com>
+Cc: fio@vger.kernel.org
 
-Currently, a ZBD test can succeed even if an fio assertion is raised
-during its run. Search every ZBD test log file for failed assertions
-and fail the test if any were found.
 
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Andreas Herrmann <aherrmann@suse.com>
 ---
- t/zbd/test-zbd-support | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ cgroup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 471a3487..139495d3 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -77,6 +77,13 @@ check_reset_count() {
-     eval "[ '$reset_count' '$1' '$2' ]"
- }
+diff --git a/cgroup.c b/cgroup.c
+index 77e31a4d..9ee1b8c8 100644
+--- a/cgroup.c
++++ b/cgroup.c
+@@ -191,7 +191,7 @@ int cgroup_setup(struct thread_data *td, struct flist_head *clist, struct cgroup
  
-+# Check log for failed assertions and crashes. Without these checks,
-+# a test can succeed even when these events happen, but it must fail.
-+check_log() {
-+     [ ! -f "${logfile}.${1}" ] && return 0
-+     ! grep -q -e "Assertion " -e "Aborted " "${logfile}.${1}"
-+}
-+
- # Whether or not $1 (/dev/...) is a SCSI device.
- is_scsi_device() {
-     local d f
-@@ -1008,7 +1015,7 @@ trap 'intr=1' SIGINT
- for test_number in "${tests[@]}"; do
-     rm -f "${logfile}.${test_number}"
-     echo -n "Running test $(printf "%02d" $test_number) ... "
--    if eval "test$test_number"; then
-+    if eval "test$test_number" && check_log $test_number; then
- 	status="PASS"
- 	cc_status="${green}${status}${end}"
- 	((passed++))
+ 	if (td->o.cgroup_weight) {
+ 		if ((*mnt)->cgroup2) {
+-			log_err("fio: cgroup weit doesn't work with cgroup2\n");
++			log_err("fio: cgroup weight doesn't work with cgroup2\n");
+ 			goto err;
+ 		}
+ 		if (write_int_to_file(td, root, "blkio.weight",
 -- 
-2.21.0
+2.28.0
 
 
