@@ -1,137 +1,70 @@
-Return-Path: <aherrmann@suse.com>
-Date: Fri, 28 Aug 2020 12:04:35 +0200
-From: Andreas Herrmann <aherrmann@suse.com>
-Subject: [PATCH 1/2] thread_options: Add cgroup_use_bfq
-Message-ID: <20200828100435.GH6041@suselix>
-References: <20200828100230.GG6041@suselix>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200828100230.GG6041@suselix>
-Return-Path: aherrmann@suse.com
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa5.hgst.iphmx.com ([216.71.153.144]:22092 "EHLO
+        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727877AbgH0TSM (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 27 Aug 2020 15:18:12 -0400
+From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+Subject: RE: [PATCH] zbd: remove reset_zone flag from fio_zone_info
+Date: Thu, 27 Aug 2020 19:18:07 +0000
+Message-ID: <MN2PR04MB5951A6A974917E280DF3E262E1550@MN2PR04MB5951.namprd04.prod.outlook.com>
+References: <20200819125609.GA278226@localhost.localdomain>
+ <MN2PR04MB5951788306F08D671035B797E15D0@MN2PR04MB5951.namprd04.prod.outlook.com>
+ <20200821170707.GA1443825@localhost.localdomain>
+In-Reply-To: <20200821170707.GA1443825@localhost.localdomain>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-
-Signed-off-by: Andreas Herrmann <aherrmann@suse.com>
----
- HOWTO            |  6 ++++++
- cconv.c          |  2 ++
- fio.1            |  5 +++++
- options.c        | 11 +++++++++++
- thread_options.h |  7 +++++--
- 5 files changed, 29 insertions(+), 2 deletions(-)
-
-diff --git a/HOWTO b/HOWTO
-index e0403b08..4a16534f 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -2846,6 +2846,12 @@ Threads, processes and job synchronization
- 	job completion, set ``cgroup_nodelete=1``.  This can be useful if one wants
- 	to inspect various cgroup files after job completion. Default: false.
- 
-+.. option:: cgroup_use_bfq=bool
-+
-+	Normally fio will use generic sysfs attributes to set cgroup_weight.
-+	To use attributes specific to BFQ IO scheduler set ``cgroup_use_bfq=1``.
-+	Default: false.
-+
- .. option:: flow_id=int
- 
- 	The ID of the flow. If not specified, it defaults to being a global
-diff --git a/cconv.c b/cconv.c
-index 4b0c3490..3f99e8d7 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -278,6 +278,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
- 	o->continue_on_error = le32_to_cpu(top->continue_on_error);
- 	o->cgroup_weight = le32_to_cpu(top->cgroup_weight);
- 	o->cgroup_nodelete = le32_to_cpu(top->cgroup_nodelete);
-+	o->cgroup_use_bfq = le32_to_cpu(top->cgroup_use_bfq);
- 	o->uid = le32_to_cpu(top->uid);
- 	o->gid = le32_to_cpu(top->gid);
- 	o->flow_id = __le32_to_cpu(top->flow_id);
-@@ -478,6 +479,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	top->continue_on_error = cpu_to_le32(o->continue_on_error);
- 	top->cgroup_weight = cpu_to_le32(o->cgroup_weight);
- 	top->cgroup_nodelete = cpu_to_le32(o->cgroup_nodelete);
-+	top->cgroup_use_bfq = cpu_to_le32(o->cgroup_use_bfq);
- 	top->uid = cpu_to_le32(o->uid);
- 	top->gid = cpu_to_le32(o->gid);
- 	top->flow_id = __cpu_to_le32(o->flow_id);
-diff --git a/fio.1 b/fio.1
-index 1c90e4a5..a0896235 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2544,6 +2544,11 @@ completion. To override this behavior and to leave cgroups around after the
- job completion, set `cgroup_nodelete=1'. This can be useful if one wants
- to inspect various cgroup files after job completion. Default: false.
- .TP
-+.BI cgroup_use_bfq \fR=\fPbool
-+Normally fio will use generic sysfs attributes to set cgroup_weight.
-+To use attributes specific to BFQ IO scheduler set ``cgroup_use_bfq=1``.
-+Default: false.
-+.TP
- .BI flow_id \fR=\fPint
- The ID of the flow. If not specified, it defaults to being a global
- flow. See \fBflow\fR.
-diff --git a/options.c b/options.c
-index 251ad2c1..c84e911a 100644
---- a/options.c
-+++ b/options.c
-@@ -4609,6 +4609,17 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.category = FIO_OPT_C_GENERAL,
- 		.group	= FIO_OPT_G_CGROUP,
- 	},
-+	{
-+		.name	= "cgroup_use_bfq",
-+		.lname	= "Cgroup use-bfq",
-+		.type	= FIO_OPT_BOOL,
-+		.off1	= offsetof(struct thread_options, cgroup_use_bfq),
-+		.help	= "Use cgroup sysfs attributes specific to BFQ",
-+		.def	= "0",
-+		.parent	= "cgroup",
-+		.category = FIO_OPT_C_GENERAL,
-+		.group	= FIO_OPT_G_CGROUP,
-+	},
- 	{
- 		.name	= "uid",
- 		.lname	= "User ID",
-diff --git a/thread_options.h b/thread_options.h
-index 14f1cbe9..0331e881 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -302,11 +302,12 @@ struct thread_options {
- 	char *profile;
- 
- 	/*
--	 * blkio cgroup support
-+	 * (blk)io cgroup support
- 	 */
- 	char *cgroup;
- 	unsigned int cgroup_weight;
- 	unsigned int cgroup_nodelete;
-+	unsigned int cgroup_use_bfq;
- 
- 	unsigned int uid;
- 	unsigned int gid;
-@@ -593,11 +594,13 @@ struct thread_options_pack {
- 	uint8_t profile[FIO_TOP_STR_MAX];
- 
- 	/*
--	 * blkio cgroup support
-+	 * (blk)io cgroup support
- 	 */
- 	uint8_t cgroup[FIO_TOP_STR_MAX];
- 	uint32_t cgroup_weight;
- 	uint32_t cgroup_nodelete;
-+	uint32_t cgroup_use_bfq;
-+	uint32_t padding;       /* remove when possible to maintain alignment */
- 
- 	uint32_t uid;
- 	uint32_t gid;
--- 
-2.28.0
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogQWxleGV5IERvYnJpeWFu
+IDxhZG9icml5YW5AZ21haWwuY29tPg0KPiBTZW50OiBGcmlkYXksIEF1Z3VzdCAyMSwgMjAyMCAx
+OjA3IFBNDQo+IFRvOiBEbWl0cnkgRm9taWNoZXYgPERtaXRyeS5Gb21pY2hldkB3ZGMuY29tPg0K
+PiBDYzogZmlvQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENIXSB6YmQ6IHJl
+bW92ZSByZXNldF96b25lIGZsYWcgZnJvbSBmaW9fem9uZV9pbmZvDQo+IA0KPiBPbiBXZWQsIEF1
+ZyAxOSwgMjAyMCBhdCAwNzozNTowM1BNICswMDAwLCBEbWl0cnkgRm9taWNoZXYgd3JvdGU6DQo+
+ID4NCj4gPg0KPiA+ID4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gPiA+IEZyb206IEFs
+ZXhleSBEb2JyaXlhbiA8YWRvYnJpeWFuQGdtYWlsLmNvbT4NCj4gPiA+IFNlbnQ6IFdlZG5lc2Rh
+eSwgQXVndXN0IDE5LCAyMDIwIDg6NTYgQU0NCj4gPiA+IFRvOiBEbWl0cnkgRm9taWNoZXYgPERt
+aXRyeS5Gb21pY2hldkB3ZGMuY29tPg0KPiA+ID4gQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmcNCj4g
+PiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0hdIHpiZDogcmVtb3ZlIHJlc2V0X3pvbmUgZmxhZyBmcm9t
+IGZpb196b25lX2luZm8NCj4gPiA+DQo+ID4gPiA+IFRoZSByZXNldF96b25lIGZsYWcgdGhhdCBp
+cyBkZWZpbmVkIGluIGZpb196b25lX2luZm8gc3RydWN0dXJlIGlzDQo+ID4gPiA+IG9ubHkgcmVm
+ZXJlbmNlZCBpbiB6YmRfYWRqdXN0X2Jsb2NrKCkgZnVuY3Rpb24uIENvbnZlcnQgdGhpcyBmbGFn
+DQo+ID4gPiA+IHRvIGEgbG9jYWwgdmFyaWFibGUgYW5kIHNhdmUgc29tZSByb29tIGluIHpiZF9p
+bmZvIGFycmF5IHdoaWNoIGNhbg0KPiA+ID4gPiBiZSBwcmV0dHkgbGFyZ2Ugd2hlbiBydW5uaW5n
+IGZpbyBhZ2FpbnN0IGhpZ2ggY2FwYWNpdHkgem9uZWQgZGV2aWNlcy4NCj4gPiA+DQo+ID4gPiBU
+aGlzIGZsYWcgc2hvdWxkIGJlIGtlcHQuDQo+ID4gPg0KPiA+ID4gVGVzdCBjYW4gY3Jhc2ggb3Ig
+YmUgaW50ZXJydXB0ZWQgbGVhdmluZyBodyBpbiBpbmRldGVybWluYXRlIHN0YXRlLA0KPiA+ID4g
+aXQgbXVzdCBiZSByZXN0YXJ0ZWQgZnJvbSBjbGVhbiBzdGF0ZS4gT3IgdGVzdCBjYW4gYmUgcHJl
+Y29uZGl0aW9uIGFuZA0KPiA+ID4gem9uZSBzaG91bGQgbm90IGJlIHJlc2V0Lg0KPiA+DQo+ID4g
+VGhpcyBpcyBiZXlvbmQgdGhlIHNjb3BlIG9mIGZpby4gQW55IHByZWNvbmRpdGlvbmluZyBvZiB6
+b25lcyBpcyBkb25lDQo+ID4gYnkgZXh0ZXJuYWwgc2NyaXB0cyB0aGF0IGhhdmUgbm8gYWNjZXNz
+IHRvIHRoaXMgZmxhZy4gVG9vbHMgbGlrZSBibGt6b25lLA0KPiA+IGxpYnpiYyBvciBudm1lLWNs
+aSBhcmUgdHlwaWNhbGx5IHVzZWQgdG8gcHJlY29uZGl0aW9uIHpvbmVzIGJlZm9yZQ0KPiA+IHRl
+c3RpbmcgYW5kIHRvIGFuYWx5emUgem9uZSBzdGF0ZSBhZnRlciB0ZXN0IHJ1bnMuDQo+IA0KPiBJ
+ZiBpdCBpcyBhIG1hdHRlciBvZiBwb2xpY3kgdGhhdCBmaW8gZG9lc24ndCBkbyBwcmVjb25kaXRp
+b25pbmcsDQo+IHRoZW4gdGhlIHBhdGNoIGlzIE9LLg0KPiANCj4gV2UgZG8gcHJlY29uZGl0aW9u
+aW5nIGluIGZpbywgaXQgaXMgbmVhdDoNCj4gKiBkb24ndCBuZWVkIGV4dGVybmFsIHByb2dyYW1z
+DQo+ICogZXZlcnl0aGluZyBpbnNpZGUgb25lIGpvYiBmaWxlDQo+ICogbm90IGEgbG90IG9mIGNv
+ZGUgdG8gYWRkDQo+IA0KPiBCdXQgdG8gZG8gdGhpcywgZmxhZyBtdXN0IGxpdmUgaW4gInN0cnVj
+dCBmaW9fem9uZV9pbmZvIi4NCj4gDQo+IAlbenJhXQ0KPiAJem9uZV9yZXNldF9hbGw9MQ0KDQpU
+aGUgd2F5IEkgdW5kZXJzdGFuZCB0aGlzLCB0aGlzIG9wdGlvbiBtYWtlcyBaQkQgY29kZSB0byBz
+ZXQgdGhlIHJlc2V0X3pvbmUNCmZsYWcgZm9yIGFsbCB6b25lcyBkdXJpbmcgaW5pdC4gVGhpcyB3
+aWxsIGZvcmNlIHpvbmUgcmVzZXQgYmVmb3JlIHRoZSBmaXJzdCB3cml0ZQ0KdG8gYSB6b25lLiBU
+aGlzIGluZGVlZCBpcyBhIG5lYXQgaWRlYSBhbmQgdGhpcyBmZWF0dXJlIGxvb2tzIHRvIGJlIHBy
+ZXR0eSANCmxpZ2h0d2VpZ2h0IGFzIHlvdSBzYWlkLg0KDQo+IAl6b25lX2ZpbmlzaF9hbGw9MQ0K
+DQpIb3cgZG9lcyB0aGlzIG9wdGlvbiB3b3JrPyBTZWVtcyBsaWtlIHlvdSBoYXZlIGFkZGVkIGEg
+bmV3DQpmaW5pc2hfem9uZSBmbGFnIGFuZCB5b3UgZmluaXNoIGV2ZXJ5IHpvbmUgZm9yIHdoaWNo
+IHRoZSBmbGFnIGlzIHNldA0KaW5zdGVhZCBvZiBwZXJmb3JtaW5nIHRoZSBmaXJzdCB3cml0ZSB0
+byB0aGUgem9uZS4uLg0KDQo+IAlydz13cml0ZQ0KPiANCj4gCVtwcmVdDQo+IAlzdG9uZXdhbGwN
+Cj4gCXpvbmVfcmVzZXRfYWxsPTANCj4gCXpvbmVfZmluaXNoX2FsbD0wDQo+IAlqb2JfbWF4X29w
+ZW5fem9uZXM9Li4uDQo+IAlydz13cml0ZQ0KPiAJCS4uLg0KPiANCj4gCVtqXQ0KPiAJc3RvbmV3
+YWxsDQo+IAl6b25lX3Jlc2V0X2FsbD0wDQo+IAl6b25lX2ZpbmlzaF9hbGw9MA0KPiAJcnc9cmFu
+ZHJlYWQNCj4gCQkuLi4NCg0KSSBndWVzcyB3ZSBjYW4gaG9sZCBvZmYgd2l0aCByZW1vdmluZyB0
+aGUgcmVzZXRfem9uZSBmbGFnIGlmIHlvdSBhcmUgcGxhbm5pbmcNCnRvIHNlbmQgdGhlIHBhdGNo
+IGZvciB0aGlzLg0KDQpEbWl0cnkNCg0KDQo=
 
