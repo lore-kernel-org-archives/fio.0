@@ -1,31 +1,25 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from de-smtp-delivery-102.mimecast.com ([51.163.158.102]:40217 "EHLO
+Received: from de-smtp-delivery-102.mimecast.com ([62.140.7.102]:36032 "EHLO
         de-smtp-delivery-102.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726102AbgHaHeF (ORCPT
-        <rfc822;fio@vger.kernel.org>); Mon, 31 Aug 2020 03:34:05 -0400
-Date: Mon, 31 Aug 2020 09:33:55 +0200
+        by vger.kernel.org with ESMTP id S1728995AbgH0MHk (ORCPT
+        <rfc822;fio@vger.kernel.org>); Thu, 27 Aug 2020 08:07:40 -0400
+Date: Thu, 27 Aug 2020 14:07:22 +0200
 From: Andreas Herrmann <aherrmann@suse.com>
-Subject: Re: [PATCH 0/3] cgroup: Misc fixes
-Message-ID: <20200831073355.GO6041@suselix>
-References: <20200827120722.GC6041@suselix>
+Subject: [PATCH 0/3] cgroup: Misc fixes
+Message-ID: <20200827120722.GC6041@suselix>
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20200827120722.GC6041@suselix>
 MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: Jens Axboe <axboe@fb.com>
 Cc: fio@vger.kernel.org
 
-On Thu, Aug 27, 2020 at 02:07:25PM +0200, Andreas Herrmann wrote:
-> Hi,
->=20
-> I've tried fio's cgroup options with a recent kernel and found some
-> issues with it -- following some patches to fix them.
+Hi,
 
-Now I think patches #1 and #3 are superfluous or should be folded into
-patches of my 2nd submission. I'll rework my patches.
+I've tried fio's cgroup options with a recent kernel and found some
+issues with it -- following some patches to fix them.
 
 --=20
 Regards,
