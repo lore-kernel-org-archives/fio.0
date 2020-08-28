@@ -1,68 +1,36 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH 1/2] thread_options: Add cgroup_use_bfq
+Return-Path: <prvs=05094f1f6e=elliott@hpe.com>
+From: "Elliott, Robert (Servers)" <elliott@hpe.com>
+Subject: RE: [PATCH 1/2] thread_options: Add cgroup_use_bfq
+Date: Fri, 28 Aug 2020 18:36:56 +0000
+Message-ID: <DF4PR8401MB10491D443BCBDD8B9586F4FFAB520@DF4PR8401MB1049.NAMPRD84.PROD.OUTLOOK.COM>
 References: <20200828100230.GG6041@suselix> <20200828100435.GH6041@suselix>
- <DF4PR8401MB10491D443BCBDD8B9586F4FFAB520@DF4PR8401MB1049.NAMPRD84.PROD.OUTLOOK.COM>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <031cac45-076a-6e9a-ba5e-2af51ca3f095@kernel.dk>
-Date: Fri, 28 Aug 2020 17:52:11 -0600
-MIME-Version: 1.0
-In-Reply-To: <DF4PR8401MB10491D443BCBDD8B9586F4FFAB520@DF4PR8401MB1049.NAMPRD84.PROD.OUTLOOK.COM>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20200828100435.GH6041@suselix>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: "Elliott, Robert (Servers)" <elliott@hpe.com>, Andreas Herrmann <aherrmann@suse.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: Andreas Herrmann <aherrmann@suse.com>, Jens Axboe <axboe@kernel.dk>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On 8/28/20 12:36 PM, Elliott, Robert (Servers) wrote:
-> 
-> 
->> -----Original Message-----
->> From: fio-owner@vger.kernel.org <fio-owner@vger.kernel.org> On Behalf
->> Of Andreas Herrmann
->> Sent: Friday, August 28, 2020 5:05 AM
->> To: Jens Axboe <axboe@kernel.dk>
->> Cc: fio@vger.kernel.org
->> Subject: [PATCH 1/2] thread_options: Add cgroup_use_bfq
->>
-> ...
->> @@ -593,11 +594,13 @@ struct thread_options_pack {
->>  	uint8_t profile[FIO_TOP_STR_MAX];
->>
->>  	/*
->> -	 * blkio cgroup support
->> +	 * (blk)io cgroup support
->>  	 */
->>  	uint8_t cgroup[FIO_TOP_STR_MAX];
->>  	uint32_t cgroup_weight;
->>  	uint32_t cgroup_nodelete;
->> +	uint32_t cgroup_use_bfq;
->> +	uint32_t padding;       /* remove when possible to maintain alignment */
->>
->>  	uint32_t uid;
->>  	uint32_t gid;
-> 
-> Since the structure already has three pad fields:
->         uint32_t pad;
-> 
->         uint64_t size;
-> 	...
->         uint32_t pad2;
->         uint64_t rand_seed;
-> 	...
->         uint32_t pad3;
->         fio_fp64_t percentile_list[FIO_IO_U_LIST_MAX_LEN];
-> 
-> pad4 would seem like the natural name for another padding field, and
-> the comment doesn't seem necessary.
-
-Also worth checking if you can actually remove padding when updating it,
-rather than adding more.
-
-BTW, this is also missing a FIO_SERVER_VER increment, that's needed
-whenever thread_options are changed.
-
--- 
-Jens Axboe
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogZmlvLW93bmVyQHZnZXIu
+a2VybmVsLm9yZyA8ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZz4gT24gQmVoYWxmDQo+IE9mIEFu
+ZHJlYXMgSGVycm1hbm4NCj4gU2VudDogRnJpZGF5LCBBdWd1c3QgMjgsIDIwMjAgNTowNSBBTQ0K
+PiBUbzogSmVucyBBeGJvZSA8YXhib2VAa2VybmVsLmRrPg0KPiBDYzogZmlvQHZnZXIua2VybmVs
+Lm9yZw0KPiBTdWJqZWN0OiBbUEFUQ0ggMS8yXSB0aHJlYWRfb3B0aW9uczogQWRkIGNncm91cF91
+c2VfYmZxDQo+IA0KLi4uDQo+IEBAIC01OTMsMTEgKzU5NCwxMyBAQCBzdHJ1Y3QgdGhyZWFkX29w
+dGlvbnNfcGFjayB7DQo+ICAJdWludDhfdCBwcm9maWxlW0ZJT19UT1BfU1RSX01BWF07DQo+IA0K
+PiAgCS8qDQo+IC0JICogYmxraW8gY2dyb3VwIHN1cHBvcnQNCj4gKwkgKiAoYmxrKWlvIGNncm91
+cCBzdXBwb3J0DQo+ICAJICovDQo+ICAJdWludDhfdCBjZ3JvdXBbRklPX1RPUF9TVFJfTUFYXTsN
+Cj4gIAl1aW50MzJfdCBjZ3JvdXBfd2VpZ2h0Ow0KPiAgCXVpbnQzMl90IGNncm91cF9ub2RlbGV0
+ZTsNCj4gKwl1aW50MzJfdCBjZ3JvdXBfdXNlX2JmcTsNCj4gKwl1aW50MzJfdCBwYWRkaW5nOyAg
+ICAgICAvKiByZW1vdmUgd2hlbiBwb3NzaWJsZSB0byBtYWludGFpbiBhbGlnbm1lbnQgKi8NCj4g
+DQo+ICAJdWludDMyX3QgdWlkOw0KPiAgCXVpbnQzMl90IGdpZDsNCg0KU2luY2UgdGhlIHN0cnVj
+dHVyZSBhbHJlYWR5IGhhcyB0aHJlZSBwYWQgZmllbGRzOg0KICAgICAgICB1aW50MzJfdCBwYWQ7
+DQoNCiAgICAgICAgdWludDY0X3Qgc2l6ZTsNCgkuLi4NCiAgICAgICAgdWludDMyX3QgcGFkMjsN
+CiAgICAgICAgdWludDY0X3QgcmFuZF9zZWVkOw0KCS4uLg0KICAgICAgICB1aW50MzJfdCBwYWQz
+Ow0KICAgICAgICBmaW9fZnA2NF90IHBlcmNlbnRpbGVfbGlzdFtGSU9fSU9fVV9MSVNUX01BWF9M
+RU5dOw0KDQpwYWQ0IHdvdWxkIHNlZW0gbGlrZSB0aGUgbmF0dXJhbCBuYW1lIGZvciBhbm90aGVy
+IHBhZGRpbmcgZmllbGQsIGFuZA0KdGhlIGNvbW1lbnQgZG9lc24ndCBzZWVtIG5lY2Vzc2FyeS4N
+Cg0KDQo=
 
