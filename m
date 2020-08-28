@@ -1,49 +1,48 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa3.hgst.iphmx.com ([216.71.153.141]:20747 "EHLO
-        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726244AbgHMPCA (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 13 Aug 2020 11:02:00 -0400
-From: Niklas Cassel <niklas.cassel@wdc.com>
-Subject: [PATCH] zbd: don't read past the WP on a read only workload with verify
-Date: Thu, 13 Aug 2020 17:01:48 +0200
-Message-Id: <20200813150148.14655-1-niklas.cassel@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60816 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729171AbgH1MAG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 28 Aug 2020 08:00:06 -0400
+Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84F85C061264
+        for <fio@vger.kernel.org>; Fri, 28 Aug 2020 05:00:05 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kBd35-0000Ol-HL
+        for fio@vger.kernel.org; Fri, 28 Aug 2020 12:00:03 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200828120002.2BD281BC0047@kernel.dk>
+Date: Fri, 28 Aug 2020 06:00:02 -0600 (MDT)
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
-Cc: damien.lemoal@wdc.com, shinichiro.kawasaki@wdc.com, Aravind Ramesh <aravind.ramesh@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
 
-From: Aravind Ramesh <aravind.ramesh@wdc.com>
+The following changes since commit 84106576cefbbd9f5dfa5ee33b245f77938d0269:
 
-When running a read only workload with verify option enabled,
-fio continues to read beyond the write pointer, and thus
-reads a deallocated block, which contains data of a predefined
-pattern, thus causing the verify to fail.
+  t/io_uring: cleanup vectored vs non-vectored (2020-08-22 11:26:39 -0600)
 
-Thus, we cannot simply jump to accept for a read only workload
-with verify option enabled, we must let the regular flow of
-execution to continue, so that the check if offset > wp is
-performed, so that we will return the address to a new zone,
-rather than an address that is past the wp.
+are available in the Git repository at:
 
-Reading past the wp is not a recent bug, it is possible to
-reproduce this bug even before zone capacity was introduced.
+  git://git.kernel.dk/fio.git master
 
-However, with the introduction of zone capacity, filling a
-zone now only writes up to zone capacity of a zone, making
-it much easier to reproduce this bug.
+for you to fetch changes up to 0ed7d55e6610020c4642ddb246f6ce1ab697052d:
 
-Signed-off-by: Aravind Ramesh <aravind.ramesh@wdc.com>
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
----
-Patch made by Aravind, I simply rewrote the commit message.
+  zbd: don't read past the WP on a read only workload with verify (2020-08-27 12:27:36 -0600)
+
+----------------------------------------------------------------
+Aravind Ramesh (1):
+      zbd: don't read past the WP on a read only workload with verify
 
  zbd.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
+---
+
+Diff of recent changes:
+
 diff --git a/zbd.c b/zbd.c
-index e4a480b7..92936fe8 100644
+index 5af8af4a..584d3640 100644
 --- a/zbd.c
 +++ b/zbd.c
 @@ -1467,9 +1467,8 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
@@ -58,7 +57,4 @@ index e4a480b7..92936fe8 100644
  			goto accept;
  		}
  		/*
--- 
-2.26.2
-
 
