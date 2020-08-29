@@ -1,130 +1,42 @@
-Return-Path: <prvs=478995cc1=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v3 2/4] configure: check if pkg-config is installed
-Date: Tue,  4 Aug 2020 10:38:26 +0900
-Message-Id: <20200804013828.1569-3-dmitry.fomichev@wdc.com>
-In-Reply-To: <20200804013828.1569-1-dmitry.fomichev@wdc.com>
-References: <20200804013828.1569-1-dmitry.fomichev@wdc.com>
+Return-Path: <martin.bukatovic@gmail.com>
+Return-Path: <martin.bukatovic@gmail.com>
+Date: Sat, 29 Aug 2020 22:34:17 +0200
+From: Martin Bukatovic <martin.bukatovic@gmail.com>
+Subject: Re: [PATCH] Add fill_quota option
+Message-ID: <20200829203417.GA18208@dione.lan>
+References: <20200811194445.GA152146@dione.lan>
+ <d3b41f1b-5bd7-a9f2-5511-7a6062aaa5bf@kernel.dk>
+ <20200829190131.GA8262@dione.lan>
+ <3e8f33c3-6d57-8932-b84e-374c0afd4779@kernel.dk>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <3e8f33c3-6d57-8932-b84e-374c0afd4779@kernel.dk>
 To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Sitsofe Wheeler <sitsofe@gmail.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-A few libraries need to be newer than a specific version in order to be
-supported by fio and pkg-config utility is used to verify the versions
-of the installed libraries. Since this step may fail because pkg-config
-is not installed, verify pkg-config presence and warn the user if it
-could not be found.
+On Sat, Aug 29, 2020 at 01:44:07PM -0600, Jens Axboe wrote:
+> On 8/29/20 1:01 PM, Martin Bukatovic wrote:
+> > On Fri, Aug 28, 2020 at 05:53:34PM -0600, Jens Axboe wrote:
+> >> Might be easier and saner to just accept EDQUOT by default, instead of
+> >> adding an option for it?
+> > 
+> > I proposed a new option to avoid changing behaviour of fill_device
+> > option. But if that is not necessary, I agree that making fill_device to
+> > stop on both ENOSPC and EDQUOT makes more sense.
+> 
+> I don't think that's necessary, the option is really "stop writing when
+> we're full", and there's no way to reach ENOSPC before EDQUOT vs
+> the other way around.
+> 
+> Hence I think it's totally fine to just include EDQUOT in the "stop
+> successfully" part of the fill_device behavior.
 
-To avoid code duplication, add a common helper function to perform
-these checks.
+Ok, I'm sending new version of the patch "Make fill_device to stop
+writing on EDQUOT".
 
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- configure | 45 +++++++++++++++++++++++++--------------------
- 1 file changed, 25 insertions(+), 20 deletions(-)
-
-diff --git a/configure b/configure
-index 81fd32bb..dd7fe3d2 100755
---- a/configure
-+++ b/configure
-@@ -133,6 +133,23 @@ output_sym() {
-   echo "#define $1" >> $config_host_h
- }
- 
-+check_min_lib_version() {
-+  local feature=$3
-+
-+  if ${cross_prefix}pkg-config --atleast-version=$2 $1 > /dev/null 2>&1; then
-+    return 0
-+  fi
-+  : ${feature:=${1}}
-+  if ${cross_prefix}pkg-config --version > /dev/null 2>&1; then
-+    if test ${!feature} = "yes" ; then
-+      feature_not_found "$feature" "$1 >= $2"
-+    fi
-+  else
-+    print_config "$1" "missing pkg-config, can't check $feature version"
-+  fi
-+  return 1
-+}
-+
- targetos=""
- cpu=""
- 
-@@ -1521,18 +1538,17 @@ if test "$?" != "0" ; then
-   echo "configure: gtk and gthread not found"
-   exit 1
- fi
--if ! ${cross_prefix}pkg-config --atleast-version 2.18.0 gtk+-2.0; then
--  echo "GTK found, but need version 2.18 or higher"
--  gfio="no"
--else
-+gfio="yes"
-+if check_min_lib_version gtk+-2.0 2.18.0 "gfio"; then
-   if compile_prog "$GTK_CFLAGS" "$GTK_LIBS" "gfio" ; then
--    gfio="yes"
-     GFIO_LIBS="$LIBS $GTK_LIBS"
-     CFLAGS="$CFLAGS $GTK_CFLAGS"
-   else
-     echo "Please install gtk and gdk libraries"
-     gfio="no"
-   fi
-+else
-+  gfio="no"
- fi
- LDFLAGS=$ORG_LDFLAGS
- fi
-@@ -2182,15 +2198,11 @@ print_config "DDN's Infinite Memory Engine" "$libime"
- ##########################################
- # Check if we have libiscsi
- if test "$libiscsi" != "no" ; then
--  minimum_libiscsi=1.9.0
--  if $(pkg-config --atleast-version=$minimum_libiscsi libiscsi); then
-+  if check_min_lib_version libiscsi 1.9.0; then
-     libiscsi="yes"
-     libiscsi_cflags=$(pkg-config --cflags libiscsi)
-     libiscsi_libs=$(pkg-config --libs libiscsi)
-   else
--    if test "$libiscsi" = "yes" ; then
--      feature_not_found "libiscsi" "libiscsi >= $minimum_libiscsi"
--    fi
-     libiscsi="no"
-   fi
- fi
-@@ -2199,15 +2211,11 @@ print_config "iscsi engine" "$libiscsi"
- ##########################################
- # Check if we have libnbd (for NBD support)
- if test "$libnbd" != "no" ; then
--  minimum_libnbd=0.9.8
--  if $(pkg-config --atleast-version=$minimum_libnbd libnbd); then
-+  if check_min_lib_version libnbd 0.9.8; then
-     libnbd="yes"
-     libnbd_cflags=$(pkg-config --cflags libnbd)
-     libnbd_libs=$(pkg-config --libs libnbd)
-   else
--    if test "$libnbd" = "yes" ; then
--      feature_not_found "libnbd" "libnbd >= $minimum_libnbd"
--    fi
-     libnbd="no"
-   fi
- fi
-@@ -2469,11 +2477,8 @@ int main(int argc, char **argv)
- EOF
- if test "$libzbc" != "no" ; then
-   if compile_prog "" "-lzbc" "libzbc"; then
--    minimum_libzbc=5
--    if $(pkg-config --atleast-version=$minimum_libzbc libzbc); then
--      libzbc="yes"
--    else
--      print_config "libzbc engine" "libzbc version $minimum_libzbc or above required"
-+    libzbc="yes"
-+    if ! check_min_lib_version libzbc 5; then
-       libzbc="no"
-     fi
-   else
 -- 
-2.21.0
-
+Martin Bukatovič
 
