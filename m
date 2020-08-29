@@ -1,73 +1,80 @@
-Return-Path: <aherrmann@suse.com>
-Date: Mon, 31 Aug 2020 08:03:59 +0200
-From: Andreas Herrmann <aherrmann@suse.com>
-Subject: Re: [PATCH 1/2] thread_options: Add cgroup_use_bfq
-Message-ID: <20200831060359.GL6041@suselix>
-References: <20200828100230.GG6041@suselix>
- <20200828100435.GH6041@suselix>
+Return-Path: <prvs=0510f265b8=elliott@hpe.com>
+From: "Elliott, Robert (Servers)" <elliott@hpe.com>
+Subject: RE: [PATCH 1/2] thread_options: Add cgroup_use_bfq
+Date: Sat, 29 Aug 2020 02:14:23 +0000
+Message-ID: <TU4PR8401MB10559822FEA5418CDF841A39AB530@TU4PR8401MB1055.NAMPRD84.PROD.OUTLOOK.COM>
+References: <20200828100230.GG6041@suselix> <20200828100435.GH6041@suselix>
  <DF4PR8401MB10491D443BCBDD8B9586F4FFAB520@DF4PR8401MB1049.NAMPRD84.PROD.OUTLOOK.COM>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <DF4PR8401MB10491D443BCBDD8B9586F4FFAB520@DF4PR8401MB1049.NAMPRD84.PROD.OUTLOOK.COM>
-Return-Path: aherrmann@suse.com
+ <031cac45-076a-6e9a-ba5e-2af51ca3f095@kernel.dk>
+In-Reply-To: <031cac45-076a-6e9a-ba5e-2af51ca3f095@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: "Elliott, Robert (Servers)" <elliott@hpe.com>
-Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Jens Axboe <axboe@kernel.dk>, Andreas Herrmann <aherrmann@suse.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-On Fri, Aug 28, 2020 at 06:36:56PM +0000, Elliott, Robert (Servers) wrote:
->=20
->=20
-> > -----Original Message-----
-> > From: fio-owner@vger.kernel.org <fio-owner@vger.kernel.org> On Behalf
-> > Of Andreas Herrmann
-> > Sent: Friday, August 28, 2020 5:05 AM
-> > To: Jens Axboe <axboe@kernel.dk>
-> > Cc: fio@vger.kernel.org
-> > Subject: [PATCH 1/2] thread_options: Add cgroup_use_bfq
-> >=20
-> ...
-> > @@ -593,11 +594,13 @@ struct thread_options_pack {
-> >  	uint8_t profile[FIO_TOP_STR_MAX];
-> >=20
-> >  	/*
-> > -	 * blkio cgroup support
-> > +	 * (blk)io cgroup support
-> >  	 */
-> >  	uint8_t cgroup[FIO_TOP_STR_MAX];
-> >  	uint32_t cgroup_weight;
-> >  	uint32_t cgroup_nodelete;
-> > +	uint32_t cgroup_use_bfq;
-> > +	uint32_t padding;       /* remove when possible to maintain alignment=
- */
-> >=20
-> >  	uint32_t uid;
-> >  	uint32_t gid;
->=20
-> Since the structure already has three pad fields:
->         uint32_t pad;
->=20
->         uint64_t size;
-> 	...
->         uint32_t pad2;
->         uint64_t rand_seed;
-> 	...
->         uint32_t pad3;
->         fio_fp64_t percentile_list[FIO_IO_U_LIST_MAX_LEN];
->=20
-> pad4 would seem like the natural name for another padding field, and
-> the comment doesn't seem necessary.
-
-Good point.
-I'll modify my patch.
-
---=20
-Regards,
-Andreas
-
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-GF: Felix Imend=C3=B6rffer (HRB 36809, AG N=C3=BCrnberg)
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmVucyBBeGJvZSA8YXhi
+b2VAa2VybmVsLmRrPg0KPiBTZW50OiBGcmlkYXksIEF1Z3VzdCAyOCwgMjAyMCA2OjUyIFBNDQo+
+IFRvOiBFbGxpb3R0LCBSb2JlcnQgKFNlcnZlcnMpIDxlbGxpb3R0QGhwZS5jb20+OyBBbmRyZWFz
+IEhlcnJtYW5uDQo+IDxhaGVycm1hbm5Ac3VzZS5jb20+DQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0gg
+MS8yXSB0aHJlYWRfb3B0aW9uczogQWRkIGNncm91cF91c2VfYmZxDQo+IA0KLi4uDQo+ID4gLi4u
+DQo+ID4+IEBAIC01OTMsMTEgKzU5NCwxMyBAQCBzdHJ1Y3QgdGhyZWFkX29wdGlvbnNfcGFjayB7
+DQo+ID4+ICAJdWludDhfdCBwcm9maWxlW0ZJT19UT1BfU1RSX01BWF07DQo+ID4+DQo+ID4+ICAJ
+LyoNCj4gPj4gLQkgKiBibGtpbyBjZ3JvdXAgc3VwcG9ydA0KPiA+PiArCSAqIChibGspaW8gY2dy
+b3VwIHN1cHBvcnQNCj4gPj4gIAkgKi8NCj4gPj4gIAl1aW50OF90IGNncm91cFtGSU9fVE9QX1NU
+Ul9NQVhdOw0KPiA+PiAgCXVpbnQzMl90IGNncm91cF93ZWlnaHQ7DQo+ID4+ICAJdWludDMyX3Qg
+Y2dyb3VwX25vZGVsZXRlOw0KPiA+PiArCXVpbnQzMl90IGNncm91cF91c2VfYmZxOw0KPiA+PiAr
+CXVpbnQzMl90IHBhZGRpbmc7ICAgICAgIC8qIHJlbW92ZSB3aGVuIHBvc3NpYmxlIHRvIG1haW50
+YWluDQo+IGFsaWdubWVudCAqLw0KPiA+Pg0KPiA+PiAgCXVpbnQzMl90IHVpZDsNCj4gPj4gIAl1
+aW50MzJfdCBnaWQ7DQo+ID4NCj4gPiBTaW5jZSB0aGUgc3RydWN0dXJlIGFscmVhZHkgaGFzIHRo
+cmVlIHBhZCBmaWVsZHM6DQo+ID4gICAgICAgICB1aW50MzJfdCBwYWQ7DQo+ID4NCj4gPiAgICAg
+ICAgIHVpbnQ2NF90IHNpemU7DQo+ID4gCS4uLg0KPiA+ICAgICAgICAgdWludDMyX3QgcGFkMjsN
+Cj4gPiAgICAgICAgIHVpbnQ2NF90IHJhbmRfc2VlZDsNCj4gPiAJLi4uDQo+ID4gICAgICAgICB1
+aW50MzJfdCBwYWQzOw0KPiA+ICAgICAgICAgZmlvX2ZwNjRfdCBwZXJjZW50aWxlX2xpc3RbRklP
+X0lPX1VfTElTVF9NQVhfTEVOXTsNCj4gPg0KPiA+IHBhZDQgd291bGQgc2VlbSBsaWtlIHRoZSBu
+YXR1cmFsIG5hbWUgZm9yIGFub3RoZXIgcGFkZGluZyBmaWVsZCwNCj4gYW5kDQo+ID4gdGhlIGNv
+bW1lbnQgZG9lc24ndCBzZWVtIG5lY2Vzc2FyeS4NCj4gDQo+IEFsc28gd29ydGggY2hlY2tpbmcg
+aWYgeW91IGNhbiBhY3R1YWxseSByZW1vdmUgcGFkZGluZyB3aGVuIHVwZGF0aW5nDQo+IGl0LCBy
+YXRoZXIgdGhhbiBhZGRpbmcgbW9yZS4NCg0KSSBkbyB0aGluayB0aGF0IG9uZSBpcyBuZWVkZWQs
+IGJlY2F1c2UgdGhlcmUncyBhIGZsb2F0aW5nIHBvaW50DQp2YXJpYWJsZSBhZnRlcndhcmRzIHRo
+YXQgbGliZmlvLmMgaW5zaXN0cyBiZSBhbGlnbmVkIHRvIGFuIDgtYnl0ZQ0KYm91bmRhcnkuDQoN
+ClRoZSBwYWhvbGUgdXRpbGl0eSByZXBvcnRzIHRoZSBvZmZzZXRzIChwcmUtcGF0Y2gpIGFyZToN
+Cg0KICAgICAgICAvKiAtLS0gY2FjaGVsaW5lIDM5NSBib3VuZGFyeSAoMjUyODAgYnl0ZXMpIHdh
+cyAyNCBieXRlcyBhZ28gLS0tICovDQogICAgICAgIHVpbnQ4X3QgICAgICAgICAgICAgICAgICAg
+IGNncm91cFsyNTZdOyAgICAgICAgICAvKiAyNTMwNCAgIDI1NiAqLw0KICAgICAgICAvKiAtLS0g
+Y2FjaGVsaW5lIDM5OSBib3VuZGFyeSAoMjU1MzYgYnl0ZXMpIHdhcyAyNCBieXRlcyBhZ28gLS0t
+ICovDQogICAgICAgIHVpbnQzMl90ICAgICAgICAgICAgICAgICAgIGNncm91cF93ZWlnaHQ7ICAg
+ICAgICAvKiAyNTU2MCAgICAgNCAqLw0KICAgICAgICB1aW50MzJfdCAgICAgICAgICAgICAgICAg
+ICBjZ3JvdXBfbm9kZWxldGU7ICAgICAgLyogMjU1NjQgICAgIDQgKi8NCiAgICAgICAgdWludDMy
+X3QgICAgICAgICAgICAgICAgICAgdWlkOyAgICAgICAgICAgICAgICAgIC8qIDI1NTY4ICAgICA0
+ICovDQogICAgICAgIHVpbnQzMl90ICAgICAgICAgICAgICAgICAgIGdpZDsgICAgICAgICAgICAg
+ICAgICAvKiAyNTU3MiAgICAgNCAqLw0KICAgICAgICBpbnQzMl90ICAgICAgICAgICAgICAgICAg
+ICBmbG93X2lkOyAgICAgICAgICAgICAgLyogMjU1NzYgICAgIDQgKi8NCiAgICAgICAgaW50MzJf
+dCAgICAgICAgICAgICAgICAgICAgZmxvdzsgICAgICAgICAgICAgICAgIC8qIDI1NTgwICAgICA0
+ICovDQogICAgICAgIGludDMyX3QgICAgICAgICAgICAgICAgICAgIGZsb3dfd2F0ZXJtYXJrOyAg
+ICAgICAvKiAyNTU4NCAgICAgNCAqLw0KICAgICAgICB1aW50MzJfdCAgICAgICAgICAgICAgICAg
+ICBmbG93X3NsZWVwOyAgICAgICAgICAgLyogMjU1ODggICAgIDQgKi8NCiAgICAgICAgdWludDY0
+X3QgICAgICAgICAgICAgICAgICAgb2Zmc2V0X2luY3JlbWVudDsgICAgIC8qIDI1NTkyICAgICA4
+ICovDQogICAgICAgIC8qIC0tLSBjYWNoZWxpbmUgNDAwIGJvdW5kYXJ5ICgyNTYwMCBieXRlcykg
+LS0tICovDQogICAgICAgIHVpbnQ2NF90ICAgICAgICAgICAgICAgICAgIG51bWJlcl9pb3M7ICAg
+ICAgICAgICAvKiAyNTYwMCAgICAgOCAqLw0KICAgICAgICB1aW50NjRfdCAgICAgICAgICAgICAg
+ICAgICBsYXRlbmN5X3RhcmdldDsgICAgICAgLyogMjU2MDggICAgIDggKi8NCiAgICAgICAgdWlu
+dDY0X3QgICAgICAgICAgICAgICAgICAgbGF0ZW5jeV93aW5kb3c7ICAgICAgIC8qIDI1NjE2ICAg
+ICA4ICovDQogICAgICAgIHVpbnQ2NF90ICAgICAgICAgICAgICAgICAgIG1heF9sYXRlbmN5OyAg
+ICAgICAgICAvKiAyNTYyNCAgICAgOCAqLw0KICAgICAgICBmaW9fZnA2NF90ICAgICAgICAgICAg
+ICAgICBsYXRlbmN5X3BlcmNlbnRpbGU7ICAgLyogMjU2MzIgICAgMTYgKi8NCg0KbGliZmlvLmMg
+aW5pdGlhbGl6ZV9maW8oKSBleGNlcnB0Og0KDQogICAgICAgIC8qDQogICAgICAgICAqIFdlIG5l
+ZWQgdGhlc2UgdG8gYmUgcHJvcGVybHkgNjQtYml0IGFsaWduZWQsIG90aGVyd2lzZSB3ZQ0KICAg
+ICAgICAgKiBjYW4gcnVuIGludG8gcHJvYmxlbXMgb24gYXJjaHMgdGhhdCBmYXVsdCBvbiB1bmFs
+aWduZWQgZnANCiAgICAgICAgICogYWNjZXNzIChBUk0pLg0KICAgICAgICAgKi8NCiAgICAgICAg
+Y29tcGlsZXRpbWVfYXNzZXJ0KChvZmZzZXRvZihzdHJ1Y3QgdGhyZWFkX29wdGlvbnNfcGFjaywg
+emlwZl90aGV0YSkgJSA4KSA9PSAwLCAiemlwZl90aGV0YSIpOw0KICAgICAgICBjb21waWxldGlt
+ZV9hc3NlcnQoKG9mZnNldG9mKHN0cnVjdCB0aHJlYWRfb3B0aW9uc19wYWNrLCBwYXJldG9faCkg
+JSA4KSA9PSAwLCAicGFyZXRvX2giKTsNCiAgICAgICAgY29tcGlsZXRpbWVfYXNzZXJ0KChvZmZz
+ZXRvZihzdHJ1Y3QgdGhyZWFkX29wdGlvbnNfcGFjaywgcGVyY2VudGlsZV9saXN0KSAlIDgpID09
+IDAsICJwZXJjZW50aWxlX2xpc3QiKTsNCiAgICAgICAgY29tcGlsZXRpbWVfYXNzZXJ0KChvZmZz
+ZXRvZihzdHJ1Y3QgdGhyZWFkX29wdGlvbnNfcGFjaywgbGF0ZW5jeV9wZXJjZW50aWxlKSAlIDgp
+ID09IDAsICJsYXRlbmN5X3BlcmNlbnRpbGUiKTsNCg0KDQo=
 
