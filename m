@@ -1,20 +1,30 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH] Update the year to 2020 in os/windows/eula.rtf
-References: <20200829233123.1743-1-rebecca@bsdio.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <2aeb627d-e177-0b30-18be-c4fb93c6451a@kernel.dk>
-Date: Sat, 29 Aug 2020 18:54:40 -0600
+Return-Path: <rebecca@bsdio.com>
+From: Rebecca Cran <rebecca@bsdio.com>
+Date: Sat, 29 Aug 2020 23:31:23 +0000
+Message-Id: <20200829233123.1743-1-rebecca@bsdio.com>
 MIME-Version: 1.0
-In-Reply-To: <20200829233123.1743-1-rebecca@bsdio.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Rebecca Cran <rebecca@bsdio.com>, fio@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Subject: [PATCH] Update the year to 2020 in os/windows/eula.rtf
+To: fio@vger.kernel.org
+Cc: axboe@kernel.dk, Rebecca Cran <rebecca@bsdio.com>
 List-ID: <fio@vger.kernel.org>
 
-Applied, thanks.
+Signed-off-by: Rebecca Cran <rebecca@bsdio.com>
+---
+ os/windows/eula.rtf | Bin 1077 -> 1075 bytes
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+
+diff --git a/os/windows/eula.rtf b/os/windows/eula.rtf
+index 01472be9db7c4f7dc255322ab58ca9d687638342..a931017cd644cf9f1723705abb785fad694e113c 100755
+GIT binary patch
+delta 22
+ecmdnWv6*ASG!{z(6T^wK)-o9xZ1!Y)#RLFZdk2;P
+
+delta 25
+hcmdnYv6W-OG!_$MOXG>N)-oAdZ1!Y)#l*zR1psj92fF|O
 
 -- 
-Jens Axboe
+2.28.0
+
 
 
