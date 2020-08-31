@@ -1,225 +1,114 @@
-Return-Path: <adobriyan@gmail.com>
-Return-Path: <adobriyan@gmail.com>
-Date: Wed, 12 Aug 2020 18:26:22 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: [PATCH] fio: add for_each_rw_ddir() macro
-Message-ID: <20200812152622.GA40719@localhost.localdomain>
+Return-Path: <aherrmann@suse.com>
+From: Andreas Herrmann <aherrmann@suse.com>
+Subject: [PATCH v2 1/4] cgroup: Fix handling when cgroup blkio and cgroup-v2 are mounted
+Date: Mon, 31 Aug 2020 11:21:03 +0200
+Message-ID: <20200831092104.3892-2-aherrmann@suse.com>
+In-Reply-To: <20200831092104.3892-1-aherrmann@suse.com>
+References: <20200831092104.3892-1-aherrmann@suse.com>
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+Return-Path: aherrmann@suse.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio <fio@vger.kernel.org>, Andreas Herrmann <aherrmann@suse.com>
 List-ID: <fio@vger.kernel.org>
 
-Make it slightly easier to add DDIR_APPEND as fully fledged I/O type.
+On systems that have a mixed setup of cgroup and cgroup-v2, blkio
+controller might be active. I think in this case there is no point in
+using cgroup-v2. One needs to boot with cgroup_no_v1=3Dblkio to be able
+to use cgroup-v2 IO controller.
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Signed-off-by: Andreas Herrmann <aherrmann@suse.com>
 ---
+ cgroup.c | 58 ++++++++++++++++++++++++++++++++++++++------------------
+ 1 file changed, 40 insertions(+), 18 deletions(-)
 
- backend.c |   16 +++++++---------
- eta.c     |   12 +++++-------
- init.c    |   62 ++++++++++++++++++++++++++------------------------------------
- io_ddir.h |    2 ++
- stat.c    |   16 +++++++---------
- 5 files changed, 47 insertions(+), 61 deletions(-)
+diff --git a/cgroup.c b/cgroup.c
+index 77e31a4d..fc31d4cd 100644
+--- a/cgroup.c
++++ b/cgroup.c
+@@ -20,11 +20,10 @@ struct cgroup_member {
+=20
+ static struct cgroup_mnt *find_cgroup_mnt(struct thread_data *td)
+ {
+-	struct cgroup_mnt *cgroup_mnt =3D NULL;
++	struct cgroup_mnt *cgroup_mnt, *cg1_mnt =3D NULL, *cg2_mnt =3D NULL;
+ 	struct mntent *mnt, dummy;
+ 	char buf[256] =3D {0};
+ 	FILE *f;
+-	bool cgroup2 =3D false;
+=20
+ 	f =3D setmntent("/proc/mounts", "r");
+ 	if (!f) {
+@@ -34,27 +33,50 @@ static struct cgroup_mnt *find_cgroup_mnt(struct thread=
+_data *td)
+=20
+ 	while ((mnt =3D getmntent_r(f, &dummy, buf, sizeof(buf))) !=3D NULL) {
+ 		if (!strcmp(mnt->mnt_type, "cgroup") &&
+-		    strstr(mnt->mnt_opts, "blkio"))
+-			break;
+-		if (!strcmp(mnt->mnt_type, "cgroup2")) {
+-			cgroup2 =3D true;
++			strstr(mnt->mnt_opts, "blkio")) {
++			cg1_mnt =3D smalloc(sizeof(*cg1_mnt));
++			if (cg1_mnt) {
++				cg1_mnt->path =3D smalloc_strdup(mnt->mnt_dir);
++				if (!cg1_mnt->path) {
++					sfree(cg1_mnt);
++					cg1_mnt =3D NULL;
++					log_err("fio: could not allocate memory\n");
++				}
++			}
++			/*
++			 * blkio controller has precedence
++			 */
+ 			break;
++		} if (!strcmp(mnt->mnt_type, "cgroup2")) {
++			if (cg2_mnt)
++				continue;
++			cg2_mnt =3D smalloc(sizeof(*cg2_mnt));
++			if (cg2_mnt) {
++				cg2_mnt->path =3D smalloc_strdup(mnt->mnt_dir);
++				if (!cg2_mnt->path) {
++					sfree(cg2_mnt);
++					cg2_mnt =3D NULL;
++					log_err("fio: could not allocate memory\n");
++				} else
++					cg2_mnt->cgroup2 =3D true;
++			}
++			/*
++			 * Check all mount points, there can be a mix
++			 * of cgroup-v1 and cgroup-v2
++			 */
++			continue;
+ 		}
+ 	}
+=20
+-	if (mnt) {
+-		cgroup_mnt =3D smalloc(sizeof(*cgroup_mnt));
+-		if (cgroup_mnt) {
+-			cgroup_mnt->path =3D smalloc_strdup(mnt->mnt_dir);
+-			if (!cgroup_mnt->path) {
+-				sfree(cgroup_mnt);
+-				log_err("fio: could not allocate memory\n");
+-			} else {
+-				cgroup_mnt->cgroup2 =3D cgroup2;
+-			}
+-		}
++	cgroup_mnt =3D NULL;
++	if (cg1_mnt) {
++		cgroup_mnt =3D cg1_mnt;
++		if (cg2_mnt)
++			sfree(cg2_mnt);
++	} else if (cg2_mnt) {
++		cgroup_mnt =3D cg2_mnt;
+ 	} else {
+-		log_err("fio: cgroup blkio does not appear to be mounted\n");
++		log_err("fio: cgroup blkio or cgroup2 do not appear to be mounted\n");
+ 	}
+=20
+ 	endmntent(f);
+--=20
+2.28.0
 
---- a/backend.c
-+++ b/backend.c
-@@ -223,12 +223,10 @@ static bool check_min_rate(struct thread_data *td, struct timespec *now)
- {
- 	bool ret = false;
- 
--	if (td->bytes_done[DDIR_READ])
--		ret |= __check_min_rate(td, now, DDIR_READ);
--	if (td->bytes_done[DDIR_WRITE])
--		ret |= __check_min_rate(td, now, DDIR_WRITE);
--	if (td->bytes_done[DDIR_TRIM])
--		ret |= __check_min_rate(td, now, DDIR_TRIM);
-+	for_each_rw_ddir(ddir) {
-+		if (td->bytes_done[ddir])
-+			ret |= __check_min_rate(td, now, ddir);
-+	}
- 
- 	return ret;
- }
-@@ -1876,9 +1874,9 @@ static void *thread_main(void *data)
- 
- 	update_rusage_stat(td);
- 	td->ts.total_run_time = mtime_since_now(&td->epoch);
--	td->ts.io_bytes[DDIR_READ] = td->io_bytes[DDIR_READ];
--	td->ts.io_bytes[DDIR_WRITE] = td->io_bytes[DDIR_WRITE];
--	td->ts.io_bytes[DDIR_TRIM] = td->io_bytes[DDIR_TRIM];
-+	for_each_rw_ddir(ddir) {
-+		td->ts.io_bytes[ddir] = td->io_bytes[ddir];
-+	}
- 
- 	if (td->o.verify_state_save && !(td->flags & TD_F_VSTATE_SAVED) &&
- 	    (td->o.verify != VERIFY_NONE && td_write(td)))
---- a/eta.c
-+++ b/eta.c
-@@ -383,8 +383,8 @@ bool calc_thread_status(struct jobs_eta *je, int force)
- 	struct thread_data *td;
- 	int i, unified_rw_rep;
- 	uint64_t rate_time, disp_time, bw_avg_time, *eta_secs;
--	unsigned long long io_bytes[DDIR_RWDIR_CNT];
--	unsigned long long io_iops[DDIR_RWDIR_CNT];
-+	unsigned long long io_bytes[DDIR_RWDIR_CNT] = {};
-+	unsigned long long io_iops[DDIR_RWDIR_CNT] = {};
- 	struct timespec now;
- 
- 	static unsigned long long rate_io_bytes[DDIR_RWDIR_CNT];
-@@ -413,8 +413,6 @@ bool calc_thread_status(struct jobs_eta *je, int force)
- 
- 	je->elapsed_sec = (mtime_since_genesis() + 999) / 1000;
- 
--	io_bytes[DDIR_READ] = io_bytes[DDIR_WRITE] = io_bytes[DDIR_TRIM] = 0;
--	io_iops[DDIR_READ] = io_iops[DDIR_WRITE] = io_iops[DDIR_TRIM] = 0;
- 	bw_avg_time = ULONG_MAX;
- 	unified_rw_rep = 0;
- 	for_each_td(td, i) {
-@@ -509,9 +507,9 @@ bool calc_thread_status(struct jobs_eta *je, int force)
- 		calc_rate(unified_rw_rep, rate_time, io_bytes, rate_io_bytes,
- 				je->rate);
- 		memcpy(&rate_prev_time, &now, sizeof(now));
--		add_agg_sample(sample_val(je->rate[DDIR_READ]), DDIR_READ, 0, 0);
--		add_agg_sample(sample_val(je->rate[DDIR_WRITE]), DDIR_WRITE, 0, 0);
--		add_agg_sample(sample_val(je->rate[DDIR_TRIM]), DDIR_TRIM, 0, 0);
-+		for_each_rw_ddir(ddir) {
-+			add_agg_sample(sample_val(je->rate[ddir]), ddir, 0, 0);
-+		}
- 	}
- 
- 	disp_time = mtime_since(&disp_prev_time, &now);
---- a/init.c
-+++ b/init.c
-@@ -564,13 +564,11 @@ static int setup_rate(struct thread_data *td)
- {
- 	int ret = 0;
- 
--	if (td->o.rate[DDIR_READ] || td->o.rate_iops[DDIR_READ])
--		ret = __setup_rate(td, DDIR_READ);
--	if (td->o.rate[DDIR_WRITE] || td->o.rate_iops[DDIR_WRITE])
--		ret |= __setup_rate(td, DDIR_WRITE);
--	if (td->o.rate[DDIR_TRIM] || td->o.rate_iops[DDIR_TRIM])
--		ret |= __setup_rate(td, DDIR_TRIM);
--
-+	for_each_rw_ddir(ddir) {
-+		if (td->o.rate[ddir] || td->o.rate_iops[ddir]) {
-+			ret |= __setup_rate(td, ddir);
-+		}
-+	}
- 	return ret;
- }
- 
-@@ -662,31 +660,25 @@ static int fixup_options(struct thread_data *td)
- 	if (td_read(td))
- 		o->overwrite = 1;
- 
--	if (!o->min_bs[DDIR_READ])
--		o->min_bs[DDIR_READ] = o->bs[DDIR_READ];
--	if (!o->max_bs[DDIR_READ])
--		o->max_bs[DDIR_READ] = o->bs[DDIR_READ];
--	if (!o->min_bs[DDIR_WRITE])
--		o->min_bs[DDIR_WRITE] = o->bs[DDIR_WRITE];
--	if (!o->max_bs[DDIR_WRITE])
--		o->max_bs[DDIR_WRITE] = o->bs[DDIR_WRITE];
--	if (!o->min_bs[DDIR_TRIM])
--		o->min_bs[DDIR_TRIM] = o->bs[DDIR_TRIM];
--	if (!o->max_bs[DDIR_TRIM])
--		o->max_bs[DDIR_TRIM] = o->bs[DDIR_TRIM];
--
--	o->rw_min_bs = min(o->min_bs[DDIR_READ], o->min_bs[DDIR_WRITE]);
--	o->rw_min_bs = min(o->min_bs[DDIR_TRIM], o->rw_min_bs);
-+	for_each_rw_ddir(ddir) {
-+		if (!o->min_bs[ddir])
-+			o->min_bs[ddir] = o->bs[ddir];
-+		if (!o->max_bs[ddir])
-+			o->max_bs[ddir] = o->bs[ddir];
-+	}
-+
-+	o->rw_min_bs = -1;
-+	for_each_rw_ddir(ddir) {
-+		o->rw_min_bs = min(o->rw_min_bs, o->min_bs[ddir]);
-+	}
- 
- 	/*
- 	 * For random IO, allow blockalign offset other than min_bs.
- 	 */
--	if (!o->ba[DDIR_READ] || !td_random(td))
--		o->ba[DDIR_READ] = o->min_bs[DDIR_READ];
--	if (!o->ba[DDIR_WRITE] || !td_random(td))
--		o->ba[DDIR_WRITE] = o->min_bs[DDIR_WRITE];
--	if (!o->ba[DDIR_TRIM] || !td_random(td))
--		o->ba[DDIR_TRIM] = o->min_bs[DDIR_TRIM];
-+	for_each_rw_ddir(ddir) {
-+		if (!o->ba[ddir] || !td_random(td))
-+			o->ba[ddir] = o->min_bs[ddir];
-+	}
- 
- 	if ((o->ba[DDIR_READ] != o->min_bs[DDIR_READ] ||
- 	    o->ba[DDIR_WRITE] != o->min_bs[DDIR_WRITE] ||
-@@ -765,14 +757,12 @@ static int fixup_options(struct thread_data *td)
- 		log_err("fio: rate and rate_iops are mutually exclusive\n");
- 		ret |= 1;
- 	}
--	if ((o->rate[DDIR_READ] && (o->rate[DDIR_READ] < o->ratemin[DDIR_READ])) ||
--	    (o->rate[DDIR_WRITE] && (o->rate[DDIR_WRITE] < o->ratemin[DDIR_WRITE])) ||
--	    (o->rate[DDIR_TRIM] && (o->rate[DDIR_TRIM] < o->ratemin[DDIR_TRIM])) ||
--	    (o->rate_iops[DDIR_READ] && (o->rate_iops[DDIR_READ] < o->rate_iops_min[DDIR_READ])) ||
--	    (o->rate_iops[DDIR_WRITE] && (o->rate_iops[DDIR_WRITE] < o->rate_iops_min[DDIR_WRITE])) ||
--	    (o->rate_iops[DDIR_TRIM] && (o->rate_iops[DDIR_TRIM] < o->rate_iops_min[DDIR_TRIM]))) {
--		log_err("fio: minimum rate exceeds rate\n");
--		ret |= 1;
-+	for_each_rw_ddir(ddir) {
-+		if ((o->rate[ddir] && (o->rate[ddir] < o->ratemin[ddir])) ||
-+		    (o->rate_iops[ddir] && (o->rate_iops[ddir] < o->rate_iops_min[ddir]))) {
-+			log_err("fio: minimum rate exceeds rate\n");
-+			ret |= 1;
-+		}
- 	}
- 
- 	if (!o->timeout && o->time_based) {
---- a/io_ddir.h
-+++ b/io_ddir.h
-@@ -16,6 +16,8 @@ enum fio_ddir {
- 	DDIR_RWDIR_SYNC_CNT = 4,
- };
- 
-+#define for_each_rw_ddir(ddir)	for (enum fio_ddir ddir = 0; ddir < DDIR_RWDIR_CNT; ddir++)
-+
- static inline const char *io_ddir_name(enum fio_ddir ddir)
- {
- 	static const char *name[] = { "read", "write", "trim", "sync",
---- a/stat.c
-+++ b/stat.c
-@@ -1078,12 +1078,10 @@ static void show_thread_status_normal(struct thread_stat *ts,
- 	if (strlen(ts->description))
- 		log_buf(out, "  Description  : [%s]\n", ts->description);
- 
--	if (ts->io_bytes[DDIR_READ])
--		show_ddir_status(rs, ts, DDIR_READ, out);
--	if (ts->io_bytes[DDIR_WRITE])
--		show_ddir_status(rs, ts, DDIR_WRITE, out);
--	if (ts->io_bytes[DDIR_TRIM])
--		show_ddir_status(rs, ts, DDIR_TRIM, out);
-+	for_each_rw_ddir(ddir) {
-+		if (ts->io_bytes[ddir])
-+			show_ddir_status(rs, ts, ddir, out);
-+	}
- 
- 	show_latencies(ts, out);
- 
-@@ -2315,9 +2313,9 @@ void __show_running_run_stats(void)
- 
- 	for_each_td(td, i) {
- 		td->update_rusage = 1;
--		td->ts.io_bytes[DDIR_READ] = td->io_bytes[DDIR_READ];
--		td->ts.io_bytes[DDIR_WRITE] = td->io_bytes[DDIR_WRITE];
--		td->ts.io_bytes[DDIR_TRIM] = td->io_bytes[DDIR_TRIM];
-+		for_each_rw_ddir(ddir) {
-+			td->ts.io_bytes[ddir] = td->io_bytes[ddir];
-+		}
- 		td->ts.total_run_time = mtime_since(&td->epoch, &ts);
- 
- 		rt[i] = mtime_since(&td->start, &ts);
 
