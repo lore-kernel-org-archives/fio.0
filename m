@@ -1,59 +1,67 @@
-Return-Path: <prvs=4917d4b29=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH] configure: fix syntax error with NetBSD
-Date: Tue, 18 Aug 2020 08:47:08 +0900
-Message-Id: <20200817234708.20701-1-dmitry.fomichev@wdc.com>
+Return-Path: <aherrmann@suse.com>
+From: Andreas Herrmann <aherrmann@suse.com>
+Subject: [PATCH v2 4/4] cgroup: Support BFQ's weight attributes
+Date: Mon, 31 Aug 2020 11:21:09 +0200
+Message-ID: <20200831092104.3892-5-aherrmann@suse.com>
+In-Reply-To: <20200831092104.3892-1-aherrmann@suse.com>
+References: <20200831092104.3892-1-aherrmann@suse.com>
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+Return-Path: aherrmann@suse.com
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, Tomohiro Kusumi <kusumi.tomohiro@gmail.com>, Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: fio@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio <fio@vger.kernel.org>, Andreas Herrmann <aherrmann@suse.com>
 List-ID: <fio@vger.kernel.org>
 
-The recent patch to detect for pkg-config presence has introduced some
-bash-specific code to configure script. This lead to syntax errors
-while running configure under some other shells, such as (d)ash.
-
-Avoid ${!var} indirect substitution syntax and stop using "local"
-keyword which is non-POSIX-standard. Address a few minor shellcheck
-complaints about the code in same function.
-
-Fixes: 162f8c2a96ae181d7e4099af8e9f39b5eac6886e
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Signed-off-by: Andreas Herrmann <aherrmann@suse.com>
 ---
- configure | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ cgroup.c | 30 ++++++++++++++++++++++--------
+ 1 file changed, 22 insertions(+), 8 deletions(-)
 
-diff --git a/configure b/configure
-index dd7fe3d2..d3997b5f 100755
---- a/configure
-+++ b/configure
-@@ -134,18 +134,18 @@ output_sym() {
- }
- 
- check_min_lib_version() {
--  local feature=$3
-+  _feature=$3
- 
--  if ${cross_prefix}pkg-config --atleast-version=$2 $1 > /dev/null 2>&1; then
-+  if "${cross_prefix}"pkg-config --atleast-version="$2" "$1" > /dev/null 2>&1; then
-     return 0
-   fi
--  : ${feature:=${1}}
--  if ${cross_prefix}pkg-config --version > /dev/null 2>&1; then
--    if test ${!feature} = "yes" ; then
--      feature_not_found "$feature" "$1 >= $2"
-+  : "${_feature:=${1}}"
-+  if "${cross_prefix}"pkg-config --version > /dev/null 2>&1; then
-+    if eval "echo \$$_feature" = "yes" ; then
-+      feature_not_found "$_feature" "$1 >= $2"
-     fi
-   else
--    print_config "$1" "missing pkg-config, can't check $feature version"
-+    print_config "$1" "missing pkg-config, can't check $_feature version"
-   fi
-   return 1
- }
--- 
-2.21.0
+diff --git a/cgroup.c b/cgroup.c
+index c6369f54..903c569e 100644
+--- a/cgroup.c
++++ b/cgroup.c
+@@ -236,15 +236,29 @@ int cgroup_setup(struct thread_data *td, struct flist=
+_head *clist, struct cgroup
+ 			if (write_str_to_file(td, (*mnt)->path, "cgroup.subtree_control",
+ 						"+io", "cgroup open cgroup.subtree_control"))
+ 				goto err;
+-			if (write_int_to_file(td, root, "io.weight",
+-						td->o.cgroup_weight,
+-						"cgroup open io.weight"))
+-				goto err;
++			if (td->o.cgroup_use_bfq) {
++				if (write_int_to_file(td, root, "io.bfq.weight",
++							td->o.cgroup_weight,
++							"cgroup open io.bfq.weight"))
++					goto err;
++			} else {
++				if (write_int_to_file(td, root, "io.weight",
++							td->o.cgroup_weight,
++							"cgroup open io.weight"))
++					goto err;
++			}
+ 		} else {
+-			if (write_int_to_file(td, root, "blkio.weight",
+-						td->o.cgroup_weight,
+-						"cgroup open blkio.weight"))
+-				goto err;
++			if (td->o.cgroup_use_bfq) {
++				if (write_int_to_file(td, root, "blkio.bfq.weight",
++							td->o.cgroup_weight,
++							"cgroup open blkio.bfq.weight"))
++					goto err;
++			} else {
++				if (write_int_to_file(td, root, "blkio.weight",
++							td->o.cgroup_weight,
++							"cgroup open blkio.weight"))
++					goto err;
++			}
+ 		}
+ 	}
+=20
+--=20
+2.28.0
 
 
