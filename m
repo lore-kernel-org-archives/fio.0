@@ -1,76 +1,36 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54122 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726130AbgH3MAh (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 30 Aug 2020 08:00:37 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0932DC061573
-        for <fio@vger.kernel.org>; Sun, 30 Aug 2020 05:00:37 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kCM0g-00036L-3l
-        for fio@vger.kernel.org; Sun, 30 Aug 2020 12:00:34 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20200830120002.5FB181BC0042@kernel.dk>
-Date: Sun, 30 Aug 2020 06:00:02 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <aherrmann@suse.com>
+From: Andreas Herrmann <aherrmann@suse.com>
+Subject: [PATCH v2 0/4] cgroup: Support cgroup-v2 weight and BFQ weight
+Date: Mon, 31 Aug 2020 11:21:01 +0200
+Message-ID: <20200831092104.3892-1-aherrmann@suse.com>
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+Return-Path: aherrmann@suse.com
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio <fio@vger.kernel.org>, Andreas Herrmann <aherrmann@suse.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit db83b0abd16bbd6b8f589a993e6f70d9812be6e3:
+These are changes to support weight with cgroup-v2, and also BFQ's
+weight attribute. In recent kernels with cgroup v1 only
+blkio.bfq.weight is available to set weight.
 
-  Use fallthrough attribute (2020-08-28 09:14:38 -0600)
+Andreas Herrmann (4):
+  cgroup: Fix handling when cgroup blkio and cgroup-v2 are mounted
+  cgroup: Allow to use weights with cgroup-v2
+  thread_options: Introduce cgroup_use_bfq
+  cgroup: Support BFQ's weight attributes
 
-are available in the Git repository at:
+ HOWTO            |   6 +++
+ cconv.c          |   2 +
+ cgroup.c         | 110 ++++++++++++++++++++++++++++++++++++-----------
+ fio.1            |   5 +++
+ options.c        |  11 +++++
+ server.h         |   2 +-
+ thread_options.h |   7 ++-
+ 7 files changed, 116 insertions(+), 27 deletions(-)
 
-  git://git.kernel.dk/fio.git master
+--=20
+2.28.0
 
-for you to fetch changes up to e68470637ae7c03d5f85a9243e148d7c46ad4487:
-
-  Update the year to 2020 in os/windows/eula.rtf (2020-08-29 18:54:17 -0600)
-
-----------------------------------------------------------------
-Rebecca Cran (2):
-      Update os/windows/dobuild.cmd to support signing binaries/installer
-      Update the year to 2020 in os/windows/eula.rtf
-
- os/windows/dobuild.cmd |  12 ++++++++++++
- os/windows/eula.rtf    | Bin 1077 -> 1075 bytes
- 2 files changed, 12 insertions(+)
-
----
-
-Diff of recent changes:
-
-diff --git a/os/windows/dobuild.cmd b/os/windows/dobuild.cmd
-index ef12d82d..d06a2afa 100644
---- a/os/windows/dobuild.cmd
-+++ b/os/windows/dobuild.cmd
-@@ -26,9 +26,21 @@ if not defined FIO_ARCH (
-   goto end
- )
- 
-+if defined SIGN_FIO (
-+  signtool sign /n "%SIGNING_CN%" /t http://timestamp.digicert.com ..\..\fio.exe
-+  signtool sign /as /n "%SIGNING_CN%" /tr http://timestamp.digicert.com /td sha256 /fd sha256 ..\..\fio.exe
-+
-+  signtool sign /n "%SIGNING_CN%" /t http://timestamp.digicert.com ..\..\t\*.exe
-+  signtool sign /as /n "%SIGNING_CN%" /tr http://timestamp.digicert.com /td sha256 /fd sha256 ..\..\t\*.exe
-+)
-+
- "%WIX%bin\candle" -nologo -arch %FIO_ARCH% -dFioVersionNumbers="%FIO_VERSION_NUMBERS%" install.wxs
- @if ERRORLEVEL 1 goto end
- "%WIX%bin\candle" -nologo -arch %FIO_ARCH% examples.wxs
- @if ERRORLEVEL 1 goto end
- "%WIX%bin\light" -nologo -sice:ICE61 install.wixobj examples.wixobj -ext WixUIExtension -out %FIO_VERSION%-%FIO_ARCH%.msi
- :end
-+
-+if defined SIGN_FIO (
-+  signtool sign /n "%SIGNING_CN%" /tr http://timestamp.digicert.com /td sha256 /fd sha256 %FIO_VERSION%-%FIO_ARCH%.msi
-+)
-\ No newline at end of file
-diff --git a/os/windows/eula.rtf b/os/windows/eula.rtf
-index 01472be9..a931017c 100755
-Binary files a/os/windows/eula.rtf and b/os/windows/eula.rtf differ
 
