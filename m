@@ -1,66 +1,87 @@
-Return-Path: <adobriyan@gmail.com>
-Return-Path: <adobriyan@gmail.com>
-Date: Thu, 13 Aug 2020 19:36:32 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: [PATCH] zbd: use ->min_zone, ->max_zone in more places
-Message-ID: <20200813163632.GB26072@localhost.localdomain>
-MIME-Version: 1.0
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from de-smtp-delivery-102.mimecast.com ([51.163.158.102]:51348 "EHLO
+        de-smtp-delivery-102.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725829AbgHaFy0 (ORCPT
+        <rfc822;fio@vger.kernel.org>); Mon, 31 Aug 2020 01:54:26 -0400
+Date: Mon, 31 Aug 2020 07:54:17 +0200
+From: Andreas Herrmann <aherrmann@suse.com>
+Subject: Re: [PATCH 3/3] cgroup: Try to use blkio.bfq.weight if blkio.weight
+ is not available
+Message-ID: <20200831055417.GK6041@suselix>
+References: <20200827120722.GC6041@suselix>
+ <20200827121533.GF6041@suselix>
+ <CALjAwxhUcbqQoAKJQYoxeKzw+XfbAbiSe-yKSFHW85hzE0SEQw@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, damien.lemoal@wdc.com
-List-ID: <fio@vger.kernel.org>
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <CALjAwxhUcbqQoAKJQYoxeKzw+XfbAbiSe-yKSFHW85hzE0SEQw@mail.gmail.com>
+MIME-Version: 1.0
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: Jens Axboe <axboe@fb.com>, fio <fio@vger.kernel.org>
 
-Check that ->min_zone is less than ->max_zone.
-This assert found one bug here.
+On Fri, Aug 28, 2020 at 06:29:38PM +0100, Sitsofe Wheeler wrote:
+> On Thu, 27 Aug 2020 at 13:26, Andreas Herrmann <aherrmann@suse.com> wrote=
+:
+> >
+> > Newer kernels just provide blkio.bfq.weight for blkio contoller. Try
+> > to use this attribute when legacy file is not available.
+> >
+> > Signed-off-by: Andreas Herrmann <aherrmann@suse.com>
+> > ---
+> >  cgroup.c | 10 ++++++++--
+> >  1 file changed, 8 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/cgroup.c b/cgroup.c
+> > index 43513733..6edb5b14 100644
+> > --- a/cgroup.c
+> > +++ b/cgroup.c
+> > @@ -218,8 +218,14 @@ int cgroup_setup(struct thread_data *td, struct fl=
+ist_head *clist, struct cgroup
+> >                 }
+> >                 if (write_int_to_file(td, root, "blkio.weight",
+> >                                         td->o.cgroup_weight,
+> > -                                       "cgroup open weight"))
+> > -                       goto err;
+> > +                                       "cgroup open blkio.weight")) {
+> > +                       td_clear_error(td);
+> > +                       log_err("Trying to use blkio.bfq.weight\n");
+>=20
+> It doesn't feel right to print an error just because you tried a
+> fallback. Maybe try both and print an error if neither works?
 
-Use it in more places, now that it was added.
+Ok.
+Most likely it's better to merge this patch into patch 2 of my second
+submission.
 
-Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
----
+Thanks.
 
- zbd.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+> > +                       if (write_int_to_file(td, root, "blkio.bfq.weig=
+ht",
+> > +                                               td->o.cgroup_weight,
+> > +                                               "cgroup open blkio.bfq.=
+weight"))
+> > +                               goto err;
+> > +               }
+> >         }
+> >
+> >         if (!cgroup_write_pid(td, root, (*mnt)->cgroup2)) {
+> > --
+> > 2.28.0
+> >
+>=20
+>=20
+> --=20
+> Sitsofe | http://sucs.org/~sits/
+>=20
 
---- a/zbd.c
-+++ b/zbd.c
-@@ -319,6 +319,7 @@ static bool zbd_verify_sizes(void)
- 
- 			f->min_zone = zbd_zone_idx(f, f->file_offset);
- 			f->max_zone = zbd_zone_idx(f, f->file_offset + f->io_size);
-+			assert(f->min_zone < f->max_zone);
- 		}
- 	}
- 
-@@ -839,9 +840,8 @@ static uint64_t zbd_process_swd(const struct fio_file *f, enum swd_action a)
- 	struct fio_zone_info *zb, *ze, *z;
- 	uint64_t swd = 0;
- 
--	zb = &f->zbd_info->zone_info[zbd_zone_idx(f, f->file_offset)];
--	ze = &f->zbd_info->zone_info[zbd_zone_idx(f, f->file_offset +
--						  f->io_size)];
-+	zb = &f->zbd_info->zone_info[f->min_zone];
-+	ze = &f->zbd_info->zone_info[f->max_zone];
- 	for (z = zb; z < ze; z++) {
- 		pthread_mutex_lock(&z->mutex);
- 		swd += z->wp - z->start;
-@@ -1175,7 +1175,7 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
- 	struct fio_file *f = io_u->file;
- 	struct fio_zone_info *z1, *z2;
- 	const struct fio_zone_info *const zf =
--		&f->zbd_info->zone_info[zbd_zone_idx(f, f->file_offset)];
-+		&f->zbd_info->zone_info[f->min_zone];
- 
- 	/*
- 	 * Skip to the next non-empty zone in case of sequential I/O and to
-@@ -1482,8 +1482,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 		if (range < min_bs ||
- 		    ((!td_random(td)) && (io_u->offset + min_bs > zb->wp))) {
- 			pthread_mutex_unlock(&zb->mutex);
--			zl = &f->zbd_info->zone_info[zbd_zone_idx(f,
--						f->file_offset + f->io_size)];
-+			zl = &f->zbd_info->zone_info[f->max_zone];
- 			zb = zbd_find_zone(td, io_u, zb, zl);
- 			if (!zb) {
- 				dprint(FD_ZBD,
+--=20
+Regards,
+Andreas
+
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+GF: Felix Imend=C3=B6rffer (HRB 36809, AG N=C3=BCrnberg)
+
 
