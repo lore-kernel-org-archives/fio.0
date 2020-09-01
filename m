@@ -1,55 +1,32 @@
 Return-Path: <prvs=50667a661=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v3 0/7] Improve open zones accounting
-Date: Tue,  1 Sep 2020 17:19:59 +0900
-Message-Id: <20200901082006.1476720-1-shinichiro.kawasaki@wdc.com>
+From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: Re: [PATCH v2 0/7] Improve open zones accounting
+Date: Tue, 1 Sep 2020 08:18:28 +0000
+Message-ID: <20200901081827.pflnnttjzcznte2c@shindev.dhcp.fujisawa.hgst.com>
+References: <20200821063739.390353-1-shinichiro.kawasaki@wdc.com>
+ <MN2PR04MB595122EAFC901FF9A297838BE1590@MN2PR04MB5951.namprd04.prod.outlook.com>
+In-Reply-To: 
+ <MN2PR04MB595122EAFC901FF9A297838BE1590@MN2PR04MB5951.namprd04.prod.outlook.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <474520147789D043A050B7CBA642CBFC@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>, Damien Le Moal <Damien.LeMoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-The max_open_zones and job_max_open_zones option control number of write target
-open zones within the specified limit. Currently, this write target zone
-accounting is not accurate enough. Even with these options set, the limits can
-exceed during write workloads.
+On Aug 23, 2020 / 00:18, Dmitry Fomichev wrote:
+> The small comment change suggestion in patch #3 could be addressed
+> if there is v3, but the patchset works for me in it's current form.=20
+> Therefore, for the series,
+> Reviewed-by: Dmitry Fomichev: <dmitry.fomichev@wdc.com>
 
-This patch series improves accuracy of the open zones accounting. The first
-patch moves the moment to decrement number of currently open zones from write
-command submit to write command completion. This avoids zone writes beyond the
-limit caused by concurrent write commands at queue depths approaching the max
-limits. The second and third patches fix the open zone status initialization
-issue. Other following patches improve t/zbd scripts to take maximum write
-target zone limit and allow to test devices with the limit.
+Thank you Dmitry. I will reflect you comment on #3 and send out v3 soon wit=
+h
+your reviwed-by tag.
 
-Changes from v2:
-* Improved code comment per review on the list
-
-Changes from v1:
-* Improved open zones list initialization to reset zones beyond max open zones
-* Added the 2nd patch which is required for the open zones list initialization
-* Reflected various comments on the list
-
-Shin'ichiro Kawasaki (7):
-  zbd: Decrement open zones count at write command completion
-  oslib/linux-blkzoned: Allow reset zone before file set up
-  zbd: Initialize open zones list referring zone status at fio start
-  t/zbd: Improve usage message of test-zbd-support script
-  t/zbd: Add -o option to t/zbd/test-zoned-support
-  t/zbd: Reset all zones before test when max open zones is specified
-  t/zbd: Remove unnecessary option for zbc_reset_zone
-
- io_u.c                 |   4 +-
- io_u.h                 |   5 +-
- ioengines.c            |   4 +-
- oslib/linux-blkzoned.c |  18 +++++-
- t/zbd/functions        |   2 +-
- t/zbd/test-zbd-support | 122 +++++++++++++++++++++++++++++++++------
- zbd.c                  | 127 +++++++++++++++++++++++++++++++++--------
- zbd.h                  |   9 +--
- 8 files changed, 236 insertions(+), 55 deletions(-)
-
--- 
-2.26.2
-
+--=20
+Best Regards,
+Shin'ichiro Kawasaki=
 
