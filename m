@@ -1,132 +1,118 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54800 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725833AbgILMAI (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 12 Sep 2020 08:00:08 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B491C061573
-        for <fio@vger.kernel.org>; Sat, 12 Sep 2020 05:00:07 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kH4CL-0007O0-8i
-        for fio@vger.kernel.org; Sat, 12 Sep 2020 12:00:05 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20200912120001.BFD7C1BC0130@kernel.dk>
-Date: Sat, 12 Sep 2020 06:00:01 -0600 (MDT)
+        with ESMTP id S1726948AbgIBMtP (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 2 Sep 2020 08:49:15 -0400
+Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA22C061245
+        for <fio@vger.kernel.org>; Wed,  2 Sep 2020 05:49:12 -0700 (PDT)
+Received: by mail-wm1-x343.google.com with SMTP id c19so3102740wmd.1
+        for <fio@vger.kernel.org>; Wed, 02 Sep 2020 05:49:12 -0700 (PDT)
+Date: Wed, 2 Sep 2020 15:49:08 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH] zbd: remove reset_zone flag from fio_zone_info
+Message-ID: <20200902124908.GA884094@localhost.localdomain>
+References: <20200819125609.GA278226@localhost.localdomain>
+ <MN2PR04MB5951788306F08D671035B797E15D0@MN2PR04MB5951.namprd04.prod.outlook.com>
+ <20200821170707.GA1443825@localhost.localdomain>
+ <MN2PR04MB5951A6A974917E280DF3E262E1550@MN2PR04MB5951.namprd04.prod.outlook.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <MN2PR04MB5951A6A974917E280DF3E262E1550@MN2PR04MB5951.namprd04.prod.outlook.com>
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit e55138eed3296b642229271b0dcec492ec776702:
+On Thu, Aug 27, 2020 at 07:18:07PM +0000, Dmitry Fomichev wrote:
+> 
+> 
+> > -----Original Message-----
+> > From: Alexey Dobriyan <adobriyan@gmail.com>
+> > Sent: Friday, August 21, 2020 1:07 PM
+> > To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+> > Cc: fio@vger.kernel.org
+> > Subject: Re: [PATCH] zbd: remove reset_zone flag from fio_zone_info
+> > 
+> > On Wed, Aug 19, 2020 at 07:35:03PM +0000, Dmitry Fomichev wrote:
+> > >
+> > >
+> > > > -----Original Message-----
+> > > > From: Alexey Dobriyan <adobriyan@gmail.com>
+> > > > Sent: Wednesday, August 19, 2020 8:56 AM
+> > > > To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+> > > > Cc: fio@vger.kernel.org
+> > > > Subject: Re: [PATCH] zbd: remove reset_zone flag from fio_zone_info
+> > > >
+> > > > > The reset_zone flag that is defined in fio_zone_info structure is
+> > > > > only referenced in zbd_adjust_block() function. Convert this flag
+> > > > > to a local variable and save some room in zbd_info array which can
+> > > > > be pretty large when running fio against high capacity zoned devices.
+> > > >
+> > > > This flag should be kept.
+> > > >
+> > > > Test can crash or be interrupted leaving hw in indeterminate state,
+> > > > it must be restarted from clean state. Or test can be precondition and
+> > > > zone should not be reset.
+> > >
+> > > This is beyond the scope of fio. Any preconditioning of zones is done
+> > > by external scripts that have no access to this flag. Tools like blkzone,
+> > > libzbc or nvme-cli are typically used to precondition zones before
+> > > testing and to analyze zone state after test runs.
+> > 
+> > If it is a matter of policy that fio doesn't do preconditioning,
+> > then the patch is OK.
+> > 
+> > We do preconditioning in fio, it is neat:
+> > * don't need external programs
+> > * everything inside one job file
+> > * not a lot of code to add
+> > 
+> > But to do this, flag must live in "struct fio_zone_info".
+> > 
+> > 	[zra]
+> > 	zone_reset_all=1
+> 
+> The way I understand this, this option makes ZBD code to set the reset_zone
+> flag for all zones during init. This will force zone reset before the first write
+> to a zone. This indeed is a neat idea and this feature looks to be pretty 
+> lightweight as you said.
+> 
+> > 	zone_finish_all=1
+> 
+> How does this option work? Seems like you have added a new
+> finish_zone flag and you finish every zone for which the flag is set
+> instead of performing the first write to the zone...
 
-  Merge branch 'evelu-enghelp' of https://github.com/ErwanAliasr1/fio into master (2020-09-09 10:48:27 -0600)
+Sorry for delay.
 
-are available in the Git repository at:
+ZRA marks every zone in [->min_zone, ->max_zone) for reset,
+forcing Zone Reset before first write.
 
-  git://git.kernel.dk/fio.git master
+ZFA sends Finish Zone with "all" flag set synchronously.
 
-for you to fetch changes up to 695611a9d4cd554d44d8b2ec5da2811061950a2e:
+Some job orchestration is required but once it is done, jobs run reliably.
 
-  Allow offload with FAKEIO engines (2020-09-11 09:58:15 -0600)
+> > 	rw=write
+> > 
+> > 	[pre]
+> > 	stonewall
+> > 	zone_reset_all=0
+> > 	zone_finish_all=0
+> > 	job_max_open_zones=...
+> > 	rw=write
+> > 		...
+> > 
+> > 	[j]
+> > 	stonewall
+> > 	zone_reset_all=0
+> > 	zone_finish_all=0
+> > 	rw=randread
+> > 		...
+> 
+> I guess we can hold off with removing the reset_zone flag if you are planning
+> to send the patch for this.
 
-----------------------------------------------------------------
-Jens Axboe (3):
-      engines/io_uring: mark as not compatible with io_submit_mode=offload
-      Disable io_submit_mode=offload with async engines
-      Allow offload with FAKEIO engines
-
- HOWTO              |  3 ++-
- engines/io_uring.c |  6 ++++++
- fio.1              |  2 +-
- ioengines.c        | 14 ++++++++++++--
- 4 files changed, 21 insertions(+), 4 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO b/HOWTO
-index d8586723..2d8c7a02 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -2474,7 +2474,8 @@ I/O depth
- 	can increase latencies. The benefit is that fio can manage submission rates
- 	independently of the device completion rates. This avoids skewed latency
- 	reporting if I/O gets backed up on the device side (the coordinated omission
--	problem).
-+	problem). Note that this option cannot reliably be used with async IO
-+	engines.
- 
- 
- I/O rate
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index e2b5e6ee..69f48859 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -724,6 +724,12 @@ static int fio_ioring_init(struct thread_data *td)
- 	struct ioring_data *ld;
- 	struct thread_options *to = &td->o;
- 
-+	if (to->io_submit_mode == IO_MODE_OFFLOAD) {
-+		log_err("fio: io_submit_mode=offload is not compatible (or "
-+			"useful) with io_uring\n");
-+		return 1;
-+	}
-+
- 	/* sqthread submission requires registered files */
- 	if (o->sqpoll_thread)
- 		o->registerfiles = 1;
-diff --git a/fio.1 b/fio.1
-index 74509bbd..a881277c 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2215,7 +2215,7 @@ has a bit of extra overhead, especially for lower queue depth I/O where it
- can increase latencies. The benefit is that fio can manage submission rates
- independently of the device completion rates. This avoids skewed latency
- reporting if I/O gets backed up on the device side (the coordinated omission
--problem).
-+problem). Note that this option cannot reliably be used with async IO engines.
- .SS "I/O rate"
- .TP
- .BI thinktime \fR=\fPtime
-diff --git a/ioengines.c b/ioengines.c
-index 476df58d..d3be8026 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -22,7 +22,7 @@
- 
- static FLIST_HEAD(engine_list);
- 
--static bool check_engine_ops(struct ioengine_ops *ops)
-+static bool check_engine_ops(struct thread_data *td, struct ioengine_ops *ops)
- {
- 	if (ops->version != FIO_IOOPS_VERSION) {
- 		log_err("bad ioops version %d (want %d)\n", ops->version,
-@@ -41,6 +41,16 @@ static bool check_engine_ops(struct ioengine_ops *ops)
- 	if (ops->flags & FIO_SYNCIO)
- 		return false;
- 
-+	/*
-+	 * async engines aren't reliable with offload
-+	 */
-+	if ((td->o.io_submit_mode == IO_MODE_OFFLOAD) &&
-+	    !(ops->flags & FIO_FAKEIO)) {
-+		log_err("%s: can't be used with offloaded submit. Use a sync "
-+			"engine\n", ops->name);
-+		return true;
-+	}
-+
- 	if (!ops->event || !ops->getevents) {
- 		log_err("%s: no event/getevents handler\n", ops->name);
- 		return true;
-@@ -193,7 +203,7 @@ struct ioengine_ops *load_ioengine(struct thread_data *td)
- 	/*
- 	 * Check that the required methods are there.
- 	 */
--	if (check_engine_ops(ops))
-+	if (check_engine_ops(td, ops))
- 		return NULL;
- 
- 	return ops;
+Thanks, I'll try to extract something mainlineable.
 
