@@ -1,78 +1,41 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa2.hgst.iphmx.com ([68.232.143.124]:33855 "EHLO
-        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731953AbgIHR7i (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 8 Sep 2020 13:59:38 -0400
-From: Jeffrey Lien <Jeff.Lien@wdc.com>
-Subject: RE: Inconsistent Status Intervals
-Date: Tue, 8 Sep 2020 17:59:34 +0000
-Message-ID: <BYAPR04MB5656C2818681CB9DD399945EEA290@BYAPR04MB5656.namprd04.prod.outlook.com>
+Received: from mail-pg1-f174.google.com ([209.85.215.174]:44629 "EHLO
+        mail-pg1-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725554AbgIEETM (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 5 Sep 2020 00:19:12 -0400
+Received: by mail-pg1-f174.google.com with SMTP id 7so5302915pgm.11
+        for <fio@vger.kernel.org>; Fri, 04 Sep 2020 21:19:11 -0700 (PDT)
+From: Bart Van Assche <bvanassche@acm.org>
+Subject: Re: Inconsistent Status Intervals
 References: <BYAPR04MB56568021114303501613DB1AEA2D0@BYAPR04MB5656.namprd04.prod.outlook.com>
  <BYAPR04MB5656DD4B26ACBCEDD6074E82EA2D0@BYAPR04MB5656.namprd04.prod.outlook.com>
- <872c21cc-901c-9537-15be-dd1b609756e1@acm.org>
- <BYAPR04MB5656BA79FE46C0D779AEEC1AEA290@BYAPR04MB5656.namprd04.prod.outlook.com>
-In-Reply-To: <BYAPR04MB5656BA79FE46C0D779AEEC1AEA290@BYAPR04MB5656.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Message-ID: <872c21cc-901c-9537-15be-dd1b609756e1@acm.org>
+Date: Fri, 4 Sep 2020 21:19:09 -0700
 MIME-Version: 1.0
+In-Reply-To: <BYAPR04MB5656DD4B26ACBCEDD6074E82EA2D0@BYAPR04MB5656.namprd04.prod.outlook.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Bart Van Assche <bvanassche@acm.org>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Jeffrey Lien <Jeff.Lien@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 Cc: Siriporn Swart <Siriporn.Swart@wdc.com>, Jeff Furlong <jeff.furlong@wdc.com>, Kris Davis <Kris.Davis@wdc.com>
 
-QmFydCwgDQpZb3VyIGZpeCBkaWQgbm90IHJlc29sdmUgdGhlIGlzc3VlLiAgVGhlIHRpbWUgaW50
-ZXJ2YWwgaXMgc3RpbGwgaW5jcmVhc2luZyBieSAxLTIgdXNlYyBldmVyeSAybmQgb3IgM3JkIGlu
-dGVydmFsLiAgDQoxMDAwLCA3MDQ0NjgsIDEsIDAsIDANCjIwMDEsIDgyOTQ3MiwgMSwgMCwgMA0K
-MzAwMSwgODM3NzA4LCAxLCAwLCAwDQo0MDAyLCA4MjgyNjgsIDEsIDAsIDANCjUwMDIsIDgzMDY5
-MiwgMSwgMCwgMA0KNjAwMiwgODI2MjYwLCAxLCAwLCAwDQo3MDAzLCA4Mzg0NjAsIDEsIDAsIDAN
-CjgwMDMsIDgzMTcyNCwgMSwgMCwgMA0KOTAwNCwgODQxNzQ0LCAxLCAwLCAwDQoxMDAwNCwgODM0
-MjYwLCAxLCAwLCAwDQoxMTAwNSwgODM1OTI4LCAxLCAwLCAwDQoxMjAwNSwgODI0MTgwLCAxLCAw
-LCAwDQoxMzAwNSwgODI3ODYwLCAxLCAwLCAwDQoxNDAwNiwgODM0MjEyLCAxLCAwLCAwDQoxNTAw
-NiwgODIxMzI0LCAxLCAwLCAwDQoxNjAwNywgODIyODY0LCAxLCAwLCAwDQoxNzAwNywgODI0OTA4
-LCAxLCAwLCAwDQoxODAwNywgODQxMTQ0LCAxLCAwLCAwDQoxOTAwOCwgODI2NzEyLCAxLCAwLCAw
-DQoyMDAwOCwgODIyNDk2LCAxLCAwLCAwDQoyMTAwOSwgODI2MzUyLCAxLCAwLCAwDQoyMjAwOSwg
-ODI4NDI4LCAxLCAwLCAwDQoyMzAxMCwgODIxNjQ4LCAxLCAwLCAwDQoyNDAxMCwgODM2OTg0LCAx
-LCAwLCAwDQoyNTAxMSwgODQyMDg0LCAxLCAwLCAwDQoyNjAxMSwgODMzOTI0LCAxLCAwLCAwDQoy
-NzAxMSwgODMwMDg0LCAxLCAwLCAwDQoyODAxMiwgODM1ODc2LCAxLCAwLCAwDQoyOTAxMiwgODQw
-NzIwLCAxLCAwLCAwDQozMDAxMywgODMyOTY3LCAxLCAwLCAwDQozMTAxNCwgODI3NjMyLCAxLCAw
-LCAwDQozMjAxNCwgODIzOTQ4LCAxLCAwLCAwDQozMzAxNSwgODQwODMyLCAxLCAwLCAwDQozNDAx
-NSwgODMzNTU2LCAxLCAwLCAwDQozNTAxNSwgODI3ODk2LCAxLCAwLCAwDQoNCi0tLS0tT3JpZ2lu
-YWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBKZWZmcmV5IExpZW4gDQpTZW50OiBUdWVzZGF5LCBTZXB0
-ZW1iZXIgOCwgMjAyMCA4OjI2IEFNDQpUbzogQmFydCBWYW4gQXNzY2hlIDxidmFuYXNzY2hlQGFj
-bS5vcmc+OyBmaW9Admdlci5rZXJuZWwub3JnDQpDYzogU2lyaXBvcm4gU3dhcnQgPFNpcmlwb3Ju
-LlN3YXJ0QHdkYy5jb20+OyBKZWZmIEZ1cmxvbmcgPGplZmYuZnVybG9uZ0B3ZGMuY29tPjsgS3Jp
-cyBEYXZpcyA8S3Jpcy5EYXZpc0B3ZGMuY29tPg0KU3ViamVjdDogUkU6IEluY29uc2lzdGVudCBT
-dGF0dXMgSW50ZXJ2YWxzDQoNCkJhcnQsDQpJJ2xsIGdpdmUgeW91ciBmaXggYSB0cnkgdGhpcyB0
-b2RheSBhbmQgbGV0IHlvdSBrbm93LiAgVGhhbmtzLiAgIA0KDQotLS0tLU9yaWdpbmFsIE1lc3Nh
-Z2UtLS0tLQ0KRnJvbTogQmFydCBWYW4gQXNzY2hlIDxidmFuYXNzY2hlQGFjbS5vcmc+DQpTZW50
-OiBGcmlkYXksIFNlcHRlbWJlciA0LCAyMDIwIDExOjE5IFBNDQpUbzogSmVmZnJleSBMaWVuIDxK
-ZWZmLkxpZW5Ad2RjLmNvbT47IGZpb0B2Z2VyLmtlcm5lbC5vcmcNCkNjOiBTaXJpcG9ybiBTd2Fy
-dCA8U2lyaXBvcm4uU3dhcnRAd2RjLmNvbT47IEplZmYgRnVybG9uZyA8amVmZi5mdXJsb25nQHdk
-Yy5jb20+OyBLcmlzIERhdmlzIDxLcmlzLkRhdmlzQHdkYy5jb20+DQpTdWJqZWN0OiBSZTogSW5j
-b25zaXN0ZW50IFN0YXR1cyBJbnRlcnZhbHMNCg0KQ0FVVElPTjogVGhpcyBlbWFpbCBvcmlnaW5h
-dGVkIGZyb20gb3V0c2lkZSBvZiBXZXN0ZXJuIERpZ2l0YWwuIERvIG5vdCBjbGljayBvbiBsaW5r
-cyBvciBvcGVuIGF0dGFjaG1lbnRzIHVubGVzcyB5b3UgcmVjb2duaXplIHRoZSBzZW5kZXIgYW5k
-IGtub3cgdGhhdCB0aGUgY29udGVudCBpcyBzYWZlLg0KDQoNCk9uIDIwMjAtMDktMDQgMTM6MTYs
-IEplZmZyZXkgTGllbiB3cm90ZToNCj4gQW4gaXNzdWUgd2l0aCBmaW8gdmVyc2lvbiAzLjIwIHdh
-cyByZXBvcnRlZCB0byBtZSBieSBvdXIgcGVyZm9ybWFuY2UgdGVhbSB3aGVyZSB0aGUgc3RhdHVz
-IGludGVydmFscyBmb3IgdGhlIGlvcHMgYW5kIGJ3IHZhbHVlcyBncmFkdWFsbHkgaW5jcmVhc2Ug
-b3ZlciB0aGUgcnVuIHRpbWUgb2YgdGhlIGpvYi4gIEV2ZW50dWFsbHksIHRoZSBkZWx0YSBnZXRz
-IGxhcmdlIGVub3VnaCB0aGF0IGl0IGNhdXNlcyBpc3N1ZXMgd2l0aCB0aGUgcHl0aG9uIHNjcmlw
-dCB0aGF0IGZvcm1hdHMgYW5kIHN1bW1hcml6ZXMgdGhlIGZpbyBvdXRwdXQuICBJIGluY2x1ZGVk
-IGFuIGV4YW1wbGUgb2YgdGhlIG91dHB1dCBhdCB0aGUgYm90dG9tIG9mIHRoaXMgZW1haWwuDQo+
-DQo+IEkgZm91bmQgdGhpcyBjb21taXQgZnJvbSBCYXJ0IGluIHZlcnNpb24gMy4xOCB0aGF0IGlu
-dHJvZHVjZXMgdGhlIHN0YXR1cyBpbnRlcnZhbCB2YXJpYWJpbGl0eToNCj4gaHR0cHM6Ly9naXRo
-dWIuY29tL2F4Ym9lL2Zpby9jb21taXQvMzFlY2E2NDFhZDkxNjM0ZTVmZmNmMzY5Y2Q3NTZiMDUw
-Ng0KPiBhNzAwYzEgQW5kIHRoZW4gdGhpcyBjb21taXQgZnJvbSBWaW5jZW50IHRoYXQgbWFrZXMg
-aXQgYmV0dGVyIGJ1dCANCj4gZG9lc24ndCBjb21wbGV0ZWx5IHJlc29sdmUgdGhlIGlzc3VlOg0K
-PiBodHRwczovL2dpdGh1Yi5jb20vYXhib2UvZmlvL2NvbW1pdC8wZjc3ZDMwZDkwYjgwOWZiZjIz
-M2I5NDc0Y2M1ZDE3YzZiDQo+IGY3MzU0MQ0KPg0KPiBJIGxvb2tlZCBhdCBib3RoIG9mIHRoZXNl
-IHBhdGNoZXMgYnV0IGFtIG5vdCBmYW1pbGlhciBlbm91Z2ggd2l0aCB0aGUgZmlvIGNvZGUgdG8g
-a25vdyBob3cgYmVzdCB0byByZXNvbHZlIHRoZSBpc3N1ZS4gIERvZXMgYW55b25lIGhhdmUgYW55
-IHN1Z2dlc3Rpb25zIG9uIHdoYXQgY291bGQgYmUgZG9uZSB0byBtYWtlIHRoZSBzdGF0dXMgaW50
-ZXJ2YWxzIGNvbnNpc3RlbnQ/DQoNCkEgY2FuZGlkYXRlIGZpeCBpcyBhdmFpbGFibGUgb24gdGhl
-IG1hc3RlciBicmFuY2ggb2YgaHR0cHM6Ly9naXRodWIuY29tL2J2YW5hc3NjaGUvZmlvLiBJZiB0
-aGUgZml4IG9uIHRoYXQgYnJhbmNoIGhlbHBzIEkgd2lsbCBzZW5kIGEgcHVsbCByZXF1ZXN0IHRv
-IEplbnMuDQoNClRoYW5rcywNCg0KQmFydC4NCg==
+On 2020-09-04 13:16, Jeffrey Lien wrote:
+> An issue with fio version 3.20 was reported to me by our performance team where the status intervals for the iops and bw values gradually increase over the run time of the job.  Eventually, the delta gets large enough that it causes issues with the python script that formats and summarizes the fio output.  I included an example of the output at the bottom of this email.
+> 
+> I found this commit from Bart in version 3.18 that introduces the status interval variability:
+> https://github.com/axboe/fio/commit/31eca641ad91634e5ffcf369cd756b0506a700c1
+> And then this commit from Vincent that makes it better but doesn't completely resolve the issue:
+> https://github.com/axboe/fio/commit/0f77d30d90b809fbf233b9474cc5d17c6bf73541
+> 
+> I looked at both of these patches but am not familiar enough with the fio code to know how best to resolve the issue.  Does anyone have any suggestions on what could be done to make the status intervals consistent?  
+
+A candidate fix is available on the master branch of
+https://github.com/bvanassche/fio. If the fix on that branch
+helps I will send a pull request to Jens.
+
+Thanks,
+
+Bart.
 
