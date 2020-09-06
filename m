@@ -1,145 +1,112 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:16565 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726733AbgIGBiy (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 6 Sep 2020 21:38:54 -0400
-From: Damien Le Moal <Damien.LeMoal@wdc.com>
-Subject: Re: Using fio for testing for SMR
-Date: Mon, 7 Sep 2020 01:38:50 +0000
-Message-ID: <CY4PR04MB375151FBEBA78B253EA49247E7280@CY4PR04MB3751.namprd04.prod.outlook.com>
-References: <177yieNdk0144Set.1599312610@web12.cms.usa.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47456 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728905AbgIFOUN (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 6 Sep 2020 10:20:13 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0659C061573
+        for <fio@vger.kernel.org>; Sun,  6 Sep 2020 07:14:19 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id j2so12096167wrx.7
+        for <fio@vger.kernel.org>; Sun, 06 Sep 2020 07:14:19 -0700 (PDT)
 MIME-Version: 1.0
+References: <177yieNdk0144Set.1599312610@web12.cms.usa.net>
+In-Reply-To: <177yieNdk0144Set.1599312610@web12.cms.usa.net>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sun, 6 Sep 2020 15:13:51 +0100
+Message-ID: <CALjAwxhQAPucLh5mL_=4ydUH3btioAAEehKHLJDqqhgbeSdQ3w@mail.gmail.com>
+Subject: Re: Using fio for testing for SMR
+Content-Type: text/plain; charset="UTF-8"
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: "Ian S. Worthington" <ianworthington@usa.net>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: "Ian S. Worthington" <ianworthington@usa.net>
+Cc: fio <fio@vger.kernel.org>
 
-On 2020/09/05 22:38, Ian S. Worthington wrote:=0A=
-> I'm trying to establish if a new disk is SMR or not, or has any other=0A=
-> characteristics that would make it unsuitable for use in a zfs array.=0A=
-> =0A=
-> CrystalDiskMark suggests it has a speed of 6~8 MB/s in its RND4K testing.=
-=0A=
-> =0A=
-> iiuc SMR disks contain a CMR area, possibly of variable size, which is us=
-ed as=0A=
-> a cache, so to test a drive I need to ensure I fill this cache to the dri=
-ve is=0A=
-> forced to start shingling. =0A=
-=0A=
-That is not necessarily true. One can handle the SMR sequential write const=
-raint=0A=
-using a log structured approach that does not require any CMR caching. It r=
-eally=0A=
-depends on how the disk FW is implemented, but generally, that is not publi=
-c=0A=
-information unfortunately.=0A=
-=0A=
-> As the disk is 14TB, my first test used:=0A=
-> =0A=
-> sudo fio --name TEST --eta-newline=3D5s --filename=3D/dev/sda --rw=3Drand=
-write=0A=
-> --size=3D100t --io_size=3D14t  --ioengine=3Dlibaio --iodepth=3D1 --direct=
-=3D1=0A=
-> --numjobs=3D1 --runtime=3D10h --group_reporting=0A=
-> =0A=
-> which reported:=0A=
-> =0A=
-> TEST: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D4685: Sat Sep  5 07:42:02 =
-2020=0A=
->   write: IOPS=3D490, BW=3D1962KiB/s (2009kB/s)(67.4GiB/36000002msec); 0 z=
-one=0A=
-> resets=0A=
->     slat (usec): min=3D16, max=3D10242, avg=3D41.02, stdev=3D11.10=0A=
->     clat (usec): min=3D17, max=3D371540, avg=3D1980.75, stdev=3D1016.94=
-=0A=
->      lat (usec): min=3D283, max=3D371587, avg=3D2024.00, stdev=3D1016.92=
-=0A=
->     clat percentiles (usec):=0A=
->      |  1.00th=3D[  486],  5.00th=3D[  594], 10.00th=3D[ 1074], 20.00th=
-=3D[ 1418],=0A=
->      | 30.00th=3D[ 1565], 40.00th=3D[ 1713], 50.00th=3D[ 1876], 60.00th=
-=3D[ 2040],=0A=
->      | 70.00th=3D[ 2245], 80.00th=3D[ 2474], 90.00th=3D[ 2933], 95.00th=
-=3D[ 3589],=0A=
->      | 99.00th=3D[ 4686], 99.50th=3D[ 5211], 99.90th=3D[ 8356], 99.95th=
-=3D[11863],=0A=
->      | 99.99th=3D[21627]=0A=
->    bw (  KiB/s): min=3D  832, max=3D 7208, per=3D100.00%, avg=3D1961.66, =
-stdev=3D105.29,=0A=
-> samples=3D72000=0A=
->    iops        : min=3D  208, max=3D 1802, avg=3D490.40, stdev=3D26.31, s=
-amples=3D72000=0A=
-> =0A=
-> I have a number of concerns about this test:=0A=
-> =0A=
-> 1. Why is the average speed, 2MB/s, so much lower than that reported by=
-=0A=
-> CrystalDiskMark?=0A=
-=0A=
-Likely because CrystalDiskMark is very short and does not trigger internal=
-=0A=
-sector management (GC) by the disk. Your 10h run most likely did.=0A=
-=0A=
-> 2. After running for 10 hours, only 67 GiB were written.  This could easi=
-ly=0A=
-> not yet have filled any CMR cache on a SMR disk, rendering the test=0A=
-> worthless.=0A=
-=0A=
-Likely no. Whatever CMR space the disk has (if any at all) was likely fille=
-d.=0A=
-The internal disk sector movements to handle SMR sequential write constrain=
-t is=0A=
-causing enormous overhead and leading to 67GB written only. Your 2M random =
-write=0A=
-test is the worst possible for a drive managed SMR disk. You simply are see=
-ing=0A=
-what the drive performance is given the horrible conditions it is subjected=
- to.=0A=
-=0A=
-> =0A=
-> I then ran some 5m tests, using different blocksizes in the command=0A=
-> =0A=
-> sudo fio --name TEST --eta-newline=3D5s --filename=3D/dev/sda --rw=3Drand=
-write=0A=
-> --size=3D100t --io_size=3D14t  --ioengine=3Dlibaio --iodepth=3D1 --direct=
-=3D1=0A=
-> --numjobs=3D1 --runtime=3D5m --group_reporting --blocksize=3Dxxx=0A=
-> =0A=
-> with the result:=0A=
-> =0A=
-> blksize speed(MB/s) IOPS=0A=
->   4k        2        490=0A=
->   1M      100         97=0A=
->  10M      130         12=0A=
-> 100M      160        1~2=0A=
->   1G      160          -=0A=
-> =0A=
-> 3. I'm considering running a dual test, where I first write, say 10TB dat=
-a=0A=
-> with a blocksize of 1M (28 hours), followed by 10 hours of 4k writes agai=
-n. =0A=
-> Although the 1M block contents will be sequential data, can I assume that=
-=0A=
-> enough of them will do via any CMR cache in order to fill it up and revea=
-l any=0A=
-> slow down?=0A=
-=0A=
-On Linux, one easy thing to check is to look at:=0A=
-=0A=
-cat /sys/block/<disk name>/device/scsi_disk/X:Y:Z:N/zoned_cap=0A=
-=0A=
-A drive managed SMR disk that is no hiding its true nature will say=0A=
-"drive-managed". You will need kernel 5.8 to have this attribute files.=0A=
-Otherwise, you can use SG to inspect the VPD page 0xB1 (block device=0A=
-characteristics). Look for the value of bits 4-5 of byte 8 (ZONED field). I=
-f the=0A=
-value is 2 (10b), then your disk is a drive managed SMR disk.=0A=
-=0A=
-=0A=
--- =0A=
-Damien Le Moal=0A=
-Western Digital Research=0A=
+On Sat, 5 Sep 2020 at 14:40, Ian S. Worthington <ianworthington@usa.net> wrote:
+>
+> I'm trying to establish if a new disk is SMR or not, or has any other
+> characteristics that would make it unsuitable for use in a zfs array.
+>
+> CrystalDiskMark suggests it has a speed of 6~8 MB/s in its RND4K testing.
+>
+> iiuc SMR disks contain a CMR area, possibly of variable size, which is used as
+> a cache, so to test a drive I need to ensure I fill this cache to the drive is
+> forced to start shingling.
+>
+> As the disk is 14TB, my first test used:
+>
+> sudo fio --name TEST --eta-newline=5s --filename=/dev/sda --rw=randwrite
+> --size=100t --io_size=14t  --ioengine=libaio --iodepth=1 --direct=1
+> --numjobs=1 --runtime=10h --group_reporting
+>
+> which reported:
+>
+> TEST: (groupid=0, jobs=1): err= 0: pid=4685: Sat Sep  5 07:42:02 2020
+>   write: IOPS=490, BW=1962KiB/s (2009kB/s)(67.4GiB/36000002msec); 0 zone
+> resets
+>     slat (usec): min=16, max=10242, avg=41.02, stdev=11.10
+>     clat (usec): min=17, max=371540, avg=1980.75, stdev=1016.94
+>      lat (usec): min=283, max=371587, avg=2024.00, stdev=1016.92
+>     clat percentiles (usec):
+>      |  1.00th=[  486],  5.00th=[  594], 10.00th=[ 1074], 20.00th=[ 1418],
+>      | 30.00th=[ 1565], 40.00th=[ 1713], 50.00th=[ 1876], 60.00th=[ 2040],
+>      | 70.00th=[ 2245], 80.00th=[ 2474], 90.00th=[ 2933], 95.00th=[ 3589],
+>      | 99.00th=[ 4686], 99.50th=[ 5211], 99.90th=[ 8356], 99.95th=[11863],
+>      | 99.99th=[21627]
+>    bw (  KiB/s): min=  832, max= 7208, per=100.00%, avg=1961.66, stdev=105.29,
+> samples=72000
+>    iops        : min=  208, max= 1802, avg=490.40, stdev=26.31, samples=72000
+>
+> I have a number of concerns about this test:
+>
+> 1. Why is the average speed, 2MB/s, so much lower than that reported by
+> CrystalDiskMark?
+
+Hard to say without seeing the exact crystal disk mark job and knowing
+how the I/O ends up being seen by the disk. I heard below the hood it
+uses diskspd so it would be good to know what parameters it was
+sending to that along and/or information about what the *disk* was
+actually seeing (e.g. average block size and depth)... Bear in mind
+that CDM is usually a filesystem test rather than a block device/raw
+disk test so there's some indirection compared to the fio job above
+(assuming /dev/sda is a SATA block device).
+
+> 2. After running for 10 hours, only 67 GiB were written.  This could easily
+> not yet have filled any CMR cache on a SMR disk, rendering the test
+> worthless.
+>
+> I then ran some 5m tests, using different blocksizes in the command
+>
+> sudo fio --name TEST --eta-newline=5s --filename=/dev/sda --rw=randwrite
+> --size=100t --io_size=14t  --ioengine=libaio --iodepth=1 --direct=1
+> --numjobs=1 --runtime=5m --group_reporting --blocksize=xxx
+>
+> with the result:
+>
+> blksize speed(MB/s) IOPS
+>   4k        2        490
+>   1M      100         97
+>  10M      130         12
+> 100M      160        1~2
+>   1G      160          -
+
+I'm not sure I saw the question in this one... Note: when the block
+size gets big enough (probably somewhere between 512K but less than 2M
+from reading https://stackoverflow.com/a/59403297 and
+https://kernel.dk/when-2mb-turns-into-512k.pdf ) the kernel block
+layer will split the bigger block into smaller pieces (which it might
+then choose to send down to the disk in parallel).
+
+> 3. I'm considering running a dual test, where I first write, say 10TB data
+> with a blocksize of 1M (28 hours), followed by 10 hours of 4k writes again.
+> Although the 1M block contents will be sequential data, can I assume that
+> enough of them will do via any CMR cache in order to fill it up and reveal any
+> slow down?
+
+I think that would depend on the size of the cache, the speed at which
+it was filled and the speed at which said cache could be destaged. If
+those 1MByte blocks are sent "slowly" then the destaging may be able
+to keep up...
+
+-- 
+Sitsofe | http://sucs.org/~sits/
 
