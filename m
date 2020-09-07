@@ -1,66 +1,88 @@
-Return-Path: <krish.reddy@samsung.com>
-From: Krishna Kanth Reddy <krish.reddy@samsung.com>
-Subject: [PATCH 3/3] t/zbd: Add support to verify Zone Explicit Open
-Date: Tue, 29 Sep 2020 18:29:50 +0530
-Message-Id: <20200929125950.20343-4-krish.reddy@samsung.com>
-In-Reply-To: <20200929125950.20343-1-krish.reddy@samsung.com>
-Content-Type: text/plain; charset="utf-8"
-References: <20200929125950.20343-1-krish.reddy@samsung.com>
-	<CGME20200929130329epcas5p1c170f7010a73df8c1cdb79ccf6662428@epcas5p1.samsung.com>
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, Krishna Kanth Reddy <krish.reddy@samsung.com>, Ankit Kumar <ankit.kumar@samsung.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48382 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729191AbgIGMAI (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 7 Sep 2020 08:00:08 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2CF6C061756
+        for <fio@vger.kernel.org>; Mon,  7 Sep 2020 05:00:05 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kFFoa-0008Hv-Gt
+        for fio@vger.kernel.org; Mon, 07 Sep 2020 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200907120002.0611A1BC0127@kernel.dk>
+Date: Mon,  7 Sep 2020 06:00:02 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Modify the test-zbd-support script to verify the Zone Explicit Open.
-Added a new FIO option zone_open.
-When zone_open option is set to explicit, zones are opened explicitly.
-If it is set to implicit, zones are opened implicitly.
-Default value is implicit for the zone_open option.
+The following changes since commit 8b38f40138047975ea7a59b9ce06681ffdd2c31d:
 
-Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
+  fio: support io_size=N% (N <= 100) (2020-09-05 09:37:59 -0600)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 03eabd8a7a53c80a6c9d1376b38a9b7ddce2268a:
+
+  Merge branch 'guasi_fixes' of https://github.com/sitsofe/fio into master (2020-09-06 16:14:58 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (2):
+      Fio 3.23
+      Merge branch 'guasi_fixes' of https://github.com/sitsofe/fio into master
+
+Sitsofe Wheeler (1):
+      Makefile/configure: fix guasi build
+
+ FIO-VERSION-GEN | 2 +-
+ Makefile        | 1 +
+ configure       | 2 +-
+ 3 files changed, 3 insertions(+), 2 deletions(-)
+
 ---
- t/zbd/test-zbd-support | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 248423bb..c1f35165 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -948,6 +948,33 @@ test49() {
-     check_read $((capacity * 2)) || return $?
- }
+Diff of recent changes:
+
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index bf0fee99..5ee7735c 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
  
-+# Explicit zone open to sequential zones, libaio, 1 job, queue depth 1
-+test50() {
-+    local size capacity
-+
-+    size=$((8 * zone_size))
-+    off=$((first_sequential_zone_sector * 512))
-+    capacity=$(total_zone_capacity 8 $off $dev)
-+
-+    run_fio_on_seq --ioengine=libaio --iodepth=1 --rw=write --zone_open=explicit \
-+                   --bs=65536 --size=$size --do_verify=1 --verify=md5 \
-+                   >>"${logfile}.${test_number}" 2>&1 || return $?
-+    check_written $capacity || return $?
-+    check_read $capacity || return $?
-+}
-+
-+# Random zone write to sequential zones, libaio, 8 jobs, queue depth 64 per job, Explicit open
-+test51() {
-+    local capacity
-+
-+    off=$((first_sequential_zone_sector * 512))
-+    capacity=$(total_zone_capacity 4 $off $dev)
-+    run_fio_on_seq --ioengine=libaio --iodepth=64 --rw=randwrite \
-+		   --bs=4096 --group_reporting=1 --numjobs=8 --zone_open=explicit \
-+                   >> "${logfile}.${test_number}" 2>&1 || return $?
-+    check_written $((capacity * 8)) || return $?
-+}
-+
- tests=()
- dynamic_analyzer=()
- reset_all_zones=
--- 
-2.17.1
-
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-3.22
++DEF_VER=fio-3.23
+ 
+ LF='
+ '
+diff --git a/Makefile b/Makefile
+index 8e1ebc90..6678c2fd 100644
+--- a/Makefile
++++ b/Makefile
+@@ -108,6 +108,7 @@ ifdef CONFIG_LINUX_SPLICE
+ endif
+ ifdef CONFIG_GUASI
+   guasi_SRCS = engines/guasi.c
++  guasi_LIBS = -lguasi
+   ENGINES += guasi
+ endif
+ ifdef CONFIG_SOLARISAIO
+diff --git a/configure b/configure
+index 6d672fe5..81bfb270 100755
+--- a/configure
++++ b/configure
+@@ -1325,7 +1325,7 @@ int main(int argc, char **argv)
+   return 0;
+ }
+ EOF
+-if compile_prog "" "" "guasi"; then
++if compile_prog "" "-lguasi" "guasi"; then
+   guasi="yes"
+ fi
+ print_config "GUASI" "$guasi"
 
