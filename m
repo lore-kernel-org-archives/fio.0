@@ -1,54 +1,42 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa5.hgst.iphmx.com ([216.71.153.144]:61074 "EHLO
-        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725941AbgIKRK4 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 11 Sep 2020 13:10:56 -0400
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:44097 "EHLO
+        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726340AbgIHUoS (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 8 Sep 2020 16:44:18 -0400
 From: Jeffrey Lien <Jeff.Lien@wdc.com>
 Subject: RE: Inconsistent Status Intervals
-Date: Fri, 11 Sep 2020 17:10:53 +0000
-Message-ID: <BYAPR04MB5656B50E661238035BC380BCEA240@BYAPR04MB5656.namprd04.prod.outlook.com>
+Date: Tue, 8 Sep 2020 20:44:16 +0000
+Message-ID: <BYAPR04MB5656F5F283A53CA86DF8A803EA290@BYAPR04MB5656.namprd04.prod.outlook.com>
 References: <BYAPR04MB56568021114303501613DB1AEA2D0@BYAPR04MB5656.namprd04.prod.outlook.com>
  <BYAPR04MB5656DD4B26ACBCEDD6074E82EA2D0@BYAPR04MB5656.namprd04.prod.outlook.com>
  <872c21cc-901c-9537-15be-dd1b609756e1@acm.org>
  <BYAPR04MB5656BA79FE46C0D779AEEC1AEA290@BYAPR04MB5656.namprd04.prod.outlook.com>
  <BYAPR04MB5656C2818681CB9DD399945EEA290@BYAPR04MB5656.namprd04.prod.outlook.com>
  <6036b8e0-7c85-968e-33f2-8a0407445eb0@acm.org>
- <BYAPR04MB5656F5F283A53CA86DF8A803EA290@BYAPR04MB5656.namprd04.prod.outlook.com>
-In-Reply-To: <BYAPR04MB5656F5F283A53CA86DF8A803EA290@BYAPR04MB5656.namprd04.prod.outlook.com>
+In-Reply-To: <6036b8e0-7c85-968e-33f2-8a0407445eb0@acm.org>
 Content-Language: en-US
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jeffrey Lien <Jeff.Lien@wdc.com>, Bart Van Assche <bvanassche@acm.org>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Bart Van Assche <bvanassche@acm.org>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 Cc: Siriporn Swart <Siriporn.Swart@wdc.com>, Jeff Furlong <jeff.furlong@wdc.com>, Kris Davis <Kris.Davis@wdc.com>
 
-QmFydCwNCkRvIHlvdSBoYXZlIGFueSBvdGhlciBzdWdnZXN0aW9ucyBvciBwb3RlbnRpYWwgZml4
-ZXMgdG8gdHJ5PyAgSWYgc28sIHBsZWFzZSBsZXQgdXMga25vdy4gIFRoYW5rcy4gIA0KDQotLS0t
-LU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZyA8
-ZmlvLW93bmVyQHZnZXIua2VybmVsLm9yZz4gT24gQmVoYWxmIE9mIEplZmZyZXkgTGllbg0KU2Vu
-dDogVHVlc2RheSwgU2VwdGVtYmVyIDgsIDIwMjAgMzo0NCBQTQ0KVG86IEJhcnQgVmFuIEFzc2No
-ZSA8YnZhbmFzc2NoZUBhY20ub3JnPjsgZmlvQHZnZXIua2VybmVsLm9yZw0KQ2M6IFNpcmlwb3Ju
-IFN3YXJ0IDxTaXJpcG9ybi5Td2FydEB3ZGMuY29tPjsgSmVmZiBGdXJsb25nIDxqZWZmLmZ1cmxv
-bmdAd2RjLmNvbT47IEtyaXMgRGF2aXMgPEtyaXMuRGF2aXNAd2RjLmNvbT4NClN1YmplY3Q6IFJF
-OiBJbmNvbnNpc3RlbnQgU3RhdHVzIEludGVydmFscw0KDQpDQVVUSU9OOiBUaGlzIGVtYWlsIG9y
-aWdpbmF0ZWQgZnJvbSBvdXRzaWRlIG9mIFdlc3Rlcm4gRGlnaXRhbC4gRG8gbm90IGNsaWNrIG9u
-IGxpbmtzIG9yIG9wZW4gYXR0YWNobWVudHMgdW5sZXNzIHlvdSByZWNvZ25pemUgdGhlIHNlbmRl
-ciBhbmQga25vdyB0aGF0IHRoZSBjb250ZW50IGlzIHNhZmUuDQoNCg0KQmFydCwNCkknbSBydW5u
-aW5nIG9uIExpbnV4IFJlZGhhdCA3LjgsIGtlcm5lbCB2ZXJzaW9uIDMuMTAuMC0xMTI3LjE4LjIu
-DQoNCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IEJhcnQgVmFuIEFzc2NoZSA8
-YnZhbmFzc2NoZUBhY20ub3JnPg0KU2VudDogVHVlc2RheSwgU2VwdGVtYmVyIDgsIDIwMjAgMjox
-MCBQTQ0KVG86IEplZmZyZXkgTGllbiA8SmVmZi5MaWVuQHdkYy5jb20+OyBmaW9Admdlci5rZXJu
-ZWwub3JnDQpDYzogU2lyaXBvcm4gU3dhcnQgPFNpcmlwb3JuLlN3YXJ0QHdkYy5jb20+OyBKZWZm
-IEZ1cmxvbmcgPGplZmYuZnVybG9uZ0B3ZGMuY29tPjsgS3JpcyBEYXZpcyA8S3Jpcy5EYXZpc0B3
-ZGMuY29tPg0KU3ViamVjdDogUmU6IEluY29uc2lzdGVudCBTdGF0dXMgSW50ZXJ2YWxzDQoNCkNB
-VVRJT046IFRoaXMgZW1haWwgb3JpZ2luYXRlZCBmcm9tIG91dHNpZGUgb2YgV2VzdGVybiBEaWdp
-dGFsLiBEbyBub3QgY2xpY2sgb24gbGlua3Mgb3Igb3BlbiBhdHRhY2htZW50cyB1bmxlc3MgeW91
-IHJlY29nbml6ZSB0aGUgc2VuZGVyIGFuZCBrbm93IHRoYXQgdGhlIGNvbnRlbnQgaXMgc2FmZS4N
-Cg0KDQpPbiAyMDIwLTA5LTA4IDEwOjU5LCBKZWZmcmV5IExpZW4gd3JvdGU6DQo+IFlvdXIgZml4
-IGRpZCBub3QgcmVzb2x2ZSB0aGUgaXNzdWUuDQpIaSBKZWZmLA0KDQpUaGFua3MgZm9yIHJldGVz
-dGluZy4gU29tZXRoaW5nIEkgc2hvdWxkIGhhdmUgYXNrZWQgZmlyc3Q6IHdoaWNoIG9wZXJhdGlu
-ZyBzeXN0ZW0gYXJlIHlvdSB1c2luZz8gTGludXgsIFdpbmRvd3MsIE9TL1ggb3IgcGVyaGFwcyB5
-ZXQgYW5vdGhlciBvcGVyYXRpbmcgc3lzdGVtPw0KDQpUaGFua3MsDQoNCkJhcnQuDQo=
+QmFydCwgDQpJJ20gcnVubmluZyBvbiBMaW51eCBSZWRoYXQgNy44LCBrZXJuZWwgdmVyc2lvbiAz
+LjEwLjAtMTEyNy4xOC4yLg0KDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBC
+YXJ0IFZhbiBBc3NjaGUgPGJ2YW5hc3NjaGVAYWNtLm9yZz4gDQpTZW50OiBUdWVzZGF5LCBTZXB0
+ZW1iZXIgOCwgMjAyMCAyOjEwIFBNDQpUbzogSmVmZnJleSBMaWVuIDxKZWZmLkxpZW5Ad2RjLmNv
+bT47IGZpb0B2Z2VyLmtlcm5lbC5vcmcNCkNjOiBTaXJpcG9ybiBTd2FydCA8U2lyaXBvcm4uU3dh
+cnRAd2RjLmNvbT47IEplZmYgRnVybG9uZyA8amVmZi5mdXJsb25nQHdkYy5jb20+OyBLcmlzIERh
+dmlzIDxLcmlzLkRhdmlzQHdkYy5jb20+DQpTdWJqZWN0OiBSZTogSW5jb25zaXN0ZW50IFN0YXR1
+cyBJbnRlcnZhbHMNCg0KQ0FVVElPTjogVGhpcyBlbWFpbCBvcmlnaW5hdGVkIGZyb20gb3V0c2lk
+ZSBvZiBXZXN0ZXJuIERpZ2l0YWwuIERvIG5vdCBjbGljayBvbiBsaW5rcyBvciBvcGVuIGF0dGFj
+aG1lbnRzIHVubGVzcyB5b3UgcmVjb2duaXplIHRoZSBzZW5kZXIgYW5kIGtub3cgdGhhdCB0aGUg
+Y29udGVudCBpcyBzYWZlLg0KDQoNCk9uIDIwMjAtMDktMDggMTA6NTksIEplZmZyZXkgTGllbiB3
+cm90ZToNCj4gWW91ciBmaXggZGlkIG5vdCByZXNvbHZlIHRoZSBpc3N1ZS4NCkhpIEplZmYsDQoN
+ClRoYW5rcyBmb3IgcmV0ZXN0aW5nLiBTb21ldGhpbmcgSSBzaG91bGQgaGF2ZSBhc2tlZCBmaXJz
+dDogd2hpY2ggb3BlcmF0aW5nIHN5c3RlbSBhcmUgeW91IHVzaW5nPyBMaW51eCwgV2luZG93cywg
+T1MvWCBvciBwZXJoYXBzIHlldCBhbm90aGVyIG9wZXJhdGluZyBzeXN0ZW0/DQoNClRoYW5rcywN
+Cg0KQmFydC4NCg==
 
