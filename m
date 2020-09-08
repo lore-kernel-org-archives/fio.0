@@ -1,305 +1,503 @@
-Return-Path: <prvs=50667a661=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v3 6/7] t/zbd: Reset all zones before test when max open zones is specified
-Date: Tue,  1 Sep 2020 17:20:05 +0900
-Message-Id: <20200901082006.1476720-7-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200901082006.1476720-1-shinichiro.kawasaki@wdc.com>
-References: <20200901082006.1476720-1-shinichiro.kawasaki@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53408 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730930AbgIHPzg (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 8 Sep 2020 11:55:36 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E029C061786
+        for <fio@vger.kernel.org>; Tue,  8 Sep 2020 05:00:07 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kFcI8-0002EM-HY
+        for fio@vger.kernel.org; Tue, 08 Sep 2020 12:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200908120001.D3F561BC0142@kernel.dk>
+Date: Tue,  8 Sep 2020 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-When the test target device has maximum open zones limit, the zones in
-test target region may not be opened up to the limit, because the zones
-out of the test target region may have open zones. To ensure that the
-test target zones can be opened up to the limit, reset all zones of the
-test target device before the test cases with write work load starts.
-Introduce the helper function prep_write() to check if all zone reset is
-required and do the reset.
+The following changes since commit 03eabd8a7a53c80a6c9d1376b38a9b7ddce2268a:
 
-Also remove unnecessary reset_zone calls for test case #29 and #48. These
-are no longer required by virtue of the improvement in zbd_setup_files()
-to set up zones to meet max_open_zones limit.
+  Merge branch 'guasi_fixes' of https://github.com/sitsofe/fio into master (2020-09-06 16:14:58 -0600)
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Reviewed-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to be23e6be4fadb723f925824f88fbaedbd3502251:
+
+  Kill off old GUASI IO engine (2020-09-07 13:38:03 -0600)
+
+----------------------------------------------------------------
+Alexey Dobriyan (1):
+      fio: cap io_size=N% at 100%, update man page
+
+Jens Axboe (1):
+      Kill off old GUASI IO engine
+
+ HOWTO           |   8 --
+ Makefile        |   5 --
+ configure       |  22 -----
+ engines/guasi.c | 270 --------------------------------------------------------
+ fio.1           |   8 +-
+ io_u.h          |   6 --
+ options.c       |  11 ++-
+ parse.h         |   5 ++
+ 8 files changed, 12 insertions(+), 323 deletions(-)
+ delete mode 100644 engines/guasi.c
+
 ---
- t/zbd/test-zbd-support | 42 ++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 40 insertions(+), 2 deletions(-)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index c21d6aad..248423bb 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -181,6 +181,15 @@ run_fio_on_seq() {
-     run_one_fio_job "${opts[@]}" "$@"
+Diff of recent changes:
+
+diff --git a/HOWTO b/HOWTO
+index 5dc571f8..d8586723 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -1901,14 +1901,6 @@ I/O engine
+ 			single CPU at the desired rate. A job never finishes unless there is
+ 			at least one non-cpuio job.
+ 
+-		**guasi**
+-			The GUASI I/O engine is the Generic Userspace Asynchronous Syscall
+-			Interface approach to async I/O. See
+-
+-			http://www.xmailserver.org/guasi-lib.html
+-
+-			for more info on GUASI.
+-
+ 		**rdma**
+ 			The RDMA I/O engine supports both RDMA memory semantics
+ 			(RDMA_WRITE/RDMA_READ) and channel semantics (Send/Recv) for the
+diff --git a/Makefile b/Makefile
+index 6678c2fd..b00daca2 100644
+--- a/Makefile
++++ b/Makefile
+@@ -106,11 +106,6 @@ endif
+ ifdef CONFIG_LINUX_SPLICE
+   SOURCE += engines/splice.c
+ endif
+-ifdef CONFIG_GUASI
+-  guasi_SRCS = engines/guasi.c
+-  guasi_LIBS = -lguasi
+-  ENGINES += guasi
+-endif
+ ifdef CONFIG_SOLARISAIO
+   SOURCE += engines/solarisaio.c
+ endif
+diff --git a/configure b/configure
+index 81bfb270..08571fb0 100755
+--- a/configure
++++ b/configure
+@@ -1311,25 +1311,6 @@ if compile_prog "" "" "linux splice"; then
+ fi
+ print_config "Linux splice(2)" "$linux_splice"
+ 
+-##########################################
+-# GUASI probe
+-if test "$guasi" != "yes" ; then
+-  guasi="no"
+-fi
+-cat > $TMPC << EOF
+-#include <guasi.h>
+-#include <guasi_syscalls.h>
+-int main(int argc, char **argv)
+-{
+-  guasi_t ctx = guasi_create(0, 0, 0);
+-  return 0;
+-}
+-EOF
+-if compile_prog "" "-lguasi" "guasi"; then
+-  guasi="yes"
+-fi
+-print_config "GUASI" "$guasi"
+-
+ ##########################################
+ # libnuma probe
+ if test "$libnuma" != "yes" ; then
+@@ -2847,9 +2828,6 @@ fi
+ if test "$linux_splice" = "yes" ; then
+   output_sym "CONFIG_LINUX_SPLICE"
+ fi
+-if test "$guasi" = "yes" ; then
+-  output_sym "CONFIG_GUASI"
+-fi
+ if test "$libnuma_v2" = "yes" ; then
+   output_sym "CONFIG_LIBNUMA"
+ fi
+diff --git a/engines/guasi.c b/engines/guasi.c
+deleted file mode 100644
+index d4121757..00000000
+--- a/engines/guasi.c
++++ /dev/null
+@@ -1,270 +0,0 @@
+-/*
+- * guasi engine
+- *
+- * IO engine using the GUASI library.
+- *
+- * Before running make. You'll need the GUASI lib as well:
+- *
+- * http://www.xmailserver.org/guasi-lib.html
+- *
+- */
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include <unistd.h>
+-#include <errno.h>
+-#include <assert.h>
+-
+-#include "../fio.h"
+-
+-#define GFIO_MIN_THREADS 32
+-#ifndef GFIO_MAX_THREADS
+-#define GFIO_MAX_THREADS 2000
+-#endif
+-
+-#include <guasi.h>
+-#include <guasi_syscalls.h>
+-
+-#ifdef GFIO_DEBUG
+-#define GDBG_PRINT(a) printf a
+-#else
+-#define GDBG_PRINT(a) (void) 0
+-#endif
+-
+-struct guasi_data {
+-	guasi_t hctx;
+-	int max_reqs;
+-	guasi_req_t *reqs;
+-	struct io_u **io_us;
+-	int queued_nr;
+-	int reqs_nr;
+-};
+-
+-static int fio_guasi_prep(struct thread_data fio_unused *td, struct io_u *io_u)
+-{
+-
+-	GDBG_PRINT(("fio_guasi_prep(%p)\n", io_u));
+-	io_u->greq = NULL;
+-
+-	return 0;
+-}
+-
+-static struct io_u *fio_guasi_event(struct thread_data *td, int event)
+-{
+-	struct guasi_data *ld = td->io_ops_data;
+-	struct io_u *io_u;
+-	struct guasi_reqinfo rinf;
+-
+-	GDBG_PRINT(("fio_guasi_event(%d)\n", event));
+-	if (guasi_req_info(ld->reqs[event], &rinf) < 0) {
+-		log_err("guasi_req_info(%d) FAILED!\n", event);
+-		return NULL;
+-	}
+-	io_u = rinf.asid;
+-	io_u->error = EINPROGRESS;
+-	GDBG_PRINT(("fio_guasi_event(%d) -> %p\n", event, io_u));
+-	if (rinf.status == GUASI_STATUS_COMPLETE) {
+-		io_u->error = rinf.result;
+-		if (io_u->ddir == DDIR_READ ||
+-		    io_u->ddir == DDIR_WRITE) {
+-			io_u->error = 0;
+-			if (rinf.result != (long) io_u->xfer_buflen) {
+-				if (rinf.result >= 0)
+-					io_u->resid = io_u->xfer_buflen - rinf.result;
+-				else
+-					io_u->error = rinf.error;
+-			}
+-		}
+-	}
+-
+-	return io_u;
+-}
+-
+-static int fio_guasi_getevents(struct thread_data *td, unsigned int min,
+-			       unsigned int max, const struct timespec *t)
+-{
+-	struct guasi_data *ld = td->io_ops_data;
+-	int n, r;
+-	long timeo = -1;
+-
+-	GDBG_PRINT(("fio_guasi_getevents(%d, %d)\n", min, max));
+-	if (min > ld->max_reqs)
+-		min = ld->max_reqs;
+-	if (max > ld->max_reqs)
+-		max = ld->max_reqs;
+-	if (t)
+-		timeo = t->tv_sec * 1000L + t->tv_nsec / 1000000L;
+-	for (n = 0; n < ld->reqs_nr; n++)
+-		guasi_req_free(ld->reqs[n]);
+-	n = 0;
+-	do {
+-		r = guasi_fetch(ld->hctx, ld->reqs + n, min - n,
+-				max - n, timeo);
+-		if (r < 0) {
+-			log_err("guasi_fetch() FAILED! (%d)\n", r);
+-			break;
+-		}
+-		n += r;
+-		if (n >= min)
+-			break;
+-	} while (1);
+-	ld->reqs_nr = n;
+-	GDBG_PRINT(("fio_guasi_getevents() -> %d\n", n));
+-
+-	return n;
+-}
+-
+-static enum fio_q_status fio_guasi_queue(struct thread_data *td,
+-					 struct io_u *io_u)
+-{
+-	struct guasi_data *ld = td->io_ops_data;
+-
+-	fio_ro_check(td, io_u);
+-
+-	GDBG_PRINT(("fio_guasi_queue(%p)\n", io_u));
+-	if (ld->queued_nr == (int) td->o.iodepth)
+-		return FIO_Q_BUSY;
+-
+-	ld->io_us[ld->queued_nr] = io_u;
+-	ld->queued_nr++;
+-	return FIO_Q_QUEUED;
+-}
+-
+-static void fio_guasi_queued(struct thread_data *td, struct io_u **io_us, int nr)
+-{
+-	int i;
+-	struct io_u *io_u;
+-	struct timespec now;
+-
+-	if (!fio_fill_issue_time(td))
+-		return;
+-
+-	io_u_mark_submit(td, nr);
+-	fio_gettime(&now, NULL);
+-	for (i = 0; i < nr; i++) {
+-		io_u = io_us[i];
+-		memcpy(&io_u->issue_time, &now, sizeof(now));
+-		io_u_queued(td, io_u);
+-	}
+-}
+-
+-static int fio_guasi_commit(struct thread_data *td)
+-{
+-	struct guasi_data *ld = td->io_ops_data;
+-	int i;
+-	struct io_u *io_u;
+-	struct fio_file *f;
+-
+-	GDBG_PRINT(("fio_guasi_commit(%d)\n", ld->queued_nr));
+-	for (i = 0; i < ld->queued_nr; i++) {
+-		io_u = ld->io_us[i];
+-		GDBG_PRINT(("fio_guasi_commit(%d) --> %p\n", i, io_u));
+-		f = io_u->file;
+-		io_u->greq = NULL;
+-		if (io_u->ddir == DDIR_READ)
+-			io_u->greq = guasi__pread(ld->hctx, ld, io_u, 0,
+-						  f->fd, io_u->xfer_buf, io_u->xfer_buflen,
+-						  io_u->offset);
+-		else if (io_u->ddir == DDIR_WRITE)
+-			io_u->greq = guasi__pwrite(ld->hctx, ld, io_u, 0,
+-						   f->fd, io_u->xfer_buf, io_u->xfer_buflen,
+-						   io_u->offset);
+-		else if (ddir_sync(io_u->ddir))
+-			io_u->greq = guasi__fsync(ld->hctx, ld, io_u, 0, f->fd);
+-		else {
+-			log_err("fio_guasi_commit() FAILED: unknow request %d\n",
+-				io_u->ddir);
+-		}
+-		if (io_u->greq == NULL) {
+-			log_err("fio_guasi_commit() FAILED: submit failed (%s)\n",
+-				strerror(errno));
+-			return -1;
+-		}
+-	}
+-	fio_guasi_queued(td, ld->io_us, i);
+-	ld->queued_nr = 0;
+-	GDBG_PRINT(("fio_guasi_commit() -> %d\n", i));
+-
+-	return 0;
+-}
+-
+-static int fio_guasi_cancel(struct thread_data fio_unused *td,
+-			    struct io_u *io_u)
+-{
+-	GDBG_PRINT(("fio_guasi_cancel(%p) req=%p\n", io_u, io_u->greq));
+-	if (io_u->greq != NULL)
+-		guasi_req_cancel(io_u->greq);
+-
+-	return 0;
+-}
+-
+-static void fio_guasi_cleanup(struct thread_data *td)
+-{
+-	struct guasi_data *ld = td->io_ops_data;
+-	int n;
+-
+-	GDBG_PRINT(("fio_guasi_cleanup(%p)\n", ld));
+-	if (ld) {
+-		for (n = 0; n < ld->reqs_nr; n++)
+-			guasi_req_free(ld->reqs[n]);
+-		guasi_free(ld->hctx);
+-		free(ld->reqs);
+-		free(ld->io_us);
+-		free(ld);
+-	}
+-	GDBG_PRINT(("fio_guasi_cleanup(%p) DONE\n", ld));
+-}
+-
+-static int fio_guasi_init(struct thread_data *td)
+-{
+-	int maxthr;
+-	struct guasi_data *ld = malloc(sizeof(*ld));
+-
+-	GDBG_PRINT(("fio_guasi_init(): depth=%d\n", td->o.iodepth));
+-	memset(ld, 0, sizeof(*ld));
+-	maxthr = td->o.iodepth > GFIO_MIN_THREADS ? td->o.iodepth: GFIO_MIN_THREADS;
+-	if (maxthr > GFIO_MAX_THREADS)
+-		maxthr = GFIO_MAX_THREADS;
+-	if ((ld->hctx = guasi_create(GFIO_MIN_THREADS, maxthr, 1)) == NULL) {
+-		td_verror(td, errno, "guasi_create");
+-		free(ld);
+-		return 1;
+-	}
+-	ld->max_reqs = td->o.iodepth;
+-	ld->reqs = malloc(ld->max_reqs * sizeof(guasi_req_t));
+-	ld->io_us = malloc(ld->max_reqs * sizeof(struct io_u *));
+-	memset(ld->io_us, 0, ld->max_reqs * sizeof(struct io_u *));
+-	ld->queued_nr = 0;
+-	ld->reqs_nr = 0;
+-
+-	td->io_ops_data = ld;
+-	GDBG_PRINT(("fio_guasi_init(): depth=%d -> %p\n", td->o.iodepth, ld));
+-
+-	return 0;
+-}
+-
+-FIO_STATIC struct ioengine_ops ioengine = {
+-	.name		= "guasi",
+-	.version	= FIO_IOOPS_VERSION,
+-	.init		= fio_guasi_init,
+-	.prep		= fio_guasi_prep,
+-	.queue		= fio_guasi_queue,
+-	.commit		= fio_guasi_commit,
+-	.cancel		= fio_guasi_cancel,
+-	.getevents	= fio_guasi_getevents,
+-	.event		= fio_guasi_event,
+-	.cleanup	= fio_guasi_cleanup,
+-	.open_file	= generic_open_file,
+-	.close_file	= generic_close_file,
+-	.get_file_size	= generic_get_file_size,
+-};
+-
+-static void fio_init fio_guasi_register(void)
+-{
+-	register_ioengine(&ioengine);
+-}
+-
+-static void fio_exit fio_guasi_unregister(void)
+-{
+-	unregister_ioengine(&ioengine);
+-}
+-
+diff --git a/fio.1 b/fio.1
+index f15194ff..74509bbd 100644
+--- a/fio.1
++++ b/fio.1
+@@ -1561,7 +1561,8 @@ if \fBsize\fR is set to 20GiB and \fBio_size\fR is set to 5GiB, fio
+ will perform I/O within the first 20GiB but exit when 5GiB have been
+ done. The opposite is also possible \-\- if \fBsize\fR is set to 20GiB,
+ and \fBio_size\fR is set to 40GiB, then fio will do 40GiB of I/O within
+-the 0..20GiB region.
++the 0..20GiB region. Value can be set as percentage: \fBio_size\fR=N%.
++In this case \fBio_size\fR multiplies \fBsize\fR= value.
+ .TP
+ .BI filesize \fR=\fPirange(int)
+ Individual file sizes. May be a range, in which case fio will select sizes
+@@ -1674,11 +1675,6 @@ to get desired CPU usage, as the cpuload only loads a
+ single CPU at the desired rate. A job never finishes unless there is
+ at least one non-cpuio job.
+ .TP
+-.B guasi
+-The GUASI I/O engine is the Generic Userspace Asynchronous Syscall
+-Interface approach to async I/O. See \fIhttp://www.xmailserver.org/guasi-lib.html\fR
+-for more info on GUASI.
+-.TP
+ .B rdma
+ The RDMA I/O engine supports both RDMA memory semantics
+ (RDMA_WRITE/RDMA_READ) and channel semantics (Send/Recv) for the
+diff --git a/io_u.h b/io_u.h
+index 5a28689c..d4c5be43 100644
+--- a/io_u.h
++++ b/io_u.h
+@@ -11,9 +11,6 @@
+ #ifdef CONFIG_LIBAIO
+ #include <libaio.h>
+ #endif
+-#ifdef CONFIG_GUASI
+-#include <guasi.h>
+-#endif
+ 
+ enum {
+ 	IO_U_F_FREE		= 1 << 0,
+@@ -125,9 +122,6 @@ struct io_u {
+ #ifdef FIO_HAVE_SGIO
+ 		struct sg_io_hdr hdr;
+ #endif
+-#ifdef CONFIG_GUASI
+-		guasi_req_t greq;
+-#endif
+ #ifdef CONFIG_SOLARISAIO
+ 		aio_result_t resultp;
+ #endif
+diff --git a/options.c b/options.c
+index e27bb9cb..b497d973 100644
+--- a/options.c
++++ b/options.c
+@@ -1481,9 +1481,13 @@ static int str_io_size_cb(void *data, unsigned long long *__val)
+ 	struct thread_data *td = cb_data_to_td(data);
+ 	unsigned long long v = *__val;
+ 
+-	if (parse_is_percent(v)) {
++	if (parse_is_percent_uncapped(v)) {
+ 		td->o.io_size = 0;
+ 		td->o.io_size_percent = -1ULL - v;
++		if (td->o.io_size_percent > 100) {
++			log_err("fio: io_size values greater than 100%% aren't supported\n");
++			return 1;
++		}
+ 		dprint(FD_PARSE, "SET io_size_percent %d\n",
+ 					td->o.io_size_percent);
+ 	} else
+@@ -1868,11 +1872,6 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 			  { .ival = "cpuio",
+ 			    .help = "CPU cycle burner engine",
+ 			  },
+-#ifdef CONFIG_GUASI
+-			  { .ival = "guasi",
+-			    .help = "GUASI IO engine",
+-			  },
+-#endif
+ #ifdef CONFIG_RDMA
+ 			  { .ival = "rdma",
+ 			    .help = "RDMA IO engine",
+diff --git a/parse.h b/parse.h
+index 5828654f..1d2cbf74 100644
+--- a/parse.h
++++ b/parse.h
+@@ -133,6 +133,11 @@ static inline int parse_is_percent(unsigned long long val)
+ 	return val <= -1ULL && val >= (-1ULL - 100ULL);
  }
  
-+# Prepare for write test by resetting zones. When max_open_zones option is
-+# specified, reset all zones of the test target to ensure that zones out of the
-+# test target range do not have open zones. This allows the write test to the
-+# target range to be able to open zones up to max_open_zones.
-+prep_write() {
-+	[[ -n "${max_open_zones_opt}" && -n "${is_zbd}" ]] &&
-+		reset_zone "${dev}" -1
++static inline int parse_is_percent_uncapped(unsigned long long val)
++{
++	return (long long)val <= -1;
 +}
 +
- # Check whether buffered writes are refused.
- test1() {
-     run_fio --name=job1 --filename="$dev" --rw=write --direct=0 --bs=4K	\
-@@ -252,6 +261,7 @@ test4() {
- test5() {
-     local size off capacity
- 
-+    prep_write
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 4 $off $dev)
-     size=$((4 * zone_size))
-@@ -267,6 +277,7 @@ test5() {
- test6() {
-     local size off capacity
- 
-+    prep_write
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 4 $off $dev)
-     size=$((4 * zone_size))
-@@ -285,6 +296,7 @@ test7() {
-     local size=$((zone_size))
-     local off capacity
- 
-+    prep_write
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 1 $off $dev)
-     run_fio_on_seq "$(ioengine "libaio")" --iodepth=1 --rw=randwrite	\
-@@ -299,6 +311,7 @@ test7() {
- test8() {
-     local size off capacity
- 
-+    prep_write
-     size=$((4 * zone_size))
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 4 $off $dev)
-@@ -319,6 +332,7 @@ test9() {
- 	return 0
-     fi
- 
-+    prep_write
-     size=$((4 * zone_size))
-     run_fio_on_seq --ioengine=sg					\
- 		   --iodepth=1 --rw=randwrite --bs=16K			\
-@@ -337,6 +351,7 @@ test10() {
- 	return 0
-     fi
- 
-+    prep_write
-     size=$((4 * zone_size))
-     run_fio_on_seq --ioengine=sg 					\
- 		   --iodepth=64 --rw=randwrite --bs=16K			\
-@@ -350,6 +365,7 @@ test10() {
- test11() {
-     local size off capacity
- 
-+    prep_write
-     size=$((4 * zone_size))
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 4 $off $dev)
-@@ -364,6 +380,7 @@ test11() {
- test12() {
-     local size off capacity
- 
-+    prep_write
-     size=$((8 * zone_size))
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 8 $off $dev)
-@@ -378,6 +395,7 @@ test12() {
- test13() {
-     local size off capacity
- 
-+    prep_write
-     size=$((8 * zone_size))
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 8 $off $dev)
-@@ -393,6 +411,7 @@ test13() {
- test14() {
-     local size
- 
-+    prep_write
-     size=$((16 * 2**20)) # 20 MB
-     if [ $size -gt $((first_sequential_zone_sector * 512)) ]; then
- 	echo "$dev does not have enough sequential zones" \
-@@ -417,6 +436,7 @@ test15() {
- 	    reset_zone "$dev" $((first_sequential_zone_sector +
- 				 i*sectors_per_zone))
-     done
-+    prep_write
-     w_off=$(((first_sequential_zone_sector + 2 * sectors_per_zone) * 512))
-     w_size=$((2 * zone_size))
-     w_capacity=$(total_zone_capacity 2 $w_off $dev)
-@@ -441,6 +461,7 @@ test16() {
- 	    reset_zone "$dev" $((first_sequential_zone_sector +
- 				 i*sectors_per_zone))
-     done
-+    prep_write
-     w_off=$(((first_sequential_zone_sector + 2 * sectors_per_zone) * 512))
-     w_size=$((2 * zone_size))
-     w_capacity=$(total_zone_capacity 2 $w_off $dev)
-@@ -463,6 +484,7 @@ test17() {
-     if [ -n "$is_zbd" ]; then
- 	reset_zone "$dev" $((off / 512)) || return $?
-     fi
-+    prep_write
-     run_one_fio_job "$(ioengine "libaio")" --iodepth=8 --rw=randrw --bs=4K \
- 		    --zonemode=zbd --zonesize="${zone_size}"		\
- 		    --offset=$off --loops=2 --norandommap=1\
-@@ -516,6 +538,7 @@ test24() {
-     local bs loops=9 size=$((zone_size))
-     local off capacity
- 
-+    prep_write
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 1 $off $dev)
- 
-@@ -538,6 +561,7 @@ test25() {
-         [ -n "$is_zbd" ] &&
- 	    reset_zone "$dev" $((first_sequential_zone_sector + i*sectors_per_zone))
-     done
-+    prep_write
-     for ((i=0;i<16;i++)); do
- 	opts+=("--name=job$i" "--filename=$dev" "--thread=1" "--direct=1")
- 	opts+=("--offset=$((first_sequential_zone_sector*512 + zone_size*i))")
-@@ -552,6 +576,7 @@ write_to_first_seq_zone() {
-     local loops=4 r
-     local off capacity
- 
-+    prep_write
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 1 $off $dev)
- 
-@@ -581,6 +606,7 @@ test28() {
- 
-     off=$((first_sequential_zone_sector * 512 + 64 * zone_size))
-     [ -n "$is_zbd" ] && reset_zone "$dev" $((off / 512))
-+    prep_write
-     opts=("--debug=zbd")
-     capacity=$(total_zone_capacity 1 $off $dev)
-     for ((i=0;i<jobs;i++)); do
-@@ -604,7 +630,7 @@ test29() {
- 
-     off=$((first_sequential_zone_sector * 512 + 64 * zone_size))
-     size=$((16*zone_size))
--    [ -n "$is_zbd" ] && reset_zone "$dev" $((off / 512))
-+    prep_write
-     opts=("--debug=zbd")
-     for ((i=0;i<jobs;i++)); do
- 	opts+=("--name=job$i" "--filename=$dev" "--offset=$off" "--bs=16K")
-@@ -623,6 +649,7 @@ test29() {
- test30() {
-     local off
- 
-+    prep_write
-     off=$((first_sequential_zone_sector * 512))
-     run_one_fio_job "$(ioengine "libaio")" --iodepth=8 --rw=randrw	\
- 		    --bs="$(max $((zone_size / 128)) "$logical_block_size")"\
-@@ -636,6 +663,7 @@ test30() {
- test31() {
-     local bs inc nz off opts size
- 
-+    prep_write
-     # Start with writing 128 KB to 128 sequential zones.
-     bs=128K
-     nz=128
-@@ -668,6 +696,7 @@ test31() {
- test32() {
-     local off opts=() size
- 
-+    prep_write
-     off=$((first_sequential_zone_sector * 512))
-     size=$((disk_size - off))
-     opts+=("--name=$dev" "--filename=$dev" "--offset=$off" "--size=$size")
-@@ -684,6 +713,7 @@ test33() {
-     local bs io_size size
-     local off capacity=0;
- 
-+    prep_write
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 1 $off $dev)
-     size=$((2 * zone_size))
-@@ -700,6 +730,7 @@ test33() {
- test34() {
-     local size
- 
-+    prep_write
-     size=$((2 * zone_size))
-     run_fio_on_seq "$(ioengine "psync")" --iodepth=1 --rw=write --size=$size \
- 		   --do_verify=1 --verify=md5 --bs=$((3 * zone_size / 4)) \
-@@ -711,6 +742,7 @@ test34() {
- test35() {
-     local bs off io_size size
- 
-+    prep_write
-     off=$(((first_sequential_zone_sector + 1) * 512))
-     size=$((zone_size - 2 * 512))
-     bs=$((zone_size / 4))
-@@ -725,6 +757,7 @@ test35() {
- test36() {
-     local bs off io_size size
- 
-+    prep_write
-     off=$(((first_sequential_zone_sector) * 512))
-     size=$((zone_size - 512))
-     bs=$((zone_size / 4))
-@@ -739,6 +772,7 @@ test36() {
- test37() {
-     local bs off size capacity
- 
-+    prep_write
-     capacity=$(total_zone_capacity 1 $first_sequential_zone_sector $dev)
-     if [ "$first_sequential_zone_sector" = 0 ]; then
- 	off=0
-@@ -758,6 +792,7 @@ test37() {
- test38() {
-     local bs off size
- 
-+    prep_write
-     size=$((logical_block_size))
-     off=$((disk_size - logical_block_size))
-     bs=$((logical_block_size))
-@@ -828,6 +863,7 @@ test45() {
-     local bs i
- 
-     [ -z "$is_zbd" ] && return 0
-+    prep_write
-     bs=$((logical_block_size))
-     run_one_fio_job "$(ioengine "psync")" --iodepth=1 --rw=randwrite --bs=$bs\
- 		    --offset=$((first_sequential_zone_sector * 512)) \
-@@ -840,6 +876,7 @@ test45() {
- test46() {
-     local size
- 
-+    prep_write
-     size=$((4 * zone_size))
-     run_fio_on_seq "$(ioengine "libaio")" --iodepth=64 --rw=randwrite --bs=4K \
- 		   --group_reporting=1 --numjobs=8 \
-@@ -851,6 +888,7 @@ test46() {
- test47() {
-     local bs
- 
-+    prep_write
-     bs=$((logical_block_size))
-     run_fio_on_seq "$(ioengine "psync")" --rw=write --bs=$bs --zoneskip=1 \
- 		    >> "${logfile}.${test_number}" 2>&1 && return 1
-@@ -865,7 +903,7 @@ test48() {
- 
-     off=$((first_sequential_zone_sector * 512 + 64 * zone_size))
-     size=$((16*zone_size))
--    [ -n "$is_zbd" ] && reset_zone "$dev" $((off / 512))
-+    prep_write
-     opts=("--aux-path=/tmp" "--allow_file_create=0" "--significant_figures=10")
-     opts+=("--debug=zbd")
-     opts+=("$(ioengine "libaio")" "--rw=randwrite" "--direct=1")
--- 
-2.26.2
-
+ struct print_option {
+ 	struct flist_head list;
+ 	char *name;
 
