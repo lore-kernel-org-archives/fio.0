@@ -1,38 +1,78 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pf1-f177.google.com ([209.85.210.177]:45002 "EHLO
-        mail-pf1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731399AbgIHTJr (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 8 Sep 2020 15:09:47 -0400
-Received: by mail-pf1-f177.google.com with SMTP id o20so11757114pfp.11
-        for <fio@vger.kernel.org>; Tue, 08 Sep 2020 12:09:46 -0700 (PDT)
-Subject: Re: Inconsistent Status Intervals
+Received: from esa2.hgst.iphmx.com ([68.232.143.124]:33855 "EHLO
+        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731953AbgIHR7i (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 8 Sep 2020 13:59:38 -0400
+From: Jeffrey Lien <Jeff.Lien@wdc.com>
+Subject: RE: Inconsistent Status Intervals
+Date: Tue, 8 Sep 2020 17:59:34 +0000
+Message-ID: <BYAPR04MB5656C2818681CB9DD399945EEA290@BYAPR04MB5656.namprd04.prod.outlook.com>
 References: <BYAPR04MB56568021114303501613DB1AEA2D0@BYAPR04MB5656.namprd04.prod.outlook.com>
  <BYAPR04MB5656DD4B26ACBCEDD6074E82EA2D0@BYAPR04MB5656.namprd04.prod.outlook.com>
  <872c21cc-901c-9537-15be-dd1b609756e1@acm.org>
  <BYAPR04MB5656BA79FE46C0D779AEEC1AEA290@BYAPR04MB5656.namprd04.prod.outlook.com>
- <BYAPR04MB5656C2818681CB9DD399945EEA290@BYAPR04MB5656.namprd04.prod.outlook.com>
-From: Bart Van Assche <bvanassche@acm.org>
-Message-ID: <6036b8e0-7c85-968e-33f2-8a0407445eb0@acm.org>
-Date: Tue, 8 Sep 2020 12:09:44 -0700
-MIME-Version: 1.0
-In-Reply-To: <BYAPR04MB5656C2818681CB9DD399945EEA290@BYAPR04MB5656.namprd04.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <BYAPR04MB5656BA79FE46C0D779AEEC1AEA290@BYAPR04MB5656.namprd04.prod.outlook.com>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Jeffrey Lien <Jeff.Lien@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Bart Van Assche <bvanassche@acm.org>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 Cc: Siriporn Swart <Siriporn.Swart@wdc.com>, Jeff Furlong <jeff.furlong@wdc.com>, Kris Davis <Kris.Davis@wdc.com>
 
-On 2020-09-08 10:59, Jeffrey Lien wrote:
-> Your fix did not resolve the issue.
-Hi Jeff,
-
-Thanks for retesting. Something I should have asked first: which operating
-system are you using? Linux, Windows, OS/X or perhaps yet another operating
-system?
-
-Thanks,
-
-Bart.
+QmFydCwgDQpZb3VyIGZpeCBkaWQgbm90IHJlc29sdmUgdGhlIGlzc3VlLiAgVGhlIHRpbWUgaW50
+ZXJ2YWwgaXMgc3RpbGwgaW5jcmVhc2luZyBieSAxLTIgdXNlYyBldmVyeSAybmQgb3IgM3JkIGlu
+dGVydmFsLiAgDQoxMDAwLCA3MDQ0NjgsIDEsIDAsIDANCjIwMDEsIDgyOTQ3MiwgMSwgMCwgMA0K
+MzAwMSwgODM3NzA4LCAxLCAwLCAwDQo0MDAyLCA4MjgyNjgsIDEsIDAsIDANCjUwMDIsIDgzMDY5
+MiwgMSwgMCwgMA0KNjAwMiwgODI2MjYwLCAxLCAwLCAwDQo3MDAzLCA4Mzg0NjAsIDEsIDAsIDAN
+CjgwMDMsIDgzMTcyNCwgMSwgMCwgMA0KOTAwNCwgODQxNzQ0LCAxLCAwLCAwDQoxMDAwNCwgODM0
+MjYwLCAxLCAwLCAwDQoxMTAwNSwgODM1OTI4LCAxLCAwLCAwDQoxMjAwNSwgODI0MTgwLCAxLCAw
+LCAwDQoxMzAwNSwgODI3ODYwLCAxLCAwLCAwDQoxNDAwNiwgODM0MjEyLCAxLCAwLCAwDQoxNTAw
+NiwgODIxMzI0LCAxLCAwLCAwDQoxNjAwNywgODIyODY0LCAxLCAwLCAwDQoxNzAwNywgODI0OTA4
+LCAxLCAwLCAwDQoxODAwNywgODQxMTQ0LCAxLCAwLCAwDQoxOTAwOCwgODI2NzEyLCAxLCAwLCAw
+DQoyMDAwOCwgODIyNDk2LCAxLCAwLCAwDQoyMTAwOSwgODI2MzUyLCAxLCAwLCAwDQoyMjAwOSwg
+ODI4NDI4LCAxLCAwLCAwDQoyMzAxMCwgODIxNjQ4LCAxLCAwLCAwDQoyNDAxMCwgODM2OTg0LCAx
+LCAwLCAwDQoyNTAxMSwgODQyMDg0LCAxLCAwLCAwDQoyNjAxMSwgODMzOTI0LCAxLCAwLCAwDQoy
+NzAxMSwgODMwMDg0LCAxLCAwLCAwDQoyODAxMiwgODM1ODc2LCAxLCAwLCAwDQoyOTAxMiwgODQw
+NzIwLCAxLCAwLCAwDQozMDAxMywgODMyOTY3LCAxLCAwLCAwDQozMTAxNCwgODI3NjMyLCAxLCAw
+LCAwDQozMjAxNCwgODIzOTQ4LCAxLCAwLCAwDQozMzAxNSwgODQwODMyLCAxLCAwLCAwDQozNDAx
+NSwgODMzNTU2LCAxLCAwLCAwDQozNTAxNSwgODI3ODk2LCAxLCAwLCAwDQoNCi0tLS0tT3JpZ2lu
+YWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBKZWZmcmV5IExpZW4gDQpTZW50OiBUdWVzZGF5LCBTZXB0
+ZW1iZXIgOCwgMjAyMCA4OjI2IEFNDQpUbzogQmFydCBWYW4gQXNzY2hlIDxidmFuYXNzY2hlQGFj
+bS5vcmc+OyBmaW9Admdlci5rZXJuZWwub3JnDQpDYzogU2lyaXBvcm4gU3dhcnQgPFNpcmlwb3Ju
+LlN3YXJ0QHdkYy5jb20+OyBKZWZmIEZ1cmxvbmcgPGplZmYuZnVybG9uZ0B3ZGMuY29tPjsgS3Jp
+cyBEYXZpcyA8S3Jpcy5EYXZpc0B3ZGMuY29tPg0KU3ViamVjdDogUkU6IEluY29uc2lzdGVudCBT
+dGF0dXMgSW50ZXJ2YWxzDQoNCkJhcnQsDQpJJ2xsIGdpdmUgeW91ciBmaXggYSB0cnkgdGhpcyB0
+b2RheSBhbmQgbGV0IHlvdSBrbm93LiAgVGhhbmtzLiAgIA0KDQotLS0tLU9yaWdpbmFsIE1lc3Nh
+Z2UtLS0tLQ0KRnJvbTogQmFydCBWYW4gQXNzY2hlIDxidmFuYXNzY2hlQGFjbS5vcmc+DQpTZW50
+OiBGcmlkYXksIFNlcHRlbWJlciA0LCAyMDIwIDExOjE5IFBNDQpUbzogSmVmZnJleSBMaWVuIDxK
+ZWZmLkxpZW5Ad2RjLmNvbT47IGZpb0B2Z2VyLmtlcm5lbC5vcmcNCkNjOiBTaXJpcG9ybiBTd2Fy
+dCA8U2lyaXBvcm4uU3dhcnRAd2RjLmNvbT47IEplZmYgRnVybG9uZyA8amVmZi5mdXJsb25nQHdk
+Yy5jb20+OyBLcmlzIERhdmlzIDxLcmlzLkRhdmlzQHdkYy5jb20+DQpTdWJqZWN0OiBSZTogSW5j
+b25zaXN0ZW50IFN0YXR1cyBJbnRlcnZhbHMNCg0KQ0FVVElPTjogVGhpcyBlbWFpbCBvcmlnaW5h
+dGVkIGZyb20gb3V0c2lkZSBvZiBXZXN0ZXJuIERpZ2l0YWwuIERvIG5vdCBjbGljayBvbiBsaW5r
+cyBvciBvcGVuIGF0dGFjaG1lbnRzIHVubGVzcyB5b3UgcmVjb2duaXplIHRoZSBzZW5kZXIgYW5k
+IGtub3cgdGhhdCB0aGUgY29udGVudCBpcyBzYWZlLg0KDQoNCk9uIDIwMjAtMDktMDQgMTM6MTYs
+IEplZmZyZXkgTGllbiB3cm90ZToNCj4gQW4gaXNzdWUgd2l0aCBmaW8gdmVyc2lvbiAzLjIwIHdh
+cyByZXBvcnRlZCB0byBtZSBieSBvdXIgcGVyZm9ybWFuY2UgdGVhbSB3aGVyZSB0aGUgc3RhdHVz
+IGludGVydmFscyBmb3IgdGhlIGlvcHMgYW5kIGJ3IHZhbHVlcyBncmFkdWFsbHkgaW5jcmVhc2Ug
+b3ZlciB0aGUgcnVuIHRpbWUgb2YgdGhlIGpvYi4gIEV2ZW50dWFsbHksIHRoZSBkZWx0YSBnZXRz
+IGxhcmdlIGVub3VnaCB0aGF0IGl0IGNhdXNlcyBpc3N1ZXMgd2l0aCB0aGUgcHl0aG9uIHNjcmlw
+dCB0aGF0IGZvcm1hdHMgYW5kIHN1bW1hcml6ZXMgdGhlIGZpbyBvdXRwdXQuICBJIGluY2x1ZGVk
+IGFuIGV4YW1wbGUgb2YgdGhlIG91dHB1dCBhdCB0aGUgYm90dG9tIG9mIHRoaXMgZW1haWwuDQo+
+DQo+IEkgZm91bmQgdGhpcyBjb21taXQgZnJvbSBCYXJ0IGluIHZlcnNpb24gMy4xOCB0aGF0IGlu
+dHJvZHVjZXMgdGhlIHN0YXR1cyBpbnRlcnZhbCB2YXJpYWJpbGl0eToNCj4gaHR0cHM6Ly9naXRo
+dWIuY29tL2F4Ym9lL2Zpby9jb21taXQvMzFlY2E2NDFhZDkxNjM0ZTVmZmNmMzY5Y2Q3NTZiMDUw
+Ng0KPiBhNzAwYzEgQW5kIHRoZW4gdGhpcyBjb21taXQgZnJvbSBWaW5jZW50IHRoYXQgbWFrZXMg
+aXQgYmV0dGVyIGJ1dCANCj4gZG9lc24ndCBjb21wbGV0ZWx5IHJlc29sdmUgdGhlIGlzc3VlOg0K
+PiBodHRwczovL2dpdGh1Yi5jb20vYXhib2UvZmlvL2NvbW1pdC8wZjc3ZDMwZDkwYjgwOWZiZjIz
+M2I5NDc0Y2M1ZDE3YzZiDQo+IGY3MzU0MQ0KPg0KPiBJIGxvb2tlZCBhdCBib3RoIG9mIHRoZXNl
+IHBhdGNoZXMgYnV0IGFtIG5vdCBmYW1pbGlhciBlbm91Z2ggd2l0aCB0aGUgZmlvIGNvZGUgdG8g
+a25vdyBob3cgYmVzdCB0byByZXNvbHZlIHRoZSBpc3N1ZS4gIERvZXMgYW55b25lIGhhdmUgYW55
+IHN1Z2dlc3Rpb25zIG9uIHdoYXQgY291bGQgYmUgZG9uZSB0byBtYWtlIHRoZSBzdGF0dXMgaW50
+ZXJ2YWxzIGNvbnNpc3RlbnQ/DQoNCkEgY2FuZGlkYXRlIGZpeCBpcyBhdmFpbGFibGUgb24gdGhl
+IG1hc3RlciBicmFuY2ggb2YgaHR0cHM6Ly9naXRodWIuY29tL2J2YW5hc3NjaGUvZmlvLiBJZiB0
+aGUgZml4IG9uIHRoYXQgYnJhbmNoIGhlbHBzIEkgd2lsbCBzZW5kIGEgcHVsbCByZXF1ZXN0IHRv
+IEplbnMuDQoNClRoYW5rcywNCg0KQmFydC4NCg==
 
