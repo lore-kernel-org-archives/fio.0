@@ -1,70 +1,132 @@
-Return-Path: <adobriyan@gmail.com>
-Return-Path: <adobriyan@gmail.com>
-Date: Mon, 7 Sep 2020 20:59:23 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: [PATCH] fio: cap io_size=N% at 100%, update man page
-Message-ID: <20200907175923.GA86772@localhost.localdomain>
-References: <20200903165402.GA78826@localhost.localdomain>
- <CALjAwxhqaRPUGjyUapVM=cOqGTQSBb_wvSNQKe=k+eNGW6dL3w@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CALjAwxhqaRPUGjyUapVM=cOqGTQSBb_wvSNQKe=k+eNGW6dL3w@mail.gmail.com>
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, sitsofe@gmail.com
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54800 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725833AbgILMAI (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 12 Sep 2020 08:00:08 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B491C061573
+        for <fio@vger.kernel.org>; Sat, 12 Sep 2020 05:00:07 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kH4CL-0007O0-8i
+        for fio@vger.kernel.org; Sat, 12 Sep 2020 12:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20200912120001.BFD7C1BC0130@kernel.dk>
+Date: Sat, 12 Sep 2020 06:00:01 -0600 (MDT)
+Sender: fio-owner@vger.kernel.org
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-Passing io_size > 100% results in semi-infinite loop, anyway.
+The following changes since commit e55138eed3296b642229271b0dcec492ec776702:
 
-Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
+  Merge branch 'evelu-enghelp' of https://github.com/ErwanAliasr1/fio into master (2020-09-09 10:48:27 -0600)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 695611a9d4cd554d44d8b2ec5da2811061950a2e:
+
+  Allow offload with FAKEIO engines (2020-09-11 09:58:15 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (3):
+      engines/io_uring: mark as not compatible with io_submit_mode=offload
+      Disable io_submit_mode=offload with async engines
+      Allow offload with FAKEIO engines
+
+ HOWTO              |  3 ++-
+ engines/io_uring.c |  6 ++++++
+ fio.1              |  2 +-
+ ioengines.c        | 14 ++++++++++++--
+ 4 files changed, 21 insertions(+), 4 deletions(-)
+
 ---
 
- fio.1     |    3 ++-
- options.c |    6 +++++-
- parse.h   |    5 +++++
- 3 files changed, 12 insertions(+), 2 deletions(-)
+Diff of recent changes:
 
+diff --git a/HOWTO b/HOWTO
+index d8586723..2d8c7a02 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -2474,7 +2474,8 @@ I/O depth
+ 	can increase latencies. The benefit is that fio can manage submission rates
+ 	independently of the device completion rates. This avoids skewed latency
+ 	reporting if I/O gets backed up on the device side (the coordinated omission
+-	problem).
++	problem). Note that this option cannot reliably be used with async IO
++	engines.
+ 
+ 
+ I/O rate
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index e2b5e6ee..69f48859 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -724,6 +724,12 @@ static int fio_ioring_init(struct thread_data *td)
+ 	struct ioring_data *ld;
+ 	struct thread_options *to = &td->o;
+ 
++	if (to->io_submit_mode == IO_MODE_OFFLOAD) {
++		log_err("fio: io_submit_mode=offload is not compatible (or "
++			"useful) with io_uring\n");
++		return 1;
++	}
++
+ 	/* sqthread submission requires registered files */
+ 	if (o->sqpoll_thread)
+ 		o->registerfiles = 1;
+diff --git a/fio.1 b/fio.1
+index 74509bbd..a881277c 100644
 --- a/fio.1
 +++ b/fio.1
-@@ -1561,7 +1561,8 @@ if \fBsize\fR is set to 20GiB and \fBio_size\fR is set to 5GiB, fio
- will perform I/O within the first 20GiB but exit when 5GiB have been
- done. The opposite is also possible \-\- if \fBsize\fR is set to 20GiB,
- and \fBio_size\fR is set to 40GiB, then fio will do 40GiB of I/O within
--the 0..20GiB region.
-+the 0..20GiB region. Value can be set as percentage: \fBio_size\fR=N%.
-+In this case \fBio_size\fR multiplies \fBsize\fR= value.
+@@ -2215,7 +2215,7 @@ has a bit of extra overhead, especially for lower queue depth I/O where it
+ can increase latencies. The benefit is that fio can manage submission rates
+ independently of the device completion rates. This avoids skewed latency
+ reporting if I/O gets backed up on the device side (the coordinated omission
+-problem).
++problem). Note that this option cannot reliably be used with async IO engines.
+ .SS "I/O rate"
  .TP
- .BI filesize \fR=\fPirange(int)
- Individual file sizes. May be a range, in which case fio will select sizes
---- a/options.c
-+++ b/options.c
-@@ -1481,9 +1481,13 @@ static int str_io_size_cb(void *data, unsigned long long *__val)
- 	struct thread_data *td = cb_data_to_td(data);
- 	unsigned long long v = *__val;
+ .BI thinktime \fR=\fPtime
+diff --git a/ioengines.c b/ioengines.c
+index 476df58d..d3be8026 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -22,7 +22,7 @@
  
--	if (parse_is_percent(v)) {
-+	if (parse_is_percent_uncapped(v)) {
- 		td->o.io_size = 0;
- 		td->o.io_size_percent = -1ULL - v;
-+		if (td->o.io_size_percent > 100) {
-+			log_err("fio: io_size values greater than 100%% aren't supported\n");
-+			return 1;
-+		}
- 		dprint(FD_PARSE, "SET io_size_percent %d\n",
- 					td->o.io_size_percent);
- 	} else
---- a/parse.h
-+++ b/parse.h
-@@ -133,6 +133,11 @@ static inline int parse_is_percent(unsigned long long val)
- 	return val <= -1ULL && val >= (-1ULL - 100ULL);
- }
+ static FLIST_HEAD(engine_list);
  
-+static inline int parse_is_percent_uncapped(unsigned long long val)
-+{
-+	return (long long)val <= -1;
-+}
+-static bool check_engine_ops(struct ioengine_ops *ops)
++static bool check_engine_ops(struct thread_data *td, struct ioengine_ops *ops)
+ {
+ 	if (ops->version != FIO_IOOPS_VERSION) {
+ 		log_err("bad ioops version %d (want %d)\n", ops->version,
+@@ -41,6 +41,16 @@ static bool check_engine_ops(struct ioengine_ops *ops)
+ 	if (ops->flags & FIO_SYNCIO)
+ 		return false;
+ 
++	/*
++	 * async engines aren't reliable with offload
++	 */
++	if ((td->o.io_submit_mode == IO_MODE_OFFLOAD) &&
++	    !(ops->flags & FIO_FAKEIO)) {
++		log_err("%s: can't be used with offloaded submit. Use a sync "
++			"engine\n", ops->name);
++		return true;
++	}
 +
- struct print_option {
- 	struct flist_head list;
- 	char *name;
+ 	if (!ops->event || !ops->getevents) {
+ 		log_err("%s: no event/getevents handler\n", ops->name);
+ 		return true;
+@@ -193,7 +203,7 @@ struct ioengine_ops *load_ioengine(struct thread_data *td)
+ 	/*
+ 	 * Check that the required methods are there.
+ 	 */
+-	if (check_engine_ops(ops))
++	if (check_engine_ops(td, ops))
+ 		return NULL;
+ 
+ 	return ops;
 
