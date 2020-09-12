@@ -1,12 +1,11 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:24224 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725997AbgINXXA (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 14 Sep 2020 19:23:00 -0400
-From: Siriporn Swart <Siriporn.Swart@wdc.com>
-Subject: RE: Inconsistent Status Intervals
-Date: Mon, 14 Sep 2020 23:22:56 +0000
-Message-ID: <CH2PR04MB66205B5D7642E5FD50AAE9668A230@CH2PR04MB6620.namprd04.prod.outlook.com>
+Received: from mail-pf1-f174.google.com ([209.85.210.174]:42144 "EHLO
+        mail-pf1-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725795AbgILEQU (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 12 Sep 2020 00:16:20 -0400
+Received: by mail-pf1-f174.google.com with SMTP id d6so8702612pfn.9
+        for <fio@vger.kernel.org>; Fri, 11 Sep 2020 21:16:19 -0700 (PDT)
+Subject: Re: Inconsistent Status Intervals
 References: <BYAPR04MB56568021114303501613DB1AEA2D0@BYAPR04MB5656.namprd04.prod.outlook.com>
  <BYAPR04MB5656DD4B26ACBCEDD6074E82EA2D0@BYAPR04MB5656.namprd04.prod.outlook.com>
  <872c21cc-901c-9537-15be-dd1b609756e1@acm.org>
@@ -15,67 +14,28 @@ References: <BYAPR04MB56568021114303501613DB1AEA2D0@BYAPR04MB5656.namprd04.prod.
  <6036b8e0-7c85-968e-33f2-8a0407445eb0@acm.org>
  <BYAPR04MB5656F5F283A53CA86DF8A803EA290@BYAPR04MB5656.namprd04.prod.outlook.com>
  <BYAPR04MB5656B50E661238035BC380BCEA240@BYAPR04MB5656.namprd04.prod.outlook.com>
- <cdcbe4eb-1051-358f-b35f-15b19209dcaf@acm.org>
-In-Reply-To: <cdcbe4eb-1051-358f-b35f-15b19209dcaf@acm.org>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Bart Van Assche <bvanassche@acm.org>
+Message-ID: <cdcbe4eb-1051-358f-b35f-15b19209dcaf@acm.org>
+Date: Fri, 11 Sep 2020 21:16:16 -0700
 MIME-Version: 1.0
+In-Reply-To: <BYAPR04MB5656B50E661238035BC380BCEA240@BYAPR04MB5656.namprd04.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: fio-owner@vger.kernel.org
 List-Id: fio@vger.kernel.org
-To: Bart Van Assche <bvanassche@acm.org>, Jeffrey Lien <Jeff.Lien@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: Jeff Furlong <jeff.furlong@wdc.com>, Kris Davis <Kris.Davis@wdc.com>
+To: Jeffrey Lien <Jeff.Lien@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: Siriporn Swart <Siriporn.Swart@wdc.com>, Jeff Furlong <jeff.furlong@wdc.com>, Kris Davis <Kris.Davis@wdc.com>
 
-SGVsbG8gQmFydCwgDQoNClRoYW5rIHlvdSB2ZXJ5IG11Y2ggZm9yIHlvdXIgc3VwcG9ydC4gSmVm
-ZiBMaWVuIGlzIG9uIHZhY2F0aW9uIHRoaXMgd2Vlay4gICAgTXkgbmFtZSBpcyBTaXJpcG9ybiBm
-cm9tIHBlcmZvcm1hbmNlIHRlc3QgdGVhbS4gDQpJIHJhbiBxdWljayB0ZXN0IGZvciAzMHNlYyB3
-aXRoIG1hc3RlciBicmFuY2ggb2YgaHR0cHM6Ly9naXRodWIuY29tL2J2YW5hc3NjaGUvZmlvIGFu
-ZCByZXN1bHQgbG9va3MgZ29vZC4gIEkgd2lsbCByZXJ1biB3aXRoIGxvbmdlciBkdXJhdGlvbi4g
-DQpBbnkgdXBkYXRlIHdpbGwgYmUgc2VudC4gIA0KDQotLS0tLSANCnRlc3Q6IChnPTApOiBydz1y
-ZWFkLCBicz0oUikgNDA5NkItNDA5NkIsIChXKSA0MDk2Qi00MDk2QiwgKFQpIDQwOTZCLTQwOTZC
-LCBpb2VuZ2luZT1saWJhaW8sIGlvZGVwdGg9MQ0KZmlvLTMuMTctNDU4LWczODAzDQpTdGFydGlu
-ZyAxIHByb2Nlc3MNCg0KIFtyb290QGVjaG8tc3I2MzUtMDEgcmVzdWx0XSMgY2F0IHRlc3RfaW9w
-cy4xLmxvZw0KMTAwMCwgOTA4MDgsIDAsIDAsIDANCjIwMDAsIDk5MjQwLCAwLCAwLCAwDQozMDAw
-LCA5OTA5NSwgMCwgMCwgMA0KNDAwMCwgOTkyMjksIDAsIDAsIDANCjUwMDAsIDk5MjcwLCAwLCAw
-LCAwDQo2MDAwLCA5OTM1MSwgMCwgMCwgMA0KNzAwMCwgOTkyMDksIDAsIDAsIDANCjgwMDAsIDk5
-Mjk5LCAwLCAwLCAwDQo5MDAwLCA5OTI5NywgMCwgMCwgMA0KMTAwMDAsIDk5Mzk1LCAwLCAwLCAw
-DQoxMTAwMCwgOTkyOTIsIDAsIDAsIDANCjEyMDAwLCA5OTM4NSwgMCwgMCwgMA0KMTMwMDAsIDk5
-MzIyLCAwLCAwLCAwDQoxNDAwMCwgOTkyOTMsIDAsIDAsIDANCjE1MDAwLCA5OTI2NiwgMCwgMCwg
-MA0KMTYwMDAsIDk5MzM1LCAwLCAwLCAwDQoxNzAwMCwgOTkzNjcsIDAsIDAsIDANCjE4MDAwLCA5
-OTM4MCwgMCwgMCwgMA0KMTkwMDAsIDk5MzA5LCAwLCAwLCAwDQoyMDAwMCwgOTkyOTAsIDAsIDAs
-IDANCjIxMDAwLCA5OTMwMCwgMCwgMCwgMA0KMjIwMDAsIDk5Mzc3LCAwLCAwLCAwDQoyMzAwMCwg
-OTkzODEsIDAsIDAsIDANCjI0MDAwLCA5OTM5NSwgMCwgMCwgMA0KMjUwMDAsIDk5MzU1LCAwLCAw
-LCAwDQoyNjAwMCwgOTkzNzEsIDAsIDAsIDANCjI3MDAwLCA5OTMxMiwgMCwgMCwgMA0KMjgwMDAs
-IDk5MzM3LCAwLCAwLCAwDQoyOTAwMCwgOTkyNjQsIDAsIDAsIDANCltyb290QGVjaG8tc3I2MzUt
-MDEgcmVzdWx0XSMNCg0KUmVzdWx0IGZyb20gZmlvLTMuMjANCltyb290QGVjaG8tc3I2MzUtMDEg
-UEIzMTldIyBjYXQgdGVzdF9pb3BzLjEubG9nDQoxMDAwLCA4NDc2NywgMCwgMCwgMA0KMjAwMSwg
-OTk3NTAsIDAsIDAsIDANCjMwMDIsIDk5OTczLCAwLCAwLCAwDQo0MDAzLCA5OTgzMywgMCwgMCwg
-MA0KNTAwNCwgOTk4NDQsIDAsIDAsIDANCjYwMDUsIDk5ODE3LCAwLCAwLCAwDQo3MDA2LCA5OTg0
-MiwgMCwgMCwgMA0KODAwNywgOTk4NTYsIDAsIDAsIDANCjkwMDgsIDk5ODI0LCAwLCAwLCAwDQox
-MDAwOSwgOTk4MjQsIDAsIDAsIDANCjExMDEwLCA5OTgwNywgMCwgMCwgMA0KMTIwMTEsIDk5ODc0
-LCAwLCAwLCAwDQoxMzAxMiwgOTk3NzksIDAsIDAsIDANCjE0MDEzLCA5OTk2OCwgMCwgMCwgMA0K
-MTUwMTQsIDk5OTU0LCAwLCAwLCAwDQoxNjAxNSwgOTk5MDAsIDAsIDAsIDANCjE3MDE2LCA5OTg2
-NywgMCwgMCwgMA0KMTgwMTcsIDk5ODEyLCAwLCAwLCAwDQoxOTAxOCwgOTk4MjYsIDAsIDAsIDAN
-CjIwMDE5LCA5OTg0NCwgMCwgMCwgMA0KMjEwMjAsIDk5ODMzLCAwLCAwLCAwDQoyMjAyMSwgOTk3
-ODIsIDAsIDAsIDANCjIzMDIyLCA5OTgxNCwgMCwgMCwgMA0KMjQwMjMsIDk5ODc1LCAwLCAwLCAw
-DQoyNTAyNCwgOTk5NjQsIDAsIDAsIDANCjI2MDI1LCA5OTg0NywgMCwgMCwgMA0KMjcwMjYsIDk5
-ODU5LCAwLCAwLCAwDQoyODAyNywgOTk4MjUsIDAsIDAsIDANCjI5MDI4LCA5OTg2MywgMCwgMCwg
-MA0KDQogDQoNCg0KQmVzdCBSZWdhcmRzDQoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKg0KU2lyaXBvcm4gU3dhcnQgDQpTSVQgTGFiIFNTRCBQZXJmb3Jt
-YW5jZSBUZXN0IEVuZ2luZWVyIA0KDQpXZXN0ZXJuIERpZ2l0YWzCrg0KRW1haWw6wqAgc2lyaXBv
-cm4uc3dhcnRAd2RjLmNvbQ0KT2ZmaWNlOsKgICsxLTUwNy0zMjItMjEyMw0KDQotLS0tLU9yaWdp
-bmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogQmFydCBWYW4gQXNzY2hlIDxidmFuYXNzY2hlQGFjbS5v
-cmc+IA0KU2VudDogRnJpZGF5LCBTZXB0ZW1iZXIgMTEsIDIwMjAgMTE6MTYgUE0NClRvOiBKZWZm
-cmV5IExpZW4gPEplZmYuTGllbkB3ZGMuY29tPjsgZmlvQHZnZXIua2VybmVsLm9yZw0KQ2M6IFNp
-cmlwb3JuIFN3YXJ0IDxTaXJpcG9ybi5Td2FydEB3ZGMuY29tPjsgSmVmZiBGdXJsb25nIDxqZWZm
-LmZ1cmxvbmdAd2RjLmNvbT47IEtyaXMgRGF2aXMgPEtyaXMuRGF2aXNAd2RjLmNvbT4NClN1Ympl
-Y3Q6IFJlOiBJbmNvbnNpc3RlbnQgU3RhdHVzIEludGVydmFscw0KDQpDQVVUSU9OOiBUaGlzIGVt
-YWlsIG9yaWdpbmF0ZWQgZnJvbSBvdXRzaWRlIG9mIFdlc3Rlcm4gRGlnaXRhbC4gRG8gbm90IGNs
-aWNrIG9uIGxpbmtzIG9yIG9wZW4gYXR0YWNobWVudHMgdW5sZXNzIHlvdSByZWNvZ25pemUgdGhl
-IHNlbmRlciBhbmQga25vdyB0aGF0IHRoZSBjb250ZW50IGlzIHNhZmUuDQoNCg0KT24gMjAyMC0w
-OS0xMSAxMDoxMCwgSmVmZnJleSBMaWVuIHdyb3RlOg0KPiBEbyB5b3UgaGF2ZSBhbnkgb3RoZXIg
-c3VnZ2VzdGlvbnMgb3IgcG90ZW50aWFsIGZpeGVzIHRvIHRyeT8gIElmIHNvLCBwbGVhc2UgbGV0
-IHVzIGtub3cuICBUaGFua3MuDQoNCkhpIEplZmYsDQoNClRoZSBtYXN0ZXIgYnJhbmNoIG9mIGh0
-dHBzOi8vZ2l0aHViLmNvbS9idmFuYXNzY2hlL2ZpbyBoYXMgYmVlbiB1cGRhdGVkLiBQbGVhc2Ug
-cmV0cnkuDQoNClRoYW5rcywNCg0KQmFydC4NCg==
+On 2020-09-11 10:10, Jeffrey Lien wrote:
+> Do you have any other suggestions or potential fixes to try?  If so, please let us know.  Thanks.  
+
+Hi Jeff,
+
+The master branch of https://github.com/bvanassche/fio has been
+updated. Please retry.
+
+Thanks,
+
+Bart.
 
