@@ -1,12 +1,11 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:38147 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726405AbgIWRHi (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 23 Sep 2020 13:07:38 -0400
-From: Jeffrey Lien <Jeff.Lien@wdc.com>
-Subject: RE: Inconsistent Status Intervals
-Date: Wed, 23 Sep 2020 17:07:36 +0000
-Message-ID: <BYAPR04MB5656202B6D075BA5A7F157BFEA380@BYAPR04MB5656.namprd04.prod.outlook.com>
+Received: from mail-pf1-f176.google.com ([209.85.210.176]:34287 "EHLO
+        mail-pf1-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726184AbgIUBss (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 20 Sep 2020 21:48:48 -0400
+Received: by mail-pf1-f176.google.com with SMTP id k13so7398415pfg.1
+        for <fio@vger.kernel.org>; Sun, 20 Sep 2020 18:48:48 -0700 (PDT)
+Subject: Re: Inconsistent Status Intervals
 References: <BYAPR04MB56568021114303501613DB1AEA2D0@BYAPR04MB5656.namprd04.prod.outlook.com>
  <BYAPR04MB5656DD4B26ACBCEDD6074E82EA2D0@BYAPR04MB5656.namprd04.prod.outlook.com>
  <872c21cc-901c-9537-15be-dd1b609756e1@acm.org>
@@ -18,49 +17,33 @@ References: <BYAPR04MB56568021114303501613DB1AEA2D0@BYAPR04MB5656.namprd04.prod.
  <cdcbe4eb-1051-358f-b35f-15b19209dcaf@acm.org>
  <CH2PR04MB66205B5D7642E5FD50AAE9668A230@CH2PR04MB6620.namprd04.prod.outlook.com>
  <CH2PR04MB6620B788915918E953333A958A3F0@CH2PR04MB6620.namprd04.prod.outlook.com>
- <313a3503-8335-999f-9e18-00f8a2152bdb@acm.org>
-In-Reply-To: <313a3503-8335-999f-9e18-00f8a2152bdb@acm.org>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Bart Van Assche <bvanassche@acm.org>
+Message-ID: <313a3503-8335-999f-9e18-00f8a2152bdb@acm.org>
+Date: Sun, 20 Sep 2020 18:48:45 -0700
 MIME-Version: 1.0
+In-Reply-To: <CH2PR04MB6620B788915918E953333A958A3F0@CH2PR04MB6620.namprd04.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-Id: fio@vger.kernel.org
-To: Bart Van Assche <bvanassche@acm.org>, Siriporn Swart <Siriporn.Swart@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Siriporn Swart <Siriporn.Swart@wdc.com>, Jeffrey Lien <Jeff.Lien@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 Cc: Jeff Furlong <jeff.furlong@wdc.com>, Kris Davis <Kris.Davis@wdc.com>
 
-SGkgQmFydCwNCkkgd291bGQgYmUgd2lsbGluZyB0byB3b3JrIG9uIHRoZSBsYXRlbmN5IGxvZ2dp
-bmcgaXNzdWUgaW4gdGhlIElPIHRocmVhZHMsIGJ1dCBkb24ndCBrbm93IHdoZXJlIHRvIHN0YXJ0
-LiAgRG8geW91IGtub3cgd2hpY2ggcGFydHMgYW5kL29yIGZ1bmN0aW9ucyB0byBzdGFydCBsb29r
-aW5nIGF0PyAgDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBCYXJ0IFZhbiBB
-c3NjaGUgPGJ2YW5hc3NjaGVAYWNtLm9yZz4gDQpTZW50OiBTdW5kYXksIFNlcHRlbWJlciAyMCwg
-MjAyMCA4OjQ5IFBNDQpUbzogU2lyaXBvcm4gU3dhcnQgPFNpcmlwb3JuLlN3YXJ0QHdkYy5jb20+
-OyBKZWZmcmV5IExpZW4gPEplZmYuTGllbkB3ZGMuY29tPjsgZmlvQHZnZXIua2VybmVsLm9yZw0K
-Q2M6IEplZmYgRnVybG9uZyA8amVmZi5mdXJsb25nQHdkYy5jb20+OyBLcmlzIERhdmlzIDxLcmlz
-LkRhdmlzQHdkYy5jb20+DQpTdWJqZWN0OiBSZTogSW5jb25zaXN0ZW50IFN0YXR1cyBJbnRlcnZh
-bHMNCg0KQ0FVVElPTjogVGhpcyBlbWFpbCBvcmlnaW5hdGVkIGZyb20gb3V0c2lkZSBvZiBXZXN0
-ZXJuIERpZ2l0YWwuIERvIG5vdCBjbGljayBvbiBsaW5rcyBvciBvcGVuIGF0dGFjaG1lbnRzIHVu
-bGVzcyB5b3UgcmVjb2duaXplIHRoZSBzZW5kZXIgYW5kIGtub3cgdGhhdCB0aGUgY29udGVudCBp
-cyBzYWZlLg0KDQoNCk9uIDIwMjAtMDktMTggMTI6MjQsIFNpcmlwb3JuIFN3YXJ0IHdyb3RlOg0K
-PiBJIGdvdCBhZGRpdGlvbiB0ZXN0IHJlc3VsdHMgZnJvbSBodHRwczovL2dpdGh1Yi5jb20vYnZh
-bmFzc2NoZS9maW8uICAgVGltZXN0YW1wIGlzc3VlIGlzIGZpeGVkIHdoZW4gcnVubmluZyBpbiBz
-aW5nbGUgam9iICggLS1udW1qb2JzPTEpLCBob3dldmVyIG9uIGEgdGVzdCB3aXRoIG11bHRpcGxl
-IGpvYnMsIGVhY2ggbG9nZ2luZyBsYXRlbmN5IGF0IDFzLCB0aGVyZSBhcmUgc3BvcmFkaWMgZGVs
-dGFzIG9mIDAuMjQwIC0gMC4yNTBzIGluIGlvcHMgYW5kIGJ3IGxvZy4NCj4gU2Vjb25kIGlzc3Vl
-LCB0aGVyZSBhcmUgKzEgc2Vjb25kIGluIGxhdCBsb2cgb2YgdGhlIGludGVuZGVkIHJ1bnRpbWUu
-ICBJIHdhcyBhYmxlIHRvIHJlY3JlYXRlIHRoZSBwcm9ibGVtIHdpdGggZmlvIGNvbW1hbmQgbGlu
-ZSBpbiBiZWxvdyBpbmNsdWRpbmcgc25pcHBldCBvZiBvdXRwdXQgZnJvbSBteSB0ZXN0IGJlbmNo
-Lg0KPg0KPiBmaW8gLS1uYW1lPW11bHRpam9ic19ub3JhbXAgLS1maWxlbmFtZT0vZGV2L252bWUx
-bjEgLS1pb2VuZ2luZT1saWJhaW8gIA0KPiAtLXJ3PXJhbmRyZWFkIC0tYnM9NGsgLS1kaXJlY3Q9
-MSAtLWlvZGVwdGg9NjQgLS1udW1qb2JzPTQgDQo+IC0tcnVudGltZT0yMG0gLS13cml0ZV9pb3Bz
-X2xvZz1tdWx0aWpvYnNfbm9yYW1wIA0KPiAtLXdyaXRlX2xhdF9sb2c9bXVsdGlqb2JzX25vcmFt
-cCAtLWdyb3VwX3JlcG9ydGluZz0xIA0KPiAtLWxvZ19hdmdfbXNlYz0xMDAwIC0tb3V0cHV0PW11
-bHRpam9ic19ub3JhbXANCg0KSGkgU2lyaXBvcm4sDQoNClRoYW5rIHlvdSBmb3IgdGhlIGRldGFp
-bGVkIHJlcG9ydC4gSSBoYXZlIGRvbmUgc29tZXRoaW5nIHRoaXMgd2Vla2VuZCB0aGF0IEkgc2hv
-dWxkIGhhdmUgZG9uZSBtdWNoIGVhcmxpZXIsIG5hbWVseSBhbmFseXplIG9uIHRoZSBjb250ZXh0
-IG9mIHdoaWNoIHRocmVhZCB0aGUgbGF0ZW5jeSBsb2dnaW5nIGhhcHBlbnMuIE15IGNvbmNsdXNp
-b24gaXMgdGhhdCB0aGlzIGhhcHBlbnMgb24gdGhlIGNvbnRleHQgb2YgdGhlIEkvTyB0aHJlYWRz
-LiBPciBpbiBvdGhlciB3b3JkcywgdGhlIHNwb3JhZGljIGRlbHRhcyBjYW4ndCBiZSBhIHNpZGUg
-ZWZmZWN0IG9mIHRoZSBjaGFuZ2VzIEkgbWFkZSBpbiB0aGUgaGVscGVyIHRocmVhZC4gSWYgc29t
-ZW9uZSBlbHNlIHdhbnRzIHRvIHdvcmsgb24gZWxpbWluYXRpbmcgdGhlc2UgbGF0ZW5jeSBsb2dn
-aW5nIGRlbHRhcyBJIHdpbGwgYmUgaGFwcHkgdG8gYXNzaXN0Lg0KDQpCYXJ0Lg0K
+On 2020-09-18 12:24, Siriporn Swart wrote:
+> I got addition test results from https://github.com/bvanassche/fio.   Timestamp issue is fixed when running in single job ( --numjobs=1), however on a test with multiple jobs, each logging latency at 1s, there are sporadic deltas of 0.240 - 0.250s in iops and bw log.
+> Second issue, there are +1 second in lat log of the intended runtime.  I was able to recreate the problem with fio command line in below including snippet of output from my test bench.
+> 
+> fio --name=multijobs_noramp --filename=/dev/nvme1n1 --ioengine=libaio  --rw=randread --bs=4k --direct=1 --iodepth=64 --numjobs=4 --runtime=20m --write_iops_log=multijobs_noramp --write_lat_log=multijobs_noramp --group_reporting=1 --log_avg_msec=1000 --output=multijobs_noramp
+
+Hi Siriporn,
+
+Thank you for the detailed report. I have done something this weekend that I
+should have done much earlier, namely analyze on the context of which thread
+the latency logging happens. My conclusion is that this happens on the
+context of the I/O threads. Or in other words, the sporadic deltas can't be
+a side effect of the changes I made in the helper thread. If someone else
+wants to work on eliminating these latency logging deltas I will be happy to
+assist.
+
+Bart.
 
