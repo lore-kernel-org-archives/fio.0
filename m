@@ -1,174 +1,155 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54352 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728785AbgIFMAM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 6 Sep 2020 08:00:12 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1ABFC061573
-        for <fio@vger.kernel.org>; Sun,  6 Sep 2020 05:00:06 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kEtL2-0006Mm-5P
-        for fio@vger.kernel.org; Sun, 06 Sep 2020 12:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20200906120001.8EEE71BC0121@kernel.dk>
-Date: Sun,  6 Sep 2020 06:00:01 -0600 (MDT)
-Sender: fio-owner@vger.kernel.org
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <aherrmann@suse.com>
+From: Andreas Herrmann <aherrmann@suse.com>
+Subject: [PATCH v3 3/4] thread_options: Introduce cgroup_use_bfq
+Date: Mon, 21 Sep 2020 15:47:34 +0200
+Message-ID: <20200921134730.19294-4-aherrmann@suse.com>
+In-Reply-To: <20200921134730.19294-1-aherrmann@suse.com>
+References: <20200921134730.19294-1-aherrmann@suse.com>
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+Return-Path: aherrmann@suse.com
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio <fio@vger.kernel.org>, Andreas Herrmann <aherrmann@suse.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 2dd96cc46fa83a73acc1c9238c3ac59203e10213:
-
-  engines/io_uring: use the atomic load acquire instead of a barrier (2020-09-03 08:49:51 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 8b38f40138047975ea7a59b9ce06681ffdd2c31d:
-
-  fio: support io_size=N% (N <= 100) (2020-09-05 09:37:59 -0600)
-
-----------------------------------------------------------------
-Alexey Dobriyan (1):
-      fio: support io_size=N% (N <= 100)
-
- cconv.c          |  2 ++
- filesetup.c      | 11 ++++++++++-
- options.c        | 17 +++++++++++++++++
- server.h         |  2 +-
- thread_options.h |  4 ++++
- 5 files changed, 34 insertions(+), 2 deletions(-)
-
+Signed-off-by: Andreas Herrmann <aherrmann@suse.com>
 ---
+ HOWTO            |  6 ++++++
+ cconv.c          |  2 ++
+ fio.1            |  5 +++++
+ options.c        | 11 +++++++++++
+ server.h         |  2 +-
+ thread_options.h |  7 +++++--
+ 6 files changed, 30 insertions(+), 3 deletions(-)
 
-Diff of recent changes:
-
+diff --git a/HOWTO b/HOWTO
+index 2d8c7a02..b3e9200d 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -2839,6 +2839,12 @@ Threads, processes and job synchronization
+ 	job completion, set ``cgroup_nodelete=3D1``.  This can be useful if one w=
+ants
+ 	to inspect various cgroup files after job completion. Default: false.
+=20
++.. option:: cgroup_use_bfq=3Dbool
++
++	Normally fio will use generic sysfs attributes to set cgroup_weight.
++	To use attributes specific to BFQ IO scheduler set ``cgroup_use_bfq=3D1``=
+.
++	Default: false.
++
+ .. option:: flow_id=3Dint
+=20
+ 	The ID of the flow. If not specified, it defaults to being a global
 diff --git a/cconv.c b/cconv.c
-index 5dc0569f..488dd799 100644
+index 488dd799..ef5b6a97 100644
 --- a/cconv.c
 +++ b/cconv.c
-@@ -102,6 +102,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
- 	o->size = le64_to_cpu(top->size);
- 	o->io_size = le64_to_cpu(top->io_size);
- 	o->size_percent = le32_to_cpu(top->size_percent);
-+	o->io_size_percent = le32_to_cpu(top->io_size_percent);
- 	o->fill_device = le32_to_cpu(top->fill_device);
- 	o->file_append = le32_to_cpu(top->file_append);
- 	o->file_size_low = le64_to_cpu(top->file_size_low);
-@@ -367,6 +368,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	top->iodepth_batch_complete_max = cpu_to_le32(o->iodepth_batch_complete_max);
- 	top->serialize_overlap = cpu_to_le32(o->serialize_overlap);
- 	top->size_percent = cpu_to_le32(o->size_percent);
-+	top->io_size_percent = cpu_to_le32(o->io_size_percent);
- 	top->fill_device = cpu_to_le32(o->fill_device);
- 	top->file_append = cpu_to_le32(o->file_append);
- 	top->ratecycle = cpu_to_le32(o->ratecycle);
-diff --git a/filesetup.c b/filesetup.c
-index d382fa24..e44f31c7 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -1139,6 +1139,8 @@ int setup_files(struct thread_data *td)
- 		if (f->io_size == -1ULL)
- 			total_size = -1ULL;
- 		else {
-+			uint64_t io_size;
-+
-                         if (o->size_percent && o->size_percent != 100) {
- 				uint64_t file_size;
- 
-@@ -1150,7 +1152,14 @@ int setup_files(struct thread_data *td)
- 
- 				f->io_size -= (f->io_size % td_min_bs(td));
- 			}
--			total_size += f->io_size;
-+
-+			io_size = f->io_size;
-+			if (o->io_size_percent && o->io_size_percent != 100) {
-+				io_size *= o->io_size_percent;
-+				io_size /= 100;
-+			}
-+
-+			total_size += io_size;
- 		}
- 
- 		if (f->filetype == FIO_TYPE_FILE &&
+@@ -279,6 +279,7 @@ void convert_thread_options_to_cpu(struct thread_option=
+s *o,
+ 	o->continue_on_error =3D le32_to_cpu(top->continue_on_error);
+ 	o->cgroup_weight =3D le32_to_cpu(top->cgroup_weight);
+ 	o->cgroup_nodelete =3D le32_to_cpu(top->cgroup_nodelete);
++	o->cgroup_use_bfq =3D le32_to_cpu(top->cgroup_use_bfq);
+ 	o->uid =3D le32_to_cpu(top->uid);
+ 	o->gid =3D le32_to_cpu(top->gid);
+ 	o->flow_id =3D __le32_to_cpu(top->flow_id);
+@@ -479,6 +480,7 @@ void convert_thread_options_to_net(struct thread_option=
+s_pack *top,
+ 	top->continue_on_error =3D cpu_to_le32(o->continue_on_error);
+ 	top->cgroup_weight =3D cpu_to_le32(o->cgroup_weight);
+ 	top->cgroup_nodelete =3D cpu_to_le32(o->cgroup_nodelete);
++	top->cgroup_use_bfq =3D cpu_to_le32(o->cgroup_use_bfq);
+ 	top->uid =3D cpu_to_le32(o->uid);
+ 	top->gid =3D cpu_to_le32(o->gid);
+ 	top->flow_id =3D __cpu_to_le32(o->flow_id);
+diff --git a/fio.1 b/fio.1
+index a881277c..8ebcee90 100644
+--- a/fio.1
++++ b/fio.1
+@@ -2540,6 +2540,11 @@ completion. To override this behavior and to leave c=
+groups around after the
+ job completion, set `cgroup_nodelete=3D1'. This can be useful if one wants
+ to inspect various cgroup files after job completion. Default: false.
+ .TP
++.BI cgroup_use_bfq \fR=3D\fPbool
++Normally fio will use generic sysfs attributes to set cgroup_weight.
++To use attributes specific to BFQ IO scheduler set ``cgroup_use_bfq=3D1``.
++Default: false.
++.TP
+ .BI flow_id \fR=3D\fPint
+ The ID of the flow. If not specified, it defaults to being a global
+ flow. See \fBflow\fR.
 diff --git a/options.c b/options.c
-index 0d64e7c0..e27bb9cb 100644
+index b497d973..0acd7e2a 100644
 --- a/options.c
 +++ b/options.c
-@@ -1476,6 +1476,22 @@ static int str_size_cb(void *data, unsigned long long *__val)
- 	return 0;
- }
- 
-+static int str_io_size_cb(void *data, unsigned long long *__val)
-+{
-+	struct thread_data *td = cb_data_to_td(data);
-+	unsigned long long v = *__val;
-+
-+	if (parse_is_percent(v)) {
-+		td->o.io_size = 0;
-+		td->o.io_size_percent = -1ULL - v;
-+		dprint(FD_PARSE, "SET io_size_percent %d\n",
-+					td->o.io_size_percent);
-+	} else
-+		td->o.io_size = v;
-+
-+	return 0;
-+}
-+
- static int str_write_bw_log_cb(void *data, const char *str)
- {
- 	struct thread_data *td = cb_data_to_td(data);
-@@ -2043,6 +2059,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.alias	= "io_limit",
- 		.lname	= "IO Size",
- 		.type	= FIO_OPT_STR_VAL,
-+		.cb	= str_io_size_cb,
- 		.off1	= offsetof(struct thread_options, io_size),
- 		.help	= "Total size of I/O to be performed",
- 		.interval = 1024 * 1024,
+@@ -4625,6 +4625,17 @@ struct fio_option fio_options[FIO_MAX_OPTS] =3D {
+ 		.category =3D FIO_OPT_C_GENERAL,
+ 		.group	=3D FIO_OPT_G_CGROUP,
+ 	},
++	{
++		.name	=3D "cgroup_use_bfq",
++		.lname	=3D "Cgroup use-bfq",
++		.type	=3D FIO_OPT_BOOL,
++		.off1	=3D offsetof(struct thread_options, cgroup_use_bfq),
++		.help	=3D "Use cgroup sysfs attributes specific to BFQ",
++		.def	=3D "0",
++		.parent	=3D "cgroup",
++		.category =3D FIO_OPT_C_GENERAL,
++		.group	=3D FIO_OPT_G_CGROUP,
++	},
+ 	{
+ 		.name	=3D "uid",
+ 		.lname	=3D "User ID",
 diff --git a/server.h b/server.h
-index 3cd60096..6d444749 100644
+index 6d444749..9256d44c 100644
 --- a/server.h
 +++ b/server.h
 @@ -48,7 +48,7 @@ struct fio_net_cmd_reply {
  };
- 
+=20
  enum {
--	FIO_SERVER_VER			= 85,
-+	FIO_SERVER_VER			= 86,
- 
- 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
- 	FIO_SERVER_MAX_CMD_MB		= 2048,
+-	FIO_SERVER_VER			=3D 86,
++	FIO_SERVER_VER			=3D 87,
+=20
+ 	FIO_SERVER_MAX_FRAGMENT_PDU	=3D 1024,
+ 	FIO_SERVER_MAX_CMD_MB		=3D 2048,
 diff --git a/thread_options.h b/thread_options.h
-index 7c0a3158..97c400fe 100644
+index 97c400fe..f4d296c6 100644
 --- a/thread_options.h
 +++ b/thread_options.h
-@@ -83,6 +83,7 @@ struct thread_options {
- 	unsigned long long size;
- 	unsigned long long io_size;
- 	unsigned int size_percent;
-+	unsigned int io_size_percent;
- 	unsigned int fill_device;
- 	unsigned int file_append;
- 	unsigned long long file_size_low;
-@@ -381,6 +382,7 @@ struct thread_options_pack {
- 	uint64_t size;
- 	uint64_t io_size;
- 	uint32_t size_percent;
-+	uint32_t io_size_percent;
- 	uint32_t fill_device;
- 	uint32_t file_append;
- 	uint32_t unique_filename;
-@@ -460,6 +462,8 @@ struct thread_options_pack {
- 	struct zone_split zone_split[DDIR_RWDIR_CNT][ZONESPLIT_MAX];
- 	uint32_t zone_split_nr[DDIR_RWDIR_CNT];
- 
-+	uint8_t pad1[4];
-+
- 	fio_fp64_t zipf_theta;
- 	fio_fp64_t pareto_h;
- 	fio_fp64_t gauss_dev;
+@@ -303,11 +303,12 @@ struct thread_options {
+ 	char *profile;
+=20
+ 	/*
+-	 * blkio cgroup support
++	 * (blk)io cgroup support
+ 	 */
+ 	char *cgroup;
+ 	unsigned int cgroup_weight;
+ 	unsigned int cgroup_nodelete;
++	unsigned int cgroup_use_bfq;
+=20
+ 	unsigned int uid;
+ 	unsigned int gid;
+@@ -599,11 +600,13 @@ struct thread_options_pack {
+ 	uint8_t profile[FIO_TOP_STR_MAX];
+=20
+ 	/*
+-	 * blkio cgroup support
++	 * (blk)io cgroup support
+ 	 */
+ 	uint8_t cgroup[FIO_TOP_STR_MAX];
+ 	uint32_t cgroup_weight;
+ 	uint32_t cgroup_nodelete;
++	uint32_t cgroup_use_bfq;
++	uint32_t pad3;
+=20
+ 	uint32_t uid;
+ 	uint32_t gid;
+--=20
+2.28.0
+
 
