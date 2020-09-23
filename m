@@ -1,11 +1,12 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-pj1-f50.google.com ([209.85.216.50]:35278 "EHLO
-        mail-pj1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726599AbgIXBMR (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 23 Sep 2020 21:12:17 -0400
-Received: by mail-pj1-f50.google.com with SMTP id jw11so682961pjb.0
-        for <fio@vger.kernel.org>; Wed, 23 Sep 2020 18:12:17 -0700 (PDT)
-Subject: Re: Inconsistent Status Intervals
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:38147 "EHLO
+        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726405AbgIWRHi (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 23 Sep 2020 13:07:38 -0400
+From: Jeffrey Lien <Jeff.Lien@wdc.com>
+Subject: RE: Inconsistent Status Intervals
+Date: Wed, 23 Sep 2020 17:07:36 +0000
+Message-ID: <BYAPR04MB5656202B6D075BA5A7F157BFEA380@BYAPR04MB5656.namprd04.prod.outlook.com>
 References: <BYAPR04MB56568021114303501613DB1AEA2D0@BYAPR04MB5656.namprd04.prod.outlook.com>
  <BYAPR04MB5656DD4B26ACBCEDD6074E82EA2D0@BYAPR04MB5656.namprd04.prod.outlook.com>
  <872c21cc-901c-9537-15be-dd1b609756e1@acm.org>
@@ -18,28 +19,48 @@ References: <BYAPR04MB56568021114303501613DB1AEA2D0@BYAPR04MB5656.namprd04.prod.
  <CH2PR04MB66205B5D7642E5FD50AAE9668A230@CH2PR04MB6620.namprd04.prod.outlook.com>
  <CH2PR04MB6620B788915918E953333A958A3F0@CH2PR04MB6620.namprd04.prod.outlook.com>
  <313a3503-8335-999f-9e18-00f8a2152bdb@acm.org>
- <BYAPR04MB5656202B6D075BA5A7F157BFEA380@BYAPR04MB5656.namprd04.prod.outlook.com>
-From: Bart Van Assche <bvanassche@acm.org>
-Message-ID: <2c9fed07-7ded-2b09-a214-ef876eea39c9@acm.org>
-Date: Wed, 23 Sep 2020 18:12:14 -0700
-MIME-Version: 1.0
-In-Reply-To: <BYAPR04MB5656202B6D075BA5A7F157BFEA380@BYAPR04MB5656.namprd04.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <313a3503-8335-999f-9e18-00f8a2152bdb@acm.org>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 List-Id: fio@vger.kernel.org
-To: Jeffrey Lien <Jeff.Lien@wdc.com>, Siriporn Swart <Siriporn.Swart@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Bart Van Assche <bvanassche@acm.org>, Siriporn Swart <Siriporn.Swart@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 Cc: Jeff Furlong <jeff.furlong@wdc.com>, Kris Davis <Kris.Davis@wdc.com>
 
-On 2020-09-23 10:07, Jeffrey Lien wrote:
-> Hi Bart,
-> I would be willing to work on the latency logging issue in the IO threads, but don't know where to start.  Do you know which parts and/or functions to start looking at?  
-
-Hi Jeff,
-
-Please take a look at add_lat_sample() and add_clat_sample() in stat.c. I
-think these are called from the I/O path (account_io_completion()). The
-__add_log_sample() function is called by these functions and records a
-sample in a data structure.
- Bart.
+SGkgQmFydCwNCkkgd291bGQgYmUgd2lsbGluZyB0byB3b3JrIG9uIHRoZSBsYXRlbmN5IGxvZ2dp
+bmcgaXNzdWUgaW4gdGhlIElPIHRocmVhZHMsIGJ1dCBkb24ndCBrbm93IHdoZXJlIHRvIHN0YXJ0
+LiAgRG8geW91IGtub3cgd2hpY2ggcGFydHMgYW5kL29yIGZ1bmN0aW9ucyB0byBzdGFydCBsb29r
+aW5nIGF0PyAgDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBCYXJ0IFZhbiBB
+c3NjaGUgPGJ2YW5hc3NjaGVAYWNtLm9yZz4gDQpTZW50OiBTdW5kYXksIFNlcHRlbWJlciAyMCwg
+MjAyMCA4OjQ5IFBNDQpUbzogU2lyaXBvcm4gU3dhcnQgPFNpcmlwb3JuLlN3YXJ0QHdkYy5jb20+
+OyBKZWZmcmV5IExpZW4gPEplZmYuTGllbkB3ZGMuY29tPjsgZmlvQHZnZXIua2VybmVsLm9yZw0K
+Q2M6IEplZmYgRnVybG9uZyA8amVmZi5mdXJsb25nQHdkYy5jb20+OyBLcmlzIERhdmlzIDxLcmlz
+LkRhdmlzQHdkYy5jb20+DQpTdWJqZWN0OiBSZTogSW5jb25zaXN0ZW50IFN0YXR1cyBJbnRlcnZh
+bHMNCg0KQ0FVVElPTjogVGhpcyBlbWFpbCBvcmlnaW5hdGVkIGZyb20gb3V0c2lkZSBvZiBXZXN0
+ZXJuIERpZ2l0YWwuIERvIG5vdCBjbGljayBvbiBsaW5rcyBvciBvcGVuIGF0dGFjaG1lbnRzIHVu
+bGVzcyB5b3UgcmVjb2duaXplIHRoZSBzZW5kZXIgYW5kIGtub3cgdGhhdCB0aGUgY29udGVudCBp
+cyBzYWZlLg0KDQoNCk9uIDIwMjAtMDktMTggMTI6MjQsIFNpcmlwb3JuIFN3YXJ0IHdyb3RlOg0K
+PiBJIGdvdCBhZGRpdGlvbiB0ZXN0IHJlc3VsdHMgZnJvbSBodHRwczovL2dpdGh1Yi5jb20vYnZh
+bmFzc2NoZS9maW8uICAgVGltZXN0YW1wIGlzc3VlIGlzIGZpeGVkIHdoZW4gcnVubmluZyBpbiBz
+aW5nbGUgam9iICggLS1udW1qb2JzPTEpLCBob3dldmVyIG9uIGEgdGVzdCB3aXRoIG11bHRpcGxl
+IGpvYnMsIGVhY2ggbG9nZ2luZyBsYXRlbmN5IGF0IDFzLCB0aGVyZSBhcmUgc3BvcmFkaWMgZGVs
+dGFzIG9mIDAuMjQwIC0gMC4yNTBzIGluIGlvcHMgYW5kIGJ3IGxvZy4NCj4gU2Vjb25kIGlzc3Vl
+LCB0aGVyZSBhcmUgKzEgc2Vjb25kIGluIGxhdCBsb2cgb2YgdGhlIGludGVuZGVkIHJ1bnRpbWUu
+ICBJIHdhcyBhYmxlIHRvIHJlY3JlYXRlIHRoZSBwcm9ibGVtIHdpdGggZmlvIGNvbW1hbmQgbGlu
+ZSBpbiBiZWxvdyBpbmNsdWRpbmcgc25pcHBldCBvZiBvdXRwdXQgZnJvbSBteSB0ZXN0IGJlbmNo
+Lg0KPg0KPiBmaW8gLS1uYW1lPW11bHRpam9ic19ub3JhbXAgLS1maWxlbmFtZT0vZGV2L252bWUx
+bjEgLS1pb2VuZ2luZT1saWJhaW8gIA0KPiAtLXJ3PXJhbmRyZWFkIC0tYnM9NGsgLS1kaXJlY3Q9
+MSAtLWlvZGVwdGg9NjQgLS1udW1qb2JzPTQgDQo+IC0tcnVudGltZT0yMG0gLS13cml0ZV9pb3Bz
+X2xvZz1tdWx0aWpvYnNfbm9yYW1wIA0KPiAtLXdyaXRlX2xhdF9sb2c9bXVsdGlqb2JzX25vcmFt
+cCAtLWdyb3VwX3JlcG9ydGluZz0xIA0KPiAtLWxvZ19hdmdfbXNlYz0xMDAwIC0tb3V0cHV0PW11
+bHRpam9ic19ub3JhbXANCg0KSGkgU2lyaXBvcm4sDQoNClRoYW5rIHlvdSBmb3IgdGhlIGRldGFp
+bGVkIHJlcG9ydC4gSSBoYXZlIGRvbmUgc29tZXRoaW5nIHRoaXMgd2Vla2VuZCB0aGF0IEkgc2hv
+dWxkIGhhdmUgZG9uZSBtdWNoIGVhcmxpZXIsIG5hbWVseSBhbmFseXplIG9uIHRoZSBjb250ZXh0
+IG9mIHdoaWNoIHRocmVhZCB0aGUgbGF0ZW5jeSBsb2dnaW5nIGhhcHBlbnMuIE15IGNvbmNsdXNp
+b24gaXMgdGhhdCB0aGlzIGhhcHBlbnMgb24gdGhlIGNvbnRleHQgb2YgdGhlIEkvTyB0aHJlYWRz
+LiBPciBpbiBvdGhlciB3b3JkcywgdGhlIHNwb3JhZGljIGRlbHRhcyBjYW4ndCBiZSBhIHNpZGUg
+ZWZmZWN0IG9mIHRoZSBjaGFuZ2VzIEkgbWFkZSBpbiB0aGUgaGVscGVyIHRocmVhZC4gSWYgc29t
+ZW9uZSBlbHNlIHdhbnRzIHRvIHdvcmsgb24gZWxpbWluYXRpbmcgdGhlc2UgbGF0ZW5jeSBsb2dn
+aW5nIGRlbHRhcyBJIHdpbGwgYmUgaGFwcHkgdG8gYXNzaXN0Lg0KDQpCYXJ0Lg0K
 
