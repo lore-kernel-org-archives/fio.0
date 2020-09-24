@@ -1,214 +1,45 @@
-Return-Path: <prvs=50667a661=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v3 5/7] t/zbd: Add -o option to t/zbd/test-zoned-support
-Date: Tue,  1 Sep 2020 17:20:04 +0900
-Message-Id: <20200901082006.1476720-6-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20200901082006.1476720-1-shinichiro.kawasaki@wdc.com>
-References: <20200901082006.1476720-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-pj1-f50.google.com ([209.85.216.50]:35278 "EHLO
+        mail-pj1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726599AbgIXBMR (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 23 Sep 2020 21:12:17 -0400
+Received: by mail-pj1-f50.google.com with SMTP id jw11so682961pjb.0
+        for <fio@vger.kernel.org>; Wed, 23 Sep 2020 18:12:17 -0700 (PDT)
+Subject: Re: Inconsistent Status Intervals
+References: <BYAPR04MB56568021114303501613DB1AEA2D0@BYAPR04MB5656.namprd04.prod.outlook.com>
+ <BYAPR04MB5656DD4B26ACBCEDD6074E82EA2D0@BYAPR04MB5656.namprd04.prod.outlook.com>
+ <872c21cc-901c-9537-15be-dd1b609756e1@acm.org>
+ <BYAPR04MB5656BA79FE46C0D779AEEC1AEA290@BYAPR04MB5656.namprd04.prod.outlook.com>
+ <BYAPR04MB5656C2818681CB9DD399945EEA290@BYAPR04MB5656.namprd04.prod.outlook.com>
+ <6036b8e0-7c85-968e-33f2-8a0407445eb0@acm.org>
+ <BYAPR04MB5656F5F283A53CA86DF8A803EA290@BYAPR04MB5656.namprd04.prod.outlook.com>
+ <BYAPR04MB5656B50E661238035BC380BCEA240@BYAPR04MB5656.namprd04.prod.outlook.com>
+ <cdcbe4eb-1051-358f-b35f-15b19209dcaf@acm.org>
+ <CH2PR04MB66205B5D7642E5FD50AAE9668A230@CH2PR04MB6620.namprd04.prod.outlook.com>
+ <CH2PR04MB6620B788915918E953333A958A3F0@CH2PR04MB6620.namprd04.prod.outlook.com>
+ <313a3503-8335-999f-9e18-00f8a2152bdb@acm.org>
+ <BYAPR04MB5656202B6D075BA5A7F157BFEA380@BYAPR04MB5656.namprd04.prod.outlook.com>
+From: Bart Van Assche <bvanassche@acm.org>
+Message-ID: <2c9fed07-7ded-2b09-a214-ef876eea39c9@acm.org>
+Date: Wed, 23 Sep 2020 18:12:14 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
+In-Reply-To: <BYAPR04MB5656202B6D075BA5A7F157BFEA380@BYAPR04MB5656.namprd04.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+List-Id: fio@vger.kernel.org
+To: Jeffrey Lien <Jeff.Lien@wdc.com>, Siriporn Swart <Siriporn.Swart@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: Jeff Furlong <jeff.furlong@wdc.com>, Kris Davis <Kris.Davis@wdc.com>
 
-To specify maximum open zones of the test target device, add -o option
-to t/zbd/test-zoned-support. When this option is specified, add
-max_open_zones option to all fio commands in the test script. The option
-ensures the number of zones opened by fio is within the limit. This is
-useful when the test target device has maximum open zones limit.
+On 2020-09-23 10:07, Jeffrey Lien wrote:
+> Hi Bart,
+> I would be willing to work on the latency logging issue in the IO threads, but don't know where to start.  Do you know which parts and/or functions to start looking at?  
 
-When the fio command does not have multiple jobs and the test case does
-not specify max_open_zones, add single max_open_zones option to the fio
-command line.
+Hi Jeff,
 
-When the fio command takes multiple jobs, add max_open_zones option to
-each job. Introduce job_var_opts variable to keep options to be added to
-each job. To distinguish it from global options for all jobs, rename
-var_opts variable to global_var_opts. When a test case with multiple jobs
-always specifies max_open_zones option, exclude the max_open_zones option
-from job_var_opts, using job_var_opts_exclude() helper function.
-
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Reviewed-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- t/zbd/test-zbd-support | 70 ++++++++++++++++++++++++++++++++++--------
- 1 file changed, 57 insertions(+), 13 deletions(-)
-
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 9e398cab..c21d6aad 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -12,6 +12,7 @@ usage() {
- 	echo -e "\t-v Run fio with valgrind --read-var-info option"
- 	echo -e "\t-l Test with libzbc ioengine"
- 	echo -e "\t-r Reset all zones before test start"
-+	echo -e "\t-o <max_open_zones> Run fio with max_open_zones limit"
- 	echo -e "\t-t <test #> Run only a single test case with specified number"
- 	echo -e "\t-z Run fio with debug=zbd option"
- }
-@@ -103,14 +104,41 @@ is_scsi_device() {
-     return 1
- }
- 
-+job_var_opts_exclude() {
-+	local o
-+	local ex_key="${1}"
-+
-+	for o in "${job_var_opts[@]}"; do
-+		if [[ ${o} =~ "${ex_key}" ]]; then
-+			continue
-+		fi
-+		echo -n "${o}"
-+	done
-+}
-+
-+has_max_open_zones() {
-+	while (($# > 1)); do
-+		if [[ ${1} =~ "--max_open_zones" ]]; then
-+			return 0
-+		fi
-+		shift
-+	done
-+	return 1
-+}
-+
- run_fio() {
-     local fio opts
- 
-     fio=$(dirname "$0")/../../fio
- 
--    opts=("--max-jobs=16" "--aux-path=/tmp" "--allow_file_create=0" \
--	  "--significant_figures=10" "$@")
--    opts+=(${var_opts[@]})
-+    opts=(${global_var_opts[@]})
-+    opts+=("--max-jobs=16" "--aux-path=/tmp" "--allow_file_create=0" \
-+			   "--significant_figures=10" "$@")
-+    # When max_open_zones option is specified to this test script, add
-+    # max_open_zones option to fio command unless the test case already add it.
-+    if [[ -n ${max_open_zones_opt} ]] && ! has_max_open_zones "${opts[@]}"; then
-+	    opts+=("--max_open_zones=${max_open_zones_opt}")
-+    fi
-     { echo; echo "fio ${opts[*]}"; echo; } >>"${logfile}.${test_number}"
- 
-     "${dynamic_analyzer[@]}" "$fio" "${opts[@]}"
-@@ -128,13 +156,16 @@ write_and_run_one_fio_job() {
-     local r
-     local write_offset="${1}"
-     local write_size="${2}"
-+    local -a write_opts
- 
-     shift 2
-     r=$(((RANDOM << 16) | RANDOM))
--    run_fio --filename="$dev" --randseed="$r"  --name="write_job" --rw=write \
--	    "$(ioengine "psync")" --bs="${logical_block_size}" \
--	    --zonemode=zbd --zonesize="${zone_size}" --thread=1 --direct=1 \
--	    --offset="${write_offset}" --size="${write_size}" \
-+    write_opts=(--name="write_job" --rw=write "$(ioengine "psync")" \
-+		      --bs="${logical_block_size}" --zonemode=zbd \
-+		      --zonesize="${zone_size}" --thread=1 --direct=1 \
-+		      --offset="${write_offset}" --size="${write_size}")
-+    write_opts+=("${job_var_opts[@]}")
-+    run_fio --filename="$dev" --randseed="$r" "${write_opts[@]}" \
- 	    --name="$dev" --wait_for="write_job" "$@" --thread=1 --direct=1
- }
- 
-@@ -512,7 +543,7 @@ test25() {
- 	opts+=("--offset=$((first_sequential_zone_sector*512 + zone_size*i))")
- 	opts+=("--size=$zone_size" "$(ioengine "psync")" "--rw=write" "--bs=16K")
- 	opts+=("--zonemode=zbd" "--zonesize=${zone_size}" "--group_reporting=1")
--	opts+=(${var_opts[@]})
-+	opts+=(${job_var_opts[@]})
-     done
-     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
- }
-@@ -557,7 +588,7 @@ test28() {
- 	opts+=("--size=$zone_size" "--io_size=$capacity" "$(ioengine "psync")" "--rw=randwrite")
- 	opts+=("--thread=1" "--direct=1" "--zonemode=zbd")
- 	opts+=("--zonesize=${zone_size}" "--group_reporting=1")
--	opts+=(${var_opts[@]})
-+	opts+=(${job_var_opts[@]})
-     done
-     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
-     check_written $((jobs * $capacity)) || return $?
-@@ -581,7 +612,8 @@ test29() {
- 	opts+=("$(ioengine "psync")" "--rw=randwrite" "--direct=1")
- 	opts+=("--max_open_zones=4" "--group_reporting=1")
- 	opts+=("--zonemode=zbd" "--zonesize=${zone_size}")
--	opts+=(${var_opts[@]})
-+	# max_open_zones is already specified
-+	opts+=($(job_var_opts_exclude "--max_open_zones"))
-     done
-     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
-     check_written $((jobs * zone_size)) || return $?
-@@ -617,7 +649,7 @@ test31() {
- 	opts+=("--bs=$bs" "--size=$zone_size" "$(ioengine "libaio")")
- 	opts+=("--rw=write" "--direct=1" "--thread=1" "--stats=0")
- 	opts+=("--zonemode=zbd" "--zonesize=${zone_size}")
--	opts+=(${var_opts[@]})
-+	opts+=(${job_var_opts[@]})
-     done
-     "$(dirname "$0")/../../fio" "${opts[@]}" >> "${logfile}.${test_number}" 2>&1
-     # Next, run the test.
-@@ -627,6 +659,7 @@ test31() {
-     opts+=("--bs=$bs" "$(ioengine "psync")" "--rw=randread" "--direct=1")
-     opts+=("--thread=1" "--time_based" "--runtime=30" "--zonemode=zbd")
-     opts+=("--zonesize=${zone_size}")
-+    opts+=(${job_var_opts[@]})
-     run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
- }
- 
-@@ -843,6 +876,8 @@ test48() {
- 	opts+=("--name=job$i" "--filename=$dev" "--offset=$off" "--bs=16K")
- 	opts+=("--io_size=$zone_size" "--iodepth=256" "--thread=1")
- 	opts+=("--group_reporting=1")
-+	# max_open_zones is already specified
-+	opts+=($(job_var_opts_exclude "--max_open_zones"))
-     done
- 
-     fio=$(dirname "$0")/../../fio
-@@ -880,6 +915,7 @@ dynamic_analyzer=()
- reset_all_zones=
- use_libzbc=
- zbd_debug=
-+max_open_zones_opt=
- 
- while [ "${1#-}" != "$1" ]; do
-   case "$1" in
-@@ -891,6 +927,7 @@ while [ "${1#-}" != "$1" ]; do
-     -l) use_libzbc=1; shift;;
-     -r) reset_all_zones=1; shift;;
-     -t) tests+=("$2"); shift; shift;;
-+    -o) max_open_zones_opt="${2}"; shift; shift;;
-     -v) dynamic_analyzer=(valgrind "--read-var-info=yes");
- 	shift;;
-     -z) zbd_debug=1; shift;;
-@@ -906,9 +943,10 @@ fi
- # shellcheck source=functions
- source "$(dirname "$0")/functions" || exit $?
- 
--var_opts=()
-+global_var_opts=()
-+job_var_opts=()
- if [ -n "$zbd_debug" ]; then
--    var_opts+=("--debug=zbd")
-+    global_var_opts+=("--debug=zbd")
- fi
- dev=$1
- realdev=$(readlink -f "$dev")
-@@ -994,6 +1032,12 @@ elif [[ -c "$realdev" ]]; then
- 	fi
- fi
- 
-+if [[ -n ${max_open_zones_opt} ]]; then
-+	# Override max_open_zones with the script option value
-+	max_open_zones="${max_open_zones_opt}"
-+	job_var_opts+=("--max_open_zones=${max_open_zones_opt}")
-+fi
-+
- echo -n "First sequential zone starts at sector $first_sequential_zone_sector;"
- echo " zone size: $((zone_size >> 20)) MB"
- 
--- 
-2.26.2
-
+Please take a look at add_lat_sample() and add_clat_sample() in stat.c. I
+think these are called from the I/O path (account_io_completion()). The
+__add_log_sample() function is called by these functions and records a
+sample in a data structure.
+ Bart.
 
