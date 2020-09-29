@@ -1,84 +1,155 @@
-Return-Path: <aherrmann@suse.com>
-From: Andreas Herrmann <aherrmann@suse.com>
-Subject: [PATCH v3 2/4] cgroup: Allow to use weights with cgroup-v2
-Date: Mon, 21 Sep 2020 15:47:32 +0200
-Message-ID: <20200921134730.19294-3-aherrmann@suse.com>
-In-Reply-To: <20200921134730.19294-1-aherrmann@suse.com>
-References: <20200921134730.19294-1-aherrmann@suse.com>
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain
-Return-Path: aherrmann@suse.com
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from out.roosit.eu ([212.26.193.44]:42888 "EHLO out.roosit.eu"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725306AbgI2Kcw (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 29 Sep 2020 06:32:52 -0400
+Date: Tue, 29 Sep 2020 12:32:44 +0200
+From: "Marc Roos" <M.Roos@f1-outsourcing.eu>
+Message-ID: <"H00000710017e161.1601375564.sx.f1-outsourcing.eu*"@MHS>
+In-Reply-To: <CAC1jp5KUtfZOGtLvv=4Koa2OERcfdGncxm+XVD6p-K95RoWbug@mail.gmail.com>
+Subject: RE: Advice getting fio data/output for charts
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio <fio@vger.kernel.org>, Andreas Herrmann <aherrmann@suse.com>
-List-ID: <fio@vger.kernel.org>
+Content-Type: text/plain;
+        charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+List-Id: fio@vger.kernel.org
+To: pedro <pedro@quarch.com>
+Cc: fio <fio@vger.kernel.org>
 
-Signed-off-by: Andreas Herrmann <aherrmann@suse.com>
----
- cgroup.c | 38 ++++++++++++++++++++++++++++++++------
- 1 file changed, 32 insertions(+), 6 deletions(-)
+ 
 
-diff --git a/cgroup.c b/cgroup.c
-index fc31d4cd..c6369f54 100644
---- a/cgroup.c
-+++ b/cgroup.c
-@@ -165,6 +165,26 @@ static int write_int_to_file(struct thread_data *td, c=
-onst char *path,
-=20
- }
-=20
-+static int write_str_to_file(struct thread_data *td, const char *path,
-+			     const char *filename, const char *str,
-+			     const char *onerr)
-+{
-+	char tmp[256];
-+	FILE *f;
-+
-+	sprintf(tmp, "%s/%s", path, filename);
-+	f =3D fopen(tmp, "w");
-+	if (!f) {
-+		td_verror(td, errno, onerr);
-+		return 1;
-+	}
-+
-+	fprintf(f, "%s", str);
-+	fclose(f);
-+	return 0;
-+
-+}
-+
- static int cgroup_write_pid(struct thread_data *td, char *path, bool cgrou=
-p2)
- {
- 	unsigned int val =3D td->pid;
-@@ -213,13 +233,19 @@ int cgroup_setup(struct thread_data *td, struct flist=
-_head *clist, struct cgroup
-=20
- 	if (td->o.cgroup_weight) {
- 		if ((*mnt)->cgroup2) {
--			log_err("fio: cgroup weit doesn't work with cgroup2\n");
--			goto err;
-+			if (write_str_to_file(td, (*mnt)->path, "cgroup.subtree_control",
-+						"+io", "cgroup open cgroup.subtree_control"))
-+				goto err;
-+			if (write_int_to_file(td, root, "io.weight",
-+						td->o.cgroup_weight,
-+						"cgroup open io.weight"))
-+				goto err;
-+		} else {
-+			if (write_int_to_file(td, root, "blkio.weight",
-+						td->o.cgroup_weight,
-+						"cgroup open blkio.weight"))
-+				goto err;
- 		}
--		if (write_int_to_file(td, root, "blkio.weight",
--					td->o.cgroup_weight,
--					"cgroup open weight"))
--			goto err;
- 	}
-=20
- 	if (!cgroup_write_pid(td, root, (*mnt)->cgroup2)) {
---=20
-2.28.0
+Hi Pedro,
+
+Very very interesting, I am just watching this video, looks good. I am 
+looking at this runFIO function, but I do not get how this realtime 
+testing is working. Does this stream test results from fio? Because I 
+see something like an output file in the runFIO function.
+
+Thanks,
+Marc
+
+
+
+
+-----Original Message-----
+Cc: fio
+Subject: Re: Advice getting fio data/output for charts
+
+Hi Marc,
+
+This might not be 100% what you are looking for, but it can be a source 
+of inspiration to get you started. I've worked on a FIO parser that 
+prepares the data to be plotted by a GUI - while the test is happening. 
+This is then plotted together with power consumption data of the target 
+device: https://youtu.be/BbztbyLHGT0?t=53
+
+The python package is here: https://pypi.org/project/quarchpy/
+There's a folder called /FIO with an interface to the python package.
+
+Another way to get started with the parser is using the specific 
+application note for FIO:
+https://quarch.com/file/an-017-qps-performance-test-with-fio/ To run the 
+whole thing you would need a Quarch Module, but you probably can get 
+around that commenting out the Quarch specific lines and leaving the FIO 
+launcher in.
+
+I hope that helps, let me know if you have any other questions :-)
+
+Pedro Cruz.
+
+
+On 27/09/2020, Marc Roos <M.Roos@f1-outsourcing.eu> wrote:
+>
+> I wanted to compare fio results from before and after using dmcrypt 
+> and add the cpu utilization.
+>
+> Currently I have such a fio config[1] running generating a default 
+> outputfile[2]. What would be the advised way to generate output with 
+> timestamps that I can eg. insert into a time series db so I can view 
+> the fio and load in some grafana chart.
+>
+> Are there maybe modules that output data every 10s to influx or 
+> prometheus?
+>
+>
+> [1]
+> [global]
+> ioengine=libaio
+> #ioengine=posixaio
+> invalidate=1
+> ramp_time=30
+> iodepth=1
+> runtime=180
+> time_based
+> direct=1
+> filename=/dev/sdl
+> #filename=/mnt/cephfs/ssd/fio-bench.img
+>
+> [write-4k-seq]
+> stonewall
+> bs=4k
+> rw=write
+>
+> [randwrite-4k-seq]
+> stonewall
+> bs=4k
+> rw=randwrite
+> fsync=1
+>
+> [randwrite-4k-d32-seq]
+> stonewall
+> bs=4k
+> ..
+> ..
+> ..
+>
+> [2]
+> randread-4096k-seq: (g=26): rw=randread, bs=(R) 4096KiB-4096KiB, (W) 
+> 4096KiB-4096KiB, (T) 4096KiB-4096KiB, ioengine=libaio, iodepth=1
+> rw-4096k-seq: (g=27): rw=rw, bs=(R) 4096KiB-4096KiB, (W) 
+> 4096KiB-4096KiB, (T) 4096KiB-4096KiB, ioengine=libaio, iodepth=1
+> randrw-4096k-seq: (g=28): rw=randrw, bs=(R) 4096KiB-4096KiB, (W) 
+> 4096KiB-4096KiB, (T) 4096KiB-4096KiB, ioengine=libaio, iodepth=1
+> fio-3.7
+> Starting 29 processes
+>
+> write-4k-seq: (groupid=0, jobs=1): err= 0: pid=171549: Thu Sep 24
+> 12:34:24 2020
+>   write: IOPS=18.4k, BW=71.8MiB/s (75.3MB/s)(12.6GiB/180001msec)
+>     slat (usec): min=4, max=140, avg= 5.11, stdev= 1.77
+>     clat (usec): min=4, max=572, avg=47.67, stdev= 6.22
+>      lat (usec): min=47, max=577, avg=52.98, stdev= 7.24
+>     clat percentiles (usec):
+>      |  1.00th=[   45],  5.00th=[   46], 10.00th=[   46], 20.00th=[
+> 46],
+>      | 30.00th=[   46], 40.00th=[   47], 50.00th=[   47], 60.00th=[
+> 47],
+>      | 70.00th=[   47], 80.00th=[   48], 90.00th=[   49], 95.00th=[
+> 54],
+>      | 99.00th=[   76], 99.50th=[   84], 99.90th=[  115], 99.95th=[
+> 147],
+>      | 99.99th=[  188]
+>    bw (  KiB/s): min=39871, max=76384, per=69.12%, avg=50852.50, 
+> stdev=4901.54, samples=359
+>    iops        : min= 9967, max=19096, avg=12712.76, stdev=1225.41,
+> samples=359
+>   lat (usec)   : 10=0.01%, 50=93.11%, 100=6.78%, 250=0.10%, 500=0.01%
+>   lat (usec)   : 750=0.01%
+>   cpu          : usr=7.38%, sys=14.15%, ctx=3310912, majf=0, minf=58
+>   IO depths    : 1=117.1%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%,
+>>=64=0.0%
+>      submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%,
+>>=64=0.0%
+>
+>
+>
+>
+>
+>
+>
+>
+>
+
 
 
