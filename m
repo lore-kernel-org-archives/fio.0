@@ -1,42 +1,83 @@
 Return-Path: <krish.reddy@samsung.com>
 From: Krishna Kanth Reddy <krish.reddy@samsung.com>
-Subject: [PATCH 0/3] v1 Patchset : Zone Explicit Open support
-Date: Tue, 29 Sep 2020 18:29:47 +0530
-Message-Id: <20200929125950.20343-1-krish.reddy@samsung.com>
+Subject: [PATCH 2/3] Add support for open_zones in libzbc I/O engine.
+Date: Tue, 29 Sep 2020 18:29:49 +0530
+Message-Id: <20200929125950.20343-3-krish.reddy@samsung.com>
+In-Reply-To: <20200929125950.20343-1-krish.reddy@samsung.com>
 Content-Type: text/plain; charset="utf-8"
-References: <CGME20200929130315epcas5p4e6a11cc77fb06a64c31e57740d2e0e31@epcas5p4.samsung.com>
+References: <20200929125950.20343-1-krish.reddy@samsung.com>
+	<CGME20200929130325epcas5p285128c2026c1bb8743967f15b0657ec7@epcas5p2.samsung.com>
 To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, Krishna Kanth Reddy <krish.reddy@samsung.com>
+Cc: fio@vger.kernel.org, Ankit Kumar <ankit.kumar@samsung.com>, Krishna Kanth Reddy <krish.reddy@samsung.com>
 List-ID: <fio@vger.kernel.org>
 
-1. Added a new FIO option zone_open.
-	When it is enabled, Zones will be opened explicitly before sending I/Os.
-2. Add support for open_zones in libzbc I/O engine
-3. t/zbd: Add support to verify Zone Explicit Open
+From: Ankit Kumar <ankit.kumar@samsung.com>
 
-This is a RFC.
-Feedback / Comments will help in improving this further.
+Signed-off-by: Krishna Kanth Reddy <krish.reddy@samsung.com>
+---
+ engines/libzbc.c | 42 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
 
-Ankit Kumar (2):
-  Add support for Explicit open zones
-  Add support for open_zones in libzbc I/O engine.
-
-Krishna Kanth Reddy (1):
-  t/zbd: Add support to verify Zone Explicit Open
-
- HOWTO                       | 13 ++++++++
- engines/libzbc.c            | 42 +++++++++++++++++++++++++
- engines/skeleton_external.c | 12 ++++++++
- fio.1                       | 11 +++++++
- ioengines.h                 |  2 ++
- options.c                   | 20 ++++++++++++
- oslib/blkzoned.h            |  7 +++++
- oslib/linux-blkzoned.c      | 26 ++++++++++++++++
- t/zbd/test-zbd-support      | 27 ++++++++++++++++
- thread_options.h            |  7 +++++
- zbd.c                       | 61 +++++++++++++++++++++++++++++++++++++
- 11 files changed, 228 insertions(+)
-
+diff --git a/engines/libzbc.c b/engines/libzbc.c
+index 4b900233..4b742d24 100644
+--- a/engines/libzbc.c
++++ b/engines/libzbc.c
+@@ -334,6 +334,47 @@ err:
+ 	return -ret;
+ }
+ 
++static int libzbc_open_zones(struct thread_data *td, const struct fio_file *f,
++			     uint64_t offset, uint64_t length)
++{
++	struct libzbc_data *ld = td->io_ops_data;
++	uint64_t sector = offset >> 9;
++	uint64_t end_sector = (offset + length) >> 9;
++	unsigned int nr_zones;
++	struct zbc_errno err;
++	int i, ret;
++
++	assert(ld);
++	assert(ld->zdev);
++
++	nr_zones = (length + td->o.zone_size - 1) / td->o.zone_size;
++	if (!sector && end_sector >= ld->nr_sectors) {
++		/* Open all zones */
++		ret = zbc_open_zone(ld->zdev, 0, ZBC_OP_ALL_ZONES);
++		if (ret)
++			goto err;
++
++		return 0;
++	}
++
++	for (i = 0; i < nr_zones; i++, sector += td->o.zone_size >> 9) {
++		ret = zbc_open_zone(ld->zdev, sector, 0);
++		if (ret)
++			goto err;
++	}
++
++	return 0;
++
++err:
++	zbc_errno(ld->zdev, &err);
++	td_verror(td, errno, "zbc_open_zone failed");
++	if (err.sk)
++		log_err("%s: open failed %s:%s\n",
++			f->file_name,
++			zbc_sk_str(err.sk), zbc_asc_ascq_str(err.asc_ascq));
++	return -ret;
++}
++
+ ssize_t libzbc_rw(struct thread_data *td, struct io_u *io_u)
+ {
+ 	struct libzbc_data *ld = td->io_ops_data;
+@@ -413,6 +454,7 @@ FIO_STATIC struct ioengine_ops ioengine = {
+ 	.get_zoned_model	= libzbc_get_zoned_model,
+ 	.report_zones		= libzbc_report_zones,
+ 	.reset_wp		= libzbc_reset_wp,
++	.open_zones		= libzbc_open_zones,
+ 	.queue			= libzbc_queue,
+ 	.flags			= FIO_SYNCIO | FIO_NOEXTEND | FIO_RAWIO,
+ };
 -- 
 2.17.1
 
