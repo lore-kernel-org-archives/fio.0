@@ -1,29 +1,26 @@
-Return-Path: <prvs=548cbc8ae=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 0/2] zbd: Fix test case #48 failure
-Date: Tue, 13 Oct 2020 15:49:24 +0900
-Message-Id: <20201013064926.901831-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] simplify MB/s, IOPS interactive printout code
+References: <20201010143510.GA1131765@localhost.localdomain>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <6b33d29a-38fa-63b4-75b8-62bb1ef60950@kernel.dk>
+Date: Sat, 10 Oct 2020 10:55:06 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Naohiro Aota <Naohiro.Aota@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20201010143510.GA1131765@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-When t/zbd/test-zoned-support is run for zoned block devices with slow zone
-reset command operation, test case #48 fails. This series addresses the failure
-with two fixes. First patch avoids excessive and repeated zone resets which
-resulted in too long runtime and test timeout. Second patch fixes wrong test
-target range of the test case which triggered unnecessary zone resets.
+On 10/10/20 8:35 AM, Alexey Dobriyan wrote:
+> Use loops(!) instead of hardcoded if-else pairs.
+> 
+> Make it easier to add DDIR_APPEND.
 
-Shin'ichiro Kawasaki (2):
-  zbd: Avoid excessive zone resets
-  t/zbd: Fix test target size of test case #48
-
- t/zbd/test-zbd-support | 2 +-
- zbd.c                  | 3 +++
- 2 files changed, 4 insertions(+), 1 deletion(-)
+Applied, thanks.
 
 -- 
-2.26.2
+Jens Axboe
 
 
