@@ -1,114 +1,46 @@
-Return-Path: <aherrmann@suse.com>
-From: Andreas Herrmann <aherrmann@suse.com>
-Subject: [PATCH v3 resend 1/4] cgroup: Fix handling when cgroup blkio and cgroup-v2 are mounted
-Date: Fri, 30 Oct 2020 12:11:46 +0100
-Message-ID: <20201030111147.19175-2-aherrmann@suse.com>
-In-Reply-To: <20201030111147.19175-1-aherrmann@suse.com>
-References: <20201030111147.19175-1-aherrmann@suse.com>
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain
-Return-Path: aherrmann@suse.com
+Return-Path: <prvs=548cbc8ae=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 1/2] zbd: Avoid excessive zone resets
+Date: Tue, 13 Oct 2020 15:49:25 +0900
+Message-Id: <20201013064926.901831-2-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20201013064926.901831-1-shinichiro.kawasaki@wdc.com>
+References: <20201013064926.901831-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio <fio@vger.kernel.org>, Andreas Herrmann <aherrmann@suse.com>
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Naohiro Aota <Naohiro.Aota@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On systems that have a mixed setup of cgroup and cgroup-v2, blkio
-controller might be active. I think in this case there is no point in
-using cgroup-v2. One needs to boot with cgroup_no_v1=3Dblkio to be able
-to use cgroup-v2 IO controller.
+When zbd_reset_zone() is called for a zone repeatedly, reset zone command
+is issued multiple times to a single zone even though its status is
+empty. This is excessive and meaningless. Especially when zones are reset
+at file set up with multiple jobs, zone reset is repeated for each job
+and delays fio work load start.
 
-Signed-off-by: Andreas Herrmann <aherrmann@suse.com>
+To avoid the repeated zone resets, check the write pointer of the zone
+before issuing zone reset command. If the write pointer is at the zone
+start, do not reset the zone and just return.
+
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- cgroup.c | 58 ++++++++++++++++++++++++++++++++++++++------------------
- 1 file changed, 40 insertions(+), 18 deletions(-)
+ zbd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/cgroup.c b/cgroup.c
-index 77e31a4d..fc31d4cd 100644
---- a/cgroup.c
-+++ b/cgroup.c
-@@ -20,11 +20,10 @@ struct cgroup_member {
-=20
- static struct cgroup_mnt *find_cgroup_mnt(struct thread_data *td)
- {
--	struct cgroup_mnt *cgroup_mnt =3D NULL;
-+	struct cgroup_mnt *cgroup_mnt, *cg1_mnt =3D NULL, *cg2_mnt =3D NULL;
- 	struct mntent *mnt, dummy;
- 	char buf[256] =3D {0};
- 	FILE *f;
--	bool cgroup2 =3D false;
-=20
- 	f =3D setmntent("/proc/mounts", "r");
- 	if (!f) {
-@@ -34,27 +33,50 @@ static struct cgroup_mnt *find_cgroup_mnt(struct thread=
-_data *td)
-=20
- 	while ((mnt =3D getmntent_r(f, &dummy, buf, sizeof(buf))) !=3D NULL) {
- 		if (!strcmp(mnt->mnt_type, "cgroup") &&
--		    strstr(mnt->mnt_opts, "blkio"))
--			break;
--		if (!strcmp(mnt->mnt_type, "cgroup2")) {
--			cgroup2 =3D true;
-+			strstr(mnt->mnt_opts, "blkio")) {
-+			cg1_mnt =3D smalloc(sizeof(*cg1_mnt));
-+			if (cg1_mnt) {
-+				cg1_mnt->path =3D smalloc_strdup(mnt->mnt_dir);
-+				if (!cg1_mnt->path) {
-+					sfree(cg1_mnt);
-+					cg1_mnt =3D NULL;
-+					log_err("fio: could not allocate memory\n");
-+				}
-+			}
-+			/*
-+			 * blkio controller has precedence
-+			 */
- 			break;
-+		} if (!strcmp(mnt->mnt_type, "cgroup2")) {
-+			if (cg2_mnt)
-+				continue;
-+			cg2_mnt =3D smalloc(sizeof(*cg2_mnt));
-+			if (cg2_mnt) {
-+				cg2_mnt->path =3D smalloc_strdup(mnt->mnt_dir);
-+				if (!cg2_mnt->path) {
-+					sfree(cg2_mnt);
-+					cg2_mnt =3D NULL;
-+					log_err("fio: could not allocate memory\n");
-+				} else
-+					cg2_mnt->cgroup2 =3D true;
-+			}
-+			/*
-+			 * Check all mount points, there can be a mix
-+			 * of cgroup-v1 and cgroup-v2
-+			 */
-+			continue;
- 		}
- 	}
-=20
--	if (mnt) {
--		cgroup_mnt =3D smalloc(sizeof(*cgroup_mnt));
--		if (cgroup_mnt) {
--			cgroup_mnt->path =3D smalloc_strdup(mnt->mnt_dir);
--			if (!cgroup_mnt->path) {
--				sfree(cgroup_mnt);
--				log_err("fio: could not allocate memory\n");
--			} else {
--				cgroup_mnt->cgroup2 =3D cgroup2;
--			}
--		}
-+	cgroup_mnt =3D NULL;
-+	if (cg1_mnt) {
-+		cgroup_mnt =3D cg1_mnt;
-+		if (cg2_mnt)
-+			sfree(cg2_mnt);
-+	} else if (cg2_mnt) {
-+		cgroup_mnt =3D cg2_mnt;
- 	} else {
--		log_err("fio: cgroup blkio does not appear to be mounted\n");
-+		log_err("fio: cgroup blkio or cgroup2 do not appear to be mounted\n");
- 	}
-=20
- 	endmntent(f);
---=20
-2.29.0
+diff --git a/zbd.c b/zbd.c
+index 905c0c2b..9327816a 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -718,6 +718,9 @@ static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
+ 	uint64_t length = (z+1)->start - offset;
+ 	int ret = 0;
+ 
++	if (z->wp == z->start)
++		return 0;
++
+ 	assert(is_valid_offset(f, offset + length - 1));
+ 
+ 	dprint(FD_ZBD, "%s: resetting wp of zone %u.\n", f->file_name,
+-- 
+2.26.2
 
 
