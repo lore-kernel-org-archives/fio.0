@@ -1,35 +1,42 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-db8eur05on2135.outbound.protection.outlook.com ([40.107.20.135]:19617
-        "EHLO EUR05-DB8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2387696AbgJZUen (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 26 Oct 2020 16:34:43 -0400
-From: Erwan Velu <e.velu@criteo.com>
-Subject: Question around the time precision
-Message-ID: <b1be007c-9ef8-69b8-67b9-cbe69f1f08e9@criteo.com>
-Date: Mon, 26 Oct 2020 21:34:38 +0100
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Return-Path: <prvs=548cbc8ae=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 2/2] t/zbd: Fix test target size of test case #48
+Date: Tue, 13 Oct 2020 15:49:26 +0900
+Message-Id: <20201013064926.901831-3-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20201013064926.901831-1-shinichiro.kawasaki@wdc.com>
+References: <20201013064926.901831-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Naohiro Aota <Naohiro.Aota@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-Hello list,
+Option --size was not specified to the fio command of test case #48. It
+resulted in write operations to all available sequential write required
+zones and relaxed zone locking test condition. Specify the option to
+limit test target to 16 zones so that zone locking is tested with
+expected condition.
 
-I found pretty handy being able to simulate and control the cpu activity 
-by using the cpuio engine.
+Fixes: 3bd2078bdd1c ("zbd: add test for stressing zone locking")
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ t/zbd/test-zbd-support | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-The actual code is doing a simple nop loop for the expected duration.
-
-
-I'm thinking about adding other loops like having sse or avx loops to 
-stress the CPU differently.
-
-I was wondering how accurate must be the loop. Is there any particular 
-expectation or constrains to know ?
-
-
-Erwan,
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 248423bb..acde3b3a 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -913,7 +913,7 @@ test48() {
+     for ((i=0;i<jobs;i++)); do
+ 	opts+=("--name=job$i" "--filename=$dev" "--offset=$off" "--bs=16K")
+ 	opts+=("--io_size=$zone_size" "--iodepth=256" "--thread=1")
+-	opts+=("--group_reporting=1")
++	opts+=("--size=$size" "--group_reporting=1")
+ 	# max_open_zones is already specified
+ 	opts+=($(job_var_opts_exclude "--max_open_zones"))
+     done
+-- 
+2.26.2
 
 
