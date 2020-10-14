@@ -1,59 +1,61 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41796 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731345AbgJJTxq (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 10 Oct 2020 15:53:46 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 138CAC0613BF
-        for <fio@vger.kernel.org>; Sat, 10 Oct 2020 05:00:06 -0700 (PDT)
+        with ESMTP id S1728563AbgJNMAG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 14 Oct 2020 08:00:06 -0400
+Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44EAAC061755
+        for <fio@vger.kernel.org>; Wed, 14 Oct 2020 05:00:05 -0700 (PDT)
 Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kRDXg-0004cQ-7f
-        for fio@vger.kernel.org; Sat, 10 Oct 2020 12:00:04 +0000
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kSfRr-000227-1j
+        for fio@vger.kernel.org; Wed, 14 Oct 2020 12:00:03 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20201010120002.052601BC0111@kernel.dk>
-Date: Sat, 10 Oct 2020 06:00:02 -0600 (MDT)
+Message-Id: <20201014120001.9F1591BC0139@kernel.dk>
+Date: Wed, 14 Oct 2020 06:00:01 -0600 (MDT)
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit 7064f8942a3b8070acf60b8e5fabc16f8221ae40:
+The following changes since commit 60c52212520b905a1740d3c8815c34cc48471c5c:
 
-  Merge branch 'msys2' of https://github.com/sitsofe/fio into master (2020-09-14 19:43:39 -0600)
+  Merge branch 'master' of https://github.com/bvanassche/fio into master (2020-10-10 20:30:52 -0600)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 729071019ee23804d52bed47357e4324be6b06bf:
+for you to fetch changes up to 8cf503ce5956e4c287e13d5c7761a03fbb4b54cc:
 
-  Merge branch 'master' of https://github.com/chengli-rutgers/fio into master (2020-10-09 07:28:55 -0600)
+  Merge branch 'patch-1' of https://github.com/chengli-rutgers/fio into master (2020-10-13 13:07:37 -0600)
 
 ----------------------------------------------------------------
 Cheng Li (1):
-      td_var: avoid arithmetic on a pointer to void cast (#1096)
+      getopt_long: avoid variable global initialization
 
 Jens Axboe (1):
-      Merge branch 'master' of https://github.com/chengli-rutgers/fio into master
+      Merge branch 'patch-1' of https://github.com/chengli-rutgers/fio into master
 
- parse.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ oslib/getopt_long.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/parse.h b/parse.h
-index 1d2cbf74..e6663ed4 100644
---- a/parse.h
-+++ b/parse.h
-@@ -125,7 +125,7 @@ static inline void *td_var(void *to, const struct fio_option *o,
- 	else
- 		ret = to;
+diff --git a/oslib/getopt_long.c b/oslib/getopt_long.c
+index 8ec77413..463919fb 100644
+--- a/oslib/getopt_long.c
++++ b/oslib/getopt_long.c
+@@ -16,8 +16,8 @@
  
--	return ret + offset;
-+	return (void *) ((uintptr_t) ret + offset);
- }
+ #include "getopt.h"
  
- static inline int parse_is_percent(unsigned long long val)
+-char *optarg = NULL;
+-int optind = 0, opterr = 0, optopt = 0;
++char *optarg;
++int optind, opterr, optopt;
+ 
+ static struct getopt_private_state {
+ 	const char *optptr;
 
