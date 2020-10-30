@@ -1,8 +1,8 @@
 Return-Path: <aherrmann@suse.com>
 From: Andreas Herrmann <aherrmann@suse.com>
-Subject: [PATCH v3 resend 3/4] thread_options: Introduce cgroup_use_bfq
-Date: Fri, 30 Oct 2020 12:11:50 +0100
-Message-ID: <20201030111147.19175-4-aherrmann@suse.com>
+Subject: [PATCH v3 resend 2/4] cgroup: Allow to use weights with cgroup-v2
+Date: Fri, 30 Oct 2020 12:11:48 +0100
+Message-ID: <20201030111147.19175-3-aherrmann@suse.com>
 In-Reply-To: <20201030111147.19175-1-aherrmann@suse.com>
 References: <20201030111147.19175-1-aherrmann@suse.com>
 Content-Transfer-Encoding: quoted-printable
@@ -15,140 +15,69 @@ List-ID: <fio@vger.kernel.org>
 
 Signed-off-by: Andreas Herrmann <aherrmann@suse.com>
 ---
- HOWTO            |  6 ++++++
- cconv.c          |  2 ++
- fio.1            |  5 +++++
- options.c        | 11 +++++++++++
- server.h         |  2 +-
- thread_options.h |  7 +++++--
- 6 files changed, 30 insertions(+), 3 deletions(-)
+ cgroup.c | 38 ++++++++++++++++++++++++++++++++------
+ 1 file changed, 32 insertions(+), 6 deletions(-)
 
-diff --git a/HOWTO b/HOWTO
-index 386fd12a..2e94d793 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -2857,6 +2857,12 @@ Threads, processes and job synchronization
- 	job completion, set ``cgroup_nodelete=3D1``.  This can be useful if one w=
-ants
- 	to inspect various cgroup files after job completion. Default: false.
+diff --git a/cgroup.c b/cgroup.c
+index fc31d4cd..c6369f54 100644
+--- a/cgroup.c
++++ b/cgroup.c
+@@ -165,6 +165,26 @@ static int write_int_to_file(struct thread_data *td, c=
+onst char *path,
 =20
-+.. option:: cgroup_use_bfq=3Dbool
+ }
+=20
++static int write_str_to_file(struct thread_data *td, const char *path,
++			     const char *filename, const char *str,
++			     const char *onerr)
++{
++	char tmp[256];
++	FILE *f;
 +
-+	Normally fio will use generic sysfs attributes to set cgroup_weight.
-+	To use attributes specific to BFQ IO scheduler set ``cgroup_use_bfq=3D1``=
-.
-+	Default: false.
++	sprintf(tmp, "%s/%s", path, filename);
++	f =3D fopen(tmp, "w");
++	if (!f) {
++		td_verror(td, errno, onerr);
++		return 1;
++	}
 +
- .. option:: flow_id=3Dint
++	fprintf(f, "%s", str);
++	fclose(f);
++	return 0;
++
++}
++
+ static int cgroup_write_pid(struct thread_data *td, char *path, bool cgrou=
+p2)
+ {
+ 	unsigned int val =3D td->pid;
+@@ -213,13 +233,19 @@ int cgroup_setup(struct thread_data *td, struct flist=
+_head *clist, struct cgroup
 =20
- 	The ID of the flow. If not specified, it defaults to being a global
-diff --git a/cconv.c b/cconv.c
-index 488dd799..ef5b6a97 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -279,6 +279,7 @@ void convert_thread_options_to_cpu(struct thread_option=
-s *o,
- 	o->continue_on_error =3D le32_to_cpu(top->continue_on_error);
- 	o->cgroup_weight =3D le32_to_cpu(top->cgroup_weight);
- 	o->cgroup_nodelete =3D le32_to_cpu(top->cgroup_nodelete);
-+	o->cgroup_use_bfq =3D le32_to_cpu(top->cgroup_use_bfq);
- 	o->uid =3D le32_to_cpu(top->uid);
- 	o->gid =3D le32_to_cpu(top->gid);
- 	o->flow_id =3D __le32_to_cpu(top->flow_id);
-@@ -479,6 +480,7 @@ void convert_thread_options_to_net(struct thread_option=
-s_pack *top,
- 	top->continue_on_error =3D cpu_to_le32(o->continue_on_error);
- 	top->cgroup_weight =3D cpu_to_le32(o->cgroup_weight);
- 	top->cgroup_nodelete =3D cpu_to_le32(o->cgroup_nodelete);
-+	top->cgroup_use_bfq =3D cpu_to_le32(o->cgroup_use_bfq);
- 	top->uid =3D cpu_to_le32(o->uid);
- 	top->gid =3D cpu_to_le32(o->gid);
- 	top->flow_id =3D __cpu_to_le32(o->flow_id);
-diff --git a/fio.1 b/fio.1
-index 48119325..39b40772 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2562,6 +2562,11 @@ completion. To override this behavior and to leave c=
-groups around after the
- job completion, set `cgroup_nodelete=3D1'. This can be useful if one wants
- to inspect various cgroup files after job completion. Default: false.
- .TP
-+.BI cgroup_use_bfq \fR=3D\fPbool
-+Normally fio will use generic sysfs attributes to set cgroup_weight.
-+To use attributes specific to BFQ IO scheduler set ``cgroup_use_bfq=3D1``.
-+Default: false.
-+.TP
- .BI flow_id \fR=3D\fPint
- The ID of the flow. If not specified, it defaults to being a global
- flow. See \fBflow\fR.
-diff --git a/options.c b/options.c
-index 1e91b3e9..8136f262 100644
---- a/options.c
-+++ b/options.c
-@@ -4643,6 +4643,17 @@ struct fio_option fio_options[FIO_MAX_OPTS] =3D {
- 		.category =3D FIO_OPT_C_GENERAL,
- 		.group	=3D FIO_OPT_G_CGROUP,
- 	},
-+	{
-+		.name	=3D "cgroup_use_bfq",
-+		.lname	=3D "Cgroup use-bfq",
-+		.type	=3D FIO_OPT_BOOL,
-+		.off1	=3D offsetof(struct thread_options, cgroup_use_bfq),
-+		.help	=3D "Use cgroup sysfs attributes specific to BFQ",
-+		.def	=3D "0",
-+		.parent	=3D "cgroup",
-+		.category =3D FIO_OPT_C_GENERAL,
-+		.group	=3D FIO_OPT_G_CGROUP,
-+	},
- 	{
- 		.name	=3D "uid",
- 		.lname	=3D "User ID",
-diff --git a/server.h b/server.h
-index 6d444749..9256d44c 100644
---- a/server.h
-+++ b/server.h
-@@ -48,7 +48,7 @@ struct fio_net_cmd_reply {
- };
+ 	if (td->o.cgroup_weight) {
+ 		if ((*mnt)->cgroup2) {
+-			log_err("fio: cgroup weit doesn't work with cgroup2\n");
+-			goto err;
++			if (write_str_to_file(td, (*mnt)->path, "cgroup.subtree_control",
++						"+io", "cgroup open cgroup.subtree_control"))
++				goto err;
++			if (write_int_to_file(td, root, "io.weight",
++						td->o.cgroup_weight,
++						"cgroup open io.weight"))
++				goto err;
++		} else {
++			if (write_int_to_file(td, root, "blkio.weight",
++						td->o.cgroup_weight,
++						"cgroup open blkio.weight"))
++				goto err;
+ 		}
+-		if (write_int_to_file(td, root, "blkio.weight",
+-					td->o.cgroup_weight,
+-					"cgroup open weight"))
+-			goto err;
+ 	}
 =20
- enum {
--	FIO_SERVER_VER			=3D 86,
-+	FIO_SERVER_VER			=3D 87,
-=20
- 	FIO_SERVER_MAX_FRAGMENT_PDU	=3D 1024,
- 	FIO_SERVER_MAX_CMD_MB		=3D 2048,
-diff --git a/thread_options.h b/thread_options.h
-index 97c400fe..f4d296c6 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -303,11 +303,12 @@ struct thread_options {
- 	char *profile;
-=20
- 	/*
--	 * blkio cgroup support
-+	 * (blk)io cgroup support
- 	 */
- 	char *cgroup;
- 	unsigned int cgroup_weight;
- 	unsigned int cgroup_nodelete;
-+	unsigned int cgroup_use_bfq;
-=20
- 	unsigned int uid;
- 	unsigned int gid;
-@@ -599,11 +600,13 @@ struct thread_options_pack {
- 	uint8_t profile[FIO_TOP_STR_MAX];
-=20
- 	/*
--	 * blkio cgroup support
-+	 * (blk)io cgroup support
- 	 */
- 	uint8_t cgroup[FIO_TOP_STR_MAX];
- 	uint32_t cgroup_weight;
- 	uint32_t cgroup_nodelete;
-+	uint32_t cgroup_use_bfq;
-+	uint32_t pad3;
-=20
- 	uint32_t uid;
- 	uint32_t gid;
+ 	if (!cgroup_write_pid(td, root, (*mnt)->cgroup2)) {
 --=20
 2.29.0
 
