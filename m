@@ -1,47 +1,44 @@
 Return-Path: <prvs=565f703da=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 1/2] zbd: Avoid excessive zone resets
-Date: Fri, 30 Oct 2020 15:57:39 +0900
-Message-Id: <20201030065740.2039936-2-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20201030065740.2039936-1-shinichiro.kawasaki@wdc.com>
-References: <20201030065740.2039936-1-shinichiro.kawasaki@wdc.com>
+From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: Re: [PATCH 0/2] zbd: Fix test case #48 failure
+Date: Fri, 30 Oct 2020 07:03:37 +0000
+Message-ID: <20201030070336.lqbgbjwosk4ayjfz@shindev.dhcp.fujisawa.hgst.com>
+References: <20201013064926.901831-1-shinichiro.kawasaki@wdc.com>
+ <20201029074259.sesqdwbkysw552yl@shindev.dhcp.fujisawa.hgst.com>
+ <c8735dd3-9b7d-52f5-735c-c7aa6e006a43@kernel.dk>
+In-Reply-To: <c8735dd3-9b7d-52f5-735c-c7aa6e006a43@kernel.dk>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <CEAC27561196E347930D870BA0A240C8@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Naohiro Aota <Naohiro.Aota@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Naohiro Aota <Naohiro.Aota@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-When zbd_reset_zone() is called for a zone repeatedly, reset zone command
-is issued multiple times to a single zone even though its status is
-empty. This is excessive and meaningless. Especially when zones are reset
-at file set up with multiple jobs, zone reset is repeated for each job
-and delays fio work load start.
+On Oct 29, 2020 / 08:00, Jens Axboe wrote:
+> On 10/29/20 1:43 AM, Shinichiro Kawasaki wrote:
+> > On Oct 13, 2020 / 15:49, Shin'ichiro Kawasaki wrote:
+> >> When t/zbd/test-zoned-support is run for zoned block devices with slow=
+ zone
+> >> reset command operation, test case #48 fails. This series addresses th=
+e failure
+> >> with two fixes. First patch avoids excessive and repeated zone resets =
+which
+> >> resulted in too long runtime and test timeout. Second patch fixes wron=
+g test
+> >> target range of the test case which triggered unnecessary zone resets.
+> >=20
+> > Hi Jens, could you consider to pick this series up for the upstream?
+> > Thanks in advance.
+>=20
+> I don't seem to have the actual patches in my mailbox, just the cover
+> letter. Can you resend them?
 
-To avoid the repeated zone resets, check the write pointer of the zone
-before issuing zone reset command. If the write pointer is at the zone
-start, do not reset the zone and just return.
+Sure, I have resent v2. I added reviewed-by tag to the patches.
+Hope the patches will reach you.
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Reviewed-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- zbd.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/zbd.c b/zbd.c
-index 905c0c2b..9327816a 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -718,6 +718,9 @@ static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
- 	uint64_t length = (z+1)->start - offset;
- 	int ret = 0;
- 
-+	if (z->wp == z->start)
-+		return 0;
-+
- 	assert(is_valid_offset(f, offset + length - 1));
- 
- 	dprint(FD_ZBD, "%s: resetting wp of zone %u.\n", f->file_name,
--- 
-2.26.2
-
+--=20
+Best Regards,
+Shin'ichiro Kawasaki=
 
