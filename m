@@ -1,27 +1,47 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46986 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726362AbgJFMjd (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 6 Oct 2020 08:39:33 -0400
-Received: from mail-vs1-xe32.google.com (mail-vs1-xe32.google.com [IPv6:2607:f8b0:4864:20::e32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E3D5C061755
-        for <fio@vger.kernel.org>; Tue,  6 Oct 2020 05:39:33 -0700 (PDT)
-Received: by mail-vs1-xe32.google.com with SMTP id f8so3675152vsl.3
-        for <fio@vger.kernel.org>; Tue, 06 Oct 2020 05:39:33 -0700 (PDT)
+Return-Path: <prvs=565f703da=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 1/2] zbd: Avoid excessive zone resets
+Date: Fri, 30 Oct 2020 15:57:39 +0900
+Message-Id: <20201030065740.2039936-2-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20201030065740.2039936-1-shinichiro.kawasaki@wdc.com>
+References: <20201030065740.2039936-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
-From: siha lawrence <sihaj33@gmail.com>
-Date: Tue, 6 Oct 2020 20:39:21 +0800
-Message-ID: <CAAEM5qKsqw44j_Bwi7fnJF0KXGcVG9qFp_=Nmg6LiwQ3t+LtBQ@mail.gmail.com>
-Subject: Writing/reading OD, MD, ID of a disk
-Content-Type: text/plain; charset="UTF-8"
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Naohiro Aota <Naohiro.Aota@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+When zbd_reset_zone() is called for a zone repeatedly, reset zone command
+is issued multiple times to a single zone even though its status is
+empty. This is excessive and meaningless. Especially when zones are reset
+at file set up with multiple jobs, zone reset is repeated for each job
+and delays fio work load start.
 
-What parameters could we use to write/read OD, MD, ID of a disk or
-specific LBAs?
+To avoid the repeated zone resets, check the write pointer of the zone
+before issuing zone reset command. If the write pointer is at the zone
+start, do not reset the zone and just return.
 
-Thanks,
-Siha
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Reviewed-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+---
+ zbd.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/zbd.c b/zbd.c
+index 905c0c2b..9327816a 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -718,6 +718,9 @@ static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
+ 	uint64_t length = (z+1)->start - offset;
+ 	int ret = 0;
+ 
++	if (z->wp == z->start)
++		return 0;
++
+ 	assert(is_valid_offset(f, offset + length - 1));
+ 
+ 	dprint(FD_ZBD, "%s: resetting wp of zone %u.\n", f->file_name,
+-- 
+2.26.2
+
 
