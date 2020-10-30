@@ -1,85 +1,114 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33970 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730825AbgJOMAK (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 15 Oct 2020 08:00:10 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CB1AC0613DC
-        for <fio@vger.kernel.org>; Thu, 15 Oct 2020 05:00:06 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kT1vQ-0005IU-K3
-        for fio@vger.kernel.org; Thu, 15 Oct 2020 12:00:05 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20201015120002.1233F1BC0147@kernel.dk>
-Date: Thu, 15 Oct 2020 06:00:02 -0600 (MDT)
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <aherrmann@suse.com>
+From: Andreas Herrmann <aherrmann@suse.com>
+Subject: [PATCH v3 resend 1/4] cgroup: Fix handling when cgroup blkio and cgroup-v2 are mounted
+Date: Fri, 30 Oct 2020 12:11:46 +0100
+Message-ID: <20201030111147.19175-2-aherrmann@suse.com>
+In-Reply-To: <20201030111147.19175-1-aherrmann@suse.com>
+References: <20201030111147.19175-1-aherrmann@suse.com>
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+Return-Path: aherrmann@suse.com
+MIME-Version: 1.0
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio <fio@vger.kernel.org>, Andreas Herrmann <aherrmann@suse.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 8cf503ce5956e4c287e13d5c7761a03fbb4b54cc:
+On systems that have a mixed setup of cgroup and cgroup-v2, blkio
+controller might be active. I think in this case there is no point in
+using cgroup-v2. One needs to boot with cgroup_no_v1=3Dblkio to be able
+to use cgroup-v2 IO controller.
 
-  Merge branch 'patch-1' of https://github.com/chengli-rutgers/fio into master (2020-10-13 13:07:37 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 8bfe330eb42739d503d35d0b7d96f98c5c544204:
-
-  Disallow offload IO mode for engines marked with FIO_NO_OFFLOAD (2020-10-14 20:11:56 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Disallow offload IO mode for engines marked with FIO_NO_OFFLOAD
-
- engines/io_uring.c | 2 +-
- ioengines.c        | 2 +-
- ioengines.h        | 3 ++-
- 3 files changed, 4 insertions(+), 3 deletions(-)
-
+Signed-off-by: Andreas Herrmann <aherrmann@suse.com>
 ---
+ cgroup.c | 58 ++++++++++++++++++++++++++++++++++++++------------------
+ 1 file changed, 40 insertions(+), 18 deletions(-)
 
-Diff of recent changes:
+diff --git a/cgroup.c b/cgroup.c
+index 77e31a4d..fc31d4cd 100644
+--- a/cgroup.c
++++ b/cgroup.c
+@@ -20,11 +20,10 @@ struct cgroup_member {
+=20
+ static struct cgroup_mnt *find_cgroup_mnt(struct thread_data *td)
+ {
+-	struct cgroup_mnt *cgroup_mnt =3D NULL;
++	struct cgroup_mnt *cgroup_mnt, *cg1_mnt =3D NULL, *cg2_mnt =3D NULL;
+ 	struct mntent *mnt, dummy;
+ 	char buf[256] =3D {0};
+ 	FILE *f;
+-	bool cgroup2 =3D false;
+=20
+ 	f =3D setmntent("/proc/mounts", "r");
+ 	if (!f) {
+@@ -34,27 +33,50 @@ static struct cgroup_mnt *find_cgroup_mnt(struct thread=
+_data *td)
+=20
+ 	while ((mnt =3D getmntent_r(f, &dummy, buf, sizeof(buf))) !=3D NULL) {
+ 		if (!strcmp(mnt->mnt_type, "cgroup") &&
+-		    strstr(mnt->mnt_opts, "blkio"))
+-			break;
+-		if (!strcmp(mnt->mnt_type, "cgroup2")) {
+-			cgroup2 =3D true;
++			strstr(mnt->mnt_opts, "blkio")) {
++			cg1_mnt =3D smalloc(sizeof(*cg1_mnt));
++			if (cg1_mnt) {
++				cg1_mnt->path =3D smalloc_strdup(mnt->mnt_dir);
++				if (!cg1_mnt->path) {
++					sfree(cg1_mnt);
++					cg1_mnt =3D NULL;
++					log_err("fio: could not allocate memory\n");
++				}
++			}
++			/*
++			 * blkio controller has precedence
++			 */
+ 			break;
++		} if (!strcmp(mnt->mnt_type, "cgroup2")) {
++			if (cg2_mnt)
++				continue;
++			cg2_mnt =3D smalloc(sizeof(*cg2_mnt));
++			if (cg2_mnt) {
++				cg2_mnt->path =3D smalloc_strdup(mnt->mnt_dir);
++				if (!cg2_mnt->path) {
++					sfree(cg2_mnt);
++					cg2_mnt =3D NULL;
++					log_err("fio: could not allocate memory\n");
++				} else
++					cg2_mnt->cgroup2 =3D true;
++			}
++			/*
++			 * Check all mount points, there can be a mix
++			 * of cgroup-v1 and cgroup-v2
++			 */
++			continue;
+ 		}
+ 	}
+=20
+-	if (mnt) {
+-		cgroup_mnt =3D smalloc(sizeof(*cgroup_mnt));
+-		if (cgroup_mnt) {
+-			cgroup_mnt->path =3D smalloc_strdup(mnt->mnt_dir);
+-			if (!cgroup_mnt->path) {
+-				sfree(cgroup_mnt);
+-				log_err("fio: could not allocate memory\n");
+-			} else {
+-				cgroup_mnt->cgroup2 =3D cgroup2;
+-			}
+-		}
++	cgroup_mnt =3D NULL;
++	if (cg1_mnt) {
++		cgroup_mnt =3D cg1_mnt;
++		if (cg2_mnt)
++			sfree(cg2_mnt);
++	} else if (cg2_mnt) {
++		cgroup_mnt =3D cg2_mnt;
+ 	} else {
+-		log_err("fio: cgroup blkio does not appear to be mounted\n");
++		log_err("fio: cgroup blkio or cgroup2 do not appear to be mounted\n");
+ 	}
+=20
+ 	endmntent(f);
+--=20
+2.29.0
 
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 69f48859..b997c8d8 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -806,7 +806,7 @@ static int fio_ioring_close_file(struct thread_data *td, struct fio_file *f)
- static struct ioengine_ops ioengine = {
- 	.name			= "io_uring",
- 	.version		= FIO_IOOPS_VERSION,
--	.flags			= FIO_ASYNCIO_SYNC_TRIM,
-+	.flags			= FIO_ASYNCIO_SYNC_TRIM | FIO_NO_OFFLOAD,
- 	.init			= fio_ioring_init,
- 	.post_init		= fio_ioring_post_init,
- 	.io_u_init		= fio_ioring_io_u_init,
-diff --git a/ioengines.c b/ioengines.c
-index d3be8026..3e43ef2f 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -45,7 +45,7 @@ static bool check_engine_ops(struct thread_data *td, struct ioengine_ops *ops)
- 	 * async engines aren't reliable with offload
- 	 */
- 	if ((td->o.io_submit_mode == IO_MODE_OFFLOAD) &&
--	    !(ops->flags & FIO_FAKEIO)) {
-+	    (ops->flags & FIO_NO_OFFLOAD)) {
- 		log_err("%s: can't be used with offloaded submit. Use a sync "
- 			"engine\n", ops->name);
- 		return true;
-diff --git a/ioengines.h b/ioengines.h
-index 54dadba2..fbe52fa4 100644
---- a/ioengines.h
-+++ b/ioengines.h
-@@ -77,7 +77,8 @@ enum fio_ioengine_flags {
- 	FIO_NOSTATS	= 1 << 12,	/* don't do IO stats */
- 	FIO_NOFILEHASH	= 1 << 13,	/* doesn't hash the files for lookup later. */
- 	FIO_ASYNCIO_SYNC_TRIM
--			= 1 << 14	/* io engine has async ->queue except for trim */
-+			= 1 << 14,	/* io engine has async ->queue except for trim */
-+	FIO_NO_OFFLOAD	= 1 << 15,	/* no async offload */
- };
- 
- /*
 
