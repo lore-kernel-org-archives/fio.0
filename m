@@ -1,32 +1,28 @@
-Return-Path: <prvs=565f703da=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 0/2] zbd: Fix test case #48 failure
-Date: Fri, 30 Oct 2020 15:57:38 +0900
-Message-Id: <20201030065740.2039936-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57588 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725497AbgJaRWJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 31 Oct 2020 13:22:09 -0400
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D18D8C0617A6
+        for <fio@vger.kernel.org>; Sat, 31 Oct 2020 10:22:07 -0700 (PDT)
+Received: by mail-ed1-x536.google.com with SMTP id g25so9099624edm.6
+        for <fio@vger.kernel.org>; Sat, 31 Oct 2020 10:22:07 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Naohiro Aota <Naohiro.Aota@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
+References: <CADcL3SAgfT0Cy4FAgj2YK2xH7Egogc5QKR_7Eg6b7OuuwVczTw@mail.gmail.com>
+In-Reply-To: <CADcL3SAgfT0Cy4FAgj2YK2xH7Egogc5QKR_7Eg6b7OuuwVczTw@mail.gmail.com>
+From: Brian Wengel <m40636067@gmail.com>
+Date: Sat, 31 Oct 2020 18:21:52 +0100
+Message-ID: <CADcL3SCAnDGP+3rPgL8ZT3UK6UGs-Ee-XGVXtG-G6XZMjSHkGQ@mail.gmail.com>
+Subject: Fwd: Getting eta-status-line to the output file?
+Content-Type: text/plain; charset="UTF-8"
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-When t/zbd/test-zoned-support is run for zoned block devices with slow zone
-reset command operation, test case #48 fails. This series addresses the failure
-with two fixes. First patch avoids excessive and repeated zone resets which
-resulted in too long runtime and test timeout. Second patch fixes wrong test
-target range of the test case which triggered unnecessary zone resets.
+I would very much like to get the status-line I get from
+"--eta-newline=1s" written to the output file. Is that possible (or
+just something similar)?
 
-Changes from v1:
-* Added reviewed-by tag
-
-Shin'ichiro Kawasaki (2):
-  zbd: Avoid excessive zone resets
-  t/zbd: Fix test target size of test case #48
-
- t/zbd/test-zbd-support | 2 +-
- zbd.c                  | 3 +++
- 2 files changed, 4 insertions(+), 1 deletion(-)
-
--- 
-2.26.2
-
+I'm interested in the sub-results of bandwidth and IOPS during the job.
+There might be an option for that but couldn't find it?
 
