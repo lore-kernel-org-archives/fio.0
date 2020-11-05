@@ -1,80 +1,41 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from sandeen.net ([63.231.237.45]:43440 "EHLO sandeen.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730614AbgKIQqp (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 9 Nov 2020 11:46:45 -0500
-From: Eric Sandeen <sandeen@redhat.com>
-Subject: [PATCH 1/3] fix dynamic engine buil
-Date: Mon,  9 Nov 2020 10:46:28 -0600
-Message-Id: <1604940390-21215-2-git-send-email-sandeen@redhat.com>
-In-Reply-To: <1604940390-21215-1-git-send-email-sandeen@redhat.com>
-References: <1604940390-21215-1-git-send-email-sandeen@redhat.com>
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: sitsofe@yahoo.com, ykorman@gmail.com, rjones@redhat.com
+Return-Path: <rebecca@bsdio.com>
+References: <20201103024741.1958-1-rebecca@bsdio.com>
+ <09fc6846-16dc-a240-0c79-9bb10aa39aa1@kernel.dk>
+ <CALjAwxj3vvUq9K_GWS1Ky1j9HO6tZtt=sFwnBusYNiqfoDe9Og@mail.gmail.com>
+ <753057c7-5694-358b-499d-9dc9dac8e0fe@bsdio.com>
+ <CALjAwxiGAxjSr8_j8Wo0Hy_LQOwbp7sanx4r-jCnSC06_Fp5SA@mail.gmail.com>
+From: Rebecca Cran <rebecca@bsdio.com>
+Message-ID: <3b0fa669-0aa3-d6c2-2e37-d19b9eabd8f8@bsdio.com>
+Date: Thu, 5 Nov 2020 16:18:38 -0700
+MIME-Version: 1.0
+In-Reply-To: <CALjAwxiGAxjSr8_j8Wo0Hy_LQOwbp7sanx4r-jCnSC06_Fp5SA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+Subject: Re: [PATCH] Windows: update dobuild.cmd to run the configure/make
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-Builds with --dynamic-libengines are currently broken, because the rule
-to build the libraries was moved out of the template that creates them:
+On 11/5/20 3:29 PM, Sitsofe Wheeler wrote:
 
-make: *** No rule to make target 'engines/libpmem.so', needed by 'all'.  Stop.
-make: *** Waiting for unfinished jobs....
+> The original script be renamed to dopkg.cmd while updating the CI
+> scripts to call that and fixing up the documentation.
+> A new script called dobuildandpkg.cmd (or similar) be introduced that
+> does the lot. Perhaps there should be some documentation updates for
+> it too.
+>
+> Thoughts?
 
-Fix this by moving the rule back into the template, calling the template
-to create rules only after FIO_CFLAGS has been incorporated into CFLAGS,
-and using CFLAGS + -fPIC in that rule rather than FIO_CFLAGS.
+That makes a lot of sense. dobuild.cmd was really only written for my 
+use in building the installers, and as a result was poorly thought out.
 
-Fixes: 8a2cf08d29ac ("Makefile: introduce FIO_CFLAGS")
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
----
- Makefile | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+I'll submit a patch to rename it and make improvements.
 
-diff --git a/Makefile b/Makefile
-index 8c8a8fc..b0b9f86 100644
---- a/Makefile
-+++ b/Makefile
-@@ -255,7 +255,9 @@ ifdef CONFIG_DYNAMIC_ENGINES
-  DYNAMIC_ENGS := $(ENGINES)
- define engine_template =
- $(1)_OBJS := $$($(1)_SRCS:.c=.o)
--$$($(1)_OBJS): FIO_CFLAGS += -fPIC $$($(1)_CFLAGS)
-+$$($(1)_OBJS): CFLAGS := -fPIC $$($(1)_CFLAGS) $(CFLAGS)
-+engines/lib$(1).so: $$($(1)_OBJS)
-+	$$(QUIET_LINK)$(CC) -shared -rdynamic -fPIC -Wl,-soname,fio-$(1).so.1 $$($(1)_LIBS) -o $$@ $$<
- ENGS_OBJS += engines/lib$(1).so
- endef
- else # !CONFIG_DYNAMIC_ENGINES
-@@ -266,6 +268,8 @@ CFLAGS += $$($(1)_CFLAGS)
- endef
- endif
- 
-+override CFLAGS := -DFIO_VERSION='"$(FIO_VERSION)"' $(FIO_CFLAGS) $(CFLAGS)
-+
- $(foreach eng,$(ENGINES),$(eval $(call engine_template,$(eng))))
- 
- OBJS := $(SOURCE:.c=.o)
-@@ -438,8 +442,6 @@ FIO-VERSION-FILE: FORCE
- 	@$(SHELL) $(SRCDIR)/FIO-VERSION-GEN
- -include FIO-VERSION-FILE
- 
--override CFLAGS := -DFIO_VERSION='"$(FIO_VERSION)"' $(FIO_CFLAGS) $(CFLAGS)
--
- %.o : %.c
- 	@mkdir -p $(dir $@)
- 	$(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) -c $<
-@@ -567,11 +569,6 @@ unittests/unittest: $(UT_OBJS) $(UT_TARGET_OBJS)
- 	$(QUIET_LINK)$(CC) $(LDFLAGS) -o $@ $(UT_OBJS) $(UT_TARGET_OBJS) -lcunit $(LIBS)
- endif
- 
--ifdef CONFIG_DYNAMIC_ENGINES
--engines/lib$(1).so: $$($(1)_OBJS)
--	$$(QUIET_LINK)$(CC) -shared -rdynamic -fPIC -Wl,-soname,fio-$(1).so.1 $$($(1)_LIBS) -o $$@ $$<
--endif
--
- clean: FORCE
- 	@rm -f .depend $(FIO_OBJS) $(GFIO_OBJS) $(OBJS) $(T_OBJS) $(UT_OBJS) $(PROGS) $(T_PROGS) $(T_TEST_PROGS) core.* core gfio unittests/unittest FIO-VERSION-FILE *.[do] lib/*.d oslib/*.[do] crc/*.d engines/*.[do] engines/*.so profiles/*.[do] t/*.[do] unittests/*.[do] unittests/*/*.[do] config-host.mak config-host.h y.tab.[ch] lex.yy.c exp/*.[do] lexer.h
- 	@rm -f t/fio-btrace2fio t/io_uring t/read-to-pipe-async
+
 -- 
-1.8.3.1
+Rebecca Cran
+
+
 
 
