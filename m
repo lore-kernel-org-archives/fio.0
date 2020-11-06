@@ -1,39 +1,107 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from sandeen.net ([63.231.237.45]:52574 "EHLO sandeen.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726614AbgKGSPU (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 7 Nov 2020 13:15:20 -0500
-Received: from liberator.sandeen.net (liberator.sandeen.net [10.0.0.146])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:46084 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728558AbgKFWHg (ORCPT
+        <rfc822;fio@vger.kernel.org>); Fri, 6 Nov 2020 17:07:36 -0500
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by sandeen.net (Postfix) with ESMTPSA id 284B0F8AE5
-        for <fio@vger.kernel.org>; Sat,  7 Nov 2020 12:15:10 -0600 (CST)
-Subject: Re: [PATCH, RFC] list all available dynamic ioengines with --enghelp
-From: Eric Sandeen <sandeen@sandeen.net>
-References: <30a0bc27-4938-0ef3-ffa9-5e06fb8efb3c@redhat.com>
-Message-ID: <b1864b03-e0fe-2ffd-7a33-5875b3c31760@sandeen.net>
-Date: Sat, 7 Nov 2020 12:15:18 -0600
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DDFCD1006700
+        for <fio@vger.kernel.org>; Fri,  6 Nov 2020 22:07:32 +0000 (UTC)
+Received: from liberator.sandeen.net (ovpn04.gateway.prod.ext.phx2.redhat.com [10.5.9.4])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B879D21ECD
+        for <fio@vger.kernel.org>; Fri,  6 Nov 2020 22:07:32 +0000 (UTC)
+From: Eric Sandeen <sandeen@redhat.com>
+Subject: [PATCH, RFC] list all available dynamic ioengines with --enghelp
+Message-ID: <30a0bc27-4938-0ef3-ffa9-5e06fb8efb3c@redhat.com>
+Date: Fri, 6 Nov 2020 16:07:32 -0600
 MIME-Version: 1.0
-In-Reply-To: <30a0bc27-4938-0ef3-ffa9-5e06fb8efb3c@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 List-Id: fio@vger.kernel.org
 To: fio <fio@vger.kernel.org>
 
-On 11/6/20 4:07 PM, Eric Sandeen wrote:
-> When dynamic engines are enabled, "fio --enghelp" does not list all
-> available engines as the man page says it will:
-> 
-> 	If no ioengine is given, list all available ioengines.
-> 
-> Fix this by opening FIO_EXT_ENG_DIR and attempting dlopen_ioengine
-> everything that's found there.
+When dynamic engines are enabled, "fio --enghelp" does not list all
+available engines as the man page says it will:
 
-The last(?) thing that would be nice to fix for the dynamic engines is to
-not hardcode FIO_EXT_ENG_DIR to /usr/lib/fio since many systems will
-be using /usr/lib64, but I'm not really sure how to do that best in
-the hardcoded configure world of fio ... I could hack something up.
+	If no ioengine is given, list all available ioengines.
 
--Eric
+Fix this by opening FIO_EXT_ENG_DIR and attempting dlopen_ioengine
+everything that's found there.
+
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+---
+
+(not sure if I'm DTRT with thread_data here ...)
+
+diff --git a/ioengines.c b/ioengines.c
+index fb59349a..c688dd1d 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -15,6 +15,8 @@
+ #include <dlfcn.h>
+ #include <fcntl.h>
+ #include <assert.h>
++#include <sys/types.h>
++#include <dirent.h>
+ 
+ #include "fio.h"
+ #include "diskutil.h"
+@@ -630,6 +632,34 @@ int td_io_get_file_size(struct thread_data *td, struct fio_file *f)
+ 	return td->io_ops->get_file_size(td, f);
+ }
+ 
++#ifdef CONFIG_DYNAMIC_ENGINES
++/* Load all dynamic engines in FIO_EXT_ENG_DIR for enghelp command */
++static void
++fio_load_dynamic_engines(struct thread_data *td)
++{
++	DIR *dirhandle = NULL;
++	struct dirent *dirent = NULL;
++	char engine_path[PATH_MAX];
++
++	dirhandle = opendir(FIO_EXT_ENG_DIR);
++	if (!dirhandle)
++		return;
++
++	while ((dirent = readdir(dirhandle)) != NULL) {
++		if (!strcmp(dirent->d_name, ".") ||
++		    !strcmp(dirent->d_name, ".."))
++			continue;
++
++		sprintf(engine_path, "%s/%s", FIO_EXT_ENG_DIR, dirent->d_name);
++		dlopen_ioengine(td, engine_path);
++	}
++
++	closedir(dirhandle);
++}
++#else
++#define fio_load_dynamic_engines(td) do { } while (0)
++#endif
++
+ int fio_show_ioengine_help(const char *engine)
+ {
+ 	struct flist_head *entry;
+@@ -638,8 +668,11 @@ int fio_show_ioengine_help(const char *engine)
+ 	char *sep;
+ 	int ret = 1;
+ 
++	memset(&td, 0, sizeof(struct thread_data));
++
+ 	if (!engine || !*engine) {
+ 		log_info("Available IO engines:\n");
++		fio_load_dynamic_engines(&td);
+ 		flist_for_each(entry, &engine_list) {
+ 			io_ops = flist_entry(entry, struct ioengine_ops, list);
+ 			log_info("\t%s\n", io_ops->name);
+@@ -652,7 +685,6 @@ int fio_show_ioengine_help(const char *engine)
+ 		sep++;
+ 	}
+ 
+-	memset(&td, 0, sizeof(struct thread_data));
+ 	td.o.ioengine = (char *)engine;
+ 	io_ops = load_ioengine(&td);
+ 
+
 
