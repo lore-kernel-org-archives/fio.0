@@ -1,145 +1,80 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:39791 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728290AbgKFUHg (ORCPT
-        <rfc822;fio@vger.kernel.org>); Fri, 6 Nov 2020 15:07:36 -0500
+Received: from sandeen.net ([63.231.237.45]:43440 "EHLO sandeen.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730614AbgKIQqp (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 9 Nov 2020 11:46:45 -0500
 From: Eric Sandeen <sandeen@redhat.com>
-Subject: [PATCH] fix dynamic engine loading for libaio engine etc
-Message-ID: <e2dfbe94-1c52-1127-185e-e68d38fb3ca6@redhat.com>
-Date: Fri, 6 Nov 2020 14:07:30 -0600
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH 1/3] fix dynamic engine buil
+Date: Mon,  9 Nov 2020 10:46:28 -0600
+Message-Id: <1604940390-21215-2-git-send-email-sandeen@redhat.com>
+In-Reply-To: <1604940390-21215-1-git-send-email-sandeen@redhat.com>
+References: <1604940390-21215-1-git-send-email-sandeen@redhat.com>
 List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
-Cc: Yigal Korman <ykorman@gmail.com>
+To: fio@vger.kernel.org
+Cc: sitsofe@yahoo.com, ykorman@gmail.com, rjones@redhat.com
 
-The dynamic engine loading for libaio (and some others) currently
-fails because the dlopen routine is looking for ("lib%s", enginename)
-which translates into "liblibiscsi.so":
+Builds with --dynamic-libengines are currently broken, because the rule
+to build the libraries was moved out of the template that creates them:
 
-openat(AT_FDCWD, "/usr/lib64/fio/liblibiscsi.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
-Engine libiscsi not found; Either name is invalid, was not built, or fio-engine-libiscsi package is missing.
-fio: engine libiscsi not loadable
-IO engine libiscsi not found
+make: *** No rule to make target 'engines/libpmem.so', needed by 'all'.  Stop.
+make: *** Waiting for unfinished jobs....
 
-The Makefile decide to name this engine "iscsi" instead of "libiscsi",
-which leads to "libiscsi.so" not "liblibiscsi.so" hence the mismatch.
+Fix this by moving the rule back into the template, calling the template
+to create rules only after FIO_CFLAGS has been incorporated into CFLAGS,
+and using CFLAGS + -fPIC in that rule rather than FIO_CFLAGS.
 
-OTOH, "liblibiscsi.so" seems a bit bonkers.
-
-Try to resolve all this by:
-
-1) make all of the engine names match the documented engine names
-   in the Makefile, i.e. "iscsi" -> "libiscsi"
-2) change the created library filenames to "fio-$(ENGINENAME)"
-   from "lib$(ENGINENAME)" to avoid the "liblib" prefix.
-
-So now we consistently have the libraries named "fio-$(ENGINENAME).so"
-
-fio-http.so
-fio-libaio.so
-
-etc.
-
-Fixes: 5a8a6a03 ("configure: new --dynamic-libengines build option")
+Fixes: 8a2cf08d29ac ("Makefile: introduce FIO_CFLAGS")
 Signed-off-by: Eric Sandeen <sandeen@redhat.com>
 ---
-
-This depends on the previous patch to fix the dynamic
-engine library build process.
-
-I could split this into 2 patches if desired, but it's really just
-the last 2 hunks that implement 2) above
+ Makefile | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index b0b9f864..ac3a590c 100644
+index 8c8a8fc..b0b9f86 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -66,10 +66,10 @@ ifdef CONFIG_LIBHDFS
- endif
- 
- ifdef CONFIG_LIBISCSI
--  iscsi_SRCS = engines/libiscsi.c
--  iscsi_LIBS = $(LIBISCSI_LIBS)
--  iscsi_CFLAGS = $(LIBISCSI_CFLAGS)
--  ENGINES += iscsi
-+  libiscsi_SRCS = engines/libiscsi.c
-+  libiscsi_LIBS = $(LIBISCSI_LIBS)
-+  libiscsi_CFLAGS = $(LIBISCSI_CFLAGS)
-+  ENGINES += libiscsi
- endif
- 
- ifdef CONFIG_LIBNBD
-@@ -85,14 +85,14 @@ else ifdef CONFIG_32BIT
-   CPPFLAGS += -DBITS_PER_LONG=32
- endif
- ifdef CONFIG_LIBAIO
--  aio_SRCS = engines/libaio.c
--  aio_LIBS = -laio
-+  libaio_SRCS = engines/libaio.c
-+  libaio_LIBS = -laio
-   ifdef CONFIG_LIBAIO_URING
--    aio_LIBS = -luring
-+    libaio_LIBS = -luring
-   else
--    aio_LIBS = -laio
-+    libaio_LIBS = -laio
-   endif
--  ENGINES += aio
-+  ENGINES += libaio
- endif
- ifdef CONFIG_RDMA
-   rdma_SRCS = engines/rdma.c
-@@ -179,17 +179,17 @@ ifdef CONFIG_LINUX_DEVDAX
-   ENGINES += dev-dax
- endif
- ifdef CONFIG_LIBPMEM
--  pmem_SRCS = engines/libpmem.c
--  pmem_LIBS = -lpmem
--  ENGINES += pmem
-+  libpmem_SRCS = engines/libpmem.c
-+  libpmem_LIBS = -lpmem
-+  ENGINES += libpmem
- endif
- ifdef CONFIG_IME
-   SOURCE += engines/ime.c
- endif
- ifdef CONFIG_LIBZBC
--  zbc_SRCS = engines/libzbc.c
--  zbc_LIBS = -lzbc
--  ENGINES += zbc
-+  libzbc_SRCS = engines/libzbc.c
-+  libzbc_LIBS = -lzbc
-+  ENGINES += libzbc
- endif
- 
- ifeq ($(CONFIG_TARGET_OS), Linux)
-@@ -256,9 +256,9 @@ ifdef CONFIG_DYNAMIC_ENGINES
+@@ -255,7 +255,9 @@ ifdef CONFIG_DYNAMIC_ENGINES
+  DYNAMIC_ENGS := $(ENGINES)
  define engine_template =
  $(1)_OBJS := $$($(1)_SRCS:.c=.o)
- $$($(1)_OBJS): CFLAGS := -fPIC $$($(1)_CFLAGS) $(CFLAGS)
--engines/lib$(1).so: $$($(1)_OBJS)
-+engines/fio-$(1).so: $$($(1)_OBJS)
- 	$$(QUIET_LINK)$(CC) -shared -rdynamic -fPIC -Wl,-soname,fio-$(1).so.1 $$($(1)_LIBS) -o $$@ $$<
--ENGS_OBJS += engines/lib$(1).so
-+ENGS_OBJS += engines/fio-$(1).so
+-$$($(1)_OBJS): FIO_CFLAGS += -fPIC $$($(1)_CFLAGS)
++$$($(1)_OBJS): CFLAGS := -fPIC $$($(1)_CFLAGS) $(CFLAGS)
++engines/lib$(1).so: $$($(1)_OBJS)
++	$$(QUIET_LINK)$(CC) -shared -rdynamic -fPIC -Wl,-soname,fio-$(1).so.1 $$($(1)_LIBS) -o $$@ $$<
+ ENGS_OBJS += engines/lib$(1).so
  endef
  else # !CONFIG_DYNAMIC_ENGINES
- define engine_template =
-diff --git a/ioengines.c b/ioengines.c
-index 3e43ef2f..fb59349a 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -91,7 +91,7 @@ static void *dlopen_external(struct thread_data *td, const char *engine)
- 	char engine_path[PATH_MAX];
- 	void *dlhandle;
+@@ -266,6 +268,8 @@ CFLAGS += $$($(1)_CFLAGS)
+ endef
+ endif
  
--	sprintf(engine_path, "%s/lib%s.so", FIO_EXT_ENG_DIR, engine);
-+	sprintf(engine_path, "%s/fio-%s.so", FIO_EXT_ENG_DIR, engine);
++override CFLAGS := -DFIO_VERSION='"$(FIO_VERSION)"' $(FIO_CFLAGS) $(CFLAGS)
++
+ $(foreach eng,$(ENGINES),$(eval $(call engine_template,$(eng))))
  
- 	dlhandle = dlopen(engine_path, RTLD_LAZY);
- 	if (!dlhandle)
+ OBJS := $(SOURCE:.c=.o)
+@@ -438,8 +442,6 @@ FIO-VERSION-FILE: FORCE
+ 	@$(SHELL) $(SRCDIR)/FIO-VERSION-GEN
+ -include FIO-VERSION-FILE
+ 
+-override CFLAGS := -DFIO_VERSION='"$(FIO_VERSION)"' $(FIO_CFLAGS) $(CFLAGS)
+-
+ %.o : %.c
+ 	@mkdir -p $(dir $@)
+ 	$(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) -c $<
+@@ -567,11 +569,6 @@ unittests/unittest: $(UT_OBJS) $(UT_TARGET_OBJS)
+ 	$(QUIET_LINK)$(CC) $(LDFLAGS) -o $@ $(UT_OBJS) $(UT_TARGET_OBJS) -lcunit $(LIBS)
+ endif
+ 
+-ifdef CONFIG_DYNAMIC_ENGINES
+-engines/lib$(1).so: $$($(1)_OBJS)
+-	$$(QUIET_LINK)$(CC) -shared -rdynamic -fPIC -Wl,-soname,fio-$(1).so.1 $$($(1)_LIBS) -o $$@ $$<
+-endif
+-
+ clean: FORCE
+ 	@rm -f .depend $(FIO_OBJS) $(GFIO_OBJS) $(OBJS) $(T_OBJS) $(UT_OBJS) $(PROGS) $(T_PROGS) $(T_TEST_PROGS) core.* core gfio unittests/unittest FIO-VERSION-FILE *.[do] lib/*.d oslib/*.[do] crc/*.d engines/*.[do] engines/*.so profiles/*.[do] t/*.[do] unittests/*.[do] unittests/*/*.[do] config-host.mak config-host.h y.tab.[ch] lex.yy.c exp/*.[do] lexer.h
+ 	@rm -f t/fio-btrace2fio t/io_uring t/read-to-pipe-async
+-- 
+1.8.3.1
 
 
