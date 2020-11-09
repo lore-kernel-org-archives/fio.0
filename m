@@ -1,75 +1,142 @@
-Return-Path: <prvs=587eb1fc6=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH 13/15] zbd: initialize min_zone and max_zone for all zone types
-Date: Sat, 21 Nov 2020 11:45:30 +0900
-Message-Id: <20201121024532.16834-14-dmitry.fomichev@wdc.com>
-In-Reply-To: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
-References: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from sandeen.net ([63.231.237.45]:43452 "EHLO sandeen.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730626AbgKIQqp (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 9 Nov 2020 11:46:45 -0500
+From: Eric Sandeen <sandeen@redhat.com>
+Subject: [PATCH 2/3] fix dynamic engine loading for libaio engine etc
+Date: Mon,  9 Nov 2020 10:46:29 -0600
+Message-Id: <1604940390-21215-3-git-send-email-sandeen@redhat.com>
+In-Reply-To: <1604940390-21215-1-git-send-email-sandeen@redhat.com>
+References: <1604940390-21215-1-git-send-email-sandeen@redhat.com>
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
+Cc: sitsofe@yahoo.com, ykorman@gmail.com, rjones@redhat.com
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+The dynamic engine loading for libaio (and some others) currently
+fails because the dlopen routine is looking for ("lib%s", enginename)
+which translates into "liblibiscsi.so":
 
-The function zbd_verify_sizes() checks if the given I/O range includes
-write pointer zones. When all zones in the I/O range are conventional,
-it skips checks for size options and leaves min_zone and max_zone in
-struct fio_file with zero values. These uninitialized min_zone and
-max_zone fields trigger unexpected behaviors such as unset
-sectors_with_data.
+openat(AT_FDCWD, "/usr/lib64/fio/liblibiscsi.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+Engine libiscsi not found; Either name is invalid, was not built, or fio-engine-libiscsi package is missing.
+fio: engine libiscsi not loadable
+IO engine libiscsi not found
 
-Fix this by moving min_zone and max_zone set up from zbd_verify_sizes()
-to zbd_setup_files(). This allows for setting up the values regardless
-of zone types in I/O range.
+The Makefile decide to name this engine "iscsi" instead of "libiscsi",
+which leads to "libiscsi.so" not "liblibiscsi.so" hence the mismatch.
 
-Bypass the assertion to ensure that max_zone is larger than min_zone if
-all zones in the I/O range are conventional. In this case, io_size
-can be smaller than zone size and, consequently, min_zone may become
-the same as max_zone.
+OTOH, "liblibiscsi.so" seems a bit bonkers.
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Try to resolve all this by:
+
+1) make all of the engine names match the documented engine names
+   in the Makefile, i.e. "iscsi" -> "libiscsi"
+2) change the created library filenames to "fio-$(ENGINENAME)"
+   from "lib$(ENGINENAME)" to avoid the "liblib" prefix.
+
+So now we consistently have the libraries named "fio-$(ENGINENAME).so"
+
+fio-http.so
+fio-libaio.so
+
+etc.
+
+Fixes: 5a8a6a03 ("configure: new --dynamic-libengines build option")
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
 ---
- zbd.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ Makefile    | 34 +++++++++++++++++-----------------
+ ioengines.c |  2 +-
+ 2 files changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/zbd.c b/zbd.c
-index f513295a..c364e87c 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -324,10 +324,6 @@ static bool zbd_verify_sizes(void)
- 					 (unsigned long long) new_end - f->file_offset);
- 				f->io_size = new_end - f->file_offset;
- 			}
--
--			f->min_zone = zbd_zone_idx(f, f->file_offset);
--			f->max_zone = zbd_zone_idx(f, f->file_offset + f->io_size);
--			assert(f->min_zone < f->max_zone);
- 		}
- 	}
+diff --git a/Makefile b/Makefile
+index b0b9f86..ac3a590 100644
+--- a/Makefile
++++ b/Makefile
+@@ -66,10 +66,10 @@ ifdef CONFIG_LIBHDFS
+ endif
  
-@@ -680,6 +676,18 @@ int zbd_setup_files(struct thread_data *td)
- 		if (!zbd)
- 			continue;
+ ifdef CONFIG_LIBISCSI
+-  iscsi_SRCS = engines/libiscsi.c
+-  iscsi_LIBS = $(LIBISCSI_LIBS)
+-  iscsi_CFLAGS = $(LIBISCSI_CFLAGS)
+-  ENGINES += iscsi
++  libiscsi_SRCS = engines/libiscsi.c
++  libiscsi_LIBS = $(LIBISCSI_LIBS)
++  libiscsi_CFLAGS = $(LIBISCSI_CFLAGS)
++  ENGINES += libiscsi
+ endif
  
-+		f->min_zone = zbd_zone_idx(f, f->file_offset);
-+		f->max_zone = zbd_zone_idx(f, f->file_offset + f->io_size);
-+
-+		/*
-+		 * When all zones in the I/O range are conventional, io_size
-+		 * can be smaller than zone size, making min_zone the same
-+		 * as max_zone. This is why the assert below needs to be made
-+		 * conditional.
-+		 */
-+		if (zbd_is_seq_job(f))
-+			assert(f->min_zone < f->max_zone);
-+
- 		zbd->max_open_zones = zbd->max_open_zones ?: ZBD_MAX_OPEN_ZONES;
+ ifdef CONFIG_LIBNBD
+@@ -85,14 +85,14 @@ else ifdef CONFIG_32BIT
+   CPPFLAGS += -DBITS_PER_LONG=32
+ endif
+ ifdef CONFIG_LIBAIO
+-  aio_SRCS = engines/libaio.c
+-  aio_LIBS = -laio
++  libaio_SRCS = engines/libaio.c
++  libaio_LIBS = -laio
+   ifdef CONFIG_LIBAIO_URING
+-    aio_LIBS = -luring
++    libaio_LIBS = -luring
+   else
+-    aio_LIBS = -laio
++    libaio_LIBS = -laio
+   endif
+-  ENGINES += aio
++  ENGINES += libaio
+ endif
+ ifdef CONFIG_RDMA
+   rdma_SRCS = engines/rdma.c
+@@ -179,17 +179,17 @@ ifdef CONFIG_LINUX_DEVDAX
+   ENGINES += dev-dax
+ endif
+ ifdef CONFIG_LIBPMEM
+-  pmem_SRCS = engines/libpmem.c
+-  pmem_LIBS = -lpmem
+-  ENGINES += pmem
++  libpmem_SRCS = engines/libpmem.c
++  libpmem_LIBS = -lpmem
++  ENGINES += libpmem
+ endif
+ ifdef CONFIG_IME
+   SOURCE += engines/ime.c
+ endif
+ ifdef CONFIG_LIBZBC
+-  zbc_SRCS = engines/libzbc.c
+-  zbc_LIBS = -lzbc
+-  ENGINES += zbc
++  libzbc_SRCS = engines/libzbc.c
++  libzbc_LIBS = -lzbc
++  ENGINES += libzbc
+ endif
  
- 		if (td->o.max_open_zones > 0 &&
+ ifeq ($(CONFIG_TARGET_OS), Linux)
+@@ -256,9 +256,9 @@ ifdef CONFIG_DYNAMIC_ENGINES
+ define engine_template =
+ $(1)_OBJS := $$($(1)_SRCS:.c=.o)
+ $$($(1)_OBJS): CFLAGS := -fPIC $$($(1)_CFLAGS) $(CFLAGS)
+-engines/lib$(1).so: $$($(1)_OBJS)
++engines/fio-$(1).so: $$($(1)_OBJS)
+ 	$$(QUIET_LINK)$(CC) -shared -rdynamic -fPIC -Wl,-soname,fio-$(1).so.1 $$($(1)_LIBS) -o $$@ $$<
+-ENGS_OBJS += engines/lib$(1).so
++ENGS_OBJS += engines/fio-$(1).so
+ endef
+ else # !CONFIG_DYNAMIC_ENGINES
+ define engine_template =
+diff --git a/ioengines.c b/ioengines.c
+index 3e43ef2..fb59349 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -91,7 +91,7 @@ static void *dlopen_external(struct thread_data *td, const char *engine)
+ 	char engine_path[PATH_MAX];
+ 	void *dlhandle;
+ 
+-	sprintf(engine_path, "%s/lib%s.so", FIO_EXT_ENG_DIR, engine);
++	sprintf(engine_path, "%s/fio-%s.so", FIO_EXT_ENG_DIR, engine);
+ 
+ 	dlhandle = dlopen(engine_path, RTLD_LAZY);
+ 	if (!dlhandle)
 -- 
-2.21.0
+1.8.3.1
 
 
