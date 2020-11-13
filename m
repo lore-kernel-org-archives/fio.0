@@ -1,54 +1,108 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from sandeen.net ([63.231.237.45]:52294 "EHLO sandeen.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725828AbgKFCbg (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 5 Nov 2020 21:31:36 -0500
-From: Eric Sandeen <sandeen@sandeen.net>
-Subject: 8a2cf08d29 ("Makefile: introduce FIO_CFLAGS") broke dynamic engines
-Message-ID: <838bb7e7-3702-b2c4-641b-4d397aa6a94a@sandeen.net>
-Date: Thu, 5 Nov 2020 20:23:03 -0600
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44624 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726160AbgKMNAW (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 13 Nov 2020 08:00:22 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6D5CC0613D1
+        for <fio@vger.kernel.org>; Fri, 13 Nov 2020 05:00:06 -0800 (PST)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kdYgP-0007lW-05
+        for fio@vger.kernel.org; Fri, 13 Nov 2020 13:00:05 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20201113130001.E85301BC0121@kernel.dk>
+Date: Fri, 13 Nov 2020 06:00:01 -0700 (MST)
 List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
-Cc: Sitsofe Wheeler <sitsofe@yahoo.com>
+To: fio@vger.kernel.org
 
-Hi Sitsofe - 
+The following changes since commit e82ec77644f4fb7eccb3441485762c1c1c574b2f:
 
-Seems the commit in the subject broke builds with --dynamic-libengines:
+  t/latency_percentiles.py: correct terse parse (2020-11-09 12:13:25 -0700)
 
-make: *** No rule to make target 'engines/libpmem.so', needed by 'all'.  Stop.
-make: *** Waiting for unfinished jobs....
+are available in the Git repository at:
 
-It moved the rule for building the .so's out of the template:
+  git://git.kernel.dk/fio.git master
 
- ifdef CONFIG_DYNAMIC_ENGINES
-  DYNAMIC_ENGS := $(ENGINES)
- define engine_template =
- $(1)_OBJS := $$($(1)_SRCS:.c=.o)
--$$($(1)_OBJS): CFLAGS := -fPIC $$($(1)_CFLAGS) $(CFLAGS)
--engines/lib$(1).so: $$($(1)_OBJS)
--       $$(QUIET_LINK)$(CC) -shared -rdynamic -fPIC -Wl,-soname,lib$(1).so.1 $$($(1)_LIBS) -o $$@ $$<
-+$$($(1)_OBJS): FIO_CFLAGS += -fPIC $$($(1)_CFLAGS)
- ENGS_OBJS += engines/lib$(1).so
--all install: $(ENGS_OBJS)
+for you to fetch changes up to 84f9318fc16e33633ac9f789dcef7cc58c3b8595:
 
-... to later in the makefile ...
+  t/latency_percentiles.py: tweak terse output parse (2020-11-12 11:26:58 -0700)
 
-+ifdef CONFIG_DYNAMIC_ENGINES
-+engines/lib$(1).so: $$($(1)_OBJS)
-+       $$(QUIET_LINK)$(CC) -shared -rdynamic -fPIC -Wl,-soname,lib$(1).so.1 $$($(1)_LIBS) -o $$@ $$<
-+endif
+----------------------------------------------------------------
+Jens Axboe (3):
+      Makefile: fix fio version gen
+      Fio 3.24
+      t/latency_percentiles.py: tweak terse output parse
 
-this is supposed to be part of a template though, so this break things.
-i.e. $(1) has no meaning here.
+ FIO-VERSION-GEN          | 2 +-
+ Makefile                 | 8 ++++----
+ t/latency_percentiles.py | 4 ++--
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
-I was going to try to fix it, but Make makes my brain hurt and presumably you moved it
-to try to make sure all the FIO_CFLAGS get built or something so ... figured I'd punt
-this back to you?
+---
 
-Thanks,
--Eric
+Diff of recent changes:
+
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index 5ee7735c..86ea0c5d 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-3.23
++DEF_VER=fio-3.24
+ 
+ LF='
+ '
+diff --git a/Makefile b/Makefile
+index 0d3c877e..ecfaa3e0 100644
+--- a/Makefile
++++ b/Makefile
+@@ -263,6 +263,10 @@ CFLAGS += $$($(1)_CFLAGS)
+ endef
+ endif
+ 
++FIO-VERSION-FILE: FORCE
++	@$(SHELL) $(SRCDIR)/FIO-VERSION-GEN
++-include FIO-VERSION-FILE
++
+ override CFLAGS := -DFIO_VERSION='"$(FIO_VERSION)"' $(FIO_CFLAGS) $(CFLAGS)
+ 
+ $(foreach eng,$(ENGINES),$(eval $(call engine_template,$(eng))))
+@@ -433,10 +437,6 @@ all: $(PROGS) $(T_TEST_PROGS) $(UT_PROGS) $(SCRIPTS) $(ENGS_OBJS) FORCE
+ .PHONY: all install clean test
+ .PHONY: FORCE cscope
+ 
+-FIO-VERSION-FILE: FORCE
+-	@$(SHELL) $(SRCDIR)/FIO-VERSION-GEN
+--include FIO-VERSION-FILE
+-
+ %.o : %.c
+ 	@mkdir -p $(dir $@)
+ 	$(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) -c $<
+diff --git a/t/latency_percentiles.py b/t/latency_percentiles.py
+index a9aee019..cc437426 100755
+--- a/t/latency_percentiles.py
++++ b/t/latency_percentiles.py
+@@ -216,7 +216,7 @@ class FioLatTest():
+             file_data = file.read()
+ 
+         #
+-        # Read the first few lines and see if any of them begin with '3;fio-'
++        # Read the first few lines and see if any of them begin with '3;'
+         # If so, the line is probably terse output. Obviously, this only
+         # works for fio terse version 3 and it does not work for
+         # multi-line terse output
+@@ -224,7 +224,7 @@ class FioLatTest():
+         lines = file_data.splitlines()
+         for i in range(8):
+             file_data = lines[i]
+-            if file_data.startswith('3;;latency'):
++            if file_data.startswith('3;'):
+                 self.terse_data = file_data.split(';')
+                 return True
+ 
 
