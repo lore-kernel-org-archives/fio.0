@@ -1,59 +1,116 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51956 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389553AbgKZNAH (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 26 Nov 2020 08:00:07 -0500
-Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A13DC0613D4
-        for <fio@vger.kernel.org>; Thu, 26 Nov 2020 05:00:06 -0800 (PST)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kiGsW-0007Co-2N
-        for fio@vger.kernel.org; Thu, 26 Nov 2020 13:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20201126130002.139B61BC0149@kernel.dk>
-Date: Thu, 26 Nov 2020 06:00:02 -0700 (MST)
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <prvs=587eb1fc6=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH 02/15] zbd: use zbd_zone_nr() more actively in the code
+Date: Sat, 21 Nov 2020 11:45:19 +0900
+Message-Id: <20201121024532.16834-3-dmitry.fomichev@wdc.com>
+In-Reply-To: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
+References: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 9107a641e67f27003fa6cbe7b55b1ec6a0239197:
+The function zbd_zone_nr() is always called with the first argument
+being f->zbd_info. If "f" is made the first argument instead, calls
+of this function become more compact end easier to read.
 
-  error out if ENOSPC during file layout (2020-11-22 09:54:44 -0700)
+Besides this change, convert several places in the code where the same
+zone number calculation is open coded to zbd_zone_nr() calls.
+This is a refactoring patch, no change in functionality.
 
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to d04162b62c9d7d4f5e8ea70be9cb419abaced160:
-
-  Merge branch 'update-fio-ioops-version' of https://github.com/diameter/fio (2020-11-25 11:01:00 -0700)
-
-----------------------------------------------------------------
-Ivan Andreyev (1):
-      ioengines: increment FIO_IOOPS_VERSION
-
-Jens Axboe (1):
-      Merge branch 'update-fio-ioops-version' of https://github.com/diameter/fio
-
- ioengines.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
+ zbd.c | 24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
-Diff of recent changes:
+diff --git a/zbd.c b/zbd.c
+index ad1ad1a9..841427e7 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -694,10 +694,10 @@ int zbd_setup_files(struct thread_data *td)
+ 	return 0;
+ }
+ 
+-static unsigned int zbd_zone_nr(struct zoned_block_device_info *zbd_info,
+-				struct fio_zone_info *zone)
++static inline unsigned int zbd_zone_nr(const struct fio_file *f,
++				       struct fio_zone_info *zone)
+ {
+-	return zone - zbd_info->zone_info;
++	return zone - f->zbd_info->zone_info;
+ }
+ 
+ /**
+@@ -723,7 +723,7 @@ static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
+ 	assert(is_valid_offset(f, offset + length - 1));
+ 
+ 	dprint(FD_ZBD, "%s: resetting wp of zone %u.\n", f->file_name,
+-		zbd_zone_nr(f->zbd_info, z));
++		zbd_zone_nr(f, z));
+ 	switch (f->zbd_info->model) {
+ 	case ZBD_HOST_AWARE:
+ 	case ZBD_HOST_MANAGED:
+@@ -793,9 +793,9 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
+ 	assert(min_bs);
+ 
+ 	dprint(FD_ZBD, "%s: examining zones %u .. %u\n", f->file_name,
+-		zbd_zone_nr(f->zbd_info, zb), zbd_zone_nr(f->zbd_info, ze));
++		zbd_zone_nr(f, zb), zbd_zone_nr(f, ze));
+ 	for (z = zb; z < ze; z++) {
+-		uint32_t nz = z - f->zbd_info->zone_info;
++		uint32_t nz = zbd_zone_nr(f, z);
+ 
+ 		if (!zbd_zone_swr(z))
+ 			continue;
+@@ -811,8 +811,7 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
+ 		}
+ 		if (reset_wp) {
+ 			dprint(FD_ZBD, "%s: resetting zone %u\n",
+-			       f->file_name,
+-			       zbd_zone_nr(f->zbd_info, z));
++			       f->file_name, zbd_zone_nr(f, z));
+ 			if (zbd_reset_zone(td, f, z) < 0)
+ 				res = 1;
+ 		}
+@@ -1197,7 +1196,7 @@ static struct fio_zone_info *zbd_replay_write_order(struct thread_data *td,
+ 	const struct fio_file *f = io_u->file;
+ 	const uint32_t min_bs = td->o.min_bs[DDIR_WRITE];
+ 
+-	if (!zbd_open_zone(td, f, z - f->zbd_info->zone_info)) {
++	if (!zbd_open_zone(td, f, zbd_zone_nr(f, z))) {
+ 		pthread_mutex_unlock(&z->mutex);
+ 		z = zbd_convert_to_open_zone(td, io_u);
+ 		assert(z);
+@@ -1271,7 +1270,7 @@ static void zbd_end_zone_io(struct thread_data *td, const struct io_u *io_u,
+ 	if (io_u->ddir == DDIR_WRITE &&
+ 	    io_u->offset + io_u->buflen >= zbd_zone_capacity_end(z)) {
+ 		pthread_mutex_lock(&f->zbd_info->mutex);
+-		zbd_close_zone(td, f, z - f->zbd_info->zone_info);
++		zbd_close_zone(td, f, zbd_zone_nr(f, z));
+ 		pthread_mutex_unlock(&f->zbd_info->mutex);
+ 	}
+ }
+@@ -1430,8 +1429,7 @@ void setup_zbd_zone_mode(struct thread_data *td, struct io_u *io_u)
+ 		       "%s: Jump from zone capacity limit to zone end:"
+ 		       " (%llu -> %llu) for zone %u (%llu)\n",
+ 		       f->file_name, (unsigned long long) f->last_pos[ddir],
+-		       (unsigned long long) zbd_zone_end(z),
+-		       zbd_zone_nr(f->zbd_info, z),
++		       (unsigned long long) zbd_zone_end(z), zone_idx,
+ 		       (unsigned long long) z->capacity);
+ 		td->io_skip_bytes += zbd_zone_end(z) - f->last_pos[ddir];
+ 		f->last_pos[ddir] = zbd_zone_end(z);
+@@ -1612,7 +1610,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 			zb = zbd_convert_to_open_zone(td, io_u);
+ 			if (!zb)
+ 				goto eof;
+-			zone_idx_b = zb - f->zbd_info->zone_info;
++			zone_idx_b = zbd_zone_nr(f, zb);
+ 		}
+ 		/* Check whether the zone reset threshold has been exceeded */
+ 		if (td->o.zrf.u.f) {
+-- 
+2.21.0
 
-diff --git a/ioengines.h b/ioengines.h
-index fbe52fa4..a928b211 100644
---- a/ioengines.h
-+++ b/ioengines.h
-@@ -8,7 +8,7 @@
- #include "io_u.h"
- #include "zbd_types.h"
- 
--#define FIO_IOOPS_VERSION	26
-+#define FIO_IOOPS_VERSION	27
- 
- #ifndef CONFIG_DYNAMIC_ENGINES
- #define FIO_STATIC	static
 
