@@ -1,36 +1,52 @@
-Return-Path: <bart.vanassche@gmail.com>
-Return-Path: <bart.vanassche@gmail.com>
-Subject: Re: [PATCH 00/15] ZBD fixes and improvements
-References: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
-From: Bart Van Assche <bvanassche@acm.org>
-Message-ID: <4e35b427-c7df-f744-3c11-8e301e83999d@acm.org>
-Date: Fri, 20 Nov 2020 20:01:15 -0800
+Return-Path: <prvs=587eb1fc6=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH 00/15] ZBD fixes and improvements
+Date: Sat, 21 Nov 2020 11:45:17 +0900
+Message-Id: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
-In-Reply-To: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Dmitry Fomichev <dmitry.fomichev@wdc.com>, Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On 11/20/20 6:45 PM, Dmitry Fomichev wrote:
-> This patch series contains bug fixes and refactoring changes
-> related to support for Zoned Block Devices (ZBD) in fio.
-> The highlights:
-> 
->  - fix several errors related to running workloads that span
->    a mix of conventional zones and write pointer zones.
->  - improve counting of sectors with data (SWD).
->  - remove dependencies on particular zone types in the code.
->  - add code to gracefully handle offline zones.
+This patch series contains bug fixes and refactoring changes
+related to support for Zoned Block Devices (ZBD) in fio.
+The highlights:
 
-Hi Dmitry,
+ - fix several errors related to running workloads that span
+   a mix of conventional zones and write pointer zones.
+ - improve counting of sectors with data (SWD).
+ - remove dependencies on particular zone types in the code.
+ - add code to gracefully handle offline zones.
 
-This patch series looks interesting. Out of curiosity, do you perhaps
-know how much of the modified code is covered by the tests in t/zbd?
+Aravind Ramesh (1):
+  zbd: initialize sectors with data at start time
 
-Thanks,
+Dmitry Fomichev (10):
+  zbd: return ENOMEM if zone buffer allocation fails
+  zbd: use zbd_zone_nr() more actively in the code
+  zbd: add get_zone() helper function
+  zbd: introduce zone_unlock()
+  zbd: engines/libzbc: don't fail on assert for offline zones
+  zbd: remove dependency on zone type during i/o
+  zbd: skip offline zones in zbd_convert_to_open_zone()
+  zbd: avoid zone buffer overrun
+  zbd: don't unlock zone mutex after verify replay
+  zbd: use zone_lock() in zbd_process_swd()
 
-Bart.
+Shin'ichiro Kawasaki (4):
+  zbd: do not lock conventional zones on I/O adjustment
+  zbd: do not set zbd handlers for conventional zones
+  zbd: count sectors with data for write pointer zones
+  zbd: initialize min_zone and max_zone for all zone types
+
+ engines/libzbc.c       |   3 +-
+ oslib/linux-blkzoned.c |   3 +-
+ zbd.c                  | 265 ++++++++++++++++++++++++-----------------
+ zbd.h                  |   5 +
+ 4 files changed, 164 insertions(+), 112 deletions(-)
+
+-- 
+2.21.0
+
 
