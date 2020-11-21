@@ -1,94 +1,138 @@
-Return-Path: <rebecca@bsdio.com>
-From: Rebecca Cran <rebecca@bsdio.com>
-Date: Tue,  3 Nov 2020 02:47:41 +0000
-Message-Id: <20201103024741.1958-1-rebecca@bsdio.com>
+Return-Path: <prvs=587eb1fc6=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH 10/15] zbd: do not lock conventional zones on I/O adjustment
+Date: Sat, 21 Nov 2020 11:45:27 +0900
+Message-Id: <20201121024532.16834-11-dmitry.fomichev@wdc.com>
+In-Reply-To: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
+References: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Subject: [PATCH] Windows: update dobuild.cmd to run the configure/make
-To: fio@vger.kernel.org
-Cc: Rebecca Cran <rebecca@bsdio.com>, Jens Axboe <axboe@kernel.dk>
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-Add a new shell script, _domake.sh which runs under Cygwin. This
-is invoked via dobuild.cmd to run the configure and make steps of
-the build. In this way, a single command, run from a Developer Command
-Prompt, can be used to go from a clean workspace to a final installer
-binary.
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-Signed-off-by: Rebecca Cran <rebecca@bsdio.com>
+When a random workload runs against write pointer zones, I/Os are
+adjusted to meet write pointer restrictions. During read, I/O offsets
+are adjusted to point to zones with data to read and during write, I/O
+offsets are adjusted to be at write pointers of open zones.
+
+However, when a random workload runs in a range that contains both
+write pointer zones and conventional zones, I/Os to write pointer
+zones can potentially be adjusted to conventional zones. The functions
+zbd_find_zone() and zbd_convert_to_open_zone() search for zones
+regardless of their type, and therefore they may return conventional
+zones. These functions lock the found zone to guard its open status
+and write pointer position, but this lock is meaningless for
+conventional zones. This unwanted lock of conventional zones has been
+observed to cause a deadlock.
+
+Furthermore, zbd_convert_to_open_zone() may add the found conventional
+zone to the array of open zones. However, conventional zones should
+never be added to the array of open zones as conventional zones never
+take the "implicit open" condition and not counted as part of the
+device open zone management.
+
+To avoid the deadlock, modify zbd_find_zone() not to lock zone when it
+checks conventional zone without write pointer. To avoid the deadlock
+and the conventional zone open, modify zbd_convert_to_open_zone() to
+ignore conventional zones.
+
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- os/windows/_domake.sh  | 17 +++++++++++++++++
- os/windows/dobuild.cmd | 23 +++++++++++++----------
- 2 files changed, 30 insertions(+), 10 deletions(-)
- create mode 100755 os/windows/_domake.sh
+ zbd.c | 31 ++++++++++++++++++++-----------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
 
-diff --git a/os/windows/_domake.sh b/os/windows/_domake.sh
-new file mode 100755
-index 00000000..05625ff4
---- /dev/null
-+++ b/os/windows/_domake.sh
-@@ -0,0 +1,17 @@
-+#!/usr/bin/env bash
-+
-+set -e
-+
-+cd "$2"
-+cd ../..
-+if [ -e "fio.exe" ]; then
-+  make clean
-+fi
-+
-+if [ "$1" =3D "x86" ]; then
-+  ./configure --disable-native --build-32bit-win
-+else
-+  ./configure --disable-native
-+fi
-+
-+make -j
-diff --git a/os/windows/dobuild.cmd b/os/windows/dobuild.cmd
-index 08df3e87..ea79dd03 100644
---- a/os/windows/dobuild.cmd
-+++ b/os/windows/dobuild.cmd
-@@ -1,5 +1,18 @@
- @echo off=0D
- setlocal enabledelayedexpansion=0D
-+=0D
-+if "%1"=3D=3D"x86" set FIO_ARCH=3Dx86=0D
-+if "%1"=3D=3D"x64" set FIO_ARCH=3Dx64=0D
-+=0D
-+if not defined FIO_ARCH (=0D
-+  echo Error: must specify the architecture.=0D
-+  echo Usage: dobuild x86=0D
-+  echo Usage: dobuild x64=0D
-+  goto end=0D
-+)=0D
-+=0D
-+C:\Cygwin64\bin\bash -l %cd%/_domake.sh %FIO_ARCH% %cd%=0D
-+=0D
- set /a counter=3D1=0D
- for /f "tokens=3D3" %%i in (..\..\FIO-VERSION-FILE) do (=0D
-  if "!counter!"=3D=3D"1" set FIO_VERSION=3D%%i=0D
-@@ -16,16 +29,6 @@ if not defined FIO_VERSION_NUMBERS (
-   goto end=0D
- )=0D
- =0D
--if "%1"=3D=3D"x86" set FIO_ARCH=3Dx86=0D
--if "%1"=3D=3D"x64" set FIO_ARCH=3Dx64=0D
--=0D
--if not defined FIO_ARCH (=0D
--  echo Error: must specify the architecture.=0D
--  echo Usage: dobuild x86=0D
--  echo Usage: dobuild x64=0D
--  goto end=0D
--)=0D
--=0D
- if defined SIGN_FIO (=0D
-   signtool sign /n "%SIGNING_CN%" /t http://timestamp.digicert.com ..\..\f=
-io.exe=0D
-   signtool sign /as /n "%SIGNING_CN%" /tr http://timestamp.digicert.com /t=
-d sha256 /fd sha256 ..\..\fio.exe=0D
---=20
-2.29.2
-
+diff --git a/zbd.c b/zbd.c
+index eaf2137f..3473be8d 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -1033,7 +1033,8 @@ static uint32_t pick_random_zone_idx(const struct fio_file *f,
+ /*
+  * Modify the offset of an I/O unit that does not refer to an open zone such
+  * that it refers to an open zone. Close an open zone and open a new zone if
+- * necessary. This algorithm can only work correctly if all write pointers are
++ * necessary. The open zone is searched across sequential zones.
++ * This algorithm can only work correctly if all write pointers are
+  * a multiple of the fio block size. The caller must neither hold z->mutex
+  * nor f->zbd_info->mutex. Returns with z->mutex held upon success.
+  */
+@@ -1159,7 +1160,8 @@ open_other_zone:
+ 	/* Zone 'z' is full, so try to open a new zone. */
+ 	for (i = f->io_size / f->zbd_info->zone_size; i > 0; i--) {
+ 		zone_idx++;
+-		zone_unlock(z);
++		if (z->has_wp)
++			zone_unlock(z);
+ 		z++;
+ 		if (!is_valid_offset(f, z->start)) {
+ 			/* Wrap-around. */
+@@ -1167,6 +1169,8 @@ open_other_zone:
+ 			z = get_zone(f, zone_idx);
+ 		}
+ 		assert(is_valid_offset(f, z->start));
++		if (!z->has_wp)
++			continue;
+ 		zone_lock(td, f, z);
+ 		if (z->open)
+ 			continue;
+@@ -1202,6 +1206,7 @@ out:
+ 	dprint(FD_ZBD, "%s(%s): returning zone %d\n", __func__, f->file_name,
+ 	       zone_idx);
+ 	io_u->offset = z->start;
++	assert(z->has_wp);
+ 	assert(z->cond != ZBD_ZONE_COND_OFFLINE);
+ 	return z;
+ }
+@@ -1228,12 +1233,12 @@ static struct fio_zone_info *zbd_replay_write_order(struct thread_data *td,
+ }
+ 
+ /*
+- * Find another zone for which @io_u fits below the write pointer. Start
+- * searching in zones @zb + 1 .. @zl and continue searching in zones
+- * @zf .. @zb - 1.
++ * Find another zone for which @io_u fits in the readable data in the zone.
++ * Search in zones @zb + 1 .. @zl. For random workload, also search in zones
++ * @zb - 1 .. @zf.
+  *
+- * Either returns NULL or returns a zone pointer and holds the mutex for that
+- * zone.
++ * Either returns NULL or returns a zone pointer. When the zone has write
++ * pointer, hold the mutex for the zone.
+  */
+ static struct fio_zone_info *
+ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
+@@ -1250,19 +1255,23 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
+ 	 */
+ 	for (z1 = zb + 1, z2 = zb - 1; z1 < zl || z2 >= zf; z1++, z2--) {
+ 		if (z1 < zl && z1->cond != ZBD_ZONE_COND_OFFLINE) {
+-			zone_lock(td, f, z1);
++			if (z1->has_wp)
++				zone_lock(td, f, z1);
+ 			if (z1->start + min_bs <= z1->wp)
+ 				return z1;
+-			zone_unlock(z1);
++			if (z1->has_wp)
++				zone_unlock(z1);
+ 		} else if (!td_random(td)) {
+ 			break;
+ 		}
+ 		if (td_random(td) && z2 >= zf &&
+ 		    z2->cond != ZBD_ZONE_COND_OFFLINE) {
+-			zone_lock(td, f, z2);
++			if (z2->has_wp)
++				zone_lock(td, f, z2);
+ 			if (z2->start + min_bs <= z2->wp)
+ 				return z2;
+-			zone_unlock(z2);
++			if (z2->has_wp)
++				zone_unlock(z2);
+ 		}
+ 	}
+ 	dprint(FD_ZBD, "%s: adjusting random read offset failed\n",
+-- 
+2.21.0
 
 
