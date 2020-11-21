@@ -1,35 +1,52 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:15972 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728227AbgKLPGr (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 12 Nov 2020 10:06:47 -0500
-From: Jeffrey Lien <Jeff.Lien@wdc.com>
-Subject: bsdio.com Offline
-Date: Thu, 12 Nov 2020 15:06:45 +0000
-Message-ID: <DM6PR04MB5659E3053E425AC885709CD8EAE70@DM6PR04MB5659.namprd04.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <prvs=587eb1fc6=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH 09/15] zbd: don't unlock zone mutex after verify replay
+Date: Sat, 21 Nov 2020 11:45:26 +0900
+Message-Id: <20201121024532.16834-10-dmitry.fomichev@wdc.com>
+In-Reply-To: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
+References: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "rebecca@bsdio.com" <rebecca@bsdio.com>
-Cc: Chris Williams <Christopher.Williams@wdc.com>
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-Rebecca,
-We're trying to access the prebuilt Windows FIO packages from the bsdio.com=
- site but can't access it.  Could you check into that?  Or is there an alte=
-rnate site we should be using?  =20
+zbd_adjust_block() always returns with the zone locked if the i/o is
+accepted. The corresponding unlock happens in zbd_put_io(). The
+function description says -
 
-Thanks
+ * Locking strategy: returns with z->mutex locked if and only if z refers
+ * to a sequential zone and if io_u_accept is returned. z is the zone that
+ * corresponds to io_u->offset at the end of this function.
 
-Jeff Lien
-eSSD Core SW Tools & Drivers
+Remove the recently added unlock after zbd_replay_write_order() call.
+Add a Coverity annotation to mark the absence of unlock as intentional.
 
-Western Digital
-2900 37th St NW
-Building 108-1
-Rochester, MN 55901
-Email:  Jeff.Lien@wdc.com
-Office: +1-507-322-2416
+Fixes: b2726d53bb5d ("zbd: Add a missing pthread_mutex_unlock() call")
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+---
+ zbd.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/zbd.c b/zbd.c
+index 52cd7b8b..eaf2137f 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -1561,7 +1561,12 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 	case DDIR_READ:
+ 		if (td->runstate == TD_VERIFYING && td_write(td)) {
+ 			zb = zbd_replay_write_order(td, io_u, zb);
+-			zone_unlock(zb);
++			/*
++			 * Since we return with the zone lock still held,
++			 * add an annotation to let Coverity know that it
++			 * is intentional.
++			 */
++			/* coverity[missing_unlock] */
+ 			goto accept;
+ 		}
+ 		/*
+-- 
+2.21.0
 
 
