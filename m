@@ -1,142 +1,153 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from sandeen.net ([63.231.237.45]:43452 "EHLO sandeen.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730626AbgKIQqp (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 9 Nov 2020 11:46:45 -0500
-From: Eric Sandeen <sandeen@redhat.com>
-Subject: [PATCH 2/3] fix dynamic engine loading for libaio engine etc
-Date: Mon,  9 Nov 2020 10:46:29 -0600
-Message-Id: <1604940390-21215-3-git-send-email-sandeen@redhat.com>
-In-Reply-To: <1604940390-21215-1-git-send-email-sandeen@redhat.com>
-References: <1604940390-21215-1-git-send-email-sandeen@redhat.com>
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: sitsofe@yahoo.com, ykorman@gmail.com, rjones@redhat.com
+Return-Path: <prvs=587eb1fc6=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH 06/15] zbd: remove dependency on zone type during i/o
+Date: Sat, 21 Nov 2020 11:45:23 +0900
+Message-Id: <20201121024532.16834-7-dmitry.fomichev@wdc.com>
+In-Reply-To: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
+References: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-The dynamic engine loading for libaio (and some others) currently
-fails because the dlopen routine is looking for ("lib%s", enginename)
-which translates into "liblibiscsi.so":
+Two different type of zones have a write pointer: Sequential Write
+Required (SWR) and Sequential Write Preferred (SWP). Introduce the
+zone flag "has_wp" in struct zbd_zone_info and set it to 1 for these
+zone types upon initialization, thus avoiding the necessity to check
+multiple zone types in core zbd code. This flag replaces zbd_zone_swr()
+function and lays the groundwork for supporting additional write
+pointer zone types in the future.
 
-openat(AT_FDCWD, "/usr/lib64/fio/liblibiscsi.so", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
-Engine libiscsi not found; Either name is invalid, was not built, or fio-engine-libiscsi package is missing.
-fio: engine libiscsi not loadable
-IO engine libiscsi not found
+The overall functionality stays the same after this commit.
 
-The Makefile decide to name this engine "iscsi" instead of "libiscsi",
-which leads to "libiscsi.so" not "liblibiscsi.so" hence the mismatch.
-
-OTOH, "liblibiscsi.so" seems a bit bonkers.
-
-Try to resolve all this by:
-
-1) make all of the engine names match the documented engine names
-   in the Makefile, i.e. "iscsi" -> "libiscsi"
-2) change the created library filenames to "fio-$(ENGINENAME)"
-   from "lib$(ENGINENAME)" to avoid the "liblib" prefix.
-
-So now we consistently have the libraries named "fio-$(ENGINENAME).so"
-
-fio-http.so
-fio-libaio.so
-
-etc.
-
-Fixes: 5a8a6a03 ("configure: new --dynamic-libengines build option")
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- Makefile    | 34 +++++++++++++++++-----------------
- ioengines.c |  2 +-
- 2 files changed, 18 insertions(+), 18 deletions(-)
+ zbd.c | 31 ++++++++++++++++---------------
+ zbd.h |  2 ++
+ 2 files changed, 18 insertions(+), 15 deletions(-)
 
-diff --git a/Makefile b/Makefile
-index b0b9f86..ac3a590 100644
---- a/Makefile
-+++ b/Makefile
-@@ -66,10 +66,10 @@ ifdef CONFIG_LIBHDFS
- endif
+diff --git a/zbd.c b/zbd.c
+index 2aa83e4a..b9aafed3 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -131,15 +131,6 @@ static uint32_t zbd_zone_idx(const struct fio_file *f, uint64_t offset)
+ 	return min(zone_idx, f->zbd_info->nr_zones);
+ }
  
- ifdef CONFIG_LIBISCSI
--  iscsi_SRCS = engines/libiscsi.c
--  iscsi_LIBS = $(LIBISCSI_LIBS)
--  iscsi_CFLAGS = $(LIBISCSI_CFLAGS)
--  ENGINES += iscsi
-+  libiscsi_SRCS = engines/libiscsi.c
-+  libiscsi_LIBS = $(LIBISCSI_LIBS)
-+  libiscsi_CFLAGS = $(LIBISCSI_CFLAGS)
-+  ENGINES += libiscsi
- endif
+-/**
+- * zbd_zone_swr - Test whether a zone requires sequential writes
+- * @z: zone info pointer.
+- */
+-static inline bool zbd_zone_swr(struct fio_zone_info *z)
+-{
+-	return z->type == ZBD_ZONE_TYPE_SWR;
+-}
+-
+ /**
+  * zbd_zone_end - Return zone end location
+  * @z: zone info pointer.
+@@ -171,7 +162,7 @@ static bool zbd_zone_full(const struct fio_file *f, struct fio_zone_info *z,
+ {
+ 	assert((required & 511) == 0);
  
- ifdef CONFIG_LIBNBD
-@@ -85,14 +85,14 @@ else ifdef CONFIG_32BIT
-   CPPFLAGS += -DBITS_PER_LONG=32
- endif
- ifdef CONFIG_LIBAIO
--  aio_SRCS = engines/libaio.c
--  aio_LIBS = -laio
-+  libaio_SRCS = engines/libaio.c
-+  libaio_LIBS = -laio
-   ifdef CONFIG_LIBAIO_URING
--    aio_LIBS = -luring
-+    libaio_LIBS = -luring
-   else
--    aio_LIBS = -laio
-+    libaio_LIBS = -laio
-   endif
--  ENGINES += aio
-+  ENGINES += libaio
- endif
- ifdef CONFIG_RDMA
-   rdma_SRCS = engines/rdma.c
-@@ -179,17 +179,17 @@ ifdef CONFIG_LINUX_DEVDAX
-   ENGINES += dev-dax
- endif
- ifdef CONFIG_LIBPMEM
--  pmem_SRCS = engines/libpmem.c
--  pmem_LIBS = -lpmem
--  ENGINES += pmem
-+  libpmem_SRCS = engines/libpmem.c
-+  libpmem_LIBS = -lpmem
-+  ENGINES += libpmem
- endif
- ifdef CONFIG_IME
-   SOURCE += engines/ime.c
- endif
- ifdef CONFIG_LIBZBC
--  zbc_SRCS = engines/libzbc.c
--  zbc_LIBS = -lzbc
--  ENGINES += zbc
-+  libzbc_SRCS = engines/libzbc.c
-+  libzbc_LIBS = -lzbc
-+  ENGINES += libzbc
- endif
+-	return zbd_zone_swr(z) &&
++	return z->has_wp &&
+ 		z->wp + required > zbd_zone_capacity_end(z);
+ }
  
- ifeq ($(CONFIG_TARGET_OS), Linux)
-@@ -256,9 +256,9 @@ ifdef CONFIG_DYNAMIC_ENGINES
- define engine_template =
- $(1)_OBJS := $$($(1)_SRCS:.c=.o)
- $$($(1)_OBJS): CFLAGS := -fPIC $$($(1)_CFLAGS) $(CFLAGS)
--engines/lib$(1).so: $$($(1)_OBJS)
-+engines/fio-$(1).so: $$($(1)_OBJS)
- 	$$(QUIET_LINK)$(CC) -shared -rdynamic -fPIC -Wl,-soname,fio-$(1).so.1 $$($(1)_LIBS) -o $$@ $$<
--ENGS_OBJS += engines/lib$(1).so
-+ENGS_OBJS += engines/fio-$(1).so
- endef
- else # !CONFIG_DYNAMIC_ENGINES
- define engine_template =
-diff --git a/ioengines.c b/ioengines.c
-index 3e43ef2..fb59349 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -91,7 +91,7 @@ static void *dlopen_external(struct thread_data *td, const char *engine)
- 	char engine_path[PATH_MAX];
- 	void *dlhandle;
+@@ -249,7 +240,7 @@ static bool zbd_is_seq_job(struct fio_file *f)
+ 	zone_idx_b = zbd_zone_idx(f, f->file_offset);
+ 	zone_idx_e = zbd_zone_idx(f, f->file_offset + f->io_size - 1);
+ 	for (zone_idx = zone_idx_b; zone_idx <= zone_idx_e; zone_idx++)
+-		if (zbd_zone_swr(&f->zbd_info->zone_info[zone_idx]))
++		if (f->zbd_info->zone_info[zone_idx].has_wp)
+ 			return true;
  
--	sprintf(engine_path, "%s/lib%s.so", FIO_EXT_ENG_DIR, engine);
-+	sprintf(engine_path, "%s/fio-%s.so", FIO_EXT_ENG_DIR, engine);
+ 	return false;
+@@ -429,6 +420,7 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
+ 		p->type = ZBD_ZONE_TYPE_SWR;
+ 		p->cond = ZBD_ZONE_COND_EMPTY;
+ 		p->capacity = zone_capacity;
++		p->has_wp = 1;
+ 	}
+ 	/* a sentinel */
+ 	p->start = nr_zones * zone_size;
+@@ -512,8 +504,17 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
+ 				p->wp = z->wp;
+ 				break;
+ 			}
++
++			switch (z->type) {
++			case ZBD_ZONE_TYPE_SWR:
++				p->has_wp = 1;
++				break;
++			default:
++				p->has_wp = 0;
++			}
+ 			p->type = z->type;
+ 			p->cond = z->cond;
++
+ 			if (j > 0 && p->start != p[-1].start + zone_size) {
+ 				log_info("%s: invalid zone data\n",
+ 					 f->file_name);
+@@ -811,7 +812,7 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
+ 	for (z = zb; z < ze; z++) {
+ 		uint32_t nz = zbd_zone_nr(f, z);
  
- 	dlhandle = dlopen(engine_path, RTLD_LAZY);
- 	if (!dlhandle)
+-		if (!zbd_zone_swr(z))
++		if (!z->has_wp)
+ 			continue;
+ 		zone_lock(td, f, z);
+ 		if (all_zones) {
+@@ -1313,7 +1314,7 @@ static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int q,
+ 	assert(zone_idx < zbd_info->nr_zones);
+ 	z = get_zone(f, zone_idx);
+ 
+-	if (!zbd_zone_swr(z))
++	if (!z->has_wp)
+ 		return;
+ 
+ 	if (!success)
+@@ -1373,7 +1374,7 @@ static void zbd_put_io(struct thread_data *td, const struct io_u *io_u)
+ 	assert(zone_idx < zbd_info->nr_zones);
+ 	z = get_zone(f, zone_idx);
+ 
+-	if (!zbd_zone_swr(z))
++	if (!z->has_wp)
+ 		return;
+ 
+ 	dprint(FD_ZBD,
+@@ -1538,7 +1539,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 	orig_zb = zb;
+ 
+ 	/* Accept the I/O offset for conventional zones. */
+-	if (!zbd_zone_swr(zb))
++	if (!zb->has_wp)
+ 		return io_u_accept;
+ 
+ 	/*
+diff --git a/zbd.h b/zbd.h
+index bff55f99..059a9f9e 100644
+--- a/zbd.h
++++ b/zbd.h
+@@ -28,6 +28,7 @@ enum io_u_action {
+  * @mutex: protects the modifiable members in this structure
+  * @type: zone type (BLK_ZONE_TYPE_*)
+  * @cond: zone state (BLK_ZONE_COND_*)
++ * @has_wp: whether or not this zone can have a valid write pointer
+  * @open: whether or not this zone is currently open. Only relevant if
+  *		max_open_zones > 0.
+  * @reset_zone: whether or not this zone should be reset before writing to it
+@@ -40,6 +41,7 @@ struct fio_zone_info {
+ 	uint32_t		verify_block;
+ 	enum zbd_zone_type	type:2;
+ 	enum zbd_zone_cond	cond:4;
++	unsigned int		has_wp:1;
+ 	unsigned int		open:1;
+ 	unsigned int		reset_zone:1;
+ };
 -- 
-1.8.3.1
+2.21.0
 
 
