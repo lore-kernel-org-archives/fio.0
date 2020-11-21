@@ -1,100 +1,75 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from sandeen.net ([63.231.237.45]:43460 "EHLO sandeen.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726410AbgKIQqp (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 9 Nov 2020 11:46:45 -0500
-From: Eric Sandeen <sandeen@redhat.com>
-Subject: [PATCH 3/3] list all available dynamic ioengines with --enghelp
-Date: Mon,  9 Nov 2020 10:46:30 -0600
-Message-Id: <1604940390-21215-4-git-send-email-sandeen@redhat.com>
-In-Reply-To: <1604940390-21215-1-git-send-email-sandeen@redhat.com>
-References: <1604940390-21215-1-git-send-email-sandeen@redhat.com>
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: sitsofe@yahoo.com, ykorman@gmail.com, rjones@redhat.com
+Return-Path: <prvs=587eb1fc6=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH 13/15] zbd: initialize min_zone and max_zone for all zone types
+Date: Sat, 21 Nov 2020 11:45:30 +0900
+Message-Id: <20201121024532.16834-14-dmitry.fomichev@wdc.com>
+In-Reply-To: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
+References: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-When dynamic engines are enabled, "fio --enghelp" does not list all
-available engines as the man page says it will:
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-	If no ioengine is given, list all available ioengines.
+The function zbd_verify_sizes() checks if the given I/O range includes
+write pointer zones. When all zones in the I/O range are conventional,
+it skips checks for size options and leaves min_zone and max_zone in
+struct fio_file with zero values. These uninitialized min_zone and
+max_zone fields trigger unexpected behaviors such as unset
+sectors_with_data.
 
-Fix this by opening FIO_EXT_ENG_DIR and attempting dlopen_ioengine
-everything that's found there.
+Fix this by moving min_zone and max_zone set up from zbd_verify_sizes()
+to zbd_setup_files(). This allows for setting up the values regardless
+of zone types in I/O range.
 
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+Bypass the assertion to ensure that max_zone is larger than min_zone if
+all zones in the I/O range are conventional. In this case, io_size
+can be smaller than zone size and, consequently, min_zone may become
+the same as max_zone.
+
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- ioengines.c | 34 +++++++++++++++++++++++++++++++++-
- 1 file changed, 33 insertions(+), 1 deletion(-)
+ zbd.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/ioengines.c b/ioengines.c
-index fb59349..c688dd1 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -15,6 +15,8 @@
- #include <dlfcn.h>
- #include <fcntl.h>
- #include <assert.h>
-+#include <sys/types.h>
-+#include <dirent.h>
- 
- #include "fio.h"
- #include "diskutil.h"
-@@ -630,6 +632,34 @@ int td_io_get_file_size(struct thread_data *td, struct fio_file *f)
- 	return td->io_ops->get_file_size(td, f);
- }
- 
-+#ifdef CONFIG_DYNAMIC_ENGINES
-+/* Load all dynamic engines in FIO_EXT_ENG_DIR for enghelp command */
-+static void
-+fio_load_dynamic_engines(struct thread_data *td)
-+{
-+	DIR *dirhandle = NULL;
-+	struct dirent *dirent = NULL;
-+	char engine_path[PATH_MAX];
-+
-+	dirhandle = opendir(FIO_EXT_ENG_DIR);
-+	if (!dirhandle)
-+		return;
-+
-+	while ((dirent = readdir(dirhandle)) != NULL) {
-+		if (!strcmp(dirent->d_name, ".") ||
-+		    !strcmp(dirent->d_name, ".."))
-+			continue;
-+
-+		sprintf(engine_path, "%s/%s", FIO_EXT_ENG_DIR, dirent->d_name);
-+		dlopen_ioengine(td, engine_path);
-+	}
-+
-+	closedir(dirhandle);
-+}
-+#else
-+#define fio_load_dynamic_engines(td) do { } while (0)
-+#endif
-+
- int fio_show_ioengine_help(const char *engine)
- {
- 	struct flist_head *entry;
-@@ -638,8 +668,11 @@ int fio_show_ioengine_help(const char *engine)
- 	char *sep;
- 	int ret = 1;
- 
-+	memset(&td, 0, sizeof(struct thread_data));
-+
- 	if (!engine || !*engine) {
- 		log_info("Available IO engines:\n");
-+		fio_load_dynamic_engines(&td);
- 		flist_for_each(entry, &engine_list) {
- 			io_ops = flist_entry(entry, struct ioengine_ops, list);
- 			log_info("\t%s\n", io_ops->name);
-@@ -652,7 +685,6 @@ int fio_show_ioengine_help(const char *engine)
- 		sep++;
+diff --git a/zbd.c b/zbd.c
+index f513295a..c364e87c 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -324,10 +324,6 @@ static bool zbd_verify_sizes(void)
+ 					 (unsigned long long) new_end - f->file_offset);
+ 				f->io_size = new_end - f->file_offset;
+ 			}
+-
+-			f->min_zone = zbd_zone_idx(f, f->file_offset);
+-			f->max_zone = zbd_zone_idx(f, f->file_offset + f->io_size);
+-			assert(f->min_zone < f->max_zone);
+ 		}
  	}
  
--	memset(&td, 0, sizeof(struct thread_data));
- 	td.o.ioengine = (char *)engine;
- 	io_ops = load_ioengine(&td);
+@@ -680,6 +676,18 @@ int zbd_setup_files(struct thread_data *td)
+ 		if (!zbd)
+ 			continue;
  
++		f->min_zone = zbd_zone_idx(f, f->file_offset);
++		f->max_zone = zbd_zone_idx(f, f->file_offset + f->io_size);
++
++		/*
++		 * When all zones in the I/O range are conventional, io_size
++		 * can be smaller than zone size, making min_zone the same
++		 * as max_zone. This is why the assert below needs to be made
++		 * conditional.
++		 */
++		if (zbd_is_seq_job(f))
++			assert(f->min_zone < f->max_zone);
++
+ 		zbd->max_open_zones = zbd->max_open_zones ?: ZBD_MAX_OPEN_ZONES;
+ 
+ 		if (td->o.max_open_zones > 0 &&
 -- 
-1.8.3.1
+2.21.0
 
 
