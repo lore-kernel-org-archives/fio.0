@@ -1,50 +1,47 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60556 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726118AbgKAJG2 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 1 Nov 2020 04:06:28 -0500
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3F08C0617A6
-        for <fio@vger.kernel.org>; Sun,  1 Nov 2020 01:06:27 -0800 (PST)
-Received: by mail-wm1-x32d.google.com with SMTP id c9so4992268wml.5
-        for <fio@vger.kernel.org>; Sun, 01 Nov 2020 01:06:27 -0800 (PST)
+Return-Path: <prvs=587eb1fc6=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH 07/15] zbd: skip offline zones in zbd_convert_to_open_zone()
+Date: Sat, 21 Nov 2020 11:45:24 +0900
+Message-Id: <20201121024532.16834-8-dmitry.fomichev@wdc.com>
+In-Reply-To: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
+References: <20201121024532.16834-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
-References: <CAAEM5qKsqw44j_Bwi7fnJF0KXGcVG9qFp_=Nmg6LiwQ3t+LtBQ@mail.gmail.com>
-In-Reply-To: <CAAEM5qKsqw44j_Bwi7fnJF0KXGcVG9qFp_=Nmg6LiwQ3t+LtBQ@mail.gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Sun, 1 Nov 2020 09:06:00 +0000
-Message-ID: <CALjAwxjJXEaDjacbfT5=rS6XzFxDwJOP5Rnktqc1+Y95UKcWsg@mail.gmail.com>
-Subject: Re: Writing/reading OD, MD, ID of a disk
-Content-Type: text/plain; charset="UTF-8"
-List-Id: fio@vger.kernel.org
-To: siha lawrence <sihaj33@gmail.com>
-Cc: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, fio <fio@vger.kernel.org>
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+Since all I/Os to an offline zone will fail, add a check in
+zbd_convert_to_open_zone() to ignore zones that have this condition.
 
-On Tue, 6 Oct 2020 at 13:40, siha lawrence <sihaj33@gmail.com> wrote:
->
-> Hi,
->
-> What parameters could we use to write/read OD, MD, ID of a disk or
-> specific LBAs?
->
-> Thanks,
-> Siha
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+---
+ zbd.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-It seems like OD (Outer Disk), MD (Middle Disk) and ID (Inner Disk)
-are SMR drive terms. I don't know how you explicitly target those...
-maybe someone more familiar with SMR would know? (I've CC'd Dmitry in
-case they know).
+diff --git a/zbd.c b/zbd.c
+index b9aafed3..048fdbd0 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -1078,7 +1078,8 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+ 
+ 		zone_lock(td, f, z);
+ 		pthread_mutex_lock(&f->zbd_info->mutex);
+-		if (td->o.max_open_zones == 0 && td->o.job_max_open_zones == 0)
++		if (z->cond != ZBD_ZONE_COND_OFFLINE &&
++		    td->o.max_open_zones == 0 && td->o.job_max_open_zones == 0)
+ 			goto examine_zone;
+ 		if (f->zbd_info->num_open_zones == 0) {
+ 			dprint(FD_ZBD, "%s(%s): no zones are open\n",
+@@ -1200,6 +1201,7 @@ out:
+ 	dprint(FD_ZBD, "%s(%s): returning zone %d\n", __func__, f->file_name,
+ 	       zone_idx);
+ 	io_u->offset = z->start;
++	assert(z->cond != ZBD_ZONE_COND_OFFLINE);
+ 	return z;
+ }
+ 
+-- 
+2.21.0
 
-If you want to write a specific LBA you will have to get as close to
-the disk as possible. If we're talking Linux you can access the disk's
-raw block device (filename=/dev/<dev>), use direct=1, set blocksize to
-the underlying block size and then you could play back a hand crafted
-iolog (https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-read-iolog
-/ https://fio.readthedocs.io/en/latest/fio_doc.html#trace-file-format-v2
-) where the offset would correspond to the LBA.
-
---
-Sitsofe | http://sucs.org/~sits/
 
