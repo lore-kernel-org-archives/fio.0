@@ -1,57 +1,147 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58260 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726100AbgKAIvc (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 1 Nov 2020 03:51:32 -0500
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16307C0617A6
-        for <fio@vger.kernel.org>; Sun,  1 Nov 2020 01:51:32 -0700 (PDT)
-Received: by mail-wr1-x42b.google.com with SMTP id k10so9683193wrw.13
-        for <fio@vger.kernel.org>; Sun, 01 Nov 2020 01:51:31 -0700 (PDT)
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-References: <b1be007c-9ef8-69b8-67b9-cbe69f1f08e9@criteo.com>
-In-Reply-To: <b1be007c-9ef8-69b8-67b9-cbe69f1f08e9@criteo.com>
+References: <20201116030321.1957-1-rebecca@bsdio.com>
+In-Reply-To: <20201116030321.1957-1-rebecca@bsdio.com>
 From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Sun, 1 Nov 2020 08:51:04 +0000
-Message-ID: <CALjAwxgG68G2Xhtcf24ycmUf4B6nOD0x-2di++TC4OkP9j8UOg@mail.gmail.com>
-Subject: Re: Question around the time precision
+Date: Sun, 22 Nov 2020 15:05:31 +0000
+Message-ID: <CALjAwxgjD6_iEMVTd0W-HxYfkBNj8Br183P3aqo=f+TLu-T=Kw@mail.gmail.com>
+Subject: Re: [PATCH] Windows: introduce fiobuild.cmd and fiopkg.cmd
 Content-Type: text/plain; charset="UTF-8"
-List-Id: fio@vger.kernel.org
-To: Erwan Velu <e.velu@criteo.com>
-Cc: fio <fio@vger.kernel.org>
+To: Rebecca Cran <rebecca@bsdio.com>
+Cc: fio <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-On Tue, 27 Oct 2020 at 06:56, Erwan Velu <e.velu@criteo.com> wrote:
->
-> Hello list,
->
-> I found pretty handy being able to simulate and control the cpu activity
-> by using the cpuio engine.
->
-> The actual code is doing a simple nop loop for the expected duration.
->
->
-> I'm thinking about adding other loops like having sse or avx loops to
-> stress the CPU differently.
->
-> I was wondering how accurate must be the loop. Is there any particular
-> expectation or constrains to know ?
+Some minor comments otherwise looks good!
 
-From looking at
-https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-cpuload
-it seems the load can only be specified in an integer percentage.
-Looking at https://github.com/axboe/fio/blob/7eff05d723d1330a5407b2bdd9145f1bfb6dd0e1/time.c#L29
-(which is used to do the waiting) it looks like it is only accurate to
-microseconds. It seems like
-https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-cpuchunks
-is the period and that period is divided into sleeping without using
-CPU and the rest of the time busy looping. By default it's 50000 usec
-so if people aren't changing that it would suggest you can't have a
-single loop of your burn take longer than 500 usec...
+On Mon, 16 Nov 2020 at 03:03, Rebecca Cran <rebecca@bsdio.com> wrote:
+>
+> fiobuild.cmd automates the building process to pass the correct arguments
+> to configure to build fio for use on any x86 or x64 processor by using
+> --disable-native.
+>
+> fiopkg.cmd optionally signs the binaries, builds the installer and signs
+> that too.
+>
+> dobuild.cmd was misnamed, but is now used by CI. Keep it around, but
+> update it to just call fiopkg.cmd.
+>
+> Signed-off-by: Rebecca Cran <rebecca@bsdio.com>
+> ---
+>  os/windows/_domake.sh   | 17 +++++++++++++
+>  os/windows/dobuild.cmd  | 53 +----------------------------------------
+>  os/windows/fiobuild.cmd | 17 +++++++++++++
+>  os/windows/fiopkg.cmd   | 52 ++++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 87 insertions(+), 52 deletions(-)
+>  create mode 100755 os/windows/_domake.sh
+>  create mode 100644 os/windows/fiobuild.cmd
+>  create mode 100644 os/windows/fiopkg.cmd
+>
+> diff --git a/os/windows/_domake.sh b/os/windows/_domake.sh
+> new file mode 100755
+> index 00000000..05625ff4
+> --- /dev/null
+> +++ b/os/windows/_domake.sh
+> @@ -0,0 +1,17 @@
+> +#!/usr/bin/env bash
 
-Maybe if a single loop of your burn has some minimum time greater than
-a microsecond (I don't think it makes sense to set cpuchunks to less
-than 100) you can check the values in the engine at init time and spit
-out a warning/error?
+We use /bin/bash everywhere else so I think we should do so here for
+consistency.
+
+<snip>
+
+> diff --git a/os/windows/fiobuild.cmd b/os/windows/fiobuild.cmd
+> new file mode 100644
+> index 00000000..4a4171a2
+> --- /dev/null
+> +++ b/os/windows/fiobuild.cmd
+> @@ -0,0 +1,17 @@
+> +@echo off
+> +setlocal enabledelayedexpansion
+> +
+> +if "%1"=="x86" set FIO_ARCH=x86
+> +if "%1"=="x64" set FIO_ARCH=x64
+> +
+> +if not defined FIO_ARCH (
+> +  echo Error: must specify the architecture.
+> +  echo Usage: fiobuild x86
+> +  echo Usage: fiobuild x64
+> +  goto end
+> +)
+> +
+> +C:\Cygwin64\bin\bash -l %cd%/_domake.sh %FIO_ARCH% %cd%
+
+Could you just call bash so you work in msys2 environments too?
+
+> +
+> +
+> +:end
+> \ No newline at end of file
+> diff --git a/os/windows/fiopkg.cmd b/os/windows/fiopkg.cmd
+> new file mode 100644
+> index 00000000..08df3e87
+> --- /dev/null
+> +++ b/os/windows/fiopkg.cmd
+> @@ -0,0 +1,52 @@
+> +@echo off
+> +setlocal enabledelayedexpansion
+> +set /a counter=1
+> +for /f "tokens=3" %%i in (..\..\FIO-VERSION-FILE) do (
+> + if "!counter!"=="1" set FIO_VERSION=%%i
+> + set /a counter+=1
+> +)
+> +
+> +for /f "tokens=2 delims=-" %%i in ("%FIO_VERSION%") do (
+> + set FIO_VERSION_NUMBERS=%%i
+> +)
+> +
+> +if not defined FIO_VERSION_NUMBERS (
+> +  echo Could not find version numbers in the string '%FIO_VERSION%'
+> +  echo Expected version to follow format 'fio-^([0-9]+.[0-9.]+^)'
+> +  goto end
+> +)
+> +
+> +if "%1"=="x86" set FIO_ARCH=x86
+> +if "%1"=="x64" set FIO_ARCH=x64
+> +
+> +if not defined FIO_ARCH (
+> +  echo Error: must specify the architecture.
+> +  echo Usage: dobuild x86
+> +  echo Usage: dobuild x64
+> +  goto end
+> +)
+> +
+> +if defined SIGN_FIO (
+> +  signtool sign /n "%SIGNING_CN%" /t http://timestamp.digicert.com ..\..\fio.exe
+> +  signtool sign /as /n "%SIGNING_CN%" /tr http://timestamp.digicert.com /td sha256 /fd sha256 ..\..\fio.exe
+> +
+> +  signtool sign /n "%SIGNING_CN%" /t http://timestamp.digicert.com ..\..\t\*.exe
+> +  signtool sign /as /n "%SIGNING_CN%" /tr http://timestamp.digicert.com /td sha256 /fd sha256 ..\..\t\*.exe
+> +)
+> +
+> +if exist ..\..\fio.pdb (
+> +  set FIO_PDB=true
+> +) else (
+> +  set FIO_PDB=false
+> +)
+> +
+> +"%WIX%bin\candle" -nologo -arch %FIO_ARCH% -dFioVersionNumbers="%FIO_VERSION_NUMBERS%" -dFioPDB="%FIO_PDB%" install.wxs
+> +@if ERRORLEVEL 1 goto end
+> +"%WIX%bin\candle" -nologo -arch %FIO_ARCH% examples.wxs
+> +@if ERRORLEVEL 1 goto end
+> +"%WIX%bin\light" -nologo -sice:ICE61 install.wixobj examples.wixobj -ext WixUIExtension -out %FIO_VERSION%-%FIO_ARCH%.msi
+> +:end
+> +
+> +if defined SIGN_FIO (
+> +  signtool sign /n "%SIGNING_CN%" /tr http://timestamp.digicert.com /td sha256 /fd sha256 %FIO_VERSION%-%FIO_ARCH%.msi
+> +)
+
+Will it try to sign even if there was a packaging error?
+
+> --
+> 2.29.2
+>
+>
+
 
 -- 
 Sitsofe | http://sucs.org/~sits/
