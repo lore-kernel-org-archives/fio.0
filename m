@@ -1,32 +1,105 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36578 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725899AbgLUWuD (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 21 Dec 2020 17:50:03 -0500
-Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35842C0613D3
-        for <fio@vger.kernel.org>; Mon, 21 Dec 2020 14:49:23 -0800 (PST)
-Received: by mail-ot1-x329.google.com with SMTP id n42so4359597ota.12
-        for <fio@vger.kernel.org>; Mon, 21 Dec 2020 14:49:23 -0800 (PST)
-MIME-Version: 1.0
-From: "rickyp999@gmail.com" <rickyp999@gmail.com>
-Date: Mon, 21 Dec 2020 14:49:11 -0800
-Message-ID: <CACnDUNrKDbee11b0xhSR1sYrkmetO3x0TpuesxrS-GHVe+kfoA@mail.gmail.com>
-Subject: Standard test parameters for NAS workloads?
-Content-Type: text/plain; charset="UTF-8"
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <krish.reddy@samsung.com>
+From: Krishna Kanth Reddy <krish.reddy@samsung.com>
+Subject: [PATCH 1/9] Adding the necessary ddir changes to introduce copy
+ operation.
+Date: Tue,  1 Dec 2020 17:10:26 +0530
+Message-Id: <20201201114034.8307-2-krish.reddy@samsung.com>
+In-Reply-To: <20201201114034.8307-1-krish.reddy@samsung.com>
+Content-Type: text/plain; charset="utf-8"
+References: <20201201114034.8307-1-krish.reddy@samsung.com>
+	<CGME20201201114051epcas5p4b9c67cd0ad4b55fc9334dfde59ae349c@epcas5p4.samsung.com>
+To: axboe@kernel.dk
+Cc: fio@vger.kernel.org, Ankit Kumar <ankit.kumar@samsung.com>, Krishna Kanth Reddy <krish.reddy@samsung.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi,
+From: Ankit Kumar <ankit.kumar@samsung.com>
 
-I'm curious whether there are some standard or at least common test
-parameters for benchmarking NAS workloads.
+Signed-off-by: Krishna Kanth Reddy <krish.reddy@samsung.com>
+---
+ io_ddir.h | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
-If NAS is too specific, even a general one for HDD/SSD would be
-greatly appreciated.  My motivation is to use a common set of
-benchmarks to compare how options like RAID levels, network
-speed/protocol (through a NFS/SMB mount), and SSD cache affect
-performance.
+diff --git a/io_ddir.h b/io_ddir.h
+index a42da97a..22e95f70 100644
+--- a/io_ddir.h
++++ b/io_ddir.h
+@@ -5,22 +5,23 @@ enum fio_ddir {
+ 	DDIR_READ = 0,
+ 	DDIR_WRITE = 1,
+ 	DDIR_TRIM = 2,
+-	DDIR_SYNC = 3,
++	DDIR_COPY = 3,
++	DDIR_SYNC = 4,
+ 	DDIR_DATASYNC,
+ 	DDIR_SYNC_FILE_RANGE,
+ 	DDIR_WAIT,
+ 	DDIR_LAST,
+ 	DDIR_INVAL = -1,
+ 
+-	DDIR_RWDIR_CNT = 3,
+-	DDIR_RWDIR_SYNC_CNT = 4,
++	DDIR_RWDIR_CNT = 4,
++	DDIR_RWDIR_SYNC_CNT = 5,
+ };
+ 
+ #define for_each_rw_ddir(ddir)	for (enum fio_ddir ddir = 0; ddir < DDIR_RWDIR_CNT; ddir++)
+ 
+ static inline const char *io_ddir_name(enum fio_ddir ddir)
+ {
+-	static const char *name[] = { "read", "write", "trim", "sync",
++	static const char *name[] = { "read", "write", "trim", "copy", "sync"
+ 					"datasync", "sync_file_range",
+ 					"wait", };
+ 
+@@ -35,17 +36,20 @@ enum td_ddir {
+ 	TD_DDIR_WRITE		= 1 << 1,
+ 	TD_DDIR_RAND		= 1 << 2,
+ 	TD_DDIR_TRIM		= 1 << 3,
++	TD_DDIR_COPY		= 1 << 4,
+ 	TD_DDIR_RW		= TD_DDIR_READ | TD_DDIR_WRITE,
+ 	TD_DDIR_RANDREAD	= TD_DDIR_READ | TD_DDIR_RAND,
+ 	TD_DDIR_RANDWRITE	= TD_DDIR_WRITE | TD_DDIR_RAND,
+ 	TD_DDIR_RANDRW		= TD_DDIR_RW | TD_DDIR_RAND,
+ 	TD_DDIR_RANDTRIM	= TD_DDIR_TRIM | TD_DDIR_RAND,
+ 	TD_DDIR_TRIMWRITE	= TD_DDIR_TRIM | TD_DDIR_WRITE,
++	TD_DDIR_RANDCOPY	= TD_DDIR_COPY | TD_DDIR_RAND,
+ };
+ 
+ #define td_read(td)		((td)->o.td_ddir & TD_DDIR_READ)
+ #define td_write(td)		((td)->o.td_ddir & TD_DDIR_WRITE)
+ #define td_trim(td)		((td)->o.td_ddir & TD_DDIR_TRIM)
++#define td_copy(td)		((td)->o.td_ddir & TD_DDIR_COPY)
+ #define td_rw(td)		(((td)->o.td_ddir & TD_DDIR_RW) == TD_DDIR_RW)
+ #define td_random(td)		((td)->o.td_ddir & TD_DDIR_RAND)
+ #define file_randommap(td, f)	(!(td)->o.norandommap && fio_file_axmap((f)))
+@@ -60,19 +64,23 @@ static inline int ddir_sync(enum fio_ddir ddir)
+ 
+ static inline int ddir_rw(enum fio_ddir ddir)
+ {
+-	return ddir == DDIR_READ || ddir == DDIR_WRITE || ddir == DDIR_TRIM;
++	return ddir == DDIR_READ || ddir == DDIR_WRITE || ddir == DDIR_TRIM ||
++	       ddir == DDIR_COPY;
+ }
+ 
+ static inline const char *ddir_str(enum td_ddir ddir)
+ {
+ 	static const char *__str[] = { NULL, "read", "write", "rw", "rand",
+ 				"randread", "randwrite", "randrw",
+-				"trim", NULL, "trimwrite", NULL, "randtrim" };
++				"trim", NULL, "trimwrite", NULL, "randtrim",
++				 NULL,  NULL, NULL, "copy",  NULL,  NULL,
++				 NULL, "randcopy" };
+ 
+ 	return __str[ddir];
+ }
+ 
+ #define ddir_rw_sum(arr)	\
+-	((arr)[DDIR_READ] + (arr)[DDIR_WRITE] + (arr)[DDIR_TRIM])
++	((arr)[DDIR_READ] + (arr)[DDIR_WRITE] + (arr)[DDIR_TRIM] \
++	 + (arr)[DDIR_COPY])
+ 
+ #endif
+-- 
+2.17.1
 
-Thank you,
 
