@@ -1,138 +1,63 @@
-Return-Path: <prvs=620a42eaa=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v2 10/36] zbd: do not lock conventional zones on I/O adjustment
-Date: Thu, 24 Dec 2020 11:11:53 +0900
-Message-Id: <20201224021219.189727-11-dmitry.fomichev@wdc.com>
-In-Reply-To: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
-References: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Return-Path: <krish.reddy@samsung.com>
+From: Krishna Kanth Reddy <krish.reddy@samsung.com>
+Subject: [PATCH 7/9] Example configuration for simple copy command
+Date: Tue,  1 Dec 2020 17:10:32 +0530
+Message-Id: <20201201114034.8307-8-krish.reddy@samsung.com>
+In-Reply-To: <20201201114034.8307-1-krish.reddy@samsung.com>
+Content-Type: text/plain; charset="utf-8"
+References: <20201201114034.8307-1-krish.reddy@samsung.com>
+	<CGME20201201114107epcas5p4694adc6b50a123a06a06411393395636@epcas5p4.samsung.com>
+To: axboe@kernel.dk
+Cc: fio@vger.kernel.org, Ankit Kumar <ankit.kumar@samsung.com>, Krishna Kanth Reddy <krish.reddy@samsung.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+From: Ankit Kumar <ankit.kumar@samsung.com>
 
-When a random workload runs against write pointer zones, I/Os are
-adjusted to meet write pointer restrictions. During read, I/O offsets
-are adjusted to point to zones with data to read and during write, I/O
-offsets are adjusted to be at write pointers of open zones.
-
-However, when a random workload runs in a range that contains both
-write pointer zones and conventional zones, I/Os to write pointer
-zones can potentially be adjusted to conventional zones. The functions
-zbd_find_zone() and zbd_convert_to_open_zone() search for zones
-regardless of their type, and therefore they may return conventional
-zones. These functions lock the found zone to guard its open status
-and write pointer position, but this lock is meaningless for
-conventional zones. This unwanted lock of conventional zones has been
-observed to cause a deadlock.
-
-Furthermore, zbd_convert_to_open_zone() may add the found conventional
-zone to the array of open zones. However, conventional zones should
-never be added to the array of open zones as conventional zones never
-take the "implicit open" condition and not counted as part of the
-device open zone management.
-
-To avoid the deadlock, modify zbd_find_zone() not to lock zone when it
-checks conventional zone without write pointer. To avoid the deadlock
-and the conventional zone open, modify zbd_convert_to_open_zone() to
-ignore conventional zones.
-
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Signed-off-by: Krishna Kanth Reddy <krish.reddy@samsung.com>
 ---
- zbd.c | 31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+ examples/fio-copy.fio | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+ create mode 100644 examples/fio-copy.fio
 
-diff --git a/zbd.c b/zbd.c
-index c1db215e..84ac6b6f 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -1033,7 +1033,8 @@ static uint32_t pick_random_zone_idx(const struct fio_file *f,
- /*
-  * Modify the offset of an I/O unit that does not refer to an open zone such
-  * that it refers to an open zone. Close an open zone and open a new zone if
-- * necessary. This algorithm can only work correctly if all write pointers are
-+ * necessary. The open zone is searched across sequential zones.
-+ * This algorithm can only work correctly if all write pointers are
-  * a multiple of the fio block size. The caller must neither hold z->mutex
-  * nor f->zbd_info->mutex. Returns with z->mutex held upon success.
-  */
-@@ -1159,7 +1160,8 @@ open_other_zone:
- 	/* Zone 'z' is full, so try to open a new zone. */
- 	for (i = f->io_size / f->zbd_info->zone_size; i > 0; i--) {
- 		zone_idx++;
--		zone_unlock(z);
-+		if (z->has_wp)
-+			zone_unlock(z);
- 		z++;
- 		if (!is_valid_offset(f, z->start)) {
- 			/* Wrap-around. */
-@@ -1167,6 +1169,8 @@ open_other_zone:
- 			z = get_zone(f, zone_idx);
- 		}
- 		assert(is_valid_offset(f, z->start));
-+		if (!z->has_wp)
-+			continue;
- 		zone_lock(td, f, z);
- 		if (z->open)
- 			continue;
-@@ -1202,6 +1206,7 @@ out:
- 	dprint(FD_ZBD, "%s(%s): returning zone %d\n", __func__, f->file_name,
- 	       zone_idx);
- 	io_u->offset = z->start;
-+	assert(z->has_wp);
- 	assert(z->cond != ZBD_ZONE_COND_OFFLINE);
- 	return z;
- }
-@@ -1228,12 +1233,12 @@ static struct fio_zone_info *zbd_replay_write_order(struct thread_data *td,
- }
- 
- /*
-- * Find another zone for which @io_u fits below the write pointer. Start
-- * searching in zones @zb + 1 .. @zl and continue searching in zones
-- * @zf .. @zb - 1.
-+ * Find another zone for which @io_u fits in the readable data in the zone.
-+ * Search in zones @zb + 1 .. @zl. For random workload, also search in zones
-+ * @zb - 1 .. @zf.
-  *
-- * Either returns NULL or returns a zone pointer and holds the mutex for that
-- * zone.
-+ * Either returns NULL or returns a zone pointer. When the zone has write
-+ * pointer, hold the mutex for the zone.
-  */
- static struct fio_zone_info *
- zbd_find_zone(struct thread_data *td, struct io_u *io_u,
-@@ -1250,19 +1255,23 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
- 	 */
- 	for (z1 = zb + 1, z2 = zb - 1; z1 < zl || z2 >= zf; z1++, z2--) {
- 		if (z1 < zl && z1->cond != ZBD_ZONE_COND_OFFLINE) {
--			zone_lock(td, f, z1);
-+			if (z1->has_wp)
-+				zone_lock(td, f, z1);
- 			if (z1->start + min_bs <= z1->wp)
- 				return z1;
--			zone_unlock(z1);
-+			if (z1->has_wp)
-+				zone_unlock(z1);
- 		} else if (!td_random(td)) {
- 			break;
- 		}
- 		if (td_random(td) && z2 >= zf &&
- 		    z2->cond != ZBD_ZONE_COND_OFFLINE) {
--			zone_lock(td, f, z2);
-+			if (z2->has_wp)
-+				zone_lock(td, f, z2);
- 			if (z2->start + min_bs <= z2->wp)
- 				return z2;
--			zone_unlock(z2);
-+			if (z2->has_wp)
-+				zone_unlock(z2);
- 		}
- 	}
- 	dprint(FD_ZBD, "%s: adjusting random read offset failed\n",
+diff --git a/examples/fio-copy.fio b/examples/fio-copy.fio
+new file mode 100644
+index 00000000..02078147
+--- /dev/null
++++ b/examples/fio-copy.fio
+@@ -0,0 +1,32 @@
++[global]
++threads=1
++filename=fio-copy
++size=128m
++
++[writer]
++rw=write
++bs=128k
++numjobs=1
++offset=0
++buffer_pattern=0xdeadbeef
++
++[copier]
++new_group
++wait_for=writer
++rw=copy
++bs=16k
++offset=0
++dest_offset=256m
++num_range=8
++numjobs=1
++ioengine=sctl
++
++[reader]
++new_group
++wait_for=copier
++rw=read
++offset=256m
++bs=128k
++numjobs=1
++verify=pattern
++verify_pattern=0xdeadbeef
 -- 
-2.28.0
+2.17.1
 
 
