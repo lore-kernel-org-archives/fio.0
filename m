@@ -1,70 +1,39 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55244 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728018AbgLCQHP (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 3 Dec 2020 11:07:15 -0500
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA257C061A4E
-        for <fio@vger.kernel.org>; Thu,  3 Dec 2020 08:06:28 -0800 (PST)
-Received: by mail-wr1-x431.google.com with SMTP id u12so2438747wrt.0
-        for <fio@vger.kernel.org>; Thu, 03 Dec 2020 08:06:28 -0800 (PST)
-MIME-Version: 1.0
+Received: from mx0a-002e3701.pphosted.com ([148.163.147.86]:39600 "EHLO
+        mx0a-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728120AbgLCPn7 (ORCPT
+        <rfc822;fio@vger.kernel.org>); Thu, 3 Dec 2020 10:43:59 -0500
+From: "Elliott, Robert (Servers)" <elliott@hpe.com>
+Subject: RE: Difficulties pushing FIO towards many small files and WORM-style
+ use-case
+Date: Thu, 3 Dec 2020 15:43:15 +0000
+Message-ID: <TU4PR8401MB1055DA7E884402B6267CF682ABF20@TU4PR8401MB1055.NAMPRD84.PROD.OUTLOOK.COM>
 References: <CAMzroCjoMa0LD5tZhVvrkNPG=c_vGW0A1RVKQYN8jgY8LX7=HQ@mail.gmail.com>
- <TU4PR8401MB1055DA7E884402B6267CF682ABF20@TU4PR8401MB1055.NAMPRD84.PROD.OUTLOOK.COM>
-In-Reply-To: <TU4PR8401MB1055DA7E884402B6267CF682ABF20@TU4PR8401MB1055.NAMPRD84.PROD.OUTLOOK.COM>
-From: David Pineau <david.pineau@blade-group.com>
-Date: Thu, 3 Dec 2020 17:06:16 +0100
-Message-ID: <CAMzroCi05rKS_a8g5aHPaxM1b3m1sk0f5ETtzOwzLFv8GEwV9g@mail.gmail.com>
-Subject: Re: Difficulties pushing FIO towards many small files and WORM-style use-case
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAMzroCjoMa0LD5tZhVvrkNPG=c_vGW0A1RVKQYN8jgY8LX7=HQ@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 List-Id: fio@vger.kernel.org
-To: "Elliott, Robert (Servers)" <elliott@hpe.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: David Pineau <david.pineau@blade-group.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On Thu, Dec 3, 2020 at 4:43 PM Elliott, Robert (Servers)
-<elliott@hpe.com> wrote:
->
->
->
-> > -----Original Message-----
-> > From: David Pineau <david.pineau@blade-group.com>
-> > Sent: Wednesday, December 02, 2020 8:32 AM
-> > To: fio@vger.kernel.org
-> > Subject: Difficulties pushing FIO towards many small files and WORM-
-> > style use-case
-> >
-> > Hello,
-> >
-> ...
-> > As we have data on the actual usage of this current software, we know
-> > the spread of accesses to various size ranges, and we rely on a huge
-> > number of files accessed by the multi-threaded service. As the pieces
-> > of data can live a long time on this service and are immutable, I'm
-> > trying to go for a WORM-style workload with FIO.
-> >
-> > With this information in mind, I build the following FIO
-> > configuration file:
-> >
-> > >>>>
-> > [global]
-> > # File-related config
-> > directory=/mnt/test-mountpoint
-> > nrfiles=3000
->
-> I don't think most systems can handle 3000 open files at a time for
-> one process. Try
->         ulimit -n
->
-> which might report that the default is 1024 open files per process.
->
-> The fio openfiles=<int> option can be used to limit how many files it
-> keeps open at a time.
-
-The number of open file descriptors is tuned on our servers (the
-system is usually running between 30-40k open files constantly
-according to our monitoring), so I'm not limited on that side, but I
-had indeed noticed the "openfiles" option, thanks for hinting at that.
-
->
->
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogRGF2aWQgUGluZWF1IDxk
+YXZpZC5waW5lYXVAYmxhZGUtZ3JvdXAuY29tPg0KPiBTZW50OiBXZWRuZXNkYXksIERlY2VtYmVy
+IDAyLCAyMDIwIDg6MzIgQU0NCj4gVG86IGZpb0B2Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDog
+RGlmZmljdWx0aWVzIHB1c2hpbmcgRklPIHRvd2FyZHMgbWFueSBzbWFsbCBmaWxlcyBhbmQgV09S
+TS0NCj4gc3R5bGUgdXNlLWNhc2UNCj4gDQo+IEhlbGxvLA0KPiANCi4uLg0KPiBBcyB3ZSBoYXZl
+IGRhdGEgb24gdGhlIGFjdHVhbCB1c2FnZSBvZiB0aGlzIGN1cnJlbnQgc29mdHdhcmUsIHdlIGtu
+b3cNCj4gdGhlIHNwcmVhZCBvZiBhY2Nlc3NlcyB0byB2YXJpb3VzIHNpemUgcmFuZ2VzLCBhbmQg
+d2UgcmVseSBvbiBhIGh1Z2UNCj4gbnVtYmVyIG9mIGZpbGVzIGFjY2Vzc2VkIGJ5IHRoZSBtdWx0
+aS10aHJlYWRlZCBzZXJ2aWNlLiBBcyB0aGUgcGllY2VzDQo+IG9mIGRhdGEgY2FuIGxpdmUgYSBs
+b25nIHRpbWUgb24gdGhpcyBzZXJ2aWNlIGFuZCBhcmUgaW1tdXRhYmxlLCBJJ20NCj4gdHJ5aW5n
+IHRvIGdvIGZvciBhIFdPUk0tc3R5bGUgd29ya2xvYWQgd2l0aCBGSU8uDQo+IA0KPiBXaXRoIHRo
+aXMgaW5mb3JtYXRpb24gaW4gbWluZCwgSSBidWlsZCB0aGUgZm9sbG93aW5nIEZJTw0KPiBjb25m
+aWd1cmF0aW9uIGZpbGU6DQo+IA0KPiA+Pj4+DQo+IFtnbG9iYWxdDQo+ICMgRmlsZS1yZWxhdGVk
+IGNvbmZpZw0KPiBkaXJlY3Rvcnk9L21udC90ZXN0LW1vdW50cG9pbnQNCj4gbnJmaWxlcz0zMDAw
+DQoNCkkgZG9uJ3QgdGhpbmsgbW9zdCBzeXN0ZW1zIGNhbiBoYW5kbGUgMzAwMCBvcGVuIGZpbGVz
+IGF0IGEgdGltZSBmb3INCm9uZSBwcm9jZXNzLiBUcnkNCgl1bGltaXQgLW4NCg0Kd2hpY2ggbWln
+aHQgcmVwb3J0IHRoYXQgdGhlIGRlZmF1bHQgaXMgMTAyNCBvcGVuIGZpbGVzIHBlciBwcm9jZXNz
+Lg0KDQpUaGUgZmlvIG9wZW5maWxlcz08aW50PiBvcHRpb24gY2FuIGJlIHVzZWQgdG8gbGltaXQg
+aG93IG1hbnkgZmlsZXMgaXQNCmtlZXBzIG9wZW4gYXQgYSB0aW1lLg0KDQoNCg==
 
