@@ -1,195 +1,157 @@
-Return-Path: <prvs=620a42eaa=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v2 03/36] zbd: add get_zone() helper function
-Date: Thu, 24 Dec 2020 11:11:46 +0900
-Message-Id: <20201224021219.189727-4-dmitry.fomichev@wdc.com>
-In-Reply-To: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
-References: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42142 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726869AbgLCRoJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 3 Dec 2020 12:44:09 -0500
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FDF5C061A4E
+        for <fio@vger.kernel.org>; Thu,  3 Dec 2020 09:43:29 -0800 (PST)
+Received: by mail-wr1-x434.google.com with SMTP id s8so2734971wrw.10
+        for <fio@vger.kernel.org>; Thu, 03 Dec 2020 09:43:29 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
-List-ID: <fio@vger.kernel.org>
+References: <CAMzroCjoMa0LD5tZhVvrkNPG=c_vGW0A1RVKQYN8jgY8LX7=HQ@mail.gmail.com>
+ <CALjAwxgwFeY0qy0aF2X+BGUVQEJYcSrKjNY0FDgagvC6NBKs1A@mail.gmail.com>
+In-Reply-To: <CALjAwxgwFeY0qy0aF2X+BGUVQEJYcSrKjNY0FDgagvC6NBKs1A@mail.gmail.com>
+From: David Pineau <david.pineau@blade-group.com>
+Date: Thu, 3 Dec 2020 18:43:17 +0100
+Message-ID: <CAMzroChp5r587roLaLu8fHDr6NXMnKHfEue=8R_LovuvNW_auw@mail.gmail.com>
+Subject: Re: Difficulties pushing FIO towards many small files and WORM-style use-case
+Content-Type: text/plain; charset="UTF-8"
+List-Id: fio@vger.kernel.org
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-The following pattern is used very widely in zbd.c -
+Hello,
 
-zone = &f->zbd_info->zone_info[zone_idx] .
+I was using Debian Buster's packaged version (3.12 I believe). I'm now
+using the latest built from source, and it seems much more cooperative
+on various fronts, though memory issues can still be reached with a
+very big number of files. I still tried to reproduce the memory issue
+and had difficulties reproducing the behavior previously observed; but
+maybe the numbers used are a bit unorthodox. Since I could not
+reproduce it quickly, I kind-of dropped the subject for now (sorry
+Sitsofe, I hope that's not a bother?), as I'd rather focus on my aim
+if you'll indulge me.
 
-For the sake of code clarity, wrap this construct into an inline
-helper. No change in functionality.
+So, I'd like to start with a few straight-forward questions:
+ - Does allocating files for the read-test ahead of time help
+maximizing throughput ? (I feel like
+ - Is there a list of options that are clearly at risk of affecting
+the observed READ throughput ?
+ - Does the Read/Write randomness/spread/scheduling affect maximal throughput ?
+ - Is there a way to compute the required memory for the smalloc pools ?
 
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- zbd.c | 43 ++++++++++++++++++++++++-------------------
- 1 file changed, 24 insertions(+), 19 deletions(-)
+That being said, I'd still like to try and reproduce a workload
+similar to our service's with the aim of maximizing throughput but I'm
+observing the following behavior, which surprised me:
+ - If I increase the number of files (nrfiles), the throughput goes down
+ - If I increase the number of worker threads (numjobs), the
+throughput goes down
+ - If I increase the "size" of the data to use for the job, the
+throughput goes down
 
-diff --git a/zbd.c b/zbd.c
-index 841427e7..f6dabdb4 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -204,6 +204,12 @@ static bool is_valid_offset(const struct fio_file *f, uint64_t offset)
- 	return (uint64_t)(offset - f->file_offset) < f->io_size;
- }
- 
-+static inline struct fio_zone_info *get_zone(const struct fio_file *f,
-+					     unsigned int zone_nr)
-+{
-+	return &f->zbd_info->zone_info[zone_nr];
-+}
-+
- /* Verify whether direct I/O is used for all host-managed zoned drives. */
- static bool zbd_using_direct_io(void)
- {
-@@ -235,7 +241,7 @@ static bool zbd_is_seq_job(struct fio_file *f)
- 	zone_idx_b = zbd_zone_idx(f, f->file_offset);
- 	zone_idx_e = zbd_zone_idx(f, f->file_offset + f->io_size - 1);
- 	for (zone_idx = zone_idx_b; zone_idx <= zone_idx_e; zone_idx++)
--		if (zbd_zone_swr(&f->zbd_info->zone_info[zone_idx]))
-+		if (zbd_zone_swr(get_zone(f, zone_idx)))
- 			return true;
- 
- 	return false;
-@@ -286,7 +292,7 @@ static bool zbd_verify_sizes(void)
- 			}
- 
- 			zone_idx = zbd_zone_idx(f, f->file_offset);
--			z = &f->zbd_info->zone_info[zone_idx];
-+			z = get_zone(f, zone_idx);
- 			if ((f->file_offset != z->start) &&
- 			    (td->o.td_ddir != TD_DDIR_READ)) {
- 				new_offset = zbd_zone_end(z);
-@@ -302,7 +308,7 @@ static bool zbd_verify_sizes(void)
- 				f->file_offset = new_offset;
- 			}
- 			zone_idx = zbd_zone_idx(f, f->file_offset + f->io_size);
--			z = &f->zbd_info->zone_info[zone_idx];
-+			z = get_zone(f, zone_idx);
- 			new_end = z->start;
- 			if ((td->o.td_ddir != TD_DDIR_READ) &&
- 			    (f->file_offset + f->io_size != new_end)) {
-@@ -769,7 +775,7 @@ static void zbd_close_zone(struct thread_data *td, const struct fio_file *f,
- 		sizeof(f->zbd_info->open_zones[0]));
- 	f->zbd_info->num_open_zones--;
- 	td->num_open_zones--;
--	f->zbd_info->zone_info[zone_idx].open = 0;
-+	get_zone(f, zone_idx)->open = 0;
- }
- 
- /*
-@@ -869,8 +875,8 @@ static uint64_t zbd_process_swd(const struct fio_file *f, enum swd_action a)
- 	struct fio_zone_info *zb, *ze, *z;
- 	uint64_t swd = 0;
- 
--	zb = &f->zbd_info->zone_info[f->min_zone];
--	ze = &f->zbd_info->zone_info[f->max_zone];
-+	zb = get_zone(f, f->min_zone);
-+	ze = get_zone(f, f->max_zone);
- 	for (z = zb; z < ze; z++) {
- 		pthread_mutex_lock(&z->mutex);
- 		swd += z->wp - z->start;
-@@ -925,8 +931,8 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
- 	if (!f->zbd_info || !td_write(td))
- 		return;
- 
--	zb = &f->zbd_info->zone_info[f->min_zone];
--	ze = &f->zbd_info->zone_info[f->max_zone];
-+	zb = get_zone(f, f->min_zone);
-+	ze = get_zone(f, f->max_zone);
- 	zbd_init_swd(f);
- 	/*
- 	 * If data verification is enabled reset the affected zones before
-@@ -966,7 +972,7 @@ static bool zbd_open_zone(struct thread_data *td, const struct fio_file *f,
- 			  uint32_t zone_idx)
- {
- 	const uint32_t min_bs = td->o.min_bs[DDIR_WRITE];
--	struct fio_zone_info *z = &f->zbd_info->zone_info[zone_idx];
-+	struct fio_zone_info *z = get_zone(f, zone_idx);
- 	bool res = true;
- 
- 	if (z->cond == ZBD_ZONE_COND_OFFLINE)
-@@ -1059,7 +1065,7 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
- 	for (;;) {
- 		uint32_t tmp_idx;
- 
--		z = &f->zbd_info->zone_info[zone_idx];
-+		z = get_zone(f, zone_idx);
- 
- 		zone_lock(td, f, z);
- 		pthread_mutex_lock(&f->zbd_info->mutex);
-@@ -1147,7 +1153,7 @@ open_other_zone:
- 		if (!is_valid_offset(f, z->start)) {
- 			/* Wrap-around. */
- 			zone_idx = f->min_zone;
--			z = &f->zbd_info->zone_info[zone_idx];
-+			z = get_zone(f, zone_idx);
- 		}
- 		assert(is_valid_offset(f, z->start));
- 		zone_lock(td, f, z);
-@@ -1168,7 +1174,7 @@ open_other_zone:
- 		pthread_mutex_unlock(&f->zbd_info->mutex);
- 		pthread_mutex_unlock(&z->mutex);
- 
--		z = &f->zbd_info->zone_info[zone_idx];
-+		z = get_zone(f, zone_idx);
- 
- 		zone_lock(td, f, z);
- 		if (z->wp + min_bs <= zbd_zone_capacity_end(z))
-@@ -1224,8 +1230,7 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
- 	const uint32_t min_bs = td->o.min_bs[io_u->ddir];
- 	struct fio_file *f = io_u->file;
- 	struct fio_zone_info *z1, *z2;
--	const struct fio_zone_info *const zf =
--		&f->zbd_info->zone_info[f->min_zone];
-+	const struct fio_zone_info *const zf = get_zone(f, f->min_zone);
- 
- 	/*
- 	 * Skip to the next non-empty zone in case of sequential I/O and to
-@@ -1298,7 +1303,7 @@ static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int q,
- 
- 	zone_idx = zbd_zone_idx(f, io_u->offset);
- 	assert(zone_idx < zbd_info->nr_zones);
--	z = &zbd_info->zone_info[zone_idx];
-+	z = get_zone(f, zone_idx);
- 
- 	if (!zbd_zone_swr(z))
- 		return;
-@@ -1359,7 +1364,7 @@ static void zbd_put_io(struct thread_data *td, const struct io_u *io_u)
- 
- 	zone_idx = zbd_zone_idx(f, io_u->offset);
- 	assert(zone_idx < zbd_info->nr_zones);
--	z = &zbd_info->zone_info[zone_idx];
-+	z = get_zone(f, zone_idx);
- 
- 	if (!zbd_zone_swr(z))
- 		return;
-@@ -1415,7 +1420,7 @@ void setup_zbd_zone_mode(struct thread_data *td, struct io_u *io_u)
- 	assert(td->o.zone_size);
- 
- 	zone_idx = zbd_zone_idx(f, f->last_pos[ddir]);
--	z = &f->zbd_info->zone_info[zone_idx];
-+	z = get_zone(f, zone_idx);
- 
- 	/*
- 	 * When the zone capacity is smaller than the zone size and the I/O is
-@@ -1523,7 +1528,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 	assert(is_valid_offset(f, io_u->offset));
- 	assert(io_u->buflen);
- 	zone_idx_b = zbd_zone_idx(f, io_u->offset);
--	zb = &f->zbd_info->zone_info[zone_idx_b];
-+	zb = get_zone(f, zone_idx_b);
- 	orig_zb = zb;
- 
- 	/* Accept the I/O offset for conventional zones. */
-@@ -1559,7 +1564,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 		if (range < min_bs ||
- 		    ((!td_random(td)) && (io_u->offset + min_bs > zb->wp))) {
- 			pthread_mutex_unlock(&zb->mutex);
--			zl = &f->zbd_info->zone_info[f->max_zone];
-+			zl = get_zone(f, f->max_zone);
- 			zb = zbd_find_zone(td, io_u, zb, zl);
- 			if (!zb) {
- 				dprint(FD_ZBD,
--- 
-2.28.0
+Note that this was done without modifying any other parameter (they're
+all 60 seconds runs in an attempt to reduce the skew from short-lived
+runs).
+While the specific setup of our workload may partly explain these
+behaviors, I'm surprised that on a 8-NVMe disks (3.8TB each) RAID10, I
+cannot efficiently use random reads to reach the hardware's limits.
 
+
+
+
+
+
+
+
+On Wed, Dec 2, 2020 at 7:55 PM Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>
+> Hi,
+>
+> On Wed, 2 Dec 2020 at 14:36, David Pineau <david.pineau@blade-group.com> wrote:
+> >
+> <snip>
+>
+> > With this information in mind, I build the following FIO configuration file:
+> >
+> > >>>>
+> > [global]
+> > # File-related config
+> > directory=/mnt/test-mountpoint
+> > nrfiles=3000
+> > file_service_type=random
+> > create_on_open=1
+> > allow_file_create=1
+> > filesize=16k-10m
+> >
+> > # Io type config
+> > rw=randrw
+> > unified_rw_reporting=0
+> > randrepeat=0
+> > fallocate=none
+> > end_fsync=0
+> > overwrite=0
+> > fsync_on_close=1
+> > rwmixread=90
+> > # In an attempt to reproduce a similar usage skew as our service...
+> > # Spread IOs unevenly, skewed toward a part of the dataset:
+> > # - 60% of IOs on 20% of data,
+> > # - 20% of IOs on 30% of data,
+> > # - 20% of IOs on 50% of data
+> > random_distribution=zoned:60/20:20/30:20/50
+> > # 100% Random reads, 0% Random writes (thus sequential)
+> > percentage_random=100,0
+> > # Likewise, configure different blocksizes for seq (write) & random (read) ops
+> > bs_is_seq_rand=1
+> > blocksize_range=128k-10m,
+> > # Here's the blocksizes repartitions retrieved from our metrics during 3 hours
+> > # Normally, it should be random within ranges, but this mode
+> > # only uses fixed-size blocks, so we'll consider it good enough.
+> > bssplit=,8k/10:16k/7:32k/9:64k/22:128k/21:256k/12:512k/14:1m/3:10m/2
+> >
+> > # Threads/processes/job sync settings
+> > thread=1
+> >
+> > # IO/data Verify options
+> > verify=null # Don't consume CPU please !
+> >
+> > # Measurements and reporting settings
+> > #per_job_logs=1
+> > disk_util=1
+> >
+> > # Io Engine config
+> > ioengine=libaio
+> >
+> >
+> > [cache-layer2]
+> > # Jobs settings
+> > time_based=1
+> > runtime=60
+> > numjobs=175
+> > size=200M
+> > <<<<<
+> >
+> > With this configuration, I'm obligated to use the CLI option
+> > "--alloc-size=256M" otherwise the preparatory memory allocation fails
+> > and aborts.
+>
+> <snip>
+>
+> > Do you have any advice on the configuration parameters I'm using to
+> > push my hardware further towards its limits ?
+> > Is there any mechanism within FIO that I'm misunderstanding, which is
+> > causing me difficulty to do that ?
+> >
+> > In advance, thank you for your kind advice and help,
+>
+> Just to check, are you using the latest version of fio
+> (https://github.com/axboe/fio/releases ) and if not could you try the
+> latest one? Also could you remove any/every option from your jobfile
+> that doesn't prevent the problem from happening and post the cut down
+> version?
+>
+> Thanks.
+>
+> --
+> Sitsofe | http://sucs.org/~sits/
 
