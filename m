@@ -1,82 +1,55 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38042 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728309AbgLESDU (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 5 Dec 2020 13:03:20 -0500
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84B2BC094261
-        for <fio@vger.kernel.org>; Sat,  5 Dec 2020 09:09:29 -0800 (PST)
-Received: by mail-wm1-x32d.google.com with SMTP id a3so9767310wmb.5
-        for <fio@vger.kernel.org>; Sat, 05 Dec 2020 09:09:29 -0800 (PST)
-Subject: Re: Fio verify crc32 fault
+Received: from esa2.hgst.iphmx.com ([68.232.143.124]:49043 "EHLO
+        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726173AbgLDRCw (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 4 Dec 2020 12:02:52 -0500
+From: Jeff Furlong <jeff.furlong@wdc.com>
+Subject: RE: Fio verify crc32 fault
+Date: Fri, 4 Dec 2020 17:01:44 +0000
+Message-ID: <BYAPR04MB5829B2725021733477C61A068FF10@BYAPR04MB5829.namprd04.prod.outlook.com>
 References: <0de8d04b-bcaa-415a-4587-c5bd7f674079@sabaini.at>
  <CALjAwxipZXaJ9z3WVJoukR=tt8OikcKDHDa5uCxuWQS_Y0Toag@mail.gmail.com>
- <BYAPR04MB5829B2725021733477C61A068FF10@BYAPR04MB5829.namprd04.prod.outlook.com>
-From: Peter Sabaini <peter@sabaini.at>
-Message-ID: <b97dd618-6641-7462-c9c6-bf96a4f0e76d@sabaini.at>
-Date: Sat, 5 Dec 2020 18:09:25 +0100
-MIME-Version: 1.0
-In-Reply-To: <BYAPR04MB5829B2725021733477C61A068FF10@BYAPR04MB5829.namprd04.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <CALjAwxipZXaJ9z3WVJoukR=tt8OikcKDHDa5uCxuWQS_Y0Toag@mail.gmail.com>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 List-Id: fio@vger.kernel.org
-To: Jeff Furlong <jeff.furlong@wdc.com>, Sitsofe Wheeler <sitsofe@gmail.com>
+To: Sitsofe Wheeler <sitsofe@gmail.com>, Peter Sabaini <peter@sabaini.at>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Thanks both of you. I'll try reproducing this with a newer fio (it wasn't easy to repro to begin with though).
-
-However reading the commit[0] and issue for serialize_overlap it seems not unlikely I'm indeed hitting this. 
-
-[0] https://github.com/axboe/fio/commit/997b5680d139ce82c2034ba3a0d602cfd778b89b
-
-
-On 04.12.20 18:01, Jeff Furlong wrote:
-> After you update to the latest fio, also consider adding serialize_overlap=1 as a parameter (HOWTO has background there).  With large random writes, there is some probability (increasing with smaller device size and increasing with higher QD) that two inflight IO's conflict in range/time.  Suppose the first write is acknowledged by the device while the second conflicting write is already sent.  By the time fio reads the first command, the second write will change the data, causing verification errors.
-> 
-> Regards,
-> Jeff
-> 
-> -----Original Message-----
-> From: Sitsofe Wheeler <sitsofe@gmail.com> 
-> Sent: Friday, December 4, 2020 6:42 AM
-> To: Peter Sabaini <peter@sabaini.at>
-> Cc: fio@vger.kernel.org
-> Subject: Re: Fio verify crc32 fault
-> 
-> CAUTION: This email originated from outside of Western Digital. Do not click on links or open attachments unless you recognize the sender and know that the content is safe.
-> 
-> 
-> Hi,
-> 
-> On Thu, 3 Dec 2020 at 17:27, Peter Sabaini <peter@sabaini.at> wrote:
->>
->> Hey,
->>
->> I've got a fio verify run on an NVMe that gives me a crc32 verification fault, however it's not reproducible -- when rerunning on the same NVMe it comes back fine.
->>
->> Also I'm getting a funny "error=Invalid or incomplete multibyte or wide character" error reported, see below.
->>
->> Any hints for this?
->>
->> Many thanks,
->> peter.
->>
->> Test output
->>
->> Running command: sudo -n fio --randrepeat=1 --ioengine=libaio 
->> --direct=1 --gtod_reduce=1 --name=fio_test_verify --bs=4M --iodepth=64 
->> --size=95% --verify=crc32c-intel --runtime=7200s 
->> --filename=/dev/nvme0n1 --readwrite=randwrite
->>
->> fio_test_verify: (g=0): rw=randwrite, bs=4M-4M/4M-4M/4M-4M, 
->> ioengine=libaio, iodepth=64
->> fio-2.2.10
-> 
-> ^^^ Your fio is VERY old... Does the same thing happen with a recent fio (see https://github.com/axboe/fio/releases for what we're up to)?
-> 
-> --
-> Sitsofe | http://sucs.org/~sits/
-> 
-
+QWZ0ZXIgeW91IHVwZGF0ZSB0byB0aGUgbGF0ZXN0IGZpbywgYWxzbyBjb25zaWRlciBhZGRpbmcg
+c2VyaWFsaXplX292ZXJsYXA9MSBhcyBhIHBhcmFtZXRlciAoSE9XVE8gaGFzIGJhY2tncm91bmQg
+dGhlcmUpLiAgV2l0aCBsYXJnZSByYW5kb20gd3JpdGVzLCB0aGVyZSBpcyBzb21lIHByb2JhYmls
+aXR5IChpbmNyZWFzaW5nIHdpdGggc21hbGxlciBkZXZpY2Ugc2l6ZSBhbmQgaW5jcmVhc2luZyB3
+aXRoIGhpZ2hlciBRRCkgdGhhdCB0d28gaW5mbGlnaHQgSU8ncyBjb25mbGljdCBpbiByYW5nZS90
+aW1lLiAgU3VwcG9zZSB0aGUgZmlyc3Qgd3JpdGUgaXMgYWNrbm93bGVkZ2VkIGJ5IHRoZSBkZXZp
+Y2Ugd2hpbGUgdGhlIHNlY29uZCBjb25mbGljdGluZyB3cml0ZSBpcyBhbHJlYWR5IHNlbnQuICBC
+eSB0aGUgdGltZSBmaW8gcmVhZHMgdGhlIGZpcnN0IGNvbW1hbmQsIHRoZSBzZWNvbmQgd3JpdGUg
+d2lsbCBjaGFuZ2UgdGhlIGRhdGEsIGNhdXNpbmcgdmVyaWZpY2F0aW9uIGVycm9ycy4NCg0KUmVn
+YXJkcywNCkplZmYNCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IFNpdHNvZmUg
+V2hlZWxlciA8c2l0c29mZUBnbWFpbC5jb20+IA0KU2VudDogRnJpZGF5LCBEZWNlbWJlciA0LCAy
+MDIwIDY6NDIgQU0NClRvOiBQZXRlciBTYWJhaW5pIDxwZXRlckBzYWJhaW5pLmF0Pg0KQ2M6IGZp
+b0B2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBGaW8gdmVyaWZ5IGNyYzMyIGZhdWx0DQoN
+CkNBVVRJT046IFRoaXMgZW1haWwgb3JpZ2luYXRlZCBmcm9tIG91dHNpZGUgb2YgV2VzdGVybiBE
+aWdpdGFsLiBEbyBub3QgY2xpY2sgb24gbGlua3Mgb3Igb3BlbiBhdHRhY2htZW50cyB1bmxlc3Mg
+eW91IHJlY29nbml6ZSB0aGUgc2VuZGVyIGFuZCBrbm93IHRoYXQgdGhlIGNvbnRlbnQgaXMgc2Fm
+ZS4NCg0KDQpIaSwNCg0KT24gVGh1LCAzIERlYyAyMDIwIGF0IDE3OjI3LCBQZXRlciBTYWJhaW5p
+IDxwZXRlckBzYWJhaW5pLmF0PiB3cm90ZToNCj4NCj4gSGV5LA0KPg0KPiBJJ3ZlIGdvdCBhIGZp
+byB2ZXJpZnkgcnVuIG9uIGFuIE5WTWUgdGhhdCBnaXZlcyBtZSBhIGNyYzMyIHZlcmlmaWNhdGlv
+biBmYXVsdCwgaG93ZXZlciBpdCdzIG5vdCByZXByb2R1Y2libGUgLS0gd2hlbiByZXJ1bm5pbmcg
+b24gdGhlIHNhbWUgTlZNZSBpdCBjb21lcyBiYWNrIGZpbmUuDQo+DQo+IEFsc28gSSdtIGdldHRp
+bmcgYSBmdW5ueSAiZXJyb3I9SW52YWxpZCBvciBpbmNvbXBsZXRlIG11bHRpYnl0ZSBvciB3aWRl
+IGNoYXJhY3RlciIgZXJyb3IgcmVwb3J0ZWQsIHNlZSBiZWxvdy4NCj4NCj4gQW55IGhpbnRzIGZv
+ciB0aGlzPw0KPg0KPiBNYW55IHRoYW5rcywNCj4gcGV0ZXIuDQo+DQo+IFRlc3Qgb3V0cHV0DQo+
+DQo+IFJ1bm5pbmcgY29tbWFuZDogc3VkbyAtbiBmaW8gLS1yYW5kcmVwZWF0PTEgLS1pb2VuZ2lu
+ZT1saWJhaW8gDQo+IC0tZGlyZWN0PTEgLS1ndG9kX3JlZHVjZT0xIC0tbmFtZT1maW9fdGVzdF92
+ZXJpZnkgLS1icz00TSAtLWlvZGVwdGg9NjQgDQo+IC0tc2l6ZT05NSUgLS12ZXJpZnk9Y3JjMzJj
+LWludGVsIC0tcnVudGltZT03MjAwcyANCj4gLS1maWxlbmFtZT0vZGV2L252bWUwbjEgLS1yZWFk
+d3JpdGU9cmFuZHdyaXRlDQo+DQo+IGZpb190ZXN0X3ZlcmlmeTogKGc9MCk6IHJ3PXJhbmR3cml0
+ZSwgYnM9NE0tNE0vNE0tNE0vNE0tNE0sIA0KPiBpb2VuZ2luZT1saWJhaW8sIGlvZGVwdGg9NjQN
+Cj4gZmlvLTIuMi4xMA0KDQpeXl4gWW91ciBmaW8gaXMgVkVSWSBvbGQuLi4gRG9lcyB0aGUgc2Ft
+ZSB0aGluZyBoYXBwZW4gd2l0aCBhIHJlY2VudCBmaW8gKHNlZSBodHRwczovL2dpdGh1Yi5jb20v
+YXhib2UvZmlvL3JlbGVhc2VzIGZvciB3aGF0IHdlJ3JlIHVwIHRvKT8NCg0KLS0NClNpdHNvZmUg
+fCBodHRwOi8vc3Vjcy5vcmcvfnNpdHMvDQo=
 
