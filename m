@@ -1,54 +1,37 @@
-Return-Path: <prvs=620a42eaa=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v2 19/36] zbd: improve replay range validation
-Date: Thu, 24 Dec 2020 11:12:02 +0900
-Message-Id: <20201224021219.189727-20-dmitry.fomichev@wdc.com>
-In-Reply-To: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
-References: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] flow: fix hang with flow control and zoned block devices
+References: <20201207103045.3433366-1-aravind.ramesh@wdc.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <3bb8d092-c26d-1675-bdc3-c0b065870716@kernel.dk>
+Date: Mon, 7 Dec 2020 16:56:47 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+In-Reply-To: <20201207103045.3433366-1-aravind.ramesh@wdc.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Aravind Ramesh <aravind.ramesh@wdc.com>, fio@vger.kernel.org, shinichiro.kawasaki@wdc.com
 List-ID: <fio@vger.kernel.org>
 
-Make sure that verification read always reads valid data.
+On 12/7/20 3:30 AM, Aravind Ramesh wrote:
+> From: Aravind Ramesh <Aravind.Ramesh@wdc.com>
+> 
+> When flow control is specified between 2 or more threads executing a workload
+> with zonemode=zbd and flow_sleep is not specified by the user (default to zero),
+> then a job A can lock a zone Z with the flow ratio exceeded, resulting in the
+> job to not issue the IO until other jobs IOs balance the flow ratio.
+> Since job A will wait with the Zone Z locked, other jobs will deadlock waiting
+> for this zone lock if their workload resulted in this zone Z being chosen
+> as an IO target.
+> 
+> Executing io_u_quiesce() when the flow ratio is exceeded solves this potential
+> deadlock as job A will wait for the flow ratio to balance without holding the
+> zone A lock. To preserve the behavior for regular block devices and to avoid
+> extra overhead, io_u_quiesce() only needs to be executed when the workload
+> specifies zonedmode=zbd.
 
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- zbd.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+Applied, thanks.
 
-diff --git a/zbd.c b/zbd.c
-index df61dc37..2656f3ea 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -1239,10 +1239,23 @@ static struct fio_zone_info *zbd_replay_write_order(struct thread_data *td,
- 		assert(z);
- 	}
- 
--	if (z->verify_block * min_bs >= z->capacity)
-+	if (z->verify_block * min_bs >= z->capacity) {
- 		log_err("%s: %d * %d >= %llu\n", f->file_name, z->verify_block,
- 			min_bs, (unsigned long long)z->capacity);
--	io_u->offset = z->start + z->verify_block++ * min_bs;
-+		/*
-+		 * If the assertion below fails during a test run, adding
-+		 * "--experimental_verify=1" to the command line may help.
-+		 */
-+		assert(false);
-+	}
-+	io_u->offset = z->start + z->verify_block * min_bs;
-+	if (io_u->offset + io_u->buflen >= zbd_zone_capacity_end(z)) {
-+		log_err("%s: %llu + %llu >= %lu\n", f->file_name, io_u->offset,
-+			io_u->buflen, zbd_zone_capacity_end(z));
-+		assert(false);
-+	}
-+	z->verify_block += io_u->buflen / min_bs;
-+
- 	return z;
- }
- 
 -- 
-2.28.0
+Jens Axboe
 
 
