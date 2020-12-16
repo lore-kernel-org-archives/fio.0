@@ -1,46 +1,82 @@
-Return-Path: <prvs=620a42eaa=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v2 08/36] zbd: avoid zone buffer overrun
-Date: Thu, 24 Dec 2020 11:11:51 +0900
-Message-Id: <20201224021219.189727-9-dmitry.fomichev@wdc.com>
-In-Reply-To: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
-References: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54714 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726098AbgLPNAq (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 16 Dec 2020 08:00:46 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2609C061794
+        for <fio@vger.kernel.org>; Wed, 16 Dec 2020 05:00:05 -0800 (PST)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kpWPU-0004wz-2o
+        for fio@vger.kernel.org; Wed, 16 Dec 2020 13:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20201216130001.B88701BC0148@kernel.dk>
+Date: Wed, 16 Dec 2020 06:00:01 -0700 (MST)
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-If the total number of zones on a drive is calculated to a value that
-is less than the number of zones it can actually report, zone info
-buffer can be overrun. This may happen not only due to drive firmware
-problems, but also because of underlying software incorrectly
-reporting zoned device capacity.
+The following changes since commit 731365d849407426fe32981c97a2f9b42cdc0149:
 
-Fix this by more carefully setting zone report size.
+  flow: fix hang with flow control and zoned block devices (2020-12-07 16:56:37 -0700)
 
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to dee9b29bef5bc344815d7a53dda6bb21426f2bfa:
+
+  Merge branch 'wip-rbd-engine-tweaks' of https://github.com/dillaman/fio (2020-12-15 09:18:28 -0700)
+
+----------------------------------------------------------------
+Jason Dillaman (2):
+      engines/rbd: add support for "direct=1" option
+      engines/rbd: issue initial flush to enable writeback/around mode
+
+Jens Axboe (1):
+      Merge branch 'wip-rbd-engine-tweaks' of https://github.com/dillaman/fio
+
+ engines/rbd.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
 ---
- zbd.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/zbd.c b/zbd.c
-index 69befd5a..db0d650a 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -526,8 +526,9 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- 		offset = z->start + z->len;
- 		if (j >= nr_zones)
- 			break;
--		nrz = zbd_report_zones(td, f, offset,
--					    zones, ZBD_REPORT_MAX_ZONES);
-+		nrz = zbd_report_zones(td, f, offset, zones,
-+				       min((uint32_t)(nr_zones - j),
-+					   ZBD_REPORT_MAX_ZONES));
- 		if (nrz < 0) {
- 			ret = nrz;
- 			log_info("fio: report zones (offset %llu) failed for %s (%d).\n",
--- 
-2.28.0
+Diff of recent changes:
 
+diff --git a/engines/rbd.c b/engines/rbd.c
+index 268b6ebd..c6203d4c 100644
+--- a/engines/rbd.c
++++ b/engines/rbd.c
+@@ -227,12 +227,30 @@ static int _fio_rbd_connect(struct thread_data *td)
+ 		goto failed_shutdown;
+ 	}
+ 
++        if (td->o.odirect) {
++		r = rados_conf_set(rbd->cluster, "rbd_cache", "false");
++		if (r < 0) {
++			log_info("failed to disable RBD in-memory cache\n");
++		}
++	}
++
+ 	r = rbd_open(rbd->io_ctx, o->rbd_name, &rbd->image, NULL /*snap */ );
+ 	if (r < 0) {
+ 		log_err("rbd_open failed.\n");
+ 		goto failed_open;
+ 	}
+ 
++	if (!td->o.odirect) {
++		/*
++		 * ensure cache enables writeback/around mode unless explicitly
++		 * configured for writethrough mode
++		 */
++		r = rbd_flush(rbd->image);
++		if (r < 0) {
++			log_info("rbd: failed to issue initial flush\n");
++		}
++	}
++
+ 	if (!_fio_rbd_setup_poll(rbd))
+ 		goto failed_poll;
+ 
 
