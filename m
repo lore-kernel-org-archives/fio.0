@@ -1,8 +1,8 @@
 Return-Path: <prvs=620a42eaa=dmitry.fomichev@wdc.com>
 From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v2 31/36] t/zbd: prevent test #31 from looping
-Date: Thu, 24 Dec 2020 11:12:14 +0900
-Message-Id: <20201224021219.189727-32-dmitry.fomichev@wdc.com>
+Subject: [PATCH v2 16/36] zbd: disable crossing from conventional to sequential zones
+Date: Thu, 24 Dec 2020 11:11:59 +0900
+Message-Id: <20201224021219.189727-17-dmitry.fomichev@wdc.com>
 In-Reply-To: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 References: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
@@ -11,49 +11,61 @@ To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.r
 Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-The test 31 starts i/o to 128 zones in parallel.
-There are two corner cases that are not properly handled in the
-existing implementation -
-1) If the total number of zones on the device is < 128, the test
-will loop indefinitely because the loop increment is calculated as
-zero by the script.
-2) If the number of max_open_zones of the device is < 128, the
-test will fail due to exceeding max_open_zones limit as the code
-expects it to be >= 128.
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-Limit the number of open zones to the reported maximum
-and skip the test if there is not enough zones on the device.
+Write I/Os to conventional zones may have the range that spans across
+zone boundaries. Such writes may cause I/O errors when its next zone
+is a sequential zone.
 
+To avoid such I/O errors, check for the cross over from a conventional
+to a sequential zone. When the write crosses the boundary, shrink the
+I/O length to fit within the first zone. If the offset is too close to
+the end of the zone, wrap it around to the beginning of the same zone.
+
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- t/zbd/test-zbd-support | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ zbd.c | 26 ++++++++++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 93456ec6..033c2ebc 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -718,12 +718,18 @@ test31() {
-     local bs inc nz off opts size
+diff --git a/zbd.c b/zbd.c
+index c27efd54..8fb9c8cf 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -1563,9 +1563,31 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 	zb = get_zone(f, zone_idx_b);
+ 	orig_zb = zb;
  
-     prep_write
--    # Start with writing 128 KB to 128 sequential zones.
-+    # Start with writing 128 KB to max_open_zones sequential zones.
-     bs=128K
--    nz=128
-+    nz=$((max_open_zones))
-+    if [[ $nz -eq 0 ]]; then
-+	nz=128
-+    fi
-     # shellcheck disable=SC2017
-     inc=$(((disk_size - (first_sequential_zone_sector * 512)) / (nz * zone_size)
- 	   * zone_size))
-+    if [ "$inc" -eq 0 ]; then
-+	require_seq_zones $nz || return $SKIP_TESTCASE
-+    fi
-     opts=()
-     for ((off = first_sequential_zone_sector * 512; off < disk_size;
- 	  off += inc)); do
+-	/* Accept the I/O offset for conventional zones. */
+-	if (!zb->has_wp)
++	if (!zb->has_wp) {
++		/* Accept non-write I/Os for conventional zones. */
++		if (io_u->ddir != DDIR_WRITE)
++			return io_u_accept;
++		/*
++		 * Make sure that writes to conventional zones
++		 * don't cross over to any sequential zones.
++		 */
++		if (!(zb + 1)->has_wp ||
++		    io_u->offset + io_u->buflen <= (zb + 1)->start)
++			return io_u_accept;
++
++		if (io_u->offset + min_bs > (zb + 1)->start) {
++			dprint(FD_IO,
++			       "%s: off=%llu + min_bs=%u > next zone %lu\n",
++			       f->file_name, io_u->offset, min_bs,
++			       (zb + 1)->start);
++			io_u->offset = zb->start + (zb + 1)->start - io_u->offset;
++			new_len = min(io_u->buflen, (zb + 1)->start - io_u->offset);
++		} else {
++			new_len = (zb + 1)->start - io_u->offset;
++		}
++		io_u->buflen = new_len / min_bs * min_bs;
+ 		return io_u_accept;
++	}
+ 
+ 	/*
+ 	 * Accept the I/O offset for reads if reading beyond the write pointer
 -- 
 2.28.0
 
