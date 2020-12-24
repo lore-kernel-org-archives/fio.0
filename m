@@ -1,8 +1,8 @@
 Return-Path: <prvs=620a42eaa=dmitry.fomichev@wdc.com>
 From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v2 02/36] zbd: use zbd_zone_nr() more actively in the code
-Date: Thu, 24 Dec 2020 11:11:45 +0900
-Message-Id: <20201224021219.189727-3-dmitry.fomichev@wdc.com>
+Subject: [PATCH v2 30/36] t/zbd: add an option to bail on a failed test
+Date: Thu, 24 Dec 2020 11:12:13 +0900
+Message-Id: <20201224021219.189727-31-dmitry.fomichev@wdc.com>
 In-Reply-To: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 References: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
@@ -11,105 +11,95 @@ To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.r
 Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-The function zbd_zone_nr() is always called with the first argument
-being f->zbd_info. If "f" is made the first argument instead, calls
-of this function become more compact end easier to read.
+Sometimes, it can be useful to inspect the state of the zones of the
+test device, usually right after a test failure. Currently,
+test-zbd-support script just keeps running and proper examination of
+device zones can be difficult.
 
-Besides this change, convert several places in the code where the same
-zone number calculation is open coded to zbd_zone_nr() calls.
-This is a refactoring patch, no change in functionality.
+Add the -q option to test/zbd/support to quit immediately upon
+encountering any test failure. Additionally, define the same option
+in run-tests-against-nullb to propagate it to test/zbd/support.
 
 Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- zbd.c | 24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
+ t/zbd/run-tests-against-nullb | 6 ++++++
+ t/zbd/test-zbd-support        | 4 ++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/zbd.c b/zbd.c
-index ad1ad1a9..841427e7 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -694,10 +694,10 @@ int zbd_setup_files(struct thread_data *td)
- 	return 0;
+diff --git a/t/zbd/run-tests-against-nullb b/t/zbd/run-tests-against-nullb
+index e1efb4a5..284bc658 100755
+--- a/t/zbd/run-tests-against-nullb
++++ b/t/zbd/run-tests-against-nullb
+@@ -22,6 +22,7 @@ function usage()
+ 	echo -e "\t-s <#section> Only run the section with the given number."
+ 	echo -e "\t-t <#test> Only run the test with the given number in every section."
+ 	echo -e "\t-o <max_open_zones> Specify MaxOpen value, (${set_max_open} by default)."
++	echo -e "\t-q Quit t/zbd/test-zbd-support run after any failed test."
+ 	echo -e "\t-r Remove the /dev/nullb0 device that may still exist after"
+ 	echo -e "\t   running this script."
+ 	exit 1
+@@ -237,6 +238,7 @@ dev_blocksize=4096
+ set_max_open=8
+ zbd_test_opts=()
+ test_case=0
++quit_on_err=0
+ 
+ while [ "${1#-}" != "$1" ]; do
+ 	case "$1" in
+@@ -246,6 +248,7 @@ while [ "${1#-}" != "$1" ]; do
+ 		-r) cleanup_nullb;
+ 		    exit 0;;
+ 		-t) test_case="${2}"; shift; shift;;
++		-q) quit_on_err=1; shift;;
+ 		-h) usage; break;;
+ 		--) shift; break;;
+ 		 *) usage; exit 1;;
+@@ -288,6 +291,9 @@ for section_number in "${sections[@]}"; do
+ 	if ((test_case)); then
+ 		zbd_test_opts+=("-t" "${test_case}")
+ 	fi
++	if ((quit_on_err)); then
++		zbd_test_opts+=("-q")
++	fi
+ 	section$section_number
+ 	configure_nullb
+ 	rc=$?
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 4d8e905d..93456ec6 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -14,6 +14,7 @@ usage() {
+ 	echo -e "\t-r Reset all zones before test start"
+ 	echo -e "\t-o <max_open_zones> Run fio with max_open_zones limit"
+ 	echo -e "\t-t <test #> Run only a single test case with specified number"
++	echo -e "\t-q Quit the test run after any failed test"
+ 	echo -e "\t-z Run fio with debug=zbd option"
  }
  
--static unsigned int zbd_zone_nr(struct zoned_block_device_info *zbd_info,
--				struct fio_zone_info *zone)
-+static inline unsigned int zbd_zone_nr(const struct fio_file *f,
-+				       struct fio_zone_info *zone)
- {
--	return zone - zbd_info->zone_info;
-+	return zone - f->zbd_info->zone_info;
- }
+@@ -1113,6 +1114,7 @@ reset_all_zones=
+ use_libzbc=
+ zbd_debug=
+ max_open_zones_opt=
++quit_on_err=
  
- /**
-@@ -723,7 +723,7 @@ static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
- 	assert(is_valid_offset(f, offset + length - 1));
+ while [ "${1#-}" != "$1" ]; do
+   case "$1" in
+@@ -1127,6 +1129,7 @@ while [ "${1#-}" != "$1" ]; do
+     -o) max_open_zones_opt="${2}"; shift; shift;;
+     -v) dynamic_analyzer=(valgrind "--read-var-info=yes");
+ 	shift;;
++    -q) quit_on_err=1; shift;;
+     -z) zbd_debug=1; shift;;
+     --) shift; break;;
+   esac
+@@ -1288,6 +1291,7 @@ for test_number in "${tests[@]}"; do
+     echo -e "$cc_status"
+     echo "$status" >> "${logfile}.${test_number}"
+     [ $intr -ne 0 ] && exit 1
++    [ -n "$quit_on_err" -a "$rc" -ne 0 ] && exit 1
+ done
  
- 	dprint(FD_ZBD, "%s: resetting wp of zone %u.\n", f->file_name,
--		zbd_zone_nr(f->zbd_info, z));
-+		zbd_zone_nr(f, z));
- 	switch (f->zbd_info->model) {
- 	case ZBD_HOST_AWARE:
- 	case ZBD_HOST_MANAGED:
-@@ -793,9 +793,9 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
- 	assert(min_bs);
- 
- 	dprint(FD_ZBD, "%s: examining zones %u .. %u\n", f->file_name,
--		zbd_zone_nr(f->zbd_info, zb), zbd_zone_nr(f->zbd_info, ze));
-+		zbd_zone_nr(f, zb), zbd_zone_nr(f, ze));
- 	for (z = zb; z < ze; z++) {
--		uint32_t nz = z - f->zbd_info->zone_info;
-+		uint32_t nz = zbd_zone_nr(f, z);
- 
- 		if (!zbd_zone_swr(z))
- 			continue;
-@@ -811,8 +811,7 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
- 		}
- 		if (reset_wp) {
- 			dprint(FD_ZBD, "%s: resetting zone %u\n",
--			       f->file_name,
--			       zbd_zone_nr(f->zbd_info, z));
-+			       f->file_name, zbd_zone_nr(f, z));
- 			if (zbd_reset_zone(td, f, z) < 0)
- 				res = 1;
- 		}
-@@ -1197,7 +1196,7 @@ static struct fio_zone_info *zbd_replay_write_order(struct thread_data *td,
- 	const struct fio_file *f = io_u->file;
- 	const uint32_t min_bs = td->o.min_bs[DDIR_WRITE];
- 
--	if (!zbd_open_zone(td, f, z - f->zbd_info->zone_info)) {
-+	if (!zbd_open_zone(td, f, zbd_zone_nr(f, z))) {
- 		pthread_mutex_unlock(&z->mutex);
- 		z = zbd_convert_to_open_zone(td, io_u);
- 		assert(z);
-@@ -1271,7 +1270,7 @@ static void zbd_end_zone_io(struct thread_data *td, const struct io_u *io_u,
- 	if (io_u->ddir == DDIR_WRITE &&
- 	    io_u->offset + io_u->buflen >= zbd_zone_capacity_end(z)) {
- 		pthread_mutex_lock(&f->zbd_info->mutex);
--		zbd_close_zone(td, f, z - f->zbd_info->zone_info);
-+		zbd_close_zone(td, f, zbd_zone_nr(f, z));
- 		pthread_mutex_unlock(&f->zbd_info->mutex);
- 	}
- }
-@@ -1430,8 +1429,7 @@ void setup_zbd_zone_mode(struct thread_data *td, struct io_u *io_u)
- 		       "%s: Jump from zone capacity limit to zone end:"
- 		       " (%llu -> %llu) for zone %u (%llu)\n",
- 		       f->file_name, (unsigned long long) f->last_pos[ddir],
--		       (unsigned long long) zbd_zone_end(z),
--		       zbd_zone_nr(f->zbd_info, z),
-+		       (unsigned long long) zbd_zone_end(z), zone_idx,
- 		       (unsigned long long) z->capacity);
- 		td->io_skip_bytes += zbd_zone_end(z) - f->last_pos[ddir];
- 		f->last_pos[ddir] = zbd_zone_end(z);
-@@ -1612,7 +1610,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 			zb = zbd_convert_to_open_zone(td, io_u);
- 			if (!zb)
- 				goto eof;
--			zone_idx_b = zb - f->zbd_info->zone_info;
-+			zone_idx_b = zbd_zone_nr(f, zb);
- 		}
- 		/* Check whether the zone reset threshold has been exceeded */
- 		if (td->o.zrf.u.f) {
+ echo "$passed tests passed"
 -- 
 2.28.0
 
