@@ -1,126 +1,126 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51782 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728103AbgLDNAv (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 4 Dec 2020 08:00:51 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B205EC0613D1
-        for <fio@vger.kernel.org>; Fri,  4 Dec 2020 05:00:05 -0800 (PST)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1klAgt-000309-VR
-        for fio@vger.kernel.org; Fri, 04 Dec 2020 13:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20201204130001.E554B1BC0158@kernel.dk>
-Date: Fri,  4 Dec 2020 06:00:01 -0700 (MST)
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <prvs=620a42eaa=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH v2 15/36] zbd: use zone_lock() in zbd_process_swd()
+Date: Thu, 24 Dec 2020 11:11:58 +0900
+Message-Id: <20201224021219.189727-16-dmitry.fomichev@wdc.com>
+In-Reply-To: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
+References: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 7914c6147adaf3ef32804519ced850168fff1711:
+Most of ZBD code in fio uses zone_lock() to lock write pointer zones.
+This wrapper, besides doing the obvious pthread mutex lock, quiesce
+the outstanding i/o when running via asynchronous ioengines. This is
+necessary to avoid deadlocks. The function zbd_process_swd(), however,
+still uses the naked pthread mutex to lock zones and this leads to a
+deadlock when running ZBD test #48 against regular nullb devices.
 
-  Merge branch 'regrow_agg_logs' of https://github.com/pmoust/fio (2020-11-27 08:55:12 -0700)
+The fix added in the same patch series that introduced test #48 was to
+NOT initialize SWD at all, but this solution is found to create
+problems with verify. As the proper fix, modify zbd_process_swd()
+to use zone_lock(). This makes the test #48 pass even when SWD counter
+is initialized.
 
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to f9eb98cba4cfc5351bace61c21eda67fb625266b:
-
-  Merge branch 'stat-int-creep3' of https://github.com/jeffreyalien/fio (2020-12-03 16:09:43 -0700)
-
-----------------------------------------------------------------
-Jeff Lien (1):
-      stat: Prevent the BW and IOPS logging interval from creeping up
-
-Jens Axboe (1):
-      Merge branch 'stat-int-creep3' of https://github.com/jeffreyalien/fio
-
- stat.c | 35 ++++++++++++++++++++++++++++-------
- 1 file changed, 28 insertions(+), 7 deletions(-)
-
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
+ zbd.c | 30 +++++++++++++-----------------
+ 1 file changed, 13 insertions(+), 17 deletions(-)
 
-Diff of recent changes:
-
-diff --git a/stat.c b/stat.c
-index d42586e7..b7237953 100644
---- a/stat.c
-+++ b/stat.c
-@@ -2747,7 +2747,8 @@ static unsigned long add_log_sample(struct thread_data *td,
- 
- 	__add_stat_to_log(iolog, ddir, elapsed, td->o.log_max != 0, priority_bit);
- 
--	iolog->avg_last[ddir] = elapsed - (this_window - iolog->avg_msec);
-+	iolog->avg_last[ddir] = elapsed - (elapsed % iolog->avg_msec);
-+
- 	return iolog->avg_msec;
+diff --git a/zbd.c b/zbd.c
+index 45d045e9..c27efd54 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -166,7 +166,8 @@ static bool zbd_zone_full(const struct fio_file *f, struct fio_zone_info *z,
+ 		z->wp + required > zbd_zone_capacity_end(z);
  }
  
-@@ -2985,7 +2986,7 @@ static int __add_samples(struct thread_data *td, struct timespec *parent_tv,
- 	next_log = avg_time;
- 
- 	spent = mtime_since(parent_tv, t);
--	if (spent < avg_time && avg_time - spent >= LOG_MSEC_SLACK)
-+	if (spent < avg_time && avg_time - spent > LOG_MSEC_SLACK)
- 		return avg_time - spent;
- 
- 	if (needs_lock)
-@@ -3078,13 +3079,16 @@ static int add_iops_samples(struct thread_data *td, struct timespec *t)
- int calc_log_samples(void)
+-static void zone_lock(struct thread_data *td, struct fio_file *f, struct fio_zone_info *z)
++static void zone_lock(struct thread_data *td, const struct fio_file *f,
++		      struct fio_zone_info *z)
  {
- 	struct thread_data *td;
--	unsigned int next = ~0U, tmp;
-+	unsigned int next = ~0U, tmp = 0, next_mod = 0, log_avg_msec_min = -1U;
- 	struct timespec now;
- 	int i;
-+	long elapsed_time = 0;
+ 	struct zoned_block_device_info *zbd = f->zbd_info;
+ 	uint32_t nz = z - zbd->zone_info;
+@@ -893,7 +894,8 @@ enum swd_action {
+ };
  
- 	fio_gettime(&now, NULL);
- 
- 	for_each_td(td, i) {
-+		elapsed_time = mtime_since_now(&td->epoch);
-+
- 		if (!td->o.stats)
- 			continue;
- 		if (in_ramp_time(td) ||
-@@ -3095,17 +3099,34 @@ int calc_log_samples(void)
- 		if (!td->bw_log ||
- 			(td->bw_log && !per_unit_log(td->bw_log))) {
- 			tmp = add_bw_samples(td, &now);
--			if (tmp < next)
--				next = tmp;
-+
-+			if (td->bw_log)
-+				log_avg_msec_min = min(log_avg_msec_min, (unsigned int)td->bw_log->avg_msec);
+ /* Calculate the number of sectors with data (swd) and perform action 'a' */
+-static uint64_t zbd_process_swd(const struct fio_file *f, enum swd_action a)
++static uint64_t zbd_process_swd(struct thread_data *td,
++				const struct fio_file *f, enum swd_action a)
+ {
+ 	struct fio_zone_info *zb, *ze, *z;
+ 	uint64_t swd = 0;
+@@ -903,7 +905,7 @@ static uint64_t zbd_process_swd(const struct fio_file *f, enum swd_action a)
+ 	ze = get_zone(f, f->max_zone);
+ 	for (z = zb; z < ze; z++) {
+ 		if (z->has_wp) {
+-			pthread_mutex_lock(&z->mutex);
++			zone_lock(td, f, z);
+ 			wp_swd += z->wp - z->start;
  		}
- 		if (!td->iops_log ||
- 			(td->iops_log && !per_unit_log(td->iops_log))) {
- 			tmp = add_iops_samples(td, &now);
--			if (tmp < next)
--				next = tmp;
-+
-+			if (td->iops_log)
-+				log_avg_msec_min = min(log_avg_msec_min, (unsigned int)td->iops_log->avg_msec);
- 		}
-+
-+		if (tmp < next)
-+			next = tmp;
- 	}
+ 		swd += z->wp - z->start;
+@@ -934,33 +936,27 @@ static uint64_t zbd_process_swd(const struct fio_file *f, enum swd_action a)
+ static const bool enable_check_swd = false;
  
-+	/* if log_avg_msec_min has not been changed, set it to 0 */
-+	if (log_avg_msec_min == -1U)
-+		log_avg_msec_min = 0;
-+
-+	if (log_avg_msec_min == 0)
-+		next_mod = elapsed_time;
-+	else
-+		next_mod = elapsed_time % log_avg_msec_min;
-+
-+	/* correction to keep the time on the log avg msec boundary */
-+	next = min(next, (log_avg_msec_min - next_mod));
-+
- 	return next == ~0U ? 0 : next;
+ /* Check whether the values of zbd_info.*sectors_with_data are correct. */
+-static void zbd_check_swd(const struct fio_file *f)
++static void zbd_check_swd(struct thread_data *td, const struct fio_file *f)
+ {
+ 	if (!enable_check_swd)
+ 		return;
+ 
+-	zbd_process_swd(f, CHECK_SWD);
+-}
+-
+-static void zbd_init_swd(struct fio_file *f)
+-{
+-	uint64_t swd;
+-
+-	swd = zbd_process_swd(f, SET_SWD);
+-	dprint(FD_ZBD, "%s(%s): swd = %" PRIu64 "\n", __func__, f->file_name,
+-	       swd);
++	zbd_process_swd(td, f, CHECK_SWD);
  }
  
+ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
+ {
+ 	struct fio_zone_info *zb, *ze;
++	uint64_t swd;
+ 
+ 	if (!f->zbd_info || !td_write(td))
+ 		return;
+ 
+ 	zb = get_zone(f, f->min_zone);
+ 	ze = get_zone(f, f->max_zone);
+-	zbd_init_swd(f);
++	swd = zbd_process_swd(td, f, SET_SWD);
++	dprint(FD_ZBD, "%s(%s): swd = %" PRIu64 "\n", __func__, f->file_name,
++	       swd);
+ 	/*
+ 	 * If data verification is enabled reset the affected zones before
+ 	 * writing any data to avoid that a zone reset has to be issued while
+@@ -1413,7 +1409,7 @@ static void zbd_put_io(struct thread_data *td, const struct io_u *io_u)
+ 	zbd_end_zone_io(td, io_u, z);
+ 
+ 	zone_unlock(z);
+-	zbd_check_swd(f);
++	zbd_check_swd(td, f);
+ }
+ 
+ /*
+@@ -1579,7 +1575,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 	    io_u->ddir == DDIR_READ && td->o.read_beyond_wp)
+ 		return io_u_accept;
+ 
+-	zbd_check_swd(f);
++	zbd_check_swd(td, f);
+ 
+ 	zone_lock(td, f, zb);
+ 
+-- 
+2.28.0
+
 
