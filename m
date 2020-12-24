@@ -1,8 +1,8 @@
 Return-Path: <prvs=620a42eaa=dmitry.fomichev@wdc.com>
 From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v2 06/36] zbd: remove dependency on zone type during i/o
-Date: Thu, 24 Dec 2020 11:11:49 +0900
-Message-Id: <20201224021219.189727-7-dmitry.fomichev@wdc.com>
+Subject: [PATCH v2 11/36] zbd: do not set zbd handlers for conventional zones
+Date: Thu, 24 Dec 2020 11:11:54 +0900
+Message-Id: <20201224021219.189727-12-dmitry.fomichev@wdc.com>
 In-Reply-To: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 References: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
@@ -11,142 +11,109 @@ To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.r
 Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-Two different type of zones have a write pointer: Sequential Write
-Required (SWR) and Sequential Write Preferred (SWP). Introduce the
-zone flag "has_wp" in struct zbd_zone_info and set it to 1 for these
-zone types upon initialization, thus avoiding the necessity to check
-multiple zone types in core zbd code. This flag replaces zbd_zone_swr()
-function and lays the groundwork for supporting additional write
-pointer zone types in the future.
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-The overall functionality stays the same after this commit.
+When zbd_adjust_block() modifies io_u to satisfy write pointer
+restrictions, it may change the zone for the io_u. The function sets
+pointers to zbd_queue_io() and zbd_put_io() handlers to io_u to
+further process write pointer zones. However, when the I/O is
+redirected to a conventional zone, these handlers should not
+be set in io_u.
 
+Skip setting the handlers when this function returns a conventional
+zone. When zbd_adjust_block() can not find a zone to fit the I/O,
+the existing code unlocks the zone pointer 'zb' used in the function.
+This unlock should not be performed if 'zb' points to a conventional
+zone upon return, skip it in this case.
+
+These changes make the assert for 'zb' pointer near 'accept' label in
+zbd_adjust_block() unnecessary. Replace it with assert for zb->has_wp,
+since the zone at the step shall have write pointer.
+
+Since zone locking functions (zone_lock(), zbd_queue_io() and
+zbd_put_io()) are supposed to be called only for write pointer zones,
+add assertions to zone_lock() and zone_unlock() to make sure this is
+the case. This allows us to convert a few existing conditional checks
+to assertions to make zone type validation more strict.
+
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- zbd.c | 31 ++++++++++++++++---------------
- zbd.h |  2 ++
- 2 files changed, 18 insertions(+), 15 deletions(-)
+ zbd.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
 diff --git a/zbd.c b/zbd.c
-index 0bda4c03..776d9b2c 100644
+index 84ac6b6f..f7c29250 100644
 --- a/zbd.c
 +++ b/zbd.c
-@@ -131,15 +131,6 @@ static uint32_t zbd_zone_idx(const struct fio_file *f, uint64_t offset)
- 	return min(zone_idx, f->zbd_info->nr_zones);
- }
+@@ -174,6 +174,8 @@ static void zone_lock(struct thread_data *td, struct fio_file *f, struct fio_zon
+ 	/* A thread should never lock zones outside its working area. */
+ 	assert(f->min_zone <= nz && nz < f->max_zone);
  
--/**
-- * zbd_zone_swr - Test whether a zone requires sequential writes
-- * @z: zone info pointer.
-- */
--static inline bool zbd_zone_swr(struct fio_zone_info *z)
--{
--	return z->type == ZBD_ZONE_TYPE_SWR;
--}
--
- /**
-  * zbd_zone_end - Return zone end location
-  * @z: zone info pointer.
-@@ -171,7 +162,7 @@ static bool zbd_zone_full(const struct fio_file *f, struct fio_zone_info *z,
++	assert(z->has_wp);
++
+ 	/*
+ 	 * Lock the io_u target zone. The zone will be unlocked if io_u offset
+ 	 * is changed or when io_u completes and zbd_put_io() executed.
+@@ -194,6 +196,7 @@ static inline void zone_unlock(struct fio_zone_info *z)
  {
- 	assert((required & 511) == 0);
+ 	int ret;
  
--	return zbd_zone_swr(z) &&
-+	return z->has_wp &&
- 		z->wp + required > zbd_zone_capacity_end(z);
++	assert(z->has_wp);
+ 	ret = pthread_mutex_unlock(&z->mutex);
+ 	assert(!ret);
  }
- 
-@@ -249,7 +240,7 @@ static bool zbd_is_seq_job(struct fio_file *f)
- 	zone_idx_b = zbd_zone_idx(f, f->file_offset);
- 	zone_idx_e = zbd_zone_idx(f, f->file_offset + f->io_size - 1);
- 	for (zone_idx = zone_idx_b; zone_idx <= zone_idx_e; zone_idx++)
--		if (zbd_zone_swr(get_zone(f, zone_idx)))
-+		if (get_zone(f, zone_idx)->has_wp)
- 			return true;
- 
- 	return false;
-@@ -429,6 +420,7 @@ static int init_zone_info(struct thread_data *td, struct fio_file *f)
- 		p->type = ZBD_ZONE_TYPE_SWR;
- 		p->cond = ZBD_ZONE_COND_EMPTY;
- 		p->capacity = zone_capacity;
-+		p->has_wp = 1;
- 	}
- 	/* a sentinel */
- 	p->start = nr_zones * zone_size;
-@@ -512,8 +504,17 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- 				p->wp = z->wp;
- 				break;
- 			}
-+
-+			switch (z->type) {
-+			case ZBD_ZONE_TYPE_SWR:
-+				p->has_wp = 1;
-+				break;
-+			default:
-+				p->has_wp = 0;
-+			}
- 			p->type = z->type;
- 			p->cond = z->cond;
-+
- 			if (j > 0 && p->start != p[-1].start + zone_size) {
- 				log_info("%s: invalid zone data\n",
- 					 f->file_name);
-@@ -811,7 +812,7 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
- 	for (z = zb; z < ze; z++) {
- 		uint32_t nz = zbd_zone_nr(f, z);
- 
--		if (!zbd_zone_swr(z))
-+		if (!z->has_wp)
- 			continue;
- 		zone_lock(td, f, z);
- 		if (all_zones) {
-@@ -1313,7 +1314,7 @@ static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int q,
+@@ -1326,8 +1329,7 @@ static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int q,
  	assert(zone_idx < zbd_info->nr_zones);
  	z = get_zone(f, zone_idx);
  
--	if (!zbd_zone_swr(z))
-+	if (!z->has_wp)
- 		return;
+-	if (!z->has_wp)
+-		return;
++	assert(z->has_wp);
  
  	if (!success)
-@@ -1373,7 +1374,7 @@ static void zbd_put_io(struct thread_data *td, const struct io_u *io_u)
+ 		goto unlock;
+@@ -1386,8 +1388,7 @@ static void zbd_put_io(struct thread_data *td, const struct io_u *io_u)
  	assert(zone_idx < zbd_info->nr_zones);
  	z = get_zone(f, zone_idx);
  
--	if (!zbd_zone_swr(z))
-+	if (!z->has_wp)
- 		return;
+-	if (!z->has_wp)
+-		return;
++	assert(z->has_wp);
  
  	dprint(FD_ZBD,
-@@ -1538,7 +1539,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 	orig_zb = zb;
+ 	       "%s: terminate I/O (%lld, %llu) for zone %u\n",
+@@ -1617,6 +1618,12 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 			io_u->offset = zb->start +
+ 				((io_u->offset - orig_zb->start) %
+ 				 (range - io_u->buflen)) / min_bs * min_bs;
++		/*
++		 * When zbd_find_zone() returns a conventional zone,
++		 * we can simply accept the new i/o offset here.
++		 */
++		if (!zb->has_wp)
++			return io_u_accept;
+ 		/*
+ 		 * Make sure the I/O does not cross over the zone wp position.
+ 		 */
+@@ -1713,7 +1720,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 	assert(false);
  
- 	/* Accept the I/O offset for conventional zones. */
--	if (!zbd_zone_swr(zb))
-+	if (!zb->has_wp)
- 		return io_u_accept;
+ accept:
+-	assert(zb);
++	assert(zb->has_wp);
+ 	assert(zb->cond != ZBD_ZONE_COND_OFFLINE);
+ 	assert(!io_u->zbd_queue_io);
+ 	assert(!io_u->zbd_put_io);
+@@ -1722,7 +1729,7 @@ accept:
+ 	return io_u_accept;
  
- 	/*
-diff --git a/zbd.h b/zbd.h
-index bff55f99..059a9f9e 100644
---- a/zbd.h
-+++ b/zbd.h
-@@ -28,6 +28,7 @@ enum io_u_action {
-  * @mutex: protects the modifiable members in this structure
-  * @type: zone type (BLK_ZONE_TYPE_*)
-  * @cond: zone state (BLK_ZONE_COND_*)
-+ * @has_wp: whether or not this zone can have a valid write pointer
-  * @open: whether or not this zone is currently open. Only relevant if
-  *		max_open_zones > 0.
-  * @reset_zone: whether or not this zone should be reset before writing to it
-@@ -40,6 +41,7 @@ struct fio_zone_info {
- 	uint32_t		verify_block;
- 	enum zbd_zone_type	type:2;
- 	enum zbd_zone_cond	cond:4;
-+	unsigned int		has_wp:1;
- 	unsigned int		open:1;
- 	unsigned int		reset_zone:1;
- };
+ eof:
+-	if (zb)
++	if (zb && zb->has_wp)
+ 		zone_unlock(zb);
+ 	return io_u_eof;
+ }
 -- 
 2.28.0
 
