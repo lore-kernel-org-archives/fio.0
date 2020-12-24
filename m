@@ -1,8 +1,8 @@
 Return-Path: <prvs=620a42eaa=dmitry.fomichev@wdc.com>
 From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v2 18/36] zbd: handle conventional start zone in zbd_convert_to_open_zone()
-Date: Thu, 24 Dec 2020 11:12:01 +0900
-Message-Id: <20201224021219.189727-19-dmitry.fomichev@wdc.com>
+Subject: [PATCH v2 19/36] zbd: improve replay range validation
+Date: Thu, 24 Dec 2020 11:12:02 +0900
+Message-Id: <20201224021219.189727-20-dmitry.fomichev@wdc.com>
 In-Reply-To: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 References: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
@@ -11,79 +11,43 @@ To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.r
 Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-At the beginning of zbd_convert_to_open_zone() function, a zone
-is picked in semi-random manner to become a candidate zone for
-redirecting the incoming write. In some circumstances, such as
-unlimited MaxOpen or i/o range that spans the boundary between
-conventional and sequential zones, a conventional zone may be
-selected.
-
-This may create problems in the subsequent for (;;) loop in the
-same function. Failed assertions were observed during the execution
-of newly introduced test #51 that showed that the code in that loop
-was trying to lock and unlock conventional zones.
-
-Check if the zone which has been initially picked is conventional.
-If yes, force the zone selection to be re-tried until a sequential
-zone is selected for further processing.
+Make sure that verification read always reads valid data.
 
 Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- zbd.c | 26 +++++++++++++++-----------
- 1 file changed, 15 insertions(+), 11 deletions(-)
+ zbd.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
 diff --git a/zbd.c b/zbd.c
-index 249835c2..df61dc37 100644
+index df61dc37..2656f3ea 100644
 --- a/zbd.c
 +++ b/zbd.c
-@@ -1087,16 +1087,18 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
- 		uint32_t tmp_idx;
- 
- 		z = get_zone(f, zone_idx);
--
--		zone_lock(td, f, z);
-+		if (z->has_wp)
-+			zone_lock(td, f, z);
- 		pthread_mutex_lock(&f->zbd_info->mutex);
--		if (z->cond != ZBD_ZONE_COND_OFFLINE &&
--		    td->o.max_open_zones == 0 && td->o.job_max_open_zones == 0)
--			goto examine_zone;
--		if (f->zbd_info->num_open_zones == 0) {
--			dprint(FD_ZBD, "%s(%s): no zones are open\n",
--			       __func__, f->file_name);
--			goto open_other_zone;
-+		if (z->has_wp) {
-+			if (z->cond != ZBD_ZONE_COND_OFFLINE &&
-+			    td->o.max_open_zones == 0 && td->o.job_max_open_zones == 0)
-+				goto examine_zone;
-+			if (f->zbd_info->num_open_zones == 0) {
-+				dprint(FD_ZBD, "%s(%s): no zones are open\n",
-+				       __func__, f->file_name);
-+				goto open_other_zone;
-+			}
- 		}
- 
- 		/*
-@@ -1124,7 +1126,8 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
- 		dprint(FD_ZBD, "%s(%s): no candidate zone\n",
- 			__func__, f->file_name);
- 		pthread_mutex_unlock(&f->zbd_info->mutex);
--		zone_unlock(z);
-+		if (z->has_wp)
-+			zone_unlock(z);
- 		return NULL;
- 
- found_candidate_zone:
-@@ -1133,7 +1136,8 @@ found_candidate_zone:
- 			break;
- 		zone_idx = new_zone_idx;
- 		pthread_mutex_unlock(&f->zbd_info->mutex);
--		zone_unlock(z);
-+		if (z->has_wp)
-+			zone_unlock(z);
+@@ -1239,10 +1239,23 @@ static struct fio_zone_info *zbd_replay_write_order(struct thread_data *td,
+ 		assert(z);
  	}
  
- 	/* Both z->mutex and f->zbd_info->mutex are held. */
+-	if (z->verify_block * min_bs >= z->capacity)
++	if (z->verify_block * min_bs >= z->capacity) {
+ 		log_err("%s: %d * %d >= %llu\n", f->file_name, z->verify_block,
+ 			min_bs, (unsigned long long)z->capacity);
+-	io_u->offset = z->start + z->verify_block++ * min_bs;
++		/*
++		 * If the assertion below fails during a test run, adding
++		 * "--experimental_verify=1" to the command line may help.
++		 */
++		assert(false);
++	}
++	io_u->offset = z->start + z->verify_block * min_bs;
++	if (io_u->offset + io_u->buflen >= zbd_zone_capacity_end(z)) {
++		log_err("%s: %llu + %llu >= %lu\n", f->file_name, io_u->offset,
++			io_u->buflen, zbd_zone_capacity_end(z));
++		assert(false);
++	}
++	z->verify_block += io_u->buflen / min_bs;
++
+ 	return z;
+ }
+ 
 -- 
 2.28.0
 
