@@ -1,89 +1,70 @@
-Return-Path: <krish.reddy@samsung.com>
-From: Krishna Kanth Reddy <krish.reddy@samsung.com>
-Subject: [PATCH 0/9] v1 Patchset : Simple Copy Command support
-Date: Tue,  1 Dec 2020 17:10:25 +0530
-Message-Id: <20201201114034.8307-1-krish.reddy@samsung.com>
-Content-Type: text/plain; charset="utf-8"
-References: <CGME20201201114048epcas5p3e12de26128ce442bbe8406082eaccde9@epcas5p3.samsung.com>
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, Krishna Kanth Reddy <krish.reddy@samsung.com>
+Return-Path: <prvs=620a42eaa=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH v2 23/36] t/zbd: add -t option to run-tests-against-nullb
+Date: Thu, 24 Dec 2020 11:12:06 +0900
+Message-Id: <20201224021219.189727-24-dmitry.fomichev@wdc.com>
+In-Reply-To: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
+References: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-This patchset adds support for TP4065a ("Simple Copy Command") v2020.05.04 ("Ratified")
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-The Specification can be found in following link.
-https://nvmexpress.org/wp-content/uploads/NVM-Express-1.4-Ratified-TPs-1.zip
+For debugging, it can be useful to run a single ZBD test case in all
+zoned configurations defined in run-tests-against-nullb. Add -t option
+to run-tests-against-nullb so that the single ZBD test case specified
+in run-tests-against-nullb command line is executed in all sections
+of the script.
 
-Simple copy command is a copy offloading operation and is used to copy
-multiple contiguous ranges (source_ranges) of LBA's to a single destination
-LBA within the device, reducing traffic between host and device.
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+---
+ t/zbd/run-tests-against-nullb | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-In this implementation we introduce a new copy operation.
-The copy operation can be enabled by passing
-rw=copy (Generates sequential source ranges)
-rw=randcopy (Generates random source ranges)
-
-copy operation requires two new options to be passed
-num_range - Number of ranges per copy operation.
-dest_offset - Start of the destination offset.
-
-The existing FIO options will be used as
-offset - Starting offset of the source range.
-blocksize - Number of logical blocks per source range.
-
-Introduced a new synchronous ioengine "sctl".
-This is a basic ioengine which supports only copy command.
-
-Added a basic sequential copy support for Zoned block devices.
-
-This is a RFC and the Linux Kernel interface is under submission and review.
-https://lore.kernel.org/linux-nvme/20201201053949.143175-1-selvakuma.s1@samsung.com/
-
-Feedback / Comments will help in improving this further.
-
-Ankit Kumar (9):
-  Adding the necessary ddir changes to introduce copy operation.
-  Introducing new offsets for the copy operation.
-  Added support for printing of stats and estimate time for copy
-    operation.
-  Adding a new copy operation.
-  Added the changes for copy operation support in FIO.
-  New ioctl based synchronous IO engine. Only supports copy command
-  Example configuration for simple copy command
-  Support copy operation for zoned block devices.
-  Add a new test case to test the copy operation.
-
- HOWTO                  |  28 +++++-
- Makefile               |   2 +-
- backend.c              |  25 ++++-
- cconv.c                |   6 ++
- engines/sctl.c         | 215 +++++++++++++++++++++++++++++++++++++++++
- eta.c                  |  31 ++++--
- examples/fio-copy.fio  |  32 ++++++
- file.h                 |   7 ++
- filesetup.c            |  79 +++++++++++++++
- fio.1                  |  25 ++++-
- fio.h                  |  12 +++
- init.c                 |  44 ++++++---
- io_ddir.h              |  22 +++--
- io_u.c                 | 105 ++++++++++++++++----
- io_u.h                 |   3 +
- options.c              |  64 +++++++++++-
- os/os-linux.h          |   1 +
- parse.c                |  28 ++++++
- parse.h                |   2 +
- rate-submit.c          |   2 +
- stat.c                 |  20 +++-
- stat.h                 |   1 -
- t/zbd/functions        |   9 ++
- t/zbd/test-zbd-support |  54 +++++++++++
- thread_options.h       |   9 +-
- zbd.c                  |  90 +++++++++++++++--
- 26 files changed, 842 insertions(+), 74 deletions(-)
- create mode 100644 engines/sctl.c
- create mode 100644 examples/fio-copy.fio
-
+diff --git a/t/zbd/run-tests-against-nullb b/t/zbd/run-tests-against-nullb
+index 0f0b319d..e1efb4a5 100755
+--- a/t/zbd/run-tests-against-nullb
++++ b/t/zbd/run-tests-against-nullb
+@@ -20,6 +20,7 @@ function usage()
+ 	echo -e "\t-l List the device layouts for every section without running"
+ 	echo -e "\t   tests."
+ 	echo -e "\t-s <#section> Only run the section with the given number."
++	echo -e "\t-t <#test> Only run the test with the given number in every section."
+ 	echo -e "\t-o <max_open_zones> Specify MaxOpen value, (${set_max_open} by default)."
+ 	echo -e "\t-r Remove the /dev/nullb0 device that may still exist after"
+ 	echo -e "\t   running this script."
+@@ -235,6 +236,7 @@ dev_size=1024
+ dev_blocksize=4096
+ set_max_open=8
+ zbd_test_opts=()
++test_case=0
+ 
+ while [ "${1#-}" != "$1" ]; do
+ 	case "$1" in
+@@ -243,6 +245,7 @@ while [ "${1#-}" != "$1" ]; do
+ 		-l) list_only=1; shift;;
+ 		-r) cleanup_nullb;
+ 		    exit 0;;
++		-t) test_case="${2}"; shift; shift;;
+ 		-h) usage; break;;
+ 		--) shift; break;;
+ 		 *) usage; exit 1;;
+@@ -281,6 +284,10 @@ for section_number in "${sections[@]}"; do
+ 		echo "error creating nullb"
+ 		exit 1
+ 	fi
++	zbd_test_opts=()
++	if ((test_case)); then
++		zbd_test_opts+=("-t" "${test_case}")
++	fi
+ 	section$section_number
+ 	configure_nullb
+ 	rc=$?
 -- 
-2.17.1
+2.28.0
 
 
