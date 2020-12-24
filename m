@@ -1,8 +1,8 @@
 Return-Path: <prvs=620a42eaa=dmitry.fomichev@wdc.com>
 From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v2 27/36] t/zbd: test that zone_reset_threshold calculation is correct
-Date: Thu, 24 Dec 2020 11:12:10 +0900
-Message-Id: <20201224021219.189727-28-dmitry.fomichev@wdc.com>
+Subject: [PATCH v2 10/36] zbd: do not lock conventional zones on I/O adjustment
+Date: Thu, 24 Dec 2020 11:11:53 +0900
+Message-Id: <20201224021219.189727-11-dmitry.fomichev@wdc.com>
 In-Reply-To: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 References: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
@@ -13,65 +13,125 @@ List-ID: <fio@vger.kernel.org>
 
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-The option "zone_reset_threshold" specifies the ratio of logical blocks
-with data to trigger zone resets. When the I/O range includes
-conventional zones, only blocks in sequential zones must be used to
-track this value. A recently fixed bug has uncovered that the number of
-blocks in conventional zones were erroneously counted as the blocks
-with data.
+When a random workload runs against write pointer zones, I/Os are
+adjusted to meet write pointer restrictions. During read, I/O offsets
+are adjusted to point to zones with data to read and during write, I/O
+offsets are adjusted to be at write pointers of open zones.
 
-To prevent future regressions, add a test case to confirm that the
-logical blocks accounting does not include conventional zones.
+However, when a random workload runs in a range that contains both
+write pointer zones and conventional zones, I/Os to write pointer
+zones can potentially be adjusted to conventional zones. The functions
+zbd_find_zone() and zbd_convert_to_open_zone() search for zones
+regardless of their type, and therefore they may return conventional
+zones. These functions lock the found zone to guard its open status
+and write pointer position, but this lock is meaningless for
+conventional zones. This unwanted lock of conventional zones has been
+observed to cause a deadlock.
+
+Furthermore, zbd_convert_to_open_zone() may add the found conventional
+zone to the array of open zones. However, conventional zones should
+never be added to the array of open zones as conventional zones never
+take the "implicit open" condition and not counted as part of the
+device open zone management.
+
+To avoid the deadlock, modify zbd_find_zone() not to lock zone when it
+checks conventional zone without write pointer. To avoid the deadlock
+and the conventional zone open, modify zbd_convert_to_open_zone() to
+ignore conventional zones.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- t/zbd/test-zbd-support | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ zbd.c | 31 ++++++++++++++++++++-----------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 4ad55381..217fdd10 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -1047,6 +1047,38 @@ test51() {
- 	run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
+diff --git a/zbd.c b/zbd.c
+index c1db215e..84ac6b6f 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -1033,7 +1033,8 @@ static uint32_t pick_random_zone_idx(const struct fio_file *f,
+ /*
+  * Modify the offset of an I/O unit that does not refer to an open zone such
+  * that it refers to an open zone. Close an open zone and open a new zone if
+- * necessary. This algorithm can only work correctly if all write pointers are
++ * necessary. The open zone is searched across sequential zones.
++ * This algorithm can only work correctly if all write pointers are
+  * a multiple of the fio block size. The caller must neither hold z->mutex
+  * nor f->zbd_info->mutex. Returns with z->mutex held upon success.
+  */
+@@ -1159,7 +1160,8 @@ open_other_zone:
+ 	/* Zone 'z' is full, so try to open a new zone. */
+ 	for (i = f->io_size / f->zbd_info->zone_size; i > 0; i--) {
+ 		zone_idx++;
+-		zone_unlock(z);
++		if (z->has_wp)
++			zone_unlock(z);
+ 		z++;
+ 		if (!is_valid_offset(f, z->start)) {
+ 			/* Wrap-around. */
+@@ -1167,6 +1169,8 @@ open_other_zone:
+ 			z = get_zone(f, zone_idx);
+ 		}
+ 		assert(is_valid_offset(f, z->start));
++		if (!z->has_wp)
++			continue;
+ 		zone_lock(td, f, z);
+ 		if (z->open)
+ 			continue;
+@@ -1202,6 +1206,7 @@ out:
+ 	dprint(FD_ZBD, "%s(%s): returning zone %d\n", __func__, f->file_name,
+ 	       zone_idx);
+ 	io_u->offset = z->start;
++	assert(z->has_wp);
+ 	assert(z->cond != ZBD_ZONE_COND_OFFLINE);
+ 	return z;
+ }
+@@ -1228,12 +1233,12 @@ static struct fio_zone_info *zbd_replay_write_order(struct thread_data *td,
  }
  
-+# Verify that zone_reset_threshold only takes logical blocks from seq
-+# zones into account, and logical blocks of conv zones are not counted.
-+test52() {
-+	local off io_size
-+
-+	require_zbd || return $SKIP_TESTCASE
-+	require_conv_zones 8 || return $SKIP_TESTCASE
-+	require_seq_zones 8 || return $SKIP_TESTCASE
-+
-+	reset_zone "${dev}" -1
-+
-+	# Total I/O size is 1/8 = 0.125 of the I/O range of cont + seq zones.
-+	# Set zone_reset_threshold as 0.1. The threshold size is less than
-+	# 0.125, then, reset count zero is expected.
-+	# On the other hand, half of the I/O range is covered by conv zones.
-+	# If fio would count the conv zones for zone_reset_threshold, the ratio
-+	# were more than 0.5 and would trigger zone resets.
-+
-+	off=$((first_sequential_zone_sector * 512 - 8 * zone_size))
-+	io_size=$((zone_size * 16 / 8))
-+	run_fio --name=job --filename=$dev --rw=randwrite --bs=$((zone_size/16))\
-+		--size=$((zone_size * 16)) --softrandommap=1 \
-+		--io_size=$((io_size)) "$(ioengine "psync")" --offset=$off \
-+		--zonemode=zbd --direct=1 --zonesize=${zone_size} \
-+		--zone_reset_threshold=.1 --zone_reset_frequency=1.0 \
-+		${job_var_opts[@]} --debug=zbd \
-+		>> "${logfile}.${test_number}" 2>&1 || return $?
-+
-+	check_written ${io_size} || return $?
-+	check_reset_count -eq 0 || return $?
-+}
-+
- tests=()
- dynamic_analyzer=()
- reset_all_zones=
+ /*
+- * Find another zone for which @io_u fits below the write pointer. Start
+- * searching in zones @zb + 1 .. @zl and continue searching in zones
+- * @zf .. @zb - 1.
++ * Find another zone for which @io_u fits in the readable data in the zone.
++ * Search in zones @zb + 1 .. @zl. For random workload, also search in zones
++ * @zb - 1 .. @zf.
+  *
+- * Either returns NULL or returns a zone pointer and holds the mutex for that
+- * zone.
++ * Either returns NULL or returns a zone pointer. When the zone has write
++ * pointer, hold the mutex for the zone.
+  */
+ static struct fio_zone_info *
+ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
+@@ -1250,19 +1255,23 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
+ 	 */
+ 	for (z1 = zb + 1, z2 = zb - 1; z1 < zl || z2 >= zf; z1++, z2--) {
+ 		if (z1 < zl && z1->cond != ZBD_ZONE_COND_OFFLINE) {
+-			zone_lock(td, f, z1);
++			if (z1->has_wp)
++				zone_lock(td, f, z1);
+ 			if (z1->start + min_bs <= z1->wp)
+ 				return z1;
+-			zone_unlock(z1);
++			if (z1->has_wp)
++				zone_unlock(z1);
+ 		} else if (!td_random(td)) {
+ 			break;
+ 		}
+ 		if (td_random(td) && z2 >= zf &&
+ 		    z2->cond != ZBD_ZONE_COND_OFFLINE) {
+-			zone_lock(td, f, z2);
++			if (z2->has_wp)
++				zone_lock(td, f, z2);
+ 			if (z2->start + min_bs <= z2->wp)
+ 				return z2;
+-			zone_unlock(z2);
++			if (z2->has_wp)
++				zone_unlock(z2);
+ 		}
+ 	}
+ 	dprint(FD_ZBD, "%s: adjusting random read offset failed\n",
 -- 
 2.28.0
 
