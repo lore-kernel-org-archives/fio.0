@@ -1,50 +1,95 @@
-Return-Path: <prvs=60314b82c=aravind.ramesh@wdc.com>
-From: Aravind Ramesh <aravind.ramesh@wdc.com>
-Subject: [PATCH] flow: fix hang with flow control and zoned block devices
-Date: Mon,  7 Dec 2020 10:30:45 +0000
-Message-Id: <20201207103045.3433366-1-aravind.ramesh@wdc.com>
+Return-Path: <prvs=620a42eaa=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH v2 20/36] zbd: set thread errors in zbd_adjust_block()
+Date: Thu, 24 Dec 2020 11:12:03 +0900
+Message-Id: <20201224021219.189727-21-dmitry.fomichev@wdc.com>
+In-Reply-To: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
+References: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-To: axboe@kernel.dk, fio@vger.kernel.org, shinichiro.kawasaki@wdc.com
-Cc: Aravind Ramesh <Aravind.Ramesh@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Aravind Ramesh <Aravind.Ramesh@wdc.com>
+Several error conditions that are encountered during zone processing
+in zbd_adjust_block() function cause it to return io_u_eof value.
+This stops the i/o to the given file, but there is no error raised or
+reported if this code is returned. For a few particular conditions,
+just stopping the i/o is reasonable, but others are serious errors
+that should be reported.
 
-When flow control is specified between 2 or more threads executing a workload
-with zonemode=zbd and flow_sleep is not specified by the user (default to zero),
-then a job A can lock a zone Z with the flow ratio exceeded, resulting in the
-job to not issue the IO until other jobs IOs balance the flow ratio.
-Since job A will wait with the Zone Z locked, other jobs will deadlock waiting
-for this zone lock if their workload resulted in this zone Z being chosen
-as an IO target.
+Add td_verror() calls to raise thread errors for a few abnormal
+conditions during adjusting the i/o. The only test that needs to be
+modified because of these changes is test #2.
 
-Executing io_u_quiesce() when the flow ratio is exceeded solves this potential
-deadlock as job A will wait for the flow ratio to balance without holding the
-zone A lock. To preserve the behavior for regular block devices and to avoid
-extra overhead, io_u_quiesce() only needs to be executed when the workload
-specifies zonedmode=zbd.
-
-Signed-off-by: Aravind Ramesh <aravind.ramesh@wdc.com>
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- flow.c | 2 ++
- 1 file changed, 2 insertions(+)
+ zbd.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/flow.c b/flow.c
-index ea6b0ec9..c64bb3b2 100644
---- a/flow.c
-+++ b/flow.c
-@@ -37,6 +37,8 @@ int flow_threshold_exceeded(struct thread_data *td)
- 		if (td->o.flow_sleep) {
- 			io_u_quiesce(td);
- 			usleep(td->o.flow_sleep);
-+		} else if (td->o.zone_mode == ZONE_MODE_ZBD) {
-+			io_u_quiesce(td);
+diff --git a/zbd.c b/zbd.c
+index 2656f3ea..7decc57a 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -1687,13 +1687,22 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 		assert(io_u->offset + io_u->buflen <= zb->wp);
+ 		goto accept;
+ 	case DDIR_WRITE:
+-		if (io_u->buflen > f->zbd_info->zone_size)
++		if (io_u->buflen > f->zbd_info->zone_size) {
++			td_verror(td, EINVAL, "I/O buflen exceeds zone size");
++			dprint(FD_IO,
++			       "%s: I/O buflen %llu exceeds zone size %lu\n",
++			       f->file_name, io_u->buflen,
++			       f->zbd_info->zone_size);
+ 			goto eof;
++		}
+ 		if (!zbd_open_zone(td, f, zone_idx_b)) {
+ 			zone_unlock(zb);
+ 			zb = zbd_convert_to_open_zone(td, io_u);
+-			if (!zb)
++			if (!zb) {
++				dprint(FD_IO, "%s: can't convert to open zone",
++				       f->file_name);
+ 				goto eof;
++			}
+ 			zone_idx_b = zbd_zone_nr(f, zb);
  		}
+ 		/* Check whether the zone reset threshold has been exceeded */
+@@ -1720,6 +1729,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 				goto eof;
  
- 		return 1;
+ 			if (zb->capacity < min_bs) {
++				td_verror(td, EINVAL, "ZCAP is less min_bs");
+ 				log_err("zone capacity %llu smaller than minimum block size %d\n",
+ 					(unsigned long long)zb->capacity,
+ 					min_bs);
+@@ -1730,8 +1740,9 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 		assert(!zbd_zone_full(f, zb, min_bs));
+ 		io_u->offset = zb->wp;
+ 		if (!is_valid_offset(f, io_u->offset)) {
+-			dprint(FD_ZBD, "Dropped request with offset %llu\n",
+-			       io_u->offset);
++			td_verror(td, EINVAL, "invalid WP value");
++			dprint(FD_ZBD, "%s: dropped request with offset %llu\n",
++			       f->file_name, io_u->offset);
+ 			goto eof;
+ 		}
+ 		/*
+@@ -1750,9 +1761,9 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 			       orig_len, io_u->buflen);
+ 			goto accept;
+ 		}
+-		log_err("Zone remainder %lld smaller than minimum block size %d\n",
+-			(zbd_zone_capacity_end(zb) - io_u->offset),
+-			min_bs);
++		td_verror(td, EIO, "zone remainder too small");
++		log_err("zone remainder %lld smaller than min block size %d\n",
++			(zbd_zone_capacity_end(zb) - io_u->offset), min_bs);
+ 		goto eof;
+ 	case DDIR_TRIM:
+ 		/* fall-through */
 -- 
-2.25.1
+2.28.0
 
 
