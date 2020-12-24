@@ -1,8 +1,8 @@
 Return-Path: <prvs=620a42eaa=dmitry.fomichev@wdc.com>
 From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v2 17/36] zbd: don't log "zone nnnn is not open" message
-Date: Thu, 24 Dec 2020 11:12:00 +0900
-Message-Id: <20201224021219.189727-18-dmitry.fomichev@wdc.com>
+Subject: [PATCH v2 34/36] t/zbd: show elapsed time in test-zbd-support
+Date: Thu, 24 Dec 2020 11:12:17 +0900
+Message-Id: <20201224021219.189727-35-dmitry.fomichev@wdc.com>
 In-Reply-To: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 References: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
@@ -11,33 +11,33 @@ To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.r
 Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-This log message has been added recently (it could have been my idea
-to add it during internal review) and it turns out that the message
-tends to flood the log when any decent workload is run with
---zonemode=zbd. Remove logging of this debug message.
+This script may take quite a lot of time to run against large
+zoned HDDs. At the end of every run, show exactly how much time
+it took.
 
 Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- zbd.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ t/zbd/test-zbd-support | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/zbd.c b/zbd.c
-index 8fb9c8cf..249835c2 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -786,11 +786,8 @@ static void zbd_close_zone(struct thread_data *td, const struct fio_file *f,
- 		if (f->zbd_info->open_zones[open_zone_idx] == zone_idx)
- 			break;
- 	}
--	if (open_zone_idx == f->zbd_info->num_open_zones) {
--		dprint(FD_ZBD, "%s: zone %d is not open\n",
--		       f->file_name, zone_idx);
-+	if (open_zone_idx == f->zbd_info->num_open_zones)
- 		return;
--	}
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 94c92e26..c1ee52ed 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -1153,6 +1153,7 @@ test54() {
+ 		>> "${logfile}.${test_number}" 2>&1 || return $?
+ }
  
- 	dprint(FD_ZBD, "%s: closing zone %d\n", f->file_name, zone_idx);
- 	memmove(f->zbd_info->open_zones + open_zone_idx,
++SECONDS=0
+ tests=()
+ dynamic_analyzer=()
+ reset_all_zones=
+@@ -1346,4 +1347,5 @@ fi
+ if [ $failed -gt 0 ]; then
+     echo " $failed tests failed"
+ fi
++echo "Run time: $(TZ=UTC0 printf "%(%H:%M:%S)T\n" $(( SECONDS )) )"
+ exit $rc
 -- 
 2.28.0
 
