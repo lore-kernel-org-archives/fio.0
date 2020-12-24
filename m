@@ -1,8 +1,8 @@
 Return-Path: <prvs=620a42eaa=dmitry.fomichev@wdc.com>
 From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v2 23/36] t/zbd: add -t option to run-tests-against-nullb
-Date: Thu, 24 Dec 2020 11:12:06 +0900
-Message-Id: <20201224021219.189727-24-dmitry.fomichev@wdc.com>
+Subject: [PATCH v2 29/36] t/zbd: fix wrong units in test case #37
+Date: Thu, 24 Dec 2020 11:12:12 +0900
+Message-Id: <20201224021219.189727-30-dmitry.fomichev@wdc.com>
 In-Reply-To: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 References: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
@@ -13,57 +13,30 @@ List-ID: <fio@vger.kernel.org>
 
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-For debugging, it can be useful to run a single ZBD test case in all
-zoned configurations defined in run-tests-against-nullb. Add -t option
-to run-tests-against-nullb so that the single ZBD test case specified
-in run-tests-against-nullb command line is executed in all sections
-of the script.
+The second argument of the function total_zone_capacity is expected to
+be in bytes. However, the call in test case #37 provides this argument
+in sectors and this results in a wrong capacity calculation. Make sure
+that the value that is passed to this function is converted to bytes.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- t/zbd/run-tests-against-nullb | 7 +++++++
- 1 file changed, 7 insertions(+)
+ t/zbd/test-zbd-support | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/t/zbd/run-tests-against-nullb b/t/zbd/run-tests-against-nullb
-index 0f0b319d..e1efb4a5 100755
---- a/t/zbd/run-tests-against-nullb
-+++ b/t/zbd/run-tests-against-nullb
-@@ -20,6 +20,7 @@ function usage()
- 	echo -e "\t-l List the device layouts for every section without running"
- 	echo -e "\t   tests."
- 	echo -e "\t-s <#section> Only run the section with the given number."
-+	echo -e "\t-t <#test> Only run the test with the given number in every section."
- 	echo -e "\t-o <max_open_zones> Specify MaxOpen value, (${set_max_open} by default)."
- 	echo -e "\t-r Remove the /dev/nullb0 device that may still exist after"
- 	echo -e "\t   running this script."
-@@ -235,6 +236,7 @@ dev_size=1024
- dev_blocksize=4096
- set_max_open=8
- zbd_test_opts=()
-+test_case=0
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 80763561..4d8e905d 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -828,7 +828,7 @@ test37() {
+     local bs off size capacity
  
- while [ "${1#-}" != "$1" ]; do
- 	case "$1" in
-@@ -243,6 +245,7 @@ while [ "${1#-}" != "$1" ]; do
- 		-l) list_only=1; shift;;
- 		-r) cleanup_nullb;
- 		    exit 0;;
-+		-t) test_case="${2}"; shift; shift;;
- 		-h) usage; break;;
- 		--) shift; break;;
- 		 *) usage; exit 1;;
-@@ -281,6 +284,10 @@ for section_number in "${sections[@]}"; do
- 		echo "error creating nullb"
- 		exit 1
- 	fi
-+	zbd_test_opts=()
-+	if ((test_case)); then
-+		zbd_test_opts+=("-t" "${test_case}")
-+	fi
- 	section$section_number
- 	configure_nullb
- 	rc=$?
+     prep_write
+-    capacity=$(total_zone_capacity 1 $first_sequential_zone_sector $dev)
++    capacity=$(total_zone_capacity 1 $((first_sequential_zone_sector*512)) $dev)
+     if [ "$first_sequential_zone_sector" = 0 ]; then
+ 	off=0
+     else
 -- 
 2.28.0
 
