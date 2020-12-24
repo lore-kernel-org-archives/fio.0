@@ -1,8 +1,8 @@
 Return-Path: <prvs=620a42eaa=dmitry.fomichev@wdc.com>
 From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v2 29/36] t/zbd: fix wrong units in test case #37
-Date: Thu, 24 Dec 2020 11:12:12 +0900
-Message-Id: <20201224021219.189727-30-dmitry.fomichev@wdc.com>
+Subject: [PATCH v2 18/36] zbd: handle conventional start zone in zbd_convert_to_open_zone()
+Date: Thu, 24 Dec 2020 11:12:01 +0900
+Message-Id: <20201224021219.189727-19-dmitry.fomichev@wdc.com>
 In-Reply-To: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 References: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
@@ -11,32 +11,79 @@ To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.r
 Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+At the beginning of zbd_convert_to_open_zone() function, a zone
+is picked in semi-random manner to become a candidate zone for
+redirecting the incoming write. In some circumstances, such as
+unlimited MaxOpen or i/o range that spans the boundary between
+conventional and sequential zones, a conventional zone may be
+selected.
 
-The second argument of the function total_zone_capacity is expected to
-be in bytes. However, the call in test case #37 provides this argument
-in sectors and this results in a wrong capacity calculation. Make sure
-that the value that is passed to this function is converted to bytes.
+This may create problems in the subsequent for (;;) loop in the
+same function. Failed assertions were observed during the execution
+of newly introduced test #51 that showed that the code in that loop
+was trying to lock and unlock conventional zones.
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Check if the zone which has been initially picked is conventional.
+If yes, force the zone selection to be re-tried until a sequential
+zone is selected for further processing.
+
 Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- t/zbd/test-zbd-support | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ zbd.c | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 80763561..4d8e905d 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -828,7 +828,7 @@ test37() {
-     local bs off size capacity
+diff --git a/zbd.c b/zbd.c
+index 249835c2..df61dc37 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -1087,16 +1087,18 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+ 		uint32_t tmp_idx;
  
-     prep_write
--    capacity=$(total_zone_capacity 1 $first_sequential_zone_sector $dev)
-+    capacity=$(total_zone_capacity 1 $((first_sequential_zone_sector*512)) $dev)
-     if [ "$first_sequential_zone_sector" = 0 ]; then
- 	off=0
-     else
+ 		z = get_zone(f, zone_idx);
+-
+-		zone_lock(td, f, z);
++		if (z->has_wp)
++			zone_lock(td, f, z);
+ 		pthread_mutex_lock(&f->zbd_info->mutex);
+-		if (z->cond != ZBD_ZONE_COND_OFFLINE &&
+-		    td->o.max_open_zones == 0 && td->o.job_max_open_zones == 0)
+-			goto examine_zone;
+-		if (f->zbd_info->num_open_zones == 0) {
+-			dprint(FD_ZBD, "%s(%s): no zones are open\n",
+-			       __func__, f->file_name);
+-			goto open_other_zone;
++		if (z->has_wp) {
++			if (z->cond != ZBD_ZONE_COND_OFFLINE &&
++			    td->o.max_open_zones == 0 && td->o.job_max_open_zones == 0)
++				goto examine_zone;
++			if (f->zbd_info->num_open_zones == 0) {
++				dprint(FD_ZBD, "%s(%s): no zones are open\n",
++				       __func__, f->file_name);
++				goto open_other_zone;
++			}
+ 		}
+ 
+ 		/*
+@@ -1124,7 +1126,8 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+ 		dprint(FD_ZBD, "%s(%s): no candidate zone\n",
+ 			__func__, f->file_name);
+ 		pthread_mutex_unlock(&f->zbd_info->mutex);
+-		zone_unlock(z);
++		if (z->has_wp)
++			zone_unlock(z);
+ 		return NULL;
+ 
+ found_candidate_zone:
+@@ -1133,7 +1136,8 @@ found_candidate_zone:
+ 			break;
+ 		zone_idx = new_zone_idx;
+ 		pthread_mutex_unlock(&f->zbd_info->mutex);
+-		zone_unlock(z);
++		if (z->has_wp)
++			zone_unlock(z);
+ 	}
+ 
+ 	/* Both z->mutex and f->zbd_info->mutex are held. */
 -- 
 2.28.0
 
