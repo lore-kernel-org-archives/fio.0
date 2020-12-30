@@ -1,76 +1,63 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52016 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726228AbgLHNAq (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 8 Dec 2020 08:00:46 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E0BEC061749
-        for <fio@vger.kernel.org>; Tue,  8 Dec 2020 05:00:06 -0800 (PST)
+        with ESMTP id S1726625AbgL3NAr (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 30 Dec 2020 08:00:47 -0500
+Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1895C061799
+        for <fio@vger.kernel.org>; Wed, 30 Dec 2020 05:00:06 -0800 (PST)
 Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kmcb6-0005CD-Cp
-        for fio@vger.kernel.org; Tue, 08 Dec 2020 13:00:05 +0000
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kub59-0007qf-L7
+        for fio@vger.kernel.org; Wed, 30 Dec 2020 13:00:03 +0000
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20201208130001.5C06A1BC011C@kernel.dk>
-Date: Tue,  8 Dec 2020 06:00:01 -0700 (MST)
+Message-Id: <20201230130002.296521BC0124@kernel.dk>
+Date: Wed, 30 Dec 2020 06:00:02 -0700 (MST)
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit a210654b03dbd04f17984d1cf791b1fd56862f1b:
+The following changes since commit b0340c5c7de38b3f4632366247489da7c52d5cfb:
 
-  Merge branch 'cufile' of https://github.com/SystemFabricWorks/fio (2020-12-05 14:45:16 -0700)
+  Merge branch 'terse_units' of https://github.com/sitsofe/fio (2020-12-24 07:38:18 -0700)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 731365d849407426fe32981c97a2f9b42cdc0149:
+for you to fetch changes up to a64b7d6e9b3e5174e034f7c147de71e4b51b2a01:
 
-  flow: fix hang with flow control and zoned block devices (2020-12-07 16:56:37 -0700)
+  Merge branch 'fix-get-next-file' of https://github.com/aclamk/fio (2020-12-29 16:36:32 -0700)
 
 ----------------------------------------------------------------
-Aravind Ramesh (1):
-      flow: fix hang with flow control and zoned block devices
+Adam Kupczyk (1):
+      io_u: Fix bad interaction with --openfiles and non-sequential file selection policy
 
 Jens Axboe (1):
-      Merge branch 'reword-toolarge' of https://github.com/sitsofe/fio
+      Merge branch 'fix-get-next-file' of https://github.com/aclamk/fio
 
-Sitsofe Wheeler (1):
-      filesetup: reword block size too large message
-
- filesetup.c | 2 +-
- flow.c      | 2 ++
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ io_u.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/filesetup.c b/filesetup.c
-index 42c5f630..d3c370ca 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -1199,7 +1199,7 @@ int setup_files(struct thread_data *td)
- 		o->size = total_size;
- 
- 	if (o->size < td_min_bs(td)) {
--		log_err("fio: blocksize too large for data set\n");
-+		log_err("fio: blocksize is larger than data set range\n");
- 		goto err_out;
+diff --git a/io_u.c b/io_u.c
+index f30fc037..00a219c2 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -1326,8 +1326,10 @@ static struct fio_file *__get_next_file(struct thread_data *td)
+ 	if (f && fio_file_open(f) && !fio_file_closing(f)) {
+ 		if (td->o.file_service_type == FIO_FSERVICE_SEQ)
+ 			goto out;
+-		if (td->file_service_left--)
+-			goto out;
++		if (td->file_service_left) {
++		  td->file_service_left--;
++		  goto out;
++		}
  	}
  
-diff --git a/flow.c b/flow.c
-index ea6b0ec9..c64bb3b2 100644
---- a/flow.c
-+++ b/flow.c
-@@ -37,6 +37,8 @@ int flow_threshold_exceeded(struct thread_data *td)
- 		if (td->o.flow_sleep) {
- 			io_u_quiesce(td);
- 			usleep(td->o.flow_sleep);
-+		} else if (td->o.zone_mode == ZONE_MODE_ZBD) {
-+			io_u_quiesce(td);
- 		}
- 
- 		return 1;
+ 	if (td->o.file_service_type == FIO_FSERVICE_RR ||
 
