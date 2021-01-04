@@ -1,205 +1,107 @@
-Return-Path: <prvs=6334d1505=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v3 34/38] t/zbd: add checks for offline zone condition
-Date: Thu,  7 Jan 2021 06:57:35 +0900
-Message-Id: <20210106215739.264524-35-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
-References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
+Return-Path: <prvs=631f9228a=Dmitry.Fomichev@wdc.com>
+From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+Subject: RE: [PATCH v2 33/36] t/zbd: add test #54 to exercise ZBD verification
+Date: Mon, 4 Jan 2021 23:58:49 +0000
+Message-ID: 
+ <MN2PR04MB595167564ED214181EB4CD15E1D20@MN2PR04MB5951.namprd04.prod.outlook.com>
+References: <20201224021219.189727-1-dmitry.fomichev@wdc.com>
+ <20201224021219.189727-34-dmitry.fomichev@wdc.com>
+ <20201229054235.t5cytdxhx3hpk3r3@shindev.dhcp.fujisawa.hgst.com>
+In-Reply-To: <20201229054235.t5cytdxhx3hpk3r3@shindev.dhcp.fujisawa.hgst.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Aravind Ramesh <Aravind.Ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <Naohiro.Aota@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>, Damien Le Moal <Damien.LeMoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-Some tests, e.g. #39 an #40, try to read the first zone of the drive.
-It is assumed that the first zone is readable. However, if the first
-zone is offline, the read fails along with the entire test.
+Shinichiro,
 
-This commit adds two functions to perform zone report and find the
-first and the last zones that are not offline. Several test cases
-now call these functions to avoid test failures described above.
+> -----Original Message-----
+> From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+> Sent: Tuesday, December 29, 2020 12:43 AM
+> To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+> Cc: Jens Axboe <axboe@kernel.dk>; fio@vger.kernel.org; Aravind Ramesh
+> <Aravind.Ramesh@wdc.com>; Bart Van Assche <bvanassche@acm.org>;
+> Naohiro Aota <Naohiro.Aota@wdc.com>; Niklas Cassel
+> <Niklas.Cassel@wdc.com>; Damien Le Moal <Damien.LeMoal@wdc.com>
+> Subject: Re: [PATCH v2 33/36] t/zbd: add test #54 to exercise ZBD verific=
+ation
+>=20
+> On Dec 24, 2020 / 11:12, Dmitry Fomichev wrote:
+> > Add a new test case to perform 75/25 read/write workload with varying
+> > i/o size and verification on. It is very important to use a good random
+> > generator for this test. Setting experimental_verify=3D1 is required fo=
+r
+> > this test to operate correctly.
+> >
+> > Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+> > ---
+> >  t/zbd/test-zbd-support | 18 ++++++++++++++++++
+> >  1 file changed, 18 insertions(+)
+> >
+> > diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+> > index 0b8015df..94c92e26 100755
+> > --- a/t/zbd/test-zbd-support
+> > +++ b/t/zbd/test-zbd-support
+> > @@ -1135,6 +1135,24 @@ test53() {
+> >  	return 1
+> >  }
+> >
+> > +# Test read/write mix with verify.
+> > +test54() {
+> > +	require_zbd || return $SKIP_TESTCASE
+> > +	require_seq_zones 8 || return $SKIP_TESTCASE
+> > +
+> > +	run_fio --name=3Djob --filename=3D${dev} --ioengine=3Dlibaio \
+>=20
+> I think --ioengine=3Dlibaio should be $(ioengine "libaio"), or test-zbd-s=
+upport
+> script run with -l option with sg node will fail.
 
-Fixes for two more test failures are included in this commit -
+Thanks for pointing this out - yes, ioengine selection should be conditiona=
+l.
+I am going to send the v3 of the patch series with this change and the othe=
+r
+one that you discovered which is also related to libzbc ioengine.
 
-Test #14 tries to write to conventional zones if they are found at
-the beginning of the LBA range of the drive, but it assumes that
-these zones are online. This may not always be the case. Add "offset"
-to avoid the i/o to be attempted to run against any preceding offline
-zones.
+While looking at this, I've also found that libzbc ioengine doesn't work wi=
+th
+null_blk devices. There is a very trivial fix in the ioengine code allowing=
+ libzbc
+block backend to pick up and handle i/o to null_blk provided that device zo=
+ne
+capacity is the same as the zone size. I am going to enable this functional=
+ity
+in the v3 and to modify run-io-against-nullb script to have the -l (libzbc)=
+ option,
+similar to test-zbd-support script.
 
-Similarly, in test #17, the script tries to find the last zone.
-Check for the case when the last zone is offline. The test doesn't
-set the i/o file size, but it works OK in most of the cases because
-typically this test operates on the last physical zone. With the
-online lookup in place, this may not always be the case and if there
-are any offline zones that trail the last non-offline zone,
-then the i/o will try to access that zone and fail. Add the "size"
-to avoid the i/o to be attempted to run against any trailing offline
-zones.
+Regards,
+Dmitry
 
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- t/zbd/functions        | 56 ++++++++++++++++++++++++++++++++++++++++--
- t/zbd/test-zbd-support | 31 +++++++++++++++++++----
- 2 files changed, 80 insertions(+), 7 deletions(-)
-
-diff --git a/t/zbd/functions b/t/zbd/functions
-index 1a64a215..40ffe1de 100644
---- a/t/zbd/functions
-+++ b/t/zbd/functions
-@@ -71,7 +71,7 @@ first_sequential_zone() {
- 
-     if [ -n "${blkzone}" ] && [ ! -n "${use_libzbc}" ]; then
- 	${blkzone} report "$dev" |
--	    sed -n 's/^[[:blank:]]*start:[[:blank:]]\([0-9a-zA-Z]*\),[[:blank:]]len[[:blank:]]\([0-9a-zA-Z]*\),.*type:[[:blank:]]2(.*/\1 \2/p' |
-+	    sed -n 's/^[[:blank:]]*start:[[:blank:]]\([0-9a-zA-Z]*\),[[:blank:]]len[[:blank:]]\([0-9a-zA-Z]*\),.*zcond:\(14\|[[:blank:]][0-4]\)(.*type:[[:blank:]]\([2]\)(.*/\1 \2/p' |
- 	    {
- 		read -r starting_sector length &&
- 		    # Convert from hex to decimal
-@@ -79,7 +79,7 @@ first_sequential_zone() {
- 	    }
-     else
- 	${zbc_report_zones} "$dev" |
--	    sed -n 's/^Zone [0-9]*: type 0x2 .*, sector \([0-9]*\), \([0-9]*\) sectors,.*$/\1 \2/p' |
-+	    sed -n 's/^Zone [0-9]*: type 0x2 .*,[[:blank:]]cond[[:blank:]]0x[0-4e][[:blank:]].*, sector \([0-9]*\), \([0-9]*\) sectors.*$/\1 \2/p' |
- 	    head -n1
-     fi
- }
-@@ -121,6 +121,58 @@ total_zone_capacity() {
- 	echo $((capacity * 512))
- }
- 
-+# Reports the starting sector and length of the first zone of device $1
-+# that is not in offline (or similar) condition.
-+first_online_zone() {
-+    local dev=$1
-+
-+    if [ -z "$is_zbd" ]; then
-+	echo 0
-+	return
-+    fi
-+
-+    if [ -n "${blkzone}" ] && [ ! -n "${use_libzbc}" ]; then
-+	${blkzone} report "$dev" |
-+	    sed -n 's/^[[:blank:]]*start:[[:blank:]]\([0-9a-zA-Z]*\),[[:blank:]]len[[:blank:]]\([0-9a-zA-Z]*\),.*zcond:\(14\|[[:blank:]][0-4]\)(.*type:[[:blank:]][12](.*/\1/p' |
-+	    head -n1 |
-+	    {
-+		read -r starting_sector &&
-+		    # Convert from hex to decimal
-+		    echo $((starting_sector))
-+	    }
-+    else
-+	${zbc_report_zones} "$dev" |
-+	    sed -n 's/^Zone[[:blank:]][0-9]*:[[:blank:]]type[[:blank:]]0x[12][[:blank:]].*,[[:blank:]]cond[[:blank:]]0x[0-4e][[:blank:]].*,[[:blank:]]sector[[:blank:]]\([0-9]*\),.*$/\1/p' |
-+	    head -n1
-+    fi
-+}
-+
-+# Reports the starting sector and length of the last zone of device $1
-+# that is not in offline (or similar) condition.
-+last_online_zone() {
-+    local dev=$1
-+
-+    if [ -z "$is_zbd" ]; then
-+	echo 0
-+	return
-+    fi
-+
-+    if [ -n "${blkzone}" ] && [ ! -n "${use_libzbc}" ]; then
-+	${blkzone} report "$dev" |
-+	    sed -n 's/^[[:blank:]]*start:[[:blank:]]\([0-9a-zA-Z]*\),[[:blank:]]len[[:blank:]]\([0-9a-zA-Z]*\),.*zcond:\(14\|[[:blank:]][0-4]\)(.*type:[[:blank:]][12](.*/\1/p' |
-+	    tail -1 |
-+	    {
-+		read -r starting_sector &&
-+		    # Convert from hex to decimal
-+		    echo $((starting_sector))
-+	    }
-+    else
-+	${zbc_report_zones} "$dev" |
-+	    sed -n 's/^Zone[[:blank:]][0-9]*:[[:blank:]]type[[:blank:]]0x[12][[:blank:]].*,[[:blank:]]cond[[:blank:]]0x[0-4e][[:blank:]].*,[[:blank:]]sector[[:blank:]]\([0-9]*\),.*$/\1/p' |
-+	    tail -1
-+    fi
-+}
-+
- max_open_zones() {
-     local dev=$1
- 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 033c2ebc..0b8015df 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -464,15 +464,20 @@ test13() {
- 
- # Random write to conventional zones.
- test14() {
--    local size
-+    local off size
- 
-+    if ! result=($(first_online_zone "$dev")); then
-+	echo "Failed to determine first online zone"
-+	exit 1
-+    fi
-+    off=${result[0]}
-     prep_write
-     size=$((16 * 2**20)) # 20 MB
-     require_conv_zone_bytes "${size}" || return $SKIP_TESTCASE
- 
-     run_one_fio_job "$(ioengine "libaio")" --iodepth=64 --rw=randwrite --bs=16K \
- 		    --zonemode=zbd --zonesize="${zone_size}" --do_verify=1 \
--		    --verify=md5 --size=$size				   \
-+		    --verify=md5 --offset=$off --size=$size\
- 		    >>"${logfile}.${test_number}" 2>&1 || return $?
-     check_written $((size)) || return $?
-     check_read $((size)) || return $?
-@@ -529,17 +534,26 @@ test16() {
- 
- # Random reads and writes in the last zone.
- test17() {
--    local io off read size written
-+    local io off last read size written
- 
-     off=$(((disk_size / zone_size - 1) * zone_size))
-     size=$((disk_size - off))
-+    if ! last=($(last_online_zone "$dev")); then
-+	echo "Failed to determine last online zone"
-+	exit 1
-+    fi
-+    if [[ "$((last * 512))" -lt "$off" ]]; then
-+	off=$((last * 512))
-+	size=$zone_size
-+    fi
-     if [ -n "$is_zbd" ]; then
- 	reset_zone "$dev" $((off / 512)) || return $?
-     fi
-     prep_write
-     run_one_fio_job "$(ioengine "libaio")" --iodepth=8 --rw=randrw --bs=4K \
- 		    --zonemode=zbd --zonesize="${zone_size}"		\
--		    --offset=$off --loops=2 --norandommap=1\
-+		    --offset=$off --loops=2 --norandommap=1 \
-+		    --size="$size"\
- 		    >>"${logfile}.${test_number}" 2>&1 || return $?
-     written=$(fio_written <"${logfile}.${test_number}")
-     read=$(fio_read <"${logfile}.${test_number}")
-@@ -867,10 +881,17 @@ test38() {
- 
- # Read one block from a block device.
- read_one_block() {
-+    local off
-     local bs
- 
-+    if ! result=($(first_online_zone "$dev")); then
-+	echo "Failed to determine first online zone"
-+	exit 1
-+    fi
-+    off=${result[0]}
-     bs=$((logical_block_size))
--    run_one_fio_job --rw=read "$(ioengine "psync")" --bs=$bs --size=$bs "$@" 2>&1 |
-+    run_one_fio_job --rw=read "$(ioengine "psync")" --offset=$off --bs=$bs \
-+		    --size=$bs "$@" 2>&1 |
- 	tee -a "${logfile}.${test_number}"
- }
- 
--- 
-2.28.0
-
+>=20
+> --
+> Best Regards,
+> Shin'ichiro Kawasaki
+>=20
+> > +		--time_based=3D1 --runtime=3D30s --continue_on_error=3D0 \
+> > +		--offset=3D$((first_sequential_zone_sector * 512)) \
+> > +		--size=3D$((8*zone_size)) --direct=3D1 --iodepth=3D1 \
+> > +		--rw=3Drandrw:2 --rwmixwrite=3D25 --bsrange=3D4k-${zone_size} \
+> > +		--zonemode=3Dzbd --zonesize=3D${zone_size} \
+> > +		--verify=3Dcrc32c --do_verify=3D1 --verify_backlog=3D2 \
+> > +		--experimental_verify=3D1 \
+> > +		--alloc-size=3D65536 --random_generator=3Dtausworthe64 \
+> > +		${job_var_opts[@]} --debug=3Dzbd \
+> > +		>> "${logfile}.${test_number}" 2>&1 || return $?
+> > +}
+> > +
+> >  tests=3D()
+> >  dynamic_analyzer=3D()
+> >  reset_all_zones=3D
+> > --
+> > 2.28.0
+> >
 
