@@ -1,32 +1,44 @@
-Return-Path: <prvs=649de9d05=shinichiro.kawasaki@wdc.com>
-From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: Re: [PATCH v3 36/38] t/zbd: show elapsed time in test-zbd-support
-Date: Fri, 22 Jan 2021 09:11:39 +0000
-Message-ID: <20210122091139.kek4cvpdgc7h6427@shindev.dhcp.fujisawa.hgst.com>
+Return-Path: <prvs=6334d1505=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH v3 36/38] t/zbd: show elapsed time in test-zbd-support
+Date: Thu,  7 Jan 2021 06:57:37 +0900
+Message-Id: <20210106215739.264524-37-dmitry.fomichev@wdc.com>
+In-Reply-To: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
 References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
- <20210106215739.264524-37-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210106215739.264524-37-dmitry.fomichev@wdc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <9F86DEEF070E864A949A770E2B9629DE@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Aravind Ramesh <Aravind.Ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <Naohiro.Aota@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>, Damien Le Moal <Damien.LeMoal@wdc.com>
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On Jan 07, 2021 / 06:57, Dmitry Fomichev wrote:
-> This script may take quite a lot of time to run against large
-> zoned HDDs. At the end of every run, show exactly how much time
-> it took.
->=20
-> Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+This script may take quite a lot of time to run against large
+zoned HDDs. At the end of every run, show exactly how much time
+it took.
 
-Looks good to me.
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+---
+ t/zbd/test-zbd-support | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 0230f1af..f9427981 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -1153,6 +1153,7 @@ test54() {
+ 		>> "${logfile}.${test_number}" 2>&1 || return $?
+ }
+ 
++SECONDS=0
+ tests=()
+ dynamic_analyzer=()
+ reset_all_zones=
+@@ -1346,4 +1347,5 @@ fi
+ if [ $failed -gt 0 ]; then
+     echo " $failed tests failed"
+ fi
++echo "Run time: $(TZ=UTC0 printf "%(%H:%M:%S)T\n" $(( SECONDS )) )"
+ exit $rc
+-- 
+2.28.0
 
---=20
-Best Regards,
-Shin'ichiro Kawasaki=
 
