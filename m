@@ -1,32 +1,54 @@
-Return-Path: <prvs=649de9d05=shinichiro.kawasaki@wdc.com>
-From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: Re: [PATCH v3 19/38] zbd: improve replay range validation
-Date: Fri, 22 Jan 2021 04:47:53 +0000
-Message-ID: <20210122044752.62v3euwo73rf36c7@shindev.dhcp.fujisawa.hgst.com>
+Return-Path: <prvs=6334d1505=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH v3 19/38] zbd: improve replay range validation
+Date: Thu,  7 Jan 2021 06:57:20 +0900
+Message-Id: <20210106215739.264524-20-dmitry.fomichev@wdc.com>
+In-Reply-To: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
 References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
- <20210106215739.264524-20-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210106215739.264524-20-dmitry.fomichev@wdc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <A622F524266D314E8F64752D7D4CAA3B@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Aravind Ramesh <Aravind.Ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <Naohiro.Aota@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>, Damien Le Moal <Damien.LeMoal@wdc.com>
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On Jan 07, 2021 / 06:57, Dmitry Fomichev wrote:
-> Make sure that verification read always reads valid data.
->=20
-> Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Make sure that verification read always reads valid data.
 
-The code looks good to me. I felt some more background explanation in commi=
-t
-message might add some more help, but anyway,
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+---
+ zbd.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+diff --git a/zbd.c b/zbd.c
+index df61dc37..2656f3ea 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -1239,10 +1239,23 @@ static struct fio_zone_info *zbd_replay_write_order(struct thread_data *td,
+ 		assert(z);
+ 	}
+ 
+-	if (z->verify_block * min_bs >= z->capacity)
++	if (z->verify_block * min_bs >= z->capacity) {
+ 		log_err("%s: %d * %d >= %llu\n", f->file_name, z->verify_block,
+ 			min_bs, (unsigned long long)z->capacity);
+-	io_u->offset = z->start + z->verify_block++ * min_bs;
++		/*
++		 * If the assertion below fails during a test run, adding
++		 * "--experimental_verify=1" to the command line may help.
++		 */
++		assert(false);
++	}
++	io_u->offset = z->start + z->verify_block * min_bs;
++	if (io_u->offset + io_u->buflen >= zbd_zone_capacity_end(z)) {
++		log_err("%s: %llu + %llu >= %lu\n", f->file_name, io_u->offset,
++			io_u->buflen, zbd_zone_capacity_end(z));
++		assert(false);
++	}
++	z->verify_block += io_u->buflen / min_bs;
++
+ 	return z;
+ }
+ 
+-- 
+2.28.0
 
---=20
-Best Regards,
-Shin'ichiro Kawasaki=
 
