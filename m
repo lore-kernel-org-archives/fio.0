@@ -1,36 +1,50 @@
-Return-Path: <prvs=649de9d05=shinichiro.kawasaki@wdc.com>
-From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: Re: [PATCH v3 01/38] zbd: return ENOMEM if zone buffer allocation
- fails
-Date: Fri, 22 Jan 2021 02:07:29 +0000
-Message-ID: <20210122020728.pdxzuomnbgdadzr7@shindev.dhcp.fujisawa.hgst.com>
+Return-Path: <prvs=6334d1505=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH v3 01/38] zbd: return ENOMEM if zone buffer allocation fails
+Date: Thu,  7 Jan 2021 06:57:02 +0900
+Message-Id: <20210106215739.264524-2-dmitry.fomichev@wdc.com>
+In-Reply-To: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
 References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
- <20210106215739.264524-2-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210106215739.264524-2-dmitry.fomichev@wdc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <AE14DBBFB3D1C34C80A0057F3B03F94A@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Aravind Ramesh <Aravind.Ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <Naohiro.Aota@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>, Damien Le Moal <Damien.LeMoal@wdc.com>
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On Jan 07, 2021 / 06:57, Dmitry Fomichev wrote:
-> parse_zone_info() function tries to allocate a buffer of
-> ZBD_REPORT_MAX_ZONES zone descriptors and exits if this allocation
-> fails. The problem is that it returns 0 error code in this case and
-> the caller may interpret this as the success.
->=20
-> Just return ENOMEM if we can't allocate that buffer.
->=20
-> Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+parse_zone_info() function tries to allocate a buffer of
+ZBD_REPORT_MAX_ZONES zone descriptors and exits if this allocation
+fails. The problem is that it returns 0 error code in this case and
+the caller may interpret this as the success.
 
-Looks good to me.
+Just return ENOMEM if we can't allocate that buffer.
 
-Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+---
+ zbd.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---=20
-Best Regards,
-Shin'ichiro Kawasaki=
+diff --git a/zbd.c b/zbd.c
+index 9327816a..ad1ad1a9 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -443,7 +443,7 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
+ 	struct fio_zone_info *p;
+ 	uint64_t zone_size, offset;
+ 	struct zoned_block_device_info *zbd_info = NULL;
+-	int i, j, ret = 0;
++	int i, j, ret = -ENOMEM;
+ 
+ 	zones = calloc(ZBD_REPORT_MAX_ZONES, sizeof(struct zbd_zone));
+ 	if (!zones)
+@@ -475,7 +475,6 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
+ 
+ 	zbd_info = scalloc(1, sizeof(*zbd_info) +
+ 			   (nr_zones + 1) * sizeof(zbd_info->zone_info[0]));
+-	ret = -ENOMEM;
+ 	if (!zbd_info)
+ 		goto out;
+ 	mutex_init_pshared(&zbd_info->mutex);
+-- 
+2.28.0
+
 
