@@ -1,41 +1,60 @@
-Return-Path: <prvs=649de9d05=shinichiro.kawasaki@wdc.com>
-From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: Re: [PATCH v3 33/38] t/zbd: prevent test #31 from looping
-Date: Fri, 22 Jan 2021 08:56:40 +0000
-Message-ID: <20210122085639.jt32liozb73xa4eu@shindev.dhcp.fujisawa.hgst.com>
+Return-Path: <prvs=6334d1505=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH v3 33/38] t/zbd: prevent test #31 from looping
+Date: Thu,  7 Jan 2021 06:57:34 +0900
+Message-Id: <20210106215739.264524-34-dmitry.fomichev@wdc.com>
+In-Reply-To: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
 References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
- <20210106215739.264524-34-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210106215739.264524-34-dmitry.fomichev@wdc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <3518395FEE7B34429D1C99BFEF48ED3C@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Aravind Ramesh <Aravind.Ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <Naohiro.Aota@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>, Damien Le Moal <Damien.LeMoal@wdc.com>
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On Jan 07, 2021 / 06:57, Dmitry Fomichev wrote:
-> The test 31 starts i/o to 128 zones in parallel.
-> There are two corner cases that are not properly handled in the
-> existing implementation -
-> 1) If the total number of zones on the device is < 128, the test
-> will loop indefinitely because the loop increment is calculated as
-> zero by the script.
-> 2) If the number of max_open_zones of the device is < 128, the
-> test will fail due to exceeding max_open_zones limit as the code
-> expects it to be >=3D 128.
->=20
-> Limit the number of open zones to the reported maximum
-> and skip the test if there is not enough zones on the device.
->=20
-> Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+The test 31 starts i/o to 128 zones in parallel.
+There are two corner cases that are not properly handled in the
+existing implementation -
+1) If the total number of zones on the device is < 128, the test
+will loop indefinitely because the loop increment is calculated as
+zero by the script.
+2) If the number of max_open_zones of the device is < 128, the
+test will fail due to exceeding max_open_zones limit as the code
+expects it to be >= 128.
 
-Looks good to me.
+Limit the number of open zones to the reported maximum
+and skip the test if there is not enough zones on the device.
 
-Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+---
+ t/zbd/test-zbd-support | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---=20
-Best Regards,
-Shin'ichiro Kawasaki=
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 93456ec6..033c2ebc 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -718,12 +718,18 @@ test31() {
+     local bs inc nz off opts size
+ 
+     prep_write
+-    # Start with writing 128 KB to 128 sequential zones.
++    # Start with writing 128 KB to max_open_zones sequential zones.
+     bs=128K
+-    nz=128
++    nz=$((max_open_zones))
++    if [[ $nz -eq 0 ]]; then
++	nz=128
++    fi
+     # shellcheck disable=SC2017
+     inc=$(((disk_size - (first_sequential_zone_sector * 512)) / (nz * zone_size)
+ 	   * zone_size))
++    if [ "$inc" -eq 0 ]; then
++	require_seq_zones $nz || return $SKIP_TESTCASE
++    fi
+     opts=()
+     for ((off = first_sequential_zone_sector * 512; off < disk_size;
+ 	  off += inc)); do
+-- 
+2.28.0
+
 
