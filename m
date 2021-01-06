@@ -1,36 +1,46 @@
-Return-Path: <prvs=649de9d05=shinichiro.kawasaki@wdc.com>
-From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: Re: [PATCH v3 08/38] zbd: avoid zone buffer overrun
-Date: Fri, 22 Jan 2021 04:02:11 +0000
-Message-ID: <20210122040208.xsvxwr5mcq37nz4u@shindev.dhcp.fujisawa.hgst.com>
+Return-Path: <prvs=6334d1505=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH v3 08/38] zbd: avoid zone buffer overrun
+Date: Thu,  7 Jan 2021 06:57:09 +0900
+Message-Id: <20210106215739.264524-9-dmitry.fomichev@wdc.com>
+In-Reply-To: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
 References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
- <20210106215739.264524-9-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210106215739.264524-9-dmitry.fomichev@wdc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <662CB4A5599ABD4396DF95E1A4ACC617@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Aravind Ramesh <Aravind.Ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <Naohiro.Aota@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>, Damien Le Moal <Damien.LeMoal@wdc.com>
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On Jan 07, 2021 / 06:57, Dmitry Fomichev wrote:
-> If the total number of zones on a drive is calculated to a value that
-> is less than the number of zones it can actually report, zone info
-> buffer can be overrun. This may happen not only due to drive firmware
-> problems, but also because of underlying software incorrectly
-> reporting zoned device capacity.
->=20
-> Fix this by more carefully setting zone report size.
->=20
-> Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+If the total number of zones on a drive is calculated to a value that
+is less than the number of zones it can actually report, zone info
+buffer can be overrun. This may happen not only due to drive firmware
+problems, but also because of underlying software incorrectly
+reporting zoned device capacity.
 
-Looks good to me.
+Fix this by more carefully setting zone report size.
 
-Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+---
+ zbd.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---=20
-Best Regards,
-Shin'ichiro Kawasaki=
+diff --git a/zbd.c b/zbd.c
+index 69befd5a..db0d650a 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -526,8 +526,9 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
+ 		offset = z->start + z->len;
+ 		if (j >= nr_zones)
+ 			break;
+-		nrz = zbd_report_zones(td, f, offset,
+-					    zones, ZBD_REPORT_MAX_ZONES);
++		nrz = zbd_report_zones(td, f, offset, zones,
++				       min((uint32_t)(nr_zones - j),
++					   ZBD_REPORT_MAX_ZONES));
+ 		if (nrz < 0) {
+ 			ret = nrz;
+ 			log_info("fio: report zones (offset %llu) failed for %s (%d).\n",
+-- 
+2.28.0
+
 
