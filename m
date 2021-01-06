@@ -1,120 +1,63 @@
-Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v4 11/38] zbd: do not set zbd handlers for conventional zones
-Date: Wed, 27 Jan 2021 13:19:18 +0900
-Message-Id: <20210127041945.36909-12-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
-References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43410 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726801AbhAFNCs (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 6 Jan 2021 08:02:48 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5268BC06134C
+        for <fio@vger.kernel.org>; Wed,  6 Jan 2021 05:02:07 -0800 (PST)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
+        id 1kx8Q3-002LXa-2U
+        for fio@vger.kernel.org; Wed, 06 Jan 2021 13:01:10 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20210106130001.C00371BC0148@kernel.dk>
+Date: Wed,  6 Jan 2021 06:00:01 -0700 (MST)
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+The following changes since commit a64b7d6e9b3e5174e034f7c147de71e4b51b2a01:
 
-When zbd_adjust_block() modifies io_u to satisfy write pointer
-restrictions, it may change the zone for the io_u. The function sets
-pointers to zbd_queue_io() and zbd_put_io() handlers to io_u to
-further process write pointer zones. However, when the I/O is
-redirected to a conventional zone, these handlers should not
-be set in io_u.
+  Merge branch 'fix-get-next-file' of https://github.com/aclamk/fio (2020-12-29 16:36:32 -0700)
 
-Skip setting the handlers when this function returns a conventional
-zone. When zbd_adjust_block() can not find a zone to fit the I/O,
-the existing code unlocks the zone pointer 'zb' used in the function.
-This unlock should not be performed if 'zb' points to a conventional
-zone upon return, skip it in this case.
+are available in the Git repository at:
 
-These changes make the assert for 'zb' pointer near 'accept' label in
-zbd_adjust_block() unnecessary. Replace it with assert for zb->has_wp,
-since the zone at the step shall have write pointer.
+  git://git.kernel.dk/fio.git master
 
-Since zone locking functions (zone_lock(), zbd_queue_io() and
-zbd_put_io()) are supposed to be called only for write pointer zones,
-add assertions to zone_lock() and zone_unlock() to make sure this is
-the case. This allows us to convert a few existing conditional checks
-to assertions to make zone type validation more strict.
+for you to fetch changes up to 4065c6a4949fa85e5f2d8de8a5556130231dd680:
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+  log: only compile log_prevalist() if FIO_INC_DEBUG is set (2021-01-05 13:14:28 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      log: only compile log_prevalist() if FIO_INC_DEBUG is set
+
+ log.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
 ---
- zbd.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/zbd.c b/zbd.c
-index a14e4a38..88cbc6fa 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -174,6 +174,8 @@ static void zone_lock(struct thread_data *td, struct fio_file *f, struct fio_zon
- 	/* A thread should never lock zones outside its working area. */
- 	assert(f->min_zone <= nz && nz < f->max_zone);
+Diff of recent changes:
+
+diff --git a/log.c b/log.c
+index 6c36813d..562a29aa 100644
+--- a/log.c
++++ b/log.c
+@@ -42,6 +42,7 @@ size_t log_valist(const char *fmt, va_list args)
+ }
  
-+	assert(z->has_wp);
-+
- 	/*
- 	 * Lock the io_u target zone. The zone will be unlocked if io_u offset
- 	 * is changed or when io_u completes and zbd_put_io() executed.
-@@ -194,6 +196,7 @@ static inline void zone_unlock(struct fio_zone_info *z)
+ /* add prefix for the specified type in front of the valist */
++#ifdef FIO_INC_DEBUG
+ void log_prevalist(int type, const char *fmt, va_list args)
  {
- 	int ret;
- 
-+	assert(z->has_wp);
- 	ret = pthread_mutex_unlock(&z->mutex);
- 	assert(!ret);
+ 	char *buf1, *buf2;
+@@ -64,6 +65,7 @@ void log_prevalist(int type, const char *fmt, va_list args)
+ 	len = log_info_buf(buf2, len);
+ 	free(buf2);
  }
-@@ -1326,8 +1329,7 @@ static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int q,
- 	assert(zone_idx < zbd_info->nr_zones);
- 	z = get_zone(f, zone_idx);
++#endif
  
--	if (!z->has_wp)
--		return;
-+	assert(z->has_wp);
- 
- 	if (!success)
- 		goto unlock;
-@@ -1386,8 +1388,7 @@ static void zbd_put_io(struct thread_data *td, const struct io_u *io_u)
- 	assert(zone_idx < zbd_info->nr_zones);
- 	z = get_zone(f, zone_idx);
- 
--	if (!z->has_wp)
--		return;
-+	assert(z->has_wp);
- 
- 	dprint(FD_ZBD,
- 	       "%s: terminate I/O (%lld, %llu) for zone %u\n",
-@@ -1617,6 +1618,12 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 			io_u->offset = zb->start +
- 				((io_u->offset - orig_zb->start) %
- 				 (range - io_u->buflen)) / min_bs * min_bs;
-+		/*
-+		 * When zbd_find_zone() returns a conventional zone,
-+		 * we can simply accept the new i/o offset here.
-+		 */
-+		if (!zb->has_wp)
-+			return io_u_accept;
- 		/*
- 		 * Make sure the I/O does not cross over the zone wp position.
- 		 */
-@@ -1713,7 +1720,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 	assert(false);
- 
- accept:
--	assert(zb);
-+	assert(zb->has_wp);
- 	assert(zb->cond != ZBD_ZONE_COND_OFFLINE);
- 	assert(!io_u->zbd_queue_io);
- 	assert(!io_u->zbd_put_io);
-@@ -1722,7 +1729,7 @@ accept:
- 	return io_u_accept;
- 
- eof:
--	if (zb)
-+	if (zb && zb->has_wp)
- 		zone_unlock(zb);
- 	return io_u_eof;
- }
--- 
-2.28.0
-
+ ssize_t log_info(const char *format, ...)
+ {
 
