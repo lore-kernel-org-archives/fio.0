@@ -1,8 +1,8 @@
 Return-Path: <prvs=6334d1505=dmitry.fomichev@wdc.com>
 From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v3 02/38] zbd: use zbd_zone_nr() more actively in the code
-Date: Thu,  7 Jan 2021 06:57:03 +0900
-Message-Id: <20210106215739.264524-3-dmitry.fomichev@wdc.com>
+Subject: [PATCH v3 11/38] zbd: do not set zbd handlers for conventional zones
+Date: Thu,  7 Jan 2021 06:57:12 +0900
+Message-Id: <20210106215739.264524-12-dmitry.fomichev@wdc.com>
 In-Reply-To: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
 References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
@@ -11,105 +11,109 @@ To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.r
 Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-The function zbd_zone_nr() is always called with the first argument
-being f->zbd_info. If "f" is made the first argument instead, calls
-of this function become more compact end easier to read.
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-Besides this change, convert several places in the code where the same
-zone number calculation is open coded to zbd_zone_nr() calls.
-This is a refactoring patch, no change in functionality.
+When zbd_adjust_block() modifies io_u to satisfy write pointer
+restrictions, it may change the zone for the io_u. The function sets
+pointers to zbd_queue_io() and zbd_put_io() handlers to io_u to
+further process write pointer zones. However, when the I/O is
+redirected to a conventional zone, these handlers should not
+be set in io_u.
 
+Skip setting the handlers when this function returns a conventional
+zone. When zbd_adjust_block() can not find a zone to fit the I/O,
+the existing code unlocks the zone pointer 'zb' used in the function.
+This unlock should not be performed if 'zb' points to a conventional
+zone upon return, skip it in this case.
+
+These changes make the assert for 'zb' pointer near 'accept' label in
+zbd_adjust_block() unnecessary. Replace it with assert for zb->has_wp,
+since the zone at the step shall have write pointer.
+
+Since zone locking functions (zone_lock(), zbd_queue_io() and
+zbd_put_io()) are supposed to be called only for write pointer zones,
+add assertions to zone_lock() and zone_unlock() to make sure this is
+the case. This allows us to convert a few existing conditional checks
+to assertions to make zone type validation more strict.
+
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- zbd.c | 24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
+ zbd.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
 diff --git a/zbd.c b/zbd.c
-index ad1ad1a9..841427e7 100644
+index 84ac6b6f..f7c29250 100644
 --- a/zbd.c
 +++ b/zbd.c
-@@ -694,10 +694,10 @@ int zbd_setup_files(struct thread_data *td)
- 	return 0;
- }
+@@ -174,6 +174,8 @@ static void zone_lock(struct thread_data *td, struct fio_file *f, struct fio_zon
+ 	/* A thread should never lock zones outside its working area. */
+ 	assert(f->min_zone <= nz && nz < f->max_zone);
  
--static unsigned int zbd_zone_nr(struct zoned_block_device_info *zbd_info,
--				struct fio_zone_info *zone)
-+static inline unsigned int zbd_zone_nr(const struct fio_file *f,
-+				       struct fio_zone_info *zone)
++	assert(z->has_wp);
++
+ 	/*
+ 	 * Lock the io_u target zone. The zone will be unlocked if io_u offset
+ 	 * is changed or when io_u completes and zbd_put_io() executed.
+@@ -194,6 +196,7 @@ static inline void zone_unlock(struct fio_zone_info *z)
  {
--	return zone - zbd_info->zone_info;
-+	return zone - f->zbd_info->zone_info;
+ 	int ret;
+ 
++	assert(z->has_wp);
+ 	ret = pthread_mutex_unlock(&z->mutex);
+ 	assert(!ret);
  }
+@@ -1326,8 +1329,7 @@ static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int q,
+ 	assert(zone_idx < zbd_info->nr_zones);
+ 	z = get_zone(f, zone_idx);
  
- /**
-@@ -723,7 +723,7 @@ static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
- 	assert(is_valid_offset(f, offset + length - 1));
+-	if (!z->has_wp)
+-		return;
++	assert(z->has_wp);
  
- 	dprint(FD_ZBD, "%s: resetting wp of zone %u.\n", f->file_name,
--		zbd_zone_nr(f->zbd_info, z));
-+		zbd_zone_nr(f, z));
- 	switch (f->zbd_info->model) {
- 	case ZBD_HOST_AWARE:
- 	case ZBD_HOST_MANAGED:
-@@ -793,9 +793,9 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
- 	assert(min_bs);
+ 	if (!success)
+ 		goto unlock;
+@@ -1386,8 +1388,7 @@ static void zbd_put_io(struct thread_data *td, const struct io_u *io_u)
+ 	assert(zone_idx < zbd_info->nr_zones);
+ 	z = get_zone(f, zone_idx);
  
- 	dprint(FD_ZBD, "%s: examining zones %u .. %u\n", f->file_name,
--		zbd_zone_nr(f->zbd_info, zb), zbd_zone_nr(f->zbd_info, ze));
-+		zbd_zone_nr(f, zb), zbd_zone_nr(f, ze));
- 	for (z = zb; z < ze; z++) {
--		uint32_t nz = z - f->zbd_info->zone_info;
-+		uint32_t nz = zbd_zone_nr(f, z);
+-	if (!z->has_wp)
+-		return;
++	assert(z->has_wp);
  
- 		if (!zbd_zone_swr(z))
- 			continue;
-@@ -811,8 +811,7 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
- 		}
- 		if (reset_wp) {
- 			dprint(FD_ZBD, "%s: resetting zone %u\n",
--			       f->file_name,
--			       zbd_zone_nr(f->zbd_info, z));
-+			       f->file_name, zbd_zone_nr(f, z));
- 			if (zbd_reset_zone(td, f, z) < 0)
- 				res = 1;
- 		}
-@@ -1197,7 +1196,7 @@ static struct fio_zone_info *zbd_replay_write_order(struct thread_data *td,
- 	const struct fio_file *f = io_u->file;
- 	const uint32_t min_bs = td->o.min_bs[DDIR_WRITE];
+ 	dprint(FD_ZBD,
+ 	       "%s: terminate I/O (%lld, %llu) for zone %u\n",
+@@ -1617,6 +1618,12 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 			io_u->offset = zb->start +
+ 				((io_u->offset - orig_zb->start) %
+ 				 (range - io_u->buflen)) / min_bs * min_bs;
++		/*
++		 * When zbd_find_zone() returns a conventional zone,
++		 * we can simply accept the new i/o offset here.
++		 */
++		if (!zb->has_wp)
++			return io_u_accept;
+ 		/*
+ 		 * Make sure the I/O does not cross over the zone wp position.
+ 		 */
+@@ -1713,7 +1720,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 	assert(false);
  
--	if (!zbd_open_zone(td, f, z - f->zbd_info->zone_info)) {
-+	if (!zbd_open_zone(td, f, zbd_zone_nr(f, z))) {
- 		pthread_mutex_unlock(&z->mutex);
- 		z = zbd_convert_to_open_zone(td, io_u);
- 		assert(z);
-@@ -1271,7 +1270,7 @@ static void zbd_end_zone_io(struct thread_data *td, const struct io_u *io_u,
- 	if (io_u->ddir == DDIR_WRITE &&
- 	    io_u->offset + io_u->buflen >= zbd_zone_capacity_end(z)) {
- 		pthread_mutex_lock(&f->zbd_info->mutex);
--		zbd_close_zone(td, f, z - f->zbd_info->zone_info);
-+		zbd_close_zone(td, f, zbd_zone_nr(f, z));
- 		pthread_mutex_unlock(&f->zbd_info->mutex);
- 	}
+ accept:
+-	assert(zb);
++	assert(zb->has_wp);
+ 	assert(zb->cond != ZBD_ZONE_COND_OFFLINE);
+ 	assert(!io_u->zbd_queue_io);
+ 	assert(!io_u->zbd_put_io);
+@@ -1722,7 +1729,7 @@ accept:
+ 	return io_u_accept;
+ 
+ eof:
+-	if (zb)
++	if (zb && zb->has_wp)
+ 		zone_unlock(zb);
+ 	return io_u_eof;
  }
-@@ -1430,8 +1429,7 @@ void setup_zbd_zone_mode(struct thread_data *td, struct io_u *io_u)
- 		       "%s: Jump from zone capacity limit to zone end:"
- 		       " (%llu -> %llu) for zone %u (%llu)\n",
- 		       f->file_name, (unsigned long long) f->last_pos[ddir],
--		       (unsigned long long) zbd_zone_end(z),
--		       zbd_zone_nr(f->zbd_info, z),
-+		       (unsigned long long) zbd_zone_end(z), zone_idx,
- 		       (unsigned long long) z->capacity);
- 		td->io_skip_bytes += zbd_zone_end(z) - f->last_pos[ddir];
- 		f->last_pos[ddir] = zbd_zone_end(z);
-@@ -1612,7 +1610,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 			zb = zbd_convert_to_open_zone(td, io_u);
- 			if (!zb)
- 				goto eof;
--			zone_idx_b = zb - f->zbd_info->zone_info;
-+			zone_idx_b = zbd_zone_nr(f, zb);
- 		}
- 		/* Check whether the zone reset threshold has been exceeded */
- 		if (td->o.zrf.u.f) {
 -- 
 2.28.0
 
