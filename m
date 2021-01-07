@@ -1,49 +1,66 @@
-Return-Path: <prvs=6334d1505=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v3 21/38] zbd: avoid failing assertion in zbd_convert_to_open_zone()
-Date: Thu,  7 Jan 2021 06:57:22 +0900
-Message-Id: <20210106215739.264524-22-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
-References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-eopbgr150134.outbound.protection.outlook.com ([40.107.15.134]:47878
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727451AbhAGXH7 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 7 Jan 2021 18:07:59 -0500
+From: Erwan Velu <e.velu@criteo.com>
+Subject: Adding a new cpu mode for the cpu engine
+Message-ID: <3c818fe5-5d53-43d5-c949-89268172d266@criteo.com>
+Date: Fri, 8 Jan 2021 00:07:03 +0100
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
-List-ID: <fio@vger.kernel.org>
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-The test run against null_blk with the following command line -
+Hey list,
+I've been sending a pull request to improve the cpu engine 
+:https://github.com/axboe/fio/pull/1161 
+<https://github.com/axboe/fio/pull/1161>
 
-t/zbd/run-tests-against-nullb -l -q -s 12 -t 51 -n 100
+fio is featuring a cpu engine which makes noop to load the cpu cores.
+This makes the core busy but doesn't really consume energy and doesn't 
+generate heat.
 
-stops with a failure and the message below can be seen in the test log:
+When benchmarking systems, it could be useful putting the processor 
+under a realistic load to see how the whole system behave.
+The idea is to get a more realistic cpu workload generator so IO 
+benchmarks can be done under a defined cpu load.
 
-fio: zbd.c:1110: zbd_convert_to_open_zone: Assertion `open_zone_idx < f->zbd_info->num_open_zones' failed.
+This commit adds cpumode option into the cpuio engine.
+By default, cpumode=noop to keep the current behavior.
 
-This assertion fails because pick_random_zone_idx() function returns
-index 0 if no zones are currently open. In this case, open_zone_idx and
-f->zbd_info->num_open_zones are both zero. Since this situation is
-normal, simply modify the assert statement to avoid failing.
 
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- zbd.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+If cpumode is set to qsort, fio will use a qsort algorithm instead of 
+the noop instructions to load the processor.
 
-diff --git a/zbd.c b/zbd.c
-index 2656f3ea..f51db783 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -1107,7 +1107,8 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
- 		 * Ignore zones which don't belong to thread's offset/size area.
- 		 */
- 		open_zone_idx = pick_random_zone_idx(f, io_u);
--		assert(open_zone_idx < f->zbd_info->num_open_zones);
-+		assert(!open_zone_idx ||
-+		       open_zone_idx < f->zbd_info->num_open_zones);
- 		tmp_idx = open_zone_idx;
- 		for (i = 0; i < f->zbd_info->num_open_zones; i++) {
- 			uint32_t tmpz;
--- 
-2.28.0
+This mode will consume more cpu power and will be useful to increase the 
+pressure on the thermal and electrical components.
 
+The expected cpu load is selected as per noop via the cpuload option.
+qsort() consumes a lot of energy so the duration of every loop will vary 
+over time as the power management & cpu clock changes.
+
+To ensure a proper calibration, the thinktime is adjusted after every 
+qsort() computation to be as precise as possible.
+
+
+To give an order of magnitude, on an AMD 7502P (TDP=180W) :
+cpuload=30, numjobs=64: packagewatt = 134W
+cpuload=50, numjobs=64: packagewatt = 167W
+
+cpuload=70, numjobs=64: packagewatt = 180W
+
+
+The example file is updated to reflect this new capabilities.
+
+
+The qsort code is coming from stress-qsort.c from stress-ng tool.
+This software is also GPLv2 but author was informed and agreed with this 
+usage
+
+
+Erwan,
 
