@@ -1,52 +1,60 @@
-Return-Path: <prvs=6334d1505=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v3 14/38] zbd: initialize sectors with data at start time
-Date: Thu,  7 Jan 2021 06:57:15 +0900
-Message-Id: <20210106215739.264524-15-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
-References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50508 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726321AbhAJNAr (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 10 Jan 2021 08:00:47 -0500
+Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A576BC061786
+        for <fio@vger.kernel.org>; Sun, 10 Jan 2021 05:00:06 -0800 (PST)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kyaKC-0004UC-5Y
+        for fio@vger.kernel.org; Sun, 10 Jan 2021 13:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20210110130001.A4D2B1BC0119@kernel.dk>
+Date: Sun, 10 Jan 2021 06:00:01 -0700 (MST)
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Aravind Ramesh <aravind.ramesh@wdc.com>
+The following changes since commit 8f14dc61422df3b1eaee1293a7d10ba791c8084c:
 
-Based on the flag enable_check_swd, which is false by default, fio
-does not initialize the swd value at startup, initializing the swd
-value to be zero, even if some zones have sectors with data. This can
-result in fio reflecting less than actual swd after a few writes are
-completed. In workloads where verify is enabled, fio resets all the
-zones and while resetting, it decrements the swd counter with the
-actual number of swds in that zone(swd-count - swd-in-zone),
-since swd-count is initialized to 0, it results in overflow of the
-variable causing unpredictable issues.
+  Merge branch 'cpu-engine' of https://github.com/bvanassche/fio (2021-01-07 20:53:00 -0700)
 
-So, initialize the swd to the correct value.
+are available in the Git repository at:
 
-Fixes: 409a4f291e7f ("zbd: avoid initializing swd when unnecessary")
-Signed-off-by: Aravind Ramesh <aravind.ramesh@wdc.com>
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 674428a527931d86bfb164abcc847508b3be2742:
+
+  Merge branch 'num2str-patch' of https://github.com/gloit042/fio (2021-01-09 15:28:44 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'num2str-patch' of https://github.com/gloit042/fio
+
+gloit042 (1):
+      num2str: fix precision loss bug when the fractional part is close to 1
+
+ lib/num2str.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
 ---
- zbd.c | 3 ---
- 1 file changed, 3 deletions(-)
 
-diff --git a/zbd.c b/zbd.c
-index 563f941b..45d045e9 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -946,9 +946,6 @@ static void zbd_init_swd(struct fio_file *f)
- {
- 	uint64_t swd;
+Diff of recent changes:
+
+diff --git a/lib/num2str.c b/lib/num2str.c
+index 3597de2f..cd89a0e5 100644
+--- a/lib/num2str.c
++++ b/lib/num2str.c
+@@ -110,6 +110,9 @@ done:
+ 	sprintf(tmp, "%.*f", (int)(maxlen - strlen(tmp) - 1),
+ 		(double)modulo / (double)thousand);
  
--	if (!enable_check_swd)
--		return;
--
- 	swd = zbd_process_swd(f, SET_SWD);
- 	dprint(FD_ZBD, "%s(%s): swd = %" PRIu64 "\n", __func__, f->file_name,
- 	       swd);
--- 
-2.28.0
-
++	if (tmp[0] == '1')
++		num++;
++
+ 	if (asprintf(&buf, "%llu.%s%s%s", (unsigned long long) num, &tmp[2],
+ 		     unitprefix[post_index], unitstr[units]) < 0)
+ 		buf = NULL;
 
