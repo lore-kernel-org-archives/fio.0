@@ -1,85 +1,60 @@
-Return-Path: <glqinhongwei@gmail.com>
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-From: Hongwei Qin <glqinhongwei@gmail.com>
-Date: Sun, 17 Jan 2021 02:45:56 +0800
-Message-ID: <CAKvRR0Sch-xwyoG+MuyPANHD5Y+Gzd+o7m0gK27sCveKyXe_ig@mail.gmail.com>
-Subject: [PATCH] Fix a rate limit issue.
+References: <cover.1610876646.git.glqinhongwei@gmail.com> <d1a6de3435104ed9092c1520b5c5c6fe59b52239.1610876646.git.glqinhongwei@gmail.com>
+ <CAKvRR0ShEVPV=YdC_kiFtoDEyJ9AG_QYZ2GShQjQH6k4aocT9A@mail.gmail.com>
+In-Reply-To: <CAKvRR0ShEVPV=YdC_kiFtoDEyJ9AG_QYZ2GShQjQH6k4aocT9A@mail.gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sun, 17 Jan 2021 16:37:31 +0000
+Message-ID: <CALjAwxj1Fzf+vWyiu_ddhsAnPVxij1QVqqL4WN+kwSpHZ=SyfQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] Fix thinktime_blocks
 Content-Type: text/plain; charset="UTF-8"
-To: fio@vger.kernel.org
-Cc: Jens Axboe <axboe@kernel.dk>, HongweiQin <glqinhongwei@gmail.com>
+To: Hongwei Qin <glqinhongwei@gmail.com>
+Cc: fio <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-In the current implementation, should_check_rate() returns false
-if ddir_rw_sum(td->bytes_done)==0. Therefore, a thread may violate
-the rate if iodepth*bs > rate.
+Hi Hongwei,
 
-This patch addresses the issue by not checking td->bytes_done in
-should_check_rate.
+On Sun, 17 Jan 2021 at 12:48, Hongwei Qin <glqinhongwei@gmail.com> wrote:
+>
+> Hi Sitsofe,
+>
+> >
+> > At this point wouldn't it be better to update the help to reflect the
+> > code rather than the other way around?
+> >
+>
+> Consider this configuration:
+> [global]
+> thread
+> kb_base=1000
+> direct=1
+> size=28GiB
+> group_reporting
+> io_size=64KiB
+> ioengine=libaio
+> iodepth=32
+> bs=4096
+> filename=/dev/qblkdev
+>
+> [fio_randwrite]
+> rw=randwrite
+> thinktime_blocks=4
+> thinktime=1s
+>
+> I write this job file to simulate a data server that periodically
+> writes back a certain amount of data (In this case,16KiB per second).
+> Note that we cannot use the rate_iops here because it will send 1 request
+> per 250ms.
+> If we keep the code as it is, the job will finish immediately after
+> the test starts.
+> And this is usually not what the user wants.
+>
+> Or, should we introduce a new parameter to distinguish between
+> "think after finish" and "think after issue"?
 
-An example of the issue:
+I like the idea of a new parameter! Maybe it would act as a toggle
+because it doesn't make sense to set both together...
 
-[root@localhost test]# cat fio_randwrite
-[global]
-thread
-kb_base=1000
-direct=1
-size=28GiB
-group_reporting
-io_size=16384
-ioengine=libaio
-iodepth=2
-bs=4096
-iodepth_batch_submit=1
-iodepth_batch_complete=1
-filename=/dev/qblkdev
-
-[fio_randwrite]
-rw=randwrite
-rate_iops=,1
-iodepth_batch_submit=1
-thinktime_blocks=1
-rate_cycle=1000
-thinktime=3s
-rate_ignore_thinktime=1
-
-[root@localhost test]# fio fio_randwrite
-
-blktrace output:
-259,1   11        1     0.100550729  6135  Q  WS 3541608 + 8 [fio]
-259,1   11        2     0.100552183  6135  G  WS 3541608 + 8 [fio]
-259,1   11        3     0.100560373  6135  D  WS 3541608 + 8 [fio]
-259,1   11        4     0.100570436  6135  C  WS 3541608 + 8 [0]
-259,1   11        5     0.100599816  6135  Q  WS 43470024 + 8 [fio]
-259,1   11        6     0.100600513  6135  G  WS 43470024 + 8 [fio]
-259,1   11        7     0.100601579  6135  D  WS 43470024 + 8 [fio]
-259,1   11        8     0.100612750  6135  C  WS 43470024 + 8 [0]
-259,1   11        9     3.101034407  6135  Q  WS 49511928 + 8 [fio]
-259,1   11       10     3.101036067  6135  G  WS 49511928 + 8 [fio]
-259,1   11       11     3.101054487  6135  D  WS 49511928 + 8 [fio]
-259,1   11       12     3.101068699  6135  C  WS 49511928 + 8 [0]
-259,1   11       13     6.101267480  6135  Q  WS 27599368 + 8 [fio]
-259,1   11       14     6.101269216  6135  G  WS 27599368 + 8 [fio]
-259,1   11       15     6.101277050  6135  D  WS 27599368 + 8 [fio]
-259,1   11       16     6.101287956  6135  C  WS 27599368 + 8 [0]
-
-Signed-off-by: HongweiQin <glqinhongwei@gmail.com>
----
- fio.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/fio.h b/fio.h
-index 4d439d9..f5b3990 100644
---- a/fio.h
-+++ b/fio.h
-@@ -767,7 +767,7 @@ static inline bool should_check_rate(struct thread_data *td)
-     if (!__should_check_rate(td))
-         return false;
-
--    return ddir_rw_sum(td->bytes_done) != 0;
-+    return true;
- }
-
- static inline unsigned long long td_max_bs(struct thread_data *td)
---
-1.8.3.1
+-- 
+Sitsofe
 
