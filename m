@@ -1,43 +1,28 @@
-Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v4 31/38] t/zbd: fix wrong units in test case #37
-Date: Wed, 27 Jan 2021 13:19:38 +0900
-Message-Id: <20210127041945.36909-32-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
-References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+References: <1610864656-6451-1-git-send-email-glqinhongwei@gmail.com>
+In-Reply-To: <1610864656-6451-1-git-send-email-glqinhongwei@gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sun, 17 Jan 2021 11:07:41 +0000
+Message-ID: <CALjAwxhf4m17rK5+DspN-WwstK+=eM2QC1M2sFNiB-y1nbxm5A@mail.gmail.com>
+Subject: Re: [PATCH] Fix thinktime_blocks
+Content-Type: text/plain; charset="UTF-8"
+To: HongweiQin <glqinhongwei@gmail.com>
+Cc: fio <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+On Sun, 17 Jan 2021 at 06:26, HongweiQin <glqinhongwei@gmail.com> wrote:
+>
+> According to the manual, the thinktime_blocks controls how many blocks to issue (instead of complete) before waiting.
+>
+> Signed-off-by: HongweiQin <glqinhongwei@gmail.com>
+> ---
+>  backend.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-The second argument of the function total_zone_capacity is expected to
-be in bytes. However, the call in test case #37 provides this argument
-in sectors and this results in a wrong capacity calculation. Make sure
-that the value that is passed to this function is converted to bytes.
+At this point wouldn't it be better to update the help to reflect the
+code rather than the other way around?
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- t/zbd/test-zbd-support | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 80763561..4d8e905d 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -828,7 +828,7 @@ test37() {
-     local bs off size capacity
- 
-     prep_write
--    capacity=$(total_zone_capacity 1 $first_sequential_zone_sector $dev)
-+    capacity=$(total_zone_capacity 1 $((first_sequential_zone_sector*512)) $dev)
-     if [ "$first_sequential_zone_sector" = 0 ]; then
- 	off=0
-     else
 -- 
-2.28.0
-
+Sitsofe
 
