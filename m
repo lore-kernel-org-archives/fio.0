@@ -1,56 +1,67 @@
-Return-Path: <prvs=6334d1505=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v3 35/38] t/zbd: add test #54 to exercise ZBD verification
-Date: Thu,  7 Jan 2021 06:57:36 +0900
-Message-Id: <20210106215739.264524-36-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
-References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
+Return-Path: <sitsofe@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+References: <cover.1610946213.git.glqinhongwei@gmail.com> <a6128298258fd7a76e0c3bc9c91d003f3cf7b4c4.1610946213.git.glqinhongwei@gmail.com>
+In-Reply-To: <a6128298258fd7a76e0c3bc9c91d003f3cf7b4c4.1610946213.git.glqinhongwei@gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Mon, 18 Jan 2021 13:02:00 +0000
+Message-ID: <CALjAwxhvAT9yxR-CWs-sq9Wia6d+hdmk_VOkat6eyePJZG37Kg@mail.gmail.com>
+Subject: Re: [PATCH v3 2/2] Calculate min_rate with the consideration of thinktime
+Content-Type: text/plain; charset="UTF-8"
+To: Hongwei Qin <glqinhongwei@gmail.com>
+Cc: fio <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-Add a new test case to perform 75/25 read/write workload with varying
-i/o size and verification on. It is very important to use a good random
-generator for this test. Setting experimental_verify=1 is required for
-this test to operate correctly.
+On Mon, 18 Jan 2021 at 05:20, Hongwei Qin <glqinhongwei@gmail.com> wrote:
+>
+> This patch updates the compare time if handle_thinktime
+> sleeps or spin.
+>
+> Signed-off-by: Hongwei Qin <glqinhongwei@gmail.com>
 
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- t/zbd/test-zbd-support | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+Signed-off-by: Sitsofe Wheeler <sitsofe@yahoo.com>
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 0b8015df..0230f1af 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -1135,6 +1135,24 @@ test53() {
- 	return 1
- }
- 
-+# Test read/write mix with verify.
-+test54() {
-+	require_zbd || return $SKIP_TESTCASE
-+	require_seq_zones 8 || return $SKIP_TESTCASE
-+
-+	run_fio --name=job --filename=${dev} "$(ioengine "libaio")" \
-+		--time_based=1 --runtime=30s --continue_on_error=0 \
-+		--offset=$((first_sequential_zone_sector * 512)) \
-+		--size=$((8*zone_size)) --direct=1 --iodepth=1 \
-+		--rw=randrw:2 --rwmixwrite=25 --bsrange=4k-${zone_size} \
-+		--zonemode=zbd --zonesize=${zone_size} \
-+		--verify=crc32c --do_verify=1 --verify_backlog=2 \
-+		--experimental_verify=1 \
-+		--alloc-size=65536 --random_generator=tausworthe64 \
-+		${job_var_opts[@]} --debug=zbd \
-+		>> "${logfile}.${test_number}" 2>&1 || return $?
-+}
-+
- tests=()
- dynamic_analyzer=()
- reset_all_zones=
+> ---
+>  backend.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+>
+> diff --git a/backend.c b/backend.c
+> index 874e193..f2efddd 100644
+> --- a/backend.c
+> +++ b/backend.c
+> @@ -858,7 +858,8 @@ static long long usec_for_io(struct thread_data *td, enum fio_ddir ddir)
+>         return 0;
+>  }
+>
+> -static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
+> +static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir,
+> +                            struct timespec *time)
+>  {
+>         unsigned long long b;
+>         uint64_t total;
+> @@ -898,6 +899,9 @@ static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
+>                 /* adjust for rate_process=poisson */
+>                 td->last_usec[ddir] += total;
+>         }
+> +
+> +       if (time && should_check_rate(td))
+> +               fio_gettime(time, NULL);
+>  }
+>
+>  /*
+> @@ -1078,7 +1082,7 @@ reap:
+>                         break;
+>
+>                 if (ddir_rw(ddir) && td->o.thinktime)
+> -                       handle_thinktime(td, ddir);
+> +                       handle_thinktime(td, ddir, &comp_time);
+>
+>                 if (!ddir_rw_sum(td->bytes_done) &&
+>                     !td_ioengine_flagged(td, FIO_NOIO))
+> --
+> 1.8.3.1
+>
+
+
 -- 
-2.28.0
-
+Sitsofe
 
