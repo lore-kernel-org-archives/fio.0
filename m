@@ -1,120 +1,117 @@
-Return-Path: <prvs=6334d1505=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v3 11/38] zbd: do not set zbd handlers for conventional zones
-Date: Thu,  7 Jan 2021 06:57:12 +0900
-Message-Id: <20210106215739.264524-12-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
-References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Return-Path: <glqinhongwei@gmail.com>
+Return-Path: <glqinhongwei@gmail.com>
+From: Hongwei Qin <glqinhongwei@gmail.com>
+Subject: [PATCH v3 0/2] Add a new parameter and fix minimal rate calculation.
+Date: Mon, 18 Jan 2021 13:19:53 +0800
+Message-Id: <cover.1610946213.git.glqinhongwei@gmail.com>
+To: fio@vger.kernel.org
+Cc: axboe@kernel.dk, sitsofe@gmail.com, Hongwei Qin <glqinhongwei@gmail.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+The first patch adds a new parameter thinktime_blocks_type to control
+the behavior of thinktime_blocks. It can be either `complete`
+or `issue`.
+If it is `complete` (default), fio triggers thinktime when
+thinktime_blocks number of blocks are **completed**.
+If it is `issue`, fio triggers thinktime when thinktime_blocks
+number of blocks are **issued**
 
-When zbd_adjust_block() modifies io_u to satisfy write pointer
-restrictions, it may change the zone for the io_u. The function sets
-pointers to zbd_queue_io() and zbd_put_io() handlers to io_u to
-further process write pointer zones. However, when the I/O is
-redirected to a conventional zone, these handlers should not
-be set in io_u.
+The second patch updates the compare time if handle_thinktime
+sleeps or spin.
 
-Skip setting the handlers when this function returns a conventional
-zone. When zbd_adjust_block() can not find a zone to fit the I/O,
-the existing code unlocks the zone pointer 'zb' used in the function.
-This unlock should not be performed if 'zb' points to a conventional
-zone upon return, skip it in this case.
+I bring the test results from the first patch to here
+for your convenience:
 
-These changes make the assert for 'zb' pointer near 'accept' label in
-zbd_adjust_block() unnecessary. Replace it with assert for zb->has_wp,
-since the zone at the step shall have write pointer.
+Tests:
+jobfile1:
+```
+[global]
+thread
+kb_base=1000
+direct=1
+size=1GiB
+group_reporting
+io_size=96KiB
+ioengine=libaio
+iodepth=8
+bs=4096
+filename=/dev/qblkdev
+rw=randwrite
 
-Since zone locking functions (zone_lock(), zbd_queue_io() and
-zbd_put_io()) are supposed to be called only for write pointer zones,
-add assertions to zone_lock() and zone_unlock() to make sure this is
-the case. This allows us to convert a few existing conditional checks
-to assertions to make zone type validation more strict.
+[fio_randwrite]
+thinktime=2s
+thinktime_blocks=4
+```
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- zbd.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+jobfile2:
+```
+[global]
+thread
+kb_base=1000
+direct=1
+size=1GiB
+group_reporting
+io_size=96KiB
+ioengine=libaio
+iodepth=8
+bs=4096
+filename=/dev/qblkdev
+rw=randwrite
 
-diff --git a/zbd.c b/zbd.c
-index 84ac6b6f..f7c29250 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -174,6 +174,8 @@ static void zone_lock(struct thread_data *td, struct fio_file *f, struct fio_zon
- 	/* A thread should never lock zones outside its working area. */
- 	assert(f->min_zone <= nz && nz < f->max_zone);
- 
-+	assert(z->has_wp);
-+
- 	/*
- 	 * Lock the io_u target zone. The zone will be unlocked if io_u offset
- 	 * is changed or when io_u completes and zbd_put_io() executed.
-@@ -194,6 +196,7 @@ static inline void zone_unlock(struct fio_zone_info *z)
- {
- 	int ret;
- 
-+	assert(z->has_wp);
- 	ret = pthread_mutex_unlock(&z->mutex);
- 	assert(!ret);
- }
-@@ -1326,8 +1329,7 @@ static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int q,
- 	assert(zone_idx < zbd_info->nr_zones);
- 	z = get_zone(f, zone_idx);
- 
--	if (!z->has_wp)
--		return;
-+	assert(z->has_wp);
- 
- 	if (!success)
- 		goto unlock;
-@@ -1386,8 +1388,7 @@ static void zbd_put_io(struct thread_data *td, const struct io_u *io_u)
- 	assert(zone_idx < zbd_info->nr_zones);
- 	z = get_zone(f, zone_idx);
- 
--	if (!z->has_wp)
--		return;
-+	assert(z->has_wp);
- 
- 	dprint(FD_ZBD,
- 	       "%s: terminate I/O (%lld, %llu) for zone %u\n",
-@@ -1617,6 +1618,12 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 			io_u->offset = zb->start +
- 				((io_u->offset - orig_zb->start) %
- 				 (range - io_u->buflen)) / min_bs * min_bs;
-+		/*
-+		 * When zbd_find_zone() returns a conventional zone,
-+		 * we can simply accept the new i/o offset here.
-+		 */
-+		if (!zb->has_wp)
-+			return io_u_accept;
- 		/*
- 		 * Make sure the I/O does not cross over the zone wp position.
- 		 */
-@@ -1713,7 +1720,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 	assert(false);
- 
- accept:
--	assert(zb);
-+	assert(zb->has_wp);
- 	assert(zb->cond != ZBD_ZONE_COND_OFFLINE);
- 	assert(!io_u->zbd_queue_io);
- 	assert(!io_u->zbd_put_io);
-@@ -1722,7 +1729,7 @@ accept:
- 	return io_u_accept;
- 
- eof:
--	if (zb)
-+	if (zb && zb->has_wp)
- 		zone_unlock(zb);
- 	return io_u_eof;
- }
+[fio_randwrite]
+thinktime=2s
+thinktime_blocks=4
+thinktime_blocks_type=issue
+```
+
+Results:
+Current HEAD:
+fio jobfile1:
+	write: IOPS=5, BW=24.6kB/s (24.0KiB/s)(98.3kB/4002msec); 0 zone resets
+
+	- issue 11 requests
+	- sleep 2s
+	- issue 8 requests
+	- sleep 2s
+	- issue 5 requests
+	- finish
+
+This patch:
+fio jobfile1:
+	write: IOPS=5, BW=24.6kB/s (24.0KiB/s)(98.3kB/4001msec); 0 zone resets
+
+	- issue 11 requests
+        - sleep 2s
+        - issue 8 requests
+        - sleep 2s
+        - issue 5 requests
+        - finish
+
+fio jobfile2:
+	write: IOPS=1, BW=8191B/s (8191B/s)(98.3kB/12001msec); 0 zone resets
+
+	- issue 4 requests
+	- sleep 2s
+	***
+	- issue 4 requests
+	- sleep 2s
+	- finish
+
+
+Hongwei Qin (2):
+  Add a new parameter.
+  Calculate min_rate with the consideration of thinktime
+
+ HOWTO            |  7 +++++++
+ backend.c        | 22 ++++++++++++++++------
+ cconv.c          |  2 ++
+ engines/cpu.c    |  1 +
+ fio.h            |  5 +++++
+ options.c        | 22 ++++++++++++++++++++++
+ thread_options.h |  2 ++
+ 7 files changed, 55 insertions(+), 6 deletions(-)
+
 -- 
-2.28.0
+1.8.3.1
 
 
