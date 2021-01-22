@@ -1,72 +1,41 @@
-Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v4 16/38] zbd: disable crossing from conventional to sequential zones
-Date: Wed, 27 Jan 2021 13:19:23 +0900
-Message-Id: <20210127041945.36909-17-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
-References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+Return-Path: <prvs=649de9d05=shinichiro.kawasaki@wdc.com>
+From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: Re: [PATCH v3 15/38] zbd: use zone_lock() in zbd_process_swd()
+Date: Fri, 22 Jan 2021 04:28:25 +0000
+Message-ID: <20210122042823.dzqtc4o73vz3aegk@shindev.dhcp.fujisawa.hgst.com>
+References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
+ <20210106215739.264524-16-dmitry.fomichev@wdc.com>
+In-Reply-To: <20210106215739.264524-16-dmitry.fomichev@wdc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <3D6DE589EFA6D04BA20127D5DC0F9514@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Aravind Ramesh <Aravind.Ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <Naohiro.Aota@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>, Damien Le Moal <Damien.LeMoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+On Jan 07, 2021 / 06:57, Dmitry Fomichev wrote:
+> Most of ZBD code in fio uses zone_lock() to lock write pointer zones.
+> This wrapper, besides doing the obvious pthread mutex lock, quiesce
+> the outstanding i/o when running via asynchronous ioengines. This is
+> necessary to avoid deadlocks. The function zbd_process_swd(), however,
+> still uses the naked pthread mutex to lock zones and this leads to a
+> deadlock when running ZBD test #48 against regular nullb devices.
+>=20
+> The fix added in the same patch series that introduced test #48 was to
+> NOT initialize SWD at all, but this solution is found to create
+> problems with verify. As the proper fix, modify zbd_process_swd()
+> to use zone_lock(). This makes the test #48 pass even when SWD counter
+> is initialized.
+>=20
+> Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 
-Write I/Os to conventional zones may have the range that spans across
-zone boundaries. Such writes may cause I/O errors when its next zone
-is a sequential zone.
+Looks good to me.
 
-To avoid such I/O errors, check for the cross over from a conventional
-to a sequential zone. When the write crosses the boundary, shrink the
-I/O length to fit within the first zone. If the offset is too close to
-the end of the zone, wrap it around to the beginning of the same zone.
+Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- zbd.c | 26 ++++++++++++++++++++++++--
- 1 file changed, 24 insertions(+), 2 deletions(-)
-
-diff --git a/zbd.c b/zbd.c
-index cebde1b6..2cebc5e6 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -1563,9 +1563,31 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 	zb = get_zone(f, zone_idx_b);
- 	orig_zb = zb;
- 
--	/* Accept the I/O offset for conventional zones. */
--	if (!zb->has_wp)
-+	if (!zb->has_wp) {
-+		/* Accept non-write I/Os for conventional zones. */
-+		if (io_u->ddir != DDIR_WRITE)
-+			return io_u_accept;
-+		/*
-+		 * Make sure that writes to conventional zones
-+		 * don't cross over to any sequential zones.
-+		 */
-+		if (!(zb + 1)->has_wp ||
-+		    io_u->offset + io_u->buflen <= (zb + 1)->start)
-+			return io_u_accept;
-+
-+		if (io_u->offset + min_bs > (zb + 1)->start) {
-+			dprint(FD_IO,
-+			       "%s: off=%llu + min_bs=%u > next zone %lu\n",
-+			       f->file_name, io_u->offset, min_bs,
-+			       (zb + 1)->start);
-+			io_u->offset = zb->start + (zb + 1)->start - io_u->offset;
-+			new_len = min(io_u->buflen, (zb + 1)->start - io_u->offset);
-+		} else {
-+			new_len = (zb + 1)->start - io_u->offset;
-+		}
-+		io_u->buflen = new_len / min_bs * min_bs;
- 		return io_u_accept;
-+	}
- 
- 	/*
- 	 * Accept the I/O offset for reads if reading beyond the write pointer
--- 
-2.28.0
-
+--=20
+Best Regards,
+Shin'ichiro Kawasaki=
 
