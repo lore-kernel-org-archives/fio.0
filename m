@@ -1,117 +1,132 @@
-Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v4 02/38] zbd: use zbd_zone_nr() more actively in the code
-Date: Wed, 27 Jan 2021 13:19:09 +0900
-Message-Id: <20210127041945.36909-3-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
-References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+Return-Path: <prvs=6493999f6=Dmitry.Fomichev@wdc.com>
+From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+Subject: RE: [PATCH v3 00/38] ZBD fixes and improvements
+Date: Fri, 22 Jan 2021 20:31:58 +0000
+Message-ID: 
+ <MN2PR04MB5951837AD8739C63EA1CA707E1A00@MN2PR04MB5951.namprd04.prod.outlook.com>
+References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
+ <20210122092457.kya3nis4g3bs2j6i@shindev.dhcp.fujisawa.hgst.com>
+In-Reply-To: <20210122092457.kya3nis4g3bs2j6i@shindev.dhcp.fujisawa.hgst.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Aravind Ramesh <Aravind.Ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <Naohiro.Aota@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>, Damien Le Moal <Damien.LeMoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-The function zbd_zone_nr() is always called with the first argument
-being f->zbd_info. If "f" is made the first argument instead, calls
-of this function become more compact end easier to read.
+Shinichiro,
 
-Besides this change, convert several places in the code where the same
-zone number calculation is open coded to zbd_zone_nr() calls.
-This is a refactoring patch, no change in functionality.
+Thank you for reviewing! I am going to send a v4 with the changes to
+t/zbd/run-tests-against-nullb script that you have suggested, extended
+commit message in "zbd: improve replay range validation" patch and
+added sign-off for " zbd: count sectors with data for write pointer zones"
+patch.
 
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- zbd.c | 24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
+Best regards,
+Dmitry
 
-diff --git a/zbd.c b/zbd.c
-index 46992746..80004658 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -694,10 +694,10 @@ int zbd_setup_files(struct thread_data *td)
- 	return 0;
- }
- 
--static unsigned int zbd_zone_nr(struct zoned_block_device_info *zbd_info,
--				struct fio_zone_info *zone)
-+static inline unsigned int zbd_zone_nr(const struct fio_file *f,
-+				       struct fio_zone_info *zone)
- {
--	return zone - zbd_info->zone_info;
-+	return zone - f->zbd_info->zone_info;
- }
- 
- /**
-@@ -723,7 +723,7 @@ static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
- 	assert(is_valid_offset(f, offset + length - 1));
- 
- 	dprint(FD_ZBD, "%s: resetting wp of zone %u.\n", f->file_name,
--		zbd_zone_nr(f->zbd_info, z));
-+		zbd_zone_nr(f, z));
- 	switch (f->zbd_info->model) {
- 	case ZBD_HOST_AWARE:
- 	case ZBD_HOST_MANAGED:
-@@ -793,9 +793,9 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
- 	assert(min_bs);
- 
- 	dprint(FD_ZBD, "%s: examining zones %u .. %u\n", f->file_name,
--		zbd_zone_nr(f->zbd_info, zb), zbd_zone_nr(f->zbd_info, ze));
-+		zbd_zone_nr(f, zb), zbd_zone_nr(f, ze));
- 	for (z = zb; z < ze; z++) {
--		uint32_t nz = z - f->zbd_info->zone_info;
-+		uint32_t nz = zbd_zone_nr(f, z);
- 
- 		if (!zbd_zone_swr(z))
- 			continue;
-@@ -811,8 +811,7 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
- 		}
- 		if (reset_wp) {
- 			dprint(FD_ZBD, "%s: resetting zone %u\n",
--			       f->file_name,
--			       zbd_zone_nr(f->zbd_info, z));
-+			       f->file_name, zbd_zone_nr(f, z));
- 			if (zbd_reset_zone(td, f, z) < 0)
- 				res = 1;
- 		}
-@@ -1197,7 +1196,7 @@ static struct fio_zone_info *zbd_replay_write_order(struct thread_data *td,
- 	const struct fio_file *f = io_u->file;
- 	const uint32_t min_bs = td->o.min_bs[DDIR_WRITE];
- 
--	if (!zbd_open_zone(td, f, z - f->zbd_info->zone_info)) {
-+	if (!zbd_open_zone(td, f, zbd_zone_nr(f, z))) {
- 		pthread_mutex_unlock(&z->mutex);
- 		z = zbd_convert_to_open_zone(td, io_u);
- 		assert(z);
-@@ -1271,7 +1270,7 @@ static void zbd_end_zone_io(struct thread_data *td, const struct io_u *io_u,
- 	if (io_u->ddir == DDIR_WRITE &&
- 	    io_u->offset + io_u->buflen >= zbd_zone_capacity_end(z)) {
- 		pthread_mutex_lock(&f->zbd_info->mutex);
--		zbd_close_zone(td, f, z - f->zbd_info->zone_info);
-+		zbd_close_zone(td, f, zbd_zone_nr(f, z));
- 		pthread_mutex_unlock(&f->zbd_info->mutex);
- 	}
- }
-@@ -1430,8 +1429,7 @@ void setup_zbd_zone_mode(struct thread_data *td, struct io_u *io_u)
- 		       "%s: Jump from zone capacity limit to zone end:"
- 		       " (%llu -> %llu) for zone %u (%llu)\n",
- 		       f->file_name, (unsigned long long) f->last_pos[ddir],
--		       (unsigned long long) zbd_zone_end(z),
--		       zbd_zone_nr(f->zbd_info, z),
-+		       (unsigned long long) zbd_zone_end(z), zone_idx,
- 		       (unsigned long long) z->capacity);
- 		td->io_skip_bytes += zbd_zone_end(z) - f->last_pos[ddir];
- 		f->last_pos[ddir] = zbd_zone_end(z);
-@@ -1612,7 +1610,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 			zb = zbd_convert_to_open_zone(td, io_u);
- 			if (!zb)
- 				goto eof;
--			zone_idx_b = zb - f->zbd_info->zone_info;
-+			zone_idx_b = zbd_zone_nr(f, zb);
- 		}
- 		/* Check whether the zone reset threshold has been exceeded */
- 		if (td->o.zrf.u.f) {
--- 
-2.28.0
-
+> -----Original Message-----
+> From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+> Sent: Friday, January 22, 2021 4:25 AM
+> To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+> Cc: Jens Axboe <axboe@kernel.dk>; fio@vger.kernel.org; Aravind Ramesh
+> <Aravind.Ramesh@wdc.com>; Bart Van Assche <bvanassche@acm.org>;
+> Naohiro Aota <Naohiro.Aota@wdc.com>; Niklas Cassel
+> <Niklas.Cassel@wdc.com>; Damien Le Moal <Damien.LeMoal@wdc.com>
+> Subject: Re: [PATCH v3 00/38] ZBD fixes and improvements
+>=20
+> On Jan 07, 2021 / 06:57, Dmitry Fomichev wrote:
+> > v2 -> v3:
+> >
+> >  - fix two libzbc-related bugs in test scripts (found by Shinichiro).
+> >  - modify libzbc ioengine code to allow fio to operate successfully
+> >    against null_blk devices while using this ioengine.
+> >  - add -l option to run-tests-against-nullb script to allow running
+> >    the tests while using libzbc ioengine.
+> >  - add -n option to run-tests-against-nullb to allow running the
+> >    specified tests multiple times. This option is the most useful
+> >    in combination with the existing -s and -t options.
+> >  - fix sporadic failed assertion in test #51 that is easily triggered
+> >    by running run-tests-against-nullb script with -l and -n options.
+> >  - make minor coding style improvements in run-tests-against-nullb.
+> >
+> > v1 -> v2:
+> >
+> >  - replace both run-tests-against-conventional-nullb and
+> >    run-tests-against-conventional-nullb with a single script,
+> >    run-tests-against-nullb, that runs test-zbd-support unit tests
+> >    over a variety on different zoned configurations.
+> >  - add five new test cases to test-zbd-support to cover the code
+> >    changes made in zbd.c as a part of this series.
+> >  - mark all test cases in test-zbd-support script that are not
+> >    applicable for the device configuration as SKIP instead of
+> >    reporting them as passed.
+> >  - properly handle writes to conventional zones that cross over
+> >    to sequential zones.
+> >  - make additional improvements in zone locking parts of zbd.c.
+> >  - implement miscellaneous test script enhancements.
+> >
+> > This patch series contains bug fixes and refactoring changes
+> > related to support for Zoned Block Devices (ZBD) in fio.
+> > The highlights:
+> >
+> >  - fix several errors related to running workloads that span
+> >    a mix of conventional zones and write pointer zones.
+> >  - improve counting of sectors with data (SWD).
+> >  - remove dependencies on particular zone types in the code.
+> >  - add code to gracefully handle offline zones.
+> >
+> > Aravind Ramesh (1):
+> >   zbd: initialize sectors with data at start time
+> >
+> > Dmitry Fomichev (25):
+> >   zbd: return ENOMEM if zone buffer allocation fails
+> >   zbd: use zbd_zone_nr() more actively in the code
+> >   zbd: add get_zone() helper function
+> >   zbd: introduce zone_unlock()
+> >   zbd: engines/libzbc: don't fail on assert for offline zones
+> >   zbd: remove dependency on zone type during i/o
+> >   zbd: skip offline zones in zbd_convert_to_open_zone()
+> >   zbd: avoid zone buffer overrun
+> >   zbd: don't unlock zone mutex after verify replay
+> >   zbd: use zone_lock() in zbd_process_swd()
+> >   zbd: don't log "zone nnnn is not open" message
+> >   zbd: handle conventional start zone in zbd_convert_to_open_zone()
+> >   zbd: improve replay range validation
+> >   engines/libzbc: enable block backend
+> >   zbd: avoid failing assertion in zbd_convert_to_open_zone()
+> >   zbd: set thread errors in zbd_adjust_block()
+> >   t/zbd: check for error in test #2
+> >   t/zbd: add run-tests-against-nullb script
+>=20
+> Dmitry, thank you for posting this series. I reviewed all of your patches=
+ in it.
+> Overall, they are all good and I believe they worth up-streaming. One thi=
+ng, I
+> think the patch above needs update. Please find my comments on it in othe=
+r
+> mail.
+>=20
+> >   t/zbd: add an option to bail on a failed test
+> >   t/zbd: prevent test #31 from looping
+> >   t/zbd: add checks for offline zone condition
+> >   t/zbd: add test #54 to exercise ZBD verification
+> >   t/zbd: show elapsed time in test-zbd-support
+> >   t/zbd: increase timeout in test #48
+> >   t/zbd: avoid looping on invalid command line options
+> >
+> > Shin'ichiro Kawasaki (12):
+> >   zbd: do not lock conventional zones on I/O adjustment
+> >   zbd: do not set zbd handlers for conventional zones
+> >   zbd: count sectors with data for write pointer zones
+>=20
+> Regarding my patches, you kindly reviewed them and added your SOB tags,
+> except this patch above. Could you check it again?
+>=20
+> Thanks!
+>=20
+> --
+> Best Regards,
+> Shin'ichiro Kawasaki
 
