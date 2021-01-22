@@ -1,60 +1,36 @@
-Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v4 05/38] zbd: engines/libzbc: don't fail on assert for offline zones
-Date: Wed, 27 Jan 2021 13:19:12 +0900
-Message-Id: <20210127041945.36909-6-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
-References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+Return-Path: <prvs=649de9d05=shinichiro.kawasaki@wdc.com>
+From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: Re: [PATCH v3 01/38] zbd: return ENOMEM if zone buffer allocation
+ fails
+Date: Fri, 22 Jan 2021 02:07:29 +0000
+Message-ID: <20210122020728.pdxzuomnbgdadzr7@shindev.dhcp.fujisawa.hgst.com>
+References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
+ <20210106215739.264524-2-dmitry.fomichev@wdc.com>
+In-Reply-To: <20210106215739.264524-2-dmitry.fomichev@wdc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <AE14DBBFB3D1C34C80A0057F3B03F94A@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Aravind Ramesh <Aravind.Ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <Naohiro.Aota@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>, Damien Le Moal <Damien.LeMoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-If fio is run against a zoned device that has any zones in OFFLINE
-condition, the following assertion is raised -
+On Jan 07, 2021 / 06:57, Dmitry Fomichev wrote:
+> parse_zone_info() function tries to allocate a buffer of
+> ZBD_REPORT_MAX_ZONES zone descriptors and exits if this allocation
+> fails. The problem is that it returns 0 error code in this case and
+> the caller may interpret this as the success.
+>=20
+> Just return ENOMEM if we can't allocate that buffer.
+>=20
+> Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 
-fio: zbd.c:473: parse_zone_info: Assertion `z->wp <= z->start + zone_size' failed.
+Looks good to me.
 
-This happens because offline zones have no valid write pointer and
-it is reported by libzbc and blkzoned as (uint64_t)(-1). To avoid
-violating this assertion, set the write pointer in all offline zones
-to point at the start of the zone.
-
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- engines/libzbc.c       | 2 +-
- oslib/linux-blkzoned.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/engines/libzbc.c b/engines/libzbc.c
-index 4b900233..552aab65 100644
---- a/engines/libzbc.c
-+++ b/engines/libzbc.c
-@@ -283,7 +283,7 @@ static int libzbc_report_zones(struct thread_data *td, struct fio_file *f,
- 		default:
- 			/* Treat all these conditions as offline (don't use!) */
- 			zbdz->cond = ZBD_ZONE_COND_OFFLINE;
--			break;
-+			zbdz->wp = zbdz->start;
- 		}
- 	}
- 
-diff --git a/oslib/linux-blkzoned.c b/oslib/linux-blkzoned.c
-index 0a8a577a..f37c67fc 100644
---- a/oslib/linux-blkzoned.c
-+++ b/oslib/linux-blkzoned.c
-@@ -203,7 +203,7 @@ int blkzoned_report_zones(struct thread_data *td, struct fio_file *f,
- 		default:
- 			/* Treat all these conditions as offline (don't use!) */
- 			z->cond = ZBD_ZONE_COND_OFFLINE;
--			break;
-+			z->wp = z->start;
- 		}
- 	}
- 
--- 
-2.28.0
-
+--=20
+Best Regards,
+Shin'ichiro Kawasaki=
 
