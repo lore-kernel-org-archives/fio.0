@@ -1,53 +1,33 @@
-Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v4 09/38] zbd: don't unlock zone mutex after verify replay
-Date: Wed, 27 Jan 2021 13:19:16 +0900
-Message-Id: <20210127041945.36909-10-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
-References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+Return-Path: <prvs=649de9d05=shinichiro.kawasaki@wdc.com>
+From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: Re: [PATCH v3 17/38] zbd: don't log "zone nnnn is not open" message
+Date: Fri, 22 Jan 2021 04:31:56 +0000
+Message-ID: <20210122043155.l2x36tv3bux4ofeu@shindev.dhcp.fujisawa.hgst.com>
+References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
+ <20210106215739.264524-18-dmitry.fomichev@wdc.com>
+In-Reply-To: <20210106215739.264524-18-dmitry.fomichev@wdc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <FF08A3C722D2C14488A45083F7B43ED5@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Aravind Ramesh <Aravind.Ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <Naohiro.Aota@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>, Damien Le Moal <Damien.LeMoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-zbd_adjust_block() always returns with the zone locked if the i/o is
-accepted. The corresponding unlock happens in zbd_put_io(). The
-function description says -
+On Jan 07, 2021 / 06:57, Dmitry Fomichev wrote:
+> This log message has been added recently (it could have been my idea
+> to add it during internal review) and it turns out that the message
+> tends to flood the log when any decent workload is run with
+> --zonemode=3Dzbd. Remove logging of this debug message.
+>=20
+> Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 
- * Locking strategy: returns with z->mutex locked if and only if z refers
- * to a sequential zone and if io_u_accept is returned. z is the zone that
- * corresponds to io_u->offset at the end of this function.
+Looks good to me.
 
-Remove the recently added unlock after zbd_replay_write_order() call.
-Add a Coverity annotation to mark the absence of unlock as intentional.
-
-Fixes: b2726d53bb5d ("zbd: Add a missing pthread_mutex_unlock() call")
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- zbd.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/zbd.c b/zbd.c
-index a3c1ff9a..1ac1357b 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -1561,7 +1561,12 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 	case DDIR_READ:
- 		if (td->runstate == TD_VERIFYING && td_write(td)) {
- 			zb = zbd_replay_write_order(td, io_u, zb);
--			zone_unlock(zb);
-+			/*
-+			 * Since we return with the zone lock still held,
-+			 * add an annotation to let Coverity know that it
-+			 * is intentional.
-+			 */
-+			/* coverity[missing_unlock] */
- 			goto accept;
- 		}
- 		/*
--- 
-2.28.0
-
+--=20
+Best Regards,
+Shin'ichiro Kawasaki=
 
