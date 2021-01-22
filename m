@@ -1,77 +1,38 @@
-Return-Path: <prvs=6334d1505=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v3 30/38] t/zbd: test random I/O direction in all-conventional case
-Date: Thu,  7 Jan 2021 06:57:31 +0900
-Message-Id: <20210106215739.264524-31-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
+Return-Path: <prvs=649de9d05=shinichiro.kawasaki@wdc.com>
+From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: Re: [PATCH v3 06/38] zbd: remove dependency on zone type during i/o
+Date: Fri, 22 Jan 2021 03:56:23 +0000
+Message-ID: <20210122035622.y6annwvvev7hmidl@shindev.dhcp.fujisawa.hgst.com>
 References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
+ <20210106215739.264524-7-dmitry.fomichev@wdc.com>
+In-Reply-To: <20210106215739.264524-7-dmitry.fomichev@wdc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <5D5CAED85613BD46A50BD3209B96920A@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Aravind Ramesh <Aravind.Ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <Naohiro.Aota@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>, Damien Le Moal <Damien.LeMoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+On Jan 07, 2021 / 06:57, Dmitry Fomichev wrote:
+> Two different type of zones have a write pointer: Sequential Write
+> Required (SWR) and Sequential Write Preferred (SWP). Introduce the
+> zone flag "has_wp" in struct zbd_zone_info and set it to 1 for these
+> zone types upon initialization, thus avoiding the necessity to check
+> multiple zone types in core zbd code. This flag replaces zbd_zone_swr()
+> function and lays the groundwork for supporting additional write
+> pointer zone types in the future.
+>=20
+> The overall functionality stays the same after this commit.
+>=20
+> Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 
-The number of 'sectors with data' is counted and used to determine the
-direction of the first I/O of a random read/write ZBD workload. To
-initialize the number, min_zone and max_zone fields in struct fio_file
-are referred. There was a code bug that was recently fixed where
-min_zone and max_zone fields were not initialized when all zones in I/O
-region were conventional zones. This led to an uninitialized number of
-sectors with data, and the write direction was always set for random
-workloads.
+Looks good to me.
 
-Add a test case to perform random read/write workload on an I/O region
-with both sequential and conventional zones. Check that both read and
-write I/Os are executed.
+Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- t/zbd/test-zbd-support | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
-
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 217fdd10..80763561 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -1079,6 +1079,34 @@ test52() {
- 	check_reset_count -eq 0 || return $?
- }
- 
-+# Check both reads and writes are executed by random I/O to conventional zones.
-+test53() {
-+	local off capacity io read_b=0 written_b=0
-+
-+	require_zbd || return $SKIP_TESTCASE
-+	require_conv_zones 4 || return $SKIP_TESTCASE
-+
-+	off=$((first_sequential_zone_sector * 512 - 4 * zone_size))
-+	capacity=$(total_zone_capacity 4 $off $dev)
-+	run_fio --name=job --filename=${dev} --rw=randrw --bs=64K \
-+		--size=$((4 * zone_size)) "$(ioengine "psync")" --offset=${off}\
-+		--zonemode=zbd --direct=1 --zonesize=${zone_size} \
-+		${job_var_opts[@]} \
-+		>> "${logfile}.${test_number}" 2>&1 || return $?
-+
-+	written_b=$(fio_written <"${logfile}.${test_number}")
-+	read_b=$(fio_read <"${logfile}.${test_number}")
-+	io=$((written_b + read_b))
-+	echo "Number of bytes read: $read_b" >>"${logfile}.${test_number}"
-+	echo "Number of bytes written: $written_b" >>"${logfile}.${test_number}"
-+	echo "Total number of bytes read and written: $io <> $capacity" \
-+	     >>"${logfile}.${test_number}"
-+	if ((io==capacity && written_b != 0 && read_b != 0)); then
-+		return 0
-+	fi
-+	return 1
-+}
-+
- tests=()
- dynamic_analyzer=()
- reset_all_zones=
--- 
-2.28.0
-
+--=20
+Best Regards,
+Shin'ichiro Kawasaki=
 
