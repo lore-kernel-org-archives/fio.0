@@ -1,94 +1,70 @@
-Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v4 27/38] t/zbd: skip tests that need too many sequential zones
-Date: Wed, 27 Jan 2021 13:19:34 +0900
-Message-Id: <20210127041945.36909-28-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
-References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56740 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726497AbhAXNBA (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 24 Jan 2021 08:01:00 -0500
+Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6C74C061574
+        for <fio@vger.kernel.org>; Sun, 24 Jan 2021 05:00:08 -0800 (PST)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1l3ezs-0007LA-Pn
+        for fio@vger.kernel.org; Sun, 24 Jan 2021 13:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20210124130002.140111BC013D@kernel.dk>
+Date: Sun, 24 Jan 2021 06:00:02 -0700 (MST)
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+The following changes since commit 548b363c08875165a018788195e8fd2304c2ce24:
 
-Test cases #3, #4, #28, #29 and #48 require rather large numbers of
-sequential zones to run properly and they fail if the test target
-device has not enough of such zones in its zone configuration.
+  Merge branch 'fix_filename_overrun' of https://github.com/sitsofe/fio (2021-01-16 13:36:27 -0700)
 
-Check how many sequential zones are present on the test device and
-skip any test cases for which this number is not enough.
+are available in the Git repository at:
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 42664db2e3ba38faae8ee4c8375f8958206a8c5d:
+
+  Merge branch 'esx-timerfd-bypass' of https://github.com/brianredbeard/fio (2021-01-23 11:04:54 -0700)
+
+----------------------------------------------------------------
+Brian 'Redbeard' Harrington (1):
+      configure: ESX does not have timerfd support
+
+Jens Axboe (1):
+      Merge branch 'esx-timerfd-bypass' of https://github.com/brianredbeard/fio
+
+ configure | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
 ---
- t/zbd/test-zbd-support | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index d94b5125..fa6a279b 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -226,6 +226,17 @@ require_regular_block_dev() {
- 	return 0
+Diff of recent changes:
+
+diff --git a/configure b/configure
+index 1306f1b3..e6e33d7f 100755
+--- a/configure
++++ b/configure
+@@ -2695,6 +2695,7 @@ print_config "Windows PDB generation" "$pdb"
+ ##########################################
+ # check for timerfd support
+ timerfd_create="no"
++if test "$esx" != "yes" ; then
+ cat > $TMPC << EOF
+ #include <sys/time.h>
+ #include <sys/timerfd.h>
+@@ -2704,8 +2705,9 @@ int main(int argc, char **argv)
+ 	return timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
  }
+ EOF
+-if compile_prog "" "" "timerfd_create"; then
+-  timerfd_create="yes"
++  if compile_prog "" "" "timerfd_create"; then
++    timerfd_create="yes"
++  fi
+ fi
+ print_config "timerfd_create" "$timerfd_create"
  
-+require_seq_zones() {
-+	local req_seq_zones=${1}
-+	local seq_bytes=$((disk_size - first_sequential_zone_sector * 512))
-+
-+	if ((req_seq_zones > seq_bytes / zone_size)); then
-+		SKIP_REASON="$dev does not have $req_seq_zones sequential zones"
-+		return 1
-+	fi
-+	return 0
-+}
-+
- # Check whether buffered writes are refused.
- test1() {
-     run_fio --name=job1 --filename="$dev" --rw=write --direct=0 --bs=4K	\
-@@ -265,6 +276,7 @@ test2() {
- test3() {
-     local off opts=() rc
- 
-+    require_seq_zones 129 || return $SKIP_TESTCASE
-     off=$((first_sequential_zone_sector * 512 + 128 * zone_size))
-     size=$((zone_size))
-     [ -n "$is_zbd" ] && reset_zone "$dev" $((off / 512))
-@@ -282,6 +294,7 @@ test3() {
- test4() {
-     local off opts=()
- 
-+    require_seq_zones 130 || return $SKIP_TESTCASE
-     off=$((first_sequential_zone_sector * 512 + 129 * zone_size))
-     size=$((zone_size))
-     [ -n "$is_zbd" ] && reset_zone "$dev" $((off / 512))
-@@ -631,6 +644,7 @@ test27() {
- test28() {
-     local i jobs=16 off opts
- 
-+    require_seq_zones 65 || return $SKIP_TESTCASE
-     off=$((first_sequential_zone_sector * 512 + 64 * zone_size))
-     [ -n "$is_zbd" ] && reset_zone "$dev" $((off / 512))
-     prep_write
-@@ -655,6 +669,7 @@ test28() {
- test29() {
-     local i jobs=16 off opts=()
- 
-+    require_seq_zones 80 || return $SKIP_TESTCASE
-     off=$((first_sequential_zone_sector * 512 + 64 * zone_size))
-     size=$((16*zone_size))
-     prep_write
-@@ -931,6 +946,7 @@ test48() {
-     local i jobs=16 off opts=()
- 
-     require_zbd || return $SKIP_TESTCASE
-+    require_seq_zones 80 || return $SKIP_TESTCASE
- 
-     off=$((first_sequential_zone_sector * 512 + 64 * zone_size))
-     size=$((16*zone_size))
--- 
-2.28.0
-
 
