@@ -1,258 +1,312 @@
-Return-Path: <prvs=6334d1505=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v3 26/38] t/zbd: skip tests when test prerequisites are not met
-Date: Thu,  7 Jan 2021 06:57:27 +0900
-Message-Id: <20210106215739.264524-27-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
-References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Return-Path: <glqinhongwei@gmail.com>
+Return-Path: <glqinhongwei@gmail.com>
+From: Hongwei Qin <glqinhongwei@gmail.com>
+Subject: [PATCH v6 1/3] Add a new parameter.
+Date: Mon, 25 Jan 2021 20:39:59 +0800
+Message-Id: <8927bcb9b10a520f9d3be783d56cc30191fddc8c.1611578199.git.glqinhongwei@gmail.com>
+In-Reply-To: <cover.1611578199.git.glqinhongwei@gmail.com>
+References: <cover.1611578199.git.glqinhongwei@gmail.com>
+In-Reply-To: <cover.1611578199.git.glqinhongwei@gmail.com>
+References: <cover.1611578199.git.glqinhongwei@gmail.com>
+To: fio@vger.kernel.org
+Cc: axboe@kernel.dk, sitsofe@gmail.com, Hongwei Qin <glqinhongwei@gmail.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+This patch adds a new parameter thinktime_blocks_type to control
+the behavior of thinktime_blocks. It can be either `complete`
+or `issue`.
+If it is `complete` (default), fio triggers thinktime when
+thinktime_blocks number of blocks are **completed**.
+If it is `issue`, fio triggers thinktime when thinktime_blocks
+number of blocks are **issued**
 
-Some of the test cases in t/zbd/test-zbd-support require test target
-devices to have certain features. When these prerequisites are not met,
-they skip the actual test and report the test result to be "PASS".
-This does not help users to understand the true test outcome.
-As the tests expand to cover a wider variety of zoned devices and
-layouts, reporting skipped tests becomes more and more beneficial.
+Tests:
+jobfile1:
+```
+[global]
+thread
+kb_base=1000
+direct=1
+size=1GiB
+group_reporting
+io_size=96KiB
+ioengine=libaio
+iodepth=8
+bs=4096
+filename=/dev/qblkdev
+rw=randwrite
 
-Modify test-zbd-support script to report skipped test cases.
-Introduce helper functions require_*() to check test target
-prerequisites. If they are not met, set the variable SKIP_REASON and
-return the constant SKIP_TESTCASE from the test function. In the main
-loo, print "SKIP" status and SKIP_REASON if the test case is skipped.
-Also, output the total number of skipped cases at the end of the test
-script  run.
+[fio_randwrite]
+thinktime=2s
+thinktime_blocks=4
+```
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+jobfile2:
+```
+[global]
+thread
+kb_base=1000
+direct=1
+size=1GiB
+group_reporting
+io_size=96KiB
+ioengine=libaio
+iodepth=8
+bs=4096
+filename=/dev/qblkdev
+rw=randwrite
+
+[fio_randwrite]
+thinktime=2s
+thinktime_blocks=4
+thinktime_blocks_type=issue
+```
+
+Results:
+Current HEAD:
+fio jobfile1:
+	write: IOPS=5, BW=24.6kB/s (24.0KiB/s)(98.3kB/4002msec); 0 zone resets
+blktrace:
+	11 reqs -- 2s -- 8 reqs -- 2s -- 5 reqs -- end
+
+This patch:
+fio jobfile1:
+	write: IOPS=5, BW=24.6kB/s (24.0KiB/s)(98.3kB/4001msec); 0 zone resets
+blktrace:
+	11 reqs -- 2s -- 8 reqs -- 2s -- 5 reqs -- end
+
+fio jobfile2:
+	write: IOPS=1, BW=8190B/s (8190B/s)(98.3kB/12002msec); 0 zone resets
+blktrace:
+	4 reqs -- 2s -- 4 reqs ... -- 4 reqs -- 2s -- end
+
+Server:
+fio --server=192.168.1.172,8765
+Client (On the same machine):
+fio --client=192.168.1.172,8765 jobfile1
+	write: IOPS=5, BW=24.6kB/s (24.0KiB/s)(98.3kB/4001msec); 0 zone resets
+blktrace:
+	11 reqs -- 2s -- 8 reqs -- 2s -- 5 reqs -- end
+
+fio --client=192.168.1.172,8765 jobfile2
+	write: IOPS=1, BW=8191B/s (8191B/s)(98.3kB/12001msec); 0 zone resets
+blktrace:
+	4 reqs -- 2s -- 4 reqs ... -- 4 reqs -- 2s -- end
+
+Signed-off-by: Hongwei Qin <glqinhongwei@gmail.com>
 ---
- t/zbd/test-zbd-support | 93 ++++++++++++++++++++++++++++++------------
- 1 file changed, 67 insertions(+), 26 deletions(-)
+ HOWTO            |  7 +++++++
+ backend.c        | 16 +++++++++++-----
+ cconv.c          |  2 ++
+ engines/cpu.c    |  1 +
+ fio.1            |  6 ++++++
+ fio.h            |  5 +++++
+ options.c        | 22 ++++++++++++++++++++++
+ thread_options.h |  5 +++++
+ 8 files changed, 59 insertions(+), 5 deletions(-)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 652dddfc..d94b5125 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -190,6 +190,42 @@ prep_write() {
- 		reset_zone "${dev}" -1
- }
+diff --git a/HOWTO b/HOWTO
+index 372f268..e178bdf 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -2562,6 +2562,13 @@ I/O rate
+ 	before we have to complete it and do our :option:`thinktime`. In other words, this
+ 	setting effectively caps the queue depth if the latter is larger.
  
-+SKIP_TESTCASE=255
++.. option:: thinktime_blocks_type=str
 +
-+require_scsi_dev() {
-+	if ! is_scsi_device "$dev"; then
-+		SKIP_REASON="$dev is not a SCSI device"
-+		return 1
-+	fi
-+	return 0
-+}
++	Only valid if :option:`thinktime` is set - control how :option:`thinktime_blocks`
++	triggers. The default is `complete`, which triggers thinktime when fio completes
++	:option:`thinktime_blocks` blocks. If this is set to `issue`, then the trigger happens
++	at the issue side.
 +
-+require_conv_zone_bytes() {
-+	local req_bytes=${1}
+ .. option:: rate=int[,int][,int]
+ 
+ 	Cap the bandwidth used by this job. The number is in bytes/sec, the normal
+diff --git a/backend.c b/backend.c
+index e20a2e0..874e193 100644
+--- a/backend.c
++++ b/backend.c
+@@ -864,8 +864,8 @@ static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
+ 	uint64_t total;
+ 	int left;
+ 
+-	b = ddir_rw_sum(td->io_blocks);
+-	if (b % td->o.thinktime_blocks)
++	b = ddir_rw_sum(td->thinktime_blocks_counter);
++	if (b % td->o.thinktime_blocks || !b)
+ 		return;
+ 
+ 	io_u_quiesce(td);
+@@ -1076,6 +1076,10 @@ reap:
+ 		}
+ 		if (ret < 0)
+ 			break;
 +
-+	if ((req_bytes > first_sequential_zone_sector * 512)); then
-+		SKIP_REASON="$dev does not have enough conventional zones"
-+		return 1
-+	fi
-+	return 0
-+}
++		if (ddir_rw(ddir) && td->o.thinktime)
++			handle_thinktime(td, ddir);
 +
-+require_zbd() {
-+	if [[ -z ${is_zbd} ]]; then
-+		SKIP_REASON="$dev is not a zoned block device"
-+		return 1
-+	fi
-+	return 0
-+}
+ 		if (!ddir_rw_sum(td->bytes_done) &&
+ 		    !td_ioengine_flagged(td, FIO_NOIO))
+ 			continue;
+@@ -1090,9 +1094,6 @@ reap:
+ 		}
+ 		if (!in_ramp_time(td) && td->o.latency_target)
+ 			lat_target_check(td);
+-
+-		if (ddir_rw(ddir) && td->o.thinktime)
+-			handle_thinktime(td, ddir);
+ 	}
+ 
+ 	check_update_rusage(td);
+@@ -1744,6 +1745,11 @@ static void *thread_main(void *data)
+ 	if (rate_submit_init(td, sk_out))
+ 		goto err;
+ 
++	if (td->o.thinktime_blocks_type == THINKTIME_BLOCKS_TYPE_COMPLETE)
++		td->thinktime_blocks_counter = td->io_blocks;
++	else
++		td->thinktime_blocks_counter = td->io_issues;
 +
-+require_regular_block_dev() {
-+	if [[ -n ${is_zbd} ]]; then
-+		SKIP_REASON="$dev is not a regular block device"
-+		return 1
-+	fi
-+	return 0
-+}
+ 	set_epoch_time(td, o->log_unix_epoch);
+ 	fio_getrusage(&td->ru_start);
+ 	memcpy(&td->bw_sample_time, &td->epoch, sizeof(td->epoch));
+diff --git a/cconv.c b/cconv.c
+index 62c2fc2..b10868f 100644
+--- a/cconv.c
++++ b/cconv.c
+@@ -210,6 +210,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
+ 	o->thinktime = le32_to_cpu(top->thinktime);
+ 	o->thinktime_spin = le32_to_cpu(top->thinktime_spin);
+ 	o->thinktime_blocks = le32_to_cpu(top->thinktime_blocks);
++	o->thinktime_blocks_type = le32_to_cpu(top->thinktime_blocks_type);
+ 	o->fsync_blocks = le32_to_cpu(top->fsync_blocks);
+ 	o->fdatasync_blocks = le32_to_cpu(top->fdatasync_blocks);
+ 	o->barrier_blocks = le32_to_cpu(top->barrier_blocks);
+@@ -431,6 +432,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
+ 	top->thinktime = cpu_to_le32(o->thinktime);
+ 	top->thinktime_spin = cpu_to_le32(o->thinktime_spin);
+ 	top->thinktime_blocks = cpu_to_le32(o->thinktime_blocks);
++	top->thinktime_blocks_type = __cpu_to_le32(o->thinktime_blocks_type);
+ 	top->fsync_blocks = cpu_to_le32(o->fsync_blocks);
+ 	top->fdatasync_blocks = cpu_to_le32(o->fdatasync_blocks);
+ 	top->barrier_blocks = cpu_to_le32(o->barrier_blocks);
+diff --git a/engines/cpu.c b/engines/cpu.c
+index ccbfe00..ce74dbc 100644
+--- a/engines/cpu.c
++++ b/engines/cpu.c
+@@ -268,6 +268,7 @@ static int fio_cpuio_init(struct thread_data *td)
+ 	 * set thinktime_sleep and thinktime_spin appropriately
+ 	 */
+ 	o->thinktime_blocks = 1;
++	o->thinktime_blocks_type = THINKTIME_BLOCKS_TYPE_COMPLETE;
+ 	o->thinktime_spin = 0;
+ 	o->thinktime = ((unsigned long long) co->cpucycle *
+ 				(100 - co->cpuload)) / co->cpuload;
+diff --git a/fio.1 b/fio.1
+index d477b50..5d08e81 100644
+--- a/fio.1
++++ b/fio.1
+@@ -2313,6 +2313,12 @@ queue depth setting redundant, since no more than 1 I/O will be queued
+ before we have to complete it and do our \fBthinktime\fR. In other words, this
+ setting effectively caps the queue depth if the latter is larger.
+ .TP
++.BI thinktime_blocks_type \fR=\fPstr
++Only valid if \fBthinktime\fR is set - control how \fBthinktime_blocks triggers.
++The default is `complete`, which triggers thinktime when fio completes
++\fBthinktime_blocks blocks. If this is set to `issue`, then the trigger happens
++at the issue side.
++.TP
+ .BI rate \fR=\fPint[,int][,int]
+ Cap the bandwidth used by this job. The number is in bytes/sec, the normal
+ suffix rules apply. Comma-separated values may be specified for reads,
+diff --git a/fio.h b/fio.h
+index ee582a7..ae6ac76 100644
+--- a/fio.h
++++ b/fio.h
+@@ -149,6 +149,9 @@ enum {
+ 
+ 	RATE_PROCESS_LINEAR = 0,
+ 	RATE_PROCESS_POISSON = 1,
 +
- # Check whether buffered writes are refused.
- test1() {
-     run_fio --name=job1 --filename="$dev" --rw=write --direct=0 --bs=4K	\
-@@ -327,10 +363,7 @@ test8() {
- test9() {
-     local size
++	THINKTIME_BLOCKS_TYPE_COMPLETE = 0,
++	THINKTIME_BLOCKS_TYPE_ISSUE = 1,
+ };
  
--    if ! is_scsi_device "$dev"; then
--	echo "$dev is not a SCSI device" >>"${logfile}.${test_number}"
--	return 0
--    fi
-+    require_scsi_dev || return $SKIP_TESTCASE
+ enum {
+@@ -355,6 +358,8 @@ struct thread_data {
+ 	struct fio_sem *sem;
+ 	uint64_t bytes_done[DDIR_RWDIR_CNT];
  
-     prep_write
-     size=$((4 * zone_size))
-@@ -346,10 +379,7 @@ test9() {
- test10() {
-     local size
- 
--    if ! is_scsi_device "$dev"; then
--	echo "$dev is not a SCSI device" >>"${logfile}.${test_number}"
--	return 0
--    fi
-+    require_scsi_dev || return $SKIP_TESTCASE
- 
-     prep_write
-     size=$((4 * zone_size))
-@@ -413,11 +443,8 @@ test14() {
- 
-     prep_write
-     size=$((16 * 2**20)) # 20 MB
--    if [ $size -gt $((first_sequential_zone_sector * 512)) ]; then
--	echo "$dev does not have enough sequential zones" \
--	     >>"${logfile}.${test_number}"
--	return 0
--    fi
-+    require_conv_zone_bytes "${size}" || return $SKIP_TESTCASE
++	uint64_t *thinktime_blocks_counter;
 +
-     run_one_fio_job "$(ioengine "libaio")" --iodepth=64 --rw=randwrite --bs=16K \
- 		    --zonemode=zbd --zonesize="${zone_size}" --do_verify=1 \
- 		    --verify=md5 --size=$size				   \
-@@ -696,6 +723,8 @@ test31() {
- test32() {
-     local off opts=() size
- 
-+    require_zbd || return $SKIP_TESTCASE
+ 	/*
+ 	 * State for random io, a bitmap of blocks done vs not done
+ 	 */
+diff --git a/options.c b/options.c
+index 955bf95..e62e0cf 100644
+--- a/options.c
++++ b/options.c
+@@ -3609,6 +3609,28 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.group	= FIO_OPT_G_THINKTIME,
+ 	},
+ 	{
++		.name	= "thinktime_blocks_type",
++		.lname	= "Thinktime blocks type",
++		.type	= FIO_OPT_STR,
++		.off1	= offsetof(struct thread_options, thinktime_blocks_type),
++		.help	= "How thinktime_blocks takes effect",
++		.def	= "complete",
++		.category = FIO_OPT_C_IO,
++		.group	= FIO_OPT_G_THINKTIME,
++		.posval = {
++			  { .ival = "complete",
++			    .oval = THINKTIME_BLOCKS_TYPE_COMPLETE,
++			    .help = "thinktime_blocks takes effect at the completion side",
++			  },
++			  {
++			    .ival = "issue",
++			    .oval = THINKTIME_BLOCKS_TYPE_ISSUE,
++			    .help = "thinktime_blocks takes effect at the issue side",
++			  },
++		},
++		.parent = "thinktime",
++	},
++	{
+ 		.name	= "rate",
+ 		.lname	= "I/O rate",
+ 		.type	= FIO_OPT_ULL,
+diff --git a/thread_options.h b/thread_options.h
+index 0a03343..f6b1540 100644
+--- a/thread_options.h
++++ b/thread_options.h
+@@ -177,6 +177,7 @@ struct thread_options {
+ 	unsigned int thinktime;
+ 	unsigned int thinktime_spin;
+ 	unsigned int thinktime_blocks;
++	unsigned int thinktime_blocks_type;
+ 	unsigned int fsync_blocks;
+ 	unsigned int fdatasync_blocks;
+ 	unsigned int barrier_blocks;
+@@ -479,6 +480,7 @@ struct thread_options_pack {
+ 	uint32_t thinktime;
+ 	uint32_t thinktime_spin;
+ 	uint32_t thinktime_blocks;
++	uint32_t thinktime_blocks_type;
+ 	uint32_t fsync_blocks;
+ 	uint32_t fdatasync_blocks;
+ 	uint32_t barrier_blocks;
+@@ -506,6 +508,9 @@ struct thread_options_pack {
+ 	uint32_t stonewall;
+ 	uint32_t new_group;
+ 	uint32_t numjobs;
 +
-     prep_write
-     off=$((first_sequential_zone_sector * 512))
-     size=$((disk_size - off))
-@@ -814,7 +843,7 @@ read_one_block() {
- 
- # Check whether fio accepts --zonemode=none for zoned block devices.
- test39() {
--    [ -n "$is_zbd" ] || return 0
-+    require_zbd || return $SKIP_TESTCASE
-     read_one_block --zonemode=none >/dev/null || return $?
-     check_read $((logical_block_size)) || return $?
- }
-@@ -824,7 +853,7 @@ test40() {
-     local bs
- 
-     bs=$((logical_block_size))
--    [ -n "$is_zbd" ] || return 0
-+    require_zbd || return $SKIP_TESTCASE
-     read_one_block --zonemode=strided |
- 	grep -q 'fio: --zonesize must be specified when using --zonemode=strided' ||
- 	return $?
-@@ -834,21 +863,21 @@ test40() {
- 
- # Check whether fio checks the zone size for zoned block devices.
- test41() {
--    [ -n "$is_zbd" ] || return 0
-+    require_zbd || return $SKIP_TESTCASE
-     read_one_block --zonemode=zbd --zonesize=$((2 * zone_size)) |
- 	grep -q 'job parameter zonesize.*does not match disk zone size'
- }
- 
- # Check whether fio handles --zonesize=0 correctly for regular block devices.
- test42() {
--    [ -n "$is_zbd" ] && return 0
-+    require_regular_block_dev || return $SKIP_TESTCASE
-     read_one_block --zonemode=zbd --zonesize=0 |
- 	grep -q 'Specifying the zone size is mandatory for regular block devices with --zonemode=zbd'
- }
- 
- # Check whether fio handles --zonesize=1 correctly for regular block devices.
- test43() {
--    [ -n "$is_zbd" ] && return 0
-+    require_regular_block_dev || return $SKIP_TESTCASE
-     read_one_block --zonemode=zbd --zonesize=1 |
- 	grep -q 'zone size must be at least 512 bytes for --zonemode=zbd'
- }
-@@ -862,7 +891,7 @@ test44() {
- test45() {
-     local bs i
- 
--    [ -z "$is_zbd" ] && return 0
-+    require_zbd || return $SKIP_TESTCASE
-     prep_write
-     bs=$((logical_block_size))
-     run_one_fio_job "$(ioengine "psync")" --iodepth=1 --rw=randwrite --bs=$bs\
-@@ -901,6 +930,8 @@ test47() {
- test48() {
-     local i jobs=16 off opts=()
- 
-+    require_zbd || return $SKIP_TESTCASE
++	uint8_t pad3[4];
 +
-     off=$((first_sequential_zone_sector * 512 + 64 * zone_size))
-     size=$((16*zone_size))
-     prep_write
-@@ -930,11 +961,7 @@ test48() {
- # Check if fio handles --zonecapacity on a normal block device correctly
- test49() {
- 
--    if [ -n "$is_zbd" ]; then
--	echo "$dev is not a regular block device" \
--	     >>"${logfile}.${test_number}"
--	return 0
--    fi
-+    require_regular_block_dev || return $SKIP_TESTCASE
- 
-     size=$((2 * zone_size))
-     capacity=$((zone_size * 3 / 4))
-@@ -1087,10 +1114,12 @@ fi
- logfile=$0.log
- 
- passed=0
-+skipped=0
- failed=0
- if [ -t 1 ]; then
-     red="\e[1;31m"
-     green="\e[1;32m"
-+    cyan="\e[1;36m"
-     end="\e[m"
- else
-     red=""
-@@ -1101,14 +1130,23 @@ rc=0
- 
- intr=0
- trap 'intr=1' SIGINT
-+ret=0
- 
- for test_number in "${tests[@]}"; do
-     rm -f "${logfile}.${test_number}"
-+    unset SKIP_REASON
-     echo -n "Running test $(printf "%02d" $test_number) ... "
--    if eval "test$test_number" && check_log $test_number; then
-+    eval "test$test_number"
-+    ret=$?
-+    if ((!ret)) && check_log $test_number; then
- 	status="PASS"
- 	cc_status="${green}${status}${end}"
- 	((passed++))
-+    elif ((ret==SKIP_TESTCASE)); then
-+	status="SKIP"
-+	echo "${SKIP_REASON}" >> "${logfile}.${test_number}"
-+	cc_status="${cyan}${status}${end}    ${SKIP_REASON}"
-+	((skipped++))
-     else
- 	status="FAIL"
- 	cc_status="${red}${status}${end}"
-@@ -1121,7 +1159,10 @@ for test_number in "${tests[@]}"; do
- done
- 
- echo "$passed tests passed"
-+if [ $skipped -gt 0 ]; then
-+    echo " $skipped tests skipped"
-+fi
- if [ $failed -gt 0 ]; then
--    echo " and $failed tests failed"
-+    echo " $failed tests failed"
- fi
- exit $rc
+ 	/*
+ 	 * We currently can't convert these, so don't enable them
+ 	 */
 -- 
-2.28.0
+1.8.3.1
 
 
