@@ -1,47 +1,59 @@
-Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v4 37/38] t/zbd: increase timeout in test #48
-Date: Wed, 27 Jan 2021 13:19:44 +0900
-Message-Id: <20210127041945.36909-38-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
-References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Return-Path: <glqinhongwei@gmail.com>
+Return-Path: <glqinhongwei@gmail.com>
+From: Hongwei Qin <glqinhongwei@gmail.com>
+Subject: [PATCH v5 2/2] Calculate min_rate with the consideration of thinktime
+Date: Mon, 25 Jan 2021 20:09:49 +0800
+Message-Id: <b8ac34813fdb1f4fdcf1ab6530370ac153b5b105.1611575523.git.glqinhongwei@gmail.com>
+In-Reply-To: <cover.1611575523.git.glqinhongwei@gmail.com>
+References: <cover.1611575523.git.glqinhongwei@gmail.com>
+In-Reply-To: <cover.1611575523.git.glqinhongwei@gmail.com>
+References: <cover.1611575523.git.glqinhongwei@gmail.com>
+To: fio@vger.kernel.org
+Cc: axboe@kernel.dk, sitsofe@gmail.com, Hongwei Qin <glqinhongwei@gmail.com>
 List-ID: <fio@vger.kernel.org>
 
-Test #48 runs some i/o to the test device for 30 seconds and then waits
-45 seconds for fio to finish. If this wait times out, the test assumes
-that fio is hung because of a zone locking issue and fails. It is
-observed that 45s may not be enough for some HDDs, especially the ones
-running specialized firmware.
+This patch updates the compare time if handle_thinktime
+sleeps or spin.
 
-Increase the timeout to 180 seconds to avoid any false positives.
-There is no change in test duration for the most common devices.
-The test will wait for the full 180 seconds only if it fails, otherwise
-it will finish very soon after the 30 second i/o period ends.
-
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Hongwei Qin <glqinhongwei@gmail.com>
 ---
- t/zbd/test-zbd-support | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ backend.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index f9427981..05c00900 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -1008,7 +1008,7 @@ test48() {
- 
-     { echo; echo "fio ${opts[*]}"; echo; } >>"${logfile}.${test_number}"
- 
--    timeout -v -s KILL 45s \
-+    timeout -v -s KILL 180s \
- 	    "${dynamic_analyzer[@]}" "$fio" "${opts[@]}" \
- 	    >> "${logfile}.${test_number}" 2>&1 || return $?
+diff --git a/backend.c b/backend.c
+index 874e193..f2efddd 100644
+--- a/backend.c
++++ b/backend.c
+@@ -858,7 +858,8 @@ static long long usec_for_io(struct thread_data *td, enum fio_ddir ddir)
+ 	return 0;
  }
+ 
+-static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
++static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir,
++			     struct timespec *time)
+ {
+ 	unsigned long long b;
+ 	uint64_t total;
+@@ -898,6 +899,9 @@ static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
+ 		/* adjust for rate_process=poisson */
+ 		td->last_usec[ddir] += total;
+ 	}
++
++	if (time && should_check_rate(td))
++		fio_gettime(time, NULL);
+ }
+ 
+ /*
+@@ -1078,7 +1082,7 @@ reap:
+ 			break;
+ 
+ 		if (ddir_rw(ddir) && td->o.thinktime)
+-			handle_thinktime(td, ddir);
++			handle_thinktime(td, ddir, &comp_time);
+ 
+ 		if (!ddir_rw_sum(td->bytes_done) &&
+ 		    !td_ioengine_flagged(td, FIO_NOIO))
 -- 
-2.28.0
+1.8.3.1
 
 
