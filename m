@@ -1,78 +1,114 @@
-Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v4 29/38] t/zbd: test that zone_reset_threshold calculation is correct
-Date: Wed, 27 Jan 2021 13:19:36 +0900
-Message-Id: <20210127041945.36909-30-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
-References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+Return-Path: <sandeen@redhat.com>
+Subject: [PATCH 1/2] fio: move dynamic library handle to io_ops structure
+From: Eric Sandeen <sandeen@redhat.com>
+References: <6bb40362-44e3-2138-25c5-0f7630179e09@redhat.com>
+Message-ID: <34a020e0-5416-718e-023d-59e77a05f999@redhat.com>
+Date: Mon, 25 Jan 2021 13:18:31 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+In-Reply-To: <6bb40362-44e3-2138-25c5-0f7630179e09@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: fio <fio@vger.kernel.org>
+Cc: Sitsofe Wheeler <sitsofe@yahoo.com>, Yigal Korman <ykorman@gmail.com>, "Richard W.M. Jones" <rjones@redhat.com>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Keeping a dynamic engine's dlopen'd dlhandle on a thread structure doesn't
+make sense; that thread may exit while others are still using the engine.
 
-The option "zone_reset_threshold" specifies the ratio of logical blocks
-with data to trigger zone resets. When the I/O range includes
-conventional zones, only blocks in sequential zones must be used to
-track this value. A recently fixed bug has uncovered that the number of
-blocks in conventional zones were erroneously counted as the blocks
-with data.
+Move the dlhandle onto the ops structure itself.
 
-To prevent future regressions, add a test case to confirm that the
-logical blocks accounting does not include conventional zones.
+We still only call dlopen for the first thead, which leaves a refcounting
+issue which will be fixed in the next patch.
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
 ---
- t/zbd/test-zbd-support | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 4ad55381..217fdd10 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -1047,6 +1047,38 @@ test51() {
- 	run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
+diff --git a/fio.h b/fio.h
+index ee582a72..062abfa7 100644
+--- a/fio.h
++++ b/fio.h
+@@ -281,7 +281,6 @@ struct thread_data {
+ 	 * IO engine private data and dlhandle.
+ 	 */
+ 	void *io_ops_data;
+-	void *io_ops_dlhandle;
+ 
+ 	/*
+ 	 * Queue depth of io_u's that fio MIGHT do
+diff --git a/init.c b/init.c
+index 1d14df16..ab38b334 100644
+--- a/init.c
++++ b/init.c
+@@ -1104,18 +1104,18 @@ int ioengine_load(struct thread_data *td)
+ 		 * for this name and see if they match. If they do, then
+ 		 * the engine is unchanged.
+ 		 */
+-		dlhandle = td->io_ops_dlhandle;
++		dlhandle = td->io_ops->dlhandle;
+ 		ops = load_ioengine(td);
+ 		if (!ops)
+ 			goto fail;
+ 
+-		if (ops == td->io_ops && dlhandle == td->io_ops_dlhandle) {
++		if (ops == td->io_ops && dlhandle == td->io_ops->dlhandle) {
+ 			if (dlhandle)
+ 				dlclose(dlhandle);
+ 			return 0;
+ 		}
+ 
+-		if (dlhandle && dlhandle != td->io_ops_dlhandle)
++		if (dlhandle && dlhandle != td->io_ops->dlhandle)
+ 			dlclose(dlhandle);
+ 
+ 		/* Unload the old engine. */
+diff --git a/ioengines.c b/ioengines.c
+index 5ac512ae..dcc9496d 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -155,7 +155,7 @@ static struct ioengine_ops *dlopen_ioengine(struct thread_data *td,
+ 		return NULL;
+ 	}
+ 
+-	td->io_ops_dlhandle = dlhandle;
++	ops->dlhandle = dlhandle;
+ 	return ops;
  }
  
-+# Verify that zone_reset_threshold only takes logical blocks from seq
-+# zones into account, and logical blocks of conv zones are not counted.
-+test52() {
-+	local off io_size
-+
-+	require_zbd || return $SKIP_TESTCASE
-+	require_conv_zones 8 || return $SKIP_TESTCASE
-+	require_seq_zones 8 || return $SKIP_TESTCASE
-+
-+	reset_zone "${dev}" -1
-+
-+	# Total I/O size is 1/8 = 0.125 of the I/O range of cont + seq zones.
-+	# Set zone_reset_threshold as 0.1. The threshold size is less than
-+	# 0.125, then, reset count zero is expected.
-+	# On the other hand, half of the I/O range is covered by conv zones.
-+	# If fio would count the conv zones for zone_reset_threshold, the ratio
-+	# were more than 0.5 and would trigger zone resets.
-+
-+	off=$((first_sequential_zone_sector * 512 - 8 * zone_size))
-+	io_size=$((zone_size * 16 / 8))
-+	run_fio --name=job --filename=$dev --rw=randwrite --bs=$((zone_size/16))\
-+		--size=$((zone_size * 16)) --softrandommap=1 \
-+		--io_size=$((io_size)) "$(ioengine "psync")" --offset=$off \
-+		--zonemode=zbd --direct=1 --zonesize=${zone_size} \
-+		--zone_reset_threshold=.1 --zone_reset_frequency=1.0 \
-+		${job_var_opts[@]} --debug=zbd \
-+		>> "${logfile}.${test_number}" 2>&1 || return $?
-+
-+	check_written ${io_size} || return $?
-+	check_reset_count -eq 0 || return $?
-+}
-+
- tests=()
- dynamic_analyzer=()
- reset_all_zones=
--- 
-2.28.0
+@@ -228,9 +228,9 @@ void free_ioengine(struct thread_data *td)
+ 		td->eo = NULL;
+ 	}
+ 
+-	if (td->io_ops_dlhandle) {
+-		dlclose(td->io_ops_dlhandle);
+-		td->io_ops_dlhandle = NULL;
++	if (td->io_ops->dlhandle) {
++		dlclose(td->io_ops->dlhandle);
++		td->io_ops->dlhandle = NULL;
+ 	}
+ 
+ 	td->io_ops = NULL;
+diff --git a/ioengines.h b/ioengines.h
+index a928b211..839b318d 100644
+--- a/ioengines.h
++++ b/ioengines.h
+@@ -8,7 +8,7 @@
+ #include "io_u.h"
+ #include "zbd_types.h"
+ 
+-#define FIO_IOOPS_VERSION	27
++#define FIO_IOOPS_VERSION	28
+ 
+ #ifndef CONFIG_DYNAMIC_ENGINES
+ #define FIO_STATIC	static
+@@ -30,6 +30,7 @@ struct ioengine_ops {
+ 	const char *name;
+ 	int version;
+ 	int flags;
++	void *dlhandle;
+ 	int (*setup)(struct thread_data *);
+ 	int (*init)(struct thread_data *);
+ 	int (*post_init)(struct thread_data *);
+
 
 
