@@ -1,70 +1,72 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56740 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726497AbhAXNBA (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 24 Jan 2021 08:01:00 -0500
-Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6C74C061574
-        for <fio@vger.kernel.org>; Sun, 24 Jan 2021 05:00:08 -0800 (PST)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1l3ezs-0007LA-Pn
-        for fio@vger.kernel.org; Sun, 24 Jan 2021 13:00:04 +0000
-Subject: Recent changes (master)
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 0/2] fio: fix premature final dlclose of dynamic engine
+References: <6bb40362-44e3-2138-25c5-0f7630179e09@redhat.com>
 From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20210124130002.140111BC013D@kernel.dk>
-Date: Sun, 24 Jan 2021 06:00:02 -0700 (MST)
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Message-ID: <faa26c59-f53d-a512-3f68-73549e47dfb0@kernel.dk>
+Date: Mon, 25 Jan 2021 14:04:16 -0700
+MIME-Version: 1.0
+In-Reply-To: <6bb40362-44e3-2138-25c5-0f7630179e09@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Eric Sandeen <sandeen@redhat.com>, fio <fio@vger.kernel.org>
+Cc: Sitsofe Wheeler <sitsofe@yahoo.com>, Yigal Korman <ykorman@gmail.com>, "Richard W.M. Jones" <rjones@redhat.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 548b363c08875165a018788195e8fd2304c2ce24:
+On 1/25/21 12:13 PM, Eric Sandeen wrote:
+> When running a job like this, with external engines enabled:
+> 
+> [global]
+> ioengine=pmemblk
+> directory=/mnt/test
+> thread=1
+> direct=1
+> iodepth=1
+> 
+> [pmemblk-job2]
+> filename=pmemblk-smallrw,4096,17
+> rw=readwrite
+> 
+> [pmemblk-job2]
+> filename=pmemblk-randrw,4096,64
+> rw=randrw
+> 
+> it segfaults if the first thread to finish is the one that dlopened the engine,
+> and the 2nd thread has everything ripped out from under it:
+> 
+> # fio --debug=io pmemblk.fio
+> ...
+> io       18361 close ioengine pmemblk
+> io       18362 prep: io_u 0x285e1c0: off=0x2108000,len=0x1000,ddir=1,file=/mnt/test/pmemblk-randrw,4096,64
+> io       18362 queue: io_u 0x285e1c0: off=0x2108000,len=0x1000,ddir=1,file=/mnt/test/pmemblk-randrw,4096,64
+> io       18361 free ioengine pmemblk
+> io       18362 complete: io_u 0x285e1c0: off=0x2108000,len=0x1000,ddir=1,file=/mnt/test/pmemblk-randrw,4096,64
+> io       18362 fill: io_u 0x285e1c0: off=0x1bcc000,len=0x1000,ddir=0,file=/mnt/test/pmemblk-randrw,4096,64
+> io       18361 ioengine pmemblk unregistered
+> io       18362 prep: io_u 0x285e1c0: off=0x1bcc000,len=0x1000,ddir=0,file=/mnt/test/pmemblk-randrw,4096,64
+> io       18362 queue: io_u 0x285e1c0: off=0x1bcc000,len=0x1000,ddir=0,file=/mnt/test/pmemblk-randrw,4096,64
+> io       18362 complete: io_u 0x285e1c0: off=0x1bcc000,len=0x1000,ddir=0,file=/mnt/test/pmemblk-randrw,4096,64
+> io       18362 fill: io_u 0x285e1c0: off=0xe91000,len=0x1000,ddir=0,file=/mnt/test/pmemblk-randrw,4096,64
+> io       18362 prep: io_u 0x285e1c0: off=0xe91000,len=0x1000,ddir=0,file=/mnt/test/pmemblk-randrw,4096,64
+> io       18362 queue: io_u 0x285e1c0: off=0xe91000,len=0x1000,ddir=0,file=/mnt/test/pmemblk-randrw,4096,64
+> io       18362 complete: io_u 0x285e1c0: off=0xe91000,len=0x1000,ddir=0,file=/mnt/test/pmemblk-randrw,4096,64
+> io       18362 fill: io_u 0x285e1c0: off=0x3413000,len=0x1000,ddir=0,file=/mnt/test/pmemblk-randrw,4096,64
+> io       18362 prep: io_u 0x285e1c0: off=0x3413000,len=0x1000,ddir=0,file=/mnt/test/pmemblk-randrw,4096,64
+> io       18362 queue: io_u 0x285e1c0: off=0x3413000,len=0x1000,ddir=0,file=/mnt/test/pmemblk-randrw,4096,64
+> Segmentation fault (core dumped)
+> 
+> Fix this by keeping the dlhandle on the io engine itself, not the thread,
+> then explicitly dlopen for every thread that asks for the engine, and let
+> dlopen/dlclose do refcounting as designed.
+> 
+> I think this is right, and it fixes it for me, but good review would be wise!
+> 
+> Also: maybe the 2 patches could be collapsed, though I /think/ this makes review
+> a bit easier and doesn't add any regression at patch1 ...
 
-  Merge branch 'fix_filename_overrun' of https://github.com/sitsofe/fio (2021-01-16 13:36:27 -0700)
+Applied them separately, thanks.
 
-are available in the Git repository at:
+-- 
+Jens Axboe
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 42664db2e3ba38faae8ee4c8375f8958206a8c5d:
-
-  Merge branch 'esx-timerfd-bypass' of https://github.com/brianredbeard/fio (2021-01-23 11:04:54 -0700)
-
-----------------------------------------------------------------
-Brian 'Redbeard' Harrington (1):
-      configure: ESX does not have timerfd support
-
-Jens Axboe (1):
-      Merge branch 'esx-timerfd-bypass' of https://github.com/brianredbeard/fio
-
- configure | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/configure b/configure
-index 1306f1b3..e6e33d7f 100755
---- a/configure
-+++ b/configure
-@@ -2695,6 +2695,7 @@ print_config "Windows PDB generation" "$pdb"
- ##########################################
- # check for timerfd support
- timerfd_create="no"
-+if test "$esx" != "yes" ; then
- cat > $TMPC << EOF
- #include <sys/time.h>
- #include <sys/timerfd.h>
-@@ -2704,8 +2705,9 @@ int main(int argc, char **argv)
- 	return timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
- }
- EOF
--if compile_prog "" "" "timerfd_create"; then
--  timerfd_create="yes"
-+  if compile_prog "" "" "timerfd_create"; then
-+    timerfd_create="yes"
-+  fi
- fi
- print_config "timerfd_create" "$timerfd_create"
- 
 
