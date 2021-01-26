@@ -1,66 +1,65 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-eopbgr150134.outbound.protection.outlook.com ([40.107.15.134]:47878
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727451AbhAGXH7 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 7 Jan 2021 18:07:59 -0500
-From: Erwan Velu <e.velu@criteo.com>
-Subject: Adding a new cpu mode for the cpu engine
-Message-ID: <3c818fe5-5d53-43d5-c949-89268172d266@criteo.com>
-Date: Fri, 8 Jan 2021 00:07:03 +0100
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Return-Path: <glqinhongwei@gmail.com>
 MIME-Version: 1.0
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+References: <cover.1611578199.git.glqinhongwei@gmail.com> <7f25f16b87fdbdceaaaf66c1d345d981a1984dcc.1611578199.git.glqinhongwei@gmail.com>
+ <CALjAwxjeBqMOw+8DKc-2mbAzuyqj_kz4J2HQSYJih35fjxsOkw@mail.gmail.com>
+In-Reply-To: <CALjAwxjeBqMOw+8DKc-2mbAzuyqj_kz4J2HQSYJih35fjxsOkw@mail.gmail.com>
+From: Hongwei Qin <glqinhongwei@gmail.com>
+Date: Tue, 26 Jan 2021 23:42:21 +0800
+Message-ID: <CAKvRR0Qgs_QO3PYF-JRd_UuKL5ewO-jqzWz0oka1Tx3A3CevuQ@mail.gmail.com>
+Subject: Re: [PATCH v6 3/3] Fix fio.1
+Content-Type: text/plain; charset="UTF-8"
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: Jens Axboe <axboe@kernel.dk>, fio <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-Hey list,
-I've been sending a pull request to improve the cpu engine 
-:https://github.com/axboe/fio/pull/1161 
-<https://github.com/axboe/fio/pull/1161>
+Hi Sitsofe,
+Thank you for your introduction and review. I'll follow in future
+submissions :-)
 
-fio is featuring a cpu engine which makes noop to load the cpu cores.
-This makes the core busy but doesn't really consume energy and doesn't 
-generate heat.
+Best,
+Hongwei
 
-When benchmarking systems, it could be useful putting the processor 
-under a realistic load to see how the whole system behave.
-The idea is to get a more realistic cpu workload generator so IO 
-benchmarks can be done under a defined cpu load.
-
-This commit adds cpumode option into the cpuio engine.
-By default, cpumode=noop to keep the current behavior.
-
-
-If cpumode is set to qsort, fio will use a qsort algorithm instead of 
-the noop instructions to load the processor.
-
-This mode will consume more cpu power and will be useful to increase the 
-pressure on the thermal and electrical components.
-
-The expected cpu load is selected as per noop via the cpuload option.
-qsort() consumes a lot of energy so the duration of every loop will vary 
-over time as the power management & cpu clock changes.
-
-To ensure a proper calibration, the thinktime is adjusted after every 
-qsort() computation to be as precise as possible.
-
-
-To give an order of magnitude, on an AMD 7502P (TDP=180W) :
-cpuload=30, numjobs=64: packagewatt = 134W
-cpuload=50, numjobs=64: packagewatt = 167W
-
-cpuload=70, numjobs=64: packagewatt = 180W
-
-
-The example file is updated to reflect this new capabilities.
-
-
-The qsort code is coming from stress-qsort.c from stress-ng tool.
-This software is also GPLv2 but author was informed and agreed with this 
-usage
-
-
-Erwan,
+On Tue, Jan 26, 2021 at 3:50 PM Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>
+> On Mon, 25 Jan 2021 at 12:40, Hongwei Qin <glqinhongwei@gmail.com> wrote:
+> >
+> > Fix the manual format.
+> >
+> > Signed-off-by: Hongwei Qin <glqinhongwei@gmail.com>
+> > ---
+> >  fio.1 | 6 +++---
+> >  1 file changed, 3 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/fio.1 b/fio.1
+> > index 5d08e81..bf5d2b5 100644
+> > --- a/fio.1
+> > +++ b/fio.1
+> > @@ -2314,9 +2314,9 @@ before we have to complete it and do our \fBthinktime\fR. In other words, this
+> >  setting effectively caps the queue depth if the latter is larger.
+> >  .TP
+> >  .BI thinktime_blocks_type \fR=\fPstr
+> > -Only valid if \fBthinktime\fR is set - control how \fBthinktime_blocks triggers.
+> > -The default is `complete`, which triggers thinktime when fio completes
+> > -\fBthinktime_blocks blocks. If this is set to `issue`, then the trigger happens
+> > +Only valid if \fBthinktime\fR is set - control how \fBthinktime_blocks\fR triggers.
+> > +The default is `complete', which triggers \fBthinktime\fR when fio completes
+> > +\fBthinktime_blocks\fR blocks. If this is set to `issue', then the trigger happens
+> >  at the issue side.
+> >  .TP
+> >  .BI rate \fR=\fPint[,int][,int]
+> > --
+> > 1.8.3.1
+> >
+>
+> Signed-off-by: Sitsofe Wheeler <sitsofe@yahoo.com>
+>
+> LGTM - Jens can you pull this set?
+>
+> Hongwei: In general it's preferable to squash/rebase changes like this
+> last manual fix into the original commit but you've patiently revised
+> these patches multiple timesso I don't think it's worth changing again
+> unless something else comes up :-)
+>
+> --
+> Sitsofe
 
