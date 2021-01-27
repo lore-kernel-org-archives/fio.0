@@ -1,312 +1,196 @@
-Return-Path: <glqinhongwei@gmail.com>
-Return-Path: <glqinhongwei@gmail.com>
-From: Hongwei Qin <glqinhongwei@gmail.com>
-Subject: [PATCH v5 1/2] Add a new parameter.
-Date: Mon, 25 Jan 2021 20:09:48 +0800
-Message-Id: <8927bcb9b10a520f9d3be783d56cc30191fddc8c.1611575523.git.glqinhongwei@gmail.com>
-In-Reply-To: <cover.1611575523.git.glqinhongwei@gmail.com>
-References: <cover.1611575523.git.glqinhongwei@gmail.com>
-In-Reply-To: <cover.1611575523.git.glqinhongwei@gmail.com>
-References: <cover.1611575523.git.glqinhongwei@gmail.com>
-To: fio@vger.kernel.org
-Cc: axboe@kernel.dk, sitsofe@gmail.com, Hongwei Qin <glqinhongwei@gmail.com>
+Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH v4 03/38] zbd: add get_zone() helper function
+Date: Wed, 27 Jan 2021 13:19:10 +0900
+Message-Id: <20210127041945.36909-4-dmitry.fomichev@wdc.com>
+In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-This patch adds a new parameter thinktime_blocks_type to control
-the behavior of thinktime_blocks. It can be either `complete`
-or `issue`.
-If it is `complete` (default), fio triggers thinktime when
-thinktime_blocks number of blocks are **completed**.
-If it is `issue`, fio triggers thinktime when thinktime_blocks
-number of blocks are **issued**
+The following pattern is used very widely in zbd.c -
 
-Tests:
-jobfile1:
-```
-[global]
-thread
-kb_base=1000
-direct=1
-size=1GiB
-group_reporting
-io_size=96KiB
-ioengine=libaio
-iodepth=8
-bs=4096
-filename=/dev/qblkdev
-rw=randwrite
+zone = &f->zbd_info->zone_info[zone_idx] .
 
-[fio_randwrite]
-thinktime=2s
-thinktime_blocks=4
-```
+For the sake of code clarity, wrap this construct into an inline
+helper. No change in functionality.
 
-jobfile2:
-```
-[global]
-thread
-kb_base=1000
-direct=1
-size=1GiB
-group_reporting
-io_size=96KiB
-ioengine=libaio
-iodepth=8
-bs=4096
-filename=/dev/qblkdev
-rw=randwrite
-
-[fio_randwrite]
-thinktime=2s
-thinktime_blocks=4
-thinktime_blocks_type=issue
-```
-
-Results:
-Current HEAD:
-fio jobfile1:
-	write: IOPS=5, BW=24.6kB/s (24.0KiB/s)(98.3kB/4002msec); 0 zone resets
-blktrace:
-	11 reqs -- 2s -- 8 reqs -- 2s -- 5 reqs -- end
-
-This patch:
-fio jobfile1:
-	write: IOPS=5, BW=24.6kB/s (24.0KiB/s)(98.3kB/4001msec); 0 zone resets
-blktrace:
-	11 reqs -- 2s -- 8 reqs -- 2s -- 5 reqs -- end
-
-fio jobfile2:
-	write: IOPS=1, BW=8190B/s (8190B/s)(98.3kB/12002msec); 0 zone resets
-blktrace:
-	4 reqs -- 2s -- 4 reqs ... -- 4 reqs -- 2s -- end
-
-Server:
-fio --server=192.168.1.172,8765
-Client (On the same machine):
-fio --client=192.168.1.172,8765 jobfile1
-	write: IOPS=5, BW=24.6kB/s (24.0KiB/s)(98.3kB/4001msec); 0 zone resets
-blktrace:
-	11 reqs -- 2s -- 8 reqs -- 2s -- 5 reqs -- end
-
-fio --client=192.168.1.172,8765 jobfile2
-	write: IOPS=1, BW=8191B/s (8191B/s)(98.3kB/12001msec); 0 zone resets
-blktrace:
-	4 reqs -- 2s -- 4 reqs ... -- 4 reqs -- 2s -- end
-
-Signed-off-by: Hongwei Qin <glqinhongwei@gmail.com>
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- HOWTO            |  7 +++++++
- backend.c        | 16 +++++++++++-----
- cconv.c          |  2 ++
- engines/cpu.c    |  1 +
- fio.1            |  6 ++++++
- fio.h            |  5 +++++
- options.c        | 22 ++++++++++++++++++++++
- thread_options.h |  5 +++++
- 8 files changed, 59 insertions(+), 5 deletions(-)
+ zbd.c | 43 ++++++++++++++++++++++++-------------------
+ 1 file changed, 24 insertions(+), 19 deletions(-)
 
-diff --git a/HOWTO b/HOWTO
-index 372f268..e178bdf 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -2562,6 +2562,13 @@ I/O rate
- 	before we have to complete it and do our :option:`thinktime`. In other words, this
- 	setting effectively caps the queue depth if the latter is larger.
+diff --git a/zbd.c b/zbd.c
+index 80004658..d69061ea 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -204,6 +204,12 @@ static bool is_valid_offset(const struct fio_file *f, uint64_t offset)
+ 	return (uint64_t)(offset - f->file_offset) < f->io_size;
+ }
  
-+.. option:: thinktime_blocks_type=str
++static inline struct fio_zone_info *get_zone(const struct fio_file *f,
++					     unsigned int zone_nr)
++{
++	return &f->zbd_info->zone_info[zone_nr];
++}
 +
-+	Only valid if :option:`thinktime` is set - control how :option:`thinktime_blocks`
-+	triggers. The default is `complete`, which triggers thinktime when fio completes
-+	:option:`thinktime_blocks` blocks. If this is set to `issue`, then the trigger happens
-+	at the issue side.
-+
- .. option:: rate=int[,int][,int]
+ /* Verify whether direct I/O is used for all host-managed zoned drives. */
+ static bool zbd_using_direct_io(void)
+ {
+@@ -235,7 +241,7 @@ static bool zbd_is_seq_job(struct fio_file *f)
+ 	zone_idx_b = zbd_zone_idx(f, f->file_offset);
+ 	zone_idx_e = zbd_zone_idx(f, f->file_offset + f->io_size - 1);
+ 	for (zone_idx = zone_idx_b; zone_idx <= zone_idx_e; zone_idx++)
+-		if (zbd_zone_swr(&f->zbd_info->zone_info[zone_idx]))
++		if (zbd_zone_swr(get_zone(f, zone_idx)))
+ 			return true;
  
- 	Cap the bandwidth used by this job. The number is in bytes/sec, the normal
-diff --git a/backend.c b/backend.c
-index e20a2e0..874e193 100644
---- a/backend.c
-+++ b/backend.c
-@@ -864,8 +864,8 @@ static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
- 	uint64_t total;
- 	int left;
+ 	return false;
+@@ -286,7 +292,7 @@ static bool zbd_verify_sizes(void)
+ 			}
  
--	b = ddir_rw_sum(td->io_blocks);
--	if (b % td->o.thinktime_blocks)
-+	b = ddir_rw_sum(td->thinktime_blocks_counter);
-+	if (b % td->o.thinktime_blocks || !b)
+ 			zone_idx = zbd_zone_idx(f, f->file_offset);
+-			z = &f->zbd_info->zone_info[zone_idx];
++			z = get_zone(f, zone_idx);
+ 			if ((f->file_offset != z->start) &&
+ 			    (td->o.td_ddir != TD_DDIR_READ)) {
+ 				new_offset = zbd_zone_end(z);
+@@ -302,7 +308,7 @@ static bool zbd_verify_sizes(void)
+ 				f->file_offset = new_offset;
+ 			}
+ 			zone_idx = zbd_zone_idx(f, f->file_offset + f->io_size);
+-			z = &f->zbd_info->zone_info[zone_idx];
++			z = get_zone(f, zone_idx);
+ 			new_end = z->start;
+ 			if ((td->o.td_ddir != TD_DDIR_READ) &&
+ 			    (f->file_offset + f->io_size != new_end)) {
+@@ -769,7 +775,7 @@ static void zbd_close_zone(struct thread_data *td, const struct fio_file *f,
+ 		sizeof(f->zbd_info->open_zones[0]));
+ 	f->zbd_info->num_open_zones--;
+ 	td->num_open_zones--;
+-	f->zbd_info->zone_info[zone_idx].open = 0;
++	get_zone(f, zone_idx)->open = 0;
+ }
+ 
+ /*
+@@ -869,8 +875,8 @@ static uint64_t zbd_process_swd(const struct fio_file *f, enum swd_action a)
+ 	struct fio_zone_info *zb, *ze, *z;
+ 	uint64_t swd = 0;
+ 
+-	zb = &f->zbd_info->zone_info[f->min_zone];
+-	ze = &f->zbd_info->zone_info[f->max_zone];
++	zb = get_zone(f, f->min_zone);
++	ze = get_zone(f, f->max_zone);
+ 	for (z = zb; z < ze; z++) {
+ 		pthread_mutex_lock(&z->mutex);
+ 		swd += z->wp - z->start;
+@@ -925,8 +931,8 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
+ 	if (!f->zbd_info || !td_write(td))
  		return;
  
- 	io_u_quiesce(td);
-@@ -1076,6 +1076,10 @@ reap:
- 		}
- 		if (ret < 0)
- 			break;
-+
-+		if (ddir_rw(ddir) && td->o.thinktime)
-+			handle_thinktime(td, ddir);
-+
- 		if (!ddir_rw_sum(td->bytes_done) &&
- 		    !td_ioengine_flagged(td, FIO_NOIO))
- 			continue;
-@@ -1090,9 +1094,6 @@ reap:
- 		}
- 		if (!in_ramp_time(td) && td->o.latency_target)
- 			lat_target_check(td);
--
--		if (ddir_rw(ddir) && td->o.thinktime)
--			handle_thinktime(td, ddir);
- 	}
- 
- 	check_update_rusage(td);
-@@ -1744,6 +1745,11 @@ static void *thread_main(void *data)
- 	if (rate_submit_init(td, sk_out))
- 		goto err;
- 
-+	if (td->o.thinktime_blocks_type == THINKTIME_BLOCKS_TYPE_COMPLETE)
-+		td->thinktime_blocks_counter = td->io_blocks;
-+	else
-+		td->thinktime_blocks_counter = td->io_issues;
-+
- 	set_epoch_time(td, o->log_unix_epoch);
- 	fio_getrusage(&td->ru_start);
- 	memcpy(&td->bw_sample_time, &td->epoch, sizeof(td->epoch));
-diff --git a/cconv.c b/cconv.c
-index 62c2fc2..b10868f 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -210,6 +210,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
- 	o->thinktime = le32_to_cpu(top->thinktime);
- 	o->thinktime_spin = le32_to_cpu(top->thinktime_spin);
- 	o->thinktime_blocks = le32_to_cpu(top->thinktime_blocks);
-+	o->thinktime_blocks_type = le32_to_cpu(top->thinktime_blocks_type);
- 	o->fsync_blocks = le32_to_cpu(top->fsync_blocks);
- 	o->fdatasync_blocks = le32_to_cpu(top->fdatasync_blocks);
- 	o->barrier_blocks = le32_to_cpu(top->barrier_blocks);
-@@ -431,6 +432,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	top->thinktime = cpu_to_le32(o->thinktime);
- 	top->thinktime_spin = cpu_to_le32(o->thinktime_spin);
- 	top->thinktime_blocks = cpu_to_le32(o->thinktime_blocks);
-+	top->thinktime_blocks_type = __cpu_to_le32(o->thinktime_blocks_type);
- 	top->fsync_blocks = cpu_to_le32(o->fsync_blocks);
- 	top->fdatasync_blocks = cpu_to_le32(o->fdatasync_blocks);
- 	top->barrier_blocks = cpu_to_le32(o->barrier_blocks);
-diff --git a/engines/cpu.c b/engines/cpu.c
-index ccbfe00..ce74dbc 100644
---- a/engines/cpu.c
-+++ b/engines/cpu.c
-@@ -268,6 +268,7 @@ static int fio_cpuio_init(struct thread_data *td)
- 	 * set thinktime_sleep and thinktime_spin appropriately
- 	 */
- 	o->thinktime_blocks = 1;
-+	o->thinktime_blocks_type = THINKTIME_BLOCKS_TYPE_COMPLETE;
- 	o->thinktime_spin = 0;
- 	o->thinktime = ((unsigned long long) co->cpucycle *
- 				(100 - co->cpuload)) / co->cpuload;
-diff --git a/fio.1 b/fio.1
-index d477b50..5d08e81 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2313,6 +2313,12 @@ queue depth setting redundant, since no more than 1 I/O will be queued
- before we have to complete it and do our \fBthinktime\fR. In other words, this
- setting effectively caps the queue depth if the latter is larger.
- .TP
-+.BI thinktime_blocks_type \fR=\fPstr
-+Only valid if \fBthinktime\fR is set - control how \fBthinktime_blocks triggers.
-+The default is `complete`, which triggers thinktime when fio completes
-+\fBthinktime_blocks blocks. If this is set to `issue`, then the trigger happens
-+at the issue side.
-+.TP
- .BI rate \fR=\fPint[,int][,int]
- Cap the bandwidth used by this job. The number is in bytes/sec, the normal
- suffix rules apply. Comma-separated values may be specified for reads,
-diff --git a/fio.h b/fio.h
-index ee582a7..ae6ac76 100644
---- a/fio.h
-+++ b/fio.h
-@@ -149,6 +149,9 @@ enum {
- 
- 	RATE_PROCESS_LINEAR = 0,
- 	RATE_PROCESS_POISSON = 1,
-+
-+	THINKTIME_BLOCKS_TYPE_COMPLETE = 0,
-+	THINKTIME_BLOCKS_TYPE_ISSUE = 1,
- };
- 
- enum {
-@@ -355,6 +358,8 @@ struct thread_data {
- 	struct fio_sem *sem;
- 	uint64_t bytes_done[DDIR_RWDIR_CNT];
- 
-+	uint64_t *thinktime_blocks_counter;
-+
+-	zb = &f->zbd_info->zone_info[f->min_zone];
+-	ze = &f->zbd_info->zone_info[f->max_zone];
++	zb = get_zone(f, f->min_zone);
++	ze = get_zone(f, f->max_zone);
+ 	zbd_init_swd(f);
  	/*
- 	 * State for random io, a bitmap of blocks done vs not done
- 	 */
-diff --git a/options.c b/options.c
-index 955bf95..e62e0cf 100644
---- a/options.c
-+++ b/options.c
-@@ -3609,6 +3609,28 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.group	= FIO_OPT_G_THINKTIME,
- 	},
- 	{
-+		.name	= "thinktime_blocks_type",
-+		.lname	= "Thinktime blocks type",
-+		.type	= FIO_OPT_STR,
-+		.off1	= offsetof(struct thread_options, thinktime_blocks_type),
-+		.help	= "How thinktime_blocks takes effect",
-+		.def	= "complete",
-+		.category = FIO_OPT_C_IO,
-+		.group	= FIO_OPT_G_THINKTIME,
-+		.posval = {
-+			  { .ival = "complete",
-+			    .oval = THINKTIME_BLOCKS_TYPE_COMPLETE,
-+			    .help = "thinktime_blocks takes effect at the completion side",
-+			  },
-+			  {
-+			    .ival = "issue",
-+			    .oval = THINKTIME_BLOCKS_TYPE_ISSUE,
-+			    .help = "thinktime_blocks takes effect at the issue side",
-+			  },
-+		},
-+		.parent = "thinktime",
-+	},
-+	{
- 		.name	= "rate",
- 		.lname	= "I/O rate",
- 		.type	= FIO_OPT_ULL,
-diff --git a/thread_options.h b/thread_options.h
-index 0a03343..f6b1540 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -177,6 +177,7 @@ struct thread_options {
- 	unsigned int thinktime;
- 	unsigned int thinktime_spin;
- 	unsigned int thinktime_blocks;
-+	unsigned int thinktime_blocks_type;
- 	unsigned int fsync_blocks;
- 	unsigned int fdatasync_blocks;
- 	unsigned int barrier_blocks;
-@@ -479,6 +480,7 @@ struct thread_options_pack {
- 	uint32_t thinktime;
- 	uint32_t thinktime_spin;
- 	uint32_t thinktime_blocks;
-+	uint32_t thinktime_blocks_type;
- 	uint32_t fsync_blocks;
- 	uint32_t fdatasync_blocks;
- 	uint32_t barrier_blocks;
-@@ -506,6 +508,9 @@ struct thread_options_pack {
- 	uint32_t stonewall;
- 	uint32_t new_group;
- 	uint32_t numjobs;
-+
-+	uint8_t pad3[4];
-+
+ 	 * If data verification is enabled reset the affected zones before
+@@ -966,7 +972,7 @@ static bool zbd_open_zone(struct thread_data *td, const struct fio_file *f,
+ 			  uint32_t zone_idx)
+ {
+ 	const uint32_t min_bs = td->o.min_bs[DDIR_WRITE];
+-	struct fio_zone_info *z = &f->zbd_info->zone_info[zone_idx];
++	struct fio_zone_info *z = get_zone(f, zone_idx);
+ 	bool res = true;
+ 
+ 	if (z->cond == ZBD_ZONE_COND_OFFLINE)
+@@ -1059,7 +1065,7 @@ static struct fio_zone_info *zbd_convert_to_open_zone(struct thread_data *td,
+ 	for (;;) {
+ 		uint32_t tmp_idx;
+ 
+-		z = &f->zbd_info->zone_info[zone_idx];
++		z = get_zone(f, zone_idx);
+ 
+ 		zone_lock(td, f, z);
+ 		pthread_mutex_lock(&f->zbd_info->mutex);
+@@ -1147,7 +1153,7 @@ open_other_zone:
+ 		if (!is_valid_offset(f, z->start)) {
+ 			/* Wrap-around. */
+ 			zone_idx = f->min_zone;
+-			z = &f->zbd_info->zone_info[zone_idx];
++			z = get_zone(f, zone_idx);
+ 		}
+ 		assert(is_valid_offset(f, z->start));
+ 		zone_lock(td, f, z);
+@@ -1168,7 +1174,7 @@ open_other_zone:
+ 		pthread_mutex_unlock(&f->zbd_info->mutex);
+ 		pthread_mutex_unlock(&z->mutex);
+ 
+-		z = &f->zbd_info->zone_info[zone_idx];
++		z = get_zone(f, zone_idx);
+ 
+ 		zone_lock(td, f, z);
+ 		if (z->wp + min_bs <= zbd_zone_capacity_end(z))
+@@ -1224,8 +1230,7 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
+ 	const uint32_t min_bs = td->o.min_bs[io_u->ddir];
+ 	struct fio_file *f = io_u->file;
+ 	struct fio_zone_info *z1, *z2;
+-	const struct fio_zone_info *const zf =
+-		&f->zbd_info->zone_info[f->min_zone];
++	const struct fio_zone_info *const zf = get_zone(f, f->min_zone);
+ 
  	/*
- 	 * We currently can't convert these, so don't enable them
- 	 */
+ 	 * Skip to the next non-empty zone in case of sequential I/O and to
+@@ -1298,7 +1303,7 @@ static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int q,
+ 
+ 	zone_idx = zbd_zone_idx(f, io_u->offset);
+ 	assert(zone_idx < zbd_info->nr_zones);
+-	z = &zbd_info->zone_info[zone_idx];
++	z = get_zone(f, zone_idx);
+ 
+ 	if (!zbd_zone_swr(z))
+ 		return;
+@@ -1359,7 +1364,7 @@ static void zbd_put_io(struct thread_data *td, const struct io_u *io_u)
+ 
+ 	zone_idx = zbd_zone_idx(f, io_u->offset);
+ 	assert(zone_idx < zbd_info->nr_zones);
+-	z = &zbd_info->zone_info[zone_idx];
++	z = get_zone(f, zone_idx);
+ 
+ 	if (!zbd_zone_swr(z))
+ 		return;
+@@ -1415,7 +1420,7 @@ void setup_zbd_zone_mode(struct thread_data *td, struct io_u *io_u)
+ 	assert(td->o.zone_size);
+ 
+ 	zone_idx = zbd_zone_idx(f, f->last_pos[ddir]);
+-	z = &f->zbd_info->zone_info[zone_idx];
++	z = get_zone(f, zone_idx);
+ 
+ 	/*
+ 	 * When the zone capacity is smaller than the zone size and the I/O is
+@@ -1523,7 +1528,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 	assert(is_valid_offset(f, io_u->offset));
+ 	assert(io_u->buflen);
+ 	zone_idx_b = zbd_zone_idx(f, io_u->offset);
+-	zb = &f->zbd_info->zone_info[zone_idx_b];
++	zb = get_zone(f, zone_idx_b);
+ 	orig_zb = zb;
+ 
+ 	/* Accept the I/O offset for conventional zones. */
+@@ -1559,7 +1564,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 		if (range < min_bs ||
+ 		    ((!td_random(td)) && (io_u->offset + min_bs > zb->wp))) {
+ 			pthread_mutex_unlock(&zb->mutex);
+-			zl = &f->zbd_info->zone_info[f->max_zone];
++			zl = get_zone(f, f->max_zone);
+ 			zb = zbd_find_zone(td, io_u, zb, zl);
+ 			if (!zb) {
+ 				dprint(FD_ZBD,
 -- 
-1.8.3.1
+2.28.0
 
 
