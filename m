@@ -1,59 +1,39 @@
-Return-Path: <glqinhongwei@gmail.com>
-Return-Path: <glqinhongwei@gmail.com>
-From: Hongwei Qin <glqinhongwei@gmail.com>
-Subject: [PATCH v6 2/3] Calculate min_rate with the consideration of thinktime
-Date: Mon, 25 Jan 2021 20:40:00 +0800
-Message-Id: <b8ac34813fdb1f4fdcf1ab6530370ac153b5b105.1611578199.git.glqinhongwei@gmail.com>
-In-Reply-To: <cover.1611578199.git.glqinhongwei@gmail.com>
-References: <cover.1611578199.git.glqinhongwei@gmail.com>
-In-Reply-To: <cover.1611578199.git.glqinhongwei@gmail.com>
-References: <cover.1611578199.git.glqinhongwei@gmail.com>
-To: fio@vger.kernel.org
-Cc: axboe@kernel.dk, sitsofe@gmail.com, Hongwei Qin <glqinhongwei@gmail.com>
+Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH v4 38/38] t/zbd: avoid looping on invalid command line options
+Date: Wed, 27 Jan 2021 13:19:45 +0900
+Message-Id: <20210127041945.36909-39-dmitry.fomichev@wdc.com>
+In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-This patch updates the compare time if handle_thinktime
-sleeps or spin.
+t/zbd/test-zbd-support loops indefinitely if an unrecognized option
+is specified in the command line. Add a switch case to display usage
+and exit the script.
 
-Signed-off-by: Hongwei Qin <glqinhongwei@gmail.com>
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- backend.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ t/zbd/test-zbd-support | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/backend.c b/backend.c
-index 874e193..f2efddd 100644
---- a/backend.c
-+++ b/backend.c
-@@ -858,7 +858,8 @@ static long long usec_for_io(struct thread_data *td, enum fio_ddir ddir)
- 	return 0;
- }
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 05c00900..1658dc25 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -1178,6 +1178,7 @@ while [ "${1#-}" != "$1" ]; do
+     -q) quit_on_err=1; shift;;
+     -z) zbd_debug=1; shift;;
+     --) shift; break;;
++     *) usage; exit 1;;
+   esac
+ done
  
--static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
-+static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir,
-+			     struct timespec *time)
- {
- 	unsigned long long b;
- 	uint64_t total;
-@@ -898,6 +899,9 @@ static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
- 		/* adjust for rate_process=poisson */
- 		td->last_usec[ddir] += total;
- 	}
-+
-+	if (time && should_check_rate(td))
-+		fio_gettime(time, NULL);
- }
- 
- /*
-@@ -1078,7 +1082,7 @@ reap:
- 			break;
- 
- 		if (ddir_rw(ddir) && td->o.thinktime)
--			handle_thinktime(td, ddir);
-+			handle_thinktime(td, ddir, &comp_time);
- 
- 		if (!ddir_rw_sum(td->bytes_done) &&
- 		    !td_ioengine_flagged(td, FIO_NOIO))
 -- 
-1.8.3.1
+2.28.0
 
 
