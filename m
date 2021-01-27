@@ -1,59 +1,122 @@
-Return-Path: <glqinhongwei@gmail.com>
-Return-Path: <glqinhongwei@gmail.com>
-From: Hongwei Qin <glqinhongwei@gmail.com>
-Subject: [PATCH v5 2/2] Calculate min_rate with the consideration of thinktime
-Date: Mon, 25 Jan 2021 20:09:49 +0800
-Message-Id: <b8ac34813fdb1f4fdcf1ab6530370ac153b5b105.1611575523.git.glqinhongwei@gmail.com>
-In-Reply-To: <cover.1611575523.git.glqinhongwei@gmail.com>
-References: <cover.1611575523.git.glqinhongwei@gmail.com>
-In-Reply-To: <cover.1611575523.git.glqinhongwei@gmail.com>
-References: <cover.1611575523.git.glqinhongwei@gmail.com>
-To: fio@vger.kernel.org
-Cc: axboe@kernel.dk, sitsofe@gmail.com, Hongwei Qin <glqinhongwei@gmail.com>
+Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH v4 32/38] t/zbd: add an option to bail on a failed test
+Date: Wed, 27 Jan 2021 13:19:39 +0900
+Message-Id: <20210127041945.36909-33-dmitry.fomichev@wdc.com>
+In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-This patch updates the compare time if handle_thinktime
-sleeps or spin.
+Sometimes, it can be useful to inspect the state of the zones of the
+test device, usually right after a test failure. Currently,
+test-zbd-support script just keeps running and proper examination of
+device zones can be difficult.
 
-Signed-off-by: Hongwei Qin <glqinhongwei@gmail.com>
+Add the -q option to test/zbd/support to quit immediately upon
+encountering any test failure. Additionally, define the same option
+in run-tests-against-nullb to propagate it to test/zbd/support.
+
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- backend.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ t/zbd/run-tests-against-nullb | 12 +++++++++++-
+ t/zbd/test-zbd-support        |  4 ++++
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/backend.c b/backend.c
-index 874e193..f2efddd 100644
---- a/backend.c
-+++ b/backend.c
-@@ -858,7 +858,8 @@ static long long usec_for_io(struct thread_data *td, enum fio_ddir ddir)
- 	return 0;
+diff --git a/t/zbd/run-tests-against-nullb b/t/zbd/run-tests-against-nullb
+index 8771e92e..db901179 100755
+--- a/t/zbd/run-tests-against-nullb
++++ b/t/zbd/run-tests-against-nullb
+@@ -24,6 +24,7 @@ usage()
+ 	echo -e "\t-o <max_open_zones> Specify MaxOpen value, (${set_max_open} by default)."
+ 	echo -e "\t-n <#number of runs> Set the number of times to run the entire suite "
+ 	echo -e "\t   or an individual section/test."
++	echo -e "\t-q Quit t/zbd/test-zbd-support run after any failed test."
+ 	echo -e "\t-r Remove the /dev/nullb0 device that may still exist after"
+ 	echo -e "\t   running this script."
+ 	exit 1
+@@ -241,6 +242,7 @@ zbd_test_opts=()
+ libzbc=0
+ num_of_runs=1
+ test_case=0
++quit_on_err=0
+ 
+ while (($#)); do
+ 	case "$1" in
+@@ -251,6 +253,7 @@ while (($#)); do
+ 		-l) libzbc=1; shift;;
+ 		-n) num_of_runs="${2}"; shift; shift;;
+ 		-t) test_case="${2}"; shift; shift;;
++		-q) quit_on_err=1; shift;;
+ 		-h) usage; break;;
+ 		--) shift; break;;
+ 		 *) usage; exit 1;;
+@@ -296,6 +299,9 @@ while ((run_nr <= $num_of_runs)); do
+ 		if ((test_case)); then
+ 			zbd_test_opts+=("-t" "${test_case}")
+ 		fi
++		if ((quit_on_err)); then
++			zbd_test_opts+=("-q")
++		fi
+ 		section$section_number
+ 		configure_nullb
+ 		rc=$?
+@@ -330,9 +336,13 @@ while ((run_nr <= $num_of_runs)); do
+ 			exit 1
+ 		fi
+ 		((intr)) && exit 1
+-		(($test_rc)) && rc=1
++		if (($test_rc)); then
++			rc=1
++			((quit_on_err)) && break
++		fi
+ 	done
+ 
++	((rc && quit_on_err)) && break
+ 	run_nr=$((run_nr + 1))
+ done
+ 
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 4d8e905d..93456ec6 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -14,6 +14,7 @@ usage() {
+ 	echo -e "\t-r Reset all zones before test start"
+ 	echo -e "\t-o <max_open_zones> Run fio with max_open_zones limit"
+ 	echo -e "\t-t <test #> Run only a single test case with specified number"
++	echo -e "\t-q Quit the test run after any failed test"
+ 	echo -e "\t-z Run fio with debug=zbd option"
  }
  
--static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
-+static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir,
-+			     struct timespec *time)
- {
- 	unsigned long long b;
- 	uint64_t total;
-@@ -898,6 +899,9 @@ static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
- 		/* adjust for rate_process=poisson */
- 		td->last_usec[ddir] += total;
- 	}
-+
-+	if (time && should_check_rate(td))
-+		fio_gettime(time, NULL);
- }
+@@ -1113,6 +1114,7 @@ reset_all_zones=
+ use_libzbc=
+ zbd_debug=
+ max_open_zones_opt=
++quit_on_err=
  
- /*
-@@ -1078,7 +1082,7 @@ reap:
- 			break;
+ while [ "${1#-}" != "$1" ]; do
+   case "$1" in
+@@ -1127,6 +1129,7 @@ while [ "${1#-}" != "$1" ]; do
+     -o) max_open_zones_opt="${2}"; shift; shift;;
+     -v) dynamic_analyzer=(valgrind "--read-var-info=yes");
+ 	shift;;
++    -q) quit_on_err=1; shift;;
+     -z) zbd_debug=1; shift;;
+     --) shift; break;;
+   esac
+@@ -1288,6 +1291,7 @@ for test_number in "${tests[@]}"; do
+     echo -e "$cc_status"
+     echo "$status" >> "${logfile}.${test_number}"
+     [ $intr -ne 0 ] && exit 1
++    [ -n "$quit_on_err" -a "$rc" -ne 0 ] && exit 1
+ done
  
- 		if (ddir_rw(ddir) && td->o.thinktime)
--			handle_thinktime(td, ddir);
-+			handle_thinktime(td, ddir, &comp_time);
- 
- 		if (!ddir_rw_sum(td->bytes_done) &&
- 		    !td_ioengine_flagged(td, FIO_NOIO))
+ echo "$passed tests passed"
 -- 
-1.8.3.1
+2.28.0
 
 
