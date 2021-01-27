@@ -1,8 +1,8 @@
 Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
 From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v4 32/38] t/zbd: add an option to bail on a failed test
-Date: Wed, 27 Jan 2021 13:19:39 +0900
-Message-Id: <20210127041945.36909-33-dmitry.fomichev@wdc.com>
+Subject: [PATCH v4 30/38] t/zbd: test random I/O direction in all-conventional case
+Date: Wed, 27 Jan 2021 13:19:37 +0900
+Message-Id: <20210127041945.36909-31-dmitry.fomichev@wdc.com>
 In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
 References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
@@ -11,111 +11,66 @@ To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
 Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-Sometimes, it can be useful to inspect the state of the zones of the
-test device, usually right after a test failure. Currently,
-test-zbd-support script just keeps running and proper examination of
-device zones can be difficult.
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-Add the -q option to test/zbd/support to quit immediately upon
-encountering any test failure. Additionally, define the same option
-in run-tests-against-nullb to propagate it to test/zbd/support.
+The number of 'sectors with data' is counted and used to determine the
+direction of the first I/O of a random read/write ZBD workload. To
+initialize the number, min_zone and max_zone fields in struct fio_file
+are referred. There was a code bug that was recently fixed where
+min_zone and max_zone fields were not initialized when all zones in I/O
+region were conventional zones. This led to an uninitialized number of
+sectors with data, and the write direction was always set for random
+workloads.
 
+Add a test case to perform random read/write workload on an I/O region
+with both sequential and conventional zones. Check that both read and
+write I/Os are executed.
+
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- t/zbd/run-tests-against-nullb | 12 +++++++++++-
- t/zbd/test-zbd-support        |  4 ++++
- 2 files changed, 15 insertions(+), 1 deletion(-)
+ t/zbd/test-zbd-support | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/t/zbd/run-tests-against-nullb b/t/zbd/run-tests-against-nullb
-index 8771e92e..db901179 100755
---- a/t/zbd/run-tests-against-nullb
-+++ b/t/zbd/run-tests-against-nullb
-@@ -24,6 +24,7 @@ usage()
- 	echo -e "\t-o <max_open_zones> Specify MaxOpen value, (${set_max_open} by default)."
- 	echo -e "\t-n <#number of runs> Set the number of times to run the entire suite "
- 	echo -e "\t   or an individual section/test."
-+	echo -e "\t-q Quit t/zbd/test-zbd-support run after any failed test."
- 	echo -e "\t-r Remove the /dev/nullb0 device that may still exist after"
- 	echo -e "\t   running this script."
- 	exit 1
-@@ -241,6 +242,7 @@ zbd_test_opts=()
- libzbc=0
- num_of_runs=1
- test_case=0
-+quit_on_err=0
- 
- while (($#)); do
- 	case "$1" in
-@@ -251,6 +253,7 @@ while (($#)); do
- 		-l) libzbc=1; shift;;
- 		-n) num_of_runs="${2}"; shift; shift;;
- 		-t) test_case="${2}"; shift; shift;;
-+		-q) quit_on_err=1; shift;;
- 		-h) usage; break;;
- 		--) shift; break;;
- 		 *) usage; exit 1;;
-@@ -296,6 +299,9 @@ while ((run_nr <= $num_of_runs)); do
- 		if ((test_case)); then
- 			zbd_test_opts+=("-t" "${test_case}")
- 		fi
-+		if ((quit_on_err)); then
-+			zbd_test_opts+=("-q")
-+		fi
- 		section$section_number
- 		configure_nullb
- 		rc=$?
-@@ -330,9 +336,13 @@ while ((run_nr <= $num_of_runs)); do
- 			exit 1
- 		fi
- 		((intr)) && exit 1
--		(($test_rc)) && rc=1
-+		if (($test_rc)); then
-+			rc=1
-+			((quit_on_err)) && break
-+		fi
- 	done
- 
-+	((rc && quit_on_err)) && break
- 	run_nr=$((run_nr + 1))
- done
- 
 diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 4d8e905d..93456ec6 100755
+index 217fdd10..80763561 100755
 --- a/t/zbd/test-zbd-support
 +++ b/t/zbd/test-zbd-support
-@@ -14,6 +14,7 @@ usage() {
- 	echo -e "\t-r Reset all zones before test start"
- 	echo -e "\t-o <max_open_zones> Run fio with max_open_zones limit"
- 	echo -e "\t-t <test #> Run only a single test case with specified number"
-+	echo -e "\t-q Quit the test run after any failed test"
- 	echo -e "\t-z Run fio with debug=zbd option"
+@@ -1079,6 +1079,34 @@ test52() {
+ 	check_reset_count -eq 0 || return $?
  }
  
-@@ -1113,6 +1114,7 @@ reset_all_zones=
- use_libzbc=
- zbd_debug=
- max_open_zones_opt=
-+quit_on_err=
- 
- while [ "${1#-}" != "$1" ]; do
-   case "$1" in
-@@ -1127,6 +1129,7 @@ while [ "${1#-}" != "$1" ]; do
-     -o) max_open_zones_opt="${2}"; shift; shift;;
-     -v) dynamic_analyzer=(valgrind "--read-var-info=yes");
- 	shift;;
-+    -q) quit_on_err=1; shift;;
-     -z) zbd_debug=1; shift;;
-     --) shift; break;;
-   esac
-@@ -1288,6 +1291,7 @@ for test_number in "${tests[@]}"; do
-     echo -e "$cc_status"
-     echo "$status" >> "${logfile}.${test_number}"
-     [ $intr -ne 0 ] && exit 1
-+    [ -n "$quit_on_err" -a "$rc" -ne 0 ] && exit 1
- done
- 
- echo "$passed tests passed"
++# Check both reads and writes are executed by random I/O to conventional zones.
++test53() {
++	local off capacity io read_b=0 written_b=0
++
++	require_zbd || return $SKIP_TESTCASE
++	require_conv_zones 4 || return $SKIP_TESTCASE
++
++	off=$((first_sequential_zone_sector * 512 - 4 * zone_size))
++	capacity=$(total_zone_capacity 4 $off $dev)
++	run_fio --name=job --filename=${dev} --rw=randrw --bs=64K \
++		--size=$((4 * zone_size)) "$(ioengine "psync")" --offset=${off}\
++		--zonemode=zbd --direct=1 --zonesize=${zone_size} \
++		${job_var_opts[@]} \
++		>> "${logfile}.${test_number}" 2>&1 || return $?
++
++	written_b=$(fio_written <"${logfile}.${test_number}")
++	read_b=$(fio_read <"${logfile}.${test_number}")
++	io=$((written_b + read_b))
++	echo "Number of bytes read: $read_b" >>"${logfile}.${test_number}"
++	echo "Number of bytes written: $written_b" >>"${logfile}.${test_number}"
++	echo "Total number of bytes read and written: $io <> $capacity" \
++	     >>"${logfile}.${test_number}"
++	if ((io==capacity && written_b != 0 && read_b != 0)); then
++		return 0
++	fi
++	return 1
++}
++
+ tests=()
+ dynamic_analyzer=()
+ reset_all_zones=
 -- 
 2.28.0
 
