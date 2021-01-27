@@ -1,77 +1,52 @@
-Return-Path: <prvs=6334d1505=dmitry.fomichev@wdc.com>
+Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
 From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v3 29/38] t/zbd: test that zone_reset_threshold calculation is correct
-Date: Thu,  7 Jan 2021 06:57:30 +0900
-Message-Id: <20210106215739.264524-30-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
-References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
+Subject: [PATCH v4 14/38] zbd: initialize sectors with data at start time
+Date: Wed, 27 Jan 2021 13:19:21 +0900
+Message-Id: <20210127041945.36909-15-dmitry.fomichev@wdc.com>
+In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+From: Aravind Ramesh <aravind.ramesh@wdc.com>
 
-The option "zone_reset_threshold" specifies the ratio of logical blocks
-with data to trigger zone resets. When the I/O range includes
-conventional zones, only blocks in sequential zones must be used to
-track this value. A recently fixed bug has uncovered that the number of
-blocks in conventional zones were erroneously counted as the blocks
-with data.
+Based on the flag enable_check_swd, which is false by default, fio
+does not initialize the swd value at startup, initializing the swd
+value to be zero, even if some zones have sectors with data. This can
+result in fio reflecting less than actual swd after a few writes are
+completed. In workloads where verify is enabled, fio resets all the
+zones and while resetting, it decrements the swd counter with the
+actual number of swds in that zone(swd-count - swd-in-zone),
+since swd-count is initialized to 0, it results in overflow of the
+variable causing unpredictable issues.
 
-To prevent future regressions, add a test case to confirm that the
-logical blocks accounting does not include conventional zones.
+So, initialize the swd to the correct value.
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Fixes: 409a4f291e7f ("zbd: avoid initializing swd when unnecessary")
+Signed-off-by: Aravind Ramesh <aravind.ramesh@wdc.com>
 Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- t/zbd/test-zbd-support | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ zbd.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 4ad55381..217fdd10 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -1047,6 +1047,38 @@ test51() {
- 	run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
- }
+diff --git a/zbd.c b/zbd.c
+index cf2abc3e..84165ddc 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -946,9 +946,6 @@ static void zbd_init_swd(struct fio_file *f)
+ {
+ 	uint64_t swd;
  
-+# Verify that zone_reset_threshold only takes logical blocks from seq
-+# zones into account, and logical blocks of conv zones are not counted.
-+test52() {
-+	local off io_size
-+
-+	require_zbd || return $SKIP_TESTCASE
-+	require_conv_zones 8 || return $SKIP_TESTCASE
-+	require_seq_zones 8 || return $SKIP_TESTCASE
-+
-+	reset_zone "${dev}" -1
-+
-+	# Total I/O size is 1/8 = 0.125 of the I/O range of cont + seq zones.
-+	# Set zone_reset_threshold as 0.1. The threshold size is less than
-+	# 0.125, then, reset count zero is expected.
-+	# On the other hand, half of the I/O range is covered by conv zones.
-+	# If fio would count the conv zones for zone_reset_threshold, the ratio
-+	# were more than 0.5 and would trigger zone resets.
-+
-+	off=$((first_sequential_zone_sector * 512 - 8 * zone_size))
-+	io_size=$((zone_size * 16 / 8))
-+	run_fio --name=job --filename=$dev --rw=randwrite --bs=$((zone_size/16))\
-+		--size=$((zone_size * 16)) --softrandommap=1 \
-+		--io_size=$((io_size)) "$(ioengine "psync")" --offset=$off \
-+		--zonemode=zbd --direct=1 --zonesize=${zone_size} \
-+		--zone_reset_threshold=.1 --zone_reset_frequency=1.0 \
-+		${job_var_opts[@]} --debug=zbd \
-+		>> "${logfile}.${test_number}" 2>&1 || return $?
-+
-+	check_written ${io_size} || return $?
-+	check_reset_count -eq 0 || return $?
-+}
-+
- tests=()
- dynamic_analyzer=()
- reset_all_zones=
+-	if (!enable_check_swd)
+-		return;
+-
+ 	swd = zbd_process_swd(f, SET_SWD);
+ 	dprint(FD_ZBD, "%s(%s): swd = %" PRIu64 "\n", __func__, f->file_name,
+ 	       swd);
 -- 
 2.28.0
 
