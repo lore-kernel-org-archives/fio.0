@@ -1,38 +1,120 @@
-Return-Path: <glqinhongwei@gmail.com>
-Return-Path: <glqinhongwei@gmail.com>
-From: HongweiQin <glqinhongwei@gmail.com>
-Subject: [PATCH v2 1/2] Fix thinktime_blocks
-Date: Sun, 17 Jan 2021 17:54:22 +0800
-Message-Id: <d1a6de3435104ed9092c1520b5c5c6fe59b52239.1610876646.git.glqinhongwei@gmail.com>
-In-Reply-To: <cover.1610876646.git.glqinhongwei@gmail.com>
-References: <cover.1610876646.git.glqinhongwei@gmail.com>
-In-Reply-To: <cover.1610876646.git.glqinhongwei@gmail.com>
-References: <cover.1610876646.git.glqinhongwei@gmail.com>
-To: fio@vger.kernel.org
-Cc: axboe@kernel.dk, HongweiQin <glqinhongwei@gmail.com>
+Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH v4 11/38] zbd: do not set zbd handlers for conventional zones
+Date: Wed, 27 Jan 2021 13:19:18 +0900
+Message-Id: <20210127041945.36909-12-dmitry.fomichev@wdc.com>
+In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-According to the manual, the thinktime_blocks controls how many blocks to issue (instead of complete) before waiting.
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-Signed-off-by: HongweiQin <glqinhongwei@gmail.com>
+When zbd_adjust_block() modifies io_u to satisfy write pointer
+restrictions, it may change the zone for the io_u. The function sets
+pointers to zbd_queue_io() and zbd_put_io() handlers to io_u to
+further process write pointer zones. However, when the I/O is
+redirected to a conventional zone, these handlers should not
+be set in io_u.
+
+Skip setting the handlers when this function returns a conventional
+zone. When zbd_adjust_block() can not find a zone to fit the I/O,
+the existing code unlocks the zone pointer 'zb' used in the function.
+This unlock should not be performed if 'zb' points to a conventional
+zone upon return, skip it in this case.
+
+These changes make the assert for 'zb' pointer near 'accept' label in
+zbd_adjust_block() unnecessary. Replace it with assert for zb->has_wp,
+since the zone at the step shall have write pointer.
+
+Since zone locking functions (zone_lock(), zbd_queue_io() and
+zbd_put_io()) are supposed to be called only for write pointer zones,
+add assertions to zone_lock() and zone_unlock() to make sure this is
+the case. This allows us to convert a few existing conditional checks
+to assertions to make zone type validation more strict.
+
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- backend.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ zbd.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/backend.c b/backend.c
-index e20a2e0..c85669c 100644
---- a/backend.c
-+++ b/backend.c
-@@ -864,7 +864,7 @@ static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
- 	uint64_t total;
- 	int left;
+diff --git a/zbd.c b/zbd.c
+index a14e4a38..88cbc6fa 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -174,6 +174,8 @@ static void zone_lock(struct thread_data *td, struct fio_file *f, struct fio_zon
+ 	/* A thread should never lock zones outside its working area. */
+ 	assert(f->min_zone <= nz && nz < f->max_zone);
  
--	b = ddir_rw_sum(td->io_blocks);
-+	b = ddir_rw_sum(td->io_issues);
- 	if (b % td->o.thinktime_blocks)
- 		return;
++	assert(z->has_wp);
++
+ 	/*
+ 	 * Lock the io_u target zone. The zone will be unlocked if io_u offset
+ 	 * is changed or when io_u completes and zbd_put_io() executed.
+@@ -194,6 +196,7 @@ static inline void zone_unlock(struct fio_zone_info *z)
+ {
+ 	int ret;
  
++	assert(z->has_wp);
+ 	ret = pthread_mutex_unlock(&z->mutex);
+ 	assert(!ret);
+ }
+@@ -1326,8 +1329,7 @@ static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int q,
+ 	assert(zone_idx < zbd_info->nr_zones);
+ 	z = get_zone(f, zone_idx);
+ 
+-	if (!z->has_wp)
+-		return;
++	assert(z->has_wp);
+ 
+ 	if (!success)
+ 		goto unlock;
+@@ -1386,8 +1388,7 @@ static void zbd_put_io(struct thread_data *td, const struct io_u *io_u)
+ 	assert(zone_idx < zbd_info->nr_zones);
+ 	z = get_zone(f, zone_idx);
+ 
+-	if (!z->has_wp)
+-		return;
++	assert(z->has_wp);
+ 
+ 	dprint(FD_ZBD,
+ 	       "%s: terminate I/O (%lld, %llu) for zone %u\n",
+@@ -1617,6 +1618,12 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 			io_u->offset = zb->start +
+ 				((io_u->offset - orig_zb->start) %
+ 				 (range - io_u->buflen)) / min_bs * min_bs;
++		/*
++		 * When zbd_find_zone() returns a conventional zone,
++		 * we can simply accept the new i/o offset here.
++		 */
++		if (!zb->has_wp)
++			return io_u_accept;
+ 		/*
+ 		 * Make sure the I/O does not cross over the zone wp position.
+ 		 */
+@@ -1713,7 +1720,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 	assert(false);
+ 
+ accept:
+-	assert(zb);
++	assert(zb->has_wp);
+ 	assert(zb->cond != ZBD_ZONE_COND_OFFLINE);
+ 	assert(!io_u->zbd_queue_io);
+ 	assert(!io_u->zbd_put_io);
+@@ -1722,7 +1729,7 @@ accept:
+ 	return io_u_accept;
+ 
+ eof:
+-	if (zb)
++	if (zb && zb->has_wp)
+ 		zone_unlock(zb);
+ 	return io_u_eof;
+ }
 -- 
-1.8.3.1
+2.28.0
 
 
