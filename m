@@ -1,8 +1,8 @@
 Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
 From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v4 12/38] zbd: count sectors with data for write pointer zones
-Date: Wed, 27 Jan 2021 13:19:19 +0900
-Message-Id: <20210127041945.36909-13-dmitry.fomichev@wdc.com>
+Subject: [PATCH v4 26/38] t/zbd: skip tests when test prerequisites are not met
+Date: Wed, 27 Jan 2021 13:19:33 +0900
+Message-Id: <20210127041945.36909-27-dmitry.fomichev@wdc.com>
 In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
 References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
 MIME-Version: 1.0
@@ -13,162 +13,245 @@ List-ID: <fio@vger.kernel.org>
 
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-ZBD fio code tracks 'sectors with data' for two different purposes.
-The first one is to process zone_reset_threshold. When the ratio of
-sectors with data in zones with write pointer goes beyond the specified
-number, zone reset is triggered. The second purpose is to control the
-direction of the first I/O of random mixed read/write workloads. If all
-write pointer zones in the I/O range are reset at the beginning of such
-a workload, fio has no data to read and will immediately end the run of
-the test section. To avoid this, fio checks 'sectors with data' and if
-it is zero (i.e. it is the very first I/O), it modifies the direction
-of that I/O from read to write.
+Some of the test cases in t/zbd/test-zbd-support require test target
+devices to have certain features. When these prerequisites are not met,
+they skip the actual test and report the test result to be "PASS".
+This does not help users to understand the true test outcome.
+As the tests expand to cover a wider variety of zoned devices and
+layouts, reporting skipped tests becomes more and more beneficial.
 
-Currently, when the workload range includes both conventional and
-sequential zones, all sectors in conventional zones are counted as
-'sectors with data' along with sectors in sequential zones.
-This leads to incorrect handling  of 'zone_reset_threshold' option -
-zone reset timing of sequential zones is affected by the amount of
-data read from or written to conventional zones. To avoid this,
-conventional zones should be excluded from 'sectors with data'
-calculation.
-
-On the other hand, if the sectors of conventional zones were excluded
-from the sectors with data, it could result in the wrong initial I/O
-direction for random workloads. When the zones in I/O region are all
-conventional, 'sectors with data' would always be zero. Because of
-this, read operations are always changed to writes and reads are never
-performed.
-
-To avoid this contradiction, introduce another counter,
-'wp_sector_with_data'. It works similar to the existing
-'sectors_with_data', but it counts data sectors only in write pointer
-zones. Use this newly introduced count for zone_reset_threshold checks
-and keep on using the original count for the initial random I/O
-direction determination.
-
-When counting sectors with data, lock only write pointer zones, no need
-to lock conventional zones.
+Modify test-zbd-support script to report skipped test cases.
+Introduce helper functions require_*() to check test target
+prerequisites. If they are not met, set the variable SKIP_REASON and
+return the constant SKIP_TESTCASE from the test function. In the main
+loo, print "SKIP" status and SKIP_REASON if the test case is skipped.
+Also, output the total number of skipped cases at the end of the test
+script  run.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- zbd.c | 25 ++++++++++++++++++-------
- zbd.h |  3 +++
- 2 files changed, 21 insertions(+), 7 deletions(-)
+ t/zbd/test-zbd-support | 93 ++++++++++++++++++++++++++++++------------
+ 1 file changed, 67 insertions(+), 26 deletions(-)
 
-diff --git a/zbd.c b/zbd.c
-index 88cbc6fa..e3ad1124 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -734,9 +734,10 @@ static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
- {
- 	uint64_t offset = z->start;
- 	uint64_t length = (z+1)->start - offset;
-+	uint64_t data_in_zone = z->wp - z->start;
- 	int ret = 0;
- 
--	if (z->wp == z->start)
-+	if (!data_in_zone)
- 		return 0;
- 
- 	assert(is_valid_offset(f, offset + length - 1));
-@@ -755,7 +756,8 @@ static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
- 	}
- 
- 	pthread_mutex_lock(&f->zbd_info->mutex);
--	f->zbd_info->sectors_with_data -= z->wp - z->start;
-+	f->zbd_info->sectors_with_data -= data_in_zone;
-+	f->zbd_info->wp_sectors_with_data -= data_in_zone;
- 	pthread_mutex_unlock(&f->zbd_info->mutex);
- 	z->wp = z->start;
- 	z->verify_block = 0;
-@@ -887,25 +889,32 @@ static uint64_t zbd_process_swd(const struct fio_file *f, enum swd_action a)
- {
- 	struct fio_zone_info *zb, *ze, *z;
- 	uint64_t swd = 0;
-+	uint64_t wp_swd = 0;
- 
- 	zb = get_zone(f, f->min_zone);
- 	ze = get_zone(f, f->max_zone);
- 	for (z = zb; z < ze; z++) {
--		pthread_mutex_lock(&z->mutex);
-+		if (z->has_wp) {
-+			pthread_mutex_lock(&z->mutex);
-+			wp_swd += z->wp - z->start;
-+		}
- 		swd += z->wp - z->start;
- 	}
- 	pthread_mutex_lock(&f->zbd_info->mutex);
- 	switch (a) {
- 	case CHECK_SWD:
- 		assert(f->zbd_info->sectors_with_data == swd);
-+		assert(f->zbd_info->wp_sectors_with_data == wp_swd);
- 		break;
- 	case SET_SWD:
- 		f->zbd_info->sectors_with_data = swd;
-+		f->zbd_info->wp_sectors_with_data = wp_swd;
- 		break;
- 	}
- 	pthread_mutex_unlock(&f->zbd_info->mutex);
- 	for (z = zb; z < ze; z++)
--		zone_unlock(z);
-+		if (z->has_wp)
-+			zone_unlock(z);
- 
- 	return swd;
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 652dddfc..d94b5125 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -190,6 +190,42 @@ prep_write() {
+ 		reset_zone "${dev}" -1
  }
-@@ -916,7 +925,7 @@ static uint64_t zbd_process_swd(const struct fio_file *f, enum swd_action a)
-  */
- static const bool enable_check_swd = false;
  
--/* Check whether the value of zbd_info.sectors_with_data is correct. */
-+/* Check whether the values of zbd_info.*sectors_with_data are correct. */
- static void zbd_check_swd(const struct fio_file *f)
- {
- 	if (!enable_check_swd)
-@@ -1347,8 +1356,10 @@ static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int q,
- 		 * z->wp > zone_end means that one or more I/O errors
- 		 * have occurred.
- 		 */
--		if (z->wp <= zone_end)
-+		if (z->wp <= zone_end) {
- 			zbd_info->sectors_with_data += zone_end - z->wp;
-+			zbd_info->wp_sectors_with_data += zone_end - z->wp;
-+		}
- 		pthread_mutex_unlock(&zbd_info->mutex);
- 		z->wp = zone_end;
- 		break;
-@@ -1650,7 +1661,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 		}
- 		/* Check whether the zone reset threshold has been exceeded */
- 		if (td->o.zrf.u.f) {
--			if (f->zbd_info->sectors_with_data >=
-+			if (f->zbd_info->wp_sectors_with_data >=
- 			    f->io_size * td->o.zrt.u.f &&
- 			    zbd_dec_and_reset_write_cnt(td, f)) {
- 				zb->reset_zone = 1;
-diff --git a/zbd.h b/zbd.h
-index 059a9f9e..cc3ab624 100644
---- a/zbd.h
-+++ b/zbd.h
-@@ -55,6 +55,8 @@ struct fio_zone_info {
-  *		num_open_zones).
-  * @zone_size: size of a single zone in bytes.
-  * @sectors_with_data: total size of data in all zones in units of 512 bytes
-+ * @wp_sectors_with_data: total size of data in zones with write pointers in
-+ *                        units of 512 bytes
-  * @zone_size_log2: log2 of the zone size in bytes if it is a power of 2 or 0
-  *		if the zone size is not a power of 2.
-  * @nr_zones: number of zones
-@@ -75,6 +77,7 @@ struct zoned_block_device_info {
- 	pthread_mutex_t		mutex;
- 	uint64_t		zone_size;
- 	uint64_t		sectors_with_data;
-+	uint64_t		wp_sectors_with_data;
- 	uint32_t		zone_size_log2;
- 	uint32_t		nr_zones;
- 	uint32_t		refcount;
++SKIP_TESTCASE=255
++
++require_scsi_dev() {
++	if ! is_scsi_device "$dev"; then
++		SKIP_REASON="$dev is not a SCSI device"
++		return 1
++	fi
++	return 0
++}
++
++require_conv_zone_bytes() {
++	local req_bytes=${1}
++
++	if ((req_bytes > first_sequential_zone_sector * 512)); then
++		SKIP_REASON="$dev does not have enough conventional zones"
++		return 1
++	fi
++	return 0
++}
++
++require_zbd() {
++	if [[ -z ${is_zbd} ]]; then
++		SKIP_REASON="$dev is not a zoned block device"
++		return 1
++	fi
++	return 0
++}
++
++require_regular_block_dev() {
++	if [[ -n ${is_zbd} ]]; then
++		SKIP_REASON="$dev is not a regular block device"
++		return 1
++	fi
++	return 0
++}
++
+ # Check whether buffered writes are refused.
+ test1() {
+     run_fio --name=job1 --filename="$dev" --rw=write --direct=0 --bs=4K	\
+@@ -327,10 +363,7 @@ test8() {
+ test9() {
+     local size
+ 
+-    if ! is_scsi_device "$dev"; then
+-	echo "$dev is not a SCSI device" >>"${logfile}.${test_number}"
+-	return 0
+-    fi
++    require_scsi_dev || return $SKIP_TESTCASE
+ 
+     prep_write
+     size=$((4 * zone_size))
+@@ -346,10 +379,7 @@ test9() {
+ test10() {
+     local size
+ 
+-    if ! is_scsi_device "$dev"; then
+-	echo "$dev is not a SCSI device" >>"${logfile}.${test_number}"
+-	return 0
+-    fi
++    require_scsi_dev || return $SKIP_TESTCASE
+ 
+     prep_write
+     size=$((4 * zone_size))
+@@ -413,11 +443,8 @@ test14() {
+ 
+     prep_write
+     size=$((16 * 2**20)) # 20 MB
+-    if [ $size -gt $((first_sequential_zone_sector * 512)) ]; then
+-	echo "$dev does not have enough sequential zones" \
+-	     >>"${logfile}.${test_number}"
+-	return 0
+-    fi
++    require_conv_zone_bytes "${size}" || return $SKIP_TESTCASE
++
+     run_one_fio_job "$(ioengine "libaio")" --iodepth=64 --rw=randwrite --bs=16K \
+ 		    --zonemode=zbd --zonesize="${zone_size}" --do_verify=1 \
+ 		    --verify=md5 --size=$size				   \
+@@ -696,6 +723,8 @@ test31() {
+ test32() {
+     local off opts=() size
+ 
++    require_zbd || return $SKIP_TESTCASE
++
+     prep_write
+     off=$((first_sequential_zone_sector * 512))
+     size=$((disk_size - off))
+@@ -814,7 +843,7 @@ read_one_block() {
+ 
+ # Check whether fio accepts --zonemode=none for zoned block devices.
+ test39() {
+-    [ -n "$is_zbd" ] || return 0
++    require_zbd || return $SKIP_TESTCASE
+     read_one_block --zonemode=none >/dev/null || return $?
+     check_read $((logical_block_size)) || return $?
+ }
+@@ -824,7 +853,7 @@ test40() {
+     local bs
+ 
+     bs=$((logical_block_size))
+-    [ -n "$is_zbd" ] || return 0
++    require_zbd || return $SKIP_TESTCASE
+     read_one_block --zonemode=strided |
+ 	grep -q 'fio: --zonesize must be specified when using --zonemode=strided' ||
+ 	return $?
+@@ -834,21 +863,21 @@ test40() {
+ 
+ # Check whether fio checks the zone size for zoned block devices.
+ test41() {
+-    [ -n "$is_zbd" ] || return 0
++    require_zbd || return $SKIP_TESTCASE
+     read_one_block --zonemode=zbd --zonesize=$((2 * zone_size)) |
+ 	grep -q 'job parameter zonesize.*does not match disk zone size'
+ }
+ 
+ # Check whether fio handles --zonesize=0 correctly for regular block devices.
+ test42() {
+-    [ -n "$is_zbd" ] && return 0
++    require_regular_block_dev || return $SKIP_TESTCASE
+     read_one_block --zonemode=zbd --zonesize=0 |
+ 	grep -q 'Specifying the zone size is mandatory for regular block devices with --zonemode=zbd'
+ }
+ 
+ # Check whether fio handles --zonesize=1 correctly for regular block devices.
+ test43() {
+-    [ -n "$is_zbd" ] && return 0
++    require_regular_block_dev || return $SKIP_TESTCASE
+     read_one_block --zonemode=zbd --zonesize=1 |
+ 	grep -q 'zone size must be at least 512 bytes for --zonemode=zbd'
+ }
+@@ -862,7 +891,7 @@ test44() {
+ test45() {
+     local bs i
+ 
+-    [ -z "$is_zbd" ] && return 0
++    require_zbd || return $SKIP_TESTCASE
+     prep_write
+     bs=$((logical_block_size))
+     run_one_fio_job "$(ioengine "psync")" --iodepth=1 --rw=randwrite --bs=$bs\
+@@ -901,6 +930,8 @@ test47() {
+ test48() {
+     local i jobs=16 off opts=()
+ 
++    require_zbd || return $SKIP_TESTCASE
++
+     off=$((first_sequential_zone_sector * 512 + 64 * zone_size))
+     size=$((16*zone_size))
+     prep_write
+@@ -930,11 +961,7 @@ test48() {
+ # Check if fio handles --zonecapacity on a normal block device correctly
+ test49() {
+ 
+-    if [ -n "$is_zbd" ]; then
+-	echo "$dev is not a regular block device" \
+-	     >>"${logfile}.${test_number}"
+-	return 0
+-    fi
++    require_regular_block_dev || return $SKIP_TESTCASE
+ 
+     size=$((2 * zone_size))
+     capacity=$((zone_size * 3 / 4))
+@@ -1087,10 +1114,12 @@ fi
+ logfile=$0.log
+ 
+ passed=0
++skipped=0
+ failed=0
+ if [ -t 1 ]; then
+     red="\e[1;31m"
+     green="\e[1;32m"
++    cyan="\e[1;36m"
+     end="\e[m"
+ else
+     red=""
+@@ -1101,14 +1130,23 @@ rc=0
+ 
+ intr=0
+ trap 'intr=1' SIGINT
++ret=0
+ 
+ for test_number in "${tests[@]}"; do
+     rm -f "${logfile}.${test_number}"
++    unset SKIP_REASON
+     echo -n "Running test $(printf "%02d" $test_number) ... "
+-    if eval "test$test_number" && check_log $test_number; then
++    eval "test$test_number"
++    ret=$?
++    if ((!ret)) && check_log $test_number; then
+ 	status="PASS"
+ 	cc_status="${green}${status}${end}"
+ 	((passed++))
++    elif ((ret==SKIP_TESTCASE)); then
++	status="SKIP"
++	echo "${SKIP_REASON}" >> "${logfile}.${test_number}"
++	cc_status="${cyan}${status}${end}    ${SKIP_REASON}"
++	((skipped++))
+     else
+ 	status="FAIL"
+ 	cc_status="${red}${status}${end}"
+@@ -1121,7 +1159,10 @@ for test_number in "${tests[@]}"; do
+ done
+ 
+ echo "$passed tests passed"
++if [ $skipped -gt 0 ]; then
++    echo " $skipped tests skipped"
++fi
+ if [ $failed -gt 0 ]; then
+-    echo " and $failed tests failed"
++    echo " $failed tests failed"
+ fi
+ exit $rc
 -- 
 2.28.0
 
