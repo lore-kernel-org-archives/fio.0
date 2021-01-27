@@ -1,43 +1,57 @@
-Return-Path: <glqinhongwei@gmail.com>
-Return-Path: <glqinhongwei@gmail.com>
-From: Hongwei Qin <glqinhongwei@gmail.com>
-Subject: [PATCH v4 0/2] Add a new parameter and fix minimal rate calculation.
-Date: Wed, 20 Jan 2021 18:43:42 +0800
-Message-Id: <cover.1611138623.git.glqinhongwei@gmail.com>
-To: fio@vger.kernel.org
-Cc: axboe@kernel.dk, sitsofe@gmail.com, Hongwei Qin <glqinhongwei@gmail.com>
+Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH v4 35/38] t/zbd: add test #54 to exercise ZBD verification
+Date: Wed, 27 Jan 2021 13:19:42 +0900
+Message-Id: <20210127041945.36909-36-dmitry.fomichev@wdc.com>
+In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-v3 -> v4:
-	Use uint32_t for thinktime_blocks_type.
-	The tests in patch1 has been re-verified.
+Add a new test case to perform 75/25 read/write workload with varying
+i/o size and verification on. It is very important to use a good random
+generator for this test. Setting experimental_verify=1 is required for
+this test to operate correctly.
 
-v3:
-	The first patch adds a new parameter thinktime_blocks_type
-	to control the behavior of thinktime_blocks.
-	It can be either `complete` or `issue`.
-	If it is `complete` (default), fio triggers thinktime when
-	thinktime_blocks number of blocks are **completed**.
-	If it is `issue`, fio triggers thinktime when thinktime_blocks
-	number of blocks are **issued**
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ t/zbd/test-zbd-support | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-	The second patch updates the compare time if handle_thinktime
-	sleeps or spin.
-
-Hongwei Qin (2):
-  Add a new parameter.
-  Calculate min_rate with the consideration of thinktime
-
- HOWTO            |  7 +++++++
- backend.c        | 22 ++++++++++++++++------
- cconv.c          |  2 ++
- engines/cpu.c    |  1 +
- fio.h            |  5 +++++
- options.c        | 22 ++++++++++++++++++++++
- thread_options.h |  5 +++++
- 7 files changed, 58 insertions(+), 6 deletions(-)
-
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 0b8015df..0230f1af 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -1135,6 +1135,24 @@ test53() {
+ 	return 1
+ }
+ 
++# Test read/write mix with verify.
++test54() {
++	require_zbd || return $SKIP_TESTCASE
++	require_seq_zones 8 || return $SKIP_TESTCASE
++
++	run_fio --name=job --filename=${dev} "$(ioengine "libaio")" \
++		--time_based=1 --runtime=30s --continue_on_error=0 \
++		--offset=$((first_sequential_zone_sector * 512)) \
++		--size=$((8*zone_size)) --direct=1 --iodepth=1 \
++		--rw=randrw:2 --rwmixwrite=25 --bsrange=4k-${zone_size} \
++		--zonemode=zbd --zonesize=${zone_size} \
++		--verify=crc32c --do_verify=1 --verify_backlog=2 \
++		--experimental_verify=1 \
++		--alloc-size=65536 --random_generator=tausworthe64 \
++		${job_var_opts[@]} --debug=zbd \
++		>> "${logfile}.${test_number}" 2>&1 || return $?
++}
++
+ tests=()
+ dynamic_analyzer=()
+ reset_all_zones=
 -- 
-1.8.3.1
+2.28.0
 
 
