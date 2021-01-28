@@ -1,69 +1,59 @@
-Return-Path: <prvs=6334d1505=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v3 25/38] t/zbd: add -t option to run-tests-against-nullb
-Date: Thu,  7 Jan 2021 06:57:26 +0900
-Message-Id: <20210106215739.264524-26-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
-References: <20210106215739.264524-1-dmitry.fomichev@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52114 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231509AbhA1NA4 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 28 Jan 2021 08:00:56 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2AD5C061573
+        for <fio@vger.kernel.org>; Thu, 28 Jan 2021 05:00:15 -0800 (PST)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
+        id 1l56u6-008Tub-IR
+        for fio@vger.kernel.org; Thu, 28 Jan 2021 13:00:09 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20210128130002.44F1C1BC0135@kernel.dk>
+Date: Thu, 28 Jan 2021 06:00:02 -0700 (MST)
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+The following changes since commit 7216b664d93ef9c59ca5dbc8f54bad2118231ee3:
 
-For debugging, it can be useful to run a single ZBD test case in all
-zoned configurations defined in run-tests-against-nullb. Add -t option
-to run-tests-against-nullb so that the single ZBD test case specified
-in run-tests-against-nullb command line is executed in all sections
-of the script.
+  Calculate min_rate with the consideration of thinktime (2021-01-26 08:58:42 -0700)
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 119bb82143bd6c4a577c135ece4ed6b702443f50:
+
+  Merge branch 'fio-fix-detecting-libpmem' of https://github.com/ldorau/fio (2021-01-27 09:51:01 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'fio-fix-detecting-libpmem' of https://github.com/ldorau/fio
+
+Lukasz Dorau (1):
+      fio: fix detecting libpmem
+
+ configure | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 ---
- t/zbd/run-tests-against-nullb | 6 ++++++
- 1 file changed, 6 insertions(+)
 
-diff --git a/t/zbd/run-tests-against-nullb b/t/zbd/run-tests-against-nullb
-index 8d1eb005..655025ed 100755
---- a/t/zbd/run-tests-against-nullb
-+++ b/t/zbd/run-tests-against-nullb
-@@ -20,6 +20,7 @@ function usage()
- 	echo -e "\t   tests."
- 	echo -e "\t-s <#section> Only run the section with the given number."
- 	echo -e "\t-l Use libzbc ioengine to run the tests."
-+	echo -e "\t-t <#test> Only run the test with the given number in every section."
- 	echo -e "\t-o <max_open_zones> Specify MaxOpen value, (${set_max_open} by default)."
- 	echo -e "\t-n <#number of runs> Set the number of times to run the entire suite "
- 	echo -e "\t   or an individual section/test."
-@@ -239,6 +240,7 @@ set_max_open=8
- zbd_test_opts=()
- libzbc=0
- num_of_runs=1
-+test_case=0
- 
- while (($#)); do
- 	case "$1" in
-@@ -248,6 +250,7 @@ while (($#)); do
- 		-r) cleanup_nullb; exit 0;;
- 		-l) libzbc=1; shift;;
- 		-n) num_of_runs="${2}"; shift; shift;;
-+		-t) test_case="${2}"; shift; shift;;
- 		-h) usage; break;;
- 		--) shift; break;;
- 		 *) usage; exit 1;;
-@@ -290,6 +293,9 @@ while ((run_nr <= $num_of_runs)); do
- 			exit 1
- 		fi
- 		zbd_test_opts=()
-+		if ((test_case)); then
-+			zbd_test_opts+=("-t" "${test_case}")
-+		fi
- 		section$section_number
- 		configure_nullb
- 		rc=$?
--- 
-2.28.0
+Diff of recent changes:
 
+diff --git a/configure b/configure
+index e6e33d7f..748f7014 100755
+--- a/configure
++++ b/configure
+@@ -2055,7 +2055,7 @@ cat > $TMPC << EOF
+ int main(int argc, char **argv)
+ {
+   int rc;
+-  rc = pmem_is_pmem(NULL, NULL);
++  rc = pmem_is_pmem(NULL, 0);
+   return 0;
+ }
+ EOF
 
