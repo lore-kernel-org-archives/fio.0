@@ -1,59 +1,86 @@
-Return-Path: <glqinhongwei@gmail.com>
-Return-Path: <glqinhongwei@gmail.com>
-From: Hongwei Qin <glqinhongwei@gmail.com>
-Subject: [PATCH v4 2/2] Calculate min_rate with the consideration of thinktime
-Date: Wed, 20 Jan 2021 18:43:44 +0800
-Message-Id: <8ea9ff70e9630c3563838cef4558e8c7860567b3.1611138623.git.glqinhongwei@gmail.com>
-In-Reply-To: <cover.1611138623.git.glqinhongwei@gmail.com>
-References: <cover.1611138623.git.glqinhongwei@gmail.com>
-In-Reply-To: <cover.1611138623.git.glqinhongwei@gmail.com>
-References: <cover.1611138623.git.glqinhongwei@gmail.com>
-To: fio@vger.kernel.org
-Cc: axboe@kernel.dk, sitsofe@gmail.com, Hongwei Qin <glqinhongwei@gmail.com>
+Return-Path: <prvs=657d5fab4=Dmitry.Fomichev@wdc.com>
+From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+Subject: RE: [PATCH v4 09/38] zbd: don't unlock zone mutex after verify replay
+Date: Sat, 30 Jan 2021 03:44:23 +0000
+Message-ID: 
+ <MN2PR04MB595199DDBE1961BDB12C7BE1E1B89@MN2PR04MB5951.namprd04.prod.outlook.com>
+References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+ <20210127041945.36909-10-dmitry.fomichev@wdc.com>
+ <33435492-4cb7-e72c-1926-f7695802f13e@acm.org>
+In-Reply-To: <33435492-4cb7-e72c-1926-f7695802f13e@acm.org>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: Bart Van Assche <bvanassche@acm.org>, Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <Aravind.Ramesh@wdc.com>, Naohiro Aota <Naohiro.Aota@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-This patch updates the compare time if handle_thinktime
-sleeps or spin.
-
-Signed-off-by: Hongwei Qin <glqinhongwei@gmail.com>
----
- backend.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/backend.c b/backend.c
-index 874e193..f2efddd 100644
---- a/backend.c
-+++ b/backend.c
-@@ -858,7 +858,8 @@ static long long usec_for_io(struct thread_data *td, enum fio_ddir ddir)
- 	return 0;
- }
- 
--static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
-+static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir,
-+			     struct timespec *time)
- {
- 	unsigned long long b;
- 	uint64_t total;
-@@ -898,6 +899,9 @@ static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir)
- 		/* adjust for rate_process=poisson */
- 		td->last_usec[ddir] += total;
- 	}
-+
-+	if (time && should_check_rate(td))
-+		fio_gettime(time, NULL);
- }
- 
- /*
-@@ -1078,7 +1082,7 @@ reap:
- 			break;
- 
- 		if (ddir_rw(ddir) && td->o.thinktime)
--			handle_thinktime(td, ddir);
-+			handle_thinktime(td, ddir, &comp_time);
- 
- 		if (!ddir_rw_sum(td->bytes_done) &&
- 		    !td_ioengine_flagged(td, FIO_NOIO))
--- 
-1.8.3.1
-
+QmFydCwNCg0KVGhhbmtzIGZvciBub3RpY2luZyB0aGF0IHRoZSBhbm5vdGF0aW9uIGlzIG5vdCB3
+b3JraW5nLiBJJ3ZlIG5vdyBzZW50IHRoZSBmaXgNCnRvIHRoZSBsaXN0LCBwbGVhc2UgY2hlY2sg
+aG93IGl0IHdvcmtzIGZvciB5b3Ugd2hlbiB5b3UgaGF2ZSBhIGNoYW5jZS4NCg0KSmVucywNCg0K
+VGhhbmsgeW91IGZvciBmaXhpbmcgdXAgdGhlIGlzc3VlcyB3aXRoIGZvcm1hdHRlZCBvdXRwdXQg
+aW4gdGhlIGxhdGVzdCBaQkQNCnNlcmllcy4gV2UgbmVlZCB0byBhZGQgbW9yZSB0YXJnZXRzIHRv
+IG91ciBpbnRlcm5hbCBidWlsZCA6KQ0KDQpCZXN0IHJlZ2FyZHMsDQpEbWl0cnkNCg0KPiAtLS0t
+LU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBCYXJ0IFZhbiBBc3NjaGUgPGJ2YW5hc3Nj
+aGVAYWNtLm9yZz4NCj4gU2VudDogRnJpZGF5LCBKYW51YXJ5IDI5LCAyMDIxIDExOjE0IEFNDQo+
+IFRvOiBEbWl0cnkgRm9taWNoZXYgPERtaXRyeS5Gb21pY2hldkB3ZGMuY29tPjsgSmVucyBBeGJv
+ZQ0KPiA8YXhib2VAa2VybmVsLmRrPjsgZmlvQHZnZXIua2VybmVsLm9yZw0KPiBDYzogRGFtaWVu
+IExlIE1vYWwgPERhbWllbi5MZU1vYWxAd2RjLmNvbT47IFNoaW5pY2hpcm8gS2F3YXNha2kNCj4g
+PHNoaW5pY2hpcm8ua2F3YXNha2lAd2RjLmNvbT47IEFyYXZpbmQgUmFtZXNoDQo+IDxBcmF2aW5k
+LlJhbWVzaEB3ZGMuY29tPjsgTmFvaGlybyBBb3RhIDxOYW9oaXJvLkFvdGFAd2RjLmNvbT47DQo+
+IE5pa2xhcyBDYXNzZWwgPE5pa2xhcy5DYXNzZWxAd2RjLmNvbT4NCj4gU3ViamVjdDogUmU6IFtQ
+QVRDSCB2NCAwOS8zOF0gemJkOiBkb24ndCB1bmxvY2sgem9uZSBtdXRleCBhZnRlciB2ZXJpZnkN
+Cj4gcmVwbGF5DQo+IA0KPiBPbiAxLzI2LzIxIDg6MTkgUE0sIERtaXRyeSBGb21pY2hldiB3cm90
+ZToNCj4gPiB6YmRfYWRqdXN0X2Jsb2NrKCkgYWx3YXlzIHJldHVybnMgd2l0aCB0aGUgem9uZSBs
+b2NrZWQgaWYgdGhlIGkvbyBpcw0KPiA+IGFjY2VwdGVkLiBUaGUgY29ycmVzcG9uZGluZyB1bmxv
+Y2sgaGFwcGVucyBpbiB6YmRfcHV0X2lvKCkuIFRoZQ0KPiA+IGZ1bmN0aW9uIGRlc2NyaXB0aW9u
+IHNheXMgLQ0KPiA+DQo+ID4gICAqIExvY2tpbmcgc3RyYXRlZ3k6IHJldHVybnMgd2l0aCB6LT5t
+dXRleCBsb2NrZWQgaWYgYW5kIG9ubHkgaWYgeiByZWZlcnMNCj4gPiAgICogdG8gYSBzZXF1ZW50
+aWFsIHpvbmUgYW5kIGlmIGlvX3VfYWNjZXB0IGlzIHJldHVybmVkLiB6IGlzIHRoZSB6b25lIHRo
+YXQNCj4gPiAgICogY29ycmVzcG9uZHMgdG8gaW9fdS0+b2Zmc2V0IGF0IHRoZSBlbmQgb2YgdGhp
+cyBmdW5jdGlvbi4NCj4gPg0KPiA+IFJlbW92ZSB0aGUgcmVjZW50bHkgYWRkZWQgdW5sb2NrIGFm
+dGVyIHpiZF9yZXBsYXlfd3JpdGVfb3JkZXIoKSBjYWxsLg0KPiA+IEFkZCBhIENvdmVyaXR5IGFu
+bm90YXRpb24gdG8gbWFyayB0aGUgYWJzZW5jZSBvZiB1bmxvY2sgYXMgaW50ZW50aW9uYWwuDQo+
+ID4NCj4gPiBGaXhlczogYjI3MjZkNTNiYjVkICgiemJkOiBBZGQgYSBtaXNzaW5nIHB0aHJlYWRf
+bXV0ZXhfdW5sb2NrKCkgY2FsbCIpDQo+ID4gU2lnbmVkLW9mZi1ieTogRG1pdHJ5IEZvbWljaGV2
+IDxkbWl0cnkuZm9taWNoZXZAd2RjLmNvbT4NCj4gPiBSZXZpZXdlZC1ieTogU2hpbidpY2hpcm8g
+S2F3YXNha2kgPHNoaW5pY2hpcm8ua2F3YXNha2lAd2RjLmNvbT4NCj4gPiAtLS0NCj4gPiAgIHpi
+ZC5jIHwgNyArKysrKystDQo+ID4gICAxIGZpbGUgY2hhbmdlZCwgNiBpbnNlcnRpb25zKCspLCAx
+IGRlbGV0aW9uKC0pDQo+ID4NCj4gPiBkaWZmIC0tZ2l0IGEvemJkLmMgYi96YmQuYw0KPiA+IGlu
+ZGV4IGEzYzFmZjlhLi4xYWMxMzU3YiAxMDA2NDQNCj4gPiAtLS0gYS96YmQuYw0KPiA+ICsrKyBi
+L3piZC5jDQo+ID4gQEAgLTE1NjEsNyArMTU2MSwxMiBAQCBlbnVtIGlvX3VfYWN0aW9uIHpiZF9h
+ZGp1c3RfYmxvY2soc3RydWN0DQo+IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGlvX3UgKmlvX3Up
+DQo+ID4gICAJY2FzZSBERElSX1JFQUQ6DQo+ID4gICAJCWlmICh0ZC0+cnVuc3RhdGUgPT0gVERf
+VkVSSUZZSU5HICYmIHRkX3dyaXRlKHRkKSkgew0KPiA+ICAgCQkJemIgPSB6YmRfcmVwbGF5X3dy
+aXRlX29yZGVyKHRkLCBpb191LCB6Yik7DQo+ID4gLQkJCXpvbmVfdW5sb2NrKHpiKTsNCj4gPiAr
+CQkJLyoNCj4gPiArCQkJICogU2luY2Ugd2UgcmV0dXJuIHdpdGggdGhlIHpvbmUgbG9jayBzdGls
+bCBoZWxkLA0KPiA+ICsJCQkgKiBhZGQgYW4gYW5ub3RhdGlvbiB0byBsZXQgQ292ZXJpdHkga25v
+dyB0aGF0IGl0DQo+ID4gKwkJCSAqIGlzIGludGVudGlvbmFsLg0KPiA+ICsJCQkgKi8NCj4gPiAr
+CQkJLyogY292ZXJpdHlbbWlzc2luZ191bmxvY2tdICovDQo+ID4gICAJCQlnb3RvIGFjY2VwdDsN
+Cj4gPiAgIAkJfQ0KPiA+ICAgCQkvKg0KPiANCj4gSGkgRG1pdHJ5LA0KPiANCj4gQWx0aG91Z2gg
+SSBhZ3JlZSB3aXRoIHRoaXMgcGF0Y2gsIHRoZSBDb3Zlcml0eSBhbm5vdGF0aW9uIGRvZXNuJ3Qg
+c2VlbQ0KPiB0byB3b3JrLiBUaGlzIG1vcm5pbmcgSSByZWNlaXZlZCBhbiBlbWFpbCB3aXRoIHRo
+ZSBmb2xsb3dpbmcgcmVwb3J0Og0KPiANCj4gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCj4gUGxlYXNlIGZpbmQg
+dGhlIGxhdGVzdCByZXBvcnQgb24gbmV3IGRlZmVjdChzKSBpbnRyb2R1Y2VkIHRvIGF4Ym9lL2Zp
+bw0KPiBmb3VuZCB3aXRoIENvdmVyaXR5IFNjYW4uDQo+IA0KPiAxIG5ldyBkZWZlY3QocykgaW50
+cm9kdWNlZCB0byBheGJvZS9maW8gZm91bmQgd2l0aCBDb3Zlcml0eSBTY2FuLg0KPiANCj4gDQo+
+IE5ldyBkZWZlY3QocykgUmVwb3J0ZWQtYnk6IENvdmVyaXR5IFNjYW4NCj4gU2hvd2luZyAxIG9m
+IDEgZGVmZWN0KHMpDQo+IA0KPiANCj4gKiogQ0lEIDI5MjQ5MTogIFByb2dyYW0gaGFuZ3MgIChM
+T0NLKQ0KPiAvemJkLmM6IDE3ODkgaW4gemJkX2FkanVzdF9ibG9jaygpDQo+IA0KPiANCj4gX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXw0K
+PiBfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fDQo+ICoqKiBD
+SUQgMjkyNDkxOiAgUHJvZ3JhbSBoYW5ncyAgKExPQ0spDQo+IC96YmQuYzogMTc4OSBpbiB6YmRf
+YWRqdXN0X2Jsb2NrKCkNCj4gMTc4MyAgICAgCWFzc2VydCh6Yi0+aGFzX3dwKTsNCj4gMTc4NCAg
+ICAgCWFzc2VydCh6Yi0+Y29uZCAhPSBaQkRfWk9ORV9DT05EX09GRkxJTkUpOw0KPiAxNzg1ICAg
+ICAJYXNzZXJ0KCFpb191LT56YmRfcXVldWVfaW8pOw0KPiAxNzg2ICAgICAJYXNzZXJ0KCFpb191
+LT56YmRfcHV0X2lvKTsNCj4gMTc4NyAgICAgCWlvX3UtPnpiZF9xdWV1ZV9pbyA9IHpiZF9xdWV1
+ZV9pbzsNCj4gMTc4OCAgICAgCWlvX3UtPnpiZF9wdXRfaW8gPSB6YmRfcHV0X2lvOw0KPiAgPj4+
+ICAgICBDSUQgMjkyNDkxOiAgUHJvZ3JhbSBoYW5ncyAgKExPQ0spDQo+ICA+Pj4gICAgIFJldHVy
+bmluZyB3aXRob3V0IHVubG9ja2luZyAiemItPm11dGV4Ii4NCj4gMTc4OSAgICAgCXJldHVybiBp
+b191X2FjY2VwdDsNCj4gMTc5MA0KPiAxNzkxICAgICBlb2Y6DQo+IDE3OTIgICAgIAlpZiAoemIg
+JiYgemItPmhhc193cCkNCj4gMTc5MyAgICAgCQl6b25lX3VubG9jayh6Yik7DQo+IDE3OTQgICAg
+IAlyZXR1cm4gaW9fdV9lb2Y7DQo+IC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQo+IA0KPiBCYXJ0Lg0K
 
