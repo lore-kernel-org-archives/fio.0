@@ -1,385 +1,627 @@
-Return-Path: <prvs=6738cba4e=Dmitry.Fomichev@wdc.com>
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: RE: [PATCH v2] zbd: support 'z' suffix for zone granularity
-Date: Mon, 15 Feb 2021 03:40:37 +0000
-Message-ID: 
- <MN2PR04MB59515F9B9155C665681B6B4FE1889@MN2PR04MB5951.namprd04.prod.outlook.com>
+Return-Path: <adobriyan@gmail.com>
+Return-Path: <adobriyan@gmail.com>
+Date: Mon, 8 Feb 2021 20:54:47 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: [PATCH v2] zbd: support 'z' suffix for zone granularity
+Message-ID: <20210208175447.GA54571@localhost.localdomain>
 References: <20210204083220.GA10648@localhost.localdomain>
  <MN2PR04MB5951459146F5244AD7DC6A13E1B29@MN2PR04MB5951.namprd04.prod.outlook.com>
- <20210208175447.GA54571@localhost.localdomain>
-In-Reply-To: <20210208175447.GA54571@localhost.localdomain>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <MN2PR04MB5951459146F5244AD7DC6A13E1B29@MN2PR04MB5951.namprd04.prod.outlook.com>
+To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
 Cc: "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBBbGV4ZXkgRG9icml5YW4gPGFk
-b2JyaXlhbkBnbWFpbC5jb20+DQo+IFNlbnQ6IE1vbmRheSwgRmVicnVhcnkgOCwgMjAyMSAxMjo1
-NSBQTQ0KPiBUbzogRG1pdHJ5IEZvbWljaGV2IDxEbWl0cnkuRm9taWNoZXZAd2RjLmNvbT4NCj4g
-Q2M6IGF4Ym9lQGtlcm5lbC5kazsgZmlvQHZnZXIua2VybmVsLm9yZzsgRGFtaWVuIExlIE1vYWwN
-Cj4gPERhbWllbi5MZU1vYWxAd2RjLmNvbT4NCj4gU3ViamVjdDogW1BBVENIIHYyXSB6YmQ6IHN1
-cHBvcnQgJ3onIHN1ZmZpeCBmb3Igem9uZSBncmFudWxhcml0eQ0KPiANCj4gQWxsb3cgdXNlcnMg
-dG8gcGFzcyBzb21lIG9wdGlvbnMgd2l0aCB6b25lIGdyYW51bGFyaXR5IHdoaWNoIGlzIG5hdHVy
-YWwNCj4gZm9yIFpCRCB3b3JrbG9hZHMuDQo+IA0KPiBUaGlzIGlzIG5pZnR5IGZvciB3cml0aW5n
-IHF1aWNrIHRlc3RzIGFuZCB3aGVuIGZpcm13YXJlIGd1eXMgY2hhbmdlDQo+IHpvbmUgc2l6ZXMu
-DQo+IA0KPiBDb252ZXJ0ZWQgb3B0aW9ucyBhcmUNCj4gDQo+IAlvZmZzZXQ9DQo+IAlvZmZzZXRf
-aW5jcmVtZW50PQ0KPiAJc2l6ZT0NCj4gCWlvX3NpemU9DQo+IAl6b25lc2tpcD0NCj4gDQo+IEV4
-YW1wbGU6DQo+IA0KPiAJcnc9d3JpdGUNCj4gCW51bWpvYnM9Mg0KPiAJb2Zmc2V0PTF6DQo+IAlv
-ZmZzZXRfaW5jcmVtZW50PTEweg0KPiAJc2l6ZT01eg0KPiAJaW9fc2l6ZT02eg0KPiANCj4gVGhy
-ZWFkIDEgd2lsbCB3cml0ZSB6b25lcyAxLCAyLCAzLCA0LCA1LCAxLg0KPiBUaHJlYWQgMiB3aWxs
-IHdyaXRlIHpvbmVzIDExLCAxMiwgMTMsIDE0LCAxNSwgMTEuDQo+IA0KPiBOb3RlICMxOg0KPiAJ
-em9uZW1vZGU9c3RyaWRlZCBkb2Vzbid0IGNyZWF0ZSBaQkQgem9uZSBzdHJ1Y3R1cmUgYnV0IHJl
-cXVpcmVzDQo+IAl2YWx1ZSByZWNhbGN1bGF0aW9uLiBUaGlzIGlzIHdoeSAyIGZ1bmN0aW9ucyBh
-cmUgc3BsaXQuDQo+IA0KPiBOb3RlICMyOg0KPiAJdGhlcmUgaXMgYSBidWcgd2l0aCB6b25lbW9k
-ZT1zdHJpZGVkICsgc2l6ZT0gKyB6b25lc2tpcD0NCj4gCXdyaXRpbmcgbW9yZSBJL08gdGhhbiBu
-ZWNlc3NhcnkuDQo+IAkneicgc3VmZml4IGRvZXNuJ3QgZml4IG5vciBhZGRzIHRoaXMgYnVnLg0K
-PiANCj4gU2lnbmVkLW9mZi1ieTogQWxleGV5IERvYnJpeWFuIChTSyBoeW5peCkgPGFkb2JyaXlh
-bkBnbWFpbC5jb20+DQo+IC0tLQ0KPiANCj4gCWZpeCB6b25lc2tpcD0NCj4gCXdyaXRlIDIgdGVz
-dHMNCj4gDQo+IAlub3RlOiB0ZXN0IG9ubHkgdGVzdCBvcHRpb24gcGFyc2luZywNCj4gCUkvTyBw
-YXR0ZXJuIHRlc3RpbmcgaXMgbG9uZyBzdGFuZGluZyBpc3N1ZS4NCj4gDQo+IAlwYXR0ZXJucyB2
-ZXJpZmllZCB3aXRoIHN0cmFjZSgxKQ0KPiANCj4gIGZpbGVzZXR1cC5jICAgICAgICAgICAgfCAg
-IDE4ICsrKysrKysrKysrKystLS0tLQ0KPiAgZmlvLjEgICAgICAgICAgICAgICAgICB8ICAgMTMg
-KysrKysrKystLS0tLQ0KPiAgb3B0aW9ucy5jICAgICAgICAgICAgICB8ICAgNDggKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0NCj4gLS0tLQ0KPiAgcGFyc2UuYyAg
-ICAgICAgICAgICAgICB8ICAgMzkgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KystDQo+ICBwYXJzZS5oICAgICAgICAgICAgICAgIHwgICAgOSArKysrKysrKy0NCj4gIHNlcnZl
-ci5oICAgICAgICAgICAgICAgfCAgICAyICstDQo+ICB0L3piZC90ZXN0LXpiZC1zdXBwb3J0IHwg
-ICA0Mg0KPiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysNCj4gIHRo
-cmVhZF9vcHRpb25zLmggICAgICAgfCAgIDE3ICsrKysrKysrKysrKystLS0tDQo+ICB6YmQuYyAg
-ICAgICAgICAgICAgICAgIHwgICA0MCArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKystDQo+ICB6YmQuaCAgICAgICAgICAgICAgICAgIHwgICAgMiArKw0KPiAgMTAgZmlsZXMg
-Y2hhbmdlZCwgMjAyIGluc2VydGlvbnMoKyksIDI4IGRlbGV0aW9ucygtKQ0KPiANCj4gLS0tIGEv
-ZmlsZXNldHVwLmMNCj4gKysrIGIvZmlsZXNldHVwLmMNCj4gQEAgLTEwMjksNiArMTAyOSwxMyBA
-QCBpbnQgc2V0dXBfZmlsZXMoc3RydWN0IHRocmVhZF9kYXRhICp0ZCkNCj4gIAlpZiAoby0+cmVh
-ZF9pb2xvZ19maWxlKQ0KPiAgCQlnb3RvIGRvbmU7DQo+IA0KPiArCWlmICh0ZC0+by56b25lX21v
-ZGUgPT0gWk9ORV9NT0RFX1pCRCkgew0KPiArCQllcnIgPSB6YmRfaW5pdF9maWxlcyh0ZCk7DQo+
-ICsJCWlmIChlcnIpDQo+ICsJCQlnb3RvIGVycl9vdXQ7DQo+ICsJfQ0KPiArCXpiZF9yZWNhbGNf
-b3B0aW9uc193aXRoX3pvbmVfZ3JhbnVsYXJpdHkodGQpOw0KPiArDQo+ICAJLyoNCj4gIAkgKiBj
-aGVjayBzaXplcy4gaWYgdGhlIGZpbGVzL2RldmljZXMgZG8gbm90IGV4aXN0IGFuZCB0aGUgc2l6
-ZQ0KPiAgCSAqIGlzbid0IHBhc3NlZCB0byBmaW8sIGFib3J0Lg0KPiBAQCAtMTI2OSwxNiArMTI3
-NiwxNyBAQCBpbnQgc2V0dXBfZmlsZXMoc3RydWN0IHRocmVhZF9kYXRhICp0ZCkNCj4gIAl9DQo+
-IA0KPiAgZG9uZToNCj4gLQlpZiAoby0+Y3JlYXRlX29ubHkpDQo+IC0JCXRkLT5kb25lID0gMTsN
-Cj4gLQ0KPiAtCXRkX3Jlc3RvcmVfcnVuc3RhdGUodGQsIG9sZF9zdGF0ZSk7DQo+IC0NCj4gIAlp
-ZiAodGQtPm8uem9uZV9tb2RlID09IFpPTkVfTU9ERV9aQkQpIHsNCj4gIAkJZXJyID0gemJkX3Nl
-dHVwX2ZpbGVzKHRkKTsNCj4gIAkJaWYgKGVycikNCj4gIAkJCWdvdG8gZXJyX291dDsNCj4gIAl9
-DQo+ICsNCj4gKwlpZiAoby0+Y3JlYXRlX29ubHkpDQo+ICsJCXRkLT5kb25lID0gMTsNCj4gKw0K
-PiArCXRkX3Jlc3RvcmVfcnVuc3RhdGUodGQsIG9sZF9zdGF0ZSk7DQo+ICsNCj4gIAlyZXR1cm4g
-MDsNCj4gDQo+ICBlcnJfb2Zmc2V0Og0KPiAtLS0gYS9maW8uMQ0KPiArKysgYi9maW8uMQ0KPiBA
-QCAtMzQ4LDYgKzM0OCw5IEBAIHVzIG9yIHVzZWMgbWVhbnMgbWljcm9zZWNvbmRzDQo+ICAuUEQN
-Cj4gIC5SRQ0KPiAgLlANCj4gK2B6JyBzdWZmaXggc3BlY2lmaWVzIHRoYXQgdGhlIHZhbHVlIGlz
-IG1lYXN1cmVkIGluIHpvbmVzLg0KPiArVmFsdWUgaXMgcmVjYWxjdWxhdGVkIG9uY2UgYmxvY2sg
-ZGV2aWNlJ3Mgem9uZSBzaXplIGJlY29tZXMga25vd24uDQo+ICsuUA0KPiAgSWYgdGhlIG9wdGlv
-biBhY2NlcHRzIGFuIHVwcGVyIGFuZCBsb3dlciByYW5nZSwgdXNlIGEgY29sb24gJzonIG9yDQo+
-ICBtaW51cyAnXC0nIHRvIHNlcGFyYXRlIHN1Y2ggdmFsdWVzLiBTZWUgXGZJaXJhbmdlXGZSIHBh
-cmFtZXRlciB0eXBlLg0KPiAgSWYgdGhlIGxvd2VyIHZhbHVlIHNwZWNpZmllZCBoYXBwZW5zIHRv
-IGJlIGxhcmdlciB0aGFuIHRoZSB1cHBlciB2YWx1ZQ0KPiBAQCAtNzgwLDcgKzc4Myw3IEBAIElm
-IG5vdCBzcGVjaWZpZWQgaXQgZGVmYXVsdHMgdG8gdGhlIHpvbmUgc2l6ZS4gSWYgdGhlDQo+IHRh
-cmdldCBkZXZpY2UgaXMgYSB6b25lZA0KPiAgYmxvY2sgZGV2aWNlLCB0aGUgem9uZSBjYXBhY2l0
-eSBpcyBvYnRhaW5lZCBmcm9tIHRoZSBkZXZpY2UgaW5mb3JtYXRpb24gYW5kDQo+IHRoaXMNCj4g
-IG9wdGlvbiBpcyBpZ25vcmVkLg0KPiAgLlRQDQo+IC0uQkkgem9uZXNraXAgXGZSPVxmUGludA0K
-PiArLkJJIHpvbmVza2lwIFxmUj1cZlBpbnRbel0NCj4gIEZvciBcZkJ6b25lbW9kZVxmUj1zdHJp
-ZGVkLCB0aGUgbnVtYmVyIG9mIGJ5dGVzIHRvIHNraXAgYWZ0ZXINCj4gXGZCem9uZXNpemVcZlIN
-Cj4gIGJ5dGVzIG9mIGRhdGEgaGF2ZSBiZWVuIHRyYW5zZmVycmVkLg0KPiANCj4gQEAgLTEwMzAs
-NyArMTAzMyw3IEBAIFRoZSB2YWx1ZXMgYXJlIGFsbCByZWxhdGl2ZSB0byBlYWNoIG90aGVyLCBh
-bmQgbm8NCj4gYWJzb2x1dGUgbWVhbmluZw0KPiAgc2hvdWxkIGJlIGFzc29jaWF0ZWQgd2l0aCB0
-aGVtLg0KPiAgLlJFDQo+ICAuVFANCj4gLS5CSSBvZmZzZXQgXGZSPVxmUGludA0KPiArLkJJIG9m
-ZnNldCBcZlI9XGZQaW50WyV8el0NCj4gIFN0YXJ0IEkvTyBhdCB0aGUgcHJvdmlkZWQgb2Zmc2V0
-IGluIHRoZSBmaWxlLCBnaXZlbiBhcyBlaXRoZXIgYSBmaXhlZCBzaXplIGluDQo+ICBieXRlcyBv
-ciBhIHBlcmNlbnRhZ2UuIElmIGEgcGVyY2VudGFnZSBpcyBnaXZlbiwgdGhlIGdlbmVyYXRlZCBv
-ZmZzZXQgd2lsbCBiZQ0KPiAgYWxpZ25lZCB0byB0aGUgbWluaW11bSBcZkJibG9ja3NpemVcZlIg
-b3IgdG8gdGhlIHZhbHVlIG9mIFxmQm9mZnNldF9hbGlnblxmUg0KPiBpZg0KPiBAQCAtMTA0NSw3
-ICsxMDQ4LDcgQEAgSWYgc2V0IHRvIG5vbi16ZXJvIHZhbHVlLCB0aGUgYnl0ZSBvZmZzZXQgZ2Vu
-ZXJhdGVkDQo+IGJ5IGEgcGVyY2VudGFnZSBcZkJvZmZzZXRcZlINCj4gIGlzIGFsaWduZWQgdXB3
-YXJkcyB0byB0aGlzIHZhbHVlLiBEZWZhdWx0cyB0byAwIG1lYW5pbmcgdGhhdCBhIHBlcmNlbnRh
-Z2UNCj4gIG9mZnNldCBpcyBhbGlnbmVkIHRvIHRoZSBtaW5pbXVtIGJsb2NrIHNpemUuDQo+ICAu
-VFANCj4gLS5CSSBvZmZzZXRfaW5jcmVtZW50IFxmUj1cZlBpbnQNCj4gKy5CSSBvZmZzZXRfaW5j
-cmVtZW50IFxmUj1cZlBpbnRbJXx6XQ0KPiAgSWYgdGhpcyBpcyBwcm92aWRlZCwgdGhlbiB0aGUg
-cmVhbCBvZmZzZXQgYmVjb21lcyBgXGZCb2Zmc2V0XGZSICsNCj4gXGZCb2Zmc2V0X2luY3JlbWVu
-dFxmUg0KPiAgKiB0aHJlYWRfbnVtYmVyJywgd2hlcmUgdGhlIHRocmVhZCBudW1iZXIgaXMgYSBj
-b3VudGVyIHRoYXQgc3RhcnRzIGF0IDANCj4gYW5kDQo+ICBpcyBpbmNyZW1lbnRlZCBmb3IgZWFj
-aCBzdWItam9iIChpLmUuIHdoZW4gXGZCbnVtam9ic1xmUiBvcHRpb24gaXMNCj4gQEAgLTE1Njcs
-NyArMTU3MCw3IEBAIFBpbiB0aGUgc3BlY2lmaWVkIGFtb3VudCBvZiBtZW1vcnkgd2l0aA0KPiBc
-ZkJtbG9ja1xmUlx8KDIpLiBDYW4gYmUgdXNlZCB0bw0KPiAgc2ltdWxhdGUgYSBzbWFsbGVyIGFt
-b3VudCBvZiBtZW1vcnkuIFRoZSBhbW91bnQgc3BlY2lmaWVkIGlzIHBlciB3b3JrZXIuDQo+ICAu
-U1MgIkkvTyBzaXplIg0KPiAgLlRQDQo+IC0uQkkgc2l6ZSBcZlI9XGZQaW50DQo+ICsuQkkgc2l6
-ZSBcZlI9XGZQaW50WyV8el0NCj4gIFRoZSB0b3RhbCBzaXplIG9mIGZpbGUgSS9PIGZvciBlYWNo
-IHRocmVhZCBvZiB0aGlzIGpvYi4gRmlvIHdpbGwgcnVuIHVudGlsDQo+ICB0aGlzIG1hbnkgYnl0
-ZXMgaGFzIGJlZW4gdHJhbnNmZXJyZWQsIHVubGVzcyBydW50aW1lIGlzIGxpbWl0ZWQgYnkgb3Ro
-ZXINCj4gb3B0aW9ucw0KPiAgKHN1Y2ggYXMgXGZCcnVudGltZVxmUiwgZm9yIGluc3RhbmNlLCBv
-ciBpbmNyZWFzZWQvZGVjcmVhc2VkIGJ5DQo+IFxmQmlvX3NpemVcZlIpLg0KPiBAQCAtMTU4Miw3
-ICsxNTg1LDcgQEAgZ2l2ZW4sIGZpbyB3aWxsIHVzZSAyMCUgb2YgdGhlIGZ1bGwgc2l6ZSBvZiB0
-aGUgZ2l2ZW4NCj4gZmlsZXMgb3IgZGV2aWNlcy4NCj4gIENhbiBiZSBjb21iaW5lZCB3aXRoIFxm
-Qm9mZnNldFxmUiB0byBjb25zdHJhaW4gdGhlIHN0YXJ0IGFuZCBlbmQgcmFuZ2UNCj4gIHRoYXQg
-SS9PIHdpbGwgYmUgZG9uZSB3aXRoaW4uDQo+ICAuVFANCj4gLS5CSSBpb19zaXplIFxmUj1cZlBp
-bnQgIlxmUixcZkIgaW9fbGltaXQiIFxmUj1cZlBpbnQNCj4gKy5CSSBpb19zaXplIFxmUj1cZlBp
-bnRbJXx6XSAiXGZSLFxmQiBpb19saW1pdCIgXGZSPVxmUGludFslfHpdDQo+ICBOb3JtYWxseSBm
-aW8gb3BlcmF0ZXMgd2l0aGluIHRoZSByZWdpb24gc2V0IGJ5IFxmQnNpemVcZlIsIHdoaWNoIG1l
-YW5zDQo+ICB0aGF0IHRoZSBcZkJzaXplXGZSIG9wdGlvbiBzZXRzIGJvdGggdGhlIHJlZ2lvbiBh
-bmQgc2l6ZSBvZiBJL08gdG8gYmUNCj4gIHBlcmZvcm1lZC4gU29tZXRpbWVzIHRoYXQgaXMgbm90
-IHdoYXQgeW91IHdhbnQuIFdpdGggdGhpcyBvcHRpb24sIGl0IGlzDQo+IC0tLSBhL29wdGlvbnMu
-Yw0KPiArKysgYi9vcHRpb25zLmMNCj4gQEAgLTE0NzEsOCArMTQ3MSwxMyBAQCBzdGF0aWMgaW50
-IHN0cl9vZmZzZXRfY2Iodm9pZCAqZGF0YSwgdW5zaWduZWQgbG9uZw0KPiBsb25nICpfX3ZhbCkN
-Cj4gIAlpZiAocGFyc2VfaXNfcGVyY2VudCh2KSkgew0KPiAgCQl0ZC0+by5zdGFydF9vZmZzZXQg
-PSAwOw0KPiAgCQl0ZC0+by5zdGFydF9vZmZzZXRfcGVyY2VudCA9IC0xVUxMIC0gdjsNCj4gKwkJ
-dGQtPm8uc3RhcnRfb2Zmc2V0X256ID0gMDsNCj4gIAkJZHByaW50KEZEX1BBUlNFLCAiU0VUIHN0
-YXJ0X29mZnNldF9wZXJjZW50ICVkXG4iLA0KPiAgCQkJCQl0ZC0+by5zdGFydF9vZmZzZXRfcGVy
-Y2VudCk7DQo+ICsJfSBlbHNlIGlmIChwYXJzZV9pc196b25lKHYpKSB7DQo+ICsJCXRkLT5vLnN0
-YXJ0X29mZnNldCA9IDA7DQo+ICsJCXRkLT5vLnN0YXJ0X29mZnNldF9wZXJjZW50ID0gMDsNCj4g
-KwkJdGQtPm8uc3RhcnRfb2Zmc2V0X256ID0gdiAtIFpPTkVfQkFTRV9WQUw7DQo+ICAJfSBlbHNl
-DQo+ICAJCXRkLT5vLnN0YXJ0X29mZnNldCA9IHY7DQo+IA0KPiBAQCAtMTQ4Nyw4ICsxNDkyLDEz
-IEBAIHN0YXRpYyBpbnQgc3RyX29mZnNldF9pbmNyZW1lbnRfY2Iodm9pZCAqZGF0YSwNCj4gdW5z
-aWduZWQgbG9uZyBsb25nICpfX3ZhbCkNCj4gIAlpZiAocGFyc2VfaXNfcGVyY2VudCh2KSkgew0K
-PiAgCQl0ZC0+by5vZmZzZXRfaW5jcmVtZW50ID0gMDsNCj4gIAkJdGQtPm8ub2Zmc2V0X2luY3Jl
-bWVudF9wZXJjZW50ID0gLTFVTEwgLSB2Ow0KPiArCQl0ZC0+by5vZmZzZXRfaW5jcmVtZW50X256
-ID0gMDsNCj4gIAkJZHByaW50KEZEX1BBUlNFLCAiU0VUIG9mZnNldF9pbmNyZW1lbnRfcGVyY2Vu
-dCAlZFxuIiwNCj4gIAkJCQkJdGQtPm8ub2Zmc2V0X2luY3JlbWVudF9wZXJjZW50KTsNCj4gKwl9
-IGVsc2UgaWYgKHBhcnNlX2lzX3pvbmUodikpIHsNCj4gKwkJdGQtPm8ub2Zmc2V0X2luY3JlbWVu
-dCA9IDA7DQo+ICsJCXRkLT5vLm9mZnNldF9pbmNyZW1lbnRfcGVyY2VudCA9IDA7DQo+ICsJCXRk
-LT5vLm9mZnNldF9pbmNyZW1lbnRfbnogPSB2IC0gWk9ORV9CQVNFX1ZBTDsNCj4gIAl9IGVsc2UN
-Cj4gIAkJdGQtPm8ub2Zmc2V0X2luY3JlbWVudCA9IHY7DQo+IA0KPiBAQCAtMTUwNSw2ICsxNTE1
-LDEwIEBAIHN0YXRpYyBpbnQgc3RyX3NpemVfY2Iodm9pZCAqZGF0YSwgdW5zaWduZWQgbG9uZw0K
-PiBsb25nICpfX3ZhbCkNCj4gIAkJdGQtPm8uc2l6ZV9wZXJjZW50ID0gLTFVTEwgLSB2Ow0KPiAg
-CQlkcHJpbnQoRkRfUEFSU0UsICJTRVQgc2l6ZV9wZXJjZW50ICVkXG4iLA0KPiAgCQkJCQl0ZC0+
-by5zaXplX3BlcmNlbnQpOw0KPiArCX0gZWxzZSBpZiAocGFyc2VfaXNfem9uZSh2KSkgew0KPiAr
-CQl0ZC0+by5zaXplID0gMDsNCj4gKwkJdGQtPm8uc2l6ZV9wZXJjZW50ID0gMDsNCj4gKwkJdGQt
-Pm8uc2l6ZV9ueiA9IHYgLSBaT05FX0JBU0VfVkFMOw0KPiAgCX0gZWxzZQ0KPiAgCQl0ZC0+by5z
-aXplID0gdjsNCj4gDQo+IEBAIC0xNTI1LDEyICsxNTM5LDMwIEBAIHN0YXRpYyBpbnQgc3RyX2lv
-X3NpemVfY2Iodm9pZCAqZGF0YSwgdW5zaWduZWQNCj4gbG9uZyBsb25nICpfX3ZhbCkNCj4gIAkJ
-fQ0KPiAgCQlkcHJpbnQoRkRfUEFSU0UsICJTRVQgaW9fc2l6ZV9wZXJjZW50ICVkXG4iLA0KPiAg
-CQkJCQl0ZC0+by5pb19zaXplX3BlcmNlbnQpOw0KPiArCX0gZWxzZSBpZiAocGFyc2VfaXNfem9u
-ZSh2KSkgew0KPiArCQl0ZC0+by5pb19zaXplID0gMDsNCj4gKwkJdGQtPm8uaW9fc2l6ZV9wZXJj
-ZW50ID0gMDsNCj4gKwkJdGQtPm8uaW9fc2l6ZV9ueiA9IHYgLSBaT05FX0JBU0VfVkFMOw0KPiAg
-CX0gZWxzZQ0KPiAgCQl0ZC0+by5pb19zaXplID0gdjsNCj4gDQo+ICAJcmV0dXJuIDA7DQo+ICB9
-DQo+IA0KPiArc3RhdGljIGludCBzdHJfem9uZXNraXBfY2Iodm9pZCAqZGF0YSwgdW5zaWduZWQg
-bG9uZyBsb25nICpfX3ZhbCkNCj4gK3sNCj4gKwlzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkID0gY2Jf
-ZGF0YV90b190ZChkYXRhKTsNCj4gKwl1bnNpZ25lZCBsb25nIGxvbmcgdiA9ICpfX3ZhbDsNCj4g
-Kw0KPiArCWlmIChwYXJzZV9pc196b25lKHYpKSB7DQo+ICsJCXRkLT5vLnpvbmVfc2tpcCA9IDA7
-DQo+ICsJCXRkLT5vLnpvbmVfc2tpcF9ueiA9IHYgLSBaT05FX0JBU0VfVkFMOw0KPiArCX0gZWxz
-ZQ0KPiArCQl0ZC0+by56b25lX3NraXAgPSB2Ow0KPiArDQo+ICsJcmV0dXJuIDA7DQo+ICt9DQo+
-ICsNCj4gIHN0YXRpYyBpbnQgc3RyX3dyaXRlX2J3X2xvZ19jYih2b2lkICpkYXRhLCBjb25zdCBj
-aGFyICpzdHIpDQo+ICB7DQo+ICAJc3RydWN0IHRocmVhZF9kYXRhICp0ZCA9IGNiX2RhdGFfdG9f
-dGQoZGF0YSk7DQo+IEBAIC0yMDgxLDExICsyMTEzLDEwIEBAIHN0cnVjdCBmaW9fb3B0aW9uIGZp
-b19vcHRpb25zW0ZJT19NQVhfT1BUU10gPQ0KPiB7DQo+ICAJew0KPiAgCQkubmFtZQk9ICJzaXpl
-IiwNCj4gIAkJLmxuYW1lCT0gIlNpemUiLA0KPiAtCQkudHlwZQk9IEZJT19PUFRfU1RSX1ZBTCwN
-Cj4gKwkJLnR5cGUJPSBGSU9fT1BUX1NUUl9WQUxfWk9ORSwNCj4gIAkJLmNiCT0gc3RyX3NpemVf
-Y2IsDQo+ICAJCS5vZmYxCT0gb2Zmc2V0b2Yoc3RydWN0IHRocmVhZF9vcHRpb25zLCBzaXplKSwN
-Cj4gIAkJLmhlbHAJPSAiVG90YWwgc2l6ZSBvZiBkZXZpY2Ugb3IgZmlsZXMiLA0KPiAtCQkuaW50
-ZXJ2YWwgPSAxMDI0ICogMTAyNCwNCj4gIAkJLmNhdGVnb3J5ID0gRklPX09QVF9DX0lPLA0KPiAg
-CQkuZ3JvdXAJPSBGSU9fT1BUX0dfSU5WQUxJRCwNCj4gIAl9LA0KPiBAQCAtMjA5MywxMSArMjEy
-NCwxMCBAQCBzdHJ1Y3QgZmlvX29wdGlvbiBmaW9fb3B0aW9uc1tGSU9fTUFYX09QVFNdID0NCj4g
-ew0KPiAgCQkubmFtZQk9ICJpb19zaXplIiwNCj4gIAkJLmFsaWFzCT0gImlvX2xpbWl0IiwNCj4g
-IAkJLmxuYW1lCT0gIklPIFNpemUiLA0KPiAtCQkudHlwZQk9IEZJT19PUFRfU1RSX1ZBTCwNCj4g
-KwkJLnR5cGUJPSBGSU9fT1BUX1NUUl9WQUxfWk9ORSwNCj4gIAkJLmNiCT0gc3RyX2lvX3NpemVf
-Y2IsDQo+ICAJCS5vZmYxCT0gb2Zmc2V0b2Yoc3RydWN0IHRocmVhZF9vcHRpb25zLCBpb19zaXpl
-KSwNCj4gIAkJLmhlbHAJPSAiVG90YWwgc2l6ZSBvZiBJL08gdG8gYmUgcGVyZm9ybWVkIiwNCj4g
-LQkJLmludGVydmFsID0gMTAyNCAqIDEwMjQsDQo+ICAJCS5jYXRlZ29yeSA9IEZJT19PUFRfQ19J
-TywNCj4gIAkJLmdyb3VwCT0gRklPX09QVF9HX0lOVkFMSUQsDQo+ICAJfSwNCj4gQEAgLTIxMzgs
-MTIgKzIxNjgsMTEgQEAgc3RydWN0IGZpb19vcHRpb24gZmlvX29wdGlvbnNbRklPX01BWF9PUFRT
-XSA9DQo+IHsNCj4gIAkJLm5hbWUJPSAib2Zmc2V0IiwNCj4gIAkJLmxuYW1lCT0gIklPIG9mZnNl
-dCIsDQo+ICAJCS5hbGlhcwk9ICJmaWxlb2Zmc2V0IiwNCj4gLQkJLnR5cGUJPSBGSU9fT1BUX1NU
-Ul9WQUwsDQo+ICsJCS50eXBlCT0gRklPX09QVF9TVFJfVkFMX1pPTkUsDQo+ICAJCS5jYgk9IHN0
-cl9vZmZzZXRfY2IsDQo+ICAJCS5vZmYxCT0gb2Zmc2V0b2Yoc3RydWN0IHRocmVhZF9vcHRpb25z
-LCBzdGFydF9vZmZzZXQpLA0KPiAgCQkuaGVscAk9ICJTdGFydCBJTyBmcm9tIHRoaXMgb2Zmc2V0
-IiwNCj4gIAkJLmRlZgk9ICIwIiwNCj4gLQkJLmludGVydmFsID0gMTAyNCAqIDEwMjQsDQo+ICAJ
-CS5jYXRlZ29yeSA9IEZJT19PUFRfQ19JTywNCj4gIAkJLmdyb3VwCT0gRklPX09QVF9HX0lOVkFM
-SUQsDQo+ICAJfSwNCj4gQEAgLTIxNjEsMTQgKzIxOTAsMTMgQEAgc3RydWN0IGZpb19vcHRpb24g
-ZmlvX29wdGlvbnNbRklPX01BWF9PUFRTXSA9DQo+IHsNCj4gIAl7DQo+ICAJCS5uYW1lCT0gIm9m
-ZnNldF9pbmNyZW1lbnQiLA0KPiAgCQkubG5hbWUJPSAiSU8gb2Zmc2V0IGluY3JlbWVudCIsDQo+
-IC0JCS50eXBlCT0gRklPX09QVF9TVFJfVkFMLA0KPiArCQkudHlwZQk9IEZJT19PUFRfU1RSX1ZB
-TF9aT05FLA0KPiAgCQkuY2IJPSBzdHJfb2Zmc2V0X2luY3JlbWVudF9jYiwNCj4gIAkJLm9mZjEJ
-PSBvZmZzZXRvZihzdHJ1Y3QgdGhyZWFkX29wdGlvbnMsIG9mZnNldF9pbmNyZW1lbnQpLA0KPiAg
-CQkuaGVscAk9ICJXaGF0IGlzIHRoZSBpbmNyZW1lbnQgZnJvbSBvbmUgb2Zmc2V0IHRvIHRoZQ0K
-PiBuZXh0IiwNCj4gIAkJLnBhcmVudCA9ICJvZmZzZXQiLA0KPiAgCQkuaGlkZQk9IDEsDQo+ICAJ
-CS5kZWYJPSAiMCIsDQo+IC0JCS5pbnRlcnZhbCA9IDEwMjQgKiAxMDI0LA0KPiAgCQkuY2F0ZWdv
-cnkgPSBGSU9fT1BUX0NfSU8sDQo+ICAJCS5ncm91cAk9IEZJT19PUFRfR19JTlZBTElELA0KPiAg
-CX0sDQo+IEBAIC0zNDA0LDExICszNDMyLDExIEBAIHN0cnVjdCBmaW9fb3B0aW9uIGZpb19vcHRp
-b25zW0ZJT19NQVhfT1BUU10gPQ0KPiB7DQo+ICAJew0KPiAgCQkubmFtZQk9ICJ6b25lc2tpcCIs
-DQo+ICAJCS5sbmFtZQk9ICJab25lIHNraXAiLA0KPiAtCQkudHlwZQk9IEZJT19PUFRfU1RSX1ZB
-TCwNCj4gKwkJLnR5cGUJPSBGSU9fT1BUX1NUUl9WQUxfWk9ORSwNCj4gKwkJLmNiCT0gc3RyX3pv
-bmVza2lwX2NiLA0KPiAgCQkub2ZmMQk9IG9mZnNldG9mKHN0cnVjdCB0aHJlYWRfb3B0aW9ucywg
-em9uZV9za2lwKSwNCj4gIAkJLmhlbHAJPSAiU3BhY2UgYmV0d2VlbiBJTyB6b25lcyIsDQo+ICAJ
-CS5kZWYJPSAiMCIsDQo+IC0JCS5pbnRlcnZhbCA9IDEwMjQgKiAxMDI0LA0KPiAgCQkuY2F0ZWdv
-cnkgPSBGSU9fT1BUX0NfSU8sDQo+ICAJCS5ncm91cAk9IEZJT19PUFRfR19aT05FLA0KPiAgCX0s
-DQo+IC0tLSBhL3BhcnNlLmMNCj4gKysrIGIvcGFyc2UuYw0KPiBAQCAtMzcsNiArMzcsNyBAQCBz
-dGF0aWMgY29uc3QgY2hhciAqb3B0X3R5cGVfbmFtZXNbXSA9IHsNCj4gIAkiT1BUX0JPT0wiLA0K
-PiAgCSJPUFRfRkxPQVRfTElTVCIsDQo+ICAJIk9QVF9TVFJfU0VUIiwNCj4gKwkiT1BUX1NUUl9W
-QUxfWk9ORSIsDQo+ICAJIk9QVF9ERVBSRUNBVEVEIiwNCj4gIAkiT1BUX1NPRlRfREVQUkVDQVRF
-RCIsDQo+ICAJIk9QVF9VTlNVUFBPUlRFRCIsDQo+IEBAIC01OTksNyArNjAwLDEwIEBAIHN0YXRp
-YyBpbnQgX19oYW5kbGVfb3B0aW9uKGNvbnN0IHN0cnVjdCBmaW9fb3B0aW9uDQo+ICpvLCBjb25z
-dCBjaGFyICpwdHIsDQo+ICAJCWZhbGx0aHJvdWdoOw0KPiAgCWNhc2UgRklPX09QVF9VTEw6DQo+
-ICAJY2FzZSBGSU9fT1BUX0lOVDoNCj4gLQljYXNlIEZJT19PUFRfU1RSX1ZBTDogew0KPiArCWNh
-c2UgRklPX09QVF9TVFJfVkFMOg0KPiArbm90X3pvbmVfZ3JhbnVsYXJpdHk6Ow0KPiArCQl7DQo+
-ICsNCj4gIAkJZmlvX29wdF9zdHJfdmFsX2ZuICpmbiA9IG8tPmNiOw0KPiAgCQljaGFyIHRtcFsx
-MjhdLCAqcDsNCj4gDQo+IEBAIC05NDQsNiArOTQ4LDM5IEBAIHN0YXRpYyBpbnQgX19oYW5kbGVf
-b3B0aW9uKGNvbnN0IHN0cnVjdCBmaW9fb3B0aW9uDQo+ICpvLCBjb25zdCBjaGFyICpwdHIsDQo+
-ICAJCX0NCj4gIAkJYnJlYWs7DQo+ICAJfQ0KPiArCWNhc2UgRklPX09QVF9TVFJfVkFMX1pPTkU6
-IHsNCj4gKwkJaW50ICgqZikodm9pZCosIHVuc2lnbmVkIGxvbmcgbG9uZyAqKSA9IG8tPmNiOw0K
-PiArCQljaGFyICplcDsNCj4gKwkJdW5zaWduZWQgbG9uZyBsb25nIHZhbDsNCj4gKwkJc2l6ZV90
-IGxlbiA9IHN0cmxlbihwdHIpOw0KPiArDQo+ICsJCWlmIChsZW4gPT0gMCB8fCBwdHJbbGVuIC0g
-MV0gIT0gJ3onKQ0KPiArCQkJZ290byBub3Rfem9uZV9ncmFudWxhcml0eTsNCg0KSSBzdGlsbCB0
-aGluayB0aGF0IHRoZSBuYXN0eSBnb3RvIGNhbiBiZSBhdm9pZGVkISBXaGF0IHlvdSBjYW4gZG8N
-CmlzIHNvbWV0aGluZyBsaWtlDQoNCiAJY2FzZSBGSU9fT1BUX1NUUl9WQUxfVElNRToNCiAJCWlz
-X3RpbWUgPSAxOw0KIAkJZmFsbHRocm91Z2g7DQogCWNhc2UgRklPX09QVF9VTEw6DQogCWNhc2Ug
-RklPX09QVF9JTlQ6DQogCWNhc2UgRklPX09QVF9TVFJfVkFMOg0KKwljYXNlIEZJT19PUFRfU1RS
-X1ZBTF9aT05FOg0KCQl7DQogCQlmaW9fb3B0X3N0cl92YWxfZm4gKmZuID0gby0+Y2I7DQogCQlj
-aGFyIHRtcFsxMjhdLCAqcDsNCg0KKwkJCWlmIChsZW4gPiAwICYmIHB0cltsZW4gLSAxXSA9PSAn
-eicpIHsNCisJCQkJaWYgKG8tPnR5cGUgIT0gRklPX09QVF9TVFJfVkFMX1pPTkUpIHsNCisgCQkJ
-CQlsb2dfZXJyKDw8eiBzdWZmaXggaXMgbm90IGFwcGxpY2FibGU+Pik7DQorCQkJCQlyZXR1cm4g
-MTsJCQkJDQorCQkJCX0gZWxzZSB7DQorCQkJCQk8PHByb2Nlc3MgRklPX09QVF9TVFJfVkFMX1pP
-TkU+Pg0KKwkJCQkJYnJlYWs7DQorCQkJCX0NCisgCQkJfQ0KDQo+ICsNCj4gKwkJZXJybm8gPSAw
-Ow0KPiArCQl2YWwgPSBzdHJ0b3VsKHB0ciwgJmVwLCAxMCk7DQo+ICsJCWlmIChlcnJubyA9PSAw
-ICYmIGVwICE9IHB0cikgew0KPiArCQkJc3dpdGNoICgqZXApIHsNCj4gKwkJCWNhc2UgJ3onOg0K
-PiArCQkJCXZhbCA9IFpPTkVfQkFTRV9WQUwgKyAodWludDMyX3QpdmFsOw0KPiArCQkJCWJyZWFr
-Ow0KPiArDQo+ICsJCQlkZWZhdWx0Og0KPiArCQkJCXJldCA9IDE7DQo+ICsJCQkJYnJlYWs7DQo+
-ICsJCQl9DQo+ICsJCQl2YWxfc3RvcmUodWxscCwgdmFsLCBvLT5vZmYxLCAwLCBkYXRhLCBvKTsN
-Cj4gKwkJCXJldCA9IDA7DQo+ICsJCX0gZWxzZSB7DQo+ICsJCQlyZXQgPSAxOw0KPiArCQl9DQo+
-ICsJCWlmIChyZXQpIHsNCj4gKwkJCXJldHVybiByZXQ7DQo+ICsJCX0NCj4gKw0KPiArCQlyZXQg
-PSBmKGRhdGEsICZ2YWwpOw0KPiArCQlicmVhazsNCj4gKwl9DQo+ICAJY2FzZSBGSU9fT1BUX0RF
-UFJFQ0FURUQ6DQo+ICAJCXJldCA9IDE7DQo+ICAJCWZhbGx0aHJvdWdoOw0KPiAtLS0gYS9wYXJz
-ZS5oDQo+ICsrKyBiL3BhcnNlLmgNCj4gQEAgLTIxLDYgKzIxLDcgQEAgZW51bSBmaW9fb3B0X3R5
-cGUgew0KPiAgCUZJT19PUFRfQk9PTCwNCj4gIAlGSU9fT1BUX0ZMT0FUX0xJU1QsDQo+ICAJRklP
-X09QVF9TVFJfU0VULA0KPiArCUZJT19PUFRfU1RSX1ZBTF9aT05FLA0KPiAgCUZJT19PUFRfREVQ
-UkVDQVRFRCwNCj4gIAlGSU9fT1BUX1NPRlRfREVQUkVDQVRFRCwNCj4gIAlGSU9fT1BUX1VOU1VQ
-UE9SVEVELAkvKiBrZWVwIHRoaXMgbGFzdCAqLw0KPiBAQCAtMTMzLDkgKzEzNCwxNSBAQCBzdGF0
-aWMgaW5saW5lIGludCBwYXJzZV9pc19wZXJjZW50KHVuc2lnbmVkIGxvbmcgbG9uZw0KPiB2YWwp
-DQo+ICAJcmV0dXJuIHZhbCA8PSAtMVVMTCAmJiB2YWwgPj0gKC0xVUxMIC0gMTAwVUxMKTsNCj4g
-IH0NCj4gDQo+ICsjZGVmaW5lIFpPTkVfQkFTRV9WQUwgKCgtMVVMTCA+PiAxKSArIDEpDQo+ICBz
-dGF0aWMgaW5saW5lIGludCBwYXJzZV9pc19wZXJjZW50X3VuY2FwcGVkKHVuc2lnbmVkIGxvbmcg
-bG9uZyB2YWwpDQo+ICB7DQo+IC0JcmV0dXJuIChsb25nIGxvbmcpdmFsIDw9IC0xOw0KPiArCXJl
-dHVybiBaT05FX0JBU0VfVkFMICsgLTFVIDwgdmFsOw0KPiArfQ0KPiArDQo+ICtzdGF0aWMgaW5s
-aW5lIGludCBwYXJzZV9pc196b25lKHVuc2lnbmVkIGxvbmcgbG9uZyB2YWwpDQo+ICt7DQo+ICsJ
-cmV0dXJuICh2YWwgLSBaT05FX0JBU0VfVkFMKSA8PSAtMVU7DQo+ICB9DQo+IA0KPiAgc3RydWN0
-IHByaW50X29wdGlvbiB7DQo+IC0tLSBhL3NlcnZlci5oDQo+ICsrKyBiL3NlcnZlci5oDQo+IEBA
-IC00OCw3ICs0OCw3IEBAIHN0cnVjdCBmaW9fbmV0X2NtZF9yZXBseSB7DQo+ICB9Ow0KPiANCj4g
-IGVudW0gew0KPiAtCUZJT19TRVJWRVJfVkVSCQkJPSA4NywNCj4gKwlGSU9fU0VSVkVSX1ZFUgkJ
-CT0gODgsDQo+IA0KPiAgCUZJT19TRVJWRVJfTUFYX0ZSQUdNRU5UX1BEVQk9IDEwMjQsDQo+ICAJ
-RklPX1NFUlZFUl9NQVhfQ01EX01CCQk9IDIwNDgsDQo+IC0tLSBhL3QvemJkL3Rlc3QtemJkLXN1
-cHBvcnQNCj4gKysrIGIvdC96YmQvdGVzdC16YmQtc3VwcG9ydA0KPiBAQCAtMTE1Myw2ICsxMTUz
-LDQ4IEBAIHRlc3Q1NCgpIHsNCj4gIAkJPj4gIiR7bG9nZmlsZX0uJHt0ZXN0X251bWJlcn0iIDI+
-JjEgfHwgcmV0dXJuICQ/DQo+ICB9DQo+IA0KPiArIyB0ZXN0ICd6JyBzdWZmaXggcGFyc2luZyBv
-bmx5DQo+ICt0ZXN0NTUoKSB7DQo+ICsJcmVxdWlyZV96YmQgfHwgcmV0dXJuICRTS0lQX1RFU1RD
-QVNFDQo+ICsJIyBvZmZzZXQ9MXogKyBvZmZzZXRfaW5jcmVtZW50PTEweiArIHNpemU9MnoNCj4g
-KwlyZXF1aXJlX3NlcV96b25lcyAxMyB8fCByZXR1cm4gJFNLSVBfVEVTVENBU0UNCj4gKw0KDQpU
-aGUgYm90aCBuZXcgdGVzdHMgZmFpbCBpbiBkZXZpY2UgY29uZmlndXJhdGlvbnMgd2l0aCB6b25l
-IGNhcGFjaXR5DQpzbWFsbGVyIHRoYW4gem9uZSBzaXplLiBJbiBteSB0ZXN0aW5nLCBydW5uaW5n
-DQoNCnQvemJkL3J1bi10ZXN0cy1hZ2FpbnN0LW51bGxiIC1zIDMgLXMgOQ0KDQpwcm9kdWNlcyB0
-aGUgdGVzdCBmYWlsdXJlcyBvZiB0aGlzIGtpbmQuIFRoaXMgaGFwcGVucyBiZWNhdXNlIHlvdQ0K
-YWx3YXlzIHRyeSB0byB3cml0ZSB6b25lcyB1cCB0byB0aGVpciBzaXplLCBub3QgdXAgdG8gY2Fw
-YWNpdHkuDQpZb3UgY2FuIGFkZCBzb21ldGhpbmcgbGlrZQ0KDQoJb2ZmPSQoKGZpcnN0X3NlcXVl
-bnRpYWxfem9uZV9zZWN0b3IgKiA1MTIpKQ0KCXpjYXA9JCh0b3RhbF96b25lX2NhcGFjaXR5IDEg
-JG9mZiAkZGV2KQ0KDQpoZXJlIGFuZCBkbyAtLWJzPSR7emNhcH0gYmVsb3cuDQoNCj4gKwlydW5f
-ZmlvCS0tbmFtZT1qCQlcDQo+ICsJCS0tZmlsZW5hbWU9JHtkZXZ9CVwNCj4gKwkJLS1kaXJlY3Q9
-MQkJXA0KPiArCQkiJChpb2VuZ2luZSAicHN5bmMiKSIJXA0KPiArCQktLXpvbmVtb2RlPXpiZAkJ
-XA0KPiArCQktLXpvbmVzaXplPSR7em9uZV9zaXplfQlcDQo+ICsJCS0tcnc9d3JpdGUJCVwNCj4g
-KwkJLS1icz0ke3pvbmVfc2l6ZX0JXA0KPiArCQktLW51bWpvYnM9MgkJXA0KPiArCQktLW9mZnNl
-dF9pbmNyZW1lbnQ9MTB6CVwNCj4gKwkJLS1vZmZzZXQ9MXoJCVwNCj4gKwkJLS1zaXplPTJ6CQlc
-DQo+ICsJCS0taW9fc2l6ZT0zegkJXA0KPiArCQkke2pvYl92YXJfb3B0c1tAXX0gLS1kZWJ1Zz16
-YmQgXA0KPiArCQk+PiAiJHtsb2dmaWxlfS4ke3Rlc3RfbnVtYmVyfSIgMj4mMSB8fCByZXR1cm4g
-JD8NCj4gK30NCj4gKw0KPiArIyB0ZXN0ICd6JyBzdWZmaXggcGFyc2luZyBvbmx5DQo+ICt0ZXN0
-NTYoKSB7DQo+ICsJcmVxdWlyZV96YmQgfHwgcmV0dXJuICRTS0lQX1RFU1RDQVNFDQo+ICsJcmVx
-dWlyZV9zZXFfem9uZXMgMTAgfHwgcmV0dXJuICRTS0lQX1RFU1RDQVNFDQoNClRoaXMgdGVzdCBm
-YWlscyBpbiBhIGZldyBjb25maWd1cmF0aW9ucyB3aGVuIHJ1bm5pbmcNCnQvemJkL3J1bi10ZXN0
-cy1hZ2FpbnN0LW51bGxiIGJlY2F1c2Ugd3JpdGluZyBpbiBzdHJpZGVkIG1vZGUgbmVlZHMNCnpv
-bmVzIHRvIGJlIGluaXRpYWxseSBlbXB0eS4gQWRkaW5nDQoNCisgCXJlc2V0X3pvbmUgIiR7ZGV2
-fSIgLTENCg0KaGVscHMgdG8gYXZvaWQgdGhlIGZhaWx1cmUuIEFuZCBpdCBpcyBwcm9iYWJseSBu
-b3QgZ29pbmcgdG8gd29yayBpZg0KWkNBUCA8IFpTSVpFLCBzbyB5b3UgY2FuIHBlcmhhcHMgYWRk
-IGEgbmV3IGZ1bmN0aW9uIHRvIHRoZSBzY3JpcHQsDQpyZXF1aXJlX2Z1bGxfemNhcCgpIG9yIHNv
-bWV0aGluZyBsaWtlIHRoYXQgYW5kIGNhbGwgaXQgdG8gc2tpcCB0aGlzIHRlc3QNCmZvciBzdWNo
-IGNvbmZpZ3VyYXRpb25zLg0KDQpSZWdhcmRzLA0KRG1pdHJ5DQoNCj4gKw0KPiArCXJ1bl9maW8J
-LS1uYW1lPWoJCVwNCj4gKwkJLS1maWxlbmFtZT0ke2Rldn0JXA0KPiArCQktLWRpcmVjdD0xCQlc
-DQo+ICsJCSIkKGlvZW5naW5lICJwc3luYyIpIglcDQo+ICsJCS0tem9uZW1vZGU9c3RyaWRlZAlc
-DQo+ICsJCS0tem9uZXNpemU9JHt6b25lX3NpemV9CVwNCj4gKwkJLS1ydz13cml0ZQkJXA0KPiAr
-CQktLWJzPSR7em9uZV9zaXplfQlcDQo+ICsJCS0tc2l6ZT0xMHoJCVwNCj4gKwkJLS16b25lc2tp
-cD0yegkJXA0KPiArCQkke2pvYl92YXJfb3B0c1tAXX0gLS1kZWJ1Zz16YmQgXA0KPiArCQk+PiAi
-JHtsb2dmaWxlfS4ke3Rlc3RfbnVtYmVyfSIgMj4mMSB8fCByZXR1cm4gJD8NCj4gK30NCj4gKw0K
-PiAgU0VDT05EUz0wDQo+ICB0ZXN0cz0oKQ0KPiAgZHluYW1pY19hbmFseXplcj0oKQ0KPiAtLS0g
-YS90aHJlYWRfb3B0aW9ucy5oDQo+ICsrKyBiL3RocmVhZF9vcHRpb25zLmgNCj4gQEAgLTgzLDEz
-ICs4MywxNiBAQCBzdHJ1Y3QgdGhyZWFkX29wdGlvbnMgew0KPiAgCXVuc2lnbmVkIGxvbmcgbG9u
-ZyBzaXplOw0KPiAgCXVuc2lnbmVkIGxvbmcgbG9uZyBpb19zaXplOw0KPiAgCXVuc2lnbmVkIGlu
-dCBzaXplX3BlcmNlbnQ7DQo+ICsJdW5zaWduZWQgaW50IHNpemVfbno7DQo+ICAJdW5zaWduZWQg
-aW50IGlvX3NpemVfcGVyY2VudDsNCj4gKwl1bnNpZ25lZCBpbnQgaW9fc2l6ZV9uejsNCj4gIAl1
-bnNpZ25lZCBpbnQgZmlsbF9kZXZpY2U7DQo+ICAJdW5zaWduZWQgaW50IGZpbGVfYXBwZW5kOw0K
-PiAgCXVuc2lnbmVkIGxvbmcgbG9uZyBmaWxlX3NpemVfbG93Ow0KPiAgCXVuc2lnbmVkIGxvbmcg
-bG9uZyBmaWxlX3NpemVfaGlnaDsNCj4gIAl1bnNpZ25lZCBsb25nIGxvbmcgc3RhcnRfb2Zmc2V0
-Ow0KPiAgCXVuc2lnbmVkIGxvbmcgbG9uZyBzdGFydF9vZmZzZXRfYWxpZ247DQo+ICsJdW5zaWdu
-ZWQgaW50IHN0YXJ0X29mZnNldF9uejsNCj4gDQo+ICAJdW5zaWduZWQgbG9uZyBsb25nIGJzW0RE
-SVJfUldESVJfQ05UXTsNCj4gIAl1bnNpZ25lZCBsb25nIGxvbmcgYmFbRERJUl9SV0RJUl9DTlRd
-Ow0KPiBAQCAtMTk4LDYgKzIwMSw3IEBAIHN0cnVjdCB0aHJlYWRfb3B0aW9ucyB7DQo+ICAJdW5z
-aWduZWQgbG9uZyBsb25nIHpvbmVfc2l6ZTsNCj4gIAl1bnNpZ25lZCBsb25nIGxvbmcgem9uZV9j
-YXBhY2l0eTsNCj4gIAl1bnNpZ25lZCBsb25nIGxvbmcgem9uZV9za2lwOw0KPiArCXVpbnQzMl90
-IHpvbmVfc2tpcF9uejsNCj4gIAllbnVtIGZpb196b25lX21vZGUgem9uZV9tb2RlOw0KPiAgCXVu
-c2lnbmVkIGxvbmcgbG9uZyBsb2NrbWVtOw0KPiAgCWVudW0gZmlvX21lbXR5cGUgbWVtX3R5cGU7
-DQo+IEBAIC0zMTUsNiArMzE5LDcgQEAgc3RydWN0IHRocmVhZF9vcHRpb25zIHsNCj4gIAl1bnNp
-Z25lZCBpbnQgZ2lkOw0KPiANCj4gIAl1bnNpZ25lZCBpbnQgb2Zmc2V0X2luY3JlbWVudF9wZXJj
-ZW50Ow0KPiArCXVuc2lnbmVkIGludCBvZmZzZXRfaW5jcmVtZW50X256Ow0KPiAgCXVuc2lnbmVk
-IGxvbmcgbG9uZyBvZmZzZXRfaW5jcmVtZW50Ow0KPiAgCXVuc2lnbmVkIGxvbmcgbG9uZyBudW1i
-ZXJfaW9zOw0KPiANCj4gQEAgLTM4NCwxNCArMzg5LDE5IEBAIHN0cnVjdCB0aHJlYWRfb3B0aW9u
-c19wYWNrIHsNCj4gIAl1aW50NjRfdCBzaXplOw0KPiAgCXVpbnQ2NF90IGlvX3NpemU7DQo+ICAJ
-dWludDMyX3Qgc2l6ZV9wZXJjZW50Ow0KPiArCXVpbnQzMl90IHNpemVfbno7DQo+ICAJdWludDMy
-X3QgaW9fc2l6ZV9wZXJjZW50Ow0KPiArCXVpbnQzMl90IGlvX3NpemVfbno7DQo+ICAJdWludDMy
-X3QgZmlsbF9kZXZpY2U7DQo+ICAJdWludDMyX3QgZmlsZV9hcHBlbmQ7DQo+ICAJdWludDMyX3Qg
-dW5pcXVlX2ZpbGVuYW1lOw0KPiArCXVpbnQzMl90IHBhZDM7DQo+ICAJdWludDY0X3QgZmlsZV9z
-aXplX2xvdzsNCj4gIAl1aW50NjRfdCBmaWxlX3NpemVfaGlnaDsNCj4gIAl1aW50NjRfdCBzdGFy
-dF9vZmZzZXQ7DQo+ICAJdWludDY0X3Qgc3RhcnRfb2Zmc2V0X2FsaWduOw0KPiArCXVpbnQzMl90
-IHN0YXJ0X29mZnNldF9uejsNCj4gKwl1aW50MzJfdCBwYWQ0Ow0KPiANCj4gIAl1aW50NjRfdCBi
-c1tERElSX1JXRElSX0NOVF07DQo+ICAJdWludDY0X3QgYmFbRERJUl9SV0RJUl9DTlRdOw0KPiBA
-QCAtNDY0LDggKzQ3NCw2IEBAIHN0cnVjdCB0aHJlYWRfb3B0aW9uc19wYWNrIHsNCj4gIAlzdHJ1
-Y3Qgem9uZV9zcGxpdCB6b25lX3NwbGl0W0RESVJfUldESVJfQ05UXVtaT05FU1BMSVRfTUFYXTsN
-Cj4gIAl1aW50MzJfdCB6b25lX3NwbGl0X25yW0RESVJfUldESVJfQ05UXTsNCj4gDQo+IC0JdWlu
-dDhfdCBwYWQxWzRdOw0KPiAtDQo+ICAJZmlvX2ZwNjRfdCB6aXBmX3RoZXRhOw0KPiAgCWZpb19m
-cDY0X3QgcGFyZXRvX2g7DQo+ICAJZmlvX2ZwNjRfdCBnYXVzc19kZXY7DQo+IEBAIC01MDEsNiAr
-NTA5LDcgQEAgc3RydWN0IHRocmVhZF9vcHRpb25zX3BhY2sgew0KPiAgCXVpbnQ2NF90IHpvbmVf
-Y2FwYWNpdHk7DQo+ICAJdWludDY0X3Qgem9uZV9za2lwOw0KPiAgCXVpbnQ2NF90IGxvY2ttZW07
-DQo+ICsJdWludDMyX3Qgem9uZV9za2lwX256Ow0KPiAgCXVpbnQzMl90IG1lbV90eXBlOw0KPiAg
-CXVpbnQzMl90IG1lbV9hbGlnbjsNCj4gDQo+IEBAIC01MDksOCArNTE4LDYgQEAgc3RydWN0IHRo
-cmVhZF9vcHRpb25zX3BhY2sgew0KPiAgCXVpbnQzMl90IG5ld19ncm91cDsNCj4gIAl1aW50MzJf
-dCBudW1qb2JzOw0KPiANCj4gLQl1aW50OF90IHBhZDNbNF07DQo+IC0NCj4gIAkvKg0KPiAgCSAq
-IFdlIGN1cnJlbnRseSBjYW4ndCBjb252ZXJ0IHRoZXNlLCBzbyBkb24ndCBlbmFibGUgdGhlbQ0K
-PiAgCSAqLw0KPiBAQCAtNjE2LDEyICs2MjMsMTQgQEAgc3RydWN0IHRocmVhZF9vcHRpb25zX3Bh
-Y2sgew0KPiAgCXVpbnQzMl90IGdpZDsNCj4gDQo+ICAJdWludDMyX3Qgb2Zmc2V0X2luY3JlbWVu
-dF9wZXJjZW50Ow0KPiArCXVpbnQzMl90IG9mZnNldF9pbmNyZW1lbnRfbno7DQo+ICAJdWludDY0
-X3Qgb2Zmc2V0X2luY3JlbWVudDsNCj4gIAl1aW50NjRfdCBudW1iZXJfaW9zOw0KPiANCj4gIAl1
-aW50NjRfdCBsYXRlbmN5X3RhcmdldDsNCj4gIAl1aW50NjRfdCBsYXRlbmN5X3dpbmRvdzsNCj4g
-IAl1aW50NjRfdCBtYXhfbGF0ZW5jeTsNCj4gKwl1aW50MzJfdCBwYWQ1Ow0KPiAgCWZpb19mcDY0
-X3QgbGF0ZW5jeV9wZXJjZW50aWxlOw0KPiAgCXVpbnQzMl90IGxhdGVuY3lfcnVuOw0KPiANCj4g
-LS0tIGEvemJkLmMNCj4gKysrIGIvemJkLmMNCj4gQEAgLTY0OCw3ICs2NDgsNyBAQCBzdGF0aWMg
-Ym9vbCB6YmRfb3Blbl96b25lKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsDQo+IGNvbnN0IHN0cnVj
-dCBmaW9fZmlsZSAqZiwNCj4gIHN0YXRpYyBpbnQgemJkX3Jlc2V0X3pvbmUoc3RydWN0IHRocmVh
-ZF9kYXRhICp0ZCwgc3RydWN0IGZpb19maWxlICpmLA0KPiAgCQkJICBzdHJ1Y3QgZmlvX3pvbmVf
-aW5mbyAqeik7DQo+IA0KPiAtaW50IHpiZF9zZXR1cF9maWxlcyhzdHJ1Y3QgdGhyZWFkX2RhdGEg
-KnRkKQ0KPiAraW50IHpiZF9pbml0X2ZpbGVzKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpDQo+ICB7
-DQo+ICAJc3RydWN0IGZpb19maWxlICpmOw0KPiAgCWludCBpOw0KPiBAQCAtNjU3LDYgKzY1Nyw0
-NCBAQCBpbnQgemJkX3NldHVwX2ZpbGVzKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpDQo+ICAJCWlm
-ICh6YmRfaW5pdF96b25lX2luZm8odGQsIGYpKQ0KPiAgCQkJcmV0dXJuIDE7DQo+ICAJfQ0KPiAr
-CXJldHVybiAwOw0KPiArfQ0KPiArDQo+ICt2b2lkIHpiZF9yZWNhbGNfb3B0aW9uc193aXRoX3pv
-bmVfZ3JhbnVsYXJpdHkoc3RydWN0IHRocmVhZF9kYXRhICp0ZCkNCj4gK3sNCj4gKwlzdHJ1Y3Qg
-ZmlvX2ZpbGUgKmY7DQo+ICsJaW50IGk7DQo+ICsNCj4gKwlmb3JfZWFjaF9maWxlKHRkLCBmLCBp
-KSB7DQo+ICsJCXN0cnVjdCB6b25lZF9ibG9ja19kZXZpY2VfaW5mbyAqemJkID0gZi0+emJkX2lu
-Zm87DQo+ICsJCS8vIHpvbmVtb2RlPXN0cmlkZWQgZG9lc24ndCBnZXQgcGVyLWZpbGUgem9uZSBz
-aXplLg0KPiArCQl1aW50NjRfdCB6b25lX3NpemUgPSB6YmQgPyB6YmQtPnpvbmVfc2l6ZSA6IHRk
-LT5vLnpvbmVfc2l6ZTsNCj4gKw0KPiArCQlpZiAoem9uZV9zaXplID09IDApDQo+ICsJCQljb250
-aW51ZTsNCj4gKw0KPiArCQlpZiAodGQtPm8uc2l6ZV9ueiA+IDApIHsNCj4gKwkJCXRkLT5vLnNp
-emUgPSB0ZC0+by5zaXplX256ICogem9uZV9zaXplOw0KPiArCQl9DQo+ICsJCWlmICh0ZC0+by5p
-b19zaXplX256ID4gMCkgew0KPiArCQkJdGQtPm8uaW9fc2l6ZSA9IHRkLT5vLmlvX3NpemVfbnog
-KiB6b25lX3NpemU7DQo+ICsJCX0NCj4gKwkJaWYgKHRkLT5vLnN0YXJ0X29mZnNldF9ueiA+IDAp
-IHsNCj4gKwkJCXRkLT5vLnN0YXJ0X29mZnNldCA9IHRkLT5vLnN0YXJ0X29mZnNldF9ueiAqDQo+
-IHpvbmVfc2l6ZTsNCj4gKwkJfQ0KPiArCQlpZiAodGQtPm8ub2Zmc2V0X2luY3JlbWVudF9ueiA+
-IDApIHsNCj4gKwkJCXRkLT5vLm9mZnNldF9pbmNyZW1lbnQgPSB0ZC0NCj4gPm8ub2Zmc2V0X2lu
-Y3JlbWVudF9ueiAqIHpvbmVfc2l6ZTsNCj4gKwkJfQ0KPiArCQlpZiAodGQtPm8uem9uZV9za2lw
-X256ID4gMCkgew0KPiArCQkJdGQtPm8uem9uZV9za2lwID0gdGQtPm8uem9uZV9za2lwX256ICog
-em9uZV9zaXplOw0KPiArCQl9DQo+ICsJfQ0KPiArfQ0KPiArDQo+ICtpbnQgemJkX3NldHVwX2Zp
-bGVzKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpDQo+ICt7DQo+ICsJc3RydWN0IGZpb19maWxlICpm
-Ow0KPiArCWludCBpOw0KPiANCj4gIAlpZiAoIXpiZF91c2luZ19kaXJlY3RfaW8oKSkgew0KPiAg
-CQlsb2dfZXJyKCJVc2luZyBkaXJlY3QgSS9PIGlzIG1hbmRhdG9yeSBmb3Igd3JpdGluZyB0byBa
-QkQNCj4gZHJpdmVzXG5cbiIpOw0KPiAtLS0gYS96YmQuaA0KPiArKysgYi96YmQuaA0KPiBAQCAt
-ODcsNiArODcsOCBAQCBzdHJ1Y3Qgem9uZWRfYmxvY2tfZGV2aWNlX2luZm8gew0KPiAgCXN0cnVj
-dCBmaW9fem9uZV9pbmZvCXpvbmVfaW5mb1swXTsNCj4gIH07DQo+IA0KPiAraW50IHpiZF9pbml0
-X2ZpbGVzKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpOw0KPiArdm9pZCB6YmRfcmVjYWxjX29wdGlv
-bnNfd2l0aF96b25lX2dyYW51bGFyaXR5KHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpOw0KPiAgaW50
-IHpiZF9zZXR1cF9maWxlcyhzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkKTsNCj4gIHZvaWQgemJkX2Zy
-ZWVfem9uZV9pbmZvKHN0cnVjdCBmaW9fZmlsZSAqZik7DQo+ICB2b2lkIHpiZF9maWxlX3Jlc2V0
-KHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsIHN0cnVjdCBmaW9fZmlsZSAqZik7DQo=
+Allow users to pass some options with zone granularity which is natural
+for ZBD workloads.
+
+This is nifty for writing quick tests and when firmware guys change
+zone sizes.
+
+Converted options are
+
+	offset=
+	offset_increment=
+	size=
+	io_size=
+	zoneskip=
+
+Example:
+
+	rw=write
+	numjobs=2
+	offset=1z
+	offset_increment=10z
+	size=5z
+	io_size=6z
+
+Thread 1 will write zones 1, 2, 3, 4, 5, 1.
+Thread 2 will write zones 11, 12, 13, 14, 15, 11.
+
+Note #1:
+	zonemode=strided doesn't create ZBD zone structure but requires
+	value recalculation. This is why 2 functions are split.
+
+Note #2:
+	there is a bug with zonemode=strided + size= + zoneskip=
+	writing more I/O than necessary.
+	'z' suffix doesn't fix nor adds this bug.
+
+Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
+---
+
+	fix zoneskip=
+	write 2 tests
+
+	note: test only test option parsing,
+	I/O pattern testing is long standing issue.
+
+	patterns verified with strace(1)
+
+ filesetup.c            |   18 +++++++++++++-----
+ fio.1                  |   13 ++++++++-----
+ options.c              |   48 ++++++++++++++++++++++++++++++++++++++----------
+ parse.c                |   39 ++++++++++++++++++++++++++++++++++++++-
+ parse.h                |    9 ++++++++-
+ server.h               |    2 +-
+ t/zbd/test-zbd-support |   42 ++++++++++++++++++++++++++++++++++++++++++
+ thread_options.h       |   17 +++++++++++++----
+ zbd.c                  |   40 +++++++++++++++++++++++++++++++++++++++-
+ zbd.h                  |    2 ++
+ 10 files changed, 202 insertions(+), 28 deletions(-)
+
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -1029,6 +1029,13 @@ int setup_files(struct thread_data *td)
+ 	if (o->read_iolog_file)
+ 		goto done;
+ 
++	if (td->o.zone_mode == ZONE_MODE_ZBD) {
++		err = zbd_init_files(td);
++		if (err)
++			goto err_out;
++	}
++	zbd_recalc_options_with_zone_granularity(td);
++
+ 	/*
+ 	 * check sizes. if the files/devices do not exist and the size
+ 	 * isn't passed to fio, abort.
+@@ -1269,16 +1276,17 @@ int setup_files(struct thread_data *td)
+ 	}
+ 
+ done:
+-	if (o->create_only)
+-		td->done = 1;
+-
+-	td_restore_runstate(td, old_state);
+-
+ 	if (td->o.zone_mode == ZONE_MODE_ZBD) {
+ 		err = zbd_setup_files(td);
+ 		if (err)
+ 			goto err_out;
+ 	}
++
++	if (o->create_only)
++		td->done = 1;
++
++	td_restore_runstate(td, old_state);
++
+ 	return 0;
+ 
+ err_offset:
+--- a/fio.1
++++ b/fio.1
+@@ -348,6 +348,9 @@ us or usec means microseconds
+ .PD
+ .RE
+ .P
++`z' suffix specifies that the value is measured in zones.
++Value is recalculated once block device's zone size becomes known.
++.P
+ If the option accepts an upper and lower range, use a colon ':' or
+ minus '\-' to separate such values. See \fIirange\fR parameter type.
+ If the lower value specified happens to be larger than the upper value
+@@ -780,7 +783,7 @@ If not specified it defaults to the zone size. If the target device is a zoned
+ block device, the zone capacity is obtained from the device information and this
+ option is ignored.
+ .TP
+-.BI zoneskip \fR=\fPint
++.BI zoneskip \fR=\fPint[z]
+ For \fBzonemode\fR=strided, the number of bytes to skip after \fBzonesize\fR
+ bytes of data have been transferred.
+ 
+@@ -1030,7 +1033,7 @@ The values are all relative to each other, and no absolute meaning
+ should be associated with them.
+ .RE
+ .TP
+-.BI offset \fR=\fPint
++.BI offset \fR=\fPint[%|z]
+ Start I/O at the provided offset in the file, given as either a fixed size in
+ bytes or a percentage. If a percentage is given, the generated offset will be
+ aligned to the minimum \fBblocksize\fR or to the value of \fBoffset_align\fR if
+@@ -1045,7 +1048,7 @@ If set to non-zero value, the byte offset generated by a percentage \fBoffset\fR
+ is aligned upwards to this value. Defaults to 0 meaning that a percentage
+ offset is aligned to the minimum block size.
+ .TP
+-.BI offset_increment \fR=\fPint
++.BI offset_increment \fR=\fPint[%|z]
+ If this is provided, then the real offset becomes `\fBoffset\fR + \fBoffset_increment\fR
+ * thread_number', where the thread number is a counter that starts at 0 and
+ is incremented for each sub-job (i.e. when \fBnumjobs\fR option is
+@@ -1567,7 +1570,7 @@ Pin the specified amount of memory with \fBmlock\fR\|(2). Can be used to
+ simulate a smaller amount of memory. The amount specified is per worker.
+ .SS "I/O size"
+ .TP
+-.BI size \fR=\fPint
++.BI size \fR=\fPint[%|z]
+ The total size of file I/O for each thread of this job. Fio will run until
+ this many bytes has been transferred, unless runtime is limited by other options
+ (such as \fBruntime\fR, for instance, or increased/decreased by \fBio_size\fR).
+@@ -1582,7 +1585,7 @@ given, fio will use 20% of the full size of the given files or devices.
+ Can be combined with \fBoffset\fR to constrain the start and end range
+ that I/O will be done within.
+ .TP
+-.BI io_size \fR=\fPint "\fR,\fB io_limit" \fR=\fPint
++.BI io_size \fR=\fPint[%|z] "\fR,\fB io_limit" \fR=\fPint[%|z]
+ Normally fio operates within the region set by \fBsize\fR, which means
+ that the \fBsize\fR option sets both the region and size of I/O to be
+ performed. Sometimes that is not what you want. With this option, it is
+--- a/options.c
++++ b/options.c
+@@ -1471,8 +1471,13 @@ static int str_offset_cb(void *data, unsigned long long *__val)
+ 	if (parse_is_percent(v)) {
+ 		td->o.start_offset = 0;
+ 		td->o.start_offset_percent = -1ULL - v;
++		td->o.start_offset_nz = 0;
+ 		dprint(FD_PARSE, "SET start_offset_percent %d\n",
+ 					td->o.start_offset_percent);
++	} else if (parse_is_zone(v)) {
++		td->o.start_offset = 0;
++		td->o.start_offset_percent = 0;
++		td->o.start_offset_nz = v - ZONE_BASE_VAL;
+ 	} else
+ 		td->o.start_offset = v;
+ 
+@@ -1487,8 +1492,13 @@ static int str_offset_increment_cb(void *data, unsigned long long *__val)
+ 	if (parse_is_percent(v)) {
+ 		td->o.offset_increment = 0;
+ 		td->o.offset_increment_percent = -1ULL - v;
++		td->o.offset_increment_nz = 0;
+ 		dprint(FD_PARSE, "SET offset_increment_percent %d\n",
+ 					td->o.offset_increment_percent);
++	} else if (parse_is_zone(v)) {
++		td->o.offset_increment = 0;
++		td->o.offset_increment_percent = 0;
++		td->o.offset_increment_nz = v - ZONE_BASE_VAL;
+ 	} else
+ 		td->o.offset_increment = v;
+ 
+@@ -1505,6 +1515,10 @@ static int str_size_cb(void *data, unsigned long long *__val)
+ 		td->o.size_percent = -1ULL - v;
+ 		dprint(FD_PARSE, "SET size_percent %d\n",
+ 					td->o.size_percent);
++	} else if (parse_is_zone(v)) {
++		td->o.size = 0;
++		td->o.size_percent = 0;
++		td->o.size_nz = v - ZONE_BASE_VAL;
+ 	} else
+ 		td->o.size = v;
+ 
+@@ -1525,12 +1539,30 @@ static int str_io_size_cb(void *data, unsigned long long *__val)
+ 		}
+ 		dprint(FD_PARSE, "SET io_size_percent %d\n",
+ 					td->o.io_size_percent);
++	} else if (parse_is_zone(v)) {
++		td->o.io_size = 0;
++		td->o.io_size_percent = 0;
++		td->o.io_size_nz = v - ZONE_BASE_VAL;
+ 	} else
+ 		td->o.io_size = v;
+ 
+ 	return 0;
+ }
+ 
++static int str_zoneskip_cb(void *data, unsigned long long *__val)
++{
++	struct thread_data *td = cb_data_to_td(data);
++	unsigned long long v = *__val;
++
++	if (parse_is_zone(v)) {
++		td->o.zone_skip = 0;
++		td->o.zone_skip_nz = v - ZONE_BASE_VAL;
++	} else
++		td->o.zone_skip = v;
++
++	return 0;
++}
++
+ static int str_write_bw_log_cb(void *data, const char *str)
+ {
+ 	struct thread_data *td = cb_data_to_td(data);
+@@ -2081,11 +2113,10 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 	{
+ 		.name	= "size",
+ 		.lname	= "Size",
+-		.type	= FIO_OPT_STR_VAL,
++		.type	= FIO_OPT_STR_VAL_ZONE,
+ 		.cb	= str_size_cb,
+ 		.off1	= offsetof(struct thread_options, size),
+ 		.help	= "Total size of device or files",
+-		.interval = 1024 * 1024,
+ 		.category = FIO_OPT_C_IO,
+ 		.group	= FIO_OPT_G_INVALID,
+ 	},
+@@ -2093,11 +2124,10 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.name	= "io_size",
+ 		.alias	= "io_limit",
+ 		.lname	= "IO Size",
+-		.type	= FIO_OPT_STR_VAL,
++		.type	= FIO_OPT_STR_VAL_ZONE,
+ 		.cb	= str_io_size_cb,
+ 		.off1	= offsetof(struct thread_options, io_size),
+ 		.help	= "Total size of I/O to be performed",
+-		.interval = 1024 * 1024,
+ 		.category = FIO_OPT_C_IO,
+ 		.group	= FIO_OPT_G_INVALID,
+ 	},
+@@ -2138,12 +2168,11 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.name	= "offset",
+ 		.lname	= "IO offset",
+ 		.alias	= "fileoffset",
+-		.type	= FIO_OPT_STR_VAL,
++		.type	= FIO_OPT_STR_VAL_ZONE,
+ 		.cb	= str_offset_cb,
+ 		.off1	= offsetof(struct thread_options, start_offset),
+ 		.help	= "Start IO from this offset",
+ 		.def	= "0",
+-		.interval = 1024 * 1024,
+ 		.category = FIO_OPT_C_IO,
+ 		.group	= FIO_OPT_G_INVALID,
+ 	},
+@@ -2161,14 +2190,13 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 	{
+ 		.name	= "offset_increment",
+ 		.lname	= "IO offset increment",
+-		.type	= FIO_OPT_STR_VAL,
++		.type	= FIO_OPT_STR_VAL_ZONE,
+ 		.cb	= str_offset_increment_cb,
+ 		.off1	= offsetof(struct thread_options, offset_increment),
+ 		.help	= "What is the increment from one offset to the next",
+ 		.parent = "offset",
+ 		.hide	= 1,
+ 		.def	= "0",
+-		.interval = 1024 * 1024,
+ 		.category = FIO_OPT_C_IO,
+ 		.group	= FIO_OPT_G_INVALID,
+ 	},
+@@ -3404,11 +3432,11 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 	{
+ 		.name	= "zoneskip",
+ 		.lname	= "Zone skip",
+-		.type	= FIO_OPT_STR_VAL,
++		.type	= FIO_OPT_STR_VAL_ZONE,
++		.cb	= str_zoneskip_cb,
+ 		.off1	= offsetof(struct thread_options, zone_skip),
+ 		.help	= "Space between IO zones",
+ 		.def	= "0",
+-		.interval = 1024 * 1024,
+ 		.category = FIO_OPT_C_IO,
+ 		.group	= FIO_OPT_G_ZONE,
+ 	},
+--- a/parse.c
++++ b/parse.c
+@@ -37,6 +37,7 @@ static const char *opt_type_names[] = {
+ 	"OPT_BOOL",
+ 	"OPT_FLOAT_LIST",
+ 	"OPT_STR_SET",
++	"OPT_STR_VAL_ZONE",
+ 	"OPT_DEPRECATED",
+ 	"OPT_SOFT_DEPRECATED",
+ 	"OPT_UNSUPPORTED",
+@@ -599,7 +600,10 @@ static int __handle_option(const struct fio_option *o, const char *ptr,
+ 		fallthrough;
+ 	case FIO_OPT_ULL:
+ 	case FIO_OPT_INT:
+-	case FIO_OPT_STR_VAL: {
++	case FIO_OPT_STR_VAL:
++not_zone_granularity:;
++		{
++
+ 		fio_opt_str_val_fn *fn = o->cb;
+ 		char tmp[128], *p;
+ 
+@@ -944,6 +948,39 @@ static int __handle_option(const struct fio_option *o, const char *ptr,
+ 		}
+ 		break;
+ 	}
++	case FIO_OPT_STR_VAL_ZONE: {
++		int (*f)(void*, unsigned long long *) = o->cb;
++		char *ep;
++		unsigned long long val;
++		size_t len = strlen(ptr);
++
++		if (len == 0 || ptr[len - 1] != 'z')
++			goto not_zone_granularity;
++
++		errno = 0;
++		val = strtoul(ptr, &ep, 10);
++		if (errno == 0 && ep != ptr) {
++			switch (*ep) {
++			case 'z':
++				val = ZONE_BASE_VAL + (uint32_t)val;
++				break;
++
++			default:
++				ret = 1;
++				break;
++			}
++			val_store(ullp, val, o->off1, 0, data, o);
++			ret = 0;
++		} else {
++			ret = 1;
++		}
++		if (ret) {
++			return ret;
++		}
++
++		ret = f(data, &val);
++		break;
++	}
+ 	case FIO_OPT_DEPRECATED:
+ 		ret = 1;
+ 		fallthrough;
+--- a/parse.h
++++ b/parse.h
+@@ -21,6 +21,7 @@ enum fio_opt_type {
+ 	FIO_OPT_BOOL,
+ 	FIO_OPT_FLOAT_LIST,
+ 	FIO_OPT_STR_SET,
++	FIO_OPT_STR_VAL_ZONE,
+ 	FIO_OPT_DEPRECATED,
+ 	FIO_OPT_SOFT_DEPRECATED,
+ 	FIO_OPT_UNSUPPORTED,	/* keep this last */
+@@ -133,9 +134,15 @@ static inline int parse_is_percent(unsigned long long val)
+ 	return val <= -1ULL && val >= (-1ULL - 100ULL);
+ }
+ 
++#define ZONE_BASE_VAL ((-1ULL >> 1) + 1)
+ static inline int parse_is_percent_uncapped(unsigned long long val)
+ {
+-	return (long long)val <= -1;
++	return ZONE_BASE_VAL + -1U < val;
++}
++
++static inline int parse_is_zone(unsigned long long val)
++{
++	return (val - ZONE_BASE_VAL) <= -1U;
+ }
+ 
+ struct print_option {
+--- a/server.h
++++ b/server.h
+@@ -48,7 +48,7 @@ struct fio_net_cmd_reply {
+ };
+ 
+ enum {
+-	FIO_SERVER_VER			= 87,
++	FIO_SERVER_VER			= 88,
+ 
+ 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
+ 	FIO_SERVER_MAX_CMD_MB		= 2048,
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -1153,6 +1153,48 @@ test54() {
+ 		>> "${logfile}.${test_number}" 2>&1 || return $?
+ }
+ 
++# test 'z' suffix parsing only
++test55() {
++	require_zbd || return $SKIP_TESTCASE
++	# offset=1z + offset_increment=10z + size=2z
++	require_seq_zones 13 || return $SKIP_TESTCASE
++
++	run_fio	--name=j		\
++		--filename=${dev}	\
++		--direct=1		\
++		"$(ioengine "psync")"	\
++		--zonemode=zbd		\
++		--zonesize=${zone_size}	\
++		--rw=write		\
++		--bs=${zone_size}	\
++		--numjobs=2		\
++		--offset_increment=10z	\
++		--offset=1z		\
++		--size=2z		\
++		--io_size=3z		\
++		${job_var_opts[@]} --debug=zbd \
++		>> "${logfile}.${test_number}" 2>&1 || return $?
++}
++
++# test 'z' suffix parsing only
++test56() {
++	require_zbd || return $SKIP_TESTCASE
++	require_seq_zones 10 || return $SKIP_TESTCASE
++
++	run_fio	--name=j		\
++		--filename=${dev}	\
++		--direct=1		\
++		"$(ioengine "psync")"	\
++		--zonemode=strided	\
++		--zonesize=${zone_size}	\
++		--rw=write		\
++		--bs=${zone_size}	\
++		--size=10z		\
++		--zoneskip=2z		\
++		${job_var_opts[@]} --debug=zbd \
++		>> "${logfile}.${test_number}" 2>&1 || return $?
++}
++
+ SECONDS=0
+ tests=()
+ dynamic_analyzer=()
+--- a/thread_options.h
++++ b/thread_options.h
+@@ -83,13 +83,16 @@ struct thread_options {
+ 	unsigned long long size;
+ 	unsigned long long io_size;
+ 	unsigned int size_percent;
++	unsigned int size_nz;
+ 	unsigned int io_size_percent;
++	unsigned int io_size_nz;
+ 	unsigned int fill_device;
+ 	unsigned int file_append;
+ 	unsigned long long file_size_low;
+ 	unsigned long long file_size_high;
+ 	unsigned long long start_offset;
+ 	unsigned long long start_offset_align;
++	unsigned int start_offset_nz;
+ 
+ 	unsigned long long bs[DDIR_RWDIR_CNT];
+ 	unsigned long long ba[DDIR_RWDIR_CNT];
+@@ -198,6 +201,7 @@ struct thread_options {
+ 	unsigned long long zone_size;
+ 	unsigned long long zone_capacity;
+ 	unsigned long long zone_skip;
++	uint32_t zone_skip_nz;
+ 	enum fio_zone_mode zone_mode;
+ 	unsigned long long lockmem;
+ 	enum fio_memtype mem_type;
+@@ -315,6 +319,7 @@ struct thread_options {
+ 	unsigned int gid;
+ 
+ 	unsigned int offset_increment_percent;
++	unsigned int offset_increment_nz;
+ 	unsigned long long offset_increment;
+ 	unsigned long long number_ios;
+ 
+@@ -384,14 +389,19 @@ struct thread_options_pack {
+ 	uint64_t size;
+ 	uint64_t io_size;
+ 	uint32_t size_percent;
++	uint32_t size_nz;
+ 	uint32_t io_size_percent;
++	uint32_t io_size_nz;
+ 	uint32_t fill_device;
+ 	uint32_t file_append;
+ 	uint32_t unique_filename;
++	uint32_t pad3;
+ 	uint64_t file_size_low;
+ 	uint64_t file_size_high;
+ 	uint64_t start_offset;
+ 	uint64_t start_offset_align;
++	uint32_t start_offset_nz;
++	uint32_t pad4;
+ 
+ 	uint64_t bs[DDIR_RWDIR_CNT];
+ 	uint64_t ba[DDIR_RWDIR_CNT];
+@@ -464,8 +474,6 @@ struct thread_options_pack {
+ 	struct zone_split zone_split[DDIR_RWDIR_CNT][ZONESPLIT_MAX];
+ 	uint32_t zone_split_nr[DDIR_RWDIR_CNT];
+ 
+-	uint8_t pad1[4];
+-
+ 	fio_fp64_t zipf_theta;
+ 	fio_fp64_t pareto_h;
+ 	fio_fp64_t gauss_dev;
+@@ -501,6 +509,7 @@ struct thread_options_pack {
+ 	uint64_t zone_capacity;
+ 	uint64_t zone_skip;
+ 	uint64_t lockmem;
++	uint32_t zone_skip_nz;
+ 	uint32_t mem_type;
+ 	uint32_t mem_align;
+ 
+@@ -509,8 +518,6 @@ struct thread_options_pack {
+ 	uint32_t new_group;
+ 	uint32_t numjobs;
+ 
+-	uint8_t pad3[4];
+-
+ 	/*
+ 	 * We currently can't convert these, so don't enable them
+ 	 */
+@@ -616,12 +623,14 @@ struct thread_options_pack {
+ 	uint32_t gid;
+ 
+ 	uint32_t offset_increment_percent;
++	uint32_t offset_increment_nz;
+ 	uint64_t offset_increment;
+ 	uint64_t number_ios;
+ 
+ 	uint64_t latency_target;
+ 	uint64_t latency_window;
+ 	uint64_t max_latency;
++	uint32_t pad5;
+ 	fio_fp64_t latency_percentile;
+ 	uint32_t latency_run;
+ 
+--- a/zbd.c
++++ b/zbd.c
+@@ -648,7 +648,7 @@ static bool zbd_open_zone(struct thread_data *td, const struct fio_file *f,
+ static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
+ 			  struct fio_zone_info *z);
+ 
+-int zbd_setup_files(struct thread_data *td)
++int zbd_init_files(struct thread_data *td)
+ {
+ 	struct fio_file *f;
+ 	int i;
+@@ -657,6 +657,44 @@ int zbd_setup_files(struct thread_data *td)
+ 		if (zbd_init_zone_info(td, f))
+ 			return 1;
+ 	}
++	return 0;
++}
++
++void zbd_recalc_options_with_zone_granularity(struct thread_data *td)
++{
++	struct fio_file *f;
++	int i;
++
++	for_each_file(td, f, i) {
++		struct zoned_block_device_info *zbd = f->zbd_info;
++		// zonemode=strided doesn't get per-file zone size.
++		uint64_t zone_size = zbd ? zbd->zone_size : td->o.zone_size;
++
++		if (zone_size == 0)
++			continue;
++
++		if (td->o.size_nz > 0) {
++			td->o.size = td->o.size_nz * zone_size;
++		}
++		if (td->o.io_size_nz > 0) {
++			td->o.io_size = td->o.io_size_nz * zone_size;
++		}
++		if (td->o.start_offset_nz > 0) {
++			td->o.start_offset = td->o.start_offset_nz * zone_size;
++		}
++		if (td->o.offset_increment_nz > 0) {
++			td->o.offset_increment = td->o.offset_increment_nz * zone_size;
++		}
++		if (td->o.zone_skip_nz > 0) {
++			td->o.zone_skip = td->o.zone_skip_nz * zone_size;
++		}
++	}
++}
++
++int zbd_setup_files(struct thread_data *td)
++{
++	struct fio_file *f;
++	int i;
+ 
+ 	if (!zbd_using_direct_io()) {
+ 		log_err("Using direct I/O is mandatory for writing to ZBD drives\n\n");
+--- a/zbd.h
++++ b/zbd.h
+@@ -87,6 +87,8 @@ struct zoned_block_device_info {
+ 	struct fio_zone_info	zone_info[0];
+ };
+ 
++int zbd_init_files(struct thread_data *td);
++void zbd_recalc_options_with_zone_granularity(struct thread_data *td);
+ int zbd_setup_files(struct thread_data *td);
+ void zbd_free_zone_info(struct fio_file *f);
+ void zbd_file_reset(struct thread_data *td, struct fio_file *f);
 
