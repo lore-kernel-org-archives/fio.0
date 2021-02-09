@@ -1,45 +1,38 @@
-Return-Path: <prvs=6542a1e1f=dmitry.fomichev@wdc.com>
-From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v4 20/38] engines/libzbc: enable block backend
-Date: Wed, 27 Jan 2021 13:19:27 +0900
-Message-Id: <20210127041945.36909-21-dmitry.fomichev@wdc.com>
-In-Reply-To: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
-References: <20210127041945.36909-1-dmitry.fomichev@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39496 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230140AbhBIOUk (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 9 Feb 2021 09:20:40 -0500
+Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94DACC061788
+        for <fio@vger.kernel.org>; Tue,  9 Feb 2021 06:19:59 -0800 (PST)
+Received: by mail-lj1-x229.google.com with SMTP id e18so22433036lja.12
+        for <fio@vger.kernel.org>; Tue, 09 Feb 2021 06:19:59 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
-Cc: Damien Le Moal <damien.lemoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Aravind Ramesh <aravind.ramesh@wdc.com>, Bart Van Assche <bvanassche@acm.org>, Naohiro Aota <naohiro.aota@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
-List-ID: <fio@vger.kernel.org>
+References: <CAN3sYqWQDKDHN-=g0GmAdQsgaMJu3eP7Hdti312te4RXnWTJnQ@mail.gmail.com>
+ <CAN3sYqVUWNwS5Z9E50ckMct3eYP8wUCtfvHJLbW+Wj+Z5sSXVw@mail.gmail.com>
+In-Reply-To: <CAN3sYqVUWNwS5Z9E50ckMct3eYP8wUCtfvHJLbW+Wj+Z5sSXVw@mail.gmail.com>
+From: =?UTF-8?B?THVrw6HFoSBLdWLDrW4=?= <lukas.kubin@gmail.com>
+Date: Tue, 9 Feb 2021 15:19:22 +0100
+Message-ID: <CAN3sYqVn_sisNncYNyAzKrZfEBv8u-srh_2nFd_Ubw6R2RqQTw@mail.gmail.com>
+Subject: Latency numbers missing in client-server output
+Content-Type: text/plain; charset="UTF-8"
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-When opening a device, the current version of libzbc ioengine instructs
-libzbc to only try SCSI and ATA backends for scanning the drive. This
-prevents opening null_blk devices that fail to be accepted by the both
-above mentioned backends and require the block backend to be enabled.
+Hello,
+when running fio v3.16 in client/server mode on multiple servers in
+parallel, I am not getting the common lat+clat+slat combination of
+latency statistics in the output. Running the same job locally returns
+these numbers.
 
-Set the appropriate flag to enable the block backend in zbc_open()
-libzbc call.
+I have also tried changing output-format to json+ to see all values
+structured - that had all 0s in the respective latency sections.
 
-Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- engines/libzbc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Am I missing something or are the latency numbers not implemented in
+client/server mode in my version/package? (ubuntu 20.04)
 
-diff --git a/engines/libzbc.c b/engines/libzbc.c
-index 552aab65..2aacf7bb 100644
---- a/engines/libzbc.c
-+++ b/engines/libzbc.c
-@@ -86,7 +86,8 @@ static int libzbc_open_dev(struct thread_data *td, struct fio_file *f,
- 		return -ENOMEM;
- 
- 	ret = zbc_open(f->file_name,
--		       flags | ZBC_O_DRV_SCSI | ZBC_O_DRV_ATA, &ld->zdev);
-+		       flags | ZBC_O_DRV_BLOCK | ZBC_O_DRV_SCSI | ZBC_O_DRV_ATA,
-+		       &ld->zdev);
- 	if (ret) {
- 		log_err("%s: zbc_open() failed, err=%d\n",
- 			f->file_name, ret);
--- 
-2.28.0
+Greetings,
 
+Lukas
 
