@@ -1,38 +1,40 @@
-Return-Path: <prvs=6738cba4e=Dmitry.Fomichev@wdc.com>
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: RE: [PATCH] fio: simplify zoneskip= validness check
-Date: Mon, 15 Feb 2021 03:41:37 +0000
-Message-ID: 
- <MN2PR04MB5951B3B75CAD8BE04481D8FEE1889@MN2PR04MB5951.namprd04.prod.outlook.com>
-References: <YCl3J7vD5juMk+/h@localhost.localdomain>
-In-Reply-To: <YCl3J7vD5juMk+/h@localhost.localdomain>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <adobriyan@gmail.com>
+Return-Path: <adobriyan@gmail.com>
+Date: Sun, 14 Feb 2021 22:16:55 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: [PATCH] fio: simplify zoneskip= validness check
+Message-ID: <YCl3J7vD5juMk+/h@localhost.localdomain>
 MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>, "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+To: axboe@kernel.dk
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBBbGV4ZXkgRG9icml5YW4gPGFk
-b2JyaXlhbkBnbWFpbC5jb20+DQo+IFNlbnQ6IFN1bmRheSwgRmVicnVhcnkgMTQsIDIwMjEgMjox
-NyBQTQ0KPiBUbzogYXhib2VAa2VybmVsLmRrDQo+IENjOiBmaW9Admdlci5rZXJuZWwub3JnDQo+
-IFN1YmplY3Q6IFtQQVRDSF0gZmlvOiBzaW1wbGlmeSB6b25lc2tpcD0gdmFsaWRuZXNzIGNoZWNr
-DQoNCmZpbzogLT4gemJkOj8NCg0KPiANCj4gU2ltcGx5IGNoZWNrIHRoZSByZW1haW5kZXINCj4g
-DQo+IAkoem9uZXNraXAgJSB6b25lX3NpemUpID4gMA0KPiANCj4gSXQgd2lsbCBkbyB0aGUgcmln
-aHQgdGhpbmcgZm9yIGFsbCB6b25lc2tpcD0gdmFsdWVzLCBhbmQNCj4gem9uZXNpemUgYmVpbmcg
-cG9zaXRpdmUgaXMgY2hlY2tlZCBlYXJsaWVyLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogQWxleGV5
-IERvYnJpeWFuIChTSyBoeW5peCkgPGFkb2JyaXlhbkBnbWFpbC5jb20+DQoNCldpdGggdGhlIHNt
-YWxsIG5pdCBhYm92ZSwgbG9va3MgZ29vZC4NClJldmlld2VkLWJ5OiBEbWl0cnkgRm9taWNoZXYg
-PGRtaXRyeS5mb21pY2hldkB3ZGMuY29tPg0KDQo+IC0tLQ0KPiANCj4gIHpiZC5jIHwgICAgNCAr
-LS0tDQo+ICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDMgZGVsZXRpb25zKC0pDQo+
-IA0KPiAtLS0gYS96YmQuYw0KPiArKysgYi96YmQuYw0KPiBAQCAtMjg1LDkgKzI4NSw3IEBAIHN0
-YXRpYyBib29sIHpiZF92ZXJpZnlfc2l6ZXModm9pZCkNCj4gIAkJCQlyZXR1cm4gZmFsc2U7DQo+
-ICAJCQl9DQo+IA0KPiAtCQkJaWYgKHRkLT5vLnpvbmVfc2tpcCAmJg0KPiAtCQkJICAgICh0ZC0+
-by56b25lX3NraXAgPCB0ZC0+by56b25lX3NpemUgfHwNCj4gLQkJCSAgICAgdGQtPm8uem9uZV9z
-a2lwICUgdGQtPm8uem9uZV9zaXplKSkgew0KPiArCQkJaWYgKHRkLT5vLnpvbmVfc2tpcCAlIHRk
-LT5vLnpvbmVfc2l6ZSkgew0KPiAgCQkJCWxvZ19lcnIoIiVzOiB6b25lc2tpcCAlbGx1IGlzIG5v
-dCBhIG11bHRpcGxlIG9mDQo+IHRoZSBkZXZpY2Ugem9uZSBzaXplICVsbHUuXG4iLA0KPiAgCQkJ
-CQlmLT5maWxlX25hbWUsICh1bnNpZ25lZCBsb25nIGxvbmcpDQo+IHRkLT5vLnpvbmVfc2tpcCwN
-Cj4gIAkJCQkJKHVuc2lnbmVkIGxvbmcgbG9uZykgdGQtDQo+ID5vLnpvbmVfc2l6ZSk7DQo=
+Simply check the remainder
+
+	(zoneskip % zone_size) > 0
+
+It will do the right thing for all zoneskip= values, and
+zonesize being positive is checked earlier.
+
+Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
+---
+
+ zbd.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+--- a/zbd.c
++++ b/zbd.c
+@@ -285,9 +285,7 @@ static bool zbd_verify_sizes(void)
+ 				return false;
+ 			}
+ 
+-			if (td->o.zone_skip &&
+-			    (td->o.zone_skip < td->o.zone_size ||
+-			     td->o.zone_skip % td->o.zone_size)) {
++			if (td->o.zone_skip % td->o.zone_size) {
+ 				log_err("%s: zoneskip %llu is not a multiple of the device zone size %llu.\n",
+ 					f->file_name, (unsigned long long) td->o.zone_skip,
+ 					(unsigned long long) td->o.zone_size);
 
