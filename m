@@ -1,37 +1,37 @@
-Return-Path: <prvs=6738cba4e=Dmitry.Fomichev@wdc.com>
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: RE: [PATCH] fio: simplify parse_is_percent()
-Date: Mon, 15 Feb 2021 03:40:59 +0000
-Message-ID: 
- <MN2PR04MB5951D995704B93FC20A20EE9E1889@MN2PR04MB5951.namprd04.prod.outlook.com>
-References: <YCl2l6N+4NFMngAu@localhost.localdomain>
-In-Reply-To: <YCl2l6N+4NFMngAu@localhost.localdomain>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <adobriyan@gmail.com>
+Return-Path: <adobriyan@gmail.com>
+Date: Sun, 14 Feb 2021 22:14:31 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: [PATCH] fio: simplify parse_is_percent()
+Message-ID: <YCl2l6N+4NFMngAu@localhost.localdomain>
 MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>, "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+To: axboe@kernel.dk
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBBbGV4ZXkgRG9icml5YW4gPGFk
-b2JyaXlhbkBnbWFpbC5jb20+DQo+IFNlbnQ6IFN1bmRheSwgRmVicnVhcnkgMTQsIDIwMjEgMjox
-NSBQTQ0KPiBUbzogYXhib2VAa2VybmVsLmRrDQo+IENjOiBmaW9Admdlci5rZXJuZWwub3JnDQo+
-IFN1YmplY3Q6IFtQQVRDSF0gZmlvOiBzaW1wbGlmeSBwYXJzZV9pc19wZXJjZW50KCkNCg0KZmlv
-OiAtPiBwYXJzZTo/DQoNCj4gDQo+IENoZWNrIGxpa2UgdGhpcw0KPiANCj4gCXVuc2lnbmVkIGxv
-bmcgbG9uZyB2YWwgPD0gLTFVTEwNCj4gDQo+IGlzIHRhdXRvbG9naWNhbGx5IHRydWUgYmVjYXVz
-ZSBvZiBob3cgdHlwZSBjb252ZXJzaW9ucyB3b3JrLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogQWxl
-eGV5IERvYnJpeWFuIDxhZG9icml5YW5AZ21haWwuY29tPg0KPiAtLS0NCj4gDQo+ICBwYXJzZS5o
-IHwgICAgMiArLQ0KPiAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRlbGV0aW9u
-KC0pDQo+IA0KPiAtLS0gYS9wYXJzZS5oDQo+ICsrKyBiL3BhcnNlLmgNCj4gQEAgLTEzMSw3ICsx
-MzEsNyBAQCBzdGF0aWMgaW5saW5lIHZvaWQgKnRkX3Zhcih2b2lkICp0bywgY29uc3Qgc3RydWN0
-DQo+IGZpb19vcHRpb24gKm8sDQo+IA0KPiAgc3RhdGljIGlubGluZSBpbnQgcGFyc2VfaXNfcGVy
-Y2VudCh1bnNpZ25lZCBsb25nIGxvbmcgdmFsKQ0KPiAgew0KPiAtCXJldHVybiB2YWwgPD0gLTFV
-TEwgJiYgdmFsID49ICgtMVVMTCAtIDEwMFVMTCk7DQo+ICsJcmV0dXJuIHZhbCA+PSAtMTAxOw0K
-DQpOaWNlIGNsZWFudXAsIGJ1dCB3b3VsZG4ndCB0aGF0IGJlIGJldHRlciB0byBrZWVwIHRoZSBV
-TEwgc3VmZml4DQpmb3IgdGhlIHNha2Ugb2YgY2xhcml0eT8NCg0KPiAgfQ0KPiANCj4gICNkZWZp
-bmUgWk9ORV9CQVNFX1ZBTCAoKC0xVUxMID4+IDEpICsgMSkNCg0KVGhpcyBwYXRjaCBpcyBiYXNl
-ZCBvbiB5b3VyIGVhcmxpZXIgcGF0Y2gNCiJ6YmQ6IHN1cHBvcnQgJ3onIHN1ZmZpeCBmb3Igem9u
-ZSBncmFudWxhcml0eSIgdGhhdCBpcyBzdGlsbCBpbiByZXZpZXcsDQp3aHkgbm90IHRvIGNvbWJp
-bmUgdGhlc2UgdHdvIGluIGEgc2VyaWVzPw0KDQo=
+Check like this
+
+	unsigned long long val <= -1ULL
+
+is tautologically true because of how type conversions work.
+
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
+
+ parse.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/parse.h
++++ b/parse.h
+@@ -131,7 +131,7 @@ static inline void *td_var(void *to, const struct fio_option *o,
+ 
+ static inline int parse_is_percent(unsigned long long val)
+ {
+-	return val <= -1ULL && val >= (-1ULL - 100ULL);
++	return val >= -101;
+ }
+ 
+ #define ZONE_BASE_VAL ((-1ULL >> 1) + 1)
 
