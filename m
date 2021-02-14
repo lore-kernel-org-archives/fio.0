@@ -1,62 +1,42 @@
-Return-Path: <frank.ober@intel.com>
-From: "Ober, Frank" <frank.ober@intel.com>
-Subject: RE: io_uring on CentOS8?
-Date: Tue, 16 Feb 2021 19:00:12 +0000
-Message-ID: <CO1PR11MB48044A2F300CE9B9FCE08D0B8B879@CO1PR11MB4804.namprd11.prod.outlook.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: io_uring on CentOS8?
 References: <6d57985d-b784-f9a5-68d0-3a0c3857b4a4@menzel-it.net>
- <99539c2d-15e0-db7c-d7bc-e1624bd1e43f@kernel.dk>
-In-Reply-To: <99539c2d-15e0-db7c-d7bc-e1624bd1e43f@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <99539c2d-15e0-db7c-d7bc-e1624bd1e43f@kernel.dk>
+Date: Sun, 14 Feb 2021 09:49:59 -0700
 MIME-Version: 1.0
-Return-Path: frank.ober@intel.com
-To: Jens Axboe <axboe@kernel.dk>, Daniel Menzel <daniel.menzel@menzel-it.net>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+In-Reply-To: <6d57985d-b784-f9a5-68d0-3a0c3857b4a4@menzel-it.net>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+To: Daniel Menzel <daniel.menzel@menzel-it.net>, fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-SGkgRGFuaWVsLCBJbnRlbCB1c2VzIHB2c3luYzIgZm9yIFFEMSB0ZXN0aW5nIHNvIGlmIHlvdSBj
-YW5ub3QgdXNlIHNwZGsgb3IgaW9fdXJpbmcgKHRoZXNlIGFyZSB0aGUgZmFzdGVzdCB3YXlzIHRv
-IHRlc3QgYSBkZXZpY2UpLCB5b3UgY2FuIHN3aXRjaCB5b3VyIGVuZ2luZSB0byBwdnN5bmMyIG9u
-IHRoaXMga2VybmVsIGFuZCB0aGlzIHdpbGwgd29yay4gDQoNCkhlcmUncyB3aGF0IEkgdHJpZWQg
-b24gUENJZSBHZW4zIHN5c3RlbSB3aXRoIGFuIE9wdGFuZSBkcml2ZSBhbmQgeW91ciBkcml2ZS4N
-Cg0KDQpbcm9vdEBmbTQyYWRzZGVtbzAwMSBibG9ja10jIGZpbyAtLWJzPTFNIC0tcnc9cmFuZHdy
-aXRlIC0tbnVtam9icz0xIC0taW9kZXB0aD0xICAtLXNpemU9MTAwMDBNIFwNCj4gLS1maWxlbmFt
-ZT0vZGV2L252bWU2bjEgLS1uYW1lPW15bGl0dGxldGVzdCAtLWRpcmVjdD0xIC0tZnN5bmM9MSBc
-DQo+IC0tcmVmaWxsX2J1ZmZlcnMgLS1pb2VuZ2luZT1wdnN5bmMyIC0tZ3JvdXBfcmVwb3J0aW5n
-IFwNCj4gLS1mYWxsb2NhdGU9bm9uZSAtLXJ1bnRpbWU9NjAgLS10aW1lX2Jhc2VkIC0taGlwcmkN
-Cm15bGl0dGxldGVzdDogKGc9MCk6IHJ3PXJhbmR3cml0ZSwgYnM9KFIpIDEwMjRLaUItMTAyNEtp
-QiwgKFcpIDEwMjRLaUItMTAyNEtpQiwgKFQpIDEwMjRLaUItMTAyNEtpQiwgaW9lbmdpbmU9cHZz
-eW5jMiwgaW9kZXB0aD0xDQpmaW8tMy4yNC01LWcyZWUyDQpTdGFydGluZyAxIHByb2Nlc3MNCkpv
-YnM6IDEgKGY9MSk6IFt3KDEpXVsxMDAuMCVdW3c9MjA0OE1pQi9zXVt3PTIwNDggSU9QU11bZXRh
-IDAwbTowMHNdDQoNCkkgcmFuIHRoZSBzYW1lIGV4YWN0IGpvYiBvbiB0aGlzIG1pZC1yYW5nZSBJ
-bnRlbCBYZW9uIGNwdSBhbmQgZm91bmQgaW9fdXJpbmcgb25seSB2ZXJ5IHNsaWdodGx5IGZhc3Rl
-ciB0aGFuIHB2c3luYzINCkpvYnM6IDEgKGY9MSk6IFt3KDEpXVsxMDAuMCVdW3c9MjA1N01pQi9z
-XVt3PTIwNTcgSU9QU11bZXRhIDAwbTowMHNdDQoNCkhUSCwNCkZyYW5rIE9iZXINCg0KDQotLS0t
-LU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogSmVucyBBeGJvZSA8YXhib2VAa2VybmVsLmRr
-PiANClNlbnQ6IFN1bmRheSwgRmVicnVhcnkgMTQsIDIwMjEgODo1MCBBTQ0KVG86IERhbmllbCBN
-ZW56ZWwgPGRhbmllbC5tZW56ZWxAbWVuemVsLWl0Lm5ldD47IGZpb0B2Z2VyLmtlcm5lbC5vcmcN
-ClN1YmplY3Q6IFJlOiBpb191cmluZyBvbiBDZW50T1M4Pw0KDQpPbiAyLzE0LzIxIDg6MTcgQU0s
-IERhbmllbCBNZW56ZWwgd3JvdGU6DQo+IC9Tb21laG93IGl0IHNlZW1zIGFzIGlmIEknbSByZWNl
-aXZpbmcgbWVzc2FnZXMgZnJvbSB0aGUgbWFpbGluZyBsaXN0IC0gDQo+IGJ1dCBtaW5lIGRvIG5v
-dCBzZWVtIHRvIGdldCB0aHJvdWdoLiBTbyBJJ20gdHJ5aW5nIGFnYWluLi8NCj4gDQo+IEhpLA0K
-PiANCj4gY3VycmVudGx5IEkgc3RhcnRlZCB0ZXN0aW5nIGZhaXJseSBmYXN0IE5WTWUtZHJpdmVz
-IGFuZCBJIGZvciB0aGUgZmlyc3QgdGltZSBJIGRlYWx0IHdpdGggdGhlIHF1ZXN0aW9uIHdoZXRo
-ZXIgdGhlIGlvIGVuZ2luZSBpcyBzdWZmaWNpZW50ICh1cCB0aWxsIG5vdyBJIGp1c3QgdGhlIGRl
-ZmF1bHQgL2xpYmFpby8pLiBJIGZvdW5kIHNvbWUgaW5mb3JtYXRpb24gb24gaW9fdXJpbmcgb25s
-aW5lIGFuZCBub3cgdHJpZWQgdG8gc3dpdGNoIHRvIHRoYXQgZW5naW5lOg0KPiANCj4gZmlvIC0t
-YnM9MU0gLS1ydz1yYW5kd3JpdGUgLS1udW1qb2JzPTEgLS1pb2RlcHRoPTHCoCAtLXNpemU9MTAw
-MDBNIA0KPiAtLWZpbGVuYW1lPS9kZXYvbnZtZTBuMSAtLW5hbWU9bXlsaXR0bGV0ZXN0IC0tZGly
-ZWN0PTEgLS1mc3luYz0xwqAgDQo+IC0tcmVmaWxsX2J1ZmZlcnMgLS1pb2VuZ2luZT1pb191cmlu
-ZyAtLWdyb3VwX3JlcG9ydGluZyANCj4gLS1mYWxsb2NhdGU9bm9uZSAtLXJ1bnRpbWU9NjAgLS10
-aW1lX2Jhc2VkIC0taGlwcmkNCj4gDQo+IEJ1dCBpdCBjcmFzaGVzIHdpdGggdGhlIGZvbGxvd2lu
-ZyBpbmZvcm1hdGlvbjogZmlvOiBwaWQ9MjQ5MCwgDQo+IGVycj0zOC9maWxlOmVuZ2luZXMvaW9f
-dXJpbmcuYzo2OTksIGZ1bmM9aW9fcXVldWVfaW5pdCwgZXJyb3I9RnVuY3Rpb24gDQo+IG5vdCBp
-bXBsZW1lbnRlZA0KPiANCj4gTXkgc3lzdGVtOg0KPiANCj4gIDEuIGZpby0zLjI1DQo+ICAyLiBD
-ZW50T1M4IChLZXJuZWwgNC4xOC4wLTI0MC4xLjEuZWw4XzMueDg2XzY0KSAgMy4gSSBoYXZlIGlu
-c3RhbGxlZCANCj4gdGhlIHBhY2tlcyBsaWJ1cmluZyBhbmQgbGlidXJpbmctZGV2ZWwNCj4gDQo+
-IEFtIEkgZG9pbmcgc29tZXRoaW5nIHdyb25nPw0KDQpZb3UgYXJlIG5vdCwgYnV0IHNpbmNlIHlv
-dSBnZXQgLUVOT1NZUyBmcm9tIHRoZSBzeXN0ZW0gY2FsbCwgdGhhdCBtZWFucyB0aGF0IHRoZSBr
-ZXJuZWwgZG9lc24ndCBzdXBwb3J0IGlvX3VyaW5nLiBJdCB3YXMgb2ZmaWNpYWxseSBhZGRlZCB3
-aXRoIHRoZSA1LjEga2VybmVsLCBzbyA0LjE4IHByZWRhdGVzIHRoYXQuDQoNCg0KLS0NCkplbnMg
-QXhib2UNCg0K
+On 2/14/21 8:17 AM, Daniel Menzel wrote:
+> /Somehow it seems as if I'm receiving messages from the mailing list - but mine do not seem to get through. So I'm trying again./
+> 
+> Hi,
+> 
+> currently I started testing fairly fast NVMe-drives and I for the first time I dealt with the question whether the io engine is sufficient (up till now I just the default /libaio/). I found some information on io_uring online and now tried to switch to that engine:
+> 
+> fio --bs=1M --rw=randwrite --numjobs=1 --iodepth=1  --size=10000M --filename=/dev/nvme0n1 --name=mylittletest --direct=1 --fsync=1  --refill_buffers --ioengine=io_uring --group_reporting --fallocate=none --runtime=60 --time_based --hipri
+> 
+> But it crashes with the following information: fio: pid=2490, err=38/file:engines/io_uring.c:699, func=io_queue_init, error=Function not implemented
+> 
+> My system:
+> 
+>  1. fio-3.25
+>  2. CentOS8 (Kernel 4.18.0-240.1.1.el8_3.x86_64)
+>  3. I have installed the packes liburing and liburing-devel
+> 
+> Am I doing something wrong?
+
+You are not, but since you get -ENOSYS from the system call, that means that
+the kernel doesn't support io_uring. It was officially added with the 5.1
+kernel, so 4.18 predates that.
+
+
+-- 
+Jens Axboe
+
 
