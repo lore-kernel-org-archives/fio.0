@@ -1,57 +1,50 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48446 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230064AbhBULKY (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 21 Feb 2021 06:10:24 -0500
-Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E70F3C061786
-        for <fio@vger.kernel.org>; Sun, 21 Feb 2021 03:09:41 -0800 (PST)
-Received: by mail-io1-xd31.google.com with SMTP id y202so10324897iof.1
-        for <fio@vger.kernel.org>; Sun, 21 Feb 2021 03:09:41 -0800 (PST)
+        with ESMTP id S230257AbhBON1f (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 15 Feb 2021 08:27:35 -0500
+Received: from mail-il1-x12b.google.com (mail-il1-x12b.google.com [IPv6:2607:f8b0:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC5EAC061756
+        for <fio@vger.kernel.org>; Mon, 15 Feb 2021 05:26:53 -0800 (PST)
+Received: by mail-il1-x12b.google.com with SMTP id a16so5457716ilq.5
+        for <fio@vger.kernel.org>; Mon, 15 Feb 2021 05:26:53 -0800 (PST)
 MIME-Version: 1.0
-From: Hongwei Qin <glqinhongwei@gmail.com>
-Date: Sun, 21 Feb 2021 19:09:28 +0800
-Message-ID: <CAKvRR0TG4L3NqNiOMyh2zb0tA7vfuc_L8kU5ropGrY3fJm5GAg@mail.gmail.com>
-Subject: [Question] A question about t/io_uring.c
+References: <CAA4OwwVJuUWCkA_ZRJC+izsqx-4Mv2BG+vvR=JCv2A7kOr343Q@mail.gmail.com>
+ <CALjAwxg-NDqixYgxEPVDFf8_CTWpO5UEQhM9byPZwicazGoAzw@mail.gmail.com>
+In-Reply-To: <CALjAwxg-NDqixYgxEPVDFf8_CTWpO5UEQhM9byPZwicazGoAzw@mail.gmail.com>
+From: Robert Balogh <ethrbh@gmail.com>
+Date: Mon, 15 Feb 2021 14:26:42 +0100
+Message-ID: <CAA4OwwWpmqdA7qzNqR0Us6mDucV0r62Abig4=bX9rpmfemnhyQ@mail.gmail.com>
+Subject: Re: how to put FIO stat into file and check that periodically while
+ FIO is running
 Content-Type: text/plain; charset="UTF-8"
 List-Id: fio@vger.kernel.org
-To: fio <fio@vger.kernel.org>
+To: Sitsofe Wheeler <sitsofe@gmail.com>
+Cc: fio <fio@vger.kernel.org>
 
-Hi,
+hello Sitsofe,
 
-I found two implementation details in t/io_uring.c quite interesting.
-Both are in the prep_more_ios() function.
+Thanks, I'll check it out.
 
-1.
-reading the sq ring head is not protected using something like
-READ_ONCE() or smp_read_acquire().
-According to https://www.kernel.org/doc/Documentation/memory-barriers.txt
-```
-It _must_not_ be assumed that the compiler will do what you want
-with memory references that are not protected by READ_ONCE() and
-WRITE_ONCE().  Without them, the compiler is within its rights to
-do all sorts of "creative" transformations, which are covered in
-the COMPILER BARRIER section.
-```
+br,
+/Robi
 
-Is it possible that the modifications to the sqe using init_io() get
-reordered prior to reading the sq ring head?
-
-2.
-Writing to the sq ring tail is not protected using something like
-smp_store_release.
-Even according to the article "Efficient IO with io_uring", adding an
-sqe should be like:
-```
-write_barrier();
-sqring->tail = tail;
-write_barrier();
-```
-However, the first write barrier is missing in the t/io_uring.c
-Is it possible that the memory stores get reordered?
-
-Can anyone provide some insights on this? Thank you!
-
-Best,
-Hongwei
+On Thu, Feb 11, 2021 at 10:52 PM Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+>
+> Hi,
+>
+> On Wed, 10 Feb 2021 at 13:26, Robert Balogh <ethrbh@gmail.com> wrote:
+> >
+> > What I would like to do is now, to start FIO, keep running it, and
+> > "instruct/ask" FIO for putting the measurement statistic at every X
+> > sec into the given stat file. Is it possible to do?
+>
+> The information in https://www.spinics.net/lists/fio/msg09025.html
+> ("Re: Getting eta-status-line to the output file?") may be what you're
+> looking for. If you are just after a specific stat the write_*_log
+> options - https://fio.readthedocs.io/en/latest/fio_doc.html#measurements-and-reporting
+> may be more useful to you.
+>
+> --
+> Sitsofe
 
