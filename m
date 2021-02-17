@@ -1,120 +1,67 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx07-001d1705.pphosted.com ([185.132.183.11]:1174 "EHLO
-        mx07-001d1705.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229498AbhBZIKo (ORCPT
-        <rfc822;fio@vger.kernel.org>); Fri, 26 Feb 2021 03:10:44 -0500
-From: <Friendy.Su@sony.com>
-Subject: [PATCH v2 1/1] engines: add engine for file delete
-Date: Fri, 26 Feb 2021 08:09:43 +0000
-Message-ID: <HK0PR04MB23884D6B1DE2EC4695B6D1F4FD9D9@HK0PR04MB2388.apcprd04.prod.outlook.com>
-Content-Language: zh-CN
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <daniel.menzel@menzel-it.net>
+Subject: Re: io_uring on CentOS8?
+References: <6d57985d-b784-f9a5-68d0-3a0c3857b4a4@menzel-it.net>
+ <99539c2d-15e0-db7c-d7bc-e1624bd1e43f@kernel.dk>
+ <CO1PR11MB48044A2F300CE9B9FCE08D0B8B879@CO1PR11MB4804.namprd11.prod.outlook.com>
+ <c115f8ee-a466-8225-99e9-765384bb2ba2@kernel.dk>
+From: Daniel Menzel <daniel.menzel@menzel-it.net>
+Message-ID: <0fa8b1c4-ccdf-7f75-7962-c97e55153707@menzel-it.net>
+Date: Wed, 17 Feb 2021 09:42:40 +0100
 MIME-Version: 1.0
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: sitsofe@gmail.com, Kento.A.Kobayashi@sony.com, Wataru.Aoyama@sony.com
+In-Reply-To: <c115f8ee-a466-8225-99e9-765384bb2ba2@kernel.dk>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+To: Jens Axboe <axboe@kernel.dk>, "Ober, Frank" <frank.ober@intel.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+List-ID: <fio@vger.kernel.org>
 
-VGhpcyBlbmdpbmUgaXMgdG8gbWVhc3VyZSBwZXJmb3JtYW5jZSBvZiBkZWxldGluZyBmaWxlcy4N
-Cg0KSW4gcHJhY3RpY2UsIGl0IGlzIGFuIGltcG9ydGFudCBiZW5jaG1hcmsgZm9yIGEgZmlsZSBz
-eXN0ZW0gdGhhdA0KaG93IHF1aWNrIGl0IGNhbiByZWxlYXNlIHRoZSBkaXNrIHNwYWNlIG9mIGRl
-bGV0ZWQgZmlsZXMuDQoNClNpZ25lZC1vZmYtYnk6IGZyaWVuZHktc3UgPGZyaWVuZHkuc3VAc29u
-eS5jb20+DQotLS0NCiBIT1dUTyAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgNSArKw0K
-IE1ha2VmaWxlICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAyICstDQogZW5naW5lcy9maWxl
-ZGVsZXRlLmMgICAgICAgICAgICAgfCAxMTUgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-Kw0KIGV4YW1wbGVzL2ZpbGVkZWxldGUtaW9lbmdpbmUuZmlvIHwgIDE5ICsrKysrDQogZmlvLjEg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDUgKysNCiA1IGZpbGVzIGNoYW5nZWQsIDE0
-NSBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pDQogY3JlYXRlIG1vZGUgMTAwNjQ0IGVuZ2lu
-ZXMvZmlsZWRlbGV0ZS5jDQogY3JlYXRlIG1vZGUgMTAwNjQ0IGV4YW1wbGVzL2ZpbGVkZWxldGUt
-aW9lbmdpbmUuZmlvDQoNCmRpZmYgLS1naXQgYS9IT1dUTyBiL0hPV1RPDQppbmRleCA1MjgxMmNj
-Ny4uYmFmZTEyYmUgMTAwNjQ0DQotLS0gYS9IT1dUTw0KKysrIGIvSE9XVE8NCkBAIC0yMDM1LDYg
-KzIwMzUsMTEgQEAgSS9PIGVuZ2luZQ0KIAkJCWFuZCAnbnJmaWxlcycsIHNvIHRoYXQgZmlsZXMg
-d2lsbCBiZSBjcmVhdGVkLg0KIAkJCVRoaXMgZW5naW5lIGlzIHRvIG1lYXN1cmUgZmlsZSBsb29r
-dXAgYW5kIG1ldGEgZGF0YSBhY2Nlc3MuDQogDQorCQkqKmZpbGVkZWxldGUqKg0KKwkJCVNpbXBs
-eSBkZWxldGUgdGhlIGZpbGVzIGJ5IHVubGluaygpIGFuZCBkbyBubyBJL08gdG8gdGhlbS4gWW91
-IG5lZWQgdG8gc2V0ICdmaWxlc2l6ZScNCisJCQlhbmQgJ25yZmlsZXMnLCBzbyB0aGF0IHRoZSBm
-aWxlcyB3aWxsIGJlIGNyZWF0ZWQuDQorCQkJVGhpcyBlbmdpbmUgaXMgdG8gbWVhc3VyZSBmaWxl
-IGRlbGV0ZS4NCisNCiAJCSoqbGlicG1lbSoqDQogCQkJUmVhZCBhbmQgd3JpdGUgdXNpbmcgbW1h
-cCBJL08gdG8gYSBmaWxlIG9uIGEgZmlsZXN5c3RlbQ0KIAkJCW1vdW50ZWQgd2l0aCBEQVggb24g
-YSBwZXJzaXN0ZW50IG1lbW9yeSBkZXZpY2UgdGhyb3VnaCB0aGUgUE1ESw0KZGlmZiAtLWdpdCBh
-L01ha2VmaWxlIGIvTWFrZWZpbGUNCmluZGV4IDYxMjM0NGQxLi4xMWZmYTA4OSAxMDA2NDQNCi0t
-LSBhL01ha2VmaWxlDQorKysgYi9NYWtlZmlsZQ0KQEAgLTUxLDcgKzUxLDcgQEAgU09VUkNFIDo9
-CSQoc29ydCAkKHBhdHN1YnN0ICQoU1JDRElSKS8lLCUsJCh3aWxkY2FyZCAkKFNSQ0RJUikvY3Jj
-LyouYykpIFwNCiAJCXBzaGFyZWQuYyBvcHRpb25zLmMgXA0KIAkJc21hbGxvYy5jIGZpbGVoYXNo
-LmMgcHJvZmlsZS5jIGRlYnVnLmMgZW5naW5lcy9jcHUuYyBcDQogCQllbmdpbmVzL21tYXAuYyBl
-bmdpbmVzL3N5bmMuYyBlbmdpbmVzL251bGwuYyBlbmdpbmVzL25ldC5jIFwNCi0JCWVuZ2luZXMv
-ZnRydW5jYXRlLmMgZW5naW5lcy9maWxlY3JlYXRlLmMgZW5naW5lcy9maWxlc3RhdC5jIFwNCisJ
-CWVuZ2luZXMvZnRydW5jYXRlLmMgZW5naW5lcy9maWxlY3JlYXRlLmMgZW5naW5lcy9maWxlc3Rh
-dC5jIGVuZ2luZXMvZmlsZWRlbGV0ZS5jIFwNCiAJCXNlcnZlci5jIGNsaWVudC5jIGlvbG9nLmMg
-YmFja2VuZC5jIGxpYmZpby5jIGZsb3cuYyBjY29udi5jIFwNCiAJCWdldHRpbWUtdGhyZWFkLmMg
-aGVscGVycy5jIGpzb24uYyBpZGxldGltZS5jIHRkX2Vycm9yLmMgXA0KIAkJcHJvZmlsZXMvdGlv
-YmVuY2guYyBwcm9maWxlcy9hY3QuYyBpb191X3F1ZXVlLmMgZmlsZWxvY2suYyBcDQpkaWZmIC0t
-Z2l0IGEvZW5naW5lcy9maWxlZGVsZXRlLmMgYi9lbmdpbmVzL2ZpbGVkZWxldGUuYw0KbmV3IGZp
-bGUgbW9kZSAxMDA2NDQNCmluZGV4IDAwMDAwMDAwLi5lNmNiYmJiNw0KLS0tIC9kZXYvbnVsbA0K
-KysrIGIvZW5naW5lcy9maWxlZGVsZXRlLmMNCkBAIC0wLDAgKzEsMTE1IEBADQorLyoNCisgKiBm
-aWxlIGRlbGV0ZSBlbmdpbmUNCisgKg0KKyAqIElPIGVuZ2luZSB0aGF0IGRvZXNuJ3QgZG8gYW55
-IElPLCBqdXN0IGRlbGV0ZSBmaWxlcyBhbmQgdHJhY2tzIHRoZSBsYXRlbmN5DQorICogb2YgdGhl
-IGZpbGUgZGVsZXRpb24uDQorICovDQorI2luY2x1ZGUgPHN0ZGlvLmg+DQorI2luY2x1ZGUgPGZj
-bnRsLmg+DQorI2luY2x1ZGUgPGVycm5vLmg+DQorI2luY2x1ZGUgPHN5cy90eXBlcy5oPg0KKyNp
-bmNsdWRlIDx1bmlzdGQuaD4NCisjaW5jbHVkZSAiLi4vZmlvLmgiDQorDQorc3RydWN0IGZjX2Rh
-dGEgew0KKwllbnVtIGZpb19kZGlyIHN0YXRfZGRpcjsNCit9Ow0KKw0KK3N0YXRpYyBpbnQgZGVs
-ZXRlX2ZpbGUoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGZpb19maWxlICpmKQ0KK3sN
-CisJc3RydWN0IHRpbWVzcGVjIHN0YXJ0Ow0KKwlpbnQgZG9fbGF0ID0gIXRkLT5vLmRpc2FibGVf
-bGF0Ow0KKwlpbnQgcmV0Ow0KKw0KKwlkcHJpbnQoRkRfRklMRSwgImZkIGRlbGV0ZSAlc1xuIiwg
-Zi0+ZmlsZV9uYW1lKTsNCisNCisJaWYgKGYtPmZpbGV0eXBlICE9IEZJT19UWVBFX0ZJTEUpIHsN
-CisJCWxvZ19lcnIoImZpbzogb25seSBmaWxlcyBhcmUgc3VwcG9ydGVkXG4iKTsNCisJCXJldHVy
-biAxOw0KKwl9DQorCWlmICghc3RyY21wKGYtPmZpbGVfbmFtZSwgIi0iKSkgew0KKwkJbG9nX2Vy
-cigiZmlvOiBjYW4ndCByZWFkL3dyaXRlIHRvIHN0ZGluL291dFxuIik7DQorCQlyZXR1cm4gMTsN
-CisJfQ0KKw0KKwlpZiAoZG9fbGF0KQ0KKwkJZmlvX2dldHRpbWUoJnN0YXJ0LCBOVUxMKTsNCisN
-CisJcmV0ID0gdW5saW5rKGYtPmZpbGVfbmFtZSk7DQorDQorCWlmIChyZXQgPT0gLTEpIHsNCisJ
-CWNoYXIgYnVmW0ZJT19WRVJST1JfU0laRV07DQorCQlpbnQgZSA9IGVycm5vOw0KKw0KKwkJc25w
-cmludGYoYnVmLCBzaXplb2YoYnVmKSwgImRlbGV0ZSglcykiLCBmLT5maWxlX25hbWUpOw0KKwkJ
-dGRfdmVycm9yKHRkLCBlLCBidWYpOw0KKwkJcmV0dXJuIDE7DQorCX0NCisNCisJaWYgKGRvX2xh
-dCkgew0KKwkJc3RydWN0IGZjX2RhdGEgKmRhdGEgPSB0ZC0+aW9fb3BzX2RhdGE7DQorCQl1aW50
-NjRfdCBuc2VjOw0KKw0KKwkJbnNlYyA9IG50aW1lX3NpbmNlX25vdygmc3RhcnQpOw0KKwkJYWRk
-X2NsYXRfc2FtcGxlKHRkLCBkYXRhLT5zdGF0X2RkaXIsIG5zZWMsIDAsIDAsIDApOw0KKwl9DQor
-DQorCXJldHVybiAwOw0KK30NCisNCisNCitzdGF0aWMgZW51bSBmaW9fcV9zdGF0dXMgcXVldWVf
-aW8oc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGlvX3UgZmlvX3VudXNlZCAqaW9fdSkN
-Cit7DQorCXJldHVybiBGSU9fUV9DT01QTEVURUQ7DQorfQ0KKw0KK3N0YXRpYyBpbnQgaW5pdChz
-dHJ1Y3QgdGhyZWFkX2RhdGEgKnRkKQ0KK3sNCisJc3RydWN0IGZjX2RhdGEgKmRhdGE7DQorDQor
-CWRhdGEgPSBjYWxsb2MoMSwgc2l6ZW9mKCpkYXRhKSk7DQorDQorCWlmICh0ZF9yZWFkKHRkKSkN
-CisJCWRhdGEtPnN0YXRfZGRpciA9IERESVJfUkVBRDsNCisJZWxzZSBpZiAodGRfd3JpdGUodGQp
-KQ0KKwkJZGF0YS0+c3RhdF9kZGlyID0gRERJUl9XUklURTsNCisNCisJdGQtPmlvX29wc19kYXRh
-ID0gZGF0YTsNCisJcmV0dXJuIDA7DQorfQ0KKw0KK3N0YXRpYyBpbnQgZGVsZXRlX2ludmFsaWRh
-dGUoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGZpb19maWxlICpmKQ0KK3sNCisgICAg
-LyogZG8gbm90aGluZyBiZWNhdXNlIGZpbGUgbm90IG9wZW5lZCAqLw0KKyAgICByZXR1cm4gMDsN
-Cit9DQorDQorc3RhdGljIHZvaWQgY2xlYW51cChzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkKQ0KK3sN
-CisJc3RydWN0IGZjX2RhdGEgKmRhdGEgPSB0ZC0+aW9fb3BzX2RhdGE7DQorDQorCWZyZWUoZGF0
-YSk7DQorfQ0KKw0KK3N0YXRpYyBzdHJ1Y3QgaW9lbmdpbmVfb3BzIGlvZW5naW5lID0gew0KKwku
-bmFtZQkJPSAiZmlsZWRlbGV0ZSIsDQorCS52ZXJzaW9uCT0gRklPX0lPT1BTX1ZFUlNJT04sDQor
-CS5pbml0CQk9IGluaXQsDQorCS5pbnZhbGlkYXRlCT0gZGVsZXRlX2ludmFsaWRhdGUsDQorCS5j
-bGVhbnVwCT0gY2xlYW51cCwNCisJLnF1ZXVlCQk9IHF1ZXVlX2lvLA0KKwkuZ2V0X2ZpbGVfc2l6
-ZQk9IGdlbmVyaWNfZ2V0X2ZpbGVfc2l6ZSwNCisJLm9wZW5fZmlsZQk9IGRlbGV0ZV9maWxlLA0K
-KwkuZmxhZ3MJCT0gIEZJT19TWU5DSU8gfCBGSU9fRkFLRUlPIHwNCisJCQkJRklPX05PU1RBVFMg
-fCBGSU9fTk9GSUxFSEFTSCwNCit9Ow0KKw0KK3N0YXRpYyB2b2lkIGZpb19pbml0IGZpb19maWxl
-Y3JlYXRlX3JlZ2lzdGVyKHZvaWQpDQorew0KKwlyZWdpc3Rlcl9pb2VuZ2luZSgmaW9lbmdpbmUp
-Ow0KK30NCisNCitzdGF0aWMgdm9pZCBmaW9fZXhpdCBmaW9fZmlsZWNyZWF0ZV91bnJlZ2lzdGVy
-KHZvaWQpDQorew0KKwl1bnJlZ2lzdGVyX2lvZW5naW5lKCZpb2VuZ2luZSk7DQorfQ0KZGlmZiAt
-LWdpdCBhL2V4YW1wbGVzL2ZpbGVkZWxldGUtaW9lbmdpbmUuZmlvIGIvZXhhbXBsZXMvZmlsZWRl
-bGV0ZS1pb2VuZ2luZS5maW8NCm5ldyBmaWxlIG1vZGUgMTAwNjQ0DQppbmRleCAwMDAwMDAwMC4u
-YmRiNzhhNjUNCi0tLSAvZGV2L251bGwNCisrKyBiL2V4YW1wbGVzL2ZpbGVkZWxldGUtaW9lbmdp
-bmUuZmlvDQpAQCAtMCwwICsxLDE5IEBADQorIyBFeGFtcGxlIGZpbGVkZWxldGUgam9iDQorDQor
-IyAnZmlsZWRlbGV0ZScgZW5naW5lIG9ubHkgZG8gJ3VubGluayhmaWxlbmFtZSknLCBmaWxlIHdp
-bGwgbm90IGJlIG9wZW4oKS4NCisjICdmaWxlc2l6ZScgbXVzdCBiZSBzZXQsIHRoZW4gZmlsZXMg
-d2lsbCBiZSBjcmVhdGVkIGF0IHNldHVwIHN0YWdlLg0KKyMgJ3VubGluaycgaXMgYmV0dGVyIHNl
-dCB0byAwLCBzaW5jZSB0aGUgZmlsZSBpcyBkZWxldGVkIGluIG1lYXN1cmVtZW50Lg0KKw0KK1tn
-bG9iYWxdDQoraW9lbmdpbmU9ZmlsZWRlbGV0ZQ0KK251bWpvYnM9MQ0KK2ZpbGVzaXplPTRrDQor
-bnJmaWxlcz0yMDANCit1bmxpbms9MA0KKw0KK1t0MF0NCitbdDFdDQorW3QyXQ0KK1t0M10NCitb
-dDRdDQorW3Q1XQ0KZGlmZiAtLWdpdCBhL2Zpby4xIGIvZmlvLjENCmluZGV4IGFjY2M2YTMyLi5k
-NzA5MWQ2NiAxMDA2NDQNCi0tLSBhL2Zpby4xDQorKysgYi9maW8uMQ0KQEAgLTE4MjIsNiArMTgy
-MiwxMSBAQCBTaW1wbHkgZG8gc3RhdCgpIGFuZCBkbyBubyBJL08gdG8gdGhlIGZpbGUuIFlvdSBu
-ZWVkIHRvIHNldCAnZmlsZXNpemUnDQogYW5kICducmZpbGVzJywgc28gdGhhdCBmaWxlcyB3aWxs
-IGJlIGNyZWF0ZWQuDQogVGhpcyBlbmdpbmUgaXMgdG8gbWVhc3VyZSBmaWxlIGxvb2t1cCBhbmQg
-bWV0YSBkYXRhIGFjY2Vzcy4NCiAuVFANCisuQiBmaWxlc3RhdA0KK1NpbXBseSBkZWxldGUgZmls
-ZXMgYnkgdW5saW5rKCkgYW5kIGRvIG5vIEkvTyB0byB0aGUgZmlsZS4gWW91IG5lZWQgdG8gc2V0
-ICdmaWxlc2l6ZScNCithbmQgJ25yZmlsZXMnLCBzbyB0aGF0IGZpbGVzIHdpbGwgYmUgY3JlYXRl
-ZC4NCitUaGlzIGVuZ2luZSBpcyB0byBtZWFzdXJlIGZpbGUgZGVsZXRlLg0KKy5UUA0KIC5CIGxp
-YnBtZW0NCiBSZWFkIGFuZCB3cml0ZSB1c2luZyBtbWFwIEkvTyB0byBhIGZpbGUgb24gYSBmaWxl
-c3lzdGVtDQogbW91bnRlZCB3aXRoIERBWCBvbiBhIHBlcnNpc3RlbnQgbWVtb3J5IGRldmljZSB0
-aHJvdWdoIHRoZSBQTURLDQotLSANCjIuMTcuMQ0KDQo=
+By the way: Does anyone do some system profiling (flame graphs or
+something like that) while testing devices to make sure you reached the
+devices' capabilities instead of the systems?
+
+I just made some tests of nvme drives and a friend of mine (who is a
+scientist) said that if that was a paper he would reject it because I do
+not know whether I measure the devices or the system.
+
+Am 16.02.21 um 20:51 schrieb Jens Axboe:
+> On 2/16/21 12:00 PM, Ober, Frank wrote:
+>> Hi Daniel, Intel uses pvsync2 for QD1 testing so if you cannot use spdk or io_uring (these are the fastest ways to test a device), you can switch your engine to pvsync2 on this kernel and this will work. 
+>>
+>> Here's what I tried on PCIe Gen3 system with an Optane drive and your drive.
+>>
+>>
+>> [root@fm42adsdemo001 block]# fio --bs=1M --rw=randwrite --numjobs=1 --iodepth=1  --size=10000M \
+>>> --filename=/dev/nvme6n1 --name=mylittletest --direct=1 --fsync=1 \
+>>> --refill_buffers --ioengine=pvsync2 --group_reporting \
+>>> --fallocate=none --runtime=60 --time_based --hipri
+>> mylittletest: (g=0): rw=randwrite, bs=(R) 1024KiB-1024KiB, (W) 1024KiB-1024KiB, (T) 1024KiB-1024KiB, ioengine=pvsync2, iodepth=1
+>> fio-3.24-5-g2ee2
+>> Starting 1 process
+>> Jobs: 1 (f=1): [w(1)][100.0%][w=2048MiB/s][w=2048 IOPS][eta 00m:00s]
+>>
+>> I ran the same exact job on this mid-range Intel Xeon cpu and found io_uring only very slightly faster than pvsync2
+>> Jobs: 1 (f=1): [w(1)][100.0%][w=2057MiB/s][w=2057 IOPS][eta 00m:00s]
+> That's not too surprising, if you're at queuedepth=1 or doing sync IO, then
+> I'd consider it a major win that the async API is just as fast or faster
+> than the sync one :-)
+>
+>
+-- 
+Daniel Menzel
+Geschäftsführer
+
+Menzel IT GmbH
+Charlottenburger Str. 33a
+13086 Berlin
+
++49 (0) 30 / 5130 444 - 00
+daniel.menzel@menzel-it.net
+https://menzel-it.net
+
+Geschäftsführer: Daniel Menzel, Josefin Menzel
+Unternehmenssitz: Berlin
+Handelsregister: Amtsgericht Charlottenburg
+Handelsregister-Nummer: HRB 149835 B
+USt-ID: DE 309 226 751
+
 
