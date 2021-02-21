@@ -1,480 +1,57 @@
-Return-Path: <adobriyan@gmail.com>
-Return-Path: <adobriyan@gmail.com>
-Date: Thu, 4 Feb 2021 11:32:20 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: [PATCH] zbd: support 'z' suffix for zone granularity
-Message-ID: <20210204083220.GA10648@localhost.localdomain>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48446 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230064AbhBULKY (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 21 Feb 2021 06:10:24 -0500
+Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E70F3C061786
+        for <fio@vger.kernel.org>; Sun, 21 Feb 2021 03:09:41 -0800 (PST)
+Received: by mail-io1-xd31.google.com with SMTP id y202so10324897iof.1
+        for <fio@vger.kernel.org>; Sun, 21 Feb 2021 03:09:41 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, dmitry.fomichev@wdc.com, damien.lemoal@wdc.com
-List-ID: <fio@vger.kernel.org>
+From: Hongwei Qin <glqinhongwei@gmail.com>
+Date: Sun, 21 Feb 2021 19:09:28 +0800
+Message-ID: <CAKvRR0TG4L3NqNiOMyh2zb0tA7vfuc_L8kU5ropGrY3fJm5GAg@mail.gmail.com>
+Subject: [Question] A question about t/io_uring.c
+Content-Type: text/plain; charset="UTF-8"
+List-Id: fio@vger.kernel.org
+To: fio <fio@vger.kernel.org>
 
-This is nifty for writing quick tests and when firmware guys change
-zone sizes.
+Hi,
 
-Converted options are
+I found two implementation details in t/io_uring.c quite interesting.
+Both are in the prep_more_ios() function.
 
-	size=
-	io_size=
-	offset=
-	offset_increment=
+1.
+reading the sq ring head is not protected using something like
+READ_ONCE() or smp_read_acquire().
+According to https://www.kernel.org/doc/Documentation/memory-barriers.txt
+```
+It _must_not_ be assumed that the compiler will do what you want
+with memory references that are not protected by READ_ONCE() and
+WRITE_ONCE().  Without them, the compiler is within its rights to
+do all sorts of "creative" transformations, which are covered in
+the COMPILER BARRIER section.
+```
 
-Example:
+Is it possible that the modifications to the sqe using init_io() get
+reordered prior to reading the sq ring head?
 
-	rw=write
-	numjobs=2
-	offset=1z
-	offset_increment=10z
-	size=5z
-	io_size=6z
+2.
+Writing to the sq ring tail is not protected using something like
+smp_store_release.
+Even according to the article "Efficient IO with io_uring", adding an
+sqe should be like:
+```
+write_barrier();
+sqring->tail = tail;
+write_barrier();
+```
+However, the first write barrier is missing in the t/io_uring.c
+Is it possible that the memory stores get reordered?
 
-Thread 1 will write zones 1, 2, 3, 4, 5, 1.
-Thread 2 will write zones 11, 12, 13, 14, 15, 11.
-	
-Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
----
+Can anyone provide some insights on this? Thank you!
 
- filesetup.c      |   40 +++++++++++++++++++++++++++++++++++-----
- fio.1            |   11 +++++++----
- options.c        |   30 ++++++++++++++++++++++--------
- parse.c          |   39 ++++++++++++++++++++++++++++++++++++++-
- parse.h          |   12 ++++++++++--
- server.h         |    2 +-
- thread_options.h |   13 +++++++++++--
- zbd.c            |    9 ++++++++-
- zbd.h            |    1 +
- 9 files changed, 133 insertions(+), 24 deletions(-)
-
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -1029,6 +1029,35 @@ int setup_files(struct thread_data *td)
- 	if (o->read_iolog_file)
- 		goto done;
- 
-+	if (td->o.zone_mode == ZONE_MODE_ZBD) {
-+		struct fio_file *f;
-+		int i;
-+
-+		err = zbd_init_files(td);
-+		if (err)
-+			goto err_out;
-+
-+		for_each_file(td, f, i) {
-+			struct zoned_block_device_info *zbd = f->zbd_info;
-+
-+			if (!zbd)
-+				continue;
-+
-+			if (td->o.size_nz > 0) {
-+				td->o.size = td->o.size_nz * zbd->zone_size;
-+			}
-+			if (td->o.io_size_nz > 0) {
-+				td->o.io_size = td->o.io_size_nz * zbd->zone_size;
-+			}
-+			if (td->o.start_offset_nz > 0) {
-+				td->o.start_offset = td->o.start_offset_nz * zbd->zone_size;
-+			}
-+			if (td->o.offset_increment_nz > 0) {
-+				td->o.offset_increment = td->o.offset_increment_nz * zbd->zone_size;
-+			}
-+		}
-+	}
-+
- 	/*
- 	 * check sizes. if the files/devices do not exist and the size
- 	 * isn't passed to fio, abort.
-@@ -1269,16 +1298,17 @@ int setup_files(struct thread_data *td)
- 	}
- 
- done:
--	if (o->create_only)
--		td->done = 1;
--
--	td_restore_runstate(td, old_state);
--
- 	if (td->o.zone_mode == ZONE_MODE_ZBD) {
- 		err = zbd_setup_files(td);
- 		if (err)
- 			goto err_out;
- 	}
-+
-+	if (o->create_only)
-+		td->done = 1;
-+
-+	td_restore_runstate(td, old_state);
-+
- 	return 0;
- 
- err_offset:
---- a/fio.1
-+++ b/fio.1
-@@ -348,6 +348,9 @@ us or usec means microseconds
- .PD
- .RE
- .P
-+`z' suffix specifies that the value is measured in zones.
-+Absolute value will be calculated after figuring out block device's zone size.
-+.P
- If the option accepts an upper and lower range, use a colon ':' or
- minus '\-' to separate such values. See \fIirange\fR parameter type.
- If the lower value specified happens to be larger than the upper value
-@@ -1030,7 +1033,7 @@ The values are all relative to each other, and no absolute meaning
- should be associated with them.
- .RE
- .TP
--.BI offset \fR=\fPint
-+.BI offset \fR=\fPint[%|z]
- Start I/O at the provided offset in the file, given as either a fixed size in
- bytes or a percentage. If a percentage is given, the generated offset will be
- aligned to the minimum \fBblocksize\fR or to the value of \fBoffset_align\fR if
-@@ -1045,7 +1048,7 @@ If set to non-zero value, the byte offset generated by a percentage \fBoffset\fR
- is aligned upwards to this value. Defaults to 0 meaning that a percentage
- offset is aligned to the minimum block size.
- .TP
--.BI offset_increment \fR=\fPint
-+.BI offset_increment \fR=\fPint[%|z]
- If this is provided, then the real offset becomes `\fBoffset\fR + \fBoffset_increment\fR
- * thread_number', where the thread number is a counter that starts at 0 and
- is incremented for each sub-job (i.e. when \fBnumjobs\fR option is
-@@ -1567,7 +1570,7 @@ Pin the specified amount of memory with \fBmlock\fR\|(2). Can be used to
- simulate a smaller amount of memory. The amount specified is per worker.
- .SS "I/O size"
- .TP
--.BI size \fR=\fPint
-+.BI size \fR=\fPint[%|z]
- The total size of file I/O for each thread of this job. Fio will run until
- this many bytes has been transferred, unless runtime is limited by other options
- (such as \fBruntime\fR, for instance, or increased/decreased by \fBio_size\fR).
-@@ -1582,7 +1585,7 @@ given, fio will use 20% of the full size of the given files or devices.
- Can be combined with \fBoffset\fR to constrain the start and end range
- that I/O will be done within.
- .TP
--.BI io_size \fR=\fPint "\fR,\fB io_limit" \fR=\fPint
-+.BI io_size \fR=\fPint[%|z] "\fR,\fB io_limit" \fR=\fPint[%|z]
- Normally fio operates within the region set by \fBsize\fR, which means
- that the \fBsize\fR option sets both the region and size of I/O to be
- performed. Sometimes that is not what you want. With this option, it is
---- a/options.c
-+++ b/options.c
-@@ -1471,8 +1471,13 @@ static int str_offset_cb(void *data, unsigned long long *__val)
- 	if (parse_is_percent(v)) {
- 		td->o.start_offset = 0;
- 		td->o.start_offset_percent = -1ULL - v;
-+		td->o.start_offset_nz = 0;
- 		dprint(FD_PARSE, "SET start_offset_percent %d\n",
- 					td->o.start_offset_percent);
-+	} else if (parse_is_zone(v)) {
-+		td->o.start_offset = 0;
-+		td->o.start_offset_percent = 0;
-+		td->o.start_offset_nz = v - ZONE_BASE_VAL;
- 	} else
- 		td->o.start_offset = v;
- 
-@@ -1487,8 +1492,13 @@ static int str_offset_increment_cb(void *data, unsigned long long *__val)
- 	if (parse_is_percent(v)) {
- 		td->o.offset_increment = 0;
- 		td->o.offset_increment_percent = -1ULL - v;
-+		td->o.offset_increment_nz = 0;
- 		dprint(FD_PARSE, "SET offset_increment_percent %d\n",
- 					td->o.offset_increment_percent);
-+	} else if (parse_is_zone(v)) {
-+		td->o.offset_increment = 0;
-+		td->o.offset_increment_percent = 0;
-+		td->o.offset_increment_nz = v - ZONE_BASE_VAL;
- 	} else
- 		td->o.offset_increment = v;
- 
-@@ -1505,6 +1515,10 @@ static int str_size_cb(void *data, unsigned long long *__val)
- 		td->o.size_percent = -1ULL - v;
- 		dprint(FD_PARSE, "SET size_percent %d\n",
- 					td->o.size_percent);
-+	} else if (parse_is_zone(v)) {
-+		td->o.size = 0;
-+		td->o.size_percent = 0;
-+		td->o.size_nz = v - ZONE_BASE_VAL;
- 	} else
- 		td->o.size = v;
- 
-@@ -1525,6 +1539,10 @@ static int str_io_size_cb(void *data, unsigned long long *__val)
- 		}
- 		dprint(FD_PARSE, "SET io_size_percent %d\n",
- 					td->o.io_size_percent);
-+	} else if (parse_is_zone(v)) {
-+		td->o.io_size = 0;
-+		td->o.io_size_percent = 0;
-+		td->o.io_size_nz = v - ZONE_BASE_VAL;
- 	} else
- 		td->o.io_size = v;
- 
-@@ -2081,11 +2099,10 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 	{
- 		.name	= "size",
- 		.lname	= "Size",
--		.type	= FIO_OPT_STR_VAL,
-+		.type	= FIO_OPT_STR_VAL_ZONE,
- 		.cb	= str_size_cb,
- 		.off1	= offsetof(struct thread_options, size),
- 		.help	= "Total size of device or files",
--		.interval = 1024 * 1024,
- 		.category = FIO_OPT_C_IO,
- 		.group	= FIO_OPT_G_INVALID,
- 	},
-@@ -2093,11 +2110,10 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.name	= "io_size",
- 		.alias	= "io_limit",
- 		.lname	= "IO Size",
--		.type	= FIO_OPT_STR_VAL,
-+		.type	= FIO_OPT_STR_VAL_ZONE,
- 		.cb	= str_io_size_cb,
- 		.off1	= offsetof(struct thread_options, io_size),
- 		.help	= "Total size of I/O to be performed",
--		.interval = 1024 * 1024,
- 		.category = FIO_OPT_C_IO,
- 		.group	= FIO_OPT_G_INVALID,
- 	},
-@@ -2138,12 +2154,11 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.name	= "offset",
- 		.lname	= "IO offset",
- 		.alias	= "fileoffset",
--		.type	= FIO_OPT_STR_VAL,
-+		.type	= FIO_OPT_STR_VAL_ZONE,
- 		.cb	= str_offset_cb,
- 		.off1	= offsetof(struct thread_options, start_offset),
- 		.help	= "Start IO from this offset",
- 		.def	= "0",
--		.interval = 1024 * 1024,
- 		.category = FIO_OPT_C_IO,
- 		.group	= FIO_OPT_G_INVALID,
- 	},
-@@ -2161,14 +2176,13 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 	{
- 		.name	= "offset_increment",
- 		.lname	= "IO offset increment",
--		.type	= FIO_OPT_STR_VAL,
-+		.type	= FIO_OPT_STR_VAL_ZONE,
- 		.cb	= str_offset_increment_cb,
- 		.off1	= offsetof(struct thread_options, offset_increment),
- 		.help	= "What is the increment from one offset to the next",
- 		.parent = "offset",
- 		.hide	= 1,
- 		.def	= "0",
--		.interval = 1024 * 1024,
- 		.category = FIO_OPT_C_IO,
- 		.group	= FIO_OPT_G_INVALID,
- 	},
---- a/parse.c
-+++ b/parse.c
-@@ -37,6 +37,7 @@ static const char *opt_type_names[] = {
- 	"OPT_BOOL",
- 	"OPT_FLOAT_LIST",
- 	"OPT_STR_SET",
-+	"OPT_STR_VAL_ZONE",
- 	"OPT_DEPRECATED",
- 	"OPT_SOFT_DEPRECATED",
- 	"OPT_UNSUPPORTED",
-@@ -599,7 +600,10 @@ static int __handle_option(const struct fio_option *o, const char *ptr,
- 		fallthrough;
- 	case FIO_OPT_ULL:
- 	case FIO_OPT_INT:
--	case FIO_OPT_STR_VAL: {
-+	case FIO_OPT_STR_VAL:
-+not_zone_granularity:;
-+		{
-+
- 		fio_opt_str_val_fn *fn = o->cb;
- 		char tmp[128], *p;
- 
-@@ -944,6 +948,39 @@ static int __handle_option(const struct fio_option *o, const char *ptr,
- 		}
- 		break;
- 	}
-+	case FIO_OPT_STR_VAL_ZONE: {
-+		int (*f)(void*, unsigned long long *) = o->cb;
-+		char *ep;
-+		unsigned long long val;
-+		size_t len = strlen(ptr);
-+
-+		if (len == 0 || ptr[len - 1] != 'z')
-+			goto not_zone_granularity;
-+
-+		errno = 0;
-+		val = strtoul(ptr, &ep, 10);
-+		if (errno == 0 && ep != ptr) {
-+			switch (*ep) {
-+			case 'z':
-+				val = ZONE_BASE_VAL + (uint32_t)val;
-+				break;
-+
-+			default:
-+				ret = 1;
-+				break;
-+			}
-+			val_store(ullp, val, o->off1, 0, data, o);
-+			ret = 0;
-+		} else {
-+			ret = 1;
-+		}
-+		if (ret) {
-+			return ret;
-+		}
-+
-+		ret = f(data, &val);
-+		break;
-+	}
- 	case FIO_OPT_DEPRECATED:
- 		ret = 1;
- 		fallthrough;
---- a/parse.h
-+++ b/parse.h
-@@ -21,6 +21,7 @@ enum fio_opt_type {
- 	FIO_OPT_BOOL,
- 	FIO_OPT_FLOAT_LIST,
- 	FIO_OPT_STR_SET,
-+	FIO_OPT_STR_VAL_ZONE,
- 	FIO_OPT_DEPRECATED,
- 	FIO_OPT_SOFT_DEPRECATED,
- 	FIO_OPT_UNSUPPORTED,	/* keep this last */
-@@ -128,14 +129,21 @@ static inline void *td_var(void *to, const struct fio_option *o,
- 	return (void *) ((uintptr_t) ret + offset);
- }
- 
-+#define ZONE_BASE_VAL ((-1ULL >> 1) + 1)
-+
- static inline int parse_is_percent(unsigned long long val)
- {
--	return val <= -1ULL && val >= (-1ULL - 100ULL);
-+	return val >= (-1ULL - 100ULL);
- }
- 
- static inline int parse_is_percent_uncapped(unsigned long long val)
- {
--	return (long long)val <= -1;
-+	return ZONE_BASE_VAL + -1U < val;
-+}
-+
-+static inline int parse_is_zone(unsigned long long val)
-+{
-+	return (val - ZONE_BASE_VAL) <= -1U;
- }
- 
- struct print_option {
---- a/server.h
-+++ b/server.h
-@@ -48,7 +48,7 @@ struct fio_net_cmd_reply {
- };
- 
- enum {
--	FIO_SERVER_VER			= 87,
-+	FIO_SERVER_VER			= 88,
- 
- 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
- 	FIO_SERVER_MAX_CMD_MB		= 2048,
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -83,13 +83,16 @@ struct thread_options {
- 	unsigned long long size;
- 	unsigned long long io_size;
- 	unsigned int size_percent;
-+	unsigned int size_nz;
- 	unsigned int io_size_percent;
-+	unsigned int io_size_nz;
- 	unsigned int fill_device;
- 	unsigned int file_append;
- 	unsigned long long file_size_low;
- 	unsigned long long file_size_high;
- 	unsigned long long start_offset;
- 	unsigned long long start_offset_align;
-+	unsigned int start_offset_nz;
- 
- 	unsigned long long bs[DDIR_RWDIR_CNT];
- 	unsigned long long ba[DDIR_RWDIR_CNT];
-@@ -315,6 +318,7 @@ struct thread_options {
- 	unsigned int gid;
- 
- 	unsigned int offset_increment_percent;
-+	unsigned int offset_increment_nz;
- 	unsigned long long offset_increment;
- 	unsigned long long number_ios;
- 
-@@ -384,14 +388,19 @@ struct thread_options_pack {
- 	uint64_t size;
- 	uint64_t io_size;
- 	uint32_t size_percent;
-+	uint32_t size_nz;
- 	uint32_t io_size_percent;
-+	uint32_t io_size_nz;
- 	uint32_t fill_device;
- 	uint32_t file_append;
- 	uint32_t unique_filename;
-+	uint32_t _;
- 	uint64_t file_size_low;
- 	uint64_t file_size_high;
- 	uint64_t start_offset;
- 	uint64_t start_offset_align;
-+	uint32_t start_offset_nz;
-+	uint32_t __;
- 
- 	uint64_t bs[DDIR_RWDIR_CNT];
- 	uint64_t ba[DDIR_RWDIR_CNT];
-@@ -464,8 +473,6 @@ struct thread_options_pack {
- 	struct zone_split zone_split[DDIR_RWDIR_CNT][ZONESPLIT_MAX];
- 	uint32_t zone_split_nr[DDIR_RWDIR_CNT];
- 
--	uint8_t pad1[4];
--
- 	fio_fp64_t zipf_theta;
- 	fio_fp64_t pareto_h;
- 	fio_fp64_t gauss_dev;
-@@ -616,12 +623,14 @@ struct thread_options_pack {
- 	uint32_t gid;
- 
- 	uint32_t offset_increment_percent;
-+	uint32_t offset_increment_nz;
- 	uint64_t offset_increment;
- 	uint64_t number_ios;
- 
- 	uint64_t latency_target;
- 	uint64_t latency_window;
- 	uint64_t max_latency;
-+	uint32_t ___;
- 	fio_fp64_t latency_percentile;
- 	uint32_t latency_run;
- 
---- a/zbd.c
-+++ b/zbd.c
-@@ -648,7 +648,7 @@ static bool zbd_open_zone(struct thread_data *td, const struct fio_file *f,
- static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
- 			  struct fio_zone_info *z);
- 
--int zbd_setup_files(struct thread_data *td)
-+int zbd_init_files(struct thread_data *td)
- {
- 	struct fio_file *f;
- 	int i;
-@@ -657,6 +657,13 @@ int zbd_setup_files(struct thread_data *td)
- 		if (zbd_init_zone_info(td, f))
- 			return 1;
- 	}
-+	return 0;
-+}
-+
-+int zbd_setup_files(struct thread_data *td)
-+{
-+	struct fio_file *f;
-+	int i;
- 
- 	if (!zbd_using_direct_io()) {
- 		log_err("Using direct I/O is mandatory for writing to ZBD drives\n\n");
---- a/zbd.h
-+++ b/zbd.h
-@@ -87,6 +87,7 @@ struct zoned_block_device_info {
- 	struct fio_zone_info	zone_info[0];
- };
- 
-+int zbd_init_files(struct thread_data *td);
- int zbd_setup_files(struct thread_data *td);
- void zbd_free_zone_info(struct fio_file *f);
- void zbd_file_reset(struct thread_data *td, struct fio_file *f);
+Best,
+Hongwei
 
