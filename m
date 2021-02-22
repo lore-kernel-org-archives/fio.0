@@ -1,31 +1,43 @@
-Return-Path: <glqinhongwei@gmail.com>
-Return-Path: <glqinhongwei@gmail.com>
-From: Hongwei Qin <glqinhongwei@gmail.com>
-Subject: [PATCH] Add a new file to gitignore
-Date: Sun, 21 Feb 2021 17:39:44 +0800
-Message-Id: <20210221093944.1071-1-glqinhongwei@gmail.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 1/4] parse: simplify parse_is_percent()
+References: <YDOvg+OKTZhSoDce@localhost.localdomain>
+ <4c012bb6-5100-6262-20a1-ba6992786c25@kernel.dk>
+ <YDPd3CMn9MRPZ4Do@localhost.localdomain>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <503397c6-63d3-dcb9-5638-4138c72e42de@kernel.dk>
+Date: Mon, 22 Feb 2021 09:38:26 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org
-Cc: axboe@kernel.dk, sitsofe@gmail.com, Hongwei Qin <glqinhongwei@gmail.com>
+In-Reply-To: <YDPd3CMn9MRPZ4Do@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: fio@vger.kernel.org, dmitry.fomichev@wdc.com
 List-ID: <fio@vger.kernel.org>
 
-Add a new file to gitignore
-Signed-off-by: Hongwei Qin <glqinhongwei@gmail.com>
----
- .gitignore | 1 +
- 1 file changed, 1 insertion(+)
+On 2/22/21 9:37 AM, Alexey Dobriyan wrote:
+> On Mon, Feb 22, 2021 at 07:36:42AM -0700, Jens Axboe wrote:
+>> On 2/22/21 6:20 AM, Alexey Dobriyan wrote:
+>>> Check "unsigned long long val <= -1ULL" is tautologically true
+>>> because of how value conversions work.
+>>
+>> Thanks, applied this and the other 3 patches. Note for future
+>> patch series you should use git send-email and provide a small cover
+>> letter for the series. Also avoids typos like 2/5 for patch 2, and
+>> it gives the reviewer a sense of the whole series.
+> 
+> Oh well, still can't get used to bulk emailing.
+> 
+> These patches are independent in fact.
+> There is textual dependency between parse_is_percent() and main 'z'
+> suffix patch.
+> 
+> And the rest was found while reading code for 'z' suffix.
 
-diff --git a/.gitignore b/.gitignore
-index 0aa4a361..6651f96e 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -30,3 +30,4 @@ doc/output
- /tags
- /TAGS
- /t/zbd/test-zbd-support.log.*
-+/t/fuzz/fuzz_parseini
+Even if they are independent, it's easier to organize if you send
+it out as a series :-)
+
 -- 
-2.28.0
+Jens Axboe
 
 
