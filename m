@@ -1,28 +1,34 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH 1/4] parse: simplify parse_is_percent()
-References: <YDOvg+OKTZhSoDce@localhost.localdomain>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <4c012bb6-5100-6262-20a1-ba6992786c25@kernel.dk>
-Date: Mon, 22 Feb 2021 07:36:42 -0700
+Return-Path: <adobriyan@gmail.com>
+Return-Path: <adobriyan@gmail.com>
+Date: Mon, 22 Feb 2021 16:20:03 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: [PATCH 1/4] parse: simplify parse_is_percent()
+Message-ID: <YDOvg+OKTZhSoDce@localhost.localdomain>
 MIME-Version: 1.0
-In-Reply-To: <YDOvg+OKTZhSoDce@localhost.localdomain>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Alexey Dobriyan <adobriyan@gmail.com>
+Content-Disposition: inline
+To: axboe@kernel.dk
 Cc: fio@vger.kernel.org, dmitry.fomichev@wdc.com
 List-ID: <fio@vger.kernel.org>
 
-On 2/22/21 6:20 AM, Alexey Dobriyan wrote:
-> Check "unsigned long long val <= -1ULL" is tautologically true
-> because of how value conversions work.
+Check "unsigned long long val <= -1ULL" is tautologically true
+because of how value conversions work.
 
-Thanks, applied this and the other 3 patches. Note for future
-patch series you should use git send-email and provide a small cover
-letter for the series. Also avoids typos like 2/5 for patch 2, and
-it gives the reviewer a sense of the whole series.
+Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
+---
 
--- 
-Jens Axboe
+ parse.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+--- a/parse.h
++++ b/parse.h
+@@ -130,7 +130,7 @@ static inline void *td_var(void *to, const struct fio_option *o,
+ 
+ static inline int parse_is_percent(unsigned long long val)
+ {
+-	return val <= -1ULL && val >= (-1ULL - 100ULL);
++	return val >= -101;
+ }
+ 
+ static inline int parse_is_percent_uncapped(unsigned long long val)
 
