@@ -1,165 +1,255 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx08-001d1705.pphosted.com ([185.183.30.70]:31620 "EHLO
-        mx08-001d1705.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229561AbhBYLCk (ORCPT
-        <rfc822;fio@vger.kernel.org>); Thu, 25 Feb 2021 06:02:40 -0500
-From: <Friendy.Su@sony.com>
-Subject: RE: [PATCH v1 1/1] engines: add engine for file delete
-Date: Thu, 25 Feb 2021 11:01:45 +0000
-Message-ID: <HK0PR04MB238840C3C9EB8E068F04592DFD9E9@HK0PR04MB2388.apcprd04.prod.outlook.com>
-References: <HK0PR04MB2388F3AF9F2D1F04CA21E722FD819@HK0PR04MB2388.apcprd04.prod.outlook.com>
- <CALjAwxgcCvhtnc_67+fwXUZ+rC-_YbFhZrNzt+RXeeWCvfKZZg@mail.gmail.com>
-In-Reply-To: <CALjAwxgcCvhtnc_67+fwXUZ+rC-_YbFhZrNzt+RXeeWCvfKZZg@mail.gmail.com>
-Content-Language: zh-CN
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46518 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229993AbhBYHWJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 25 Feb 2021 02:22:09 -0500
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BDD2C061786
+        for <fio@vger.kernel.org>; Wed, 24 Feb 2021 23:21:29 -0800 (PST)
+Received: by mail-wr1-x42e.google.com with SMTP id u14so4183928wri.3
+        for <fio@vger.kernel.org>; Wed, 24 Feb 2021 23:21:29 -0800 (PST)
 MIME-Version: 1.0
+References: <HK0PR04MB2388F3AF9F2D1F04CA21E722FD819@HK0PR04MB2388.apcprd04.prod.outlook.com>
+In-Reply-To: <HK0PR04MB2388F3AF9F2D1F04CA21E722FD819@HK0PR04MB2388.apcprd04.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Thu, 25 Feb 2021 07:21:02 +0000
+Message-ID: <CALjAwxgcCvhtnc_67+fwXUZ+rC-_YbFhZrNzt+RXeeWCvfKZZg@mail.gmail.com>
+Subject: Re: [PATCH v1 1/1] engines: add engine for file delete
+Content-Type: text/plain; charset="UTF-8"
 List-Id: fio@vger.kernel.org
-To: sitsofe@gmail.com
-Cc: fio@vger.kernel.org, Kento.A.Kobayashi@sony.com, Wataru.Aoyama@sony.com
+To: "Su, Friendy" <Friendy.Su@sony.com>
+Cc: fio <fio@vger.kernel.org>, "Kobayashi, Kento (Sony)" <Kento.A.Kobayashi@sony.com>, Wataru.Aoyama@sony.com
 
-SGksDQoNClRoYW5rcyBmb3IgeW91ciBjb21tZW50cy4NCg0KPj4gQ2FuJ3QgZGVsZXRlIGZpbGVz
-IGZyb20gc3Rkb3V0L3N0ZGluPw0KV2UgZXhwZWN0IGZpbyBhdXRvIGNyZWF0ZSBiYXRjaCBvZiBm
-aWxlcywgdGhlbiBmaWxlZGVsZXRlIGVuZ2luZSBkZWxldGVzIHRoZW0uDQpDcmVhdGUgZnJvbSBz
-dGRpbi9vdXQgc2VlbXMgbm90IHNvIG1lYW5pbmdmdWwuDQpNZWFud2hpbGUsIGlmIHNldCAnZmls
-ZW5hbWU9LScsIGdlbmVyaWNfZ2V0X2ZpbGVfc2l6ZSgpIGNhbiBub3QgZ2V0IGFjdHVhbCBzaXpl
-Lg0KSSByZWZlcnJlZCB0byBlbmdpbmVzL2ZpbGVjcmVhdGUuYy4NCg0KT3RoZXIgY29tbWVudHMs
-IEkgd2lsbCB1cGRhdGUgcGF0Y2guDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9t
-OiBTaXRzb2ZlIFdoZWVsZXIgPHNpdHNvZmVAZ21haWwuY29tPiANClNlbnQ6IFRodXJzZGF5LCBG
-ZWJydWFyeSAyNSwgMjAyMSAzOjIxIFBNDQpUbzogU3UsIEZyaWVuZHkgPEZyaWVuZHkuU3VAc29u
-eS5jb20+DQpDYzogZmlvIDxmaW9Admdlci5rZXJuZWwub3JnPjsgS29iYXlhc2hpLCBLZW50byAo
-U29ueSkgPEtlbnRvLkEuS29iYXlhc2hpQHNvbnkuY29tPjsgQW95YW1hLCBXYXRhcnUgKFNvbnkp
-IDxXYXRhcnUuQW95YW1hQHNvbnkuY29tPg0KU3ViamVjdDogUmU6IFtQQVRDSCB2MSAxLzFdIGVu
-Z2luZXM6IGFkZCBlbmdpbmUgZm9yIGZpbGUgZGVsZXRlDQoNCkhpLA0KDQpPbiBNb24sIDIyIEZl
-YiAyMDIxIGF0IDEyOjE1LCA8RnJpZW5keS5TdUBzb255LmNvbT4gd3JvdGU6DQo+DQo+IFRoaXMg
-ZW5naW5lIGlzIHRvIG1lYXN1cmUgcGVyZm9ybWFuY2Ugb2YgZGVsZXRpbmcgZmlsZXMuDQo+DQo+
-IEluIHByYWN0aWNlLCBpdCBpcyBhbiBpbXBvcnRhbnQgYmVuY2htYXJrIGZvciBhIGZpbGUgc3lz
-dGVtIHRoYXQgaG93IA0KPiBxdWljayBpdCBjYW4gcmVsZWFzZSB0aGUgZGlzayBzcGFjZSBvZiBk
-ZWxldGVkIGZpbGVzLg0KPg0KPiBTaWduZWQtb2ZmLWJ5OiBmcmllbmR5LXN1IDxmcmllbmR5LnN1
-QHNvbnkuY29tPg0KPiAtLS0NCj4gIEhPV1RPICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwg
-ICA1ICsrDQo+ICBNYWtlZmlsZSAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgMiArLQ0KPiAg
-ZW5naW5lcy9maWxlZGVsZXRlLmMgICAgICAgICAgICAgfCAxMDggKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKw0KPiAgZXhhbXBsZXMvZmlsZWRlbGV0ZS1pb2VuZ2luZS5maW8gfCAgMjMg
-KysrKysrKw0KPiAgZmlvLjEgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDUgKysNCj4g
-IDUgZmlsZXMgY2hhbmdlZCwgMTQyIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkgIGNyZWF0
-ZSBtb2RlIDEwMDY0NCANCj4gZW5naW5lcy9maWxlZGVsZXRlLmMgIGNyZWF0ZSBtb2RlIDEwMDY0
-NCANCj4gZXhhbXBsZXMvZmlsZWRlbGV0ZS1pb2VuZ2luZS5maW8NCj4NCj4gZGlmZiAtLWdpdCBh
-L0hPV1RPIGIvSE9XVE8NCj4gaW5kZXggYjZkMWI1OGEuLmVhNzI4NDM5IDEwMDY0NA0KPiAtLS0g
-YS9IT1dUTw0KPiArKysgYi9IT1dUTw0KPiBAQCAtMjAzMyw2ICsyMDMzLDExIEBAIEkvTyBlbmdp
-bmUNCj4gICAgICAgICAgICAgICAgICAgICAgICAgYW5kICducmZpbGVzJywgc28gdGhhdCBmaWxl
-cyB3aWxsIGJlIGNyZWF0ZWQuDQo+ICAgICAgICAgICAgICAgICAgICAgICAgIFRoaXMgZW5naW5l
-IGlzIHRvIG1lYXN1cmUgZmlsZSBsb29rdXAgYW5kIG1ldGEgZGF0YSBhY2Nlc3MuDQo+DQo+ICsg
-ICAgICAgICAgICAgICAqKmZpbGVkZWxldGUqKg0KPiArICAgICAgICAgICAgICAgICAgICAgICBT
-aW1wbHkgZGVsZXRlIHRoZSBmaWxlcyBieSB1bmxpbmsoKSBhbmQgZG8gbm8gSS9PIHRvIHRoZW0u
-IFlvdSBuZWVkIHRvIHNldCAnZmlsZXNpemUnDQo+ICsgICAgICAgICAgICAgICAgICAgICAgIGFu
-ZCAnbnJmaWxlcycsIHNvIHRoYXQgdGhlIGZpbGVzIHdpbGwgYmUgY3JlYXRlZC4NCj4gKyAgICAg
-ICAgICAgICAgICAgICAgICAgVGhpcyBlbmdpbmUgaXMgdG8gbWVhc3VyZSBmaWxlIGRlbGV0ZS4N
-Cj4gKw0KPiAgICAgICAgICAgICAgICAgKipsaWJwbWVtKioNCj4gICAgICAgICAgICAgICAgICAg
-ICAgICAgUmVhZCBhbmQgd3JpdGUgdXNpbmcgbW1hcCBJL08gdG8gYSBmaWxlIG9uIGEgZmlsZXN5
-c3RlbQ0KPiAgICAgICAgICAgICAgICAgICAgICAgICBtb3VudGVkIHdpdGggREFYIG9uIGEgcGVy
-c2lzdGVudCBtZW1vcnkgZGV2aWNlIA0KPiB0aHJvdWdoIHRoZSBQTURLIGRpZmYgLS1naXQgYS9N
-YWtlZmlsZSBiL01ha2VmaWxlIGluZGV4IA0KPiA2MTIzNDRkMS4uMTFmZmEwODkgMTAwNjQ0DQo+
-IC0tLSBhL01ha2VmaWxlDQo+ICsrKyBiL01ha2VmaWxlDQo+IEBAIC01MSw3ICs1MSw3IEBAIFNP
-VVJDRSA6PSAgICAgJChzb3J0ICQocGF0c3Vic3QgJChTUkNESVIpLyUsJSwkKHdpbGRjYXJkICQo
-U1JDRElSKS9jcmMvKi5jKSkgXA0KPiAgICAgICAgICAgICAgICAgcHNoYXJlZC5jIG9wdGlvbnMu
-YyBcDQo+ICAgICAgICAgICAgICAgICBzbWFsbG9jLmMgZmlsZWhhc2guYyBwcm9maWxlLmMgZGVi
-dWcuYyBlbmdpbmVzL2NwdS5jIFwNCj4gICAgICAgICAgICAgICAgIGVuZ2luZXMvbW1hcC5jIGVu
-Z2luZXMvc3luYy5jIGVuZ2luZXMvbnVsbC5jIGVuZ2luZXMvbmV0LmMgXA0KPiAtICAgICAgICAg
-ICAgICAgZW5naW5lcy9mdHJ1bmNhdGUuYyBlbmdpbmVzL2ZpbGVjcmVhdGUuYyBlbmdpbmVzL2Zp
-bGVzdGF0LmMgXA0KPiArICAgICAgICAgICAgICAgZW5naW5lcy9mdHJ1bmNhdGUuYyBlbmdpbmVz
-L2ZpbGVjcmVhdGUuYyANCj4gKyBlbmdpbmVzL2ZpbGVzdGF0LmMgZW5naW5lcy9maWxlZGVsZXRl
-LmMgXA0KPiAgICAgICAgICAgICAgICAgc2VydmVyLmMgY2xpZW50LmMgaW9sb2cuYyBiYWNrZW5k
-LmMgbGliZmlvLmMgZmxvdy5jIGNjb252LmMgXA0KPiAgICAgICAgICAgICAgICAgZ2V0dGltZS10
-aHJlYWQuYyBoZWxwZXJzLmMganNvbi5jIGlkbGV0aW1lLmMgdGRfZXJyb3IuYyBcDQo+ICAgICAg
-ICAgICAgICAgICBwcm9maWxlcy90aW9iZW5jaC5jIHByb2ZpbGVzL2FjdC5jIGlvX3VfcXVldWUu
-YyANCj4gZmlsZWxvY2suYyBcIGRpZmYgLS1naXQgYS9lbmdpbmVzL2ZpbGVkZWxldGUuYyBiL2Vu
-Z2luZXMvZmlsZWRlbGV0ZS5jIA0KPiBuZXcgZmlsZSBtb2RlIDEwMDY0NCBpbmRleCAwMDAwMDAw
-MC4uNzE5NzdiMjINCj4gLS0tIC9kZXYvbnVsbA0KPiArKysgYi9lbmdpbmVzL2ZpbGVkZWxldGUu
-Yw0KPiBAQCAtMCwwICsxLDEwOCBAQA0KPiArLyoNCj4gKyAqIGZpbGUgZGVsZXRlIGVuZ2luZQ0K
-PiArICoNCj4gKyAqIElPIGVuZ2luZSB0aGF0IGRvZXNuJ3QgZG8gYW55IElPLCBqdXN0IGRlbGV0
-ZSBmaWxlcyBhbmQgdHJhY2tzIHRoZSANCj4gK2xhdGVuY3kNCj4gKyAqIG9mIHRoZSBmaWxlIGRl
-bGV0aW9uLg0KPiArICovDQo+ICsjaW5jbHVkZSA8c3RkaW8uaD4NCj4gKyNpbmNsdWRlIDxmY250
-bC5oPg0KPiArI2luY2x1ZGUgPGVycm5vLmg+DQo+ICsjaW5jbHVkZSA8c3lzL3R5cGVzLmg+DQo+
-ICsjaW5jbHVkZSA8dW5pc3RkLmg+DQo+ICsjaW5jbHVkZSAiLi4vZmlvLmgiDQo+ICsNCj4gK3N0
-cnVjdCBmY19kYXRhIHsNCj4gKyAgICAgICBlbnVtIGZpb19kZGlyIHN0YXRfZGRpcjsNCj4gK307
-DQo+ICsNCj4gK3N0YXRpYyBpbnQgZGVsZXRlX2ZpbGUoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwg
-c3RydWN0IGZpb19maWxlICpmKSB7DQo+ICsgICAgICAgc3RydWN0IHRpbWVzcGVjIHN0YXJ0Ow0K
-PiArICAgICAgIGludCBkb19sYXQgPSAhdGQtPm8uZGlzYWJsZV9sYXQ7DQo+ICsgICAgICAgaW50
-IHJldDsNCj4gKw0KPiArICAgICAgIGRwcmludChGRF9GSUxFLCAiZmQgZGVsZXRlICVzXG4iLCBm
-LT5maWxlX25hbWUpOw0KPiArDQo+ICsgICAgICAgaWYgKGYtPmZpbGV0eXBlICE9IEZJT19UWVBF
-X0ZJTEUpIHsNCj4gKyAgICAgICAgICAgICAgIGxvZ19lcnIoImZpbzogb25seSBmaWxlcyBhcmUg
-c3VwcG9ydGVkIGZhbGxvY2F0ZSBcbiIpOw0KDQpUaGlzIG1lc3NhZ2UgZG9lc24ndCBxdWl0ZSBt
-YWtlIHNlbnNlLi4uIG9ubHkgZmlsZXMgYXJlIHN1cHBvcnRlZCBieSBmaWxlZGVsZXRlPw0KDQo+
-ICsgICAgICAgICAgICAgICByZXR1cm4gMTsNCj4gKyAgICAgICB9DQo+ICsgICAgICAgaWYgKCFz
-dHJjbXAoZi0+ZmlsZV9uYW1lLCAiLSIpKSB7DQo+ICsgICAgICAgICAgICAgICBsb2dfZXJyKCJm
-aW86IGNhbid0IHJlYWQvd3JpdGUgdG8gc3RkaW4vb3V0XG4iKTsNCg0KQ2FuJ3QgZGVsZXRlIGZp
-bGVzIGZyb20gc3Rkb3V0L3N0ZGluPw0KDQo+ICsgICAgICAgICAgICAgICByZXR1cm4gMTsNCj4g
-KyAgICAgICB9DQo+ICsNCj4gKyAgICAgICBpZiAoZG9fbGF0KQ0KPiArICAgICAgICAgICAgICAg
-ZmlvX2dldHRpbWUoJnN0YXJ0LCBOVUxMKTsNCj4gKw0KPiArICAgICAgIHJldCA9IHVubGluayhm
-LT5maWxlX25hbWUpOw0KPiArDQo+ICsgICAgICAgaWYgKHJldCA9PSAtMSkgew0KPiArICAgICAg
-ICAgICAgICAgY2hhciBidWZbRklPX1ZFUlJPUl9TSVpFXTsNCj4gKyAgICAgICAgICAgICAgIGlu
-dCBlID0gZXJybm87DQo+ICsNCj4gKyAgICAgICAgICAgICAgIHNucHJpbnRmKGJ1Ziwgc2l6ZW9m
-KGJ1ZiksICJkZWxldGUoJXMpIiwgZi0+ZmlsZV9uYW1lKTsNCj4gKyAgICAgICAgICAgICAgIHRk
-X3ZlcnJvcih0ZCwgZSwgYnVmKTsNCj4gKyAgICAgICAgICAgICAgIHJldHVybiAxOw0KPiArICAg
-ICAgIH0NCj4gKw0KPiArICAgICAgIGlmIChkb19sYXQpIHsNCj4gKyAgICAgICAgICAgICAgIHN0
-cnVjdCBmY19kYXRhICpkYXRhID0gdGQtPmlvX29wc19kYXRhOw0KPiArICAgICAgICAgICAgICAg
-dWludDY0X3QgbnNlYzsNCj4gKw0KPiArICAgICAgICAgICAgICAgbnNlYyA9IG50aW1lX3NpbmNl
-X25vdygmc3RhcnQpOw0KPiArICAgICAgICAgICAgICAgYWRkX2NsYXRfc2FtcGxlKHRkLCBkYXRh
-LT5zdGF0X2RkaXIsIG5zZWMsIDAsIDAsIDApOw0KPiArICAgICAgIH0NCj4gKw0KPiArICAgICAg
-IHJldHVybiAwOw0KPiArfQ0KPiArDQo+ICsNCj4gK3N0YXRpYyBlbnVtIGZpb19xX3N0YXR1cyBx
-dWV1ZV9pbyhzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBzdHJ1Y3QgaW9fdSANCj4gK2Zpb191bnVz
-ZWQgKmlvX3UpIHsNCj4gKyAgICAgICByZXR1cm4gRklPX1FfQ09NUExFVEVEOw0KPiArfQ0KPiAr
-DQo+ICtzdGF0aWMgaW50IGluaXQoc3RydWN0IHRocmVhZF9kYXRhICp0ZCkgew0KPiArICAgICAg
-IHN0cnVjdCBmY19kYXRhICpkYXRhOw0KPiArDQo+ICsgICAgICAgZGF0YSA9IGNhbGxvYygxLCBz
-aXplb2YoKmRhdGEpKTsNCj4gKw0KPiArICAgICAgIGlmICh0ZF9yZWFkKHRkKSkNCj4gKyAgICAg
-ICAgICAgICAgIGRhdGEtPnN0YXRfZGRpciA9IERESVJfUkVBRDsNCj4gKyAgICAgICBlbHNlIGlm
-ICh0ZF93cml0ZSh0ZCkpDQo+ICsgICAgICAgICAgICAgICBkYXRhLT5zdGF0X2RkaXIgPSBERElS
-X1dSSVRFOw0KPiArDQo+ICsgICAgICAgdGQtPmlvX29wc19kYXRhID0gZGF0YTsNCj4gKyAgICAg
-ICByZXR1cm4gMDsNCj4gK30NCj4gKw0KPiArc3RhdGljIHZvaWQgY2xlYW51cChzdHJ1Y3QgdGhy
-ZWFkX2RhdGEgKnRkKSB7DQo+ICsgICAgICAgc3RydWN0IGZjX2RhdGEgKmRhdGEgPSB0ZC0+aW9f
-b3BzX2RhdGE7DQo+ICsNCj4gKyAgICAgICBmcmVlKGRhdGEpOw0KPiArfQ0KPiArDQo+ICtzdGF0
-aWMgc3RydWN0IGlvZW5naW5lX29wcyBpb2VuZ2luZSA9IHsNCj4gKyAgICAgICAubmFtZSAgICAg
-ICAgICAgPSAiZmlsZWRlbGV0ZSIsDQo+ICsgICAgICAgLnZlcnNpb24gICAgICAgID0gRklPX0lP
-T1BTX1ZFUlNJT04sDQo+ICsgICAgICAgLmluaXQgICAgICAgICAgID0gaW5pdCwNCj4gKyAgICAg
-ICAuY2xlYW51cCAgICAgICAgPSBjbGVhbnVwLA0KPiArICAgICAgIC5xdWV1ZSAgICAgICAgICA9
-IHF1ZXVlX2lvLA0KPiArICAgICAgIC5nZXRfZmlsZV9zaXplICA9IGdlbmVyaWNfZ2V0X2ZpbGVf
-c2l6ZSwNCj4gKyAgICAgICAub3Blbl9maWxlICAgICAgPSBkZWxldGVfZmlsZSwNCj4gKyAgICAg
-ICAuZmxhZ3MgICAgICAgICAgPSAgRklPX1NZTkNJTyB8IEZJT19GQUtFSU8gfA0KPiArICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIEZJT19OT1NUQVRTIHwgRklPX05PRklMRUhBU0gsIH07
-DQo+ICsNCj4gK3N0YXRpYyB2b2lkIGZpb19pbml0IGZpb19maWxlY3JlYXRlX3JlZ2lzdGVyKHZv
-aWQpIHsNCj4gKyAgICAgICByZWdpc3Rlcl9pb2VuZ2luZSgmaW9lbmdpbmUpOw0KPiArfQ0KPiAr
-DQo+ICtzdGF0aWMgdm9pZCBmaW9fZXhpdCBmaW9fZmlsZWNyZWF0ZV91bnJlZ2lzdGVyKHZvaWQp
-IHsNCj4gKyAgICAgICB1bnJlZ2lzdGVyX2lvZW5naW5lKCZpb2VuZ2luZSk7IH0NCj4gZGlmZiAt
-LWdpdCBhL2V4YW1wbGVzL2ZpbGVkZWxldGUtaW9lbmdpbmUuZmlvIA0KPiBiL2V4YW1wbGVzL2Zp
-bGVkZWxldGUtaW9lbmdpbmUuZmlvDQo+IG5ldyBmaWxlIG1vZGUgMTAwNjQ0DQo+IGluZGV4IDAw
-MDAwMDAwLi41ODAwMmM4YQ0KPiAtLS0gL2Rldi9udWxsDQo+ICsrKyBiL2V4YW1wbGVzL2ZpbGVk
-ZWxldGUtaW9lbmdpbmUuZmlvDQo+IEBAIC0wLDAgKzEsMjMgQEANCj4gKyMgRXhhbXBsZSBmaWxl
-ZGVsZXRlIGpvYg0KPiArDQo+ICsjICdmaWxlZGVsZXRlJyBlbmdpbmUgb25seSBkbyAndW5saW5r
-KGZpbGVuYW1lKScsIGZpbGUgd2lsbCBub3QgYmUgb3BlbigpLg0KPiArIyAnaW52YWxpZGF0ZScg
-c2hvdWxkIGJlIHNldCB0byAwIHNpbmNlIGZpbGUgd2lsbCBub3QgYmUgb3BlbigpLCBwb3NpeF9m
-YWR2aXNlKGZkLC4uLi4pIHdpbGwgZmFpbC4NCg0KRGlkIHlvdSB3YW50IHRoZSBpb2VuZ2luZSB0
-byBlbmZvcmNlIHRoaXM/IElmIHNvIHlvdSBjYW4gImltcGxlbWVudCINCnRoZSAuaW52YWxpZGF0
-ZSBvcCBhbmQgc2ltcGx5IGRvIG5vdGhpbmcgKHNlZSBlbmdpbmVzL2ZpbGVzdGF0LmM6MTczKS4N
-Ck90aGVycyBjYXRjaCBzZXR0aW5ncyBpbiBpbml0IChlLmcuIGVuZ2luZXMvbW1hcC5jOjI3Miku
-DQoNCj4gKyMgJ2ZpbGVzaXplJyBtdXN0IGJlIHNldCwgdGhlbiBmaWxlcyB3aWxsIGJlIGNyZWF0
-ZWQgYXQgc2V0dXAgc3RhZ2UuDQo+ICsjICd1bmxpbmsnIG11c3QgYmUgc2V0IHRvIDAsIHNpbmNl
-IHRoZSBmaWxlIGlzIGRlbGV0ZWQgaW4gbWVhc3VyZW1lbnQuDQo+ICsNCj4gK1tnbG9iYWxdDQo+
-ICtpb2VuZ2luZT1maWxlZGVsZXRlDQo+ICtudW1qb2JzPTENCj4gK2ZpbGVzaXplPTRrDQo+ICtp
-bnZhbGlkYXRlPTANCj4gK25yZmlsZXM9MjAwDQo+ICt1bmxpbms9MA0KPiArDQo+ICtbdDBdDQo+
-ICtbdDFdDQo+ICtbdDJdDQo+ICtbdDNdDQo+ICtbdDRdDQo+ICtbdDVdDQo+ICsNCj4gKw0KDQpZ
-b3UgY2FuIHByb2JhYmx5IHRyaW0gdGhlIHRyYWlsaW5nIGVtcHR5IGxpbmVzLg0KDQo+IGRpZmYg
-LS1naXQgYS9maW8uMSBiL2Zpby4xDQo+IGluZGV4IGFhMjQ4YTNiLi40YjFlZjgwZCAxMDA2NDQN
-Cj4gLS0tIGEvZmlvLjENCj4gKysrIGIvZmlvLjENCj4gQEAgLTE4MTksNiArMTgxOSwxMSBAQCBT
-aW1wbHkgZG8gc3RhdCgpIGFuZCBkbyBubyBJL08gdG8gdGhlIGZpbGUuIFlvdSBuZWVkIHRvIHNl
-dCAnZmlsZXNpemUnDQo+ICBhbmQgJ25yZmlsZXMnLCBzbyB0aGF0IGZpbGVzIHdpbGwgYmUgY3Jl
-YXRlZC4NCj4gIFRoaXMgZW5naW5lIGlzIHRvIG1lYXN1cmUgZmlsZSBsb29rdXAgYW5kIG1ldGEg
-ZGF0YSBhY2Nlc3MuDQo+ICAuVFANCj4gKy5CIGZpbGVzdGF0DQo+ICtTaW1wbHkgZGVsZXRlIGZp
-bGVzIGJ5IHVubGluaygpIGFuZCBkbyBubyBJL08gdG8gdGhlIGZpbGUuIFlvdSBuZWVkIHRvIHNl
-dCAnZmlsZXNpemUnDQo+ICthbmQgJ25yZmlsZXMnLCBzbyB0aGF0IGZpbGVzIHdpbGwgYmUgY3Jl
-YXRlZC4NCj4gK1RoaXMgZW5naW5lIGlzIHRvIG1lYXN1cmUgZmlsZSBkZWxldGUuDQo+ICsuVFAN
-Cg0KVGhpcyBsb29rcyBkaWZmZXJlbnQgdG8gd2hhdCB5b3UgcHV0IGluIHRoZSBIT1dUTy4gSXMg
-dGhpcyBpbnRlbnRpb25hbD8NCg0KPiAgLkIgbGlicG1lbQ0KPiAgUmVhZCBhbmQgd3JpdGUgdXNp
-bmcgbW1hcCBJL08gdG8gYSBmaWxlIG9uIGEgZmlsZXN5c3RlbSAgbW91bnRlZCB3aXRoIA0KPiBE
-QVggb24gYSBwZXJzaXN0ZW50IG1lbW9yeSBkZXZpY2UgdGhyb3VnaCB0aGUgUE1ESw0KPiAtLQ0K
-PiAyLjE3LjENCj4NCg0KDQotLQ0KU2l0c29mZQ0K
+Hi,
+
+On Mon, 22 Feb 2021 at 12:15, <Friendy.Su@sony.com> wrote:
+>
+> This engine is to measure performance of deleting files.
+>
+> In practice, it is an important benchmark for a file system that
+> how quick it can release the disk space of deleted files.
+>
+> Signed-off-by: friendy-su <friendy.su@sony.com>
+> ---
+>  HOWTO                            |   5 ++
+>  Makefile                         |   2 +-
+>  engines/filedelete.c             | 108 +++++++++++++++++++++++++++++++
+>  examples/filedelete-ioengine.fio |  23 +++++++
+>  fio.1                            |   5 ++
+>  5 files changed, 142 insertions(+), 1 deletion(-)
+>  create mode 100644 engines/filedelete.c
+>  create mode 100644 examples/filedelete-ioengine.fio
+>
+> diff --git a/HOWTO b/HOWTO
+> index b6d1b58a..ea728439 100644
+> --- a/HOWTO
+> +++ b/HOWTO
+> @@ -2033,6 +2033,11 @@ I/O engine
+>                         and 'nrfiles', so that files will be created.
+>                         This engine is to measure file lookup and meta data access.
+>
+> +               **filedelete**
+> +                       Simply delete the files by unlink() and do no I/O to them. You need to set 'filesize'
+> +                       and 'nrfiles', so that the files will be created.
+> +                       This engine is to measure file delete.
+> +
+>                 **libpmem**
+>                         Read and write using mmap I/O to a file on a filesystem
+>                         mounted with DAX on a persistent memory device through the PMDK
+> diff --git a/Makefile b/Makefile
+> index 612344d1..11ffa089 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -51,7 +51,7 @@ SOURCE :=     $(sort $(patsubst $(SRCDIR)/%,%,$(wildcard $(SRCDIR)/crc/*.c)) \
+>                 pshared.c options.c \
+>                 smalloc.c filehash.c profile.c debug.c engines/cpu.c \
+>                 engines/mmap.c engines/sync.c engines/null.c engines/net.c \
+> -               engines/ftruncate.c engines/filecreate.c engines/filestat.c \
+> +               engines/ftruncate.c engines/filecreate.c engines/filestat.c engines/filedelete.c \
+>                 server.c client.c iolog.c backend.c libfio.c flow.c cconv.c \
+>                 gettime-thread.c helpers.c json.c idletime.c td_error.c \
+>                 profiles/tiobench.c profiles/act.c io_u_queue.c filelock.c \
+> diff --git a/engines/filedelete.c b/engines/filedelete.c
+> new file mode 100644
+> index 00000000..71977b22
+> --- /dev/null
+> +++ b/engines/filedelete.c
+> @@ -0,0 +1,108 @@
+> +/*
+> + * file delete engine
+> + *
+> + * IO engine that doesn't do any IO, just delete files and tracks the latency
+> + * of the file deletion.
+> + */
+> +#include <stdio.h>
+> +#include <fcntl.h>
+> +#include <errno.h>
+> +#include <sys/types.h>
+> +#include <unistd.h>
+> +#include "../fio.h"
+> +
+> +struct fc_data {
+> +       enum fio_ddir stat_ddir;
+> +};
+> +
+> +static int delete_file(struct thread_data *td, struct fio_file *f)
+> +{
+> +       struct timespec start;
+> +       int do_lat = !td->o.disable_lat;
+> +       int ret;
+> +
+> +       dprint(FD_FILE, "fd delete %s\n", f->file_name);
+> +
+> +       if (f->filetype != FIO_TYPE_FILE) {
+> +               log_err("fio: only files are supported fallocate \n");
+
+This message doesn't quite make sense... only files are supported by filedelete?
+
+> +               return 1;
+> +       }
+> +       if (!strcmp(f->file_name, "-")) {
+> +               log_err("fio: can't read/write to stdin/out\n");
+
+Can't delete files from stdout/stdin?
+
+> +               return 1;
+> +       }
+> +
+> +       if (do_lat)
+> +               fio_gettime(&start, NULL);
+> +
+> +       ret = unlink(f->file_name);
+> +
+> +       if (ret == -1) {
+> +               char buf[FIO_VERROR_SIZE];
+> +               int e = errno;
+> +
+> +               snprintf(buf, sizeof(buf), "delete(%s)", f->file_name);
+> +               td_verror(td, e, buf);
+> +               return 1;
+> +       }
+> +
+> +       if (do_lat) {
+> +               struct fc_data *data = td->io_ops_data;
+> +               uint64_t nsec;
+> +
+> +               nsec = ntime_since_now(&start);
+> +               add_clat_sample(td, data->stat_ddir, nsec, 0, 0, 0);
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+> +
+> +static enum fio_q_status queue_io(struct thread_data *td, struct io_u fio_unused *io_u)
+> +{
+> +       return FIO_Q_COMPLETED;
+> +}
+> +
+> +static int init(struct thread_data *td)
+> +{
+> +       struct fc_data *data;
+> +
+> +       data = calloc(1, sizeof(*data));
+> +
+> +       if (td_read(td))
+> +               data->stat_ddir = DDIR_READ;
+> +       else if (td_write(td))
+> +               data->stat_ddir = DDIR_WRITE;
+> +
+> +       td->io_ops_data = data;
+> +       return 0;
+> +}
+> +
+> +static void cleanup(struct thread_data *td)
+> +{
+> +       struct fc_data *data = td->io_ops_data;
+> +
+> +       free(data);
+> +}
+> +
+> +static struct ioengine_ops ioengine = {
+> +       .name           = "filedelete",
+> +       .version        = FIO_IOOPS_VERSION,
+> +       .init           = init,
+> +       .cleanup        = cleanup,
+> +       .queue          = queue_io,
+> +       .get_file_size  = generic_get_file_size,
+> +       .open_file      = delete_file,
+> +       .flags          =  FIO_SYNCIO | FIO_FAKEIO |
+> +                               FIO_NOSTATS | FIO_NOFILEHASH,
+> +};
+> +
+> +static void fio_init fio_filecreate_register(void)
+> +{
+> +       register_ioengine(&ioengine);
+> +}
+> +
+> +static void fio_exit fio_filecreate_unregister(void)
+> +{
+> +       unregister_ioengine(&ioengine);
+> +}
+> diff --git a/examples/filedelete-ioengine.fio b/examples/filedelete-ioengine.fio
+> new file mode 100644
+> index 00000000..58002c8a
+> --- /dev/null
+> +++ b/examples/filedelete-ioengine.fio
+> @@ -0,0 +1,23 @@
+> +# Example filedelete job
+> +
+> +# 'filedelete' engine only do 'unlink(filename)', file will not be open().
+> +# 'invalidate' should be set to 0 since file will not be open(), posix_fadvise(fd,....) will fail.
+
+Did you want the ioengine to enforce this? If so you can "implement"
+the .invalidate op and simply do nothing (see engines/filestat.c:173).
+Others catch settings in init (e.g. engines/mmap.c:272).
+
+> +# 'filesize' must be set, then files will be created at setup stage.
+> +# 'unlink' must be set to 0, since the file is deleted in measurement.
+> +
+> +[global]
+> +ioengine=filedelete
+> +numjobs=1
+> +filesize=4k
+> +invalidate=0
+> +nrfiles=200
+> +unlink=0
+> +
+> +[t0]
+> +[t1]
+> +[t2]
+> +[t3]
+> +[t4]
+> +[t5]
+> +
+> +
+
+You can probably trim the trailing empty lines.
+
+> diff --git a/fio.1 b/fio.1
+> index aa248a3b..4b1ef80d 100644
+> --- a/fio.1
+> +++ b/fio.1
+> @@ -1819,6 +1819,11 @@ Simply do stat() and do no I/O to the file. You need to set 'filesize'
+>  and 'nrfiles', so that files will be created.
+>  This engine is to measure file lookup and meta data access.
+>  .TP
+> +.B filestat
+> +Simply delete files by unlink() and do no I/O to the file. You need to set 'filesize'
+> +and 'nrfiles', so that files will be created.
+> +This engine is to measure file delete.
+> +.TP
+
+This looks different to what you put in the HOWTO. Is this intentional?
+
+>  .B libpmem
+>  Read and write using mmap I/O to a file on a filesystem
+>  mounted with DAX on a persistent memory device through the PMDK
+> --
+> 2.17.1
+>
+
+
+-- 
+Sitsofe
 
