@@ -1,219 +1,165 @@
-Return-Path: <krish.reddy@samsung.com>
-From: Krishna Kanth Reddy <krish.reddy@samsung.com>
-Subject: [PATCH 1/1] Intoducing a new option max_latency_rw. The current
- max_latency option exits the FIO job, if latency of an I/O exceeds
- max_latency.
-Date: Fri, 12 Feb 2021 13:23:01 +0530
-Message-Id: <20210212075301.24490-2-krish.reddy@samsung.com>
-In-Reply-To: <20210212075301.24490-1-krish.reddy@samsung.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mx08-001d1705.pphosted.com ([185.183.30.70]:31620 "EHLO
+        mx08-001d1705.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229561AbhBYLCk (ORCPT
+        <rfc822;fio@vger.kernel.org>); Thu, 25 Feb 2021 06:02:40 -0500
+From: <Friendy.Su@sony.com>
+Subject: RE: [PATCH v1 1/1] engines: add engine for file delete
+Date: Thu, 25 Feb 2021 11:01:45 +0000
+Message-ID: <HK0PR04MB238840C3C9EB8E068F04592DFD9E9@HK0PR04MB2388.apcprd04.prod.outlook.com>
+References: <HK0PR04MB2388F3AF9F2D1F04CA21E722FD819@HK0PR04MB2388.apcprd04.prod.outlook.com>
+ <CALjAwxgcCvhtnc_67+fwXUZ+rC-_YbFhZrNzt+RXeeWCvfKZZg@mail.gmail.com>
+In-Reply-To: <CALjAwxgcCvhtnc_67+fwXUZ+rC-_YbFhZrNzt+RXeeWCvfKZZg@mail.gmail.com>
+Content-Language: zh-CN
 Content-Type: text/plain; charset="utf-8"
-References: <20210212075301.24490-1-krish.reddy@samsung.com>
-	<CGME20210212075338epcas5p3be8b36e09bcebe34608e935e1e9a80ec@epcas5p3.samsung.com>
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, Ankit Kumar <ankit.kumar@samsung.com>, Krishna Kanth Reddy <krish.reddy@samsung.com>
-List-ID: <fio@vger.kernel.org>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+List-Id: fio@vger.kernel.org
+To: sitsofe@gmail.com
+Cc: fio@vger.kernel.org, Kento.A.Kobayashi@sony.com, Wataru.Aoyama@sony.com
 
-From: Ankit Kumar <ankit.kumar@samsung.com>
-
-For mixed workload if user wants to exit the FIO job only if latency
-exceeds for a particular workload, i.e. either for read / write the support is not present.
-
-The new option max_latency_rw accepts read, write or mixed (Default) as option.
-If user specifies read, the FIO job will exit only if read latency exceeds max_latency.
-
-Signed-off-by: Krishna Kanth Reddy <krish.reddy@samsung.com>
----
- HOWTO            | 17 +++++++++++++++++
- cconv.c          |  2 ++
- fio.1            | 18 ++++++++++++++++++
- init.c           |  3 +++
- io_u.c           | 10 ++++++++--
- options.c        | 23 +++++++++++++++++++++++
- thread_options.h |  8 ++++++++
- 7 files changed, 79 insertions(+), 2 deletions(-)
-
-diff --git a/HOWTO b/HOWTO
-index b6d1b58a..80089bc5 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -2667,6 +2667,23 @@ I/O latency
- 	maximum latency. When the unit is omitted, the value is interpreted in
- 	microseconds.
- 
-+.. option:: max_latency_rw=str
-+
-+	Used with :option:`max_latency`. In case of mixed workload it specifies
-+	when to exit the job. Default: mixed.
-+
-+	Accepted values are:
-+
-+		**read**
-+				Exit only if read latency exceeds
-+				:option:`max_latency`.
-+		**write**
-+				Exit only if write latency exceeds
-+				:option:`max_latency`.
-+		**mixed**
-+				Exit if either of read, write latency exceeds
-+				:option:`max_latency`.
-+
- .. option:: rate_cycle=int
- 
- 	Average bandwidth for :option:`rate` and :option:`rate_min` over this number
-diff --git a/cconv.c b/cconv.c
-index b10868fb..9391b7b3 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -290,6 +290,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
- 	o->latency_target = le64_to_cpu(top->latency_target);
- 	o->latency_window = le64_to_cpu(top->latency_window);
- 	o->max_latency = le64_to_cpu(top->max_latency);
-+	o->max_latency_rw = le32_to_cpu(top->max_latency_rw);
- 	o->latency_percentile.u.f = fio_uint64_to_double(le64_to_cpu(top->latency_percentile.u.i));
- 	o->latency_run = le32_to_cpu(top->latency_run);
- 	o->compress_percentage = le32_to_cpu(top->compress_percentage);
-@@ -492,6 +493,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	top->latency_target = __cpu_to_le64(o->latency_target);
- 	top->latency_window = __cpu_to_le64(o->latency_window);
- 	top->max_latency = __cpu_to_le64(o->max_latency);
-+	top->max_latency_rw = __cpu_to_le32(o->max_latency_rw);
- 	top->latency_percentile.u.i = __cpu_to_le64(fio_double_to_uint64(o->latency_percentile.u.f));
- 	top->latency_run = __cpu_to_le32(o->latency_run);
- 	top->compress_percentage = cpu_to_le32(o->compress_percentage);
-diff --git a/fio.1 b/fio.1
-index aa248a3b..69b56e33 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2402,6 +2402,24 @@ If set, fio will exit the job with an ETIMEDOUT error if it exceeds this
- maximum latency. When the unit is omitted, the value is interpreted in
- microseconds.
- .TP
-+.BI max_latency_rw \fR=\fPstr
-+Used with \fBmax_latency\fR. In case of mixed workload it specifies when to
-+exit the job. The allowed values are:
-+.RS
-+.RS
-+.TP
-+.B read
-+Exit only if read latency exceeds \fBmax_latency\fR.
-+.TP
-+.B write
-+Exit only if write latency exceeds \fBmax_latency\fR.
-+.TP
-+.B mixed
-+Exits if either of read, write latency exceeds \fBmax_latency\fR. Default
-+.PD
-+.RE
-+.RE
-+.TP
- .BI rate_cycle \fR=\fPint
- Average bandwidth for \fBrate\fR and \fBrate_min\fR over this number
- of milliseconds. Defaults to 1000.
-diff --git a/init.c b/init.c
-index d6dbaf7c..5183f381 100644
---- a/init.c
-+++ b/init.c
-@@ -964,6 +964,9 @@ static int fixup_options(struct thread_data *td)
- 	o->max_latency *= 1000ULL;
- 	o->latency_target *= 1000ULL;
- 
-+	if (!o->max_latency && o->max_latency_rw)
-+		log_info("fio: max latency not specified.\n");
-+
- 	return ret;
- }
- 
-diff --git a/io_u.c b/io_u.c
-index 00a219c2..7835bcb7 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -1888,8 +1888,14 @@ static void account_io_completion(struct thread_data *td, struct io_u *io_u,
- 				icd->error = ops->io_u_lat(td, tnsec);
- 		}
- 
--		if (td->o.max_latency && tnsec > td->o.max_latency)
--			lat_fatal(td, icd, tnsec, td->o.max_latency);
-+		if (td->o.max_latency && tnsec > td->o.max_latency) {
-+			if (td_rw(td)) {
-+				if ((io_u->ddir == DDIR_WRITE && td->o.max_latency_rw != RW_READ) ||
-+				    (io_u->ddir == DDIR_READ && td->o.max_latency_rw != RW_WRITE))
-+					lat_fatal(td, icd, tnsec, td->o.max_latency);
-+			} else
-+				lat_fatal(td, icd, tnsec, td->o.max_latency);
-+		}
- 		if (td->o.latency_target && tnsec > td->o.latency_target) {
- 			if (lat_target_failed(td))
- 				lat_fatal(td, icd, tnsec, td->o.latency_target);
-diff --git a/options.c b/options.c
-index e62e0cfb..40f635b7 100644
---- a/options.c
-+++ b/options.c
-@@ -3735,6 +3735,29 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.category = FIO_OPT_C_IO,
- 		.group = FIO_OPT_G_LATPROF,
- 	},
-+	{
-+		.name	= "max_latency_rw",
-+		.lname	= "Max Latency mixed workload",
-+		.type	= FIO_OPT_STR,
-+		.off1	= offsetof(struct thread_options, max_latency_rw),
-+		.help	= "Maximum tolerated IO latency for Read / Write during mixed workload",
-+		.def	= "mixed",
-+		.parent	= "max_latency",
-+		.hide	= 1,
-+		.category = FIO_OPT_C_IO,
-+		.group	= FIO_OPT_G_LATPROF,
-+		.posval = {
-+			  { .ival = "read",
-+			    .oval = RW_READ,
-+			  },
-+			  { .ival = "write",
-+			    .oval = RW_WRITE,
-+			  },
-+			  { .ival = "mixed",
-+			    .oval = RW_MIXED,
-+			  },
-+		},
-+	},
- 	{
- 		.name	= "latency_target",
- 		.lname	= "Latency Target (usec)",
-diff --git a/thread_options.h b/thread_options.h
-index f6b15403..2c5bc6ba 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -18,6 +18,12 @@ enum fio_zone_mode {
- 	ZONE_MODE_ZBD		= 3,
- };
- 
-+enum fio_mix_workload {
-+	RW_READ		= 0,
-+	RW_WRITE	= 1,
-+	RW_MIXED	= 2,
-+};
-+
- /*
-  * What type of allocation to use for io buffers
-  */
-@@ -204,6 +210,7 @@ struct thread_options {
- 	unsigned int mem_align;
- 
- 	unsigned long long max_latency;
-+	unsigned int max_latency_rw;
- 
- 	unsigned int exit_what;
- 	unsigned int stonewall;
-@@ -647,6 +654,7 @@ struct thread_options_pack {
- 	uint32_t allow_mounted_write;
- 
- 	uint32_t zone_mode;
-+	uint32_t max_latency_rw;
- } __attribute__((packed));
- 
- extern void convert_thread_options_to_cpu(struct thread_options *o, struct thread_options_pack *top);
--- 
-2.30.0-rc0
-
+SGksDQoNClRoYW5rcyBmb3IgeW91ciBjb21tZW50cy4NCg0KPj4gQ2FuJ3QgZGVsZXRlIGZpbGVz
+IGZyb20gc3Rkb3V0L3N0ZGluPw0KV2UgZXhwZWN0IGZpbyBhdXRvIGNyZWF0ZSBiYXRjaCBvZiBm
+aWxlcywgdGhlbiBmaWxlZGVsZXRlIGVuZ2luZSBkZWxldGVzIHRoZW0uDQpDcmVhdGUgZnJvbSBz
+dGRpbi9vdXQgc2VlbXMgbm90IHNvIG1lYW5pbmdmdWwuDQpNZWFud2hpbGUsIGlmIHNldCAnZmls
+ZW5hbWU9LScsIGdlbmVyaWNfZ2V0X2ZpbGVfc2l6ZSgpIGNhbiBub3QgZ2V0IGFjdHVhbCBzaXpl
+Lg0KSSByZWZlcnJlZCB0byBlbmdpbmVzL2ZpbGVjcmVhdGUuYy4NCg0KT3RoZXIgY29tbWVudHMs
+IEkgd2lsbCB1cGRhdGUgcGF0Y2guDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9t
+OiBTaXRzb2ZlIFdoZWVsZXIgPHNpdHNvZmVAZ21haWwuY29tPiANClNlbnQ6IFRodXJzZGF5LCBG
+ZWJydWFyeSAyNSwgMjAyMSAzOjIxIFBNDQpUbzogU3UsIEZyaWVuZHkgPEZyaWVuZHkuU3VAc29u
+eS5jb20+DQpDYzogZmlvIDxmaW9Admdlci5rZXJuZWwub3JnPjsgS29iYXlhc2hpLCBLZW50byAo
+U29ueSkgPEtlbnRvLkEuS29iYXlhc2hpQHNvbnkuY29tPjsgQW95YW1hLCBXYXRhcnUgKFNvbnkp
+IDxXYXRhcnUuQW95YW1hQHNvbnkuY29tPg0KU3ViamVjdDogUmU6IFtQQVRDSCB2MSAxLzFdIGVu
+Z2luZXM6IGFkZCBlbmdpbmUgZm9yIGZpbGUgZGVsZXRlDQoNCkhpLA0KDQpPbiBNb24sIDIyIEZl
+YiAyMDIxIGF0IDEyOjE1LCA8RnJpZW5keS5TdUBzb255LmNvbT4gd3JvdGU6DQo+DQo+IFRoaXMg
+ZW5naW5lIGlzIHRvIG1lYXN1cmUgcGVyZm9ybWFuY2Ugb2YgZGVsZXRpbmcgZmlsZXMuDQo+DQo+
+IEluIHByYWN0aWNlLCBpdCBpcyBhbiBpbXBvcnRhbnQgYmVuY2htYXJrIGZvciBhIGZpbGUgc3lz
+dGVtIHRoYXQgaG93IA0KPiBxdWljayBpdCBjYW4gcmVsZWFzZSB0aGUgZGlzayBzcGFjZSBvZiBk
+ZWxldGVkIGZpbGVzLg0KPg0KPiBTaWduZWQtb2ZmLWJ5OiBmcmllbmR5LXN1IDxmcmllbmR5LnN1
+QHNvbnkuY29tPg0KPiAtLS0NCj4gIEhPV1RPICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwg
+ICA1ICsrDQo+ICBNYWtlZmlsZSAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgMiArLQ0KPiAg
+ZW5naW5lcy9maWxlZGVsZXRlLmMgICAgICAgICAgICAgfCAxMDggKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKw0KPiAgZXhhbXBsZXMvZmlsZWRlbGV0ZS1pb2VuZ2luZS5maW8gfCAgMjMg
+KysrKysrKw0KPiAgZmlvLjEgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDUgKysNCj4g
+IDUgZmlsZXMgY2hhbmdlZCwgMTQyIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkgIGNyZWF0
+ZSBtb2RlIDEwMDY0NCANCj4gZW5naW5lcy9maWxlZGVsZXRlLmMgIGNyZWF0ZSBtb2RlIDEwMDY0
+NCANCj4gZXhhbXBsZXMvZmlsZWRlbGV0ZS1pb2VuZ2luZS5maW8NCj4NCj4gZGlmZiAtLWdpdCBh
+L0hPV1RPIGIvSE9XVE8NCj4gaW5kZXggYjZkMWI1OGEuLmVhNzI4NDM5IDEwMDY0NA0KPiAtLS0g
+YS9IT1dUTw0KPiArKysgYi9IT1dUTw0KPiBAQCAtMjAzMyw2ICsyMDMzLDExIEBAIEkvTyBlbmdp
+bmUNCj4gICAgICAgICAgICAgICAgICAgICAgICAgYW5kICducmZpbGVzJywgc28gdGhhdCBmaWxl
+cyB3aWxsIGJlIGNyZWF0ZWQuDQo+ICAgICAgICAgICAgICAgICAgICAgICAgIFRoaXMgZW5naW5l
+IGlzIHRvIG1lYXN1cmUgZmlsZSBsb29rdXAgYW5kIG1ldGEgZGF0YSBhY2Nlc3MuDQo+DQo+ICsg
+ICAgICAgICAgICAgICAqKmZpbGVkZWxldGUqKg0KPiArICAgICAgICAgICAgICAgICAgICAgICBT
+aW1wbHkgZGVsZXRlIHRoZSBmaWxlcyBieSB1bmxpbmsoKSBhbmQgZG8gbm8gSS9PIHRvIHRoZW0u
+IFlvdSBuZWVkIHRvIHNldCAnZmlsZXNpemUnDQo+ICsgICAgICAgICAgICAgICAgICAgICAgIGFu
+ZCAnbnJmaWxlcycsIHNvIHRoYXQgdGhlIGZpbGVzIHdpbGwgYmUgY3JlYXRlZC4NCj4gKyAgICAg
+ICAgICAgICAgICAgICAgICAgVGhpcyBlbmdpbmUgaXMgdG8gbWVhc3VyZSBmaWxlIGRlbGV0ZS4N
+Cj4gKw0KPiAgICAgICAgICAgICAgICAgKipsaWJwbWVtKioNCj4gICAgICAgICAgICAgICAgICAg
+ICAgICAgUmVhZCBhbmQgd3JpdGUgdXNpbmcgbW1hcCBJL08gdG8gYSBmaWxlIG9uIGEgZmlsZXN5
+c3RlbQ0KPiAgICAgICAgICAgICAgICAgICAgICAgICBtb3VudGVkIHdpdGggREFYIG9uIGEgcGVy
+c2lzdGVudCBtZW1vcnkgZGV2aWNlIA0KPiB0aHJvdWdoIHRoZSBQTURLIGRpZmYgLS1naXQgYS9N
+YWtlZmlsZSBiL01ha2VmaWxlIGluZGV4IA0KPiA2MTIzNDRkMS4uMTFmZmEwODkgMTAwNjQ0DQo+
+IC0tLSBhL01ha2VmaWxlDQo+ICsrKyBiL01ha2VmaWxlDQo+IEBAIC01MSw3ICs1MSw3IEBAIFNP
+VVJDRSA6PSAgICAgJChzb3J0ICQocGF0c3Vic3QgJChTUkNESVIpLyUsJSwkKHdpbGRjYXJkICQo
+U1JDRElSKS9jcmMvKi5jKSkgXA0KPiAgICAgICAgICAgICAgICAgcHNoYXJlZC5jIG9wdGlvbnMu
+YyBcDQo+ICAgICAgICAgICAgICAgICBzbWFsbG9jLmMgZmlsZWhhc2guYyBwcm9maWxlLmMgZGVi
+dWcuYyBlbmdpbmVzL2NwdS5jIFwNCj4gICAgICAgICAgICAgICAgIGVuZ2luZXMvbW1hcC5jIGVu
+Z2luZXMvc3luYy5jIGVuZ2luZXMvbnVsbC5jIGVuZ2luZXMvbmV0LmMgXA0KPiAtICAgICAgICAg
+ICAgICAgZW5naW5lcy9mdHJ1bmNhdGUuYyBlbmdpbmVzL2ZpbGVjcmVhdGUuYyBlbmdpbmVzL2Zp
+bGVzdGF0LmMgXA0KPiArICAgICAgICAgICAgICAgZW5naW5lcy9mdHJ1bmNhdGUuYyBlbmdpbmVz
+L2ZpbGVjcmVhdGUuYyANCj4gKyBlbmdpbmVzL2ZpbGVzdGF0LmMgZW5naW5lcy9maWxlZGVsZXRl
+LmMgXA0KPiAgICAgICAgICAgICAgICAgc2VydmVyLmMgY2xpZW50LmMgaW9sb2cuYyBiYWNrZW5k
+LmMgbGliZmlvLmMgZmxvdy5jIGNjb252LmMgXA0KPiAgICAgICAgICAgICAgICAgZ2V0dGltZS10
+aHJlYWQuYyBoZWxwZXJzLmMganNvbi5jIGlkbGV0aW1lLmMgdGRfZXJyb3IuYyBcDQo+ICAgICAg
+ICAgICAgICAgICBwcm9maWxlcy90aW9iZW5jaC5jIHByb2ZpbGVzL2FjdC5jIGlvX3VfcXVldWUu
+YyANCj4gZmlsZWxvY2suYyBcIGRpZmYgLS1naXQgYS9lbmdpbmVzL2ZpbGVkZWxldGUuYyBiL2Vu
+Z2luZXMvZmlsZWRlbGV0ZS5jIA0KPiBuZXcgZmlsZSBtb2RlIDEwMDY0NCBpbmRleCAwMDAwMDAw
+MC4uNzE5NzdiMjINCj4gLS0tIC9kZXYvbnVsbA0KPiArKysgYi9lbmdpbmVzL2ZpbGVkZWxldGUu
+Yw0KPiBAQCAtMCwwICsxLDEwOCBAQA0KPiArLyoNCj4gKyAqIGZpbGUgZGVsZXRlIGVuZ2luZQ0K
+PiArICoNCj4gKyAqIElPIGVuZ2luZSB0aGF0IGRvZXNuJ3QgZG8gYW55IElPLCBqdXN0IGRlbGV0
+ZSBmaWxlcyBhbmQgdHJhY2tzIHRoZSANCj4gK2xhdGVuY3kNCj4gKyAqIG9mIHRoZSBmaWxlIGRl
+bGV0aW9uLg0KPiArICovDQo+ICsjaW5jbHVkZSA8c3RkaW8uaD4NCj4gKyNpbmNsdWRlIDxmY250
+bC5oPg0KPiArI2luY2x1ZGUgPGVycm5vLmg+DQo+ICsjaW5jbHVkZSA8c3lzL3R5cGVzLmg+DQo+
+ICsjaW5jbHVkZSA8dW5pc3RkLmg+DQo+ICsjaW5jbHVkZSAiLi4vZmlvLmgiDQo+ICsNCj4gK3N0
+cnVjdCBmY19kYXRhIHsNCj4gKyAgICAgICBlbnVtIGZpb19kZGlyIHN0YXRfZGRpcjsNCj4gK307
+DQo+ICsNCj4gK3N0YXRpYyBpbnQgZGVsZXRlX2ZpbGUoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwg
+c3RydWN0IGZpb19maWxlICpmKSB7DQo+ICsgICAgICAgc3RydWN0IHRpbWVzcGVjIHN0YXJ0Ow0K
+PiArICAgICAgIGludCBkb19sYXQgPSAhdGQtPm8uZGlzYWJsZV9sYXQ7DQo+ICsgICAgICAgaW50
+IHJldDsNCj4gKw0KPiArICAgICAgIGRwcmludChGRF9GSUxFLCAiZmQgZGVsZXRlICVzXG4iLCBm
+LT5maWxlX25hbWUpOw0KPiArDQo+ICsgICAgICAgaWYgKGYtPmZpbGV0eXBlICE9IEZJT19UWVBF
+X0ZJTEUpIHsNCj4gKyAgICAgICAgICAgICAgIGxvZ19lcnIoImZpbzogb25seSBmaWxlcyBhcmUg
+c3VwcG9ydGVkIGZhbGxvY2F0ZSBcbiIpOw0KDQpUaGlzIG1lc3NhZ2UgZG9lc24ndCBxdWl0ZSBt
+YWtlIHNlbnNlLi4uIG9ubHkgZmlsZXMgYXJlIHN1cHBvcnRlZCBieSBmaWxlZGVsZXRlPw0KDQo+
+ICsgICAgICAgICAgICAgICByZXR1cm4gMTsNCj4gKyAgICAgICB9DQo+ICsgICAgICAgaWYgKCFz
+dHJjbXAoZi0+ZmlsZV9uYW1lLCAiLSIpKSB7DQo+ICsgICAgICAgICAgICAgICBsb2dfZXJyKCJm
+aW86IGNhbid0IHJlYWQvd3JpdGUgdG8gc3RkaW4vb3V0XG4iKTsNCg0KQ2FuJ3QgZGVsZXRlIGZp
+bGVzIGZyb20gc3Rkb3V0L3N0ZGluPw0KDQo+ICsgICAgICAgICAgICAgICByZXR1cm4gMTsNCj4g
+KyAgICAgICB9DQo+ICsNCj4gKyAgICAgICBpZiAoZG9fbGF0KQ0KPiArICAgICAgICAgICAgICAg
+ZmlvX2dldHRpbWUoJnN0YXJ0LCBOVUxMKTsNCj4gKw0KPiArICAgICAgIHJldCA9IHVubGluayhm
+LT5maWxlX25hbWUpOw0KPiArDQo+ICsgICAgICAgaWYgKHJldCA9PSAtMSkgew0KPiArICAgICAg
+ICAgICAgICAgY2hhciBidWZbRklPX1ZFUlJPUl9TSVpFXTsNCj4gKyAgICAgICAgICAgICAgIGlu
+dCBlID0gZXJybm87DQo+ICsNCj4gKyAgICAgICAgICAgICAgIHNucHJpbnRmKGJ1Ziwgc2l6ZW9m
+KGJ1ZiksICJkZWxldGUoJXMpIiwgZi0+ZmlsZV9uYW1lKTsNCj4gKyAgICAgICAgICAgICAgIHRk
+X3ZlcnJvcih0ZCwgZSwgYnVmKTsNCj4gKyAgICAgICAgICAgICAgIHJldHVybiAxOw0KPiArICAg
+ICAgIH0NCj4gKw0KPiArICAgICAgIGlmIChkb19sYXQpIHsNCj4gKyAgICAgICAgICAgICAgIHN0
+cnVjdCBmY19kYXRhICpkYXRhID0gdGQtPmlvX29wc19kYXRhOw0KPiArICAgICAgICAgICAgICAg
+dWludDY0X3QgbnNlYzsNCj4gKw0KPiArICAgICAgICAgICAgICAgbnNlYyA9IG50aW1lX3NpbmNl
+X25vdygmc3RhcnQpOw0KPiArICAgICAgICAgICAgICAgYWRkX2NsYXRfc2FtcGxlKHRkLCBkYXRh
+LT5zdGF0X2RkaXIsIG5zZWMsIDAsIDAsIDApOw0KPiArICAgICAgIH0NCj4gKw0KPiArICAgICAg
+IHJldHVybiAwOw0KPiArfQ0KPiArDQo+ICsNCj4gK3N0YXRpYyBlbnVtIGZpb19xX3N0YXR1cyBx
+dWV1ZV9pbyhzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBzdHJ1Y3QgaW9fdSANCj4gK2Zpb191bnVz
+ZWQgKmlvX3UpIHsNCj4gKyAgICAgICByZXR1cm4gRklPX1FfQ09NUExFVEVEOw0KPiArfQ0KPiAr
+DQo+ICtzdGF0aWMgaW50IGluaXQoc3RydWN0IHRocmVhZF9kYXRhICp0ZCkgew0KPiArICAgICAg
+IHN0cnVjdCBmY19kYXRhICpkYXRhOw0KPiArDQo+ICsgICAgICAgZGF0YSA9IGNhbGxvYygxLCBz
+aXplb2YoKmRhdGEpKTsNCj4gKw0KPiArICAgICAgIGlmICh0ZF9yZWFkKHRkKSkNCj4gKyAgICAg
+ICAgICAgICAgIGRhdGEtPnN0YXRfZGRpciA9IERESVJfUkVBRDsNCj4gKyAgICAgICBlbHNlIGlm
+ICh0ZF93cml0ZSh0ZCkpDQo+ICsgICAgICAgICAgICAgICBkYXRhLT5zdGF0X2RkaXIgPSBERElS
+X1dSSVRFOw0KPiArDQo+ICsgICAgICAgdGQtPmlvX29wc19kYXRhID0gZGF0YTsNCj4gKyAgICAg
+ICByZXR1cm4gMDsNCj4gK30NCj4gKw0KPiArc3RhdGljIHZvaWQgY2xlYW51cChzdHJ1Y3QgdGhy
+ZWFkX2RhdGEgKnRkKSB7DQo+ICsgICAgICAgc3RydWN0IGZjX2RhdGEgKmRhdGEgPSB0ZC0+aW9f
+b3BzX2RhdGE7DQo+ICsNCj4gKyAgICAgICBmcmVlKGRhdGEpOw0KPiArfQ0KPiArDQo+ICtzdGF0
+aWMgc3RydWN0IGlvZW5naW5lX29wcyBpb2VuZ2luZSA9IHsNCj4gKyAgICAgICAubmFtZSAgICAg
+ICAgICAgPSAiZmlsZWRlbGV0ZSIsDQo+ICsgICAgICAgLnZlcnNpb24gICAgICAgID0gRklPX0lP
+T1BTX1ZFUlNJT04sDQo+ICsgICAgICAgLmluaXQgICAgICAgICAgID0gaW5pdCwNCj4gKyAgICAg
+ICAuY2xlYW51cCAgICAgICAgPSBjbGVhbnVwLA0KPiArICAgICAgIC5xdWV1ZSAgICAgICAgICA9
+IHF1ZXVlX2lvLA0KPiArICAgICAgIC5nZXRfZmlsZV9zaXplICA9IGdlbmVyaWNfZ2V0X2ZpbGVf
+c2l6ZSwNCj4gKyAgICAgICAub3Blbl9maWxlICAgICAgPSBkZWxldGVfZmlsZSwNCj4gKyAgICAg
+ICAuZmxhZ3MgICAgICAgICAgPSAgRklPX1NZTkNJTyB8IEZJT19GQUtFSU8gfA0KPiArICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIEZJT19OT1NUQVRTIHwgRklPX05PRklMRUhBU0gsIH07
+DQo+ICsNCj4gK3N0YXRpYyB2b2lkIGZpb19pbml0IGZpb19maWxlY3JlYXRlX3JlZ2lzdGVyKHZv
+aWQpIHsNCj4gKyAgICAgICByZWdpc3Rlcl9pb2VuZ2luZSgmaW9lbmdpbmUpOw0KPiArfQ0KPiAr
+DQo+ICtzdGF0aWMgdm9pZCBmaW9fZXhpdCBmaW9fZmlsZWNyZWF0ZV91bnJlZ2lzdGVyKHZvaWQp
+IHsNCj4gKyAgICAgICB1bnJlZ2lzdGVyX2lvZW5naW5lKCZpb2VuZ2luZSk7IH0NCj4gZGlmZiAt
+LWdpdCBhL2V4YW1wbGVzL2ZpbGVkZWxldGUtaW9lbmdpbmUuZmlvIA0KPiBiL2V4YW1wbGVzL2Zp
+bGVkZWxldGUtaW9lbmdpbmUuZmlvDQo+IG5ldyBmaWxlIG1vZGUgMTAwNjQ0DQo+IGluZGV4IDAw
+MDAwMDAwLi41ODAwMmM4YQ0KPiAtLS0gL2Rldi9udWxsDQo+ICsrKyBiL2V4YW1wbGVzL2ZpbGVk
+ZWxldGUtaW9lbmdpbmUuZmlvDQo+IEBAIC0wLDAgKzEsMjMgQEANCj4gKyMgRXhhbXBsZSBmaWxl
+ZGVsZXRlIGpvYg0KPiArDQo+ICsjICdmaWxlZGVsZXRlJyBlbmdpbmUgb25seSBkbyAndW5saW5r
+KGZpbGVuYW1lKScsIGZpbGUgd2lsbCBub3QgYmUgb3BlbigpLg0KPiArIyAnaW52YWxpZGF0ZScg
+c2hvdWxkIGJlIHNldCB0byAwIHNpbmNlIGZpbGUgd2lsbCBub3QgYmUgb3BlbigpLCBwb3NpeF9m
+YWR2aXNlKGZkLC4uLi4pIHdpbGwgZmFpbC4NCg0KRGlkIHlvdSB3YW50IHRoZSBpb2VuZ2luZSB0
+byBlbmZvcmNlIHRoaXM/IElmIHNvIHlvdSBjYW4gImltcGxlbWVudCINCnRoZSAuaW52YWxpZGF0
+ZSBvcCBhbmQgc2ltcGx5IGRvIG5vdGhpbmcgKHNlZSBlbmdpbmVzL2ZpbGVzdGF0LmM6MTczKS4N
+Ck90aGVycyBjYXRjaCBzZXR0aW5ncyBpbiBpbml0IChlLmcuIGVuZ2luZXMvbW1hcC5jOjI3Miku
+DQoNCj4gKyMgJ2ZpbGVzaXplJyBtdXN0IGJlIHNldCwgdGhlbiBmaWxlcyB3aWxsIGJlIGNyZWF0
+ZWQgYXQgc2V0dXAgc3RhZ2UuDQo+ICsjICd1bmxpbmsnIG11c3QgYmUgc2V0IHRvIDAsIHNpbmNl
+IHRoZSBmaWxlIGlzIGRlbGV0ZWQgaW4gbWVhc3VyZW1lbnQuDQo+ICsNCj4gK1tnbG9iYWxdDQo+
+ICtpb2VuZ2luZT1maWxlZGVsZXRlDQo+ICtudW1qb2JzPTENCj4gK2ZpbGVzaXplPTRrDQo+ICtp
+bnZhbGlkYXRlPTANCj4gK25yZmlsZXM9MjAwDQo+ICt1bmxpbms9MA0KPiArDQo+ICtbdDBdDQo+
+ICtbdDFdDQo+ICtbdDJdDQo+ICtbdDNdDQo+ICtbdDRdDQo+ICtbdDVdDQo+ICsNCj4gKw0KDQpZ
+b3UgY2FuIHByb2JhYmx5IHRyaW0gdGhlIHRyYWlsaW5nIGVtcHR5IGxpbmVzLg0KDQo+IGRpZmYg
+LS1naXQgYS9maW8uMSBiL2Zpby4xDQo+IGluZGV4IGFhMjQ4YTNiLi40YjFlZjgwZCAxMDA2NDQN
+Cj4gLS0tIGEvZmlvLjENCj4gKysrIGIvZmlvLjENCj4gQEAgLTE4MTksNiArMTgxOSwxMSBAQCBT
+aW1wbHkgZG8gc3RhdCgpIGFuZCBkbyBubyBJL08gdG8gdGhlIGZpbGUuIFlvdSBuZWVkIHRvIHNl
+dCAnZmlsZXNpemUnDQo+ICBhbmQgJ25yZmlsZXMnLCBzbyB0aGF0IGZpbGVzIHdpbGwgYmUgY3Jl
+YXRlZC4NCj4gIFRoaXMgZW5naW5lIGlzIHRvIG1lYXN1cmUgZmlsZSBsb29rdXAgYW5kIG1ldGEg
+ZGF0YSBhY2Nlc3MuDQo+ICAuVFANCj4gKy5CIGZpbGVzdGF0DQo+ICtTaW1wbHkgZGVsZXRlIGZp
+bGVzIGJ5IHVubGluaygpIGFuZCBkbyBubyBJL08gdG8gdGhlIGZpbGUuIFlvdSBuZWVkIHRvIHNl
+dCAnZmlsZXNpemUnDQo+ICthbmQgJ25yZmlsZXMnLCBzbyB0aGF0IGZpbGVzIHdpbGwgYmUgY3Jl
+YXRlZC4NCj4gK1RoaXMgZW5naW5lIGlzIHRvIG1lYXN1cmUgZmlsZSBkZWxldGUuDQo+ICsuVFAN
+Cg0KVGhpcyBsb29rcyBkaWZmZXJlbnQgdG8gd2hhdCB5b3UgcHV0IGluIHRoZSBIT1dUTy4gSXMg
+dGhpcyBpbnRlbnRpb25hbD8NCg0KPiAgLkIgbGlicG1lbQ0KPiAgUmVhZCBhbmQgd3JpdGUgdXNp
+bmcgbW1hcCBJL08gdG8gYSBmaWxlIG9uIGEgZmlsZXN5c3RlbSAgbW91bnRlZCB3aXRoIA0KPiBE
+QVggb24gYSBwZXJzaXN0ZW50IG1lbW9yeSBkZXZpY2UgdGhyb3VnaCB0aGUgUE1ESw0KPiAtLQ0K
+PiAyLjE3LjENCj4NCg0KDQotLQ0KU2l0c29mZQ0K
 
