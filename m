@@ -1,12 +1,12 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx07-001d1705.pphosted.com ([185.132.183.11]:16604 "EHLO
+Received: from mx07-001d1705.pphosted.com ([185.132.183.11]:1174 "EHLO
         mx07-001d1705.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229449AbhBZI2V (ORCPT
-        <rfc822;fio@vger.kernel.org>); Fri, 26 Feb 2021 03:28:21 -0500
+        by vger.kernel.org with ESMTP id S229498AbhBZIKo (ORCPT
+        <rfc822;fio@vger.kernel.org>); Fri, 26 Feb 2021 03:10:44 -0500
 From: <Friendy.Su@sony.com>
-Subject: [PATCH v3 1/1] engines: add engine for file delete
-Date: Fri, 26 Feb 2021 08:27:28 +0000
-Message-ID: <HK0PR04MB23887502C02FF1B36D96FBFEFD9D9@HK0PR04MB2388.apcprd04.prod.outlook.com>
+Subject: [PATCH v2 1/1] engines: add engine for file delete
+Date: Fri, 26 Feb 2021 08:09:43 +0000
+Message-ID: <HK0PR04MB23884D6B1DE2EC4695B6D1F4FD9D9@HK0PR04MB2388.apcprd04.prod.outlook.com>
 Content-Language: zh-CN
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
@@ -105,16 +105,16 @@ d2lsbCBiZSBjcmVhdGVkIGF0IHNldHVwIHN0YWdlLg0KKyMgJ3VubGluaycgaXMgYmV0dGVyIHNl
 dCB0byAwLCBzaW5jZSB0aGUgZmlsZSBpcyBkZWxldGVkIGluIG1lYXN1cmVtZW50Lg0KKw0KK1tn
 bG9iYWxdDQoraW9lbmdpbmU9ZmlsZWRlbGV0ZQ0KK251bWpvYnM9MQ0KK2ZpbGVzaXplPTRrDQor
 bnJmaWxlcz0yMDANCit1bmxpbms9MA0KKw0KK1t0MF0NCitbdDFdDQorW3QyXQ0KK1t0M10NCitb
-dDRdDQorW3Q1XQ0KZGlmZiAtLWdpdCBhL2Zpby4xIGIvZmlvLjENCmluZGV4IGFjY2M2YTMyLi45
-NDMzMmM1ZiAxMDA2NDQNCi0tLSBhL2Zpby4xDQorKysgYi9maW8uMQ0KQEAgLTE4MjIsNiArMTgy
+dDRdDQorW3Q1XQ0KZGlmZiAtLWdpdCBhL2Zpby4xIGIvZmlvLjENCmluZGV4IGFjY2M2YTMyLi5k
+NzA5MWQ2NiAxMDA2NDQNCi0tLSBhL2Zpby4xDQorKysgYi9maW8uMQ0KQEAgLTE4MjIsNiArMTgy
 MiwxMSBAQCBTaW1wbHkgZG8gc3RhdCgpIGFuZCBkbyBubyBJL08gdG8gdGhlIGZpbGUuIFlvdSBu
 ZWVkIHRvIHNldCAnZmlsZXNpemUnDQogYW5kICducmZpbGVzJywgc28gdGhhdCBmaWxlcyB3aWxs
 IGJlIGNyZWF0ZWQuDQogVGhpcyBlbmdpbmUgaXMgdG8gbWVhc3VyZSBmaWxlIGxvb2t1cCBhbmQg
-bWV0YSBkYXRhIGFjY2Vzcy4NCiAuVFANCisuQiBmaWxlZGVsZXRlDQorU2ltcGx5IGRlbGV0ZSBm
-aWxlcyBieSB1bmxpbmsoKSBhbmQgZG8gbm8gSS9PIHRvIHRoZSBmaWxlLiBZb3UgbmVlZCB0byBz
-ZXQgJ2ZpbGVzaXplJw0KK2FuZCAnbnJmaWxlcycsIHNvIHRoYXQgZmlsZXMgd2lsbCBiZSBjcmVh
-dGVkLg0KK1RoaXMgZW5naW5lIGlzIHRvIG1lYXN1cmUgZmlsZSBkZWxldGUuDQorLlRQDQogLkIg
-bGlicG1lbQ0KIFJlYWQgYW5kIHdyaXRlIHVzaW5nIG1tYXAgSS9PIHRvIGEgZmlsZSBvbiBhIGZp
-bGVzeXN0ZW0NCiBtb3VudGVkIHdpdGggREFYIG9uIGEgcGVyc2lzdGVudCBtZW1vcnkgZGV2aWNl
-IHRocm91Z2ggdGhlIFBNREsNCi0tIA0KMi4xNy4xDQoNCg==
+bWV0YSBkYXRhIGFjY2Vzcy4NCiAuVFANCisuQiBmaWxlc3RhdA0KK1NpbXBseSBkZWxldGUgZmls
+ZXMgYnkgdW5saW5rKCkgYW5kIGRvIG5vIEkvTyB0byB0aGUgZmlsZS4gWW91IG5lZWQgdG8gc2V0
+ICdmaWxlc2l6ZScNCithbmQgJ25yZmlsZXMnLCBzbyB0aGF0IGZpbGVzIHdpbGwgYmUgY3JlYXRl
+ZC4NCitUaGlzIGVuZ2luZSBpcyB0byBtZWFzdXJlIGZpbGUgZGVsZXRlLg0KKy5UUA0KIC5CIGxp
+YnBtZW0NCiBSZWFkIGFuZCB3cml0ZSB1c2luZyBtbWFwIEkvTyB0byBhIGZpbGUgb24gYSBmaWxl
+c3lzdGVtDQogbW91bnRlZCB3aXRoIERBWCBvbiBhIHBlcnNpc3RlbnQgbWVtb3J5IGRldmljZSB0
+aHJvdWdoIHRoZSBQTURLDQotLSANCjIuMTcuMQ0KDQo=
 
