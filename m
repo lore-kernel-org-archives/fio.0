@@ -1,57 +1,28 @@
-Return-Path: <prvs=7111401fc=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 2/2] t/zbd: test repeated async write with block size unaligned to zone size
-Date: Thu, 25 Mar 2021 11:15:35 +0900
-Message-Id: <20210325021535.1531333-3-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20210325021535.1531333-1-shinichiro.kawasaki@wdc.com>
-References: <20210325021535.1531333-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48508 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232564AbhCDC3l (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 3 Mar 2021 21:29:41 -0500
+Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A7A5C06175F
+        for <fio@vger.kernel.org>; Wed,  3 Mar 2021 18:28:55 -0800 (PST)
+Received: by mail-yb1-xb36.google.com with SMTP id b10so26840485ybn.3
+        for <fio@vger.kernel.org>; Wed, 03 Mar 2021 18:28:55 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
+From: RN Deglin <rndeglin@gmail.com>
+Date: Wed, 3 Mar 2021 18:28:44 -0800
+Message-ID: <CAAF4gz3-yWGDqVGkRWNNcV4jDDZJpc9NHRBfUegS9q_8uNU5YA@mail.gmail.com>
+Subject: adapting fio to measure non-R/W workloads
+Content-Type: text/plain; charset="UTF-8"
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-A recently fixed bug was caused by zone reset during asynchronous IOs
-in-flight. The bug symptom was unaligned command error which was
-observed using random write workload with libaio engine and block size
-not a divisor of zone size. To confirm the bug fix and to prevent future
-regression, add a test case which runs the workload.
+I have a need to measure workloads involving SCSI VERIFY and WRITE
+SAME commands, for direct comparison with fio READ and WRITE
+workloads. Has anyone ever modified fio to do this? If so, is source
+available? If not, is anyone interested in doing this?
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- t/zbd/test-zbd-support | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+I have not found any other tools that can do this.
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index be129615..51c92e86 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -1201,6 +1201,24 @@ test56() {
- 		>> "${logfile}.${test_number}" 2>&1 || return $?
- }
- 
-+# Test that repeated async write job does not cause zone reset during writes
-+# in-flight, when the block size is not a divisor of the zone size.
-+test57() {
-+	local bs off
-+
-+	require_zbd || return $SKIP_TESTCASE
-+
-+	bs=$((4096 * 7))
-+	off=$((first_sequential_zone_sector * 512))
-+
-+	run_fio --name=job --filename="${dev}" --rw=randwrite --bs="${bs}" \
-+		--offset="${off}" --size=$((4 * zone_size)) --iodepth=256 \
-+		"$(ioengine "libaio")" --numjob=4 --time_based=1 --runtime=30s \
-+		--zonemode=zbd --direct=1 --zonesize="${zone_size}" \
-+		${job_var_opts[@]} \
-+		>> "${logfile}.${test_number}" 2>&1 || return $?
-+}
-+
- SECONDS=0
- tests=()
- dynamic_analyzer=()
--- 
-2.29.2
-
+Thanks.
 
