@@ -1,83 +1,62 @@
-Return-Path: <prvs=7094d7b7f=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 2/2] t/zbd: test repeated async write to sequential write required zones
-Date: Tue, 23 Mar 2021 10:13:24 +0900
-Message-Id: <20210323011324.1365343-3-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20210323011324.1365343-1-shinichiro.kawasaki@wdc.com>
-References: <20210323011324.1365343-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [Question] A question about t/io_uring.c
+References: <CAKvRR0TG4L3NqNiOMyh2zb0tA7vfuc_L8kU5ropGrY3fJm5GAg@mail.gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <dbf38577-2932-ad2a-941f-6b4ed2edbbac@kernel.dk>
+Date: Mon, 8 Mar 2021 15:27:20 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+In-Reply-To: <CAKvRR0TG4L3NqNiOMyh2zb0tA7vfuc_L8kU5ropGrY3fJm5GAg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Hongwei Qin <glqinhongwei@gmail.com>, fio <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-A recently fixed bug was caused by conflict between asynchronous IOs
-to a zone and zone reset for file reset. To confirm the bug fix and to
-prevent future regression, add a test case which triggers the bug. The
-test case repeats random write to multiple zones with libaio engine. The
-bug was observed when block size is equal to max_sectors_kb sysfs
-attribute. Add a new helper function get_sysfs_bdev() to get the
-attribute of the test target device.
+On 2/21/21 4:09 AM, Hongwei Qin wrote:
+> Hi,
+> 
+> I found two implementation details in t/io_uring.c quite interesting.
+> Both are in the prep_more_ios() function.
+> 
+> 1.
+> reading the sq ring head is not protected using something like
+> READ_ONCE() or smp_read_acquire().
+> According to https://www.kernel.org/doc/Documentation/memory-barriers.txt
+> ```
+> It _must_not_ be assumed that the compiler will do what you want
+> with memory references that are not protected by READ_ONCE() and
+> WRITE_ONCE().  Without them, the compiler is within its rights to
+> do all sorts of "creative" transformations, which are covered in
+> the COMPILER BARRIER section.
+> ```
+> 
+> Is it possible that the modifications to the sqe using init_io() get
+> reordered prior to reading the sq ring head?
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- t/zbd/functions        | 12 ++++++++++++
- t/zbd/test-zbd-support | 18 ++++++++++++++++++
- 2 files changed, 30 insertions(+)
+I had to fix another bug in there related to SQPOLL, and I updated the
+rest to do the proper atomic load acquire and store releases. So the
+current version in git should be proper. Doesn't really matter on x86,
+but it does on other archs.
 
-diff --git a/t/zbd/functions b/t/zbd/functions
-index 40ffe1de..56ac2952 100644
---- a/t/zbd/functions
-+++ b/t/zbd/functions
-@@ -84,6 +84,18 @@ first_sequential_zone() {
-     fi
- }
- 
-+# Get sysfs block device attribute. The given device must be a block device.
-+get_bdev_sysfs() {
-+	local dev=${1}
-+	local attr=${2}
-+	local major minro
-+
-+	major=$((0x$(stat -L -c '%t' "$dev"))) || exit $?
-+	minor=$((0x$(stat -L -c '%T' "$dev"))) || exit $?
-+
-+	cat "/sys/dev/block/${major}:${minor}/${attr}"
-+}
-+
- # Reports the summed zone capacity of $1 number of zones starting from offset $2
- # on device $3.
- total_zone_capacity() {
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index be129615..bf9e8e07 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -1201,6 +1201,24 @@ test56() {
- 		>> "${logfile}.${test_number}" 2>&1 || return $?
- }
- 
-+# Test that async writes to zones and zone reset to them for repeated workload
-+# do not conflict.
-+test57() {
-+	local bs off
-+
-+	require_zbd || return $SKIP_TESTCASE
-+
-+	bs=$(($(get_bdev_sysfs "${dev}" queue/max_sectors_kb) * 1024))
-+	off=$((first_sequential_zone_sector * 512))
-+
-+	run_fio --name=job --filename="${dev}" --rw=randwrite --bs="${bs}" \
-+		--offset="${off}" --size=$((4 * zone_size)) --iodepth=256 \
-+		"$(ioengine "libaio")" --numjob=4 --time_based=1 --runtime=30s \
-+		--zonemode=zbd --direct=1 --zonesize="${zone_size}" \
-+		${job_var_opts[@]} \
-+		>> "${logfile}.${test_number}" 2>&1 || return $?
-+}
-+
- SECONDS=0
- tests=()
- dynamic_analyzer=()
+
+> 2.
+> Writing to the sq ring tail is not protected using something like
+> smp_store_release.
+> Even according to the article "Efficient IO with io_uring", adding an
+> sqe should be like:
+> ```
+> write_barrier();
+> sqring->tail = tail;
+> write_barrier();
+> ```
+> However, the first write barrier is missing in the t/io_uring.c
+> Is it possible that the memory stores get reordered?
+
+It's because the documentation needs updating, there's no risk of
+reordering of the sqe and the tail update. Hence only one store release
+is needed for this case.
+
 -- 
-2.29.2
+Jens Axboe
 
 
