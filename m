@@ -1,62 +1,65 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [Question] A question about t/io_uring.c
-References: <CAKvRR0TG4L3NqNiOMyh2zb0tA7vfuc_L8kU5ropGrY3fJm5GAg@mail.gmail.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40780 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231517AbhCJNAL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:00:11 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 413F7C061760
+        for <fio@vger.kernel.org>; Wed, 10 Mar 2021 05:00:11 -0800 (PST)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
+        id 1lJyRZ-003TZR-GG
+        for fio@vger.kernel.org; Wed, 10 Mar 2021 13:00:08 +0000
+Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <dbf38577-2932-ad2a-941f-6b4ed2edbbac@kernel.dk>
-Date: Mon, 8 Mar 2021 15:27:20 -0700
-MIME-Version: 1.0
-In-Reply-To: <CAKvRR0TG4L3NqNiOMyh2zb0tA7vfuc_L8kU5ropGrY3fJm5GAg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Hongwei Qin <glqinhongwei@gmail.com>, fio <fio@vger.kernel.org>
-List-ID: <fio@vger.kernel.org>
+Message-Id: <20210310130002.513561BC014F@kernel.dk>
+Date: Wed, 10 Mar 2021 06:00:02 -0700 (MST)
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On 2/21/21 4:09 AM, Hongwei Qin wrote:
-> Hi,
-> 
-> I found two implementation details in t/io_uring.c quite interesting.
-> Both are in the prep_more_ios() function.
-> 
-> 1.
-> reading the sq ring head is not protected using something like
-> READ_ONCE() or smp_read_acquire().
-> According to https://www.kernel.org/doc/Documentation/memory-barriers.txt
-> ```
-> It _must_not_ be assumed that the compiler will do what you want
-> with memory references that are not protected by READ_ONCE() and
-> WRITE_ONCE().  Without them, the compiler is within its rights to
-> do all sorts of "creative" transformations, which are covered in
-> the COMPILER BARRIER section.
-> ```
-> 
-> Is it possible that the modifications to the sqe using init_io() get
-> reordered prior to reading the sq ring head?
+The following changes since commit 267b164c372d57145880f365bab8d8a52bf8baa7:
 
-I had to fix another bug in there related to SQPOLL, and I updated the
-rest to do the proper atomic load acquire and store releases. So the
-current version in git should be proper. Doesn't really matter on x86,
-but it does on other archs.
+  Fio 3.26 (2021-03-08 17:44:38 -0700)
 
+are available in the Git repository at:
 
-> 2.
-> Writing to the sq ring tail is not protected using something like
-> smp_store_release.
-> Even according to the article "Efficient IO with io_uring", adding an
-> sqe should be like:
-> ```
-> write_barrier();
-> sqring->tail = tail;
-> write_barrier();
-> ```
-> However, the first write barrier is missing in the t/io_uring.c
-> Is it possible that the memory stores get reordered?
+  git://git.kernel.dk/fio.git master
 
-It's because the documentation needs updating, there's no risk of
-reordering of the sqe and the tail update. Hence only one store release
-is needed for this case.
+for you to fetch changes up to 6b8cadb66c62394420a39b46af1a2967b916c829:
 
--- 
-Jens Axboe
+  Merge branch 'master' of https://github.com/DevriesL/fio (2021-03-09 07:58:39 -0700)
 
+----------------------------------------------------------------
+DevriesL (1):
+      engines/io_uring: fix compilation conflict with Android NDK
+
+Jens Axboe (1):
+      Merge branch 'master' of https://github.com/DevriesL/fio
+
+ engines/io_uring.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index c9036ba0..b962e804 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -696,11 +696,11 @@ static int fio_ioring_post_init(struct thread_data *td)
+ 
+ 	err = fio_ioring_queue_init(td);
+ 	if (err) {
+-		int __errno = errno;
++		int init_err = errno;
+ 
+-		if (__errno == ENOSYS)
++		if (init_err == ENOSYS)
+ 			log_err("fio: your kernel doesn't support io_uring\n");
+-		td_verror(td, __errno, "io_queue_init");
++		td_verror(td, init_err, "io_queue_init");
+ 		return 1;
+ 	}
+ 
 
