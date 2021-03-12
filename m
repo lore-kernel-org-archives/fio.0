@@ -1,38 +1,32 @@
-Return-Path: <prvs=712406085=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v3 0/2] zbd: fix zone reset for file reset during asynchronous IOs
-Date: Fri, 26 Mar 2021 13:59:03 +0900
-Message-Id: <20210326045905.1541264-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 0/1] Intoducing a new option max_latency_rw
+References: <CGME20210212103117epcas5p49dd1cc38a1590e2f007b90b0e708889d@epcas5p4.samsung.com>
+ <20210212103045.28534-1-krish.reddy@samsung.com>
+ <20210305054631.GA30850@test-zns> <20210312070243.GA32222@test-zns>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <128d4325-5728-0a48-b024-ab7ad8c35503@kernel.dk>
+Date: Fri, 12 Mar 2021 07:30:34 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20210312070243.GA32222@test-zns>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Krishna Kanth Reddy <krish.reddy@samsung.com>
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-Repeated random write jobs with block size unaligned to zone size and libaio
-engine trigger unaligned command errors because of zone reset during
-asynchronous writes in-flight. The first patch of this series addresses the
-problem by removing the zone reset. The second patch adds a new test case to
-confirm the problem fix and to prevent future regression.
+On 3/12/21 12:02 AM, Krishna Kanth Reddy wrote:
+> Hello Jens,
+> Just a gentle reminder.
+> 
+> Please review this patch and let us know if it looks fine or if it needs
+> some modification.
 
-Changes from v2:
-* Removed unnecessary numjob option from the test case workload
-* Added a Reviewd-by tag
-
-Changes from v1:
-* Changed fix approach from waiting IO completion to removing zone reset
-* Simplified the added test case not to refer sysfs
-
-Shin'ichiro Kawasaki (2):
-  zbd: avoid zone reset during asynchronous IOs in-flight
-  t/zbd: test repeated async write with block size unaligned to zone
-    size
-
- t/zbd/test-zbd-support | 18 ++++++++++++++++++
- zbd.c                  | 23 +++++++----------------
- 2 files changed, 25 insertions(+), 16 deletions(-)
+It doesn't apply at all to the current tree. It's generally a good idea
+to check up on that whenever you send out a ping or a reminder, because
+that might be the reason why it isn't applied :-)
 
 -- 
-2.29.2
+Jens Axboe
 
 
