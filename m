@@ -1,148 +1,91 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx07-001d1705.pphosted.com ([185.132.183.11]:47069 "EHLO
-        mx07-001d1705.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229984AbhCVDBw (ORCPT
-        <rfc822;fio@vger.kernel.org>); Sun, 21 Mar 2021 23:01:52 -0400
-From: <Friendy.Su@sony.com>
-Subject: RE: [PATCH v3 1/1] engines: add engine for file delete
-Date: Mon, 22 Mar 2021 03:01:27 +0000
-Message-ID: <HK0PR04MB2388A3F3E36DD0C597FE934EFD659@HK0PR04MB2388.apcprd04.prod.outlook.com>
-References: <HK0PR04MB23887502C02FF1B36D96FBFEFD9D9@HK0PR04MB2388.apcprd04.prod.outlook.com>
- <HK0PR04MB2388E528EBB4A40E21BB889BFD9D9@HK0PR04MB2388.apcprd04.prod.outlook.com>
-In-Reply-To: <HK0PR04MB2388E528EBB4A40E21BB889BFD9D9@HK0PR04MB2388.apcprd04.prod.outlook.com>
-Content-Language: zh-CN
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-Path: <prvs=7111401fc=shinichiro.kawasaki@wdc.com>
+From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: Re: [PATCH v2 2/2] t/zbd: test repeated async write with block size
+ unaligned to zone size
+Date: Thu, 25 Mar 2021 10:53:28 +0000
+Message-ID: <20210325105328.rsv2stmobhhelyhi@shindev.dhcp.fujisawa.hgst.com>
+References: <20210325021535.1531333-1-shinichiro.kawasaki@wdc.com>
+ <20210325021535.1531333-3-shinichiro.kawasaki@wdc.com>
+ <BL0PR04MB6514484184408C908D85258CE7629@BL0PR04MB6514.namprd04.prod.outlook.com>
+In-Reply-To: 
+ <BL0PR04MB6514484184408C908D85258CE7629@BL0PR04MB6514.namprd04.prod.outlook.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <25B2E42CF0B99F409266C78099456653@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: sitsofe@gmail.com, Kento.A.Kobayashi@sony.com, Wataru.Aoyama@sony.com, Friendy.Su@sony.com
+To: Damien Le Moal <Damien.LeMoal@wdc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-VGhlIHBhdGNoIGltcGxlbWVudHMgYSBuZXcgZW5naW5lICJmaWxlIGRlbGV0ZSIuDQrigJhmaWxl
-JyBvcGVyYXRpb24gcGVyZm9ybWFuY2UgbGlrZSAnZmlsZSBkZWxldGUnIGlzIGFuIGltcG9ydGFu
-dCBhc3BlY3QgdG8gZXZhbHVhdGUgYSBmaWxlIHN5c3RlbSBpbiB0aGUgcHJhY3RpY2UuIFdlIGhv
-cGUgZmlvIGNhbiBydW4gZmlsZSBvcGVyYXRpb24gbWVhc3VyZW1lbnQgYXMgd2VsbCBhcyBJTyBw
-ZXJmb3JtYW5jZSBtZWFzdXJlbWVudC4gSXQgaXMgYmVzdCB0aGF0IGFsbCBtZWFzdXJlbWVudHMg
-YXJlIHJ1biBieSB0aGUgc2FtZSBiZW5jaG1hcmsuDQpDdXJyZW50bHksIHRoZXJlIGlzIG5vICdm
-aWxlIGRlbGV0ZScgZW5naW5lIGluIGZpby4gV2UgaGF2ZSB0byBtZWFzdXJlICdmaWxlIGRlbGV0
-ZScgYnkgYW5vdGhlciBiZW5jaG1hcmsgbGlrZSAnYm9ubmllKysnLiANCg0KLS0tLS1PcmlnaW5h
-bCBNZXNzYWdlLS0tLS0NCkZyb206IFN1LCBGcmllbmR5IA0KU2VudDogRnJpZGF5LCBGZWJydWFy
-eSAyNiwgMjAyMSA0OjM5IFBNDQpUbzogZmlvIDxmaW9Admdlci5rZXJuZWwub3JnPg0KQ2M6IFNp
-dHNvZmUgV2hlZWxlciA8c2l0c29mZUBnbWFpbC5jb20+OyBLb2JheWFzaGksIEtlbnRvIChTb255
-KSA8S2VudG8uQS5Lb2JheWFzaGlAc29ueS5jb20+OyBBb3lhbWEsIFdhdGFydSAoU29ueSkgPFdh
-dGFydS5Bb3lhbWFAc29ueS5jb20+OyAnU3UsIEZyaWVuZHknIDxGcmllbmR5LlN1QHNvbnkuY29t
-Pg0KU3ViamVjdDogUkU6IFtQQVRDSCB2MyAxLzFdIGVuZ2luZXM6IGFkZCBlbmdpbmUgZm9yIGZp
-bGUgZGVsZXRlDQoNClVwZGF0ZWQgcGF0Y2ggdjMgd2l0aCBmb2xsb3dpbmcgaW1wcm92ZW1lbnRz
-Lg0KKCB2MiBpcyBzb21ldGhpbmcgaW5jb3JyZWN0LCBwbHMgaWdub3JlIGl0KQ0KDQoxLiBkZWxl
-dGUgaW1wcm9wZXIgbWVzc2FnZSAnZmFsbG9jYXRlJyBpbiBmaWxlZGVsZXRlLmMgMi4gYWRkICdk
-ZWxldGVfaW52YWxpZGF0ZSgpJyB3aGljaCBkb2VzIG5vdGhpbmcgaW5zaWRlLCB0aGVuIG5vIG5l
-ZWQgJ2ludmFsaWRhdGU9MCcgaW4gam9iIGZpbGUgMy4gZml4IHNlY3Rpb24gdGl0bGUgaW4gZmlv
-LjEgNC4gdHJpbSB0aGUgdHJhaWxpbmcgZW1wdHkgbGluZXMuDQoNCi0tLS0tT3JpZ2luYWwgTWVz
-c2FnZS0tLS0tDQpGcm9tOiBTdSwgRnJpZW5keQ0KU2VudDogRnJpZGF5LCBGZWJydWFyeSAyNiwg
-MjAyMSA0OjI3IFBNDQpUbzogZmlvIDxmaW9Admdlci5rZXJuZWwub3JnPg0KQ2M6IFNpdHNvZmUg
-V2hlZWxlciA8c2l0c29mZUBnbWFpbC5jb20+OyBLb2JheWFzaGksIEtlbnRvIChTb255KSA8S2Vu
-dG8uQS5Lb2JheWFzaGlAc29ueS5jb20+OyBBb3lhbWEsIFdhdGFydSAoU29ueSkgPFdhdGFydS5B
-b3lhbWFAc29ueS5jb20+DQpTdWJqZWN0OiBbUEFUQ0ggdjMgMS8xXSBlbmdpbmVzOiBhZGQgZW5n
-aW5lIGZvciBmaWxlIGRlbGV0ZQ0KDQpUaGlzIGVuZ2luZSBpcyB0byBtZWFzdXJlIHBlcmZvcm1h
-bmNlIG9mIGRlbGV0aW5nIGZpbGVzLg0KDQpJbiBwcmFjdGljZSwgaXQgaXMgYW4gaW1wb3J0YW50
-IGJlbmNobWFyayBmb3IgYSBmaWxlIHN5c3RlbSB0aGF0IGhvdyBxdWljayBpdCBjYW4gcmVsZWFz
-ZSB0aGUgZGlzayBzcGFjZSBvZiBkZWxldGVkIGZpbGVzLg0KDQpTaWduZWQtb2ZmLWJ5OiBmcmll
-bmR5LXN1IDxmcmllbmR5LnN1QHNvbnkuY29tPg0KLS0tDQogSE9XVE8gICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgfCAgIDUgKysNCiBNYWtlZmlsZSAgICAgICAgICAgICAgICAgICAgICAgICB8
-ICAgMiArLQ0KIGVuZ2luZXMvZmlsZWRlbGV0ZS5jICAgICAgICAgICAgIHwgMTE1ICsrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysNCiBleGFtcGxlcy9maWxlZGVsZXRlLWlvZW5naW5lLmZp
-byB8ICAxOSArKysrKw0KIGZpby4xICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICA1ICsr
-DQogNSBmaWxlcyBjaGFuZ2VkLCAxNDUgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKSAgY3Jl
-YXRlIG1vZGUgMTAwNjQ0IGVuZ2luZXMvZmlsZWRlbGV0ZS5jICBjcmVhdGUgbW9kZSAxMDA2NDQg
-ZXhhbXBsZXMvZmlsZWRlbGV0ZS1pb2VuZ2luZS5maW8NCg0KZGlmZiAtLWdpdCBhL0hPV1RPIGIv
-SE9XVE8NCmluZGV4IDUyODEyY2M3Li5iYWZlMTJiZSAxMDA2NDQNCi0tLSBhL0hPV1RPDQorKysg
-Yi9IT1dUTw0KQEAgLTIwMzUsNiArMjAzNSwxMSBAQCBJL08gZW5naW5lDQogCQkJYW5kICducmZp
-bGVzJywgc28gdGhhdCBmaWxlcyB3aWxsIGJlIGNyZWF0ZWQuDQogCQkJVGhpcyBlbmdpbmUgaXMg
-dG8gbWVhc3VyZSBmaWxlIGxvb2t1cCBhbmQgbWV0YSBkYXRhIGFjY2Vzcy4NCiANCisJCSoqZmls
-ZWRlbGV0ZSoqDQorCQkJU2ltcGx5IGRlbGV0ZSB0aGUgZmlsZXMgYnkgdW5saW5rKCkgYW5kIGRv
-IG5vIEkvTyB0byB0aGVtLiBZb3UgbmVlZCB0byBzZXQgJ2ZpbGVzaXplJw0KKwkJCWFuZCAnbnJm
-aWxlcycsIHNvIHRoYXQgdGhlIGZpbGVzIHdpbGwgYmUgY3JlYXRlZC4NCisJCQlUaGlzIGVuZ2lu
-ZSBpcyB0byBtZWFzdXJlIGZpbGUgZGVsZXRlLg0KKw0KIAkJKipsaWJwbWVtKioNCiAJCQlSZWFk
-IGFuZCB3cml0ZSB1c2luZyBtbWFwIEkvTyB0byBhIGZpbGUgb24gYSBmaWxlc3lzdGVtDQogCQkJ
-bW91bnRlZCB3aXRoIERBWCBvbiBhIHBlcnNpc3RlbnQgbWVtb3J5IGRldmljZSB0aHJvdWdoIHRo
-ZSBQTURLIGRpZmYgLS1naXQgYS9NYWtlZmlsZSBiL01ha2VmaWxlIGluZGV4IDYxMjM0NGQxLi4x
-MWZmYTA4OSAxMDA2NDQNCi0tLSBhL01ha2VmaWxlDQorKysgYi9NYWtlZmlsZQ0KQEAgLTUxLDcg
-KzUxLDcgQEAgU09VUkNFIDo9CSQoc29ydCAkKHBhdHN1YnN0ICQoU1JDRElSKS8lLCUsJCh3aWxk
-Y2FyZCAkKFNSQ0RJUikvY3JjLyouYykpIFwNCiAJCXBzaGFyZWQuYyBvcHRpb25zLmMgXA0KIAkJ
-c21hbGxvYy5jIGZpbGVoYXNoLmMgcHJvZmlsZS5jIGRlYnVnLmMgZW5naW5lcy9jcHUuYyBcDQog
-CQllbmdpbmVzL21tYXAuYyBlbmdpbmVzL3N5bmMuYyBlbmdpbmVzL251bGwuYyBlbmdpbmVzL25l
-dC5jIFwNCi0JCWVuZ2luZXMvZnRydW5jYXRlLmMgZW5naW5lcy9maWxlY3JlYXRlLmMgZW5naW5l
-cy9maWxlc3RhdC5jIFwNCisJCWVuZ2luZXMvZnRydW5jYXRlLmMgZW5naW5lcy9maWxlY3JlYXRl
-LmMgZW5naW5lcy9maWxlc3RhdC5jIA0KK2VuZ2luZXMvZmlsZWRlbGV0ZS5jIFwNCiAJCXNlcnZl
-ci5jIGNsaWVudC5jIGlvbG9nLmMgYmFja2VuZC5jIGxpYmZpby5jIGZsb3cuYyBjY29udi5jIFwN
-CiAJCWdldHRpbWUtdGhyZWFkLmMgaGVscGVycy5jIGpzb24uYyBpZGxldGltZS5jIHRkX2Vycm9y
-LmMgXA0KIAkJcHJvZmlsZXMvdGlvYmVuY2guYyBwcm9maWxlcy9hY3QuYyBpb191X3F1ZXVlLmMg
-ZmlsZWxvY2suYyBcIGRpZmYgLS1naXQgYS9lbmdpbmVzL2ZpbGVkZWxldGUuYyBiL2VuZ2luZXMv
-ZmlsZWRlbGV0ZS5jIG5ldyBmaWxlIG1vZGUgMTAwNjQ0IGluZGV4IDAwMDAwMDAwLi5lNmNiYmJi
-Nw0KLS0tIC9kZXYvbnVsbA0KKysrIGIvZW5naW5lcy9maWxlZGVsZXRlLmMNCkBAIC0wLDAgKzEs
-MTE1IEBADQorLyoNCisgKiBmaWxlIGRlbGV0ZSBlbmdpbmUNCisgKg0KKyAqIElPIGVuZ2luZSB0
-aGF0IGRvZXNuJ3QgZG8gYW55IElPLCBqdXN0IGRlbGV0ZSBmaWxlcyBhbmQgdHJhY2tzIHRoZSAN
-CitsYXRlbmN5DQorICogb2YgdGhlIGZpbGUgZGVsZXRpb24uDQorICovDQorI2luY2x1ZGUgPHN0
-ZGlvLmg+DQorI2luY2x1ZGUgPGZjbnRsLmg+DQorI2luY2x1ZGUgPGVycm5vLmg+DQorI2luY2x1
-ZGUgPHN5cy90eXBlcy5oPg0KKyNpbmNsdWRlIDx1bmlzdGQuaD4NCisjaW5jbHVkZSAiLi4vZmlv
-LmgiDQorDQorc3RydWN0IGZjX2RhdGEgew0KKwllbnVtIGZpb19kZGlyIHN0YXRfZGRpcjsNCit9
-Ow0KKw0KK3N0YXRpYyBpbnQgZGVsZXRlX2ZpbGUoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgc3Ry
-dWN0IGZpb19maWxlICpmKSB7DQorCXN0cnVjdCB0aW1lc3BlYyBzdGFydDsNCisJaW50IGRvX2xh
-dCA9ICF0ZC0+by5kaXNhYmxlX2xhdDsNCisJaW50IHJldDsNCisNCisJZHByaW50KEZEX0ZJTEUs
-ICJmZCBkZWxldGUgJXNcbiIsIGYtPmZpbGVfbmFtZSk7DQorDQorCWlmIChmLT5maWxldHlwZSAh
-PSBGSU9fVFlQRV9GSUxFKSB7DQorCQlsb2dfZXJyKCJmaW86IG9ubHkgZmlsZXMgYXJlIHN1cHBv
-cnRlZFxuIik7DQorCQlyZXR1cm4gMTsNCisJfQ0KKwlpZiAoIXN0cmNtcChmLT5maWxlX25hbWUs
-ICItIikpIHsNCisJCWxvZ19lcnIoImZpbzogY2FuJ3QgcmVhZC93cml0ZSB0byBzdGRpbi9vdXRc
-biIpOw0KKwkJcmV0dXJuIDE7DQorCX0NCisNCisJaWYgKGRvX2xhdCkNCisJCWZpb19nZXR0aW1l
-KCZzdGFydCwgTlVMTCk7DQorDQorCXJldCA9IHVubGluayhmLT5maWxlX25hbWUpOw0KKw0KKwlp
-ZiAocmV0ID09IC0xKSB7DQorCQljaGFyIGJ1ZltGSU9fVkVSUk9SX1NJWkVdOw0KKwkJaW50IGUg
-PSBlcnJubzsNCisNCisJCXNucHJpbnRmKGJ1Ziwgc2l6ZW9mKGJ1ZiksICJkZWxldGUoJXMpIiwg
-Zi0+ZmlsZV9uYW1lKTsNCisJCXRkX3ZlcnJvcih0ZCwgZSwgYnVmKTsNCisJCXJldHVybiAxOw0K
-Kwl9DQorDQorCWlmIChkb19sYXQpIHsNCisJCXN0cnVjdCBmY19kYXRhICpkYXRhID0gdGQtPmlv
-X29wc19kYXRhOw0KKwkJdWludDY0X3QgbnNlYzsNCisNCisJCW5zZWMgPSBudGltZV9zaW5jZV9u
-b3coJnN0YXJ0KTsNCisJCWFkZF9jbGF0X3NhbXBsZSh0ZCwgZGF0YS0+c3RhdF9kZGlyLCBuc2Vj
-LCAwLCAwLCAwKTsNCisJfQ0KKw0KKwlyZXR1cm4gMDsNCit9DQorDQorDQorc3RhdGljIGVudW0g
-ZmlvX3Ffc3RhdHVzIHF1ZXVlX2lvKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsIHN0cnVjdCBpb191
-IA0KK2Zpb191bnVzZWQgKmlvX3UpIHsNCisJcmV0dXJuIEZJT19RX0NPTVBMRVRFRDsNCit9DQor
-DQorc3RhdGljIGludCBpbml0KHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpIHsNCisJc3RydWN0IGZj
-X2RhdGEgKmRhdGE7DQorDQorCWRhdGEgPSBjYWxsb2MoMSwgc2l6ZW9mKCpkYXRhKSk7DQorDQor
-CWlmICh0ZF9yZWFkKHRkKSkNCisJCWRhdGEtPnN0YXRfZGRpciA9IERESVJfUkVBRDsNCisJZWxz
-ZSBpZiAodGRfd3JpdGUodGQpKQ0KKwkJZGF0YS0+c3RhdF9kZGlyID0gRERJUl9XUklURTsNCisN
-CisJdGQtPmlvX29wc19kYXRhID0gZGF0YTsNCisJcmV0dXJuIDA7DQorfQ0KKw0KK3N0YXRpYyBp
-bnQgZGVsZXRlX2ludmFsaWRhdGUoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGZpb19m
-aWxlDQorKmYpIHsNCisgICAgLyogZG8gbm90aGluZyBiZWNhdXNlIGZpbGUgbm90IG9wZW5lZCAq
-Lw0KKyAgICByZXR1cm4gMDsNCit9DQorDQorc3RhdGljIHZvaWQgY2xlYW51cChzdHJ1Y3QgdGhy
-ZWFkX2RhdGEgKnRkKSB7DQorCXN0cnVjdCBmY19kYXRhICpkYXRhID0gdGQtPmlvX29wc19kYXRh
-Ow0KKw0KKwlmcmVlKGRhdGEpOw0KK30NCisNCitzdGF0aWMgc3RydWN0IGlvZW5naW5lX29wcyBp
-b2VuZ2luZSA9IHsNCisJLm5hbWUJCT0gImZpbGVkZWxldGUiLA0KKwkudmVyc2lvbgk9IEZJT19J
-T09QU19WRVJTSU9OLA0KKwkuaW5pdAkJPSBpbml0LA0KKwkuaW52YWxpZGF0ZQk9IGRlbGV0ZV9p
-bnZhbGlkYXRlLA0KKwkuY2xlYW51cAk9IGNsZWFudXAsDQorCS5xdWV1ZQkJPSBxdWV1ZV9pbywN
-CisJLmdldF9maWxlX3NpemUJPSBnZW5lcmljX2dldF9maWxlX3NpemUsDQorCS5vcGVuX2ZpbGUJ
-PSBkZWxldGVfZmlsZSwNCisJLmZsYWdzCQk9ICBGSU9fU1lOQ0lPIHwgRklPX0ZBS0VJTyB8DQor
-CQkJCUZJT19OT1NUQVRTIHwgRklPX05PRklMRUhBU0gsDQorfTsNCisNCitzdGF0aWMgdm9pZCBm
-aW9faW5pdCBmaW9fZmlsZWNyZWF0ZV9yZWdpc3Rlcih2b2lkKSB7DQorCXJlZ2lzdGVyX2lvZW5n
-aW5lKCZpb2VuZ2luZSk7DQorfQ0KKw0KK3N0YXRpYyB2b2lkIGZpb19leGl0IGZpb19maWxlY3Jl
-YXRlX3VucmVnaXN0ZXIodm9pZCkgew0KKwl1bnJlZ2lzdGVyX2lvZW5naW5lKCZpb2VuZ2luZSk7
-DQorfQ0KZGlmZiAtLWdpdCBhL2V4YW1wbGVzL2ZpbGVkZWxldGUtaW9lbmdpbmUuZmlvIGIvZXhh
-bXBsZXMvZmlsZWRlbGV0ZS1pb2VuZ2luZS5maW8NCm5ldyBmaWxlIG1vZGUgMTAwNjQ0DQppbmRl
-eCAwMDAwMDAwMC4uYmRiNzhhNjUNCi0tLSAvZGV2L251bGwNCisrKyBiL2V4YW1wbGVzL2ZpbGVk
-ZWxldGUtaW9lbmdpbmUuZmlvDQpAQCAtMCwwICsxLDE5IEBADQorIyBFeGFtcGxlIGZpbGVkZWxl
-dGUgam9iDQorDQorIyAnZmlsZWRlbGV0ZScgZW5naW5lIG9ubHkgZG8gJ3VubGluayhmaWxlbmFt
-ZSknLCBmaWxlIHdpbGwgbm90IGJlIG9wZW4oKS4NCisjICdmaWxlc2l6ZScgbXVzdCBiZSBzZXQs
-IHRoZW4gZmlsZXMgd2lsbCBiZSBjcmVhdGVkIGF0IHNldHVwIHN0YWdlLg0KKyMgJ3VubGluaycg
-aXMgYmV0dGVyIHNldCB0byAwLCBzaW5jZSB0aGUgZmlsZSBpcyBkZWxldGVkIGluIG1lYXN1cmVt
-ZW50Lg0KKw0KK1tnbG9iYWxdDQoraW9lbmdpbmU9ZmlsZWRlbGV0ZQ0KK251bWpvYnM9MQ0KK2Zp
-bGVzaXplPTRrDQorbnJmaWxlcz0yMDANCit1bmxpbms9MA0KKw0KK1t0MF0NCitbdDFdDQorW3Qy
-XQ0KK1t0M10NCitbdDRdDQorW3Q1XQ0KZGlmZiAtLWdpdCBhL2Zpby4xIGIvZmlvLjENCmluZGV4
-IGFjY2M2YTMyLi45NDMzMmM1ZiAxMDA2NDQNCi0tLSBhL2Zpby4xDQorKysgYi9maW8uMQ0KQEAg
-LTE4MjIsNiArMTgyMiwxMSBAQCBTaW1wbHkgZG8gc3RhdCgpIGFuZCBkbyBubyBJL08gdG8gdGhl
-IGZpbGUuIFlvdSBuZWVkIHRvIHNldCAnZmlsZXNpemUnDQogYW5kICducmZpbGVzJywgc28gdGhh
-dCBmaWxlcyB3aWxsIGJlIGNyZWF0ZWQuDQogVGhpcyBlbmdpbmUgaXMgdG8gbWVhc3VyZSBmaWxl
-IGxvb2t1cCBhbmQgbWV0YSBkYXRhIGFjY2Vzcy4NCiAuVFANCisuQiBmaWxlZGVsZXRlDQorU2lt
-cGx5IGRlbGV0ZSBmaWxlcyBieSB1bmxpbmsoKSBhbmQgZG8gbm8gSS9PIHRvIHRoZSBmaWxlLiBZ
-b3UgbmVlZCB0byBzZXQgJ2ZpbGVzaXplJw0KK2FuZCAnbnJmaWxlcycsIHNvIHRoYXQgZmlsZXMg
-d2lsbCBiZSBjcmVhdGVkLg0KK1RoaXMgZW5naW5lIGlzIHRvIG1lYXN1cmUgZmlsZSBkZWxldGUu
-DQorLlRQDQogLkIgbGlicG1lbQ0KIFJlYWQgYW5kIHdyaXRlIHVzaW5nIG1tYXAgSS9PIHRvIGEg
-ZmlsZSBvbiBhIGZpbGVzeXN0ZW0gIG1vdW50ZWQgd2l0aCBEQVggb24gYSBwZXJzaXN0ZW50IG1l
-bW9yeSBkZXZpY2UgdGhyb3VnaCB0aGUgUE1ESw0KLS0NCjIuMTcuMQ0KDQo=
+On Mar 25, 2021 / 04:58, Damien Le Moal wrote:
+> On 2021/03/25 11:15, Shin'ichiro Kawasaki wrote:
+> > A recently fixed bug was caused by zone reset during asynchronous IOs
+> > in-flight. The bug symptom was unaligned command error which was
+> > observed using random write workload with libaio engine and block size
+> > not a divisor of zone size. To confirm the bug fix and to prevent futur=
+e
+> > regression, add a test case which runs the workload.
+> >=20
+> > Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+> > ---
+> >  t/zbd/test-zbd-support | 18 ++++++++++++++++++
+> >  1 file changed, 18 insertions(+)
+> >=20
+> > diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+> > index be129615..51c92e86 100755
+> > --- a/t/zbd/test-zbd-support
+> > +++ b/t/zbd/test-zbd-support
+> > @@ -1201,6 +1201,24 @@ test56() {
+> >  		>> "${logfile}.${test_number}" 2>&1 || return $?
+> >  }
+> > =20
+> > +# Test that repeated async write job does not cause zone reset during =
+writes
+> > +# in-flight, when the block size is not a divisor of the zone size.
+> > +test57() {
+> > +	local bs off
+> > +
+> > +	require_zbd || return $SKIP_TESTCASE
+> > +
+> > +	bs=3D$((4096 * 7))
+> > +	off=3D$((first_sequential_zone_sector * 512))
+> > +
+> > +	run_fio --name=3Djob --filename=3D"${dev}" --rw=3Drandwrite --bs=3D"$=
+{bs}" \
+> > +		--offset=3D"${off}" --size=3D$((4 * zone_size)) --iodepth=3D256 \
+> > +		"$(ioengine "libaio")" --numjob=3D4 --time_based=3D1 --runtime=3D30s=
+ \
+>=20
+> With a single job, there will be no lock contention, so more chances of s=
+eeing
+> the problem as you described in the cover letter. So may be remove numjob=
+s=3D4 here ?
+
+As far as I tried, no difference is observed by numjob difference. I kept i=
+t
+just because it was specified in the command line which found the problem. =
+For
+simplicity, I agree to remove it. Will reflect to v3.
+
+>=20
+> > +		--zonemode=3Dzbd --direct=3D1 --zonesize=3D"${zone_size}" \
+> > +		${job_var_opts[@]} \
+> > +		>> "${logfile}.${test_number}" 2>&1 || return $?
+> > +}
+> > +
+> >  SECONDS=3D0
+> >  tests=3D()
+> >  dynamic_analyzer=3D()
+> >=20
+>=20
+>=20
+> --=20
+> Damien Le Moal
+> Western Digital Research
+>=20
+
+--=20
+Best Regards,
+Shin'ichiro Kawasaki=
 
