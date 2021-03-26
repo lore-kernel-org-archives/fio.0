@@ -1,46 +1,71 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33462 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239065AbhCPRYm (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 16 Mar 2021 13:24:42 -0400
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB5B8C06174A
-        for <fio@vger.kernel.org>; Tue, 16 Mar 2021 10:24:41 -0700 (PDT)
-Received: by mail-wr1-x433.google.com with SMTP id o16so7846947wrn.0
-        for <fio@vger.kernel.org>; Tue, 16 Mar 2021 10:24:41 -0700 (PDT)
-Received: from hub ([2a01:e34:edac:750:4d78:fa77:4b3b:aa80])
-        by smtp.gmail.com with ESMTPSA id l21sm44032wmg.41.2021.03.16.10.24.39
-        for <fio@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Mar 2021 10:24:39 -0700 (PDT)
-Date: Tue, 16 Mar 2021 18:24:36 +0100
-From: Johann Lombardi <johann.lombardi@gmail.com>
-Subject: pthread_condattr_setclock: Invalid argument
-Message-ID: <20210316172436.GA380295@hub>
+Return-Path: <prvs=712138935=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH v3 2/2] t/zbd: test repeated async write with block size
+ unaligned to zone size
+Date: Fri, 26 Mar 2021 07:48:40 +0000
+Message-ID: 
+ <CH2PR04MB652217410341C87F98FC89E8E7619@CH2PR04MB6522.namprd04.prod.outlook.com>
+References: <20210326045905.1541264-1-shinichiro.kawasaki@wdc.com>
+ <20210326045905.1541264-3-shinichiro.kawasaki@wdc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+Cc: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-Hi there,
-
-While rebasing PR #1189 (DFS engine) against latest master, I ran into
-the following CI failure on appveyor/msys2:
-
-make.exe test
-./fio --minimal --thread --exitall_on_error --runtime=1s --name=nulltest --ioengine=null --rw=randrw --iodepth=2 --norandommap --random_generator=tausworthe64 --size=16T --name=verifyfstest --filename=fiotestfile.tmp --unlink=1 --rw=write --verify=crc32c --verify_state_save=0 --size=16K
-pthread_condattr_setclock: Invalid argument
-pthread_condattr_setclock: Invalid argument
-smalloc: failed adding pool
-Assertion failed: i, file smalloc.c, line 235
-make: *** [Makefile:622: test] Error 3
-Command exited with code 2
-
-https://ci.appveyor.com/project/axboe/fio/builds/38248012/job/kk740eysg1bd1om9
-
-It seems to have been introduced by a recent commit. Any thoughts?
-
-Cheers,
-Johann
+On 2021/03/26 13:59, Shin'ichiro Kawasaki wrote:=0A=
+> A recently fixed bug was caused by zone reset during asynchronous IOs=0A=
+> in-flight. The bug symptom was unaligned command error which was=0A=
+> observed using random write workload with libaio engine and block size=0A=
+> not a divisor of zone size. To confirm the bug fix and to prevent future=
+=0A=
+> regression, add a test case which runs the workload.=0A=
+> =0A=
+> Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>=0A=
+> ---=0A=
+>  t/zbd/test-zbd-support | 18 ++++++++++++++++++=0A=
+>  1 file changed, 18 insertions(+)=0A=
+> =0A=
+> diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support=0A=
+> index be129615..26aff373 100755=0A=
+> --- a/t/zbd/test-zbd-support=0A=
+> +++ b/t/zbd/test-zbd-support=0A=
+> @@ -1201,6 +1201,24 @@ test56() {=0A=
+>  		>> "${logfile}.${test_number}" 2>&1 || return $?=0A=
+>  }=0A=
+>  =0A=
+> +# Test that repeated async write job does not cause zone reset during wr=
+ites=0A=
+> +# in-flight, when the block size is not a divisor of the zone size.=0A=
+> +test57() {=0A=
+> +	local bs off=0A=
+> +=0A=
+> +	require_zbd || return $SKIP_TESTCASE=0A=
+> +=0A=
+> +	bs=3D$((4096 * 7))=0A=
+> +	off=3D$((first_sequential_zone_sector * 512))=0A=
+> +=0A=
+> +	run_fio --name=3Djob --filename=3D"${dev}" --rw=3Drandwrite --bs=3D"${b=
+s}" \=0A=
+> +		--offset=3D"${off}" --size=3D$((4 * zone_size)) --iodepth=3D256 \=0A=
+> +		"$(ioengine "libaio")" --time_based=3D1 --runtime=3D30s \=0A=
+> +		--zonemode=3Dzbd --direct=3D1 --zonesize=3D"${zone_size}" \=0A=
+> +		${job_var_opts[@]} \=0A=
+> +		>> "${logfile}.${test_number}" 2>&1 || return $?=0A=
+> +}=0A=
+> +=0A=
+>  SECONDS=3D0=0A=
+>  tests=3D()=0A=
+>  dynamic_analyzer=3D()=0A=
+> =0A=
+=0A=
+Looks good.=0A=
+=0A=
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
