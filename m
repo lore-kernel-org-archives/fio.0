@@ -1,49 +1,38 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx07-001d1705.pphosted.com ([185.132.183.11]:3184 "EHLO
-        mx07-001d1705.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1452070AbhCCG2V (ORCPT
-        <rfc822;fio@vger.kernel.org>); Wed, 3 Mar 2021 01:28:21 -0500
-Received: from pps.filterd (m0209329.ppops.net [127.0.0.1])
-        by mx08-001d1705.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1236GWWs016306
-        for <fio@vger.kernel.org>; Wed, 3 Mar 2021 06:27:37 GMT
-Received: from apc01-sg2-obe.outbound.protection.outlook.com (mail-sg2apc01lp2057.outbound.protection.outlook.com [104.47.125.57])
-        by mx08-001d1705.pphosted.com with ESMTP id 36ycr02pks-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
-        for <fio@vger.kernel.org>; Wed, 03 Mar 2021 06:27:37 +0000
-From: <Friendy.Su@sony.com>
-Subject: [PATCH v1 1/1] engines/filecreate: remove improper message print
-Date: Wed, 3 Mar 2021 06:27:27 +0000
-Message-ID: <PU1PR04MB2390272C8DAB7911973D255AFD989@PU1PR04MB2390.apcprd04.prod.outlook.com>
-Content-Language: zh-CN
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <prvs=712406085=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v3 0/2] zbd: fix zone reset for file reset during asynchronous IOs
+Date: Fri, 26 Mar 2021 13:59:03 +0900
+Message-Id: <20210326045905.1541264-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
-Cc: Wataru.Aoyama@sony.com, Kento.A.Kobayashi@sony.com, Friendy.Su@sony.com
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-'fallocate' should not be printed in filecreate engine
+Repeated random write jobs with block size unaligned to zone size and libaio
+engine trigger unaligned command errors because of zone reset during
+asynchronous writes in-flight. The first patch of this series addresses the
+problem by removing the zone reset. The second patch adds a new test case to
+confirm the problem fix and to prevent future regression.
 
-Signed-off-by: friendy-su <friendy.su@sony.com>
----
- engines/filecreate.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Changes from v2:
+* Removed unnecessary numjob option from the test case workload
+* Added a Reviewd-by tag
 
-diff --git a/engines/filecreate.c b/engines/filecreate.c
-index 5fec8544..16c64928 100644
---- a/engines/filecreate.c
-+++ b/engines/filecreate.c
-@@ -22,7 +22,7 @@ static int open_file(struct thread_data *td, struct fio_f=
-ile *f)
- 	dprint(FD_FILE, "fd open %s\n", f->file_name);
-=20
- 	if (f->filetype !=3D FIO_TYPE_FILE) {
--		log_err("fio: only files are supported fallocate \n");
-+		log_err("fio: only files are supported\n");
- 		return 1;
- 	}
- 	if (!strcmp(f->file_name, "-")) {
---=20
-2.17.1
+Changes from v1:
+* Changed fix approach from waiting IO completion to removing zone reset
+* Simplified the added test case not to refer sysfs
+
+Shin'ichiro Kawasaki (2):
+  zbd: avoid zone reset during asynchronous IOs in-flight
+  t/zbd: test repeated async write with block size unaligned to zone
+    size
+
+ t/zbd/test-zbd-support | 18 ++++++++++++++++++
+ zbd.c                  | 23 +++++++----------------
+ 2 files changed, 25 insertions(+), 16 deletions(-)
+
+-- 
+2.29.2
 
 
