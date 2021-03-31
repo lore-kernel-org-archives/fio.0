@@ -1,219 +1,191 @@
-Return-Path: <krish.reddy@samsung.com>
-From: Krishna Kanth Reddy <krish.reddy@samsung.com>
-Subject: [PATCH 1/1] Intoducing a new option max_latency_rw. The current
- max_latency option exits the FIO job, if latency of an I/O exceeds
- max_latency.
-Date: Fri, 12 Feb 2021 16:00:45 +0530
-Message-Id: <20210212103045.28534-2-krish.reddy@samsung.com>
-In-Reply-To: <20210212103045.28534-1-krish.reddy@samsung.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset="utf-8"
-References: <20210212103045.28534-1-krish.reddy@samsung.com>
-	<CGME20210212103123epcas5p1de792d21a217a7e6920ebcde16bb0be2@epcas5p1.samsung.com>
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, Ankit Kumar <ankit.kumar@samsung.com>, Krishna Kanth Reddy <krish.reddy@samsung.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41784 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235014AbhCaMAN (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 31 Mar 2021 08:00:13 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C55FC061574
+        for <fio@vger.kernel.org>; Wed, 31 Mar 2021 05:00:12 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
+        id 1lRZW0-004Vnr-Ja
+        for fio@vger.kernel.org; Wed, 31 Mar 2021 12:00:08 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20210331120001.EA3191BC0155@kernel.dk>
+Date: Wed, 31 Mar 2021 06:00:01 -0600 (MDT)
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Ankit Kumar <ankit.kumar@samsung.com>
+The following changes since commit e7e536b665bd6a9d3e936e0847dbbb6957101da4:
 
-For mixed workload if user wants to exit the FIO job only if latency
-exceeds for a particular workload, i.e. either for read / write the support is not present.
+  Merge branch 'unified-merge' of https://github.com/jeffreyalien/fio (2021-03-18 10:19:57 -0600)
 
-The new option max_latency_rw accepts read, write or mixed (Default) as option.
-If user specifies read, the FIO job will exit only if read latency exceeds max_latency.
+are available in the Git repository at:
 
-Signed-off-by: Krishna Kanth Reddy <krish.reddy@samsung.com>
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 6202c70d8d5cbdd3fb4bc23b96f691cbd25a327e:
+
+  gettime: cleanup ifdef mess (2021-03-30 20:13:16 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (4):
+      configure: add test case for pthread_getaffinity_np()
+      os/os-linux: add pthread CPU affinity helper
+      gettime: check affinity for thread, if we have it
+      gettime: cleanup ifdef mess
+
+ configure     | 27 +++++++++++++++++++++++++++
+ gettime.c     | 22 ++++++++++++++++++++--
+ os/os-linux.h |  3 +++
+ 3 files changed, 50 insertions(+), 2 deletions(-)
+
 ---
- HOWTO            | 17 +++++++++++++++++
- cconv.c          |  2 ++
- fio.1            | 18 ++++++++++++++++++
- init.c           |  3 +++
- io_u.c           | 10 ++++++++--
- options.c        | 23 +++++++++++++++++++++++
- thread_options.h |  8 ++++++++
- 7 files changed, 79 insertions(+), 2 deletions(-)
 
-diff --git a/HOWTO b/HOWTO
-index b6d1b58a..80089bc5 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -2667,6 +2667,23 @@ I/O latency
- 	maximum latency. When the unit is omitted, the value is interpreted in
- 	microseconds.
+Diff of recent changes:
+
+diff --git a/configure b/configure
+index 2f5ac91f..a7d82be0 100755
+--- a/configure
++++ b/configure
+@@ -418,6 +418,7 @@ CYGWIN*)
+   clock_monotonic="yes"
+   sched_idle="yes"
+   pthread_condattr_setclock="no"
++  pthread_affinity="no"
+   ;;
+ esac
  
-+.. option:: max_latency_rw=str
-+
-+	Used with :option:`max_latency`. In case of mixed workload it specifies
-+	when to exit the job. Default: mixed.
-+
-+	Accepted values are:
-+
-+		**read**
-+				Exit only if read latency exceeds
-+				:option:`max_latency`.
-+		**write**
-+				Exit only if write latency exceeds
-+				:option:`max_latency`.
-+		**mixed**
-+				Exit if either of read, write latency exceeds
-+				:option:`max_latency`.
-+
- .. option:: rate_cycle=int
+@@ -803,6 +804,29 @@ elif compile_prog "" "$LIBS -lpthread" "pthread_sigmask" ; then
+ fi
+ print_config "pthread_sigmask()" "$pthread_sigmask"
  
- 	Average bandwidth for :option:`rate` and :option:`rate_min` over this number
-diff --git a/cconv.c b/cconv.c
-index b10868fb..9391b7b3 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -290,6 +290,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
- 	o->latency_target = le64_to_cpu(top->latency_target);
- 	o->latency_window = le64_to_cpu(top->latency_window);
- 	o->max_latency = le64_to_cpu(top->max_latency);
-+	o->max_latency_rw = le32_to_cpu(top->max_latency_rw);
- 	o->latency_percentile.u.f = fio_uint64_to_double(le64_to_cpu(top->latency_percentile.u.i));
- 	o->latency_run = le32_to_cpu(top->latency_run);
- 	o->compress_percentage = le32_to_cpu(top->compress_percentage);
-@@ -492,6 +493,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	top->latency_target = __cpu_to_le64(o->latency_target);
- 	top->latency_window = __cpu_to_le64(o->latency_window);
- 	top->max_latency = __cpu_to_le64(o->max_latency);
-+	top->max_latency_rw = __cpu_to_le32(o->max_latency_rw);
- 	top->latency_percentile.u.i = __cpu_to_le64(fio_double_to_uint64(o->latency_percentile.u.f));
- 	top->latency_run = __cpu_to_le32(o->latency_run);
- 	top->compress_percentage = cpu_to_le32(o->compress_percentage);
-diff --git a/fio.1 b/fio.1
-index aa248a3b..69b56e33 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2402,6 +2402,24 @@ If set, fio will exit the job with an ETIMEDOUT error if it exceeds this
- maximum latency. When the unit is omitted, the value is interpreted in
- microseconds.
- .TP
-+.BI max_latency_rw \fR=\fPstr
-+Used with \fBmax_latency\fR. In case of mixed workload it specifies when to
-+exit the job. The allowed values are:
-+.RS
-+.RS
-+.TP
-+.B read
-+Exit only if read latency exceeds \fBmax_latency\fR.
-+.TP
-+.B write
-+Exit only if write latency exceeds \fBmax_latency\fR.
-+.TP
-+.B mixed
-+Exits if either of read, write latency exceeds \fBmax_latency\fR. Default
-+.PD
-+.RE
-+.RE
-+.TP
- .BI rate_cycle \fR=\fPint
- Average bandwidth for \fBrate\fR and \fBrate_min\fR over this number
- of milliseconds. Defaults to 1000.
-diff --git a/init.c b/init.c
-index d6dbaf7c..5183f381 100644
---- a/init.c
-+++ b/init.c
-@@ -964,6 +964,9 @@ static int fixup_options(struct thread_data *td)
- 	o->max_latency *= 1000ULL;
- 	o->latency_target *= 1000ULL;
- 
-+	if (!o->max_latency && o->max_latency_rw)
-+		log_info("fio: max latency not specified.\n");
++##########################################
++# pthread_getaffinity_np() probe
++if test "$pthread_getaffinity" != "yes" ; then
++  pthread_getaffinity="no"
++fi
++cat > $TMPC <<EOF
++#include <stddef.h> /* NULL */
++#include <signal.h> /* pthread_sigmask() */
++#include <pthread.h>
++int main(void)
++{
++  cpu_set_t set;
++  return pthread_getaffinity_np(pthread_self(), sizeof(set), &set);
++}
++EOF
++if compile_prog "" "$LIBS" "pthread_getaffinity" ; then
++  pthread_getaffinity="yes"
++elif compile_prog "" "$LIBS -lpthread" "pthread_getaffinity" ; then
++  pthread_getaffinity="yes"
++  LIBS="$LIBS -lpthread"
++fi
++print_config "pthread_getaffinity_np()" "$pthread_getaffinity"
 +
- 	return ret;
- }
+ ##########################################
+ # solaris aio probe
+ if test "$solaris_aio" != "yes" ; then
+@@ -2823,6 +2847,9 @@ fi
+ if test "$pthread_sigmask" = "yes" ; then
+   output_sym "CONFIG_PTHREAD_SIGMASK"
+ fi
++if test "$pthread_getaffinity" = "yes" ; then
++  output_sym "CONFIG_PTHREAD_GETAFFINITY"
++fi
+ if test "$have_asprintf" = "yes" ; then
+     output_sym "CONFIG_HAVE_ASPRINTF"
+ fi
+diff --git a/gettime.c b/gettime.c
+index f85da6e0..e3f483a7 100644
+--- a/gettime.c
++++ b/gettime.c
+@@ -671,12 +671,21 @@ static int clock_cmp(const void *p1, const void *p2)
+ int fio_monotonic_clocktest(int debug)
+ {
+ 	struct clock_thread *cthreads;
+-	unsigned int nr_cpus = cpus_online();
++	unsigned int seen_cpus, nr_cpus = cpus_online();
+ 	struct clock_entry *entries;
+ 	unsigned long nr_entries, tentries, failed = 0;
+ 	struct clock_entry *prev, *this;
+ 	uint32_t seq = 0;
+ 	unsigned int i;
++	os_cpu_mask_t mask;
++
++#ifdef CONFIG_PTHREAD_GETAFFINITY
++	fio_get_thread_affinity(mask);
++#else
++	memset(&mask, 0, sizeof(mask));
++	for (i = 0; i < nr_cpus; i++)
++		fio_cpu_set(&mask, i);
++#endif
  
-diff --git a/io_u.c b/io_u.c
-index 00a219c2..7835bcb7 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -1888,8 +1888,14 @@ static void account_io_completion(struct thread_data *td, struct io_u *io_u,
- 				icd->error = ops->io_u_lat(td, tnsec);
+ 	if (debug) {
+ 		log_info("cs: reliable_tsc: %s\n", tsc_reliable ? "yes" : "no");
+@@ -703,25 +712,31 @@ int fio_monotonic_clocktest(int debug)
+ 	if (debug)
+ 		log_info("cs: Testing %u CPUs\n", nr_cpus);
+ 
++	seen_cpus = 0;
+ 	for (i = 0; i < nr_cpus; i++) {
+ 		struct clock_thread *t = &cthreads[i];
+ 
++		if (!fio_cpu_isset(&mask, i))
++			continue;
+ 		t->cpu = i;
+ 		t->debug = debug;
+ 		t->seq = &seq;
+ 		t->nr_entries = nr_entries;
+-		t->entries = &entries[i * nr_entries];
++		t->entries = &entries[seen_cpus * nr_entries];
+ 		__fio_sem_init(&t->lock, FIO_SEM_LOCKED);
+ 		if (pthread_create(&t->thread, NULL, clock_thread_fn, t)) {
+ 			failed++;
+ 			nr_cpus = i;
+ 			break;
  		}
++		seen_cpus++;
+ 	}
  
--		if (td->o.max_latency && tnsec > td->o.max_latency)
--			lat_fatal(td, icd, tnsec, td->o.max_latency);
-+		if (td->o.max_latency && tnsec > td->o.max_latency) {
-+			if (td_rw(td)) {
-+				if ((io_u->ddir == DDIR_WRITE && td->o.max_latency_rw != RW_READ) ||
-+				    (io_u->ddir == DDIR_READ && td->o.max_latency_rw != RW_WRITE))
-+					lat_fatal(td, icd, tnsec, td->o.max_latency);
-+			} else
-+				lat_fatal(td, icd, tnsec, td->o.max_latency);
-+		}
- 		if (td->o.latency_target && tnsec > td->o.latency_target) {
- 			if (lat_target_failed(td))
- 				lat_fatal(td, icd, tnsec, td->o.latency_target);
-diff --git a/options.c b/options.c
-index e62e0cfb..40f635b7 100644
---- a/options.c
-+++ b/options.c
-@@ -3735,6 +3735,29 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.category = FIO_OPT_C_IO,
- 		.group = FIO_OPT_G_LATPROF,
- 	},
-+	{
-+		.name	= "max_latency_rw",
-+		.lname	= "Max Latency mixed workload",
-+		.type	= FIO_OPT_STR,
-+		.off1	= offsetof(struct thread_options, max_latency_rw),
-+		.help	= "Maximum tolerated IO latency for Read / Write during mixed workload",
-+		.def	= "mixed",
-+		.parent	= "max_latency",
-+		.hide	= 1,
-+		.category = FIO_OPT_C_IO,
-+		.group	= FIO_OPT_G_LATPROF,
-+		.posval = {
-+			  { .ival = "read",
-+			    .oval = RW_READ,
-+			  },
-+			  { .ival = "write",
-+			    .oval = RW_WRITE,
-+			  },
-+			  { .ival = "mixed",
-+			    .oval = RW_MIXED,
-+			  },
-+		},
-+	},
- 	{
- 		.name	= "latency_target",
- 		.lname	= "Latency Target (usec)",
-diff --git a/thread_options.h b/thread_options.h
-index f6b15403..2c5bc6ba 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -18,6 +18,12 @@ enum fio_zone_mode {
- 	ZONE_MODE_ZBD		= 3,
- };
+ 	for (i = 0; i < nr_cpus; i++) {
+ 		struct clock_thread *t = &cthreads[i];
  
-+enum fio_mix_workload {
-+	RW_READ		= 0,
-+	RW_WRITE	= 1,
-+	RW_MIXED	= 2,
-+};
++		if (!fio_cpu_isset(&mask, i))
++			continue;
+ 		fio_sem_up(&t->lock);
+ 	}
+ 
+@@ -729,6 +744,8 @@ int fio_monotonic_clocktest(int debug)
+ 		struct clock_thread *t = &cthreads[i];
+ 		void *ret;
+ 
++		if (!fio_cpu_isset(&mask, i))
++			continue;
+ 		pthread_join(t->thread, &ret);
+ 		if (ret)
+ 			failed++;
+@@ -742,6 +759,7 @@ int fio_monotonic_clocktest(int debug)
+ 		goto err;
+ 	}
+ 
++	tentries = nr_entries * seen_cpus;
+ 	qsort(entries, tentries, sizeof(struct clock_entry), clock_cmp);
+ 
+ 	/* silence silly gcc */
+diff --git a/os/os-linux.h b/os/os-linux.h
+index 5562b0da..ea8d7922 100644
+--- a/os/os-linux.h
++++ b/os/os-linux.h
+@@ -74,6 +74,9 @@ typedef cpu_set_t os_cpu_mask_t;
+ 	sched_getaffinity((pid), (ptr))
+ #endif
+ 
++#define fio_get_thread_affinity(mask)	\
++	pthread_getaffinity_np(pthread_self(), sizeof(mask), &(mask))
 +
- /*
-  * What type of allocation to use for io buffers
-  */
-@@ -204,6 +210,7 @@ struct thread_options {
- 	unsigned int mem_align;
- 
- 	unsigned long long max_latency;
-+	unsigned int max_latency_rw;
- 
- 	unsigned int exit_what;
- 	unsigned int stonewall;
-@@ -647,6 +654,7 @@ struct thread_options_pack {
- 	uint32_t allow_mounted_write;
- 
- 	uint32_t zone_mode;
-+	uint32_t max_latency_rw;
- } __attribute__((packed));
- 
- extern void convert_thread_options_to_cpu(struct thread_options *o, struct thread_options_pack *top);
--- 
-2.30.0-rc0
-
+ #define fio_cpu_clear(mask, cpu)	(void) CPU_CLR((cpu), (mask))
+ #define fio_cpu_set(mask, cpu)		(void) CPU_SET((cpu), (mask))
+ #define fio_cpu_isset(mask, cpu)	(CPU_ISSET((cpu), (mask)) != 0)
 
