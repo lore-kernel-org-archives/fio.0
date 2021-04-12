@@ -1,59 +1,112 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57788 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233625AbhDNMAb (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 14 Apr 2021 08:00:31 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BA75C061574
-        for <fio@vger.kernel.org>; Wed, 14 Apr 2021 05:00:07 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1lWeBg-00CWfQ-MU
-        for fio@vger.kernel.org; Wed, 14 Apr 2021 12:00:05 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20210414120001.AD0901BC015F@kernel.dk>
-Date: Wed, 14 Apr 2021 06:00:01 -0600 (MDT)
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <prvs=7292027c0=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v4 1/2] zbd: avoid zone reset during asynchronous IOs in-flight
+Date: Mon, 12 Apr 2021 16:02:24 +0900
+Message-Id: <20210412070225.192504-2-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20210412070225.192504-1-shinichiro.kawasaki@wdc.com>
+References: <20210412070225.192504-1-shinichiro.kawasaki@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 9b6253bc6af3b38d4677f7470f42a1ff22492ef3:
+When fio repeats same workload on zoned block devices, zbd_file_reset()
+is called for each repetition. This function resets target zones when
+one of two conditions are met: 1) the write pointer of the zone has
+offset from the device start unaligned to block size, or 2) the workload
+is verify and verification is not in process. When the workload runs
+with block size not a divisor of the zone size, the offsets of write
+pointers from device start (not from zone start) become unaligned to
+block size, then zbd_file_reset() resets target zones. This zone reset
+happens even when the asynchronous IOs are in-flight and causes
+unexpected IO results. Especially if write requests are in-flight, they
+fail with unaligned write command error. A single thread may do both the
+zone reset and the write request submit, recursive zone locks can not
+prevent the zone reset during the writes.
 
-  t/zbd: test repeated async write with block size unaligned to zone size (2021-04-12 06:56:29 -0600)
+The write pointer check for block size alignment is not working as
+intended. It should have checked offset not from device start but from
+zone start. Having said that, regardless of this write pointer check
+correctness, the zone reset is not required since the zones are reset in
+zbd_adjust_block() anyway when remainder of the zone between write
+pointer and zone end is smaller than block size.
 
-are available in the Git repository at:
+To avoid the zone reset during asynchronous IOs, do not reset zones in
+zbd_file_reset() when the write pointer offset from the device start is
+unaligned to block size. Modify zbd_file_reset() to call the helper
+function zbd_reset_zones() only when the workload is verify and
+verification is not in process. The function zbd_reset_zones() had an
+argument 'all_zones' to inform that the zones should be reset when its
+write pointer is unaligned to block size. This argument is not required.
+Remove it and simplify the function accordingly.
 
-  git://git.kernel.dk/fio.git master
+The zone reset for verify workloads is still required. It does not
+conflict with asynchronous IOs, since fio waits for IO completion at
+verification end, then IOs are not in-flight when zbd_file_reset() is
+called for repetition after verification.
 
-for you to fetch changes up to a2aa490a0677771e070e1e2d9e6fd1ad19cfe1fd:
-
-  Merge branch 'parse-signedness-warn' of https://github.com/floatious/fio (2021-04-13 07:51:17 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'parse-signedness-warn' of https://github.com/floatious/fio
-
-Niklas Cassel (1):
-      parse: fix parse_is_percent() warning
-
- parse.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
 ---
+ zbd.c | 23 +++++++----------------
+ 1 file changed, 7 insertions(+), 16 deletions(-)
 
-Diff of recent changes:
-
-diff --git a/parse.h b/parse.h
-index 4cf08fd2..d68484ea 100644
---- a/parse.h
-+++ b/parse.h
-@@ -131,7 +131,7 @@ static inline void *td_var(void *to, const struct fio_option *o,
- 
- static inline int parse_is_percent(unsigned long long val)
+diff --git a/zbd.c b/zbd.c
+index d16b890f..eed796b3 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -842,16 +842,13 @@ static void zbd_close_zone(struct thread_data *td, const struct fio_file *f,
+  * @f: fio file for which to reset zones
+  * @zb: first zone to reset.
+  * @ze: first zone not to reset.
+- * @all_zones: whether to reset all zones or only those zones for which the
+- *	write pointer is not a multiple of td->o.min_bs[DDIR_WRITE].
+  */
+ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
+ 			   struct fio_zone_info *const zb,
+-			   struct fio_zone_info *const ze, bool all_zones)
++			   struct fio_zone_info *const ze)
  {
--	return val >= -101;
-+	return val >= -101ULL;
+ 	struct fio_zone_info *z;
+ 	const uint32_t min_bs = td->o.min_bs[DDIR_WRITE];
+-	bool reset_wp;
+ 	int res = 0;
+ 
+ 	assert(min_bs);
+@@ -864,16 +861,10 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
+ 		if (!z->has_wp)
+ 			continue;
+ 		zone_lock(td, f, z);
+-		if (all_zones) {
+-			pthread_mutex_lock(&f->zbd_info->mutex);
+-			zbd_close_zone(td, f, nz);
+-			pthread_mutex_unlock(&f->zbd_info->mutex);
+-
+-			reset_wp = z->wp != z->start;
+-		} else {
+-			reset_wp = z->wp % min_bs != 0;
+-		}
+-		if (reset_wp) {
++		pthread_mutex_lock(&f->zbd_info->mutex);
++		zbd_close_zone(td, f, nz);
++		pthread_mutex_unlock(&f->zbd_info->mutex);
++		if (z->wp != z->start) {
+ 			dprint(FD_ZBD, "%s: resetting zone %u\n",
+ 			       f->file_name, zbd_zone_nr(f, z));
+ 			if (zbd_reset_zone(td, f, z) < 0)
+@@ -996,8 +987,8 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
+ 	 * writing any data to avoid that a zone reset has to be issued while
+ 	 * writing data, which causes data loss.
+ 	 */
+-	zbd_reset_zones(td, f, zb, ze, td->o.verify != VERIFY_NONE &&
+-			td->runstate != TD_VERIFYING);
++	if (td->o.verify != VERIFY_NONE && td->runstate != TD_VERIFYING)
++		zbd_reset_zones(td, f, zb, ze);
+ 	zbd_reset_write_cnt(td, f);
  }
  
- #define ZONE_BASE_VAL ((-1ULL >> 1) + 1)
+-- 
+2.30.2
+
 
