@@ -1,112 +1,45 @@
-Return-Path: <prvs=7292027c0=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v4 1/2] zbd: avoid zone reset during asynchronous IOs in-flight
-Date: Mon, 12 Apr 2021 16:02:24 +0900
-Message-Id: <20210412070225.192504-2-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20210412070225.192504-1-shinichiro.kawasaki@wdc.com>
-References: <20210412070225.192504-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37402 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237361AbhDMTQx (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 13 Apr 2021 15:16:53 -0400
+Received: from mail-oo1-xc30.google.com (mail-oo1-xc30.google.com [IPv6:2607:f8b0:4864:20::c30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8420C061574
+        for <fio@vger.kernel.org>; Tue, 13 Apr 2021 12:16:32 -0700 (PDT)
+Received: by mail-oo1-xc30.google.com with SMTP id i25-20020a4aa1190000b02901bbd9429832so4082785ool.0
+        for <fio@vger.kernel.org>; Tue, 13 Apr 2021 12:16:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
+From: Jeff Johnson <jeff.johnson@aeoncomputing.com>
+Date: Tue, 13 Apr 2021 12:16:20 -0700
+Message-ID: <CAFCYAsfp-FG4v1AYe=h=ZP8Ka4UCx6GUj_CAkz+4NwmsaK5urw@mail.gmail.com>
+Subject: [Question] Passing shell variables from client to server in remote execution
+Content-Type: text/plain; charset="UTF-8"
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-When fio repeats same workload on zoned block devices, zbd_file_reset()
-is called for each repetition. This function resets target zones when
-one of two conditions are met: 1) the write pointer of the zone has
-offset from the device start unaligned to block size, or 2) the workload
-is verify and verification is not in process. When the workload runs
-with block size not a divisor of the zone size, the offsets of write
-pointers from device start (not from zone start) become unaligned to
-block size, then zbd_file_reset() resets target zones. This zone reset
-happens even when the asynchronous IOs are in-flight and causes
-unexpected IO results. Especially if write requests are in-flight, they
-fail with unaligned write command error. A single thread may do both the
-zone reset and the write request submit, recursive zone locks can not
-prevent the zone reset during the writes.
+Greetings,
 
-The write pointer check for block size alignment is not working as
-intended. It should have checked offset not from device start but from
-zone start. Having said that, regardless of this write pointer check
-correctness, the zone reset is not required since the zones are reset in
-zbd_adjust_block() anyway when remainder of the zone between write
-pointer and zone end is smaller than block size.
+I'm running fio-3.26 in client-server mode. I have a job file that
+takes size from a shell variable ${FILESIZE}.
 
-To avoid the zone reset during asynchronous IOs, do not reset zones in
-zbd_file_reset() when the write pointer offset from the device start is
-unaligned to block size. Modify zbd_file_reset() to call the helper
-function zbd_reset_zones() only when the workload is verify and
-verification is not in process. The function zbd_reset_zones() had an
-argument 'all_zones' to inform that the zones should be reset when its
-write pointer is unaligned to block size. This argument is not required.
-Remove it and simplify the function accordingly.
+If I run the following command from the client (control) node, the
+shell variable isn't passed to the servers. On each server in
+fiohosts.list the /tmp/myjob.fio contains a config line
+size=${FILESIZE}
 
-The zone reset for verify workloads is still required. It does not
-conflict with asynchronous IOs, since fio waits for IO completion at
-verification end, then IOs are not in-flight when zbd_file_reset() is
-called for repetition after verification.
+FILESIZE=100G fio --client=fiohosts.list --remote-config=/tmp/myjob.fio
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
----
- zbd.c | 23 +++++++----------------
- 1 file changed, 7 insertions(+), 16 deletions(-)
+If I switch from using remote config files to a local config file the
+shell variable is honored but the execution of the benchmark is serial
+where each host in fiohosts.list runs singularly and in sequence as
+opposed to concurrently on each server in fiohosts.list.
 
-diff --git a/zbd.c b/zbd.c
-index d16b890f..eed796b3 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -842,16 +842,13 @@ static void zbd_close_zone(struct thread_data *td, const struct fio_file *f,
-  * @f: fio file for which to reset zones
-  * @zb: first zone to reset.
-  * @ze: first zone not to reset.
-- * @all_zones: whether to reset all zones or only those zones for which the
-- *	write pointer is not a multiple of td->o.min_bs[DDIR_WRITE].
-  */
- static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
- 			   struct fio_zone_info *const zb,
--			   struct fio_zone_info *const ze, bool all_zones)
-+			   struct fio_zone_info *const ze)
- {
- 	struct fio_zone_info *z;
- 	const uint32_t min_bs = td->o.min_bs[DDIR_WRITE];
--	bool reset_wp;
- 	int res = 0;
- 
- 	assert(min_bs);
-@@ -864,16 +861,10 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
- 		if (!z->has_wp)
- 			continue;
- 		zone_lock(td, f, z);
--		if (all_zones) {
--			pthread_mutex_lock(&f->zbd_info->mutex);
--			zbd_close_zone(td, f, nz);
--			pthread_mutex_unlock(&f->zbd_info->mutex);
--
--			reset_wp = z->wp != z->start;
--		} else {
--			reset_wp = z->wp % min_bs != 0;
--		}
--		if (reset_wp) {
-+		pthread_mutex_lock(&f->zbd_info->mutex);
-+		zbd_close_zone(td, f, nz);
-+		pthread_mutex_unlock(&f->zbd_info->mutex);
-+		if (z->wp != z->start) {
- 			dprint(FD_ZBD, "%s: resetting zone %u\n",
- 			       f->file_name, zbd_zone_nr(f, z));
- 			if (zbd_reset_zone(td, f, z) < 0)
-@@ -996,8 +987,8 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
- 	 * writing any data to avoid that a zone reset has to be issued while
- 	 * writing data, which causes data loss.
- 	 */
--	zbd_reset_zones(td, f, zb, ze, td->o.verify != VERIFY_NONE &&
--			td->runstate != TD_VERIFYING);
-+	if (td->o.verify != VERIFY_NONE && td->runstate != TD_VERIFYING)
-+		zbd_reset_zones(td, f, zb, ze);
- 	zbd_reset_write_cnt(td, f);
- }
- 
--- 
-2.30.2
+FILESIZE=100G fio --client=fiohosts.list /tmp/myjob.fio
 
+End goal being concurrent benchmark operations on the same network
+share file from all clients in fiohosts.list
+
+Any pointers are appreciated,
+
+--Jeff
 
