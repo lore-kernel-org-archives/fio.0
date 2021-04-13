@@ -1,70 +1,51 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from dish-sg.nttdocomo.co.jp ([202.19.227.74]:13637 "EHLO
-        dish-sg.nttdocomo.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232296AbhDND2L (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 13 Apr 2021 23:28:11 -0400
+Received: from mail-eopbgr80105.outbound.protection.outlook.com ([40.107.8.105]:60897
+        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S231367AbhDMOWJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 13 Apr 2021 10:22:09 -0400
+From: Erwan Velu <e.velu@criteo.com>
 Subject: Re: [Question] Sequential mesuaring and filename option
+Date: Tue, 13 Apr 2021 14:21:47 +0000
+Message-ID: <7875665d-82ca-2bf5-faf2-21c67dfc613e@criteo.com>
 References: <059fa98d-9088-5daa-834e-5c87d60bb836@nttcom.co.jp_1>
- <7875665d-82ca-2bf5-faf2-21c67dfc613e@criteo.com>
-From: Nakajima Akira <nakajima.akira@nttcom.co.jp>
-Message-id: <6bf156f9-5771-0afe-92c5-d8bb1e04b69f@nttcom.co.jp_1>
-Date: Wed, 14 Apr 2021 11:29:37 +0900
-MIME-version: 1.0
-In-reply-to: <7875665d-82ca-2bf5-faf2-21c67dfc613e@criteo.com>
-Content-type: text/plain; charset="utf-8"; format="flowed"
-Content-language: en-US
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <059fa98d-9088-5daa-834e-5c87d60bb836@nttcom.co.jp_1>
+Content-Language: fr-FR
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <55B9EB5763F47045950352841EBA4D07@eurprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 List-Id: fio@vger.kernel.org
-To: Erwan Velu <e.velu@criteo.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+To: Nakajima Akira <nakajima.akira@nttcom.co.jp>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 2021/04/13 23:21, Erwan Velu wrote:
-> Le 13/04/2021 à 08:13, Nakajima Akira a écrit :
->> Hi.
->>
->> I'm using fio for the first time. Sorry for the basic question.
->>
->> On RHEL 8.3
->> # fio -filename=/mnt/testfile -direct=1 -ioengine=libaio -rw=write
->> -bs=1m -size=5G -numjobs=1 -runtime=60 -group_reporting -name=test
->> IOPS=366, BW=366MiB/s
->>
->> But when -numjobs=10
->> IOPS=3358, BW=3358MiB/s
->> This is 5 times faster than the physical speed of the HDD I am using
->> (600MB/s).
->> Similar results are obtained with Sequential write.
->> Random read/write is fine.(Results are within 600MB/s)
->>
->> https://eur03.safelinks.protection.outlook.com/?url=https%3A%2F%2Ffio.readthedocs.io%2Fen%2Flatest%2Ffio_man.html%23target-file-device&amp;data=04%7C01%7Ce.velu%40criteo.com%7Cdd41a8193e6048f16cc408d8fe441b34%7C2a35d8fd574d48e3927c8c398e225a01%7C1%7C1%7C637538915767435166%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C2000&amp;sdata=7jscmG7bnj%2BSBE%2BgbwVWNbz%2BTQhhckXAP%2Bl7xa%2F%2FuHo%3D&amp;reserved=0
->>
->> I refer above and use -directory=/mnt/testdir instead of -filename
->> gave good results.
->>
->> Am I using the -filename option incorrectly?
-> 
-> 
-> Hey,
-> 
-> You are performing your benchmark against the filesystem which uses the
-> memory as cache. So here, you are benchmarking your memory (which is
-> correlated by the 3GB/sec speed).
-> 
-> You can use direct=1 to avoid using the buffer as per
-> https://fio.readthedocs.io/en/latest/fio_doc.html#i-o-type
-> 
-> If you want to test the disk itself, not the filesystem, it would be
-> better to use the block device directly (/dev/sd<x>) and remove this
-> unecessary layer.
-> 
-> Erwan,
-> 
-
-Hi.
-
-I am using direct=1.
-I'd like to test LUKS2 encryption speed, so need xfs/ext4 filesystem.
-
-Thanks.
-Nakajima.
-
+TGUgMTMvMDQvMjAyMSDDoCAwODoxMywgTmFrYWppbWEgQWtpcmEgYSDDqWNyaXTCoDoNCj4gSGku
+DQo+DQo+IEknbSB1c2luZyBmaW8gZm9yIHRoZSBmaXJzdCB0aW1lLiBTb3JyeSBmb3IgdGhlIGJh
+c2ljIHF1ZXN0aW9uLg0KPg0KPiBPbiBSSEVMIDguMw0KPiAjIGZpbyAtZmlsZW5hbWU9L21udC90
+ZXN0ZmlsZSAtZGlyZWN0PTEgLWlvZW5naW5lPWxpYmFpbyAtcnc9d3JpdGUgDQo+IC1icz0xbSAt
+c2l6ZT01RyAtbnVtam9icz0xIC1ydW50aW1lPTYwIC1ncm91cF9yZXBvcnRpbmcgLW5hbWU9dGVz
+dA0KPiBJT1BTPTM2NiwgQlc9MzY2TWlCL3MNCj4NCj4gQnV0IHdoZW4gLW51bWpvYnM9MTANCj4g
+SU9QUz0zMzU4LCBCVz0zMzU4TWlCL3MNCj4gVGhpcyBpcyA1IHRpbWVzIGZhc3RlciB0aGFuIHRo
+ZSBwaHlzaWNhbCBzcGVlZCBvZiB0aGUgSEREIEkgYW0gdXNpbmcgDQo+ICg2MDBNQi9zKS4NCj4g
+U2ltaWxhciByZXN1bHRzIGFyZSBvYnRhaW5lZCB3aXRoIFNlcXVlbnRpYWwgd3JpdGUuDQo+IFJh
+bmRvbSByZWFkL3dyaXRlIGlzIGZpbmUuKFJlc3VsdHMgYXJlIHdpdGhpbiA2MDBNQi9zKQ0KPg0K
+PiBodHRwczovL2V1cjAzLnNhZmVsaW5rcy5wcm90ZWN0aW9uLm91dGxvb2suY29tLz91cmw9aHR0
+cHMlM0ElMkYlMkZmaW8ucmVhZHRoZWRvY3MuaW8lMkZlbiUyRmxhdGVzdCUyRmZpb19tYW4uaHRt
+bCUyM3RhcmdldC1maWxlLWRldmljZSZhbXA7ZGF0YT0wNCU3QzAxJTdDZS52ZWx1JTQwY3JpdGVv
+LmNvbSU3Q2RkNDFhODE5M2U2MDQ4ZjE2Y2M0MDhkOGZlNDQxYjM0JTdDMmEzNWQ4ZmQ1NzRkNDhl
+MzkyN2M4YzM5OGUyMjVhMDElN0MxJTdDMSU3QzYzNzUzODkxNTc2NzQzNTE2NiU3Q1Vua25vd24l
+N0NUV0ZwYkdac2IzZDhleUpXSWpvaU1DNHdMakF3TURBaUxDSlFJam9pVjJsdU16SWlMQ0pCVGlJ
+NklrMWhhV3dpTENKWFZDSTZNbjAlM0QlN0MyMDAwJmFtcDtzZGF0YT03anNjbUc3Ym5qJTJCU0JF
+JTJCZ2J3VldOYnolMkJUUWhoY2tYQVAlMkJsN3hhJTJGJTJGdUhvJTNEJmFtcDtyZXNlcnZlZD0w
+IA0KPg0KPiBJIHJlZmVyIGFib3ZlIGFuZCB1c2UgLWRpcmVjdG9yeT0vbW50L3Rlc3RkaXIgaW5z
+dGVhZCBvZiAtZmlsZW5hbWUgDQo+IGdhdmUgZ29vZCByZXN1bHRzLg0KPg0KPiBBbSBJIHVzaW5n
+IHRoZSAtZmlsZW5hbWUgb3B0aW9uIGluY29ycmVjdGx5PyANCg0KDQpIZXksDQoNCllvdSBhcmUg
+cGVyZm9ybWluZyB5b3VyIGJlbmNobWFyayBhZ2FpbnN0IHRoZSBmaWxlc3lzdGVtIHdoaWNoIHVz
+ZXMgdGhlIA0KbWVtb3J5IGFzIGNhY2hlLiBTbyBoZXJlLCB5b3UgYXJlIGJlbmNobWFya2luZyB5
+b3VyIG1lbW9yeSAod2hpY2ggaXMgDQpjb3JyZWxhdGVkIGJ5IHRoZSAzR0Ivc2VjIHNwZWVkKS4N
+Cg0KWW91IGNhbiB1c2UgZGlyZWN0PTEgdG8gYXZvaWQgdXNpbmcgdGhlIGJ1ZmZlciBhcyBwZXIg
+DQpodHRwczovL2Zpby5yZWFkdGhlZG9jcy5pby9lbi9sYXRlc3QvZmlvX2RvYy5odG1sI2ktby10
+eXBlDQoNCklmIHlvdSB3YW50IHRvIHRlc3QgdGhlIGRpc2sgaXRzZWxmLCBub3QgdGhlIGZpbGVz
+eXN0ZW0sIGl0IHdvdWxkIGJlIA0KYmV0dGVyIHRvIHVzZSB0aGUgYmxvY2sgZGV2aWNlIGRpcmVj
+dGx5ICgvZGV2L3NkPHg+KSBhbmQgcmVtb3ZlIHRoaXMgDQp1bmVjZXNzYXJ5IGxheWVyLg0KDQpF
+cndhbiwNCg0K
 
