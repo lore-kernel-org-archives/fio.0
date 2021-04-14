@@ -1,14 +1,12 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mx07-001d1705.pphosted.com ([185.132.183.11]:9366 "EHLO
-        mx07-001d1705.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230030AbhDNEEU (ORCPT
-        <rfc822;fio@vger.kernel.org>); Wed, 14 Apr 2021 00:04:20 -0400
+Received: from mx08-001d1705.pphosted.com ([185.183.30.70]:51294 "EHLO
+        mx08-001d1705.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233157AbhDND5k (ORCPT
+        <rfc822;fio@vger.kernel.org>); Tue, 13 Apr 2021 23:57:40 -0400
 From: <Friendy.Su@sony.com>
-Subject: RE: [PATCH v4 1/1] engines: add engine for file delete
-Date: Wed, 14 Apr 2021 04:03:47 +0000
-Message-ID: <PU1PR04MB2390056120F7AD031B698DF3FD4E9@PU1PR04MB2390.apcprd04.prod.outlook.com>
-References: <PU1PR04MB23909EA73FD1006DE2D5D8D5FD4E9@PU1PR04MB2390.apcprd04.prod.outlook.com>
-In-Reply-To: <PU1PR04MB23909EA73FD1006DE2D5D8D5FD4E9@PU1PR04MB2390.apcprd04.prod.outlook.com>
+Subject: [PATCH v4 1/1] engines: add engine for file delete
+Date: Wed, 14 Apr 2021 03:57:09 +0000
+Message-ID: <PU1PR04MB23909EA73FD1006DE2D5D8D5FD4E9@PU1PR04MB2390.apcprd04.prod.outlook.com>
 Content-Language: zh-CN
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
@@ -16,23 +14,6 @@ MIME-Version: 1.0
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 Cc: sitsofe@gmail.com, Kento.A.Kobayashi@sony.com, Wataru.Aoyama@sony.com, Friendy.Su@sony.com
-
-Updated from v3 to v4:
-
-1. in example job file, highlight 'disable_clat' and 'gtod_reduce' can not =
-be set for file delete engine since they disable completion latency output.
-2. in example job file, remove 'numjobs' option, since there is no requirem=
-ent about it for file delete engine.
-3. trivial message string fix.
-
------Original Message-----
-From: Su, Friendy=20
-Sent: Wednesday, April 14, 2021 11:57 AM
-To: fio <fio@vger.kernel.org>
-Cc: 'Sitsofe Wheeler' <sitsofe@gmail.com>; Kobayashi, Kento (SGC) <Kento.A.=
-Kobayashi@sony.com>; Aoyama, Wataru (SGC) <Wataru.Aoyama@sony.com>; Su, Fri=
-endy <Friendy.Su@sony.com>
-Subject: [PATCH v4 1/1] engines: add engine for file delete
 
 This engine is to measure the performance of deleting files.
 
