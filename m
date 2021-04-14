@@ -1,43 +1,69 @@
-Return-Path: <prvs=7292027c0=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v4 0/2] zbd: fix zone reset for file reset during asynchronous IOs
-Date: Mon, 12 Apr 2021 16:02:23 +0900
-Message-Id: <20210412070225.192504-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mga14.intel.com ([192.55.52.115]:49381 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231736AbhDNOKE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 14 Apr 2021 10:10:04 -0400
+From: "Ober, Frank" <frank.ober@intel.com>
+Subject: RE: [QUESTION] Incorrect arguments for FIO job?
+Date: Wed, 14 Apr 2021 14:09:28 +0000
+Message-ID: <CO1PR11MB4804F985F2711F701B5B0F3E8B4E9@CO1PR11MB4804.namprd11.prod.outlook.com>
+References: <68973b2a-c2a6-e1c0-5990-eb2599a585f1@gmail.com>
+In-Reply-To: <68973b2a-c2a6-e1c0-5990-eb2599a585f1@gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
+List-Id: fio@vger.kernel.org
+To: Steve King <stkissteve@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Hi Jens, could you consider to merge this series to upstream?
-
-Repeated random write jobs with block size unaligned to zone size and libaio
-engine trigger unaligned command errors because of zone reset during
-asynchronous writes in-flight. The first patch of this series addresses the
-problem by removing the zone reset. The second patch adds a new test case to
-confirm the problem fix and to prevent future regression.
-
-Changes from v3:
-* Added a Reviewd-by tag
-
-Changes from v2:
-* Removed unnecessary numjob option from the test case workload
-* Added a Reviewd-by tag
-
-Changes from v1:
-* Changed fix approach from waiting IO completion to removing zone reset
-* Simplified the added test case not to refer sysfs
-
-Shin'ichiro Kawasaki (2):
-  zbd: avoid zone reset during asynchronous IOs in-flight
-  t/zbd: test repeated async write with block size unaligned to zone
-    size
-
- t/zbd/test-zbd-support | 18 ++++++++++++++++++
- zbd.c                  | 23 +++++++----------------
- 2 files changed, 25 insertions(+), 16 deletions(-)
-
--- 
-2.30.2
-
+SGkgU3RldmUsIEhhdmUgeW91IHRyaWVkIHRvIHNheSAxMDBHIGZvciB0aGUgZmlsZSBzaXplLCBh
+bmQgc2VlIHdoYXQgaGFwcGVucyBpbnN0ZWFkIG9mIDFHLCB0aGlzIHdvdWxkIGJlIHRoZSBmaXJz
+dCB0b2dnbGUgb25jZSB5b3UgY2xlYW4gdXAgdGhlIHBhcmFtZXRlcnMuIFJlbWVtYmVyIGhpZ2gg
+ZW5kIHN0b3JhZ2UgY291bGQgYmUgdXNpbmcgRFJBTSBpbiB0aGUgaGFyZHdhcmUgZXZlbiB0aG91
+Z2ggeW91IGhhdmUgdGhlIGRpcmVjdCBmbGFnIHNldC4gSSBoYXZlIG5vIGlkZWEgd2hhdCB0eXBl
+IG9mIHN0b3JhZ2Ugc3lzdGVtIHlvdSBhcmUgdXNpbmcuDQoNCkludGVsIGhhcyBhIGZyZWUgZ3Vp
+ZGUgb24gaG93IHdlIHRlc3QgT3B0YW5lIFNTRHMgaWYgeW91IHdhbnQgaXQsIEkgY2FuIHNlbmQg
+aXQgdG8geW91LiBJdCB3aWxsIGhlbHAgd2l0aCB0aGUgY2xlYW4gdXAgYW5kIHRoaW5ncyBpbiBM
+aW51eCB0aGF0IG1hdHRlciBmb3IgdGVzdGluZyBoaWdoIGVuZCBTU0RzLCAgYnV0IHRoYXQncyBh
+IGd1aWRlIGFuZCBwZW9wbGUgb2Z0ZW4gZG9uJ3Qgc3BlbmQgdGltZSB0byByZWFkIDI1IHBhZ2Ug
+ZG9jcy4gSW5saW5lIEkgaGF2ZSBhZGRlZCBvdXIgYmFzaWMgam9iIHRoYXQgc3VwcG9ydHMgc29t
+ZSBiYXNpYyB0ZXN0aW5nIHRoYXQgb2Z0ZW4gZ2V0cyBzaG93biBvbiBhbiBPRU1zIGRhdGEgc2hl
+ZXQuDQoNClBhc3NpbmcgYSBqb2JmaWxlICB0byBmaW8gdGVuZHMgdG8gYmUgYSBiaXQgbGVzcyBj
+dW1iZXJzb21lIHRvby4NCg0KWW91IG1pZ2h0IHdpc2ggdG8gaWdub3JlIGNwdXNfYWxsb3dlZCB3
+ZSBkbyB0aGlzIGZvciBOVU1BIGlzc3VlcyBhbmQgZ2V0dGluZyB2ZXJ5IGV4YWN0IGRhdGEuIEl0
+IHdpbGwgYW5kIGRvZXMgaW1wcm92ZSBsYXRlbmNpZXMgOikuIEVzcGVjaWFsbHkgc29tZXRoaW5n
+IGFzIHNlbnNpdGl2ZSBhcyBhbiBPcHRhbmUgU1NELg0KDQojZmlvIDxqb2JmaWxlbmFtZT4gDQoN
+CjxzdGFydCBvZiBhIGpvYiBmaWxlPg0KW2dsb2JhbF0NCmRpcmVjdD0xDQpmaWxlbmFtZT0vZGV2
+L252bWUwbjENCmxvZ19hdmdfbXNlYz01MDANCnRpbWVfYmFzZWQNCmlvZW5naW5lPWxpYmFpbw0K
+cGVyY2VudGlsZV9saXN0PTE6NToxMDoyMDozMDo0MDo1MDo2MDo3MDo4MDo5MDo5NTo5OTo5OS41
+Ojk5Ljk6OTkuOTU6OTkuOTk6OTkuOTk5Ojk5Ljk5OTkNCg0KW3NlcS13cml0ZS02NGstcWQyNTZd
+DQpydW50aW1lPTYwDQpicz02NGsNCmlvZGVwdGg9MjU2DQpudW1qb2JzPTENCmNwdXNfYWxsb3dl
+ZD0wDQppb2VuZ2luZT1saWJhaW8NCnJ3PXdyaXRlDQpzdG9uZXdhbGwNCg0KW3NlcS1yZWFkLTY0
+ay1xZDI1Nl0NCnJ1bnRpbWU9NjANCmJzPTY0aw0KaW9kZXB0aD0yNTYNCm51bWpvYnM9MQ0KY3B1
+c19hbGxvd2VkPTANCmlvZW5naW5lPWxpYmFpbw0Kcnc9cmVhZA0Kc3RvbmV3YWxsDQoNCg0KW3Jh
+bmQtd3JpdGUtNGstcWQxXQ0KcnVudGltZT02MA0KYnM9NEsNCmlvZGVwdGg9MQ0KbnVtam9icz0x
+DQpjcHVzX2FsbG93ZWQ9MA0KaW9lbmdpbmU9cHZzeW5jMg0KaGlwcmkNCnJ3PXJhbmR3cml0ZQ0K
+c3RvbmV3YWxsDQoNCltyYW5kLXJlYWQtNGstcWQxXQ0KcnVudGltZT02MA0KYnM9NEsNCmlvZGVw
+dGg9MQ0KbnVtam9icz0xDQpjcHVzX2FsbG93ZWQ9MA0KaW9lbmdpbmU9cHZzeW5jMg0KaGlwcmkN
+CnJ3PXJhbmRyZWFkDQpzdG9uZXdhbGwNCg0KDQpbcmFuZC1yZWFkLXdyaXRlLTRrLXFkMTI4XQ0K
+cnVudGltZT02MA0KYnM9NEsNCmlvZGVwdGg9MzINCm51bWpvYnM9NA0KY3B1c19hbGxvd2VkPTAs
+MSwyLDMNCnJ3bWl4cmVhZD03MA0KcndtaXh3cml0ZT0zMA0KaW9lbmdpbmU9bGliYWlvDQpydz1y
+YW5kcncNCmdyb3VwX3JlcG9ydGluZw0Kc3RvbmV3YWxsDQo8ZW5kIG9mIGEgam9iZmlsZT4NCg0K
+LS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IFN0ZXZlIEtpbmcgPHN0a2lzc3RldmVA
+Z21haWwuY29tPiANClNlbnQ6IFdlZG5lc2RheSwgQXByaWwgMTQsIDIwMjEgNjozOSBBTQ0KVG86
+IGZpb0B2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFtRVUVTVElPTl0gSW5jb3JyZWN0IGFyZ3Vt
+ZW50cyBmb3IgRklPIGpvYj8NCg0KSGkgZm9sa3MgLSBjb3VsZCB1c2Ugc29tZSBoZWxwIGFzIEkn
+bSBub3QgYSBmaW8gZXhwZXJ0Li4uLg0KDQpTaG9ydCB2ZXJzaW9uIGlzIGFuIGV4dGVybmFsIHRl
+YW0gaXMgcHJlc2VudGluZyByZXN1bHRzIHRvIG1lIHRoYXQgSSBkb24ndCBlbnRpcmVseSBiZWxp
+ZXZlLiBUaGUgcmVzdWx0aW5nIElPUFMgJiBUaHJvdWdocHV0IGZvciAncmFuZG9tIHJlYWQnIGFu
+ZCAncmFuZG9tIHdyaXRlJyBhcmUgZXhhY3RseSB0aGUgc2FtZSwgd2hpY2ggbWFrZXMgbm8gbG9n
+aWNhbCBzZW5zZS7CoCBJJ20gY29uY2VybmVkIHRoZXkgaGF2ZSBhIHByb2JsZW0gd2l0aCB0aGUg
+YXJndW1lbnRzIHVzZWQgaW4gRklPOyBlc3BlY2lhbGx5IGFzIEkgbm90aWNlIGEgdHlwby4NCg0K
+SGVyZSBpcyB3aGF0J3MgYmVpbmcgcnVuOg0KZmlvIC0tcmFuZHJlcGVhdD0xIC0taW9lbmdpbmU9
+bGliYWlvIC0tZGlyZWN0PTEgLS1zeW5jPTENCiDCoC0tbmFtZT1maW8tdGVzdCAtLWZpbGVuYW1l
+PXJhbmRvbV81MHJlYWRfNTB3cml0ZS0uZmlvIMKgLS1vdmVyd3JpdGU9MQ0KLS1pb2RlcHRoPTY0
+IC0tc2l6ZT0xR0IgLS1yZWFkcml0ZT1yYW5kcncgLS1yd21peHJlYWQ9NTAgLS1yd21peHdyaXRl
+PTUwIC0tYnM9MTZrIC0tcnVudGltZT02MCAtLXRpbWVfYmFzZWQgLS1yYW1wX3RpbWU9MTUgwqAt
+LXBlcmNlbnRhZ2VfcmFuZG9tPTUwDQoNCk5vdGUgdHlwbyAicmVhZFJpdGUuLi4uIsKgwqAgQnV0
+IGEgbG90IG9mIHRoZXNlIGFyZ3VtZW50cyBzZWVtIHJlZHVuZGFudC7CoMKgIFRoYW5rcyENCg==
 
