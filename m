@@ -1,68 +1,85 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:2116 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230086AbhEDPL3 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 4 May 2021 11:11:29 -0400
-From: Jeffrey Lien <Jeff.Lien@wdc.com>
-Subject: RE: FIO ZNS Write Behavior not Matching Read Behavior
-Date: Tue, 4 May 2021 15:10:32 +0000
-Message-ID: <BYAPR04MB565629F924381515C970106FEA5A9@BYAPR04MB5656.namprd04.prod.outlook.com>
-References: <YI6stDwuQsrkEk8C@localhost.localdomain>
-In-Reply-To: <YI6stDwuQsrkEk8C@localhost.localdomain>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37494 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231801AbhEBNrP (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 2 May 2021 09:47:15 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98345C06174A
+        for <fio@vger.kernel.org>; Sun,  2 May 2021 06:44:24 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id l14so2838130wrx.5
+        for <fio@vger.kernel.org>; Sun, 02 May 2021 06:44:24 -0700 (PDT)
+Date: Sun, 2 May 2021 16:44:20 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: FIO ZNS Write Behavior not Matching Read Behavior
+Message-ID: <YI6stDwuQsrkEk8C@localhost.localdomain>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 List-Id: fio@vger.kernel.org
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Brandon Paupore <Brandon.Paupore@wdc.com>, Andy Hibbard <Andy.Hibbard@wdc.com>
+To: Jeff.Lien@wdc.com
+Cc: fio@vger.kernel.org, Brandon.Paupore@wdc.com, Andy.Hibbard@wdc.com
 
-VGhhbmtzIGZvciB0aGUgZmVlZGJhY2sgQWxleGV5LiAgSSdsbCBsb29rIGludG8gdGhlIG9wdGlv
-bnMgeW91IHN1Z2dlc3RlZCBhbmQgZGlzY3VzcyB3aXRoIG91ciB0ZXN0IHRlYW0uICANCg0KLS0t
-LS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IEFsZXhleSBEb2JyaXlhbiA8YWRvYnJpeWFu
-QGdtYWlsLmNvbT4gDQpTZW50OiBTdW5kYXksIE1heSAyLCAyMDIxIDg6NDQgQU0NClRvOiBKZWZm
-cmV5IExpZW4gPEplZmYuTGllbkB3ZGMuY29tPg0KQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmc7IEJy
-YW5kb24gUGF1cG9yZSA8QnJhbmRvbi5QYXVwb3JlQHdkYy5jb20+OyBBbmR5IEhpYmJhcmQgPEFu
-ZHkuSGliYmFyZEB3ZGMuY29tPg0KU3ViamVjdDogUmU6IEZJTyBaTlMgV3JpdGUgQmVoYXZpb3Ig
-bm90IE1hdGNoaW5nIFJlYWQgQmVoYXZpb3INCg0KQ0FVVElPTjogVGhpcyBlbWFpbCBvcmlnaW5h
-dGVkIGZyb20gb3V0c2lkZSBvZiBXZXN0ZXJuIERpZ2l0YWwuIERvIG5vdCBjbGljayBvbiBsaW5r
-cyBvciBvcGVuIGF0dGFjaG1lbnRzIHVubGVzcyB5b3UgcmVjb2duaXplIHRoZSBzZW5kZXIgYW5k
-IGtub3cgdGhhdCB0aGUgY29udGVudCBpcyBzYWZlLg0KDQoNCj4gSSBoYXZlIGEgcXVlc3Rpb24g
-b24gd2h5IHRoZSBaTlMgd3JpdGUgYmVoYXZpb3IgZG9lcyBub3QgbWF0Y2ggdGhlIA0KPiByZWFk
-IGJlaGF2aW9yLiAgSW4gd3JpdGUgd29ya2xvYWRzIHdpdGggYW4gb2Zmc2V0IHRoYXQgcmVzdWx0
-cyBpbiBhIA0KPiBzdGFydGluZyBsYmEgdGhhdCBpcyBub3Qgb24gYSB6b25lIGJvdW5kYXJ5LCB0
-aGUgb2Zmc2V0IGlzIHJvdW5kZWQgdXAgDQo+IHRvIHRoZSBuZXh0IHpvbmUgc3RhcnRpbmcgbGJh
-LiAgVGhpcyBpcyBub3QgZG9uZSBmb3IgcmVhZCB3b3JrbG9hZHMgDQo+IHRob3VnaC4gIEknZCBs
-aWtlIHRvIGtub3cgaWYgdGhlcmUgaXMgYSBwYXJ0aWN1bGFyIHJlYXNvbiB3aHkgb3IgY291bGQg
-DQo+IEkgY2hhbmdlIHRoaXMgYmVoYXZpb3IgdG8gYmUgdGhlIHNhbWUgZm9yIGJvdGggcmVhZHMg
-YW5kIHdyaXRlcy4NCg0KVGhlIHJvb3QgY2F1c2UsIHNvIHRvIHNwZWFrLCBpcyB0aGF0IGZpbyB0
-cmllcyB0byBiZSBuaWNlIGFuZCBhY2NvbW9kYXRpbmcgcHJvZ3JhbSBhbmQgZG9lc24ndCByZWpl
-Y3Qgb2Zmc2V0cyB1bmFsaWduZWQgdG8gem9uZSBib3VuZGFyaWVzLg0KVW5saWtlIGZsb2F0aW5n
-IHBvaW50IHdoZXJlIHRoZXJlIGlzIG5hdHVyYWwgInJvdW5kIHRvIG5lYXJlc3QiIHJvdW5kaW5n
-IG1vZGUgem9uZWQgSS9PIGRvZXMgbm90IGhhdmUgdGhhdCBwcm9wZXJ0eS4NCg0KVGhlcmUgYXJl
-IHRocmVlIHdheXMNCmEpIHJlamVjdCB1bmFsaWduZWQgb2Zmc2V0PQ0KYikgYWNjZXB0IHVuYWxp
-Z25lZCBvZmZzZXQ9IGJ1dCByZWplY3QgZmlyc3QgSS9PIGlmIHdyaXRlIHBvaW50ZXIgaXMNCiAg
-IGRpZmZlcmVudA0KDQogICB0aGlzIGFsbG93cyB0aGUgZm9sbG93aW5nIHdvcmtsb2FkIHRvIHdv
-cmssIGF0IGxlYXN0IGNvbmNlcHR1YWxseQ0KDQogICAgICAgIHpvbmVtb2RlPXpiZA0KDQogICAg
-ICAgIFthXQ0KICAgICAgICBydz13cml0ZQ0KICAgICAgICBpb19zaXplPTQwOTYNCg0KICAgICAg
-ICBbYl0NCiAgICAgICAgcnc9d3JpdGUNCiAgICAgICAgb2Zmc2V0PTQwOTYNCiAgICAgICAgaW9f
-c2l6ZT00MDk2DQoNCmMpIHJvdW5kIGRvd24oISkNCiAgIHRoaXMgaXMgbmF0dXJhbCBnaXZlbiB0
-aGF0IHpvbmVkIHdyaXRlcyBhcmUgInJvdW5kZWQgZG93biIgdG8gdGhlIFdQDQoNCmZpbyBkb2Vz
-IG5vbmUgb2YgdGhlIGFib3ZlLg0KDQo+IFRoaXMgY2F1c2VzIGEgcHJvYmxlbSBmb3Igb25lIG9m
-IG91ciBwYXJ0aWN1bGFyIHRlc3RjYXNlcyB0aGF0IHdyaXRlcyANCj4gYSBwYXJ0aWN1bGFyIHBh
-dHRlcm4gYXQgYW4gb2Zmc2V0IHRoYXQgZW5kcyB1cCBiZWluZyByb3VuZGVkIHVwIHRvIHRoZSAN
-Cj4gbmV4dCB6b25lIHN0YXJ0aW5nIGxiYS4gIEluIHRoZSAybmQgc3RlcCBvZiB0aGlzIHRlc3Rj
-YXNlLCBhIHJlYWQgd2l0aCANCj4gdmVyaWZ5IHdvcmtsb2FkIGlzIGRvbmUgdG8gdmVyaWZ5IHRo
-ZSB3cml0ZSB3b3JrbG9hZC4gIFRoaXMgZmFpbHMgd2l0aCANCj4gYSBtaXNjb21wYXJlIGJlY2F1
-c2UgdGhlIHJlYWQgd29ya2xvYWQgaXMgbm90IHN0YXJ0aW5nIGF0IHRoZSBzYW1lIA0KPiBvZmZz
-ZXQgYXMgdGhlIHdyaXRlIHdvcmtsb2FkLiAgQm90aCBmaW8gd29ya2xvYWRzIGhhdmUgIm9mZnNl
-dCA9IDElIi4NCg0KSSB0aGluayB0aGUgYmVzdCB5b3UgY291bGQgZG8gaXQgdG8gZmlsbCB0aGUg
-em9uZSB1cCB0aGUgTEJBIGFuZCB0aGVuIGNyZWF0ZXMgc2VwYXJhdGUgam9iIHdoaWNoIHdyaXRl
-cyBwYXR0ZXJuIGFuZCBpbW1lZGlhdGVseSB2ZXJpZmllcyBpdC4NCg0KICAgICAgICBbYV0NCiAg
-ICAgICAgcnc9d3JpdGUNCiAgICAgICAgaW9fc2l6ZT00MDk2DQogICAgICAgIG9mZnNldD0yeg0K
-ICAgICAgICBzaXplPTF6DQoNCiAgICAgICAgW2JdDQogICAgICAgIHN0b25ld2FsbA0KICAgICAg
-ICBydz13cml0ZQ0KICAgICAgICBpb19zaXplPTQwOTYNCiAgICAgICAgb2Zmc2V0PTJ6DQogICAg
-ICAgIHNpemU9MXoNCiAgICAgICAgdmVyaWZ5PXh4aGFzaA0KICAgICAgICBkb192ZXJpZnk9MQ0K
-DQpOb3RlISBNYWlubGluZSBmaW8gc3VwcG9ydHMgJ3onIHN1ZmZpeCwgd2hpY2ggaXMgbXVjaCBi
-ZXR0ZXIgdGhhbiBwZXJjZW50YWdlcyENCg==
+> I have a question on why the ZNS write behavior does not match
+> the read behavior.  In write workloads with an offset that
+> results in a starting lba that is not on a zone boundary,
+> the offset is rounded up to the next zone starting lba.  This is
+> not done for read workloads though.  I'd like to know if there is
+> a particular reason why or could I change this behavior to be
+> the same for both reads and writes.
+
+The root cause, so to speak, is that fio tries to be nice and
+accomodating program and doesn't reject offsets unaligned to zone boundaries.
+Unlike floating point where there is natural "round to nearest" rounding mode
+zoned I/O does not have that property.
+
+There are three ways
+a) reject unaligned offset=
+b) accept unaligned offset= but reject first I/O if write pointer is
+   different
+
+   this allows the following workload to work, at least conceptually
+
+   	zonemode=zbd
+
+	[a]
+	rw=write
+	io_size=4096
+
+	[b]
+	rw=write
+	offset=4096
+	io_size=4096
+
+c) round down(!)
+   this is natural given that zoned writes are "rounded down" to the WP
+
+fio does none of the above.
+
+> This causes a problem for one of our particular testcases that writes
+> a particular pattern at an offset that ends up being rounded up
+> to the next zone starting lba.  In the 2nd step of this testcase, a read
+> with verify workload is done to verify the write workload.  This fails
+> with a miscompare because the read workload is not starting at the same
+> offset as the write workload.  Both fio workloads have "offset = 1%".
+
+I think the best you could do it to fill the zone up the LBA and then
+creates separate job which writes pattern and immediately verifies it.
+
+	[a]
+	rw=write
+	io_size=4096
+	offset=2z
+	size=1z
+
+	[b]
+	stonewall
+	rw=write
+	io_size=4096
+	offset=2z
+	size=1z
+	verify=xxhash
+	do_verify=1
+
+Note! Mainline fio supports 'z' suffix, which is much better
+than percentages!
 
