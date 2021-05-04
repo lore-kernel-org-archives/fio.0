@@ -1,56 +1,68 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51618 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230302AbhEGMBH (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 7 May 2021 08:01:07 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B740CC061574
-        for <fio@vger.kernel.org>; Fri,  7 May 2021 05:00:07 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1lez9J-0071CQ-QN
-        for fio@vger.kernel.org; Fri, 07 May 2021 12:00:06 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20210507120001.DB2B91BC0144@kernel.dk>
-Date: Fri,  7 May 2021 06:00:01 -0600 (MDT)
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:2116 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230086AbhEDPL3 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 4 May 2021 11:11:29 -0400
+From: Jeffrey Lien <Jeff.Lien@wdc.com>
+Subject: RE: FIO ZNS Write Behavior not Matching Read Behavior
+Date: Tue, 4 May 2021 15:10:32 +0000
+Message-ID: <BYAPR04MB565629F924381515C970106FEA5A9@BYAPR04MB5656.namprd04.prod.outlook.com>
+References: <YI6stDwuQsrkEk8C@localhost.localdomain>
+In-Reply-To: <YI6stDwuQsrkEk8C@localhost.localdomain>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Brandon Paupore <Brandon.Paupore@wdc.com>, Andy Hibbard <Andy.Hibbard@wdc.com>
 
-The following changes since commit 6308ef297145e73add65ba86bfdbeaf967957d1f:
-
-  ioengines: don't call zbd_put_io_u() for engines not implementing commit (2021-04-27 11:56:55 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to cffe80a41cbf9b26446c803177a27f7695f94a31:
-
-  configure: fix check_min_lib_version() eval (2021-05-06 10:24:58 -0600)
-
-----------------------------------------------------------------
-Stefan Hajnoczi (1):
-      configure: fix check_min_lib_version() eval
-
- configure | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/configure b/configure
-index a7d82be0..e886bdc8 100755
---- a/configure
-+++ b/configure
-@@ -142,7 +142,7 @@ check_min_lib_version() {
-   fi
-   : "${_feature:=${1}}"
-   if "${cross_prefix}"pkg-config --version > /dev/null 2>&1; then
--    if eval "echo \$$_feature" = "yes" ; then
-+    if test "$(eval echo \"\$$_feature\")" = "yes" ; then
-       feature_not_found "$_feature" "$1 >= $2"
-     fi
-   else
+VGhhbmtzIGZvciB0aGUgZmVlZGJhY2sgQWxleGV5LiAgSSdsbCBsb29rIGludG8gdGhlIG9wdGlv
+bnMgeW91IHN1Z2dlc3RlZCBhbmQgZGlzY3VzcyB3aXRoIG91ciB0ZXN0IHRlYW0uICANCg0KLS0t
+LS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IEFsZXhleSBEb2JyaXlhbiA8YWRvYnJpeWFu
+QGdtYWlsLmNvbT4gDQpTZW50OiBTdW5kYXksIE1heSAyLCAyMDIxIDg6NDQgQU0NClRvOiBKZWZm
+cmV5IExpZW4gPEplZmYuTGllbkB3ZGMuY29tPg0KQ2M6IGZpb0B2Z2VyLmtlcm5lbC5vcmc7IEJy
+YW5kb24gUGF1cG9yZSA8QnJhbmRvbi5QYXVwb3JlQHdkYy5jb20+OyBBbmR5IEhpYmJhcmQgPEFu
+ZHkuSGliYmFyZEB3ZGMuY29tPg0KU3ViamVjdDogUmU6IEZJTyBaTlMgV3JpdGUgQmVoYXZpb3Ig
+bm90IE1hdGNoaW5nIFJlYWQgQmVoYXZpb3INCg0KQ0FVVElPTjogVGhpcyBlbWFpbCBvcmlnaW5h
+dGVkIGZyb20gb3V0c2lkZSBvZiBXZXN0ZXJuIERpZ2l0YWwuIERvIG5vdCBjbGljayBvbiBsaW5r
+cyBvciBvcGVuIGF0dGFjaG1lbnRzIHVubGVzcyB5b3UgcmVjb2duaXplIHRoZSBzZW5kZXIgYW5k
+IGtub3cgdGhhdCB0aGUgY29udGVudCBpcyBzYWZlLg0KDQoNCj4gSSBoYXZlIGEgcXVlc3Rpb24g
+b24gd2h5IHRoZSBaTlMgd3JpdGUgYmVoYXZpb3IgZG9lcyBub3QgbWF0Y2ggdGhlIA0KPiByZWFk
+IGJlaGF2aW9yLiAgSW4gd3JpdGUgd29ya2xvYWRzIHdpdGggYW4gb2Zmc2V0IHRoYXQgcmVzdWx0
+cyBpbiBhIA0KPiBzdGFydGluZyBsYmEgdGhhdCBpcyBub3Qgb24gYSB6b25lIGJvdW5kYXJ5LCB0
+aGUgb2Zmc2V0IGlzIHJvdW5kZWQgdXAgDQo+IHRvIHRoZSBuZXh0IHpvbmUgc3RhcnRpbmcgbGJh
+LiAgVGhpcyBpcyBub3QgZG9uZSBmb3IgcmVhZCB3b3JrbG9hZHMgDQo+IHRob3VnaC4gIEknZCBs
+aWtlIHRvIGtub3cgaWYgdGhlcmUgaXMgYSBwYXJ0aWN1bGFyIHJlYXNvbiB3aHkgb3IgY291bGQg
+DQo+IEkgY2hhbmdlIHRoaXMgYmVoYXZpb3IgdG8gYmUgdGhlIHNhbWUgZm9yIGJvdGggcmVhZHMg
+YW5kIHdyaXRlcy4NCg0KVGhlIHJvb3QgY2F1c2UsIHNvIHRvIHNwZWFrLCBpcyB0aGF0IGZpbyB0
+cmllcyB0byBiZSBuaWNlIGFuZCBhY2NvbW9kYXRpbmcgcHJvZ3JhbSBhbmQgZG9lc24ndCByZWpl
+Y3Qgb2Zmc2V0cyB1bmFsaWduZWQgdG8gem9uZSBib3VuZGFyaWVzLg0KVW5saWtlIGZsb2F0aW5n
+IHBvaW50IHdoZXJlIHRoZXJlIGlzIG5hdHVyYWwgInJvdW5kIHRvIG5lYXJlc3QiIHJvdW5kaW5n
+IG1vZGUgem9uZWQgSS9PIGRvZXMgbm90IGhhdmUgdGhhdCBwcm9wZXJ0eS4NCg0KVGhlcmUgYXJl
+IHRocmVlIHdheXMNCmEpIHJlamVjdCB1bmFsaWduZWQgb2Zmc2V0PQ0KYikgYWNjZXB0IHVuYWxp
+Z25lZCBvZmZzZXQ9IGJ1dCByZWplY3QgZmlyc3QgSS9PIGlmIHdyaXRlIHBvaW50ZXIgaXMNCiAg
+IGRpZmZlcmVudA0KDQogICB0aGlzIGFsbG93cyB0aGUgZm9sbG93aW5nIHdvcmtsb2FkIHRvIHdv
+cmssIGF0IGxlYXN0IGNvbmNlcHR1YWxseQ0KDQogICAgICAgIHpvbmVtb2RlPXpiZA0KDQogICAg
+ICAgIFthXQ0KICAgICAgICBydz13cml0ZQ0KICAgICAgICBpb19zaXplPTQwOTYNCg0KICAgICAg
+ICBbYl0NCiAgICAgICAgcnc9d3JpdGUNCiAgICAgICAgb2Zmc2V0PTQwOTYNCiAgICAgICAgaW9f
+c2l6ZT00MDk2DQoNCmMpIHJvdW5kIGRvd24oISkNCiAgIHRoaXMgaXMgbmF0dXJhbCBnaXZlbiB0
+aGF0IHpvbmVkIHdyaXRlcyBhcmUgInJvdW5kZWQgZG93biIgdG8gdGhlIFdQDQoNCmZpbyBkb2Vz
+IG5vbmUgb2YgdGhlIGFib3ZlLg0KDQo+IFRoaXMgY2F1c2VzIGEgcHJvYmxlbSBmb3Igb25lIG9m
+IG91ciBwYXJ0aWN1bGFyIHRlc3RjYXNlcyB0aGF0IHdyaXRlcyANCj4gYSBwYXJ0aWN1bGFyIHBh
+dHRlcm4gYXQgYW4gb2Zmc2V0IHRoYXQgZW5kcyB1cCBiZWluZyByb3VuZGVkIHVwIHRvIHRoZSAN
+Cj4gbmV4dCB6b25lIHN0YXJ0aW5nIGxiYS4gIEluIHRoZSAybmQgc3RlcCBvZiB0aGlzIHRlc3Rj
+YXNlLCBhIHJlYWQgd2l0aCANCj4gdmVyaWZ5IHdvcmtsb2FkIGlzIGRvbmUgdG8gdmVyaWZ5IHRo
+ZSB3cml0ZSB3b3JrbG9hZC4gIFRoaXMgZmFpbHMgd2l0aCANCj4gYSBtaXNjb21wYXJlIGJlY2F1
+c2UgdGhlIHJlYWQgd29ya2xvYWQgaXMgbm90IHN0YXJ0aW5nIGF0IHRoZSBzYW1lIA0KPiBvZmZz
+ZXQgYXMgdGhlIHdyaXRlIHdvcmtsb2FkLiAgQm90aCBmaW8gd29ya2xvYWRzIGhhdmUgIm9mZnNl
+dCA9IDElIi4NCg0KSSB0aGluayB0aGUgYmVzdCB5b3UgY291bGQgZG8gaXQgdG8gZmlsbCB0aGUg
+em9uZSB1cCB0aGUgTEJBIGFuZCB0aGVuIGNyZWF0ZXMgc2VwYXJhdGUgam9iIHdoaWNoIHdyaXRl
+cyBwYXR0ZXJuIGFuZCBpbW1lZGlhdGVseSB2ZXJpZmllcyBpdC4NCg0KICAgICAgICBbYV0NCiAg
+ICAgICAgcnc9d3JpdGUNCiAgICAgICAgaW9fc2l6ZT00MDk2DQogICAgICAgIG9mZnNldD0yeg0K
+ICAgICAgICBzaXplPTF6DQoNCiAgICAgICAgW2JdDQogICAgICAgIHN0b25ld2FsbA0KICAgICAg
+ICBydz13cml0ZQ0KICAgICAgICBpb19zaXplPTQwOTYNCiAgICAgICAgb2Zmc2V0PTJ6DQogICAg
+ICAgIHNpemU9MXoNCiAgICAgICAgdmVyaWZ5PXh4aGFzaA0KICAgICAgICBkb192ZXJpZnk9MQ0K
+DQpOb3RlISBNYWlubGluZSBmaW8gc3VwcG9ydHMgJ3onIHN1ZmZpeCwgd2hpY2ggaXMgbXVjaCBi
+ZXR0ZXIgdGhhbiBwZXJjZW50YWdlcyENCg==
 
