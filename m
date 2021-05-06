@@ -1,36 +1,31 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH] configure: fix check_min_lib_version() eval
-References: <20210506162331.1026601-1-stefanha@redhat.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <84fb7ec8-0cab-f88e-eb6a-0615210756fe@kernel.dk>
-Date: Thu, 6 May 2021 10:25:09 -0600
+Return-Path: <stefanha@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: [PATCH] configure: fix check_min_lib_version() eval
+Date: Thu,  6 May 2021 17:23:31 +0100
+Message-Id: <20210506162331.1026601-1-stefanha@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20210506162331.1026601-1-stefanha@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Stefan Hajnoczi <stefanha@redhat.com>, fio@vger.kernel.org
-Cc: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Content-Transfer-Encoding: base64
+To: fio@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>, Stefan Hajnoczi <stefanha@redhat.com>, Dmitry Fomichev <dmitry.fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On 5/6/21 10:23 AM, Stefan Hajnoczi wrote:
-> The following shell statement:
-> 
->   if eval "echo \$$_feature" = "yes" ; then
-> 
-> executes:
-> 
->   echo $... = "yes"
-> 
-> It does not actually compare the variable named by $_feature to the
-> string "yes".
-> 
-> Add the missing "test" call so the comparison happens as intended and
-> wrap the eval so it doesn't include the = "yes".
-
-Applied, thanks.
-
--- 
-Jens Axboe
+VGhlIGZvbGxvd2luZyBzaGVsbCBzdGF0ZW1lbnQ6CgogIGlmIGV2YWwgImVjaG8gXCQkX2ZlYXR1
+cmUiID0gInllcyIgOyB0aGVuCgpleGVjdXRlczoKCiAgZWNobyAkLi4uID0gInllcyIKCkl0IGRv
+ZXMgbm90IGFjdHVhbGx5IGNvbXBhcmUgdGhlIHZhcmlhYmxlIG5hbWVkIGJ5ICRfZmVhdHVyZSB0
+byB0aGUKc3RyaW5nICJ5ZXMiLgoKQWRkIHRoZSBtaXNzaW5nICJ0ZXN0IiBjYWxsIHNvIHRoZSBj
+b21wYXJpc29uIGhhcHBlbnMgYXMgaW50ZW5kZWQgYW5kCndyYXAgdGhlIGV2YWwgc28gaXQgZG9l
+c24ndCBpbmNsdWRlIHRoZSA9ICJ5ZXMiLgoKRml4ZXM6IDNlNDhmN2M5ZGU2MSAoImNvbmZpZ3Vy
+ZTogZml4IHN5bnRheCBlcnJvciB3aXRoIE5ldEJTRCIpCkNjOiBEbWl0cnkgRm9taWNoZXYgPGRt
+aXRyeS5mb21pY2hldkB3ZGMuY29tPgpTaWduZWQtb2ZmLWJ5OiBTdGVmYW4gSGFqbm9jemkgPHN0
+ZWZhbmhhQHJlZGhhdC5jb20+Ci0tLQogY29uZmlndXJlIHwgMiArLQogMSBmaWxlIGNoYW5nZWQs
+IDEgaW5zZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvY29uZmlndXJlIGIv
+Y29uZmlndXJlCmluZGV4IGE3ZDgyYmUwLi5lODg2YmRjOCAxMDA3NTUKLS0tIGEvY29uZmlndXJl
+CisrKyBiL2NvbmZpZ3VyZQpAQCAtMTQyLDcgKzE0Miw3IEBAIGNoZWNrX21pbl9saWJfdmVyc2lv
+bigpIHsKICAgZmkKICAgOiAiJHtfZmVhdHVyZTo9JHsxfX0iCiAgIGlmICIke2Nyb3NzX3ByZWZp
+eH0icGtnLWNvbmZpZyAtLXZlcnNpb24gPiAvZGV2L251bGwgMj4mMTsgdGhlbgotICAgIGlmIGV2
+YWwgImVjaG8gXCQkX2ZlYXR1cmUiID0gInllcyIgOyB0aGVuCisgICAgaWYgdGVzdCAiJChldmFs
+IGVjaG8gXCJcJCRfZmVhdHVyZVwiKSIgPSAieWVzIiA7IHRoZW4KICAgICAgIGZlYXR1cmVfbm90
+X2ZvdW5kICIkX2ZlYXR1cmUiICIkMSA+PSAkMiIKICAgICBmaQogICBlbHNlCi0tIAoyLjMxLjEK
+Cg==
 
 
