@@ -1,47 +1,48 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:55907 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230326AbhFAGtg (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 1 Jun 2021 02:49:36 -0400
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 0/3] t/zbd: Fix max_open_zones related failures
-Date: Tue,  1 Jun 2021 15:47:50 +0900
-Message-Id: <20210601064753.734892-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH v2] Make fill_device to stop writing on EDQUOT
+References: <YJm19oa9P0bscNjI@dione.lan>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <fd25baf4-9598-57f7-cfc0-42a087154ef7@kernel.dk>
+Date: Mon, 10 May 2021 17:22:59 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+In-Reply-To: <YJm19oa9P0bscNjI@dione.lan>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Martin Bukatovic <martin.bukatovic@gmail.com>, fio@vger.kernel.org
+List-ID: <fio@vger.kernel.org>
 
-Recent changes in fio [1] triggered three failures in the test script
-t/zbd/test-zoned-support. This series address the failures.
+On 5/10/21 4:38 PM, Martin Bukatovic wrote:
+> diff --git a/filesetup.c b/filesetup.c
+> index e664f8b4..57173637 100644
+> --- a/filesetup.c
+> +++ b/filesetup.c
+> @@ -226,11 +226,17 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
+>  			if (r < 0) {
+>  				int __e = errno;
+>  
+> -				if (__e == ENOSPC) {
+> +				if (__e == ENOSPC || __e == EDQUOT) {
+> +					const char* __e_name;
 
-The first failure was caused by difference between max_open_zones value that fio
-refers and that test script refers. The first patch modifies the test script to
-use the value fio refers.
+'*' goes with the variable name in the fio coding style.
 
-The second failure was observed when users specify special max_open_zones values
-larger than the max_open_zones limit of the test target device. The second patch
-adds --ignore_zone_limits option to the fio command only when users specify such
-special conditions.
+>  					if (td->o.fill_device)
+>  						break;
+> -					log_info("fio: ENOSPC on laying out "
+> -						 "file, stopping\n");
+> +					if (__e == ENOSPC) {
+> +						__e_name = "ENOSPC";
+> +					} else {
+> +						__e_name = "EDQUOT";
+> +					}
 
-The third failure was caused by write target zone count bug in the test case 31.
-Data write to more zones than max_open_zones limit resulted in exceeding the
-max_open_zones limit. The third patch fixes the write target zone count logic.
+And no braces for single lines.
 
-[1] https://www.spinics.net/lists/fio/msg09502.html
-
-Shin'ichiro Kawasaki (3):
-  t/zbd: Use max_open_zones that fio fetched from device
-  t/zbd: Add ignore_zone_limit option to test with special
-    max_open_zones
-  t/zbd: Fix write target zones counting in test case #31
-
- t/zbd/functions        |  4 ++--
- t/zbd/test-zbd-support | 37 +++++++++++++++++--------------------
- 2 files changed, 19 insertions(+), 22 deletions(-)
+Apart from that, looks fine to me. Can you do a quick v3 with those
+changes?
 
 -- 
-2.31.1
+Jens Axboe
 
 
