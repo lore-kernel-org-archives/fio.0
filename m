@@ -1,85 +1,51 @@
-Return-Path: <prvs=7598eea54=Niklas.Cassel@wdc.com>
-From: Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH 4/4] engines/libzbc: add support for the get_max_open_zones io
- op
-Date: Wed, 12 May 2021 22:37:27 +0000
-Message-ID: <20210512223615.17239-5-Niklas.Cassel@wdc.com>
-References: <20210512223615.17239-1-Niklas.Cassel@wdc.com>
-In-Reply-To: <20210512223615.17239-1-Niklas.Cassel@wdc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] oslib/linux-blkzoned: make sure that we always support
+ zone capacity
+References: <20210506131827.68407-1-Niklas.Cassel@wdc.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <da0ff0d5-081b-6f58-0b36-3684a33eb8ea@kernel.dk>
+Date: Mon, 10 May 2021 09:25:56 -0600
 MIME-Version: 1.0
-To: "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
+In-Reply-To: <20210506131827.68407-1-Niklas.Cassel@wdc.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Niklas Cassel <Niklas.Cassel@wdc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Matias Bjorling <Matias.Bjorling@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+On 5/6/21 7:18 AM, Niklas Cassel wrote:
+> From: Niklas Cassel <niklas.cassel@wdc.com>
+> 
+> A common problem is that users upgrade their kernel to support NVMe ZNS
+> devices, however, they still use the kernel uapi headers provided by their
+> distro.
+> 
+> This means that even if the kernel will populate the zone capacity fields
+> for each zone in the zone report returned by the ioctl, fio will not know
+> how to interpret that data.
+> 
+> This leads to fio writing past the zone capacity, which will lead to
+> I/O errors.
+> 
+> It is not trivial for a user to realize that the kernel uapi headers
+> provided by their distro is the reason for these I/O errors.
+> 
+> In order to make it easier for these users, provide a copy of the current
+> zoned block device kernel uapi structs.
+> 
+> If the kernel uapi headers installed on the system are too old to support
+> zone capacity, use the locally defined structs instead.
+> If the installed headers are new enough to support zone capacity, use the
+> installed headers.
+> 
+> This way, fio will always be able to handle zone capacity (if the kernel
+> supports it). At the same time, we will not redefine any structs from the
+> installed headers if they are newer than our locally defined structs.
 
-Add support for the new .get_max_open_zones io operation.
+Applied, thanks.
 
-zbc.c will only ever call this callback for host-managed devices.
+-- 
+Jens Axboe
 
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
----
- engines/libzbc.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
-
-diff --git a/engines/libzbc.c b/engines/libzbc.c
-index 2aacf7bb..3dde93db 100644
---- a/engines/libzbc.c
-+++ b/engines/libzbc.c
-@@ -19,6 +19,7 @@ struct libzbc_data {
- 	struct zbc_device	*zdev;
- 	enum zbc_dev_model	model;
- 	uint64_t		nr_sectors;
-+	uint32_t		max_open_seq_req;
- };
-=20
- static int libzbc_get_dev_info(struct libzbc_data *ld, struct fio_file *f)
-@@ -32,6 +33,7 @@ static int libzbc_get_dev_info(struct libzbc_data *ld, st=
-ruct fio_file *f)
- 	zbc_get_device_info(ld->zdev, zinfo);
- 	ld->model =3D zinfo->zbd_model;
- 	ld->nr_sectors =3D zinfo->zbd_sectors;
-+	ld->max_open_seq_req =3D zinfo->zbd_max_nr_open_seq_req;
-=20
- 	dprint(FD_ZBD, "%s: vendor_id:%s, type: %s, model: %s\n",
- 	       f->file_name, zinfo->zbd_vendor_id,
-@@ -335,6 +337,24 @@ err:
- 	return -ret;
- }
-=20
-+static int libzbc_get_max_open_zones(struct thread_data *td, struct fio_fi=
-le *f,
-+				     unsigned int *max_open_zones)
-+{
-+	struct libzbc_data *ld;
-+	int ret;
-+
-+	ret =3D libzbc_open_dev(td, f, &ld);
-+	if (ret)
-+		return ret;
-+
-+	if (ld->max_open_seq_req =3D=3D ZBC_NO_LIMIT)
-+		*max_open_zones =3D 0;
-+	else
-+		*max_open_zones =3D ld->max_open_seq_req;
-+
-+	return 0;
-+}
-+
- ssize_t libzbc_rw(struct thread_data *td, struct io_u *io_u)
- {
- 	struct libzbc_data *ld =3D td->io_ops_data;
-@@ -414,6 +434,7 @@ FIO_STATIC struct ioengine_ops ioengine =3D {
- 	.get_zoned_model	=3D libzbc_get_zoned_model,
- 	.report_zones		=3D libzbc_report_zones,
- 	.reset_wp		=3D libzbc_reset_wp,
-+	.get_max_open_zones	=3D libzbc_get_max_open_zones,
- 	.queue			=3D libzbc_queue,
- 	.flags			=3D FIO_SYNCIO | FIO_NOEXTEND | FIO_RAWIO,
- };
---=20
-2.25.1
 
