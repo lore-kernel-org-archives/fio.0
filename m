@@ -1,52 +1,43 @@
-Return-Path: <prvs=779e416ac=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 2/3] t/zbd: Add ignore_zone_limit option to test with special max_open_zones
-Date: Tue,  1 Jun 2021 15:47:52 +0900
-Message-Id: <20210601064753.734892-3-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20210601064753.734892-1-shinichiro.kawasaki@wdc.com>
-References: <20210601064753.734892-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <martin.bukatovic@gmail.com>
+Return-Path: <martin.bukatovic@gmail.com>
+Date: Tue, 11 May 2021 00:46:30 +0200
+From: Martin Bukatovic <martin.bukatovic@gmail.com>
+Subject: Re: [PATCH] Make fill_device to stop writing on EDQUOT
+Message-ID: <YJm3xio2Etyyk+2o@dione.lan>
+References: <20200829203456.GA18156@dione.lan>
+ <5cef0533-4e2c-fc1e-7293-401523848a6d@kernel.dk>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+In-Reply-To: <5cef0533-4e2c-fc1e-7293-401523848a6d@kernel.dk>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: fio@vger.kernel.org
 List-ID: <fio@vger.kernel.org>
 
-Recent commit d2f442bc0bd5 ("ioengines: add get_max_open_zones zoned
-block device operation") modified fio to compare --max_open_zoned option
-value and max_open_zones reported by the device. When the option
---max_open_zones is larger than the device limit, fio exits with an
-error. However, sometimes it is useful to run fio with --max_open_zones
-larger than the device limit to check performance impact of implicit
-zone open and close by the zoned block devices. The test script
-t/zbd/test-zbd-support has an option -o so that users can specify such
-larger max_open_zones value. After the commit, such test runs fail with
-the fio error.
+On Sat, Aug 29, 2020 at 03:17:39PM -0600, Jens Axboe wrote:
+> On 8/29/20 2:34 PM, Martin Bukatovic wrote:
+> > diff --git a/filesetup.c b/filesetup.c
+> > index d382fa24..39a17521 100644
+> > --- a/filesetup.c
+> > +++ b/filesetup.c
+> > @@ -233,6 +233,10 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
+> >  						 "file, stopping\n");
+> >  					break;
+> >  				}
+> > +				if (__e == EDQUOT) {
+> > +					if (td->o.fill_device)
+> > +						break;
+> > +				}
+> >  				td_verror(td, errno, "write");
+> >  			} else
+> >  				td_verror(td, EIO, "write");
+> 
+> This should just extent the previous ENOSPC check, and modify the
+> print statement as well.
 
-To avoid the failure, modify the test script to specify another option
---ignore_zone_limits to fio command, which was added by the commit
-575686bb85fa (zbd: add a new --ignore_zone_limits option). This option
-is added to fio command only when users specify -o option and special
-max_open_zones value to the test script. This change does not affect
-default test conditions.
+Fixed in v2 of the patch.
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- t/zbd/test-zbd-support | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 26aff373..015fa1dc 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -1348,6 +1348,7 @@ fi
- if [[ -n ${max_open_zones_opt} ]]; then
- 	# Override max_open_zones with the script option value
- 	max_open_zones="${max_open_zones_opt}"
-+	global_var_opts+=("--ignore_zone_limits=1")
- 	job_var_opts+=("--max_open_zones=${max_open_zones_opt}")
- fi
- 
 -- 
-2.31.1
-
+Martin Bukatovič
 
