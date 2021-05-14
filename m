@@ -1,95 +1,86 @@
-Return-Path: <prvs=7598eea54=Niklas.Cassel@wdc.com>
+Return-Path: <prvs=761aa9a9b=Niklas.Cassel@wdc.com>
 From: Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: Re: setup vs init ioengine callback order
-Date: Wed, 12 May 2021 08:38:29 +0000
-Message-ID: <YJuUA6hVVgdtHxZ7@x1-carbon.lan>
-References: <YIhe2FkdoJMnXoHl@x1-carbon.lan>
-In-Reply-To: <YIhe2FkdoJMnXoHl@x1-carbon.lan>
+Subject: [PATCH v2 4/4] engines/libzbc: add support for the get_max_open_zones
+ io op
+Date: Fri, 14 May 2021 12:53:15 +0000
+Message-ID: <20210514125233.10508-5-Niklas.Cassel@wdc.com>
+References: <20210514125233.10508-1-Niklas.Cassel@wdc.com>
+In-Reply-To: <20210514125233.10508-1-Niklas.Cassel@wdc.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <D39146B67908314F828B5C8EB4D18F4A@namprd04.prod.outlook.com>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 To: "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On Tue, Apr 27, 2021 at 08:58:32PM +0200, Niklas Cassel wrote:
-> Hello there,
->=20
->=20
-> If running fio with --create_serialize=3D1 and --numjobs=3D2
->=20
-> ->setup() callback will be called for each thread,
-> before the ->init() callback is called for each thread:
->=20
-> my_fio_setup: td: 0x7eff72d6a000
-> my_fio_setup: td: 0x7eff72daea70
-> my_fio_init: td: 0x7eff72d6a000
-> my_fio_init: td: 0x7eff72daea70
->=20
-> However, if running fio with --create_serialize=3D0 and --numjobs=3D2
-> you will instead see that ->init() callback will be called for each
-> thread, before the ->setup() callback is called for each thread:
->=20
-> my_fio_init: td: 0x7eff72d6a000
-> my_fio_init: td: 0x7eff72daea70
-> my_fio_setup: td: 0x7eff72d6a000
-> my_fio_setup: td: 0x7eff72daea70
->=20
->=20
-> This is because, in backend.c:thread_main() looks like this:
->=20
-> ...
->=20
->         if (!init_iolog(td))
->                 goto err;
->=20
->         if (td_io_init(td))
->                 goto err;
->=20
->         if (init_io_u(td))
->                 goto err;
->=20
-> ...
->=20
->         if (!o->create_serialize && setup_files(td))
->                 goto err;
->=20
->         if (!init_random_map(td))
->                 goto err;
->=20
-> ...
->=20
->=20
->=20
-> td_io_init() will call td->io_ops->init(td) and setup_files() will
-> call td->io_ops->setup(td).
->=20
-> Is it just me who thinks that it is extremely confusing for an ioengine
-> developer to not be able to know if the ->setup() or ->init() callback
-> will be called first?
->=20
-> Should we perhaps consider moving the
->=20
->         if (!o->create_serialize && setup_files(td))
->                 goto err;
->=20
-> chunk so that it is before the td_io_init() call?
->=20
-> That way, ->setup() would always be called before ->init()
-> (which is the default, since --create_serialize defaults to 1),
-> no matter what value --create_serialize is set to.
->=20
->=20
-> Kind regards,
-> Niklas
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-Hello Jens,
+Add support for the new .get_max_open_zones io operation.
 
-any thoughts on this?
+zbc.c will only ever call this callback for host-managed devices.
 
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+---
+ engines/libzbc.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-Kind regards,
-Niklas=
+diff --git a/engines/libzbc.c b/engines/libzbc.c
+index 2aacf7bb..3dde93db 100644
+--- a/engines/libzbc.c
++++ b/engines/libzbc.c
+@@ -19,6 +19,7 @@ struct libzbc_data {
+ 	struct zbc_device	*zdev;
+ 	enum zbc_dev_model	model;
+ 	uint64_t		nr_sectors;
++	uint32_t		max_open_seq_req;
+ };
+=20
+ static int libzbc_get_dev_info(struct libzbc_data *ld, struct fio_file *f)
+@@ -32,6 +33,7 @@ static int libzbc_get_dev_info(struct libzbc_data *ld, st=
+ruct fio_file *f)
+ 	zbc_get_device_info(ld->zdev, zinfo);
+ 	ld->model =3D zinfo->zbd_model;
+ 	ld->nr_sectors =3D zinfo->zbd_sectors;
++	ld->max_open_seq_req =3D zinfo->zbd_max_nr_open_seq_req;
+=20
+ 	dprint(FD_ZBD, "%s: vendor_id:%s, type: %s, model: %s\n",
+ 	       f->file_name, zinfo->zbd_vendor_id,
+@@ -335,6 +337,24 @@ err:
+ 	return -ret;
+ }
+=20
++static int libzbc_get_max_open_zones(struct thread_data *td, struct fio_fi=
+le *f,
++				     unsigned int *max_open_zones)
++{
++	struct libzbc_data *ld;
++	int ret;
++
++	ret =3D libzbc_open_dev(td, f, &ld);
++	if (ret)
++		return ret;
++
++	if (ld->max_open_seq_req =3D=3D ZBC_NO_LIMIT)
++		*max_open_zones =3D 0;
++	else
++		*max_open_zones =3D ld->max_open_seq_req;
++
++	return 0;
++}
++
+ ssize_t libzbc_rw(struct thread_data *td, struct io_u *io_u)
+ {
+ 	struct libzbc_data *ld =3D td->io_ops_data;
+@@ -414,6 +434,7 @@ FIO_STATIC struct ioengine_ops ioengine =3D {
+ 	.get_zoned_model	=3D libzbc_get_zoned_model,
+ 	.report_zones		=3D libzbc_report_zones,
+ 	.reset_wp		=3D libzbc_reset_wp,
++	.get_max_open_zones	=3D libzbc_get_max_open_zones,
+ 	.queue			=3D libzbc_queue,
+ 	.flags			=3D FIO_SYNCIO | FIO_NOEXTEND | FIO_RAWIO,
+ };
+--=20
+2.25.1
 
