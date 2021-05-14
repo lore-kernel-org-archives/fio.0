@@ -1,105 +1,106 @@
-Return-Path: <prvs=76226efac=Damien.LeMoal@wdc.com>
-From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Return-Path: <prvs=761aa9a9b=Niklas.Cassel@wdc.com>
+From: Niklas Cassel <Niklas.Cassel@wdc.com>
 Subject: Re: [PATCH 3/4] ioengines: add get_max_open_zones zoned block device
  operation
-Date: Sat, 15 May 2021 01:16:00 +0000
-Message-ID: <bfbc867cf61e97eaf8b831bfa5bcd453382a2982.camel@wdc.com>
+Date: Fri, 14 May 2021 12:05:35 +0000
+Message-ID: <YJ5njpKY5vPotYpi@x1-carbon.lan>
 References: <20210512223615.17239-1-Niklas.Cassel@wdc.com>
-	 <20210512223615.17239-4-Niklas.Cassel@wdc.com>
-	 <DM6PR04MB7081E5A56B9868AB2A259076E7519@DM6PR04MB7081.namprd04.prod.outlook.com>
-	 <YJ5njpKY5vPotYpi@x1-carbon.lan>
-In-Reply-To: <YJ5njpKY5vPotYpi@x1-carbon.lan>
+ <20210512223615.17239-4-Niklas.Cassel@wdc.com>
+ <DM6PR04MB7081E5A56B9868AB2A259076E7519@DM6PR04MB7081.namprd04.prod.outlook.com>
+In-Reply-To: 
+ <DM6PR04MB7081E5A56B9868AB2A259076E7519@DM6PR04MB7081.namprd04.prod.outlook.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <5ACF1623E5D6CD41865E09450BD6A1E2@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <C2569EDDA5910843B648EC98536DEC8E@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: Niklas Cassel <Niklas.Cassel@wdc.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>
+To: Damien Le Moal <Damien.LeMoal@wdc.com>
+Cc: "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 List-ID: <fio@vger.kernel.org>
 
-T24gRnJpLCAyMDIxLTA1LTE0IGF0IDEyOjA1ICswMDAwLCBOaWtsYXMgQ2Fzc2VsIHdyb3RlOg0K
-PiBPbiBUaHUsIE1heSAxMywgMjAyMSBhdCAxMjoyMzo1OUFNICswMDAwLCBEYW1pZW4gTGUgTW9h
-bCB3cm90ZToNCj4gPiBPbiAyMDIxLzA1LzEzIDc6MzcsIE5pa2xhcyBDYXNzZWwgd3JvdGU6DQo+
-ID4gPiBGcm9tOiBOaWtsYXMgQ2Fzc2VsIDxuaWtsYXMuY2Fzc2VsQHdkYy5jb20+DQo+ID4gPiAN
-Cj4gPiA+IERlZmluZSBhIG5ldyBJTyBlbmdpbmUgb3BlcmF0aW9uIHRvIGdldCB0aGUgbWF4aW11
-bSBudW1iZXIgb2Ygb3BlbiB6b25lcy4NCj4gPiA+IExpa2UgdGhlIGV4aXN0aW5nIElPIGVuZ2lu
-ZSBvcGVyYXRpb25zOiAuZ2V0X3pvbmVkX21vZGVsLCAucmVwb3J0X3pvbmVzLA0KPiA+ID4gYW5k
-IC5yZXNldF93cCwgdGhpcyBuZXcgSU8gZW5naW5lIG9wZXJhdGlvbiBpcyBvbmx5IHZhbGlkIGZv
-ciB6b25lZCBibG9jaw0KPiA+ID4gZGV2aWNlcy4NCj4gPiA+IA0KPiA+ID4gU2ltaWxhcmx5IHRv
-IHRoZSBvdGhlciB6YmQgSU8gZW5naW5lIG9wZXJhdGlvbnMsIGFsc28gcHJvdmlkZSBhIGRlZmF1
-bHQNCj4gPiA+IGltcGxlbWVudGF0aW9uIGluc2lkZSBvc2xpYi9saW51eC1ibGt6b25lZC5jIHRo
-YXQgd2lsbCBiZSB1c2VkIGlmIHRoZQ0KPiA+ID4gaW9lbmdpbmUgZG9lcyBub3Qgb3ZlcnJpZGUg
-aXQuDQo+ID4gPiANCj4gPiA+IFRoZSBkZWZhdWx0IExpbnV4IG9zbGliIGltcGxlbWVudGF0aW9u
-IGlzIGltcGxlbWVudGVkIHNpbWlsYXJseSB0bw0KPiA+ID4gYmxrem9uZWRfZ2V0X3pvbmVkX21v
-ZGVsKCksIGkuZS4gaXQgd2lsbCByZXR1cm4gYSBzdWNjZXNzZnVsIGVycm9yIGNvZGUNCj4gPiA+
-IGV2ZW4gd2hlbiB0aGUgc3lzZnMgYXR0cmlidXRlIGRvZXMgbm90IGV4aXN0Lg0KPiA+ID4gVGhp
-cyBpcyBiZWNhdXNlIHRoZSBzeXNmcyBtYXhfb3Blbl96b25lcyBhdHRyaWJ1dGUgd2FzIGludHJv
-ZHVjZWQgZmlyc3QNCj4gPiA+IGluIExpbnV4IHY1LjkuDQo+ID4gPiBBbGwgZXJyb3IgaGFuZGxp
-bmcgaXMgc3RpbGwgdGhlcmUsIHNvIGFuIGlvZW5naW5lIHRoYXQgcHJvdmlkZXMgaXRzIG93bg0K
-PiA+ID4gaW1wbGVtZW50YXRpb24gd2lsbCBzdGlsbCBoYXZlIGl0cyBlcnJvciBjb2RlIHJlc3Bl
-Y3RlZCBwcm9wZXJseS4NCj4gPiA+IA0KPiA+ID4gU2lnbmVkLW9mZi1ieTogTmlrbGFzIENhc3Nl
-bCA8bmlrbGFzLmNhc3NlbEB3ZGMuY29tPg0KPiA+ID4gLS0tDQo+ID4gPiAgZW5naW5lcy9za2Vs
-ZXRvbl9leHRlcm5hbC5jIHwgMTMgKysrKysrDQo+ID4gPiAgaW9lbmdpbmVzLmggICAgICAgICAg
-ICAgICAgIHwgIDQgKy0NCj4gPiA+ICBvc2xpYi9ibGt6b25lZC5oICAgICAgICAgICAgfCAgNyAr
-KysNCj4gPiA+ICBvc2xpYi9saW51eC1ibGt6b25lZC5jICAgICAgfCAyMiArKysrKysrKysrDQo+
-ID4gPiAgemJkLmMgICAgICAgICAgICAgICAgICAgICAgIHwgODcgKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKy0tLQ0KPiA+ID4gIDUgZmlsZXMgY2hhbmdlZCwgMTI3IGluc2VydGlv
-bnMoKyksIDYgZGVsZXRpb25zKC0pDQo+ID4gPiANCj4gPiANCj4gPiAJaWYgKCF0ZC0+by5tYXhf
-b3Blbl96b25lcykgew0KPiA+IAkJLyogVXNlciBkaWQgbm90IHJlcXVlc3QgYSBsaW1pdC4gU2V0
-IGxpbWl0IHRvIG1heCBzdXBwb3J0ZWQgKi8NCj4gPiAJCXpiZC0+bWF4X29wZW5fem9uZXMgPSBt
-YXhfb3Blbl96b25lczsNCj4gPiAJfSBlbHNlIGlmICh0ZC0+by5tYXhfb3Blbl96b25lcyA8IG1h
-eF9vcGVuX3pvbmVzKSB7DQo+ID4gCQkvKiBVc2VyIHJlcXVlc3RlZCBhIGxpbWl0LCBsaW1pdCBp
-cyBub3QgdG9vIGxhcmdlICovDQo+ID4gCQl6YmQtPm1heF9vcGVuX3pvbmVzID0gdGQtPm8ubWF4
-X29wZW5fem9uZXM7DQo+ID4gCX0gZWxzZSB7DQo+ID4gCQkvKiBVc2VyIHJlcXVlc3RlZCBhIGxp
-bWl0LCBidXQgbGltaXQgaXMgdG9vIGxhcmdlICovDQo+ID4gCQkuLi4NCj4gPiAJCXJldHVybiAt
-RUlOVkFMOw0KPiA+IAl9DQo+ID4gDQo+ID4gPiArDQo+ID4gPiArb3V0Og0KPiA+ID4gKwkvKiBF
-bnN1cmUgdGhhdCB0aGUgbGltaXQgaXMgbm90IGxhcmdlciB0aGFuIEZJTydzIGludGVybmFsIGxp
-bWl0ICovDQo+ID4gPiArCXpiZC0+bWF4X29wZW5fem9uZXMgPSB6YmQtPm1heF9vcGVuX3pvbmVz
-ID86IFpCRF9NQVhfT1BFTl9aT05FUzsNCj4gPiA+ICsJZHByaW50KEZEX1pCRCwgIiVzOiB1c2lu
-ZyBtYXggb3BlbiB6b25lcyBsaW1pdDogJSJQUkl1MzIiXG4iLA0KPiA+ID4gKwkgICAgICAgZi0+
-ZmlsZV9uYW1lLCB6YmQtPm1heF9vcGVuX3pvbmVzKTsNCj4gPiANCj4gPiBJdCBtYXkgYmUgZ29v
-ZCB0byBoYXZlIGEgbG9nX2luZm8oKSB0b28gaGVyZSwgbm8gPw0KPiANCj4gSGVsbG8gRGFtaWVu
-LA0KPiANCj4gVGhhbmsgeW91IGZvciB5b3VyIHJldmlldyENCj4gDQo+IEkgZG9uJ3QgaGF2ZSBh
-bnkgcHJvYmxlbSB3aXRoIGFueSBvZiB5b3VyIHJldmlldyBjb21tZW50cywgZXhjZXB0IHRoaXMg
-b25lLg0KPiANCj4gSSdtIG5vdCBhIGZhbiBvbiB1bmNvbmRpdGlvbmFsbHkgcHJpbnRpbmcgdGhl
-IGFtb3VudCBvZiBtYXggb3BlbiB6b25lcyBiZWluZw0KPiB1c2VkLCBzbyBJIHRoaW5rIHRoYXQg
-a2VlcGluZyBpdCBmb3IgLS1kZWJ1Zz16YmQgaXMgZmluZS4NCg0KTXkgYXBvbG9naWVzLCBJIHdh
-cyBub3QgY2xlYXIuIE15IGludGVudCB3YXMgbm90IHRvIHN1Z2dlc3QgdG8gcHJpbnQgYSBtZXNz
-YWdlDQp1bmNvbmRpdGlvbmFsbHkuDQoNCj4gMSkgSWYgdGhlIHVzZXIgZGlkIHNwZWNpZnkgYSBs
-aW1pdCwgd2h5IHByaW50IHRoZSBzYW1lIGxpbWl0IGFzIHRoZXkgcmVxdWVzdGVkPw0KDQpBZ3Jl
-ZWQsIG5vIG1lc3NhZ2UgaXMgbmVlZGVkLg0KDQo+IDIpIElmIHRoZXkgZGlkIHNwZWNpZnkgYSBs
-aW1pdCB0aGF0IGlzIHRvbyBoaWdoLCBmaW8gd2lsbCBleGl0IHdpdGggYSBwcmludC4NCj4gDQo+
-IDMpIEkgZ3Vlc3Mgd2UgY291bGQgcHJpbnQgaW4gdGhlIGNhc2Ugd2hlcmUgdGhlIHVzZXIgZGlk
-IG5vdCByZXF1ZXN0IGEgbGltaXQsDQo+IGFuZCB3ZSBpbXBsaWNpdGx5IHNldCB0aGUgbGltaXQg
-dG8gdGhlIGRldmljZSBsaW1pdC4NCg0KVGhhdCB3YXMgbXkgc3VnZ2VzdGlvbi4NCg0KPiANCj4g
-SG93ZXZlciwgcmlnaHQgbm93IHdlIGRvbid0IGhhdmUgYW55IHpiZCBzcGVjaWZpYyBwcmludHMg
-d2hlbiBzdGFydGluZyBmaW8sDQo+IGUuZy4gd2hlbiB0aGUgdXNlciBkb2VzIG5vdCBzcGVjaWZ5
-IC0tem9uZV9zaXplLCBhbmQgd2UgdXNlIHpvbmUgc2l6ZSBvZg0KPiB0aGUgZHJpdmUuDQo+IA0K
-PiBTbyBJIGRvbid0IHRoaW5rIHRoYXQgYWN0dWFsbHkgdXNpbmcgdGhlIG1heCBvcGVuIHpvbmVz
-IHRoYXQgdGhlIGRyaXZlDQo+IHN1cHBvcnRzIGp1c3RpZmllcyBhIHByaW50LCBub3QgZXZlbiBm
-b3IgY2FzZSAzKS4NCg0KT0suIFRoYXQgaXMgZmluZS4NCg0KVGhhdCBzYWlkLCB0aGVyZSBpcyBh
-IHJlZmluZW1lbnQgbmVlZGVkIEkgdGhpbmssIHdoaWNoIGlzIHRvIGlnbm9yZSB0aGUgZHJpdmUN
-CmFkdmVydGlzZWQgbWF4X29wZW5fem9uZXMgaWYgbWF4X2FjdGl2ZV96b25lcyBpcyAwLg0KDQpU
-aGUgcmVhc29uIGlzIHRoYXQgZm9yIFNNUiBkcml2ZXMsIHRoZSBtYXhfb3Blbl96b25lcyBsaW1p
-dCBpcyBvbmx5IG1lYW5pbmdmdWwNCmluIHRoZSBjb250ZXh0IG9mIGV4cGxpY2l0IHpvbmUgb3Bl
-biB3aGljaCBmaW8gZG9lcyBub3QgZG8uIEZvciBpbXBsaWNpdCB6b25lDQpvcGVuIGFzIHVzZWQg
-aW4gZmlvLCB0aGVyZSB3aWxsIGJlIG5vIElPIGVycm9yIGZvciBhIHdyaXRlIHdvcmtsb2FkIHRo
-YXQNCnNpbXVsdGFuZW91c2x5IHdyaXRlcyB0byBtb3JlIHRoYW4gbWF4X29wZW5fem9uZXMgc2lu
-Y2UgbWF4X2FjdGl2ZV96b25lcyBpcw0KYWx3YXlzIDAgKG5vIGxpbWl0KSB3aXRoIFNNUi4NCg0K
-SGF2aW5nIHRoZSBhYmlsaXR5IHRvIHJ1biB3b3JrbG9hZHMgdGhhdCB3cml0ZSB0byBtb3JlIHRo
-YW4gbWF4X29wZW5fem9uZXMgaXMNCnVzZWZ1bCB0byBtZWFzdXJlIHRoZSBwb3RlbnRpYWwgaW1w
-YWN0IG9uIHBlcmZvcm1hbmNlIG9mIHRoZSBkcml2ZSBpbXBsaWNpdA0Kem9uZSBjbG9zZSAmIGlt
-cGxpY2l0IHpvbmUgb3BlbiB0cmlnZ2VyZWQgYnkgc3VjaCB3b3JrbG9hZC4NCg0KU28gSSB3b3Vs
-ZCBzdWdnZXN0IHdlIGNoYW5nZSB0byBzb21ldGhpbmcgbGlrZSB0aGlzOg0KDQoJaWYgKCF0ZC0+
-by5tYXhfb3Blbl96b25lcyAmJiBmLT56YmRfaW5mby0+bWF4X2FjdGl2ZV96b25lcykgew0KCQkv
-KiBVc2VyIGRpZCBub3QgcmVxdWVzdCBhIGxpbWl0LiBTZXQgbGltaXQgdG8gbWF4IHN1cHBvcnRl
-ZA0KKi8JCXpiZC0+bWF4X29wZW5fem9uZXMgPSBtYXhfb3Blbl96b25lczsNCgl9IGVsc2UgaWYg
-KHRkLT5vLm1heF9vcGVuX3pvbmVzIDwgbWF4X29wZW5fem9uZXMpIHsNCgkJLyogVXNlciByZXF1
-ZXN0ZWQgYSBsaW1pdCwgbGltaXQgaXMgbm90IHRvbyBsYXJnZSAqLw0KCQl6YmQtPm1heF9vcGVu
-X3pvbmVzID0gdGQtPm8ubWF4X29wZW5fem9uZXM7DQoJfSBlbHNlIGlmIChmLT56YmRfaW5mby0+
-bWF4X2FjdGl2ZV96b25lcykgew0KCQkvKiBVc2VyIHJlcXVlc3RlZCBhIGxpbWl0LCBidXQgbGlt
-aXQgaXMgdG9vIGxhcmdlICovDQoJCS4uLg0KCQlyZXR1cm4gLUVJTlZBTDsNCgl9DQoNClRob3Vn
-aHRzID8NCg0KDQoNCi0tIA0KRGFtaWVuIExlIE1vYWwNCldlc3Rlcm4gRGlnaXRhbCBSZXNlYXJj
-aA0KDQo=
+On Thu, May 13, 2021 at 12:23:59AM +0000, Damien Le Moal wrote:
+> On 2021/05/13 7:37, Niklas Cassel wrote:
+> > From: Niklas Cassel <niklas.cassel@wdc.com>
+> >=20
+> > Define a new IO engine operation to get the maximum number of open zone=
+s.
+> > Like the existing IO engine operations: .get_zoned_model, .report_zones=
+,
+> > and .reset_wp, this new IO engine operation is only valid for zoned blo=
+ck
+> > devices.
+> >=20
+> > Similarly to the other zbd IO engine operations, also provide a default
+> > implementation inside oslib/linux-blkzoned.c that will be used if the
+> > ioengine does not override it.
+> >=20
+> > The default Linux oslib implementation is implemented similarly to
+> > blkzoned_get_zoned_model(), i.e. it will return a successful error code
+> > even when the sysfs attribute does not exist.
+> > This is because the sysfs max_open_zones attribute was introduced first
+> > in Linux v5.9.
+> > All error handling is still there, so an ioengine that provides its own
+> > implementation will still have its error code respected properly.
+> >=20
+> > Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+> > ---
+> >  engines/skeleton_external.c | 13 ++++++
+> >  ioengines.h                 |  4 +-
+> >  oslib/blkzoned.h            |  7 +++
+> >  oslib/linux-blkzoned.c      | 22 ++++++++++
+> >  zbd.c                       | 87 ++++++++++++++++++++++++++++++++++---
+> >  5 files changed, 127 insertions(+), 6 deletions(-)
+> >=20
+>=20
+> 	if (!td->o.max_open_zones) {
+> 		/* User did not request a limit. Set limit to max supported */
+> 		zbd->max_open_zones =3D max_open_zones;
+> 	} else if (td->o.max_open_zones < max_open_zones) {
+> 		/* User requested a limit, limit is not too large */
+> 		zbd->max_open_zones =3D td->o.max_open_zones;
+> 	} else {
+> 		/* User requested a limit, but limit is too large */
+> 		...
+> 		return -EINVAL;
+> 	}
+>=20
+> > +
+> > +out:
+> > +	/* Ensure that the limit is not larger than FIO's internal limit */
+> > +	zbd->max_open_zones =3D zbd->max_open_zones ?: ZBD_MAX_OPEN_ZONES;
+> > +	dprint(FD_ZBD, "%s: using max open zones limit: %"PRIu32"\n",
+> > +	       f->file_name, zbd->max_open_zones);
+>=20
+> It may be good to have a log_info() too here, no ?
+
+Hello Damien,
+
+Thank you for your review!
+
+I don't have any problem with any of your review comments, except this one.
+
+I'm not a fan on unconditionally printing the amount of max open zones bein=
+g
+used, so I think that keeping it for --debug=3Dzbd is fine.
+
+
+1) If the user did specify a limit, why print the same limit as they reques=
+ted?
+2) If they did specify a limit that is too high, fio will exit with a print=
+.
+
+3) I guess we could print in the case where the user did not request a limi=
+t,
+and we implicitly set the limit to the device limit.
+
+However, right now we don't have any zbd specific prints when starting fio,
+e.g. when the user does not specify --zone_size, and we use zone size of
+the drive.
+
+So I don't think that actually using the max open zones that the drive
+supports justifies a print, not even for case 3).
+
+
+Kind regards,
+Niklas=
 
