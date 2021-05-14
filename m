@@ -1,133 +1,79 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40408 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229637AbhEKHkF (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 11 May 2021 03:40:05 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1374CC061574
-        for <fio@vger.kernel.org>; Tue, 11 May 2021 00:38:59 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id di13so21689269edb.2
-        for <fio@vger.kernel.org>; Tue, 11 May 2021 00:38:59 -0700 (PDT)
-Received: from localhost (ip-89-176-114-3.net.upcbroadband.cz. [89.176.114.3])
-        by smtp.gmail.com with ESMTPSA id g11sm10885821eje.7.2021.05.11.00.38.56
-        for <fio@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 May 2021 00:38:57 -0700 (PDT)
-Date: Tue, 11 May 2021 09:38:55 +0200
-From: Martin Bukatovic <martin.bukatovic@gmail.com>
-Subject: [PATCH v3] Make fill_device to stop writing on EDQUOT
-Message-ID: <YJo0j+luAzHGFWQ+@dione.lan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Received: from dish-sg.nttdocomo.co.jp ([202.19.227.74]:47919 "EHLO
+        dish-sg.nttdocomo.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230506AbhENGIm (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 14 May 2021 02:08:42 -0400
+Received: from zssg-mailmd105.ddreams.local (zssg-mailmd900.ddreams.local [10.160.172.63])
+        by zssg-mailou102.ddreams.local (Postfix) with ESMTP id 7BC5F120126
+        for <fio@vger.kernel.org>; Fri, 14 May 2021 15:07:30 +0900 (JST)
+Received: from t113sg-mailcc12.ddreams.local
+ (t113sg-mailcc12.ddreams.local [100.66.13.87]) by zssg-mailmd105.ddreams.local
+ (dDREAMS) with ESMTP id <0QT300TGB2CI0K30@dDREAMS> for fio@vger.kernel.org;
+ Fri, 14 May 2021 15:07:30 +0900 (JST)
+Received: from t113sg-mailcc11 (localhost [127.0.0.1])
+ by t113sg-mailcc12.ddreams.local (unknown) with SMTP id 14E67UJh049355 for
+ <fio@vger.kernel.org>; Fri, 14 May 2021 15:07:30 +0900
+Received: from zssg-mailmf103.ddreams.local (unknown [127.0.0.1])
+        by zssg-mailmf103.ddreams.local (Postfix) with ESMTP id E10687E6036     for
+ <fio@vger.kernel.org>; Fri, 14 May 2021 15:06:57 +0900 (JST)
+Received: from zssg-mailmf103.ddreams.local (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DFFDB8E6061    for <fio@vger.kernel.org>; Fri,
+ 14 May 2021 15:06:57 +0900 (JST)
+Received: from localhost (unknown [127.0.0.1])  by IMSVA (Postfix)
+ with SMTP id DEBBD8E605A       for <fio@vger.kernel.org>; Fri,
+ 14 May 2021 15:06:57 +0900 (JST)
+Received: from zssg-mailmf103.ddreams.local (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 59B3D8E6054    for <fio@vger.kernel.org>; Fri,
+ 14 May 2021 15:06:57 +0900 (JST)
+Received: from zssg-mailua105.ddreams.local (unknown [10.160.172.62])
+        by zssg-mailmf103.ddreams.local (Postfix)
+ with ESMTP     for <fio@vger.kernel.org>; Fri, 14 May 2021 15:06:57 +0900 (JST)
+Received: from [10.132.72.183] (unknown [10.160.179.1])
+ by zssg-mailua105.ddreams.local (dDREAMS)
+ with ESMTPA id <0QT300T9L2BEBQ60@dDREAMS> for fio@vger.kernel.org; Fri,
+ 14 May 2021 15:06:51 +0900 (JST)
+From: Nakajima Akira <nakajima.akira@nttcom.co.jp>
+Subject: [Question]] How to get the expected results by writing to a single file
+Message-id: <ac6ab347-f626-f859-d4fb-f302713dcf7c@nttcom.co.jp_1>
+Date: Fri, 14 May 2021 15:06:50 +0900
+MIME-version: 1.0
+Content-type: text/plain; charset=utf-8; format=flowed
+Content-language: en-US
+Content-transfer-encoding: 7bit
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-Option fill_device stops writing when we run out of quota as well.
+Hi.
 
-Signed-off-by: Martin Bukatovic <martin.bukatovic@gmail.com>
----
-Changes in v3:
-  - fixing code style
+I am measuring the speed of the cryptographic product LUKS.
+In the case of CBC mode (used by LUKS ver1), due to the mechanism of 
+CBC, when writing, it is expected that even if there are 2 threads, only 
+the same writing speed as 1 thread.
 
-Changes in v2:
-  - moved ENOSPC check into ENOSPC check, modified the log statement
----
- HOWTO       |  3 ++-
- backend.c   |  7 ++++---
- filesetup.c | 11 ++++++++---
- fio.1       |  3 ++-
- 4 files changed, 16 insertions(+), 8 deletions(-)
+However, in the following fio command, two files are created, and each 
+thread writes to each file, so the speed is twice that of a single thread.
+# fio -directory=/luks1 -direct=1 -ioengine=libaio -rw=write -numjobs=2
 
-diff --git a/HOWTO b/HOWTO
-index 889526d9..6bc52fb1 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1852,7 +1852,8 @@ I/O size
- .. option:: fill_device=bool, fill_fs=bool
- 
- 	Sets size to something really large and waits for ENOSPC (no space left on
--	device) as the terminating condition. Only makes sense with sequential
-+	device) or EDQUOT (disk quota exceeded)
-+	as the terminating condition. Only makes sense with sequential
- 	write. For a read workload, the mount point will be filled first then I/O
- 	started on the result. This option doesn't make sense if operating on a raw
- 	device node, since the size of that is already known by the file system.
-diff --git a/backend.c b/backend.c
-index 399c299e..6290e0d6 100644
---- a/backend.c
-+++ b/backend.c
-@@ -393,7 +393,7 @@ static bool break_on_this_error(struct thread_data *td, enum fio_ddir ddir,
- 			td_clear_error(td);
- 			*retptr = 0;
- 			return false;
--		} else if (td->o.fill_device && err == ENOSPC) {
-+		} else if (td->o.fill_device && (err == ENOSPC || err == EDQUOT)) {
- 			/*
- 			 * We expect to hit this error if
- 			 * fill_device option is set.
-@@ -1105,7 +1105,7 @@ reap:
- 	if (td->trim_entries)
- 		log_err("fio: %lu trim entries leaked?\n", td->trim_entries);
- 
--	if (td->o.fill_device && td->error == ENOSPC) {
-+	if (td->o.fill_device && (td->error == ENOSPC || td->error == EDQUOT)) {
- 		td->error = 0;
- 		fio_mark_td_terminate(td);
- 	}
-@@ -1120,7 +1120,8 @@ reap:
- 
- 		if (i) {
- 			ret = io_u_queued_complete(td, i);
--			if (td->o.fill_device && td->error == ENOSPC)
-+			if (td->o.fill_device &&
-+			    (td->error == ENOSPC || td->error == EDQUOT))
- 				td->error = 0;
- 		}
- 
-diff --git a/filesetup.c b/filesetup.c
-index e664f8b4..296de5a1 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -226,11 +226,16 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
- 			if (r < 0) {
- 				int __e = errno;
- 
--				if (__e == ENOSPC) {
-+				if (__e == ENOSPC || __e == EDQUOT) {
-+					const char *__e_name;
- 					if (td->o.fill_device)
- 						break;
--					log_info("fio: ENOSPC on laying out "
--						 "file, stopping\n");
-+					if (__e == ENOSPC)
-+						__e_name = "ENOSPC";
-+					else
-+						__e_name = "EDQUOT";
-+					log_info("fio: %s on laying out "
-+						 "file, stopping\n", __e_name);
- 				}
- 				td_verror(td, errno, "write");
- 			} else
-diff --git a/fio.1 b/fio.1
-index c3916168..75c06bf3 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1638,7 +1638,8 @@ of a file. This option is ignored on non-regular files.
- .TP
- .BI fill_device \fR=\fPbool "\fR,\fB fill_fs" \fR=\fPbool
- Sets size to something really large and waits for ENOSPC (no space left on
--device) as the terminating condition. Only makes sense with sequential
-+device) or EDQUOT (disk quota exceeded)
-+as the terminating condition. Only makes sense with sequential
- write. For a read workload, the mount point will be filled first then I/O
- started on the result. This option doesn't make sense if operating on a raw
- device node, since the size of that is already known by the file system.
--- 
-2.30.2
+   This is related to https://www.spinics.net/lists/fio/msg09445.html
 
 
--- 
-Martin Bukatovič
+So I ran the following instead of -directory, but it was nearly twice as 
+fast.
+# fio -filename=/luks1/testfile -iodepth=1 -iodepth_batch_complete_min=0 
+-direct=1 -ioengine=libaio -rw=write -runtime=60 -bs=1m -size=16G -numjobs=x
+
+numjobs   Result
+1         BW=255MiB/s
+2         BW=455MiB/s
+
+
+How can I get the expected result? (Result that numjobs=1 and 2 have the 
+same speed)
+
+fio was built today's github (fio-3.26).
+
+
+Thanks.
+Nakajima
+
 
