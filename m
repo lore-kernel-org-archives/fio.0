@@ -1,118 +1,137 @@
-Return-Path: <prvs=768d5e3a9=Niklas.Cassel@wdc.com>
+Return-Path: <prvs=764a2290c=Niklas.Cassel@wdc.com>
 From: Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH] zbd: add a new --ignore_zone_limits option
-Date: Fri, 21 May 2021 13:39:41 +0000
-Message-ID: <20210521133932.269694-1-Niklas.Cassel@wdc.com>
+Subject: Re: [PATCH 3/4] ioengines: add get_max_open_zones zoned block device
+ operation
+Date: Mon, 17 May 2021 08:43:24 +0000
+Message-ID: <YKIsq+CLcuayfDTU@x1-carbon.lan>
+References: <20210512223615.17239-1-Niklas.Cassel@wdc.com>
+ <20210512223615.17239-4-Niklas.Cassel@wdc.com>
+ <DM6PR04MB7081E5A56B9868AB2A259076E7519@DM6PR04MB7081.namprd04.prod.outlook.com>
+ <YJ5njpKY5vPotYpi@x1-carbon.lan>
+ <bfbc867cf61e97eaf8b831bfa5bcd453382a2982.camel@wdc.com>
+In-Reply-To: <bfbc867cf61e97eaf8b831bfa5bcd453382a2982.camel@wdc.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <D9C0B7D608D0154DB019194339A29B80@namprd04.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
+To: Damien Le Moal <Damien.LeMoal@wdc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+On Sat, May 15, 2021 at 01:16:00AM +0000, Damien Le Moal wrote:
+> On Fri, 2021-05-14 at 12:05 +0000, Niklas Cassel wrote:
+> > On Thu, May 13, 2021 at 12:23:59AM +0000, Damien Le Moal wrote:
+> > > On 2021/05/13 7:37, Niklas Cassel wrote:
+> > > > From: Niklas Cassel <niklas.cassel@wdc.com>
+> > > >=20
+> > > > Define a new IO engine operation to get the maximum number of open =
+zones.
+> > > > Like the existing IO engine operations: .get_zoned_model, .report_z=
+ones,
+> > > > and .reset_wp, this new IO engine operation is only valid for zoned=
+ block
+> > > > devices.
+> > > >=20
+> > > > Similarly to the other zbd IO engine operations, also provide a def=
+ault
+> > > > implementation inside oslib/linux-blkzoned.c that will be used if t=
+he
+> > > > ioengine does not override it.
+> > > >=20
+> > > > The default Linux oslib implementation is implemented similarly to
+> > > > blkzoned_get_zoned_model(), i.e. it will return a successful error =
+code
+> > > > even when the sysfs attribute does not exist.
+> > > > This is because the sysfs max_open_zones attribute was introduced f=
+irst
+> > > > in Linux v5.9.
+> > > > All error handling is still there, so an ioengine that provides its=
+ own
+> > > > implementation will still have its error code respected properly.
+> > > >=20
+> > > > Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+> > > > ---
 
-In commit d2f442bc0bd5 ("ioengines: add get_max_open_zones zoned block
-device operation") we added a check that verifies that the specified
---max_open_zones value is lower than the max value reported by the device.
+(snip)
 
-For ZNS devices there is a max open zones and a max active zones limit.
-For ZAC/ZBC devices there is only a max open zones limit.
+> That said, there is a refinement needed I think, which is to ignore the d=
+rive
+> advertised max_open_zones if max_active_zones is 0.
+>=20
+> The reason is that for SMR drives, the max_open_zones limit is only meani=
+ngful
+> in the context of explicit zone open which fio does not do. For implicit =
+zone
+> open as used in fio, there will be no IO error for a write workload that
+> simultaneously writes to more than max_open_zones since max_active_zones =
+is
+> always 0 (no limit) with SMR.
+>=20
+> Having the ability to run workloads that write to more than max_open_zone=
+s is
+> useful to measure the potential impact on performance of the drive implic=
+it
+> zone close & implicit zone open triggered by such workload.
+>=20
+> So I would suggest we change to something like this:
+>=20
+> 	if (!td->o.max_open_zones && f->zbd_info->max_active_zones) {
+> 		/* User did not request a limit. Set limit to max supported
+> */		zbd->max_open_zones =3D max_open_zones;
+> 	} else if (td->o.max_open_zones < max_open_zones) {
+> 		/* User requested a limit, limit is not too large */
+> 		zbd->max_open_zones =3D td->o.max_open_zones;
+> 	} else if (f->zbd_info->max_active_zones) {
+> 		/* User requested a limit, but limit is too large */
+> 		...
+> 		return -EINVAL;
+> 	}
+>=20
+> Thoughts ?
 
-On ZAC/ZBC, there is thus no limit on the amount of zones that can be
-in zone state closed.
-When doing a write to an empty or closed zone, a ZAC/ZBC drive will
-close an arbitrary implicit open zone in order in order to handle the
-write.
+Even on a zoned block device with max active zones =3D=3D 0, with a max ope=
+n
+zones limit !=3D 0, writing to more zones than supported will, in addition
+to the regular I/O, cause implicit open + implicit closed operations.
 
-The ZNS specification has no requirement on closing a zone in order to
-handle a write to an empty or closed zone. The drive is free to return
-an error.
+These operations will of course take time, time that would otherwise be
+spent on I/O, meaning that the results you get would not be representative
+of a drive's performance.
 
-Even on ZAC/ZBC, you do not want to exceed the max open zones limit,
-since it will lead to additional implicit close zone and implicit open
-zone operations, which will degrade performance.
-However, it seems that this is sometimes done on purpose, in order to
-measure the overhead of these additional operations. Therefore, add
-an option that allows the user to ignore the reported device limits.
+While I do agree that this test scenario could be benificial, I do think
+that it is a very special type of test.
 
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
----
- fio.1            |  5 +++++
- options.c        | 10 ++++++++++
- thread_options.h |  1 +
- zbd.c            |  2 +-
- 4 files changed, 17 insertions(+), 1 deletion(-)
+These patches have been merged already, but I don't see why you can't make
+a patch that e.g. adds an ioengine that just opens (imp/exp) + closes zones=
+.
+(We had a filedelete ioengine merged recently, which tests how quickly
+files than be unlinked.)
+Or, if it is easier, you could add a new option to zbd.c --ignore_zbd_limit=
+s,
+so that you can specify an max open zones limit that is greater than what
+the drive supports, in order to facilitate your test scenario.
 
-diff --git a/fio.1 b/fio.1
-index ab08cb01..3519797a 100644
---- a/fio.1
-+++ b/fio.1
-@@ -835,6 +835,11 @@ threads/processes.
- .BI job_max_open_zones \fR=3D\fPint
- Limit on the number of simultaneously opened zones per single thread/proce=
-ss.
- .TP
-+.BI ignore_zone_limits \fR=3D\fPbool
-+If this isn't set, fio will query the max open zones limit from the zoned =
-block
-+device, and exit if the specified \fBmax_open_zones\fR value is larger tha=
-n the
-+max value reported by the device. Default: false.
-+.TP
- .BI zone_reset_threshold \fR=3D\fPfloat
- A number between zero and one that indicates the ratio of logical blocks w=
-ith
- data to the total number of logical blocks in the test above which zones
-diff --git a/options.c b/options.c
-index b82a10aa..a8986d11 100644
---- a/options.c
-+++ b/options.c
-@@ -3492,6 +3492,16 @@ struct fio_option fio_options[FIO_MAX_OPTS] =3D {
- 		.category =3D FIO_OPT_C_IO,
- 		.group	=3D FIO_OPT_G_INVALID,
- 	},
-+	{
-+		.name	=3D "ignore_zone_limits",
-+		.lname	=3D "Ignore zone resource limits",
-+		.type	=3D FIO_OPT_BOOL,
-+		.off1	=3D offsetof(struct thread_options, ignore_zone_limits),
-+		.def	=3D "0",
-+		.help	=3D "Ignore the zone resource limits (max open/active zones) repor=
-ted by the device",
-+		.category =3D FIO_OPT_C_IO,
-+		.group	=3D FIO_OPT_G_INVALID,
-+	},
- 	{
- 		.name	=3D "zone_reset_threshold",
- 		.lname	=3D "Zone reset threshold",
-diff --git a/thread_options.h b/thread_options.h
-index 5ecc72d7..a9975480 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -355,6 +355,7 @@ struct thread_options {
- 	unsigned int read_beyond_wp;
- 	int max_open_zones;
- 	unsigned int job_max_open_zones;
-+	bool ignore_zone_limits;
- 	fio_fp64_t zrt;
- 	fio_fp64_t zrf;
- };
-diff --git a/zbd.c b/zbd.c
-index 68cd58e1..5d9e331a 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -588,7 +588,7 @@ static int zbd_set_max_open_zones(struct thread_data *t=
-d, struct fio_file *f)
- 	unsigned int max_open_zones;
- 	int ret;
-=20
--	if (zbd->model !=3D ZBD_HOST_MANAGED) {
-+	if (zbd->model !=3D ZBD_HOST_MANAGED || td->o.ignore_zone_limits) {
- 		/* Only host-managed devices have a max open limit */
- 		zbd->max_open_zones =3D td->o.max_open_zones;
- 		goto out;
---=20
-2.25.1
+
+
+Reasoning for my suggestion:
+1) As you know, fio currently has no accounting of active zones.
+It seems a bit awkward to parse max active zones from sysfs, when zbd.c
+itself currently has no concept of active zones.
+So it seems easier to e.g. add a new parameter that just ignores the device
+limits, than to implement full support for active zones.
+
+2) You are using detailed knowledge of how fio handles zones.
+It does happen that fio currently uses writes without first doing an explic=
+it
+open zone, but should you really take that for granted?
+If fio adds support for active zones, perhaps that implementation will chos=
+e
+to do implement it using explicit zone open, so that if the zone could be
+opened, it will also be possible to write to that zone without I/O errors.
+(As we have implemented in e.g. zonefs.)
+
+
+Kind regards,
+Niklas=
 
