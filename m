@@ -1,56 +1,99 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42392 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234143AbhE0MBt (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 27 May 2021 08:01:49 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD72AC061574
-        for <fio@vger.kernel.org>; Thu, 27 May 2021 05:00:16 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1lmEgG-005UuI-CB
-        for fio@vger.kernel.org; Thu, 27 May 2021 12:00:07 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20210527120001.E36E21BC0166@kernel.dk>
-Date: Thu, 27 May 2021 06:00:01 -0600 (MDT)
+Received: from mail-eopbgr80100.outbound.protection.outlook.com ([40.107.8.100]:21279
+        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S232924AbhEQIue (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 17 May 2021 04:50:34 -0400
+From: Erwan Velu <e.velu@criteo.com>
+Subject: Adding exec engine
+Message-ID: <a6eb5db2-8a66-bf1b-fe46-c4c854b46a58@criteo.com>
+Date: Mon, 17 May 2021 10:49:15 +0200
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+MIME-Version: 1.0
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-The following changes since commit c91fd13d479dc38bbb7ef6995256ad098ebbceb2:
+Hey fellows,
 
-  Merge branch 'master' of https://github.com/DevriesL/fio (2021-05-25 16:54:13 -0600)
+I sent a github pull request (https://github.com/axboe/fio/pull/1228) to 
+add a new engine to manage concurrent execution of 3rd party tools.
 
-are available in the Git repository at:
+When performing benchmarks with fio, some have the need of executing
+tasks in parallel of the job execution. A typical usecase would be
+observing performance/power metrics.
 
-  git://git.kernel.dk/fio.git master
+Several implementations were possible :
 
-for you to fetch changes up to 0313e938c9c8bb37d71dade239f1f5326677b079:
+  * Adding an exec_run in addition of the existing exec_{pre|post}run
+  * Implementing performance/power metrics in fio
+  * Adding an exec engine
 
-  Fio 3.27 (2021-05-26 10:10:32 -0600)
+1°) Adding an exec_run
+This was my first intention but quickly noticed that exec_{pre-post}run
+are executed for each 'numjob'. In the case of performance/power
+monitoring, this doesn't make sense to spawn an instance for each
+threads.
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      Fio 3.27
+2°) Implementing performance/power metrics
+This is possible but would required lot of work to maintain this part of
+fio while 3rd party tools already take care of that perfectly.
 
- FIO-VERSION-GEN | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+3°) Adding an engine
+Adding a engine let users defining when and how many instance of the
+program they want.
+In the provided example, a single monitoring job is spawn at the same
+time of the worker thread which could be composed of several worker
+threads.
+A stonewall barrier is used to define which jobs must run together
+(monitoring / benchmark).
 
----
+The engine has two parameters :
 
-Diff of recent changes:
+  * program: name of the program to run
+  * arguments: arguments to pass to the program
 
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index 29486071..47af94e9 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-3.26
-+DEF_VER=fio-3.27
- 
- LF='
- '
+Arguments can have special variables to be expanded before the execution:
+
+  * %r will be replaced by the job duration in seconds
+  * %n will be replaced by the job name
+
+During the program execution, the std{out|err} are redirected to files
+
+  * stdout: <job_name>.stdout
+  * stderr: <job_name>.stderr
+
+If the executed program has a nice stdout output, after the fio
+execution, the stdout file can be parsed by other tools like CI jobs or 
+graphing tools.
+
+A sample job is provided here to show how this can be used.
+It runs twice the cpu engine with two different cpu mode (noop vs qsort).
+For each benchmark, the output of turbostat is saved to later analysis.
+After the fio run, it is possible to compare the impact of the two modes
+on the CPU frequency and power consumption.
+
+This can be easily extended to any other usage that needs to analysis
+the behavior of the host during some jobs.
+
+About the implementation, the exec engine forks :
+
+  * the child doing an execvp() of the program.
+  * the parent, fio, will monitoring the time passed into the job
+
+Once the time is over, the program is SIGTERM followed by a SIGKILL to
+ensure it will not run /after/ the job completed.
+This mechanism is required as :
+
+  * not all programs can be controlled properly
+  * that's a last resort protection if the program gets crazy
+
+If the program can be limited in its duration, using the %r variable in
+the arguments can be used to request the program to stop /before/ the
+job finished like :
+program=/usr/bin/mytool.sh
+arguments=--duration %r
+
+Erwan,
 
