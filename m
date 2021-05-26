@@ -1,55 +1,32 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54786 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229563AbhEIMBM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 9 May 2021 08:01:12 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C2B3C061573
-        for <fio@vger.kernel.org>; Sun,  9 May 2021 05:00:08 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1lfi6P-00BYC2-RK
-        for fio@vger.kernel.org; Sun, 09 May 2021 12:00:06 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20210509120001.EF1E61BC013D@kernel.dk>
-Date: Sun,  9 May 2021 06:00:01 -0600 (MDT)
+Received: from mail-dm3nam07on2070.outbound.protection.outlook.com ([40.107.95.70]:48259
+        "EHLO NAM02-DM3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S233593AbhEZQDS (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 26 May 2021 12:03:18 -0400
+From: neto from Brazil <Antonio.Jose.Rodrigues.Neto@netapp.com>
+Subject: How to specify a percentage of read/write cache hits?
+Date: Wed, 26 May 2021 16:01:45 +0000
+Message-ID: <BBEB8924-1F8E-4551-99C1-D3A71C8D929F@netapp.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <B8F768BAF55ABA4EBC464C97DB3F4934@namprd06.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-The following changes since commit cffe80a41cbf9b26446c803177a27f7695f94a31:
-
-  configure: fix check_min_lib_version() eval (2021-05-06 10:24:58 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 79f488cbd95ca6989031a7ace5ec382313d31b3c:
-
-  don't access dlclose'd dynamic ioengine object after close (2021-05-08 22:13:16 -0600)
-
-----------------------------------------------------------------
-Eric Sandeen (1):
-      don't access dlclose'd dynamic ioengine object after close
-
- ioengines.c | 1 -
- 1 file changed, 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/ioengines.c b/ioengines.c
-index 3561bb4e..dd61af07 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -234,7 +234,6 @@ void free_ioengine(struct thread_data *td)
- 	if (td->io_ops->dlhandle) {
- 		dprint(FD_IO, "dlclose ioengine %s\n", td->io_ops->name);
- 		dlclose(td->io_ops->dlhandle);
--		td->io_ops->dlhandle = NULL;
- 	}
- 
- 	td->io_ops = NULL;
+SGkgQWxsLA0KDQpUaGlzIGlzIG5ldG8gZnJvbSBCcmF6aWwNCg0KSG93IGFyZSB5b3U/IA0KDQpJ
+IGhvcGUgdGhpcyBlbWFpbCBmaW5kcyB5b3Ugd2VsbCBhbmQgc2FmZS4NCg0KTGV0J3Mgc2F5IEkg
+d2FudCB0byBzaW11bGF0ZSA0MCUgcmVhZHMsIDQwJSByYW5kb20sIHdpdGggdGhlIGZvbGxvd2lu
+ZyBwZXJjZW50YWdlcyBmb3IgY2FjaGUgaGl0OiAzMCUgZm9yIHJlYWQgY2FjaGUgaGl0cyBhbmQg
+MTAlIGZvciB3cml0ZSBjYWNoZSBoaXRzIChzaW1pbGFyIHRvIHJocGN0IGFuZCB3aHBjdCBpbiB2
+ZGJlbmNoKS4NCg0KSG93IGRvIHRvIHRoYXQgaW4gZmlvPw0KDQpUaGFuayB5b3UgZm9yIGFueSBz
+dWdnZXN0aW9ucy4NCg0KQWxsIHRoZSBiZXN0LA0KDQpuZXRvDQoNClt3b3JrbG9hZF0NCmJzPTRr
+DQpzaXplPTEwNTAwZw0KaW9lbmdpbmU9bGliYWlvDQpkaXJlY3Q9MQ0KdGhyZWFkDQp1bmlmaWVk
+X3J3X3JlcG9ydGluZz0xDQpncm91cF9yZXBvcnRpbmc9MQ0Kc2NyYW1ibGVfYnVmZmVycz0xDQpy
+YW5kcmVwZWF0PTANCm5vcmFuZG9tbWFwPTENCnJ1bnRpbWU9MTgwMA0KcmFtcF90aW1lPTYwDQp0
+aW1lX2Jhc2VkDQpmaWxlbmFtZT0vZGV2L2RtLTE6L2Rldi9kbS0yDQpydz1yYW5kcncNCnJ3bWl4
+cmVhZD00MA0KcndtaXh3cml0ZT02MA0KcGVyY2VudGFnZV9yYW5kb209NDANCmlvZGVwdGg9NA0K
+bnVtam9icz0xMjgNCg0K
 
